@@ -2,7 +2,7 @@
   "name": "mijnschoonmaker-functions",
   "private": true,
   "main": "index.js",
-  "engines": { "node": "20" },
+  "engines": { "node": "22" },
   "dependencies": {
     "busboy": "^1.6.0",
     "firebase-admin": "^12.7.0",
