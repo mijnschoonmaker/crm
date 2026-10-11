@@ -27,3 +27,5 @@ jobs:
             echo "::error title=Online zetten mislukt::$msg"
             exit 1
           }
+          msg=$(grep -v "^\s*$" deploy.log | grep -v "npm warn" | tail -n 20 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
+          echo "::notice title=Resultaat::$msg"
