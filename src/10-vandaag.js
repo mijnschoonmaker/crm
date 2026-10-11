@@ -1,0 +1,112 @@
+/* ---------- VANDAAG ---------- */
+function stopCard(k,i,isNext,late,day){
+  const o=jobObj(k),a=jobAddrObj(k),h=hue(k.ronde||k.naam),js=jobState(k,day),sp=STATEPILL[js];
+  return `<div class="swipe" data-id="${esc(k.id)}">
+    <div class="sbg sbg-r"><span>${I.check} Afmelden<small>conceptfactuur</small></span></div>
+    <div class="sbg sbg-l"><span>Factureren<small>direct, open factuur</small></span></div>
+    <div class="swipe-card stopc${isNext?" next":""}">
+      <div class="sc-l"><span class="eyebrow">Stop<br>${pad(i+1)}</span><b class="sc-t">${esc(k.tijd||"—")}</b><span class="sc-p">${eur0(toon(k.prijs))}</span></div>
+      <div class="sc-r">
+        <div class="tags" style="margin:0">${statusPill(sp[0],sp[1])}${js==="bezig"?`<span class="pill busy tmr-pill"><span class="dotlive"></span><span data-timer="${esc(k.bezig)}">${fmtTimer(Date.now()-new Date(k.bezig))}</span></span>`:""}${isNext?'<span class="pill nextp">Volgende</span>':""}${i===0?`<span class="pill brand">${I.clock}Eerste stop</span>`:""}${late?'<span class="pill late">Achterstallig</span>':""}</div>
+        <div class="sc-who"><span class="av sm" style="--h:${h}">${esc(initials(k.naam))}</span><div style="min-width:0;flex:1"><button type="button" class="sc-addr" data-act="klant" data-id="${esc(k.id)}">${esc(a.adres||"")}</button>
+          <div class="sc-sub"><span class="dienst">${I.pin}${esc(a.plaats||"")}</span>${a.plaats?" · ":""}${esc(cleanName(k.naam))}${o&&o.naam?" · "+esc(o.naam):""}</div><div class="sc-sub">${dienstHtml(k)}${k.binnen?" · + binnen":""} · ${duur(k)} min</div></div>
+          ${I.right.replace("<svg",'<svg class="chev"')}</div>
+        ${oBeurtBlok(k)}${hospRoute(k)}${ookDezeBeurt(k,typeof day!=="undefined"?day:undefined)}${k.notities?`<div class="notebox"><span class="eyebrow">Notitie</span>${esc(k.notities)}</div>`:""}${objInfo(k)}${jobExtra(k)}
+        <div class="sc-btns"><a class="btn small" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.nav}Navigeer</a><button type="button" class="small" data-act="skip" data-id="${esc(k.id)}">${I.right}Overslaan</button></div>
+      </div></div></div>`;
+}
+function stopRow(k,day,done){
+  const a=jobAddrObj(k),js=done?"afgerond":jobState(k,day),sp=STATEPILL[js],info=k.notities||jobObj(k);
+  return `<div class="swipe" data-id="${esc(k.id)}"${done?' data-done="1"':""}>
+    <div class="sbg sbg-r"><span>${I.check} Afmelden</span></div><div class="sbg sbg-l"><span>Factureren</span></div>
+    <div class="swipe-card srow${done?" done":""}" data-act="job" data-id="${esc(k.id)}" data-d="${esc(day)}">
+      <span class="sr-t">${esc(k.tijd||"—")}</span><span class="av sm" style="--h:${hue(k.ronde||k.naam)}">${esc(initials(k.naam))}</span>
+      <span class="sr-a"><b>${esc(a.adres||cleanName(k.naam))}</b><small>${esc(a.plaats||"")}${a.plaats?" · ":""}${esc(cleanName(k.naam))}</small></span>
+      ${info?`<span class="sr-i" title="${esc(k.notities||"Objectinfo")}">i</span>`:""}<span class="amt">${eur0(toon(k.prijs))}</span>${statusPill(sp[0],sp[1])}${I.right.replace("<svg",'<svg class="chev"')}
+    </div></div>`;
+}
+function activiteit(d){
+  const ev=[];
+  state.beurten.filter(b=>b.datum===d).forEach(b=>ev.push({t:b.op||d+"T12:00",ic:I.check,c:"ok",txt:"<b>"+esc(cleanName(b.klantNaam))+"</b> afgemeld · "+eur(b.bedrag)}));
+  state.facturen.filter(f=>String(f.gemaakt||"").slice(0,10)===d).forEach(f=>ev.push({t:f.gemaakt,ic:I.facturen,c:"brand",txt:(f.soort==="offerte"?"Offerte ":f.status==="concept"?"Conceptfactuur ":"Factuur ")+"<b>"+esc(f.nummer)+"</b> · "+esc(cleanName(f.klantNaam))}));
+  state.berichten.filter(m=>String(m.op).slice(0,10)===d).forEach(m=>ev.push({t:m.op,ic:I.msg,c:"plan",txt:(KANAAL[m.kanaal]||"Bericht")+" aan <b>"+esc(cleanName(m.klantNaam))+"</b>"}));
+  state.kosten.filter(c=>String(c.aangemaakt||"").slice(0,10)===d).forEach(c=>ev.push({t:c.aangemaakt,ic:I.receipt,c:"soon",txt:"Bon <b>"+esc(c.leverancier||c.categorie)+"</b> · "+eur(c.bedrag)}));
+  ev.sort((a,b)=>String(b.t).localeCompare(String(a.t)));
+  return ev.length?`<div class="act">${ev.slice(0,12).map(e=>{const tt=String(e.t).length>10?new Date(e.t):null;return `<div><span class="act-ic ${e.c}">${e.ic}</span><span>${e.txt}</span><time>${tt&&!isNaN(tt)?pad(tt.getHours())+":"+pad(tt.getMinutes()):""}</time></div>`}).join("")}</div>`:'<p class="subt" style="font-style:italic;margin:0">Nog geen activiteit vandaag</p>';
+}
+function routePreview(stops){
+  const todo=stops.filter(s=>!s.done);
+  if(!stops.length)return'<p class="subt" style="font-style:italic;margin:0">Geen stops</p>';
+  return `<div class="rprev">${stops.map((s,i)=>`<div class="${s.done?"done":""}"><span class="rp-n">${s.done?"✓":i+1}</span><span><b>${esc(jobAddrObj(s.k).adres||cleanName(s.k.naam))}</b><small>${esc(s.k.tijd||"")}${s.k.tijd?" · ":""}${esc(jobAddrObj(s.k).plaats||"")}</small></span></div>`).join("")}</div>
+  ${todo.length?routeLinks(stops).map((l,i,a)=>`<a class="btn small primary" style="width:100%;margin-top:10px" href="${esc(l)}" target="_blank" rel="noopener">${I.map}${a.length>1?"Deel "+(i+1):"Open in Google Maps"}</a>`).join(""):""}`;
+}
+function vVandaag(){
+  const t=today(),d=state.vDay||iso(t),dd=parse(d),isT=d===iso(t);
+  const stops=routeStops(d),todo=stops.filter(s=>!s.done);
+  const doneB=state.beurten.filter(b=>b.datum===d);
+  const omzet=doneB.reduce((a,b)=>a+toon(b.bedrag),0),verwacht=omzet+todo.reduce((a,s)=>a+toon(s.k.prijs),0);
+  const total=todo.length+doneB.length,pct=total?Math.round(doneB.length/total*100):0;
+  const due=isT?teplannen(t).filter(k=>!k.gepland):[];
+  const note=(state.routes[d]||{}).notitie||"";
+  const h=new Date().getHours(),groet=h<12?"Goedemorgen":h<18?"Goedemiddag":"Goedenavond",naam=(state.me&&state.me.name?state.me.name.split(" ")[0]:"")||cleanName(S().naam);
+  const top=`<div class="vd-top"><span class="vd-date">${I.sun}${dd.toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long"})}</span><span class="pill brand">wk ${weekNr(dd)}</span></div>
+  <div class="vd-bar"><div class="datenav"><button type="button" class="ghost" data-act="vday" data-n="-1" aria-label="Vorige dag">${I.left}</button><b>${fmtNum(dd)}</b><button type="button" class="ghost" data-act="vday" data-n="1" aria-label="Volgende dag">${I.right}</button></div>
+    ${isT?"":`<button type="button" data-act="vday" data-n="0">Vandaag</button>`}<button type="button" class="yellow" data-act="daynote" data-d="${d}">📌 Notitie</button></div>
+  <h1 class="vd-hi">${isT?groet:"Planning"}${naam&&isT?`, <span>${esc(naam)}.</span>`:""}</h1>`;
+  const noteHtml=note?`<button type="button" class="daynote" data-act="daynote" data-d="${d}"><span class="eyebrow">Dagnotitie</span>${esc(note)}</button>`:"";
+  const dueHtml=due.length?`<div class="banner"><div><b>${plural(due.length,"klant is","klanten zijn")} vandaag aan de beurt, maar niet ingepland</b><br><small>${due.slice(0,3).map(k=>esc(cleanName(k.naam))).join(", ")}${due.length>3?" en "+(due.length-3)+" meer":""}</small></div><button type="button" class="primary" data-act="plantoday">Plan vandaag in</button></div>`:"";
+  const emptyHtml=!todo.length?(stops.length?empty("Klaar voor vandaag","Alle stops zijn afgerond. Goed gewerkt!"):empty(isT?"Niets op de planning vandaag":"Niets gepland op deze dag","Plan klanten in via Planning, dan staan ze hier.",`<button type="button" class="primary" data-act="tab" data-tab="planning">${I.planning}Naar planning</button>`)):"";
+  if(big()){
+    return `<div class="withside"><div class="mainc">${top}
+      <div class="strip"><span><b>${eur0(omzet)}</b> / ${eur0(verwacht)}</span><span><b>${doneB.length}</b>/${total} klaar</span><span><b>${todo.length}</b> te gaan</span><span class="strip-bar"><i style="width:${pct}%"></i></span><b class="c-brand">${pct}%</b></div>
+      ${aanmeldBanner()}${noteHtml}${dueHtml}
+      ${todo.length?`<div class="ns-head sm"><h2>Volgende stop</h2><span>Veeg of klik · links → factureren · rechts → afmelden</span></div><div class="list" style="gap:8px">${todo.map(s=>stopRow(s.k,d)).join("")}</div>
+        <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap"><button type="button" data-act="toroute" data-d="${d}">${I.route}Jouw route</button><button type="button" data-act="bulktoday">${I.msg}Bericht aan deze klanten</button></div>`:emptyHtml}
+      ${doneB.length?`<div class="ns-head sm"><h2>Afgerond</h2></div><div class="list" style="gap:8px">${doneB.map(b=>{const k=state.klanten.find(x=>x.id===b.klantId);return k?stopRow(k,d,true):""}).join("")}</div>`:""}
+      </div><aside class="rpanel"><div class="rp-sec"><span class="eyebrow rp-h">${I.pin}Route preview</span>${routePreview(stops)}</div><div class="rp-sec"><span class="eyebrow rp-h">${I.spark}Activiteit</span>${activiteit(d)}</div></aside></div>`;
+  }
+  let html=top+`<div class="omzetcard">
+    <span class="eyebrow">Dag-omzet <span style="text-transform:none;letter-spacing:0;font-weight:600">· ex btw</span></span>
+    <b class="oc-big">${eur0(omzet)}</b><span class="oc-sub">van <b>${eur0(verwacht)}</b> verwacht</span>
+    <div class="oc-bar"><i style="width:${verwacht?Math.min(100,omzet/verwacht*100):0}%"></i></div>
+    <div class="oc-grid"><div><span class="eyebrow">Stops</span><b>${total}</b></div><div><span class="eyebrow">Klaar</span><b class="c-brand">${doneB.length}</b></div><div><span class="eyebrow">Te gaan</span><b>${todo.length}</b></div><div><span class="eyebrow">Voortgang</span><b>${pct}%</b></div></div>
+  </div>${aanmeldBanner()}${noteHtml}${dueHtml}`;
+  if(!todo.length)html+=emptyHtml;
+  else{
+    html+=`<div class="ns-head"><h2>Volgende stop</h2><span>Veeg links → factureren · rechts → afmelden</span></div>
+    <div class="list">${stopCard(todo[0].k,0,true,parse(todo[0].k.gepland)<t,d)}</div>
+    ${todo.length>1?`<h2 style="margin-top:24px">Daarna <small class="mono" style="font-size:13px;color:var(--muted);font-weight:400">${plural(todo.length-1,"stop","stops")}</small></h2><div class="list">${todo.slice(1).map((s,i)=>stopCard(s.k,i+1,false,parse(s.k.gepland)<t,d)).join("")}</div>`:""}
+    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap"><button type="button" data-act="bulktoday">${I.msg}Bericht aan deze klanten</button><button type="button" data-act="toroute" data-d="${d}">Volgorde aanpassen</button></div>`;
+  }
+  if(doneB.length)html+=`<h2>Afgerond</h2><div class="list" style="gap:8px">${doneB.map(b=>{const k=state.klanten.find(x=>x.id===b.klantId);return k?stopRow(k,d,true):""}).join("")}</div>`;
+  if(todo.length)html+=`<div class="routebar">${routeLinks(stops).map((l,i,a)=>`<a class="btn routebtn" href="${esc(l)}" target="_blank" rel="noopener">${I.map}${a.length>1?"Route deel "+(i+1):"Open route · "+plural(todo.length,"stop","stops")}</a>`).join("")}</div>`;
+  return html;
+}
+
+/* ---------- JOB-PANEEL (klik op een stop) ---------- */
+function openJob(id,day){
+  const k=state.klanten.find(x=>x.id===id);if(!k)return;day=day||iso(today());
+  const b=state.beurten.find(x=>x.klantId===id&&x.datum===day),done=!!b,js=done?"afgerond":jobState(k,day),sp=STATEPILL[js],d=parse(day);
+  const tel=String(k.telefoon||"").replace(/[^\d+]/g,""),bedrag=done?Number(b.bedrag)||0:Number(k.prijs)||0,st=S();
+  const vars=klantVars(k,d),T=tpls(),aan=T.aankondiging||{};
+  const mail=k.email?"mailto:"+encodeURIComponent(k.email)+"?subject="+encodeURIComponent(fill(aan.onderwerp||"Glasbewassing",vars)):"";
+  const sms=tel?"sms:"+tel+"?&body="+encodeURIComponent(fill(aan.sms||"",vars)):"";
+  const tile=(href,ic,l,dis)=>dis?`<span class="jp-tile dis">${ic}<span>${l}</span></span>`:`<a class="jp-tile" href="${esc(href)}" ${/^https?:/.test(href)?'target="_blank" rel="noopener"':""}>${ic}<span>${l}</span></a>`;
+  const nxt=werkdagAanpassen(addDays(done?d:(d<today()?today():d),freqDays(k)));
+  const diensten=[[k.dienst||"Glasbewassing",bedrag]].concat(k.binnen?[]:[]);
+  openDlg(`<div id="jobPanel" data-d="${esc(day)}" data-k="${esc(k.id)}" class="jp">
+  <div class="jp-head"><div class="jp-meta">${statusPill(sp[0],sp[1])}<span>${I.planning}${["zo","ma","di","wo","do","vr","za"][d.getDay()]} ${esc(fmtD(d))}</span>${k.tijd?`<span>${I.clock}${esc(k.tijd)}</span>`:""}</div><span style="display:flex;gap:6px">${!done&&k.gepland===day?`<button type="button" class="iconbtn" data-act="afsprdel" data-id="${esc(k.id)}" title="Afspraak verwijderen" aria-label="Afspraak verwijderen">${I.trash}</button>`:""}<button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></span></div>
+  <div class="jp-who"><span class="av" style="--h:${hue(k.ronde||k.naam)}">${esc(initials(k.naam))}</span><div style="min-width:0"><h3>${esc(cleanName(k.naam))}</h3><div class="sc-sub">${I.pin}${esc(jobAddr(k))}</div><button type="button" class="linkbtn" data-act="klant" data-id="${esc(k.id)}">Ga naar klantkaart ${I.right}</button></div></div>
+  <div class="jp-tiles">${tile("tel:"+tel,I.phone,"Bellen",!tel)}${tile(mail,I.mail,"Mail",!mail)}${tile(sms,I.chat,"SMS",!sms)}${tile(mapsQ(k),I.nav,"Route")}</div>
+  <div class="jp-body">
+    <div class="jp-amt"><div><span class="eyebrow">Bedrag</span><b>${eur(toon(bedrag))}</b></div><small>${done?(b.gefactureerd==="nvt"?"Niet gefactureerd":b.gefactureerd?"Gefactureerd":"Afgemeld"):"Wordt gefactureerd na afmelden"}</small></div>
+    <div><span class="eyebrow">Diensten</span><div class="jp-svc">${diensten.map(([n,p])=>`<div><span class="jp-ic">${I.wrench}</span><b>${esc(n)}${k.binnen?" (buiten en binnen)":""}</b><span>${eur(toon(p))}</span></div>`).join("")}</div></div>
+    ${oBeurtBlok(k)}${hospRoute(k)}${ookDezeBeurt(k,typeof day!=="undefined"?day:undefined)}${k.notities?`<div class="notebox"><span class="eyebrow">Notitie</span>${esc(k.notities)}</div>`:""}${objInfo(k)}${jobExtra(k)}
+    ${(()=>{const fl=jobFotos(k);return fl.length?`<div><span class="eyebrow">Foto's · ${fl.reduce((a,f)=>a+(f.dots||[]).length,0)} ramen aangetikt</span><div class="jp-fotos" style="margin-top:6px">${fl.map((f,j)=>fotoCard(f,j,false).replace('data-fi=','data-jfi=')).join("")}</div></div>`:""})()}
+    <div><span class="eyebrow">${I.refresh}Automatisch doorplannen</span>
+      <div class="jp-auto"><div class="jp-ar"><div><b>${esc(k.dienst||"Glasbewassing")} · elke ${Number(k.frequentie)||4} weken</b><small>${k.autoplan?`Staat aan · na afmelden wordt de volgende beurt ingepland op ${esc(fmtL(nxt))}${k.tijd?" om "+esc(k.tijd):""}`:"Staat uit · de klant verschijnt bij Te plannen als hij weer aan de beurt is"}</small></div><span class="pill ${k.autoplan?"ok":""}">${k.autoplan?"AAN":"UIT"}</span></div>
+      <div class="jp-ar2"><button type="button" class="${k.autoplan?"":"dark"}" data-act="autoplan" data-id="${esc(k.id)}">${I.refresh}${k.autoplan?"Doorplannen uitzetten":"Doorplannen aanzetten"}</button><small class="help">Aan = na elke afmelding staat de volgende beurt direct in de planning, op dezelfde tijd. Valt die op een vrije dag, dan schuift hij naar de dichtstbijzijnde werkdag.</small></div></div></div>
+  </div>
+  <div class="jp-foot">${done?`<button type="button" disabled>${I.check}Afgerond</button>`:`${day===iso(today())?`<button type="button" data-act="start" data-id="${esc(k.id)}">${isBezig(k)?I.check+"Stop &amp; afmelden "+timerHtml(k):I.play+"Start"}</button>`:""}<button type="button" class="ghost" data-act="factureren" data-id="${esc(k.id)}">${I.facturen}Direct factureren</button><button type="button" class="primary" data-act="afmelden" data-id="${esc(k.id)}">${I.check}Afmelden</button>`}</div>
+  </div>`,{drawer:true});
+}

@@ -1,0 +1,15 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function gebruiker() {
+      return request.auth != null && request.auth.token.email_verified == true &&
+        (request.auth.token.email.lower() == "robin@mijnschoonmaker.com" ||
+         firestore.exists(/databases/(default)/documents/gebruikers/$(request.auth.token.email.lower())));
+    }
+    match /assets/{id} {
+      // lezen gaat via /_blob/ (server); uploaden alleen door gebruikers van het CRM
+      allow read: if gebruiker();
+      allow write: if gebruiker() && request.resource.size < 25 * 1024 * 1024;
+    }
+  }
+}

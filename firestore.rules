@@ -1,0 +1,22 @@
+rules_version = '2';
+// mijnschoonmaker CRM — alleen ingelogde gebruikers die in /gebruikers staan
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function email() { return request.auth != null && request.auth.token.email_verified == true ? request.auth.token.email.lower() : ""; }
+    function eigenaar() { return email() == "robin@mijnschoonmaker.com"; }
+    function gebruiker() { return eigenaar() || (email() != "" && exists(/databases/$(database)/documents/gebruikers/$(email()))); }
+
+    match /gebruikers/{e} {
+      allow read: if gebruiker();
+      allow write: if eigenaar();
+    }
+    // sleutels van Brevo en Mollie: alleen schrijven door de eigenaar, nooit lezen vanuit de browser
+    match /geheim/{d} {
+      allow read: if false;
+      allow write: if eigenaar();
+    }
+    match /{col}/{id} {
+      allow read, write: if gebruiker() && col in ["klanten","beurten","facturen","routes","instellingen","berichten","kosten","aanvragen","geplandeMails"];
+    }
+  }
+}
