@@ -16,7 +16,10 @@
   const db = {
     collection: c => ({
       doc: id => ({ set: d => fs.collection(c).doc(id).set(enc(d)), delete: () => fs.collection(c).doc(id).delete() }),
-      onSnapshot: (cb, er) => fs.collection(c).onSnapshot(s => cb({ docs: s.docs.map(d => ({ id: d.id, data: () => dec(d.data()) })) }), er)
+      onSnapshot: (cb, er) => fs.collection(c).onSnapshot(s => {
+        try { cb({ docs: s.docs.map(d => ({ id: d.id, data: () => dec(d.data()) })) }); }
+        catch (e) { console.error(c, e); (window.__fsErr = window.__fsErr || []).push(c + ": " + (e.message || e)); }
+      }, e => { console.error(c, e); (window.__fsErr = window.__fsErr || []).push(c + " (laden): " + (e.code || e.message)); if (er) er(e); })
     })
   };
   const rid = () => [...crypto.getRandomValues(new Uint8Array(16))].map(x => x.toString(16).padStart(2, "0")).join("");

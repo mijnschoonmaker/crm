@@ -26,7 +26,10 @@
   const db = {
     collection: c => ({
       doc: id => ({ set: d => fs.collection(c).doc(id).set(enc(d)), delete: () => fs.collection(c).doc(id).delete() }),
-      onSnapshot: (cb, er) => fs.collection(c).onSnapshot(s => cb({ docs: s.docs.map(d => ({ id: d.id, data: () => dec(d.data()) })) }), er)
+      onSnapshot: (cb, er) => fs.collection(c).onSnapshot(s => {
+        try { cb({ docs: s.docs.map(d => ({ id: d.id, data: () => dec(d.data()) })) }); }
+        catch (e) { console.error(c, e); (window.__fsErr = window.__fsErr || []).push(c + ": " + (e.message || e)); }
+      }, e => { console.error(c, e); (window.__fsErr = window.__fsErr || []).push(c + " (laden): " + (e.code || e.message)); if (er) er(e); })
     })
   };
   const rid = () => [...crypto.getRandomValues(new Uint8Array(16))].map(x => x.toString(16).padStart(2, "0")).join("");
@@ -7535,7 +7538,12 @@ if(LIVE){
   SETEXTRA.liveImport=(c,s)=>{if(!alleenEigenaar())return;
     setDlg(c,`${info("Kies het back-upbestand uit de oude versie (Instellingen › Data Beheer › <b>Alles + foto's</b>). Bestaande gegevens met hetzelfde nummer worden overschreven.")}
       <label class="btn" style="width:100%;justify-content:center">${I.upload}Back-upbestand kiezen<input type="file" accept=".json,application/json" hidden id="impF"></label>
-      <div id="impR" class="subt" style="margin-top:12px"></div>`,{wide:false,foot:`<span class="sp"></span><button type="button" data-act="close">Sluiten</button>`});
+      <div id="impR" class="subt" style="margin-top:12px"></div>
+      ${sec("Controle")}<div id="impC" class="subt">Bezig met controleren…</div>`,{wide:false,foot:`<span class="sp"></span><button type="button" data-act="close">Sluiten</button>`});
+    const controle=async()=>{const rows=[];for(const col of COLS){let srv="?";try{srv=(await fsDb().collection(col).get({source:"server"})).size}catch(e){srv="fout: "+(e.code||e.message)}
+        rows.push(`<tr><td>${esc(col)}</td><td class="r">${srv}</td><td class="r">${(RAW[col]||[]).length}</td></tr>`)}
+      const C=$("#impC");if(C)C.innerHTML=`<table class="minitable"><tr><td><b>Onderdeel</b></td><td class="r"><b>Op server</b></td><td class="r"><b>In beeld</b></td></tr>${rows.join("")}</table>${(window.__fsErr||[]).length?`<p style="color:var(--late)">${(window.__fsErr||[]).map(esc).join("<br>")}</p>`:""}<small>Ingelogd als ${esc((state.me&&state.me.email)||"?")}</small>`};
+    controle();
     $("#impF").onchange=async e=>{const f=e.target.files[0];if(!f)return;const R=$("#impR");let d;
       try{d=JSON.parse(await f.text())}catch(er){R.textContent="Dit is geen geldig back-upbestand.";return}
       if(d.formaat!=="zeem-export"||!d.collecties){R.textContent="Dit is geen back-up van mijnschoonmaker.";return}
@@ -7544,7 +7552,7 @@ if(LIVE){
       let k=0;const tik=()=>{R.textContent=`Bezig… ${k} van ${n+nb}`};
       try{for(const b of d.bestanden||[]){if(!b.data)continue;const bl=await (await fetch(b.data)).blob();await window.ZEEM_PUT(b.id,bl,b.type||bl.type);k++;if(k%5===0)tik()}
         for(const col of COLS){for(const doc of d.collecties[col]||[]){const {id,...rest}=doc;if(!id)continue;await save(col,id,rest);k++;if(k%20===0)tik()}}
-        R.innerHTML='<b style="color:var(--ok)">Klaar ✓</b> Alles is overgezet.';toast("Gegevens overgezet")}
+        R.innerHTML='<b style="color:var(--ok)">Klaar ✓</b> '+k+' onderdelen overgezet.';toast("Gegevens overgezet");controle()}
       catch(er){console.error(er);R.innerHTML='<span style="color:var(--late)">Overzetten stopte bij '+k+': '+esc(er.message||String(er))+'</span>'}}};
 }
 
