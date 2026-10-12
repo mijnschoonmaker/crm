@@ -396,27 +396,28 @@ function sendHref(kanaal,k,text,onderwerp){
   return"";
 }
 let compose=null;
-function openCompose({title,recipients,sjabloon="vrij",hint="",tekst,mail,onderwerp,kanaal}){
+function openCompose({title,recipients,sjabloon="vrij",hint="",tekst,mail,onderwerp,kanaal,groep}){
   const T=tpls();
-  const TT=T[sjabloon]||T.vrij;compose={title,recipients,sjabloon,tekst:tekst??TT.sms??TT.tekst,mail:mail||TT.mail||"",kanaal:kanaal||"",onderwerp:onderwerp||TT.onderwerp||"Bericht van [name.company]",sent:{},hint};
+  const TT=T[sjabloon]||T.vrij;compose={title,recipients,sjabloon,tekst:tekst??TT.sms??TT.tekst,mail:mail||TT.mail||"",kanaal:kanaal||"",onderwerp:onderwerp||TT.onderwerp||"Bericht van [name.company]",sent:{},hint,groep:!!groep};
   drawCompose();
 }
 function drawCompose(){
   const c=compose,T=tpls();
   openDlg(`<div class="dlg-head"><span class="objic big">${I.send}</span><div style="min-width:0;flex:1"><h3>${esc(c.title)}</h3><div class="subt">${plural(c.recipients.length,"ontvanger","ontvangers")}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
-  <div class="chips" style="margin:0">${Object.keys(T).filter(k=>T[k].actief!==false||k===c.sjabloon).map(k=>`<button type="button" class="chip" data-tplpick="${esc(k)}" aria-pressed="${c.sjabloon===k}">${esc(T[k].naam)}</button>`).join("")}</div>
+  <div class="chips" style="margin:0">${Object.keys(T).filter(k=>(c.groep?GROEP_TPL.includes(k):T[k].actief!==false)||k===c.sjabloon).map(k=>`<button type="button" class="chip" data-tplpick="${esc(k)}" aria-pressed="${c.sjabloon===k}">${esc(T[k].naam)}</button>`).join("")}</div>
   <label>${c.mail?"WhatsApp- en sms-tekst":"Bericht"} — woorden tussen {accolades} worden per klant ingevuld<textarea id="cmpTxt" style="min-height:${c.mail?80:110}px">${esc(c.tekst)}</textarea></label>
   <label>E-mail onderwerp<input id="cmpSubj" value="${esc(c.onderwerp)}"></label>
   ${c.mail?`<label>E-mail bericht<textarea id="cmpMail" style="min-height:140px">${esc(c.mail)}</textarea></label>`:""}
   ${c.hint?`<div class="notice" style="margin:0">${c.hint}</div>`:""}
   <p class="subt" style="margin:0">${liveMail()?"<b>Versturen</b> stuurt de mail in je huisstijl direct naar de klant, met PDF als die er is. WhatsApp en sms openen met het bericht al ingevuld. Alles komt in de berichtenlog, met de status van elke mail.":"Een knop opent WhatsApp, je sms-app of je mailprogramma met het bericht al ingevuld. <b>Opgemaakt</b> kopieert de mail in je huisstijl en opent een lege mail, waarin je hem plakt. Op versturen druk je zelf. Alles komt in de berichtenlog."}</p>
   <div class="tablewrap" style="box-shadow:none"><table class="t" style="min-width:520px" id="cmpList"></table></div>
-  <div class="row">${c.recipients.length>1?`<button type="button" class="small" id="cmpNums">${I.copy}Kopieer alle nummers</button><button type="button" class="small" id="cmpMails">${I.copy}Kopieer alle e-mailadressen</button>`:""}<span class="sp"></span><button type="button" data-act="close">Klaar</button></div>`,{wide:true});
+  <div class="row">${liveMail()&&c.recipients.filter(r=>r.k.email).length>1?`<button type="button" class="small primary" id="cmpAll">${I.send}Mail naar alle ${c.recipients.filter(r=>r.k.email).length}</button>`:""}${c.recipients.length>1?`<button type="button" class="small" id="cmpNums">${I.copy}Kopieer alle nummers</button><button type="button" class="small" id="cmpMails">${I.copy}Kopieer alle e-mailadressen</button>`:""}<span class="sp"></span><button type="button" data-act="close">Klaar</button></div>`,{wide:true});
   drawCmpList();
   $("#cmpTxt").oninput=e=>{c.tekst=e.target.value;drawCmpList()};
   $("#cmpSubj").oninput=e=>{c.onderwerp=e.target.value;drawCmpList()};
   const cm=$("#cmpMail");if(cm)cm.oninput=e=>{c.mail=e.target.value;drawCmpList()};
   form.querySelectorAll("[data-tplpick]").forEach(b=>b.onclick=()=>{c.sjabloon=b.dataset.tplpick;c.tekst=T[c.sjabloon].sms;c.mail=T[c.sjabloon].mail;c.onderwerp=T[c.sjabloon].onderwerp;drawCompose()});
+  const ca=$("#cmpAll");if(ca)ca.onclick=verstuurAlles;
   const nb=$("#cmpNums");if(nb)nb.onclick=e=>copy(c.recipients.map(r=>r.k.telefoon).filter(Boolean).join(", "),e.currentTarget);
   const mb=$("#cmpMails");if(mb)mb.onclick=e=>copy(c.recipients.map(r=>r.k.email).filter(Boolean).join(", "),e.currentTarget);
 }
@@ -454,6 +455,19 @@ function openBulk(group,tpl){
   if(!ks.length){toast("Geen klanten in deze groep");return}
   openCompose({title,sjabloon:tpl||"afspraak",recipients:ks.map(k=>({k,vars:klantVars(k,datum),ref:tpl==="welkom"?"welkom:"+k.id:""}))});
 }
+/* groepsbericht: eerst kiezen welk soort bericht */
+const GROEP_TPL=["kerst","nieuwsbrief","zomer","uitloop","update","prijs","weer","vrij"];
+const GROEP_KL={kerst:"#b4413a",nieuwsbrief:"#4a78b8",zomer:"#d08a2e",uitloop:"#8a6bb0",update:"#2f7f88",prijs:"#5d6f76",weer:"#3a8fc0",vrij:"#6b7a80"};
+function openGroepKeuze(ks){if(!ks.length){toast("Selecteer eerst klanten");return}const T=tpls(),keys=GROEP_TPL.filter(k=>T[k]),ic={kerst:I.spark,nieuwsbrief:I.megaphone,zomer:I.sun||I.spark,uitloop:I.clock,update:I.note,prijs:I.trend||I.note,weer:I.cal2,vrij:I.pencil};
+  openDlg(`<div class="dlg-head"><span class="objic big">${I.send}</span><div style="flex:1"><h3>Bericht aan ${plural(ks.length,"klant","klanten")}</h3><div class="subt">Kies een bericht. Je kunt de tekst daarna nog aanpassen.</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
+    <div class="gk-grid">${keys.map(k=>`<button type="button" class="gk-c" data-gk="${esc(k)}"><span class="objic gl" style="--g:${GROEP_KL[k]||"#6b7a80"}">${ic[k]||I.mail}</span><span><b>${esc(T[k].naam)}</b><small>${esc(T[k].doel||"")}</small></span>${I.right}</button>`).join("")}</div>
+    <p class="subt" style="margin:0">Teksten aanpassen voor de volgende keer doe je bij Communicatie › Templates.</p>`,{wide:true});
+  form.querySelectorAll("[data-gk]").forEach(b=>b.onclick=()=>{const k=b.dataset.gk;openCompose({title:T[k].naam+" · "+plural(ks.length,"klant","klanten"),sjabloon:k,groep:true,recipients:ks.map(x=>({k:x,vars:klantVars(x),ref:""}))})})}
+async function verstuurAlles(){const c=compose;if(!c)return;const b=$("#cmpAll");const todo=c.recipients.map((r,i)=>i).filter(i=>c.recipients[i].k.email&&c.sent[i]!=="live");
+  if(!todo.length){toast("Alle mails zijn al verstuurd");return}
+  if(!(await vraag("Alles versturen?",`De mail gaat naar <b>${todo.length}</b> ${todo.length===1?"klant":"klanten"} met een e-mailadres. Klanten zonder e-mailadres sla je over; die kun je via WhatsApp of sms bereiken.`,"Versturen","Annuleren")))return;
+  let n=0;for(const i of todo){if(b){b.disabled=true;b.innerHTML=`${I.clock}Bezig… ${n}/${todo.length}`}await verstuurLive(i);n++}
+  toast(plural(n,"mail","mails")+" verstuurd");const b2=$("#cmpAll");if(b2){b2.disabled=false;b2.innerHTML=I.check+"Verstuurd"}}
 function openPickRecipients(){
   const ks=[...actief()].sort((a,b)=>cleanName(a.naam).localeCompare(cleanName(b.naam)));const sel=new Set();
   openDlg(`<div class="dlg-head"><span class="objic big">${I.send}</span><div style="flex:1"><h3>Verstuur bericht</h3><div class="subt">Kies een of meer klanten</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
@@ -464,7 +478,7 @@ function openPickRecipients(){
     $("#prGo").disabled=!sel.size;$("#prGo").textContent=sel.size?"Volgende ("+sel.size+")":"Volgende"};
   draw();$("#prq").oninput=draw;
   $("#prl").onchange=e=>{const id=e.target.dataset.pk;if(!id)return;e.target.checked?sel.add(id):sel.delete(id);$("#prGo").disabled=!sel.size;$("#prGo").textContent=sel.size?"Volgende ("+sel.size+")":"Volgende"};
-  $("#prGo").onclick=()=>openBulk(ks.filter(k=>sel.has(k.id)),"vrij");
+  $("#prGo").onclick=()=>openGroepKeuze(ks.filter(k=>sel.has(k.id)));
 }
 
 /* ---------- PLANNING-DIALOGEN ---------- */

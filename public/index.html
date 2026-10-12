@@ -2123,6 +2123,12 @@ nav.tabs .badge.nk-b{padding:0 2px;height:18px}nav.tabs .badge.nk-b em{display:n
 @media (prefers-reduced-motion:reduce){.kx-av .kc .kc-dot{animation:none}}
 .klx .kx-due small{white-space:nowrap}
 
+.gk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.gk-c{all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--surface);transition:border-color .15s,box-shadow .15s,transform .15s}
+.gk-c:hover{border-color:color-mix(in srgb,var(--brand) 40%,var(--line));box-shadow:0 8px 22px -14px rgb(15 31 38 / .35);transform:translateY(-1px)}
+.gk-c>span:nth-child(2){flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.gk-c b{font-size:14.5px}.gk-c small{color:var(--muted);font-size:12.5px}
+.gk-c>svg{width:16px;height:16px;color:var(--muted)}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -2288,6 +2294,11 @@ const DIENSTEN=["Glasbewassing","Glasbewassing buiten","Begane grond glas","Binn
 const KANAAL={whatsapp:"WhatsApp",sms:"SMS",email:"E-mail"};
 const KOSTCAT=["Materiaal","Brandstof","Auto en bus","Gereedschap","Telefoon en internet","Verzekering","Kleding","Software","Overig"];
 const TPL={
+  kerst:{naam:"Kerst & nieuwjaar",doel:"Fijne feestdagen wensen",cat:"Groepsbericht",onderwerp:"Fijne feestdagen van [name.company]",mail:"Beste [name.customer],\n\nHet jaar loopt alweer ten einde. Graag bedanken wij u hartelijk voor het vertrouwen in [name.company] het afgelopen jaar.\n\nWij wensen u fijne feestdagen en een gezond, gelukkig en vooral helder nieuwjaar!\n\nTussen kerst en oud en nieuw zijn wij beperkt bereikbaar. Vanaf januari komen wij weer volgens de vaste planning bij u langs.\n\nMet vriendelijke groet,\n[name.company]",sms:"Hoi [name.customer], [name.company] wenst u fijne feestdagen en een helder nieuwjaar! Bedankt voor uw vertrouwen."},
+  zomer:{naam:"Zomervakantie",doel:"Aangepaste planning in de vakantie",cat:"Groepsbericht",onderwerp:"Planning tijdens de zomervakantie – [name.company]",mail:"Beste [name.customer],\n\nIn verband met de zomervakantie werken wij een aantal weken met een aangepaste bezetting. Hierdoor kan uw glasbewassing iets later plaatsvinden dan u van ons gewend bent.\n\nWij houden de vertraging zo klein mogelijk en zorgen dat u na de vakantie weer in uw vaste ritme zit. Twee dagen voor uw afspraak ontvangt u zoals altijd een bericht met de datum en het tijdstip.\n\nBedankt voor uw begrip en een fijne zomer!\n\nMet vriendelijke groet,\n[name.company]",sms:"Hoi [name.customer], door de zomervakantie kan uw glasbewassing iets later plaatsvinden. U krijgt 2 dagen vooraf bericht. Fijne zomer! [name.company]"},
+  uitloop:{naam:"Planning loopt uit",doel:"Later dan gepland door weer of drukte",cat:"Groepsbericht",onderwerp:"Uw glasbewassing komt iets later – [name.company]",mail:"Beste [name.customer],\n\nDoor de weersomstandigheden van de afgelopen tijd loopt onze planning op dit moment iets uit. Uw glasbewassing vindt daardoor later plaats dan u van ons gewend bent.\n\nWij werken de achterstand zo snel mogelijk weg. Twee dagen voor uw afspraak ontvangt u een bericht met de nieuwe datum en het tijdstip.\n\nExcuses voor het ongemak en bedankt voor uw geduld.\n\nMet vriendelijke groet,\n[name.company]",sms:"Hoi [name.customer], door het weer loopt onze planning wat uit. U krijgt 2 dagen vooraf bericht met de nieuwe datum. Excuses! [name.company]"},
+  update:{naam:"Update / nieuws",doel:"Klanten op de hoogte brengen",cat:"Groepsbericht",onderwerp:"Nieuws van [name.company]",mail:"Beste [name.customer],\n\nGraag brengen wij u op de hoogte van een aantal ontwikkelingen bij [name.company].\n\n• \n• \n\nHeeft u vragen? Beantwoord gerust deze e-mail of neem contact met ons op via [phone.company].\n\nMet vriendelijke groet,\n[name.company]",sms:"Hoi [name.customer], nieuws van [name.company]: "},
+  prijs:{naam:"Tariefaanpassing",doel:"Nieuwe prijzen aankondigen",cat:"Groepsbericht",onderwerp:"Aanpassing tarieven – [name.company]",mail:"Beste [name.customer],\n\nIeder jaar kijken wij kritisch naar onze tarieven. Door gestegen kosten voor onder andere loon, materialen en brandstof passen wij per 1 januari onze prijzen licht aan.\n\nDe nieuwe prijs ziet u terug op uw eerstvolgende factuur. Uiteraard blijven wij u dezelfde kwaliteit en service bieden.\n\nHeeft u vragen? Neem gerust contact met ons op via [phone.company].\n\nMet vriendelijke groet,\n[name.company]",sms:""},
   voorlopig:{naam:"Voorlopig bestellingsoverzicht",doel:"Na aanmelding via de websitecalculator",cat:"Welkom",onderwerp:"[name.company] - Voorlopig bestellingsoverzicht [nr.invoice]",mail:"Beste [firstname.customer],\n\nBedankt voor uw bestelling via mijnschoonmaker.com.\nIn de bijlage vindt u uw voorlopige bestellingsoverzicht en onze algemene voorwaarden.\n\nUw eerste bezoek\nTijdens uw eerste bezoek voeren we de door u bestelde diensten uit. Dit eerste bezoek noemen we de 0-beurt. We controleren daarbij ook of de opgegeven aantallen overeenkomen met de situatie ter plaatse. Mocht hierin een verschil zitten, dan kan dit gevolgen hebben voor de prijs. Meer informatie hierover vindt u in onze algemene voorwaarden.\nDe planning\nWe plannen uw woning in op een passende route, waarbij we afspraken zoveel mogelijk per omgeving combineren. Hierdoor kan het eerste bezoek iets langer op zich laten wachten. Houd rekening met een wachttijd van ongeveer 2 tot 8 weken.\n\nNa uw eerste bezoek komen we iedere 8 weken bij u langs. Twee dagen voor iedere afspraak ontvangt u een e-mail met de datum en het tijdstip.\nZodra uw eerste bezoek is ingepland, ontvangt u hiervan bericht.\n\nMet vriendelijke groet,\nmijnschoonmaker.com\nWhatsapp: [06 18 06 06 06](https://wa.me/message/GPFV7VR2JSCHC1) | ma - vrij 10:00 uur - 17:30 uur",sms:""},
   definitief:{naam:"Definitief bestellingsoverzicht",doel:"Na de tellingcontrole of een ondertekende offerte",cat:"Welkom",onderwerp:"[name.company] - Definitief bestellingsoverzicht [nr.invoice]",mail:"Beste [firstname.customer],\n\nHartelijk dank voor uw vertrouwen in mijnschoonmaker.com.\nBijgaand ontvangt u het definitieve bestellingsoverzicht van de door u gekozen diensten.\n\nUw overeenkomst heeft een standaardlooptijd van één jaar.\nNa deze periode zetten wij de dienstverlening voort volgens de afgesproken frequentie, totdat de overeenkomst wordt beëindigd conform onze algemene voorwaarden.\nOp deze overeenkomst zijn onze algemene voorwaarden van toepassing.\n\nMet vriendelijke groet,\nmijnschoonmaker.com",sms:""},
   aankondiging:{naam:"Aankondiging",doel:"Vaste beurt aankondigen",onderwerp:"Aankondiging: glasbewassing op [date.appointment] – [name.company]",mail:"Beste [firstname.customer],\n\nOp [date.appointment] komen we bij u langs, rond [time.appointment] uur *\n\nWe voeren dan de volgende werkzaamheden uit aan de [address.appointment] [housenumber.appointment]:\n[services.appointment]\n\nGraag vragen we u vooraf rekening te houden met het volgende:\n• Ramen en ventilatieroosters gesloten houden\n• Horren verwijderen en rolluiken openen\n• Poorten en hekwerk toegankelijk maken\n• Voldoende ruimte rondom de ramen vrijhouden\n• Een eventuele robotmaaier tijdelijk uitschakelen\n\nMocht er vooraf iets zijn waar we rekening mee moeten houden, laat het ons gerust weten.\n\nMet vriendelijke groet,\n[name.company]\n\n* Het genoemde tijdstip is een richttijd. Door route-, weers- of verkeersomstandigheden kan onze aankomst circa 45 minuten eerder of later zijn. Wanneer onderdelen niet toegankelijk zijn of niet zijn voorbereid, kan het voorkomen dat bepaalde werkzaamheden niet kunnen worden uitgevoerd. De gereserveerde tijd en prijs voor uw woning blijft in dat geval ongewijzigd.",sms:"Hoi [name.customer], op [date.appointment] [timeslot.appointment] komen we uw ramen wassen. Graag de poort open laten. [name.company]"},
@@ -3052,27 +3063,28 @@ function sendHref(kanaal,k,text,onderwerp){
   return"";
 }
 let compose=null;
-function openCompose({title,recipients,sjabloon="vrij",hint="",tekst,mail,onderwerp,kanaal}){
+function openCompose({title,recipients,sjabloon="vrij",hint="",tekst,mail,onderwerp,kanaal,groep}){
   const T=tpls();
-  const TT=T[sjabloon]||T.vrij;compose={title,recipients,sjabloon,tekst:tekst??TT.sms??TT.tekst,mail:mail||TT.mail||"",kanaal:kanaal||"",onderwerp:onderwerp||TT.onderwerp||"Bericht van [name.company]",sent:{},hint};
+  const TT=T[sjabloon]||T.vrij;compose={title,recipients,sjabloon,tekst:tekst??TT.sms??TT.tekst,mail:mail||TT.mail||"",kanaal:kanaal||"",onderwerp:onderwerp||TT.onderwerp||"Bericht van [name.company]",sent:{},hint,groep:!!groep};
   drawCompose();
 }
 function drawCompose(){
   const c=compose,T=tpls();
   openDlg(`<div class="dlg-head"><span class="objic big">${I.send}</span><div style="min-width:0;flex:1"><h3>${esc(c.title)}</h3><div class="subt">${plural(c.recipients.length,"ontvanger","ontvangers")}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
-  <div class="chips" style="margin:0">${Object.keys(T).filter(k=>T[k].actief!==false||k===c.sjabloon).map(k=>`<button type="button" class="chip" data-tplpick="${esc(k)}" aria-pressed="${c.sjabloon===k}">${esc(T[k].naam)}</button>`).join("")}</div>
+  <div class="chips" style="margin:0">${Object.keys(T).filter(k=>(c.groep?GROEP_TPL.includes(k):T[k].actief!==false)||k===c.sjabloon).map(k=>`<button type="button" class="chip" data-tplpick="${esc(k)}" aria-pressed="${c.sjabloon===k}">${esc(T[k].naam)}</button>`).join("")}</div>
   <label>${c.mail?"WhatsApp- en sms-tekst":"Bericht"} — woorden tussen {accolades} worden per klant ingevuld<textarea id="cmpTxt" style="min-height:${c.mail?80:110}px">${esc(c.tekst)}</textarea></label>
   <label>E-mail onderwerp<input id="cmpSubj" value="${esc(c.onderwerp)}"></label>
   ${c.mail?`<label>E-mail bericht<textarea id="cmpMail" style="min-height:140px">${esc(c.mail)}</textarea></label>`:""}
   ${c.hint?`<div class="notice" style="margin:0">${c.hint}</div>`:""}
   <p class="subt" style="margin:0">${liveMail()?"<b>Versturen</b> stuurt de mail in je huisstijl direct naar de klant, met PDF als die er is. WhatsApp en sms openen met het bericht al ingevuld. Alles komt in de berichtenlog, met de status van elke mail.":"Een knop opent WhatsApp, je sms-app of je mailprogramma met het bericht al ingevuld. <b>Opgemaakt</b> kopieert de mail in je huisstijl en opent een lege mail, waarin je hem plakt. Op versturen druk je zelf. Alles komt in de berichtenlog."}</p>
   <div class="tablewrap" style="box-shadow:none"><table class="t" style="min-width:520px" id="cmpList"></table></div>
-  <div class="row">${c.recipients.length>1?`<button type="button" class="small" id="cmpNums">${I.copy}Kopieer alle nummers</button><button type="button" class="small" id="cmpMails">${I.copy}Kopieer alle e-mailadressen</button>`:""}<span class="sp"></span><button type="button" data-act="close">Klaar</button></div>`,{wide:true});
+  <div class="row">${liveMail()&&c.recipients.filter(r=>r.k.email).length>1?`<button type="button" class="small primary" id="cmpAll">${I.send}Mail naar alle ${c.recipients.filter(r=>r.k.email).length}</button>`:""}${c.recipients.length>1?`<button type="button" class="small" id="cmpNums">${I.copy}Kopieer alle nummers</button><button type="button" class="small" id="cmpMails">${I.copy}Kopieer alle e-mailadressen</button>`:""}<span class="sp"></span><button type="button" data-act="close">Klaar</button></div>`,{wide:true});
   drawCmpList();
   $("#cmpTxt").oninput=e=>{c.tekst=e.target.value;drawCmpList()};
   $("#cmpSubj").oninput=e=>{c.onderwerp=e.target.value;drawCmpList()};
   const cm=$("#cmpMail");if(cm)cm.oninput=e=>{c.mail=e.target.value;drawCmpList()};
   form.querySelectorAll("[data-tplpick]").forEach(b=>b.onclick=()=>{c.sjabloon=b.dataset.tplpick;c.tekst=T[c.sjabloon].sms;c.mail=T[c.sjabloon].mail;c.onderwerp=T[c.sjabloon].onderwerp;drawCompose()});
+  const ca=$("#cmpAll");if(ca)ca.onclick=verstuurAlles;
   const nb=$("#cmpNums");if(nb)nb.onclick=e=>copy(c.recipients.map(r=>r.k.telefoon).filter(Boolean).join(", "),e.currentTarget);
   const mb=$("#cmpMails");if(mb)mb.onclick=e=>copy(c.recipients.map(r=>r.k.email).filter(Boolean).join(", "),e.currentTarget);
 }
@@ -3110,6 +3122,19 @@ function openBulk(group,tpl){
   if(!ks.length){toast("Geen klanten in deze groep");return}
   openCompose({title,sjabloon:tpl||"afspraak",recipients:ks.map(k=>({k,vars:klantVars(k,datum),ref:tpl==="welkom"?"welkom:"+k.id:""}))});
 }
+/* groepsbericht: eerst kiezen welk soort bericht */
+const GROEP_TPL=["kerst","nieuwsbrief","zomer","uitloop","update","prijs","weer","vrij"];
+const GROEP_KL={kerst:"#b4413a",nieuwsbrief:"#4a78b8",zomer:"#d08a2e",uitloop:"#8a6bb0",update:"#2f7f88",prijs:"#5d6f76",weer:"#3a8fc0",vrij:"#6b7a80"};
+function openGroepKeuze(ks){if(!ks.length){toast("Selecteer eerst klanten");return}const T=tpls(),keys=GROEP_TPL.filter(k=>T[k]),ic={kerst:I.spark,nieuwsbrief:I.megaphone,zomer:I.sun||I.spark,uitloop:I.clock,update:I.note,prijs:I.trend||I.note,weer:I.cal2,vrij:I.pencil};
+  openDlg(`<div class="dlg-head"><span class="objic big">${I.send}</span><div style="flex:1"><h3>Bericht aan ${plural(ks.length,"klant","klanten")}</h3><div class="subt">Kies een bericht. Je kunt de tekst daarna nog aanpassen.</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
+    <div class="gk-grid">${keys.map(k=>`<button type="button" class="gk-c" data-gk="${esc(k)}"><span class="objic gl" style="--g:${GROEP_KL[k]||"#6b7a80"}">${ic[k]||I.mail}</span><span><b>${esc(T[k].naam)}</b><small>${esc(T[k].doel||"")}</small></span>${I.right}</button>`).join("")}</div>
+    <p class="subt" style="margin:0">Teksten aanpassen voor de volgende keer doe je bij Communicatie › Templates.</p>`,{wide:true});
+  form.querySelectorAll("[data-gk]").forEach(b=>b.onclick=()=>{const k=b.dataset.gk;openCompose({title:T[k].naam+" · "+plural(ks.length,"klant","klanten"),sjabloon:k,groep:true,recipients:ks.map(x=>({k:x,vars:klantVars(x),ref:""}))})})}
+async function verstuurAlles(){const c=compose;if(!c)return;const b=$("#cmpAll");const todo=c.recipients.map((r,i)=>i).filter(i=>c.recipients[i].k.email&&c.sent[i]!=="live");
+  if(!todo.length){toast("Alle mails zijn al verstuurd");return}
+  if(!(await vraag("Alles versturen?",`De mail gaat naar <b>${todo.length}</b> ${todo.length===1?"klant":"klanten"} met een e-mailadres. Klanten zonder e-mailadres sla je over; die kun je via WhatsApp of sms bereiken.`,"Versturen","Annuleren")))return;
+  let n=0;for(const i of todo){if(b){b.disabled=true;b.innerHTML=`${I.clock}Bezig… ${n}/${todo.length}`}await verstuurLive(i);n++}
+  toast(plural(n,"mail","mails")+" verstuurd");const b2=$("#cmpAll");if(b2){b2.disabled=false;b2.innerHTML=I.check+"Verstuurd"}}
 function openPickRecipients(){
   const ks=[...actief()].sort((a,b)=>cleanName(a.naam).localeCompare(cleanName(b.naam)));const sel=new Set();
   openDlg(`<div class="dlg-head"><span class="objic big">${I.send}</span><div style="flex:1"><h3>Verstuur bericht</h3><div class="subt">Kies een of meer klanten</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
@@ -3120,7 +3145,7 @@ function openPickRecipients(){
     $("#prGo").disabled=!sel.size;$("#prGo").textContent=sel.size?"Volgende ("+sel.size+")":"Volgende"};
   draw();$("#prq").oninput=draw;
   $("#prl").onchange=e=>{const id=e.target.dataset.pk;if(!id)return;e.target.checked?sel.add(id):sel.delete(id);$("#prGo").disabled=!sel.size;$("#prGo").textContent=sel.size?"Volgende ("+sel.size+")":"Volgende"};
-  $("#prGo").onclick=()=>openBulk(ks.filter(k=>sel.has(k.id)),"vrij");
+  $("#prGo").onclick=()=>openGroepKeuze(ks.filter(k=>sel.has(k.id)));
 }
 
 /* ---------- PLANNING-DIALOGEN ---------- */
@@ -7814,7 +7839,7 @@ document.addEventListener("click",e=>{
     case"selmode":state.sel=state.sel?null:new Set();render();break;
     case"selk":state.sel.has(id)?state.sel.delete(id):state.sel.add(id);render();break;
     case"selall":klantFilter().forEach(k=>state.sel.add(k.id));render();break;
-    case"selmsg":openBulk(state.klanten.filter(k=>state.sel.has(k.id)),"vrij");break;
+    case"selmsg":openGroepKeuze(state.klanten.filter(k=>state.sel.has(k.id)));break;
     case"selplan":{const l=state.klanten.filter(k=>state.sel.has(k.id));runSeq(l,k=>save("klanten",k.id,{...strip(k),gepland:iso(today()),tijd:""}),plural(l.length,"klant","klanten")+" vandaag ingepland");break}
     case"selpause":{const l=state.klanten.filter(k=>state.sel.has(k.id));runSeq(l,k=>save("klanten",k.id,{...strip(k),actief:false}),plural(l.length,"klant","klanten")+" op inactief gezet");break}
     case"seldel":{if(t.dataset.armed!=="1"){t.dataset.armed="1";t.textContent="Zeker weten? Tik nogmaals";break}const l=state.klanten.filter(k=>state.sel.has(k.id));runSeq(l,k=>del("klanten",k.id),plural(l.length,"klant","klanten")+" verwijderd");state.sel=new Set();break}
