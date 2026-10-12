@@ -54,6 +54,8 @@ document.addEventListener("click",e=>{
     case"klant":openKlant(id||null);break;
     case"job":openJob(id,t.dataset.d);break;
     case"ptopen":openPortaalVz();break;
+    case"pmeer":state.pmeer=!state.pmeer;render();break;
+    case"pscrolloffer":{const c=document.querySelector(".offercol");if(c)c.scrollIntoView({behavior:"smooth",block:"start"})}break;
     case"tkopen":openTickets(id);break;
     case"tknieuw":openTickets("",id);break;
     case"ptinvite":portaalUitnodigen(id);break;

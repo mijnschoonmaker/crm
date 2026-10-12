@@ -96,28 +96,46 @@ function vPlanning(){
   const title=v==="dag"?longD(first):v==="week"?"Week "+weekNr(first):v==="multi"?plural(days.length,"dag","dagen"):first.toLocaleDateString("nl-NL",{month:"long",year:"numeric"});
   const sub=v==="dag"?"Dagplanning · wk "+weekNr(first):v==="week"?fmtD(first)+" – "+fmtD(last):v==="multi"?"Geselecteerde dagen · wk "+weekNr(first):"Maandoverzicht";
   const d0=curDay();
-  let html=`<div class="pagehead"><div><p class="kicker">Planning</p><h1 class="xl" style="text-transform:${v==="dag"?"none":"none"}">${esc(title)}</h1><p class="lead" style="margin:0">${esc(sub)}</p></div><div class="acts"><button type="button" data-act="planmail" data-d="${d0}">${I.send}Planningsmail</button><button type="button" data-act="webaanvraag">${I.globe}Website-aanvraag</button></div></div>
-  <div class="toolbar">
-    <button type="button" data-act="refresh">${I.refresh}Ververs</button>
-    <button type="button" class="${state.planMode?"on":""}" data-act="planmode" aria-pressed="${state.planMode}">${I.wand}Plan-modus</button>
-    <button type="button" class="${state.pselMode?"on":""}" data-act="pselmode" aria-pressed="${!!state.pselMode}">${I.checksq||I.check}Selecteren</button>
-    <button type="button" data-act="daynote" data-d="${d0}">${I.note}Notitie</button>
-    <button type="button" data-act="bulkday" data-d="${d0}">${I.cal2}Bulk dag</button>
-    <button type="button" class="${state.achter?"on":""}" data-act="achter" aria-pressed="${state.achter}">${I.alert}Achterstallig</button>
-    <button type="button" class="primary" data-act="optim" data-d="${d0}">${I.wand}Optimaliseer route</button>
-    <button type="button" data-act="newjob" data-d="${d0}">${I.plus}Nieuwe job</button>
+  const totMin=days.reduce((a,d)=>a+daySum(d).min,0),isT=v==="dag"&&d0===iso(t);
+  const navTxt=v==="dag"?(isT?"Vandaag":"Naar vandaag"):v==="week"?"Deze week":v==="maand"?"Deze maand":"Vandaag";
+  const tglChip=(on,act,lbl,ic)=>on?`<button type="button" class="pl-chip" data-act="${act}">${ic}${lbl}${I.x}</button>`:"";
+  const mi=(act,ic,lbl,sub,extra="")=>`<button type="button" class="pl-mi" data-act="${act}"${extra}>${ic}<span><b>${lbl}</b>${sub?`<small>${sub}</small>`:""}</span></button>`;
+  const mt=(act,ic,lbl,on)=>`<button type="button" class="pl-mi tg" data-act="${act}" aria-pressed="${!!on}">${ic}<span><b>${lbl}</b></span><i class="pl-sw"></i></button>`;
+  let html=`<div class="pl-head">
+    <div class="pl-tt"><p class="kicker">Planning${v==="dag"?" · wk "+weekNr(first):""}</p><h1 class="xl">${esc(title)}</h1>
+      <p class="pl-sum">${v==="dag"?"":esc(sub)+" · "}<b>${plural(tot.n,"job","jobs")}</b>${totMin?` · ${Math.floor(totMin/60)}u${pad(totMin%60)}`:""} · <b>${eur0(toon(tot.sum))}</b> <small>${btwLbl()}</small>${offer.length?` · <button type="button" class="linkbtn" data-act="${big()?"pscrolloffer":"offersheet"}">${offer.length} te plannen</button>`:""}</p></div>
+    <div class="pl-nav">
+      <div class="pl-dnav" role="group" aria-label="Datum"><button type="button" data-act="pnav" data-n="-1" aria-label="Vorige">${I.left}</button><button type="button" class="pl-today${isT?" is-nu":""}" data-act="pnav" data-n="0">${navTxt}</button><button type="button" data-act="pnav" data-n="1" aria-label="Volgende">${I.right}</button></div>
+      <div class="seg pl-view" role="group" aria-label="Weergave">${[["dag","Dag"],["week","Week"],["multi","Multi"],["maand","Maand"]].map(([x,l])=>`<button type="button" data-act="pview" data-v="${x}" aria-pressed="${v===x}">${l}</button>`).join("")}</div>
+    </div></div>
+  <div class="pl-bar">
+    <div class="search pl-q">${I.search}<input id="pq" type="search" placeholder="Zoek klant of adres…" value="${esc(state.pq)}"></div>
+        <span class="pl-sp"></span>
+    ${state.pstat&&state.pstat!=="alle"?`<button type="button" class="pl-chip" data-act="pstat" data-v="alle"><span class="sdot ${({gepland:"plan",bezig:"busy",afgerond:"ok"})[state.pstat]}"></span>Alleen ${({gepland:"gepland",bezig:"bezig",afgerond:"afgerond"})[state.pstat]}${I.x}</button>`:""}
+    ${tglChip(state.achter,"achter","Alleen achterstallig",I.alert)}${tglChip(state.planMode,"planmode","Plan-modus",I.wand)}${tglChip(state.pselMode,"pselmode","Selecteren",I.checksq||I.check)}
+    ${v==="dag"||v==="multi"?`<button type="button" class="primary pl-opt" data-act="optim" data-d="${d0}" title="Zet de jobs van deze dag in de kortste volgorde">${I.route||I.wand}<span>Optimaliseer route</span></button>`:""}
+    <button type="button" class="pl-new" data-act="newjob" data-d="${d0}">${I.plus}<span>Job</span></button>
+    <div class="pl-meer${state.pmeer?" open":""}"><button type="button" class="iconbtn pl-mb" data-act="pmeer" aria-expanded="${!!state.pmeer}" aria-label="Meer acties" title="Meer">${I.dots||"⋯"}</button>
+      <div class="pl-menu" role="menu">
+        <p class="pl-ml">Acties</p>
+        ${mi("planmail",I.send,"Planningsmail","Klanten laten weten wanneer je komt",` data-d="${d0}"`)}
+        ${mi("daynote",I.note,"Notitie bij deze dag","",` data-d="${d0}"`)}
+        ${mi("bulkday",I.cal2,"Bulk dag","Hele dag in één keer verzetten of afmelden",` data-d="${d0}"`)}
+        ${mi("webaanvraag",I.globe,"Website-aanvraag","Aanvraag handmatig toevoegen")}
+        ${mi("refresh",I.refresh,"Verversen","")}
+        <p class="pl-ml">Tonen</p>
+        <div class="pl-mrow"><div class="seg pl-st2">${[["alle","Alle",""],["gepland","Gepland","plan"],["bezig","Bezig","busy"],["afgerond","Afgerond","ok"]].map(([x,l,c])=>`<button type="button" data-act="pstat" data-v="${x}" aria-pressed="${(state.pstat||"alle")===x}">${c?`<span class="sdot ${c}"></span>`:""}${l}</button>`).join("")}</div></div>
+        <p class="pl-ml">Werkwijze</p>
+        ${mt("planmode",I.wand,"Plan-modus · tik klant, dan tijdslot",state.planMode)}
+        ${mt("pselmode",I.checksq||I.check,"Meerdere afspraken selecteren",state.pselMode)}
+        ${mt("achter",I.alert,"Alleen achterstallig tonen",state.achter)}
+        ${v==="dag"||v==="multi"?`<p class="pl-ml">Weergave</p>
+        <div class="pl-mrow"><span>Tijdvak</span><div class="seg">${[15,30,60].map(x=>`<button type="button" data-act="slotsz" data-v="${x}" aria-pressed="${state.slot===x}">${x} min</button>`).join("")}</div></div>
+        <div class="pl-mrow"><span>Hoogte</span><div class="seg"><button type="button" data-act="rowh" data-n="-1" aria-label="Lager">${I.minus}</button><button type="button" disabled style="opacity:1;color:var(--ink);min-width:74px">${state.rowH<1?"Compact":state.rowH>1?"Ruim":"Normaal"}</button><button type="button" data-act="rowh" data-n="1" aria-label="Hoger">${I.plus}</button></div></div>`:""}
+      </div></div>
   </div>
   ${state.pselMode?pselBar():""}
-  ${state.planMode?`<div class="notice" style="background:var(--brand-soft);color:var(--brand)">Plan-modus staat aan: kies rechts een klant en tik daarna op een tijdslot.${state.pick?" Gekozen: <b>"+esc(cleanName((state.klanten.find(k=>k.id===state.pick)||{}).naam))+"</b>":""}</div>`:""}
-  <div class="seg" role="group" aria-label="Weergave" style="margin-bottom:14px">${[["dag","Dag"],["week","Week"],["multi","Multi"],["maand","Maand"]].map(([x,l])=>`<button type="button" data-act="pview" data-v="${x}" aria-pressed="${v===x}">${l}</button>`).join("")}</div>
-  <div class="toolbar"><div class="search" style="flex:1 1 220px">${I.search}<input id="pq" type="search" placeholder="Zoek klant of adres…" value="${esc(state.pq)}"></div>
-    <div class="seg" role="group" aria-label="Status">${[["alle","Alle",""],["gepland","Gepland","plan"],["bezig","Bezig","busy"],["afgerond","Afgerond","ok"]].map(([x,l,c])=>`<button type="button" data-act="pstat" data-v="${x}" aria-pressed="${state.pstat===x}"><span class="sdot ${c}"></span>${l}</button>`).join("")}</div></div>
-  <div class="sumcard"><button type="button" class="ghost" data-act="pnav" data-n="-1" aria-label="Vorige">${I.left}</button><button type="button" class="ghost link" data-act="pnav" data-n="0">Vandaag</button>
-    <div class="sc-mid"><span class="eyebrow">${v==="dag"?"Datum":v}</span><b>${esc(v==="dag"?wd(first)+" "+fmtD(first):v==="maand"?first.toLocaleDateString("nl-NL",{month:"long"}):title)}</b><small>wk ${weekNr(first)}</small></div>
-    <div class="sc-k"><span class="eyebrow">Jobs</span><b>${tot.n}</b></div><div class="sc-k"><span class="eyebrow">Omzet <small>${btwLbl()}</small></span><b>${eur0(toon(tot.sum))}</b></div>
-    <button type="button" class="ghost" data-act="pnav" data-n="1" aria-label="Volgende">${I.right}</button></div>`;
-  if(v==="dag"||v==="multi")html+=`<div class="ctrlrow"><span class="eyebrow">Hoogte:</span><div class="seg"><button type="button" data-act="rowh" data-n="-1" aria-label="Lager">${I.minus}</button><button type="button" disabled style="opacity:1;color:var(--ink)">${state.rowH<1?"Compact":state.rowH>1?"Ruim":"Normaal"}</button><button type="button" data-act="rowh" data-n="1" aria-label="Hoger">${I.plus}</button></div>
-    <span class="eyebrow">Slot:</span><div class="seg">${[15,30,60].map(x=>`<button type="button" data-act="slotsz" data-v="${x}" aria-pressed="${state.slot===x}">${x}m</button>`).join("")}</div></div>`;
+  ${state.planMode?`<div class="notice" style="background:var(--brand-soft);color:var(--brand)">Plan-modus staat aan: kies rechts een klant en tik daarna op een tijdslot.${state.pick?" Gekozen: <b>"+esc(cleanName((state.klanten.find(k=>k.id===state.pick)||{}).naam))+"</b>":""}</div>`:""}`;
   if(v==="multi")html+=`<div class="ctrlrow" style="justify-content:flex-start"><span class="eyebrow">Dagen:</span>${days.map(d=>`<span class="chip daychip">${wd(parse(d))} ${fmtD(d)}<button type="button" class="tiny ghost" data-act="mdel" data-d="${d}" aria-label="Verwijder ${fmtD(d)}">${I.x}</button></span>`).join("")}${days.length<6?`<input type="date" id="madd" style="width:auto" aria-label="Dag toevoegen">`:""}</div>`;
   if(!state.klanten.length)return html+empty("Nog geen klanten","Voeg je eerste klant toe of importeer je klantenbestand.",`<button type="button" class="primary" data-act="klant">${I.plus}Nieuwe klant</button>`);
   if(!big()&&v==="dag"){const wk=[...Array(7)].map((_,i)=>iso(addDays(startOfWeek(first),i)));html+=`<div class="daypick">${wk.map(d=>`<button type="button" data-act="pickday" data-d="${d}" aria-pressed="${d===d0}"${d===iso(t)?' class="is-today"':""}><span>${wd(parse(d))}</span><b>${parse(d).getDate()}</b><i>${daySum(d).n}</i></button>`).join("")}</div>`}
@@ -335,3 +353,9 @@ async function pselMove(){const d=($("#pselD")||{}).value,mode=($("#pselT")||{})
 async function pselTerug(){const ks=[...state.psel].map(id=>state.klanten.find(x=>x.id===id)).filter(Boolean);if(!ks.length)return;
   if(!(await vraag("Terug naar te plannen",`${plural(ks.length,"afspraak","afspraken")} uit de agenda halen? Ze staan daarna weer bij Te plannen.`,"Ja, uit de agenda")))return;
   try{for(const k of ks)await save("klanten",k.id,{...strip(k),gepland:"",tijd:"",aanbieden:true});toast(plural(ks.length,"afspraak","afspraken")+" terug naar te plannen");state.psel.clear();render()}catch(e){err(e)}}
+
+/* menu "Meer" in Planning: sluiten bij klik erbuiten of na een keuze */
+document.addEventListener("click",e=>{if(!state.pmeer)return;const m=e.target.closest(".pl-meer");
+  if(m&&e.target.closest('.pl-menu [data-act]:not([data-act="rowh"]):not([data-act="slotsz"])')){state.pmeer=false;return}
+  if(!m){state.pmeer=false;document.querySelectorAll(".pl-meer.open").forEach(x=>x.classList.remove("open"))}},true);
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&state.pmeer){state.pmeer=false;document.querySelectorAll(".pl-meer.open").forEach(x=>x.classList.remove("open"))}});

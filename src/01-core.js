@@ -69,6 +69,7 @@ const sv=(p,extra="")=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColo
 const I={
   check:sv('<path d="M5 12.5l4.5 4.5L19 7.5"/>',' stroke-width="2.6"'),
   vandaag:sv('<path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/>'),
+  dots:sv('<circle cx="5" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="19" cy="12" r="1.4" fill="currentColor"/>'),
   route:sv('<path d="M21 3L3 10.5l7.5 3L14 21z"/>'),
   planning:sv('<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>'),
   klanten:sv('<circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6M17 11a3 3 0 1 0 0-6M22 21c0-3-2-5-5-5"/>'),
