@@ -1647,3 +1647,5 @@ nav.tabs .badge.nk-b{padding:0 2px;height:18px}nav.tabs .badge.nk-b em{display:n
 .app.collapsed aside nav button{overflow:visible}
 .app.collapsed aside nav button .badge.nk-b{top:2px;right:4px}
 .app.collapsed .lg-out{display:none}
+
+.notice.verhuisd{background:#fdecea;border-color:#f3b8b0;color:#7a2318;font-weight:500}.notice.verhuisd a{color:#7a2318;font-weight:700;text-decoration:underline}
