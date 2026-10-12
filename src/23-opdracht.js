@@ -195,7 +195,7 @@ function openOpdrachtWerk(kid,focus){
     const be=e.target.closest("[data-ber]");if(be){const di=be.dataset.ber.split(":")[0];const isM=di==="m",r=isM?main:extra[+di],q=r.ramen;
       const w=isM?mF:Number(r.frequentie)||52;const leeg={...q,op:["","","",""],od:["","","",""],tp:"",td:""};const b=ramenBerekening(leeg,w,null);
       q.f.forEach((n,j)=>{q.op[j]="";q.od[j]="";if(!n)return;if(!q.fq[j])q.fq[j]=String(w);if(!q.vol[j])q.vol[j]=k.gepland||iso(today())});
-      recalc(di);draw();toast("Berekend met de ingevoerde aantallen");return}
+      recalc(di);draw();return}
     const sy=e.target.closest("[data-sync]");if(sy){const [di,j]=sy.dataset.sync.split(":");const q=(di==="m"?main:extra[+di]).ramen,v=q.vol[+j];q.f.forEach((n,i)=>{if(n){q.vol[i]=v;if(q.kf[i]&&q.kfq[i])q.kvol[i]=v}});draw();toast("Aanboddatum "+fmtD(v)+" voor alle verdiepingen");return}
     const oc=e.target.closest("[data-ovclr]");if(oc){const di=oc.dataset.ovclr,q=(di==="m"?main:extra[+di]).ramen;q.tp="";q.td="";q.start="";recalc(di);draw();return}
     const re=e.target.closest("[data-redit]");if(re){editR.add(re.dataset.redit);draw();return}

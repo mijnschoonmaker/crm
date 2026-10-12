@@ -265,7 +265,7 @@ function groepBind(box,getG,done){if(box._gb)return;box._gb=1;
   box.addEventListener("change",e=>{const el=e.target;if(!el.dataset||!el.dataset.gk||!el.dataset.gf)return;if(set(el))done(el.dataset.gk,["aantal","fq","vol"].includes(el.dataset.gf))});
   box.addEventListener("click",e=>{const b=e.target.closest("[data-gst],[data-gsync],[data-gber]");if(!b||!b.dataset.gk)return;const g=getG(b.dataset.gk);if(!g)return;
     if(b.dataset.gst){const [j,d]=b.dataset.gst.split(":").map(Number),it=g.items[j];it.aantal=Math.max(0,r2((Number(it.aantal)||0)+d))}
-    else if(b.dataset.gber!=null){(g.items||[]).forEach(it=>{it.op="";it.od=""});g.tp="";g.td="";if(typeof toast==="function")toast("Berekend met de ingevoerde aantallen")}
+    else if(b.dataset.gber!=null){(g.items||[]).forEach(it=>{it.op="";it.od=""});g.tp="";g.td=""}
     else{const v=g.items[+b.dataset.gsync].vol;g.items.forEach(it=>{if(Number(it.aantal)>0)it.vol=v})}
     done(b.dataset.gk,true)})}
 /* herteken één editor zonder de rest van het scherm */

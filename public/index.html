@@ -6767,7 +6767,7 @@ function openOpdrachtWerk(kid,focus){
     const be=e.target.closest("[data-ber]");if(be){const di=be.dataset.ber.split(":")[0];const isM=di==="m",r=isM?main:extra[+di],q=r.ramen;
       const w=isM?mF:Number(r.frequentie)||52;const leeg={...q,op:["","","",""],od:["","","",""],tp:"",td:""};const b=ramenBerekening(leeg,w,null);
       q.f.forEach((n,j)=>{q.op[j]="";q.od[j]="";if(!n)return;if(!q.fq[j])q.fq[j]=String(w);if(!q.vol[j])q.vol[j]=k.gepland||iso(today())});
-      recalc(di);draw();toast("Berekend met de ingevoerde aantallen");return}
+      recalc(di);draw();return}
     const sy=e.target.closest("[data-sync]");if(sy){const [di,j]=sy.dataset.sync.split(":");const q=(di==="m"?main:extra[+di]).ramen,v=q.vol[+j];q.f.forEach((n,i)=>{if(n){q.vol[i]=v;if(q.kf[i]&&q.kfq[i])q.kvol[i]=v}});draw();toast("Aanboddatum "+fmtD(v)+" voor alle verdiepingen");return}
     const oc=e.target.closest("[data-ovclr]");if(oc){const di=oc.dataset.ovclr,q=(di==="m"?main:extra[+di]).ramen;q.tp="";q.td="";q.start="";recalc(di);draw();return}
     const re=e.target.closest("[data-redit]");if(re){editR.add(re.dataset.redit);draw();return}
@@ -7186,7 +7186,7 @@ function groepBind(box,getG,done){if(box._gb)return;box._gb=1;
   box.addEventListener("change",e=>{const el=e.target;if(!el.dataset||!el.dataset.gk||!el.dataset.gf)return;if(set(el))done(el.dataset.gk,["aantal","fq","vol"].includes(el.dataset.gf))});
   box.addEventListener("click",e=>{const b=e.target.closest("[data-gst],[data-gsync],[data-gber]");if(!b||!b.dataset.gk)return;const g=getG(b.dataset.gk);if(!g)return;
     if(b.dataset.gst){const [j,d]=b.dataset.gst.split(":").map(Number),it=g.items[j];it.aantal=Math.max(0,r2((Number(it.aantal)||0)+d))}
-    else if(b.dataset.gber!=null){(g.items||[]).forEach(it=>{it.op="";it.od=""});g.tp="";g.td="";if(typeof toast==="function")toast("Berekend met de ingevoerde aantallen")}
+    else if(b.dataset.gber!=null){(g.items||[]).forEach(it=>{it.op="";it.od=""});g.tp="";g.td=""}
     else{const v=g.items[+b.dataset.gsync].vol;g.items.forEach(it=>{if(Number(it.aantal)>0)it.vol=v})}
     done(b.dataset.gk,true)})}
 /* herteken één editor zonder de rest van het scherm */
