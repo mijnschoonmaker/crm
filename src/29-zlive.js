@@ -75,6 +75,7 @@ if(LIVE)setTimeout(function w(){state.loaded?liveAanvragen():setTimeout(w,600)},
 
 /* ---------- instellingen die alleen in de echte versie bestaan ---------- */
 if(LIVE){
+  {const w=SETCARDS.findIndex(x=>x.id==="welkom");if(w>=0)SETCARDS.splice(w,1)}
   const at=SETCARDS.findIndex(x=>x.id==="email")+1;
   SETCARDS.splice(at,0,
     {id:"liveMail",t:"E-mail versturen",sub:"Mails rechtstreeks vanuit het CRM, met alle statussen",ic:"send",bg:"#2f7f88",st:s=>s.liveMail?["ok","Actief"]:["soon","Niet ingesteld"],rows:s=>[["Afzender",s.liveAfzender||"—"],["Via","Brevo"],["Statussen","Bezorgd · geopend · geklikt · bounce · spam"]],warn:s=>s.liveMail?"":"Koppel Brevo om mails, facturen en herinneringen direct vanuit het CRM te versturen."},
@@ -120,6 +121,7 @@ if(LIVE){
     setDlg(c,`${info("De klant krijgt automatisch een PDF met de bestelde diensten, aantallen en prijzen. Het <b>voorlopige</b> overzicht direct na de aanmelding via je website (met de bijlagen hieronder). Het <b>definitieve</b> overzicht na de tellingcontrole bij de 0-beurt, of meteen nadat de klant een offerte online heeft ondertekend.")}
       ${tgl("ovVoorlopigAan","Voorlopig overzicht na aanmelding","Automatisch na het indienen van de websitecalculator",s.ovVoorlopigAan!==false)}
       ${tgl("ovDefinitiefAan","Definitief overzicht na tellingcontrole","Automatisch zodra de glazenwasser de telling bij de 0-beurt opslaat",s.ovDefinitiefAan!==false)}
+      ${inp("opzegtermijn","Opzegtermijn",s.opzegtermijn||"1 maand",{help:"Voor [noticeperiod.company] in je mailteksten."})}
       ${sec("Bijlagen bij het voorlopige overzicht")}<div id="ovPdfs"></div>
       ${sec("Teksten van de mails")}<div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="small" data-act="tpledit" data-k="voorlopig">${I.pencil}Tekst voorlopig</button><button type="button" class="small" data-act="tpledit" data-k="definitief">${I.pencil}Tekst definitief</button></div>
       <small class="help">Offertes die je vanuit het CRM mailt, krijgen een knop <b>Offerte bekijken en akkoord geven</b>. De klant tekent op zijn scherm en ontvangt direct het definitieve overzicht.</small>`,{wide:false});

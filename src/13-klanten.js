@@ -13,7 +13,7 @@ function vKlanten(){
   <div class="toolbar">
     <button type="button" class="${selm?"on":""}" data-act="selmode">${I.checksq}${selm?"Klaar met selecteren":"Selecteer"}</button>
     <button type="button" data-act="postcodes">${I.pin}Postcodes</button>
-    <button type="button" data-act="welkom">${I.mail}Welkomstberichten</button>
+    ${LIVE?"":`<button type="button" data-act="welkom">${I.mail}Welkomstberichten</button>`}
     <div class="drop"><button type="button" data-act="kmenu">${I.more}Meer</button>${state.kmenu?`<div class="menu"><button type="button" data-act="webaanvraag">${I.globe}Aanvraag van de website</button><button type="button" data-act="import">${I.upload}Importeren uit Excel/CSV</button>${state.dl&&all.length?`<button type="button" data-act="export">${I.dl}Exporteren als CSV</button>`:""}</div>`:""}</div>
     <button type="button" class="primary" data-act="klant">${I.plus}Nieuwe klant</button></div>
   <div class="toolbar"><div class="search">${I.search}<input id="q" type="search" placeholder="Zoek op naam, adres, e-mail…" value="${esc(state.q)}"></div></div>

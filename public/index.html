@@ -2569,7 +2569,7 @@ function queues(){
     out.push({id:"aanmaning",titel:"Betalingsherinneringen",uitleg:"Achterstallige facturen op "+M.filter(m=>m.aan).map(m=>m.dagen).join(", ")+" dagen na de vervaldatum",
       items:verv.map(f=>{const n=Number(f.herinneringen)||0;let j=n;while(M[j]&&!M[j].aan)j++;const m=M[j];return{k:state.klanten.find(x=>x.id===f.klantId)||{naam:f.klantNaam,email:f.klantEmail},vars:factVars(f),ref:"aanmaning:"+f.id+":"+(j+1),stap:m,onSent:()=>save("facturen",f.id,{...strip(f),herinnerdOp:iso(today()),herinneringen:j+1})}}),
       kanaal:(M.find(m=>m.aan)||M[0]).kanaal,tekst:(M.find(m=>m.aan)||M[0]).sms,mail:(M.find(m=>m.aan)||M[0]).mail,onderwerp:(M.find(m=>m.aan)||M[0]).onderwerp});}
-  if(st.welkomAan){const w=actief().filter(k=>!refs.has("welkom:"+k.id)&&k.aangemaakt&&(t-parse(k.aangemaakt))/DAY<=30);
+  if(st.welkomAan&&!LIVE){const w=actief().filter(k=>!refs.has("welkom:"+k.id)&&k.aangemaakt&&(t-parse(k.aangemaakt))/DAY<=30);
     const ov=()=>{const x=[];x.push("\n\n— "+(st.ovTitel||"Serviceovereenkomst")+" —");x.push(st.ovInleiding||"");x.push("Dienst: [service.appointment], elke [interval.appointment], [price.appointment] per beurt.");if(st.opzegtermijn&&st.opzegtermijn!=="geen")x.push("Opzegtermijn: [noticeperiod.company].");if(st.ovExtra)x.push(st.ovExtra);
       const vw=st.voorwaardenPdf?location.origin+BLOB+st.voorwaardenPdf:st.voorwaarden;if(vw)x.push("Algemene voorwaarden: "+vw);if(st.incassoVragen)x.push("Wilt u de betaling via automatische incasso laten lopen? Stuur ons uw IBAN en naam, dan regelen wij de machtiging.");x.push("Gaat u akkoord? Een kort antwoord op deze mail is genoeg.");return x.filter(Boolean).join("\n")};
     const T=tpls();
@@ -3714,7 +3714,7 @@ function vKlanten(){
   <div class="toolbar">
     <button type="button" class="${selm?"on":""}" data-act="selmode">${I.checksq}${selm?"Klaar met selecteren":"Selecteer"}</button>
     <button type="button" data-act="postcodes">${I.pin}Postcodes</button>
-    <button type="button" data-act="welkom">${I.mail}Welkomstberichten</button>
+    ${LIVE?"":`<button type="button" data-act="welkom">${I.mail}Welkomstberichten</button>`}
     <div class="drop"><button type="button" data-act="kmenu">${I.more}Meer</button>${state.kmenu?`<div class="menu"><button type="button" data-act="webaanvraag">${I.globe}Aanvraag van de website</button><button type="button" data-act="import">${I.upload}Importeren uit Excel/CSV</button>${state.dl&&all.length?`<button type="button" data-act="export">${I.dl}Exporteren als CSV</button>`:""}</div>`:""}</div>
     <button type="button" class="primary" data-act="klant">${I.plus}Nieuwe klant</button></div>
   <div class="toolbar"><div class="search">${I.search}<input id="q" type="search" placeholder="Zoek op naam, adres, e-mail…" value="${esc(state.q)}"></div></div>
@@ -7586,6 +7586,7 @@ if(LIVE)setTimeout(function w(){state.loaded?liveAanvragen():setTimeout(w,600)},
 
 /* ---------- instellingen die alleen in de echte versie bestaan ---------- */
 if(LIVE){
+  {const w=SETCARDS.findIndex(x=>x.id==="welkom");if(w>=0)SETCARDS.splice(w,1)}
   const at=SETCARDS.findIndex(x=>x.id==="email")+1;
   SETCARDS.splice(at,0,
     {id:"liveMail",t:"E-mail versturen",sub:"Mails rechtstreeks vanuit het CRM, met alle statussen",ic:"send",bg:"#2f7f88",st:s=>s.liveMail?["ok","Actief"]:["soon","Niet ingesteld"],rows:s=>[["Afzender",s.liveAfzender||"—"],["Via","Brevo"],["Statussen","Bezorgd · geopend · geklikt · bounce · spam"]],warn:s=>s.liveMail?"":"Koppel Brevo om mails, facturen en herinneringen direct vanuit het CRM te versturen."},
@@ -7631,6 +7632,7 @@ if(LIVE){
     setDlg(c,`${info("De klant krijgt automatisch een PDF met de bestelde diensten, aantallen en prijzen. Het <b>voorlopige</b> overzicht direct na de aanmelding via je website (met de bijlagen hieronder). Het <b>definitieve</b> overzicht na de tellingcontrole bij de 0-beurt, of meteen nadat de klant een offerte online heeft ondertekend.")}
       ${tgl("ovVoorlopigAan","Voorlopig overzicht na aanmelding","Automatisch na het indienen van de websitecalculator",s.ovVoorlopigAan!==false)}
       ${tgl("ovDefinitiefAan","Definitief overzicht na tellingcontrole","Automatisch zodra de glazenwasser de telling bij de 0-beurt opslaat",s.ovDefinitiefAan!==false)}
+      ${inp("opzegtermijn","Opzegtermijn",s.opzegtermijn||"1 maand",{help:"Voor [noticeperiod.company] in je mailteksten."})}
       ${sec("Bijlagen bij het voorlopige overzicht")}<div id="ovPdfs"></div>
       ${sec("Teksten van de mails")}<div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="small" data-act="tpledit" data-k="voorlopig">${I.pencil}Tekst voorlopig</button><button type="button" class="small" data-act="tpledit" data-k="definitief">${I.pencil}Tekst definitief</button></div>
       <small class="help">Offertes die je vanuit het CRM mailt, krijgen een knop <b>Offerte bekijken en akkoord geven</b>. De klant tekent op zijn scherm en ontvangt direct het definitieve overzicht.</small>`,{wide:false});

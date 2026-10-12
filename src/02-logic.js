@@ -223,7 +223,7 @@ function queues(){
     out.push({id:"aanmaning",titel:"Betalingsherinneringen",uitleg:"Achterstallige facturen op "+M.filter(m=>m.aan).map(m=>m.dagen).join(", ")+" dagen na de vervaldatum",
       items:verv.map(f=>{const n=Number(f.herinneringen)||0;let j=n;while(M[j]&&!M[j].aan)j++;const m=M[j];return{k:state.klanten.find(x=>x.id===f.klantId)||{naam:f.klantNaam,email:f.klantEmail},vars:factVars(f),ref:"aanmaning:"+f.id+":"+(j+1),stap:m,onSent:()=>save("facturen",f.id,{...strip(f),herinnerdOp:iso(today()),herinneringen:j+1})}}),
       kanaal:(M.find(m=>m.aan)||M[0]).kanaal,tekst:(M.find(m=>m.aan)||M[0]).sms,mail:(M.find(m=>m.aan)||M[0]).mail,onderwerp:(M.find(m=>m.aan)||M[0]).onderwerp});}
-  if(st.welkomAan){const w=actief().filter(k=>!refs.has("welkom:"+k.id)&&k.aangemaakt&&(t-parse(k.aangemaakt))/DAY<=30);
+  if(st.welkomAan&&!LIVE){const w=actief().filter(k=>!refs.has("welkom:"+k.id)&&k.aangemaakt&&(t-parse(k.aangemaakt))/DAY<=30);
     const ov=()=>{const x=[];x.push("\n\n— "+(st.ovTitel||"Serviceovereenkomst")+" —");x.push(st.ovInleiding||"");x.push("Dienst: [service.appointment], elke [interval.appointment], [price.appointment] per beurt.");if(st.opzegtermijn&&st.opzegtermijn!=="geen")x.push("Opzegtermijn: [noticeperiod.company].");if(st.ovExtra)x.push(st.ovExtra);
       const vw=st.voorwaardenPdf?location.origin+BLOB+st.voorwaardenPdf:st.voorwaarden;if(vw)x.push("Algemene voorwaarden: "+vw);if(st.incassoVragen)x.push("Wilt u de betaling via automatische incasso laten lopen? Stuur ons uw IBAN en naam, dan regelen wij de machtiging.");x.push("Gaat u akkoord? Een kort antwoord op deze mail is genoeg.");return x.filter(Boolean).join("\n")};
     const T=tpls();
