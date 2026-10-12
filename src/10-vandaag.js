@@ -11,7 +11,7 @@ function stopCard(k,i,isNext,late,day){
         <div class="sc-who"><span class="av sm" style="--h:${h}">${esc(initials(k.naam))}</span><div style="min-width:0;flex:1"><button type="button" class="sc-addr" data-act="klant" data-id="${esc(k.id)}">${esc(a.adres||"")}</button>
           <div class="sc-sub"><span class="dienst">${I.pin}${esc(a.plaats||"")}</span>${a.plaats?" · ":""}${esc(cleanName(k.naam))}${o&&o.naam?" · "+esc(o.naam):""}</div><div class="sc-sub">${dienstHtml(k)}${k.binnen?" · + binnen":""} · ${duur(k)} min</div></div>
           ${I.right.replace("<svg",'<svg class="chev"')}</div>
-        ${oBeurtBlok(k)}${hospRoute(k)}${ookDezeBeurt(k,typeof day!=="undefined"?day:undefined)}${k.notities?`<div class="notebox"><span class="eyebrow">Notitie</span>${esc(k.notities)}</div>`:""}${objInfo(k)}${jobExtra(k)}
+        ${oBeurtBlok(k)}${hospRoute(k)}${toegangHtml(k)}${ookDezeBeurt(k,typeof day!=="undefined"?day:undefined)}${k.notities?`<div class="notebox"><span class="eyebrow">Notitie</span>${esc(k.notities)}</div>`:""}${objInfo(k)}${jobExtra(k)}
         <div class="sc-btns"><a class="btn small" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.nav}Navigeer</a><button type="button" class="small" data-act="skip" data-id="${esc(k.id)}">${I.right}Overslaan</button></div>
       </div></div></div>`;
 }
@@ -101,7 +101,7 @@ function openJob(id,day){
   <div class="jp-body">
     <div class="jp-amt"><div><span class="eyebrow">Bedrag</span><b>${eur(toon(bedrag))}</b></div><small>${done?(b.gefactureerd==="nvt"?"Niet gefactureerd":b.gefactureerd?"Gefactureerd":"Afgemeld"):"Wordt gefactureerd na afmelden"}</small></div>
     <div><span class="eyebrow">Diensten</span><div class="jp-svc">${diensten.map(([n,p])=>`<div><span class="jp-ic">${I.wrench}</span><b>${esc(n)}${k.binnen?" (buiten en binnen)":""}</b><span>${eur(toon(p))}</span></div>`).join("")}</div></div>
-    ${oBeurtBlok(k)}${hospRoute(k)}${ookDezeBeurt(k,typeof day!=="undefined"?day:undefined)}${k.notities?`<div class="notebox"><span class="eyebrow">Notitie</span>${esc(k.notities)}</div>`:""}${objInfo(k)}${jobExtra(k)}
+    ${oBeurtBlok(k)}${hospRoute(k)}${toegangHtml(k)}${ookDezeBeurt(k,typeof day!=="undefined"?day:undefined)}${k.notities?`<div class="notebox"><span class="eyebrow">Notitie</span>${esc(k.notities)}</div>`:""}${objInfo(k)}${jobExtra(k)}
     ${(()=>{const fl=jobFotos(k);return fl.length?`<div><span class="eyebrow">Foto's · ${fl.reduce((a,f)=>a+(f.dots||[]).length,0)} ramen aangetikt</span><div class="jp-fotos" style="margin-top:6px">${fl.map((f,j)=>fotoCard(f,j,false).replace('data-fi=','data-jfi=')).join("")}</div></div>`:""})()}
     ${k.gepland?`<div><span class="eyebrow">${I.cal2}Meervoudig inplannen</span>${reeksBlok(k)}</div>`:""}
     <div><span class="eyebrow">${I.refresh}Automatisch doorplannen</span>

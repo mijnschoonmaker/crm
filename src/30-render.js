@@ -6,6 +6,7 @@ function render(){try{warmMailLogo()}catch(e){}
   meldNieuweAanmelding();
   const badge=t=>t==="offertes"&&B[t]?`<span class="badge nk-b" title="Online ondertekend"><i>${B[t]}</i><em>getekend</em></span>`:t==="klanten"&&B[t]?`<span class="badge nk-b" title="${B[t]===1?"Nieuwe klant aangemeld":B[t]+" nieuwe klanten aangemeld"}"><i>${B[t]}</i><em>nieuw</em></span>`:B[t]?`<span class="badge">${B[t]}</span>`:"";
   try{nieuwKaart()}catch(e){console.error(e)}
+  try{ptKaart()}catch(e){console.error(e)}
   $(".app").classList.toggle("collapsed",state.collapsed);
   $("#sideNav").innerHTML=PAGES.map(([t,l])=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}" title="${l}">${I[t]}<span class="lbl">${l}</span>${badge(t)}</button>`).join("");
   const mob=["vandaag","route","planning","klanten"],inMeer=!mob.includes(state.tab),meerB=late*0+mTodo;
@@ -50,6 +51,8 @@ document.addEventListener("click",e=>{
     /* klanten en jobs */
     case"klant":openKlant(id||null);break;
     case"job":openJob(id,t.dataset.d);break;
+    case"ptopen":openPortaalVz();break;
+    case"ptinvite":portaalUitnodigen(id);break;
     case"reeksinfo":openReeksInfo(id,t.dataset.d);break;
     case"reeksnew":{const k=K(id);if(k&&k.gepland)openReeks(k,k.gepland,k.tijd||"",true).then(r=>{if(r)reeksOpslaan(k,k.gepland,k.tijd||"",r,true)})}break;
     case"beurtinfo":openBeurtInfo(id);break;

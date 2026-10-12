@@ -1208,8 +1208,12 @@ async function deel(kanaal){if(!check())return;const txt=tekst();
   if(!photos.length)say(kanaal==="wa"?"WhatsApp opent met uw aanvraag. Klik daar op versturen.":"Uw mailprogramma opent met uw aanvraag. Klik daar op versturen.","ok")}
 
 /* aanvraag als gegevens (formaat zeem.aanvraag v1): straks rechtstreeks naar de server, nu als reserve in de mail */
+/* aanbevelingscode uit de link (?ref=CODE), ook als de calculator in een iframe staat */
+function refCode(){try{const q=x=>new URLSearchParams(x||"").get("ref");let r=q(location.search);try{r=r||q(parent.location.search)}catch(e){}try{r=r||localStorage.getItem("ms.ref")}catch(e){}
+  r=String(r||"").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,12);if(r)try{localStorage.setItem("ms.ref",r)}catch(e){}return r}catch(e){return ""}}
+try{refCode()}catch(e){}
 function aanvraagData(){const R=last,v=id=>g(id).value.trim();
-  return {formaat:"zeem.aanvraag",versie:1,gemaakt:new Date().toISOString(),
+  return {formaat:"zeem.aanvraag",versie:1,gemaakt:new Date().toISOString(),ref:refCode(),
     soort:SOORT,klant:{bedrijf:SOORT==="zakelijk"?v("k-bedrijf"):"",naam:v("k-naam"),adres:v("k-adres"),postcode:v("k-pc"),plaats:v("k-plaats"),email:v("k-email"),telefoon:v("k-tel"),opmerking:v("k-opm")},
     telling:{floors:floors.slice(),special:{...special},freq:g("freq").value,ramen:R.count},
     prijs:{excl:Math.round(R.ex*100)/100,incl:Math.round(R.inc*100)/100},

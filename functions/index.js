@@ -6,6 +6,7 @@
    - aanvraag      : websitecalculator en contactformulier (openbaar)
    - geplandVerzenden : elke 10 minuten ingeplande mails versturen
    - blob          : foto's en bestanden uit de opslag tonen (/_blob/<id>)
+   - portaal       : klantportaal (/portaal, /api/portaal/**) en aanbevelingen
    Sleutels staan in Firestore /geheim/config (alleen de server kan ze lezen). */
 const { onCall, onRequest, HttpsError } = require("firebase-functions/v2/https");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
@@ -249,6 +250,8 @@ exports.aanvraag = onRequest({ cors: true, memory: "512MiB", timeoutSeconds: 60 
     const dk = crypto.createHash("sha1").update([D.formaat, D.klant.naam, D.klant.email, D.klant.postcode, D.klant.adres].map(x => String(x || "").trim().toLowerCase()).join("|")).digest("hex");
     const dref = db.doc("limiet/d" + dk), dub = await db.runTransaction(async t => { const s = await t.get(dref); const vers = s.exists && Date.now() - s.data().t < 15 * 60 * 1000; if (!vers) t.set(dref, { t: Date.now() }); return vers; });
     if (dub) { res.json({ ok: true, dubbel: true }); return; }
+    /* aanbevolen door een bestaande klant? */
+    if (D.ref) { try { const r = await P.refKlant(D.ref); if (r) { D.ref = r.code; D.aanbevolenDoor = r.id; } else delete D.ref; } catch (e) { delete D.ref; } }
     let meta = []; try { meta = JSON.parse(velden.fotometa || "[]"); } catch (e) {}
     const id = newId("a"), fotos = [];
     for (const [i, f] of bestanden.entries()) {
@@ -257,7 +260,7 @@ exports.aanvraag = onRequest({ cors: true, memory: "512MiB", timeoutSeconds: 60 
       await bucket().file("assets/" + fid).save(f.buf, { contentType: f.type || "image/jpeg", resumable: false });
       fotos.push({ id: fid, naam: f.naam || "foto.jpg", ...(meta[i] || {}) });
     }
-    await db.doc("aanvragen/" + id).set({ aanvraag: D, fotos, status: "nieuw", ontvangen: nu(), ip: crypto.createHash("sha1").update(ip).digest("hex").slice(0, 12) });
+    await db.doc("aanvragen/" + id).set({ aanvraag: D, fotos, status: "nieuw", ontvangen: nu(), aanbevolenDoor: D.aanbevolenDoor || "", ip: crypto.createHash("sha1").update(ip).digest("hex").slice(0, 12) });
 
     /* klant krijgt direct het voorlopige bestellingsoverzicht (alleen bij een calculator-aanvraag met e-mailadres) */
     if (D.formaat === "zeem.aanvraag" && (await bedrijf()).ovVoorlopigAan !== false && /^\S+@\S+\.\S+$/.test(String(D.klant.email || ""))) {
@@ -357,3 +360,8 @@ exports.akkoordGeven = onRequest({ cors: true, memory: "512MiB", timeoutSeconds:
     res.json({ ok: true });
   } catch (e) { console.error(e); await ref.update({ status: "open" }).catch(() => {}); res.status(500).json({ fout: "Er ging iets mis. Probeer het opnieuw." }); }
 });
+
+/* ---------- klantportaal ---------- */
+const P = require("./portaal")({ db, onRequest, onCall, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan });
+exports.portaal = P.portaal;
+exports.portaalUitnodigen = P.portaalUitnodigen;

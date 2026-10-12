@@ -21,6 +21,25 @@
     ],
     "rewrites": [
       {
+        "source": "/api/portaal/**",
+        "function": {
+          "functionId": "portaal",
+          "region": "europe-west4"
+        }
+      },
+      {
+        "source": "/portaal",
+        "destination": "/portaal.html"
+      },
+      {
+        "source": "/portaal/**",
+        "destination": "/portaal.html"
+      },
+      {
+        "source": "/aanbevolen/**",
+        "destination": "/portaal.html"
+      },
+      {
         "source": "/api/akkoord-info",
         "function": {
           "functionId": "akkoordInfo",
@@ -97,6 +116,33 @@
       },
       {
         "source": "/config.js",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
+      },
+      {
+        "source": "/portaal",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
+      },
+      {
+        "source": "/aanbevolen/**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
+      },
+      {
+        "source": "/portaal/**",
         "headers": [
           {
             "key": "Cache-Control",

@@ -71,7 +71,8 @@ async function aanvraagToevoegen(D,fotos=[]){const a=aanvraagKlant(D),id=newId("
     ramenRegel:a.geenBijz?normR({f:a.f4,fq:["","","",""]}):null,
     ramenTelling:{floors:a.fl,special:a.sp,freq:"m8",koz:false,ramen:a.ramen,datum:iso(today()),fotos:tf,bron:"klant"},
     bron:"website",nieuwAangemeld:true,binnen:false,soort:zak?"zakelijk":"particulier",actief:true,prospect:false,akkoord:true,opdrachtVerwijderd:false,aangemaakt:iso(today()),
-    log:[{datum:iso(today()),tekst:"Aanvraag via de website · "+a.ramen+" ramen (telling klant) · "+eur(a.prijs)+" per beurt, elke 8 weken · eerste beurt O-beurt met tellingcontrole"}],objecten:[]};
+    ...aanbevelingBijAanvraag(D),
+    log:[{datum:iso(today()),tekst:(D.aanbevolenDoor?"Aanbevolen via code "+(D.ref||"")+" · ":"")+"Aanvraag via de website · "+a.ramen+" ramen (telling klant) · "+eur(a.prijs)+" per beurt, elke 8 weken · eerste beurt O-beurt met tellingcontrole"}],objecten:[]};
   await save("klanten",id,k);return {...k,id}}
 /* contactverzoek van een bedrijf / VvE: klant als prospect, nog zonder opdracht */
 async function contactToevoegen(D){const k0=D.klant||{},id=newId("k");
