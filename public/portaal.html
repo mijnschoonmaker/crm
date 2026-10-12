@@ -447,8 +447,8 @@ function ik(){const k=D.klant,t=k.toegang||{};
       ${lr(I.bericht,"Bericht sturen","Komt direct bij ons binnen","",{attr:'data-act="bericht"'})}${B.email?lr(I.mail,"E-mail",esc(B.email),"",{href:"mailto:"+B.email}):""}</div>`)}
     ${kp(I.sleutel,"Bij u thuis",`<div class="lijst">${lr(I.sleutel,"Toegang en instructies",(t.opties||[]).length||t.tekst||t.code?esc([t.code?"Poortcode ingesteld":"",...(t.opties||[]),t.tekst].filter(Boolean).join(" · ").slice(0,90)):"Poortcode, achterom open, hond aanwezig","",{attr:'data-act="toegang"'})}
       ${lr(I.zon,"Afwezigheid doorgeven","Op vakantie of verbouwing?","",{attr:'data-act="vakantie"'})}${lr(I.plus,"Iets extra laten doen","Kozijnen, binnenzijde, zonnepanelen","",{attr:'data-act="extra"'})}</div>`,{kl:"goud"})}
-    ${kp(I.ik,"Mijn gegevens",`<div class="lijst">${lr(I.huis,esc(k.naam),esc(k.adres)+"<br>"+esc(k.pcPlaats))}
-      ${lr(I.tel,"Telefoon en e-mail",esc([k.telefoon,k.email].filter(Boolean).join(" · ")||"Nog niet bekend"),"",{attr:'data-act="gegevens"'})}
+    ${kp(I.ik,"Mijn gegevens",`<div class="lijst">${lr(I.huis,esc(k.naam),esc(k.adres)+"<br>"+esc(k.pcPlaats),"",{attr:'data-act="gegevens"'})}
+      ${lr(I.tel,"Telefoon en e-mail",esc([k.telefoon||k.mobiel,k.email].filter(Boolean).join(" · ")||"Nog niet bekend"),"",{attr:'data-act="gegevens"'})}
       ${k.klantnr?lr(I.doc,"Klantnummer",esc(k.klantnr)):""}${B.voorwaarden?lr(I.doc,"Algemene voorwaarden","PDF","",{href:B.voorwaarden}):""}
       ${lr(I.uit,"Uitloggen","Op dit apparaat","",{attr:"data-uit"})}</div>`,{kl:"zacht"})}
     ${abonnementKp()}</div></div>`}
@@ -500,12 +500,15 @@ const FORM={
     <label class="veld"><span>Uw bericht</span><textarea id="vt" style="min-height:140px"></textarea></label>
     <p class="fout" role="alert"></p><div class="acties"><button class="" data-sluit>Annuleren</button><button class="primary" data-go>Versturen</button></div>`,
     o=>o.querySelector("[data-go]").onclick=()=>verstuur(o,{type:"bericht",tekst:o.querySelector("#vt").value},"Bericht ontvangen","Dank u wel. We reageren zo snel mogelijk."))},
-  gegevens(){const k=D.klant;blad(`<h3>Telefoon en e-mail</h3><p class="sub">Klopt er iets niet meer? Geef het nieuwe nummer of adres door, dan passen wij het aan.</p>
-    <label class="veld"><span>Telefoonnummer</span><input type="tel" id="gt" autocomplete="tel" value="${esc(k.telefoon)}"></label>
-    <label class="veld"><span>E-mailadres</span><input type="email" id="ge" autocomplete="email" value="${esc(k.email)}"></label>
-    <label class="veld"><span>Ander adres of andere wijziging</span><textarea id="vt" placeholder="Bijvoorbeeld: we verhuizen per 1 december naar …"></textarea></label>
-    <p class="fout" role="alert"></p><div class="acties"><button class="" data-sluit>Annuleren</button><button class="primary" data-go>Doorgeven</button></div>`,
-    o=>o.querySelector("[data-go]").onclick=()=>verstuur(o,{type:"gegevens",telefoon:o.querySelector("#gt").value,email:o.querySelector("#ge").value,tekst:o.querySelector("#vt").value},"Doorgegeven","We passen uw gegevens aan."))},
+  gegevens(){const k=D.klant;blad(`<h3>Mijn gegevens</h3><p class="sub">Pas aan wat niet meer klopt. Het wordt direct bij ons bijgewerkt.</p>
+    <label class="veld">${k.zakelijk?"Contactpersoon":"Naam"}<input id="gn" autocomplete="name" value="${esc(k.zakelijk?k.contact:k.naam)}"></label>
+    <label class="veld">Straat en huisnummer<input id="ga" autocomplete="street-address" value="${esc(k.adres)}"></label>
+    <div class="duo"><label class="veld">Postcode<input id="gp" autocomplete="postal-code" value="${esc(k.postcode)}" style="text-transform:uppercase"></label><label class="veld">Plaats<input id="gl" autocomplete="address-level2" value="${esc(k.plaats)}"></label></div>
+    <div class="duo"><label class="veld">Telefoon<input type="tel" id="gt" autocomplete="tel" value="${esc(k.telefoon)}"></label><label class="veld">Mobiel<input type="tel" id="gm" value="${esc(k.mobiel)}"></label></div>
+    <label class="veld">E-mailadres<input type="email" id="ge" autocomplete="email" value="${esc(k.email)}"><small class="hulp">Hiermee logt u ook in op deze omgeving.</small></label>
+    <div class="infobox">${I.huis}<span>Gaat u verhuizen? Pas uw adres aan, dan nemen wij contact met u op over de planning op uw nieuwe adres.</span></div>
+    <p class="fout" role="alert"></p><div class="acties"><button data-sluit>Annuleren</button><button class="primary" data-go>Opslaan</button></div>`,
+    o=>o.querySelector("[data-go]").onclick=()=>{const g=id=>o.querySelector(id).value;verstuur(o,{type:"gegevens",naam:g("#gn"),adres:g("#ga"),postcode:g("#gp"),plaats:g("#gl"),telefoon:g("#gt"),mobiel:g("#gm"),email:g("#ge")},"Opgeslagen","Uw gegevens zijn bijgewerkt.")})},
   extra(){const X=["Kozijnen reinigen","Binnenzijde ramen","Zonnepanelen","Dakgoot schoonmaken","Serre of veranda","Eenmalige schoonmaak na verbouwing"];
     blad(`<h3>Iets extra laten doen</h3><p class="sub">Kies wat u wilt. We nemen het mee bij een volgend bezoek en sturen u vooraf de prijs.</p>
     <div class="keus">${X.map(x=>`<label><input type="checkbox" value="${esc(x)}"><span>${esc(x)}</span></label>`).join("")}</div>

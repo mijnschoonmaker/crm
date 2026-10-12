@@ -110,7 +110,7 @@ module.exports = function maakPortaal(ctx) {
     const tegoed = (k.tegoed || []).filter(t => t && Number(t.bedrag) > 0);
     return {
       bedrijf: bedrijfInfo(b, base),
-      klant: { voornaam: voornaamVan(schoon(k.contact || k.naam)), naam: schoon(k.naam), contact: k.contact || "", adres: k.adres || "", pcPlaats: [k.postcode, k.plaats].filter(Boolean).join(" "), email: k.email || "", telefoon: k.telefoon || k.mobiel || "",
+      klant: { voornaam: voornaamVan(schoon(k.contact || k.naam)), naam: schoon(k.naam), contact: k.contact || "", adres: k.adres || "", postcode: k.postcode || "", plaats: k.plaats || "", pcPlaats: [k.postcode, k.plaats].filter(Boolean).join(" "), email: k.email || "", telefoon: k.telefoon || "", mobiel: k.mobiel || "", zakelijk: k.soort === "zakelijk",
         klantnr: k.klantnr || "", sinds: k.aangemaakt || (beurten.length ? beurten[beurten.length - 1].datum : ""), dienst: k.dienst || "Glasbewassing", frequentie: freqW, prijs: Number(k.prijs) || 0, binnen: !!k.binnen, actief: k.actief !== false,
         toegang: k.portaalToegang || { opties: [], tekst: "" }, nieuw: !!k.eersteKeer && !beurten.length },
       volgende, verwacht,
@@ -133,7 +133,26 @@ module.exports = function maakPortaal(ctx) {
     const v = { klantId: k.id, klantNaam: k.naam || "", adres: [k.adres, k.plaats].filter(Boolean).join(", "), type, titel: TYPES[type], tekst: txt(d.tekst), status: "nieuw", op: nu(), bron: "portaal" };
     if (type === "verzetten" || type === "overslaan") { v.datum = dt(d.datum) || k.gepland || ""; v.voorkeur = txt(d.voorkeur).slice(0, 200); }
     if (type === "vakantie") { v.datum = dt(d.datum); v.tot = dt(d.tot); if (!v.datum || !v.tot || v.tot < v.datum) throw new Error("Kies een begin- en einddatum."); }
-    if (type === "gegevens") { v.wijziging = { telefoon: txt(d.telefoon).slice(0, 40), email: txt(d.email).slice(0, 120) }; }
+    if (type === "gegevens") {
+      /* direct doorvoeren op de klant in het CRM */
+      const naamVeld = k.soort === "zakelijk" ? "contact" : "naam", MAX = { naam: 80, adres: 120, postcode: 10, plaats: 60, telefoon: 30, mobiel: 30, email: 120 }, nieuw = {}, oud = {};
+      for (const [f, max] of Object.entries(MAX)) {
+        if (d[f] === undefined) continue;
+        let x = txt(d[f]).replace(/\s+/g, " ").slice(0, max);
+        if (f === "postcode") x = x.toUpperCase().replace(/^(\d{4})\s?([A-Z]{2})$/, "$1 $2");
+        if (f === "email") x = x.toLowerCase();
+        const doel = f === "naam" ? naamVeld : f;
+        if (doel === "naam" && x === schoon(k.naam)) continue;   // alleen anders weergegeven ("Achternaam, Voornaam")
+        if (x !== String(k[doel] || "")) { nieuw[doel] = x; oud[doel] = k[doel] || ""; }
+      }
+      if (nieuw.email && !/^\S+@\S+\.\S+$/.test(nieuw.email)) throw new Error("Vul een geldig e-mailadres in.");
+      if ("adres" in nieuw && !nieuw.adres) throw new Error("Vul uw straat en huisnummer in.");
+      if ("naam" in nieuw && nieuw.naam.length < 2) throw new Error("Vul uw naam in.");
+      if (!Object.keys(nieuw).length) throw new Error("Er is niets gewijzigd.");
+      const LBL = { naam: "naam", contact: "contactpersoon", adres: "adres", postcode: "postcode", plaats: "plaats", telefoon: "telefoon", mobiel: "mobiel", email: "e-mail" };
+      await S.kref.set({ ...nieuw, log: [...(Array.isArray(k.log) ? k.log : []), { datum: isoNL(), tekst: "Gegevens gewijzigd door klant (portaal): " + Object.keys(nieuw).map(f => LBL[f] + " " + (oud[f] || "–") + " → " + (nieuw[f] || "–")).join(", ") }] }, { merge: true });
+      v.wijziging = nieuw; v.oud = oud; v.status = (nieuw.adres !== undefined || nieuw.postcode !== undefined || nieuw.plaats !== undefined) ? "nieuw" : "info";
+    }
     if (type === "extra") { v.diensten = (Array.isArray(d.diensten) ? d.diensten : []).map(x => txt(x).slice(0, 60)).slice(0, 8); }
     if (type === "toegang") {
       const opties = (Array.isArray(d.opties) ? d.opties : []).map(x => txt(x).slice(0, 60)).slice(0, 10), toegang = { opties, tekst: txt(d.tekst).slice(0, 600), code: txt(d.code).replace(/\s+/g, " ").slice(0, 40), op: nu() };
@@ -154,7 +173,7 @@ module.exports = function maakPortaal(ctx) {
       try {
         const [g, b] = await Promise.all([geheim(), bedrijf()]);
         if (g.brevoKey && (g.meldAdres || b.email)) await brevoSend(g.brevoKey, { sender: { name: "mijnschoonmaker CRM", email: g.afzender || b.email }, to: [{ email: g.meldAdres || b.email }], replyTo: k.email ? { email: k.email } : undefined,
-          subject: `Klantportaal: ${v.titel} · ${schoon(k.naam)}`, textContent: [`${schoon(k.naam)} (${v.adres}) via het klantportaal:`, "", v.titel + (v.datum ? " · " + v.datum : "") + (v.tot ? " t/m " + v.tot : "") + (v.sterren ? " · " + v.sterren + " sterren" : ""), v.voorkeur ? "Voorkeur: " + v.voorkeur : "", v.diensten && v.diensten.length ? "Diensten: " + v.diensten.join(", ") : "", v.wijziging ? "Nieuw: " + [v.wijziging.telefoon, v.wijziging.email].filter(Boolean).join(" · ") : "", v.tekst ? "\n" + v.tekst : "", "", "Open het CRM om dit af te handelen."].filter(x => x !== "").join("\n") });
+          subject: `Klantportaal: ${v.titel} · ${schoon(k.naam)}`, textContent: [`${schoon(k.naam)} (${v.adres}) via het klantportaal:`, "", v.titel + (v.datum ? " · " + v.datum : "") + (v.tot ? " t/m " + v.tot : "") + (v.sterren ? " · " + v.sterren + " sterren" : ""), v.voorkeur ? "Voorkeur: " + v.voorkeur : "", v.diensten && v.diensten.length ? "Diensten: " + v.diensten.join(", ") : "", v.wijziging ? "Al doorgevoerd in het CRM:\n" + Object.keys(v.wijziging).map(f => "- " + f + ": " + ((v.oud || {})[f] || "–") + " → " + (v.wijziging[f] || "–")).join("\n") : "", v.tekst ? "\n" + v.tekst : "", "", "Open het CRM om dit af te handelen."].filter(x => x !== "").join("\n") });
       } catch (e) { console.error("melding portaal", e); }
     }
     return { ok: true, id };
