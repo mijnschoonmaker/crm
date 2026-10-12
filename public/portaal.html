@@ -228,9 +228,25 @@ button.melding{width:100%;text-align:left;font-weight:500;color:inherit}
 
 /* inloggen */
 .welkom{min-height:100dvh;display:grid;place-items:center;padding:24px 16px}
-.wk-kaart{width:100%;max-width:440px;background:var(--surface);border:1px solid var(--line);border-radius:24px;box-shadow:0 30px 70px -30px rgb(15 31 38 / .35);padding:30px 26px}
+.wk-kaart{width:100%;max-width:440px;background:var(--surface);border:1px solid var(--line);border-radius:28px;box-shadow:0 1px 2px rgb(15 31 38 / .04),0 40px 80px -36px rgb(15 31 38 / .35);padding:36px 30px 28px}
+@media (max-width:480px){.wk-kaart{padding:30px 22px 24px;border-radius:24px}.wk-kaart.wk-c h1{font-size:30px}}
 .wk-kaart .logo{margin-bottom:24px}
-.wk-logo{display:block;margin:0 auto 26px;max-height:96px;max-width:240px;width:auto;height:auto;object-fit:contain}
+.wk-c{text-align:center}
+.wk-kaart.wk-c h1{font-size:34px;letter-spacing:-.025em;margin:16px 0 10px}
+.wk-pil{display:inline-block;background:var(--brand-soft);color:var(--brand);font-weight:700;font-size:13px;padding:5px 12px;border-radius:99px}
+.wk-intro{max-width:34ch;margin:0 auto 24px!important;font-size:15.5px;line-height:1.55}
+.wk-form{text-align:left}
+.wk-veld{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:14px;padding:0 14px;background:var(--surface-2);margin-bottom:12px;transition:border-color .15s,box-shadow .15s,background .15s}
+.wk-veld:focus-within{border-color:var(--brand);background:var(--surface);box-shadow:0 0 0 4px color-mix(in srgb,var(--brand) 14%,transparent)}
+.wk-veld svg{width:19px;height:19px;color:var(--muted)}.wk-veld:focus-within svg{color:var(--brand)}
+.wk-veld input{flex:1;min-width:0;border:0;background:transparent;outline:none;padding:15px 0;font-size:16px;font-weight:600}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wk-pts{list-style:none;display:flex;justify-content:center;gap:22px;margin:22px 0 0;padding:20px 0 0;border-top:1px solid var(--line);flex-wrap:wrap}
+.wk-pts li{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13.5px;font-weight:700}
+.wk-pts span{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand)}.wk-pts svg{width:16px;height:16px}
+.wk-env{width:64px;height:64px;border-radius:20px;display:grid;place-items:center;margin:0 auto 4px;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;box-shadow:0 12px 26px -10px rgb(19 122 138 / .55)}.wk-env svg{width:28px;height:28px}
+.wk-c .infobox{text-align:left}.wk-c .melding{text-align:left}
+.wk-logo{display:block;margin:0 auto 18px;max-height:96px;max-width:240px;width:auto;height:auto;object-fit:contain}
 .wk-kaart h1{font-size:30px;margin:0 0 8px}
 .wk-kaart p{color:var(--muted);margin:0 0 20px}
 .wk-kaart .klein{font-size:13.5px;margin:16px 0 0}
@@ -345,24 +361,24 @@ const wkLogo=src=>`<img class="wk-logo" src="${esc(src)}" alt="${esc((MERK&&MERK
 const merkNaam=()=>String(B.naam||"mijnschoonmaker").replace(/\.(com|nl)$/i,"");
 async function toonLogin(melding){
   document.title="Inloggen · klantomgeving";const LG=await merkLogo();
-  $("#app").innerHTML=`<main class="welkom"><div class="wk-kaart">${wkLogo(LG)}
-    <p class="eyebrow">${I.ik}Klantomgeving</p>
+  $("#app").innerHTML=`<main class="welkom"><div class="wk-kaart wk-c">${wkLogo(LG)}
+    <span class="wk-pil">Mijn klantomgeving</span>
     <h1>Welkom terug</h1>
-    <p>Vul het e-mailadres in dat bij ons bekend is. U krijgt direct een mail met een knop om in te loggen, zonder wachtwoord.</p>
+    <p class="wk-intro">Log in met uw e-mailadres. U ontvangt een mail met een inlogknop, een wachtwoord is niet nodig.</p>
     ${melding?`<div class="infobox">${I.klok}<span>${esc(melding)}</span></div>`:""}
-    <form id="lf" novalidate><label class="veld">E-mailadres<input type="email" id="le" autocomplete="email" inputmode="email" placeholder="naam@voorbeeld.nl" required></label>
-    <button class="primary full big" id="lb">${I.mail}Stuur mij een inloglink</button><p class="fout" id="lfout" role="alert"></p></form>
-    <p class="subt klein">Hier ziet u wanneer we komen, uw facturen en bezoeken, en kunt u ons eenvoudig iets laten weten.</p></div></main>`;
+    <form id="lf" class="wk-form" novalidate><label class="wk-veld"><span class="sr">E-mailadres</span>${I.mail}<input type="email" id="le" autocomplete="email" inputmode="email" placeholder="Uw e-mailadres" required></label>
+    <button class="primary full big" id="lb">Stuur mij een inloglink</button><p class="fout" id="lfout" role="alert"></p></form>
+    <ul class="wk-pts" aria-label="Wat u hier kunt">${[[I.kal,"Uw afspraken"],[I.fact,"Facturen"],[I.bericht,"Chat"]].map(([ic,t])=>`<li><span>${ic}</span>${t}</li>`).join("")}</ul></div></main>`;
   $("#lf").onsubmit=async e=>{e.preventDefault();const v=$("#le").value.trim(),b=$("#lb");$("#lfout").textContent="";
     if(!/^\S+@\S+\.\S+$/.test(v)){$("#lfout").textContent="Vul een geldig e-mailadres in.";$("#le").focus();return}
-    b.disabled=true;b.innerHTML=`<span class="spin" style="width:17px;height:17px;border-width:2px"></span>Versturen…`;
+    b.disabled=true;b.innerHTML=`<span class="spin" style="width:17px;height:17px;border-width:2px;border-color:rgb(255 255 255 / .35);border-top-color:#fff"></span>Versturen…`;
     try{await api("login",{body:{email:v},open:true});
-      $("#app").innerHTML=`<main class="welkom"><div class="wk-kaart">${wkLogo(LG)}<span class="objic" style="width:54px;height:54px;border-radius:16px;margin-bottom:16px">${I.mail}</span>
-        <h1>Kijk in uw mailbox</h1><p>Als <b style="color:var(--ink)">${esc(v)}</b> bij ons bekend is, staat er nu een mail met een inlogknop voor u klaar. De knop werkt een uur.</p>
+      $("#app").innerHTML=`<main class="welkom"><div class="wk-kaart wk-c">${wkLogo(LG)}<span class="wk-env">${I.mail}</span>
+        <h1>Kijk in uw mailbox</h1><p class="wk-intro">Als <b style="color:var(--ink)">${esc(v)}</b> bij ons bekend is, staat er een mail met een inlogknop voor u klaar. De knop werkt een uur.</p>
         <div class="infobox">${I.klok}<span>Niets ontvangen? Kijk ook bij ongewenste mail, of gebruik het adres waarop u onze facturen krijgt.</span></div>
         <button class="full" id="opn">Ander e-mailadres proberen</button></div></main>`;
       $("#opn").onclick=()=>toonLogin()}
-    catch(er){b.disabled=false;b.innerHTML=I.mail+"Stuur mij een inloglink";$("#lfout").textContent=er.message}};
+    catch(er){b.disabled=false;b.innerHTML="Stuur mij een inloglink";$("#lfout").textContent=er.message}};
   setTimeout(()=>{const i=$("#le");if(i)i.focus()},50)}
 
 /* ---------- aanbevelingslink (openbaar) ---------- */
@@ -371,8 +387,8 @@ async function toonAanbevolen(code){
   const site=(d&&d.bedrijf.website)||"https://mijnschoonmaker.com",url=(/^https?:/.test(site)?site:"https://"+site).replace(/\/+$/,"")+(site.includes("?")?"&":"?")+"ref="+encodeURIComponent(code);
   try{localStorage.setItem("ms.ref",code)}catch(e){}
   document.title=d?d.voornaam+" raadt "+d.bedrijf.naam+" aan":"Aanbeveling";
-  $("#app").innerHTML=`<main class="welkom"><div class="wk-kaart">${wkLogo((d&&d.bedrijf.logo)||await merkLogo())}
-    <p class="eyebrow">${I.hart}Persoonlijke aanbeveling</p>
+  $("#app").innerHTML=`<main class="welkom"><div class="wk-kaart wk-c">${wkLogo((d&&d.bedrijf.logo)||await merkLogo())}
+    <span class="wk-pil">Persoonlijke aanbeveling</span>
     <h1>${d?esc(d.voornaam)+" raadt ons aan":"U bent aanbevolen"}</h1>
     <p>Wij wassen uw ramen in een vast ritme, laten vooraf weten wanneer we komen en u ziet alles terug in uw eigen klantomgeving.</p>
     ${d&&d.welkom>0?`<div class="melding goud" style="margin-bottom:18px;box-shadow:none"><span class="objic goud">${I.cadeau}</span><div class="tx"><b>${eur0(d.welkom)} welkomstkorting</b><small>Op uw eerste factuur, omdat ${esc(d.voornaam)} u heeft aanbevolen.</small></div></div>`:""}
