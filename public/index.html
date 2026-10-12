@@ -8230,7 +8230,7 @@ function tkLijstTeken(){const L=$("#chxL");if(!L||!tkOpen)return;const q=(($("#c
   L.querySelectorAll("[data-tki]").forEach(b=>b.onclick=()=>tkDetail(b.dataset.tki));
   L.querySelectorAll("[data-tkn]").forEach(b=>b.onclick=()=>tkNieuw(b.dataset.tkn))}
 const tkTijd=s=>{const d=new Date(s),t=new Date();return d.toDateString()===t.toDateString()?d.toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"}):d.toLocaleDateString("nl-NL",{day:"numeric",month:"short"})};
-const TK_SNEL=["Bedankt voor uw bericht, we gaan ermee aan de slag.","We komen het bij het volgende bezoek oplossen.","Ik bel u zo even.","We hebben het aangepast. Is het zo goed?","Fijn om te horen, dan sluiten we dit ticket."];
+const TK_SNEL=["Bedankt voor uw bericht, we gaan ermee aan de slag.","We komen het bij het volgende bezoek oplossen.","We hebben het aangepast. Is het zo goed?","Fijn om te horen, dan sluiten we dit ticket."];
 const tkComposer=(k,extra="")=>`<div class="chx-s">${TK_SNEL.map(x=>`<button type="button" data-chs="${esc(x)}">${esc(x)}</button>`).join("")}</div>${extra}
     <div class="chx-p" id="chxP" hidden></div>
     <div class="chx-in"><label class="btn iconbtn" title="Foto toevoegen" aria-label="Foto toevoegen">${I.camera||I.upload}<input type="file" accept="image/*" id="chxF" hidden></label><textarea id="chxT" rows="1" placeholder="Antwoord aan ${esc(voornaam(k.contact||cleanName(k.naam||"")))}…"></textarea><button type="button" class="primary chx-hb" id="chxS">${I.send}<span>Versturen</span></button></div>`;

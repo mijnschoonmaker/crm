@@ -290,6 +290,7 @@ button.melding{width:100%;text-align:left;font-weight:500;color:inherit}
 .ch-in textarea{flex:1;resize:none;border:1px solid var(--line);border-radius:20px;padding:10px 14px;font-size:16px;line-height:1.35;max-height:140px;background:var(--bg);outline:none}
 .ch-in textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 14%,transparent)}
 .ch-in .iconbtn{width:42px;height:42px;border-radius:50%;flex:none}.ch-in .ch-foto{cursor:pointer}
+aside .help .primary{margin-top:2px;font-size:13.5px;padding:9px}aside .help .primary svg{width:16px;height:16px}
 .voet{text-align:center;color:var(--muted);font-size:12.5px;margin-top:30px}
 @media print{aside,nav,.topbar,.acties,.greep,.dh button{display:none!important}.ov{position:static;background:none;backdrop-filter:none}.blad{max-height:none;box-shadow:none;padding:0}.app{display:none}}
 </style></head>
@@ -421,10 +422,10 @@ function teken(){
   $("#app").innerHTML=`<div class="app">
     <aside class="side">${logoHtml(merkNaam(),B.logo||"/logo.png")}
       <p class="nlbl">Mijn klantomgeving</p><nav aria-label="Menu">${nav(false)}</nav><span class="sp"></span>
-      ${tel?`<div class="help"><b>Vragen?</b><small>We helpen u graag.</small><div class="row"><a class="btn" href="tel:${esc(tel)}">${I.tel}Bellen</a><a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/${esc(wa)}">${I.wa}App</a></div></div>`:""}
+      <div class="help"><b>Vragen?</b><small>Maak een ticket aan, dan helpen we u snel.</small><button class="primary full" data-act="ticket">${I.ticket}Ticket aanmaken</button>${tel?`<div class="row" style="margin-top:6px"><a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/${esc(wa)}">${I.wa}WhatsApp</a>${B.email?`<a class="btn" href="mailto:${esc(B.email)}">${I.mail}Mail</a>`:""}</div>`:""}</div>
       <div class="usercard"><span class="uav">${esc((k.voornaam||"?")[0].toUpperCase())}</span><div><b>${esc(k.naam)}</b><small>${k.klantnr?"Klant "+esc(k.klantnr):esc(k.adres)}</small></div><button data-uit title="Uitloggen" aria-label="Uitloggen">${I.uit}</button></div></aside>
     <div><header class="topbar">${logoHtml(merkNaam(),B.logo||"/logo.png")}<span class="sp"></span><button class="uav" data-tab="ik" aria-label="Mijn gegevens">${esc((k.voornaam||"?")[0].toUpperCase())}</button></header>
-    <main id="main"${tab==="tickets"&&TK.open?' class="m-chat"':""}>${({home,bezoeken,tickets,facturen,aanbevelen,ik})[tab]()}<p class="voet">${esc(B.naam)}${B.telefoon?" · "+esc(B.telefoon):""}${B.email?" · "+esc(B.email):""}</p></main></div></div>
+    <main id="main"${tab==="tickets"&&TK.open?' class="m-chat"':""}>${({home,bezoeken,tickets,facturen,aanbevelen,ik})[tab]()}<p class="voet">${esc(B.naam)}${B.email?" · "+esc(B.email):""}</p></main></div></div>
     <nav class="tabs" aria-label="Menu">${nav(true)}</nav>`;
   $$("[data-tab]").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;if(tab==="tickets"){TK.open="";TK.d=null;TK.sig=""}teken();scrollTo({top:0});try{history.replaceState(null,"","#"+tab)}catch(e){}});
   koppel();if(tab==="tickets")ticketsStart()}
@@ -499,9 +500,9 @@ function deelTekst(){return `Ik laat mijn ramen wassen door ${B.naam} en ben er 
 
 function ik(){const k=D.klant,t=k.toegang||{};
   const tel=(B.mobiel||B.telefoon||"").replace(/[^\d+]/g,""),wa=tel.replace(/^\+/,"").replace(/^0/,"31");
-  return kop("Contact","We helpen u graag. Bel, app of stuur een bericht.")+`<div class="pg"><div class="grid2">
-    ${kp(I.tel,"Contact met ons",`<div class="lijst">${tel?lr(I.tel,"Bellen",esc(B.telefoon||B.mobiel),"",{href:"tel:"+tel})+lr(I.wa,"WhatsApp","Meestal binnen een paar uur antwoord","",{href:"https://wa.me/"+wa,tis:"background:#e3f5ea;color:#1f9d55"}):""}
-      ${lr(I.bericht,"Ticket aanmaken","Vraag of klacht, ook met een foto","",{attr:'data-act="ticket"'})}${B.email?lr(I.mail,"E-mail",esc(B.email),"",{href:"mailto:"+B.email}):""}</div>`)}
+  return kop("Contact","We helpen u graag. Maak een ticket aan, of stuur een WhatsApp of e-mail.")+`<div class="pg"><div class="grid2">
+    ${kp(I.ticket,"Contact met ons",`<div class="lijst">${lr(I.ticket,"Ticket aanmaken",`Snelste weg · u volgt de status in het portaal`,`<span class="pill brand">Voorkeur</span>`,{attr:'data-act="ticket"',tis:"background:var(--brand);color:#fff"})}
+      ${tel?lr(I.wa,"WhatsApp","Stuur ons een bericht","",{href:"https://wa.me/"+wa,tis:"background:#e3f5ea;color:#1f9d55"}):""}${B.email?lr(I.mail,"E-mail",esc(B.email),"",{href:"mailto:"+B.email}):""}</div>`,{sub:"Wij werken niet telefonisch, maar reageren snel op tickets"})}
     ${kp(I.sleutel,"Bij u thuis",`<div class="lijst">${lr(I.sleutel,"Toegang en instructies",(t.opties||[]).length||t.tekst||t.code?esc([t.code?"Poortcode ingesteld":"",...(t.opties||[]),t.tekst].filter(Boolean).join(" · ").slice(0,90)):"Poortcode, achterom open, hond aanwezig","",{attr:'data-act="toegang"'})}
       ${lr(I.zon,"Afwezigheid doorgeven","Op vakantie of verbouwing?","",{attr:'data-act="vakantie"'})}${lr(I.plus,"Iets extra laten doen","Kozijnen, binnenzijde, zonnepanelen","",{attr:'data-act="extra"'})}</div>`,{kl:"goud"})}
     ${kp(I.ik,"Mijn gegevens",`<div class="lijst">${lr(I.huis,esc(k.naam),esc(k.adres)+"<br>"+esc(k.pcPlaats),"",{attr:'data-act="gegevens"'})}
