@@ -2240,6 +2240,44 @@ nav.tabs .badge.nk-b{padding:0 2px;height:18px}nav.tabs .badge.nk-b em{display:n
 .pt-code small{color:var(--muted);font-size:12px;font-weight:600;flex:1}.pt-code b{font-size:20px;letter-spacing:.14em;font-variant-numeric:tabular-nums;font-family:var(--f-mono)}
 .pt-code button{padding:4px 6px}.pt-code button svg{width:15px;height:15px}
 
+/* ---------- Chat met klanten (CRM) ---------- */
+.chx{display:grid;grid-template-columns:300px minmax(0,1fr);gap:0;border:1px solid var(--line);border-radius:18px;overflow:hidden;height:min(72vh,760px);background:var(--surface)}
+.chx-l{border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;background:var(--surface)}
+.chx-z{display:flex;align-items:center;gap:8px;margin:10px;padding:0 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}.chx-z svg{width:16px;height:16px;color:var(--muted)}
+.chx-z input{border:0!important;background:transparent!important;box-shadow:none!important;padding:9px 0!important;flex:1;min-width:0;outline:none}
+#chxL{overflow:auto;flex:1;padding:0 6px 8px}
+.chx-i{all:unset;box-sizing:border-box;cursor:pointer;width:100%;display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px}
+.chx-i:hover{background:var(--surface-2)}.chx-i.on{background:var(--brand-soft)}.chx-i:focus-visible{outline:2px solid var(--brand)}
+.chx-av{width:38px;height:38px;border-radius:50%;flex:none;display:grid;place-items:center;font-weight:800;font-size:13px;color:#fff;background:hsl(var(--h,190) 42% 42%)}
+.chx-av.big{width:42px;height:42px}
+.chx-t{flex:1;min-width:0}.chx-t b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chx-t small{display:block;color:var(--muted);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chx-i.nieuw .chx-t b,.chx-i.nieuw .chx-t small{color:var(--ink);font-weight:800}
+.chx-m{display:flex;flex-direction:column;align-items:flex-end;gap:4px}.chx-m small{color:var(--muted);font-size:11.5px}
+.chx-m i{font-style:normal;min-width:20px;height:20px;border-radius:99px;background:var(--brand);color:#fff;font-size:11px;font-weight:800;display:grid;place-items:center;padding:0 6px}
+.chx-r{display:flex;flex-direction:column;min-height:0;min-width:0;padding:0 12px 10px}
+.chx-h{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line)}.chx-h b{display:block}.chx-h small{display:block;color:var(--muted);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chx-b{flex:1;overflow:auto;padding:14px 4px;display:flex;flex-direction:column;gap:6px}
+.chx-dag{text-align:center;margin:8px 0 2px}.chx-dag span{display:inline-block;background:var(--surface-2);color:var(--muted);font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:99px;text-transform:capitalize}
+.chx-m2{max-width:min(72%,520px);display:flex;flex-direction:column;gap:3px}
+.chx-m2.ik{align-self:flex-end;align-items:flex-end}.chx-m2.zij{align-self:flex-start}
+.chx-bb{padding:9px 13px;border-radius:16px;font-size:14.5px;line-height:1.45;overflow-wrap:anywhere}
+.chx-m2.ik .chx-bb{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:var(--brand-ink);border-bottom-right-radius:5px}
+.chx-m2.zij .chx-bb{background:var(--surface-2);border-bottom-left-radius:5px}
+.chx-m2 small{color:var(--muted);font-size:11px;padding:0 5px}
+.chx-f{display:block;max-width:240px;border-radius:14px;overflow:hidden;border:1px solid var(--line)}.chx-f img{display:block;width:100%;max-height:300px;object-fit:cover}
+.chx-s{display:flex;gap:6px;overflow-x:auto;padding:8px 0 0;scrollbar-width:none}.chx-s::-webkit-scrollbar{display:none}
+.chx-s button{white-space:nowrap;border-radius:99px;padding:6px 12px;font-size:12.5px;flex:none;background:var(--brand-soft);color:var(--brand);border-color:transparent}
+.chx-p{display:flex;align-items:center;gap:10px;padding-top:8px;font-size:13px;color:var(--muted);font-weight:700}.chx-p img{width:44px;height:44px;object-fit:cover;border-radius:10px}.chx-p span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chx-in{display:flex;align-items:flex-end;gap:8px;padding-top:8px}
+.chx-in textarea{flex:1;resize:none;min-height:42px;max-height:140px;border-radius:14px;padding:10px 12px;line-height:1.35}
+.chx-in .iconbtn{flex:none;cursor:pointer}
+.ch-fab{display:none}
+@media (max-width:979px){.ch-fab{display:grid;position:fixed;right:16px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:30;width:56px;height:56px;border-radius:50%;padding:0;place-items:center;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;border:0;box-shadow:0 10px 26px -8px rgb(19 122 138 / .6)}
+  .ch-fab svg{width:24px;height:24px}.ch-fab i{position:absolute;top:-3px;right:-3px;min-width:21px;height:21px;border-radius:99px;background:var(--late);color:#fff;font-style:normal;font-size:11.5px;font-weight:800;display:grid;place-items:center;padding:0 5px;border:2px solid var(--surface)}}
+@media (max-width:760px){.chx{grid-template-columns:1fr;height:78dvh}.chx-l{display:none}.chx:not(:has(.chx-h)) .chx-l{display:flex}}
+.chx-terug{display:none}.chx-leeg{margin:auto;text-align:center}
+@media (max-width:760px){.chx-terug{display:grid}.chx:has(.chx-leeg) .chx-l{display:flex}.chx:has(.chx-leeg) .chx-r{display:none}}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -8032,7 +8070,7 @@ function kkPortaal(k){
   const door=k.aanbevolenDoor&&state.klanten.find(x=>x.id===k.aanbevolenDoor);
   const aangebracht=state.klanten.filter(x=>x.aanbevolenDoor===k.id);
   const st=x=>x.aanbevelingBeloond?["ok","Vrijgegeven"]:x.actief===false?["neutral","Gestopt"]:x.akkoord===false||x.prospect?["soon","On hold · wacht op akkoord"]:["soon","On hold · eerste afspraak"];
-  return `<section class="kp"><div class="kp-h"><span class="objic" style="background:#e9a23b;color:#fff">${I.spark||I.user}</span><b>Klantportaal & aanbevelen</b><span class="sp"></span>${LIVE?`<button type="button" class="small" data-act="ptinvite" data-id="${esc(k.id)}">${I.send}${k.portaalLaatst||k.portaalUitgenodigd?"Opnieuw uitnodigen":"Uitnodigen"}</button>`:""}</div>
+  return `<section class="kp"><div class="kp-h"><span class="objic" style="background:#e9a23b;color:#fff">${I.spark||I.user}</span><b>Klantportaal & aanbevelen</b><span class="sp"></span>${LIVE?`<button type="button" class="small" data-act="chatopen" data-id="${esc(k.id)}">${I.chat||I.mail}Chat</button><button type="button" class="small" data-act="ptinvite" data-id="${esc(k.id)}">${I.send}${k.portaalLaatst||k.portaalUitgenodigd?"Opnieuw uitnodigen":"Uitnodigen"}</button>`:""}</div>
     <div class="pt-kk">
       <div><small>Portaal</small><b>${k.portaalLaatst?"Laatst ingelogd "+esc(fmtD(k.portaalLaatst.slice(0,10))):k.portaalUitgenodigd?"Uitgenodigd "+esc(fmtD(k.portaalUitgenodigd.slice(0,10))):"Nog niet gebruikt"}</b></div>
       <div><small>Aanbevelingscode</small><b>${esc(k.refCode||"Wordt gemaakt bij eerste login")}</b></div>
@@ -8101,6 +8139,79 @@ if(LIVE){const at=SETCARDS.findIndex(x=>x.id==="liveOverzicht")+1;
     bindSave()};
 }
 
+/* ---------- chat met klanten (via het klantportaal) ---------- */
+state.chats=state.chats||[];let chatUnsub=null,chatOpen=null;
+const chatNaam=()=>{const n=String((state.me&&(state.me.name||state.me.email))||"").split("@")[0].split(/[.\s_-]/)[0];return n?n[0].toUpperCase()+n.slice(1):""};
+const chatOngelezen=()=>(state.chats||[]).filter(c=>Number(c.ongelezenTeam)>0);
+function liveChat(){if(!LIVE||chatUnsub)return;
+  chatUnsub=fsDb().collection("chats").orderBy("laatst","desc").limit(150).onSnapshot(s=>{const oud=chatOngelezen().reduce((a,c)=>a+Number(c.ongelezenTeam),0);
+    state.chats=s.docs.map(d=>({id:d.id,...d.data()}));const nw=chatOngelezen().reduce((a,c)=>a+Number(c.ongelezenTeam),0);
+    try{chatKaart()}catch(e){}if(chatOpen)try{chatLijstTeken()}catch(e){}
+    if(nw>oud&&!(chatOpen&&document.hasFocus()))toast("Nieuw chatbericht van "+cleanName((chatOngelezen()[0]||{}).klantNaam||"een klant"),[{label:"Openen",fn:()=>openChat((chatOngelezen()[0]||{}).id)}])},e=>console.error("chats",e))}
+if(LIVE)setTimeout(function w(){state.loaded?liveChat():setTimeout(w,700)},900);
+function chatKaart(){const l=chatOngelezen(),n=l.reduce((a,c)=>a+Number(c.ongelezenTeam),0);
+  /* zijbalk (computer) */
+  const side=document.querySelector("aside.side"),uc=document.getElementById("userCard");
+  let el=document.getElementById("chatCard");
+  if(side&&uc){if(!n){if(el)el.remove()}else{if(!el){el=document.createElement("div");el.id="chatCard";side.insertBefore(el,document.getElementById("ptCard")||uc)}
+    const c=l[0],sig=l.map(x=>x.id+x.ongelezenTeam).join(",");if(el.dataset.sig!==sig){el.dataset.sig=sig;el.className="pt-card ch-card";
+      el.innerHTML=`<button type="button" data-act="chatopen" data-id="${esc(c.id)}"><span class="pt-ic">${I.chat||I.mail}<i>${n}</i></span><span class="pt-tx"><b>${l.length>1?l.length+" chats":esc(cleanName(c.klantNaam))}</b><small>${esc(c.laatsteTekst||"")}</small></span>${I.right}</button>`}}}
+  /* zwevende knop (telefoon) */
+  let fb=document.getElementById("chatFab");
+  if(!n){if(fb)fb.remove();return}
+  if(!fb){fb=document.createElement("button");fb.type="button";fb.id="chatFab";fb.className="ch-fab";fb.dataset.act="chatopen";document.body.appendChild(fb)}
+  fb.dataset.id=l[0].id;fb.setAttribute("aria-label",n+" nieuwe chatberichten");fb.innerHTML=`${I.chat||I.mail}<i>${n}</i>`}
+
+async function openChat(kid){
+  if(!LIVE)return toast("De chat werkt in de live versie");
+  chatOpen={kid:kid||(matchMedia("(max-width:760px)").matches?"":((state.chats[0]||{}).id)||""),unsub:null,berichten:[],foto:null};
+  openDlg(`<div class="dlg-head"><span class="objic big">${I.chat||I.mail}</span><div style="min-width:0;flex:1"><h3>Chat met klanten</h3><div class="subt">Berichten via het klantportaal</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
+    <div class="chx"><div class="chx-l"><label class="chx-z">${I.search}<input type="search" id="chxZ" placeholder="Zoek of start een chat…" autocomplete="off"></label><div id="chxL"></div></div><div class="chx-r" id="chxR"></div></div>`,{xwide:true});
+  dlg.addEventListener("close",chatSluit,{once:true});
+  $("#chxZ").oninput=chatLijstTeken;chatLijstTeken();if(chatOpen.kid)chatGesprek(chatOpen.kid);else if(!state.chats.length)$("#chxR").innerHTML=`<p class="subt chx-leeg">Nog geen gesprekken.<br>Zoek een klant om een chat te starten.</p>`}
+function chatSluit(){if(chatOpen&&chatOpen.unsub)chatOpen.unsub();chatOpen=null}
+function chatLijstTeken(){const L=$("#chxL");if(!L||!chatOpen)return;const q=(($("#chxZ")||{}).value||"").trim().toLowerCase();
+  let rij=state.chats.filter(c=>!q||String(c.klantNaam+" "+(c.adres||"")).toLowerCase().includes(q));
+  const extra=q.length>=2?state.klanten.filter(k=>!state.chats.some(c=>c.id===k.id)&&[k.naam,k.adres,k.plaats,k.email].join(" ").toLowerCase().includes(q)).slice(0,8):[];
+  L.innerHTML=rij.map(c=>`<button type="button" class="chx-i${c.id===chatOpen.kid?" on":""}${Number(c.ongelezenTeam)>0?" nieuw":""}" data-chk="${esc(c.id)}"><span class="chx-av" style="--h:${hue(c.klantNaam||"")}">${esc(initials(cleanName(c.klantNaam||"?")))}</span><span class="chx-t"><b>${esc(cleanName(c.klantNaam||"Klant"))}</b><small>${c.laatsteVan==="team"?"U: ":""}${esc(c.laatsteTekst||"")}</small></span><span class="chx-m"><small>${c.laatst?esc(chatTijd(c.laatst)):""}</small>${Number(c.ongelezenTeam)>0?`<i>${c.ongelezenTeam}</i>`:""}</span></button>`).join("")
+    +(extra.length?`<p class="eyebrow" style="margin:12px 10px 6px">Nieuwe chat starten</p>`+extra.map(k=>`<button type="button" class="chx-i" data-chk="${esc(k.id)}"><span class="chx-av" style="--h:${hue(k.naam||"")}">${esc(initials(cleanName(k.naam)))}</span><span class="chx-t"><b>${esc(cleanName(k.naam))}</b><small>${esc([k.adres,k.plaats].filter(Boolean).join(", "))}</small></span></button>`).join(""):"")
+    ||`<p class="subt" style="padding:20px 10px;text-align:center">${q?"Geen klant gevonden":"Nog geen gesprekken"}</p>`;
+  L.querySelectorAll("[data-chk]").forEach(b=>b.onclick=()=>chatGesprek(b.dataset.chk))}
+const chatTijd=s=>{const d=new Date(s),t=new Date();return d.toDateString()===t.toDateString()?d.toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"}):d.toLocaleDateString("nl-NL",{day:"numeric",month:"short"})};
+const CH_SNEL=["Bedankt voor uw bericht, we passen het aan.","We komen morgen bij u langs.","Ik bel u zo even.","Geen probleem, we plannen u opnieuw in.","Fijn om te horen, bedankt!"];
+function chatGesprek(kid){if(!chatOpen)return;if(chatOpen.unsub)chatOpen.unsub();chatOpen.kid=kid;chatOpen.berichten=[];chatOpen.foto=null;
+  const k=state.klanten.find(x=>x.id===kid)||{id:kid,naam:(state.chats.find(c=>c.id===kid)||{}).klantNaam||"Klant"},c=state.chats.find(x=>x.id===kid)||{};
+  chatLijstTeken();
+  $("#chxR").innerHTML=`<div class="chx-h"><button type="button" class="iconbtn sm chx-terug" id="chxTerug" aria-label="Terug naar gesprekken">${I.left||"‹"}</button><span class="chx-av big" style="--h:${hue(k.naam||"")}">${esc(initials(cleanName(k.naam)))}</span><div style="flex:1;min-width:0"><b>${esc(cleanName(k.naam))}</b><small>${esc([k.adres,k.plaats].filter(Boolean).join(", "))}${k.gepland?" · volgende afspraak "+esc(fmtD(k.gepland))+(k.tijd?" "+esc(k.tijd):""):""}</small></div>${k.telefoon?`<a class="btn small" href="tel:${esc(k.telefoon)}">${I.phone||""}Bellen</a>`:""}<button type="button" class="small" data-act="klant" data-id="${esc(kid)}">Klantkaart</button></div>
+    <div class="chx-b" id="chxB"><p class="subt" style="margin:auto">Laden…</p></div>
+    <div class="chx-s">${CH_SNEL.map(x=>`<button type="button" data-chs="${esc(x)}">${esc(x)}</button>`).join("")}</div>
+    <div class="chx-p" id="chxP" hidden></div>
+    <div class="chx-in"><label class="btn iconbtn" title="Foto toevoegen" aria-label="Foto toevoegen">${I.camera||I.upload}<input type="file" accept="image/*" id="chxF" hidden></label><textarea id="chxT" rows="1" placeholder="Bericht aan ${esc(voornaam(k.contact||cleanName(k.naam)))}…"></textarea><button type="button" class="primary" id="chxS">${I.send}Versturen</button></div>
+    <small class="help" style="margin:4px 4px 0">${c.gezienKlant&&Date.now()-new Date(c.gezienKlant)<3*60e3?`<span class="sdot ok"></span> ${esc(voornaam(k.contact||cleanName(k.naam)))} is nu in het portaal`:"De klant krijgt een mail met een knop naar dit gesprek als hij niet online is."}</small>`;
+  chatOpen.unsub=fsDb().collection("chatBerichten").where("klantId","==",kid).onSnapshot(s=>{if(!chatOpen||chatOpen.kid!==kid)return;chatOpen.berichten=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>String(a.op).localeCompare(String(b.op)));chatBerichtenTeken();
+    const cc=state.chats.find(x=>x.id===kid);if(cc&&Number(cc.ongelezenTeam)>0||!cc)fsDb().doc("chats/"+kid).set({ongelezenTeam:0,gezienTeam:new Date().toISOString()},{merge:true}).catch(()=>{});
+    else fsDb().doc("chats/"+kid).set({gezienTeam:new Date().toISOString()},{merge:true}).catch(()=>{})},e=>{console.error(e);$("#chxB").innerHTML=`<p class="subt" style="margin:auto">Laden lukte niet</p>`});
+  $("#chxTerug").onclick=()=>{if(chatOpen.unsub)chatOpen.unsub();chatOpen.unsub=null;chatOpen.kid="";$("#chxR").innerHTML="";chatLijstTeken()};
+  const t=$("#chxT"),groei=()=>{t.style.height="auto";t.style.height=Math.min(t.scrollHeight,140)+"px"};t.oninput=groei;
+  t.onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();chatVerstuur(k)}};
+  form.querySelectorAll("[data-chs]").forEach(b=>b.onclick=()=>{t.value=b.dataset.chs;groei();t.focus()});
+  $("#chxS").onclick=()=>chatVerstuur(k);
+  $("#chxF").onchange=e=>{const f=e.target.files[0];e.target.value="";if(!f)return;chatOpen.foto=f;const p=$("#chxP");p.hidden=false;p.innerHTML=`<img src="${URL.createObjectURL(f)}" alt=""><span>${esc(f.name)}</span><button type="button" class="iconbtn sm ghost" id="chxPx" aria-label="Verwijderen">${I.x}</button>`;$("#chxPx").onclick=()=>{chatOpen.foto=null;p.hidden=true;p.innerHTML=""}};
+  setTimeout(()=>t.focus(),60)}
+function chatBerichtenTeken(){const b=$("#chxB");if(!b||!chatOpen)return;const bij=b.scrollHeight-b.scrollTop-b.clientHeight<140;let dag="";
+  const c=state.chats.find(x=>x.id===chatOpen.kid)||{},laatsteTeam=[...chatOpen.berichten].reverse().find(m=>m.van==="team");
+  b.innerHTML=chatOpen.berichten.length?chatOpen.berichten.map(m=>{const d=new Date(m.op).toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long"});const sep=d!==dag?(dag=d,`<div class="chx-dag"><span>${esc(d)}</span></div>`):"";
+    return sep+`<div class="chx-m2 ${m.van==="team"?"ik":"zij"}">${m.foto?`<a href="${BLOB}${esc(m.foto)}" target="_blank" rel="noopener" class="chx-f"><img src="${BLOB}${esc(m.foto)}" alt="Foto"></a>`:""}${m.tekst?`<div class="chx-bb">${esc(m.tekst).replace(/\n/g,"<br>")}</div>`:""}<small>${m.van==="team"&&m.doorNaam?esc(m.doorNaam)+" · ":""}${new Date(m.op).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"})}${m===laatsteTeam?(c.gezienKlant&&c.gezienKlant>=m.op?" · gelezen":" · verzonden"):""}</small></div>`}).join(""):`<p class="subt" style="margin:auto;text-align:center">Nog geen berichten.<br>Stuur het eerste bericht.</p>`;
+  if(bij)b.scrollTop=b.scrollHeight}
+async function chatVerstuur(k){const t=$("#chxT"),s=$("#chxS"),tekst=t.value.trim(),f=chatOpen&&chatOpen.foto;if(!tekst&&!f)return;s.disabled=true;
+  try{let foto="";if(f){const r=await state.assets.upload(f);foto=r.id}
+    const op=new Date().toISOString(),naam=chatNaam();
+    await fsDb().collection("chatBerichten").doc(newId("cb")).set({klantId:k.id,van:"team",tekst,foto,op,door:(state.me&&state.me.email)||"",doorNaam:naam});
+    await fsDb().doc("chats/"+k.id).set({klantId:k.id,klantNaam:k.naam||"",adres:[k.adres,k.plaats].filter(Boolean).join(", "),laatst:op,laatsteTekst:tekst||"Foto",laatsteVan:"team",ongelezenKlant:firebase.firestore.FieldValue.increment(1),ongelezenTeam:0,gezienTeam:op},{merge:true});
+    t.value="";t.style.height="auto";chatOpen.foto=null;const p=$("#chxP");if(p){p.hidden=true;p.innerHTML=""}
+    fbFn("chatMelding")({klantId:k.id,basis:location.origin}).catch(e=>console.error("chatMelding",e))}
+  catch(e){err(e)}finally{s.disabled=false;t.focus()}}
+
 /* ---------- RENDER ---------- */
 const VIEWS={vandaag:vVandaag,route:vRoute,planning:vPlanning,klanten:vKlanten,communicatie:vCommunicatie,offertes:vOffertes,facturen:vFacturen,boekhouding:vBoekhouding,calculator:vRamen,uitvoering:vUitvoering,inzichten:vInzichten,instellingen:vInstellingen,handleiding:vHandleiding};
 function render(){try{warmMailLogo()}catch(e){}
@@ -8110,6 +8221,7 @@ function render(){try{warmMailLogo()}catch(e){}
   const badge=t=>t==="offertes"&&B[t]?`<span class="badge nk-b" title="Online ondertekend"><i>${B[t]}</i><em>getekend</em></span>`:t==="klanten"&&B[t]?`<span class="badge nk-b" title="${B[t]===1?"Nieuwe klant aangemeld":B[t]+" nieuwe klanten aangemeld"}"><i>${B[t]}</i><em>nieuw</em></span>`:B[t]?`<span class="badge">${B[t]}</span>`:"";
   try{nieuwKaart()}catch(e){console.error(e)}
   try{ptKaart()}catch(e){console.error(e)}
+  try{chatKaart()}catch(e){console.error(e)}
   $(".app").classList.toggle("collapsed",state.collapsed);
   $("#sideNav").innerHTML=PAGES.map(([t,l])=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}" title="${l}">${I[t]}<span class="lbl">${l}</span>${badge(t)}</button>`).join("");
   const mob=["vandaag","route","planning","klanten"],inMeer=!mob.includes(state.tab),meerB=late*0+mTodo;
@@ -8155,6 +8267,7 @@ document.addEventListener("click",e=>{
     case"klant":openKlant(id||null);break;
     case"job":openJob(id,t.dataset.d);break;
     case"ptopen":openPortaalVz();break;
+    case"chatopen":openChat(id);break;
     case"ptinvite":portaalUitnodigen(id);break;
     case"reeksinfo":openReeksInfo(id,t.dataset.d);break;
     case"reeksnew":{const k=K(id);if(k&&k.gepland)openReeks(k,k.gepland,k.tijd||"",true).then(r=>{if(r)reeksOpslaan(k,k.gepland,k.tijd||"",r,true)})}break;

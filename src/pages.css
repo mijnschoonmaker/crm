@@ -1826,3 +1826,41 @@ nav.tabs .badge.nk-b{padding:0 2px;height:18px}nav.tabs .badge.nk-b em{display:n
 .pt-code{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid color-mix(in srgb,#e09a2b 40%,var(--line));border-radius:12px;padding:8px 10px 8px 12px;margin:4px 0 6px;white-space:normal}
 .pt-code small{color:var(--muted);font-size:12px;font-weight:600;flex:1}.pt-code b{font-size:20px;letter-spacing:.14em;font-variant-numeric:tabular-nums;font-family:var(--f-mono)}
 .pt-code button{padding:4px 6px}.pt-code button svg{width:15px;height:15px}
+
+/* ---------- Chat met klanten (CRM) ---------- */
+.chx{display:grid;grid-template-columns:300px minmax(0,1fr);gap:0;border:1px solid var(--line);border-radius:18px;overflow:hidden;height:min(72vh,760px);background:var(--surface)}
+.chx-l{border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;background:var(--surface)}
+.chx-z{display:flex;align-items:center;gap:8px;margin:10px;padding:0 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}.chx-z svg{width:16px;height:16px;color:var(--muted)}
+.chx-z input{border:0!important;background:transparent!important;box-shadow:none!important;padding:9px 0!important;flex:1;min-width:0;outline:none}
+#chxL{overflow:auto;flex:1;padding:0 6px 8px}
+.chx-i{all:unset;box-sizing:border-box;cursor:pointer;width:100%;display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px}
+.chx-i:hover{background:var(--surface-2)}.chx-i.on{background:var(--brand-soft)}.chx-i:focus-visible{outline:2px solid var(--brand)}
+.chx-av{width:38px;height:38px;border-radius:50%;flex:none;display:grid;place-items:center;font-weight:800;font-size:13px;color:#fff;background:hsl(var(--h,190) 42% 42%)}
+.chx-av.big{width:42px;height:42px}
+.chx-t{flex:1;min-width:0}.chx-t b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chx-t small{display:block;color:var(--muted);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chx-i.nieuw .chx-t b,.chx-i.nieuw .chx-t small{color:var(--ink);font-weight:800}
+.chx-m{display:flex;flex-direction:column;align-items:flex-end;gap:4px}.chx-m small{color:var(--muted);font-size:11.5px}
+.chx-m i{font-style:normal;min-width:20px;height:20px;border-radius:99px;background:var(--brand);color:#fff;font-size:11px;font-weight:800;display:grid;place-items:center;padding:0 6px}
+.chx-r{display:flex;flex-direction:column;min-height:0;min-width:0;padding:0 12px 10px}
+.chx-h{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line)}.chx-h b{display:block}.chx-h small{display:block;color:var(--muted);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chx-b{flex:1;overflow:auto;padding:14px 4px;display:flex;flex-direction:column;gap:6px}
+.chx-dag{text-align:center;margin:8px 0 2px}.chx-dag span{display:inline-block;background:var(--surface-2);color:var(--muted);font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:99px;text-transform:capitalize}
+.chx-m2{max-width:min(72%,520px);display:flex;flex-direction:column;gap:3px}
+.chx-m2.ik{align-self:flex-end;align-items:flex-end}.chx-m2.zij{align-self:flex-start}
+.chx-bb{padding:9px 13px;border-radius:16px;font-size:14.5px;line-height:1.45;overflow-wrap:anywhere}
+.chx-m2.ik .chx-bb{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:var(--brand-ink);border-bottom-right-radius:5px}
+.chx-m2.zij .chx-bb{background:var(--surface-2);border-bottom-left-radius:5px}
+.chx-m2 small{color:var(--muted);font-size:11px;padding:0 5px}
+.chx-f{display:block;max-width:240px;border-radius:14px;overflow:hidden;border:1px solid var(--line)}.chx-f img{display:block;width:100%;max-height:300px;object-fit:cover}
+.chx-s{display:flex;gap:6px;overflow-x:auto;padding:8px 0 0;scrollbar-width:none}.chx-s::-webkit-scrollbar{display:none}
+.chx-s button{white-space:nowrap;border-radius:99px;padding:6px 12px;font-size:12.5px;flex:none;background:var(--brand-soft);color:var(--brand);border-color:transparent}
+.chx-p{display:flex;align-items:center;gap:10px;padding-top:8px;font-size:13px;color:var(--muted);font-weight:700}.chx-p img{width:44px;height:44px;object-fit:cover;border-radius:10px}.chx-p span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chx-in{display:flex;align-items:flex-end;gap:8px;padding-top:8px}
+.chx-in textarea{flex:1;resize:none;min-height:42px;max-height:140px;border-radius:14px;padding:10px 12px;line-height:1.35}
+.chx-in .iconbtn{flex:none;cursor:pointer}
+.ch-fab{display:none}
+@media (max-width:979px){.ch-fab{display:grid;position:fixed;right:16px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:30;width:56px;height:56px;border-radius:50%;padding:0;place-items:center;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;border:0;box-shadow:0 10px 26px -8px rgb(19 122 138 / .6)}
+  .ch-fab svg{width:24px;height:24px}.ch-fab i{position:absolute;top:-3px;right:-3px;min-width:21px;height:21px;border-radius:99px;background:var(--late);color:#fff;font-style:normal;font-size:11.5px;font-weight:800;display:grid;place-items:center;padding:0 5px;border:2px solid var(--surface)}}
+@media (max-width:760px){.chx{grid-template-columns:1fr;height:78dvh}.chx-l{display:none}.chx:not(:has(.chx-h)) .chx-l{display:flex}}
+.chx-terug{display:none}.chx-leeg{margin:auto;text-align:center}
+@media (max-width:760px){.chx-terug{display:grid}.chx:has(.chx-leeg) .chx-l{display:flex}.chx:has(.chx-leeg) .chx-r{display:none}}

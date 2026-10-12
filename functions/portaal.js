@@ -15,7 +15,7 @@
 const crypto = require("crypto");
 
 module.exports = function maakPortaal(ctx) {
-  const { db, onRequest, onCall, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan } = ctx;
+  const { db, onRequest, onCall, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket } = ctx;
   const sha = s => crypto.createHash("sha256").update(String(s)).digest("hex");
   const tok = () => crypto.randomBytes(32).toString("hex");
   const DAG = 864e5;
@@ -87,6 +87,7 @@ module.exports = function maakPortaal(ctx) {
   async function data(req, S) {
     const k = S.klant, b = await bedrijf(), base = basisUrl(req), vandaag = isoNL();
     if (!k.refCode) { k.refCode = await maakRefCode(k); await S.kref.set({ refCode: k.refCode }, { merge: true }); }
+    const chatDoc = (await db.doc("chats/" + k.id).get()).data() || {};
     const [bs, fs, vz, rk, ra] = await Promise.all([
       db.collection("beurten").where("klantId", "==", k.id).get(),
       db.collection("facturen").where("klantId", "==", k.id).get(),
@@ -118,6 +119,7 @@ module.exports = function maakPortaal(ctx) {
       teBeoordelen: laatsteB && !laatsteB.beoordeling && (Date.now() - new Date(laatsteB.datum + "T12:00:00").getTime()) < 21 * DAG ? { id: laatsteB.id, datum: laatsteB.datum } : null,
       aantalBezoeken: beurten.length,
       facturen,
+      chat: { ongelezen: Number(chatDoc.ongelezenKlant) || 0, laatste: chatDoc.laatsteTekst || "", laatsteVan: chatDoc.laatsteVan || "" },
       verzoeken: vz.docs.map(d => ({ id: d.id, ...d.data() })).filter(v => v.type !== "beoordeling" && v.type !== "toegang").sort((a, b2) => String(b2.op).localeCompare(String(a.op))).slice(0, 8)
         .map(v => ({ type: v.type, status: v.status, op: v.op, datum: v.datum || "", tot: v.tot || "", tekst: v.tekst || "", antwoord: v.antwoord || "" })),
       aanbevelen: { code: k.refCode, link: base + "/aanbevolen/" + k.refCode, lijst: aanbevolen, tegoed: r2(tegoed.reduce((a, t) => a + Number(t.bedrag), 0)), opHold: aanbevolen.filter(x => ["aangemeld", "akkoord", "eerste"].includes(x.status)).length, tegoedRegels: tegoed.map(t => ({ bedrag: Number(t.bedrag), reden: t.reden || "" })), verdiend: r2((k.tegoedGebruikt || []).reduce((a, t) => a + (Number(t.bedrag) || 0), 0)) }
@@ -233,12 +235,83 @@ module.exports = function maakPortaal(ctx) {
         await f.ref.set({ mollieId: p.id, mollieLink: link || "", betaallink: link || "", mollieStatus: p.status }, { merge: true });
         res.json({ link }); return;
       }
+      if (pad === "/chat" && req.method === "GET") { res.json(await chatLees(S)); return; }
+      if (pad === "/chat/status" && req.method === "GET") { const c = (await db.doc("chats/" + S.klant.id).get()).data() || {}; res.json({ ongelezen: Number(c.ongelezenKlant) || 0, laatste: c.laatsteTekst || "", laatsteVan: c.laatsteVan || "" }); return; }
+      if (pad === "/chat" && req.method === "POST") {
+        try { res.json(await chatStuur(req, S, body(req))); } catch (e) { res.status(400).json({ fout: e.message === "te veel" ? "U stuurt veel berichten achter elkaar. Probeer het zo opnieuw." : e.message }); }
+        return;
+      }
       if (pad === "/actie" && req.method === "POST") {
         try { res.json(await actie(req, S, body(req))); } catch (e) { res.status(400).json({ fout: /onbekend|niet gevonden/.test(e.message) ? "Dat lukte niet." : e.message === "te veel" ? "Even rustig aan, probeer het later opnieuw." : e.message }); }
         return;
       }
       res.status(404).json({ fout: "niet gevonden" });
     } catch (e) { console.error("portaal", pad, e); res.status(500).json({ fout: "Er ging iets mis. Probeer het zo opnieuw." }); }
+  });
+
+  /* ---------- chat ---------- */
+  async function chatLees(S) {
+    const k = S.klant, ref = db.doc("chats/" + k.id);
+    const [q, c] = await Promise.all([db.collection("chatBerichten").where("klantId", "==", k.id).get(), ref.get()]);
+    const berichten = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => String(a.op).localeCompare(String(b.op))).slice(-300)
+      .map(m => ({ id: m.id, van: m.van, tekst: m.tekst || "", foto: m.foto || "", op: m.op, naam: m.van === "team" ? (m.doorNaam || "") : "" }));
+    if (c.exists && c.data().ongelezenKlant) await ref.set({ ongelezenKlant: 0, gezienKlant: nu() }, { merge: true });
+    else await ref.set({ gezienKlant: nu(), klantId: k.id, klantNaam: k.naam || "" }, { merge: true });
+    return { berichten, gezienTeam: c.exists ? c.data().gezienTeam || "" : "" };
+  }
+  async function chatStuur(req, S, d) {
+    const k = S.klant, tekst = String(d.tekst || "").trim().slice(0, 2000);
+    let foto = "";
+    if (d.foto) {
+      const m = /^data:(image\/(jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/.exec(String(d.foto));
+      if (!m || m[3].length > 8e6) throw new Error("Deze foto kan niet worden verstuurd.");
+      foto = crypto.randomBytes(16).toString("hex");
+      await bucket().file("assets/" + foto).save(Buffer.from(m[3], "base64"), { contentType: m[1], resumable: false });
+    }
+    if (!tekst && !foto) throw new Error("Typ een bericht.");
+    if (!(await limiet("chat" + k.id, 60, 3600e3))) throw new Error("te veel");
+    const id = newId("cb"), op = nu();
+    await db.doc("chatBerichten/" + id).set({ klantId: k.id, van: "klant", tekst, foto, op });
+    const ref = db.doc("chats/" + k.id);
+    const vorige = await db.runTransaction(async t => {
+      const s = await t.get(ref), v = s.exists ? s.data() : {};
+      t.set(ref, { klantId: k.id, klantNaam: k.naam || "", adres: [k.adres, k.plaats].filter(Boolean).join(", "), laatst: op, laatsteTekst: tekst || "Foto", laatsteVan: "klant", ongelezenTeam: (Number(v.ongelezenTeam) || 0) + 1, gezienKlant: op }, { merge: true });
+      return v;
+    });
+    /* melding naar het bedrijf, hooguit eens per 20 minuten per gesprek */
+    if (!vorige.laatsteMailTeam || Date.now() - new Date(vorige.laatsteMailTeam).getTime() > 20 * 60e3) {
+      try {
+        const [g, b] = await Promise.all([geheim(), bedrijf()]);
+        if (g.brevoKey && (g.meldAdres || b.email)) {
+          await brevoSend(g.brevoKey, { sender: { name: "mijnschoonmaker CRM", email: g.afzender || b.email }, to: [{ email: g.meldAdres || b.email }], subject: "Chatbericht van " + schoon(k.naam), textContent: `${schoon(k.naam)} (${[k.adres, k.plaats].filter(Boolean).join(", ")}) stuurde een bericht via het klantportaal:\n\n${tekst || "(foto)"}\n\nOpen het CRM om te antwoorden.` });
+          await ref.set({ laatsteMailTeam: nu() }, { merge: true });
+        }
+      } catch (e) { console.error("chat melding", e); }
+    }
+    return { ok: true, bericht: { id, van: "klant", tekst, foto, op } };
+  }
+  /* CRM: klant per mail laten weten dat er een antwoord is (als hij niet net zelf in de chat zat) */
+  const chatMelding = onCall({ memory: "256MiB" }, async req => {
+    await checkGebruiker(req.auth);
+    const { klantId, basis } = req.data || {};
+    const s = await db.doc("klanten/" + String(klantId || "")).get();
+    if (!s.exists) return { ok: false };
+    const c = (await db.doc("chats/" + s.id).get()).data() || {};
+    if (c.gezienKlant && Date.now() - new Date(c.gezienKlant).getTime() < 3 * 60e3) return { ok: true, overgeslagen: "online" };
+    if (c.laatsteMailKlant && Date.now() - new Date(c.laatsteMailKlant).getTime() < 30 * 60e3) return { ok: true, overgeslagen: "recent" };
+    const k = { id: s.id, ...dec(s.data()) }, email = String(k.email || k.pEmail || "").split(/[;,\s]+/)[0];
+    if (!/^\S+@\S+\.\S+$/.test(email)) return { ok: false, geenMail: true };
+    const [g, b] = await Promise.all([geheim(), bedrijf()]);
+    if (!g.brevoKey) return { ok: false };
+    const t = tok();
+    await db.doc("portaalLogin/" + sha(t)).set({ klantId: k.id, email: lc(email), exp: Date.now() + 7 * DAG, op: nu() });
+    const host = String(basis || "").replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+    const url = basisUrl({ headers: { "x-forwarded-host": host } }) + "/portaal?l=" + t + "#chat";
+    const tekst = `Beste ${voornaamVan(schoon(k.contact || k.naam))},\n\nU heeft een nieuw bericht van ons in uw klantomgeving:\n\n**${String(c.laatsteTekst || "").slice(0, 300)}**\n\nMet de knop hieronder opent u direct het gesprek.\n\nMet vriendelijke groet,\n${b.naam || "mijnschoonmaker.com"}`;
+    const afz = g.afzender || b.email || "info@mijnschoonmaker.com";
+    await brevoSend(g.brevoKey, { sender: { name: b.naam || "mijnschoonmaker", email: afz }, replyTo: { email: b.email || afz }, to: [{ email, name: schoon(k.naam) || undefined }], subject: "Nieuw bericht van " + (b.naam || "mijnschoonmaker.com"), htmlContent: mailHtml(tekst, b, { knop: { url, tekst: "Bericht lezen en antwoorden" } }), textContent: tekst.replace(/\*\*/g, "") + "\n\n" + url, tags: ["portaal", "chat"] });
+    await db.doc("chats/" + s.id).set({ laatsteMailKlant: nu() }, { merge: true });
+    return { ok: true };
   });
 
   /* CRM: klant uitnodigen voor het portaal (link 14 dagen geldig) */
@@ -262,5 +335,5 @@ module.exports = function maakPortaal(ctx) {
     const q = await db.collection("klanten").where("refCode", "==", c).limit(1).get();
     return q.empty ? null : { id: q.docs[0].id, code: c, naam: q.docs[0].data().naam || "" };
   }
-  return { portaal, portaalUitnodigen, refKlant };
+  return { portaal, portaalUitnodigen, chatMelding, refKlant };
 };
