@@ -2161,6 +2161,57 @@ nav.tabs .badge.nk-b{padding:0 2px;height:18px}nav.tabs .badge.nk-b em{display:n
 .of-plan svg{width:15px;height:15px;flex:none}.of-plan span{flex:1}.of-plan b{font-weight:800}
 .of-pm{font-size:12.5px;font-weight:700;color:var(--muted);text-align:center;padding:6px;border-radius:10px;background:var(--surface-2)}.of-pm.on{background:var(--brand-soft);color:var(--brand)}
 
+/* ---------- Meervoudig inplannen (reeks) ---------- */
+.rk-ov{z-index:320}
+.rk{background:var(--surface);border:1px solid var(--line);border-radius:22px;box-shadow:0 40px 90px -20px rgb(0 0 0 / .35);width:100%;max-width:520px;max-height:calc(100dvh - 32px);overflow:auto;padding:20px;display:flex;flex-direction:column;gap:16px;animation:rkIn .22s cubic-bezier(.2,.9,.3,1.1)}
+@keyframes rkIn{from{transform:translateY(10px) scale(.98);opacity:0}to{transform:none;opacity:1}}
+.rk-h{display:flex;align-items:center;gap:12px}.rk-h>div{flex:1;min-width:0}.rk-h b{display:block;font-size:17px;letter-spacing:-.01em}.rk-h small{color:var(--muted);font-size:13px}
+.rk-h .objic{background:linear-gradient(135deg,var(--brand),#1d5a74);color:#fff}
+.rk-modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:8px}
+.rk-m{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);transition:border-color .15s,background .15s,transform .1s}
+.rk-m:hover{border-color:color-mix(in srgb,var(--brand) 40%,var(--line))}.rk-m:active{transform:scale(.98)}
+.rk-m svg{width:20px;height:20px;color:var(--muted);margin-bottom:6px}.rk-m b{font-size:14px}.rk-m small{font-size:11.5px;color:var(--muted);line-height:1.3}
+.rk-m.on{border-color:var(--brand);background:var(--brand-soft);box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 14%,transparent)}.rk-m.on svg{color:var(--brand)}
+.rk-m:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.rk-uit{margin:0;color:var(--muted);font-size:14px}
+.rk-opt{display:flex;flex-wrap:wrap;gap:14px 18px;align-items:flex-end}
+.rk-l{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.rk-l input,.rk-l select{text-transform:none;letter-spacing:0;font-weight:600;color:var(--ink);min-width:150px}
+.rk-l small{text-transform:none;letter-spacing:0;font-weight:500;font-size:11.5px}
+.rk-n{display:flex;flex-wrap:wrap;gap:6px;width:100%}
+.rk-n button{all:unset;box-sizing:border-box;cursor:pointer;width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-weight:700;font-size:15px;font-variant-numeric:tabular-nums;border:1.5px solid var(--line);background:var(--surface);transition:all .12s}
+.rk-n button:hover{border-color:var(--brand)}.rk-n button.on{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 6px 14px -6px var(--brand)}
+.rk-n button:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.rk-opt>div:first-child,.rk-opt>span.rk-l{width:100%}
+.rk-list{list-style:none;margin:0;padding:4px 0 0;display:flex;flex-direction:column;gap:0;position:relative;max-height:300px;overflow:auto}
+.rk-list li{display:flex;align-items:center;gap:10px;padding:7px 4px;position:relative;font-size:14px}
+.rk-list li:not(:last-child)::after{content:"";position:absolute;left:15px;top:30px;bottom:-8px;width:2px;background:var(--line)}
+.rk-i{width:24px;height:24px;flex:none;border-radius:50%;display:grid;place-items:center;font-size:11.5px;font-weight:800;background:var(--brand-soft);color:var(--brand);position:relative;z-index:1;font-variant-numeric:tabular-nums}
+.rk-list li.eerste .rk-i{background:var(--brand);color:#fff}
+.rk-list b{min-width:92px;font-variant-numeric:tabular-nums}
+.rk-t{color:var(--muted);font-variant-numeric:tabular-nums}
+.rk-1{font-size:11px;font-weight:700;color:var(--brand);background:var(--brand-soft);padding:2px 8px;border-radius:99px}
+.rk-sch{font-size:11px;font-weight:700;color:#b5650f;background:#fdf0dd;padding:2px 8px;border-radius:99px}
+.rk-more span:last-child{color:var(--muted);font-size:13px;font-style:italic}
+.rk-f{display:flex;justify-content:flex-end;gap:8px;padding-top:4px;border-top:1px solid var(--line);margin-top:2px;padding-top:14px}
+.rk-f .primary svg{width:16px;height:16px}
+.rk-edit li{padding:6px 4px}.rk-edit li.sel{background:var(--brand-soft);border-radius:12px}
+.rk-edit input[type=time]{width:auto;min-width:0;padding:5px 8px;font-size:13.5px;border-radius:9px}
+.rk-edit .iconbtn{margin-left:auto}.rk-edit .rk-1+.iconbtn{margin-left:auto}
+.rk-edit li .rk-1{margin-left:auto}.rk-edit li .rk-1+.iconbtn{margin-left:0}
+.rk-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:6px}
+.rk-sum>div{background:var(--surface-2);border-radius:14px;padding:10px 12px}.rk-sum b{display:block;font-size:17px;letter-spacing:-.01em}.rk-sum small{color:var(--muted);font-size:12px}
+.rk-b{display:inline-flex;align-items:center;gap:3px;font-size:10.5px;font-weight:800;color:var(--brand);background:color-mix(in srgb,var(--surface) 70%,transparent);border-radius:99px;padding:1px 6px 1px 4px;margin-left:auto;font-variant-numeric:tabular-nums}
+.rk-b svg{width:11px;height:11px}
+.tjob.rk-job{border-style:dashed;cursor:pointer;background-image:repeating-linear-gradient(135deg,transparent 0 7px,rgb(255 255 255 / .35) 7px 14px)}
+.job.rk-job{border-style:dashed;opacity:.92}
+.rk-blok{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;background:var(--brand-soft);margin-top:6px}
+.rk-blok.leeg{background:var(--surface-2)}
+.rk-blok>div{flex:1;min-width:0}.rk-blok b{display:block;font-size:14px}.rk-blok small{color:var(--muted);font-size:12.5px}
+.rk-bi{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--surface);color:var(--brand);flex:none}.rk-bi svg{width:18px;height:18px}
+.ad-k.ad-rk{border-color:var(--brand)}
+@media(max-width:560px){.rk{padding:16px;border-radius:20px}.rk-modes{grid-template-columns:1fr 1fr}.rk-n button{width:38px;height:38px}}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -2505,7 +2556,7 @@ function jobState(k,day){
   return isBezig(k)&&(day===iso(today())||day===k.gepland)?"bezig":"gepland";
 }
 const STATEPILL={gepland:["plan","Gepland"],bezig:["busy","Bezig"],afgerond:["ok","Afgerond"]};
-function nextFree(dayIso){let e=8*60;actief().filter(k=>k.gepland===dayIso&&toMin(k.tijd)!=null).forEach(k=>{e=Math.max(e,toMin(k.tijd)+duur(k))});e=Math.ceil(e/15)*15;return fromMin(Math.min(e,19*60))}
+function nextFree(dayIso){let e=8*60;actief().filter(k=>k.gepland===dayIso&&toMin(k.tijd)!=null).forEach(k=>{e=Math.max(e,toMin(k.tijd)+duur(k))});actief().forEach(k=>(k.reeks||[]).forEach(r=>{if(r&&r.d===dayIso&&toMin(r.t)!=null)e=Math.max(e,toMin(r.t)+duur(k))}));e=Math.ceil(e/15)*15;return fromMin(Math.min(e,19*60))}
 const dienstHtml=k=>`<span class="dienst">${I.wrench}${esc(k.dienst||"Glasbewassing")}</span>`;
 
 /* objecten en adressen */
@@ -2703,8 +2754,8 @@ async function gewassen(k){
   const prev={laatst:k.laatst||"",gepland:k.gepland||"",bezig:k.bezig||""},bId=newId("b"),d=iso(today());
   try{
     await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:Number(k.prijs)||0,betaald:false,gefactureerd:"",dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,op:new Date().toISOString()});
-    let nx="";if(k.autoplan){const v=werkdagAanpassen(addDays(today(),freqDays(k)));nx=iso(v)}
-    await save("klanten",k.id,{...strip(k),laatst:d,gepland:nx,bezig:""});
+    let nx="",_rk=reeksNa(k);if(_rk)nx=_rk.gepland;else if(k.autoplan){const v=werkdagAanpassen(addDays(today(),freqDays(k)));nx=iso(v)}
+    await save("klanten",k.id,{...strip(k),laatst:d,gepland:nx,...(_rk?{tijd:_rk.tijd,reeks:_rk.reeks}:{}),bezig:""});
     toast(cleanName(k.naam)+" afgerond · "+eur(k.prijs),async()=>{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev})});
   }catch(e){err(e)}
 }
@@ -2727,8 +2778,8 @@ async function afronden(k,mode,el){
   if(k.nietFactureren&&!isPeriodiek(k)){/* niet factureren: beurt afmelden zonder factuur */
     try{const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed);
       await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),betaald:false,gefactureerd:"nvt",dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,op:new Date().toISOString()});
-      let nx="";if(k.autoplan){nx=iso(werkdagAanpassen(addDays(today(),freqDays(k))))}
-      await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",bevindingen:[],opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,gepland:nx,bezig:""});
+      let nx="",_rk=reeksNa(k);if(_rk)nx=_rk.gepland;else if(k.autoplan){nx=iso(werkdagAanpassen(addDays(today(),freqDays(k))))}
+      await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",bevindingen:[],opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,gepland:nx,...(_rk?{tijd:_rk.tijd,reeks:_rk.reeks}:{}),bezig:""});
       const undo=async()=>{try{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
       toast(cleanName(k.naam)+" afgemeld · niet gefactureerd (staat zo bij de opdracht)",[{label:"Ongedaan",fn:undo}])}
     catch(e){if(el){const c=el.querySelector(".swipe-card");if(c)c.style.transform="";el.classList.remove("armed")}err(e)}
@@ -2736,8 +2787,8 @@ async function afronden(k,mode,el){
   if(isPeriodiek(k)){/* periodieke factuur: beurt afmelden zonder eigen factuur; artikelen gaan mee op de periodieke factuur */
     try{const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed);
       await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),betaald:false,gefactureerd:"periodiek",periodiek:true,dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,op:new Date().toISOString()});
-      let nx="";if(k.autoplan){nx=iso(werkdagAanpassen(addDays(today(),freqDays(k))))}
-      await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,gepland:nx,bezig:""});
+      let nx="",_rk=reeksNa(k);if(_rk)nx=_rk.gepland;else if(k.autoplan){nx=iso(werkdagAanpassen(addDays(today(),freqDays(k))))}
+      await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,gepland:nx,...(_rk?{tijd:_rk.tijd,reeks:_rk.reeks}:{}),bezig:""});
       const undo=async()=>{try{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
       toast(cleanName(k.naam)+" afgemeld · gaat mee op de periodieke factuur ("+fmtD(k.periodiek.volgende)+")",[{label:"Ongedaan",fn:undo}])}
     catch(e){if(el){const c=el.querySelector(".swipe-card");if(c)c.style.transform="";el.classList.remove("armed")}err(e)}
@@ -2746,8 +2797,8 @@ async function afronden(k,mode,el){
     await save("facturen",fId,f);
     const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed);
     await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:r2(f.regels.reduce((a,r)=>a+(Number(r.aantal)||0)*(Number(r.prijs)||0),0)),extra:_ed.map(o=>o.dienst),betaald:f.status==="betaald",gefactureerd:fId,dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,op:new Date().toISOString()});
-    let nx="";if(k.autoplan){nx=iso(werkdagAanpassen(addDays(today(),freqDays(k))))}
-    await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",artikelen:[],bevindingen:[],...(k.opdrachtVerwijderd?{actief:false}:{}),opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,gepland:nx,bezig:""});
+    let nx="",_rk=reeksNa(k);if(_rk)nx=_rk.gepland;else if(k.autoplan){nx=iso(werkdagAanpassen(addDays(today(),freqDays(k))))}
+    await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",artikelen:[],bevindingen:[],...(k.opdrachtVerwijderd?{actief:false}:{}),opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,gepland:nx,...(_rk?{tijd:_rk.tijd,reeks:_rk.reeks}:{}),bezig:""});
     const undo=async()=>{try{await del("facturen",fId);await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
     toast(mode==="open"?cleanName(k.naam)+(f.status==="betaald"?" afgerekend ("+st.betaalwijze+") · ":" gefactureerd · ")+f.nummer:cleanName(k.naam)+" afgemeld · conceptfactuur klaar",
       [{label:"Ongedaan",fn:undo},...(mode==="open"?[{label:"Versturen",fn:()=>sendF(fId)}]:[{label:"Bericht",fn:()=>openCompose({title:"Werk voltooid · "+cleanName(k.naam),sjabloon:"voltooid",recipients:[{k,vars:klantVars(k,today()),ref:""}]})}])]);
@@ -2767,6 +2818,7 @@ async function moveTo(id,date,tijd,force){
   if(date&&!force&&date!==k.gepland&&typeof vroegOk==="function"&&!(await vroegOk([k],date)))return;
   const prev={gepland:k.gepland||"",tijd:k.tijd||""};
   const nw={gepland:date,tijd:!date?"":tijd!==undefined?tijd:(k.tijd||""),...(date?{aanbieden:false}:{})};
+  if(date&&!force&&!k.gepland&&typeof ADV!=="undefined"&&ADV.reeks){const r=await openReeks(k,date,nw.tijd);if(!r)return;return reeksOpslaan(k,date,nw.tijd,r)}
   if(prev.gepland===nw.gepland&&prev.tijd===nw.tijd)return;
   try{await save("klanten",k.id,{...strip(k),...nw});toast(cleanName(k.naam)+(date?" ingepland op "+fmtD(date)+(nw.tijd?" om "+nw.tijd:""):" terug naar te plannen"),()=>save("klanten",k.id,{...strip(k),...prev}))}catch(e){err(e)}
 }
@@ -3319,13 +3371,15 @@ function afspraakVerwijderen(id){
   const k=state.klanten.find(x=>x.id===id);if(!k||!k.gepland)return;const g=k.gepland,nx=iso(addDays(parse(g),freqDays(k)));
   openDlg(`<div class="dlg-head"><span class="objic big" style="background:linear-gradient(135deg,var(--late),#a3352f)">${I.trash}</span><div style="min-width:0;flex:1"><h3>Afspraak verwijderen</h3><div class="subt">${esc(cleanName(k.naam))} · ${esc(longD(parse(g)))}${k.tijd?" om "+esc(k.tijd):""}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
   <p style="margin:0;font-size:16px;font-weight:600">Wil je de afspraak direct weer aanbieden?</p>
-  <div class="ad-keuze"><button type="button" class="ad-k" id="adJa"><b>Ja</b><span>De klant staat meteen weer bij <i>Te plannen</i> aan de zijkant van de planning.</span></button>
+  <div class="ad-keuze">${(k.reeks||[]).length?`<button type="button" class="ad-k ad-rk" id="adRk"><b>Alleen deze afspraak</b><span>De reeks loopt door: de volgende afspraak is ${esc(longD(parse(k.reeks[0].d)))}${k.reeks[0].t?" om "+esc(k.reeks[0].t):""}.</span></button>`:""}<button type="button" class="ad-k" id="adJa"><b>Ja</b><span>De klant staat meteen weer bij <i>Te plannen</i> aan de zijkant van de planning.</span></button>
     <button type="button" class="ad-k" id="adNee"><b>Nee</b><span>De afspraak schuift op met de frequentie (${esc(freqLabel(k.frequentie).toLowerCase())}): de volgende keer wordt rond ${esc(fmtD(nx))} aangeboden.</span></button></div>
   <div class="row"><span class="sp"></span><button type="button" data-act="close">Annuleren</button></div>`);
   const go=async ja=>{form.querySelectorAll(".ad-k").forEach(b=>b.disabled=true);const cur=state.klanten.find(x=>x.id===id)||k,prev={gepland:cur.gepland||"",tijd:cur.tijd||"",skipTot:cur.skipTot||"",aanbieden:!!cur.aanbieden};
     try{await save("klanten",id,{...strip(cur),gepland:"",tijd:"",bezig:"",...(ja?{aanbieden:true,skipTot:""}:{aanbieden:false,skipTot:nx}),log:[...(cur.log||[]),{datum:iso(today()),tekst:"Afspraak "+fmtD(g)+" verwijderd"+(ja?", direct weer aangeboden":", opgeschoven naar "+fmtD(nx))}]});
       dlg.close();toast(ja?cleanName(k.naam)+" staat weer bij te plannen":"Afspraak verwijderd · volgende keer rond "+fmtD(nx),async()=>{const c2=state.klanten.find(x=>x.id===id);await save("klanten",id,{...strip(c2),...prev})})}
     catch(e){err(e);form.querySelectorAll(".ad-k").forEach(b=>b.disabled=false)}};
+  const rk=$("#adRk");if(rk)rk.onclick=async()=>{form.querySelectorAll(".ad-k").forEach(b=>b.disabled=true);const cur=state.klanten.find(x=>x.id===id)||k,r=cur.reeks||[],prev={gepland:cur.gepland||"",tijd:cur.tijd||"",reeks:r};
+    try{await save("klanten",id,{...strip(cur),gepland:r[0].d,tijd:r[0].t||cur.tijd||"",reeks:r.slice(1),bezig:"",log:[...(cur.log||[]),{datum:iso(today()),tekst:"Afspraak "+fmtD(g)+" uit de reeks verwijderd"}]});dlg.close();toast("Afspraak verwijderd · volgende "+fmtD(r[0].d),async()=>{const c2=state.klanten.find(x=>x.id===id);await save("klanten",id,{...strip(c2),...prev})})}catch(e){err(e);form.querySelectorAll(".ad-k").forEach(b=>b.disabled=false)}};
   $("#adJa").onclick=()=>go(true);$("#adNee").onclick=()=>go(false);
 }
 
@@ -3442,6 +3496,7 @@ function openJob(id,day){
     <div><span class="eyebrow">Diensten</span><div class="jp-svc">${diensten.map(([n,p])=>`<div><span class="jp-ic">${I.wrench}</span><b>${esc(n)}${k.binnen?" (buiten en binnen)":""}</b><span>${eur(toon(p))}</span></div>`).join("")}</div></div>
     ${oBeurtBlok(k)}${hospRoute(k)}${ookDezeBeurt(k,typeof day!=="undefined"?day:undefined)}${k.notities?`<div class="notebox"><span class="eyebrow">Notitie</span>${esc(k.notities)}</div>`:""}${objInfo(k)}${jobExtra(k)}
     ${(()=>{const fl=jobFotos(k);return fl.length?`<div><span class="eyebrow">Foto's · ${fl.reduce((a,f)=>a+(f.dots||[]).length,0)} ramen aangetikt</span><div class="jp-fotos" style="margin-top:6px">${fl.map((f,j)=>fotoCard(f,j,false).replace('data-fi=','data-jfi=')).join("")}</div></div>`:""})()}
+    ${k.gepland?`<div><span class="eyebrow">${I.cal2}Meervoudig inplannen</span>${reeksBlok(k)}</div>`:""}
     <div><span class="eyebrow">${I.refresh}Automatisch doorplannen</span>
       <div class="jp-auto"><div class="jp-ar"><div><b>${esc(k.dienst||"Glasbewassing")} · elke ${Number(k.frequentie)||4} weken</b><small>${k.autoplan?`Staat aan · na afmelden wordt de volgende beurt ingepland op ${esc(fmtL(nxt))}${k.tijd?" om "+esc(k.tijd):""}`:"Staat uit · de klant verschijnt bij Te plannen als hij weer aan de beurt is"}</small></div><span class="pill ${k.autoplan?"ok":""}">${k.autoplan?"AAN":"UIT"}</span></div>
       <div class="jp-ar2"><button type="button" class="${k.autoplan?"":"dark"}" data-act="autoplan" data-id="${esc(k.id)}">${I.refresh}${k.autoplan?"Doorplannen uitzetten":"Doorplannen aanzetten"}</button><small class="help">Aan = na elke afmelding staat de volgende beurt direct in de planning, op dezelfde tijd. Valt die op een vrije dag, dan schuift hij naar de dichtstbijzijnde werkdag.</small></div></div></div>
@@ -3528,12 +3583,14 @@ const pqMatch=k=>{const q=state.pq.toLowerCase();return !q||[k.naam,k.adres,k.pl
 const showState=st=>state.pstat==="alle"||state.pstat===st;
 function dayItems(d){
   const js=actief().filter(k=>k.gepland===d).map(k=>({k,st:jobState(k,d)})).filter(x=>x.st!=="afgerond");
+  actief().forEach(k=>(k.reeks||[]).forEach((r,i)=>{if(r&&r.d===d&&r.d!==k.gepland)js.push({k:{...k,gepland:d,tijd:r.t||k.tijd||""},st:"gepland",r:{i:i+2,n:(k.reeks||[]).length+1}})}));
   const done=state.beurten.filter(b=>b.datum===d).map(b=>({b,k:state.klanten.find(x=>x.id===b.klantId)||{id:b.klantId,naam:b.klantNaam,prijs:b.bedrag,tijd:b.tijd,duur:b.duur},st:"afgerond"}));
-  const proj=[];if(state.pview!=="dag"){actief().forEach(k=>occurrences(k,parse(d),parse(d)).forEach(o=>{if(!o.real)proj.push({k,st:"verwacht"})}))}
+  const proj=[];if(state.pview!=="dag"){actief().filter(k=>!(k.reeks||[]).length).forEach(k=>occurrences(k,parse(d),parse(d)).forEach(o=>{if(!o.real)proj.push({k,st:"verwacht"})}))}
   return{js:js.filter(x=>showState(x.st)),done:done.filter(x=>showState("afgerond")),proj:state.pstat==="alle"?proj:[]};
 }
 function daySum(d){const it=dayItems(d);return{n:it.js.length+it.done.length,sum:it.js.reduce((a,x)=>a+(Number(x.k.prijs)||0),0)+it.done.reduce((a,x)=>a+(Number(x.b.bedrag)||0),0),min:it.js.reduce((a,x)=>a+duur(x.k),0)+it.done.reduce((a,x)=>a+duur(x.k),0)}}
 function tjob(x,top,height,left,width){
+  if(x.r)return tjobReeks(x,top,height,left,width);
   const k=x.k,a=jobAddrObj(k),sp=STATEPILL[x.st]||["neutral","Verwacht"],dim=pqMatch(k)?"":" faded";
   const cmp=height<58?" compact":"";
   return `<div class="tjob st-${x.st}${dim}${cmp}${state.pselMode&&!x.b&&state.psel.has(k.id)?" psel":""}${state.pselMode&&!x.b?" pselable":""}" ${x.b?`data-act="beurtinfo" data-id="${esc(x.b.id)}"`:`data-act="job" data-id="${esc(k.id)}"`} data-d="${esc(x.b?x.b.datum:k.gepland)}" ${x.st!=="afgerond"?`data-drag="${esc(k.id)}"`:x.b?`data-drag="b:${esc(x.b.id)}"`:""} style="--h:${hue(k.ronde||k.naam)};top:${top}px;height:${height}px;left:calc(${left}% + 3px);width:calc(${width}% - 6px)">
@@ -3568,7 +3625,7 @@ function weekCols(days){
   return `<div class="weekwrap"><div class="weekgrid">${days.map(d=>{const it=dayItems(d),s=daySum(d);return `<div class="daycol${d===t?" is-today":""}" data-drop="${d}">
     ${dayHead(d,false)}
     ${it.done.map(x=>`<div class="job done" style="--h:${hue(x.b.klantNaam)}"><div class="jn">${I.check}<button type="button" data-act="klant" data-id="${esc(x.b.klantId)}">${esc(cleanName(x.b.klantNaam))}</button></div><div class="jf"><span class="ja">Afgerond</span><span class="amt">${eur0(toon(x.b.bedrag))}</span></div></div>`).join("")}
-    ${it.js.sort((a,b)=>(toMin(a.k.tijd)??9999)-(toMin(b.k.tijd)??9999)).map(x=>{const k=x.k;return `<div class="job${pqMatch(k)?"":" faded"}${x.st==="bezig"?" busy":""}${state.pselMode&&state.psel.has(k.id)?" psel":""}${state.pselMode?" pselable":""}" style="--h:${hue(k.ronde||k.naam)}" draggable="true" data-drag="${esc(k.id)}">
+    ${it.js.sort((a,b)=>(toMin(a.k.tijd)??9999)-(toMin(b.k.tijd)??9999)).map(x=>{const k=x.k;if(x.r)return reeksCard(x);return `<div class="job${pqMatch(k)?"":" faded"}${x.st==="bezig"?" busy":""}${state.pselMode&&state.psel.has(k.id)?" psel":""}${state.pselMode?" pselable":""}" style="--h:${hue(k.ronde||k.naam)}" draggable="true" data-drag="${esc(k.id)}">
       <div class="jn">${k.tijd?`<span class="tm">${esc(k.tijd)}</span>`:""}<button type="button" data-act="job" data-id="${esc(k.id)}" data-d="${esc(k.gepland)}">${esc(jobAddrObj(k).adres||cleanName(k.naam))}</button></div>
       <div class="ja">${esc(cleanName(k.naam))}</div><div class="ja">${dienstHtml(k)}</div>
       <div class="jf"><span class="amt">${eur0(toon(k.prijs))}</span><span style="display:flex;gap:4px"><button type="button" class="tiny ghost" data-act="afsprdel" data-id="${esc(k.id)}" title="Afspraak verwijderen" aria-label="Afspraak verwijderen">${I.trash}</button><button type="button" class="check sm" data-act="was" data-id="${esc(k.id)}" aria-label="Afgerond">${I.check}</button></span></div></div>`}).join("")}
@@ -3739,7 +3796,7 @@ function sendGeplande(){
 }
 
 /* ---------- Geavanceerd plannen (zijpaneel Te plannen) ---------- */
-const ADV=(()=>{let o={};try{o=JSON.parse(localStorage.getItem("ms.adv")||"{}")||{}}catch(e){}return{open:!!o.open,groepen:!!o.groepen,meer:!!o.meer,fase:!!o.fase,verberg:!!o.verberg,dubbel:!!o.dubbel,sort:o.sort||"datum",datum:""}})();
+const ADV=(()=>{let o={};try{o=JSON.parse(localStorage.getItem("ms.adv")||"{}")||{}}catch(e){}return{open:!!o.open,groepen:!!o.groepen,meer:!!o.meer,reeks:!!o.reeks,fase:!!o.fase,verberg:!!o.verberg,dubbel:!!o.dubbel,sort:o.sort||"datum",datum:""}})();
 const advSave=()=>{try{localStorage.setItem("ms.adv",JSON.stringify({...ADV,datum:undefined}))}catch(e){}};
 const mSel=new Set();
 function offerFilter(list){
@@ -3776,7 +3833,8 @@ function advHtml(o,d0){
     </div>
     <div class="adv-opts">
       ${cb("groepen","Opdrachtgroepen","Per ronde gegroepeerd")}
-      ${cb("meer","Meervoudig inplannen","Meerdere kiezen, één tijdslot")}
+      ${cb("reeks","Meervoudig inplannen","Bij inplannen kiezen: vast aantal, tot een datum of doorlopend")}
+      ${cb("meer","Meerdere klanten tegelijk","Meerdere kiezen, één tijdslot")}
       ${ADV.meer?cb("fase","Gefaseerd inplannen","Loopt door naar de volgende werkdag als de dag vol is"):""}
       ${cb("verberg","Afspraken in groepen niet tonen","Klanten met een ronde verbergen")}
       ${cb("dubbel","Dubbel ingeplande adressen niet aanbieden","Adres heeft al een afspraak staan")}
@@ -3827,6 +3885,96 @@ async function pselMove(){const d=($("#pselD")||{}).value,mode=($("#pselT")||{})
 async function pselTerug(){const ks=[...state.psel].map(id=>state.klanten.find(x=>x.id===id)).filter(Boolean);if(!ks.length)return;
   if(!(await vraag("Terug naar te plannen",`${plural(ks.length,"afspraak","afspraken")} uit de agenda halen? Ze staan daarna weer bij Te plannen.`,"Ja, uit de agenda")))return;
   try{for(const k of ks)await save("klanten",k.id,{...strip(k),gepland:"",tijd:"",aanbieden:true});toast(plural(ks.length,"afspraak","afspraken")+" terug naar te plannen");state.psel.clear();render()}catch(e){err(e)}}
+
+/* ---------- Meervoudig inplannen: afspraakreeksen ----------
+   k.reeks = [{d:"2026-11-09",t:"09:30"},…]  = de afspraken NA k.gepland.
+   Na afronden schuift de eerste uit de reeks door naar k.gepland. */
+const RK_IC={n:sv('<path d="M10 6h11M10 12h11M10 18h11"/><path d="M4 6h1v4M4 10h2M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/>'),tot:sv('<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="m9 15.5 2 2 4-4"/>')};
+function reeksNa(k){const t=iso(today()),r=(k.reeks||[]).filter(x=>x&&x.d&&x.d>t);if(!r.length)return null;return{gepland:r[0].d,tijd:r[0].t||k.tijd||"",reeks:r.slice(1)}}
+/* datums na de eerste afspraak; altijd gerekend vanaf de startdatum, dus geen verloop door verschuivingen */
+function reeksDatums(start,weken,mode,n,tot){
+  const s=parse(start),out=[],stap=Math.max(1,Number(weken)||4)*7,eind=mode==="tot"&&tot?parse(tot):null;
+  for(let i=1;i<60;i++){if(mode==="vast"&&i>=n)break;
+    const basis=addDays(s,i*stap);if(eind&&basis>eind)break;
+    const d=werkdagAanpassen(basis);out.push({d:iso(d),schuif:iso(d)!==iso(basis),basis:iso(basis)});
+    if(mode==="door"&&i>=3)break}
+  return out}
+const rkDag=d=>{const x=parse(d);return wd(x)+" "+x.getDate()+" "+["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"][x.getMonth()]+(x.getFullYear()!==today().getFullYear()?" '"+String(x.getFullYear()).slice(2):"")};
+
+function openReeks(k,date,tijd,bestaand){return new Promise(res=>{
+  const st={mode:bestaand?"vast":"vast",n:Math.min(10,Math.max(2,Number(k.reeksN)||4)),weken:Number(k.frequentie)||4,tot:iso(addDays(parse(date),182))};
+  const o=document.createElement("div");o.className="vraag-ov rk-ov";
+  const modes=[...(bestaand?[]:[["een","Eén afspraak","Alleen deze keer",I.cal2]]),["vast","Vast aantal","2 tot 10 afspraken",RK_IC.n],["tot","Tot een datum","Herhalen tot en met",RK_IC.tot],["door","Doorlopend","Na elke beurt de volgende",I.refresh]];
+  const teken=()=>{
+    const lijst=st.mode==="een"?[]:reeksDatums(date,st.weken,st.mode,st.n,st.tot),tot=1+lijst.length;
+    const rij=(d,i,schuif)=>`<li${i===0?' class="eerste"':""}><span class="rk-i">${i+1}</span><b>${esc(rkDag(d))}</b><span class="rk-t">${esc(tijd||"geen tijd")}</span>${schuif?`<span class="rk-sch" title="Valt op een vrije dag, verschoven naar een werkdag">verschoven</span>`:""}${i===0?`<span class="rk-1">eerste</span>`:""}</li>`;
+    o.innerHTML=`<div class="rk" role="dialog" aria-modal="true" aria-label="Meervoudig inplannen">
+      <div class="rk-h"><span class="objic">${I.refresh}</span><div><b>Hoe wil je dit inplannen?</b><small>${esc(jobAddrObj(k).adres||cleanName(k.naam))} · ${esc(rkDag(date))}${tijd?" om "+esc(tijd):""}</small></div><button type="button" class="iconbtn sm" data-rk="x" aria-label="Sluiten">${I.x}</button></div>
+      <div class="rk-modes">${modes.map(([v,l,s,ic])=>`<button type="button" class="rk-m${st.mode===v?" on":""}" data-rkm="${v}" aria-pressed="${st.mode===v}">${ic}<b>${l}</b><small>${s}</small></button>`).join("")}</div>
+      ${st.mode==="een"?`<p class="rk-uit">De klant krijgt één afspraak. Na de beurt verschijnt hij weer bij Te plannen.</p>`:`
+      <div class="rk-opt">
+        ${st.mode==="vast"?`<span class="rk-l">Aantal afspraken</span><div class="rk-n">${[2,3,4,5,6,7,8,9,10].map(n=>`<button type="button" data-rkn="${n}" class="${st.n===n?"on":""}" aria-pressed="${st.n===n}">${n}</button>`).join("")}</div>`:""}
+        ${st.mode==="tot"?`<label class="rk-l">Tot en met<input type="date" id="rkTot" value="${esc(st.tot)}" min="${esc(iso(addDays(parse(date),7)))}"></label>`:""}
+        <label class="rk-l rk-w">Om de<select id="rkW">${[1,2,3,4,5,6,8,10,12,13,16,26].map(w=>`<option value="${w}"${st.weken===w?" selected":""}>${w===1?"week":w+" weken"}</option>`).join("")}</select>${st.weken!==(Number(k.frequentie)||4)?`<small>klant staat op elke ${Number(k.frequentie)||4} weken</small>`:`<small>frequentie van de klant</small>`}</label>
+      </div>
+      <ol class="rk-list">${rij(date,0,false)}${lijst.map((x,i)=>rij(x.d,i+1,x.schuif)).join("")}${st.mode==="door"?`<li class="rk-more"><span class="rk-i">…</span><span>en zo verder, steeds na afronden van de vorige beurt</span></li>`:""}</ol>
+      ${st.mode==="tot"&&lijst.length>=59?`<p class="help">Maximaal 60 afspraken.</p>`:""}`}
+      <div class="rk-f"><button type="button" data-rk="x">Annuleren</button><button type="button" class="primary" data-rk="ok">${I.check}${st.mode==="een"?"Inplannen":st.mode==="door"?"Doorlopend inplannen":plural(tot,"afspraak","afspraken")+" inplannen"}</button></div></div>`;
+    const tt=o.querySelector("#rkTot");if(tt)tt.onchange=()=>{if(tt.value){st.tot=tt.value;teken()}};
+    const w=o.querySelector("#rkW");if(w)w.onchange=()=>{st.weken=Number(w.value)||4;teken()};
+  };
+  const done=v=>{o.remove();document.removeEventListener("keydown",esc_,true);res(v)};
+  const esc_=e=>{if(e.key==="Escape"){e.preventDefault();e.stopPropagation();done(null)}};document.addEventListener("keydown",esc_,true);
+  o.addEventListener("click",e=>{const b=e.target.closest("[data-rk],[data-rkm],[data-rkn]");if(!b){if(e.target===o)done(null);return}
+    if(b.dataset.rkm){st.mode=b.dataset.rkm;teken();return}
+    if(b.dataset.rkn){st.n=Number(b.dataset.rkn);teken();return}
+    if(b.dataset.rk==="x")return done(null);
+    if(b.dataset.rk==="ok"){const lijst=st.mode==="een"||st.mode==="door"?[]:reeksDatums(date,st.weken,st.mode,st.n,st.tot);done({mode:st.mode,n:st.n,weken:st.weken,tot:st.tot,lijst})}});
+  teken();(dlg.open?dlg:document.body).appendChild(o);setTimeout(()=>{const b=o.querySelector('[data-rk="ok"]');if(b)b.focus()},30)})}
+
+async function reeksOpslaan(k,date,tijd,r,bestaand){
+  const cur=state.klanten.find(x=>x.id===k.id)||k,prev={gepland:cur.gepland||"",tijd:cur.tijd||"",reeks:cur.reeks||[],autoplan:!!cur.autoplan,aanbieden:!!cur.aanbieden,frequentie:cur.frequentie};
+  let p={gepland:date,tijd:tijd||"",aanbieden:false},msg;
+  if(r.mode==="een"){p.reeks=[];msg=cleanName(k.naam)+" ingepland op "+fmtD(date)+(tijd?" om "+tijd:"")}
+  else if(r.mode==="door"){p.reeks=[];p.autoplan=true;if(r.weken!==(Number(cur.frequentie)||4))p.frequentie=r.weken;msg=cleanName(k.naam)+" doorlopend ingepland, elke "+(r.weken===1?"week":r.weken+" weken")}
+  else{p.reeks=r.lijst.map(x=>({d:x.d,t:tijd||""}));p.autoplan=false;p.reeksN=r.mode==="vast"?r.n:cur.reeksN||"";
+    const n=p.reeks.length+1;msg=plural(n,"afspraak","afspraken")+" ingepland voor "+cleanName(k.naam)+" · t/m "+fmtD(n>1?p.reeks[n-2].d:date)}
+  if(r.mode!=="een")p.log=[...(cur.log||[]),{datum:iso(today()),tekst:r.mode==="door"?"Doorlopende afspraakreeks gestart vanaf "+fmtD(date):"Afspraakreeks: "+(p.reeks.length+1)+" afspraken vanaf "+fmtD(date)}];
+  try{await save("klanten",cur.id,{...strip(cur),...p});toast(msg,()=>{const c2=state.klanten.find(x=>x.id===cur.id);return save("klanten",cur.id,{...strip(c2),...prev})})}catch(e){err(e)}
+  if(bestaand&&dlg.open&&$("#jobPanel"))openJob(cur.id,date);
+}
+
+/* ---------- weergave in de agenda ---------- */
+const rkBadge=x=>`<span class="rk-b" title="Afspraak ${x.r.i} van ${x.r.n} in een reeks">${I.refresh}${x.r.i}/${x.r.n}</span>`;
+function tjobReeks(x,top,height,left,width){const k=x.k,a=jobAddrObj(k),cmp=height<58?" compact":"",dim=pqMatch(k)?"":" faded";
+  return `<div class="tjob st-gepland rk-job${dim}${cmp}" data-act="reeksinfo" data-id="${esc(k.id)}" data-d="${esc(k.gepland)}" style="--h:${hue(k.ronde||k.naam)};top:${top}px;height:${height}px;left:calc(${left}% + 3px);width:calc(${width}% - 6px)">
+    <div class="tj-top"><button type="button" class="tj-nm" data-act="reeksinfo" data-id="${esc(k.id)}" data-d="${esc(k.gepland)}">${esc(a.adres||cleanName(k.naam))}${a.plaats?", "+esc(a.plaats):""}</button></div>
+    <div class="tj-bot">${dienstHtml(k)}<span class="amt">${eur0(toon(k.prijs))}</span>${rkBadge(x)}</div></div>`}
+function reeksCard(x){const k=x.k;
+  return `<div class="job rk-job${pqMatch(k)?"":" faded"}" style="--h:${hue(k.ronde||k.naam)}">
+    <div class="jn">${k.tijd?`<span class="tm">${esc(k.tijd)}</span>`:""}<button type="button" data-act="reeksinfo" data-id="${esc(k.id)}" data-d="${esc(k.gepland)}">${esc(jobAddrObj(k).adres||cleanName(k.naam))}</button></div>
+    <div class="ja">${esc(cleanName(k.naam))}</div><div class="jf"><span class="amt">${eur0(toon(k.prijs))}</span>${rkBadge(x)}</div></div>`}
+
+function reeksBlok(k){const r=k.reeks||[];
+  if(r.length)return `<div class="rk-blok"><span class="rk-bi">${I.refresh}</span><div><b>Reeks · nog ${plural(r.length,"afspraak","afspraken")} na deze</b><small>Volgende: ${esc(rkDag(r[0].d))}${r[0].t?" om "+esc(r[0].t):""} · laatste ${esc(rkDag(r[r.length-1].d))}</small></div><button type="button" class="small" data-act="reeksinfo" data-id="${esc(k.id)}" data-d="${esc(k.gepland)}">Bekijken</button></div>`;
+  return `<div class="rk-blok leeg"><span class="rk-bi">${I.refresh}</span><div><b>Eenmalige afspraak</b><small>Plan in één keer de volgende afspraken mee</small></div><button type="button" class="small" data-act="reeksnew" data-id="${esc(k.id)}">Herhalen…</button></div>`}
+
+function openReeksInfo(id,dSel){
+  const k=state.klanten.find(x=>x.id===id);if(!k)return;
+  const items=[...(k.gepland?[{d:k.gepland,t:k.tijd||"",hoofd:true}]:[]),...(k.reeks||[])];
+  const t=iso(today());
+  openDlg(`<div class="dlg-head"><span class="objic big">${I.refresh}</span><div style="min-width:0;flex:1"><h3>Afspraakreeks</h3><div class="subt">${esc(cleanName(k.naam))} · ${esc(jobAddr(k))}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
+    <div class="rk-sum"><div><b>${items.length}</b><small>afspraken</small></div><div><b>${esc(items.length?rkDag(items[items.length-1].d):"–")}</b><small>laatste</small></div><div><b>${eur0(toon((Number(k.prijs)||0)*items.length))}</b><small>totaal</small></div></div>
+    <ol class="rk-list rk-edit">${items.map((x,i)=>`<li class="${x.d===dSel?"sel ":""}${x.hoofd?"eerste":""}"><span class="rk-i">${i+1}</span><b>${esc(rkDag(x.d))}</b><input type="time" value="${esc(x.t||"")}" data-rkt="${i}" aria-label="Tijd afspraak ${i+1}">${x.hoofd?`<span class="rk-1">${x.d<t?"open":"eerstvolgend"}</span><button type="button" class="iconbtn sm" data-act="job" data-id="${esc(k.id)}" data-d="${esc(x.d)}" aria-label="Openen" title="Openen">${I.right}</button>`:`<button type="button" class="iconbtn sm" data-rkdel="${i}" aria-label="Deze afspraak verwijderen" title="Verwijderen">${I.trash}</button>`}</li>`).join("")}</ol>
+    <p class="help" style="margin:4px 0 0">Na het afronden van een beurt schuift de volgende afspraak uit de reeks automatisch door. Een losse afspraak verplaats je door hem te verwijderen en opnieuw in te plannen.</p>
+    <div class="row"><button type="button" class="ghost danger" id="rkStop">${I.x}Reeks stoppen</button><span class="sp"></span><button type="button" data-act="klant" data-id="${esc(k.id)}">Klant</button><button type="button" class="primary" data-act="close">Klaar</button></div>`);
+  const opsl=async(nieuw,msg)=>{const cur=state.klanten.find(x=>x.id===id)||k,prev={tijd:cur.tijd||"",reeks:cur.reeks||[]};
+    try{await save("klanten",id,{...strip(cur),...nieuw});if(msg)toast(msg,()=>{const c2=state.klanten.find(x=>x.id===id);return save("klanten",id,{...strip(c2),...prev})});openReeksInfo(id,dSel)}catch(e){err(e)}};
+  form.querySelectorAll("[data-rkt]").forEach(inp=>inp.onchange=()=>{const i=Number(inp.dataset.rkt),cur=state.klanten.find(x=>x.id===id)||k,off=cur.gepland?1:0;
+    if(i<off)opsl({tijd:inp.value},"Tijd aangepast");else{const r=(cur.reeks||[]).slice();r[i-off]={...r[i-off],t:inp.value};opsl({reeks:r},"Tijd aangepast")}});
+  form.querySelectorAll("[data-rkdel]").forEach(b=>b.onclick=()=>{const i=Number(b.dataset.rkdel),cur=state.klanten.find(x=>x.id===id)||k,off=cur.gepland?1:0,r=(cur.reeks||[]).slice(),x=r.splice(i-off,1)[0];opsl({reeks:r},"Afspraak "+fmtD(x.d)+" uit de reeks verwijderd")});
+  $("#rkStop").onclick=async()=>{if(!(await vraag("Reeks stoppen",`De ${plural((k.reeks||[]).length,"latere afspraak","latere afspraken")} worden uit de agenda gehaald. De eerstvolgende afspraak${k.gepland?" ("+esc(fmtD(k.gepland))+")":""} blijft staan.`,"Ja, stoppen")))return;opsl({reeks:[]},"Reeks gestopt")};
+}
 
 /* ---------- KLANTEN ---------- */
 function klantFilter(){
@@ -7856,6 +8004,8 @@ document.addEventListener("click",e=>{
     /* klanten en jobs */
     case"klant":openKlant(id||null);break;
     case"job":openJob(id,t.dataset.d);break;
+    case"reeksinfo":openReeksInfo(id,t.dataset.d);break;
+    case"reeksnew":{const k=K(id);if(k&&k.gepland)openReeks(k,k.gepland,k.tijd||"",true).then(r=>{if(r)reeksOpslaan(k,k.gepland,k.tijd||"",r,true)})}break;
     case"beurtinfo":openBeurtInfo(id);break;
     case"afspraak":openAfspraak(id,t.dataset.d);break;
     case"afsprdel":afspraakVerwijderen(id);break;

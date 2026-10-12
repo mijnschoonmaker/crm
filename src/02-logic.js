@@ -56,7 +56,7 @@ function jobState(k,day){
   return isBezig(k)&&(day===iso(today())||day===k.gepland)?"bezig":"gepland";
 }
 const STATEPILL={gepland:["plan","Gepland"],bezig:["busy","Bezig"],afgerond:["ok","Afgerond"]};
-function nextFree(dayIso){let e=8*60;actief().filter(k=>k.gepland===dayIso&&toMin(k.tijd)!=null).forEach(k=>{e=Math.max(e,toMin(k.tijd)+duur(k))});e=Math.ceil(e/15)*15;return fromMin(Math.min(e,19*60))}
+function nextFree(dayIso){let e=8*60;actief().filter(k=>k.gepland===dayIso&&toMin(k.tijd)!=null).forEach(k=>{e=Math.max(e,toMin(k.tijd)+duur(k))});actief().forEach(k=>(k.reeks||[]).forEach(r=>{if(r&&r.d===dayIso&&toMin(r.t)!=null)e=Math.max(e,toMin(r.t)+duur(k))}));e=Math.ceil(e/15)*15;return fromMin(Math.min(e,19*60))}
 const dienstHtml=k=>`<span class="dienst">${I.wrench}${esc(k.dienst||"Glasbewassing")}</span>`;
 
 /* objecten en adressen */

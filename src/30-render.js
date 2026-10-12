@@ -50,6 +50,8 @@ document.addEventListener("click",e=>{
     /* klanten en jobs */
     case"klant":openKlant(id||null);break;
     case"job":openJob(id,t.dataset.d);break;
+    case"reeksinfo":openReeksInfo(id,t.dataset.d);break;
+    case"reeksnew":{const k=K(id);if(k&&k.gepland)openReeks(k,k.gepland,k.tijd||"",true).then(r=>{if(r)reeksOpslaan(k,k.gepland,k.tijd||"",r,true)})}break;
     case"beurtinfo":openBeurtInfo(id);break;
     case"afspraak":openAfspraak(id,t.dataset.d);break;
     case"afsprdel":afspraakVerwijderen(id);break;

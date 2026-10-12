@@ -33,12 +33,14 @@ const pqMatch=k=>{const q=state.pq.toLowerCase();return !q||[k.naam,k.adres,k.pl
 const showState=st=>state.pstat==="alle"||state.pstat===st;
 function dayItems(d){
   const js=actief().filter(k=>k.gepland===d).map(k=>({k,st:jobState(k,d)})).filter(x=>x.st!=="afgerond");
+  actief().forEach(k=>(k.reeks||[]).forEach((r,i)=>{if(r&&r.d===d&&r.d!==k.gepland)js.push({k:{...k,gepland:d,tijd:r.t||k.tijd||""},st:"gepland",r:{i:i+2,n:(k.reeks||[]).length+1}})}));
   const done=state.beurten.filter(b=>b.datum===d).map(b=>({b,k:state.klanten.find(x=>x.id===b.klantId)||{id:b.klantId,naam:b.klantNaam,prijs:b.bedrag,tijd:b.tijd,duur:b.duur},st:"afgerond"}));
-  const proj=[];if(state.pview!=="dag"){actief().forEach(k=>occurrences(k,parse(d),parse(d)).forEach(o=>{if(!o.real)proj.push({k,st:"verwacht"})}))}
+  const proj=[];if(state.pview!=="dag"){actief().filter(k=>!(k.reeks||[]).length).forEach(k=>occurrences(k,parse(d),parse(d)).forEach(o=>{if(!o.real)proj.push({k,st:"verwacht"})}))}
   return{js:js.filter(x=>showState(x.st)),done:done.filter(x=>showState("afgerond")),proj:state.pstat==="alle"?proj:[]};
 }
 function daySum(d){const it=dayItems(d);return{n:it.js.length+it.done.length,sum:it.js.reduce((a,x)=>a+(Number(x.k.prijs)||0),0)+it.done.reduce((a,x)=>a+(Number(x.b.bedrag)||0),0),min:it.js.reduce((a,x)=>a+duur(x.k),0)+it.done.reduce((a,x)=>a+duur(x.k),0)}}
 function tjob(x,top,height,left,width){
+  if(x.r)return tjobReeks(x,top,height,left,width);
   const k=x.k,a=jobAddrObj(k),sp=STATEPILL[x.st]||["neutral","Verwacht"],dim=pqMatch(k)?"":" faded";
   const cmp=height<58?" compact":"";
   return `<div class="tjob st-${x.st}${dim}${cmp}${state.pselMode&&!x.b&&state.psel.has(k.id)?" psel":""}${state.pselMode&&!x.b?" pselable":""}" ${x.b?`data-act="beurtinfo" data-id="${esc(x.b.id)}"`:`data-act="job" data-id="${esc(k.id)}"`} data-d="${esc(x.b?x.b.datum:k.gepland)}" ${x.st!=="afgerond"?`data-drag="${esc(k.id)}"`:x.b?`data-drag="b:${esc(x.b.id)}"`:""} style="--h:${hue(k.ronde||k.naam)};top:${top}px;height:${height}px;left:calc(${left}% + 3px);width:calc(${width}% - 6px)">
@@ -73,7 +75,7 @@ function weekCols(days){
   return `<div class="weekwrap"><div class="weekgrid">${days.map(d=>{const it=dayItems(d),s=daySum(d);return `<div class="daycol${d===t?" is-today":""}" data-drop="${d}">
     ${dayHead(d,false)}
     ${it.done.map(x=>`<div class="job done" style="--h:${hue(x.b.klantNaam)}"><div class="jn">${I.check}<button type="button" data-act="klant" data-id="${esc(x.b.klantId)}">${esc(cleanName(x.b.klantNaam))}</button></div><div class="jf"><span class="ja">Afgerond</span><span class="amt">${eur0(toon(x.b.bedrag))}</span></div></div>`).join("")}
-    ${it.js.sort((a,b)=>(toMin(a.k.tijd)??9999)-(toMin(b.k.tijd)??9999)).map(x=>{const k=x.k;return `<div class="job${pqMatch(k)?"":" faded"}${x.st==="bezig"?" busy":""}${state.pselMode&&state.psel.has(k.id)?" psel":""}${state.pselMode?" pselable":""}" style="--h:${hue(k.ronde||k.naam)}" draggable="true" data-drag="${esc(k.id)}">
+    ${it.js.sort((a,b)=>(toMin(a.k.tijd)??9999)-(toMin(b.k.tijd)??9999)).map(x=>{const k=x.k;if(x.r)return reeksCard(x);return `<div class="job${pqMatch(k)?"":" faded"}${x.st==="bezig"?" busy":""}${state.pselMode&&state.psel.has(k.id)?" psel":""}${state.pselMode?" pselable":""}" style="--h:${hue(k.ronde||k.naam)}" draggable="true" data-drag="${esc(k.id)}">
       <div class="jn">${k.tijd?`<span class="tm">${esc(k.tijd)}</span>`:""}<button type="button" data-act="job" data-id="${esc(k.id)}" data-d="${esc(k.gepland)}">${esc(jobAddrObj(k).adres||cleanName(k.naam))}</button></div>
       <div class="ja">${esc(cleanName(k.naam))}</div><div class="ja">${dienstHtml(k)}</div>
       <div class="jf"><span class="amt">${eur0(toon(k.prijs))}</span><span style="display:flex;gap:4px"><button type="button" class="tiny ghost" data-act="afsprdel" data-id="${esc(k.id)}" title="Afspraak verwijderen" aria-label="Afspraak verwijderen">${I.trash}</button><button type="button" class="check sm" data-act="was" data-id="${esc(k.id)}" aria-label="Afgerond">${I.check}</button></span></div></div>`}).join("")}
@@ -244,7 +246,7 @@ function sendGeplande(){
 }
 
 /* ---------- Geavanceerd plannen (zijpaneel Te plannen) ---------- */
-const ADV=(()=>{let o={};try{o=JSON.parse(localStorage.getItem("ms.adv")||"{}")||{}}catch(e){}return{open:!!o.open,groepen:!!o.groepen,meer:!!o.meer,fase:!!o.fase,verberg:!!o.verberg,dubbel:!!o.dubbel,sort:o.sort||"datum",datum:""}})();
+const ADV=(()=>{let o={};try{o=JSON.parse(localStorage.getItem("ms.adv")||"{}")||{}}catch(e){}return{open:!!o.open,groepen:!!o.groepen,meer:!!o.meer,reeks:!!o.reeks,fase:!!o.fase,verberg:!!o.verberg,dubbel:!!o.dubbel,sort:o.sort||"datum",datum:""}})();
 const advSave=()=>{try{localStorage.setItem("ms.adv",JSON.stringify({...ADV,datum:undefined}))}catch(e){}};
 const mSel=new Set();
 function offerFilter(list){
@@ -281,7 +283,8 @@ function advHtml(o,d0){
     </div>
     <div class="adv-opts">
       ${cb("groepen","Opdrachtgroepen","Per ronde gegroepeerd")}
-      ${cb("meer","Meervoudig inplannen","Meerdere kiezen, één tijdslot")}
+      ${cb("reeks","Meervoudig inplannen","Bij inplannen kiezen: vast aantal, tot een datum of doorlopend")}
+      ${cb("meer","Meerdere klanten tegelijk","Meerdere kiezen, één tijdslot")}
       ${ADV.meer?cb("fase","Gefaseerd inplannen","Loopt door naar de volgende werkdag als de dag vol is"):""}
       ${cb("verberg","Afspraken in groepen niet tonen","Klanten met een ronde verbergen")}
       ${cb("dubbel","Dubbel ingeplande adressen niet aanbieden","Adres heeft al een afspraak staan")}
