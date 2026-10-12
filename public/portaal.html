@@ -230,6 +230,7 @@ button.melding{width:100%;text-align:left;font-weight:500;color:inherit}
 .welkom{min-height:100dvh;display:grid;place-items:center;padding:24px 16px}
 .wk-kaart{width:100%;max-width:440px;background:var(--surface);border:1px solid var(--line);border-radius:24px;box-shadow:0 30px 70px -30px rgb(15 31 38 / .35);padding:30px 26px}
 .wk-kaart .logo{margin-bottom:24px}
+.wk-logo{display:block;margin:0 auto 26px;max-height:96px;max-width:240px;width:auto;height:auto;object-fit:contain}
 .wk-kaart h1{font-size:30px;margin:0 0 8px}
 .wk-kaart p{color:var(--muted);margin:0 0 20px}
 .wk-kaart .klein{font-size:13.5px;margin:16px 0 0}
@@ -339,10 +340,12 @@ function toast(t){const o=document.createElement("div");o.className="toast";o.se
 /* ---------- inloggen ---------- */
 let B={naam:"",logo:"/logo.png"};
 const logoHtml=(naam,logo)=>`<span class="logo"><span class="mk">${logo?`<img src="${esc(logo)}" alt="" onerror="this.parentNode.classList.add('gr');this.replaceWith(document.createRange().createContextualFragment(I.ruit))">`:""}</span><span class="wm">${esc(naam||"mijnschoonmaker")}</span></span>`;
+let MERK=null;const merkLogo=async()=>{if(!MERK){try{MERK=await api("merk",{open:true})}catch(e){MERK={}}}return MERK.logo||"/logo.png"};
+const wkLogo=src=>`<img class="wk-logo" src="${esc(src)}" alt="${esc((MERK&&MERK.naam)||"Logo")}" onerror="if(!this.dataset.f){this.dataset.f=1;this.src='/logo.png'}else this.remove()">`;
 const merkNaam=()=>String(B.naam||"mijnschoonmaker").replace(/\.(com|nl)$/i,"");
-function toonLogin(melding){
-  document.title="Inloggen · klantomgeving";
-  $("#app").innerHTML=`<main class="welkom"><div class="wk-kaart">${logoHtml("mijnschoonmaker","/logo.png")}
+async function toonLogin(melding){
+  document.title="Inloggen · klantomgeving";const LG=await merkLogo();
+  $("#app").innerHTML=`<main class="welkom"><div class="wk-kaart">${wkLogo(LG)}
     <p class="eyebrow">${I.ik}Klantomgeving</p>
     <h1>Welkom terug</h1>
     <p>Vul het e-mailadres in dat bij ons bekend is. U krijgt direct een mail met een knop om in te loggen, zonder wachtwoord.</p>
@@ -354,7 +357,7 @@ function toonLogin(melding){
     if(!/^\S+@\S+\.\S+$/.test(v)){$("#lfout").textContent="Vul een geldig e-mailadres in.";$("#le").focus();return}
     b.disabled=true;b.innerHTML=`<span class="spin" style="width:17px;height:17px;border-width:2px"></span>Versturen…`;
     try{await api("login",{body:{email:v},open:true});
-      $("#app").innerHTML=`<main class="welkom"><div class="wk-kaart">${logoHtml("mijnschoonmaker","/logo.png")}<span class="objic" style="width:54px;height:54px;border-radius:16px;margin-bottom:16px">${I.mail}</span>
+      $("#app").innerHTML=`<main class="welkom"><div class="wk-kaart">${wkLogo(LG)}<span class="objic" style="width:54px;height:54px;border-radius:16px;margin-bottom:16px">${I.mail}</span>
         <h1>Kijk in uw mailbox</h1><p>Als <b style="color:var(--ink)">${esc(v)}</b> bij ons bekend is, staat er nu een mail met een inlogknop voor u klaar. De knop werkt een uur.</p>
         <div class="infobox">${I.klok}<span>Niets ontvangen? Kijk ook bij ongewenste mail, of gebruik het adres waarop u onze facturen krijgt.</span></div>
         <button class="full" id="opn">Ander e-mailadres proberen</button></div></main>`;
@@ -368,7 +371,7 @@ async function toonAanbevolen(code){
   const site=(d&&d.bedrijf.website)||"https://mijnschoonmaker.com",url=(/^https?:/.test(site)?site:"https://"+site).replace(/\/+$/,"")+(site.includes("?")?"&":"?")+"ref="+encodeURIComponent(code);
   try{localStorage.setItem("ms.ref",code)}catch(e){}
   document.title=d?d.voornaam+" raadt "+d.bedrijf.naam+" aan":"Aanbeveling";
-  $("#app").innerHTML=`<main class="welkom"><div class="wk-kaart">${logoHtml(d?String(d.bedrijf.naam).replace(/\.(com|nl)$/i,""):"mijnschoonmaker",(d&&d.bedrijf.logo)||"/logo.png")}
+  $("#app").innerHTML=`<main class="welkom"><div class="wk-kaart">${wkLogo((d&&d.bedrijf.logo)||await merkLogo())}
     <p class="eyebrow">${I.hart}Persoonlijke aanbeveling</p>
     <h1>${d?esc(d.voornaam)+" raadt ons aan":"U bent aanbevolen"}</h1>
     <p>Wij wassen uw ramen in een vast ritme, laten vooraf weten wanneer we komen en u ziet alles terug in uw eigen klantomgeving.</p>

@@ -204,6 +204,10 @@ module.exports = function maakPortaal(ctx) {
         await db.doc("klanten/" + v.klantId).set({ portaalLaatst: nu() }, { merge: true }).catch(() => {});
         res.json({ ok: true, s }); return;
       }
+      if (pad === "/merk" && req.method === "GET") {
+        const b = await bedrijf(), id = b.logo || b.logoMail || "";
+        res.set("cache-control", "public, max-age=300"); res.json({ naam: b.naam || "", logo: id ? basisUrl(req) + "/_blob/" + id : "" }); return;
+      }
       if (pad === "/ref" && req.method === "GET") {
         const c = String(req.query.c || "").toUpperCase();
         if (!/^[A-Z0-9]{3,12}$/.test(c)) { res.status(404).json({}); return; }
