@@ -1834,7 +1834,7 @@ nav.tabs .badge.nk-b{padding:0 2px;height:18px}nav.tabs .badge.nk-b em{display:n
 .chx-z input{border:0!important;background:transparent!important;box-shadow:none!important;padding:9px 0!important;flex:1;min-width:0;outline:none}
 #chxL{overflow:auto;flex:1;padding:0 6px 8px}
 .chx-i{all:unset;box-sizing:border-box;cursor:pointer;width:100%;display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px}
-.chx-i:hover{background:var(--surface-2)}.chx-i.on{background:var(--brand-soft)}.chx-i:focus-visible{outline:2px solid var(--brand)}
+.chx-i:hover{background:var(--surface-2)}.chx-i.act{background:var(--brand-soft)}.chx-i:focus-visible{outline:2px solid var(--brand)}
 .chx-av{width:38px;height:38px;border-radius:50%;flex:none;display:grid;place-items:center;font-weight:800;font-size:13px;color:#fff;background:hsl(var(--h,190) 42% 42%)}
 .chx-av.big{width:42px;height:42px}
 .chx-t{flex:1;min-width:0}.chx-t b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chx-t small{display:block;color:var(--muted);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1864,3 +1864,6 @@ nav.tabs .badge.nk-b{padding:0 2px;height:18px}nav.tabs .badge.nk-b em{display:n
 @media (max-width:760px){.chx{grid-template-columns:1fr;height:78dvh}.chx-l{display:none}.chx:not(:has(.chx-h)) .chx-l{display:flex}}
 .chx-terug{display:none}.chx-leeg{margin:auto;text-align:center}
 @media (max-width:760px){.chx-terug{display:grid}.chx:has(.chx-leeg) .chx-l{display:flex}.chx:has(.chx-leeg) .chx-r{display:none}}
+.chx-z{flex-direction:row!important;font-size:14px;font-weight:500}.chx-z input{width:auto!important;margin:0!important}
+.chx-h .chx-hb{flex:none}
+@media (max-width:760px){.chx-hb span{display:none}.chx-hb{padding:9px 11px}.chx-r{padding:0 8px 8px}.chx-h{gap:8px}}
