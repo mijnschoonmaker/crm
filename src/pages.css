@@ -1991,3 +1991,4 @@ body:has(.pl-meer.open) .fab-plan{display:none}
 .dg-tile.t{background:var(--surface);box-shadow:0 0 0 1px var(--line)}
 .dg-t{display:flex;flex-direction:column;width:100%;height:100%;text-align:center}.dg-t i{font-style:normal;font-size:7.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:3px 0 2px;background:var(--brand);color:#fff}
 .dg-t b{flex:1;display:grid;place-items:center;font-size:17px;font-weight:800;letter-spacing:-.03em;color:var(--ink)}.dg-t b .kc-s{font-size:14px}
+.of-st span{font-weight:600;opacity:.8}.of-st b{font-weight:800}

@@ -11,22 +11,23 @@ function sugDate(k,days){const t=today(),lo=parse(days[0])>t?parse(days[0]):t,hi
 function offerHtml(k,dayIso,timed){
   const s=dueTxt(k),h=hue(k.ronde||k.naam),days=viewDays(),sd=dayIso||iso(sugDate(k,days)),tt=(timed||state.pview!=="week"&&state.pview!=="maand")?nextFree(sd):"",picked=state.pick===k.id;
   const t=today(),gp=parse(k.gepland),mnd=["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"];
-  let cls,band,big,sub;
-  if(gp&&gp<t){cls="late";band="gemist";big=gp.getDate();sub="Gepland "+fmtD(gp)+", niet gedaan"}
-  else if(!k.laatst){cls="nieuw";band="nieuw";big='<span class="kc-s">★</span>';sub="Nog nooit gewassen"}
-  else{const v=volgende(k),d=Math.round((v-t)/DAY);
-    if(d<0){cls="late";band="te laat";big="+"+Math.abs(d);sub=Math.abs(d)+(Math.abs(d)===1?" dag":" dagen")+" te laat"}
-    else if(d===0){cls="crit";band="vandaag";big=t.getDate();sub="Vandaag aan de beurt"}
-    else{cls=d<7?"crit":d<=10?"warn":d<=14?"attn":"ok";band=d===1?"dag":"dagen";big=d;sub="Aan de beurt vanaf "+wd(v)+" "+v.getDate()+" "+mnd[v.getMonth()]}}
+  let cls,band,big,ad,extra="";const dtx=x=>wd(x)+" "+x.getDate()+" "+mnd[x.getMonth()]+(x.getFullYear()!==t.getFullYear()?" "+x.getFullYear():"");
+  if(gp&&gp<t){cls="late";band="gemist";big=gp.getDate();ad=gp;extra="gemist"}
+  else if(!k.laatst){cls="nieuw";band="nieuw";big='<span class="kc-s">★</span>';ad=volgende(k);if(ad<t)ad=t;extra="nieuwe klant"}
+  else{const v=volgende(k),d=Math.round((v-t)/DAY);ad=v;
+    if(d<0){cls="late";band="te laat";big="+"+Math.abs(d)}
+    else if(d===0){cls="crit";band="vandaag";big=t.getDate()}
+    else{cls=d<7?"crit":d<=10?"warn":d<=14?"attn":"ok";band=d===1?"dag":"dagen";big=d}}
+  const adTxt=iso(ad)===iso(t)?"vandaag":dtx(ad);
   const ao=jobAddrObj(k),sdD=parse(sd);
   return `<div class="job offer of kx-${cls}${picked?" picked":""}" style="--h:${h}" draggable="true" data-drag="${esc(k.id)}"${state.planMode?` data-act="pmpick" data-id="${esc(k.id)}"`:""}>
     <div class="of-top"><span class="kx-av of-av"><span class="kc kc-tile"><i class="kc-m">${band}</i><b>${big}</b></span></span>
       <div class="of-main"><button type="button" class="of-adr" data-act="klant" data-id="${esc(k.id)}">${esc(ao.adres||cleanName(k.naam))}</button>
         <div class="of-nm">${esc(cleanName(k.naam))}${ao.plaats?" · "+esc(ao.plaats):""}</div>
-        <div class="of-st">${esc(sub)}</div></div>
+        <div class="of-st"><span>Aanboddatum</span> <b>${esc(adTxt)}</b>${extra?` · ${esc(extra)}`:""}</div></div>
       <div class="of-amt"><b>${eur0(toon(k.prijs))}</b><small>${duur(k)} min</small></div></div>
     <div class="of-chips"><span>${I.wrench}${esc(k.dienst||"Glasbewassing")}</span><span>${I.refresh||I.clock}elke ${esc(k.frequentie||4)} wk</span>${k.ronde?`<span class="of-r"><i style="background:hsl(${h} 65% 52%)"></i>${esc(k.ronde)}</span>`:""}</div>
-    ${state.planMode?`<div class="of-pm${picked?" on":""}">${picked?"Gekozen · tik een tijdslot":"Tik om te kiezen"}</div>`:`<button type="button" class="of-plan" data-act="planop" data-id="${esc(k.id)}" data-d="${sd}"${tt?` data-t="${tt}"`:""}>${I.cal2}<span>Plan <b>${wd(sdD)} ${sdD.getDate()} ${mnd[sdD.getMonth()]}</b>${tt?" · "+tt:""}</span>${I.right}</button>`}
+    ${state.planMode?`<div class="of-pm${picked?" on":""}">${picked?"Gekozen · tik een tijdslot":"Tik om te kiezen"}</div>`:""}
   </div>`;
 }
 const pqMatch=k=>{const q=state.pq.toLowerCase();return !q||[k.naam,k.adres,k.plaats,k.postcode,jobAddr(k)].join(" ").toLowerCase().includes(q)};
