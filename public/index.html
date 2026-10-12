@@ -2101,6 +2101,16 @@ nav.tabs .badge.nk-b{padding:0 2px;height:18px}nav.tabs .badge.nk-b em{display:n
 .kc-ok{display:none!important}
 @media (max-width:640px){.kx-av .kc .kc-m{font-size:7.5px;padding:4px 0 2px}.kx-av .kc.kc-plan b{font-size:15px}}
 
+/* selecteren: rustig grijs rondje, geselecteerd = zacht grijs met vinkje */
+.kx-selm .kx-ring,.kx-selm .kx-knob,.kx-selm .kc-ok{display:none!important}
+.kx-selm .kx-av .kc{width:30px;height:30px;background:#fff!important;box-shadow:inset 0 0 0 1.6px #cfd8dc!important;padding:0!important;justify-content:center!important;transition:background .15s,box-shadow .15s}
+.kx-selm:hover .kx-av .kc{box-shadow:inset 0 0 0 1.6px #aab7bc!important}
+.kx-selm.sel .kx-av .kc{background:#e9eef0!important;box-shadow:inset 0 0 0 1.6px #b4c1c6!important}
+.kx-selm .kx-av .kc svg{width:16px;height:16px;color:#6f7f86!important;stroke:#6f7f86!important;stroke-width:2.6}
+.klx .card.kx.kx-selm.sel{background:#f6f8f9}
+.klx .card.kx.sel::before,.klx .card.kx.sel::after{display:none}
+.kx-av .kc svg{position:static!important;inset:auto!important;transform:none!important;display:block!important}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -3766,7 +3776,7 @@ function vKlanten(){
   html+=`<div class="list klx">${shown.map(k=>{const s=status(k),sel=selm&&state.sel.has(k.id),C=2*Math.PI*27,_t=today(),_due=s.v,_st=parse(k.laatst)||(_due?addDays(_due,-freqDays(k)):_t),_span=Math.max(1,(_due-_st)/DAY),pct=k.actief===false||(!k.laatst&&!k.gepland)?0:Math.round(Math.max(0,Math.min(1,(_t-_st)/DAY/_span))*100),
       _nw=s.diff===-999,_gp=k.actief!==false&&!k.prospect&&!!parse(k.gepland),rc=k.actief===false?"neutral":k.prospect?"soon":_nw?"nieuw":_gp?"plan":s.diff<0?"late":s.diff<7?"crit":s.diff<=10?"warn":s.diff<=14?"attn":"ok",_ang=pct/100*2*Math.PI-Math.PI/2,_kx=(30+27*Math.cos(_ang)).toFixed(1),_ky=(30+27*Math.sin(_ang)).toFixed(1);
     const dag=s.v?s.v.toLocaleDateString("nl-NL",{day:"numeric",month:"short"}):"",tel=k.mobiel||k.telefoon;
-    return `<div class="card click kx kx-${rc}${k.actief===false?" dim":""}${sel?" sel":""}" data-act="${selm?"selk":"klant"}" data-id="${esc(k.id)}" style="--h:${hue(k.ronde||k.naam)}">
+    return `<div class="card click kx kx-${rc}${k.actief===false?" dim":""}${sel?" sel":""}${selm?" kx-selm":""}" data-act="${selm?"selk":"klant"}" data-id="${esc(k.id)}" style="--h:${hue(k.ronde||k.naam)}">
     <span class="kx-av"><svg viewBox="0 0 60 60" aria-hidden="true"><circle cx="30" cy="30" r="27" class="kx-tr"/></svg><i class="kx-ring" style="--p:${Math.max(0,Math.min(100,pct))}%"></i>${pct>2&&pct<100&&!_gp?`<i class="kx-knob" style="left:${(_kx/.6).toFixed(2)}%;top:${(_ky/.6).toFixed(2)}%"></i>`:""}${(()=>{const gp=parse(k.gepland),ttl=(_nw?"Nieuwe klant, nog niet gewassen":gp?"Ingepland op "+fmtL(k.gepland)+(k.tijd?" om "+k.tijd:""):s.diff<0?Math.abs(s.diff)+" dagen te laat, nog niet ingepland":s.diff===0?"Vandaag aan de beurt, nog niet ingepland":"Over "+s.diff+" dagen aan de beurt, nog niet ingepland")+" · "+pct+"% van het ritme";
       const mnd=["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"];
       const c=selm?(sel?I.check:""):k.actief===false?`<b>–</b><em>inactief</em>`:k.prospect?`${I.offertes}<em>offerte</em>`:_nw?`<b class="kc-s">★</b><em>nieuw</em>`:gp?`<i class="kc-m">${mnd[gp.getMonth()]}</i><b>${gp.getDate()}</b>`:s.diff===0?`<b>Nu</b><em>vandaag</em>`:s.diff<0?`<b>+${Math.abs(s.diff)}</b><em>te laat</em>`:`<b>${s.diff}</b><em>${s.diff===1?"dag":"dagen"}</em>`;

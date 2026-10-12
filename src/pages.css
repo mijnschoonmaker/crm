@@ -1687,3 +1687,13 @@ nav.tabs .badge.nk-b{padding:0 2px;height:18px}nav.tabs .badge.nk-b em{display:n
 .kx-av .kc.kc-plan b{font-size:18px;color:#16583c;margin-top:3px}
 .kc-ok{display:none!important}
 @media (max-width:640px){.kx-av .kc .kc-m{font-size:7.5px;padding:4px 0 2px}.kx-av .kc.kc-plan b{font-size:15px}}
+
+/* selecteren: rustig grijs rondje, geselecteerd = zacht grijs met vinkje */
+.kx-selm .kx-ring,.kx-selm .kx-knob,.kx-selm .kc-ok{display:none!important}
+.kx-selm .kx-av .kc{width:30px;height:30px;background:#fff!important;box-shadow:inset 0 0 0 1.6px #cfd8dc!important;padding:0!important;justify-content:center!important;transition:background .15s,box-shadow .15s}
+.kx-selm:hover .kx-av .kc{box-shadow:inset 0 0 0 1.6px #aab7bc!important}
+.kx-selm.sel .kx-av .kc{background:#e9eef0!important;box-shadow:inset 0 0 0 1.6px #b4c1c6!important}
+.kx-selm .kx-av .kc svg{width:16px;height:16px;color:#6f7f86!important;stroke:#6f7f86!important;stroke-width:2.6}
+.klx .card.kx.kx-selm.sel{background:#f6f8f9}
+.klx .card.kx.sel::before,.klx .card.kx.sel::after{display:none}
+.kx-av .kc svg{position:static!important;inset:auto!important;transform:none!important;display:block!important}
