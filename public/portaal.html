@@ -275,6 +275,11 @@ button.melding{width:100%;text-align:left;font-weight:500;color:inherit}
 .bel small{color:var(--muted);font-size:11.5px;padding:0 6px}
 .bel.bezig{opacity:.6}.bel.fout .bb{background:var(--late-bg);color:var(--late)}
 .bf{display:block;border-radius:16px;overflow:hidden;border:1px solid var(--line);max-width:260px}.bf img{display:block;width:100%;height:auto;max-height:320px;object-fit:cover}
+.tk-dicht{display:flex;gap:10px;align-items:center;padding:10px 16px;background:var(--ok-bg);color:var(--ok);font-weight:700;font-size:13.5px}.tk-dicht svg{width:17px;height:17px}
+.tk-sys{align-self:center;max-width:90%;text-align:center;color:var(--muted);font-size:12.5px;font-weight:600;background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:6px 12px;margin:4px 0}
+.tk-nieuw{border-color:color-mix(in srgb,var(--brand) 30%,var(--line))}
+.tk-fr{display:flex;align-items:center;gap:10px;margin-bottom:12px}.tk-fr label{cursor:pointer}#tkfp{display:flex;align-items:center;gap:6px}#tkfp img{width:48px;height:48px;border-radius:10px;object-fit:cover}
+.keus span svg{width:15px;height:15px}
 .ch-snel{display:flex;gap:8px;overflow-x:auto;padding:10px 14px 0;scrollbar-width:none;background:var(--surface)}.ch-snel::-webkit-scrollbar{display:none}
 .ch-snel button{white-space:nowrap;border-radius:99px;padding:7px 13px;font-size:13px;flex:none;background:var(--brand-soft);color:var(--brand);border-color:transparent}
 .ch-prev{display:flex;align-items:center;gap:10px;padding:10px 14px 0;background:var(--surface);font-weight:700;font-size:13.5px;color:var(--muted)}.ch-prev img{width:48px;height:48px;border-radius:10px;object-fit:cover}.ch-prev span{flex:1}
@@ -322,6 +327,7 @@ const I={
   oog:sv('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'),
   camera:sv('<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>'),
   stuur:sv('<path d="M4 12 20 4l-6 16-3-7z"/><path d="m11 13 9-9"/>'),
+  terug:sv('<path d="m15 6-6 6 6 6"/>'),
   zonOp:sv('<circle cx="12" cy="14" r="4"/><path d="M12 4v2M4.9 7.9l1.4 1.4M17.7 9.3l1.4-1.4M2 18h20M7 21h10"/>'),
   ruit:sv('<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 3v18M4 12h16"/>')
 };
@@ -397,7 +403,7 @@ async function toonAanbevolen(code){
 
 /* ---------- de app ---------- */
 let D=null,tab="home";
-const TABS=[["home","Overzicht",I.huis],["bezoeken","Bezoeken",I.kal],["chat","Chat",I.bericht],["facturen","Facturen",I.fact],["aanbevelen","Aanbevelen",I.hart],["ik","Contact",I.ik]];
+const TABS=[["home","Overzicht",I.huis],["bezoeken","Bezoeken",I.kal],["tickets","Tickets",I.bericht],["facturen","Facturen",I.fact],["aanbevelen","Aanbevelen",I.hart],["ik","Contact",I.ik]];
 async function laad(stil){
   if(!stil)$("#app").innerHTML=`<div class="laden"><div class="spin"></div><span>Uw omgeving wordt geopend…</span></div>`;
   try{D=await api("data");B=D.bedrijf;teken()}catch(e){if(e.message!=="uit")$("#app").innerHTML=`<main class="welkom"><div class="wk-kaart"><h1>Dat lukte even niet</h1><p>${esc(e.message)}</p><button class="primary" onclick="laad()">Opnieuw proberen</button></div></main>`}}
@@ -406,7 +412,7 @@ const lr=(ic,titel,sub,rt="",o={})=>{const tag=o.href?"a":o.attr?"button":"div";
 function teken(){
   const openF=D.facturen.filter(f=>f.status==="open"||f.status==="verlopen"),k=D.klant;
   document.title=B.naam+" · Mijn klantomgeving";
-  const nav=(mob)=>TABS.filter(x=>!mob||x[0]!=="ik").map(([t,l,ic])=>`<button data-tab="${t}"${tab===t?' aria-current="true"':""}>${mob?`<i>${ic}</i>`:ic}<span>${l}</span>${t==="facturen"&&openF.length?`<em class="badge">${openF.length}</em>`:""}${t==="chat"&&D.chat&&D.chat.ongelezen&&tab!=="chat"?`<em class="badge" data-chat>${D.chat.ongelezen}</em>`:""}</button>`).join("");
+  const nav=(mob)=>TABS.filter(x=>!mob||x[0]!=="ik").map(([t,l,ic])=>`<button data-tab="${t}"${tab===t?' aria-current="true"':""}>${mob?`<i>${ic}</i>`:ic}<span>${l}</span>${t==="facturen"&&openF.length?`<em class="badge">${openF.length}</em>`:""}${t==="tickets"&&D.tickets&&D.tickets.ongelezen?`<em class="badge">${D.tickets.ongelezen}</em>`:""}</button>`).join("");
   const tel=(B.mobiel||B.telefoon||"").replace(/[^\d+]/g,""),wa=tel.replace(/^\+/,"").replace(/^0/,"31");
   $("#app").innerHTML=`<div class="app">
     <aside class="side">${logoHtml(merkNaam(),B.logo||"/logo.png")}
@@ -414,10 +420,10 @@ function teken(){
       ${tel?`<div class="help"><b>Vragen?</b><small>We helpen u graag.</small><div class="row"><a class="btn" href="tel:${esc(tel)}">${I.tel}Bellen</a><a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/${esc(wa)}">${I.wa}App</a></div></div>`:""}
       <div class="usercard"><span class="uav">${esc((k.voornaam||"?")[0].toUpperCase())}</span><div><b>${esc(k.naam)}</b><small>${k.klantnr?"Klant "+esc(k.klantnr):esc(k.adres)}</small></div><button data-uit title="Uitloggen" aria-label="Uitloggen">${I.uit}</button></div></aside>
     <div><header class="topbar">${logoHtml(merkNaam(),B.logo||"/logo.png")}<span class="sp"></span><button class="uav" data-tab="ik" aria-label="Mijn gegevens">${esc((k.voornaam||"?")[0].toUpperCase())}</button></header>
-    <main id="main"${tab==="chat"?' class="m-chat"':""}>${({home,bezoeken,chat,facturen,aanbevelen,ik})[tab]()}<p class="voet">${esc(B.naam)}${B.telefoon?" · "+esc(B.telefoon):""}${B.email?" · "+esc(B.email):""}</p></main></div></div>
+    <main id="main"${tab==="tickets"&&TK.open?' class="m-chat"':""}>${({home,bezoeken,tickets,facturen,aanbevelen,ik})[tab]()}<p class="voet">${esc(B.naam)}${B.telefoon?" · "+esc(B.telefoon):""}${B.email?" · "+esc(B.email):""}</p></main></div></div>
     <nav class="tabs" aria-label="Menu">${nav(true)}</nav>`;
-  $$("[data-tab]").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;teken();scrollTo({top:0});try{history.replaceState(null,"","#"+tab)}catch(e){}});
-  koppel();if(tab==="chat")chatStart()}
+  $$("[data-tab]").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;if(tab==="tickets"){TK.open="";TK.d=null;TK.sig=""}teken();scrollTo({top:0});try{history.replaceState(null,"","#"+tab)}catch(e){}});
+  koppel();if(tab==="tickets")ticketsStart()}
 const datumKop=()=>{const d=new Date();return `<span class="vd-date">${I.zonOp}${esc(d.toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long"}))} <span class="wk">wk ${weekNr(d)}</span></span>`};
 const kop=(titel,sub,eb)=>`<div class="pagehead">${eb||datumKop()}<h1>${titel}</h1>${sub?`<p class="subt">${sub}</p>`:""}</div>`;
 
@@ -434,7 +440,7 @@ function hero(){const v=D.volgende,k=D.klant;
     ${k.nieuw?`<h2>We plannen uw eerste bezoek</h2><p>We combineren afspraken per omgeving. U hoort van ons zodra de datum vaststaat.</p>`
      :!k.actief?`<h2>Er staan geen bezoeken gepland</h2><p>Wilt u weer gebruikmaken van onze diensten? Laat het ons weten.</p>`
      :`<h2>${w?"Rond week "+w:"Binnenkort"}</h2><p>We plannen u in zodra uw route rond is en laten u vooraf weten wanneer we komen.</p>`}</div></div>
-    <div class="hero-acts"><button data-act="vakantie">${I.zon}Afwezig</button><button data-act="toegang">${I.sleutel}Instructies</button><button data-tab="chat">${I.bericht}Chat</button></div></section>`}
+    <div class="hero-acts"><button data-act="vakantie">${I.zon}Afwezig</button><button data-act="toegang">${I.sleutel}Instructies</button><button data-act="ticket">${I.bericht}Vraag</button></div></section>`}
 
 function abonnementKp(){const k=D.klant;
   return kp(I.ruit,"Uw abonnement",`<div class="lijst">
@@ -443,7 +449,7 @@ function abonnementKp(){const k=D.klant;
     ${lr(I.zon,"Afwezig of op vakantie","Dan houden we er rekening mee","",{attr:'data-act="vakantie"'})}</div>`)}
 function home(){const k=D.klant,openF=D.facturen.filter(f=>f.status==="open"||f.status==="verlopen"),som=openF.reduce((a,f)=>a+f.bedrag,0),A=D.aanbevelen;
   const lopend=D.verzoeken.filter(v=>v.status==="nieuw");
-  const links=`${D.chat&&D.chat.ongelezen?`<button class="melding" data-tab="chat" style="border-color:color-mix(in srgb,var(--brand) 35%,var(--line))"><span class="objic">${I.bericht}</span><div class="tx"><b>${D.chat.ongelezen===1?"Nieuw bericht van ons":D.chat.ongelezen+" nieuwe berichten"}</b><small>${esc(String(D.chat.laatste||"").slice(0,90))}</small></div><span class="btn primary">Lezen</span></button>`:""}${hero()}
+  const links=`${D.tickets&&D.tickets.ongelezen?`<button class="melding" data-tab="tickets" style="border-color:color-mix(in srgb,var(--brand) 35%,var(--line))"><span class="objic">${I.bericht}</span><div class="tx"><b>${D.tickets.ongelezen===1?"Nieuw antwoord op uw ticket":D.tickets.ongelezen+" nieuwe antwoorden"}</b><small>Bekijk wat wij hebben geantwoord</small></div><span class="btn primary">Bekijken</span></button>`:""}${hero()}
     ${openF.length?`<div class="melding rood"><span class="objic rood">${I.fact}</span><div class="tx"><b>${openF.length===1?"Er staat een factuur open":openF.length+" facturen staan open"}</b><small>${eur(som)}${openF.some(f=>f.status==="verlopen")?" · betaaltermijn verstreken":""}</small></div><button class="primary" data-fact="${esc(openF[0].id)}">Bekijken</button></div>`:""}
     ${A.tegoed>0?`<div class="melding goud"><span class="objic goud">${I.cadeau}</span><div class="tx"><b>${eur0(A.tegoed)} tegoed</b><small>Gaat automatisch van uw volgende factuur af. Bedankt voor uw aanbeveling.</small></div></div>`:""}
     ${D.teBeoordelen?kp(I.ster,"Hoe was ons bezoek?",`<div class="sterren" id="beoor" role="group" aria-label="Geef een beoordeling">${[1,2,3,4,5].map(n=>`<button data-ster="${n}" aria-label="${n} ${n===1?"ster":"sterren"}">${I.ster}</button>`).join("")}</div>`,{kl:"goud",sub:"Bezoek van "+esc(lang(D.teBeoordelen.datum))}):""}
@@ -491,7 +497,7 @@ function ik(){const k=D.klant,t=k.toegang||{};
   const tel=(B.mobiel||B.telefoon||"").replace(/[^\d+]/g,""),wa=tel.replace(/^\+/,"").replace(/^0/,"31");
   return kop("Contact","We helpen u graag. Bel, app of stuur een bericht.")+`<div class="pg"><div class="grid2">
     ${kp(I.tel,"Contact met ons",`<div class="lijst">${tel?lr(I.tel,"Bellen",esc(B.telefoon||B.mobiel),"",{href:"tel:"+tel})+lr(I.wa,"WhatsApp","Meestal binnen een paar uur antwoord","",{href:"https://wa.me/"+wa,tis:"background:#e3f5ea;color:#1f9d55"}):""}
-      ${lr(I.bericht,"Chat met ons","Stel uw vraag, ook met een foto","",{attr:'data-tab="chat"'})}${B.email?lr(I.mail,"E-mail",esc(B.email),"",{href:"mailto:"+B.email}):""}</div>`)}
+      ${lr(I.bericht,"Ticket aanmaken","Vraag of klacht, ook met een foto","",{attr:'data-act="ticket"'})}${B.email?lr(I.mail,"E-mail",esc(B.email),"",{href:"mailto:"+B.email}):""}</div>`)}
     ${kp(I.sleutel,"Bij u thuis",`<div class="lijst">${lr(I.sleutel,"Toegang en instructies",(t.opties||[]).length||t.tekst||t.code?esc([t.code?"Poortcode ingesteld":"",...(t.opties||[]),t.tekst].filter(Boolean).join(" · ").slice(0,90)):"Poortcode, achterom open, hond aanwezig","",{attr:'data-act="toegang"'})}
       ${lr(I.zon,"Afwezigheid doorgeven","Op vakantie of verbouwing?","",{attr:'data-act="vakantie"'})}${lr(I.plus,"Iets extra laten doen","Kozijnen, binnenzijde, zonnepanelen","",{attr:'data-act="extra"'})}</div>`,{kl:"goud"})}
     ${kp(I.ik,"Mijn gegevens",`<div class="lijst">${lr(I.huis,esc(k.naam),esc(k.adres)+"<br>"+esc(k.pcPlaats),"",{attr:'data-act="gegevens"'})}
@@ -501,52 +507,77 @@ function ik(){const k=D.klant,t=k.toegang||{};
     ${abonnementKp()}</div></div>`}
 
 
-/* ---------- chat ---------- */
-let CH={berichten:[],gezienTeam:"",sig:"",timer:null,foto:"",bezig:false};
-function chat(){const tel=(B.mobiel||B.telefoon||"").replace(/[^\d+]/g,"");
-  return `<section class="chat" aria-label="Chat met ${esc(B.naam)}">
-    <header class="ch-h"><span class="logo"><span class="mk">${B.logo?`<img src="${esc(B.logo)}" alt="">`:I.ruit}</span></span><div><b>${esc(merkNaam())}</b><small><i class="ch-dot"></i>Meestal binnen een paar uur antwoord</small></div><span class="sp"></span>${tel?`<a class="btn iconbtn" href="tel:${esc(tel)}" aria-label="Bellen" title="Bellen">${I.tel}</a>`:""}</header>
+/* ---------- tickets ---------- */
+const TCAT={planning:["Planning of afspraak",I.kal],factuur:["Factuur of betaling",I.fact],kwaliteit:["Kwaliteit of klacht",I.ster],toegang:["Toegang",I.sleutel],overig:["Overig",I.bericht]};
+const TST={open:["brand","Open"],behandeling:["soon","In behandeling"],opgelost:["ok","Opgelost"]};
+let TK={lijst:null,open:"",d:null,sig:"",timer:null,foto:""};
+const tPil=s=>`<span class="pill ${(TST[s]||TST.open)[0]}"><i></i>${(TST[s]||TST.open)[1]}</span>`;
+function tickets(){
+  if(TK.open)return ticketDetail();
+  const L=TK.lijst;
+  const rij=t=>lr((TCAT[t.categorie]||TCAT.overig)[1],esc(t.onderwerp),`${t.ongelezen?`<b style="color:var(--brand);font-size:13px;display:inline">Nieuw antwoord · </b>`:""}${esc(t.nummer)} · ${esc(kort(String(t.laatst).slice(0,10)))}`,tPil(t.status),{attr:`data-tk="${esc(t.id)}"`,tis:t.ongelezen?"background:var(--brand);color:#fff":""});
+  const open=L?L.filter(t=>t.status!=="opgelost"):[],klaar=L?L.filter(t=>t.status==="opgelost"):[];
+  return kop("Tickets","Een vraag, klacht of iets dat geregeld moet worden? Maak een ticket aan, dan houden wij u op de hoogte.")+`<div class="pg">
+    <button class="melding tk-nieuw" data-act="ticket"><span class="objic">${I.plus}</span><div class="tx"><b>Nieuw ticket</b><small>Stel uw vraag, ook met een foto. U krijgt bericht zodra wij reageren.</small></div><span class="btn primary">Aanmaken</span></button>
+    ${L===null?`<div class="laden" style="min-height:160px"><div class="spin"></div></div>`
+     :L.length?`${open.length?kp(I.bericht,"Lopende tickets",`<div class="lijst">${open.map(rij).join("")}</div>`,{sub:plural(open.length,"ticket","tickets")}):""}${klaar.length?kp(I.check,"Opgelost",`<div class="lijst">${klaar.map(rij).join("")}</div>`,{kl:"groen",sub:plural(klaar.length,"ticket","tickets")}):""}`
+     :kp(I.bericht,"Nog geen tickets",`<p class="leeg">Heeft u een vraag of is er iets niet goed gegaan? Maak hierboven een ticket aan.</p>`,{kl:"zacht"})}</div>`}
+async function ticketsLaad(){try{const r=await api("tickets"),sig=JSON.stringify(r.tickets);if(sig===TK.lsig)return;TK.lsig=sig;TK.lijst=r.tickets;if(tab==="tickets"&&!TK.open)teken()}catch(e){if(TK.lijst===null){TK.lijst=[];if(tab==="tickets"&&!TK.open)teken()}}}
+function ticketDetail(){const d=TK.d;
+  return `<section class="chat tk" aria-label="Ticket">
+    <header class="ch-h"><button class="iconbtn" data-tkterug aria-label="Terug naar tickets">${I.terug}</button><div style="min-width:0;flex:1"><b>${d?esc(d.ticket.onderwerp):"Ticket"}</b><small>${d?esc(d.ticket.nummer)+" · "+esc((TCAT[d.ticket.categorie]||TCAT.overig)[0]):"Laden…"}</small></div>${d?tPil(d.ticket.status):""}</header>
     <div class="ch-lijst" id="chl" aria-live="polite"><div class="laden" style="min-height:200px"><div class="spin"></div></div></div>
-    <div class="ch-snel" id="chs">${["Wanneer komen jullie?","Ik ben er niet bij het volgende bezoek","Vraag over mijn factuur","Er is iets niet goed gegaan"].map(x=>`<button type="button" data-snel="${esc(x)}">${esc(x)}</button>`).join("")}</div>
+    ${d&&d.ticket.status==="opgelost"?`<div class="tk-dicht">${I.check}<span>Dit ticket is opgelost. Stuurt u een bericht, dan openen wij het opnieuw.</span></div>`:""}
     <div class="ch-prev" id="chp" hidden></div>
     <form class="ch-in" id="chf"><label class="btn iconbtn ch-foto" title="Foto toevoegen" aria-label="Foto toevoegen">${I.camera}<input type="file" accept="image/*" id="chfi" hidden></label>
-      <textarea id="cht" rows="1" placeholder="Typ een bericht…" aria-label="Bericht"></textarea><button class="primary iconbtn" id="chb" aria-label="Versturen">${I.stuur}</button></form>
-  </section>`}
+      <textarea id="cht" rows="1" placeholder="Typ uw reactie…" aria-label="Reactie"></textarea><button class="primary iconbtn" id="chb" aria-label="Versturen">${I.stuur}</button></form></section>`}
 const dagLbl=s=>{const d=new Date(s);d.setHours(0,0,0,0);const n=Math.round((vandaag()-d)/864e5);return n===0?"Vandaag":n===1?"Gisteren":d.toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long"})};
 const tijdLbl=s=>new Date(s).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"});
-function chatTeken(forceer){const l=$("#chl");if(!l)return;
-  const bij=forceer||l.scrollHeight-l.scrollTop-l.clientHeight<120;
-  const B_=CH.berichten,laatsteKlant=[...B_].reverse().find(m=>m.van==="klant");let dag="",html="";
-  if(!B_.length)html=`<div class="ch-dag"><span>Welkom</span></div><div class="bel team"><div class="bb">Hallo ${esc(D.klant.voornaam)}! Heeft u een vraag over uw afspraak, factuur of iets anders? Stuur ons gerust een bericht, ook een foto kan.</div><small>${esc(merkNaam())}</small></div>`;
+function tkTeken(forceer){const l=$("#chl");if(!l||!TK.d)return;
+  const bij=forceer||l.scrollHeight-l.scrollTop-l.clientHeight<120,B_=TK.d.berichten,laatsteKlant=[...B_].reverse().find(m=>m.van==="klant");let dag="",html="";
   for(const m of B_){const dl=dagLbl(m.op);if(dl!==dag){dag=dl;html+=`<div class="ch-dag"><span>${esc(dl)}</span></div>`}
-    const st=m===laatsteKlant?(m._bezig?"Versturen…":m._fout?"Niet verstuurd":CH.gezienTeam&&CH.gezienTeam>=m.op?"Gelezen":"Verzonden"):"";
-    html+=`<div class="bel ${m.van==="klant"?"ik":"team"}${m._bezig?" bezig":""}${m._fout?" fout":""}">${m.foto?`<a class="bf" href="${m.foto.startsWith("data:")?"#":"/_blob/"+esc(m.foto)}" target="_blank" rel="noopener"><img src="${m.foto.startsWith("data:")?m.foto:"/_blob/"+esc(m.foto)}" alt="Foto"></a>`:""}${m.tekst?`<div class="bb">${esc(m.tekst).replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>').replace(/\n/g,"<br>")}</div>`:""}<small>${m.van==="team"&&m.naam?esc(m.naam)+" · ":""}${tijdLbl(m.op)}${st?" · "+st:""}</small></div>`}
-  l.innerHTML=html;$("#chs").hidden=B_.length>2;
-  if(bij)l.scrollTop=l.scrollHeight}
-async function chatLaad(){try{const r=await api("chat");const sig=r.berichten.map(m=>m.id).join(",")+"|"+r.gezienTeam;
-  const lokaal=CH.berichten.filter(m=>m._bezig||m._fout);
-  if(sig!==CH.sig||lokaal.length){CH.sig=sig;CH.berichten=[...r.berichten,...lokaal.filter(m=>!r.berichten.some(x=>x.id===m.id))];CH.gezienTeam=r.gezienTeam;chatTeken()}
-  if(D.chat.ongelezen){D.chat.ongelezen=0;$$(".badge[data-chat]").forEach(b=>b.remove())}}catch(e){}}
-function chatStart(){CH.sig="";chatLaad().then(()=>chatTeken(true));
-  clearInterval(CH.timer);CH.timer=setInterval(()=>{if(tab!=="chat"){clearInterval(CH.timer);return}if(!document.hidden)chatLaad()},4000);
+    if(m.systeem){html+=`<div class="tk-sys">${esc(m.tekst)}</div>`;continue}
+    const st=m===laatsteKlant?(m._bezig?"Versturen…":m._fout?"Niet verstuurd":TK.d.gezienTeam&&TK.d.gezienTeam>=m.op?"Gelezen":"Verzonden"):"";
+    html+=`<div class="bel ${m.van==="klant"?"ik":"team"}${m._bezig?" bezig":""}${m._fout?" fout":""}">${m.foto?`<a class="bf" href="${m.foto.startsWith("data:")?"#":"/_blob/"+esc(m.foto)}" target="_blank" rel="noopener"><img src="${m.foto.startsWith("data:")?m.foto:"/_blob/"+esc(m.foto)}" alt="Foto"></a>`:""}${m.tekst?`<div class="bb">${esc(m.tekst).replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>').replace(/\n/g,"<br>")}</div>`:""}<small>${m.van==="team"?esc(m.naam||merkNaam())+" · ":""}${tijdLbl(m.op)}${st?" · "+st:""}</small></div>`}
+  if(B_.length&&B_[B_.length-1].van==="klant"&&TK.d.ticket.status!=="opgelost")html+=`<div class="tk-sys">We hebben uw bericht ontvangen en reageren zo snel mogelijk.</div>`;
+  l.innerHTML=html;if(bij)l.scrollTop=l.scrollHeight}
+async function tkLaad(){if(!TK.open)return;try{const r=await api("ticket?id="+encodeURIComponent(TK.open));const sig=r.berichten.map(m=>m.id).join(",")+"|"+r.gezienTeam+"|"+r.ticket.status;
+  const lokaal=TK.d?TK.d.berichten.filter(m=>m._bezig||m._fout):[];const statusAnders=!TK.d||TK.d.ticket.status!==r.ticket.status;
+  if(sig!==TK.sig||lokaal.length){TK.sig=sig;TK.d={...r,berichten:[...r.berichten,...lokaal]};if(statusAnders)teken();else tkTeken()}}catch(e){if(/niet gevonden/i.test(e.message)){TK.open="";teken()}}}
+function ticketsStart(){
+  if(!TK.open){ticketsLaad();return}
+  if(TK.d)tkTeken(true);tkLaad().then(()=>tkTeken(true));
+  clearInterval(TK.timer);TK.timer=setInterval(()=>{if(tab!=="tickets"||!TK.open){clearInterval(TK.timer);return}if(!document.hidden)tkLaad()},6000);
   const t=$("#cht"),f=$("#chf"),fi=$("#chfi"),pv=$("#chp");
+  $("[data-tkterug]").onclick=()=>{TK.open="";TK.d=null;TK.sig="";try{history.replaceState(null,"","#tickets")}catch(e){}teken()};
   const groei=()=>{t.style.height="auto";t.style.height=Math.min(t.scrollHeight,140)+"px"};t.oninput=groei;
   t.onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey&&!matchMedia("(hover:none)").matches){e.preventDefault();f.requestSubmit()}};
-  $$("[data-snel]").forEach(b=>b.onclick=()=>{t.value=b.dataset.snel;groei();t.focus()});
-  fi.onchange=async()=>{const file=fi.files[0];fi.value="";if(!file)return;try{CH.foto=await verklein(file);pv.hidden=false;pv.innerHTML=`<img src="${CH.foto}" alt=""><span>Foto toegevoegd</span><button type="button" class="iconbtn ghost" id="chpx" aria-label="Foto verwijderen">${I.x}</button>`;$("#chpx").onclick=()=>{CH.foto="";pv.hidden=true;pv.innerHTML=""};t.focus()}catch(e){toast("Deze foto kan niet worden geopend")}};
-  f.onsubmit=async e=>{e.preventDefault();const tekst=t.value.trim(),foto=CH.foto;if(!tekst&&!foto)return;
-    const m={id:"tmp"+Date.now(),van:"klant",tekst,foto,op:new Date().toISOString(),_bezig:true};CH.berichten.push(m);t.value="";groei();CH.foto="";pv.hidden=true;pv.innerHTML="";chatTeken(true);
-    try{const r=await api("chat",{body:{tekst,foto}});Object.assign(m,r.bericht,{_bezig:false});CH.berichten=CH.berichten.filter(x=>x!==m);CH.berichten.push({...r.bericht});CH.sig="";chatTeken(true)}
-    catch(er){m._bezig=false;m._fout=true;chatTeken(true);toast(er.message)}};
+  fi.onchange=async()=>{const file=fi.files[0];fi.value="";if(!file)return;try{TK.foto=await verklein(file);pv.hidden=false;pv.innerHTML=`<img src="${TK.foto}" alt=""><span>Foto toegevoegd</span><button type="button" class="iconbtn ghost" id="chpx" aria-label="Foto verwijderen">${I.x}</button>`;$("#chpx").onclick=()=>{TK.foto="";pv.hidden=true;pv.innerHTML=""};t.focus()}catch(e){toast("Deze foto kan niet worden geopend")}};
+  f.onsubmit=async e=>{e.preventDefault();const tekst=t.value.trim(),foto=TK.foto;if(!tekst&&!foto)return;
+    const m={id:"tmp"+Date.now(),van:"klant",tekst,foto,op:new Date().toISOString(),_bezig:true};TK.d.berichten.push(m);t.value="";groei();TK.foto="";pv.hidden=true;pv.innerHTML="";tkTeken(true);
+    try{await api("ticket/antwoord",{body:{id:TK.open,tekst,foto}});TK.d.berichten=TK.d.berichten.filter(x=>x!==m);TK.sig="";await tkLaad();tkTeken(true)}
+    catch(er){m._bezig=false;m._fout=true;tkTeken(true);toast(er.message)}};
   if(!matchMedia("(hover:none)").matches)setTimeout(()=>t.focus(),100)}
+function openTicket(id){tab="tickets";TK.open=id;TK.d=null;TK.sig="";try{history.replaceState(null,"","#ticket-"+id)}catch(e){}teken();scrollTo({top:0})}
 function verklein(file){return new Promise((ok,fout)=>{const img=new Image(),u=URL.createObjectURL(file);img.onload=()=>{const s=Math.min(1,1600/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);c.getContext("2d").drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);ok(c.toDataURL("image/jpeg",.82))};img.onerror=fout;img.src=u})}
-/* nieuwe berichten ook zien als de chat niet open is */
-setInterval(async()=>{if(!D||tab==="chat"||document.hidden)return;try{const r=await api("chat/status");if(r.ongelezen!==D.chat.ongelezen){D.chat=r;if(!$(".ov"))teken()}}catch(e){}},45000);
+function nieuwTicket(cat){let foto="";blad(`<div class="dh"><span class="objic">${I.plus}</span><div><h3>Nieuw ticket</h3><small>Wij reageren zo snel mogelijk, meestal binnen een werkdag.</small></div></div>
+  <span class="veld" style="margin-bottom:6px">Waar gaat het over?</span><div class="keus">${Object.entries(TCAT).map(([k,[l,ic]],i)=>`<label><input type="radio" name="tc" value="${k}"${(cat||"planning")===k?" checked":""}><span>${ic}${esc(l)}</span></label>`).join("")}</div>
+  <label class="veld">Onderwerp<input id="tko" maxlength="120" placeholder="Bijvoorbeeld: strepen op het keukenraam"></label>
+  <label class="veld">Uw bericht<textarea id="tkt" style="min-height:120px" placeholder="Vertel zo duidelijk mogelijk wat er is."></textarea></label>
+  <div class="tk-fr"><label class="btn">${I.camera}Foto toevoegen<input type="file" accept="image/*" id="tkf" hidden></label><span id="tkfp"></span></div>
+  <p class="fout" role="alert"></p><div class="acties"><button data-sluit>Annuleren</button><button class="primary" data-go>Ticket versturen</button></div>`,
+  (o,sluit)=>{o.querySelector("#tkf").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;try{foto=await verklein(f);o.querySelector("#tkfp").innerHTML=`<img src="${foto}" alt=""><button type="button" class="iconbtn ghost" aria-label="Foto verwijderen">${I.x}</button>`;o.querySelector("#tkfp button").onclick=()=>{foto="";o.querySelector("#tkfp").innerHTML=""}}catch(er){toast("Deze foto kan niet worden geopend")}};
+    o.querySelector("[data-go]").onclick=async()=>{const b=o.querySelector("[data-go]"),fo=o.querySelector(".fout"),tekst=o.querySelector("#tkt").value.trim();fo.textContent="";
+      if(!tekst&&!foto){fo.textContent="Beschrijf kort waar het om gaat.";o.querySelector("#tkt").focus();return}
+      b.disabled=true;try{const r=await api("tickets",{body:{categorie:(o.querySelector("[name=tc]:checked")||{}).value,onderwerp:o.querySelector("#tko").value,tekst,foto}});sluit();toast("Ticket "+r.nummer+" aangemaakt");TK.lijst=null;openTicket(r.id)}catch(er){b.disabled=false;fo.textContent=er.message}}})}
+/* nieuwe antwoorden ook zien als u ergens anders in het portaal bent */
+setInterval(async()=>{if(!D||(tab==="tickets"&&TK.open)||document.hidden)return;try{const r=await api("tickets");const n=r.tickets.reduce((a,t)=>a+t.ongelezen,0);TK.lijst=r.tickets;if(n!==((D.tickets||{}).ongelezen||0)){D.tickets={open:r.tickets.filter(t=>t.status!=="opgelost").length,ongelezen:n};if(!$(".ov"))teken()}}catch(e){}},45000);
 
 /* ---------- interactie ---------- */
 function koppel(){
   $$("[data-act]").forEach(b=>b.onclick=()=>FORM[b.dataset.act]());
   $$("[data-fact]").forEach(b=>b.onclick=()=>openFactuur(b.dataset.fact));
+  $$("[data-tk]").forEach(b=>b.onclick=()=>openTicket(b.dataset.tk));
   $$("[data-ster]").forEach(b=>{b.onmouseenter=()=>$$("[data-ster]").forEach(x=>x.classList.toggle("aan",+x.dataset.ster<=+b.dataset.ster));b.onclick=()=>beoordeel(+b.dataset.ster)});
   const g=$("#beoor");if(g)g.onmouseleave=()=>$$("[data-ster]").forEach(x=>x.classList.remove("aan"));
   const kc=$("[data-kopie]");if(kc)kc.onclick=async()=>{try{await navigator.clipboard.writeText(D.aanbevelen.link);toast("Link gekopieerd")}catch(e){prompt("Kopieer deze link",D.aanbevelen.link)}};
@@ -586,7 +617,8 @@ const FORM={
     <p class="fout" role="alert"></p><div class="acties"><button class="" data-sluit>Annuleren</button><button class="primary" data-go>Opslaan</button></div>`,
     o=>{const c=o.querySelector("#vc");o.querySelector("#vcz").onclick=()=>{c.type=c.type==="password"?"text":"password"};
       o.querySelector("[data-go]").onclick=()=>verstuur(o,{type:"toegang",opties:[...o.querySelectorAll(".keus input:checked")].map(x=>x.value),tekst:o.querySelector("#vt").value,code:c.value},"Opgeslagen","Uw glazenwasser ziet dit bij het volgende bezoek.")})},
-  bericht(){tab="chat";teken();scrollTo({top:0})},
+  bericht(){nieuwTicket("overig")},
+  ticket(){nieuwTicket()},
   berichtOud(){blad(`<h3>Bericht sturen</h3><p class="sub">Een vraag, compliment of iets dat beter kan. We lezen alles.</p>
     <label class="veld"><span>Uw bericht</span><textarea id="vt" style="min-height:140px"></textarea></label>
     <p class="fout" role="alert"></p><div class="acties"><button class="" data-sluit>Annuleren</button><button class="primary" data-go>Versturen</button></div>`,
@@ -633,7 +665,7 @@ async function openFactuur(id){let f;const sluit=blad(`<div class="laden" style=
 /* ---------- start ---------- */
 (async()=>{const q=new URLSearchParams(location.search),seg=location.pathname.split("/").filter(Boolean);
   if(seg[0]==="aanbevolen"&&seg[1])return toonAanbevolen(decodeURIComponent(seg[1]).toUpperCase());
-  const h=location.hash.slice(1);if(TABS.some(t=>t[0]===h))tab=h;
+  const h=location.hash.slice(1);if(TABS.some(t=>t[0]===h))tab=h;if(h.startsWith("ticket-")){tab="tickets";TK.open=h.slice(7)}
   if(q.get("l")){$("#app").innerHTML=`<div class="laden"><div class="spin"></div><span>Even geduld, we openen uw omgeving…</span></div>`;
     try{const r=await api("sessie",{body:{l:q.get("l")},open:true});sessie.set(r.s);history.replaceState(null,"",location.pathname)}catch(e){history.replaceState(null,"",location.pathname);return toonLogin(e.message)}}
   if(q.get("betaald")){tab="facturen";history.replaceState(null,"",location.pathname);setTimeout(()=>toast("Dank u wel! Uw betaling wordt verwerkt."),600)}

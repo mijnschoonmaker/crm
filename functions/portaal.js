@@ -87,7 +87,7 @@ module.exports = function maakPortaal(ctx) {
   async function data(req, S) {
     const k = S.klant, b = await bedrijf(), base = basisUrl(req), vandaag = isoNL();
     if (!k.refCode) { k.refCode = await maakRefCode(k); await S.kref.set({ refCode: k.refCode }, { merge: true }); }
-    const chatDoc = (await db.doc("chats/" + k.id).get()).data() || {};
+    const tq = await db.collection("tickets").where("klantId", "==", k.id).get(), tks = tq.docs.map(d => d.data());
     const [bs, fs, vz, rk, ra] = await Promise.all([
       db.collection("beurten").where("klantId", "==", k.id).get(),
       db.collection("facturen").where("klantId", "==", k.id).get(),
@@ -119,7 +119,7 @@ module.exports = function maakPortaal(ctx) {
       teBeoordelen: laatsteB && !laatsteB.beoordeling && (Date.now() - new Date(laatsteB.datum + "T12:00:00").getTime()) < 21 * DAG ? { id: laatsteB.id, datum: laatsteB.datum } : null,
       aantalBezoeken: beurten.length,
       facturen,
-      chat: { ongelezen: Number(chatDoc.ongelezenKlant) || 0, laatste: chatDoc.laatsteTekst || "", laatsteVan: chatDoc.laatsteVan || "" },
+      tickets: { open: tks.filter(t => t.status !== "opgelost").length, ongelezen: tks.reduce((a, t) => a + (Number(t.ongelezenKlant) || 0), 0) },
       verzoeken: vz.docs.map(d => ({ id: d.id, ...d.data() })).filter(v => v.type !== "beoordeling" && v.type !== "toegang").sort((a, b2) => String(b2.op).localeCompare(String(a.op))).slice(0, 8)
         .map(v => ({ type: v.type, status: v.status, op: v.op, datum: v.datum || "", tot: v.tot || "", tekst: v.tekst || "", antwoord: v.antwoord || "" })),
       aanbevelen: { code: k.refCode, link: base + "/aanbevolen/" + k.refCode, lijst: aanbevolen, tegoed: r2(tegoed.reduce((a, t) => a + Number(t.bedrag), 0)), opHold: aanbevolen.filter(x => ["aangemeld", "akkoord", "eerste"].includes(x.status)).length, tegoedRegels: tegoed.map(t => ({ bedrag: Number(t.bedrag), reden: t.reden || "" })), verdiend: r2((k.tegoedGebruikt || []).reduce((a, t) => a + (Number(t.bedrag) || 0), 0)) }
@@ -130,7 +130,7 @@ module.exports = function maakPortaal(ctx) {
   async function actie(req, S, d) {
     const k = S.klant, type = String(d.type || "");
     if (!TYPES[type]) throw new Error("onbekend");
-    if (type === "bericht") return chatStuur(null, S, { tekst: d.tekst });   // losse berichten gaan naar de chat
+    if (type === "bericht") return ticketNieuw(S, { tekst: d.tekst, categorie: "overig" });   // losse berichten worden een ticket
     if (!(await limiet("actie" + k.id, 30, 3600e3))) throw new Error("te veel");
     const txt = s => String(s || "").trim().slice(0, 1500), dt = s => /^\d{4}-\d{2}-\d{2}$/.test(String(s || "")) ? String(s) : "";
     const v = { klantId: k.id, klantNaam: k.naam || "", adres: [k.adres, k.plaats].filter(Boolean).join(", "), type, titel: TYPES[type], tekst: txt(d.tekst), status: "nieuw", op: nu(), bron: "portaal" };
@@ -240,10 +240,11 @@ module.exports = function maakPortaal(ctx) {
         await f.ref.set({ mollieId: p.id, mollieLink: link || "", betaallink: link || "", mollieStatus: p.status }, { merge: true });
         res.json({ link }); return;
       }
-      if (pad === "/chat" && req.method === "GET") { res.json(await chatLees(S)); return; }
-      if (pad === "/chat/status" && req.method === "GET") { const c = (await db.doc("chats/" + S.klant.id).get()).data() || {}; res.json({ ongelezen: Number(c.ongelezenKlant) || 0, laatste: c.laatsteTekst || "", laatsteVan: c.laatsteVan || "" }); return; }
-      if (pad === "/chat" && req.method === "POST") {
-        try { res.json(await chatStuur(req, S, body(req))); } catch (e) { res.status(400).json({ fout: e.message === "te veel" ? "U stuurt veel berichten achter elkaar. Probeer het zo opnieuw." : e.message }); }
+      if (pad === "/tickets" && req.method === "GET") { res.json(await ticketsLijst(S)); return; }
+      if (pad === "/ticket" && req.method === "GET") { try { res.json(await ticketLees(S, req.query.id)); } catch (e) { res.status(404).json({ fout: "Ticket niet gevonden." }); } return; }
+      if ((pad === "/tickets" || pad === "/ticket/antwoord") && req.method === "POST") {
+        try { res.json(pad === "/tickets" ? await ticketNieuw(S, body(req)) : await ticketAntwoord(S, body(req))); }
+        catch (e) { res.status(400).json({ fout: e.message === "te veel" ? "U heeft veel berichten achter elkaar gestuurd. Probeer het zo opnieuw." : e.message === "niet gevonden" ? "Ticket niet gevonden." : e.message }); }
         return;
       }
       if (pad === "/actie" && req.method === "POST") {
@@ -254,60 +255,75 @@ module.exports = function maakPortaal(ctx) {
     } catch (e) { console.error("portaal", pad, e); res.status(500).json({ fout: "Er ging iets mis. Probeer het zo opnieuw." }); }
   });
 
-  /* ---------- chat ---------- */
-  async function chatLees(S) {
-    const k = S.klant, ref = db.doc("chats/" + k.id);
-    const [q, c] = await Promise.all([db.collection("chatBerichten").where("klantId", "==", k.id).get(), ref.get()]);
-    const berichten = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => String(a.op).localeCompare(String(b.op))).slice(-300)
-      .map(m => ({ id: m.id, van: m.van, tekst: m.tekst || "", foto: m.foto || "", op: m.op, naam: m.van === "team" ? (m.doorNaam || "") : "" }));
-    if (c.exists && c.data().ongelezenKlant) await ref.set({ ongelezenKlant: 0, gezienKlant: nu() }, { merge: true });
-    else await ref.set({ gezienKlant: nu(), klantId: k.id, klantNaam: k.naam || "" }, { merge: true });
-    return { berichten, gezienTeam: c.exists ? c.data().gezienTeam || "" : "" };
+  /* ---------- tickets ---------- */
+  const T_CAT = { planning: "Planning of afspraak", factuur: "Factuur of betaling", kwaliteit: "Kwaliteit of klacht", toegang: "Toegang", overig: "Overig" };
+  async function ticketNummer() { const ref = db.doc("tellers/tickets"); const n = await db.runTransaction(async t => { const s = await t.get(ref); const v = (s.exists ? s.data().n : 1000) + 1; t.set(ref, { n: v }); return v; }); return "T-" + n; }
+  async function bewaarFoto(f) {
+    if (!f) return "";
+    const m = /^data:(image\/(jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/.exec(String(f));
+    if (!m || m[3].length > 8e6) throw new Error("Deze foto kan niet worden verstuurd.");
+    const id = crypto.randomBytes(16).toString("hex");
+    await bucket().file("assets/" + id).save(Buffer.from(m[3], "base64"), { contentType: m[1], resumable: false });
+    return id;
   }
-  async function chatStuur(req, S, d) {
-    const k = S.klant, tekst = String(d.tekst || "").trim().slice(0, 2000);
-    let foto = "";
-    if (d.foto) {
-      const m = /^data:(image\/(jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/.exec(String(d.foto));
-      if (!m || m[3].length > 8e6) throw new Error("Deze foto kan niet worden verstuurd.");
-      foto = crypto.randomBytes(16).toString("hex");
-      await bucket().file("assets/" + foto).save(Buffer.from(m[3], "base64"), { contentType: m[1], resumable: false });
-    }
-    if (!tekst && !foto) throw new Error("Typ een bericht.");
-    if (!(await limiet("chat" + k.id, 60, 3600e3))) throw new Error("te veel");
-    const id = newId("cb"), op = nu();
-    await db.doc("chatBerichten/" + id).set({ klantId: k.id, van: "klant", tekst, foto, op });
-    const ref = db.doc("chats/" + k.id);
-    const vorige = await db.runTransaction(async t => {
-      const s = await t.get(ref), v = s.exists ? s.data() : {};
-      t.set(ref, { klantId: k.id, klantNaam: k.naam || "", adres: [k.adres, k.plaats].filter(Boolean).join(", "), laatst: op, laatsteTekst: tekst || "Foto", laatsteVan: "klant", ongelezenTeam: (Number(v.ongelezenTeam) || 0) + 1, gezienKlant: op }, { merge: true });
-      return v;
-    });
-    /* geen mail: het bericht verschijnt direct in het CRM (chat + pop-up) */
-    void vorige;
-    return { ok: true, bericht: { id, van: "klant", tekst, foto, op } };
+  const tKort = t => ({ id: t.id, nummer: t.nummer || "", onderwerp: t.onderwerp || "", categorie: t.categorie || "overig", status: t.status || "open", aangemaakt: t.aangemaakt || "", laatst: t.laatst || "", laatsteTekst: t.laatsteTekst || "", laatsteVan: t.laatsteVan || "", ongelezen: Number(t.ongelezenKlant) || 0 });
+  async function ticketsLijst(S) {
+    const q = await db.collection("tickets").where("klantId", "==", S.klant.id).get();
+    return { tickets: q.docs.map(d => tKort({ id: d.id, ...d.data() })).sort((a, b) => String(b.laatst).localeCompare(String(a.laatst))) };
   }
-  /* CRM: klant per mail laten weten dat er een antwoord is (als hij niet net zelf in de chat zat) */
-  const chatMelding = onCall({ memory: "256MiB" }, async req => {
+  async function ticketLees(S, id) {
+    const ref = db.doc("tickets/" + String(id || "")), s = await ref.get();
+    if (!s.exists || s.data().klantId !== S.klant.id) throw new Error("niet gevonden");
+    const q = await db.collection("ticketBerichten").where("ticketId", "==", s.id).get();
+    const berichten = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => String(a.op).localeCompare(String(b.op)))
+      .map(m => ({ id: m.id, van: m.van, tekst: m.tekst || "", foto: m.foto || "", op: m.op, naam: m.van === "team" ? (m.doorNaam || "") : "", systeem: !!m.systeem }));
+    await ref.set({ ongelezenKlant: 0, gezienKlant: nu() }, { merge: true });
+    return { ticket: tKort({ id: s.id, ...s.data() }), berichten, gezienTeam: s.data().gezienTeam || "" };
+  }
+  async function ticketNieuw(S, d) {
+    const k = S.klant, onderwerp = String(d.onderwerp || "").trim().slice(0, 120), tekst = String(d.tekst || "").trim().slice(0, 3000), categorie = T_CAT[d.categorie] ? d.categorie : "overig";
+    if (!tekst && !d.foto) throw new Error("Beschrijf kort waar het om gaat.");
+    if (!(await limiet("ticket" + k.id, 15, 3600e3))) throw new Error("te veel");
+    const foto = await bewaarFoto(d.foto), op = nu(), id = newId("tk"), nummer = await ticketNummer();
+    const titel = onderwerp || tekst.split(/\n/)[0].slice(0, 70) || T_CAT[categorie];
+    await db.doc("tickets/" + id).set({ klantId: k.id, klantNaam: k.naam || "", adres: [k.adres, k.plaats].filter(Boolean).join(", "), nummer, onderwerp: titel, categorie, status: "open", aangemaakt: op, laatst: op, laatsteTekst: tekst || "Foto", laatsteVan: "klant", ongelezenTeam: 1, ongelezenKlant: 0, gezienKlant: op, bron: "portaal" });
+    await db.doc("ticketBerichten/" + newId("tb")).set({ ticketId: id, klantId: k.id, van: "klant", tekst, foto, op });
+    return { ok: true, id, nummer };
+  }
+  async function ticketAntwoord(S, d) {
+    const k = S.klant, ref = db.doc("tickets/" + String(d.id || "")), s = await ref.get();
+    if (!s.exists || s.data().klantId !== k.id) throw new Error("niet gevonden");
+    const tekst = String(d.tekst || "").trim().slice(0, 3000);
+    if (!tekst && !d.foto) throw new Error("Typ een bericht.");
+    if (!(await limiet("tb" + k.id, 60, 3600e3))) throw new Error("te veel");
+    const foto = await bewaarFoto(d.foto), op = nu(), t = s.data();
+    await db.doc("ticketBerichten/" + newId("tb")).set({ ticketId: s.id, klantId: k.id, van: "klant", tekst, foto, op });
+    await ref.set({ laatst: op, laatsteTekst: tekst || "Foto", laatsteVan: "klant", ongelezenTeam: (Number(t.ongelezenTeam) || 0) + 1, gezienKlant: op, ...(t.status === "opgelost" ? { status: "open", heropend: op } : {}) }, { merge: true });
+    return { ok: true, bericht: { id: "n" + Date.now(), van: "klant", tekst, foto, op } };
+  }
+  /* CRM: klant per mail laten weten dat er een antwoord op zijn ticket is (niet als hij net zelf keek) */
+  const ticketMelding = onCall({ memory: "256MiB" }, async req => {
     await checkGebruiker(req.auth);
-    const { klantId, basis } = req.data || {};
-    const s = await db.doc("klanten/" + String(klantId || "")).get();
-    if (!s.exists) return { ok: false };
-    const c = (await db.doc("chats/" + s.id).get()).data() || {};
-    if (c.gezienKlant && Date.now() - new Date(c.gezienKlant).getTime() < 3 * 60e3) return { ok: true, overgeslagen: "online" };
-    if (c.laatsteMailKlant && Date.now() - new Date(c.laatsteMailKlant).getTime() < 30 * 60e3) return { ok: true, overgeslagen: "recent" };
+    const { ticketId, basis } = req.data || {};
+    const ts = await db.doc("tickets/" + String(ticketId || "")).get();
+    if (!ts.exists) return { ok: false };
+    const t = ts.data();
+    if (t.gezienKlant && Date.now() - new Date(t.gezienKlant).getTime() < 3 * 60e3) return { ok: true, overgeslagen: "online" };
+    if (t.laatsteMailKlant && Date.now() - new Date(t.laatsteMailKlant).getTime() < 20 * 60e3) return { ok: true, overgeslagen: "recent" };
+    const s = await db.doc("klanten/" + t.klantId).get(); if (!s.exists) return { ok: false };
     const k = { id: s.id, ...dec(s.data()) }, email = String(k.email || k.pEmail || "").split(/[;,\s]+/)[0];
     if (!/^\S+@\S+\.\S+$/.test(email)) return { ok: false, geenMail: true };
     const [g, b] = await Promise.all([geheim(), bedrijf()]);
     if (!g.brevoKey) return { ok: false };
-    const t = tok();
-    await db.doc("portaalLogin/" + sha(t)).set({ klantId: k.id, email: lc(email), exp: Date.now() + 7 * DAG, op: nu() });
+    const tk = tok();
+    await db.doc("portaalLogin/" + sha(tk)).set({ klantId: k.id, email: lc(email), exp: Date.now() + 7 * DAG, op: nu() });
     const host = String(basis || "").replace(/^https?:\/\//, "").replace(/\/.*$/, "");
-    const url = basisUrl({ headers: { "x-forwarded-host": host } }) + "/portaal?l=" + t + "#chat";
-    const tekst = `Beste ${voornaamVan(schoon(k.contact || k.naam))},\n\nU heeft een nieuw bericht van ons in uw klantomgeving:\n\n**${String(c.laatsteTekst || "").slice(0, 300)}**\n\nMet de knop hieronder opent u direct het gesprek.\n\nMet vriendelijke groet,\n${b.naam || "mijnschoonmaker.com"}`;
+    const url = basisUrl({ headers: { "x-forwarded-host": host } }) + "/portaal?l=" + tk + "#ticket-" + ts.id;
+    const st = t.status === "opgelost" ? "Wij hebben uw ticket als opgelost gemarkeerd." : "Er is een nieuw antwoord op uw ticket.";
+    const tekst = `Beste ${voornaamVan(schoon(k.contact || k.naam))},\n\n${st}\n\n**${t.nummer} · ${t.onderwerp}**\n${String(t.laatsteTekst || "").slice(0, 400)}\n\nMet de knop hieronder opent u het ticket direct.\n\nMet vriendelijke groet,\n${b.naam || "mijnschoonmaker.com"}`;
     const afz = g.afzender || b.email || "info@mijnschoonmaker.com";
-    await brevoSend(g.brevoKey, { sender: { name: b.naam || "mijnschoonmaker", email: afz }, replyTo: { email: b.email || afz }, to: [{ email, name: schoon(k.naam) || undefined }], subject: "Nieuw bericht van " + (b.naam || "mijnschoonmaker.com"), htmlContent: mailHtml(tekst, b, { knop: { url, tekst: "Bericht lezen en antwoorden" } }), textContent: tekst.replace(/\*\*/g, "") + "\n\n" + url, tags: ["portaal", "chat"] });
-    await db.doc("chats/" + s.id).set({ laatsteMailKlant: nu() }, { merge: true });
+    await brevoSend(g.brevoKey, { sender: { name: b.naam || "mijnschoonmaker", email: afz }, replyTo: { email: b.email || afz }, to: [{ email, name: schoon(k.naam) || undefined }], subject: `${t.nummer}: ${t.status === "opgelost" ? "opgelost" : "nieuw antwoord"} · ${b.naam || "mijnschoonmaker.com"}`, htmlContent: mailHtml(tekst, b, { knop: { url, tekst: "Ticket bekijken" } }), textContent: tekst.replace(/\*\*/g, "") + "\n\n" + url, tags: ["portaal", "ticket"] });
+    await ts.ref.set({ laatsteMailKlant: nu() }, { merge: true });
     return { ok: true };
   });
 
@@ -332,5 +348,5 @@ module.exports = function maakPortaal(ctx) {
     const q = await db.collection("klanten").where("refCode", "==", c).limit(1).get();
     return q.empty ? null : { id: q.docs[0].id, code: c, naam: q.docs[0].data().naam || "" };
   }
-  return { portaal, portaalUitnodigen, chatMelding, refKlant };
+  return { portaal, portaalUitnodigen, ticketMelding, refKlant };
 };
