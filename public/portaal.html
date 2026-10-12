@@ -280,6 +280,7 @@ button.melding{width:100%;text-align:left;font-weight:500;color:inherit}
 .bf{display:block;border-radius:16px;overflow:hidden;border:1px solid var(--line);max-width:260px}.bf img{display:block;width:100%;height:auto;max-height:320px;object-fit:cover}
 .tk-dicht{display:flex;gap:10px;align-items:center;padding:10px 16px;background:var(--ok-bg);color:var(--ok);font-weight:700;font-size:13.5px}.tk-dicht svg{width:17px;height:17px}
 .tk-sys{align-self:center;max-width:90%;text-align:center;color:var(--muted);font-size:12.5px;font-weight:600;background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:6px 12px;margin:4px 0}
+.tk-uitleg{display:block;max-width:72ch;line-height:1.6;font-size:14.5px}
 .tk-nieuw{border-color:color-mix(in srgb,var(--brand) 30%,var(--line))}
 .tk-fr{display:flex;align-items:center;gap:10px;margin-bottom:12px}.tk-fr label{cursor:pointer}#tkfp{display:flex;align-items:center;gap:6px}#tkfp img{width:48px;height:48px;border-radius:10px;object-fit:cover}
 .keus span svg{width:15px;height:15px}
@@ -523,7 +524,7 @@ function tickets(){
   const L=TK.lijst;
   const rij=t=>lr((TCAT[t.categorie]||TCAT.overig)[1],esc(t.onderwerp),`${t.ongelezen?`<b style="color:var(--brand);font-size:13px;display:inline">Nieuw antwoord · </b>`:""}${esc(t.nummer)} · ${esc(kort(String(t.laatst).slice(0,10)))}`,tPil(t.status),{attr:`data-tk="${esc(t.id)}"`,tis:t.ongelezen?"background:var(--brand);color:#fff":""});
   const open=L?L.filter(t=>t.status!=="opgelost"):[],klaar=L?L.filter(t=>t.status==="opgelost"):[];
-  return kop("Tickets","Een vraag, klacht of iets dat geregeld moet worden? Maak een ticket aan, dan houden wij u op de hoogte.")+`<div class="pg">
+  return kop("Tickets",`<span class="tk-uitleg">Voor vragen, opmerkingen en verzoeken kun je onderstaand een ticket indienen. Tickets zijn de voorkeursmethode voor contact omdat informatie dan terug te lezen is en je de voortgang van je vraag/opmerking/verzoek kunt volgen. Als je aanvullende informatie op een ticket wil geven plaats deze dan in de bestaande ticket en open er geen nieuwe voor. Dit houdt het voor jezelf overzichtelijk.</span>`)+`<div class="pg">
     <button class="melding tk-nieuw" data-act="ticket"><span class="objic">${I.plus}</span><div class="tx"><b>Nieuw ticket</b><small>Stel uw vraag, ook met een foto. U krijgt bericht zodra wij reageren.</small></div><span class="btn primary">Aanmaken</span></button>
     ${L===null?`<div class="laden" style="min-height:160px"><div class="spin"></div></div>`
      :L.length?`${open.length?kp(I.ticket,"Lopende tickets",`<div class="lijst">${open.map(rij).join("")}</div>`,{sub:plural(open.length,"ticket","tickets")}):""}${klaar.length?kp(I.check,"Opgelost",`<div class="lijst">${klaar.map(rij).join("")}</div>`,{kl:"groen",sub:plural(klaar.length,"ticket","tickets")}):""}`
