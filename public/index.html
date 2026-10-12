@@ -2129,6 +2129,19 @@ nav.tabs .badge.nk-b{padding:0 2px;height:18px}nav.tabs .badge.nk-b em{display:n
 .gk-c>span:nth-child(2){flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.gk-c b{font-size:14.5px}.gk-c small{color:var(--muted);font-size:12.5px}
 .gk-c>svg{width:16px;height:16px;color:var(--muted)}
 
+/* alle staten als mini-kalenderblaadje: band met label + groot getal */
+.kx-av .kc.kc-tile{background:#fff!important;box-shadow:0 1px 3px rgb(15 31 38 / .12),inset 0 0 0 1px color-mix(in srgb,var(--kx) 22%,transparent)!important;overflow:hidden;justify-content:flex-start!important;padding:0!important}
+.kx-av .kc.kc-tile .kc-m{display:block;width:100%;font-style:normal;font-size:7.6px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#fff;padding:5px 0 3px;line-height:1;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--kx) 82%,#fff),var(--kx))}
+.kx-av .kc.kc-tile b{font-size:18px!important;font-weight:800;margin-top:3px;letter-spacing:-.02em;color:color-mix(in srgb,var(--kx) 70%,#0f1f26)!important}
+.kx-av .kc.kc-tile .kc-s{font-size:16px;color:var(--kx)}
+.kx-av .kc.kc-plan .kc-m{background:linear-gradient(180deg,#34a874,#24865b)}
+.kx-av .kc.kc-plan b{color:#16583c!important}
+@media (max-width:640px){.kx-av .kc.kc-tile .kc-m{font-size:6.6px;padding:4px 0 2px}.kx-av .kc.kc-tile b{font-size:15px!important}}
+.kx-av .kc.kc-tile .kc-m{font-size:6.8px!important;letter-spacing:.05em!important;padding:8px 0 3px!important}
+.kx-av .kc.kc-tile b{margin-top:2px!important}
+@media (max-width:640px){.kx-av .kc.kc-tile .kc-m{font-size:5.8px!important;padding:7px 0 2px!important}}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -3816,8 +3829,9 @@ function vKlanten(){
     return `<div class="card click kx kx-${rc}${k.actief===false?" dim":""}${sel?" sel":""}${selm?" kx-selm":""}" data-act="${selm?"selk":"klant"}" data-id="${esc(k.id)}" style="--h:${hue(k.ronde||k.naam)}">
     <span class="kx-av"><svg viewBox="0 0 60 60" aria-hidden="true"><circle cx="30" cy="30" r="27" class="kx-tr"/></svg><i class="kx-ring" style="--p:${Math.max(0,Math.min(100,pct))}%"></i>${pct>2&&pct<100&&!_gp?`<i class="kx-knob" style="left:${(_kx/.6).toFixed(2)}%;top:${(_ky/.6).toFixed(2)}%"></i>`:""}${(()=>{const gp=parse(k.gepland),ttl=(_nw?"Nieuwe klant, nog niet gewassen":gp?"Ingepland op "+fmtL(k.gepland)+(k.tijd?" om "+k.tijd:""):s.diff<0?Math.abs(s.diff)+" dagen te laat, nog niet ingepland":s.diff===0?"Vandaag aan de beurt, nog niet ingepland":"Over "+s.diff+" dagen aan de beurt, nog niet ingepland")+" · "+pct+"% van het ritme";
       const mnd=["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"];
-      const c=selm?(sel?I.check:""):k.actief===false?`<b>–</b><em>inactief</em>`:k.prospect?`${I.offertes}<em>offerte</em>`:_nw?`<b class="kc-s">★</b><em>nieuw</em>`:gp?`<i class="kc-m">${mnd[gp.getMonth()]}</i><b>${gp.getDate()}</b>`:s.diff===0?`<i class="kc-dot"></i><b class="kc-v">vandaag</b>`:s.diff<0?`<b>+${Math.abs(s.diff)}</b><em>te laat</em>`:`<b>${s.diff}</b><em>${s.diff===1?"dag":"dagen"}</em>`;
-      return `<span class="kc${gp&&!selm?" kc-plan":""}" title="${esc(ttl)}">${c}</span>`})()}</span>
+      const tile=(band,big)=>`<i class="kc-m">${band}</i><b>${big}</b>`;
+      const c=selm?(sel?I.check:""):k.actief===false?`<b>–</b><em>inactief</em>`:k.prospect?`${I.offertes}<em>offerte</em>`:_nw?tile("nieuw",'<span class="kc-s">★</span>'):gp?tile(mnd[gp.getMonth()],gp.getDate()):s.diff===0?tile("vandaag",new Date().getDate()):s.diff<0?tile("te laat","+"+Math.abs(s.diff)):tile(s.diff===1?"dag":"dagen",s.diff);
+      return `<span class="kc${!selm&&k.actief!==false&&!k.prospect?" kc-tile":""}${gp&&!selm?" kc-plan":""}" title="${esc(ttl)}">${c}</span>`})()}</span>
     <div class="kx-main"><span class="nm">${esc(cleanName(k.naam))}${k.soort==="zakelijk"?`<em class="kx-tag">Zakelijk</em>`:""}${k.ronde?`<em class="kx-tag">${esc(k.ronde)}</em>`:""}</span>
       <div class="kx-sub"><span>${I.pin}${esc([k.adres,k.plaats].filter(Boolean).join(", ")||"Geen adres")}</span></div></div>
     <div class="kx-due">${(()=>{const gp=k.actief!==false&&!k.prospect&&parse(k.gepland);return gp?`<span class="kx-st kx-st-plan">Ingepland</span><small>${esc(gp.toLocaleDateString("nl-NL",{weekday:"short",day:"numeric",month:"short"}))}${k.tijd?" · "+esc(k.tijd):""}</small>`:`<span class="kx-st">${k.actief===false?"Inactief":k.prospect?"Wacht op akkoord":esc(s.txt)}</span><small>${k.actief===false||k.prospect?"":esc(dag)}</small>`})()}</div>
