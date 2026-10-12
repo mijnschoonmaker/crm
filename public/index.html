@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#137a8a"><meta name="robots" content="noindex">
-<link rel="icon" href="/icon.svg" type="image/svg+xml"><link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/logo.png" type="image/png"><link rel="apple-touch-icon" href="/logo.png"><link rel="manifest" href="/manifest.json">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
@@ -51,7 +51,7 @@
   /* ---------- inlogscherm ---------- */
   const css = `.lg-ov{position:fixed;inset:0;z-index:2147483600;display:grid;place-items:center;padding:20px;background:radial-gradient(900px 500px at 80% -10%,rgb(240 170 110 / .12),transparent 60%),radial-gradient(800px 500px at 10% 0%,rgb(19 122 138 / .12),transparent 60%),#f3f6f7;font-family:Manrope,system-ui,-apple-system,sans-serif;color:#0f1f26}
   .lg-c{width:min(400px,100%);background:#fff;border-radius:24px;padding:32px 28px;box-shadow:0 1px 2px rgb(15 31 38 / .05),0 24px 60px -20px rgb(15 31 38 / .25)}
-  .lg-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;margin-bottom:26px}.lg-logo span{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#137a8a,#1d5a74);display:grid;place-items:center}.lg-logo svg{width:22px;height:22px}
+  .lg-logo{display:flex;justify-content:center;margin:-4px 0 22px}.lg-logo img{height:84px;width:auto;max-width:200px;object-fit:contain}.lg-logo span{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#137a8a,#1d5a74);display:grid;place-items:center}.lg-logo svg{width:22px;height:22px}
   .lg-c h1{font-family:Inter,Manrope,sans-serif;font-size:26px;letter-spacing:-.02em;margin:0 0 6px}.lg-c p{color:#5d6f76;margin:0 0 20px;font-size:14.5px;line-height:1.5}
   .lg-c label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:700;margin-bottom:14px}
   .lg-c input{font:inherit;font-size:15px;font-weight:500;padding:12px 14px;border:1px solid #dde5e8;border-radius:12px;background:#fbfcfc;outline:none}.lg-c input:focus{border-color:#137a8a;box-shadow:0 0 0 3px rgb(19 122 138 / .15)}
@@ -62,7 +62,7 @@
   let ov = null;
   const toon = html => {
     if (!ov) { const s = document.createElement("style"); s.textContent = css; document.head.appendChild(s); ov = document.createElement("div"); ov.className = "lg-ov"; document.body.appendChild(ov); }
-    ov.style.display = "grid"; ov.innerHTML = `<div class="lg-c"><div class="lg-logo"><span>${mark}</span>mijnschoonmaker</div>${html}</div>`;
+    ov.style.display = "grid"; ov.innerHTML = `<div class="lg-c"><div class="lg-logo"><img src="/logo.png" alt="mijnschoonmaker" onerror="this.remove()"></div>${html}</div>`;
   };
   const $ = s => ov.querySelector(s), msg = (t, ok) => { const m = $(".lg-m"); if (m) { m.textContent = t; m.className = "lg-m" + (ok ? " ok" : ""); } };
   const NL = { "auth/invalid-credential": "E-mailadres of wachtwoord klopt niet.", "auth/wrong-password": "E-mailadres of wachtwoord klopt niet.", "auth/user-not-found": "E-mailadres of wachtwoord klopt niet.", "auth/too-many-requests": "Te veel pogingen. Probeer het over een paar minuten opnieuw.", "auth/email-already-in-use": "Er bestaat al een account met dit e-mailadres. Log in.", "auth/weak-password": "Kies een wachtwoord van minimaal 8 tekens.", "auth/invalid-email": "Controleer het e-mailadres.", "auth/network-request-failed": "Geen internetverbinding." };
