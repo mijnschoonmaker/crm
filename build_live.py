@@ -14,6 +14,10 @@ head = f'''<!doctype html>
 '''
 i = crm.index("<title>")
 html = head + crm[i:].replace("<style>", "<style>html,body{margin:0}\n", 1) + "\n</body></html>\n"
+# meteen het eigen logo tonen (geen Zeem-logo bij het laden); daarna vult het CRM het logo uit Instellingen in
+import re as _re
+html = _re.sub(r'<div class="logo"><span class="mk">.*?</span><span class="wm">mijnschoonmaker</span></div>', '<div class="logo haslogo"><img class="lgimg" src="/logo.png" alt="mijnschoonmaker"><span class="wm lgtxt"></span></div>', html)
+assert html.count('class="logo haslogo"') >= 2, "logo niet vervangen"
 os.makedirs("public", exist_ok=True)
 open("public/index.html", "w").write(html)
 # broncode meenemen in de repository

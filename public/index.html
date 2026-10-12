@@ -2305,14 +2305,14 @@ nav.tabs .badge.nk-b{padding:0 2px;height:18px}nav.tabs .badge.nk-b em{display:n
 </style>
 <div class="app">
   <aside class="side">
-    <div class="logo"><span class="mk"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2.5" stroke="#fff" stroke-width="1.8"/><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="1.2" opacity=".55"/><path d="M7 17L17 7" stroke="#ebbd4c" stroke-width="2.6" stroke-linecap="round"/></svg></span><span class="wm">mijnschoonmaker</span></div>
+    <div class="logo haslogo"><img class="lgimg" src="/logo.png" alt="mijnschoonmaker"><span class="wm lgtxt"></span></div>
     <button type="button" class="collapse" data-act="collapse" aria-label="Menu in- of uitklappen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M16 9l-3 3 3 3"/></svg><span class="lbl">Menu inklappen</span></button>
     <nav id="sideNav" aria-label="Hoofdmenu"></nav>
     <div class="sp"></div>
     <div class="usercard" id="userCard"></div>
   </aside>
   <div style="min-width:0">
-    <div class="topbar"><div class="logo"><span class="mk"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2.5" stroke="#fff" stroke-width="1.8"/><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="1.2" opacity=".55"/><path d="M7 17L17 7" stroke="#ebbd4c" stroke-width="2.6" stroke-linecap="round"/></svg></span><span class="wm">mijnschoonmaker</span></div><div class="sp"></div><button type="button" class="iconbtn" data-act="tab" data-tab="instellingen" aria-label="Instellingen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg></button></div>
+    <div class="topbar"><div class="logo haslogo"><img class="lgimg" src="/logo.png" alt="mijnschoonmaker"><span class="wm lgtxt"></span></div><div class="sp"></div><button type="button" class="iconbtn" data-act="tab" data-tab="instellingen" aria-label="Instellingen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg></button></div>
     <main><div id="status"></div><div id="view"></div></main>
   </div>
 </div>
@@ -8295,8 +8295,9 @@ function render(){try{warmMailLogo()}catch(e){}
   const mob=["vandaag","route","planning","klanten"],inMeer=!mob.includes(state.tab),meerB=late*0+mTodo;
   $("#tabNav").innerHTML=mob.map(t=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}"><i>${I[t]}</i>${PAGES.find(p=>p[0]===t)[1]}${badge(t)}</button>`).join("")+`<button type="button" data-act="meer" aria-current="${inMeer}"><i>${I.more}</i>Meer${meerB?`<span class="badge">${meerB}</span>`:""}</button>`;
   const nm=(state.me&&state.me.name)||S().naam||"Jouw bedrijf";
-  {const lg=S().logo,h=new Date().getHours(),fn=state.me&&state.me.name?state.me.name.trim().split(/\s+/)[0]:"",gr=(h<6?"Goedenacht":h<12?"Goedemorgen":h<18?"Goedemiddag":"Goedenavond")+(fn?", "+fn:""),key=lg+"|"+gr;
-    if(key!==state._lgShown){state._lgShown=key;document.querySelectorAll(".logo").forEach(el=>{el.classList.toggle("haslogo",!!lg);if(lg)el.innerHTML=`<img class="lgimg" src="${BLOB}${esc(lg)}" alt="mijnschoonmaker"><span class="wm lgtxt">${esc(gr)}</span>`})}}
+  {let lg=S().logo;if(lg){try{localStorage.setItem("ms.lg",lg)}catch(e){}}else if(LIVE){try{lg=localStorage.getItem("ms.lg")||""}catch(e){}}
+    const h=new Date().getHours(),fn=state.me&&state.me.name?state.me.name.trim().split(/\s+/)[0]:"",gr=(h<6?"Goedenacht":h<12?"Goedemorgen":h<18?"Goedemiddag":"Goedenavond")+(fn?", "+fn:""),key=lg+"|"+gr;
+    if(key!==state._lgShown){state._lgShown=key;document.querySelectorAll(".logo").forEach(el=>{const src=lg?BLOB+lg:LIVE?"/logo.png":"";el.classList.toggle("haslogo",!!src);if(src)el.innerHTML=`<img class="lgimg" src="${esc(src)}" alt="mijnschoonmaker"><span class="wm lgtxt">${esc(gr)}</span>`})}}
   $("#userCard").innerHTML=`<span class="uav">${esc(initials(nm))}</span><div style="min-width:0"><b>${esc(nm)}</b><small>${esc(S().naam&&state.me&&state.me.name?S().naam:"mijnschoonmaker · CRM")}</small></div>`;
   const main=$("main");main.classList.toggle("wide",big()&&(state.tab==="vandaag"||state.tab==="planning"||state.tab==="uitvoering"));
   if(!state.loaded&&state.db){$("#view").innerHTML=empty("Gegevens laden…","Een moment.");return}
