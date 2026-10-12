@@ -1650,7 +1650,7 @@ nav.tabs .badge.nk-b{padding:0 2px;height:18px}nav.tabs .badge.nk-b em{display:n
 
 .notice.verhuisd{background:#fdecea;border-color:#f3b8b0;color:#7a2318;font-weight:500}.notice.verhuisd a{color:#7a2318;font-weight:700;text-decoration:underline}
 /* ring: één element (achtergrondring + voortgang), geen losse svg meer → geen dubbele randen in Safari */
-.kx-av svg{display:none!important}
+.kx-av>svg{display:none!important}
 .kx-ring{inset:2px!important;background:conic-gradient(from 0deg,color-mix(in srgb,var(--kx,#9aa8ad) 30%,#fff) 0,color-mix(in srgb,var(--kx,#9aa8ad) 65%,#fff) calc(var(--p)*.5),var(--kx,#9aa8ad) calc(var(--p)*.92),var(--kx,#9aa8ad) var(--p),color-mix(in srgb,var(--kx,#9aa8ad) 12%,#e9eef0) var(--p),color-mix(in srgb,var(--kx,#9aa8ad) 12%,#e9eef0) 100%)!important;
   -webkit-mask:radial-gradient(closest-side,transparent calc(100% - 3px),#000 calc(100% - 2.5px))!important;mask:radial-gradient(closest-side,transparent calc(100% - 3px),#000 calc(100% - 2.5px))!important}
 .kx-neutral .kx-ring{display:block!important;background:color-mix(in srgb,#9aa8ad 18%,#eef2f3)!important}
@@ -1663,3 +1663,18 @@ nav.tabs .badge.nk-b{padding:0 2px;height:18px}nav.tabs .badge.nk-b em{display:n
 .kx-late{--kx:#cc2f2f!important}
 .kx-crit .kx-st::before{animation:kxPuls 2.4s ease-in-out infinite}
 .kx-nieuw{--kx:#137a8a!important}.kx-nieuw .kx-pct{background:#137a8a;color:#fff;box-shadow:none}
+
+/* midden van de ring: wanneer aan de beurt / ingepland */
+.kx-av .kc{position:relative;z-index:1;width:46px;height:46px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;
+  background:radial-gradient(circle at 50% 30%,#fff,color-mix(in srgb,var(--kx,#9aa8ad) 9%,#fff));box-shadow:0 1px 2px rgb(15 31 38 / .08),inset 0 0 0 1px color-mix(in srgb,var(--kx,#9aa8ad) 18%,transparent);text-align:center;line-height:1}
+.kx-av .kc b{font-size:17px;font-weight:800;letter-spacing:-.02em;color:color-mix(in srgb,var(--kx,#5d6f76) 82%,#0f1f26);font-variant-numeric:tabular-nums}
+.kx-av .kc em{font-style:normal;font-size:8.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-top:2px;white-space:nowrap}
+.kx-av .kc svg{width:16px;height:16px;color:var(--kx);stroke:currentColor}
+.kx-av .kc .kc-s{font-size:15px;color:var(--kx)}
+.kx-av .kc.kc-plan{background:radial-gradient(circle at 50% 30%,#fff,#e9f6f1);box-shadow:0 1px 2px rgb(15 31 38 / .08),inset 0 0 0 1px rgb(35 132 90 / .25)}
+.kx-av .kc.kc-plan b{color:#1f6f4d}.kx-av .kc.kc-plan em{color:#2f7a5a}
+.kc-ok{position:absolute;right:-3px;bottom:-1px;z-index:2;width:19px;height:19px;border-radius:50%;background:#23845a;color:#fff;display:grid;place-items:center;box-shadow:0 0 0 2.5px var(--surface,#fff)}
+.kc-ok svg{width:11px;height:11px;stroke:#fff;stroke-width:3}
+.klx .kx-pct{display:none!important}
+@media (max-width:640px){.kx-av .kc{width:40px;height:40px}.kx-av .kc b{font-size:15px}.kx-av .kc em{font-size:7.5px}}
+.kx-st.kx-st-plan{color:#23845a!important}.kx-st.kx-st-plan::before{background:#23845a!important;box-shadow:0 0 0 3px rgb(35 132 90 / .15)!important;animation:none!important}
