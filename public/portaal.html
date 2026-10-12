@@ -333,6 +333,7 @@ const I={
   stuur:sv('<path d="M4 12 20 4l-6 16-3-7z"/><path d="m11 13 9-9"/>'),
   terug:sv('<path d="m15 6-6 6 6 6"/>'),
   ticket:sv('<path d="M4 5h16a1 1 0 0 1 1 1v3.5a2.5 2.5 0 0 0 0 5V18a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-3.5a2.5 2.5 0 0 0 0-5V6a1 1 0 0 1 1-1z"/><path d="M15 5.5v2M15 11v2M15 16.5v2"/><path d="M6.8 10h5M6.8 14h3.4"/>'),
+  pen:sv('<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/>'),
   zonOp:sv('<circle cx="12" cy="14" r="4"/><path d="M12 4v2M4.9 7.9l1.4 1.4M17.7 9.3l1.4-1.4M2 18h20M7 21h10"/>'),
   ruit:sv('<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 3v18M4 12h16"/>')
 };
@@ -508,7 +509,7 @@ function ik(){const k=D.klant,t=k.toegang||{};
     ${kp(I.ik,"Mijn gegevens",`<div class="lijst">${lr(I.huis,esc(k.naam),esc(k.adres)+"<br>"+esc(k.pcPlaats),"",{attr:'data-act="gegevens"'})}
       ${lr(I.tel,"Telefoon en e-mail",esc([k.telefoon||k.mobiel,k.email].filter(Boolean).join(" · ")||"Nog niet bekend"),"",{attr:'data-act="gegevens"'})}
       ${k.klantnr?lr(I.doc,"Klantnummer",esc(k.klantnr)):""}${B.voorwaarden?lr(I.doc,"Algemene voorwaarden","PDF","",{href:B.voorwaarden}):""}
-      ${lr(I.uit,"Uitloggen","Op dit apparaat","",{attr:"data-uit"})}</div>`,{kl:"zacht"})}
+      ${lr(I.uit,"Uitloggen","Op dit apparaat","",{attr:"data-uit"})}</div>`,{kl:"zacht",act:`<button class="primary" data-act="gegevens">${I.pen}Wijzigen</button>`})}
     ${abonnementKp()}</div></div>`}
 
 
