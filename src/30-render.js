@@ -232,19 +232,46 @@ const dropAt=(x,y)=>{for(const el of document.elementsFromPoint(x,y)){if(el.clas
 document.addEventListener("pointerdown",e=>{if(e.button>0)return;const j=e.target.closest&&e.target.closest("[data-drag]");if(!j||e.target.closest("input,select,textarea,.tiny,.check"))return;
   dg={j,id:j.dataset.drag,x:e.clientX,y:e.clientY,on:false,touch:e.pointerType!=="mouse",t0:Date.now(),pid:e.pointerId};
   if(dg.touch)dg.timer=setTimeout(()=>{if(dg&&!dg.on)startDg(dg.x,dg.y)},280)});
-function startDg(x,y){if(!dg)return;dg.on=true;const r=dg.j.getBoundingClientRect(),g=dg.j.cloneNode(true);g.classList.add("dg-ghost");g.removeAttribute("data-drag");
-  Object.assign(g.style,{position:"fixed",left:r.left+"px",top:r.top+"px",width:r.width+"px",height:Math.min(r.height,90)+"px",margin:0,zIndex:2000,pointerEvents:"none",opacity:.9,transform:"rotate(1.5deg)",boxShadow:"0 14px 34px rgb(0 0 0 / .28)"});
-  dg.dx=x-r.left;dg.dy=y-r.top;dg.g=g;document.body.appendChild(g);dg.j.classList.add("dragging");document.body.classList.add("dg-busy");if(navigator.vibrate&&dg.touch)try{navigator.vibrate(15)}catch(_){}}
+function dgInfo(id){if(id.startsWith("b:")){const b=state.beurten.find(x=>x.id===id.slice(2))||{};const k=state.klanten.find(x=>x.id===b.klantId)||{};return{k,du:Number(b.duur)||duur(k),adr:jobAddrObj(k).adres||cleanName(b.klantNaam||k.naam||""),prijs:b.bedrag}}
+  const k=state.klanten.find(x=>x.id===id)||{};return{k,du:duur(k),adr:jobAddrObj(k).adres||cleanName(k.naam||""),plaats:jobAddrObj(k).plaats||k.plaats||"",prijs:k.prijs}}
+function startDg(x,y){if(!dg)return;dg.on=true;const r=dg.j.getBoundingClientRect(),inf=dgInfo(dg.id);dg.inf=inf;
+  const tile=dg.j.querySelector(".kc-tile");
+  const g=document.createElement("div");g.className="dg-ghost dg-card";
+  let tl=I.cal2;if(tile){const m=tile.querySelector(".kc-m"),bb=tile.querySelector("b"),KL={ok:"#3c9a6a",attn:"#c2a227",warn:"#e28c1c",soon:"#e28c1c",crit:"#e2571f",late:"#cc2f2f",nieuw:"#137a8a",plan:"#2e9a6b",gemist:"#cc2f2f"},kc=[...dg.j.classList].map(c=>c.replace(/^kx-/,"")).find(c=>KL[c]);tl=`<span class="dg-t"><i style="background:${KL[kc]||"var(--brand)"}">${esc(m?m.textContent:"")}</i><b>${bb?bb.innerHTML:""}</b></span>`}
+  g.innerHTML=`<span class="dg-tile${tile?" t":""}">${tl}</span><span class="dg-tx"><b>${esc(inf.adr||"Afspraak")}</b><small>${inf.plaats?esc(inf.plaats)+" · ":""}${inf.du} min${inf.prijs?" · "+eur0(toon(inf.prijs)):""}</small></span>`;
+  document.body.appendChild(g);
+  dg.dx=Math.min(x-r.left,40);dg.dy=Math.min(y-r.top,28);dg.g=g;dg.cx=r.left;dg.cy=r.top;dg.tx=x-dg.dx;dg.ty=y-dg.dy;dg.vx=0;
+  g.style.transform=`translate3d(${r.left}px,${r.top}px,0) scale(.96)`;requestAnimationFrame(()=>g.classList.add("op"));
+  const loop=()=>{if(!dg||!dg.on||dg.g!==g)return;const ox=dg.cx;dg.cx+=(dg.tx-dg.cx)*.38;dg.cy+=(dg.ty-dg.cy)*.38;dg.vx=dg.vx*.8+(dg.cx-ox)*.2;
+    const rot=Math.max(-7,Math.min(7,dg.vx*.6));g.style.transform=`translate3d(${dg.cx}px,${dg.cy}px,0) rotate(${rot}deg) scale(1.02)`;dg.raf=requestAnimationFrame(loop)};dg.raf=requestAnimationFrame(loop);
+  dg.j.classList.add("dragging");document.body.classList.add("dg-busy");if(navigator.vibrate&&dg.touch)try{navigator.vibrate(15)}catch(_){}}
+/* voorbeeldblok op de plek waar de afspraak komt */
+function dgPreview(c){let p=document.getElementById("dgPrev");
+  if(!c||!c.classList.contains("tslot")){if(p)p.remove();return}
+  const col=c.parentElement;if(!p){p=document.createElement("div");p.id="dgPrev";p.className="dg-prev"}
+  if(p.parentElement!==col){col.appendChild(p);p.style.transition="none";requestAnimationFrame(()=>p.style.transition="")}
+  const H=c.offsetHeight,slot=state.slot||30,du=(dg&&dg.inf&&dg.inf.du)||30,t=c.dataset.tijd,m=toMin(t);
+  p.style.top=(c.offsetTop+3)+"px";p.style.height=Math.max(H-6,du/slot*H-6)+"px";
+  const key=t+"|"+du;if(p.dataset.k!==key){p.dataset.k=key;p.innerHTML=`<b>${esc(t)} – ${esc(fromMin(m+du))}</b><span>${esc((dg&&dg.inf&&dg.inf.adr)||"")}</span>`}}
 document.addEventListener("pointermove",e=>{if(!dg)return;const dx=e.clientX-dg.x,dy=e.clientY-dg.y;
   if(!dg.on){if(dg.touch){if(Math.hypot(dx,dy)>10){clearTimeout(dg.timer);dg=null}return}if(Math.hypot(dx,dy)<6)return;startDg(dg.x,dg.y)}
-  e.preventDefault();dg.g.style.left=(e.clientX-dg.dx)+"px";dg.g.style.top=(e.clientY-dg.dy)+"px";
+  e.preventDefault();dg.tx=e.clientX-dg.dx;dg.ty=e.clientY-dg.dy;
   const c=dropAt(e.clientX,e.clientY);document.querySelectorAll(".over").forEach(x=>x!==c&&x.classList.remove("over"));if(c)c.classList.add("over");
+  dgPreview(c);dg.g.classList.toggle("ok",!!c);
   const sc=document.scrollingElement,m=60;if(e.clientY<m)sc.scrollTop-=12;else if(e.clientY>innerHeight-m)sc.scrollTop+=12},{passive:false});
 document.addEventListener("touchmove",e=>{if(dg&&dg.on)e.preventDefault()},{passive:false});
-const endDg=(e,cancel)=>{if(!dg)return;clearTimeout(dg.timer);const d=dg;dg=null;if(!d.on)return;
-  d.g.remove();d.j.classList.remove("dragging");document.body.classList.remove("dg-busy");document.querySelectorAll(".over").forEach(x=>x.classList.remove("over"));
+const endDg=(e,cancel)=>{if(!dg)return;clearTimeout(dg.timer);const d=dg;dg=null;if(!d.on)return;cancelAnimationFrame(d.raf);
+  const p=document.getElementById("dgPrev"),c=cancel?null:dropAt(e.clientX,e.clientY);
+  d.j.classList.remove("dragging");document.body.classList.remove("dg-busy");document.querySelectorAll(".over").forEach(x=>x.classList.remove("over"));
   const stop=ev=>{ev.stopPropagation();ev.preventDefault()};document.addEventListener("click",stop,{capture:true,once:true});setTimeout(()=>document.removeEventListener("click",stop,{capture:true}),50);
-  if(cancel)return;const c=dropAt(e.clientX,e.clientY);if(!c)return;if(d.id.startsWith("b:"))beurtVerplaatsen(d.id.slice(2),c.dataset.drop,c.dataset.tijd);else moveTo(d.id,c.dataset.drop,c.dataset.tijd)};
+  /* landen: de zwevende kaart glijdt in het voorbeeldblok, anders terug naar waar hij vandaan kwam */
+  const g=d.g;g.classList.add("land");
+  if(c&&p){const r=p.getBoundingClientRect();g.style.transform=`translate3d(${r.left}px,${r.top}px,0) scale(.98)`;g.style.width=r.width+"px";g.classList.add("in")}
+  else if(!c){const r=d.j.getBoundingClientRect();g.style.transform=`translate3d(${r.left}px,${r.top}px,0) scale(.9)`;g.style.opacity="0"}
+  else{g.style.opacity="0";g.style.transform+=" scale(.9)"}
+  setTimeout(()=>{g.remove();if(p)p.remove()},c&&p?230:200);
+  if(!c)return;state.flash=d.id.startsWith("b:")?"":d.id;setTimeout(()=>{state.flash="";document.querySelectorAll(".just-in").forEach(x=>x.classList.remove("just-in"))},1400);
+  setTimeout(()=>{if(d.id.startsWith("b:"))beurtVerplaatsen(d.id.slice(2),c.dataset.drop,c.dataset.tijd);else moveTo(d.id,c.dataset.drop,c.dataset.tijd)},c&&p?160:0)};
 document.addEventListener("pointerup",e=>endDg(e,false));document.addEventListener("pointercancel",e=>endDg(e,true));
 // vegen
 let sw=null;

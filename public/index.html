@@ -2366,6 +2366,45 @@ nav.tabs .badge.nk-b{padding:0 2px;height:18px}nav.tabs .badge.nk-b em{display:n
 body:has(.pl-meer.open) .fab-plan{display:none}
 @media (max-width:760px){.pl-bar{z-index:auto}}
 
+/* ---------- agenda: rustiger koppen en tijden ---------- */
+.tg-corner{justify-content:flex-end;padding:12px 6px}
+.tg-corner small{color:var(--muted);font-weight:700;font-size:11.5px}
+.tg-dh{gap:1px;padding:12px 14px 11px}
+.tg-dh .dh-w{font-size:12.5px;font-weight:700;color:var(--muted);text-transform:capitalize}
+.tg-dh.today .dh-w{color:var(--brand)}
+.tg-dh .dh-d{display:flex;align-items:baseline;gap:5px}.tg-dh .dh-d b{font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1.05}.tg-dh .dh-d small{font-size:13px;font-weight:600;color:var(--muted)}
+.tg-dh .dh-s{display:flex;align-items:baseline;gap:6px;font-size:12.5px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tg-dh .dh-s em{font-style:normal;color:var(--ink);font-weight:800;margin-left:auto;font-variant-numeric:tabular-nums}
+.tg-dh .dh-warn{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;background:var(--late);color:#fff;font-size:11px}
+.tg-dh.solo{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:14px;align-items:center}
+.tg-dh.solo .dh-d{grid-row:1/span 2;grid-column:1}.tg-dh.solo .dh-d b{font-size:34px}
+.tg-dh.solo .dh-w{grid-column:2}.tg-dh.solo .dh-s{grid-column:2;font-size:13.5px}
+.tg-times span{font-family:var(--f-ui)!important;font-variant-numeric:tabular-nums;font-size:11.5px;font-weight:700;color:var(--muted);text-align:right;padding:4px 10px 0 0}
+.tg-times span.hh{font-weight:500;opacity:.6}
+.tg.tg-wk .tg-dh .dh-d b{font-size:20px}.tg.tg-wk .tg-dh .dh-s{font-size:11.5px}
+/* ---------- slepen: zwevende kaart + voorbeeldblok ---------- */
+.dg-card{position:fixed;left:0;top:0;z-index:3000;pointer-events:none;display:flex;align-items:center;gap:10px;width:260px;padding:8px 12px 8px 8px;border-radius:16px;background:var(--surface);border:1px solid var(--line);box-shadow:0 2px 6px rgb(15 31 38 / .08),0 22px 44px -14px rgb(15 31 38 / .45);opacity:0;will-change:transform;transition:opacity .12s,box-shadow .15s,border-color .15s}
+.dg-card.op{opacity:1}
+.dg-card.ok{border-color:var(--brand);box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 18%,transparent),0 22px 44px -14px rgb(15 31 38 / .45)}
+.dg-card.land{transition:transform .2s cubic-bezier(.2,.9,.3,1),opacity .2s,width .2s,box-shadow .2s}
+.dg-card.in{box-shadow:0 4px 12px -4px rgb(15 31 38 / .25)}
+.dg-tile{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:var(--brand-soft);color:var(--brand);overflow:hidden}
+.dg-tile .kc-tile{transform:scale(.78);transform-origin:center}
+.dg-tile svg{width:20px;height:20px}
+.dg-tx{min-width:0}.dg-tx b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dg-tx small{display:block;color:var(--muted);font-size:12px;font-weight:600}
+.dg-prev{position:absolute;left:4px;right:4px;z-index:5;pointer-events:none;border-radius:12px;border:2px dashed var(--brand);background:color-mix(in srgb,var(--brand) 12%,transparent);display:flex;flex-direction:column;justify-content:flex-start;gap:1px;padding:6px 10px;overflow:hidden;transition:top .09s ease-out,height .12s ease-out;animation:dgPrevIn .15s ease-out}
+@keyframes dgPrevIn{from{opacity:0;transform:scale(.97)}}
+.dg-prev b{font-size:12.5px;color:var(--brand);font-variant-numeric:tabular-nums}.dg-prev span{font-size:12px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tslot.over{background:transparent!important}
+.job.offer.dragging{opacity:.35;transform:scale(.98);filter:saturate(.6)}
+.tjob.dragging{opacity:.35}
+.tjob.just-in{animation:dgPop .55s cubic-bezier(.2,1.4,.4,1)}
+@keyframes dgPop{0%{transform:scale(.94);box-shadow:0 0 0 0 color-mix(in srgb,var(--brand) 45%,transparent)}45%{transform:scale(1.02)}100%{transform:none;box-shadow:0 0 0 10px transparent}}
+@media (prefers-reduced-motion:reduce){.dg-card.land,.dg-prev,.tjob.just-in{transition:none;animation:none}}
+.dg-tile.t{background:var(--surface);box-shadow:0 0 0 1px var(--line)}
+.dg-t{display:flex;flex-direction:column;width:100%;height:100%;text-align:center}.dg-t i{font-style:normal;font-size:7.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:3px 0 2px;background:var(--brand);color:#fff}
+.dg-t b{flex:1;display:grid;place-items:center;font-size:17px;font-weight:800;letter-spacing:-.03em;color:var(--ink)}.dg-t b .kc-s{font-size:14px}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -3750,22 +3789,26 @@ function tjob(x,top,height,left,width){
   if(x.r)return tjobReeks(x,top,height,left,width);
   const k=x.k,a=jobAddrObj(k),sp=STATEPILL[x.st]||["neutral","Verwacht"],dim=pqMatch(k)?"":" faded";
   const cmp=height<58?" compact":"";
-  return `<div class="tjob st-${x.st}${dim}${cmp}${state.pselMode&&!x.b&&state.psel.has(k.id)?" psel":""}${state.pselMode&&!x.b?" pselable":""}" ${x.b?`data-act="beurtinfo" data-id="${esc(x.b.id)}"`:`data-act="job" data-id="${esc(k.id)}"`} data-d="${esc(x.b?x.b.datum:k.gepland)}" ${x.st!=="afgerond"?`data-drag="${esc(k.id)}"`:x.b?`data-drag="b:${esc(x.b.id)}"`:""} style="--h:${hue(k.ronde||k.naam)};top:${top}px;height:${height}px;left:calc(${left}% + 3px);width:calc(${width}% - 6px)">
+  return `<div class="tjob st-${x.st}${dim}${cmp}${state.flash&&!x.b&&state.flash===k.id?" just-in":""}${state.pselMode&&!x.b&&state.psel.has(k.id)?" psel":""}${state.pselMode&&!x.b?" pselable":""}" ${x.b?`data-act="beurtinfo" data-id="${esc(x.b.id)}"`:`data-act="job" data-id="${esc(k.id)}"`} data-d="${esc(x.b?x.b.datum:k.gepland)}" ${x.st!=="afgerond"?`data-drag="${esc(k.id)}"`:x.b?`data-drag="b:${esc(x.b.id)}"`:""} style="--h:${hue(k.ronde||k.naam)};top:${top}px;height:${height}px;left:calc(${left}% + 3px);width:calc(${width}% - 6px)">
     <div class="tj-top"><button type="button" class="tj-nm" ${x.b?`data-act="beurtinfo" data-id="${esc(x.b.id)}"`:`data-act="job" data-id="${esc(k.id)}" data-d="${esc(k.gepland)}"`}>${esc(a.adres||cleanName(k.naam))}${a.plaats?", "+esc(a.plaats):""}</button>${x.st==="bezig"?'<span class="pill busy tiny-p">Bezig</span>':""}</div>
     <div class="tj-bot">${dienstHtml(k)}<span class="amt">${eur0(toon(x.b?x.b.bedrag:k.prijs))}</span>${x.st==="afgerond"?`<span class="tj-ok done">${I.check}</span>`:`<button type="button" class="tj-ok" data-act="was" data-id="${esc(k.id)}" aria-label="${esc(cleanName(k.naam))} afgerond">${I.check}</button>`}</div></div>`;
 }
 function dayHead(d,showWk){
-  const dd=parse(d),s=daySum(d),isT=d===iso(today()),fd=feestdag(dd),off=!isWerkdag(dd);
-  return `<button type="button" class="tg-dh${isT?" today":""}${off?" off":""}" title="${esc(fd||(off?"Geen werkdag":""))}" data-act="pickday" data-d="${d}"><span class="eyebrow">${dd.toLocaleDateString("nl-NL",{weekday:"long"})}${showWk?`<i>wk ${weekNr(dd)}</i>`:""}</span><b>${dd.getDate()} <small>${dd.toLocaleDateString("nl-NL",{month:"short"}).replace(".","")}</small></b><span class="tg-dm"><span>${fd?esc(fd):off?"vrij":s.n+" · "+uren(s.min)}${S().maxJobs&&s.n>S().maxJobs?` <b style="color:var(--late)" title="Meer dan ${S().maxJobs} jobs">⚠</b>`:""}</span><span>${eur0(toon(s.sum))} <small>${btwLbl()}</small></span></span></button>`;
+  const dd=parse(d),s=daySum(d),isT=d===iso(today()),fd=feestdag(dd),off=!isWerkdag(dd),te=S().maxJobs&&s.n>S().maxJobs;
+  const u=s.min?Math.floor(s.min/60)+"u"+(s.min%60?pad(s.min%60):""):"";
+  return `<button type="button" class="tg-dh${isT?" today":""}${off?" off":""}${showWk?" solo":""}" title="${esc(fd||(off?"Geen werkdag":""))}" data-act="pickday" data-d="${d}">
+    <span class="dh-w">${isT?"Vandaag · ":""}${dd.toLocaleDateString("nl-NL",{weekday:showWk?"long":"short"}).replace(".","")}</span>
+    <span class="dh-d"><b>${dd.getDate()}</b><small>${dd.toLocaleDateString("nl-NL",{month:"short"}).replace(".","")}</small></span>
+    <span class="dh-s">${fd?esc(fd):off&&!s.n?"Vrije dag":s.n?`${plural(s.n,"job","jobs")}${u?" · "+u:""}<em>${eur0(toon(s.sum))}</em>`:"Nog niets gepland"}${te?` <b class="dh-warn" title="Meer dan ${S().maxJobs} jobs">!</b>`:""}</span></button>`;
 }
 function timeGrid(days){
   const slot=state.slot,H=Math.round((slot===15?30:slot===30?50:66)*state.rowH),S0=Math.floor((toMin(S().kalVan)??360)/60)*60,E0=Math.max(S0+120,Math.ceil((toMin(S().kalTot)??1200)/60)*60),n=(E0-S0)/slot;
   const nowM=new Date().getHours()*60+new Date().getMinutes();
   const items=days.map(d=>dayItems(d));
   const anyUn=items.some(it=>it.js.some(x=>toMin(x.k.tijd)==null)||it.done.some(x=>toMin(x.b.tijd)==null));
-  let html=`<div class="tgwrap"><div class="tg${days.length>=5?" tg-wk":""}" style="--n:${days.length};--H:${H}px"><div class="tg-head"><div class="tg-corner"><span class="eyebrow">Tijd</span><small>wk ${weekNr(parse(days[0]))}</small></div>${days.map(d=>dayHead(d,days.length===1)).join("")}</div>`;
+  let html=`<div class="tgwrap"><div class="tg${days.length>=5?" tg-wk":""}" style="--n:${days.length};--H:${H}px"><div class="tg-head"><div class="tg-corner"><small>wk ${weekNr(parse(days[0]))}</small></div>${days.map(d=>dayHead(d,days.length===1)).join("")}</div>`;
   if(false)html+=`<div class="tg-un"><div class="tg-corner sm">Nog geen tijd</div>${days.map((d,i)=>`<div class="tg-uc">${items[i].done.filter(x=>toMin(x.b.tijd)==null).map(x=>`<span class="uchip done">${I.check}${esc(cleanName(x.b.klantNaam))}</span>`).join("")}${items[i].js.filter(x=>toMin(x.k.tijd)==null).map(x=>`<span class="uchip${pqMatch(x.k)?"":" faded"}" draggable="true" data-drag="${esc(x.k.id)}" data-act="klant" data-id="${esc(x.k.id)}">${esc(jobAddrObj(x.k).adres||cleanName(x.k.naam))}</span>`).join("")}</div>`).join("")}</div>`;
-  html+=`<div class="tg-body"><div class="tg-times">${[...Array(n)].map((_,i)=>{const m=S0+i*slot;return `<span style="height:${H}px">${slot===15&&m%30?"":fromMin(m)}</span>`}).join("")}</div>`;
+  html+=`<div class="tg-body"><div class="tg-times">${[...Array(n)].map((_,i)=>{const m=S0+i*slot;return `<span style="height:${H}px" class="${m%60?"hh":"hu"}">${slot===15&&m%30?"":fromMin(m)}</span>`}).join("")}</div>`;
   days.forEach((d,ci)=>{
     const it=items[ci];
     const timed=[...it.js.filter(x=>toMin(x.k.tijd)!=null).map(x=>({...x,s:toMin(x.k.tijd)})),...it.done.filter(x=>toMin(x.b.tijd)!=null).map(x=>({...x,s:toMin(x.b.tijd)}))].sort((a,b)=>a.s-b.s);
@@ -8604,19 +8647,46 @@ const dropAt=(x,y)=>{for(const el of document.elementsFromPoint(x,y)){if(el.clas
 document.addEventListener("pointerdown",e=>{if(e.button>0)return;const j=e.target.closest&&e.target.closest("[data-drag]");if(!j||e.target.closest("input,select,textarea,.tiny,.check"))return;
   dg={j,id:j.dataset.drag,x:e.clientX,y:e.clientY,on:false,touch:e.pointerType!=="mouse",t0:Date.now(),pid:e.pointerId};
   if(dg.touch)dg.timer=setTimeout(()=>{if(dg&&!dg.on)startDg(dg.x,dg.y)},280)});
-function startDg(x,y){if(!dg)return;dg.on=true;const r=dg.j.getBoundingClientRect(),g=dg.j.cloneNode(true);g.classList.add("dg-ghost");g.removeAttribute("data-drag");
-  Object.assign(g.style,{position:"fixed",left:r.left+"px",top:r.top+"px",width:r.width+"px",height:Math.min(r.height,90)+"px",margin:0,zIndex:2000,pointerEvents:"none",opacity:.9,transform:"rotate(1.5deg)",boxShadow:"0 14px 34px rgb(0 0 0 / .28)"});
-  dg.dx=x-r.left;dg.dy=y-r.top;dg.g=g;document.body.appendChild(g);dg.j.classList.add("dragging");document.body.classList.add("dg-busy");if(navigator.vibrate&&dg.touch)try{navigator.vibrate(15)}catch(_){}}
+function dgInfo(id){if(id.startsWith("b:")){const b=state.beurten.find(x=>x.id===id.slice(2))||{};const k=state.klanten.find(x=>x.id===b.klantId)||{};return{k,du:Number(b.duur)||duur(k),adr:jobAddrObj(k).adres||cleanName(b.klantNaam||k.naam||""),prijs:b.bedrag}}
+  const k=state.klanten.find(x=>x.id===id)||{};return{k,du:duur(k),adr:jobAddrObj(k).adres||cleanName(k.naam||""),plaats:jobAddrObj(k).plaats||k.plaats||"",prijs:k.prijs}}
+function startDg(x,y){if(!dg)return;dg.on=true;const r=dg.j.getBoundingClientRect(),inf=dgInfo(dg.id);dg.inf=inf;
+  const tile=dg.j.querySelector(".kc-tile");
+  const g=document.createElement("div");g.className="dg-ghost dg-card";
+  let tl=I.cal2;if(tile){const m=tile.querySelector(".kc-m"),bb=tile.querySelector("b"),KL={ok:"#3c9a6a",attn:"#c2a227",warn:"#e28c1c",soon:"#e28c1c",crit:"#e2571f",late:"#cc2f2f",nieuw:"#137a8a",plan:"#2e9a6b",gemist:"#cc2f2f"},kc=[...dg.j.classList].map(c=>c.replace(/^kx-/,"")).find(c=>KL[c]);tl=`<span class="dg-t"><i style="background:${KL[kc]||"var(--brand)"}">${esc(m?m.textContent:"")}</i><b>${bb?bb.innerHTML:""}</b></span>`}
+  g.innerHTML=`<span class="dg-tile${tile?" t":""}">${tl}</span><span class="dg-tx"><b>${esc(inf.adr||"Afspraak")}</b><small>${inf.plaats?esc(inf.plaats)+" · ":""}${inf.du} min${inf.prijs?" · "+eur0(toon(inf.prijs)):""}</small></span>`;
+  document.body.appendChild(g);
+  dg.dx=Math.min(x-r.left,40);dg.dy=Math.min(y-r.top,28);dg.g=g;dg.cx=r.left;dg.cy=r.top;dg.tx=x-dg.dx;dg.ty=y-dg.dy;dg.vx=0;
+  g.style.transform=`translate3d(${r.left}px,${r.top}px,0) scale(.96)`;requestAnimationFrame(()=>g.classList.add("op"));
+  const loop=()=>{if(!dg||!dg.on||dg.g!==g)return;const ox=dg.cx;dg.cx+=(dg.tx-dg.cx)*.38;dg.cy+=(dg.ty-dg.cy)*.38;dg.vx=dg.vx*.8+(dg.cx-ox)*.2;
+    const rot=Math.max(-7,Math.min(7,dg.vx*.6));g.style.transform=`translate3d(${dg.cx}px,${dg.cy}px,0) rotate(${rot}deg) scale(1.02)`;dg.raf=requestAnimationFrame(loop)};dg.raf=requestAnimationFrame(loop);
+  dg.j.classList.add("dragging");document.body.classList.add("dg-busy");if(navigator.vibrate&&dg.touch)try{navigator.vibrate(15)}catch(_){}}
+/* voorbeeldblok op de plek waar de afspraak komt */
+function dgPreview(c){let p=document.getElementById("dgPrev");
+  if(!c||!c.classList.contains("tslot")){if(p)p.remove();return}
+  const col=c.parentElement;if(!p){p=document.createElement("div");p.id="dgPrev";p.className="dg-prev"}
+  if(p.parentElement!==col){col.appendChild(p);p.style.transition="none";requestAnimationFrame(()=>p.style.transition="")}
+  const H=c.offsetHeight,slot=state.slot||30,du=(dg&&dg.inf&&dg.inf.du)||30,t=c.dataset.tijd,m=toMin(t);
+  p.style.top=(c.offsetTop+3)+"px";p.style.height=Math.max(H-6,du/slot*H-6)+"px";
+  const key=t+"|"+du;if(p.dataset.k!==key){p.dataset.k=key;p.innerHTML=`<b>${esc(t)} – ${esc(fromMin(m+du))}</b><span>${esc((dg&&dg.inf&&dg.inf.adr)||"")}</span>`}}
 document.addEventListener("pointermove",e=>{if(!dg)return;const dx=e.clientX-dg.x,dy=e.clientY-dg.y;
   if(!dg.on){if(dg.touch){if(Math.hypot(dx,dy)>10){clearTimeout(dg.timer);dg=null}return}if(Math.hypot(dx,dy)<6)return;startDg(dg.x,dg.y)}
-  e.preventDefault();dg.g.style.left=(e.clientX-dg.dx)+"px";dg.g.style.top=(e.clientY-dg.dy)+"px";
+  e.preventDefault();dg.tx=e.clientX-dg.dx;dg.ty=e.clientY-dg.dy;
   const c=dropAt(e.clientX,e.clientY);document.querySelectorAll(".over").forEach(x=>x!==c&&x.classList.remove("over"));if(c)c.classList.add("over");
+  dgPreview(c);dg.g.classList.toggle("ok",!!c);
   const sc=document.scrollingElement,m=60;if(e.clientY<m)sc.scrollTop-=12;else if(e.clientY>innerHeight-m)sc.scrollTop+=12},{passive:false});
 document.addEventListener("touchmove",e=>{if(dg&&dg.on)e.preventDefault()},{passive:false});
-const endDg=(e,cancel)=>{if(!dg)return;clearTimeout(dg.timer);const d=dg;dg=null;if(!d.on)return;
-  d.g.remove();d.j.classList.remove("dragging");document.body.classList.remove("dg-busy");document.querySelectorAll(".over").forEach(x=>x.classList.remove("over"));
+const endDg=(e,cancel)=>{if(!dg)return;clearTimeout(dg.timer);const d=dg;dg=null;if(!d.on)return;cancelAnimationFrame(d.raf);
+  const p=document.getElementById("dgPrev"),c=cancel?null:dropAt(e.clientX,e.clientY);
+  d.j.classList.remove("dragging");document.body.classList.remove("dg-busy");document.querySelectorAll(".over").forEach(x=>x.classList.remove("over"));
   const stop=ev=>{ev.stopPropagation();ev.preventDefault()};document.addEventListener("click",stop,{capture:true,once:true});setTimeout(()=>document.removeEventListener("click",stop,{capture:true}),50);
-  if(cancel)return;const c=dropAt(e.clientX,e.clientY);if(!c)return;if(d.id.startsWith("b:"))beurtVerplaatsen(d.id.slice(2),c.dataset.drop,c.dataset.tijd);else moveTo(d.id,c.dataset.drop,c.dataset.tijd)};
+  /* landen: de zwevende kaart glijdt in het voorbeeldblok, anders terug naar waar hij vandaan kwam */
+  const g=d.g;g.classList.add("land");
+  if(c&&p){const r=p.getBoundingClientRect();g.style.transform=`translate3d(${r.left}px,${r.top}px,0) scale(.98)`;g.style.width=r.width+"px";g.classList.add("in")}
+  else if(!c){const r=d.j.getBoundingClientRect();g.style.transform=`translate3d(${r.left}px,${r.top}px,0) scale(.9)`;g.style.opacity="0"}
+  else{g.style.opacity="0";g.style.transform+=" scale(.9)"}
+  setTimeout(()=>{g.remove();if(p)p.remove()},c&&p?230:200);
+  if(!c)return;state.flash=d.id.startsWith("b:")?"":d.id;setTimeout(()=>{state.flash="";document.querySelectorAll(".just-in").forEach(x=>x.classList.remove("just-in"))},1400);
+  setTimeout(()=>{if(d.id.startsWith("b:"))beurtVerplaatsen(d.id.slice(2),c.dataset.drop,c.dataset.tijd);else moveTo(d.id,c.dataset.drop,c.dataset.tijd)},c&&p?160:0)};
 document.addEventListener("pointerup",e=>endDg(e,false));document.addEventListener("pointercancel",e=>endDg(e,true));
 // vegen
 let sw=null;

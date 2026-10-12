@@ -43,22 +43,26 @@ function tjob(x,top,height,left,width){
   if(x.r)return tjobReeks(x,top,height,left,width);
   const k=x.k,a=jobAddrObj(k),sp=STATEPILL[x.st]||["neutral","Verwacht"],dim=pqMatch(k)?"":" faded";
   const cmp=height<58?" compact":"";
-  return `<div class="tjob st-${x.st}${dim}${cmp}${state.pselMode&&!x.b&&state.psel.has(k.id)?" psel":""}${state.pselMode&&!x.b?" pselable":""}" ${x.b?`data-act="beurtinfo" data-id="${esc(x.b.id)}"`:`data-act="job" data-id="${esc(k.id)}"`} data-d="${esc(x.b?x.b.datum:k.gepland)}" ${x.st!=="afgerond"?`data-drag="${esc(k.id)}"`:x.b?`data-drag="b:${esc(x.b.id)}"`:""} style="--h:${hue(k.ronde||k.naam)};top:${top}px;height:${height}px;left:calc(${left}% + 3px);width:calc(${width}% - 6px)">
+  return `<div class="tjob st-${x.st}${dim}${cmp}${state.flash&&!x.b&&state.flash===k.id?" just-in":""}${state.pselMode&&!x.b&&state.psel.has(k.id)?" psel":""}${state.pselMode&&!x.b?" pselable":""}" ${x.b?`data-act="beurtinfo" data-id="${esc(x.b.id)}"`:`data-act="job" data-id="${esc(k.id)}"`} data-d="${esc(x.b?x.b.datum:k.gepland)}" ${x.st!=="afgerond"?`data-drag="${esc(k.id)}"`:x.b?`data-drag="b:${esc(x.b.id)}"`:""} style="--h:${hue(k.ronde||k.naam)};top:${top}px;height:${height}px;left:calc(${left}% + 3px);width:calc(${width}% - 6px)">
     <div class="tj-top"><button type="button" class="tj-nm" ${x.b?`data-act="beurtinfo" data-id="${esc(x.b.id)}"`:`data-act="job" data-id="${esc(k.id)}" data-d="${esc(k.gepland)}"`}>${esc(a.adres||cleanName(k.naam))}${a.plaats?", "+esc(a.plaats):""}</button>${x.st==="bezig"?'<span class="pill busy tiny-p">Bezig</span>':""}</div>
     <div class="tj-bot">${dienstHtml(k)}<span class="amt">${eur0(toon(x.b?x.b.bedrag:k.prijs))}</span>${x.st==="afgerond"?`<span class="tj-ok done">${I.check}</span>`:`<button type="button" class="tj-ok" data-act="was" data-id="${esc(k.id)}" aria-label="${esc(cleanName(k.naam))} afgerond">${I.check}</button>`}</div></div>`;
 }
 function dayHead(d,showWk){
-  const dd=parse(d),s=daySum(d),isT=d===iso(today()),fd=feestdag(dd),off=!isWerkdag(dd);
-  return `<button type="button" class="tg-dh${isT?" today":""}${off?" off":""}" title="${esc(fd||(off?"Geen werkdag":""))}" data-act="pickday" data-d="${d}"><span class="eyebrow">${dd.toLocaleDateString("nl-NL",{weekday:"long"})}${showWk?`<i>wk ${weekNr(dd)}</i>`:""}</span><b>${dd.getDate()} <small>${dd.toLocaleDateString("nl-NL",{month:"short"}).replace(".","")}</small></b><span class="tg-dm"><span>${fd?esc(fd):off?"vrij":s.n+" · "+uren(s.min)}${S().maxJobs&&s.n>S().maxJobs?` <b style="color:var(--late)" title="Meer dan ${S().maxJobs} jobs">⚠</b>`:""}</span><span>${eur0(toon(s.sum))} <small>${btwLbl()}</small></span></span></button>`;
+  const dd=parse(d),s=daySum(d),isT=d===iso(today()),fd=feestdag(dd),off=!isWerkdag(dd),te=S().maxJobs&&s.n>S().maxJobs;
+  const u=s.min?Math.floor(s.min/60)+"u"+(s.min%60?pad(s.min%60):""):"";
+  return `<button type="button" class="tg-dh${isT?" today":""}${off?" off":""}${showWk?" solo":""}" title="${esc(fd||(off?"Geen werkdag":""))}" data-act="pickday" data-d="${d}">
+    <span class="dh-w">${isT?"Vandaag · ":""}${dd.toLocaleDateString("nl-NL",{weekday:showWk?"long":"short"}).replace(".","")}</span>
+    <span class="dh-d"><b>${dd.getDate()}</b><small>${dd.toLocaleDateString("nl-NL",{month:"short"}).replace(".","")}</small></span>
+    <span class="dh-s">${fd?esc(fd):off&&!s.n?"Vrije dag":s.n?`${plural(s.n,"job","jobs")}${u?" · "+u:""}<em>${eur0(toon(s.sum))}</em>`:"Nog niets gepland"}${te?` <b class="dh-warn" title="Meer dan ${S().maxJobs} jobs">!</b>`:""}</span></button>`;
 }
 function timeGrid(days){
   const slot=state.slot,H=Math.round((slot===15?30:slot===30?50:66)*state.rowH),S0=Math.floor((toMin(S().kalVan)??360)/60)*60,E0=Math.max(S0+120,Math.ceil((toMin(S().kalTot)??1200)/60)*60),n=(E0-S0)/slot;
   const nowM=new Date().getHours()*60+new Date().getMinutes();
   const items=days.map(d=>dayItems(d));
   const anyUn=items.some(it=>it.js.some(x=>toMin(x.k.tijd)==null)||it.done.some(x=>toMin(x.b.tijd)==null));
-  let html=`<div class="tgwrap"><div class="tg${days.length>=5?" tg-wk":""}" style="--n:${days.length};--H:${H}px"><div class="tg-head"><div class="tg-corner"><span class="eyebrow">Tijd</span><small>wk ${weekNr(parse(days[0]))}</small></div>${days.map(d=>dayHead(d,days.length===1)).join("")}</div>`;
+  let html=`<div class="tgwrap"><div class="tg${days.length>=5?" tg-wk":""}" style="--n:${days.length};--H:${H}px"><div class="tg-head"><div class="tg-corner"><small>wk ${weekNr(parse(days[0]))}</small></div>${days.map(d=>dayHead(d,days.length===1)).join("")}</div>`;
   if(false)html+=`<div class="tg-un"><div class="tg-corner sm">Nog geen tijd</div>${days.map((d,i)=>`<div class="tg-uc">${items[i].done.filter(x=>toMin(x.b.tijd)==null).map(x=>`<span class="uchip done">${I.check}${esc(cleanName(x.b.klantNaam))}</span>`).join("")}${items[i].js.filter(x=>toMin(x.k.tijd)==null).map(x=>`<span class="uchip${pqMatch(x.k)?"":" faded"}" draggable="true" data-drag="${esc(x.k.id)}" data-act="klant" data-id="${esc(x.k.id)}">${esc(jobAddrObj(x.k).adres||cleanName(x.k.naam))}</span>`).join("")}</div>`).join("")}</div>`;
-  html+=`<div class="tg-body"><div class="tg-times">${[...Array(n)].map((_,i)=>{const m=S0+i*slot;return `<span style="height:${H}px">${slot===15&&m%30?"":fromMin(m)}</span>`}).join("")}</div>`;
+  html+=`<div class="tg-body"><div class="tg-times">${[...Array(n)].map((_,i)=>{const m=S0+i*slot;return `<span style="height:${H}px" class="${m%60?"hh":"hu"}">${slot===15&&m%30?"":fromMin(m)}</span>`}).join("")}</div>`;
   days.forEach((d,ci)=>{
     const it=items[ci];
     const timed=[...it.js.filter(x=>toMin(x.k.tijd)!=null).map(x=>({...x,s:toMin(x.k.tijd)})),...it.done.filter(x=>toMin(x.b.tijd)!=null).map(x=>({...x,s:toMin(x.b.tijd)}))].sort((a,b)=>a.s-b.s);
