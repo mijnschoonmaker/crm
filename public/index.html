@@ -2236,6 +2236,10 @@ nav.tabs .badge.nk-b{padding:0 2px;height:18px}nav.tabs .badge.nk-b em{display:n
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .pt-chips span{background:#3a2d10;color:#f2c46a}}
 @media(max-width:600px){.pt-kk{grid-template-columns:1fr 1fr}}
 
+.pt-code{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid color-mix(in srgb,#e09a2b 40%,var(--line));border-radius:12px;padding:8px 10px 8px 12px;margin:4px 0 6px;white-space:normal}
+.pt-code small{color:var(--muted);font-size:12px;font-weight:600;flex:1}.pt-code b{font-size:20px;letter-spacing:.14em;font-variant-numeric:tabular-nums;font-family:var(--f-mono)}
+.pt-code button{padding:4px 6px}.pt-code button svg{width:15px;height:15px}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -8019,8 +8023,8 @@ function aanbevelingBijAanvraag(D){
   return{aanbevolenDoor:D.aanbevolenDoor,aanbevolenCode:D.ref||"",...(w>0?{tegoed:[{id:newId("tg"),bedrag:w,reden:"Welkomstkorting"+(r?" (aanbevolen door "+voornaam(r.contact||cleanName(r.naam))+")":""),op:iso(today())}]}:{})}}
 
 /* instructies van de klant (uit het portaal) bij de afspraak */
-function toegangHtml(k){const t=k&&k.portaalToegang;if(!t||(!(t.opties||[]).length&&!t.tekst))return"";
-  return `<div class="notebox pt-toegang"><span class="eyebrow">${I.key||I.pin}Instructies van de klant</span>${(t.opties||[]).length?`<span class="pt-chips">${t.opties.map(o=>`<span>${esc(o)}</span>`).join("")}</span>`:""}${t.tekst?`<span>${esc(t.tekst)}</span>`:""}</div>`}
+function toegangHtml(k){const t=k&&k.portaalToegang;if(!t||(!(t.opties||[]).length&&!t.tekst&&!t.code))return"";
+  return `<div class="notebox pt-toegang"><span class="eyebrow">${I.key||I.pin}Instructies van de klant</span>${t.code?`<span class="pt-code"><small>Code poort / toegangsdeur</small><b>${esc(t.code)}</b><button type="button" class="tiny ghost" data-copy="${esc(t.code)}" onclick="event.stopPropagation();navigator.clipboard&&navigator.clipboard.writeText(this.dataset.copy).then(()=>toast('Code gekopieerd'))" aria-label="Code kopiëren">${I.copy||"Kopieer"}</button></span>`:""}${(t.opties||[]).length?`<span class="pt-chips">${t.opties.map(o=>`<span>${esc(o)}</span>`).join("")}</span>`:""}${t.tekst?`<span>${esc(t.tekst)}</span>`:""}</div>`}
 
 /* klantkaart: portaal + aanbevelingen */
 function kkPortaal(k){

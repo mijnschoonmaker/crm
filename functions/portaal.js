@@ -136,7 +136,7 @@ module.exports = function maakPortaal(ctx) {
     if (type === "gegevens") { v.wijziging = { telefoon: txt(d.telefoon).slice(0, 40), email: txt(d.email).slice(0, 120) }; }
     if (type === "extra") { v.diensten = (Array.isArray(d.diensten) ? d.diensten : []).map(x => txt(x).slice(0, 60)).slice(0, 8); }
     if (type === "toegang") {
-      const opties = (Array.isArray(d.opties) ? d.opties : []).map(x => txt(x).slice(0, 60)).slice(0, 10), toegang = { opties, tekst: txt(d.tekst).slice(0, 600), op: nu() };
+      const opties = (Array.isArray(d.opties) ? d.opties : []).map(x => txt(x).slice(0, 60)).slice(0, 10), toegang = { opties, tekst: txt(d.tekst).slice(0, 600), code: txt(d.code).replace(/\s+/g, " ").slice(0, 40), op: nu() };
       await S.kref.set({ portaalToegang: toegang }, { merge: true });
       v.toegang = toegang; v.status = "info";
     }

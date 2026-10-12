@@ -1822,3 +1822,7 @@ nav.tabs .badge.nk-b{padding:0 2px;height:18px}nav.tabs .badge.nk-b em{display:n
 .pt-chips{display:flex;flex-wrap:wrap;gap:5px;margin:4px 0}.pt-chips span{background:#fdf0dd;color:#8a5a00;border-radius:99px;padding:2px 9px;font-size:12.5px;font-weight:700}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .pt-chips span{background:#3a2d10;color:#f2c46a}}
 @media(max-width:600px){.pt-kk{grid-template-columns:1fr 1fr}}
+
+.pt-code{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid color-mix(in srgb,#e09a2b 40%,var(--line));border-radius:12px;padding:8px 10px 8px 12px;margin:4px 0 6px;white-space:normal}
+.pt-code small{color:var(--muted);font-size:12px;font-weight:600;flex:1}.pt-code b{font-size:20px;letter-spacing:.14em;font-variant-numeric:tabular-nums;font-family:var(--f-mono)}
+.pt-code button{padding:4px 6px}.pt-code button svg{width:15px;height:15px}

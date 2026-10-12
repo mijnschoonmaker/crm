@@ -38,8 +38,8 @@ function aanbevelingBijAanvraag(D){
   return{aanbevolenDoor:D.aanbevolenDoor,aanbevolenCode:D.ref||"",...(w>0?{tegoed:[{id:newId("tg"),bedrag:w,reden:"Welkomstkorting"+(r?" (aanbevolen door "+voornaam(r.contact||cleanName(r.naam))+")":""),op:iso(today())}]}:{})}}
 
 /* instructies van de klant (uit het portaal) bij de afspraak */
-function toegangHtml(k){const t=k&&k.portaalToegang;if(!t||(!(t.opties||[]).length&&!t.tekst))return"";
-  return `<div class="notebox pt-toegang"><span class="eyebrow">${I.key||I.pin}Instructies van de klant</span>${(t.opties||[]).length?`<span class="pt-chips">${t.opties.map(o=>`<span>${esc(o)}</span>`).join("")}</span>`:""}${t.tekst?`<span>${esc(t.tekst)}</span>`:""}</div>`}
+function toegangHtml(k){const t=k&&k.portaalToegang;if(!t||(!(t.opties||[]).length&&!t.tekst&&!t.code))return"";
+  return `<div class="notebox pt-toegang"><span class="eyebrow">${I.key||I.pin}Instructies van de klant</span>${t.code?`<span class="pt-code"><small>Code poort / toegangsdeur</small><b>${esc(t.code)}</b><button type="button" class="tiny ghost" data-copy="${esc(t.code)}" onclick="event.stopPropagation();navigator.clipboard&&navigator.clipboard.writeText(this.dataset.copy).then(()=>toast('Code gekopieerd'))" aria-label="Code kopiëren">${I.copy||"Kopieer"}</button></span>`:""}${(t.opties||[]).length?`<span class="pt-chips">${t.opties.map(o=>`<span>${esc(o)}</span>`).join("")}</span>`:""}${t.tekst?`<span>${esc(t.tekst)}</span>`:""}</div>`}
 
 /* klantkaart: portaal + aanbevelingen */
 function kkPortaal(k){
