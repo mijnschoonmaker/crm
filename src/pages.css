@@ -1885,3 +1885,6 @@ nav.tabs .badge.nk-b{padding:0 2px;height:18px}nav.tabs .badge.nk-b em{display:n
 .tk-sys2{align-self:center;color:var(--muted);font-size:12px;font-weight:700;background:var(--surface-2);border-radius:99px;padding:4px 12px;margin:4px 0}
 .tk-new{display:grid;grid-template-columns:2fr 1fr;gap:10px;padding:12px 4px 0}
 @media (max-width:760px){.tk-new{grid-template-columns:1fr}}
+.tk-dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none}
+.tk-stbar .seg button{gap:6px;display:inline-flex;align-items:center}
+@media (max-width:760px){.tk-stbar>span{display:none}.tk-stbar .seg{width:100%;display:flex}.tk-stbar .seg button{flex:1;padding:7px 4px;font-size:12.5px;justify-content:center}}

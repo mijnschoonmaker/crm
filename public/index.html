@@ -2298,6 +2298,9 @@ nav.tabs .badge.nk-b{padding:0 2px;height:18px}nav.tabs .badge.nk-b em{display:n
 .tk-sys2{align-self:center;color:var(--muted);font-size:12px;font-weight:700;background:var(--surface-2);border-radius:99px;padding:4px 12px;margin:4px 0}
 .tk-new{display:grid;grid-template-columns:2fr 1fr;gap:10px;padding:12px 4px 0}
 @media (max-width:760px){.tk-new{grid-template-columns:1fr}}
+.tk-dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none}
+.tk-stbar .seg button{gap:6px;display:inline-flex;align-items:center}
+@media (max-width:760px){.tk-stbar>span{display:none}.tk-stbar .seg{width:100%;display:flex}.tk-stbar .seg button{flex:1;padding:7px 4px;font-size:12.5px;justify-content:center}}
 
 </style>
 <div class="app">
@@ -8214,7 +8217,7 @@ function openTickets(id,nieuwVoor){
 function tkLijstTeken(){const L=$("#chxL");if(!L||!tkOpen)return;const q=(($("#chxZ")||{}).value||"").trim().toLowerCase();
   const rij=state.tickets.filter(t=>(tkOpen.filter==="alle"||(tkOpen.filter==="opgelost"?t.status==="opgelost":t.status!=="opgelost"))&&(!q||[t.klantNaam,t.adres,t.nummer,t.onderwerp].join(" ").toLowerCase().includes(q)));
   const extra=q.length>=2?state.klanten.filter(k=>[k.naam,k.adres,k.plaats,k.email].join(" ").toLowerCase().includes(q)).slice(0,6):[];
-  L.innerHTML=rij.map(t=>{const st=TK_ST[t.status]||TK_ST.open;return `<button type="button" class="chx-i${t.id===tkOpen.id?" act":""}${Number(t.ongelezenTeam)>0?" nieuw":""}" data-tki="${esc(t.id)}"><span class="chx-av" style="--h:${hue(t.klantNaam||"")}">${esc(initials(cleanName(t.klantNaam||"?")))}</span><span class="chx-t"><b>${esc(t.onderwerp||"Ticket")}</b><small>${esc(cleanName(t.klantNaam||""))} · ${esc(t.nummer||"")}</small></span><span class="chx-m"><small>${t.laatst?esc(tkTijd(t.laatst)):""}</small>${Number(t.ongelezenTeam)>0?`<i>${t.ongelezenTeam}</i>`:`<span class="sdot ${st[0]==="late"?"late":st[0]==="soon"?"soon":"ok"}" title="${st[1]}"></span>`}</span></button>`}).join("")
+  L.innerHTML=rij.map(t=>{const st=TK_ST[t.status]||TK_ST.open;return `<button type="button" class="chx-i${t.id===tkOpen.id?" act":""}${Number(t.ongelezenTeam)>0?" nieuw":""}" data-tki="${esc(t.id)}"><span class="chx-av" style="--h:${hue(t.klantNaam||"")}">${esc(initials(cleanName(t.klantNaam||"?")))}</span><span class="chx-t"><b>${esc(t.onderwerp||"Ticket")}</b><small>${esc(cleanName(t.klantNaam||""))} · ${esc(t.nummer||"")}</small></span><span class="chx-m"><small>${t.laatst?esc(tkTijd(t.laatst)):""}</small>${Number(t.ongelezenTeam)>0?`<i>${t.ongelezenTeam}</i>`:`<i class="tk-dot" style="background:var(--${st[0]})" title="${st[1]}"></i>`}</span></button>`}).join("")
     +(extra.length?`<p class="eyebrow" style="margin:12px 10px 6px">Ticket starten voor</p>`+extra.map(k=>`<button type="button" class="chx-i" data-tkn="${esc(k.id)}"><span class="chx-av" style="--h:${hue(k.naam||"")}">${esc(initials(cleanName(k.naam)))}</span><span class="chx-t"><b>${esc(cleanName(k.naam))}</b><small>${esc([k.adres,k.plaats].filter(Boolean).join(", "))}</small></span>${I.plus}</button>`).join(""):"")
     ||`<p class="subt" style="padding:20px 10px;text-align:center">${q?"Niets gevonden":tkOpen.filter==="opgelost"?"Nog geen opgeloste tickets":"Geen lopende tickets"}</p>`;
   L.querySelectorAll("[data-tki]").forEach(b=>b.onclick=()=>tkDetail(b.dataset.tki));
@@ -8236,7 +8239,7 @@ function tkDetail(id){if(!tkOpen)return;if(tkOpen.unsub)tkOpen.unsub();tkOpen.id
   const t=state.tickets.find(x=>x.id===id)||{id},k=state.klanten.find(x=>x.id===t.klantId)||{naam:t.klantNaam||"Klant"};
   tkLijstTeken();
   $("#chxR").innerHTML=tkKop(k,`<b>${esc(t.onderwerp||"Ticket")}</b><small>${esc(t.nummer||"")} · ${esc(TK_CAT[t.categorie]||"Overig")} · ${esc(cleanName(k.naam))}${k.gepland?" · afspraak "+esc(fmtD(k.gepland)):""}</small>`)
-    +`<div class="tk-stbar"><span>Status</span><div class="seg" role="group">${Object.entries(TK_ST).map(([v,[c,l]])=>`<button type="button" data-tks="${v}" aria-pressed="${(t.status||"open")===v}"><span class="sdot ${c==="late"?"late":c==="soon"?"soon":"ok"}"></span>${l}</button>`).join("")}</div></div>
+    +`<div class="tk-stbar"><span>Status</span><div class="seg" role="group">${Object.entries(TK_ST).map(([v,[c,l]])=>`<button type="button" data-tks="${v}" aria-pressed="${(t.status||"open")===v}"><i class="tk-dot" style="background:var(--${c})"></i>${l}</button>`).join("")}</div></div>
     <div class="chx-b" id="chxB"><p class="subt" style="margin:auto">Laden…</p></div>`+tkComposer(k)
     +`<small class="help" style="margin:4px 4px 0">${t.gezienKlant&&Date.now()-new Date(t.gezienKlant)<3*60e3?`<span class="sdot ok"></span> De klant kijkt nu in het portaal`:"De klant krijgt een mail met een knop naar dit ticket als hij niet online is."}</small>`;
   tkTerugBind();
