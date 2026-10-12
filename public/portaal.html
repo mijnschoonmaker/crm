@@ -232,9 +232,9 @@ button.melding{width:100%;text-align:left;font-weight:500;color:inherit}
 @media (max-width:480px){.wk-kaart{padding:30px 22px 24px;border-radius:24px}.wk-kaart.wk-c h1{font-size:30px}}
 .wk-kaart .logo{margin-bottom:24px}
 .wk-c{text-align:center}
-.wk-kaart.wk-c h1{font-size:34px;letter-spacing:-.025em;margin:16px 0 10px}
-.wk-pil{display:inline-block;background:var(--brand-soft);color:var(--brand);font-weight:700;font-size:13px;padding:5px 12px;border-radius:99px}
-.wk-intro{max-width:34ch;margin:0 auto 24px!important;font-size:15.5px;line-height:1.55}
+.wk-kaart.wk-c h1{font-size:32px;letter-spacing:-.025em;margin:14px 0 8px}
+.wk-pil{display:inline-block;background:var(--surface-2);color:var(--muted);font-weight:600;font-size:12.5px;letter-spacing:.01em;padding:4px 11px;border-radius:99px}
+.wk-intro{max-width:30ch;margin:0 auto 26px!important;font-size:14px;line-height:1.5;color:var(--muted)}
 .wk-form{text-align:left}
 .wk-veld{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:14px;padding:0 14px;background:var(--surface-2);margin-bottom:12px;transition:border-color .15s,box-shadow .15s,background .15s}
 .wk-veld:focus-within{border-color:var(--brand);background:var(--surface);box-shadow:0 0 0 4px color-mix(in srgb,var(--brand) 14%,transparent)}
@@ -243,7 +243,7 @@ button.melding{width:100%;text-align:left;font-weight:500;color:inherit}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .wk-pts{list-style:none;display:flex;justify-content:center;gap:22px;margin:22px 0 0;padding:20px 0 0;border-top:1px solid var(--line);flex-wrap:wrap}
 .wk-pts li{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13.5px;font-weight:700}
-.wk-pts span{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand)}.wk-pts svg{width:16px;height:16px}
+.wk-pts span{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:var(--surface-2);color:var(--muted)}.wk-pts svg{width:16px;height:16px}
 .wk-env{width:64px;height:64px;border-radius:20px;display:grid;place-items:center;margin:0 auto 4px;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;box-shadow:0 12px 26px -10px rgb(19 122 138 / .55)}.wk-env svg{width:28px;height:28px}
 .wk-c .infobox{text-align:left}.wk-c .melding{text-align:left}
 .wk-logo{display:block;margin:0 auto 18px;max-height:96px;max-width:240px;width:auto;height:auto;object-fit:contain}
@@ -369,13 +369,13 @@ const merkNaam=()=>String(B.naam||"mijnschoonmaker").replace(/\.(com|nl)$/i,"");
 async function toonLogin(melding){
   document.title="Inloggen · klantomgeving";const LG=await merkLogo();
   $("#app").innerHTML=`<main class="welkom"><div class="wk-kaart wk-c">${wkLogo(LG)}
-    <span class="wk-pil">Mijn klantomgeving</span>
+    <span class="wk-pil">Klantportaal</span>
     <h1>Welkom terug</h1>
-    <p class="wk-intro">Log in met uw e-mailadres. U ontvangt een mail met een inlogknop, een wachtwoord is niet nodig.</p>
+    <p class="wk-intro">Wij sturen u een inloglink per e-mail.<br>Een wachtwoord is niet nodig.</p>
     ${melding?`<div class="infobox">${I.klok}<span>${esc(melding)}</span></div>`:""}
     <form id="lf" class="wk-form" novalidate><label class="wk-veld"><span class="sr">E-mailadres</span>${I.mail}<input type="email" id="le" autocomplete="email" inputmode="email" placeholder="Uw e-mailadres" required></label>
     <button class="primary full big" id="lb">Stuur mij een inloglink</button><p class="fout" id="lfout" role="alert"></p></form>
-    <ul class="wk-pts" aria-label="Wat u hier kunt">${[[I.kal,"Uw afspraken"],[I.fact,"Facturen"],[I.bericht,"Chat"]].map(([ic,t])=>`<li><span>${ic}</span>${t}</li>`).join("")}</ul></div></main>`;
+    <ul class="wk-pts" aria-label="Wat u hier kunt">${[[I.kal,"Afspraken"],[I.fact,"Facturen"],[I.ticket,"Tickets"]].map(([ic,t])=>`<li><span>${ic}</span>${t}</li>`).join("")}</ul></div></main>`;
   $("#lf").onsubmit=async e=>{e.preventDefault();const v=$("#le").value.trim(),b=$("#lb");$("#lfout").textContent="";
     if(!/^\S+@\S+\.\S+$/.test(v)){$("#lfout").textContent="Vul een geldig e-mailadres in.";$("#le").focus();return}
     b.disabled=true;b.innerHTML=`<span class="spin" style="width:17px;height:17px;border-width:2px;border-color:rgb(255 255 255 / .35);border-top-color:#fff"></span>Versturen…`;
