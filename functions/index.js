@@ -24,6 +24,50 @@ const newId = p => p + Date.now().toString(36) + crypto.randomBytes(3).toString(
 const geheim = async () => (await db.doc("geheim/config").get()).data() || {};
 const bedrijf = async () => (await db.doc("instellingen/bedrijf").get()).data() || {};
 
+/* ---------- bestellingsoverzicht: gedeelde hulpjes ---------- */
+const { maakOverzichtPdf, eur } = require("./overzicht");
+const HOST = () => { try { return "https://" + (process.env.GCLOUD_PROJECT || JSON.parse(process.env.FIREBASE_CONFIG || "{}").projectId) + ".web.app"; } catch (e) { return ""; } };
+const nlDatum = (d = new Date()) => new Intl.DateTimeFormat("nl-NL", { timeZone: "Europe/Amsterdam", day: "2-digit", month: "2-digit", year: "numeric" }).format(d).replace(/\//g, "-");
+const nlTijd = (d = new Date()) => new Intl.DateTimeFormat("nl-NL", { timeZone: "Europe/Amsterdam", hour: "2-digit", minute: "2-digit" }).format(d);
+async function leesAsset(id) { if (!id) return null; try { const f = bucket().file("assets/" + id); const [[m], [buf]] = await Promise.all([f.getMetadata(), f.download()]); return { bytes: buf, type: m.contentType || "" }; } catch (e) { return null; } }
+async function volgNummer() { const ref = db.doc("tellers/overzicht"); const n = await db.runTransaction(async t => { const s = await t.get(ref); const v = (s.exists ? s.data().n : 1800) + 1; t.set(ref, { n: v }); return v; }); return String(new Date().getFullYear()).slice(2) + "-" + String(n).padStart(6, "0"); }
+function bedrijfModel(b, logo) { return { naam: b.naam || "mijnschoonmaker.com", adres: b.adres || "", pcPlaats: [b.postcode, b.plaats].filter(Boolean).join(" "), telefoon: b.telefoon || "", email: b.email || "", kvk: b.kvk || "", btwnr: b.btwnr || "", iban: b.iban || "", bic: b.bic || "", logo }; }
+const voornaamVan = naam => { const n = String(naam || "").trim(); if (n.includes(",")) return n.split(",").slice(1).join(",").trim() || n; return n.split(/\s+/)[0] || n; };
+const TPL_STD = {
+  voorlopig: { onderwerp: "[name.company] - Voorlopig bestellingsoverzicht [nr.invoice]", mail: "Beste [firstname.customer],\n\nBedankt voor uw bestelling via mijnschoonmaker.com.\nIn de bijlage vindt u uw voorlopige bestellingsoverzicht en onze algemene voorwaarden.\n\nUw eerste bezoek\nTijdens uw eerste bezoek voeren we de door u bestelde diensten uit. Dit eerste bezoek noemen we de 0-beurt. We controleren daarbij ook of de opgegeven aantallen overeenkomen met de situatie ter plaatse. Mocht hierin een verschil zitten, dan kan dit gevolgen hebben voor de prijs. Meer informatie hierover vindt u in onze algemene voorwaarden.\nDe planning\nWe plannen uw woning in op een passende route, waarbij we afspraken zoveel mogelijk per omgeving combineren. Hierdoor kan het eerste bezoek iets langer op zich laten wachten. Houd rekening met een wachttijd van ongeveer 2 tot 8 weken.\n\nNa uw eerste bezoek komen we iedere 8 weken bij u langs. Twee dagen voor iedere afspraak ontvangt u een e-mail met de datum en het tijdstip.\nZodra uw eerste bezoek is ingepland, ontvangt u hiervan bericht.\n\nMet vriendelijke groet,\nmijnschoonmaker.com\nWhatsapp: [06 18 06 06 06](https://wa.me/message/GPFV7VR2JSCHC1) | ma - vrij 10:00 uur - 17:30 uur" },
+  definitief: { onderwerp: "[name.company] - Definitief bestellingsoverzicht [nr.invoice]", mail: "Beste [firstname.customer],\n\nHartelijk dank voor uw vertrouwen in mijnschoonmaker.com.\nBijgaand ontvangt u het definitieve bestellingsoverzicht van de door u gekozen diensten.\n\nUw overeenkomst heeft een standaardlooptijd van één jaar.\nNa deze periode zetten wij de dienstverlening voort volgens de afgesproken frequentie, totdat de overeenkomst wordt beëindigd conform onze algemene voorwaarden.\nOp deze overeenkomst zijn onze algemene voorwaarden van toepassing.\n\nMet vriendelijke groet,\nmijnschoonmaker.com" }
+};
+async function sjabloon(sleutel) { try { const d = (await db.doc("instellingen/sjablonen").get()).data() || {}; const t = d[sleutel]; if (t && t.mail) return { onderwerp: t.onderwerp || TPL_STD[sleutel].onderwerp, mail: t.mail }; } catch (e) {} return TPL_STD[sleutel]; }
+function vulIn(tekst, v) { return String(tekst || "").replace(/\[([a-z0-9_]+)\.([a-z_]+)\]/g, (m, a, b) => { const k = a + "." + b; return v[k] != null ? String(v[k]) : m; }); }
+const htmlEsc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+function mailHtml(tekst, b, opts = {}) {
+  const A = b.mailAccent || b.hoofdkleur || "#137a8a", logo = (b.logoMail || b.logo) ? `<img src="${HOST()}/_blob/${b.logoMail || b.logo}" alt="" style="max-height:64px;max-width:180px">` : `<b style="font-size:20px">${htmlEsc(b.naam || "")}</b>`;
+  const regel = r => htmlEsc(r).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, (m, t, u) => `<a href="${u}" style="color:${A};font-weight:600">${t}</a>`);
+  const paras = String(tekst).split(/\n\s*\n/).map(p => `<p style="margin:0 0 16px;line-height:1.65;font-size:15px;color:#222">${p.split("\n").map(regel).join("<br>")}</p>`).join("");
+  const knop = opts.knop ? `<div style="text-align:center;margin:8px 0 22px"><a href="${opts.knop.url}" style="display:inline-block;background:${A};color:#fff;text-decoration:none;font-weight:700;padding:14px 30px;border-radius:10px">${htmlEsc(opts.knop.tekst)}</a></div>` : "";
+  return `<div style="font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;background:#f3f5f6;padding:24px 12px"><div style="max-width:600px;margin:0 auto;background:#fff;border-radius:18px;overflow:hidden;border-top:6px solid ${A}"><div style="text-align:center;padding:28px 24px 6px">${logo}</div><div style="padding:24px 32px 18px">${paras}${knop}</div></div><p style="text-align:center;font-size:12px;color:#8a979c;margin:16px 0 0">${[b.naam, b.telefoon, b.email].filter(Boolean).map(htmlEsc).join(" &nbsp;·&nbsp; ")}</p></div>`;
+}
+/* overzicht maken + mailen; geeft { nummer, brevoId } terug */
+async function stuurOverzichtMail({ soort, model, naar, naamKlant, klantId, meta }) {
+  const [g, b] = await Promise.all([geheim(), bedrijf()]);
+  if (!g.brevoKey) throw new Error("geen Brevo-sleutel");
+  const vl = soort !== "definitief";
+  const [logo, vw, hf] = await Promise.all([leesAsset(b.logo), vl ? leesAsset(b.voorwaardenPdf) : null, vl ? leesAsset(b.herroepingPdf) : null]);
+  const nummer = model.nummer || await volgNummer();
+  const titel = soort === "definitief" ? "Definitief bestellingsoverzicht" : "Voorlopig bestellingsoverzicht";
+  const pdf = await maakOverzichtPdf({ contractduur: "1 jaar", datum: nlDatum(), ...model, titel, nummer, bedrijf: bedrijfModel(b, logo) });
+  const tpl = await sjabloon(soort), v = { "firstname.customer": voornaamVan(naamKlant), "name.customer": naamKlant, "name.company": b.naam || "", "phone.company": b.telefoon || "", "email.company": b.email || "", "nr.invoice": nummer, "date.invoice": nlDatum() };
+  const tekst = vulIn(tpl.mail, v), onderwerp = vulIn(tpl.onderwerp, v);
+  const bijlagen = [{ name: `${nummer}_${vl ? "v" : "d"}.pdf`, content: Buffer.from(pdf).toString("base64") }];
+  if (vw) bijlagen.push({ name: b.voorwaardenNaam || "Algemene voorwaarden.pdf", content: Buffer.from(vw.bytes).toString("base64") });
+  if (hf) bijlagen.push({ name: b.herroepingNaam || "Herroepingsformulier.pdf", content: Buffer.from(hf.bytes).toString("base64") });
+  const afz = g.afzender || b.email || "info@mijnschoonmaker.com";
+  const brevoId = await brevoSend(g.brevoKey, { sender: { name: b.naam || "mijnschoonmaker", email: afz }, replyTo: { email: b.email || afz }, to: [{ email: naar, name: naamKlant || undefined }], subject: onderwerp, htmlContent: mailHtml(tekst, b), textContent: tekst.replace(/\*\*/g, "").replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, "$1 ($2)"), attachment: bijlagen, tags: ["crm", soort] });
+  const id = newId("m");
+  await db.doc("berichten/" + id).set({ ...(meta || {}), klantId: klantId || "", klantNaam: naamKlant || "", naar, kanaal: "email", sjabloon: soort, onderwerp, tekst, status: "verstuurd", brevoId, verstuurdOp: nu(), op: nu(), bijlage: bijlagen.map(x => x.name).join(", "), overzichtNr: nummer });
+  return { nummer, brevoId, berichtId: id };
+}
+
 async function checkGebruiker(auth) {
   const e = auth && auth.token && auth.token.email_verified && String(auth.token.email || "").toLowerCase();
   if (!e) throw new HttpsError("unauthenticated", "Log eerst in.");
@@ -215,6 +259,23 @@ exports.aanvraag = onRequest({ cors: true, memory: "512MiB", timeoutSeconds: 60 
     }
     await db.doc("aanvragen/" + id).set({ aanvraag: D, fotos, status: "nieuw", ontvangen: nu(), ip: crypto.createHash("sha1").update(ip).digest("hex").slice(0, 12) });
 
+    /* klant krijgt direct het voorlopige bestellingsoverzicht (alleen bij een calculator-aanvraag met e-mailadres) */
+    if (D.formaat === "zeem.aanvraag" && (await bedrijf()).ovVoorlopigAan !== false && /^\S+@\S+\.\S+$/.test(String(D.klant.email || ""))) {
+      try {
+        const b0 = await bedrijf(), t0 = D.telling || {}, pct = Number(b0.btw) || 21;
+        const FL = ["Begane grond", "1e verdieping", "2e verdieping", "3e verdieping"], SP = { lood: "Glas-in-lood", mini: "Miniraampjes", koepel: "Lichtkoepels", tuimel: "Dak- / tuimelramen" };
+        const freq = { m4: "1x per 4 weken", m6: "1x per 6 weken", m8: "1x per 8 weken", m12: "1x per 12 weken" }[t0.freq] || "1x per 8 weken";
+        const subs = [...(t0.floors || []).map((n, i) => Number(n) > 0 ? { naam: FL[Math.min(i, 3)] || (i + "e verdieping"), aantal: Number(n) + " st", freq } : null), ...Object.entries(t0.special || {}).map(([k, n]) => Number(n) > 0 ? { naam: SP[k] || k, aantal: Number(n) + " st", freq } : null)].filter(Boolean);
+        const incl = Number((D.prijs || {}).incl) || 0, excl = Number((D.prijs || {}).excl) || Math.round(incl / (1 + pct / 100) * 100) / 100;
+        const zak = D.soort === "zakelijk" && D.klant.bedrijf, naamK = zak ? D.klant.bedrijf : D.klant.naam;
+        const r = await stuurOverzichtMail({ soort: "voorlopig", naar: D.klant.email, naamKlant: D.klant.naam || naamK, meta: { aanvraagId: id },
+          model: { klant: { naam: naamK, contact: zak ? D.klant.naam : "", adres: D.klant.adres || "", pcPlaats: [String(D.klant.postcode || "").toUpperCase(), D.klant.plaats].filter(Boolean).join(" ") },
+            groepen: [{ omschrijving: "Glasbewassing", excl, btwPct: pct, btw: Math.round((incl - excl) * 100) / 100, incl, subs }],
+            voetnoot: "Dit overzicht is voorlopig. Tijdens het eerste bezoek (0-beurt) controleren wij de aantallen. Bij een verschil kan de prijs wijzigen." } });
+        await db.doc("aanvragen/" + id).set({ overzichtNr: r.nummer, overzichtBericht: r.berichtId }, { merge: true });
+      } catch (e) { console.error("voorlopig overzicht", e); }
+    }
+
     /* melding naar je eigen mailbox (als Brevo is ingesteld) */
     try {
       const [g, b] = await Promise.all([geheim(), bedrijf()]);
@@ -242,4 +303,57 @@ exports.blob = onRequest({ memory: "256MiB" }, async (req, res) => {
     res.set("cache-control", "private, max-age=31536000, immutable");
     f.createReadStream().on("error", () => res.status(404).end()).pipe(res);
   } catch (e) { res.status(404).send(""); }
+});
+
+
+/* ---------- definitief overzicht vanuit het CRM (bijv. na de tellingcontrole) ---------- */
+exports.stuurOverzicht = onCall({ memory: "512MiB", timeoutSeconds: 60 }, async req => {
+  await checkGebruiker(req.auth);
+  const d = req.data || {};
+  if (!/^\S+@\S+\.\S+$/.test(String(d.naar || ""))) throw new HttpsError("invalid-argument", "Deze klant heeft geen geldig e-mailadres.");
+  try {
+    const r = await stuurOverzichtMail({ soort: d.soort === "voorlopig" ? "voorlopig" : "definitief", naar: d.naar, naamKlant: d.naamKlant || "", klantId: d.klantId || "", model: d.model || {} });
+    if (d.klantId) await db.doc("klanten/" + d.klantId).set({ overzicht: { soort: d.soort || "definitief", nummer: r.nummer, op: nu() } }, { merge: true });
+    return r;
+  } catch (e) { throw new HttpsError("internal", "Versturen lukte niet: " + (e.message || e)); }
+});
+
+/* ---------- offerte online ondertekenen: /akkoord/<token> ---------- */
+exports.akkoordInfo = onRequest({ cors: true }, async (req, res) => {
+  const tok = String(req.query.t || "");
+  if (!/^[\w-]{16,64}$/.test(tok)) { res.status(404).json({ fout: "niet gevonden" }); return; }
+  const s = await db.doc("akkoord/" + tok).get();
+  if (!s.exists) { res.status(404).json({ fout: "niet gevonden" }); return; }
+  const a = s.data(), b = await bedrijf();
+  res.json({ status: a.status, nummer: a.nummer, geldigTot: a.geldigTot || "", klant: (a.model || {}).klant || {}, groepen: (a.model || {}).groepen || [],
+    bedrijf: { naam: b.naam || "", logo: (b.logoMail || b.logo) ? HOST() + "/_blob/" + (b.logoMail || b.logo) : "", telefoon: b.telefoon || "", email: b.email || "" },
+    voorwaarden: b.voorwaardenPdf ? HOST() + "/_blob/" + b.voorwaardenPdf : (b.voorwaarden && /^https?:/.test(b.voorwaarden) ? b.voorwaarden : ""), getekend: a.getekend ? { naam: a.getekend.naam, datum: a.getekend.datum } : null });
+});
+exports.akkoordGeven = onRequest({ cors: true, memory: "512MiB", timeoutSeconds: 60 }, async (req, res) => {
+  if (req.method !== "POST") { res.status(405).send("POST"); return; }
+  const d = typeof req.body === "object" ? req.body : JSON.parse(req.body || "{}");
+  const tok = String(d.t || "");
+  if (!/^[\w-]{16,64}$/.test(tok)) { res.status(400).json({ fout: "ongeldig" }); return; }
+  const naam = String(d.naam || "").trim().slice(0, 80), plaats = String(d.plaats || "").trim().slice(0, 80), png = String(d.png || "");
+  if (naam.length < 2 || !/^data:image\/png;base64,/.test(png) || png.length > 600000) { res.status(400).json({ fout: "Vul uw naam in en zet uw handtekening." }); return; }
+  const ref = db.doc("akkoord/" + tok);
+  const a = await db.runTransaction(async t => { const s = await t.get(ref); if (!s.exists) return null; const v = s.data(); if (v.status !== "open") return { ...v, al: true }; t.update(ref, { status: "bezig" }); return v; });
+  if (!a) { res.status(404).json({ fout: "niet gevonden" }); return; }
+  if (a.al) { res.json({ ok: true, al: true }); return; }
+  try {
+    const ua = String(req.headers["user-agent"] || ""), browser = /Edg\//.test(ua) ? "Edge" : /Chrome\//.test(ua) && !/Edg/.test(ua) ? "Chrome" : /Firefox\//.test(ua) ? "Firefox" : /Safari\//.test(ua) ? "Safari" : "Onbekend";
+    const systeem = /iPhone|iPad|Macintosh|Mac OS/.test(ua) ? "Apple" : /Android/.test(ua) ? "Android" : /Windows/.test(ua) ? "Windows" : /Linux/.test(ua) ? "Linux" : "Onbekend";
+    const buf = Buffer.from(png.split(",")[1], "base64"), hid = crypto.randomBytes(16).toString("hex");
+    await bucket().file("assets/" + hid).save(buf, { contentType: "image/png", resumable: false });
+    const datum = nlDatum() + " - " + nlTijd(), getekend = { naam, plaats, datum, browser, systeem, handtekening: hid, op: nu() };
+    await ref.update({ status: "getekend", getekend });
+    const f = a.factuurId ? await db.doc("facturen/" + a.factuurId).get() : null;
+    if (f && f.exists) await f.ref.set({ status: "geaccepteerd", akkoordOp: nu().slice(0, 10), getekend, getekendNieuw: true }, { merge: true });
+    const m = a.model || {}, naar = a.email || "";
+    let nummer = "";
+    if (naar) { const r = await stuurOverzichtMail({ soort: "definitief", naar, naamKlant: a.naamKlant || (m.klant || {}).naam || "", klantId: a.klantId || "", meta: { factuurId: a.factuurId || "" }, model: { ...m, handtekening: { naam, plaats, datum, browser, systeem, png: buf } } }); nummer = r.nummer; }
+    /* melding naar het bedrijf */
+    try { const [g, b] = await Promise.all([geheim(), bedrijf()]); if (g.brevoKey && (g.meldAdres || b.email)) await brevoSend(g.brevoKey, { sender: { name: "mijnschoonmaker CRM", email: g.afzender || b.email }, to: [{ email: g.meldAdres || b.email }], subject: `Offerte ${a.nummer || ""} ondertekend door ${naam}`, textContent: `${naam}${plaats ? " uit " + plaats : ""} heeft offerte ${a.nummer || ""} online ondertekend op ${datum}.\nHet definitieve bestellingsoverzicht${nummer ? " (" + nummer + ")" : ""} is naar de klant gemaild.\n\nOpen het CRM om de klant in te plannen.` }); } catch (e) { console.error(e); }
+    res.json({ ok: true });
+  } catch (e) { console.error(e); await ref.update({ status: "open" }).catch(() => {}); res.status(500).json({ fout: "Er ging iets mis. Probeer het opnieuw." }); }
 });

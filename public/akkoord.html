@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<meta name="robots" content="noindex"><title>Offerte bekijken en akkoord geven</title>
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<style>
+:root{--ink:#0f1f26;--muted:#5d6f76;--line:#dde5e8;--bg:#f3f6f7;--brand:#137a8a;--ok:#23845a}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:720px;margin:0 auto;padding:28px 16px 60px}
+.card{background:#fff;border-radius:22px;box-shadow:0 1px 2px rgb(15 31 38 / .05),0 18px 50px -24px rgb(15 31 38 / .25);padding:28px 26px;margin-bottom:16px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px}.top img{max-height:56px;max-width:160px}.top .sub{white-space:nowrap}.top b{font-size:18px}
+h1{font-size:28px;letter-spacing:-.02em;margin:0 0 4px}.sub{color:var(--muted);margin:0 0 20px}
+table{width:100%;border-collapse:collapse;font-size:14.5px}th{text-align:left;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:0 0 10px;border-bottom:1px solid var(--ink)}
+th.r,td.r{text-align:right}td{padding:12px 0 4px;vertical-align:top}tr.g td{font-weight:700}tr.s td{padding:3px 0 3px 14px;color:var(--muted);font-size:13.5px}
+tr.tot td{border-top:1px solid var(--line);padding-top:14px;font-weight:800;font-size:16px}
+.k{font-size:14px;line-height:1.55;margin-bottom:18px}.k b{display:block}
+label{display:block;font-size:13px;font-weight:700;margin:0 0 6px}
+input[type=text]{width:100%;font:inherit;font-size:16px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#fbfcfc;outline:none}input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgb(19 122 138 / .15)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}@media(max-width:560px){.g2{grid-template-columns:1fr}}
+.pad{position:relative;border:1.5px dashed #b9c7cc;border-radius:16px;background:#fbfcfc;height:190px;touch-action:none}.pad canvas{width:100%;height:100%;display:block;border-radius:16px}
+.pad .hint{position:absolute;inset:auto 0 12px;text-align:center;color:#9aa8ad;font-size:13px;pointer-events:none}.pad .line{position:absolute;left:24px;right:24px;bottom:40px;border-bottom:1px solid #d5dde0;pointer-events:none}
+.wis{all:unset;cursor:pointer;font-size:13px;font-weight:600;color:var(--brand);float:right;margin-top:-26px}
+.chk{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.5;margin:18px 0}.chk input{width:20px;height:20px;margin-top:1px;accent-color:var(--brand)}
+.chk a{color:var(--brand);font-weight:600}
+.go{width:100%;font:inherit;font-size:16px;font-weight:700;padding:15px;border:0;border-radius:14px;color:#fff;background:linear-gradient(135deg,#137a8a,#1d5a74);cursor:pointer}.go:disabled{opacity:.5;cursor:default}
+.msg{margin-top:12px;font-size:14px;font-weight:600;color:#c0392b;min-height:20px}
+.done{text-align:center;padding:40px 26px}.done .ic{width:64px;height:64px;border-radius:50%;background:#e0f3e9;color:var(--ok);display:grid;place-items:center;margin:0 auto 16px;font-size:30px}
+.foot{text-align:center;color:#9aa8ad;font-size:12.5px;margin-top:10px}
+</style></head><body><div class="wrap" id="app"><div class="card"><p class="sub">Offerte laden…</p></div></div>
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const eur=n=>"€ "+(Math.round((+n||0)*100)/100).toFixed(2).replace(".",",");
+const tok=location.pathname.split("/").filter(Boolean).pop();
+const klaar=(d,naam)=>{$("#app").innerHTML=`<div class="card done"><div class="ic">✓</div><h1>Bedankt${naam?", "+esc(naam):""}!</h1><p class="sub" style="margin:8px 0 0">Uw akkoord is ontvangen. U ontvangt het definitieve bestellingsoverzicht per e-mail.<br>Wij nemen contact met u op om uw eerste bezoek in te plannen.</p></div><p class="foot">${esc(d.bedrijf.naam)}${d.bedrijf.telefoon?" · "+esc(d.bedrijf.telefoon):""}</p>`};
+(async()=>{let d;try{const r=await fetch("/api/akkoord-info?t="+encodeURIComponent(tok));if(!r.ok)throw 0;d=await r.json()}catch(e){$("#app").innerHTML='<div class="card"><h1>Offerte niet gevonden</h1><p class="sub">Deze link is niet (meer) geldig. Neem contact met ons op.</p></div>';return}
+  if(d.status==="getekend"||d.getekend){klaar(d,"");return}
+  let tot=0;const rows=(d.groepen||[]).map(g=>{tot+=+g.incl||0;return `<tr class="g"><td>${esc(g.omschrijving)}</td><td class="r">${eur(g.incl)}</td></tr>`+(g.subs||[]).map(s=>`<tr class="s"><td colspan="2">${esc(s.naam)}${s.aantal?" · "+esc(s.aantal):""}${s.freq?" · "+esc(s.freq):""}</td></tr>`).join("")}).join("");
+  const k=d.klant||{};
+  $("#app").innerHTML=`<div class="card"><div class="top">${d.bedrijf.logo?`<img src="${esc(d.bedrijf.logo)}" alt="${esc(d.bedrijf.naam)}">`:`<b>${esc(d.bedrijf.naam)}</b>`}<span class="sub" style="margin:0">Offerte ${esc(d.nummer)}</span></div>
+    <h1>Uw offerte</h1><p class="sub">Bekijk de offerte en geef onderaan uw akkoord met uw handtekening.${d.geldigTot?" Geldig tot "+esc(d.geldigTot.split("-").reverse().join("-"))+".":""}</p>
+    <div class="k"><b>${esc(k.naam)}</b>${k.contact?"t.a.v. "+esc(k.contact)+"<br>":""}${esc(k.adres)}<br>${esc(k.pcPlaats)}</div>
+    <table><tr><th>Omschrijving</th><th class="r">Per keer incl. btw</th></tr>${rows}${(d.groepen||[]).length>1?`<tr class="tot"><td>Totaal per keer</td><td class="r">${eur(tot)}</td></tr>`:""}</table></div>
+  <div class="card"><h1 style="font-size:22px">Akkoord geven</h1><p class="sub">Vul uw gegevens in en zet uw handtekening met uw vinger of muis.</p>
+    <div class="g2"><div><label for="nm">Naam</label><input type="text" id="nm" autocomplete="name" value="${esc(k.contact||"")}"></div><div><label for="pl">Plaatsnaam</label><input type="text" id="pl" autocomplete="address-level2"></div></div>
+    <label>Handtekening</label><button class="wis" id="wis" type="button">Wissen</button><div class="pad"><canvas id="cv"></canvas><span class="line"></span><span class="hint" id="hint">Teken hier</span></div>
+    <label class="chk"><input type="checkbox" id="ok"><span>Ik ga akkoord met deze offerte${d.voorwaarden?` en de <a href="${esc(d.voorwaarden)}" target="_blank" rel="noopener">algemene voorwaarden</a>`:" en de algemene voorwaarden"}.</span></label>
+    <button class="go" id="go" type="button">Akkoord en ondertekenen</button><div class="msg" id="msg"></div></div>
+  <p class="foot">${esc(d.bedrijf.naam)}${d.bedrijf.telefoon?" · "+esc(d.bedrijf.telefoon):""}${d.bedrijf.email?" · "+esc(d.bedrijf.email):""}</p>`;
+  const cv=$("#cv"),ctx=cv.getContext("2d");let leeg=true,teken=false,lx=0,ly=0;
+  const maat=()=>{const r=cv.getBoundingClientRect(),dp=window.devicePixelRatio||1;cv.width=r.width*dp;cv.height=r.height*dp;ctx.setTransform(dp,0,0,dp,0,0);ctx.lineWidth=2.4;ctx.lineCap="round";ctx.lineJoin="round";ctx.strokeStyle="#111";leeg=true;$("#hint").style.display=""};maat();addEventListener("resize",()=>{if(leeg)maat()});
+  const pos=e=>{const r=cv.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top]};
+  cv.addEventListener("pointerdown",e=>{teken=true;cv.setPointerCapture(e.pointerId);[lx,ly]=pos(e);ctx.beginPath();ctx.arc(lx,ly,1.1,0,7);ctx.fillStyle="#111";ctx.fill();leeg=false;$("#hint").style.display="none"});
+  cv.addEventListener("pointermove",e=>{if(!teken)return;const[x,y]=pos(e);ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(x,y);ctx.stroke();lx=x;ly=y});
+  ["pointerup","pointercancel","pointerleave"].forEach(t=>cv.addEventListener(t,()=>teken=false));
+  $("#wis").onclick=()=>{ctx.clearRect(0,0,cv.width,cv.height);maat()};
+  $("#go").onclick=async()=>{const b=$("#go"),m=$("#msg"),naam=$("#nm").value.trim(),plaats=$("#pl").value.trim();m.textContent="";
+    if(b.disabled)return;if(naam.length<2)return m.textContent="Vul uw naam in.";if(leeg)return m.textContent="Zet uw handtekening in het vak.";if(!$("#ok").checked)return m.textContent="Vink aan dat u akkoord gaat.";
+    b.disabled=true;b.textContent="Bezig met versturen…";
+    /* bijsnijden en verkleinen */
+    const o=document.createElement("canvas"),s=Math.min(1,600/cv.width);o.width=cv.width*s;o.height=cv.height*s;o.getContext("2d").drawImage(cv,0,0,o.width,o.height);
+    try{const r=await fetch("/api/akkoord",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({t:tok,naam,plaats,png:o.toDataURL("image/png")})});const j=await r.json().catch(()=>({}));
+      if(!r.ok)throw new Error(j.fout||"Er ging iets mis.");klaar(d,naam.split(/\s+/)[0])}
+    catch(e){m.textContent=e.message||"Er ging iets mis. Probeer het opnieuw.";b.disabled=false;b.textContent="Akkoord en ondertekenen"}};
+})();
+</script></body></html>

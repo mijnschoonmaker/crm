@@ -29,7 +29,8 @@ function openTellingControle(kid,na){const k=state.klanten.find(x=>x.id===kid);i
     const g={datum:iso(today()),voor:tv,na:tn,origF:voor,prijsVoor:p0,prijsNa:c?c.prijs:p0};
     const patch={tellingGecontroleerd:g,ramenRegel:normR({...(cur.ramenRegel||{}),f:f.slice()}),...(c?{prijs:c.prijs,...(!(cur.tijden||[]).length?{duur:c.duur}:{})}:{}),
       ramenTelling:{...(cur.ramenTelling||{}),gecontroleerd:g},log:[...(cur.log||[]),{datum:iso(today()),tekst:same?`Tellingcontrole O-beurt: klopt (${tn} ramen)`:`Tellingcontrole O-beurt: ${tv} → ${tn} ramen · prijs ${eur(p0)} → ${eur(c?c.prijs:p0)}`}]};
-    try{await save("klanten",kid,{...strip(cur),...patch});toast(same?"Telling klopt · vastgelegd":"Telling aangepast · nieuwe prijs "+eur(c?c.prijs:p0)+" per beurt");dlg.close();render();if(typeof na==="function")na()}catch(er){b.disabled=false;err(er)}};
+    try{await save("klanten",kid,{...strip(cur),...patch});toast(same?"Telling klopt · vastgelegd":"Telling aangepast · nieuwe prijs "+eur(c?c.prijs:p0)+" per beurt");dlg.close();render();if(typeof na==="function")na();
+      if(typeof stuurDefinitief==="function"&&liveMail()&&S().ovDefinitiefAan!==false)setTimeout(()=>stuurDefinitief(kid,true),400)}catch(er){b.disabled=false;err(er)}};
 }
 document.addEventListener("click",e=>{const b=e.target.closest("[data-tctl]");if(!b)return;e.preventDefault();e.stopPropagation();openTellingControle(b.dataset.tctl)},true);
 

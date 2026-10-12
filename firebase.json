@@ -1,18 +1,82 @@
 {
-  "firestore": { "rules": "firestore.rules", "indexes": "firestore.indexes.json" },
-  "storage": { "rules": "storage.rules" },
-  "functions": [{ "source": "functions", "codebase": "default", "runtime": "nodejs22" }],
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "runtime": "nodejs22"
+    }
+  ],
   "hosting": {
     "public": "public",
-    "ignore": ["firebase.json", "**/.*"],
+    "ignore": [
+      "firebase.json",
+      "**/.*"
+    ],
     "rewrites": [
-      { "source": "/_blob/**", "function": { "functionId": "blob", "region": "europe-west4" } },
-      { "source": "/api/aanvraag", "function": { "functionId": "aanvraag", "region": "europe-west4" } },
-      { "source": "/api/brevo", "function": { "functionId": "brevoHook", "region": "europe-west4" } },
-      { "source": "/api/mollie", "function": { "functionId": "mollieHook", "region": "europe-west4" } }
+      {
+        "source": "/api/akkoord-info",
+        "function": {
+          "functionId": "akkoordInfo",
+          "region": "europe-west4"
+        }
+      },
+      {
+        "source": "/api/akkoord",
+        "function": {
+          "functionId": "akkoordGeven",
+          "region": "europe-west4"
+        }
+      },
+      {
+        "source": "/akkoord/**",
+        "destination": "/akkoord.html"
+      },
+      {
+        "source": "/_blob/**",
+        "function": {
+          "functionId": "blob",
+          "region": "europe-west4"
+        }
+      },
+      {
+        "source": "/api/aanvraag",
+        "function": {
+          "functionId": "aanvraag",
+          "region": "europe-west4"
+        }
+      },
+      {
+        "source": "/api/brevo",
+        "function": {
+          "functionId": "brevoHook",
+          "region": "europe-west4"
+        }
+      },
+      {
+        "source": "/api/mollie",
+        "function": {
+          "functionId": "mollieHook",
+          "region": "europe-west4"
+        }
+      }
     ],
     "headers": [
-      { "source": "/index.html", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] }
+      {
+        "source": "/index.html",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
+      }
     ]
   }
 }

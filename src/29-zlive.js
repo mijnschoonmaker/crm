@@ -20,6 +20,7 @@ async function verstuurLive(i){
   const st=r.stap,tekst=st?st.mail:(c.mail||c.tekst);let vars=r.vars;
   const btn=form.querySelector(`[data-act="copyhtml"][data-i="${i}"]`);if(btn){btn.disabled=true;btn.innerHTML=I.clock+"Bezig…"}
   try{
+    if(f&&f.soort==="offerte"){try{vars={...vars,akkoordlink:await akkoordLink(f,r.k)}}catch(e){console.error(e);toast("Link voor online akkoord maken lukte niet")}}
     if(f&&f.soort!=="offerte"&&!f.betaald&&liveMollie()){try{vars={...vars,betaallink:await mollieLinkVoor(f)}}catch(e){console.error(e);toast("Betaallink maken lukte niet; de mail gaat zonder Mollie-link")}}
     const subj=fill(st?st.onderwerp:c.onderwerp,vars),html=mailFor(c.sjabloon,vars,tekst,{f,stap:st});
     let bijlagen=[];if(f){const doc=await pdfDoc(f);if(doc)bijlagen=[{naam:(f.soort==="offerte"?"Offerte ":"Factuur ")+f.nummer+".pdf",data:String(doc.output("datauristring")).split(",")[1]}]}
@@ -27,6 +28,33 @@ async function verstuurLive(i){
     c.sent[i]="live";toast("Mail verstuurd naar "+r.k.email);if(r.onSent)await r.onSent()}
   catch(e){console.error(e);toast("Versturen lukte niet: "+fnFout(e))}
   drawCmpList()}
+
+/* ---------- bestellingsoverzicht ---------- */
+function overzichtModelKlant(k){const r=normR(k.ramenRegel),fq="1x per "+(Number(k.frequentie)||8)+" weken",pct=Number(S().btw)||21,p=Number(k.prijs)||0,incl=S().incl?p:r2(p*(1+pct/100)),excl=S().incl?r2(p/(1+pct/100)):p;
+  const subs=r.f.map((n,i)=>n?{naam:TC_FL[i],aantal:n+" st",freq:fq}:null).filter(Boolean);
+  return {klant:{naam:k.naam||"",contact:k.contact||"",adres:k.adres||"",pcPlaats:[String(k.postcode||"").toUpperCase(),k.plaats].filter(Boolean).join(" "),klantnummer:klantNr(k)},
+    groepen:[{omschrijving:k.dienst||"Glasbewassing",excl,btwPct:pct,btw:r2(incl-excl),incl,subs}]}}
+function overzichtModelOfferte(f,k){const pct=Number(f.btw??S().btw)||21,inc=f.incl??S().incl;
+  return {klant:{naam:(k&&k.naam)||f.klantNaam||"",contact:(k&&k.contact)||"",adres:(k&&k.adres)||"",pcPlaats:k?[String(k.postcode||"").toUpperCase(),k.plaats].filter(Boolean).join(" "):"",klantnummer:k?klantNr(k):""},
+    groepen:(f.regels||[]).map(r=>{const tot=(Number(r.aantal)||1)*(Number(r.prijs)||0),incl=inc?tot:r2(tot*(1+pct/100)),excl=inc?r2(tot/(1+pct/100)):tot;
+      return {omschrijving:r.omschrijving||"",excl,btwPct:pct,btw:r2(incl-excl),incl,subs:(r.subs||[]).map(x=>({naam:x.naam||"",aantal:x.qty||"",freq:x.fq||""}))}})}}
+async function stuurDefinitief(kid,auto){const k=state.klanten.find(x=>x.id===kid);if(!k)return;
+  if(!k.email){if(!auto)toast("Deze klant heeft geen e-mailadres");return}
+  try{const r=await fbFn("stuurOverzicht")({soort:"definitief",klantId:kid,naar:k.email,naamKlant:k.contact||k.naam,model:overzichtModelKlant(k)});toast("Definitief bestellingsoverzicht "+r.data.nummer+" gemaild naar "+k.email)}
+  catch(e){toast("Bestellingsoverzicht versturen lukte niet: "+fnFout(e))}}
+/* offerte: link waarmee de klant online tekent */
+async function akkoordLink(f,k){let tok=f.akkoordToken;
+  if(!tok){tok=randTok(28);await save("facturen",f.id,{...strip(f),akkoordToken:tok})}
+  const kk=state.klanten.find(x=>x.id===f.klantId)||k;
+  await fsDb().doc("akkoord/"+tok).set({factuurId:f.id,klantId:f.klantId||"",nummer:f.nummer||"",email:(k&&k.email)||f.klantEmail||"",naamKlant:(kk&&(kk.contact||kk.naam))||f.klantNaam||"",geldigTot:f.verval||"",model:overzichtModelOfferte(f,kk),status:f.getekend?"getekend":"open",gemaakt:new Date().toISOString()},{merge:true});
+  return location.origin+"/akkoord/"+tok}
+function getekendBox(f){const g=f.getekend||{};return `<div class="okbox" style="margin:0 0 12px">${I.check}<div><b>Online ondertekend door ${esc(g.naam||"")}${g.plaats?" uit "+esc(g.plaats):""}</b><span>${esc(g.datum||"")} · ${esc(g.browser||"")} · ${esc(g.systeem||"")}. Het definitieve bestellingsoverzicht is naar de klant gemaild. Zet de klant nu om met <b>Akkoord</b> om hem in te plannen.</span>${g.handtekening?`<img src="${BLOB}${esc(g.handtekening)}" alt="Handtekening" style="max-height:60px;margin-top:6px;background:#fff;border-radius:8px;padding:4px">`:""}</div></div>`}
+async function getekendGezien(f){try{await save("facturen",f.id,{...strip(f),getekendNieuw:false})}catch(e){}}
+let _getekendGezien=null;
+function meldGetekend(){if(!LIVE||!state.loaded)return;const l=state.facturen.filter(f=>f.soort==="offerte"&&f.getekendNieuw);
+  if(_getekendGezien===null){_getekendGezien=new Set(l.map(f=>f.id));return}
+  l.filter(f=>!_getekendGezien.has(f.id)).forEach(f=>{_getekendGezien.add(f.id);toast(`Offerte ${f.nummer} is online ondertekend door ${(f.getekend||{}).naam||"de klant"}`)})}
+if(LIVE)setInterval(()=>{try{meldGetekend()}catch(_){}},4000);
 
 /* aanvragen van de website (de server zet ze in /aanvragen): automatisch als klant + opdracht toevoegen */
 let aanvrUnsub=null;
@@ -39,7 +67,9 @@ async function verwerkAanvraag(ref){let a=null;
     if(D.formaat==="zeem.contact")k=await contactToevoegen(D);
     else{const fotos=[];for(const f of a.fotos||[]){try{const r=await fetch(BLOB+f.id);if(r.ok)fotos.push({blob:await r.blob(),naam:f.naam||"foto.jpg",w:f.w||0,h:f.h||0,dots:f.dots||[]})}catch(e){}}
       k=await aanvraagToevoegen(D,fotos)}
-    await ref.update({status:"verwerkt",klantId:(k&&k.id)||"",verwerktOp:new Date().toISOString()})}
+    await ref.update({status:"verwerkt",klantId:(k&&k.id)||"",verwerktOp:new Date().toISOString()});
+    if(k&&a.overzichtNr){const kk=state.klanten.find(x=>x.id===k.id);if(kk)await save("klanten",k.id,{...strip(kk),overzicht:{soort:"voorlopig",nummer:a.overzichtNr,op:new Date().toISOString()}});
+      if(a.overzichtBericht)await fsDb().doc("berichten/"+a.overzichtBericht).set({klantId:k.id,klantNaam:kk?kk.naam:""},{merge:true})}}
   catch(e){console.error(e);ref.update({status:"nieuw"}).catch(()=>{})}}
 if(LIVE)setTimeout(function w(){state.loaded?liveAanvragen():setTimeout(w,600)},600);
 
@@ -49,6 +79,7 @@ if(LIVE){
   SETCARDS.splice(at,0,
     {id:"liveMail",t:"E-mail versturen",sub:"Mails rechtstreeks vanuit het CRM, met alle statussen",ic:"send",bg:"#2f7f88",st:s=>s.liveMail?["ok","Actief"]:["soon","Niet ingesteld"],rows:s=>[["Afzender",s.liveAfzender||"—"],["Via","Brevo"],["Statussen","Bezorgd · geopend · geklikt · bounce · spam"]],warn:s=>s.liveMail?"":"Koppel Brevo om mails, facturen en herinneringen direct vanuit het CRM te versturen."},
     {id:"liveMollie",t:"Online betalen",sub:"Betaallink per factuur, automatisch afboeken",ic:"card",bg:"#23845a",st:s=>s.liveMollie?["ok","Actief"]:["soon","Niet ingesteld"],rows:s=>[["Via","Mollie"],["Afboeken","Automatisch bij betaling"]],warn:s=>s.liveMollie?"":"Met Mollie krijgt elke factuurmail een eigen betaallink en staat de factuur vanzelf op betaald."},
+    {id:"liveOverzicht",t:"Bestellingsoverzicht",sub:"Voorlopig na aanmelding, definitief na telling of handtekening",ic:"note",bg:"#4a78b8",st:s=>s.voorwaardenPdf?["ok","Actief"]:["soon","Voorwaarden ontbreken"],rows:s=>[["Voorlopig","Na aanmelding via de website"],["Definitief","Na tellingcontrole of online akkoord"],["Bijlagen",[s.voorwaardenPdf&&"voorwaarden",s.herroepingPdf&&"herroepingsformulier"].filter(Boolean).join(" + ")||"—"]]},
     {id:"liveUsers",t:"Gebruikers",sub:"Wie mag inloggen in het CRM",ic:"klanten",bg:"#1d5a74",st:()=>["ok","Beheren"],rows:s=>[["Eigenaar","robin@mijnschoonmaker.com"],["Inloggen","E-mail + wachtwoord"]]},
     {id:"liveImport",t:"Overzetten",sub:"Gegevens uit de oude versie inladen",ic:"inbox",bg:"#4b3fd0",st:()=>["ok","Eenmalig"],rows:()=>[["Bestand","zeem-backup (met foto's)"]]});
   const alleenEigenaar=()=>{if(isEigenaar())return true;toast("Alleen de eigenaar kan dit aanpassen");return false};
@@ -84,6 +115,17 @@ if(LIVE){
       try{if(key)await fsDb().doc("geheim/config").set({mollieKey:key},{merge:true});
         if(await saveSettings({liveMollie:on&&!!(key||s.liveMollieKey),liveMollieKey:!!(key||s.liveMollieKey),liveMollieTest:key?key.startsWith("test_"):!!s.liveMollieTest})){dlg.close();schedule()}}catch(er){err(er)}}};
 
+  SETEXTRA.liveOverzicht=(c,s)=>{let vw=s.voorwaardenPdf||"",vwN=s.voorwaardenNaam||"",hf=s.herroepingPdf||"",hfN=s.herroepingNaam||"";
+    const rij=(id,naam,lbl)=>`<div class="splitrow" style="gap:10px;align-items:center"><span style="flex:1;min-width:0"><b>${lbl}</b><br><small class="subt">${naam?esc(naam):"Nog geen PDF"}</small></span><label class="btn small">${I.upload}${naam?"Vervangen":"PDF kiezen"}<input type="file" accept="application/pdf" hidden id="${id}F"></label>${naam?`<button type="button" class="small ghost" id="${id}X">${I.x}</button>`:""}</div>`;
+    setDlg(c,`${info("De klant krijgt automatisch een PDF met de bestelde diensten, aantallen en prijzen. Het <b>voorlopige</b> overzicht direct na de aanmelding via je website (met de bijlagen hieronder). Het <b>definitieve</b> overzicht na de tellingcontrole bij de 0-beurt, of meteen nadat de klant een offerte online heeft ondertekend.")}
+      ${tgl("ovVoorlopigAan","Voorlopig overzicht na aanmelding","Automatisch na het indienen van de websitecalculator",s.ovVoorlopigAan!==false)}
+      ${tgl("ovDefinitiefAan","Definitief overzicht na tellingcontrole","Automatisch zodra de glazenwasser de telling bij de 0-beurt opslaat",s.ovDefinitiefAan!==false)}
+      ${sec("Bijlagen bij het voorlopige overzicht")}<div id="ovPdfs"></div>
+      ${sec("Teksten van de mails")}<div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="small" data-act="tpledit" data-k="voorlopig">${I.pencil}Tekst voorlopig</button><button type="button" class="small" data-act="tpledit" data-k="definitief">${I.pencil}Tekst definitief</button></div>
+      <small class="help">Offertes die je vanuit het CRM mailt, krijgen een knop <b>Offerte bekijken en akkoord geven</b>. De klant tekent op zijn scherm en ontvangt direct het definitieve overzicht.</small>`,{wide:false});
+    const draw=()=>{$("#ovPdfs").innerHTML=rij("vw",vwN,"Algemene voorwaarden")+rij("hf",hfN,"Herroepingsformulier");
+      [["vw",(id,n)=>{vw=id;vwN=n}],["hf",(id,n)=>{hf=id;hfN=n}]].forEach(([k,set])=>{const f=$("#"+k+"F");if(f)f.onchange=async e=>{const file=e.target.files[0];if(!file)return;try{const r=await state.assets.upload(file,{type:"application/pdf"});set(r.id,file.name);draw()}catch(er){toast("Uploaden lukte niet")}};const x=$("#"+k+"X");if(x)x.onclick=()=>{set("","");draw()}})};draw();
+    bindSave(()=>({voorwaardenPdf:vw,voorwaardenNaam:vwN,herroepingPdf:hf,herroepingNaam:hfN}))};
   SETEXTRA.liveUsers=async(c,s)=>{
     const draw=async()=>{let lijst=[];try{lijst=(await fsDb().collection("gebruikers").get()).docs.map(d=>({id:d.id,...d.data()}))}catch(e){}
       $("#usrL").innerHTML=`<table class="minitable"><tr><td><b>robin@mijnschoonmaker.com</b></td><td>Eigenaar</td><td></td></tr>${lijst.map(u=>`<tr><td>${esc(u.id)}</td><td>${esc(u.naam||"")}</td><td class="r">${isEigenaar()?`<button type="button" class="tiny ghost" data-rm="${esc(u.id)}" style="color:var(--late)">Verwijderen</button>`:""}</td></tr>`).join("")}</table>`;

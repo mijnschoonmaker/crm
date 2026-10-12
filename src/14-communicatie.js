@@ -78,6 +78,7 @@ function mailFor(sjabloon,vars,tekst,{f,stap,preview}={}){
     o.regels=f?f.regels.map(r=>Array.isArray(r.subs)&&r.subs.length?{...r,omschrijving:r.omschrijving+": "+r.subs.map(x=>String(x.naam).toLowerCase()+" "+(x.qty||"")).join(", ").trim()}:r):sampleRegels;if(!(kind==="offerte"&&f&&f.totaalTonen===false))o.totaal=eur(t.inc)}
   if(["factuur","aanmaning"].includes(kind)&&(vars.betaallink||s.betaallink))o.knop={tekst:"Direct betalen",url:vars.betaallink||s.betaallink};
   if(["factuur","aanmaning"].includes(kind)&&s.iban)o.bank=[["IBAN",s.iban],["T.n.v.",s.naam||"—"],["Kenmerk",vars.factuurnummer]];
+  if(kind==="offerte"&&vars.akkoordlink)o.knop={tekst:"Offerte bekijken en akkoord geven",url:vars.akkoordlink};
   if(kind==="review"&&s.reviewLink)o.knop={tekst:s.reviewKnop||"Review achterlaten",url:s.reviewLink};
   return emailHtml(o);
 }

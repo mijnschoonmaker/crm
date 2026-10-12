@@ -274,9 +274,9 @@ const exportFacturen=()=>saveFile("zeem-facturen-"+iso(today())+".csv",csvOf(["n
 function openFactuur(id){const f=state.facturen.find(x=>x.id===id);if(!f)return;if(f.soort==="offerte")return openFactuurOud(id);return openFactuurWerk(id)}
 function openFactuurOud(id,fromWerk){
   const f=state.facturen.find(x=>x.id===id);if(!f)return;
-  const st=fStatus(f),off=f.soort==="offerte";
+  const st=fStatus(f),off=f.soort==="offerte";if(off&&f.getekendNieuw&&typeof getekendGezien==="function")getekendGezien(f);
   openDlg(`<div class="dlg-head"><span class="objic big">${off?I.offertes:I.facturen}</span><div style="min-width:0;flex:1"><h3>${off?"Offerte":"Factuur"} ${esc(f.nummer)}</h3><div class="subt">${esc(cleanName(f.klantNaam))} · ${eur(totals(f).inc)}</div></div>${statusPill(st[0],st[1])}<button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
-  <div class="row" style="justify-content:flex-start;padding:0">
+  ${off&&f.getekend&&typeof getekendBox==="function"?getekendBox(f):""}<div class="row" style="justify-content:flex-start;padding:0">
     ${off?`${f.status!=="geaccepteerd"?`<button type="button" class="small primary" data-act="akkoord" data-id="${esc(f.id)}">${I.check}Akkoord en inplannen</button>`:""}${(f.status||"concept")==="concept"?`<button type="button" class="small" data-act="fset" data-id="${esc(f.id)}" data-s="verstuurd">Markeer verstuurd</button>`:""}${f.status!=="afgewezen"?`<button type="button" class="small" data-act="fset" data-id="${esc(f.id)}" data-s="afgewezen">Afgewezen</button>`:""}<button type="button" class="small" data-act="toinvoice" data-id="${esc(f.id)}" title="Alleen voor eenmalig werk. Vaste klanten krijgen na elke afgemelde beurt vanzelf een factuur.">Eenmalig factureren</button>`
       :f.status==="concept"?`<button type="button" class="small primary" data-act="fset" data-id="${esc(f.id)}" data-s="open">Maak definitief</button>`:f.status==="betaald"?`<button type="button" class="small" data-act="fset" data-id="${esc(f.id)}" data-s="open">Terug naar openstaand</button>`:`<button type="button" class="small good" data-act="fset" data-id="${esc(f.id)}" data-s="betaald">${I.check}Markeer betaald</button>`}
     ${state.dl?`<button type="button" class="small" data-act="pdf" data-id="${esc(f.id)}">${I.dl}PDF</button>`:""}
