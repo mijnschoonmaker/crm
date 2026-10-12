@@ -43,6 +43,20 @@ function meldNieuweAanmelding(){if(!state.loaded)return;const l=nieuweAanmelding
 function aanmeldBanner(){const l=nieuweAanmeldingen();if(!l.length)return "";
   return `<div class="aanm">${l.slice(0,3).map(k=>{const t=k.ramenTelling||{};return `<div class="aanm-r"><span class="aanm-ic">${I.bell}</span><div class="aanm-t">${k.aanvraagType==="contact"?`<b>Nieuw contactverzoek van een bedrijf</b><span>${esc(cleanName(k.naam))}${k.contact?" · t.a.v. "+esc(k.contact):""} · ${esc([k.email,k.telefoon].filter(Boolean).join(" · "))} · ${esc(fmtD(k.aangemaakt))}</span>`:`<b>Nieuwe klant aangemeld via de website</b><span>${esc(cleanName(k.naam))} · ${esc([k.adres,k.plaats].filter(Boolean).join(", "))}${t.ramen?` · ${t.ramen} ramen`:""} · ${esc(eur(k.prijs))} per beurt · ${esc(fmtD(k.aangemaakt))}</span>`}</div>
     <div class="aanm-k"><button type="button" class="small primary" data-aanm="open" data-id="${esc(k.id)}">${I.klanten}Bekijken</button>${k.aanvraagType==="contact"?`<button type="button" class="small" data-aanm="off" data-id="${esc(k.id)}">${I.offertes}Offerte maken</button>`:`<button type="button" class="small" data-aanm="plan" data-id="${esc(k.id)}">${I.planning}Inplannen</button>`}<button type="button" class="iconbtn sm" data-aanm="weg" data-id="${esc(k.id)}" aria-label="Melding sluiten" title="Gezien">${I.x}</button></div></div>`}).join("")}${l.length>3?`<small class="subt">en nog ${l.length-3} meer</small>`:""}</div>`}
+/* opvallende kaart in de zijbalk: YES, een nieuwe klant */
+function nieuwKaart(){const side=document.querySelector("aside.side"),uc=document.getElementById("userCard");if(!side||!uc)return;
+  let el=document.getElementById("nieuwCard");const l=nieuweAanmeldingen();
+  if(!l.length){if(el)el.remove();return}
+  if(!el){el=document.createElement("div");el.id="nieuwCard";side.insertBefore(el,uc)}
+  const k=l[0],t=k.ramenTelling||{},n=l.length,ct=k.aanvraagType==="contact";
+  const sig=l.map(x=>x.id).join(",");if(el.dataset.sig===sig)return;const nieuw=el.dataset.sig!==undefined&&el.dataset.sig!==sig;el.dataset.sig=sig;
+  el.className="nk-card"+(nieuw?" nk-pop":"");
+  el.innerHTML=`<span class="nk-conf" aria-hidden="true">${"<i></i>".repeat(10)}</span>
+    <div class="nk-top"><span class="nk-ic">${I.klanten}</span><span class="nk-kick">${n>1?n+" nieuwe aanmeldingen":ct?"Nieuw contactverzoek":"Nieuwe klant!"}</span></div>
+    <b class="nk-naam">${esc(cleanName(k.naam))}</b>
+    <small class="nk-sub">${esc([k.plaats||"",ct?"bedrijf / VvE":(t.ramen?t.ramen+" ramen":""),k.prijs?eur(Number(k.prijs)):""].filter(Boolean).join(" · "))||"via je website"}</small>
+    <div class="nk-act"><button type="button" class="nk-btn" data-aanm="open" data-id="${esc(k.id)}">Bekijken ${I.right}</button>${n>1?`<button type="button" class="nk-more" data-act="tab" data-tab="klanten">Alle ${n}</button>`:""}</div>`;
+  if(nieuw)setTimeout(()=>el.classList.remove("nk-pop"),2600)}
 async function aanmGezien(id){const k=state.klanten.find(x=>x.id===id);if(!k||!k.nieuwAangemeld)return;try{await save("klanten",id,{...strip(k),nieuwAangemeld:false})}catch(e){err(e)}}
 document.addEventListener("click",async e=>{const b=e.target.closest("[data-aanm]");if(!b)return;e.preventDefault();e.stopPropagation();const id=b.dataset.id,a=b.dataset.aanm;
   await aanmGezien(id);if(a==="open")openKlantView(id);else if(a==="plan")go("planning");else if(a==="off")openOfferte({klantId:id});else render()},true);

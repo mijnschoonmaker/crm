@@ -2019,6 +2019,48 @@ dialog.wcv-ov[open]{display:flex}
 dialog.wcv-ov::backdrop{background:transparent}
 @media (max-width:640px){dialog.wcv-ov{padding:0}}
 
+/* ---------- nieuwe klant: opvallend in de zijbalk ---------- */
+.nk-card{position:relative;overflow:hidden;margin:10px 14px 0;padding:14px 14px 12px;border-radius:18px;color:#fff;
+  background:linear-gradient(140deg,#1f9d6b 0%,#137a8a 55%,#1d5a74 100%);box-shadow:0 14px 30px -14px rgb(19 122 138 / .7),0 1px 0 rgb(255 255 255 / .25) inset;animation:nkIn .5s cubic-bezier(.2,.9,.3,1.3)}
+.nk-card::after{content:"";position:absolute;top:-50%;left:-60%;width:45%;height:200%;background:linear-gradient(90deg,transparent,rgb(255 255 255 / .28),transparent);transform:rotate(20deg);animation:nkGlans 4.5s ease-in-out infinite;pointer-events:none}
+.nk-top{display:flex;align-items:center;gap:8px}
+.nk-ic{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:rgb(255 255 255 / .2);box-shadow:0 0 0 1px rgb(255 255 255 / .25) inset}
+.nk-ic svg{width:16px;height:16px;stroke:#fff}
+.nk-kick{font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#d9fbe9}
+.nk-naam{display:block;margin-top:9px;font-size:16.5px;font-weight:800;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nk-sub{display:block;margin-top:2px;font-size:12.5px;color:rgb(255 255 255 / .82);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nk-act{display:flex;gap:6px;margin-top:11px;position:relative;z-index:1}
+.nk-btn,.nk-more{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:700;padding:7px 12px;border-radius:99px}
+.nk-btn{background:#fff;color:#0f5d52;box-shadow:0 2px 6px rgb(0 0 0 / .15)}.nk-btn svg{width:13px;height:13px}
+.nk-more{background:rgb(255 255 255 / .16);color:#fff}
+.nk-btn:hover{transform:translateY(-1px)}
+.nk-conf{position:absolute;inset:0;pointer-events:none}
+.nk-conf i{position:absolute;top:-10px;width:6px;height:9px;border-radius:2px;opacity:0}
+.nk-pop .nk-conf i{animation:nkConf 2.2s ease-out forwards}
+.nk-conf i:nth-child(1){left:8%;background:#ffd166;animation-delay:.05s}.nk-conf i:nth-child(2){left:18%;background:#fff;animation-delay:.2s}
+.nk-conf i:nth-child(3){left:30%;background:#7ef0b8;animation-delay:.1s}.nk-conf i:nth-child(4){left:42%;background:#ffd166;animation-delay:.3s}
+.nk-conf i:nth-child(5){left:52%;background:#fff;animation-delay:0s}.nk-conf i:nth-child(6){left:63%;background:#ff9fb2;animation-delay:.25s}
+.nk-conf i:nth-child(7){left:72%;background:#7ef0b8;animation-delay:.15s}.nk-conf i:nth-child(8){left:82%;background:#ffd166;animation-delay:.35s}
+.nk-conf i:nth-child(9){left:90%;background:#fff;animation-delay:.08s}.nk-conf i:nth-child(10){left:36%;background:#ff9fb2;animation-delay:.4s}
+@keyframes nkConf{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(150px) rotate(320deg)}}
+@keyframes nkIn{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes nkGlans{0%,65%{left:-60%}100%{left:140%}}
+.nk-pop{animation:nkIn .5s cubic-bezier(.2,.9,.3,1.3),nkPuls 1.2s ease-in-out .5s 2}
+@keyframes nkPuls{50%{box-shadow:0 0 0 6px rgb(31 157 107 / .25),0 14px 30px -14px rgb(19 122 138 / .7)}}
+.app.collapsed .nk-card{margin:10px 8px 0;padding:10px 0;display:grid;place-items:center}
+.app.collapsed .nk-card>:not(.nk-top){display:none}.app.collapsed .nk-kick{display:none}
+/* badge 'i' bij Klanten */
+.badge.nk-b{background:linear-gradient(135deg,#22b07a,#137a8a)!important;min-width:0;height:22px;padding:0 9px 0 3px;border-radius:99px;gap:5px;display:inline-flex!important;align-items:center;font-family:var(--f-ui);font-size:11px;font-weight:800;letter-spacing:.02em;box-shadow:0 0 0 0 rgb(34 176 122 / .55);animation:nkRing 1.8s ease-out infinite}
+.badge.nk-b i{font-style:normal;min-width:16px;height:16px;padding:0 4px;border-radius:99px;background:#fff;color:#137a8a;display:grid;place-items:center;font-family:var(--f-ui);font-weight:800;font-size:11px}
+.badge.nk-b em{font-style:normal;color:#fff}
+@keyframes nkRing{0%{box-shadow:0 0 0 0 rgb(34 176 122 / .55)}80%,100%{box-shadow:0 0 0 8px rgb(34 176 122 / 0)}}
+nav.tabs .badge.nk-b{padding:0 2px;height:18px}nav.tabs .badge.nk-b em{display:none}nav.tabs .badge.nk-b i{min-width:14px;height:14px;font-size:10px}
+.app.collapsed aside nav button .badge.nk-b{display:inline-flex!important;position:absolute;top:4px;right:10px;padding:0 2px;height:18px}.app.collapsed aside nav button .badge.nk-b em{display:none}
+@media (prefers-reduced-motion:reduce){.nk-card,.nk-card::after,.nk-pop .nk-conf i,.badge.nk-b{animation:none}}
+.app.collapsed aside nav button{overflow:visible}
+.app.collapsed aside nav button .badge.nk-b{top:2px;right:4px}
+.app.collapsed .lg-out{display:none}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -7384,6 +7426,20 @@ function meldNieuweAanmelding(){if(!state.loaded)return;const l=nieuweAanmelding
 function aanmeldBanner(){const l=nieuweAanmeldingen();if(!l.length)return "";
   return `<div class="aanm">${l.slice(0,3).map(k=>{const t=k.ramenTelling||{};return `<div class="aanm-r"><span class="aanm-ic">${I.bell}</span><div class="aanm-t">${k.aanvraagType==="contact"?`<b>Nieuw contactverzoek van een bedrijf</b><span>${esc(cleanName(k.naam))}${k.contact?" · t.a.v. "+esc(k.contact):""} · ${esc([k.email,k.telefoon].filter(Boolean).join(" · "))} · ${esc(fmtD(k.aangemaakt))}</span>`:`<b>Nieuwe klant aangemeld via de website</b><span>${esc(cleanName(k.naam))} · ${esc([k.adres,k.plaats].filter(Boolean).join(", "))}${t.ramen?` · ${t.ramen} ramen`:""} · ${esc(eur(k.prijs))} per beurt · ${esc(fmtD(k.aangemaakt))}</span>`}</div>
     <div class="aanm-k"><button type="button" class="small primary" data-aanm="open" data-id="${esc(k.id)}">${I.klanten}Bekijken</button>${k.aanvraagType==="contact"?`<button type="button" class="small" data-aanm="off" data-id="${esc(k.id)}">${I.offertes}Offerte maken</button>`:`<button type="button" class="small" data-aanm="plan" data-id="${esc(k.id)}">${I.planning}Inplannen</button>`}<button type="button" class="iconbtn sm" data-aanm="weg" data-id="${esc(k.id)}" aria-label="Melding sluiten" title="Gezien">${I.x}</button></div></div>`}).join("")}${l.length>3?`<small class="subt">en nog ${l.length-3} meer</small>`:""}</div>`}
+/* opvallende kaart in de zijbalk: YES, een nieuwe klant */
+function nieuwKaart(){const side=document.querySelector("aside.side"),uc=document.getElementById("userCard");if(!side||!uc)return;
+  let el=document.getElementById("nieuwCard");const l=nieuweAanmeldingen();
+  if(!l.length){if(el)el.remove();return}
+  if(!el){el=document.createElement("div");el.id="nieuwCard";side.insertBefore(el,uc)}
+  const k=l[0],t=k.ramenTelling||{},n=l.length,ct=k.aanvraagType==="contact";
+  const sig=l.map(x=>x.id).join(",");if(el.dataset.sig===sig)return;const nieuw=el.dataset.sig!==undefined&&el.dataset.sig!==sig;el.dataset.sig=sig;
+  el.className="nk-card"+(nieuw?" nk-pop":"");
+  el.innerHTML=`<span class="nk-conf" aria-hidden="true">${"<i></i>".repeat(10)}</span>
+    <div class="nk-top"><span class="nk-ic">${I.klanten}</span><span class="nk-kick">${n>1?n+" nieuwe aanmeldingen":ct?"Nieuw contactverzoek":"Nieuwe klant!"}</span></div>
+    <b class="nk-naam">${esc(cleanName(k.naam))}</b>
+    <small class="nk-sub">${esc([k.plaats||"",ct?"bedrijf / VvE":(t.ramen?t.ramen+" ramen":""),k.prijs?eur(Number(k.prijs)):""].filter(Boolean).join(" · "))||"via je website"}</small>
+    <div class="nk-act"><button type="button" class="nk-btn" data-aanm="open" data-id="${esc(k.id)}">Bekijken ${I.right}</button>${n>1?`<button type="button" class="nk-more" data-act="tab" data-tab="klanten">Alle ${n}</button>`:""}</div>`;
+  if(nieuw)setTimeout(()=>el.classList.remove("nk-pop"),2600)}
 async function aanmGezien(id){const k=state.klanten.find(x=>x.id===id);if(!k||!k.nieuwAangemeld)return;try{await save("klanten",id,{...strip(k),nieuwAangemeld:false})}catch(e){err(e)}}
 document.addEventListener("click",async e=>{const b=e.target.closest("[data-aanm]");if(!b)return;e.preventDefault();e.stopPropagation();const id=b.dataset.id,a=b.dataset.aanm;
   await aanmGezien(id);if(a==="open")openKlantView(id);else if(a==="plan")go("planning");else if(a==="off")openOfferte({klantId:id});else render()},true);
@@ -7569,7 +7625,8 @@ function render(){try{warmMailLogo()}catch(e){}
   const late=overdue().length,ach=facturen().filter(f=>fStatus(f)[1]==="Achterstallig").length,mTodo=state.loaded?queues().reduce((a,q)=>a+q.items.length,0):0;
   const st_=S(),B={planning:st_.bolPlanning===false?0:late,facturen:st_.bolFacturen===false?0:ach,communicatie:st_.bolComm===false?0:mTodo,klanten:nieuweAanmeldingen().length};
   meldNieuweAanmelding();
-  const badge=t=>B[t]?`<span class="badge">${B[t]}</span>`:"";
+  const badge=t=>t==="klanten"&&B[t]?`<span class="badge nk-b" title="${B[t]===1?"Nieuwe klant aangemeld":B[t]+" nieuwe klanten aangemeld"}"><i>${B[t]}</i><em>nieuw</em></span>`:B[t]?`<span class="badge">${B[t]}</span>`:"";
+  try{nieuwKaart()}catch(e){console.error(e)}
   $(".app").classList.toggle("collapsed",state.collapsed);
   $("#sideNav").innerHTML=PAGES.map(([t,l])=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}" title="${l}">${I[t]}<span class="lbl">${l}</span>${badge(t)}</button>`).join("");
   const mob=["vandaag","route","planning","klanten"],inMeer=!mob.includes(state.tab),meerB=late*0+mTodo;

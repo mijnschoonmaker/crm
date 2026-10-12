@@ -4,7 +4,8 @@ function render(){try{warmMailLogo()}catch(e){}
   const late=overdue().length,ach=facturen().filter(f=>fStatus(f)[1]==="Achterstallig").length,mTodo=state.loaded?queues().reduce((a,q)=>a+q.items.length,0):0;
   const st_=S(),B={planning:st_.bolPlanning===false?0:late,facturen:st_.bolFacturen===false?0:ach,communicatie:st_.bolComm===false?0:mTodo,klanten:nieuweAanmeldingen().length};
   meldNieuweAanmelding();
-  const badge=t=>B[t]?`<span class="badge">${B[t]}</span>`:"";
+  const badge=t=>t==="klanten"&&B[t]?`<span class="badge nk-b" title="${B[t]===1?"Nieuwe klant aangemeld":B[t]+" nieuwe klanten aangemeld"}"><i>${B[t]}</i><em>nieuw</em></span>`:B[t]?`<span class="badge">${B[t]}</span>`:"";
+  try{nieuwKaart()}catch(e){console.error(e)}
   $(".app").classList.toggle("collapsed",state.collapsed);
   $("#sideNav").innerHTML=PAGES.map(([t,l])=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}" title="${l}">${I[t]}<span class="lbl">${l}</span>${badge(t)}</button>`).join("");
   const mob=["vandaag","route","planning","klanten"],inMeer=!mob.includes(state.tab),meerB=late*0+mTodo;
