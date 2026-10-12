@@ -1678,3 +1678,12 @@ nav.tabs .badge.nk-b{padding:0 2px;height:18px}nav.tabs .badge.nk-b em{display:n
 .klx .kx-pct{display:none!important}
 @media (max-width:640px){.kx-av .kc{width:40px;height:40px}.kx-av .kc b{font-size:15px}.kx-av .kc em{font-size:7.5px}}
 .kx-st.kx-st-plan{color:#23845a!important}.kx-st.kx-st-plan::before{background:#23845a!important;box-shadow:0 0 0 3px rgb(35 132 90 / .15)!important;animation:none!important}
+
+/* ingepland: rustige groene ring + mini-kalenderblaadje in het midden */
+.kx-plan{--kx:#2e9a6b!important}
+.kx-plan .kx-ring{background:conic-gradient(#8fd1b0 0,#2e9a6b 100%)!important}
+.kx-av .kc.kc-plan{background:#fff;box-shadow:0 1px 3px rgb(15 31 38 / .12),inset 0 0 0 1px rgb(46 154 107 / .18);overflow:hidden;justify-content:flex-start;padding-top:0}
+.kx-av .kc .kc-m{display:block;width:100%;font-style:normal;font-size:8.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:linear-gradient(180deg,#34a874,#24865b);padding:5px 0 3px;line-height:1}
+.kx-av .kc.kc-plan b{font-size:18px;color:#16583c;margin-top:3px}
+.kc-ok{display:none!important}
+@media (max-width:640px){.kx-av .kc .kc-m{font-size:7.5px;padding:4px 0 2px}.kx-av .kc.kc-plan b{font-size:15px}}
