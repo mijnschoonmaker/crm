@@ -396,7 +396,7 @@ async function toonLogin(melding){
     if(!/^\S+@\S+\.\S+$/.test(v)){$("#lfout").textContent="Vul een geldig e-mailadres in.";$("#le").focus();return}
     b.disabled=true;b.innerHTML=`<span class="spin" style="width:17px;height:17px;border-width:2px;border-color:rgb(255 255 255 / .35);border-top-color:#fff"></span>Versturen…`;
     try{await api("login",{body:{email:v},open:true});
-      $("#app").innerHTML=`<main class="welkom"><div class="wk-kaart wk-c">${wkLogo(LG)}<span class="wk-env">${I.mail}</span>
+      $("#app").innerHTML=`<main class="welkom"><div class="wk-kaart wk-c">${wkLogo(LG)}
         <h1>Kijk in uw mailbox</h1><p class="wk-intro" style="max-width:340px">Als <b style="color:var(--ink)">${esc(v)}</b> bij ons bekend is, staat er een mail met een inlogknop voor u klaar. De knop werkt een uur.</p>
         <div class="infobox">${I.klok}<span>Niets ontvangen? Kijk ook bij ongewenste mail, of gebruik het adres waarop u onze facturen krijgt.</span></div>
         <button class="full" id="opn">Ander e-mailadres proberen</button></div></main>`;
