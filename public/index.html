@@ -2062,6 +2062,11 @@ nav.tabs .badge.nk-b{padding:0 2px;height:18px}nav.tabs .badge.nk-b em{display:n
 .app.collapsed .lg-out{display:none}
 
 .notice.verhuisd{background:#fdecea;border-color:#f3b8b0;color:#7a2318;font-weight:500}.notice.verhuisd a{color:#7a2318;font-weight:700;text-decoration:underline}
+/* ring: één element (achtergrondring + voortgang), geen losse svg meer → geen dubbele randen in Safari */
+.kx-av svg{display:none!important}
+.kx-ring{inset:2px!important;background:conic-gradient(from 0deg,color-mix(in srgb,var(--kx,#9aa8ad) 30%,#fff) 0,color-mix(in srgb,var(--kx,#9aa8ad) 65%,#fff) calc(var(--p)*.5),var(--kx,#9aa8ad) calc(var(--p)*.92),var(--kx,#9aa8ad) var(--p),color-mix(in srgb,var(--kx,#9aa8ad) 12%,#e9eef0) var(--p),color-mix(in srgb,var(--kx,#9aa8ad) 12%,#e9eef0) 100%)!important;
+  -webkit-mask:radial-gradient(closest-side,transparent calc(100% - 3px),#000 calc(100% - 2.5px))!important;mask:radial-gradient(closest-side,transparent calc(100% - 3px),#000 calc(100% - 2.5px))!important}
+.kx-neutral .kx-ring{display:block!important;background:color-mix(in srgb,#9aa8ad 18%,#eef2f3)!important}
 
 </style>
 <div class="app">
