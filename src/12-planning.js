@@ -302,11 +302,9 @@ function advHtml(o,d0){
   ${ADV.open?`<div class="adv">
     <div class="rp-tools" role="toolbar" aria-label="Planning-acties">
       <button type="button" class="iconbtn" data-act="newjob" data-d="${d0}" title="Nieuwe job" aria-label="Nieuwe job">${I.plus}</button>
-      <button type="button" class="iconbtn${state.planMode?" on":""}" data-act="planmode" title="Plan-modus: kies een klant en tik een tijdslot" aria-label="Plan-modus">${I.wand}</button>
       <button type="button" class="iconbtn" data-act="planmail" data-d="${d0}" title="Planningsmail verzenden" aria-label="Planningsmail verzenden">${I.mail}</button>
       <button type="button" class="iconbtn" data-act="geplande" title="Geplande berichten" aria-label="Geplande berichten">${I.timer}${pmGepland().length?`<i class="rp-dot"></i>`:""}</button>
       <button type="button" class="iconbtn" data-act="bulkday" data-d="${d0}" title="Bulk dag" aria-label="Bulk dag">${I.cal2}</button>
-      <button type="button" class="iconbtn" data-act="tab" data-tab="route" title="Route" aria-label="Route">${I.route}</button>
       <button type="button" class="iconbtn${state.achter?" on":""}" data-act="achter" title="Alleen achterstallig" aria-label="Alleen achterstallig">${I.alert}</button>
     </div>
     <div class="adv-opts">
