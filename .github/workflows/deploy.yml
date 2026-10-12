@@ -3,6 +3,10 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+# nooit twee keer tegelijk online zetten: een nieuwe run wacht tot de vorige klaar is
+concurrency:
+  group: online-zetten
+  cancel-in-progress: false
 jobs:
   deploy:
     runs-on: ubuntu-latest
