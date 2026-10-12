@@ -420,7 +420,7 @@ async function exportAlles(metBestanden){
 function kleinLogo(url){return new Promise(res=>{const im=new Image();im.onload=()=>{const m=240,k=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);try{res(c.toDataURL("image/png"))}catch(e){res(url)}};im.onerror=()=>res(url);im.src=url})}
 
 /* website-calculator hier openen en gebruiken, zoals klanten hem op je website zien */
-function webCalcVoorbeeld(html){
+function webCalcVoorbeeld(html){webCalcVoorbeeld._recent=webCalcVoorbeeld._recent||new Set();
   const o=document.createElement("dialog");o.className="wcv-ov";
   o.innerHTML=`<div class="wcv"><div class="wcv-h"><span class="objic">${I.globe||I.eye}</span><div style="min-width:0;flex:1"><b>Website-calculator</b><small>Zo zien klanten hem op je website. Je kunt hem hier gewoon gebruiken.</small></div>
     <div class="seg wcv-seg"><button type="button" data-w="tel" class="sel">Telefoon</button><button type="button" data-w="pc">Computer</button></div>
@@ -431,6 +431,7 @@ function webCalcVoorbeeld(html){
   const opMsg=async e=>{if(e.source!==f.contentWindow)return;const d=e.data||{};if(d.type!=="zeem-aanvraag")return;
     const reply=m=>{try{f.contentWindow.postMessage(m,"*")}catch(_){}};
     const D=leesAanvraag("ZEEM1:"+(d.code||""));if(!D){reply({type:"zeem-aanvraag-fout",tekst:"de aanvraag kon niet worden gelezen."});return}
+    const dk=String(d.code||"").slice(0,400);if(webCalcVoorbeeld._recent.has(dk)){reply({type:"zeem-aanvraag-ok"});return}webCalcVoorbeeld._recent.add(dk);
     try{const k=D.formaat==="zeem.contact"?await contactToevoegen(D):await aanvraagToevoegen(D,d.fotos||[]);reply({type:"zeem-aanvraag-ok",id:k.id})}
     catch(er){console.error(er);reply({type:"zeem-aanvraag-fout",tekst:"opslaan in het crm lukte niet."})}};
   window.addEventListener("message",opMsg);

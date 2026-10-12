@@ -201,6 +201,10 @@ exports.aanvraag = onRequest({ cors: true, memory: "512MiB", timeoutSeconds: 60 
     if (velden.website_url) { res.send("ok"); return; }       // honeypot
     let D; try { D = JSON.parse(velden.aanvraag || ""); } catch (e) { res.status(400).send("Ongeldige aanvraag"); return; }
     if (!D || !["zeem.aanvraag", "zeem.contact"].includes(D.formaat) || !D.klant || !D.klant.naam) { res.status(400).send("Ongeldige aanvraag"); return; }
+    /* dubbel indienen (twee keer klikken) binnen 15 minuten: maar één keer opslaan */
+    const dk = crypto.createHash("sha1").update([D.formaat, D.klant.naam, D.klant.email, D.klant.postcode, D.klant.adres].map(x => String(x || "").trim().toLowerCase()).join("|")).digest("hex");
+    const dref = db.doc("limiet/d" + dk), dub = await db.runTransaction(async t => { const s = await t.get(dref); const vers = s.exists && Date.now() - s.data().t < 15 * 60 * 1000; if (!vers) t.set(dref, { t: Date.now() }); return vers; });
+    if (dub) { res.json({ ok: true, dubbel: true }); return; }
     let meta = []; try { meta = JSON.parse(velden.fotometa || "[]"); } catch (e) {}
     const id = newId("a"), fotos = [];
     for (const [i, f] of bestanden.entries()) {

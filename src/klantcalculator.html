@@ -829,6 +829,7 @@ b,strong{font-weight:600}
 .zk-go{width:100%}
 .zk-msg{margin:0;font-size:13.5px;color:var(--muted);min-height:1em}.zk-msg.ok{color:#1f8a5a}.zk-msg.bad{color:#c4352b}
 @media (max-width:480px){.zk-g{grid-template-columns:1fr}}
+button.klaar{opacity:1!important;background:#23845a!important;color:#fff!important;cursor:default!important;border-color:#23845a!important}
 </style>
 </head>
 <body>
@@ -1213,14 +1214,16 @@ function aanvraagData(){const R=last,v=id=>g(id).value.trim();
     telling:{floors:floors.slice(),special:{...special},freq:g("freq").value,ramen:R.count},
     prijs:{excl:Math.round(R.ex*100)/100,incl:Math.round(R.inc*100)/100},
     fotos:photos.map((p,i)=>({naam:`woning-foto-${i+1}.jpg`,breedte:p.cv.width,hoogte:p.cv.height,dots:p.dots.map(d=>({x:Math.round(d.x*1e4)/1e4,y:Math.round(d.y*1e4)/1e4,t:d.t}))}))}}
-async function naarServer(){if(!check())return;const b=g("indienen");b.disabled=true;say("Bezig met versturen…");
+function knopKlaar(b,t){b.disabled=true;b.dataset.klaar="1";b.classList.add("klaar");b.textContent=t||"Verstuurd ✓"}
+const bezig=b=>b.disabled||b.dataset.klaar==="1";
+async function naarServer(){const b=g("indienen");if(bezig(b)||!check())return;b.disabled=true;say("Bezig met versturen…");
   try{const fd=new FormData();fd.append("aanvraag",JSON.stringify(aanvraagData()));
     photos.forEach((p,i)=>fd.append("foto"+(i+1),p.blob||dataUrlBlob(p.url),`woning-foto-${i+1}.jpg`));
     fd.append("fotometa",JSON.stringify(photos.map(p=>({w:p.cv.width,h:p.cv.height,dots:p.dots.map(d=>({x:d.x,y:d.y,t:d.t}))}))));
     const r=await fetch(BEDRIJF.endpoint,{method:"POST",body:fd});if(!r.ok)throw new Error(r.status);
-    say("Bedankt! Uw aanvraag is verstuurd. Wij nemen zo snel mogelijk contact met u op.","ok")}
+    knopKlaar(b,"Aanvraag verstuurd ✓");say("Bedankt! Uw aanvraag is verstuurd. Wij nemen zo snel mogelijk contact met u op.","ok")}
   catch(e){say("Versturen lukte niet. Probeer het via WhatsApp of e-mail.","bad");g("indienen").onclick=()=>deel("mail")}
-  finally{b.disabled=false}}
+  finally{if(b.dataset.klaar!=="1")b.disabled=false}}
 function dataUrlBlob(u){const [h,d]=u.split(",");const bin=atob(d),a=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return new Blob([a],{type:h.slice(5,h.indexOf(";"))})}
 function aanvraagCode(){const d=aanvraagData();d.fotos=d.fotos.length;const j=JSON.stringify(d);return btoa(unescape(encodeURIComponent(j))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}
 /* ---------- start: particulier/zakelijk, adres zoeken (PDOK) en werkgebied ---------- */
@@ -1248,13 +1251,13 @@ const codeVan=d=>btoa(unescape(encodeURIComponent(JSON.stringify(d)))).replace(/
 function zkCheck(){for(const [id,l] of [["zk-bedrijf","de naam van het bedrijf of de VvE"],["zk-naam","de naam van de contactpersoon"],["zk-email","uw e-mailadres"]])if(!g(id).value.trim()){g(id).focus();zkSay("Vul "+l+" in.","bad");return false}
   if(!/^\S+@\S+\.\S+$/.test(g("zk-email").value.trim())){g("zk-email").focus();zkSay("Controleer uw e-mailadres.","bad");return false}return true}
 function zkTekst(d){const k=d.klant;return ["Contactverzoek bedrijf / VvE","",`Bedrijf / VvE: ${k.bedrijf}`,`Contactpersoon: ${k.naam}`,`E-mail: ${k.email}`,k.telefoon?`Telefoon: ${k.telefoon}`:"",k.adres?`Adres pand: ${k.adres}${k.postcode||k.plaats?", "+[k.postcode,k.plaats].filter(Boolean).join(" "):""}`:"",d.pand?`Soort pand: ${d.pand}`:"",k.opmerking?"\nVraag: "+k.opmerking:"","","Aanvraagcode voor "+BEDRIJF.naam+" (niet wijzigen):","ZEEM1:"+codeVan(d)].filter((l,i,a)=>l!==""||(i>0&&a[i-1]!=="")).join("\n").trim()}
-g("zkSend").onclick=async()=>{if(!zkCheck())return;const d=contactData(),b=g("zkSend");
+g("zkSend").onclick=async()=>{const b=g("zkSend");if(bezig(b)||!zkCheck())return;const d=contactData();
   if(window.ZEEM_CRM){b.disabled=true;zkSay("Bezig met versturen…");let klaar=false;
     const op=e=>{const r=e.data||{};if(r.type!=="zeem-aanvraag-ok"&&r.type!=="zeem-aanvraag-fout")return;klaar=true;window.removeEventListener("message",op);b.disabled=false;
-      if(r.type==="zeem-aanvraag-ok")zkSay("Bedankt! Uw contactverzoek is verstuurd. Wij nemen zo snel mogelijk contact met u op.","ok");else zkSay("Versturen lukte niet: "+(r.tekst||"probeer het opnieuw."),"bad")};
+      if(r.type==="zeem-aanvraag-ok")knopKlaar(b,"Verstuurd ✓");if(r.type==="zeem-aanvraag-ok")zkSay("Bedankt! Uw contactverzoek is verstuurd. Wij nemen zo snel mogelijk contact met u op.","ok");else zkSay("Versturen lukte niet: "+(r.tekst||"probeer het opnieuw."),"bad")};
     window.addEventListener("message",op);parent.postMessage({type:"zeem-aanvraag",code:codeVan(d),fotos:[]},"*");
     setTimeout(()=>{if(!klaar){window.removeEventListener("message",op);b.disabled=false;zkSay("Geen antwoord. Probeer het opnieuw.","bad")}},20000);return}
-  if(BEDRIJF.endpoint){b.disabled=true;zkSay("Bezig met versturen…");try{const fd=new FormData();fd.append("aanvraag",JSON.stringify(d));const r=await fetch(BEDRIJF.endpoint,{method:"POST",body:fd});if(!r.ok)throw 0;zkSay("Bedankt! Uw contactverzoek is verstuurd. Wij nemen zo snel mogelijk contact met u op.","ok")}catch(e){zkSay("Versturen lukte niet. Probeer het via e-mail.","bad")}finally{b.disabled=false}return}
+  if(BEDRIJF.endpoint){b.disabled=true;zkSay("Bezig met versturen…");try{const fd=new FormData();fd.append("aanvraag",JSON.stringify(d));const r=await fetch(BEDRIJF.endpoint,{method:"POST",body:fd});if(!r.ok)throw 0;knopKlaar(b,"Verstuurd ✓");zkSay("Bedankt! Uw contactverzoek is verstuurd. Wij nemen zo snel mogelijk contact met u op.","ok")}catch(e){zkSay("Versturen lukte niet. Probeer het via e-mail.","bad")}finally{if(b.dataset.klaar!=="1")b.disabled=false}return}
   location.href="mailto:"+BEDRIJF.email+"?subject="+encodeURIComponent("Contactverzoek bedrijf – "+d.klant.bedrijf)+"&body="+encodeURIComponent(zkTekst(d));
   zkSay("Uw mailprogramma opent met uw contactverzoek. Klik daar op versturen.","ok")};
 function toonSug(){const box=g("adrSug");box.hidden=!sugList.length;g("adrQ").setAttribute("aria-expanded",String(!!sugList.length));
@@ -1433,10 +1436,10 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!g("ed").hidden)clo
 g("k-pc").addEventListener("blur",e=>{const v=e.target.value.replace(/\s+/g,"").toUpperCase();e.target.value=/^\d{4}[A-Z]{2}$/.test(v)?v.slice(0,4)+" "+v.slice(4):e.target.value.toUpperCase()});
 g("goStart").onclick=()=>g("ph-in").click();
 /* geopend in het crm (Calculator bekijken): aanvraag gaat rechtstreeks het crm in als klant en opdracht */
-async function naarCrm(){if(!check())return;const b=g("indienen");b.disabled=true;say("Bezig met versturen…");
+async function naarCrm(){const b=g("indienen");if(bezig(b)||!check())return;b.disabled=true;say("Bezig met versturen…");
   const fotos=photos.map((p,i)=>({blob:p.blob||dataUrlBlob(p.url),naam:`woning-foto-${i+1}.jpg`,w:p.cv.width,h:p.cv.height,dots:p.dots.map(d=>({x:d.x,y:d.y,t:d.t}))}));
   let klaar=false;const op=e=>{const d=e.data||{};if(d.type!=="zeem-aanvraag-ok"&&d.type!=="zeem-aanvraag-fout")return;klaar=true;window.removeEventListener("message",op);b.disabled=false;
-    if(d.type==="zeem-aanvraag-ok")say("Bedankt! Uw aanvraag is verstuurd. Wij nemen zo snel mogelijk contact met u op.","ok");else say("Versturen lukte niet: "+(d.tekst||"probeer het opnieuw."),"bad")};
+    if(d.type==="zeem-aanvraag-ok")knopKlaar(b,"Aanvraag verstuurd ✓");if(d.type==="zeem-aanvraag-ok")say("Bedankt! Uw aanvraag is verstuurd. Wij nemen zo snel mogelijk contact met u op.","ok");else say("Versturen lukte niet: "+(d.tekst||"probeer het opnieuw."),"bad")};
   window.addEventListener("message",op);
   try{parent.postMessage({type:"zeem-aanvraag",code:aanvraagCode(),fotos},"*")}catch(e){window.removeEventListener("message",op);b.disabled=false;say("Versturen lukte niet.","bad");return}
   setTimeout(()=>{if(!klaar){window.removeEventListener("message",op);b.disabled=false;say("Geen antwoord van het crm. Probeer het opnieuw.","bad")}},20000)}
