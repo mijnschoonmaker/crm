@@ -120,11 +120,32 @@ if(LIVE){const at=SETCARDS.findIndex(x=>x.id==="liveOverzicht")+1;
 state.chats=state.chats||[];let chatUnsub=null,chatOpen=null;
 const chatNaam=()=>{const n=String((state.me&&(state.me.name||state.me.email))||"").split("@")[0].split(/[.\s_-]/)[0];return n?n[0].toUpperCase()+n.slice(1):""};
 const chatOngelezen=()=>(state.chats||[]).filter(c=>Number(c.ongelezenTeam)>0);
+let chatVorig=null;
 function liveChat(){if(!LIVE||chatUnsub)return;
-  chatUnsub=fsDb().collection("chats").orderBy("laatst","desc").limit(150).onSnapshot(s=>{const oud=chatOngelezen().reduce((a,c)=>a+Number(c.ongelezenTeam),0);
-    state.chats=s.docs.map(d=>({id:d.id,...d.data()}));const nw=chatOngelezen().reduce((a,c)=>a+Number(c.ongelezenTeam),0);
+  chatUnsub=fsDb().collection("chats").orderBy("laatst","desc").limit(150).onSnapshot(s=>{
+    state.chats=s.docs.map(d=>({id:d.id,...d.data()}));
     try{chatKaart()}catch(e){}if(chatOpen)try{chatLijstTeken()}catch(e){}
-    if(nw>oud&&!(chatOpen&&document.hasFocus()))toast("Nieuw chatbericht van "+cleanName((chatOngelezen()[0]||{}).klantNaam||"een klant"),[{label:"Openen",fn:()=>openChat((chatOngelezen()[0]||{}).id)}])},e=>console.error("chats",e))}
+    const nu_=Object.fromEntries(state.chats.map(c=>[c.id,Number(c.ongelezenTeam)||0]));
+    if(chatVorig===null){const l=chatOngelezen();if(l.length)chatPopup(l[0],l.length>1?l.reduce((a,c)=>a+Number(c.ongelezenTeam),0):0)}
+    else state.chats.filter(c=>c.laatsteVan==="klant"&&nu_[c.id]>(chatVorig[c.id]||0)&&!(chatOpen&&chatOpen.kid===c.id&&document.hasFocus())).forEach(c=>chatPopup(c));
+    chatVorig=nu_},e=>console.error("chats",e))}
+/* pop-up rechtsboven + geluidje + systeemmelding als het tabblad op de achtergrond staat */
+function chatGeluid(){try{const A=new (window.AudioContext||window.webkitAudioContext)(),t=A.currentTime;[[880,0],[1320,.12]].forEach(([f,d])=>{const o=A.createOscillator(),g=A.createGain();o.type="sine";o.frequency.value=f;g.gain.setValueAtTime(0,t+d);g.gain.linearRampToValueAtTime(.18,t+d+.02);g.gain.exponentialRampToValueAtTime(.001,t+d+.35);o.connect(g).connect(A.destination);o.start(t+d);o.stop(t+d+.4)});setTimeout(()=>A.close(),900)}catch(e){}}
+function chatPopup(c,totaal){
+  let box=document.getElementById("chatPops");if(!box){box=document.createElement("div");box.id="chatPops";box.className="ch-pops";box.setAttribute("aria-live","polite");document.body.appendChild(box)}
+  box.querySelectorAll(`[data-kid="${CSS.escape(c.id)}"]`).forEach(x=>x.remove());
+  const el=document.createElement("div");el.className="ch-pop";el.dataset.kid=c.id;el.setAttribute("role","alert");
+  el.innerHTML=`<span class="chx-av" style="--h:${hue(c.klantNaam||"")}">${esc(initials(cleanName(c.klantNaam||"?")))}</span><div class="ch-pop-t"><small>${I.chat||""}${totaal?totaal+" ongelezen chatberichten":"Nieuw chatbericht"}</small><b>${esc(cleanName(c.klantNaam||"Klant"))}</b><p>${esc(String(c.laatsteTekst||"").slice(0,140))}</p>
+    <div class="ch-pop-k"><button type="button" class="small primary" data-cp="open">${I.send}Beantwoorden</button><button type="button" class="small ghost" data-cp="x">Later</button></div></div><button type="button" class="iconbtn sm ghost ch-pop-x" data-cp="x" aria-label="Sluiten">${I.x}</button>`;
+  const weg=()=>{el.classList.add("weg");setTimeout(()=>el.remove(),250)};
+  el.addEventListener("click",e=>{const b=e.target.closest("[data-cp]");if(!b)return;weg();if(b.dataset.cp==="open"){if(dlg.open&&!chatOpen)dlg.close();if(chatOpen)chatGesprek(c.id);else openChat(c.id)}});
+  box.prepend(el);while(box.children.length>3)box.lastElementChild.remove();
+  setTimeout(()=>{if(el.isConnected&&!el.matches(":hover"))weg()},20000);
+  chatGeluid();
+  try{if(document.hidden&&"Notification" in window&&Notification.permission==="granted"){const n=new Notification("Chat: "+cleanName(c.klantNaam||"Klant"),{body:String(c.laatsteTekst||""),icon:"/logo.png",tag:"chat-"+c.id});n.onclick=()=>{window.focus();openChat(c.id);n.close()}}}catch(e){}
+}
+/* toestemming voor systeemmeldingen vragen bij de eerste klik in het CRM */
+if(LIVE&&"Notification" in window&&Notification.permission==="default")document.addEventListener("click",function q(){document.removeEventListener("click",q);try{Notification.requestPermission()}catch(e){}},{once:true});
 if(LIVE)setTimeout(function w(){state.loaded?liveChat():setTimeout(w,700)},900);
 function chatKaart(){const l=chatOngelezen(),n=l.reduce((a,c)=>a+Number(c.ongelezenTeam),0);
   /* zijbalk (computer) */

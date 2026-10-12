@@ -130,6 +130,7 @@ module.exports = function maakPortaal(ctx) {
   async function actie(req, S, d) {
     const k = S.klant, type = String(d.type || "");
     if (!TYPES[type]) throw new Error("onbekend");
+    if (type === "bericht") return chatStuur(null, S, { tekst: d.tekst });   // losse berichten gaan naar de chat
     if (!(await limiet("actie" + k.id, 30, 3600e3))) throw new Error("te veel");
     const txt = s => String(s || "").trim().slice(0, 1500), dt = s => /^\d{4}-\d{2}-\d{2}$/.test(String(s || "")) ? String(s) : "";
     const v = { klantId: k.id, klantNaam: k.naam || "", adres: [k.adres, k.plaats].filter(Boolean).join(", "), type, titel: TYPES[type], tekst: txt(d.tekst), status: "nieuw", op: nu(), bron: "portaal" };
@@ -282,16 +283,8 @@ module.exports = function maakPortaal(ctx) {
       t.set(ref, { klantId: k.id, klantNaam: k.naam || "", adres: [k.adres, k.plaats].filter(Boolean).join(", "), laatst: op, laatsteTekst: tekst || "Foto", laatsteVan: "klant", ongelezenTeam: (Number(v.ongelezenTeam) || 0) + 1, gezienKlant: op }, { merge: true });
       return v;
     });
-    /* melding naar het bedrijf, hooguit eens per 20 minuten per gesprek */
-    if (!vorige.laatsteMailTeam || Date.now() - new Date(vorige.laatsteMailTeam).getTime() > 20 * 60e3) {
-      try {
-        const [g, b] = await Promise.all([geheim(), bedrijf()]);
-        if (g.brevoKey && (g.meldAdres || b.email)) {
-          await brevoSend(g.brevoKey, { sender: { name: "mijnschoonmaker CRM", email: g.afzender || b.email }, to: [{ email: g.meldAdres || b.email }], subject: "Chatbericht van " + schoon(k.naam), textContent: `${schoon(k.naam)} (${[k.adres, k.plaats].filter(Boolean).join(", ")}) stuurde een bericht via het klantportaal:\n\n${tekst || "(foto)"}\n\nOpen het CRM om te antwoorden.` });
-          await ref.set({ laatsteMailTeam: nu() }, { merge: true });
-        }
-      } catch (e) { console.error("chat melding", e); }
-    }
+    /* geen mail: het bericht verschijnt direct in het CRM (chat + pop-up) */
+    void vorige;
     return { ok: true, bericht: { id, van: "klant", tekst, foto, op } };
   }
   /* CRM: klant per mail laten weten dat er een antwoord is (als hij niet net zelf in de chat zat) */

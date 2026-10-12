@@ -1867,3 +1867,14 @@ nav.tabs .badge.nk-b{padding:0 2px;height:18px}nav.tabs .badge.nk-b em{display:n
 .chx-z{flex-direction:row!important;font-size:14px;font-weight:500}.chx-z input{width:auto!important;margin:0!important}
 .chx-h .chx-hb{flex:none}
 @media (max-width:760px){.chx-hb span{display:none}.chx-hb{padding:9px 11px}.chx-r{padding:0 8px 8px}.chx-h{gap:8px}}
+
+/* pop-up nieuw chatbericht */
+.ch-pops{position:fixed;top:18px;right:18px;z-index:1000;display:flex;flex-direction:column;gap:10px;width:min(380px,calc(100vw - 24px));pointer-events:none}
+.ch-pop{pointer-events:auto;position:relative;display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--brand);border-radius:18px;padding:14px 14px 12px;box-shadow:0 24px 50px -18px rgb(15 31 38 / .45);animation:chPop .35s cubic-bezier(.2,.9,.3,1.2)}
+.ch-pop.weg{opacity:0;transform:translateX(30px);transition:all .25s}
+@keyframes chPop{from{opacity:0;transform:translateX(40px) scale(.96)}to{opacity:1;transform:none}}
+.ch-pop-t{flex:1;min-width:0}.ch-pop-t small{display:flex;align-items:center;gap:6px;color:var(--brand);font-weight:800;font-size:12px}.ch-pop-t small svg{width:14px;height:14px}
+.ch-pop-t b{display:block;font-size:15px;margin-top:2px}.ch-pop-t p{margin:3px 0 10px;color:var(--muted);font-size:14px;line-height:1.4;overflow-wrap:anywhere}
+.ch-pop-k{display:flex;gap:6px}.ch-pop-x{position:absolute;top:8px;right:8px;width:28px;height:28px}
+@media (max-width:600px){.ch-pops{top:calc(10px + env(safe-area-inset-top));right:12px}}
+@media (prefers-reduced-motion:reduce){.ch-pop{animation:none}}

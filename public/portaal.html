@@ -586,7 +586,8 @@ const FORM={
     <p class="fout" role="alert"></p><div class="acties"><button class="" data-sluit>Annuleren</button><button class="primary" data-go>Opslaan</button></div>`,
     o=>{const c=o.querySelector("#vc");o.querySelector("#vcz").onclick=()=>{c.type=c.type==="password"?"text":"password"};
       o.querySelector("[data-go]").onclick=()=>verstuur(o,{type:"toegang",opties:[...o.querySelectorAll(".keus input:checked")].map(x=>x.value),tekst:o.querySelector("#vt").value,code:c.value},"Opgeslagen","Uw glazenwasser ziet dit bij het volgende bezoek.")})},
-  bericht(){blad(`<h3>Bericht sturen</h3><p class="sub">Een vraag, compliment of iets dat beter kan. We lezen alles.</p>
+  bericht(){tab="chat";teken();scrollTo({top:0})},
+  berichtOud(){blad(`<h3>Bericht sturen</h3><p class="sub">Een vraag, compliment of iets dat beter kan. We lezen alles.</p>
     <label class="veld"><span>Uw bericht</span><textarea id="vt" style="min-height:140px"></textarea></label>
     <p class="fout" role="alert"></p><div class="acties"><button class="" data-sluit>Annuleren</button><button class="primary" data-go>Versturen</button></div>`,
     o=>o.querySelector("[data-go]").onclick=()=>verstuur(o,{type:"bericht",tekst:o.querySelector("#vt").value},"Bericht ontvangen","Dank u wel. We reageren zo snel mogelijk."))},
