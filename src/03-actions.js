@@ -13,7 +13,8 @@ async function afronden(k,mode,el){
   if(typeof isOBeurt==="function"&&isOBeurt(k)&&!k.tellingGecontroleerd&&!k._tcSkip){const a=await vraag("Telling nog niet gecontroleerd",`Dit is de O-beurt van <b>${esc(cleanName(k.naam))}</b>. Controleer eerst ter plekke of de telling van de klant klopt.`,"Toch afmelden","Telling controleren");
     if(a===null){render();return}if(a===false){render();openTellingControle(k.id);return}}
   const _lm=lopendeMin(k),_mp=_lm&&_lm>=1?metingPatch(k,_lm):null,_last=(k.tijden||[]).slice(-1)[0],_dur=_mp?_lm:_last&&_last.datum===iso(today())?_last.min:duur(k);if(_mp)k={...k,..._mp};
-  const direct=mode==="concept"&&!!k.directFactureren;if(direct)mode="open";
+  const _mw=isMw();if(_mw)mode="concept";/* medewerker: altijd concept, kantoor controleert en verstuurt */
+  const direct=mode==="concept"&&!!k.directFactureren&&!_mw;if(direct)mode="open";
   const d=iso(today()),st=S(),bId=newId("b"),fId=newId("f"),prev={laatst:k.laatst||"",gepland:k.gepland||"",bezig:k.bezig||""};
   let _rr=null;try{if(k.ramenRegel&&ramenVariabel(normR(k.ramenRegel))){const {q,due}=ramenDue(k,d),b=ramenBerekening(q,Number(k.frequentie)||4,due),mul=st.incl?1+(Number(st.btw)||21)/100:1;
     _rr={q,due,bedrag:r2(b.ex*mul),regels:[...(b.rows.length?[{omschrijving:(k.dienst||"Glasbewassing")+" "+b.rows.map(r=>r.naam.toLowerCase()).join(", ")+(k.verbergAantal?"":", "+b.count+" ramen")+regelExtra(k),aantal:1,prijs:r2((b.glas+b.start)*mul)}]:[]),...(b.kozP?[{omschrijving:"Kozijnreiniging "+b.krows.map(r=>r.naam.toLowerCase()).join(", "),aantal:1,prijs:r2(b.kozP*mul)}]:[])]}}}catch(e){console.error(e);_rr=null}
@@ -51,6 +52,7 @@ async function afronden(k,mode,el){
     let nx="",_rk=reeksNa(k);if(_rk)nx=_rk.gepland;else if(k.autoplan){nx=iso(werkdagAanpassen(addDays(today(),freqDays(k))))}
     await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",artikelen:[],bevindingen:[],...(k.opdrachtVerwijderd?{actief:false}:{}),opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,gepland:nx,...(_rk?{tijd:_rk.tijd,reeks:_rk.reeks}:{}),...(_tg||{}),bezig:""});aanbevelingVrijgeven(k.id);
     const undo=async()=>{try{await del("facturen",fId);await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
+    if(_mw){toast(cleanName(k.naam)+" afgemeld",[{label:"Ongedaan",fn:undo}]);return}
     toast(mode==="open"?cleanName(k.naam)+(f.status==="betaald"?" afgerekend ("+st.betaalwijze+") · ":" gefactureerd · ")+f.nummer:cleanName(k.naam)+" afgemeld · conceptfactuur klaar",
       [{label:"Ongedaan",fn:undo},...(mode==="open"?[{label:"Versturen",fn:()=>sendF(fId)}]:[{label:"Bericht",fn:()=>openCompose({title:"Werk voltooid · "+cleanName(k.naam),sjabloon:"voltooid",recipients:[{k,vars:klantVars(k,today()),ref:""}]})}])]);
     if(direct&&f.status!=="betaald"){let n=0;const go=()=>{if(state.facturen.some(x=>x.id===fId))sendF(fId);else if(++n<30)setTimeout(go,100)};setTimeout(go,300)}

@@ -1992,3 +1992,19 @@ body:has(.pl-meer.open) .fab-plan{display:none}
 .dg-t{display:flex;flex-direction:column;width:100%;height:100%;text-align:center}.dg-t i{font-style:normal;font-size:7.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:3px 0 2px;background:var(--brand);color:#fff}
 .dg-t b{flex:1;display:grid;place-items:center;font-size:17px;font-weight:800;letter-spacing:-.03em;color:var(--ink)}.dg-t b .kc-s{font-size:14px}
 .of-st span{font-weight:600;opacity:.8}.of-st b{font-weight:800}
+
+/* ---------- Medewerker: alleen het werk, geen bedragen of planningskeuzes ---------- */
+body.mw .amt,body.mw .sc-p,body.mw .jp-amt,body.mw .mw-hide,body.mw [data-act="afsprdel"],body.mw [data-act="autoplan"],
+body.mw [data-act="bulktoday"],body.mw [data-act="bulkmsg"],body.mw [data-act="plantoday"],body.mw [data-act="settings"],body.mw [data-act="tab"][data-tab="instellingen"],
+body.mw [data-act="tab"][data-tab="planning"],body.mw [data-act="optim"],body.mw #tkCard,body.mw #ptCard,body.mw #nieuwCard,body.mw #tkFab,body.mw #chatPops,body.mw .fab-plan{display:none!important}
+.kv-mw{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0}
+.kv-mw>div{background:var(--surface-2);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.kv-mw small{color:var(--muted);font-size:11.5px;font-weight:600}
+.kv-mw b{font-size:14px}
+body.mw .jp-svc>div>span:last-child:not(.jp-ic){display:none}
+.kv-mw b{overflow-wrap:anywhere;font-size:13.5px}
+.vz-body{padding:14px 4px;overflow:auto}.vz-body .pt-vz{border:0;padding:0;background:none;box-shadow:none}
+.tk-seg .tk-n{font-style:normal;display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--brand);color:#fff;font-size:11px;font-weight:700;margin-left:4px}
+.chx-l .tk-seg{display:grid!important;grid-template-columns:repeat(4,auto);gap:2px;flex-wrap:nowrap}
+.chx-l .tk-seg button{padding:7px 6px;font-size:12.5px;white-space:nowrap;min-width:0}
+.chx-l .tk-seg .tk-n{min-width:16px;height:16px;font-size:10px;margin-left:3px}

@@ -2406,6 +2406,22 @@ body:has(.pl-meer.open) .fab-plan{display:none}
 .dg-t b{flex:1;display:grid;place-items:center;font-size:17px;font-weight:800;letter-spacing:-.03em;color:var(--ink)}.dg-t b .kc-s{font-size:14px}
 .of-st span{font-weight:600;opacity:.8}.of-st b{font-weight:800}
 
+/* ---------- Medewerker: alleen het werk, geen bedragen of planningskeuzes ---------- */
+body.mw .amt,body.mw .sc-p,body.mw .jp-amt,body.mw .mw-hide,body.mw [data-act="afsprdel"],body.mw [data-act="autoplan"],
+body.mw [data-act="bulktoday"],body.mw [data-act="bulkmsg"],body.mw [data-act="plantoday"],body.mw [data-act="settings"],body.mw [data-act="tab"][data-tab="instellingen"],
+body.mw [data-act="tab"][data-tab="planning"],body.mw [data-act="optim"],body.mw #tkCard,body.mw #ptCard,body.mw #nieuwCard,body.mw #tkFab,body.mw #chatPops,body.mw .fab-plan{display:none!important}
+.kv-mw{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0}
+.kv-mw>div{background:var(--surface-2);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.kv-mw small{color:var(--muted);font-size:11.5px;font-weight:600}
+.kv-mw b{font-size:14px}
+body.mw .jp-svc>div>span:last-child:not(.jp-ic){display:none}
+.kv-mw b{overflow-wrap:anywhere;font-size:13.5px}
+.vz-body{padding:14px 4px;overflow:auto}.vz-body .pt-vz{border:0;padding:0;background:none;box-shadow:none}
+.tk-seg .tk-n{font-style:normal;display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--brand);color:#fff;font-size:11px;font-weight:700;margin-left:4px}
+.chx-l .tk-seg{display:grid!important;grid-template-columns:repeat(4,auto);gap:2px;flex-wrap:nowrap}
+.chx-l .tk-seg button{padding:7px 6px;font-size:12.5px;white-space:nowrap;min-width:0}
+.chx-l .tk-seg .tk-n{min-width:16px;height:16px;font-size:10px;margin-left:3px}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -2578,7 +2594,7 @@ const TPL={
   uitloop:{naam:"Planning loopt uit",doel:"Later dan gepland door weer of drukte",cat:"Groepsbericht",onderwerp:"Uw glasbewassing komt iets later – [name.company]",mail:"Beste [name.customer],\n\nDoor de weersomstandigheden van de afgelopen tijd loopt onze planning op dit moment iets uit. Uw glasbewassing vindt daardoor later plaats dan u van ons gewend bent.\n\nWij werken de achterstand zo snel mogelijk weg. Twee dagen voor uw afspraak ontvangt u een bericht met de nieuwe datum en het tijdstip.\n\nExcuses voor het ongemak en bedankt voor uw geduld.\n\nMet vriendelijke groet,\n[name.company]",sms:"Hoi [name.customer], door het weer loopt onze planning wat uit. U krijgt 2 dagen vooraf bericht met de nieuwe datum. Excuses! [name.company]"},
   update:{naam:"Update / nieuws",doel:"Klanten op de hoogte brengen",cat:"Groepsbericht",onderwerp:"Nieuws van [name.company]",mail:"Beste [name.customer],\n\nGraag brengen wij u op de hoogte van een aantal ontwikkelingen bij [name.company].\n\n• \n• \n\nHeeft u vragen? Beantwoord gerust deze e-mail of neem contact met ons op via [phone.company].\n\nMet vriendelijke groet,\n[name.company]",sms:"Hoi [name.customer], nieuws van [name.company]: "},
   prijs:{naam:"Tariefaanpassing",doel:"Nieuwe prijzen aankondigen",cat:"Groepsbericht",onderwerp:"Aanpassing tarieven – [name.company]",mail:"Beste [name.customer],\n\nIeder jaar kijken wij kritisch naar onze tarieven. Door gestegen kosten voor onder andere loon, materialen en brandstof passen wij per 1 januari onze prijzen licht aan.\n\nDe nieuwe prijs ziet u terug op uw eerstvolgende factuur. Uiteraard blijven wij u dezelfde kwaliteit en service bieden.\n\nHeeft u vragen? Neem gerust contact met ons op via [phone.company].\n\nMet vriendelijke groet,\n[name.company]",sms:""},
-  voorlopig:{naam:"Voorlopig bestellingsoverzicht",doel:"Na aanmelding via de websitecalculator",cat:"Welkom",onderwerp:"[name.company] - Voorlopig bestellingsoverzicht [nr.invoice]",mail:"Beste [firstname.customer],\n\nBedankt voor uw bestelling via mijnschoonmaker.com.\nIn de bijlage vindt u uw voorlopige bestellingsoverzicht en onze algemene voorwaarden.\n\nUw eerste bezoek\nTijdens uw eerste bezoek voeren we de door u bestelde diensten uit. Dit eerste bezoek noemen we de 0-beurt. We controleren daarbij ook of de opgegeven aantallen overeenkomen met de situatie ter plaatse. Mocht hierin een verschil zitten, dan kan dit gevolgen hebben voor de prijs. Meer informatie hierover vindt u in onze algemene voorwaarden.\nDe planning\nWe plannen uw woning in op een passende route, waarbij we afspraken zoveel mogelijk per omgeving combineren. Hierdoor kan het eerste bezoek iets langer op zich laten wachten. Houd rekening met een wachttijd van ongeveer 2 tot 8 weken.\n\nNa uw eerste bezoek komen we iedere 8 weken bij u langs. Twee dagen voor iedere afspraak ontvangt u een e-mail met de datum en het tijdstip.\nZodra uw eerste bezoek is ingepland, ontvangt u hiervan bericht.\n\nMet vriendelijke groet,\nmijnschoonmaker.com\nWhatsapp: [06 18 06 06 06](https://wa.me/message/GPFV7VR2JSCHC1) | ma - vrij 10:00 uur - 17:30 uur",sms:""},
+  voorlopig:{naam:"Voorlopig bestellingsoverzicht",doel:"Na aanmelding via de websitecalculator",cat:"Welkom",onderwerp:"[name.company] - Voorlopig bestellingsoverzicht [nr.invoice]",mail:"Beste [firstname.customer],\n\nBedankt voor uw bestelling via mijnschoonmaker.com.\nIn de bijlage vindt u uw voorlopige bestellingsoverzicht en onze algemene voorwaarden.\n\nUw eerste bezoek\nTijdens uw eerste bezoek voeren we de door u bestelde diensten uit. Dit eerste bezoek noemen we de O-beurt. We controleren daarbij ook of de opgegeven aantallen overeenkomen met de situatie ter plaatse. Mocht hierin een verschil zitten, dan kan dit gevolgen hebben voor de prijs. Meer informatie hierover vindt u in onze algemene voorwaarden.\nDe planning\nWe plannen uw woning in op een passende route, waarbij we afspraken zoveel mogelijk per omgeving combineren. Hierdoor kan het eerste bezoek iets langer op zich laten wachten. Houd rekening met een wachttijd van ongeveer 2 tot 8 weken.\n\nNa uw eerste bezoek komen we iedere 8 weken bij u langs. Twee dagen voor iedere afspraak ontvangt u een e-mail met de datum en het tijdstip.\nZodra uw eerste bezoek is ingepland, ontvangt u hiervan bericht.\n\nMet vriendelijke groet,\nmijnschoonmaker.com\nWhatsapp: [06 18 06 06 06](https://wa.me/message/GPFV7VR2JSCHC1) | ma - vrij 10:00 uur - 17:30 uur",sms:""},
   definitief:{naam:"Definitief bestellingsoverzicht",doel:"Na de tellingcontrole of een ondertekende offerte",cat:"Welkom",onderwerp:"[name.company] - Definitief bestellingsoverzicht [nr.invoice]",mail:"Beste [firstname.customer],\n\nHartelijk dank voor uw vertrouwen in mijnschoonmaker.com.\nBijgaand ontvangt u het definitieve bestellingsoverzicht van de door u gekozen diensten.\n\nUw overeenkomst heeft een standaardlooptijd van één jaar.\nNa deze periode zetten wij de dienstverlening voort volgens de afgesproken frequentie, totdat de overeenkomst wordt beëindigd conform onze algemene voorwaarden.\nOp deze overeenkomst zijn onze algemene voorwaarden van toepassing.\n\nMet vriendelijke groet,\nmijnschoonmaker.com",sms:""},
   aankondiging:{naam:"Aankondiging",doel:"Vaste beurt aankondigen",onderwerp:"Aankondiging: glasbewassing op [date.appointment] – [name.company]",mail:"Beste [firstname.customer],\n\nOp [date.appointment] komen we bij u langs, rond [time.appointment] uur *\n\nWe voeren dan de volgende werkzaamheden uit aan de [address.appointment] [housenumber.appointment]:\n[services.appointment]\n\nGraag vragen we u vooraf rekening te houden met het volgende:\n• Ramen en ventilatieroosters gesloten houden\n• Horren verwijderen en rolluiken openen\n• Poorten en hekwerk toegankelijk maken\n• Voldoende ruimte rondom de ramen vrijhouden\n• Een eventuele robotmaaier tijdelijk uitschakelen\n\nMocht er vooraf iets zijn waar we rekening mee moeten houden, laat het ons gerust weten.\n\nMet vriendelijke groet,\n[name.company]\n\n* Het genoemde tijdstip is een richttijd. Door route-, weers- of verkeersomstandigheden kan onze aankomst circa 45 minuten eerder of later zijn. Wanneer onderdelen niet toegankelijk zijn of niet zijn voorbereid, kan het voorkomen dat bepaalde werkzaamheden niet kunnen worden uitgevoerd. De gereserveerde tijd en prijs voor uw woning blijft in dat geval ongewijzigd.",sms:"Hoi [name.customer], op [date.appointment] [timeslot.appointment] komen we uw ramen wassen. Graag de poort open laten. [name.company]"},
   afkondiging:{naam:"Afkondiging",doel:"Bevestigen dat het werk klaar is",onderwerp:"Bevestiging: glasbewassing [date.appointment] afgerond – [name.company]",mail:"Beste [name.customer],\n\nDe werkzaamheden zijn inmiddels afgerond.\nIn de bijlage vindt u de factuur. U kunt deze eenvoudig voldoen via onderstaande betaallink.\n\n[mollielink.invoice]\n\nMet vriendelijke groet,\n[name.company]",sms:"[name.company]: de glasbewassing van [date.appointment] is voltooid. Bedrag: [price.appointment]. Bedankt!"},
@@ -2959,7 +2975,8 @@ async function afronden(k,mode,el){
   if(typeof isOBeurt==="function"&&isOBeurt(k)&&!k.tellingGecontroleerd&&!k._tcSkip){const a=await vraag("Telling nog niet gecontroleerd",`Dit is de O-beurt van <b>${esc(cleanName(k.naam))}</b>. Controleer eerst ter plekke of de telling van de klant klopt.`,"Toch afmelden","Telling controleren");
     if(a===null){render();return}if(a===false){render();openTellingControle(k.id);return}}
   const _lm=lopendeMin(k),_mp=_lm&&_lm>=1?metingPatch(k,_lm):null,_last=(k.tijden||[]).slice(-1)[0],_dur=_mp?_lm:_last&&_last.datum===iso(today())?_last.min:duur(k);if(_mp)k={...k,..._mp};
-  const direct=mode==="concept"&&!!k.directFactureren;if(direct)mode="open";
+  const _mw=isMw();if(_mw)mode="concept";/* medewerker: altijd concept, kantoor controleert en verstuurt */
+  const direct=mode==="concept"&&!!k.directFactureren&&!_mw;if(direct)mode="open";
   const d=iso(today()),st=S(),bId=newId("b"),fId=newId("f"),prev={laatst:k.laatst||"",gepland:k.gepland||"",bezig:k.bezig||""};
   let _rr=null;try{if(k.ramenRegel&&ramenVariabel(normR(k.ramenRegel))){const {q,due}=ramenDue(k,d),b=ramenBerekening(q,Number(k.frequentie)||4,due),mul=st.incl?1+(Number(st.btw)||21)/100:1;
     _rr={q,due,bedrag:r2(b.ex*mul),regels:[...(b.rows.length?[{omschrijving:(k.dienst||"Glasbewassing")+" "+b.rows.map(r=>r.naam.toLowerCase()).join(", ")+(k.verbergAantal?"":", "+b.count+" ramen")+regelExtra(k),aantal:1,prijs:r2((b.glas+b.start)*mul)}]:[]),...(b.kozP?[{omschrijving:"Kozijnreiniging "+b.krows.map(r=>r.naam.toLowerCase()).join(", "),aantal:1,prijs:r2(b.kozP*mul)}]:[])]}}}catch(e){console.error(e);_rr=null}
@@ -2997,6 +3014,7 @@ async function afronden(k,mode,el){
     let nx="",_rk=reeksNa(k);if(_rk)nx=_rk.gepland;else if(k.autoplan){nx=iso(werkdagAanpassen(addDays(today(),freqDays(k))))}
     await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",artikelen:[],bevindingen:[],...(k.opdrachtVerwijderd?{actief:false}:{}),opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,gepland:nx,...(_rk?{tijd:_rk.tijd,reeks:_rk.reeks}:{}),...(_tg||{}),bezig:""});aanbevelingVrijgeven(k.id);
     const undo=async()=>{try{await del("facturen",fId);await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
+    if(_mw){toast(cleanName(k.naam)+" afgemeld",[{label:"Ongedaan",fn:undo}]);return}
     toast(mode==="open"?cleanName(k.naam)+(f.status==="betaald"?" afgerekend ("+st.betaalwijze+") · ":" gefactureerd · ")+f.nummer:cleanName(k.naam)+" afgemeld · conceptfactuur klaar",
       [{label:"Ongedaan",fn:undo},...(mode==="open"?[{label:"Versturen",fn:()=>sendF(fId)}]:[{label:"Bericht",fn:()=>openCompose({title:"Werk voltooid · "+cleanName(k.naam),sjabloon:"voltooid",recipients:[{k,vars:klantVars(k,today()),ref:""}]})}])]);
     if(direct&&f.status!=="betaald"){let n=0;const go=()=>{if(state.facturen.some(x=>x.id===fId))sendF(fId);else if(++n<30)setTimeout(go,100)};setTimeout(go,300)}
@@ -3649,22 +3667,26 @@ function vVandaag(){
   const emptyHtml=!todo.length?(stops.length?empty("Klaar voor vandaag","Alle stops zijn afgerond. Goed gewerkt!"):empty(isT?"Niets op de planning vandaag":"Niets gepland op deze dag","Plan klanten in via Planning, dan staan ze hier.",`<button type="button" class="primary" data-act="tab" data-tab="planning">${I.planning}Naar planning</button>`)):"";
   if(big()){
     return `<div class="withside"><div class="mainc">${top}
-      <div class="strip"><span><b>${eur0(omzet)}</b> / ${eur0(verwacht)}</span><span><b>${doneB.length}</b>/${total} klaar</span><span><b>${todo.length}</b> te gaan</span><span class="strip-bar"><i style="width:${pct}%"></i></span><b class="c-brand">${pct}%</b></div>
-      ${aanmeldBanner()}${noteHtml}${dueHtml}
-      ${todo.length?`<div class="ns-head sm"><h2>Volgende stop</h2><span>Veeg of klik · links → factureren · rechts → afmelden</span></div><div class="list" style="gap:8px">${todo.map(s=>stopRow(s.k,d)).join("")}</div>
+      <div class="strip">${isMw()?"":`<span><b>${eur0(omzet)}</b> / ${eur0(verwacht)}</span>`}<span><b>${doneB.length}</b>/${total} klaar</span><span><b>${todo.length}</b> te gaan</span><span class="strip-bar"><i style="width:${pct}%"></i></span><b class="c-brand">${pct}%</b></div>
+      ${aanmeldBanner()}${noteHtml}${isMw()?"":dueHtml}
+      ${todo.length?`<div class="ns-head sm"><h2>Volgende stop</h2><span>${isMw()?"Tik voor adres en instructies · veeg rechts → afmelden":"Veeg of klik · links → factureren · rechts → afmelden"}</span></div><div class="list" style="gap:8px">${todo.map(s=>stopRow(s.k,d)).join("")}</div>
         <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap"><button type="button" data-act="toroute" data-d="${d}">${I.route}Jouw route</button><button type="button" data-act="bulktoday">${I.msg}Bericht aan deze klanten</button></div>`:emptyHtml}
       ${doneB.length?`<div class="ns-head sm"><h2>Afgerond</h2></div><div class="list" style="gap:8px">${doneB.map(b=>{const k=state.klanten.find(x=>x.id===b.klantId);return k?stopRow(k,d,true):""}).join("")}</div>`:""}
-      </div><aside class="rpanel"><div class="rp-sec"><span class="eyebrow rp-h">${I.pin}Route preview</span>${routePreview(stops)}</div><div class="rp-sec"><span class="eyebrow rp-h">${I.spark}Activiteit</span>${activiteit(d)}</div></aside></div>`;
+      </div><aside class="rpanel"><div class="rp-sec"><span class="eyebrow rp-h">${I.pin}Route preview</span>${routePreview(stops)}</div>${isMw()?"":`<div class="rp-sec"><span class="eyebrow rp-h">${I.spark}Activiteit</span>${activiteit(d)}</div>`}</aside></div>`;
   }
-  let html=top+`<div class="omzetcard">
+  let html=top+(isMw()?`<div class="omzetcard">
+    <span class="eyebrow">Jouw dag</span>
+    <b class="oc-big">${doneB.length} <span style="color:var(--muted);font-weight:600">/ ${total}</span></b><span class="oc-sub">${todo.length?plural(todo.length,"stop","stops")+" te gaan":"alles afgerond"}</span>
+    <div class="oc-bar"><i style="width:${pct}%"></i></div>
+  </div>`:`<div class="omzetcard">
     <span class="eyebrow">Dag-omzet <span style="text-transform:none;letter-spacing:0;font-weight:600">· ex btw</span></span>
     <b class="oc-big">${eur0(omzet)}</b><span class="oc-sub">van <b>${eur0(verwacht)}</b> verwacht</span>
     <div class="oc-bar"><i style="width:${verwacht?Math.min(100,omzet/verwacht*100):0}%"></i></div>
     <div class="oc-grid"><div><span class="eyebrow">Stops</span><b>${total}</b></div><div><span class="eyebrow">Klaar</span><b class="c-brand">${doneB.length}</b></div><div><span class="eyebrow">Te gaan</span><b>${todo.length}</b></div><div><span class="eyebrow">Voortgang</span><b>${pct}%</b></div></div>
-  </div>${aanmeldBanner()}${noteHtml}${dueHtml}`;
+  </div>`)+`${aanmeldBanner()}${noteHtml}${isMw()?"":dueHtml}`;
   if(!todo.length)html+=emptyHtml;
   else{
-    html+=`<div class="ns-head"><h2>Volgende stop</h2><span>Veeg links → factureren · rechts → afmelden</span></div>
+    html+=`<div class="ns-head"><h2>Volgende stop</h2><span>${isMw()?"Veeg rechts → afmelden":"Veeg links → factureren · rechts → afmelden"}</span></div>
     <div class="list">${stopCard(todo[0].k,0,true,parse(todo[0].k.gepland)<t,d)}</div>
     ${todo.length>1?`<h2 style="margin-top:24px">Daarna <small class="mono" style="font-size:13px;color:var(--muted);font-weight:400">${plural(todo.length-1,"stop","stops")}</small></h2><div class="list">${todo.slice(1).map((s,i)=>stopCard(s.k,i+1,false,parse(s.k.gepland)<t,d)).join("")}</div>`:""}
     <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap"><button type="button" data-act="bulktoday">${I.msg}Bericht aan deze klanten</button><button type="button" data-act="toroute" data-d="${d}">Volgorde aanpassen</button></div>`;
@@ -3694,12 +3716,12 @@ function openJob(id,day){
     <div><span class="eyebrow">Diensten</span><div class="jp-svc">${diensten.map(([n,p])=>`<div><span class="jp-ic">${I.wrench}</span><b>${esc(n)}${k.binnen?" (buiten en binnen)":""}</b><span>${eur(toon(p))}</span></div>`).join("")}</div></div>
     ${oBeurtBlok(k)}${hospRoute(k)}${toegangHtml(k)}${ookDezeBeurt(k,typeof day!=="undefined"?day:undefined)}${k.notities?`<div class="notebox"><span class="eyebrow">Notitie</span>${esc(k.notities)}</div>`:""}${objInfo(k)}${jobExtra(k)}
     ${(()=>{const fl=jobFotos(k);return fl.length?`<div><span class="eyebrow">Foto's · ${fl.reduce((a,f)=>a+(f.dots||[]).length,0)} ramen aangetikt</span><div class="jp-fotos" style="margin-top:6px">${fl.map((f,j)=>fotoCard(f,j,false).replace('data-fi=','data-jfi=')).join("")}</div></div>`:""})()}
-    ${k.gepland?`<div><span class="eyebrow">${I.cal2}Meervoudig inplannen</span>${reeksBlok(k)}</div>`:""}
-    <div><span class="eyebrow">${I.refresh}Automatisch doorplannen</span>
+    ${k.gepland?`<div class="mw-hide"><span class="eyebrow">${I.cal2}Meervoudig inplannen</span>${reeksBlok(k)}</div>`:""}
+    <div class="mw-hide"><span class="eyebrow">${I.refresh}Automatisch doorplannen</span>
       <div class="jp-auto"><div class="jp-ar"><div><b>${esc(k.dienst||"Glasbewassing")} · elke ${Number(k.frequentie)||4} weken</b><small>${k.autoplan?`Staat aan · na afmelden wordt de volgende beurt ingepland op ${esc(fmtL(nxt))}${k.tijd?" om "+esc(k.tijd):""}`:"Staat uit · de klant verschijnt bij Te plannen als hij weer aan de beurt is"}</small></div><span class="pill ${k.autoplan?"ok":""}">${k.autoplan?"AAN":"UIT"}</span></div>
       <div class="jp-ar2"><button type="button" class="${k.autoplan?"":"dark"}" data-act="autoplan" data-id="${esc(k.id)}">${I.refresh}${k.autoplan?"Doorplannen uitzetten":"Doorplannen aanzetten"}</button><small class="help">Aan = na elke afmelding staat de volgende beurt direct in de planning, op dezelfde tijd. Valt die op een vrije dag, dan schuift hij naar de dichtstbijzijnde werkdag.</small></div></div></div>
   </div>
-  <div class="jp-foot">${done?`<button type="button" disabled>${I.check}Afgerond</button>`:`${day===iso(today())?`<button type="button" data-act="start" data-id="${esc(k.id)}">${isBezig(k)?I.check+"Stop &amp; afmelden "+timerHtml(k):I.play+"Start"}</button>`:""}<button type="button" class="ghost" data-act="factureren" data-id="${esc(k.id)}">${I.facturen}Direct factureren</button><button type="button" class="primary" data-act="afmelden" data-id="${esc(k.id)}">${I.check}Afmelden</button>`}</div>
+  <div class="jp-foot">${done?`<button type="button" disabled>${I.check}Afgerond</button>`:`${day===iso(today())?`<button type="button" data-act="start" data-id="${esc(k.id)}">${isBezig(k)?I.check+"Stop &amp; afmelden "+timerHtml(k):I.play+"Start"}</button>`:""}${isMw()?"":`<button type="button" class="ghost" data-act="factureren" data-id="${esc(k.id)}">${I.facturen}Direct factureren</button>`}<button type="button" class="primary" data-act="afmelden" data-id="${esc(k.id)}">${I.check}Afmelden</button>`}</div>
   </div>`,{drawer:true});
 }
 
@@ -3710,13 +3732,13 @@ function vRoute(){
   const pct=stops.length?Math.round((stops.length-todo.length)/stops.length*100):0,C=2*Math.PI*54;
   let html=`<div class="pagehead rt"><div><p class="kicker">${I.route}${longD(d)} <span class="pill brand">wk ${weekNr(d)}</span></p><h1 class="xl">Route <span class="rt-who">${esc((state.me&&state.me.name?state.me.name.split(" ")[0]:"")||cleanName(S().naam)||"")}</span></h1><p class="lead" style="margin:0">${plural(todo.length,"stop","stops")} te gaan · ${doneB.length} afgerond</p></div>
     <div class="acts"><div class="datenav"><button type="button" class="ghost" data-act="rday" data-n="-1" aria-label="Vorige dag">${I.left}</button><b>${fmtNum(d)}</b><button type="button" class="ghost" data-act="rday" data-n="1" aria-label="Volgende dag">${I.right}</button></div>${day===iso(today())?"":`<button type="button" data-act="rday" data-n="0">Vandaag</button>`}</div></div>
-  <div class="verdiend"><div style="flex:1;min-width:0"><span class="eyebrow">Verdiend</span><b class="oc-big">${eur0(verdiend)}</b><span class="oc-sub">van <b>${eur0(totaal)}</b></span><div class="oc-bar" style="max-width:420px"><i style="width:${totaal?verdiend/totaal*100:0}%"></i></div></div>
+  <div class="verdiend">${isMw()?`<div style="flex:1;min-width:0"><span class="eyebrow">Jouw dag</span><b class="oc-big">${doneB.length} <span style="color:var(--muted);font-weight:600">/ ${stops.length}</span></b><span class="oc-sub">${todo.length?plural(todo.length,"stop","stops")+" te gaan":"alles afgerond"}</span><div class="oc-bar" style="max-width:420px"><i style="width:${pct}%"></i></div></div>`:`<div style="flex:1;min-width:0"><span class="eyebrow">Verdiend</span><b class="oc-big">${eur0(verdiend)}</b><span class="oc-sub">van <b>${eur0(totaal)}</b></span><div class="oc-bar" style="max-width:420px"><i style="width:${totaal?verdiend/totaal*100:0}%"></i></div></div>`}
     <div class="ring"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="54" stroke="var(--surface-3)" stroke-width="9" fill="none"/><circle cx="60" cy="60" r="54" stroke="var(--brand)" stroke-width="9" fill="none" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pct/100)}" transform="rotate(-90 60 60)"/></svg><span><b>${pct}%</b><small>Klaar</small></span></div></div>`;
   if(!stops.length)return html+empty("Geen stops op deze dag","Plan klanten in via Planning, dan staan ze hier op volgorde.",`<button type="button" class="primary" data-act="tab" data-tab="planning">${I.planning}Naar planning</button>`);
   if(todo.length){
     const k=todo[0].k,a=jobAddrObj(k),js=jobState(k,day),sp=STATEPILL[js],tel=String(k.telefoon||"").replace(/[^\d+]/g,"");
     html+=`<div class="ns-head sm"><h2><span class="dotlive"></span>Volgende stop</h2><span class="mono">${stops.length-todo.length+1} / ${stops.length}</span></div>
-    <div class="ns-hint">Veeg de kaart: ${I.left}<b>direct factureren</b><span>·</span><b>afmelden</b>${I.right}</div>
+    <div class="ns-hint">${isMw()?`Veeg de kaart naar rechts: <b>afmelden</b>${I.right}`:`Veeg de kaart: ${I.left}<b>direct factureren</b><span>·</span><b>afmelden</b>${I.right}`}</div>
     <div class="swipe bs-swipe" data-id="${esc(k.id)}"><div class="sbg sbg-r"><span>${I.check} Afmelden<small>conceptfactuur</small></span></div><div class="sbg sbg-l"><span>Direct factureren<small>open factuur</small></span></div>
     <div class="swipe-card bigstop"><div class="bs-top"><span class="av" style="--h:${hue(k.ronde||k.naam)};grid-row:auto">${esc(initials(k.naam))}</span><div style="min-width:0;flex:1">${statusPill(sp[0],sp[1])}<button type="button" class="bs-nm" data-act="klant" data-id="${esc(k.id)}">${esc(cleanName(k.naam))}</button><div class="sc-sub" style="font-size:16px"><span class="dienst">${I.pin}${esc(jobAddr(k))}</span></div></div></div>
       <div class="chips" style="margin:0">${k.tijd?`<span class="chip">${I.clock} ${esc(k.tijd)}</span>`:""}${(()=>{const bm=berekendeMin(k,day),n=(k.tijden||[]).length;return (bm?`<span class="chip chip-calc" title="Zoals berekend in de offerte / rekentool">${I.calculator} berekend ${bm} min</span>`:"")+`<span class="chip" title="${n?"Gemiddelde van de laatste "+Math.min(5,n)+" metingen":"Nog niet gemeten"}">${I.timer} ${n?"gem. "+gemTijd(k):bm?"nog niet gemeten":duur(k)+""}${n||!bm?" min":""}</span>`})()}<span class="chip">€ ${esc(String(k.prijs||0).replace(".",","))}</span><span class="chip">${I.wrench} ${esc(k.dienst||"Glasbewassing")}</span>${k.binnen?'<span class="chip">+ binnen</span>':""}</div>
@@ -5932,7 +5954,7 @@ function openSetEdit(id){
   planning(){const w=s.werkdagen||[1,2,3,4,5],nz=actief().filter(k=>k.gepland&&!k.tijd).length;
     setDlg({t:"Planning instellingen",sub:"Werktijden, slots, weekends en weergave",ic:"planning",bg:"#23845a"},`${sec("Werktijden")}<div class="grid2">${inp("werkStart","Start werkdag",s.werkStart,{type:"time"})}${inp("werkEind","Einde werkdag",s.werkEind,{type:"time"})}</div>
       ${sec("Kalender weergave")}<div class="grid2">${inp("kalVan","Vanaf",s.kalVan,{type:"time",help:"Eerste zichtbare uur"})}${inp("kalTot","Tot",s.kalTot,{type:"time",help:"Laatste zichtbare uur"})}
-      ${sel("slotStd","Slot duur (min)",s.slotStd,[[15,"15 minuten"],[30,"30 minuten"],[60,"60 minuten"]],{t:"num"})}${inp("zichtbaarDagen","Te plannen zichtbaar (dagen vooraf)",s.zichtbaarDagen??11,{type:"number",t:"num",attrs:'min="0" max="60"',help:"Zoveel dagen voor de vervaldatum verschijnt een klant bij 'Te plannen'. Meer dan 7 dagen te vroeg inplannen geeft een waarschuwing."})}
+      ${sel("slotStd","Slot duur (min)",s.slotStd,[[15,"15 minuten"],[30,"30 minuten"],[60,"60 minuten"]],{t:"num"})}${inp("zichtbaarDagen","Te plannen zichtbaar (dagen vooraf)",s.zichtbaarDagen??11,{type:"number",t:"num",attrs:'min="0" max="60"',help:"Zoveel dagen voordat een klant weer aan de beurt is, verschijnt hij bij 'Te plannen'. Meer dan 7 dagen te vroeg inplannen geeft een waarschuwing."})}
       ${inp("maxJobs","Max jobs per dag",s.maxJobs,{type:"number",t:"num",attrs:'min="0"',help:"0 = geen drempel. Waarschuwt als er meer jobs op een dag staan."})}<span></span></div>
       <label>Weekenddagen (vrij)</label><div class="daychips inv">${[[0,"Zo"],[1,"Ma"],[2,"Di"],[3,"Wo"],[4,"Do"],[5,"Vr"],[6,"Za"]].map(([d,l])=>`<label><input type="checkbox" data-we="${d}" ${w.includes(d)?"":"checked"}><span>${l}</span></label>`).join("")}</div><small class="help">Tik om aan/uit te zetten. Vrije dagen zijn gearceerd in de planning.</small>
       ${tgl("overlap","Taak overlap toestaan","Twee jobs op hetzelfde tijdstip toestaan",s.overlap)}
@@ -7941,11 +7963,11 @@ function meldNieuweAanmelding(){if(!state.loaded)return;const l=nieuweAanmelding
   if(_aanmGezien===null){_aanmGezien=new Set(l.map(k=>k.id));return}
   const nw=l.filter(k=>!_aanmGezien.has(k.id));nw.forEach(k=>_aanmGezien.add(k.id));
   if(nw.length)setTimeout(()=>toast(nw.length===1?(nw[0].aanvraagType==="contact"?`Nieuw contactverzoek van ${cleanName(nw[0].naam)}`:`Nieuwe klant aangemeld via de website: ${cleanName(nw[0].naam)}`):`${nw.length} nieuwe klanten aangemeld via de website`),50)}
-function aanmeldBanner(){const l=nieuweAanmeldingen();if(!l.length)return "";
+function aanmeldBanner(){if(isMw())return "";const l=nieuweAanmeldingen();if(!l.length)return "";
   return `<div class="aanm">${l.slice(0,3).map(k=>{const t=k.ramenTelling||{};return `<div class="aanm-r"><span class="aanm-ic">${I.bell}</span><div class="aanm-t">${k.aanvraagType==="contact"?`<b>Nieuw contactverzoek van een bedrijf</b><span>${esc(cleanName(k.naam))}${k.contact?" · t.a.v. "+esc(k.contact):""} · ${esc([k.email,k.telefoon].filter(Boolean).join(" · "))} · ${esc(fmtD(k.aangemaakt))}</span>`:`<b>Nieuwe klant aangemeld via de website</b><span>${esc(cleanName(k.naam))} · ${esc([k.adres,k.plaats].filter(Boolean).join(", "))}${t.ramen?` · ${t.ramen} ramen`:""} · ${esc(eur(k.prijs))} per beurt · ${esc(fmtD(k.aangemaakt))}</span>`}</div>
     <div class="aanm-k"><button type="button" class="small primary" data-aanm="open" data-id="${esc(k.id)}">${I.klanten}Bekijken</button>${k.aanvraagType==="contact"?`<button type="button" class="small" data-aanm="off" data-id="${esc(k.id)}">${I.offertes}Offerte maken</button>`:`<button type="button" class="small" data-aanm="plan" data-id="${esc(k.id)}">${I.planning}Inplannen</button>`}<button type="button" class="iconbtn sm" data-aanm="weg" data-id="${esc(k.id)}" aria-label="Melding sluiten" title="Gezien">${I.x}</button></div></div>`}).join("")}${l.length>3?`<small class="subt">en nog ${l.length-3} meer</small>`:""}</div>`}
 /* opvallende kaart in de zijbalk: YES, een nieuwe klant */
-function nieuwKaart(){const side=document.querySelector("aside.side"),uc=document.getElementById("userCard");if(!side||!uc)return;
+function nieuwKaart(){if(isMw()){const o=document.getElementById("nieuwCard");if(o)o.remove();return}const side=document.querySelector("aside.side"),uc=document.getElementById("userCard");if(!side||!uc)return;
   let el=document.getElementById("nieuwCard");const l=nieuweAanmeldingen();
   if(!l.length){if(el)el.remove();return}
   if(!el){el=document.createElement("div");el.id="nieuwCard";side.insertBefore(el,uc)}
@@ -8139,9 +8161,9 @@ if(LIVE){
 
   SETEXTRA.liveOverzicht=(c,s)=>{let vw=s.voorwaardenPdf||"",vwN=s.voorwaardenNaam||"",hf=s.herroepingPdf||"",hfN=s.herroepingNaam||"";
     const rij=(id,naam,lbl)=>`<div class="splitrow" style="gap:10px;align-items:center"><span style="flex:1;min-width:0"><b>${lbl}</b><br><small class="subt">${naam?esc(naam):"Nog geen PDF"}</small></span><label class="btn small">${I.upload}${naam?"Vervangen":"PDF kiezen"}<input type="file" accept="application/pdf" hidden id="${id}F"></label>${naam?`<button type="button" class="small ghost" id="${id}X">${I.x}</button>`:""}</div>`;
-    setDlg(c,`${info("De klant krijgt automatisch een PDF met de bestelde diensten, aantallen en prijzen. Het <b>voorlopige</b> overzicht direct na de aanmelding via je website (met de bijlagen hieronder). Het <b>definitieve</b> overzicht na de tellingcontrole bij de 0-beurt, of meteen nadat de klant een offerte online heeft ondertekend.")}
+    setDlg(c,`${info("De klant krijgt automatisch een PDF met de bestelde diensten, aantallen en prijzen. Het <b>voorlopige</b> overzicht direct na de aanmelding via je website (met de bijlagen hieronder). Het <b>definitieve</b> overzicht na de tellingcontrole bij de O-beurt, of meteen nadat de klant een offerte online heeft ondertekend.")}
       ${tgl("ovVoorlopigAan","Voorlopig overzicht na aanmelding","Automatisch na het indienen van de websitecalculator",s.ovVoorlopigAan!==false)}
-      ${tgl("ovDefinitiefAan","Definitief overzicht na tellingcontrole","Automatisch zodra de glazenwasser de telling bij de 0-beurt opslaat",s.ovDefinitiefAan!==false)}
+      ${tgl("ovDefinitiefAan","Definitief overzicht na tellingcontrole","Automatisch zodra de glazenwasser de telling bij de O-beurt opslaat",s.ovDefinitiefAan!==false)}
       ${inp("opzegtermijn","Opzegtermijn",s.opzegtermijn||"1 maand",{help:"Voor [noticeperiod.company] in je mailteksten."})}
       ${sec("Bijlagen bij het voorlopige overzicht")}<div id="ovPdfs"></div>
       ${sec("Teksten van de mails")}<div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="small" data-act="tpledit" data-k="voorlopig">${I.pencil}Tekst voorlopig</button><button type="button" class="small" data-act="tpledit" data-k="definitief">${I.pencil}Tekst definitief</button></div>
@@ -8151,13 +8173,14 @@ if(LIVE){
     bindSave(()=>({voorwaardenPdf:vw,voorwaardenNaam:vwN,herroepingPdf:hf,herroepingNaam:hfN}))};
   SETEXTRA.liveUsers=async(c,s)=>{
     const draw=async()=>{let lijst=[];try{lijst=(await fsDb().collection("gebruikers").get()).docs.map(d=>({id:d.id,...d.data()}))}catch(e){}
-      $("#usrL").innerHTML=`<table class="minitable"><tr><td><b>robin@mijnschoonmaker.com</b></td><td>Eigenaar</td><td></td></tr>${lijst.map(u=>`<tr><td>${esc(u.id)}</td><td>${esc(u.naam||"")}</td><td class="r">${isEigenaar()?`<button type="button" class="tiny ghost" data-rm="${esc(u.id)}" style="color:var(--late)">Verwijderen</button>`:""}</td></tr>`).join("")}</table>`;
+      $("#usrL").innerHTML=`<table class="minitable"><tr><td><b>robin@mijnschoonmaker.com</b></td><td></td><td>Eigenaar</td><td></td></tr>${lijst.map(u=>`<tr><td>${esc(u.id)}</td><td>${esc(u.naam||"")}</td><td>${isEigenaar()?`<select class="usr-rol" data-rol="${esc(u.id)}"><option value="medewerker"${(u.rol||"beheerder")==="medewerker"?" selected":""}>Medewerker</option><option value="beheerder"${(u.rol||"beheerder")==="beheerder"?" selected":""}>Beheerder</option></select>`:esc(u.rol==="medewerker"?"Medewerker":"Beheerder")}</td><td class="r">${isEigenaar()?`<button type="button" class="tiny ghost" data-rm="${esc(u.id)}" style="color:var(--late)">Verwijderen</button>`:""}</td></tr>`).join("")}</table>`;
+      $("#usrL").querySelectorAll("[data-rol]").forEach(sl=>sl.onchange=async()=>{try{await fsDb().doc("gebruikers/"+sl.dataset.rol).set({rol:sl.value},{merge:true});toast(sl.value==="medewerker"?"Ziet nu alleen Vandaag en Route, zonder bedragen":"Heeft nu toegang tot het hele CRM")}catch(er){err(er)}});
       $("#usrL").querySelectorAll("[data-rm]").forEach(b=>b.onclick=async()=>{if(!(await vraag("Gebruiker verwijderen?",`<b>${esc(b.dataset.rm)}</b> kan daarna niet meer inloggen in het CRM.`,"Verwijderen","Annuleren")))return;await fsDb().doc("gebruikers/"+b.dataset.rm).delete();draw()})};
-    setDlg(c,`${info("Iedereen die hier staat kan inloggen met zijn eigen e-mailadres en wachtwoord. Nieuwe gebruikers maken zelf een account aan op het inlogscherm en bevestigen hun e-mailadres.")}
+    setDlg(c,`${info("Iedereen die hier staat kan inloggen met zijn eigen e-mailadres en wachtwoord. Nieuwe gebruikers maken zelf een account aan op het inlogscherm en bevestigen hun e-mailadres.<br><b>Medewerker</b> ziet alleen Vandaag en Route met de adressen, instructies en poortcodes, zonder bedragen. <b>Beheerder</b> ziet alles.")}
       <div id="usrL"><p class="subt">Laden…</p></div>
-      ${isEigenaar()?`${sec("Gebruiker toevoegen")}<div class="grid2">${inp("_ue","E-mailadres","",{type:"email",ph:"naam@voorbeeld.nl"})}${inp("_un","Naam","",{ph:"Bijv. Jan"})}</div><button type="button" class="small primary" id="usrAdd">${I.plus}Toevoegen</button>`:""}`,{wide:false,foot:`<span class="sp"></span><button type="button" class="primary" data-act="close">Sluiten</button>`});
+      ${isEigenaar()?`${sec("Gebruiker toevoegen")}<div class="grid2">${inp("_ue","E-mailadres","",{type:"email",ph:"naam@voorbeeld.nl"})}${inp("_un","Naam","",{ph:"Bijv. Jan"})}</div><label>Rol<select id="_ur"><option value="medewerker" selected>Medewerker (glazenwasser)</option><option value="beheerder">Beheerder (kantoor)</option></select></label><button type="button" class="small primary" id="usrAdd">${I.plus}Toevoegen</button>`:""}`,{wide:false,foot:`<span class="sp"></span><button type="button" class="primary" data-act="close">Sluiten</button>`});
     const a=$("#usrAdd");if(a)a.onclick=async()=>{const e=form.querySelector('[data-k="_ue"]').value.trim().toLowerCase(),n=form.querySelector('[data-k="_un"]').value.trim();
-      if(!/^\S+@\S+\.\S+$/.test(e))return toast("Vul een geldig e-mailadres in");try{await fsDb().doc("gebruikers/"+e).set({naam:n,toegevoegd:new Date().toISOString()});form.querySelector('[data-k="_ue"]').value="";form.querySelector('[data-k="_un"]').value="";toast(e+" kan nu inloggen");draw()}catch(er){err(er)}};
+      if(!/^\S+@\S+\.\S+$/.test(e))return toast("Vul een geldig e-mailadres in");try{await fsDb().doc("gebruikers/"+e).set({naam:n,rol:($("#_ur")||{}).value||"medewerker",toegevoegd:new Date().toISOString()});form.querySelector('[data-k="_ue"]').value="";form.querySelector('[data-k="_un"]').value="";toast(e+" kan nu inloggen");draw()}catch(er){err(er)}};
     draw()};
 
   SETEXTRA.liveImport=(c,s)=>{if(!alleenEigenaar())return;
@@ -8179,6 +8202,34 @@ if(LIVE){
         for(const col of COLS){for(const doc of d.collecties[col]||[]){const {id,...rest}=doc;if(!id)continue;await save(col,id,rest);k++;if(k%20===0)tik()}}
         R.innerHTML='<b style="color:var(--ok)">Klaar ✓</b> '+k+' onderdelen overgezet.';toast("Gegevens overgezet");controle()}
       catch(er){console.error(er);R.innerHTML='<span style="color:var(--late)">Overzetten stopte bij '+k+': '+esc(er.message||String(er))+'</span>'}}};
+}
+
+/* ---------- Rollen: eigenaar / beheerder / medewerker ----------
+   Een medewerker (glazenwasser) ziet alleen wat hij nodig heeft om het werk te doen:
+   Vandaag en Route, per adres de instructies, poortcode en notities, en hij kan afmelden.
+   Geen bedragen, geen facturen, offertes, instellingen of planning. */
+const MW_TABS=["vandaag","route","handleiding"];
+state.rol=(()=>{try{return localStorage.getItem("ms.rol")||""}catch(e){return""}})();
+function isMw(){if(!LIVE)return false;if(isEigenaar())return false;if(!state.me)return state.rol==="medewerker";return state.rol!=="beheerder"&&state.rol!=="eigenaar"}
+async function laadRol(){if(!LIVE)return;
+  const e=String((state.me&&state.me.email)||"").toLowerCase();if(!e){setTimeout(laadRol,400);return}
+  let r="eigenaar";
+  if(e!=="robin@mijnschoonmaker.com"){try{const d=await fsDb().doc("gebruikers/"+e).get();r=(d.exists&&d.data().rol)||"beheerder"}catch(er){r="medewerker"}}
+  const oud=state.rol;state.rol=r;try{localStorage.setItem("ms.rol",r)}catch(er){}
+  if(isMw()&&!MW_TABS.includes(state.tab))state.tab="vandaag";
+  if(oud!==r)render()}
+if(LIVE)setTimeout(laadRol,300);
+
+/* eenvoudige klantinfo voor de medewerker: alleen wat je onderweg nodig hebt */
+function openKlantMw(id){const k=state.klanten.find(x=>x.id===id);if(!k)return;
+  const a=jobAddrObj(k),t=k.portaalToegang||{};
+  openDlg(`<div class="dlg-head"><span class="objic big">${I.user}</span><div style="min-width:0;flex:1"><h3>${esc(a.adres||cleanName(k.naam))}</h3><div class="subt">${esc(cleanName(k.naam))}${a.plaats?" · "+esc([a.postcode,a.plaats].filter(Boolean).join(" ")):""}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
+    <div class="row" style="gap:8px;flex-wrap:wrap"><a class="btn" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.route}Navigeren</a>${k.telefoon?`<a class="btn" href="tel:${esc(String(k.telefoon).replace(/\s/g,""))}">${I.phone}Bellen</a>`:""}</div>
+    ${toegangHtml(k)}
+    ${k.notities?`<div class="notebox"><span class="eyebrow">Notitie</span>${esc(k.notities)}</div>`:""}
+    ${typeof hospRoute==="function"?hospRoute(k):""}
+    <div class="kv-mw"><div><small>Dienst</small><b>${esc(k.dienst||"Glasbewassing")}</b></div><div><small>Duur</small><b>${duur(k)} min</b></div><div><small>Binnen</small><b>${k.binnen?"Ja":"Nee"}</b></div></div>
+    <div class="row"><span class="sp"></span><button type="button" class="primary" data-act="close">Sluiten</button></div>`);
 }
 
 /* ---------- Klantportaal & aanbevelingen (CRM-kant) ----------
@@ -8254,35 +8305,22 @@ let ptUnsub=null;state.portaalVz=state.portaalVz||[];
 function livePortaal(){if(!LIVE||ptUnsub)return;
   ptUnsub=fsDb().collection("portaalVerzoeken").where("status","==","nieuw").onSnapshot(s=>{state.portaalVz=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>String(b.op).localeCompare(String(a.op)));try{ptKaart()}catch(e){}},e=>console.error("portaal",e))}
 if(LIVE)setTimeout(function w(){state.loaded?livePortaal():setTimeout(w,700)},700);
-function ptKaart(){const side=document.querySelector("aside.side"),uc=document.getElementById("userCard");if(!side||!uc)return;
-  let el=document.getElementById("ptCard");const l=state.portaalVz||[];
-  if(!l.length){if(el)el.remove();return}
-  if(!el){el=document.createElement("div");el.id="ptCard";side.insertBefore(el,uc)}
-  const sig=l.map(x=>x.id).join(",");if(el.dataset.sig===sig)return;el.dataset.sig=sig;
-  const v=l[0],T=PT_TYPE[v.type]||["Verzoek"];
-  el.className="pt-card";
-  el.innerHTML=`<button type="button" data-act="ptopen"><span class="pt-ic">${I.mail}<i>${l.length}</i></span><span class="pt-tx"><b>${l.length>1?l.length+" klantverzoeken":T[0]}</b><small>${esc(cleanName(v.klantNaam))}${v.datum?" · "+esc(fmtD(v.datum)):""}</small></span>${I.right}</button>`}
+/* klantverzoeken staan sinds de samenvoeging in het ticketoverzicht (tabblad Verzoeken) */
+function ptKaart(){const o=document.getElementById("ptCard");if(o)o.remove();try{tkKaart()}catch(e){}if(tkOpen)try{tkSegTeken();tkLijstTeken()}catch(e){}}
 
-function openPortaalVz(){const l=state.portaalVz||[];
-  const rij=v=>{const T=PT_TYPE[v.type]||["Verzoek"],k=state.klanten.find(x=>x.id===v.klantId);
+function ptRij(v){const T=PT_TYPE[v.type]||["Verzoek"],k=state.klanten.find(x=>x.id===v.klantId);
     const det=[v.datum?(v.type==="vakantie"?"Van "+fmtD(v.datum)+" t/m "+fmtD(v.tot):"Afspraak "+fmtD(v.datum)):"",v.voorkeur?"Voorkeur: "+v.voorkeur:"",v.diensten&&v.diensten.length?v.diensten.join(", "):"",...(v.wijziging?Object.keys(v.wijziging).map(f=>f+": "+((v.oud||{})[f]||"–")+" → "+(v.wijziging[f]||"–")):[]),v.sterren?"★".repeat(v.sterren)+"☆".repeat(5-v.sterren):""].filter(Boolean);
     return `<div class="pt-vz" data-id="${esc(v.id)}"><div class="pt-vz-h"><span class="pill ${v.type==="beoordeling"||v.type==="stoppen"?"late":v.type==="bericht"?"neutral":"soon"}">${esc(T[0])}</span><b>${k?`<button type="button" class="linkbtn" data-act="klant" data-id="${esc(k.id)}">${esc(cleanName(k.naam))}</button>`:esc(cleanName(v.klantNaam))}</b><small>${esc(v.adres||"")}</small><span class="sp"></span><small>${esc(fmtD(String(v.op).slice(0,10)))} ${esc(String(v.op).slice(11,16))}</small></div>
       ${det.length?`<div class="pt-det">${det.map(x=>`<span>${esc(x)}</span>`).join("")}</div>`:""}${v.tekst?`<p class="pt-txt">${esc(v.tekst)}</p>`:""}
       <div class="pt-act"><input type="text" placeholder="Antwoord voor de klant (zichtbaar in het portaal, niet verplicht)" data-ant="${esc(v.id)}">
         ${v.type==="gegevens"?`<span class="pill ok">${I.check}Al bijgewerkt in het CRM</span>`:""}
         ${(v.type==="verzetten"||v.type==="overslaan")&&k&&k.gepland?`<button type="button" class="small" data-act="job" data-id="${esc(k.id)}" data-d="${esc(k.gepland)}">${I.planning}Afspraak</button>`:""}
-        <button type="button" class="small primary" data-ptok="${esc(v.id)}">${I.check}Afgehandeld</button></div></div>`};
-  openDlg(`<div class="dlg-head"><span class="objic big" style="background:linear-gradient(135deg,var(--brand),#1d5a74);color:#fff">${I.mail}</span><div style="min-width:0;flex:1"><h3>Klantverzoeken</h3><div class="subt">Via het klantportaal · ${plural(l.length,"open verzoek","open verzoeken")}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
-    <div class="pt-list">${l.length?l.map(rij).join(""):`<p class="subt" style="text-align:center;margin:30px 0">Alles is afgehandeld</p>`}</div>`,{wide:true});
-  const af=async(id,extra={})=>{const v=l.find(x=>x.id===id);const a=(form.querySelector(`[data-ant="${id}"]`)||{}).value||"";
-    try{await fsDb().doc("portaalVerzoeken/"+id).set({status:"afgehandeld",antwoord:a.trim(),afgehandeldOp:new Date().toISOString(),door:(state.me&&state.me.email)||"",...extra},{merge:true});
-      const k=v&&state.klanten.find(x=>x.id===v.klantId);if(k)await save("klanten",k.id,{...strip(k),log:[...(k.log||[]),{datum:iso(today()),tekst:"Portaal · "+((PT_TYPE[v.type]||["Verzoek"])[0])+(v.datum?" "+fmtD(v.datum):"")+(v.tot?" t/m "+fmtD(v.tot):"")+(v.tekst?": "+v.tekst.slice(0,140):"")+(a?" · antwoord: "+a:"")}]});
-      const el=form.querySelector(`.pt-vz[data-id="${id}"]`);if(el)el.remove();toast("Afgehandeld");if(!form.querySelector(".pt-vz"))setTimeout(()=>dlg.close(),300)}catch(e){err(e)}};
-  form.querySelectorAll("[data-ptok]").forEach(b=>b.onclick=()=>{b.disabled=true;af(b.dataset.ptok)});
-  form.querySelectorAll("[data-ptover]").forEach(b=>b.onclick=async()=>{const v=l.find(x=>x.id===b.dataset.ptover),k=v&&state.klanten.find(x=>x.id===v.klantId);if(!k)return;const w=v.wijziging||{};
-    try{await save("klanten",k.id,{...strip(k),...(w.telefoon?{telefoon:w.telefoon}:{}),...(w.email?{email:w.email}:{})});toast("Gegevens van "+cleanName(k.naam)+" bijgewerkt");af(v.id)}catch(e){err(e)}});
-}
-
+        <button type="button" class="small primary" data-ptok="${esc(v.id)}">${I.check}Afgehandeld</button></div></div>`}
+async function ptAfhandelen(id){const l=state.portaalVz||[],v=l.find(x=>x.id===id);const a=(form.querySelector(`[data-ant="${id}"]`)||{}).value||"";
+  await fsDb().doc("portaalVerzoeken/"+id).set({status:"afgehandeld",antwoord:a.trim(),afgehandeldOp:new Date().toISOString(),door:(state.me&&state.me.email)||""},{merge:true});
+  const k=v&&state.klanten.find(x=>x.id===v.klantId);if(k)await save("klanten",k.id,{...strip(k),log:[...(k.log||[]),{datum:iso(today()),tekst:"Portaal · "+((PT_TYPE[v.type]||["Verzoek"])[0])+(v.datum?" "+fmtD(v.datum):"")+(v.tot?" t/m "+fmtD(v.tot):"")+(v.tekst?": "+v.tekst.slice(0,140):"")+(a?" · antwoord: "+a:"")}]});
+  state.portaalVz=l.filter(x=>x.id!==id);toast("Afgehandeld")}
+function openPortaalVz(){openTickets("","",true)}
 /* ---------- instellingen ---------- */
 if(LIVE){const at=SETCARDS.findIndex(x=>x.id==="liveOverzicht")+1;
   SETCARDS.splice(at||SETCARDS.length,0,{id:"livePortaal",t:"Klantportaal & aanbevelen",sub:"Klanten zien hun afspraken en facturen, en bevelen je aan",ic:"spark",bg:"#e09a2b",st:s=>s.refAan!==false?["ok","Actief"]:["soon","Aanbevelen staat uit"],rows:s=>[["Adres",location.host+"/portaal"],["Korting aanbeveler",s.refAan===false?"—":eur(s.refBeloning!=null&&s.refBeloning!==""?s.refBeloning:15)],["Welkomstkorting",s.refAan===false?"—":eur(s.refWelkom!=null&&s.refWelkom!==""?s.refWelkom:10)]]});
@@ -8314,18 +8352,18 @@ function liveTickets(){if(!LIVE||tkUnsub)return;
     else state.tickets.filter(t=>t.laatsteVan==="klant"&&nu_[t.id]>(tkVorig[t.id]||0)&&!(tkOpen&&tkOpen.id===t.id&&document.hasFocus())).forEach(t=>tkPopup(t,0,!(t.id in tkVorig)));
     tkVorig=nu_},e=>console.error("tickets",e))}
 if(LIVE)setTimeout(function w(){state.loaded?liveTickets():setTimeout(w,700)},900);
-function tkKaart(){const l=tkOngelezen(),n=l.length,open=state.tickets.filter(t=>t.status!=="opgelost").length;
+function tkKaart(){if(isMw()){["tkCard","tkFab"].forEach(i=>{const o=document.getElementById(i);if(o)o.remove()});return}const l=tkOngelezen(),n=l.length,open=state.tickets.filter(t=>t.status!=="opgelost").length,vz=(state.portaalVz||[]).length;
   const side=document.querySelector("aside.side"),uc=document.getElementById("userCard");let el=document.getElementById("tkCard");
-  if(side&&uc){if(!open){if(el)el.remove()}else{if(!el){el=document.createElement("div");el.id="tkCard";side.insertBefore(el,document.getElementById("ptCard")||uc)}
-    const t=l[0],sig=open+"|"+l.map(x=>x.id+x.ongelezenTeam).join(",");if(el.dataset.sig!==sig){el.dataset.sig=sig;el.className="pt-card ch-card";
-      el.innerHTML=`<button type="button" data-act="tkopen"${t?` data-id="${esc(t.id)}"`:""}><span class="pt-ic">${I.ticket}${n?`<i>${n}</i>`:""}</span><span class="pt-tx"><b>${n?(n>1?n+" tickets wachten":"Ticket "+esc(t.nummer||"")):plural(open,"open ticket","open tickets")}</b><small>${t?esc(cleanName(t.klantNaam))+" · "+esc(t.laatsteTekst||""):"Bekijk het overzicht"}</small></span>${I.right}</button>`}}}
+  if(side&&uc){if(!open&&!vz){if(el)el.remove()}else{if(!el){el=document.createElement("div");el.id="tkCard";side.insertBefore(el,document.getElementById("ptCard")||uc)}
+    const t=l[0],sig=open+"|"+vz+"|"+l.map(x=>x.id+x.ongelezenTeam).join(","),v0=(state.portaalVz||[])[0];if(el.dataset.sig!==sig){el.dataset.sig=sig;el.className="pt-card ch-card";
+      el.innerHTML=`<button type="button" data-act="tkopen"${t?` data-id="${esc(t.id)}"`:""}><span class="pt-ic">${I.ticket}${n+vz?`<i>${n+vz}</i>`:""}</span><span class="pt-tx"><b>${n?(n>1?n+" tickets wachten":"Ticket "+esc(t.nummer||"")):vz?(vz>1?vz+" klantverzoeken":(PT_TYPE[v0.type]||["Klantverzoek"])[0]):plural(open,"open ticket","open tickets")}</b><small>${t?esc(cleanName(t.klantNaam))+" · "+esc(t.laatsteTekst||""):vz?esc(cleanName(v0.klantNaam||""))+(v0.datum?" · "+esc(fmtD(v0.datum)):""):"Bekijk het overzicht"}</small></span>${I.right}</button>`}}}
   let fb=document.getElementById("tkFab");
   if(!n){if(fb)fb.remove();return}
   if(!fb){fb=document.createElement("button");fb.type="button";fb.id="tkFab";fb.className="ch-fab";fb.dataset.act="tkopen";document.body.appendChild(fb)}
   fb.dataset.id=l[0].id;fb.setAttribute("aria-label",n+" tickets met nieuwe berichten");fb.innerHTML=`${I.ticket}<i>${n}</i>`}
 /* pop-up rechtsboven + geluidje + systeemmelding als het tabblad op de achtergrond staat */
 function tkGeluid(){try{const A=new (window.AudioContext||window.webkitAudioContext)(),t=A.currentTime;[[880,0],[1320,.12]].forEach(([f,d])=>{const o=A.createOscillator(),g=A.createGain();o.type="sine";o.frequency.value=f;g.gain.setValueAtTime(0,t+d);g.gain.linearRampToValueAtTime(.18,t+d+.02);g.gain.exponentialRampToValueAtTime(.001,t+d+.35);o.connect(g).connect(A.destination);o.start(t+d);o.stop(t+d+.4)});setTimeout(()=>A.close(),900)}catch(e){}}
-function tkPopup(t,totaal,nieuw){
+function tkPopup(t,totaal,nieuw){if(isMw())return;
   let box=document.getElementById("chatPops");if(!box){box=document.createElement("div");box.id="chatPops";box.className="ch-pops";box.setAttribute("aria-live","polite");document.body.appendChild(box)}
   box.querySelectorAll(`[data-kid="${CSS.escape(t.id)}"]`).forEach(x=>x.remove());
   const el=document.createElement("div");el.className="ch-pop";el.dataset.kid=t.id;el.setAttribute("role","alert");
@@ -8340,17 +8378,32 @@ function tkPopup(t,totaal,nieuw){
 if(LIVE&&"Notification" in window&&Notification.permission==="default")document.addEventListener("click",function q(){document.removeEventListener("click",q);try{Notification.requestPermission()}catch(e){}},{once:true});
 
 /* ---------- ticketoverzicht ---------- */
-function openTickets(id,nieuwVoor){
+function openTickets(id,nieuwVoor,verzoeken){
   if(!LIVE)return toast("Tickets werken in de live versie");
-  tkOpen={id:id||"",filter:"actief",unsub:null,berichten:[],foto:null,nieuwVoor:nieuwVoor||""};
-  openDlg(`<div class="dlg-head"><span class="objic big tk-ic">${I.ticket}</span><div style="min-width:0;flex:1"><h3>Tickets</h3><div class="subt">Vragen en meldingen van klanten via het klantportaal</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
-    <div class="chx"><div class="chx-l"><div class="seg tk-seg" role="group">${[["actief","Lopend"],["opgelost","Opgelost"],["alle","Alle"]].map(([v,l])=>`<button type="button" data-tkf="${v}" aria-pressed="${v==="actief"}">${l}</button>`).join("")}</div><label class="chx-z">${I.search}<input type="search" id="chxZ" placeholder="Zoek ticket of klant…" autocomplete="off"></label><div id="chxL"></div></div><div class="chx-r" id="chxR"></div></div>`,{xwide:true});
+  if(verzoeken===undefined)verzoeken=!id&&!nieuwVoor&&!tkOngelezen().length&&(state.portaalVz||[]).length>0;
+  tkOpen={id:id||"",filter:verzoeken?"verzoeken":"actief",unsub:null,berichten:[],foto:null,nieuwVoor:nieuwVoor||""};
+  openDlg(`<div class="dlg-head"><span class="objic big tk-ic">${I.ticket}</span><div style="min-width:0;flex:1"><h3>Tickets</h3><div class="subt">Tickets en verzoeken van klanten via het klantportaal</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
+    <div class="chx"><div class="chx-l"><div class="seg tk-seg" role="group" id="tkSeg"></div><label class="chx-z">${I.search}<input type="search" id="chxZ" placeholder="Zoek ticket of klant…" autocomplete="off"></label><div id="chxL"></div></div><div class="chx-r" id="chxR"></div></div>`,{xwide:true});
   dlg.addEventListener("close",()=>{if(tkOpen&&tkOpen.unsub)tkOpen.unsub();tkOpen=null},{once:true});
-  form.querySelectorAll("[data-tkf]").forEach(b=>b.onclick=()=>{tkOpen.filter=b.dataset.tkf;form.querySelectorAll("[data-tkf]").forEach(x=>x.setAttribute("aria-pressed",x===b));tkLijstTeken()});
+  tkSegTeken();
   $("#chxZ").oninput=tkLijstTeken;tkLijstTeken();
   if(nieuwVoor)tkNieuw(nieuwVoor);
+  else if(verzoeken){const v=(state.portaalVz||[])[0];if(v&&!matchMedia("(max-width:760px)").matches)vzDetail(v.id);else $("#chxR").innerHTML=`<p class="subt chx-leeg">${v?"Kies een verzoek.":"Alle verzoeken zijn afgehandeld."}</p>`}
   else{const eerste=id||(!matchMedia("(max-width:760px)").matches&&((tkOngelezen()[0]||state.tickets.find(t=>t.status!=="opgelost")||{}).id));if(eerste)tkDetail(eerste);else $("#chxR").innerHTML=`<p class="subt chx-leeg">Geen ticket gekozen.<br>Zoek een klant om zelf een ticket te starten.</p>`}}
+function tkSegTeken(){const S_=$("#tkSeg");if(!S_||!tkOpen)return;const vz=(state.portaalVz||[]).length;
+  S_.innerHTML=[["actief","Lopend"],["verzoeken","Verzoeken"+(vz?` <i class="tk-n">${vz}</i>`:"")],["opgelost","Opgelost"],["alle","Alle"]].map(([v,l])=>`<button type="button" data-tkf="${v}" aria-pressed="${v===tkOpen.filter}">${l}</button>`).join("");
+  S_.querySelectorAll("[data-tkf]").forEach(b=>b.onclick=()=>{tkOpen.filter=b.dataset.tkf;tkOpen.lsig="";tkSegTeken();tkLijstTeken()})}
+function vzDetail(id){const v=(state.portaalVz||[]).find(x=>x.id===id),R=$("#chxR");if(!R||!tkOpen)return;
+  if(tkOpen.unsub){tkOpen.unsub();tkOpen.unsub=null}tkOpen.id="vz:"+id;tkOpen.lsig="";tkLijstTeken();
+  if(!v){R.innerHTML=`<p class="subt chx-leeg">Dit verzoek is al afgehandeld.</p>`;return}
+  const k=state.klanten.find(x=>x.id===v.klantId)||{naam:v.klantNaam||""},T=PT_TYPE[v.type]||["Verzoek"];
+  R.innerHTML=tkKop(k,`<b>${esc(T[0])}</b><small class="subt" style="display:block">${esc(cleanName(k.naam||""))} · klantverzoek</small>`)+`<div class="vz-body">${ptRij(v)}</div>`;
+  tkTerugBind();
+  const b=R.querySelector("[data-ptok]");if(b)b.onclick=async()=>{b.disabled=true;try{await ptAfhandelen(id);ptKaart();const nx=(state.portaalVz||[])[0];if(nx&&!matchMedia("(max-width:760px)").matches)vzDetail(nx.id);else{R.innerHTML=`<p class="subt chx-leeg">${nx?"Kies een verzoek.":"Alle verzoeken zijn afgehandeld."}</p>`}}catch(e){b.disabled=false;err(e)}}}
 function tkLijstTeken(){const L=$("#chxL");if(!L||!tkOpen)return;const q=(($("#chxZ")||{}).value||"").trim().toLowerCase();
+  if(tkOpen.filter==="verzoeken"){const vl=(state.portaalVz||[]).filter(v=>!q||[v.klantNaam,v.adres,v.tekst].join(" ").toLowerCase().includes(q));
+    L.innerHTML=vl.map(v=>{const T=PT_TYPE[v.type]||["Verzoek"];return `<button type="button" class="chx-i nieuw${"vz:"+v.id===tkOpen.id?" act":""}" data-vzi="${esc(v.id)}"><span class="chx-av" style="--h:${hue(v.klantNaam||"")}">${esc(initials(cleanName(v.klantNaam||"?")))}</span><span class="chx-t"><b>${esc(T[0])}</b><small>${esc(cleanName(v.klantNaam||""))}${v.datum?" · "+esc(fmtD(v.datum)):""}</small></span><span class="chx-m"><small>${v.op?esc(tkTijd(v.op)):""}</small></span></button>`}).join("")||`<p class="subt" style="padding:20px 10px;text-align:center">${q?"Niets gevonden":"Geen open verzoeken"}</p>`;
+    L.querySelectorAll("[data-vzi]").forEach(b=>b.onclick=()=>vzDetail(b.dataset.vzi));return}
   const rij=state.tickets.filter(t=>(tkOpen.filter==="alle"||(tkOpen.filter==="opgelost"?t.status==="opgelost":t.status!=="opgelost"))&&(!q||[t.klantNaam,t.adres,t.nummer,t.onderwerp].join(" ").toLowerCase().includes(q)));
   const extra=q.length>=2?state.klanten.filter(k=>[k.naam,k.adres,k.plaats,k.email].join(" ").toLowerCase().includes(q)).slice(0,6):[];
   L.innerHTML=rij.map(t=>{const st=TK_ST[t.status]||TK_ST.open;return `<button type="button" class="chx-i${t.id===tkOpen.id?" act":""}${Number(t.ongelezenTeam)>0?" nieuw":""}" data-tki="${esc(t.id)}"><span class="chx-av" style="--h:${hue(t.klantNaam||"")}">${esc(initials(cleanName(t.klantNaam||"?")))}</span><span class="chx-t"><b>${esc(t.onderwerp||"Ticket")}</b><small>${esc(cleanName(t.klantNaam||""))} · ${esc(t.nummer||"")}</small></span><span class="chx-m"><small>${t.laatst?esc(tkTijd(t.laatst)):""}</small>${Number(t.ongelezenTeam)>0?`<i>${t.ongelezenTeam}</i>`:`<i class="tk-dot" style="background:var(--${st[0]})" title="${st[1]}"></i>`}</span></button>`}).join("")
@@ -8427,9 +8480,10 @@ function render(){try{warmMailLogo()}catch(e){}
   try{ptKaart()}catch(e){console.error(e)}
   try{tkKaart()}catch(e){console.error(e)}
   $(".app").classList.toggle("collapsed",state.collapsed);
-  $("#sideNav").innerHTML=PAGES.map(([t,l])=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}" title="${l}">${I[t]}<span class="lbl">${l}</span>${badge(t)}</button>`).join("");
-  const mob=["vandaag","route","planning","klanten"],inMeer=!mob.includes(state.tab),meerB=late*0+mTodo;
-  $("#tabNav").innerHTML=mob.map(t=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}"><i>${I[t]}</i>${PAGES.find(p=>p[0]===t)[1]}${badge(t)}</button>`).join("")+`<button type="button" data-act="meer" aria-current="${inMeer}"><i>${I.more}</i>Meer${meerB?`<span class="badge">${meerB}</span>`:""}</button>`;
+  const mw=isMw();document.body.classList.toggle("mw",mw);if(mw&&!MW_TABS.includes(state.tab))state.tab="vandaag";
+  $("#sideNav").innerHTML=PAGES.filter(([t])=>!mw||MW_TABS.includes(t)).map(([t,l])=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}" title="${l}">${I[t]}<span class="lbl">${l}</span>${badge(t)}</button>`).join("");
+  const mob=mw?MW_TABS:["vandaag","route","planning","klanten"],inMeer=!mob.includes(state.tab),meerB=late*0+mTodo;
+  $("#tabNav").innerHTML=mw?mob.map(t=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}"><i>${I[t]}</i>${PAGES.find(p=>p[0]===t)[1]}</button>`).join(""):mob.map(t=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}"><i>${I[t]}</i>${PAGES.find(p=>p[0]===t)[1]}${badge(t)}</button>`).join("")+`<button type="button" data-act="meer" aria-current="${inMeer}"><i>${I.more}</i>Meer${meerB?`<span class="badge">${meerB}</span>`:""}</button>`;
   const nm=(state.me&&state.me.name)||S().naam||"Jouw bedrijf";
   {let lg=S().logo;if(lg){try{localStorage.setItem("ms.lg",lg)}catch(e){}}else if(LIVE){try{lg=localStorage.getItem("ms.lg")||""}catch(e){}}
     const h=new Date().getHours(),fn=state.me&&state.me.name?state.me.name.trim().split(/\s+/)[0]:"",gr=(h<6?"Goedenacht":h<12?"Goedemorgen":h<18?"Goedemiddag":"Goedenavond")+(fn?", "+fn:""),key=lg+"|"+gr;
@@ -8443,7 +8497,7 @@ function render(){try{warmMailLogo()}catch(e){}
   try{$("#view").innerHTML=(VIEWS[state.tab]||vVandaag)();if(state.tab==="calculator"){mountRamen();if(rcF)RC.restoreFocus(rcF)}}catch(e){console.error(e);$("#view").innerHTML=`<div class="notice">Deze pagina kon niet worden getoond (${esc(e.message)}). Ga naar een andere pagina of vernieuw.</div>`}
   if(fid){const el=document.getElementById(fid);if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}}
 }
-function go(tab){state.tab=tab;state.kmenu=state.fmenu=false;try{localStorage.setItem("zeem.tab",tab)}catch(_){}if(dlg.open)dlg.close();render();window.scrollTo(0,0)}
+function go(tab){if(isMw()&&!MW_TABS.includes(tab))tab="vandaag";state.tab=tab;state.kmenu=state.fmenu=false;try{localStorage.setItem("zeem.tab",tab)}catch(_){}if(dlg.open)dlg.close();render();window.scrollTo(0,0)}
 
 /* ---------- EVENTS ---------- */
 let swAt=0;
@@ -8469,7 +8523,7 @@ document.addEventListener("click",e=>{
     case"meer":openMeer();break;
     case"settings":go("instellingen");break;
     /* klanten en jobs */
-    case"klant":openKlant(id||null);break;
+    case"klant":if(isMw()){if(id)openKlantMw(id);break}openKlant(id||null);break;
     case"job":openJob(id,t.dataset.d);break;
     case"ptopen":openPortaalVz();break;
     case"pmeer":state.pmeer=!state.pmeer;render();break;

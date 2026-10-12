@@ -71,35 +71,22 @@ let ptUnsub=null;state.portaalVz=state.portaalVz||[];
 function livePortaal(){if(!LIVE||ptUnsub)return;
   ptUnsub=fsDb().collection("portaalVerzoeken").where("status","==","nieuw").onSnapshot(s=>{state.portaalVz=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>String(b.op).localeCompare(String(a.op)));try{ptKaart()}catch(e){}},e=>console.error("portaal",e))}
 if(LIVE)setTimeout(function w(){state.loaded?livePortaal():setTimeout(w,700)},700);
-function ptKaart(){const side=document.querySelector("aside.side"),uc=document.getElementById("userCard");if(!side||!uc)return;
-  let el=document.getElementById("ptCard");const l=state.portaalVz||[];
-  if(!l.length){if(el)el.remove();return}
-  if(!el){el=document.createElement("div");el.id="ptCard";side.insertBefore(el,uc)}
-  const sig=l.map(x=>x.id).join(",");if(el.dataset.sig===sig)return;el.dataset.sig=sig;
-  const v=l[0],T=PT_TYPE[v.type]||["Verzoek"];
-  el.className="pt-card";
-  el.innerHTML=`<button type="button" data-act="ptopen"><span class="pt-ic">${I.mail}<i>${l.length}</i></span><span class="pt-tx"><b>${l.length>1?l.length+" klantverzoeken":T[0]}</b><small>${esc(cleanName(v.klantNaam))}${v.datum?" · "+esc(fmtD(v.datum)):""}</small></span>${I.right}</button>`}
+/* klantverzoeken staan sinds de samenvoeging in het ticketoverzicht (tabblad Verzoeken) */
+function ptKaart(){const o=document.getElementById("ptCard");if(o)o.remove();try{tkKaart()}catch(e){}if(tkOpen)try{tkSegTeken();tkLijstTeken()}catch(e){}}
 
-function openPortaalVz(){const l=state.portaalVz||[];
-  const rij=v=>{const T=PT_TYPE[v.type]||["Verzoek"],k=state.klanten.find(x=>x.id===v.klantId);
+function ptRij(v){const T=PT_TYPE[v.type]||["Verzoek"],k=state.klanten.find(x=>x.id===v.klantId);
     const det=[v.datum?(v.type==="vakantie"?"Van "+fmtD(v.datum)+" t/m "+fmtD(v.tot):"Afspraak "+fmtD(v.datum)):"",v.voorkeur?"Voorkeur: "+v.voorkeur:"",v.diensten&&v.diensten.length?v.diensten.join(", "):"",...(v.wijziging?Object.keys(v.wijziging).map(f=>f+": "+((v.oud||{})[f]||"–")+" → "+(v.wijziging[f]||"–")):[]),v.sterren?"★".repeat(v.sterren)+"☆".repeat(5-v.sterren):""].filter(Boolean);
     return `<div class="pt-vz" data-id="${esc(v.id)}"><div class="pt-vz-h"><span class="pill ${v.type==="beoordeling"||v.type==="stoppen"?"late":v.type==="bericht"?"neutral":"soon"}">${esc(T[0])}</span><b>${k?`<button type="button" class="linkbtn" data-act="klant" data-id="${esc(k.id)}">${esc(cleanName(k.naam))}</button>`:esc(cleanName(v.klantNaam))}</b><small>${esc(v.adres||"")}</small><span class="sp"></span><small>${esc(fmtD(String(v.op).slice(0,10)))} ${esc(String(v.op).slice(11,16))}</small></div>
       ${det.length?`<div class="pt-det">${det.map(x=>`<span>${esc(x)}</span>`).join("")}</div>`:""}${v.tekst?`<p class="pt-txt">${esc(v.tekst)}</p>`:""}
       <div class="pt-act"><input type="text" placeholder="Antwoord voor de klant (zichtbaar in het portaal, niet verplicht)" data-ant="${esc(v.id)}">
         ${v.type==="gegevens"?`<span class="pill ok">${I.check}Al bijgewerkt in het CRM</span>`:""}
         ${(v.type==="verzetten"||v.type==="overslaan")&&k&&k.gepland?`<button type="button" class="small" data-act="job" data-id="${esc(k.id)}" data-d="${esc(k.gepland)}">${I.planning}Afspraak</button>`:""}
-        <button type="button" class="small primary" data-ptok="${esc(v.id)}">${I.check}Afgehandeld</button></div></div>`};
-  openDlg(`<div class="dlg-head"><span class="objic big" style="background:linear-gradient(135deg,var(--brand),#1d5a74);color:#fff">${I.mail}</span><div style="min-width:0;flex:1"><h3>Klantverzoeken</h3><div class="subt">Via het klantportaal · ${plural(l.length,"open verzoek","open verzoeken")}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
-    <div class="pt-list">${l.length?l.map(rij).join(""):`<p class="subt" style="text-align:center;margin:30px 0">Alles is afgehandeld</p>`}</div>`,{wide:true});
-  const af=async(id,extra={})=>{const v=l.find(x=>x.id===id);const a=(form.querySelector(`[data-ant="${id}"]`)||{}).value||"";
-    try{await fsDb().doc("portaalVerzoeken/"+id).set({status:"afgehandeld",antwoord:a.trim(),afgehandeldOp:new Date().toISOString(),door:(state.me&&state.me.email)||"",...extra},{merge:true});
-      const k=v&&state.klanten.find(x=>x.id===v.klantId);if(k)await save("klanten",k.id,{...strip(k),log:[...(k.log||[]),{datum:iso(today()),tekst:"Portaal · "+((PT_TYPE[v.type]||["Verzoek"])[0])+(v.datum?" "+fmtD(v.datum):"")+(v.tot?" t/m "+fmtD(v.tot):"")+(v.tekst?": "+v.tekst.slice(0,140):"")+(a?" · antwoord: "+a:"")}]});
-      const el=form.querySelector(`.pt-vz[data-id="${id}"]`);if(el)el.remove();toast("Afgehandeld");if(!form.querySelector(".pt-vz"))setTimeout(()=>dlg.close(),300)}catch(e){err(e)}};
-  form.querySelectorAll("[data-ptok]").forEach(b=>b.onclick=()=>{b.disabled=true;af(b.dataset.ptok)});
-  form.querySelectorAll("[data-ptover]").forEach(b=>b.onclick=async()=>{const v=l.find(x=>x.id===b.dataset.ptover),k=v&&state.klanten.find(x=>x.id===v.klantId);if(!k)return;const w=v.wijziging||{};
-    try{await save("klanten",k.id,{...strip(k),...(w.telefoon?{telefoon:w.telefoon}:{}),...(w.email?{email:w.email}:{})});toast("Gegevens van "+cleanName(k.naam)+" bijgewerkt");af(v.id)}catch(e){err(e)}});
-}
-
+        <button type="button" class="small primary" data-ptok="${esc(v.id)}">${I.check}Afgehandeld</button></div></div>`}
+async function ptAfhandelen(id){const l=state.portaalVz||[],v=l.find(x=>x.id===id);const a=(form.querySelector(`[data-ant="${id}"]`)||{}).value||"";
+  await fsDb().doc("portaalVerzoeken/"+id).set({status:"afgehandeld",antwoord:a.trim(),afgehandeldOp:new Date().toISOString(),door:(state.me&&state.me.email)||""},{merge:true});
+  const k=v&&state.klanten.find(x=>x.id===v.klantId);if(k)await save("klanten",k.id,{...strip(k),log:[...(k.log||[]),{datum:iso(today()),tekst:"Portaal · "+((PT_TYPE[v.type]||["Verzoek"])[0])+(v.datum?" "+fmtD(v.datum):"")+(v.tot?" t/m "+fmtD(v.tot):"")+(v.tekst?": "+v.tekst.slice(0,140):"")+(a?" · antwoord: "+a:"")}]});
+  state.portaalVz=l.filter(x=>x.id!==id);toast("Afgehandeld")}
+function openPortaalVz(){openTickets("","",true)}
 /* ---------- instellingen ---------- */
 if(LIVE){const at=SETCARDS.findIndex(x=>x.id==="liveOverzicht")+1;
   SETCARDS.splice(at||SETCARDS.length,0,{id:"livePortaal",t:"Klantportaal & aanbevelen",sub:"Klanten zien hun afspraken en facturen, en bevelen je aan",ic:"spark",bg:"#e09a2b",st:s=>s.refAan!==false?["ok","Actief"]:["soon","Aanbevelen staat uit"],rows:s=>[["Adres",location.host+"/portaal"],["Korting aanbeveler",s.refAan===false?"—":eur(s.refBeloning!=null&&s.refBeloning!==""?s.refBeloning:15)],["Welkomstkorting",s.refAan===false?"—":eur(s.refWelkom!=null&&s.refWelkom!==""?s.refWelkom:10)]]});
@@ -131,18 +118,18 @@ function liveTickets(){if(!LIVE||tkUnsub)return;
     else state.tickets.filter(t=>t.laatsteVan==="klant"&&nu_[t.id]>(tkVorig[t.id]||0)&&!(tkOpen&&tkOpen.id===t.id&&document.hasFocus())).forEach(t=>tkPopup(t,0,!(t.id in tkVorig)));
     tkVorig=nu_},e=>console.error("tickets",e))}
 if(LIVE)setTimeout(function w(){state.loaded?liveTickets():setTimeout(w,700)},900);
-function tkKaart(){const l=tkOngelezen(),n=l.length,open=state.tickets.filter(t=>t.status!=="opgelost").length;
+function tkKaart(){if(isMw()){["tkCard","tkFab"].forEach(i=>{const o=document.getElementById(i);if(o)o.remove()});return}const l=tkOngelezen(),n=l.length,open=state.tickets.filter(t=>t.status!=="opgelost").length,vz=(state.portaalVz||[]).length;
   const side=document.querySelector("aside.side"),uc=document.getElementById("userCard");let el=document.getElementById("tkCard");
-  if(side&&uc){if(!open){if(el)el.remove()}else{if(!el){el=document.createElement("div");el.id="tkCard";side.insertBefore(el,document.getElementById("ptCard")||uc)}
-    const t=l[0],sig=open+"|"+l.map(x=>x.id+x.ongelezenTeam).join(",");if(el.dataset.sig!==sig){el.dataset.sig=sig;el.className="pt-card ch-card";
-      el.innerHTML=`<button type="button" data-act="tkopen"${t?` data-id="${esc(t.id)}"`:""}><span class="pt-ic">${I.ticket}${n?`<i>${n}</i>`:""}</span><span class="pt-tx"><b>${n?(n>1?n+" tickets wachten":"Ticket "+esc(t.nummer||"")):plural(open,"open ticket","open tickets")}</b><small>${t?esc(cleanName(t.klantNaam))+" · "+esc(t.laatsteTekst||""):"Bekijk het overzicht"}</small></span>${I.right}</button>`}}}
+  if(side&&uc){if(!open&&!vz){if(el)el.remove()}else{if(!el){el=document.createElement("div");el.id="tkCard";side.insertBefore(el,document.getElementById("ptCard")||uc)}
+    const t=l[0],sig=open+"|"+vz+"|"+l.map(x=>x.id+x.ongelezenTeam).join(","),v0=(state.portaalVz||[])[0];if(el.dataset.sig!==sig){el.dataset.sig=sig;el.className="pt-card ch-card";
+      el.innerHTML=`<button type="button" data-act="tkopen"${t?` data-id="${esc(t.id)}"`:""}><span class="pt-ic">${I.ticket}${n+vz?`<i>${n+vz}</i>`:""}</span><span class="pt-tx"><b>${n?(n>1?n+" tickets wachten":"Ticket "+esc(t.nummer||"")):vz?(vz>1?vz+" klantverzoeken":(PT_TYPE[v0.type]||["Klantverzoek"])[0]):plural(open,"open ticket","open tickets")}</b><small>${t?esc(cleanName(t.klantNaam))+" · "+esc(t.laatsteTekst||""):vz?esc(cleanName(v0.klantNaam||""))+(v0.datum?" · "+esc(fmtD(v0.datum)):""):"Bekijk het overzicht"}</small></span>${I.right}</button>`}}}
   let fb=document.getElementById("tkFab");
   if(!n){if(fb)fb.remove();return}
   if(!fb){fb=document.createElement("button");fb.type="button";fb.id="tkFab";fb.className="ch-fab";fb.dataset.act="tkopen";document.body.appendChild(fb)}
   fb.dataset.id=l[0].id;fb.setAttribute("aria-label",n+" tickets met nieuwe berichten");fb.innerHTML=`${I.ticket}<i>${n}</i>`}
 /* pop-up rechtsboven + geluidje + systeemmelding als het tabblad op de achtergrond staat */
 function tkGeluid(){try{const A=new (window.AudioContext||window.webkitAudioContext)(),t=A.currentTime;[[880,0],[1320,.12]].forEach(([f,d])=>{const o=A.createOscillator(),g=A.createGain();o.type="sine";o.frequency.value=f;g.gain.setValueAtTime(0,t+d);g.gain.linearRampToValueAtTime(.18,t+d+.02);g.gain.exponentialRampToValueAtTime(.001,t+d+.35);o.connect(g).connect(A.destination);o.start(t+d);o.stop(t+d+.4)});setTimeout(()=>A.close(),900)}catch(e){}}
-function tkPopup(t,totaal,nieuw){
+function tkPopup(t,totaal,nieuw){if(isMw())return;
   let box=document.getElementById("chatPops");if(!box){box=document.createElement("div");box.id="chatPops";box.className="ch-pops";box.setAttribute("aria-live","polite");document.body.appendChild(box)}
   box.querySelectorAll(`[data-kid="${CSS.escape(t.id)}"]`).forEach(x=>x.remove());
   const el=document.createElement("div");el.className="ch-pop";el.dataset.kid=t.id;el.setAttribute("role","alert");
@@ -157,17 +144,32 @@ function tkPopup(t,totaal,nieuw){
 if(LIVE&&"Notification" in window&&Notification.permission==="default")document.addEventListener("click",function q(){document.removeEventListener("click",q);try{Notification.requestPermission()}catch(e){}},{once:true});
 
 /* ---------- ticketoverzicht ---------- */
-function openTickets(id,nieuwVoor){
+function openTickets(id,nieuwVoor,verzoeken){
   if(!LIVE)return toast("Tickets werken in de live versie");
-  tkOpen={id:id||"",filter:"actief",unsub:null,berichten:[],foto:null,nieuwVoor:nieuwVoor||""};
-  openDlg(`<div class="dlg-head"><span class="objic big tk-ic">${I.ticket}</span><div style="min-width:0;flex:1"><h3>Tickets</h3><div class="subt">Vragen en meldingen van klanten via het klantportaal</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
-    <div class="chx"><div class="chx-l"><div class="seg tk-seg" role="group">${[["actief","Lopend"],["opgelost","Opgelost"],["alle","Alle"]].map(([v,l])=>`<button type="button" data-tkf="${v}" aria-pressed="${v==="actief"}">${l}</button>`).join("")}</div><label class="chx-z">${I.search}<input type="search" id="chxZ" placeholder="Zoek ticket of klant…" autocomplete="off"></label><div id="chxL"></div></div><div class="chx-r" id="chxR"></div></div>`,{xwide:true});
+  if(verzoeken===undefined)verzoeken=!id&&!nieuwVoor&&!tkOngelezen().length&&(state.portaalVz||[]).length>0;
+  tkOpen={id:id||"",filter:verzoeken?"verzoeken":"actief",unsub:null,berichten:[],foto:null,nieuwVoor:nieuwVoor||""};
+  openDlg(`<div class="dlg-head"><span class="objic big tk-ic">${I.ticket}</span><div style="min-width:0;flex:1"><h3>Tickets</h3><div class="subt">Tickets en verzoeken van klanten via het klantportaal</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
+    <div class="chx"><div class="chx-l"><div class="seg tk-seg" role="group" id="tkSeg"></div><label class="chx-z">${I.search}<input type="search" id="chxZ" placeholder="Zoek ticket of klant…" autocomplete="off"></label><div id="chxL"></div></div><div class="chx-r" id="chxR"></div></div>`,{xwide:true});
   dlg.addEventListener("close",()=>{if(tkOpen&&tkOpen.unsub)tkOpen.unsub();tkOpen=null},{once:true});
-  form.querySelectorAll("[data-tkf]").forEach(b=>b.onclick=()=>{tkOpen.filter=b.dataset.tkf;form.querySelectorAll("[data-tkf]").forEach(x=>x.setAttribute("aria-pressed",x===b));tkLijstTeken()});
+  tkSegTeken();
   $("#chxZ").oninput=tkLijstTeken;tkLijstTeken();
   if(nieuwVoor)tkNieuw(nieuwVoor);
+  else if(verzoeken){const v=(state.portaalVz||[])[0];if(v&&!matchMedia("(max-width:760px)").matches)vzDetail(v.id);else $("#chxR").innerHTML=`<p class="subt chx-leeg">${v?"Kies een verzoek.":"Alle verzoeken zijn afgehandeld."}</p>`}
   else{const eerste=id||(!matchMedia("(max-width:760px)").matches&&((tkOngelezen()[0]||state.tickets.find(t=>t.status!=="opgelost")||{}).id));if(eerste)tkDetail(eerste);else $("#chxR").innerHTML=`<p class="subt chx-leeg">Geen ticket gekozen.<br>Zoek een klant om zelf een ticket te starten.</p>`}}
+function tkSegTeken(){const S_=$("#tkSeg");if(!S_||!tkOpen)return;const vz=(state.portaalVz||[]).length;
+  S_.innerHTML=[["actief","Lopend"],["verzoeken","Verzoeken"+(vz?` <i class="tk-n">${vz}</i>`:"")],["opgelost","Opgelost"],["alle","Alle"]].map(([v,l])=>`<button type="button" data-tkf="${v}" aria-pressed="${v===tkOpen.filter}">${l}</button>`).join("");
+  S_.querySelectorAll("[data-tkf]").forEach(b=>b.onclick=()=>{tkOpen.filter=b.dataset.tkf;tkOpen.lsig="";tkSegTeken();tkLijstTeken()})}
+function vzDetail(id){const v=(state.portaalVz||[]).find(x=>x.id===id),R=$("#chxR");if(!R||!tkOpen)return;
+  if(tkOpen.unsub){tkOpen.unsub();tkOpen.unsub=null}tkOpen.id="vz:"+id;tkOpen.lsig="";tkLijstTeken();
+  if(!v){R.innerHTML=`<p class="subt chx-leeg">Dit verzoek is al afgehandeld.</p>`;return}
+  const k=state.klanten.find(x=>x.id===v.klantId)||{naam:v.klantNaam||""},T=PT_TYPE[v.type]||["Verzoek"];
+  R.innerHTML=tkKop(k,`<b>${esc(T[0])}</b><small class="subt" style="display:block">${esc(cleanName(k.naam||""))} · klantverzoek</small>`)+`<div class="vz-body">${ptRij(v)}</div>`;
+  tkTerugBind();
+  const b=R.querySelector("[data-ptok]");if(b)b.onclick=async()=>{b.disabled=true;try{await ptAfhandelen(id);ptKaart();const nx=(state.portaalVz||[])[0];if(nx&&!matchMedia("(max-width:760px)").matches)vzDetail(nx.id);else{R.innerHTML=`<p class="subt chx-leeg">${nx?"Kies een verzoek.":"Alle verzoeken zijn afgehandeld."}</p>`}}catch(e){b.disabled=false;err(e)}}}
 function tkLijstTeken(){const L=$("#chxL");if(!L||!tkOpen)return;const q=(($("#chxZ")||{}).value||"").trim().toLowerCase();
+  if(tkOpen.filter==="verzoeken"){const vl=(state.portaalVz||[]).filter(v=>!q||[v.klantNaam,v.adres,v.tekst].join(" ").toLowerCase().includes(q));
+    L.innerHTML=vl.map(v=>{const T=PT_TYPE[v.type]||["Verzoek"];return `<button type="button" class="chx-i nieuw${"vz:"+v.id===tkOpen.id?" act":""}" data-vzi="${esc(v.id)}"><span class="chx-av" style="--h:${hue(v.klantNaam||"")}">${esc(initials(cleanName(v.klantNaam||"?")))}</span><span class="chx-t"><b>${esc(T[0])}</b><small>${esc(cleanName(v.klantNaam||""))}${v.datum?" · "+esc(fmtD(v.datum)):""}</small></span><span class="chx-m"><small>${v.op?esc(tkTijd(v.op)):""}</small></span></button>`}).join("")||`<p class="subt" style="padding:20px 10px;text-align:center">${q?"Niets gevonden":"Geen open verzoeken"}</p>`;
+    L.querySelectorAll("[data-vzi]").forEach(b=>b.onclick=()=>vzDetail(b.dataset.vzi));return}
   const rij=state.tickets.filter(t=>(tkOpen.filter==="alle"||(tkOpen.filter==="opgelost"?t.status==="opgelost":t.status!=="opgelost"))&&(!q||[t.klantNaam,t.adres,t.nummer,t.onderwerp].join(" ").toLowerCase().includes(q)));
   const extra=q.length>=2?state.klanten.filter(k=>[k.naam,k.adres,k.plaats,k.email].join(" ").toLowerCase().includes(q)).slice(0,6):[];
   L.innerHTML=rij.map(t=>{const st=TK_ST[t.status]||TK_ST.open;return `<button type="button" class="chx-i${t.id===tkOpen.id?" act":""}${Number(t.ongelezenTeam)>0?" nieuw":""}" data-tki="${esc(t.id)}"><span class="chx-av" style="--h:${hue(t.klantNaam||"")}">${esc(initials(cleanName(t.klantNaam||"?")))}</span><span class="chx-t"><b>${esc(t.onderwerp||"Ticket")}</b><small>${esc(cleanName(t.klantNaam||""))} · ${esc(t.nummer||"")}</small></span><span class="chx-m"><small>${t.laatst?esc(tkTijd(t.laatst)):""}</small>${Number(t.ongelezenTeam)>0?`<i>${t.ongelezenTeam}</i>`:`<i class="tk-dot" style="background:var(--${st[0]})" title="${st[1]}"></i>`}</span></button>`}).join("")
