@@ -541,7 +541,8 @@ function openAkkoord(id){
     <label>Frequentie<select id="ak-freq">${fo.map(w=>`<option value="${w}" ${w===fr?"selected":""}>Elke ${w} ${w===1?"week":"weken"}</option>`).join("")}</select></label>
     <label>Duur<select id="ak-duur">${dur.map(m=>`<option value="${m}" ${m===du?"selected":""}>${m<60?m+" min":(m/60).toLocaleString("nl-NL")+" uur"}</option>`).join("")}</select></label>
     <label>Dienst<input id="ak-dienst" value="${esc(k.dienst||"Glasbewassing")}"></label>
-    <label>Eerste beurt <small style="font-weight:500">(leeg = later inplannen)</small><input id="ak-dat" type="date" value="${f.start?esc(f.start):k.gepland&&!k.prospect?esc(k.gepland):iso(d)}"></label>
+    <label>Aanboddatum<input id="ak-aanbod" type="date" value="${esc(f.start||iso(today()))}"><small class="help">Vanaf deze datum staat de klant bij Te plannen</small></label>
+    <label>Eerste beurt <small style="font-weight:500">(leeg = via Te plannen)</small><input id="ak-dat" type="date" value="${k.gepland&&!k.prospect?esc(k.gepland):""}"></label>
     <label>Tijd <small style="font-weight:500">(leeg = eerste vrije tijd)</small><input id="ak-tijd" type="time" value="${esc(k.prospect?"":k.tijd||"")}"></label>
   </div>
   <label class="check-row"><input id="ak-ov" type="checkbox" checked>Akkoord op overeenkomst noteren in de klantkaart</label>
@@ -550,10 +551,10 @@ function openAkkoord(id){
     const dat=$("#ak-dat").value,tijd=dat?($("#ak-tijd").value||nextFree(dat)):"",p=r2(Number($("#ak-prijs").value)||0);
     try{const cur=state.klanten.find(x=>x.id===k.id)||k;
       await save("klanten",k.id,{...strip(cur),...(o.extra&&o.extra.length?{opdrachten:[...(cur.opdrachten||[]).filter(x=>!x.groep||!o.extra.some(e=>e.groep===x.groep)),...o.extra]}:{}),prospect:false,opdrachtVerwijderd:false,...(f.facturatie?factModusPatch(f.facturatie,cur):{}),actief:true,akkoord:$("#ak-ov").checked||!!cur.akkoord,prijs:p,frequentie:Number($("#ak-freq").value),duur:Number($("#ak-duur").value),
-        dienst:$("#ak-dienst").value.trim()||"Glasbewassing",gepland:dat,tijd,opzegReden:"",log:[...(cur.log||[]),{datum:iso(today()),tekst:"Akkoord op offerte "+f.nummer+" · "+eur(p)+" per beurt, elke "+$("#ak-freq").value+" weken"+(dat?" · eerste beurt "+fmtD(parse(dat)):"")}]});
+        dienst:$("#ak-dienst").value.trim()||"Glasbewassing",gepland:dat,tijd,aanbodVanaf:$("#ak-aanbod").value||"",aanbieden:!dat&&!($("#ak-aanbod").value>iso(today())),opzegReden:"",log:[...(cur.log||[]),{datum:iso(today()),tekst:"Akkoord op offerte "+f.nummer+" · "+eur(p)+" per beurt, elke "+$("#ak-freq").value+" weken"+(dat?" · eerste beurt "+fmtD(parse(dat)):"")+($("#ak-aanbod").value?" · aanboddatum "+fmtD(parse($("#ak-aanbod").value)):"")}]});
       await save("facturen",f.id,{...strip(f),status:"geaccepteerd",akkoordOp:iso(today())});
       if(f.facturatie==="periodiek"&&!isPeriodiek(cur)){toast(cleanName(k.naam)+" is nu vaste klant · stel nu de periodieke factuur in");setTimeout(()=>openPeriodiek(k.id,"klant"),80);return}
-      dlg.close();toast(cleanName(k.naam)+" is nu vaste klant"+(dat?" · ingepland op "+fmtD(parse(dat))+(tijd?" om "+tijd:""):" · staat bij te plannen"))}
+      dlg.close();toast(cleanName(k.naam)+" is nu vaste klant"+(dat?" · ingepland op "+fmtD(parse(dat))+(tijd?" om "+tijd:""):" · staat bij Te plannen vanaf "+fmtD(parse($("#ak-aanbod").value||iso(today())))))}
     catch(er){b.disabled=false;err(er)}};
 }
 

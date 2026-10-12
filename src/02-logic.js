@@ -3,7 +3,7 @@ const freqDays=k=>(Number(k.frequentie)||4)*7;
 /* aanboddatum per verdieping (opdracht) bepaalt mee wanneer de klant weer aan de beurt is */
 const aanbodVan=k=>{const q=k&&k.ramenRegel;if(!q||!Array.isArray(q.f))return null;const idx=q.f.map((n,i)=>Number(n)>0?i:-1).filter(i=>i>=0);if(!idx.length)return null;
   const ds=idx.map(i=>(q.vol||[])[i]).filter(d=>d&&(!k.laatst||d>k.laatst));if(!ds.length)return null;return {min:ds.slice().sort()[0],alle:ds.length===idx.length}};
-const volgende=k=>{const l=parse(k.laatst);let v=l?addDays(l,freqDays(k)):today();const a=aanbodVan(k);if(a){const av=parse(a.min);if(av&&(a.alle||av<v))v=av}const sk=parse(k.skipTot);if(sk&&sk>v)v=sk;return v};
+const volgende=k=>{const l=parse(k.laatst);let v=l?addDays(l,freqDays(k)):today();{const ab=parse(k.aanbodVanaf);if(ab&&(!l||l<ab))v=ab}const a=aanbodVan(k);if(a){const av=parse(a.min);if(av&&(a.alle||av<v))v=av}const sk=parse(k.skipTot);if(sk&&sk>v)v=sk;return v};
 const planned=k=>parse(k.gepland)||volgende(k);
 const toMin=t=>{const m=String(t||"").match(/^(\d{1,2}):(\d{2})/);return m?Number(m[1])*60+Number(m[2]):null};
 const fromMin=m=>pad(Math.floor(m/60))+":"+pad(m%60);
