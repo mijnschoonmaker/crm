@@ -328,6 +328,7 @@ const I={
   camera:sv('<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>'),
   stuur:sv('<path d="M4 12 20 4l-6 16-3-7z"/><path d="m11 13 9-9"/>'),
   terug:sv('<path d="m15 6-6 6 6 6"/>'),
+  ticket:sv('<path d="M4 5h16a1 1 0 0 1 1 1v3.5a2.5 2.5 0 0 0 0 5V18a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-3.5a2.5 2.5 0 0 0 0-5V6a1 1 0 0 1 1-1z"/><path d="M15 5.5v2M15 11v2M15 16.5v2"/><path d="M6.8 10h5M6.8 14h3.4"/>'),
   zonOp:sv('<circle cx="12" cy="14" r="4"/><path d="M12 4v2M4.9 7.9l1.4 1.4M17.7 9.3l1.4-1.4M2 18h20M7 21h10"/>'),
   ruit:sv('<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 3v18M4 12h16"/>')
 };
@@ -403,7 +404,7 @@ async function toonAanbevolen(code){
 
 /* ---------- de app ---------- */
 let D=null,tab="home";
-const TABS=[["home","Overzicht",I.huis],["bezoeken","Bezoeken",I.kal],["tickets","Tickets",I.bericht],["facturen","Facturen",I.fact],["aanbevelen","Aanbevelen",I.hart],["ik","Contact",I.ik]];
+const TABS=[["home","Overzicht",I.huis],["bezoeken","Bezoeken",I.kal],["tickets","Tickets",I.ticket],["facturen","Facturen",I.fact],["aanbevelen","Aanbevelen",I.hart],["ik","Contact",I.ik]];
 async function laad(stil){
   if(!stil)$("#app").innerHTML=`<div class="laden"><div class="spin"></div><span>Uw omgeving wordt geopend…</span></div>`;
   try{D=await api("data");B=D.bedrijf;teken()}catch(e){if(e.message!=="uit")$("#app").innerHTML=`<main class="welkom"><div class="wk-kaart"><h1>Dat lukte even niet</h1><p>${esc(e.message)}</p><button class="primary" onclick="laad()">Opnieuw proberen</button></div></main>`}}
@@ -449,7 +450,7 @@ function abonnementKp(){const k=D.klant;
     ${lr(I.zon,"Afwezig of op vakantie","Dan houden we er rekening mee","",{attr:'data-act="vakantie"'})}</div>`)}
 function home(){const k=D.klant,openF=D.facturen.filter(f=>f.status==="open"||f.status==="verlopen"),som=openF.reduce((a,f)=>a+f.bedrag,0),A=D.aanbevelen;
   const lopend=D.verzoeken.filter(v=>v.status==="nieuw");
-  const links=`${D.tickets&&D.tickets.ongelezen?`<button class="melding" data-tab="tickets" style="border-color:color-mix(in srgb,var(--brand) 35%,var(--line))"><span class="objic">${I.bericht}</span><div class="tx"><b>${D.tickets.ongelezen===1?"Nieuw antwoord op uw ticket":D.tickets.ongelezen+" nieuwe antwoorden"}</b><small>Bekijk wat wij hebben geantwoord</small></div><span class="btn primary">Bekijken</span></button>`:""}${hero()}
+  const links=`${D.tickets&&D.tickets.ongelezen?`<button class="melding" data-tab="tickets" style="border-color:color-mix(in srgb,var(--brand) 35%,var(--line))"><span class="objic">${I.ticket}</span><div class="tx"><b>${D.tickets.ongelezen===1?"Nieuw antwoord op uw ticket":D.tickets.ongelezen+" nieuwe antwoorden"}</b><small>Bekijk wat wij hebben geantwoord</small></div><span class="btn primary">Bekijken</span></button>`:""}${hero()}
     ${openF.length?`<div class="melding rood"><span class="objic rood">${I.fact}</span><div class="tx"><b>${openF.length===1?"Er staat een factuur open":openF.length+" facturen staan open"}</b><small>${eur(som)}${openF.some(f=>f.status==="verlopen")?" · betaaltermijn verstreken":""}</small></div><button class="primary" data-fact="${esc(openF[0].id)}">Bekijken</button></div>`:""}
     ${A.tegoed>0?`<div class="melding goud"><span class="objic goud">${I.cadeau}</span><div class="tx"><b>${eur0(A.tegoed)} tegoed</b><small>Gaat automatisch van uw volgende factuur af. Bedankt voor uw aanbeveling.</small></div></div>`:""}
     ${D.teBeoordelen?kp(I.ster,"Hoe was ons bezoek?",`<div class="sterren" id="beoor" role="group" aria-label="Geef een beoordeling">${[1,2,3,4,5].map(n=>`<button data-ster="${n}" aria-label="${n} ${n===1?"ster":"sterren"}">${I.ster}</button>`).join("")}</div>`,{kl:"goud",sub:"Bezoek van "+esc(lang(D.teBeoordelen.datum))}):""}
@@ -520,8 +521,8 @@ function tickets(){
   return kop("Tickets","Een vraag, klacht of iets dat geregeld moet worden? Maak een ticket aan, dan houden wij u op de hoogte.")+`<div class="pg">
     <button class="melding tk-nieuw" data-act="ticket"><span class="objic">${I.plus}</span><div class="tx"><b>Nieuw ticket</b><small>Stel uw vraag, ook met een foto. U krijgt bericht zodra wij reageren.</small></div><span class="btn primary">Aanmaken</span></button>
     ${L===null?`<div class="laden" style="min-height:160px"><div class="spin"></div></div>`
-     :L.length?`${open.length?kp(I.bericht,"Lopende tickets",`<div class="lijst">${open.map(rij).join("")}</div>`,{sub:plural(open.length,"ticket","tickets")}):""}${klaar.length?kp(I.check,"Opgelost",`<div class="lijst">${klaar.map(rij).join("")}</div>`,{kl:"groen",sub:plural(klaar.length,"ticket","tickets")}):""}`
-     :kp(I.bericht,"Nog geen tickets",`<p class="leeg">Heeft u een vraag of is er iets niet goed gegaan? Maak hierboven een ticket aan.</p>`,{kl:"zacht"})}</div>`}
+     :L.length?`${open.length?kp(I.ticket,"Lopende tickets",`<div class="lijst">${open.map(rij).join("")}</div>`,{sub:plural(open.length,"ticket","tickets")}):""}${klaar.length?kp(I.check,"Opgelost",`<div class="lijst">${klaar.map(rij).join("")}</div>`,{kl:"groen",sub:plural(klaar.length,"ticket","tickets")}):""}`
+     :kp(I.ticket,"Nog geen tickets",`<p class="leeg">Heeft u een vraag of is er iets niet goed gegaan? Maak hierboven een ticket aan.</p>`,{kl:"zacht"})}</div>`}
 async function ticketsLaad(){try{const r=await api("tickets"),sig=JSON.stringify(r.tickets);if(sig===TK.lsig)return;TK.lsig=sig;TK.lijst=r.tickets;if(tab==="tickets"&&!TK.open)teken()}catch(e){if(TK.lijst===null){TK.lijst=[];if(tab==="tickets"&&!TK.open)teken()}}}
 function ticketDetail(){const d=TK.d;
   return `<section class="chat tk" aria-label="Ticket">

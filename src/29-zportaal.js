@@ -47,7 +47,7 @@ function kkPortaal(k){
   const door=k.aanbevolenDoor&&state.klanten.find(x=>x.id===k.aanbevolenDoor);
   const aangebracht=state.klanten.filter(x=>x.aanbevolenDoor===k.id);
   const st=x=>x.aanbevelingBeloond?["ok","Vrijgegeven"]:x.actief===false?["neutral","Gestopt"]:x.akkoord===false||x.prospect?["soon","On hold · wacht op akkoord"]:["soon","On hold · eerste afspraak"];
-  return `<section class="kp"><div class="kp-h"><span class="objic" style="background:#e9a23b;color:#fff">${I.spark||I.user}</span><b>Klantportaal & aanbevelen</b><span class="sp"></span>${LIVE?`<button type="button" class="small" data-act="tknieuw" data-id="${esc(k.id)}">${I.inbox||I.mail}Ticket</button><button type="button" class="small" data-act="ptinvite" data-id="${esc(k.id)}">${I.send}${k.portaalLaatst||k.portaalUitgenodigd?"Opnieuw uitnodigen":"Uitnodigen"}</button>`:""}</div>
+  return `<section class="kp"><div class="kp-h"><span class="objic" style="background:#e9a23b;color:#fff">${I.spark||I.user}</span><b>Klantportaal & aanbevelen</b><span class="sp"></span>${LIVE?`<button type="button" class="small" data-act="tknieuw" data-id="${esc(k.id)}">${I.ticket}Ticket</button><button type="button" class="small" data-act="ptinvite" data-id="${esc(k.id)}">${I.send}${k.portaalLaatst||k.portaalUitgenodigd?"Opnieuw uitnodigen":"Uitnodigen"}</button>`:""}</div>
     <div class="pt-kk">
       <div><small>Portaal</small><b>${k.portaalLaatst?"Laatst ingelogd "+esc(fmtD(k.portaalLaatst.slice(0,10))):k.portaalUitgenodigd?"Uitgenodigd "+esc(fmtD(k.portaalUitgenodigd.slice(0,10))):"Nog niet gebruikt"}</b></div>
       <div><small>Aanbevelingscode</small><b>${esc(k.refCode||"Wordt gemaakt bij eerste login")}</b></div>
@@ -135,18 +135,18 @@ function tkKaart(){const l=tkOngelezen(),n=l.length,open=state.tickets.filter(t=
   const side=document.querySelector("aside.side"),uc=document.getElementById("userCard");let el=document.getElementById("tkCard");
   if(side&&uc){if(!open){if(el)el.remove()}else{if(!el){el=document.createElement("div");el.id="tkCard";side.insertBefore(el,document.getElementById("ptCard")||uc)}
     const t=l[0],sig=open+"|"+l.map(x=>x.id+x.ongelezenTeam).join(",");if(el.dataset.sig!==sig){el.dataset.sig=sig;el.className="pt-card ch-card";
-      el.innerHTML=`<button type="button" data-act="tkopen"${t?` data-id="${esc(t.id)}"`:""}><span class="pt-ic">${I.inbox||I.mail}${n?`<i>${n}</i>`:""}</span><span class="pt-tx"><b>${n?(n>1?n+" tickets wachten":"Ticket "+esc(t.nummer||"")):plural(open,"open ticket","open tickets")}</b><small>${t?esc(cleanName(t.klantNaam))+" · "+esc(t.laatsteTekst||""):"Bekijk het overzicht"}</small></span>${I.right}</button>`}}}
+      el.innerHTML=`<button type="button" data-act="tkopen"${t?` data-id="${esc(t.id)}"`:""}><span class="pt-ic">${I.ticket}${n?`<i>${n}</i>`:""}</span><span class="pt-tx"><b>${n?(n>1?n+" tickets wachten":"Ticket "+esc(t.nummer||"")):plural(open,"open ticket","open tickets")}</b><small>${t?esc(cleanName(t.klantNaam))+" · "+esc(t.laatsteTekst||""):"Bekijk het overzicht"}</small></span>${I.right}</button>`}}}
   let fb=document.getElementById("tkFab");
   if(!n){if(fb)fb.remove();return}
   if(!fb){fb=document.createElement("button");fb.type="button";fb.id="tkFab";fb.className="ch-fab";fb.dataset.act="tkopen";document.body.appendChild(fb)}
-  fb.dataset.id=l[0].id;fb.setAttribute("aria-label",n+" tickets met nieuwe berichten");fb.innerHTML=`${I.inbox||I.mail}<i>${n}</i>`}
+  fb.dataset.id=l[0].id;fb.setAttribute("aria-label",n+" tickets met nieuwe berichten");fb.innerHTML=`${I.ticket}<i>${n}</i>`}
 /* pop-up rechtsboven + geluidje + systeemmelding als het tabblad op de achtergrond staat */
 function tkGeluid(){try{const A=new (window.AudioContext||window.webkitAudioContext)(),t=A.currentTime;[[880,0],[1320,.12]].forEach(([f,d])=>{const o=A.createOscillator(),g=A.createGain();o.type="sine";o.frequency.value=f;g.gain.setValueAtTime(0,t+d);g.gain.linearRampToValueAtTime(.18,t+d+.02);g.gain.exponentialRampToValueAtTime(.001,t+d+.35);o.connect(g).connect(A.destination);o.start(t+d);o.stop(t+d+.4)});setTimeout(()=>A.close(),900)}catch(e){}}
 function tkPopup(t,totaal,nieuw){
   let box=document.getElementById("chatPops");if(!box){box=document.createElement("div");box.id="chatPops";box.className="ch-pops";box.setAttribute("aria-live","polite");document.body.appendChild(box)}
   box.querySelectorAll(`[data-kid="${CSS.escape(t.id)}"]`).forEach(x=>x.remove());
   const el=document.createElement("div");el.className="ch-pop";el.dataset.kid=t.id;el.setAttribute("role","alert");
-  el.innerHTML=`<span class="chx-av" style="--h:${hue(t.klantNaam||"")}">${esc(initials(cleanName(t.klantNaam||"?")))}</span><div class="ch-pop-t"><small>${I.inbox||""}${totaal?totaal+" tickets wachten op antwoord":nieuw||t.aangemaakt===t.laatst?"Nieuw ticket "+esc(t.nummer||""):"Nieuw bericht · "+esc(t.nummer||"")}</small><b>${esc(cleanName(t.klantNaam||"Klant"))}</b><p><strong>${esc(t.onderwerp||"")}</strong>${t.laatsteTekst&&t.laatsteTekst!==t.onderwerp?" · "+esc(String(t.laatsteTekst).slice(0,120)):""}</p>
+  el.innerHTML=`<span class="chx-av" style="--h:${hue(t.klantNaam||"")}">${esc(initials(cleanName(t.klantNaam||"?")))}</span><div class="ch-pop-t"><small>${I.ticket}${totaal?totaal+" tickets wachten op antwoord":nieuw||t.aangemaakt===t.laatst?"Nieuw ticket "+esc(t.nummer||""):"Nieuw bericht · "+esc(t.nummer||"")}</small><b>${esc(cleanName(t.klantNaam||"Klant"))}</b><p><strong>${esc(t.onderwerp||"")}</strong>${t.laatsteTekst&&t.laatsteTekst!==t.onderwerp?" · "+esc(String(t.laatsteTekst).slice(0,120)):""}</p>
     <div class="ch-pop-k"><button type="button" class="small primary" data-cp="open">${I.send}Bekijken</button><button type="button" class="small ghost" data-cp="x">Later</button></div></div><button type="button" class="iconbtn sm ghost ch-pop-x" data-cp="x" aria-label="Sluiten">${I.x}</button>`;
   const weg=()=>{el.classList.add("weg");setTimeout(()=>el.remove(),250)};
   el.addEventListener("click",e=>{const b=e.target.closest("[data-cp]");if(!b)return;weg();if(b.dataset.cp==="open"){if(tkOpen)tkDetail(t.id);else{if(dlg.open)dlg.close();openTickets(t.id)}}});
@@ -160,7 +160,7 @@ if(LIVE&&"Notification" in window&&Notification.permission==="default")document.
 function openTickets(id,nieuwVoor){
   if(!LIVE)return toast("Tickets werken in de live versie");
   tkOpen={id:id||"",filter:"actief",unsub:null,berichten:[],foto:null,nieuwVoor:nieuwVoor||""};
-  openDlg(`<div class="dlg-head"><span class="objic big">${I.inbox||I.mail}</span><div style="min-width:0;flex:1"><h3>Tickets</h3><div class="subt">Vragen en meldingen van klanten via het klantportaal</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
+  openDlg(`<div class="dlg-head"><span class="objic big tk-ic">${I.ticket}</span><div style="min-width:0;flex:1"><h3>Tickets</h3><div class="subt">Vragen en meldingen van klanten via het klantportaal</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
     <div class="chx"><div class="chx-l"><div class="seg tk-seg" role="group">${[["actief","Lopend"],["opgelost","Opgelost"],["alle","Alle"]].map(([v,l])=>`<button type="button" data-tkf="${v}" aria-pressed="${v==="actief"}">${l}</button>`).join("")}</div><label class="chx-z">${I.search}<input type="search" id="chxZ" placeholder="Zoek ticket of klant…" autocomplete="off"></label><div id="chxL"></div></div><div class="chx-r" id="chxR"></div></div>`,{xwide:true});
   dlg.addEventListener("close",()=>{if(tkOpen&&tkOpen.unsub)tkOpen.unsub();tkOpen=null},{once:true});
   form.querySelectorAll("[data-tkf]").forEach(b=>b.onclick=()=>{tkOpen.filter=b.dataset.tkf;form.querySelectorAll("[data-tkf]").forEach(x=>x.setAttribute("aria-pressed",x===b));tkLijstTeken()});
