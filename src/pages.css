@@ -1697,3 +1697,15 @@ nav.tabs .badge.nk-b{padding:0 2px;height:18px}nav.tabs .badge.nk-b em{display:n
 .klx .card.kx.kx-selm.sel{background:#f6f8f9}
 .klx .card.kx.sel::before,.klx .card.kx.sel::after{display:none}
 .kx-av .kc svg{position:static!important;inset:auto!important;transform:none!important;display:block!important}
+
+/* cirkels nooit platdrukken */
+.klx .kx-av{flex:none!important;width:60px!important;height:60px!important;min-width:60px;min-height:60px;aspect-ratio:1;align-self:center;overflow:visible}
+.klx .kx-av .kc{flex:none;aspect-ratio:1}
+@media (max-width:640px){.klx .kx-av{width:52px!important;height:52px!important;min-width:52px;min-height:52px}}
+/* vandaag: rustig, één woord met een zacht pulserend stipje */
+.kx-av .kc .kc-v{font-size:11px!important;font-weight:800;letter-spacing:-.01em;text-transform:none}
+.kx-av .kc .kc-dot{display:block;width:7px;height:7px;border-radius:50%;background:var(--kx);margin-bottom:4px;box-shadow:0 0 0 0 color-mix(in srgb,var(--kx) 50%,transparent);animation:kcDot 1.8s ease-out infinite}
+@keyframes kcDot{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--kx) 55%,transparent)}80%,100%{box-shadow:0 0 0 7px transparent}}
+.kx-av .kc em{letter-spacing:.02em}
+@media (prefers-reduced-motion:reduce){.kx-av .kc .kc-dot{animation:none}}
+.klx .kx-due small{white-space:nowrap}
