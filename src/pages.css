@@ -1654,3 +1654,12 @@ nav.tabs .badge.nk-b{padding:0 2px;height:18px}nav.tabs .badge.nk-b em{display:n
 .kx-ring{inset:2px!important;background:conic-gradient(from 0deg,color-mix(in srgb,var(--kx,#9aa8ad) 30%,#fff) 0,color-mix(in srgb,var(--kx,#9aa8ad) 65%,#fff) calc(var(--p)*.5),var(--kx,#9aa8ad) calc(var(--p)*.92),var(--kx,#9aa8ad) var(--p),color-mix(in srgb,var(--kx,#9aa8ad) 12%,#e9eef0) var(--p),color-mix(in srgb,var(--kx,#9aa8ad) 12%,#e9eef0) 100%)!important;
   -webkit-mask:radial-gradient(closest-side,transparent calc(100% - 3px),#000 calc(100% - 2.5px))!important;mask:radial-gradient(closest-side,transparent calc(100% - 3px),#000 calc(100% - 2.5px))!important}
 .kx-neutral .kx-ring{display:block!important;background:color-mix(in srgb,#9aa8ad 18%,#eef2f3)!important}
+
+/* kleuren van de ring: hoe dichter bij de beurt, hoe warmer */
+.kx-ok{--kx:#3c9a6a!important}
+.kx-attn{--kx:#c2a227!important}
+.kx-warn,.kx-soon{--kx:#e28c1c!important}
+.kx-crit{--kx:#e2571f!important}
+.kx-late{--kx:#cc2f2f!important}
+.kx-crit .kx-st::before{animation:kxPuls 2.4s ease-in-out infinite}
+.kx-nieuw{--kx:#137a8a!important}.kx-nieuw .kx-pct{background:#137a8a;color:#fff;box-shadow:none}
