@@ -2142,6 +2142,25 @@ nav.tabs .badge.nk-b{padding:0 2px;height:18px}nav.tabs .badge.nk-b em{display:n
 .kx-av .kc.kc-tile b{margin-top:2px!important}
 @media (max-width:640px){.kx-av .kc.kc-tile .kc-m{font-size:5.8px!important;padding:7px 0 2px!important}}
 
+/* te plannen: kaarten die je in één oogopslag leest */
+.job.offer.of{padding:12px 12px 10px 14px;gap:8px;border-radius:16px;border:1px solid var(--line);box-shadow:0 1px 2px rgb(15 31 38 / .04),0 6px 16px -10px rgb(15 31 38 / .18)}
+.job.offer.of::before{top:12px;bottom:12px;width:3.5px;background:var(--kx)}
+.of-top{display:flex;gap:11px;align-items:center;min-width:0}
+.of-av{width:46px!important;height:46px!important;flex:none;display:grid;place-items:center}
+.of-av .kc{width:44px!important;height:44px!important;border-radius:12px!important}
+.of-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.of-adr{all:unset;cursor:pointer;font-weight:800;font-size:14px;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.of-adr:hover{text-decoration:underline}
+.of-nm{color:var(--muted);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.of-st{font-size:12px;font-weight:700;color:color-mix(in srgb,var(--kx) 85%,#0f1f26);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.of-amt{flex:none;text-align:right;display:flex;flex-direction:column;gap:1px}.of-amt b{font-size:15px;font-weight:800}.of-amt small{color:var(--muted);font-size:11.5px}
+.of-chips{display:flex;flex-wrap:wrap;gap:5px}
+.of-chips span{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:600;color:var(--muted);background:var(--surface-2);border-radius:99px;padding:3px 8px}
+.of-chips svg{width:12px;height:12px}.of-r i{width:7px;height:7px;border-radius:50%}
+.of-plan{all:unset;cursor:pointer;display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:11px;font-size:13px;color:var(--brand);background:color-mix(in srgb,var(--brand) 8%,var(--surface));border:1px solid color-mix(in srgb,var(--brand) 18%,transparent);transition:background .15s}
+.of-plan:hover{background:color-mix(in srgb,var(--brand) 14%,var(--surface))}
+.of-plan svg{width:15px;height:15px;flex:none}.of-plan span{flex:1}.of-plan b{font-weight:800}
+.of-pm{font-size:12.5px;font-weight:700;color:var(--muted);text-align:center;padding:6px;border-radius:10px;background:var(--surface-2)}.of-pm.on{background:var(--brand-soft);color:var(--brand)}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -3486,11 +3505,23 @@ function viewDays(){
 function sugDate(k,days){const t=today(),lo=parse(days[0])>t?parse(days[0]):t,hi=parse(days[days.length-1]);let x=volgende(k);if(x<lo)x=lo;if(x>hi&&lo<=hi)x=hi;return werkdagAanpassen(x)}
 function offerHtml(k,dayIso,timed){
   const s=dueTxt(k),h=hue(k.ronde||k.naam),days=viewDays(),sd=dayIso||iso(sugDate(k,days)),tt=(timed||state.pview!=="week"&&state.pview!=="maand")?nextFree(sd):"",picked=state.pick===k.id;
-  return `<div class="job offer${picked?" picked":""}" style="--h:${h}" draggable="true" data-drag="${esc(k.id)}"${state.planMode?` data-act="pmpick" data-id="${esc(k.id)}"`:""}>
-    <div class="jn"><button type="button" data-act="klant" data-id="${esc(k.id)}">${esc(jobAddrObj(k).adres||cleanName(k.naam))}</button><span class="amt">${eur0(toon(k.prijs))}</span></div>
-    <div class="ja">${esc(cleanName(k.naam))}${jobAddrObj(k).plaats?" · "+esc(jobAddrObj(k).plaats):""}</div>
-    <div class="ja">${dienstHtml(k)} · elke ${esc(k.frequentie||4)} wk · ${duur(k)} min</div>
-    <div class="jf"><span class="pill ${s.cls}">${esc(s.txt)}</span>${state.planMode?`<span class="pill ${picked?"brand":"neutral"}">${picked?"Gekozen, tik een tijdslot":"Tik om te kiezen"}</span>`:`<button type="button" class="tiny" data-act="planop" data-id="${esc(k.id)}" data-d="${sd}"${tt?` data-t="${tt}"`:""}>Plan ${wd(parse(sd))} ${parse(sd).getDate()}${tt?" "+tt:""}</button>`}</div>
+  const t=today(),gp=parse(k.gepland),mnd=["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"];
+  let cls,band,big,sub;
+  if(gp&&gp<t){cls="late";band="gemist";big=gp.getDate();sub="Gepland "+fmtD(gp)+", niet gedaan"}
+  else if(!k.laatst){cls="nieuw";band="nieuw";big='<span class="kc-s">★</span>';sub="Nog nooit gewassen"}
+  else{const v=volgende(k),d=Math.round((v-t)/DAY);
+    if(d<0){cls="late";band="te laat";big="+"+Math.abs(d);sub=Math.abs(d)+(Math.abs(d)===1?" dag":" dagen")+" te laat"}
+    else if(d===0){cls="crit";band="vandaag";big=t.getDate();sub="Vandaag aan de beurt"}
+    else{cls=d<7?"crit":d<=10?"warn":d<=14?"attn":"ok";band=d===1?"dag":"dagen";big=d;sub="Aan de beurt vanaf "+wd(v)+" "+v.getDate()+" "+mnd[v.getMonth()]}}
+  const ao=jobAddrObj(k),sdD=parse(sd);
+  return `<div class="job offer of kx-${cls}${picked?" picked":""}" style="--h:${h}" draggable="true" data-drag="${esc(k.id)}"${state.planMode?` data-act="pmpick" data-id="${esc(k.id)}"`:""}>
+    <div class="of-top"><span class="kx-av of-av"><span class="kc kc-tile"><i class="kc-m">${band}</i><b>${big}</b></span></span>
+      <div class="of-main"><button type="button" class="of-adr" data-act="klant" data-id="${esc(k.id)}">${esc(ao.adres||cleanName(k.naam))}</button>
+        <div class="of-nm">${esc(cleanName(k.naam))}${ao.plaats?" · "+esc(ao.plaats):""}</div>
+        <div class="of-st">${esc(sub)}</div></div>
+      <div class="of-amt"><b>${eur0(toon(k.prijs))}</b><small>${duur(k)} min</small></div></div>
+    <div class="of-chips"><span>${I.wrench}${esc(k.dienst||"Glasbewassing")}</span><span>${I.refresh||I.clock}elke ${esc(k.frequentie||4)} wk</span>${k.ronde?`<span class="of-r"><i style="background:hsl(${h} 65% 52%)"></i>${esc(k.ronde)}</span>`:""}</div>
+    ${state.planMode?`<div class="of-pm${picked?" on":""}">${picked?"Gekozen · tik een tijdslot":"Tik om te kiezen"}</div>`:`<button type="button" class="of-plan" data-act="planop" data-id="${esc(k.id)}" data-d="${sd}"${tt?` data-t="${tt}"`:""}>${I.cal2}<span>Plan <b>${wd(sdD)} ${sdD.getDate()} ${mnd[sdD.getMonth()]}</b>${tt?" · "+tt:""}</span>${I.right}</button>`}
   </div>`;
 }
 const pqMatch=k=>{const q=state.pq.toLowerCase();return !q||[k.naam,k.adres,k.plaats,k.postcode,jobAddr(k)].join(" ").toLowerCase().includes(q)};

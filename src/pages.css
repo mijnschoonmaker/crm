@@ -1728,3 +1728,22 @@ nav.tabs .badge.nk-b{padding:0 2px;height:18px}nav.tabs .badge.nk-b em{display:n
 .kx-av .kc.kc-tile .kc-m{font-size:6.8px!important;letter-spacing:.05em!important;padding:8px 0 3px!important}
 .kx-av .kc.kc-tile b{margin-top:2px!important}
 @media (max-width:640px){.kx-av .kc.kc-tile .kc-m{font-size:5.8px!important;padding:7px 0 2px!important}}
+
+/* te plannen: kaarten die je in één oogopslag leest */
+.job.offer.of{padding:12px 12px 10px 14px;gap:8px;border-radius:16px;border:1px solid var(--line);box-shadow:0 1px 2px rgb(15 31 38 / .04),0 6px 16px -10px rgb(15 31 38 / .18)}
+.job.offer.of::before{top:12px;bottom:12px;width:3.5px;background:var(--kx)}
+.of-top{display:flex;gap:11px;align-items:center;min-width:0}
+.of-av{width:46px!important;height:46px!important;flex:none;display:grid;place-items:center}
+.of-av .kc{width:44px!important;height:44px!important;border-radius:12px!important}
+.of-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.of-adr{all:unset;cursor:pointer;font-weight:800;font-size:14px;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.of-adr:hover{text-decoration:underline}
+.of-nm{color:var(--muted);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.of-st{font-size:12px;font-weight:700;color:color-mix(in srgb,var(--kx) 85%,#0f1f26);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.of-amt{flex:none;text-align:right;display:flex;flex-direction:column;gap:1px}.of-amt b{font-size:15px;font-weight:800}.of-amt small{color:var(--muted);font-size:11.5px}
+.of-chips{display:flex;flex-wrap:wrap;gap:5px}
+.of-chips span{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:600;color:var(--muted);background:var(--surface-2);border-radius:99px;padding:3px 8px}
+.of-chips svg{width:12px;height:12px}.of-r i{width:7px;height:7px;border-radius:50%}
+.of-plan{all:unset;cursor:pointer;display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:11px;font-size:13px;color:var(--brand);background:color-mix(in srgb,var(--brand) 8%,var(--surface));border:1px solid color-mix(in srgb,var(--brand) 18%,transparent);transition:background .15s}
+.of-plan:hover{background:color-mix(in srgb,var(--brand) 14%,var(--surface))}
+.of-plan svg{width:15px;height:15px;flex:none}.of-plan span{flex:1}.of-plan b{font-weight:800}
+.of-pm{font-size:12.5px;font-weight:700;color:var(--muted);text-align:center;padding:6px;border-radius:10px;background:var(--surface-2)}.of-pm.on{background:var(--brand-soft);color:var(--brand)}
