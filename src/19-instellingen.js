@@ -421,7 +421,7 @@ function kleinLogo(url){return new Promise(res=>{const im=new Image();im.onload=
 
 /* website-calculator hier openen en gebruiken, zoals klanten hem op je website zien */
 function webCalcVoorbeeld(html){
-  const o=document.createElement("div");o.className="wcv-ov";
+  const o=document.createElement("dialog");o.className="wcv-ov";
   o.innerHTML=`<div class="wcv"><div class="wcv-h"><span class="objic">${I.globe||I.eye}</span><div style="min-width:0;flex:1"><b>Website-calculator</b><small>Zo zien klanten hem op je website. Je kunt hem hier gewoon gebruiken.</small></div>
     <div class="seg wcv-seg"><button type="button" data-w="tel" class="sel">Telefoon</button><button type="button" data-w="pc">Computer</button></div>
     <button type="button" class="iconbtn" data-wclose aria-label="Sluiten">${I.x}</button></div>
@@ -434,7 +434,8 @@ function webCalcVoorbeeld(html){
     try{const k=D.formaat==="zeem.contact"?await contactToevoegen(D):await aanvraagToevoegen(D,d.fotos||[]);reply({type:"zeem-aanvraag-ok",id:k.id})}
     catch(er){console.error(er);reply({type:"zeem-aanvraag-fout",tekst:"opslaan in het crm lukte niet."})}};
   window.addEventListener("message",opMsg);
-  const sluit=()=>{o.remove();document.removeEventListener("keydown",esc_,true);window.removeEventListener("message",opMsg)};
+  const sluit=()=>{try{o.close()}catch(_){}o.remove();document.removeEventListener("keydown",esc_,true);window.removeEventListener("message",opMsg)};
+  o.addEventListener("cancel",e=>{e.preventDefault();sluit()});
   const esc_=e=>{if(e.key==="Escape"){e.preventDefault();e.stopPropagation();sluit()}};document.addEventListener("keydown",esc_,true);
   o.addEventListener("click",e=>{if(e.target===o||e.target.closest("[data-wclose]")){sluit();return}const w=e.target.closest("[data-w]");if(w){o.querySelectorAll("[data-w]").forEach(x=>x.classList.toggle("sel",x===w));f.className="wcv-f "+w.dataset.w}});
-  (dlg.open?dlg:document.body).appendChild(o)}
+  document.body.appendChild(o);try{o.showModal()}catch(_){o.setAttribute("open","")}}
