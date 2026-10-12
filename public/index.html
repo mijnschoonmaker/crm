@@ -2422,6 +2422,54 @@ body.mw .jp-svc>div>span:last-child:not(.jp-ic){display:none}
 .chx-l .tk-seg button{padding:7px 6px;font-size:12.5px;white-space:nowrap;min-width:0}
 .chx-l .tk-seg .tk-n{min-width:16px;height:16px;font-size:10px;margin-left:3px}
 
+/* ---------- Kaartplannen ---------- */
+.pl-kaart[aria-pressed="true"]{background:var(--brand-soft);color:var(--brand);border-color:color-mix(in srgb,var(--brand) 35%,transparent)}
+.pk{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow-sm,0 1px 2px rgba(0,0,0,.04));margin:0 0 16px;overflow:hidden}
+.pk-h{display:flex;align-items:center;gap:14px;padding:12px 14px 12px 16px;flex-wrap:wrap}
+.pk-tt{display:flex;flex-direction:column;gap:1px;min-width:0;margin-right:auto}
+.pk-tt b{display:flex;align-items:center;gap:8px;font-size:15px;letter-spacing:-.01em}.pk-tt b svg{width:17px;height:17px;color:var(--brand)}
+.pk-tt small{color:var(--muted);font-size:12.5px}
+.pk-leg{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);font-weight:600}
+.pk-leg span{display:inline-flex;align-items:center;gap:6px}
+.pk-d{width:10px;height:10px;border-radius:50%;display:inline-block;box-shadow:0 0 0 2px #fff,0 0 0 3px rgba(0,0,0,.06)}
+.pk-d.of{background:#ee9a2f}.pk-d.late{background:#e0533d}.pk-d.sel{background:#2f7cf6}.pk-d.pl{background:var(--brand)}
+.pk-acts{display:flex;gap:6px;align-items:center}
+.pk-days{display:flex;gap:6px;flex-wrap:wrap;padding:0 16px 10px}
+.pk-days span{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:4px 10px 4px 8px;border-radius:999px;background:var(--surface-2)}
+.pk-days i{width:9px;height:9px;border-radius:50%;background:var(--pkc)}
+.pk-slot{position:relative;height:clamp(300px,42vh,460px);border-top:1px solid var(--line)}
+.pk-map{position:absolute;inset:0;background:#eef2f3;font:inherit}
+.pk-laad{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--muted);font-size:13.5px;text-align:center;padding:20px}
+.pk-laad svg{width:28px;height:28px;opacity:.6}
+.pk-ic{background:none;border:0}
+.pk-pin{--pkc:#ee9a2f;position:relative;display:block;width:28px;height:36px;filter:drop-shadow(0 3px 4px rgba(16,40,52,.28));transition:transform .18s cubic-bezier(.3,1.4,.5,1)}
+.pk-pin::before{content:"";position:absolute;left:3px;top:1px;width:22px;height:22px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--pkc);border:2.5px solid #fff;box-sizing:border-box;transform-origin:center}
+.pk-pin::after{content:"";position:absolute;left:12px;bottom:0;width:4px;height:4px;border-radius:50%;background:rgba(16,40,52,.35);filter:blur(.5px)}
+.pk-pin b{position:absolute;left:3px;top:1px;width:22px;height:22px;display:grid;place-items:center;color:#fff;font:800 10.5px/1 Manrope,system-ui,sans-serif;z-index:1;letter-spacing:-.02em}
+.pk-pin.of b::before{content:"";width:6px;height:6px;border-radius:50%;background:#fff}
+.pk-pin.late{--pkc:#e0533d}.pk-pin.late b::before{content:"";width:6px;height:6px;border-radius:50%;background:#fff}
+.pk-pin.sel{--pkc:#2f7cf6;transform:scale(1.12)}.pk-pin.sel b::before{content:"✓";font-size:12px}
+.pk-pin.pl{--pkc:var(--brand,#1f6f8b);width:24px;height:24px;filter:drop-shadow(0 2px 3px rgba(16,40,52,.25))}
+.pk-pin.pl::before{left:0;top:0;width:24px;height:24px;border-radius:50%;transform:none}
+.pk-pin.pl::after{display:none}
+.pk-pin.pl b{left:0;top:0;width:24px;height:24px;font-size:10px;text-transform:capitalize}
+.pk-pin.pl.klaar{opacity:.55}
+.pk-ic:hover .pk-pin,.pk-hl .pk-pin{transform:scale(1.22) translateY(-2px)}
+.leaflet-tooltip.pk-tt-w{background:var(--surface,#fff);color:var(--ink,#12262e);border:0;border-radius:12px;box-shadow:0 10px 30px rgba(16,40,52,.18),0 0 0 1px rgba(16,40,52,.06);padding:9px 12px;font:500 12.5px/1.35 Manrope,system-ui,sans-serif}
+.leaflet-tooltip.pk-tt-w::before{border-top-color:var(--surface,#fff)}
+.pk-tip{display:flex;flex-direction:column;gap:1px;min-width:150px}.pk-tip b{font-size:13.5px;font-weight:800}.pk-tip span{color:var(--muted,#64767d)}.pk-tip em{font-style:normal;color:var(--ink);margin-top:3px;font-weight:600}
+.pk-map .leaflet-control-zoom{border:0!important;box-shadow:0 4px 14px rgba(16,40,52,.14)!important;border-radius:12px!important;overflow:hidden}
+.pk-map .leaflet-control-zoom a{width:34px!important;height:34px!important;line-height:34px!important;color:var(--ink)!important;border-color:var(--line)!important}
+.pk-map .leaflet-control-attribution{font-size:10px;background:rgba(255,255,255,.75)!important;border-radius:8px 0 0 0}
+.pk-selbar{display:flex;align-items:center;gap:8px;background:color-mix(in srgb,#2f7cf6 9%,var(--surface));color:#1d5fc9;border-radius:12px;padding:8px 10px;margin:0 0 10px;font-size:12.5px}
+.pk-selbar svg{width:15px;height:15px;flex:none}.pk-selbar span{flex:1;min-width:0}.pk-selbar button{color:#1d5fc9}
+@media (max-width:760px){.pk{border-radius:16px}.pk-leg{display:none}.pk-acts .small{padding:7px 10px;font-size:12.5px}.pk-slot{height:300px}.pl-kaart span{display:none}}
+@media (min-width:761px){.pl-bar{flex-wrap:nowrap}.pl-q{flex:1 1 160px}.pl-bar>button{flex:none}}
+@media (min-width:761px) and (max-width:1180px){.pl-kaart span,.pl-new span{display:none}}
+.pk{isolation:isolate}.pk-map{z-index:0}
+.pl-mk{display:none}
+@media (max-width:760px){.pl-kaart{display:none!important}.pl-mk{display:contents}}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -3768,6 +3816,103 @@ async function routeMove(id,n){
   try{await save("routes",day,{...strip(state.routes[day]||{}),order:ids})}catch(e){err(e)}
 }
 
+/* ---------- Kaartplannen ----------
+   Een kaart boven de planning: waar wonen de klanten die ingepland moeten worden, en waar werk je al.
+   Tik op een oranje speld om hem te selecteren; de selectie staat dan rechts bij Te plannen en sleep je zo in de planning.
+   Coördinaten komen van de openbare adresservice van PDOK en worden op dit apparaat bewaard. */
+const PK={map:null,el:null,laag:null,geo:null,busy:false,fail:new Set(),sig:"",fit:false,laadt:null,data:null,mk:{},fout:""};
+state.pkaart=(()=>{try{return localStorage.getItem("ms.pk")==="1"}catch(e){return false}})();
+state.ksel=state.ksel||new Set();
+function pkGeoCache(){if(!PK.geo){try{PK.geo=JSON.parse(localStorage.getItem("ms.geo")||"{}")||{}}catch(e){PK.geo={}}}return PK.geo}
+const pkAdr=k=>{const a=jobAddrObj(k);return{adres:String(a.adres||"").trim(),pc:String(a.postcode||"").replace(/\s+/g,"").toUpperCase(),plaats:String(a.plaats||"").trim()}};
+const pkKey=k=>{const a=pkAdr(k);return (a.adres+"|"+a.pc+"|"+a.plaats).toLowerCase().replace(/\s+/g," ")};
+const pkHeeftAdres=k=>{const a=pkAdr(k);return !!(a.adres&&(a.pc||a.plaats))};
+function pkCoord(k){const c=pkGeoCache()[pkKey(k)];return Array.isArray(c)?c:null}
+function pkOpen(list){const G=pkGeoCache();return list.filter(k=>pkHeeftAdres(k)&&!(pkKey(k) in G)&&!PK.fail.has(pkKey(k)))}
+async function pkGeocode(list){
+  if(PK.busy)return;const need=[...new Map(pkOpen(list).map(k=>[pkKey(k),k])).values()];if(!need.length)return;
+  PK.busy=true;PK.totaal=need.length;PK.klaar=0;pkStatus();const G=pkGeoCache();
+  const one=async k=>{const key=pkKey(k),a=pkAdr(k);
+    try{const r=await fetch("https://api.pdok.nl/bzk/locatieserver/search/v3_1/free?fq=type:adres&rows=1&fl=centroide_ll,weergavenaam&q="+encodeURIComponent([a.adres,a.pc,a.plaats].filter(Boolean).join(" ")));
+      if(!r.ok)throw new Error("pdok");const j=await r.json(),d=((j.response||{}).docs||[])[0],m=d&&/POINT\(([-\d.]+) ([-\d.]+)\)/.exec(d.centroide_ll||"");
+      G[key]=m?[+m[2],+m[1]]:0}
+    catch(e){PK.fail.add(key)}
+    PK.klaar++;if(PK.klaar%6===0){pkStatus();pkTeken()}};
+  const q=[...need];while(q.length)await Promise.all(q.splice(0,5).map(one));
+  try{localStorage.setItem("ms.geo",JSON.stringify(G))}catch(e){}
+  PK.busy=false;if(!PK.zelf)PK.fit=false;PK.sig="";pkStatus();pkTeken();
+  if(pkOpen(PK.data?PK.data.alle:[]).length)pkGeocode(PK.data.alle)}
+
+function pkLaadLeaflet(){if(window.L&&window.L.map)return Promise.resolve();if(PK.laadt)return PK.laadt;
+  PK.laadt=new Promise((res,rej)=>{const B="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/";
+    const c=document.createElement("link");c.rel="stylesheet";c.href=B+"leaflet.css";document.head.appendChild(c);
+    const s=document.createElement("script");s.src=B+"leaflet.js";
+    s.onload=()=>{let i=0;const w=()=>window.L&&window.L.map?res():++i>120?rej(new Error("leaflet")):setTimeout(w,50);w()};
+    s.onerror=()=>{PK.laadt=null;s.remove();rej(new Error("leaflet"))};document.head.appendChild(s)});
+  return PK.laadt}
+
+/* ---- markup in de planning ---- */
+function pkPlanned(days){const out=[];days.forEach((d,di)=>{const it=dayItems(d);
+  [...it.js,...it.done].sort((a,b)=>(toMin(a.k.tijd)??9999)-(toMin(b.k.tijd)??9999)).forEach((x,i)=>{if(x.k&&x.k.naam!=null)out.push({k:x.k,d,di,n:i+1,klaar:x.st==="afgerond"})})});return out}
+function pkSlot(offerAll,days){
+  const planned=pkPlanned(state.pview==="maand"?[]:days);
+  PK.data={offer:offerAll,planned,days,alle:[...offerAll,...planned.map(p=>p.k)]};
+  const sel=[...state.ksel].filter(id=>offerAll.some(k=>k.id===id)).length;
+  const WD=["zo","ma","di","wo","do","vr","za"];
+  return `<section class="pk">
+    <div class="pk-h"><div class="pk-tt"><b>${I.map}Kaartplannen</b><small id="pkStat">${pkStatTxt()}</small></div>
+      <div class="pk-leg"><span><i class="pk-d of"></i>Te plannen</span><span><i class="pk-d late"></i>Te laat</span><span><i class="pk-d sel"></i>Geselecteerd</span>${planned.length?`<span><i class="pk-d pl"></i>Ingepland</span>`:""}</div>
+      <div class="pk-acts"><button type="button" class="small" data-act="pkinbeeld">${I.checksq||I.check}Selecteer in beeld</button>${sel?`<button type="button" class="small" data-act="pkwis">${I.x}Wis selectie (${sel})</button>`:""}<button type="button" class="iconbtn sm" data-act="pkfit" title="Alles in beeld" aria-label="Alles in beeld">${I.expand||I.search}</button><button type="button" class="iconbtn sm" data-act="pkaart" title="Kaart verbergen" aria-label="Kaart verbergen">${I.x}</button></div></div>
+    ${state.pview==="week"||state.pview==="multi"?`<div class="pk-days">${days.map((d,i)=>{const n=planned.filter(p=>p.d===d).length;return n?`<span style="--pkc:${pkDagKleur(i)}"><i></i>${WD[parse(d).getDay()]} ${parse(d).getDate()} · ${n}</span>`:""}).join("")}</div>`:""}
+    <div class="pk-slot" id="pkSlot"></div></section>`}
+const pkDagKleur=i=>["#1f6f8b","#7a4fd0","#c2410c","#0f8a5f","#b4236b","#2c5bd6","#8a6d12"][i%7];
+function pkStatTxt(){if(!PK.data)return"";const o=PK.data.offer,G=pkGeoCache(),op=o.filter(k=>pkCoord(k)).length,zonder=o.filter(k=>!pkHeeftAdres(k)||G[pkKey(k)]===0).length;
+  if(PK.fout)return esc(PK.fout);
+  if(PK.busy)return `Adressen op de kaart zetten… ${PK.klaar}/${PK.totaal}`;
+  return `${plural(op,"adres","adressen")} te plannen op de kaart`+(zonder?` · ${zonder} zonder vindbaar adres`:"")}
+function pkStatus(){const s=$("#pkStat");if(s)s.innerHTML=pkStatTxt()}
+
+/* ---- na elke render: de kaart (die blijft bestaan) terug in de pagina hangen ---- */
+function pkNaRender(){
+  if(state.tab!=="planning"||!state.pkaart)return;const slot=$("#pkSlot");if(!slot)return;
+  if(!PK.el){PK.el=document.createElement("div");PK.el.className="pk-map";PK.el.innerHTML=`<div class="pk-laad">${I.map}<span>Kaart laden…</span></div>`}
+  slot.appendChild(PK.el);
+  pkLaadLeaflet().then(()=>{
+    if(!PK.map){PK.el.innerHTML="";const L=window.L;
+      PK.map=L.map(PK.el,{zoomControl:false,attributionControl:true,scrollWheelZoom:true,zoomSnap:.5}).setView([53.2,6.3],11);
+      L.control.zoom({position:"bottomright"}).addTo(PK.map);
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",{subdomains:"abcd",maxZoom:19,attribution:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> · © <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>'}).addTo(PK.map);
+      PK.laag=L.layerGroup().addTo(PK.map);PK.sig="";
+      PK.map.on("dragstart",()=>{PK.zelf=true});PK.el.addEventListener("wheel",()=>{PK.zelf=true},{passive:true})}
+    PK.map.invalidateSize();PK.fout="";pkTeken();pkStatus();
+    if(PK.data)pkGeocode(PK.data.alle)
+  }).catch(()=>{PK.fout="De kaart kon niet worden geladen. Controleer je internetverbinding.";PK.el.innerHTML=`<div class="pk-laad">${I.alert}<span>${esc(PK.fout)}</span><button type="button" class="small" data-act="pkretry">Opnieuw</button></div>`;pkStatus()})}
+
+function pkIcon(cls,inhoud,kleur){return window.L.divIcon({className:"pk-ic",html:`<span class="pk-pin ${cls}"${kleur?` style="--pkc:${kleur}"`:""}><b>${inhoud||""}</b></span>`,iconSize:[28,36],iconAnchor:[14,34],tooltipAnchor:[0,-30]})}
+function pkTip(k,extra){const a=jobAddrObj(k);return `<div class="pk-tip"><b>${esc(a.adres||cleanName(k.naam))}</b><span>${esc(cleanName(k.naam))}${a.plaats?" · "+esc(a.plaats):""}</span>${extra?`<em>${extra}</em>`:""}</div>`}
+function pkTeken(){if(!PK.map||!PK.data||!window.L)return;const L=window.L,{offer,planned,days}=PK.data,t=today();
+  const sig=[state.pview,[...state.ksel].join(","),offer.map(k=>k.id+(pkCoord(k)||"")).join(";"),planned.map(p=>p.k.id+p.d+p.n+(pkCoord(p.k)||"")).join(";")].join("|");
+  if(sig===PK.sig)return;PK.sig=sig;PK.laag.clearLayers();PK.mk={};const pts=[];
+  const multi=days.length>1;
+  planned.forEach(p=>{const c=pkCoord(p.k);if(!c)return;pts.push(c);
+    const m=L.marker(c,{icon:pkIcon("pl"+(p.klaar?" klaar":""),multi?["zo","ma","di","wo","do","vr","za"][parse(p.d).getDay()]:p.n,multi?pkDagKleur(p.di):""),zIndexOffset:-200,riseOnHover:true});
+    m.bindTooltip(pkTip(p.k,(multi?fmtD(p.d)+" · ":"")+(p.k.tijd?esc(p.k.tijd)+" · ":"")+(p.klaar?"afgerond":"ingepland")),{direction:"top",className:"pk-tt-w",opacity:1});
+    m.on("click",()=>{if(!p.klaar)openJob(p.k.id,p.d)});m.addTo(PK.laag)});
+  offer.forEach(k=>{const c=pkCoord(k);if(!c)return;pts.push(c);
+    const gp=parse(k.gepland),late=(gp&&gp<t)||dueOf(k)<t,sel=state.ksel.has(k.id);
+    const m=L.marker(c,{icon:pkIcon((sel?"sel":late?"late":"of")),zIndexOffset:sel?600:late?300:0,riseOnHover:true});
+    m.bindTooltip(pkTip(k,esc(dueTxt(k))+" · "+duur(k)+" min"+(sel?" · <b>geselecteerd</b>":"")),{direction:"top",className:"pk-tt-w",opacity:1});
+    m.on("click",()=>{state.ksel.has(k.id)?state.ksel.delete(k.id):state.ksel.add(k.id);render()});
+    m.addTo(PK.laag);PK.mk[k.id]=m});
+  if(!PK.fit&&pts.length){PK.fit=true;pkFit(pts)}}
+function pkFit(pts){if(!PK.map)return;pts=pts||PK.laag.getLayers().map(m=>m.getLatLng());if(!pts.length)return;PK.map.fitBounds(window.L.latLngBounds(pts),{padding:[36,36],maxZoom:15})}
+function pkInBeeld(){if(!PK.map||!PK.data)return;const b=PK.map.getBounds();let n=0;PK.data.offer.forEach(k=>{const c=pkCoord(k);if(c&&b.contains(c)&&!state.ksel.has(k.id)){state.ksel.add(k.id);n++}});
+  toast(n?plural(n,"adres","adressen")+" geselecteerd":"Geen nieuwe adressen in beeld");render()}
+/* kaart oplichten als je over een kaartje bij Te plannen beweegt */
+document.addEventListener("mouseover",e=>{if(!PK.map)return;const c=e.target.closest&&e.target.closest(".offercol [data-drag]"),id=c&&c.dataset.drag;
+  if(id===PK.hl)return;if(PK.hl&&PK.mk[PK.hl]){const el=PK.mk[PK.hl].getElement();if(el)el.classList.remove("pk-hl")}PK.hl=id||"";
+  if(id&&PK.mk[id]){const el=PK.mk[id].getElement();if(el)el.classList.add("pk-hl")}});
+
 /* ---------- PLANNING ---------- */
 function curDay(){return state.planDay||iso(today())}
 function viewDays(){
@@ -3866,6 +4011,7 @@ function vPlanning(){
   const v=state.pview,t=today(),days=viewDays(),first=parse(days[0]),last=parse(days[days.length-1]);
   state.week=startOfWeek(v==="maand"?parse(curDay()):first);
   let offer=teplannen(offerUpTo(addDays(last<t?t:last,zichtbaarDagen())));if(state.achter)offer=offer.filter(k=>dueOf(k)<t);offer=offerFilter(offer);
+  const offerAll=offer;if(state.pkaart&&state.ksel.size){[...state.ksel].forEach(id=>{if(!offerAll.some(k=>k.id===id))state.ksel.delete(id)});if(state.ksel.size)offer=offer.filter(k=>state.ksel.has(k.id))}
   const offerSum=offer.reduce((a,k)=>a+(Number(k.prijs)||0),0);
   const tot=days.reduce((a,d)=>{const s=daySum(d);a.n+=s.n;a.sum+=s.sum;return a},{n:0,sum:0});
   const title=v==="dag"?longD(first):v==="week"?"Week "+weekNr(first):v==="multi"?plural(days.length,"dag","dagen"):first.toLocaleDateString("nl-NL",{month:"long",year:"numeric"});
@@ -3888,6 +4034,7 @@ function vPlanning(){
         <span class="pl-sp"></span>
     ${state.pstat&&state.pstat!=="alle"?`<button type="button" class="pl-chip" data-act="pstat" data-v="alle"><span class="sdot ${({gepland:"plan",bezig:"busy",afgerond:"ok"})[state.pstat]}"></span>Alleen ${({gepland:"gepland",bezig:"bezig",afgerond:"afgerond"})[state.pstat]}${I.x}</button>`:""}
     ${tglChip(state.achter,"achter","Alleen achterstallig",I.alert)}${tglChip(state.planMode,"planmode","Plan-modus",I.wand)}${tglChip(state.pselMode,"pselmode","Selecteren",I.checksq||I.check)}
+    <button type="button" class="pl-kaart" data-act="pkaart" aria-pressed="${!!state.pkaart}" title="Kaartplannen">${I.map}<span>Kaart</span></button>
     ${v==="dag"||v==="multi"?`<button type="button" class="primary pl-opt" data-act="optim" data-d="${d0}" title="Zet de jobs van deze dag in de kortste volgorde">${I.route||I.wand}<span>Optimaliseer route</span></button>`:""}
     <button type="button" class="pl-new" data-act="newjob" data-d="${d0}">${I.plus}<span>Job</span></button>
     <div class="pl-meer${state.pmeer?" open":""}"><button type="button" class="iconbtn pl-mb" data-act="pmeer" aria-expanded="${!!state.pmeer}" aria-label="Meer acties" title="Meer">${I.dots||"⋯"}</button>
@@ -3898,6 +4045,7 @@ function vPlanning(){
         ${mi("bulkday",I.cal2,"Bulk dag","Hele dag in één keer verzetten of afmelden",` data-d="${d0}"`)}
         ${mi("webaanvraag",I.globe,"Website-aanvraag","Aanvraag handmatig toevoegen")}
         ${mi("refresh",I.refresh,"Verversen","")}
+        <span class="pl-mk">${mt("pkaart",I.map,"Kaartplannen",state.pkaart)}</span>
         <p class="pl-ml">Tonen</p>
         <div class="pl-mrow"><div class="seg pl-st2">${[["alle","Alle",""],["gepland","Gepland","plan"],["bezig","Bezig","busy"],["afgerond","Afgerond","ok"]].map(([x,l,c])=>`<button type="button" data-act="pstat" data-v="${x}" aria-pressed="${(state.pstat||"alle")===x}">${c?`<span class="sdot ${c}"></span>`:""}${l}</button>`).join("")}</div></div>
         <p class="pl-ml">Werkwijze</p>
@@ -3910,14 +4058,16 @@ function vPlanning(){
       </div></div>
   </div>
   ${state.pselMode?pselBar():""}
+  ${state.pkaart&&state.klanten.length?pkSlot(offerAll,days):""}
   ${state.planMode?`<div class="notice" style="background:var(--brand-soft);color:var(--brand)">Plan-modus staat aan: kies rechts een klant en tik daarna op een tijdslot.${state.pick?" Gekozen: <b>"+esc(cleanName((state.klanten.find(k=>k.id===state.pick)||{}).naam))+"</b>":""}</div>`:""}`;
   if(v==="multi")html+=`<div class="ctrlrow" style="justify-content:flex-start"><span class="eyebrow">Dagen:</span>${days.map(d=>`<span class="chip daychip">${wd(parse(d))} ${fmtD(d)}<button type="button" class="tiny ghost" data-act="mdel" data-d="${d}" aria-label="Verwijder ${fmtD(d)}">${I.x}</button></span>`).join("")}${days.length<6?`<input type="date" id="madd" style="width:auto" aria-label="Dag toevoegen">`:""}</div>`;
   if(!state.klanten.length)return html+empty("Nog geen klanten","Voeg je eerste klant toe of importeer je klantenbestand.",`<button type="button" class="primary" data-act="klant">${I.plus}Nieuwe klant</button>`);
   if(!big()&&v==="dag"){const wk=[...Array(7)].map((_,i)=>iso(addDays(startOfWeek(first),i)));html+=`<div class="daypick">${wk.map(d=>`<button type="button" data-act="pickday" data-d="${d}" aria-pressed="${d===d0}"${d===iso(t)?' class="is-today"':""}><span>${wd(parse(d))}</span><b>${parse(d).getDate()}</b><i>${daySum(d).n}</i></button>`).join("")}</div>`}
   html+=v==="week"?timeGrid((()=>{const w=S().werkdagen||[1,2,3,4,5],wd=days.filter(d=>w.includes(parse(d).getDay())||dayItems(d).js.length);return wd.length?wd:days})()):v==="maand"?monthGrid(days):timeGrid(days);
   const offerCol=`<aside class="rpanel offercol" data-drop=""><div class="rp-h2"><span class="eyebrow rp-h">${I.inbox}Te plannen</span><span class="mono">${offer.length} · ${eur0(toon(offerSum))} <small>${btwLbl()}</small></span></div>
+    ${state.pkaart&&state.ksel.size?`<div class="pk-selbar">${I.map}<span><b>${plural(offer.length,"adres","adressen")}</b> geselecteerd op de kaart</span><button type="button" class="tiny ghost" data-act="pkwis">Alles tonen</button></div>`:""}
     ${advHtml(offer,d0)}
-    ${offer.length>1&&!state.planMode?`<button type="button" class="small" style="width:100%;margin-bottom:10px" data-act="planall">Alles inplannen op vervaldag</button>`:""}
+    ${offer.length>1&&!state.planMode?`<button type="button" class="small" style="width:100%;margin-bottom:10px" data-act="planall">Alles inplannen op aanboddatum</button>`:""}
     <div class="list" style="gap:8px">${offer.length?offerCards(offer,v==="dag"&&parse(d0)>=t?d0:""):`<p class="subt" style="text-align:center;font-style:italic;margin:30px 0">Alles ingepland</p>`}</div></aside>`;
   if(big())return `<div class="withside">`+`<div class="mainc">${html}</div>${offerCol}</div>`;
   return html+(offer.length?`<button type="button" class="fab-plan" data-act="offersheet">${I.inbox}${offer.length} in te plannen</button>`:"");
@@ -8494,7 +8644,7 @@ function render(){try{warmMailLogo()}catch(e){}
   if(state.loaded&&!state._perRun){state._perRun=1;setTimeout(()=>runPeriodiek(true),2500)}
   const ae=document.activeElement,fid=ae&&ae.id&&$("#view").contains(ae)?ae.id:null,pos=fid&&ae.selectionStart;
   const rcF=RC&&state.tab==="calculator"?RC.focusState():null;
-  try{$("#view").innerHTML=(VIEWS[state.tab]||vVandaag)();if(state.tab==="calculator"){mountRamen();if(rcF)RC.restoreFocus(rcF)}}catch(e){console.error(e);$("#view").innerHTML=`<div class="notice">Deze pagina kon niet worden getoond (${esc(e.message)}). Ga naar een andere pagina of vernieuw.</div>`}
+  try{$("#view").innerHTML=(VIEWS[state.tab]||vVandaag)();if(state.tab==="calculator"){mountRamen();if(rcF)RC.restoreFocus(rcF)}if(state.tab==="planning")pkNaRender()}catch(e){console.error(e);$("#view").innerHTML=`<div class="notice">Deze pagina kon niet worden getoond (${esc(e.message)}). Ga naar een andere pagina of vernieuw.</div>`}
   if(fid){const el=document.getElementById(fid);if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}}
 }
 function go(tab){if(isMw()&&!MW_TABS.includes(tab))tab="vandaag";state.tab=tab;state.kmenu=state.fmenu=false;try{localStorage.setItem("zeem.tab",tab)}catch(_){}if(dlg.open)dlg.close();render();window.scrollTo(0,0)}
@@ -8527,6 +8677,11 @@ document.addEventListener("click",e=>{
     case"job":openJob(id,t.dataset.d);break;
     case"ptopen":openPortaalVz();break;
     case"pmeer":state.pmeer=!state.pmeer;render();break;
+    case"pkaart":state.pkaart=!state.pkaart;state.pmeer=false;try{localStorage.setItem("ms.pk",state.pkaart?"1":"0")}catch(e){}if(state.pkaart){PK.fit=false;PK.zelf=false}render();break;
+    case"pkwis":state.ksel.clear();render();break;
+    case"pkfit":pkFit();break;
+    case"pkinbeeld":pkInBeeld();break;
+    case"pkretry":PK.fout="";render();break;
     case"pscrolloffer":{const c=document.querySelector(".offercol");if(c)c.scrollIntoView({behavior:"smooth",block:"start"})}break;
     case"tkopen":openTickets(id);break;
     case"tknieuw":openTickets("",id);break;
@@ -8642,7 +8797,7 @@ document.addEventListener("click",e=>{
     case"bulkday":openBulkDay(t.dataset.d);break;
     case"newjob":openNewJob(t.dataset.d);break;
     case"planop":t.disabled=true;moveTo(id,t.dataset.d||"",t.dataset.t).then(()=>{if(dlg.open&&form.dataset.sheet==="offer")setTimeout(openOfferSheet,60)});break;
-    case"planall":{const days=viewDays(),l=teplannen(parse(days[days.length-1])<today()?today():parse(days[days.length-1]));t.disabled=true;runSeq(l,k=>save("klanten",k.id,{...strip(k),gepland:iso(sugDate(k,days))}),plural(l.length,"klant","klanten")+" ingepland op hun vervaldag");break}
+    case"planall":{const days=viewDays(),l0=teplannen(parse(days[days.length-1])<today()?today():parse(days[days.length-1])),l=state.pkaart&&state.ksel.size?l0.filter(k=>state.ksel.has(k.id)):l0;t.disabled=true;runSeq(l,k=>save("klanten",k.id,{...strip(k),gepland:iso(sugDate(k,days))}),plural(l.length,"klant","klanten")+" ingepland op hun vervaldag");break}
     case"offersheet":openOfferSheet();break;
     case"advtgl":ADV.open=!ADV.open;advSave();reOffer();break;
     case"osort":ADV.sort=t.dataset.v;advSave();reOffer();break;

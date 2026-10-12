@@ -96,6 +96,7 @@ function vPlanning(){
   const v=state.pview,t=today(),days=viewDays(),first=parse(days[0]),last=parse(days[days.length-1]);
   state.week=startOfWeek(v==="maand"?parse(curDay()):first);
   let offer=teplannen(offerUpTo(addDays(last<t?t:last,zichtbaarDagen())));if(state.achter)offer=offer.filter(k=>dueOf(k)<t);offer=offerFilter(offer);
+  const offerAll=offer;if(state.pkaart&&state.ksel.size){[...state.ksel].forEach(id=>{if(!offerAll.some(k=>k.id===id))state.ksel.delete(id)});if(state.ksel.size)offer=offer.filter(k=>state.ksel.has(k.id))}
   const offerSum=offer.reduce((a,k)=>a+(Number(k.prijs)||0),0);
   const tot=days.reduce((a,d)=>{const s=daySum(d);a.n+=s.n;a.sum+=s.sum;return a},{n:0,sum:0});
   const title=v==="dag"?longD(first):v==="week"?"Week "+weekNr(first):v==="multi"?plural(days.length,"dag","dagen"):first.toLocaleDateString("nl-NL",{month:"long",year:"numeric"});
@@ -118,6 +119,7 @@ function vPlanning(){
         <span class="pl-sp"></span>
     ${state.pstat&&state.pstat!=="alle"?`<button type="button" class="pl-chip" data-act="pstat" data-v="alle"><span class="sdot ${({gepland:"plan",bezig:"busy",afgerond:"ok"})[state.pstat]}"></span>Alleen ${({gepland:"gepland",bezig:"bezig",afgerond:"afgerond"})[state.pstat]}${I.x}</button>`:""}
     ${tglChip(state.achter,"achter","Alleen achterstallig",I.alert)}${tglChip(state.planMode,"planmode","Plan-modus",I.wand)}${tglChip(state.pselMode,"pselmode","Selecteren",I.checksq||I.check)}
+    <button type="button" class="pl-kaart" data-act="pkaart" aria-pressed="${!!state.pkaart}" title="Kaartplannen">${I.map}<span>Kaart</span></button>
     ${v==="dag"||v==="multi"?`<button type="button" class="primary pl-opt" data-act="optim" data-d="${d0}" title="Zet de jobs van deze dag in de kortste volgorde">${I.route||I.wand}<span>Optimaliseer route</span></button>`:""}
     <button type="button" class="pl-new" data-act="newjob" data-d="${d0}">${I.plus}<span>Job</span></button>
     <div class="pl-meer${state.pmeer?" open":""}"><button type="button" class="iconbtn pl-mb" data-act="pmeer" aria-expanded="${!!state.pmeer}" aria-label="Meer acties" title="Meer">${I.dots||"⋯"}</button>
@@ -128,6 +130,7 @@ function vPlanning(){
         ${mi("bulkday",I.cal2,"Bulk dag","Hele dag in één keer verzetten of afmelden",` data-d="${d0}"`)}
         ${mi("webaanvraag",I.globe,"Website-aanvraag","Aanvraag handmatig toevoegen")}
         ${mi("refresh",I.refresh,"Verversen","")}
+        <span class="pl-mk">${mt("pkaart",I.map,"Kaartplannen",state.pkaart)}</span>
         <p class="pl-ml">Tonen</p>
         <div class="pl-mrow"><div class="seg pl-st2">${[["alle","Alle",""],["gepland","Gepland","plan"],["bezig","Bezig","busy"],["afgerond","Afgerond","ok"]].map(([x,l,c])=>`<button type="button" data-act="pstat" data-v="${x}" aria-pressed="${(state.pstat||"alle")===x}">${c?`<span class="sdot ${c}"></span>`:""}${l}</button>`).join("")}</div></div>
         <p class="pl-ml">Werkwijze</p>
@@ -140,14 +143,16 @@ function vPlanning(){
       </div></div>
   </div>
   ${state.pselMode?pselBar():""}
+  ${state.pkaart&&state.klanten.length?pkSlot(offerAll,days):""}
   ${state.planMode?`<div class="notice" style="background:var(--brand-soft);color:var(--brand)">Plan-modus staat aan: kies rechts een klant en tik daarna op een tijdslot.${state.pick?" Gekozen: <b>"+esc(cleanName((state.klanten.find(k=>k.id===state.pick)||{}).naam))+"</b>":""}</div>`:""}`;
   if(v==="multi")html+=`<div class="ctrlrow" style="justify-content:flex-start"><span class="eyebrow">Dagen:</span>${days.map(d=>`<span class="chip daychip">${wd(parse(d))} ${fmtD(d)}<button type="button" class="tiny ghost" data-act="mdel" data-d="${d}" aria-label="Verwijder ${fmtD(d)}">${I.x}</button></span>`).join("")}${days.length<6?`<input type="date" id="madd" style="width:auto" aria-label="Dag toevoegen">`:""}</div>`;
   if(!state.klanten.length)return html+empty("Nog geen klanten","Voeg je eerste klant toe of importeer je klantenbestand.",`<button type="button" class="primary" data-act="klant">${I.plus}Nieuwe klant</button>`);
   if(!big()&&v==="dag"){const wk=[...Array(7)].map((_,i)=>iso(addDays(startOfWeek(first),i)));html+=`<div class="daypick">${wk.map(d=>`<button type="button" data-act="pickday" data-d="${d}" aria-pressed="${d===d0}"${d===iso(t)?' class="is-today"':""}><span>${wd(parse(d))}</span><b>${parse(d).getDate()}</b><i>${daySum(d).n}</i></button>`).join("")}</div>`}
   html+=v==="week"?timeGrid((()=>{const w=S().werkdagen||[1,2,3,4,5],wd=days.filter(d=>w.includes(parse(d).getDay())||dayItems(d).js.length);return wd.length?wd:days})()):v==="maand"?monthGrid(days):timeGrid(days);
   const offerCol=`<aside class="rpanel offercol" data-drop=""><div class="rp-h2"><span class="eyebrow rp-h">${I.inbox}Te plannen</span><span class="mono">${offer.length} · ${eur0(toon(offerSum))} <small>${btwLbl()}</small></span></div>
+    ${state.pkaart&&state.ksel.size?`<div class="pk-selbar">${I.map}<span><b>${plural(offer.length,"adres","adressen")}</b> geselecteerd op de kaart</span><button type="button" class="tiny ghost" data-act="pkwis">Alles tonen</button></div>`:""}
     ${advHtml(offer,d0)}
-    ${offer.length>1&&!state.planMode?`<button type="button" class="small" style="width:100%;margin-bottom:10px" data-act="planall">Alles inplannen op vervaldag</button>`:""}
+    ${offer.length>1&&!state.planMode?`<button type="button" class="small" style="width:100%;margin-bottom:10px" data-act="planall">Alles inplannen op aanboddatum</button>`:""}
     <div class="list" style="gap:8px">${offer.length?offerCards(offer,v==="dag"&&parse(d0)>=t?d0:""):`<p class="subt" style="text-align:center;font-style:italic;margin:30px 0">Alles ingepland</p>`}</div></aside>`;
   if(big())return `<div class="withside">`+`<div class="mainc">${html}</div>${offerCol}</div>`;
   return html+(offer.length?`<button type="button" class="fab-plan" data-act="offersheet">${I.inbox}${offer.length} in te plannen</button>`:"");

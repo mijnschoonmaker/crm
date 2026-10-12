@@ -23,7 +23,7 @@ function render(){try{warmMailLogo()}catch(e){}
   if(state.loaded&&!state._perRun){state._perRun=1;setTimeout(()=>runPeriodiek(true),2500)}
   const ae=document.activeElement,fid=ae&&ae.id&&$("#view").contains(ae)?ae.id:null,pos=fid&&ae.selectionStart;
   const rcF=RC&&state.tab==="calculator"?RC.focusState():null;
-  try{$("#view").innerHTML=(VIEWS[state.tab]||vVandaag)();if(state.tab==="calculator"){mountRamen();if(rcF)RC.restoreFocus(rcF)}}catch(e){console.error(e);$("#view").innerHTML=`<div class="notice">Deze pagina kon niet worden getoond (${esc(e.message)}). Ga naar een andere pagina of vernieuw.</div>`}
+  try{$("#view").innerHTML=(VIEWS[state.tab]||vVandaag)();if(state.tab==="calculator"){mountRamen();if(rcF)RC.restoreFocus(rcF)}if(state.tab==="planning")pkNaRender()}catch(e){console.error(e);$("#view").innerHTML=`<div class="notice">Deze pagina kon niet worden getoond (${esc(e.message)}). Ga naar een andere pagina of vernieuw.</div>`}
   if(fid){const el=document.getElementById(fid);if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}}
 }
 function go(tab){if(isMw()&&!MW_TABS.includes(tab))tab="vandaag";state.tab=tab;state.kmenu=state.fmenu=false;try{localStorage.setItem("zeem.tab",tab)}catch(_){}if(dlg.open)dlg.close();render();window.scrollTo(0,0)}
@@ -56,6 +56,11 @@ document.addEventListener("click",e=>{
     case"job":openJob(id,t.dataset.d);break;
     case"ptopen":openPortaalVz();break;
     case"pmeer":state.pmeer=!state.pmeer;render();break;
+    case"pkaart":state.pkaart=!state.pkaart;state.pmeer=false;try{localStorage.setItem("ms.pk",state.pkaart?"1":"0")}catch(e){}if(state.pkaart){PK.fit=false;PK.zelf=false}render();break;
+    case"pkwis":state.ksel.clear();render();break;
+    case"pkfit":pkFit();break;
+    case"pkinbeeld":pkInBeeld();break;
+    case"pkretry":PK.fout="";render();break;
     case"pscrolloffer":{const c=document.querySelector(".offercol");if(c)c.scrollIntoView({behavior:"smooth",block:"start"})}break;
     case"tkopen":openTickets(id);break;
     case"tknieuw":openTickets("",id);break;
@@ -171,7 +176,7 @@ document.addEventListener("click",e=>{
     case"bulkday":openBulkDay(t.dataset.d);break;
     case"newjob":openNewJob(t.dataset.d);break;
     case"planop":t.disabled=true;moveTo(id,t.dataset.d||"",t.dataset.t).then(()=>{if(dlg.open&&form.dataset.sheet==="offer")setTimeout(openOfferSheet,60)});break;
-    case"planall":{const days=viewDays(),l=teplannen(parse(days[days.length-1])<today()?today():parse(days[days.length-1]));t.disabled=true;runSeq(l,k=>save("klanten",k.id,{...strip(k),gepland:iso(sugDate(k,days))}),plural(l.length,"klant","klanten")+" ingepland op hun vervaldag");break}
+    case"planall":{const days=viewDays(),l0=teplannen(parse(days[days.length-1])<today()?today():parse(days[days.length-1])),l=state.pkaart&&state.ksel.size?l0.filter(k=>state.ksel.has(k.id)):l0;t.disabled=true;runSeq(l,k=>save("klanten",k.id,{...strip(k),gepland:iso(sugDate(k,days))}),plural(l.length,"klant","klanten")+" ingepland op hun vervaldag");break}
     case"offersheet":openOfferSheet();break;
     case"advtgl":ADV.open=!ADV.open;advSave();reOffer();break;
     case"osort":ADV.sort=t.dataset.v;advSave();reOffer();break;
