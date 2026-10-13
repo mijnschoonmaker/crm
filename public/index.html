@@ -7358,7 +7358,7 @@ function openOpdrachtWerk(kid,focus){
         <label>Ronde<input id="ow-ronde" list="ow-rl" value="${esc(k.ronde||"")}" placeholder="bijv. Ronde Noord"><datalist id="ow-rl">${rondes().map(r=>`<option value="${esc(r)}">`).join("")}</datalist></label>
         <label>Volgende beurt<input value="${k.gepland?esc(fmtL(k.gepland))+(k.tijd?" "+esc(k.tijd):""):"Te plannen"}" disabled></label>
         <label>Eerste keer<select id="ow-eerste"><option value="ja" ${isEersteKeer(k)?"selected":""}>Ja</option><option value="nee" ${isEersteKeer(k)?"":"selected"}>Nee</option></select><small class="help">${k.eersteKeer==null?"Automatisch ingevuld: ":""}wordt na de eerste afgemelde beurt vanzelf Nee</small></label>
-        <label>Contactmethode planning<select id="ow-contact">${[["kennisgeving","Kennisgeving (aankondiging sturen)"],["bevestigen","Afspraak laten bevestigen"],["geen","Geen bericht"]].map(([v,l])=>`<option value="${v}" ${(k.contactPlanning||"kennisgeving")===v?"selected":""}>${l}</option>`).join("")}</select></label>
+        <label>Contactmethode planning<select id="ow-contact">${[["kennisgeving","Kennisgeving"],["bevestigen","Afspraakvoorstel"],["bellen","Klant bellen"],["geen","Niet e-mailen"]].map(([v,l])=>`<option value="${v}" ${(k.contactPlanning||"kennisgeving")===v?"selected":""}>${l}</option>`).join("")}</select></label>
         <label>Toeslag (%)<input id="ow-toeslag" type="number" step="1" min="0" value="${esc(k.toeslag||"")}" placeholder="0"></label>
         <label>Reden toeslag<input id="ow-toeslagr" value="${esc(k.toeslagReden||"")}" placeholder="Bijv. hoogwerker nodig"></label>
         <label class="check-row"><input id="ow-verbA" type="checkbox" ${k.verbergAantal?"checked":""}>Aantallen verbergen op factuur</label>
