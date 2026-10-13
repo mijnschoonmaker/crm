@@ -500,6 +500,63 @@ aside .help .primary{margin-top:2px;font-size:13.5px;padding:9px}aside .help .pr
 .lv-bron.open em{max-width:200px;padding-right:9px}
 
 .lv-map .leaflet-tile-pane{filter:saturate(.7) brightness(1.04) contrast(.95)}
+
+/* ---------- Bezoeken ---------- */
+.bz-hero{position:relative;display:flex;align-items:center;gap:28px;padding:28px 30px;border-radius:26px;overflow:hidden;color:#fff;background:radial-gradient(120% 140% at 100% 0%,#2aa3b3 0%,transparent 55%),linear-gradient(135deg,#0f5f6e,#137a8a 55%,#1d5a74);box-shadow:0 24px 50px -28px rgb(15 70 85 / .7)}
+.bz-hero::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 18% 120%,rgb(255 255 255 / .14),transparent 40%),repeating-linear-gradient(115deg,rgb(255 255 255 / .035) 0 2px,transparent 2px 26px);pointer-events:none}
+.bz-hero>*{position:relative}
+.bz-hm{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
+.bz-k{margin:0;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgb(255 255 255 / .75);display:flex;align-items:center;gap:8px}
+.bz-hero h2{margin:0;font-size:clamp(26px,3.4vw,36px);font-weight:700;letter-spacing:-.03em;line-height:1.1;color:#fff}
+.bz-s{margin:0;font-size:15px;color:rgb(255 255 255 / .82);max-width:520px}
+.bz-line{margin-top:10px;max-width:520px}
+.bz-tr{position:relative;height:8px;border-radius:8px;background:rgb(255 255 255 / .18)}
+.bz-tr i{position:absolute;left:0;top:0;bottom:0;border-radius:8px;background:linear-gradient(90deg,#9ff0d2,#fff)}
+.bz-tr em{position:absolute;top:50%;width:16px;height:16px;border-radius:50%;background:#fff;transform:translate(-50%,-50%);box-shadow:0 0 0 5px rgb(255 255 255 / .25)}
+.bz-ll{display:flex;justify-content:space-between;margin-top:9px;font-size:12px;color:rgb(255 255 255 / .7)}
+.bz-ll span{display:flex;flex-direction:column;gap:1px}.bz-ll span:last-child{text-align:right}.bz-ll b{color:#fff;font-size:14px;font-weight:700}
+.bz-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.bz-acts button{background:rgb(255 255 255 / .14);color:#fff;border:1px solid rgb(255 255 255 / .22);backdrop-filter:blur(6px);border-radius:12px;padding:9px 14px;font-weight:650;display:inline-flex;align-items:center;gap:7px}
+.bz-acts button:hover{background:rgb(255 255 255 / .24)}.bz-acts svg{width:16px;height:16px}
+.bz-ring{position:relative;width:150px;height:150px;flex:none}
+.bz-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.bz-ring .t{fill:none;stroke:rgb(255 255 255 / .16);stroke-width:8}
+.bz-ring .v{fill:none;stroke:#fff;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)}
+.bz-ring>span{position:absolute;inset:0;display:grid;place-content:center;text-align:center;line-height:1}
+.bz-ring b{font-size:44px;font-weight:700;letter-spacing:-.04em}.bz-ring small{font-size:13px;color:rgb(255 255 255 / .75);margin-top:4px;font-weight:600}
+.bz-ring.bz-ic{display:grid;place-items:center;border-radius:50%;background:rgb(255 255 255 / .12);border:1px solid rgb(255 255 255 / .2)}.bz-ring.bz-ic svg{width:54px;height:54px;transform:none}
+.bz-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.bz-tile{position:relative;display:flex;flex-direction:column;gap:2px;padding:16px 18px;border-radius:20px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);overflow:hidden}
+.bz-tile::after{content:"";position:absolute;right:-30px;top:-30px;width:90px;height:90px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--brand) 12%,transparent),transparent 70%)}
+.bz-ti{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand);margin-bottom:8px}.bz-ti svg{width:17px;height:17px}
+.bz-tile small{font-size:12.5px;color:var(--muted);font-weight:600}
+.bz-tile b{font-size:24px;font-weight:700;letter-spacing:-.025em;line-height:1.15}
+.bz-tile em{font-style:normal;font-size:12.5px;color:var(--muted)}
+.bz-tile .mini-st{margin-top:2px}
+.bz-tl{padding:20px 22px;border-radius:22px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)}
+.bz-tlh{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:14px}.bz-tlh b{font-size:17px;font-weight:700;letter-spacing:-.01em}.bz-tlh small{color:var(--muted);font-size:13px}
+.bz-ol{list-style:none;margin:0;padding:0 0 0 30px;position:relative;display:flex;flex-direction:column;gap:10px}
+.bz-ol::before{content:"";position:absolute;left:11px;top:14px;bottom:14px;width:2px;background:linear-gradient(180deg,color-mix(in srgb,var(--brand) 35%,transparent),var(--line) 40%)}
+.bz-it{position:relative}
+.bz-dot{position:absolute;left:-30px;top:50%;transform:translateY(-50%);width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--surface);border:2px dashed color-mix(in srgb,var(--brand) 55%,var(--line));z-index:1}
+.bz-it.gepland .bz-dot{border-style:solid;border-color:var(--brand);box-shadow:0 0 0 4px var(--brand-soft)}
+.bz-it.af .bz-dot{border:0;background:var(--ok);color:#fff}.bz-dot svg{width:13px;height:13px}
+.bz-card{display:flex;align-items:center;gap:14px;padding:12px 14px;border-radius:16px;border:1px solid var(--line);background:var(--surface);transition:transform .15s,box-shadow .15s}
+.bz-card:hover{transform:translateY(-1px);box-shadow:0 10px 22px -16px rgb(15 31 38 / .35)}
+.bz-it.gepland .bz-card{border-color:color-mix(in srgb,var(--brand) 30%,var(--line));background:linear-gradient(90deg,color-mix(in srgb,var(--brand) 6%,var(--surface)),var(--surface))}
+.bz-it.verwacht .bz-card{border-style:dashed}
+.bz-dt{width:52px;height:56px;flex:none;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--surface-2);line-height:1}
+.bz-dt b{font-size:21px;font-weight:700;letter-spacing:-.03em}.bz-dt small{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:3px}
+.bz-it.gepland .bz-dt{background:var(--brand);color:#fff}.bz-it.gepland .bz-dt small{color:rgb(255 255 255 / .8)}
+.bz-it.af .bz-dt{background:var(--ok-bg);color:var(--ok)}.bz-it.af .bz-dt small{color:var(--ok);opacity:.8}
+.bz-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.bz-tx b{font-size:15px;font-weight:700}.bz-tx small{color:var(--muted);font-size:13px}
+.bz-rt{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex:none}.bz-rt b{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums}
+.bz-jr{font-size:12px;font-weight:800;letter-spacing:.08em;color:var(--muted);margin:6px 0 -2px -30px;padding-left:30px}
+.bz-nu{position:relative;margin:4px 0 4px -30px;padding-left:30px;height:18px}
+.bz-nu::before{content:"";position:absolute;left:4px;top:50%;width:16px;height:16px;border-radius:50%;background:var(--accent);transform:translateY(-50%);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 25%,transparent)}
+.bz-nu span{font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:color-mix(in srgb,var(--accent) 70%,var(--ink));position:relative;top:1px}
+.bz-tip{margin:12px 0 0;color:var(--muted);font-size:13px}
+@media (max-width:640px){.bz-hero{display:block;padding:22px 20px;border-radius:22px}.bz-ring{position:absolute!important;right:16px;top:16px;width:78px;height:78px}.bz-ring b{font-size:24px}.bz-ring small{font-size:11px;margin-top:2px}.bz-ring.bz-ic svg{width:32px;height:32px}.bz-hero h2,.bz-k{padding-right:88px}.bz-hero h2{font-size:24px}.bz-s{font-size:14px}.bz-acts button{padding:8px 12px;font-size:14px}.bz-tiles{grid-template-columns:1fr 1fr;gap:10px}.bz-tile{padding:14px}.bz-tile b{font-size:20px}.bz-tl{padding:16px}.bz-card{gap:10px;padding:10px}.bz-dt{width:46px;height:50px}.bz-rt .pill{display:none}}
 </style></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -677,12 +734,33 @@ function home(){const k=D.klant,openF=D.facturen.filter(f=>f.status==="open"||f.
 const VZ={verzetten:"Afspraak verzetten",overslaan:"Bezoek overslaan",vakantie:"Afwezig",bericht:"Bericht",gegevens:"Gegevens wijzigen",extra:"Extra dienst",stoppen:"Opzeggen"};
 function verzoekRij(v){return lr(v.type==="vakantie"?I.zon:v.type==="verzetten"?I.verzet:v.type==="overslaan"?I.pauze:I.bericht,esc(VZ[v.type]||"Verzoek")+(v.datum?" · "+esc(kort(v.datum)):"")+(v.tot?" t/m "+esc(kort(v.tot)):""),v.antwoord?esc(v.antwoord):v.status==="nieuw"?"Ontvangen op "+esc(kort(v.op.slice(0,10))):"Afgehandeld",`<span class="pill ${v.status==="nieuw"?"soon":"ok"}"><i></i>${v.status==="nieuw"?"In behandeling":"Geregeld"}</span>`)}
 
-function bezoeken(){const v=D.volgende,b=D.bezoeken,k=D.klant;
+const MK=["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"],hoofd=t=>String(t).charAt(0).toUpperCase()+String(t).slice(1);
+function bezoeken(){const v=D.volgende,b=D.bezoeken||[],k=D.klant,fq=Number(k.frequentie)||8,nu=vandaag();
   const st=n=>`<span class="mini-st" aria-label="${n} sterren">${I.ster.repeat(n)}</span>`;
-  return kop("Bezoeken","Wanneer we komen en wanneer we geweest zijn.")+`<div class="pg"><div class="stats"><div class="stat"><small>Bezoeken</small><b>${D.aantalBezoeken}</b></div><div class="stat"><small>Ritme</small><b>${k.frequentie} weken</b></div><div class="stat"><small>Klant sinds</small><b>${k.sinds?p(k.sinds).getFullYear():"–"}</b></div></div>
-    <div class="grid2">${kp(I.kal,"Gepland",v?`<div class="lijst">${[{datum:v.datum,tijd:v.tijd},...v.reeks].map((x,i)=>lr(I.kal,`<span style="text-transform:capitalize">${esc(lang(x.datum))}</span>`,"Aanboddatum",i===0?`<span class="pill brand">${esc(overTxt(dagenTot(x.datum)))}</span>`:"")).join("")}</div>`
-      :`<p class="leeg">${D.verwacht?"We verwachten u rond week "+weekNr(p(D.verwacht))+" in te plannen. U krijgt vooraf bericht.":"Er staat nog niets gepland."}</p>`,{sub:v?plural(1+v.reeks.length,"afspraak","afspraken"):""})}
-    ${kp(I.check,"Geweest",b.length?`<div class="lijst">${b.map(x=>lr(I.check,`<span style="text-transform:capitalize">${esc(lang(x.datum))}</span>`,esc(x.dienst)+(x.extra&&x.extra.length?" + "+esc(x.extra.join(", ").toLowerCase()):"")+(x.beoordeling?" · "+st(x.beoordeling.sterren):""),x.bedrag?eur0(x.bedrag):"",{tis:"background:var(--ok-bg);color:var(--ok)"})).join("")}</div>`:`<p class="leeg">Na ons eerste bezoek ziet u het hier terug.</p>`,{kl:"groen",sub:b.length?plural(b.length,"bezoek","bezoeken"):""})}</div></div>`}
+  const laatst=b.length?b[0].datum:"",volg=v?v.datum:(D.verwacht||"");
+  /* hoe ver zijn we tussen het vorige en het volgende bezoek */
+  let pct=0,dagenNog=null;if(volg){dagenNog=dagenTot(volg);if(laatst){const tot=Math.max(1,(p(volg)-p(laatst))/864e5),ver=(nu-p(laatst))/864e5;pct=Math.max(4,Math.min(100,Math.round(ver/tot*100)))}else pct=12}
+  const R=44,C=2*Math.PI*R,wk=D.verwacht?weekNr(p(D.verwacht)):0;
+  const titel=v&&v.bezig?"We zijn nu bij u aan het werk":v?esc(hoofd(lang(v.datum))):k.nieuw?"We plannen uw eerste bezoek":!k.actief?"Geen bezoeken gepland":wk?"Rond week "+wk:"Binnenkort";
+  const sub=v&&v.bezig?"Na afloop ziet u het bezoek hieronder terug.":v?(v.tijd?"Rond "+esc(v.tijd)+" · ":"")+"U krijgt vooraf nog een bericht.":k.actief?"We plannen u in zodra uw route rond is en laten u vooraf weten wanneer we komen.":"Wilt u weer gebruikmaken van onze diensten? Laat het ons weten.";
+  const ring=dagenNog!=null&&!(v&&v.bezig)?`<div class="bz-ring"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="${R}" class="t"/><circle cx="50" cy="50" r="${R}" class="v" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pct/100)}"/></svg><span><b>${Math.max(0,dagenNog)}</b><small>${Math.max(0,dagenNog)===1?"dag":"dagen"}</small></span></div>`:`<div class="bz-ring bz-ic">${v&&v.bezig?I.ruit:I.kal}</div>`;
+  const hero=`<section class="bz-hero"><div class="bz-hm"><p class="bz-k">${v&&v.bezig?'<span class="puls"></span>Vandaag':v?"Uw volgende bezoek":"Verwacht"}</p><h2>${titel}</h2><p class="bz-s">${sub}</p>
+      ${laatst&&volg?`<div class="bz-line"><div class="bz-tr"><i style="width:${pct}%"></i><em style="left:${pct}%"></em></div><div class="bz-ll"><span>Laatst gewassen<b>${esc(kort(laatst))}</b></span><span>${v?"Volgende":"Verwacht"}<b>${v?esc(kort(volg)):"week "+wk}</b></span></div></div>`:""}
+      <div class="bz-acts">${v&&!v.bezig?`<button data-act="overslaan">${I.pauze}Overslaan</button>`:""}<button data-act="toegang">${I.sleutel}Instructies</button><button data-act="ticket">${I.bericht}Vraag stellen</button></div></div>${ring}</section>`;
+  const gem=(()=>{const r=b.filter(x=>x.beoordeling&&x.beoordeling.sterren);return r.length?(r.reduce((a,x)=>a+x.beoordeling.sterren,0)/r.length):0})();
+  const tile=(ic,l,w,s)=>`<div class="bz-tile"><span class="bz-ti">${ic}</span><small>${l}</small><b>${w}</b>${s?`<em>${s}</em>`:""}</div>`;
+  const tiles=`<div class="bz-tiles">${tile(I.check,"Bezoeken",D.aantalBezoeken||b.length,b.length?"sinds "+(d=>d.getDate()+" "+MK[d.getMonth()]+(d.getFullYear()!==vandaag().getFullYear()?" "+d.getFullYear():""))(p(b[b.length-1].datum)):"nog geen")}${tile(I.verzet||I.kal,"Ritme",fq===1?"Elke week":"Elke "+fq+" weken",esc(k.dienst||"Glasbewassing"))}${tile(I.hart,"Klant sinds",k.sinds?esc(MK[p(k.sinds).getMonth()]+" "+p(k.sinds).getFullYear()):"–",k.sinds?"bedankt voor uw vertrouwen":"")}${gem?tile(I.ster,"Uw beoordeling",gem.toLocaleString("nl-NL",{maximumFractionDigits:1})+" / 5",st(Math.round(gem))):""}</div>`;
+  /* tijdlijn: eerst wat er komt, dan wat we gedaan hebben */
+  const toek=v?[{datum:v.datum,tijd:v.tijd,soort:"gepland"},...v.reeks.map(x=>({...x,soort:"gepland"}))]:(D.verwacht&&k.actief?[{datum:D.verwacht,soort:"verwacht"}]:[]);
+  let jr="";const item=(x,past)=>{const d=p(x.datum),y=d.getFullYear(),kopJ=y!==jr?`<li class="bz-jr">${y}</li>`:"";jr=y;
+    return kopJ+`<li class="bz-it ${past?"af":x.soort}"><span class="bz-dot">${past?I.check:""}</span><div class="bz-card"><div class="bz-dt"><b>${x.soort==="verwacht"?"wk":d.getDate()}</b><small>${x.soort==="verwacht"?weekNr(d):MK[d.getMonth()]}</small></div>
+      <div class="bz-tx"><b>${past?esc(x.dienst||"Glasbewassing")+(x.extra&&x.extra.length?" + "+esc(x.extra.join(", ").toLowerCase()):""):x.soort==="verwacht"?"Verwacht bezoek":"Gepland bezoek"}</b><small><span style="text-transform:capitalize">${x.soort==="verwacht"?"rond week "+weekNr(d):esc(dagNaam(d))}</span>${x.tijd?" · "+esc(x.tijd):""}${!past&&x.soort!=="verwacht"?" · "+esc(overTxt(dagenTot(x.datum)).toLowerCase()):""}</small>${past&&x.beoordeling?st(x.beoordeling.sterren):""}</div>
+      <div class="bz-rt">${past?(x.bedrag?`<b>${eur0(x.bedrag)}</b>`:"")+`<span class="pill ok"><i></i>Gedaan</span>`:`<span class="pill ${x.soort==="verwacht"?"":"brand"}"><i></i>${x.soort==="verwacht"?"Verwacht":"Gepland"}</span>`}</div></div></li>`};
+  const fut=toek.slice().reverse();jr=nu.getFullYear();const lijn=fut.map(x=>item(x,false));jr=nu.getFullYear();
+  const tl=`<section class="bz-tl"><div class="bz-tlh"><b>Tijdlijn</b><small>${plural(b.length,"bezoek","bezoeken")} gedaan${toek.length?" · "+plural(toek.length,"gepland","gepland").replace(/^(\d+) gepland$/,"$1 in het vooruitzicht"):""}</small></div>
+    <ol class="bz-ol">${lijn.join("")}${b.length&&toek.length?`<li class="bz-nu"><span>Vandaag</span></li>`:""}${b.map(x=>item(x,true)).join("")}</ol>
+    ${!b.length&&!toek.length?`<p class="leeg">Na ons eerste bezoek ziet u het hier terug.</p>`:""}${!b.length&&toek.length?`<p class="bz-tip">Na ons eerste bezoek verschijnt het hier, met de datum en wat we gedaan hebben.</p>`:""}</section>`;
+  return kop("Bezoeken","Wanneer we komen en wanneer we geweest zijn.")+`<div class="pg">${hero}${tiles}${tl}</div>`}
 const plural=(n,a,b)=>n+" "+(n===1?a:b);
 
 function betaalProfiel(F){
