@@ -150,16 +150,16 @@ async function pdfDoc(f,klant){
         g.drawImage(i,(i.width-sw)/2,(i.height-sh)/2,sw,sh,0,0,c.width,c.height);res(c.toDataURL("image/jpeg",.88))};i.onerror=()=>res(im.data);i.src=im.data});
       const een=ims.length===1,gap=8,cols=een?1:2,cw=(W-gap*(cols-1))/cols,ar=een?16/10:4/3,iw=cw,ih=iw/ar;
       for(let i=0;i<ims.length;i+=cols){const row=ims.slice(i,i+cols);
-        const notes=row.map(im=>{N();doc.setFontSize(8.4);return doc.splitTextToSize(im.p.notitie||"Bijzonderheid",iw-8)}),nl=Math.max(...notes.map(n=>n.length));
-        const ch=ih+6+nl*4+5;if(yy+ch>270){doc.addPage();yy=22}
+        const notes=row.map(im=>{N();doc.setFontSize(7.4);return doc.splitTextToSize(im.p.notitie||"Bijzonderheid",iw-8)}),nl=Math.max(...notes.map(n=>n.length));
+        const ch=ih+5.4+nl*3.5+4.5;if(yy+ch>270){doc.addPage();yy=22}
         for(let j=0;j<row.length;j++){const im=row[j],x=L+j*(cw+gap),data=await crop(im,ar);
           try{doc.addImage(data,"JPEG",x,yy,iw,ih)}catch(e){}
           if(im.p.zijde){N();doc.setFontSize(5.4);const zt=String(im.p.zijde),zw=doc.getTextWidth(zt)+5.4,zx=x+2.6,zy=yy+ih-2.6-4.4;
             try{doc.setGState(new doc.GState({opacity:.5}))}catch(e){}doc.setFillColor(17,24,28);doc.roundedRect(zx,zy,zw,4.4,2.2,2.2,"F");try{doc.setGState(new doc.GState({opacity:1}))}catch(e){}
             doc.setFillColor(255,255,255);doc.circle(zx+2,zy+2.2,.55,"F");doc.setTextColor(255,255,255);doc.text(zt,zx+3.4,zy+3.05);col(C.ink)}
-          const ty=yy+ih+6.2;N();doc.setFontSize(7.4);col(A);doc.text(String(i+j+1).padStart(2,"0"),x,ty);
-          N();doc.setFontSize(8.4);col(C.ink);doc.text(notes[j],x+7,ty,{lineHeightFactor:1.4});
-          doc.setFontSize(7);col(C.mut);doc.text(fmtL(im.p.datum||f.datum),x+7,ty+notes[j].length*4+.3);col(C.ink)}
+          const ty=yy+ih+5.4;N();doc.setFontSize(6.2);col(A);doc.text(String(i+j+1).padStart(2,"0"),x,ty);
+          N();doc.setFontSize(7.4);col([43,51,55]);doc.text(notes[j],x+6,ty,{lineHeightFactor:1.4});
+          doc.setFontSize(6.2);col(C.mut);doc.text(fmtL(im.p.datum||f.datum),x+6,ty+notes[j].length*3.5+.2);col(C.ink)}
         yy+=ch+gap}}}
   const pages=doc.getNumberOfPages();for(let p=1;p<=pages;p++){doc.setPage(p);doc.setDrawColor(...C.line);doc.setLineWidth(.25);doc.line(L,277,R,277);N();doc.setFontSize(6.8);col(C.mut);
     doc.text(m.foot.join("   ·   "),L,282);if(pages>1)doc.text("Pagina "+p+" / "+pages,R,282,{align:"right"});col(C.ink)}

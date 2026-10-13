@@ -2267,3 +2267,10 @@ body.an-open{overflow:hidden}
 .inv5.i5-p2{margin-top:18px}
 .inv5.i5-p2 .i5-fotos{margin-top:0;padding-top:0;border-top:0}
 .inv5.i5-p2{height:auto!important;min-height:auto!important;overflow:visible!important}
+/* foto-onderschriften: klein en subtiel */
+.i5-fotos .i5-ft{font-size:13px!important}
+.i5-fotos .i5-fs{font-size:9.5px!important}
+.i5-fotos figcaption{margin-top:7px!important;gap:7px!important;align-items:baseline!important}
+.i5-fotos figcaption i{width:auto!important;height:auto!important;background:none!important;border-radius:0!important;color:var(--A,#11181c)!important;font-weight:500!important;font-size:7.5px!important;line-height:1.5!important;font-family:inherit!important;letter-spacing:.02em}
+.i5-fotos figcaption b{font-size:9px!important;font-weight:400!important;line-height:1.45!important;color:#2b3337}
+.i5-fotos figcaption small{font-size:7.5px!important;color:#8a9399!important;margin-top:1px!important}

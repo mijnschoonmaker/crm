@@ -2680,6 +2680,13 @@ body.an-open{overflow:hidden}
 .inv5.i5-p2{margin-top:18px}
 .inv5.i5-p2 .i5-fotos{margin-top:0;padding-top:0;border-top:0}
 .inv5.i5-p2{height:auto!important;min-height:auto!important;overflow:visible!important}
+/* foto-onderschriften: klein en subtiel */
+.i5-fotos .i5-ft{font-size:13px!important}
+.i5-fotos .i5-fs{font-size:9.5px!important}
+.i5-fotos figcaption{margin-top:7px!important;gap:7px!important;align-items:baseline!important}
+.i5-fotos figcaption i{width:auto!important;height:auto!important;background:none!important;border-radius:0!important;color:var(--A,#11181c)!important;font-weight:500!important;font-size:7.5px!important;line-height:1.5!important;font-family:inherit!important;letter-spacing:.02em}
+.i5-fotos figcaption b{font-size:9px!important;font-weight:400!important;line-height:1.45!important;color:#2b3337}
+.i5-fotos figcaption small{font-size:7.5px!important;color:#8a9399!important;margin-top:1px!important}
 
 </style>
 <div class="app">
@@ -6670,16 +6677,16 @@ async function pdfDoc(f,klant){
         g.drawImage(i,(i.width-sw)/2,(i.height-sh)/2,sw,sh,0,0,c.width,c.height);res(c.toDataURL("image/jpeg",.88))};i.onerror=()=>res(im.data);i.src=im.data});
       const een=ims.length===1,gap=8,cols=een?1:2,cw=(W-gap*(cols-1))/cols,ar=een?16/10:4/3,iw=cw,ih=iw/ar;
       for(let i=0;i<ims.length;i+=cols){const row=ims.slice(i,i+cols);
-        const notes=row.map(im=>{N();doc.setFontSize(8.4);return doc.splitTextToSize(im.p.notitie||"Bijzonderheid",iw-8)}),nl=Math.max(...notes.map(n=>n.length));
-        const ch=ih+6+nl*4+5;if(yy+ch>270){doc.addPage();yy=22}
+        const notes=row.map(im=>{N();doc.setFontSize(7.4);return doc.splitTextToSize(im.p.notitie||"Bijzonderheid",iw-8)}),nl=Math.max(...notes.map(n=>n.length));
+        const ch=ih+5.4+nl*3.5+4.5;if(yy+ch>270){doc.addPage();yy=22}
         for(let j=0;j<row.length;j++){const im=row[j],x=L+j*(cw+gap),data=await crop(im,ar);
           try{doc.addImage(data,"JPEG",x,yy,iw,ih)}catch(e){}
           if(im.p.zijde){N();doc.setFontSize(5.4);const zt=String(im.p.zijde),zw=doc.getTextWidth(zt)+5.4,zx=x+2.6,zy=yy+ih-2.6-4.4;
             try{doc.setGState(new doc.GState({opacity:.5}))}catch(e){}doc.setFillColor(17,24,28);doc.roundedRect(zx,zy,zw,4.4,2.2,2.2,"F");try{doc.setGState(new doc.GState({opacity:1}))}catch(e){}
             doc.setFillColor(255,255,255);doc.circle(zx+2,zy+2.2,.55,"F");doc.setTextColor(255,255,255);doc.text(zt,zx+3.4,zy+3.05);col(C.ink)}
-          const ty=yy+ih+6.2;N();doc.setFontSize(7.4);col(A);doc.text(String(i+j+1).padStart(2,"0"),x,ty);
-          N();doc.setFontSize(8.4);col(C.ink);doc.text(notes[j],x+7,ty,{lineHeightFactor:1.4});
-          doc.setFontSize(7);col(C.mut);doc.text(fmtL(im.p.datum||f.datum),x+7,ty+notes[j].length*4+.3);col(C.ink)}
+          const ty=yy+ih+5.4;N();doc.setFontSize(6.2);col(A);doc.text(String(i+j+1).padStart(2,"0"),x,ty);
+          N();doc.setFontSize(7.4);col([43,51,55]);doc.text(notes[j],x+6,ty,{lineHeightFactor:1.4});
+          doc.setFontSize(6.2);col(C.mut);doc.text(fmtL(im.p.datum||f.datum),x+6,ty+notes[j].length*3.5+.2);col(C.ink)}
         yy+=ch+gap}}}
   const pages=doc.getNumberOfPages();for(let p=1;p<=pages;p++){doc.setPage(p);doc.setDrawColor(...C.line);doc.setLineWidth(.25);doc.line(L,277,R,277);N();doc.setFontSize(6.8);col(C.mut);
     doc.text(m.foot.join("   ·   "),L,282);if(pages>1)doc.text("Pagina "+p+" / "+pages,R,282,{align:"right"});col(C.ink)}
@@ -8541,7 +8548,7 @@ addEventListener("resize",()=>dpClose());
    definitieve factuur de echte PDF (dezelfde als bij Downloaden) en bewaart die. Verandert de factuur,
    de status of de huisstijl, dan wordt de PDF automatisch opnieuw gemaakt. */
 const pdfHash=t=>{let h=5381;for(let i=0;i<t.length;i++)h=(h*33^t.charCodeAt(i))>>>0;return h.toString(36)+t.length.toString(36)};
-function pdfSig(f){try{return pdfHash(JSON.stringify(invModel(f))+"|"+(S().logo||"")+"|"+(f.status||"")+"|opmaak5")}catch(e){return""}}
+function pdfSig(f){try{return pdfHash(JSON.stringify(invModel(f))+"|"+(S().logo||"")+"|"+(f.status||"")+"|opmaak6")}catch(e){return""}}
 let pdfBezig=false,pdfMislukt=new Set();
 async function pdfSync(){
   if(!LIVE||pdfBezig||!state.loaded||isMw()||!state.assets||typeof pdfDoc!=="function")return;
