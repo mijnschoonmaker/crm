@@ -589,6 +589,7 @@ async function toonLogin(melding){
     <form id="lf" class="wk-form" novalidate><label class="wk-veld"><span class="sr">E-mailadres</span>${I.mail}<input type="email" id="le" autocomplete="email" inputmode="email" placeholder="Uw e-mailadres" required></label>
     <button class="primary full big" id="lb">Stuur mij een inloglink</button><p class="fout" id="lfout" role="alert"></p></form>
     <ul class="wk-pts" aria-label="Wat u hier kunt">${[[I.kal,"Afspraken"],[I.fact,"Facturen"],[I.ticket,"Tickets"]].map(([ic,t])=>`<li><span>${ic}</span>${t}</li>`).join("")}</ul></div></main>`;
+  try{const pe=new URLSearchParams(location.search).get("e");if(pe&&/^\S+@\S+\.\S+$/.test(pe))$("#le").value=pe}catch(e){}
   $("#lf").onsubmit=async e=>{e.preventDefault();const v=$("#le").value.trim(),b=$("#lb");$("#lfout").textContent="";
     if(!/^\S+@\S+\.\S+$/.test(v)){$("#lfout").textContent="Vul een geldig e-mailadres in.";$("#le").focus();return}
     b.disabled=true;b.innerHTML=`<span class="spin" style="width:17px;height:17px;border-width:2px;border-color:rgb(255 255 255 / .35);border-top-color:#fff"></span>Versturen…`;
