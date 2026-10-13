@@ -390,6 +390,66 @@ aside .help .primary{margin-top:2px;font-size:13.5px;padding:9px}aside .help .pr
 
 /* paginatitels gelijk aan het CRM */
 #app h1:not(.wk-kaart h1){font-family:Manrope,system-ui,sans-serif;font-weight:600;font-size:clamp(26px,3vw,34px);letter-spacing:-.025em;line-height:1.12}
+
+/* ---------- Aanbevelen ---------- */
+.rf{display:flex;flex-direction:column;gap:16px}
+.rf-hero{position:relative;overflow:hidden;border-radius:26px;padding:28px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:center;color:#fff;background:linear-gradient(150deg,#1f8fa8 0%,#17708a 45%,#0e4a5c 100%);box-shadow:0 24px 50px -30px rgba(8,40,48,.6)}
+.rf-hero::before{content:"";position:absolute;width:420px;height:420px;border-radius:50%;right:-120px;top:-180px;background:radial-gradient(circle,rgba(255,255,255,.18),transparent 65%);pointer-events:none}
+.rf-ht{position:relative;min-width:0}
+.rf-eb{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.85)}
+.rf-eb svg{width:16px;height:16px}
+.rf-hero h2{margin:10px 0 8px;font-size:clamp(26px,3.4vw,36px);font-weight:600;letter-spacing:-.03em;line-height:1.1;color:#fff}
+.rf-hero p{margin:0 0 18px;color:rgba(255,255,255,.82);font-size:15px;line-height:1.55;max-width:520px}
+.rf-link{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:16px;padding:8px 8px 8px 16px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.rf-link>span{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.rf-link small{font-size:11.5px;color:rgba(255,255,255,.7);font-weight:600;letter-spacing:.02em}
+.rf-link b{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rf-kop{flex:none;display:inline-flex;align-items:center;gap:7px;background:#fff!important;color:#0e4a5c!important;border:0!important;border-radius:12px!important;padding:10px 16px!important;font-weight:700;box-shadow:0 6px 16px -8px rgba(0,0,0,.35)}
+.rf-kop svg{width:16px;height:16px}
+.rf-deel{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.rf-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;flex:1 1 0;min-width:110px;padding:11px 14px;border-radius:13px;font-weight:600;font-size:14.5px;text-decoration:none;color:#fff!important;background:rgba(255,255,255,.12)!important;border:1px solid rgba(255,255,255,.22)!important;box-shadow:none!important;cursor:pointer}
+.rf-btn svg{width:18px;height:18px}
+.rf-btn.wa{background:#25a35a!important;border-color:transparent!important}
+.rf-btn.sm{flex:none;padding:10px 16px}
+.rf-vis{position:relative;height:200px}
+.rf-kaart{position:absolute;width:190px;border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:2px;background:rgba(255,255,255,.96);color:#14232a;box-shadow:0 20px 40px -18px rgba(0,0,0,.45)}
+.rf-kaart small{font-size:12px;font-weight:600;color:#6b7b83}.rf-kaart b{font-size:34px;font-weight:600;letter-spacing:-.03em;color:#17708a}.rf-kaart span{font-size:12.5px;color:#6b7b83}
+.rf-kaart.k1{right:0;top:0;transform:rotate(4deg)}
+.rf-kaart.k2{left:0;bottom:0;transform:rotate(-5deg);background:rgba(255,255,255,.85)}.rf-kaart.k2 b{color:#1f9a63}
+.rf-tg{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:8px}
+.rf-tg>div{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:2px;box-shadow:var(--shadow)}
+.rf-tg>div.hl{border-color:color-mix(in srgb,#22a46c 35%,var(--line));background:color-mix(in srgb,#22a46c 6%,var(--surface))}
+.rf-tg small{font-size:12.5px;color:var(--muted);font-weight:600}
+.rf-tg b{font-size:24px;font-weight:600;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.rf-tg .hl b{color:#178a5e}
+.rf-tg span{font-size:12px;color:var(--muted)}
+.rf-tg>i{color:color-mix(in srgb,var(--muted) 60%,transparent);display:grid}.rf-tg>i svg{width:18px;height:18px}
+.rf-stappen ol{list-style:none;margin:0;padding:18px 18px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;position:relative;counter-reset:s}
+.rf-stappen ol::before{content:"";position:absolute;left:12.5%;right:12.5%;top:36px;height:2px;background:linear-gradient(90deg,color-mix(in srgb,var(--brand) 35%,transparent),color-mix(in srgb,#22a46c 45%,transparent))}
+.rf-stappen li{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px}
+.rf-sn{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--surface);border:2px solid color-mix(in srgb,var(--brand) 40%,var(--line));color:var(--brand);font-weight:700;font-size:15px;margin-bottom:6px}
+.rf-stappen li:last-child .rf-sn{background:#22a46c;border-color:#22a46c;color:#fff}
+.rf-stappen li b{font-size:14.5px;font-weight:600}
+.rf-stappen li small{font-size:12.5px;color:var(--muted);line-height:1.4;max-width:190px}
+.rf-r{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--line)}
+.rf-r:first-child{border-top:0}
+.rf-av{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand);font-weight:700;flex:none}
+.rf-rt{flex:1;min-width:0;display:flex;flex-direction:column}.rf-rt b{font-size:14.5px;font-weight:600}.rf-rt small{font-size:12.5px;color:var(--muted)}
+.rf-vg{display:flex;gap:4px}.rf-vg i{width:18px;height:4px;border-radius:2px;background:var(--surface-2)}.rf-vg i.on{background:#22a46c}
+.rf-leeg{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:28px 20px 30px}
+.rf-huizen{display:flex;gap:6px;margin-bottom:6px}.rf-huizen svg{width:30px;height:30px;padding:8px;box-sizing:content-box;border-radius:14px;background:var(--surface-2);color:color-mix(in srgb,var(--muted) 70%,transparent)}
+.rf-huizen svg:nth-child(2){background:var(--brand-soft);color:var(--brand);transform:translateY(-6px)}
+.rf-leeg b{font-size:16px;font-weight:600}.rf-leeg p{margin:0 0 10px;color:var(--muted);font-size:14px}
+@media (max-width:760px){
+  .rf-hero{grid-template-columns:1fr;padding:22px 18px}.rf-vis{display:none}
+  .rf-tg{grid-template-columns:1fr}.rf-tg>i{display:none}
+  .rf-stappen ol{grid-template-columns:1fr;gap:14px;padding:16px}.rf-stappen ol::before{left:35px;right:auto;top:30px;bottom:30px;width:2px;height:auto}
+  .rf-stappen li{flex-direction:row;text-align:left;align-items:flex-start;gap:12px;display:grid;grid-template-columns:38px 1fr;grid-template-rows:auto auto}
+  .rf-sn{grid-row:1/span 2;margin:0}.rf-stappen li small{max-width:none}
+  .rf-vg{display:none}
+}
+.rf-vis{height:250px}.rf-kaart{width:180px;padding:16px}.rf-kaart.k1{top:4px;right:0;z-index:1}.rf-kaart.k2{bottom:4px;left:0;z-index:2;background:#fff}
+@media (max-width:760px){.rf-tg{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.rf-tg>div{padding:10px;border-radius:14px}.rf-tg b{font-size:18px}.rf-tg small{font-size:11px;line-height:1.25;min-height:28px}.rf-tg span{display:none}.rf-stappen ol::before{bottom:46px}}
 </style></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -620,17 +680,38 @@ function facturen(){const F=D.facturen,open=F.filter(f=>f.status!=="betaald"&&f.
     ${open.length?kp(I.euro,"Te betalen",`<div class="lijst">${open.map(rij).join("")}</div>`,{kl:"rood",sub:"Betaal online met iDEAL of maak het bedrag over"}):""}
     ${kp(I.fact,"Alle facturen",F.filter(f=>!open.includes(f)).length?`<div class="lijst">${F.filter(f=>!open.includes(f)).map(rij).join("")}</div>`:`<p class="leeg">Hier verschijnen uw facturen na een bezoek.</p>`,{sub:plural(F.length,"factuur","facturen")})}</div>`}
 
-function aanbevelen(){const A=D.aanbevelen;
-  const st={aangemeld:["soon","Aangemeld"],akkoord:["soon","Wacht op akkoord"],eerste:["brand","Eerste bezoek volgt"],klant:["brand","Eerste bezoek volgt"],beloond:["ok","Korting vrijgegeven"],gestopt:["neutral","Niet doorgegaan"]};
-  const hold=(A.opHold||0)*B.refBeloning;
-  return kop("Aanbevelen","Wie u aanbeveelt krijgt een welkomstkorting, en u wordt bedankt.")+`<div class="pg met-paneel"><div class="col">
-    ${kp(I.cadeau,"Uw persoonlijke link",`<div class="ref-bedrag"><b>${eur0(B.refBeloning)}</b><span>korting op uw volgende factuur, voor elke nieuwe klant</span></div>
-      ${B.refWelkom>0?`<p class="subt">Wie zich via uw link aanmeldt, krijgt ${eur0(B.refWelkom)} korting op de eerste factuur.</p>`:""}
-      <div class="code"><b>${esc(A.code)}</b><button class="primary" data-kopie>${I.kopie}Kopieer link</button></div>
-      <div class="deel"><a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(deelTekst())}">${I.wa}WhatsApp</a><a class="btn" href="mailto:?subject=${encodeURIComponent("Tip: "+B.naam)}&body=${encodeURIComponent(deelTekst())}">${I.mail}Mail</a><button data-deel>${I.deel}Delen</button></div>`,{kl:"goud",sub:"Deel hem met buren, vrienden of familie"})}
-    <div class="stats"><div class="stat"><small>On hold</small><b>${eur0(hold)}</b></div><div class="stat goud"><small>Klaar voor factuur</small><b>${eur0(A.tegoed)}</b></div><div class="stat"><small>Al verrekend</small><b>${eur0(A.verdiend)}</b></div></div>
-    ${kp(I.hart,"Uw aanbevelingen",A.lijst.length?`<div class="lijst">${A.lijst.map(x=>lr(I.hart,esc(x.naam||"Nieuwe klant"),x.datum?esc(kort(x.datum.slice(0,10))):"",`<span class="pill ${st[x.status][0]}"><i></i>${st[x.status][1]}</span>`,{tis:"background:var(--soon-bg);color:var(--soon)"})).join("")}</div>`:`<p class="leeg">Nog niemand aanbevolen. Uw buren zien vast al dat uw ramen blinken.</p>`,{kl:"goud",sub:A.lijst.length?plural(A.lijst.length,"aanbeveling","aanbevelingen"):""})}
-    </div><div class="col paneel">${kp(I.check,"Zo werkt het",`<ol class="stappen"><li>Deel uw link via WhatsApp of mail</li><li>Zij berekenen hun prijs en melden zich aan</li><li>Uw korting staat on hold tot zij akkoord hebben gegeven en wij de eerste afspraak hebben uitgevoerd</li><li>Daarna gaat ${eur0(B.refBeloning)} automatisch van uw volgende factuur af</li></ol>`,{kl:"zacht"})}</div></div>`}
+function aanbevelen(){const A=D.aanbevelen,R=B.refBeloning,W=B.refWelkom;
+  const st={aangemeld:["soon","Aangemeld",1],akkoord:["soon","Wacht op akkoord",2],eerste:["brand","Eerste bezoek volgt",3],klant:["brand","Eerste bezoek volgt",3],beloond:["ok","Korting vrijgegeven",4],gestopt:["neutral","Niet doorgegaan",0]};
+  const hold=(A.opHold||0)*R,link=String(A.link||"").replace(/^https?:\/\//,"");
+  const stap=(n,t,s)=>`<li><span class="rf-sn">${n}</span><b>${t}</b><small>${s}</small></li>`;
+  const voortgang=x=>{const n=st[x.status][2];return `<div class="rf-vg" aria-hidden="true">${[1,2,3,4].map(i=>`<i class="${n>=i?"on":""}"></i>`).join("")}</div>`};
+  return kop("Aanbevelen","Tevreden? Vertel het door, dan bedanken wij u.")+`<div class="pg rf">
+    <section class="rf-hero">
+      <div class="rf-ht">
+        <span class="rf-eb">${I.cadeau}Uw persoonlijke link</span>
+        <h2>${W>0?`Geef ${eur0(W)}, krijg ${eur0(R)}`:`Krijg ${eur0(R)} per nieuwe klant`}</h2>
+        <p>${W>0?`Wie zich via uw link aanmeldt, krijgt ${eur0(W)} korting op de eerste factuur. U krijgt ${eur0(R)} korting op uw volgende factuur, voor elke nieuwe klant.`:`Voor elke nieuwe klant via uw link gaat ${eur0(R)} van uw volgende factuur af.`}</p>
+        <div class="rf-link"><span><small>Uw code · ${esc(A.code)}</small><b>${esc(link)}</b></span><button class="rf-kop" data-kopie>${I.kopie}<span>Kopieer</span></button></div>
+        <div class="rf-deel"><a class="rf-btn wa" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(deelTekst())}">${I.wa}WhatsApp</a><a class="rf-btn" href="mailto:?subject=${encodeURIComponent("Tip: "+B.naam)}&body=${encodeURIComponent(deelTekst())}">${I.mail}Mail</a><button class="rf-btn" data-deel>${I.deel}Delen</button></div>
+      </div>
+      <div class="rf-vis" aria-hidden="true">
+        ${W>0?`<div class="rf-kaart k2"><small>Uw buur krijgt</small><b>${eur0(W)}</b><span>welkomstkorting</span></div>`:""}
+        <div class="rf-kaart k1"><small>U krijgt</small><b>${eur0(R)}</b><span>per nieuwe klant</span></div>
+      </div>
+    </section>
+    <section class="rf-tg">
+      <div><small>On hold</small><b>${eur0(hold)}</b><span>${A.opHold?plural(A.opHold,"aanmelding","aanmeldingen")+" onderweg":"nog niets onderweg"}</span></div>
+      <i aria-hidden="true">${I.chev}</i>
+      <div class="hl"><small>Klaar voor uw factuur</small><b>${eur0(A.tegoed)}</b><span>gaat van de volgende factuur af</span></div>
+      <i aria-hidden="true">${I.chev}</i>
+      <div><small>Al verrekend</small><b>${eur0(A.verdiend)}</b><span>totaal bespaard</span></div>
+    </section>
+    <section class="kp rf-stappen"><div class="kp-h"><div><b>Zo werkt het</b><small>In vier stappen naar uw korting</small></div></div>
+      <ol>${stap(1,"Deel uw link","Via WhatsApp, mail of gewoon even vertellen")}${stap(2,"Zij melden zich aan","Ze berekenen hun prijs via uw link")}${stap(3,"Eerste bezoek","Na akkoord komen wij de eerste keer langs")}${stap(4,"Korting voor u",`${eur0(R)} gaat automatisch van uw volgende factuur af`)}</ol></section>
+    <section class="kp rf-lijst"><div class="kp-h"><div><b>Uw aanbevelingen</b>${A.lijst.length?`<small>${plural(A.lijst.length,"aanbeveling","aanbevelingen")}</small>`:""}</div></div>
+      ${A.lijst.length?`<div class="lijst">${A.lijst.map(x=>`<div class="rf-r"><span class="rf-av">${esc(((x.naam||"N")[0]||"N").toUpperCase())}</span><span class="rf-rt"><b>${esc(x.naam||"Nieuwe klant")}</b><small>${x.datum?esc(kort(x.datum.slice(0,10))):""}</small></span>${voortgang(x)}<span class="pill ${st[x.status][0]}"><i></i>${st[x.status][1]}</span></div>`).join("")}</div>`
+      :`<div class="rf-leeg"><div class="rf-huizen" aria-hidden="true">${I.huis}${I.huis}${I.huis}</div><b>Nog niemand aanbevolen</b><p>Uw buren zien vast al dat uw ramen blinken. Stuur ze uw link.</p><a class="rf-btn wa sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(deelTekst())}">${I.wa}Deel via WhatsApp</a></div>`}</section>
+  </div>`}
 function deelTekst(){return `Ik laat mijn ramen wassen door ${B.naam} en ben er heel tevreden over.${B.refWelkom>0?` Met mijn link krijg je ${eur0(B.refWelkom)} korting op je eerste factuur:`:" Bereken je prijs via mijn link:"} ${D.aanbevelen.link}`}
 
 function ik(){const k=D.klant,t=k.toegang||{};
