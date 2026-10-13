@@ -3,7 +3,7 @@
    definitieve factuur de echte PDF (dezelfde als bij Downloaden) en bewaart die. Verandert de factuur,
    de status of de huisstijl, dan wordt de PDF automatisch opnieuw gemaakt. */
 const pdfHash=t=>{let h=5381;for(let i=0;i<t.length;i++)h=(h*33^t.charCodeAt(i))>>>0;return h.toString(36)+t.length.toString(36)};
-function pdfSig(f){try{return pdfHash(JSON.stringify(invModel(f))+"|"+(S().logo||"")+"|"+(f.status||""))}catch(e){return""}}
+function pdfSig(f){try{return pdfHash(JSON.stringify(invModel(f))+"|"+(S().logo||"")+"|"+(f.status||"")+"|opmaak2")}catch(e){return""}}
 let pdfBezig=false,pdfMislukt=new Set();
 async function pdfSync(){
   if(!LIVE||pdfBezig||!state.loaded||isMw()||!state.assets||typeof pdfDoc!=="function")return;

@@ -84,7 +84,7 @@ async function pdfDoc(f,klant){
   B();doc.setFontSize(8.8);col(C.ink);{const nm=s.naam||"Je bedrijfsnaam",nw=doc.getTextWidth(nm);doc.text(nm,R,y,{align:"right"})}
   doc.setFontSize(7.6);N();const vw=Math.min(52,Math.max(24,...m.coInfo.flatMap(([l,v])=>v.map(x=>doc.getTextWidth(String(x))))));const VX=R-vw,LX=VX-3;
   let cy=y+6.5;m.coInfo.forEach(([l,v])=>{if(!l){cy+=2.4;return}N();doc.setFontSize(7.6);col(C.mut);doc.text(l,LX,cy,{align:"right"});col(C.ink);v.forEach((x,k)=>doc.text(doc.splitTextToSize(String(x),vw+2)[0],VX,cy+k*3.7));cy+=Math.max(1,v.length)*3.7+.5});
-  let ky=y+(logo?Math.min(24,Math.min(50,22*logo.ratio)/logo.ratio+5):16);N();doc.setFontSize(10);col(C.ink);B();doc.text(doc.splitTextToSize(m.naamKlant,LX-L-30)[0],L,ky);N();doc.setFontSize(8.6);col([60,68,72]);
+  let ky=y+(logo?Math.min(50,22*logo.ratio)/logo.ratio+9:16);N();doc.setFontSize(10);col(C.ink);B();doc.text(doc.splitTextToSize(m.naamKlant,LX-L-30)[0],L,ky);N();doc.setFontSize(8.6);col([60,68,72]);
   m.naar.forEach((x,i)=>doc.text(doc.splitTextToSize(String(x),LX-L-30)[0],L,ky+5.2+i*4.4));const kEnd=ky+5.2+m.naar.length*4.4;col(C.ink);
   y=Math.max(cy,kEnd)+9;
   doc.setDrawColor(...C.line);doc.setLineWidth(.25);doc.line(L,y-3,R,y-3);y+=6;

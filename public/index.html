@@ -2632,6 +2632,7 @@ body.mw .jp-svc>div>span:last-child:not(.jp-ic){display:none}
 .motb .huisjes i{width:30px!important;height:30px!important;border-radius:10px!important}
 .motb .huisjes i svg{width:18px!important;height:18px!important}
 .motb p{font-weight:600!important}
+.inv5 .i5-lft,.i5-lft{gap:44px!important}
 
 </style>
 <div class="app">
@@ -6556,7 +6557,7 @@ async function pdfDoc(f,klant){
   B();doc.setFontSize(8.8);col(C.ink);{const nm=s.naam||"Je bedrijfsnaam",nw=doc.getTextWidth(nm);doc.text(nm,R,y,{align:"right"})}
   doc.setFontSize(7.6);N();const vw=Math.min(52,Math.max(24,...m.coInfo.flatMap(([l,v])=>v.map(x=>doc.getTextWidth(String(x))))));const VX=R-vw,LX=VX-3;
   let cy=y+6.5;m.coInfo.forEach(([l,v])=>{if(!l){cy+=2.4;return}N();doc.setFontSize(7.6);col(C.mut);doc.text(l,LX,cy,{align:"right"});col(C.ink);v.forEach((x,k)=>doc.text(doc.splitTextToSize(String(x),vw+2)[0],VX,cy+k*3.7));cy+=Math.max(1,v.length)*3.7+.5});
-  let ky=y+(logo?Math.min(24,Math.min(50,22*logo.ratio)/logo.ratio+5):16);N();doc.setFontSize(10);col(C.ink);B();doc.text(doc.splitTextToSize(m.naamKlant,LX-L-30)[0],L,ky);N();doc.setFontSize(8.6);col([60,68,72]);
+  let ky=y+(logo?Math.min(50,22*logo.ratio)/logo.ratio+9:16);N();doc.setFontSize(10);col(C.ink);B();doc.text(doc.splitTextToSize(m.naamKlant,LX-L-30)[0],L,ky);N();doc.setFontSize(8.6);col([60,68,72]);
   m.naar.forEach((x,i)=>doc.text(doc.splitTextToSize(String(x),LX-L-30)[0],L,ky+5.2+i*4.4));const kEnd=ky+5.2+m.naar.length*4.4;col(C.ink);
   y=Math.max(cy,kEnd)+9;
   doc.setDrawColor(...C.line);doc.setLineWidth(.25);doc.line(L,y-3,R,y-3);y+=6;
@@ -8439,7 +8440,7 @@ addEventListener("resize",()=>dpClose());
    definitieve factuur de echte PDF (dezelfde als bij Downloaden) en bewaart die. Verandert de factuur,
    de status of de huisstijl, dan wordt de PDF automatisch opnieuw gemaakt. */
 const pdfHash=t=>{let h=5381;for(let i=0;i<t.length;i++)h=(h*33^t.charCodeAt(i))>>>0;return h.toString(36)+t.length.toString(36)};
-function pdfSig(f){try{return pdfHash(JSON.stringify(invModel(f))+"|"+(S().logo||"")+"|"+(f.status||""))}catch(e){return""}}
+function pdfSig(f){try{return pdfHash(JSON.stringify(invModel(f))+"|"+(S().logo||"")+"|"+(f.status||"")+"|opmaak2")}catch(e){return""}}
 let pdfBezig=false,pdfMislukt=new Set();
 async function pdfSync(){
   if(!LIVE||pdfBezig||!state.loaded||isMw()||!state.assets||typeof pdfDoc!=="function")return;
