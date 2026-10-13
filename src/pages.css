@@ -2540,3 +2540,6 @@ aside nav button .badge{font-size:10.5px}
 .pq-res{z-index:200}
 .pq-open svg{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .pq-res svg{position:static!important;transform:none!important;left:auto!important;top:auto!important;margin:0!important;pointer-events:none}
+/* tijden langs het rooster: elk tijdvak een label, hele uren duidelijk */
+.tg-times span.hh{font-weight:500!important;opacity:.55;font-size:11px!important}
+.tg-times span.hu{font-weight:700;color:var(--ink-2,var(--muted))}
