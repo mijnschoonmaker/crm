@@ -2057,3 +2057,42 @@ body.mw .jp-svc>div>span:last-child:not(.jp-ic){display:none}
 .pl-mk{display:none}
 @media (max-width:760px){.pl-kaart{display:none!important}.pl-mk{display:contents}}
 .tk-vz{display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid var(--line);font-size:13px;color:var(--muted)}.tk-vz .sp{flex:1}
+
+/* ---------- Motivatie: huisjes + feestje ---------- */
+.motb{margin-top:16px;display:flex;flex-direction:column;gap:9px}
+.motb p{margin:0;font-weight:700;font-size:14.5px;color:var(--ink);letter-spacing:-.01em}
+.huisjes{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.huisjes i{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--surface-2);color:color-mix(in srgb,var(--muted) 45%,transparent);transition:background .3s,color .3s}
+.huisjes i svg{width:17px;height:17px;fill:currentColor}
+.huisjes i.af{background:linear-gradient(140deg,#34c27e,#1f9a63);color:#fff;box-shadow:0 3px 8px -2px rgba(31,154,99,.45)}
+.huisjes i.pop{animation:huisPop .7s cubic-bezier(.3,1.6,.5,1) .25s both}
+.huisjes small{font-weight:700;color:var(--muted);font-size:12px;margin-left:2px}
+@keyframes huisPop{0%{transform:scale(.3);background:var(--surface-2);color:var(--muted)}60%{transform:scale(1.25)}100%{transform:scale(1)}}
+.motd{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:2px 16px 14px;margin:-4px 0 14px}
+.feest{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;pointer-events:none;background:radial-gradient(circle at 50% 45%,rgba(43,182,115,.16),transparent 60%);animation:feestIn .25s ease both}
+.feest.weg{animation:feestUit .35s ease both}
+.feest-k{pointer-events:auto;background:var(--surface);border-radius:26px;box-shadow:0 30px 80px -20px rgba(10,40,30,.45),0 0 0 1px rgba(0,0,0,.04);padding:26px 28px 22px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;max-width:min(360px,calc(100vw - 32px));animation:feestK .55s cubic-bezier(.25,1.5,.5,1) both}
+.feest-k b{font-size:20px;letter-spacing:-.02em;margin-top:6px}
+.feest-k span{color:var(--muted);font-size:14px;font-weight:600}
+.feest-k .huisjes{justify-content:center;margin-top:10px}
+.feest-v{width:74px;height:74px}
+.feest-v svg{width:100%;height:100%;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.feest-v circle{stroke:#2bb673;stroke-width:3.5;fill:color-mix(in srgb,#2bb673 12%,transparent);stroke-dasharray:145;stroke-dashoffset:145;animation:feestTr .55s ease-out .1s forwards}
+.feest-v path{stroke:#1f9a63;stroke-width:4.5;stroke-dasharray:40;stroke-dashoffset:40;animation:feestTr .35s ease-out .55s forwards}
+.feest.groot .feest-k{padding:32px 34px 26px}.feest.groot .feest-k b{font-size:26px}.feest.groot .feest-v{width:92px;height:92px}
+.feest-conf{position:absolute;left:50%;top:46%;width:0;height:0}
+.feest-conf i{position:absolute;width:9px;height:13px;background:var(--c);border-radius:2px;opacity:0;animation:conf 1.4s cubic-bezier(.15,.7,.3,1) var(--d) forwards}
+.feest.groot .feest-conf i{animation-duration:2.2s}
+@keyframes conf{0%{opacity:1;transform:translate(0,0) rotate(0)}70%{opacity:1}100%{opacity:0;transform:translate(var(--x),calc(var(--y) + 260px)) rotate(var(--r))}}
+@keyframes feestTr{to{stroke-dashoffset:0}}
+@keyframes feestK{from{transform:scale(.6) translateY(20px);opacity:0}}
+@keyframes feestIn{from{opacity:0}}@keyframes feestUit{to{opacity:0;transform:scale(.97)}}
+@media (prefers-reduced-motion:reduce){.feest-k,.huisjes i.pop{animation:none}.feest-v circle,.feest-v path{animation:none;stroke-dashoffset:0}}
+.feest.geld{background:radial-gradient(circle at 50% 45%,rgba(242,182,50,.22),transparent 62%)}
+.geld-ic{width:78px;height:78px;border-radius:50%;display:grid;place-items:center;font:800 40px/1 Manrope,system-ui,sans-serif;color:#7a5200;background:radial-gradient(circle at 35% 30%,#fff4c4,#f6c94c 45%,#d99a14);box-shadow:inset 0 -4px 0 rgba(122,82,0,.25),0 12px 26px -8px rgba(217,154,20,.6);animation:munt 1s cubic-bezier(.3,1.4,.5,1) both}
+@keyframes munt{0%{transform:scale(.3) rotateY(0)}60%{transform:scale(1.1) rotateY(540deg)}100%{transform:scale(1) rotateY(720deg)}}
+.geld-l{font-size:12px!important;letter-spacing:.12em;text-transform:uppercase;font-weight:800!important;color:#1f9a63!important;margin-top:8px}
+.geld-b{font-size:38px!important;letter-spacing:-.04em;font-variant-numeric:tabular-nums;margin:0!important}
+.feest.geld .feest-k button{margin-top:10px}
+.feest-conf i.munt{width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff4c4,#f6c94c 50%,#d99a14);color:#7a5200;font:800 12px/22px Manrope,sans-serif;text-align:center}
+.feest.geld .feest-conf i{animation-duration:2s}

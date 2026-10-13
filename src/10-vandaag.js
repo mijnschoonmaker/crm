@@ -59,6 +59,7 @@ function vVandaag(){
   if(big()){
     return `<div class="withside"><div class="mainc">${top}
       <div class="strip">${isMw()?"":`<span><b>${eur0(omzet)}</b> / ${eur0(verwacht)}</span>`}<span><b>${doneB.length}</b>/${total} klaar</span><span><b>${todo.length}</b> te gaan</span><span class="strip-bar"><i style="width:${pct}%"></i></span><b class="c-brand">${pct}%</b></div>
+      ${total?`<div class="motd">${motBlok(doneB.length,total)}</div>`:""}
       ${aanmeldBanner()}${noteHtml}${isMw()?"":dueHtml}
       ${todo.length?`<div class="ns-head sm"><h2>Volgende stop</h2><span>${isMw()?"Tik voor adres en instructies · veeg rechts → afmelden":"Veeg of klik · links → factureren · rechts → afmelden"}</span></div><div class="list" style="gap:8px">${todo.map(s=>stopRow(s.k,d)).join("")}</div>
         <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap"><button type="button" data-act="toroute" data-d="${d}">${I.route}Jouw route</button><button type="button" data-act="bulktoday">${I.msg}Bericht aan deze klanten</button></div>`:emptyHtml}
@@ -68,11 +69,11 @@ function vVandaag(){
   let html=top+(isMw()?`<div class="omzetcard">
     <span class="eyebrow">Jouw dag</span>
     <b class="oc-big">${doneB.length} <span style="color:var(--muted);font-weight:600">/ ${total}</span></b><span class="oc-sub">${todo.length?plural(todo.length,"stop","stops")+" te gaan":"alles afgerond"}</span>
-    <div class="oc-bar"><i style="width:${pct}%"></i></div>
+    ${motBlok(doneB.length,total)}
   </div>`:`<div class="omzetcard">
     <span class="eyebrow">Dag-omzet <span style="text-transform:none;letter-spacing:0;font-weight:600">· ex btw</span></span>
     <b class="oc-big">${eur0(omzet)}</b><span class="oc-sub">van <b>${eur0(verwacht)}</b> verwacht</span>
-    <div class="oc-bar"><i style="width:${verwacht?Math.min(100,omzet/verwacht*100):0}%"></i></div>
+    ${motBlok(doneB.length,total)}
     <div class="oc-grid"><div><span class="eyebrow">Stops</span><b>${total}</b></div><div><span class="eyebrow">Klaar</span><b class="c-brand">${doneB.length}</b></div><div><span class="eyebrow">Te gaan</span><b>${todo.length}</b></div><div><span class="eyebrow">Voortgang</span><b>${pct}%</b></div></div>
   </div>`)+`${aanmeldBanner()}${noteHtml}${isMw()?"":dueHtml}`;
   if(!todo.length)html+=emptyHtml;
