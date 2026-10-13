@@ -49,8 +49,6 @@ function openOpdrachtWerk(kid,focus){
       <label class="check-row"><input id="ow-verlegd" type="checkbox" ${k.btwVerlegd?"checked":""}>Btw verleggen <small class="help">factuur met 0% btw en de vermelding "Btw verlegd"</small></label>
       ${kv("Openstaande facturen",open.length?`<span class="pill late">${plural(open.length,"factuur","facturen")} · ${eur(open.reduce((a,f)=>a+totals(f).inc,0))}</span>`:"Nee")}</section>
   </div><div class="kk-side">
-    <section class="kp"><div class="kp-h"><span class="objic">${I.spark}</span><b>Nu aanbieden / uitstellen</b></div>
-      <div class="ow-aanb" id="owAanb"></div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.pencil}</span><b>Taakomschrijving</b></div>
       <textarea id="ow-taak" style="min-height:70px" placeholder="Bijv. wassen ramen incl. kozijnen, achterom via de poort">${esc(k.taak||"")}</textarea>
       <label>Notitie voor op de route<textarea id="ow-not" style="min-height:56px" placeholder="Sleutel onder bloempot, hond, ladder nodig achterkant…">${esc(k.notities||"")}</textarea></label></section>
@@ -164,7 +162,7 @@ function openOpdrachtWerk(kid,focus){
   draw();drawFotos();
   /* aanbieden / uitstellen, artikelen, bedrijfsmiddelen */
   let aanb={aanbieden:!!k.aanbieden,uitstelTot:k.uitstelTot||""},arts=(k.artikelen||[]).map(a=>({...a})),mids=[...(k.middelen||[])];
-  const drawAanb=()=>{const v=volgende(k),ti=iso(today()),st=k.gepland?["ok","Ingepland op "+fmtL(k.gepland)+(k.tijd?" om "+k.tijd:"")]:aanb.uitstelTot&&aanb.uitstelTot>ti?["soon","Uitgesteld tot "+fmtL(aanb.uitstelTot)]:aanb.aanbieden||v<=today()?["late","Staat nu bij Te plannen"]:["neutral","Wordt aangeboden vanaf "+fmtL(iso(v))];
+  const drawAanb=()=>{if(!$("#owAanb"))return;const v=volgende(k),ti=iso(today()),st=k.gepland?["ok","Ingepland op "+fmtL(k.gepland)+(k.tijd?" om "+k.tijd:"")]:aanb.uitstelTot&&aanb.uitstelTot>ti?["soon","Uitgesteld tot "+fmtL(aanb.uitstelTot)]:aanb.aanbieden||v<=today()?["late","Staat nu bij Te plannen"]:["neutral","Wordt aangeboden vanaf "+fmtL(iso(v))];
     $("#owAanb").innerHTML=`<div class="ow-kv"><span>Status</span><b><span class="pill ${st[0]}">${esc(st[1])}</span></b></div>${kv("Volgens frequentie",fmtL(iso(v)))}
       ${k.gepland?"":`<div class="row" style="padding:0;justify-content:flex-start;gap:8px;flex-wrap:wrap"><button type="button" class="small${aanb.aanbieden?" primary":""}" id="owNu">${I.inbox}Nu aanbieden</button><label class="ow-uit">Uitstellen tot<input type="date" id="owUit" value="${esc(aanb.uitstelTot)}" min="${ti}"></label>${aanb.uitstelTot||aanb.aanbieden?`<button type="button" class="linkbtn" id="owAanb0">Normaal (volgens frequentie)</button>`:""}</div>`}`;
     const n=$("#owNu");if(n)n.onclick=()=>{aanb={aanbieden:true,uitstelTot:""};drawAanb()};
