@@ -807,7 +807,8 @@ async function openFactuur(id){let f;const sluit=blad(`<div class="laden" style=
       <p style="color:var(--ink3);font-size:12.5px;margin:12px 0 0">${[b.kvk&&"KvK "+b.kvk,b.btwnr&&"Btw "+b.btwnr,b.iban&&"IBAN "+b.iban].filter(Boolean).map(esc).join(" · ")}</p></div>
     ${open&&b.iban?`<div class="infobox">${I.euro}<span>Liever overmaken? ${eur(f.inc)} naar <b>${esc(b.iban)}</b> t.n.v. ${esc(b.naam)} onder vermelding van ${esc(f.nummer)}.</span></div>`:""}
     <p class="fout" role="alert"></p>
-    <div class="acties"><button class="" onclick="print()">${I.print}Bewaren</button>${open?`<button class="primary" data-betaal>${I.euro}Nu betalen</button>`:`<button class="primary" data-sluit>Sluiten</button>`}</div>`,
+    <div class="infobox">${I.klok}<span>De PDF van deze factuur wordt nog klaargemaakt. Probeer het over een paar minuten opnieuw om hem te downloaden.</span></div>
+    <div class="acties"><button class="" data-sluit>Sluiten</button>${open?`<button class="primary" data-betaal>${I.euro}Nu betalen</button>`:""}</div>`,
     o=>{const b2=o.querySelector("[data-betaal]");if(b2)b2.onclick=async()=>{b2.disabled=true;try{const r=f.betaallink?{link:f.betaallink}:await api("betaal",{body:{id}});if(r.link)location.href=r.link}catch(e){b2.disabled=false;o.querySelector(".fout").textContent=e.message}}})}
 
 
