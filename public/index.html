@@ -4995,7 +4995,14 @@ function sampleVars(){
 const sampleRegels=[{omschrijving:"Glazenwassen buitenzijde",aantal:1,prijs:65},{omschrijving:"Dakkapel + kozijnen",aantal:1,prijs:15}];
 /* knop in een opgemaakt (rich) sjabloon: vóór "Met vriendelijke groet" */
 function richMetKnop(rich,block){const wrap=x=>`<div style="margin:0 0 18px;line-height:1.65;font-size:15px;color:#222">${x}</div>`;if(!block)return wrap(rich);
-  const m=rich.search(/(<(p|div)[^>]*>\s*)?(met vriendelijke groet|vriendelijke groet|groet,)/i);return m>0?wrap(rich.slice(0,m))+block+wrap(rich.slice(m)):wrap(rich)+block}
+  try{const T=document.createElement("template");T.innerHTML=rich;const w=document.createTreeWalker(T.content,NodeFilter.SHOW_TEXT);let n,hit=null,at=0;
+    while((n=w.nextNode())){const m=n.nodeValue.search(/met vriendelijke groet|vriendelijke groet|groet,/i);if(m>=0){hit=n;at=m;break}}
+    if(!hit)return wrap(rich)+block;
+    /* alles vóór de groet netjes (met gesloten tags) eruit knippen, de rest blijft heel */
+    const r=document.createRange();r.setStart(T.content,0);r.setEnd(hit,at);const voor=document.createElement("div");voor.append(r.extractContents());
+    const na=document.createElement("div");na.append(T.content);
+    const v=voor.innerHTML.replace(/(\s|<br\s*\/?>|<(div|p)>\s*(<br\s*\/?>)?\s*<\/\2>)+$/i,"");
+    return wrap(v)+block+wrap(na.innerHTML)}catch(e){return wrap(rich)+block}}
 /* opgemaakte e-mail, inline gestyled zodat hij in een mailprogramma geplakt kan worden */
 function emailHtml({stijl,accent,kicker,titel,tekst,rich,meta,regels,totaal,knop,bank,logo,preview}){
   const s=S(),A=accent||"#111111",serif="Georgia,'Times New Roman',serif",sans="-apple-system,'Segoe UI',Helvetica,Arial,sans-serif";
