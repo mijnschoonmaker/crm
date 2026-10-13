@@ -175,7 +175,7 @@ function openBeurtInfo(id){
       ${rij("Factuur",f?esc(f.nummer||"Concept")+" · "+(f.status==="betaald"||b.betaald?"betaald":f.status==="concept"?"concept":"open")+(f.periodiek?" (periodiek)":""):b.gefactureerd==="periodiek"?"Gaat mee op de periodieke factuur":b.gefactureerd==="nvt"?"Niet gefactureerd (zo ingesteld)":b.gefactureerd?"Gefactureerd":"Nog niet gefactureerd")}
       ${k?rij("Frequentie","elke "+esc(k.frequentie||4)+" weken"):""}
       ${k&&k.gepland?rij("Volgende afspraak",esc(fmtL(k.gepland))+(k.tijd?" om "+esc(k.tijd):"")):""}
-    </div>${k&&k.notities?`<div class="notebox"><span class="eyebrow">Notitie</span>${esc(k.notities)}</div>`:""}${b.notitie?`<div class="notebox"><span class="eyebrow">Notitie bij deze beurt</span>${esc(b.notitie)}</div>`:""}</div>
+    </div>${b.notitie?`<div class="notebox"><span class="eyebrow">Notitie bij deze beurt</span>${esc(b.notitie)}</div>`:""}</div>
     <div class="jp-foot">${f?`<button type="button" data-act="editf" data-id="${esc(f.id)}">${I.facturen}Factuur bekijken</button>`:""}${k?`<button type="button" class="primary" data-act="klant" data-id="${esc(k.id)}">${I.klanten}Klantkaart</button>`:`<button type="button" data-act="close">Sluiten</button>`}</div>
   </div>`,{drawer:true});
 }
