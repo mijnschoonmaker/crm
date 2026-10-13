@@ -2487,3 +2487,29 @@ aside nav button .badge{font-size:10.5px}
   .rv-weg{--h:28px;margin-top:14px}.rv-weg li i{border-radius:9px}.rv-weg li i svg{width:14px;height:14px}
   .rv-bus{width:42px;height:26px;top:37px}
 }
+/* ---------- verdieping in de opdracht: rustiger en ruimer ---------- */
+.ow-flb.ow-on{padding:14px 16px 12px!important;border-radius:16px!important;box-shadow:0 1px 2px rgba(15,31,38,.04),0 8px 20px -16px rgba(15,31,38,.25)}
+.ow-flb.ow-on .ow-fl>span{font-size:15px;font-weight:650;letter-spacing:-.01em}
+.ow-step{gap:0!important;background:var(--surface-2);border-radius:999px;padding:3px}
+.ow-step button{width:32px!important;height:32px!important;border:0!important;background:var(--surface)!important;box-shadow:0 1px 2px rgba(15,31,38,.1);font-size:17px!important;color:var(--ink)}
+.ow-step input{width:52px!important;border:0!important;background:transparent!important;box-shadow:none!important;font-weight:650;font-size:15px;padding:0!important;min-height:0;height:32px;-moz-appearance:textfield}
+.ow-step input::-webkit-outer-spin-button,.ow-step input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.ow-step span{padding:0 8px 0 0;font-size:12.5px!important}
+.ow-flb.ow-on .ow-sub{gap:12px 14px!important;margin-top:14px!important}
+.ow-flb.ow-on .ow-sub label{font-size:12px!important;font-weight:600;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.ow-flb.ow-on .ow-sub label small{font-weight:500;opacity:.75}
+.ow-flb.ow-on .ow-sub .ow-in input{text-align:left}
+.ow-fx{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.ow-fx .ow-calcd{display:inline-flex;align-items:center;gap:7px;margin:0!important;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ow-fx .ow-calcd svg{width:14px;height:14px;flex:none;opacity:.7}
+.ow-fx .ow-calcd i{font-style:normal;margin:0 6px;opacity:.5}
+.ow-fx .ow-calcd b{font-size:11px;font-weight:650;color:var(--brand);background:var(--brand-soft);padding:2px 8px;border-radius:99px}
+.ow-fxa{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-left:auto}
+.ow-fxa .ow-sync{display:inline-flex;align-items:center;gap:6px;margin:0!important;padding:7px 10px;border-radius:10px;font-size:12.5px;font-weight:600}
+.ow-fxa .ow-sync:hover{background:var(--brand-soft)}
+.ow-fxa .ow-sync svg{width:14px;height:14px}
+.ow-fxa .ow-ber{display:inline-flex;align-items:center;gap:7px;padding:8px 14px!important;border-radius:11px;font-weight:600;font-size:13px}
+.ow-fxa .ow-ber svg{width:15px;height:15px}
+@media (max-width:560px){.ow-fx{flex-direction:column;align-items:stretch}.ow-fxa{margin-left:0;justify-content:space-between}.ow-fxa .ow-ber{flex:1;justify-content:center}}
+.ow-lt{display:block}
+.ow-step span{line-height:32px;align-self:center}

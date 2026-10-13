@@ -2900,6 +2900,32 @@ aside nav button .badge{font-size:10.5px}
   .rv-weg{--h:28px;margin-top:14px}.rv-weg li i{border-radius:9px}.rv-weg li i svg{width:14px;height:14px}
   .rv-bus{width:42px;height:26px;top:37px}
 }
+/* ---------- verdieping in de opdracht: rustiger en ruimer ---------- */
+.ow-flb.ow-on{padding:14px 16px 12px!important;border-radius:16px!important;box-shadow:0 1px 2px rgba(15,31,38,.04),0 8px 20px -16px rgba(15,31,38,.25)}
+.ow-flb.ow-on .ow-fl>span{font-size:15px;font-weight:650;letter-spacing:-.01em}
+.ow-step{gap:0!important;background:var(--surface-2);border-radius:999px;padding:3px}
+.ow-step button{width:32px!important;height:32px!important;border:0!important;background:var(--surface)!important;box-shadow:0 1px 2px rgba(15,31,38,.1);font-size:17px!important;color:var(--ink)}
+.ow-step input{width:52px!important;border:0!important;background:transparent!important;box-shadow:none!important;font-weight:650;font-size:15px;padding:0!important;min-height:0;height:32px;-moz-appearance:textfield}
+.ow-step input::-webkit-outer-spin-button,.ow-step input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.ow-step span{padding:0 8px 0 0;font-size:12.5px!important}
+.ow-flb.ow-on .ow-sub{gap:12px 14px!important;margin-top:14px!important}
+.ow-flb.ow-on .ow-sub label{font-size:12px!important;font-weight:600;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.ow-flb.ow-on .ow-sub label small{font-weight:500;opacity:.75}
+.ow-flb.ow-on .ow-sub .ow-in input{text-align:left}
+.ow-fx{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.ow-fx .ow-calcd{display:inline-flex;align-items:center;gap:7px;margin:0!important;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ow-fx .ow-calcd svg{width:14px;height:14px;flex:none;opacity:.7}
+.ow-fx .ow-calcd i{font-style:normal;margin:0 6px;opacity:.5}
+.ow-fx .ow-calcd b{font-size:11px;font-weight:650;color:var(--brand);background:var(--brand-soft);padding:2px 8px;border-radius:99px}
+.ow-fxa{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-left:auto}
+.ow-fxa .ow-sync{display:inline-flex;align-items:center;gap:6px;margin:0!important;padding:7px 10px;border-radius:10px;font-size:12.5px;font-weight:600}
+.ow-fxa .ow-sync:hover{background:var(--brand-soft)}
+.ow-fxa .ow-sync svg{width:14px;height:14px}
+.ow-fxa .ow-ber{display:inline-flex;align-items:center;gap:7px;padding:8px 14px!important;border-radius:11px;font-weight:600;font-size:13px}
+.ow-fxa .ow-ber svg{width:15px;height:15px}
+@media (max-width:560px){.ow-fx{flex-direction:column;align-items:stretch}.ow-fxa{margin-left:0;justify-content:space-between}.ow-fxa .ow-ber{flex:1;justify-content:center}}
+.ow-lt{display:block}
+.ow-step span{line-height:32px;align-self:center}
 
 </style>
 <div class="app">
@@ -7318,10 +7344,9 @@ function openOpdrachtWerk(kid,focus){
       ${q.f.some(n=>n)?`<div class="ow-berbar"><span class="subt">Prijs en tijdsduur van alle verdiepingen berekenen met de ingevoerde aantallen en je tarieven.</span><button type="button" class="small primary" data-ber="${di}">${I.calculator}Berekenen</button></div>`:""}
       <div class="ow-floors">${FL.map((n,j)=>{const cnt=Number(q.f[j])||0,rw=c.rows.find(x=>x.i===j),kr=c.krows.find(x=>x.i===j);return `<div class="ow-flb${cnt?" ow-on":""}"><div class="ow-fl"><span>${n}</span><div class="ow-step"><button type="button" data-st="${di}:${j}:-1" aria-label="Min">−</button><input data-i="${di}" data-rk="f${j}" type="number" min="0" inputmode="numeric" value="${cnt}" aria-label="${n}"><span>st</span><button type="button" data-st="${di}:${j}:1" aria-label="Plus">+</button></div></div>
         ${cnt?`<div class="ow-sub"><label>Frequentie${fqSel(di,"fq"+j,q.fq[j],"Zelfde als opdracht")}</label><label>Aanboddatum<input data-i="${di}" data-rk="vol${j}" type="date" value="${esc(q.vol[j]||"")}" title="Leeg = bij de volgende beurt"></label>
-          <label>Overschrijvende prijs (€ excl.)<input data-i="${di}" data-rk="op${j}" type="number" step="0.01" min="0" value="${esc(has0(q.op[j])?q.op[j]:rw?rw.p.toFixed(2):"")}" placeholder="${rw?esc(rw.calcP.toFixed(2)):"0,00"}"></label><label>Overschrijvende tijdsduur (min)<input data-i="${di}" data-rk="od${j}" type="number" step="1" min="0" value="${esc(has0(q.od[j])?q.od[j]:rw?Math.max(1,Math.ceil(rw.min-1e-9)):"")}" placeholder="${rw?rw.calcMin:0}"></label></div>
-          ${rw?`<p class="ow-calcd">${cnt} × ${eur(rw.pp)} · ${cnt} × ${rw.sec} sec = ${(cnt*rw.sec/60).toLocaleString("nl-NL",{maximumFractionDigits:1})} min${rw.ovP||rw.ovD?" · <b>eigen waarde</b>":""}</p>`:""}
-          <div class="ow-flber"><button type="button" class="small primary" data-ber="${di}:${j}">${I.calculator}Berekenen</button><span class="subt">berekent alle verdiepingen van deze dienst</span></div>
-          ${q.vol[j]?`<button type="button" class="linkbtn ow-sync" data-sync="${di}:${j}">Aanboddatum ${esc(fmtD(q.vol[j]))} voor alle verdiepingen gebruiken</button>`:""}
+          <label><span class="ow-lt">Prijs <small>· overschrijven</small></span><span class="ow-in"><i>€</i><input data-i="${di}" data-rk="op${j}" type="number" step="0.01" min="0" value="${esc(has0(q.op[j])?q.op[j]:rw?rw.p.toFixed(2):"")}" placeholder="${rw?esc(rw.calcP.toFixed(2)):"0,00"}"><em>excl.</em></span></label><label><span class="ow-lt">Tijdsduur <small>· overschrijven</small></span><span class="ow-in"><input data-i="${di}" data-rk="od${j}" type="number" step="1" min="0" value="${esc(has0(q.od[j])?q.od[j]:rw?Math.max(1,Math.ceil(rw.min-1e-9)):"")}" placeholder="${rw?rw.calcMin:0}"><em>min</em></span></label></div>
+          <div class="ow-fx">${rw?`<p class="ow-calcd">${I.calculator}<span>${cnt} × ${eur(rw.pp)}<i>·</i>${cnt} × ${rw.sec} sec = ${(cnt*rw.sec/60).toLocaleString("nl-NL",{maximumFractionDigits:1})} min</span>${rw.ovP||rw.ovD?"<b>eigen waarde</b>":""}</p>`:"<span></span>"}
+            <div class="ow-fxa">${q.vol[j]?`<button type="button" class="linkbtn ow-sync" data-sync="${di}:${j}" title="Aanboddatum ${esc(fmtD(q.vol[j]))} voor alle verdiepingen gebruiken">${I.planning}Datum voor alle verdiepingen</button>`:""}<button type="button" class="small ow-ber" data-ber="${di}:${j}" title="Berekent prijs en tijd van alle verdiepingen van deze dienst">${I.calculator}Berekenen</button></div></div>
 `:""}</div>`}).join("")}</div>
       <div class="ow-res">${resHtml(c,q)}</div>
       <div class="ow-over"><div class="ow-overh"><b>Alles overschrijven</b><span>Geldt voor de hele glasbewassing en gaat voor de prijzen per verdieping. Leeg = berekend.</span></div>
