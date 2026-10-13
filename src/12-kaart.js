@@ -83,7 +83,7 @@ function pkTeken(){if(!PK.map||!PK.data||!window.L)return;const L=window.L,{offe
   offer.forEach(k=>{const c=pkCoord(k);if(!c)return;pts.push(c);
     const gp=parse(k.gepland),late=(gp&&gp<t)||dueOf(k)<t,sel=state.ksel.has(k.id);
     const m=L.marker(c,{icon:pkIcon((sel?"sel":late?"late":"of")),zIndexOffset:sel?600:late?300:0,riseOnHover:true});
-    m.bindTooltip(pkTip(k,esc(dueTxt(k))+" · "+duur(k)+" min"+(sel?" · <b>geselecteerd</b>":"")),{direction:"top",className:"pk-tt-w",opacity:1});
+    m.bindTooltip(pkTip(k,esc((d=>typeof d==="string"?d:(d&&d.txt)||"")(dueTxt(k)))+" · "+duur(k)+" min"+(sel?" · <b>geselecteerd</b>":"")),{direction:"top",className:"pk-tt-w",opacity:1});
     m.on("click",()=>{state.ksel.has(k.id)?state.ksel.delete(k.id):state.ksel.add(k.id);render()});
     m.addTo(PK.laag);PK.mk[k.id]=m});
   if(!PK.fit&&pts.length){PK.fit=true;pkFit(pts)}}

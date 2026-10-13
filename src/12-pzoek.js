@@ -13,7 +13,7 @@ function pqResHtml(offerAll){if(!state.pqOpen)return"";const q=String(state.pq||
     const st=gp?`<em class="pq-st pl">${I.planning}${esc(gp===t?"Vandaag":fmtD(gp))}${k.tijd?" · "+esc(k.tijd):""}</em>`:te.has(k.id)?`<em class="pq-st of">Te plannen · ${esc((dueTxt(k)||{}).txt||"")}</em>`:`<em class="pq-st">Volgende ${esc(fmtD(planned(k)))}</em>`;
     return `<li role="option" class="pq-r${i===0?" eerste":""}" data-pq="${esc(k.id)}"><span class="pq-av" style="--h:${hue(k.ronde||k.naam)}">${esc(initials(k.naam))}</span><span class="pq-tx"><b>${esc(a.adres||cleanName(k.naam))}</b><small>${esc(cleanName(k.naam))}${a.plaats?" · "+esc(a.plaats):""}</small></span>${st}<button type="button" class="pq-open" data-pqk="${esc(k.id)}" title="Klant openen" aria-label="Klant openen">${I.user}</button></li>`};
   return `<ul class="pq-res" id="pqRes" role="listbox">${L.length?L.map(rij).join(""):`<li class="pq-leeg">Geen klant gevonden voor “${esc(q)}”</li>`}</ul>`}
-function pqKies(id){const k=state.klanten.find(x=>x.id===id);if(!k)return;const t=iso(today());state.pqOpen=false;
+function pqKies(id){const k=state.klanten.find(x=>x.id===id);if(!k)return;const t=iso(today());state.pqOpen=false;state.pqDicht=Date.now();try{document.activeElement&&document.activeElement.blur()}catch(e){}
   const gp=k.gepland&&k.gepland>=t?k.gepland:"";
   if(gp){state.planDay=gp;if(state.pview==="maand")state.pview="dag";if(state.pview==="week"||state.pview==="multi"){state.week=startOfWeek(parse(gp));state.multiDays=null}
     render();setTimeout(()=>pqFlits(`.job[data-drag="${id}"],.job[data-id="${id}"]`),80);return}
@@ -23,7 +23,7 @@ function pqKies(id){const k=state.klanten.find(x=>x.id===id);if(!k)return;const 
     if(!pqFlits(`.offercol [data-drag="${id}"]`)&&!(state.pkaart&&PK.mk&&PK.mk[id]))openKlantView(id)},80)}
 function pqFlits(sel){const el=document.querySelector(sel);if(!el)return false;el.scrollIntoView({behavior:"smooth",block:"center"});el.classList.remove("pq-flits");void el.offsetWidth;el.classList.add("pq-flits");setTimeout(()=>el.classList.remove("pq-flits"),2200);return true}
 document.addEventListener("input",e=>{if(e.target.id==="pq")state.pqOpen=true},true);
-document.addEventListener("focusin",e=>{if(e.target.id==="pq"&&String(state.pq||"").trim().length>=2&&!state.pqOpen){state.pqOpen=true;render();const i=document.getElementById("pq");if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}}});
+document.addEventListener("focusin",e=>{if(e.target.id==="pq"&&Date.now()-(state.pqDicht||0)>1500&&String(state.pq||"").trim().length>=2&&!state.pqOpen){state.pqOpen=true;render();const i=document.getElementById("pq");if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}}});
 document.addEventListener("keydown",e=>{if(e.target.id!=="pq")return;
   if(e.key==="Enter"){e.preventDefault();const f=document.querySelector(".pq-res .pq-r");if(f)pqKies(f.dataset.pq)}
   else if(e.key==="Escape"&&state.pqOpen){e.preventDefault();state.pqOpen=false;render()}
