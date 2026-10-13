@@ -155,9 +155,9 @@ async function pdfDoc(f,klant){
         const ch=ih+6+nl*4+5;if(yy+ch>270){doc.addPage();yy=22}
         for(let j=0;j<row.length;j++){const im=row[j],x=L+j*(cw+gap),data=await crop(im,ar);
           try{doc.addImage(data,"JPEG",x,yy,iw,ih)}catch(e){}
-          if(im.p.zijde){N();doc.setFontSize(6.6);const zt=String(im.p.zijde).toUpperCase();doc.setCharSpace(.22);const zw=doc.getTextWidth(zt)+zt.length*.22+5;
-            try{doc.setGState(new doc.GState({opacity:.72}))}catch(e){}doc.setFillColor(17,24,28);doc.roundedRect(x+3,yy+ih-9,zw,6,3,3,"F");try{doc.setGState(new doc.GState({opacity:1}))}catch(e){}
-            doc.setTextColor(255,255,255);doc.text(zt,x+5.5,yy+ih-4.9);doc.setCharSpace(0);col(C.ink)}
+          if(im.p.zijde){N();doc.setFontSize(5.4);const zt=String(im.p.zijde),zw=doc.getTextWidth(zt)+5.4,zx=x+2.6,zy=yy+ih-2.6-4.4;
+            try{doc.setGState(new doc.GState({opacity:.5}))}catch(e){}doc.setFillColor(17,24,28);doc.roundedRect(zx,zy,zw,4.4,2.2,2.2,"F");try{doc.setGState(new doc.GState({opacity:1}))}catch(e){}
+            doc.setFillColor(255,255,255);doc.circle(zx+2,zy+2.2,.55,"F");doc.setTextColor(255,255,255);doc.text(zt,zx+3.4,zy+3.05);col(C.ink)}
           const ty=yy+ih+6.2;N();doc.setFontSize(7.4);col(A);doc.text(String(i+j+1).padStart(2,"0"),x,ty);
           N();doc.setFontSize(8.4);col(C.ink);doc.text(notes[j],x+7,ty,{lineHeightFactor:1.4});
           doc.setFontSize(7);col(C.mut);doc.text(fmtL(im.p.datum||f.datum),x+7,ty+notes[j].length*4+.3);col(C.ink)}
