@@ -23,7 +23,10 @@ const nu = () => new Date().toISOString();
 const newId = p => p + Date.now().toString(36) + crypto.randomBytes(3).toString("hex");
 
 const geheim = async () => (await db.doc("geheim/config").get()).data() || {};
-const bedrijf = async () => (await db.doc("instellingen/bedrijf").get()).data() || {};
+/* logo voor in mails: als ingesloten afbeelding (zoals bij facturen en offertes), zodat mailprogramma's hem niet blokkeren als "externe afbeelding" */
+const MAILLOGO = { id: "", url: "" };
+async function laadMailLogo(b) { const id = b.logoMail || b.logo; if (!id || MAILLOGO.id === id) return; try { const [[m], [buf]] = await Promise.all([bucket().file("assets/" + id).getMetadata(), bucket().file("assets/" + id).download()]); if (buf.length < 900000) { MAILLOGO.id = id; MAILLOGO.url = "data:" + (m.contentType || "image/png") + ";base64," + buf.toString("base64"); } } catch (e) { console.warn("mail-logo", e.message || e); } }
+const bedrijf = async () => { const b = (await db.doc("instellingen/bedrijf").get()).data() || {}; await laadMailLogo(b); return b; };
 
 /* ---------- bestellingsoverzicht: gedeelde hulpjes ---------- */
 const { maakOverzichtPdf, eur } = require("./overzicht");
@@ -42,7 +45,7 @@ async function sjabloon(sleutel) { try { const d = (await db.doc("instellingen/s
 function vulIn(tekst, v) { return String(tekst || "").replace(/\[([a-z0-9_]+)\.([a-z_]+)\]/g, (m, a, b) => { const k = a + "." + b; return v[k] != null ? String(v[k]) : m; }); }
 const htmlEsc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 function mailHtml(tekst, b, opts = {}) {
-  const A = b.mailAccent || b.hoofdkleur || "#137a8a", logo = (b.logoMail || b.logo) ? `<img src="${HOST()}/_blob/${b.logoMail || b.logo}" alt="" style="max-height:64px;max-width:180px">` : `<b style="font-size:20px">${htmlEsc(b.naam || "")}</b>`;
+  const A = b.mailAccent || b.hoofdkleur || "#137a8a", lid = b.logoMail || b.logo, logo = lid ? `<img src="${MAILLOGO.id === lid ? MAILLOGO.url : HOST() + "/_blob/" + lid}" alt="${htmlEsc(b.naam || "")}" style="max-height:${Math.min(80, Number(b.logoGrootte) || 64)}px;max-width:180px">` : `<b style="font-size:20px">${htmlEsc(b.naam || "")}</b>`;
   const regel = r => htmlEsc(r).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, (m, t, u) => `<a href="${u}" style="color:${A};font-weight:600">${t}</a>`);
   const paras = String(tekst).split(/\n\s*\n/).map(p => `<p style="margin:0 0 16px;line-height:1.65;font-size:15px;color:#222">${p.split("\n").map(regel).join("<br>")}</p>`).join("");
   const knop = opts.knop ? `<div style="text-align:center;margin:8px 0 22px"><a href="${opts.knop.url}" style="display:inline-block;background:${A};color:#fff;text-decoration:none;font-weight:600;font-size:14px;line-height:1.2;padding:10px 20px;border-radius:8px">${htmlEsc(opts.knop.tekst)}</a></div>` : "";
