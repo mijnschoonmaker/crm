@@ -6158,7 +6158,7 @@ function curPeriod(per,offset=0){
 }
 function vInzichten(){
   const per=state.iper,P=curPeriod(per),V=curPeriod(per,-1),t=today();
-  let html=`<div class="pagehead"><div><p class="kicker">Inzichten</p><h1 class="xl">Hoe gaat het met je business?</h1></div></div>
+  let html=`<div class="pagehead"><div><p class="kicker">Inzichten</p><h1 class="xl">Statistieken</h1></div></div>
   <div class="toolbar" style="justify-content:space-between"><div class="seg brand">${[["geld","Geld",I.euro],["werk","Werk",I.timer],["klanten","Klanten",I.klanten]].map(([v,l,ic])=>`<button type="button" data-act="itab" data-v="${v}" aria-pressed="${state.itab===v}">${ic}${l}</button>`).join("")}</div>
     <div class="seg brand">${[["maand","Maand"],["kwartaal","Kwartaal"],["jaar","Jaar"]].map(([v,l])=>`<button type="button" data-act="iper" data-v="${v}" aria-pressed="${per===v}">${l}</button>`).join("")}</div></div>`;
   if(state.itab==="geld"){
