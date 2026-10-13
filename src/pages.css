@@ -2418,3 +2418,4 @@ aside nav button .badge{font-size:10.5px}
 @keyframes lvPuls{0%{box-shadow:0 0 0 0 rgba(34,164,108,.55)}80%,100%{box-shadow:0 0 0 9px rgba(34,164,108,0)}}
 @media (max-width:640px){.rh-acts{width:100%}.rh-acts .rh-nav{flex:1}.rh-live{flex:none}}
 .pk-map .leaflet-control-attribution{font-size:9px!important;opacity:.6;background:transparent!important}
+.pk-map .leaflet-tile-pane{filter:saturate(.7) brightness(1.04) contrast(.95)}

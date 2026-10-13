@@ -497,6 +497,8 @@ aside .help .primary{margin-top:2px;font-size:13.5px;padding:9px}aside .help .pr
 .lv-bron span{width:18px;height:18px;display:grid;place-items:center;font-style:italic;font-family:Georgia,serif;font-size:11px}
 .lv-bron em{font-style:normal;max-width:0;overflow:hidden;white-space:nowrap;transition:max-width .25s,padding .25s}
 .lv-bron.open em{max-width:200px;padding-right:9px}
+
+.lv-map .leaflet-tile-pane{filter:saturate(.7) brightness(1.04) contrast(.95)}
 </style></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -1000,9 +1002,9 @@ async function lvInit(){clearInterval(LVK.timer);const L=D&&D.live;if(!L||L.stat
   try{await lvLeaflet()}catch(e){el.innerHTML=`<p class="lv-fout">Kaart kon niet laden</p>`;return}
   const Lf=window.L;el.innerHTML="";LVK.zelf=false;
   LVK.map=Lf.map(el,{zoomControl:false,attributionControl:false,preferCanvas:true,dragging:true,scrollWheelZoom:false,tap:true}).setView([L.pos.lat,L.pos.lng],14);
-  Lf.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",{subdomains:"abcd",maxZoom:19,attribution:'© OpenStreetMap · © CARTO'}).addTo(LVK.map);
+  Lf.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(LVK.map);
   /* bronvermelding is verplicht voor de kaart, maar klein: een i-knopje dat openklapt */
-  {const ab=document.createElement("button");ab.type="button";ab.className="lv-bron";ab.setAttribute("aria-label","Kaartgegevens");ab.innerHTML="<span>i</span><em>© OpenStreetMap · © CARTO</em>";ab.onclick=e=>{e.stopPropagation();ab.classList.toggle("open")};el.appendChild(ab)}
+  {const ab=document.createElement("button");ab.type="button";ab.className="lv-bron";ab.setAttribute("aria-label","Kaartgegevens");ab.innerHTML="<span>i</span><em>© OpenStreetMap-bijdragers</em>";ab.onclick=e=>{e.stopPropagation();ab.classList.toggle("open")};el.appendChild(ab)}
   LVK.map.on("dragstart zoomstart",e=>{if(e&&e.originalEvent)LVK.zelf=true});
   if(L.huis){LVK.huis=Lf.marker(L.huis,{icon:Lf.divIcon({className:"lv-ic",html:`<span class="lv-huis">${I.huis}</span>`,iconSize:[40,46],iconAnchor:[20,44]}),keyboard:false}).addTo(LVK.map);
     LVK.lijn=Lf.polyline([[L.pos.lat,L.pos.lng],L.huis],{color:"#137a8a",weight:3.5,opacity:.85,dashArray:"1 9",lineCap:"round"}).addTo(LVK.map)}
