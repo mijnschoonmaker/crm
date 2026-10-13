@@ -32,8 +32,8 @@ async function maakOverzichtPdf(m) {
   } else t(b.naam, L, y - 14, { f: B, sz: 16 });
 
   /* bedrijfsgegevens rechts, met labels */
-  t(b.naam, R, y - 10, { f: B, sz: 14, r: true });
-  let ry = y - 32;
+  t(b.naam, R, y - 10, { f: B, sz: 10, r: true });
+  let ry = y - 28;
   const lx = R - 120, kv = (k, v) => { if (!v) return; t(k + ":", lx - 6, ry, { f: B, sz: 8.5, r: true }); t(v, lx, ry, { sz: 8.5 }); ry -= 13; };
   kv("Adres", b.adres); if (b.pcPlaats) { t(b.pcPlaats, lx, ry, { sz: 8.5 }); ry -= 13; }
   ry -= 5; kv("Telefoon", b.telefoon); kv("E-mailadres", b.email);
