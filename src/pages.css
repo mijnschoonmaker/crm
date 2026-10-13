@@ -2557,3 +2557,4 @@ aside nav button .badge{font-size:10.5px}
 .ow-rkt{padding-top:10px;border-top:1px dashed var(--line)}
 .ow-rkt dt{font-weight:650}.ow-rkt dd{margin:0;text-align:right;font-weight:650;font-variant-numeric:tabular-nums}.ow-rkt dd small{font-weight:500;color:var(--muted);font-size:12px}
 .ow-rkh .sp{flex:1}
+.kp-rc #owOff{white-space:nowrap;flex:none;padding:8px 14px!important;min-height:0;height:auto;line-height:1.2}
