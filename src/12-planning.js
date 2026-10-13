@@ -57,13 +57,13 @@ function dayHead(d,showWk){
     <span class="dh-s">${fd?esc(fd):off&&!s.n?"Vrije dag":s.n?`${plural(s.n,"job","jobs")}${u?" · "+u:""}<em>${eur0(toon(s.sum))}</em>`:"Nog niets gepland"}${te?` <b class="dh-warn" title="Meer dan ${S().maxJobs} jobs">!</b>`:""}</span></button>`;
 }
 function timeGrid(days){
-  const slot=state.slot,H=Math.round((slot===15?30:slot===30?50:66)*state.rowH),S0=Math.floor((toMin(S().kalVan)??360)/60)*60,E0=Math.max(S0+120,Math.ceil((toMin(S().kalTot)??1200)/60)*60),n=(E0-S0)/slot;
+  const slot=state.slot,H=Math.round((slot===10?22:slot===15?30:slot===30?50:66)*state.rowH),S0=Math.floor((toMin(S().kalVan)??360)/60)*60,E0=Math.max(S0+120,Math.ceil((toMin(S().kalTot)??1200)/60)*60),n=(E0-S0)/slot;
   const nowM=new Date().getHours()*60+new Date().getMinutes();
   const items=days.map(d=>dayItems(d));
   const anyUn=items.some(it=>it.js.some(x=>toMin(x.k.tijd)==null)||it.done.some(x=>toMin(x.b.tijd)==null));
   let html=`<div class="tgwrap"><div class="tg${days.length>=5?" tg-wk":""}" style="--n:${days.length};--H:${H}px"><div class="tg-head"><div class="tg-corner"><small>wk ${weekNr(parse(days[0]))}</small></div>${days.map(d=>dayHead(d,days.length===1)).join("")}</div>`;
   if(false)html+=`<div class="tg-un"><div class="tg-corner sm">Nog geen tijd</div>${days.map((d,i)=>`<div class="tg-uc">${items[i].done.filter(x=>toMin(x.b.tijd)==null).map(x=>`<span class="uchip done">${I.check}${esc(cleanName(x.b.klantNaam))}</span>`).join("")}${items[i].js.filter(x=>toMin(x.k.tijd)==null).map(x=>`<span class="uchip${pqMatch(x.k)?"":" faded"}" draggable="true" data-drag="${esc(x.k.id)}" data-act="klant" data-id="${esc(x.k.id)}">${esc(jobAddrObj(x.k).adres||cleanName(x.k.naam))}</span>`).join("")}</div>`).join("")}</div>`;
-  html+=`<div class="tg-body"><div class="tg-times">${[...Array(n)].map((_,i)=>{const m=S0+i*slot;return `<span style="height:${H}px" class="${m%60?"hh":"hu"}">${slot===15&&m%30?"":fromMin(m)}</span>`}).join("")}</div>`;
+  html+=`<div class="tg-body"><div class="tg-times">${[...Array(n)].map((_,i)=>{const m=S0+i*slot;return `<span style="height:${H}px" class="${m%60?"hh":"hu"}">${(slot===15||slot===10)&&m%30?"":fromMin(m)}</span>`}).join("")}</div>`;
   days.forEach((d,ci)=>{
     const it=items[ci];
     const timed=[...it.js.filter(x=>toMin(x.k.tijd)!=null).map(x=>({...x,s:toMin(x.k.tijd)})),...it.done.filter(x=>toMin(x.b.tijd)!=null).map(x=>({...x,s:toMin(x.b.tijd)}))].sort((a,b)=>a.s-b.s);
@@ -138,7 +138,7 @@ function vPlanning(){
         ${mt("pselmode",I.checksq||I.check,"Meerdere afspraken selecteren",state.pselMode)}
         ${mt("achter",I.alert,"Alleen achterstallig tonen",state.achter)}
         ${v==="dag"||v==="multi"?`<p class="pl-ml">Weergave</p>
-        <div class="pl-mrow"><span>Tijdvak</span><div class="seg">${[15,30,60].map(x=>`<button type="button" data-act="slotsz" data-v="${x}" aria-pressed="${state.slot===x}">${x} min</button>`).join("")}</div></div>
+        <div class="pl-mrow"><span>Tijdvak</span><div class="seg">${[10,15,30,60].map(x=>`<button type="button" data-act="slotsz" data-v="${x}" aria-pressed="${state.slot===x}">${x} min</button>`).join("")}</div></div>
         <div class="pl-mrow"><span>Hoogte</span><div class="seg"><button type="button" data-act="rowh" data-n="-1" aria-label="Lager">${I.minus}</button><button type="button" disabled style="opacity:1;color:var(--ink);min-width:74px">${state.rowH<1?"Compact":state.rowH>1?"Ruim":"Normaal"}</button><button type="button" data-act="rowh" data-n="1" aria-label="Hoger">${I.plus}</button></div></div>`:""}
       </div></div>
   </div>
