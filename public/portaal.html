@@ -674,9 +674,10 @@ function blad(html,na){const o=document.createElement("div");o.className="ov";o.
   const sluit=()=>{o.remove();document.removeEventListener("keydown",k)};const k=e=>{if(e.key==="Escape")sluit()};
   o.addEventListener("click",e=>{if(e.target===o||e.target.closest("[data-sluit]"))sluit()});document.addEventListener("keydown",k);document.body.appendChild(o);
   setTimeout(()=>{const f=o.querySelector("input,textarea,select,button.knop");if(f&&!matchMedia("(hover:none)").matches)f.focus()},60);if(na)na(o,sluit);return sluit}
-function bedankt(o,titel,tekst){o.querySelector(".blad").innerHTML=`<div class="greep"></div><div class="klaar-ic">${I.check}</div><h3 style="text-align:center">${esc(titel)}</h3><p class="sub" style="text-align:center">${esc(tekst)}</p><div class="acties"><button class="" data-sluit>Sluiten</button></div>`}
+function bedankt(o,titel,tekst,tid){o.querySelector(".blad").innerHTML=`<div class="greep"></div><div class="klaar-ic">${I.check}</div><h3 style="text-align:center">${esc(titel)}</h3><p class="sub" style="text-align:center">${esc(tekst)}${tid?"<br>U vindt het gesprek terug bij Tickets, daar ziet u ook ons antwoord.":""}</p><div class="acties"><button class="" data-sluit>Sluiten</button>${tid?`<button class="primary" data-tkopen="${esc(tid)}">${I.ticket||""}Bekijk ticket</button>`:""}</div>`;
+  const t=o.querySelector("[data-tkopen]");if(t)t.onclick=()=>{o.remove();openTicket(tid)}}
 async function verstuur(o,body,titel,tekst){const b=o.querySelector("[data-go]"),f=o.querySelector(".fout");f.textContent="";b.disabled=true;
-  try{await api("actie",{body});bedankt(o,titel,tekst);laad(true)}catch(e){b.disabled=false;f.textContent=e.message}}
+  try{const r=await api("actie",{body});bedankt(o,titel,tekst,r&&r.ticketId);laad(true)}catch(e){b.disabled=false;f.textContent=e.message}}
 const isoP=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 const FORM={
   verzetten(){const v=D.volgende;blad(`<h3>Afspraak verzetten</h3><p class="sub">${v?"Gepland op "+esc(lang(v.datum))+". ":""}Laat ons weten wat beter uitkomt, dan zoeken wij een nieuw moment in de route.</p>

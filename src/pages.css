@@ -2056,3 +2056,4 @@ body.mw .jp-svc>div>span:last-child:not(.jp-ic){display:none}
 .pk{isolation:isolate}.pk-map{z-index:0}
 .pl-mk{display:none}
 @media (max-width:760px){.pl-kaart{display:none!important}.pl-mk{display:contents}}
+.tk-vz{display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid var(--line);font-size:13px;color:var(--muted)}.tk-vz .sp{flex:1}

@@ -120,7 +120,7 @@ module.exports = function maakPortaal(ctx) {
       aantalBezoeken: beurten.length,
       facturen,
       tickets: { open: tks.filter(t => t.status !== "opgelost").length, ongelezen: tks.reduce((a, t) => a + (Number(t.ongelezenKlant) || 0), 0) },
-      verzoeken: vz.docs.map(d => ({ id: d.id, ...d.data() })).filter(v => v.type !== "beoordeling" && v.type !== "toegang").sort((a, b2) => String(b2.op).localeCompare(String(a.op))).slice(0, 8)
+      verzoeken: vz.docs.map(d => ({ id: d.id, ...d.data() })).filter(v => v.type !== "beoordeling" && v.type !== "toegang" && !v.ticketId).sort((a, b2) => String(b2.op).localeCompare(String(a.op))).slice(0, 8)
         .map(v => ({ type: v.type, status: v.status, op: v.op, datum: v.datum || "", tot: v.tot || "", tekst: v.tekst || "", antwoord: v.antwoord || "" })),
       aanbevelen: { code: k.refCode, link: base + "/aanbevolen/" + k.refCode, lijst: aanbevolen, tegoed: r2(tegoed.reduce((a, t) => a + Number(t.bedrag), 0)), opHold: aanbevolen.filter(x => ["aangemeld", "akkoord", "eerste"].includes(x.status)).length, tegoedRegels: tegoed.map(t => ({ bedrag: Number(t.bedrag), reden: t.reden || "" })), verdiend: r2((k.tegoedGebruikt || []).reduce((a, t) => a + (Number(t.bedrag) || 0), 0)) }
     };
@@ -171,6 +171,8 @@ module.exports = function maakPortaal(ctx) {
     }
     if (type === "bericht" && !v.tekst) throw new Error("Schrijf een bericht.");
     const id = newId("pv");
+    /* verzoeken die een reactie vragen, worden meteen een ticket: zo kun je antwoorden en ziet de klant het gesprek */
+    if (v.status === "nieuw") { try { v.ticketId = await verzoekTicket(k, v); v.status = "ticket"; } catch (e) { console.error("verzoek→ticket", e); } }
     await db.doc("portaalVerzoeken/" + id).set(v);
     if (v.status === "nieuw") {
       try {
@@ -179,7 +181,28 @@ module.exports = function maakPortaal(ctx) {
           subject: `Klantportaal: ${v.titel} · ${schoon(k.naam)}`, textContent: [`${schoon(k.naam)} (${v.adres}) via het klantportaal:`, "", v.titel + (v.datum ? " · " + v.datum : "") + (v.tot ? " t/m " + v.tot : "") + (v.sterren ? " · " + v.sterren + " sterren" : ""), v.voorkeur ? "Voorkeur: " + v.voorkeur : "", v.diensten && v.diensten.length ? "Diensten: " + v.diensten.join(", ") : "", v.wijziging ? "Al doorgevoerd in het CRM:\n" + Object.keys(v.wijziging).map(f => "- " + f + ": " + ((v.oud || {})[f] || "–") + " → " + (v.wijziging[f] || "–")).join("\n") : "", v.tekst ? "\n" + v.tekst : "", "", "Open het CRM om dit af te handelen."].filter(x => x !== "").join("\n") });
       } catch (e) { console.error("melding portaal", e); }
     }
-    return { ok: true, id };
+    return { ok: true, id, ticketId: v.ticketId || "" };
+  }
+  const datNL = s => { if (!/^\d{4}-\d{2}-\d{2}$/.test(String(s || ""))) return ""; const d = new Date(s + "T12:00:00"); return new Intl.DateTimeFormat("nl-NL", { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Amsterdam" }).format(d); };
+  function verzoekTekst(v) {
+    const r = [];
+    if (v.type === "verzetten") r.push(`Ik wil mijn afspraak${v.datum ? " van " + datNL(v.datum) : ""} graag verzetten.`);
+    if (v.type === "overslaan") r.push(`Ik wil het bezoek${v.datum ? " van " + datNL(v.datum) : ""} graag overslaan.`);
+    if (v.type === "vakantie") r.push(`Ik ben afwezig van ${datNL(v.datum)} tot en met ${datNL(v.tot)}.`);
+    if (v.type === "extra") r.push("Ik wil graag een extra dienst" + (v.diensten && v.diensten.length ? ": " + v.diensten.join(", ").toLowerCase() : "") + ".");
+    if (v.type === "stoppen") r.push("Ik wil mijn abonnement opzeggen.");
+    if (v.type === "gegevens") r.push("Ik heb mijn gegevens gewijzigd: " + Object.keys(v.wijziging || {}).map(f => f + " " + ((v.oud || {})[f] || "–") + " → " + (v.wijziging[f] || "–")).join(", ") + ".");
+    if (v.type === "beoordeling") r.push(`Beoordeling van het bezoek${v.datum ? " van " + datNL(v.datum) : ""}: ${v.sterren} van 5 sterren.`);
+    if (v.voorkeur) r.push("Voorkeur: " + v.voorkeur);
+    if (v.tekst) r.push(v.tekst);
+    return r.join("\n");
+  }
+  async function verzoekTicket(k, v) {
+    const op = nu(), id = newId("tk"), nummer = await ticketNummer(), tekst = verzoekTekst(v);
+    const cat = ["verzetten", "overslaan", "vakantie"].includes(v.type) ? "planning" : v.type === "beoordeling" ? "kwaliteit" : "overig";
+    await db.doc("tickets/" + id).set({ klantId: k.id, klantNaam: k.naam || "", adres: [k.adres, k.plaats].filter(Boolean).join(", "), nummer, onderwerp: TYPES[v.type] + (v.datum && v.type !== "beoordeling" ? " · " + datNL(v.datum) : ""), categorie: cat, status: "open", aangemaakt: op, laatst: op, laatsteTekst: tekst.split("\n")[0], laatsteVan: "klant", ongelezenTeam: 1, ongelezenKlant: 0, gezienKlant: op, bron: "portaal", verzoek: { type: v.type, datum: v.datum || "", tot: v.tot || "" } });
+    await db.doc("ticketBerichten/" + newId("tb")).set({ ticketId: id, klantId: k.id, van: "klant", tekst, foto: "", op });
+    return id;
   }
 
   const portaal = onRequest({ memory: "256MiB", timeoutSeconds: 30 }, async (req, res) => {

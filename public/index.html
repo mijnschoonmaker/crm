@@ -2469,6 +2469,7 @@ body.mw .jp-svc>div>span:last-child:not(.jp-ic){display:none}
 .pk{isolation:isolate}.pk-map{z-index:0}
 .pl-mk{display:none}
 @media (max-width:760px){.pl-kaart{display:none!important}.pl-mk{display:contents}}
+.tk-vz{display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid var(--line);font-size:13px;color:var(--muted)}.tk-vz .sp{flex:1}
 
 </style>
 <div class="app">
@@ -8539,15 +8540,37 @@ function openTickets(id,nieuwVoor,verzoeken){
   else if(verzoeken){const v=(state.portaalVz||[])[0];if(v&&!matchMedia("(max-width:760px)").matches)vzDetail(v.id);else $("#chxR").innerHTML=`<p class="subt chx-leeg">${v?"Kies een verzoek.":"Alle verzoeken zijn afgehandeld."}</p>`}
   else{const eerste=id||(!matchMedia("(max-width:760px)").matches&&((tkOngelezen()[0]||state.tickets.find(t=>t.status!=="opgelost")||{}).id));if(eerste)tkDetail(eerste);else $("#chxR").innerHTML=`<p class="subt chx-leeg">Geen ticket gekozen.<br>Zoek een klant om zelf een ticket te starten.</p>`}}
 function tkSegTeken(){const S_=$("#tkSeg");if(!S_||!tkOpen)return;const vz=(state.portaalVz||[]).length;
-  S_.innerHTML=[["actief","Lopend"],["verzoeken","Verzoeken"+(vz?` <i class="tk-n">${vz}</i>`:"")],["opgelost","Opgelost"],["alle","Alle"]].map(([v,l])=>`<button type="button" data-tkf="${v}" aria-pressed="${v===tkOpen.filter}">${l}</button>`).join("");
+  if(!vz&&tkOpen.filter==="verzoeken")tkOpen.filter="actief";
+  S_.innerHTML=[["actief","Lopend"],...(vz?[["verzoeken","Verzoeken"+` <i class="tk-n">${vz}</i>`]]:[]),["opgelost","Opgelost"],["alle","Alle"]].map(([v,l])=>`<button type="button" data-tkf="${v}" aria-pressed="${v===tkOpen.filter}">${l}</button>`).join("");
   S_.querySelectorAll("[data-tkf]").forEach(b=>b.onclick=()=>{tkOpen.filter=b.dataset.tkf;tkOpen.lsig="";tkSegTeken();tkLijstTeken()})}
 function vzDetail(id){const v=(state.portaalVz||[]).find(x=>x.id===id),R=$("#chxR");if(!R||!tkOpen)return;
   if(tkOpen.unsub){tkOpen.unsub();tkOpen.unsub=null}tkOpen.id="vz:"+id;tkOpen.lsig="";tkLijstTeken();
   if(!v){R.innerHTML=`<p class="subt chx-leeg">Dit verzoek is al afgehandeld.</p>`;return}
   const k=state.klanten.find(x=>x.id===v.klantId)||{naam:v.klantNaam||""},T=PT_TYPE[v.type]||["Verzoek"];
   R.innerHTML=tkKop(k,`<b>${esc(T[0])}</b><small class="subt" style="display:block">${esc(cleanName(k.naam||""))} · klantverzoek</small>`)+`<div class="vz-body">${ptRij(v)}</div>`;
+  const pa=R.querySelector(".pt-act");if(pa){const i=pa.querySelector("[data-ant]");if(i)i.remove();pa.insertAdjacentHTML("afterbegin",`<button type="button" class="small primary" id="vzAntw">${I.send}Beantwoorden</button>`);const ok=pa.querySelector("[data-ptok]");if(ok)ok.classList.remove("primary")}
+  const an=$("#vzAntw");if(an)an.onclick=async()=>{an.disabled=true;try{const tid=await vzNaarTicket(v);ptKaart();tkOpen.filter="actief";tkSegTeken();tkDetail(tid);setTimeout(()=>{const t=$("#chxT");if(t)t.focus()},120)}catch(e){an.disabled=false;err(e)}};
   tkTerugBind();
   const b=R.querySelector("[data-ptok]");if(b)b.onclick=async()=>{b.disabled=true;try{await ptAfhandelen(id);ptKaart();const nx=(state.portaalVz||[])[0];if(nx&&!matchMedia("(max-width:760px)").matches)vzDetail(nx.id);else{R.innerHTML=`<p class="subt chx-leeg">${nx?"Kies een verzoek.":"Alle verzoeken zijn afgehandeld."}</p>`}}catch(e){b.disabled=false;err(e)}}}
+/* een (oud) klantverzoek omzetten in een ticket, zodat je kunt antwoorden en de klant het gesprek in zijn portaal ziet */
+function vzTekst(v){const r=[],dl=x=>x?parse(x).toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long"}):"";
+  if(v.type==="verzetten")r.push(`Ik wil mijn afspraak${v.datum?" van "+dl(v.datum):""} graag verzetten.`);
+  if(v.type==="overslaan")r.push(`Ik wil het bezoek${v.datum?" van "+dl(v.datum):""} graag overslaan.`);
+  if(v.type==="vakantie")r.push(`Ik ben afwezig van ${dl(v.datum)} tot en met ${dl(v.tot)}.`);
+  if(v.type==="extra")r.push("Ik wil graag een extra dienst"+(v.diensten&&v.diensten.length?": "+v.diensten.join(", ").toLowerCase():"")+".");
+  if(v.type==="stoppen")r.push("Ik wil mijn abonnement opzeggen.");
+  if(v.type==="gegevens")r.push("Ik heb mijn gegevens gewijzigd: "+Object.keys(v.wijziging||{}).map(f=>f+" "+((v.oud||{})[f]||"–")+" → "+(v.wijziging[f]||"–")).join(", ")+".");
+  if(v.type==="beoordeling")r.push(`Beoordeling van het bezoek${v.datum?" van "+dl(v.datum):""}: ${v.sterren} van 5 sterren.`);
+  if(v.voorkeur)r.push("Voorkeur: "+v.voorkeur);if(v.tekst)r.push(v.tekst);return r.join("\n")}
+async function vzNaarTicket(v){const id=newId("tk"),tekst=vzTekst(v),op=v.op||new Date().toISOString();
+  const n=await fsDb().runTransaction(async tr=>{const r=fsDb().doc("tellers/tickets"),x=await tr.get(r);const w=(x.exists?x.data().n:1000)+1;tr.set(r,{n:w});return w});
+  const T=PT_TYPE[v.type]||["Verzoek"],cat=["verzetten","overslaan","vakantie"].includes(v.type)?"planning":v.type==="beoordeling"?"kwaliteit":"overig";
+  const t={klantId:v.klantId,klantNaam:v.klantNaam||"",adres:v.adres||"",nummer:"T-"+n,onderwerp:T[0]+(v.datum&&v.type!=="beoordeling"?" · "+fmtD(v.datum):""),categorie:cat,status:"open",aangemaakt:op,laatst:op,laatsteTekst:tekst.split("\n")[0],laatsteVan:"klant",ongelezenTeam:0,ongelezenKlant:0,bron:"portaal",verzoek:{type:v.type,datum:v.datum||"",tot:v.tot||""}};
+  await fsDb().doc("tickets/"+id).set(t);
+  await fsDb().collection("ticketBerichten").doc(newId("tb")).set({ticketId:id,klantId:v.klantId,van:"klant",tekst,foto:"",op});
+  await fsDb().doc("portaalVerzoeken/"+v.id).set({status:"ticket",ticketId:id},{merge:true});
+  state.portaalVz=(state.portaalVz||[]).filter(x=>x.id!==v.id);
+  if(!state.tickets.some(x=>x.id===id))state.tickets.unshift({id,...t});return id}
 function tkLijstTeken(){const L=$("#chxL");if(!L||!tkOpen)return;const q=(($("#chxZ")||{}).value||"").trim().toLowerCase();
   if(tkOpen.filter==="verzoeken"){const vl=(state.portaalVz||[]).filter(v=>!q||[v.klantNaam,v.adres,v.tekst].join(" ").toLowerCase().includes(q));
     L.innerHTML=vl.map(v=>{const T=PT_TYPE[v.type]||["Verzoek"];return `<button type="button" class="chx-i nieuw${"vz:"+v.id===tkOpen.id?" act":""}" data-vzi="${esc(v.id)}"><span class="chx-av" style="--h:${hue(v.klantNaam||"")}">${esc(initials(cleanName(v.klantNaam||"?")))}</span><span class="chx-t"><b>${esc(T[0])}</b><small>${esc(cleanName(v.klantNaam||""))}${v.datum?" · "+esc(fmtD(v.datum)):""}</small></span><span class="chx-m"><small>${v.op?esc(tkTijd(v.op)):""}</small></span></button>`}).join("")||`<p class="subt" style="padding:20px 10px;text-align:center">${q?"Niets gevonden":"Geen open verzoeken"}</p>`;
@@ -8576,6 +8599,7 @@ function tkDetail(id){if(!tkOpen)return;if(tkOpen.unsub)tkOpen.unsub();tkOpen.id
   const t=state.tickets.find(x=>x.id===id)||{id},k=state.klanten.find(x=>x.id===t.klantId)||{naam:t.klantNaam||"Klant"};
   tkLijstTeken();
   $("#chxR").innerHTML=tkKop(k,`<b>${esc(t.onderwerp||"Ticket")}</b><small>${esc(t.nummer||"")} · ${esc(TK_CAT[t.categorie]||"Overig")} · ${esc(cleanName(k.naam))}${k.gepland?" · afspraak "+esc(fmtD(k.gepland)):""}</small>`)
+    +(t.verzoek&&k.id?`<div class="tk-vz"><span class="pill soon">${esc((PT_TYPE[t.verzoek.type]||["Verzoek"])[0])}</span><span>${t.verzoek.datum?esc(t.verzoek.type==="vakantie"?"Van "+fmtD(t.verzoek.datum)+" t/m "+fmtD(t.verzoek.tot):"Afspraak "+fmtD(t.verzoek.datum)):""}</span><span class="sp"></span>${k.gepland?`<button type="button" class="small" data-act="job" data-id="${esc(k.id)}" data-d="${esc(k.gepland)}">${I.planning}Afspraak openen</button>`:""}</div>`:"")
     +`<div class="tk-stbar"><span>Status</span><div class="seg" role="group">${Object.entries(TK_ST).map(([v,[c,l]])=>`<button type="button" data-tks="${v}" aria-pressed="${(t.status||"open")===v}"><i class="tk-dot" style="background:var(--${c})"></i>${l}</button>`).join("")}</div></div>
     <div class="chx-b" id="chxB"><p class="subt" style="margin:auto">Laden…</p></div>`+tkComposer(k)
     +`<small class="help" style="margin:4px 4px 0">${t.gezienKlant&&Date.now()-new Date(t.gezienKlant)<3*60e3?`<span class="sdot ok"></span> De klant kijkt nu in het portaal`:"De klant krijgt een mail met een knop naar dit ticket als hij niet online is."}</small>`;
