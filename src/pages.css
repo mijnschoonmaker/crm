@@ -2194,3 +2194,28 @@ body.mw .jp-svc>div>span:last-child:not(.jp-ic){display:none}
 @keyframes gpIn{from{transform:translateX(30px) scale(.94);opacity:0}}
 @keyframes gpUit{to{transform:translateX(30px);opacity:0}}
 @media (max-width:760px){.geldpop{top:12px;right:16px}}
+/* rustiger typografie geldmelding */
+.gp-b{font-size:30px;font-weight:600;letter-spacing:-.025em;display:flex;align-items:baseline;gap:4px}
+.gp-b small{font-size:18px;font-weight:500;color:var(--muted)}
+.gp-w{font-size:14px;font-weight:600;margin-top:6px}
+.gp-m{font-size:12.5px;font-weight:500}
+.gp-l{font-size:11px;font-weight:700;letter-spacing:.07em}
+.gp-btn{font-weight:600}
+/* feest v4: lichter, verfijnder */
+.gk-c svg{width:50px!important;height:50px!important;stroke-width:1.9!important;filter:drop-shadow(0 4px 12px rgba(0,40,30,.25))}
+.gk-groen .gk-c svg,.gk-klaar .gk-c svg{stroke-width:1.9!important}
+.gk-c svg path{stroke-dasharray:24;stroke-dashoffset:24;animation:feestTr .45s cubic-bezier(.6,0,.3,1) .3s forwards}
+.gk-l{font-size:13px!important;font-weight:600!important;letter-spacing:0!important;text-transform:none!important;padding:5px 12px!important;background:rgba(255,255,255,.15)!important;border-color:rgba(255,255,255,.22)!important}
+.gk-t{font-weight:700!important;letter-spacing:-.03em!important}
+.feest-k.gk .gk-w{font-weight:500!important}
+.feest-k.gk .gk-meta span{font-weight:500!important}
+.gk-groen .gk-top,.gk-klaar .gk-top{background:linear-gradient(160deg,#3cc68a 0%,#22a374 55%,#167d68 100%)!important}
+/* huisjes: zachte tegels, ingevuld = groen huisje op mint */
+.huisjes{gap:8px!important}
+.huisjes i{width:34px!important;height:34px!important;border-radius:11px!important;background:var(--surface-2)!important;color:color-mix(in srgb,var(--muted) 55%,transparent)!important;box-shadow:none!important}
+.huisjes i svg{width:20px!important;height:20px!important;fill:none!important;stroke:currentColor;stroke-width:1.6}
+.huisjes i.af{background:color-mix(in srgb,#22a374 13%,var(--surface))!important;color:#1d9a6c!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,#22a374 22%,transparent)!important}
+.huisjes i.af svg{fill:currentColor!important;stroke:currentColor;stroke-width:1.2}
+.motb .huisjes i{width:30px!important;height:30px!important;border-radius:10px!important}
+.motb .huisjes i svg{width:18px!important;height:18px!important}
+.motb p{font-weight:600!important}

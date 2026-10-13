@@ -261,8 +261,17 @@ module.exports = function maakPortaal(ctx) {
         const f = await db.doc("facturen/" + String(req.query.id || "")).get();
         if (!f.exists || f.data().klantId !== S.klant.id || f.data().soort === "offerte" || f.data().status === "concept") { res.status(404).json({ fout: "niet gevonden" }); return; }
         const x = dec(f.data()), b = await bedrijf();
-        res.json({ nummer: x.nummer, datum: x.datum, verval: x.verval, klantNaam: schoon(x.klantNaam), klantAdres: x.klantAdres || "", regels: (x.regels || []).map(r => ({ omschrijving: r.omschrijving, aantal: Number(r.aantal) || 0, prijs: Number(r.prijs) || 0 })), incl: x.incl ?? b.incl ?? true, btwPct: Number(x.btw ?? b.btw ?? 21), ...totals(x, b), status: fStatus(x), betaaldOp: x.betaaldOp || "", betaallink: x.status !== "betaald" ? (x.betaallink || x.mollieLink || "") : "", notitie: x.notitie || "",
+        res.json({ pdf: !!x.pdfId, nummer: x.nummer, datum: x.datum, verval: x.verval, klantNaam: schoon(x.klantNaam), klantAdres: x.klantAdres || "", regels: (x.regels || []).map(r => ({ omschrijving: r.omschrijving, aantal: Number(r.aantal) || 0, prijs: Number(r.prijs) || 0 })), incl: x.incl ?? b.incl ?? true, btwPct: Number(x.btw ?? b.btw ?? 21), ...totals(x, b), status: fStatus(x), betaaldOp: x.betaaldOp || "", betaallink: x.status !== "betaald" ? (x.betaallink || x.mollieLink || "") : "", notitie: x.notitie || "",
           bedrijf: { ...bedrijfInfo(b, basisUrl(req)), adres: b.adres || "", pcPlaats: [b.postcode, b.plaats].filter(Boolean).join(" "), kvk: b.kvk || "", btwnr: b.btwnr || "", bic: b.bic || "" } }); return;
+      }
+      /* de echte factuur-PDF zoals het CRM hem maakt */
+      if (pad === "/factuurpdf" && req.method === "GET") {
+        const f = await db.doc("facturen/" + String(req.query.id || "")).get();
+        if (!f.exists || f.data().klantId !== S.klant.id || f.data().soort === "offerte" || f.data().status === "concept" || !f.data().pdfId) { res.status(404).json({ fout: "niet gevonden" }); return; }
+        const x = f.data(), file = bucket().file("assets/" + String(x.pdfId));
+        try { const [buf] = await file.download(); res.set("content-type", "application/pdf"); res.set("content-disposition", `inline; filename="Factuur ${String(x.nummer || "").replace(/[^\w.-]/g, "")}.pdf"`); res.send(buf); }
+        catch (e) { res.status(404).json({ fout: "niet gevonden" }); }
+        return;
       }
       if (pad === "/betaal" && req.method === "POST") {
         const id = String(body(req).id || ""), f = await db.doc("facturen/" + id).get();

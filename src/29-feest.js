@@ -1,5 +1,5 @@
 /* ---------- Motivatie onderweg: huisjes die vollopen en een feestje bij elke afmelding ---------- */
-const HUIS='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11.2 12 4l8.5 7.2V20a1 1 0 0 1-1 1h-5v-6h-5v6h-5a1 1 0 0 1-1-1z"/></svg>';
+const HUIS='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 10.4 12 4.2l7.5 6.2v8.4a1.4 1.4 0 0 1-1.4 1.4h-3.4v-5a1 1 0 0 0-1-1h-3.4a1 1 0 0 0-1 1v5H5.9a1.4 1.4 0 0 1-1.4-1.4z" stroke-linejoin="round"/></svg>';
 function motTekst(done,total){const todo=total-done;
   if(!total)return"";if(!done)return"Klaar voor de start? Het eerste adres wacht.";
   if(!todo)return total>1?`Dag klaar! ${total} woningen gedaan, top gewerkt`:"Klaar! Top gewerkt";
@@ -35,7 +35,7 @@ function confetti(host,{n=170,kleuren,bron}={}){if(matchMedia("(prefers-reduced-
   requestAnimationFrame(stap)}
 /* kaart weg, confetti mag uitdwarrelen */
 function laatDwarrelen(el){const cv=el.querySelector(".fc-canvas");if(cv){cv.style.position="fixed";cv.style.zIndex="9998";document.body.appendChild(cv)}}
-const VINK='<path d="M6 12.5l4 4 8-9"/>';
+const VINK='<path d="M5.5 12.8l4.2 4.2L18.5 7.6"/>';
 function feest(k){try{
   const day=iso(today()),s=routeStops(day);let total=s.length,done=s.filter(x=>x.done).length;
   const st=s.find(x=>x.k.id===k.id);if(!st){total++;done++}else if(!st.done)done++;done=Math.min(done,total);
@@ -59,16 +59,17 @@ function kassa(){try{const A=new (window.AudioContext||window.webkitAudioContext
   const n=A.createBufferSource(),b=A.createBuffer(1,A.sampleRate*.05,A.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,3);n.buffer=b;const ng=A.createGain();ng.gain.value=.5;n.connect(ng).connect(o);n.start(t);
   [[2093,.07],[2637,.1],[3136,.13],[4186,.16],[2637,.3],[3520,.34]].forEach(([f,dl])=>{const os=A.createOscillator(),g=A.createGain();os.type="triangle";os.frequency.value=f;g.gain.setValueAtTime(0,t+dl);g.gain.linearRampToValueAtTime(.5,t+dl+.005);g.gain.exponentialRampToValueAtTime(.001,t+dl+.7);os.connect(g).connect(o);os.start(t+dl);os.stop(t+dl+.75)});
   setTimeout(()=>A.close(),1500)}catch(e){}}
+const gpBedrag=v=>`<small>€</small>${esc(eur(v).replace(/^€\s?/,""))}`;
 function geldFeest(f){try{
   const old=document.getElementById("geldPop");if(old)old.remove();
   const bedrag=totals(f).inc,el=document.createElement("div");el.id="geldPop";el.className="geldpop";el.setAttribute("role","status");
   el.innerHTML=`<div class="gp-k">
     <div class="gp-top"><svg class="gp-ic" viewBox="0 0 24 24"><path d="M16.5 7.2A5.8 5.8 0 1 0 16.5 16.8"/><path d="M5.5 10.5h7.5M5.5 13.5h7.5"/></svg><span class="gp-l"><svg viewBox="0 0 24 24">${VINK}</svg>Betaling ontvangen</span><button type="button" class="gp-x" aria-label="Sluiten">${I.x}</button></div>
-    <div class="gp-body"><b class="gp-b" id="geldB">${eur(0)}</b><span class="gp-w">${esc(cleanName(f.klantNaam||""))}</span><span class="gp-m">Factuur ${esc(f.nummer||"")} · iDEAL · zojuist</span>
+    <div class="gp-body"><b class="gp-b" id="geldB">${gpBedrag(0)}</b><span class="gp-w">${esc(cleanName(f.klantNaam||""))}</span><span class="gp-m">Factuur ${esc(f.nummer||"")} · iDEAL · zojuist</span>
       <button type="button" class="primary gp-btn" data-geldf="${esc(f.id)}">Bekijk factuur</button></div></div>`;
   document.body.appendChild(el);kassa();
   requestAnimationFrame(()=>{const r=el.getBoundingClientRect();confetti(document.body,{n:70,bron:{x:r.left+r.width/2,y:r.top+40}})});
-  const B=el.querySelector("#geldB"),t0=performance.now(),dur=900;const stap=n=>{const p=Math.min(1,(n-t0)/dur),e=1-Math.pow(1-p,3);B.textContent=eur(bedrag*e);if(p<1)requestAnimationFrame(stap)};requestAnimationFrame(stap);
+  const B=el.querySelector("#geldB"),t0=performance.now(),dur=900;const stap=n=>{const p=Math.min(1,(n-t0)/dur),e=1-Math.pow(1-p,3);B.innerHTML=gpBedrag(bedrag*e);if(p<1)requestAnimationFrame(stap)};requestAnimationFrame(stap);
   const weg=()=>{el.classList.add("weg");setTimeout(()=>el.remove(),300)};
   el.querySelector("[data-geldf]").onclick=()=>{weg();openFactuur(f.id)};el.querySelector(".gp-x").onclick=weg;
   let tm=setTimeout(weg,9000);el.addEventListener("mouseenter",()=>clearTimeout(tm));el.addEventListener("mouseleave",()=>{tm=setTimeout(weg,4000)})}catch(e){console.error(e)}}
