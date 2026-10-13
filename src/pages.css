@@ -2220,3 +2220,36 @@ body.mw .jp-svc>div>span:last-child:not(.jp-ic){display:none}
 .motb .huisjes i svg{width:18px!important;height:18px!important}
 .motb p{font-weight:600!important}
 .inv5 .i5-lft,.i5-lft{gap:44px!important}
+
+/* ---------- foto aantekenen ---------- */
+body.an-open{overflow:hidden}
+.an{position:fixed;inset:0;z-index:10000;background:#0b0f11;color:#fff;display:flex;flex-direction:column;animation:feestIn .2s ease both;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+.an-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px}
+.an-top b{font-size:15px;font-weight:700;letter-spacing:-.01em}
+.an-tb{background:none!important;border:0!important;box-shadow:none!important;color:#fff!important;font-weight:600;font-size:15px;padding:8px 10px!important}
+.an-tb.an-ok{color:#5ac8fa!important;font-weight:800}
+.an-st{flex:1;min-height:0;display:grid;place-items:center;position:relative;padding:12px}
+.an-st canvas{touch-action:none;border-radius:12px;box-shadow:0 20px 50px -20px rgba(0,0,0,.8);cursor:crosshair}
+.an-hint{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);margin:0;background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);padding:7px 14px;border-radius:999px;font-size:13px;font-weight:600;pointer-events:none;transition:opacity .3s;white-space:nowrap}
+.an.getekend .an-hint{opacity:0}
+.an-bar{display:flex;align-items:center;gap:14px;padding:12px 14px 16px;flex-wrap:wrap;justify-content:center}
+.an-tools{display:flex;background:rgba(255,255,255,.08);border-radius:14px;padding:3px}
+.an-tools button{background:none!important;border:0!important;box-shadow:none!important;color:rgba(255,255,255,.7)!important;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 14px!important;border-radius:11px!important;font-size:11px;font-weight:600}
+.an-tools button[aria-pressed="true"]{background:rgba(255,255,255,.16)!important;color:#fff!important}
+.an-tools svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.an-kl{display:flex;gap:10px}
+.an-kl button{width:30px;height:30px;padding:0!important;border-radius:50%!important;background:var(--c)!important;border:2px solid rgba(255,255,255,.25)!important;box-shadow:none!important;transition:transform .15s}
+.an-kl button[aria-pressed="true"]{transform:scale(1.18);border-color:#fff!important;box-shadow:0 0 0 3px rgba(255,255,255,.18)!important}
+.an-acts{display:flex;gap:8px;align-items:center}
+.an-acts button{background:rgba(255,255,255,.08)!important;border:0!important;box-shadow:none!important;color:#fff!important;border-radius:12px!important;padding:9px 12px!important;font-size:13px;font-weight:600}
+.an-acts svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block}
+/* foto-bijlage: licht en rustig */
+.i5-fotos .i5-ft{font-weight:400!important;font-size:18px!important;letter-spacing:-.01em}
+.i5-fotos .i5-l{font-weight:400}
+.i5-fotos>div{gap:16px!important;margin-top:16px!important}
+.i5-fotos figure{background:none!important;border:0!important;padding:0!important}
+.i5-fotos img{border-radius:10px!important;box-shadow:0 1px 0 rgba(0,0,0,.04)}
+.i5-fotos>div.een img{aspect-ratio:16/10!important}
+.i5-fotos figcaption{margin-top:9px!important;gap:10px!important}
+.i5-fotos figcaption i{width:auto!important;height:auto!important;background:none!important;color:var(--A,#11181c)!important;font:500 10px/1.6 inherit!important;border-radius:0!important}
+.i5-fotos figcaption b{font-weight:400!important;font-size:12.5px!important;line-height:1.4}

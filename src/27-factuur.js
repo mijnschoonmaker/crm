@@ -122,6 +122,7 @@ function bvHtml(k){const l=k.bevindingen||[];
 /* na afmelden: is er al een factuur van vandaag voor deze klant? dan direct daaraan koppelen */
 function bvFactuurVandaag(k){const b=state.beurten.find(x=>x.klantId===k.id&&x.datum===iso(today())&&x.gefactureerd&&x.gefactureerd!=="periodiek");return b?state.facturen.find(f=>f.id===b.gefactureerd&&f.status!=="betaald"):null}
 async function bvUpload(kid,file){const k=state.klanten.find(x=>x.id===kid);if(!k||!file)return;
+  file=await fotoAnnoteren(file);if(!file)return;
   const back=dlg.open&&$("#jobPanel")?{job:$("#jobPanel").dataset.k,d:$("#jobPanel").dataset.d}:null;
   let r;try{toast("Foto uploaden…");r=await state.assets.upload(file)}catch(e){return toast("De foto kon niet worden geüpload")}
   const url=URL.createObjectURL(file);
@@ -145,7 +146,7 @@ async function fotoData(id){try{const r=await fetch(BLOB+id);if(!r||!r.ok)return
   cv.getContext("2d").drawImage(im,0,0,cv.width,cv.height);URL.revokeObjectURL(url);return {data:cv.toDataURL("image/jpeg",.82),w:cv.width,h:cv.height}}catch(e){return null}}
 const factFotos=f=>(f.bijlagen||[]).filter(b=>b.soort==="foto"&&b.opFactuur!==false);
 
-async function fwCamUpload(fid,file){const f=state.facturen.find(x=>x.id===fid);if(!f)return;let r;try{toast("Foto uploaden…");r=await state.assets.upload(file)}catch(e){return toast("De foto kon niet worden geüpload")}
+async function fwCamUpload(fid,file){const f=state.facturen.find(x=>x.id===fid);if(!f)return;file=await fotoAnnoteren(file);if(!file)return;let r;try{toast("Foto uploaden…");r=await state.assets.upload(file)}catch(e){return toast("De foto kon niet worden geüpload")}
   fwSmall(fid,"Wat viel op?",I.camera,`<img src="${BLOB}${esc(r.id)}" alt="" class="bv-prev"><div class="chips" style="margin:0">${BV_SNEL.map(t=>`<button type="button" class="chip" data-bvt="${esc(t)}">${esc(t)}</button>`).join("")}</div><label>Toelichting voor de klant<textarea id="bv-n" style="min-height:80px"></textarea></label>`,
     ()=>({bijlagen:[...((state.facturen.find(x=>x.id===fid)||f).bijlagen||[]),{id:r.id,naam:file.name||"foto.jpg",soort:"foto",notitie:$("#bv-n").value.trim(),datum:iso(today())}]}));
   form.querySelectorAll("[data-bvt]").forEach(b=>b.onclick=()=>{const t=$("#bv-n");t.value=t.value?t.value+". "+b.dataset.bvt:b.dataset.bvt;t.focus()})}

@@ -67,7 +67,7 @@ function paperHtml(f,klant){
   <div class="i5-sum"><div class="i5-pay">${m.pay?`<span class="i5-l">Betaalgegevens</span><table>${m.pay.filter(x=>x[0]!=="Uiterlijk").map(([a,b])=>`<tr><th>${esc(a)}</th><td>${esc(b)}</td></tr>`).join("")}</table>`:`<span class="i5-l">${m.off?"Geldigheid":"Betaling"}</span>`}${m.off?`<b class="i5-pnr">Offerte ${esc(f.nummer)}</b>`:""}<p>${esc(m.zin)}</p></div>
     ${m.off&&f.totaalTonen===false?"<div></div>":`<div class="i5-tot"><div><span>Subtotaal</span><span>€ ${num(m.t.ex)}</span></div><div><span>BTW ${m.btw}%</span><span>€ ${num(m.t.btw)}</span></div><div class="g"><span><b>${m.off?"Totaal per beurt":m.voldaan||m.st[1]==="g"?"Betaald":"Te betalen"}</b><small>${m.off?"incl. "+m.btw+"% btw":m.voldaan||m.st[1]==="g"?"Hartelijk dank":"Vóór "+esc(fmtL(f.verval))}</small></span><span class="i5-amt">€ ${num(m.t.inc)}</span></div></div>`}</div>
   ${f.notitie?`<div class="i5-note"><span class="i5-l">Opmerking</span>${esc(f.notitie)}</div>`:""}
-  ${f.soort!=="offerte"&&typeof factFotos==="function"&&factFotos(f).length?`<div class="i5-fotos"><span class="i5-l">Bijlage · foto's</span><b class="i5-ft">Opgemerkt tijdens ons werk</b><span class="i5-fs">Tijdens de beurt${f.datum?" van "+esc(fmtL(f.datum)):""} viel ons het volgende op.</span><div class="${factFotos(f).length===1?"een":""}">${factFotos(f).map((b,i)=>`<figure><img src="${BLOB}${esc(b.id)}" alt=""><figcaption><i>${i+1}</i><span><b>${esc(b.notitie||"Bijzonderheid")}</b><small>${esc(fmtL(b.datum||f.datum))}</small></span></figcaption></figure>`).join("")}</div></div>`:""}
+  ${f.soort!=="offerte"&&typeof factFotos==="function"&&factFotos(f).length?`<div class="i5-fotos"><span class="i5-l">Bijlage · foto's</span><b class="i5-ft">Opgemerkt tijdens ons werk</b><span class="i5-fs">Tijdens de beurt${f.datum?" van "+esc(fmtL(f.datum)):""} viel ons het volgende op.</span><div class="${factFotos(f).length===1?"een":""}">${factFotos(f).map((b,i)=>`<figure><img src="${BLOB}${esc(b.id)}" alt=""><figcaption><i>${String(i+1).padStart(2,"0")}</i><span><b>${esc(b.notitie||"Bijzonderheid")}</b><small>${esc(fmtL(b.datum||f.datum))}</small></span></figcaption></figure>`).join("")}</div></div>`:""}
   ${f.soort==="offerte"&&offTxt(f.voettekst,f)?`<div class="i5-txt">${esc(offTxt(f.voettekst,f)).replace(/\n/g,"<br>")}</div>`:""}
     ${m.vwTxt?`<p class="i5-vw">${esc(m.vwTxt)}</p>`:""}
   <div class="i5-foot">${m.foot.map(x=>`<span>${esc(x)}</span>`).join("")}</div></div>`;
@@ -141,24 +141,23 @@ async function pdfDoc(f,klant){
   if(ff.length){const ims=[];for(const p of ff){const im=await fotoData(p.id);if(im)ims.push({...im,p})}
     if(ims.length){doc.addPage();let yy=24;
       /* kop in dezelfde stijl als de factuur */
-      B();doc.setFontSize(6.6);col(C.mut);doc.setCharSpace(.9);doc.text("BIJLAGE · FOTO'S",L,yy);doc.setCharSpace(0);
-      B();doc.setFontSize(15);col(C.ink);doc.text("Opgemerkt tijdens ons werk",L,yy+8);
-      N();doc.setFontSize(8.6);col(C.mut);const sub=`Tijdens de beurt${f.datum?" van "+fmtL(f.datum):""} viel ons het volgende op.`;doc.text(sub,L,yy+14);
-      doc.setDrawColor(...C.line);doc.setLineWidth(.25);doc.line(L,yy+19,R,yy+19);yy+=27;
-      /* foto bijsnijden tot een vaste verhouding, zodat alle kaarten even hoog zijn */
-      const crop=(im,ar)=>new Promise(res=>{const i=new Image();i.onload=()=>{let sw=i.width,sh=i.height;if(sw/sh>ar)sw=sh*ar;else sh=sw/ar;const c=document.createElement("canvas");c.width=Math.min(1200,Math.round(sw));c.height=Math.round(c.width/ar);
-        c.getContext("2d").drawImage(i,(i.width-sw)/2,(i.height-sh)/2,sw,sh,0,0,c.width,c.height);res(c.toDataURL("image/jpeg",.85))};i.onerror=()=>res(im.data);i.src=im.data});
-      const een=ims.length===1,gap=7,cols=een?1:2,cw=(W-gap*(cols-1))/cols,pad=3.2,ar=4/3,iw=cw-2*pad,ih=iw/ar;
+      /* kop: rustig en licht */
+      N();doc.setFontSize(6.4);col(C.mut);doc.setCharSpace(1);doc.text("BIJLAGE · FOTO'S",L,yy);doc.setCharSpace(0);
+      N();doc.setFontSize(17);col(C.ink);doc.text("Opgemerkt tijdens ons werk",L,yy+9);
+      N();doc.setFontSize(8.4);col(C.mut);doc.text(`Tijdens de beurt${f.datum?" van "+fmtL(f.datum):""} viel ons het volgende op.`,L,yy+15.5);yy+=26;
+      /* foto bijsnijden tot een vaste verhouding en de hoeken afronden (in de afbeelding zelf) */
+      const crop=(im,ar)=>new Promise(res=>{const i=new Image();i.onload=()=>{let sw=i.width,sh=i.height;if(sw/sh>ar)sw=sh*ar;else sh=sw/ar;const c=document.createElement("canvas");c.width=Math.min(1400,Math.round(sw));c.height=Math.round(c.width/ar);
+        const g=c.getContext("2d"),rr=c.width*.035;g.fillStyle="#fff";g.fillRect(0,0,c.width,c.height);g.beginPath();g.roundRect?g.roundRect(0,0,c.width,c.height,rr):g.rect(0,0,c.width,c.height);g.clip();
+        g.drawImage(i,(i.width-sw)/2,(i.height-sh)/2,sw,sh,0,0,c.width,c.height);res(c.toDataURL("image/jpeg",.88))};i.onerror=()=>res(im.data);i.src=im.data});
+      const een=ims.length===1,gap=8,cols=een?1:2,cw=(W-gap*(cols-1))/cols,ar=een?16/10:4/3,iw=cw,ih=iw/ar;
       for(let i=0;i<ims.length;i+=cols){const row=ims.slice(i,i+cols);
-        const notes=row.map(im=>{B();doc.setFontSize(9);return doc.splitTextToSize(im.p.notitie||"Bijzonderheid",iw-9)}),nl=Math.max(...notes.map(n=>n.length));
-        const ch=pad+ih+5+nl*4.3+5.5+pad;if(yy+ch>270){doc.addPage();yy=22}
+        const notes=row.map(im=>{N();doc.setFontSize(9.2);return doc.splitTextToSize(im.p.notitie||"Bijzonderheid",iw-8)}),nl=Math.max(...notes.map(n=>n.length));
+        const ch=ih+6+nl*4.4+5;if(yy+ch>270){doc.addPage();yy=22}
         for(let j=0;j<row.length;j++){const im=row[j],x=L+j*(cw+gap),data=await crop(im,ar);
-          doc.setFillColor(...C.soft);doc.setDrawColor(...C.line);doc.setLineWidth(.3);doc.roundedRect(x,yy,cw,ch,3,3,"FD");
-          try{doc.addImage(data,"JPEG",x+pad,yy+pad,iw,ih)}catch(e){}
-          doc.setDrawColor(255,255,255);doc.setLineWidth(1.2);doc.roundedRect(x+pad-.4,yy+pad-.4,iw+.8,ih+.8,2.2,2.2,"S");
-          const ty=yy+pad+ih+5.6;doc.setFillColor(...C.ink);doc.circle(x+pad+2.6,ty-1.3,2.6,"F");B();doc.setFontSize(7);doc.setTextColor(255,255,255);doc.text(String(i+j+1),x+pad+2.6,ty-.1,{align:"center"});
-          B();doc.setFontSize(9);col(C.ink);doc.text(notes[j],x+pad+7.5,ty,{lineHeightFactor:1.35});
-          N();doc.setFontSize(7.2);col(C.mut);doc.text(fmtL(im.p.datum||f.datum),x+pad+7.5,ty+notes[j].length*4.3+.6);col(C.ink)}
+          try{doc.addImage(data,"JPEG",x,yy,iw,ih)}catch(e){}
+          const ty=yy+ih+6.2;N();doc.setFontSize(7.4);col(A);doc.text(String(i+j+1).padStart(2,"0"),x,ty);
+          N();doc.setFontSize(9.2);col(C.ink);doc.text(notes[j],x+7,ty,{lineHeightFactor:1.4});
+          doc.setFontSize(7);col(C.mut);doc.text(fmtL(im.p.datum||f.datum),x+7,ty+notes[j].length*4.4+.4);col(C.ink)}
         yy+=ch+gap}}}
   const pages=doc.getNumberOfPages();for(let p=1;p<=pages;p++){doc.setPage(p);doc.setDrawColor(...C.line);doc.setLineWidth(.25);doc.line(L,277,R,277);N();doc.setFontSize(6.8);col(C.mut);
     doc.text(m.foot.join("   ·   "),L,282);if(pages>1)doc.text("Pagina "+p+" / "+pages,R,282,{align:"right"});col(C.ink)}
