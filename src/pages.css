@@ -2396,3 +2396,16 @@ body.an-open{overflow:hidden}
 h2{font-weight:600!important}
 .oc-big,.stat b,.rd-s b,.rd-ring b,.ring b,.hero-card .oc-big{letter-spacing:-.025em!important}
 #view .panel h3,#view .panel>h3,#view .ph h3,#view h2{font-weight:600!important}
+
+/* ---------- Zijmenu: scherp en rustig ---------- */
+aside.side{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
+aside nav#sideNav{gap:2px}
+aside nav button:not([aria-current="true"]),aside.side .collapse{background:transparent!important;box-shadow:none!important;border:0!important}
+aside nav button{font-weight:500!important;font-size:14.5px!important;letter-spacing:-.006em;color:#22313a!important;padding:10px 14px!important;border-radius:12px!important;transition:background .15s,color .15s}
+aside nav button svg{width:19px!important;height:19px!important;stroke-width:1.7;color:#6b7b83!important}
+aside nav button:not([aria-current="true"]):hover{background:color-mix(in srgb,var(--ink) 5%,transparent)!important;color:var(--ink)!important}
+aside nav button:not([aria-current="true"]):hover svg{color:var(--ink)!important}
+aside nav button[aria-current="true"]{font-weight:600!important;color:#fff!important;box-shadow:0 6px 16px -6px rgb(19 122 138 / .45)!important}
+aside nav button[aria-current="true"] svg{color:#fff!important}
+aside.side .collapse{font-size:11px!important;letter-spacing:.1em;font-weight:600!important;color:#8a979d!important}
+aside nav button .badge{font-size:10.5px}
