@@ -3138,6 +3138,9 @@ html.zm .pl-menu{max-height:calc(100dvh / .9 - 190px)}
 .rv-bus{filter:drop-shadow(0 4px 6px rgb(0 0 0 / .3))}
 @media (max-width:640px){.rv-geld{background:rgb(255 255 255 / .12)!important}}
 .pagehead::before{display:none!important}
+/* geen fijne lijntjes op lichte achtergronden */
+.kp>.kp-h::before,.pagehead::before,.st-hero::after{display:none!important}
+.kp>.kp-h{background:linear-gradient(180deg,color-mix(in srgb,var(--brand) 5%,var(--surface)),var(--surface))!important}
 
 </style>
 <div class="app">
