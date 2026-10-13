@@ -2358,3 +2358,7 @@ body.an-open{overflow:hidden}
 .klx .kx-plan .kx-av .kc.kc-tile .kc-m{background:color-mix(in srgb,#2e9a6b 14%,#fff)!important;color:#1d7a52!important}
 .klx .kx-plan .kx-av .kc.kc-tile b{color:#16583c!important}
 @media (max-width:640px){.klx .kx-av .kc.kc-tile{width:42px!important;height:44px!important;border-radius:12px!important}.klx .kx-av .kc.kc-tile b{font-size:16px!important}.klx .kx-av .kc.kc-tile .kc-m{font-size:6.2px!important;padding:5px 0 3px!important}.klx .kx-av .kx-ring{left:7px!important;right:7px!important}}
+
+/* ---------- Alle paginatitels gelijk: rustig, niet te dik ---------- */
+#view h1:not([style]),#view .rh-t,#view h1.xl,#view .vd-hi{font-family:var(--f-body,Manrope),Manrope,system-ui,sans-serif!important;font-weight:600!important;font-size:clamp(26px,3vw,34px)!important;letter-spacing:-.025em!important;line-height:1.12!important}
+#view .rh-t span{font-size:.62em!important}
