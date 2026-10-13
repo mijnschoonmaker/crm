@@ -450,6 +450,40 @@ aside .help .primary{margin-top:2px;font-size:13.5px;padding:9px}aside .help .pr
 }
 .rf-vis{height:250px}.rf-kaart{width:180px;padding:16px}.rf-kaart.k1{top:4px;right:0;z-index:1}.rf-kaart.k2{bottom:4px;left:0;z-index:2;background:#fff}
 @media (max-width:760px){.rf-tg{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.rf-tg>div{padding:10px;border-radius:14px}.rf-tg b{font-size:18px}.rf-tg small{font-size:11px;line-height:1.25;min-height:28px}.rf-tg span{display:none}.rf-stappen ol::before{bottom:46px}}
+
+/* ---------- live meekijken ---------- */
+.lv{position:relative;border-radius:24px;overflow:hidden;background:var(--surface);border:1px solid var(--line);box-shadow:0 20px 44px -30px rgba(8,40,48,.55)}
+.lv-map{height:260px;background:#e8eef0;position:relative;z-index:0}
+.lv-laad{position:absolute;inset:0;background:linear-gradient(110deg,#e8eef0 30%,#f3f6f7 50%,#e8eef0 70%);background-size:200% 100%;animation:lvShim 1.4s linear infinite}
+@keyframes lvShim{to{background-position:-200% 0}}
+.lv-fout{margin:0;padding:110px 0;text-align:center;color:var(--muted)}
+.lv-ic{background:none;border:0}
+.lv-auto{position:relative;display:block;width:48px;height:48px}
+.lv-rot{position:absolute;inset:4px;display:block;transition:transform .8s ease;filter:drop-shadow(0 6px 10px rgba(8,40,48,.35))}
+.lv-rot svg{width:100%;height:100%;display:block}
+.lv-puls{position:absolute;inset:0;border-radius:50%;background:color-mix(in srgb,var(--brand) 30%,transparent);animation:lvRing 2s ease-out infinite}
+@keyframes lvRing{0%{transform:scale(.6);opacity:.9}100%{transform:scale(1.7);opacity:0}}
+.lv-huis{display:grid;place-items:center;width:40px;height:40px;border-radius:14px 14px 14px 4px;transform:rotate(-45deg);background:#fff;box-shadow:0 8px 18px -6px rgba(8,40,48,.4),inset 0 0 0 2px var(--brand)}
+.lv-huis svg{width:20px;height:20px;transform:rotate(45deg);color:var(--brand)}
+.lv-info{position:relative;display:flex;align-items:center;gap:14px;padding:16px 18px;border-top:1px solid var(--line)}
+.lv-car{width:46px;height:46px;flex:none;border-radius:14px;background:var(--brand-soft);display:grid;place-items:center}.lv-car svg{width:40px;height:40px}
+.lv-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.lv-st{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#178a5e}
+.lv-st i{width:8px;height:8px;border-radius:50%;background:#22a46c;animation:lvDot 1.8s ease-out infinite}
+@keyframes lvDot{0%{box-shadow:0 0 0 0 rgba(34,164,108,.55)}80%,100%{box-shadow:0 0 0 8px rgba(34,164,108,0)}}
+.lv-tx b{font-size:16.5px;font-weight:600;letter-spacing:-.01em}
+.lv-tx span{font-size:13.5px;color:var(--muted)}
+.lv-eta{flex:none;text-align:right;display:flex;flex-direction:column;gap:1px;padding-left:14px;border-left:1px solid var(--line)}
+.lv-eta small{font-size:11.5px;color:var(--muted);font-weight:600}
+.lv-eta b{font-size:24px;font-weight:600;letter-spacing:-.03em;color:var(--brand);font-variant-numeric:tabular-nums}
+.lv-wacht{position:relative;height:120px;display:flex;align-items:center;justify-content:center;gap:14px;background:linear-gradient(180deg,color-mix(in srgb,var(--brand) 7%,var(--surface)),var(--surface))}
+.lv-wacht>svg:first-child{width:34px;height:34px;color:var(--brand)}
+.lv-wacht>span{width:7px;height:7px;border-radius:50%;background:color-mix(in srgb,var(--brand) 35%,transparent);animation:lvStip 1.4s ease-in-out infinite}
+.lv-wacht>span:nth-of-type(2){animation-delay:.2s}.lv-wacht>span:nth-of-type(3){animation-delay:.4s}
+@keyframes lvStip{50%{background:var(--brand);transform:scale(1.3)}}
+.lv-wacht>svg:last-child{width:46px;height:46px;transform:rotate(-90deg);filter:drop-shadow(0 6px 10px rgba(8,40,48,.25))}
+.lv .leaflet-control-attribution{font-size:9.5px}
+@media (max-width:600px){.lv-map{height:220px}.lv-eta b{font-size:20px}.lv-tx b{font-size:15px}}
 </style></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -587,7 +621,7 @@ function teken(){
     <main id="main"${tab==="tickets"&&TK.open?' class="m-chat"':""}>${({home,bezoeken,tickets,facturen,aanbevelen,ik})[tab]()}<p class="voet">${esc(B.naam)}${B.email?" · "+esc(B.email):""}</p></main></div></div>
     <nav class="tabs" aria-label="Menu">${nav(true)}</nav>`;
   $$("[data-tab]").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;if(tab==="tickets"){TK.open="";TK.d=null;TK.sig=""}teken();scrollTo({top:0});try{history.replaceState(null,"","#"+tab)}catch(e){}});
-  koppel();if(tab==="tickets")ticketsStart()}
+  koppel();if(tab==="tickets")ticketsStart();if(tab==="home")lvInit()}
 const datumKop=()=>{const d=new Date();return `<span class="vd-date">${I.zonOp}${esc(d.toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long"}))} <span class="wk">wk ${weekNr(d)}</span></span>`};
 const kop=(titel,sub,eb)=>`<div class="pagehead">${eb||datumKop()}<h1>${titel}</h1>${sub?`<p class="subt">${sub}</p>`:""}</div>`;
 
@@ -612,7 +646,7 @@ function abonnementKp(){const k=D.klant;
     ${lr(I.plus,"Iets extra laten doen","Kozijnen, binnenzijde, zonnepanelen","",{attr:'data-act="extra"'})}</div>`)}
 function home(){const k=D.klant,openF=D.facturen.filter(f=>f.status==="open"||f.status==="verlopen"),som=openF.reduce((a,f)=>a+f.bedrag,0),A=D.aanbevelen;
   const lopend=D.verzoeken.filter(v=>v.status==="nieuw");
-  const links=`${D.tickets&&D.tickets.ongelezen?`<button class="melding" data-tab="tickets" style="border-color:color-mix(in srgb,var(--brand) 35%,var(--line))"><span class="objic">${I.ticket}</span><div class="tx"><b>${D.tickets.ongelezen===1?"Nieuw antwoord op uw ticket":D.tickets.ongelezen+" nieuwe antwoorden"}</b><small>Bekijk wat wij hebben geantwoord</small></div><span class="btn primary">Bekijken</span></button>`:""}${hero()}
+  const links=`${D.tickets&&D.tickets.ongelezen?`<button class="melding" data-tab="tickets" style="border-color:color-mix(in srgb,var(--brand) 35%,var(--line))"><span class="objic">${I.ticket}</span><div class="tx"><b>${D.tickets.ongelezen===1?"Nieuw antwoord op uw ticket":D.tickets.ongelezen+" nieuwe antwoorden"}</b><small>Bekijk wat wij hebben geantwoord</small></div><span class="btn primary">Bekijken</span></button>`:""}${liveBlok()}${hero()}
     ${openF.length?`<div class="melding rood"><span class="objic rood">${I.fact}</span><div class="tx"><b>${openF.length===1?"Er staat een factuur open":openF.length+" facturen staan open"}</b><small>${eur(som)}${openF.some(f=>f.status==="verlopen")?" · betaaltermijn verstreken":""}</small></div><button class="primary" data-fact="${esc(openF[0].id)}">Bekijken</button></div>`:""}
     ${A.tegoed>0?`<div class="melding goud"><span class="objic goud">${I.cadeau}</span><div class="tx"><b>${eur0(A.tegoed)} tegoed</b><small>Gaat automatisch van uw volgende factuur af. Bedankt voor uw aanbeveling.</small></div></div>`:""}
     ${D.teBeoordelen?kp(I.ster,"Hoe was ons bezoek?",`<div class="sterren" id="beoor" role="group" aria-label="Geef een beoordeling">${[1,2,3,4,5].map(n=>`<button data-ster="${n}" aria-label="${n} ${n===1?"ster":"sterren"}">${I.ster}</button>`).join("")}</div>`,{kl:"goud",sub:"Bezoek van "+esc(lang(D.teBeoordelen.datum))}):""}
@@ -933,6 +967,42 @@ async function bedanktNaBetalen(id){let d=null;
   document.body.appendChild(o);confetti(o,{n:zelfde?220:130});const weg=()=>{const cv=o.querySelector(".fc-canvas");if(cv){cv.style.position="fixed";cv.style.zIndex="299";document.body.appendChild(cv)}o.classList.add("weg");setTimeout(()=>o.remove(),300)};
   o.addEventListener("click",e=>{if(e.target===o||e.target.closest("[data-bk]"))weg()});
   if(sessie.get())setTimeout(()=>{try{laad(true)}catch(e){}},400)}
+
+/* ---------- live meekijken: waar is de glazenwasser (alleen op de dag van uw bezoek) ---------- */
+const LVK={map:null,car:null,huis:null,lijn:null,van:null,naar:null,anim:0,timer:0,zelf:false,laadt:null};
+const AUTO='<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="#fff"/><g transform="translate(20 20)"><path d="M-6.5-11.5h13a3 3 0 0 1 3 3v17a3 3 0 0 1-3 3h-13a3 3 0 0 1-3-3v-17a3 3 0 0 1 3-3z" style="fill:var(--brand,#137a8a)"/><path d="M-5.2-8.6h10.4l1.4 4.2H-6.6z" fill="#d6f1f4" opacity=".95"/><path d="M-6.2 6.8h12.4l-.8 3H-5.4z" fill="#d6f1f4" opacity=".7"/><rect x="-7.6" y="-1.5" width="1.6" height="4.5" rx=".8" fill="#0e4a5c"/><rect x="6" y="-1.5" width="1.6" height="4.5" rx=".8" fill="#0e4a5c"/><circle cx="-4.4" cy="-11" r=".9" fill="#fff6c9"/><circle cx="4.4" cy="-11" r=".9" fill="#fff6c9"/></g></svg>';
+function lvTekst(L){const vn=L.naam||"Uw glazenwasser";
+  if(L.voor===0)return{t:L.bezigBij?"U bent de volgende":vn+" is onderweg naar u",s:L.km!=null?(L.km<0.3?"Bijna bij u":"Nog "+String(L.km).replace(".",",")+" km"):"We zijn onderweg"};
+  return{t:"Nog "+L.voor+" "+(L.voor===1?"adres":"adressen")+" voor u",s:L.pos?vn+" is in de buurt":"De bus verschijnt op de kaart als u bijna aan de beurt bent"}}
+function liveBlok(){const L=D.live;if(!L||L.status!=="onderweg")return"";const T=lvTekst(L);
+  return `<section class="lv" id="lvKaart">${L.pos?`<div class="lv-map" id="lvMap"><div class="lv-laad"></div></div>`:`<div class="lv-wacht">${I.huis}<span></span><span></span><span></span>${AUTO}</div>`}
+    <div class="lv-info"><span class="lv-car">${AUTO}</span><div class="lv-tx"><small class="lv-st"><i></i>Live</small><b id="lvT">${esc(T.t)}</b><span id="lvS">${esc(T.s)}</span></div>
+      <div class="lv-eta"><small>Verwacht</small><b id="lvE">± ${esc(L.eta)}</b></div></div></section>`}
+function lvLeaflet(){if(window.L&&window.L.map)return Promise.resolve();if(LVK.laadt)return LVK.laadt;
+  LVK.laadt=new Promise((res,rej)=>{const B="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/",c=document.createElement("link");c.rel="stylesheet";c.href=B+"leaflet.css";document.head.appendChild(c);
+    const sc=document.createElement("script");sc.src=B+"leaflet.js";sc.onload=()=>{let i=0;const w=()=>window.L&&window.L.map?res():++i>120?rej():setTimeout(w,50);w()};sc.onerror=()=>{LVK.laadt=null;rej()};document.head.appendChild(sc)});return LVK.laadt}
+async function lvInit(){clearInterval(LVK.timer);const L=D&&D.live;if(!L||L.status!=="onderweg")return;
+  LVK.timer=setInterval(lvPeil,15000);
+  const el=document.getElementById("lvMap");if(!el||!L.pos)return;
+  try{await lvLeaflet()}catch(e){el.innerHTML=`<p class="lv-fout">Kaart kon niet laden</p>`;return}
+  const Lf=window.L;el.innerHTML="";LVK.zelf=false;
+  LVK.map=Lf.map(el,{zoomControl:false,attributionControl:true,dragging:true,scrollWheelZoom:false,tap:true}).setView([L.pos.lat,L.pos.lng],14);
+  Lf.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",{subdomains:"abcd",maxZoom:19,attribution:'© OpenStreetMap · © CARTO'}).addTo(LVK.map);
+  LVK.map.on("dragstart zoomstart",e=>{if(e&&e.originalEvent)LVK.zelf=true});
+  if(L.huis){LVK.huis=Lf.marker(L.huis,{icon:Lf.divIcon({className:"lv-ic",html:`<span class="lv-huis">${I.huis}</span>`,iconSize:[40,46],iconAnchor:[20,44]}),keyboard:false}).addTo(LVK.map);
+    LVK.lijn=Lf.polyline([[L.pos.lat,L.pos.lng],L.huis],{color:"#137a8a",weight:3.5,opacity:.85,dashArray:"1 9",lineCap:"round"}).addTo(LVK.map)}
+  LVK.car=Lf.marker([L.pos.lat,L.pos.lng],{icon:Lf.divIcon({className:"lv-ic",html:`<span class="lv-auto"><span class="lv-puls"></span><span class="lv-rot" style="transform:rotate(${L.pos.koers||0}deg)">${AUTO}</span></span>`,iconSize:[48,48],iconAnchor:[24,24]}),keyboard:false,zIndexOffset:500}).addTo(LVK.map);
+  LVK.naar={lat:L.pos.lat,lng:L.pos.lng};lvFit()}
+function lvFit(){if(!LVK.map||LVK.zelf)return;const L=D.live,pts=[[LVK.naar.lat,LVK.naar.lng]];if(L.huis)pts.push(L.huis);
+  if(pts.length>1)LVK.map.fitBounds(pts,{padding:[50,50],maxZoom:16,animate:true});else LVK.map.panTo(pts[0],{animate:true})}
+/* soepel rijden tussen twee meldingen in */
+function lvRij(n){if(!LVK.car)return;const v=LVK.car.getLatLng(),van={lat:v.lat,lng:v.lng},t0=performance.now(),dur=2200;cancelAnimationFrame(LVK.anim);
+  const st=t=>{const p=Math.min(1,(t-t0)/dur),e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2,ll=[van.lat+(n.lat-van.lat)*e,van.lng+(n.lng-van.lng)*e];LVK.car.setLatLng(ll);if(LVK.lijn&&D.live.huis)LVK.lijn.setLatLngs([ll,D.live.huis]);if(p<1)LVK.anim=requestAnimationFrame(st)};LVK.anim=requestAnimationFrame(st)}
+async function lvPeil(){if(document.hidden||tab!=="home")return;let r;try{r=await api("live")}catch(e){return}const L=r.live;
+  const was=D.live;D.live=L;
+  if(!L||L.status!=="onderweg"||!!L.pos!==!!(was&&was.pos)){teken();return}
+  const T=lvTekst(L),q=id=>document.getElementById(id);if(q("lvT"))q("lvT").textContent=T.t;if(q("lvS"))q("lvS").textContent=T.s;if(q("lvE"))q("lvE").textContent="± "+L.eta;
+  if(L.pos&&LVK.car){LVK.naar={lat:L.pos.lat,lng:L.pos.lng};lvRij(LVK.naar);const r_=LVK.car.getElement()&&LVK.car.getElement().querySelector(".lv-rot");if(r_&&L.pos.koers!=null)r_.style.transform=`rotate(${L.pos.koers}deg)`;setTimeout(lvFit,2300)}}
 /* ---------- start ---------- */
 (async()=>{const q=new URLSearchParams(location.search),seg=location.pathname.split("/").filter(Boolean);
   if(seg[0]==="aanbevolen"&&seg[1])return toonAanbevolen(decodeURIComponent(seg[1]).toUpperCase());

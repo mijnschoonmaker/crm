@@ -87,6 +87,41 @@ module.exports = function maakPortaal(ctx) {
   const bedrijfInfo = (b, base) => ({ naam: b.naam || "mijnschoonmaker.com", logo: (b.logoMail || b.logo) ? base + "/_blob/" + (b.logoMail || b.logo) : "", telefoon: b.telefoon || "", mobiel: b.mobiel || b.telefoon || "", email: b.email || "", website: b.website || "", iban: b.iban || "", reviewLink: b.reviewLink || "", kleur: b.mailAccent || b.hoofdkleur || "#137a8a",
     voorwaarden: b.voorwaardenPdf ? base + "/_blob/" + b.voorwaardenPdf : "", tijdWeergave: b.portaalTijd || "venster", refAan: b.refAan !== false, refBeloning: b.refBeloning != null && b.refBeloning !== "" ? Number(b.refBeloning) : 15, refWelkom: b.refWelkom != null && b.refWelkom !== "" ? Number(b.refWelkom) : 10, werkStart: b.werkStart || "08:00" });
 
+  /* ---------- live meekijken: waar rijdt de glazenwasser (alleen voor klanten van vandaag) ---------- */
+  const tMin = t => { const m = /^(\d{1,2}):(\d{2})/.exec(String(t || "")); return m ? (+m[1]) * 60 + (+m[2]) : 9999; };
+  const afstand = (a, b, c, d) => { const R = 6371, r = x => x * Math.PI / 180, dl = r(c - a), dg = r(d - b), h = Math.sin(dl / 2) ** 2 + Math.cos(r(a)) * Math.cos(r(c)) * Math.sin(dg / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(h)); };
+  async function klantGeo(kref, k) {
+    const key = [k.adres, k.postcode, k.plaats].map(x => String(x || "").trim().toLowerCase()).join("|");
+    if (k.geo && k.geo.lat && (k.geo.key === key || k.geo.key === "*")) return [k.geo.lat, k.geo.lng];
+    try {
+      const r = await fetch("https://api.pdok.nl/bzk/locatieserver/search/v3_1/free?fq=type:adres&rows=1&fl=centroide_ll&q=" + encodeURIComponent([k.adres, k.postcode, k.plaats].filter(Boolean).join(" ")));
+      const j = await r.json(), d = ((j.response || {}).docs || [])[0], m = d && /POINT\(([-\d.]+) ([-\d.]+)\)/.exec(d.centroide_ll || "");
+      if (m) { const g = [+m[2], +m[1]]; await kref.set({ geo: { key, lat: g[0], lng: g[1] } }, { merge: true }); return g; }
+    } catch (e) { console.error("geo", e.message); }
+    return null;
+  }
+  async function liveInfo(S) {
+    const k = S.klant, dag = isoNL();
+    if (!(k.gepland === dag || (Array.isArray(k.reeks) && k.reeks.some(r => r && r.d === dag)))) return null;
+    const [ls, ks, bs] = await Promise.all([db.doc("live/rit").get(), db.collection("klanten").where("gepland", "==", dag).get(), db.collection("beurten").where("datum", "==", dag).get()]);
+    const klaar = new Set(bs.docs.map(d => d.data().klantId));
+    if (klaar.has(k.id)) return { status: "klaar" };
+    if (k.bezig && k.gepland === dag) return { status: "bezig" };
+    const L = ls.exists ? ls.data() : null;
+    if (!L || !L.actief || L.datum !== dag || !(Date.now() - Date.parse(L.ts) < 5 * 60e3)) return { status: "uit" };
+    const lijst = ks.docs.map(d => ({ id: d.id, ...dec(d.data()) })).filter(x => x.actief !== false && !klaar.has(x.id)).sort((a, b) => tMin(a.tijd) - tMin(b.tijd));
+    const i = lijst.findIndex(x => x.id === k.id), voor = Math.max(0, i), bezigBij = lijst.slice(0, Math.max(0, i)).some(x => x.bezig);
+    const huis = await klantGeo(S.kref, k);
+    const km = huis ? afstand(L.lat, L.lng, huis[0], huis[1]) : null, rij = km != null ? Math.round(km * 1.35 / 38 * 60) + 2 : 12;
+    const werk = lijst.slice(0, voor).reduce((a, x) => a + (Number(x.duur) || 30), 0) + voor * 8;
+    const eta = new Date(Date.now() + (voor ? werk + rij : rij) * 60e3);
+    const etaTxt = new Intl.DateTimeFormat("nl-NL", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" }).format(eta);
+    /* de exacte plek van de bus alleen als u bijna aan de beurt bent: zo zien klanten niet bij wie we verder allemaal komen */
+    const dichtbij = voor <= 2;
+    return { status: "onderweg", voor, bezigBij, eta: etaTxt, km: km != null ? Math.round(km * 10) / 10 : null, naam: L.naam || "", huis: dichtbij ? huis : null,
+      pos: dichtbij ? { lat: L.lat, lng: L.lng, koers: L.koers ?? null, ts: L.ts } : null };
+  }
+
   async function data(req, S) {
     const k = S.klant, b = await bedrijf(), base = basisUrl(req), vandaag = isoNL();
     if (!k.refCode) { k.refCode = await maakRefCode(k); await S.kref.set({ refCode: k.refCode }, { merge: true }); }
@@ -122,6 +157,7 @@ module.exports = function maakPortaal(ctx) {
       teBeoordelen: laatsteB && !laatsteB.beoordeling && (Date.now() - new Date(laatsteB.datum + "T12:00:00").getTime()) < 21 * DAG ? { id: laatsteB.id, datum: laatsteB.datum } : null,
       aantalBezoeken: beurten.length,
       facturen,
+      live: await liveInfo(S).catch(e => { console.error("live", e); return null; }),
       tickets: { open: tks.filter(t => t.status !== "opgelost").length, ongelezen: tks.reduce((a, t) => a + (Number(t.ongelezenKlant) || 0), 0) },
       verzoeken: vz.docs.map(d => ({ id: d.id, ...d.data() })).filter(v => v.type !== "beoordeling" && v.type !== "toegang" && !v.ticketId).sort((a, b2) => String(b2.op).localeCompare(String(a.op))).slice(0, 8)
         .map(v => ({ type: v.type, status: v.status, op: v.op, datum: v.datum || "", tot: v.tot || "", tekst: v.tekst || "", antwoord: v.antwoord || "" })),
@@ -256,6 +292,7 @@ module.exports = function maakPortaal(ctx) {
       const S = await sessie(req);
       if (!S) { res.status(401).json({ fout: "Log opnieuw in." }); return; }
       if (pad === "/data" && req.method === "GET") { res.json(await data(req, S)); return; }
+      if (pad === "/live" && req.method === "GET") { res.json({ live: await liveInfo(S) }); return; }
       if (pad === "/uit" && req.method === "POST") { await S.ref.delete(); res.json({ ok: true }); return; }
       if (pad === "/factuur" && req.method === "GET") {
         const f = await db.doc("facturen/" + String(req.query.id || "")).get();

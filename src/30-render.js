@@ -9,6 +9,7 @@ function render(){try{warmMailLogo()}catch(e){}
   try{ptKaart()}catch(e){console.error(e)}
   try{tkKaart()}catch(e){console.error(e)}
   try{betaalCheck()}catch(e){console.error(e)}
+  try{lvDagCheck()}catch(e){}
   $(".app").classList.toggle("collapsed",state.collapsed);
   const mw=isMw();document.body.classList.toggle("mw",mw);if(mw&&!MW_TABS.includes(state.tab))state.tab="vandaag";
   $("#sideNav").innerHTML=PAGES.filter(([t])=>!mw||MW_TABS.includes(t)).map(([t,l])=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}" title="${l}">${I[t]}<span class="lbl">${l}</span>${badge(t)}</button>`).join("");
@@ -57,6 +58,7 @@ document.addEventListener("click",e=>{
     case"job":openJob(id,t.dataset.d);break;
     case"ptopen":openPortaalVz();break;
     case"pmeer":state.pmeer=!state.pmeer;render();break;
+    case"livedelen":liveWissel();break;
     case"pkaart":state.pkaart=!state.pkaart;state.pmeer=false;try{localStorage.setItem("ms.pk",state.pkaart?"1":"0")}catch(e){}if(state.pkaart){PK.fit=false;PK.zelf=false}render();break;
     case"pkwis":state.ksel.clear();render();break;
     case"pkfit":pkFit();break;

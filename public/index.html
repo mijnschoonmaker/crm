@@ -2822,6 +2822,14 @@ aside nav button[aria-current="true"]{font-weight:600!important;color:#fff!impor
 aside nav button[aria-current="true"] svg{color:#fff!important}
 aside.side .collapse{font-size:11px!important;letter-spacing:.1em;font-weight:600!important;color:#8a979d!important}
 aside nav button .badge{font-size:10.5px}
+/* live delen knop */
+.rh-acts{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.rh-live{display:inline-flex;align-items:center;gap:9px;padding:10px 16px!important;border-radius:14px!important;font-weight:600;font-size:14px;background:var(--surface)!important;border:1px solid var(--line)!important;color:var(--ink)!important;box-shadow:var(--shadow-sm,0 1px 2px rgba(0,0,0,.04))!important}
+.rh-live i{width:10px;height:10px;border-radius:50%;background:#b8c4c9;flex:none}
+.rh-live.aan{background:color-mix(in srgb,#22a46c 10%,var(--surface))!important;border-color:color-mix(in srgb,#22a46c 40%,var(--line))!important;color:#16774d!important}
+.rh-live.aan i{background:#22a46c;box-shadow:0 0 0 0 rgba(34,164,108,.5);animation:lvPuls 1.8s ease-out infinite}
+@keyframes lvPuls{0%{box-shadow:0 0 0 0 rgba(34,164,108,.55)}80%,100%{box-shadow:0 0 0 9px rgba(34,164,108,0)}}
+@media (max-width:640px){.rh-acts{width:100%}.rh-acts .rh-nav{flex:1}.rh-live{flex:none}}
 
 </style>
 <div class="app">
@@ -4142,7 +4150,7 @@ function vRoute(){
   const stat=(l,v,sub)=>`<div class="rd-s"><small>${l}</small><b>${v}</b>${sub?`<span>${sub}</span>`:""}</div>`;
   const nodes=stops.map((s,i)=>{const nu=!s.done&&nx&&s.k.id===nx.id;return `<li class="${s.done?"af":nu?"nu":""}" title="${esc(jobAddrObj(s.k).adres||cleanName(s.k.naam))}"><i>${s.done?`<svg viewBox="0 0 24 24"><path d="M5.5 12.8l4.2 4.2L18.5 7.6"/></svg>`:HUIS}</i><small>${esc(s.k.tijd||"")}</small></li>`}).join("");
   let html=`<div class="rh"><div class="rh-top"><div class="rh-tt"><p class="rh-k">${I.route}<span>${longD(d)}</span><em>wk ${weekNr(d)}</em></p><h1 class="rh-t">Route${naam?`<span>${naam}</span>`:""}</h1></div>
-    <div class="rh-nav" role="group" aria-label="Dag"><button type="button" data-act="rday" data-n="-1" aria-label="Vorige dag">${I.left}</button><button type="button" class="rh-nu${isT?" is-nu":""}" data-act="rday" data-n="0">${navTxt}</button><button type="button" data-act="rday" data-n="1" aria-label="Volgende dag">${I.right}</button></div></div>
+    <div class="rh-acts">${isT?lvKnopHtml():""}<div class="rh-nav" role="group" aria-label="Dag"><button type="button" data-act="rday" data-n="-1" aria-label="Vorige dag">${I.left}</button><button type="button" class="rh-nu${isT?" is-nu":""}" data-act="rday" data-n="0">${navTxt}</button><button type="button" data-act="rday" data-n="1" aria-label="Volgende dag">${I.right}</button></div></div></div>
   ${stops.length?`<section class="rd${klaar?" klaar":""}">
     <div class="rd-main">
       <div class="rd-ring"><svg viewBox="0 0 108 108"><circle cx="54" cy="54" r="${R}" class="rd-bg"/><circle cx="54" cy="54" r="${R}" class="rd-fg" stroke-dasharray="${C2}" stroke-dashoffset="${C2*(1-pct/100)}"/></svg><span>${klaar?`<svg class="rd-ok" viewBox="0 0 24 24"><path d="M5.5 12.8l4.2 4.2L18.5 7.6"/></svg>`:`<b>${done}<small>/${stops.length}</small></b><em>klaar</em>`}</span></div>
@@ -8877,6 +8885,40 @@ if(LIVE){
       catch(er){console.error(er);R.innerHTML='<span style="color:var(--late)">Overzetten stopte bij '+k+': '+esc(er.message||String(er))+'</span>'}}};
 }
 
+/* ---------- Live locatie delen met de klanten van vandaag ----------
+   Aan op de Route-pagina. De telefoon geeft om de paar seconden de plek door; het klantportaal laat de klanten
+   van vandaag een autootje op de kaart zien met de verwachte aankomsttijd. Alleen terwijl het CRM open staat. */
+const LV={watch:null,last:0,pos:null,lock:null,fout:""};
+state.liveDelen=(()=>{try{return localStorage.getItem("ms.live")==="1"}catch(e){return false}})();
+const lvAfst=(a,b)=>{if(!a||!b)return 1e9;const R=6371e3,r=x=>x*Math.PI/180,dl=r(b.lat-a.lat),dg=r(b.lng-a.lng),h=Math.sin(dl/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(dg/2)**2;return 2*R*Math.asin(Math.sqrt(h))};
+async function lvSchrijf(extra){if(!LIVE)return;try{await fsDb().doc("live/rit").set({...extra,naam:String((state.me&&state.me.name)||"").split(" ")[0]||"",door:(state.me&&state.me.email)||"",datum:iso(today()),ts:new Date().toISOString()},{merge:true})}catch(e){console.warn("live",e)}}
+async function lvWakker(){try{if(LV.watch&&"wakeLock" in navigator&&!LV.lock&&document.visibilityState==="visible"){LV.lock=await navigator.wakeLock.request("screen");LV.lock.addEventListener("release",()=>{LV.lock=null})}}catch(e){}}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&LV.watch)lvWakker()});
+function liveStart(stil){
+  if(!LIVE||!navigator.geolocation){if(!stil)toast(LIVE?"Deze telefoon kan geen locatie delen":"Live delen werkt in de live versie");return}
+  if(LV.watch!=null)return;
+  LV.fout="";
+  LV.watch=navigator.geolocation.watchPosition(p=>{
+    const c={lat:+p.coords.latitude.toFixed(6),lng:+p.coords.longitude.toFixed(6)},nu=Date.now();
+    let koers=Number.isFinite(p.coords.heading)?Math.round(p.coords.heading):null;
+    if(koers==null&&LV.pos&&lvAfst(LV.pos,c)>15){const y=Math.sin((c.lng-LV.pos.lng)*Math.PI/180)*Math.cos(c.lat*Math.PI/180),x=Math.cos(LV.pos.lat*Math.PI/180)*Math.sin(c.lat*Math.PI/180)-Math.sin(LV.pos.lat*Math.PI/180)*Math.cos(c.lat*Math.PI/180)*Math.cos((c.lng-LV.pos.lng)*Math.PI/180);koers=Math.round((Math.atan2(y,x)*180/Math.PI+360)%360)}
+    /* niet vaker dan nodig: elke 12 seconden, of eerder als je flink bent opgeschoten */
+    if(nu-LV.last<12000&&lvAfst(LV.pos,c)<40)return;
+    LV.last=nu;LV.pos=c;LV.fout="";lvSchrijf({actief:true,lat:c.lat,lng:c.lng,nauw:Math.round(p.coords.accuracy||0),...(koers!=null?{koers}:{})});lvKnop()},
+    e=>{LV.fout=e.code===1?"Geen toestemming voor je locatie. Zet locatie aan voor deze website in je telefooninstellingen.":"Je locatie is even niet beschikbaar";if(e.code===1){liveStop(true);state.liveDelen=false;try{localStorage.setItem("ms.live","0")}catch(er){}}toast(LV.fout);lvKnop()},
+    {enableHighAccuracy:true,maximumAge:8000,timeout:30000});
+  lvWakker();if(!stil)toast("Live delen staat aan · de klanten van vandaag zien waar je bent");lvKnop()}
+function liveStop(stil){if(LV.watch!=null){try{navigator.geolocation.clearWatch(LV.watch)}catch(e){}}LV.watch=null;LV.pos=null;try{LV.lock&&LV.lock.release()}catch(e){}LV.lock=null;
+  lvSchrijf({actief:false});if(!stil)toast("Live delen staat uit");lvKnop()}
+function liveWissel(){state.liveDelen=!state.liveDelen;try{localStorage.setItem("ms.live",state.liveDelen?"1":"0")}catch(e){}state.liveDelen?liveStart():liveStop();render()}
+/* knop in de kop van de Route-pagina */
+function lvKnopHtml(){if(!LIVE)return"";const aan=state.liveDelen&&LV.watch!=null;
+  return `<button type="button" class="rh-live${aan?" aan":""}" data-act="livedelen" aria-pressed="${aan}" title="Klanten van vandaag zien in hun portaal waar je bent"><i></i><span>${aan?"Live zichtbaar":"Live delen"}</span></button>`}
+function lvKnop(){const b=document.querySelector(".rh-live");if(b)b.outerHTML=lvKnopHtml()}
+/* automatisch: na het herladen weer aan, en uit als de dag klaar is */
+if(LIVE)setTimeout(function w(){if(!state.loaded)return setTimeout(w,800);if(state.liveDelen)liveStart(true)},1500);
+function lvDagCheck(){if(LV.watch==null)return;const s=routeStops(iso(today()));if(s.length&&s.every(x=>x.done)){state.liveDelen=false;try{localStorage.setItem("ms.live","0")}catch(e){}liveStop(true);toast("Dag klaar · live delen is gestopt")}}
+
 /* ---------- Rollen: eigenaar / beheerder / medewerker ----------
    Een medewerker (glazenwasser) ziet alleen wat hij nodig heeft om het werk te doen:
    Vandaag en Route, per adres de instructies, poortcode en notities, en hij kan afmelden.
@@ -9176,6 +9218,7 @@ function render(){try{warmMailLogo()}catch(e){}
   try{ptKaart()}catch(e){console.error(e)}
   try{tkKaart()}catch(e){console.error(e)}
   try{betaalCheck()}catch(e){console.error(e)}
+  try{lvDagCheck()}catch(e){}
   $(".app").classList.toggle("collapsed",state.collapsed);
   const mw=isMw();document.body.classList.toggle("mw",mw);if(mw&&!MW_TABS.includes(state.tab))state.tab="vandaag";
   $("#sideNav").innerHTML=PAGES.filter(([t])=>!mw||MW_TABS.includes(t)).map(([t,l])=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}" title="${l}">${I[t]}<span class="lbl">${l}</span>${badge(t)}</button>`).join("");
@@ -9224,6 +9267,7 @@ document.addEventListener("click",e=>{
     case"job":openJob(id,t.dataset.d);break;
     case"ptopen":openPortaalVz();break;
     case"pmeer":state.pmeer=!state.pmeer;render();break;
+    case"livedelen":liveWissel();break;
     case"pkaart":state.pkaart=!state.pkaart;state.pmeer=false;try{localStorage.setItem("ms.pk",state.pkaart?"1":"0")}catch(e){}if(state.pkaart){PK.fit=false;PK.zelf=false}render();break;
     case"pkwis":state.ksel.clear();render();break;
     case"pkfit":pkFit();break;
