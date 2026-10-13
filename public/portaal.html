@@ -541,13 +541,12 @@ function hero(){const v=D.volgende,k=D.klant;
     ${k.nieuw?`<h2>We plannen uw eerste bezoek</h2><p>We combineren afspraken per omgeving. U hoort van ons zodra de datum vaststaat.</p>`
      :!k.actief?`<h2>Er staan geen bezoeken gepland</h2><p>Wilt u weer gebruikmaken van onze diensten? Laat het ons weten.</p>`
      :`<h2>${w?"Rond week "+w:"Binnenkort"}</h2><p>We plannen u in zodra uw route rond is en laten u vooraf weten wanneer we komen.</p>`}</div></div>
-    <div class="hero-acts"><button data-act="vakantie">${I.zon}Afwezig</button><button data-act="toegang">${I.sleutel}Instructies</button><button data-act="ticket">${I.bericht}Vraag</button></div></section>`}
+    <div class="hero-acts"><button data-act="toegang">${I.sleutel}Instructies</button><button data-act="ticket">${I.bericht}Vraag</button></div></section>`}
 
 function abonnementKp(){const k=D.klant;
   return kp(I.ruit,"Uw abonnement",`<div class="lijst">
     ${lr(I.ruit,esc(k.dienst)+(k.binnen?" binnen en buiten":""),"Elke "+(k.frequentie===1?"week":k.frequentie+" weken")+(k.sinds?" · klant sinds "+esc(MND[p(k.sinds).getMonth()]+" "+p(k.sinds).getFullYear()):""),eur0(k.prijs)+`<small style="color:var(--muted);font-weight:600;font-size:12px">per beurt</small>`)}
-    ${lr(I.plus,"Iets extra laten doen","Kozijnen, binnenzijde, zonnepanelen","",{attr:'data-act="extra"'})}
-    ${lr(I.zon,"Afwezig of op vakantie","Dan houden we er rekening mee","",{attr:'data-act="vakantie"'})}</div>`)}
+    ${lr(I.plus,"Iets extra laten doen","Kozijnen, binnenzijde, zonnepanelen","",{attr:'data-act="extra"'})}</div>`)}
 function home(){const k=D.klant,openF=D.facturen.filter(f=>f.status==="open"||f.status==="verlopen"),som=openF.reduce((a,f)=>a+f.bedrag,0),A=D.aanbevelen;
   const lopend=D.verzoeken.filter(v=>v.status==="nieuw");
   const links=`${D.tickets&&D.tickets.ongelezen?`<button class="melding" data-tab="tickets" style="border-color:color-mix(in srgb,var(--brand) 35%,var(--line))"><span class="objic">${I.ticket}</span><div class="tx"><b>${D.tickets.ongelezen===1?"Nieuw antwoord op uw ticket":D.tickets.ongelezen+" nieuwe antwoorden"}</b><small>Bekijk wat wij hebben geantwoord</small></div><span class="btn primary">Bekijken</span></button>`:""}${hero()}
@@ -637,7 +636,7 @@ function ik(){const k=D.klant,t=k.toegang||{};
     ${kp(I.ticket,"Contact met ons",`<div class="lijst">${lr(I.ticket,"Ticket aanmaken",`Snelste weg · u volgt de status in het portaal`,`<span class="pill brand">Voorkeur</span>`,{attr:'data-act="ticket"',tis:"background:var(--brand);color:#fff"})}
       ${tel?lr(I.wa,"WhatsApp","Stuur ons een bericht","",{href:"https://wa.me/"+wa,tis:"background:#e3f5ea;color:#1f9d55"}):""}${B.email?lr(I.mail,"E-mail",esc(B.email),"",{href:"mailto:"+B.email}):""}</div>`,{sub:"Wij werken niet telefonisch, maar reageren snel op tickets"})}
     ${kp(I.sleutel,"Bij u thuis",`<div class="lijst">${lr(I.sleutel,"Toegang en instructies",(t.opties||[]).length||t.tekst||t.code?esc([t.code?"Poortcode ingesteld":"",...(t.opties||[]),t.tekst].filter(Boolean).join(" · ").slice(0,90)):"Poortcode, achterom open, hond aanwezig","",{attr:'data-act="toegang"'})}
-      ${lr(I.zon,"Afwezigheid doorgeven","Op vakantie of verbouwing?","",{attr:'data-act="vakantie"'})}${lr(I.plus,"Iets extra laten doen","Kozijnen, binnenzijde, zonnepanelen","",{attr:'data-act="extra"'})}</div>`,{kl:"goud"})}
+      ${lr(I.plus,"Iets extra laten doen","Kozijnen, binnenzijde, zonnepanelen","",{attr:'data-act="extra"'})}</div>`,{kl:"goud"})}
     ${kp(I.ik,"Mijn gegevens",`<div class="lijst">${lr(I.huis,esc(k.naam),esc(k.adres)+"<br>"+esc(k.pcPlaats),"",{attr:'data-act="gegevens"'})}
       ${lr(I.tel,"Telefoon en e-mail",esc([k.telefoon||k.mobiel,k.email].filter(Boolean).join(" · ")||"Nog niet bekend"),"",{attr:'data-act="gegevens"'})}
       ${k.klantnr?lr(I.doc,"Klantnummer",esc(k.klantnr)):""}${B.voorwaarden?lr(I.doc,"Algemene voorwaarden","PDF","",{href:B.voorwaarden}):""}
