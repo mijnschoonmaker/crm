@@ -3108,6 +3108,14 @@ html.zm .pl-menu{max-height:calc(100dvh / .9 - 190px)}
 .kp>.kp-h .objic,.kp-h .objic{background:linear-gradient(135deg,var(--brand),#1d5a74);color:#fff}
 .panel,.kp{box-shadow:0 1px 2px rgb(15 31 38 / .04),0 14px 30px -24px rgb(15 50 60 / .35)}
 .banner{border-radius:18px}
+/* zelfde achtergrond-effect als de portaalkaarten: kaartkoppen en paginatitel */
+.kp>.kp-h,.st-ch,.panel>h3:first-child{position:relative}
+.kp>.kp-h{overflow:hidden;background:radial-gradient(90% 160% at 100% 0%,color-mix(in srgb,var(--brand) 9%,transparent),transparent 60%),linear-gradient(180deg,color-mix(in srgb,var(--brand) 4%,var(--surface)),var(--surface))}
+.kp>.kp-h::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,color-mix(in srgb,var(--brand) 5%,transparent) 0 2px,transparent 2px 26px);-webkit-mask:linear-gradient(90deg,transparent 30%,#000);mask:linear-gradient(90deg,transparent 30%,#000);pointer-events:none}
+.kp>.kp-h>*{position:relative}
+.pagehead{position:relative;isolation:isolate}.pagehead>*{position:relative;z-index:1}
+.pagehead::before{content:"";position:absolute;left:-40px;right:-40px;top:-60px;bottom:-14px;z-index:0;background:radial-gradient(60% 120% at 85% 0%,color-mix(in srgb,var(--brand) 11%,transparent),transparent 70%),repeating-linear-gradient(115deg,color-mix(in srgb,var(--brand) 5%,transparent) 0 2px,transparent 2px 28px);-webkit-mask:linear-gradient(180deg,#000 40%,transparent);mask:linear-gradient(180deg,#000 40%,transparent);pointer-events:none}
+.st-hero::after,.rv::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,color-mix(in srgb,var(--brand) 4%,transparent) 0 2px,transparent 2px 26px);-webkit-mask:linear-gradient(90deg,transparent 35%,#000);mask:linear-gradient(90deg,transparent 35%,#000);pointer-events:none}
 
 </style>
 <div class="app">
