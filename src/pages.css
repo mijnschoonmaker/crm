@@ -2724,3 +2724,4 @@ html.zm .pl-menu{max-height:calc(100dvh / .9 - 190px)}
 .rv-weg li small,.rv-weg li.nu small{color:rgb(255 255 255 / .85)}
 .rv-bus{filter:drop-shadow(0 4px 6px rgb(0 0 0 / .3))}
 @media (max-width:640px){.rv-geld{background:rgb(255 255 255 / .12)!important}}
+.pagehead::before{display:none!important}
