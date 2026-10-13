@@ -86,7 +86,7 @@ function openOpdrachtWerk(kid,focus){
       return {...b,inc:b.ex*1.21,prijs:r2(incl?b.ex*1.21:b.ex),w}}catch(e){console.error(e);return null}};
   const fqSel=(di,key,val,leeg)=>`<select data-i="${di}" data-rk="${key}"><option value="">${leeg}</option>${freqOpts(val).map(w=>`<option value="${w}" ${String(val)===String(w)?"selected":""}>${esc(freqLabel(w))}</option>`).join("")}</select>`;
   const calcHtml=(r,i,isMain)=>{const q=normR(r.ramen);r.ramen=q;const c=calcR(r,isMain)||{c:{min:0,kozMin:0,start:0},rows:[],count:0,min:0,glas:0,kozP:0,ex:0,inc:0};const di=isMain?"m":i;
-    if(!editR.has(di)&&q.f.some(n=>n))return isMain?`<div class="ow-dh ow-dmain"><span class="mono">1</span><div class="ow-dm"><b>${esc(r.dienst||"Glasbewassing")}</b></div><span class="mono ow-dp">${eur(r.prijs)}</span><button type="button" class="small" data-redit="m">${I.pencil}Wijzigen</button></div>`:sumHtml(q,c,di,isMain);
+    if(!editR.has(di)&&q.f.some(n=>n))return regelKaart(r,q,c,di,isMain);
     return `<div class="ow-calc" data-calc="${di}">${q.f.some(n=>n)?`<div style="display:flex;justify-content:flex-end"><button type="button" class="small" data-rdone="${di}">${I.check}Klaar met wijzigen</button></div>`:""}
       <label>Werkomschrijving<textarea data-i="${di}" data-rk="oms" style="min-height:56px" placeholder="Bijv. wassen ramen incl. kozijnen">${esc(q.oms||"")}</textarea></label>
       <p class="ow-note">Prijs en tijdsduur worden per verdieping berekend uit je tarieven (prijs en seconden per raam). Pas Overschrijvende prijs of tijdsduur alleen aan als je er bewust van wilt afwijken. Berekenen rekent alles opnieuw uit met de ingevoerde aantallen. Afspraken die al ingepland zijn veranderen niet.</p>
@@ -105,6 +105,14 @@ function openOpdrachtWerk(kid,focus){
           <label>Tijdsduur<span class="ow-in"><i>${I.clock}</i><input data-i="${di}" data-rk="td" type="number" step="1" min="0" value="${esc(q.td??"")}" placeholder="${esc(String(Math.ceil(c.rows.reduce((a,r)=>a+r.min,0))||0))}"><em>min</em></span></label>
         </div>${q.tp!==""||q.td!==""||q.start!==""?`<button type="button" class="linkbtn" data-ovclr="${di}">Overschrijvingen wissen</button>`:""}</div></div>`};
   /* overzicht van de ramen per verdieping (zoals na opslaan), met potlood om te wijzigen */
+  /* opdrachtregel als overzichtelijke kaart: omschrijving, minimumprijs, aantallen per verdieping en totaal */
+  const regelKaart=(r,q,c,di,isMain)=>{const base=isMain?mF:Number(r.frequentie)||null,naam=r.dienst||"Glasbewassing",min=Number(c.c&&c.c.min)||0;
+    const fqT=w=>{const t=String(freqLabel(w)||"");return /^elke\s/i.test(t)?"1x per "+t.replace(/^elke\s+/i,""):t.toLowerCase()};
+    return `<div class="ow-rk" data-calc="${di}"><div class="ow-rkh"><span class="objic">${I.check}</span><b>${esc(naam)}</b><span class="sp"></span><button type="button" class="iconbtn sm" data-redit="${di}" aria-label="Wijzigen" title="Wijzigen">${I.pencil}</button></div>
+      ${q.oms?`<p class="ow-rko">${esc(q.oms)}</p>`:""}
+      ${min>0&&!c.totOver?`<div class="ow-rkl"><b>Let op:</b> ${esc(naam)} heeft een minimumprijs van <b>${eur(min)}</b> (excl. btw).${c.glas<=min+0.005&&c.rows.reduce((a,x)=>a+x.calcP,0)<min?" Deze opdracht valt nu onder het minimum.":""} Gebruik een opdrachtspecifieke dienst als je een lagere prijs wilt.</div>`:""}
+      <dl class="ow-rkf">${q.f.map((n,j)=>{if(!n)return"";const w=Number(q.fq[j])||base;return `<dt>${FLN[j]}</dt><dd>${n} st${w?` <i>(${esc(fqT(w))})</i>`:""}</dd>`}).join("")}</dl>
+      <dl class="ow-rkt">${c.start?`<dt>Starttarief</dt><dd>${eur(c.start)}</dd>`:""}<dt>Totaal ${esc(naam)}</dt><dd>${eur(c.ex)} <small>excl. btw</small></dd></dl></div>`};
   const sumHtml=(q,c,di,isMain)=>{const base=isMain?mF:null,has=v=>v!==""&&v!=null;
     return `<div class="ow-calc ow-sum" data-calc="${di}"><div class="ow-sumh"><b>Ramen per verdieping</b><button type="button" class="small" data-redit="${di}">${I.pencil}Wijzigen</button></div>
       ${q.oms?`<p class="ow-oms">${esc(q.oms)}</p>`:""}

@@ -2543,3 +2543,17 @@ aside nav button .badge{font-size:10.5px}
 /* tijden langs het rooster: elk tijdvak een label, hele uren duidelijk */
 .tg-times span.hh{font-weight:500!important;opacity:.55;font-size:11px!important}
 .tg-times span.hu{font-weight:700;color:var(--ink-2,var(--muted))}
+/* opdrachtregel-kaart (zoals in het vorige CRM, in onze stijl) */
+.ow-line.main:has(.ow-rk){padding:0!important;background:transparent!important;border:0!important}
+.ow-line.main:has(.ow-rk) .ow-lsave{display:none}
+.ow-rk{display:flex;flex-direction:column;gap:12px;padding:14px 16px 14px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+.ow-rkh{display:flex;align-items:center;gap:10px}.ow-rkh b{font-size:15px;font-weight:650}.ow-rkh .objic{width:30px;height:30px;border-radius:9px}.ow-rkh .objic svg{width:15px;height:15px}
+.ow-rko{margin:0;font-size:14px;line-height:1.55;white-space:pre-line;color:var(--ink)}
+.ow-rkl{font-size:13px;line-height:1.55;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,#e09a2b 10%,var(--surface));color:color-mix(in srgb,#8a5a12 85%,var(--ink));border:1px solid color-mix(in srgb,#e09a2b 22%,transparent)}
+.ow-rkl b{font-weight:650}
+.ow-rkf,.ow-rkt{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 16px;margin:0;font-size:14px}
+.ow-rkf{padding-top:12px;border-top:1px solid var(--line)}
+.ow-rkf dt{font-weight:600}.ow-rkf dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}.ow-rkf dd i{color:var(--muted);font-size:13px}
+.ow-rkt{padding-top:10px;border-top:1px dashed var(--line)}
+.ow-rkt dt{font-weight:650}.ow-rkt dd{margin:0;text-align:right;font-weight:650;font-variant-numeric:tabular-nums}.ow-rkt dd small{font-weight:500;color:var(--muted);font-size:12px}
+.ow-rkh .sp{flex:1}
