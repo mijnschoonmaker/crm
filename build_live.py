@@ -8,7 +8,7 @@ fb = "".join(f'<script src="https://www.gstatic.com/firebasejs/{V}/firebase-{m}-
 head = f'''<!doctype html>
 <html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#137a8a"><meta name="robots" content="noindex">
-<link rel="icon" href="/favicon.ico?v=3" sizes="any"><link rel="icon" href="/favicon-32.png?v=3" type="image/png" sizes="32x32"><link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3"><link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/ms-logo-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/ms-logo-512.png" type="image/png" sizes="512x512"><link rel="shortcut icon" href="/favicon.ico?v=4"><link rel="apple-touch-icon" href="/ms-logo-180.png"><link rel="manifest" href="/manifest.json">
 {fb}<script src="/config.js"></script>
 <script>{open("shim.js").read()}</script>
 '''
