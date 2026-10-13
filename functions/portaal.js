@@ -80,6 +80,9 @@ module.exports = function maakPortaal(ctx) {
     const inc = incl ? sum : sum * (1 + btw), ex = incl ? sum / (1 + btw) : sum;
     return { ex: r2(ex), btw: r2(inc - ex), inc: r2(inc) };
   }
+  /* hoe snel betaald: van het versturen van de factuur tot de betaling (alleen als beide tijden bekend zijn) */
+  const snelUren = f => { if (f.status !== "betaald" || !f.betaaldTs) return null; const van = Date.parse(f.verstuurdOp || f.gemaakt || ""), tot = Date.parse(f.betaaldTs); if (!(van > 0 && tot >= van)) return null; return Math.round((tot - van) / 36e5 * 10) / 10; };
+  const zelfdeDag = f => !!(f.betaaldTs && (f.verstuurdOp || f.gemaakt) && isoNL(new Date(f.betaaldTs)) === isoNL(new Date(f.verstuurdOp || f.gemaakt)));
   const fStatus = f => f.status === "betaald" ? "betaald" : f.status === "oninbaar" ? "gesloten" : f.verval && f.verval < isoNL() ? "verlopen" : "open";
   const bedrijfInfo = (b, base) => ({ naam: b.naam || "mijnschoonmaker.com", logo: (b.logoMail || b.logo) ? base + "/_blob/" + (b.logoMail || b.logo) : "", telefoon: b.telefoon || "", mobiel: b.mobiel || b.telefoon || "", email: b.email || "", website: b.website || "", iban: b.iban || "", reviewLink: b.reviewLink || "", kleur: b.mailAccent || b.hoofdkleur || "#137a8a",
     voorwaarden: b.voorwaardenPdf ? base + "/_blob/" + b.voorwaardenPdf : "", tijdWeergave: b.portaalTijd || "venster", refAan: b.refAan !== false, refBeloning: b.refBeloning != null && b.refBeloning !== "" ? Number(b.refBeloning) : 15, refWelkom: b.refWelkom != null && b.refWelkom !== "" ? Number(b.refWelkom) : 10, werkStart: b.werkStart || "08:00" });
@@ -97,7 +100,7 @@ module.exports = function maakPortaal(ctx) {
     ]);
     const beurten = bs.docs.map(d => ({ id: d.id, ...dec(d.data()) })).filter(x => x.datum).sort((a, b2) => b2.datum.localeCompare(a.datum));
     const facturen = fs.docs.map(d => ({ id: d.id, ...dec(d.data()) })).filter(f => f.soort !== "offerte" && f.status !== "concept").sort((a, b2) => String(b2.datum).localeCompare(String(a.datum)))
-      .map(f => ({ id: f.id, nummer: f.nummer || "", datum: f.datum || "", verval: f.verval || "", bedrag: totals(f, b).inc, status: fStatus(f), betaaldOp: f.status === "betaald" ? String(f.betaaldOp || f.betaald || "").slice(0, 10) : "", herinnerd: Number(f.herinneringen) || 0, betaallink: f.status !== "betaald" ? (f.betaallink || f.mollieLink || "") : "" }));
+      .map(f => ({ id: f.id, nummer: f.nummer || "", datum: f.datum || "", verval: f.verval || "", bedrag: totals(f, b).inc, status: fStatus(f), betaaldOp: f.status === "betaald" ? String(f.betaaldOp || f.betaald || "").slice(0, 10) : "", snelUren: snelUren(f), herinnerd: Number(f.herinneringen) || 0, betaallink: f.status !== "betaald" ? (f.betaallink || f.mollieLink || "") : "" }));
     const freqW = Number(k.frequentie) || 4;
     let volgende = null;
     if (k.gepland && k.gepland >= vandaag) volgende = { datum: k.gepland, tijd: k.tijd || "", bezig: !!k.bezig && k.gepland === vandaag, reeks: (k.reeks || []).filter(x => x && x.d > k.gepland).slice(0, 12).map(x => ({ datum: x.d, tijd: x.t || "" })) };
@@ -231,6 +234,16 @@ module.exports = function maakPortaal(ctx) {
       if (pad === "/merk" && req.method === "GET") {
         const b = await bedrijf(), id = b.logo || b.logoMail || "";
         res.set("cache-control", "public, max-age=300"); res.json({ naam: b.naam || "", logo: id ? basisUrl(req) + "/_blob/" + id : "" }); return;
+      }
+      /* na het betalen via Mollie: korte bedankpagina, ook zonder in te loggen (het factuurnummer-id is niet te raden) */
+      if (pad === "/bedankt" && req.method === "GET") {
+        const id = String(req.query.id || "");
+        if (!/^[\w-]{1,60}$/.test(id)) { res.status(404).json({}); return; }
+        const fs_ = await db.doc("facturen/" + id).get();
+        if (!fs_.exists || fs_.data().soort === "offerte") { res.status(404).json({}); return; }
+        const f = dec(fs_.data()); let voornaam = "";
+        try { const kd = await db.doc("klanten/" + f.klantId).get(); if (kd.exists) { const k = dec(kd.data()); voornaam = voornaamVan(schoon(k.contact || k.naam)); } } catch (e) {}
+        res.json({ betaald: f.status === "betaald", nummer: f.nummer || "", uren: snelUren(f), zelfdeDag: zelfdeDag(f), voornaam }); return;
       }
       if (pad === "/ref" && req.method === "GET") {
         const c = String(req.query.c || "").toUpperCase();

@@ -191,7 +191,7 @@ exports.mollieLink = onCall(async req => {
     body: JSON.stringify({
       amount: { currency: "EUR", value: val.toFixed(2) },
       description: String(omschrijving || "Factuur " + (f.data().nummer || factuurId)).slice(0, 255),
-      redirectUrl: b.website || "https://mijnschoonmaker.com",
+      redirectUrl: site ? site + "/portaal?betaald=" + encodeURIComponent(factuurId) : (b.website || "https://mijnschoonmaker.com"),
       webhookUrl: site + "/api/mollie",
       metadata: { factuurId }
     })
@@ -209,7 +209,7 @@ exports.mollieHook = onRequest(async (req, res) => {
     const fid = p.metadata && p.metadata.factuurId;
     if (fid) {
       const ref = db.doc("facturen/" + fid), upd = { mollieStatus: p.status };
-      if (p.status === "paid") Object.assign(upd, { status: "betaald", betaald: true, betaaldOp: (p.paidAt || nu()).slice(0, 10), betaalwijze: "mollie" });
+      if (p.status === "paid") Object.assign(upd, { status: "betaald", betaald: true, betaaldOp: (p.paidAt || nu()).slice(0, 10), betaaldTs: p.paidAt || nu(), betaalwijze: "mollie" });
       await ref.set(upd, { merge: true });
       if (p.status === "paid") {
         const bs = await db.collection("beurten").where("gefactureerd", "==", fid).get();

@@ -2,30 +2,54 @@
 const HUIS='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11.2 12 4l8.5 7.2V20a1 1 0 0 1-1 1h-5v-6h-5v6h-5a1 1 0 0 1-1-1z"/></svg>';
 function motTekst(done,total){const todo=total-done;
   if(!total)return"";if(!done)return"Klaar voor de start? Het eerste adres wacht.";
-  if(!todo)return total>1?`Dag klaar! ${total} woningen gedaan, top gewerkt 🎉`:"Klaar! Top gewerkt 🎉";
+  if(!todo)return total>1?`Dag klaar! ${total} woningen gedaan, top gewerkt`:"Klaar! Top gewerkt";
   if(todo===1)return"Nog één adres, bijna klaar!";
-  if(done/total>=.5)return`Over de helft, goed bezig! 💪 Nog ${todo} te gaan`;
+  if(done/total>=.5)return`Over de helft, goed bezig! Nog ${todo} te gaan`;
   return`Lekker op gang · ${done} ${done===1?"woning":"woningen"} gedaan`}
 function huisjes(done,total,nieuw){if(!total)return"";const max=16,n=Math.min(total,max),d=Math.round(done/total*n);
   return `<div class="huisjes" role="img" aria-label="${done} van ${total} woningen gedaan">${Array.from({length:n},(_,i)=>`<i class="${i<d?"af":""}${nieuw&&i===d-1?" pop":""}">${HUIS}</i>`).join("")}${total>max?`<small>+${total-max}</small>`:""}</div>`}
 function motBlok(done,total){if(!total)return"";return `<div class="motb">${huisjes(done,total)}<p>${esc(motTekst(done,total))}</p></div>`}
 const FEEST_WOORD=["Yes!","Top!","Lekker!","Mooi werk!","Strak!","Netjes!"];
+/* echte confetti: papiertjes met zwaartekracht, luchtweerstand, dwarrelen en kantelen (canvas, achter de kaart) */
+function confetti(host,{n=170,kleuren}={}){if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  const kl=kleuren||["#1f8fa8","#2bb673","#7fd8c0","#0f5c6e","#9fd4ff","#3fd08b","#ffffff","#ff8a7a"];
+  const c=document.createElement("canvas");c.className="fc-canvas";host.prepend(c);
+  const dpr=Math.min(2,window.devicePixelRatio||1),W=innerWidth,H=innerHeight;c.width=W*dpr;c.height=H*dpr;const x=c.getContext("2d");x.scale(dpr,dpr);
+  const tint=(h,f)=>{const v=parseInt(h.slice(1),16);let r=v>>16,g=v>>8&255,b=v&255;r=Math.round(r*f);g=Math.round(g*f);b=Math.round(b*f);return`rgb(${Math.min(255,r)},${Math.min(255,g)},${Math.min(255,b)})`};
+  const P=[],R=Math.random,add=(ox,oy,ang,spr,vel,cnt)=>{for(let i=0;i<cnt;i++){const a=ang+(R()-.5)*spr,v=vel*(.5+R()*.7),col=kl[(R()*kl.length)|0];
+    P.push({x:ox,y:oy,vx:Math.cos(a)*v,vy:Math.sin(a)*v,w:7+R()*6,h:10+R()*10,rot:R()*6.28,vr:(R()-.5)*.25,fl:R()*6.28,vf:.06+R()*.14,wb:R()*6.28,vw:.04+R()*.07,rond:R()<.14,c1:tint(col,1),c2:tint(col,.72),d:.955+R()*.02})}};
+  const v0=Math.max(32,Math.min(60,H*.06));
+  add(-10,H*.95,-Math.PI*.36,.4,v0,n*.28);add(W+10,H*.95,-Math.PI*.64,.4,v0,n*.28);add(W/2,H*.46,-Math.PI/2,Math.PI*2,14,n*.12);
+  /* en een zachte regen van boven, zodat het ook na de knal nog even dwarrelt */
+  for(let i=0;i<n*.32;i++){const col=kl[(R()*kl.length)|0];P.push({x:R()*W,y:-20-R()*H*.6,vx:(R()-.5)*1.5,vy:1+R()*2,w:7+R()*6,h:10+R()*10,rot:R()*6.28,vr:(R()-.5)*.2,fl:R()*6.28,vf:.05+R()*.12,wb:R()*6.28,vw:.03+R()*.06,rond:R()<.14,c1:tint(col,1),c2:tint(col,.72),d:.97})}
+  let t0=performance.now(),last=t0;
+  const stap=nu=>{const dt=Math.min(2.5,(nu-last)/16.7);last=nu;const el=nu-t0;x.clearRect(0,0,W,H);let leeft=0;
+    for(const p of P){p.vx*=Math.pow(p.d,dt);p.vy=p.vy*Math.pow(p.d,dt)+.42*dt;const term=1.7+Math.abs(Math.cos(p.fl))*1.5;if(p.vy>term)p.vy=term+(p.vy-term)*.85;
+      p.wb+=p.vw*dt;p.x+=(p.vx+Math.sin(p.wb)*1.3)*dt;p.y+=p.vy*dt;p.rot+=p.vr*dt;p.fl+=p.vf*dt;
+      if(p.y>H+30)continue;leeft++;const sy=Math.cos(p.fl);
+      x.save();x.translate(p.x,p.y);x.rotate(p.rot);x.globalAlpha=el>6400?Math.max(0,1-(el-6400)/900):1;x.fillStyle=sy>0?p.c1:p.c2;
+      if(p.rond){x.beginPath();x.ellipse(0,0,p.w*.45,p.w*.45*Math.abs(sy)+.4,0,0,6.283);x.fill()}else x.fillRect(-p.w/2,-p.h/2*Math.abs(sy),p.w,p.h*Math.abs(sy)+.5);
+      x.restore()}
+    if(leeft&&el<7400&&c.isConnected)requestAnimationFrame(stap);else c.remove()};
+  requestAnimationFrame(stap)}
+/* kaart weg, confetti mag uitdwarrelen */
+function laatDwarrelen(el){const cv=el.querySelector(".fc-canvas");if(cv){cv.style.position="fixed";cv.style.zIndex="9998";document.body.appendChild(cv)}}
+const VINK='<path d="M6 12.5l4 4 8-9"/>';
 function feest(k){try{
   const day=iso(today()),s=routeStops(day);let total=s.length,done=s.filter(x=>x.done).length;
   const st=s.find(x=>x.k.id===k.id);if(!st){total++;done++}else if(!st.done)done++;done=Math.min(done,total);
   const klaar=done>=total,a=jobAddrObj(k),todo=total-done;
   const old=document.getElementById("feest");if(old)old.remove();
   const el=document.createElement("div");el.id="feest";el.className="feest"+(klaar?" groot":"");el.setAttribute("aria-live","polite");
-  const kl=["#2bb673","#f2b632","#3d8bfd","#ff6b6b","#1f8fa8","#a46bff"];
-  const conf=matchMedia("(prefers-reduced-motion: reduce)").matches?"":Array.from({length:klaar?60:30},(_,i)=>{const h=(Math.random()*2-1),v=.6+Math.random()*.8;
-    return `<i style="--x:${(h*(klaar?420:260)).toFixed(0)}px;--y:${(-v*(klaar?360:240)).toFixed(0)}px;--r:${(Math.random()*720-360).toFixed(0)}deg;--c:${kl[i%kl.length]};--d:${(Math.random()*.15).toFixed(2)}s;${i%3?"":"border-radius:50%;"}"></i>`}).join("");
-  el.innerHTML=`<div class="feest-conf">${conf}</div><div class="feest-k">
-    <div class="feest-v"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="23"/><path d="M15 27l7 7 15-16"/></svg></div>
-    <b>${klaar?"Dag klaar! 🎉":FEEST_WOORD[Math.floor(Math.random()*FEEST_WOORD.length)]+" "+esc(a.adres||cleanName(k.naam))+" gedaan"}</b>
-    <span>${klaar?(total>1?`Alle ${total} woningen gedaan. Top gewerkt!`:"Alles gedaan voor vandaag. Top gewerkt!"):`${done} van ${total} klaar · nog ${todo} te gaan`}</span>
-    ${huisjes(done,total,true)}</div>`;
-  document.body.appendChild(el);try{navigator.vibrate&&navigator.vibrate(klaar?[40,60,40,60,80]:[30,40,30])}catch(e){}
-  const weg=()=>{el.classList.add("weg");setTimeout(()=>el.remove(),350)};el.addEventListener("click",weg);setTimeout(weg,klaar?3200:1900)}catch(e){console.error(e)}}
+  el.innerHTML=`<div class="feest-k gk ${klaar?"gk-klaar":"gk-groen"}">
+    <div class="gk-top"><span class="gk-glow"></span><div class="gk-ic"><span class="fv-r"></span><span class="fv-r r2"></span><span class="gk-c"><svg viewBox="0 0 24 24">${VINK}</svg></span></div>
+      <span class="gk-l">${klaar?(total>1?`Alle ${total} woningen gedaan`:"Alles gedaan"):`${done} van ${total} klaar`}</span></div>
+    <div class="gk-body"><b class="gk-t">${klaar?"Dag klaar!":FEEST_WOORD[Math.floor(Math.random()*FEEST_WOORD.length)]}</b>
+      <span class="gk-w">${klaar?"Top gewerkt vandaag, rust lekker uit.":esc(a.adres||cleanName(k.naam))+" is klaar"}</span>
+      ${huisjes(done,total,true)}
+      ${klaar?"":`<div class="gk-meta"><span>Nog ${todo} ${todo===1?"adres":"adressen"} te gaan</span></div>`}</div></div>`;
+  document.body.appendChild(el);confetti(el,{n:klaar?220:120});try{navigator.vibrate&&navigator.vibrate(klaar?[40,60,40,60,80]:[30,40,30])}catch(e){}
+  const weg=()=>{laatDwarrelen(el);el.classList.add("weg");setTimeout(()=>el.remove(),350)};el.addEventListener("click",weg);setTimeout(weg,klaar?3600:2400)}catch(e){console.error(e)}}
 
 /* ---------- Betaald via Mollie: geld-melding met confetti en kassageluid ---------- */
 let betaalVorig=null;
@@ -37,18 +61,17 @@ function kassa(){try{const A=new (window.AudioContext||window.webkitAudioContext
 function geldFeest(f){try{
   const old=document.getElementById("feest");if(old)old.remove();
   const bedrag=totals(f).inc,el=document.createElement("div");el.id="feest";el.className="feest geld";
-  const conf=matchMedia("(prefers-reduced-motion: reduce)").matches?"":Array.from({length:46},(_,i)=>{const h=Math.random()*2-1,v=.6+Math.random()*.9,munt=i%3===0;
-    return `<i class="${munt?"munt":""}" style="--x:${(h*380).toFixed(0)}px;--y:${(-v*320).toFixed(0)}px;--r:${(Math.random()*720-360).toFixed(0)}deg;--c:${["#f2b632","#2bb673","#ffd76a","#1f9a63","#3d8bfd"][i%5]};--d:${(Math.random()*.2).toFixed(2)}s">${munt?"€":""}</i>`}).join("");
-  el.innerHTML=`<div class="feest-conf">${conf}</div><div class="feest-k">
-    <div class="geld-ic">€</div>
-    <span class="geld-l">Betaald via iDEAL</span>
-    <b class="geld-b" id="geldB">${eur(0)}</b>
-    <span>${esc(cleanName(f.klantNaam||""))} · factuur ${esc(f.nummer||"")}</span>
-    <button type="button" class="small" data-geldf="${esc(f.id)}">Bekijk factuur</button></div>`;
-  document.body.appendChild(el);kassa();try{navigator.vibrate&&navigator.vibrate([20,30,20,30,60])}catch(e){}
+  el.innerHTML=`<div class="feest-k gk">
+    <div class="gk-top"><span class="gk-glow"></span><div class="gk-ic"><span class="fv-r"></span><span class="fv-r r2"></span><span class="gk-c"><svg viewBox="0 0 24 24"><path d="M16.5 7.2A5.8 5.8 0 1 0 16.5 16.8"/><path d="M5.5 10.5h7.5M5.5 13.5h7.5"/></svg></span></div>
+      <span class="gk-l"><svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9"/></svg>Betaling ontvangen</span></div>
+    <div class="gk-body"><b class="geld-b" id="geldB">${eur(0)}</b>
+      <span class="gk-w">${esc(cleanName(f.klantNaam||""))}</span>
+      <div class="gk-meta"><span>Factuur ${esc(f.nummer||"")}</span><i></i><span>iDEAL</span><i></i><span>zojuist</span></div>
+      <button type="button" class="primary gk-b" data-geldf="${esc(f.id)}">Bekijk factuur</button></div></div>`;
+  document.body.appendChild(el);confetti(el,{n:190});kassa();try{navigator.vibrate&&navigator.vibrate([20,30,20,30,60])}catch(e){}
   const B=$("#geldB"),t0=performance.now(),dur=900;const stap=n=>{const p=Math.min(1,(n-t0)/dur),e=1-Math.pow(1-p,3);B.textContent=eur(bedrag*e);if(p<1)requestAnimationFrame(stap)};requestAnimationFrame(stap);
   const knop=el.querySelector("[data-geldf]");knop.onclick=e=>{e.stopPropagation();el.remove();openFactuur(f.id)};
-  const weg=()=>{el.classList.add("weg");setTimeout(()=>el.remove(),350)};el.addEventListener("click",weg);setTimeout(()=>{if(el.isConnected&&!el.matches(":hover"))weg()},5000)}catch(e){console.error(e)}}
+  const weg=()=>{laatDwarrelen(el);el.classList.add("weg");setTimeout(()=>el.remove(),350)};el.addEventListener("click",weg);setTimeout(()=>{if(el.isConnected&&!el.matches(":hover"))weg()},5000)}catch(e){console.error(e)}}
 function betaalCheck(){if(!state.loaded||isMw())return;const nu={};state.facturen.forEach(f=>{if(f.soort!=="offerte")nu[f.id]=f.status});
   if(betaalVorig){
     state.facturen.filter(f=>f.status==="betaald"&&betaalVorig[f.id]&&betaalVorig[f.id]!=="betaald"&&f.betaalwijze==="mollie"&&String(f.betaaldOp||"").slice(0,10)>=iso(addDays(today(),-1))).slice(0,1).forEach(geldFeest)}

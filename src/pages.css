@@ -2075,8 +2075,6 @@ body.mw .jp-svc>div>span:last-child:not(.jp-ic){display:none}
 .feest-k b{font-size:20px;letter-spacing:-.02em;margin-top:6px}
 .feest-k span{color:var(--muted);font-size:14px;font-weight:600}
 .feest-k .huisjes{justify-content:center;margin-top:10px}
-.feest-v{width:74px;height:74px}
-.feest-v svg{width:100%;height:100%;fill:none;stroke-linecap:round;stroke-linejoin:round}
 .feest-v circle{stroke:#2bb673;stroke-width:3.5;fill:color-mix(in srgb,#2bb673 12%,transparent);stroke-dasharray:145;stroke-dashoffset:145;animation:feestTr .55s ease-out .1s forwards}
 .feest-v path{stroke:#1f9a63;stroke-width:4.5;stroke-dasharray:40;stroke-dashoffset:40;animation:feestTr .35s ease-out .55s forwards}
 .feest.groot .feest-k{padding:32px 34px 26px}.feest.groot .feest-k b{font-size:26px}.feest.groot .feest-v{width:92px;height:92px}
@@ -2096,3 +2094,79 @@ body.mw .jp-svc>div>span:last-child:not(.jp-ic){display:none}
 .feest.geld .feest-k button{margin-top:10px}
 .feest-conf i.munt{width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff4c4,#f6c94c 50%,#d99a14);color:#7a5200;font:800 12px/22px Manrope,sans-serif;text-align:center}
 .feest.geld .feest-conf i{animation-duration:2s}
+/* feest v2 */
+.feest{background:radial-gradient(ellipse at 50% 45%,rgba(43,182,115,.14),rgba(12,32,28,.10) 70%);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+.feest.geld{background:radial-gradient(ellipse at 50% 45%,rgba(242,182,50,.20),rgba(12,32,28,.10) 70%)}
+.fc-regen{position:absolute;inset:0;overflow:hidden;z-index:0}
+.fc-regen i{position:absolute;top:-24px;width:var(--w);height:var(--h);background:var(--c);border-radius:2px;opacity:0;animation:fcVal var(--t) cubic-bezier(.3,.1,.6,1) var(--d) forwards}
+@keyframes fcVal{0%{opacity:0;transform:translate(0,0) rotate(0)}8%{opacity:1}85%{opacity:1}100%{opacity:0;transform:translate(var(--s),calc(100vh + 40px)) rotate(var(--r))}}
+.fc-knal{position:absolute;left:50%;top:48%;width:0;height:0;z-index:0}
+.fc-knal i{position:absolute;width:8px;height:12px;margin:-6px 0 0 -4px;background:var(--c);border-radius:2px;opacity:0;animation:fcKnal 1.3s cubic-bezier(.12,.75,.3,1) var(--d) forwards}
+@keyframes fcKnal{0%{opacity:1;transform:translate(0,0) rotate(0) scale(.6)}75%{opacity:1}100%{opacity:0;transform:translate(var(--x),calc(var(--y) + 120px)) rotate(var(--r)) scale(1)}}
+.feest-k{position:relative;z-index:1;width:min(340px,calc(100vw - 40px));padding:30px 26px 22px!important;gap:4px!important;border-radius:30px!important;
+  background:linear-gradient(180deg,color-mix(in srgb,#2bb673 9%,var(--surface)) 0,var(--surface) 48%)!important;
+  box-shadow:0 40px 90px -24px rgba(8,40,28,.45),0 0 0 1px rgba(0,0,0,.035),inset 0 1px 0 rgba(255,255,255,.7)!important}
+.feest.geld .feest-k{background:linear-gradient(180deg,color-mix(in srgb,#f2b632 12%,var(--surface)) 0,var(--surface) 50%)!important}
+.feest-v{position:relative;width:84px!important;height:84px!important;display:grid;place-items:center;margin-bottom:8px}
+.fv-c{position:relative;z-index:1;width:66px;height:66px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#3fd08b,#1d9a62);box-shadow:0 12px 26px -8px rgba(29,154,98,.6),inset 0 1px 0 rgba(255,255,255,.35);animation:fvIn .6s cubic-bezier(.3,1.6,.5,1) both}
+.fv-c svg{width:34px;height:34px;fill:none;stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.fv-c path{stroke-dasharray:22;stroke-dashoffset:22;animation:feestTr .35s ease-out .35s forwards}
+.fv-r{position:absolute;inset:9px;border-radius:50%;border:2px solid rgba(43,182,115,.45);animation:fvRing 1.6s ease-out .25s infinite}
+.fv-r.r2{animation-delay:.8s}
+@keyframes fvIn{from{transform:scale(.2);opacity:0}}
+@keyframes fvRing{0%{transform:scale(.8);opacity:.9}100%{transform:scale(1.55);opacity:0}}
+.feest-k b{font-size:26px!important;letter-spacing:-.035em;margin:2px 0 0!important;font-weight:800}
+.feest-k>span{font-size:14.5px!important;color:var(--muted);font-weight:600}
+.feest-k .huisjes{margin-top:16px!important;gap:7px}
+.feest-k .huisjes i{width:34px;height:34px;border-radius:11px}
+.feest-k .huisjes i svg{width:19px;height:19px}
+.fk-n{margin-top:12px;font-size:12.5px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums;letter-spacing:.01em}
+.feest.groot .feest-k b{font-size:30px!important}
+.feest.groot .fv-c{width:76px;height:76px}.feest.groot .feest-v{width:96px!important;height:96px!important}
+.feest-v circle{display:none}
+@media (prefers-reduced-motion:reduce){.fv-c,.fv-r{animation:none}.fv-c path{animation:none;stroke-dashoffset:0}}
+.feest-v .fv-c path{stroke:#fff;stroke-width:2.6;stroke-dasharray:22;stroke-dashoffset:22;animation:feestTr .35s ease-out .35s forwards}
+/* geldmelding v2: rustig, in huisstijl */
+.feest.geld{background:radial-gradient(ellipse at 50% 45%,rgba(31,143,168,.18),rgba(8,30,36,.16) 70%)}
+.feest-k.gk{padding:0!important;gap:0!important;overflow:hidden;width:min(360px,calc(100vw - 40px));background:var(--surface)!important}
+.gk-top{position:relative;padding:30px 20px 22px;display:flex;flex-direction:column;align-items:center;gap:14px;background:linear-gradient(150deg,#1f8fa8 0%,#17708a 45%,#0e4a5c 100%);color:#fff;overflow:hidden}
+.gk-glow{position:absolute;width:260px;height:260px;border-radius:50%;top:-120px;left:50%;transform:translateX(-50%);background:radial-gradient(circle,rgba(255,255,255,.28),transparent 65%);pointer-events:none}
+.gk-ic{position:relative;width:88px;height:88px;display:grid;place-items:center}
+.gk-ic .fv-r{inset:10px;border-color:rgba(255,255,255,.55)}
+.gk-c{position:relative;z-index:1;width:68px;height:68px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.16);border:1.5px solid rgba(255,255,255,.4);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 14px 30px -10px rgba(0,0,0,.35);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:fvIn .6s cubic-bezier(.3,1.6,.5,1) both}
+.gk-c svg{width:34px;height:34px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round}
+.gk-l{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);padding:6px 12px 6px 9px;border-radius:999px}
+.gk-l svg{width:14px;height:14px;fill:none;stroke:#7ff0bf;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.gk-body{display:flex;flex-direction:column;align-items:center;gap:4px;padding:22px 24px 22px;text-align:center}
+.feest-k.gk .geld-b{font-size:44px!important;font-weight:800;letter-spacing:-.045em;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
+.gk-w{font-size:15.5px!important;font-weight:700!important;color:var(--ink)!important;margin-top:8px}
+.gk-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;font-size:12.5px;color:var(--muted);font-weight:600}
+.gk-meta i{width:3px;height:3px;border-radius:50%;background:currentColor;opacity:.6}
+.gk-b{margin-top:16px;width:100%;justify-content:center;padding:12px!important;border-radius:14px!important}
+.feest-k.gk>.gk-top,.feest-k.gk>.gk-body{align-self:stretch}
+.feest.geld .feest-k.gk{background:var(--surface)!important}
+.feest-k.gk .gk-l{color:#fff!important;font-size:11.5px!important;font-weight:800!important}
+.feest-k.gk .gk-meta span{font-size:12.5px!important;color:var(--muted)!important;font-weight:600!important}
+/* feest v3: canvas-confetti + kaart in huisstijl */
+.fc-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.feest{background:radial-gradient(ellipse at 50% 45%,rgba(43,182,115,.12),rgba(8,30,36,.22) 75%)!important}
+.feest-k.gk{width:min(350px,calc(100vw - 40px))}
+.gk-groen .gk-top{background:linear-gradient(150deg,#2fbf80 0%,#1d9a6c 50%,#0f6a5a 100%)}
+.gk-klaar .gk-top{background:linear-gradient(150deg,#2fbf80 0%,#178a72 45%,#0e4a5c 100%);padding:36px 20px 26px}
+.gk-c svg path{stroke-dasharray:24;stroke-dashoffset:24;animation:feestTr .4s ease-out .35s forwards}
+.gk-groen .gk-c svg,.gk-klaar .gk-c svg{stroke-width:2.8}
+.gk-t{font-size:28px!important;font-weight:800;letter-spacing:-.04em;line-height:1.05;color:var(--ink);margin:0!important}
+.gk-klaar .gk-t{font-size:32px!important}
+.feest-k.gk .gk-w{font-size:15px!important;font-weight:600!important;color:var(--muted)!important;margin-top:6px}
+.feest-k.gk .huisjes{margin-top:16px!important}
+.feest-k.gk .gk-meta{margin-top:12px}
+.feest-k.gk .feest-v{display:none}
+/* icoon: kleiner, wit, rustig */
+.gk-ic{width:76px!important;height:76px!important}
+.gk-ic .fv-r{inset:10px;border-width:1.5px;border-color:rgba(255,255,255,.45)}
+.gk-ic .fv-r.r2{display:none}
+.gk-c{width:56px!important;height:56px!important;background:#fff!important;border:0!important;box-shadow:0 10px 24px -8px rgba(0,30,40,.45),0 0 0 6px rgba(255,255,255,.14)!important}
+.gk-c svg{width:28px!important;height:28px!important;stroke:#17708a!important;stroke-width:2.4!important}
+.gk-groen .gk-c svg,.gk-klaar .gk-c svg{stroke:#1d9a6c!important;stroke-width:3!important}
+.gk-top{padding:26px 20px 20px!important;gap:12px!important}
+.gk-c{padding:0!important;box-sizing:border-box!important}
