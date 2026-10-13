@@ -2362,3 +2362,37 @@ body.an-open{overflow:hidden}
 /* ---------- Alle paginatitels gelijk: rustig, niet te dik ---------- */
 #view h1:not([style]),#view .rh-t,#view h1.xl,#view .vd-hi{font-family:var(--f-body,Manrope),Manrope,system-ui,sans-serif!important;font-weight:600!important;font-size:clamp(26px,3vw,34px)!important;letter-spacing:-.025em!important;line-height:1.12!important}
 #view .rh-t span{font-size:.62em!important}
+
+/* ---------- Grote cijfers en kopjes: rustiger gewicht (geen extra vet) ---------- */
+.big2,
+.bs-nm,
+.bt-clock,
+.daypick button b,
+.empty strong,
+.featc b,
+.kd-pay-c>span,
+.klx .kx-av .kc.kc-tile b,
+.kx-av .kc b,
+.kx-av .kc.kc-tile b,
+.md,
+.minibox b,
+.nm,
+.ns-head h2,
+.oc-big,
+.oc-grid b,
+.planhero b,
+.rd-ring b,
+.rd-s b,
+.ring b,
+.sc-addr,
+.sc-k b,
+.sc-mid b,
+.sn,
+.stat b,
+.stepc b,
+.tg-dh .dh-d b,
+.tg-dh b,
+.tplh b,
+h2{font-weight:600!important}
+.oc-big,.stat b,.rd-s b,.rd-ring b,.ring b,.hero-card .oc-big{letter-spacing:-.025em!important}
+#view .panel h3,#view .panel>h3,#view .ph h3,#view h2{font-weight:600!important}
