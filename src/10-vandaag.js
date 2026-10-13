@@ -58,8 +58,7 @@ function vVandaag(){
   const emptyHtml=!todo.length?(stops.length?empty("Klaar voor vandaag","Alle stops zijn afgerond. Goed gewerkt!"):empty(isT?"Niets op de planning vandaag":"Niets gepland op deze dag","Plan klanten in via Planning, dan staan ze hier.",`<button type="button" class="primary" data-act="tab" data-tab="planning">${I.planning}Naar planning</button>`)):"";
   if(big()){
     return `<div class="withside"><div class="mainc">${top}
-      <div class="strip">${isMw()?"":`<span><b>${eur0(omzet)}</b> / ${eur0(verwacht)}</span>`}<span><b>${doneB.length}</b>/${total} klaar</span><span><b>${todo.length}</b> te gaan</span><span class="strip-bar"><i style="width:${pct}%"></i></span><b class="c-brand">${pct}%</b></div>
-      ${total?`<div class="motd">${motBlok(doneB.length,total)}</div>`:""}
+      ${vdHero(doneB.length,total,todo.length,omzet,verwacht,pct)}
       ${aanmeldBanner()}${noteHtml}${isMw()?"":dueHtml}
       ${todo.length?`<div class="ns-head sm"><h2>Volgende stop</h2><span>${isMw()?"Tik voor adres en instructies · veeg rechts → afmelden":"Veeg of klik · links → factureren · rechts → afmelden"}</span></div><div class="list" style="gap:8px">${todo.map(s=>stopRow(s.k,d)).join("")}</div>
         <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap"><button type="button" data-act="toroute" data-d="${d}">${I.route}Jouw route</button><button type="button" data-act="bulktoday">${I.msg}Bericht aan deze klanten</button></div>`:emptyHtml}
@@ -116,3 +115,11 @@ function openJob(id,day){
   <div class="jp-foot">${done?`<button type="button" disabled>${I.check}Afgerond</button>`:`${day===iso(today())?`<button type="button" data-act="start" data-id="${esc(k.id)}">${isBezig(k)?I.check+"Stop &amp; afmelden "+timerHtml(k):I.play+"Start"}</button>`:""}${isMw()?"":`<button type="button" class="ghost" data-act="factureren" data-id="${esc(k.id)}">${I.facturen}Direct factureren</button>`}<button type="button" class="primary" data-act="afmelden" data-id="${esc(k.id)}">${I.check}Afmelden</button>`}</div>
   </div>`,{drawer:true});
 }
+
+/* ---------- Vandaag: kop in de stijl van het klantportaal ---------- */
+function vdHero(done,total,todo,omzet,verwacht,pct){if(!total)return"";const R=44,C=2*Math.PI*R,klaar=done>=total,mw=isMw();
+  return `<section class="vh${klaar?" klaar":""}"><div class="vh-m"><p class="vh-k">${klaar?"Dag klaar":done?"Onderweg":"Klaar voor de start"} · ${done}/${total}</p>
+    <h2>${esc(klaar?"Top gewerkt vandaag!":motTekst(done,total))}</h2>
+    ${huisjes(done,total)}
+    <div class="vh-st">${mw?"":`<span><small>Verdiend</small><b>${eur0(omzet)}</b><em>van ${eur0(verwacht)}</em></span>`}<span><small>Klaar</small><b>${done}</b><em>adressen</em></span><span><small>Te gaan</small><b>${todo}</b><em>${todo===1?"adres":"adressen"}</em></span></div></div>
+    <div class="vh-r"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="${R}" class="t"/><circle cx="50" cy="50" r="${R}" class="v" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pct/100)}"/></svg><span><b>${pct}%</b><small>klaar</small></span></div></section>`}
