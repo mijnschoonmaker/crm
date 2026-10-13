@@ -3072,6 +3072,16 @@ html.zm .pl-menu{max-height:calc(100dvh / .9 - 190px)}
 .pay-c.nul{background:var(--surface-2)}.pay-c.nul b{color:var(--muted);opacity:.6}.pay-c.nul i{opacity:.4}
 .pay-f{margin:0;font-size:12.5px;color:var(--muted)}.pay-f b{color:var(--ink);font-weight:650}
 .pay-r>span.leeg{font-size:13px;font-weight:600;color:var(--muted)}
+/* reeks-venster: geselecteerd licht grijs in plaats van zwart */
+.rk .rk-m,.rk .rk-n button{background:var(--surface)!important;color:var(--ink)!important;border:1.5px solid var(--line)!important;box-shadow:none!important}
+.rk .rk-m:hover,.rk .rk-n button:hover{border-color:color-mix(in srgb,var(--brand) 35%,var(--line))!important;background:color-mix(in srgb,var(--surface-2) 45%,var(--surface))!important}
+.rk .rk-m.on,.rk .rk-m[aria-pressed=true]{background:var(--surface-2)!important;border-color:color-mix(in srgb,var(--brand) 55%,var(--line))!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 10%,transparent)!important;color:var(--ink)!important}
+.rk .rk-m.on svg{color:var(--brand)!important}.rk .rk-m.on small{color:var(--muted)!important}
+.rk .rk-n button.on,.rk .rk-n button[aria-pressed=true]{background:var(--surface-2)!important;border-color:color-mix(in srgb,var(--brand) 55%,var(--line))!important;color:var(--brand)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 10%,transparent)!important}
+.rk .rk-m{border-radius:16px!important;padding:14px!important}
+.rk .rk-m svg{width:19px;height:19px}
+.rk-list li.eerste .rk-i{background:var(--brand)!important;color:#fff!important}
+.rk .rk-list b{min-width:118px}
 
 </style>
 <div class="app">
