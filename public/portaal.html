@@ -48,6 +48,7 @@ button:disabled{opacity:.55;cursor:default;transform:none}
 aside.side{display:none}
 .topbar{position:sticky;top:0;z-index:8;background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 16px 10px}
 .topbar .sp{flex:1}
+.menu-knop{width:44px;height:44px;display:grid;place-items:center;border:0;padding:0;border-radius:12px;background:transparent;color:var(--ink);flex:none;cursor:pointer}.menu-knop:hover{background:color-mix(in srgb,var(--ink) 6%,transparent)}
 .logo{font-weight:800;font-size:19px;display:flex;align-items:center;gap:10px;letter-spacing:-.02em;color:var(--ink);min-width:0}
 .logo .mk{width:36px;height:36px;border-radius:11px;background:#fff;display:grid;place-items:center;flex:none;overflow:hidden;box-shadow:0 0 0 1px var(--line)}
 .logo .mk img{width:100%;height:100%;object-fit:contain}
@@ -632,7 +633,7 @@ function teken(){
       <p class="nlbl">Mijn klantomgeving</p><nav aria-label="Menu">${nav(false)}</nav><span class="sp"></span>
       <div class="help"><b>Vragen?</b><small>Maak een ticket aan, dan helpen we u snel.</small><button class="primary full" data-act="ticket">${I.ticket}Ticket aanmaken</button></div>
       <div class="usercard"><span class="uav">${esc((k.voornaam||"?")[0].toUpperCase())}</span><div><b>${esc(k.naam)}</b><small>${k.klantnr?"Klant "+esc(k.klantnr):esc(k.adres)}</small></div><button data-uit title="Uitloggen" aria-label="Uitloggen">${I.uit}</button></div></aside>
-    <div><header class="topbar">${logoHtml(merkNaam(),B.logo||"/logo.png")}<span class="sp"></span><button class="uav" data-tab="ik" aria-label="Mijn gegevens">${esc((k.voornaam||"?")[0].toUpperCase())}</button></header>
+    <div><header class="topbar">${logoHtml(merkNaam(),B.logo||"/logo.png")}<span class="sp"></span><button class="menu-knop" data-tab="ik" aria-label="Menu"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button></header>
     <main id="main"${tab==="tickets"&&TK.open?' class="m-chat"':""}>${({home,bezoeken,tickets,facturen,aanbevelen,ik})[tab]()}</main></div></div>
     <nav class="tabs" aria-label="Menu">${nav(true)}</nav>`;
   $$("[data-tab]").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;if(tab==="tickets"){TK.open="";TK.d=null;TK.sig=""}teken();scrollTo({top:0});try{history.replaceState(null,"","#"+tab)}catch(e){}});
