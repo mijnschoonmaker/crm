@@ -201,11 +201,16 @@ function ssData(van,tot,cfg){
     L(cfg.deb,inc,true);L(rate?cfg.omzet:(cfg.omzet0||cfg.omzet),ex,false);if(btw)L(rate>=15?cfg.btwH:cfg.btwL,btw,false);
     if(code&&!rel.has(code)){const src=k||{naam:f.klantNaam};rel.set(code,src)}
   });
-  const qq=v=>v?'"'+String(v).replace(/"/g,'""')+'"':"",pl=v=>String(v||"").replace(/[;\r\n]/g," ");
-  const relRows=[...rel].map(([code,k])=>[code,qq(cleanName(k.naam||"")),qq(cleanName(k.contact||k.naam||"")),qq(k.adres||""),pl(String(k.postcode||"").replace(/\s+/g,"").toUpperCase()),pl(k.plaats),qq(k.telefoon||""),"",pl(k.email)].join(";"));
+  /* klantenbestand zoals DienstenCRM het maakt: alle actieve klanten (plus wie in deze periode een factuur kreeg), op relatiecode */
+  actief().forEach(k=>{const c=klantNr(k);if(c&&!rel.has(c))rel.set(c,k)});
+  const qq=v=>{v=String(v??"").replace(/[\r\n]+/g," ").trim();return /[\s,;"]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+  const relRows=[...rel].sort((a,b)=>(Number(a[0])||0)-(Number(b[0])||0)||String(a[0]).localeCompare(String(b[0]))).map(([code,k])=>{const nm=cleanName(k.naam||"");
+    return [code,qq(nm),qq(cleanName(k.contact||"")||nm),qq(k.adres||""),qq(String(k.postcode||"").replace(/\s+/g,"").toUpperCase()),qq(k.plaats||""),qq(k.telefoon||""),qq(k.fax||""),qq(k.email||"")].join(";")});
   return{fs,rev:"Dagboek;Boekingcode;Datum;Grootboeknummer;Debet;Credit;Omschrijving;Relatiecode;Factuurnummer\r\n"+rows.map(r=>r+"\r\n").join(""),
     cus:"Relatiecode;Naam;Contactpersoon;Adres;Postcode;Plaats;Telefoon;Fax;Email\r\n"+relRows.map(r=>r+"\r\n").join(""),nRel:rel.size};
 }
+/* relatiecodes vastleggen, zodat ze in SnelStart altijd hetzelfde blijven */
+async function ssNrVast(){for(const k of state.klanten.filter(x=>!x.klantnr)){try{await save("klanten",k.id,{...strip(k),klantnr:klantNr(k)})}catch(e){}}}
 function openSnelstart(){
   const s=S(),cfg={...SS_DEF,...(s.snelstart||{})},t=today();
   const van0=cfg.laatst?iso(addDays(parse(cfg.laatst),1)):iso(new Date(t.getFullYear(),t.getMonth(),1));
@@ -222,10 +227,10 @@ function openSnelstart(){
   <div class="row stickyfoot"><span class="sp"></span><button type="button" data-act="close">Sluiten</button></div>`,{wide:true});
   const get=()=>{const c={...cfg};Object.keys(SS_DEF).forEach(k=>c[k]=$("#ss-"+k).value.trim()||SS_DEF[k]);return c};
   const upd=()=>{const d=ssData($("#ss-van").value,$("#ss-tot").value,get());$("#ss-sum").innerHTML=`${I.facturen}<span><b>${plural(d.fs.length,"factuur","facturen")}</b> · ${plural(d.nRel,"klant","klanten")} · ${eur(d.fs.reduce((a,f)=>a+totals(f).inc,0))} incl. btw</span>`;
-    $("#ss-nk").textContent=plural(d.nRel,"klant","klanten")+" met een factuur in deze periode";$("#ss-nf").textContent=plural(d.fs.length,"factuur","facturen")+" · "+d.fs.length*3+" boekingsregels";$("#ss-k").disabled=!d.nRel;$("#ss-f").disabled=!d.fs.length};
+    $("#ss-nk").textContent=plural(d.nRel,"klant","klanten")+" · alle actieve klanten";$("#ss-nf").textContent=plural(d.fs.length,"factuur","facturen")+" · "+d.fs.length*3+" boekingsregels";$("#ss-k").disabled=!d.nRel;$("#ss-f").disabled=!d.fs.length};
   form.addEventListener("input",upd);upd();form.onsubmit=e=>e.preventDefault();
-  const run=async w=>{const van=$("#ss-van").value,tot=$("#ss-tot").value,c=get(),d=ssData(van,tot,c),tag=ssDate(van)+"_tm_"+ssDate(tot);
-    if(w==="k")await saveFile("customers_active_"+tag+".csv",d.cus,"Klantenbestand voor SnelStart opgeslagen");
-    else{await saveFile("revenue_"+tag+".csv",d.rev,"Factuurbestand voor SnelStart opgeslagen");const {laatst,...rest}=c;state.settings={...state.settings,snelstart:{...rest,laatst:tot}};try{await save("instellingen","bedrijf",state.settings)}catch(e){}}};
+  const run=async w=>{const van=$("#ss-van").value,tot=$("#ss-tot").value,c=get(),d=ssData(van,tot,c),tag=ssDate(van)+" tm "+ssDate(tot);
+    if(w==="k"){await saveFile("customers_active_"+tag+".csv",d.cus,"Klantenbestand voor SnelStart opgeslagen");await ssNrVast()}
+    else{await saveFile("revenue_"+tag+".csv",d.rev,"Factuurbestand voor SnelStart opgeslagen");await ssNrVast();const {laatst,...rest}=c;state.settings={...state.settings,snelstart:{...rest,laatst:tot}};try{await save("instellingen","bedrijf",state.settings)}catch(e){}}};
   $("#ss-k").onclick=()=>run("k");$("#ss-f").onclick=()=>run("f");
 }
