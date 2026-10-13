@@ -152,7 +152,7 @@ button.lr:hover,a.lr:hover{background:var(--surface-2);border-color:var(--line)}
 .hero-tx .tijd{display:inline-flex;align-items:center;gap:7px;color:var(--ink);font-weight:700}
 .hero-tx .tijd svg{width:17px;height:17px;color:var(--brand)}
 .hero-tx p{color:var(--muted);margin:6px 0 0}
-.hero-acts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:0 22px 20px}
+.hero-acts{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px;padding:0 22px 20px}
 .hero-acts button{min-width:0}
 .hero-ft{border-top:1px solid var(--line);padding:12px 22px;color:var(--muted);font-size:14px;background:var(--surface-2)}
 .hero-ft b{color:var(--ink)}
@@ -644,8 +644,8 @@ function hero(){const v=D.volgende,k=D.klant;
   if(v&&v.bezig)return `<section class="hero"><div class="hero-in"><span class="objic groen" style="width:64px;height:64px;border-radius:18px">${I.ruit}</span><div class="hero-tx"><p class="eyebrow"><span class="puls"></span>Vandaag</p><h2>We zijn nu bij u aan het werk</h2><p>Na afloop ziet u het bezoek terug bij Bezoeken.</p></div></div></section>`;
   if(v){const d=p(v.datum),n=dagenTot(v.datum);
     return `<section class="hero"><div class="hero-in"><div class="kal" aria-hidden="true"><i>${MND[d.getMonth()].slice(0,3)}</i><b>${d.getDate()}</b><small>${esc(dagNaam(d).slice(0,2))}</small></div>
-      <div class="hero-tx"><p class="eyebrow">${I.kal}Volgende bezoek <span class="pill brand">${overTxt(n)}</span></p><h2>${esc(lang(v.datum))}</h2><span class="tijd">${I.klok}${esc(tijdTxt(v.tijd,B.tijdWeergave))}</span></div></div>
-      <div class="hero-acts"><button data-act="verzetten">${I.verzet}Verzetten</button><button data-act="overslaan">${I.pauze}Overslaan</button><button data-act="toegang">${I.sleutel}Instructies</button></div>
+      <div class="hero-tx"><p class="eyebrow">${I.kal}Aanboddatum <span class="pill brand">${overTxt(n)}</span></p><h2>${esc(lang(v.datum))}</h2></div></div>
+      <div class="hero-acts"><button data-act="overslaan">${I.pauze}Overslaan</button><button data-act="toegang">${I.sleutel}Instructies</button></div>
       ${v.reeks.length?`<div class="hero-ft">Daarna: ${v.reeks.slice(0,3).map(x=>`<b>${kort(x.datum)}</b>`).join(", ")}${v.reeks.length>3?" en verder":""}</div>`:""}</section>`}
   const w=D.verwacht?weekNr(p(D.verwacht)):0;
   return `<section class="hero"><div class="hero-in"><div class="kal" aria-hidden="true"><i>week</i><b>${w||"–"}</b><small>verwacht</small></div>
@@ -678,7 +678,7 @@ function verzoekRij(v){return lr(v.type==="vakantie"?I.zon:v.type==="verzetten"?
 function bezoeken(){const v=D.volgende,b=D.bezoeken,k=D.klant;
   const st=n=>`<span class="mini-st" aria-label="${n} sterren">${I.ster.repeat(n)}</span>`;
   return kop("Bezoeken","Wanneer we komen en wanneer we geweest zijn.")+`<div class="pg"><div class="stats"><div class="stat"><small>Bezoeken</small><b>${D.aantalBezoeken}</b></div><div class="stat"><small>Ritme</small><b>${k.frequentie} weken</b></div><div class="stat"><small>Klant sinds</small><b>${k.sinds?p(k.sinds).getFullYear():"–"}</b></div></div>
-    <div class="grid2">${kp(I.kal,"Gepland",v?`<div class="lijst">${[{datum:v.datum,tijd:v.tijd},...v.reeks].map((x,i)=>lr(I.kal,`<span style="text-transform:capitalize">${esc(lang(x.datum))}</span>`,esc(tijdTxt(x.tijd,B.tijdWeergave)),i===0?`<span class="pill brand">${esc(overTxt(dagenTot(x.datum)))}</span>`:"")).join("")}</div>`
+    <div class="grid2">${kp(I.kal,"Gepland",v?`<div class="lijst">${[{datum:v.datum,tijd:v.tijd},...v.reeks].map((x,i)=>lr(I.kal,`<span style="text-transform:capitalize">${esc(lang(x.datum))}</span>`,"Aanboddatum",i===0?`<span class="pill brand">${esc(overTxt(dagenTot(x.datum)))}</span>`:"")).join("")}</div>`
       :`<p class="leeg">${D.verwacht?"We verwachten u rond week "+weekNr(p(D.verwacht))+" in te plannen. U krijgt vooraf bericht.":"Er staat nog niets gepland."}</p>`,{sub:v?plural(1+v.reeks.length,"afspraak","afspraken"):""})}
     ${kp(I.check,"Geweest",b.length?`<div class="lijst">${b.map(x=>lr(I.check,`<span style="text-transform:capitalize">${esc(lang(x.datum))}</span>`,esc(x.dienst)+(x.extra&&x.extra.length?" + "+esc(x.extra.join(", ").toLowerCase()):"")+(x.beoordeling?" · "+st(x.beoordeling.sterren):""),x.bedrag?eur0(x.bedrag):"",{tis:"background:var(--ok-bg);color:var(--ok)"})).join("")}</div>`:`<p class="leeg">Na ons eerste bezoek ziet u het hier terug.</p>`,{kl:"groen",sub:b.length?plural(b.length,"bezoek","bezoeken"):""})}</div></div>`}
 const plural=(n,a,b)=>n+" "+(n===1?a:b);
