@@ -92,6 +92,7 @@ function monthGrid(days){
   const cells=[...Array(lead)].map(()=>`<div class="mcell blank"></div>`).concat(days.map(d=>{const s=daySum(d),it=dayItems(d);return `<button type="button" class="mcell${d===t?" today":""}${isWerkdag(parse(d))?"":" off"}" data-act="pickday" data-d="${d}"><span class="md">${parse(d).getDate()}</span>${s.n?`<span class="mn">${plural(s.n,"job","jobs")}</span><span class="amt">${eur0(toon(s.sum))}</span>`:it.proj.length?`<span class="mn faded">${it.proj.length} verwacht</span>`:""}</button>`}));
   return `<div class="mgrid">${["ma","di","wo","do","vr","za","zo"].map(x=>`<span class="mh">${x}</span>`).join("")}${cells.join("")}</div>`;
 }
+state.planMode=false;
 function vPlanning(){
   const v=state.pview,t=today(),days=viewDays(),first=parse(days[0]),last=parse(days[days.length-1]);
   state.week=startOfWeek(v==="maand"?parse(curDay()):first);
@@ -118,23 +119,20 @@ function vPlanning(){
     <div class="search pl-q">${I.search}<input id="pq" type="search" placeholder="Zoek klant of adres…" value="${esc(state.pq)}" autocomplete="off" aria-controls="pqRes">${pqResHtml(offerAll)}</div>
         <span class="pl-sp"></span>
     ${state.pstat&&state.pstat!=="alle"?`<button type="button" class="pl-chip" data-act="pstat" data-v="alle"><span class="sdot ${({gepland:"plan",bezig:"busy",afgerond:"ok"})[state.pstat]}"></span>Alleen ${({gepland:"gepland",bezig:"bezig",afgerond:"afgerond"})[state.pstat]}${I.x}</button>`:""}
-    ${tglChip(state.achter,"achter","Alleen achterstallig",I.alert)}${tglChip(state.planMode,"planmode","Plan-modus",I.wand)}${tglChip(state.pselMode,"pselmode","Selecteren",I.checksq||I.check)}
+    ${tglChip(state.achter,"achter","Alleen achterstallig",I.alert)}${tglChip(state.pselMode,"pselmode","Selecteren",I.checksq||I.check)}
     <button type="button" class="pl-kaart" data-act="pkaart" aria-pressed="${!!state.pkaart}" title="Kaartplannen">${I.map}<span>Kaart</span></button>
     <button type="button" class="primary pl-opt" data-act="planmail" data-d="${d0}" title="Klanten laten weten wanneer je komt">${I.send}<span>Planningsmail</span></button>
-    <button type="button" class="pl-new" data-act="newjob" data-d="${d0}">${I.plus}<span>Job</span></button>
     <div class="pl-meer${state.pmeer?" open":""}"><button type="button" class="iconbtn pl-mb" data-act="pmeer" aria-expanded="${!!state.pmeer}" aria-label="Meer acties" title="Meer">${I.dots||"⋯"}</button>
       <div class="pl-menu" role="menu">
         <p class="pl-ml">Acties</p>
         ${v==="dag"||v==="multi"?mi("optim",I.route||I.wand,"Optimaliseer route","Jobs van deze dag in de kortste volgorde",` data-d="${d0}"`):""}
         ${mi("daynote",I.note,"Notitie bij deze dag","",` data-d="${d0}"`)}
         ${mi("bulkday",I.cal2,"Bulk dag","Hele dag in één keer verzetten of afmelden",` data-d="${d0}"`)}
-        ${mi("webaanvraag",I.globe,"Website-aanvraag","Aanvraag handmatig toevoegen")}
         ${mi("refresh",I.refresh,"Verversen","")}
         <span class="pl-mk">${mt("pkaart",I.map,"Kaartplannen",state.pkaart)}</span>
         <p class="pl-ml">Tonen</p>
         <div class="pl-mrow"><div class="seg pl-st2">${[["alle","Alle",""],["gepland","Gepland","plan"],["bezig","Bezig","busy"],["afgerond","Afgerond","ok"]].map(([x,l,c])=>`<button type="button" data-act="pstat" data-v="${x}" aria-pressed="${(state.pstat||"alle")===x}">${c?`<span class="sdot ${c}"></span>`:""}${l}</button>`).join("")}</div></div>
         <p class="pl-ml">Werkwijze</p>
-        ${mt("planmode",I.wand,"Plan-modus · tik klant, dan tijdslot",state.planMode)}
         ${mt("pselmode",I.checksq||I.check,"Meerdere afspraken selecteren",state.pselMode)}
         ${mt("achter",I.alert,"Alleen achterstallig tonen",state.achter)}
         ${v==="dag"||v==="multi"?`<p class="pl-ml">Weergave</p>
