@@ -4478,7 +4478,7 @@ function offerHtml(k,dayIso,timed){
   const ao=jobAddrObj(k),sdD=parse(sd);
   return `<div class="job offer of kx-${cls}${picked?" picked":""}" style="--h:${h}" draggable="true" data-drag="${esc(k.id)}"${state.planMode?` data-act="pmpick" data-id="${esc(k.id)}"`:""}>
     <div class="of-top"><span class="kx-av of-av"><span class="kc kc-tile"><i class="kc-m">${band}</i><b>${big}</b></span></span>
-      <div class="of-main"><button type="button" class="of-adr" data-act="klant" data-id="${esc(k.id)}">${esc(ao.adres||cleanName(k.naam))}</button>
+      <div class="of-main"><button type="button" class="of-adr" data-act="opdracht" data-id="${esc(k.id)}" title="Opdracht openen">${esc(ao.adres||cleanName(k.naam))}</button>
         <div class="of-nm">${esc(cleanName(k.naam))}${ao.plaats?" · "+esc(ao.plaats):""}</div>
         <div class="of-st"><span>Aanboddatum</span> <b>${esc(adTxt)}</b>${extra?` · ${esc(extra)}`:""}</div></div>
       <div class="of-amt"><b>${eur0(toon(k.prijs))}</b><small>${duur(k)} min</small></div></div>
