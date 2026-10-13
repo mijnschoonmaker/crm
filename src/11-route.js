@@ -3,10 +3,24 @@ function vRoute(){
   const day=state.routeDay||iso(today()),d=parse(day),stops=routeStops(day),todo=stops.filter(s=>!s.done);
   const doneB=state.beurten.filter(b=>b.datum===day),verdiend=doneB.reduce((a,b)=>a+(Number(b.bedrag)||0),0),totaal=verdiend+todo.reduce((a,s)=>a+(Number(s.k.prijs)||0),0);
   const pct=stops.length?Math.round((stops.length-todo.length)/stops.length*100):0,C=2*Math.PI*54;
-  let html=`<div class="pagehead rt"><div><p class="kicker">${I.route}${longD(d)} <span class="pill brand">wk ${weekNr(d)}</span></p><h1 class="xl">Route <span class="rt-who">${esc((state.me&&state.me.name?state.me.name.split(" ")[0]:"")||cleanName(S().naam)||"")}</span></h1><p class="lead" style="margin:0">${plural(todo.length,"stop","stops")} te gaan · ${doneB.length} afgerond</p></div>
-    <div class="acts"><div class="datenav"><button type="button" class="ghost" data-act="rday" data-n="-1" aria-label="Vorige dag">${I.left}</button><b>${fmtNum(d)}</b><button type="button" class="ghost" data-act="rday" data-n="1" aria-label="Volgende dag">${I.right}</button></div>${day===iso(today())?"":`<button type="button" data-act="rday" data-n="0">Vandaag</button>`}</div></div>
-  <div class="verdiend">${isMw()?`<div style="flex:1;min-width:0"><span class="eyebrow">Jouw dag</span><b class="oc-big">${doneB.length} <span style="color:var(--muted);font-weight:600">/ ${stops.length}</span></b><span class="oc-sub">${todo.length?plural(todo.length,"stop","stops")+" te gaan":"alles afgerond"}</span>${motBlok(doneB.length,stops.length)}</div>`:`<div style="flex:1;min-width:0"><span class="eyebrow">Verdiend</span><b class="oc-big">${eur0(verdiend)}</b><span class="oc-sub">van <b>${eur0(totaal)}</b></span>${motBlok(stops.length-todo.length,stops.length)}</div>`}
-    <div class="ring"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="54" stroke="var(--surface-3)" stroke-width="9" fill="none"/><circle cx="60" cy="60" r="54" stroke="var(--brand)" stroke-width="9" fill="none" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pct/100)}" transform="rotate(-90 60 60)"/></svg><span><b>${pct}%</b><small>Klaar</small></span></div></div>`;
+  const isT=day===iso(today()),mw=isMw(),naam=esc((state.me&&state.me.name?state.me.name.split(" ")[0]:"")||"");
+  const done=stops.length-todo.length,restMin=todo.reduce((a,s)=>a+duur(s.k),0)+Math.max(0,todo.length-1)*8;
+  const uM=m=>m>=60?Math.floor(m/60)+"u"+(m%60?String(m%60).padStart(2,"0"):""):m+" min";
+  const klaarOm=isT&&todo.length?(()=>{const n=new Date(),eerst=toMin(todo[0].k.tijd),start=Math.max(n.getHours()*60+n.getMinutes(),eerst??0),t=start+restMin;return String(Math.floor(t/60)%24).padStart(2,"0")+":"+String(t%60).padStart(2,"0")})():"";
+  const nx=todo[0]&&todo[0].k,R=46,C2=2*Math.PI*R,klaar=stops.length&&!todo.length;
+  const navTxt=isT?"Vandaag":fmtD(d);
+  const stat=(l,v,sub)=>`<div class="rd-s"><small>${l}</small><b>${v}</b>${sub?`<span>${sub}</span>`:""}</div>`;
+  const nodes=stops.map((s,i)=>{const nu=!s.done&&nx&&s.k.id===nx.id;return `<li class="${s.done?"af":nu?"nu":""}" title="${esc(jobAddrObj(s.k).adres||cleanName(s.k.naam))}"><i>${s.done?`<svg viewBox="0 0 24 24"><path d="M5.5 12.8l4.2 4.2L18.5 7.6"/></svg>`:HUIS}</i><small>${esc(s.k.tijd||"")}</small></li>`}).join("");
+  let html=`<div class="rh"><div class="rh-top"><div class="rh-tt"><p class="rh-k">${I.route}<span>${longD(d)}</span><em>wk ${weekNr(d)}</em></p><h1 class="rh-t">Route${naam?`<span>${naam}</span>`:""}</h1></div>
+    <div class="rh-nav" role="group" aria-label="Dag"><button type="button" data-act="rday" data-n="-1" aria-label="Vorige dag">${I.left}</button><button type="button" class="rh-nu${isT?" is-nu":""}" data-act="rday" data-n="0">${navTxt}</button><button type="button" data-act="rday" data-n="1" aria-label="Volgende dag">${I.right}</button></div></div>
+  ${stops.length?`<section class="rd${klaar?" klaar":""}">
+    <div class="rd-main">
+      <div class="rd-ring"><svg viewBox="0 0 108 108"><circle cx="54" cy="54" r="${R}" class="rd-bg"/><circle cx="54" cy="54" r="${R}" class="rd-fg" stroke-dasharray="${C2}" stroke-dashoffset="${C2*(1-pct/100)}"/></svg><span>${klaar?`<svg class="rd-ok" viewBox="0 0 24 24"><path d="M5.5 12.8l4.2 4.2L18.5 7.6"/></svg>`:`<b>${done}<small>/${stops.length}</small></b><em>klaar</em>`}</span></div>
+      <div class="rd-tx"><h2>${klaar?"Dag klaar, top gewerkt!":esc(motTekst(done,stops.length))}</h2>
+        <div class="rd-stats">${mw?"":stat("Verdiend",eur0(verdiend),klaar?"":"van "+eur0(totaal))}${klaar?stat("Woningen",String(stops.length),"vandaag gedaan"):stat("Nog te gaan",plural(todo.length,"stop","stops"),"± "+uM(restMin))}${klaarOm?stat("Klaar rond",klaarOm,"inclusief rijden"):""}</div></div>
+    </div>
+    <ol class="rd-track${stops.length>10?" veel":""}" style="--p:${stops.length>1?Math.min(1,done/(stops.length-1)):pct/100}">${nodes}</ol>
+  </section>`:""}</div>`;
   if(!stops.length)return html+empty("Geen stops op deze dag","Plan klanten in via Planning, dan staan ze hier op volgorde.",`<button type="button" class="primary" data-act="tab" data-tab="planning">${I.planning}Naar planning</button>`);
   if(todo.length){
     const k=todo[0].k,a=jobAddrObj(k),js=jobState(k,day),sp=STATEPILL[js],tel=String(k.telefoon||"").replace(/[^\d+]/g,"");
