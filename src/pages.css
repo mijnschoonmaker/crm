@@ -2253,3 +2253,12 @@ body.an-open{overflow:hidden}
 .i5-fotos figcaption{margin-top:9px!important;gap:10px!important}
 .i5-fotos figcaption i{width:auto!important;height:auto!important;background:none!important;color:var(--A,#11181c)!important;font:500 10px/1.6 inherit!important;border-radius:0!important}
 .i5-fotos figcaption b{font-weight:400!important;font-size:12.5px!important;line-height:1.4}
+.i5-fotos .i5-ft{font-size:14px!important}
+.i5-fotos .i5-fs{font-size:10px!important}
+.i5-fotos figcaption b{font-size:11px!important}
+.i5-fotos figcaption small{font-size:9.5px!important}
+.i5-fotos figcaption i{font-size:9px!important}
+.i5-fi{position:relative;display:block}
+.i5-fi em{position:absolute;left:8px;bottom:8px;font-style:normal;font-size:8.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:rgba(17,24,28,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);padding:4px 9px;border-radius:999px}
+.bv-zijde{display:flex;flex-direction:column;gap:6px;margin:4px 0 2px}.bv-zijde>span{font-size:13px;font-weight:600;color:var(--muted)}
+.bv-zs{display:flex;flex-wrap:wrap;gap:4px}.bv-zs button{flex:1 1 auto;font-size:13px;padding:7px 10px}

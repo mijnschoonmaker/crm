@@ -67,7 +67,7 @@ function paperHtml(f,klant){
   <div class="i5-sum"><div class="i5-pay">${m.pay?`<span class="i5-l">Betaalgegevens</span><table>${m.pay.filter(x=>x[0]!=="Uiterlijk").map(([a,b])=>`<tr><th>${esc(a)}</th><td>${esc(b)}</td></tr>`).join("")}</table>`:`<span class="i5-l">${m.off?"Geldigheid":"Betaling"}</span>`}${m.off?`<b class="i5-pnr">Offerte ${esc(f.nummer)}</b>`:""}<p>${esc(m.zin)}</p></div>
     ${m.off&&f.totaalTonen===false?"<div></div>":`<div class="i5-tot"><div><span>Subtotaal</span><span>€ ${num(m.t.ex)}</span></div><div><span>BTW ${m.btw}%</span><span>€ ${num(m.t.btw)}</span></div><div class="g"><span><b>${m.off?"Totaal per beurt":m.voldaan||m.st[1]==="g"?"Betaald":"Te betalen"}</b><small>${m.off?"incl. "+m.btw+"% btw":m.voldaan||m.st[1]==="g"?"Hartelijk dank":"Vóór "+esc(fmtL(f.verval))}</small></span><span class="i5-amt">€ ${num(m.t.inc)}</span></div></div>`}</div>
   ${f.notitie?`<div class="i5-note"><span class="i5-l">Opmerking</span>${esc(f.notitie)}</div>`:""}
-  ${f.soort!=="offerte"&&typeof factFotos==="function"&&factFotos(f).length?`<div class="i5-fotos"><span class="i5-l">Bijlage · foto's</span><b class="i5-ft">Opgemerkt tijdens ons werk</b><span class="i5-fs">Tijdens de beurt${f.datum?" van "+esc(fmtL(f.datum)):""} viel ons het volgende op.</span><div class="${factFotos(f).length===1?"een":""}">${factFotos(f).map((b,i)=>`<figure><img src="${BLOB}${esc(b.id)}" alt=""><figcaption><i>${String(i+1).padStart(2,"0")}</i><span><b>${esc(b.notitie||"Bijzonderheid")}</b><small>${esc(fmtL(b.datum||f.datum))}</small></span></figcaption></figure>`).join("")}</div></div>`:""}
+  ${f.soort!=="offerte"&&typeof factFotos==="function"&&factFotos(f).length?`<div class="i5-fotos"><span class="i5-l">Bijlage · foto's</span><b class="i5-ft">Opgemerkt tijdens ons werk</b><span class="i5-fs">Tijdens de beurt${f.datum?" van "+esc(fmtL(f.datum)):""} viel ons het volgende op.</span><div class="${factFotos(f).length===1?"een":""}">${factFotos(f).map((b,i)=>`<figure><span class="i5-fi"><img src="${BLOB}${esc(b.id)}" alt="">${b.zijde?`<em>${esc(b.zijde)}</em>`:""}</span><figcaption><i>${String(i+1).padStart(2,"0")}</i><span><b>${esc(b.notitie||"Bijzonderheid")}</b><small>${esc(fmtL(b.datum||f.datum))}</small></span></figcaption></figure>`).join("")}</div></div>`:""}
   ${f.soort==="offerte"&&offTxt(f.voettekst,f)?`<div class="i5-txt">${esc(offTxt(f.voettekst,f)).replace(/\n/g,"<br>")}</div>`:""}
     ${m.vwTxt?`<p class="i5-vw">${esc(m.vwTxt)}</p>`:""}
   <div class="i5-foot">${m.foot.map(x=>`<span>${esc(x)}</span>`).join("")}</div></div>`;
@@ -143,21 +143,24 @@ async function pdfDoc(f,klant){
       /* kop in dezelfde stijl als de factuur */
       /* kop: rustig en licht */
       N();doc.setFontSize(6.4);col(C.mut);doc.setCharSpace(1);doc.text("BIJLAGE · FOTO'S",L,yy);doc.setCharSpace(0);
-      N();doc.setFontSize(17);col(C.ink);doc.text("Opgemerkt tijdens ons werk",L,yy+9);
-      N();doc.setFontSize(8.4);col(C.mut);doc.text(`Tijdens de beurt${f.datum?" van "+fmtL(f.datum):""} viel ons het volgende op.`,L,yy+15.5);yy+=26;
+      N();doc.setFontSize(13);col(C.ink);doc.text("Opgemerkt tijdens ons werk",L,yy+7.5);
+      N();doc.setFontSize(7.8);col(C.mut);doc.text(`Tijdens de beurt${f.datum?" van "+fmtL(f.datum):""} viel ons het volgende op.`,L,yy+13);yy+=22;
       /* foto bijsnijden tot een vaste verhouding en de hoeken afronden (in de afbeelding zelf) */
       const crop=(im,ar)=>new Promise(res=>{const i=new Image();i.onload=()=>{let sw=i.width,sh=i.height;if(sw/sh>ar)sw=sh*ar;else sh=sw/ar;const c=document.createElement("canvas");c.width=Math.min(1400,Math.round(sw));c.height=Math.round(c.width/ar);
         const g=c.getContext("2d"),rr=c.width*.035;g.fillStyle="#fff";g.fillRect(0,0,c.width,c.height);g.beginPath();g.roundRect?g.roundRect(0,0,c.width,c.height,rr):g.rect(0,0,c.width,c.height);g.clip();
         g.drawImage(i,(i.width-sw)/2,(i.height-sh)/2,sw,sh,0,0,c.width,c.height);res(c.toDataURL("image/jpeg",.88))};i.onerror=()=>res(im.data);i.src=im.data});
       const een=ims.length===1,gap=8,cols=een?1:2,cw=(W-gap*(cols-1))/cols,ar=een?16/10:4/3,iw=cw,ih=iw/ar;
       for(let i=0;i<ims.length;i+=cols){const row=ims.slice(i,i+cols);
-        const notes=row.map(im=>{N();doc.setFontSize(9.2);return doc.splitTextToSize(im.p.notitie||"Bijzonderheid",iw-8)}),nl=Math.max(...notes.map(n=>n.length));
-        const ch=ih+6+nl*4.4+5;if(yy+ch>270){doc.addPage();yy=22}
+        const notes=row.map(im=>{N();doc.setFontSize(8.4);return doc.splitTextToSize(im.p.notitie||"Bijzonderheid",iw-8)}),nl=Math.max(...notes.map(n=>n.length));
+        const ch=ih+6+nl*4+5;if(yy+ch>270){doc.addPage();yy=22}
         for(let j=0;j<row.length;j++){const im=row[j],x=L+j*(cw+gap),data=await crop(im,ar);
           try{doc.addImage(data,"JPEG",x,yy,iw,ih)}catch(e){}
+          if(im.p.zijde){N();doc.setFontSize(6.6);const zt=String(im.p.zijde).toUpperCase();doc.setCharSpace(.22);const zw=doc.getTextWidth(zt)+zt.length*.22+5;
+            try{doc.setGState(new doc.GState({opacity:.72}))}catch(e){}doc.setFillColor(17,24,28);doc.roundedRect(x+3,yy+ih-9,zw,6,3,3,"F");try{doc.setGState(new doc.GState({opacity:1}))}catch(e){}
+            doc.setTextColor(255,255,255);doc.text(zt,x+5.5,yy+ih-4.9);doc.setCharSpace(0);col(C.ink)}
           const ty=yy+ih+6.2;N();doc.setFontSize(7.4);col(A);doc.text(String(i+j+1).padStart(2,"0"),x,ty);
-          N();doc.setFontSize(9.2);col(C.ink);doc.text(notes[j],x+7,ty,{lineHeightFactor:1.4});
-          doc.setFontSize(7);col(C.mut);doc.text(fmtL(im.p.datum||f.datum),x+7,ty+notes[j].length*4.4+.4);col(C.ink)}
+          N();doc.setFontSize(8.4);col(C.ink);doc.text(notes[j],x+7,ty,{lineHeightFactor:1.4});
+          doc.setFontSize(7);col(C.mut);doc.text(fmtL(im.p.datum||f.datum),x+7,ty+notes[j].length*4+.3);col(C.ink)}
         yy+=ch+gap}}}
   const pages=doc.getNumberOfPages();for(let p=1;p<=pages;p++){doc.setPage(p);doc.setDrawColor(...C.line);doc.setLineWidth(.25);doc.line(L,277,R,277);N();doc.setFontSize(6.8);col(C.mut);
     doc.text(m.foot.join("   ·   "),L,282);if(pages>1)doc.text("Pagina "+p+" / "+pages,R,282,{align:"right"});col(C.ink)}

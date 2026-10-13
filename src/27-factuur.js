@@ -114,6 +114,10 @@ function fwRegel(id,i){const f=state.facturen.find(x=>x.id===id);if(!f)return;co
 
 /* ---------- FOTO'S VAN BIJZONDERHEDEN (op locatie) ----------
    Gemaakt bij de klus; gaan als foto-pagina mee in de PDF van de factuur van die beurt. */
+const BV_ZIJDE=["Voorzijde","Achterzijde","Linkerzijde","Rechterzijde","Dak","Binnen"];
+const bvZijdeHtml=()=>`<div class="bv-zijde"><span>Welke zijde van de woning?</span><div class="seg bv-zs" role="group">${BV_ZIJDE.map(z=>`<button type="button" data-bvz="${z}" aria-pressed="false">${z}</button>`).join("")}</div></div>`;
+const bvZijdeBind=()=>form.querySelectorAll("[data-bvz]").forEach(b=>b.onclick=()=>{const on=b.getAttribute("aria-pressed")!=="true";form.querySelectorAll("[data-bvz]").forEach(x=>x.setAttribute("aria-pressed","false"));b.setAttribute("aria-pressed",String(on))});
+const bvZijde=()=>{const b=form.querySelector('[data-bvz][aria-pressed="true"]');return b?b.dataset.bvz:""};
 const BV_SNEL=["Verf laat los van het kozijn","Dakpan ligt los","Ruit is gebarsten","Dakgoot zit vol of lekt","Houtrot in het kozijn","Kitvoeg is los","Vogelnest of overlast","Schade aan het glas"];
 const fotoInput=(attr,label)=>state.assets?`<label class="btn small bv-cam">${I.camera}${label||"Foto bijzonderheid"}<input type="file" accept="image/*" capture="environment" hidden ${attr}></label>`:"";
 function bvHtml(k){const l=k.bevindingen||[];
@@ -128,13 +132,14 @@ async function bvUpload(kid,file){const k=state.klanten.find(x=>x.id===kid);if(!
   const url=URL.createObjectURL(file);
   openDlg(`<div class="dlg-head"><span class="objic big">${I.camera}</span><div style="min-width:0;flex:1"><h3>Wat viel op?</h3><div class="subt">${esc(cleanName(k.naam))} · ${esc(jobAddr(k))}</div></div></div>
     <img src="${url}" alt="" class="bv-prev">
+    ${bvZijdeHtml()}
     <div class="chips" style="margin:0">${BV_SNEL.map(t=>`<button type="button" class="chip" data-bvt="${esc(t)}">${esc(t)}</button>`).join("")}</div>
     <label>Toelichting voor de klant<textarea id="bv-n" style="min-height:80px" placeholder="Bijv. aan de achterkant laat de verf los van het kozijn van de slaapkamer"></textarea></label>
     <div class="row"><span class="sp"></span><button type="button" id="bvC">Annuleren</button><button type="submit" class="primary" id="bvS">${I.check}Opslaan bij de factuur</button></div>`,{wide:true});
-  form.querySelectorAll("[data-bvt]").forEach(b=>b.onclick=()=>{const t=$("#bv-n");t.value=t.value?t.value+". "+b.dataset.bvt:b.dataset.bvt;t.focus()});
+  form.querySelectorAll("[data-bvt]").forEach(b=>b.onclick=()=>{const t=$("#bv-n");t.value=t.value?t.value+". "+b.dataset.bvt:b.dataset.bvt;t.focus()});bvZijdeBind();
   const done=()=>{URL.revokeObjectURL(url);if(back)openJob(back.job,back.d);else dlg.close()};
   $("#bvC").onclick=done;
-  form.onsubmit=async e=>{e.preventDefault();$("#bvS").disabled=true;const item={id:r.id,naam:file.name||"foto.jpg",soort:"foto",notitie:$("#bv-n").value.trim(),datum:iso(today())};
+  form.onsubmit=async e=>{e.preventDefault();$("#bvS").disabled=true;const item={id:r.id,naam:file.name||"foto.jpg",soort:"foto",notitie:$("#bv-n").value.trim(),zijde:bvZijde(),datum:iso(today())};
     try{const f=bvFactuurVandaag(k);
       if(f){await save("facturen",f.id,{...strip(f),bijlagen:[...(f.bijlagen||[]),item]});toast("Foto toegevoegd aan factuur "+f.nummer)}
       else{const cur=state.klanten.find(x=>x.id===kid)||k;await save("klanten",kid,{...strip(cur),bevindingen:[...(cur.bevindingen||[]),item]});toast("Foto bewaard; gaat mee met de factuur")}
@@ -147,6 +152,6 @@ async function fotoData(id){try{const r=await fetch(BLOB+id);if(!r||!r.ok)return
 const factFotos=f=>(f.bijlagen||[]).filter(b=>b.soort==="foto"&&b.opFactuur!==false);
 
 async function fwCamUpload(fid,file){const f=state.facturen.find(x=>x.id===fid);if(!f)return;file=await fotoAnnoteren(file);if(!file)return;let r;try{toast("Foto uploaden…");r=await state.assets.upload(file)}catch(e){return toast("De foto kon niet worden geüpload")}
-  fwSmall(fid,"Wat viel op?",I.camera,`<img src="${BLOB}${esc(r.id)}" alt="" class="bv-prev"><div class="chips" style="margin:0">${BV_SNEL.map(t=>`<button type="button" class="chip" data-bvt="${esc(t)}">${esc(t)}</button>`).join("")}</div><label>Toelichting voor de klant<textarea id="bv-n" style="min-height:80px"></textarea></label>`,
-    ()=>({bijlagen:[...((state.facturen.find(x=>x.id===fid)||f).bijlagen||[]),{id:r.id,naam:file.name||"foto.jpg",soort:"foto",notitie:$("#bv-n").value.trim(),datum:iso(today())}]}));
-  form.querySelectorAll("[data-bvt]").forEach(b=>b.onclick=()=>{const t=$("#bv-n");t.value=t.value?t.value+". "+b.dataset.bvt:b.dataset.bvt;t.focus()})}
+  fwSmall(fid,"Wat viel op?",I.camera,`<img src="${BLOB}${esc(r.id)}" alt="" class="bv-prev">${bvZijdeHtml()}<div class="chips" style="margin:0">${BV_SNEL.map(t=>`<button type="button" class="chip" data-bvt="${esc(t)}">${esc(t)}</button>`).join("")}</div><label>Toelichting voor de klant<textarea id="bv-n" style="min-height:80px"></textarea></label>`,
+    ()=>({bijlagen:[...((state.facturen.find(x=>x.id===fid)||f).bijlagen||[]),{id:r.id,naam:file.name||"foto.jpg",soort:"foto",notitie:$("#bv-n").value.trim(),zijde:bvZijde(),datum:iso(today())}]}));
+  form.querySelectorAll("[data-bvt]").forEach(b=>b.onclick=()=>{const t=$("#bv-n");t.value=t.value?t.value+". "+b.dataset.bvt:b.dataset.bvt;t.focus()});bvZijdeBind()}
