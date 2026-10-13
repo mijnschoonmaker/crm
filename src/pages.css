@@ -2423,3 +2423,67 @@ aside nav button .badge{font-size:10.5px}
 .msg-trk .trk-bij{all:unset;display:inline-flex;align-items:center;gap:5px;cursor:pointer;color:var(--brand);font-weight:600;border-radius:6px;padding:1px 4px;margin:-1px -4px;transition:background .15s}
 .msg-trk .trk-bij:hover{background:var(--brand-soft);text-decoration:underline;text-underline-offset:2px}
 .msg-trk .trk-bij:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+/* ---------- Route: voortgangskaart met weg en busje ---------- */
+.rv{position:relative;width:100%;box-sizing:border-box;align-self:stretch;background:var(--surface);border:1px solid var(--line);border-radius:24px;box-shadow:0 18px 40px -28px rgba(16,40,52,.35),0 1px 2px rgba(0,0,0,.03);overflow:hidden;padding:22px 26px 14px}
+.rv::before{content:"";position:absolute;inset:0;background:radial-gradient(90% 120% at 100% 0%,color-mix(in srgb,var(--brand) 10%,transparent),transparent 60%),radial-gradient(60% 80% at 0% 100%,color-mix(in srgb,var(--brand) 5%,transparent),transparent 70%);pointer-events:none}
+.rv.klaar::before{background:radial-gradient(90% 120% at 100% 0%,rgba(43,182,115,.16),transparent 60%),radial-gradient(60% 80% at 0% 100%,rgba(43,182,115,.07),transparent 70%)}
+.rv>*{position:relative}
+.rv-top{display:flex;align-items:flex-start;justify-content:space-between;gap:20px}
+.rv-tx{min-width:0}
+.rv-fase{display:inline-flex;align-items:center;gap:7px;height:24px;padding:0 10px 0 9px;border-radius:99px;background:color-mix(in srgb,var(--brand) 10%,var(--surface));color:var(--brand);font-size:11.5px;font-weight:650;letter-spacing:.01em}
+.rv-fase i{width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 0 0 currentColor;animation:rvLive 2s ease-out infinite}
+@keyframes rvLive{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--brand) 45%,transparent)}100%{box-shadow:0 0 0 7px transparent}}
+.rv-fase b{font-weight:650;opacity:.6;font-variant-numeric:tabular-nums;margin-left:2px}
+.rv-fase svg{width:13px;height:13px}
+.rv.klaar .rv-fase{background:rgba(34,164,108,.12);color:#1b8a5a}
+.rv-tx h2{margin:10px 0 4px;font-size:22px;font-weight:650;letter-spacing:-.025em;line-height:1.2;text-transform:none}
+.rv-tx p{margin:0;font-size:13.5px;color:var(--muted);font-weight:500}
+.rv-geld{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:3px;text-align:right;min-width:130px}
+.rv-geld small{font-size:11.5px;color:var(--muted);font-weight:600}
+.rv-geld b{font-size:30px;font-weight:650;letter-spacing:-.035em;line-height:1.05;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rv-geld b em{font-style:normal;font-size:17px;color:var(--muted);font-weight:600}
+.rv-geld b.pop{animation:rvPop .5s cubic-bezier(.2,1.6,.4,1)}
+@keyframes rvPop{40%{transform:scale(1.08);color:#1f9a63}}
+.rv.klaar .rv-geld b{color:#1b8a5a}
+.rv-geld em{font-style:normal;font-size:11.5px;color:var(--muted);font-weight:500}
+.rv-gb{display:block;width:130px;height:5px;border-radius:5px;background:var(--surface-2);overflow:hidden;margin-top:5px}
+.rv-gb i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,#34c27e,#1f9a63)}
+/* de weg */
+.rv-weg{--h:32px;position:relative;height:86px;margin:18px 0 0}
+.rv-asfalt{position:absolute;left:0;right:0;top:48px;height:16px;border-radius:9px;background:linear-gradient(180deg,#e3e9ec,#d6dee2);box-shadow:inset 0 1px 2px rgba(0,0,0,.06);overflow:hidden}
+.rv-asfalt::after{content:"";position:absolute;left:8px;right:8px;top:7px;height:2px;background:repeating-linear-gradient(90deg,#fff 0 12px,transparent 12px 22px);opacity:.95}
+.rv-af{position:absolute;left:0;top:0;bottom:0;width:calc(var(--h)/2 + (100% - var(--h))*var(--v));background:linear-gradient(90deg,#9fe0bf,#5fcf98);transition:width 1.6s cubic-bezier(.45,.05,.2,1)}
+.rv-weg ol{list-style:none;margin:0;padding:0;position:absolute;inset:0}
+.rv-weg li{position:absolute;top:0;left:calc(var(--h)/2 + (100% - var(--h))*var(--x));transform:translateX(-50%);display:flex;flex-direction:column;align-items:center}
+.rv-weg li i{width:var(--h);height:var(--h);border-radius:10px;display:grid;place-items:center;background:var(--surface);border:1.5px solid var(--line);color:color-mix(in srgb,var(--muted) 70%,transparent);box-shadow:0 2px 6px -3px rgba(16,40,52,.2)}
+.rv-weg li i svg{width:16px;height:16px;fill:currentColor}
+.rv-weg li.af i{background:linear-gradient(140deg,#34c27e,#1f9a63);border-color:transparent;color:#fff}
+.rv-weg li.af i svg{fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.rv-weg li.nu i{border:2px solid var(--brand);color:var(--brand);animation:rdPuls 2s ease-in-out infinite;box-shadow:0 0 0 5px color-mix(in srgb,var(--brand) 14%,transparent)}
+.rv-weg li::after{content:"";width:2px;height:12px;margin-top:2px;border-radius:1px;background:var(--line)}
+.rv-weg li.af::after{background:#8fd7b3}.rv-weg li.nu::after{background:color-mix(in srgb,var(--brand) 40%,transparent)}
+.rv-weg li small{position:absolute;top:68px;font-size:11px;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.rv-weg li.nu small{color:var(--brand);font-weight:700}
+.rv-bus{position:absolute;top:33px;left:calc(var(--h)/2 + (100% - var(--h))*var(--v));width:48px;height:30px;transform:translateX(-50%);transition:left 1.6s cubic-bezier(.45,.05,.2,1);z-index:2;filter:drop-shadow(0 3px 3px rgba(10,50,60,.25))}
+.rv-bus svg{display:block;width:100%;height:100%;animation:rvHobbel 1.1s ease-in-out infinite}
+@keyframes rvHobbel{50%{transform:translateY(-1px)}}
+.rv-wiel{transform-box:fill-box;transform-origin:center}
+.rv.rijdt .rv-wiel{animation:rvWiel .35s linear infinite}
+.rv.rijdt .rv-bus svg{animation-duration:.3s}
+@keyframes rvWiel{to{transform:rotate(360deg)}}
+.rv-bus.thuis{left:auto!important;right:-2px;transform:none}
+.rv-finish{display:none}
+.rv.klaar .rv-finish{display:none}
+.rv.klaar .rv-finish svg{width:22px;height:22px}
+.rv.klaar .rv-bus.thuis{transition:none}
+.rv-weg.veel{--h:22px}.rv-weg.veel li i{border-radius:7px}.rv-weg.veel li i svg{width:11px;height:11px}.rv-weg.veel li small{display:none}.rv-weg.veel{height:70px}
+@media (prefers-reduced-motion:reduce){.rv-bus,.rv-af{transition:none}.rv-bus svg,.rv-wiel{animation:none!important}}
+@media (max-width:640px){
+  .rv{padding:16px 16px 10px;border-radius:20px}
+  .rv-top{flex-direction:column;gap:12px}
+  .rv-tx h2{font-size:18px;margin-top:8px}.rv-tx p{font-size:12.5px}
+  .rv-geld{flex-direction:row;flex-wrap:wrap;align-items:baseline;justify-content:flex-start;gap:4px 10px;text-align:left;width:100%;padding:10px 12px;border-radius:14px;background:var(--surface-2);box-sizing:border-box}
+  .rv-geld b{font-size:22px;order:2}.rv-geld small{order:1;width:100%}.rv-gb{order:4;width:100%;margin:2px 0 0}.rv-geld em{order:3}
+  .rv-weg{--h:28px;margin-top:14px}.rv-weg li i{border-radius:9px}.rv-weg li i svg{width:14px;height:14px}
+  .rv-bus{width:42px;height:26px;top:37px}
+}
