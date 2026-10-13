@@ -2417,3 +2417,4 @@ aside nav button .badge{font-size:10.5px}
 .rh-live.aan i{background:#22a46c;box-shadow:0 0 0 0 rgba(34,164,108,.5);animation:lvPuls 1.8s ease-out infinite}
 @keyframes lvPuls{0%{box-shadow:0 0 0 0 rgba(34,164,108,.55)}80%,100%{box-shadow:0 0 0 9px rgba(34,164,108,0)}}
 @media (max-width:640px){.rh-acts{width:100%}.rh-acts .rh-nav{flex:1}.rh-live{flex:none}}
+.pk-map .leaflet-control-attribution{font-size:9px!important;opacity:.6;background:transparent!important}

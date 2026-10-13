@@ -61,9 +61,9 @@ function pkNaRender(){
   slot.appendChild(PK.el);
   pkLaadLeaflet().then(()=>{
     if(!PK.map){PK.el.innerHTML="";const L=window.L;
-      PK.map=L.map(PK.el,{zoomControl:false,attributionControl:true,scrollWheelZoom:true,zoomSnap:.5}).setView([53.2,6.3],11);
+      PK.map=L.map(PK.el,{zoomControl:false,attributionControl:true,scrollWheelZoom:true,zoomSnap:.5}).setView([53.2,6.3],11);PK.map.attributionControl.setPrefix(false);
       L.control.zoom({position:"bottomright"}).addTo(PK.map);
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",{subdomains:"abcd",maxZoom:19,attribution:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> · © <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>'}).addTo(PK.map);
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",{subdomains:"abcd",maxZoom:19,attribution:'© OpenStreetMap · © CARTO'}).addTo(PK.map);
       PK.laag=L.layerGroup().addTo(PK.map);PK.sig="";
       PK.map.on("dragstart",()=>{PK.zelf=true});PK.el.addEventListener("wheel",()=>{PK.zelf=true},{passive:true})}
     PK.map.invalidateSize();PK.fout="";pkTeken();pkStatus();
