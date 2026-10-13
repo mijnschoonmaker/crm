@@ -2513,3 +2513,30 @@ aside nav button .badge{font-size:10.5px}
 @media (max-width:560px){.ow-fx{flex-direction:column;align-items:stretch}.ow-fxa{margin-left:0;justify-content:space-between}.ow-fxa .ow-ber{flex:1;justify-content:center}}
 .ow-lt{display:block}
 .ow-step span{line-height:32px;align-self:center}
+/* ---------- zoeken in planning: resultaten ---------- */
+.pl-q{position:relative}
+.pq-res{position:absolute;left:0;right:0;top:calc(100% + 8px);z-index:60;list-style:none;margin:0;padding:6px;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:0 24px 48px -20px rgba(16,40,52,.35),0 2px 6px rgba(16,40,52,.06);min-width:min(460px,92vw);max-height:380px;overflow:auto;animation:pqIn .14s ease-out}
+@keyframes pqIn{from{opacity:0;transform:translateY(-4px)}}
+.pq-r{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:11px;cursor:pointer;outline:none}
+.pq-r:hover,.pq-r:focus,.pq-r.eerste{background:var(--surface-2)}
+.pq-res:hover .pq-r.eerste:not(:hover){background:transparent}
+.pq-av{width:34px;height:34px;flex:none;border-radius:10px;display:grid;place-items:center;font-size:12px;font-weight:650;color:hsl(var(--h) 45% 32%);background:hsl(var(--h) 55% 92%)}
+.pq-tx{display:flex;flex-direction:column;min-width:0;flex:1}
+.pq-tx b{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pq-tx small{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pq-st{flex:none;display:inline-flex;align-items:center;gap:5px;font-style:normal;font-size:11.5px;font-weight:600;color:var(--muted);background:var(--surface-2);padding:3px 9px;border-radius:99px;white-space:nowrap}
+.pq-r:hover .pq-st,.pq-r.eerste .pq-st{background:var(--surface)}
+.pq-st svg{width:12px;height:12px}
+.pq-st.pl{color:var(--brand);background:var(--brand-soft)!important}
+.pq-st.of{color:#b8731f;background:#fdf1e1!important}
+.pq-open{flex:none;width:30px;height:30px;min-height:0;padding:0;border-radius:9px;display:grid;place-items:center;border:0;background:transparent;color:var(--muted)}
+.pq-open:hover{background:var(--surface);color:var(--brand)}
+.pq-open svg{width:15px;height:15px}
+.pq-leeg{padding:14px 12px;font-size:13px;color:var(--muted)}
+.pq-flits{animation:pqFlits 2.2s ease-out}
+@keyframes pqFlits{0%,30%{box-shadow:0 0 0 3px var(--brand),0 0 0 9px color-mix(in srgb,var(--brand) 22%,transparent)}100%{box-shadow:0 0 0 0 transparent}}
+@media (max-width:640px){.pq-st{display:none}.pq-res{min-width:0}}
+.pl-bar{position:relative;z-index:40}
+.pq-res{z-index:200}
+.pq-open svg{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.pq-res svg{position:static!important;transform:none!important;left:auto!important;top:auto!important;margin:0!important;pointer-events:none}

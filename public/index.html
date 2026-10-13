@@ -2926,6 +2926,33 @@ aside nav button .badge{font-size:10.5px}
 @media (max-width:560px){.ow-fx{flex-direction:column;align-items:stretch}.ow-fxa{margin-left:0;justify-content:space-between}.ow-fxa .ow-ber{flex:1;justify-content:center}}
 .ow-lt{display:block}
 .ow-step span{line-height:32px;align-self:center}
+/* ---------- zoeken in planning: resultaten ---------- */
+.pl-q{position:relative}
+.pq-res{position:absolute;left:0;right:0;top:calc(100% + 8px);z-index:60;list-style:none;margin:0;padding:6px;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:0 24px 48px -20px rgba(16,40,52,.35),0 2px 6px rgba(16,40,52,.06);min-width:min(460px,92vw);max-height:380px;overflow:auto;animation:pqIn .14s ease-out}
+@keyframes pqIn{from{opacity:0;transform:translateY(-4px)}}
+.pq-r{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:11px;cursor:pointer;outline:none}
+.pq-r:hover,.pq-r:focus,.pq-r.eerste{background:var(--surface-2)}
+.pq-res:hover .pq-r.eerste:not(:hover){background:transparent}
+.pq-av{width:34px;height:34px;flex:none;border-radius:10px;display:grid;place-items:center;font-size:12px;font-weight:650;color:hsl(var(--h) 45% 32%);background:hsl(var(--h) 55% 92%)}
+.pq-tx{display:flex;flex-direction:column;min-width:0;flex:1}
+.pq-tx b{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pq-tx small{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pq-st{flex:none;display:inline-flex;align-items:center;gap:5px;font-style:normal;font-size:11.5px;font-weight:600;color:var(--muted);background:var(--surface-2);padding:3px 9px;border-radius:99px;white-space:nowrap}
+.pq-r:hover .pq-st,.pq-r.eerste .pq-st{background:var(--surface)}
+.pq-st svg{width:12px;height:12px}
+.pq-st.pl{color:var(--brand);background:var(--brand-soft)!important}
+.pq-st.of{color:#b8731f;background:#fdf1e1!important}
+.pq-open{flex:none;width:30px;height:30px;min-height:0;padding:0;border-radius:9px;display:grid;place-items:center;border:0;background:transparent;color:var(--muted)}
+.pq-open:hover{background:var(--surface);color:var(--brand)}
+.pq-open svg{width:15px;height:15px}
+.pq-leeg{padding:14px 12px;font-size:13px;color:var(--muted)}
+.pq-flits{animation:pqFlits 2.2s ease-out}
+@keyframes pqFlits{0%,30%{box-shadow:0 0 0 3px var(--brand),0 0 0 9px color-mix(in srgb,var(--brand) 22%,transparent)}100%{box-shadow:0 0 0 0 transparent}}
+@media (max-width:640px){.pq-st{display:none}.pq-res{min-width:0}}
+.pl-bar{position:relative;z-index:40}
+.pq-res{z-index:200}
+.pq-open svg{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.pq-res svg{position:static!important;transform:none!important;left:auto!important;top:auto!important;margin:0!important;pointer-events:none}
 
 </style>
 <div class="app">
@@ -4527,17 +4554,17 @@ function vPlanning(){
       <div class="seg pl-view" role="group" aria-label="Weergave">${[["dag","Dag"],["week","Week"],["multi","Multi"],["maand","Maand"]].map(([x,l])=>`<button type="button" data-act="pview" data-v="${x}" aria-pressed="${v===x}">${l}</button>`).join("")}</div>
     </div></div>
   <div class="pl-bar">
-    <div class="search pl-q">${I.search}<input id="pq" type="search" placeholder="Zoek klant of adres…" value="${esc(state.pq)}"></div>
+    <div class="search pl-q">${I.search}<input id="pq" type="search" placeholder="Zoek klant of adres…" value="${esc(state.pq)}" autocomplete="off" aria-controls="pqRes">${pqResHtml(offerAll)}</div>
         <span class="pl-sp"></span>
     ${state.pstat&&state.pstat!=="alle"?`<button type="button" class="pl-chip" data-act="pstat" data-v="alle"><span class="sdot ${({gepland:"plan",bezig:"busy",afgerond:"ok"})[state.pstat]}"></span>Alleen ${({gepland:"gepland",bezig:"bezig",afgerond:"afgerond"})[state.pstat]}${I.x}</button>`:""}
     ${tglChip(state.achter,"achter","Alleen achterstallig",I.alert)}${tglChip(state.planMode,"planmode","Plan-modus",I.wand)}${tglChip(state.pselMode,"pselmode","Selecteren",I.checksq||I.check)}
     <button type="button" class="pl-kaart" data-act="pkaart" aria-pressed="${!!state.pkaart}" title="Kaartplannen">${I.map}<span>Kaart</span></button>
-    ${v==="dag"||v==="multi"?`<button type="button" class="primary pl-opt" data-act="optim" data-d="${d0}" title="Zet de jobs van deze dag in de kortste volgorde">${I.route||I.wand}<span>Optimaliseer route</span></button>`:""}
+    <button type="button" class="primary pl-opt" data-act="planmail" data-d="${d0}" title="Klanten laten weten wanneer je komt">${I.send}<span>Planningsmail</span></button>
     <button type="button" class="pl-new" data-act="newjob" data-d="${d0}">${I.plus}<span>Job</span></button>
     <div class="pl-meer${state.pmeer?" open":""}"><button type="button" class="iconbtn pl-mb" data-act="pmeer" aria-expanded="${!!state.pmeer}" aria-label="Meer acties" title="Meer">${I.dots||"⋯"}</button>
       <div class="pl-menu" role="menu">
         <p class="pl-ml">Acties</p>
-        ${mi("planmail",I.send,"Planningsmail","Klanten laten weten wanneer je komt",` data-d="${d0}"`)}
+        ${v==="dag"||v==="multi"?mi("optim",I.route||I.wand,"Optimaliseer route","Jobs van deze dag in de kortste volgorde",` data-d="${d0}"`):""}
         ${mi("daynote",I.note,"Notitie bij deze dag","",` data-d="${d0}"`)}
         ${mi("bulkday",I.cal2,"Bulk dag","Hele dag in één keer verzetten of afmelden",` data-d="${d0}"`)}
         ${mi("webaanvraag",I.globe,"Website-aanvraag","Aanvraag handmatig toevoegen")}
@@ -4779,6 +4806,42 @@ document.addEventListener("click",e=>{if(!state.pmeer)return;const m=e.target.cl
   if(m&&e.target.closest('.pl-menu [data-act]:not([data-act="rowh"]):not([data-act="slotsz"])')){state.pmeer=false;return}
   if(!m){state.pmeer=false;document.querySelectorAll(".pl-meer.open").forEach(x=>x.classList.remove("open"))}},true);
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&state.pmeer){state.pmeer=false;document.querySelectorAll(".pl-meer.open").forEach(x=>x.classList.remove("open"))}});
+
+/* ---------- Zoeken in Planning: resultaten onder het zoekveld ----------
+   Typ een naam of adres: je ziet direct de klant, wanneer hij gepland staat of dat hij nog ingepland moet worden.
+   Klik = naar die dag in de planning, of op de kaart / bij Te plannen tonen. */
+state.pqOpen=state.pqOpen||false;
+function pqLijst(){const q=String(state.pq||"").trim().toLowerCase();if(q.length<2)return[];
+  const woorden=q.split(/\s+/);
+  return actief().map(k=>{const t=[cleanName(k.naam),k.adres,k.plaats,k.postcode,jobAddr(k)].join(" ").toLowerCase();if(!woorden.every(w=>t.includes(w)))return null;
+    const a=String(jobAddrObj(k).adres||"").toLowerCase(),n=cleanName(k.naam).toLowerCase();return{k,sc:(a.startsWith(q)||n.startsWith(q)?0:1)}}).filter(Boolean)
+    .sort((a,b)=>a.sc-b.sc||cleanName(a.k.naam).localeCompare(cleanName(b.k.naam))).slice(0,7).map(x=>x.k)}
+function pqResHtml(offerAll){if(!state.pqOpen)return"";const q=String(state.pq||"").trim();if(q.length<2)return"";
+  const L=pqLijst(),t=iso(today()),te=new Set((offerAll||[]).map(k=>k.id));
+  const rij=(k,i)=>{const a=jobAddrObj(k),gp=k.gepland&&k.gepland>=t?k.gepland:"";
+    const st=gp?`<em class="pq-st pl">${I.planning}${esc(gp===t?"Vandaag":fmtD(gp))}${k.tijd?" · "+esc(k.tijd):""}</em>`:te.has(k.id)?`<em class="pq-st of">Te plannen · ${esc((dueTxt(k)||{}).txt||"")}</em>`:`<em class="pq-st">Volgende ${esc(fmtD(planned(k)))}</em>`;
+    return `<li role="option" class="pq-r${i===0?" eerste":""}" data-pq="${esc(k.id)}"><span class="pq-av" style="--h:${hue(k.ronde||k.naam)}">${esc(initials(k.naam))}</span><span class="pq-tx"><b>${esc(a.adres||cleanName(k.naam))}</b><small>${esc(cleanName(k.naam))}${a.plaats?" · "+esc(a.plaats):""}</small></span>${st}<button type="button" class="pq-open" data-pqk="${esc(k.id)}" title="Klant openen" aria-label="Klant openen">${I.user}</button></li>`};
+  return `<ul class="pq-res" id="pqRes" role="listbox">${L.length?L.map(rij).join(""):`<li class="pq-leeg">Geen klant gevonden voor “${esc(q)}”</li>`}</ul>`}
+function pqKies(id){const k=state.klanten.find(x=>x.id===id);if(!k)return;const t=iso(today());state.pqOpen=false;
+  const gp=k.gepland&&k.gepland>=t?k.gepland:"";
+  if(gp){state.planDay=gp;if(state.pview==="maand")state.pview="dag";if(state.pview==="week"||state.pview==="multi"){state.week=startOfWeek(parse(gp));state.multiDays=null}
+    render();setTimeout(()=>pqFlits(`.job[data-drag="${id}"],.job[data-id="${id}"]`),80);return}
+  render();
+  setTimeout(()=>{
+    if(state.pkaart&&PK.map&&PK.mk&&PK.mk[id]){const m=PK.mk[id];PK.zelf=true;PK.map.flyTo(m.getLatLng(),Math.max(PK.map.getZoom(),15),{duration:.7});setTimeout(()=>{m.openTooltip();const el=m.getElement();if(el){el.classList.add("pk-hl");setTimeout(()=>el.classList.remove("pk-hl"),2600)}},750)}
+    if(!pqFlits(`.offercol [data-drag="${id}"]`)&&!(state.pkaart&&PK.mk&&PK.mk[id]))openKlantView(id)},80)}
+function pqFlits(sel){const el=document.querySelector(sel);if(!el)return false;el.scrollIntoView({behavior:"smooth",block:"center"});el.classList.remove("pq-flits");void el.offsetWidth;el.classList.add("pq-flits");setTimeout(()=>el.classList.remove("pq-flits"),2200);return true}
+document.addEventListener("input",e=>{if(e.target.id==="pq")state.pqOpen=true},true);
+document.addEventListener("focusin",e=>{if(e.target.id==="pq"&&String(state.pq||"").trim().length>=2&&!state.pqOpen){state.pqOpen=true;render();const i=document.getElementById("pq");if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}}});
+document.addEventListener("keydown",e=>{if(e.target.id!=="pq")return;
+  if(e.key==="Enter"){e.preventDefault();const f=document.querySelector(".pq-res .pq-r");if(f)pqKies(f.dataset.pq)}
+  else if(e.key==="Escape"&&state.pqOpen){e.preventDefault();state.pqOpen=false;render()}
+  else if(e.key==="ArrowDown"){const f=document.querySelector(".pq-res .pq-r");if(f){e.preventDefault();f.tabIndex=0;f.focus()}}});
+document.addEventListener("keydown",e=>{const r=e.target.closest&&e.target.closest(".pq-r");if(!r)return;
+  if(e.key==="Enter"){e.preventDefault();pqKies(r.dataset.pq)}else if(e.key==="ArrowDown"||e.key==="ArrowUp"){e.preventDefault();const n=e.key==="ArrowDown"?r.nextElementSibling:r.previousElementSibling;if(n&&n.classList.contains("pq-r")){n.tabIndex=0;n.focus()}else if(e.key==="ArrowUp")document.getElementById("pq").focus()}});
+document.addEventListener("click",e=>{const o=e.target.closest&&e.target.closest("[data-pqk]");if(o){e.preventDefault();e.stopPropagation();state.pqOpen=false;openKlantView(o.dataset.pqk);return}
+  const r=e.target.closest&&e.target.closest("[data-pq]");if(r){e.preventDefault();pqKies(r.dataset.pq);return}
+  if(state.pqOpen&&!(e.target.closest&&e.target.closest(".pl-q"))){state.pqOpen=false;const u=document.getElementById("pqRes");if(u)u.remove()}},true);
 
 /* ---------- Meervoudig inplannen: afspraakreeksen ----------
    k.reeks = [{d:"2026-11-09",t:"09:30"},…]  = de afspraken NA k.gepland.

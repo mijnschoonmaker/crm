@@ -115,17 +115,17 @@ function vPlanning(){
       <div class="seg pl-view" role="group" aria-label="Weergave">${[["dag","Dag"],["week","Week"],["multi","Multi"],["maand","Maand"]].map(([x,l])=>`<button type="button" data-act="pview" data-v="${x}" aria-pressed="${v===x}">${l}</button>`).join("")}</div>
     </div></div>
   <div class="pl-bar">
-    <div class="search pl-q">${I.search}<input id="pq" type="search" placeholder="Zoek klant of adres…" value="${esc(state.pq)}"></div>
+    <div class="search pl-q">${I.search}<input id="pq" type="search" placeholder="Zoek klant of adres…" value="${esc(state.pq)}" autocomplete="off" aria-controls="pqRes">${pqResHtml(offerAll)}</div>
         <span class="pl-sp"></span>
     ${state.pstat&&state.pstat!=="alle"?`<button type="button" class="pl-chip" data-act="pstat" data-v="alle"><span class="sdot ${({gepland:"plan",bezig:"busy",afgerond:"ok"})[state.pstat]}"></span>Alleen ${({gepland:"gepland",bezig:"bezig",afgerond:"afgerond"})[state.pstat]}${I.x}</button>`:""}
     ${tglChip(state.achter,"achter","Alleen achterstallig",I.alert)}${tglChip(state.planMode,"planmode","Plan-modus",I.wand)}${tglChip(state.pselMode,"pselmode","Selecteren",I.checksq||I.check)}
     <button type="button" class="pl-kaart" data-act="pkaart" aria-pressed="${!!state.pkaart}" title="Kaartplannen">${I.map}<span>Kaart</span></button>
-    ${v==="dag"||v==="multi"?`<button type="button" class="primary pl-opt" data-act="optim" data-d="${d0}" title="Zet de jobs van deze dag in de kortste volgorde">${I.route||I.wand}<span>Optimaliseer route</span></button>`:""}
+    <button type="button" class="primary pl-opt" data-act="planmail" data-d="${d0}" title="Klanten laten weten wanneer je komt">${I.send}<span>Planningsmail</span></button>
     <button type="button" class="pl-new" data-act="newjob" data-d="${d0}">${I.plus}<span>Job</span></button>
     <div class="pl-meer${state.pmeer?" open":""}"><button type="button" class="iconbtn pl-mb" data-act="pmeer" aria-expanded="${!!state.pmeer}" aria-label="Meer acties" title="Meer">${I.dots||"⋯"}</button>
       <div class="pl-menu" role="menu">
         <p class="pl-ml">Acties</p>
-        ${mi("planmail",I.send,"Planningsmail","Klanten laten weten wanneer je komt",` data-d="${d0}"`)}
+        ${v==="dag"||v==="multi"?mi("optim",I.route||I.wand,"Optimaliseer route","Jobs van deze dag in de kortste volgorde",` data-d="${d0}"`):""}
         ${mi("daynote",I.note,"Notitie bij deze dag","",` data-d="${d0}"`)}
         ${mi("bulkday",I.cal2,"Bulk dag","Hele dag in één keer verzetten of afmelden",` data-d="${d0}"`)}
         ${mi("webaanvraag",I.globe,"Website-aanvraag","Aanvraag handmatig toevoegen")}
