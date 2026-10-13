@@ -597,6 +597,45 @@ html,body{background:var(--bg)!important}
 .stat::after,.bz-tile::after,.rf-tg>div::after{display:none!important}
 .kp>.kp-h{background:var(--surface)!important}
 .ch-lijst{background:var(--bg)!important}
+
+/* ---------- aanbevelen: echte cadeaubonnen ---------- */
+.rf-vis{height:236px!important}
+.rfc{position:absolute;width:236px;aspect-ratio:1.586;border-radius:16px;box-sizing:border-box;overflow:hidden;font-family:inherit}
+.rfc img{width:22px;height:22px;border-radius:50%;object-fit:cover;background:#fff;box-shadow:0 0 0 1.5px rgb(255 255 255 / .5)}
+.rfc-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.rfc-top em{font-style:normal;font-size:9.5px;font-weight:800;letter-spacing:.18em;text-transform:uppercase}
+.rfc small{display:block;font-size:11px;font-weight:600;letter-spacing:.02em;margin-top:14px}
+.rfc b{display:block;font-size:38px;font-weight:700;letter-spacing:-.035em;line-height:1.02;font-variant-numeric:tabular-nums}
+/* U krijgt: donkere premium kaart met goudfolie */
+.rfc.k1{right:0;top:0;z-index:2;padding:16px 18px;color:#fff;transform:rotate(5deg);background:radial-gradient(120% 90% at 100% 0%,#2c4a55 0%,transparent 60%),linear-gradient(145deg,#16262d,#0b1418 70%);box-shadow:0 1px 0 rgb(255 255 255 / .12) inset,0 30px 50px -22px rgb(0 0 0 / .65),0 10px 18px -10px rgb(0 0 0 / .45)}
+.rfc.k1::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgb(255 255 255 / .025) 0 1px,transparent 1px 7px);pointer-events:none}
+.rfc.k1 .rfc-top em{color:#e6c77a}
+.rfc.k1 small{color:rgb(255 255 255 / .6)}
+.rfc.k1 b{background:linear-gradient(100deg,#b8892f 0%,#f6e3a3 35%,#d4a94a 55%,#fff1c2 75%,#b8892f 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 1px 0 rgb(0 0 0 / .35))}
+.rfc-ft{display:flex;justify-content:space-between;align-items:flex-end;margin-top:6px;font-size:10.5px;color:rgb(255 255 255 / .55)}
+.rfc-code{font-family:ui-monospace,Menlo,monospace;letter-spacing:.14em;color:rgb(255 255 255 / .8)}
+.rfc-glans{position:absolute;inset:-40% -60%;background:linear-gradient(105deg,transparent 40%,rgb(255 255 255 / .16) 48%,rgb(255 255 255 / .04) 54%,transparent 60%);transform:translateX(-30%);animation:rfcGlans 6s ease-in-out infinite;pointer-events:none}
+@keyframes rfcGlans{0%,55%{transform:translateX(-35%)}80%,100%{transform:translateX(35%)}}
+/* Uw buur krijgt: lichte bon met afscheurstrook en ponsgaatjes */
+.rfc.k2{left:0;bottom:0;z-index:1;display:flex;transform:rotate(-6deg);background:linear-gradient(160deg,#fffdf7,#f3efe4);color:#14232a;box-shadow:0 26px 44px -22px rgb(0 0 0 / .55),0 8px 16px -10px rgb(0 0 0 / .35)}
+.rfc-stub{width:40px;flex:none;position:relative;display:grid;place-items:center;background:linear-gradient(180deg,#2bb673,#1b8a5a);color:#fff;border-right:2px dashed rgb(255 255 255 / .9)}
+.rfc-stub span{writing-mode:vertical-rl;transform:rotate(180deg);font-size:9.5px;font-weight:800;letter-spacing:.22em}
+.rfc.k2::before,.rfc.k2::after{content:"";position:absolute;left:31px;width:18px;height:18px;border-radius:50%;background:#16707f;z-index:2}
+.rfc.k2::before{top:-9px}.rfc.k2::after{bottom:-9px}
+.rfc-body{flex:1;min-width:0;padding:14px 16px 12px}
+.rfc.k2 .rfc-top em{color:#1b8a5a}
+.rfc.k2 small{color:#6b7b83;margin-top:10px}
+.rfc.k2 b{color:#1b8a5a}
+.rfc.k2 .rfc-body>span{font-size:10.5px;color:#6b7b83}
+@media (prefers-reduced-motion:reduce){.rfc-glans{animation:none;display:none}}
+.rf-hero{grid-template-columns:minmax(0,1fr) 330px!important}
+.rf-vis{height:250px!important}
+.rfc{width:214px}
+.rfc.k1{right:4px;top:6px}
+.rfc.k2{left:0;bottom:2px}
+.rfc.k2::before,.rfc.k2::after{display:none}
+.rfc-stub{-webkit-mask:radial-gradient(circle at 100% 0,transparent 8px,#000 8.5px) top/100% 51% no-repeat,radial-gradient(circle at 100% 100%,transparent 8px,#000 8.5px) bottom/100% 51% no-repeat;mask:radial-gradient(circle at 100% 0,transparent 8px,#000 8.5px) top/100% 51% no-repeat,radial-gradient(circle at 100% 100%,transparent 8px,#000 8.5px) bottom/100% 51% no-repeat}
+@media (max-width:1100px){.rf-hero{grid-template-columns:1fr!important}.rf-vis{display:none}}
 </style></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -867,8 +906,8 @@ function aanbevelen(){const A=D.aanbevelen,R=B.refBeloning,W=B.refWelkom;
         <div class="rf-deel"><a class="rf-btn wa" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(deelTekst())}">${I.wa}WhatsApp</a><a class="rf-btn" href="mailto:?subject=${encodeURIComponent("Tip: "+B.naam)}&body=${encodeURIComponent(deelTekst())}">${I.mail}Mail</a><button class="rf-btn" data-deel>${I.deel}Delen</button></div>
       </div>
       <div class="rf-vis" aria-hidden="true">
-        ${W>0?`<div class="rf-kaart k2"><small>Uw buur krijgt</small><b>${eur0(W)}</b><span>welkomstkorting</span></div>`:""}
-        <div class="rf-kaart k1"><small>U krijgt</small><b>${eur0(R)}</b><span>per nieuwe klant</span></div>
+        ${W>0?`<div class="rfc k2"><div class="rfc-stub"><span>WELKOM</span></div><div class="rfc-body"><div class="rfc-top"><img src="${esc(B.logo||"/logo.png")}" alt=""><em>Welkomstbon</em></div><small>Uw buur krijgt</small><b>${eur0(W)}</b><span>korting op de eerste factuur</span></div></div>`:""}
+        <div class="rfc k1"><i class="rfc-glans"></i><div class="rfc-top"><img src="${esc(B.logo||"/logo.png")}" alt=""><em>Bedankbon</em></div><small>U krijgt</small><b>${eur0(R)}</b><div class="rfc-ft"><span>per nieuwe klant</span><span class="rfc-code">${esc(A.code)}</span></div></div>
       </div>
     </section>
     <section class="rf-tg">
