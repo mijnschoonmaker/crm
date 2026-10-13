@@ -2956,6 +2956,12 @@ aside nav button .badge{font-size:10.5px}
 /* tijden langs het rooster: elk tijdvak een label, hele uren duidelijk */
 .tg-times span.hh{font-weight:500!important;opacity:.55;font-size:11px!important}
 .tg-times span.hu{font-weight:700;color:var(--ink-2,var(--muted))}
+/* opdracht: regels toevoegen ingeklapt onder Afspraakregels */
+.ow-add{margin:2px 0 12px;padding:12px;border-radius:14px;background:var(--surface-2);display:flex;flex-direction:column;gap:10px}
+.ow-addh{display:flex;align-items:center;justify-content:space-between;gap:10px}.ow-addh b{font-size:13px;font-weight:650}
+.ow-add #owZoek{max-width:none!important;background:var(--surface)}
+#owAddT svg{transition:transform .2s}#owAddT.open svg{transform:rotate(45deg)}
+.ow-add[hidden]{display:none!important}
 
 </style>
 <div class="app">
@@ -7335,10 +7341,10 @@ function openOpdrachtWerk(kid,focus){
   <div class="kk-grid ow-grid"><div class="kk-left">
     <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klantgegevens</b><span class="sp"></span><button type="button" class="small" id="owKk">${I.right}Klantkaart</button></div>
       ${kv("Klantnummer",esc(nr))}${kv("Naam",esc(cleanName(k.naam)))}${kv("E-mail",k.email?`<a href="mailto:${esc(k.email)}">${esc(k.email)}</a>`:"—")}${kv("Telefoon",k.telefoon?`<a href="tel:${esc(String(k.telefoon).replace(/[^\d+]/g,""))}">${esc(k.telefoon)}</a>`:"—")}${kv("Soort",k.soort==="zakelijk"?"Zakelijk":"Particulier")}</section>
-    <section class="kp"><div class="kp-h"><span class="objic">${I.pin}</span><b>Adres</b><span class="sp"></span><a class="btn small" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.nav}Kaart</a></div>
+    <section class="kp"><div class="kp-h"><span class="objic">${I.pin}</span><b>Adresgegevens</b><span class="sp"></span><a class="btn small" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.nav}Navigatie</a></div>
       ${kv("Adres",esc(jobAddr(k)))}${(k.objecten||[]).length>1?`<label>Object<select id="ow-obj">${k.objecten.map(o=>`<option value="${esc(o.id)}" ${jobObj(k)&&jobObj(k).id===o.id?"selected":""}>${esc(o.naam||"Object")}</option>`).join("")}</select></label>`:""}
       ${[["offerte","Offerte gaat naar"],["factuur","Facturen gaan naar"],["planning","Planningsmails gaan naar"]].map(([x,l])=>kv(l,(mailK(k,x).email?esc(mailK(k,x).email):"—")+(tavK(k,x)?`<br><small class="subt">t.a.v. ${esc(tavK(k,x))}</small>`:""))).join("")}<button type="button" class="linkbtn" id="owAdr" style="align-self:flex-start">Adresgegevens aanpassen ${I.right}</button></section>
-    <section class="kp"><div class="kp-h"><span class="objic">${I.planning}</span><b>Opdracht</b></div>
+    <section class="kp"><div class="kp-h"><span class="objic">${I.planning}</span><b>Afspraakdetails</b></div>
       <div class="grid2">
         <label>Ronde<input id="ow-ronde" list="ow-rl" value="${esc(k.ronde||"")}" placeholder="bijv. Ronde Noord"><datalist id="ow-rl">${rondes().map(r=>`<option value="${esc(r)}">`).join("")}</datalist></label>
         <label>Volgende beurt<input value="${k.gepland?esc(fmtL(k.gepland))+(k.tijd?" "+esc(k.tijd):""):"Te plannen"}" disabled></label>
@@ -7353,6 +7359,8 @@ function openOpdrachtWerk(kid,focus){
         <label class="full check-row"><input id="ow-actief" type="checkbox" ${k.actief!==false?"checked":""}>Opdracht loopt (uitzetten = klant inactief, alle toekomstige afspraken vervallen)</label>
         ${k.gepland?`<button type="button" class="small ghost danger" id="owWis" style="grid-column:1/-1;justify-self:start;white-space:nowrap">Alle toekomstige afspraken verwijderen</button>`:""}
       </div></section>
+    <section class="kp"><div class="kp-h"><span class="objic">${I.spark}</span><b>Nu aanbieden / uitstellen</b></div>
+      <div class="ow-aanb" id="owAanb"></div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.facturen}</span><b>Details contract</b></div>
       ${kv("Status",status[1])}<div class="grid2"><label>Startdatum contract<input id="ow-start" type="date" value="${esc(k.startdatum||String((off&&off.akkoordOp)||k.aangemaakt||iso(today())).slice(0,10))}"></label><label>Einddatum contract<input id="ow-eind" type="date" value="${esc(k.einddatum||"")}"><small class="help">Na deze datum niet meer aanbieden</small></label></div>${kv("Offerte",off?`<button type="button" class="linkbtn" data-act="factuur" data-id="${esc(off.id)}">${esc(off.nummer)} · geaccepteerd</button>`:"—")}
       <label class="check-row"><input id="ow-akkoord" type="checkbox" ${k.akkoord?"checked":""}>Akkoord op overeenkomst en algemene voorwaarden</label></section>
@@ -7365,25 +7373,22 @@ function openOpdrachtWerk(kid,focus){
       <label class="check-row"><input id="ow-verlegd" type="checkbox" ${k.btwVerlegd?"checked":""}>Btw verleggen <small class="help">factuur met 0% btw en de vermelding "Btw verlegd"</small></label>
       ${kv("Openstaande facturen",open.length?`<span class="pill late">${plural(open.length,"factuur","facturen")} · ${eur(open.reduce((a,f)=>a+totals(f).inc,0))}</span>`:"Nee")}</section>
   </div><div class="kk-side">
-    <section class="kp"><div class="kp-h"><span class="objic">${I.spark}</span><b>Nu aanbieden / uitstellen</b></div>
-      <div class="ow-aanb" id="owAanb"></div></section>
-    <section class="kp"><div class="kp-h"><span class="objic">${I.pencil}</span><b>Taakomschrijving</b></div>
-      <textarea id="ow-taak" style="min-height:70px" placeholder="Bijv. wassen ramen incl. kozijnen, achterom via de poort">${esc(k.taak||"")}</textarea>
+    <section class="kp"><div class="kp-h"><span class="objic">${I.pencil}</span><b>Extra informatie</b></div>
+      <label>Taakomschrijving<textarea id="ow-taak" style="min-height:70px" placeholder="Bijv. wassen ramen incl. kozijnen, achterom via de poort">${esc(k.taak||"")}</textarea></label>
       <label>Notitie voor op de route<textarea id="ow-not" style="min-height:56px" placeholder="Sleutel onder bloempot, hond, ladder nodig achterkant…">${esc(k.notities||"")}</textarea></label></section>
-    <section class="kp"><div class="kp-h"><span class="objic">${I.plus}</span><b>Opdrachtregel toevoegen</b><span class="sp"></span><button type="button" class="small" id="owEigen">${I.plus}Eigen dienst</button></div>
-      <input id="owZoek" placeholder="Zoeken" style="max-width:280px">
-      <div class="ow-chips" id="owChips">${dienstChips(diensten,"data-dn")}</div></section>
-    <section class="kp"><div class="kp-h"><span class="objic">${I.check}</span><b>Opdrachtregels</b></div><div id="owLines"></div><div class="totals" id="owTot"></div></section>
-    <section class="kp kp-rc"><div class="kp-h"><span class="objic">${I.calculator}</span><div style="min-width:0"><b>Prijs aanpassen?</b><small>${k.ramenTelling?`Laatste telling ${fmtD(k.ramenTelling.datum)} · ${k.ramenTelling.ramen} ramen. `:""}Tel opnieuw in een nieuwe offerte; na akkoord past de opdracht zich aan.</small></div><span class="sp"></span><button type="button" class="small primary" id="owOff">${I.offertes}Nieuwe offerte</button></div></section>
+    <section class="kp"><div class="kp-h"><span class="objic">${I.check}</span><b>Afspraakregels</b><span class="sp"></span><button type="button" class="iconbtn sm primary" id="owAddT" aria-label="Opdrachtregel toevoegen" aria-expanded="false">${I.plus}</button></div><div class="ow-add" id="owAdd" hidden><div class="ow-addh"><b>Opdrachtregel toevoegen</b><button type="button" class="small" id="owEigen">${I.plus}Eigen dienst</button></div><input id="owZoek" placeholder="Zoeken" style="max-width:280px">
+      <div class="ow-chips" id="owChips">${dienstChips(diensten,"data-dn")}</div></div><div id="owLines"></div><div class="totals" id="owTot"></div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.receipt}</span><div style="min-width:0"><b>Artikelen</b><small>Gaan eenmalig mee op de volgende factuur</small></div><span class="sp"></span><button type="button" class="iconbtn sm primary" id="owArtAdd" aria-label="Artikel toevoegen">${I.plus}</button></div><div id="owArt"></div></section>
-    <section class="kp"><div class="kp-h"><span class="objic">${I.wrench}</span><div style="min-width:0"><b>Bedrijfsmiddelen</b><small>Staan bij de klus op de route</small></div></div><div id="owMid"></div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.camera||I.upload}</span><b>Foto's</b><span class="sp"></span>${state.assets?`<label class="btn small primary">${I.plus}Uploaden<input type="file" accept="image/*" multiple hidden id="owFoto"></label>`:""}</div><div class="ow-fotos" id="owFotos"></div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.chat}</span><b>Logboek</b></div>
       <div class="log">${[...(k.log||[]).map(l=>({d:l.datum,t:l.tekst,s:"Notitie"})),...state.berichten.filter(m=>m.klantId===k.id).map(m=>({d:String(m.op).slice(0,10),t:m.tekst,s:KANAAL[m.kanaal]||m.kanaal}))].sort((a,b)=>String(b.d).localeCompare(String(a.d))).slice(0,15).map(l=>`<div><span>${fmtD(l.d)} · ${esc(l.s)}</span>${esc(l.t)}</div>`).join("")||'<div style="color:var(--muted)">Er zijn nog geen logboekregels.</div>'}</div>
       <div style="display:flex;gap:8px"><input id="ow-log" placeholder="Bijv. gebeld, komt dinsdag beter uit"><button type="button" class="small" id="owLog">Noteer</button></div></section>
+    <section class="kp"><div class="kp-h"><span class="objic">${I.wrench}</span><div style="min-width:0"><b>Bedrijfsmiddelen</b><small>Staan bij de klus op de route</small></div></div><div id="owMid"></div></section>
+    <section class="kp kp-rc"><div class="kp-h"><span class="objic">${I.calculator}</span><div style="min-width:0"><b>Prijs aanpassen?</b><small>${k.ramenTelling?`Laatste telling ${fmtD(k.ramenTelling.datum)} · ${k.ramenTelling.ramen} ramen. `:""}Tel opnieuw in een nieuwe offerte; na akkoord past de opdracht zich aan.</small></div><span class="sp"></span><button type="button" class="small primary" id="owOff">${I.offertes}Nieuwe offerte</button></div></section>
   </div></div>
   <div class="row stickyfoot kk-foot"><button type="button" class="ghost danger" id="owDel">${I.trash}Opdracht verwijderen</button><span class="sp"></span><button type="button" id="owBack">Annuleren</button><button type="submit" class="primary" id="owSave">${I.check}Opslaan</button></div>`,{xwide:true});
   const $o=n=>$("#ow-"+n);
+  {const t=$("#owAddT"),p=$("#owAdd");if(t&&p)t.onclick=()=>{p.hidden=!p.hidden;t.setAttribute("aria-expanded",String(!p.hidden));t.classList.toggle("open",!p.hidden);if(!p.hidden){const z=$("#owZoek");z&&z.focus()}}}
   const editR=new Set();
   /* extra diensten ingeklapt tonen; open bij nieuw toevoegen of na "Wijzigen" */
   const dicht=new Set((k.opdrachten||[]).map(o=>o.id));
