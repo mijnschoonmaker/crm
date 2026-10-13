@@ -645,7 +645,7 @@ function hero(){const v=D.volgende,k=D.klant;
   if(v&&v.bezig)return `<section class="hero"><div class="hero-in"><span class="objic groen" style="width:64px;height:64px;border-radius:18px">${I.ruit}</span><div class="hero-tx"><p class="eyebrow"><span class="puls"></span>Vandaag</p><h2>We zijn nu bij u aan het werk</h2><p>Na afloop ziet u het bezoek terug bij Bezoeken.</p></div></div></section>`;
   if(v){const d=p(v.datum),n=dagenTot(v.datum);
     return `<section class="hero"><div class="hero-in"><div class="kal" aria-hidden="true"><i>${MND[d.getMonth()].slice(0,3)}</i><b>${d.getDate()}</b><small>${esc(dagNaam(d).slice(0,2))}</small></div>
-      <div class="hero-tx"><p class="eyebrow">${I.kal}Eerstvolgende aanboddatum <span class="pill brand">${overTxt(n)}</span></p><h2>${esc(lang(v.datum))}</h2></div></div>
+      <div class="hero-tx"><p class="eyebrow">${I.kal}Eerstvolgende aanboddatum</p><h2>${esc(lang(v.datum))}</h2></div></div>
       <div class="hero-acts"><button data-act="overslaan">${I.pauze}Overslaan</button><button data-act="toegang">${I.sleutel}Instructies</button></div>
       ${v.reeks.length?`<div class="hero-ft">Daarna: ${v.reeks.slice(0,3).map(x=>`<b>${kort(x.datum)}</b>`).join(", ")}${v.reeks.length>3?" en verder":""}</div>`:""}</section>`}
   const w=D.verwacht?weekNr(p(D.verwacht)):0;
