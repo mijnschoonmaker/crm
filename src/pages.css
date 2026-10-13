@@ -2642,3 +2642,20 @@ html.zm .pl-menu{max-height:calc(100dvh / .9 - 190px)}
 .st-hm .huisjes{margin:2px 0}
 @media (max-width:980px){.st-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.st-hero{grid-template-columns:1fr}.st-hs{flex-direction:row}.st-hs .st-tile{flex:1}}
 @media (max-width:760px){.st-two{grid-template-columns:1fr}.st-two .st-card+.st-card{margin-top:0}.st-hero{padding:20px 18px;border-radius:22px}.st-card{padding:16px}}
+/* ---------- betaalgedrag ---------- */
+.pay{display:flex;flex-direction:column;gap:12px;padding:14px 16px;margin-top:6px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,var(--surface),color-mix(in srgb,var(--surface-2) 40%,var(--surface)))}
+.pay-h{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.pay-h b{font-size:14.5px;font-weight:650}
+.pay-v{font-size:11.5px;font-weight:650;padding:3px 10px;border-radius:99px;white-space:nowrap}
+.pay-v.ok{background:rgba(43,182,115,.12);color:#1b8a5a}.pay-v.soon{background:rgba(224,160,48,.14);color:#9a6512}.pay-v.late{background:rgba(217,83,79,.11);color:#b33a3a}.pay-v.plan{background:color-mix(in srgb,#5aa9c2 14%,transparent);color:#2f7f95}
+.pay-b{display:flex;align-items:center;gap:16px}
+.pay-r{position:relative;width:84px;height:84px;flex:none}.pay-r svg{width:100%;height:100%}
+.pay-r>span{position:absolute;inset:0;display:grid;place-content:center;text-align:center;font-size:19px;font-weight:650;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.pay-r small{display:block;font-size:10.5px;font-weight:600;color:var(--muted);letter-spacing:0;margin-top:3px}
+.pay-g{flex:1;min-width:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.pay-c{display:flex;flex-direction:column;gap:1px;padding:7px 10px;border-radius:12px;background:color-mix(in srgb,var(--c) 8%,var(--surface))}
+.pay-c b{font-size:17px;font-weight:650;line-height:1.1;font-variant-numeric:tabular-nums;color:color-mix(in srgb,var(--c) 70%,var(--ink))}
+.pay-c span{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted);font-weight:550;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pay-c i{width:7px;height:7px;border-radius:50%;background:var(--c);flex:none}
+.pay-c.nul{background:var(--surface-2)}.pay-c.nul b{color:var(--muted);opacity:.6}.pay-c.nul i{opacity:.4}
+.pay-f{margin:0;font-size:12.5px;color:var(--muted)}.pay-f b{color:var(--ink);font-weight:650}
+.pay-r>span.leeg{font-size:13px;font-weight:600;color:var(--muted)}

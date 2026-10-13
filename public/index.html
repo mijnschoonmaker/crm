@@ -3055,6 +3055,23 @@ html.zm .pl-menu{max-height:calc(100dvh / .9 - 190px)}
 .st-hm .huisjes{margin:2px 0}
 @media (max-width:980px){.st-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.st-hero{grid-template-columns:1fr}.st-hs{flex-direction:row}.st-hs .st-tile{flex:1}}
 @media (max-width:760px){.st-two{grid-template-columns:1fr}.st-two .st-card+.st-card{margin-top:0}.st-hero{padding:20px 18px;border-radius:22px}.st-card{padding:16px}}
+/* ---------- betaalgedrag ---------- */
+.pay{display:flex;flex-direction:column;gap:12px;padding:14px 16px;margin-top:6px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,var(--surface),color-mix(in srgb,var(--surface-2) 40%,var(--surface)))}
+.pay-h{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.pay-h b{font-size:14.5px;font-weight:650}
+.pay-v{font-size:11.5px;font-weight:650;padding:3px 10px;border-radius:99px;white-space:nowrap}
+.pay-v.ok{background:rgba(43,182,115,.12);color:#1b8a5a}.pay-v.soon{background:rgba(224,160,48,.14);color:#9a6512}.pay-v.late{background:rgba(217,83,79,.11);color:#b33a3a}.pay-v.plan{background:color-mix(in srgb,#5aa9c2 14%,transparent);color:#2f7f95}
+.pay-b{display:flex;align-items:center;gap:16px}
+.pay-r{position:relative;width:84px;height:84px;flex:none}.pay-r svg{width:100%;height:100%}
+.pay-r>span{position:absolute;inset:0;display:grid;place-content:center;text-align:center;font-size:19px;font-weight:650;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.pay-r small{display:block;font-size:10.5px;font-weight:600;color:var(--muted);letter-spacing:0;margin-top:3px}
+.pay-g{flex:1;min-width:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.pay-c{display:flex;flex-direction:column;gap:1px;padding:7px 10px;border-radius:12px;background:color-mix(in srgb,var(--c) 8%,var(--surface))}
+.pay-c b{font-size:17px;font-weight:650;line-height:1.1;font-variant-numeric:tabular-nums;color:color-mix(in srgb,var(--c) 70%,var(--ink))}
+.pay-c span{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted);font-weight:550;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pay-c i{width:7px;height:7px;border-radius:50%;background:var(--c);flex:none}
+.pay-c.nul{background:var(--surface-2)}.pay-c.nul b{color:var(--muted);opacity:.6}.pay-c.nul i{opacity:.4}
+.pay-f{margin:0;font-size:12.5px;color:var(--muted)}.pay-f b{color:var(--ink);font-weight:650}
+.pay-r>span.leeg{font-size:13px;font-weight:600;color:var(--muted)}
 
 </style>
 <div class="app">
@@ -8125,6 +8142,15 @@ function betaalgedrag(fs){
   f.forEach(x=>{const h=Number(x.herinneringen)||0,st=fStatus(x)[1];if(st==="Openstaand"||st==="Achterstallig"){c.open++;return}if(h>=2)c.aanmaning++;else if(h===1)c.herinnering++;else c.optijd++});
   const paid=f.filter(x=>x.status==="betaald"&&x.betaaldOp),gem=paid.length?Math.round(paid.reduce((a,x)=>a+Math.max(0,(parse(x.betaaldOp)-parse(x.datum))/DAY),0)/paid.length):null;
   return {c,gem,n:f.length,laatste:f.slice().sort((a,b)=>String(b.datum).localeCompare(String(a.datum))).slice(0,3)}}
+/* betaalgedrag als nette kaart: ring met % op tijd, oordeel en vier tellers */
+const PAYK={aanmaning:["#d9534f","Aanmaning"],herinnering:["#e0a030","Herinnering"],optijd:["#2bb673","Op tijd betaald"],open:["#5aa9c2","Openstaand"]};
+function payBlok(bg){const c=bg.c,afg=c.optijd+c.herinnering+c.aanmaning,pct=afg?Math.round(c.optijd/afg*100):null,tot=afg+c.open;
+  const [vk,vt]=c.aanmaning?["late","Aanmaning nodig geweest"]:c.herinnering?["soon","Soms een herinnering"]:afg?["ok","Betaalt netjes op tijd"]:c.open?["plan","Nog geen betalingen"]:["plan","Nog geen facturen"];
+  const R=16,C=2*Math.PI*R;let off=0;const seg=tot?Object.keys(PAYK).filter(k=>c[k]).map(k=>{const L=c[k]/tot*C,gap=Object.keys(PAYK).filter(x=>c[x]).length>1?1.6:0,el=`<circle cx="21" cy="21" r="${R}" fill="none" stroke="${PAYK[k][0]}" stroke-width="5" stroke-linecap="round" stroke-dasharray="${Math.max(.01,L-gap)} ${C}" stroke-dashoffset="${-off}"/>`;off+=L;return el}).join(""):"";
+  return `<div class="pay"><div class="pay-h"><b>Betaalgedrag</b><span class="pay-v ${vk}">${vt}</span></div>
+    <div class="pay-b"><div class="pay-r"><svg viewBox="0 0 42 42"><circle cx="21" cy="21" r="${R}" fill="none" stroke="var(--surface-2)" stroke-width="5"/><g transform="rotate(-90 21 21)">${seg}</g></svg><span class="${pct==null?"leeg":""}">${pct==null?"nog":pct+"%"}<small>${pct==null?"niets betaald":"op tijd"}</small></span></div>
+      <div class="pay-g">${Object.keys(PAYK).reverse().map(k=>`<div class="pay-c${c[k]?"":" nul"}" style="--c:${PAYK[k][0]}"><b>${c[k]}</b><span><i></i>${PAYK[k][1]}</span></div>`).join("")}</div></div>
+    ${bg.gem!=null?`<p class="pay-f">Gemiddeld betaald binnen <b>${bg.gem} ${bg.gem===1?"dag":"dagen"}</b></p>`:""}</div>`}
 function donut(c){const parts=[["late",c.aanmaning],["soon",c.herinnering],["ok",c.optijd],["plan",c.open]],tot=parts.reduce((a,p)=>a+p[1],0);
   if(!tot)return `<svg viewBox="0 0 42 42" class="kd-donut"><circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--surface-3)" stroke-width="6"/></svg>`;
   let off=25;return `<svg viewBox="0 0 42 42" class="kd-donut">${parts.filter(p=>p[1]).map(([cl,n])=>{const L=n/tot*100,s=`<circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--${cl})" stroke-width="6" stroke-dasharray="${L} ${100-L}" stroke-dashoffset="${off}"/>`;off-=L;return s}).join("")}</svg>`}
@@ -8154,9 +8180,7 @@ function openKlantView(id,opt={}){
       <a class="kd-map" href="${esc(mapsQ(k))}" target="_blank" rel="noopener" aria-label="Open in kaarten"><span class="kd-pin">${I.pin}</span><span><b>${esc(k.adres||"")}</b><small>${esc([k.postcode,k.plaats].filter(Boolean).join(" "))}</small></span><em>${I.nav}Route</em></a>
       ${kv("Klantnummer",esc(nr))}${kv("Type klant",k.soort==="zakelijk"?"Zakelijk":"Particulier")}${kv("Naam",esc(cleanName(k.naam)))}${k.contact?kv("Contactpersoon",esc(k.contact)):""}${k.geboortedatum?kv("Geboortedatum",esc(fmtL(k.geboortedatum))):""}
       ${kv("E-mailadres",mail(k.email))}${kv("Telefoon",tel(k.telefoon))}${k.mobiel?kv("Mobiel",tel(k.mobiel)):""}${k.website?kv("Website",`<a href="${esc(/^https?:/.test(k.website)?k.website:"https://"+k.website)}" target="_blank" rel="noopener">${esc(k.website)}</a>`):""}${k.iban?kv("IBAN",esc(k.iban)+(k.rekeninghouder?`<br><small class="subt">${esc(k.rekeninghouder)}</small>`:"")):""}${k.termijn?kv("Betalingstermijn",esc(k.termijn)+" dagen"):""}${kv("Klant sinds",k.aangemaakt?esc(fmtL(k.aangemaakt)):"")}${kv("Betaalwijze",k.incasso?"Automatische incasso":"Per bank")}${k.ronde?kv("Ronde",esc(k.ronde)):""}
-      <div class="kd-pay"><div class="kd-pay-c">${donut(bg.c)}<span>${bg.gem!=null?bg.gem+"<small>dagen</small>":"—"}</span></div>
-        <div class="kd-pay-l"><b>Betaalgedrag${bg.gem!=null?` <small>gem. ${bg.gem} dagen</small>`:""}</b>
-          ${[["late","Aanmaning",bg.c.aanmaning],["soon","Herinnering",bg.c.herinnering],["ok","Op tijd betaald",bg.c.optijd],["plan","Openstaand",bg.c.open]].map(([c,l,n])=>`<span><i style="background:var(--${c})"></i>${l} (${n})</span>`).join("")}</div></div>
+      ${payBlok(bg)}
       ${bg.laatste.length?`<div class="kd-sub"><span class="eyebrow">Laatste ${bg.laatste.length} facturen</span>${bg.laatste.map(f=>{const st=fStatus(f),h=Number(f.herinneringen)||0;return `<span class="kd-li"><i style="background:var(--${st[1]==="Betaald"&&!h?"ok":st[1]==="Betaald"?"soon":st[0]==="late"?"late":"plan"})"></i>${esc(f.nummer)} · ${st[1]==="Betaald"?(h?"betaald na herinnering":"op tijd betaald"):esc(st[1].toLowerCase())}</span>`}).join("")}</div>`:""}
       <div class="kd-sub"><span class="eyebrow">Laatste ${Math.min(3,msgs.length)||""} berichten</span>${msgs.slice(0,3).map(m=>`<span class="kd-li"><i style="background:${({gelezen:"var(--ok)",geklikt:"var(--ok)",gekopieerd:"#3a94d6"})[mStat(m)]||"var(--muted)"}"></i>${esc(m.onderwerp||String(m.tekst||"").slice(0,60))} <small>${esc(fmtD(String(m.op).slice(0,10)))} · ${esc(KANAAL[m.kanaal]||m.kanaal||"")}</small></span>`).join("")||'<span class="subt">Nog geen berichten verstuurd.</span>'}
         ${msgs.length?`<button type="button" class="small" data-kk="berichten" style="align-self:flex-start;margin-top:4px">${I.send}Verzonden berichten (${msgs.length})</button>`:""}</div></section>
@@ -8509,7 +8533,7 @@ function openFactuurWerk(id){
   <div class="kk-grid kd"><div class="kk-left">
     <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klantgegevens</b><span class="sp"></span>${k?`<button type="button" class="iconbtn sm" data-fw="klant" aria-label="Naar klantkaart" title="Klantkaart">${I.right}</button>`:""}</div>
       ${k?`${k.soort==="zakelijk"?kv("Bedrijfsnaam",esc(cleanName(k.naam))):""}${kv("Voornaam",esc(k.voornaam||""))}${kv("Achternaam",esc(k.achternaam||(k.soort==="zakelijk"?"":cleanName(k.naam))))}${kv("E-mailadres",mail(k.email))}${kv("Telefoon",tel(k.telefoon))}${kv("Mobiel",tel(k.mobiel))}
-      <div class="kd-pay"><div class="kd-pay-c">${donut(bg.c)}<span>${bg.gem!=null?bg.gem+"<small>dagen</small>":"—"}</span></div><div class="kd-pay-l"><b>Betaalgedrag${bg.gem!=null?` <small>gem. ${bg.gem} dagen</small>`:""}</b>${[["late","Aanmaning",bg.c.aanmaning],["soon","Herinnering",bg.c.herinnering],["ok","Op tijd betaald",bg.c.optijd],["plan","Openstaand",bg.c.open]].map(([c,l,n])=>`<span><i style="background:var(--${c})"></i>${l} (${n})</span>`).join("")}</div></div>`:kv("Klant",esc(cleanName(f.klantNaam))+' <small class="subt">(niet meer in je klantenbestand)</small>')}</section>
+      ${payBlok(bg)}`:kv("Klant",esc(cleanName(f.klantNaam))+' <small class="subt">(niet meer in je klantenbestand)</small>')}</section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.pin}</span><b>Adresgegevens</b><span class="sp"></span><button type="button" class="iconbtn sm" data-fw="adres" aria-label="Adres op factuur aanpassen">${I.pencil}</button></div>
       ${k?kv("Werklocatie",esc(jobAddr(k))):""}${kv("Factuuradres",esc(f.klantAdres||""))}${kv("Facturen gaan naar",mail(f.klantEmail)+(f.tav||(k&&tavK(k,"factuur"))?`<br><small class="subt">t.a.v. ${esc(f.tav||tavK(k,"factuur"))}</small>`:""))}</section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.checksq||I.check}</span><b>Factuuropties</b></div>
