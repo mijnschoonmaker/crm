@@ -9,7 +9,7 @@ function mailTrk(m){if(m.kanaal!=="email")return"";const st=mStat(m),b=[];
   else if(m.bezorgdOp)b.push(`<span class="trk-ok">${I.check}Bezorgd ${esc(fmtTS(m.bezorgdOp))}</span>`);
   else if(m.track||m.brevoId)b.push(`<span>${I.clock}Nog niet geopend</span>`);
   if(st==="bounce"||st==="spam"||st==="mislukt")b.unshift(`<span style="color:var(--late);font-weight:600">${I.alert}${esc(MSTAT[st][1])}${m.bounceReden||m.fout?" · "+esc(String(m.bounceReden||m.fout).slice(0,80)):""}</span>`);
-  if(m.bijlage)b.push(`<span>${I.note}${esc(m.bijlage)}</span>`);
+  bijlLijst(m).forEach((a,i)=>b.push(`<button type="button" class="trk-bij" data-bij="${esc(m.id)}" data-n="${i}" title="Openen">${I.note}${esc(a.naam)}</button>`));
   return b.length?`<div class="msg-trk">${b.join("")}</div>`:""}
 /* ---------- mail-tracking (web beacon via eigen server) ---------- */
 const trackBase=()=>String(S().trackUrl||"").trim().replace(/\/+$/,"");

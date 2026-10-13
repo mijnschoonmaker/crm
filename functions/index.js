@@ -48,6 +48,7 @@ function mailHtml(tekst, b, opts = {}) {
   const knop = opts.knop ? `<div style="text-align:center;margin:8px 0 22px"><a href="${opts.knop.url}" style="display:inline-block;background:${A};color:#fff;text-decoration:none;font-weight:600;font-size:14px;line-height:1.2;padding:10px 20px;border-radius:8px">${htmlEsc(opts.knop.tekst)}</a></div>` : "";
   return `<div style="font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;background:#f3f5f6;padding:24px 12px"><div style="max-width:600px;margin:0 auto;background:#fff;border-radius:18px;overflow:hidden;border-top:6px solid ${A}"><div style="text-align:center;padding:28px 24px 6px">${logo}</div><div style="padding:24px 32px 18px">${paras}${knop}</div></div><p style="text-align:center;font-size:12px;color:#8a979c;margin:16px 0 0">${[b.naam, b.telefoon, b.email].filter(Boolean).map(htmlEsc).join(" &nbsp;·&nbsp; ")}</p></div>`;
 }
+async function bewaarPdf(buf) { const hid = crypto.randomBytes(16).toString("hex"); await bucket().file("assets/" + hid).save(Buffer.from(buf), { contentType: "application/pdf", resumable: false }); return hid; }
 /* overzicht maken + mailen; geeft { nummer, brevoId } terug */
 async function stuurOverzichtMail({ soort, model, naar, naamKlant, klantId, meta }) {
   const [g, b] = await Promise.all([geheim(), bedrijf()]);
@@ -65,8 +66,22 @@ async function stuurOverzichtMail({ soort, model, naar, naamKlant, klantId, meta
   const afz = g.afzender || b.email || "info@mijnschoonmaker.com";
   const brevoId = await brevoSend(g.brevoKey, { sender: { name: b.naam || "mijnschoonmaker", email: afz }, replyTo: { email: b.email || afz }, to: [{ email: naar, name: naamKlant || undefined }], subject: onderwerp, htmlContent: mailHtml(tekst, b), textContent: tekst.replace(/\*\*/g, "").replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, "$1 ($2)"), attachment: bijlagen, tags: ["crm", soort] });
   const id = newId("m");
-  await db.doc("berichten/" + id).set({ ...(meta || {}), klantId: klantId || "", klantNaam: naamKlant || "", naar, kanaal: "email", sjabloon: soort, onderwerp, tekst, status: "verstuurd", brevoId, verstuurdOp: nu(), op: nu(), bijlage: bijlagen.map(x => x.name).join(", "), overzichtNr: nummer });
+  let pdfId = ""; try { pdfId = await bewaarPdf(pdf); } catch (e) { console.error("pdf bewaren", e); }
+  const bl = [{ naam: bijlagen[0].name, id: pdfId }]; if (vw) bl.push({ naam: bijlagen[1].name, id: b.voorwaardenPdf || "" }); if (hf) bl.push({ naam: bijlagen[bijlagen.length - 1].name, id: b.herroepingPdf || "" });
+  await db.doc("berichten/" + id).set({ ...(meta || {}), klantId: klantId || "", klantNaam: naamKlant || "", naar, kanaal: "email", sjabloon: soort, onderwerp, tekst, status: "verstuurd", brevoId, verstuurdOp: nu(), op: nu(), bijlage: bijlagen.map(x => x.name).join(", "), bijlagen: bl, overzichtNr: nummer });
   return { nummer, brevoId, berichtId: id };
+}
+
+function aanvraagModel(D, b0) {
+  const t0 = D.telling || {}, pct = Number(b0.btw) || 21;
+  const FL = ["Begane grond", "1e verdieping", "2e verdieping", "3e verdieping"], SP = { lood: "Glas-in-lood", mini: "Miniraampjes", koepel: "Lichtkoepels", tuimel: "Dak- / tuimelramen" };
+  const freq = { m4: "1x per 4 weken", m6: "1x per 6 weken", m8: "1x per 8 weken", m12: "1x per 12 weken" }[t0.freq] || "1x per 8 weken";
+  const subs = [...(t0.floors || []).map((n, i) => Number(n) > 0 ? { naam: FL[Math.min(i, 3)] || (i + "e verdieping"), aantal: Number(n) + " st", freq } : null), ...Object.entries(t0.special || {}).map(([k, n]) => Number(n) > 0 ? { naam: SP[k] || k, aantal: Number(n) + " st", freq } : null)].filter(Boolean);
+  const incl = Number((D.prijs || {}).incl) || 0, excl = Number((D.prijs || {}).excl) || Math.round(incl / (1 + pct / 100) * 100) / 100;
+  const zak = D.soort === "zakelijk" && D.klant.bedrijf, naamK = zak ? D.klant.bedrijf : D.klant.naam;
+  return { klant: { naam: naamK, contact: zak ? D.klant.naam : "", adres: D.klant.adres || "", pcPlaats: [String(D.klant.postcode || "").toUpperCase(), D.klant.plaats].filter(Boolean).join(" ") },
+            groepen: [{ omschrijving: "Glasbewassing", excl, btwPct: pct, btw: Math.round((incl - excl) * 100) / 100, incl, subs }],
+            voetnoot: "Dit overzicht is voorlopig. Tijdens het eerste bezoek (0-beurt) controleren wij de aantallen. Bij een verschil kan de prijs wijzigen." };
 }
 
 async function checkGebruiker(auth) {
@@ -122,6 +137,9 @@ exports.sendMail = onCall({ memory: "512MiB", timeoutSeconds: 60 }, async req =>
     ...(d.meta || {}), naar: d.naar, kanaal: "email", onderwerp: d.onderwerp || "", tekst: d.tekst || "",
     status: "verstuurd", brevoId, verstuurdOp: nu(), op: nu(), door: wie, bijlage: (d.bijlagen || []).map(a => a.naam).join(", ")
   }, { merge: true });
+  /* bijlagen bewaren, zodat je ze later bij Verzonden berichten kunt openen */
+  try { const bl = []; for (const a of (d.bijlagen || []).slice(0, 6)) { let bid = ""; if (a && a.data && /\.pdf$/i.test(a.naam || "")) bid = await bewaarPdf(Buffer.from(String(a.data), "base64")); bl.push({ naam: String((a && a.naam) || "bijlage"), id: bid }); }
+    if (bl.length) await db.doc("berichten/" + id).set({ bijlagen: bl }, { merge: true }); } catch (e) { console.error("bijlage bewaren", e); }
   return { ok: true, id, brevoId };
 });
 
@@ -265,16 +283,9 @@ exports.aanvraag = onRequest({ cors: true, memory: "512MiB", timeoutSeconds: 60 
     /* klant krijgt direct het voorlopige bestellingsoverzicht (alleen bij een calculator-aanvraag met e-mailadres) */
     if (D.formaat === "zeem.aanvraag" && (await bedrijf()).ovVoorlopigAan !== false && /^\S+@\S+\.\S+$/.test(String(D.klant.email || ""))) {
       try {
-        const b0 = await bedrijf(), t0 = D.telling || {}, pct = Number(b0.btw) || 21;
-        const FL = ["Begane grond", "1e verdieping", "2e verdieping", "3e verdieping"], SP = { lood: "Glas-in-lood", mini: "Miniraampjes", koepel: "Lichtkoepels", tuimel: "Dak- / tuimelramen" };
-        const freq = { m4: "1x per 4 weken", m6: "1x per 6 weken", m8: "1x per 8 weken", m12: "1x per 12 weken" }[t0.freq] || "1x per 8 weken";
-        const subs = [...(t0.floors || []).map((n, i) => Number(n) > 0 ? { naam: FL[Math.min(i, 3)] || (i + "e verdieping"), aantal: Number(n) + " st", freq } : null), ...Object.entries(t0.special || {}).map(([k, n]) => Number(n) > 0 ? { naam: SP[k] || k, aantal: Number(n) + " st", freq } : null)].filter(Boolean);
-        const incl = Number((D.prijs || {}).incl) || 0, excl = Number((D.prijs || {}).excl) || Math.round(incl / (1 + pct / 100) * 100) / 100;
-        const zak = D.soort === "zakelijk" && D.klant.bedrijf, naamK = zak ? D.klant.bedrijf : D.klant.naam;
+        const b0 = await bedrijf(), zak = D.soort === "zakelijk" && D.klant.bedrijf, naamK = zak ? D.klant.bedrijf : D.klant.naam;
         const r = await stuurOverzichtMail({ soort: "voorlopig", naar: D.klant.email, naamKlant: D.klant.naam || naamK, meta: { aanvraagId: id },
-          model: { klant: { naam: naamK, contact: zak ? D.klant.naam : "", adres: D.klant.adres || "", pcPlaats: [String(D.klant.postcode || "").toUpperCase(), D.klant.plaats].filter(Boolean).join(" ") },
-            groepen: [{ omschrijving: "Glasbewassing", excl, btwPct: pct, btw: Math.round((incl - excl) * 100) / 100, incl, subs }],
-            voetnoot: "Dit overzicht is voorlopig. Tijdens het eerste bezoek (0-beurt) controleren wij de aantallen. Bij een verschil kan de prijs wijzigen." } });
+          model: aanvraagModel(D, b0) });
         await db.doc("aanvragen/" + id).set({ overzichtNr: r.nummer, overzichtBericht: r.berichtId }, { merge: true });
       } catch (e) { console.error("voorlopig overzicht", e); }
     }
@@ -319,6 +330,30 @@ exports.stuurOverzicht = onCall({ memory: "512MiB", timeoutSeconds: 60 }, async 
     if (d.klantId) await db.doc("klanten/" + d.klantId).set({ overzicht: { soort: d.soort || "definitief", nummer: r.nummer, op: nu() } }, { merge: true });
     return r;
   } catch (e) { throw new HttpsError("internal", "Versturen lukte niet: " + (e.message || e)); }
+});
+
+/* ---------- PDF van een eerder verstuurd overzicht terughalen (oude berichten hebben de PDF niet bewaard) ---------- */
+exports.berichtPdf = onCall({ memory: "512MiB", timeoutSeconds: 60 }, async req => {
+  await checkGebruiker(req.auth);
+  const d = req.data || {}, ref = db.doc("berichten/" + String(d.id || "x")), s = await ref.get();
+  if (!s.exists) throw new HttpsError("not-found", "Bericht niet gevonden.");
+  const m = s.data(), al = (m.bijlagen || []).find(x => x.id && /_[vd]\.pdf$/.test(x.naam));
+  if (al) return { id: al.id };
+  if (!m.overzichtNr) throw new HttpsError("failed-precondition", "Bij dit bericht is geen PDF bewaard.");
+  const b = await bedrijf(), logo = await leesAsset(b.logo);
+  let model = null;
+  if (m.factuurId) { const q = await db.collection("akkoord").where("factuurId", "==", m.factuurId).limit(1).get();
+    if (!q.empty) { const a = q.docs[0].data(), g = a.getekend || {}; const h = g.handtekening ? await leesAsset(g.handtekening) : null;
+      model = { ...(a.model || {}), ...(h ? { handtekening: { naam: g.naam, plaats: g.plaats, datum: g.datum, browser: g.browser, systeem: g.systeem, png: h.bytes } } : {}) }; } }
+  if (!model && m.aanvraagId) { const a = await db.doc("aanvragen/" + m.aanvraagId).get(); if (a.exists && a.data().aanvraag) model = aanvraagModel(a.data().aanvraag, b); }
+  if (!model && d.model && typeof d.model === "object") model = d.model;
+  if (!model) throw new HttpsError("failed-precondition", "De gegevens van dit overzicht zijn niet meer te vinden.");
+  const vl = m.sjabloon !== "definitief", titel = vl ? "Voorlopig bestellingsoverzicht" : "Definitief bestellingsoverzicht";
+  const pdf = await maakOverzichtPdf({ contractduur: "1 jaar", ...model, datum: nlDatum(new Date(m.op || Date.now())), titel, nummer: m.overzichtNr, bedrijf: bedrijfModel(b, logo) });
+  const id = await bewaarPdf(pdf), naam = m.overzichtNr + "_" + (vl ? "v" : "d") + ".pdf";
+  const rest = String(m.bijlage || "").split(", ").filter(n => n && n !== naam).map(n => ({ naam: n, id: n === (b.voorwaardenNaam || "Algemene voorwaarden.pdf") ? b.voorwaardenPdf || "" : n === (b.herroepingNaam || "Herroepingsformulier.pdf") ? b.herroepingPdf || "" : "" }));
+  await ref.set({ bijlagen: [{ naam, id }, ...rest] }, { merge: true });
+  return { id };
 });
 
 /* ---------- offerte online ondertekenen: /akkoord/<token> ---------- */

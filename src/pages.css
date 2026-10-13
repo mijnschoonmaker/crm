@@ -2419,3 +2419,7 @@ aside nav button .badge{font-size:10.5px}
 @media (max-width:640px){.rh-acts{width:100%}.rh-acts .rh-nav{flex:1}.rh-live{flex:none}}
 .pk-map .leaflet-control-attribution{font-size:9px!important;opacity:.6;background:transparent!important}
 .pk-map .leaflet-tile-pane{filter:saturate(.7) brightness(1.04) contrast(.95)}
+/* bijlage bij een verzonden bericht: klikbaar */
+.msg-trk .trk-bij{all:unset;display:inline-flex;align-items:center;gap:5px;cursor:pointer;color:var(--brand);font-weight:600;border-radius:6px;padding:1px 4px;margin:-1px -4px;transition:background .15s}
+.msg-trk .trk-bij:hover{background:var(--brand-soft);text-decoration:underline;text-underline-offset:2px}
+.msg-trk .trk-bij:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
