@@ -3141,6 +3141,14 @@ html.zm .pl-menu{max-height:calc(100dvh / .9 - 190px)}
 /* geen fijne lijntjes op lichte achtergronden */
 .kp>.kp-h::before,.pagehead::before,.st-hero::after{display:none!important}
 .kp>.kp-h{background:linear-gradient(180deg,color-mix(in srgb,var(--brand) 5%,var(--surface)),var(--surface))!important}
+/* rustig: geen gloed, waas of verloop op lichte vlakken */
+body{background:var(--bg)!important}
+.stats .stat::after,.st-tile::after,.stat::after{display:none!important}
+.kp>.kp-h{background:var(--surface)!important}
+.st-hero::before,.rd::before{display:none!important}
+.st-hero{background:var(--surface)!important}
+.pay{background:var(--surface)!important}
+.st-hs .st-tile{background:var(--surface)!important;backdrop-filter:none}
 
 </style>
 <div class="app">

@@ -592,6 +592,11 @@ aside .help .primary{margin-top:2px;font-size:13.5px;padding:9px}aside .help .pr
 .rf-tg b{font-weight:700!important;letter-spacing:-.025em}
 .pagehead::before{display:none!important}
 .kp>.kp-h::before,.pagehead::before{display:none!important}.kp>.kp-h{background:linear-gradient(180deg,color-mix(in srgb,var(--brand) 5%,var(--surface)),var(--surface))!important}
+/* rustig: geen gloed, waas of verloop op lichte vlakken */
+html,body{background:var(--bg)!important}
+.stat::after,.bz-tile::after,.rf-tg>div::after{display:none!important}
+.kp>.kp-h{background:var(--surface)!important}
+.ch-lijst{background:var(--bg)!important}
 </style></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
