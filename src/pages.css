@@ -2543,9 +2543,3 @@ aside nav button .badge{font-size:10.5px}
 /* tijden langs het rooster: elk tijdvak een label, hele uren duidelijk */
 .tg-times span.hh{font-weight:500!important;opacity:.55;font-size:11px!important}
 .tg-times span.hu{font-weight:700;color:var(--ink-2,var(--muted))}
-/* opdracht: regels toevoegen ingeklapt onder Afspraakregels */
-.ow-add{margin:2px 0 12px;padding:12px;border-radius:14px;background:var(--surface-2);display:flex;flex-direction:column;gap:10px}
-.ow-addh{display:flex;align-items:center;justify-content:space-between;gap:10px}.ow-addh b{font-size:13px;font-weight:650}
-.ow-add #owZoek{max-width:none!important;background:var(--surface)}
-#owAddT svg{transition:transform .2s}#owAddT.open svg{transform:rotate(45deg)}
-.ow-add[hidden]{display:none!important}
