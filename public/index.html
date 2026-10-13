@@ -2981,6 +2981,17 @@ aside nav button .badge{font-size:10.5px}
 .ow-kvs .ow-kv{display:grid!important;grid-template-columns:minmax(0,252px) minmax(0,1fr);gap:12px;padding:6px 0!important;font-size:13.5px}
 .ow-kvs .ow-kv span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media (max-width:560px){.ow-kvs .ow-kv{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}.ow-kvs .ow-kv span{white-space:normal}}
+/* ---------- desktop op 90% ---------- */
+html.zm{zoom:.9}
+html.zm .dg-ghost,html.zm .dp,html.zm .fc-canvas,html.zm .pk-map,html.zm .an,html.zm .fv,html.zm #rcEdHost{zoom:1.1111}
+html.zm .app{min-height:calc(100vh / .9)}
+html.zm aside.side,html.zm .rpanel{height:calc(100vh / .9)}
+html.zm .withside{min-height:calc(100vh / .9 - 80px)}
+html.zm dialog{max-height:calc(100dvh / .9 - 40px)}
+html.zm dialog.drawer{height:calc(100dvh / .9);max-height:calc(100dvh / .9)}
+html.zm dialog.wcv-ov{width:calc(100vw / .9);height:calc(100vh / .9)}
+html.zm .kk-right{max-height:calc(100dvh / .9 - 170px)}
+html.zm .pl-menu{max-height:calc(100dvh / .9 - 190px)}
 
 </style>
 <div class="app">
@@ -3206,6 +3217,15 @@ const big=()=>matchMedia("(min-width:980px)").matches;
    Bij de overstap naar een eigen server wordt alleen dit blok vervangen door de database van de server;
    de rest van mijnschoonmaker blijft hetzelfde. Gegevensformaat per collectie: zie exportAlles() (versie 1). */
 const BLOB="/_blob/";
+/* ---------- desktop iets uitgezoomd (90%) ----------
+   html krijgt zoom .9 op een groot scherm met muis. Zwevende lagen (sleepkaart, datumkiezer, confetti, kaart,
+   foto-editors) worden terug op 100% gezet zodat muis en positie kloppen. vpR geeft een rechthoek altijd in schermpixels. */
+const ZOOM={f:1,sc:true};
+function zoomZet(){const on=!!(window.matchMedia&&matchMedia("(min-width:1100px) and (pointer:fine)").matches)&&(()=>{try{return localStorage.getItem("ms.zoom")!=="100"}catch(e){return true}})();
+  const h=document.documentElement;h.classList.toggle("zm",on);ZOOM.f=on?.9:1;
+  if(on){try{const t=document.createElement("div");t.style.cssText="position:fixed;left:0;top:0;width:100px;height:10px;visibility:hidden;pointer-events:none";document.body.appendChild(t);ZOOM.sc=t.getBoundingClientRect().width<95;t.remove()}catch(e){ZOOM.sc=true}}}
+function vpR(el){const r=el.getBoundingClientRect();if(ZOOM.f===1||ZOOM.sc)return r;const f=ZOOM.f;return{left:r.left*f,top:r.top*f,right:r.right*f,bottom:r.bottom*f,width:r.width*f,height:r.height*f,x:r.x*f,y:r.y*f}}
+if(typeof document!=="undefined"&&document.body){zoomZet();try{matchMedia("(min-width:1100px) and (pointer:fine)").addEventListener("change",zoomZet)}catch(e){}}
 const LIVE=typeof window!=="undefined"&&!!window.ZEEM_LIVE;
 const SETEXTRA={};
 const RAW={};
@@ -8747,7 +8767,7 @@ function geldFeest(f){try{
     <div class="gp-body"><b class="gp-b" id="geldB">${gpBedrag(0)}</b><span class="gp-w">${esc(cleanName(f.klantNaam||""))}</span><span class="gp-m">Factuur ${esc(f.nummer||"")} · iDEAL · zojuist</span>
       <button type="button" class="primary gp-btn" data-geldf="${esc(f.id)}">Bekijk factuur</button></div></div>`;
   document.body.appendChild(el);kassa();
-  requestAnimationFrame(()=>{const r=el.getBoundingClientRect();confetti(document.body,{n:70,bron:{x:r.left+r.width/2,y:r.top+40}})});
+  requestAnimationFrame(()=>{const r=vpR(el);confetti(document.body,{n:70,bron:{x:r.left+r.width/2,y:r.top+40}})});
   const B=el.querySelector("#geldB"),t0=performance.now(),dur=900;const stap=n=>{const p=Math.min(1,(n-t0)/dur),e=1-Math.pow(1-p,3);B.innerHTML=gpBedrag(bedrag*e);if(p<1)requestAnimationFrame(stap)};requestAnimationFrame(stap);
   const weg=()=>{el.classList.add("weg");setTimeout(()=>el.remove(),300)};
   el.querySelector("[data-geldf]").onclick=()=>{weg();openFactuur(f.id)};el.querySelector(".gp-x").onclick=weg;
@@ -8923,7 +8943,7 @@ function dpDraw(){const i=dpIn,sel=dpParse(i.value),t=new Date();t.setHours(0,0,
 function dpOpen(i){if(dpIn===i){dpClose();return}dpClose();dpIn=i;i.classList.add("dp-open");const s=dpParse(i.value)||new Date();dpView=new Date(s.getFullYear(),s.getMonth(),1);
   dpEl=document.createElement("div");dpEl.className="dp";dpEl.setAttribute("role","dialog");dpEl.setAttribute("aria-label","Datum kiezen");dpDraw();
   (i.closest("dialog")||document.body).appendChild(dpEl);
-  const r=i.getBoundingClientRect(),W=Math.min(320,innerWidth-16),H=dpEl.offsetHeight;let x=Math.min(Math.max(8,r.left),innerWidth-W-8),y=r.bottom+6;if(y+H>innerHeight-8)y=Math.max(8,r.top-H-6);
+  const r=vpR(i),W=Math.min(320,innerWidth-16),H=dpEl.offsetHeight;let x=Math.min(Math.max(8,r.left),innerWidth-W-8),y=r.bottom+6;if(y+H>innerHeight-8)y=Math.max(8,r.top-H-6);
   Object.assign(dpEl.style,{left:x+"px",top:y+"px",width:W+"px"});document.addEventListener("keydown",dpKey,true);
   dpEl.addEventListener("click",e=>{e.stopPropagation();const b=e.target.closest("button");if(!b)return;
     if(b.dataset.dp){dpSet(dpParse(b.dataset.dp));return}if(b.dataset.dpq!=null){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+(+b.dataset.dpq));dpSet(d);return}
@@ -9723,7 +9743,7 @@ document.addEventListener("pointerdown",e=>{if(e.button>0)return;const j=e.targe
   if(dg.touch)dg.timer=setTimeout(()=>{if(dg&&!dg.on)startDg(dg.x,dg.y)},280)});
 function dgInfo(id){if(id.startsWith("b:")){const b=state.beurten.find(x=>x.id===id.slice(2))||{};const k=state.klanten.find(x=>x.id===b.klantId)||{};return{k,du:Number(b.duur)||duur(k),adr:jobAddrObj(k).adres||cleanName(b.klantNaam||k.naam||""),prijs:b.bedrag}}
   const k=state.klanten.find(x=>x.id===id)||{};return{k,du:duur(k),adr:jobAddrObj(k).adres||cleanName(k.naam||""),plaats:jobAddrObj(k).plaats||k.plaats||"",prijs:k.prijs}}
-function startDg(x,y){if(!dg)return;dg.on=true;const r=dg.j.getBoundingClientRect(),inf=dgInfo(dg.id);dg.inf=inf;
+function startDg(x,y){if(!dg)return;dg.on=true;const r=vpR(dg.j),inf=dgInfo(dg.id);dg.inf=inf;
   const tile=dg.j.querySelector(".kc-tile");
   const g=document.createElement("div");g.className="dg-ghost dg-card";
   let tl=I.cal2;if(tile){const m=tile.querySelector(".kc-m"),bb=tile.querySelector("b"),KL={ok:"#3c9a6a",attn:"#c2a227",warn:"#e28c1c",soon:"#e28c1c",crit:"#e2571f",late:"#cc2f2f",nieuw:"#137a8a",plan:"#2e9a6b",gemist:"#cc2f2f"},kc=[...dg.j.classList].map(c=>c.replace(/^kx-/,"")).find(c=>KL[c]);tl=`<span class="dg-t"><i style="background:${KL[kc]||"var(--brand)"}">${esc(m?m.textContent:"")}</i><b>${bb?bb.innerHTML:""}</b></span>`}
@@ -9755,8 +9775,8 @@ const endDg=(e,cancel)=>{if(!dg)return;clearTimeout(dg.timer);const d=dg;dg=null
   const stop=ev=>{ev.stopPropagation();ev.preventDefault()};document.addEventListener("click",stop,{capture:true,once:true});setTimeout(()=>document.removeEventListener("click",stop,{capture:true}),50);
   /* landen: de zwevende kaart glijdt in het voorbeeldblok, anders terug naar waar hij vandaan kwam */
   const g=d.g;g.classList.add("land");
-  if(c&&p){const r=p.getBoundingClientRect();g.style.transform=`translate3d(${r.left}px,${r.top}px,0) scale(.98)`;g.style.width=r.width+"px";g.classList.add("in")}
-  else if(!c){const r=d.j.getBoundingClientRect();g.style.transform=`translate3d(${r.left}px,${r.top}px,0) scale(.9)`;g.style.opacity="0"}
+  if(c&&p){const r=vpR(p);g.style.transform=`translate3d(${r.left}px,${r.top}px,0) scale(.98)`;g.style.width=r.width+"px";g.classList.add("in")}
+  else if(!c){const r=vpR(d.j);g.style.transform=`translate3d(${r.left}px,${r.top}px,0) scale(.9)`;g.style.opacity="0"}
   else{g.style.opacity="0";g.style.transform+=" scale(.9)"}
   setTimeout(()=>{g.remove();if(p)p.remove()},c&&p?230:200);
   if(!c)return;state.flash=d.id.startsWith("b:")?"":d.id;setTimeout(()=>{state.flash="";document.querySelectorAll(".just-in").forEach(x=>x.classList.remove("just-in"))},1400);

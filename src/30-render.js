@@ -243,7 +243,7 @@ document.addEventListener("pointerdown",e=>{if(e.button>0)return;const j=e.targe
   if(dg.touch)dg.timer=setTimeout(()=>{if(dg&&!dg.on)startDg(dg.x,dg.y)},280)});
 function dgInfo(id){if(id.startsWith("b:")){const b=state.beurten.find(x=>x.id===id.slice(2))||{};const k=state.klanten.find(x=>x.id===b.klantId)||{};return{k,du:Number(b.duur)||duur(k),adr:jobAddrObj(k).adres||cleanName(b.klantNaam||k.naam||""),prijs:b.bedrag}}
   const k=state.klanten.find(x=>x.id===id)||{};return{k,du:duur(k),adr:jobAddrObj(k).adres||cleanName(k.naam||""),plaats:jobAddrObj(k).plaats||k.plaats||"",prijs:k.prijs}}
-function startDg(x,y){if(!dg)return;dg.on=true;const r=dg.j.getBoundingClientRect(),inf=dgInfo(dg.id);dg.inf=inf;
+function startDg(x,y){if(!dg)return;dg.on=true;const r=vpR(dg.j),inf=dgInfo(dg.id);dg.inf=inf;
   const tile=dg.j.querySelector(".kc-tile");
   const g=document.createElement("div");g.className="dg-ghost dg-card";
   let tl=I.cal2;if(tile){const m=tile.querySelector(".kc-m"),bb=tile.querySelector("b"),KL={ok:"#3c9a6a",attn:"#c2a227",warn:"#e28c1c",soon:"#e28c1c",crit:"#e2571f",late:"#cc2f2f",nieuw:"#137a8a",plan:"#2e9a6b",gemist:"#cc2f2f"},kc=[...dg.j.classList].map(c=>c.replace(/^kx-/,"")).find(c=>KL[c]);tl=`<span class="dg-t"><i style="background:${KL[kc]||"var(--brand)"}">${esc(m?m.textContent:"")}</i><b>${bb?bb.innerHTML:""}</b></span>`}
@@ -275,8 +275,8 @@ const endDg=(e,cancel)=>{if(!dg)return;clearTimeout(dg.timer);const d=dg;dg=null
   const stop=ev=>{ev.stopPropagation();ev.preventDefault()};document.addEventListener("click",stop,{capture:true,once:true});setTimeout(()=>document.removeEventListener("click",stop,{capture:true}),50);
   /* landen: de zwevende kaart glijdt in het voorbeeldblok, anders terug naar waar hij vandaan kwam */
   const g=d.g;g.classList.add("land");
-  if(c&&p){const r=p.getBoundingClientRect();g.style.transform=`translate3d(${r.left}px,${r.top}px,0) scale(.98)`;g.style.width=r.width+"px";g.classList.add("in")}
-  else if(!c){const r=d.j.getBoundingClientRect();g.style.transform=`translate3d(${r.left}px,${r.top}px,0) scale(.9)`;g.style.opacity="0"}
+  if(c&&p){const r=vpR(p);g.style.transform=`translate3d(${r.left}px,${r.top}px,0) scale(.98)`;g.style.width=r.width+"px";g.classList.add("in")}
+  else if(!c){const r=vpR(d.j);g.style.transform=`translate3d(${r.left}px,${r.top}px,0) scale(.9)`;g.style.opacity="0"}
   else{g.style.opacity="0";g.style.transform+=" scale(.9)"}
   setTimeout(()=>{g.remove();if(p)p.remove()},c&&p?230:200);
   if(!c)return;state.flash=d.id.startsWith("b:")?"":d.id;setTimeout(()=>{state.flash="";document.querySelectorAll(".just-in").forEach(x=>x.classList.remove("just-in"))},1400);

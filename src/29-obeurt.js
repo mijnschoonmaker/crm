@@ -104,7 +104,7 @@ function dpDraw(){const i=dpIn,sel=dpParse(i.value),t=new Date();t.setHours(0,0,
 function dpOpen(i){if(dpIn===i){dpClose();return}dpClose();dpIn=i;i.classList.add("dp-open");const s=dpParse(i.value)||new Date();dpView=new Date(s.getFullYear(),s.getMonth(),1);
   dpEl=document.createElement("div");dpEl.className="dp";dpEl.setAttribute("role","dialog");dpEl.setAttribute("aria-label","Datum kiezen");dpDraw();
   (i.closest("dialog")||document.body).appendChild(dpEl);
-  const r=i.getBoundingClientRect(),W=Math.min(320,innerWidth-16),H=dpEl.offsetHeight;let x=Math.min(Math.max(8,r.left),innerWidth-W-8),y=r.bottom+6;if(y+H>innerHeight-8)y=Math.max(8,r.top-H-6);
+  const r=vpR(i),W=Math.min(320,innerWidth-16),H=dpEl.offsetHeight;let x=Math.min(Math.max(8,r.left),innerWidth-W-8),y=r.bottom+6;if(y+H>innerHeight-8)y=Math.max(8,r.top-H-6);
   Object.assign(dpEl.style,{left:x+"px",top:y+"px",width:W+"px"});document.addEventListener("keydown",dpKey,true);
   dpEl.addEventListener("click",e=>{e.stopPropagation();const b=e.target.closest("button");if(!b)return;
     if(b.dataset.dp){dpSet(dpParse(b.dataset.dp));return}if(b.dataset.dpq!=null){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+(+b.dataset.dpq));dpSet(d);return}

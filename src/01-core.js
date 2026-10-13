@@ -202,6 +202,15 @@ const big=()=>matchMedia("(min-width:980px)").matches;
    Bij de overstap naar een eigen server wordt alleen dit blok vervangen door de database van de server;
    de rest van mijnschoonmaker blijft hetzelfde. Gegevensformaat per collectie: zie exportAlles() (versie 1). */
 const BLOB="/_blob/";
+/* ---------- desktop iets uitgezoomd (90%) ----------
+   html krijgt zoom .9 op een groot scherm met muis. Zwevende lagen (sleepkaart, datumkiezer, confetti, kaart,
+   foto-editors) worden terug op 100% gezet zodat muis en positie kloppen. vpR geeft een rechthoek altijd in schermpixels. */
+const ZOOM={f:1,sc:true};
+function zoomZet(){const on=!!(window.matchMedia&&matchMedia("(min-width:1100px) and (pointer:fine)").matches)&&(()=>{try{return localStorage.getItem("ms.zoom")!=="100"}catch(e){return true}})();
+  const h=document.documentElement;h.classList.toggle("zm",on);ZOOM.f=on?.9:1;
+  if(on){try{const t=document.createElement("div");t.style.cssText="position:fixed;left:0;top:0;width:100px;height:10px;visibility:hidden;pointer-events:none";document.body.appendChild(t);ZOOM.sc=t.getBoundingClientRect().width<95;t.remove()}catch(e){ZOOM.sc=true}}}
+function vpR(el){const r=el.getBoundingClientRect();if(ZOOM.f===1||ZOOM.sc)return r;const f=ZOOM.f;return{left:r.left*f,top:r.top*f,right:r.right*f,bottom:r.bottom*f,width:r.width*f,height:r.height*f,x:r.x*f,y:r.y*f}}
+if(typeof document!=="undefined"&&document.body){zoomZet();try{matchMedia("(min-width:1100px) and (pointer:fine)").addEventListener("change",zoomZet)}catch(e){}}
 const LIVE=typeof window!=="undefined"&&!!window.ZEEM_LIVE;
 const SETEXTRA={};
 const RAW={};

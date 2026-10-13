@@ -68,7 +68,7 @@ function geldFeest(f){try{
     <div class="gp-body"><b class="gp-b" id="geldB">${gpBedrag(0)}</b><span class="gp-w">${esc(cleanName(f.klantNaam||""))}</span><span class="gp-m">Factuur ${esc(f.nummer||"")} · iDEAL · zojuist</span>
       <button type="button" class="primary gp-btn" data-geldf="${esc(f.id)}">Bekijk factuur</button></div></div>`;
   document.body.appendChild(el);kassa();
-  requestAnimationFrame(()=>{const r=el.getBoundingClientRect();confetti(document.body,{n:70,bron:{x:r.left+r.width/2,y:r.top+40}})});
+  requestAnimationFrame(()=>{const r=vpR(el);confetti(document.body,{n:70,bron:{x:r.left+r.width/2,y:r.top+40}})});
   const B=el.querySelector("#geldB"),t0=performance.now(),dur=900;const stap=n=>{const p=Math.min(1,(n-t0)/dur),e=1-Math.pow(1-p,3);B.innerHTML=gpBedrag(bedrag*e);if(p<1)requestAnimationFrame(stap)};requestAnimationFrame(stap);
   const weg=()=>{el.classList.add("weg");setTimeout(()=>el.remove(),300)};
   el.querySelector("[data-geldf]").onclick=()=>{weg();openFactuur(f.id)};el.querySelector(".gp-x").onclick=weg;

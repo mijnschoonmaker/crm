@@ -2568,3 +2568,14 @@ aside nav button .badge{font-size:10.5px}
 .ow-kvs .ow-kv{display:grid!important;grid-template-columns:minmax(0,252px) minmax(0,1fr);gap:12px;padding:6px 0!important;font-size:13.5px}
 .ow-kvs .ow-kv span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media (max-width:560px){.ow-kvs .ow-kv{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}.ow-kvs .ow-kv span{white-space:normal}}
+/* ---------- desktop op 90% ---------- */
+html.zm{zoom:.9}
+html.zm .dg-ghost,html.zm .dp,html.zm .fc-canvas,html.zm .pk-map,html.zm .an,html.zm .fv,html.zm #rcEdHost{zoom:1.1111}
+html.zm .app{min-height:calc(100vh / .9)}
+html.zm aside.side,html.zm .rpanel{height:calc(100vh / .9)}
+html.zm .withside{min-height:calc(100vh / .9 - 80px)}
+html.zm dialog{max-height:calc(100dvh / .9 - 40px)}
+html.zm dialog.drawer{height:calc(100dvh / .9);max-height:calc(100dvh / .9)}
+html.zm dialog.wcv-ov{width:calc(100vw / .9);height:calc(100vh / .9)}
+html.zm .kk-right{max-height:calc(100dvh / .9 - 170px)}
+html.zm .pl-menu{max-height:calc(100dvh / .9 - 190px)}
