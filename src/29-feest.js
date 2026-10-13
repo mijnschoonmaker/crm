@@ -11,17 +11,18 @@ function huisjes(done,total,nieuw){if(!total)return"";const max=16,n=Math.min(to
 function motBlok(done,total){if(!total)return"";return `<div class="motb">${huisjes(done,total)}<p>${esc(motTekst(done,total))}</p></div>`}
 const FEEST_WOORD=["Yes!","Top!","Lekker!","Mooi werk!","Strak!","Netjes!"];
 /* echte confetti: papiertjes met zwaartekracht, luchtweerstand, dwarrelen en kantelen (canvas, achter de kaart) */
-function confetti(host,{n=170,kleuren}={}){if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+function confetti(host,{n=170,kleuren,bron}={}){if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
   const kl=kleuren||["#1f8fa8","#2bb673","#7fd8c0","#0f5c6e","#9fd4ff","#3fd08b","#ffffff","#ff8a7a"];
-  const c=document.createElement("canvas");c.className="fc-canvas";host.prepend(c);
+  const c=document.createElement("canvas");c.className="fc-canvas";host.prepend(c);if(host===document.body){c.style.position="fixed";c.style.zIndex="9998"}
   const dpr=Math.min(2,window.devicePixelRatio||1),W=innerWidth,H=innerHeight;c.width=W*dpr;c.height=H*dpr;const x=c.getContext("2d");x.scale(dpr,dpr);
   const tint=(h,f)=>{const v=parseInt(h.slice(1),16);let r=v>>16,g=v>>8&255,b=v&255;r=Math.round(r*f);g=Math.round(g*f);b=Math.round(b*f);return`rgb(${Math.min(255,r)},${Math.min(255,g)},${Math.min(255,b)})`};
   const P=[],R=Math.random,add=(ox,oy,ang,spr,vel,cnt)=>{for(let i=0;i<cnt;i++){const a=ang+(R()-.5)*spr,v=vel*(.5+R()*.7),col=kl[(R()*kl.length)|0];
     P.push({x:ox,y:oy,vx:Math.cos(a)*v,vy:Math.sin(a)*v,w:7+R()*6,h:10+R()*10,rot:R()*6.28,vr:(R()-.5)*.25,fl:R()*6.28,vf:.06+R()*.14,wb:R()*6.28,vw:.04+R()*.07,rond:R()<.14,c1:tint(col,1),c2:tint(col,.72),d:.955+R()*.02})}};
+  if(bron){add(bron.x,bron.y,-Math.PI/2,Math.PI*1.2,13,n)}else{
   const v0=Math.max(32,Math.min(60,H*.06));
   add(-10,H*.95,-Math.PI*.36,.4,v0,n*.28);add(W+10,H*.95,-Math.PI*.64,.4,v0,n*.28);add(W/2,H*.46,-Math.PI/2,Math.PI*2,14,n*.12);
   /* en een zachte regen van boven, zodat het ook na de knal nog even dwarrelt */
-  for(let i=0;i<n*.32;i++){const col=kl[(R()*kl.length)|0];P.push({x:R()*W,y:-20-R()*H*.6,vx:(R()-.5)*1.5,vy:1+R()*2,w:7+R()*6,h:10+R()*10,rot:R()*6.28,vr:(R()-.5)*.2,fl:R()*6.28,vf:.05+R()*.12,wb:R()*6.28,vw:.03+R()*.06,rond:R()<.14,c1:tint(col,1),c2:tint(col,.72),d:.97})}
+  for(let i=0;i<n*.32;i++){const col=kl[(R()*kl.length)|0];P.push({x:R()*W,y:-20-R()*H*.6,vx:(R()-.5)*1.5,vy:1+R()*2,w:7+R()*6,h:10+R()*10,rot:R()*6.28,vr:(R()-.5)*.2,fl:R()*6.28,vf:.05+R()*.12,wb:R()*6.28,vw:.03+R()*.06,rond:R()<.14,c1:tint(col,1),c2:tint(col,.72),d:.97})}}
   let t0=performance.now(),last=t0;
   const stap=nu=>{const dt=Math.min(2.5,(nu-last)/16.7);last=nu;const el=nu-t0;x.clearRect(0,0,W,H);let leeft=0;
     for(const p of P){p.vx*=Math.pow(p.d,dt);p.vy=p.vy*Math.pow(p.d,dt)+.42*dt;const term=1.7+Math.abs(Math.cos(p.fl))*1.5;if(p.vy>term)p.vy=term+(p.vy-term)*.85;
@@ -59,19 +60,18 @@ function kassa(){try{const A=new (window.AudioContext||window.webkitAudioContext
   [[2093,.07],[2637,.1],[3136,.13],[4186,.16],[2637,.3],[3520,.34]].forEach(([f,dl])=>{const os=A.createOscillator(),g=A.createGain();os.type="triangle";os.frequency.value=f;g.gain.setValueAtTime(0,t+dl);g.gain.linearRampToValueAtTime(.5,t+dl+.005);g.gain.exponentialRampToValueAtTime(.001,t+dl+.7);os.connect(g).connect(o);os.start(t+dl);os.stop(t+dl+.75)});
   setTimeout(()=>A.close(),1500)}catch(e){}}
 function geldFeest(f){try{
-  const old=document.getElementById("feest");if(old)old.remove();
-  const bedrag=totals(f).inc,el=document.createElement("div");el.id="feest";el.className="feest geld";
-  el.innerHTML=`<div class="feest-k gk">
-    <div class="gk-top"><span class="gk-glow"></span><div class="gk-ic"><span class="fv-r"></span><span class="fv-r r2"></span><span class="gk-c"><svg viewBox="0 0 24 24"><path d="M16.5 7.2A5.8 5.8 0 1 0 16.5 16.8"/><path d="M5.5 10.5h7.5M5.5 13.5h7.5"/></svg></span></div>
-      <span class="gk-l"><svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9"/></svg>Betaling ontvangen</span></div>
-    <div class="gk-body"><b class="geld-b" id="geldB">${eur(0)}</b>
-      <span class="gk-w">${esc(cleanName(f.klantNaam||""))}</span>
-      <div class="gk-meta"><span>Factuur ${esc(f.nummer||"")}</span><i></i><span>iDEAL</span><i></i><span>zojuist</span></div>
-      <button type="button" class="primary gk-b" data-geldf="${esc(f.id)}">Bekijk factuur</button></div></div>`;
-  document.body.appendChild(el);confetti(el,{n:190});kassa();try{navigator.vibrate&&navigator.vibrate([20,30,20,30,60])}catch(e){}
-  const B=$("#geldB"),t0=performance.now(),dur=900;const stap=n=>{const p=Math.min(1,(n-t0)/dur),e=1-Math.pow(1-p,3);B.textContent=eur(bedrag*e);if(p<1)requestAnimationFrame(stap)};requestAnimationFrame(stap);
-  const knop=el.querySelector("[data-geldf]");knop.onclick=e=>{e.stopPropagation();el.remove();openFactuur(f.id)};
-  const weg=()=>{laatDwarrelen(el);el.classList.add("weg");setTimeout(()=>el.remove(),350)};el.addEventListener("click",weg);setTimeout(()=>{if(el.isConnected&&!el.matches(":hover"))weg()},5000)}catch(e){console.error(e)}}
+  const old=document.getElementById("geldPop");if(old)old.remove();
+  const bedrag=totals(f).inc,el=document.createElement("div");el.id="geldPop";el.className="geldpop";el.setAttribute("role","status");
+  el.innerHTML=`<div class="gp-k">
+    <div class="gp-top"><svg class="gp-ic" viewBox="0 0 24 24"><path d="M16.5 7.2A5.8 5.8 0 1 0 16.5 16.8"/><path d="M5.5 10.5h7.5M5.5 13.5h7.5"/></svg><span class="gp-l"><svg viewBox="0 0 24 24">${VINK}</svg>Betaling ontvangen</span><button type="button" class="gp-x" aria-label="Sluiten">${I.x}</button></div>
+    <div class="gp-body"><b class="gp-b" id="geldB">${eur(0)}</b><span class="gp-w">${esc(cleanName(f.klantNaam||""))}</span><span class="gp-m">Factuur ${esc(f.nummer||"")} · iDEAL · zojuist</span>
+      <button type="button" class="primary gp-btn" data-geldf="${esc(f.id)}">Bekijk factuur</button></div></div>`;
+  document.body.appendChild(el);kassa();
+  requestAnimationFrame(()=>{const r=el.getBoundingClientRect();confetti(document.body,{n:70,bron:{x:r.left+r.width/2,y:r.top+40}})});
+  const B=el.querySelector("#geldB"),t0=performance.now(),dur=900;const stap=n=>{const p=Math.min(1,(n-t0)/dur),e=1-Math.pow(1-p,3);B.textContent=eur(bedrag*e);if(p<1)requestAnimationFrame(stap)};requestAnimationFrame(stap);
+  const weg=()=>{el.classList.add("weg");setTimeout(()=>el.remove(),300)};
+  el.querySelector("[data-geldf]").onclick=()=>{weg();openFactuur(f.id)};el.querySelector(".gp-x").onclick=weg;
+  let tm=setTimeout(weg,9000);el.addEventListener("mouseenter",()=>clearTimeout(tm));el.addEventListener("mouseleave",()=>{tm=setTimeout(weg,4000)})}catch(e){console.error(e)}}
 function betaalCheck(){if(!state.loaded||isMw())return;const nu={};state.facturen.forEach(f=>{if(f.soort!=="offerte")nu[f.id]=f.status});
   if(betaalVorig){
     state.facturen.filter(f=>f.status==="betaald"&&betaalVorig[f.id]&&betaalVorig[f.id]!=="betaald"&&f.betaalwijze==="mollie"&&String(f.betaaldOp||"").slice(0,10)>=iso(addDays(today(),-1))).slice(0,1).forEach(geldFeest)}
