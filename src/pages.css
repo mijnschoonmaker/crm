@@ -2558,3 +2558,13 @@ aside nav button .badge{font-size:10.5px}
 .ow-rkt dt{font-weight:650}.ow-rkt dd{margin:0;text-align:right;font-weight:650;font-variant-numeric:tabular-nums}.ow-rkt dd small{font-weight:500;color:var(--muted);font-size:12px}
 .ow-rkh .sp{flex:1}
 .kp-rc #owOff{white-space:nowrap;flex:none;padding:8px 14px!important;min-height:0;height:auto;line-height:1.2}
+/* opdracht: rustig overzicht */
+#owOpdF[hidden],#owOpdV[hidden]{display:none!important}
+.ow-kvs{display:flex;flex-direction:column}
+.ow-kvs .ow-kv{padding:7px 0;border-bottom:1px solid color-mix(in srgb,var(--line) 60%,transparent)}
+.ow-kvs .ow-kv:last-child{border-bottom:0}
+.ow-kvs .ow-kv b{font-weight:550}
+#owOpdE.on{background:var(--brand);color:#fff;border-color:transparent}
+.ow-kvs .ow-kv{display:grid!important;grid-template-columns:minmax(0,252px) minmax(0,1fr);gap:12px;padding:6px 0!important;font-size:13.5px}
+.ow-kvs .ow-kv span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:560px){.ow-kvs .ow-kv{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}.ow-kvs .ow-kv span{white-space:normal}}

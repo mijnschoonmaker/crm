@@ -22,8 +22,9 @@ function openOpdrachtWerk(kid,focus){
     <section class="kp"><div class="kp-h"><span class="objic">${I.pin}</span><b>Adres</b><span class="sp"></span><a class="btn small" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.nav}Kaart</a></div>
       ${kv("Adres",esc(jobAddr(k)))}${(k.objecten||[]).length>1?`<label>Object<select id="ow-obj">${k.objecten.map(o=>`<option value="${esc(o.id)}" ${jobObj(k)&&jobObj(k).id===o.id?"selected":""}>${esc(o.naam||"Object")}</option>`).join("")}</select></label>`:""}
       ${[["offerte","Offerte gaat naar"],["factuur","Facturen gaan naar"],["planning","Planningsmails gaan naar"]].map(([x,l])=>kv(l,(mailK(k,x).email?esc(mailK(k,x).email):"—")+(tavK(k,x)?`<br><small class="subt">t.a.v. ${esc(tavK(k,x))}</small>`:""))).join("")}<button type="button" class="linkbtn" id="owAdr" style="align-self:flex-start">Adresgegevens aanpassen ${I.right}</button></section>
-    <section class="kp"><div class="kp-h"><span class="objic">${I.planning}</span><b>Opdracht</b></div>
-      <div class="grid2">
+    <section class="kp"><div class="kp-h"><span class="objic">${I.planning}</span><b>Opdracht</b><span class="sp"></span><button type="button" class="iconbtn sm" id="owOpdE" aria-label="Opdracht wijzigen" title="Wijzigen">${I.pencil}</button></div>
+      <div class="ow-kvs" id="owOpdV"></div>
+      <div class="grid2" id="owOpdF" hidden>
         <label>Ronde<input id="ow-ronde" list="ow-rl" value="${esc(k.ronde||"")}" placeholder="bijv. Ronde Noord"><datalist id="ow-rl">${rondes().map(r=>`<option value="${esc(r)}">`).join("")}</datalist></label>
         <label>Volgende beurt<input value="${k.gepland?esc(fmtL(k.gepland))+(k.tijd?" "+esc(k.tijd):""):"Te plannen"}" disabled></label>
         <label>Eerste keer<select id="ow-eerste"><option value="ja" ${isEersteKeer(k)?"selected":""}>Ja</option><option value="nee" ${isEersteKeer(k)?"":"selected"}>Nee</option></select><small class="help">${k.eersteKeer==null?"Automatisch ingevuld: ":""}wordt na de eerste afgemelde beurt vanzelf Nee</small></label>
@@ -66,6 +67,17 @@ function openOpdrachtWerk(kid,focus){
   </div></div>
   <div class="row stickyfoot kk-foot"><button type="button" class="ghost danger" id="owDel">${I.trash}Opdracht verwijderen</button><span class="sp"></span><button type="button" id="owBack">Annuleren</button><button type="submit" class="primary" id="owSave">${I.check}Opslaan</button></div>`,{xwide:true});
   const $o=n=>$("#ow-"+n);
+  /* Opdracht: rustig overzicht (zoals het vorige CRM); potlood = wijzigen */
+  const drawOpdV=()=>{const v=$("#owOpdV");if(!v)return;const g=n=>$o(n),ja=c=>c&&c.checked?"Ja":"Nee",sel=n=>{const e=g(n);return e&&e.selectedIndex>=0?e.options[e.selectedIndex].text:"—"};
+    const ts=Number(g("toeslag")&&g("toeslag").value)||0,tr=(g("toeslagr")&&g("toeslagr").value.trim())||"";
+    const rij=(a,b)=>`<div class="ow-kv"><span>${a}</span><b>${b}</b></div>`;
+    v.innerHTML=rij("Ronde",esc((g("ronde")&&g("ronde").value.trim())||"—"))+rij("Volgende beurt",k.gepland?esc(fmtL(k.gepland))+(k.tijd?" "+esc(k.tijd):""):"Te plannen")+rij("Eerste keer",esc(sel("eerste")))+rij("Contactmethode planning",esc(sel("contact")))
+      +rij("Medewerker moet onderweg bellen",ja(g("bellen")))+rij("Aantallen verbergen voor de klant",ja(g("verbA")))+rij("Frequenties verbergen voor de klant",ja(g("verbF")))
+      +rij("Toeslag hanteren",ts?ts+"%":"Nee")+rij("Toeslag reden",esc(tr||"—"))+rij("Afmeldbericht actief",ja(g("afmail")))+rij("Opdracht loopt",ja(g("actief")))
+      +(k.gepland?rij("Alle toekomstige afspraken",`<button type="button" class="linkbtn" id="owWisV">Verwijderen</button>`):"");
+    const w=$("#owWisV");if(w)w.onclick=()=>{const b=$("#owWis");if(b)b.click()}};
+  drawOpdV();
+  {const e=$("#owOpdE"),f=$("#owOpdF"),v=$("#owOpdV");if(e&&f&&v)e.onclick=()=>{const open=f.hidden;f.hidden=!open;v.hidden=open;e.classList.toggle("on",open);e.innerHTML=open?I.check:I.pencil;e.title=open?"Klaar":"Wijzigen";if(!open)drawOpdV()}}
   const editR=new Set();
   /* extra diensten ingeklapt tonen; open bij nieuw toevoegen of na "Wijzigen" */
   const dicht=new Set((k.opdrachten||[]).map(o=>o.id));
