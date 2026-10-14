@@ -3222,3 +3222,7 @@ html.zm dialog.rf{zoom:1.1111}
 .rf-aan>span{width:34px;height:34px;border-radius:50%;background:#6e56cf;color:#fff;display:grid;place-items:center;font-size:16px;flex:none}
 .rf-aan div{flex:1;min-width:0}.rf-aan b{display:block;font-size:14px}.rf-aan small{display:block;color:var(--muted);font-size:12px}
 .rf-aan i{font-style:normal;font-weight:800;color:#6e56cf;font-size:13px;flex:none}
+
+dialog.vraag-dlg{padding:0;margin:0;border:0;background:transparent;box-shadow:none;width:100vw;height:100dvh;max-width:none;max-height:none}
+dialog.vraag-dlg::backdrop{background:transparent}
+html.zm dialog.vraag-dlg{zoom:1.1111}
