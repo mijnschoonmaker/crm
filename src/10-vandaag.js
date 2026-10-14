@@ -70,7 +70,7 @@ function vVandaag(){
   <h1 class="vd-hi">${isT?groet:"Planning"}${naam&&isT?`, <span>${esc(naam)}.</span>`:""}</h1>`;
   const noteHtml=note?`<button type="button" class="daynote" data-act="daynote" data-d="${d}"><span class="eyebrow">Dagnotitie</span>${esc(note)}</button>`:"";
   const dueHtml=due.length?`<div class="banner"><div><b>${plural(due.length,"klant is","klanten zijn")} vandaag aan de beurt, maar niet ingepland</b><br><small>${due.slice(0,3).map(k=>esc(cleanName(k.naam))).join(", ")}${due.length>3?" en "+(due.length-3)+" meer":""}</small></div><button type="button" class="primary" data-act="plantoday">Plan vandaag in</button></div>`:"";
-  const emptyHtml=!todo.length?(stops.length?empty("Klaar voor vandaag","Alle stops zijn afgerond. Goed gewerkt!"):empty(isT?"Niets op de planning vandaag":"Niets gepland op deze dag","Plan klanten in via Planning, dan staan ze hier.",`<button type="button" class="primary" data-act="tab" data-tab="planning">${I.planning}Naar planning</button>`)):"";
+  const emptyHtml=!todo.length?vdRust(d,isT,stops.length,due.length):"";
   if(big()){
     return `<div class="withside"><div class="mainc">${top}
       ${vdHero(doneB.length,total,todo.length,omzet,verwacht,pct)}
@@ -129,3 +129,12 @@ function vdHero(done,total,todo,omzet,verwacht,pct){if(!total)return"";const R=4
     <div class="vh-weg" style="--p:${total?done/total:0}"><div class="fg-baan"><i></i></div>${[...Array(Math.min(total,12))].map((_,i)=>`<span class="vh-h${i<Math.round(done/total*Math.min(total,12))?" af":""}" style="left:${(i+1)/Math.min(total,12)*100}%">${HUIS}</span>`).join("")}<span class="vh-bus">${typeof RV_BUS!=="undefined"?RV_BUS:""}</span></div>
     <div class="vh-st">${mw?"":`<span><small>Verdiend</small><b>${eur0(omzet)}</b><em>van ${eur0(verwacht)}</em></span>`}<span><small>Klaar</small><b>${done}</b><em>adressen</em></span><span><small>Te gaan</small><b>${todo}</b><em>${todo===1?"adres":"adressen"}</em></span></div></div>
     <div class="vh-r"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="${R}" class="t"/><circle cx="50" cy="50" r="${R}" class="v" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pct/100)}"/></svg><span><b>${pct}%</b><small>klaar</small></span></div></section>`}
+
+/* ---------- Vandaag zonder stops: busje staat geparkeerd, met wat er nu zinvol is ---------- */
+function vdRust(d,isT,klaar,nDue){let nx=null;try{for(let i=1;i<=21;i++){const dd=iso(addDays(parse(d),i)),st=routeStops(dd);if(st.length){nx={d:dd,n:st.length,eerste:st[0].k};break}}}catch(e){}
+  const titel=klaar?"Dag klaar, top gedaan!":isT?"Vandaag een vrije dag":"Niets gepland op deze dag",sub=klaar?"Alle adressen zijn afgemeld. Busje mag de garage in.":nDue?`${plural(nDue,"klant is","klanten zijn")} wel aan de beurt. Plan ze in, dan staan ze hier.`:"Geen adressen vandaag. Geniet ervan, of plan alvast iets in.";
+  const dag=x=>{const p=parse(x),df=Math.round((p-parse(iso(today())))/864e5);return df===1?"Morgen":df===2?"Overmorgen":p.toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"short"})};
+  return `<section class="vr${klaar?" klaar":""}"><div class="vr-sc" aria-hidden="true"><span class="vr-zon"></span><span class="vr-wolk w1"></span><span class="vr-wolk w2"></span><span class="vr-huis">${HUIS}</span><span class="vr-bus">${typeof RV_BUS!=="undefined"?RV_BUS:""}</span>${klaar?"":'<span class="vr-z">z<i>z</i><b>z</b></span>'}<span class="vr-grond"></span></div>
+    <div class="vr-tx"><h2>${titel}</h2><p>${sub}</p>
+      ${nx?`<button type="button" class="vr-nx" data-act="vdag" data-d="${esc(nx.d)}"><span class="vr-nxi">${I.planning}</span><span><small>Volgende werkdag</small><b>${esc((t=>t.charAt(0).toUpperCase()+t.slice(1))(dag(nx.d)))} · ${plural(nx.n,"stop","stops")}</b><em>eerste: ${esc(jobAddrObj(nx.eerste).adres||cleanName(nx.eerste.naam))}${nx.eerste.tijd?" om "+esc(nx.eerste.tijd):""}</em></span>${I.right}</button>`:""}
+      <div class="vr-acts">${nDue&&!isMw()?`<button type="button" class="primary" data-act="plantoday">${I.planning}Plan vandaag in</button>`:""}${isMw()?"":`<button type="button"${nDue?"":' class="primary"'} data-act="tab" data-tab="planning">${I.planning}Naar planning</button>`}</div></div></section>`}

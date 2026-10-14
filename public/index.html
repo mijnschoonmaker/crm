@@ -3350,6 +3350,27 @@ body{background:var(--bg)!important}
 .tk-live i{width:9px;height:9px;border-radius:50%;background:#22a46c;animation:rvLive 2s ease-out infinite}
 .tk.bezig .tk-af{flex:0 0 55%}
 @media (max-width:640px){.tk-kop{grid-template-columns:auto auto 1fr;gap:12px;padding:14px 16px}.tk-vlucht{display:none}.tk-eta{grid-column:3}.tk-kop b{font-size:22px}.tk-body{padding:14px 16px}.tk-adres b{font-size:19px}.tk-stub{padding:12px 16px 14px}.tk-perf{margin:0 16px}.tk-perf::before{left:calc(-16px - var(--n))}.tk-perf::after{right:calc(-16px - var(--n))}}
+/* ---------- Vandaag zonder stops ---------- */
+.vr{display:flex;flex-direction:column;align-items:center;text-align:center;gap:18px;padding:26px 20px 24px;border-radius:24px;background:var(--surface);border:1px solid var(--line);box-shadow:0 1px 2px rgb(15 31 38 / .04),0 14px 30px -24px rgb(15 50 60 / .35);margin-top:6px}
+.vr-sc{position:relative;width:min(340px,100%);height:150px;border-radius:20px;overflow:hidden;background:linear-gradient(180deg,#bfe6ee,#e8f6f8 70%)}
+.vr.klaar .vr-sc{background:linear-gradient(180deg,#ffd9a8,#ffeedd 55%,#e8f6f8)}
+.vr-zon{position:absolute;right:38px;top:22px;width:38px;height:38px;border-radius:50%;background:radial-gradient(circle,#fff6c9,#f3c64a);box-shadow:0 0 0 8px rgb(243 198 74 / .2),0 0 30px rgb(243 198 74 / .6);animation:vrZon 6s ease-in-out infinite}
+@keyframes vrZon{50%{transform:translateY(3px)}}
+.vr-wolk{position:absolute;height:14px;border-radius:14px;background:#fff;opacity:.9}.vr-wolk::before{content:"";position:absolute;left:10px;top:-8px;width:20px;height:20px;border-radius:50%;background:#fff}
+.vr-wolk.w1{left:30px;top:28px;width:52px;animation:vrWolk 14s linear infinite}.vr-wolk.w2{left:150px;top:48px;width:40px;opacity:.7;animation:vrWolk 18s linear infinite reverse}
+@keyframes vrWolk{50%{transform:translateX(26px)}}
+.vr-grond{position:absolute;left:0;right:0;bottom:0;height:30px;background:linear-gradient(180deg,#cfe3d4,#b9d6c1)}
+.vr-huis{position:absolute;left:58px;bottom:22px;width:64px;height:64px;color:#fff;filter:drop-shadow(0 4px 6px rgb(0 0 0 / .15))}.vr-huis svg{width:100%;height:100%;fill:#137a8a;stroke:#fff;stroke-width:.6}
+.vr-bus{position:absolute;left:150px;bottom:22px;width:86px;height:54px;filter:drop-shadow(0 5px 6px rgb(0 0 0 / .2))}.vr-bus svg{width:100%;height:100%}
+.vr-z{position:absolute;left:226px;bottom:66px;font-weight:800;color:#5b7480;font-size:14px;letter-spacing:2px}.vr-z i,.vr-z b{font-style:normal;display:inline-block;animation:vrZ 2.4s ease-in-out infinite}.vr-z i{font-size:17px;animation-delay:.4s}.vr-z b{font-size:20px;animation-delay:.8s}
+@keyframes vrZ{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-6px);opacity:1}}
+.vr-tx h2{margin:0;font-size:22px;font-weight:700;letter-spacing:-.025em;text-transform:none}.vr-tx p{margin:6px auto 0;max-width:420px;font-size:14.5px;color:var(--muted)}
+.vr-nx{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;width:min(420px,100%);margin:16px auto 0;padding:12px 14px;border-radius:16px;border:1px solid var(--line);background:var(--surface-2);text-align:left}
+.vr-nx:hover{border-color:color-mix(in srgb,var(--brand) 35%,var(--line))}
+.vr-nxi{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--blauw);color:#fff;flex:none}.vr-nxi svg{width:19px;height:19px}
+.vr-nx>span:nth-child(2){flex:1;min-width:0}.vr-nx small{display:block;font-size:11.5px;color:var(--muted);font-weight:600}.vr-nx b{display:block;font-size:15px;font-weight:700}.vr-nx em{display:block;font-style:normal;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vr-nx>svg{width:18px;height:18px;color:var(--muted)}
+.vr-acts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
 
 </style>
 <div class="app">
@@ -4623,7 +4644,7 @@ function vVandaag(){
   <h1 class="vd-hi">${isT?groet:"Planning"}${naam&&isT?`, <span>${esc(naam)}.</span>`:""}</h1>`;
   const noteHtml=note?`<button type="button" class="daynote" data-act="daynote" data-d="${d}"><span class="eyebrow">Dagnotitie</span>${esc(note)}</button>`:"";
   const dueHtml=due.length?`<div class="banner"><div><b>${plural(due.length,"klant is","klanten zijn")} vandaag aan de beurt, maar niet ingepland</b><br><small>${due.slice(0,3).map(k=>esc(cleanName(k.naam))).join(", ")}${due.length>3?" en "+(due.length-3)+" meer":""}</small></div><button type="button" class="primary" data-act="plantoday">Plan vandaag in</button></div>`:"";
-  const emptyHtml=!todo.length?(stops.length?empty("Klaar voor vandaag","Alle stops zijn afgerond. Goed gewerkt!"):empty(isT?"Niets op de planning vandaag":"Niets gepland op deze dag","Plan klanten in via Planning, dan staan ze hier.",`<button type="button" class="primary" data-act="tab" data-tab="planning">${I.planning}Naar planning</button>`)):"";
+  const emptyHtml=!todo.length?vdRust(d,isT,stops.length,due.length):"";
   if(big()){
     return `<div class="withside"><div class="mainc">${top}
       ${vdHero(doneB.length,total,todo.length,omzet,verwacht,pct)}
@@ -4682,6 +4703,15 @@ function vdHero(done,total,todo,omzet,verwacht,pct){if(!total)return"";const R=4
     <div class="vh-weg" style="--p:${total?done/total:0}"><div class="fg-baan"><i></i></div>${[...Array(Math.min(total,12))].map((_,i)=>`<span class="vh-h${i<Math.round(done/total*Math.min(total,12))?" af":""}" style="left:${(i+1)/Math.min(total,12)*100}%">${HUIS}</span>`).join("")}<span class="vh-bus">${typeof RV_BUS!=="undefined"?RV_BUS:""}</span></div>
     <div class="vh-st">${mw?"":`<span><small>Verdiend</small><b>${eur0(omzet)}</b><em>van ${eur0(verwacht)}</em></span>`}<span><small>Klaar</small><b>${done}</b><em>adressen</em></span><span><small>Te gaan</small><b>${todo}</b><em>${todo===1?"adres":"adressen"}</em></span></div></div>
     <div class="vh-r"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="${R}" class="t"/><circle cx="50" cy="50" r="${R}" class="v" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pct/100)}"/></svg><span><b>${pct}%</b><small>klaar</small></span></div></section>`}
+
+/* ---------- Vandaag zonder stops: busje staat geparkeerd, met wat er nu zinvol is ---------- */
+function vdRust(d,isT,klaar,nDue){let nx=null;try{for(let i=1;i<=21;i++){const dd=iso(addDays(parse(d),i)),st=routeStops(dd);if(st.length){nx={d:dd,n:st.length,eerste:st[0].k};break}}}catch(e){}
+  const titel=klaar?"Dag klaar, top gedaan!":isT?"Vandaag een vrije dag":"Niets gepland op deze dag",sub=klaar?"Alle adressen zijn afgemeld. Busje mag de garage in.":nDue?`${plural(nDue,"klant is","klanten zijn")} wel aan de beurt. Plan ze in, dan staan ze hier.`:"Geen adressen vandaag. Geniet ervan, of plan alvast iets in.";
+  const dag=x=>{const p=parse(x),df=Math.round((p-parse(iso(today())))/864e5);return df===1?"Morgen":df===2?"Overmorgen":p.toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"short"})};
+  return `<section class="vr${klaar?" klaar":""}"><div class="vr-sc" aria-hidden="true"><span class="vr-zon"></span><span class="vr-wolk w1"></span><span class="vr-wolk w2"></span><span class="vr-huis">${HUIS}</span><span class="vr-bus">${typeof RV_BUS!=="undefined"?RV_BUS:""}</span>${klaar?"":'<span class="vr-z">z<i>z</i><b>z</b></span>'}<span class="vr-grond"></span></div>
+    <div class="vr-tx"><h2>${titel}</h2><p>${sub}</p>
+      ${nx?`<button type="button" class="vr-nx" data-act="vdag" data-d="${esc(nx.d)}"><span class="vr-nxi">${I.planning}</span><span><small>Volgende werkdag</small><b>${esc((t=>t.charAt(0).toUpperCase()+t.slice(1))(dag(nx.d)))} · ${plural(nx.n,"stop","stops")}</b><em>eerste: ${esc(jobAddrObj(nx.eerste).adres||cleanName(nx.eerste.naam))}${nx.eerste.tijd?" om "+esc(nx.eerste.tijd):""}</em></span>${I.right}</button>`:""}
+      <div class="vr-acts">${nDue&&!isMw()?`<button type="button" class="primary" data-act="plantoday">${I.planning}Plan vandaag in</button>`:""}${isMw()?"":`<button type="button"${nDue?"":' class="primary"'} data-act="tab" data-tab="planning">${I.planning}Naar planning</button>`}</div></div></section>`}
 
 /* ---------- ROUTE ---------- */
 function vRoute(){
@@ -10109,6 +10139,7 @@ document.addEventListener("click",e=>{
       if(a==="tpladd")o["eigen"+Date.now().toString(36)]={naam:"Nieuwe template",tekst:"Hoi [name.customer], "};if(a==="tpldel")delete o[t.dataset.k];
       save("instellingen","sjablonen",o).then(()=>toast(a==="tpladd"?"Template toegevoegd":a==="tpldel"?"Template verwijderd":"Templates opgeslagen")).catch(err);break}
     /* vandaag & route */
+    case"vdag":state.vDay=t.dataset.d;render();scrollTo({top:0});break;
     case"vday":state.vDay=n===0?iso(today()):iso(addDays(parse(state.vDay||iso(today())),n));render();break;
     case"daynote":openDayNote(t.dataset.d||iso(today()));break;
     case"kost":openKost(id);break;
