@@ -27,12 +27,12 @@ function werkdagKaart(d,isT,total){const c=wdCijfers(d),w=c.w,inP=(w.pauzes||[])
     ${balk}<div class="wd-k">${inP?`<button type="button" class="primary" data-act="wdpauze">${I.play||I.check}Pauze voorbij</button>`:`<button type="button" data-act="wdpauze">${I.coffee||I.clock}Pauze</button><button type="button" class="primary" data-act="wdstop">${I.home||I.check}Terug bij de loods</button>`}</div></section>`}
 document.addEventListener("click",async e=>{const b=e.target.closest&&e.target.closest("[data-act^='wd']");if(!b)return;const a=b.dataset.act;if(!["wdstart","wdstop","wdpauze","wdheropen"].includes(a))return;e.preventDefault();e.stopPropagation();
   const d=iso(today()),w=wdGet(d)||{};
-  if(a==="wdstart"){await wdZet(d,{start:wdNu(),stop:"",pauzes:[]});toast("Werkdag gestart · goede rit!");try{navigator.vibrate&&navigator.vibrate(20)}catch(_){}}
+  if(a==="wdstart"){await wdZet(d,{start:wdNu(),stop:"",pauzes:[]});wdLive(true);toast("Werkdag gestart · live delen staat aan");try{navigator.vibrate&&navigator.vibrate(20)}catch(_){}}
   else if(a==="wdpauze"){const pz=[...(w.pauzes||[])],open=pz.findIndex(p=>!p.tot);if(open>=0){pz[open]={...pz[open],tot:wdNu()};toast("Pauze voorbij · "+wdU(wdMin(pz[open].van,pz[open].tot)))}else{pz.push({van:wdNu()});toast("Pauze gestart")}await wdZet(d,{pauzes:pz})}
   else if(a==="wdstop"){const bz=state.klanten.filter(k=>typeof isBezig==="function"&&isBezig(k));
     if(bz.length&&!(await vraag("Nog bezig bij een klant",`De tijd loopt nog bij <b>${esc(cleanName(bz[0].naam))}</b>. Toch de werkdag stoppen? Meld die stop daarna nog af.`,"Toch stoppen","Annuleren")))return;
-    const pz=(w.pauzes||[]).map(p=>p.tot?p:{...p,tot:wdNu()});await wdZet(d,{stop:wdNu(),pauzes:pz});const c=wdCijfers(d);toast(`Werkdag klaar · ${wdU(c.netto)} gewerkt, ${wdU(c.reis)} reistijd`)}
-  else if(a==="wdheropen"){await wdZet(d,{stop:""});toast("Werkdag loopt weer")}
+    const pz=(w.pauzes||[]).map(p=>p.tot?p:{...p,tot:wdNu()});await wdZet(d,{stop:wdNu(),pauzes:pz});wdLive(false);const c=wdCijfers(d);toast(`Werkdag klaar · ${wdU(c.netto)} gewerkt, ${wdU(c.reis)} reistijd`)}
+  else if(a==="wdheropen"){await wdZet(d,{stop:""});wdLive(true);toast("Werkdag loopt weer")}
 },true);
 /* lopende tijd elke halve minuut bijwerken */
 setInterval(()=>{document.querySelectorAll("[data-wdsince]").forEach(el=>el.textContent=wdU(wdMin(el.dataset.wdsince,wdNu())))},30000);
@@ -47,3 +47,8 @@ function wdStatKaart(rg,lbl){const t=wdPeriode(rg);
     <div class="wd-bar big"><i class="f" style="flex:${t.fact}"></i><i class="r" style="flex:${t.reis}"></i><i class="p" style="flex:${t.pauze||0.0001}"></i></div>
     <div class="wd-leg"><span><i class="f"></i>Facturabel <b>${wdU(t.fact)}</b> · ${p(t.fact)}%</span><span><i class="r"></i>Reistijd <b>${wdU(t.reis)}</b> · ${p(t.reis)}%</span><span><i class="p"></i>Pauze <b>${wdU(t.pauze)}</b> · ${p(t.pauze)}%</span></div>
     <div class="wd-kpi"><div><small>Omzet</small><b>${eur0(t.omzet)}</b></div><div><small>Echt per gewerkt uur</small><b>${t.perUur?eur0(t.perUur):"–"}</b></div><div><small>Per facturabel uur</small><b>${t.perFact?eur0(t.perFact):"–"}</b></div><div><small>Reistijd per dag</small><b>${wdU(t.reis/t.dagen)}</b></div></div></section>`}
+
+/* live locatie volgt de werkdag: aan bij vertrek uit de loods, uit bij terugkomst */
+function wdLive(aan){if(typeof liveStart!=="function")return;state.liveDelen=aan;try{localStorage.setItem("ms.live",aan?"1":"0")}catch(e){}aan?liveStart(true):liveStop(true);render()}
+/* CRM opnieuw geopend tijdens een lopende werkdag: live delen weer aanzetten */
+setTimeout(()=>{try{const w=wdGet(iso(today()));if(w&&w.start&&!w.stop&&typeof LV!=="undefined"&&LV.watch==null)wdLive(true)}catch(e){}},4000);
