@@ -109,6 +109,8 @@ document.addEventListener("click",e=>{
     case"welkom":{const refs=sentRefs(),l=actief().filter(k=>!refs.has("welkom:"+k.id));if(!l.length){toast("Alle klanten hebben al een welkomstbericht gekregen");break}openBulk(l,"welkom");break}
     /* facturen en offertes */
     case"factuur":openFactuur(id);break;
+    case"afterug":afmeldingTerug(id);break;
+    case"beurtfact":{const b=state.beurten.find(x=>x.id===id);t.disabled=true;billAll(t,[id]).then(fid=>{if(fid){if(dlg.open)dlg.close();setTimeout(()=>openFactuur(fid),80)}}).catch(err);break}
     case"newfactuur":openFactuurForm({soort:"factuur",klantId:id});break;
     case"newofferte":openOfferte({klantId:id});break;
     case"editf":{const f=state.facturen.find(x=>x.id===id);if(f&&f.soort==="offerte")openOfferte({id});else openFactuurForm({id});break}

@@ -3366,3 +3366,18 @@ dialog .kp{overflow-wrap:anywhere}
 .srow.done .pill{order:1;justify-self:start}
 .srow.done .amt{order:2;font-family:var(--f-mono)!important;font-size:15px!important;font-weight:500!important;color:var(--ink)!important;text-align:right;min-width:86px}
 @media (max-width:640px){.swipe-card.srow.done{grid-template-columns:46px minmax(0,1fr) auto;gap:10px 12px;padding:12px 14px}.srow.done .sr-t{font-size:13.5px}.srow.done .amt{min-width:0;font-size:14px!important}.srow.done .pill{display:none}}
+
+/* opdrachtpaneel: afgeronde beurt */
+.jp-tiles{grid-template-columns:repeat(auto-fit,minmax(0,1fr))!important}
+.jp-af{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgb(15 31 38 / .04)}
+.jp-af-t{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:16px 20px 14px;background:linear-gradient(135deg,var(--surface) 55%,var(--brand-soft))}
+.jp-af-t b{font-size:30px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.jp-af-dl{margin:0;display:flex;flex-direction:column}
+.jp-af-dl>div{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 20px;border-top:1px solid var(--line);font-size:14.5px}
+.jp-af-dl dt{color:var(--muted)}.jp-af-dl dd{margin:0;display:flex;align-items:center;gap:8px;font-weight:600;font-variant-numeric:tabular-nums}
+.jp-af-dl dd small{font-weight:500;color:var(--muted);font-size:12px}
+.jp-af-dl .linkbtn{font-family:var(--f-mono);font-weight:600;padding:0}
+.jp-vb{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.jp-vb>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}.jp-vb small{color:var(--muted);font-size:12.5px}.jp-vb b{font-size:15px;font-weight:600}
+.jp-vb .jp-ic{width:40px;height:40px;border-radius:12px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;flex:none}.jp-vb .jp-ic svg{width:19px;height:19px}
+.jp-isaf .jp-ar2 small.help{display:none}

@@ -90,8 +90,8 @@ async function setFStatus(id,s){
     if(f.soort!=="offerte")for(const b of state.beurten.filter(b=>b.gefactureerd===id))await save("beurten",b.id,{...strip(b),betaald:s==="betaald"});
     toast(s==="betaald"?"Betaling verwerkt":"Status bijgewerkt");setTimeout(()=>openFactuur(id),50)}catch(e){err(e)}
 }
-async function billAll(btn){
-  const ub=unbilled(),groups={};ub.forEach(b=>(groups[b.klantId]=groups[b.klantId]||[]).push(b));
+async function billAll(btn,ids){
+  const ub=unbilled().filter(b=>!ids||ids.includes(b.id)),groups={};let laatsteId="";ub.forEach(b=>(groups[b.klantId]=groups[b.klantId]||[]).push(b));
   const st=S(),d=iso(today());let i=0;if(btn)btn.disabled=true;
   const first=nextNr("factuur",d),pre=first.slice(0,5),base=parseInt(first.slice(5),10);
   try{for(const kid of Object.keys(groups)){
@@ -99,7 +99,8 @@ async function billAll(btn){
     const id=newId("f"),regels=groups[kid].sort((a,b)=>String(a.datum).localeCompare(String(b.datum))).map(b=>({omschrijving:(b.dienst||k.dienst||"Glasbewassing")+" "+fmtL(b.datum),aantal:1,prijs:Number(b.bedrag)||0}));
     await save("facturen",id,{soort:"factuur",nummer:pre+String(base+i).padStart(4,"0"),klantId:kid,klantNaam:k.naam,klantAdres:k.adres?factAddr(k):"",klantEmail:mailK(k,"factuur").email||"",datum:d,verval:iso(addDays(today(),Number(k.termijn)||Number(st.termijn)||14)),regels,btw:Number(st.btw),incl:!!st.incl,status:"open",notitie:"",gemaakt:new Date().toISOString()});
     for(const b of groups[kid])await save("beurten",b.id,{...strip(b),gefactureerd:id});
-    i++}
+    laatsteId=id;i++}
+    if(ids){toast("Factuur aangemaakt");if(btn)btn.disabled=false;return laatsteId}
     toast(plural(i,"factuur","facturen")+" aangemaakt");state.fFilter="openstaand";schedule()}
   catch(e){if(btn)btn.disabled=false;err(e)}
 }
@@ -651,3 +652,14 @@ async function beurtVerplaatsen(bid,datum,tijd){const b=state.beurten.find(x=>x.
     const k=state.klanten.find(x=>x.id===b.klantId);if(k&&k.laatst===prev.datum&&nw.datum!==prev.datum)await save("klanten",k.id,{...strip(k),laatst:nw.datum});
     toast("Afgemelde beurt van "+cleanName(b.klantNaam)+" verplaatst naar "+fmtD(nw.datum)+(nw.tijd?" om "+nw.tijd:""),async()=>{const b2=state.beurten.find(x=>x.id===bid);if(b2)await save("beurten",bid,{...strip(b2),...prev})})}
   catch(e){err(e)}}
+
+/* afmelding van een beurt terugdraaien: beurt weg, klant weer op die dag in de planning */
+async function afmeldingTerug(bId){
+  const b=state.beurten.find(x=>x.id===bId);if(!b)return;const k=state.klanten.find(x=>x.id===b.klantId);
+  if(b.gefactureerd&&b.gefactureerd!=="nvt"){toast("Er is al een factuur voor deze beurt");return}
+  if(!await vraag("Afmelding terugdraaien?",`${esc(cleanName(b.klantNaam||(k&&k.naam)||""))} staat dan weer open op ${esc(fmtL(b.datum))}.`,"Terugdraaien"))return;
+  try{await del("beurten",bId);
+    if(k){const vorige=state.beurten.filter(x=>x.klantId===k.id&&x.id!==bId&&x.datum<=b.datum).map(x=>x.datum).sort().pop()||"";
+      await save("klanten",k.id,{...strip(k),laatst:vorige,gepland:b.datum,...(b.tijd?{tijd:b.tijd}:{})})}
+    if(dlg.open)dlg.close();toast("Afmelding teruggedraaid")}catch(e){err(e)}
+}
