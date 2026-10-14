@@ -4462,16 +4462,7 @@ function vVandaag(){
       ${doneB.length?`<div class="ns-head sm"><h2>Afgerond</h2></div><div class="list" style="gap:8px">${doneB.map(b=>{const k=state.klanten.find(x=>x.id===b.klantId);return k?stopRow(k,d,true):""}).join("")}</div>`:""}
       </div><aside class="rpanel"><div class="rp-sec"><span class="eyebrow rp-h">${I.pin}Route preview</span>${routePreview(stops)}</div>${isMw()?"":`<div class="rp-sec"><span class="eyebrow rp-h">${I.spark}Activiteit</span>${activiteit(d)}</div>`}</aside></div>`;
   }
-  let html=top+(isMw()?`<div class="omzetcard">
-    <span class="eyebrow">Jouw dag</span>
-    <b class="oc-big">${doneB.length} <span style="color:var(--muted);font-weight:600">/ ${total}</span></b><span class="oc-sub">${todo.length?plural(todo.length,"stop","stops")+" te gaan":"alles afgerond"}</span>
-    ${motBlok(doneB.length,total)}
-  </div>`:`<div class="omzetcard">
-    <span class="eyebrow">Dag-omzet <span style="text-transform:none;letter-spacing:0;font-weight:600">· ex btw</span></span>
-    <b class="oc-big">${eur0(omzet)}</b><span class="oc-sub">van <b>${eur0(verwacht)}</b> verwacht</span>
-    ${motBlok(doneB.length,total)}
-    <div class="oc-grid"><div><span class="eyebrow">Stops</span><b>${total}</b></div><div><span class="eyebrow">Klaar</span><b class="c-brand">${doneB.length}</b></div><div><span class="eyebrow">Te gaan</span><b>${todo.length}</b></div><div><span class="eyebrow">Voortgang</span><b>${pct}%</b></div></div>
-  </div>`)+`${aanmeldBanner()}${noteHtml}${isMw()?"":dueHtml}`;
+  let html=top+vdHero(doneB.length,total,todo.length,omzet,verwacht,pct)+`${aanmeldBanner()}${noteHtml}${isMw()?"":dueHtml}`;
   if(!todo.length)html+=emptyHtml;
   else{
     html+=`<div class="ns-head"><h2>Volgende stop</h2><span>${isMw()?"Veeg rechts → afmelden":"Veeg links → factureren · rechts → afmelden"}</span></div>
