@@ -3285,3 +3285,15 @@ dialog .kp{overflow-wrap:anywhere}
 .featc>*{position:relative}
 .featc small{color:rgb(255 255 255 / .78)!important}.featc>svg{color:#fff}
 .featc .objic.gl{background:rgb(255 255 255 / .16)!important;color:#fff!important}.featc .objic.gl svg{color:#fff!important}
+
+/* berichtenlijst: rustig, in de huisstijl (geen paarse/groene accenten) */
+.msgc .av{background:var(--brand-soft)!important;color:var(--brand)!important;box-shadow:none!important;border:0!important}
+.msgc .msg-to .kn,.msgc .msg-to .kn.email,.msgc .msg-to .kn.sms,.msgc .msg-to .kn.whatsapp{background:var(--surface-2)!important;color:var(--brand)!important}
+.msgc .msg-to .kn svg{color:var(--brand)!important}
+.msgc .side-col .pill{background:var(--surface-2)!important;color:var(--muted)!important;border:0!important}
+.msgc .side-col .pill.ok,.msgc .side-col .pill.ok2{background:var(--brand-soft)!important;color:var(--brand)!important}
+.msgc .side-col .pill.late,.msgc .side-col .pill.bad{background:var(--late-bg)!important;color:var(--late)!important}
+.msgc .side-col .pill i,.msgc .side-col .pill::before{background:currentColor!important}
+.msgc [class*="trk"],.msgc .mt-open,.msgc .msg-trk{color:var(--brand)!important}
+.msgc{transition:border-color .15s}.msgc.click:hover{border-color:color-mix(in srgb,var(--brand) 30%,var(--line))}
+.msgc .trk-ok{color:var(--brand)!important}

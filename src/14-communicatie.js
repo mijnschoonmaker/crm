@@ -301,7 +301,7 @@ function cmVlucht(bs,stc,n,todo){const ms=mStat,tot=bs.length;
   const st=(l,w,ic,c)=>`<div class="cm-s"><span class="cm-i" style="--c:${c}">${ic}</span><span><small>${l}</small><b>${w}</b></span></div>`;
   const nE=Math.min(5,Math.max(1,Math.round(pO/20)));
   return `<section class="cm"><div class="cm-top"><div><p class="cm-k">Berichten</p><div class="cm-big"><b>${tot}</b><span>${plural(tot,"bericht","berichten")} verstuurd${todo?` · <em>${todo} klaar om te versturen</em>`:""}</span></div><p class="cm-mot">${mot}</p></div>
-      <div class="cm-ch">${st("E-mail",n("email"),I.mail,"#b9b3ff")}${st("SMS",n("sms"),I.sms,"#ffd29a")}${st("WhatsApp",n("whatsapp"),I.msg,"#9ff0c4")}</div></div>
+      <div class="cm-ch">${st("E-mail",n("email"),I.mail,"#ffffff")}${st("SMS",n("sms"),I.sms,"#ffffff")}${st("WhatsApp",n("whatsapp"),I.msg,"#ffffff")}</div></div>
     <div class="cm-lucht">
       <svg class="cm-boog" viewBox="0 0 600 90" preserveAspectRatio="none" aria-hidden="true"><path d="M20 70 C 160 6, 440 6, 580 70" fill="none" stroke="rgb(255 255 255 / .35)" stroke-width="2" stroke-dasharray="2 8" stroke-linecap="round"/></svg>
       <div class="cm-pt p1"><i>${I.send}</i><b>${verst}</b><small>verstuurd</small></div>
