@@ -3345,3 +3345,6 @@ dialog .kp{overflow-wrap:anywhere}
 .wd-st{margin-top:16px;display:flex;flex-direction:column;gap:12px}
 .wd-h{flex-wrap:wrap}.wd-h .wd-m{min-width:0}.wd-h>button{margin-left:auto}
 @media (max-width:640px){.wd-h>button{margin-left:56px}}
+/* kopregel van blokken: titel nooit samengeperst; knoppen gaan naar de volgende regel */
+.kp-h{flex-wrap:wrap;row-gap:10px}.kp-h>b{flex:1 1 140px;min-width:140px}
+@media (max-width:640px){.kp-h>.sp{display:none}.kp-h>b{flex:1 1 0;min-width:0;white-space:normal;word-break:normal;overflow-wrap:normal}.kp-h>b~button,.kp-h>b~.btn,.kp-h>b~a.btn{order:3}.kp-h:has(>b~button.small:nth-of-type(2))>b{flex-basis:calc(100% - 56px)}}

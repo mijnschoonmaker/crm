@@ -47,7 +47,7 @@ function kkPortaal(k){
   const door=k.aanbevolenDoor&&state.klanten.find(x=>x.id===k.aanbevolenDoor);
   const aangebracht=state.klanten.filter(x=>x.aanbevolenDoor===k.id);
   const st=x=>x.aanbevelingBeloond?["ok","Vrijgegeven"]:x.actief===false?["neutral","Gestopt"]:x.akkoord===false||x.prospect?["soon","On hold · wacht op akkoord"]:["soon","On hold · eerste afspraak"];
-  return `<section class="kp"><div class="kp-h"><span class="objic" style="background:#e9a23b;color:#fff">${I.spark||I.user}</span><b>Klantportaal & aanbevelen</b><span class="sp"></span>${LIVE?`<button type="button" class="small" data-act="tknieuw" data-id="${esc(k.id)}">${I.ticket}Ticket</button><button type="button" class="small" data-act="ptinvite" data-id="${esc(k.id)}">${I.send}${k.portaalLaatst||k.portaalUitgenodigd?"Opnieuw uitnodigen":"Uitnodigen"}</button>`:""}</div>
+  return `<section class="kp"><div class="kp-h"><span class="objic">${I.spark||I.user}</span><b>Klantportaal <span class="objic" style="background:#e9a23b;color:#fff">${I.spark||I.user}</span><b>Klantportaal & aanbevelen</b> aanbevelen</b><span class="sp"></span>${LIVE?`<button type="button" class="small" data-act="tknieuw" data-id="${esc(k.id)}">${I.ticket}Ticket</button><button type="button" class="small" data-act="ptinvite" data-id="${esc(k.id)}">${I.send}${k.portaalLaatst||k.portaalUitgenodigd?"Opnieuw uitnodigen":"Uitnodigen"}</button>`:""}</div>
     <div class="pt-kk">
       <div><small>Portaal</small><b>${k.portaalLaatst?"Laatst ingelogd "+esc(fmtD(k.portaalLaatst.slice(0,10))):k.portaalUitgenodigd?"Uitgenodigd "+esc(fmtD(k.portaalUitgenodigd.slice(0,10))):"Nog niet gebruikt"}</b></div>
       <div><small>Aanbevelingscode</small><b>${esc(k.refCode||"Wordt gemaakt bij eerste login")}</b></div>
