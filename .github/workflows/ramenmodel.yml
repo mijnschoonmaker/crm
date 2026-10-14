@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: [".github/workflows/ramenmodel.yml", "tools/ramenmodel.py"]
+    paths: [".github/workflows/ramenmodel.yml", "tools/ramenmodel.py", "tools/testfotos.py"]
 permissions:
   contents: write
 jobs:
@@ -17,33 +17,11 @@ jobs:
         with: { python-version: "3.11" }
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
-      - name: Model omzetten
-        run: |
-          pip install -q --extra-index-url https://download.pytorch.org/whl/cpu torch torchvision ultralytics onnx onnxslim
-          python tools/ramenmodel.py
-      - name: onnxruntime-web ophalen
-        run: |
-          mkdir -p /tmp/ort && cd /tmp/ort && npm pack onnxruntime-web@1.19.2 --silent && tar xzf onnxruntime-web-1.19.2.tgz
-          cp package/dist/ort.min.js package/dist/ort-wasm-simd-threaded.wasm package/dist/ort-wasm-simd-threaded.mjs "$GITHUB_WORKSPACE/public/ai/"
-          ls -la "$GITHUB_WORKSPACE/public/ai"
       - name: Testfoto's ophalen
-        continue-on-error: true
-        run: |
-          mkdir -p tools/testfotos && cd tools/testfotos
-          for f in "Rijtjeshuizen_Brabantlaan_Eindhoven.jpg" "Huis_in_Bussum.jpg" "Woning_Vlaardingen.jpg" "Arnhem_woningen.jpg"; do curl -sfL -A "mijnschoonmaker-crm/1.0" -o "$f" "https://commons.wikimedia.org/wiki/Special:FilePath/$f?width=1400" || rm -f "$f"; done
-          python - <<'PY'
-          import json,urllib.request,urllib.parse
-          q="https://commons.wikimedia.org/w/api.php?action=query&format=json&generator=search&gsrnamespace=6&gsrlimit=14&gsrsearch="+urllib.parse.quote("rijtjeshuis gevel Nederland")+"&prop=imageinfo&iiprop=url&iiurlwidth=1400"
-          r=json.load(urllib.request.urlopen(urllib.request.Request(q,headers={"User-Agent":"mijnschoonmaker-crm/1.0"})))
-          for i,p in enumerate((r.get("query") or {}).get("pages",{}).values()):
-            u=p["imageinfo"][0].get("thumburl")
-            if u and u.lower().endswith((".jpg",".jpeg")):
-              open(f"commons{i}.jpg","wb").write(urllib.request.urlopen(urllib.request.Request(u,headers={"User-Agent":"mijnschoonmaker-crm/1.0"})).read())
-          PY
-          ls -la
+        run: python tools/testfotos.py
       - name: Vastleggen
         run: |
           git config user.name "github-actions"; git config user.email "actions@github.com"
-          git add public/ai tools/testfotos || true
-          git commit -m "Ramenmodel en onnxruntime-web klaargezet" || exit 0
+          git add tools/testfotos || true
+          git commit -m "Testfoto's voor raamherkenning" || exit 0
           git pull --rebase -q && git push
