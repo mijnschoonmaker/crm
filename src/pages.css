@@ -3108,3 +3108,21 @@ body{background:var(--bg)!important}
 .feest{display:grid;place-items:center}
 .feest .ft{pointer-events:auto}
 @media (prefers-reduced-motion:reduce){.ft,.ft-stub,.ft-stempel{animation:none;transition:none}}
+/* ---------- afscheuren: realistischer ---------- */
+.ft-stub{transition:none!important;transform-origin:0 0!important}
+.ft-rits{position:absolute;left:0;top:-2px;height:3px;width:0;border-radius:3px;background:linear-gradient(90deg,transparent,#fff 30%,#bff3dc 70%,#fff);box-shadow:0 0 10px 2px rgb(255 255 255 / .9),0 0 18px rgb(43 182 115 / .6);animation:ftRits .4s cubic-bezier(.6,0,.4,1) .45s forwards;z-index:3}
+@keyframes ftRits{to{width:100%}}
+.ft.scheur .ft-stub{transform:none;opacity:1;animation:ftScheur 1.5s cubic-bezier(.45,0,.55,1) forwards;-webkit-mask:radial-gradient(circle at 6px 0,transparent 4px,#000 4.5px) 0 0/12px 100% repeat-x;mask:radial-gradient(circle at 6px 0,transparent 4px,#000 4.5px) 0 0/12px 100% repeat-x;box-shadow:0 18px 30px -12px rgb(0 0 0 / .35)}
+@keyframes ftScheur{
+  0%{transform:rotate(0)}
+  18%{transform:rotate(5deg) translateY(2px)}
+  32%{transform:rotate(11deg) translateY(4px)}
+  42%{transform:rotate(9deg) translateY(5px)}
+  55%{transform:rotate(13deg) translate(4px,14px)}
+  100%{transform:rotate(38deg) translate(70px,340px);opacity:0}}
+.ft.scheur .ft-perf{border-top-color:transparent}
+.ft.scheur .ft-rits{opacity:0;transition:opacity .2s}
+.ft.scheur .ft-body{border-radius:0!important}
+.ft.scheur .ft-body::after{bottom:-7px;height:8px;background:radial-gradient(circle at 6px 8px,var(--surface) 4px,transparent 4.5px) 0 0/12px 8px repeat-x,linear-gradient(var(--surface),var(--surface)) 0 0/100% 4px no-repeat}
+.ft.scheur{animation:ftSchok .45s ease}
+@keyframes ftSchok{0%{transform:none}25%{transform:translateY(-4px) rotate(-.6deg)}55%{transform:translateY(2px) rotate(.4deg)}100%{transform:none}}

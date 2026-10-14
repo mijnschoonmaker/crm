@@ -47,11 +47,11 @@ function feest(k){try{
     <div class="ft-kop"><div><small>Stop</small><b>${done}<em>/${total}</em></b></div><div class="ft-vl"><i></i>${typeof RV_BUS!=="undefined"?`<span>${RV_BUS}</span>`:""}<i></i></div><div style="text-align:right"><small>Afgemeld</small><b>${tijd}</b></div></div>
     <div class="ft-body"><b class="ft-w">${esc(woord)}</b><span class="ft-a">${klaar?(total>1?`Alle ${total} woningen gedaan. Rust lekker uit.`:"Top gewerkt vandaag."):esc(a.adres||cleanName(k.naam))+" is klaar"}</span>
       ${huisjes(done,total,true)}${klaar?"":`<span class="ft-nog">Nog ${todo} ${todo===1?"adres":"adressen"} te gaan</span>`}</div>
-    <div class="ft-stub"><div class="ft-perf"></div><div class="ft-st"><span class="ft-stempel">${'<svg viewBox="0 0 24 24"><path d="M5.5 12.8l4.2 4.2L18.5 7.6"/></svg>'}<i>Gewassen</i></span><code>${esc((a.adres||"").toUpperCase().slice(0,22))}</code></div></div></div>`;
+    <div class="ft-stub"><div class="ft-perf"><i class="ft-rits"></i></div><div class="ft-st"><span class="ft-stempel">${'<svg viewBox="0 0 24 24"><path d="M5.5 12.8l4.2 4.2L18.5 7.6"/></svg>'}<i>Gewassen</i></span><code>${esc((a.adres||"").toUpperCase().slice(0,22))}</code></div></div></div>`;
   document.body.appendChild(el);try{navigator.vibrate&&navigator.vibrate(klaar?[40,60,40,60,80]:[30,40,30])}catch(e){}
   /* stuk afscheuren, met confetti vanaf de scheurlijn */
   setTimeout(()=>{const st=el.querySelector(".ft-stub");if(!st)return;const r=(typeof vpR==="function"?vpR(st):st.getBoundingClientRect());el.querySelector(".ft").classList.add("scheur");
-    confetti(document.body,{n:klaar?260:150,bron:{x:r.left+r.width/2,y:r.top}});if(klaar)setTimeout(()=>confetti(document.body,{n:200}),350)},650);
+    confetti(document.body,{n:klaar?260:150,bron:{x:r.left+r.width/2,y:r.top}});if(klaar)setTimeout(()=>confetti(document.body,{n:200}),350)},900);
   const weg=()=>{laatDwarrelen(el);el.classList.add("weg");setTimeout(()=>el.remove(),350)};el.addEventListener("click",weg);setTimeout(weg,klaar?4200:3200)}catch(e){console.error(e)}}
 
 /* ---------- Betaald via Mollie: geld-melding met confetti en kassageluid ---------- */
