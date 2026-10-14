@@ -75,13 +75,13 @@ function vVandaag(){
   if(big()){
     return `<div class="withside"><div class="mainc">${top}
       ${vdHero(doneB.length,total,todo.length,omzet,verwacht,pct)}
-      ${aanmeldBanner()}${noteHtml}${isMw()?"":dueHtml}
+      ${aanmeldBanner()}${noteHtml}
       ${todo.length?`<div class="ns-head sm"><h2>Volgende stop</h2><span>${isMw()?"Tik voor adres en instructies · veeg rechts → afmelden":"Veeg of klik · links → factureren · rechts → afmelden"}</span></div><div class="list" style="gap:8px">${todo.map(s=>stopRow(s.k,d)).join("")}</div>
         <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap"><button type="button" data-act="toroute" data-d="${d}">${I.route}Jouw route</button><button type="button" data-act="bulktoday">${I.msg}Bericht aan deze klanten</button></div>`:emptyHtml}
       ${doneB.length?`<div class="ns-head sm"><h2>Afgerond</h2></div><div class="list" style="gap:8px">${doneB.map(b=>{const k=state.klanten.find(x=>x.id===b.klantId);return k?stopRow(k,d,true):""}).join("")}</div>`:""}
       </div><aside class="rpanel"><div class="rp-sec"><span class="eyebrow rp-h">${I.pin}Route preview</span>${routePreview(stops)}</div>${isMw()?"":`<div class="rp-sec"><span class="eyebrow rp-h">${I.spark}Activiteit</span>${activiteit(d)}</div>`}</aside></div>`;
   }
-  let html=top+vdHero(doneB.length,total,todo.length,omzet,verwacht,pct)+`${aanmeldBanner()}${noteHtml}${isMw()?"":dueHtml}`;
+  let html=top+vdHero(doneB.length,total,todo.length,omzet,verwacht,pct)+`${aanmeldBanner()}${noteHtml}`;
   if(!todo.length)html+=emptyHtml;
   else{
     html+=`<div class="ns-head"><h2>Volgende stop</h2><span>${isMw()?"Veeg rechts → afmelden":"Veeg links → factureren · rechts → afmelden"}</span></div>
