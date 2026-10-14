@@ -2793,3 +2793,7 @@ body{background:var(--bg)!important}
 @media (max-width:640px){#view .stats .stat{padding:12px 14px!important}#view .stats .stat b{font-size:21px!important}}
 #view .stats .stat.late,#view .stats .stat:has(b[style*="late"]){box-shadow:inset 0 1px 0 rgb(255 255 255 / .18)!important}
 #view .stats .stat:has(b[style*="late"]) .eyebrow::after,#view .stats .stat.late .eyebrow::after{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#ff9b8a;margin-left:7px;vertical-align:1px;box-shadow:0 0 0 3px rgb(255 155 138 / .25)}
+/* uitklapmenu in de paginakop boven de blauwe tegelband */
+.pagehead{z-index:30!important}.pagehead:has(.menu),.pagehead:has(.drop){z-index:60!important}.pagehead .drop{position:relative;z-index:61}.pagehead .menu{z-index:62!important}
+#view .stats{z-index:1}
+.pagehead .menu button,.pagehead .menu a{justify-content:flex-start!important;text-align:left!important}
