@@ -48,7 +48,7 @@ function vInzichten(){
     const mot=!bs.length?"Nog geen beurten afgemeld in deze periode. Op naar de eerste!":bs.length>bv.length?`${bs.length-bv.length} beurten meer dan ${esc(V.lbl)}. Lekker bezig!`:bs.length===bv.length?`Net zoveel beurten als ${esc(V.lbl)}. Stabiel!`:`${esc(V.lbl)} telde er ${bv.length}. Nog ${bv.length-bs.length} te gaan om gelijk te komen.`;
     html+=`<section class="st-hero"><div class="st-hm"><span class="st-k">Woningen gedaan · ${esc(P.lbl)}</span>
         <div class="st-big"><b>${bs.length}</b>${stDelta(bs.length,bv.length,"vs "+V.lbl)}</div>
-        ${bs.length&&typeof huisjes==="function"?huisjes(bs.length,bs.length):""}
+        ${bs.length?stStraat(bs.length):""}
         <p class="st-mot">${mot}</p></div>
       <div class="st-hs">${stTile(I.euro,"Per uur",mins?eur0(om/(mins/60)):"–","omzet ex btw per gewerkt uur","ok")}${stTile(I.receipt,"Per beurt",gem?eur0(gem):"–","gemiddeld ex btw")}</div></section>
     <div class="st-tiles">${stTile(I.timer,"Uren",uren(mins),"op basis van duur per job")}
@@ -58,7 +58,7 @@ function vInzichten(){
     <div class="st-two"><section class="st-card"><div class="st-ch"><div><h3>Drukste dagen</h3><p>Afgemelde beurten per weekdag${wdc[top]?" · meestal op "+["maandag","dinsdag","woensdag","donderdag","vrijdag","zaterdag","zondag"][top]:""}</p></div></div>
         ${stBars(wdc,["ma","di","wo","do","vr","za","zo"],{hi:wdc[top]?top:-1,fmt:v=>String(Math.round(v)),h:200,gem:false})}</section>
       <section class="st-card"><div class="st-ch"><div><h3>Omzet per dienst</h3><p>Aandeel in de omzet uit werk</p></div></div>
-        ${dk.length?`<div class="st-share">${dk.map(k=>`<i style="width:${per_d[k]/dtot*100}%;--h:${hue(k)}" title="${esc(k)}"></i>`).join("")}</div><div class="st-rows">${dk.map(k=>`<div class="st-row"><span class="st-dot" style="--h:${hue(k)}"></span><span class="st-rn">${esc(k)}</span><span class="st-rp">${Math.round(per_d[k]/dtot*100)}%</span><b>${eur0(per_d[k])}</b></div>`).join("")}</div>`:'<p class="st-leeg">Nog geen afgemelde beurten in deze periode.</p>'}</section></div>`;
+        ${dk.length?stDiensten(dk,per_d,dtot):'<p class="st-leeg">Nog geen afgemelde beurten in deze periode.</p>'}</section></div>`;
   }else{
     const ak=actief(),nieuw=state.klanten.filter(k=>inRange(k.aangemaakt,P.rg)),nieuwV=state.klanten.filter(k=>inRange(k.aangemaakt,V.rg)),inact=state.klanten.filter(k=>k.actief===false);
     const jaar=ak.reduce((a,k)=>a+exAmt(k.prijs)*365/freqDays(k),0),perK=ak.length?jaar/ak.length:0;
@@ -83,3 +83,12 @@ function vInzichten(){
   }
   return html;
 }
+
+/* woningen gedaan: straatje met huisjes (vinkje) en het busje aan het eind */
+function stStraat(n){const max=12,m=Math.min(n,max),H=typeof HUIS!=="undefined"?HUIS:"";
+  return `<div class="st-straat" role="img" aria-label="${n} woningen gedaan"><div class="st-sh">${Array.from({length:m},(_,i)=>`<span class="st-hu" style="--i:${i}">${H}<i>${I.check}</i></span>`).join("")}${n>max?`<span class="st-meer">+${n-max}</span>`:""}</div><div class="st-weg"><i></i><span class="st-bus">${typeof RV_BUS!=="undefined"?RV_BUS:""}</span></div></div>`}
+/* omzet per dienst: ring met het aandeel en per dienst een kaartje met balk */
+function stDiensten(dk,per,tot){const KL=["#137a8a","#2aa3b3","#1d5a74","#7fc4cf","#ebbd4c","#5d6f76"],R=54,C=2*Math.PI*R;let acc=0;
+  const ring=dk.map((k,i)=>{const f=per[k]/tot,seg=`<circle cx="70" cy="70" r="${R}" fill="none" stroke="${KL[i%KL.length]}" stroke-width="16" stroke-dasharray="${Math.max(0,f*C-(dk.length>1?3:0))} ${C}" stroke-dashoffset="${-acc*C}" stroke-linecap="${dk.length>1?"butt":"round"}"/>`;acc+=f;return seg}).join("");
+  return `<div class="st-dv"><div class="st-ring"><svg viewBox="0 0 140 140"><circle cx="70" cy="70" r="${R}" fill="none" stroke="var(--surface-2)" stroke-width="16"/><g transform="rotate(-90 70 70)">${ring}</g></svg><div><b>${eur0(tot)}</b><small>${plural(dk.length,"dienst","diensten")}</small></div></div>
+    <div class="st-dl">${dk.map((k,i)=>{const p=Math.round(per[k]/tot*100);return `<div class="st-di" style="--c:${KL[i%KL.length]}"><span class="st-dic">${I.spark}</span><div class="st-dim"><div class="st-dit"><b>${esc(k)}</b><span class="mono">${eur0(per[k])}</span></div><div class="st-dib"><i style="width:${p}%"></i></div><small>${p}% van de omzet uit werk</small></div></div>`}).join("")}</div></div>`}

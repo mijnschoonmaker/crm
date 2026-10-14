@@ -3725,6 +3725,31 @@ dialog .kp{overflow-wrap:anywhere}
 .msgc{transition:border-color .15s}.msgc.click:hover{border-color:color-mix(in srgb,var(--brand) 30%,var(--line))}
 .msgc .trk-ok{color:var(--brand)!important}
 
+/* statistieken werk: straatje en omzet per dienst */
+.st-straat{margin:10px 0 6px;max-width:560px}
+.st-sh{display:flex;align-items:flex-end;gap:10px;padding:0 6px;flex-wrap:nowrap}
+.st-hu{position:relative;width:40px;flex:none;animation:stHu .5s cubic-bezier(.2,1.4,.4,1) both;animation-delay:calc(var(--i)*60ms)}
+.st-hu svg{display:block;width:100%;fill:rgb(255 255 255 / .92);stroke:none}
+.st-hu i{position:absolute;right:-6px;top:-6px;width:17px;height:17px;border-radius:50%;background:#4ade80;color:#0f5f6e;display:grid;place-items:center;box-shadow:0 0 0 2px rgb(15 95 110 / .6)}
+.st-hu i svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:3.2}
+@keyframes stHu{from{transform:translateY(10px) scale(.6);opacity:0}}
+.st-meer{color:#fff;font-weight:800;font-size:14px;opacity:.85;padding-bottom:6px}
+.st-weg{position:relative;height:30px;margin-top:2px}
+.st-weg>i{position:absolute;left:0;right:0;top:8px;height:8px;border-radius:4px;background:rgb(0 30 40 / .25);border-top:1px solid rgb(255 255 255 / .16)}
+.st-weg>i::after{content:"";position:absolute;left:8px;right:8px;top:3px;height:1.5px;background:repeating-linear-gradient(90deg,rgb(255 255 255 / .5) 0 12px,transparent 12px 24px)}
+.st-bus{position:absolute;right:-6px;top:-30px;width:74px;animation:stBus 1.6s cubic-bezier(.2,.8,.2,1) both}.st-bus svg{display:block;width:100%;filter:drop-shadow(0 3px 4px rgb(0 0 0 / .3)) brightness(1.12)}
+@keyframes stBus{from{transform:translateX(-260px);opacity:0}}
+.st-dv{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.st-ring{position:relative;width:150px;flex:none}.st-ring svg{width:100%;display:block}
+.st-ring>div{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}.st-ring b{font-size:21px;letter-spacing:-.02em}.st-ring small{color:var(--muted);font-size:12px}
+.st-dl{flex:1;min-width:220px;display:flex;flex-direction:column;gap:10px}
+.st-di{display:flex;gap:12px;align-items:center;padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+.st-dic{width:36px;height:36px;border-radius:11px;flex:none;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 14%,var(--surface));color:var(--c)}.st-dic svg{width:18px}
+.st-dim{flex:1;min-width:0}.st-dit{display:flex;justify-content:space-between;gap:10px}.st-dit b{font-size:14.5px}.st-dit .mono{font-weight:700}
+.st-dib{height:7px;border-radius:4px;background:var(--surface-2);margin:7px 0 5px;overflow:hidden}.st-dib i{display:block;height:100%;border-radius:4px;background:var(--c)}
+.st-dim small{color:var(--muted);font-size:12px}
+@media (prefers-reduced-motion:reduce){.st-hu,.st-bus{animation:none}}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -7332,7 +7357,7 @@ function vInzichten(){
     const mot=!bs.length?"Nog geen beurten afgemeld in deze periode. Op naar de eerste!":bs.length>bv.length?`${bs.length-bv.length} beurten meer dan ${esc(V.lbl)}. Lekker bezig!`:bs.length===bv.length?`Net zoveel beurten als ${esc(V.lbl)}. Stabiel!`:`${esc(V.lbl)} telde er ${bv.length}. Nog ${bv.length-bs.length} te gaan om gelijk te komen.`;
     html+=`<section class="st-hero"><div class="st-hm"><span class="st-k">Woningen gedaan · ${esc(P.lbl)}</span>
         <div class="st-big"><b>${bs.length}</b>${stDelta(bs.length,bv.length,"vs "+V.lbl)}</div>
-        ${bs.length&&typeof huisjes==="function"?huisjes(bs.length,bs.length):""}
+        ${bs.length?stStraat(bs.length):""}
         <p class="st-mot">${mot}</p></div>
       <div class="st-hs">${stTile(I.euro,"Per uur",mins?eur0(om/(mins/60)):"–","omzet ex btw per gewerkt uur","ok")}${stTile(I.receipt,"Per beurt",gem?eur0(gem):"–","gemiddeld ex btw")}</div></section>
     <div class="st-tiles">${stTile(I.timer,"Uren",uren(mins),"op basis van duur per job")}
@@ -7342,7 +7367,7 @@ function vInzichten(){
     <div class="st-two"><section class="st-card"><div class="st-ch"><div><h3>Drukste dagen</h3><p>Afgemelde beurten per weekdag${wdc[top]?" · meestal op "+["maandag","dinsdag","woensdag","donderdag","vrijdag","zaterdag","zondag"][top]:""}</p></div></div>
         ${stBars(wdc,["ma","di","wo","do","vr","za","zo"],{hi:wdc[top]?top:-1,fmt:v=>String(Math.round(v)),h:200,gem:false})}</section>
       <section class="st-card"><div class="st-ch"><div><h3>Omzet per dienst</h3><p>Aandeel in de omzet uit werk</p></div></div>
-        ${dk.length?`<div class="st-share">${dk.map(k=>`<i style="width:${per_d[k]/dtot*100}%;--h:${hue(k)}" title="${esc(k)}"></i>`).join("")}</div><div class="st-rows">${dk.map(k=>`<div class="st-row"><span class="st-dot" style="--h:${hue(k)}"></span><span class="st-rn">${esc(k)}</span><span class="st-rp">${Math.round(per_d[k]/dtot*100)}%</span><b>${eur0(per_d[k])}</b></div>`).join("")}</div>`:'<p class="st-leeg">Nog geen afgemelde beurten in deze periode.</p>'}</section></div>`;
+        ${dk.length?stDiensten(dk,per_d,dtot):'<p class="st-leeg">Nog geen afgemelde beurten in deze periode.</p>'}</section></div>`;
   }else{
     const ak=actief(),nieuw=state.klanten.filter(k=>inRange(k.aangemaakt,P.rg)),nieuwV=state.klanten.filter(k=>inRange(k.aangemaakt,V.rg)),inact=state.klanten.filter(k=>k.actief===false);
     const jaar=ak.reduce((a,k)=>a+exAmt(k.prijs)*365/freqDays(k),0),perK=ak.length?jaar/ak.length:0;
@@ -7367,6 +7392,15 @@ function vInzichten(){
   }
   return html;
 }
+
+/* woningen gedaan: straatje met huisjes (vinkje) en het busje aan het eind */
+function stStraat(n){const max=12,m=Math.min(n,max),H=typeof HUIS!=="undefined"?HUIS:"";
+  return `<div class="st-straat" role="img" aria-label="${n} woningen gedaan"><div class="st-sh">${Array.from({length:m},(_,i)=>`<span class="st-hu" style="--i:${i}">${H}<i>${I.check}</i></span>`).join("")}${n>max?`<span class="st-meer">+${n-max}</span>`:""}</div><div class="st-weg"><i></i><span class="st-bus">${typeof RV_BUS!=="undefined"?RV_BUS:""}</span></div></div>`}
+/* omzet per dienst: ring met het aandeel en per dienst een kaartje met balk */
+function stDiensten(dk,per,tot){const KL=["#137a8a","#2aa3b3","#1d5a74","#7fc4cf","#ebbd4c","#5d6f76"],R=54,C=2*Math.PI*R;let acc=0;
+  const ring=dk.map((k,i)=>{const f=per[k]/tot,seg=`<circle cx="70" cy="70" r="${R}" fill="none" stroke="${KL[i%KL.length]}" stroke-width="16" stroke-dasharray="${Math.max(0,f*C-(dk.length>1?3:0))} ${C}" stroke-dashoffset="${-acc*C}" stroke-linecap="${dk.length>1?"butt":"round"}"/>`;acc+=f;return seg}).join("");
+  return `<div class="st-dv"><div class="st-ring"><svg viewBox="0 0 140 140"><circle cx="70" cy="70" r="${R}" fill="none" stroke="var(--surface-2)" stroke-width="16"/><g transform="rotate(-90 70 70)">${ring}</g></svg><div><b>${eur0(tot)}</b><small>${plural(dk.length,"dienst","diensten")}</small></div></div>
+    <div class="st-dl">${dk.map((k,i)=>{const p=Math.round(per[k]/tot*100);return `<div class="st-di" style="--c:${KL[i%KL.length]}"><span class="st-dic">${I.spark}</span><div class="st-dim"><div class="st-dit"><b>${esc(k)}</b><span class="mono">${eur0(per[k])}</span></div><div class="st-dib"><i style="width:${p}%"></i></div><small>${p}% van de omzet uit werk</small></div></div>`}).join("")}</div></div>`}
 
 /* broncode van de mail-tracking server (Cloudflare Worker), om te kopiëren vanuit Instellingen */
 const TRACK_WORKER="// mijnschoonmaker \u00b7 mail-tracking (Cloudflare Worker)\n// Nodig: KV-namespace gekoppeld als TRACK en een geheime variabele KEY (dezelfde sleutel als in de CRM).\nconst GIF=Uint8Array.from(atob(\"R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"),c=>c.charCodeAt(0));\nconst CORS={\"Access-Control-Allow-Origin\":\"*\",\"Access-Control-Allow-Methods\":\"GET,POST,OPTIONS\",\"Access-Control-Allow-Headers\":\"content-type\"};\nconst okId=id=>/^[\\w-]{4,40}$/.test(id);\nasync function sig(key,id,u){const b=await crypto.subtle.digest(\"SHA-256\",new TextEncoder().encode(key+\"|\"+id+\"|\"+u));return [...new Uint8Array(b)].slice(0,6).map(x=>x.toString(16).padStart(2,\"0\")).join(\"\")}\nasync function log(env,id,ev){\n  const k=\"m:\"+id,cur=JSON.parse((await env.TRACK.get(k))||'{\"o\":[],\"c\":[]}');\n  if(ev.c)cur.c.push({t:ev.t,u:ev.u});else cur.o.push(ev.t);\n  cur.o=cur.o.slice(-40);cur.c=cur.c.slice(-40);\n  await env.TRACK.put(k,JSON.stringify(cur),{expirationTtl:60*60*24*400});\n}\nexport default{async fetch(req,env,ctx){\n  const url=new URL(req.url),p=url.pathname;\n  if(req.method===\"OPTIONS\")return new Response(null,{headers:CORS});\n  let m=p.match(/^\\/o\\/([\\w-]+)\\.gif$/);\n  if(m){if(okId(m[1]))ctx.waitUntil(log(env,m[1],{t:Date.now()}));\n    return new Response(GIF,{headers:{\"content-type\":\"image/gif\",\"cache-control\":\"no-store, no-cache, must-revalidate, max-age=0\"}})}\n  m=p.match(/^\\/c\\/([\\w-]+)$/);\n  if(m){const to=url.searchParams.get(\"u\")||\"\",s=url.searchParams.get(\"s\")||\"\";\n    if(!/^https?:\\/\\//i.test(to)||!okId(m[1])||!env.KEY||s!==await sig(env.KEY,m[1],to))return new Response(\"Ongeldige link\",{status:400});\n    ctx.waitUntil(log(env,m[1],{c:1,t:Date.now(),u:to}));return Response.redirect(to,302)}\n  if(p===\"/e\"&&req.method===\"POST\"){\n    const b=await req.json().catch(()=>({}));\n    if(!env.KEY||b.k!==env.KEY)return new Response('{\"fout\":\"sleutel\"}',{status:401,headers:{...CORS,\"content-type\":\"application/json\"}});\n    const out={};await Promise.all((b.ids||[]).filter(okId).slice(0,400).map(async id=>{const v=await env.TRACK.get(\"m:\"+id);if(v)out[id]=JSON.parse(v)}));\n    return new Response(JSON.stringify(out),{headers:{...CORS,\"content-type\":\"application/json\"}})}\n  if(p===\"/\"||p===\"/ping\")return new Response(\"mijnschoonmaker tracking ok\",{headers:CORS});\n  return new Response(\"\",{status:404});\n}};\n";
