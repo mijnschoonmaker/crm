@@ -149,33 +149,56 @@ const WEB_CSS=`
 .ms .stap h3,.ms .tg h3{letter-spacing:-.02em}.ms .stap p,.ms .tg p{line-height:1.55}
 .ms summary{letter-spacing:-.01em}.ms details p{line-height:1.6}
 .ms .tags span,.ms .vink span{letter-spacing:-.005em}
-/* ---- voorbeeld klantportaal met live volgen ---- */
-.ms .pm{max-width:430px;margin:0 auto;background:#f6f8f9;border-radius:28px;padding:14px;box-shadow:0 0 0 1px rgb(15 50 60 / .06),0 40px 70px -40px rgb(10 50 60 / .55),0 14px 30px -20px rgb(10 50 60 / .3);transform:rotate(1.2deg)}
-.ms .pm-top{display:flex;align-items:center;gap:10px;padding:4px 6px 12px;font-size:14px;color:var(--muted)}
-.ms .pm-top img,.ms .pm-lg{width:34px;height:34px;border-radius:50%;object-fit:contain;flex:none}
-.ms .pm-lg{display:grid;place-items:center;background:var(--soft);color:var(--b2)}.ms .pm-lg svg{width:18px}
-.ms .pm-top b{color:var(--ink);font-weight:700}
-.ms .pm-av{margin-left:auto;width:30px;height:30px;border-radius:50%;background:var(--b2);color:#fff;display:grid;place-items:center;font-style:normal;font-weight:700;font-size:13px}
-.ms .pm-hero{position:relative;overflow:hidden;border-radius:20px;padding:16px 18px 18px;color:#fff;background:var(--blauw)}
-.ms .pm-hero::before{content:"";position:absolute;inset:0;background:var(--lijnen);pointer-events:none}
-.ms .pm-hero>*{position:relative}
-.ms .pm-hero small{display:block;font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;opacity:.8}
-.ms .pm-adr{display:inline-flex;align-items:center;gap:6px;margin:8px 0 6px;padding:4px 10px 4px 8px;border-radius:999px;background:rgb(255 255 255 / .14);box-shadow:inset 0 0 0 1px rgb(255 255 255 / .22);font-size:12.5px;font-weight:600}
-.ms .pm-adr svg{width:14px}
-.ms .pm-hero b{display:block;font-size:28px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
-.ms .pm-hero p{margin:4px 0 0;font-size:13.5px;opacity:.85}
-.ms .pm-live{margin-top:10px;background:#fff;border-radius:20px;padding:12px;box-shadow:0 0 0 1px var(--line)}
-.ms .pm-lh{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:var(--ink);padding:2px 4px 10px}
-.ms .pm-lh em{margin-left:auto;font-style:normal;font-weight:500;font-size:12px;color:var(--muted)}
-.ms .pm-dot{width:9px;height:9px;border-radius:50%;background:#e5484d;box-shadow:0 0 0 0 rgb(229 72 77 / .5);animation:pmPuls 1.6s infinite}
-@keyframes pmPuls{70%{box-shadow:0 0 0 8px rgb(229 72 77 / 0)}100%{box-shadow:0 0 0 0 rgb(229 72 77 / 0)}}
-.ms .pm-map{border-radius:14px;overflow:hidden;aspect-ratio:360/170}.ms .pm-map svg{display:block;width:100%;height:100%}
-.ms .pm-st{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
-.ms .pm-st>div{background:#f6f8f9;border-radius:14px;padding:10px 12px}
-.ms .pm-st small{display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
-.ms .pm-st b{display:block;margin-top:2px;font-size:20px;font-weight:800;letter-spacing:-.02em;color:var(--ink);font-variant-numeric:tabular-nums;transition:color .3s}
-.ms .pm-st b.nu{color:var(--b2)}
-@media (max-width:560px){.ms .pm{transform:none;padding:10px;border-radius:24px}.ms .pm-hero b{font-size:24px}}
+/* ---- voorbeeld klantportaal (zoals het echt is) met live volgen ---- */
+.ms .pp{position:relative;max-width:380px;margin:0 auto;background:#f3f6f7;border-radius:46px;padding:0 0 18px;overflow:hidden;box-shadow:0 0 0 9px #11181c,0 0 0 10.5px #3a4448,0 50px 80px -40px rgb(10 40 50 / .6),0 20px 40px -24px rgb(10 40 50 / .35)}
+.ms .pp-sb{display:flex;align-items:center;justify-content:space-between;padding:14px 28px 4px;background:#fff;font-size:14px;color:#11181c}
+.ms .pp-sb b{font-weight:700;letter-spacing:-.01em;width:60px}.ms .pp-sb i{width:96px;height:28px;border-radius:20px;background:#11181c}
+.ms .pp-sb span{display:flex;gap:6px;align-items:center;width:60px;justify-content:flex-end}.ms .pp-sb svg{height:11px;fill:currentColor}.ms .pp-sb svg:first-child{width:16px}.ms .pp-sb svg:last-child{width:24px}
+.ms .pp-top{display:flex;align-items:center;gap:12px;padding:10px 18px 12px;background:#fff;border-bottom:1px solid var(--line);font-size:14.5px;font-weight:500;color:var(--muted)}
+.ms .pp-top img,.ms .pp-lg{width:38px;height:38px;border-radius:50%;object-fit:contain;flex:none}
+.ms .pp-lg{display:grid;place-items:center;background:var(--soft);color:var(--b2)}.ms .pp-lg svg{width:18px}
+.ms .pp-top>svg{width:22px;height:22px;margin-left:auto;color:var(--ink)}
+.ms .pp-main{padding:14px 12px 0;display:flex;flex-direction:column;gap:12px}
+.ms .pp-hero{position:relative;overflow:hidden;border-radius:22px;padding:18px 18px 18px;color:#fff;background:radial-gradient(120% 140% at 100% 0%,#2aa3b3 0%,transparent 55%),linear-gradient(135deg,#0f5f6e,#137a8a 55%,#1d5a74);box-shadow:0 24px 50px -28px rgb(15 70 85 / .7)}
+.ms .pp-hero::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 18% 120%,rgb(255 255 255 / .14),transparent 40%),repeating-linear-gradient(115deg,rgb(255 255 255 / .035) 0 2px,transparent 2px 26px);pointer-events:none}
+.ms .pp-hero>*{position:relative}
+.ms .pp-hk{display:flex;gap:12px;align-items:flex-start}.ms .pp-hk>div:first-child{flex:1;min-width:0}
+.ms .pp-k{margin:0;font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgb(255 255 255 / .8);display:flex;align-items:center;gap:8px}
+.ms .pp-puls{width:8px;height:8px;border-radius:50%;background:#9ff0d2;box-shadow:0 0 0 0 rgb(159 240 210 / .6);animation:ppPuls 1.8s infinite}
+@keyframes ppPuls{70%{box-shadow:0 0 0 8px rgb(159 240 210 / 0)}100%{box-shadow:0 0 0 0 rgb(159 240 210 / 0)}}
+.ms .pp-adr{display:inline-flex;align-items:center;gap:6px;margin:10px 0 8px;padding:5px 11px 5px 8px;border-radius:999px;background:rgb(255 255 255 / .14);box-shadow:inset 0 0 0 1px rgb(255 255 255 / .22);font-size:13px;font-weight:600;max-width:100%;white-space:nowrap;overflow:hidden}
+.ms .pp-adr svg{width:15px;height:15px;flex:none;opacity:.9}.ms .pp-adr>span{overflow:hidden;text-overflow:ellipsis}.ms .pp-adr em{font-style:normal;font-weight:500;opacity:.8}
+.ms .pp-hero h3{margin:0;font-size:21px;font-weight:700;letter-spacing:-.03em;line-height:1.1;color:#fff}
+.ms .pp-s{margin:8px 0 0;font-size:14px;color:rgb(255 255 255 / .82)}
+.ms .pp-ring{position:relative;width:72px;height:72px;flex:none}
+.ms .pp-ring svg{width:100%;height:100%;transform:rotate(-90deg)}.ms .pp-ring .t{fill:none;stroke:rgb(255 255 255 / .16);stroke-width:8}.ms .pp-ring .v{fill:none;stroke:#fff;stroke-width:8}
+.ms .pp-ring>span{position:absolute;inset:0;display:grid;place-content:center;text-align:center;line-height:1}
+.ms .pp-ring b{font-size:24px;font-weight:700;letter-spacing:-.04em}.ms .pp-ring small{font-size:10.5px;color:rgb(255 255 255 / .75);margin-top:2px;font-weight:600}
+.ms .pp-lv{position:relative;border-radius:22px;overflow:hidden;background:#fff;border:1px solid var(--line);box-shadow:0 20px 44px -30px rgba(8,40,48,.55)}
+.ms .pp-map{position:relative;height:210px;background:#e8eef0 linear-gradient(110deg,#e8eef0 30%,#f3f6f7 50%,#e8eef0 70%);overflow:hidden}
+.ms .pp-map .leaflet-container{position:absolute!important;inset:0;background:#e8eef0}
+.ms .pp-map .leaflet-tile-pane{filter:saturate(.7) brightness(1.04) contrast(.95)}
+.ms .pp-ov{position:absolute;inset:0;z-index:500;pointer-events:none}
+.ms .pp-lijn{position:absolute;height:0;border-top:3.5px dotted rgb(19 122 138 / .85);transform-origin:0 50%}
+.ms .pp-huis{position:absolute;display:grid;place-items:center;width:38px;height:38px;margin:-42px 0 0 -19px;border-radius:14px 14px 14px 4px;transform:rotate(-45deg);background:#fff;box-shadow:0 8px 18px -6px rgba(8,40,48,.45),0 0 0 1px rgba(8,40,48,.06)}
+.ms .pp-huis svg{width:19px;height:19px;transform:rotate(45deg);color:#137a8a}
+.ms .pp-auto{position:absolute;width:60px;height:60px;margin:-30px 0 0 -30px}
+.ms .pp-pl{position:absolute;inset:10px;border-radius:50%;background:rgb(19 122 138 / .22);animation:ppRing 2s ease-out infinite}
+@keyframes ppRing{0%{transform:scale(.6);opacity:1}100%{transform:scale(1.7);opacity:0}}
+.ms .pp-rot{position:absolute;inset:0;display:grid;place-items:center;transition:transform .6s ease}
+.ms .pp-rot svg{width:28px;height:50px;filter:drop-shadow(0 5px 5px rgba(8,40,48,.38)) drop-shadow(0 0 1px rgba(8,40,48,.4))}
+.ms .pp-info{display:flex;align-items:center;gap:12px;padding:14px 16px;border-top:1px solid var(--line)}
+.ms .pp-car{width:54px;height:44px;flex:none;border-radius:14px;background:linear-gradient(180deg,#eef6f7,#e3f2f4);display:grid;place-items:center}.ms .pp-car svg{width:44px;height:28px}
+.ms .pp-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.ms .pp-st{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#178a5e}
+.ms .pp-st i{width:8px;height:8px;border-radius:50%;background:#22a46c;animation:ppDot 1.8s ease-out infinite}
+@keyframes ppDot{0%{box-shadow:0 0 0 0 rgb(34 164 108 / .5)}80%,100%{box-shadow:0 0 0 7px rgb(34 164 108 / 0)}}
+.ms .pp-tx b{font-size:15px;font-weight:600;letter-spacing:-.01em;color:var(--ink);line-height:1.25}
+.ms .pp-tx span{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ms .pp-eta{flex:none;text-align:right;display:flex;flex-direction:column;gap:1px;padding-left:12px;border-left:1px solid var(--line)}
+.ms .pp-eta small{font-size:11px;color:var(--muted);font-weight:600}.ms .pp-eta b{font-size:20px;font-weight:600;letter-spacing:-.03em;color:#137a8a;font-variant-numeric:tabular-nums}
+.ms .pp-ond{text-align:center;font-size:12.5px;color:var(--muted);margin-top:22px}
+@media (max-width:420px){.ms .pp{border-radius:40px}.ms .pp-hero h3{font-size:21px}}
 /* ---- bonnetje met echte scheur ---- */
 .ms .tk{--h:13px;position:relative;max-width:470px;margin:0 auto;display:grid;grid-template-columns:1fr 112px;transform:rotate(-2.5deg);filter:drop-shadow(0 24px 28px rgb(15 70 85 / .3));cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none}
 .ms .tk-l,.ms .tk-r{-webkit-mask:radial-gradient(circle var(--h) at var(--mx) 0,#0000 97%,#000) top/100% 51% no-repeat,radial-gradient(circle var(--h) at var(--mx) 100%,#0000 97%,#000) bottom/100% 51% no-repeat;mask:radial-gradient(circle var(--h) at var(--mx) 0,#0000 97%,#000) top/100% 51% no-repeat,radial-gradient(circle var(--h) at var(--mx) 100%,#0000 97%,#000) bottom/100% 51% no-repeat}
@@ -216,6 +239,7 @@ const WEB_CSS=`
 @media (prefers-reduced-motion:reduce){.ms .tk.af .stempel{animation:none;opacity:.9;transform:rotate(-12deg)}}
 `;
 
+const PP_AUTO='<svg aria-hidden="true" viewBox="0 0 64 40"><defs><linearGradient id="ppzb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#26adc2"/><stop offset="1" stop-color="#11778c"/></linearGradient><linearGradient id="ppzg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eafcff"/><stop offset="1" stop-color="#86c9d5"/></linearGradient></defs><g stroke="#9fb3ba" stroke-width="1.4" stroke-linecap="round"><path d="M8 7.5H40"/><path d="M11 7.5V4.8M17 7.5V4.8M23 7.5V4.8M29 7.5V4.8M35 7.5V4.8"/><path d="M8 4.8H40"/></g><path d="M5 12a3.5 3.5 0 0 1 3.5-3.5H40c2 0 3.6.8 4.8 2.3l7.4 9.2 5.6 1.8c1.6.5 2.7 2 2.7 3.7V30a2 2 0 0 1-2 2H5z" fill="url(#ppzb)"/><path d="M42.5 12.5h1.6c.8 0 1.5.4 2 1l5.2 6.8H42.5z" fill="url(#ppzg)" stroke="#0b4552" stroke-width=".8"/><rect x="30" y="12.5" width="9.5" height="7.6" rx="1.4" fill="url(#ppzg)" stroke="#0b4552" stroke-width=".8"/><path d="M5 23.5h55" stroke="#0e6476" stroke-width=".8" opacity=".6"/><path d="M7 20.5h22" stroke="#7fe0ee" stroke-width="1.6" stroke-linecap="round" opacity=".8"/><rect x="57" y="23.5" width="3.2" height="2.2" rx="1" fill="#fffbe0"/><circle cx="16" cy="32" r="5.6" fill="#1d2a30"/><circle cx="16" cy="32" r="2.4" fill="#c8d3d7"/><circle cx="49" cy="32" r="5.6" fill="#1d2a30"/><circle cx="49" cy="32" r="2.4" fill="#c8d3d7"/></svg>',PP_BUS='<svg aria-hidden="true" viewBox="0 0 40 72"><defs><linearGradient id="pplvb" x1="0" x2="1"><stop offset="0" stop-color="#0d5a6b"/><stop offset=".22" stop-color="#1b93a8"/><stop offset=".5" stop-color="#22a6bc"/><stop offset=".78" stop-color="#1b93a8"/><stop offset="1" stop-color="#0d5a6b"/></linearGradient><linearGradient id="pplvg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9fbff"/><stop offset="1" stop-color="#7cc3d0"/></linearGradient><linearGradient id="pplvr" x1="0" x2="1"><stop offset="0" stop-color="#1688a0"/><stop offset=".5" stop-color="#2bb3c8"/><stop offset="1" stop-color="#1688a0"/></linearGradient></defs><ellipse cx="5.2" cy="18" rx="2.4" ry="1.6" fill="#0b4552"/><ellipse cx="34.8" cy="18" rx="2.4" ry="1.6" fill="#0b4552"/><rect x="6" y="3" width="28" height="66" rx="9" fill="url(#pplvb)"/><path d="M9 7.5Q20 2.8 31 7.5" stroke="#5fd2e3" stroke-width="1.2" fill="none" opacity=".8"/><rect x="9.5" y="4.2" width="4.5" height="2" rx="1" fill="#fffbe0"/><rect x="26" y="4.2" width="4.5" height="2" rx="1" fill="#fffbe0"/><path d="M9.2 15.5Q20 11.8 30.8 15.5L29.2 25H10.8z" fill="url(#pplvg)" stroke="#0b4552" stroke-width=".9"/><path d="M12 16.6Q16 15 19 14.8L18 18.5Q15 18.7 12.6 19.6z" fill="#fff" opacity=".7"/><rect x="9.8" y="27" width="20.4" height="38" rx="4.2" fill="url(#pplvr)"/><g stroke="#eef4f6" stroke-linecap="round"><path d="M15 29.5V62.5M25 29.5V62.5" stroke-width="1.7"/><path d="M15 33.5H25M15 38.5H25M15 43.5H25M15 48.5H25M15 53.5H25M15 58.5H25" stroke-width="1.2"/></g><rect x="11" y="66" width="18" height="1.6" rx=".8" fill="#ff6b5e" opacity=".9"/></svg>';
 function websiteBody(o){const e=esc,IC={
   cam:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.6-2.4h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.6"/></svg>',
   wa:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.3c0-.1-.2-.2-.4-.3z"/></svg>',
@@ -287,23 +311,17 @@ function websiteBody(o){const e=esc,IC={
     <li><i>${IC.ok}</i><div><b>Wat is er gedaan?</b><span>Alle eerdere beurten op een rij.</span></div></li>
     <li><i>${IC.ok}</i><div><b>Facturen en betalen</b><span>Al uw facturen bij elkaar${o.mollie?", direct te betalen":""}.</span></div></li></ul>
   ${portaal?`<div style="margin-top:24px"><a class="knop k-teal" href="${e(portaal)}">${IC.user}Naar mijn portaal</a></div>`:""}</div>
-  <div><div class="pm" data-pm role="img" aria-label="Voorbeeld van het klantportaal: live zien waar het busje is en hoe laat we er zijn">
-    <div class="pm-top">${o.logo?`<img src="${e(o.logo)}" alt="">`:`<span class="pm-lg">${IC.raam}</span>`}<span>Goedemiddag, <b>Ashley</b></span><i class="pm-av">A</i></div>
-    <div class="pm-hero"><small>Uw volgende bezoek</small><span class="pm-adr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Parklaan 7</span><b>Vandaag</b><p data-pm-sub>Rond 11:10 · we zijn onderweg</p></div>
-    <div class="pm-live"><div class="pm-lh"><span class="pm-dot"></span>Live<em>bijgewerkt zojuist</em></div>
-      <div class="pm-map"><svg viewBox="0 0 360 170" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-        <rect width="360" height="170" fill="#eef3f1"/>
-        <g fill="#dfeadf"><rect x="36" y="104" width="112" height="56" rx="8"/><rect x="178" y="44" width="120" height="70" rx="8"/><rect x="0" y="0" width="148" height="72" rx="8"/><rect x="328" y="0" width="40" height="170" rx="8"/></g>
-        <g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="14"><path d="M0 88H360M162 0V170M20 170V88M312 0V170M162 28H360"/></g>
-        <path id="pmR" d="M20 160V100Q20 88 32 88H150Q162 88 162 76V40Q162 28 174 28H300Q312 28 312 40V128" fill="none" stroke="#137a8a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1 9" opacity=".55"/>
-        <g data-pm-h></g>
-        <g transform="translate(312 136)"><circle r="17" fill="#137a8a" opacity=".14"><animate attributeName="r" values="12;20;12" dur="2.4s" repeatCount="indefinite"/></circle><circle r="11" fill="#137a8a"/><path d="M-5 0.5 0-4 5 0.5M-3.6-.6V4.5H3.6V-.6" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></g>
-        <g><animateMotion dur="10s" repeatCount="indefinite" calcMode="linear" keyTimes="0;.2;.32;.52;.64;.86;1" keyPoints="0;.3;.3;.64;.64;.97;.97"><mpath href="#pmR" xlink:href="#pmR"/></animateMotion>
-          <circle r="13" fill="#fff" stroke="#137a8a" stroke-width="2.5"/><g transform="translate(-8 -6)" fill="none" stroke="#0f5f6e" stroke-width="1.6" stroke-linejoin="round"><path d="M1 2h9v8H1zM10 5h3.2l2.3 2.6V10H10"/><circle cx="4" cy="10.5" r="1.4" fill="#fff"/><circle cx="12.5" cy="10.5" r="1.4" fill="#fff"/></g></g>
-      </svg></div>
-      <div class="pm-st"><div><small>Aankomst</small><b data-pm-eta>rond 11:10</b></div><div><small>Woningen voor u</small><b data-pm-n>2</b></div></div>
+  <div><div class="pp" data-pp role="img" aria-label="Zo ziet uw klantportaal eruit op de dag zelf: live zien waar het busje is en hoe laat we er zijn">
+    <div class="pp-sb"><b>11:02</b><i></i><span><svg viewBox="0 0 18 12"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 26 12"><rect x=".5" y=".5" width="22" height="11" rx="3.2" fill="none" stroke="currentColor" opacity=".4"/><rect x="2.2" y="2.2" width="15" height="7.6" rx="1.8"/><rect x="23.6" y="4" width="1.8" height="4" rx=".9" opacity=".4"/></svg></span></div>
+    <div class="pp-top">${o.logo?`<img src="${e(o.logo)}" alt="">`:`<span class="pp-lg">${IC.raam}</span>`}<span>Goedemiddag, Ashley</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div>
+    <div class="pp-main">
+      <div class="pp-hero"><div class="pp-hk"><div><p class="pp-k"><span class="pp-puls"></span>Vandaag</p><span class="pp-adr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><span>Parklaan 7<em>, Grootegast</em></span></span><h3>Woensdag 14 oktober</h3></div>
+        <div class="pp-ring"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" class="t"/><circle cx="50" cy="50" r="44" class="v"/></svg><span><b>0</b><small>dagen</small></span></div></div>
+        <p class="pp-s" data-pp-sub>Rond 11:10 · we zijn onderweg</p></div>
+      <div class="pp-lv"><div class="pp-map" data-pp-map><div class="pp-ov"><span class="pp-lijn" data-pp-lijn></span><span class="pp-huis" style="left:70%;top:66%"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg></span><span class="pp-auto" data-pp-bus><span class="pp-pl"></span><span class="pp-rot" data-pp-rot>${PP_BUS}</span></span></div></div>
+        <div class="pp-info"><span class="pp-car">${PP_AUTO}</span><div class="pp-tx"><small class="pp-st"><i></i>Live</small><b data-pp-t>Nog 2 adressen voor u</b><span data-pp-s2>Robin is in de buurt</span></div><div class="pp-eta"><small>Verwacht</small><b data-pp-eta>± 11:10</b></div></div></div>
     </div>
-  </div></div></div></section>
+  </div><p class="pp-ond">Zo ziet uw portaal eruit op de dag zelf.</p></div></div></section>
 <section id="prijs"><div class="in"><div id="ms-calc"></div></div></section>
 <section id="zakelijk"><div class="in"><div class="zak"><div><span class="oog">${IC.gebouw}Zakelijk</span><h2 class="kop">Ook voor <em>bedrijven en VvE's</em></h2><p class="lead">Kantoor, winkel, school of appartementencomplex: wij maken een prijs op maat en plannen het werk in wanneer het u uitkomt.</p>
   <div class="tags"><span>Kantoren</span><span>Winkels en horeca</span><span>VvE's</span><span>Scholen en zorg</span></div></div>
@@ -322,15 +340,35 @@ async function websiteDelen(){const fv=k=>{const el=typeof form!=="undefined"&&f
     portaal:LIVE?location.origin+"/portaal":"",score:String(fv("webScore")??s.webScore??"4,8").trim(),reviewUrl:String(fv("webReviewUrl")||s.webReviewUrl||"https://www.google.com/search?q=mijnschoonmaker.com+Reviews").trim(),voorwaarden:s.webVoorwaarden||s.voorwaarden||"",mollie:!!s.liveMollie,bus:typeof RV_BUS!=="undefined"?RV_BUS:""};
   return {body:websiteBody(o),calc:await klantCalcHtml(wa),o}}
 /* bonnetje: echt afscheuren langs de perforatie, met rafelrand en papiersnippers */
-const WEB_JS=`root.querySelectorAll("[data-pm]").forEach(function(pm){if(pm._ms)return;pm._ms=1;var svg=pm.querySelector("svg"),R=pm.querySelector("#pmR"),hg=pm.querySelector("[data-pm-h]"),nE=pm.querySelector("[data-pm-n]"),eE=pm.querySelector("[data-pm-eta]"),sE=pm.querySelector("[data-pm-sub]");
-  try{var L=R.getTotalLength();[.3,.64].forEach(function(f){var q=R.getPointAtLength(L*f),g=document.createElementNS("http://www.w3.org/2000/svg","g");g.setAttribute("transform","translate("+(q.x+(f<.5?0:0))+" "+(q.y-16)+")");g.innerHTML='<path d="M-7 1 0-6 7 1V8H-7z" fill="#fff" stroke="#9fb3b9" stroke-width="1.4" stroke-linejoin="round"/><path class="v" d="M-3 3.5-.8 5.6 3.4 1.2" fill="none" stroke="#1f8a5a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="0"/>';hg.appendChild(g)})}catch(_){}
-  var vs=hg.querySelectorAll(".v"),laatst="";
-  function tik(){var t=0;try{t=(svg.getCurrentTime()%10)/10}catch(_){}
-    var n=t<.32?2:t<.64?1:0,klaar=t>=.86,k=n+"|"+klaar;
-    if(vs[0])vs[0].setAttribute("opacity",t>=.26?"1":"0");if(vs[1])vs[1].setAttribute("opacity",t>=.58?"1":"0");
-    if(k!==laatst){laatst=k;nE.textContent=klaar?"0":String(n);nE.classList.toggle("nu",n===0);eE.textContent=klaar?"we zijn er":n===0?"over 4 min":"rond 11:10";eE.classList.toggle("nu",klaar||n===0);sE.textContent=klaar?"We zijn bij u aan het werk":n===0?"U bent de volgende":"Rond 11:10 · we zijn onderweg"}
-    requestAnimationFrame(tik)}
-  tik()});
+const WEB_JS=`root.querySelectorAll("[data-pp]").forEach(function(pp){if(pp._ms)return;pp._ms=1;
+  var map=pp.querySelector("[data-pp-map]"),bus=pp.querySelector("[data-pp-bus]"),rot=pp.querySelector("[data-pp-rot]"),lijn=pp.querySelector("[data-pp-lijn]"),
+    tE=pp.querySelector("[data-pp-t]"),sE=pp.querySelector("[data-pp-s2]"),eE=pp.querySelector("[data-pp-eta]"),hE=pp.querySelector("[data-pp-sub]");
+  /* echte kaart, net als in het portaal */
+  (function(){function go(){try{var Lf=window.L,d=document.createElement("div");d.style.cssText="position:absolute;inset:0;overflow:hidden";map.insertBefore(d,map.firstChild);
+      var m=Lf.map(d,{zoomControl:false,attributionControl:false,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:false,touchZoom:false,tap:false}).setView([53.2133,6.2745],16);
+      Lf.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19}).addTo(m);setTimeout(function(){m.invalidateSize()},300)}catch(_){}}
+    if(window.L&&window.L.map)return go();var B="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/";
+    if(!document.querySelector('link[href*="leaflet.css"]')){var c=document.createElement("link");c.rel="stylesheet";c.href=B+"leaflet.css";document.head.appendChild(c)}
+    var sc=document.createElement("script");sc.src=B+"leaflet.js";sc.onload=go;document.head.appendChild(sc)})();
+  /* route: busje rijdt langs twee adressen naar de woning */
+  var H={x:70,y:66},P=[{x:12,y:20},{x:34,y:30},{x:52,y:22},{x:58,y:48},{x:70,y:66}],K=[0,.25,.3,.52,.57,.84,1],Q=[0,1,1,2,2,3.4,4];
+  /* per tijdstip: welk punt van P (fractioneel) */
+  function punt(f){var i=Math.min(P.length-2,Math.floor(f)),u=f-i;return{x:P[i].x+(P[i+1].x-P[i].x)*u,y:P[i].y+(P[i+1].y-P[i].y)*u,dx:P[i+1].x-P[i].x,dy:P[i+1].y-P[i].y}}
+  var D=14000,t0=performance.now(),laatst="",hoek=0;
+  function tik(n){var t=((n-t0)%D)/D,f=0;for(var j=1;j<K.length;j++){if(t<=K[j]){var u=(t-K[j-1])/(K[j]-K[j-1]);f=Q[j-1]+(Q[j]-Q[j-1])*(u<0?0:u);break}}
+    var p=punt(Math.min(f,3.999)),w=map.offsetWidth||1,h=map.offsetHeight||1;
+    if(f<4){var a=Math.atan2(p.dy*h,p.dx*w)*180/Math.PI+90;if(Q.indexOf(f)<0||t<.001)hoek=a}
+    bus.style.left=p.x+"%";bus.style.top=p.y+"%";rot.style.transform="rotate("+hoek.toFixed(1)+"deg)";
+    var x1=p.x*w/100,y1=p.y*h/100,x2=H.x*w/100,y2=H.y*h/100-20,dx=x2-x1,dy=y2-y1,L=Math.sqrt(dx*dx+dy*dy);
+    lijn.style.left=x1+"px";lijn.style.top=y1+"px";lijn.style.width=Math.max(0,L-24)+"px";lijn.style.transform="rotate("+Math.atan2(dy,dx)+"rad)";lijn.style.opacity=L>40?1:0;
+    var voor=f<1.02?2:f<2.02?1:0,klaar=f>=3.39,km=Math.max(.1,(3.4-f)*0.45),k=voor+"|"+klaar+"|"+(voor===0&&!klaar?km.toFixed(1):"");
+    if(k!==laatst){laatst=k;
+      tE.textContent=klaar?"We zijn bij u":voor===0?"Robin is onderweg naar u":"Nog "+voor+" "+(voor===1?"adres":"adressen")+" voor u";
+      sE.textContent=klaar?"Uw ramen worden nu gewassen":voor===0?(km<.3?"Bijna bij u":"Nog "+km.toFixed(1).replace(".",",")+" km"):"Robin is in de buurt";
+      eE.textContent=klaar?"nu":voor===2?"± 11:10":voor===1?"± 11:06":"± 11:0"+Math.min(9,Math.max(2,Math.round(2+km*6)));
+      hE.textContent=klaar?"We zijn bij u aan het werk":voor===0?"U bent de volgende":"Rond 11:10 · we zijn onderweg"}
+    if(pp.isConnected)requestAnimationFrame(tik)}
+  requestAnimationFrame(tik)});
 var tks=root.querySelectorAll("[data-tk]");
 tks.forEach(function(tk){if(tk._ms)return;tk._ms=1;var l=tk.querySelector(".tk-l"),r=tk.querySelector(".tk-r"),vz=r.querySelector(".tk-vz"),hint=tk.parentNode.querySelector(".tk-hint");
   var N=46,pts=[],raf=0,p=0,staat="heel",lastSnip=0,audio=null;
