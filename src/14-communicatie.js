@@ -35,7 +35,7 @@ async function syncTrack(force){if(!trackOn()||trackBusy)return;if(!force&&Date.
 if(typeof window!=="undefined"&&typeof setInterval==="function")setInterval(()=>{try{syncTrack()}catch(_){}},5*60000);
 const tplVars=t=>[...new Set(((t.onderwerp||"")+(t.mail||"")+(t.sms||"")).match(/\[[a-z0-9_]+\.[a-z_]+\]|\{\w+\}/g)||[])];
 const VARLIST=["klant","voornaam","datum","tijd","tijdvak","adres","straat","plaats","diensten","dienst","prijs","interval","bedrijf","telefoon","iban","factuurnummer","bedrag","vervaldatum","factuurdatum","dagen_te_laat","betaallink","reviewlink"];
-const MAILKIND={factuur:["Factuur","[nr.invoice]"],aanmaning:["Betalingsherinnering","Factuur [nr.invoice]"],offerte:["Offerte","[nr.invoice]"],review:["Review",""],welkom:["Welkom","Welkom bij [name.company]"]};
+const MAILKIND={factuur:["Factuur","[nr.invoice]"],aanmaning:["Betalingsherinnering","Factuur [nr.invoice]"],wik:["Laatste aanmaning","Factuur [nr.invoice]"],offerte:["Offerte","[nr.invoice]"],review:["Review",""],welkom:["Welkom","Welkom bij [name.company]"]};
 function sampleVars(){
   const k={naam:"Fam. de Vries",voornaam:"Anna",adres:"Lindelaan 12",postcode:"3581 AB",plaats:"Utrecht",tijd:"09:00",duur:240,dienst:"Glasbewassing",prijs:80,frequentie:4};
   return{...klantVars(k,addDays(today(),5)),tijdvak:"tussen 08:00 en 12:00",factuurnummer:today().getFullYear()+"-0042",bedrag:"€ 96,80",factuurdatum:fmtL(today()),vervaldatum:fmtL(addDays(today(),14)),dagen_te_laat:5,reviewlink:S().reviewLink||"https://g.page/r/…/review"};
@@ -106,12 +106,12 @@ ${scene?`<div style="background:#fbfcfc;line-height:0;font-size:0;padding-top:4p
 }
 function mailFor(sjabloon,vars,tekst,{f,stap,preview}={}){
   const _T=(tpls()[sjabloon]||{}),_rich=!stap&&_T.mailHtml&&String(tekst||"").trim()===String(_T.mail||"").trim()?fillHtml(richSafe(_T.mailHtml),vars):null;
-  const s=S(),kind=stap?"aanmaning":sjabloon,K=MAILKIND[kind]||[ (tpls()[sjabloon]||{}).naam||"Bericht",""];
+  const s=S(),kind=stap?(stap.wik?"wik":"aanmaning"):sjabloon,K=MAILKIND[kind]||[ (tpls()[sjabloon]||{}).naam||"Bericht",""];
   const o={stijl:s.mailStijl||"modern",accent:s.mailAccent||s.hoofdkleur||"#111111",kicker:K[0],titel:fill(K[1].replace("{onderwerp}",s.reviewOnderwerp||"Tevreden over ons werk?"),vars),tekst:fill(tekst,vars),rich:_rich,logo:s.logoMail||s.logo,preview};
   if(["factuur","offerte"].includes(kind)){const t=f?totals(f):{inc:96.8};o.meta=[[kind==="offerte"?"Offertenummer":"Factuurnummer",vars.factuurnummer],[kind==="offerte"?"Datum":"Factuurdatum",f?fmtNum(f.datum):fmtNum(today())],[kind==="offerte"?"Geldig tot":"Vervaldatum",f?fmtNum(f.verval):fmtNum(addDays(today(),14))],...(kind==="offerte"&&f&&f.totaalTonen===false?[]:[["Totaal incl. BTW",eur(t.inc)]])];
     o.regels=f?f.regels.map(r=>Array.isArray(r.subs)&&r.subs.length?{...r,omschrijving:r.omschrijving+": "+r.subs.map(x=>String(x.naam).toLowerCase()+" "+(x.qty||"")).join(", ").trim()}:r):sampleRegels;if(!(kind==="offerte"&&f&&f.totaalTonen===false))o.totaal=eur(t.inc)}
-  if(["factuur","aanmaning"].includes(kind)&&(vars.betaallink||s.betaallink))o.knop={tekst:"Direct betalen",url:vars.betaallink||s.betaallink};
-  if(["factuur","aanmaning"].includes(kind)&&s.iban)o.bank=[["IBAN",s.iban],["T.n.v.",s.naam||"—"],["Kenmerk",vars.factuurnummer]];
+  if(["factuur","aanmaning","wik"].includes(kind)&&(vars.betaallink||s.betaallink))o.knop={tekst:"Direct betalen",url:vars.betaallink||s.betaallink};
+  if(["factuur","aanmaning","wik"].includes(kind)&&s.iban)o.bank=[["IBAN",s.iban],["T.n.v.",s.naam||"—"],["Kenmerk",vars.factuurnummer]];
   if(kind==="offerte"&&vars.akkoordlink)o.knop={tekst:"Offerte bekijken en akkoord geven",url:vars.akkoordlink};
   const _em=vars["email.customer"]||"",_pu=(LIVE?location.origin:"https://crm.mijnschoonmaker.com")+"/portaal"+(preview?(_em?"?e="+encodeURIComponent(_em):""):"?__PORTAAL_LINK__");
   /* elke mail aan een klant: kaartje met directe link naar het klantportaal (zonder inloggen); bij de aankondiging met live volgen */

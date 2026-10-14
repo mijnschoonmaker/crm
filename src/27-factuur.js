@@ -35,6 +35,7 @@ function openFactuurWerk(id){
         ${opt(I.euro,"Openstaand","open",f.status==="open"&&st[1]!=="Achterstallig"?"nu":"")}
         ${opt(I.mail,"Verstuur factuur","send",dt(f.verstuurdOp)==="—"?"":dt(f.verstuurdOp))}
         ${opt(I.mail,"Verstuur herinnering","herinner",f.herinnerdOp?dt(f.herinnerdOp):"")}
+        ${f.soort!=="offerte"&&f.status!=="betaald"?opt(I.alert||I.mail,"WIK-brief versturen (laatste aanmaning)","wikbrief",f.wikOp?dt(f.wikOp):"Incassokosten "+eur(wikKosten(totals(f).inc))):""}
         ${opt(I.x,"Op oninbaar zetten","oninbaar",f.status==="oninbaar"?dt(f.oninbaarOp):"","danger")}
       </table></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.facturen}</span><b>Factuurdetails</b><span class="sp"></span><button type="button" class="iconbtn sm" data-fw="bekijk" aria-label="Bekijken" title="Bekijken">${I.eye}</button><button type="button" class="iconbtn sm" data-fw="details" aria-label="Details aanpassen">${I.pencil}</button></div>
@@ -71,6 +72,7 @@ function openFactuurWerk(id){
     oninbaar:()=>put({status:"oninbaar",oninbaarOp:iso(today())},"Op oninbaar gezet; er gaan geen herinneringen meer uit"),
     send:()=>sendF(id,{direct:true,btn:form.querySelector('[data-fw="send"]')}),
     herinner:()=>sendF(id,{herinnering:true}),
+    wikbrief:()=>sendF(id,{wik:true}),
     dupl:async()=>{const n=cur(),d=iso(today()),nid=newId("f");const nf={...strip(n),nummer:nextNr("factuur",d),datum:d,verval:iso(addDays(today(),Math.max(1,Math.round((parse(n.verval)-parse(n.datum))/DAY))||14)),status:"concept",betaaldOp:"",verstuurdOp:"",herinnerdOp:"",herinneringen:0,oninbaarOp:"",gemaakt:new Date().toISOString(),log:[],creditVan:"",periodiek:false};
       try{await save("facturen",nid,nf);toast("Kopie gemaakt · "+nf.nummer);setTimeout(()=>openFactuurWerk(nid),60)}catch(er){err(er)}},
     credit:async()=>{const n=cur(),d=iso(today()),nid=newId("f");const nf={...strip(n),nummer:nextNr("factuur",d),datum:d,verval:d,regels:(n.regels||[]).map(r=>({...r,prijs:-(Number(r.prijs)||0)})),status:"open",betaaldOp:"",verstuurdOp:"",herinnerdOp:"",herinneringen:0,oninbaarOp:"",gemaakt:new Date().toISOString(),log:[],creditVan:n.id,periodiek:false,notitie:"Creditfactuur voor factuur "+n.nummer};
