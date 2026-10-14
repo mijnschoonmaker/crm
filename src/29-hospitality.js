@@ -14,15 +14,19 @@ const hospItem=(k,x,cls)=>{const c=hospCat(x.c),v=x.c==="verteld",nu=hospNu(x),p
 function hospBlok(k,{leegKnop=true}={}){const l=hospList(k),alle=hospItems(k);
   if(!l.length&&alle.length)return `<div class="hosp hosp-leeg"><span class="objic">${I.heart}</span><div><b>Hospitality aandachtspunten</b><small>Alles wat de klant vertelde is besproken.</small></div>${leegKnop?`<button type="button" class="small" data-act="hospedit" data-id="${esc(k.id)}">${I.plus}Noteren</button>`:""}</div>`;
   if(!l.length)return `<div class="hosp hosp-leeg"><span class="objic">${I.heart}</span><div><b>Hospitality aandachtspunten</b><small>Nog niets genoteerd. Wat moet iedereen weten om deze klant écht goed van dienst te zijn?</small></div>${leegKnop?`<button type="button" class="small" data-act="hospedit" data-id="${esc(k.id)}">${I.plus}Noteren</button>`:""}</div>`;
-  const g=hospGroet(k,l),m=hospMoment(l),n=l.length,niv=n>=5?["Vaste gast","Je kent deze klant door en door"]:n>=3?["Goede bekende","Je weet wat deze klant fijn vindt"]:["Nieuwe kennis","Hoe meer je noteert, hoe persoonlijker"];
-  return `<div class="hosp gk2"><div class="gk2-kop"><span class="gk2-zegel">${I.heart}</span><div class="gk2-t"><small>Gastenkaart</small><b>${esc(niv[0])}</b><em>${esc(niv[1])}</em></div><div class="gk2-st" title="${n} aandachtspunten">${[1,2,3,4,5].map(i=>`<i class="${i<=Math.min(5,n)?"on":""}"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8L3.5 9.7l5.9-.9z"/></svg></i>`).join("")}</div>${leegKnop?`<button type="button" class="iconbtn sm" data-act="hospedit" data-id="${esc(k.id)}" aria-label="Aandachtspunten aanpassen" title="Aanpassen">${I.pencil}</button>`:""}</div>
-    ${g||m?`<div class="gk2-tips">${g?`<div class="gk2-groet"><span>${I.chat||I.msg}</span><div><small>Zo begroet je</small><b>“${esc(g)}”</b></div></div>`:""}${m?`<div class="gk2-mom${m.dagen<=7?" bijna":""}"><span>${m.ic}</span><div><small>${esc(m.label)}</small><b>${esc(m.tekst)}</b></div></div>`:""}</div>`:""}
-    <div class="hosp-l">${l.map(x=>hospItem(k,x,"hosp-i")).join("")}</div></div>`}
+  const g=hospGroet(k,l),m=hospMoment(l),n=l.length,niv=n>=5?"Vaste gast":n>=3?"Goede bekende":"Nieuwe kennis";
+  const tl=l.map(x=>String(x.t).toLowerCase()).join("|"),sug=HOSP_TIPS.map((t,i)=>({t,i})).filter(x=>!/: $/.test(x.t[1])&&!tl.includes(x.t[1].toLowerCase())&&!(x.t[0]==="persoon"&&l.some(y=>y.c==="persoon"))).slice(0,4);
+  return `<div class="hosp hx"><div class="hx-h"><span class="hx-ic">${I.heart}</span><div class="hx-t"><b>Hospitality</b><small>${esc(niv)} · ${plural(n,"aandachtspunt","aandachtspunten")}</small></div><div class="hx-m" title="Hoe goed ken je deze klant">${[1,2,3,4,5].map(i=>`<i class="${i<=Math.min(5,n)?"on":""}"></i>`).join("")}</div>${leegKnop?`<button type="button" class="iconbtn sm" data-act="hospedit" data-id="${esc(k.id)}" aria-label="Aandachtspunten aanpassen" title="Aanpassen">${I.pencil}</button>`:""}</div>
+    ${g||m?`<div class="hx-tips">${g?`<div class="hx-tip"><span>${I.user}</span><div><small>Aanspreken</small><b>${esc(g)}</b></div></div>`:""}${m?`<div class="hx-tip${m.dagen<=7?" bijna":""}"><span>${m.ic}</span><div><small>${esc(m.label)}</small><b>${esc(m.tekst)}</b></div></div>`:""}</div>`:""}
+    <div class="hosp-l">${l.map(x=>hospItem(k,x,"hosp-i")).join("")}</div>
+    ${leegKnop&&sug.length?`<div class="hx-snel"><small>Snel toevoegen</small>${sug.map(x=>`<button type="button" class="hx-chip" data-hq="${esc(k.id)}:${x.i}">${I.plus}${esc(x.t[1])}</button>`).join("")}</div>`:""}</div>`}
+document.addEventListener("click",async e=>{const b=e.target.closest&&e.target.closest("[data-hq]");if(!b)return;e.preventDefault();e.stopPropagation();const[kid,i]=b.dataset.hq.split(":"),k=state.klanten.find(x=>x.id===kid),t=HOSP_TIPS[+i];if(!k||!t)return;
+  b.disabled=true;try{await save("klanten",kid,{...strip(k),hosp:[...(k.hosp||[]),{c:t[0],t:t[1]}]});toast("Toegevoegd aan hospitality");if(dlg.open&&typeof openKlantView==="function"&&document.querySelector("#dlgForm .hx"))openKlantView(kid)}catch(er){err(er);b.disabled=false}},true);
 /* begroeting en bijzondere momenten uit de aandachtspunten afleiden */
-function hospGroet(k,l){const t=l.map(x=>String(x.t).toLowerCase()).join(" | "),h=new Date().getHours(),dg=h<12?"Goedemorgen":h<18?"Goedemiddag":"Goedenavond";
-  const nm=cleanName(k.naam||""),ach=k.achternaam||nm.split(",")[0].trim(),vn=k.voornaam||(nm.includes(",")?nm.split(",").slice(1).join(",").trim():nm.split(" ")[0]);
-  if(/voornaam/.test(t)&&vn)return dg+" "+vn;
-  if(/\bu\b|meneer|mevrouw/.test(t))return dg+" "+(k.geslacht==="vrouw"?"mevrouw ":k.geslacht==="man"?"meneer ":"")+ach;
+function hospGroet(k,l){const t=l.map(x=>String(x.t).toLowerCase()).join(" | ");
+  const nm=cleanName(k.naam||""),ach=k.achternaam||nm.split(",")[0].trim(),vn=k.voornaam||(nm.includes(",")?nm.split(",").slice(1).join(",").trim():"");
+  if(/voornaam/.test(t)&&vn)return vn+" · je/jij";
+  if(/\bu\b|meneer|mevrouw/.test(t))return (k.geslacht==="vrouw"?"Mevrouw ":k.geslacht==="man"?"Meneer ":"Meneer/mevrouw ")+ach+" · u";
   return ""}
 const HMND=["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"];
 function hospMoment(l){const t=today();let best=null;
