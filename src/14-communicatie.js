@@ -75,10 +75,26 @@ function emailHtml({stijl,accent,kicker,titel,tekst,rich,meta,regels,totaal,knop
     <div style="background:#141414;color:#fff;text-align:center;padding:30px 24px;border-bottom:3px solid ${A}">${lg?`<div style="margin-bottom:14px;background:#fff;display:inline-block;padding:8px;border-radius:6px">${lg}</div>`:`<div style="font-family:${serif};font-size:22px;letter-spacing:.04em;margin-bottom:10px">${e(naam)}</div>`}
       <div style="font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:${A}">${e(kicker||"")}</div>${titel?`<div style="font-family:${serif};font-size:24px;margin-top:8px">${e(titel)}</div>`:""}</div>
     <div style="padding:36px 40px">${body}</div></div>${foot}</div>`;
-  return `<div style="font-family:${sans};background:#f3f5f6;padding:24px 12px"><div style="max-width:600px;margin:0 auto;background:#fff;border-radius:18px;overflow:hidden;border-top:6px solid ${A};box-shadow:0 2px 10px rgba(0,0,0,.05)">
-    <div style="text-align:center;padding:30px 24px 8px">${lg?`<div style="margin-bottom:14px">${lg}</div>`:`<div style="font-weight:800;font-size:20px;margin-bottom:10px">${e(naam)}</div>`}
-      <div style="font-size:13px;letter-spacing:.14em;font-weight:800;text-transform:uppercase">${e(kicker||"")}</div>${titel?`<div style="font-weight:800;font-size:20px;margin-top:4px">${e(titel)}</div>`:""}</div>
-    <div style="padding:30px 32px">${body}</div></div>${foot}</div>`;
+  /* modern = realistisch blauw ticket, gelijk aan de mails van de server */
+  const BL="#137a8a",BL2="#1d5a74",BG="#eef2f3",INK="#0f1f26",mono="'SF Mono',Menlo,Consolas,'Courier New',monospace";
+  const gat=k=>`<td width="15" style="width:15px;padding:0;background:#fbfcfc;font-size:0;line-height:0"><div style="width:15px;height:30px;background:${BG};border-radius:${k==="l"?"0 15px 15px 0":"15px 0 0 15px"};box-shadow:inset ${k==="l"?"-2px":"2px"} 0 3px rgba(15,70,85,.10)">&nbsp;</div></td>`;
+  const lab="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.72)";
+  const nr=String((meta&&meta[0]&&meta[0][1])||"").trim();
+  const strook=`<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
+    <td valign="middle" style="word-break:break-word"><div style="${lab}">${e(naam)}</div><div style="font-size:13.5px;color:#fff;margin-top:4px;line-height:1.55">${[s.telefoon,s.email].filter(Boolean).map(e).join("<br>")}${s.iban?`<br><span style="font-family:${mono};font-size:12px;opacity:.85">${e(s.iban)}</span>`:""}</div></td>
+    <td valign="middle" align="right" width="78"><div style="width:72px;height:30px;margin-left:auto;background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.9) 0 2px,transparent 2px 3px,rgba(255,255,255,.9) 3px 4px,transparent 4px 7px,rgba(255,255,255,.9) 7px 9px,transparent 9px 10px,rgba(255,255,255,.9) 10px 11px,transparent 11px 14px)"></div><div style="font-family:${mono};font-size:9.5px;letter-spacing:2px;color:rgba(255,255,255,.7);margin-top:5px;text-align:right">${e(nr||iso(today()).replace(/-/g,""))}</div></td></tr></table>`;
+  const kop=(kicker||titel)?`<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td style="font-size:11px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:#6b7c82">${e(kicker||"")}${nr&&String(titel||"").trim()!==nr?`&nbsp;<span style="font-family:${mono};letter-spacing:1px;color:${BL}">${e(nr)}</span>`:""}</td></tr></table>${titel?`<div style="font-size:22px;font-weight:800;color:${INK};line-height:1.2;margin:10px 0 2px;letter-spacing:-.4px;${String(titel).trim()===nr?`font-family:${mono};letter-spacing:.5px;`:""}">${e(titel)}</div>`:""}<div style="border-top:1.5px dashed #dde5e8;margin:14px 0 0;height:0;line-height:0;font-size:0">&nbsp;</div>`:"";
+  const tb=body.replace(new RegExp('background:'+A.replace(/[#]/g,"#")+';color:#fff;text-decoration:none;font-weight:600;padding:10px 20px','g'),`background:${BL};background-image:linear-gradient(135deg,#1590a2,${BL} 55%,#11677a);color:#fff;text-decoration:none;font-weight:700;padding:13px 26px;box-shadow:0 10px 20px -10px rgba(15,95,110,.7)`).replace(/border-radius:8px;font-family/g,"border-radius:14px;font-family");
+  return `<div style="font-family:${sans};background:${BG};padding:26px 12px 22px;-webkit-font-smoothing:antialiased"><div style="max-width:560px;margin:0 auto;border-radius:22px;box-shadow:0 1px 2px rgba(15,70,85,.06),0 22px 44px -22px rgba(15,70,85,.38)">
+<div style="background:#ffffff;background-image:linear-gradient(180deg,#ffffff 0%,#fbfcfc 100%);border-radius:22px 22px 0 0;overflow:hidden">
+  <div style="height:9px;background:${BL};background-image:linear-gradient(90deg,${BL2},${BL} 60%,#2aa3b3)"></div>
+  <div style="text-align:center;padding:24px 24px 2px">${lg||`<b style="font-size:19px;letter-spacing:-.3px;color:${INK}">${e(naam)}</b>`}</div>
+  ${kop?`<div style="padding:16px 34px 2px">${kop}</div>`:""}
+  <div style="padding:16px 34px 10px;color:#2b3a40">${tb}</div>
+</div>
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse"><tr>${gat("l")}<td style="background:#fbfcfc;padding:0 8px;height:30px"><div style="border-top:2px dotted #c3d2d6;height:0;line-height:0;font-size:0">&nbsp;</div></td>${gat("r")}</tr></table>
+<div style="background:${BL};background-image:repeating-linear-gradient(115deg,rgba(255,255,255,.035) 0 2px,transparent 2px 22px),linear-gradient(135deg,${BL2},${BL} 60%,#1a8c9c);border-radius:0 0 22px 22px;color:#ffffff;padding:18px 30px 20px">${strook}</div>
+</div></div>`;
 }
 function mailFor(sjabloon,vars,tekst,{f,stap,preview}={}){
   const _T=(tpls()[sjabloon]||{}),_rich=!stap&&_T.mailHtml&&String(tekst||"").trim()===String(_T.mail||"").trim()?fillHtml(richSafe(_T.mailHtml),vars):null;
