@@ -3698,6 +3698,21 @@ dialog .kp{overflow-wrap:anywhere}
 .pm-nm{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}.pm-nm b{font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pm-nm small{color:var(--muted);font-size:12.5px}
 @media (max-width:560px){.pm-it{flex-wrap:wrap}.pm-nm{flex-basis:100%;padding-left:34px}}
 
+/* communicatie-templates: rustig, in de huisstijl van het CRM (geen losse kleuren meer) */
+.tplc .objic.gl,.featc .objic.gl{background:var(--brand-soft)!important;color:var(--brand)!important;box-shadow:none!important;border:0!important}
+.tplc .objic.gl svg,.featc .objic.gl svg{color:var(--brand)!important;stroke:currentColor}
+.tplc .objic.gl::before,.tplc .objic.gl::after,.featc .objic.gl::before,.featc .objic.gl::after{display:none!important}
+.tplm .pill{background:var(--surface-2)!important;color:var(--muted)!important;border:0!important}
+.tplm .pill.soon{background:var(--brand-soft)!important;color:var(--brand)!important}
+.tplm .pill.late{background:var(--late-bg)!important;color:var(--late)!important}
+.tplc{transition:border-color .15s,box-shadow .15s}.tplc:hover{border-color:color-mix(in srgb,var(--brand) 30%,var(--line))}
+.tpls{border-left-color:var(--brand)!important}
+.featc{position:relative;overflow:hidden;color:#fff!important;border:0!important;background:var(--blauw)!important;box-shadow:0 18px 36px -24px rgb(15 70 85 / .7)!important}
+.featc::before{content:"";position:absolute;inset:0;background:var(--lijnen);pointer-events:none}
+.featc>*{position:relative}
+.featc small{color:rgb(255 255 255 / .78)!important}.featc>svg{color:#fff}
+.featc .objic.gl{background:rgb(255 255 255 / .16)!important;color:#fff!important}.featc .objic.gl svg{color:#fff!important}
+
 </style>
 <div class="app">
   <aside class="side">
