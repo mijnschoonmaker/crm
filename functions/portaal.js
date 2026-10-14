@@ -417,11 +417,12 @@ module.exports = function maakPortaal(ctx) {
   /* ticketmail: de hele mail is een ticket (zie mailHtml opts.ticket); in Apple Mail/iOS klapt de stempel erop en komt de strook los */
   function ticketMailBlok(t, opg, b) {
     const e = x => String(x ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-    const kl = opg ? "#1f8a5a" : (b.mailAccent || b.hoofdkleur || "#137a8a"), kl2 = opg ? "#2bb673" : "#1d5a74";
+    const kl = "#137a8a", kl2 = "#1d5a74";
     const d = new Date(t.laatst || Date.now()), dat = d.toLocaleDateString("nl-NL", { weekday: "short", day: "numeric", month: "short", timeZone: "Europe/Amsterdam" }), tijd = d.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" });
     const laatst = String(t.laatsteTekst || "").slice(0, 300), bub = laatst && laatst !== "Ticket opgelost";
     const mono = "'SF Mono',Menlo,Consolas,'Courier New',monospace";
-    const css = `@keyframes msIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+    const css = `a[x-apple-data-detectors],.ms-nl a{color:inherit!important;text-decoration:none!important}
+@keyframes msIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
 @keyframes msStempel{0%{opacity:0;transform:rotate(-10deg) scale(2.3)}60%{opacity:1;transform:rotate(-10deg) scale(.92)}100%{opacity:.95;transform:rotate(-10deg) scale(1)}}
 @keyframes msStrook{0%,55%{transform:none}100%{transform:translateY(7px) rotate(1.2deg)}}
 @keyframes msPuls{0%,100%{opacity:1}50%{opacity:.3}}
@@ -439,7 +440,7 @@ ${opg ? ".ms-str{animation:msStrook 1.3s cubic-bezier(.4,0,.6,1) 1.2s both;trans
     const na = bub ? `<div style="background:#f3f6f7;border-left:3px solid ${kl};border-radius:4px 14px 14px 4px;padding:12px 14px;font-size:14.5px;line-height:1.55;color:#33454c;margin:0 0 20px">${e(laatst)}</div>` : "";
     const lab = "font-size:10px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:rgba(255,255,255,.75)";
     const strook = `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
-  <td valign="middle"><div style="${lab}">${opg ? "Opgelost" : "Beantwoord"}</div><div style="font-family:${mono};font-size:14px;color:#fff;margin-top:3px;white-space:nowrap">${e(dat)} · ${e(tijd)}</div></td>
+  <td valign="middle"><div style="${lab}">${opg ? "Opgelost" : "Beantwoord"}</div><div style="font-family:${mono};font-size:14px;color:#fff;margin-top:3px;white-space:nowrap">${e(dat)} · ${e(tijd).replace(":", "&#8203;:")}</div></td>
   <td valign="middle" align="center"><div style="${lab}">Status</div><div style="font-size:15px;font-weight:800;color:#fff;margin-top:2px;white-space:nowrap">${opg ? "Afgerond" : "Wacht op u"}</div></td>
   <td valign="middle" align="right" style="font-size:34px;line-height:1;font-weight:800;color:#fff">${opg ? "&#10003;" : "&#9993;"}</td></tr></table>`;
     return { css, ticket: { kleur: kl, kleur2: kl2, kop, strook }, na };
