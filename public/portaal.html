@@ -727,6 +727,16 @@ html,body{background:var(--bg)!important}
 .bz-rt8{display:flex;gap:3px;margin-top:8px}.bz-rt8 i{flex:1;height:6px;border-radius:3px;background:rgb(255 255 255 / .2)}.bz-rt8 i.on{background:#ffe08a}
 .bz-tile .mini-st svg{color:#ffd76a}
 .bz-rt8t{font-size:11px!important;margin-top:4px}
+/* gratis-beurt-teller (vervangt de bonnen op kleine schermen) */
+.rf-gratis{display:none;margin-top:16px;padding:14px;border-radius:18px;background:rgb(255 255 255 / .12);border:1px solid rgb(255 255 255 / .2)}
+.rg-k{display:flex;align-items:center;gap:12px}.rg-k>span{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#ffe08a,#f3b63a);color:#7a4d00;flex:none}.rg-k>span svg{width:20px;height:20px}
+.rg-k b{display:block;font-size:15.5px;font-weight:700;color:#fff}.rg-k small{display:block;font-size:12.5px;color:rgb(255 255 255 / .75)}
+.rg-slots{display:flex;align-items:center;gap:8px;margin-top:14px}
+.rg-slots i{flex:1;max-width:56px;aspect-ratio:1;border-radius:14px;display:grid;place-items:center;border:2px dashed rgb(255 255 255 / .35);color:rgb(255 255 255 / .6);animation:rsOp .45s cubic-bezier(.2,1.4,.4,1) both;animation-delay:calc(var(--i)*80ms)}
+.rg-slots i em{font-style:normal;font-weight:700;font-size:14px}
+.rg-slots i.on{border:0;background:linear-gradient(135deg,#2bb673,#1f8f5c);color:#fff;box-shadow:0 8px 16px -10px rgb(0 0 0 / .5)}.rg-slots i svg{width:22px;height:22px}
+.rg-doel{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:#fff;color:var(--brand);flex:none;box-shadow:0 0 0 5px rgb(255 255 255 / .18);margin-left:auto}.rg-doel svg{width:22px;height:22px}
+@media (max-width:1100px){.rf-vis{display:none!important}.rf-gratis{display:block}}
 </style></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -999,6 +1009,9 @@ function aanbevelen(){const A=D.aanbevelen,R=B.refBeloning,W=B.refWelkom;
         <div class="rf-link"><span><small>Uw code · ${esc(A.code)}</small><b>${esc(link)}</b></span><button class="rf-kop" data-kopie>${I.kopie}<span>Kopieer</span></button></div>
         <div class="rf-deel"><a class="rf-btn wa" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(deelTekst())}">${I.wa}WhatsApp</a><a class="rf-btn" href="mailto:?subject=${encodeURIComponent("Tip: "+B.naam)}&body=${encodeURIComponent(deelTekst())}">${I.mail}Mail</a><button class="rf-btn" data-deel>${I.deel}Delen</button></div>
       </div>
+      ${(()=>{const pr=Number(D.klant.prijs)||0;if(!pr||!R)return"";const n=Math.max(1,Math.ceil(pr/R)),tot=Math.round((A.verdiend+A.tegoed)/R)||0,nu=tot%n,nog=n-nu;
+        return `<div class="rf-gratis"><div class="rg-k"><span>${I.cadeau}</span><div><b>${nog===n&&tot?"Weer een gratis beurt verdiend!":`Nog ${plural(nog,"buur","buren")} tot een gratis beurt`}</b><small>${n} aanbevelingen = uw glasbewassing van ${eur0(pr)} gratis</small></div></div>
+          <div class="rg-slots">${[...Array(n)].map((_,i)=>`<i class="${i<nu?"on":""}" style="--i:${i}">${i<nu?I.huis:`<em>${i+1}</em>`}</i>`).join("")}<span class="rg-doel">${I.ruit||I.ster}</span></div></div>`})()}
       <div class="rf-vis" aria-hidden="true">
         ${W>0?`<div class="rfc k2"><div class="rfc-stub"><span>WELKOM</span></div><div class="rfc-body"><div class="rfc-top"><img src="${esc(B.logo||"/logo.png")}" alt=""><em>Welkomstbon</em></div><small>Uw buur krijgt</small><b>${eur0(W)}</b><span>korting op de eerste factuur</span></div></div>`:""}
         <div class="rfc k1"><i class="rfc-glans"></i><div class="rfc-top"><img src="${esc(B.logo||"/logo.png")}" alt=""><em>Bedankbon</em></div><small>U krijgt</small><b>${eur0(R)}</b><div class="rfc-ft"><span>per nieuwe klant</span><span class="rfc-code">${esc(A.code)}</span></div></div>
