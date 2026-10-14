@@ -90,7 +90,6 @@ function vVandaag(){
     <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap"><button type="button" data-act="bulktoday">${I.msg}Bericht aan deze klanten</button><button type="button" data-act="toroute" data-d="${d}">Volgorde aanpassen</button></div>`;
   }
   if(doneB.length)html+=`<h2>Afgerond</h2><div class="list" style="gap:8px">${doneB.map(b=>{const k=state.klanten.find(x=>x.id===b.klantId);return k?stopRow(k,d,true):""}).join("")}</div>`;
-  if(todo.length)html+=`<div class="routebar">${routeLinks(stops).map((l,i,a)=>`<a class="btn routebtn" href="${esc(l)}" target="_blank" rel="noopener">${I.map}${a.length>1?"Route deel "+(i+1):"Open route · "+plural(todo.length,"stop","stops")}</a>`).join("")}</div>`;
   return html;
 }
 
