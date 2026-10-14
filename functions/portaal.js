@@ -401,13 +401,57 @@ module.exports = function maakPortaal(ctx) {
     await db.doc("portaalLogin/" + sha(tk)).set({ klantId: k.id, email: lc(email), exp: Date.now() + 7 * DAG, op: nu() });
     const host = String(basis || "").replace(/^https?:\/\//, "").replace(/\/.*$/, "");
     const url = basisUrl({ headers: { "x-forwarded-host": host } }) + "/portaal?l=" + tk + "#ticket-" + ts.id;
-    const st = t.status === "opgelost" ? "Wij hebben uw ticket als opgelost gemarkeerd." : "Er is een nieuw antwoord op uw ticket.";
-    const tekst = `Beste ${voornaamVan(schoon(k.contact || k.naam))},\n\n${st}\n\n**${t.nummer} · ${t.onderwerp}**\n${String(t.laatsteTekst || "").slice(0, 400)}\n\nMet de knop hieronder opent u het ticket direct.\n\nMet vriendelijke groet,\n${b.naam || "mijnschoonmaker.com"}`;
+    const opg = t.status === "opgelost";
+    const st = opg ? "Goed nieuws: wij hebben uw ticket opgelost." : "Er is een nieuw antwoord op uw ticket.";
+    const aanhef = `Beste ${voornaamVan(schoon(k.contact || k.naam))},\n\n${st}`;
+    const groet = `Met vriendelijke groet,\n${b.naam || "mijnschoonmaker.com"}`;
+    const tekst = `${aanhef}\n\n**${t.nummer} · ${t.onderwerp}**\n${String(t.laatsteTekst || "").slice(0, 400)}\n\nMet de knop hieronder opent u het ticket direct.\n\n${groet}`;
+    const tm = ticketMailBlok(t, opg, b);
     const afz = g.afzender || b.email || "info@mijnschoonmaker.com";
-    await brevoSend(g.brevoKey, { sender: { name: b.naam || "mijnschoonmaker", email: afz }, replyTo: { email: b.email || afz }, to: [{ email, name: schoon(k.naam) || undefined }], subject: `${t.nummer}: ${t.status === "opgelost" ? "opgelost" : "nieuw antwoord"} · ${b.naam || "mijnschoonmaker.com"}`, htmlContent: mailHtml(tekst, b, { knop: { url, tekst: "Ticket bekijken" } }), textContent: tekst.replace(/\*\*/g, "") + "\n\n" + url, tags: ["portaal", "ticket"] });
+    await brevoSend(g.brevoKey, { sender: { name: b.naam || "mijnschoonmaker", email: afz }, replyTo: { email: b.email || afz }, to: [{ email, name: schoon(k.naam) || undefined }], subject: `${t.nummer}: ${t.status === "opgelost" ? "opgelost" : "nieuw antwoord"} · ${b.naam || "mijnschoonmaker.com"}`, htmlContent: mailHtml(aanhef, b, { knop: { url, tekst: opg ? "Ticket bekijken" : "Antwoord lezen" }, na: tm.html, style: tm.css, onder: groet }), textContent: tekst.replace(/\*\*/g, "") + "\n\n" + url, tags: ["portaal", "ticket"] });
     await ts.ref.set({ laatsteMailKlant: nu() }, { merge: true });
     return { ok: true };
   });
+
+
+  /* ticket als bonnetje in de mail: tabellen (werkt in elk mailprogramma); in Apple Mail/iOS komt de stempel er met een klap op en schuift de strook mee */
+  function ticketMailBlok(t, opg, b) {
+    const e = x => String(x ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    const kl = opg ? "#1f8a5a" : (b.mailAccent || b.hoofdkleur || "#137a8a"), kl2 = opg ? "#22a46c" : "#1d5a74";
+    const dat = new Date(t.laatst || Date.now()).toLocaleDateString("nl-NL", { weekday: "short", day: "numeric", month: "short", timeZone: "Europe/Amsterdam" });
+    const tijd = new Date(t.laatst || Date.now()).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" });
+    const laatst = String(t.laatsteTekst || "").slice(0, 220), bub = laatst && laatst !== "Ticket opgelost";
+    const mono = "'SF Mono',Menlo,Consolas,'Courier New',monospace";
+    const css = `@keyframes msIn{from{opacity:0;transform:translateY(14px) rotate(-1deg)}to{opacity:1;transform:none}}
+@keyframes msStempel{0%{opacity:0;transform:rotate(-12deg) scale(2.2)}60%{opacity:1;transform:rotate(-12deg) scale(.92)}100%{opacity:.92;transform:rotate(-12deg) scale(1)}}
+@keyframes msStrook{0%,60%{transform:none}100%{transform:rotate(2.5deg) translate(3px,4px)}}
+@keyframes msPuls{0%,100%{opacity:1}50%{opacity:.35}}
+.ms-tk{animation:msIn .7s cubic-bezier(.2,.9,.3,1) both}
+.ms-st{display:inline-block;transform:rotate(-12deg);animation:msStempel .45s cubic-bezier(.2,1.5,.4,1) .7s both}
+.ms-str{animation:msStrook 1.4s cubic-bezier(.4,0,.6,1) 1s both;transform-origin:0 0}
+.ms-dot{animation:msPuls 1.4s ease-in-out infinite}`;
+    const stempel = opg ? `<span class="ms-st" style="display:inline-block;border:2px solid ${kl};color:${kl};border-radius:8px;padding:3px 9px;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase">&#10003; Opgelost</span>`
+      : `<span style="display:inline-block;background:#e3f2f4;color:${kl};border-radius:99px;padding:4px 10px;font-size:12px;font-weight:700"><span class="ms-dot" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${kl};vertical-align:middle;margin-right:5px"></span>Nieuw</span>`;
+    const html = `<table role="presentation" class="ms-tk" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:4px 0 22px;border-collapse:separate;border-spacing:0">
+<tr>
+<td valign="top" style="background:#ffffff;border:1px solid #dde5e8;border-right:2px dashed #c9d6da;border-radius:16px 0 0 16px;padding:18px 18px 16px;box-shadow:0 10px 24px -14px rgba(15,70,85,.35)">
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
+    <td style="font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#6b7c82;white-space:nowrap">Ticket&nbsp;<span style="font-family:${mono};letter-spacing:1px;color:${kl}">${e(t.nummer)}</span></td>
+    ${opg ? "" : `<td align="right" style="white-space:nowrap">${stempel}</td>`}</tr></table>
+  <div style="font-size:18px;font-weight:800;color:#0f1f26;line-height:1.25;margin:8px 0 ${opg ? 10 : 12}px;letter-spacing:-.3px">${e(t.onderwerp || "Uw vraag")}</div>
+  ${opg ? `<div style="margin:0 0 14px">${stempel}</div>` : ""}
+  ${bub ? `<div style="background:#f3f6f7;border-radius:4px 14px 14px 14px;padding:10px 13px;font-size:14px;line-height:1.5;color:#33454c;margin:0 0 12px">${e(laatst)}</div>` : ""}
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-top:1px dashed #dde5e8"><tr>
+    <td style="padding-top:10px;font-size:10.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#8a979c">${opg ? "Opgelost" : "Beantwoord"}<br><span style="font-family:${mono};font-size:12.5px;font-weight:500;letter-spacing:0;text-transform:none;color:#0f1f26;white-space:nowrap">${e(dat)}</span><br><span style="font-family:${mono};font-size:12.5px;font-weight:500;letter-spacing:0;text-transform:none;color:#0f1f26">${e(tijd)}</span></td>
+    <td align="right" style="padding-top:10px;font-size:10.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#8a979c">Status<br><span style="font-size:13px;font-weight:800;letter-spacing:0;text-transform:none;color:${kl}">${opg ? "Afgerond" : "Voor u"}</span></td></tr></table>
+</td>
+<td width="84" valign="middle" align="center"${opg ? ' class="ms-str"' : ""} style="width:84px;background:${kl};background-image:linear-gradient(160deg,${kl2},${kl});border-radius:0 16px 16px 0;color:#ffffff;padding:14px 6px;box-shadow:0 10px 24px -14px rgba(15,70,85,.45)">
+  <div style="font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;opacity:.8">${opg ? "Klaar" : "Bericht"}</div>
+  <div style="font-size:34px;line-height:1.1;font-weight:800">${opg ? "&#10003;" : "&#9993;"}</div>
+  <div style="font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;opacity:.8">${opg ? "Bedankt" : "Voor u"}</div>
+</td></tr></table>`;
+    return { html, css };
+  }
 
   /* CRM: klant uitnodigen voor het portaal (link 14 dagen geldig) */
   const portaalUitnodigen = onCall({ memory: "256MiB" }, async req => {
