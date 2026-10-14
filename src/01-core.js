@@ -189,7 +189,7 @@ const DEF={naam:"",adres:"",postcode:"",plaats:"",telefoon:"",email:"",kvk:"",bt
 const state={tab:"vandaag",klanten:[],beurten:[],facturen:[],routes:{},settings:{},sjablonen:{},berichten:[],kosten:[],prijzen:{},aangiftes:{},
   q:"",kf:"alle",ronde:"",sel:null,kpp:25,kpage:1,
   fFilter:"alle",fq:"",oFilter:"alle",mq:"",mch:"alle",mst:"alle",mpp:25,ctab:"recent",mpage:1,tq:"",tf:"alle",tplSide:{},
-  pview:"dag",slot:30,rowH:1,pstat:"alle",pq:"",planDay:null,multiDays:null,planMode:false,pick:null,achter:false,mon:null,
+  pview:"dag",slot:10,rowH:1,pstat:"alle",pq:"",planDay:null,multiDays:null,planMode:false,pick:null,achter:false,mon:null,
   week:startOfWeek(new Date()),vDay:null,routeDay:null,
   btab:"overzicht",bjaar:new Date().getFullYear(),bper:"jaar",itab:"geld",iper:"maand",hq:"",open:{},
   collapsed:false,loaded:false,db:null,dl:null,assets:null,me:null};
@@ -219,7 +219,7 @@ const mem={};COLS.forEach(c=>mem[c]=new Map());
 function apply(col,docs){
   RAW[col]=docs;
   if(col==="instellingen"){const g=id=>{const d=docs.find(x=>x.id===id);return d?strip(d):{}};state.settings=g("bedrijf");state.sjablonen=g("sjablonen");state.prijzen=g("prijzen");state.aangiftes=g("aangiftes");state.ramen=g("ramen");state.planmails=g("planmails");state.uitv=g("uitvoering");if(typeof U!=="undefined"&&!Udirty)U=null}
-  if(col==="instellingen"&&!state._slotInit&&docs.length){state._slotInit=1;const b=docs.find(x=>x.id==="bedrijf");if(b){if(b.slotStd)state.slot=Number(b.slotStd);if(b.ultra)state.rowH=.7;else if(b.compact)state.rowH=.85}}
+  if(col==="instellingen"&&!state._slotInit&&docs.length){state._slotInit=1;const b=docs.find(x=>x.id==="bedrijf");if(b){state.slot=[10,15].includes(Number(b.slotStd))?Number(b.slotStd):10;if(b.ultra)state.rowH=.7;else if(b.compact)state.rowH=.85}}
   else if(col==="routes"){state.routes={};docs.forEach(d=>state.routes[d.id]=d)}
   else state[col]=docs;
 }
