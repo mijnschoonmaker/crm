@@ -3024,3 +3024,4 @@ body{background:var(--bg)!important}
 .vr-st{display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap}.vr-st span{padding:8px 14px;border-radius:14px;background:var(--surface-2)}.vr-st small{display:block;font-size:11px;color:var(--muted);font-weight:600}.vr-st b{font-size:18px;font-weight:700}
 .vr-k{margin:0 0 4px!important;font-size:12px!important;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)!important}
 .vr.klaar .vr-zon{background:transparent!important;box-shadow:inset 9px -3px 0 0 #fff4c8,0 0 22px rgb(255 244 200 / .25)!important}.vr.klaar .vr-zon::after{display:none!important}
+.vh{margin-bottom:18px!important}.vr{margin-top:18px!important}
