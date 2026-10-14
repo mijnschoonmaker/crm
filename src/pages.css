@@ -3217,3 +3217,7 @@ html.zm dialog.rf{zoom:1.1111}
 .rf-foot{position:sticky;bottom:0;display:flex;align-items:center;gap:8px;padding:12px 0 calc(14px + env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--line);margin-top:auto}
 .rf-foot .sp,.rf-top .sp{flex:1}
 @media (min-width:641px){.rf-tools>div{flex-wrap:wrap}}
+.rf-aan{all:unset;cursor:pointer;box-sizing:border-box;display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:16px;border:1.5px solid color-mix(in srgb,#6e56cf 35%,var(--line));background:color-mix(in srgb,#6e56cf 7%,var(--surface))}
+.rf-aan>span{width:34px;height:34px;border-radius:50%;background:#6e56cf;color:#fff;display:grid;place-items:center;font-size:16px;flex:none}
+.rf-aan div{flex:1;min-width:0}.rf-aan b{display:block;font-size:14px}.rf-aan small{display:block;color:var(--muted);font-size:12px}
+.rf-aan i{font-style:normal;font-weight:800;color:#6e56cf;font-size:13px;flex:none}

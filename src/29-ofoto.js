@@ -90,6 +90,7 @@ function openFotoTelling(k,prev,cb,opts){opts=opts||{};const ro=!!opts.alleenLez
       ${fout?`<div class="rf-err">${I.alert}<span>${esc(fout)} <b>Tik de ramen zelf aan op de foto's.</b></span>${status==="res"&&!ro&&foto.some(x=>x.data)?`<button type="button" class="small" data-rf="tel">Opnieuw</button>`:""}</div>`:""}
       <div class="rf-tot"><div class="rf-big"><b>${tot}</b><span>${tot===1?"raam":"ramen"}</span></div><div class="rf-cnt">${RF_T.filter(t=>c[t[0]]).map(t=>`<span style="--c:${rfCol(t[0])}"><i>${t[1]}</i>${t[2]}<b>${c[t[0]]}</b></span>`).join("")||`<span class="leeg">Nog geen ramen</span>`}</div></div>
       ${opm||zeker==="laag"?`<div class="rf-opm">${I.info||I.alert}<span>${zeker==="laag"?"<b>Twijfelgeval.</b> ":""}${esc(opm)}</span></div>`:""}
+      ${!ro&&!(typeof S==="function"&&S().liveAI)&&typeof isEigenaar==="function"&&isEigenaar()?`<button type="button" class="rf-aan" data-rf="aiaan"><span>✦</span><div><b>Nauwkeuriger tellen met Claude AI</b><small>Herkent ook dakramen, koepels en glas-in-lood · enkele centen per woning</small></div><i>Aanzetten ›</i></button>`:""}
       ${p?`<div class="rf-view"><div class="rf-ph" id="rfPh" style="aspect-ratio:${p.w}/${p.h}"><img src="${p.url}" alt="${esc(p.zijde)}" draggable="false">${p.dots.map((x,j)=>`<span class="rf-d" data-rfd="${j}" style="left:${x.x*100}%;top:${x.y*100}%;--c:${rfCol(x.t)}">${rfL(x.t)[1]}</span>`).join("")}
           <div class="rf-lab">${esc(p.zijde)} · ${p.dots.length}</div></div>
         ${foto.length>1?`<button type="button" class="rf-nav l" data-rf="prev" aria-label="Vorige foto">‹</button><button type="button" class="rf-nav r" data-rf="next" aria-label="Volgende foto">›</button>`:""}</div>
@@ -141,6 +142,7 @@ function openFotoTelling(k,prev,cb,opts){opts=opts||{};const ro=!!opts.alleenLez
     if(v==="x")sluit();
     else if(v==="skip"){skip.add(zijdes[stap]);let n=stap+1;while(n<4&&(foto.some(x=>x.zijde===zijdes[n])||skip.has(zijdes[n])))n++;stap=n;draw()}
     else if(v==="tel")tellen();
+    else if(v==="aiaan"){sluit();try{dlg.close()}catch(e){}if(typeof openSetEdit==="function")openSetEdit("liveAI")}
     else if(v==="prev"){cur=(cur-1+foto.length)%foto.length;draw()}
     else if(v==="next"){cur=(cur+1)%foto.length;draw()}
     else if(v==="undo"&&hist.length){const h=JSON.parse(hist.pop());foto.forEach((p,i)=>p.dots=h[i]||[]);draw()}
