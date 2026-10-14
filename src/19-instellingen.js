@@ -305,6 +305,9 @@ function openSetEdit(id){
       ${inp("webPostcodes","Werkgebied (postcodes)",s.webPostcodes||"",{ph:"9700-9999, 8400-8499",help:"Postcodes (4 cijfers) of reeksen, gescheiden door komma's. Leeg = overal."})}<div class="grid2">${inp("webWa","WhatsApp-nummer voor aanvragen",wa0,{ph:"31612345678"})}${inp("webUrl","Adres van de calculator op je website",s.webUrl||"",{ph:"https://www.jouwsite.nl/calculator.html"})}</div>
       ${inp("webVoorwaarden","Link naar je algemene voorwaarden",s.webVoorwaarden||"",{ph:"https://www.jouwsite.nl/voorwaarden",help:"Onder de knop Indienen staat dat de prijs na de tellingcontrole bij het eerste bezoek kan veranderen, met een link naar je voorwaarden. Leeg = zonder link."})}
       <div class="row" style="gap:8px;flex-wrap:wrap"><button type="button" class="primary" id="webView">${I.eye}Calculator bekijken</button><button type="button" id="webDl">${I.dl}Calculator downloaden (HTML)</button><button type="button" id="webFr">${I.dl}Voor Framer downloaden</button></div>
+      ${sec("Complete website")}<div class="okbox" style="margin:0">${I.globe||I.check}<div><b>Een hele website met deze calculator erin</b><span>Met je logo, gegevens, WhatsApp-knop, werkwijze, voordelen, klantportaal, vragen en contact. In Framer plak je één code-blok en ben je klaar.</span></div></div>
+      <div class="row" style="gap:8px;flex-wrap:wrap"><button type="button" class="primary" id="siteView">${I.eye}Website bekijken</button><button type="button" id="siteFr">${I.dl}Website voor Framer downloaden</button><button type="button" id="siteDl">${I.dl}Als HTML downloaden</button></div>
+      <small class="help"><b>Zo zet je hem in Framer:</b> 1. Maak een nieuw project. 2. Assets › Code › + › New component, vervang alle voorbeeldcode door de inhoud van het gedownloade bestand en sla op. 3. Sleep <b>Website</b> op de Home-pagina, zet Width op Fill en Height op Fit. 4. Publish en koppel mijnschoonmaker.com bij Site Settings › Domains.</small>
       <small class="help"><b>Framer:</b> open het gedownloade tekstbestand, kopieer alles, ga in Framer naar Assets › Code › + › New component, vervang de voorbeeldcode door wat je kopieerde, sla op en sleep PrijsCalculator op je pagina (Width: Fill, Height: Fit). <b>Andere website:</b> upload het HTML-bestand (bijvoorbeeld als calculator.html). Verander je later je logo of tarieven, download hem dan opnieuw en vervang het bestand.</small>
       ${sec("In een bestaande pagina plaatsen")}<pre class="embedcode" id="webCode"></pre>
       <button type="button" class="small" id="webCopy" style="align-self:flex-start">${I.copy||""}Code kopiëren</button>`,{wide:true});
@@ -313,6 +316,10 @@ function openSetEdit(id){
     $("#webCopy").onclick=()=>copy(code(),$("#webCopy"));
     $("#webView").onclick=async()=>{const b=$("#webView");b.disabled=true;try{const wa=String(form.querySelector('[data-k="webWa"]').value||"").replace(/\D/g,"");webCalcVoorbeeld(await klantCalcHtml(wa))}catch(e){err(e)}finally{b.disabled=false}};
     $("#webDl").onclick=async()=>{const b=$("#webDl");b.disabled=true;try{const wa=String(form.querySelector('[data-k="webWa"]').value||"").replace(/\D/g,"");await saveFile("prijscalculator.html",await klantCalcHtml(wa),"Calculator gedownload")}finally{b.disabled=false}};
+    const siteBtn=(id,f)=>{$(id).onclick=async()=>{const b=$(id);b.disabled=true;try{await f(await websiteDelen())}catch(e){err(e)}finally{b.disabled=false}}};
+    siteBtn("#siteView",p=>websiteVoorbeeld(websiteHtml(p,true)));
+    siteBtn("#siteFr",p=>saveFile("Website-framer.txt",websiteFramer(p),"Website voor Framer gedownload"));
+    siteBtn("#siteDl",p=>saveFile("website.html",websiteHtml(p,false),"Website gedownload"));
     $("#webFr").onclick=async()=>{const b=$("#webFr");b.disabled=true;try{const wa=String(form.querySelector('[data-k="webWa"]').value||"").replace(/\D/g,"");const h=await klantCalcHtml(wa);await saveFile("PrijsCalculator-framer.txt",FRAMER_TPL.replace("__HTML__",()=>JSON.stringify(h)),"Framer-component gedownload")}finally{b.disabled=false}};
     bindSave();},
   async webview(){try{const wa=String(s.webWa||waNr(s.telefoon)||"").replace(/\D/g,"");webCalcVoorbeeld(await klantCalcHtml(wa))}catch(e){err(e)}},
@@ -420,12 +427,12 @@ async function exportAlles(metBestanden){
 function kleinLogo(url){return new Promise(res=>{const im=new Image();im.onload=()=>{const m=240,k=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);try{res(c.toDataURL("image/png"))}catch(e){res(url)}};im.onerror=()=>res(url);im.src=url})}
 
 /* website-calculator hier openen en gebruiken, zoals klanten hem op je website zien */
-function webCalcVoorbeeld(html){webCalcVoorbeeld._recent=webCalcVoorbeeld._recent||new Set();
+function webCalcVoorbeeld(html,titel){webCalcVoorbeeld._recent=webCalcVoorbeeld._recent||new Set();
   const o=document.createElement("dialog");o.className="wcv-ov";
-  o.innerHTML=`<div class="wcv"><div class="wcv-h"><span class="objic">${I.globe||I.eye}</span><div style="min-width:0;flex:1"><b>Website-calculator</b><small>Zo zien klanten hem op je website. Je kunt hem hier gewoon gebruiken.</small></div>
-    <div class="seg wcv-seg"><button type="button" data-w="tel" class="sel">Telefoon</button><button type="button" data-w="pc">Computer</button></div>
+  o.innerHTML=`<div class="wcv"><div class="wcv-h"><span class="objic">${I.globe||I.eye}</span><div style="min-width:0;flex:1"><b>${titel||"Website-calculator"}</b><small>Zo zien klanten ${titel?"je website":"hem op je website"}. Je kunt hem hier gewoon gebruiken.</small></div>
+    <div class="seg wcv-seg"><button type="button" data-w="tel" class="${titel?"":"sel"}">Telefoon</button><button type="button" data-w="pc" class="${titel?"sel":""}">Computer</button></div>
     <button type="button" class="iconbtn" data-wclose aria-label="Sluiten">${I.x}</button></div>
-    <div class="wcv-b"><iframe class="wcv-f tel" title="Website-calculator" allow="camera; clipboard-write"></iframe></div></div>`;
+    <div class="wcv-b"><iframe class="wcv-f ${titel?"pc":"tel"}" title="Website-calculator" allow="camera; clipboard-write"></iframe></div></div>`;
   const f=o.querySelector("iframe");f.srcdoc=String(html).replace(/<head([^>]*)>/i,m=>m+"<script>window.ZEEM_CRM=1<\/script>");
   /* indienen in het voorbeeld: klant en opdracht komen meteen in het crm */
   const opMsg=async e=>{if(e.source!==f.contentWindow)return;const d=e.data||{};if(d.type!=="zeem-aanvraag")return;
@@ -440,3 +447,5 @@ function webCalcVoorbeeld(html){webCalcVoorbeeld._recent=webCalcVoorbeeld._recen
   const esc_=e=>{if(e.key==="Escape"){e.preventDefault();e.stopPropagation();sluit()}};document.addEventListener("keydown",esc_,true);
   o.addEventListener("click",e=>{if(e.target===o||e.target.closest("[data-wclose]")){sluit();return}const w=e.target.closest("[data-w]");if(w){o.querySelectorAll("[data-w]").forEach(x=>x.classList.toggle("sel",x===w));f.className="wcv-f "+w.dataset.w}});
   document.body.appendChild(o);try{o.showModal()}catch(_){o.setAttribute("open","")}}
+
+const websiteVoorbeeld=html=>webCalcVoorbeeld(html,"Website");
