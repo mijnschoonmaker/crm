@@ -3416,6 +3416,27 @@ body{background:var(--bg)!important}
 .kr-d:hover{transform:scale(1.6);z-index:2}
 @keyframes krIn{from{transform:scale(0)}}
 @media (max-width:640px){.kr{padding:16px}.kr-cs{width:100%;gap:6px}.kr-c{min-width:0;padding:8px}.kr-c b{font-size:16px}.kr-zones span{font-size:9px;padding:0 6px 5px}}
+/* ---------- rustscherm: alleen het plaatje vernieuwd ---------- */
+.vr-huis{display:none}
+.vr-garage{position:absolute;left:34px;bottom:26px;width:110px;height:70px;border-radius:8px 8px 0 0;background:#f4f7f8;box-shadow:0 6px 12px -6px rgb(0 0 0 / .25)}
+.vr-garage::before{content:"";position:absolute;left:-8px;right:-8px;top:-18px;height:22px;background:#137a8a;clip-path:polygon(0 100%,50% 0,100% 100%)}
+.vr-garage i{position:absolute;left:14px;right:14px;bottom:0;height:46px;border-radius:5px 5px 0 0;background:repeating-linear-gradient(180deg,#8fa7b0 0 6px,#7e979f 6px 8px)}
+.vr.klaar .vr-sc{background:linear-gradient(180deg,#1d3f63 0%,#2f6a8c 55%,#8cc3cf 100%)!important}
+.vr.klaar .vr-zon{width:30px;height:30px;right:44px;top:20px;background:radial-gradient(circle at 60% 40%,#fffbe8,#f1e3a6);box-shadow:0 0 0 6px rgb(255 247 210 / .12),0 0 24px rgb(255 247 210 / .5)}
+.vr.klaar .vr-zon::after{content:"";position:absolute;left:-8px;top:-6px;width:30px;height:30px;border-radius:50%;background:#24527a}
+.vr.klaar .vr-wolk{opacity:.25}
+.vr.klaar .vr-sc::before{content:"";position:absolute;inset:0 0 40% 0;background-image:radial-gradient(1.6px 1.6px at 12% 22%,#fff,transparent),radial-gradient(1.4px 1.4px at 30% 12%,#fff,transparent),radial-gradient(1.8px 1.8px at 52% 30%,#fff,transparent),radial-gradient(1.3px 1.3px at 66% 14%,#fff,transparent),radial-gradient(1.5px 1.5px at 80% 40%,#fff,transparent),radial-gradient(1.2px 1.2px at 42% 44%,#fff,transparent);animation:vrSter 3s ease-in-out infinite}
+@keyframes vrSter{50%{opacity:.5}}
+.vr.klaar .vr-grond{background:linear-gradient(180deg,#5e8f78,#4e7d67)!important}
+.vr.klaar .vr-garage i{height:50px;background:repeating-linear-gradient(180deg,#46606b 0 6px,#3c545e 6px 8px)}
+.vr.klaar .vr-garage{background:#e2e9ec}
+.vr.klaar .vr-garage::after{content:"";position:absolute;left:50%;top:6px;width:10px;height:6px;margin-left:-5px;border-radius:3px;background:#ffe08a;box-shadow:0 0 10px #ffe08a}
+.vr-bus{left:160px!important;bottom:24px!important}
+.vr.klaar .vr-bus{left:44px!important;bottom:26px!important;width:78px!important;z-index:2;animation:vrIn 1.8s cubic-bezier(.2,.8,.2,1) both}
+@keyframes vrIn{from{left:220px}}
+.vr-st{display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap}.vr-st span{padding:8px 14px;border-radius:14px;background:var(--surface-2)}.vr-st small{display:block;font-size:11px;color:var(--muted);font-weight:600}.vr-st b{font-size:18px;font-weight:700}
+.vr-k{margin:0 0 4px!important;font-size:12px!important;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)!important}
+.vr.klaar .vr-zon{background:transparent!important;box-shadow:inset 9px -3px 0 0 #fff4c8,0 0 22px rgb(255 244 200 / .25)!important}.vr.klaar .vr-zon::after{display:none!important}
 
 </style>
 <div class="app">
@@ -4754,8 +4775,9 @@ function vdHero(done,total,todo,omzet,verwacht,pct){if(!total)return"";const R=4
 function vdRust(d,isT,klaar,nDue){let nx=null;try{for(let i=1;i<=21;i++){const dd=iso(addDays(parse(d),i)),st=routeStops(dd);if(st.length){nx={d:dd,n:st.length,eerste:st[0].k};break}}}catch(e){}
   const titel=klaar?"Dag klaar, top gedaan!":isT?"Vandaag een vrije dag":"Niets gepland op deze dag",sub=klaar?"Alle adressen zijn afgemeld. Busje mag de garage in.":nDue?`${plural(nDue,"klant is","klanten zijn")} wel aan de beurt. Plan ze in, dan staan ze hier.`:"Geen adressen vandaag. Geniet ervan, of plan alvast iets in.";
   const dag=x=>{const p=parse(x),df=Math.round((p-parse(iso(today())))/864e5);return df===1?"Morgen":df===2?"Overmorgen":p.toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"short"})};
-  return `<section class="vr${klaar?" klaar":""}"><div class="vr-sc" aria-hidden="true"><span class="vr-zon"></span><span class="vr-wolk w1"></span><span class="vr-wolk w2"></span><span class="vr-huis">${HUIS}</span><span class="vr-bus">${typeof RV_BUS!=="undefined"?RV_BUS:""}</span>${klaar?"":'<span class="vr-z">z<i>z</i><b>z</b></span>'}<span class="vr-grond"></span></div>
-    <div class="vr-tx"><h2>${titel}</h2><p>${sub}</p>
+  return `<section class="vr${klaar?" klaar":""}"><div class="vr-sc" aria-hidden="true"><span class="vr-garage"><i></i></span><span class="vr-zon"></span><span class="vr-wolk w1"></span><span class="vr-wolk w2"></span><span class="vr-huis">${HUIS}</span><span class="vr-bus">${typeof RV_BUS!=="undefined"?RV_BUS:""}</span>${klaar?"":'<span class="vr-z">z<i>z</i><b>z</b></span>'}<span class="vr-grond"></span></div>
+    <div class="vr-tx"><p class="vr-k">${klaar?"Dag afgerond":isT?"Vrije dag":"Geen stops"}</p><h2>${titel}</h2><p>${sub}</p>
+      ${klaar?(()=>{const bs=state.beurten.filter(b=>b.datum===d),om=bs.reduce((a,b)=>a+(Number(b.bedrag)||0),0),mn=bs.reduce((a,b)=>a+(Number(b.duur)||0),0);return `<div class="vr-st"><span><small>Woningen</small><b>${bs.length}</b></span>${isMw()?"":`<span><small>Verdiend</small><b>${eur0(om)}</b></span>`}${mn?`<span><small>Gewerkt</small><b>${uren(mn)}</b></span>`:""}</div>`})():""}
       ${nx?`<button type="button" class="vr-nx" data-act="vdag" data-d="${esc(nx.d)}"><span class="vr-nxi">${I.planning}</span><span><small>Volgende werkdag</small><b>${esc((t=>t.charAt(0).toUpperCase()+t.slice(1))(dag(nx.d)))} · ${plural(nx.n,"stop","stops")}</b><em>eerste: ${esc(jobAddrObj(nx.eerste).adres||cleanName(nx.eerste.naam))}${nx.eerste.tijd?" om "+esc(nx.eerste.tijd):""}</em></span>${I.right}</button>`:""}
       <div class="vr-acts">${nDue&&!isMw()?`<button type="button" class="primary" data-act="plantoday">${I.planning}Plan vandaag in</button>`:""}${isMw()?"":`<button type="button"${nDue?"":' class="primary"'} data-act="tab" data-tab="planning">${I.planning}Naar planning</button>`}</div></div></section>`}
 
