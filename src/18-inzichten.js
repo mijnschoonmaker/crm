@@ -58,7 +58,7 @@ function vInzichten(){
     <div class="st-two"><section class="st-card"><div class="st-ch"><div><h3>Drukste dagen</h3><p>Afgemelde beurten per weekdag${wdc[top]?" · meestal op "+["maandag","dinsdag","woensdag","donderdag","vrijdag","zaterdag","zondag"][top]:""}</p></div></div>
         ${stBars(wdc,["ma","di","wo","do","vr","za","zo"],{hi:wdc[top]?top:-1,fmt:v=>String(Math.round(v)),h:200,gem:false})}</section>
       <section class="st-card"><div class="st-ch"><div><h3>Omzet per dienst</h3><p>Aandeel in de omzet uit werk</p></div></div>
-        ${dk.length?stDiensten(dk,per_d,dtot):'<p class="st-leeg">Nog geen afgemelde beurten in deze periode.</p>'}</section></div>`;
+        ${dk.length?stDiensten(dk,per_d,dtot):'<p class="st-leeg">Nog geen afgemelde beurten in deze periode.</p>'}</section></div>`+(typeof wdStatKaart==="function"?wdStatKaart(P.rg,P.lbl):"");
   }else{
     const ak=actief(),nieuw=state.klanten.filter(k=>inRange(k.aangemaakt,P.rg)),nieuwV=state.klanten.filter(k=>inRange(k.aangemaakt,V.rg)),inact=state.klanten.filter(k=>k.actief===false);
     const jaar=ak.reduce((a,k)=>a+exAmt(k.prijs)*365/freqDays(k),0),perK=ak.length?jaar/ak.length:0;
