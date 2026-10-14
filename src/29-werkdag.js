@@ -27,7 +27,7 @@ function werkdagKaart(d,isT,total){const c=wdCijfers(d),w=c.w,inP=(w.pauzes||[])
     ${balk}<div class="wd-k">${inP?`<button type="button" class="primary" data-act="wdpauze">${I.play||I.check}Pauze voorbij</button>`:`<button type="button" data-act="wdpauze">${I.coffee||I.clock}Pauze</button><button type="button" class="primary" data-act="wdstop">${I.home||I.check}Terug bij de loods</button>`}</div></section>`}
 document.addEventListener("click",async e=>{const b=e.target.closest&&e.target.closest("[data-act^='wd']");if(!b)return;const a=b.dataset.act;if(!["wdstart","wdstop","wdpauze","wdheropen"].includes(a))return;e.preventDefault();e.stopPropagation();
   const d=iso(today()),w=wdGet(d)||{};
-  if(a==="wdstart"){await wdZet(d,{start:wdNu(),stop:"",pauzes:[]});const _lv=await wdMagLocatie();wdLive(true,true);toast(_lv?"Werkdag gestart · live delen staat aan":"Werkdag gestart");try{navigator.vibrate&&navigator.vibrate(20)}catch(_){}}
+  if(a==="wdstart"){await wdZet(d,{start:wdNu(),stop:"",pauzes:[]});wdLive(true);toast("Werkdag gestart · live delen staat aan");try{navigator.vibrate&&navigator.vibrate(20)}catch(_){}}
   else if(a==="wdpauze"){const pz=[...(w.pauzes||[])],open=pz.findIndex(p=>!p.tot);if(open>=0){pz[open]={...pz[open],tot:wdNu()};toast("Pauze voorbij · "+wdU(wdMin(pz[open].van,pz[open].tot)))}else{pz.push({van:wdNu()});toast("Pauze gestart")}await wdZet(d,{pauzes:pz})}
   else if(a==="wdstop"){const bz=state.klanten.filter(k=>typeof isBezig==="function"&&isBezig(k));
     if(bz.length&&!(await vraag("Nog bezig bij een klant",`De tijd loopt nog bij <b>${esc(cleanName(bz[0].naam))}</b>. Toch de werkdag stoppen? Meld die stop daarna nog af.`,"Toch stoppen","Annuleren")))return;
