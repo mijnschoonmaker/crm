@@ -811,6 +811,23 @@ html,body{background:var(--bg)!important}
 .rb-b .rb-ft{font-size:10.5px;color:#6b7b83}
 @media (prefers-reduced-motion:reduce){.rb-glans{animation:none;display:none}}
 @media (max-width:1100px){.rf-vis{display:none!important}}
+
+/* ---------- zijmenu zoals in het CRM ---------- */
+aside.side{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
+.logo .mk,aside .logo .mk,.topbar .logo .mk{background:none!important;box-shadow:none!important;border-radius:50%!important;overflow:visible;width:44px;height:44px}
+.topbar .logo .mk{width:36px;height:36px}
+.logo .mk img{border-radius:50%;object-fit:contain}
+.logo .mk.gr{background:linear-gradient(135deg,var(--brand),var(--brand-2))!important}
+aside .nlbl{font-size:11px!important;font-weight:600!important;letter-spacing:.1em!important;color:#8a979d!important;margin:20px 26px 8px!important}
+aside nav{gap:2px!important}
+aside nav button{font-weight:500!important;font-size:14.5px!important;letter-spacing:-.006em;color:#22313a!important;padding:10px 14px!important;border-radius:12px!important;gap:14px!important;transition:background .15s,color .15s}
+aside nav button svg{width:19px!important;height:19px!important;stroke-width:1.7;color:#6b7b83!important}
+aside nav button:not([aria-current="true"]){background:transparent!important;box-shadow:none!important}
+aside nav button:not([aria-current="true"]):hover{background:color-mix(in srgb,var(--ink) 5%,transparent)!important;color:var(--ink)!important}
+aside nav button:not([aria-current="true"]):hover svg{color:var(--ink)!important}
+aside nav button[aria-current="true"]{font-weight:600!important;color:#fff!important;background:linear-gradient(135deg,var(--brand),var(--brand-2))!important;box-shadow:0 6px 16px -6px rgb(19 122 138 / .45)!important}
+aside nav button[aria-current="true"] svg{color:#fff!important}
+aside nav button .badge{font-size:10.5px}
 </style></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
