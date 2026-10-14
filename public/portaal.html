@@ -737,6 +737,21 @@ html,body{background:var(--bg)!important}
 .rg-slots i.on{border:0;background:linear-gradient(135deg,#2bb673,#1f8f5c);color:#fff;box-shadow:0 8px 16px -10px rgb(0 0 0 / .5)}.rg-slots i svg{width:22px;height:22px}
 .rg-doel{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:#fff;color:var(--brand);flex:none;box-shadow:0 0 0 5px rgb(255 255 255 / .18);margin-left:auto}.rg-doel svg{width:22px;height:22px}
 @media (max-width:1100px){.rf-vis{display:none!important}.rf-gratis{display:block}}
+/* uw straat: huisjes op een stoep met gras, weg eronder */
+.rs-straat{padding:0 0 0;border-radius:18px;background:linear-gradient(180deg,#e8f5f8 0%,#e8f5f8 58%,#d6ead9 58%,#cfe5d3 100%);overflow:hidden}
+.rs-rij{padding:16px 14px 10px;gap:6px;justify-content:space-between;min-width:100%}
+.rs-h{width:auto;flex:1;min-width:70px}
+.rs-h span{background:#fff}
+.rs-h.leeg span{background:rgb(255 255 255 / .7)}
+.rs-h b{color:var(--ink)}
+.rs-weg{position:relative;left:auto;right:auto;bottom:auto;height:30px;border-radius:0;background:linear-gradient(180deg,#7d8f97,#6b7c84)}
+.rs-weg::after{left:0;right:0;top:14px;height:2.5px;background:repeating-linear-gradient(90deg,rgb(255 255 255 / .9) 0 16px,transparent 16px 30px)}
+.rs-weg::before{content:"";position:absolute;left:0;right:0;top:-5px;height:5px;background:#c9d3d6}
+.rs-straat .rs-bus{position:absolute;bottom:4px;left:-60px;width:52px;height:32px;animation:rsRij 9s linear infinite;z-index:2}
+.rs-straat .rs-bus svg{width:100%;height:100%}
+@keyframes rsRij{from{left:-60px}to{left:calc(100% + 10px)}}
+@media (prefers-reduced-motion:reduce){.rs-straat .rs-bus{display:none}}
+.rs-straat{background:linear-gradient(180deg,#e8f5f8 0%,#eef8f9 100%)}.rs-rij{padding-bottom:12px;border-bottom:10px solid #cfe5d3}
 </style></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -934,7 +949,7 @@ function bezoeken(){const v=D.volgende,b=D.bezoeken||[],k=D.klant,fq=Number(k.fr
   const tile=(ic,l,w,s,ex="")=>`<div class="bz-tile"><span class="bz-ti">${ic}</span><small>${l}</small><b>${w}</b>${s?`<em>${s}</em>`:""}${ex}</div>`;
   const nB=D.aantalBezoeken||b.length,dagen=k.sinds?Math.max(1,Math.round((nu-p(k.sinds))/864e5)):0;
   const druppels=`<div class="bz-dr">${[...Array(Math.min(12,Math.max(nB,1)))].map((_,i)=>`<i class="${i<nB?"on":""}" style="--i:${i}"></i>`).join("")}${nB>12?`<small>+${nB-12}</small>`:""}</div>`;
-  const wk=laatst?Math.floor((nu-p(laatst))/864e5/7):0,ritme=`<div class="bz-rt8" title="${wk} van ${fq} weken sinds het laatste bezoek">${[...Array(Math.min(fq,12))].map((_,i)=>`<i class="${i<wk?"on":""}"></i>`).join("")}</div><em class="bz-rt8t">${laatst?`${wk} van ${fq} weken voorbij`:""}</em>`;
+  const laatst=b.length?b[0].datum:"",wk=laatst?Math.floor((nu-p(laatst))/864e5/7):0,ritme=`<div class="bz-rt8" title="${wk} van ${fq} weken sinds het laatste bezoek">${[...Array(Math.min(fq,12))].map((_,i)=>`<i class="${i<wk?"on":""}"></i>`).join("")}</div><em class="bz-rt8t">${laatst?`${wk} van ${fq} weken voorbij`:""}</em>`;
   const tiles=`<div class="bz-tiles">${tile(I.ruit||I.check,"Schone ramen",plural(nB,"keer","keer"),b.length?"sinds "+(d=>d.getDate()+" "+MK[d.getMonth()]+(d.getFullYear()!==nu.getFullYear()?" "+d.getFullYear():""))(p(b[b.length-1].datum)):"nog geen bezoek",druppels)}${tile(I.verzet||I.kal,"Ritme",fq===1?"Elke week":"Elke "+fq+" weken",esc(k.dienst||"Glasbewassing"),ritme)}${tile(I.hart,"Klant sinds",k.sinds?esc(MK[p(k.sinds).getMonth()]+" "+p(k.sinds).getFullYear()):"–",dagen?plural(dagen,"dag","dagen")+" samen":"")}${gem?tile(I.ster,"Uw beoordeling",gem.toLocaleString("nl-NL",{maximumFractionDigits:1})+" / 5",st(Math.round(gem))):""}</div>`;
   /* tijdlijn: eerst wat er komt, dan wat we gedaan hebben */
   const toek=v?[{datum:v.datum,tijd:v.tijd,soort:"gepland"},...v.reeks.map(x=>({...x,soort:"gepland"}))]:(D.verwacht&&k.actief?[{datum:D.verwacht,soort:"verwacht"}]:[]);
@@ -1028,7 +1043,7 @@ function aanbevelen(){const A=D.aanbevelen,R=B.refBeloning,W=B.refWelkom;
       const slots=[...L.map(huis),...Array(n-L.length).fill(0).map((_,i)=>leeg(L.length+i))],links_=slots.slice(0,links),rechts=slots.slice(links);
       const verdiend=L.filter(x=>(st[x.status]||[])[2]>=4).length;
       return `<section class="rs"><div class="rs-k"><div><b>Uw straat</b><small>${L.length?`${plural(L.length,"buur","buren")} via u${verdiend?` · ${eur0(verdiend*R)} verdiend`:""}`:"Elke buur die klant wordt, krijgt hier een huisje"}</small></div>${L.length?`<span class="rs-sc">${I.ster}${L.length}</span>`:""}</div>
-        <div class="rs-straat"><div class="rs-rij"><div class="rs-h ik" style="--i:0"><span>${I.huis}</span><b>U</b><small>uw huis</small></div>${slots.join("")}</div><div class="rs-weg"></div></div></section>`})()}
+        <div class="rs-straat"><div class="rs-rij"><div class="rs-h ik" style="--i:0"><span>${I.huis}</span><b>U</b><small>uw huis</small></div>${slots.join("")}</div><div class="rs-weg"></div><span class="rs-bus">${AUTO}</span></div></section>`})()}
     ${(()=>{const top=Math.max(0,...A.lijst.map(x=>(st[x.status]||[0,0,0])[2])),ic=[I.wa,I.bericht,AUTO,I.cadeau],tt=[["Deel uw link","Via WhatsApp, mail of gewoon even vertellen"],["Zij melden zich aan","Ze berekenen hun prijs via uw link"],["Eerste bezoek","Na akkoord komen wij langs"],["Korting voor u",`${eur0(R)} gaat van uw volgende factuur af`]];
       const bereikt=i=>i===0||top>=i+1;
       return `<section class="rr"><div class="rr-k"><b>Zo werkt het</b><small>${top?(top>=4?"Gelukt! Uw korting staat klaar":"Zo ver is uw beste aanbeveling"):"Van link tot korting in vier stappen"}</small></div>
