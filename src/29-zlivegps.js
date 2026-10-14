@@ -29,5 +29,8 @@ function lvKnopHtml(){if(!LIVE)return"";const aan=state.liveDelen&&LV.watch!=nul
   return `<button type="button" class="rh-live${aan?" aan":""}" data-act="livedelen" aria-pressed="${aan}" title="Klanten van vandaag zien in hun portaal waar je bent"><i></i><span>${aan?"Live zichtbaar":"Live delen"}</span></button>`}
 function lvKnop(){const b=document.querySelector(".rh-live");if(b)b.outerHTML=lvKnopHtml()}
 /* automatisch: na het herladen weer aan, en uit als de dag klaar is */
-if(LIVE)setTimeout(function w(){if(!state.loaded)return setTimeout(w,800);if(state.liveDelen)liveStart(true)},1500);
+/* bij openen alleen hervatten als locatie al is toegestaan (anders zou de browser telkens om toestemming vragen) */
+if(LIVE)setTimeout(async function w(){if(!state.loaded)return setTimeout(w,800);if(!state.liveDelen)return;
+  let ok=false;try{ok=!!navigator.permissions&&(await navigator.permissions.query({name:"geolocation"})).state==="granted"}catch(e){}
+  if(ok)liveStart(true);else{state.liveDelen=false;try{localStorage.setItem("ms.live","0")}catch(e){}render()}},1500);
 function lvDagCheck(){if(LV.watch==null)return;const s=routeStops(iso(today()));if(s.length&&s.every(x=>x.done)){state.liveDelen=false;try{localStorage.setItem("ms.live","0")}catch(e){}liveStop(true);toast("Dag klaar · live delen is gestopt")}}
