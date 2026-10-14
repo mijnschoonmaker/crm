@@ -45,7 +45,16 @@ async function sjabloon(sleutel) { try { const d = (await db.doc("instellingen/s
 function vulIn(tekst, v) { return String(tekst || "").replace(/\[([a-z0-9_]+)\.([a-z_]+)\]/g, (m, a, b) => { const k = a + "." + b; return v[k] != null ? String(v[k]) : m; }); }
 const htmlEsc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 /* alle mails als realistisch ticket: papier met zachte schaduw, blauwe kopband, perforatie met ronde inkepingen en een blauwe strook onderaan */
-function mailHtml(tekst, b, opts = {}) {
+function mailHtml(tekst, b, opts = {}) { return geenAutoLinks(mailHtmlRuw(tekst, b, opts)); }
+/* Outlook/Gmail maken van nummers, datums, domeinen en e-mailadressen lelijke blauwe links: zelf netjes opmaken of onzichtbaar onderbreken */
+function geenAutoLinks(html){let inA=0,inS=0;
+  return String(html).split(/(<[^>]+>)/).map(p=>{if(p[0]==="<"){const t=p.toLowerCase();if(/^<a[\s>]/.test(t))inA++;else if(t.startsWith("</a"))inA=Math.max(0,inA-1);else if(/^<style/.test(t))inS=1;else if(t.startsWith("</style"))inS=0;return p}
+    if(inA||inS||!p.trim())return p;
+    return p.replace(/([\w.+-]+@[\w-]+(?:\.[\w-]+)+)|((?:[\w-]+\.)+(?:com|nl|be|eu|net|org|info)\b)|(\d[\d\s\-\/:.]{2,}\d)/gi,(m,mail,dom,num)=>{
+      if(mail)return `<a href="mailto:${mail}" style="color:inherit;text-decoration:none">${mail}</a>`;
+      if(dom)return `<a href="https://${dom}" style="color:inherit;text-decoration:none">${dom}</a>`;
+      return m.split("").join("&zwnj;")})}).join("")}
+function mailHtmlRuw(tekst, b, opts = {}) {
   const BL = "#137a8a", BL2 = "#1d5a74", BG = "#eef2f3", INK = "#0f1f26", MUT = "#5d6f76";
   const T = opts.ticket || null, A = (T && T.kleur) || BL;
   const lid = b.logoMail || b.logo, logo = lid ? `<img src="${HOST() + "/_blob/" + lid}" border="0" alt="${htmlEsc(b.naam || "")}" style="max-height:${Math.min(72, Number(b.logoGrootte) || 56)}px;max-width:170px;display:inline-block">` : `<b style="font-size:19px;letter-spacing:-.3px;color:${INK}">${htmlEsc(b.naam || "")}</b>`;
