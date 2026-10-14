@@ -7670,8 +7670,8 @@ function webCalcVoorbeeld(html,titel){webCalcVoorbeeld._recent=webCalcVoorbeeld.
     <button type="button" class="iconbtn" data-wclose aria-label="Sluiten">${I.x}</button></div>
     <div class="wcv-b"><iframe class="wcv-f ${titel?"pc":"tel"}" title="Website-calculator" allow="camera; clipboard-write"></iframe></div></div>`;
   const f=o.querySelector("iframe"),bron=String(html).replace(/<head([^>]*)>/i,m=>m+"<script>window.ZEEM_CRM=1<\/script>");
-  /* als los bestand laden (blob) in plaats van srcdoc: Safari laat een grote srcdoc soms zonder opmaak zien */
-  let bu="";try{bu=URL.createObjectURL(new Blob([bron],{type:"text/html;charset=utf-8"}));f.src=bu}catch(_){f.srcdoc=bron}
+  /* direct in een leeg venster schrijven: werkt in Safari betrouwbaarder dan srcdoc of een blob-adres (die toonden de site soms zonder opmaak) */
+  let bu="";const schrijf=()=>{try{const dd=f.contentDocument;if(!dd)throw 0;dd.open();dd.write(bron);dd.close();return true}catch(_){return false}};
   /* indienen in het voorbeeld: klant en opdracht komen meteen in het crm */
   const opMsg=async e=>{if(e.source!==f.contentWindow)return;const d=e.data||{};if(d.type!=="zeem-aanvraag")return;
     const reply=m=>{try{f.contentWindow.postMessage(m,"*")}catch(_){}};
@@ -7686,7 +7686,8 @@ function webCalcVoorbeeld(html,titel){webCalcVoorbeeld._recent=webCalcVoorbeeld.
   o.addEventListener("click",e=>{if(e.target===o||e.target.closest("[data-wclose]")){sluit();return}const w=e.target.closest("[data-w]");if(w){o.querySelectorAll("[data-w]").forEach(x=>x.classList.toggle("sel",x===w));f.className="wcv-f "+w.dataset.w}});
   /* Safari tekent een iframe binnen de 90%-zoom van het CRM niet goed (wit vlak aan de zijkant): zolang het voorbeeld open is zonder zoom */
   document.documentElement.classList.add("nozm");
-  document.body.appendChild(o);try{o.showModal()}catch(_){o.setAttribute("open","")}}
+  document.body.appendChild(o);try{o.showModal()}catch(_){o.setAttribute("open","")}
+  if(!schrijf())f.srcdoc=bron}
 
 const websiteVoorbeeld=html=>webCalcVoorbeeld(html,"Website");
 
@@ -7957,7 +7958,7 @@ function websiteBody(o){const e=esc,IC={
       <div class="tk-bar"><div><i></i><code>MS 2026 1014</code></div></div>
       <span class="stempel" aria-hidden="true">${IC.ok}Gewassen</span></div>
     <div class="tk-r"><i class="tk-vz"></i><small>Beurt</small><b>06</b><small>dit jaar</small><span class="tk-v">Bewaarstrook</span></div>
-  </div><p class="tk-hint">Trek de strook eraf, of tik om het opnieuw te zien</p></div></div></div></section>
+  </div><p class="tk-hint">Trek de strook eraf, of tik om het opnieuw te zien</p></div></div></section>
 <section id="prijs"><div class="in"><div id="ms-calc"></div></div></section>
 <section id="zakelijk"><div class="in"><div class="zak"><div><span class="oog">${IC.gebouw}Zakelijk</span><h2 class="kop">Ook voor <em>bedrijven en VvE's</em></h2><p class="lead">Kantoor, winkel, school of appartementencomplex: wij maken een prijs op maat en plannen het werk in wanneer het u uitkomt.</p>
   <div class="tags"><span>Kantoren</span><span>Winkels en horeca</span><span>VvE's</span><span>Scholen en zorg</span></div></div>

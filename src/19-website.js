@@ -265,7 +265,7 @@ function websiteBody(o){const e=esc,IC={
       <div class="tk-bar"><div><i></i><code>MS 2026 1014</code></div></div>
       <span class="stempel" aria-hidden="true">${IC.ok}Gewassen</span></div>
     <div class="tk-r"><i class="tk-vz"></i><small>Beurt</small><b>06</b><small>dit jaar</small><span class="tk-v">Bewaarstrook</span></div>
-  </div><p class="tk-hint">Trek de strook eraf, of tik om het opnieuw te zien</p></div></div></div></section>
+  </div><p class="tk-hint">Trek de strook eraf, of tik om het opnieuw te zien</p></div></div></section>
 <section id="prijs"><div class="in"><div id="ms-calc"></div></div></section>
 <section id="zakelijk"><div class="in"><div class="zak"><div><span class="oog">${IC.gebouw}Zakelijk</span><h2 class="kop">Ook voor <em>bedrijven en VvE's</em></h2><p class="lead">Kantoor, winkel, school of appartementencomplex: wij maken een prijs op maat en plannen het werk in wanneer het u uitkomt.</p>
   <div class="tags"><span>Kantoren</span><span>Winkels en horeca</span><span>VvE's</span><span>Scholen en zorg</span></div></div>
