@@ -111,6 +111,6 @@ function openJob(id,day){
 function vdHero(done,total,todo,omzet,verwacht,pct){if(!total)return"";const R=44,C=2*Math.PI*R,klaar=done>=total,mw=isMw();
   return `<section class="vh${klaar?" klaar":""}"><div class="vh-m"><p class="vh-k">${klaar?"Dag klaar":done?"Onderweg":"Klaar voor de start"} · ${done}/${total}</p>
     <h2>${esc(klaar?"Top gewerkt vandaag!":motTekst(done,total))}</h2>
-    ${huisjes(done,total)}
+    <div class="vh-weg" style="--p:${total?done/total:0}"><div class="fg-baan"><i></i></div>${[...Array(Math.min(total,12))].map((_,i)=>`<span class="vh-h${i<Math.round(done/total*Math.min(total,12))?" af":""}" style="left:${(i+1)/Math.min(total,12)*100}%">${HUIS}</span>`).join("")}<span class="vh-bus">${typeof RV_BUS!=="undefined"?RV_BUS:""}</span></div>
     <div class="vh-st">${mw?"":`<span><small>Verdiend</small><b>${eur0(omzet)}</b><em>van ${eur0(verwacht)}</em></span>`}<span><small>Klaar</small><b>${done}</b><em>adressen</em></span><span><small>Te gaan</small><b>${todo}</b><em>${todo===1?"adres":"adressen"}</em></span></div></div>
     <div class="vh-r"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="${R}" class="t"/><circle cx="50" cy="50" r="${R}" class="v" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pct/100)}"/></svg><span><b>${pct}%</b><small>klaar</small></span></div></section>`}

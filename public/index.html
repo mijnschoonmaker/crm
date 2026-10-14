@@ -3295,6 +3295,17 @@ body{background:var(--bg)!important}
 .st-wijk i.nw{background:#fff;color:#1f9a63;box-shadow:0 0 0 3px rgb(159 240 210 / .35)}
 .st-wijk small{font-size:12px;color:rgb(255 255 255 / .75);align-self:center;margin-left:4px}
 @keyframes stWijk{from{transform:scale(0);opacity:0}}
+/* Vandaag: busje rijdt langs de huisjes */
+.vh-weg{position:relative;height:50px;margin:2px 14px 4px 4px}
+.vh-weg .fg-baan{top:30px}
+.vh-weg .fg-baan i{background:linear-gradient(90deg,#9ff0d2,#fff);box-shadow:0 0 10px rgb(159 240 210 / .5)}
+.vh-h{position:absolute;top:2px;width:24px;height:24px;transform:translateX(-50%);border-radius:8px;display:grid;place-items:center;background:rgb(255 255 255 / .14);border:1px solid rgb(255 255 255 / .22);color:rgb(255 255 255 / .7)}
+.vh-h svg{width:13px;height:13px;fill:currentColor}
+.vh-h.af{background:#fff;color:#1f9a63;border-color:#fff}
+.vh-bus{position:absolute;top:18px;left:calc(var(--p)*100%);width:44px;height:28px;transform:translateX(-60%);filter:drop-shadow(0 4px 5px rgb(0 0 0 / .3));animation:vhRij 1.4s cubic-bezier(.2,.8,.2,1)}
+.vh-bus svg{width:100%;height:100%}
+@keyframes vhRij{from{left:0}}
+.vh .huisjes{display:none}
 
 </style>
 <div class="app">
@@ -4609,7 +4620,7 @@ function openJob(id,day){
 function vdHero(done,total,todo,omzet,verwacht,pct){if(!total)return"";const R=44,C=2*Math.PI*R,klaar=done>=total,mw=isMw();
   return `<section class="vh${klaar?" klaar":""}"><div class="vh-m"><p class="vh-k">${klaar?"Dag klaar":done?"Onderweg":"Klaar voor de start"} · ${done}/${total}</p>
     <h2>${esc(klaar?"Top gewerkt vandaag!":motTekst(done,total))}</h2>
-    ${huisjes(done,total)}
+    <div class="vh-weg" style="--p:${total?done/total:0}"><div class="fg-baan"><i></i></div>${[...Array(Math.min(total,12))].map((_,i)=>`<span class="vh-h${i<Math.round(done/total*Math.min(total,12))?" af":""}" style="left:${(i+1)/Math.min(total,12)*100}%">${HUIS}</span>`).join("")}<span class="vh-bus">${typeof RV_BUS!=="undefined"?RV_BUS:""}</span></div>
     <div class="vh-st">${mw?"":`<span><small>Verdiend</small><b>${eur0(omzet)}</b><em>van ${eur0(verwacht)}</em></span>`}<span><small>Klaar</small><b>${done}</b><em>adressen</em></span><span><small>Te gaan</small><b>${todo}</b><em>${todo===1?"adres":"adressen"}</em></span></div></div>
     <div class="vh-r"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="${R}" class="t"/><circle cx="50" cy="50" r="${R}" class="v" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pct/100)}"/></svg><span><b>${pct}%</b><small>klaar</small></span></div></section>`}
 
