@@ -115,7 +115,7 @@ document.addEventListener("click",e=>{
     case"fset":setFStatus(id,t.dataset.s);break;
     case"akkoord":openAkkoord(id);break;
     case"pdf":pdf(id);break;
-    case"sendf":sendF(id);break;
+    case"sendf":sendF(id,{direct:true,btn:t});break;
     case"toinvoice":{const o=state.facturen.find(x=>x.id===id);if(o)openFactuurForm({soort:"factuur",klantId:o.klantId,regels:o.regels.map(r=>({...r})),vanOfferte:o.id});break}
     case"fmenu":state.fmenu=!state.fmenu;render();break;
     case"ff":state.fFilter=t.dataset.v;if(state.tab!=="facturen")state.tab="facturen";render();break;

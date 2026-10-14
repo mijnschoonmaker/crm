@@ -69,7 +69,7 @@ function openFactuurWerk(id){
     bank:async()=>{await beurtenBetaald(true);put({status:"betaald",betaalwijze:cur().betaalwijze==="incasso"?"incasso":"overmaken",betaaldOp:iso(today())},"Per bank betaald")},
     open:async()=>{await beurtenBetaald(false);put({status:"open",betaaldOp:"",oninbaarOp:""},"Factuur staat weer open")},
     oninbaar:()=>put({status:"oninbaar",oninbaarOp:iso(today())},"Op oninbaar gezet; er gaan geen herinneringen meer uit"),
-    send:()=>sendF(id),
+    send:()=>sendF(id,{direct:true,btn:form.querySelector('[data-fw="send"]')}),
     herinner:()=>sendF(id,{herinnering:true}),
     dupl:async()=>{const n=cur(),d=iso(today()),nid=newId("f");const nf={...strip(n),nummer:nextNr("factuur",d),datum:d,verval:iso(addDays(today(),Math.max(1,Math.round((parse(n.verval)-parse(n.datum))/DAY))||14)),status:"concept",betaaldOp:"",verstuurdOp:"",herinnerdOp:"",herinneringen:0,oninbaarOp:"",gemaakt:new Date().toISOString(),log:[],creditVan:"",periodiek:false};
       try{await save("facturen",nid,nf);toast("Kopie gemaakt · "+nf.nummer);setTimeout(()=>openFactuurWerk(nid),60)}catch(er){err(er)}},
