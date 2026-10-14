@@ -279,3 +279,15 @@ async function migGeenTijd(){try{if((state.settings||{}).migGeenTijd)return;
   for(const k of l)await save("klanten",k.id,{...strip(k),gepland:"",tijd:"",aanbieden:true});
   const sd={...state.settings,migGeenTijd:true};await save("instellingen","bedrijf",sd);state.settings=sd;
   if(l.length)toast(plural(l.length,"afspraak zonder tijd","afspraken zonder tijd")+" uit de planning gehaald · ze staan bij Te plannen")}catch(e){console.error(e)}}
+
+/* ---------- terugknop van de browser/telefoon: sluit het bovenste venster in plaats van de app te verlaten ---------- */
+(function(){if(typeof HTMLDialogElement==="undefined"||!window.history||!history.pushState)return;
+  let skip=0;const orig=HTMLDialogElement.prototype.showModal;
+  HTMLDialogElement.prototype.showModal=function(){orig.apply(this,arguments);if(this._hs)return;this._hs=1;
+    try{history.pushState({msDlg:1},"")}catch(e){this._hs=0;return}
+    const d=this;d.addEventListener("close",function onc(){d.removeEventListener("close",onc);if(!d._hs)return;d._hs=0;
+      if(d._viaPop){d._viaPop=0;return}if(history.state&&history.state.msDlg){skip++;history.back()}})};
+  window.addEventListener("popstate",()=>{if(skip){skip--;return}
+    const open=[...document.querySelectorAll("dialog[open]")].filter(x=>x._hs);const d=open[open.length-1];if(!d)return;
+    d._viaPop=1;const c=new Event("cancel",{cancelable:true});d.dispatchEvent(c);
+    setTimeout(()=>{if(!d.open)return;if(c.defaultPrevented){d._viaPop=0;try{history.pushState({msDlg:1},"")}catch(e){}}else d.close()},0)})})();

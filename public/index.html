@@ -39,9 +39,19 @@
     list: async () => { const r = await st.ref("assets").listAll(); return { assets: r.items.map(i => ({ id: i.name })) }; }
   };
   const downloads = {
+    /* op iPhone/iPad opende Safari het bestand in hetzelfde tabblad; daarna gaf "terug" een foutmelding.
+       Nu: deelscherm (Bewaar in Bestanden) als dat kan, anders als download (octet-stream) in een nieuw tabblad. */
     save: async ({ filename, data }) => {
-      const b = data instanceof Blob ? data : new Blob([data]); const u = URL.createObjectURL(b), a = document.createElement("a");
-      a.href = u; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 4000);
+      const b = data instanceof Blob ? data : new Blob([data], { type: "application/octet-stream" });
+      const ios = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      if (ios && navigator.canShare) {
+        try { const f = new File([b], filename, { type: b.type || "application/octet-stream" });
+          if (navigator.canShare({ files: [f] })) { await navigator.share({ files: [f] }); return; } }
+        catch (e) { if (e && e.name === "AbortError") return; }
+      }
+      const u = URL.createObjectURL(b), a = document.createElement("a");
+      a.href = u; a.download = filename; a.rel = "noopener"; if (ios) a.target = "_blank";
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 60000);
     }
   };
   let klaar; const ingelogd = new Promise(r => (klaar = r));
@@ -3936,6 +3946,18 @@ async function migGeenTijd(){try{if((state.settings||{}).migGeenTijd)return;
   for(const k of l)await save("klanten",k.id,{...strip(k),gepland:"",tijd:"",aanbieden:true});
   const sd={...state.settings,migGeenTijd:true};await save("instellingen","bedrijf",sd);state.settings=sd;
   if(l.length)toast(plural(l.length,"afspraak zonder tijd","afspraken zonder tijd")+" uit de planning gehaald · ze staan bij Te plannen")}catch(e){console.error(e)}}
+
+/* ---------- terugknop van de browser/telefoon: sluit het bovenste venster in plaats van de app te verlaten ---------- */
+(function(){if(typeof HTMLDialogElement==="undefined"||!window.history||!history.pushState)return;
+  let skip=0;const orig=HTMLDialogElement.prototype.showModal;
+  HTMLDialogElement.prototype.showModal=function(){orig.apply(this,arguments);if(this._hs)return;this._hs=1;
+    try{history.pushState({msDlg:1},"")}catch(e){this._hs=0;return}
+    const d=this;d.addEventListener("close",function onc(){d.removeEventListener("close",onc);if(!d._hs)return;d._hs=0;
+      if(d._viaPop){d._viaPop=0;return}if(history.state&&history.state.msDlg){skip++;history.back()}})};
+  window.addEventListener("popstate",()=>{if(skip){skip--;return}
+    const open=[...document.querySelectorAll("dialog[open]")].filter(x=>x._hs);const d=open[open.length-1];if(!d)return;
+    d._viaPop=1;const c=new Event("cancel",{cancelable:true});d.dispatchEvent(c);
+    setTimeout(()=>{if(!d.open)return;if(c.defaultPrevented){d._viaPop=0;try{history.pushState({msDlg:1},"")}catch(e){}}else d.close()},0)})})();
 
 /* ---------- LOGICA ---------- */
 const freqDays=k=>(Number(k.frequentie)||4)*7;

@@ -29,9 +29,19 @@
     list: async () => { const r = await st.ref("assets").listAll(); return { assets: r.items.map(i => ({ id: i.name })) }; }
   };
   const downloads = {
+    /* op iPhone/iPad opende Safari het bestand in hetzelfde tabblad; daarna gaf "terug" een foutmelding.
+       Nu: deelscherm (Bewaar in Bestanden) als dat kan, anders als download (octet-stream) in een nieuw tabblad. */
     save: async ({ filename, data }) => {
-      const b = data instanceof Blob ? data : new Blob([data]); const u = URL.createObjectURL(b), a = document.createElement("a");
-      a.href = u; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 4000);
+      const b = data instanceof Blob ? data : new Blob([data], { type: "application/octet-stream" });
+      const ios = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      if (ios && navigator.canShare) {
+        try { const f = new File([b], filename, { type: b.type || "application/octet-stream" });
+          if (navigator.canShare({ files: [f] })) { await navigator.share({ files: [f] }); return; } }
+        catch (e) { if (e && e.name === "AbortError") return; }
+      }
+      const u = URL.createObjectURL(b), a = document.createElement("a");
+      a.href = u; a.download = filename; a.rel = "noopener"; if (ios) a.target = "_blank";
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 60000);
     }
   };
   let klaar; const ingelogd = new Promise(r => (klaar = r));
