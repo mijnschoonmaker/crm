@@ -645,6 +645,14 @@ html,body{background:var(--bg)!important}
 .rfc.k1 .rfc-ft{color:#6b7b83}.rfc.k1 .rfc-code{color:#137a8a}
 .rfc.k1 .rfc-glans{background:linear-gradient(105deg,transparent 40%,rgb(255 255 255 / .9) 48%,rgb(255 255 255 / .2) 54%,transparent 60%)}
 .rfc.k1 img{box-shadow:0 0 0 1.5px rgb(19 122 138 / .25)}
+@media (max-width:640px){
+  .bz-hero{display:grid!important;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;row-gap:8px;align-items:start}
+  .bz-hm{display:contents}
+  .bz-k{grid-column:1;grid-row:1;padding-right:0!important}
+  .bz-hero h2{grid-column:1;grid-row:2;padding-right:0!important}
+  .bz-ring{position:relative!important;right:auto!important;top:auto!important;grid-column:2;grid-row:1/span 2;align-self:center;width:76px!important;height:76px!important;margin:0!important}
+  .bz-s,.bz-line,.bz-acts{grid-column:1/-1}
+}
 </style></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
