@@ -3393,6 +3393,7 @@ body{background:var(--bg)!important}
 .gk2 .hosp-i::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:4px;border-radius:0 4px 4px 0;background:linear-gradient(180deg,#e9c46a,#b98b2e)}
 .gk2 .hosp-i.hc-letop::before{background:#e46a5f}.gk2 .hosp-i.hc-dier::before{background:#8a6bd1}.gk2 .hosp-i.hc-aankomst::before{background:#137a8a}.gk2 .hosp-i.hc-verteld::before{background:#2bb673}
 .gk2-st svg{stroke:none}
+.tk-tm{display:flex;flex-direction:column;gap:6px}.tk-tm .bt-bar{height:8px;border-radius:8px}.tk-tm small{font-size:12px;color:var(--muted)}
 
 </style>
 <div class="app">
@@ -4619,6 +4620,7 @@ function stopCard(k,i,isNext,late,day,totaal){
         <div class="tk-tags">${tags}${isNext?'<span class="pill nextp">Volgende</span>':""}</div>
         <button type="button" class="tk-adres" data-act="klant" data-id="${esc(k.id)}"><span class="av" style="--h:${h}">${esc(initials(k.naam))}</span><span><b>${esc(a.adres||cleanName(k.naam))}</b><small>${esc([a.postcode,a.plaats].filter(Boolean).join(" "))}${a.plaats?" · ":""}${esc(cleanName(k.naam))}${o&&o.naam?" · "+esc(o.naam):""}</small></span>${I.right.replace("<svg",'<svg class="chev"')}</button>
         <div class="tk-feit"><span><b>${dienstHtml(k)}</b>${k.binnen?" + binnen":""}</span><span>${I.clock}<b>${duur(k)} min</b></span>${mw?"":`<span>${I.euro||""}<b>${eur0(toon(k.prijs))}</b></span>`}</div>
+        ${bz?(()=>{const ex=(k.tijden||[]).length&&typeof gemTijd==="function"?gemTijd(k):duur(k),f=(Date.now()-new Date(k.bezig))/60000/ex;return `<div class="tk-tm"><div class="bt-bar"><i data-tbar="${esc(k.bezig)}" data-exp="${ex}" class="${f>1?"over":""}" style="width:${Math.min(100,f*100)}%"></i></div><small>${(k.tijden||[]).length?"Gemiddeld "+ex+" min bij deze klant":"Verwacht "+ex+" min"}</small></div>`})():""}
         <div class="tk-info">${oBeurtBlok(k)}${hospRoute(k)}${toegangHtml(k)}${ookDezeBeurt(k,day)}${k.notities?`<div class="notebox"><span class="eyebrow">Notitie</span>${esc(k.notities)}</div>`:""}${objInfo(k)}${jobExtra(k)}</div>
         <div class="tk-acts"><a class="tk-a" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.nav}<span>Navigeer</span></a>${tel?`<a class="tk-a" href="tel:${esc(tel)}">${I.phone}<span>Bellen</span></a>`:""}${wa&&!bz?`<a class="tk-a" href="${esc(wa)}" target="_blank" rel="noopener">${I.msg}<span>Ik kom eraan</span></a>`:""}<button type="button" class="tk-a" data-act="skip" data-id="${esc(k.id)}">${I.right}<span>Overslaan</span></button></div>
       </div>
@@ -4758,18 +4760,7 @@ function vRoute(){
     const k=todo[0].k,a=jobAddrObj(k),js=jobState(k,day),sp=STATEPILL[js],tel=String(k.telefoon||"").replace(/[^\d+]/g,"");
     html+=`<div class="ns-head sm"><h2><span class="dotlive"></span>Volgende stop</h2><span class="mono">${stops.length-todo.length+1} / ${stops.length}</span></div>
     <div class="ns-hint">${isMw()?`Veeg de kaart naar rechts: <b>afmelden</b>${I.right}`:`Veeg de kaart: ${I.left}<b>direct factureren</b><span>·</span><b>afmelden</b>${I.right}`}</div>
-    <div class="swipe bs-swipe" data-id="${esc(k.id)}"><div class="sbg sbg-r"><span>${I.check} Afmelden<small>conceptfactuur</small></span></div><div class="sbg sbg-l"><span>Direct factureren<small>open factuur</small></span></div>
-    <div class="swipe-card bigstop"><div class="bs-top"><span class="av" style="--h:${hue(k.ronde||k.naam)};grid-row:auto">${esc(initials(k.naam))}</span><div style="min-width:0;flex:1">${statusPill(sp[0],sp[1])}<button type="button" class="bs-nm" data-act="klant" data-id="${esc(k.id)}">${esc(cleanName(k.naam))}</button><div class="sc-sub" style="font-size:16px"><span class="dienst">${I.pin}${esc(jobAddr(k))}</span></div></div></div>
-      <div class="chips" style="margin:0">${k.tijd?`<span class="chip">${I.clock} ${esc(k.tijd)}</span>`:""}${(()=>{const bm=berekendeMin(k,day),n=(k.tijden||[]).length;return (bm?`<span class="chip chip-calc" title="Zoals berekend in de offerte / rekentool">${I.calculator} berekend ${bm} min</span>`:"")+`<span class="chip" title="${n?"Gemiddelde van de laatste "+Math.min(5,n)+" metingen":"Nog niet gemeten"}">${I.timer} ${n?"gem. "+gemTijd(k):bm?"nog niet gemeten":duur(k)+""}${n||!bm?" min":""}</span>`})()}<span class="chip">€ ${esc(String(k.prijs||0).replace(".",","))}</span><span class="chip">${I.wrench} ${esc(k.dienst||"Glasbewassing")}</span>${k.binnen?'<span class="chip">+ binnen</span>':""}</div>
-      ${oBeurtBlok(k)}${hospRoute(k)}${ookDezeBeurt(k,typeof day!=="undefined"?day:undefined)}${k.notities?`<div class="notebox"><span class="eyebrow">Notitie</span>${esc(k.notities)}</div>`:""}${objInfo(k)}${jobExtra(k)}
-      <a class="btn navbtn" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.nav}Navigeer naar ${esc(cleanName(k.naam))}<span style="flex:1"></span>${I.ext}</a>
-      ${(()=>{const n=(k.tijden||[]).length,ex=n?gemTijd(k):duur(k),on=js==="bezig",ms=on?Date.now()-new Date(k.bezig):0,f=ms/60000/ex;
-        return `<div class="bs-timer${on?" loopt":""}"><div class="bt-top">${on?'<span class="dotlive"></span><b>Tijd loopt</b>':`<span class="bt-ic">${I.timer}</span><b>Nog niet gestart</b>`}<span class="sp"></span><span class="bt-clock"${on?` data-timer="${esc(k.bezig)}"`:""}>${on?fmtTimer(ms):"0:00"}</span><span class="bt-exp">/ ${ex} min</span></div>
-        <div class="bt-bar"><i${on?` data-tbar="${esc(k.bezig)}" data-exp="${ex}"`:""} class="${f>1?"over":""}" style="width:${Math.min(100,f*100)}%"></i></div>
-        <small>${on?(n?"Gemiddeld "+ex+" min bij deze klant (laatste "+Math.min(5,n)+" keer)":"Verwacht "+ex+" min · eerste meting")+" · klaar? Tik op Stop & afmelden":"Tik op <b>Start</b> bij aankomst"+(n?" · gemiddeld "+ex+" min uit "+Math.min(5,n)+" metingen":" · nog geen metingen, verwacht "+ex+" min")}</small></div>`})()}
-      <div class="bs-btns">${tel?`<a class="btn" href="tel:${esc(tel)}">${I.phone}Bellen</a>`:`<button type="button" disabled>${I.phone}Geen nummer</button>`}<button type="button" data-act="start" data-id="${esc(k.id)}">${js==="bezig"?I.check+"Stop & afmelden":I.play+"Start"}</button><button type="button" data-act="skip" data-id="${esc(k.id)}">${I.right}Overslaan</button></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">${tel?`<span class="contact">${esc(k.telefoon)}</span>`:"<span></span>"}<span></span></div>
-    </div></div>`;
+    ${stopCard(k,stops.length-todo.length,true,parse(k.gepland)<today(),day,stops.length)}`;
   }
   html+=`<div class="ns-head sm" style="margin-top:26px"><h2>Alle stops</h2><span></span></div>
   <div class="toolbar">${routeLinks(stops).map((l,i,a)=>`<a class="btn primary" href="${esc(l)}" target="_blank" rel="noopener">${I.map}${a.length>1?"Route deel "+(i+1):"Hele route in Google Maps"}</a>`).join("")}
