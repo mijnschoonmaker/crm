@@ -3078,3 +3078,6 @@ body{background:var(--bg)!important}
 .hx-chip{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:99px;border:1px dashed color-mix(in srgb,#b98b2e 45%,var(--line));font-size:12px;font-weight:600;color:#8a6420;transition:background .15s}
 .hx-chip:hover{background:#fbf3e0;border-style:solid}.hx-chip svg{width:12px;height:12px}
 .hx-m i{display:block;background:var(--surface-2)!important;border:0!important;box-shadow:none!important;padding:0!important}.hx-m i.on{background:linear-gradient(90deg,#e2b65a,#c99a3c)!important}.hx{border-color:var(--line)!important}
+/* ticket: avatar wit met grijze rand, gepland in merkkleur */
+.tk-adres .av{background:var(--surface)!important;color:var(--ink)!important;border:1.5px solid var(--line)!important;border-radius:14px!important;box-shadow:0 2px 6px -3px rgb(15 31 38 / .18)!important;font-weight:650!important}
+.tk-tags .pill.gepl,.tk-tags .pill.plan,.tk-tags .pill:not(.nextp):not(.late):not(.busy){background:var(--brand-soft)!important;color:var(--brand)!important}
