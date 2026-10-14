@@ -58,9 +58,7 @@ function mailHtml(tekst, b, opts = {}) {
   /* strook: status van het ticket, of bij gewone mails de contactgegevens */
   const lab = "font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.72)";
   const nl = x => htmlEsc(x);
-  const strook = T ? T.strook : `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
-    <td valign="middle" class="ms-nl" style="word-break:break-word"><div style="${lab}">${htmlEsc(b.naam || "")}</div><div style="font-size:13.5px;color:#fff;margin-top:4px;line-height:1.55">${[b.telefoon, b.email].filter(Boolean).map(nl).join("<br>")}</div></td>
-    </td></tr></table>`;
+  const strook = T ? T.strook : `<div style="font-size:16px;font-weight:800;color:#fff;letter-spacing:-.2px">${htmlEsc(b.naam || "")}</div><div style="font-size:12.5px;color:rgba(255,255,255,.72);margin:2px 0 12px">Glasbewassing &middot; vaste route</div><table role="presentation" cellpadding="0" cellspacing="0" border="0" class="ms-nl">${[["Telefoon",b.telefoon],["E-mail",b.email],["IBAN",b.iban]].filter(x=>x[1]).map(([l,v])=>`<tr><td style="padding:3px 14px 3px 0;font-size:10px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:rgba(255,255,255,.6);white-space:nowrap;vertical-align:top;line-height:20px">${l}</td><td style="padding:3px 0;font-size:14px;font-weight:600;color:#ffffff;line-height:20px;word-break:break-word${l==="IBAN"?";font-family:'SF Mono',Menlo,Consolas,monospace;font-weight:500;font-size:13px;letter-spacing:.5px":""}">${htmlEsc(v)}</td></tr>`).join("")}</table>`;
   const kop = T ? T.kop : "";
   return `<style>a[x-apple-data-detectors],.ms-nl a{color:inherit!important;text-decoration:none!important}${opts.style || ""}</style><div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:${BG};padding:26px 12px 22px;-webkit-font-smoothing:antialiased">
 <div class="ms-tk" style="max-width:560px;margin:0 auto;border-radius:22px;box-shadow:0 1px 2px rgba(15,70,85,.06),0 22px 44px -22px rgba(15,70,85,.38)">
