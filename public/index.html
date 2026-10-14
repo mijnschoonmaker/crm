@@ -7773,13 +7773,6 @@ const WEB_CSS=`
 .ms .lijst{display:flex;flex-direction:column;gap:12px;margin-top:22px}.ms .lijst li{display:flex;gap:12px;align-items:flex-start;font-size:15.5px}
 .ms .lijst li i{width:26px;height:26px;border-radius:50%;background:var(--soft);color:var(--b2);display:grid;place-items:center;flex:none;font-style:normal;margin-top:-1px}.ms .lijst li i svg{width:14px}
 .ms .lijst b{display:block}.ms .lijst span{color:var(--muted);font-size:14.5px}
-.ms .tk{position:relative;max-width:440px;margin:0 auto;display:grid;grid-template-columns:1fr 118px;filter:drop-shadow(0 26px 34px rgb(15 70 85 / .35));transform:rotate(-2deg)}
-.ms .tk-l{background:#fff;border-radius:22px 0 0 22px;padding:22px 22px 20px;-webkit-mask:radial-gradient(circle 12px at 100% 0,#0000 98%,#000) top/100% 51% no-repeat,radial-gradient(circle 12px at 100% 100%,#0000 98%,#000) bottom/100% 51% no-repeat;mask:radial-gradient(circle 12px at 100% 0,#0000 98%,#000) top/100% 51% no-repeat,radial-gradient(circle 12px at 100% 100%,#0000 98%,#000) bottom/100% 51% no-repeat}
-.ms .tk-r{position:relative;overflow:hidden;background:var(--blauw);color:#fff;border-radius:0 22px 22px 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border-left:2px dashed rgb(255 255 255 / .5);-webkit-mask:radial-gradient(circle 12px at 0 0,#0000 98%,#000) top/100% 51% no-repeat,radial-gradient(circle 12px at 0 100%,#0000 98%,#000) bottom/100% 51% no-repeat;mask:radial-gradient(circle 12px at 0 0,#0000 98%,#000) top/100% 51% no-repeat,radial-gradient(circle 12px at 0 100%,#0000 98%,#000) bottom/100% 51% no-repeat}
-.ms .tk-r b{font-size:34px;font-weight:800;line-height:1}.ms .tk-r small{font-size:11px;font-weight:700;opacity:.85;text-transform:uppercase;letter-spacing:.06em}
-.ms .tk-l small{font-size:11.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.ms .tk-l h3{font-size:20px;font-weight:800;margin:4px 0 12px;letter-spacing:-.01em}
-.ms .tk-rij{display:flex;justify-content:space-between;font-size:14px;padding:7px 0;border-top:1px dashed var(--line)}.ms .tk-rij span{color:var(--muted)}
-.ms .stempel{position:absolute;right:120px;top:16px;transform:rotate(-12deg);border:2.5px solid #1f8a5a;color:#1f8a5a;border-radius:10px;padding:3px 10px;font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;opacity:.85}
 /* calculator */
 .ms .calc{background:#fff;border-radius:32px;padding:10px;box-shadow:0 30px 60px -40px rgb(15 70 85 / .6)}
 .ms .calc-k{padding:34px 30px 6px;text-align:center}.ms .calc-k .lead{margin:0 auto}
@@ -7822,13 +7815,69 @@ const WEB_CSS=`
   .ms #msm:checked~.nav .lk{display:flex;position:absolute;top:64px;left:16px;right:16px;flex-direction:column;gap:0;background:#fff;border-radius:18px;padding:8px;box-shadow:0 20px 40px -20px rgb(0 0 0 / .4)}
   .ms #msm:checked~.nav .lk a{padding:12px 14px;color:var(--ink)}
   .ms .hero .blauw{grid-template-columns:1fr;padding:34px 22px 110px;border-radius:26px}
-  .ms .tel{width:246px}.ms .zweef{right:auto;left:-4px;top:auto;bottom:3%}.ms #ms-calc{margin:0 -16px}.ms .stempel{top:-14px;right:126px}.ms .tk-r small{font-size:9.5px}
+  .ms .tel{width:246px}.ms .zweef{right:auto;left:-4px;top:auto;bottom:3%}.ms #ms-calc{margin:0 -16px}
   .ms .blauw{border-radius:26px}.ms section{padding:30px 0}
   .ms .route,.ms .tegels,.ms .duo,.ms .zak,.ms .contact{grid-template-columns:1fr}
   .ms .band{padding:30px 20px 34px}.ms .zak{padding:26px 22px}.ms .zak .r{justify-content:stretch}.ms .zak .r .knop{width:100%}
   .ms .contact{padding:32px 20px 110px}.ms .ck a{font-size:14px;padding:11px 12px;gap:10px}.ms .ck a span.ic{width:32px;height:32px;border-radius:10px}.ms .ck a span.ic svg{width:16px}.ms .ck a small{font-size:12.5px}.ms .calc-k{padding:24px 14px 4px}.ms .calc{border-radius:24px;padding:4px}
   .ms .cta .knop{flex:1}.ms .weg .h:nth-child(even){display:none}
-}`;
+}
+/* ---- tekst in CRM-stijl ---- */
+.ms{font-size:15.5px;line-height:1.55;letter-spacing:-.003em}
+.ms p,.ms .lead,.ms li span{text-wrap:pretty}
+.ms .kop,.ms h1,.ms h2,.ms h3{text-wrap:balance}
+.ms .oog{gap:7px;font-size:12px;letter-spacing:.09em}
+.ms .oog::before{display:none}.ms .oog svg{width:15px;height:15px;flex:none}
+.ms .kop{font-size:clamp(28px,3.3vw,40px);letter-spacing:-.035em;line-height:1.08;margin:10px 0 12px}
+.ms .kop em,.ms .hero h1 em,.ms .contact h2 em{font-style:normal;color:var(--b2)}
+.ms .band .kop em,.ms .hero h1 em,.ms .contact h2 em{color:#a5f0f7}
+.ms .hero h1{letter-spacing:-.045em;line-height:1}
+.ms .lead{font-size:16.5px;line-height:1.6;color:var(--muted)}
+.ms .stap small{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.ms .stap small b,.ms .chip.ster b,.ms .ck a small,.ms .p-ring b{font-family:"IBM Plex Mono",ui-monospace,monospace}
+.ms .stap small b{color:var(--b2);font-weight:600}
+.ms .stap h3,.ms .tg h3{letter-spacing:-.02em}.ms .stap p,.ms .tg p{line-height:1.55}
+.ms summary{letter-spacing:-.01em}.ms details p{line-height:1.6}
+.ms .tags span,.ms .vink span{letter-spacing:-.005em}
+/* ---- bonnetje met echte scheur ---- */
+.ms .tk{--h:13px;position:relative;max-width:470px;margin:0 auto;display:grid;grid-template-columns:1fr 112px;transform:rotate(-2.5deg);filter:drop-shadow(0 24px 28px rgb(15 70 85 / .3));cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none}
+.ms .tk-l,.ms .tk-r{-webkit-mask:radial-gradient(circle var(--h) at var(--mx) 0,#0000 97%,#000) top/100% 51% no-repeat,radial-gradient(circle var(--h) at var(--mx) 100%,#0000 97%,#000) bottom/100% 51% no-repeat;mask:radial-gradient(circle var(--h) at var(--mx) 0,#0000 97%,#000) top/100% 51% no-repeat,radial-gradient(circle var(--h) at var(--mx) 100%,#0000 97%,#000) bottom/100% 51% no-repeat}
+.ms .tk-l{--mx:calc(100% - 6px);position:relative;z-index:1;margin-right:-6px;background:linear-gradient(180deg,#fff,#fbfcfc);border-radius:20px 0 0 20px;padding:22px 26px 18px 22px}
+.ms .tk-r{--mx:0px;position:relative;z-index:2;overflow:hidden;background:var(--blauw);color:#fff;border-radius:0 20px 20px 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:14px 8px;transform-origin:0 0}
+.ms .tk-r::before{content:"";position:absolute;inset:0;background:var(--lijnen);pointer-events:none}
+.ms .tk-r::after{content:"";position:absolute;left:0;top:var(--h);bottom:var(--h);width:2px;background:radial-gradient(circle,rgb(255 255 255 / .55) 1.2px,transparent 1.6px) 0 0/2px 7px repeat-y}
+.ms .tk-r small{position:relative;font-size:10.5px;font-weight:700;opacity:.8;text-transform:uppercase;letter-spacing:.1em}
+.ms .tk-r b{position:relative;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:38px;font-weight:600;line-height:1.05;letter-spacing:-.02em}
+.ms .tk-v{position:absolute;right:6px;top:50%;transform:translateY(-50%) rotate(90deg);transform-origin:center;font-size:8.5px;letter-spacing:.24em;text-transform:uppercase;opacity:.45;white-space:nowrap;right:-18px}
+.ms .tk-top{display:flex;gap:12px;align-items:center}
+.ms .tk-ic{width:40px;height:40px;border-radius:12px;background:var(--soft);color:var(--b2);display:grid;place-items:center;flex:none}.ms .tk-ic svg{width:20px}
+.ms .tk-top small{display:block;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.09em}
+.ms .tk-top b{display:block;font-size:19px;font-weight:800;letter-spacing:-.025em;line-height:1.15}
+.ms .tk-dl{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;margin:16px 0 14px;padding:14px 0 0;border-top:1.5px dashed var(--line)}
+.ms .tk-dl dt{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.ms .tk-dl dd{margin:2px 0 0;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:14px;font-weight:500;color:var(--ink)}
+.ms .tk-bar{display:flex;align-items:center;gap:12px;padding-top:12px;border-top:1.5px dashed var(--line)}
+.ms .tk-bar i{flex:1;max-width:150px;height:30px;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 4px,var(--ink) 4px 5px,transparent 5px 8px,var(--ink) 8px 11px,transparent 11px 12px,var(--ink) 12px 13px,transparent 13px 16px);opacity:.82;border-radius:2px}
+.ms .tk-bar code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10.5px;letter-spacing:.14em;color:var(--muted)}
+.ms .stempel{position:absolute;right:20px;bottom:14px;display:inline-flex;align-items:center;gap:6px;border:2.5px solid #1f8a5a;color:#1f8a5a;border-radius:10px;padding:4px 11px;font-weight:800;font-size:13px;letter-spacing:.12em;text-transform:uppercase;transform:rotate(-12deg) scale(1.9);opacity:0;mix-blend-mode:multiply;
+  -webkit-mask:radial-gradient(circle at 30% 40%,#000 55%,rgb(0 0 0 / .75) 70%,#000 85%);mask:radial-gradient(circle at 30% 40%,#000 55%,rgb(0 0 0 / .75) 70%,#000 85%)}
+.ms .stempel svg{width:14px;stroke-width:3}
+.ms .tk-rits{position:absolute;left:-1px;top:0;width:4px;height:0;z-index:3;border-radius:3px;background:linear-gradient(180deg,transparent,#fff 30%,#a5f0f7 70%,#fff);box-shadow:0 0 12px 3px rgb(255 255 255 / .9)}
+.ms .tk-hint{text-align:center;font-size:12.5px;color:var(--muted);margin-top:26px;opacity:0;transition:opacity .4s 1.8s}
+.ms .tk.af+.tk-hint{opacity:1}
+.ms .tk.rits .tk-rits{animation:tkRits .45s cubic-bezier(.6,0,.4,1) forwards}
+@keyframes tkRits{to{height:100%}}
+.ms .tk.af .tk-r{animation:tkVal 1.7s cubic-bezier(.42,0,.6,1) forwards}
+@keyframes tkVal{0%{transform:none}14%{transform:rotate(2.5deg)}30%{transform:rotate(6deg) translate(1px,0)}44%{transform:rotate(9deg) translate(4px,2px)}52%{transform:rotate(13deg) translate(12px,10px)}100%{transform:rotate(46deg) translate(90px,560px);opacity:0}}
+.ms .tk.af .tk-l{animation:tkSchok .55s ease .55s}
+@keyframes tkSchok{0%,100%{transform:none}30%{transform:translateX(-5px) rotate(-.8deg)}65%{transform:translateX(2px) rotate(.3deg)}}
+.ms .tk.af .stempel{animation:tkStempel .32s cubic-bezier(.2,1.6,.4,1) 1.05s forwards}
+@keyframes tkStempel{to{transform:rotate(-12deg) scale(1);opacity:.9}}
+.ms .tk.klaar .tk-r{opacity:0}
+.ms .tk-snipper{position:absolute;width:3px;height:3px;border-radius:1px;background:#fff;pointer-events:none;z-index:4;box-shadow:0 0 0 .5px rgb(0 0 0 / .08)}
+@media (max-width:760px){.ms .tk{grid-template-columns:1fr 92px}.ms .tk-l{padding:18px 20px 16px 18px}.ms .tk-top b{font-size:17px}.ms .tk-dl dd{font-size:13px}.ms .tk-r b{font-size:30px}.ms .stempel{right:14px;bottom:12px;font-size:11.5px}}
+@media (prefers-reduced-motion:reduce){.ms .tk.af .tk-r{animation:none;opacity:0}.ms .tk.af .stempel{animation:none;opacity:.9;transform:rotate(-12deg)}}
+`;
 
 function websiteBody(o){const e=esc,IC={
   cam:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.6-2.4h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.6"/></svg>',
@@ -7865,7 +7914,7 @@ function websiteBody(o){const e=esc,IC={
   <label class="hb" for="msm" aria-label="Menu">${IC.menu}</label></div></header>
 <section class="hero" id="top"><div class="in"><div class="blauw">
   <div>${o.score?`<a class="chip ster" href="${e(o.reviewUrl||"#")}" target="_blank" rel="noopener"><span class="st">★★★★★</span><b>${e(o.score)}</b> op Google</a>`:`<span class="chip"><i>✦</i>Glasbewassing${regio}</span>`}
-    <h1>Heldere ramen,<br>zonder omkijken.</h1>
+    <h1>Heldere ramen,<br><em>zonder omkijken.</em></h1>
     <p class="sub">Wij wassen uw ramen en kozijnen op een vaste route. Maak een foto van uw woning en zie direct wat het kost per beurt.</p>
     <div class="cta"><a class="knop k-wit" href="#prijs">${IC.cam}Bereken uw prijs</a>${wa?`<a class="knop k-glas" href="${wa}" target="_blank" rel="noopener">${IC.wa}WhatsApp ons</a>`:tel?`<a class="knop k-glas" href="tel:${e(telH)}">${IC.tel}Bel ons</a>`:""}</div>
     <div class="vink"><span>${IC.ok}Vaste prijs per beurt</span><span>${IC.ok}Inclusief kozijnen</span><span>${IC.ok}Planningsmail vooraf</span></div></div>
@@ -7880,13 +7929,13 @@ function websiteBody(o){const e=esc,IC={
   </div></div></div>
   <div class="zweef" aria-hidden="true"><span class="p-ic">${IC.bel}</span><div><b>Dinsdag komen wij</b><small>Planningsmail, altijd 3 dagen vooraf</small></div></div></div>
   ${weg}</div></div></section>
-<section id="werkwijze"><div class="in"><span class="oog">Zo werkt het</span><h2 class="kop">In vier stappen schone ramen</h2><p class="lead">Geen offertebezoek, geen gedoe. U regelt het in een paar minuten online.</p>
+<section id="werkwijze"><div class="in"><span class="oog">${IC.rt}Zo werkt het</span><h2 class="kop">In vier stappen <em>schone ramen</em></h2><p class="lead">Geen offertebezoek, geen gedoe. U regelt het in een paar minuten online.</p>
   <ol class="route">
-    <li class="stap"><span class="n">${IC.cam}</span><small>Stap 1</small><h3>Foto en prijs</h3><p>Maak een foto van uw woning, tik de ramen aan en zie direct uw prijs per beurt.</p></li>
-    <li class="stap"><span class="n">${IC.ok}</span><small>Stap 2</small><h3>Aanmelden</h3><p>Kies hoe vaak u wilt en laat uw gegevens achter. U krijgt meteen een bevestiging.</p></li>
-    <li class="stap"><span class="n">${IC.raam}</span><small>Stap 3</small><h3>Eerste beurt</h3><p>Wij wassen uw ramen en tellen ter plekke na of alles klopt.</p></li>
-    <li class="stap"><span class="n">${IC.rt}</span><small>Stap 4</small><h3>Vaste route</h3><p>Daarna komen wij vanzelf terug. U krijgt steeds 3 dagen vooraf een planningsmail.</p></li></ol></div></section>
-<section id="voordelen"><div class="in"><div class="blauw band"><span class="oog">Waarom ${naam}</span><h2 class="kop">Alles geregeld, u hoeft niets te doen</h2><p class="lead">Wij nemen het werk uit handen, van de planning tot de factuur.</p>
+    <li class="stap"><span class="n">${IC.cam}</span><small>Stap <b>01</b></small><h3>Foto en prijs</h3><p>Maak een foto van uw woning, tik de ramen aan en zie direct uw prijs per beurt.</p></li>
+    <li class="stap"><span class="n">${IC.ok}</span><small>Stap <b>02</b></small><h3>Aanmelden</h3><p>Kies hoe vaak u wilt en laat uw gegevens achter. U krijgt meteen een bevestiging.</p></li>
+    <li class="stap"><span class="n">${IC.raam}</span><small>Stap <b>03</b></small><h3>Eerste beurt</h3><p>Wij wassen uw ramen en tellen ter plekke na of alles klopt.</p></li>
+    <li class="stap"><span class="n">${IC.rt}</span><small>Stap <b>04</b></small><h3>Vaste route</h3><p>Daarna komen wij vanzelf terug. U krijgt steeds 3 dagen vooraf een planningsmail.</p></li></ol></div></section>
+<section id="voordelen"><div class="in"><div class="blauw band"><span class="oog">${IC.ok}Waarom ${naam}</span><h2 class="kop">Alles geregeld, <em>u hoeft niets te doen</em></h2><p class="lead">Wij nemen het werk uit handen, van de planning tot de factuur.</p>
   <div class="tegels">
     <div class="tg"><span class="ic">${IC.euro}</span><h3>Vaste prijs per beurt</h3><p>U weet vooraf precies wat het kost. Kozijnen en btw zitten erbij in.</p></div>
     <div class="tg"><span class="ic">${IC.bel}</span><h3>Planningsmail vooraf</h3><p>U krijgt altijd 3 dagen vooraf een mail met de dag waarop wij langskomen.</p></div>
@@ -7895,21 +7944,25 @@ function websiteBody(o){const e=esc,IC={
     <div class="tg"><span class="ic">${IC.kaart}</span><h3>Makkelijk betalen</h3><p>Factuur per e-mail${o.mollie?" en direct betalen met iDEAL":", alles terug te vinden in uw portaal"}.</p></div>
     <div class="tg"><span class="ic">${IC.gebouw}</span><h3>Particulier en zakelijk</h3><p>Van rijtjeshuis tot kantoorpand of VvE.</p></div></div>
   ${wg(-7,"opacity:.6")}<div style="height:40px"></div></div></div></section>
-<section><div class="in duo"><div><span class="oog">Uw klantportaal</span><h2 class="kop">Altijd weten waar u aan toe bent</h2><p class="lead">Na uw aanmelding krijgt u een eigen portaal. Zonder wachtwoord, gewoon met uw e-mailadres.</p>
+<section><div class="in duo"><div><span class="oog">${IC.user}Uw klantportaal</span><h2 class="kop">Altijd weten <em>waar u aan toe bent</em></h2><p class="lead">Na uw aanmelding krijgt u een eigen portaal. Zonder wachtwoord, gewoon met uw e-mailadres.</p>
   <ul class="lijst"><li><i>${IC.ok}</i><div><b>Wanneer komen jullie?</b><span>Uw volgende beurt, met aftellen tot de dag.</span></div></li>
     <li><i>${IC.ok}</i><div><b>Wat is er gedaan?</b><span>Alle eerdere beurten op een rij.</span></div></li>
     <li><i>${IC.ok}</i><div><b>Facturen en betalen</b><span>Al uw facturen bij elkaar${o.mollie?", direct te betalen":""}.</span></div></li></ul>
   ${portaal?`<div style="margin-top:24px"><a class="knop k-teal" href="${e(portaal)}">${IC.user}Naar mijn portaal</a></div>`:""}</div>
-  <div><div class="tk" aria-hidden="true"><div class="tk-l"><small>Glasbewassing</small><h3>Uw ramen zijn gewassen</h3>
-    <div class="tk-rij"><span>Datum</span><b>Dinsdag 14 oktober</b></div><div class="tk-rij"><span>Ramen</span><b>Ramen en kozijnen</b></div><div class="tk-rij"><span>Volgende beurt</span><b>Over 8 weken</b></div></div>
-    <div class="tk-r"><small>Klaar</small><b>✓</b><small>Tot de volgende</small></div><span class="stempel">Gewassen</span></div></div></div></section>
+  <div><div class="tk" data-tk role="img" aria-label="Voorbeeld van een afgescheurd bonnetje: uw ramen zijn gewassen">
+    <div class="tk-l"><div class="tk-top"><span class="tk-ic">${IC.raam}</span><div><small>Glasbewassing</small><b>Uw ramen zijn gewassen</b></div></div>
+      <dl class="tk-dl"><div><dt>Datum</dt><dd>di 14 okt</dd></div><div><dt>Klaar om</dt><dd>10:42</dd></div><div><dt>Gedaan</dt><dd>Ramen + kozijnen</dd></div><div><dt>Volgende</dt><dd>over 8 weken</dd></div></dl>
+      <div class="tk-bar"><i></i><code>MS · 2026 · 1014</code></div>
+      <span class="stempel">${IC.ok}Gewassen</span></div>
+    <div class="tk-r"><i class="tk-rits"></i><small>Beurt</small><b>06</b><small>dit jaar</small><span class="tk-v">Bewaarstrook</span></div>
+  </div><p class="tk-hint">Tik op het bonnetje om het opnieuw af te scheuren</p></div></div></div></section>
 <section id="prijs"><div class="in"><div id="ms-calc"></div></div></section>
-<section id="zakelijk"><div class="in"><div class="zak"><div><span class="oog">Zakelijk</span><h2 class="kop">Ook voor bedrijven en VvE's</h2><p class="lead">Kantoor, winkel, school of appartementencomplex: wij maken een prijs op maat en plannen het werk in wanneer het u uitkomt.</p>
+<section id="zakelijk"><div class="in"><div class="zak"><div><span class="oog">${IC.gebouw}Zakelijk</span><h2 class="kop">Ook voor <em>bedrijven en VvE's</em></h2><p class="lead">Kantoor, winkel, school of appartementencomplex: wij maken een prijs op maat en plannen het werk in wanneer het u uitkomt.</p>
   <div class="tags"><span>Kantoren</span><span>Winkels en horeca</span><span>VvE's</span><span>Scholen en zorg</span></div></div>
   <div class="r"><a class="knop k-teal" href="#prijs">${IC.gebouw}Vraag een prijs aan</a></div></div></div></section>
-<section id="vragen"><div class="in"><span class="oog">Veelgestelde vragen</span><h2 class="kop">Goed om te weten</h2>
+<section id="vragen"><div class="in"><span class="oog">${IC.bel}Veelgestelde vragen</span><h2 class="kop">Goed om <em>te weten</em></h2>
   <div class="faq">${faq.map(([q,a])=>`<details><summary>${e(q)}</summary><p>${e(a)}</p></details>`).join("")}</div></div></section>
-<section id="contact"><div class="in"><div class="blauw contact"><div><h2>Vragen? Wij helpen u graag.</h2><p>Stuur een berichtje, bel of mail. Wij reageren meestal dezelfde dag.</p></div>
+<section id="contact"><div class="in"><div class="blauw contact"><div><h2>Vragen? <em>Wij helpen u graag.</em></h2><p>Stuur een berichtje, bel of mail. Wij reageren meestal dezelfde dag.</p></div>
   <div class="ck">${wa?`<a href="${wa}" target="_blank" rel="noopener"><span class="ic">${IC.wa}</span><div>WhatsApp<small>Stel snel een vraag</small></div></a>`:""}${tel?`<a href="tel:${e(telH)}"><span class="ic">${IC.tel}</span><div>Bellen<small>${e(tel)}</small></div></a>`:""}${o.email?`<a href="mailto:${e(o.email)}"><span class="ic">${IC.mail}</span><div>E-mail<small>${e(o.email)}</small></div></a>`:""}</div>
   ${wg(-12)}</div></div></section>
 <footer><div class="in"><span>© ${new Date().getFullYear()} ${naam}${o.adres?` · ${e(o.adres)}${o.postcode?", "+e(o.postcode):""} ${e(o.plaats||"")}`:""}${o.kvk?` · KvK ${e(o.kvk)}`:""}</span>
@@ -7920,12 +7973,25 @@ async function websiteDelen(){const fv=k=>{const el=typeof form!=="undefined"&&f
   const o={naam:s.naam,telefoon:s.telefoon,email:s.email,adres:s.adres,postcode:s.postcode,plaats:s.plaats,kvk:s.kvk,whatsapp:wa,logo:lg?await kleinLogo(lg.url):"",
     portaal:LIVE?location.origin+"/portaal":"",score:String(fv("webScore")??s.webScore??"4,8").trim(),reviewUrl:String(fv("webReviewUrl")||s.webReviewUrl||"https://www.google.com/search?q=mijnschoonmaker.com+Reviews").trim(),voorwaarden:s.webVoorwaarden||s.voorwaarden||"",mollie:!!s.liveMollie,bus:typeof RV_BUS!=="undefined"?RV_BUS:""};
   return {body:websiteBody(o),calc:await klantCalcHtml(wa),o}}
-const WEB_FONTS='<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">';
+/* bonnetje: echt afscheuren langs de perforatie, met rafelrand en papiersnippers */
+const WEB_JS=`var tks=root.querySelectorAll("[data-tk]");
+tks.forEach(function(tk){if(tk._ms)return;tk._ms=1;var l=tk.querySelector(".tk-l"),r=tk.querySelector(".tk-r"),tm=[];
+  function snippers(){var b=tk.getBoundingClientRect(),lb=l.getBoundingClientRect();for(var i=0;i<14;i++){var d=document.createElement("i");d.className="tk-snipper";var y=Math.random();
+    d.style.left=(l.offsetWidth-6+Math.random()*6)+"px";d.style.top=(y*l.offsetHeight)+"px";var w=2+Math.random()*3;d.style.width=w+"px";d.style.height=(w*(0.6+Math.random()))+"px";tk.appendChild(d);
+    var dx=(Math.random()*60-10),dy=60+Math.random()*160;d.animate([{transform:"translate(0,0) rotate(0)",opacity:1},{transform:"translate("+dx+"px,"+dy+"px) rotate("+(Math.random()*720-360)+"deg)",opacity:0}],{duration:900+Math.random()*700,delay:Math.random()*350,easing:"cubic-bezier(.2,.6,.4,1)",fill:"forwards"}).onfinish=(function(x){return function(){x.remove()}})(d)}}
+  function scheur(){tm.forEach(clearTimeout);tm=[];tk.classList.remove("rits","af","klaar");l.style.clipPath=r.style.clipPath="";void tk.offsetWidth;
+    var N=38,pts=[];for(var i=0;i<=N;i++){var e=(i%2?1.2:4.6)+(Math.random()*2.2-1.1);if(Math.random()<.18)e+=Math.random()*1.5-.75;pts.push([i/N*100,Math.max(.2,Math.min(5.8,e))])}
+    l.style.clipPath="polygon(0 0,"+pts.map(function(p){return "calc(100% - "+(6-p[1]).toFixed(2)+"px) "+p[0].toFixed(2)+"%"}).join(",")+",0 100%)";
+    r.style.clipPath="polygon("+pts.map(function(p){return p[1].toFixed(2)+"px "+p[0].toFixed(2)+"%"}).join(",")+",100% 100%,100% 0)";
+    tk.classList.add("rits");tm.push(setTimeout(function(){tk.classList.add("af");snippers();try{navigator.vibrate&&navigator.vibrate(18)}catch(_){}},480));tm.push(setTimeout(function(){tk.classList.add("klaar")},480+1750))}
+  tk.addEventListener("click",scheur);
+  if("IntersectionObserver" in window){var io=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting&&x.intersectionRatio>.6){io.disconnect();setTimeout(scheur,350)}})},{threshold:[.6]});io.observe(tk)}else scheur()});`;
+const WEB_FONTS='<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">';
 /* losse pagina: voor de voorbeeldweergave en voor wie geen Framer gebruikt */
 function websiteHtml(p,crm){const calc=crm?p.calc.replace(/<head([^>]*)>/i,m=>m+"<script>window.ZEEM_CRM=1<\/script>"):p.calc;
   return `<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(p.o.naam||"mijnschoonmaker")} · Glasbewassing</title>
 <meta name="description" content="Glasbewassing${p.o.plaats?" in "+esc(p.o.plaats)+" en omgeving":""}. Bereken direct uw prijs met een foto van uw woning.">${WEB_FONTS}<style>html,body{margin:0;background:#f3f6f7;scroll-behavior:smooth;overflow-x:hidden;max-width:100%}${WEB_CSS}</style></head>
-<body><div class="ms">${p.body}</div><script>/* interne links: zelf scrollen (in een voorbeeldvenster zou de browser anders naar het CRM gaan) */
+<body><div class="ms">${p.body}</div><script>(function(root){${WEB_JS}})(document)<\/script><script>/* interne links: zelf scrollen (in een voorbeeldvenster zou de browser anders naar het CRM gaan) */
 document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a[href^='#']");if(!a)return;e.preventDefault();var id=a.getAttribute("href").slice(1),d=id==="top"?document.body:document.getElementById(id);var m=document.getElementById("msm");if(m)m.checked=false;if(d)d.scrollIntoView({behavior:"smooth",block:"start"})});
 <\/script><script>(function(){var C=${JSON.stringify(calc).replace(/<\//g,"<\\/")};var box=document.getElementById("ms-calc"),f=document.createElement("iframe");f.title="Prijscalculator";f.setAttribute("allow","camera; web-share; clipboard-write");f.srcdoc=C;f.style.height="900px";f.style.width="1px";f.style.minWidth="100%";box.appendChild(f);
 window.addEventListener("message",function(e){if(e.source!==f.contentWindow||!e.data)return;if(e.data.type==="zeem-calc-height")f.style.height=e.data.h+"px";if(e.data.type==="zeem-calc-full"){var on=!!e.data.on;f.style.cssText=on?"position:fixed;inset:0;width:100vw;height:100dvh;z-index:2147483647;border:0;background:#fff":"display:block;width:1px;min-width:100%;border:0;height:"+f.style.height;document.documentElement.style.overflow=on?"hidden":""}});
@@ -7943,6 +8009,7 @@ import { useEffect, useRef } from "react"
 const CSS = ${JSON.stringify(WEB_FONTS+"<style>"+WEB_CSS+"</style>")}
 const BODY = ${JSON.stringify(p.body)}
 const CALC = ${JSON.stringify(p.calc)}
+const WEB_JS = ${JSON.stringify(WEB_JS)}
 
 /**
  * @framerSupportedLayoutWidth any
@@ -7989,6 +8056,7 @@ export default function Website(props) {
             doel.scrollIntoView({ behavior: "smooth", block: "start" })
         }
         root.addEventListener("click", klik)
+        try { new Function("root", WEB_JS)(root) } catch (e) { console.warn(e) }
         return () => { window.removeEventListener("message", on); root.removeEventListener("click", klik); f.remove() }
     }, [])
     return (
