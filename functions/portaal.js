@@ -260,7 +260,7 @@ module.exports = function maakPortaal(ctx) {
         const l = String(body(req).l || "");
         if (!/^[a-f0-9]{64}$/.test(l)) { res.status(400).json({ fout: "ongeldig" }); return; }
         const ref = db.doc("portaalLogin/" + sha(l));
-        const v = await db.runTransaction(async t => { const s = await t.get(ref); if (!s.exists) return null; t.delete(ref); return s.data(); });
+        const v = await db.runTransaction(async t => { const s = await t.get(ref); if (!s.exists) return null; if (!s.data().herbruik) t.delete(ref); return s.data(); });
         if (!v || v.exp < Date.now()) { res.status(410).json({ fout: "Deze link is verlopen of al gebruikt. Vraag hieronder een nieuwe aan." }); return; }
         const s = tok();
         await db.doc("portaalSessie/" + sha(s)).set({ klantId: v.klantId, email: v.email, exp: Date.now() + 180 * DAG, gezien: Date.now(), op: nu(), ua: String(req.headers["user-agent"] || "").slice(0, 160) });

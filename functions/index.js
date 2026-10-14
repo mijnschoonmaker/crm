@@ -145,11 +145,20 @@ async function maakMail({ naar, naam, onderwerp, html, tekst, bijlagen }) {
   return { key: g.brevoKey, mail };
 }
 
+/* knop "Naar uw klantportaal": persoonlijke inloglink, 30 dagen geldig en vaker te gebruiken, zodat de klant direct binnen is */
+async function portaalLinkVullen(d) {
+  if (d.meta && d.meta.klantId && /__PORTAAL_LINK__/.test(String(d.html || ""))) {
+    try { const t = crypto.randomBytes(32).toString("hex"), h = crypto.createHash("sha256").update(t).digest("hex");
+      await db.doc("portaalLogin/" + h).set({ klantId: String(d.meta.klantId), email: String(d.naar).trim().toLowerCase(), exp: Date.now() + 30 * 864e5, herbruik: true, op: nu(), bron: "mail" });
+      d.html = String(d.html).replace(/__PORTAAL_LINK__/g, "l=" + t); } catch (e) { console.error("portaallink", e); d.html = String(d.html).replace(/[?&]?__PORTAAL_LINK__/g, ""); } }
+  else if (/__PORTAAL_LINK__/.test(String(d.html || ""))) d.html = String(d.html).replace(/[?&]?__PORTAAL_LINK__/g, "");
+}
 exports.sendMail = onCall({ memory: "512MiB", timeoutSeconds: 60 }, async req => {
   const wie = await checkGebruiker(req.auth);
   const d = req.data || {};
   if (!/^\S+@\S+\.\S+$/.test(String(d.naar || ""))) throw new HttpsError("invalid-argument", "Ongeldig e-mailadres.");
   const id = /^[\w-]{4,40}$/.test(d.berichtId || "") ? d.berichtId : newId("m");
+  await portaalLinkVullen(d);
   const { key, mail } = await maakMail(d);
   let brevoId = "";
   try { brevoId = await brevoSend(key, mail); }
@@ -199,6 +208,7 @@ exports.geplandVerzenden = onSchedule({ schedule: "every 10 minutes", timeZone: 
   for (const doc of q.docs) {
     const d = doc.data();
     try {
+      await portaalLinkVullen(d);
       const { key, mail } = await maakMail(d);
       const brevoId = await brevoSend(key, mail);
       const id = d.berichtId || newId("m");

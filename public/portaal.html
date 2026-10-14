@@ -1339,7 +1339,7 @@ async function lvPeil(){if(document.hidden||tab!=="home")return;let r;try{r=awai
   if(seg[0]==="aanbevolen"&&seg[1])return toonAanbevolen(decodeURIComponent(seg[1]).toUpperCase());
   const h=location.hash.slice(1);if(TABS.some(t=>t[0]===h))tab=h;if(h.startsWith("ticket-")){tab="tickets";TK.open=h.slice(7)}
   if(q.get("l")){$("#app").innerHTML=`<div class="laden"><div class="spin"></div><span>Even geduld, we openen uw omgeving…</span></div>`;
-    try{const r=await api("sessie",{body:{l:q.get("l")},open:true});sessie.set(r.s);history.replaceState(null,"",location.pathname)}catch(e){history.replaceState(null,"",location.pathname);return toonLogin(e.message)}}
+    try{const r=await api("sessie",{body:{l:q.get("l")},open:true});sessie.set(r.s);history.replaceState(null,"",location.pathname+location.hash)}catch(e){history.replaceState(null,"",location.pathname+location.hash);if(!sessie.get())return toonLogin(e.message)}}
   if(q.get("betaald")){tab="facturen";const fid=q.get("betaald");history.replaceState(null,"",location.pathname);setTimeout(()=>bedanktNaBetalen(fid),500)}
   if(!sessie.get())return toonLogin();
   laad()})();
