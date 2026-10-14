@@ -287,7 +287,14 @@ async function migGeenTijd(){try{if((state.settings||{}).migGeenTijd)return;
     try{history.pushState({msDlg:1},"")}catch(e){this._hs=0;return}
     const d=this;d.addEventListener("close",function onc(){d.removeEventListener("close",onc);if(!d._hs)return;d._hs=0;
       if(d._viaPop){d._viaPop=0;return}if(history.state&&history.state.msDlg){skip++;history.back()}})};
-  window.addEventListener("popstate",()=>{if(skip){skip--;return}
-    const open=[...document.querySelectorAll("dialog[open]")].filter(x=>x._hs);const d=open[open.length-1];if(!d)return;
+  window.addEventListener("popstate",ev=>{if(skip){skip--;return}
+    const open=[...document.querySelectorAll("dialog[open]")].filter(x=>x._hs);const d=open[open.length-1];
+    if(!d){const st=ev.state||{};
+      if(st.msDlg){skip++;history.back();return}/* oud venster-item zonder open venster: overslaan */
+      if(st.msRoot){/* begin van het CRM: niet per ongeluk de app verlaten */
+        if(Date.now()-(window._msUit||0)<2500){history.back();return}
+        window._msUit=Date.now();try{history.pushState({msTab:state.tab},"")}catch(e){}if(typeof toast==="function")toast("Druk nogmaals op terug om het CRM te verlaten");return}
+      if(st.msTab&&typeof goTab==="function")goTab(st.msTab);return}
     d._viaPop=1;const c=new Event("cancel",{cancelable:true});d.dispatchEvent(c);
-    setTimeout(()=>{if(!d.open)return;if(c.defaultPrevented){d._viaPop=0;try{history.pushState({msDlg:1},"")}catch(e){}}else d.close()},0)})})();
+    setTimeout(()=>{if(!d.open)return;if(c.defaultPrevented){d._viaPop=0;try{history.pushState({msDlg:1},"")}catch(e){}}else d.close()},0)});
+  try{if(!history.state||!history.state.msTab){history.replaceState({msRoot:1},"");history.pushState({msTab:state.tab},"")}}catch(e){}})();

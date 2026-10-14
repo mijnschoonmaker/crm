@@ -28,7 +28,9 @@ function render(){try{warmMailLogo()}catch(e){}
   try{$("#view").innerHTML=(VIEWS[state.tab]||vVandaag)();if(state.tab==="calculator"){mountRamen();if(rcF)RC.restoreFocus(rcF)}if(state.tab==="planning")pkNaRender()}catch(e){console.error(e);$("#view").innerHTML=`<div class="notice">Deze pagina kon niet worden getoond (${esc(e.message)}). Ga naar een andere pagina of vernieuw.</div>`}
   if(fid){const el=document.getElementById(fid);if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}}
 }
-function go(tab){if(isMw()&&!MW_TABS.includes(tab))tab="vandaag";state.tab=tab;state.kmenu=state.fmenu=false;try{localStorage.setItem("zeem.tab",tab)}catch(_){}if(dlg.open)dlg.close();render();window.scrollTo(0,0)}
+/* paginawissel in de geschiedenis, zodat de terugknop naar de vorige pagina gaat */
+function go(tab){if(isMw()&&!MW_TABS.includes(tab))tab="vandaag";if(tab!==state.tab){try{history.pushState({msTab:tab},"")}catch(_){}}goTab(tab)}
+function goTab(tab){if(isMw()&&!MW_TABS.includes(tab))tab="vandaag";state.tab=tab;state.kmenu=state.fmenu=false;try{localStorage.setItem("zeem.tab",tab)}catch(_){}if(dlg.open)dlg.close();render();window.scrollTo(0,0)}
 
 /* ---------- EVENTS ---------- */
 let swAt=0;
