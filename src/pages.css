@@ -3356,3 +3356,13 @@ dialog .kp{overflow-wrap:anywhere}
 .rv-chips svg{width:15px;height:15px;flex:none;opacity:.85}
 .rv-chips .rv-klaar{background:rgb(255 255 255 / .92);color:#0f5f6e;box-shadow:none}.rv-chips .rv-klaar b{color:#0f5f6e}
 @media (max-width:420px){.rv-chips span{font-size:12px;padding:4px 9px 4px 8px}}
+
+/* Vandaag › Afgerond: rustig zoals de facturenlijst, wel losse regels */
+.swipe-card.srow.done{opacity:1;background:var(--surface);grid-template-columns:76px minmax(0,1fr) auto auto;gap:18px;padding:16px 20px;border-radius:16px;border:1px solid var(--line);box-shadow:0 1px 2px rgb(15 31 38 / .04)}
+.srow.done .av,.srow.done .chev,.srow.done .sr-i{display:none}
+.srow.done .sr-t{color:var(--ink);font-size:15px;font-weight:500;letter-spacing:.01em}
+.srow.done .sr-a b{font-size:15.5px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
+.srow.done .sr-a small{font-size:14px;margin-top:1px}
+.srow.done .pill{order:1;justify-self:start}
+.srow.done .amt{order:2;font-family:var(--f-mono)!important;font-size:15px!important;font-weight:500!important;color:var(--ink)!important;text-align:right;min-width:86px}
+@media (max-width:640px){.swipe-card.srow.done{grid-template-columns:46px minmax(0,1fr) auto;gap:10px 12px;padding:12px 14px}.srow.done .sr-t{font-size:13.5px}.srow.done .amt{min-width:0;font-size:14px!important}.srow.done .pill{display:none}}

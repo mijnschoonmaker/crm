@@ -38,7 +38,7 @@ function stopRow(k,day,done){
     <div class="swipe-card srow${done?" done":""}" data-act="job" data-id="${esc(k.id)}" data-d="${esc(day)}">
       <span class="sr-t">${esc(k.tijd||"—")}</span><span class="av sm" style="--h:${hue(k.ronde||k.naam)}">${esc(initials(k.naam))}</span>
       <span class="sr-a"><b>${esc(a.adres||cleanName(k.naam))}</b><small>${esc(a.plaats||"")}${a.plaats?" · ":""}${esc(cleanName(k.naam))}</small></span>
-      ${info?`<span class="sr-i" title="Objectinfo">i</span>`:""}<span class="amt">${eur0(toon(k.prijs))}</span>${statusPill(sp[0],sp[1])}${I.right.replace("<svg",'<svg class="chev"')}
+      ${info?`<span class="sr-i" title="Objectinfo">i</span>`:""}<span class="amt">${done?eur(toon(k.prijs)):eur0(toon(k.prijs))}</span>${statusPill(sp[0],sp[1])}${I.right.replace("<svg",'<svg class="chev"')}
     </div></div>`;
 }
 function activiteit(d){
