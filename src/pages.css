@@ -2750,3 +2750,34 @@ body{background:var(--bg)!important}
 /* statusverdeling communicatie */
 .stbar{border-radius:22px}
 .stbar .bar,.stbar [class*="bar"]>i{border-radius:99px}
+/* ---------- meer blauwe kaarten (zelfde stijl als de grote portaalkaart) ---------- */
+:root{--blauw:radial-gradient(120% 160% at 100% 0%,#2aa3b3 0%,transparent 55%),linear-gradient(135deg,#0f5f6e,#137a8a 55%,#1d5a74);--lijnen:radial-gradient(circle at 18% 140%,rgb(255 255 255 / .14),transparent 45%),repeating-linear-gradient(115deg,rgb(255 255 255 / .035) 0 2px,transparent 2px 26px)}
+.st-hero,.st-tiles,.stbar,.stepc{position:relative;overflow:hidden;color:#fff!important;border:0!important;background:var(--blauw)!important;box-shadow:0 24px 50px -30px rgb(15 70 85 / .7)!important}
+.st-hero::before,.st-tiles::before,.stbar::before,.stepc::before{content:"";display:block!important;position:absolute;inset:0;background:var(--lijnen);pointer-events:none}
+.st-hero>*,.st-tiles>*,.stbar>*,.stepc>*{position:relative}
+/* Statistieken: kop */
+.st-k,.st-gl,.st-hero .st-mot{color:rgb(255 255 255 / .8)!important}.st-big b,.st-gl b{color:#fff!important}
+.st-mot svg{color:#9ff0d2!important}
+.st-pill.up{background:rgb(159 240 210 / .2)!important;color:#c8ffe9!important}.st-pill.down{background:rgb(255 200 190 / .18)!important;color:#ffd6cf!important}
+.st-gb{background:rgb(255 255 255 / .18)!important}.st-gb i{background:linear-gradient(90deg,#9ff0d2,#fff)!important}.st-gb i.p2{background:repeating-linear-gradient(45deg,rgb(255 255 255 / .35) 0 6px,rgb(255 255 255 / .15) 6px 12px)!important}
+.st-ing i{background:repeating-linear-gradient(45deg,rgb(255 255 255 / .5) 0 3px,rgb(255 255 255 / .2) 3px 6px)!important}
+.st-share.sm{background:rgb(255 255 255 / .15)}
+/* tegels in een blauwe band */
+.st-tiles{padding:14px;border-radius:24px}
+.st-hero .st-tile,.st-tiles .st-tile{background:rgb(255 255 255 / .1)!important;border:1px solid rgb(255 255 255 / .18)!important;box-shadow:none!important;color:#fff}
+.st-hero .st-tile .st-l,.st-hero .st-tile small,.st-tiles .st-tile .st-l,.st-tiles .st-tile small{color:rgb(255 255 255 / .75)!important}
+.st-hero .st-tile b,.st-tiles .st-tile b{color:#fff!important}.st-tiles .st-tile.late b{color:#ffd1c9!important}
+.st-hero .st-ic,.st-tiles .st-ic{background:rgb(255 255 255 / .16)!important;color:#fff!important}
+.st-tiles .st-tile[role=button]:hover{background:rgb(255 255 255 / .18)!important;transform:none}
+/* Communicatie: statusverdeling */
+.stbar .eyebrow,.stbar .subt,.stbar small,.stbar span{color:rgb(255 255 255 / .82)!important}
+.stbar p,.stbar div{color:inherit}
+.stbar [style*="background:var(--surface-2)"],.stbar .track{background:rgb(255 255 255 / .18)!important}
+/* Handleiding: drie stappen */
+.stepc b{color:#fff!important}.stepc>span:not(.sn){color:rgb(255 255 255 / .8)!important}
+.stepc .sn{background:rgb(255 255 255 / .16)!important;color:#fff!important;border:1px solid rgb(255 255 255 / .25);box-shadow:none!important}
+.stepc:hover{filter:brightness(1.06)}
+/* Instellingen: blauwe icoontjes in de kaarten */
+.setcard .set-top .ic{background:var(--blauw)!important;color:#fff!important;box-shadow:0 8px 18px -10px rgb(15 70 85 / .8)!important}
+.setcard .set-top .ic svg{color:#fff;stroke:#fff}
+.stbar .sbar{background:rgb(255 255 255 / .18)!important;height:10px;border-radius:99px}.stbar .sbar i[style*="surface-2"]{background:transparent!important}.stbar .legend i,.stbar .sbar i{box-shadow:0 0 0 1px rgb(255 255 255 / .25)}
