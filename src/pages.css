@@ -3267,3 +3267,6 @@ dialog .kp{overflow-wrap:anywhere}
 .lgb-r[open] .lgb-oog{background:var(--brand-soft)}
 .lgb-r[open] summary{background:var(--surface-2)}
 .lgb-x{padding:10px 14px 12px;font-size:13.5px;line-height:1.55;white-space:pre-line;background:var(--surface-2);color:var(--ink);max-height:320px;overflow:auto;border-top:1px dashed var(--line)}
+
+.pm-nm{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}.pm-nm b{font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pm-nm small{color:var(--muted);font-size:12.5px}
+@media (max-width:560px){.pm-it{flex-wrap:wrap}.pm-nm{flex-basis:100%;padding-left:34px}}
