@@ -185,7 +185,8 @@ function factVars(f){
   return{...klantVars(k,parse(f.datum)),factuurnummer:f.nummer,bedrag:f.soort==="offerte"&&f.totaalTonen===false?"de diensten en prijzen per keer zoals vermeld":eur(totals(f).inc),vervaldatum:fmtL(f.verval),factuurdatum:fmtL(f.datum),dagen_te_laat:Math.max(0,Math.round((today()-parse(f.verval))/DAY)),btwbedrag:(()=>{try{const t=totals(f);return eur(t.inc-t.ex)}catch(e){return ""}})(),aanmaningskosten:f.aanmaningskosten?eur(f.aanmaningskosten):"",betaaldatum:f.betaaldOp?fmtL(String(f.betaaldOp).slice(0,10)):"","wik.invoice":(()=>{try{return eur(wikKosten(totals(f).inc))}catch(e){return ""}})(),"today.date":fmtL(iso(today())),herinnerdatum:f.herinnerdOp?fmtL(String(f.herinnerdOp).slice(0,10)):"",herinnerdatum2:Array.isArray(f.herinnerData)&&f.herinnerData[1]?fmtL(f.herinnerData[1]):"",betaallink:f.betaallink||S().betaallink||""};
 }
 const sentRefs=()=>new Set(state.berichten.map(m=>m.ref).filter(Boolean));
-const fhMomenten=()=>{const m=S().fhM;return Array.isArray(m)&&m.length?(m.length<FHM.length?[...m,...FHM.slice(m.length)]:m).map((x,i)=>({...FHM[i],...x})):FHM};
+/* één herinnering en daarna de WIK-brief: oude instellingen (zonder WIK-moment) zetten de 2e herinnering en de aanmaning uit */
+const fhMomenten=()=>{const m=S().fhM;if(!(Array.isArray(m)&&m.length))return FHM;const oud=m.length<FHM.length;return (oud?[...m,...FHM.slice(m.length)]:m).map((x,i)=>({...FHM[i],...x,...(oud&&(i===1||i===2)?{aan:false}:{})}))};
 /* buitengerechtelijke incassokosten (Besluit vergoeding BIK, art. 6:96 BW): 15% over de eerste € 2.500 (minimaal € 40), 10% tot € 5.000, 5% tot € 10.000, 1% tot € 200.000, 0,5% daarboven, maximaal € 6.775 */
 function wikKosten(b){b=Number(b)||0;if(b<=0)return 0;const S=[[2500,.15],[2500,.10],[5000,.05],[190000,.01],[Infinity,.005]];let r=b,k=0;for(const [g,p] of S){const d=Math.min(r,g);k+=d*p;r-=d;if(r<=0)break}return Math.round(Math.min(6775,Math.max(40,k))*100)/100}
 function dagGroepen(dayIso,ref){
