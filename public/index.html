@@ -3540,6 +3540,97 @@ body{background:var(--bg)!important}
 .ft.scheur{animation:ftSchok .45s ease}
 @keyframes ftSchok{0%{transform:none}25%{transform:translateY(-4px) rotate(-.6deg)}55%{transform:translateY(2px) rotate(.4deg)}100%{transform:none}}
 
+/* ---------- tellingcontrole: tel met foto's ---------- */
+.tc-ai{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:14px;width:100%;margin-top:12px;padding:14px 16px;border-radius:18px;background:var(--blauw);color:#fff;box-shadow:0 10px 26px -12px rgb(15 95 110 / .7);transition:transform .15s}
+.tc-ai:active{transform:scale(.985)}
+.tc-ai .rf-plan{width:66px;height:57px;flex:none}
+.tc-ai>span{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.tc-ai b{font-size:16px;font-weight:800}.tc-ai small{font-size:12.5px;opacity:.85;line-height:1.35}
+.tc-ai>i{width:44px;height:44px;border-radius:50%;background:#fff;color:#137a8a;display:grid;place-items:center;flex:none;box-shadow:0 4px 14px rgb(0 0 0 / .18)}.tc-ai>i svg{width:20px;height:20px}
+.tc-ai.klaar>i{background:#22c55e;color:#fff}
+.tc-or{display:flex;align-items:center;gap:10px;margin:12px 0 0;color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}.tc-or:before,.tc-or:after{content:"";flex:1;height:1px;background:var(--line)}
+.tc-sub{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:6px 2px 0}
+.tc-more{all:unset;cursor:pointer;box-sizing:border-box;text-align:center;padding:10px;border:1.5px dashed var(--line);border-radius:14px;color:var(--brand);font-weight:700;font-size:13px}
+.obt-fo{display:flex;gap:6px;overflow-x:auto}.obt-fo button{all:unset;cursor:pointer;position:relative;width:62px;height:46px;border-radius:9px;overflow:hidden;flex:none;border:1px solid var(--line)}.obt-fo img{width:100%;height:100%;object-fit:cover}.obt-fo em{position:absolute;right:3px;bottom:3px;background:rgb(0 0 0 / .65);color:#fff;font-style:normal;font-size:10.5px;font-weight:800;border-radius:6px;padding:0 5px}
+
+/* plattegrond */
+.rf-plan .rf-hs{fill:rgb(255 255 255 / .16)}.rf-plan .rf-pan{fill:rgb(255 255 255 / .08)}.rf-plan .rf-nok{stroke:rgb(255 255 255 / .45);stroke-width:1.4}.rf-plan .rf-sch{fill:rgb(255 255 255 / .3)}
+.rf-plan .rf-g{fill:none;stroke:rgb(255 255 255 / .28);stroke-width:5;stroke-linecap:round;transition:stroke .3s}
+.rf-plan .rf-g.ok{stroke:#4ade80}.rf-plan .rf-g.skip{stroke:rgb(255 255 255 / .22);stroke-dasharray:2 7}
+.rf-plan .rf-g.nu{stroke:#ebbd4c;stroke-width:6;animation:rfPuls 1.1s ease-in-out infinite}
+@keyframes rfPuls{50%{stroke-opacity:.45}}
+.rf-plan .rf-man{transition:transform .6s cubic-bezier(.2,.8,.2,1)}.rf-plan .rf-mh{fill:#ebbd4c;stroke:#fff;stroke-width:1.6}.rf-plan .rf-mc{fill:#0f5f6e}
+
+/* volledig scherm */
+dialog.rf{width:min(560px,100vw);max-width:100vw;height:min(860px,100dvh);max-height:100dvh;border-radius:24px;padding:0;overflow:hidden;display:flex;flex-direction:column;background:var(--surface)}
+dialog.rf:not([open]){display:none}
+html.zm dialog.rf{zoom:1.1111}
+@media (max-width:640px){dialog.rf{width:100vw;height:100dvh;border-radius:0;margin:0}}
+.rf-top{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);flex:none}
+.rf-top b{display:block;font-size:16px;font-weight:800}.rf-top small{display:block;color:var(--muted);font-size:12.5px;line-height:1.3}
+.rf-x,.rf-undo{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:5px;flex:none}
+.rf-x{width:36px;height:36px;border-radius:50%;background:var(--surface-2);justify-content:center}.rf-x svg{width:18px;height:18px}
+.rf-undo{font-size:13px;font-weight:700;color:var(--brand);padding:6px 10px;border-radius:99px;background:var(--brand-soft)}.rf-undo svg{width:15px;height:15px}
+.rf-flash{position:absolute;inset:0;background:#fff;pointer-events:none;animation:rfFl .42s ease-out forwards}@keyframes rfFl{from{opacity:.85}to{opacity:0}}
+
+/* stap 1: rondje om de woning */
+.rf-cap{flex:1;overflow:auto;display:flex;flex-direction:column;align-items:center;gap:16px;padding:16px 16px 22px}
+.rf-map{width:100%;display:flex;align-items:center;gap:14px;padding:16px;border-radius:20px;background:var(--blauw);color:#fff}
+.rf-map .rf-plan{width:120px;height:104px;flex:none}
+.rf-stp{display:flex;flex-direction:column;gap:3px;min-width:0}.rf-stp small{font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;opacity:.75}.rf-stp b{font-size:22px;font-weight:800;letter-spacing:-.01em}.rf-stp span{font-size:13px;opacity:.88;line-height:1.4}
+.rf-shot{cursor:pointer;width:96px;height:96px;border-radius:50%;border:5px solid color-mix(in srgb,var(--brand) 25%,var(--line));display:grid;place-items:center;margin-top:6px;transition:transform .12s}
+.rf-shot:active{transform:scale(.92)}
+.rf-lens{width:74px;height:74px;border-radius:50%;background:var(--brand);box-shadow:inset 0 -4px 0 rgb(0 0 0 / .15),0 8px 20px -6px color-mix(in srgb,var(--brand) 70%,transparent);position:relative}
+.rf-lens:after{content:"";position:absolute;inset:24px;border-radius:50%;border:3px solid rgb(255 255 255 / .9)}
+.rf-row{display:flex;gap:10px}.rf-row>*{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:99px;background:var(--surface-2);font-size:13.5px;font-weight:700;color:var(--ink)}.rf-row svg{width:16px;height:16px}
+.rf-go{all:unset;cursor:pointer;display:flex;align-items:center;gap:10px;padding:16px 28px;border-radius:99px;background:var(--brand);color:#fff;font-weight:800;font-size:17px;box-shadow:0 12px 26px -10px color-mix(in srgb,var(--brand) 80%,transparent);margin:8px 0}
+.rf-go[disabled]{opacity:.4;pointer-events:none}.rf-spark svg{width:20px;height:20px;display:block}
+.rf-link{all:unset;cursor:pointer;color:var(--brand);font-weight:700;font-size:13.5px}
+.rf-th{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.rf-th>button,.rf-plus{all:unset;cursor:pointer;box-sizing:border-box;position:relative;width:60px;height:76px;border-radius:12px;border:1.5px dashed var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;overflow:hidden;color:var(--muted);font-weight:800}
+.rf-th>button.nu{border:2px solid var(--brand);color:var(--brand)}
+.rf-th>button.vol{border:0}.rf-th img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.rf-th em{font-style:normal;font-size:10.5px;font-weight:700;z-index:1}.rf-th .vol em{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgb(0 0 0 / .7));color:#fff;padding:10px 0 4px;text-align:center}
+.rf-th .vol:after{content:"✓";position:absolute;top:4px;right:4px;width:17px;height:17px;border-radius:50%;background:#22c55e;color:#fff;font-size:11px;display:grid;place-items:center}
+.rf-plus{font-size:20px;color:var(--brand)}
+
+/* stap 2: tellen */
+.rf-scan{flex:1;display:flex;flex-direction:column;justify-content:center;gap:22px;padding:20px}
+.rf-sg{display:grid;gap:8px;grid-template-columns:1fr 1fr}.rf-sg.n1{grid-template-columns:1fr}
+.rf-sg>div{position:relative;border-radius:14px;overflow:hidden;aspect-ratio:4/3;background:#0b2a30}.rf-sg img{width:100%;height:100%;object-fit:cover;filter:saturate(.7) brightness(.85)}
+.rf-sg i{position:absolute;left:0;right:0;height:38%;top:-38%;background:linear-gradient(transparent,rgb(63 178 191 / .5) 85%,#a5f3fc);border-bottom:2px solid #cffafe;animation:rfScan 1.8s cubic-bezier(.45,0,.55,1) infinite}
+.rf-sg>div:nth-child(2) i{animation-delay:.35s}.rf-sg>div:nth-child(3) i{animation-delay:.7s}.rf-sg>div:nth-child(4) i{animation-delay:1.05s}
+@keyframes rfScan{to{top:100%}}
+.rf-sst{text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}.rf-sst b{font-size:17px}.rf-sst small{color:var(--muted)}
+.rf-dots{display:flex;gap:6px}.rf-dots i{width:8px;height:8px;border-radius:50%;background:var(--brand);animation:rfDot 1s infinite}.rf-dots i:nth-child(2){animation-delay:.15s}.rf-dots i:nth-child(3){animation-delay:.3s}
+@keyframes rfDot{50%{transform:translateY(-6px);opacity:.4}}
+
+/* stap 3: controleren */
+.rf-res{flex:1;overflow:auto;display:flex;flex-direction:column;gap:12px;padding:12px 14px 0}
+.rf-err,.rf-opm{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:14px;font-size:13px;line-height:1.4}
+.rf-err{background:color-mix(in srgb,#d97706 10%,var(--surface));border:1px solid color-mix(in srgb,#d97706 35%,var(--line))}.rf-err span{flex:1}
+.rf-opm{background:var(--surface-2);color:var(--muted)}.rf-err svg,.rf-opm svg{width:18px;height:18px;flex:none}
+.rf-tot{display:flex;align-items:center;gap:14px;padding:12px 14px;border-radius:18px;background:var(--blauw);color:#fff}
+.rf-big{display:flex;flex-direction:column;align-items:center;line-height:1;flex:none;min-width:64px}.rf-big b{font-size:38px;font-weight:800;letter-spacing:-.03em}.rf-big span{font-size:12px;opacity:.8;font-weight:700}
+.rf-cnt{display:flex;flex-wrap:wrap;gap:6px}.rf-cnt span{display:inline-flex;align-items:center;gap:6px;background:rgb(255 255 255 / .14);border-radius:99px;padding:3px 10px 3px 3px;font-size:12.5px;font-weight:600}
+.rf-cnt i{width:20px;height:20px;border-radius:50%;background:var(--c);display:grid;place-items:center;font-style:normal;font-size:10px;font-weight:800;box-shadow:0 0 0 1.5px #fff}.rf-cnt b{font-weight:800}.rf-cnt .leeg{padding:4px 10px;opacity:.75}
+.rf-view{position:relative}
+.rf-ph{position:relative;width:100%;max-height:52dvh;margin:0 auto;border-radius:16px;overflow:hidden;background:#000;cursor:crosshair;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.rf-ph img{width:100%;height:100%;object-fit:fill;display:block;pointer-events:none}
+.rf-d{position:absolute;transform:translate(-50%,-50%);min-width:22px;height:22px;padding:0 4px;box-sizing:border-box;border-radius:99px;background:var(--c);color:#fff;font-size:10.5px;font-weight:800;display:grid;place-items:center;box-shadow:0 0 0 2px #fff,0 3px 8px rgb(0 0 0 / .45);cursor:pointer}
+.rf-d:after{content:"";position:absolute;inset:-9px}
+.rf-lab{position:absolute;left:10px;top:10px;background:rgb(0 0 0 / .6);color:#fff;font-size:12px;font-weight:700;border-radius:99px;padding:4px 10px;pointer-events:none;backdrop-filter:blur(4px)}
+.rf-nav{all:unset;cursor:pointer;position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;background:rgb(255 255 255 / .92);color:#111;font-size:22px;font-weight:700;display:grid;place-items:center;box-shadow:0 3px 10px rgb(0 0 0 / .25)}.rf-nav.l{left:8px}.rf-nav.r{right:8px}
+.rf-pth{display:flex;gap:6px;justify-content:center}.rf-pth button{all:unset;cursor:pointer;position:relative;width:52px;height:40px;border-radius:9px;overflow:hidden;opacity:.55;transition:opacity .2s}
+.rf-pth button.nu{opacity:1;box-shadow:0 0 0 2px var(--brand)}.rf-pth img{width:100%;height:100%;object-fit:cover}.rf-pth em{position:absolute;right:2px;bottom:2px;background:rgb(0 0 0 / .65);color:#fff;font-style:normal;font-size:10px;font-weight:800;border-radius:5px;padding:0 4px}
+.rf-tools small{display:block;font-size:11.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:0 2px 6px}
+.rf-tools>div{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.rf-tools button{all:unset;cursor:pointer;flex:none;display:inline-flex;align-items:center;gap:6px;padding:5px 11px 5px 5px;border-radius:99px;border:1.5px solid var(--line);font-size:12.5px;font-weight:700;background:var(--surface)}
+.rf-tools button i{width:20px;height:20px;border-radius:50%;background:var(--c);color:#fff;display:grid;place-items:center;font-style:normal;font-size:10px;font-weight:800}
+.rf-tools button.on{border-color:var(--c)!important;background:color-mix(in srgb,var(--c) 12%,var(--surface))!important;color:var(--ink)!important}
+.rf-foot{position:sticky;bottom:0;display:flex;align-items:center;gap:8px;padding:12px 0 calc(14px + env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--line);margin-top:auto}
+.rf-foot .sp,.rf-top .sp{flex:1}
+@media (min-width:641px){.rf-tools>div{flex-wrap:wrap}}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -8138,7 +8229,7 @@ function openOpdrachtWerk(kid,focus){
     return `<div class="ow-rk" data-calc="${di}"><div class="ow-rkh"><span class="objic">${I.check}</span><b>${esc(naam)}</b><span class="sp"></span><button type="button" class="iconbtn sm" data-redit="${di}" aria-label="Wijzigen" title="Wijzigen">${I.pencil}</button></div>
       ${q.oms?`<p class="ow-rko">${esc(q.oms)}</p>`:""}
       ${min>0&&!c.totOver?`<div class="ow-rkl"><b>Let op:</b> ${esc(naam)} heeft een minimumprijs van <b>${eur(min)}</b> (excl. btw).${c.glas<=min+0.005&&c.rows.reduce((a,x)=>a+x.calcP,0)<min?" Deze opdracht valt nu onder het minimum.":""} Gebruik een opdrachtspecifieke dienst als je een lagere prijs wilt.</div>`:""}
-      <dl class="ow-rkf">${q.f.map((n,j)=>{if(!n)return"";const w=Number(q.fq[j])||base;return `<dt>${FLN[j]}</dt><dd>${n} st${w?` <i>(${esc(fqT(w))})</i>`:""}</dd>`}).join("")}</dl>
+      <dl class="ow-rkf">${q.f.map((n,j)=>{if(!n)return"";const w=Number(q.fq[j])||base;return `<dt>${FLN[j]}</dt><dd>${n} st${w?` <i>(${esc(fqT(w))})</i>`:""}</dd>`}).join("")}${(c.srows||[]).map(x=>`<dt>${esc(x.naam)}</dt><dd>${x.n} st</dd>`).join("")}</dl>
       <dl class="ow-rkt">${c.start?`<dt>Starttarief</dt><dd>${eur(c.start)}</dd>`:""}<dt>Totaal ${esc(naam)}</dt><dd>${eur(c.ex)} <small>excl. btw</small></dd></dl></div>`};
   const sumHtml=(q,c,di,isMain)=>{const base=isMain?mF:null,has=v=>v!==""&&v!=null;
     return `<div class="ow-calc ow-sum" data-calc="${di}"><div class="ow-sumh"><b>Ramen per verdieping</b><button type="button" class="small" data-redit="${di}">${I.pencil}Wijzigen</button></div>
@@ -8333,8 +8424,9 @@ document.addEventListener("click",e=>{const c=e.target.closest("[data-jfi]");if(
 /* ---------- glasbewassing per verdieping: berekening (ook gebruikt bij afmelden) ---------- */
 const FLN=["Begane grond","1e verdieping","2e verdieping","3e verdieping"];
 const has0=v=>v!==""&&v!=null;
+const SPK=["tuimel","koepel","lood","mini"],SPN={tuimel:"Dak- / tuimelramen",koepel:"Lichtkoepels",lood:"Glas-in-lood",mini:"Miniraampjes"};
 const normR=q=>{q=q||{};const a=(x,d)=>[0,1,2,3].map(i=>x&&x[i]!=null?x[i]:d);
-  const r={f:a(q.f,0).map(n=>Number(n)||0),fq:a(q.fq,""),vol:a(q.vol,""),op:a(q.op,""),od:a(q.od,""),kf:a(q.kf,false).map(Boolean),kfq:a(q.kfq,""),kvol:a(q.kvol,""),kop:a(q.kop,""),kod:a(q.kod,""),start:q.start??"",tp:q.tp??"",td:q.td??"",oms:q.oms||""};
+  const r={f:a(q.f,0).map(n=>Number(n)||0),fq:a(q.fq,""),vol:a(q.vol,""),op:a(q.op,""),od:a(q.od,""),kf:a(q.kf,false).map(Boolean),kfq:a(q.kfq,""),kvol:a(q.kvol,""),kop:a(q.kop,""),kod:a(q.kod,""),start:q.start??"",tp:q.tp??"",td:q.td??"",oms:q.oms||"",sp:SPK.reduce((o,k)=>(o[k]=Math.max(0,Math.round(Number(q.sp&&q.sp[k])||0)),o),{})};
   if(q.koz&&!q.kf){r.f.forEach((n,i)=>{if(n){r.kf[i]=true;r.kfq[i]=(q.kz&&q.kz.fq)||"";r.kvol[i]=(q.kz&&q.kz.vol)||""}})}return r};
 const ramenVariabel=q=>!!q&&new Set((q.f||[]).map((n,i)=>n?String((q.fq||[])[i]||""):null).filter(x=>x!==null)).size>1;
 function ramenBerekening(q,opdrW,due){
@@ -8345,6 +8437,10 @@ function ramenBerekening(q,opdrW,due){
   const calc=x=>{const key="g"+Math.min(3,x.i),w=Number(q.fq[x.i])||opdrW;return {p:x.n*(c[key+"_p"]||0)*(1-(SD[key]||0))*(1-RC.freqPct(w)/100),min:x.n*(c[key+"_s"]||0)/60}};
   const rows=fl.map(x=>{const b=calc(x);let p=b.p;if(has(q.op[x.i])){p=Number(q.op[x.i]);over=true}return {i:x.i,n:x.n,naam:FLN[x.i],p:r2(p),min:has(q.od[x.i])?Number(q.od[x.i]):b.min,calcP:r2(b.p),calcMin:Math.ceil(b.min),sec:c["g"+Math.min(3,x.i)+"_s"]||0,pp:c["g"+Math.min(3,x.i)+"_p"]||0,ovP:has(q.op[x.i]),ovD:has(q.od[x.i])}});
   const spread=(target,key)=>{const sum=rows.reduce((a,r)=>a+r[key],0);if(!rows.length||!(sum>0))return;const f=target/sum;let acc=0;rows.forEach((r,ix)=>{if(ix===rows.length-1)r[key]=key==="p"?r2(target-acc):Math.max(0,target-acc);else{r[key]=key==="p"?r2(r[key]*f):r[key]*f;acc+=r[key]}})};
+  /* bijzondere ramen (dak/tuimel, koepel, glas-in-lood, mini): eigen tarief, zonder frequentiekorting (zoals de calculator) */
+  const sq=(q.sp&&!due)?q.sp:{},SS=RC.staffel(SPK.map(k=>({k,n:Number(sq[k])||0})).filter(x=>x.n));
+  const srows=SPK.map(k=>{const n=Number(sq[k])||0;return n?{k,n,naam:SPN[k],p:r2(n*(c[k+"_p"]||0)*(1-(SS[k]||0))),min:n*(c[k+"_s"]||0)/60}:null}).filter(Boolean);
+  rows.push(...srows.map(r=>({...r,i:"s",calcP:r.p,calcMin:Math.ceil(r.min),sp:true})));
   let glas=rows.reduce((a,r)=>a+r.p,0),minG=false,totOver=false;
   if(rows.length&&has(q.tp)){/* overschrijvende prijs voor de hele glasbewassing: verdeeld naar verhouding over de verdiepingen */
     let target=Number(q.tp)||0;if(due){const all=ramenBerekening({...q,tp:"",td:""},opdrW,null),part=rows.reduce((a,r)=>a+r.p,0);target=all.glas>0?target*part/all.glas:target}
@@ -8355,7 +8451,7 @@ function ramenBerekening(q,opdrW,due){
   const krows=kz.map(x=>{let p=x.n*(c.koz_p||0);if(has(q.kop[x.i])){p=Number(q.kop[x.i]);kover=true}return {i:x.i,n:x.n,naam:FLN[x.i],p:r2(p),min:has(q.kod[x.i])?Number(q.kod[x.i]):x.n*(c.koz_s||0)/60,calcP:r2(x.n*(c.koz_p||0)),calcMin:Math.ceil(x.n*(c.koz_s||0)/60)}});
   let kozP=krows.reduce((a,r)=>a+r.p,0),minK=false;if(krows.length&&!kover&&kozP<(c.kozMin||0)){minK=true;kozP=c.kozMin}const kozMin=krows.reduce((a,r)=>a+r.min,0);
   const start=rows.length?(has(q.start)?Number(q.start):(c.start||0)):0,ex=r2(glas+kozP+start);
-  return {rows,krows,glas:r2(glas),minG,totOver,kozP:r2(kozP),minK,kozMin,start,ex,min:Math.ceil(rows.reduce((a,r)=>a+r.min,0)+kozMin),count:tot,c};
+  return {rows,krows,glas:r2(glas),minG,totOver,kozP:r2(kozP),minK,kozMin,start,ex,min:Math.ceil(rows.reduce((a,r)=>a+r.min,0)+kozMin),count:tot+srows.reduce((a,r)=>a+r.n,0),srows,c};
 }
 /* welke delen gaan mee op deze dag, en hoe schuiven de volgende data door */
 function ramenDue(k,d){const q=normR(k.ramenRegel);const ok=(fq,vol)=>!fq||!vol||vol<=d;
@@ -9525,33 +9621,51 @@ const isOBeurt=k=>!!(k&&k.tellingControle&&isEersteKeer(k));
 const TC_FL=["Begane grond","1e verdieping","2e verdieping","3e verdieping"];
 function tcFloors(k){const q=k.ramenRegel?normR(k.ramenRegel):null;if(q)return q.f.slice(0,4).map(n=>Number(n)||0);
   const t=k.ramenTelling&&k.ramenTelling.floors||[];return [0,1,2,3].map(i=>i<3?Number(t[i])||0:t.slice(3).reduce((a,b)=>a+(Number(b)||0),0))}
-function tcPrijs(k,f){try{const q=normR({...(k.ramenRegel||{}),f});const b=ramenBerekening(q,Number(k.frequentie)||8,null),st=S(),mul=st.incl?1+(Number(st.btw)||21)/100:1;
+/* bijzondere ramen: uit de opdrachtregel, anders uit de telling van de klant */
+function tcSp(k){const q=k.ramenRegel&&k.ramenRegel.sp,t=k.ramenTelling&&k.ramenTelling.special||{},src=q&&SPK.some(x=>q[x])?q:t;return SPK.reduce((o,x)=>(o[x]=Math.max(0,Math.round(Number(src[x])||0)),o),{})}
+function tcPrijs(k,f,sp){try{const q=normR({...(k.ramenRegel||{}),f,sp:sp||tcSp(k)});const b=ramenBerekening(q,Number(k.frequentie)||8,null),st=S(),mul=st.incl?1+(Number(st.btw)||21)/100:1;
   return {prijs:r2(b.ex*mul),duur:Math.max(5,Math.ceil(b.min/5)*5),count:b.count}}catch(e){console.error(e);return null}}
-function oBeurtBlok(k){if(!isOBeurt(k))return "";const f=tcFloors(k),tot=f.reduce((a,b)=>a+b,0),g=k.tellingGecontroleerd;
+const TC_SPN={tuimel:"Dak- / tuimelramen",koepel:"Lichtkoepels",lood:"Glas-in-lood",mini:"Miniraampjes"};
+function oBeurtBlok(k){if(!isOBeurt(k))return "";const f=tcFloors(k),sp=tcSp(k),tot=f.reduce((a,b)=>a+b,0)+SPK.reduce((a,x)=>a+sp[x],0),g=k.tellingGecontroleerd;
+  const fo=(g&&g.fotos||[]).filter(x=>x.id);
   return `<div class="obt${g?" klaar":""}"><div class="obt-h"><span class="obt-p">O-beurt</span><b>${g?"Telling gecontroleerd":"Tellingcontrole"}</b><span class="sp"></span>${g?`<span class="obt-ok">${I.check}${g.na===g.voor?"klopt":g.voor+" → "+g.na+" ramen"}</span>`:""}</div>
-    <p>${g?`Gecontroleerd op ${esc(fmtD(g.datum))}${g.na!==g.voor&&g.prijsNa!==g.prijsVoor?` · prijs ${esc(eur(g.prijsVoor))} → <b>${esc(eur(g.prijsNa))}</b>`:""}.`:`Eerste wasbeurt. De klant telde zelf <b>${tot} ramen</b>. Tel ter plekke na of het klopt.`}</p>
-    <div class="obt-f">${f.map((n,i)=>n?`<span>${esc(TC_FL[i])} <b>${n}</b></span>`:"").join("")}</div>
-    <button type="button" class="small${g?"":" primary"}" data-tctl="${esc(k.id)}">${I.calculator}${g?"Telling aanpassen":"Telling controleren"}</button></div>`}
+    <p>${g?`Gecontroleerd op ${esc(fmtD(g.datum))}${g.ai?" met foto's":""}${g.na!==g.voor&&g.prijsNa!==g.prijsVoor?` · prijs ${esc(eur(g.prijsVoor))} → <b>${esc(eur(g.prijsNa))}</b>`:""}.`:`Eerste wasbeurt. De klant telde zelf <b>${tot} ramen</b>. Loop rond de woning en maak per zijde een foto: de ramen worden voor je geteld.`}</p>
+    <div class="obt-f">${f.map((n,i)=>n?`<span>${esc(TC_FL[i])} <b>${n}</b></span>`:"").join("")}${SPK.map(x=>sp[x]?`<span>${esc(TC_SPN[x])} <b>${sp[x]}</b></span>`:"").join("")}</div>
+    ${fo.length?`<div class="obt-fo">${fo.map((x,i)=>`<button type="button" data-tcfo="${esc(k.id)}:${i}" aria-label="Foto ${i+1}"><img src="${BLOB+esc(x.id)}" alt="" loading="lazy"><em>${(x.dots||[]).length}</em></button>`).join("")}</div>`:""}
+    <button type="button" class="small${g?"":" primary"}" data-tctl="${esc(k.id)}">${g?I.calculator+"Telling aanpassen":I.camera+"Telling controleren"}</button></div>`}
 function openTellingControle(kid,na){const k=state.klanten.find(x=>x.id===kid);if(!k)return;
-  const voor=(k.tellingGecontroleerd&&k.tellingGecontroleerd.origF)||tcFloors(k),f=tcFloors(k).slice();const p0=k.tellingGecontroleerd?k.tellingGecontroleerd.prijsVoor:Number(k.prijs)||0;
+  const gc=k.tellingGecontroleerd,voor=(gc&&gc.origF)||tcFloors(k),vsp=(gc&&gc.origSp)||tcSp(k),f=tcFloors(k).slice(),sp={...tcSp(k)};
+  const p0=gc?gc.prijsVoor:Number(k.prijs)||0;let fotos=null,ai=false,spOpen=SPK.some(x=>sp[x]||vsp[x]);
   openDlg(`<div class="dlg-head"><span class="objic big">${I.calculator}</span><div style="flex:1;min-width:0"><h3>Tellingcontrole</h3><div class="subt">${esc(cleanName(k.naam))} · ${esc(fullAddr(k))}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
-    ${info("O-beurt: tel per verdieping de ramen die je wast. Klopt het met de telling van de klant, tik dan op Telling klopt. Wijkt het af, pas het aantal aan; prijs en tijdsduur rekenen mee voor de volgende beurten.")}
+    <button type="button" class="tc-ai" id="tcAi">${rfHuisSvg(-1)}<span><b>Tel met foto's</b><small id="tcAiS">Voorzijde, rechts, achter, links: klik, klik, klik, klik. De ramen worden per verdieping voor je geteld.</small></span><i>${I.camera}</i></button>
+    <div class="tc-or"><span>of tel zelf</span></div>
     <div class="tc-rows" id="tcRows"></div><div id="tcSum"></div>
     <div class="row stickyfoot"><button type="button" class="ghost" data-act="close">Annuleren</button><span class="sp"></span><button type="submit" class="primary" id="tcGo">${I.check}Telling klopt</button></div>`,{wide:false});
-  const draw=()=>{$("#tcRows").innerHTML=f.map((n,i)=>`<div class="tc-row${n!==voor[i]?" dif":""}"><div><b>${TC_FL[i]}</b><small>klant telde ${voor[i]}</small></div><div class="ow-step"><button type="button" data-tcs="${i}:-1" aria-label="Min">−</button><input type="number" min="0" inputmode="numeric" data-tci="${i}" value="${n}" aria-label="${TC_FL[i]}"><span>st</span><button type="button" data-tcs="${i}:1" aria-label="Plus">+</button></div></div>`).join("");sum()};
-  const sum=()=>{const same=f.every((n,i)=>n===voor[i]),tv=voor.reduce((a,b)=>a+b,0),tn=f.reduce((a,b)=>a+b,0),c=same?null:tcPrijs(k,f);
-    $("#tcSum").innerHTML=same?`<div class="okbox" style="margin:0">${I.check}<div><b>Zelfde als de klant: ${tn} ramen</b><span>Prijs blijft ${esc(eur(p0))} per beurt.</span></div></div>`
+  const same=()=>f.every((n,i)=>n===voor[i])&&SPK.every(x=>sp[x]===vsp[x]);
+  const totV=()=>voor.reduce((a,b)=>a+b,0)+SPK.reduce((a,x)=>a+vsp[x],0),totN=()=>f.reduce((a,b)=>a+b,0)+SPK.reduce((a,x)=>a+sp[x],0);
+  const row=(key,label,n,v)=>`<div class="tc-row${n!==v?" dif":""}"><div><b>${label}</b><small>klant telde ${v}</small></div><div class="ow-step"><button type="button" data-tcs="${key}:-1" aria-label="Min">−</button><input type="number" min="0" inputmode="numeric" data-tci="${key}" value="${n}" aria-label="${label}"><span>st</span><button type="button" data-tcs="${key}:1" aria-label="Plus">+</button></div></div>`;
+  const draw=()=>{$("#tcRows").innerHTML=f.map((n,i)=>row(i,TC_FL[i],n,voor[i])).join("")+(spOpen?`<div class="tc-sub">Bijzondere ramen</div>`+SPK.map(x=>row(x,TC_SPN[x],sp[x],vsp[x])).join(""):`<button type="button" class="tc-more" data-tcmore>＋ Dakramen, lichtkoepels, glas-in-lood of miniraampjes</button>`);sum()};
+  const zet=(key,v)=>{v=Math.max(0,Math.round(Number(v)||0));if(/^\d$/.test(String(key)))f[+key]=v;else sp[key]=v};
+  const sum=()=>{const sm=same(),tv=totV(),tn=totN(),c=sm?null:tcPrijs(k,f,sp);
+    $("#tcSum").innerHTML=sm?`<div class="okbox" style="margin:0">${I.check}<div><b>Zelfde als de klant: ${tn} ramen</b><span>Prijs blijft ${esc(eur(p0))} per beurt.</span></div></div>`
       :`<div class="warnbox">${I.alert}<span>Klant telde <b>${tv}</b>, jij telt <b>${tn}</b> ramen. ${c&&c.prijs===p0?`Prijs blijft <b>${esc(eur(p0))}</b> per beurt (minimumprijs of zelfde tarief).`:`Nieuwe prijs ${c?`<b>${esc(eur(c.prijs))}</b> per beurt (was ${esc(eur(p0))}), ± ${c.duur} min`:"wordt herberekend"}.`}</span></div>`;
-    $("#tcGo").innerHTML=I.check+(same?"Telling klopt":"Telling opslaan")};
+    $("#tcGo").innerHTML=I.check+(sm?"Telling klopt":"Telling opslaan")};
   draw();
-  $("#tcRows").addEventListener("click",e=>{const b=e.target.closest("[data-tcs]");if(!b)return;const [i,d]=b.dataset.tcs.split(":").map(Number);f[i]=Math.max(0,f[i]+d);draw()});
-  $("#tcRows").addEventListener("input",e=>{const el=e.target.closest("[data-tci]");if(!el)return;f[+el.dataset.tci]=Math.max(0,Math.round(Number(el.value)||0));el.closest(".tc-row").classList.toggle("dif",f[+el.dataset.tci]!==voor[+el.dataset.tci]);sum()});
+  $("#tcAi").onclick=()=>openFotoTelling(k,fotos,res=>{fotos=res.fotos;ai=true;f.splice(0,4,...res.f);SPK.forEach(x=>sp[x]=res.sp[x]||0);if(SPK.some(x=>sp[x]))spOpen=true;draw();
+    $("#tcAi").classList.add("klaar");$("#tcAi>i").innerHTML=I.check;$("#tcAiS").textContent=`${res.fotos.length} foto's · ${totN()} ramen geteld. Tik om de foto's te bekijken of te verbeteren.`;
+    $("#tcRows").animate([{opacity:.3,transform:"translateY(6px)"},{opacity:1,transform:"none"}],{duration:420,easing:"cubic-bezier(.2,.8,.2,1)"})});
+  $("#tcRows").addEventListener("click",e=>{if(e.target.closest("[data-tcmore]")){spOpen=true;draw();return}const b=e.target.closest("[data-tcs]");if(!b)return;const [i,d]=b.dataset.tcs.split(":");const cur=/^\d$/.test(i)?f[+i]:sp[i];zet(i,cur+Number(d));draw()});
+  $("#tcRows").addEventListener("input",e=>{const el=e.target.closest("[data-tci]");if(!el)return;const key=el.dataset.tci;zet(key,el.value);const v=/^\d$/.test(key)?voor[+key]:vsp[key],n=/^\d$/.test(key)?f[+key]:sp[key];el.closest(".tc-row").classList.toggle("dif",n!==v);sum()});
   form.onsubmit=async e=>{e.preventDefault();const b=$("#tcGo");b.disabled=true;
-    const cur=state.klanten.find(x=>x.id===kid)||k,same=f.every((n,i)=>n===voor[i]),c=same?null:tcPrijs(cur,f),tv=voor.reduce((a,b)=>a+b,0),tn=f.reduce((a,b)=>a+b,0);
-    const g={datum:iso(today()),voor:tv,na:tn,origF:voor,prijsVoor:p0,prijsNa:c?c.prijs:p0};
-    const patch={tellingGecontroleerd:g,ramenRegel:normR({...(cur.ramenRegel||{}),f:f.slice()}),...(c?{prijs:c.prijs,...(!(cur.tijden||[]).length?{duur:c.duur}:{})}:{}),
-      ramenTelling:{...(cur.ramenTelling||{}),gecontroleerd:g},log:[...(cur.log||[]),{datum:iso(today()),tekst:same?`Tellingcontrole O-beurt: klopt (${tn} ramen)`:`Tellingcontrole O-beurt: ${tv} → ${tn} ramen · prijs ${eur(p0)} → ${eur(c?c.prijs:p0)}`}]};
-    try{await save("klanten",kid,{...strip(cur),...patch});toast(same?"Telling klopt · vastgelegd":"Telling aangepast · nieuwe prijs "+eur(c?c.prijs:p0)+" per beurt");dlg.close();render();if(typeof na==="function")na();
+    const cur=state.klanten.find(x=>x.id===kid)||k,sm=same(),c=sm?null:tcPrijs(cur,f,sp),tv=totV(),tn=totN();
+    let fo=gc&&gc.fotos||[];
+    if(fotos&&fotos.length){b.innerHTML=I.camera+"Foto's bewaren…";const up=[];
+      for(const p of fotos){try{const r=state.assets?await state.assets.upload(new File([p.blob],"telling-"+p.zijde.toLowerCase().replace(/\W+/g,"-")+".jpg",{type:"image/jpeg"})):null;if(r&&r.id)up.push({id:r.id,w:p.w,h:p.h,zijde:p.zijde,dots:p.dots.map(d=>({x:Math.round(d.x*1e4)/1e4,y:Math.round(d.y*1e4)/1e4,t:d.t}))})}catch(er){console.warn(er)}}
+      if(up.length)fo=up}
+    const g={datum:iso(today()),voor:tv,na:tn,origF:voor,origSp:vsp,prijsVoor:p0,prijsNa:c?c.prijs:p0,...(ai||(gc&&gc.ai)?{ai:true}:{}),...(fo.length?{fotos:fo}:{})};
+    const patch={tellingGecontroleerd:g,ramenRegel:normR({...(cur.ramenRegel||{}),f:f.slice(),sp:{...sp}}),...(c?{prijs:c.prijs,...(!(cur.tijden||[]).length?{duur:c.duur}:{})}:{}),
+      ramenTelling:{...(cur.ramenTelling||{}),gecontroleerd:g},log:[...(cur.log||[]),{datum:iso(today()),tekst:(sm?`Tellingcontrole O-beurt: klopt (${tn} ramen)`:`Tellingcontrole O-beurt: ${tv} → ${tn} ramen · prijs ${eur(p0)} → ${eur(c?c.prijs:p0)}`)+(ai?" · geteld met foto's":"")}]};
+    try{await save("klanten",kid,{...strip(cur),...patch});toast(sm?"Telling klopt · vastgelegd":"Telling aangepast · nieuwe prijs "+eur(c?c.prijs:p0)+" per beurt");dlg.close();render();if(typeof na==="function")na();
       if(typeof stuurDefinitief==="function"&&liveMail()&&S().ovDefinitiefAan!==false)setTimeout(()=>stuurDefinitief(kid,true),400)}catch(er){b.disabled=false;err(er)}};
 }
 document.addEventListener("click",e=>{const b=e.target.closest("[data-tctl]");if(!b)return;e.preventDefault();e.stopPropagation();openTellingControle(b.dataset.tctl)},true);
@@ -9640,6 +9754,117 @@ document.addEventListener("mousedown",e=>{const i=e.target.closest&&e.target.clo
 document.addEventListener("keydown",e=>{const i=e.target.closest&&e.target.closest('input[type="date"]');if(i&&!i.disabled&&(e.key==="Enter"||e.key===" "||e.key==="ArrowDown")){e.preventDefault();dpOpen(i)}else if(i&&/^\d$/.test(e.key)){e.preventDefault();dpOpen(i);setTimeout(()=>{const ty=dpEl&&dpEl.querySelector(".dp-type");if(ty){ty.value=e.key;ty.focus()}},30)}},true);
 document.addEventListener("click",e=>{const i=e.target.closest&&e.target.closest('input[type="date"]');if(i){e.preventDefault();if(!dpEl&&!i.disabled)dpOpen(i)}},true);
 addEventListener("resize",()=>dpClose());
+
+/* ---------- ramen tellen met foto's: rondom de woning per zijde één foto, AI telt per verdieping, glazenwasser verbetert met een tik ---------- */
+const RF_ZIJDEN=[
+  {z:"Voorzijde",tip:"Ga recht voor de woning staan, zo ver terug dat de hele gevel tot en met het dak op de foto past."},
+  {z:"Rechterzijde",tip:"Loop rechtsom. Heeft deze kant geen ramen of kun je er niet bij? Tik op Overslaan."},
+  {z:"Achterzijde",tip:"Vanuit de tuin of het achterpad. Zet de hele achtergevel en het dak op de foto."},
+  {z:"Linkerzijde",tip:"Laatste zijde. Daarna worden de ramen voor je geteld."}];
+const RF_T=[["f0","BG","Begane grond"],["f1","1","1e verdieping"],["f2","2","2e verdieping"],["f3","3","3e verdieping"],["s-tuimel","D","Dakraam"],["s-koepel","K","Lichtkoepel"],["s-lood","L","Glas-in-lood"],["s-mini","M","Miniraampje"]];
+const rfL=t=>(RF_T.find(x=>x[0]===t)||RF_T[0]);
+const rfCol=t=>typeof DOTCOL==="function"?DOTCOL(t):"#e5484d";
+
+/* plattegrond van bovenaf: vier gevels, de huidige knippert, het poppetje loopt rechtsom mee */
+function rfHuisSvg(step,done){done=done||[];const P=[[60,104],[114,52],[60,0],[6,52]],W=["M34 90h52","M98 78V26","M86 14H34","M22 26v52"];
+  const side=(i,d)=>`<path d="${d}" class="rf-g${done[i]==="ok"?" ok":done[i]==="skip"?" skip":""}${i===step?" nu":""}"/>`;
+  const man=step>=0&&step<4?`<g class="rf-man" style="transform:translate(${P[step][0]}px,${P[step][1]}px)"><circle r="8" class="rf-mh"/><rect x="-4" y="-2.2" width="8" height="5.4" rx="1.2" class="rf-mc"/><rect x="-1.6" y="-3.8" width="3.2" height="2" rx=".6" class="rf-mc"/></g>`:"";
+  return `<svg class="rf-plan" viewBox="-6 -10 132 124" aria-hidden="true"><rect x="30" y="22" width="60" height="60" rx="2" class="rf-hs"/><rect x="30" y="22" width="60" height="30" class="rf-pan"/><path d="M30 52h60" class="rf-nok"/>
+    <rect x="66" y="30" width="9" height="12" rx="1" class="rf-sch"/>${W.map((d,i)=>side(i,d)).join("")}${man}</svg>`}
+
+function openFotoTelling(k,prev,cb,opts){opts=opts||{};const ro=!!opts.alleenLezen;
+  const d=document.createElement("dialog");d.className="rf";document.body.appendChild(d);
+  let foto=prev&&prev.length?prev.map(p=>({...p,dots:p.dots.map(x=>({...x}))})):[];/* {zijde,blob,url,data,w,h,dots} */
+  let stap=0,status=foto.length?"res":"cap",cur=0,tool="f0",fout="",opm="",zeker="",hist=[];
+  const zijdes=RF_ZIJDEN.map(x=>x.z),done=()=>zijdes.map(z=>foto.some(p=>p.zijde===z)?"ok":skip.has(z)?"skip":"");const skip=new Set();
+  const sluit=()=>{try{d.close()}catch(e){}d.remove()};
+  d.addEventListener("cancel",e=>{e.preventDefault();if(status!=="scan")sluit()});
+  const tel=()=>{const c={};foto.forEach(p=>p.dots.forEach(x=>c[x.t]=(c[x.t]||0)+1));return c};
+  const head=(t,s)=>`<div class="rf-top"><button type="button" class="rf-x" data-rf="x" aria-label="Sluiten">${I.x}</button><div><b>${t}</b><small>${esc(s||"")}</small></div><span class="sp"></span>${status==="res"&&!ro&&hist.length?`<button type="button" class="rf-undo" data-rf="undo">${I.undo||"↶"} Herstel</button>`:""}</div>`;
+  const thumbs=()=>`<div class="rf-th">${zijdes.map((z,i)=>{const p=foto.find(x=>x.zijde===z);return `<button type="button" class="${i===stap&&status==="cap"?"nu ":""}${p?"vol":skip.has(z)?"skip":""}" data-rfs="${i}">${p?`<img src="${p.url}" alt="">`:`<span>${skip.has(z)?"—":i+1}</span>`}<em>${esc(z.replace("zijde",""))}</em></button>`}).join("")}
+    ${foto.filter(p=>!zijdes.includes(p.zijde)).map(p=>`<button type="button" class="vol" data-rfe="${foto.indexOf(p)}"><img src="${p.url}" alt=""><em>Extra</em></button>`).join("")}
+    <label class="rf-plus" title="Extra foto (dakkapel, aanbouw, plat dak)">＋<em>Extra</em><input type="file" accept="image/*" capture="environment" hidden data-rfin="extra"></label></div>`;
+
+  function capHtml(){const klaar=stap>=4,z=RF_ZIJDEN[Math.min(stap,3)];
+    return head("Tel met foto's",fullAddr(k))+`<div class="rf-cap">
+      <div class="rf-map">${rfHuisSvg(klaar?-1:stap,done())}<div class="rf-stp">${klaar?`<b>Rondje klaar</b><span>${foto.length} foto${foto.length===1?"":"'s"} · klaar om te tellen</span>`:`<small>Stap ${stap+1} van 4</small><b>${z.z}</b><span>${z.tip}</span>`}</div></div>
+      ${klaar?`<button type="button" class="rf-go" data-rf="tel" ${foto.length?"":"disabled"}><span class="rf-spark">${I.camera}</span>Ramen tellen</button>`
+        :`<label class="rf-shot" aria-label="Foto maken van de ${z.z.toLowerCase()}"><input type="file" accept="image/*" capture="environment" hidden data-rfin="${stap}"><span class="rf-lens"></span></label>
+        <div class="rf-row"><button type="button" data-rf="skip">Overslaan</button><label>${I.upload}Uit galerij<input type="file" accept="image/*" hidden data-rfin="${stap}"></label></div>`}
+      ${thumbs()}
+      ${!klaar&&foto.length?`<button type="button" class="rf-link" data-rf="tel">Nu al tellen met ${foto.length} foto${foto.length===1?"":"'s"} ›</button>`:""}</div>`}
+
+  function scanHtml(){return head("Ramen tellen",fullAddr(k))+`<div class="rf-scan"><div class="rf-sg n${Math.min(foto.length,4)}">${foto.map(p=>`<div><img src="${p.url}" alt=""><i></i></div>`).join("")}</div>
+    <div class="rf-sst"><span class="rf-dots"><i></i><i></i><i></i></span><b id="rfSt">Gevels herkennen…</b><small>Dit duurt meestal 10 tot 30 seconden.</small></div></div>`}
+
+  function resHtml(){const c=tel(),tot=Object.values(c).reduce((a,b)=>a+b,0),p=foto[cur]||foto[0];
+    return head(ro?"Foto's van de telling":"Controleer de telling",ro?fullAddr(k):"Tik op een raam om toe te voegen · tik op een stip om weg te halen")+`<div class="rf-res">
+      ${fout?`<div class="rf-err">${I.alert}<span>${esc(fout)} <b>Tik de ramen zelf aan op de foto's.</b></span>${status==="res"&&!ro&&foto.some(x=>x.data)?`<button type="button" class="small" data-rf="tel">Opnieuw</button>`:""}</div>`:""}
+      <div class="rf-tot"><div class="rf-big"><b>${tot}</b><span>${tot===1?"raam":"ramen"}</span></div><div class="rf-cnt">${RF_T.filter(t=>c[t[0]]).map(t=>`<span style="--c:${rfCol(t[0])}"><i>${t[1]}</i>${t[2]}<b>${c[t[0]]}</b></span>`).join("")||`<span class="leeg">Nog geen ramen</span>`}</div></div>
+      ${opm||zeker==="laag"?`<div class="rf-opm">${I.info||I.alert}<span>${zeker==="laag"?"<b>Twijfelgeval.</b> ":""}${esc(opm)}</span></div>`:""}
+      ${p?`<div class="rf-view"><div class="rf-ph" id="rfPh" style="aspect-ratio:${p.w}/${p.h}"><img src="${p.url}" alt="${esc(p.zijde)}" draggable="false">${p.dots.map((x,j)=>`<span class="rf-d" data-rfd="${j}" style="left:${x.x*100}%;top:${x.y*100}%;--c:${rfCol(x.t)}">${rfL(x.t)[1]}</span>`).join("")}
+          <div class="rf-lab">${esc(p.zijde)} · ${p.dots.length}</div></div>
+        ${foto.length>1?`<button type="button" class="rf-nav l" data-rf="prev" aria-label="Vorige foto">‹</button><button type="button" class="rf-nav r" data-rf="next" aria-label="Volgende foto">›</button>`:""}</div>
+        <div class="rf-pth">${foto.map((q,i)=>`<button type="button" class="${i===cur?"nu":""}" data-rfp="${i}"><img src="${q.url}" alt=""><em>${q.dots.length}</em></button>`).join("")}</div>`:""}
+      ${ro?"":`<div class="rf-tools"><small>Tik toe als</small><div>${RF_T.map(t=>`<button type="button" class="${tool===t[0]?"on":""}" data-rft="${t[0]}" style="--c:${rfCol(t[0])}"><i>${t[1]}</i>${t[2]}</button>`).join("")}</div></div>`}
+      <div class="rf-foot">${ro?`<span class="sp"></span><button type="button" class="primary" data-rf="x">Sluiten</button>`:`<button type="button" class="ghost" data-rf="opnieuw">${I.camera}Opnieuw</button><span class="sp"></span><button type="button" class="primary" data-rf="ok">${I.check}Overnemen · ${tot}</button>`}</div></div>`}
+
+  const draw=()=>{d.innerHTML=status==="cap"?capHtml():status==="scan"?scanHtml():resHtml();d.dataset.st=status};
+  async function verwerk(file){/* verkleinen naar max 1400 px: snel versturen, genoeg detail voor de AI */
+    const u=URL.createObjectURL(file),im=new Image();await new Promise((ok,no)=>{im.onload=ok;im.onerror=no;im.src=u});
+    const m=1400,s=Math.min(1,m/Math.max(im.naturalWidth,im.naturalHeight)),w=Math.round(im.naturalWidth*s),h=Math.round(im.naturalHeight*s);
+    const cv=document.createElement("canvas");cv.width=w;cv.height=h;cv.getContext("2d").drawImage(im,0,0,w,h);URL.revokeObjectURL(u);
+    const blob=await new Promise(r=>cv.toBlob(r,"image/jpeg",.82)),data=cv.toDataURL("image/jpeg",.82);
+    return {blob,data,url:URL.createObjectURL(blob),w,h,dots:[]}}
+  async function tellen(){if(!foto.length)return;status="scan";fout="";draw();
+    const st=["Gevels herkennen…","Verdiepingen bepalen…","Ramen tellen…","Dubbele ramen eruit halen…","Bijna klaar…"];let si=0;const iv=setInterval(()=>{si=Math.min(si+1,st.length-1);const el=d.querySelector("#rfSt");if(el)el.textContent=st[si]},4200);
+    try{if(!foto.every(p=>p.data))throw {message:"De originele foto's zijn er niet meer."};
+      if(typeof fbFn!=="function"||!window.firebase)throw {message:"AI-tellen werkt alleen in de live omgeving."};
+      const r=await fbFn("ramenTellen")({fotos:foto.map(p=>({zijde:p.zijde,data:p.data.split(",")[1]}))}),res=r.data||{};
+      foto.forEach((p,i)=>p.dots=(res.fotos&&res.fotos[i]||[]).map(x=>({x:x.x,y:x.y,t:x.t})));opm=res.opmerking||"";zeker=res.zeker||"";
+      cur=Math.max(0,foto.findIndex(p=>p.dots.length));try{navigator.vibrate&&navigator.vibrate([18,60,18])}catch(e){}}
+    catch(e){fout=(typeof fnFout==="function"?fnFout(e):e.message)||"AI-tellen lukte niet.";}
+    clearInterval(iv);hist=[];status="res";draw();
+    if(!fout)d.querySelectorAll(".rf-d").forEach((el,i)=>el.animate([{transform:"translate(-50%,-50%) scale(0)",opacity:0},{transform:"translate(-50%,-50%) scale(1.25)",opacity:1,offset:.7},{transform:"translate(-50%,-50%) scale(1)",opacity:1}],{duration:380,delay:i*35,fill:"backwards",easing:"cubic-bezier(.2,.8,.2,1)"}))}
+
+  d.addEventListener("change",async e=>{const inp=e.target.closest("[data-rfin]");if(!inp||!inp.files[0])return;const file=inp.files[0],w=inp.dataset.rfin;inp.value="";
+    try{const p=await verwerk(file);try{navigator.vibrate&&navigator.vibrate(12)}catch(er){}
+      if(w==="extra"){p.zijde="Extra "+(foto.filter(x=>!zijdes.includes(x.zijde)).length+1);foto.push(p)}
+      else{const z=zijdes[+w];p.zijde=z;skip.delete(z);const at=foto.findIndex(x=>x.zijde===z);if(at>=0)foto[at]=p;else foto.push(p);
+        foto.sort((a,b)=>{const ia=zijdes.indexOf(a.zijde),ib=zijdes.indexOf(b.zijde);return (ia<0?9:ia)-(ib<0?9:ib)});
+        let n=+w+1;while(n<4&&(foto.some(x=>x.zijde===zijdes[n])||skip.has(zijdes[n])))n++;stap=n}
+      if(status==="res"){cur=foto.indexOf(p)}draw();
+      const t=d.querySelector(".rf-th .vol img[src='"+p.url+"']");if(t)t.parentNode.animate([{transform:"scale(.6)",opacity:.2},{transform:"scale(1.08)"},{transform:"none",opacity:1}],{duration:380,easing:"cubic-bezier(.2,.8,.2,1)"});
+      const fl=document.createElement("div");fl.className="rf-flash";d.appendChild(fl);setTimeout(()=>fl.remove(),420)}
+    catch(er){toast("Deze foto kon niet worden gelezen")}});
+
+  d.addEventListener("click",e=>{const a=e.target.closest("[data-rf],[data-rfs],[data-rfe],[data-rfp],[data-rft],[data-rfd]");
+    if(!a){if(status==="res"&&!ro){const ph=e.target.closest("#rfPh");if(ph){const r=ph.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;if(x<0||x>1||y<0||y>1)return;
+      hist.push(JSON.stringify(foto.map(p=>p.dots)));foto[cur].dots.push({x:Math.round(x*1e4)/1e4,y:Math.round(y*1e4)/1e4,t:tool});draw();const ls=d.querySelectorAll(".rf-d"),n=ls[ls.length-1];if(n)n.animate([{transform:"translate(-50%,-50%) scale(1.6)"},{transform:"translate(-50%,-50%) scale(1)"}],{duration:220})}}return}
+    if(a.dataset.rfd!=null){if(ro)return;hist.push(JSON.stringify(foto.map(p=>p.dots)));foto[cur].dots.splice(+a.dataset.rfd,1);draw();return}
+    if(a.dataset.rft){tool=a.dataset.rft;d.querySelectorAll("[data-rft]").forEach(b=>b.classList.toggle("on",b===a));return}
+    if(a.dataset.rfp!=null){cur=+a.dataset.rfp;draw();return}
+    if(a.dataset.rfs!=null){stap=+a.dataset.rfs;status="cap";draw();return}
+    if(a.dataset.rfe!=null){cur=+a.dataset.rfe;status="res";draw();return}
+    const v=a.dataset.rf;
+    if(v==="x")sluit();
+    else if(v==="skip"){skip.add(zijdes[stap]);let n=stap+1;while(n<4&&(foto.some(x=>x.zijde===zijdes[n])||skip.has(zijdes[n])))n++;stap=n;draw()}
+    else if(v==="tel")tellen();
+    else if(v==="prev"){cur=(cur-1+foto.length)%foto.length;draw()}
+    else if(v==="next"){cur=(cur+1)%foto.length;draw()}
+    else if(v==="undo"&&hist.length){const h=JSON.parse(hist.pop());foto.forEach((p,i)=>p.dots=h[i]||[]);draw()}
+    else if(v==="opnieuw"){status="cap";stap=Math.min(4,zijdes.findIndex(z=>!foto.some(x=>x.zijde===z)&&!skip.has(z))<0?4:zijdes.findIndex(z=>!foto.some(x=>x.zijde===z)&&!skip.has(z)));draw()}
+    else if(v==="ok"){const c=tel();sluit();cb&&cb({fotos:foto,f:["f0","f1","f2","f3"].map(t=>c[t]||0),sp:{tuimel:c["s-tuimel"]||0,koepel:c["s-koepel"]||0,lood:c["s-lood"]||0,mini:c["s-mini"]||0}})}});
+  /* vegen tussen foto's */
+  let sx=null;d.addEventListener("touchstart",e=>{if(status==="res"&&e.target.closest(".rf-view"))sx=e.touches[0].clientX},{passive:true});
+  d.addEventListener("touchend",e=>{if(sx==null)return;const dx=e.changedTouches[0].clientX-sx;sx=null;if(Math.abs(dx)>70&&foto.length>1){cur=(cur+(dx<0?1:-1)+foto.length)%foto.length;draw()}},{passive:true});
+  if(opts.start!=null)cur=opts.start;
+  draw();d.showModal();
+}
+/* bewaarde foto's van een gecontroleerde telling bekijken */
+document.addEventListener("click",e=>{const b=e.target.closest("[data-tcfo]");if(!b)return;e.preventDefault();e.stopPropagation();const [kid,i]=b.dataset.tcfo.split(":"),k=state.klanten.find(x=>x.id===kid);if(!k)return;
+  const fo=(k.tellingGecontroleerd&&k.tellingGecontroleerd.fotos||[]).filter(x=>x.id).map(x=>({zijde:x.zijde||"Foto",url:BLOB+x.id,w:x.w||4,h:x.h||3,dots:x.dots||[]}));
+  if(fo.length)openFotoTelling(k,fo,null,{alleenLezen:true,start:+i||0})},true);
 
 /* ---------- Factuur-PDF voor het klantportaal ----------
    De klant moet in zijn portaal precies de factuur zien die wij maken. Het CRM maakt daarom van elke
@@ -9779,6 +10004,7 @@ if(LIVE){
     {id:"liveMail",t:"E-mail versturen",sub:"Mails rechtstreeks vanuit het CRM, met alle statussen",ic:"send",bg:"#2f7f88",st:s=>s.liveMail?["ok","Actief"]:["soon","Niet ingesteld"],rows:s=>[["Afzender",s.liveAfzender||"—"],["Via","Brevo"],["Statussen","Bezorgd · geopend · geklikt · bounce · spam"]],warn:s=>s.liveMail?"":"Koppel Brevo om mails, facturen en herinneringen direct vanuit het CRM te versturen."},
     {id:"liveMollie",t:"Online betalen",sub:"Betaallink per factuur, automatisch afboeken",ic:"card",bg:"#23845a",st:s=>s.liveMollie?["ok","Actief"]:["soon","Niet ingesteld"],rows:s=>[["Via","Mollie"],["Afboeken","Automatisch bij betaling"]],warn:s=>s.liveMollie?"":"Met Mollie krijgt elke factuurmail een eigen betaallink en staat de factuur vanzelf op betaald."},
     {id:"liveOverzicht",t:"Bestellingsoverzicht",sub:"Voorlopig na aanmelding, definitief na telling of handtekening",ic:"note",bg:"#4a78b8",st:s=>s.voorwaardenPdf?["ok","Actief"]:["soon","Voorwaarden ontbreken"],rows:s=>[["Voorlopig","Na aanmelding via de website"],["Definitief","Na tellingcontrole of online akkoord"],["Bijlagen",[s.voorwaardenPdf&&"voorwaarden",s.herroepingPdf&&"herroepingsformulier"].filter(Boolean).join(" + ")||"—"]]},
+    {id:"liveAI",t:"AI ramen tellen",sub:"Foto's rondom de woning, de ramen worden per verdieping geteld",ic:"camera",bg:"#6e56cf",st:s=>s.liveAI?["ok","Actief"]:["soon","Niet ingesteld"],rows:s=>[["Via","Anthropic (Claude)"],["Gebruik","Tellingcontrole bij de O-beurt"],["Kosten","Enkele centen per woning"]],warn:s=>s.liveAI?"":"Met een AI-sleutel telt het CRM de ramen op je foto's: begane grond, verdiepingen, dakramen, koepels, glas-in-lood en miniraampjes."},
     {id:"liveUsers",t:"Gebruikers",sub:"Wie mag inloggen in het CRM",ic:"klanten",bg:"#1d5a74",st:()=>["ok","Beheren"],rows:s=>[["Eigenaar","robin@mijnschoonmaker.com"],["Inloggen","E-mail + wachtwoord"]]},
     {id:"liveImport",t:"Overzetten",sub:"Gegevens uit de oude versie inladen",ic:"inbox",bg:"#4b3fd0",st:()=>["ok","Eenmalig"],rows:()=>[["Bestand","zeem-backup (met foto's)"]]});
   const alleenEigenaar=()=>{if(isEigenaar())return true;toast("Alleen de eigenaar kan dit aanpassen");return false};
@@ -9804,6 +10030,19 @@ if(LIVE){
     form.onsubmit=async e=>{e.preventDefault();const p=readFields(),key=$("#brevoKey").value.trim();
       try{await fsDb().doc("geheim/config").set({...(key?{brevoKey:key}:{}),afzender:p.liveAfzender,meldAdres:p.liveMeld,hookToken:tok},{merge:true});
         if(await saveSettings({...p,hookToken:tok,liveMail:!!(key||s.liveMail)})){dlg.close();schedule()}}catch(er){err(er)}}};
+
+  SETEXTRA.liveAI=(c,s)=>{if(!alleenEigenaar())return;
+    setDlg(c,`${info("Bij de tellingcontrole loop je rond de woning en maak je per zijde één foto. De AI zet een stip op elk raam en telt per verdieping, plus dakramen, lichtkoepels, glas-in-lood en miniraampjes. Jij controleert en verbetert met een tik.")}
+      <label class="full">Anthropic API-sleutel<input type="password" id="aiKey" autocomplete="off" placeholder="${s.liveAI?"Ingesteld · laat leeg om te houden":"sk-ant-…"}"><small class="help">Wordt veilig op de server bewaard en is daarna niet meer in te zien. Stuur deze sleutel nooit via mail of chat.</small></label>
+      ${sec("Sleutel aanmaken · eenmalig")}
+      <ol class="trk-steps"><li>Ga naar <b>console.anthropic.com</b> en maak een account (of log in).</li>
+        <li>Zet bij <b>Billing</b> wat tegoed klaar, bijvoorbeeld € 10. Eén woning tellen kost enkele centen.</li>
+        <li>Maak bij <b>API Keys</b> een nieuwe sleutel en plak hem hierboven.</li>
+        <li>Opslaan. Open daarna een O-beurt en tik op <b>Telling controleren › Tel met foto's</b>.</li></ol>
+      ${s.liveAI?`<div class="splitrow" style="gap:10px"><button type="button" class="small ghost" id="aiUit">${I.x}AI-tellen uitzetten</button></div>`:""}`,{wide:false});
+    const u=$("#aiUit");if(u)u.onclick=async()=>{try{await fsDb().doc("geheim/config").set({aiKey:""},{merge:true});if(await saveSettings({liveAI:false})){dlg.close();schedule()}}catch(er){err(er)}};
+    form.onsubmit=async e=>{e.preventDefault();const key=$("#aiKey").value.trim();if(key&&!/^sk-ant-/.test(key)){toast("Een Anthropic-sleutel begint met sk-ant-");return}
+      try{if(key)await fsDb().doc("geheim/config").set({aiKey:key},{merge:true});if(await saveSettings({liveAI:!!(key||s.liveAI)})){dlg.close();schedule()}}catch(er){err(er)}}};
 
   SETEXTRA.liveMollie=(c,s)=>{if(!alleenEigenaar())return;
     setDlg(c,`${info("Elke factuurmail krijgt een eigen <b>betaallink</b> (iDEAL, Bancontact, creditcard). Betaalt de klant, dan staat de factuur vanzelf op <b>betaald</b>.")}

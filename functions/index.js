@@ -404,3 +404,53 @@ const P = require("./portaal")({ db, onRequest, onCall, HttpsError, geheim, bedr
 exports.ticketMelding = P.ticketMelding;
 exports.portaal = P.portaal;
 exports.portaalUitnodigen = P.portaalUitnodigen;
+
+/* ---------- ramen tellen met AI: foto's per zijde van de woning, terug: stippen per raam met soort ---------- */
+const RT_PROMPT = `Je helpt een Nederlandse glazenwasser het aantal ramen van een woning te tellen. Je krijgt foto's van de zijden van één woning (voorzijde, zijkanten, achterzijde, eventueel extra). Zoek op elke foto ieder raam dat een glazenwasser aan de buitenkant wast, en geef per raam een stip in het midden van het glas.
+
+Wat telt als één raam: elk los ingekaderd glasvlak (elke ruit in een eigen kader of vleugel). Een raam met een bovenlicht = 2. Een deur met glas = 1 per glasvlak. Een schuifpui met 3 glasvlakken = 3. Garagedeur zonder glas telt niet. Ramen van de buren tellen niet mee: alleen de woning die centraal staat.
+
+Soort (t):
+- "f0" raam op de begane grond
+- "f1" raam op de 1e verdieping
+- "f2" raam op de 2e verdieping (ook ramen in een dakkapel op die hoogte)
+- "f3" raam op de 3e verdieping of hoger
+- "s-tuimel" dakraam/tuimelraam dat schuin in het dakvlak ligt
+- "s-koepel" lichtkoepel op een plat dak
+- "s-lood" glas-in-lood (ruit met loodstrips, vaak bovenlichten in jaren-30 woningen)
+- "s-mini" miniraampje: kleine ruitjes kleiner dan ca. 30x30 cm (ook elk vakje in een roedeverdeling), tel elk ruitje
+Bepaal de verdieping aan de hand van de gevel (hoogte, aantal bouwlagen), niet alleen de plek in de foto.
+
+Dubbel tellen voorkomen: zie je hetzelfde raam op twee foto's (bijvoorbeeld een hoekraam), zet het alleen op de foto waar het het duidelijkst te zien is.
+Coördinaten x en y zijn tussen 0 en 1, relatief aan de breedte en hoogte van die foto (0,0 = linksboven).
+
+Antwoord ALLEEN met JSON, zonder uitleg eromheen, in deze vorm:
+{"fotos":[{"i":0,"ramen":[{"t":"f0","x":0.31,"y":0.72}]}],"zeker":"hoog|middel|laag","opmerking":"korte Nederlandse opmerking voor de glazenwasser, bv. wat slecht zichtbaar was (max 1 zin), of leeg"}`;
+const RT_SOORT = new Set(["f0", "f1", "f2", "f3", "s-tuimel", "s-koepel", "s-lood", "s-mini"]);
+exports.ramenTellen = onCall({ memory: "512MiB", timeoutSeconds: 120 }, async req => {
+  await checkGebruiker(req.auth);
+  const g = await geheim(), key = g.aiKey;
+  if (!key) throw new HttpsError("failed-precondition", "AI-tellen is nog niet ingesteld. Vul je Anthropic API-sleutel in bij Instellingen › AI ramen tellen.");
+  const fotos = (req.data && req.data.fotos || []).filter(f => f && typeof f.data === "string" && f.data.length > 100).slice(0, 8);
+  if (!fotos.length) throw new HttpsError("invalid-argument", "Geen foto's ontvangen.");
+  const content = [];
+  fotos.forEach((f, i) => {
+    content.push({ type: "text", text: `Foto ${i} · ${String(f.zijde || "zijde").slice(0, 40)}` });
+    content.push({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: f.data.replace(/^data:image\/\w+;base64,/, "") } });
+  });
+  content.push({ type: "text", text: "Tel nu de ramen en geef het JSON-antwoord." });
+  let r, j;
+  try {
+    r = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
+      body: JSON.stringify({ model: g.aiModel || "claude-opus-5-5", max_tokens: 4000, system: RT_PROMPT, messages: [{ role: "user", content }] }) });
+    j = await r.json();
+  } catch (e) { throw new HttpsError("unavailable", "De AI was niet bereikbaar. Probeer het zo nog eens."); }
+  if (!r.ok) { const m = (j && j.error && j.error.message) || r.status; console.error("ramenTellen", m);
+    throw new HttpsError(r.status === 401 ? "permission-denied" : "internal", r.status === 401 ? "De AI-sleutel klopt niet. Controleer hem bij Instellingen." : "AI-tellen lukte niet: " + m); }
+  const txt = (j.content || []).filter(c => c.type === "text").map(c => c.text).join(""), a = txt.indexOf("{"), b = txt.lastIndexOf("}");
+  let out; try { out = JSON.parse(txt.slice(a, b + 1)); } catch (e) { console.error("ramenTellen parse", txt.slice(0, 400)); throw new HttpsError("internal", "De AI gaf geen bruikbaar antwoord. Probeer het opnieuw."); }
+  const cl = n => Math.max(0, Math.min(1, Math.round((Number(n) || 0) * 10000) / 10000));
+  const per = fotos.map((_, i) => { const f = (out.fotos || []).find(x => Number(x.i) === i) || {};
+    return (f.ramen || []).filter(d => RT_SOORT.has(d.t)).slice(0, 120).map(d => ({ t: d.t, x: cl(d.x), y: cl(d.y) })); });
+  return { fotos: per, zeker: ["hoog", "middel", "laag"].includes(out.zeker) ? out.zeker : "", opmerking: String(out.opmerking || "").slice(0, 300) };
+});

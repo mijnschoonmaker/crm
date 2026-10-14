@@ -121,7 +121,7 @@ function openOpdrachtWerk(kid,focus){
     return `<div class="ow-rk" data-calc="${di}"><div class="ow-rkh"><span class="objic">${I.check}</span><b>${esc(naam)}</b><span class="sp"></span><button type="button" class="iconbtn sm" data-redit="${di}" aria-label="Wijzigen" title="Wijzigen">${I.pencil}</button></div>
       ${q.oms?`<p class="ow-rko">${esc(q.oms)}</p>`:""}
       ${min>0&&!c.totOver?`<div class="ow-rkl"><b>Let op:</b> ${esc(naam)} heeft een minimumprijs van <b>${eur(min)}</b> (excl. btw).${c.glas<=min+0.005&&c.rows.reduce((a,x)=>a+x.calcP,0)<min?" Deze opdracht valt nu onder het minimum.":""} Gebruik een opdrachtspecifieke dienst als je een lagere prijs wilt.</div>`:""}
-      <dl class="ow-rkf">${q.f.map((n,j)=>{if(!n)return"";const w=Number(q.fq[j])||base;return `<dt>${FLN[j]}</dt><dd>${n} st${w?` <i>(${esc(fqT(w))})</i>`:""}</dd>`}).join("")}</dl>
+      <dl class="ow-rkf">${q.f.map((n,j)=>{if(!n)return"";const w=Number(q.fq[j])||base;return `<dt>${FLN[j]}</dt><dd>${n} st${w?` <i>(${esc(fqT(w))})</i>`:""}</dd>`}).join("")}${(c.srows||[]).map(x=>`<dt>${esc(x.naam)}</dt><dd>${x.n} st</dd>`).join("")}</dl>
       <dl class="ow-rkt">${c.start?`<dt>Starttarief</dt><dd>${eur(c.start)}</dd>`:""}<dt>Totaal ${esc(naam)}</dt><dd>${eur(c.ex)} <small>excl. btw</small></dd></dl></div>`};
   const sumHtml=(q,c,di,isMain)=>{const base=isMain?mF:null,has=v=>v!==""&&v!=null;
     return `<div class="ow-calc ow-sum" data-calc="${di}"><div class="ow-sumh"><b>Ramen per verdieping</b><button type="button" class="small" data-redit="${di}">${I.pencil}Wijzigen</button></div>
@@ -316,8 +316,9 @@ document.addEventListener("click",e=>{const c=e.target.closest("[data-jfi]");if(
 /* ---------- glasbewassing per verdieping: berekening (ook gebruikt bij afmelden) ---------- */
 const FLN=["Begane grond","1e verdieping","2e verdieping","3e verdieping"];
 const has0=v=>v!==""&&v!=null;
+const SPK=["tuimel","koepel","lood","mini"],SPN={tuimel:"Dak- / tuimelramen",koepel:"Lichtkoepels",lood:"Glas-in-lood",mini:"Miniraampjes"};
 const normR=q=>{q=q||{};const a=(x,d)=>[0,1,2,3].map(i=>x&&x[i]!=null?x[i]:d);
-  const r={f:a(q.f,0).map(n=>Number(n)||0),fq:a(q.fq,""),vol:a(q.vol,""),op:a(q.op,""),od:a(q.od,""),kf:a(q.kf,false).map(Boolean),kfq:a(q.kfq,""),kvol:a(q.kvol,""),kop:a(q.kop,""),kod:a(q.kod,""),start:q.start??"",tp:q.tp??"",td:q.td??"",oms:q.oms||""};
+  const r={f:a(q.f,0).map(n=>Number(n)||0),fq:a(q.fq,""),vol:a(q.vol,""),op:a(q.op,""),od:a(q.od,""),kf:a(q.kf,false).map(Boolean),kfq:a(q.kfq,""),kvol:a(q.kvol,""),kop:a(q.kop,""),kod:a(q.kod,""),start:q.start??"",tp:q.tp??"",td:q.td??"",oms:q.oms||"",sp:SPK.reduce((o,k)=>(o[k]=Math.max(0,Math.round(Number(q.sp&&q.sp[k])||0)),o),{})};
   if(q.koz&&!q.kf){r.f.forEach((n,i)=>{if(n){r.kf[i]=true;r.kfq[i]=(q.kz&&q.kz.fq)||"";r.kvol[i]=(q.kz&&q.kz.vol)||""}})}return r};
 const ramenVariabel=q=>!!q&&new Set((q.f||[]).map((n,i)=>n?String((q.fq||[])[i]||""):null).filter(x=>x!==null)).size>1;
 function ramenBerekening(q,opdrW,due){
@@ -328,6 +329,10 @@ function ramenBerekening(q,opdrW,due){
   const calc=x=>{const key="g"+Math.min(3,x.i),w=Number(q.fq[x.i])||opdrW;return {p:x.n*(c[key+"_p"]||0)*(1-(SD[key]||0))*(1-RC.freqPct(w)/100),min:x.n*(c[key+"_s"]||0)/60}};
   const rows=fl.map(x=>{const b=calc(x);let p=b.p;if(has(q.op[x.i])){p=Number(q.op[x.i]);over=true}return {i:x.i,n:x.n,naam:FLN[x.i],p:r2(p),min:has(q.od[x.i])?Number(q.od[x.i]):b.min,calcP:r2(b.p),calcMin:Math.ceil(b.min),sec:c["g"+Math.min(3,x.i)+"_s"]||0,pp:c["g"+Math.min(3,x.i)+"_p"]||0,ovP:has(q.op[x.i]),ovD:has(q.od[x.i])}});
   const spread=(target,key)=>{const sum=rows.reduce((a,r)=>a+r[key],0);if(!rows.length||!(sum>0))return;const f=target/sum;let acc=0;rows.forEach((r,ix)=>{if(ix===rows.length-1)r[key]=key==="p"?r2(target-acc):Math.max(0,target-acc);else{r[key]=key==="p"?r2(r[key]*f):r[key]*f;acc+=r[key]}})};
+  /* bijzondere ramen (dak/tuimel, koepel, glas-in-lood, mini): eigen tarief, zonder frequentiekorting (zoals de calculator) */
+  const sq=(q.sp&&!due)?q.sp:{},SS=RC.staffel(SPK.map(k=>({k,n:Number(sq[k])||0})).filter(x=>x.n));
+  const srows=SPK.map(k=>{const n=Number(sq[k])||0;return n?{k,n,naam:SPN[k],p:r2(n*(c[k+"_p"]||0)*(1-(SS[k]||0))),min:n*(c[k+"_s"]||0)/60}:null}).filter(Boolean);
+  rows.push(...srows.map(r=>({...r,i:"s",calcP:r.p,calcMin:Math.ceil(r.min),sp:true})));
   let glas=rows.reduce((a,r)=>a+r.p,0),minG=false,totOver=false;
   if(rows.length&&has(q.tp)){/* overschrijvende prijs voor de hele glasbewassing: verdeeld naar verhouding over de verdiepingen */
     let target=Number(q.tp)||0;if(due){const all=ramenBerekening({...q,tp:"",td:""},opdrW,null),part=rows.reduce((a,r)=>a+r.p,0);target=all.glas>0?target*part/all.glas:target}
@@ -338,7 +343,7 @@ function ramenBerekening(q,opdrW,due){
   const krows=kz.map(x=>{let p=x.n*(c.koz_p||0);if(has(q.kop[x.i])){p=Number(q.kop[x.i]);kover=true}return {i:x.i,n:x.n,naam:FLN[x.i],p:r2(p),min:has(q.kod[x.i])?Number(q.kod[x.i]):x.n*(c.koz_s||0)/60,calcP:r2(x.n*(c.koz_p||0)),calcMin:Math.ceil(x.n*(c.koz_s||0)/60)}});
   let kozP=krows.reduce((a,r)=>a+r.p,0),minK=false;if(krows.length&&!kover&&kozP<(c.kozMin||0)){minK=true;kozP=c.kozMin}const kozMin=krows.reduce((a,r)=>a+r.min,0);
   const start=rows.length?(has(q.start)?Number(q.start):(c.start||0)):0,ex=r2(glas+kozP+start);
-  return {rows,krows,glas:r2(glas),minG,totOver,kozP:r2(kozP),minK,kozMin,start,ex,min:Math.ceil(rows.reduce((a,r)=>a+r.min,0)+kozMin),count:tot,c};
+  return {rows,krows,glas:r2(glas),minG,totOver,kozP:r2(kozP),minK,kozMin,start,ex,min:Math.ceil(rows.reduce((a,r)=>a+r.min,0)+kozMin),count:tot+srows.reduce((a,r)=>a+r.n,0),srows,c};
 }
 /* welke delen gaan mee op deze dag, en hoe schuiven de volgende data door */
 function ramenDue(k,d){const q=normR(k.ramenRegel);const ok=(fq,vol)=>!fq||!vol||vol<=d;

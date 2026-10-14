@@ -3,33 +3,51 @@ const isOBeurt=k=>!!(k&&k.tellingControle&&isEersteKeer(k));
 const TC_FL=["Begane grond","1e verdieping","2e verdieping","3e verdieping"];
 function tcFloors(k){const q=k.ramenRegel?normR(k.ramenRegel):null;if(q)return q.f.slice(0,4).map(n=>Number(n)||0);
   const t=k.ramenTelling&&k.ramenTelling.floors||[];return [0,1,2,3].map(i=>i<3?Number(t[i])||0:t.slice(3).reduce((a,b)=>a+(Number(b)||0),0))}
-function tcPrijs(k,f){try{const q=normR({...(k.ramenRegel||{}),f});const b=ramenBerekening(q,Number(k.frequentie)||8,null),st=S(),mul=st.incl?1+(Number(st.btw)||21)/100:1;
+/* bijzondere ramen: uit de opdrachtregel, anders uit de telling van de klant */
+function tcSp(k){const q=k.ramenRegel&&k.ramenRegel.sp,t=k.ramenTelling&&k.ramenTelling.special||{},src=q&&SPK.some(x=>q[x])?q:t;return SPK.reduce((o,x)=>(o[x]=Math.max(0,Math.round(Number(src[x])||0)),o),{})}
+function tcPrijs(k,f,sp){try{const q=normR({...(k.ramenRegel||{}),f,sp:sp||tcSp(k)});const b=ramenBerekening(q,Number(k.frequentie)||8,null),st=S(),mul=st.incl?1+(Number(st.btw)||21)/100:1;
   return {prijs:r2(b.ex*mul),duur:Math.max(5,Math.ceil(b.min/5)*5),count:b.count}}catch(e){console.error(e);return null}}
-function oBeurtBlok(k){if(!isOBeurt(k))return "";const f=tcFloors(k),tot=f.reduce((a,b)=>a+b,0),g=k.tellingGecontroleerd;
+const TC_SPN={tuimel:"Dak- / tuimelramen",koepel:"Lichtkoepels",lood:"Glas-in-lood",mini:"Miniraampjes"};
+function oBeurtBlok(k){if(!isOBeurt(k))return "";const f=tcFloors(k),sp=tcSp(k),tot=f.reduce((a,b)=>a+b,0)+SPK.reduce((a,x)=>a+sp[x],0),g=k.tellingGecontroleerd;
+  const fo=(g&&g.fotos||[]).filter(x=>x.id);
   return `<div class="obt${g?" klaar":""}"><div class="obt-h"><span class="obt-p">O-beurt</span><b>${g?"Telling gecontroleerd":"Tellingcontrole"}</b><span class="sp"></span>${g?`<span class="obt-ok">${I.check}${g.na===g.voor?"klopt":g.voor+" → "+g.na+" ramen"}</span>`:""}</div>
-    <p>${g?`Gecontroleerd op ${esc(fmtD(g.datum))}${g.na!==g.voor&&g.prijsNa!==g.prijsVoor?` · prijs ${esc(eur(g.prijsVoor))} → <b>${esc(eur(g.prijsNa))}</b>`:""}.`:`Eerste wasbeurt. De klant telde zelf <b>${tot} ramen</b>. Tel ter plekke na of het klopt.`}</p>
-    <div class="obt-f">${f.map((n,i)=>n?`<span>${esc(TC_FL[i])} <b>${n}</b></span>`:"").join("")}</div>
-    <button type="button" class="small${g?"":" primary"}" data-tctl="${esc(k.id)}">${I.calculator}${g?"Telling aanpassen":"Telling controleren"}</button></div>`}
+    <p>${g?`Gecontroleerd op ${esc(fmtD(g.datum))}${g.ai?" met foto's":""}${g.na!==g.voor&&g.prijsNa!==g.prijsVoor?` · prijs ${esc(eur(g.prijsVoor))} → <b>${esc(eur(g.prijsNa))}</b>`:""}.`:`Eerste wasbeurt. De klant telde zelf <b>${tot} ramen</b>. Loop rond de woning en maak per zijde een foto: de ramen worden voor je geteld.`}</p>
+    <div class="obt-f">${f.map((n,i)=>n?`<span>${esc(TC_FL[i])} <b>${n}</b></span>`:"").join("")}${SPK.map(x=>sp[x]?`<span>${esc(TC_SPN[x])} <b>${sp[x]}</b></span>`:"").join("")}</div>
+    ${fo.length?`<div class="obt-fo">${fo.map((x,i)=>`<button type="button" data-tcfo="${esc(k.id)}:${i}" aria-label="Foto ${i+1}"><img src="${BLOB+esc(x.id)}" alt="" loading="lazy"><em>${(x.dots||[]).length}</em></button>`).join("")}</div>`:""}
+    <button type="button" class="small${g?"":" primary"}" data-tctl="${esc(k.id)}">${g?I.calculator+"Telling aanpassen":I.camera+"Telling controleren"}</button></div>`}
 function openTellingControle(kid,na){const k=state.klanten.find(x=>x.id===kid);if(!k)return;
-  const voor=(k.tellingGecontroleerd&&k.tellingGecontroleerd.origF)||tcFloors(k),f=tcFloors(k).slice();const p0=k.tellingGecontroleerd?k.tellingGecontroleerd.prijsVoor:Number(k.prijs)||0;
+  const gc=k.tellingGecontroleerd,voor=(gc&&gc.origF)||tcFloors(k),vsp=(gc&&gc.origSp)||tcSp(k),f=tcFloors(k).slice(),sp={...tcSp(k)};
+  const p0=gc?gc.prijsVoor:Number(k.prijs)||0;let fotos=null,ai=false,spOpen=SPK.some(x=>sp[x]||vsp[x]);
   openDlg(`<div class="dlg-head"><span class="objic big">${I.calculator}</span><div style="flex:1;min-width:0"><h3>Tellingcontrole</h3><div class="subt">${esc(cleanName(k.naam))} · ${esc(fullAddr(k))}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
-    ${info("O-beurt: tel per verdieping de ramen die je wast. Klopt het met de telling van de klant, tik dan op Telling klopt. Wijkt het af, pas het aantal aan; prijs en tijdsduur rekenen mee voor de volgende beurten.")}
+    <button type="button" class="tc-ai" id="tcAi">${rfHuisSvg(-1)}<span><b>Tel met foto's</b><small id="tcAiS">Voorzijde, rechts, achter, links: klik, klik, klik, klik. De ramen worden per verdieping voor je geteld.</small></span><i>${I.camera}</i></button>
+    <div class="tc-or"><span>of tel zelf</span></div>
     <div class="tc-rows" id="tcRows"></div><div id="tcSum"></div>
     <div class="row stickyfoot"><button type="button" class="ghost" data-act="close">Annuleren</button><span class="sp"></span><button type="submit" class="primary" id="tcGo">${I.check}Telling klopt</button></div>`,{wide:false});
-  const draw=()=>{$("#tcRows").innerHTML=f.map((n,i)=>`<div class="tc-row${n!==voor[i]?" dif":""}"><div><b>${TC_FL[i]}</b><small>klant telde ${voor[i]}</small></div><div class="ow-step"><button type="button" data-tcs="${i}:-1" aria-label="Min">−</button><input type="number" min="0" inputmode="numeric" data-tci="${i}" value="${n}" aria-label="${TC_FL[i]}"><span>st</span><button type="button" data-tcs="${i}:1" aria-label="Plus">+</button></div></div>`).join("");sum()};
-  const sum=()=>{const same=f.every((n,i)=>n===voor[i]),tv=voor.reduce((a,b)=>a+b,0),tn=f.reduce((a,b)=>a+b,0),c=same?null:tcPrijs(k,f);
-    $("#tcSum").innerHTML=same?`<div class="okbox" style="margin:0">${I.check}<div><b>Zelfde als de klant: ${tn} ramen</b><span>Prijs blijft ${esc(eur(p0))} per beurt.</span></div></div>`
+  const same=()=>f.every((n,i)=>n===voor[i])&&SPK.every(x=>sp[x]===vsp[x]);
+  const totV=()=>voor.reduce((a,b)=>a+b,0)+SPK.reduce((a,x)=>a+vsp[x],0),totN=()=>f.reduce((a,b)=>a+b,0)+SPK.reduce((a,x)=>a+sp[x],0);
+  const row=(key,label,n,v)=>`<div class="tc-row${n!==v?" dif":""}"><div><b>${label}</b><small>klant telde ${v}</small></div><div class="ow-step"><button type="button" data-tcs="${key}:-1" aria-label="Min">−</button><input type="number" min="0" inputmode="numeric" data-tci="${key}" value="${n}" aria-label="${label}"><span>st</span><button type="button" data-tcs="${key}:1" aria-label="Plus">+</button></div></div>`;
+  const draw=()=>{$("#tcRows").innerHTML=f.map((n,i)=>row(i,TC_FL[i],n,voor[i])).join("")+(spOpen?`<div class="tc-sub">Bijzondere ramen</div>`+SPK.map(x=>row(x,TC_SPN[x],sp[x],vsp[x])).join(""):`<button type="button" class="tc-more" data-tcmore>＋ Dakramen, lichtkoepels, glas-in-lood of miniraampjes</button>`);sum()};
+  const zet=(key,v)=>{v=Math.max(0,Math.round(Number(v)||0));if(/^\d$/.test(String(key)))f[+key]=v;else sp[key]=v};
+  const sum=()=>{const sm=same(),tv=totV(),tn=totN(),c=sm?null:tcPrijs(k,f,sp);
+    $("#tcSum").innerHTML=sm?`<div class="okbox" style="margin:0">${I.check}<div><b>Zelfde als de klant: ${tn} ramen</b><span>Prijs blijft ${esc(eur(p0))} per beurt.</span></div></div>`
       :`<div class="warnbox">${I.alert}<span>Klant telde <b>${tv}</b>, jij telt <b>${tn}</b> ramen. ${c&&c.prijs===p0?`Prijs blijft <b>${esc(eur(p0))}</b> per beurt (minimumprijs of zelfde tarief).`:`Nieuwe prijs ${c?`<b>${esc(eur(c.prijs))}</b> per beurt (was ${esc(eur(p0))}), ± ${c.duur} min`:"wordt herberekend"}.`}</span></div>`;
-    $("#tcGo").innerHTML=I.check+(same?"Telling klopt":"Telling opslaan")};
+    $("#tcGo").innerHTML=I.check+(sm?"Telling klopt":"Telling opslaan")};
   draw();
-  $("#tcRows").addEventListener("click",e=>{const b=e.target.closest("[data-tcs]");if(!b)return;const [i,d]=b.dataset.tcs.split(":").map(Number);f[i]=Math.max(0,f[i]+d);draw()});
-  $("#tcRows").addEventListener("input",e=>{const el=e.target.closest("[data-tci]");if(!el)return;f[+el.dataset.tci]=Math.max(0,Math.round(Number(el.value)||0));el.closest(".tc-row").classList.toggle("dif",f[+el.dataset.tci]!==voor[+el.dataset.tci]);sum()});
+  $("#tcAi").onclick=()=>openFotoTelling(k,fotos,res=>{fotos=res.fotos;ai=true;f.splice(0,4,...res.f);SPK.forEach(x=>sp[x]=res.sp[x]||0);if(SPK.some(x=>sp[x]))spOpen=true;draw();
+    $("#tcAi").classList.add("klaar");$("#tcAi>i").innerHTML=I.check;$("#tcAiS").textContent=`${res.fotos.length} foto's · ${totN()} ramen geteld. Tik om de foto's te bekijken of te verbeteren.`;
+    $("#tcRows").animate([{opacity:.3,transform:"translateY(6px)"},{opacity:1,transform:"none"}],{duration:420,easing:"cubic-bezier(.2,.8,.2,1)"})});
+  $("#tcRows").addEventListener("click",e=>{if(e.target.closest("[data-tcmore]")){spOpen=true;draw();return}const b=e.target.closest("[data-tcs]");if(!b)return;const [i,d]=b.dataset.tcs.split(":");const cur=/^\d$/.test(i)?f[+i]:sp[i];zet(i,cur+Number(d));draw()});
+  $("#tcRows").addEventListener("input",e=>{const el=e.target.closest("[data-tci]");if(!el)return;const key=el.dataset.tci;zet(key,el.value);const v=/^\d$/.test(key)?voor[+key]:vsp[key],n=/^\d$/.test(key)?f[+key]:sp[key];el.closest(".tc-row").classList.toggle("dif",n!==v);sum()});
   form.onsubmit=async e=>{e.preventDefault();const b=$("#tcGo");b.disabled=true;
-    const cur=state.klanten.find(x=>x.id===kid)||k,same=f.every((n,i)=>n===voor[i]),c=same?null:tcPrijs(cur,f),tv=voor.reduce((a,b)=>a+b,0),tn=f.reduce((a,b)=>a+b,0);
-    const g={datum:iso(today()),voor:tv,na:tn,origF:voor,prijsVoor:p0,prijsNa:c?c.prijs:p0};
-    const patch={tellingGecontroleerd:g,ramenRegel:normR({...(cur.ramenRegel||{}),f:f.slice()}),...(c?{prijs:c.prijs,...(!(cur.tijden||[]).length?{duur:c.duur}:{})}:{}),
-      ramenTelling:{...(cur.ramenTelling||{}),gecontroleerd:g},log:[...(cur.log||[]),{datum:iso(today()),tekst:same?`Tellingcontrole O-beurt: klopt (${tn} ramen)`:`Tellingcontrole O-beurt: ${tv} → ${tn} ramen · prijs ${eur(p0)} → ${eur(c?c.prijs:p0)}`}]};
-    try{await save("klanten",kid,{...strip(cur),...patch});toast(same?"Telling klopt · vastgelegd":"Telling aangepast · nieuwe prijs "+eur(c?c.prijs:p0)+" per beurt");dlg.close();render();if(typeof na==="function")na();
+    const cur=state.klanten.find(x=>x.id===kid)||k,sm=same(),c=sm?null:tcPrijs(cur,f,sp),tv=totV(),tn=totN();
+    let fo=gc&&gc.fotos||[];
+    if(fotos&&fotos.length){b.innerHTML=I.camera+"Foto's bewaren…";const up=[];
+      for(const p of fotos){try{const r=state.assets?await state.assets.upload(new File([p.blob],"telling-"+p.zijde.toLowerCase().replace(/\W+/g,"-")+".jpg",{type:"image/jpeg"})):null;if(r&&r.id)up.push({id:r.id,w:p.w,h:p.h,zijde:p.zijde,dots:p.dots.map(d=>({x:Math.round(d.x*1e4)/1e4,y:Math.round(d.y*1e4)/1e4,t:d.t}))})}catch(er){console.warn(er)}}
+      if(up.length)fo=up}
+    const g={datum:iso(today()),voor:tv,na:tn,origF:voor,origSp:vsp,prijsVoor:p0,prijsNa:c?c.prijs:p0,...(ai||(gc&&gc.ai)?{ai:true}:{}),...(fo.length?{fotos:fo}:{})};
+    const patch={tellingGecontroleerd:g,ramenRegel:normR({...(cur.ramenRegel||{}),f:f.slice(),sp:{...sp}}),...(c?{prijs:c.prijs,...(!(cur.tijden||[]).length?{duur:c.duur}:{})}:{}),
+      ramenTelling:{...(cur.ramenTelling||{}),gecontroleerd:g},log:[...(cur.log||[]),{datum:iso(today()),tekst:(sm?`Tellingcontrole O-beurt: klopt (${tn} ramen)`:`Tellingcontrole O-beurt: ${tv} → ${tn} ramen · prijs ${eur(p0)} → ${eur(c?c.prijs:p0)}`)+(ai?" · geteld met foto's":"")}]};
+    try{await save("klanten",kid,{...strip(cur),...patch});toast(sm?"Telling klopt · vastgelegd":"Telling aangepast · nieuwe prijs "+eur(c?c.prijs:p0)+" per beurt");dlg.close();render();if(typeof na==="function")na();
       if(typeof stuurDefinitief==="function"&&liveMail()&&S().ovDefinitiefAan!==false)setTimeout(()=>stuurDefinitief(kid,true),400)}catch(er){b.disabled=false;err(er)}};
 }
 document.addEventListener("click",e=>{const b=e.target.closest("[data-tctl]");if(!b)return;e.preventDefault();e.stopPropagation();openTellingControle(b.dataset.tctl)},true);

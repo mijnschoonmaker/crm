@@ -81,6 +81,7 @@ if(LIVE){
     {id:"liveMail",t:"E-mail versturen",sub:"Mails rechtstreeks vanuit het CRM, met alle statussen",ic:"send",bg:"#2f7f88",st:s=>s.liveMail?["ok","Actief"]:["soon","Niet ingesteld"],rows:s=>[["Afzender",s.liveAfzender||"—"],["Via","Brevo"],["Statussen","Bezorgd · geopend · geklikt · bounce · spam"]],warn:s=>s.liveMail?"":"Koppel Brevo om mails, facturen en herinneringen direct vanuit het CRM te versturen."},
     {id:"liveMollie",t:"Online betalen",sub:"Betaallink per factuur, automatisch afboeken",ic:"card",bg:"#23845a",st:s=>s.liveMollie?["ok","Actief"]:["soon","Niet ingesteld"],rows:s=>[["Via","Mollie"],["Afboeken","Automatisch bij betaling"]],warn:s=>s.liveMollie?"":"Met Mollie krijgt elke factuurmail een eigen betaallink en staat de factuur vanzelf op betaald."},
     {id:"liveOverzicht",t:"Bestellingsoverzicht",sub:"Voorlopig na aanmelding, definitief na telling of handtekening",ic:"note",bg:"#4a78b8",st:s=>s.voorwaardenPdf?["ok","Actief"]:["soon","Voorwaarden ontbreken"],rows:s=>[["Voorlopig","Na aanmelding via de website"],["Definitief","Na tellingcontrole of online akkoord"],["Bijlagen",[s.voorwaardenPdf&&"voorwaarden",s.herroepingPdf&&"herroepingsformulier"].filter(Boolean).join(" + ")||"—"]]},
+    {id:"liveAI",t:"AI ramen tellen",sub:"Foto's rondom de woning, de ramen worden per verdieping geteld",ic:"camera",bg:"#6e56cf",st:s=>s.liveAI?["ok","Actief"]:["soon","Niet ingesteld"],rows:s=>[["Via","Anthropic (Claude)"],["Gebruik","Tellingcontrole bij de O-beurt"],["Kosten","Enkele centen per woning"]],warn:s=>s.liveAI?"":"Met een AI-sleutel telt het CRM de ramen op je foto's: begane grond, verdiepingen, dakramen, koepels, glas-in-lood en miniraampjes."},
     {id:"liveUsers",t:"Gebruikers",sub:"Wie mag inloggen in het CRM",ic:"klanten",bg:"#1d5a74",st:()=>["ok","Beheren"],rows:s=>[["Eigenaar","robin@mijnschoonmaker.com"],["Inloggen","E-mail + wachtwoord"]]},
     {id:"liveImport",t:"Overzetten",sub:"Gegevens uit de oude versie inladen",ic:"inbox",bg:"#4b3fd0",st:()=>["ok","Eenmalig"],rows:()=>[["Bestand","zeem-backup (met foto's)"]]});
   const alleenEigenaar=()=>{if(isEigenaar())return true;toast("Alleen de eigenaar kan dit aanpassen");return false};
@@ -106,6 +107,19 @@ if(LIVE){
     form.onsubmit=async e=>{e.preventDefault();const p=readFields(),key=$("#brevoKey").value.trim();
       try{await fsDb().doc("geheim/config").set({...(key?{brevoKey:key}:{}),afzender:p.liveAfzender,meldAdres:p.liveMeld,hookToken:tok},{merge:true});
         if(await saveSettings({...p,hookToken:tok,liveMail:!!(key||s.liveMail)})){dlg.close();schedule()}}catch(er){err(er)}}};
+
+  SETEXTRA.liveAI=(c,s)=>{if(!alleenEigenaar())return;
+    setDlg(c,`${info("Bij de tellingcontrole loop je rond de woning en maak je per zijde één foto. De AI zet een stip op elk raam en telt per verdieping, plus dakramen, lichtkoepels, glas-in-lood en miniraampjes. Jij controleert en verbetert met een tik.")}
+      <label class="full">Anthropic API-sleutel<input type="password" id="aiKey" autocomplete="off" placeholder="${s.liveAI?"Ingesteld · laat leeg om te houden":"sk-ant-…"}"><small class="help">Wordt veilig op de server bewaard en is daarna niet meer in te zien. Stuur deze sleutel nooit via mail of chat.</small></label>
+      ${sec("Sleutel aanmaken · eenmalig")}
+      <ol class="trk-steps"><li>Ga naar <b>console.anthropic.com</b> en maak een account (of log in).</li>
+        <li>Zet bij <b>Billing</b> wat tegoed klaar, bijvoorbeeld € 10. Eén woning tellen kost enkele centen.</li>
+        <li>Maak bij <b>API Keys</b> een nieuwe sleutel en plak hem hierboven.</li>
+        <li>Opslaan. Open daarna een O-beurt en tik op <b>Telling controleren › Tel met foto's</b>.</li></ol>
+      ${s.liveAI?`<div class="splitrow" style="gap:10px"><button type="button" class="small ghost" id="aiUit">${I.x}AI-tellen uitzetten</button></div>`:""}`,{wide:false});
+    const u=$("#aiUit");if(u)u.onclick=async()=>{try{await fsDb().doc("geheim/config").set({aiKey:""},{merge:true});if(await saveSettings({liveAI:false})){dlg.close();schedule()}}catch(er){err(er)}};
+    form.onsubmit=async e=>{e.preventDefault();const key=$("#aiKey").value.trim();if(key&&!/^sk-ant-/.test(key)){toast("Een Anthropic-sleutel begint met sk-ant-");return}
+      try{if(key)await fsDb().doc("geheim/config").set({aiKey:key},{merge:true});if(await saveSettings({liveAI:!!(key||s.liveAI)})){dlg.close();schedule()}}catch(er){err(er)}}};
 
   SETEXTRA.liveMollie=(c,s)=>{if(!alleenEigenaar())return;
     setDlg(c,`${info("Elke factuurmail krijgt een eigen <b>betaallink</b> (iDEAL, Bancontact, creditcard). Betaalt de klant, dan staat de factuur vanzelf op <b>betaald</b>.")}
