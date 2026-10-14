@@ -233,6 +233,8 @@ async function init(){
   const db=await use("db");
   if(!db){state.loaded=true;$("#status").innerHTML='<div class="notice">Opslaan is hier niet beschikbaar. Wijzigingen blijven alleen staan tot je de pagina sluit.</div>';schedule();return}
   state.db=db;const seen=new Set();
+  /* gegevens blijven uit (browseropslag hangt): na 12 s een duidelijke melding met herstelknop */
+  setTimeout(()=>{if(state.loaded||seen.has("klanten"))return;$("#status").innerHTML=`<div class="notice" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="flex:1;min-width:200px"><b>Je gegevens laden niet.</b> De opslag van je browser lijkt vast te zitten. Herstellen haalt alles opnieuw van de server; er gaat niets verloren.</span><button type="button" class="small primary" onclick="window.ZEEM_HERSTEL?ZEEM_HERSTEL():location.reload()">Herstellen</button></div>`},12000);
   if(!LIVE)$("#status").innerHTML='<div class="notice verhuisd"><b>Deze CRM is verhuisd.</b> Gebruik voortaan <a href="https://crm.mijnschoonmaker.com" target="_blank" rel="noopener">crm.mijnschoonmaker.com</a> (of <a href="https://mijnschoonmaker-95789.web.app" target="_blank" rel="noopener">mijnschoonmaker-95789.web.app</a>). Wat je hier wijzigt, komt niet in de nieuwe CRM.</div>';
   COLS.forEach(col=>db.collection(col).onSnapshot(s=>{
     apply(col,s.docs.map(d=>({...d.data(),id:d.id})));seen.add(col);if(seen.size===COLS.length){if(!state.loaded)setTimeout(migGeenTijd,400);state.loaded=true}schedule();

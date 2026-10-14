@@ -5,7 +5,11 @@
   firebase.initializeApp(window.FIREBASE_CONFIG);
   const auth = firebase.auth(), fs = firebase.firestore(), st = firebase.storage();
   fs.settings({ ignoreUndefinedProperties: true });
-  fs.enablePersistence({ synchronizeTabs: true }).catch(() => {});   // werkt ook even zonder internet (bijv. onderweg)
+  /* offline-opslag; staat uit als die eerder vastliep (Safari laat de browseropslag soms hangen na het heropenen van een tabblad) */
+  let geenCache = false; try { geenCache = localStorage.getItem("ms.geenCache") === "1"; } catch (e) {}
+  if (!geenCache) fs.enablePersistence({ synchronizeTabs: true }).catch(() => {});
+  window.ZEEM_HERSTEL = async () => { try { localStorage.setItem("ms.geenCache", "1"); } catch (e) {}
+    try { await fs.terminate(); await fs.clearPersistence(); } catch (e) {} location.reload(); };   // werkt ook even zonder internet (bijv. onderweg)
 
   /* Firestore kent geen arrays in arrays: die pakken we in en weer uit */
   const enc = v => Array.isArray(v) ? (v.some(Array.isArray) ? { __arr: v.map(x => Array.isArray(x) ? { __a: x.map(enc) } : enc(x)) } : v.map(enc))
@@ -101,7 +105,7 @@
   }
   let gestart = false;
   async function start(u) {
-    try { await fs.collection("instellingen").limit(1).get(); }
+    try { await Promise.race([fs.collection("instellingen").limit(1).get(), new Promise((_, nee) => setTimeout(() => nee({ code: "traag" }), 8000))]); }
     catch (e) { if (e.code === "permission-denied") return geenToegang(u); }
     if (ov) ov.style.display = "none";
     if (!gestart) { gestart = true; klaar(u); voegUitloggenToe(); }
