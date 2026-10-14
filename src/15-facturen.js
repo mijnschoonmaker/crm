@@ -17,11 +17,7 @@ function vFacturen(){
       <button type="button" data-act="finalizeall" ${by("Concept").length?"":"disabled"}>${I.check}Alle concepten definitief maken</button>
       <button type="button" data-act="queue" data-q="aanmaning">${I.bell}Betalingsherinneringen</button>
       ${state.dl?`<button type="button" data-act="snelstart">${I.dl}Exporteer naar SnelStart</button><button type="button" data-act="fexport">${I.dl}Exporteer als CSV</button>`:""}</div>`:""}</div></div></div>
-  <div class="stats">
-    <button type="button" class="stat" data-act="ff" data-v="openstaand"><span class="eyebrow">Openstaand</span><b>${eur0(sum(open))}</b><small>${plural(open.length,"factuur","facturen")}</small></button>
-    <button type="button" class="stat late" data-act="ff" data-v="achterstallig"><span class="eyebrow">Achterstallig</span><b>${eur0(sum(by("Achterstallig")))}</b><small>${plural(by("Achterstallig").length,"factuur","facturen")}</small></button>
-    <div class="stat"><span class="eyebrow">Verstuurd</span><b>${verst.length}</b><small>Wacht op betaling</small></div>
-    <button type="button" class="stat" data-act="ff" data-v="betaald"><span class="eyebrow">Betaald</span><b>${eur0(sum(by("Betaald")))}</b><small>${by("Betaald").length} betaald</small></button></div>
+  ${fGeldstroom(all,open,by,sum)}
   ${ub.length?`<div class="banner"><div><b>${plural(ub.length,"afgemelde beurt","afgemelde beurten")} nog niet gefactureerd</b><br><small>${plural(ubK.size,"klant","klanten")} · ${eur(ub.reduce((a,b)=>a+(Number(b.bedrag)||0),0))}</small></div><button type="button" class="primary" data-act="billall">Maak ${plural(ubK.size,"factuur","facturen")}</button></div>`:""}
   ${by("Concept").length?`<div class="banner" style="background:var(--surface-2)"><div><b>${plural(by("Concept").length,"conceptfactuur","conceptfacturen")} klaar</b><br><small>Van afgemelde opdrachten · ${eur(sum(by("Concept")))}</small></div><button type="button" data-act="ff" data-v="concept">Bekijken</button><button type="button" class="primary" data-act="finalizeall">Alles definitief maken</button></div>`:""}
   ${!S().iban||!S().naam?`<div class="notice">Vul je bedrijfsnaam en IBAN in bij <button type="button" class="tiny ghost" data-act="tab" data-tab="instellingen" style="color:inherit;text-decoration:underline">Instellingen</button>, dan staan ze op elke factuur.</div>`:""}
@@ -44,3 +40,20 @@ function vOffertes(){
   const shown=lists[F]||all;
   return html+(shown.length?factTable(shown,true):empty("Geen offertes in deze lijst",""));
 }
+
+/* ---------- Facturen: geldstroom van deze maand, met een munt die naar de spaarpot rolt ---------- */
+const FG_POT='<svg viewBox="0 0 48 40" aria-hidden="true"><ellipse cx="24" cy="37" rx="15" ry="2.2" fill="rgb(0 0 0 / .18)"/><path d="M8 20c0-8 7.5-13 17-13 3.2 0 6.2.6 8.6 1.8L38 5l.6 6.2C42 13.8 44 17 44 20.5c0 1.4-.3 2.7-.8 3.9L46 26v5l-4 .6c-1.6 2-3.8 3.6-6.4 4.5V39h-5v-2.3c-1.6.3-3.4.4-5.2.4-1.4 0-2.8-.1-4.1-.3V39h-5v-3.4C10.6 33 8 27.6 8 20z" fill="#f6b8c8"/><path d="M8 20c0-8 7.5-13 17-13 3.2 0 6.2.6 8.6 1.8L38 5l.6 6.2C42 13.8 44 17 44 20.5" fill="none" stroke="#fff" stroke-width="1.4" opacity=".5"/><circle cx="36" cy="17" r="1.6" fill="#7a3346"/><rect x="19" y="10" width="10" height="2.4" rx="1.2" fill="#c97e93"/><path d="M8.5 21c-3 0-4.5-1.5-4.5-3.5" stroke="#f6b8c8" stroke-width="2" fill="none" stroke-linecap="round"/></svg>';
+const FG_MUNT='<svg viewBox="0 0 32 32" aria-hidden="true"><defs><radialGradient id="fgm" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#fff6c9"/><stop offset=".55" stop-color="#f3c64a"/><stop offset="1" stop-color="#b9862a"/></radialGradient></defs><circle cx="16" cy="16" r="14" fill="url(#fgm)" stroke="#a87820" stroke-width="1.2"/><circle cx="16" cy="16" r="10.2" fill="none" stroke="#fff3c0" stroke-width="1" opacity=".7"/><text x="16" y="21" text-anchor="middle" font-size="14" font-weight="800" fill="#8a5e14" font-family="system-ui">€</text></svg>';
+function fGeldstroom(all,open,by,sum){
+  const t=today(),m0=iso(new Date(t.getFullYear(),t.getMonth(),1)),mnd=t.toLocaleDateString("nl-NL",{month:"long"});
+  const dezeM=all.filter(f=>f.status!=="concept"&&String(f.datum||"")>=m0),gef=sum(dezeM);
+  const binnenL=all.filter(f=>f.status==="betaald"&&String(f.betaaldOp||"")>=m0),binnen=sum(binnenL);
+  const late=by("Achterstallig"),lateS=sum(late),openS=sum(open);
+  const totaal=Math.max(1,binnen+openS),pct=Math.round(binnen/totaal*100);
+  const mot=!binnen&&!openS?"Nog niets gefactureerd deze maand.":!openS?"Alles is binnen. Lekker!":lateS?`${eur0(lateS)} is over de betaaltermijn. Een herinnering helpt.`:pct>=50?`Al ${pct}% binnen, de rest is onderweg.`:`${eur0(openS)} is onderweg naar je rekening.`;
+  const chip=(v,l,w,sub,cls="")=>`<button type="button" class="fg-c ${cls}" data-act="ff" data-v="${v}"><span>${l}</span><b>${w}</b><small>${sub}</small></button>`;
+  return `<section class="fg${!openS&&binnen?" klaar":""}">
+    <div class="fg-top"><div><p class="fg-k">Binnen in ${esc(mnd)}</p><div class="fg-big"><b>${eur0(binnen)}</b>${gef?`<span>van ${eur0(gef)} gefactureerd</span>`:""}</div><p class="fg-mot">${mot}</p></div>
+      <div class="fg-pct"><b>${pct}%</b><small>binnen</small></div></div>
+    <div class="fg-weg" style="--p:${pct/100}"><div class="fg-baan"><i></i></div><span class="fg-munt">${FG_MUNT}</span><span class="fg-pot">${FG_POT}</span><span class="fg-l l1">Onderweg</span><span class="fg-l l2">Op je rekening</span></div>
+    <div class="fg-cs">${chip("openstaand","Onderweg",eur0(openS),plural(open.length,"factuur","facturen"))}${chip("achterstallig","Te laat",eur0(lateS),late.length?plural(late.length,"factuur","facturen"):"alles op tijd",late.length?"late":"ok")}${chip("betaald","Betaald totaal",eur0(sum(by("Betaald"))),plural(by("Betaald").length,"factuur","facturen"))}</div></section>`}
