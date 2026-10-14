@@ -7540,7 +7540,7 @@ function openSetEdit(id){
       ${inp("webPostcodes","Werkgebied (postcodes)",s.webPostcodes||"",{ph:"9700-9999, 8400-8499",help:"Postcodes (4 cijfers) of reeksen, gescheiden door komma's. Leeg = overal."})}<div class="grid2">${inp("webWa","WhatsApp-nummer voor aanvragen",wa0,{ph:"31612345678"})}${inp("webUrl","Adres van de calculator op je website",s.webUrl||"",{ph:"https://www.jouwsite.nl/calculator.html"})}</div>
       ${inp("webVoorwaarden","Link naar je algemene voorwaarden",s.webVoorwaarden||"",{ph:"https://www.jouwsite.nl/voorwaarden",help:"Onder de knop Indienen staat dat de prijs na de tellingcontrole bij het eerste bezoek kan veranderen, met een link naar je voorwaarden. Leeg = zonder link."})}
       <div class="row" style="gap:8px;flex-wrap:wrap"><button type="button" class="primary" id="webView">${I.eye}Calculator bekijken</button><button type="button" id="webDl">${I.dl}Calculator downloaden (HTML)</button><button type="button" id="webFr">${I.dl}Voor Framer downloaden</button></div>
-      ${sec("Complete website")}<div class="okbox" style="margin:0">${I.globe||I.check}<div><b>Een hele website met deze calculator erin</b><span>Met je logo, gegevens, WhatsApp-knop, werkwijze, voordelen, klantportaal, vragen en contact. In Framer plak je één code-blok en ben je klaar.</span></div></div>
+      ${sec("Complete website")}<div class="grid2">${inp("webScore","Google-score bovenaan de website",s.webScore??"4,8",{ph:"4,8",help:"Leeg = in plaats daarvan je werkgebied tonen."})}${inp("webReviewUrl","Link naar je Google-reviews",s.webReviewUrl||"https://www.google.com/search?q=mijnschoonmaker.com+Reviews",{ph:"https://g.page/…"})}</div><div class="okbox" style="margin:0">${I.globe||I.check}<div><b>Een hele website met deze calculator erin</b><span>Met je logo, gegevens, WhatsApp-knop, werkwijze, voordelen, klantportaal, vragen en contact. In Framer plak je één code-blok en ben je klaar.</span></div></div>
       <div class="row" style="gap:8px;flex-wrap:wrap"><button type="button" class="primary" id="siteView">${I.eye}Website bekijken</button><button type="button" id="siteFr">${I.dl}Website voor Framer downloaden</button><button type="button" id="siteDl">${I.dl}Als HTML downloaden</button></div>
       <small class="help"><b>Zo zet je hem in Framer:</b> 1. Maak een nieuw project. 2. Assets › Code › + › New component, vervang alle voorbeeldcode door de inhoud van het gedownloade bestand en sla op. 3. Sleep <b>Website</b> op de Home-pagina, zet Width op Fill en Height op Fit. 4. Publish en koppel mijnschoonmaker.com bij Site Settings › Domains.</small>
       <small class="help"><b>Framer:</b> open het gedownloade tekstbestand, kopieer alles, ga in Framer naar Assets › Code › + › New component, vervang de voorbeeldcode door wat je kopieerde, sla op en sleep PrijsCalculator op je pagina (Width: Fill, Height: Fit). <b>Andere website:</b> upload het HTML-bestand (bijvoorbeeld als calculator.html). Verander je later je logo of tarieven, download hem dan opnieuw en vervang het bestand.</small>
@@ -7720,7 +7720,7 @@ const WEB_CSS=`
 .ms .hero h1{font-size:clamp(36px,5vw,62px);font-weight:800;letter-spacing:-.035em;line-height:1.02;margin:14px 0 16px}
 .ms .hero p.sub{font-size:clamp(17px,1.6vw,20px);color:rgb(255 255 255 / .86);max-width:520px}
 .ms .chip{display:inline-flex;align-items:center;gap:8px;background:rgb(255 255 255 / .14);border-radius:99px;padding:6px 14px 6px 8px;font-weight:700;font-size:13.5px}
-.ms .chip i{width:22px;height:22px;border-radius:50%;background:var(--geel);display:grid;place-items:center;color:var(--b1);font-style:normal;font-size:12px}
+.ms .chip.ster{padding:6px 14px;gap:7px;transition:background .15s}.ms .chip.ster:hover{background:rgb(255 255 255 / .22)}.ms .chip .st{color:#fbbc05;letter-spacing:1px;font-size:14px}.ms .chip.ster b{font-weight:800}.ms .chip i{width:22px;height:22px;border-radius:50%;background:var(--geel);display:grid;place-items:center;color:var(--b1);font-style:normal;font-size:12px}
 .ms .cta{display:flex;gap:12px;flex-wrap:wrap;margin:28px 0 22px}
 .ms .vink{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:14px;font-weight:700;color:rgb(255 255 255 / .9)}.ms .vink span{display:flex;align-items:center;gap:7px}.ms .vink svg{width:16px;color:#7ee2b8}
 /* nep-iPhone met het klantportaal */
@@ -7841,7 +7841,7 @@ function websiteBody(o){const e=esc,IC={
   const wa=o.whatsapp?`https://wa.me/${e(o.whatsapp)}?text=${encodeURIComponent("Hallo, ik heb een vraag over glasbewassing.")}`:"";
   const logo=o.logo?`<img src="${o.logo}" alt="${naam}">`:`<span>${naam}</span>`;
   const portaal=o.portaal||"";
-  const faq=[["Moet ik thuis zijn als u komt?","Voor de buitenkant hoeft u niet thuis te zijn. U krijgt vooraf een bericht op welke dag wij komen, en in uw klantportaal ziet u altijd wanneer de volgende beurt is."],
+  const faq=[["Moet ik thuis zijn als u komt?","Voor de buitenkant hoeft u niet thuis te zijn. U krijgt 3 dagen vooraf een planningsmail met de dag waarop wij komen, en in uw klantportaal ziet u altijd wanneer de volgende beurt is."],
     ["Hoe komt mijn prijs tot stand?",`U maakt een foto van uw woning en tikt de ramen aan. Op basis daarvan ziet u direct uw vaste prijs per beurt, inclusief kozijnen en btw. Bij de eerste beurt tellen wij ter plekke na; klopt de telling niet, dan passen wij de prijs aan en hoort u dat van ons.`],
     ["Hoe vaak komen jullie?","Dat kiest u zelf in de calculator. Hoe vaker, hoe voordeliger per beurt. Wij plannen u daarna vast in op onze route."],
     ["Hoe betaal ik?",`Na elke beurt ontvangt u de factuur per e-mail${o.mollie?", met een betaallink voor iDEAL":""}. Al uw facturen staan ook in uw klantportaal.`],
@@ -7852,32 +7852,32 @@ function websiteBody(o){const e=esc,IC={
   ${portaal?`<a class="portaal" href="${e(portaal)}">${IC.user}Mijn portaal</a>`:""}<a class="knop k-teal" href="#prijs">Bereken uw prijs</a>
   <label class="hb" for="msm" aria-label="Menu">${IC.menu}</label></div></header>
 <section class="hero" id="top"><div class="in"><div class="blauw">
-  <div><span class="chip"><i>✦</i>Glasbewassing${regio}</span>
+  <div>${o.score?`<a class="chip ster" href="${e(o.reviewUrl||"#")}" target="_blank" rel="noopener"><span class="st">★★★★★</span><b>${e(o.score)}</b> op Google</a>`:`<span class="chip"><i>✦</i>Glasbewassing${regio}</span>`}
     <h1>Heldere ramen,<br>zonder omkijken.</h1>
     <p class="sub">Wij wassen uw ramen en kozijnen op een vaste route. Maak een foto van uw woning en zie direct wat het kost per beurt.</p>
     <div class="cta"><a class="knop k-wit" href="#prijs">${IC.cam}Bereken uw prijs</a>${wa?`<a class="knop k-glas" href="${wa}" target="_blank" rel="noopener">${IC.wa}WhatsApp ons</a>`:tel?`<a class="knop k-glas" href="tel:${e(telH)}">${IC.tel}Bel ons</a>`:""}</div>
-    <div class="vink"><span>${IC.ok}Vaste prijs per beurt</span><span>${IC.ok}Inclusief kozijnen</span><span>${IC.ok}Bericht vooraf</span></div></div>
+    <div class="vink"><span>${IC.ok}Vaste prijs per beurt</span><span>${IC.ok}Inclusief kozijnen</span><span>${IC.ok}Planningsmail vooraf</span></div></div>
   <div style="position:relative"><div class="tel" aria-hidden="true"><div class="sc"><div class="sch"><span class="eil"></span><div class="sb"><span>9:41</span><span>●●●</span></div>
     <div class="p-kop">Uw klantportaal</div>
     <div class="p-hero"><div class="p-ring"><svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="33" fill="none" stroke="rgb(255 255 255 / .2)" stroke-width="8"/><circle cx="40" cy="40" r="33" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-dasharray="207" stroke-dashoffset="62"/></svg><b>12<small>dagen</small></b></div><div><small>Volgende beurt</small><strong>Dinsdag<br>28 oktober</strong></div></div>
     <div class="p-weg"><i></i><span class="bu">${bus.replace(/id="ms/g,'id="mp').replace(/url\(#ms/g,"url(#mp")}</span><span class="hu">${IC.huis}</span></div>
-    <div class="p-kaart"><span class="p-ic">${IC.bel}</span><div><b>Bericht ontvangen</b><span class="s">Wij komen dinsdag</span></div><span class="p-ok">Nieuw</span></div>
+    <div class="p-kaart"><span class="p-ic">${IC.bel}</span><div><b>Planningsmail</b><span class="s">Wij komen dinsdag</span></div><span class="p-ok">Nieuw</span></div>
     <div class="p-kaart"><span class="p-ic">${IC.kaart}</span><div><b>Factuur september</b><span class="s">Online betaald</span></div><span class="p-ok">✓</span></div>
     <div class="p-kop" style="margin-top:4px">Eerdere beurten</div>
     <div class="p-kaart"><span class="p-ic">${IC.cal}</span><div><b>2 sept.</b><span class="s">Ramen en kozijnen</span></div><span class="p-ok">✓</span></div>
   </div></div></div>
-  <div class="zweef" aria-hidden="true"><span class="p-ic">${IC.bel}</span><div><b>Morgen komen wij</b><small>Bericht vooraf, altijd</small></div></div></div>
+  <div class="zweef" aria-hidden="true"><span class="p-ic">${IC.bel}</span><div><b>Dinsdag komen wij</b><small>Planningsmail, altijd 3 dagen vooraf</small></div></div></div>
   ${weg}</div></div></section>
 <section id="werkwijze"><div class="in"><span class="oog">Zo werkt het</span><h2 class="kop">In vier stappen schone ramen</h2><p class="lead">Geen offertebezoek, geen gedoe. U regelt het in een paar minuten online.</p>
   <ol class="route">
     <li class="stap"><span class="n">${IC.cam}</span><small>Stap 1</small><h3>Foto en prijs</h3><p>Maak een foto van uw woning, tik de ramen aan en zie direct uw prijs per beurt.</p></li>
     <li class="stap"><span class="n">${IC.ok}</span><small>Stap 2</small><h3>Aanmelden</h3><p>Kies hoe vaak u wilt en laat uw gegevens achter. U krijgt meteen een bevestiging.</p></li>
     <li class="stap"><span class="n">${IC.raam}</span><small>Stap 3</small><h3>Eerste beurt</h3><p>Wij wassen uw ramen en tellen ter plekke na of alles klopt.</p></li>
-    <li class="stap"><span class="n">${IC.rt}</span><small>Stap 4</small><h3>Vaste route</h3><p>Daarna komen wij vanzelf terug. U krijgt steeds vooraf een bericht.</p></li></ol></div></section>
+    <li class="stap"><span class="n">${IC.rt}</span><small>Stap 4</small><h3>Vaste route</h3><p>Daarna komen wij vanzelf terug. U krijgt steeds 3 dagen vooraf een planningsmail.</p></li></ol></div></section>
 <section id="voordelen"><div class="in"><div class="blauw band"><span class="oog">Waarom ${naam}</span><h2 class="kop">Alles geregeld, u hoeft niets te doen</h2><p class="lead">Wij nemen het werk uit handen, van de planning tot de factuur.</p>
   <div class="tegels">
     <div class="tg"><span class="ic">${IC.euro}</span><h3>Vaste prijs per beurt</h3><p>U weet vooraf precies wat het kost. Kozijnen en btw zitten erbij in.</p></div>
-    <div class="tg"><span class="ic">${IC.bel}</span><h3>Bericht vooraf</h3><p>U hoort altijd van tevoren op welke dag wij langskomen.</p></div>
+    <div class="tg"><span class="ic">${IC.bel}</span><h3>Planningsmail vooraf</h3><p>U krijgt altijd 3 dagen vooraf een mail met de dag waarop wij langskomen.</p></div>
     <div class="tg"><span class="ic">${IC.user}</span><h3>Eigen klantportaal</h3><p>Bekijk uw volgende beurt, facturen en gegevens wanneer u wilt.</p></div>
     <div class="tg"><span class="ic">${IC.cal}</span><h3>U kiest hoe vaak</h3><p>Hoe vaker wij komen, hoe voordeliger per beurt.</p></div>
     <div class="tg"><span class="ic">${IC.kaart}</span><h3>Makkelijk betalen</h3><p>Factuur per e-mail${o.mollie?" en direct betalen met iDEAL":", alles terug te vinden in uw portaal"}.</p></div>
@@ -7904,9 +7904,9 @@ function websiteBody(o){const e=esc,IC={
   <span>${portaal?`<a href="${e(portaal)}">Klantportaal</a> · `:""}${o.voorwaarden?`<a href="${e(o.voorwaarden)}" target="_blank" rel="noopener">Algemene voorwaarden</a>`:""}</span></div></footer>
 ${wa?`<a class="wa" href="${wa}" target="_blank" rel="noopener" aria-label="WhatsApp">${IC.wa}</a>`:""}`}
 
-async function websiteDelen(){const s=S(),lg=await loadLogo();const wa=String(s.webWa||waNr(s.telefoon)||"").replace(/\D/g,"");
+async function websiteDelen(){const fv=k=>{const el=typeof form!=="undefined"&&form&&form.querySelector(`[data-k="${k}"]`);return el?el.value:null};const s=S(),lg=await loadLogo();const wa=String(s.webWa||waNr(s.telefoon)||"").replace(/\D/g,"");
   const o={naam:s.naam,telefoon:s.telefoon,email:s.email,adres:s.adres,postcode:s.postcode,plaats:s.plaats,kvk:s.kvk,whatsapp:wa,logo:lg?await kleinLogo(lg.url):"",
-    portaal:LIVE?location.origin+"/portaal":"",voorwaarden:s.webVoorwaarden||s.voorwaarden||"",mollie:!!s.liveMollie,bus:typeof RV_BUS!=="undefined"?RV_BUS:""};
+    portaal:LIVE?location.origin+"/portaal":"",score:String(fv("webScore")??s.webScore??"4,8").trim(),reviewUrl:String(fv("webReviewUrl")||s.webReviewUrl||"https://www.google.com/search?q=mijnschoonmaker.com+Reviews").trim(),voorwaarden:s.webVoorwaarden||s.voorwaarden||"",mollie:!!s.liveMollie,bus:typeof RV_BUS!=="undefined"?RV_BUS:""};
   return {body:websiteBody(o),calc:await klantCalcHtml(wa),o}}
 const WEB_FONTS='<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">';
 /* losse pagina: voor de voorbeeldweergave en voor wie geen Framer gebruikt */
