@@ -30,7 +30,7 @@ function vInzichten(){
     html+=`<section class="st-hero"><div class="st-hm"><span class="st-k">Omzet · ${esc(P.lbl)} · ex btw</span>
         <div class="st-big"><b>${eur0(F.omzet)}</b>${stDelta(F.omzet,vorige,"vs "+V.lbl)}</div>
         <p class="st-mot">${record?I.spark:""}${mot}</p>
-        ${vorige>0?`<div class="st-goal"><div class="st-gb"><i class="p2" style="width:${pctP}%"></i><i style="width:${pct}%"></i></div><div class="st-gl"><span><b>${pct}%</b> van ${esc(V.lbl)} (${eur0(vorige)})</span>${ingepland?`<span class="st-ing"><i></i>${eur0(ingepland)} ingepland</span>`:""}</div></div>`:""}</div>
+        ${vorige>0?`<div class="st-goal st-rol"><div class="fg-weg" style="--p:${pct/100}"><div class="fg-baan"><i></i></div><span class="fg-munt">${FG_MUNT}</span><span class="st-vlag">🏁</span></div><div class="st-gl"><span><b>${pct}%</b> van ${esc(V.lbl)} (${eur0(vorige)})</span>${ingepland?`<span class="st-ing"><i></i>${eur0(ingepland)} ingepland</span>`:""}</div></div>`:""}</div>
       <div class="st-hs">${stTile(I.receipt,"Facturen",F.fs.length,"in "+esc(P.lbl))}${stTile(I.check,"Betaald",eur0(betaaldP),"incl btw","ok")}</div></section>
     <div class="st-tiles">${stTile(I.clock,"Openstaand",eur0(open.reduce((a,f)=>a+totals(f).inc,0)),plural(open.length,"factuur","facturen")+" · incl btw","",` data-act="tab" data-tab="facturen" role="button"`)}
       ${stTile(I.alert,"Te laat",eur0(late.reduce((a,f)=>a+totals(f).inc,0)),late.length?plural(late.length,"factuur","facturen")+" over tijd":"alles op tijd",late.length?"late":"ok")}
@@ -70,6 +70,7 @@ function vInzichten(){
     html+=`<section class="st-hero"><div class="st-hm"><span class="st-k">Actieve klanten</span>
         <div class="st-big"><b>${ak.length}</b>${nieuw.length?`<span class="st-pill up">+${nieuw.length} in ${esc(P.lbl)}</span>`:""}</div>
         <p class="st-mot">${mot}</p>
+        <div class="st-wijk" aria-hidden="true">${ak.slice(0,60).map(k=>`<i class="${nieuw.includes(k)?"nw":""}${k.soort==="zakelijk"?" zk":""}" title="${esc(cleanName(k.naam))}">${HUIS}</i>`).join("")}${ak.length>60?`<small>+${ak.length-60}</small>`:""}</div>
         <div class="st-goal"><div class="st-share sm"><i style="width:${ak.length?(ak.length-zak)/ak.length*100:0}%;--h:190"></i><i style="width:${ak.length?zak/ak.length*100:0}%;--h:30"></i></div><div class="st-gl"><span><span class="st-dot" style="--h:190"></span>${ak.length-zak} particulier</span><span><span class="st-dot" style="--h:30"></span>${zak} zakelijk</span></div></div></div>
       <div class="st-hs">${stTile(I.euro,"Verwacht per jaar",eur0(jaar),"uit vaste klanten, ex btw","ok")}${stTile(I.klanten,"Per klant",perK?eur0(perK):"–","gemiddeld per jaar")}</div></section>
     <div class="st-tiles">${stTile(I.plus,"Nieuw",nieuw.length,nieuwV.length?nieuwV.length+" in "+esc(V.lbl):"in "+esc(P.lbl),nieuw.length?"ok":"")}

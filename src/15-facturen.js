@@ -32,10 +32,7 @@ function vOffertes(){
   const tot=all.reduce((a,f)=>a+totals(f).inc,0),acc=lists.geaccepteerd.length,dec=lists.afgewezen.length;
   let html=`<div class="pagehead"><div><p class="kicker">Sales</p><h1 class="xl">Offertes</h1><p class="lead" style="margin:0">${plural(all.length,"offerte","offertes")} · <b>${eur(tot)}</b> totaalwaarde</p></div><div class="acts"><button type="button" class="primary" data-act="newofferte">${I.offertes}Nieuwe offerte</button></div></div>`;
   if(!all.length)return html+empty("Nog geen offertes",'Maak je eerste offerte aan via "Nieuwe offerte" of met de Calculator.',`<button type="button" class="primary" data-act="newofferte">${I.offertes}Eerste offerte</button>`);
-  html+=`<div class="stats"><div class="stat"><span class="eyebrow">Lopend</span><b>${lists.concept.length+lists.verstuurd.length}</b><small>${eur0([...lists.concept,...lists.verstuurd].reduce((a,f)=>a+totals(f).inc,0))}</small></div>
-    <div class="stat"><span class="eyebrow">Geaccepteerd</span><b>${acc}</b><small>${eur0(lists.geaccepteerd.reduce((a,f)=>a+totals(f).inc,0))}</small></div>
-    <div class="stat"><span class="eyebrow">Afgewezen</span><b>${dec}</b><small>offertes</small></div>
-    <div class="stat"><span class="eyebrow">Scoringskans</span><b>${acc+dec?Math.round(acc/(acc+dec)*100)+"%":"—"}</b><small>van beslist</small></div></div>
+  html+=`${ofHandtekening(lists,acc,dec)}
   <div class="tabsline">${[["alle","Alle"],["concept","Concept"],["verstuurd","Verstuurd"],["geaccepteerd","Geaccepteerd"],["afgewezen","Afgewezen"]].map(([v,l])=>`<button type="button" data-act="of" data-v="${v}" aria-pressed="${F===v}">${l}<span class="n">${lists[v].length}</span></button>`).join("")}</div>`;
   const shown=lists[F]||all;
   return html+(shown.length?factTable(shown,true):empty("Geen offertes in deze lijst",""));
@@ -57,3 +54,12 @@ function fGeldstroom(all,open,by,sum){
       <div class="fg-pct"><b>${pct}%</b><small>binnen</small></div></div>
     <div class="fg-weg" style="--p:${pct/100}"><div class="fg-baan"><i></i></div><span class="fg-munt">${FG_MUNT}</span><span class="fg-pot">${FG_POT}</span><span class="fg-l l1">Onderweg</span><span class="fg-l l2">Op je rekening</span></div>
     <div class="fg-cs">${chip("openstaand","Onderweg",eur0(openS),plural(open.length,"factuur","facturen"))}${chip("achterstallig","Te laat",eur0(lateS),late.length?plural(late.length,"factuur","facturen"):"alles op tijd",late.length?"late":"ok")}${chip("betaald","Betaald totaal",eur0(sum(by("Betaald"))),plural(by("Betaald").length,"factuur","facturen"))}</div></section>`}
+
+/* ---------- Offertes: een handtekening die zich vult met je scoringskans ---------- */
+function ofHandtekening(lists,acc,dec){const sumI=l=>l.reduce((a,f)=>a+totals(f).inc,0),lop=[...lists.concept,...lists.verstuurd],sc=acc+dec?Math.round(acc/(acc+dec)*100):null;
+  const L=1000,len=sc==null?0:sc/100*L;
+  const mot=sc==null?(lop.length?`${plural(lop.length,"offerte wacht","offertes wachten")} op een handtekening.`:"Maak een offerte, de eerste handtekening komt eraan."):sc>=70?`${sc}% tekent. Klanten zeggen ja tegen je!`:sc>=40?`${sc}% tekent. Bel lopende offertes even na, dat helpt.`:`${sc}% tekent. Een nabelactie kan wonderen doen.`;
+  const tile=(v,l,w,sub,cls="")=>`<button type="button" class="of-c ${cls}" data-act="of" data-v="${v==="lopend"?"verstuurd":v}"><span>${l}</span><b>${w}</b><small>${sub}</small></button>`;
+  return `<section class="ofh"><div class="ofh-top"><div><p class="ofh-k">Scoringskans</p><div class="ofh-big"><b>${sc==null?"—":sc+"%"}</b><span>${acc+dec?`${acc} van ${acc+dec} beslist getekend`:"nog niets beslist"}</span></div><p class="ofh-mot">${mot}</p></div></div>
+    <div class="ofh-sig"><span class="ofh-x">✕</span><svg viewBox="0 0 520 90" preserveAspectRatio="xMinYMax meet" aria-hidden="true"><path class="sp" pathLength="${L}" d="M14 62c18-30 34-44 46-38 14 7-12 44 2 44 16 0 30-56 46-52 12 3-6 40 8 40 18 0 24-34 40-34 14 0 4 30 18 30 20 0 28-44 48-44 16 0 0 40 18 40 22 0 30-28 50-28 14 0 8 22 22 22 26 0 40-32 66-32 20 0 22 26 46 26 26 0 40-14 70-18"/><path class="sv" pathLength="${L}" stroke-dasharray="${L}" stroke-dashoffset="${L-len}" style="--L:${L}" d="M14 62c18-30 34-44 46-38 14 7-12 44 2 44 16 0 30-56 46-52 12 3-6 40 8 40 18 0 24-34 40-34 14 0 4 30 18 30 20 0 28-44 48-44 16 0 0 40 18 40 22 0 30-28 50-28 14 0 8 22 22 22 26 0 40-32 66-32 20 0 22 26 46 26 26 0 40-14 70-18"/></svg><span class="ofh-lijn"></span></div>
+    <div class="of-cs">${tile("lopend","Lopend",lop.length,eur0(sumI(lop)))}${tile("geaccepteerd","Getekend",acc,eur0(sumI(lists.geaccepteerd)),"ok")}${tile("afgewezen","Afgewezen",dec,plural(dec,"offerte","offertes"),dec?"late":"")}</div></section>`}

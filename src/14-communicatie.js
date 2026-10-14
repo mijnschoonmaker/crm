@@ -124,14 +124,7 @@ function vCommunicatie(){
   const stc={};Object.keys(MSTAT).forEach(k=>stc[k]=bs.filter(m=>ms(m)===k).length);
   let html=`<div class="pagehead"><div><p class="kicker">Communicatie</p><h1 class="xl">Berichten</h1><p class="lead" style="margin:0">${plural(bs.length,"bericht","berichten")}${todo?` · <b>${todo}</b> klaar om te versturen`:""}</p></div>
     <div class="acts"><button type="button" data-act="nieuwsbrief">${I.megaphone}Nieuwsbrief</button><button type="button" class="primary" data-act="pickrec">${I.send}Verstuur bericht</button></div></div>
-  <div class="stats">
-    <div class="stat"><span class="eyebrow">Totaal</span><b>${bs.length}</b><span class="ic gl" style="--g:#3d4c54">${I.inbox}</span></div>
-    <div class="stat"><span class="eyebrow">Email</span><b>${n("email")}</b><span class="ic gl" style="--g:#6a63b0">${I.mail}</span></div>
-    <div class="stat"><span class="eyebrow">SMS</span><b>${n("sms")}</b><span class="ic gl" style="--g:#b07a3a">${I.sms}</span></div>
-    <div class="stat"><span class="eyebrow">WhatsApp</span><b>${n("whatsapp")}</b><span class="ic gl" style="--g:#3f8a66">${I.msg}</span></div></div>
-  <div class="panel stbar"><div style="display:flex;justify-content:space-between"><span class="eyebrow">Status verdeling</span><span class="subt mono" style="font-size:13px">${plural(bs.length,"bericht","berichten")}</span></div>
-    <div class="sbar">${bs.length?Object.keys(stc).filter(k=>stc[k]).map(k=>`<i class="${MSTAT[k][0]}" style="flex:${stc[k]}"></i>`).join(""):'<i style="flex:1;background:var(--surface-2)"></i>'}</div>
-    <div class="legend" style="margin:0;text-transform:none;letter-spacing:0;font-weight:600">${Object.keys(stc).filter(k=>stc[k]||["geopend","gekopieerd","gelezen","geklikt"].includes(k)).map(k=>`<span><i class="${MSTAT[k][0]}"></i>${stc[k]} ${MSTAT[k][1].toLowerCase()}</span>`).join("")}<span style="color:var(--muted);font-weight:500">Klaargezet = geopend in WhatsApp, sms of mail · Verstuurd = opgemaakte mail · Geopend en Geklikt ${trackOn()?"worden gemeten via mail-tracking":"vragen om mail-tracking (Instellingen)"}</span>${trackOn()?`<button type="button" class="tiny ghost" data-act="tracksync" style="margin-left:auto;color:var(--brand)">${I.refresh||I.clock}Statussen vernieuwen</button>`:""}</div></div>
+  ${cmVlucht(bs,stc,n,todo)}
   <div class="seg" style="margin:18px 0 14px">${[["recent","Recent",bs.length],["klaar","Klaar om te versturen",todo],["templates","Templates",Object.keys(T).length]].map(([v,l,c])=>`<button type="button" data-act="ctab" data-v="${v}" aria-pressed="${state.ctab===v}">${l} <span class="mono" style="opacity:.6;font-size:12px">${c}</span></button>`).join("")}</div>`;
   if(state.ctab==="klaar"){
     const groups=[["alle","Alle actieve klanten"],["vandaag","Route vandaag"],["morgen","Route morgen"],...rondes().map(r=>["r:"+r,r]),...[...new Set(actief().filter(k=>k.nieuwsbrief!==false).map(k=>k.nbGroep||"Standaard"))].sort().map(g=>["nb:"+g,"Nieuwsbrief · "+g])];
@@ -269,3 +262,23 @@ function openTplEdit(k){
     const o=all(),key=k||"eigen"+Date.now().toString(36);o[key]={...(state.sjablonen[key]||{}),naam:n,doel:$("#te-d").value.trim(),cat:$("#te-cat").value,actief:$("#te-a").checked,onderwerp:$("#te-o").value.trim(),mail:(()=>{const h=richSafe(ed.innerHTML).trim(),pl=richText(h);return pl?h:""})(),sms:$("#te-s").value,...(t.eigen?{eigen:true}:{})};
     $("#teSave").disabled=true;try{await save("instellingen","sjablonen",o);dlg.close();toast(isNew?"Template toegevoegd":"Template opgeslagen")}catch(er){$("#teSave").disabled=false;err(er)}};
 }
+
+/* ---------- Communicatie: envelopjes die van verstuurd naar geopend vliegen ---------- */
+const CM_ENV='<svg viewBox="0 0 40 30" aria-hidden="true"><rect x="1.5" y="1.5" width="37" height="27" rx="4" fill="#fff"/><path d="M2.5 4 20 17 37.5 4" fill="none" stroke="#9fb7bf" stroke-width="2" stroke-linejoin="round"/><path d="M2.5 27 15 15M37.5 27 25 15" stroke="#d5e2e6" stroke-width="1.6"/></svg>';
+function cmVlucht(bs,stc,n,todo){const ms=mStat,tot=bs.length;
+  const verst=bs.filter(m=>m.kanaal==="email"&&!["mislukt","bounce","spam"].includes(ms(m))).length;
+  const open=bs.filter(m=>["gelezen","geklikt"].includes(ms(m))).length,klik=stc.geklikt||0,mis=(stc.mislukt||0)+(stc.bounce||0)+(stc.spam||0);
+  const pO=verst?Math.round(open/verst*100):0,pK=verst?Math.round(klik/verst*100):0;
+  const mot=!tot?"Nog geen berichten verstuurd. Je eerste mail vliegt zo de deur uit.":!trackOn()?"Zet mail-tracking aan bij Instellingen, dan zie je wie je mail opent.":pO>=60?`${pO}% van je mails wordt geopend. Dat is sterk!`:verst?`${open} van ${verst} mails geopend.`:"Verstuur een mail om te zien wie hem opent.";
+  const st=(l,w,ic,c)=>`<div class="cm-s"><span class="cm-i" style="--c:${c}">${ic}</span><span><small>${l}</small><b>${w}</b></span></div>`;
+  const nE=Math.min(5,Math.max(1,Math.round(pO/20)));
+  return `<section class="cm"><div class="cm-top"><div><p class="cm-k">Berichten</p><div class="cm-big"><b>${tot}</b><span>${plural(tot,"bericht","berichten")} verstuurd${todo?` · <em>${todo} klaar om te versturen</em>`:""}</span></div><p class="cm-mot">${mot}</p></div>
+      <div class="cm-ch">${st("E-mail",n("email"),I.mail,"#b9b3ff")}${st("SMS",n("sms"),I.sms,"#ffd29a")}${st("WhatsApp",n("whatsapp"),I.msg,"#9ff0c4")}</div></div>
+    <div class="cm-lucht">
+      <svg class="cm-boog" viewBox="0 0 600 90" preserveAspectRatio="none" aria-hidden="true"><path d="M20 70 C 160 6, 440 6, 580 70" fill="none" stroke="rgb(255 255 255 / .35)" stroke-width="2" stroke-dasharray="2 8" stroke-linecap="round"/></svg>
+      <div class="cm-pt p1"><i>${I.send}</i><b>${verst}</b><small>verstuurd</small></div>
+      <div class="cm-pt p2"><i>${I.eye}</i><b>${open}</b><small>geopend · ${pO}%</small></div>
+      <div class="cm-pt p3"><i>${I.right}</i><b>${klik}</b><small>geklikt · ${pK}%</small></div>
+      ${tot?[...Array(nE)].map((_,i)=>`<span class="cm-env" style="--d:${i*.9}s">${CM_ENV}</span>`).join(""):""}
+    </div>
+    ${mis?`<p class="cm-mis"><i></i>${plural(mis,"bericht kwam","berichten kwamen")} niet aan</p>`:""}</section>`}

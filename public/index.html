@@ -3241,6 +3241,60 @@ body{background:var(--bg)!important}
 .fg-c small{font-size:11.5px;color:rgb(255 255 255 / .6)}
 @media (max-width:640px){.fg{padding:18px 16px 14px}.fg-big b{font-size:28px}.fg-cs{grid-template-columns:1fr 1fr 1fr;gap:6px}.fg-c{padding:9px 10px}.fg-c b{font-size:15px}.fg-c small{display:none}}
 @media (prefers-reduced-motion:reduce){.fg-baan i,.fg-munt,.fg-munt svg{animation:none}}
+/* ---------- Offertes: handtekening ---------- */
+.ofh,.cm{position:relative;overflow:hidden;padding:22px 24px 18px;border-radius:24px;color:#fff;background:var(--blauw);box-shadow:0 24px 50px -30px rgb(15 70 85 / .7);margin:0 0 18px;display:flex;flex-direction:column;gap:12px;z-index:1}
+.ofh::before,.cm::before{content:"";position:absolute;inset:0;background:var(--lijnen);pointer-events:none}
+.ofh>*,.cm>*{position:relative}
+.ofh-k,.cm-k{margin:0;font-size:12px;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:rgb(255 255 255 / .72)}
+.ofh-big,.cm-big{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:4px}.ofh-big b,.cm-big b{font-size:34px;font-weight:700;letter-spacing:-.035em;line-height:1}.ofh-big span,.cm-big span{font-size:13px;color:rgb(255 255 255 / .7)}.cm-big em{font-style:normal;color:#ffe08a;font-weight:600}
+.ofh-mot,.cm-mot{margin:6px 0 0;font-size:14px;color:rgb(255 255 255 / .85)}
+.ofh-sig{position:relative;height:96px;margin:0 4px;padding-left:26px}
+.ofh-sig svg{position:absolute;left:26px;right:0;top:0;width:calc(100% - 26px);height:86px}
+.ofh-sig .sp,.ofh-sig .sv{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.ofh-sig .sp{stroke:rgb(255 255 255 / .16);stroke-width:3;stroke-dasharray:4 7}
+.ofh-sig .sv{stroke:#fff;stroke-width:3.4;filter:drop-shadow(0 0 6px rgb(255 255 255 / .45));animation:ofTeken 2.2s cubic-bezier(.4,.1,.2,1) both}
+@keyframes ofTeken{from{stroke-dashoffset:var(--L)}}
+.ofh-lijn{position:absolute;left:0;right:0;bottom:6px;height:1.5px;background:rgb(255 255 255 / .35)}
+.ofh-x{position:absolute;left:0;bottom:12px;font-size:18px;font-weight:700;color:rgb(255 255 255 / .55)}
+.of-cs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.of-c{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:1px;padding:11px 14px;border-radius:16px;background:linear-gradient(180deg,rgb(255 255 255 / .15),rgb(255 255 255 / .07));border:1px solid rgb(255 255 255 / .16);transition:background .15s}
+.of-c:hover{background:rgb(255 255 255 / .2)}
+.of-c span{font-size:11.5px;font-weight:600;color:rgb(255 255 255 / .72);display:flex;align-items:center;gap:6px}
+.of-c.ok span::after{content:"";width:7px;height:7px;border-radius:50%;background:#9ff0d2}.of-c.late span::after{content:"";width:7px;height:7px;border-radius:50%;background:#ff9b8a}
+.of-c b{font-size:19px;font-weight:650;letter-spacing:-.02em;font-variant-numeric:tabular-nums}.of-c small{font-size:11.5px;color:rgb(255 255 255 / .6)}
+/* ---------- Communicatie: vliegende envelopjes ---------- */
+.cm-top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.cm-ch{display:flex;gap:8px;flex-wrap:wrap}
+.cm-s{display:flex;align-items:center;gap:9px;padding:8px 12px 8px 8px;border-radius:14px;background:linear-gradient(180deg,rgb(255 255 255 / .15),rgb(255 255 255 / .07));border:1px solid rgb(255 255 255 / .16)}
+.cm-i{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 30%,transparent);color:var(--c)}.cm-i svg{width:16px;height:16px}
+.cm-s small{display:block;font-size:11px;color:rgb(255 255 255 / .7);font-weight:600}.cm-s b{font-size:16px;font-weight:650;line-height:1.1}
+.cm-lucht{position:relative;height:118px;margin:2px 0 0}
+.cm-boog{position:absolute;left:0;right:0;top:4px;width:100%;height:90px}
+.cm-pt{position:absolute;bottom:0;display:flex;flex-direction:column;align-items:center;gap:1px;transform:translateX(-50%)}
+.cm-pt.p1{left:4%}.cm-pt.p2{left:50%}.cm-pt.p3{left:96%}
+.cm-pt i{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:rgb(255 255 255 / .14);border:1px solid rgb(255 255 255 / .25);margin-bottom:4px}.cm-pt i svg{width:17px;height:17px}
+.cm-pt.p2 i{background:#fff;color:var(--brand)}
+.cm-pt b{font-size:17px;font-weight:700;line-height:1.1}.cm-pt small{font-size:11px;color:rgb(255 255 255 / .7);white-space:nowrap}
+.cm-env{position:absolute;left:0;top:0;width:30px;height:22px;offset-path:path("M24 74 C 168 8, 432 8, 576 74");offset-rotate:auto 0deg;animation:cmVlieg 4.5s cubic-bezier(.45,.05,.4,1) var(--d) infinite;opacity:0;filter:drop-shadow(0 4px 6px rgb(0 0 0 / .25))}
+.cm-env svg{width:100%;height:100%}
+@keyframes cmVlieg{0%{offset-distance:0%;opacity:0;transform:scale(.7)}10%{opacity:1}50%{transform:scale(1.05)}85%{opacity:1}100%{offset-distance:100%;opacity:0;transform:scale(.8)}}
+.cm-mis{margin:0;font-size:12.5px;color:rgb(255 255 255 / .8);display:flex;align-items:center;gap:7px}.cm-mis i{width:7px;height:7px;border-radius:50%;background:#ff9b8a}
+@media (max-width:640px){.ofh,.cm{padding:18px 16px 14px}.ofh-big b,.cm-big b{font-size:28px}.of-cs{gap:6px}.of-c{padding:9px 10px}.of-c b{font-size:15px}.of-c small{display:none}.cm-ch{width:100%}.cm-s{flex:1;padding:6px 8px 6px 6px}.cm-i{width:24px;height:24px}.cm-pt small{font-size:10px}.cm-env{display:none}}
+@media (prefers-reduced-motion:reduce){.ofh-sig .sv{animation:none}.cm-env{display:none}}
+.ofh-sig svg{left:30px;width:min(560px,calc(100% - 30px));height:80px;top:4px}
+.cm-lucht{max-width:660px;width:100%;margin-left:auto;margin-right:auto}
+/* statistieken: munt naar de vlag, klantenwijk */
+.st-rol .fg-weg{margin:6px 40px 0 4px;height:52px}
+.st-rol .fg-baan{top:24px}.st-rol .fg-munt{top:12px}
+.st-vlag{position:absolute;right:-38px;top:6px;font-size:28px;filter:drop-shadow(0 3px 4px rgb(0 0 0 / .25))}
+.st-wijk{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 2px;max-width:620px}
+.st-wijk i{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;background:rgb(255 255 255 / .16);color:#fff;animation:stWijk .5s cubic-bezier(.2,1.4,.4,1) both}
+.st-wijk i:nth-child(n){animation-delay:calc(var(--i,0)*1ms)}
+.st-wijk i svg{width:13px;height:13px;fill:currentColor}
+.st-wijk i.zk{background:rgb(255 210 154 / .3);color:#ffe2b8}
+.st-wijk i.nw{background:#fff;color:#1f9a63;box-shadow:0 0 0 3px rgb(159 240 210 / .35)}
+.st-wijk small{font-size:12px;color:rgb(255 255 255 / .75);align-self:center;margin-left:4px}
+@keyframes stWijk{from{transform:scale(0);opacity:0}}
 
 </style>
 <div class="app">
@@ -5475,14 +5529,7 @@ function vCommunicatie(){
   const stc={};Object.keys(MSTAT).forEach(k=>stc[k]=bs.filter(m=>ms(m)===k).length);
   let html=`<div class="pagehead"><div><p class="kicker">Communicatie</p><h1 class="xl">Berichten</h1><p class="lead" style="margin:0">${plural(bs.length,"bericht","berichten")}${todo?` · <b>${todo}</b> klaar om te versturen`:""}</p></div>
     <div class="acts"><button type="button" data-act="nieuwsbrief">${I.megaphone}Nieuwsbrief</button><button type="button" class="primary" data-act="pickrec">${I.send}Verstuur bericht</button></div></div>
-  <div class="stats">
-    <div class="stat"><span class="eyebrow">Totaal</span><b>${bs.length}</b><span class="ic gl" style="--g:#3d4c54">${I.inbox}</span></div>
-    <div class="stat"><span class="eyebrow">Email</span><b>${n("email")}</b><span class="ic gl" style="--g:#6a63b0">${I.mail}</span></div>
-    <div class="stat"><span class="eyebrow">SMS</span><b>${n("sms")}</b><span class="ic gl" style="--g:#b07a3a">${I.sms}</span></div>
-    <div class="stat"><span class="eyebrow">WhatsApp</span><b>${n("whatsapp")}</b><span class="ic gl" style="--g:#3f8a66">${I.msg}</span></div></div>
-  <div class="panel stbar"><div style="display:flex;justify-content:space-between"><span class="eyebrow">Status verdeling</span><span class="subt mono" style="font-size:13px">${plural(bs.length,"bericht","berichten")}</span></div>
-    <div class="sbar">${bs.length?Object.keys(stc).filter(k=>stc[k]).map(k=>`<i class="${MSTAT[k][0]}" style="flex:${stc[k]}"></i>`).join(""):'<i style="flex:1;background:var(--surface-2)"></i>'}</div>
-    <div class="legend" style="margin:0;text-transform:none;letter-spacing:0;font-weight:600">${Object.keys(stc).filter(k=>stc[k]||["geopend","gekopieerd","gelezen","geklikt"].includes(k)).map(k=>`<span><i class="${MSTAT[k][0]}"></i>${stc[k]} ${MSTAT[k][1].toLowerCase()}</span>`).join("")}<span style="color:var(--muted);font-weight:500">Klaargezet = geopend in WhatsApp, sms of mail · Verstuurd = opgemaakte mail · Geopend en Geklikt ${trackOn()?"worden gemeten via mail-tracking":"vragen om mail-tracking (Instellingen)"}</span>${trackOn()?`<button type="button" class="tiny ghost" data-act="tracksync" style="margin-left:auto;color:var(--brand)">${I.refresh||I.clock}Statussen vernieuwen</button>`:""}</div></div>
+  ${cmVlucht(bs,stc,n,todo)}
   <div class="seg" style="margin:18px 0 14px">${[["recent","Recent",bs.length],["klaar","Klaar om te versturen",todo],["templates","Templates",Object.keys(T).length]].map(([v,l,c])=>`<button type="button" data-act="ctab" data-v="${v}" aria-pressed="${state.ctab===v}">${l} <span class="mono" style="opacity:.6;font-size:12px">${c}</span></button>`).join("")}</div>`;
   if(state.ctab==="klaar"){
     const groups=[["alle","Alle actieve klanten"],["vandaag","Route vandaag"],["morgen","Route morgen"],...rondes().map(r=>["r:"+r,r]),...[...new Set(actief().filter(k=>k.nieuwsbrief!==false).map(k=>k.nbGroep||"Standaard"))].sort().map(g=>["nb:"+g,"Nieuwsbrief · "+g])];
@@ -5621,6 +5668,26 @@ function openTplEdit(k){
     $("#teSave").disabled=true;try{await save("instellingen","sjablonen",o);dlg.close();toast(isNew?"Template toegevoegd":"Template opgeslagen")}catch(er){$("#teSave").disabled=false;err(er)}};
 }
 
+/* ---------- Communicatie: envelopjes die van verstuurd naar geopend vliegen ---------- */
+const CM_ENV='<svg viewBox="0 0 40 30" aria-hidden="true"><rect x="1.5" y="1.5" width="37" height="27" rx="4" fill="#fff"/><path d="M2.5 4 20 17 37.5 4" fill="none" stroke="#9fb7bf" stroke-width="2" stroke-linejoin="round"/><path d="M2.5 27 15 15M37.5 27 25 15" stroke="#d5e2e6" stroke-width="1.6"/></svg>';
+function cmVlucht(bs,stc,n,todo){const ms=mStat,tot=bs.length;
+  const verst=bs.filter(m=>m.kanaal==="email"&&!["mislukt","bounce","spam"].includes(ms(m))).length;
+  const open=bs.filter(m=>["gelezen","geklikt"].includes(ms(m))).length,klik=stc.geklikt||0,mis=(stc.mislukt||0)+(stc.bounce||0)+(stc.spam||0);
+  const pO=verst?Math.round(open/verst*100):0,pK=verst?Math.round(klik/verst*100):0;
+  const mot=!tot?"Nog geen berichten verstuurd. Je eerste mail vliegt zo de deur uit.":!trackOn()?"Zet mail-tracking aan bij Instellingen, dan zie je wie je mail opent.":pO>=60?`${pO}% van je mails wordt geopend. Dat is sterk!`:verst?`${open} van ${verst} mails geopend.`:"Verstuur een mail om te zien wie hem opent.";
+  const st=(l,w,ic,c)=>`<div class="cm-s"><span class="cm-i" style="--c:${c}">${ic}</span><span><small>${l}</small><b>${w}</b></span></div>`;
+  const nE=Math.min(5,Math.max(1,Math.round(pO/20)));
+  return `<section class="cm"><div class="cm-top"><div><p class="cm-k">Berichten</p><div class="cm-big"><b>${tot}</b><span>${plural(tot,"bericht","berichten")} verstuurd${todo?` · <em>${todo} klaar om te versturen</em>`:""}</span></div><p class="cm-mot">${mot}</p></div>
+      <div class="cm-ch">${st("E-mail",n("email"),I.mail,"#b9b3ff")}${st("SMS",n("sms"),I.sms,"#ffd29a")}${st("WhatsApp",n("whatsapp"),I.msg,"#9ff0c4")}</div></div>
+    <div class="cm-lucht">
+      <svg class="cm-boog" viewBox="0 0 600 90" preserveAspectRatio="none" aria-hidden="true"><path d="M20 70 C 160 6, 440 6, 580 70" fill="none" stroke="rgb(255 255 255 / .35)" stroke-width="2" stroke-dasharray="2 8" stroke-linecap="round"/></svg>
+      <div class="cm-pt p1"><i>${I.send}</i><b>${verst}</b><small>verstuurd</small></div>
+      <div class="cm-pt p2"><i>${I.eye}</i><b>${open}</b><small>geopend · ${pO}%</small></div>
+      <div class="cm-pt p3"><i>${I.right}</i><b>${klik}</b><small>geklikt · ${pK}%</small></div>
+      ${tot?[...Array(nE)].map((_,i)=>`<span class="cm-env" style="--d:${i*.9}s">${CM_ENV}</span>`).join(""):""}
+    </div>
+    ${mis?`<p class="cm-mis"><i></i>${plural(mis,"bericht kwam","berichten kwamen")} niet aan</p>`:""}</section>`}
+
 /* ---------- FACTUREN & OFFERTES ---------- */
 function factTable(list,off){
   return `<div class="tablewrap"><table class="t"><thead><tr><th>Nummer</th><th>Klant</th><th>Datum</th><th>${off?"Geldig tot":"Vervalt"}</th><th>Status</th><th class="r">Bedrag</th></tr></thead><tbody>${list.map(f=>{const st=fStatus(f);return `<tr class="click" data-act="${off?"offedit":"factuur"}" data-id="${esc(f.id)}" title="${off?"Offerte openen":"Factuur openen"}"><td class="mono">${esc(f.nummer)}</td><td><b>${esc(cleanName(f.klantNaam))}</b><br><small class="subt">${esc(f.klantAdres||"")}</small></td><td>${fmtD(f.datum)}</td><td>${fmtD(f.verval)}</td><td>${statusPill(st[0],st[1])}${!off&&f.verstuurdOp&&st[1]==="Openstaand"?' <span class="pill neutral">verstuurd</span>':""}</td><td class="r amt">${eur(totals(f).inc)}</td></tr>`}).join("")}</tbody></table></div>`;
@@ -5655,10 +5722,7 @@ function vOffertes(){
   const tot=all.reduce((a,f)=>a+totals(f).inc,0),acc=lists.geaccepteerd.length,dec=lists.afgewezen.length;
   let html=`<div class="pagehead"><div><p class="kicker">Sales</p><h1 class="xl">Offertes</h1><p class="lead" style="margin:0">${plural(all.length,"offerte","offertes")} · <b>${eur(tot)}</b> totaalwaarde</p></div><div class="acts"><button type="button" class="primary" data-act="newofferte">${I.offertes}Nieuwe offerte</button></div></div>`;
   if(!all.length)return html+empty("Nog geen offertes",'Maak je eerste offerte aan via "Nieuwe offerte" of met de Calculator.',`<button type="button" class="primary" data-act="newofferte">${I.offertes}Eerste offerte</button>`);
-  html+=`<div class="stats"><div class="stat"><span class="eyebrow">Lopend</span><b>${lists.concept.length+lists.verstuurd.length}</b><small>${eur0([...lists.concept,...lists.verstuurd].reduce((a,f)=>a+totals(f).inc,0))}</small></div>
-    <div class="stat"><span class="eyebrow">Geaccepteerd</span><b>${acc}</b><small>${eur0(lists.geaccepteerd.reduce((a,f)=>a+totals(f).inc,0))}</small></div>
-    <div class="stat"><span class="eyebrow">Afgewezen</span><b>${dec}</b><small>offertes</small></div>
-    <div class="stat"><span class="eyebrow">Scoringskans</span><b>${acc+dec?Math.round(acc/(acc+dec)*100)+"%":"—"}</b><small>van beslist</small></div></div>
+  html+=`${ofHandtekening(lists,acc,dec)}
   <div class="tabsline">${[["alle","Alle"],["concept","Concept"],["verstuurd","Verstuurd"],["geaccepteerd","Geaccepteerd"],["afgewezen","Afgewezen"]].map(([v,l])=>`<button type="button" data-act="of" data-v="${v}" aria-pressed="${F===v}">${l}<span class="n">${lists[v].length}</span></button>`).join("")}</div>`;
   const shown=lists[F]||all;
   return html+(shown.length?factTable(shown,true):empty("Geen offertes in deze lijst",""));
@@ -5680,6 +5744,15 @@ function fGeldstroom(all,open,by,sum){
       <div class="fg-pct"><b>${pct}%</b><small>binnen</small></div></div>
     <div class="fg-weg" style="--p:${pct/100}"><div class="fg-baan"><i></i></div><span class="fg-munt">${FG_MUNT}</span><span class="fg-pot">${FG_POT}</span><span class="fg-l l1">Onderweg</span><span class="fg-l l2">Op je rekening</span></div>
     <div class="fg-cs">${chip("openstaand","Onderweg",eur0(openS),plural(open.length,"factuur","facturen"))}${chip("achterstallig","Te laat",eur0(lateS),late.length?plural(late.length,"factuur","facturen"):"alles op tijd",late.length?"late":"ok")}${chip("betaald","Betaald totaal",eur0(sum(by("Betaald"))),plural(by("Betaald").length,"factuur","facturen"))}</div></section>`}
+
+/* ---------- Offertes: een handtekening die zich vult met je scoringskans ---------- */
+function ofHandtekening(lists,acc,dec){const sumI=l=>l.reduce((a,f)=>a+totals(f).inc,0),lop=[...lists.concept,...lists.verstuurd],sc=acc+dec?Math.round(acc/(acc+dec)*100):null;
+  const L=1000,len=sc==null?0:sc/100*L;
+  const mot=sc==null?(lop.length?`${plural(lop.length,"offerte wacht","offertes wachten")} op een handtekening.`:"Maak een offerte, de eerste handtekening komt eraan."):sc>=70?`${sc}% tekent. Klanten zeggen ja tegen je!`:sc>=40?`${sc}% tekent. Bel lopende offertes even na, dat helpt.`:`${sc}% tekent. Een nabelactie kan wonderen doen.`;
+  const tile=(v,l,w,sub,cls="")=>`<button type="button" class="of-c ${cls}" data-act="of" data-v="${v==="lopend"?"verstuurd":v}"><span>${l}</span><b>${w}</b><small>${sub}</small></button>`;
+  return `<section class="ofh"><div class="ofh-top"><div><p class="ofh-k">Scoringskans</p><div class="ofh-big"><b>${sc==null?"—":sc+"%"}</b><span>${acc+dec?`${acc} van ${acc+dec} beslist getekend`:"nog niets beslist"}</span></div><p class="ofh-mot">${mot}</p></div></div>
+    <div class="ofh-sig"><span class="ofh-x">✕</span><svg viewBox="0 0 520 90" preserveAspectRatio="xMinYMax meet" aria-hidden="true"><path class="sp" pathLength="${L}" d="M14 62c18-30 34-44 46-38 14 7-12 44 2 44 16 0 30-56 46-52 12 3-6 40 8 40 18 0 24-34 40-34 14 0 4 30 18 30 20 0 28-44 48-44 16 0 0 40 18 40 22 0 30-28 50-28 14 0 8 22 22 22 26 0 40-32 66-32 20 0 22 26 46 26 26 0 40-14 70-18"/><path class="sv" pathLength="${L}" stroke-dasharray="${L}" stroke-dashoffset="${L-len}" style="--L:${L}" d="M14 62c18-30 34-44 46-38 14 7-12 44 2 44 16 0 30-56 46-52 12 3-6 40 8 40 18 0 24-34 40-34 14 0 4 30 18 30 20 0 28-44 48-44 16 0 0 40 18 40 22 0 30-28 50-28 14 0 8 22 22 22 26 0 40-32 66-32 20 0 22 26 46 26 26 0 40-14 70-18"/></svg><span class="ofh-lijn"></span></div>
+    <div class="of-cs">${tile("lopend","Lopend",lop.length,eur0(sumI(lop)))}${tile("geaccepteerd","Getekend",acc,eur0(sumI(lists.geaccepteerd)),"ok")}${tile("afgewezen","Afgewezen",dec,plural(dec,"offerte","offertes"),dec?"late":"")}</div></section>`}
 
 /* ---------- BOEKHOUDING ---------- */
 function barChart(series,labels,opts={}){
@@ -6706,7 +6779,7 @@ function vInzichten(){
     html+=`<section class="st-hero"><div class="st-hm"><span class="st-k">Omzet · ${esc(P.lbl)} · ex btw</span>
         <div class="st-big"><b>${eur0(F.omzet)}</b>${stDelta(F.omzet,vorige,"vs "+V.lbl)}</div>
         <p class="st-mot">${record?I.spark:""}${mot}</p>
-        ${vorige>0?`<div class="st-goal"><div class="st-gb"><i class="p2" style="width:${pctP}%"></i><i style="width:${pct}%"></i></div><div class="st-gl"><span><b>${pct}%</b> van ${esc(V.lbl)} (${eur0(vorige)})</span>${ingepland?`<span class="st-ing"><i></i>${eur0(ingepland)} ingepland</span>`:""}</div></div>`:""}</div>
+        ${vorige>0?`<div class="st-goal st-rol"><div class="fg-weg" style="--p:${pct/100}"><div class="fg-baan"><i></i></div><span class="fg-munt">${FG_MUNT}</span><span class="st-vlag">🏁</span></div><div class="st-gl"><span><b>${pct}%</b> van ${esc(V.lbl)} (${eur0(vorige)})</span>${ingepland?`<span class="st-ing"><i></i>${eur0(ingepland)} ingepland</span>`:""}</div></div>`:""}</div>
       <div class="st-hs">${stTile(I.receipt,"Facturen",F.fs.length,"in "+esc(P.lbl))}${stTile(I.check,"Betaald",eur0(betaaldP),"incl btw","ok")}</div></section>
     <div class="st-tiles">${stTile(I.clock,"Openstaand",eur0(open.reduce((a,f)=>a+totals(f).inc,0)),plural(open.length,"factuur","facturen")+" · incl btw","",` data-act="tab" data-tab="facturen" role="button"`)}
       ${stTile(I.alert,"Te laat",eur0(late.reduce((a,f)=>a+totals(f).inc,0)),late.length?plural(late.length,"factuur","facturen")+" over tijd":"alles op tijd",late.length?"late":"ok")}
@@ -6746,6 +6819,7 @@ function vInzichten(){
     html+=`<section class="st-hero"><div class="st-hm"><span class="st-k">Actieve klanten</span>
         <div class="st-big"><b>${ak.length}</b>${nieuw.length?`<span class="st-pill up">+${nieuw.length} in ${esc(P.lbl)}</span>`:""}</div>
         <p class="st-mot">${mot}</p>
+        <div class="st-wijk" aria-hidden="true">${ak.slice(0,60).map(k=>`<i class="${nieuw.includes(k)?"nw":""}${k.soort==="zakelijk"?" zk":""}" title="${esc(cleanName(k.naam))}">${HUIS}</i>`).join("")}${ak.length>60?`<small>+${ak.length-60}</small>`:""}</div>
         <div class="st-goal"><div class="st-share sm"><i style="width:${ak.length?(ak.length-zak)/ak.length*100:0}%;--h:190"></i><i style="width:${ak.length?zak/ak.length*100:0}%;--h:30"></i></div><div class="st-gl"><span><span class="st-dot" style="--h:190"></span>${ak.length-zak} particulier</span><span><span class="st-dot" style="--h:30"></span>${zak} zakelijk</span></div></div></div>
       <div class="st-hs">${stTile(I.euro,"Verwacht per jaar",eur0(jaar),"uit vaste klanten, ex btw","ok")}${stTile(I.klanten,"Per klant",perK?eur0(perK):"–","gemiddeld per jaar")}</div></section>
     <div class="st-tiles">${stTile(I.plus,"Nieuw",nieuw.length,nieuwV.length?nieuwV.length+" in "+esc(V.lbl):"in "+esc(P.lbl),nieuw.length?"ok":"")}
