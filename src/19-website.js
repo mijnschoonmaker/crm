@@ -144,7 +144,7 @@ const WEB_CSS=`
 .ms .hero h1{letter-spacing:-.045em;line-height:1}
 .ms .lead{font-size:16.5px;line-height:1.6;color:var(--muted)}
 .ms .stap small{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
-.ms .stap small b,.ms .chip.ster b,.ms .ck a small,.ms .p-ring b{font-family:"IBM Plex Mono",ui-monospace,monospace}
+.ms .stap small b,.ms .chip.ster b,.ms .ck a small,.ms .p-ring b{font-family:"IBM Plex Mono","SF Mono",ui-monospace,Menlo,monospace}
 .ms .stap small b{color:var(--b2);font-weight:600}
 .ms .stap h3,.ms .tg h3{letter-spacing:-.02em}.ms .stap p,.ms .tg p{line-height:1.55}
 .ms summary{letter-spacing:-.01em}.ms details p{line-height:1.6}
@@ -157,36 +157,36 @@ const WEB_CSS=`
 .ms .tk-r::before{content:"";position:absolute;inset:0;background:var(--lijnen);pointer-events:none}
 .ms .tk-r::after{content:"";position:absolute;left:0;top:var(--h);bottom:var(--h);width:2px;background:radial-gradient(circle,rgb(255 255 255 / .55) 1.2px,transparent 1.6px) 0 0/2px 7px repeat-y}
 .ms .tk-r small{position:relative;font-size:10.5px;font-weight:700;opacity:.8;text-transform:uppercase;letter-spacing:.1em}
-.ms .tk-r b{position:relative;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:38px;font-weight:600;line-height:1.05;letter-spacing:-.02em}
+.ms .tk-r b{position:relative;font-family:"IBM Plex Mono","SF Mono",ui-monospace,Menlo,monospace;font-size:38px;font-weight:600;line-height:1.05;letter-spacing:-.02em}
 .ms .tk-v{position:absolute;right:6px;top:50%;transform:translateY(-50%) rotate(90deg);transform-origin:center;font-size:8.5px;letter-spacing:.24em;text-transform:uppercase;opacity:.45;white-space:nowrap;right:-18px}
 .ms .tk-top{display:flex;gap:12px;align-items:center}
 .ms .tk-ic{width:40px;height:40px;border-radius:12px;background:var(--soft);color:var(--b2);display:grid;place-items:center;flex:none}.ms .tk-ic svg{width:20px}
 .ms .tk-top small{display:block;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.09em}
 .ms .tk-top b{display:block;font-size:19px;font-weight:800;letter-spacing:-.025em;line-height:1.15}
-.ms .tk-dl{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;margin:16px 0 14px;padding:14px 0 0;border-top:1.5px dashed var(--line)}
+.ms .tk-dl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px 14px;margin:16px 0 14px;padding:14px 0 0;border-top:1.5px dashed var(--line)}
 .ms .tk-dl dt{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
-.ms .tk-dl dd{margin:2px 0 0;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:14px;font-weight:500;color:var(--ink)}
+.ms .tk-dl dd{margin:2px 0 0;font-family:"IBM Plex Mono","SF Mono",ui-monospace,Menlo,monospace;font-size:14px;font-weight:500;color:var(--ink)}
 .ms .tk-bar{display:flex;align-items:center;gap:12px;padding-top:12px;border-top:1.5px dashed var(--line)}
-.ms .tk-bar i{flex:1;max-width:150px;height:30px;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 4px,var(--ink) 4px 5px,transparent 5px 8px,var(--ink) 8px 11px,transparent 11px 12px,var(--ink) 12px 13px,transparent 13px 16px);opacity:.82;border-radius:2px}
-.ms .tk-bar code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10.5px;letter-spacing:.14em;color:var(--muted)}
-.ms .stempel{position:absolute;right:20px;bottom:14px;display:inline-flex;align-items:center;gap:6px;border:2.5px solid #1f8a5a;color:#1f8a5a;border-radius:10px;padding:4px 11px;font-weight:800;font-size:13px;letter-spacing:.12em;text-transform:uppercase;transform:rotate(-12deg) scale(1.9);opacity:0;mix-blend-mode:multiply;
+.ms .tk-bar>div{display:flex;flex-direction:column;gap:4px;width:46%;max-width:160px}.ms .tk-bar i{display:block;width:100%;height:30px;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 4px,var(--ink) 4px 5px,transparent 5px 8px,var(--ink) 8px 11px,transparent 11px 12px,var(--ink) 12px 13px,transparent 13px 16px);opacity:.82;border-radius:2px}
+.ms .tk-bar code{font-size:9.5px!important;white-space:nowrap;font-family:"IBM Plex Mono","SF Mono",ui-monospace,Menlo,monospace;font-size:10.5px;letter-spacing:.14em;color:var(--muted)}
+.ms .stempel{position:absolute;right:22px;bottom:18px;display:inline-flex;align-items:center;gap:6px;border:2.5px solid #1f8a5a;color:#1f8a5a;border-radius:10px;padding:4px 11px;font-weight:800;font-size:13px;letter-spacing:.12em;text-transform:uppercase;transform:rotate(-12deg) scale(1.9);opacity:0;mix-blend-mode:multiply;
   -webkit-mask:radial-gradient(circle at 30% 40%,#000 55%,rgb(0 0 0 / .75) 70%,#000 85%);mask:radial-gradient(circle at 30% 40%,#000 55%,rgb(0 0 0 / .75) 70%,#000 85%)}
 .ms .stempel svg{width:14px;stroke-width:3}
-.ms .tk-rits{position:absolute;left:-1px;top:0;width:4px;height:0;z-index:3;border-radius:3px;background:linear-gradient(180deg,transparent,#fff 30%,#a5f0f7 70%,#fff);box-shadow:0 0 12px 3px rgb(255 255 255 / .9)}
 .ms .tk-hint{text-align:center;font-size:12.5px;color:var(--muted);margin-top:26px;opacity:0;transition:opacity .4s 1.8s}
 .ms .tk.af+.tk-hint{opacity:1}
-.ms .tk.rits .tk-rits{animation:tkRits .45s cubic-bezier(.6,0,.4,1) forwards}
-@keyframes tkRits{to{height:100%}}
-.ms .tk.af .tk-r{animation:tkVal 1.7s cubic-bezier(.42,0,.6,1) forwards}
-@keyframes tkVal{0%{transform:none}14%{transform:rotate(2.5deg)}30%{transform:rotate(6deg) translate(1px,0)}44%{transform:rotate(9deg) translate(4px,2px)}52%{transform:rotate(13deg) translate(12px,10px)}100%{transform:rotate(46deg) translate(90px,560px);opacity:0}}
 .ms .tk.af .tk-l{animation:tkSchok .55s ease .55s}
 @keyframes tkSchok{0%,100%{transform:none}30%{transform:translateX(-5px) rotate(-.8deg)}65%{transform:translateX(2px) rotate(.3deg)}}
 .ms .tk.af .stempel{animation:tkStempel .32s cubic-bezier(.2,1.6,.4,1) 1.05s forwards}
 @keyframes tkStempel{to{transform:rotate(-12deg) scale(1);opacity:.9}}
-.ms .tk.klaar .tk-r{opacity:0}
 .ms .tk-snipper{position:absolute;width:3px;height:3px;border-radius:1px;background:#fff;pointer-events:none;z-index:4;box-shadow:0 0 0 .5px rgb(0 0 0 / .08)}
-@media (max-width:760px){.ms .tk{grid-template-columns:1fr 92px}.ms .tk-l{padding:18px 20px 16px 18px}.ms .tk-top b{font-size:17px}.ms .tk-dl dd{font-size:13px}.ms .tk-r b{font-size:30px}.ms .stempel{right:14px;bottom:12px;font-size:11.5px}}
-@media (prefers-reduced-motion:reduce){.ms .tk.af .tk-r{animation:none;opacity:0}.ms .tk.af .stempel{animation:none;opacity:.9;transform:rotate(-12deg)}}
+@media (max-width:760px){.ms .tk{grid-template-columns:1fr 92px}.ms .tk-l{padding:18px 20px 16px 18px}.ms .tk-top b{font-size:17px}.ms .tk-dl dd{font-size:13px}.ms .tk-r b{font-size:30px}.ms .stempel{right:12px;bottom:16px;font-size:10.5px;padding:3px 8px}}
+.ms .tk-r{will-change:transform;touch-action:none;cursor:grab}.ms .tk-r:active{cursor:grabbing}
+.ms .tk-vz{position:absolute;left:0;top:0;bottom:0;width:9px;z-index:3;background:linear-gradient(90deg,#fff,#eef6f7);filter:blur(.25px);pointer-events:none}
+.ms .tk-l{transition:none}.ms .tk.bezig .tk-r::after{opacity:0}.ms .tk-vz{opacity:0}.ms .tk.bezig .tk-vz{opacity:1}
+.ms .tk.af .tk-l{animation:tkSchok .5s ease}
+.ms .tk.af .stempel{animation:tkStempel .32s cubic-bezier(.2,1.6,.4,1) .35s forwards}
+.ms .tk-hint{transition-delay:.8s}
+@media (prefers-reduced-motion:reduce){.ms .tk.af .stempel{animation:none;opacity:.9;transform:rotate(-12deg)}}
 `;
 
 function websiteBody(o){const e=esc,IC={
@@ -260,12 +260,12 @@ function websiteBody(o){const e=esc,IC={
     <li><i>${IC.ok}</i><div><b>Facturen en betalen</b><span>Al uw facturen bij elkaar${o.mollie?", direct te betalen":""}.</span></div></li></ul>
   ${portaal?`<div style="margin-top:24px"><a class="knop k-teal" href="${e(portaal)}">${IC.user}Naar mijn portaal</a></div>`:""}</div>
   <div><div class="tk" data-tk role="img" aria-label="Voorbeeld van een afgescheurd bonnetje: uw ramen zijn gewassen">
-    <div class="tk-l"><div class="tk-top"><span class="tk-ic">${IC.raam}</span><div><small>Glasbewassing</small><b>Uw ramen zijn gewassen</b></div></div>
-      <dl class="tk-dl"><div><dt>Datum</dt><dd>di 14 okt</dd></div><div><dt>Klaar om</dt><dd>10:42</dd></div><div><dt>Gedaan</dt><dd>Ramen + kozijnen</dd></div><div><dt>Volgende</dt><dd>over 8 weken</dd></div></dl>
-      <div class="tk-bar"><i></i><code>MS · 2026 · 1014</code></div>
-      <span class="stempel">${IC.ok}Gewassen</span></div>
-    <div class="tk-r"><i class="tk-rits"></i><small>Beurt</small><b>06</b><small>dit jaar</small><span class="tk-v">Bewaarstrook</span></div>
-  </div><p class="tk-hint">Tik op het bonnetje om het opnieuw af te scheuren</p></div></div></div></section>
+    <div class="tk-l"><div class="tk-top"><span class="tk-ic">${IC.raam}</span><div><small>Glasbewassing</small><b>Ramen gewassen</b></div></div>
+      <dl class="tk-dl"><div><dt>Datum</dt><dd>di 14 okt</dd></div><div><dt>Klaar om</dt><dd>10:42</dd></div><div><dt>Gedaan</dt><dd>Ramen, kozijnen</dd></div><div><dt>Volgende</dt><dd>over 8 weken</dd></div></dl>
+      <div class="tk-bar"><div><i></i><code>MS 2026 1014</code></div></div>
+      <span class="stempel" aria-hidden="true">${IC.ok}Gewassen</span></div>
+    <div class="tk-r"><i class="tk-vz"></i><small>Beurt</small><b>06</b><small>dit jaar</small><span class="tk-v">Bewaarstrook</span></div>
+  </div><p class="tk-hint">Trek de strook eraf, of tik om het opnieuw te zien</p></div></div></div></section>
 <section id="prijs"><div class="in"><div id="ms-calc"></div></div></section>
 <section id="zakelijk"><div class="in"><div class="zak"><div><span class="oog">${IC.gebouw}Zakelijk</span><h2 class="kop">Ook voor <em>bedrijven en VvE's</em></h2><p class="lead">Kantoor, winkel, school of appartementencomplex: wij maken een prijs op maat en plannen het werk in wanneer het u uitkomt.</p>
   <div class="tags"><span>Kantoren</span><span>Winkels en horeca</span><span>VvE's</span><span>Scholen en zorg</span></div></div>
@@ -285,17 +285,44 @@ async function websiteDelen(){const fv=k=>{const el=typeof form!=="undefined"&&f
   return {body:websiteBody(o),calc:await klantCalcHtml(wa),o}}
 /* bonnetje: echt afscheuren langs de perforatie, met rafelrand en papiersnippers */
 const WEB_JS=`var tks=root.querySelectorAll("[data-tk]");
-tks.forEach(function(tk){if(tk._ms)return;tk._ms=1;var l=tk.querySelector(".tk-l"),r=tk.querySelector(".tk-r"),tm=[];
-  function snippers(){var b=tk.getBoundingClientRect(),lb=l.getBoundingClientRect();for(var i=0;i<14;i++){var d=document.createElement("i");d.className="tk-snipper";var y=Math.random();
-    d.style.left=(l.offsetWidth-6+Math.random()*6)+"px";d.style.top=(y*l.offsetHeight)+"px";var w=2+Math.random()*3;d.style.width=w+"px";d.style.height=(w*(0.6+Math.random()))+"px";tk.appendChild(d);
-    var dx=(Math.random()*60-10),dy=60+Math.random()*160;d.animate([{transform:"translate(0,0) rotate(0)",opacity:1},{transform:"translate("+dx+"px,"+dy+"px) rotate("+(Math.random()*720-360)+"deg)",opacity:0}],{duration:900+Math.random()*700,delay:Math.random()*350,easing:"cubic-bezier(.2,.6,.4,1)",fill:"forwards"}).onfinish=(function(x){return function(){x.remove()}})(d)}}
-  function scheur(){tm.forEach(clearTimeout);tm=[];tk.classList.remove("rits","af","klaar");l.style.clipPath=r.style.clipPath="";void tk.offsetWidth;
-    var N=38,pts=[];for(var i=0;i<=N;i++){var e=(i%2?1.2:4.6)+(Math.random()*2.2-1.1);if(Math.random()<.18)e+=Math.random()*1.5-.75;pts.push([i/N*100,Math.max(.2,Math.min(5.8,e))])}
-    l.style.clipPath="polygon(0 0,"+pts.map(function(p){return "calc(100% - "+(6-p[1]).toFixed(2)+"px) "+p[0].toFixed(2)+"%"}).join(",")+",0 100%)";
-    r.style.clipPath="polygon("+pts.map(function(p){return p[1].toFixed(2)+"px "+p[0].toFixed(2)+"%"}).join(",")+",100% 100%,100% 0)";
-    tk.classList.add("rits");tm.push(setTimeout(function(){tk.classList.add("af");snippers();try{navigator.vibrate&&navigator.vibrate(18)}catch(_){}},480));tm.push(setTimeout(function(){tk.classList.add("klaar")},480+1750))}
-  tk.addEventListener("click",scheur);
-  if("IntersectionObserver" in window){var io=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting&&x.intersectionRatio>.6){io.disconnect();setTimeout(scheur,350)}})},{threshold:[.6]});io.observe(tk)}else scheur()});`;
+tks.forEach(function(tk){if(tk._ms)return;tk._ms=1;var l=tk.querySelector(".tk-l"),r=tk.querySelector(".tk-r"),vz=r.querySelector(".tk-vz"),hint=tk.parentNode.querySelector(".tk-hint");
+  var N=46,pts=[],raf=0,p=0,staat="heel",lastSnip=0,audio=null;
+  function nieuwePunten(){pts=[];var e=3;for(var i=0;i<=N;i++){e+= (Math.random()-.5)*2.6;if(Math.random()<.12)e+=(Math.random()-.5)*3;e=Math.max(.3,Math.min(5.7,e));if(i%3==0)e=e*.6+3*.4;pts.push(e)}}
+  function clip(q){/* boven de scheurfront: rafelig; eronder: nog vast op de perforatie */
+    var L=[],R=[],V=[],Y=q*100;for(var i=0;i<=N;i++){var y=i/N*100,e=y<=Y+.01?pts[i]:3,ys=y.toFixed(2)+"%";L.push("calc(100% - "+(6-e).toFixed(2)+"px) "+ys);R.push(e.toFixed(2)+"px "+ys);V.push((y<=Y?e+1.4+Math.random()*.8:e).toFixed(2)+"px "+ys)}
+    l.style.clipPath="polygon(0 0,"+L.join(",")+",0 100%)";r.style.clipPath="polygon("+R.join(",")+",100% 100%,100% 0)";
+    vz.style.clipPath="polygon("+R.join(",")+","+V.reverse().join(",")+")"}
+  function zet(q){p=Math.max(0,Math.min(1,q));clip(p);tk.classList.toggle("bezig",p>0);var H=r.offsetHeight,y=p*H,a=Math.pow(p,1.4)*11+Math.sin(p*31)*.35*p;
+    r.style.transformOrigin="0px "+y.toFixed(1)+"px";r.style.transform="translate("+(p*3).toFixed(2)+"px,"+(p*2).toFixed(2)+"px) rotate("+a.toFixed(2)+"deg)";
+    r.style.filter="drop-shadow("+(2+p*6).toFixed(1)+"px "+(2+p*8).toFixed(1)+"px "+(4+p*8).toFixed(1)+"px rgb(10 40 50 / "+(.15+p*.2).toFixed(2)+"))";
+    var nu=performance.now();if(p>0&&p<1&&nu-lastSnip>45){lastSnip=nu;snip(y)}}
+  function snip(y){var d=document.createElement("i");d.className="tk-snipper";var w=1.5+Math.random()*2.5;d.style.width=w+"px";d.style.height=(w*(.5+Math.random()*1.3))+"px";
+    d.style.left=(l.offsetWidth-4+Math.random()*4)+"px";d.style.top=(y-4+Math.random()*8)+"px";if(Math.random()<.4)d.style.background="#d9eef1";tk.appendChild(d);
+    d.animate([{transform:"translate(0,0) rotate(0)",opacity:1},{transform:"translate("+(Math.random()*50-14)+"px,"+(90+Math.random()*170)+"px) rotate("+(Math.random()*900-450)+"deg)",opacity:0}],{duration:1000+Math.random()*900,easing:"cubic-bezier(.25,.5,.45,1)",fill:"forwards"}).onfinish=function(){d.remove()}}
+  function geluid(){try{var A=audio||(audio=new (window.AudioContext||window.webkitAudioContext)());if(A.state==="suspended")A.resume();var t=A.currentTime,len=1.0,
+    b=A.createBuffer(1,A.sampleRate*len,A.sampleRate),c=b.getChannelData(0),k=0;for(var i=0;i<c.length;i++){if(Math.random()<.004)k=1;k*=.985;c[i]=(Math.random()*2-1)*(.18+k*.9)}
+    var src=A.createBufferSource();src.buffer=b;var bp=A.createBiquadFilter();bp.type="bandpass";bp.frequency.setValueAtTime(1800,t);bp.frequency.linearRampToValueAtTime(3600,t+len);bp.Q.value=.8;
+    var g=A.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.35,t+.08);g.gain.setValueAtTime(.35,t+len*.75);g.gain.linearRampToValueAtTime(0,t+len);src.connect(bp);bp.connect(g);g.connect(A.destination);src.start(t);return src}catch(e){return null}}
+  function val(){staat="valt";var t0=performance.now(),H=r.offsetHeight,vx=40+Math.random()*50,rv=70+Math.random()*60,a0=11;
+    tk.classList.add("af");try{navigator.vibrate&&navigator.vibrate([12,30,18])}catch(_){}for(var i=0;i<10;i++)snip(H*Math.random());
+    r.style.transformOrigin="0px "+H+"px";
+    (function f(n){var s=(n-t0)/1000,x=3+vx*s,y=2+900*s*s,a=a0+rv*s+30*s*s;r.style.transform="translate("+x.toFixed(1)+"px,"+y.toFixed(1)+"px) rotate("+a.toFixed(1)+"deg)";r.style.opacity=Math.max(0,1-Math.max(0,s-.7)*1.8).toFixed(3);
+      if(s<1.25)raf=requestAnimationFrame(f);else{staat="weg";r.style.visibility="hidden"}})(t0)}
+  function scheurAuto(metGeluid){cancelAnimationFrame(raf);reset();staat="scheurt";if(metGeluid)geluid();var t0=performance.now(),D=1500;
+    (function f(n){var t=Math.min(1,(n-t0)/D),q=t<.22?.1*(t/.22):.1+.9*Math.pow((t-.22)/.78,1.5);q+=Math.sin(t*40)*.006;zet(q);if(t<1)raf=requestAnimationFrame(f);else val()})(t0)}
+  function reset(){cancelAnimationFrame(raf);tk.classList.remove("af");nieuwePunten();r.style.visibility="";r.style.opacity="";staat="heel";zet(0);r.style.filter=""}
+  /* zelf aftrekken */
+  var sleep=null;
+  r.addEventListener("pointerdown",function(e){if(staat==="scheurt"||staat==="valt")return;if(staat==="weg")reset();sleep={y:e.clientY,x:e.clientX,p0:p,snd:geluid()};try{r.setPointerCapture(e.pointerId)}catch(_){}e.preventDefault()});
+  r.addEventListener("pointermove",function(e){if(!sleep)return;var d=Math.max(e.clientY-sleep.y,(e.clientX-sleep.x)*1.3);zet(sleep.p0+d/(r.offsetHeight*.9));if(p>=1){sleep=null;val()}});
+  function los(){if(!sleep)return;var s=sleep;sleep=null;if(s.snd)try{s.snd.stop()}catch(_){}
+    if(p>.4){var t0=performance.now(),p0=p;geluid();(function f(n){var t=Math.min(1,(n-t0)/300);zet(p0+(1-p0)*t);if(t<1)raf=requestAnimationFrame(f);else val()})(t0)}
+    else{var t1=performance.now(),q0=p;(function f(n){var t=Math.min(1,(n-t1)/220);zet(q0*(1-t));if(t<1)raf=requestAnimationFrame(f)})(t1)}}
+  r.addEventListener("pointerup",los);r.addEventListener("pointercancel",los);
+  l.addEventListener("click",function(){scheurAuto(true)});tk._zet=zet;tk._reset=reset;
+  nieuwePunten();zet(0);
+  if(window.matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches){tk.classList.add("af");r.style.visibility="hidden";staat="weg";return}
+  if("IntersectionObserver" in window){var io=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting&&x.intersectionRatio>.7){io.disconnect();setTimeout(function(){if(staat==="heel")scheurAuto(false)},700)}})},{threshold:[.7]});io.observe(tk)}else scheurAuto(false)});`;
 const WEB_FONTS='<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">';
 /* losse pagina: voor de voorbeeldweergave en voor wie geen Framer gebruikt */
 function websiteHtml(p,crm){const calc=crm?p.calc.replace(/<head([^>]*)>/i,m=>m+"<script>window.ZEEM_CRM=1<\/script>"):p.calc;
@@ -303,7 +330,7 @@ function websiteHtml(p,crm){const calc=crm?p.calc.replace(/<head([^>]*)>/i,m=>m+
 <meta name="description" content="Glasbewassing${p.o.plaats?" in "+esc(p.o.plaats)+" en omgeving":""}. Bereken direct uw prijs met een foto van uw woning.">${WEB_FONTS}<style>html,body{margin:0;background:#f3f6f7;scroll-behavior:smooth;overflow-x:hidden;max-width:100%}${WEB_CSS}</style></head>
 <body><div class="ms">${p.body}</div><script>(function(root){${WEB_JS}})(document)<\/script><script>/* interne links: zelf scrollen (in een voorbeeldvenster zou de browser anders naar het CRM gaan) */
 document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a[href^='#']");if(!a)return;e.preventDefault();var id=a.getAttribute("href").slice(1),d=id==="top"?document.body:document.getElementById(id);var m=document.getElementById("msm");if(m)m.checked=false;if(d)d.scrollIntoView({behavior:"smooth",block:"start"})});
-<\/script><script>(function(){var C=${JSON.stringify(calc).replace(/<\//g,"<\\/")};var box=document.getElementById("ms-calc"),f=document.createElement("iframe");f.title="Prijscalculator";f.setAttribute("allow","camera; web-share; clipboard-write");f.srcdoc=C;f.style.height="900px";f.style.width="1px";f.style.minWidth="100%";box.appendChild(f);
+<\/script><script>(function(){var C=${JSON.stringify(calc).replace(/<\//g,"<\\/")};var box=document.getElementById("ms-calc"),f=document.createElement("iframe");f.title="Prijscalculator";f.setAttribute("allow","camera; web-share; clipboard-write");f.srcdoc=C;f.style.height="900px";f.style.border="0";f.style.width="1px";f.style.minWidth="100%";box.appendChild(f);
 window.addEventListener("message",function(e){if(e.source!==f.contentWindow||!e.data)return;if(e.data.type==="zeem-calc-height")f.style.height=e.data.h+"px";if(e.data.type==="zeem-calc-full"){var on=!!e.data.on;f.style.cssText=on?"position:fixed;inset:0;width:100vw;height:100dvh;z-index:2147483647;border:0;background:#fff":"display:block;width:1px;min-width:100%;border:0;height:"+f.style.height;document.documentElement.style.overflow=on?"hidden":""}});
 if(window.parent!==window){window.addEventListener("message",function(e){if(!e.data||!/^zeem-aanvraag/.test(e.data.type||""))return;if(e.source===f.contentWindow)parent.postMessage(e.data,"*");else if(e.source===parent)f.contentWindow.postMessage(e.data,"*")});var post=function(){parent.postMessage({type:"zeem-calc-height",h:document.documentElement.scrollHeight},"*")};new ResizeObserver(post).observe(document.body)}})()<\/script></body></html>`}
 /* Framer: één code component met alles erin */

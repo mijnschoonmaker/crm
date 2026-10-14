@@ -433,7 +433,9 @@ function webCalcVoorbeeld(html,titel){webCalcVoorbeeld._recent=webCalcVoorbeeld.
     <div class="seg wcv-seg"><button type="button" data-w="tel" class="${titel?"":"sel"}">Telefoon</button><button type="button" data-w="tab">Tablet</button><button type="button" data-w="pc" class="${titel?"sel":""}">Computer</button></div>
     <button type="button" class="iconbtn" data-wclose aria-label="Sluiten">${I.x}</button></div>
     <div class="wcv-b"><iframe class="wcv-f ${titel?"pc":"tel"}" title="Website-calculator" allow="camera; clipboard-write"></iframe></div></div>`;
-  const f=o.querySelector("iframe");f.srcdoc=String(html).replace(/<head([^>]*)>/i,m=>m+"<script>window.ZEEM_CRM=1<\/script>");
+  const f=o.querySelector("iframe"),bron=String(html).replace(/<head([^>]*)>/i,m=>m+"<script>window.ZEEM_CRM=1<\/script>");
+  /* als los bestand laden (blob) in plaats van srcdoc: Safari laat een grote srcdoc soms zonder opmaak zien */
+  let bu="";try{bu=URL.createObjectURL(new Blob([bron],{type:"text/html;charset=utf-8"}));f.src=bu}catch(_){f.srcdoc=bron}
   /* indienen in het voorbeeld: klant en opdracht komen meteen in het crm */
   const opMsg=async e=>{if(e.source!==f.contentWindow)return;const d=e.data||{};if(d.type!=="zeem-aanvraag")return;
     const reply=m=>{try{f.contentWindow.postMessage(m,"*")}catch(_){}};
@@ -442,7 +444,7 @@ function webCalcVoorbeeld(html,titel){webCalcVoorbeeld._recent=webCalcVoorbeeld.
     try{const k=D.formaat==="zeem.contact"?await contactToevoegen(D):await aanvraagToevoegen(D,d.fotos||[]);reply({type:"zeem-aanvraag-ok",id:k.id})}
     catch(er){console.error(er);reply({type:"zeem-aanvraag-fout",tekst:"opslaan in het crm lukte niet."})}};
   window.addEventListener("message",opMsg);
-  const sluit=()=>{document.documentElement.classList.remove("nozm");try{o.close()}catch(_){}o.remove();document.removeEventListener("keydown",esc_,true);window.removeEventListener("message",opMsg)};
+  const sluit=()=>{document.documentElement.classList.remove("nozm");if(bu)setTimeout(()=>URL.revokeObjectURL(bu),1000);try{o.close()}catch(_){}o.remove();document.removeEventListener("keydown",esc_,true);window.removeEventListener("message",opMsg)};
   o.addEventListener("cancel",e=>{e.preventDefault();sluit()});
   const esc_=e=>{if(e.key==="Escape"){e.preventDefault();e.stopPropagation();sluit()}};document.addEventListener("keydown",esc_,true);
   o.addEventListener("click",e=>{if(e.target===o||e.target.closest("[data-wclose]")){sluit();return}const w=e.target.closest("[data-w]");if(w){o.querySelectorAll("[data-w]").forEach(x=>x.classList.toggle("sel",x===w));f.className="wcv-f "+w.dataset.w}});
