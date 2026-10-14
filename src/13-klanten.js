@@ -116,7 +116,7 @@ function kRitmeKaart(){const ak=actief(),r=ak.map(k=>({k,...kRitme(k)})),n=z=>r.
   const laat=n("laat"),week=n("week"),opSchema=n("ok")+n("gepland"),pct=ak.length?Math.round(opSchema/ak.length*100):0;
   const mot=!ak.length?"Nog geen actieve klanten.":laat?`${plural(laat,"klant loopt","klanten lopen")} achter. Plan ze in, dan is iedereen weer in ritme.`:week?`Iedereen in ritme. ${week} deze week aan de beurt.`:"Iedereen loopt keurig in zijn ritme!";
   const chip=(z,l,c)=>`<button type="button" class="kr-c${rz===z?" on":""}" data-act="krz" data-v="${z}" style="--c:${c}"><i></i><b>${n(z)}</b><span>${l}</span></button>`;
-  const dots=r.filter(x=>x.z!=="uit").map(x=>{const L=Math.max(1,Math.min(99,x.f/1.25*100));return `<i class="kr-d z-${x.z}" style="left:${L}%;--y:${(hueN(x.k.id)%5)*7}px" title="${esc(cleanName(x.k.naam))} · ${esc((dueTxt(x.k)||{}).txt||"")}"></i>`}).join("");
+  const dots=r.filter(x=>x.z!=="uit").map(x=>{const L=Math.max(1,Math.min(99,x.f/1.25*100));return `<i class="kr-d z-${x.z}" style="left:${L}%;--y:${(hueN(x.k.id)%4)*9}px;--i:${hueN(x.k.id)%20}" title="${esc(cleanName(x.k.naam))} · ${esc((dueTxt(x.k)||{}).txt||"")}">${HUIS}</i>`}).join("");
   return `<section class="kr"><div class="kr-top"><div><p class="kr-k">Ritme van je klanten</p><div class="kr-big"><b>${pct}%</b><span>op schema</span></div><p class="kr-mot">${mot}</p></div>
       <div class="kr-cs">${chip("laat","te laat","#ff9b8a")}${chip("week","deze week","#ffe08a")}${chip("gepland","gepland","#9ff0d2")}${chip("nieuw","nieuw","#b9d8ff")}</div></div>
     <div class="kr-baan"><div class="kr-zones"><span class="zo">net gewassen</span><span class="zb">bijna aan de beurt</span><span class="zl">te laat</span></div>${dots}</div></section>`}

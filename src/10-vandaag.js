@@ -65,10 +65,10 @@ function vVandaag(){
   const due=isT?teplannen(t).filter(k=>!k.gepland):[];
   const note=(state.routes[d]||{}).notitie||"";
   const h=new Date().getHours(),groet=h<12?"Goedemorgen":h<18?"Goedemiddag":"Goedenavond",naam=(state.me&&state.me.name?state.me.name.split(" ")[0]:"")||cleanName(S().naam);
-  const top=`<div class="vd-top"><span class="vd-date">${I.sun}${dd.toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long"})}</span><span class="pill brand">wk ${weekNr(dd)}</span></div>
-  <div class="vd-bar"><div class="datenav"><button type="button" class="ghost" data-act="vday" data-n="-1" aria-label="Vorige dag">${I.left}</button><b>${fmtNum(dd)}</b><button type="button" class="ghost" data-act="vday" data-n="1" aria-label="Volgende dag">${I.right}</button></div>
-    ${isT?"":`<button type="button" data-act="vday" data-n="0">Vandaag</button>`}<button type="button" class="yellow" data-act="daynote" data-d="${d}">📌 Notitie</button></div>
-  <h1 class="vd-hi">${isT?groet:"Planning"}${naam&&isT?`, <span>${esc(naam)}.</span>`:""}</h1>`;
+  const rel=Math.round((dd-t)/864e5),dagL=rel===0?"Vandaag":rel===1?"Morgen":rel===-1?"Gisteren":dd.toLocaleDateString("nl-NL",{weekday:"long"});
+  const top=`<div class="vk"><div class="vk-l"><p class="vk-d">${I.sun}<span>${(x=>x.charAt(0).toUpperCase()+x.slice(1))(dd.toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long"}))}</span><em>wk ${weekNr(dd)}</em></p>
+    <h1 class="vd-hi">${isT?groet:"Planning"}${naam&&isT?`, <span>${esc(naam)}.</span>`:""}</h1></div>
+    <div class="vk-nav" role="group" aria-label="Dag"><button type="button" data-act="vday" data-n="-1" aria-label="Vorige dag">${I.left}</button><button type="button" class="vk-nu${isT?" is":""}" data-act="vday" data-n="0" title="Naar vandaag"><small>${esc(fmtNum(dd))}</small><b>${esc(dagL.charAt(0).toUpperCase()+dagL.slice(1))}</b></button><button type="button" data-act="vday" data-n="1" aria-label="Volgende dag">${I.right}</button></div></div>`;
   const noteHtml=note?`<button type="button" class="daynote" data-act="daynote" data-d="${d}"><span class="eyebrow">Dagnotitie</span>${esc(note)}</button>`:"";
   const dueHtml=due.length?`<div class="banner"><div><b>${plural(due.length,"klant is","klanten zijn")} vandaag aan de beurt, maar niet ingepland</b><br><small>${due.slice(0,3).map(k=>esc(cleanName(k.naam))).join(", ")}${due.length>3?" en "+(due.length-3)+" meer":""}</small></div><button type="button" class="primary" data-act="plantoday">Plan vandaag in</button></div>`:"";
   const emptyHtml=!todo.length?vdRust(d,isT,stops.length,due.length):"";

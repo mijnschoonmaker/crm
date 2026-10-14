@@ -3025,3 +3025,29 @@ body{background:var(--bg)!important}
 .vr-k{margin:0 0 4px!important;font-size:12px!important;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)!important}
 .vr.klaar .vr-zon{background:transparent!important;box-shadow:inset 9px -3px 0 0 #fff4c8,0 0 22px rgb(255 244 200 / .25)!important}.vr.klaar .vr-zon::after{display:none!important}
 .vh{margin-bottom:18px!important}.vr{margin-top:18px!important}
+/* ---------- Vandaag: kop met dagwisselaar ---------- */
+.vk{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:4px 0 18px;flex-wrap:wrap}
+.vk-l{min-width:0}
+.vk-d{display:flex;align-items:center;gap:8px;margin:0 0 6px;font-size:14px;color:var(--muted);font-weight:500}.vk-d svg{width:18px;height:18px;color:#e0a030}.vk-d span{text-transform:capitalize}
+.vk-d em{font-style:normal;font-size:12px;font-weight:700;color:var(--brand);background:var(--brand-soft);padding:2px 8px;border-radius:99px}
+.vk .vd-hi{margin:0!important}
+.vk-nav{display:flex;align-items:center;gap:4px;padding:4px;border-radius:16px;background:var(--surface);border:1px solid var(--line);box-shadow:0 1px 2px rgb(15 31 38 / .04),0 10px 24px -18px rgb(15 50 60 / .35)}
+.vk-nav>button{all:unset;box-sizing:border-box;cursor:pointer;display:grid;place-items:center;width:40px;height:44px;border-radius:12px;color:var(--muted);transition:background .15s}
+.vk-nav>button:hover{background:var(--surface-2);color:var(--ink)}.vk-nav>button svg{width:18px;height:18px}
+.vk-nav .vk-nu{width:auto;min-width:118px;padding:4px 14px;text-align:center;line-height:1.15}
+.vk-nu small{display:block;font-size:11px;color:var(--muted);font-weight:600;font-variant-numeric:tabular-nums}.vk-nu b{display:block;font-size:15px;font-weight:700;color:var(--ink)}
+.vk-nu.is{background:var(--brand-soft)}.vk-nu.is b{color:var(--brand)}
+@media (max-width:640px){.vk{align-items:stretch;flex-direction:column;gap:12px}.vk-nav{justify-content:space-between}.vk-nav .vk-nu{flex:1}}
+.vk-d span{text-transform:none!important}
+/* ritmekaart: stippen als kleine huisjes-pins */
+.kr-baan{height:88px!important}
+.kr-d{width:20px!important;height:20px!important;margin-left:-10px!important;top:calc(8px + var(--y))!important;display:grid;place-items:center;border:2px solid #fff;box-shadow:0 3px 8px -2px rgb(0 0 0 / .35),0 0 0 3px rgb(255 255 255 / .12)!important;animation:krIn .6s cubic-bezier(.2,1.4,.4,1) both;animation-delay:calc(var(--i)*25ms)!important;transition:transform .15s}
+.kr-d svg{width:11px;height:11px;fill:rgb(0 0 0 / .45);stroke:none}
+.kr-d.z-ok{background:#fff}.kr-d.z-ok svg{fill:#137a8a}
+.kr-d.z-laat{background:#ff8a78}.kr-d.z-laat svg{fill:#fff}
+.kr-d.z-week{background:#ffd666}.kr-d.z-week svg{fill:#8a5e14}
+.kr-d.z-gepland{background:#7fe6bf}.kr-d.z-gepland svg{fill:#0f5f4a}
+.kr-d.z-nieuw{background:#a9cdff}.kr-d.z-nieuw svg{fill:#1d4f8a}
+.kr-d.z-laat{animation:krIn .6s cubic-bezier(.2,1.4,.4,1) both,krPuls 2.2s ease-in-out 1s infinite}
+@keyframes krPuls{50%{box-shadow:0 3px 8px -2px rgb(0 0 0 / .35),0 0 0 6px rgb(255 138 120 / .3)}}
+.kr-d:hover{transform:scale(1.35)!important;z-index:3}

@@ -3438,6 +3438,32 @@ body{background:var(--bg)!important}
 .vr-k{margin:0 0 4px!important;font-size:12px!important;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)!important}
 .vr.klaar .vr-zon{background:transparent!important;box-shadow:inset 9px -3px 0 0 #fff4c8,0 0 22px rgb(255 244 200 / .25)!important}.vr.klaar .vr-zon::after{display:none!important}
 .vh{margin-bottom:18px!important}.vr{margin-top:18px!important}
+/* ---------- Vandaag: kop met dagwisselaar ---------- */
+.vk{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:4px 0 18px;flex-wrap:wrap}
+.vk-l{min-width:0}
+.vk-d{display:flex;align-items:center;gap:8px;margin:0 0 6px;font-size:14px;color:var(--muted);font-weight:500}.vk-d svg{width:18px;height:18px;color:#e0a030}.vk-d span{text-transform:capitalize}
+.vk-d em{font-style:normal;font-size:12px;font-weight:700;color:var(--brand);background:var(--brand-soft);padding:2px 8px;border-radius:99px}
+.vk .vd-hi{margin:0!important}
+.vk-nav{display:flex;align-items:center;gap:4px;padding:4px;border-radius:16px;background:var(--surface);border:1px solid var(--line);box-shadow:0 1px 2px rgb(15 31 38 / .04),0 10px 24px -18px rgb(15 50 60 / .35)}
+.vk-nav>button{all:unset;box-sizing:border-box;cursor:pointer;display:grid;place-items:center;width:40px;height:44px;border-radius:12px;color:var(--muted);transition:background .15s}
+.vk-nav>button:hover{background:var(--surface-2);color:var(--ink)}.vk-nav>button svg{width:18px;height:18px}
+.vk-nav .vk-nu{width:auto;min-width:118px;padding:4px 14px;text-align:center;line-height:1.15}
+.vk-nu small{display:block;font-size:11px;color:var(--muted);font-weight:600;font-variant-numeric:tabular-nums}.vk-nu b{display:block;font-size:15px;font-weight:700;color:var(--ink)}
+.vk-nu.is{background:var(--brand-soft)}.vk-nu.is b{color:var(--brand)}
+@media (max-width:640px){.vk{align-items:stretch;flex-direction:column;gap:12px}.vk-nav{justify-content:space-between}.vk-nav .vk-nu{flex:1}}
+.vk-d span{text-transform:none!important}
+/* ritmekaart: stippen als kleine huisjes-pins */
+.kr-baan{height:88px!important}
+.kr-d{width:20px!important;height:20px!important;margin-left:-10px!important;top:calc(8px + var(--y))!important;display:grid;place-items:center;border:2px solid #fff;box-shadow:0 3px 8px -2px rgb(0 0 0 / .35),0 0 0 3px rgb(255 255 255 / .12)!important;animation:krIn .6s cubic-bezier(.2,1.4,.4,1) both;animation-delay:calc(var(--i)*25ms)!important;transition:transform .15s}
+.kr-d svg{width:11px;height:11px;fill:rgb(0 0 0 / .45);stroke:none}
+.kr-d.z-ok{background:#fff}.kr-d.z-ok svg{fill:#137a8a}
+.kr-d.z-laat{background:#ff8a78}.kr-d.z-laat svg{fill:#fff}
+.kr-d.z-week{background:#ffd666}.kr-d.z-week svg{fill:#8a5e14}
+.kr-d.z-gepland{background:#7fe6bf}.kr-d.z-gepland svg{fill:#0f5f4a}
+.kr-d.z-nieuw{background:#a9cdff}.kr-d.z-nieuw svg{fill:#1d4f8a}
+.kr-d.z-laat{animation:krIn .6s cubic-bezier(.2,1.4,.4,1) both,krPuls 2.2s ease-in-out 1s infinite}
+@keyframes krPuls{50%{box-shadow:0 3px 8px -2px rgb(0 0 0 / .35),0 0 0 6px rgb(255 138 120 / .3)}}
+.kr-d:hover{transform:scale(1.35)!important;z-index:3}
 
 </style>
 <div class="app">
@@ -4706,10 +4732,10 @@ function vVandaag(){
   const due=isT?teplannen(t).filter(k=>!k.gepland):[];
   const note=(state.routes[d]||{}).notitie||"";
   const h=new Date().getHours(),groet=h<12?"Goedemorgen":h<18?"Goedemiddag":"Goedenavond",naam=(state.me&&state.me.name?state.me.name.split(" ")[0]:"")||cleanName(S().naam);
-  const top=`<div class="vd-top"><span class="vd-date">${I.sun}${dd.toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long"})}</span><span class="pill brand">wk ${weekNr(dd)}</span></div>
-  <div class="vd-bar"><div class="datenav"><button type="button" class="ghost" data-act="vday" data-n="-1" aria-label="Vorige dag">${I.left}</button><b>${fmtNum(dd)}</b><button type="button" class="ghost" data-act="vday" data-n="1" aria-label="Volgende dag">${I.right}</button></div>
-    ${isT?"":`<button type="button" data-act="vday" data-n="0">Vandaag</button>`}<button type="button" class="yellow" data-act="daynote" data-d="${d}">📌 Notitie</button></div>
-  <h1 class="vd-hi">${isT?groet:"Planning"}${naam&&isT?`, <span>${esc(naam)}.</span>`:""}</h1>`;
+  const rel=Math.round((dd-t)/864e5),dagL=rel===0?"Vandaag":rel===1?"Morgen":rel===-1?"Gisteren":dd.toLocaleDateString("nl-NL",{weekday:"long"});
+  const top=`<div class="vk"><div class="vk-l"><p class="vk-d">${I.sun}<span>${(x=>x.charAt(0).toUpperCase()+x.slice(1))(dd.toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long"}))}</span><em>wk ${weekNr(dd)}</em></p>
+    <h1 class="vd-hi">${isT?groet:"Planning"}${naam&&isT?`, <span>${esc(naam)}.</span>`:""}</h1></div>
+    <div class="vk-nav" role="group" aria-label="Dag"><button type="button" data-act="vday" data-n="-1" aria-label="Vorige dag">${I.left}</button><button type="button" class="vk-nu${isT?" is":""}" data-act="vday" data-n="0" title="Naar vandaag"><small>${esc(fmtNum(dd))}</small><b>${esc(dagL.charAt(0).toUpperCase()+dagL.slice(1))}</b></button><button type="button" data-act="vday" data-n="1" aria-label="Volgende dag">${I.right}</button></div></div>`;
   const noteHtml=note?`<button type="button" class="daynote" data-act="daynote" data-d="${d}"><span class="eyebrow">Dagnotitie</span>${esc(note)}</button>`:"";
   const dueHtml=due.length?`<div class="banner"><div><b>${plural(due.length,"klant is","klanten zijn")} vandaag aan de beurt, maar niet ingepland</b><br><small>${due.slice(0,3).map(k=>esc(cleanName(k.naam))).join(", ")}${due.length>3?" en "+(due.length-3)+" meer":""}</small></div><button type="button" class="primary" data-act="plantoday">Plan vandaag in</button></div>`:"";
   const emptyHtml=!todo.length?vdRust(d,isT,stops.length,due.length):"";
@@ -5571,7 +5597,7 @@ function kRitmeKaart(){const ak=actief(),r=ak.map(k=>({k,...kRitme(k)})),n=z=>r.
   const laat=n("laat"),week=n("week"),opSchema=n("ok")+n("gepland"),pct=ak.length?Math.round(opSchema/ak.length*100):0;
   const mot=!ak.length?"Nog geen actieve klanten.":laat?`${plural(laat,"klant loopt","klanten lopen")} achter. Plan ze in, dan is iedereen weer in ritme.`:week?`Iedereen in ritme. ${week} deze week aan de beurt.`:"Iedereen loopt keurig in zijn ritme!";
   const chip=(z,l,c)=>`<button type="button" class="kr-c${rz===z?" on":""}" data-act="krz" data-v="${z}" style="--c:${c}"><i></i><b>${n(z)}</b><span>${l}</span></button>`;
-  const dots=r.filter(x=>x.z!=="uit").map(x=>{const L=Math.max(1,Math.min(99,x.f/1.25*100));return `<i class="kr-d z-${x.z}" style="left:${L}%;--y:${(hueN(x.k.id)%5)*7}px" title="${esc(cleanName(x.k.naam))} · ${esc((dueTxt(x.k)||{}).txt||"")}"></i>`}).join("");
+  const dots=r.filter(x=>x.z!=="uit").map(x=>{const L=Math.max(1,Math.min(99,x.f/1.25*100));return `<i class="kr-d z-${x.z}" style="left:${L}%;--y:${(hueN(x.k.id)%4)*9}px;--i:${hueN(x.k.id)%20}" title="${esc(cleanName(x.k.naam))} · ${esc((dueTxt(x.k)||{}).txt||"")}">${HUIS}</i>`}).join("");
   return `<section class="kr"><div class="kr-top"><div><p class="kr-k">Ritme van je klanten</p><div class="kr-big"><b>${pct}%</b><span>op schema</span></div><p class="kr-mot">${mot}</p></div>
       <div class="kr-cs">${chip("laat","te laat","#ff9b8a")}${chip("week","deze week","#ffe08a")}${chip("gepland","gepland","#9ff0d2")}${chip("nieuw","nieuw","#b9d8ff")}</div></div>
     <div class="kr-baan"><div class="kr-zones"><span class="zo">net gewassen</span><span class="zb">bijna aan de beurt</span><span class="zl">te laat</span></div>${dots}</div></section>`}
