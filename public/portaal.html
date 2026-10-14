@@ -844,6 +844,12 @@ aside .logo{gap:16px!important}.topbar .lg-g{font-size:14px!important}
 .bz-adr{display:inline-flex;align-items:center;gap:7px;margin:2px 0 10px;padding:6px 12px 6px 9px;border-radius:999px;background:rgb(255 255 255 / .14);box-shadow:inset 0 0 0 1px rgb(255 255 255 / .22);color:#fff;font-size:14px;font-weight:600;max-width:100%;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 .bz-adr svg{width:16px;height:16px;flex:none;opacity:.9}
 .bz-adr span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bz-adr em{font-style:normal;font-weight:500;opacity:.8}
+
+/* menuknop rechtsboven: als de knoppen in het CRM */
+.topbar .menu-knop{width:46px!important;height:46px!important;border-radius:15px!important;background:var(--surface)!important;color:var(--ink)!important;box-shadow:0 0 0 1px var(--line),0 6px 16px -8px rgb(15 50 60 / .35)!important;transition:transform .15s,box-shadow .15s}
+.topbar .menu-knop svg{width:24px;height:24px}
+.topbar .menu-knop:active{transform:scale(.94)}
+.topbar .menu-knop[aria-current="true"]{background:linear-gradient(135deg,var(--brand),var(--brand-2))!important;color:#fff!important;box-shadow:0 6px 16px -6px rgb(19 122 138 / .5)!important}
 </style></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -979,7 +985,7 @@ function teken(){
       <p class="nlbl">Mijn klantomgeving</p><nav aria-label="Menu">${nav(false)}</nav><span class="sp"></span>
       <div class="help"><b>Vragen?</b><small>Maak een ticket aan, dan helpen we u snel.</small><button class="primary full" data-act="ticket">${I.ticket}Ticket aanmaken</button></div>
       <div class="usercard"><span class="uav">${esc((k.voornaam||"?")[0].toUpperCase())}</span><div><b>${esc(k.naam)}</b><small>${k.klantnr?"Klant "+esc(k.klantnr):esc(k.adres)}</small></div><button data-uit title="Uitloggen" aria-label="Uitloggen">${I.uit}</button></div></aside>
-    <div><header class="topbar">${logoHtml(merkNaam(),B.logo||"/logo.png").replace(/<\/span>$/,`<span class="lg-g">${groet()}, ${esc(k.voornaam||k.naam||"")}</span></span>`)}<span class="sp"></span><button class="menu-knop" data-tab="ik" aria-label="Menu"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button></header>
+    <div><header class="topbar">${logoHtml(merkNaam(),B.logo||"/logo.png").replace(/<\/span>$/,`<span class="lg-g">${groet()}, ${esc(k.voornaam||k.naam||"")}</span></span>`)}<span class="sp"></span><button class="menu-knop" data-tab="ik" aria-label="Menu"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h11M4 17h16"/></svg></button></header>
     <main id="main"${tab==="tickets"&&TK.open?' class="m-chat"':""}>${({home,bezoeken,tickets,facturen,aanbevelen,ik})[tab]()}</main></div></div>
     <nav class="tabs" aria-label="Menu">${nav(true)}</nav>`;
   $$("[data-tab]").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;if(tab==="tickets"){TK.open="";TK.d=null;TK.sig=""}teken();scrollTo({top:0});try{history.replaceState(null,"","#"+tab)}catch(e){}});
