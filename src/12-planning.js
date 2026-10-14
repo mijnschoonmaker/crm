@@ -154,7 +154,11 @@ function vPlanning(){
     ${offer.length>1&&!state.planMode?`<button type="button" class="small" style="width:100%;margin-bottom:10px" data-act="planall">Alles inplannen op aanboddatum</button>`:""}
     <div class="list" style="gap:8px">${offer.length?offerCards(offer,v==="dag"&&parse(d0)>=t?d0:""):`<p class="subt" style="text-align:center;font-style:italic;margin:30px 0">Alles ingepland</p>`}</div></aside>`;
   if(big())return `<div class="withside">`+`<div class="mainc">${html}</div>${offerCol}</div>`;
-  return html+(offer.length?`<button type="button" class="fab-plan" data-act="offersheet">${I.inbox}${offer.length} in te plannen</button>`:"");
+  /* telefoon: te plannen opdrachten onder de agenda; lang indrukken en in de agenda slepen (zoals in DienstenCRM) */
+  if(v==="maand")return html+(offer.length?`<button type="button" class="fab-plan" data-act="offersheet">${I.inbox}${offer.length} in te plannen</button>`:"");
+  return html+`<section class="mob-offer" id="mobOffer"><div class="mo-h"><span class="objic">${I.inbox}</span><div><b>In te plannen</b><small>${offer.length?`${plural(offer.length,"opdracht","opdrachten")} · houd vast en sleep naar de agenda`:"Alles ingepland"}</small></div><span class="sp"></span>${offer.length?`<span class="mono">${eur0(toon(offerSum))}</span>`:""}</div>
+    ${offer.length?`<div class="sheet-adv">${advHtml(offer,d0)}</div>${offer.length>1&&!state.planMode?`<button type="button" class="small" style="width:100%;margin:2px 0 10px" data-act="planall">Alles inplannen op aanboddatum</button>`:""}<div class="list" style="gap:8px">${offerCards(offer,v==="dag"&&parse(d0)>=t?d0:"")}</div>`:""}</section>`
+    +(offer.length?`<button type="button" class="fab-plan mo-fab" data-act="naarofferlijst">${I.inbox}${offer.length} in te plannen</button>`:"");
 }
 
 /* beknopte info bij een afgeronde afspraak */

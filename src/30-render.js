@@ -185,6 +185,7 @@ document.addEventListener("click",e=>{
     case"planop":t.disabled=true;moveTo(id,t.dataset.d||"",t.dataset.t).then(()=>{if(dlg.open&&form.dataset.sheet==="offer")setTimeout(openOfferSheet,60)});break;
     case"planall":{const days=viewDays(),l0=teplannen(parse(days[days.length-1])<today()?today():parse(days[days.length-1])),l=state.pkaart&&state.ksel.size?l0.filter(k=>state.ksel.has(k.id)):l0;t.disabled=true;runSeq(l,k=>save("klanten",k.id,{...strip(k),gepland:iso(sugDate(k,days))}),plural(l.length,"klant","klanten")+" ingepland op hun vervaldag");break}
     case"offersheet":openOfferSheet();break;
+    case"naarofferlijst":{const m=document.getElementById("mobOffer");if(m)m.scrollIntoView({behavior:"smooth",block:"start"});else openOfferSheet();break}
     case"advtgl":ADV.open=!ADV.open;advSave();reOffer();break;
     case"osort":ADV.sort=t.dataset.v;advSave();reOffer();break;
     case"advdatum0":ADV.datum="";reOffer();break;
@@ -271,7 +272,13 @@ document.addEventListener("pointermove",e=>{if(!dg)return;const dx=e.clientX-dg.
   e.preventDefault();dg.tx=e.clientX-dg.dx;dg.ty=e.clientY-dg.dy;
   const c=dropAt(e.clientX,e.clientY);document.querySelectorAll(".over").forEach(x=>x!==c&&x.classList.remove("over"));if(c)c.classList.add("over");
   dgPreview(c);dg.g.classList.toggle("ok",!!c);
-  const sc=document.scrollingElement,m=60;if(e.clientY<m)sc.scrollTop-=12;else if(e.clientY>innerHeight-m)sc.scrollTop+=12},{passive:false});
+  dgAuto(e.clientY)},{passive:false});
+/* automatisch scrollen tijdens slepen: zone onder de kopbalk en boven de tabbalk, sneller naarmate je dichter bij de rand komt (nodig op de telefoon om van de lijst naar de agenda te slepen) */
+function dgAuto(y){if(!dg)return;dg.ay=y;if(dg.araf)return;const stap=()=>{if(!dg||!dg.on){if(dg)dg.araf=0;return}
+  const tb=document.querySelector(".topbar"),nb=document.getElementById("tabNav"),top=(tb&&getComputedStyle(tb).display!=="none"?tb.getBoundingClientRect().bottom:0),bot=nb&&getComputedStyle(nb).display!=="none"?nb.getBoundingClientRect().top:innerHeight;
+  const Z=110,sc=document.scrollingElement;let v=0;if(dg.ay<top+Z)v=-Math.min(28,4+(top+Z-dg.ay)*.25);else if(dg.ay>bot-Z)v=Math.min(28,4+(dg.ay-(bot-Z))*.25);
+  if(v){sc.scrollTop+=v;const c=dropAt(dg.tx+dg.dx,dg.ay);document.querySelectorAll(".over").forEach(x=>x!==c&&x.classList.remove("over"));if(c)c.classList.add("over");dgPreview(c)}
+  dg.araf=requestAnimationFrame(stap)};dg.araf=requestAnimationFrame(stap)}
 document.addEventListener("touchmove",e=>{if(dg&&dg.on)e.preventDefault()},{passive:false});
 const endDg=(e,cancel)=>{if(!dg)return;clearTimeout(dg.timer);const d=dg;dg=null;if(!d.on)return;cancelAnimationFrame(d.raf);
   const p=document.getElementById("dgPrev"),c=cancel?null:dropAt(e.clientX,e.clientY);
@@ -301,3 +308,6 @@ let wasBig=big();addEventListener("resize",()=>{const b=big();if(b!==wasBig){was
 setInterval(()=>{if(!dlg.open&&(state.tab==="planning"||state.tab==="vandaag"))schedule()},60000);
 setInterval(()=>{document.querySelectorAll("[data-timer]").forEach(el=>{const t=new Date(el.dataset.timer);if(!isNaN(t))el.textContent=fmtTimer(Date.now()-t)});document.querySelectorAll("[data-tbar]").forEach(el=>{const t=new Date(el.dataset.tbar),ex=Number(el.dataset.exp)||30;if(isNaN(t))return;const f=(Date.now()-t)/60000/ex;el.style.width=Math.min(100,f*100)+"%";el.classList.toggle("over",f>1)})},1000);
 render();init();
+
+/* knop "in te plannen" weg zodra de lijst onder de agenda in beeld is */
+addEventListener("scroll",()=>{const m=document.getElementById("mobOffer");document.body.classList.toggle("mo-zicht",!!m&&m.getBoundingClientRect().top<innerHeight-120)},{passive:true});

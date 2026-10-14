@@ -3226,3 +3226,9 @@ html.zm dialog.rf{zoom:1.1111}
 dialog.vraag-dlg{padding:0;margin:0;border:0;background:transparent;box-shadow:none;width:100vw;height:100dvh;max-width:none;max-height:none}
 dialog.vraag-dlg::backdrop{background:transparent}
 html.zm dialog.vraag-dlg{zoom:1.1111}
+
+/* telefoon: te plannen onder de agenda */
+.mob-offer{margin:16px 0 90px;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:14px;box-shadow:0 10px 30px -24px rgb(15 70 85 / .5);scroll-margin-top:70px}
+.mob-offer .mo-h{display:flex;align-items:center;gap:10px;margin-bottom:12px}.mob-offer .mo-h b{display:block;font-size:16px}.mob-offer .mo-h small{display:block;color:var(--muted);font-size:12.5px}
+.mob-offer .mo-h .sp{flex:1}.mob-offer [data-drag]{touch-action:pan-y;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body.mo-zicht .mo-fab,body.dg-busy .mo-fab{opacity:0;pointer-events:none;transform:translateY(20px)}.mo-fab{transition:opacity .2s,transform .2s}
