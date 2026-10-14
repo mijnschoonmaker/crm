@@ -7798,15 +7798,16 @@ const WEB_CSS=`
 .ms .contact h2{font-size:clamp(28px,3.4vw,40px);font-weight:800;letter-spacing:-.03em;line-height:1.1}
 .ms .contact p{color:rgb(255 255 255 / .82);margin-top:10px}
 .ms .ck{display:flex;flex-direction:column;gap:10px}
-.ms .ck a{display:flex;align-items:center;gap:12px;background:#fff;color:var(--ink);border-radius:16px;padding:13px 16px;font-weight:800;box-shadow:0 12px 24px -14px rgb(0 0 0 / .45);transition:transform .15s}
+.ms .ck a{display:flex;align-items:center;gap:12px;background:#fff;color:var(--ink);border-radius:16px;padding:12px 14px;font-weight:800;font-size:15px;line-height:1.25;box-shadow:0 12px 24px -14px rgb(0 0 0 / .45);transition:transform .15s}
 .ms .ck a:hover{transform:translateY(-2px)}.ms .ck a span.ic{width:36px;height:36px;border-radius:11px;background:var(--soft);color:var(--b2);display:grid;place-items:center;flex:none}.ms .ck a span.ic svg{width:18px}
-.ms .ck a small{display:block;color:var(--muted);font-weight:600;font-size:12.5px}.ms .ck a::after{content:"›";margin-left:auto;color:#9fb3ba;font-size:22px;line-height:1}
+.ms .ck a small{display:block;color:var(--muted);font-weight:600;font-size:13px;margin-top:2px}.ms .ck a::after{content:"›";margin-left:auto;color:#9fb3ba;font-size:22px;line-height:1}
 .ms footer{padding:26px 0 40px;color:var(--muted);font-size:13.5px}.ms footer .in{display:flex;flex-wrap:wrap;gap:10px 22px;justify-content:space-between}.ms footer a{text-decoration:underline}
 .ms .wa{position:fixed;right:18px;bottom:18px;z-index:30;width:58px;height:58px;border-radius:50%;background:#25d366;color:#fff;display:grid;place-items:center;box-shadow:0 12px 26px -10px rgb(0 0 0 / .5)}.ms .wa svg{width:30px}
 /* nooit breder dan het scherm: lange woorden (e-mail) mogen afbreken */
 .ms .hero .blauw>*,.ms .duo>*,.ms .zak>*,.ms .contact>*,.ms .route>*,.ms .tegels>*{min-width:0}
-.ms .ck a>div{min-width:0;flex:1;overflow-wrap:anywhere;word-break:break-word}
+.ms .ck a>div{min-width:0;flex:1}.ms .ck a small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ms h1,.ms h2,.ms h3,.ms p,.ms .lead{overflow-wrap:break-word}
+@media (max-width:360px){.ms .ck a::after{display:none}.ms .ck a small{font-size:12px;white-space:normal;overflow-wrap:anywhere}.ms .contact{padding-left:16px!important;padding-right:16px!important}}
 @media (prefers-reduced-motion:reduce){.ms *{animation:none!important}}
 @media (max-width:980px){.ms .lk,.ms .nav .portaal{display:none}.ms .hb{display:flex;margin-left:0}.ms .nav .knop{margin-left:auto}
   .ms #msm:checked~.nav .lk{display:flex;position:absolute;top:64px;left:16px;right:16px;flex-direction:column;gap:0;background:#fff;border-radius:18px;padding:8px;box-shadow:0 20px 40px -20px rgb(0 0 0 / .4)}
@@ -7822,7 +7823,7 @@ const WEB_CSS=`
   .ms .blauw{border-radius:26px}.ms section{padding:30px 0}
   .ms .route,.ms .tegels,.ms .duo,.ms .zak,.ms .contact{grid-template-columns:1fr}
   .ms .band{padding:30px 20px 34px}.ms .zak{padding:26px 22px}.ms .zak .r{justify-content:stretch}.ms .zak .r .knop{width:100%}
-  .ms .contact{padding:32px 22px 110px}.ms .calc-k{padding:24px 14px 4px}.ms .calc{border-radius:24px;padding:4px}
+  .ms .contact{padding:32px 20px 110px}.ms .ck a{font-size:14px;padding:11px 12px;gap:10px}.ms .ck a span.ic{width:32px;height:32px;border-radius:10px}.ms .ck a span.ic svg{width:16px}.ms .ck a small{font-size:12.5px}.ms .calc-k{padding:24px 14px 4px}.ms .calc{border-radius:24px;padding:4px}
   .ms .cta .knop{flex:1}.ms .weg .h:nth-child(even){display:none}
 }`;
 
@@ -7906,7 +7907,7 @@ function websiteBody(o){const e=esc,IC={
 <section id="vragen"><div class="in"><span class="oog">Veelgestelde vragen</span><h2 class="kop">Goed om te weten</h2>
   <div class="faq">${faq.map(([q,a])=>`<details><summary>${e(q)}</summary><p>${e(a)}</p></details>`).join("")}</div></div></section>
 <section id="contact"><div class="in"><div class="blauw contact"><div><h2>Vragen? Wij helpen u graag.</h2><p>Stuur een berichtje, bel of mail. Wij reageren meestal dezelfde dag.</p></div>
-  <div class="ck">${wa?`<a href="${wa}" target="_blank" rel="noopener"><span class="ic">${IC.wa}</span><div>WhatsApp<small>Snel even een vraag stellen</small></div></a>`:""}${tel?`<a href="tel:${e(telH)}"><span class="ic">${IC.tel}</span><div>${e(tel)}<small>Bellen</small></div></a>`:""}${o.email?`<a href="mailto:${e(o.email)}"><span class="ic">${IC.mail}</span><div>${e(o.email)}<small>E-mail</small></div></a>`:""}</div>
+  <div class="ck">${wa?`<a href="${wa}" target="_blank" rel="noopener"><span class="ic">${IC.wa}</span><div>WhatsApp<small>Stel snel een vraag</small></div></a>`:""}${tel?`<a href="tel:${e(telH)}"><span class="ic">${IC.tel}</span><div>Bellen<small>${e(tel)}</small></div></a>`:""}${o.email?`<a href="mailto:${e(o.email)}"><span class="ic">${IC.mail}</span><div>E-mail<small>${e(o.email)}</small></div></a>`:""}</div>
   ${wg(-12)}</div></div></section>
 <footer><div class="in"><span>© ${new Date().getFullYear()} ${naam}${o.adres?` · ${e(o.adres)}${o.postcode?", "+e(o.postcode):""} ${e(o.plaats||"")}`:""}${o.kvk?` · KvK ${e(o.kvk)}`:""}</span>
   <span>${portaal?`<a href="${e(portaal)}">Klantportaal</a> · `:""}${o.voorwaarden?`<a href="${e(o.voorwaarden)}" target="_blank" rel="noopener">Algemene voorwaarden</a>`:""}</span></div></footer>
