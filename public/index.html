@@ -8047,6 +8047,33 @@ const WEB_CSS=`
 .ms .stap h3,.ms .tg h3{letter-spacing:-.02em}.ms .stap p,.ms .tg p{line-height:1.55}
 .ms summary{letter-spacing:-.01em}.ms details p{line-height:1.6}
 .ms .tags span,.ms .vink span{letter-spacing:-.005em}
+/* ---- voorbeeld klantportaal met live volgen ---- */
+.ms .pm{max-width:430px;margin:0 auto;background:#f6f8f9;border-radius:28px;padding:14px;box-shadow:0 0 0 1px rgb(15 50 60 / .06),0 40px 70px -40px rgb(10 50 60 / .55),0 14px 30px -20px rgb(10 50 60 / .3);transform:rotate(1.2deg)}
+.ms .pm-top{display:flex;align-items:center;gap:10px;padding:4px 6px 12px;font-size:14px;color:var(--muted)}
+.ms .pm-top img,.ms .pm-lg{width:34px;height:34px;border-radius:50%;object-fit:contain;flex:none}
+.ms .pm-lg{display:grid;place-items:center;background:var(--soft);color:var(--b2)}.ms .pm-lg svg{width:18px}
+.ms .pm-top b{color:var(--ink);font-weight:700}
+.ms .pm-av{margin-left:auto;width:30px;height:30px;border-radius:50%;background:var(--b2);color:#fff;display:grid;place-items:center;font-style:normal;font-weight:700;font-size:13px}
+.ms .pm-hero{position:relative;overflow:hidden;border-radius:20px;padding:16px 18px 18px;color:#fff;background:var(--blauw)}
+.ms .pm-hero::before{content:"";position:absolute;inset:0;background:var(--lijnen);pointer-events:none}
+.ms .pm-hero>*{position:relative}
+.ms .pm-hero small{display:block;font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;opacity:.8}
+.ms .pm-adr{display:inline-flex;align-items:center;gap:6px;margin:8px 0 6px;padding:4px 10px 4px 8px;border-radius:999px;background:rgb(255 255 255 / .14);box-shadow:inset 0 0 0 1px rgb(255 255 255 / .22);font-size:12.5px;font-weight:600}
+.ms .pm-adr svg{width:14px}
+.ms .pm-hero b{display:block;font-size:28px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
+.ms .pm-hero p{margin:4px 0 0;font-size:13.5px;opacity:.85}
+.ms .pm-live{margin-top:10px;background:#fff;border-radius:20px;padding:12px;box-shadow:0 0 0 1px var(--line)}
+.ms .pm-lh{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:var(--ink);padding:2px 4px 10px}
+.ms .pm-lh em{margin-left:auto;font-style:normal;font-weight:500;font-size:12px;color:var(--muted)}
+.ms .pm-dot{width:9px;height:9px;border-radius:50%;background:#e5484d;box-shadow:0 0 0 0 rgb(229 72 77 / .5);animation:pmPuls 1.6s infinite}
+@keyframes pmPuls{70%{box-shadow:0 0 0 8px rgb(229 72 77 / 0)}100%{box-shadow:0 0 0 0 rgb(229 72 77 / 0)}}
+.ms .pm-map{border-radius:14px;overflow:hidden;aspect-ratio:360/170}.ms .pm-map svg{display:block;width:100%;height:100%}
+.ms .pm-st{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.ms .pm-st>div{background:#f6f8f9;border-radius:14px;padding:10px 12px}
+.ms .pm-st small{display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.ms .pm-st b{display:block;margin-top:2px;font-size:20px;font-weight:800;letter-spacing:-.02em;color:var(--ink);font-variant-numeric:tabular-nums;transition:color .3s}
+.ms .pm-st b.nu{color:var(--b2)}
+@media (max-width:560px){.ms .pm{transform:none;padding:10px;border-radius:24px}.ms .pm-hero b{font-size:24px}}
 /* ---- bonnetje met echte scheur ---- */
 .ms .tk{--h:13px;position:relative;max-width:470px;margin:0 auto;display:grid;grid-template-columns:1fr 112px;transform:rotate(-2.5deg);filter:drop-shadow(0 24px 28px rgb(15 70 85 / .3));cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none}
 .ms .tk-l,.ms .tk-r{-webkit-mask:radial-gradient(circle var(--h) at var(--mx) 0,#0000 97%,#000) top/100% 51% no-repeat,radial-gradient(circle var(--h) at var(--mx) 100%,#0000 97%,#000) bottom/100% 51% no-repeat;mask:radial-gradient(circle var(--h) at var(--mx) 0,#0000 97%,#000) top/100% 51% no-repeat,radial-gradient(circle var(--h) at var(--mx) 100%,#0000 97%,#000) bottom/100% 51% no-repeat}
@@ -8154,16 +8181,27 @@ function websiteBody(o){const e=esc,IC={
   ${wg(-7,"opacity:.6")}<div style="height:40px"></div></div></div></section>
 <section><div class="in duo"><div><span class="oog">${IC.user}Uw klantportaal</span><h2 class="kop">Altijd weten <em>waar u aan toe bent</em></h2><p class="lead">Na uw aanmelding krijgt u een eigen portaal. Zonder wachtwoord, gewoon met uw e-mailadres.</p>
   <ul class="lijst"><li><i>${IC.ok}</i><div><b>Wanneer komen jullie?</b><span>Uw volgende beurt, met aftellen tot de dag.</span></div></li>
+    <li><i>${IC.ok}</i><div><b>Live meekijken</b><span>Op de dag zelf ziet u waar het busje is, hoe laat we er zijn en hoeveel woningen er nog voor u zijn.</span></div></li>
     <li><i>${IC.ok}</i><div><b>Wat is er gedaan?</b><span>Alle eerdere beurten op een rij.</span></div></li>
     <li><i>${IC.ok}</i><div><b>Facturen en betalen</b><span>Al uw facturen bij elkaar${o.mollie?", direct te betalen":""}.</span></div></li></ul>
   ${portaal?`<div style="margin-top:24px"><a class="knop k-teal" href="${e(portaal)}">${IC.user}Naar mijn portaal</a></div>`:""}</div>
-  <div><div class="tk" data-tk role="img" aria-label="Voorbeeld van een afgescheurd bonnetje: uw ramen zijn gewassen">
-    <div class="tk-l"><div class="tk-top"><span class="tk-ic">${IC.raam}</span><div><small>Glasbewassing</small><b>Ramen gewassen</b></div></div>
-      <dl class="tk-dl"><div><dt>Datum</dt><dd>di 14 okt</dd></div><div><dt>Klaar om</dt><dd>10:42</dd></div><div><dt>Gedaan</dt><dd>Ramen, kozijnen</dd></div><div><dt>Volgende</dt><dd>over 8 weken</dd></div></dl>
-      <div class="tk-bar"><div><i></i><code>MS 2026 1014</code></div></div>
-      <span class="stempel" aria-hidden="true">${IC.ok}Gewassen</span></div>
-    <div class="tk-r"><i class="tk-vz"></i><small>Beurt</small><b>06</b><small>dit jaar</small><span class="tk-v">Bewaarstrook</span></div>
-  </div><p class="tk-hint">Trek de strook eraf, of tik om het opnieuw te zien</p></div></div></section>
+  <div><div class="pm" data-pm role="img" aria-label="Voorbeeld van het klantportaal: live zien waar het busje is en hoe laat we er zijn">
+    <div class="pm-top">${o.logo?`<img src="${e(o.logo)}" alt="">`:`<span class="pm-lg">${IC.raam}</span>`}<span>Goedemiddag, <b>Ashley</b></span><i class="pm-av">A</i></div>
+    <div class="pm-hero"><small>Uw volgende bezoek</small><span class="pm-adr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Parklaan 7</span><b>Vandaag</b><p data-pm-sub>Rond 11:10 · we zijn onderweg</p></div>
+    <div class="pm-live"><div class="pm-lh"><span class="pm-dot"></span>Live<em>bijgewerkt zojuist</em></div>
+      <div class="pm-map"><svg viewBox="0 0 360 170" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <rect width="360" height="170" fill="#eef3f1"/>
+        <g fill="#dfeadf"><rect x="36" y="104" width="112" height="56" rx="8"/><rect x="178" y="44" width="120" height="70" rx="8"/><rect x="0" y="0" width="148" height="72" rx="8"/><rect x="328" y="0" width="40" height="170" rx="8"/></g>
+        <g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="14"><path d="M0 88H360M162 0V170M20 170V88M312 0V170M162 28H360"/></g>
+        <path id="pmR" d="M20 160V100Q20 88 32 88H150Q162 88 162 76V40Q162 28 174 28H300Q312 28 312 40V128" fill="none" stroke="#137a8a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1 9" opacity=".55"/>
+        <g data-pm-h></g>
+        <g transform="translate(312 136)"><circle r="17" fill="#137a8a" opacity=".14"><animate attributeName="r" values="12;20;12" dur="2.4s" repeatCount="indefinite"/></circle><circle r="11" fill="#137a8a"/><path d="M-5 0.5 0-4 5 0.5M-3.6-.6V4.5H3.6V-.6" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <g><animateMotion dur="10s" repeatCount="indefinite" calcMode="linear" keyTimes="0;.2;.32;.52;.64;.86;1" keyPoints="0;.3;.3;.64;.64;.97;.97"><mpath href="#pmR" xlink:href="#pmR"/></animateMotion>
+          <circle r="13" fill="#fff" stroke="#137a8a" stroke-width="2.5"/><g transform="translate(-8 -6)" fill="none" stroke="#0f5f6e" stroke-width="1.6" stroke-linejoin="round"><path d="M1 2h9v8H1zM10 5h3.2l2.3 2.6V10H10"/><circle cx="4" cy="10.5" r="1.4" fill="#fff"/><circle cx="12.5" cy="10.5" r="1.4" fill="#fff"/></g></g>
+      </svg></div>
+      <div class="pm-st"><div><small>Aankomst</small><b data-pm-eta>rond 11:10</b></div><div><small>Woningen voor u</small><b data-pm-n>2</b></div></div>
+    </div>
+  </div></div></div></section>
 <section id="prijs"><div class="in"><div id="ms-calc"></div></div></section>
 <section id="zakelijk"><div class="in"><div class="zak"><div><span class="oog">${IC.gebouw}Zakelijk</span><h2 class="kop">Ook voor <em>bedrijven en VvE's</em></h2><p class="lead">Kantoor, winkel, school of appartementencomplex: wij maken een prijs op maat en plannen het werk in wanneer het u uitkomt.</p>
   <div class="tags"><span>Kantoren</span><span>Winkels en horeca</span><span>VvE's</span><span>Scholen en zorg</span></div></div>
@@ -8182,7 +8220,16 @@ async function websiteDelen(){const fv=k=>{const el=typeof form!=="undefined"&&f
     portaal:LIVE?location.origin+"/portaal":"",score:String(fv("webScore")??s.webScore??"4,8").trim(),reviewUrl:String(fv("webReviewUrl")||s.webReviewUrl||"https://www.google.com/search?q=mijnschoonmaker.com+Reviews").trim(),voorwaarden:s.webVoorwaarden||s.voorwaarden||"",mollie:!!s.liveMollie,bus:typeof RV_BUS!=="undefined"?RV_BUS:""};
   return {body:websiteBody(o),calc:await klantCalcHtml(wa),o}}
 /* bonnetje: echt afscheuren langs de perforatie, met rafelrand en papiersnippers */
-const WEB_JS=`var tks=root.querySelectorAll("[data-tk]");
+const WEB_JS=`root.querySelectorAll("[data-pm]").forEach(function(pm){if(pm._ms)return;pm._ms=1;var svg=pm.querySelector("svg"),R=pm.querySelector("#pmR"),hg=pm.querySelector("[data-pm-h]"),nE=pm.querySelector("[data-pm-n]"),eE=pm.querySelector("[data-pm-eta]"),sE=pm.querySelector("[data-pm-sub]");
+  try{var L=R.getTotalLength();[.3,.64].forEach(function(f){var q=R.getPointAtLength(L*f),g=document.createElementNS("http://www.w3.org/2000/svg","g");g.setAttribute("transform","translate("+(q.x+(f<.5?0:0))+" "+(q.y-16)+")");g.innerHTML='<path d="M-7 1 0-6 7 1V8H-7z" fill="#fff" stroke="#9fb3b9" stroke-width="1.4" stroke-linejoin="round"/><path class="v" d="M-3 3.5-.8 5.6 3.4 1.2" fill="none" stroke="#1f8a5a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="0"/>';hg.appendChild(g)})}catch(_){}
+  var vs=hg.querySelectorAll(".v"),laatst="";
+  function tik(){var t=0;try{t=(svg.getCurrentTime()%10)/10}catch(_){}
+    var n=t<.32?2:t<.64?1:0,klaar=t>=.86,k=n+"|"+klaar;
+    if(vs[0])vs[0].setAttribute("opacity",t>=.26?"1":"0");if(vs[1])vs[1].setAttribute("opacity",t>=.58?"1":"0");
+    if(k!==laatst){laatst=k;nE.textContent=klaar?"0":String(n);nE.classList.toggle("nu",n===0);eE.textContent=klaar?"we zijn er":n===0?"over 4 min":"rond 11:10";eE.classList.toggle("nu",klaar||n===0);sE.textContent=klaar?"We zijn bij u aan het werk":n===0?"U bent de volgende":"Rond 11:10 · we zijn onderweg"}
+    requestAnimationFrame(tik)}
+  tik()});
+var tks=root.querySelectorAll("[data-tk]");
 tks.forEach(function(tk){if(tk._ms)return;tk._ms=1;var l=tk.querySelector(".tk-l"),r=tk.querySelector(".tk-r"),vz=r.querySelector(".tk-vz"),hint=tk.parentNode.querySelector(".tk-hint");
   var N=46,pts=[],raf=0,p=0,staat="heel",lastSnip=0,audio=null;
   function nieuwePunten(){pts=[];var e=3;for(var i=0;i<=N;i++){e+= (Math.random()-.5)*2.6;if(Math.random()<.12)e+=(Math.random()-.5)*3;e=Math.max(.3,Math.min(5.7,e));if(i%3==0)e=e*.6+3*.4;pts.push(e)}}
