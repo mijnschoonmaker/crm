@@ -1213,12 +1213,12 @@ const FORM={
     <p class="fout" role="alert"></p><div class="acties"><button data-sluit>Annuleren</button><button class="primary" data-go>Opslaan</button></div>`,
     o=>o.querySelector("[data-go]").onclick=()=>{const g=id=>o.querySelector(id).value;verstuur(o,{type:"gegevens",naam:g("#gn"),adres:g("#ga"),postcode:g("#gp"),plaats:g("#gl"),telefoon:g("#gt"),mobiel:g("#gm"),email:g("#ge")},"Opgeslagen","Uw gegevens zijn bijgewerkt.")})},
   extra(){const X=["Kozijnen reinigen","Binnenzijde ramen","Zonnepanelen","Dakgoot schoonmaken","Serre of veranda","Eenmalige schoonmaak na verbouwing"];
-    blad(`<h3>Iets extra laten doen</h3><p class="sub">Kies wat u wilt. U ontvangt eerst de prijs van ons. Daarna plannen we het in en laten we u per e-mail weten wanneer we komen.</p>
+    blad(`<h3>Iets extra laten doen</h3><p class="sub">Kies een extra dienst, we sturen u vooraf de prijs.</p>
     <div class="keus">${X.map(x=>`<label><input type="checkbox" value="${esc(x)}"><span>${esc(x)}</span></label>`).join("")}</div>
     <label class="veld"><span>Toelichting (niet verplicht)</span><textarea id="vt"></textarea></label>
     <p class="fout" role="alert"></p><div class="acties"><button class="" data-sluit>Annuleren</button><button class="primary" data-go>Prijs aanvragen</button></div>`,
     o=>o.querySelector("[data-go]").onclick=()=>{const d=[...o.querySelectorAll(".keus input:checked")].map(x=>x.value);if(!d.length&&!o.querySelector("#vt").value.trim()){o.querySelector(".fout").textContent="Kies minstens één dienst.";return}
-      verstuur(o,{type:"extra",diensten:d,tekst:o.querySelector("#vt").value},"Aanvraag ontvangen","We sturen u de prijs. Daarna plannen we het in en mailen we u wanneer we komen.")})}
+      verstuur(o,{type:"extra",diensten:d,tekst:o.querySelector("#vt").value},"Aanvraag ontvangen","We sturen u vooraf de prijs.")})}
 };
 async function beoordeel(n){const b=D.teBeoordelen;if(!b)return;
   if(n>=4){try{await api("actie",{body:{type:"beoordeling",beurtId:b.id,sterren:n}})}catch(e){toast(e.message);return}
