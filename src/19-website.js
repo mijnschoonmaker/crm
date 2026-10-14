@@ -226,7 +226,7 @@ function websiteBody(o){const e=esc,IC={
   <div>${o.score?`<a class="chip ster" href="${e(o.reviewUrl||"#")}" target="_blank" rel="noopener"><span class="st">★★★★★</span><b>${e(o.score)}</b> op Google</a>`:`<span class="chip"><i>✦</i>Glasbewassing${regio}</span>`}
     <h1>Heldere ramen,<br><em>zonder omkijken.</em></h1>
     <p class="sub">Wij wassen uw ramen en kozijnen op een vaste route. Maak een foto van uw woning en zie direct wat het kost per beurt.</p>
-    <div class="cta"><a class="knop k-wit" href="#prijs">${IC.cam}Bereken uw prijs</a>${wa?`<a class="knop k-glas" href="${wa}" target="_blank" rel="noopener">${IC.wa}WhatsApp ons</a>`:tel?`<a class="knop k-glas" href="tel:${e(telH)}">${IC.tel}Bel ons</a>`:""}</div>
+    <div class="cta"><a class="knop k-wit" href="#prijs">${IC.cam}Bereken uw prijs</a>${wa?`<a class="knop k-glas" href="${wa}" target="_blank" rel="noopener">${IC.wa}WhatsApp ons</a>`:""}</div>
     <div class="vink"><span>${IC.ok}Vaste prijs per beurt</span><span>${IC.ok}Inclusief kozijnen</span><span>${IC.ok}Planningsmail vooraf</span></div></div>
   <div style="position:relative"><div class="tel" aria-hidden="true"><div class="sc"><div class="sch"><span class="eil"></span><div class="sb"><span>9:41</span><span>●●●</span></div>
     <div class="p-kop">Uw klantportaal</div>
@@ -272,8 +272,8 @@ function websiteBody(o){const e=esc,IC={
   <div class="r"><a class="knop k-teal" href="#prijs">${IC.gebouw}Vraag een prijs aan</a></div></div></div></section>
 <section id="vragen"><div class="in"><span class="oog">${IC.bel}Veelgestelde vragen</span><h2 class="kop">Goed om <em>te weten</em></h2>
   <div class="faq">${faq.map(([q,a])=>`<details><summary>${e(q)}</summary><p>${e(a)}</p></details>`).join("")}</div></div></section>
-<section id="contact"><div class="in"><div class="blauw contact"><div><h2>Vragen? <em>Wij helpen u graag.</em></h2><p>Stuur een berichtje, bel of mail. Wij reageren meestal dezelfde dag.</p></div>
-  <div class="ck">${wa?`<a href="${wa}" target="_blank" rel="noopener"><span class="ic">${IC.wa}</span><div>WhatsApp<small>Stel snel een vraag</small></div></a>`:""}${tel?`<a href="tel:${e(telH)}"><span class="ic">${IC.tel}</span><div>Bellen<small>${e(tel)}</small></div></a>`:""}${o.email?`<a href="mailto:${e(o.email)}"><span class="ic">${IC.mail}</span><div>E-mail<small>${e(o.email)}</small></div></a>`:""}</div>
+<section id="contact"><div class="in"><div class="blauw contact"><div><h2>Vragen? <em>Wij helpen u graag.</em></h2><p>Stuur een berichtje via WhatsApp of mail. Wij reageren meestal dezelfde dag.</p></div>
+  <div class="ck">${wa?`<a href="${wa}" target="_blank" rel="noopener"><span class="ic">${IC.wa}</span><div>WhatsApp<small>Stel snel een vraag</small></div></a>`:""}${o.email?`<a href="mailto:${e(o.email)}"><span class="ic">${IC.mail}</span><div>E-mail<small>${e(o.email)}</small></div></a>`:""}</div>
   ${wg(-12)}</div></div></section>
 <footer><div class="in"><span>© ${new Date().getFullYear()} ${naam}${o.adres?` · ${e(o.adres)}${o.postcode?", "+e(o.postcode):""} ${e(o.plaats||"")}`:""}${o.kvk?` · KvK ${e(o.kvk)}`:""}</span>
   <span>${portaal?`<a href="${e(portaal)}">Klantportaal</a> · `:""}${o.voorwaarden?`<a href="${e(o.voorwaarden)}" target="_blank" rel="noopener">Algemene voorwaarden</a>`:""}</span></div></footer>
