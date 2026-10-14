@@ -49,6 +49,18 @@ function mailHtml(tekst, b, opts = {}) {
   const regel = r => htmlEsc(r).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, (m, t, u) => `<a href="${u}" style="color:${A};font-weight:600">${t}</a>`);
   const paras = String(tekst).split(/\n\s*\n/).map(p => `<p style="margin:0 0 16px;line-height:1.65;font-size:15px;color:#222">${p.split("\n").map(regel).join("<br>")}</p>`).join("");
   const knop = opts.knop ? `<div style="text-align:center;margin:8px 0 22px"><a href="${opts.knop.url}" style="display:inline-block;background:${A};color:#fff;text-decoration:none;font-weight:600;font-size:14px;line-height:1.2;padding:10px 20px;border-radius:8px">${htmlEsc(opts.knop.tekst)}</a></div>` : "";
+  if (opts.ticket) { const T = opts.ticket, BG = "#f3f5f6", gat = kant => `<td width="14" style="width:14px;padding:0;background:#fff;font-size:0;line-height:0"><div style="width:14px;height:28px;background:${BG};border-radius:${kant === "l" ? "0 14px 14px 0" : "14px 0 0 14px"}">&nbsp;</div></td>`;
+    /* hele mail als ticket: kop met nummer en stempel, tekst, perforatie met inkepingen, afscheurstrook met status */
+    return `${opts.style ? `<style>${opts.style}</style>` : ""}<div style="font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;background:${BG};padding:24px 12px"><div class="ms-tk" style="max-width:560px;margin:0 auto">
+<div style="background:#fff;border-radius:22px 22px 0 0;overflow:hidden">
+  <div style="height:8px;background:${T.kleur};background-image:linear-gradient(90deg,${T.kleur2},${T.kleur})"></div>
+  <div style="text-align:center;padding:22px 24px 4px">${logo}</div>
+  <div style="padding:14px 32px 6px">${T.kop}</div>
+  <div style="padding:10px 32px 8px">${paras}${opts.na || ""}${knop}${opts.onder ? String(opts.onder).split(/\n\s*\n/).map(p => `<p style="margin:0 0 16px;line-height:1.65;font-size:15px;color:#222">${p.split("\n").map(regel).join("<br>")}</p>`).join("") : ""}</div>
+</div>
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse"><tr>${gat("l")}<td style="background:#fff;padding:0 6px;height:28px"><div style="border-top:2px dashed #cfdadd;height:0;line-height:0;font-size:0">&nbsp;</div></td>${gat("r")}</tr></table>
+<div class="ms-str" style="background:${T.kleur};background-image:linear-gradient(135deg,${T.kleur2},${T.kleur});border-radius:0 0 22px 22px;color:#fff;padding:18px 28px 20px">${T.strook}</div>
+</div><p style="text-align:center;font-size:12px;color:#8a979c;margin:16px 0 0">${[b.naam, b.telefoon, b.email].filter(Boolean).map(htmlEsc).join(" &nbsp;·&nbsp; ")}</p></div>`; }
   return `${opts.style ? `<style>${opts.style}</style>` : ""}<div style="font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;background:#f3f5f6;padding:24px 12px"><div style="max-width:600px;margin:0 auto;background:#fff;border-radius:18px;overflow:hidden;border-top:6px solid ${A}"><div style="text-align:center;padding:28px 24px 6px">${logo}</div><div style="padding:24px 32px 18px">${paras}${opts.na || ""}${knop}${opts.onder ? String(opts.onder).split(/\n\s*\n/).map(p => `<p style="margin:0 0 16px;line-height:1.65;font-size:15px;color:#222">${p.split("\n").map(regel).join("<br>")}</p>`).join("") : ""}</div></div><p style="text-align:center;font-size:12px;color:#8a979c;margin:16px 0 0">${[b.naam, b.telefoon, b.email].filter(Boolean).map(htmlEsc).join(" &nbsp;·&nbsp; ")}</p></div>`;
 }
 async function bewaarPdf(buf) { const hid = crypto.randomBytes(16).toString("hex"); await bucket().file("assets/" + hid).save(Buffer.from(buf), { contentType: "application/pdf", resumable: false }); return hid; }
