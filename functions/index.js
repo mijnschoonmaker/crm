@@ -60,7 +60,7 @@ function mailHtml(tekst, b, opts = {}) {
   const nl = x => htmlEsc(x);
   const strook = T ? T.strook : `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
     <td valign="middle" class="ms-nl" style="word-break:break-word"><div style="${lab}">${htmlEsc(b.naam || "")}</div><div style="font-size:13.5px;color:#fff;margin-top:4px;line-height:1.55">${[b.telefoon, b.email].filter(Boolean).map(nl).join("<br>")}</div></td>
-    <td valign="middle" align="right" width="78"><div style="width:72px;height:30px;margin-left:auto;background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.9) 0 2px,transparent 2px 3px,rgba(255,255,255,.9) 3px 4px,transparent 4px 7px,rgba(255,255,255,.9) 7px 9px,transparent 9px 10px,rgba(255,255,255,.9) 10px 11px,transparent 11px 14px)"></div><div style="font-family:${mono};font-size:9.5px;letter-spacing:2px;color:rgba(255,255,255,.7);margin-top:5px;text-align:right">${htmlEsc(nr || new Date().toISOString().slice(0, 10).replace(/-/g, ""))}</div></td></tr></table>`;
+    </td></tr></table>`;
   const kop = T ? T.kop : "";
   return `<style>a[x-apple-data-detectors],.ms-nl a{color:inherit!important;text-decoration:none!important}${opts.style || ""}</style><div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:${BG};padding:26px 12px 22px;-webkit-font-smoothing:antialiased">
 <div class="ms-tk" style="max-width:560px;margin:0 auto;border-radius:22px;box-shadow:0 1px 2px rgba(15,70,85,.06),0 22px 44px -22px rgba(15,70,85,.38)">
@@ -70,7 +70,7 @@ function mailHtml(tekst, b, opts = {}) {
   ${kop ? `<div style="padding:14px 34px 4px">${kop}</div>` : ""}
   <div style="padding:${kop ? 12 : 16}px 34px 8px">${alinea(tekst)}${opts.na || ""}${knop}${opts.onder ? alinea(opts.onder) : ""}</div>
 </div>
-<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse"><tr>${gat("l")}<td style="background:#fbfcfc;padding:0 8px;height:30px"><div style="border-top:2px dotted #c3d2d6;height:0;line-height:0;font-size:0">&nbsp;</div></td>${gat("r")}</tr></table>
+${T ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse"><tr>${gat("l")}<td style="background:#fbfcfc;padding:0 8px;height:30px"><div style="border-top:2px dotted #c3d2d6;height:0;line-height:0;font-size:0">&nbsp;</div></td>${gat("r")}</tr></table>` : `<div style="background:#fbfcfc;height:14px;line-height:14px;font-size:0">&nbsp;</div>`}
 <div style="background:${BL};background-image:repeating-linear-gradient(115deg,rgba(255,255,255,.035) 0 2px,transparent 2px 22px),linear-gradient(135deg,${BL2},${BL} 60%,#1a8c9c);border-radius:0 0 22px 22px;color:#ffffff;padding:18px 30px 20px">${strook}</div>
 </div>${T ? `<p class="ms-nl" style="text-align:center;font-size:12px;color:#8a979c;margin:16px 0 0">${[b.naam, b.telefoon, b.email].filter(Boolean).map(nl).join(" &nbsp;·&nbsp; ")}</p>` : ""}</div>`;
 }
