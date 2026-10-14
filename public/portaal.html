@@ -828,6 +828,16 @@ aside nav button:not([aria-current="true"]):hover svg{color:var(--ink)!important
 aside nav button[aria-current="true"]{font-weight:600!important;color:#fff!important;background:linear-gradient(135deg,var(--brand),var(--brand-2))!important;box-shadow:0 6px 16px -6px rgb(19 122 138 / .45)!important}
 aside nav button[aria-current="true"] svg{color:#fff!important}
 aside nav button .badge{font-size:10.5px}
+
+/* ---------- logo + groet bovenin, zoals het CRM ---------- */
+aside.side{background:var(--surface)!important}
+aside .logo{padding:22px 22px 20px!important;gap:12px!important;background:var(--surface);border-bottom:1px solid var(--line)}
+aside .logo .mk{width:52px!important;height:52px!important}
+.topbar .logo{gap:10px!important}.topbar .logo .mk{width:40px!important;height:40px!important}
+.lg-g{display:flex;flex-direction:column;min-width:0;line-height:1.2}
+.lg-g small{font-size:11.5px;font-weight:500;color:var(--muted);letter-spacing:0}
+.lg-g b{font-size:15px;font-weight:700;letter-spacing:-.015em;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.topbar .lg-g small{font-size:11px}.topbar .lg-g b{font-size:14px}
 </style></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -958,11 +968,11 @@ function teken(){
   const nav=(mob)=>TABS.filter(x=>!mob||x[0]!=="ik").map(([t,l,ic])=>`<button data-tab="${t}"${tab===t?' aria-current="true"':""}>${mob?`<i>${ic}</i>`:ic}<span>${l}</span>${t==="facturen"&&openF.length?`<em class="badge">${openF.length}</em>`:""}${t==="tickets"&&D.tickets&&D.tickets.ongelezen?`<em class="badge">${D.tickets.ongelezen}</em>`:""}</button>`).join("");
   const tel=(B.mobiel||B.telefoon||"").replace(/[^\d+]/g,""),wa=tel.replace(/^\+/,"").replace(/^0/,"31");
   $("#app").innerHTML=`<div class="app">
-    <aside class="side">${logoHtml(merkNaam(),B.logo||"/logo.png")}
+    <aside class="side">${logoHtml(merkNaam(),B.logo||"/logo.png").replace(/<\/span>$/,`<span class="lg-g"><small>${groet()}</small><b>${esc(k.voornaam||k.naam||"")}</b></span></span>`)}
       <p class="nlbl">Mijn klantomgeving</p><nav aria-label="Menu">${nav(false)}</nav><span class="sp"></span>
       <div class="help"><b>Vragen?</b><small>Maak een ticket aan, dan helpen we u snel.</small><button class="primary full" data-act="ticket">${I.ticket}Ticket aanmaken</button></div>
       <div class="usercard"><span class="uav">${esc((k.voornaam||"?")[0].toUpperCase())}</span><div><b>${esc(k.naam)}</b><small>${k.klantnr?"Klant "+esc(k.klantnr):esc(k.adres)}</small></div><button data-uit title="Uitloggen" aria-label="Uitloggen">${I.uit}</button></div></aside>
-    <div><header class="topbar">${logoHtml(merkNaam(),B.logo||"/logo.png")}<span class="sp"></span><button class="menu-knop" data-tab="ik" aria-label="Menu"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button></header>
+    <div><header class="topbar">${logoHtml(merkNaam(),B.logo||"/logo.png").replace(/<\/span>$/,`<span class="lg-g"><small>${groet()}</small><b>${esc(k.voornaam||k.naam||"")}</b></span></span>`)}<span class="sp"></span><button class="menu-knop" data-tab="ik" aria-label="Menu"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button></header>
     <main id="main"${tab==="tickets"&&TK.open?' class="m-chat"':""}>${({home,bezoeken,tickets,facturen,aanbevelen,ik})[tab]()}</main></div></div>
     <nav class="tabs" aria-label="Menu">${nav(true)}</nav>`;
   $$("[data-tab]").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;if(tab==="tickets"){TK.open="";TK.d=null;TK.sig=""}teken();scrollTo({top:0});try{history.replaceState(null,"","#"+tab)}catch(e){}});
@@ -999,7 +1009,7 @@ function home(){const k=D.klant,openF=D.facturen.filter(f=>f.status==="open"||f.
     <div class="stats"><div class="stat"><small>Bezoeken</small><b>${D.aantalBezoeken}</b></div><div class="stat"><small>Ritme</small><b>${k.frequentie} wk</b></div><div class="stat${som>0?"":""}"><small>Open</small><b${som>0?' style="color:var(--late)"':""}>${eur0(som)}</b></div></div>`;
   const rechts=`${abonnementKp()}
     ${B.refAan?`<button class="melding goud" data-tab="aanbevelen"><span class="objic goud">${I.hart}</span><div class="tx"><b>Tevreden? Vertel het door</b><small>${eur0(B.refBeloning)} korting op uw volgende factuur voor elke nieuwe klant.</small></div>${I.chev}</button>`:""}`;
-  return kop(groet()+", "+esc(k.voornaam),esc(k.adres)+(k.pcPlaats?", "+esc(k.pcPlaats.replace(/^\d{4}\s?[a-z]{2}\s*/i,"")):""))+
+  return ""+
     `<div class="pg met-paneel"><div class="col">${links}</div><div class="col paneel">${rechts}</div></div>`}
 
 const VZ={verzetten:"Afspraak verzetten",overslaan:"Bezoek overslaan",vakantie:"Afwezig",bericht:"Bericht",gegevens:"Gegevens wijzigen",extra:"Extra dienst",stoppen:"Opzeggen"};
