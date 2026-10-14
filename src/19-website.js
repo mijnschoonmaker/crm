@@ -93,7 +93,7 @@ const WEB_CSS=`
 /* calculator */
 .ms .calc{background:#fff;border-radius:32px;padding:10px;box-shadow:0 30px 60px -40px rgb(15 70 85 / .6)}
 .ms .calc-k{padding:34px 30px 6px;text-align:center}.ms .calc-k .lead{margin:0 auto}
-.ms #ms-calc{min-height:600px}.ms #ms-calc iframe{display:block;width:100%;border:0;background:transparent}
+.ms #ms-calc{min-height:600px}.ms #ms-calc iframe{display:block;width:1px;min-width:100%;border:0;background:transparent}
 /* zakelijk */
 .ms .zak{display:grid;grid-template-columns:1.2fr .8fr;gap:24px;align-items:center;background:#fff;border-radius:28px;padding:34px 38px;box-shadow:0 14px 34px -26px rgb(15 70 85 / .6)}
 .ms .zak .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}.ms .zak .tags span{background:var(--soft);color:var(--b1);border-radius:99px;padding:6px 12px;font-weight:700;font-size:13.5px}
@@ -234,11 +234,11 @@ const WEB_FONTS='<link rel="preconnect" href="https://fonts.googleapis.com"><lin
 /* losse pagina: voor de voorbeeldweergave en voor wie geen Framer gebruikt */
 function websiteHtml(p,crm){const calc=crm?p.calc.replace(/<head([^>]*)>/i,m=>m+"<script>window.ZEEM_CRM=1<\/script>"):p.calc;
   return `<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(p.o.naam||"mijnschoonmaker")} · Glasbewassing</title>
-<meta name="description" content="Glasbewassing${p.o.plaats?" in "+esc(p.o.plaats)+" en omgeving":""}. Bereken direct uw prijs met een foto van uw woning.">${WEB_FONTS}<style>html,body{margin:0;background:#f3f6f7;scroll-behavior:smooth}${WEB_CSS}</style></head>
+<meta name="description" content="Glasbewassing${p.o.plaats?" in "+esc(p.o.plaats)+" en omgeving":""}. Bereken direct uw prijs met een foto van uw woning.">${WEB_FONTS}<style>html,body{margin:0;background:#f3f6f7;scroll-behavior:smooth;overflow-x:hidden;max-width:100%}${WEB_CSS}</style></head>
 <body><div class="ms">${p.body}</div><script>/* interne links: zelf scrollen (in een voorbeeldvenster zou de browser anders naar het CRM gaan) */
 document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a[href^='#']");if(!a)return;e.preventDefault();var id=a.getAttribute("href").slice(1),d=id==="top"?document.body:document.getElementById(id);var m=document.getElementById("msm");if(m)m.checked=false;if(d)d.scrollIntoView({behavior:"smooth",block:"start"})});
-<\/script><script>(function(){var C=${JSON.stringify(calc).replace(/<\//g,"<\\/")};var box=document.getElementById("ms-calc"),f=document.createElement("iframe");f.title="Prijscalculator";f.setAttribute("allow","camera; web-share; clipboard-write");f.srcdoc=C;f.style.height="900px";box.appendChild(f);
-window.addEventListener("message",function(e){if(e.source!==f.contentWindow||!e.data)return;if(e.data.type==="zeem-calc-height")f.style.height=e.data.h+"px";if(e.data.type==="zeem-calc-full"){var on=!!e.data.on;f.style.cssText=on?"position:fixed;inset:0;width:100vw;height:100dvh;z-index:2147483647;border:0;background:#fff":"display:block;width:100%;border:0;height:"+f.style.height;document.documentElement.style.overflow=on?"hidden":""}});
+<\/script><script>(function(){var C=${JSON.stringify(calc).replace(/<\//g,"<\\/")};var box=document.getElementById("ms-calc"),f=document.createElement("iframe");f.title="Prijscalculator";f.setAttribute("allow","camera; web-share; clipboard-write");f.srcdoc=C;f.style.height="900px";f.style.width="1px";f.style.minWidth="100%";box.appendChild(f);
+window.addEventListener("message",function(e){if(e.source!==f.contentWindow||!e.data)return;if(e.data.type==="zeem-calc-height")f.style.height=e.data.h+"px";if(e.data.type==="zeem-calc-full"){var on=!!e.data.on;f.style.cssText=on?"position:fixed;inset:0;width:100vw;height:100dvh;z-index:2147483647;border:0;background:#fff":"display:block;width:1px;min-width:100%;border:0;height:"+f.style.height;document.documentElement.style.overflow=on?"hidden":""}});
 if(window.parent!==window){window.addEventListener("message",function(e){if(!e.data||!/^zeem-aanvraag/.test(e.data.type||""))return;if(e.source===f.contentWindow)parent.postMessage(e.data,"*");else if(e.source===parent)f.contentWindow.postMessage(e.data,"*")});var post=function(){parent.postMessage({type:"zeem-calc-height",h:document.documentElement.scrollHeight},"*")};new ResizeObserver(post).observe(document.body)}})()<\/script></body></html>`}
 /* Framer: één code component met alles erin */
 function websiteFramer(p){return `// Website ${String(p.o.naam||"mijnschoonmaker").replace(/\n/g," ")} — Framer code component (gemaakt in het CRM)
@@ -271,7 +271,7 @@ export default function Website(props) {
         f.title = "Prijscalculator"
         f.setAttribute("allow", "camera; web-share; clipboard-write")
         f.srcdoc = CALC
-        f.style.cssText = "display:block;width:100%;border:0;height:900px"
+        f.style.cssText = "display:block;width:1px;min-width:100%;border:0;height:900px"
         box.appendChild(f)
         let h = 900
         const on = (e: MessageEvent) => {
@@ -282,7 +282,7 @@ export default function Website(props) {
                 f.dataset.full = v ? "1" : ""
                 f.style.cssText = v
                     ? "position:fixed;inset:0;width:100vw;height:100dvh;z-index:2147483647;border:0;background:#fff"
-                    : "display:block;width:100%;border:0;height:" + h + "px"
+                    : "display:block;width:1px;min-width:100%;border:0;height:" + h + "px"
                 document.documentElement.style.overflow = v ? "hidden" : ""
             }
         }

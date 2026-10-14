@@ -442,10 +442,12 @@ function webCalcVoorbeeld(html,titel){webCalcVoorbeeld._recent=webCalcVoorbeeld.
     try{const k=D.formaat==="zeem.contact"?await contactToevoegen(D):await aanvraagToevoegen(D,d.fotos||[]);reply({type:"zeem-aanvraag-ok",id:k.id})}
     catch(er){console.error(er);reply({type:"zeem-aanvraag-fout",tekst:"opslaan in het crm lukte niet."})}};
   window.addEventListener("message",opMsg);
-  const sluit=()=>{try{o.close()}catch(_){}o.remove();document.removeEventListener("keydown",esc_,true);window.removeEventListener("message",opMsg)};
+  const sluit=()=>{document.documentElement.classList.remove("nozm");try{o.close()}catch(_){}o.remove();document.removeEventListener("keydown",esc_,true);window.removeEventListener("message",opMsg)};
   o.addEventListener("cancel",e=>{e.preventDefault();sluit()});
   const esc_=e=>{if(e.key==="Escape"){e.preventDefault();e.stopPropagation();sluit()}};document.addEventListener("keydown",esc_,true);
   o.addEventListener("click",e=>{if(e.target===o||e.target.closest("[data-wclose]")){sluit();return}const w=e.target.closest("[data-w]");if(w){o.querySelectorAll("[data-w]").forEach(x=>x.classList.toggle("sel",x===w));f.className="wcv-f "+w.dataset.w}});
+  /* Safari tekent een iframe binnen de 90%-zoom van het CRM niet goed (wit vlak aan de zijkant): zolang het voorbeeld open is zonder zoom */
+  document.documentElement.classList.add("nozm");
   document.body.appendChild(o);try{o.showModal()}catch(_){o.setAttribute("open","")}}
 
 const websiteVoorbeeld=html=>webCalcVoorbeeld(html,"Website");
