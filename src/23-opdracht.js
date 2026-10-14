@@ -52,7 +52,7 @@ function openOpdrachtWerk(kid,focus){
   </div><div class="kk-side">
     <section class="kp"><div class="kp-h"><span class="objic">${I.pencil}</span><b>Taakomschrijving</b></div>
       <textarea id="ow-taak" style="min-height:70px" placeholder="Bijv. wassen ramen incl. kozijnen, achterom via de poort">${esc(k.taak||"")}</textarea>
-      <label>Notitie voor op de route<textarea id="ow-not" style="min-height:56px" placeholder="Sleutel onder bloempot, hond, ladder nodig achterkant…">${esc(k.notities||"")}</textarea></label></section>
+</section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.plus}</span><b>Opdrachtregel toevoegen</b><span class="sp"></span><button type="button" class="small" id="owEigen">${I.plus}Eigen dienst</button></div>
       <input id="owZoek" placeholder="Zoeken" style="max-width:280px">
       <div class="ow-chips" id="owChips">${dienstChips(diensten,"data-dn")}</div></section>
@@ -244,7 +244,7 @@ function openOpdrachtWerk(kid,focus){
   const mountRc=()=>{const box=$("#owRc");if(!box||!box.hidden)return;
     try{if(!RC)RC=buildRamen();
       RC.setEmbed({klantId:k.id,base:k,
-        form:()=>({naam:cleanName(k.naam),adres:k.adres||"",pc:k.postcode||"",plaats:k.plaats||"",tel:k.telefoon||"",email:k.email||"",notitie:$o("not").value.trim(),zakelijk:k.soort==="zakelijk"}),
+        form:()=>({naam:cleanName(k.naam),adres:k.adres||"",pc:k.postcode||"",plaats:k.plaats||"",tel:k.telefoon||"",email:k.email||"",notitie:"",zakelijk:k.soort==="zakelijk"}),
         onCalc:()=>{if(!$("#owLines"))return;const c=RC.current();if(!c)return;rcLive=true;main.prijs=c.opd.prijs;if(c.extra&&c.extra.length){const gs=new Set(c.extra.map(e=>e.groep));extra=[...extra.filter(o=>!o.groep||!gs.has(o.groep)),...c.extra]}
           const sf=$o("freq"),w=String(c.opd.frequentie);if(c.opd.frequentie){if(![...sf.options].some(o=>o.value===w))sf.insertAdjacentHTML("beforeend",`<option value="${w}">${esc(freqLabel(w))}</option>`);sf.value=w}
           if(!(k.tijden||[]).length&&c.opd.duur){const sd=$o("duur"),m=String(c.opd.duur);if(![...sd.options].some(o=>o.value===m))sd.insertAdjacentHTML("beforeend",`<option value="${m}">${m} min</option>`);sd.value=m}
@@ -258,7 +258,7 @@ function openOpdrachtWerk(kid,focus){
   const collect=()=>{syncRitme();const cur=state.klanten.find(x=>x.id===kid)||k,actief=$o("actief").checked;
     return {...strip(cur),dienst:String(main.dienst||"").trim()||"Glasbewassing",prijs:r2(Number(main.prijs)||0),ramenRegel:main.ramen||null,frequentie:mF||4,duur:mD||30,ronde:$o("ronde").value.trim(),contactPlanning:$o("contact").value,eersteKeer:$o("eerste").value==="ja",toeslag:Number($o("toeslag").value)||0,toeslagReden:$o("toeslagr").value.trim(),verbergAantal:$o("verbA").checked,verbergFreq:$o("verbF").checked,afmeldMail:$o("afmail").checked,
       binnen:false,actief,...(actief?{}:{gepland:"",tijd:""}),akkoord:$o("akkoord").checked,incasso:$o("betaal").value==="incasso",...factModusPatch($o("fact").value,k),
-      taak:$o("taak").value.trim(),hosp:hosp.map(x=>({c:x.c||"voorkeur",t:String(x.t||"").trim(),...(x.af?{af:x.af}:{}),...(x.c==="verteld"&&x.vanaf?{vanaf:x.vanaf}:{})})).filter(x=>x.t),notities:$o("not").value.trim(),bellen:$o("bellen").checked,startdatum:$o("start").value,einddatum:$o("eind").value,btwVerlegd:$o("verlegd").checked,aanbieden:cur.gepland?!!cur.aanbieden:aanb.aanbieden,uitstelTot:aanb.uitstelTot,artikelen:arts.filter(a=>String(a.naam||"").trim()).map(a=>({naam:String(a.naam).trim(),aantal:Number(a.aantal)||1,prijs:r2(Number(a.prijs)||0)})),middelen:mids,objectId:$o("obj")?$o("obj").value:cur.objectId||"",fotos,
+      taak:$o("taak").value.trim(),hosp:hosp.map(x=>({c:x.c||"voorkeur",t:String(x.t||"").trim(),...(x.af?{af:x.af}:{}),...(x.c==="verteld"&&x.vanaf?{vanaf:x.vanaf}:{})})).filter(x=>x.t),bellen:$o("bellen").checked,startdatum:$o("start").value,einddatum:$o("eind").value,btwVerlegd:$o("verlegd").checked,aanbieden:cur.gepland?!!cur.aanbieden:aanb.aanbieden,uitstelTot:aanb.uitstelTot,artikelen:arts.filter(a=>String(a.naam||"").trim()).map(a=>({naam:String(a.naam).trim(),aantal:Number(a.aantal)||1,prijs:r2(Number(a.prijs)||0)})),middelen:mids,objectId:$o("obj")?$o("obj").value:cur.objectId||"",fotos,
       opdrachten:extra.filter(o=>String(o.dienst||"").trim()).map(({_nieuw,...o})=>({...o,dienst:String(o.dienst).trim(),prijs:r2(Number(o.prijs)||0),frequentie:Number(o.frequentie)||52}))}};
   $("#owLog").onclick=async()=>{const v=$o("log").value.trim();if(!v)return;const d=collect();d.log=[...(d.log||[]),{datum:iso(today()),tekst:v}];
     try{await save("klanten",kid,d);toast("Genoteerd");setTimeout(()=>openOpdrachtWerk(kid),60)}catch(er){err(er)}};

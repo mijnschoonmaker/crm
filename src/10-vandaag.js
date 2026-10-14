@@ -24,7 +24,7 @@ function stopCard(k,i,isNext,late,day,totaal){
         <button type="button" class="tk-adres" data-act="klant" data-id="${esc(k.id)}"><span class="av" style="--h:${h}">${esc(initials(k.naam))}</span><span><b>${esc(a.adres||cleanName(k.naam))}</b><small>${esc([a.postcode,a.plaats].filter(Boolean).join(" "))}${a.plaats?" · ":""}${esc(cleanName(k.naam))}${o&&o.naam?" · "+esc(o.naam):""}</small></span>${I.right.replace("<svg",'<svg class="chev"')}</button>
         <div class="tk-feit"><span><b>${dienstHtml(k)}</b>${k.binnen?" + binnen":""}</span><span>${I.clock}<b>${duur(k)} min</b></span>${mw?"":`<span>${I.euro||""}<b>${eur0(toon(k.prijs))}</b></span>`}</div>
         ${bz?(()=>{const ex=(k.tijden||[]).length&&typeof gemTijd==="function"?gemTijd(k):duur(k),f=(Date.now()-new Date(k.bezig))/60000/ex;return `<div class="tk-tm"><div class="bt-bar"><i data-tbar="${esc(k.bezig)}" data-exp="${ex}" class="${f>1?"over":""}" style="width:${Math.min(100,f*100)}%"></i></div><small>${(k.tijden||[]).length?"Gemiddeld "+ex+" min bij deze klant":"Verwacht "+ex+" min"}</small></div>`})():""}
-        <div class="tk-info">${oBeurtBlok(k)}${hospRoute(k)}${toegangHtml(k)}${ookDezeBeurt(k,day)}${k.notities?`<div class="notebox"><span class="eyebrow">Notitie</span>${esc(k.notities)}</div>`:""}${objInfo(k)}${jobExtra(k)}</div>
+        <div class="tk-info">${oBeurtBlok(k)}${hospRoute(k)}${toegangHtml(k)}${ookDezeBeurt(k,day)}${objInfo(k)}${jobExtra(k)}</div>
         <div class="tk-acts"><a class="tk-a" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.nav}<span>Navigeer</span></a>${tel?`<a class="tk-a" href="tel:${esc(tel)}">${I.phone}<span>Bellen</span></a>`:""}${wa&&!bz?`<a class="tk-a" href="${esc(wa)}" target="_blank" rel="noopener">${I.msg}<span>Ik kom eraan</span></a>`:""}<button type="button" class="tk-a" data-act="skip" data-id="${esc(k.id)}">${I.right}<span>Overslaan</span></button></div>
       </div>
       <div class="tk-perf" aria-hidden="true"></div>
@@ -32,13 +32,13 @@ function stopCard(k,i,isNext,late,day,totaal){
     </div></div>`;
 }
 function stopRow(k,day,done){
-  const a=jobAddrObj(k),js=done?"afgerond":jobState(k,day),sp=STATEPILL[js],info=k.notities||jobObj(k);
+  const a=jobAddrObj(k),js=done?"afgerond":jobState(k,day),sp=STATEPILL[js],info=jobObj(k);
   return `<div class="swipe" data-id="${esc(k.id)}"${done?' data-done="1"':""}>
     <div class="sbg sbg-r"><span>${I.check} Afmelden</span></div><div class="sbg sbg-l"><span>Factureren</span></div>
     <div class="swipe-card srow${done?" done":""}" data-act="job" data-id="${esc(k.id)}" data-d="${esc(day)}">
       <span class="sr-t">${esc(k.tijd||"—")}</span><span class="av sm" style="--h:${hue(k.ronde||k.naam)}">${esc(initials(k.naam))}</span>
       <span class="sr-a"><b>${esc(a.adres||cleanName(k.naam))}</b><small>${esc(a.plaats||"")}${a.plaats?" · ":""}${esc(cleanName(k.naam))}</small></span>
-      ${info?`<span class="sr-i" title="${esc(k.notities||"Objectinfo")}">i</span>`:""}<span class="amt">${eur0(toon(k.prijs))}</span>${statusPill(sp[0],sp[1])}${I.right.replace("<svg",'<svg class="chev"')}
+      ${info?`<span class="sr-i" title="Objectinfo">i</span>`:""}<span class="amt">${eur0(toon(k.prijs))}</span>${statusPill(sp[0],sp[1])}${I.right.replace("<svg",'<svg class="chev"')}
     </div></div>`;
 }
 function activiteit(d){
@@ -112,7 +112,7 @@ function openJob(id,day){
   <div class="jp-body">
     <div class="jp-amt"><div><span class="eyebrow">Bedrag</span><b>${eur(toon(bedrag))}</b></div><small>${done?(b.gefactureerd==="nvt"?"Niet gefactureerd":b.gefactureerd?"Gefactureerd":"Afgemeld"):"Wordt gefactureerd na afmelden"}</small></div>
     <div><span class="eyebrow">Diensten</span><div class="jp-svc">${diensten.map(([n,p])=>`<div><span class="jp-ic">${I.wrench}</span><b>${esc(n)}${k.binnen?" (buiten en binnen)":""}</b><span>${eur(toon(p))}</span></div>`).join("")}</div></div>
-    ${oBeurtBlok(k)}${hospRoute(k)}${toegangHtml(k)}${ookDezeBeurt(k,typeof day!=="undefined"?day:undefined)}${k.notities?`<div class="notebox"><span class="eyebrow">Notitie</span>${esc(k.notities)}</div>`:""}${objInfo(k)}${jobExtra(k)}
+    ${oBeurtBlok(k)}${hospRoute(k)}${toegangHtml(k)}${ookDezeBeurt(k,typeof day!=="undefined"?day:undefined)}${objInfo(k)}${jobExtra(k)}
     ${(()=>{const fl=jobFotos(k);return fl.length?`<div><span class="eyebrow">Foto's · ${fl.reduce((a,f)=>a+(f.dots||[]).length,0)} ramen aangetikt</span><div class="jp-fotos" style="margin-top:6px">${fl.map((f,j)=>fotoCard(f,j,false).replace('data-fi=','data-jfi=')).join("")}</div></div>`:""})()}
     ${k.gepland?`<div class="mw-hide"><span class="eyebrow">${I.cal2}Meervoudig inplannen</span>${reeksBlok(k)}</div>`:""}
     <div class="mw-hide"><span class="eyebrow">${I.refresh}Automatisch doorplannen</span>

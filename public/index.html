@@ -3464,6 +3464,15 @@ body{background:var(--bg)!important}
 .kr-d.z-laat{animation:krIn .6s cubic-bezier(.2,1.4,.4,1) both,krPuls 2.2s ease-in-out 1s infinite}
 @keyframes krPuls{50%{box-shadow:0 3px 8px -2px rgb(0 0 0 / .35),0 0 0 6px rgb(255 138 120 / .3)}}
 .kr-d:hover{transform:scale(1.35)!important;z-index:3}
+/* ticket: status-labels en avatar */
+.tk-tags{gap:6px!important}
+.tk-tags .pill{height:26px;padding:0 11px 0 9px!important;border-radius:99px!important;font-size:12px!important;font-weight:650!important;letter-spacing:.01em!important;text-transform:none!important;border:0!important;display:inline-flex;align-items:center;gap:6px}
+.tk-tags .pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+.tk-tags .pill i,.tk-tags .pill.dotp::after{display:none}
+.tk-tags .pill.gepl,.tk-tags .pill.plan{background:color-mix(in srgb,#6a63d6 12%,var(--surface))!important;color:#5a52c8!important}
+.tk-tags .pill.nextp{background:var(--brand)!important;color:#fff!important}
+.tk-tags .pill.nextp::before{background:#9ff0d2;box-shadow:0 0 0 3px rgb(159 240 210 / .3);animation:rvLive 2s ease-out infinite}
+.tk-adres .av{width:50px!important;height:50px!important;border-radius:16px!important;font-size:16px!important;font-weight:700!important;color:#fff!important;background:linear-gradient(135deg,hsl(var(--h) 45% 52%),hsl(calc(var(--h) + 25) 45% 38%))!important;border:0!important;box-shadow:0 8px 16px -10px hsl(var(--h) 45% 30%),inset 0 1px 0 rgb(255 255 255 / .25)!important}
 
 </style>
 <div class="app">
@@ -4157,7 +4166,6 @@ function openKlantEdit(id,opt={}){
     <label>Tijd<input id="f-tijd" type="time" step="900" value="${esc(k.tijd)}"></label>
     ${(k.objecten||[]).length?`<label>Object<select id="f-object">${k.objecten.map(o=>`<option value="${esc(o.id)}" ${jobObj(k)&&jobObj(k).id===o.id?"selected":""}>${esc(o.naam||"Object")}</option>`).join("")}</select></label>`:"<span></span>"}
 
-    <label class="full">Notitie voor op de route<textarea id="f-notities" placeholder="Sleutel onder bloempot, hond, ladder nodig achterkant…">${esc(k.notities)}</textarea></label>
     <label class="check-row"><input id="f-akkoord" type="checkbox" ${k.akkoord?"checked":""}>Akkoord op overeenkomst</label><label class="check-row"><input id="f-geenreview" type="checkbox" ${k.geenReview?"checked":""}>Geen reviewverzoeken</label>
     <label class="full check-row"><input id="f-incasso" type="checkbox" ${k.incasso?"checked":""}>Betaalt via automatische incasso (krijgt geen betalingsherinneringen)</label>
     <label class="full check-row"><input id="f-direct" type="checkbox" ${k.directFactureren?"checked":""}>Factuur direct versturen bij afmelden <small style="font-weight:500;color:var(--muted)">(standaard: conceptfactuur in Facturen)</small></label>
@@ -4177,7 +4185,7 @@ function openKlantEdit(id,opt={}){
       telefoon:g("telefoon").value.trim(),klantnr:g("klantnr").value.trim(),email:g("email").value.trim(),ronde:g("ronde").value.trim(),soort:g("soort").value,
       frequentie:Number(g("frequentie").value),prijs:Number(g("prijs").value)||0,laatst:g("laatst").value,gepland:g("gepland").value,tijd:g("gepland").value?g("tijd").value:"",
       duur:Number(g("duur").value)||30,dienst:g("dienst").value.trim()||"Glasbewassing",objectId:g("object")?g("object").value:"",binnen:false,
-      notities:g("notities").value.trim(),actief:isNew?true:g("actief").checked,incasso:g("incasso").checked,directFactureren:g("direct").checked,akkoord:g("akkoord").checked,geenReview:g("geenreview").checked,opzegReden:g("reden")?g("reden").value:"",aangemaakt:cur.aangemaakt||iso(today()),log:cur.log||[],objecten:cur.objecten||[]}};
+      actief:isNew?true:g("actief").checked,incasso:g("incasso").checked,directFactureren:g("direct").checked,akkoord:g("akkoord").checked,geenReview:g("geenreview").checked,opzegReden:g("reden")?g("reden").value:"",aangemaakt:cur.aangemaakt||iso(today()),log:cur.log||[],objecten:cur.objecten||[]}};
   let newKid=k.id||"";
   const saveK=async(patch={})=>{const base=collect();if(!base)throw{msg:"Vul eerst de naam en het adres van de klant in (links)."};if(!newKid)newKid=newId("k");await save("klanten",newKid,{...base,...patch});return newKid};
   form.onsubmit=async e=>{e.preventDefault();$("#saveK").disabled=true;
@@ -4187,7 +4195,7 @@ function openKlantEdit(id,opt={}){
   let rcLive=false;const rcT=$("#kkRcT"),mountRc=()=>{const box=$("#kkRc");if(!box||!box.hidden)return;
     try{if(!RC)RC=buildRamen();
       RC.setEmbed({klantId:k.id||"",base:k,
-        form:()=>({naam:g("naam").value.trim(),adres:g("adres").value.trim(),pc:g("postcode").value.trim().toUpperCase(),plaats:g("plaats").value.trim(),tel:g("telefoon").value.trim(),email:g("email").value.trim(),notitie:g("notities").value.trim(),zakelijk:g("soort").value==="zakelijk"}),
+        form:()=>({naam:g("naam").value.trim(),adres:g("adres").value.trim(),pc:g("postcode").value.trim().toUpperCase(),plaats:g("plaats").value.trim(),tel:g("telefoon").value.trim(),email:g("email").value.trim(),notitie:"",zakelijk:g("soort").value==="zakelijk"}),
         onSave:async(patch,o={})=>{const kid=await saveK(patch);if(!o.stay)setTimeout(()=>openKlant(kid,{rc:true}),80);return kid},
         onCalc:()=>{if(!g("prijs"))return;const c=RC.current();if(!c)return;rcLive=true;
           g("prijs").value=c.opd.prijs;
@@ -4595,7 +4603,6 @@ function openAfspraak(id,day){
     <label>Prijs per beurt (€ ${S().incl?"incl.":"excl."} btw)<input id="af-prijs" type="number" step="0.01" min="0" inputmode="decimal" value="${esc(k.prijs)}"></label>
     <label>Duur<select id="af-duur">${durO.map(m=>`<option value="${m}" ${m===du?"selected":""}>${m<60?m+" min":(m/60).toLocaleString("nl-NL")+" uur"}</option>`).join("")}</select></label>
     <label>Frequentie<select id="af-freq">${freqO.map(w=>`<option value="${w}" ${w===fr?"selected":""}>Elke ${w} ${w===1?"week":"weken"}</option>`).join("")}</select></label>
-    <label class="full">Notitie voor op de route<textarea id="af-not" style="min-height:56px">${esc(k.notities||"")}</textarea></label>
   </div>
   <p class="subt" style="margin:0">Prijs, duur, frequentie en notitie gelden voor alle volgende beurten van deze klant.</p>
   <div class="row">${isPlanned?`<button type="button" class="ghost danger" id="afUn">Terug naar te plannen</button>`:""}${isPlanned?`<button type="button" class="ghost" id="afJob">${I.eye}Open job</button>`:""}<span class="sp"></span><button type="button" id="afBack">Annuleren</button><button type="submit" class="primary" id="afGo">${I.check}${isPlanned?"Opslaan":"Inplannen"}</button></div>`);
@@ -4604,7 +4611,7 @@ function openAfspraak(id,day){
   const jb=$("#afJob");if(jb)jb.onclick=()=>openJob(k.id,k.gepland);
   form.onsubmit=async e=>{e.preventDefault();const d=$("#af-d").value;if(!d){$("#af-d").focus();return}$("#afGo").disabled=true;
     const nd=parse(d),warn=!isWerkdag(nd)?" · let op: geen werkdag":"";
-    try{await save("klanten",k.id,{...strip(k),gepland:d,tijd:$("#af-t").value||nextFree(d),aanbieden:false,dienst:$("#af-dienst").value.trim()||"Glasbewassing",prijs:r2(Number($("#af-prijs").value)||0),duur:Number($("#af-duur").value)||30,frequentie:Number($("#af-freq").value)||4,notities:$("#af-not").value.trim()});
+    try{await save("klanten",k.id,{...strip(k),gepland:d,tijd:$("#af-t").value||nextFree(d),aanbieden:false,dienst:$("#af-dienst").value.trim()||"Glasbewassing",prijs:r2(Number($("#af-prijs").value)||0),duur:Number($("#af-duur").value)||30,frequentie:Number($("#af-freq").value)||4});
       toast(cleanName(k.naam)+" ingepland op "+fmtD(d)+($("#af-t").value?" om "+$("#af-t").value:"")+warn);back()}
     catch(er){$("#afGo").disabled=false;err(er)}};
 }
@@ -4691,7 +4698,7 @@ function stopCard(k,i,isNext,late,day,totaal){
         <button type="button" class="tk-adres" data-act="klant" data-id="${esc(k.id)}"><span class="av" style="--h:${h}">${esc(initials(k.naam))}</span><span><b>${esc(a.adres||cleanName(k.naam))}</b><small>${esc([a.postcode,a.plaats].filter(Boolean).join(" "))}${a.plaats?" · ":""}${esc(cleanName(k.naam))}${o&&o.naam?" · "+esc(o.naam):""}</small></span>${I.right.replace("<svg",'<svg class="chev"')}</button>
         <div class="tk-feit"><span><b>${dienstHtml(k)}</b>${k.binnen?" + binnen":""}</span><span>${I.clock}<b>${duur(k)} min</b></span>${mw?"":`<span>${I.euro||""}<b>${eur0(toon(k.prijs))}</b></span>`}</div>
         ${bz?(()=>{const ex=(k.tijden||[]).length&&typeof gemTijd==="function"?gemTijd(k):duur(k),f=(Date.now()-new Date(k.bezig))/60000/ex;return `<div class="tk-tm"><div class="bt-bar"><i data-tbar="${esc(k.bezig)}" data-exp="${ex}" class="${f>1?"over":""}" style="width:${Math.min(100,f*100)}%"></i></div><small>${(k.tijden||[]).length?"Gemiddeld "+ex+" min bij deze klant":"Verwacht "+ex+" min"}</small></div>`})():""}
-        <div class="tk-info">${oBeurtBlok(k)}${hospRoute(k)}${toegangHtml(k)}${ookDezeBeurt(k,day)}${k.notities?`<div class="notebox"><span class="eyebrow">Notitie</span>${esc(k.notities)}</div>`:""}${objInfo(k)}${jobExtra(k)}</div>
+        <div class="tk-info">${oBeurtBlok(k)}${hospRoute(k)}${toegangHtml(k)}${ookDezeBeurt(k,day)}${objInfo(k)}${jobExtra(k)}</div>
         <div class="tk-acts"><a class="tk-a" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.nav}<span>Navigeer</span></a>${tel?`<a class="tk-a" href="tel:${esc(tel)}">${I.phone}<span>Bellen</span></a>`:""}${wa&&!bz?`<a class="tk-a" href="${esc(wa)}" target="_blank" rel="noopener">${I.msg}<span>Ik kom eraan</span></a>`:""}<button type="button" class="tk-a" data-act="skip" data-id="${esc(k.id)}">${I.right}<span>Overslaan</span></button></div>
       </div>
       <div class="tk-perf" aria-hidden="true"></div>
@@ -4699,13 +4706,13 @@ function stopCard(k,i,isNext,late,day,totaal){
     </div></div>`;
 }
 function stopRow(k,day,done){
-  const a=jobAddrObj(k),js=done?"afgerond":jobState(k,day),sp=STATEPILL[js],info=k.notities||jobObj(k);
+  const a=jobAddrObj(k),js=done?"afgerond":jobState(k,day),sp=STATEPILL[js],info=jobObj(k);
   return `<div class="swipe" data-id="${esc(k.id)}"${done?' data-done="1"':""}>
     <div class="sbg sbg-r"><span>${I.check} Afmelden</span></div><div class="sbg sbg-l"><span>Factureren</span></div>
     <div class="swipe-card srow${done?" done":""}" data-act="job" data-id="${esc(k.id)}" data-d="${esc(day)}">
       <span class="sr-t">${esc(k.tijd||"—")}</span><span class="av sm" style="--h:${hue(k.ronde||k.naam)}">${esc(initials(k.naam))}</span>
       <span class="sr-a"><b>${esc(a.adres||cleanName(k.naam))}</b><small>${esc(a.plaats||"")}${a.plaats?" · ":""}${esc(cleanName(k.naam))}</small></span>
-      ${info?`<span class="sr-i" title="${esc(k.notities||"Objectinfo")}">i</span>`:""}<span class="amt">${eur0(toon(k.prijs))}</span>${statusPill(sp[0],sp[1])}${I.right.replace("<svg",'<svg class="chev"')}
+      ${info?`<span class="sr-i" title="Objectinfo">i</span>`:""}<span class="amt">${eur0(toon(k.prijs))}</span>${statusPill(sp[0],sp[1])}${I.right.replace("<svg",'<svg class="chev"')}
     </div></div>`;
 }
 function activiteit(d){
@@ -4779,7 +4786,7 @@ function openJob(id,day){
   <div class="jp-body">
     <div class="jp-amt"><div><span class="eyebrow">Bedrag</span><b>${eur(toon(bedrag))}</b></div><small>${done?(b.gefactureerd==="nvt"?"Niet gefactureerd":b.gefactureerd?"Gefactureerd":"Afgemeld"):"Wordt gefactureerd na afmelden"}</small></div>
     <div><span class="eyebrow">Diensten</span><div class="jp-svc">${diensten.map(([n,p])=>`<div><span class="jp-ic">${I.wrench}</span><b>${esc(n)}${k.binnen?" (buiten en binnen)":""}</b><span>${eur(toon(p))}</span></div>`).join("")}</div></div>
-    ${oBeurtBlok(k)}${hospRoute(k)}${toegangHtml(k)}${ookDezeBeurt(k,typeof day!=="undefined"?day:undefined)}${k.notities?`<div class="notebox"><span class="eyebrow">Notitie</span>${esc(k.notities)}</div>`:""}${objInfo(k)}${jobExtra(k)}
+    ${oBeurtBlok(k)}${hospRoute(k)}${toegangHtml(k)}${ookDezeBeurt(k,typeof day!=="undefined"?day:undefined)}${objInfo(k)}${jobExtra(k)}
     ${(()=>{const fl=jobFotos(k);return fl.length?`<div><span class="eyebrow">Foto's · ${fl.reduce((a,f)=>a+(f.dots||[]).length,0)} ramen aangetikt</span><div class="jp-fotos" style="margin-top:6px">${fl.map((f,j)=>fotoCard(f,j,false).replace('data-fi=','data-jfi=')).join("")}</div></div>`:""})()}
     ${k.gepland?`<div class="mw-hide"><span class="eyebrow">${I.cal2}Meervoudig inplannen</span>${reeksBlok(k)}</div>`:""}
     <div class="mw-hide"><span class="eyebrow">${I.refresh}Automatisch doorplannen</span>
@@ -7996,7 +8003,7 @@ function openOpdrachtWerk(kid,focus){
   </div><div class="kk-side">
     <section class="kp"><div class="kp-h"><span class="objic">${I.pencil}</span><b>Taakomschrijving</b></div>
       <textarea id="ow-taak" style="min-height:70px" placeholder="Bijv. wassen ramen incl. kozijnen, achterom via de poort">${esc(k.taak||"")}</textarea>
-      <label>Notitie voor op de route<textarea id="ow-not" style="min-height:56px" placeholder="Sleutel onder bloempot, hond, ladder nodig achterkant…">${esc(k.notities||"")}</textarea></label></section>
+</section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.plus}</span><b>Opdrachtregel toevoegen</b><span class="sp"></span><button type="button" class="small" id="owEigen">${I.plus}Eigen dienst</button></div>
       <input id="owZoek" placeholder="Zoeken" style="max-width:280px">
       <div class="ow-chips" id="owChips">${dienstChips(diensten,"data-dn")}</div></section>
@@ -8188,7 +8195,7 @@ function openOpdrachtWerk(kid,focus){
   const mountRc=()=>{const box=$("#owRc");if(!box||!box.hidden)return;
     try{if(!RC)RC=buildRamen();
       RC.setEmbed({klantId:k.id,base:k,
-        form:()=>({naam:cleanName(k.naam),adres:k.adres||"",pc:k.postcode||"",plaats:k.plaats||"",tel:k.telefoon||"",email:k.email||"",notitie:$o("not").value.trim(),zakelijk:k.soort==="zakelijk"}),
+        form:()=>({naam:cleanName(k.naam),adres:k.adres||"",pc:k.postcode||"",plaats:k.plaats||"",tel:k.telefoon||"",email:k.email||"",notitie:"",zakelijk:k.soort==="zakelijk"}),
         onCalc:()=>{if(!$("#owLines"))return;const c=RC.current();if(!c)return;rcLive=true;main.prijs=c.opd.prijs;if(c.extra&&c.extra.length){const gs=new Set(c.extra.map(e=>e.groep));extra=[...extra.filter(o=>!o.groep||!gs.has(o.groep)),...c.extra]}
           const sf=$o("freq"),w=String(c.opd.frequentie);if(c.opd.frequentie){if(![...sf.options].some(o=>o.value===w))sf.insertAdjacentHTML("beforeend",`<option value="${w}">${esc(freqLabel(w))}</option>`);sf.value=w}
           if(!(k.tijden||[]).length&&c.opd.duur){const sd=$o("duur"),m=String(c.opd.duur);if(![...sd.options].some(o=>o.value===m))sd.insertAdjacentHTML("beforeend",`<option value="${m}">${m} min</option>`);sd.value=m}
@@ -8202,7 +8209,7 @@ function openOpdrachtWerk(kid,focus){
   const collect=()=>{syncRitme();const cur=state.klanten.find(x=>x.id===kid)||k,actief=$o("actief").checked;
     return {...strip(cur),dienst:String(main.dienst||"").trim()||"Glasbewassing",prijs:r2(Number(main.prijs)||0),ramenRegel:main.ramen||null,frequentie:mF||4,duur:mD||30,ronde:$o("ronde").value.trim(),contactPlanning:$o("contact").value,eersteKeer:$o("eerste").value==="ja",toeslag:Number($o("toeslag").value)||0,toeslagReden:$o("toeslagr").value.trim(),verbergAantal:$o("verbA").checked,verbergFreq:$o("verbF").checked,afmeldMail:$o("afmail").checked,
       binnen:false,actief,...(actief?{}:{gepland:"",tijd:""}),akkoord:$o("akkoord").checked,incasso:$o("betaal").value==="incasso",...factModusPatch($o("fact").value,k),
-      taak:$o("taak").value.trim(),hosp:hosp.map(x=>({c:x.c||"voorkeur",t:String(x.t||"").trim(),...(x.af?{af:x.af}:{}),...(x.c==="verteld"&&x.vanaf?{vanaf:x.vanaf}:{})})).filter(x=>x.t),notities:$o("not").value.trim(),bellen:$o("bellen").checked,startdatum:$o("start").value,einddatum:$o("eind").value,btwVerlegd:$o("verlegd").checked,aanbieden:cur.gepland?!!cur.aanbieden:aanb.aanbieden,uitstelTot:aanb.uitstelTot,artikelen:arts.filter(a=>String(a.naam||"").trim()).map(a=>({naam:String(a.naam).trim(),aantal:Number(a.aantal)||1,prijs:r2(Number(a.prijs)||0)})),middelen:mids,objectId:$o("obj")?$o("obj").value:cur.objectId||"",fotos,
+      taak:$o("taak").value.trim(),hosp:hosp.map(x=>({c:x.c||"voorkeur",t:String(x.t||"").trim(),...(x.af?{af:x.af}:{}),...(x.c==="verteld"&&x.vanaf?{vanaf:x.vanaf}:{})})).filter(x=>x.t),bellen:$o("bellen").checked,startdatum:$o("start").value,einddatum:$o("eind").value,btwVerlegd:$o("verlegd").checked,aanbieden:cur.gepland?!!cur.aanbieden:aanb.aanbieden,uitstelTot:aanb.uitstelTot,artikelen:arts.filter(a=>String(a.naam||"").trim()).map(a=>({naam:String(a.naam).trim(),aantal:Number(a.aantal)||1,prijs:r2(Number(a.prijs)||0)})),middelen:mids,objectId:$o("obj")?$o("obj").value:cur.objectId||"",fotos,
       opdrachten:extra.filter(o=>String(o.dienst||"").trim()).map(({_nieuw,...o})=>({...o,dienst:String(o.dienst).trim(),prijs:r2(Number(o.prijs)||0),frequentie:Number(o.frequentie)||52}))}};
   $("#owLog").onclick=async()=>{const v=$o("log").value.trim();if(!v)return;const d=collect();d.log=[...(d.log||[]),{datum:iso(today()),tekst:v}];
     try{await save("klanten",kid,d);toast("Genoteerd");setTimeout(()=>openOpdrachtWerk(kid),60)}catch(er){err(er)}};
@@ -8647,7 +8654,7 @@ function openKlantView(id,opt={}){
       ${kv("Offertes gaan naar",mail(mailK(k,"offerte").email)+(tavK(k,"offerte")?`<br><small class="subt">t.a.v. ${esc(tavK(k,"offerte"))}</small>`:""))}
       ${kv("Planningsmails gaan naar",mail(mailK(k,"planning").email)+(tavK(k,"planning")?`<br><small class="subt">t.a.v. ${esc(tavK(k,"planning"))}</small>`:""))}</section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.note}</span><b>Opmerkingen</b><span class="sp"></span>${pen("opm","Opmerkingen aanpassen")}</div>
-      ${kv("Klantnotities",k.klantNotitie?esc(k.klantNotitie).replace(/\n/g,"<br>"):"")}${kv("Factuurinstructies",k.factuurInstructie?esc(k.factuurInstructie).replace(/\n/g,"<br>"):"")}${k.notities?kv("Notitie route",esc(k.notities)):""}</section>
+      ${kv("Klantnotities",k.klantNotitie?esc(k.klantNotitie).replace(/\n/g,"<br>"):"")}${kv("Factuurinstructies",k.factuurInstructie?esc(k.factuurInstructie).replace(/\n/g,"<br>"):"")}</section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.upload}</span><b>Klantdocumenten</b><span class="sp"></span>${state.assets?`<label class="iconbtn sm primary" title="Document toevoegen" aria-label="Document toevoegen">${I.plus}<input type="file" hidden multiple id="kdDoc"></label>`:""}</div>
       ${(k.documenten||[]).length?`<table class="minitable">${k.documenten.map((d,i)=>`<tr><td><a href="${BLOB}${esc(d.id)}" target="_blank" rel="noopener"><b>${esc(d.naam)}</b></a><br><small class="subt">${esc(fmtD(d.datum))}${d.omschr?" · "+esc(d.omschr):""}</small></td><td class="r" style="white-space:nowrap"><a class="iconbtn sm" href="${BLOB}${esc(d.id)}" download="${esc(d.naam)}" aria-label="Downloaden">${I.dl}</a><button type="button" class="iconbtn sm" data-kk="docdel" data-i="${i}" aria-label="Verwijderen">${I.x}</button></td></tr>`).join("")}</table>`:`<p class="subt" style="margin:0">${state.assets?"Nog geen documenten. Voeg bijvoorbeeld een contract of een foto toe.":"Bestanden toevoegen kan hier niet."}</p>`}</section>
   </div><div class="kk-side">
@@ -9836,7 +9843,7 @@ function openKlantMw(id){const k=state.klanten.find(x=>x.id===id);if(!k)return;
   openDlg(`<div class="dlg-head"><span class="objic big">${I.user}</span><div style="min-width:0;flex:1"><h3>${esc(a.adres||cleanName(k.naam))}</h3><div class="subt">${esc(cleanName(k.naam))}${a.plaats?" · "+esc([a.postcode,a.plaats].filter(Boolean).join(" ")):""}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
     <div class="row" style="gap:8px;flex-wrap:wrap"><a class="btn" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.route}Navigeren</a>${k.telefoon?`<a class="btn" href="tel:${esc(String(k.telefoon).replace(/\s/g,""))}">${I.phone}Bellen</a>`:""}</div>
     ${toegangHtml(k)}
-    ${k.notities?`<div class="notebox"><span class="eyebrow">Notitie</span>${esc(k.notities)}</div>`:""}
+    
     ${typeof hospRoute==="function"?hospRoute(k):""}
     <div class="kv-mw"><div><small>Dienst</small><b>${esc(k.dienst||"Glasbewassing")}</b></div><div><small>Duur</small><b>${duur(k)} min</b></div><div><small>Binnen</small><b>${k.binnen?"Ja":"Nee"}</b></div></div>
     <div class="row"><span class="sp"></span><button type="button" class="primary" data-act="close">Sluiten</button></div>`);

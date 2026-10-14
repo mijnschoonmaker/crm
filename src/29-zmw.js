@@ -20,7 +20,7 @@ function openKlantMw(id){const k=state.klanten.find(x=>x.id===id);if(!k)return;
   openDlg(`<div class="dlg-head"><span class="objic big">${I.user}</span><div style="min-width:0;flex:1"><h3>${esc(a.adres||cleanName(k.naam))}</h3><div class="subt">${esc(cleanName(k.naam))}${a.plaats?" · "+esc([a.postcode,a.plaats].filter(Boolean).join(" ")):""}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
     <div class="row" style="gap:8px;flex-wrap:wrap"><a class="btn" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.route}Navigeren</a>${k.telefoon?`<a class="btn" href="tel:${esc(String(k.telefoon).replace(/\s/g,""))}">${I.phone}Bellen</a>`:""}</div>
     ${toegangHtml(k)}
-    ${k.notities?`<div class="notebox"><span class="eyebrow">Notitie</span>${esc(k.notities)}</div>`:""}
+    
     ${typeof hospRoute==="function"?hospRoute(k):""}
     <div class="kv-mw"><div><small>Dienst</small><b>${esc(k.dienst||"Glasbewassing")}</b></div><div><small>Duur</small><b>${duur(k)} min</b></div><div><small>Binnen</small><b>${k.binnen?"Ja":"Nee"}</b></div></div>
     <div class="row"><span class="sp"></span><button type="button" class="primary" data-act="close">Sluiten</button></div>`);

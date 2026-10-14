@@ -138,7 +138,6 @@ function openKlantEdit(id,opt={}){
     <label>Tijd<input id="f-tijd" type="time" step="900" value="${esc(k.tijd)}"></label>
     ${(k.objecten||[]).length?`<label>Object<select id="f-object">${k.objecten.map(o=>`<option value="${esc(o.id)}" ${jobObj(k)&&jobObj(k).id===o.id?"selected":""}>${esc(o.naam||"Object")}</option>`).join("")}</select></label>`:"<span></span>"}
 
-    <label class="full">Notitie voor op de route<textarea id="f-notities" placeholder="Sleutel onder bloempot, hond, ladder nodig achterkant…">${esc(k.notities)}</textarea></label>
     <label class="check-row"><input id="f-akkoord" type="checkbox" ${k.akkoord?"checked":""}>Akkoord op overeenkomst</label><label class="check-row"><input id="f-geenreview" type="checkbox" ${k.geenReview?"checked":""}>Geen reviewverzoeken</label>
     <label class="full check-row"><input id="f-incasso" type="checkbox" ${k.incasso?"checked":""}>Betaalt via automatische incasso (krijgt geen betalingsherinneringen)</label>
     <label class="full check-row"><input id="f-direct" type="checkbox" ${k.directFactureren?"checked":""}>Factuur direct versturen bij afmelden <small style="font-weight:500;color:var(--muted)">(standaard: conceptfactuur in Facturen)</small></label>
@@ -158,7 +157,7 @@ function openKlantEdit(id,opt={}){
       telefoon:g("telefoon").value.trim(),klantnr:g("klantnr").value.trim(),email:g("email").value.trim(),ronde:g("ronde").value.trim(),soort:g("soort").value,
       frequentie:Number(g("frequentie").value),prijs:Number(g("prijs").value)||0,laatst:g("laatst").value,gepland:g("gepland").value,tijd:g("gepland").value?g("tijd").value:"",
       duur:Number(g("duur").value)||30,dienst:g("dienst").value.trim()||"Glasbewassing",objectId:g("object")?g("object").value:"",binnen:false,
-      notities:g("notities").value.trim(),actief:isNew?true:g("actief").checked,incasso:g("incasso").checked,directFactureren:g("direct").checked,akkoord:g("akkoord").checked,geenReview:g("geenreview").checked,opzegReden:g("reden")?g("reden").value:"",aangemaakt:cur.aangemaakt||iso(today()),log:cur.log||[],objecten:cur.objecten||[]}};
+      actief:isNew?true:g("actief").checked,incasso:g("incasso").checked,directFactureren:g("direct").checked,akkoord:g("akkoord").checked,geenReview:g("geenreview").checked,opzegReden:g("reden")?g("reden").value:"",aangemaakt:cur.aangemaakt||iso(today()),log:cur.log||[],objecten:cur.objecten||[]}};
   let newKid=k.id||"";
   const saveK=async(patch={})=>{const base=collect();if(!base)throw{msg:"Vul eerst de naam en het adres van de klant in (links)."};if(!newKid)newKid=newId("k");await save("klanten",newKid,{...base,...patch});return newKid};
   form.onsubmit=async e=>{e.preventDefault();$("#saveK").disabled=true;
@@ -168,7 +167,7 @@ function openKlantEdit(id,opt={}){
   let rcLive=false;const rcT=$("#kkRcT"),mountRc=()=>{const box=$("#kkRc");if(!box||!box.hidden)return;
     try{if(!RC)RC=buildRamen();
       RC.setEmbed({klantId:k.id||"",base:k,
-        form:()=>({naam:g("naam").value.trim(),adres:g("adres").value.trim(),pc:g("postcode").value.trim().toUpperCase(),plaats:g("plaats").value.trim(),tel:g("telefoon").value.trim(),email:g("email").value.trim(),notitie:g("notities").value.trim(),zakelijk:g("soort").value==="zakelijk"}),
+        form:()=>({naam:g("naam").value.trim(),adres:g("adres").value.trim(),pc:g("postcode").value.trim().toUpperCase(),plaats:g("plaats").value.trim(),tel:g("telefoon").value.trim(),email:g("email").value.trim(),notitie:"",zakelijk:g("soort").value==="zakelijk"}),
         onSave:async(patch,o={})=>{const kid=await saveK(patch);if(!o.stay)setTimeout(()=>openKlant(kid,{rc:true}),80);return kid},
         onCalc:()=>{if(!g("prijs"))return;const c=RC.current();if(!c)return;rcLive=true;
           g("prijs").value=c.opd.prijs;
@@ -576,7 +575,6 @@ function openAfspraak(id,day){
     <label>Prijs per beurt (€ ${S().incl?"incl.":"excl."} btw)<input id="af-prijs" type="number" step="0.01" min="0" inputmode="decimal" value="${esc(k.prijs)}"></label>
     <label>Duur<select id="af-duur">${durO.map(m=>`<option value="${m}" ${m===du?"selected":""}>${m<60?m+" min":(m/60).toLocaleString("nl-NL")+" uur"}</option>`).join("")}</select></label>
     <label>Frequentie<select id="af-freq">${freqO.map(w=>`<option value="${w}" ${w===fr?"selected":""}>Elke ${w} ${w===1?"week":"weken"}</option>`).join("")}</select></label>
-    <label class="full">Notitie voor op de route<textarea id="af-not" style="min-height:56px">${esc(k.notities||"")}</textarea></label>
   </div>
   <p class="subt" style="margin:0">Prijs, duur, frequentie en notitie gelden voor alle volgende beurten van deze klant.</p>
   <div class="row">${isPlanned?`<button type="button" class="ghost danger" id="afUn">Terug naar te plannen</button>`:""}${isPlanned?`<button type="button" class="ghost" id="afJob">${I.eye}Open job</button>`:""}<span class="sp"></span><button type="button" id="afBack">Annuleren</button><button type="submit" class="primary" id="afGo">${I.check}${isPlanned?"Opslaan":"Inplannen"}</button></div>`);
@@ -585,7 +583,7 @@ function openAfspraak(id,day){
   const jb=$("#afJob");if(jb)jb.onclick=()=>openJob(k.id,k.gepland);
   form.onsubmit=async e=>{e.preventDefault();const d=$("#af-d").value;if(!d){$("#af-d").focus();return}$("#afGo").disabled=true;
     const nd=parse(d),warn=!isWerkdag(nd)?" · let op: geen werkdag":"";
-    try{await save("klanten",k.id,{...strip(k),gepland:d,tijd:$("#af-t").value||nextFree(d),aanbieden:false,dienst:$("#af-dienst").value.trim()||"Glasbewassing",prijs:r2(Number($("#af-prijs").value)||0),duur:Number($("#af-duur").value)||30,frequentie:Number($("#af-freq").value)||4,notities:$("#af-not").value.trim()});
+    try{await save("klanten",k.id,{...strip(k),gepland:d,tijd:$("#af-t").value||nextFree(d),aanbieden:false,dienst:$("#af-dienst").value.trim()||"Glasbewassing",prijs:r2(Number($("#af-prijs").value)||0),duur:Number($("#af-duur").value)||30,frequentie:Number($("#af-freq").value)||4});
       toast(cleanName(k.naam)+" ingepland op "+fmtD(d)+($("#af-t").value?" om "+$("#af-t").value:"")+warn);back()}
     catch(er){$("#afGo").disabled=false;err(er)}};
 }
