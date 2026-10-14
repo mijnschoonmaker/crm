@@ -3252,3 +3252,4 @@ dialog .kk-grid>*,dialog .kp{min-width:0;max-width:100%}
 dialog .kp{overflow-wrap:anywhere}
 .hx-snel .hx-chip{max-width:100%;white-space:normal;text-align:left}
 @media (max-width:640px){#dlg{overflow-x:hidden}#dlg form{max-width:100vw;overflow-x:hidden}}
+@media (max-width:640px){.kp-h .btn,.kp-h button.small,.kp-h .primary{white-space:nowrap;flex:none}.kp-h>b{min-width:0}.kd-log button,.kp form button,.kp .row>button{white-space:nowrap}}
