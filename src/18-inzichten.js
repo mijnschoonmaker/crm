@@ -50,10 +50,10 @@ function vInzichten(){
         <div class="st-big"><b>${bs.length}</b>${stDelta(bs.length,bv.length,"vs "+V.lbl)}</div>
         ${bs.length?stStraat(bs.length):""}
         <p class="st-mot">${mot}</p></div>
-      <div class="st-hs">${(()=>{const t=typeof wdPeriode==="function"?wdPeriode(P.rg):{dagen:0};return t.dagen?stTile(I.euro,"Echt per uur",t.perUur?eur0(t.perUur):"–","per gewerkt uur, loods tot loods zonder pauze","ok"):stTile(I.euro,"Per klantuur",mins?eur0(om/(mins/60)):"–","omzet ex btw per uur bij klanten","ok")})()}${stTile(I.receipt,"Per beurt",gem?eur0(gem):"–","gemiddeld ex btw")}</div></section>
+      <div class="st-hs">${(()=>{const t=typeof wdPeriode==="function"?wdPeriode(P.rg):{dagen:0};return t.dagen?stTile(I.euro,"Echt per uur",t.perUur?eur(t.perUur):"–","per gewerkt uur, loods tot loods zonder pauze","ok"):stTile(I.euro,"Per klantuur",mins?eur(om/(mins/60)):"–","omzet ex btw per uur bij klanten","ok")})()}${stTile(I.receipt,"Per beurt",gem?eur(gem):"–","gemiddeld ex btw")}</div></section>
     <div class="st-tiles">${stTile(I.timer,"Uren bij klanten",uren(mins),"gemeten of geplande duur per stop")}
-      ${stTile(I.euro,"Omzet uit werk",eur0(om),"afgemelde beurten ex btw")}
-      ${stTile(I.spark,"Beste dag ooit",best?eur0(best[1]):"–",best?esc(fmtL(best[0])):"nog geen beurten")}
+      ${stTile(I.euro,"Omzet uit werk",eur(om),"afgemelde beurten ex btw")}
+      ${stTile(I.spark,"Beste dag ooit",best?eur(best[1]):"–",best?esc(fmtL(best[0])):"nog geen beurten")}
       ${stTile(I.alert,"Achterstallig",ach,ach?"klanten over hun interval":"niemand achter, netjes!",ach?"late":"ok",` data-act="tab" data-tab="planning" role="button"`)}</div>
     <div class="st-two"><section class="st-card"><div class="st-ch"><div><h3>Drukste dagen</h3><p>Afgemelde beurten per weekdag${wdc[top]?" · meestal op "+["maandag","dinsdag","woensdag","donderdag","vrijdag","zaterdag","zondag"][top]:""}</p></div></div>
         ${stBars(wdc,["ma","di","wo","do","vr","za","zo"],{hi:wdc[top]?top:-1,fmt:v=>String(Math.round(v)),h:200,gem:false})}</section>
@@ -90,5 +90,5 @@ function stStraat(n){const max=12,m=Math.min(n,max),H=typeof HUIS!=="undefined"?
 /* omzet per dienst: ring met het aandeel en per dienst een kaartje met balk */
 function stDiensten(dk,per,tot){const KL=["#137a8a","#2aa3b3","#1d5a74","#7fc4cf","#ebbd4c","#5d6f76"],R=54,C=2*Math.PI*R;let acc=0;
   const ring=dk.map((k,i)=>{const f=per[k]/tot,seg=`<circle cx="70" cy="70" r="${R}" fill="none" stroke="${KL[i%KL.length]}" stroke-width="16" stroke-dasharray="${Math.max(0,f*C-(dk.length>1?3:0))} ${C}" stroke-dashoffset="${-acc*C}" stroke-linecap="${dk.length>1?"butt":"round"}"/>`;acc+=f;return seg}).join("");
-  return `<div class="st-dv"><div class="st-ring"><svg viewBox="0 0 140 140"><circle cx="70" cy="70" r="${R}" fill="none" stroke="var(--surface-2)" stroke-width="16"/><g transform="rotate(-90 70 70)">${ring}</g></svg><div><b>${eur0(tot)}</b><small>${plural(dk.length,"dienst","diensten")}</small></div></div>
-    <div class="st-dl">${dk.map((k,i)=>{const p=Math.round(per[k]/tot*100);return `<div class="st-di" style="--c:${KL[i%KL.length]}"><span class="st-dic">${I.spark}</span><div class="st-dim"><div class="st-dit"><b>${esc(k)}</b><span class="mono">${eur0(per[k])}</span></div><div class="st-dib"><i style="width:${p}%"></i></div><small>${p}% van de omzet uit werk</small></div></div>`}).join("")}</div></div>`}
+  return `<div class="st-dv"><div class="st-ring"><svg viewBox="0 0 140 140"><circle cx="70" cy="70" r="${R}" fill="none" stroke="var(--surface-2)" stroke-width="16"/><g transform="rotate(-90 70 70)">${ring}</g></svg><div><b>${eur(tot)}</b><small>${plural(dk.length,"dienst","diensten")}</small></div></div>
+    <div class="st-dl">${dk.map((k,i)=>{const p=Math.round(per[k]/tot*100);return `<div class="st-di" style="--c:${KL[i%KL.length]}"><span class="st-dic">${I.spark}</span><div class="st-dim"><div class="st-dit"><b>${esc(k)}</b><span class="mono">${eur(per[k])}</span></div><div class="st-dib"><i style="width:${p}%"></i></div><small>${p}% van de omzet uit werk</small></div></div>`}).join("")}</div></div>`}
