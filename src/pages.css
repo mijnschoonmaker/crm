@@ -3450,3 +3450,4 @@ dialog .kp{overflow-wrap:anywhere}
 .wd-tips{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:12px;background:var(--surface-2);color:var(--muted);font-size:12.5px;line-height:1.45}
 .wd-tips svg{width:16px;height:16px;flex:none;margin-top:1px}.wd-tips p{margin:0}
 @media (max-width:640px){.wd-klaar .wd-kpi{grid-template-columns:1fr 1fr}.wd-klaar .wd-kpi .hoofd{grid-column:1/-1}.wd-3>div{padding:8px 10px;column-gap:6px}.wd-3 b{font-size:13.5px}.wd-her span{display:none}}
+.vk{align-items:center}

@@ -66,8 +66,7 @@ function vVandaag(){
   const note=(state.routes[d]||{}).notitie||"";
   const h=new Date().getHours(),groet=h<12?"Goedemorgen":h<18?"Goedemiddag":"Goedenavond",naam=(state.me&&state.me.name?state.me.name.split(" ")[0]:"")||cleanName(S().naam);
   const rel=Math.round((dd-t)/864e5),dagL=rel===0?"Vandaag":rel===1?"Morgen":rel===-1?"Gisteren":dd.toLocaleDateString("nl-NL",{weekday:"long"});
-  const top=`<div class="vk"><div class="vk-l"><p class="vk-d">${I.sun}<span>${(x=>x.charAt(0).toUpperCase()+x.slice(1))(dd.toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long"}))}</span><em>wk ${weekNr(dd)}</em></p>
-    <h1 class="vd-hi">${isT?groet:"Planning"}${naam&&isT?`, <span>${esc(naam)}.</span>`:""}</h1></div>
+  const top=`<div class="vk"><div class="vk-l"><p class="vk-d">${I.sun}<span>${(x=>x.charAt(0).toUpperCase()+x.slice(1))(dd.toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long"}))}</span><em>wk ${weekNr(dd)}</em></p></div>
     <div class="vk-nav" role="group" aria-label="Dag"><button type="button" data-act="vday" data-n="-1" aria-label="Vorige dag">${I.left}</button><button type="button" class="vk-nu${isT?" is":""}" data-act="vday" data-n="0" title="Naar vandaag"><small>${esc(fmtNum(dd))}</small><b>${esc(dagL.charAt(0).toUpperCase()+dagL.slice(1))}</b></button><button type="button" data-act="vday" data-n="1" aria-label="Volgende dag">${I.right}</button></div></div>`;
   const noteHtml=note?`<button type="button" class="daynote" data-act="daynote" data-d="${d}"><span class="eyebrow">Dagnotitie</span>${esc(note)}</button>`:"";
   const dueHtml=due.length?`<div class="banner"><div><b>${plural(due.length,"klant is","klanten zijn")} vandaag aan de beurt, maar niet ingepland</b><br><small>${due.slice(0,3).map(k=>esc(cleanName(k.naam))).join(", ")}${due.length>3?" en "+(due.length-3)+" meer":""}</small></div><button type="button" class="primary" data-act="plantoday">Plan vandaag in</button></div>`:"";
