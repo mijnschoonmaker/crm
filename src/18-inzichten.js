@@ -50,8 +50,8 @@ function vInzichten(){
         <div class="st-big"><b>${bs.length}</b>${stDelta(bs.length,bv.length,"vs "+V.lbl)}</div>
         ${bs.length?stStraat(bs.length):""}
         <p class="st-mot">${mot}</p></div>
-      <div class="st-hs">${stTile(I.euro,"Per uur",mins?eur0(om/(mins/60)):"–","omzet ex btw per gewerkt uur","ok")}${stTile(I.receipt,"Per beurt",gem?eur0(gem):"–","gemiddeld ex btw")}</div></section>
-    <div class="st-tiles">${stTile(I.timer,"Uren",uren(mins),"op basis van duur per job")}
+      <div class="st-hs">${(()=>{const t=typeof wdPeriode==="function"?wdPeriode(P.rg):{dagen:0};return t.dagen?stTile(I.euro,"Echt per uur",t.perUur?eur0(t.perUur):"–","per gewerkt uur, loods tot loods zonder pauze","ok"):stTile(I.euro,"Per klantuur",mins?eur0(om/(mins/60)):"–","omzet ex btw per uur bij klanten","ok")})()}${stTile(I.receipt,"Per beurt",gem?eur0(gem):"–","gemiddeld ex btw")}</div></section>
+    <div class="st-tiles">${stTile(I.timer,"Uren bij klanten",uren(mins),"gemeten of geplande duur per stop")}
       ${stTile(I.euro,"Omzet uit werk",eur0(om),"afgemelde beurten ex btw")}
       ${stTile(I.spark,"Beste dag ooit",best?eur0(best[1]):"–",best?esc(fmtL(best[0])):"nog geen beurten")}
       ${stTile(I.alert,"Achterstallig",ach,ach?"klanten over hun interval":"niemand achter, netjes!",ach?"late":"ok",` data-act="tab" data-tab="planning" role="button"`)}</div>
