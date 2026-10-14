@@ -3849,6 +3849,7 @@ dialog .kp{overflow-wrap:anywhere}
 .wg-chips{display:flex;flex-wrap:wrap;gap:4px}.wg-chips span{font-family:var(--f-mono);font-size:11.5px;padding:3px 7px;border-radius:7px;background:var(--brand-soft);color:var(--brand);font-weight:500}
 .wg-chips.uit span{background:var(--surface-2);color:var(--muted);text-decoration:line-through}
 .wg-eb{margin:4px 2px -4px}
+.wg-chips button{font-family:var(--f-mono);font-size:11.5px;padding:3px 7px;border-radius:7px;background:var(--brand-soft);color:var(--brand);font-weight:500;border:0;cursor:pointer;min-height:0}.wg-chips button:hover{background:color-mix(in srgb,var(--brand) 20%,var(--surface))}.wg-chips.uit button{background:var(--surface-2);color:var(--muted);text-decoration:line-through}
 
 </style>
 <div class="app">
@@ -10841,6 +10842,14 @@ function wgInPoly(lat,lng,pts){let binnen=false;for(let i=0,j=pts.length-1;i<pts
 function wgActief(){return (S().webGebieden||[]).filter(g=>g&&g.aan!==false&&Array.isArray(g.pts)&&g.pts.length>=3)}
 /* postcodes (4 cijfers) van klanten die al in het crm staan: daar werk je dus al */
 function wgKlantPc(){const z=new Set();(state.klanten||[]).forEach(k=>{[k.postcode,(jobAddrObj(k)||{}).postcode].forEach(p=>{const m=String(p||"").match(/^\s*(\d{4})/);if(m)z.add(m[1])})});return [...z].sort()}
+const WG_PC={};
+async function wgPcVlak(pc){if(WG_PC[pc])return WG_PC[pc];
+  try{const c=sessionStorage.getItem("wgpc."+pc);if(c)return WG_PC[pc]=JSON.parse(c)}catch(_){}
+  const j=await (await fetch("https://api.pdok.nl/bzk/locatieserver/search/v3_1/free?fq=type:postcode&rows=5&fl=postcode,centroide_ll&q="+pc)).json();
+  const d=((j.response||{}).docs||[]).find(x=>String(x.postcode||"").startsWith(pc)),m=d&&/POINT\(([-\d.]+) ([-\d.]+)\)/.exec(d.centroide_ll||"");if(!m)return null;
+  const x=+m[1],y=+m[2],e=.0015,r=await (await fetch(`https://api.pdok.nl/cbs/postcode4/ogc/v1/collections/postcode4/items?f=json&limit=50&bbox=${x-e},${y-e},${x+e},${y+e}`)).json();
+  const F=(r.features||[]).filter(f=>String((f.properties||{}).postcode)===pc).sort((a,b)=>(+(b.properties.jaarcode||0))-(+(a.properties.jaarcode||0)))[0];
+  if(!F)return null;const g={type:"Feature",properties:{pc},geometry:F.geometry};try{sessionStorage.setItem("wgpc."+pc,JSON.stringify(g))}catch(_){}return WG_PC[pc]=g}
 const wgKlantPcAan=()=>S().webKlantPc!==false;
 /* compact voor de calculator: alleen wat nodig is om te testen */
 function wgVoorCalc(){return wgActief().map(g=>({s:g.soort||"beide",p:g.pts.map(p=>[Math.round(p[0]*1e5)/1e5,Math.round(p[1]*1e5)/1e5])}))}
@@ -10887,8 +10896,11 @@ async function werkgebiedEditor(onKlaar){
     for(let i=0;i<P.length;i++){const a=P[i],b=P[(i+1)%P.length],dx=b.x-a.x,dy=b.y-a.y,t=Math.max(0,Math.min(1,((q.x-a.x)*dx+(q.y-a.y)*dy)/((dx*dx+dy*dy)||1))),d=Math.hypot(a.x+t*dx-q.x,a.y+t*dy-q.y);if(d<bd){bd=d;best=i}}
     g.pts.splice(best+1,0,[ll.lat,ll.lng])}
   let kpAan=wgKlantPcAan();const KP=wgKlantPc();
-  const kp=()=>{$o("#wgKp").innerHTML=`<div class="wg-r1"><span class="wg-kpi">${I.users||I.user||I.pin}</span><div class="wg-kpt"><b>Postcodes uit je CRM</b><small>${KP.length?plural(KP.length,"postcode","postcodes")+" van je klanten tellen automatisch mee":"Nog geen klanten met een postcode"}</small></div><label class="wg-sw" title="${kpAan?"Telt mee":"Telt niet mee"}"><input type="checkbox" id="wgKpA" ${kpAan?"checked":""} ${KP.length?"":"disabled"}><i></i></label></div>${KP.length?`<div class="wg-chips${kpAan?"":" uit"}">${KP.slice(0,40).map(p=>`<span>${p}</span>`).join("")}${KP.length>40?`<span>+${KP.length-40}</span>`:""}</div>`:""}`;
-    const t=$o("#wgKpA");if(t)t.onchange=()=>{kpAan=t.checked;gewijzigd=true;kp()}};
+  const kp=()=>{$o("#wgKp").innerHTML=`<div class="wg-r1"><span class="wg-kpi">${I.users||I.user||I.pin}</span><div class="wg-kpt"><b>Postcodes uit je CRM</b><small>${KP.length?plural(KP.length,"postcode","postcodes")+" van je klanten tellen automatisch mee":"Nog geen klanten met een postcode"}</small></div><label class="wg-sw" title="${kpAan?"Telt mee":"Telt niet mee"}"><input type="checkbox" id="wgKpA" ${kpAan?"checked":""} ${KP.length?"":"disabled"}><i></i></label></div>${KP.length?`<div class="wg-chips${kpAan?"":" uit"}">${KP.slice(0,40).map(p=>`<button type="button" data-wgpc="${p}" title="Toon op de kaart">${p}</button>`).join("")}${KP.length>40?`<span>+${KP.length-40}</span>`:""}</div>`:""}`;
+    const t=$o("#wgKpA");if(t)t.onchange=()=>{kpAan=t.checked;gewijzigd=true;kp();pcLaag()};
+    $o("#wgKp").querySelectorAll("[data-wgpc]").forEach(b=>b.onclick=()=>{const l=pcL[b.dataset.wgpc];if(l&&map)map.fitBounds(l.getBounds(),{padding:[40,40],maxZoom:14});else toast("Dit postcodegebied laadt nog of is niet gevonden")})};
+  const pcL={};let pcG=null;
+  function pcLaag(){if(!map)return;if(pcG){pcG.remove();pcG=null}if(!kpAan)return;pcG=window.L.layerGroup().addTo(map);Object.values(pcL).forEach(l=>l.addTo(pcG))}
   kp();lijst();
   $o("#wgNieuw").onclick=()=>{teken={naam:"Gebied "+(G.length+1),pts:[]};sel=null;band();lijst();teken_()};
   $o("#wgBand").addEventListener("click",e=>{if(e.target.closest("[data-wgu]")){teken.pts.pop();band();teken_()}else if(e.target.closest("[data-wgc]")){teken=null;sel=G.length?G[G.length-1].id:null;band();lijst();teken_()}else if(e.target.closest("[data-wgk]"))klaar()});
@@ -10919,7 +10931,14 @@ async function werkgebiedEditor(onKlaar){
   map.on("click",e=>{if(teken){teken.pts.push([e.latlng.lat,e.latlng.lng]);band();teken_();return}const g=huidig();if(g&&g.pts.length>=3){voegIn(g,e.latlng);gewijzigd=true;teken_();lijst()}});
   const alle=G.flatMap(g=>g.pts);if(alle.length)map.fitBounds(alle,{padding:[30,30]});
   else{const kl=state.klanten.map(k=>k.lat&&k.lng?[+k.lat,+k.lng]:null).filter(Boolean);if(kl.length>1)map.fitBounds(kl,{padding:[40,40],maxZoom:12})}
-  setTimeout(()=>map.invalidateSize(),120);teken_()}
+  map.createPane("wgpc").style.zIndex=350;setTimeout(()=>map.invalidateSize(),120);teken_();pcLaag();
+  /* postcodegebieden van je klanten tonen */
+  (async()=>{let n=0;const rij=[...KP];const werk=async()=>{while(rij.length){const pc=rij.shift();try{const f=await wgPcVlak(pc);if(!f||!o.isConnected)continue;
+      pcL[pc]=window.L.geoJSON(f,{interactive:true,pane:"wgpc",bubblingMouseEvents:false,style:{color:"#0f5f6e",weight:1.5,dashArray:"4 4",fillColor:"#7fd3de",fillOpacity:.22}}).bindTooltip("Postcode "+pc+" · klant in je CRM",{sticky:true});
+      pcL[pc].on("click",e=>{if(teken){teken.pts.push([e.latlng.lat,e.latlng.lng]);band();teken_();return}const g=huidig();if(g&&g.pts.length>=3){voegIn(g,e.latlng);gewijzigd=true;teken_();lijst()}});
+      if(pcG)pcL[pc].addTo(pcG);pcL[pc].bringToBack&&pcL[pc].bringToBack();n++}catch(_){}}};
+    await Promise.all([werk(),werk(),werk()]);
+    if(n&&!alle.length){try{map.fitBounds(window.L.featureGroup(Object.values(pcL)).getBounds(),{padding:[30,30]})}catch(_){}}})()}
 
 /* kaartje in Instellingen › Website-calculator */
 function wgKaartje(){const A=S().webGebieden||[],aan=A.filter(g=>g.aan!==false),kp=wgKlantPcAan()?wgKlantPc():[];
