@@ -185,6 +185,7 @@ document.addEventListener("click",e=>{
     case"planop":t.disabled=true;moveTo(id,t.dataset.d||"",t.dataset.t).then(()=>{if(dlg.open&&form.dataset.sheet==="offer")setTimeout(openOfferSheet,60)});break;
     case"planall":{const days=viewDays(),l0=teplannen(parse(days[days.length-1])<today()?today():parse(days[days.length-1])),l=state.pkaart&&state.ksel.size?l0.filter(k=>state.ksel.has(k.id)):l0;t.disabled=true;runSeq(l,k=>save("klanten",k.id,{...strip(k),gepland:iso(sugDate(k,days))}),plural(l.length,"klant","klanten")+" ingepland op hun vervaldag");break}
     case"offersheet":openOfferSheet();break;
+    case"kklogmeer":case"kklogmin":{state.kkLogN=a==="kklogmeer"?(state.kkLogN||5)+10:5;const kid=state._kkLast,y=dlg.scrollTop;if(kid){openKlantView(kid);requestAnimationFrame(()=>dlg.scrollTop=y)}break}
     case"naarofferlijst":{const m=document.getElementById("mobOffer");if(m)m.scrollIntoView({behavior:"smooth",block:"start"});else openOfferSheet();break}
     case"advtgl":ADV.open=!ADV.open;advSave();reOffer();break;
     case"osort":ADV.sort=t.dataset.v;advSave();reOffer();break;

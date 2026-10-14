@@ -3253,3 +3253,17 @@ dialog .kp{overflow-wrap:anywhere}
 .hx-snel .hx-chip{max-width:100%;white-space:normal;text-align:left}
 @media (max-width:640px){#dlg{overflow-x:hidden}#dlg form{max-width:100vw;overflow-x:hidden}}
 @media (max-width:640px){.kp-h .btn,.kp-h button.small,.kp-h .primary{white-space:nowrap;flex:none}.kp-h>b{min-width:0}.kd-log button,.kp form button,.kp .row>button{white-space:nowrap}}
+
+/* logboek in de klantkaart: smalle regels, openklappen met het oogje */
+.lgb{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.lgb-r{border-top:1px solid var(--line)}.lgb-r:first-child{border-top:0}
+.lgb-r summary{list-style:none;display:flex;align-items:center;gap:10px;padding:9px 12px;cursor:pointer;font-size:13.5px;min-width:0}
+.lgb-r summary::-webkit-details-marker{display:none}
+.lgb-r summary:hover{background:var(--surface-2)}
+.lgb-d{font-family:var(--f-mono);font-size:12px;color:var(--muted);white-space:nowrap;flex:none;display:flex;flex-direction:column;line-height:1.2}.lgb-d i{font-style:normal;font-size:10.5px;opacity:.8}
+.lgb-s{flex:none;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--brand-soft);color:var(--brand)}.lgb-s.n{background:var(--surface-2);color:var(--muted)}
+.lgb-t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lgb-oog{flex:none;width:28px;height:28px;border-radius:8px;display:grid;place-items:center;color:var(--brand)}.lgb-oog svg{width:16px;height:16px}
+.lgb-r[open] .lgb-oog{background:var(--brand-soft)}
+.lgb-r[open] summary{background:var(--surface-2)}
+.lgb-x{padding:10px 14px 12px;font-size:13.5px;line-height:1.55;white-space:pre-line;background:var(--surface-2);color:var(--ink);max-height:320px;overflow:auto;border-top:1px dashed var(--line)}

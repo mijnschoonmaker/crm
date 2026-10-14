@@ -3681,6 +3681,20 @@ dialog .kp{overflow-wrap:anywhere}
 @media (max-width:640px){#dlg{overflow-x:hidden}#dlg form{max-width:100vw;overflow-x:hidden}}
 @media (max-width:640px){.kp-h .btn,.kp-h button.small,.kp-h .primary{white-space:nowrap;flex:none}.kp-h>b{min-width:0}.kd-log button,.kp form button,.kp .row>button{white-space:nowrap}}
 
+/* logboek in de klantkaart: smalle regels, openklappen met het oogje */
+.lgb{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.lgb-r{border-top:1px solid var(--line)}.lgb-r:first-child{border-top:0}
+.lgb-r summary{list-style:none;display:flex;align-items:center;gap:10px;padding:9px 12px;cursor:pointer;font-size:13.5px;min-width:0}
+.lgb-r summary::-webkit-details-marker{display:none}
+.lgb-r summary:hover{background:var(--surface-2)}
+.lgb-d{font-family:var(--f-mono);font-size:12px;color:var(--muted);white-space:nowrap;flex:none;display:flex;flex-direction:column;line-height:1.2}.lgb-d i{font-style:normal;font-size:10.5px;opacity:.8}
+.lgb-s{flex:none;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--brand-soft);color:var(--brand)}.lgb-s.n{background:var(--surface-2);color:var(--muted)}
+.lgb-t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lgb-oog{flex:none;width:28px;height:28px;border-radius:8px;display:grid;place-items:center;color:var(--brand)}.lgb-oog svg{width:16px;height:16px}
+.lgb-r[open] .lgb-oog{background:var(--brand-soft)}
+.lgb-r[open] summary{background:var(--surface-2)}
+.lgb-x{padding:10px 14px 12px;font-size:13.5px;line-height:1.55;white-space:pre-line;background:var(--surface-2);color:var(--ink);max-height:320px;overflow:auto;border-top:1px dashed var(--line)}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -9371,7 +9385,13 @@ function openKlantView(id,opt={}){
         <div class="kd-ol kd-fl">${facsF.slice(fPage*PER,fPage*PER+PER).map(f=>{const st=fStatus(f);return `<div class="kd-or" data-act="factuur" data-id="${esc(f.id)}" tabindex="0" role="button"><div class="kd-dt"><b>${parse(f.datum).getDate()}</b><small>${esc(parse(f.datum).toLocaleDateString("nl-NL",{month:"short"}).replace(".",""))}</small></div><div class="kd-or-m"><div class="kd-or-t"><b class="mono">${esc(f.nummer)}</b></div><small>${esc([k.adres,k.plaats].filter(Boolean).join(", "))}</small><div class="kd-or-p"><span class="pill ${st[0]}">${st[1]}</span>${st[1]==="Betaald"&&f.betaaldOp?`<span class="pill neutral">op ${esc(fmtD(f.betaaldOp))}</span>`:""}</div></div><div class="kd-or-r"><b class="mono">${eur(totals(f).inc)}</b><span class="kd-oo">${state.dl?`<button type="button" class="iconbtn sm" data-act="pdf" data-id="${esc(f.id)}" title="PDF downloaden" aria-label="PDF downloaden">${I.dl}</button>`:""}<button type="button" class="iconbtn sm" data-act="factuur" data-id="${esc(f.id)}" title="Factuur openen" aria-label="Factuur openen">${I.pencil}</button></span></div></div>`}).join("")||`<p class="subt" style="margin:0">Geen facturen gevonden</p>`}</div>
         <div class="kd-pg"><small class="subt">Resultaten ${facsF.length?fPage*PER+1:0} t/m ${Math.min(facsF.length,fPage*PER+PER)} van ${facsF.length}</small><span class="sp"></span>${fpages>1?`<button type="button" class="small" data-kk="fp" data-n="-1" ${fPage?"":"disabled"}>${I.left}Vorige</button>${[...Array(fpages)].map((_,n)=>n<2||n>fpages-3||Math.abs(n-fPage)<2?`<button type="button" class="small kd-pn${n===fPage?" on":""}" data-kk="fpn" data-n="${n}">${n+1}</button>`:n===2||n===fpages-3?'<span class="subt">…</span>':"").join("")}<button type="button" class="small" data-kk="fp" data-n="1" ${fPage<fpages-1?"":"disabled"}>Volgende${I.right}</button>`:""}</div>`:'<p class="subt" style="margin:0">Nog geen facturen. Na elke afgemelde beurt komt hier vanzelf een factuur.</p>'}</section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.chat}</span><b>Logboek</b></div>
-      <div class="log">${[...(k.log||[]).map(l=>({d:l.datum,t:l.tekst,s:"Notitie"})),...msgs.map(m=>({d:String(m.op).slice(0,10),t:m.onderwerp||m.tekst,s:KANAAL[m.kanaal]||m.kanaal}))].sort((a,b)=>String(b.d).localeCompare(String(a.d))).slice(0,20).map(l=>`<div><span>${fmtD(l.d)} · ${esc(l.s)}</span>${esc(l.t)}</div>`).join("")||'<div style="color:var(--muted)">Er zijn geen logboekregels.</div>'}</div>
+      ${(()=>{/* logboek: smalle regels (datum, soort, korte omschrijving); met het oogje klap je de volledige tekst open */
+        const kort=t=>{const r=String(t||"").split(/\n+/).map(x=>x.trim()).filter(x=>x&&!/^(beste|hallo|hoi|geachte)\b/i.test(x)&&!/^met vriendelijke groet/i.test(x));return r[0]||String(t||"").trim()};
+        const L=[...(k.log||[]).map(l=>({d:l.datum,u:"",t:l.tekst,s:"Notitie"})),...msgs.map(m=>({d:String(m.op).slice(0,10),u:String(m.op).slice(11,16),o:m.onderwerp||"",t:m.tekst||m.onderwerp||"",s:KANAAL[m.kanaal]||m.kanaal}))].sort((a,b)=>String(b.d+b.u).localeCompare(String(a.d+a.u)));
+        if(!L.length)return '<p class="subt" style="margin:0">Er zijn geen logboekregels.</p>';
+        const N=state.kkLogN||5;
+        return `<div class="lgb">${L.slice(0,N).map(l=>{const sum=l.o||kort(l.t),meer=String(l.t||"").trim()&&String(l.t).trim()!==sum;return `<details class="lgb-r"><summary><span class="lgb-d">${esc(fmtD(l.d))}${l.u?`<i>${esc(l.u)}</i>`:""}</span><span class="lgb-s ${l.s==="Notitie"?"n":""}">${esc(l.s)}</span><span class="lgb-t">${esc(sum)}</span>${meer?`<span class="lgb-oog" aria-label="Volledig bekijken">${I.eye}</span>`:""}</summary>${meer?`<div class="lgb-x">${esc(l.t)}</div>`:""}</details>`}).join("")}</div>
+          ${L.length>N?`<button type="button" class="small ghost" data-act="kklogmeer" style="align-self:flex-start">Meer tonen (${L.length-N})</button>`:N>5?`<button type="button" class="small ghost" data-act="kklogmin" style="align-self:flex-start">Minder tonen</button>`:""}`})()}
       <div style="display:flex;gap:8px"><input id="kd-log" placeholder="Bijv. gebeld, komt dinsdag beter uit" style="min-width:0;flex:1"><button type="button" class="small" id="kdLog" style="white-space:nowrap;flex:none">Noteer</button></div></section>
   </div></div>`,{xwide:true});
   form.dataset.kk=k.id;
@@ -11194,6 +11214,7 @@ document.addEventListener("click",e=>{
     case"planop":t.disabled=true;moveTo(id,t.dataset.d||"",t.dataset.t).then(()=>{if(dlg.open&&form.dataset.sheet==="offer")setTimeout(openOfferSheet,60)});break;
     case"planall":{const days=viewDays(),l0=teplannen(parse(days[days.length-1])<today()?today():parse(days[days.length-1])),l=state.pkaart&&state.ksel.size?l0.filter(k=>state.ksel.has(k.id)):l0;t.disabled=true;runSeq(l,k=>save("klanten",k.id,{...strip(k),gepland:iso(sugDate(k,days))}),plural(l.length,"klant","klanten")+" ingepland op hun vervaldag");break}
     case"offersheet":openOfferSheet();break;
+    case"kklogmeer":case"kklogmin":{state.kkLogN=a==="kklogmeer"?(state.kkLogN||5)+10:5;const kid=state._kkLast,y=dlg.scrollTop;if(kid){openKlantView(kid);requestAnimationFrame(()=>dlg.scrollTop=y)}break}
     case"naarofferlijst":{const m=document.getElementById("mobOffer");if(m)m.scrollIntoView({behavior:"smooth",block:"start"});else openOfferSheet();break}
     case"advtgl":ADV.open=!ADV.open;advSave();reOffer();break;
     case"osort":ADV.sort=t.dataset.v;advSave();reOffer();break;
