@@ -3851,6 +3851,33 @@ dialog .kp{overflow-wrap:anywhere}
 .wg-eb{margin:4px 2px -4px}
 .wg-chips button{font-family:var(--f-mono);font-size:11.5px;padding:3px 7px;border-radius:7px;background:var(--brand-soft);color:var(--brand);font-weight:500;border:0;cursor:pointer;min-height:0}.wg-chips button:hover{background:color-mix(in srgb,var(--brand) 20%,var(--surface))}.wg-chips.uit button{background:var(--surface-2);color:var(--muted);text-decoration:line-through}
 
+/* werkdag: rustiger, in huisstijl */
+.wd-bar{height:10px!important;border-radius:6px!important;background:var(--surface-2)!important}
+.wd-bar .f{background:#137a8a!important}.wd-bar .r{background:#8fcbd5!important}.wd-bar .p{background:#c9d3d7!important}
+.wd-leg .f{background:#137a8a!important}.wd-leg .r{background:#8fcbd5!important}.wd-leg .p{background:#c9d3d7!important}
+.wd-aan .wd-bar{background:rgb(255 255 255 / .16)!important}.wd-aan .wd-bar .f,.wd-aan .wd-leg .f{background:#fff!important}.wd-aan .wd-bar .r,.wd-aan .wd-leg .r{background:#8fdbe6!important}.wd-aan .wd-bar .p,.wd-aan .wd-leg .p{background:rgb(255 255 255 / .4)!important}
+.wd-klaar{gap:14px;padding:18px}
+.wd-klaar .wd-h{flex-wrap:nowrap}
+.wd-klaar .wd-m{min-width:0}
+.wd-eb{font-size:11px!important;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)!important;margin:0 0 2px!important}
+.wd-dur{font-size:24px!important;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1.1}
+.wd-her{margin-left:auto!important;flex:none;display:inline-flex;align-items:center;gap:6px;color:var(--muted)}.wd-her svg{width:15px;height:15px}
+.wd-tl{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:var(--surface-2)}
+.wd-tl span{display:flex;flex-direction:column;gap:1px}.wd-tl span:last-child{text-align:right}
+.wd-tl small{font-size:11.5px;color:var(--muted)}.wd-tl b{font-family:var(--f-mono);font-size:16px;font-weight:600;color:var(--ink)}
+.wd-tl i{flex:1;height:2px;border-radius:2px;background:repeating-linear-gradient(90deg,var(--brand) 0 6px,transparent 6px 11px);opacity:.45}
+.wd-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.wd-3>div{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:8px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:14px}
+.wd-3 i{grid-row:1/3;width:8px;height:28px;border-radius:4px}.wd-3 .f{background:#137a8a}.wd-3 .r{background:#8fcbd5}.wd-3 .p{background:#c9d3d7}
+.wd-3 small{font-size:11.5px;color:var(--muted)}.wd-3 b{font-family:var(--f-mono);font-size:14.5px;font-weight:600}.wd-3 em{display:none}
+.wd-klaar .wd-kpi{grid-template-columns:1.3fr 1fr 1fr}
+.wd-klaar .wd-kpi>div{background:var(--surface-2);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.wd-klaar .wd-kpi small{font-size:11.5px;color:var(--muted)}.wd-klaar .wd-kpi b{font-family:var(--f-mono);font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}
+.wd-klaar .wd-kpi .hoofd{background:var(--brand-soft)}.wd-klaar .wd-kpi .hoofd b{font-size:20px;color:var(--brand)}.wd-klaar .wd-kpi em{font-style:normal;font-size:11.5px;color:var(--muted)}
+.wd-tips{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:12px;background:var(--surface-2);color:var(--muted);font-size:12.5px;line-height:1.45}
+.wd-tips svg{width:16px;height:16px;flex:none;margin-top:1px}.wd-tips p{margin:0}
+@media (max-width:640px){.wd-klaar .wd-kpi{grid-template-columns:1fr 1fr}.wd-klaar .wd-kpi .hoofd{grid-column:1/-1}.wd-3>div{padding:8px 10px;column-gap:6px}.wd-3 b{font-size:13.5px}.wd-her span{display:none}}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -10796,9 +10823,13 @@ function werkdagKaart(d,isT,total){const c=wdCijfers(d),w=c.w,inP=(w.pauzes||[])
   const balk=c.netto>0?`<div class="wd-bar" role="img" aria-label="Verdeling van je werktijd"><i class="f" style="flex:${c.fact}"></i><i class="r" style="flex:${c.reis}"></i>${c.pauze?`<i class="p" style="flex:${c.pauze}"></i>`:""}</div>
     <div class="wd-leg"><span><i class="f"></i>Bij klanten <b>${wdU(c.fact)}</b></span><span><i class="r"></i>Reistijd <b>${wdU(c.reis)}</b></span><span><i class="p"></i>Pauze <b>${wdU(c.pauze)}</b></span></div>`:"";
   if(!w.start)return `<section class="wd wd-0"><span class="wd-ic">${I.truck||I.route}</span><div class="wd-m"><b>Klaar om te vertrekken?</b><small>Tik bij vertrek bij de loods op start. Dan zie je vanavond je reistijd, pauzes en wat je echt per uur verdient.</small></div><button type="button" class="primary" data-act="wdstart">${I.play||I.clock}Start werkdag</button></section>`;
-  if(w.stop)return `<section class="wd wd-klaar"><div class="wd-h"><span class="wd-ic">${I.check}</span><div class="wd-m"><b>Werkdag afgerond · ${wdU(c.totaal)}</b><small>${wdT(w.start)} vertrek loods · ${wdT(w.stop)} terug bij de loods</small></div>${isT?`<button type="button" class="small ghost" data-act="wdheropen">Heropenen</button>`:""}</div>
-    ${balk}<div class="wd-kpi"><div><small>Facturabel</small><b>${wdU(c.fact)}</b></div><div><small>Omzet ex btw</small><b>${eur(c.omzet)}</b></div><div><small>Per gewerkt uur</small><b>${c.perUur?eur(c.perUur):"–"}</b></div><div><small>Per facturabel uur</small><b>${c.perFact?eur(c.perFact):"–"}</b></div></div>
-    ${c.n&&c.gemeten<c.n?`<p class="wd-tip">${plural(c.n-c.gemeten,"stop is","stops zijn")} afgemeld zonder op start te drukken; daar is de geplande duur gebruikt.</p>`:""}${c.buiten?`<p class="wd-tip">${plural(c.buiten,"stop is","stops zijn")} buiten deze werkdag afgemeld en ${c.buiten===1?"telt":"tellen"} hier niet mee.</p>`:""}${c.fact>c.netto+1?`<p class="wd-tip">De tijd bij klanten is langer dan je werkdag; controleer of je op tijd op Start werkdag hebt gedrukt.</p>`:""}</section>`;
+  if(w.stop){const pct=v=>c.netto>0?Math.round(v/c.netto*100):0,tips=[c.n&&c.gemeten<c.n?`${plural(c.n-c.gemeten,"stop is","stops zijn")} afgemeld zonder op Start te drukken; daar telt de geplande duur.`:"",c.buiten?`${plural(c.buiten,"stop is","stops zijn")} buiten deze werkdag afgemeld en ${c.buiten===1?"telt":"tellen"} hier niet mee.`:"",c.fact>c.netto+1?"De tijd bij klanten is langer dan je werkdag. Controleer of je op tijd op Start werkdag drukte.":""].filter(Boolean);
+    return `<section class="wd wd-klaar"><div class="wd-h"><span class="wd-ic">${I.check}</span><div class="wd-m"><small class="wd-eb">Werkdag afgerond</small><b class="wd-dur">${wdU(c.totaal)}</b></div>${isT?`<button type="button" class="small ghost wd-her" data-act="wdheropen" title="Werkdag heropenen">${I.refresh||""}<span>Heropenen</span></button>`:""}</div>
+    <div class="wd-tl"><span><small>Vertrek loods</small><b>${wdT(w.start)}</b></span><i></i><span><small>Terug bij de loods</small><b>${wdT(w.stop)}</b></span></div>
+    ${c.netto>0?`<div class="wd-bar" role="img" aria-label="Verdeling van je werktijd">${c.fact?`<i class="f" style="flex:${c.fact}"></i>`:""}${c.reis?`<i class="r" style="flex:${c.reis}"></i>`:""}${c.pauze?`<i class="p" style="flex:${c.pauze}"></i>`:""}</div>
+    <div class="wd-3"><div><i class="f"></i><small>Bij klanten</small><b>${wdU(c.fact)}</b><em>${pct(c.fact)}%</em></div><div><i class="r"></i><small>Reistijd</small><b>${wdU(c.reis)}</b><em>${pct(c.reis)}%</em></div><div><i class="p"></i><small>Pauze</small><b>${wdU(c.pauze)}</b><em>${pct(c.pauze)}%</em></div></div>`:""}
+    <div class="wd-kpi"><div class="hoofd"><small>Omzet ex btw</small><b>${eur(c.omzet)}</b><em>${plural(c.n,"stop","stops")}</em></div><div><small>Per gewerkt uur</small><b>${c.perUur?eur(c.perUur):"–"}</b></div><div><small>Per facturabel uur</small><b>${c.perFact?eur(c.perFact):"–"}</b></div></div>
+    ${tips.length?`<div class="wd-tips">${I.info||I.alert}<div>${tips.map(t=>`<p>${t}</p>`).join("")}</div></div>`:""}</section>`}
   const pz=(w.pauzes||[]).find(p=>!p.tot);
   return `<section class="wd wd-aan${inP?" wd-pz":""}"><div class="wd-h"><span class="wd-ic">${inP?(I.coffee||I.clock):(I.truck||I.route)}</span><div class="wd-m"><b>${inP?"Pauze":"Onderweg"} <span class="wd-tm" data-wdsince="${esc(inP?pz.van:w.start)}">${wdU(wdMin(inP?pz.van:w.start,wdNu()))}</span></b><small>Vertrokken om ${wdT(w.start)}${c.pauze?` · ${wdU(c.pauze)} pauze`:""} · ${plural(c.n,"stop","stops")} klaar${total?` van ${total}`:""}</small></div></div>
     ${balk}<div class="wd-k">${inP?`<button type="button" class="primary" data-act="wdpauze">${I.play||I.check}Pauze voorbij</button>`:`<button type="button" data-act="wdpauze">${I.coffee||I.clock}Pauze</button><button type="button" class="primary" data-act="wdstop">${I.home||I.check}Terug bij de loods</button>`}</div></section>`}
