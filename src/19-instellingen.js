@@ -430,7 +430,7 @@ function kleinLogo(url){return new Promise(res=>{const im=new Image();im.onload=
 function webCalcVoorbeeld(html,titel){webCalcVoorbeeld._recent=webCalcVoorbeeld._recent||new Set();
   const o=document.createElement("dialog");o.className="wcv-ov";
   o.innerHTML=`<div class="wcv"><div class="wcv-h"><span class="objic">${I.globe||I.eye}</span><div style="min-width:0;flex:1"><b>${titel||"Website-calculator"}</b><small>Zo zien klanten ${titel?"je website":"hem op je website"}. Je kunt hem hier gewoon gebruiken.</small></div>
-    <div class="seg wcv-seg"><button type="button" data-w="tel" class="${titel?"":"sel"}">Telefoon</button><button type="button" data-w="pc" class="${titel?"sel":""}">Computer</button></div>
+    <div class="seg wcv-seg"><button type="button" data-w="tel" class="${titel?"":"sel"}">Telefoon</button><button type="button" data-w="tab">Tablet</button><button type="button" data-w="pc" class="${titel?"sel":""}">Computer</button></div>
     <button type="button" class="iconbtn" data-wclose aria-label="Sluiten">${I.x}</button></div>
     <div class="wcv-b"><iframe class="wcv-f ${titel?"pc":"tel"}" title="Website-calculator" allow="camera; clipboard-write"></iframe></div></div>`;
   const f=o.querySelector("iframe");f.srcdoc=String(html).replace(/<head([^>]*)>/i,m=>m+"<script>window.ZEEM_CRM=1<\/script>");

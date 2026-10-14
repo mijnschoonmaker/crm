@@ -23,7 +23,7 @@ const WEB_CSS=`
 .ms .nav{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid transparent}
 .ms .nav .in{display:flex;align-items:center;gap:22px;height:72px}
 .ms .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;letter-spacing:-.02em}.ms .logo img{height:38px;width:auto}
-.ms .lk{display:flex;gap:22px;margin-left:auto;font-weight:700;font-size:14.5px;color:var(--muted)}.ms .lk a:hover{color:var(--ink)}
+.ms .lk{display:flex;gap:22px;margin-left:auto;font-weight:700;font-size:14.5px;color:var(--muted)}.ms .lk a:hover{color:var(--ink)}.ms .lk .lk-p{display:none}.ms #msm:checked~.nav .lk .lk-p{display:block;color:var(--b2)}
 .ms .nav .knop{height:44px;padding:0 18px;font-size:14.5px;border-radius:13px}
 .ms .nav .portaal{font-weight:700;font-size:14.5px;color:var(--b2);display:flex;align-items:center;gap:6px}.ms .nav .portaal svg{width:17px}
 .ms #msm{display:none}.ms .hb{display:none;margin-left:auto;width:44px;height:44px;border-radius:12px;background:#fff;box-shadow:0 4px 12px -6px rgb(0 0 0 / .3);align-items:center;justify-content:center;cursor:pointer}.ms .hb svg{width:22px}
@@ -121,11 +121,13 @@ const WEB_CSS=`
 .ms .ck a>div{min-width:0;flex:1;overflow-wrap:anywhere;word-break:break-word}
 .ms h1,.ms h2,.ms h3,.ms p,.ms .lead{overflow-wrap:break-word}
 @media (prefers-reduced-motion:reduce){.ms *{animation:none!important}}
-@media (max-width:980px){.ms .lk,.ms .nav .portaal{display:none}.ms .route{grid-template-columns:repeat(2,minmax(0,1fr))}.ms .route::before{display:none}.ms .tegels{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:980px){.ms .lk,.ms .nav .portaal{display:none}.ms .hb{display:flex;margin-left:0}.ms .nav .knop{margin-left:auto}
+  .ms #msm:checked~.nav .lk{display:flex;position:absolute;top:64px;left:16px;right:16px;flex-direction:column;gap:0;background:#fff;border-radius:18px;padding:8px;box-shadow:0 20px 40px -20px rgb(0 0 0 / .4)}
+  .ms #msm:checked~.nav .lk a{padding:12px 14px;color:var(--ink)}.ms .route{grid-template-columns:repeat(2,minmax(0,1fr))}.ms .route::before{display:none}.ms .tegels{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:760px){
   .ms .route,.ms .tegels,.ms .duo,.ms .zak,.ms .contact{grid-template-columns:minmax(0,1fr)!important}
   .ms .hero .blauw{grid-template-columns:minmax(0,1fr)!important}
-  .ms .nav .in{height:64px}.ms .nav .knop{display:none}.ms .hb{display:flex}
+  .ms .nav .in{height:64px}.ms .nav .knop{display:none}.ms .hb{display:flex;margin-left:auto}
   .ms #msm:checked~.nav .lk{display:flex;position:absolute;top:64px;left:16px;right:16px;flex-direction:column;gap:0;background:#fff;border-radius:18px;padding:8px;box-shadow:0 20px 40px -20px rgb(0 0 0 / .4)}
   .ms #msm:checked~.nav .lk a{padding:12px 14px;color:var(--ink)}
   .ms .hero .blauw{grid-template-columns:1fr;padding:34px 22px 110px;border-radius:26px}
@@ -167,7 +169,7 @@ function websiteBody(o){const e=esc,IC={
     ["Doen jullie ook bedrijven en VvE's?","Zeker. Kies in de calculator voor Bedrijf / VvE en laat uw gegevens achter; wij nemen snel contact met u op voor een prijs op maat."]];
   return `<input type="checkbox" id="msm" hidden>
 <header class="nav"><div class="in"><a class="logo" href="#top">${logo}</a>
-  <nav class="lk"><a href="#werkwijze">Werkwijze</a><a href="#voordelen">Voordelen</a><a href="#prijs">Prijs berekenen</a><a href="#vragen">Vragen</a><a href="#contact">Contact</a></nav>
+  <nav class="lk"><a href="#werkwijze">Werkwijze</a><a href="#voordelen">Voordelen</a><a href="#prijs">Prijs berekenen</a><a href="#vragen">Vragen</a><a href="#contact">Contact</a>${portaal?`<a class="lk-p" href="${e(portaal)}">Mijn portaal</a>`:""}</nav>
   ${portaal?`<a class="portaal" href="${e(portaal)}">${IC.user}Mijn portaal</a>`:""}<a class="knop k-teal" href="#prijs">Bereken uw prijs</a>
   <label class="hb" for="msm" aria-label="Menu">${IC.menu}</label></div></header>
 <section class="hero" id="top"><div class="in"><div class="blauw">

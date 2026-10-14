@@ -1320,7 +1320,7 @@ button.danger-bg{background:var(--late)!important;border-color:var(--late)!impor
 .wcv-seg button.sel{background:var(--surface,#fff);box-shadow:0 1px 3px rgba(0,0,0,.08);font-weight:600}
 .wcv-b{flex:1;overflow:auto;display:flex;justify-content:center;padding:16px}
 .wcv-f{border:0;background:#fff;height:100%;min-height:600px;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.08)}
-.wcv-f.tel{width:400px;max-width:100%}.wcv-f.pc{width:100%}
+.wcv-f.tel{width:400px;max-width:100%}.wcv-f.tab{width:820px;max-width:100%}.wcv-f.pc{width:100%}
 @media (max-width:600px){.wcv-ov{padding:0}.wcv{border-radius:0;height:100%}.wcv-seg{display:none}.wcv-b{padding:0}.wcv-f{border-radius:0;width:100%!important}.wcv-h small{display:none}}
 .obt{border:1px solid color-mix(in srgb,#137a8a 30%,var(--line));background:color-mix(in srgb,#137a8a 6%,var(--surface));border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:7px;text-align:left}
 .obt.klaar{border-color:var(--line);background:var(--surface-2)}
