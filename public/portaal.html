@@ -690,6 +690,33 @@ html,body{background:var(--bg)!important}
 @media (max-width:1100px){.rf-vis{display:block!important;height:150px!important;margin-top:6px}.rfc{width:200px}.rfc.k1{right:6px;top:0}.rfc.k2{left:6px;bottom:0}}
 @media (max-width:420px){.rfc{width:176px}.rfc b{font-size:30px}.rfc small{margin-top:8px}}
 .rs-h{width:84px}.rs-h small{white-space:normal;line-height:1.25;max-width:84px}@media (max-width:420px){.rfc.k2 .rfc-body>span{display:none}}
+/* zo werkt het: route met stappen */
+.rr{padding:18px 20px;border-radius:22px;background:var(--surface);border:1px solid var(--line);box-shadow:0 1px 2px rgb(15 31 38 / .04),0 14px 30px -24px rgb(15 50 60 / .35)}
+.rr-k{margin-bottom:16px}.rr-k b{display:block;font-size:16.5px;font-weight:700}.rr-k small{font-size:13px;color:var(--muted)}
+.rr-ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;position:relative}
+.rr-ol::before{content:"";position:absolute;left:12%;right:12%;top:30px;border-top:3px dashed color-mix(in srgb,var(--brand) 30%,var(--line))}
+.rr-ol li{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;animation:rsOp .5s cubic-bezier(.2,1.4,.4,1) both;animation-delay:calc(var(--i)*90ms)}
+.rr-ic{width:60px;height:60px;border-radius:18px;display:grid;place-items:center;background:var(--surface-2);color:var(--muted);border:2px solid var(--surface);box-shadow:0 0 0 1px var(--line)}
+.rr-ic svg{width:26px;height:26px}.rr-ic.bus svg{width:44px;height:28px}
+.rr-ol li.on .rr-ic{background:radial-gradient(120% 160% at 100% 0%,#2aa3b3 0%,transparent 55%),linear-gradient(135deg,#0f5f6e,#137a8a 55%,#1d5a74);color:#fff;box-shadow:0 10px 20px -12px rgb(15 70 85 / .8)}
+.rr-ol li:last-child.on .rr-ic{background:linear-gradient(135deg,#2bb673,#1f8f5c)}
+.rr-ol li.nu .rr-ic{box-shadow:0 0 0 4px var(--brand-soft),0 10px 20px -12px rgb(15 70 85 / .8);animation:rrPuls 2s ease-in-out infinite}
+@keyframes rrPuls{50%{box-shadow:0 0 0 9px color-mix(in srgb,var(--brand) 8%,transparent),0 10px 20px -12px rgb(15 70 85 / .8)}}
+.rr-tx b{display:flex;align-items:center;justify-content:center;gap:6px;font-size:14px;font-weight:700}.rr-tx b em{font-style:normal;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:10.5px;background:var(--surface-2);color:var(--muted)}
+.rr-ol li.on .rr-tx b em{background:var(--brand);color:#fff}
+.rr-tx small{display:block;font-size:12.5px;color:var(--muted);line-height:1.4;margin-top:3px}
+@media (max-width:640px){.rr-ol{grid-template-columns:1fr;gap:14px}.rr-ol::before{left:29px;right:auto;top:30px;bottom:30px;border-top:0;border-left:3px dashed color-mix(in srgb,var(--brand) 30%,var(--line))}.rr-ol li{flex-direction:row;text-align:left;align-items:center;gap:14px}.rr-tx b{justify-content:flex-start}}
+/* aanbeveling als pakket-tracker */
+.rt-r{padding:14px 16px 18px;border-top:1px solid var(--line)}.rt-r:first-child{border-top:0}
+.rt-h{display:flex;align-items:center;gap:12px}.rt-h .rf-rt{flex:1;min-width:0}
+.rt-trk{position:relative;height:40px;margin:14px 26px 4px}
+.rt-lijn{position:absolute;left:0;right:0;top:7px;height:4px;border-radius:4px;background:var(--surface-2)}.rt-lijn i{position:absolute;left:0;top:0;bottom:0;width:calc(var(--p)*100%);border-radius:4px;background:linear-gradient(90deg,var(--brand),#2bb673)}
+.rt-d{position:absolute;top:0;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px}
+.rt-d i{width:18px;height:18px;border-radius:50%;background:var(--surface);border:2px solid var(--line)}
+.rt-d.on i{background:var(--brand);border-color:var(--brand);box-shadow:0 0 0 4px var(--brand-soft)}
+.rt-d:last-child.on i{background:#22a46c;border-color:#22a46c;box-shadow:0 0 0 4px rgb(34 164 108 / .15)}
+.rt-d small{font-size:11px;color:var(--muted);white-space:nowrap;font-weight:600}.rt-d.on small{color:var(--ink)}
+.rt-trk.stop{opacity:.5;filter:grayscale(1)}
 </style></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -976,11 +1003,13 @@ function aanbevelen(){const A=D.aanbevelen,R=B.refBeloning,W=B.refWelkom;
       const verdiend=L.filter(x=>(st[x.status]||[])[2]>=4).length;
       return `<section class="rs"><div class="rs-k"><div><b>Uw straat</b><small>${L.length?`${plural(L.length,"buur","buren")} via u${verdiend?` · ${eur0(verdiend*R)} verdiend`:""}`:"Elke buur die klant wordt, krijgt hier een huisje"}</small></div>${L.length?`<span class="rs-sc">${I.ster}${L.length}</span>`:""}</div>
         <div class="rs-straat"><div class="rs-rij"><div class="rs-h ik" style="--i:0"><span>${I.huis}</span><b>U</b><small>uw huis</small></div>${slots.join("")}</div><div class="rs-weg"></div></div></section>`})()}
-    <section class="kp rf-stappen"><div class="kp-h"><div><b>Zo werkt het</b><small>In vier stappen naar uw korting</small></div></div>
-      <ol>${stap(1,"Deel uw link","Via WhatsApp, mail of gewoon even vertellen")}${stap(2,"Zij melden zich aan","Ze berekenen hun prijs via uw link")}${stap(3,"Eerste bezoek","Na akkoord komen wij de eerste keer langs")}${stap(4,"Korting voor u",`${eur0(R)} gaat automatisch van uw volgende factuur af`)}</ol></section>
-    <section class="kp rf-lijst"><div class="kp-h"><div><b>Uw aanbevelingen</b>${A.lijst.length?`<small>${plural(A.lijst.length,"aanbeveling","aanbevelingen")}</small>`:""}</div></div>
-      ${A.lijst.length?`<div class="lijst">${A.lijst.map(x=>`<div class="rf-r"><span class="rf-av">${esc(((x.naam||"N")[0]||"N").toUpperCase())}</span><span class="rf-rt"><b>${esc(x.naam||"Nieuwe klant")}</b><small>${x.datum?esc(kort(x.datum.slice(0,10))):""}</small></span>${voortgang(x)}<span class="pill ${st[x.status][0]}"><i></i>${st[x.status][1]}</span></div>`).join("")}</div>`
-      :`<div class="rf-leeg"><div class="rf-huizen" aria-hidden="true">${I.huis}${I.huis}${I.huis}</div><b>Nog niemand aanbevolen</b><p>Uw buren zien vast al dat uw ramen blinken. Stuur ze uw link.</p><a class="rf-btn wa sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(deelTekst())}">${I.wa}Deel via WhatsApp</a></div>`}</section>
+    ${(()=>{const top=Math.max(0,...A.lijst.map(x=>(st[x.status]||[0,0,0])[2])),ic=[I.wa,I.bericht,AUTO,I.cadeau],tt=[["Deel uw link","Via WhatsApp, mail of gewoon even vertellen"],["Zij melden zich aan","Ze berekenen hun prijs via uw link"],["Eerste bezoek","Na akkoord komen wij langs"],["Korting voor u",`${eur0(R)} gaat van uw volgende factuur af`]];
+      const bereikt=i=>i===0||top>=i+1;
+      return `<section class="rr"><div class="rr-k"><b>Zo werkt het</b><small>${top?(top>=4?"Gelukt! Uw korting staat klaar":"Zo ver is uw beste aanbeveling"):"Van link tot korting in vier stappen"}</small></div>
+        <ol class="rr-ol">${tt.map(([t,d],i)=>`<li class="${bereikt(i)?"on":""}${(top?Math.min(3,top-1):0)===i?" nu":""}" style="--i:${i}"><span class="rr-ic${i===2?" bus":""}">${ic[i]}</span><span class="rr-tx"><b><em>${i+1}</em>${t}</b><small>${d}</small></span></li>`).join("")}</ol></section>`})()}
+    ${A.lijst.length?`<section class="kp rf-lijst"><div class="kp-h"><div><b>Uw aanbevelingen</b><small>${plural(A.lijst.length,"aanbeveling","aanbevelingen")}</small></div></div>
+      <div class="lijst">${A.lijst.map(x=>{const n=(st[x.status]||[0,0,0])[2];return `<div class="rt-r"><div class="rt-h"><span class="rf-av">${esc(((x.naam||"N")[0]||"N").toUpperCase())}</span><span class="rf-rt"><b>${esc(x.naam||"Nieuwe klant")}</b><small>${x.datum?esc(kort(x.datum.slice(0,10))):""}</small></span><span class="pill ${st[x.status][0]}"><i></i>${st[x.status][1]}</span></div>
+        <div class="rt-trk ${x.status==="gestopt"?"stop":""}" style="--p:${Math.max(0,n-1)/3}"><div class="rt-lijn"><i></i></div>${["Aangemeld","Akkoord","Bezoek","Korting"].map((l,i)=>`<span class="rt-d${n>=i+1?" on":""}" style="left:${i/3*100}%"><i></i><small>${l}</small></span>`).join("")}</div></div>`}).join("")}</div></section>`:""}
   </div>`}
 function deelTekst(){return `Ik laat mijn ramen wassen door ${B.naam} en ben er heel tevreden over.${B.refWelkom>0?` Met mijn link krijg je ${eur0(B.refWelkom)} korting op je eerste factuur:`:" Bereken je prijs via mijn link:"} ${D.aanbevelen.link}`}
 
