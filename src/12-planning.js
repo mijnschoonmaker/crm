@@ -58,7 +58,7 @@ function dayHead(d,showWk){
 }
 function timeGrid(days){
   if(![10,15,30].includes(state.slot))state.slot=30;
-  const slot=state.slot,H=Math.round((slot===10?28:slot===15?32:50)*state.rowH),S0=Math.floor((toMin(S().kalVan)??360)/60)*60,E0=Math.max(S0+120,Math.ceil((toMin(S().kalTot)??1200)/60)*60),n=(E0-S0)/slot;
+  const slot=state.slot,H=Math.round((slot===10?28:slot===15?32:50)*state.rowH),S0=Math.floor((toMin(S().kalVan)??360)/60)*60,E0=Math.max(S0+120,Math.ceil((toMin(S().kalTotMig?S().kalTot:(S().kalTot==="19:00"||!S().kalTot?"22:00":S().kalTot))??1320)/60)*60),n=(E0-S0)/slot;
   const nowM=new Date().getHours()*60+new Date().getMinutes();
   const items=days.map(d=>dayItems(d));
   const anyUn=items.some(it=>it.js.some(x=>toMin(x.k.tijd)==null)||it.done.some(x=>toMin(x.b.tijd)==null));
