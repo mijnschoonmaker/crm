@@ -1299,7 +1299,11 @@ function dataUrlBlob(u){const [h,d]=u.split(",");const bin=atob(d),a=new Uint8Ar
 function aanvraagCode(){const d=aanvraagData();d.fotos=d.fotos.length;const j=JSON.stringify(d);return btoa(unescape(encodeURIComponent(j))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}
 /* ---------- start: particulier/zakelijk, adres zoeken (PDOK) en werkgebied ---------- */
 let SOORT="particulier",ADR=null;
-function inWerkgebied(pc){const s=String(BEDRIJF.werkgebied||"").trim();if(!s)return true;const n=parseInt(String(pc||"").replace(/\D/g,"").slice(0,4),10);if(!n)return false;
+function wgPip(la,ln,P){let b=false;for(let i=0,j=P.length-1;i<P.length;j=i++){const yi=P[i][0],xi=P[i][1],yj=P[j][0],xj=P[j][1];if(((yi>la)!==(yj>la))&&(ln<(xj-xi)*(la-yi)/(yj-yi)+xi))b=!b}return b}
+/* werkgebieden op de kaart (uit het CRM): binnen een gebied dat bij deze soort klant hoort? null = geen gebieden of geen locatie bekend */
+function inGebied(ll,soort){const G=(BEDRIJF.gebieden||[]).filter(x=>x.s==="beide"||x.s===(soort||SOORT));if(!(BEDRIJF.gebieden||[]).length)return null;if(!G.length)return false;
+  const m=/POINT\(([-\d.]+) ([-\d.]+)\)/.exec(ll||"");if(!m)return null;return G.some(x=>wgPip(+m[2],+m[1],x.p))}
+function inWerkgebied(pc,ll){const gb=inGebied(ll);if(gb!==null)return gb;const s=String(BEDRIJF.werkgebied||"").trim();if(!s)return true;const n=parseInt(String(pc||"").replace(/\D/g,"").slice(0,4),10);if(!n)return false;
   return s.split(/[,;\s]+/).filter(Boolean).some(r=>{const m=r.match(/^(\d{4})(?:-(\d{4}))?$/);if(!m)return false;const a=+m[1],b=m[2]?+m[2]:a;return n>=Math.min(a,b)&&n<=Math.max(a,b)})}
 const IC_PIN='<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 18s6-5.4 6-10a6 6 0 1 0-12 0c0 4.6 6 10 6 10z"/><circle cx="10" cy="8" r="2.2"/></svg>';
 const IC_OK2='<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="8"/><path d="m6.5 10 2.5 2.5 4.5-5"/></svg>';
@@ -1323,6 +1327,8 @@ function zkCheck(){for(const [id,l] of [["zk-bedrijf","de naam van het bedrijf o
   if(!/^\S+@\S+\.\S+$/.test(g("zk-email").value.trim())){g("zk-email").focus();zkSay("Controleer uw e-mailadres.","bad");return false}return true}
 function zkTekst(d){const k=d.klant;return ["Contactverzoek bedrijf / VvE","",`Bedrijf / VvE: ${k.bedrijf}`,`Contactpersoon: ${k.naam}`,`E-mail: ${k.email}`,k.telefoon?`Telefoon: ${k.telefoon}`:"",k.adres?`Adres pand: ${k.adres}${k.postcode||k.plaats?", "+[k.postcode,k.plaats].filter(Boolean).join(" "):""}`:"",d.pand?`Soort pand: ${d.pand}`:"",k.opmerking?"\nVraag: "+k.opmerking:"","","Aanvraagcode voor "+BEDRIJF.naam+" (niet wijzigen):","ZEEM1:"+codeVan(d)].filter((l,i,a)=>l!==""||(i>0&&a[i-1]!=="")).join("\n").trim()}
 g("zkSend").onclick=async()=>{const b=g("zkSend");if(bezig(b)||!zkCheck())return;const d=contactData();
+  if((BEDRIJF.gebieden||[]).length&&(d.klant.postcode||d.klant.adres)){try{const r=await fetch(PDOK+"free?fq=type:adres&rows=1&fl=centroide_ll,postcode,woonplaatsnaam&q="+encodeURIComponent([d.klant.adres,d.klant.postcode,d.klant.plaats].filter(Boolean).join(" ")));const x=((await r.json()).response.docs||[])[0];
+    if(x&&inGebied(x.centroide_ll,"zakelijk")===false){zkSay("Helaas, dit adres ligt buiten ons werkgebied. Twijfelt u? Mail ons via "+(BEDRIJF.email||"e-mail")+".","bad");return}}catch(_){}}
   if(window.ZEEM_CRM){b.disabled=true;zkSay("Bezig met versturen…");let klaar=false;
     const op=e=>{const r=e.data||{};if(r.type!=="zeem-aanvraag-ok"&&r.type!=="zeem-aanvraag-fout")return;klaar=true;window.removeEventListener("message",op);b.disabled=false;
       if(r.type==="zeem-aanvraag-ok")knopKlaar(b,"Verstuurd ✓");if(r.type==="zeem-aanvraag-ok")zkSay("Bedankt! Uw contactverzoek is verstuurd. Wij nemen zo snel mogelijk contact met u op.","ok");else zkSay("Versturen lukte niet: "+(r.tekst||"probeer het opnieuw."),"bad")};
@@ -1341,7 +1347,7 @@ async function zoekAdres(q){const n=++sugN;
   catch(e){if(n!==sugN)return;handAdres=true;sugList=[];toonSug();
     msg("info",IC_PIN,"Adres zoeken lukt nu niet. Typ uw postcode en huisnummer, bijvoorbeeld <b>9861 AB 10</b>, en druk op Enter.")}}
 function msg(c,ic,html){g("adrMsg").innerHTML=c?`<div class="wz-msg ${c}">${ic}<span>${html}</span></div>`:""}
-function zetAdres(a){ADR=a;const ok=inWerkgebied(a.postcode);g("goStart").hidden=!ok;
+function zetAdres(a){ADR=a;const ok=inWerkgebied(a.postcode,a.ll);g("goStart").hidden=!ok;
   ["k-adres","k-pc","k-plaats"].forEach((id,i)=>{const el=g(id);if(el)el.value=[a.adres,a.postcode,a.plaats][i]||""});
   if(ok)msg("ok",IC_OK2,`<b>${esc(a.adres)}${a.plaats?", "+esc(a.plaats):""}</b> ligt binnen ons werkgebied.`);
   else msg("no",IC_NO,`Helaas, <b>${esc(a.postcode)}${a.plaats?" "+esc(a.plaats):""}</b> ligt buiten ons werkgebied.${BEDRIJF.email?` Twijfelt u? <a href="mailto:${esc(BEDRIJF.email)}">Mail ons</a>.`:""}`)}
