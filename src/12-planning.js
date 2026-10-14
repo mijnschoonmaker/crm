@@ -244,8 +244,21 @@ function drawPlanMail(){
   on("pmGo","onclick",async()=>{keep();if(pm.verz==="gepland")return pmKlaarzetten(sel);pmDirect(sel)});
 }
 function pmRecipients(list){return list.map(k=>({k:mailK(k,"planning"),vars:(()=>{const v=pmVars(k);if(tavK(k,"planning"))v.klant=tavK(k,"planning");return v})(),ref:"planmail:"+pm.datum+":"+k.id}))}
-function pmDirect(sel){
+async function pmDirect(sel){
   const kanaal=pm.mail?"email":(sel[0]&&sel[0].telefoon?"whatsapp":"sms");
+  /* e-mail aan: na bevestiging direct versturen, zonder tussenscherm */
+  if(pm.mail&&typeof liveMail==="function"&&liveMail()){
+    const recs=pmRecipients(sel),met=recs.filter(r=>r.k.email),zonder=recs.length-met.length;
+    if(!met.length){toast("Geen van deze klanten heeft een e-mailadres");return}
+    const ok=await vraag("Weet je zeker dat je wilt verzenden?",`De planningsmail voor <b>${esc(wd(parse(pm.datum))+" "+fmtD(pm.datum))}</b> gaat direct naar <b>${plural(met.length,"klant","klanten")}</b>.${zonder?`<br>${plural(zonder,"klant heeft","klanten hebben")} geen e-mailadres en ${zonder===1?"wordt":"worden"} overgeslagen.`:""}`,"Verzenden","Annuleren");
+    if(!ok)return;
+    const T=tpls(),sj=pm.tekst==="kennis"?"aankondiging":(pm.tpl||"vrij"),TT=T[sj]||T.vrij;
+    compose={title:"",recipients:met,sjabloon:sj,tekst:pm.smsBody||pm.body||TT.sms||"",mail:pm.body||TT.mail||"",onderwerp:pm.onderwerp||TT.onderwerp,kanaal:"email",sent:{},hint:"",groep:false,stil:true};
+    const b=$("#pmGo");let n=0,fout=0;
+    for(let i=0;i<met.length;i++){if(b){b.disabled=true;b.innerHTML=`${I.clock}Versturen… ${n}/${met.length}`}await verstuurLive(i);if(compose.sent[i]==="live")n++;else fout++}
+    toast(plural(n,"planningsmail","planningsmails")+" verstuurd"+(fout?` · ${fout} mislukt`:""));
+    if(!fout){try{dlg.close()}catch(e){}render()}else if(b){b.disabled=false;b.innerHTML=I.send+"Opnieuw proberen"}
+    return}
   openCompose({title:"Planningsmail · "+wd(parse(pm.datum))+" "+fmtD(pm.datum),recipients:pmRecipients(sel),sjabloon:pm.tekst==="kennis"?"aankondiging":(pm.tpl||"vrij"),
     tekst:pm.smsBody||pm.body||"",mail:pm.mail?pm.body:"",onderwerp:pm.onderwerp,kanaal});
 }
