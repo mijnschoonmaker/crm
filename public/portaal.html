@@ -1101,7 +1101,7 @@ function tickets(){
     ${L===null?`<div class="laden" style="min-height:160px"><div class="spin"></div></div>`
      :L.length?`${open.length?kp(I.ticket,"Lopende tickets",`<div class="lijst">${open.map(rij).join("")}</div>`,{sub:plural(open.length,"ticket","tickets")}):""}${klaar.length?kp(I.check,"Opgelost",`<div class="lijst">${klaar.map(rij).join("")}</div>`,{kl:"groen",sub:plural(klaar.length,"ticket","tickets")}):""}`
      :kp(I.ticket,"Nog geen tickets",`<p class="leeg">Heeft u een vraag of is er iets niet goed gegaan? Maak hierboven een ticket aan.</p>`,{kl:"zacht"})}</div>`}
-async function ticketsLaad(){try{const r=await api("tickets"),sig=JSON.stringify(r.tickets);if(sig===TK.lsig)return;TK.lsig=sig;TK.lijst=r.tickets;if(tab==="tickets"&&!TK.open)teken()}catch(e){if(TK.lijst===null){TK.lijst=[];if(tab==="tickets"&&!TK.open)teken()}}}
+async function ticketsLaad(){try{const r=await api("tickets"),sig=JSON.stringify(r.tickets);if(sig===TK.lsig)return;TK.lsig=sig;TK.lijst=r.tickets;if(D){const n=r.tickets.reduce((x,t)=>x+(Number(t.ongelezen)||0),0);D.tickets={...(D.tickets||{}),ongelezen:n};document.querySelectorAll('[data-tab="tickets"] .badge').forEach(b=>{if(n>0)b.textContent=n;else b.remove()})}if(tab==="tickets"&&!TK.open)teken()}catch(e){if(TK.lijst===null){TK.lijst=[];if(tab==="tickets"&&!TK.open)teken()}}}
 function ticketDetail(){const d=TK.d;
   return `<section class="chat tk" aria-label="Ticket">
     <header class="ch-h"><button class="iconbtn" data-tkterug aria-label="Terug naar tickets">${I.terug}</button><div style="min-width:0;flex:1"><b>${d?esc(d.ticket.onderwerp):"Ticket"}</b><small>${d?esc(d.ticket.nummer)+" · "+esc((TCAT[d.ticket.categorie]||TCAT.overig)[0]):"Laden…"}</small></div>${d?tPil(d.ticket.status):""}</header>
@@ -1120,7 +1120,12 @@ function tkTeken(forceer){const l=$("#chl");if(!l||!TK.d)return;
     html+=`<div class="bel ${m.van==="klant"?"ik":"team"}${m._bezig?" bezig":""}${m._fout?" fout":""}">${m.foto?`<a class="bf" href="${m.foto.startsWith("data:")?"#":"/_blob/"+esc(m.foto)}" target="_blank" rel="noopener"><img src="${m.foto.startsWith("data:")?m.foto:"/_blob/"+esc(m.foto)}" alt="Foto"></a>`:""}${m.tekst?`<div class="bb">${esc(m.tekst).replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>').replace(/\n/g,"<br>")}</div>`:""}<small>${m.van==="team"?esc(m.naam||merkNaam())+" · ":""}${tijdLbl(m.op)}${st?" · "+st:""}</small></div>`}
   if(B_.length&&B_[B_.length-1].van==="klant"&&TK.d.ticket.status!=="opgelost")html+=`<div class="tk-sys">We hebben uw bericht ontvangen en reageren zo snel mogelijk.</div>`;
   l.innerHTML=html;if(bij)l.scrollTop=l.scrollHeight}
-async function tkLaad(){if(!TK.open)return;try{const r=await api("ticket?id="+encodeURIComponent(TK.open));const sig=r.berichten.map(m=>m.id).join(",")+"|"+r.gezienTeam+"|"+r.ticket.status;
+/* ticket bekeken: teller en "nieuw antwoord" meteen weg, zonder te herladen */
+function tkGelezen(id){try{const t=(TK.lijst||[]).find(x=>x.id===id);const n=t?Number(t.ongelezen)||0:0;if(t)t.ongelezen=0;
+  if(D&&D.tickets){D.tickets.ongelezen=Math.max(0,(Number(D.tickets.ongelezen)||0)-n);if(!t)D.tickets.ongelezen=Math.max(0,D.tickets.ongelezen)}
+  const v=D&&D.tickets?D.tickets.ongelezen:0;document.querySelectorAll('[data-tab="tickets"] .badge').forEach(b=>{if(v>0)b.textContent=v;else b.remove()});
+  if(!v)document.querySelectorAll('button.melding[data-tab="tickets"]').forEach(b=>b.remove())}catch(e){}}
+async function tkLaad(){if(!TK.open)return;try{const r=await api("ticket?id="+encodeURIComponent(TK.open));tkGelezen(TK.open);const sig=r.berichten.map(m=>m.id).join(",")+"|"+r.gezienTeam+"|"+r.ticket.status;
   const lokaal=TK.d?TK.d.berichten.filter(m=>m._bezig||m._fout):[];const statusAnders=!TK.d||TK.d.ticket.status!==r.ticket.status;
   if(sig!==TK.sig||lokaal.length){TK.sig=sig;TK.d={...r,berichten:[...r.berichten,...lokaal]};if(statusAnders)teken();else tkTeken()}}catch(e){if(/niet gevonden/i.test(e.message)){TK.open="";teken()}}}
 function ticketsStart(){

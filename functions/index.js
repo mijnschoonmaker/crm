@@ -44,24 +44,35 @@ const TPL_STD = {
 async function sjabloon(sleutel) { try { const d = (await db.doc("instellingen/sjablonen").get()).data() || {}; const t = d[sleutel]; if (t && t.mail) return { onderwerp: t.onderwerp || TPL_STD[sleutel].onderwerp, mail: t.mail }; } catch (e) {} return TPL_STD[sleutel]; }
 function vulIn(tekst, v) { return String(tekst || "").replace(/\[([a-z0-9_]+)\.([a-z_]+)\]/g, (m, a, b) => { const k = a + "." + b; return v[k] != null ? String(v[k]) : m; }); }
 const htmlEsc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+/* alle mails als realistisch ticket: papier met zachte schaduw, blauwe kopband, perforatie met ronde inkepingen en een blauwe strook onderaan */
 function mailHtml(tekst, b, opts = {}) {
-  const A = (opts.ticket && opts.ticket.kleur) || b.mailAccent || b.hoofdkleur || "#137a8a", lid = b.logoMail || b.logo, logo = lid ? `<img src="${HOST() + "/_blob/" + lid}" border="0" alt="${htmlEsc(b.naam || "")}" style="max-height:${Math.min(80, Number(b.logoGrootte) || 64)}px;max-width:180px">` : `<b style="font-size:20px">${htmlEsc(b.naam || "")}</b>`;
-  const regel = r => htmlEsc(r).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, (m, t, u) => `<a href="${u}" style="color:${A};font-weight:600">${t}</a>`);
-  const paras = String(tekst).split(/\n\s*\n/).map(p => `<p style="margin:0 0 16px;line-height:1.65;font-size:15px;color:#222">${p.split("\n").map(regel).join("<br>")}</p>`).join("");
-  const knop = opts.knop ? `<div style="text-align:center;margin:8px 0 22px"><a href="${opts.knop.url}" style="display:inline-block;background:${A};color:#fff;text-decoration:none;font-weight:600;font-size:14px;line-height:1.2;padding:10px 20px;border-radius:8px">${htmlEsc(opts.knop.tekst)}</a></div>` : "";
-  if (opts.ticket) { const T = opts.ticket, BG = "#f3f5f6", gat = kant => `<td width="14" style="width:14px;padding:0;background:#fff;font-size:0;line-height:0"><div style="width:14px;height:28px;background:${BG};border-radius:${kant === "l" ? "0 14px 14px 0" : "14px 0 0 14px"}">&nbsp;</div></td>`;
-    /* hele mail als ticket: kop met nummer en stempel, tekst, perforatie met inkepingen, afscheurstrook met status */
-    return `${opts.style ? `<style>${opts.style}</style>` : ""}<div style="font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;background:${BG};padding:24px 12px"><div class="ms-tk" style="max-width:560px;margin:0 auto">
-<div style="background:#fff;border-radius:22px 22px 0 0;overflow:hidden">
-  <div style="height:8px;background:${T.kleur};background-image:linear-gradient(90deg,${T.kleur2},${T.kleur})"></div>
-  <div style="text-align:center;padding:22px 24px 4px">${logo}</div>
-  <div style="padding:14px 32px 6px">${T.kop}</div>
-  <div style="padding:10px 32px 8px">${paras}${opts.na || ""}${knop}${opts.onder ? String(opts.onder).split(/\n\s*\n/).map(p => `<p style="margin:0 0 16px;line-height:1.65;font-size:15px;color:#222">${p.split("\n").map(regel).join("<br>")}</p>`).join("") : ""}</div>
+  const BL = "#137a8a", BL2 = "#1d5a74", BG = "#eef2f3", INK = "#0f1f26", MUT = "#5d6f76";
+  const T = opts.ticket || null, A = (T && T.kleur) || BL;
+  const lid = b.logoMail || b.logo, logo = lid ? `<img src="${HOST() + "/_blob/" + lid}" border="0" alt="${htmlEsc(b.naam || "")}" style="max-height:${Math.min(72, Number(b.logoGrootte) || 56)}px;max-width:170px;display:inline-block">` : `<b style="font-size:19px;letter-spacing:-.3px;color:${INK}">${htmlEsc(b.naam || "")}</b>`;
+  const regel = r => htmlEsc(r).replace(/\*\*(.+?)\*\*/g, `<b style="color:${INK}">$1</b>`).replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, (m, t, u) => `<a href="${u}" style="color:${A};font-weight:700;text-decoration:none;border-bottom:1.5px solid ${A}55">${t}</a>`);
+  const alinea = t => String(t).split(/\n\s*\n/).filter(x => x.trim()).map(p => `<p style="margin:0 0 15px;line-height:1.65;font-size:15.5px;color:#2b3a40;letter-spacing:-.1px">${p.split("\n").map(regel).join("<br>")}</p>`).join("");
+  const knop = opts.knop ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:6px auto 22px"><tr><td style="border-radius:14px;background:${A};background-image:linear-gradient(135deg,#1590a2,${A} 55%,#11677a);box-shadow:0 10px 20px -10px rgba(15,95,110,.7)"><a href="${opts.knop.url}" style="display:inline-block;padding:13px 26px;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;letter-spacing:-.1px;border-radius:14px">${htmlEsc(opts.knop.tekst)} &rarr;</a></td></tr></table>` : "";
+  const mono = "'SF Mono',Menlo,Consolas,'Courier New',monospace";
+  const gat = kant => `<td width="15" style="width:15px;padding:0;background:#fbfcfc;font-size:0;line-height:0"><div style="width:15px;height:30px;background:${BG};border-radius:${kant === "l" ? "0 15px 15px 0" : "15px 0 0 15px"};box-shadow:inset ${kant === "l" ? "-2px" : "2px"} 0 3px rgba(15,70,85,.10)">&nbsp;</div></td>`;
+  const nr = String(opts.nummer || (T && T.nummer) || "").trim();
+  /* strook: status van het ticket, of bij gewone mails de contactgegevens */
+  const lab = "font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.72)";
+  const nl = x => htmlEsc(x);
+  const strook = T ? T.strook : `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
+    <td valign="middle" class="ms-nl" style="word-break:break-word"><div style="${lab}">${htmlEsc(b.naam || "")}</div><div style="font-size:13.5px;color:#fff;margin-top:4px;line-height:1.55">${[b.telefoon, b.email].filter(Boolean).map(nl).join("<br>")}</div></td>
+    <td valign="middle" align="right" width="78"><div style="width:72px;height:30px;margin-left:auto;background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.9) 0 2px,transparent 2px 3px,rgba(255,255,255,.9) 3px 4px,transparent 4px 7px,rgba(255,255,255,.9) 7px 9px,transparent 9px 10px,rgba(255,255,255,.9) 10px 11px,transparent 11px 14px)"></div><div style="font-family:${mono};font-size:9.5px;letter-spacing:2px;color:rgba(255,255,255,.7);margin-top:5px;text-align:right">${htmlEsc(nr || new Date().toISOString().slice(0, 10).replace(/-/g, ""))}</div></td></tr></table>`;
+  const kop = T ? T.kop : "";
+  return `<style>a[x-apple-data-detectors],.ms-nl a{color:inherit!important;text-decoration:none!important}${opts.style || ""}</style><div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:${BG};padding:26px 12px 22px;-webkit-font-smoothing:antialiased">
+<div class="ms-tk" style="max-width:560px;margin:0 auto;border-radius:22px;box-shadow:0 1px 2px rgba(15,70,85,.06),0 22px 44px -22px rgba(15,70,85,.38)">
+<div style="background:#ffffff;background-image:linear-gradient(180deg,#ffffff 0%,#fbfcfc 100%);border-radius:22px 22px 0 0;overflow:hidden">
+  <div style="height:9px;background:${BL};background-image:linear-gradient(90deg,${BL2},${BL} 60%,#2aa3b3)"></div>
+  <div style="text-align:center;padding:24px 24px ${kop ? 2 : 6}px">${logo}</div>
+  ${kop ? `<div style="padding:14px 34px 4px">${kop}</div>` : ""}
+  <div style="padding:${kop ? 12 : 16}px 34px 8px">${alinea(tekst)}${opts.na || ""}${knop}${opts.onder ? alinea(opts.onder) : ""}</div>
 </div>
-<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse"><tr>${gat("l")}<td style="background:#fff;padding:0 6px;height:28px"><div style="border-top:2px dashed #cfdadd;height:0;line-height:0;font-size:0">&nbsp;</div></td>${gat("r")}</tr></table>
-<div class="ms-str" style="background:${T.kleur};background-image:linear-gradient(135deg,${T.kleur2},${T.kleur});border-radius:0 0 22px 22px;color:#fff;padding:18px 28px 20px">${T.strook}</div>
-</div><p style="text-align:center;font-size:12px;color:#8a979c;margin:16px 0 0">${[b.naam, b.telefoon, b.email].filter(Boolean).map(htmlEsc).join(" &nbsp;·&nbsp; ")}</p></div>`; }
-  return `${opts.style ? `<style>${opts.style}</style>` : ""}<div style="font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;background:#f3f5f6;padding:24px 12px"><div style="max-width:600px;margin:0 auto;background:#fff;border-radius:18px;overflow:hidden;border-top:6px solid ${A}"><div style="text-align:center;padding:28px 24px 6px">${logo}</div><div style="padding:24px 32px 18px">${paras}${opts.na || ""}${knop}${opts.onder ? String(opts.onder).split(/\n\s*\n/).map(p => `<p style="margin:0 0 16px;line-height:1.65;font-size:15px;color:#222">${p.split("\n").map(regel).join("<br>")}</p>`).join("") : ""}</div></div><p style="text-align:center;font-size:12px;color:#8a979c;margin:16px 0 0">${[b.naam, b.telefoon, b.email].filter(Boolean).map(htmlEsc).join(" &nbsp;·&nbsp; ")}</p></div>`;
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse"><tr>${gat("l")}<td style="background:#fbfcfc;padding:0 8px;height:30px"><div style="border-top:2px dotted #c3d2d6;height:0;line-height:0;font-size:0">&nbsp;</div></td>${gat("r")}</tr></table>
+<div style="background:${BL};background-image:repeating-linear-gradient(115deg,rgba(255,255,255,.035) 0 2px,transparent 2px 22px),linear-gradient(135deg,${BL2},${BL} 60%,#1a8c9c);border-radius:0 0 22px 22px;color:#ffffff;padding:18px 30px 20px">${strook}</div>
+</div>${T ? `<p class="ms-nl" style="text-align:center;font-size:12px;color:#8a979c;margin:16px 0 0">${[b.naam, b.telefoon, b.email].filter(Boolean).map(nl).join(" &nbsp;·&nbsp; ")}</p>` : ""}</div>`;
 }
 async function bewaarPdf(buf) { const hid = crypto.randomBytes(16).toString("hex"); await bucket().file("assets/" + hid).save(Buffer.from(buf), { contentType: "application/pdf", resumable: false }); return hid; }
 /* overzicht maken + mailen; geeft { nummer, brevoId } terug */

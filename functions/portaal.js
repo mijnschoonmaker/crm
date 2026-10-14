@@ -421,14 +421,11 @@ module.exports = function maakPortaal(ctx) {
     const d = new Date(t.laatst || Date.now()), dat = d.toLocaleDateString("nl-NL", { weekday: "short", day: "numeric", month: "short", timeZone: "Europe/Amsterdam" }), tijd = d.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" });
     const laatst = String(t.laatsteTekst || "").slice(0, 300), bub = laatst && laatst !== "Ticket opgelost";
     const mono = "'SF Mono',Menlo,Consolas,'Courier New',monospace";
-    const css = `a[x-apple-data-detectors],.ms-nl a{color:inherit!important;text-decoration:none!important}
-@keyframes msIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+    const css = `@keyframes msIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
 @keyframes msStempel{0%{opacity:0;transform:rotate(-10deg) scale(2.3)}60%{opacity:1;transform:rotate(-10deg) scale(.92)}100%{opacity:.95;transform:rotate(-10deg) scale(1)}}
-@keyframes msStrook{0%,55%{transform:none}100%{transform:translateY(7px) rotate(1.2deg)}}
 @keyframes msPuls{0%,100%{opacity:1}50%{opacity:.3}}
 .ms-tk{animation:msIn .7s cubic-bezier(.2,.9,.3,1) both}
 .ms-st{display:inline-block;transform:rotate(-10deg);animation:msStempel .45s cubic-bezier(.2,1.5,.4,1) .8s both}
-${opg ? ".ms-str{animation:msStrook 1.3s cubic-bezier(.4,0,.6,1) 1.2s both;transform-origin:0 0}" : ""}
 .ms-dot{animation:msPuls 1.4s ease-in-out infinite}`;
     const stempel = opg ? `<span class="ms-st" style="display:inline-block;border:2.5px solid ${kl};color:${kl};border-radius:9px;padding:4px 11px;font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;white-space:nowrap">&#10003; Opgelost</span>`
       : `<span style="display:inline-block;background:#e3f2f4;color:${kl};border-radius:99px;padding:5px 12px;font-size:12.5px;font-weight:700;white-space:nowrap"><span class="ms-dot" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${kl};vertical-align:middle;margin:-2px 6px 0 0"></span>Nieuw antwoord</span>`;
