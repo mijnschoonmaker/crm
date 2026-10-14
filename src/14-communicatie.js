@@ -61,7 +61,7 @@ function geenAutoLinks(html){let inA=0,inS=0;
       if(mail)return `<a href="mailto:${mail}" style="color:inherit;text-decoration:none">${mail}</a>`;
       if(dom)return `<a href="https://${dom}" style="color:inherit;text-decoration:none">${dom}</a>`;
       return m.split("").join("&zwnj;")})}).join("")}
-function emailHtmlRuw({stijl,accent,kicker,titel,tekst,rich,meta,regels,totaal,knop,bank,logo,preview,portaal,portaalLive}){
+function emailHtmlRuw({stijl,accent,kicker,titel,tekst,rich,meta,regels,totaal,knop,bank,logo,preview,portaal,portaalLive,scene}){
   const s=S(),A=accent||"#111111",serif="Georgia,'Times New Roman',serif",sans="-apple-system,'Segoe UI',Helvetica,Arial,sans-serif";
   const e=x=>esc(x);
   let paras=String(tekst||"").split(/\n\s*\n/).map(p=>p.trim()).filter(Boolean);
@@ -100,7 +100,7 @@ function emailHtmlRuw({stijl,accent,kicker,titel,tekst,rich,meta,regels,totaal,k
   ${kop?`<div style="padding:16px 34px 2px">${kop}</div>`:""}
   <div style="padding:16px 34px 10px;color:#2b3a40">${tb}</div>
 </div>
-<div style="background:#fbfcfc;height:14px;line-height:14px;font-size:0">&nbsp;</div>
+${scene?`<div style="background:#fbfcfc;line-height:0;font-size:0;padding-top:4px"><img src="${e((LIVE?location.origin:"https://crm.mijnschoonmaker.com")+"/mail/"+scene+".gif")}" width="560" alt="${scene==="weg"?"Uw ramen zijn gewassen":"Wij zijn onderweg naar u"}" style="display:block;width:100%;max-width:560px;height:auto;border:0"></div>`:`<div style="background:#fbfcfc;height:14px;line-height:14px;font-size:0">&nbsp;</div>`}
 <div style="background:${BL};background-image:repeating-linear-gradient(115deg,rgba(255,255,255,.035) 0 2px,transparent 2px 22px),linear-gradient(135deg,${BL2},${BL} 60%,#1a8c9c);border-radius:0 0 22px 22px;color:#ffffff;padding:18px 30px 20px">${strook}</div>
 </div></div>`;
 }
@@ -116,6 +116,8 @@ function mailFor(sjabloon,vars,tekst,{f,stap,preview}={}){
   const _em=vars["email.customer"]||"",_pu=(LIVE?location.origin:"https://crm.mijnschoonmaker.com")+"/portaal"+(preview?(_em?"?e="+encodeURIComponent(_em):""):"?__PORTAAL_LINK__");
   /* elke mail aan een klant: kaartje met directe link naar het klantportaal (zonder inloggen); bij de aankondiging met live volgen */
   if(s.portaalKnop!==false){o.portaal=_pu;if(kind==="aankondiging")o.portaalLive=true}
+  /* busje op de lijn: onderweg naar de woning (aankondiging) of weggereden met vinkje (afkondiging) */
+  if(kind==="aankondiging")o.scene="onderweg";else if(kind==="afkondiging")o.scene="weg";
   if(kind==="review"&&s.reviewLink)o.knop={tekst:s.reviewKnop||"Review achterlaten",url:s.reviewLink};
   return emailHtml(o);
 }
