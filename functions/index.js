@@ -50,7 +50,7 @@ function mailHtml(tekst, b, opts = {}) { return geenAutoLinks(mailHtmlRuw(tekst,
 function geenAutoLinks(html){let inA=0,inS=0;
   return String(html).split(/(<[^>]+>)/).map(p=>{if(p[0]==="<"){const t=p.toLowerCase();if(/^<a[\s>]/.test(t))inA++;else if(t.startsWith("</a"))inA=Math.max(0,inA-1);else if(/^<style/.test(t))inS=1;else if(t.startsWith("</style"))inS=0;return p}
     if(inA||inS||!p.trim())return p;
-    return p.replace(/([\w.+-]+@[\w-]+(?:\.[\w-]+)+)|((?:[\w-]+\.)+(?:com|nl|be|eu|net|org|info)\b)|(\d[\d\s\-\/:.]{2,}\d)/gi,(m,mail,dom,num)=>{
+    return p.replace(/([\w.+-]+@[\w-]+(?:\.[\w-]+)+)|((?:[\w-]+\.)+(?:com|nl|be|eu|net|org|info)\b)|((?<![#&\w])\d[\d\s\-\/:.]{2,}\d(?![\d;]))/gi,(m,mail,dom,num)=>{
       if(mail)return `<a href="mailto:${mail}" style="color:inherit;text-decoration:none">${mail}</a>`;
       if(dom)return `<a href="https://${dom}" style="color:inherit;text-decoration:none">${dom}</a>`;
       return m.split("").join("&zwnj;")})}).join("")}
