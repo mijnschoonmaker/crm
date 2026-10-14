@@ -838,6 +838,9 @@ aside .logo .mk{width:52px!important;height:52px!important}
 .lg-g small{font-size:11.5px;font-weight:500;color:var(--muted);letter-spacing:0}
 .lg-g b{font-size:15px;font-weight:700;letter-spacing:-.015em;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .topbar .lg-g small{font-size:11px}.topbar .lg-g b{font-size:14px}
+
+.lg-g{display:block!important;font-size:15px!important;font-weight:500!important;letter-spacing:-.01em;color:var(--muted)!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.2}
+aside .logo{gap:16px!important}.topbar .lg-g{font-size:14px!important}
 </style></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -968,11 +971,11 @@ function teken(){
   const nav=(mob)=>TABS.filter(x=>!mob||x[0]!=="ik").map(([t,l,ic])=>`<button data-tab="${t}"${tab===t?' aria-current="true"':""}>${mob?`<i>${ic}</i>`:ic}<span>${l}</span>${t==="facturen"&&openF.length?`<em class="badge">${openF.length}</em>`:""}${t==="tickets"&&D.tickets&&D.tickets.ongelezen?`<em class="badge">${D.tickets.ongelezen}</em>`:""}</button>`).join("");
   const tel=(B.mobiel||B.telefoon||"").replace(/[^\d+]/g,""),wa=tel.replace(/^\+/,"").replace(/^0/,"31");
   $("#app").innerHTML=`<div class="app">
-    <aside class="side">${logoHtml(merkNaam(),B.logo||"/logo.png").replace(/<\/span>$/,`<span class="lg-g"><small>${groet()}</small><b>${esc(k.voornaam||k.naam||"")}</b></span></span>`)}
+    <aside class="side">${logoHtml(merkNaam(),B.logo||"/logo.png").replace(/<\/span>$/,`<span class="lg-g">${groet()}, ${esc(k.voornaam||k.naam||"")}</span></span>`)}
       <p class="nlbl">Mijn klantomgeving</p><nav aria-label="Menu">${nav(false)}</nav><span class="sp"></span>
       <div class="help"><b>Vragen?</b><small>Maak een ticket aan, dan helpen we u snel.</small><button class="primary full" data-act="ticket">${I.ticket}Ticket aanmaken</button></div>
       <div class="usercard"><span class="uav">${esc((k.voornaam||"?")[0].toUpperCase())}</span><div><b>${esc(k.naam)}</b><small>${k.klantnr?"Klant "+esc(k.klantnr):esc(k.adres)}</small></div><button data-uit title="Uitloggen" aria-label="Uitloggen">${I.uit}</button></div></aside>
-    <div><header class="topbar">${logoHtml(merkNaam(),B.logo||"/logo.png").replace(/<\/span>$/,`<span class="lg-g"><small>${groet()}</small><b>${esc(k.voornaam||k.naam||"")}</b></span></span>`)}<span class="sp"></span><button class="menu-knop" data-tab="ik" aria-label="Menu"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button></header>
+    <div><header class="topbar">${logoHtml(merkNaam(),B.logo||"/logo.png").replace(/<\/span>$/,`<span class="lg-g">${groet()}, ${esc(k.voornaam||k.naam||"")}</span></span>`)}<span class="sp"></span><button class="menu-knop" data-tab="ik" aria-label="Menu"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button></header>
     <main id="main"${tab==="tickets"&&TK.open?' class="m-chat"':""}>${({home,bezoeken,tickets,facturen,aanbevelen,ik})[tab]()}</main></div></div>
     <nav class="tabs" aria-label="Menu">${nav(true)}</nav>`;
   $$("[data-tab]").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;if(tab==="tickets"){TK.open="";TK.d=null;TK.sig=""}teken();scrollTo({top:0});try{history.replaceState(null,"","#"+tab)}catch(e){}});
