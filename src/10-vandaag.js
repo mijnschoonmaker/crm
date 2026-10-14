@@ -1,19 +1,34 @@
 /* ---------- VANDAAG ---------- */
-function stopCard(k,i,isNext,late,day){
-  const o=jobObj(k),a=jobAddrObj(k),h=hue(k.ronde||k.naam),js=jobState(k,day),sp=STATEPILL[js];
+function stopCard(k,i,isNext,late,day,totaal){
+  const o=jobObj(k),a=jobAddrObj(k),h=hue(k.ronde||k.naam),js=jobState(k,day),sp=STATEPILL[js],bz=isBezig(k),mw=isMw();
+  const tel=String(k.telefoon||"").replace(/[^\d+]/g,""),isT=day===iso(today());
+  /* reistijd vanaf waar je nu bent (live locatie of vorige stop) */
+  let reis=null;try{if(isT&&typeof rtMin==="function"&&typeof pkCoord==="function"){const vorige=routeStops(day).filter(x=>x.done).slice(-1)[0];const van=(typeof LV!=="undefined"&&LV.pos&&[LV.pos.lat,LV.pos.lng])||(vorige&&pkCoord(vorige.k))||null;reis=van?rtMin(van,pkCoord(k)):null}}catch(e){}
+  const tm=toMin(k.tijd),eind=tm!=null?fromMin(tm+duur(k)):"";
+  const naam=String((state.me&&state.me.name)||"").split(" ")[0]||"",vn=k.voornaam||cleanName(k.naam).split(",").slice(-1)[0].trim();
+  const wa=tel&&typeof waLink==="function"?waLink(tel,`Goedendag${vn?" "+vn:""}, we zijn ${reis?"over ongeveer "+reis+" minuten":"zo"} bij u voor de glasbewassing. Groet, ${naam||(S().naam||"")}`):"";
+  const tags=`${statusPill(sp[0],sp[1])}${late?'<span class="pill late">Achterstallig</span>':""}`;
   return `<div class="swipe" data-id="${esc(k.id)}">
     <div class="sbg sbg-r"><span>${I.check} Afmelden<small>conceptfactuur</small></span></div>
     <div class="sbg sbg-l"><span>Factureren<small>direct, open factuur</small></span></div>
-    <div class="swipe-card stopc${isNext?" next":""}">
-      <div class="sc-l"><span class="eyebrow">Stop<br>${pad(i+1)}</span><b class="sc-t">${esc(k.tijd||"—")}</b><span class="sc-p">${eur0(toon(k.prijs))}</span></div>
-      <div class="sc-r">
-        <div class="tags" style="margin:0">${statusPill(sp[0],sp[1])}${js==="bezig"?`<span class="pill busy tmr-pill"><span class="dotlive"></span><span data-timer="${esc(k.bezig)}">${fmtTimer(Date.now()-new Date(k.bezig))}</span></span>`:""}${isNext?'<span class="pill nextp">Volgende</span>':""}${i===0?`<span class="pill brand">${I.clock}Eerste stop</span>`:""}${late?'<span class="pill late">Achterstallig</span>':""}</div>
-        <div class="sc-who"><span class="av sm" style="--h:${h}">${esc(initials(k.naam))}</span><div style="min-width:0;flex:1"><button type="button" class="sc-addr" data-act="klant" data-id="${esc(k.id)}">${esc(a.adres||"")}</button>
-          <div class="sc-sub"><span class="dienst">${I.pin}${esc(a.plaats||"")}</span>${a.plaats?" · ":""}${esc(cleanName(k.naam))}${o&&o.naam?" · "+esc(o.naam):""}</div><div class="sc-sub">${dienstHtml(k)}${k.binnen?" · + binnen":""} · ${duur(k)} min</div></div>
-          ${I.right.replace("<svg",'<svg class="chev"')}</div>
-        ${oBeurtBlok(k)}${hospRoute(k)}${toegangHtml(k)}${ookDezeBeurt(k,typeof day!=="undefined"?day:undefined)}${k.notities?`<div class="notebox"><span class="eyebrow">Notitie</span>${esc(k.notities)}</div>`:""}${objInfo(k)}${jobExtra(k)}
-        <div class="sc-btns"><a class="btn small" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.nav}Navigeer</a><button type="button" class="small" data-act="skip" data-id="${esc(k.id)}">${I.right}Overslaan</button></div>
-      </div></div></div>`;
+    <div class="swipe-card tk${isNext?" next":""}${bz?" bezig":""}">
+      <div class="tk-kop">
+        <div class="tk-nr"><small>Stop</small><b>${i+1}</b>${totaal?`<em>van ${totaal}</em>`:""}</div>
+        <div class="tk-tijd"><small>${bz?"Bezig sinds":"Aanvang"}</small><b>${bz?esc(String(new Date(k.bezig).toTimeString()).slice(0,5)):esc(k.tijd||"—")}</b>${eind&&!bz?`<em>tot ${esc(eind)}</em>`:""}</div>
+        <div class="tk-vlucht" aria-hidden="true"><i></i>${typeof RV_BUS!=="undefined"?`<span>${RV_BUS}</span>`:""}<i></i></div>
+        <div class="tk-eta">${bz?`<small>Bezig</small><b data-timer="${esc(k.bezig)}">${fmtTimer(Date.now()-new Date(k.bezig))}</b><em>${duur(k)} min gepland</em>`:reis!=null?`<small>Rijden</small><b>${reis} min</b><em>${isNext?"vanaf hier":"geschat"}</em>`:`<small>Duur</small><b>${duur(k)} min</b><em>werk</em>`}</div>
+      </div>
+      <div class="tk-perf" aria-hidden="true"></div>
+      <div class="tk-body">
+        <div class="tk-tags">${tags}${isNext?'<span class="pill nextp">Volgende</span>':""}</div>
+        <button type="button" class="tk-adres" data-act="klant" data-id="${esc(k.id)}"><span class="av" style="--h:${h}">${esc(initials(k.naam))}</span><span><b>${esc(a.adres||cleanName(k.naam))}</b><small>${esc([a.postcode,a.plaats].filter(Boolean).join(" "))}${a.plaats?" · ":""}${esc(cleanName(k.naam))}${o&&o.naam?" · "+esc(o.naam):""}</small></span>${I.right.replace("<svg",'<svg class="chev"')}</button>
+        <div class="tk-feit"><span><b>${dienstHtml(k)}</b>${k.binnen?" + binnen":""}</span><span>${I.clock}<b>${duur(k)} min</b></span>${mw?"":`<span>${I.euro||""}<b>${eur0(toon(k.prijs))}</b></span>`}</div>
+        <div class="tk-info">${oBeurtBlok(k)}${hospRoute(k)}${toegangHtml(k)}${ookDezeBeurt(k,day)}${k.notities?`<div class="notebox"><span class="eyebrow">Notitie</span>${esc(k.notities)}</div>`:""}${objInfo(k)}${jobExtra(k)}</div>
+        <div class="tk-acts"><a class="tk-a" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.nav}<span>Navigeer</span></a>${tel?`<a class="tk-a" href="tel:${esc(tel)}">${I.phone}<span>Bellen</span></a>`:""}${wa&&!bz?`<a class="tk-a" href="${esc(wa)}" target="_blank" rel="noopener">${I.msg}<span>Ik kom eraan</span></a>`:""}<button type="button" class="tk-a" data-act="skip" data-id="${esc(k.id)}">${I.right}<span>Overslaan</span></button></div>
+      </div>
+      <div class="tk-perf" aria-hidden="true"></div>
+      <div class="tk-stub">${bz?`<span class="tk-live"><i></i>Bezig · na afloop afmelden</span>`:`<button type="button" class="tk-start" data-act="start" data-id="${esc(k.id)}">${I.clock}Start</button>`}<button type="button" class="primary tk-af" data-act="afmelden" data-id="${esc(k.id)}">${I.check}Afmelden</button></div>
+    </div></div>`;
 }
 function stopRow(k,day,done){
   const a=jobAddrObj(k),js=done?"afgerond":jobState(k,day),sp=STATEPILL[js],info=k.notities||jobObj(k);
@@ -69,8 +84,8 @@ function vVandaag(){
   if(!todo.length)html+=emptyHtml;
   else{
     html+=`<div class="ns-head"><h2>Volgende stop</h2><span>${isMw()?"Veeg rechts → afmelden":"Veeg links → factureren · rechts → afmelden"}</span></div>
-    <div class="list">${stopCard(todo[0].k,0,true,parse(todo[0].k.gepland)<t,d)}</div>
-    ${todo.length>1?`<h2 style="margin-top:24px">Daarna <small class="mono" style="font-size:13px;color:var(--muted);font-weight:400">${plural(todo.length-1,"stop","stops")}</small></h2><div class="list">${todo.slice(1).map((s,i)=>stopCard(s.k,i+1,false,parse(s.k.gepland)<t,d)).join("")}</div>`:""}
+    <div class="list">${stopCard(todo[0].k,doneB.length,true,parse(todo[0].k.gepland)<t,d,total)}</div>
+    ${todo.length>1?`<h2 style="margin-top:24px">Daarna <small class="mono" style="font-size:13px;color:var(--muted);font-weight:400">${plural(todo.length-1,"stop","stops")}</small></h2><div class="list">${todo.slice(1).map((s,i)=>stopCard(s.k,doneB.length+i+1,false,parse(s.k.gepland)<t,d,total)).join("")}</div>`:""}
     <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap"><button type="button" data-act="bulktoday">${I.msg}Bericht aan deze klanten</button><button type="button" data-act="toroute" data-d="${d}">Volgorde aanpassen</button></div>`;
   }
   if(doneB.length)html+=`<h2>Afgerond</h2><div class="list" style="gap:8px">${doneB.map(b=>{const k=state.klanten.find(x=>x.id===b.klantId);return k?stopRow(k,d,true):""}).join("")}</div>`;

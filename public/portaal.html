@@ -670,6 +670,26 @@ html,body{background:var(--bg)!important}
 .rf-tg small,.rf-tg span{color:rgb(255 255 255 / .72)!important}.rf-tg b{color:#fff!important}.rf-tg>i{color:rgb(255 255 255 / .6)}
 .rf-tg>div.hl{background:linear-gradient(180deg,rgb(159 240 210 / .28),rgb(159 240 210 / .1))!important;border-color:rgb(159 240 210 / .4)!important}
 .bz-tr em.bz-van{width:58px!important;height:38px!important}.bz-line{margin-top:26px!important}
+/* aanbevelen: uw straat */
+.rs{padding:18px 20px 16px;border-radius:22px;background:var(--surface);border:1px solid var(--line);box-shadow:0 1px 2px rgb(15 31 38 / .04),0 14px 30px -24px rgb(15 50 60 / .35)}
+.rs-k{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:14px}.rs-k b{display:block;font-size:16.5px;font-weight:700}.rs-k small{display:block;font-size:13px;color:var(--muted)}
+.rs-sc{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:99px;background:#fdf1dc;color:#a8650a;font-weight:700;font-size:13px}.rs-sc svg{width:14px;height:14px}
+.rs-straat{position:relative;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}.rs-straat::-webkit-scrollbar{display:none}
+.rs-rij{display:flex;gap:10px;align-items:flex-end;min-width:max-content;padding:0 2px 14px;position:relative;z-index:1}
+.rs-weg{position:absolute;left:0;right:0;bottom:0;height:18px;border-radius:9px;background:linear-gradient(180deg,#d9e1e4,#cbd5d9)}.rs-weg::after{content:"";position:absolute;left:10px;right:10px;top:8px;height:2px;background:repeating-linear-gradient(90deg,#fff 0 12px,transparent 12px 22px)}
+.rs-h{all:unset;box-sizing:border-box;width:76px;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;animation:rsOp .5s cubic-bezier(.2,1.4,.4,1) both;animation-delay:calc(var(--i)*60ms)}
+@keyframes rsOp{from{transform:translateY(10px) scale(.8);opacity:0}}
+.rs-h span{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;margin-bottom:4px}.rs-h span svg{width:26px;height:26px}
+.rs-h b{font-size:12.5px;font-weight:700;max-width:76px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rs-h small{font-size:11px;color:var(--muted);white-space:nowrap}
+.rs-h.ik span{width:64px;height:64px;background:radial-gradient(120% 160% at 100% 0%,#2aa3b3 0%,transparent 55%),linear-gradient(135deg,#0f5f6e,#137a8a 55%,#1d5a74);color:#fff;box-shadow:0 10px 20px -10px rgb(15 70 85 / .8)}
+.rs-h.ok span{background:linear-gradient(135deg,#2bb673,#1f8f5c);color:#fff;box-shadow:0 8px 16px -10px rgb(31 143 92 / .8)}.rs-h.ok small{color:#1b8a5a;font-weight:700}
+.rs-h.bz span{background:#fdf1dc;color:#c98a1f}.rs-h.bz small{color:#a8650a}
+.rs-h.leeg{cursor:pointer}.rs-h.leeg span{border:2px dashed color-mix(in srgb,var(--brand) 35%,var(--line));color:var(--brand);background:var(--surface)}.rs-h.leeg b{color:var(--muted);font-weight:600}
+.rs-h.leeg:hover span{background:var(--brand-soft)}
+/* bonnen ook op de telefoon tonen */
+@media (max-width:1100px){.rf-vis{display:block!important;height:150px!important;margin-top:6px}.rfc{width:200px}.rfc.k1{right:6px;top:0}.rfc.k2{left:6px;bottom:0}}
+@media (max-width:420px){.rfc{width:176px}.rfc b{font-size:30px}.rfc small{margin-top:8px}}
+.rs-h{width:84px}.rs-h small{white-space:normal;line-height:1.25;max-width:84px}@media (max-width:420px){.rfc.k2 .rfc-body>span{display:none}}
 </style></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -951,6 +971,11 @@ function aanbevelen(){const A=D.aanbevelen,R=B.refBeloning,W=B.refWelkom;
       <i aria-hidden="true">${I.chev}</i>
       <div><small>Al verrekend</small><b>${eur0(A.verdiend)}</b><span>totaal bespaard</span></div>
     </section>
+    ${(()=>{const L=A.lijst.filter(x=>x.status!=="gestopt"),n=Math.max(6,L.length+2),links=Math.floor(n/2),huis=(x,i)=>{const sn=st[x.status]||st.aangemeld,ok=sn[2]>=4;return `<div class="rs-h ${ok?"ok":"bz"}" style="--i:${i}"><span>${I.huis}</span><b>${esc((x.naam||"Buur").split(" ")[0])}</b><small>${ok?"+"+eur0(R):({1:"aangemeld",2:"wacht op akkoord",3:"bezoek volgt"})[sn[2]]||sn[1]}</small></div>`},leeg=i=>`<a class="rs-h leeg" style="--i:${i}" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(deelTekst())}"><span>${I.plus}</span><b>Buur</b><small>uitnodigen</small></a>`;
+      const slots=[...L.map(huis),...Array(n-L.length).fill(0).map((_,i)=>leeg(L.length+i))],links_=slots.slice(0,links),rechts=slots.slice(links);
+      const verdiend=L.filter(x=>(st[x.status]||[])[2]>=4).length;
+      return `<section class="rs"><div class="rs-k"><div><b>Uw straat</b><small>${L.length?`${plural(L.length,"buur","buren")} via u${verdiend?` · ${eur0(verdiend*R)} verdiend`:""}`:"Elke buur die klant wordt, krijgt hier een huisje"}</small></div>${L.length?`<span class="rs-sc">${I.ster}${L.length}</span>`:""}</div>
+        <div class="rs-straat"><div class="rs-rij"><div class="rs-h ik" style="--i:0"><span>${I.huis}</span><b>U</b><small>uw huis</small></div>${slots.join("")}</div><div class="rs-weg"></div></div></section>`})()}
     <section class="kp rf-stappen"><div class="kp-h"><div><b>Zo werkt het</b><small>In vier stappen naar uw korting</small></div></div>
       <ol>${stap(1,"Deel uw link","Via WhatsApp, mail of gewoon even vertellen")}${stap(2,"Zij melden zich aan","Ze berekenen hun prijs via uw link")}${stap(3,"Eerste bezoek","Na akkoord komen wij de eerste keer langs")}${stap(4,"Korting voor u",`${eur0(R)} gaat automatisch van uw volgende factuur af`)}</ol></section>
     <section class="kp rf-lijst"><div class="kp-h"><div><b>Uw aanbevelingen</b>${A.lijst.length?`<small>${plural(A.lijst.length,"aanbeveling","aanbevelingen")}</small>`:""}</div></div>
