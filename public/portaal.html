@@ -988,7 +988,7 @@ function teken(){
     <div><header class="topbar">${logoHtml(merkNaam(),B.logo||"/logo.png").replace(/<\/span>$/,`<span class="lg-g">${groet()}, ${esc(k.voornaam||k.naam||"")}</span></span>`)}<span class="sp"></span><button class="menu-knop" data-tab="ik" aria-label="Menu"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h11M4 17h16"/></svg></button></header>
     <main id="main"${tab==="tickets"&&TK.open?' class="m-chat"':""}>${({home,bezoeken,tickets,facturen,aanbevelen,ik})[tab]()}</main></div></div>
     <nav class="tabs" aria-label="Menu">${nav(true)}</nav>`;
-  $$("[data-tab]").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;if(tab==="tickets"){TK.open="";TK.d=null;TK.sig=""}teken();scrollTo({top:0});try{history.replaceState(null,"","#"+tab)}catch(e){}});
+  $$("[data-tab]").forEach(b=>b.onclick=()=>{const nw=b.dataset.tab;if(nw==="ik"&&tab==="ik"&&b.classList.contains("menu-knop")){tab=window._vorigeTab&&window._vorigeTab!=="ik"?window._vorigeTab:"home"}else{if(nw==="ik"&&tab!=="ik")window._vorigeTab=tab;tab=nw}if(tab==="tickets"){TK.open="";TK.d=null;TK.sig=""}teken();scrollTo({top:0});try{history.replaceState(null,"","#"+tab)}catch(e){}});
   koppel();if(tab==="tickets")ticketsStart();if(tab==="home")lvInit()}
 const datumKop=()=>{const d=new Date();return `<span class="vd-date">${I.zonOp}${esc(d.toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long"}))} <span class="wk">wk ${weekNr(d)}</span></span>`};
 const kop=(titel,sub,eb)=>`<div class="pagehead">${eb||datumKop()}<h1>${titel}</h1>${sub?`<p class="subt">${sub}</p>`:""}</div>`;
