@@ -149,6 +149,7 @@ document.addEventListener("click",e=>{
       if(a==="tpladd")o["eigen"+Date.now().toString(36)]={naam:"Nieuwe template",tekst:"Hoi [name.customer], "};if(a==="tpldel")delete o[t.dataset.k];
       save("instellingen","sjablonen",o).then(()=>toast(a==="tpladd"?"Template toegevoegd":a==="tpldel"?"Template verwijderd":"Templates opgeslagen")).catch(err);break}
     /* vandaag & route */
+    case"krz":state.krz=state.krz===t.dataset.v?"":t.dataset.v;state.kpage=1;render();break;
     case"vdag":state.vDay=t.dataset.d;render();scrollTo({top:0});break;
     case"vday":state.vDay=n===0?iso(today()):iso(addDays(parse(state.vDay||iso(today())),n));render();break;
     case"daynote":openDayNote(t.dataset.d||iso(today()));break;

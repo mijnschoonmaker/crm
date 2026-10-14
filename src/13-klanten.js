@@ -1,7 +1,7 @@
 /* ---------- KLANTEN ---------- */
 function klantFilter(){
-  const q=state.q.toLowerCase(),f=state.kf;
-  return state.klanten.filter(k=>(f==="alle"?true:f==="inactief"?k.actief===false:k.actief!==false&&(k.soort||"particulier")===f)&&(!state.ronde||k.ronde===state.ronde)&&(!q||[k.naam,k.adres,k.plaats,k.postcode,k.telefoon,k.email].join(" ").toLowerCase().includes(q)))
+  const q=state.q.toLowerCase(),f=state.kf,rz=state.krz;
+  return state.klanten.filter(k=>(!rz||kRitme(k).z===rz)&&(f==="alle"?true:f==="inactief"?k.actief===false:k.actief!==false&&(k.soort||"particulier")===f)&&(!state.ronde||k.ronde===state.ronde)&&(!q||[k.naam,k.adres,k.plaats,k.postcode,k.telefoon,k.email].join(" ").toLowerCase().includes(q)))
     .sort((a,b)=>(a.actief===false)-(b.actief===false)||cleanName(a.naam).localeCompare(cleanName(b.naam)));
 }
 function vKlanten(){
@@ -16,6 +16,7 @@ function vKlanten(){
     ${LIVE?"":`<button type="button" data-act="welkom">${I.mail}Welkomstberichten</button>`}
     <div class="drop"><button type="button" data-act="kmenu">${I.more}Meer</button>${state.kmenu?`<div class="menu"><button type="button" data-act="webaanvraag">${I.globe}Aanvraag van de website</button><button type="button" data-act="import">${I.upload}Importeren uit Excel/CSV</button>${state.dl&&all.length?`<button type="button" data-act="export">${I.dl}Exporteren als CSV</button>`:""}</div>`:""}</div>
     <button type="button" class="primary" data-act="klant">${I.plus}Nieuwe klant</button></div>
+  ${all.length?kRitmeKaart():""}
   <div class="toolbar"><div class="search">${I.search}<input id="q" type="search" placeholder="Zoek op naam, adres, e-mail…" value="${esc(state.q)}"></div></div>
   <div class="chips"><span style="color:var(--muted);display:grid">${I.filter}</span>${[["alle","Alle"],["particulier","Particulier"],["zakelijk","Zakelijk"],["inactief","Inactief"]].map(([v,l])=>`<button type="button" class="chip" data-act="kf" data-v="${v}" aria-pressed="${state.kf===v}">${l}<span class="n">${cnt(v)}</span></button>`).join("")}
     ${rondes().length?`<select id="kronde" style="width:auto;border-radius:99px;padding:6px 12px"><option value="">Alle rondes</option>${rondes().map(r=>`<option ${r===state.ronde?"selected":""}>${esc(r)}</option>`).join("")}</select>`:""}</div>`;
@@ -103,3 +104,20 @@ function openWebAanvraag(){
   form.onsubmit=async e=>{e.preventDefault();if(!D)return;const b=$("#wa-go");b.disabled=true;
     try{if(D.formaat==="zeem.contact"){const k=await contactToevoegen(D);dlg.close();toast(cleanName(k.naam)+" staat bij Klanten · maak een offerte op maat");openKlantView(k.id);return}const k=await aanvraagToevoegen(D);dlg.close();toast(cleanName(k.naam)+" staat klaar om in te plannen · eerste beurt is een O-beurt met tellingcontrole");state.tab="planning";schedule()}catch(er){b.disabled=false;err(er)}};
 }
+
+/* ---------- Ritmekaart: waar staat elke klant in zijn ritme ---------- */
+function kRitme(k){const t=today(),p=parse(k.gepland);
+  if(k.actief===false)return{z:"uit",f:0};
+  if(p&&p>=t)return{z:"gepland",f:Math.min(1,1-(p-t)/DAY/Math.max(7,freqDays(k)))};
+  if(!k.laatst)return{z:"nieuw",f:1.15};
+  const v=volgende(k),fd=Math.max(7,freqDays(k)),f=1-(v-t)/DAY/fd,d=Math.round((v-t)/DAY);
+  return{z:d<0||(p&&p<t)?"laat":d<=7?"week":"ok",f}}
+function kRitmeKaart(){const ak=actief(),r=ak.map(k=>({k,...kRitme(k)})),n=z=>r.filter(x=>x.z===z).length,rz=state.krz;
+  const laat=n("laat"),week=n("week"),opSchema=n("ok")+n("gepland"),pct=ak.length?Math.round(opSchema/ak.length*100):0;
+  const mot=!ak.length?"Nog geen actieve klanten.":laat?`${plural(laat,"klant loopt","klanten lopen")} achter. Plan ze in, dan is iedereen weer in ritme.`:week?`Iedereen in ritme. ${week} deze week aan de beurt.`:"Iedereen loopt keurig in zijn ritme!";
+  const chip=(z,l,c)=>`<button type="button" class="kr-c${rz===z?" on":""}" data-act="krz" data-v="${z}" style="--c:${c}"><i></i><b>${n(z)}</b><span>${l}</span></button>`;
+  const dots=r.filter(x=>x.z!=="uit").map(x=>{const L=Math.max(1,Math.min(99,x.f/1.25*100));return `<i class="kr-d z-${x.z}" style="left:${L}%;--y:${(hueN(x.k.id)%5)*7}px" title="${esc(cleanName(x.k.naam))} · ${esc((dueTxt(x.k)||{}).txt||"")}"></i>`}).join("");
+  return `<section class="kr"><div class="kr-top"><div><p class="kr-k">Ritme van je klanten</p><div class="kr-big"><b>${pct}%</b><span>op schema</span></div><p class="kr-mot">${mot}</p></div>
+      <div class="kr-cs">${chip("laat","te laat","#ff9b8a")}${chip("week","deze week","#ffe08a")}${chip("gepland","gepland","#9ff0d2")}${chip("nieuw","nieuw","#b9d8ff")}</div></div>
+    <div class="kr-baan"><div class="kr-zones"><span class="zo">net gewassen</span><span class="zb">bijna aan de beurt</span><span class="zl">te laat</span></div>${dots}</div></section>`}
+const hueN=s=>{let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))>>>0;return h};
