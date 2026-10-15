@@ -117,6 +117,17 @@ function openJob(id,day){
         <dl class="jp-af-dl">${om?`<div><dt>Afgemeld</dt><dd>${esc(om)}</dd></div>`:""}${du?`<div><dt>Bij de klant</dt><dd>${du>=60?Math.floor(du/60)+"u"+String(Math.round(du%60)).padStart(2,"0"):Math.round(du)+" min"}${b.gemeten?"":" <small>geschat</small>"}</dd></div>`:""}
         <div><dt>Factuur</dt><dd>${f?`<button type="button" class="linkbtn" data-act="factuur" data-id="${esc(f.id)}">${esc(f.nummer)}</button> ${statusPill(fs[0],fs[1])}`:b.gefactureerd==="nvt"?"Niet nodig":b.gefactureerd==="periodiek"?"Periodieke factuur":"Nog niet gefactureerd"}</dd></div></dl></div>`})()
       :""}
+    <div><span class="eyebrow">${I.user}Opdracht</span><div class="jp-af jp-geg"><dl class="jp-af-dl">
+      <div><dt>Omschrijving</dt><dd>${esc(k.omschrijving||k.ronde||(k.dienst||"Glasbewassing"))}</dd></div>
+      <div><dt>Klantnummer</dt><dd>${esc(klantNr(k))}</dd></div>
+      <div><dt>Naam</dt><dd><button type="button" class="linkbtn" data-act="klant" data-id="${esc(k.id)}">${esc(cleanName(k.naam))}</button></dd></div>
+      <div><dt>Adres</dt><dd class="jp-adr">${esc(jobAddrObj(k).adres||"")}<small>${esc([jobAddrObj(k).postcode,jobAddrObj(k).plaats].filter(Boolean).join(" "))}</small></dd></div>
+      ${tel?`<div><dt>Telefoon</dt><dd><a href="tel:${esc(tel)}">${esc(k.telefoon)}</a></dd></div>`:""}
+      ${k.email?`<div><dt>E-mail</dt><dd><a href="mailto:${esc(k.email)}">${esc(k.email)}</a></dd></div>`:""}
+      <div><dt>Medewerker</dt><dd>${esc((state.me&&state.me.name)||st.naam||"")}</dd></div>
+      <div><dt>Tijdsduur</dt><dd>${duur(k)} min${gemTijd(k)?` <small>gemeten ${gemTijd(k)} min</small>`:""} <button type="button" class="iconbtn sm" data-act="opdracht" data-id="${esc(k.id)}" aria-label="Opdracht aanpassen" title="Opdracht aanpassen">${I.edit||I.note}</button></dd></div>
+      <div class="jp-uit"><dt>Uit te voeren</dt><dd>${esc(k.dienst||"Glasbewassing")}${k.binnen?" (buiten en binnen)":""}${extraDue(k,day).length?` · ${extraDue(k,day).map(o=>esc(o.naam||o.dienst||"extra")).join(" · ")}`:""}${k.taak?`<small>${esc(k.taak)}</small>`:""}</dd></div>
+    </dl></div></div>
     <div><span class="eyebrow">Diensten</span><div class="jp-svc">${diensten.map(([n,p])=>`<div><span class="jp-ic">${I.wrench}</span><b>${esc(n)}${k.binnen?" (buiten en binnen)":""}</b><span>${eur(toon(p))}</span></div>`).join("")}</div></div>
     ${oBeurtBlok(k)}${hospRoute(k)}${toegangHtml(k)}${ookDezeBeurt(k,typeof day!=="undefined"?day:undefined)}${objInfo(k)}${jobExtra(k)}
     ${(()=>{const fl=jobFotos(k);return fl.length?`<div><span class="eyebrow">Foto's · ${fl.reduce((a,f)=>a+(f.dots||[]).length,0)} ramen aangetikt</span><div class="jp-fotos" style="margin-top:6px">${fl.map((f,j)=>fotoCard(f,j,false).replace('data-fi=','data-jfi=')).join("")}</div></div>`:""})()}
