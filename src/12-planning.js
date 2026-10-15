@@ -24,9 +24,9 @@ function offerHtml(k,dayIso,timed){
     <div class="of-top"><span class="kx-av of-av"><span class="kc kc-tile"><i class="kc-m">${band}</i><b>${big}</b></span></span>
       <div class="of-main"><button type="button" class="of-adr" data-act="opdracht" data-id="${esc(k.id)}" title="Opdracht openen">${esc(ao.adres||cleanName(k.naam))}</button>
         <div class="of-nm">${esc(cleanName(k.naam))}${ao.plaats?" · "+esc(ao.plaats):""}</div>
-        <div class="of-st"><span>Aanboddatum</span> <b>${esc(adTxt)}</b>${extra?` · ${esc(extra)}`:""}</div></div>
-      <div class="of-amt"><b>${eur0(toon(k.prijs))}</b><small>${duur(k)} min</small></div></div>
-    <div class="of-chips"><span>${I.wrench}${esc(k.dienst||"Glasbewassing")}</span><span>${I.refresh||I.clock}elke ${esc(k.frequentie||4)} wk</span>${k.ronde?`<span class="of-r"><i style="background:hsl(${h} 65% 52%)"></i>${esc(k.ronde)}</span>`:""}</div>
+        </div>
+      <div class="of-amt"><b>${eur0(toon(k.prijs))}</b><small>${I.clock}${duur(k)} min</small></div></div>
+    <div class="of-chips"><span class="of-st"><i></i>${esc(extra?extra.charAt(0).toUpperCase()+extra.slice(1):band==="te laat"?"Te laat":band==="vandaag"?"Vandaag":"Aanbod")} · ${esc(adTxt)}</span><span>${I.wrench}${esc(k.dienst||"Glasbewassing")}</span><span>${I.refresh||I.clock}elke ${esc(k.frequentie||4)} wk</span>${k.ronde?`<span class="of-r"><i style="background:hsl(${h} 65% 52%)"></i>${esc(k.ronde)}</span>`:""}</div>
     ${state.planMode?`<div class="of-pm${picked?" on":""}">${picked?"Gekozen · tik een tijdslot":"Tik om te kiezen"}</div>`:""}
   </div>`;
 }
