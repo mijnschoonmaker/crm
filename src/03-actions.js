@@ -93,11 +93,11 @@ async function setFStatus(id,s){
 async function billAll(btn,ids){
   const ub=unbilled().filter(b=>!ids||ids.includes(b.id)),groups={};let laatsteId="";ub.forEach(b=>(groups[b.klantId]=groups[b.klantId]||[]).push(b));
   const st=S(),d=iso(today());let i=0;if(btn)btn.disabled=true;
-  const first=nextNr("factuur",d),pre=first.slice(0,5),base=parseInt(first.slice(5),10);
+  const first=nextNr("factuur",d),{pre,n:base,pad:nrPad}=nrDelen(first);
   try{for(const kid of Object.keys(groups)){
     const k=state.klanten.find(x=>x.id===kid)||{naam:groups[kid][0].klantNaam};
     const id=newId("f"),regels=groups[kid].sort((a,b)=>String(a.datum).localeCompare(String(b.datum))).map(b=>({omschrijving:(b.dienst||k.dienst||"Glasbewassing")+" "+fmtL(b.datum),aantal:1,prijs:Number(b.bedrag)||0}));
-    await save("facturen",id,{soort:"factuur",nummer:pre+String(base+i).padStart(4,"0"),klantId:kid,klantNaam:k.naam,klantAdres:k.adres?factAddr(k):"",klantEmail:mailK(k,"factuur").email||"",datum:d,verval:iso(addDays(today(),Number(k.termijn)||Number(st.termijn)||14)),regels,btw:Number(st.btw),incl:!!st.incl,status:"open",notitie:"",gemaakt:new Date().toISOString()});
+    await save("facturen",id,{soort:"factuur",nummer:pre+String(base+i).padStart(nrPad,"0"),klantId:kid,klantNaam:k.naam,klantAdres:k.adres?factAddr(k):"",klantEmail:mailK(k,"factuur").email||"",datum:d,verval:iso(addDays(today(),Number(k.termijn)||Number(st.termijn)||14)),regels,btw:Number(st.btw),incl:!!st.incl,status:"open",notitie:"",gemaakt:new Date().toISOString()});
     for(const b of groups[kid])await save("beurten",b.id,{...strip(b),gefactureerd:id});
     laatsteId=id;i++}
     if(ids){toast("Factuur aangemaakt");if(btn)btn.disabled=false;return laatsteId}

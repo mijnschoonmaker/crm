@@ -4415,8 +4415,15 @@ function fStatus(f){
 const facturen=()=>state.facturen.filter(f=>f.soort!=="offerte");
 const offertes=()=>state.facturen.filter(f=>f.soort==="offerte");
 const echteFacturen=()=>facturen().filter(f=>f.status!=="concept");
+/* factuurnummers: standaard 2026-0001 per jaar; met "doorlopend" (zoals DienstenCRM) 26-009295: jaar in 2 cijfers en een
+   volgnummer van 6 cijfers dat over de jaren doorloopt, startend bij het laatste nummer uit het oude pakket + 1 */
+function nrDelen(nr){const m=String(nr||"").match(/^(.*?)(\d+)$/);return m?{pre:m[1],n:parseInt(m[2],10),pad:m[2].length}:{pre:String(nr||""),n:0,pad:4}}
 function nextNr(soort,datum,skip=0){
-  const y=String(datum).slice(0,4),pre=soort==="offerte"?"OFF-"+y+"-":y+"-";
+  const y=String(datum).slice(0,4),st=S();
+  if(soort!=="offerte"&&st.factNrStijl==="doorlopend"){const pre=y.slice(2)+"-",start=Math.max(0,parseInt(st.factNrStart,10)||0);
+    const ns=state.facturen.filter(f=>f.soort!=="offerte"&&/^\d{2}-\d{6}$/.test(String(f.nummer||""))).map(f=>parseInt(String(f.nummer).slice(3),10)||0);
+    return pre+String(Math.max(start-1,...ns)+1+skip).padStart(6,"0")}
+  const pre=soort==="offerte"?"OFF-"+y+"-":y+"-";
   const ns=state.facturen.filter(f=>String(f.nummer||"").startsWith(pre)).map(f=>parseInt(String(f.nummer).slice(pre.length),10)||0);
   return pre+String(Math.max(0,...ns)+1+skip).padStart(soort==="offerte"?3:4,"0");
 }
@@ -4626,11 +4633,11 @@ async function setFStatus(id,s){
 async function billAll(btn,ids){
   const ub=unbilled().filter(b=>!ids||ids.includes(b.id)),groups={};let laatsteId="";ub.forEach(b=>(groups[b.klantId]=groups[b.klantId]||[]).push(b));
   const st=S(),d=iso(today());let i=0;if(btn)btn.disabled=true;
-  const first=nextNr("factuur",d),pre=first.slice(0,5),base=parseInt(first.slice(5),10);
+  const first=nextNr("factuur",d),{pre,n:base,pad:nrPad}=nrDelen(first);
   try{for(const kid of Object.keys(groups)){
     const k=state.klanten.find(x=>x.id===kid)||{naam:groups[kid][0].klantNaam};
     const id=newId("f"),regels=groups[kid].sort((a,b)=>String(a.datum).localeCompare(String(b.datum))).map(b=>({omschrijving:(b.dienst||k.dienst||"Glasbewassing")+" "+fmtL(b.datum),aantal:1,prijs:Number(b.bedrag)||0}));
-    await save("facturen",id,{soort:"factuur",nummer:pre+String(base+i).padStart(4,"0"),klantId:kid,klantNaam:k.naam,klantAdres:k.adres?factAddr(k):"",klantEmail:mailK(k,"factuur").email||"",datum:d,verval:iso(addDays(today(),Number(k.termijn)||Number(st.termijn)||14)),regels,btw:Number(st.btw),incl:!!st.incl,status:"open",notitie:"",gemaakt:new Date().toISOString()});
+    await save("facturen",id,{soort:"factuur",nummer:pre+String(base+i).padStart(nrPad,"0"),klantId:kid,klantNaam:k.naam,klantAdres:k.adres?factAddr(k):"",klantEmail:mailK(k,"factuur").email||"",datum:d,verval:iso(addDays(today(),Number(k.termijn)||Number(st.termijn)||14)),regels,btw:Number(st.btw),incl:!!st.incl,status:"open",notitie:"",gemaakt:new Date().toISOString()});
     for(const b of groups[kid])await save("beurten",b.id,{...strip(b),gefactureerd:id});
     laatsteId=id;i++}
     if(ids){toast("Factuur aangemaakt");if(btn)btn.disabled=false;return laatsteId}
@@ -8061,6 +8068,8 @@ function openSetEdit(id){
       ${sel("btw","Standaard btw-tarief",s.btw,L.btw.map(v=>[v,v+"%"+(v===21?" (hoog)":v===9||v===6?" (laag)":v===0?" (nul)":"")]),{t:"num",help:"Wordt voorgesteld bij nieuwe facturen en offertes"})}
       ${tgl("incl","Prijzen zijn incl. btw","De prijs per beurt bij klanten is inclusief btw",s.incl)}
       ${inp("termijn","Betaaltermijn (dagen)",s.termijn,{type:"number",t:"num"})}
+      ${sel("factNrStijl","Factuurnummers",s.factNrStijl||"jaar",[["jaar","Per jaar: "+nextNr("factuur",iso(today())).replace(/\d+$/,m=>m.replace(/./g,"0").replace(/0$/,"1"))+" …"],["doorlopend","Doorlopend zoals DienstenCRM: 26-009295"]],{help:"Doorlopend: jaar in 2 cijfers en een volgnummer van 6 cijfers dat over de jaren doorloopt. Zo krijgt je boekhouder één reeks."})}
+      ${inp("factNrStart","Eerste volgnummer (bij overstap)",s.factNrStart,{type:"number",t:"num",ph:"9295",help:"Laatste factuurnummer uit het oude pakket + 1, bijv. 26-009294 → 9295. Volgende factuur: "+esc(nextNr("factuur",iso(today())))})}
       ${sel("taal","Taal van de app",s.taal,[["nl","Nederlands"]],{help:"mijnschoonmaker is alleen in het Nederlands beschikbaar."})}`,{wide:false});bindSave();},
   email(){setDlg(c,`${info("mijnschoonmaker verstuurt zelf geen mail: elke e-mail opent in <b>je eigen mailprogramma</b>, met de tekst al ingevuld. Je klant ziet dus jouw naam en adres als afzender en antwoorden komen gewoon bij jou binnen.")}
       <label>Wat je klant ziet als afzender<input value="${esc(s.naam||"—")}" readonly><small class="help">Je bedrijfsnaam, aanpassen bij Bedrijf &amp; Branding</small></label>

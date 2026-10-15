@@ -135,8 +135,15 @@ function fStatus(f){
 const facturen=()=>state.facturen.filter(f=>f.soort!=="offerte");
 const offertes=()=>state.facturen.filter(f=>f.soort==="offerte");
 const echteFacturen=()=>facturen().filter(f=>f.status!=="concept");
+/* factuurnummers: standaard 2026-0001 per jaar; met "doorlopend" (zoals DienstenCRM) 26-009295: jaar in 2 cijfers en een
+   volgnummer van 6 cijfers dat over de jaren doorloopt, startend bij het laatste nummer uit het oude pakket + 1 */
+function nrDelen(nr){const m=String(nr||"").match(/^(.*?)(\d+)$/);return m?{pre:m[1],n:parseInt(m[2],10),pad:m[2].length}:{pre:String(nr||""),n:0,pad:4}}
 function nextNr(soort,datum,skip=0){
-  const y=String(datum).slice(0,4),pre=soort==="offerte"?"OFF-"+y+"-":y+"-";
+  const y=String(datum).slice(0,4),st=S();
+  if(soort!=="offerte"&&st.factNrStijl==="doorlopend"){const pre=y.slice(2)+"-",start=Math.max(0,parseInt(st.factNrStart,10)||0);
+    const ns=state.facturen.filter(f=>f.soort!=="offerte"&&/^\d{2}-\d{6}$/.test(String(f.nummer||""))).map(f=>parseInt(String(f.nummer).slice(3),10)||0);
+    return pre+String(Math.max(start-1,...ns)+1+skip).padStart(6,"0")}
+  const pre=soort==="offerte"?"OFF-"+y+"-":y+"-";
   const ns=state.facturen.filter(f=>String(f.nummer||"").startsWith(pre)).map(f=>parseInt(String(f.nummer).slice(pre.length),10)||0);
   return pre+String(Math.max(0,...ns)+1+skip).padStart(soort==="offerte"?3:4,"0");
 }

@@ -84,6 +84,8 @@ function openSetEdit(id){
       ${sel("btw","Standaard btw-tarief",s.btw,L.btw.map(v=>[v,v+"%"+(v===21?" (hoog)":v===9||v===6?" (laag)":v===0?" (nul)":"")]),{t:"num",help:"Wordt voorgesteld bij nieuwe facturen en offertes"})}
       ${tgl("incl","Prijzen zijn incl. btw","De prijs per beurt bij klanten is inclusief btw",s.incl)}
       ${inp("termijn","Betaaltermijn (dagen)",s.termijn,{type:"number",t:"num"})}
+      ${sel("factNrStijl","Factuurnummers",s.factNrStijl||"jaar",[["jaar","Per jaar: "+nextNr("factuur",iso(today())).replace(/\d+$/,m=>m.replace(/./g,"0").replace(/0$/,"1"))+" …"],["doorlopend","Doorlopend zoals DienstenCRM: 26-009295"]],{help:"Doorlopend: jaar in 2 cijfers en een volgnummer van 6 cijfers dat over de jaren doorloopt. Zo krijgt je boekhouder één reeks."})}
+      ${inp("factNrStart","Eerste volgnummer (bij overstap)",s.factNrStart,{type:"number",t:"num",ph:"9295",help:"Laatste factuurnummer uit het oude pakket + 1, bijv. 26-009294 → 9295. Volgende factuur: "+esc(nextNr("factuur",iso(today())))})}
       ${sel("taal","Taal van de app",s.taal,[["nl","Nederlands"]],{help:"mijnschoonmaker is alleen in het Nederlands beschikbaar."})}`,{wide:false});bindSave();},
   email(){setDlg(c,`${info("mijnschoonmaker verstuurt zelf geen mail: elke e-mail opent in <b>je eigen mailprogramma</b>, met de tekst al ingevuld. Je klant ziet dus jouw naam en adres als afzender en antwoorden komen gewoon bij jou binnen.")}
       <label>Wat je klant ziet als afzender<input value="${esc(s.naam||"—")}" readonly><small class="help">Je bedrijfsnaam, aanpassen bij Bedrijf &amp; Branding</small></label>
