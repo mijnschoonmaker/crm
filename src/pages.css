@@ -3603,3 +3603,12 @@ dialog .kp{overflow-wrap:anywhere}
 .jp-geg .jp-uit{flex-direction:column;align-items:flex-start;gap:4px}.jp-geg .jp-uit dd{text-align:left;justify-content:flex-start;display:block}.jp-geg .jp-uit dd small{text-align:left;margin-top:2px;white-space:pre-line}
 .jp-geg .iconbtn.sm{width:26px;height:26px}.jp-geg .iconbtn.sm svg{width:13px;height:13px}
 .jp-geg .linkbtn{font-family:inherit;font-weight:700}
+/* ---------- opdrachtpaneel: voet ---------- */
+.jp-foot{flex-wrap:wrap;gap:10px;padding:12px 20px calc(14px + env(safe-area-inset-bottom,0px));box-shadow:0 -10px 24px -18px rgb(15 31 38 / .25)}
+.jp-foot button{min-height:50px;border-radius:14px;font-weight:650;white-space:nowrap}
+.jp-foot button.primary{flex:1.6;background:linear-gradient(135deg,#137a8a,#1d5a74);box-shadow:0 10px 20px -12px rgb(19 122 138 / .7)}
+.jp-foot button:not(.primary):not(.ghost){flex:1;border:1.5px solid var(--line);background:var(--surface)}
+.jp-foot button.ghost{flex:1 1 100%;order:3;min-height:38px;font-size:13.5px;color:var(--muted);background:none;border:0;box-shadow:none;margin-top:-2px}
+.jp-foot button.ghost:hover{color:var(--brand);background:var(--surface-2)}
+.jp-foot button svg{width:18px;height:18px}
+.jp-isaf .jp-foot button.ghost{order:0;flex:1;min-height:50px;font-size:15px;border:1.5px solid var(--line);color:var(--ink);background:var(--surface)}
