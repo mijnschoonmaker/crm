@@ -1,0 +1,12 @@
+[
+ {"t":"Goedemorgen! Ik neem jullie graag even mee in ons klantportaal. Als voorbeeld kijken we in het portaal van Ashley.","a":[["top"],["wacht",800]]},
+ {"t":"Als je klant bij ons wordt, krijg je meteen je eigen portaal. Inloggen gaat zonder wachtwoord: je krijgt gewoon een link in je mail.","a":[["wijs",".topbar .logo"],["wacht",600]]},
+ {"t":"Bovenaan zie je direct wanneer we weer komen. Bij Ashley zijn we net geweest, en over acht weken, op negen december, staan we weer voor de deur.","a":[["wijs",".bz-hero h2"],["wacht",2200],["wijs",".bz-ring"]]},
+ {"t":"Komt het die dag niet uit? Dan sla je het bezoek met één tik over. Of geef ons instructies, bijvoorbeeld de code van de poort.","a":[["wacht",900],["wijs","[data-act=overslaan]"],["wacht",2300],["wijs","[data-act=toegang]"]]},
+ {"t":"Bij Bezoeken zie je al je eerdere beurten op een rij. En na elk bezoek kun je ons werk beoordelen.","a":[["tik","nav.tabs [data-tab=bezoeken]"],["wacht",1400],["scroll",520],["wacht",1800],["scroll",1100]]},
+ {"t":"Onder Facturen vind je al je facturen bij elkaar. Een openstaande factuur betaal je direct online, in een paar seconden.","a":[["tik","nav.tabs [data-tab=facturen]"],["wacht",2200],["scroll",380]]},
+ {"t":"Heb je een vraag, of klopt er iets niet? Stuur ons dan een bericht via Tickets. Ons antwoord zie je hier meteen terug.","a":[["tik","nav.tabs [data-tab=tickets]"],["wacht",1800],["tik","[data-tk]"],["wacht",1200]]},
+ {"t":"Ben je tevreden? Deel dan je persoonlijke link. Je buren krijgen tien euro korting, en jij krijgt vijftien euro voor elke nieuwe klant.","a":[["tik","nav.tabs [data-tab=aanbevelen]"],["wacht",2600],["scroll",420],["wacht",1500],["scroll",820]]},
+ {"t":"En op de dag zelf zie je live waar ons busje is, hoe laat we bij je zijn, en hoeveel adressen er nog voor je zijn.","a":[["tik","nav.tabs [data-tab=home]"],["wacht",900],["top"],["wacht",700],["wijs",".bz-line"]]},
+ {"t":"Zo heb je alles over je glasbewassing op één plek. Welkom bij mijnschoonmaker punt com!","a":[["wacht",400]]}
+]
