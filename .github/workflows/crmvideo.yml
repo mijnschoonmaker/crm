@@ -1,0 +1,32 @@
+name: CRM uitlegvideo (Dave)
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  video:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Gereedschap
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg fonts-noto-color-emoji >/dev/null
+          pip install -q edge-tts
+          mkdir -p /home/runner/work/_v && cd /home/runner/work/_v && npm init -y >/dev/null && npm install -q firebase-admin@12 playwright@1.47.2 --no-audit --no-fund >/dev/null && npx playwright install --with-deps chromium >/dev/null
+      - name: Stem inspreken
+        env: { TEKST: tools/video/crm/tekst.json, TEMPO: "+2%" }
+        run: mkdir -p out && python tools/video/tts.py
+      - name: Testomgeving opnemen
+        env: { TEKST: tools/video/crm/tekst.json, PAUZE: "0.2" }
+        run: URL="file://$GITHUB_WORKSPACE/tools/video/crmdemo/index.html" node tools/video/opname.js
+      - name: Video maken
+        env: { NAAM: out/crm-dave.mp4 }
+        run: python tools/video/maak.py
+      - name: Naar media-tak
+        run: |
+          mkdir -p /tmp/m && cp out/crm-dave.mp4 /tmp/m/ && cp out/controle.png /tmp/m/controle-crm.png
+          git config user.name "video-bot" && git config user.email "bot@mijnschoonmaker.com"
+          git fetch origin media && git checkout -B media origin/media && cp /tmp/m/* . && git add crm-dave.mp4 controle-crm.png && git commit -qm "CRM-video Dave" && git push origin media

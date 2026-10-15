@@ -1,0 +1,254 @@
+[
+ {
+  "t": "Dit is het CRM van glazenwasser Dave. Zijn hele glazenwassersbedrijf, in één app op zijn telefoon.",
+  "a": [
+   [
+    "ga",
+    "vandaag"
+   ],
+   [
+    "top"
+   ],
+   [
+    "wacht",
+    700
+   ],
+   [
+    "wijs",
+    ".vh, .rv"
+   ]
+  ]
+ },
+ {
+  "t": "Bij vertrek tikt Dave op start werkdag. Hij ziet meteen hoeveel adressen er nog komen, wat hij vandaag verdient, en hoe laat hij klaar is.",
+  "a": [
+   [
+    "scrollnaar",
+    ".wd"
+   ],
+   [
+    "wacht",
+    2600
+   ],
+   [
+    "scroll",
+    -260
+   ]
+  ]
+ },
+ {
+  "t": "Klaar bij een klant? Eén tik op afmelden, en de factuur staat al klaar. Geen papierwerk meer in de avond.",
+  "a": [
+   [
+    "scrollnaar",
+    ".tk-af"
+   ],
+   [
+    "wacht",
+    900
+   ],
+   [
+    "tik",
+    ".tk-af"
+   ],
+   [
+    "wacht",
+    2200
+   ]
+  ]
+ },
+ {
+  "t": "Op Route staan al zijn stops op volgorde. Met één tik optimaliseert hij de route, of rijdt hij met Google Maps naar het volgende adres.",
+  "a": [
+   [
+    "tik",
+    "#tabNav [data-tab=route]"
+   ],
+   [
+    "wacht",
+    2500
+   ],
+   [
+    "scroll",
+    560
+   ],
+   [
+    "wacht",
+    900
+   ],
+   [
+    "wijs",
+    "[data-act=optim]"
+   ]
+  ]
+ },
+ {
+  "t": "In de planning ziet hij wie er aan de beurt is. Dave sleept klanten zo in de agenda, en het systeem onthoudt wanneer iedereen weer moet.",
+  "a": [
+   [
+    "tik",
+    "#tabNav [data-tab=planning]"
+   ],
+   [
+    "wacht",
+    2600
+   ],
+   [
+    "scroll",
+    420
+   ],
+   [
+    "wacht",
+    1500
+   ],
+   [
+    "scroll",
+    1100
+   ]
+  ]
+ },
+ {
+  "t": "Al zijn klanten staan overzichtelijk bij elkaar. Adres, prijs, ritme, notities, en alles wat er ooit is gebeurd.",
+  "a": [
+   [
+    "tik",
+    "#tabNav [data-tab=klanten]"
+   ],
+   [
+    "wacht",
+    1800
+   ],
+   [
+    "scroll",
+    520
+   ],
+   [
+    "wacht",
+    900
+   ],
+   [
+    "tik",
+    "[data-act=klant][data-id]"
+   ],
+   [
+    "wacht",
+    1800
+   ],
+   [
+    "scroll",
+    500
+   ]
+  ]
+ },
+ {
+  "t": "Facturen verstuurt hij met één tik. Klanten betalen direct online, en herinneringen gaan vanzelf de deur uit.",
+  "a": [
+   [
+    "sluit"
+   ],
+   [
+    "tik",
+    "#tabNav [data-act=meer]"
+   ],
+   [
+    "wacht",
+    900
+   ],
+   [
+    "ga",
+    "facturen"
+   ],
+   [
+    "wacht",
+    2400
+   ],
+   [
+    "scroll",
+    520
+   ]
+  ]
+ },
+ {
+  "t": "Aankondigingen, herinneringen en reviewverzoeken staan automatisch klaar. Zo weten klanten altijd wanneer Dave komt.",
+  "a": [
+   [
+    "tik",
+    "#tabNav [data-act=meer]"
+   ],
+   [
+    "wacht",
+    900
+   ],
+   [
+    "ga",
+    "communicatie"
+   ],
+   [
+    "wacht",
+    2600
+   ],
+   [
+    "scroll",
+    420
+   ]
+  ]
+ },
+ {
+  "t": "En in de statistieken ziet hij precies wat hij verdient. Per maand, per klant, en zelfs per uur.",
+  "a": [
+   [
+    "tik",
+    "#tabNav [data-act=meer]"
+   ],
+   [
+    "wacht",
+    900
+   ],
+   [
+    "ga",
+    "inzichten"
+   ],
+   [
+    "wacht",
+    2400
+   ],
+   [
+    "scroll",
+    640
+   ]
+  ]
+ },
+ {
+  "t": "Zijn klanten krijgen bovendien een eigen portaal, waar ze op de dag zelf live kunnen zien waar hij is.",
+  "a": [
+   [
+    "scroll",
+    1300
+   ],
+   [
+    "wacht",
+    1500
+   ],
+   [
+    "scroll",
+    1900
+   ]
+  ]
+ },
+ {
+  "t": "Minder regelwerk, en meer tijd om te wassen. Zo werkt Dave. En jij straks ook? Kijk op mijnschoonmaker punt com.",
+  "a": [
+   [
+    "tik",
+    "#tabNav [data-tab=vandaag]"
+   ],
+   [
+    "wacht",
+    600
+   ],
+   [
+    "top"
+   ]
+  ]
+ }
+]
