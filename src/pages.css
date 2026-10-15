@@ -3620,3 +3620,14 @@ dialog .kp{overflow-wrap:anywhere}
 @media(max-width:560px){.ow-kop{margin:-16px -16px 0;border-radius:0!important}}
 .kk-av{padding-right:0;border-right:0}.kk-av .av{width:48px;height:48px;font-size:17px;border:2px solid rgb(255 255 255 / .6)}
 @media(max-width:560px){.kk-av .av{width:40px;height:40px;font-size:14px}}
+/* kop sluit strak aan op de hoeken van de dialoog */
+dialog:has(> form > .ow-kop){clip-path:inset(0 round 24px)}
+.ow-kop{border-radius:0!important}
+/* hospitality in een dialoog: zelfde rustige kaart als de rest */
+.hosp-top .hosp,.hosp-top .hosp-leeg{border:1px solid var(--line)!important;background:var(--surface)!important;box-shadow:0 1px 2px rgb(15 31 38 / .04)!important;border-radius:18px!important;isolation:auto}
+.hosp-top .hosp::before,.hosp-top .hosp::after{display:none}
+.hosp-top .hosp .objic,.hosp-top .hosp-leeg .objic{animation:none;box-shadow:none!important}
+.hosp-top .hosp .objic svg,.hosp-top .hosp-leeg .objic svg{animation:none}
+.hosp-top .hosp-h b,.hosp-top .hosp-leeg b{color:var(--ink)!important}
+.hosp-top .hosp-leeg small{color:var(--muted)}
+.hosp-top .hosp .iconbtn,.hosp-top .hosp-leeg .iconbtn,.hosp-top .hosp-leeg .small{background:var(--surface);border-color:var(--line);color:var(--ink)}
