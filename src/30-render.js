@@ -163,6 +163,7 @@ document.addEventListener("click",e=>{
     case"toroute":state.routeDay=t.dataset.d;go("route");break;
     case"rday":state.routeDay=n===0?iso(today()):iso(addDays(parse(state.routeDay||iso(today())),n));render();break;
     case"rmove":routeMove(id,n);break;
+    case"rvmap":rvMapToggle();break;
     case"optim":optimize(t.dataset.d);break;
     case"weekplan":{const d=t.dataset.d?parse(t.dataset.d):null;openWeekplan(d&&d>startOfWeek(today())?d:addDays(startOfWeek(today()),7));break}
     /* planning */

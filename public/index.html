@@ -3929,6 +3929,16 @@ dialog .kp{overflow-wrap:anywhere}
 .fk-l{display:flex;flex-direction:column;gap:6px;font-size:12px;color:#9fb0b6}.fk-l textarea{background:#1c252a;color:#fff;border:1px solid #2c3a40;border-radius:12px;padding:10px;font:inherit;font-size:15px}
 .fk-zs{display:flex;gap:6px;flex-wrap:wrap}.fk-zs button{padding:7px 11px;border-radius:999px;border:1px solid #2c3a40;background:#1c252a;color:#fff;font:600 12.5px/1 inherit}.fk-zs button[aria-pressed="true"]{background:var(--brand);border-color:var(--brand)}
 
+/* ---------- dagkaart onder de weg ---------- */
+.rv-weg[data-act]{cursor:pointer}
+.rv-tip{display:block;text-align:center;margin:6px 0 -4px;font-size:11.5px;color:rgba(255,255,255,.55)}
+.rv-map{height:240px;margin:14px -4px -6px;border-radius:16px;overflow:hidden;background:#dfe7ea;position:relative;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+.rv-map-l{position:absolute;inset:0;display:grid;place-items:center;color:#5d6f76;font-size:13px}
+.rvm i{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#fff;color:#0f1f26;font:700 11.5px/1 inherit;border:2px solid #137a8a;box-shadow:0 2px 8px rgb(0 0 0 / .25)}
+.rvm i.af{background:#23845a;border-color:#fff;color:#fff}.rvm i.nu{width:30px;height:30px;background:#137a8a;color:#fff;border-color:#fff;font-size:13px;box-shadow:0 0 0 5px rgb(19 122 138 / .25),0 4px 12px rgb(0 0 0 / .3)}
+.rvm i.loods{width:26px;height:26px;background:#0f1f26;border-color:#fff}.rvm i.loods svg{width:14px;height:14px;stroke:#fff}
+@media(min-width:900px){.rv-map{height:300px}}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -5375,16 +5385,16 @@ function rvKaart(o){const{stops,done,todo,nx,klaar,mw,verdiend,totaal,restMin,kl
   const nodes=stops.map((s,i)=>{const nu=!s.done&&nx&&s.k.id===nx.id;return `<li class="${s.done?"af":nu?"nu":""}" style="--x:${n<2?.5:i/(n-1)}" title="${esc(jobAddrObj(s.k).adres||cleanName(s.k.naam))}"><i>${s.done?'<svg viewBox="0 0 24 24"><path d="M5.5 12.8l4.2 4.2L18.5 7.6"/></svg>':HUIS}</i><small>${esc(s.k.tijd||"")}</small></li>`}).join("");
   const geld=mw?`<div class="rv-geld"><small>Woningen</small><b>${done}<em>/${n}</em></b></div>`
     :`<div class="rv-geld"><small>${klaar?"Verdiend vandaag":"Verdiend"}</small><b data-tel="${verdiend}" data-van="${meer?e0:verdiend}">${eur0(meer?e0:verdiend)}</b>${klaar?"":`<span class="rv-gb"><i style="width:${totaal?Math.round(verdiend/totaal*100):0}%"></i></span><em>van ${eur0(totaal)}</em>`}</div>`;
-  if(vooruit||meer)setTimeout(rvAnim,60);
+  if(vooruit||meer)setTimeout(rvAnim,60);if(state.rvMap)setTimeout(rvMapTeken,40);
   return `<section class="rv${klaar?" klaar":""}${vooruit?" rijdt":""}">
     <div class="rv-top"><div class="rv-tx"><span class="rv-fase">${klaar?RV_VLAG:'<i></i>'}${fase}<b>${done}/${n}</b></span>
       <h2>${esc(kop)}</h2>${klaar?`<p>${esc(sub)}</p>`:`<div class="rv-chips"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/></svg><b>${todo.length}</b> ${todo.length===1?"adres":"adressen"}</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><b>${uM(werkMin)}</b> werk</span>${reisMin?`<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.6"/><circle cx="17" cy="17.5" r="1.6"/></svg><b>${rt.schat?"± ":""}${uM(reisMin)}</b> rijden</span>`:""}${klaarOm?`<span class="rv-klaar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>klaar <b>${klaarOm}</b></span>`:""}</div>`}</div>${geld}</div>
-    <div class="rv-weg${n>10?" veel":""}" style="--p:${pos};--v:${vooruit?v0:pos}">
+    <div class="rv-weg${n>10?" veel":""}${state.rvMap?" open":""}" style="--p:${pos};--v:${vooruit?v0:pos}" data-act="rvmap" role="button" tabindex="0" aria-expanded="${!!state.rvMap}" title="${state.rvMap?"Kaart verbergen":"Stops op de kaart"}">
       <div class="rv-asfalt"><span class="rv-af"></span></div>
       <ol>${nodes}</ol>
       <span class="rv-bus${klaar?" thuis":""}">${RV_BUS}</span>
       <span class="rv-finish">${RV_VLAG}</span>
-    </div></section>`}
+    </div>${rvMapHtml()}${state.rvMap?"":`<small class="rv-tip">Tik op de weg voor de kaart</small>`}</section>`}
 function rvAnim(){const w=document.querySelector(".rv-weg");if(w){requestAnimationFrame(()=>{w.style.setProperty("--v",getComputedStyle(w).getPropertyValue("--p"))});setTimeout(()=>{const r=document.querySelector(".rv.rijdt");r&&r.classList.remove("rijdt")},1900)}
   const b=document.querySelector(".rv-geld b[data-tel]");if(b){const a=+b.dataset.van,z=+b.dataset.tel;if(z>a){const t0=performance.now(),st=t=>{const k=Math.min(1,(t-t0)/1400),e=1-Math.pow(1-k,3);b.textContent=eur0(Math.round(a+(z-a)*e));if(k<1&&b.isConnected)requestAnimationFrame(st);else b.classList.add("pop")};requestAnimationFrame(st)}}}
 
@@ -5401,6 +5411,29 @@ function rtReis(stops,todo,isT){if(typeof pkCoord!=="function")return{heen:0,tus
   let heen=0;if(isT&&todo.length){const af=stops.filter(s=>s.done),van=(typeof LV!=="undefined"&&LV.pos&&[LV.pos.lat,LV.pos.lng])||(af.length&&pkCoord(af[af.length-1].k))||(pkHeeftAdres(bk)&&pkCoord(bk))||null;
     if(van){const v=rtMin(van,pkCoord(todo[0].k));if(v==null)schat=true;else heen=v}}
   return{heen,tussen,schat}}
+
+/* ---------- Dagkaart: tik op de weg → alle stops van vandaag op een kaart (gedaan = groen, volgende groot, jouw positie erbij) ---------- */
+state.rvMap=(()=>{try{return localStorage.getItem("ms.rvmap")==="1"}catch(e){return false}})();
+function rvMapHtml(){return state.rvMap?`<div class="rv-map" id="rvMap"><div class="rv-map-l">Kaart laden…</div></div>`:""}
+function rvMapToggle(){state.rvMap=!state.rvMap;try{localStorage.setItem("ms.rvmap",state.rvMap?"1":"0")}catch(e){}render()}
+async function rvMapTeken(){const el=document.getElementById("rvMap");if(!el||!state.rvMap||typeof pkLaadLeaflet!=="function")return;
+  const day=state.routeDay||iso(today()),stops=routeStops(day),bk=rtBedrijf();
+  const lijst=[...stops.map(s=>s.k),...(pkHeeftAdres(bk)?[bk]:[])];
+  if(pkOpen(lijst).length){try{await pkGeocode(lijst)}catch(e){}}
+  try{await pkLaadLeaflet()}catch(e){el.innerHTML='<div class="rv-map-l">Kaart niet beschikbaar</div>';return}
+  if(!document.body.contains(el))return;const L=window.L;
+  if(!el._map){el.innerHTML="";el._map=L.map(el,{zoomControl:false,attributionControl:false});L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19}).addTo(el._map);el._laag=L.layerGroup().addTo(el._map)}
+  const m=el._map;el._laag.clearLayers();const pts=[];let nx=stops.find(s=>!s.done);
+  const lijn=[];
+  stops.forEach((s,i)=>{const c=pkCoord(s.k);if(!c)return;pts.push(c);lijn.push(c);const nu=nx&&s.k.id===nx.k.id;
+    L.marker(c,{icon:L.divIcon({className:"rvm",html:`<i class="${s.done?"af":nu?"nu":""}">${s.done?"✓":i+1}</i>`,iconSize:nu?[30,30]:[24,24],iconAnchor:nu?[15,15]:[12,12]}),zIndexOffset:nu?500:s.done?0:100})
+      .bindTooltip(`${esc(jobAddrObj(s.k).adres||cleanName(s.k.naam))}${s.k.tijd?" · "+esc(s.k.tijd):""}`).addTo(el._laag)});
+  if(lijn.length>1)L.polyline(lijn,{color:"#137a8a",weight:3,opacity:.55,dashArray:"6 8"}).addTo(el._laag);
+  const lo=pkHeeftAdres(bk)&&pkCoord(bk);if(lo){pts.push(lo);L.marker(lo,{icon:L.divIcon({className:"rvm",html:`<i class="loods">${I.truck||"L"}</i>`,iconSize:[26,26],iconAnchor:[13,13]})}).bindTooltip("Loods").addTo(el._laag)}
+  const ik=typeof LV!=="undefined"&&LV.pos&&[LV.pos.lat,LV.pos.lng];if(ik){pts.push(ik);L.circleMarker(ik,{radius:7,color:"#fff",weight:3,fillColor:"#2f6fdd",fillOpacity:1}).bindTooltip("Jij").addTo(el._laag)}
+  if(!pts.length){el.innerHTML='<div class="rv-map-l">Nog geen adressen gevonden op de kaart</div>';el._map=null;return}
+  m.invalidateSize();m.fitBounds(pts,{padding:[22,22],maxZoom:15});
+}
 
 /* ---------- Kaartplannen ----------
    Een kaart boven de planning: waar wonen de klanten die ingepland moeten worden, en waar werk je al.
@@ -11959,6 +11992,7 @@ document.addEventListener("click",e=>{
     case"toroute":state.routeDay=t.dataset.d;go("route");break;
     case"rday":state.routeDay=n===0?iso(today()):iso(addDays(parse(state.routeDay||iso(today())),n));render();break;
     case"rmove":routeMove(id,n);break;
+    case"rvmap":rvMapToggle();break;
     case"optim":optimize(t.dataset.d);break;
     case"weekplan":{const d=t.dataset.d?parse(t.dataset.d):null;openWeekplan(d&&d>startOfWeek(today())?d:addDays(startOfWeek(today()),7));break}
     /* planning */
