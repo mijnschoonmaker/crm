@@ -20,14 +20,12 @@ function offerHtml(k,dayIso,timed){
     else{cls=d<7?"crit":d<=10?"warn":d<=14?"attn":"ok";band=d===1?"dag":"dagen";big=d}}
   const adTxt=iso(ad)===iso(t)?"vandaag":dtx(ad);
   const ao=jobAddrObj(k),sdD=parse(sd);
+  const st=extra?extra.charAt(0).toUpperCase()+extra.slice(1):band==="te laat"?"Te laat":band==="vandaag"?"Vandaag":band==="dag"||band==="dagen"?"Over "+big+" "+band:"Aanbod";
   return `<div class="job offer of kx-${cls}${picked?" picked":""}" style="--h:${h}" draggable="true" data-drag="${esc(k.id)}"${state.planMode?` data-act="pmpick" data-id="${esc(k.id)}"`:""}>
-    <div class="of-top"><span class="kx-av of-av"><span class="kc kc-tile"><i class="kc-m">${band}</i><b>${big}</b></span></span>
-      <div class="of-main"><button type="button" class="of-adr" data-act="opdracht" data-id="${esc(k.id)}" title="Opdracht openen">${esc(ao.adres||cleanName(k.naam))}</button>
-        <div class="of-nm">${esc(cleanName(k.naam))}${ao.plaats?" · "+esc(ao.plaats):""}</div>
-        </div>
-      <div class="of-amt"><b>${eur0(toon(k.prijs))}</b><small>${I.clock}${duur(k)} min</small></div></div>
-    <div class="of-chips"><span class="of-st"><i></i>${esc(extra?extra.charAt(0).toUpperCase()+extra.slice(1):band==="te laat"?"Te laat":band==="vandaag"?"Vandaag":"Aanbod")} · ${esc(adTxt)}</span><span>${I.wrench}${esc(k.dienst||"Glasbewassing")}</span><span>${I.refresh||I.clock}elke ${esc(k.frequentie||4)} wk</span>${k.ronde?`<span class="of-r"><i style="background:hsl(${h} 65% 52%)"></i>${esc(k.ronde)}</span>`:""}</div>
-    ${state.planMode?`<div class="of-pm${picked?" on":""}">${picked?"Gekozen · tik een tijdslot":"Tik om te kiezen"}</div>`:""}
+    <div class="of-kop"><span class="of-k1"><small>${esc(band)}</small><b>${big}</b></span><span class="of-k2"><small>Aanbod</small><b>${esc(adTxt)}</b>${extra||cls==="late"||cls==="crit"?`<em>${esc(st)}</em>`:""}</span><span class="of-k3"><small>Prijs</small><b>${eur0(toon(k.prijs))}</b><em>${duur(k)} min</em></span></div>
+    <div class="of-body"><button type="button" class="of-adr" data-act="opdracht" data-id="${esc(k.id)}" title="Opdracht openen"><span class="av of-av2">${esc((cleanName(k.naam)||"?").slice(0,1).toUpperCase())}</span><span><b>${esc(ao.adres||cleanName(k.naam))}</b><small>${esc(cleanName(k.naam))}${ao.plaats?" · "+esc(ao.plaats):""}</small></span>${I.right}</button>
+      <div class="of-chips"><span>${I.wrench}${esc(k.dienst||"Glasbewassing")}</span><span>${I.refresh||I.clock}elke ${esc(k.frequentie||4)} wk</span>${k.ronde?`<span class="of-r"><i style="background:hsl(${h} 65% 52%)"></i>${esc(k.ronde)}</span>`:""}</div>
+      ${state.planMode?`<div class="of-pm${picked?" on":""}">${picked?"Gekozen · tik een tijdslot":"Tik om te kiezen"}</div>`:""}</div>
   </div>`;
 }
 const pqMatch=k=>{const q=state.pq.toLowerCase();return !q||[k.naam,k.adres,k.plaats,k.postcode,jobAddr(k)].join(" ").toLowerCase().includes(q)};
