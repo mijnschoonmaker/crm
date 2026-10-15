@@ -87,6 +87,7 @@ textarea.in{height:auto;padding:12px 14px;resize:vertical;line-height:1.45}
 .ph .cnt{position:absolute;left:6px;bottom:6px;min-width:22px;height:22px;padding:0 6px;border-radius:99px;background:#e5484d;color:#fff;font:700 12px var(--body);display:grid;place-items:center}
 .ph .rm{position:absolute;right:5px;top:5px;width:26px;height:26px;border-radius:50%;border:0;background:rgb(0 0 0 / .6);color:#fff;font-size:15px;line-height:1;cursor:pointer;display:grid;place-items:center}
 .addph{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border:1.5px dashed var(--line);color:var(--muted);font-size:12.5px;font-weight:700;cursor:pointer;text-align:center;padding:6px}
+.addph.ai{border:1.5px solid transparent;background:linear-gradient(135deg,#137a8a,#1d5a74);color:#fff;font:inherit;font-size:12.5px;font-weight:700}.addph.ai b{font-size:20px;line-height:1}.addph.ai.klaar{background:linear-gradient(135deg,#1b8a5a,#137a8a)}
 .addph svg{width:26px;height:26px}
 .addph:hover{border-color:var(--blue);color:var(--blue)}
 .phhint{font-size:12.5px;color:var(--muted)}
@@ -239,10 +240,10 @@ const RC_HTML=`<div class="wrap">
       <div class="fld full keep phf">
         <span class="lab">Foto's van de woning</span>
         <div class="photos" id="photos">
-          <label class="addph" for="ph-in">${RC_SVG.cam}<span>Foto toevoegen</span></label>
+          <button type="button" class="addph ai" id="ph-ai" title="Loop om de woning, maak per zijde een foto en laat de ramen tellen"><b>✦</b><span>Tel met AI</span></button><label class="addph" for="ph-in">${RC_SVG.cam}<span>Foto toevoegen</span></label>
         </div>
         <input id="ph-in" type="file" accept="image/*" multiple hidden>
-        <span class="phhint">Maak foto's van alle zijden. Kies per stip de verdieping of soort raam; de aantallen gaan vanzelf naar de telling. Markeer elk raam op maar één foto.</span>
+        <span class="phhint"><b>Tel met AI</b>: maak per zijde een foto, de ramen worden automatisch geteld en per verdieping ingevuld. Of voeg zelf foto's toe: maak foto's van alle zijden. Kies per stip de verdieping of soort raam; de aantallen gaan vanzelf naar de telling. Markeer elk raam op maar één foto.</span>
         <div class="phsum" id="phsum" hidden></div>
       </div>
       <div class="fld full keep"><label class="lab" for="k-notitie">Notitie voor op de route</label><textarea class="in" id="k-notitie" rows="2" placeholder="Bijv. sleutel onder bloempot, hond aanwezig"></textarea></div>
@@ -817,6 +818,15 @@ function buildRamen(){
   /* foto's */
   g("ph-in").addEventListener("change",async e=>{const files=[...e.target.files];e.target.value="";
     for(const f of files){try{photos.push(await loadPhoto(f))}catch(_){}}renderPhotos();markStale();if(files.length===1&&photos.length)openEd(photos.length-1)});
+  /* ramen tellen met AI (zelfde telling als bij de tellingcontrole): de foto's met stippen komen hier binnen en de aantallen gaan naar de telling */
+  const aiBtn=g("ph-ai");if(aiBtn)aiBtn.onclick=()=>{if(typeof openFotoTelling!=="function"){toast("AI tellen is hier niet beschikbaar");return}
+    const prev=photos.filter(p=>p.ai&&p.rf).map(p=>({...p.rf,dots:p.dots.map(d=>({...d}))}));
+    openFotoTelling({naam:(g("k-naam")||{}).value||"",adres:(g("k-adres")||{}).value||""},prev,async res=>{
+      const nieuw=[];for(const r of res.fotos||[]){try{const im=new Image();await new Promise((ok,no)=>{im.onload=ok;im.onerror=no;im.src=r.url});const cv=document.createElement("canvas");cv.width=im.naturalWidth;cv.height=im.naturalHeight;cv.getContext("2d").drawImage(im,0,0);
+        nieuw.push({cv,blob:r.blob,url:r.url,dots:(r.dots||[]).map(d=>({x:d.x,y:d.y,t:d.t})),assetId:"",ai:true,rf:{zijde:r.zijde,blob:r.blob,url:r.url,data:r.data,w:r.w,h:r.h}})}catch(_){}}
+      photos=[...photos.filter(p=>!p.ai),...nieuw];renderPhotos();syncFromPhotos();markStale();
+      aiBtn.classList.add("klaar");aiBtn.querySelector("span").textContent="AI-telling bekijken";
+      try{g("cFloors").scrollIntoView({behavior:"smooth",block:"start"})}catch(_){}})};
   g("photos").addEventListener("click",e=>{const rm=e.target.closest("[data-rm]");
     if(rm){const i=+rm.dataset.rm;URL.revokeObjectURL(photos[i].url);photos.splice(i,1);renderPhotos();syncFromPhotos();markStale();return}
     const ph=e.target.closest(".ph");if(ph)openEd(+ph.dataset.i)});
