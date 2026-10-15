@@ -6749,28 +6749,35 @@ const bhGb=(type,veld)=>{const v=S()["bhGb_"+type+"_"+veld];if(v!=null&&v!=="")r
 const bhType=k=>k&&k.soort==="vve"?"vve":k&&k.soort==="zakelijk"?"zakelijk":"particulier";
 const bhLog=()=>Array.isArray((state.boekhouder||{}).items)?state.boekhouder.items:[];
 const bhD=iso=>{const d=parse(iso);return d?pad(d.getDate())+"-"+pad(d.getMonth()+1)+"-"+d.getFullYear():""};
-const bhN=x=>(Math.round((Number(x)||0)*100)/100).toFixed(2).replace(".",",");
+const bhN=x=>{const v=Math.round((Number(x)||0)*100)/100,[a,b]=v.toFixed(2).split(".");return a.replace(/\B(?=(\d{3})+(?!\d))/g,".")+","+b};
+const bhQ=x=>{x=String(x??"");return /[\s,;"]/.test(x)?'"'+x.replace(/"/g,'""')+'"':x};
+const bhCode=nr=>{const m=String(nr||"").match(/(\d+)\s*$/);return m?String(Number(m[1])):String(nr||"").replace(/\D/g,"")||"0"};
 state.bhVan=state.bhVan||iso(new Date(today().getFullYear(),today().getMonth(),1));state.bhTot=state.bhTot||iso(today());
 
 /* verkoopboek: alle definitieve facturen met factuurdatum in de periode */
 function bhVerkoopboek(van,tot){
   const fs=echteFacturen().filter(f=>f.datum>=van&&f.datum<=tot).sort((a,b)=>String(a.datum).localeCompare(String(b.datum))||String(a.nummer).localeCompare(String(b.nummer),"nl",{numeric:true}));
-  const rows=[],kop=["FldDagboek","FldBoekingcode","FldDatum","FldGrootboeknummer","FldDebet","FldCredit","FldRelatiecode","FldFactuurnummer","fldOmschrijving","BtwCode"];
-  let code=Number(String(Date.now()).slice(-6));const fout=[];
+  const rows=[],kop=["Dagboek","Boekingcode","Datum","Grootboeknummer","Debet","Credit","Omschrijving","Relatiecode","Factuurnummer"];const fout=[];
   fs.forEach(f=>{const k=state.klanten.find(x=>x.id===f.klantId),t=bhType(k),T=totals(f),pct=Number(f.btw??S().btw);
-    const rel=k?klantNr(k):"",nr=String(f.nummer||f.id),oms=(f.klantNaam||(k&&cleanName(k.naam))||"")+" · "+nr,dat=bhD(f.datum);
+    const rel=k?klantNr(k):"",nr=String(f.nummer||f.id),code=bhCode(nr),dat=bhD(f.datum),db=bhS("bhVerkoopboek");
     const omzetGb=f.btwVerlegd||k&&k.btwVerlegd?bhGb(t,"verlegd"):pct===0?bhGb(t,"omzet0"):pct===9?bhGb(t,"omzet9"):bhGb(t,"omzet21");
     const btwGb=pct===9?bhGb(t,"btw9"):pct===21?bhGb(t,"btw21"):"";
-    const btwCode=f.btwVerlegd||k&&k.btwVerlegd?bhS("bhBtwVerlegd"):pct===0?bhS("bhBtw0"):pct===9?bhS("bhBtwLaag"):bhS("bhBtwHoog");
     if(!omzetGb)fout.push(nr+": geen grootboekrekening omzet "+pct+"% voor "+t);
     if(T.btw>0&&!btwGb)fout.push(nr+": geen grootboekrekening btw "+pct+"%");
-    code++;
-    rows.push([bhS("bhVerkoopboek"),code,dat,bhS("bhDebiteuren"),bhN(T.inc),bhN(0),rel,nr,oms,btwCode]);
-    rows.push([bhS("bhVerkoopboek"),code,dat,omzetGb,bhN(0),bhN(T.ex),rel,nr,oms,btwCode]);
-    if(T.btw>0)rows.push([bhS("bhVerkoopboek"),code,dat,btwGb,bhN(0),bhN(T.btw),rel,nr,oms,btwCode]);
+    rows.push([db,code,dat,bhS("bhDebiteuren"),bhN(T.inc),bhN(0),nr,rel,nr]);
+    rows.push([db,code,dat,omzetGb,bhN(0),bhN(T.ex),nr,rel,nr]);
+    if(T.btw>0)rows.push([db,code,dat,btwGb,bhN(0),bhN(T.btw),nr,rel,nr]);
   });
-  const csv=[kop,...rows].map(r=>r.map(x=>{x=String(x??"");return /[;"\n]/.test(x)?'"'+x.replace(/"/g,'""')+'"':x}).join(";")).join("\r\n");
+  const csv=[kop,...rows].map(r=>r.map(x=>String(x??"").replace(/[;\r\n]/g," ")).join(";")).join("\r\n")+"\r\n";
   return{fs,rows,csv,fout,omzet:fs.reduce((a,f)=>a+totals(f).inc,0)};
+}
+/* relaties: alle actieve klanten, zodat de relatiecodes in SnelStart kloppen */
+function bhRelaties(){
+  const kop=["Relatiecode","Naam","Contactpersoon","Adres","Postcode","Plaats","Telefoon","Fax","Email"];
+  const ks=actief().slice().sort((a,b)=>Number(klantNr(a))-Number(klantNr(b)));
+  const rows=ks.map(k=>{const a=k.fAdres?{adres:k.fAdres,postcode:k.fPostcode,plaats:k.fPlaats}:k;const naam=k.soort==="zakelijk"||k.soort==="vve"?(k.bedrijfsnaam||cleanName(k.naam)):cleanName(k.naam);
+    return[klantNr(k),naam,k.contact||cleanName(k.naam),a.adres||"",String(a.postcode||"").replace(/\s/g,"").toUpperCase(),a.plaats||"",k.telefoon||"","",(typeof mailK==="function"?(mailK(k,"factuur").email||""):k.email||"")]});
+  return{rows,csv:[kop,...rows].map(r=>r.map(bhQ).join(";")).join("\r\n")+"\r\n"};
 }
 /* uren: werkdagen (vertrek loods tot terug) met pauze, bij klanten en reistijd */
 function bhUren(van,tot){
@@ -6823,11 +6830,11 @@ function vBoekhouder(){
   html+=`<div class="chips bh-snel">${snel.map(([l,a,b])=>`<button type="button" class="chip" data-act="bhper" data-van="${a}" data-tot="${b}" aria-pressed="${van===a&&tot===b}">${l}</button>`).join("")}</div>
   <div class="bh-grid3">
     <section class="panel bh-p"><h3>${I.euro||I.bank}Omzetperiode</h3>${per(van,tot)}
-      <div class="bh-sum"><span><b>${vb.fs.length}</b> facturen</span><span><b>${eur(vb.omzet)}</b> incl. btw</span><span><b>${vb.rows.length}</b> boekingsregels</span></div>
+      <div class="bh-sum"><span><b>${vb.fs.length}</b> facturen</span><span><b>${eur(vb.omzet)}</b> incl. btw</span><span><b>${vb.rows.length}</b> boekingsregels</span><span><b>${actief().length}</b> relaties</span></div>
       ${vb.fout.length?`<div class="notice" style="margin:0">${vb.fout.slice(0,4).map(esc).join("<br>")}${vb.fout.length>4?"<br>…":""}<br><button type="button" class="linkbtn" data-act="bhtab" data-v="instellingen">Grootboekrekeningen instellen</button></div>`:""}
       <label>E-mailadres<input type="email" id="bhMail1" value="${esc(bhS("bhMailOmzet"))}" placeholder="boekhouder@kantoor.nl"></label>
       <div class="row"><button type="button" class="primary" data-act="bhmailomzet" ${vb.fs.length?"":"disabled"}>${I.mail}E-mail naar boekhouder</button><button type="button" data-act="bhdlomzet" ${vb.fs.length?"":"disabled"}>${I.dl}Download CSV</button></div>
-      <small class="help">SnelStart-importbestand: per factuur een hoofdboeking, omzetregel en btw-regel (Boekhouden › Importeren › Boekingen).</small>
+      <small class="help">Twee bestanden, precies zoals DienstenCRM: revenue (verkoopboek: per factuur hoofdboeking, omzet en btw) en customers_active (relaties met relatiecode).</small>
     </section>
     <section class="panel bh-p"><h3>${I.clock}Urenperiode</h3>${per(van,tot)}
       <div class="bh-sum"><span><b>${ur.rows.length}</b> werkdagen</span><span><b>${Math.floor(ur.min/60)}u${pad(ur.min%60)}</b> gewerkt</span></div>
@@ -6853,10 +6860,10 @@ async function bhActie(a,t){
   if(a==="bhtab"){state.bhtab=t.dataset.v;render()}
   else if(a==="bhper"){state.bhVan=t.dataset.van;state.bhTot=t.dataset.tot;render()}
   else if(a==="bhsave"){const patch={};document.querySelectorAll("[data-bh]").forEach(e=>patch[e.dataset.bh]=e.value.trim());if(await saveSettings(patch,"Boekhouder-instellingen opgeslagen"))render()}
-  else if(a==="bhdlomzet"){bhDownload(`verkoopboek_${van}_${tot}.csv`,bhVerkoopboek(van,tot).csv)}
+  else if(a==="bhdlomzet"){const n=bhD(van)+"_tm_"+bhD(tot);bhDownload(`revenue_${n}.csv`,bhVerkoopboek(van,tot).csv);setTimeout(()=>bhDownload(`customers_active_${n}.csv`,bhRelaties().csv),400)}
   else if(a==="bhdluren"){bhDownload(`uren_${van}_${tot}.csv`,bhUren(van,tot).csv)}
-  else if(a==="bhmailomzet"){const vb=bhVerkoopboek(van,tot),naar=($("#bhMail1")||{}).value;
-    await bhMail("Omzet",naar,[{naam:`verkoopboek_${van}_${tot}.csv`,data:bhB64(vb.csv)}],`Omzet ${p} – ${S().naam||"mijnschoonmaker"}`,`Beste boekhouder,\n\nIn de bijlage het verkoopboek van ${p} als SnelStart-importbestand: ${vb.fs.length} facturen, ${eur(vb.omzet)} incl. btw.\n\nMet vriendelijke groet,\n${S().naam||""}`,`Omzet ${p}`)}
+  else if(a==="bhmailomzet"){const vb=bhVerkoopboek(van,tot),rl=bhRelaties(),naar=($("#bhMail1")||{}).value,n=bhD(van)+"_tm_"+bhD(tot);
+    await bhMail("Omzet",naar,[{naam:`revenue_${n}.csv`,data:bhB64(vb.csv)},{naam:`customers_active_${n}.csv`,data:bhB64(rl.csv)}],`Omzet ${p} – ${S().naam||"mijnschoonmaker"}`,`Beste boekhouder,\n\nIn de bijlage de omzet van ${p} voor SnelStart (revenue) en de bijbehorende relaties (customers_active): ${vb.fs.length} facturen, ${eur(vb.omzet)} incl. btw.\n\nMet vriendelijke groet,\n${S().naam||""}`,`Omzet ${p}`)}
   else if(a==="bhmailuren"){const ur=bhUren(van,tot),naar=($("#bhMail2")||{}).value;
     await bhMail("Uren",naar,[{naam:`uren_${van}_${tot}.csv`,data:bhB64(ur.csv)}],`Uren ${p} – ${S().naam||"mijnschoonmaker"}`,`Beste boekhouder,\n\nIn de bijlage de uren van ${p}: ${ur.rows.length} werkdagen.\n\nMet vriendelijke groet,\n${S().naam||""}`,`Uren ${p}`)}
   else if(a==="bhmailfile"){const inp=$("#bhFile"),naar=($("#bhMail3")||{}).value,oms=($("#bhOms")||{}).value.trim()||"Bestanden";const files=[...((inp&&inp.files)||[])];
