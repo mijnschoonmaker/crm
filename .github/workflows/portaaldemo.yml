@@ -1,0 +1,18 @@
+name: Portaal demo-gegevens
+on: workflow_dispatch
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: firebase-admin
+        run: mkdir -p /home/runner/work/_temp_fn && cd /home/runner/work/_temp_fn && npm init -y >/dev/null && npm install firebase-admin@12 --no-audit --no-fund >/dev/null
+      - name: Demo zetten
+        env:
+          SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          GCLOUD_PROJECT: ${{ vars.FIREBASE_PROJECT }}
+        run: |
+          echo "$SA" > "$RUNNER_TEMP/sa.json"
+          GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json" node tools/portaaldemo.js
