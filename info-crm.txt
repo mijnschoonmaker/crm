@@ -1,0 +1,18 @@
+3193
+/03185.jpg'
+duration 0.0093
+file 'fr/03186.jpg'
+duration 0.0161
+file 'fr/03187.jpg'
+duration 0.0166
+file 'fr/03188.jpg'
+duration 0.0165
+file 'fr/03189.jpg'
+duration 0.0185
+file 'fr/03190.jpg'
+duration 0.0334
+file 'fr/03191.jpg'
+duration 1.6410
+file 'fr/03192.jpg'
+duration 6.9156
+file 'fr/03192.jpg'
