@@ -39,7 +39,7 @@ async def een():
       elif ch["type"]=="WordBoundary":grens.append(ch["offset"]/1e7);wd.append([ch.get("text",""),round(ch["offset"]/1e7,3),round(ch.get("duration",0)/1e7,3)])
   json.dump(wd,open("out/woorden.json","w"),ensure_ascii=False)
   if wd and os.environ.get("NAT","1")!="0":
-    os.replace("out/stem_all.mp3","out/stem_raw.mp3");ns=natuurlijk(wd,"out/stem_raw.mp3","out/stem_all.mp3")
+    os.replace("out/stem_all.mp3","out/stem_raw.mp3");ns=natuurlijk(wd,"out/stem_raw.mp3","out/stem_all.mp3",maxf=(1.0 if os.environ.get("NAT")=="pauze" else 1.25))
     grens=ns;wd2=[[w[0],ns[i],None] for i,w in enumerate(wd)];json.dump(wd2,open("out/woorden.json","w"),ensure_ascii=False)
   tot=dur("out/stem_all.mp3");n=[len(woorden(s["t"])) for s in T];print("woorden",sum(n),"grenzen",len(grens))
   st=[];k=0
