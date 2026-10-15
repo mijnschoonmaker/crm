@@ -50,13 +50,13 @@ const wacht = ms => new Promise(r => setTimeout(r, ms));
   fs.mkdirSync("out/fr", { recursive: true });
   /* kleine animatie zodat er altijd frames binnenkomen, ook als het scherm stilstaat */
   await page.evaluate(() => { const d = document.createElement("div"); d.style.cssText = "position:fixed;left:0;top:0;width:1px;height:1px;opacity:.01;z-index:2147483646"; document.body.appendChild(d); let i = 0; setInterval(() => { d.style.background = i++ % 2 ? "#000" : "#fff" }, 33) });
-  await cdp.send("Page.startScreencast", { format: "jpeg", quality: 88, maxWidth: 1080, maxHeight: 1920, everyNthFrame: 1 });
+  await cdp.send("Page.startScreencast", { format: "jpeg", quality: 100, maxWidth: 1080, maxHeight: 1920, everyNthFrame: 1 });
   const t0 = Date.now() / 1000; const starts = [];
-  const ring = async (sel, klik) => { const el = page.locator(sel).first(); try { await el.scrollIntoViewIfNeeded({ timeout: 2000 }) } catch (e) {} const bx = await el.boundingBox({ timeout: 2500 }).catch(() => null); if (!bx) { console.log("niet gevonden", sel); return }
-    const x = bx.x + bx.width / 2, y = bx.y + Math.min(bx.height / 2, 60);
-    await page.evaluate(([x, y]) => { const d = document.createElement("div"); d.className = "__tap"; d.style.left = x + "px"; d.style.top = y + "px"; d.style.transform = "scale(.4)"; d.style.opacity = "0"; document.body.appendChild(d);
-      requestAnimationFrame(() => { d.style.transform = "scale(1)"; d.style.opacity = "1" }); setTimeout(() => { d.style.transform = "scale(.8)" }, 380); setTimeout(() => { d.style.opacity = "0"; d.style.transform = "scale(1.3)" }, 900); setTimeout(() => d.remove(), 1500) }, [x, y]);
-    await wacht(420); if (klik) await el.click({ timeout: 3000 }).catch(() => console.log("klik mislukt", sel)); await wacht(300) };
+  /* geen nep-effecten: alleen het element in beeld brengen en (bij tik) echt aantikken, zodat je de eigen animaties van de app ziet */
+  const ring = async (sel, klik) => { const el = page.locator(sel).first();
+    const ok = await page.evaluate(sel => { const e = document.querySelector(sel); if (!e) return false; const r = e.getBoundingClientRect(); if (r.top < 70 || r.bottom > innerHeight - 90) window.scrollTo({ top: Math.max(0, r.top + scrollY - innerHeight * .3), behavior: "smooth" }); return true }, sel);
+    if (!ok) { console.log("niet gevonden", sel); return } await wacht(450);
+    if (klik) { await el.tap({ timeout: 3000 }).catch(() => el.click({ timeout: 3000 }).catch(() => console.log("klik mislukt", sel))); await wacht(250) } };
   await wacht(600);
   const TS = fs.existsSync("out/tstart.json") ? JSON.parse(fs.readFileSync("out/tstart.json")) : null, tA = Date.now() / 1000;
   for (let i = 0; i < T.length; i++) {

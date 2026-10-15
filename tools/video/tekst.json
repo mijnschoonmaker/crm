@@ -1,6 +1,6 @@
 [
  {
-  "t": "Goedemorgen! Leuk dat je even kijkt. Ik neem je graag mee in ons klantportaal, en als voorbeeld kijken we even mee bij Esjlie.",
+  "t": "Goedemorgen. In deze video laat ik zien hoe ons klantportaal werkt. Als voorbeeld gebruiken we het portaal van Esjlie.",
   "a": [
    [
     "top"
@@ -12,7 +12,7 @@
   ]
  },
  {
-  "t": "Zodra je klant bij ons wordt, krijg je meteen je eigen portaal. En inloggen? Dat gaat gewoon met een linkje in je mail, zonder wachtwoord.",
+  "t": "Elke klant heeft een eigen portaal. Inloggen gaat met een link in je mail. Een wachtwoord heb je niet nodig.",
   "a": [
    [
     "wijs",
@@ -25,7 +25,7 @@
   ]
  },
  {
-  "t": "Bovenaan zie je direct wanneer we weer komen. Bij Esjlie zijn we net geweest… en over acht weken, op negen december, staan we weer voor de deur.",
+  "t": "Bovenaan staat het volgende bezoek. Bij Esjlie zijn we net geweest. De volgende beurt staat over acht weken gepland, op negen december.",
   "a": [
    [
     "wijs",
@@ -42,7 +42,7 @@
   ]
  },
  {
-  "t": "Komt het die dag toch niet uit? Dan sla je het bezoek met één tik over. En je kunt ons ook instructies geven, bijvoorbeeld de code van de poort.",
+  "t": "Komt die datum niet uit? Dan sla je het bezoek hier over. Ook geef je hier instructies door, zoals de code van de poort.",
   "a": [
    [
     "wacht",
@@ -63,7 +63,7 @@
   ]
  },
  {
-  "t": "Bij Bezoeken zie je al je eerdere beurten netjes op een rij. En na elk bezoek laat je ons weten wat je ervan vond.",
+  "t": "Onder Bezoeken staan alle eerdere beurten. Na elk bezoek kun je een beoordeling geven.",
   "a": [
    [
     "tik",
@@ -88,7 +88,7 @@
   ]
  },
  {
-  "t": "Onder Facturen staan al je facturen bij elkaar. Staat er nog eentje open? Die betaal je gewoon direct online, in een paar seconden.",
+  "t": "Onder Facturen staan al je facturen. Een openstaande factuur betaal je direct online.",
   "a": [
    [
     "tik",
@@ -105,7 +105,7 @@
   ]
  },
  {
-  "t": "Heb je een vraag, of klopt er iets niet? Stuur ons dan even een berichtje via Tickets. Ons antwoord zie je hier meteen terug.",
+  "t": "Heb je een vraag? Dan maak je een ticket aan. Ons antwoord verschijnt in hetzelfde gesprek.",
   "a": [
    [
     "tik",
@@ -126,7 +126,7 @@
   ]
  },
  {
-  "t": "Ben je tevreden? Deel dan je persoonlijke link met de buren. Zij krijgen tien euro korting, en jij krijgt vijftien euro voor elke nieuwe klant. Leuk toch?",
+  "t": "Via Aanbevelen deel je je persoonlijke link. Een nieuwe klant krijgt tien euro korting, en jij ontvangt vijftien euro tegoed per nieuwe klant.",
   "a": [
    [
     "tik",
@@ -151,7 +151,7 @@
   ]
  },
  {
-  "t": "En dan het leukste: op de dag zelf zie je live waar ons busje rijdt… hoe laat we bij je zijn, en hoeveel adressen er nog voor je zitten.",
+  "t": "Op de dag van het bezoek zie je live waar ons busje rijdt. Je ziet hoe laat we aankomen, en hoeveel adressen er nog voor je zijn.",
   "a": [
    [
     "tik",
@@ -163,7 +163,7 @@
   ]
  },
  {
-  "t": "Zo heb je alles over je glasbewassing op één plek. Welkom bij mijnschoonmaker punt com!",
+  "t": "Zo staat alles over je glasbewassing op één plek. Mijnschoonmaker punt com.",
   "a": [
    [
     "wacht",
