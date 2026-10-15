@@ -31,6 +31,6 @@ jobs:
         run: python tools/video/maak.py
       - name: Naar media-tak
         run: |
-          mkdir -p /tmp/m && cp out/klantportaal-uitleg.mp4 out/controle.png out/stem.m4a /tmp/m/
+          mkdir -p /tmp/m && cp out/woorden.json /tmp/m/woorden.json; (ls out/fr | wc -l; tail -c 300 out/frames.txt) > /tmp/m/info.txt; cp out/klantportaal-uitleg.mp4 out/controle.png out/stem.m4a /tmp/m/
           git config user.name "video-bot" && git config user.email "bot@mijnschoonmaker.com"
-          git fetch origin media && git checkout -B media origin/media && cp /tmp/m/* . && git add klantportaal-uitleg.mp4 controle.png stem.m4a && git commit -qm "Uitlegvideo klantportaal" && git push origin media
+          git fetch origin media && git checkout -B media origin/media && cp /tmp/m/* . && git add klantportaal-uitleg.mp4 controle.png stem.m4a woorden.json info.txt && git commit -qm "Uitlegvideo klantportaal" && git push origin media

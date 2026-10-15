@@ -1,6 +1,6 @@
 [
  {
-  "t": "Als glazenwasser meer tijd overhouden? We nemen je mee door ons CRM. Als voorbeeld gebruiken we het account van glazenwasser Dave.",
+  "t": "Als glazenwasser meer tijd overhouden? We nemen je mee door ons CRM. Als voorbeeld kijken we bij glazenwasser Dave.",
   "a": [
    [
     "ga",
@@ -83,7 +83,7 @@
   ]
  },
  {
-  "t": "In de planning ziet hij welke klanten aan de beurt zijn. Hij zet ze in de agenda, en het systeem houdt per klant het ritme bij.",
+  "t": "Bij het plannen ziet hij meteen welke klanten aan de beurt zijn. Hij zet ze in de agenda, en het systeem houdt per klant het ritme bij.",
   "a": [
    [
     "tik",
@@ -169,7 +169,7 @@
   ]
  },
  {
-  "t": "Aankondigingen, herinneringen en reviewverzoeken gaan automatisch de deur uit. Zo weten klanten altijd wanneer Dave komt.",
+  "t": "Aankondigingen, herinneringen en verzoeken om een review gaan automatisch de deur uit. Zo weten klanten altijd wanneer Dave komt.",
   "a": [
    [
     "tik",

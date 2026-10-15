@@ -13,8 +13,8 @@ const wacht = ms => new Promise(r => setTimeout(r, ms));
   token = crypto.randomBytes(32).toString("hex");
   await db.doc("portaalSessie/" + crypto.createHash("sha256").update(token).digest("hex")).set({ klantId: ash.id, email: ash.data().email || "", exp: Date.now() + 3600e3, gezien: Date.now(), op: new Date().toISOString(), ua: "video" });
   }
-  const b = await chromium.launch();
-  const ctx = await b.newContext({ viewport: { width: 432, height: 768 }, deviceScaleFactor: 2.5, isMobile: true, hasTouch: true, locale: "nl-NL", timezoneId: "Europe/Amsterdam",
+  const b = await chromium.launch({ args: ["--font-render-hinting=none", "--force-color-profile=srgb"] });
+  const ctx = await b.newContext({ viewport: { width: 432, height: 768 }, deviceScaleFactor: 5, isMobile: true, hasTouch: true, locale: "nl-NL", timezoneId: "Europe/Amsterdam",
     userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1" });
   await ctx.addInitScript(t => { try { localStorage.setItem("ms.portaal.s", t) } catch (e) {} }, token);
   await ctx.addInitScript(() => { window.addEventListener("DOMContentLoaded", () => { const s = document.createElement("style");
@@ -50,7 +50,7 @@ const wacht = ms => new Promise(r => setTimeout(r, ms));
   fs.mkdirSync("out/fr", { recursive: true });
   /* kleine animatie zodat er altijd frames binnenkomen, ook als het scherm stilstaat */
   await page.evaluate(() => { const d = document.createElement("div"); d.style.cssText = "position:fixed;left:0;top:0;width:1px;height:1px;opacity:.01;z-index:2147483646"; document.body.appendChild(d); let i = 0; setInterval(() => { d.style.background = i++ % 2 ? "#000" : "#fff" }, 33) });
-  await cdp.send("Page.startScreencast", { format: "jpeg", quality: 100, maxWidth: 1080, maxHeight: 1920, everyNthFrame: 1 });
+  await cdp.send("Page.startScreencast", { format: "jpeg", quality: 95, maxWidth: 2160, maxHeight: 3840, everyNthFrame: 1 });
   const t0 = Date.now() / 1000; const starts = [];
   /* geen nep-effecten: alleen het element in beeld brengen en (bij tik) echt aantikken, zodat je de eigen animaties van de app ziet */
   const ring = async (sel, klik) => { const el = page.locator(sel).first();

@@ -11,13 +11,14 @@ async def los():
   json.dump(out,open("out/duur.json","w"))
 async def een():
   """alles in één keer inspreken: vloeiender, met de woordgrenzen om het beeld op te laten aansluiten"""
-  tekst=" ".join(s["t"] for s in T);grens=[]
+  tekst=" ".join(s["t"] for s in T);grens=[];wd=[]
   try:c=edge_tts.Communicate(tekst,STEM,rate=TEMPO,boundary="WordBoundary")
   except TypeError:c=edge_tts.Communicate(tekst,STEM,rate=TEMPO)
   with open("out/stem_all.mp3","wb") as f:
     async for ch in c.stream():
       if ch["type"]=="audio":f.write(ch["data"])
-      elif ch["type"]=="WordBoundary":grens.append(ch["offset"]/1e7)
+      elif ch["type"]=="WordBoundary":grens.append(ch["offset"]/1e7);wd.append([ch.get("text",""),round(ch["offset"]/1e7,3),round(ch.get("duration",0)/1e7,3)])
+  json.dump(wd,open("out/woorden.json","w"),ensure_ascii=False)
   tot=dur("out/stem_all.mp3");n=[len(woorden(s["t"])) for s in T];print("woorden",sum(n),"grenzen",len(grens))
   st=[];k=0
   for i in range(len(T)):

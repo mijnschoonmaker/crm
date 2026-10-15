@@ -34,6 +34,6 @@ jobs:
         run: python tools/video/maak.py
       - name: Naar media-tak
         run: |
-          mkdir -p /tmp/m && cp out/crm-dave.mp4 /tmp/m/ && cp out/controle.png /tmp/m/controle-crm.png
+          mkdir -p /tmp/m && cp out/woorden.json /tmp/m/woorden-crm.json; (ls out/fr | wc -l; tail -c 300 out/frames.txt) > /tmp/m/info-crm.txt; cp out/crm-dave.mp4 /tmp/m/ && cp out/controle.png /tmp/m/controle-crm.png
           git config user.name "video-bot" && git config user.email "bot@mijnschoonmaker.com"
-          git fetch origin media && git checkout -B media origin/media && cp /tmp/m/* . && git add crm-dave.mp4 controle-crm.png && git commit -qm "CRM-video Dave" && git push origin media
+          git fetch origin media && git checkout -B media origin/media && cp /tmp/m/* . && git add crm-dave.mp4 controle-crm.png woorden-crm.json info-crm.txt && git commit -qm "CRM-video Dave" && git push origin media
