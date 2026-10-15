@@ -41,10 +41,12 @@ function daySum(d){const it=dayItems(d);return{n:it.js.length+it.done.length,sum
 function tjob(x,top,height,left,width){
   if(x.r)return tjobReeks(x,top,height,left,width);
   const k=x.k,a=jobAddrObj(k),sp=STATEPILL[x.st]||["neutral","Verwacht"],dim=pqMatch(k)?"":" faded";
-  const cmp=height<58?" compact":"";
-  return `<div class="tjob st-${x.st}${dim}${cmp}${state.flash&&!x.b&&state.flash===k.id?" just-in":""}${state.pselMode&&!x.b&&state.psel.has(k.id)?" psel":""}${state.pselMode&&!x.b?" pselable":""}" ${x.b?`data-act="beurtinfo" data-id="${esc(x.b.id)}"`:`data-act="job" data-id="${esc(k.id)}"`} data-d="${esc(x.b?x.b.datum:k.gepland)}" ${x.st!=="afgerond"?`data-drag="${esc(k.id)}"`:x.b?`data-drag="b:${esc(x.b.id)}"`:""} style="--h:${hue(k.ronde||k.naam)};top:${top}px;height:${height}px;left:calc(${left}% + 3px);width:calc(${width}% - 6px)">
-    <div class="tj-top"><button type="button" class="tj-nm" ${x.b?`data-act="beurtinfo" data-id="${esc(x.b.id)}"`:`data-act="job" data-id="${esc(k.id)}" data-d="${esc(k.gepland)}"`}>${esc(a.adres||cleanName(k.naam))}${a.plaats?", "+esc(a.plaats):""}</button>${x.st==="bezig"?'<span class="pill busy tiny-p">Bezig</span>':""}</div>
-    <div class="tj-bot">${dienstHtml(k)}<span class="amt">${eur0(toon(x.b?x.b.bedrag:k.prijs))}</span>${x.st==="afgerond"?`<span class="tj-ok done">${I.check}</span>`:`<button type="button" class="tj-ok" data-act="was" data-id="${esc(k.id)}" aria-label="${esc(cleanName(k.naam))} afgerond">${I.check}</button>`}</div></div>`;
+  const cmp=height<58?" compact":height<96?" low":"";
+  const act=x.b?`data-act="beurtinfo" data-id="${esc(x.b.id)}"`:`data-act="job" data-id="${esc(k.id)}"`;
+  const tijd=x.b?x.b.tijd||k.tijd||"":k.tijd||"";
+  return `<div class="tjob st-${x.st}${dim}${cmp}${state.flash&&!x.b&&state.flash===k.id?" just-in":""}${state.pselMode&&!x.b&&state.psel.has(k.id)?" psel":""}${state.pselMode&&!x.b?" pselable":""}" ${act} data-d="${esc(x.b?x.b.datum:k.gepland)}" ${x.st!=="afgerond"?`data-drag="${esc(k.id)}"`:x.b?`data-drag="b:${esc(x.b.id)}"`:""} draggable="${x.st!=="afgerond"}" style="top:${top}px;height:${height}px;left:${left}%;width:${width}%;--h:${hue(k.ronde||k.naam)}" title="${esc(cleanName(k.naam))}">
+    <div class="tj-kop">${tijd?`<small>${esc(tijd)}</small>`:""}<button type="button" class="tj-nm" ${act} data-d="${esc(x.b?x.b.datum:k.gepland)}">${esc(a.adres||cleanName(k.naam))}${a.plaats?", "+esc(a.plaats):""}</button>${x.st==="bezig"?'<i class="tj-live"></i>':""}<span class="tj-amt">${eur0(toon(x.b?x.b.bedrag:k.prijs))}</span></div>
+    <div class="tj-bot"><span class="tj-wie">${esc(cleanName(k.naam))}</span>${dienstHtml(k)}${x.st==="afgerond"?`<span class="tj-ok done">${I.check}</span>`:`<button type="button" class="tj-ok" data-act="was" data-id="${esc(k.id)}" aria-label="${esc(cleanName(k.naam))} afgerond">${I.check}</button>`}</div></div>`;
 }
 function dayHead(d,showWk){
   const dd=parse(d),s=daySum(d),isT=d===iso(today()),fd=feestdag(dd),off=!isWerkdag(dd),te=S().maxJobs&&s.n>S().maxJobs;

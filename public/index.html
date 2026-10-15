@@ -4000,6 +4000,30 @@ dialog .kp{overflow-wrap:anywhere}
 .jp-who2{display:flex;align-items:center;gap:12px;padding:12px 24px 10px}.jp-who2 .av{width:40px;height:40px;font-size:14px;flex:none}
 @media(max-width:560px){.jp-kop{border-radius:0;padding:calc(12px + env(safe-area-inset-top,0px)) 14px 14px}.jp-kr2{gap:10px}.jp-k2 b{font-size:18px}.jp-k3 b{font-size:19px}.jp-k1 b{font-size:21px}.jp-k1 small,.jp-k3 small{font-size:9.5px}}
 
+/* ---------- agenda-blok: dezelfde opbouw (gekleurde kop, witte body) ---------- */
+.tjob{padding:0;gap:0;border-left:0;border:0;border-radius:12px;box-shadow:0 1px 2px rgb(15 31 38 / .06),0 8px 18px -12px rgb(15 50 60 / .4);justify-content:flex-start;background:var(--surface)}
+.tjob.st-afgerond,.tjob.st-bezig,.tjob.st-gepland{background:var(--surface);border-left:0}
+.tj-kop{position:relative;display:flex;align-items:center;gap:7px;padding:5px 9px;color:#fff;overflow:hidden;flex:none;background:linear-gradient(135deg,#0f5f6e,#137a8a 55%,#1d5a74)}
+.tj-kop::before{content:"";position:absolute;inset:0;background:var(--lijnen);pointer-events:none}.tj-kop>*{position:relative}
+.tjob.st-bezig .tj-kop{background:linear-gradient(135deg,#17734b,#22a46c 60%,#16805a)}
+.tjob.st-afgerond .tj-kop{background:linear-gradient(135deg,#5b7480,#6f8893)}
+.tjob.st-verwacht .tj-kop{background:linear-gradient(135deg,#8a97a0,#a4b0b8)}
+.tj-kop small{flex:none;font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;color:rgb(255 255 255 / .85);padding-right:7px;border-right:1px dashed rgb(255 255 255 / .35)}
+.tj-kop .tj-nm{color:#fff;font-weight:700;font-size:13px}
+.tj-amt{flex:none;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
+.tj-live{width:7px;height:7px;border-radius:50%;background:#fff;flex:none;animation:rvLive 2s ease-out infinite}
+.tjob .tj-bot{padding:5px 9px 6px;gap:7px;flex:1;align-items:center}
+.tj-wie{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:var(--ink);font-weight:600}
+.tjob .tj-bot .dienst{flex:none;font-size:11px;color:var(--muted)}
+.tjob.low .tj-bot .dienst{display:none}
+.tjob.compact{flex-direction:column;align-items:stretch;padding:0;gap:0}
+.tjob.compact .tj-bot{display:none}
+.tjob.compact .tj-kop{flex:1;padding:0 8px}
+.tjob.compact .tj-ok{display:none}
+.tjob.faded{opacity:.45}
+.tjob:hover{box-shadow:0 2px 4px rgb(15 31 38 / .06),0 14px 26px -14px rgb(15 50 60 / .5);transform:translateY(-1px);transition:transform .12s,box-shadow .12s}
+.tjob.rk-job .tj-kop{background:linear-gradient(135deg,#5a6f9a,#7b8fbb)}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -5646,10 +5670,12 @@ function daySum(d){const it=dayItems(d);return{n:it.js.length+it.done.length,sum
 function tjob(x,top,height,left,width){
   if(x.r)return tjobReeks(x,top,height,left,width);
   const k=x.k,a=jobAddrObj(k),sp=STATEPILL[x.st]||["neutral","Verwacht"],dim=pqMatch(k)?"":" faded";
-  const cmp=height<58?" compact":"";
-  return `<div class="tjob st-${x.st}${dim}${cmp}${state.flash&&!x.b&&state.flash===k.id?" just-in":""}${state.pselMode&&!x.b&&state.psel.has(k.id)?" psel":""}${state.pselMode&&!x.b?" pselable":""}" ${x.b?`data-act="beurtinfo" data-id="${esc(x.b.id)}"`:`data-act="job" data-id="${esc(k.id)}"`} data-d="${esc(x.b?x.b.datum:k.gepland)}" ${x.st!=="afgerond"?`data-drag="${esc(k.id)}"`:x.b?`data-drag="b:${esc(x.b.id)}"`:""} style="--h:${hue(k.ronde||k.naam)};top:${top}px;height:${height}px;left:calc(${left}% + 3px);width:calc(${width}% - 6px)">
-    <div class="tj-top"><button type="button" class="tj-nm" ${x.b?`data-act="beurtinfo" data-id="${esc(x.b.id)}"`:`data-act="job" data-id="${esc(k.id)}" data-d="${esc(k.gepland)}"`}>${esc(a.adres||cleanName(k.naam))}${a.plaats?", "+esc(a.plaats):""}</button>${x.st==="bezig"?'<span class="pill busy tiny-p">Bezig</span>':""}</div>
-    <div class="tj-bot">${dienstHtml(k)}<span class="amt">${eur0(toon(x.b?x.b.bedrag:k.prijs))}</span>${x.st==="afgerond"?`<span class="tj-ok done">${I.check}</span>`:`<button type="button" class="tj-ok" data-act="was" data-id="${esc(k.id)}" aria-label="${esc(cleanName(k.naam))} afgerond">${I.check}</button>`}</div></div>`;
+  const cmp=height<58?" compact":height<96?" low":"";
+  const act=x.b?`data-act="beurtinfo" data-id="${esc(x.b.id)}"`:`data-act="job" data-id="${esc(k.id)}"`;
+  const tijd=x.b?x.b.tijd||k.tijd||"":k.tijd||"";
+  return `<div class="tjob st-${x.st}${dim}${cmp}${state.flash&&!x.b&&state.flash===k.id?" just-in":""}${state.pselMode&&!x.b&&state.psel.has(k.id)?" psel":""}${state.pselMode&&!x.b?" pselable":""}" ${act} data-d="${esc(x.b?x.b.datum:k.gepland)}" ${x.st!=="afgerond"?`data-drag="${esc(k.id)}"`:x.b?`data-drag="b:${esc(x.b.id)}"`:""} draggable="${x.st!=="afgerond"}" style="top:${top}px;height:${height}px;left:${left}%;width:${width}%;--h:${hue(k.ronde||k.naam)}" title="${esc(cleanName(k.naam))}">
+    <div class="tj-kop">${tijd?`<small>${esc(tijd)}</small>`:""}<button type="button" class="tj-nm" ${act} data-d="${esc(x.b?x.b.datum:k.gepland)}">${esc(a.adres||cleanName(k.naam))}${a.plaats?", "+esc(a.plaats):""}</button>${x.st==="bezig"?'<i class="tj-live"></i>':""}<span class="tj-amt">${eur0(toon(x.b?x.b.bedrag:k.prijs))}</span></div>
+    <div class="tj-bot"><span class="tj-wie">${esc(cleanName(k.naam))}</span>${dienstHtml(k)}${x.st==="afgerond"?`<span class="tj-ok done">${I.check}</span>`:`<button type="button" class="tj-ok" data-act="was" data-id="${esc(k.id)}" aria-label="${esc(cleanName(k.naam))} afgerond">${I.check}</button>`}</div></div>`;
 }
 function dayHead(d,showWk){
   const dd=parse(d),s=daySum(d),isT=d===iso(today()),fd=feestdag(dd),off=!isWerkdag(dd),te=S().maxJobs&&s.n>S().maxJobs;
