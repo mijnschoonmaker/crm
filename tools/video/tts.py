@@ -9,6 +9,25 @@ async def los():
   for i,s in enumerate(T):
     f=f"out/seg{i}.mp3";await edge_tts.Communicate(s["t"],STEM,rate=TEMPO).save(f);out.append(dur(f))
   json.dump(out,open("out/duur.json","w"))
+
+def natuurlijk(wd,src,dst,per=0.062,maxf=1.35,komma=0.20,zin=0.40):
+  """uitgerekte woorden (vooral aan het eind van een zin) iets inkorten en lange stiltes korter maken,
+  zonder de toonhoogte te veranderen; geeft de nieuwe woordstarts terug"""
+  tot=dur(src);flt=[];lab=[];k=0;nieuw=[];tijd=0.0
+  for i,(w,off,d) in enumerate(wd):
+    nxt=wd[i+1][1] if i+1<len(wd) else tot
+    d=max(0.02,min(d,nxt-off));pauze=max(0.0,nxt-off-d)
+    f=min(maxf,max(1.0,(d/max(1,len(w)))/per)) if len(w)>=3 else 1.0
+    nieuw.append(round(tijd,3))
+    flt.append(f"[0:a]atrim={off:.3f}:{off+d:.3f},asetpts=PTS-STARTPTS"+(f",atempo={f:.3f}" if f>1.001 else "")+f",afade=t=in:d=0.004,afade=t=out:st={d/f-0.004:.3f}:d=0.004[s{k}]");lab.append(f"[s{k}]");k+=1;tijd+=d/f
+    if pauze>0.01:
+      np_=min(pauze,zin if pauze>0.45 else komma)
+      flt.append(f"[0:a]atrim={off+d:.3f}:{off+d+np_:.3f},asetpts=PTS-STARTPTS[s{k}]");lab.append(f"[s{k}]");k+=1;tijd+=np_
+  flt.append("".join(lab)+f"concat=n={k}:v=0:a=1[uit]")
+  open("out/nat.txt","w").write(";".join(flt))
+  subprocess.check_call(["ffmpeg","-y","-loglevel","error","-i",src,"-filter_complex_script","out/nat.txt","-map","[uit]","-c:a","libmp3lame","-b:a","192k",dst])
+  print("natuurlijk:",round(tot,2),"->",round(dur(dst),2),"s")
+  return nieuw
 async def een():
   """alles in één keer inspreken: vloeiender, met de woordgrenzen om het beeld op te laten aansluiten"""
   tekst=" ".join(s["t"] for s in T);grens=[];wd=[]
@@ -19,6 +38,9 @@ async def een():
       if ch["type"]=="audio":f.write(ch["data"])
       elif ch["type"]=="WordBoundary":grens.append(ch["offset"]/1e7);wd.append([ch.get("text",""),round(ch["offset"]/1e7,3),round(ch.get("duration",0)/1e7,3)])
   json.dump(wd,open("out/woorden.json","w"),ensure_ascii=False)
+  if wd and os.environ.get("NAT","1")!="0":
+    os.replace("out/stem_all.mp3","out/stem_raw.mp3");ns=natuurlijk(wd,"out/stem_raw.mp3","out/stem_all.mp3")
+    grens=ns;wd2=[[w[0],ns[i],None] for i,w in enumerate(wd)];json.dump(wd2,open("out/woorden.json","w"),ensure_ascii=False)
   tot=dur("out/stem_all.mp3");n=[len(woorden(s["t"])) for s in T];print("woorden",sum(n),"grenzen",len(grens))
   st=[];k=0
   for i in range(len(T)):
