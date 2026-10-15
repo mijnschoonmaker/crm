@@ -3805,7 +3805,7 @@ rows.forEach(({k,d},j)=>{const ds=iso(d),fid="df"+j,bid="db"+j,isToday=ds===toda
 fa.filter(f=>f.status==="open").slice(0,2).forEach(f=>{f.datum=iso(add(T,-30));f.verval=iso(add(T,-16))});
 const wd=new Date(today+"T"+hm(m0-25)+":00"),pz1=new Date(today+"T"+hm(m0+140)+":00"),pz2=new Date(today+"T"+hm(m0+150)+":00");
 const DATA={klanten:kl,beurten:be,facturen:fa,routes:[{id:today,werk:{start:wd.toISOString(),stop:"",pauzes:[{van:pz1.toISOString(),tot:pz2.toISOString()}],door:"dave@glazenwasserdave.nl"}}],
-  instellingen:[{id:"bedrijf",naam:"Glazenwassersbedrijf Dave",adres:"Industrieweg 12",postcode:"9351 PA",plaats:"Leek",email:"info@glazenwasserdave.nl",telefoon:"0612345678",iban:"NL12RABO0123456789",kvk:"12345678",btw:21,incl:true,termijn:14,hoofdkleur:"#137a8a",dagAan:true,fhAan:true,reviewAan:true,reviewLink:"https://g.page/r/glazenwasserdave",kalVan:"07:00",kalTot:"18:00",kalTotMig:true,werkdagen:[1,2,3,4,5]}],berichten:[],kosten:[]};
+  instellingen:[{id:"bedrijf",naam:"Glazenwasbedrijf Dave",adres:"Industrieweg 12",postcode:"9351 PA",plaats:"Leek",email:"info@glazenwasserdave.nl",telefoon:"0612345678",iban:"NL12RABO0123456789",kvk:"12345678",btw:21,incl:true,termijn:14,hoofdkleur:"#137a8a",dagAan:true,fhAan:true,reviewAan:true,reviewLink:"https://g.page/r/glazenwasserdave",kalVan:"07:00",kalTot:"18:00",kalTotMig:true,werkdagen:[1,2,3,4,5]}],berichten:[],kosten:[]};
 const store={},L={};Object.keys(DATA).forEach(c=>{store[c]=new Map(DATA[c].map(d=>{const {id,...r}=d;return [id,r]}));L[c]=[]});
 const snap=c=>({docs:[...(store[c]||new Map()).entries()].map(([id,d])=>({id,data:()=>d,exists:true}))});
 const meld=c=>setTimeout(()=>L[c].forEach(cb=>cb(snap(c))),0);
@@ -3813,6 +3813,7 @@ const col=c=>{if(!store[c]){store[c]=new Map();L[c]=[]}return{onSnapshot(cb){L[c
   doc:id=>({set:async d=>{store[c].set(id,JSON.parse(JSON.stringify(d)));meld(c)},delete:async()=>{store[c].delete(id);meld(c)},get:async()=>({exists:store[c].has(id),id,data:()=>store[c].get(id)})})}};
 window.claude={use:async n=>n==="db"?{collection:col}:n==="user"?{me:async()=>({name:"Dave",email:"dave@glazenwasserdave.nl"})}:null};
 try{localStorage.setItem("ms.zoom","100")}catch(e){}
+window.DEMO_LOGO="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMxYTg0OTQiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwYjQ2NTIiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1OCIgZmlsbD0idXJsKCNnKSIvPjxjaXJjbGUgY3g9IjYwIiBjeT0iNjAiIHI9IjUyIiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS1vcGFjaXR5PSIuMzUiIHN0cm9rZS13aWR0aD0iMiIvPjxyZWN0IHg9IjM2IiB5PSIzMCIgd2lkdGg9IjQ4IiBoZWlnaHQ9IjUyIiByeD0iNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJNNjAgMzB2NTJNMzYgNTZoNDgiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSI0Ii8+PHBhdGggZD0iTTQ0IDQwbDEwLTZNNjggNjRsMTAtNiIgc3Ryb2tlPSIjOWZmMGQyIiBzdHJva2Utd2lkdGg9IjQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjx0ZXh0IHg9IjYwIiB5PSIxMDMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCxIZWx2ZXRpY2Esc2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9IjgwMCIgZm9udC1zaXplPSIxNSIgZmlsbD0iI2ZmZiIgbGV0dGVyLXNwYWNpbmc9IjIiPkRBVkU8L3RleHQ+PC9zdmc+";
 })();
 
 </script>
@@ -11471,7 +11472,7 @@ function render(){try{warmMailLogo()}catch(e){}
   const nm=(state.me&&state.me.name)||S().naam||"Jouw bedrijf";
   {let lg=S().logo;if(lg){try{localStorage.setItem("ms.lg",lg)}catch(e){}}else if(LIVE){try{lg=localStorage.getItem("ms.lg")||""}catch(e){}}
     const h=new Date().getHours(),fn=state.me&&state.me.name?state.me.name.trim().split(/\s+/)[0]:"",gr=(h<6?"Goedenacht":h<12?"Goedemorgen":h<18?"Goedemiddag":"Goedenavond")+(fn?", "+fn:""),key=lg+"|"+gr;
-    if(key!==state._lgShown){state._lgShown=key;document.querySelectorAll(".logo").forEach(el=>{const src=lg?BLOB+lg:LIVE?"/logo.png":"";el.classList.toggle("haslogo",!!src);if(src)el.innerHTML=`<img class="lgimg" src="${esc(src)}" alt="mijnschoonmaker"><span class="wm lgtxt">${esc(gr)}</span>`})}}
+    if(key!==state._lgShown){state._lgShown=key;document.querySelectorAll(".logo").forEach(el=>{const src=window.DEMO_LOGO||(lg?BLOB+lg:LIVE?"/logo.png":"");el.classList.toggle("haslogo",!!src);if(src)el.innerHTML=`<img class="lgimg" src="${esc(src)}" alt="mijnschoonmaker"><span class="wm lgtxt">${esc(gr)}</span>`})}}
   $("#userCard").innerHTML=`<span class="uav">${esc(initials(nm))}</span><div style="min-width:0"><b>${esc(nm)}</b><small>${esc(S().naam&&state.me&&state.me.name?S().naam:"mijnschoonmaker · CRM")}</small></div>`;
   const main=$("main");main.classList.toggle("wide",big()&&(state.tab==="vandaag"||state.tab==="planning"||state.tab==="uitvoering"));
   if(!state.loaded&&state.db){$("#view").innerHTML=empty("Gegevens laden…","Een moment.");return}

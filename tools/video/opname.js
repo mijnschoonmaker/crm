@@ -36,7 +36,9 @@ const wacht = ms => new Promise(r => setTimeout(r, ms));
       requestAnimationFrame(() => { d.style.transform = "scale(1)"; d.style.opacity = "1" }); setTimeout(() => { d.style.transform = "scale(.8)" }, 380); setTimeout(() => { d.style.opacity = "0"; d.style.transform = "scale(1.3)" }, 900); setTimeout(() => d.remove(), 1500) }, [x, y]);
     await wacht(420); if (klik) await el.click({ timeout: 3000 }).catch(() => console.log("klik mislukt", sel)); await wacht(300) };
   await wacht(600);
+  const TS = fs.existsSync("out/tstart.json") ? JSON.parse(fs.readFileSync("out/tstart.json")) : null, tA = Date.now() / 1000;
   for (let i = 0; i < T.length; i++) {
+    if (TS) { const w = tA + TS[i] - Date.now() / 1000; if (w > 0) await wacht(w * 1000) }
     const s0 = Date.now() / 1000; starts.push(s0 - t0);
     for (const [a, v] of T[i].a) {
       if (a === "wacht") await wacht(v);
@@ -48,12 +50,13 @@ const wacht = ms => new Promise(r => setTimeout(r, ms));
       else if (a === "scrollnaar") await page.evaluate(sel => { const e = document.querySelector(sel); if (e) window.scrollTo({ top: e.getBoundingClientRect().top + scrollY - 90 }) }, v)
       else if (a === "tik") { await ring(v, true); await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" })) }
     }
-    const rest = DUUR[i] + Number(process.env.PAUZE || 0.45) - (Date.now() / 1000 - s0); if (rest > 0) await wacht(rest * 1000);
+    if (!TS) { const rest = DUUR[i] + Number(process.env.PAUZE || 0.45) - (Date.now() / 1000 - s0); if (rest > 0) await wacht(rest * 1000) }
+    else if (i === T.length - 1) { const w = tA + TS[i] + DUUR[i] + 0.6 - Date.now() / 1000; if (w > 0) await wacht(w * 1000) }
   }
   await wacht(1200);
   await cdp.send("Page.stopScreencast"); await wacht(500);
   const tEnd = Date.now() / 1000;
-  fs.writeFileSync("out/starts.json", JSON.stringify(starts));
+  fs.writeFileSync("out/starts.json", JSON.stringify(starts)); fs.writeFileSync("out/ta.json", JSON.stringify(tA - t0));
   /* frames naar vaste 30 fps via een concat-lijst */
   frames.sort((a, b) => a[1] - b[1]); const base = frames[0][1];
   let lst = ""; for (let i = 0; i < frames.length; i++) { const d = (i + 1 < frames.length ? frames[i + 1][1] : base + (tEnd - t0)) - frames[i][1]; lst += `file '${frames[i][0].replace("out/", "")}'\nduration ${Math.max(0.001, d).toFixed(4)}\n` }
