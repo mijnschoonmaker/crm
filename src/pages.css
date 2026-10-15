@@ -3489,3 +3489,15 @@ dialog .kp{overflow-wrap:anywhere}
 .wp-2k{display:flex;gap:8px;margin-bottom:10px}.wp-2k button{flex:1}
 .pl-wp svg{stroke:var(--brand)}
 @media(max-width:560px){.rk.wp{padding:14px;border-radius:18px}.wp-sum{grid-template-columns:repeat(2,1fr)}.wp-map{height:170px}.wp-dagen{grid-template-columns:1fr}.wp-mv{max-width:64px}}
+
+/* ---------- foto bekijken ---------- */
+.bv-open{padding:0;border:0;background:none;flex:none;border-radius:10px;overflow:hidden;cursor:zoom-in}.bv-open img{display:block}
+.bv-txt{flex:1;min-width:0;text-align:left;padding:0;border:0;background:none;font:inherit;color:inherit;cursor:pointer;white-space:normal}
+.fw-foto .bv-open img{width:72px;height:72px}
+.fk .fk-st{flex:1;min-height:0;display:grid;place-items:center;padding:8px}.fk .fk-st img{max-width:100%;max-height:100%;object-fit:contain;border-radius:12px}
+.fk-bar{padding:10px 14px calc(12px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px;background:#141a1d}
+.fk-n{margin:0;font-size:15px;line-height:1.4;color:#e9eef0}
+.fk-acts{display:flex;gap:8px}.fk-acts button{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;height:44px;border-radius:12px;border:1px solid #2c3a40;background:#1c252a;color:#fff;font:600 14px/1 inherit}
+.fk-acts button svg{width:17px;height:17px;stroke:#fff}.fk-acts .fk-ok{background:var(--brand);border-color:var(--brand)}.fk-acts .fk-del{color:#ff6b61}.fk-acts .fk-del svg{stroke:#ff6b61}
+.fk-l{display:flex;flex-direction:column;gap:6px;font-size:12px;color:#9fb0b6}.fk-l textarea{background:#1c252a;color:#fff;border:1px solid #2c3a40;border-radius:12px;padding:10px;font:inherit;font-size:15px}
+.fk-zs{display:flex;gap:6px;flex-wrap:wrap}.fk-zs button{padding:7px 11px;border-radius:999px;border:1px solid #2c3a40;background:#1c252a;color:#fff;font:600 12.5px/1 inherit}.fk-zs button[aria-pressed="true"]{background:var(--brand);border-color:var(--brand)}

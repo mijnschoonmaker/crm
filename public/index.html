@@ -3917,6 +3917,18 @@ dialog .kp{overflow-wrap:anywhere}
 .pl-wp svg{stroke:var(--brand)}
 @media(max-width:560px){.rk.wp{padding:14px;border-radius:18px}.wp-sum{grid-template-columns:repeat(2,1fr)}.wp-map{height:170px}.wp-dagen{grid-template-columns:1fr}.wp-mv{max-width:64px}}
 
+/* ---------- foto bekijken ---------- */
+.bv-open{padding:0;border:0;background:none;flex:none;border-radius:10px;overflow:hidden;cursor:zoom-in}.bv-open img{display:block}
+.bv-txt{flex:1;min-width:0;text-align:left;padding:0;border:0;background:none;font:inherit;color:inherit;cursor:pointer;white-space:normal}
+.fw-foto .bv-open img{width:72px;height:72px}
+.fk .fk-st{flex:1;min-height:0;display:grid;place-items:center;padding:8px}.fk .fk-st img{max-width:100%;max-height:100%;object-fit:contain;border-radius:12px}
+.fk-bar{padding:10px 14px calc(12px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px;background:#141a1d}
+.fk-n{margin:0;font-size:15px;line-height:1.4;color:#e9eef0}
+.fk-acts{display:flex;gap:8px}.fk-acts button{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;height:44px;border-radius:12px;border:1px solid #2c3a40;background:#1c252a;color:#fff;font:600 14px/1 inherit}
+.fk-acts button svg{width:17px;height:17px;stroke:#fff}.fk-acts .fk-ok{background:var(--brand);border-color:var(--brand)}.fk-acts .fk-del{color:#ff6b61}.fk-acts .fk-del svg{stroke:#ff6b61}
+.fk-l{display:flex;flex-direction:column;gap:6px;font-size:12px;color:#9fb0b6}.fk-l textarea{background:#1c252a;color:#fff;border:1px solid #2c3a40;border-radius:12px;padding:10px;font:inherit;font-size:15px}
+.fk-zs{display:flex;gap:6px;flex-wrap:wrap}.fk-zs button{padding:7px 11px;border-radius:999px;border:1px solid #2c3a40;background:#1c252a;color:#fff;font:600 12.5px/1 inherit}.fk-zs button[aria-pressed="true"]{background:var(--brand);border-color:var(--brand)}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -10263,7 +10275,7 @@ function openFactuurWerk(id){
       ${kv("Factuurnummer",esc(f.nummer))}${kv("Type factuur",f.creditVan?"Creditfactuur":f.periodiek?"Periodiek":"Normaal")}${kv("Factuurdatum",esc(fmtL(f.datum)))}${kv("Uiterste betaaldatum",esc(fmtL(f.verval)))}${kv("Betaalwijze",esc(W[f.betaalwijze]||"Per bank"))}
       ${kv("Btw",btw+"%"+(btw===0&&/verlegd/i.test(f.notitie||"")?" (verlegd)":"")+(incl?" · prijzen incl.":" · prijzen excl."))}${kv("Bedrag betaald",f.status==="betaald"?eur(f.betaaldBedrag!=null&&f.betaaldBedrag!==""?f.betaaldBedrag:t.inc):"")}${kv("Datum betaald",f.betaaldOp?esc(fmtL(f.betaaldOp)):"")}</section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.upload}</span><div style="min-width:0"><b>Meesturen bestanden</b><small>Foto's komen in de PDF; andere bestanden voeg je toe in je mail</small></div><span class="sp"></span>${state.assets?`<label class="iconbtn sm" title="Foto maken" aria-label="Foto maken">${I.camera}<input type="file" accept="image/*" capture="environment" hidden data-fwcam="${esc(f.id)}"></label><label class="iconbtn sm primary" title="Bestand toevoegen" aria-label="Bestand toevoegen">${I.plus}<input type="file" hidden multiple id="fwBij"></label>`:""}</div>
-      ${factFotos(f).length||(f.bijlagen||[]).some(b=>b.soort==="foto")?`<div class="fw-fotos">${(f.bijlagen||[]).map((b,i)=>b.soort!=="foto"?"":`<div class="fw-foto${b.opFactuur===false?" uit":""}"><a href="${BLOB}${esc(b.id)}" target="_blank" rel="noopener"><img src="${BLOB}${esc(b.id)}" alt="" loading="lazy"></a><div><b>${esc(b.notitie||"Foto")}</b><small>${esc(fmtD(b.datum||f.datum))} · ${b.opFactuur===false?"niet op factuur":"staat op de factuur"}</small></div><span class="fw-fa"><button type="button" class="iconbtn sm" data-fwft="${i}" title="${b.opFactuur===false?"Op factuur zetten":"Niet op factuur"}" aria-label="Op factuur aan/uit">${b.opFactuur===false?I.eye:I.check}</button><button type="button" class="iconbtn sm" data-fwb="${i}" aria-label="Verwijderen">${I.x}</button></span></div>`).join("")}</div>`:""}
+      ${factFotos(f).length||(f.bijlagen||[]).some(b=>b.soort==="foto")?`<div class="fw-fotos">${(f.bijlagen||[]).map((b,i)=>b.soort!=="foto"?"":`<div class="fw-foto${b.opFactuur===false?" uit":""}"><button type="button" class="bv-open" data-act="fotokijk" data-bron="factuur" data-id="${esc(f.id)}" data-i="${i}" aria-label="Foto bekijken"><img src="${BLOB}${esc(b.id)}" alt="" loading="lazy"></button><div><b>${esc(b.notitie||"Foto")}</b><small>${esc(fmtD(b.datum||f.datum))} · ${b.opFactuur===false?"niet op factuur":"staat op de factuur"}</small></div><span class="fw-fa"><button type="button" class="iconbtn sm" data-fwft="${i}" title="${b.opFactuur===false?"Op factuur zetten":"Niet op factuur"}" aria-label="Op factuur aan/uit">${b.opFactuur===false?I.eye:I.check}</button><button type="button" class="iconbtn sm" data-fwb="${i}" aria-label="Verwijderen">${I.x}</button></span></div>`).join("")}</div>`:""}
       ${(f.bijlagen||[]).some(b=>b.soort!=="foto")?`<table class="minitable">${f.bijlagen.map((b,i)=>b.soort==="foto"?"":`<tr><td><a href="${BLOB}${esc(b.id)}" target="_blank" rel="noopener"><b>${esc(b.naam)}</b></a></td><td class="r" style="white-space:nowrap"><a class="iconbtn sm" href="${BLOB}${esc(b.id)}" download="${esc(b.naam)}" aria-label="Downloaden">${I.dl}</a><button type="button" class="iconbtn sm" data-fwb="${i}" aria-label="Verwijderen">${I.x}</button></td></tr>`).join("")}</table>`:""}${(f.bijlagen||[]).length?"":'<p class="subt" style="margin:0">Er zijn geen bestanden geüpload. Foto\'s van bijzonderheden komen als extra pagina in de PDF.</p>'}</section>
   </div><div class="kk-side">
     <section class="kp"><div class="kp-h"><span class="objic">${I.note}</span><b>Notitie</b><span class="sp"></span><button type="button" class="iconbtn sm" data-fw="notitie" aria-label="Notitie aanpassen">${I.pencil}</button></div>
@@ -10345,7 +10357,7 @@ const BV_SNEL=["Verf laat los van het kozijn","Dakpan ligt los","Ruit is gebarst
 const fotoInput=(attr,label)=>state.assets?`<label class="btn small bv-cam">${I.camera}${label||"Foto bijzonderheid"}<input type="file" accept="image/*" capture="environment" hidden ${attr}></label>`:"";
 function bvHtml(k){const l=k.bevindingen||[];
   return `<div class="bv"><div class="bv-h"><span class="eyebrow">${I.camera}Opgemerkt</span>${fotoInput(`data-bvk="${esc(k.id)}"`)}</div>
-    ${l.length?`<div class="bv-list">${l.map((b,i)=>`<div class="bv-it"><img src="${BLOB}${esc(b.id)}" alt="" loading="lazy"><span>${esc(b.notitie||"Foto")}</span><button type="button" class="iconbtn sm" data-act="bvdel" data-id="${esc(k.id)}" data-i="${i}" aria-label="Verwijderen">${I.x}</button></div>`).join("")}</div><small class="help">Gaat als foto mee met de factuur van deze beurt</small>`:`<small class="help">Iets bijzonders gezien, zoals een losse dakpan of verf die van het kozijn afgaat? Maak een foto; die komt bij de factuur.</small>`}</div>`}
+    ${l.length?`<div class="bv-list">${l.map((b,i)=>`<div class="bv-it"><button type="button" class="bv-open" data-act="fotokijk" data-bron="klant" data-id="${esc(k.id)}" data-i="${i}" aria-label="Foto bekijken"><img src="${BLOB}${esc(b.id)}" alt="" loading="lazy"></button><button type="button" class="bv-txt" data-act="fotokijk" data-bron="klant" data-id="${esc(k.id)}" data-i="${i}">${esc(b.notitie||"Foto")}</button><button type="button" class="iconbtn sm" data-act="bvdel" data-id="${esc(k.id)}" data-i="${i}" aria-label="Verwijderen">${I.x}</button></div>`).join("")}</div><small class="help">Gaat als foto mee met de factuur van deze beurt</small>`:`<small class="help">Iets bijzonders gezien, zoals een losse dakpan of verf die van het kozijn afgaat? Maak een foto; die komt bij de factuur.</small>`}</div>`}
 /* na afmelden: is er al een factuur van vandaag voor deze klant? dan direct daaraan koppelen */
 function bvFactuurVandaag(k){const b=state.beurten.find(x=>x.klantId===k.id&&x.datum===iso(today())&&x.gefactureerd&&x.gefactureerd!=="periodiek");return b?state.facturen.find(f=>f.id===b.gefactureerd&&f.status!=="betaald"):null}
 async function bvUpload(kid,file){const k=state.klanten.find(x=>x.id===kid);if(!k||!file)return;
@@ -10378,6 +10390,43 @@ async function fwCamUpload(fid,file){const f=state.facturen.find(x=>x.id===fid);
   fwSmall(fid,"Wat viel op?",I.camera,`<img src="${BLOB}${esc(r.id)}" alt="" class="bv-prev">${bvZijdeHtml()}<div class="chips" style="margin:0">${BV_SNEL.map(t=>`<button type="button" class="chip" data-bvt="${esc(t)}">${esc(t)}</button>`).join("")}</div><label>Toelichting voor de klant<textarea id="bv-n" style="min-height:80px"></textarea></label>`,
     ()=>({bijlagen:[...((state.facturen.find(x=>x.id===fid)||f).bijlagen||[]),{id:r.id,naam:file.name||"foto.jpg",soort:"foto",notitie:$("#bv-n").value.trim(),zijde:bvZijde(),datum:iso(today())}]}));
   form.querySelectorAll("[data-bvt]").forEach(b=>b.onclick=()=>{const t=$("#bv-n");t.value=t.value?t.value+". "+b.dataset.bvt:b.dataset.bvt;t.focus()});bvZijdeBind()}
+
+/* ---------- Foto bekijken: tik op een bijzonderheid → groot beeld, tekst aanpassen, erop tekenen of verwijderen ---------- */
+function fotoBekijk(bron,i){
+  const lees=()=>{if(bron.soort==="factuur"){const f=state.facturen.find(x=>x.id===bron.id);return f?{doc:f,lijst:f.bijlagen||[],veld:"bijlagen",col:"facturen"}:null}
+    const k=state.klanten.find(x=>x.id===bron.id);return k?{doc:k,lijst:k.bevindingen||[],veld:"bevindingen",col:"klanten"}:null};
+  const b0=lees();if(!b0||!b0.lijst[i])return;
+  const back=dlg.open&&$("#jobPanel")?{job:$("#jobPanel").dataset.k,d:$("#jobPanel").dataset.d}:dlg.open&&bron.soort==="factuur"?{f:bron.id}:null;
+  const ov=document.createElement("div");ov.className="an fk";document.body.appendChild(ov);document.body.classList.add("an-open");
+  let bewerk=false;
+  const sluit=()=>{ov.remove();document.body.classList.remove("an-open")};
+  const herlaad=()=>{if(back&&back.job)setTimeout(()=>openJob(back.job,back.d),50);else if(back&&back.f)setTimeout(()=>openFactuurWerk(back.f),50);else render()};
+  const zet=async patch=>{const b=lees();if(!b)return;const l=[...b.lijst];l[i]={...l[i],...patch};await save(b.col,b.doc.id,{...strip(b.doc),[b.veld]:l})};
+  const teken=()=>{const b=lees();if(!b||!b.lijst[i]){sluit();return}const it=b.lijst[i];
+    ov.innerHTML=`<div class="an-top"><button type="button" class="an-tb" data-fk="x">Sluiten</button><b>${esc(it.zijde||"Opgemerkt")}${it.datum?` · ${esc(fmtD(it.datum))}`:""}</b><span class="an-tb" style="visibility:hidden">Sluiten</span></div>
+      <div class="fk-st"><img src="${BLOB}${esc(it.id)}" alt=""></div>
+      <div class="fk-bar">${bewerk?`<label class="fk-l">Toelichting voor de klant<textarea id="fkN" rows="2">${esc(it.notitie||"")}</textarea></label>
+        <div class="fk-zs">${BV_ZIJDE.map(z=>`<button type="button" data-fkz="${z}" aria-pressed="${it.zijde===z}">${z}</button>`).join("")}</div>
+        <div class="fk-acts"><button type="button" data-fk="annuleer">Annuleren</button><button type="button" class="fk-ok" data-fk="opslaan">${I.check}Opslaan</button></div>`
+      :`<p class="fk-n">${esc(it.notitie||"Geen toelichting")}</p>
+        <div class="fk-acts"><button type="button" data-fk="tekst">${I.edit||I.note||"✎"}Tekst</button><button type="button" data-fk="pen">${I.camera}Tekenen</button><button type="button" class="fk-del" data-fk="del">${I.trash||I.x}Verwijderen</button></div>`}</div>`;
+    ov.querySelectorAll("[data-fkz]").forEach(z=>z.onclick=()=>{const on=z.getAttribute("aria-pressed")!=="true";ov.querySelectorAll("[data-fkz]").forEach(x=>x.setAttribute("aria-pressed","false"));z.setAttribute("aria-pressed",String(on))});
+    ov.querySelectorAll("[data-fk]").forEach(btn=>btn.onclick=async()=>{const a=btn.dataset.fk;
+      if(a==="x")sluit();
+      else if(a==="tekst"){bewerk=true;teken()}
+      else if(a==="annuleer"){bewerk=false;teken()}
+      else if(a==="opslaan"){const z=ov.querySelector('[data-fkz][aria-pressed="true"]');try{await zet({notitie:$("#fkN").value.trim(),zijde:z?z.dataset.fkz:""});bewerk=false;toast("Opgeslagen");teken();herlaad()}catch(e){err(e)}}
+      else if(a==="del"){if(!(await vraag("Foto verwijderen",`Deze foto verdwijnt ook ${bron.soort==="factuur"?"van de factuur":"van de volgende factuur"}.`,"Verwijderen")))return;
+        try{const b=lees();const l=[...b.lijst];l.splice(i,1);await save(b.col,b.doc.id,{...strip(b.doc),[b.veld]:l});toast("Foto verwijderd");sluit();herlaad()}catch(e){err(e)}}
+      else if(a==="pen"){/* bestaande foto ophalen, erop tekenen en als nieuwe foto bewaren */
+        let file=null;try{const r=await fetch(BLOB+it.id);const bl=await r.blob();file=new File([bl],it.naam||"foto.jpg",{type:bl.type||"image/jpeg"})}catch(e){}
+        if(!file)return toast("De foto kon niet worden geladen");
+        ov.style.display="none";const nf=await fotoAnnoteren(file);ov.style.display="";if(!nf||nf===file){return}
+        try{toast("Foto uploaden…");const r=await state.assets.upload(nf);await zet({id:r.id,naam:nf.name||it.naam||"foto.jpg"});toast("Tekening bewaard");teken();herlaad()}catch(e){toast("De foto kon niet worden geüpload")}}
+    });
+  };
+  teken();
+}
 
 /* ---------- LOCATIE toevoegen / wijzigen (zoals in een klantdossier): adres links, klantgegevens ernaast ---------- */
 const splitAdres=a=>{const m=String(a||"").trim().match(/^(.*?)\s+(\d+)\s*[-\s]?\s*([a-zA-Z0-9][a-zA-Z0-9 \-\/]*)?$/);return m?{straat:m[1],huisnr:m[2],toev:(m[3]||"").trim()}:{straat:String(a||"").trim(),huisnr:"",toev:""}};
@@ -11866,6 +11915,7 @@ document.addEventListener("click",e=>{
     case"ff":state.fFilter=t.dataset.v;if(state.tab!=="facturen")state.tab="facturen";render();break;
     case"of":state.oFilter=t.dataset.v;render();break;
     case"billall":billAll(t);break;
+    case"fotokijk":fotoBekijk({soort:t.dataset.bron,id:t.dataset.id},Number(t.dataset.i));break;
     case"bvdel":{const k=state.klanten.find(x=>x.id===id);if(k){const l=[...(k.bevindingen||[])];l.splice(Number(t.dataset.i),1);const jp=$("#jobPanel");save("klanten",k.id,{...strip(k),bevindingen:l}).then(()=>{toast("Foto verwijderd");if(dlg.open&&jp)setTimeout(()=>openJob(jp.dataset.k,jp.dataset.d),50)}).catch(err)}break}
     case"perlijst":state.fmenu=false;openPeriodiekLijst();break;
     case"finalizeall":{const l=facturen().filter(f=>f.status==="concept");runSeq(l,f=>save("facturen",f.id,{...strip(f),status:"open"}),plural(l.length,"factuur","facturen")+" definitief gemaakt");break}
