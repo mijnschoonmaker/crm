@@ -127,7 +127,7 @@ function openKlantEdit(id,opt={}){
     <label>Klantnummer<input id="f-klantnr" inputmode="numeric" value="${esc(k.klantnr||"")}" placeholder="${isNew?"Automatisch":esc(klantNr(k))}"><small class="help">Zelfde als de relatiecode in SnelStart</small></label>
     <label>E-mail<input id="f-email" type="email" value="${esc(k.email)}"></label>
     <label>Ronde<input id="f-ronde" list="rondelijst" value="${esc(k.ronde)}" placeholder="bijv. Ronde Noord"><datalist id="rondelijst">${rondes().map(r=>`<option value="${esc(r)}">`).join("")}</datalist></label>
-    <label>Soort<select id="f-soort"><option value="particulier" ${k.soort!=="zakelijk"?"selected":""}>Particulier</option><option value="zakelijk" ${k.soort==="zakelijk"?"selected":""}>Zakelijk</option></select></label>
+    <label>Soort<select id="f-soort"><option value="particulier" ${k.soort!=="zakelijk"&&k.soort!=="vve"?"selected":""}>Particulier</option><option value="zakelijk" ${k.soort==="zakelijk"?"selected":""}>Zakelijk</option><option value="vve" ${k.soort==="vve"?"selected":""}>VvE / Overheid</option></select></label>
   </div>
   <div><span class="eyebrow">Dienst en planning</span><div class="grid2" style="margin-top:8px">
     <label>Dienst<input id="f-dienst" list="dienstlijst" value="${esc(k.dienst||"Glasbewassing")}"><datalist id="dienstlijst">${[...dienstLijst().map(d=>d.naam),...DIENSTEN].filter((v,i,a)=>a.indexOf(v)===i).map(d=>`<option value="${esc(d)}">`).join("")}</datalist></label>
