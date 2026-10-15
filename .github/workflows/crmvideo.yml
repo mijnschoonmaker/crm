@@ -36,4 +36,4 @@ jobs:
         run: |
           mkdir -p /tmp/m && cp out/woorden.json /tmp/m/woorden-crm.json; (ls out/fr | wc -l; tail -c 300 out/frames.txt) > /tmp/m/info-crm.txt; cp out/crm-dave.mp4 /tmp/m/ && cp out/controle.png /tmp/m/controle-crm.png
           git config user.name "video-bot" && git config user.email "bot@mijnschoonmaker.com"
-          git fetch origin media && git checkout -B media origin/media && cp /tmp/m/* . && git add crm-dave.mp4 controle-crm.png woorden-crm.json info-crm.txt && git commit -qm "CRM-video Dave" && git push origin media
+          git fetch origin media && git checkout -B media origin/media && cp /tmp/m/* . && git add crm-dave.mp4 controle-crm.png woorden-crm.json info-crm.txt && git commit -qm "CRM-video Dave" && for i in 1 2 3 4 5; do git push origin media && break; git pull -q --rebase origin media; done
