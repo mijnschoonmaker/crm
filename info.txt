@@ -1,18 +1,18 @@
-3092
-/03084.jpg'
-duration 0.0157
-file 'fr/03085.jpg'
-duration 0.0174
-file 'fr/03086.jpg'
-duration 0.0160
-file 'fr/03087.jpg'
-duration 0.0174
-file 'fr/03088.jpg'
-duration 0.0159
-file 'fr/03089.jpg'
-duration 0.0175
-file 'fr/03090.jpg'
-duration 0.0159
-file 'fr/03091.jpg'
-duration 0.5136
-file 'fr/03091.jpg'
+3038
+/03030.jpg'
+duration 0.0169
+file 'fr/03031.jpg'
+duration 0.0170
+file 'fr/03032.jpg'
+duration 0.0172
+file 'fr/03033.jpg'
+duration 0.0162
+file 'fr/03034.jpg'
+duration 0.0168
+file 'fr/03035.jpg'
+duration 0.0169
+file 'fr/03036.jpg'
+duration 0.0169
+file 'fr/03037.jpg'
+duration 0.5165
+file 'fr/03037.jpg'
