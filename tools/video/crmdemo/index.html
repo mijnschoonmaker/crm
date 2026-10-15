@@ -3748,6 +3748,40 @@ dialog .kp{overflow-wrap:anywhere}
 .rf-dub{position:absolute;transform:translate(-50%,-50%);width:22px;height:22px;border-radius:50%;border:2px dashed rgb(255 255 255 / .95);background:rgb(60 72 78 / .55);color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center;box-shadow:0 1px 4px rgb(0 0 0 / .4);cursor:pointer;line-height:1}
 .rf-dubm{align-items:flex-start}.rf-dubi{width:20px;height:20px;border-radius:50%;border:2px dashed var(--muted);color:var(--muted);display:grid;place-items:center;font-weight:800;font-size:11px;flex:none}
 
+/* ---------- weekrooster ---------- */
+.wp-ov{z-index:330;align-items:start;padding-top:max(16px,env(safe-area-inset-top))}
+.rk.wp{max-width:980px;gap:12px}
+.wp .rk-h .objic{background:linear-gradient(135deg,var(--brand),var(--brand-2))}
+.wp-nav{margin-left:auto;flex:none;width:auto;display:inline-flex}.wp-nav button{width:34px;height:34px;flex:none}
+.wp-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.wp-sum>div{background:var(--surface-2,#f3f6f7);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.wp-sum b{font-size:22px;letter-spacing:-.02em;line-height:1}.wp-sum b.laat{color:var(--danger,#d9534f)}.wp-sum small{color:var(--muted);font-size:12px}
+.wp-opt{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.wp-opt label{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}.wp-opt select{width:auto;padding:6px 28px 6px 10px;font-size:13px}
+.wp-map{height:220px;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#eef2f3}.wp-map.hide{display:none}
+.wp-pin i{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;color:#fff;font:700 11px/1 var(--font,inherit);border:2px solid #fff;box-shadow:0 2px 8px rgb(0 0 0 / .25)}
+.wp-pin i.loods{background:var(--ink,#1c2a30);width:26px;height:26px}.wp-pin i.loods svg{width:14px;height:14px;stroke:#fff}
+.wp-dagen{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.wp-d{min-width:0;border:1px solid var(--line);border-radius:18px;padding:12px 12px 10px;display:flex;flex-direction:column;gap:8px;background:var(--surface)}
+.wp-d header{display:flex;align-items:center;gap:10px}.wp-d header>div{flex:1;min-width:0}.wp-d header b{display:block;font-size:15px}.wp-d header small{color:var(--muted);font-size:12px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wp-dot{width:12px;height:12px;border-radius:50%;background:var(--c);flex:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 18%,transparent)}
+.wp-klaar{font-size:12px;color:var(--muted);white-space:nowrap}
+.wp-vol{height:5px;border-radius:5px;background:var(--surface-2,#eef2f3);overflow:hidden}.wp-vol i{display:block;height:100%;background:var(--c);border-radius:5px}
+.wp-d ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.wp-r{min-width:0;display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid var(--line)}.wp-r:first-child{border-top:0}
+.wp-r.vast{opacity:.75}.wp-t{font:600 12px/1 ui-monospace,monospace;color:var(--muted);min-width:38px}
+.wp-m{flex:1;min-width:0}.wp-m b{display:block;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wp-m small{display:block;color:var(--muted);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wp-b{flex:none;font-size:10.5px;font-weight:700;padding:2px 6px;border-radius:999px;background:var(--surface-2,#eef2f3);color:var(--muted);white-space:nowrap}
+.wp-b.laat{background:#fdecea;color:#b3261e}.wp-b.vroeg{background:#fff4de;color:#9a6a00}
+.wp-mv{width:62px;flex:none;padding:4px 18px 4px 7px;font-size:11.5px;border-radius:9px;background-position:right 5px center}
+.wp-vk{width:26px;height:26px;flex:none;border-radius:8px}.wp-vk svg{width:13px;height:13px}
+.wp-leeg{margin:0;color:var(--muted);font-size:13px}
+.wp-w{display:flex;flex-direction:column;gap:6px;background:#fff4de;border-radius:14px;padding:10px 12px;font-size:13px}.wp-w span{display:flex;align-items:center;gap:8px}.wp-w svg{width:16px;height:16px;stroke:#9a6a00;flex:none}
+.wp .rk-f{align-items:center}.wp .rk-f small{color:var(--muted)}
+.wp-vkd{display:flex;gap:6px}.wp-vkd label{flex:1}.wp-vkd input{position:absolute;opacity:0;pointer-events:none}.wp-vkd span{display:grid;place-items:center;height:40px;border:1px solid var(--line);border-radius:12px;font-weight:600;font-size:13px;cursor:pointer}
+.wp-vkd input:checked+span{background:var(--brand);color:#fff;border-color:var(--brand)}
+.wp-2k{display:flex;gap:8px;margin-bottom:10px}.wp-2k button{flex:1}
+.pl-wp svg{stroke:var(--brand)}
+@media(max-width:560px){.rk.wp{padding:14px;border-radius:18px}.wp-sum{grid-template-columns:repeat(2,1fr)}.wp-map{height:170px}.wp-dagen{grid-template-columns:1fr}.wp-mv{max-width:64px}}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -3782,7 +3816,7 @@ NAMEN.forEach(([a,v],i)=>{const s=STR[i%STR.length],fq=pick([8,8,8,8,6,4,12]),pr
     actief:true,akkoord:true,prospect:false,dienst:"Glasbewassing",prijs,frequentie:fq,duur,tijd:"",gepland:"",laatst:"",ronde:pick(["Leek-Noord","Leek-Zuid","Tolbert","Zevenhuizen"]),contactPlanning:"kennisgeving",aangemaakt:iso(add(T,-300-i*3)),autoplan:R()<.6,
     tijden:[{datum:iso(add(T,-60)),min:duur-3},{datum:iso(add(T,-30)),min:duur+2}],log:[{datum:iso(add(T,-300-i*3)),tekst:"Klant aangemaakt"}],opdrachten:[],objecten:[],hosp:i===0?[{id:"h1",soort:"huisdier",tekst:"Hond Max is lief, wel even bellen bij het hek"}]:[],notities:""})});
 /* vandaag: 8 adressen, de eerste 3 al klaar */
-const NU=new Date(),hm=m=>{m=Math.round(m/5)*5;return String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0")},m0=Math.max(7*60+45,NU.getHours()*60+NU.getMinutes()-150);
+const NU=new Date(),hm=m=>{m=Math.round(m/5)*5;return String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0")},m0=Math.min(11*60+5,Math.max(7*60+45,NU.getHours()*60+NU.getMinutes()-150));
 const TIJD=[m0,m0+45,m0+95,m0+165,m0+215,m0+290,m0+340,m0+385].map(hm);
 kl.slice(0,8).forEach((k,i)=>{k.tijd=TIJD[i];if(i<3){k.laatst=today;k.gepland=iso(werkdag(add(T,k.frequentie*7)))}else k.gepland=today});
 /* komende twee weken ingepland */
@@ -5491,10 +5525,12 @@ function vPlanning(){
     ${state.pstat&&state.pstat!=="alle"?`<button type="button" class="pl-chip" data-act="pstat" data-v="alle"><span class="sdot ${({gepland:"plan",bezig:"busy",afgerond:"ok"})[state.pstat]}"></span>Alleen ${({gepland:"gepland",bezig:"bezig",afgerond:"afgerond"})[state.pstat]}${I.x}</button>`:""}
     ${tglChip(state.achter,"achter","Alleen achterstallig",I.alert)}${tglChip(state.pselMode,"pselmode","Selecteren",I.checksq||I.check)}
     <button type="button" class="pl-kaart" data-act="pkaart" aria-pressed="${!!state.pkaart}" title="Kaartplannen">${I.map}<span>Kaartplannen</span></button>
+    <button type="button" class="pl-opt pl-wp" data-act="weekplan" data-d="${iso(state.week)}" title="Hele week in één keer plannen">${I.wand}<span>Plan de week</span></button>
     <button type="button" class="primary pl-opt" data-act="planmail" data-d="${d0}" title="Klanten laten weten wanneer je komt">${I.send}<span>Planningsmail</span></button>
     <div class="pl-meer${state.pmeer?" open":""}"><button type="button" class="iconbtn pl-mb" data-act="pmeer" aria-expanded="${!!state.pmeer}" aria-label="Meer acties" title="Meer">${I.dots||"⋯"}</button>
       <div class="pl-menu" role="menu">
         <p class="pl-ml">Acties</p>
+        ${mi("weekplan",I.wand,"Plan de week","Wie aan de beurt is per buurt over de dagen verdelen",` data-d="${iso(state.week)}"`)}
         ${v==="dag"||v==="multi"?mi("optim",I.route||I.wand,"Optimaliseer route","Jobs van deze dag in de kortste volgorde",` data-d="${d0}"`):""}
         ${mi("daynote",I.note,"Notitie bij deze dag","",` data-d="${d0}"`)}
         ${mi("bulkday",I.cal2,"Bulk dag","Hele dag in één keer verzetten of afmelden",` data-d="${d0}"`)}
@@ -5520,7 +5556,7 @@ function vPlanning(){
   const offerCol=`<aside class="rpanel offercol" data-drop=""><div class="rp-h2"><span class="eyebrow rp-h">${I.inbox}Te plannen</span><span class="mono">${offer.length} · ${eur0(toon(offerSum))} <small>${btwLbl()}</small></span></div>
     ${state.pkaart&&state.ksel.size?`<div class="pk-selbar">${I.map}<span><b>${plural(offer.length,"adres","adressen")}</b> geselecteerd op de kaart</span><button type="button" class="tiny ghost" data-act="pkwis">Alles tonen</button></div>`:""}
     ${advHtml(offer,d0)}
-    ${offer.length>1&&!state.planMode?`<button type="button" class="small" style="width:100%;margin-bottom:10px" data-act="planall">Alles inplannen op aanboddatum</button>`:""}
+    ${offer.length>1&&!state.planMode?`<div class="wp-2k"><button type="button" class="small primary" data-act="weekplan" data-d="${iso(state.week)}">${I.wand}Plan de week</button><button type="button" class="small" data-act="planall">Alles op aanboddatum</button></div>`:""}
     <div class="list" style="gap:8px">${offer.length?offerCards(offer,v==="dag"&&parse(d0)>=t?d0:""):`<p class="subt" style="text-align:center;font-style:italic;margin:30px 0">Alles ingepland</p>`}</div></aside>`;
   if(big())return `<div class="withside">`+`<div class="mainc">${html}</div>${offerCol}</div>`;
   /* telefoon: te plannen opdrachten onder de agenda; lang indrukken en in de agenda slepen (zoals in DienstenCRM) */
@@ -5880,6 +5916,177 @@ function openReeksInfo(id,dSel){
     if(i<off)opsl({tijd:inp.value},"Tijd aangepast");else{const r=(cur.reeks||[]).slice();r[i-off]={...r[i-off],t:inp.value};opsl({reeks:r},"Tijd aangepast")}});
   form.querySelectorAll("[data-rkdel]").forEach(b=>b.onclick=()=>{const i=Number(b.dataset.rkdel),cur=state.klanten.find(x=>x.id===id)||k,off=cur.gepland?1:0,r=(cur.reeks||[]).slice(),x=r.splice(i-off,1)[0];opsl({reeks:r},"Afspraak "+fmtD(x.d)+" uit de reeks verwijderd")});
   $("#rkStop").onclick=async()=>{if(!(await vraag("Reeks stoppen",`De ${plural((k.reeks||[]).length,"latere afspraak","latere afspraken")} worden uit de agenda gehaald. De eerstvolgende afspraak${k.gepland?" ("+esc(fmtD(k.gepland))+")":""} blijft staan.`,"Ja, stoppen")))return;opsl({reeks:[]},"Reeks gestopt")};
+}
+
+/* ---------- Weekrooster: plan een hele week in één keer ----------
+   Wie aan de beurt is wordt per buurt gegroepeerd en over de werkdagen verdeeld, op volgorde van een
+   logische route, met een verwachte tijd per adres. Jij kijkt ernaar, schuift wat nodig is en zet het vast. */
+const WP={st:null,ov:null,map:null,mk:[]};
+const WP_KLEUR=["#137a8a","#e9a23b","#7c5cbf","#23845a","#d9534f","#2f6fdd","#b8860b"];
+const wpOpt=()=>{let o={};try{o=JSON.parse(localStorage.getItem("ms.wp")||"{}")||{}}catch(e){}const st=S(),ws=toMin(st.werkStart)??480,we=toMin(st.werkEind)??1020;
+  return{uur:Math.min(12,Math.max(2,Number(o.uur)||Math.max(2,Math.round((we-ws-45)/60)))),vroeg:o.vroeg!=null?Number(o.vroeg):7,laat:o.laat!=null?Number(o.laat):7}};
+const wpOptSave=o=>{try{localStorage.setItem("ms.wp",JSON.stringify(o))}catch(e){}};
+const wpDagen=k=>Array.isArray(k.planDagen)&&k.planDagen.length?k.planDagen.map(Number):null;
+const wpMagOp=(k,d)=>{const dg=wpDagen(k);return !dg||dg.includes(parse(d).getDay())};
+const wpPc4=k=>String(jobAddrObj(k).postcode||k.postcode||"").replace(/\s/g,"").slice(0,4);
+const wpPlaats=k=>String(jobAddrObj(k).plaats||k.plaats||"").trim();
+const wpCo=k=>typeof pkCoord==="function"?pkCoord(k):null;
+const wpU=m=>{m=Math.round(m);return m>=60?Math.floor(m/60)+"u"+(m%60?pad(m%60):""):m+" min"};
+const wpAfst=(a,b)=>a&&b?rtKm(a,b):null;
+function wpWeekDagen(ws){const out=[];for(let i=0;i<7;i++){const d=addDays(ws,i);if(isWerkdag(d)&&d>=today())out.push(iso(d))}return out}
+
+/* kandidaten: aan de beurt binnen het venster (tot `vroeg` dagen te vroeg mag), nog zonder afspraak in de toekomst */
+function wpKandidaten(ws,o){
+  const t=iso(today()),eind=addDays(ws,6),upTo=addDays(eind,o.vroeg);
+  return teplannen(upTo).filter(k=>!(k.gepland&&k.gepland>=t)).filter(k=>!(k.reeks||[]).some(r=>r&&r.d&&r.d>=t));
+}
+const wpPrio=k=>{const d=Math.round((dueOf(k)-today())/DAY);return d};/* negatief = over tijd */
+
+/* het voorstel */
+function wpVoorstel(ws,o){
+  const dagen=wpWeekDagen(ws),t=today(),st=S(),wsMin=toMin(st.werkStart)??480,cap=o.uur*60,maxJobs=Number(st.maxJobs)||0;
+  const bk=rtBedrijf(),loods=pkHeeftAdres(bk)?wpCo(bk):null;
+  const vast={};dagen.forEach(d=>vast[d]=actief().filter(k=>k.gepland===d));
+  actief().forEach(k=>(k.reeks||[]).forEach(r=>{if(r&&r.d&&vast[r.d]&&r.d!==k.gepland)vast[r.d].push({...k,gepland:r.d,tijd:r.t||k.tijd||""})}));
+  const kand=wpKandidaten(ws,o).filter(k=>!dagen.some(d=>vast[d].some(x=>x.id===k.id)));
+  const D=dagen.map((d,i)=>{const items=vast[d].map(k=>({k,vast:true,tijd:k.tijd||""}));
+    return{d,i,items,min:items.reduce((a,x)=>a+duur(x.k),0),reis:0,cent:null}});
+  const centrum=day=>{const cs=day.items.map(x=>wpCo(x.k)).filter(Boolean);if(!cs.length)return null;return[cs.reduce((a,c)=>a+c[0],0)/cs.length,cs.reduce((a,c)=>a+c[1],0)/cs.length]};
+  D.forEach(day=>day.cent=centrum(day));
+  const past=(day,k)=>{if(!wpMagOp(k,day.d))return false;if(maxJobs&&day.items.length>=maxJobs)return false;
+    const reis=day.items.length?8:(loods&&wpCo(k)?rtMin(loods,wpCo(k))||5:10);return day.min+day.items.reduce((a,x)=>a+8,0)+reis+duur(k)<=cap};
+  const kost=(day,k)=>{const c=wpCo(k);let km;
+    if(c&&day.cent)km=wpAfst(day.cent,c);else if(c&&loods)km=wpAfst(loods,c)+6;else{const pc=wpPc4(k),zelfde=day.items.some(x=>wpPc4(x.k)===pc),pl=day.items.some(x=>wpPlaats(x.k).toLowerCase()===wpPlaats(k).toLowerCase());km=zelfde?1:pl?4:day.items.length?15:8}
+    const p=wpPrio(k);return km+(p>0?Math.min(6,p*.6):0)-(p<0?Math.min(4,-p*.3):0)};
+  /* 1. over tijd en deze week aan de beurt eerst, daarna wie nog te vroeg is maar erbij past */
+  const open=kand.slice().sort((a,b)=>wpPrio(a)-wpPrio(b));const rest=[];
+  const plaats=k=>{let best=null,bk_=Infinity;for(const day of D){if(!past(day,k))continue;
+      const c=day.items.length?kost(day,k):(day.i*0.01+(wpPrio(k)<0?0:3));if(c<bk_){bk_=c;best=day}}
+    if(!best)return false;best.items.push({k,vast:false,tijd:""});best.min+=duur(k);best.cent=centrum(best);return true};
+  /* zaai: eerste klant per lege dag = hoogste prioriteit die nog los ligt, daarna groeit elke dag met de dichtstbijzijnde */
+  for(const day of D){if(day.items.length)continue;const cents=D.map(x=>x.cent).filter(Boolean);
+    const ver=x=>{const c=wpCo(x);return !c||!cents.length||cents.every(y=>wpAfst(y,c)>=3)};
+    const k=open.find(x=>wpMagOp(x,day.d)&&past(day,x)&&ver(x))||open.find(x=>wpMagOp(x,day.d)&&past(day,x));if(!k)continue;open.splice(open.indexOf(k),1);day.items.push({k,vast:false,tijd:""});day.min+=duur(k);day.cent=centrum(day)}
+  /* groei: steeds de kandidaat met de laagste kosten over alle dagen */
+  while(open.length){let bi=-1,bd=null,bc=Infinity;
+    for(let i=0;i<open.length;i++){const k=open[i];for(const day of D){if(!past(day,k))continue;const c=kost(day,k);if(c<bc){bc=c;bi=i;bd=day}}}
+    if(bi<0)break;const k=open.splice(bi,1)[0];bd.items.push({k,vast:false,tijd:""});bd.min+=duur(k);bd.cent=centrum(bd)}
+  rest.push(...open);
+  D.forEach(day=>wpVolgorde(day,loods,wsMin));
+  const buurt=day=>{const pl={};day.items.forEach(x=>{const p=wpPlaats(x.k)||"?";pl[p]=(pl[p]||0)+1});const top=Object.keys(pl).sort((a,b)=>pl[b]-pl[a]);return top.slice(0,2).join(" · ")};
+  D.forEach(day=>day.buurt=buurt(day));
+  const waarsch=[];rest.forEach(k=>{if(wpPrio(k)<=0)waarsch.push({k,t:"Past niet meer deze week · "+(wpPrio(k)<0?Math.abs(wpPrio(k))+" dagen over tijd":"vandaag aan de beurt")})});
+  D.forEach(day=>day.items.forEach(x=>{if(!x.vast&&teVroeg(x.k,day.d))x.vroeg=true}));
+  return{ws:iso(ws),dagen:D,rest,waarsch,loods};
+}
+/* volgorde en tijden binnen een dag: vanaf de loods naar de dichtstbijzijnde, vaste tijden blijven staan */
+function wpVolgorde(day,loods,wsMin){
+  const vastT=day.items.filter(x=>x.vast&&toMin(x.tijd)!=null).sort((a,b)=>toMin(a.tijd)-toMin(b.tijd)),los=day.items.filter(x=>!(x.vast&&toMin(x.tijd)!=null));
+  const seq=[];let pos=loods;while(los.length){let bi=0,bd=Infinity;for(let i=0;i<los.length;i++){const c=wpCo(los[i].k);const d=pos&&c?wpAfst(pos,c):(seq.length?50:0)+(wpPc4(los[i].k)===(seq.length?wpPc4(seq[seq.length-1].k):"")?0:20);if(d<bd){bd=d;bi=i}}
+    const x=los.splice(bi,1)[0];seq.push(x);pos=wpCo(x.k)||pos}
+  let m=wsMin,prev=loods,reis=0,km=0;const out=[];const anker=vastT.slice();
+  const naar=x=>{const c=wpCo(x.k);const r=prev&&c?(rtMin(prev,c)||0):(out.length?8:5);if(prev&&c)km+=wpAfst(prev,c);reis+=r;return r};
+  const zetAnker=()=>{const a=anker.shift();const r=naar(a);m=Math.max(m+r,toMin(a.tijd))+duur(a.k);prev=wpCo(a.k)||prev;out.push(a)};
+  for(const x of seq){
+    while(anker.length&&toMin(anker[0].tijd)<=m)zetAnker();
+    const c=wpCo(x.k),schat=prev&&c?(rtMin(prev,c)||0):(out.length?8:5);
+    while(anker.length&&m+schat+duur(x.k)>toMin(anker[0].tijd))zetAnker();
+    const r=naar(x),start=Math.ceil((m+r)/5)*5;x.tijd=fromMin(start);m=start+duur(x.k);prev=wpCo(x.k)||prev;out.push(x)}
+  while(anker.length)zetAnker();
+  if(loods&&prev&&prev!==loods){km+=wpAfst(prev,loods);reis+=rtMin(prev,loods)||0}
+  day.items=out;day.reis=reis;day.km=Math.round(km);day.eind=m;
+}
+
+/* ---------- scherm ---------- */
+async function openWeekplan(ws){
+  const o=wpOpt();ws=startOfWeek(ws||addDays(startOfWeek(today()),7));
+  WP.st={ws,o,v:null,bezig:false,mode:"week"};
+  if(WP.ov)WP.ov.remove();const ov=document.createElement("div");ov.className="vraag-ov wp-ov";document.body.appendChild(ov);WP.ov=ov;
+  ov.addEventListener("click",e=>{if(e.target===ov)wpSluit()});
+  wpTeken();
+  /* adressen zonder coördinaten eerst opzoeken, dan pas rekenen */
+  const kand=[...wpKandidaten(ws,o),...actief().filter(k=>k.gepland&&k.gepland>=iso(ws)&&k.gepland<=iso(addDays(ws,6))),rtBedrijf()];
+  if(typeof pkGeocode==="function"&&pkOpen(kand).length){WP.st.bezig=true;wpTeken();try{await pkGeocode(kand)}catch(e){}WP.st.bezig=false;if(WP.ov!==ov)return}
+  wpReken();
+}
+function wpSluit(){if(WP.ov){WP.ov.remove();WP.ov=null}WP.st=null;WP.map=null}
+function wpReken(){const s=WP.st;if(!s)return;s.v=wpVoorstel(s.ws,s.o);wpTeken();wpKaart()}
+function wpTeken(){const s=WP.st;if(!s||!WP.ov)return;const v=s.v,o=s.o,ws=s.ws,we=addDays(ws,6),mnd=["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"];
+  const dtx=d=>{const x=parse(d);return wd(x)+" "+x.getDate()+" "+mnd[x.getMonth()]};
+  const kand=wpKandidaten(ws,o),laat=kand.filter(k=>wpPrio(k)<0).length,vastN=actief().filter(k=>k.gepland&&k.gepland>=iso(ws)&&k.gepland<=iso(we)).length;
+  const nieuw=v?v.dagen.reduce((a,d)=>a+d.items.filter(x=>!x.vast).length,0):0,totMin=v?v.dagen.reduce((a,d)=>a+d.min+d.reis,0):0,omzet=v?v.dagen.reduce((a,d)=>a+d.items.filter(x=>!x.vast).reduce((b,x)=>b+(Number(x.k.prijs)||0),0),0):0;
+  const rij=(x,day)=>{const k=x.k,a=jobAddrObj(k),p=wpPrio(k);
+    const badge=x.vast?`<span class="wp-b vast">vast</span>`:p<0?`<span class="wp-b laat">+${-p}</span>`:x.vroeg?`<span class="wp-b vroeg">vroeg</span>`:"";
+    const dg=wpDagen(k);
+    return `<li class="wp-r${x.vast?" vast":""}" data-id="${esc(k.id)}"><span class="wp-t">${esc(x.tijd||"–")}</span><div class="wp-m"><b>${esc(a.adres||cleanName(k.naam))}</b><small>${esc(cleanName(k.naam))}${a.plaats?" · "+esc(a.plaats):""} · ${duur(k)} min${dg?" · "+dg.map(n=>["zo","ma","di","wo","do","vr","za"][n]).join("/"):""}</small></div>${badge}
+      ${x.vast?"":`<select class="wp-mv" data-wpmv="${esc(k.id)}" aria-label="Verplaatsen"><option value="">${esc(wd(parse(day.d)))}</option>${v.dagen.filter(d=>d.d!==day.d).map(d=>`<option value="${d.d}">${esc(wd(parse(d.d)))} ${parse(d.d).getDate()}</option>`).join("")}<option value="-">Niet deze week</option></select><button type="button" class="iconbtn sm wp-vk" data-wpvk="${esc(k.id)}" title="Voorkeursdagen van deze klant" aria-label="Voorkeursdagen">${I.cal2}</button>`}</li>`};
+  const dagKaart=(day,i)=>{const n=day.items.length,nw=day.items.filter(x=>!x.vast).length,vol=Math.min(100,Math.round((day.min+day.reis)/(o.uur*60)*100));
+    return `<section class="wp-d" style="--c:${WP_KLEUR[i%WP_KLEUR.length]}"><header><i class="wp-dot"></i><div><b>${esc(dtx(day.d))}</b><small>${n?`${plural(n,"adres","adressen")} · ${wpU(day.min+day.reis)}${day.km?" · "+day.km+" km":""}${day.buurt?" · "+esc(day.buurt):""}`:"Vrij"}</small></div>${n?`<span class="wp-klaar">klaar ± ${fromMin(day.eind)}</span>`:""}</header>
+      ${n?`<div class="wp-vol"><i style="width:${vol}%"></i></div><ol>${day.items.map(x=>rij(x,day)).join("")}</ol>`:`<p class="wp-leeg">Geen adressen · <button type="button" class="linkbtn" data-wpvul="${day.d}">vul deze dag aan</button></p>`}
+      ${n&&(day.min+day.reis)<o.uur*60-60?`<p class="wp-leeg">Nog ${wpU(o.uur*60-day.min-day.reis)} over · <button type="button" class="linkbtn" data-wpvul="${day.d}">vul aan</button></p>`:""}</section>`};
+  WP.ov.innerHTML=`<div class="rk wp" role="dialog" aria-modal="true" aria-label="Weekrooster">
+    <div class="rk-h"><span class="objic">${I.wand}</span><div><b>Plan de week</b><small>Week ${weekNr(ws)} · ${fmtD(ws)} – ${fmtD(we)}</small></div>
+      <div class="pl-dnav wp-nav" role="group" aria-label="Week"><button type="button" data-wpnav="-1" aria-label="Vorige week">${I.left}</button><button type="button" data-wpnav="1" aria-label="Volgende week">${I.right}</button></div>
+      <button type="button" class="iconbtn sm" data-wpx aria-label="Sluiten">${I.x}</button></div>
+    <div class="wp-sum"><div><b>${kand.length}</b><small>aan de beurt</small></div><div><b class="${laat?"laat":""}">${laat}</b><small>over tijd</small></div><div><b>${vastN}</b><small>al vast</small></div><div><b>${v?v.dagen.filter(d=>d.items.length).length:"–"}</b><small>wasdagen</small></div></div>
+    <div class="wp-opt"><label>Max per dag<select data-wpo="uur">${[4,5,6,7,8,9,10].map(u=>`<option value="${u}"${o.uur===u?" selected":""}>${u} uur</option>`).join("")}</select></label>
+      <label>Mag te vroeg<select data-wpo="vroeg">${[0,3,7,14].map(u=>`<option value="${u}"${o.vroeg===u?" selected":""}>${u?u+" dagen":"nooit"}</option>`).join("")}</select></label>
+      <span class="sp"></span><button type="button" class="small" data-wpreken>${I.refresh}Opnieuw</button></div>
+    <div id="wpMap" class="wp-map${v&&v.dagen.some(d=>d.items.some(x=>wpCo(x.k)))?"":" hide"}"></div>
+    ${s.bezig?`<p class="wp-leeg">Adressen opzoeken…</p>`:!v?`<p class="wp-leeg">Rekenen…</p>`:`
+    <div class="wp-dagen">${v.dagen.map(dagKaart).join("")}</div>
+    ${v.waarsch.length?`<div class="wp-w">${v.waarsch.map(w=>`<span>${I.alert}<b>${esc(cleanName(w.k.naam))}</b> · ${esc(w.t)}</span>`).join("")}</div>`:""}
+    ${v.rest.length?`<p class="wp-leeg">${plural(v.rest.length,"klant schuift","klanten schuiven")} door naar een volgende week: ${v.rest.slice(0,6).map(k=>esc(cleanName(k.naam))).join(", ")}${v.rest.length>6?" …":""}</p>`:""}
+    <div class="rk-f"><small>${nieuw?`${plural(nieuw,"nieuwe afspraak","nieuwe afspraken")} · ${wpU(totMin)} werk · ${eur0(toon(omzet))}`:"Niets nieuws in te plannen"}</small><span class="sp"></span><button type="button" class="ghost" data-wpx>Annuleren</button><button type="button" class="primary" data-wpzet ${nieuw?"":"disabled"}>${I.check}Zet in agenda</button></div>`}
+  </div>`;
+  const ov=WP.ov;
+  ov.querySelectorAll("[data-wpx]").forEach(b=>b.onclick=wpSluit);
+  ov.querySelectorAll("[data-wpnav]").forEach(b=>b.onclick=()=>{openWeekplan(addDays(s.ws,7*Number(b.dataset.wpnav)))});
+  ov.querySelectorAll("[data-wpo]").forEach(e=>e.onchange=()=>{s.o[e.dataset.wpo]=Number(e.value);wpOptSave(s.o);wpReken()});
+  const r=ov.querySelector("[data-wpreken]");if(r)r.onclick=wpReken;
+  ov.querySelectorAll("[data-wpmv]").forEach(e=>e.onchange=()=>wpVerplaats(e.dataset.wpmv,e.value));
+  ov.querySelectorAll("[data-wpvk]").forEach(b=>b.onclick=()=>wpVoorkeur(b.dataset.wpvk));
+  ov.querySelectorAll("[data-wpvul]").forEach(b=>b.onclick=()=>wpVul(b.dataset.wpvul));
+  const z=ov.querySelector("[data-wpzet]");if(z)z.onclick=wpZet;
+}
+function wpVerplaats(id,naar){const v=WP.st.v;let x=null,van=null;v.dagen.forEach(d=>{const i=d.items.findIndex(y=>y.k.id===id);if(i>=0){x=d.items.splice(i,1)[0];van=d}});if(!x)return;
+  const loods=v.loods,wsMin=toMin(S().werkStart)??480;
+  if(naar==="-")v.rest.push(x.k);else{const d=v.dagen.find(y=>y.d===naar);if(d){x.tijd="";d.items.push(x)}}
+  v.dagen.forEach(d=>{d.min=d.items.reduce((a,y)=>a+duur(y.k),0);wpVolgorde(d,loods,wsMin)});wpTeken();wpKaart()}
+function wpVul(d){const s=WP.st,v=s.v;if(!v)return;const day=v.dagen.find(x=>x.d===d);if(!day)return;
+  const cap=s.o.uur*60,inD=new Set(v.dagen.flatMap(x=>x.items.map(y=>y.k.id)));
+  /* kandidaten: wie nog los ligt deze week, daarna wie binnen 3 weken aan de beurt is, dichtstbij eerst */
+  const extra=teplannen(addDays(parse(d),21)).filter(k=>!inD.has(k.id)&&!(k.gepland&&k.gepland>=iso(today()))&&wpMagOp(k,d));
+  const cent=day.items.length?(()=>{const cs=day.items.map(x=>wpCo(x.k)).filter(Boolean);return cs.length?[cs.reduce((a,c)=>a+c[0],0)/cs.length,cs.reduce((a,c)=>a+c[1],0)/cs.length]:null})():v.loods;
+  extra.sort((a,b)=>{const ca=wpCo(a),cb=wpCo(b);const da=ca&&cent?wpAfst(cent,ca):50,db=cb&&cent?wpAfst(cent,cb):50;return (da+Math.max(0,wpPrio(a))*.4)-(db+Math.max(0,wpPrio(b))*.4)});
+  let n=0;for(const k of extra){if(day.min+day.reis+duur(k)+8>cap)break;day.items.push({k,vast:false,tijd:"",vroeg:teVroeg(k,d)});day.min+=duur(k);n++;v.rest=v.rest.filter(x=>x.id!==k.id)}
+  if(!n){toast("Niemand in de buurt die binnenkort aan de beurt is");return}
+  wpVolgorde(day,v.loods,toMin(S().werkStart)??480);toast(plural(n,"adres","adressen")+" toegevoegd aan "+fmtD(d));wpTeken();wpKaart()}
+function wpVoorkeur(id){const k=state.klanten.find(x=>x.id===id);if(!k)return;const cur=wpDagen(k)||[];
+  const o=document.createElement("div");o.className="vraag-ov";o.style.zIndex=340;
+  o.innerHTML=`<div class="rk" style="max-width:380px"><div class="rk-h"><span class="objic">${I.cal2}</span><div><b>Voorkeursdagen</b><small>${esc(cleanName(k.naam))} · alleen op deze dagen plannen</small></div></div>
+    <div class="wp-vkd">${[1,2,3,4,5,6].map(n=>`<label><input type="checkbox" value="${n}"${cur.includes(n)?" checked":""}><span>${["zo","ma","di","wo","do","vr","za"][n]}</span></label>`).join("")}</div>
+    <p class="help">Niets aangevinkt = elke werkdag mag. Dit onthoudt het systeem voor alle volgende weken.</p>
+    <div class="rk-f"><button type="button" class="ghost" data-x>Annuleren</button><span class="sp"></span><button type="button" class="primary" data-ok>Opslaan</button></div></div>`;
+  document.body.appendChild(o);o.querySelector("[data-x]").onclick=()=>o.remove();
+  o.querySelector("[data-ok]").onclick=async()=>{const dg=[...o.querySelectorAll("input:checked")].map(e=>Number(e.value));try{await save("klanten",k.id,{...strip(k),planDagen:dg});k.planDagen=dg;o.remove();toast(dg.length?"Voorkeur opgeslagen":"Voorkeur gewist");wpReken()}catch(e){err(e)}}}
+async function wpZet(){const s=WP.st,v=s&&s.v;if(!v)return;const b=WP.ov.querySelector("[data-wpzet]");if(b)b.disabled=true;
+  let n=0;const dagen=[];
+  try{for(const day of v.dagen){const nieuw=day.items.filter(x=>!x.vast);if(!nieuw.length)continue;
+      for(const x of nieuw){await save("klanten",x.k.id,{...strip(x.k),gepland:day.d,tijd:x.tijd,aanbieden:false});n++}
+      await save("routes",day.d,{...strip(state.routes[day.d]||{}),order:day.items.map(x=>x.k.id)});dagen.push(day.d)}
+    toast(plural(n,"afspraak","afspraken")+" ingepland over "+plural(dagen.length,"dag","dagen"));
+    state.pview="week";state.week=startOfWeek(parse(v.ws));state.planDay=v.dagen[0]?v.dagen[0].d:iso(parse(v.ws));wpSluit();render()}
+  catch(e){err(e);if(b)b.disabled=false}}
+/* kaartje: per dag een kleur */
+async function wpKaart(){const s=WP.st,v=s&&s.v;const el=WP.ov&&WP.ov.querySelector("#wpMap");if(!v||!el||el.classList.contains("hide")||typeof pkLaadLeaflet!=="function")return;
+  try{await pkLaadLeaflet()}catch(e){el.classList.add("hide");return}if(!WP.ov||!WP.ov.contains(el))return;
+  const L=window.L;if(!el._map){el._map=L.map(el,{zoomControl:false,attributionControl:false});L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetmap-bijdragers"}).addTo(el._map);el._laag=L.layerGroup().addTo(el._map)}
+  const m=el._map;el._laag.clearLayers();const pts=[];
+  v.dagen.forEach((day,i)=>{const c=WP_KLEUR[i%WP_KLEUR.length];day.items.forEach((x,j)=>{const co=wpCo(x.k);if(!co)return;pts.push(co);
+    L.marker(co,{icon:L.divIcon({className:"wp-pin",html:`<i style="background:${c}">${j+1}</i>`,iconSize:[22,22],iconAnchor:[11,11]})}).bindTooltip(`${wd(parse(day.d))} ${x.tijd} · ${esc(jobAddrObj(x.k).adres||cleanName(x.k.naam))}`).addTo(el._laag)})});
+  if(v.loods){pts.push(v.loods);L.marker(v.loods,{icon:L.divIcon({className:"wp-pin",html:`<i class="loods">${I.truck||"L"}</i>`,iconSize:[26,26],iconAnchor:[13,13]})}).addTo(el._laag)}
+  if(pts.length){m.invalidateSize();m.fitBounds(pts,{padding:[18,18],maxZoom:14})}
 }
 
 /* ---------- KLANTEN ---------- */
@@ -11241,7 +11448,7 @@ function kkPortaal(k){
   const door=k.aanbevolenDoor&&state.klanten.find(x=>x.id===k.aanbevolenDoor);
   const aangebracht=state.klanten.filter(x=>x.aanbevolenDoor===k.id);
   const st=x=>x.aanbevelingBeloond?["ok","Vrijgegeven"]:x.actief===false?["neutral","Gestopt"]:x.akkoord===false||x.prospect?["soon","On hold · wacht op akkoord"]:["soon","On hold · eerste afspraak"];
-  return `<section class="kp"><div class="kp-h"><span class="objic">${I.spark||I.user}</span><b>Klantportaal <span class="objic" style="background:#e9a23b;color:#fff">${I.spark||I.user}</span><b>Klantportaal & aanbevelen</b> aanbevelen</b><span class="sp"></span>${LIVE?`<button type="button" class="small" data-act="tknieuw" data-id="${esc(k.id)}">${I.ticket}Ticket</button><button type="button" class="small" data-act="ptinvite" data-id="${esc(k.id)}">${I.send}${k.portaalLaatst||k.portaalUitgenodigd?"Opnieuw uitnodigen":"Uitnodigen"}</button>`:""}</div>
+  return `<section class="kp"><div class="kp-h"><span class="objic" style="background:#e9a23b;color:#fff">${I.spark||I.user}</span><b>Klantportaal & aanbevelen</b><span class="sp"></span>${LIVE?`<button type="button" class="small" data-act="tknieuw" data-id="${esc(k.id)}">${I.ticket}Ticket</button><button type="button" class="small" data-act="ptinvite" data-id="${esc(k.id)}">${I.send}${k.portaalLaatst||k.portaalUitgenodigd?"Opnieuw uitnodigen":"Uitnodigen"}</button>`:""}</div>
     <div class="pt-kk">
       <div><small>Portaal</small><b>${k.portaalLaatst?"Laatst ingelogd "+esc(fmtD(k.portaalLaatst.slice(0,10))):k.portaalUitgenodigd?"Uitgenodigd "+esc(fmtD(k.portaalUitgenodigd.slice(0,10))):"Nog niet gebruikt"}</b></div>
       <div><small>Aanbevelingscode</small><b>${esc(k.refCode||"Wordt gemaakt bij eerste login")}</b></div>
@@ -11617,6 +11824,7 @@ document.addEventListener("click",e=>{
     case"rday":state.routeDay=n===0?iso(today()):iso(addDays(parse(state.routeDay||iso(today())),n));render();break;
     case"rmove":routeMove(id,n);break;
     case"optim":optimize(t.dataset.d);break;
+    case"weekplan":{const d=t.dataset.d?parse(t.dataset.d):null;openWeekplan(d&&d>startOfWeek(today())?d:addDays(startOfWeek(today()),7));break}
     /* planning */
     case"pview":state.pview=t.dataset.v;state.pick=null;render();break;
     case"pstat":state.pstat=t.dataset.v;render();break;
