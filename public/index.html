@@ -5409,7 +5409,7 @@ function openJob(id,day){
       <span class="jp-k2"><b>${esc(cleanName(k.naam))}</b><em>${I.pin}${esc(jobAddr(k))}</em></span>
       <span class="jp-k3"><small>Bedrag</small><b>${eur(toon(bedrag))}</b><em>${done?"afgerond":"na afmelden"}</em></span></div></div>
   <div class="jp-who2"><span class="av" style="--h:${hue(k.ronde||k.naam)}">${esc(initials(k.naam))}</span><button type="button" class="linkbtn" data-act="klant" data-id="${esc(k.id)}">Ga naar klantkaart ${I.right}</button></div>
-  <div class="jp-tiles">${tile(tel?waLink(tel,""):"",I.chat,"WhatsApp",!tel)}${tile("tel:"+tel,I.phone,"Bellen",!tel)}${tile(mail,I.mail,"Mail",!mail)}${tile(mapsQ(k),I.nav,"Route")}</div>
+  ${state.tab==="planning"?"":`<div class="jp-tiles">${tile(tel?waLink(tel,""):"",I.chat,"WhatsApp",!tel)}${tile("tel:"+tel,I.phone,"Bellen",!tel)}${tile(mail,I.mail,"Mail",!mail)}${tile(mapsQ(k),I.nav,"Route")}</div>`}
   <div class="jp-body">
     ${done?(()=>{const f=b.gefactureerd&&!["nvt","periodiek"].includes(b.gefactureerd)?state.facturen.find(x=>x.id===b.gefactureerd):null,fs=f?fStatus(f):null,
         om=b.op?new Date(b.op).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"}):"",du=Number(b.duur)||0;
