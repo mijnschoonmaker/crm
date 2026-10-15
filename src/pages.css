@@ -3525,3 +3525,4 @@ dialog .kp{overflow-wrap:anywhere}
 .bh-gbl{font-size:12.5px;font-weight:600;color:var(--muted);text-align:center;margin-top:6px}.bh-gbr{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.bh-gbr input{text-align:center}
 .bh-log td,.bh-log th{white-space:nowrap}.bh-log td:nth-child(3){white-space:normal}
 @media(max-width:900px){.bh-grid,.bh-grid3{grid-template-columns:1fr}}
+.bh-laatst{display:flex;align-items:center;gap:6px;margin:0 0 10px}.bh-laatst svg{width:15px;height:15px;stroke:var(--ok)}

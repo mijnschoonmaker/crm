@@ -128,7 +128,7 @@ document.addEventListener("click",e=>{
     case"perlijst":state.fmenu=false;openPeriodiekLijst();break;
     case"finalizeall":{const l=facturen().filter(f=>f.status==="concept");runSeq(l,f=>save("facturen",f.id,{...strip(f),status:"open"}),plural(l.length,"factuur","facturen")+" definitief gemaakt");break}
     case"fexport":exportFacturen();break;
-    case"snelstart":state.fmenu=false;openSnelstart();break;
+    case"snelstart":state.fmenu=false;state.tab="boekhouding";state.btab="boekhouder";state.bhtab="overzichten";render();window.scrollTo({top:0});break;
     /* communicatie */
     case"copymsg":{const r=compose&&compose.recipients[Number(t.dataset.i)];if(r)copy(fill(compose.tekst,r.vars),t);break}
     case"queue":{const q=queues().find(x=>x.id===t.dataset.q);if(q&&q.items.length)openCompose({title:q.titel,sjabloon:q.sjabloon||q.id,recipients:q.items,hint:q.hint?esc(q.hint):"",tekst:q.tekst,mail:q.mail,onderwerp:q.onderwerp,kanaal:q.kanaal});else toast(q?"Niets klaar om te versturen":"Zet factuurherinneringen aan bij Instellingen");break}

@@ -3952,6 +3952,7 @@ dialog .kp{overflow-wrap:anywhere}
 .bh-gbl{font-size:12.5px;font-weight:600;color:var(--muted);text-align:center;margin-top:6px}.bh-gbr{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.bh-gbr input{text-align:center}
 .bh-log td,.bh-log th{white-space:nowrap}.bh-log td:nth-child(3){white-space:normal}
 @media(max-width:900px){.bh-grid,.bh-grid3{grid-template-columns:1fr}}
+.bh-laatst{display:flex;align-items:center;gap:6px;margin:0 0 10px}.bh-laatst svg{width:15px;height:15px;stroke:var(--ok)}
 
 </style>
 <div class="app">
@@ -6751,15 +6752,17 @@ function ofHandtekening(lists,acc,dec){const sumI=l=>l.reduce((a,f)=>a+totals(f)
 const BH_TYPES=[["particulier","Particulier"],["zakelijk","Zakelijk"],["vve","VVE / Overheid"]];
 const BH_GB=[["verlegd","Grootboekrekening omzet verlegd","8050"],["omzet0","Grootboekrekening omzet 0%",""],["omzet9","Grootboekrekening omzet 9%","8010"],["omzet21","Grootboekrekening omzet 21%","8000"],["btw9","Grootboekrekening BTW 9%","3100"],["btw21","Grootboekrekening BTW 21%","3101"],["aanmaning","Aanmaningskosten",""]];
 const BH_DEF={bhSalaris:"maand",bhAangifte:"kwartaal",bhPakket:"snelstart",bhDagboekBank:"1300",bhDagboekKas:"1300",bhVerkoopboek:"1300",bhDebiteuren:"1300",bhBtw0:"10",bhBtwLaag:"11",bhBtwHoog:"12",bhBtwVerlegd:"10"};
-const bhS=k=>{const v=S()[k];return v==null||v===""?(BH_DEF[k]??""):String(v)};
-const bhGb=(type,veld)=>{const v=S()["bhGb_"+type+"_"+veld];if(v!=null&&v!=="")return String(v);const d=BH_GB.find(x=>x[0]===veld);return d?d[2]:""};
+const bhOud=()=>(S().snelstart||{});
+const bhS=k=>{const v=S()[k];if(v!=null&&v!=="")return String(v);const o=bhOud(),m={bhVerkoopboek:o.dagboek,bhDebiteuren:o.deb};if(m[k])return String(m[k]);return BH_DEF[k]??""};
+const bhGb=(type,veld)=>{const v=S()["bhGb_"+type+"_"+veld];if(v!=null&&v!=="")return String(v);const o=bhOud(),m={omzet21:o.omzet,omzet9:o.omzet,omzet0:o.omzet0,verlegd:o.omzet0,btw21:o.btwH,btw9:o.btwL};if(m[veld])return String(m[veld]);const d=BH_GB.find(x=>x[0]===veld);return d?d[2]:""};
 const bhType=k=>k&&k.soort==="vve"?"vve":k&&k.soort==="zakelijk"?"zakelijk":"particulier";
 const bhLog=()=>Array.isArray((state.boekhouder||{}).items)?state.boekhouder.items:[];
 const bhD=iso=>{const d=parse(iso);return d?pad(d.getDate())+"-"+pad(d.getMonth()+1)+"-"+d.getFullYear():""};
 const bhN=x=>{const v=Math.round((Number(x)||0)*100)/100,[a,b]=v.toFixed(2).split(".");return a.replace(/\B(?=(\d{3})+(?!\d))/g,".")+","+b};
 const bhQ=x=>{x=String(x??"");return /[\s,;"]/.test(x)?'"'+x.replace(/"/g,'""')+'"':x};
 const bhCode=nr=>{const m=String(nr||"").match(/(\d+)\s*$/);return m?String(Number(m[1])):String(nr||"").replace(/\D/g,"")||"0"};
-state.bhVan=state.bhVan||iso(new Date(today().getFullYear(),today().getMonth(),1));state.bhTot=state.bhTot||iso(today());
+const bhLaatst=()=>{const l=bhLog().find(x=>x.type==="Omzet"&&x.tot);return l?l.tot:(S().snelstart||{}).laatst||""};
+const bhInit=()=>{if(!state.bhVan){const l=bhLaatst();state.bhVan=l?iso(addDays(parse(l),1)):iso(new Date(today().getFullYear(),today().getMonth(),1))}if(!state.bhTot)state.bhTot=iso(today())};
 
 /* verkoopboek: alle definitieve facturen met factuurdatum in de periode */
 function bhVerkoopboek(van,tot){
@@ -6796,16 +6799,16 @@ function bhUren(van,tot){
 }
 function bhDownload(naam,tekst){const bl=new Blob(["﻿"+tekst],{type:"text/csv;charset=utf-8"}),u=URL.createObjectURL(bl),a=document.createElement("a");a.href=u;a.download=naam;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000)}
 const bhB64=t=>btoa(unescape(encodeURIComponent("﻿"+t)));
-async function bhLogZet(item){const items=[{op:new Date().toISOString(),...item},...bhLog()].slice(0,300);try{await save("instellingen","boekhouder",{items});state.boekhouder={items}}catch(e){err(e)}}
+async function bhLogZet(item){const items=[{op:new Date().toISOString(),van:state.bhVan,tot:state.bhTot,...item},...bhLog()].slice(0,300);try{await save("instellingen","boekhouder",{items});state.boekhouder={items}}catch(e){err(e)}}
 async function bhMail(soort,naar,bijlagen,onderwerp,tekst,oms){
   if(!LIVE)return toast("Mailen werkt in de live versie");
   if(!/^\S+@\S+\.\S+$/.test(naar||""))return toast("Vul een geldig e-mailadres in");
   try{toast("Versturen…");await fbFn("sendMail")({naar,naam:"Boekhouder",onderwerp,tekst,bijlagen,meta:{klantNaam:"Boekhouder",sjabloon:"boekhouder"}});
-    await bhLogZet({type:soort,omschrijving:oms,naar,bijlagen:bijlagen.map(b=>b.naam)});toast("Verstuurd naar "+naar);render()}catch(e){toast(fnFout(e))}
+    await bhLogZet({type:soort,omschrijving:oms,naar,bijlagen:bijlagen.map(b=>b.naam)});if(soort==="Omzet"&&typeof ssNrVast==="function")ssNrVast();toast("Verstuurd naar "+naar);render()}catch(e){toast(fnFout(e))}
 }
 function bhPeriodeTxt(van,tot){return bhD(van)+" tm "+bhD(tot)}
 
-function vBoekhouder(){
+function vBoekhouder(){bhInit();
   const sub=state.bhtab||"overzichten",van=state.bhVan,tot=state.bhTot,s=S();
   let html=`<div class="bh-tabs seg">${[["overzichten","Overzichten"],["instellingen","Instellingen"]].map(([v,l])=>`<button type="button" data-act="bhtab" data-v="${v}" aria-pressed="${sub===v}">${l}</button>`).join("")}</div>`;
   if(sub==="instellingen"){
@@ -6835,6 +6838,7 @@ function vBoekhouder(){
   const per=(v,t)=>`<div class="bh-per"><label>Datum vanaf<input type="date" data-bhd="van" value="${esc(v)}"></label><label>Datum t/m<input type="date" data-bhd="tot" value="${esc(t)}"></label></div>`;
   const snel=[["Deze maand",iso(new Date(today().getFullYear(),today().getMonth(),1)),iso(today())],["Vorige maand",iso(new Date(today().getFullYear(),today().getMonth()-1,1)),iso(new Date(today().getFullYear(),today().getMonth(),0))],["Dit kwartaal",iso(new Date(today().getFullYear(),Math.floor(today().getMonth()/3)*3,1)),iso(today())],["Vorig kwartaal",iso(new Date(today().getFullYear(),Math.floor(today().getMonth()/3)*3-3,1)),iso(new Date(today().getFullYear(),Math.floor(today().getMonth()/3)*3,0))]];
   html+=`<div class="chips bh-snel">${snel.map(([l,a,b])=>`<button type="button" class="chip" data-act="bhper" data-van="${a}" data-tot="${b}" aria-pressed="${van===a&&tot===b}">${l}</button>`).join("")}</div>
+  ${bhLaatst()?`<p class="subt bh-laatst">${I.check}Laatst verstuurde omzet t/m <b>${esc(bhD(bhLaatst()))}</b> · periode begint daarna</p>`:""}
   <div class="bh-grid3">
     <section class="panel bh-p"><h3>${I.euro||I.bank}Omzetperiode</h3>${per(van,tot)}
       <div class="bh-sum"><span><b>${vb.fs.length}</b> facturen</span><span><b>${eur(vb.omzet)}</b> incl. btw</span><span><b>${vb.rows.length}</b> boekingsregels</span><span><b>${actief().length}</b> relaties</span></div>
@@ -6867,8 +6871,8 @@ async function bhActie(a,t){
   if(a==="bhtab"){state.bhtab=t.dataset.v;render()}
   else if(a==="bhper"){state.bhVan=t.dataset.van;state.bhTot=t.dataset.tot;render()}
   else if(a==="bhsave"){const patch={};document.querySelectorAll("[data-bh]").forEach(e=>patch[e.dataset.bh]=e.value.trim());if(await saveSettings(patch,"Boekhouder-instellingen opgeslagen"))render()}
-  else if(a==="bhdlomzet"){const n=bhD(van)+"_tm_"+bhD(tot);bhDownload(`revenue_${n}.csv`,bhVerkoopboek(van,tot).csv);setTimeout(()=>bhDownload(`customers_active_${n}.csv`,bhRelaties().csv),400)}
-  else if(a==="bhdluren"){bhDownload(`uren_${van}_${tot}.csv`,bhUren(van,tot).csv)}
+  else if(a==="bhdlomzet"){const n=bhD(van)+"_tm_"+bhD(tot);bhDownload(`revenue_${n}.csv`,bhVerkoopboek(van,tot).csv);setTimeout(()=>bhDownload(`customers_active_${n}.csv`,bhRelaties().csv),400);if(typeof ssNrVast==="function")ssNrVast();await bhLogZet({type:"Omzet",omschrijving:"Omzet "+p+" (download)",naar:"—"});render()}
+  else if(a==="bhdluren"){bhDownload(`uren_${van}_${tot}.csv`,bhUren(van,tot).csv);await bhLogZet({type:"Uren",omschrijving:"Uren "+p+" (download)",naar:"—"});render()}
   else if(a==="bhmailomzet"){const vb=bhVerkoopboek(van,tot),rl=bhRelaties(),naar=($("#bhMail1")||{}).value,n=bhD(van)+"_tm_"+bhD(tot);
     await bhMail("Omzet",naar,[{naam:`revenue_${n}.csv`,data:bhB64(vb.csv)},{naam:`customers_active_${n}.csv`,data:bhB64(rl.csv)}],`Omzet ${p} – ${S().naam||"mijnschoonmaker"}`,`Beste boekhouder,\n\nIn de bijlage de omzet van ${p} voor SnelStart (revenue) en de bijbehorende relaties (customers_active): ${vb.fs.length} facturen, ${eur(vb.omzet)} incl. btw.\n\nMet vriendelijke groet,\n${S().naam||""}`,`Omzet ${p}`)}
   else if(a==="bhmailuren"){const ur=bhUren(van,tot),naar=($("#bhMail2")||{}).value;
@@ -12118,7 +12122,7 @@ document.addEventListener("click",e=>{
     case"perlijst":state.fmenu=false;openPeriodiekLijst();break;
     case"finalizeall":{const l=facturen().filter(f=>f.status==="concept");runSeq(l,f=>save("facturen",f.id,{...strip(f),status:"open"}),plural(l.length,"factuur","facturen")+" definitief gemaakt");break}
     case"fexport":exportFacturen();break;
-    case"snelstart":state.fmenu=false;openSnelstart();break;
+    case"snelstart":state.fmenu=false;state.tab="boekhouding";state.btab="boekhouder";state.bhtab="overzichten";render();window.scrollTo({top:0});break;
     /* communicatie */
     case"copymsg":{const r=compose&&compose.recipients[Number(t.dataset.i)];if(r)copy(fill(compose.tekst,r.vars),t);break}
     case"queue":{const q=queues().find(x=>x.id===t.dataset.q);if(q&&q.items.length)openCompose({title:q.titel,sjabloon:q.sjabloon||q.id,recipients:q.items,hint:q.hint?esc(q.hint):"",tekst:q.tekst,mail:q.mail,onderwerp:q.onderwerp,kanaal:q.kanaal});else toast(q?"Niets klaar om te versturen":"Zet factuurherinneringen aan bij Instellingen");break}
