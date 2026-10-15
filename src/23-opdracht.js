@@ -14,7 +14,8 @@ function openOpdrachtWerk(kid,focus){
   const kv=(a,b)=>`<div class="ow-kv"><span>${a}</span><b>${b}</b></div>`;
   const diensten=dienstLijst();
   const nr=klantNr(k);
-  openDlg(`<div class="dlg-head"><span class="objic big">${I.checksq||I.check}</span><div style="min-width:0;flex:1"><h3>Opdracht ${esc(nr)}-1 · ${esc(k.dienst||"Glasbewassing")}</h3><div class="subt">${esc(cleanName(k.naam))} · ${esc(jobAddr(k))}</div></div><span class="pill ${status[0]} dotp">${status[1]}</span><button type="button" class="iconbtn" id="owX" aria-label="Terug naar klantkaart">${I.x}</button></div>
+  openDlg(`<div class="ow-kop jp-kop ow-${status[0]}"><div class="jp-kr1"><span class="jp-st"><i></i>${status[1]}</span><span class="sp"></span><button type="button" class="jp-ib" id="owX" aria-label="Terug naar klantkaart">${I.x}</button></div>
+    <div class="jp-kr2"><span class="jp-k1"><small>Opdracht</small><b>${esc(nr)}-1</b></span><span class="jp-k2"><b>${esc(cleanName(k.naam))}</b><em>${I.pin}${esc(jobAddr(k))}</em></span><span class="jp-k3"><small>${esc(k.dienst||"Glasbewassing")}</small><b>${eur(toon(k.prijs))}</b><em>elke ${Number(k.frequentie)||4} wk · ${duur(k)} min</em></span></div></div>
   <div class="hosp-top" id="owHospTop">${hospBlok(k,{leegKnop:false})}</div>
   <div class="kk-grid ow-grid"><div class="kk-left">
     <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klantgegevens</b><span class="sp"></span><button type="button" class="small" id="owKk">${I.right}Klantkaart</button></div>

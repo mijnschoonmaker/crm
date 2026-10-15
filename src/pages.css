@@ -3612,3 +3612,11 @@ dialog .kp{overflow-wrap:anywhere}
 .jp-foot button.ghost:hover{color:var(--brand);background:var(--surface-2)}
 .jp-foot button svg{width:18px;height:18px}
 .jp-isaf .jp-foot button.ghost{order:0;flex:1;min-height:50px;font-size:15px;border:1.5px solid var(--line);color:var(--ink);background:var(--surface)}
+
+/* ---------- opdrachtdialoog: kop in dezelfde opbouw ---------- */
+.ow-kop{margin:-22px -22px 0;border-radius:24px 24px 0 0!important;padding:16px 22px 18px}
+.ow-kop.ow-soon{background:linear-gradient(135deg,#9a5a12,#d08a2e 60%,#b7781f)}
+.ow-kop.ow-neutral{background:linear-gradient(135deg,#5b7480,#6f8893)}
+@media(max-width:560px){.ow-kop{margin:-16px -16px 0;border-radius:0!important}}
+.kk-av{padding-right:0;border-right:0}.kk-av .av{width:48px;height:48px;font-size:17px;border:2px solid rgb(255 255 255 / .6)}
+@media(max-width:560px){.kk-av .av{width:40px;height:40px;font-size:14px}}
