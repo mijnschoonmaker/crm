@@ -49,10 +49,10 @@ function volgendeFeestdag(){const t=today(),s=S();const all={...feestdagen(t.get
 function vInstellingen(){
   const s=S();
   return `<div class="pagehead"><div><p class="kicker">${I.instellingen}Configuratie</p><h1 class="xl">Instellingen</h1><p class="lead" style="margin:0">Beheer je bedrijfsprofiel, integraties en automatisering</p></div></div>
-  <div class="setgrid">${SETCARDS.map(c=>{const[cl,lb]=c.st(s),w=c.warn&&c.warn(s);return `<div class="setcard"><div class="set-top"><span class="ic" style="background:${c.bg}">${I[c.ic]}</span><span class="pill ${cl}">${cl==="ok"?I.check:I.alert}${esc(lb)}</span></div>
-    <h3>${esc(c.t)}</h3><dl>${c.rows(s).map(([a,b])=>`<dt>${esc(a)}</dt><dd title="${esc(b??"")}">${esc(b??"—")||"—"}</dd>`).join("")}</dl>
+  <div class="setgrid">${SETCARDS.map(c=>{const[cl,lb]=c.st(s),w=c.warn&&c.warn(s);return `<div class="setcard sc2 sc2-${cl}"><div class="sc2-kop jp-kop"><div class="jp-kr1"><span class="jp-st"><i></i>${esc(lb)}</span><span class="sp"></span></div><div class="sc2-t"><span class="ic">${I[c.ic]}</span><div><h3>${esc(c.t)}</h3>${c.sub?`<small>${esc(c.sub)}</small>`:""}</div></div></div>
+    <div class="sc2-body"><dl>${c.rows(s).map(([a,b])=>`<dt>${esc(a)}</dt><dd title="${esc(b??"")}">${esc(b??"—")||"—"}</dd>`).join("")}</dl>
     ${w?`<div class="warnbox">${I.alert}<span>${esc(w)}</span></div>`:""}
-    <button type="button" class="setbtn" data-act="setedit" data-v="${c.id}">${c.v?I.search:I.note} ${c.v||"Bewerken"}<span style="flex:1"></span>${I.right}</button>${c.extra||""}</div>`}).join("")}</div>
+    <button type="button" class="setbtn" data-act="setedit" data-v="${c.id}">${c.v?I.search:I.note} ${c.v||"Bewerken"}<span style="flex:1"></span>${I.right}</button>${c.extra||""}</div></div>`}).join("")}</div>
   <div class="panel quickp"><div class="qhead"><span class="eyebrow">Sneltoegang</span><span style="flex:1"></span><span class="eyebrow" style="display:flex;align-items:center;gap:6px">${I.euro}Bedragen</span>
     <div class="seg"><button type="button" data-act="toonex" data-v="1" aria-pressed="${!!s.toonEx}">Ex BTW</button><button type="button" data-act="toonex" data-v="0" aria-pressed="${!s.toonEx}">Incl BTW</button></div></div>
     <div class="quick">${QUICK.map(([id,l,ic])=>`<button type="button" data-act="setedit" data-v="${id}"><span>${I[ic]}</span>${esc(l)}</button>`).join("")}</div></div>

@@ -4066,6 +4066,20 @@ dialog.drawer{clip-path:inset(0 round 28px 0 0 28px)}
 .jp-kop{border-radius:0!important}
 @media (max-width:560px){dialog.drawer{clip-path:none}}
 
+/* ---------- instellingen: kaarten in dezelfde opbouw ---------- */
+.setcard.sc2{padding:0;overflow:hidden;gap:0;border:0;box-shadow:0 1px 2px rgb(15 31 38 / .05),0 16px 32px -22px rgb(15 50 60 / .45)}
+.sc2-kop{border-radius:0!important;padding:14px 18px 16px}
+.sc2-soon .sc2-kop{background:linear-gradient(135deg,#9a5a12,#d08a2e 60%,#b7781f)}
+.sc2-neutral .sc2-kop{background:linear-gradient(135deg,#5b7480,#6f8893)}
+.sc2 .jp-kr1{margin-bottom:12px}
+.sc2-t{display:flex;align-items:center;gap:12px;min-width:0}
+.sc2-t .ic{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;flex:none;background:rgb(255 255 255 / .16);border:1px solid rgb(255 255 255 / .25)}.sc2-t .ic svg{width:22px;height:22px;stroke:#fff}
+.sc2-t>div{min-width:0}.sc2-t h3{margin:0;font-size:19px;color:#fff;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc2-t small{display:block;font-size:12px;color:rgb(255 255 255 / .75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.sc2-body{display:flex;flex-direction:column;gap:12px;padding:16px 18px 18px;flex:1}
+.sc2-body dl{font-size:13.5px}
+.sc2-body .setbtn{margin-top:auto}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -8158,10 +8172,10 @@ function volgendeFeestdag(){const t=today(),s=S();const all={...feestdagen(t.get
 function vInstellingen(){
   const s=S();
   return `<div class="pagehead"><div><p class="kicker">${I.instellingen}Configuratie</p><h1 class="xl">Instellingen</h1><p class="lead" style="margin:0">Beheer je bedrijfsprofiel, integraties en automatisering</p></div></div>
-  <div class="setgrid">${SETCARDS.map(c=>{const[cl,lb]=c.st(s),w=c.warn&&c.warn(s);return `<div class="setcard"><div class="set-top"><span class="ic" style="background:${c.bg}">${I[c.ic]}</span><span class="pill ${cl}">${cl==="ok"?I.check:I.alert}${esc(lb)}</span></div>
-    <h3>${esc(c.t)}</h3><dl>${c.rows(s).map(([a,b])=>`<dt>${esc(a)}</dt><dd title="${esc(b??"")}">${esc(b??"—")||"—"}</dd>`).join("")}</dl>
+  <div class="setgrid">${SETCARDS.map(c=>{const[cl,lb]=c.st(s),w=c.warn&&c.warn(s);return `<div class="setcard sc2 sc2-${cl}"><div class="sc2-kop jp-kop"><div class="jp-kr1"><span class="jp-st"><i></i>${esc(lb)}</span><span class="sp"></span></div><div class="sc2-t"><span class="ic">${I[c.ic]}</span><div><h3>${esc(c.t)}</h3>${c.sub?`<small>${esc(c.sub)}</small>`:""}</div></div></div>
+    <div class="sc2-body"><dl>${c.rows(s).map(([a,b])=>`<dt>${esc(a)}</dt><dd title="${esc(b??"")}">${esc(b??"—")||"—"}</dd>`).join("")}</dl>
     ${w?`<div class="warnbox">${I.alert}<span>${esc(w)}</span></div>`:""}
-    <button type="button" class="setbtn" data-act="setedit" data-v="${c.id}">${c.v?I.search:I.note} ${c.v||"Bewerken"}<span style="flex:1"></span>${I.right}</button>${c.extra||""}</div>`}).join("")}</div>
+    <button type="button" class="setbtn" data-act="setedit" data-v="${c.id}">${c.v?I.search:I.note} ${c.v||"Bewerken"}<span style="flex:1"></span>${I.right}</button>${c.extra||""}</div></div>`}).join("")}</div>
   <div class="panel quickp"><div class="qhead"><span class="eyebrow">Sneltoegang</span><span style="flex:1"></span><span class="eyebrow" style="display:flex;align-items:center;gap:6px">${I.euro}Bedragen</span>
     <div class="seg"><button type="button" data-act="toonex" data-v="1" aria-pressed="${!!s.toonEx}">Ex BTW</button><button type="button" data-act="toonex" data-v="0" aria-pressed="${!s.toonEx}">Incl BTW</button></div></div>
     <div class="quick">${QUICK.map(([id,l,ic])=>`<button type="button" data-act="setedit" data-v="${id}"><span>${I[ic]}</span>${esc(l)}</button>`).join("")}</div></div>

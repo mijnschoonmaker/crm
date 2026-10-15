@@ -3638,3 +3638,17 @@ dialog:has(> form > .ow-kop){clip-path:inset(0 round 24px)}
 dialog.drawer{clip-path:inset(0 round 28px 0 0 28px)}
 .jp-kop{border-radius:0!important}
 @media (max-width:560px){dialog.drawer{clip-path:none}}
+
+/* ---------- instellingen: kaarten in dezelfde opbouw ---------- */
+.setcard.sc2{padding:0;overflow:hidden;gap:0;border:0;box-shadow:0 1px 2px rgb(15 31 38 / .05),0 16px 32px -22px rgb(15 50 60 / .45)}
+.sc2-kop{border-radius:0!important;padding:14px 18px 16px}
+.sc2-soon .sc2-kop{background:linear-gradient(135deg,#9a5a12,#d08a2e 60%,#b7781f)}
+.sc2-neutral .sc2-kop{background:linear-gradient(135deg,#5b7480,#6f8893)}
+.sc2 .jp-kr1{margin-bottom:12px}
+.sc2-t{display:flex;align-items:center;gap:12px;min-width:0}
+.sc2-t .ic{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;flex:none;background:rgb(255 255 255 / .16);border:1px solid rgb(255 255 255 / .25)}.sc2-t .ic svg{width:22px;height:22px;stroke:#fff}
+.sc2-t>div{min-width:0}.sc2-t h3{margin:0;font-size:19px;color:#fff;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc2-t small{display:block;font-size:12px;color:rgb(255 255 255 / .75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.sc2-body{display:flex;flex-direction:column;gap:12px;padding:16px 18px 18px;flex:1}
+.sc2-body dl{font-size:13.5px}
+.sc2-body .setbtn{margin-top:auto}
