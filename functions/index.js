@@ -461,11 +461,11 @@ Soort (t):
 - "s-mini" miniraampje: kleine ruitjes kleiner dan ca. 30x30 cm (ook elk vakje in een roedeverdeling), tel elk ruitje
 Bepaal de verdieping aan de hand van de gevel (hoogte, aantal bouwlagen), niet alleen de plek in de foto.
 
-Dubbel tellen voorkomen: zie je hetzelfde raam op twee foto's (bijvoorbeeld een hoekraam), zet het alleen op de foto waar het het duidelijkst te zien is.
+Dubbel tellen voorkomen (belangrijk): de foto's overlappen vaak. Een hoek van de woning staat op twee zijfoto's (hoekramen, de eerste of laatste ramen van een gevel), een extra foto toont vaak opnieuw een deel van een gevel die al op een zijfoto staat, en een uitbouw of dakkapel kan op meerdere foto's staan. Vergelijk daarom de foto's met elkaar op vorm, kozijnkleur, roedes, gordijnen, plek naast deuren, regenpijpen en andere herkenningspunten. Zet elk raam maar op één foto als stip: op de foto waar het het duidelijkst te zien is. Zet hetzelfde raam op de andere foto('s) in "dubbel", met het nummer van de foto waar het wel geteld is.
 Coördinaten x en y zijn tussen 0 en 1, relatief aan de breedte en hoogte van die foto (0,0 = linksboven).
 
 Antwoord ALLEEN met JSON, zonder uitleg eromheen, in deze vorm:
-{"fotos":[{"i":0,"ramen":[{"t":"f0","x":0.31,"y":0.72}]}],"zeker":"hoog|middel|laag","opmerking":"korte Nederlandse opmerking voor de glazenwasser, bv. wat slecht zichtbaar was (max 1 zin), of leeg"}`;
+{"fotos":[{"i":0,"ramen":[{"t":"f0","x":0.31,"y":0.72}],"dubbel":[{"x":0.92,"y":0.40,"geteld_op":1}]}],"zeker":"hoog|middel|laag","opmerking":"korte Nederlandse opmerking voor de glazenwasser, bv. wat slecht zichtbaar was (max 1 zin), of leeg"}`;
 const RT_SOORT = new Set(["f0", "f1", "f2", "f3", "s-tuimel", "s-koepel", "s-lood", "s-mini"]);
 exports.ramenTellen = onCall({ memory: "512MiB", timeoutSeconds: 120 }, async req => {
   await checkGebruiker(req.auth);
@@ -492,5 +492,7 @@ exports.ramenTellen = onCall({ memory: "512MiB", timeoutSeconds: 120 }, async re
   const cl = n => Math.max(0, Math.min(1, Math.round((Number(n) || 0) * 10000) / 10000));
   const per = fotos.map((_, i) => { const f = (out.fotos || []).find(x => Number(x.i) === i) || {};
     return (f.ramen || []).filter(d => RT_SOORT.has(d.t)).slice(0, 120).map(d => ({ t: d.t, x: cl(d.x), y: cl(d.y) })); });
-  return { fotos: per, zeker: ["hoog", "middel", "laag"].includes(out.zeker) ? out.zeker : "", opmerking: String(out.opmerking || "").slice(0, 300) };
+  const dub = fotos.map((_, i) => { const f = (out.fotos || []).find(x => Number(x.i) === i) || {};
+    return (Array.isArray(f.dubbel) ? f.dubbel : []).slice(0, 60).map(d => ({ x: cl(d.x), y: cl(d.y), i: Math.max(0, Math.min(fotos.length - 1, Number(d.geteld_op) || 0)) })).filter(d => d.i !== i); });
+  return { fotos: per, dubbel: dub, zeker: ["hoog", "middel", "laag"].includes(out.zeker) ? out.zeker : "", opmerking: String(out.opmerking || "").slice(0, 300) };
 });

@@ -823,7 +823,7 @@ function buildRamen(){
     const prev=photos.filter(p=>p.ai&&p.rf).map(p=>({...p.rf,dots:p.dots.map(d=>({...d}))}));
     openFotoTelling({naam:(g("k-naam")||{}).value||"",adres:(g("k-adres")||{}).value||""},prev,async res=>{
       const nieuw=[];for(const r of res.fotos||[]){try{const im=new Image();await new Promise((ok,no)=>{im.onload=ok;im.onerror=no;im.src=r.url});const cv=document.createElement("canvas");cv.width=im.naturalWidth;cv.height=im.naturalHeight;cv.getContext("2d").drawImage(im,0,0);
-        nieuw.push({cv,blob:r.blob,url:r.url,dots:(r.dots||[]).map(d=>({x:d.x,y:d.y,t:d.t})),assetId:"",ai:true,rf:{zijde:r.zijde,blob:r.blob,url:r.url,data:r.data,w:r.w,h:r.h}})}catch(_){}}
+        nieuw.push({cv,blob:r.blob,url:r.url,dots:(r.dots||[]).map(d=>({x:d.x,y:d.y,t:d.t})),assetId:"",ai:true,rf:{zijde:r.zijde,blob:r.blob,url:r.url,data:r.data,w:r.w,h:r.h,dub:(r.dub||[]).map(x=>({...x}))}})}catch(_){}}
       photos=[...photos.filter(p=>!p.ai),...nieuw];renderPhotos();syncFromPhotos();markStale();
       aiBtn.classList.add("klaar");aiBtn.querySelector("span").textContent="AI-telling bekijken";
       try{g("cFloors").scrollIntoView({behavior:"smooth",block:"start"})}catch(_){}})};

@@ -62,7 +62,7 @@ async function rfTelLokaal(foto,st){await rfModel(st);const res=[];for(let i=0;i
 
 function openFotoTelling(k,prev,cb,opts){opts=opts||{};const ro=!!opts.alleenLezen;
   const d=document.createElement("dialog");d.className="rf";document.body.appendChild(d);
-  let foto=prev&&prev.length?prev.map(p=>({...p,dots:p.dots.map(x=>({...x}))})):[];/* {zijde,blob,url,data,w,h,dots} */
+  let foto=prev&&prev.length?prev.map(p=>({...p,dots:p.dots.map(x=>({...x})),dub:(p.dub||[]).map(x=>({...x}))})):[];/* {zijde,blob,url,data,w,h,dots} */
   let stap=0,status=foto.length?"res":"cap",cur=0,tool="f0",fout="",opm="",zeker="",hist=[];
   const zijdes=RF_ZIJDEN.map(x=>x.z),done=()=>zijdes.map(z=>foto.some(p=>p.zijde===z)?"ok":skip.has(z)?"skip":"");const skip=new Set();
   const sluit=()=>{try{d.close()}catch(e){}d.remove()};
@@ -89,9 +89,10 @@ function openFotoTelling(k,prev,cb,opts){opts=opts||{};const ro=!!opts.alleenLez
     return head(ro?"Foto's van de telling":"Controleer de telling",ro?fullAddr(k):"Tik op een raam om toe te voegen · tik op een stip om weg te halen")+`<div class="rf-res">
       ${fout?`<div class="rf-err">${I.alert}<span>${esc(fout)} <b>Tik de ramen zelf aan op de foto's.</b></span>${status==="res"&&!ro&&foto.some(x=>x.data)?`<button type="button" class="small" data-rf="tel">Opnieuw</button>`:""}</div>`:""}
       <div class="rf-tot"><div class="rf-big"><b>${tot}</b><span>${tot===1?"raam":"ramen"}</span></div><div class="rf-cnt">${RF_T.filter(t=>c[t[0]]).map(t=>`<span style="--c:${rfCol(t[0])}"><i>${t[1]}</i>${t[2]}<b>${c[t[0]]}</b></span>`).join("")||`<span class="leeg">Nog geen ramen</span>`}</div></div>
+      ${(()=>{const nd=foto.reduce((a,q)=>a+(q.dub||[]).length,0);return nd?`<div class="rf-opm rf-dubm"><span class="rf-dubi">=</span><span><b>${nd} ${nd===1?"raam staat":"ramen staan"} op meer dan één foto</b> en ${nd===1?"is":"zijn"} maar één keer geteld. Je ziet ${nd===1?"hem":"ze"} als grijze ring met =. Toch apart meetellen? Tik op de ring.</span></div>`:""})()}
       ${opm||zeker==="laag"?`<div class="rf-opm">${I.info||I.alert}<span>${zeker==="laag"?"<b>Twijfelgeval.</b> ":""}${esc(opm)}</span></div>`:""}
       ${!ro&&!(typeof S==="function"&&S().liveAI)&&typeof isEigenaar==="function"&&isEigenaar()?`<button type="button" class="rf-aan" data-rf="aiaan"><span>✦</span><div><b>Nauwkeuriger tellen met Claude AI</b><small>Herkent ook dakramen, koepels en glas-in-lood · enkele centen per woning</small></div><i>Aanzetten ›</i></button>`:""}
-      ${p?`<div class="rf-view"><div class="rf-ph" id="rfPh" style="aspect-ratio:${p.w}/${p.h}"><img src="${p.url}" alt="${esc(p.zijde)}" draggable="false">${p.dots.map((x,j)=>`<span class="rf-d" data-rfd="${j}" style="left:${x.x*100}%;top:${x.y*100}%;--c:${rfCol(x.t)}">${rfL(x.t)[1]}</span>`).join("")}
+      ${p?`<div class="rf-view"><div class="rf-ph" id="rfPh" style="aspect-ratio:${p.w}/${p.h}"><img src="${p.url}" alt="${esc(p.zijde)}" draggable="false">${p.dots.map((x,j)=>`<span class="rf-d" data-rfd="${j}" style="left:${x.x*100}%;top:${x.y*100}%;--c:${rfCol(x.t)}">${rfL(x.t)[1]}</span>`).join("")}${(p.dub||[]).map((x,j)=>`<span class="rf-dub" data-rfdub="${j}" style="left:${x.x*100}%;top:${x.y*100}%" title="Al geteld op ${esc((foto[x.i]||{}).zijde||"een andere foto")}">=</span>`).join("")}
           <div class="rf-lab">${esc(p.zijde)} · ${p.dots.length}</div></div>
         ${foto.length>1?`<button type="button" class="rf-nav l" data-rf="prev" aria-label="Vorige foto">‹</button><button type="button" class="rf-nav r" data-rf="next" aria-label="Volgende foto">›</button>`:""}</div>
         <div class="rf-pth">${foto.map((q,i)=>`<button type="button" class="${i===cur?"nu":""}" data-rfp="${i}"><img src="${q.url}" alt=""><em>${q.dots.length}</em></button>`).join("")}</div>`:""}
@@ -110,9 +111,9 @@ function openFotoTelling(k,prev,cb,opts){opts=opts||{};const ro=!!opts.alleenLez
     const zet=t=>{clearInterval(iv);const el=d.querySelector("#rfSt");if(el)el.textContent=t};let lokaal=!(typeof S==="function"&&S().liveAI);
     try{if(!lokaal){try{if(!foto.every(p=>p.data))throw {message:"De originele foto's zijn er niet meer."};if(typeof fbFn!=="function"||!window.firebase)throw {message:"geen live"};
         const r=await fbFn("ramenTellen")({fotos:foto.map(p=>({zijde:p.zijde,data:p.data.split(",")[1]}))}),res=r.data||{};
-        foto.forEach((p,i)=>p.dots=(res.fotos&&res.fotos[i]||[]).map(x=>({x:x.x,y:x.y,t:x.t})));opm=res.opmerking||"";zeker=res.zeker||""}
+        foto.forEach((p,i)=>p.dots=(res.fotos&&res.fotos[i]||[]).map(x=>({x:x.x,y:x.y,t:x.t})));foto.forEach((p,i)=>p.dub=(res.dubbel&&res.dubbel[i]||[]).map(x=>({x:x.x,y:x.y,i:x.i})));opm=res.opmerking||"";zeker=res.zeker||""}
         catch(e){console.warn("AI-tellen, val terug op telefoon",e);lokaal=true}}
-      if(lokaal){const res=await rfTelLokaal(foto,zet);foto.forEach((p,i)=>p.dots=res[i]||[]);zeker="";
+      if(lokaal){const res=await rfTelLokaal(foto,zet);foto.forEach((p,i)=>{p.dots=res[i]||[];p.dub=[]});zeker="";
         opm="Geteld op je telefoon. Controleer vooral de verdiepingen, en tik dakramen, lichtkoepels en glas-in-lood zelf aan als soort.";}
       cur=Math.max(0,foto.findIndex(p=>p.dots.length));try{navigator.vibrate&&navigator.vibrate([18,60,18])}catch(e){}}
     catch(e){fout=(e&&e.message)||"Tellen lukte niet.";}
@@ -130,9 +131,10 @@ function openFotoTelling(k,prev,cb,opts){opts=opts||{};const ro=!!opts.alleenLez
       const fl=document.createElement("div");fl.className="rf-flash";d.appendChild(fl);setTimeout(()=>fl.remove(),420)}
     catch(er){toast("Deze foto kon niet worden gelezen")}});
 
-  d.addEventListener("click",e=>{const a=e.target.closest("[data-rf],[data-rfs],[data-rfe],[data-rfp],[data-rft],[data-rfd]");
+  d.addEventListener("click",e=>{const a=e.target.closest("[data-rf],[data-rfs],[data-rfe],[data-rfp],[data-rft],[data-rfd],[data-rfdub]");
     if(!a){if(status==="res"&&!ro){const ph=e.target.closest("#rfPh");if(ph){const r=ph.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;if(x<0||x>1||y<0||y>1)return;
       hist.push(JSON.stringify(foto.map(p=>p.dots)));foto[cur].dots.push({x:Math.round(x*1e4)/1e4,y:Math.round(y*1e4)/1e4,t:tool});draw();const ls=d.querySelectorAll(".rf-d"),n=ls[ls.length-1];if(n)n.animate([{transform:"translate(-50%,-50%) scale(1.6)"},{transform:"translate(-50%,-50%) scale(1)"}],{duration:220})}}return}
+    if(a.dataset.rfdub!=null){if(ro)return;hist.push(JSON.stringify(foto.map(p=>p.dots)));const x=foto[cur].dub.splice(+a.dataset.rfdub,1)[0];foto[cur].dots.push({x:x.x,y:x.y,t:tool});toast("Toch meegeteld op deze foto");draw();return}
     if(a.dataset.rfd!=null){if(ro)return;hist.push(JSON.stringify(foto.map(p=>p.dots)));foto[cur].dots.splice(+a.dataset.rfd,1);draw();return}
     if(a.dataset.rft){tool=a.dataset.rft;d.querySelectorAll("[data-rft]").forEach(b=>b.classList.toggle("on",b===a));return}
     if(a.dataset.rfp!=null){cur=+a.dataset.rfp;draw();return}
