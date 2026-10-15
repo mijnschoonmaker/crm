@@ -3979,6 +3979,27 @@ dialog .kp{overflow-wrap:anywhere}
 .job.offer.of:hover{transform:translateY(-1px);box-shadow:0 2px 4px rgb(15 31 38 / .05),0 20px 36px -22px rgb(15 50 60 / .55);transition:transform .15s,box-shadow .15s}
 .kx-nieuw .of-kop{background:linear-gradient(135deg,#0f5f6e,#137a8a 55%,#1d5a74)}
 
+/* ---------- opdrachtpaneel: kop zoals Volgende stop ---------- */
+.jp-kop{position:relative;color:#fff;padding:14px 18px 16px;overflow:hidden;background:linear-gradient(135deg,#0f5f6e,#137a8a 55%,#1d5a74);border-radius:28px 0 0 0}
+.jp-kop::before{content:"";position:absolute;inset:0;background:var(--lijnen);pointer-events:none}
+.jp-kop>*{position:relative}
+.jp-bezig.jp-kop{background:radial-gradient(120% 160% at 100% 0%,#4fd39a 0%,transparent 55%),linear-gradient(135deg,#17734b,#22a46c 60%,#16805a)}
+.jp-afgerond.jp-kop{background:linear-gradient(135deg,#5b7480,#6f8893)}
+.jp-kr1{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.jp-st{display:inline-flex;align-items:center;gap:7px;padding:5px 11px 5px 9px;border-radius:999px;background:rgb(255 255 255 / .16);border:1px solid rgb(255 255 255 / .25);font-size:12.5px;font-weight:700}
+.jp-st i{width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgb(255 255 255 / .25)}.jp-bezig .jp-st i{animation:rvLive 2s ease-out infinite}
+.jp-ib{all:unset;cursor:pointer;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:rgb(255 255 255 / .14);border:1px solid rgb(255 255 255 / .22)}.jp-ib svg{width:18px;height:18px;stroke:#fff}.jp-ib:hover{background:rgb(255 255 255 / .24)}
+.jp-kr2{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px}
+.jp-kr2>span{min-width:0}
+.jp-kr2 small{display:block;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgb(255 255 255 / .72);white-space:nowrap}
+.jp-kr2 b{display:block;font-weight:700;letter-spacing:-.025em;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+.jp-kr2 em{display:flex;align-items:center;gap:5px;font-style:normal;font-size:12px;color:rgb(255 255 255 / .78);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}.jp-kr2 em svg{width:13px;height:13px;flex:none;stroke:rgb(255 255 255 / .8)}
+.jp-k1{padding-right:14px;border-right:1px dashed rgb(255 255 255 / .35);text-align:center}.jp-k1 b{font-size:24px}
+.jp-k2 b{font-size:21px}
+.jp-k3{text-align:right}.jp-k3 b{font-size:22px}.jp-k3 em{justify-content:flex-end}
+.jp-who2{display:flex;align-items:center;gap:12px;padding:12px 24px 10px}.jp-who2 .av{width:40px;height:40px;font-size:14px;flex:none}
+@media(max-width:560px){.jp-kop{border-radius:0;padding:calc(12px + env(safe-area-inset-top,0px)) 14px 14px}.jp-kr2{gap:10px}.jp-k2 b{font-size:18px}.jp-k3 b{font-size:19px}.jp-k1 b{font-size:21px}.jp-k1 small,.jp-k3 small{font-size:9.5px}}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -5335,8 +5356,11 @@ function openJob(id,day){
   const nxt=werkdagAanpassen(addDays(done?d:(d<today()?today():d),freqDays(k)));
   const diensten=[[k.dienst||"Glasbewassing",bedrag]].concat(k.binnen?[]:[]);
   openDlg(`<div id="jobPanel" data-d="${esc(day)}" data-k="${esc(k.id)}" class="jp${done?" jp-isaf":""}">
-  <div class="jp-head"><div class="jp-meta">${statusPill(sp[0],sp[1])}<span>${I.planning}${["zo","ma","di","wo","do","vr","za"][d.getDay()]} ${esc(fmtD(d))}</span>${k.tijd?`<span>${I.clock}${esc(k.tijd)}</span>`:""}</div><span style="display:flex;gap:6px">${!done&&k.gepland===day?`<button type="button" class="iconbtn" data-act="afsprdel" data-id="${esc(k.id)}" title="Afspraak verwijderen" aria-label="Afspraak verwijderen">${I.trash}</button>`:""}<button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></span></div>
-  <div class="jp-who"><span class="av" style="--h:${hue(k.ronde||k.naam)}">${esc(initials(k.naam))}</span><div style="min-width:0"><h3>${esc(cleanName(k.naam))}</h3><div class="sc-sub">${I.pin}${esc(jobAddr(k))}</div><button type="button" class="linkbtn" data-act="klant" data-id="${esc(k.id)}">Ga naar klantkaart ${I.right}</button></div></div>
+  <div class="jp-kop jp-${js}"><div class="jp-kr1"><span class="jp-st"><i></i>${esc(sp[1])}</span><span class="sp"></span>${!done&&k.gepland===day?`<button type="button" class="jp-ib" data-act="afsprdel" data-id="${esc(k.id)}" title="Afspraak verwijderen" aria-label="Afspraak verwijderen">${I.trash}</button>`:""}<button type="button" class="jp-ib" data-act="close" aria-label="Sluiten">${I.x}</button></div>
+    <div class="jp-kr2"><span class="jp-k1"><small>${["zo","ma","di","wo","do","vr","za"][d.getDay()]} ${d.getDate()} ${["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"][d.getMonth()]}</small><b>${esc(k.tijd||"–")}</b></span>
+      <span class="jp-k2"><b>${esc(cleanName(k.naam))}</b><em>${I.pin}${esc(jobAddr(k))}</em></span>
+      <span class="jp-k3"><small>Bedrag</small><b>${eur(toon(bedrag))}</b><em>${done?"afgerond":"na afmelden"}</em></span></div></div>
+  <div class="jp-who2"><span class="av" style="--h:${hue(k.ronde||k.naam)}">${esc(initials(k.naam))}</span><button type="button" class="linkbtn" data-act="klant" data-id="${esc(k.id)}">Ga naar klantkaart ${I.right}</button></div>
   <div class="jp-tiles">${tile(tel?waLink(tel,""):"",I.chat,"WhatsApp",!tel)}${tile("tel:"+tel,I.phone,"Bellen",!tel)}${tile(mail,I.mail,"Mail",!mail)}${tile(mapsQ(k),I.nav,"Route")}</div>
   <div class="jp-body">
     ${done?(()=>{const f=b.gefactureerd&&!["nvt","periodiek"].includes(b.gefactureerd)?state.facturen.find(x=>x.id===b.gefactureerd):null,fs=f?fStatus(f):null,
@@ -5344,7 +5368,7 @@ function openJob(id,day){
       return `<div class="jp-af"><div class="jp-af-t"><span class="eyebrow">Bedrag</span><b>${eur(toon(bedrag))}</b></div>
         <dl class="jp-af-dl">${om?`<div><dt>Afgemeld</dt><dd>${esc(om)}</dd></div>`:""}${du?`<div><dt>Bij de klant</dt><dd>${du>=60?Math.floor(du/60)+"u"+String(Math.round(du%60)).padStart(2,"0"):Math.round(du)+" min"}${b.gemeten?"":" <small>geschat</small>"}</dd></div>`:""}
         <div><dt>Factuur</dt><dd>${f?`<button type="button" class="linkbtn" data-act="factuur" data-id="${esc(f.id)}">${esc(f.nummer)}</button> ${statusPill(fs[0],fs[1])}`:b.gefactureerd==="nvt"?"Niet nodig":b.gefactureerd==="periodiek"?"Periodieke factuur":"Nog niet gefactureerd"}</dd></div></dl></div>`})()
-      :`<div class="jp-amt"><div><span class="eyebrow">Bedrag</span><b>${eur(toon(bedrag))}</b></div><small>Wordt gefactureerd na afmelden</small></div>`}
+      :""}
     <div><span class="eyebrow">Diensten</span><div class="jp-svc">${diensten.map(([n,p])=>`<div><span class="jp-ic">${I.wrench}</span><b>${esc(n)}${k.binnen?" (buiten en binnen)":""}</b><span>${eur(toon(p))}</span></div>`).join("")}</div></div>
     ${oBeurtBlok(k)}${hospRoute(k)}${toegangHtml(k)}${ookDezeBeurt(k,typeof day!=="undefined"?day:undefined)}${objInfo(k)}${jobExtra(k)}
     ${(()=>{const fl=jobFotos(k);return fl.length?`<div><span class="eyebrow">Foto's · ${fl.reduce((a,f)=>a+(f.dots||[]).length,0)} ramen aangetikt</span><div class="jp-fotos" style="margin-top:6px">${fl.map((f,j)=>fotoCard(f,j,false).replace('data-fi=','data-jfi=')).join("")}</div></div>`:""})()}

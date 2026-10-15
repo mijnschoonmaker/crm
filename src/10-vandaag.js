@@ -104,8 +104,11 @@ function openJob(id,day){
   const nxt=werkdagAanpassen(addDays(done?d:(d<today()?today():d),freqDays(k)));
   const diensten=[[k.dienst||"Glasbewassing",bedrag]].concat(k.binnen?[]:[]);
   openDlg(`<div id="jobPanel" data-d="${esc(day)}" data-k="${esc(k.id)}" class="jp${done?" jp-isaf":""}">
-  <div class="jp-head"><div class="jp-meta">${statusPill(sp[0],sp[1])}<span>${I.planning}${["zo","ma","di","wo","do","vr","za"][d.getDay()]} ${esc(fmtD(d))}</span>${k.tijd?`<span>${I.clock}${esc(k.tijd)}</span>`:""}</div><span style="display:flex;gap:6px">${!done&&k.gepland===day?`<button type="button" class="iconbtn" data-act="afsprdel" data-id="${esc(k.id)}" title="Afspraak verwijderen" aria-label="Afspraak verwijderen">${I.trash}</button>`:""}<button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></span></div>
-  <div class="jp-who"><span class="av" style="--h:${hue(k.ronde||k.naam)}">${esc(initials(k.naam))}</span><div style="min-width:0"><h3>${esc(cleanName(k.naam))}</h3><div class="sc-sub">${I.pin}${esc(jobAddr(k))}</div><button type="button" class="linkbtn" data-act="klant" data-id="${esc(k.id)}">Ga naar klantkaart ${I.right}</button></div></div>
+  <div class="jp-kop jp-${js}"><div class="jp-kr1"><span class="jp-st"><i></i>${esc(sp[1])}</span><span class="sp"></span>${!done&&k.gepland===day?`<button type="button" class="jp-ib" data-act="afsprdel" data-id="${esc(k.id)}" title="Afspraak verwijderen" aria-label="Afspraak verwijderen">${I.trash}</button>`:""}<button type="button" class="jp-ib" data-act="close" aria-label="Sluiten">${I.x}</button></div>
+    <div class="jp-kr2"><span class="jp-k1"><small>${["zo","ma","di","wo","do","vr","za"][d.getDay()]} ${d.getDate()} ${["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"][d.getMonth()]}</small><b>${esc(k.tijd||"–")}</b></span>
+      <span class="jp-k2"><b>${esc(cleanName(k.naam))}</b><em>${I.pin}${esc(jobAddr(k))}</em></span>
+      <span class="jp-k3"><small>Bedrag</small><b>${eur(toon(bedrag))}</b><em>${done?"afgerond":"na afmelden"}</em></span></div></div>
+  <div class="jp-who2"><span class="av" style="--h:${hue(k.ronde||k.naam)}">${esc(initials(k.naam))}</span><button type="button" class="linkbtn" data-act="klant" data-id="${esc(k.id)}">Ga naar klantkaart ${I.right}</button></div>
   <div class="jp-tiles">${tile(tel?waLink(tel,""):"",I.chat,"WhatsApp",!tel)}${tile("tel:"+tel,I.phone,"Bellen",!tel)}${tile(mail,I.mail,"Mail",!mail)}${tile(mapsQ(k),I.nav,"Route")}</div>
   <div class="jp-body">
     ${done?(()=>{const f=b.gefactureerd&&!["nvt","periodiek"].includes(b.gefactureerd)?state.facturen.find(x=>x.id===b.gefactureerd):null,fs=f?fStatus(f):null,
@@ -113,7 +116,7 @@ function openJob(id,day){
       return `<div class="jp-af"><div class="jp-af-t"><span class="eyebrow">Bedrag</span><b>${eur(toon(bedrag))}</b></div>
         <dl class="jp-af-dl">${om?`<div><dt>Afgemeld</dt><dd>${esc(om)}</dd></div>`:""}${du?`<div><dt>Bij de klant</dt><dd>${du>=60?Math.floor(du/60)+"u"+String(Math.round(du%60)).padStart(2,"0"):Math.round(du)+" min"}${b.gemeten?"":" <small>geschat</small>"}</dd></div>`:""}
         <div><dt>Factuur</dt><dd>${f?`<button type="button" class="linkbtn" data-act="factuur" data-id="${esc(f.id)}">${esc(f.nummer)}</button> ${statusPill(fs[0],fs[1])}`:b.gefactureerd==="nvt"?"Niet nodig":b.gefactureerd==="periodiek"?"Periodieke factuur":"Nog niet gefactureerd"}</dd></div></dl></div>`})()
-      :`<div class="jp-amt"><div><span class="eyebrow">Bedrag</span><b>${eur(toon(bedrag))}</b></div><small>Wordt gefactureerd na afmelden</small></div>`}
+      :""}
     <div><span class="eyebrow">Diensten</span><div class="jp-svc">${diensten.map(([n,p])=>`<div><span class="jp-ic">${I.wrench}</span><b>${esc(n)}${k.binnen?" (buiten en binnen)":""}</b><span>${eur(toon(p))}</span></div>`).join("")}</div></div>
     ${oBeurtBlok(k)}${hospRoute(k)}${toegangHtml(k)}${ookDezeBeurt(k,typeof day!=="undefined"?day:undefined)}${objInfo(k)}${jobExtra(k)}
     ${(()=>{const fl=jobFotos(k);return fl.length?`<div><span class="eyebrow">Foto's · ${fl.reduce((a,f)=>a+(f.dots||[]).length,0)} ramen aangetikt</span><div class="jp-fotos" style="margin-top:6px">${fl.map((f,j)=>fotoCard(f,j,false).replace('data-fi=','data-jfi=')).join("")}</div></div>`:""})()}
