@@ -15,7 +15,7 @@ NAMEN.forEach(([a,v],i)=>{const s=STR[i%STR.length],fq=pick([8,8,8,8,6,4,12]),pr
     actief:true,akkoord:true,prospect:false,dienst:"Glasbewassing",prijs,frequentie:fq,duur,tijd:"",gepland:"",laatst:"",ronde:pick(["Leek-Noord","Leek-Zuid","Tolbert","Zevenhuizen"]),contactPlanning:"kennisgeving",aangemaakt:iso(add(T,-300-i*3)),autoplan:R()<.6,
     tijden:[{datum:iso(add(T,-60)),min:duur-3},{datum:iso(add(T,-30)),min:duur+2}],log:[{datum:iso(add(T,-300-i*3)),tekst:"Klant aangemaakt"}],opdrachten:[],objecten:[],hosp:i===0?[{id:"h1",soort:"huisdier",tekst:"Hond Max is lief, wel even bellen bij het hek"}]:[],notities:""})});
 /* vandaag: 8 adressen, de eerste 3 al klaar */
-const NU=new Date(),hm=m=>{m=Math.round(m/5)*5;return String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0")},m0=7*60+45;
+const NU=new Date(),hm=m=>{m=Math.round(m/5)*5;return String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0")},m0=Math.max(7*60+45,NU.getHours()*60+NU.getMinutes()-150);
 const TIJD=[m0,m0+45,m0+95,m0+165,m0+215,m0+290,m0+340,m0+385].map(hm);
 kl.slice(0,8).forEach((k,i)=>{k.tijd=TIJD[i];if(i<3){k.laatst=today;k.gepland=iso(werkdag(add(T,k.frequentie*7)))}else k.gepland=today});
 /* komende twee weken ingepland */
