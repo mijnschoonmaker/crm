@@ -1,6 +1,6 @@
 [
  {
-  "t": "Als glazenwasser meer tijd overhouden? We nemen je mee door ons CRM. Als voorbeeld kijken we in het systeem van glazenwasser Dave: zijn hele bedrijf, in één app op zijn telefoon.",
+  "t": "Als glazenwasser meer tijd overhouden? Dan neem ik je even mee door ons CRM. Als voorbeeld kijken we bij glazenwasser Dave: zijn hele bedrijf, gewoon in één app op zijn telefoon.",
   "a": [
    [
     "ga",
@@ -20,7 +20,7 @@
   ]
  },
  {
-  "t": "Bij vertrek tikt Dave op start werkdag. Hij ziet meteen hoeveel adressen er nog komen, wat hij vandaag verdient, en hoe laat hij klaar is.",
+  "t": "Als Dave 's ochtends vertrekt, tikt hij op start werkdag. Hij ziet meteen hoeveel adressen er nog komen, wat hij vandaag al verdiend heeft, en hoe laat hij klaar is.",
   "a": [
    [
     "scrollnaar",
@@ -37,7 +37,7 @@
   ]
  },
  {
-  "t": "Klaar bij een klant? Eén tik op afmelden, en de factuur staat al klaar. Geen papierwerk meer in de avond.",
+  "t": "Klaar bij een klant? Eén tik op afmelden… en de factuur staat al klaar. Dus geen papierwerk meer in de avond.",
   "a": [
    [
     "scrollnaar",
@@ -58,7 +58,7 @@
   ]
  },
  {
-  "t": "Op Route staan al zijn stops op volgorde. Met één tik optimaliseert hij de route, of rijdt hij met Google Maps naar het volgende adres.",
+  "t": "Op Route staan al zijn stops netjes op volgorde. Met één tik maakt hij de route zo kort mogelijk, of rijdt hij met Google Maps naar het volgende adres.",
   "a": [
    [
     "tik",
@@ -83,7 +83,7 @@
   ]
  },
  {
-  "t": "In de planning ziet hij wie er aan de beurt is. Dave sleept klanten zo in de agenda, en het systeem onthoudt wanneer iedereen weer moet.",
+  "t": "In de planning ziet hij precies wie er aan de beurt is. Die sleept hij zo in de agenda, en het systeem onthoudt wanneer iedereen weer moet.",
   "a": [
    [
     "tik",
@@ -108,7 +108,7 @@
   ]
  },
  {
-  "t": "Al zijn klanten staan overzichtelijk bij elkaar. Adres, prijs, ritme, notities, en alles wat er ooit is gebeurd.",
+  "t": "Al zijn klanten staan overzichtelijk bij elkaar. Met adres, prijs, ritme, notities… en alles wat er ooit gebeurd is.",
   "a": [
    [
     "tik",
@@ -141,7 +141,7 @@
   ]
  },
  {
-  "t": "Facturen verstuurt hij met één tik. Klanten betalen direct online, en herinneringen gaan vanzelf de deur uit.",
+  "t": "Facturen verstuurt hij met één tik. Klanten betalen meteen online, en herinneringen? Die gaan helemaal vanzelf.",
   "a": [
    [
     "sluit"
@@ -169,7 +169,7 @@
   ]
  },
  {
-  "t": "Aankondigingen, herinneringen en reviewverzoeken staan automatisch klaar. Zo weten klanten altijd wanneer Dave komt.",
+  "t": "Aankondigingen, herinneringen en reviewverzoeken staan automatisch klaar. Zo weten zijn klanten altijd wanneer Dave komt.",
   "a": [
    [
     "tik",
@@ -219,32 +219,21 @@
   ]
  },
  {
-  "t": "Zijn klanten krijgen bovendien een eigen portaal, waar ze op de dag zelf live kunnen zien waar hij is.",
+  "t": "Zijn klanten hebben ook een eigen portaal. En op de dag zelf zien ze live waar Dave rijdt… en hoe laat hij bij ze is.",
   "a": [
    [
-    "scroll",
-    1300
+    "portaal"
    ],
    [
-    "wacht",
-    1500
-   ],
-   [
-    "scroll",
-    1900
+    "live"
    ]
   ]
  },
  {
-  "t": "Minder regelwerk, en meer tijd om te wassen. Zo werkt Dave. En jij straks ook? Kijk op mijnschoonmaker punt com.",
+  "t": "Minder regelwerk, meer tijd om te wassen. Zo werkt Dave… en jij straks ook? Kijk op mijnschoonmaker punt com.",
   "a": [
    [
-    "tik",
-    "#tabNav [data-tab=vandaag]"
-   ],
-   [
-    "wacht",
-    600
+    "crm"
    ],
    [
     "top"

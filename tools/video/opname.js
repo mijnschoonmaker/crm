@@ -2,12 +2,12 @@
 const fs = require("fs"), crypto = require("crypto");
 const NM = "/home/runner/work/_v/node_modules/";
 const admin = require(NM + "firebase-admin"), { chromium } = require(NM + "playwright");
-if (!process.env.URL) admin.initializeApp(); const db = process.env.URL ? null : admin.firestore();
+const MET_DB = !!process.env.GOOGLE_APPLICATION_CREDENTIALS; if (MET_DB) admin.initializeApp(); const db = MET_DB ? admin.firestore() : null;
 const T = JSON.parse(fs.readFileSync(process.env.TEKST || "tools/video/tekst.json")), DUUR = JSON.parse(fs.readFileSync("out/duur.json"));
 const wacht = ms => new Promise(r => setTimeout(r, ms));
 (async () => {
   const DEMO = process.env.URL; let token = "";
-  if (!DEMO) {
+  if (MET_DB) {
   const ks = await db.collection("klanten").get();
   const ash = ks.docs.find(d => /buytendorp/i.test(String(d.data().naam || "")));
   token = crypto.randomBytes(32).toString("hex");
@@ -20,6 +20,28 @@ const wacht = ms => new Promise(r => setTimeout(r, ms));
   await ctx.addInitScript(() => { window.addEventListener("DOMContentLoaded", () => { const s = document.createElement("style");
     s.textContent = `.__tap{position:fixed;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:50%;background:rgba(255,255,255,.55);border:3px solid rgba(19,122,138,.9);box-shadow:0 4px 18px rgba(0,0,0,.25);pointer-events:none;z-index:2147483647;transition:transform .35s cubic-bezier(.2,.8,.2,1),opacity .5s}html{scroll-behavior:smooth}`;
     document.head.appendChild(s) }) });
+  /* ---- live rit op een echte kaart: huis opzoeken (PDOK) en een echte route erheen (OSRM) ---- */
+  const LM = process.env.LIVEMODE || ""; let RIT = null, liveAan = false;
+  if (LM) {
+    const adr = LM === "dave" ? "Tolberterstraat 28 Leek" : "Parklaan 7 Grootegast";
+    let huis = LM === "dave" ? [53.1626, 6.3747] : [53.2116, 6.2735];
+    try { const j = await (await fetch("https://api.pdok.nl/bzk/locatieserver/search/v3_1/free?fq=type:adres&rows=1&fl=centroide_ll&q=" + encodeURIComponent(adr))).json(); const m = /POINT\(([-\d.]+) ([-\d.]+)\)/.exec(((j.response || {}).docs || [{}])[0].centroide_ll || ""); if (m) huis = [+m[2], +m[1]] } catch (e) { console.log("geocode", e.message) }
+    const start = [huis[0] - 0.0085, huis[1] - 0.0125]; let pts = [start, huis];
+    try { const r = await (await fetch(`https://router.project-osrm.org/route/v1/driving/${start[1]},${start[0]};${huis[1]},${huis[0]}?overview=full&geometries=geojson`)).json(); if (r.routes && r.routes[0]) pts = r.routes[0].geometry.coordinates.map(c => [c[1], c[0]]) } catch (e) { console.log("route", e.message) }
+    RIT = { huis, pts, naam: LM === "dave" ? "Dave" : "Robin" }; console.log("rit", pts.length, "punten", huis);
+  }
+  const nu2 = new Date(), vandaag = new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Amsterdam" }).format(nu2);
+  const liveObj = () => ({ status: "onderweg", voor: 1, bezigBij: false, eta: "11:10", km: 1.6, naam: RIT.naam, huis: RIT.huis, pos: { lat: RIT.pts[0][0], lng: RIT.pts[0][1], koers: 45, ts: new Date().toISOString() } });
+  await ctx.route("**/api/portaal/**", async route => {
+    const u = route.request().url();
+    if (!/\/(data|live)(\?|$)/.test(u) || (!liveAan && LM !== "dave")) return route.continue();
+    if (/\/live(\?|$)/.test(u)) return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ live: liveAan ? liveObj() : null }) });
+    const resp = await route.fetch(); let j = {}; try { j = await resp.json() } catch (e) {}
+    if (LM === "dave") { j.bedrijf = { ...(j.bedrijf || {}), naam: "Glazenwasbedrijf Dave", logo: ((fs.readFileSync("tools/video/crmdemo/demo.js", "utf8").match(/DEMO_LOGO="([^"]+)"/) || [])[1]) || (j.bedrijf || {}).logo };
+      j.klant = { ...(j.klant || {}), voornaam: "Marieke", naam: "Jansen, Marieke", adres: "Tolberterstraat 28", postcode: "9351 BA", plaats: "Leek", pcPlaats: "9351 BA Leek" } }
+    if (liveAan) { j.volgende = { datum: vandaag, tijd: "11:10", bezig: false, reeks: [] }; j.live = liveObj() }
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(j) });
+  });
   const page = await ctx.newPage();
   await page.goto(DEMO || "https://crm.mijnschoonmaker.com/portaal", { waitUntil: "networkidle" });
   await page.waitForSelector(DEMO ? "#tabNav button" : "nav.tabs", { timeout: 30000 }); await wacht(2500);
@@ -45,6 +67,25 @@ const wacht = ms => new Promise(r => setTimeout(r, ms));
       else if (a === "top") await page.evaluate(() => window.scrollTo({ top: 0 }));
       else if (a === "scroll") await page.evaluate(y => window.scrollTo({ top: y < 0 ? scrollY + y : y }), v);
       else if (a === "wijs") await ring(v, false);
+      else if (a === "portaal") { await page.goto("https://crm.mijnschoonmaker.com/portaal", { waitUntil: "networkidle" }); await page.waitForSelector("nav.tabs", { timeout: 30000 }).catch(() => {}); await wacht(600) }
+      else if (a === "crm") { await page.goto(DEMO, { waitUntil: "networkidle" }); await page.waitForSelector("#tabNav button", { timeout: 30000 }).catch(() => {}); await page.evaluate(() => { const b = document.querySelector("[data-act=tab][data-tab=vandaag]"); if (b) b.click() }) }
+      else if (a === "live") {
+        liveAan = true; const restMs = Math.max(4000, (TS ? (tA + TS[i] + DUUR[i]) : (s0 + DUUR[i])) * 1000 - Date.now() - 600);
+        await page.evaluate(() => { try { tab = "home"; laad(true) } catch (e) { location.reload() } });
+        await page.waitForSelector("#lvMap .leaflet-marker-icon", { timeout: 15000 }).catch(() => console.log("geen livekaart"));
+        await page.evaluate(() => { const e = document.getElementById("lvKaart"); if (e) window.scrollTo({ top: Math.max(0, e.getBoundingClientRect().top + scrollY - 70), behavior: "instant" }) });
+        await wacht(500);
+        await page.evaluate(([pts, ms]) => { try { lvPeil = async () => {}; clearInterval(LVK.timer) } catch (e) {}
+          const K = LVK; if (!K || !K.car) return; K.zelf = true; try { K.map.fitBounds(pts, { padding: [36, 36], animate: false }) } catch (e) {}
+          const d = [0]; for (let i = 1; i < pts.length; i++) { const a = pts[i - 1], b = pts[i]; d.push(d[i - 1] + Math.hypot(b[0] - a[0], (b[1] - a[1]) * Math.cos(a[0] * Math.PI / 180))) }
+          const tot = d[d.length - 1] || 1, t0 = performance.now(), q = id => document.getElementById(id), rot = () => K.car.getElement() && K.car.getElement().querySelector(".lv-rot");
+          const st = t => { const p = Math.min(1, (t - t0) / ms), e = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2, s = e * tot * .985; let k = 1; while (k < d.length - 1 && d[k] < s) k++;
+            const a = pts[k - 1], b = pts[k], f = (s - d[k - 1]) / ((d[k] - d[k - 1]) || 1), ll = [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f];
+            K.car.setLatLng(ll); if (K.lijn) K.lijn.setLatLngs([ll, D.live.huis]); const br = Math.atan2((b[1] - a[1]) * Math.cos(a[0] * Math.PI / 180), b[0] - a[0]) * 180 / Math.PI; const r = rot(); if (r) r.style.transform = `rotate(${br}deg)`;
+            const km = Math.max(.1, Math.round((1 - e) * 1.6 * 10) / 10), L = { ...D.live, voor: p < .35 ? 1 : 0, km }, T = lvTekst(L);
+            if (q("lvT")) q("lvT").textContent = T.t; if (q("lvS")) q("lvS").textContent = T.s; if (q("lvE")) q("lvE").textContent = "± " + (p < .35 ? "11:10" : p < .75 ? "11:06" : "11:03");
+            if (p < 1) requestAnimationFrame(st) }; requestAnimationFrame(st) }, [RIT.pts, restMs]);
+      }
       else if (a === "ga") await page.evaluate(t => { try { const d = document.querySelector("dialog[open]"); if (d && d.id !== "dlg") d.close(); } catch (e) {} const b = document.querySelector(`[data-act=tab][data-tab=${t}]`); if (b) b.click(); window.scrollTo({ top: 0, behavior: "instant" }) }, v)
       else if (a === "sluit") await page.evaluate(() => { document.querySelectorAll("dialog[open]").forEach(d => { try { d.close() } catch (e) {} }) })
       else if (a === "scrollnaar") await page.evaluate(sel => { const e = document.querySelector(sel); if (e) window.scrollTo({ top: e.getBoundingClientRect().top + scrollY - 90 }) }, v)
