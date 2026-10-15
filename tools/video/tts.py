@@ -1,6 +1,6 @@
 import asyncio,json,edge_tts,subprocess,os,re
 STEM="nl-NL-FennaNeural"   # vaste CRM-stem
-TX=os.environ.get("TEKST","tools/video/tekst.json");TEMPO=os.environ.get("TEMPO","+0%")
+TX=os.environ.get("TEKST","tools/video/tekst.json");TEMPO=os.environ.get("TEMPO","+0%");TOON=os.environ.get("TOON","-3Hz")
 T=json.load(open(TX))
 dur=lambda f:float(subprocess.check_output(["ffprobe","-v","error","-show_entries","format=duration","-of","csv=p=0",f]).decode().strip())
 woorden=lambda s:re.findall(r"[\wÀ-ÿ']+",s)
@@ -12,8 +12,8 @@ async def los():
 async def een():
   """alles in één keer inspreken: vloeiender, met de woordgrenzen om het beeld op te laten aansluiten"""
   tekst=" ".join(s["t"] for s in T);grens=[];wd=[]
-  try:c=edge_tts.Communicate(tekst,STEM,rate=TEMPO,boundary="WordBoundary")
-  except TypeError:c=edge_tts.Communicate(tekst,STEM,rate=TEMPO)
+  try:c=edge_tts.Communicate(tekst,STEM,rate=TEMPO,pitch=TOON,boundary="WordBoundary")
+  except TypeError:c=edge_tts.Communicate(tekst,STEM,rate=TEMPO,pitch=TOON)
   with open("out/stem_all.mp3","wb") as f:
     async for ch in c.stream():
       if ch["type"]=="audio":f.write(ch["data"])

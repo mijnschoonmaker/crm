@@ -1,10 +1,10 @@
 import json,subprocess,os
 m=json.load(open("out/meta.json"));st=json.load(open("out/starts.json"));du=json.load(open("out/duur.json"))
-subprocess.check_call(["ffmpeg","-y","-loglevel","error","-f","concat","-safe","0","-i","out/frames.txt","-vf","fps=30,scale=1080:1920:flags=lanczos+accurate_rnd+full_chroma_int:force_original_aspect_ratio=decrease,unsharp=3:3:0.35,pad=1080:1920:(ow-iw)/2:(oh-ih)/2:color=#f3f6f7,format=yuv420p","-c:v","libx264","-crf","12","-preset","slow","-tune","animation","-profile:v","high","out/beeld.mp4"])
+subprocess.check_call(["ffmpeg","-y","-loglevel","error","-f","concat","-safe","0","-i","out/frames.txt","-vf","fps=30,scale=1080:1920:flags=lanczos+accurate_rnd+full_chroma_int:force_original_aspect_ratio=decrease,unsharp=5:5:0.25,pad=1080:1920:(ow-iw)/2:(oh-ih)/2:color=#f3f6f7,format=yuv420p","-c:v","libx264","-crf","12","-preset","slow","-tune","animation","-profile:v","high","out/beeld.mp4"])
 ins=[];flt=[]
 if os.path.exists("out/stem_all.mp3"):
   ta=json.load(open("out/ta.json"));d=int(max(0,m["t0"]+ta-m["base"])*1000)
-  subprocess.check_call(["ffmpeg","-y","-loglevel","error","-i","out/stem_all.mp3","-af",f"adelay={d}|{d},highpass=f=75,equalizer=f=180:t=q:w=1:g=2,equalizer=f=3200:t=q:w=1.2:g=1,equalizer=f=7500:t=q:w=1.5:g=-2.5,acompressor=threshold=-21dB:ratio=2.2:attack=12:release=180,loudnorm=I=-16:TP=-1.5:LRA=11","-ar","48000","-c:a","aac","-b:a","192k","out/stem.m4a"])
+  subprocess.check_call(["ffmpeg","-y","-loglevel","error","-i","out/stem_all.mp3","-af",f"adelay={d}|{d},highpass=f=75,equalizer=f=180:t=q:w=1:g=2,equalizer=f=3200:t=q:w=1.2:g=1,equalizer=f=7500:t=q:w=1.5:g=-2.5,acompressor=threshold=-20dB:ratio=1.8:attack=15:release=220,atempo=1.0,loudnorm=I=-16:TP=-1.5:LRA=11","-ar","48000","-c:a","aac","-b:a","192k","out/stem.m4a"])
   st_=[]
 for i,s in enumerate(st if not os.path.exists("out/stem_all.mp3") else []):
   ins+=["-i",f"out/seg{i}.mp3"];d=int(max(0,(m["t0"]+s-m["base"]))*1000)

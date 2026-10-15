@@ -1,6 +1,6 @@
 [
  {
-  "t": "Als glazenwasser meer tijd overhouden? We nemen je mee door ons CRM. Als voorbeeld kijken we bij glazenwasser Dave.",
+  "t": "Als glazenwasser meer tijd overhouden? We nemen je mee door ons CRM. Als voorbeeld kijken we mee met glazenwasser Dave uit Leek.",
   "a": [
    [
     "ga",
@@ -58,7 +58,7 @@
   ]
  },
  {
-  "t": "Onder Route staan alle stops op volgorde. Met één tik optimaliseert hij de route. Navigeren gaat via Google Maps.",
+  "t": "Onder Route staan alle stops op volgorde. Met één tik optimaliseert hij de route, en met Google Maps navigeert hij naar het volgende adres.",
   "a": [
    [
     "tik",
@@ -83,7 +83,7 @@
   ]
  },
  {
-  "t": "Bij het plannen ziet hij meteen welke klanten aan de beurt zijn. Hij zet ze in de agenda, en het systeem houdt per klant het ritme bij.",
+  "t": "Bij het plannen ziet hij meteen welke klanten aan de beurt zijn. Hij zet ze in de agenda, en het systeem houdt per klant bij wanneer de volgende beurt is.",
   "a": [
    [
     "tik",
@@ -108,7 +108,7 @@
   ]
  },
  {
-  "t": "Onder Klanten staat per klant het adres, de prijs, het ritme, de notities, en de volledige historie.",
+  "t": "Onder Klanten staat per klant het adres, de prijs, het ritme en de notities, met daaronder de volledige historie.",
   "a": [
    [
     "tik",
