@@ -17,13 +17,13 @@ jobs:
           pip install -q edge-tts
           mkdir -p /home/runner/work/_v && cd /home/runner/work/_v && npm init -y >/dev/null && npm install -q firebase-admin@12 playwright@1.47.2 --no-audit --no-fund >/dev/null && npx playwright install --with-deps chromium >/dev/null
       - name: Stem inspreken
-        env: { TEKST: tools/video/crm/tekst.json, TEMPO: "+4%", EEN: "1" }
+        env: { TEKST: tools/video/crm/tekst.json, TEMPO: "+0%", EEN: "1" }
         run: mkdir -p out && python tools/video/tts.py
       - name: Testomgeving opnemen
         env:
           TEKST: tools/video/crm/tekst.json
           PAUZE: "0.2"
-          WACHT: "0.72"
+          WACHT: "0.85"
           LIVEMODE: dave
           SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           GCLOUD_PROJECT: ${{ vars.FIREBASE_PROJECT }}

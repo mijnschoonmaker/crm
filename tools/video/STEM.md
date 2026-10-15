@@ -4,8 +4,8 @@ Vaste stem voor alle uitlegvideo's van mijnschoonmaker.com:
 
 - **Stem:** `nl-NL-FennaNeural` (Microsoft neurale stem, Nederlands, vrouw)
 - **Toonhoogte:** `-3Hz` (iets lager, minder 'pieperig')
-- **Tempo:** `+4%` (natuurlijk spreektempo); vermijd Engelse leenwoorden die de stem uitrekt (bv. "planning" → "plannen"); Engelse namen zoals Google Maps nooit aan het eind van een zin zetten, dan worden ze uitgerekt, hele tekst in één keer ingesproken
-- **Ritme:** na het inspreken worden uitgerekte woorden (per letter > 62 ms, vooral aan het eind van een zin) tot max. 35% ingekort en lange stiltes verkort (tts.py natuurlijk), zodat het tempo ca. 175 woorden per minuut is
+- **Tempo:** `+0%`; vermijd Engelse leenwoorden die de stem uitrekt (bv. "planning" → "plannen"); Engelse namen zoals Google Maps nooit aan het eind van een zin zetten, dan worden ze uitgerekt, hele tekst in één keer ingesproken
+- **Ritme:** na het inspreken worden uitgerekte woorden (per letter > 72 ms, vooral aan het eind van een zin) tot max. 25% ingekort en lange stiltes verkort (tts.py natuurlijk), zodat het tempo ca. 155 woorden per minuut is: rustig maar niet slepend
 - **Nabewerking:** lichte EQ, zachte compressie, geen galm (zie maak.py)
 - **Beeld:** opname op 2160x3840 (dsf 5), scherp terugschalen naar 1080x1920
 - **Toon:** zakelijk en helder, je-vorm, korte zinnen. Geen "leuk dat je kijkt" of gezellige opvulling; gewoon uitleggen hoe het werkt.

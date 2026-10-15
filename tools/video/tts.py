@@ -10,7 +10,7 @@ async def los():
     f=f"out/seg{i}.mp3";await edge_tts.Communicate(s["t"],STEM,rate=TEMPO).save(f);out.append(dur(f))
   json.dump(out,open("out/duur.json","w"))
 
-def natuurlijk(wd,src,dst,per=0.062,maxf=1.35,komma=0.20,zin=0.40):
+def natuurlijk(wd,src,dst,per=0.072,maxf=1.25,komma=0.30,zin=0.60):
   """uitgerekte woorden (vooral aan het eind van een zin) iets inkorten en lange stiltes korter maken,
   zonder de toonhoogte te veranderen; geeft de nieuwe woordstarts terug"""
   tot=dur(src);flt=[];lab=[];k=0;nieuw=[];tijd=0.0
