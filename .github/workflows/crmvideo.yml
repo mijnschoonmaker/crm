@@ -23,7 +23,7 @@ jobs:
         env:
           TEKST: tools/video/crm/tekst.json
           PAUZE: "0.2"
-          LIVEMODE: dave
+          WACHT: "0.72", LIVEMODE: dave
           SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           GCLOUD_PROJECT: ${{ vars.FIREBASE_PROJECT }}
         run: |

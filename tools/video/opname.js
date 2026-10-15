@@ -63,7 +63,7 @@ const wacht = ms => new Promise(r => setTimeout(r, ms));
     if (TS) { const w = tA + TS[i] - Date.now() / 1000; if (w > 0) await wacht(w * 1000) }
     const s0 = Date.now() / 1000; starts.push(s0 - t0);
     for (const [a, v] of T[i].a) {
-      if (a === "wacht") await wacht(v);
+      if (a === "wacht") await wacht(v * (+process.env.WACHT || 1));
       else if (a === "top") await page.evaluate(() => window.scrollTo({ top: 0 }));
       else if (a === "scroll") await page.evaluate(y => window.scrollTo({ top: y < 0 ? scrollY + y : y }), v);
       else if (a === "wijs") await ring(v, false);
