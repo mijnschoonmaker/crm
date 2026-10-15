@@ -1,18 +1,18 @@
-3312
-/03304.jpg'
-duration 0.0167
-file 'fr/03305.jpg'
-duration 0.0166
-file 'fr/03306.jpg'
-duration 0.0165
-file 'fr/03307.jpg'
+3344
+/03336.jpg'
 duration 0.0170
-file 'fr/03308.jpg'
+file 'fr/03337.jpg'
+duration 0.0169
+file 'fr/03338.jpg'
+duration 0.0169
+file 'fr/03339.jpg'
 duration 0.0167
-file 'fr/03309.jpg'
-duration 0.0168
-file 'fr/03310.jpg'
-duration 0.0162
-file 'fr/03311.jpg'
-duration 0.5164
-file 'fr/03311.jpg'
+file 'fr/03340.jpg'
+duration 0.0167
+file 'fr/03341.jpg'
+duration 0.0165
+file 'fr/03342.jpg'
+duration 0.0163
+file 'fr/03343.jpg'
+duration 0.5067
+file 'fr/03343.jpg'
