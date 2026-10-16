@@ -189,7 +189,7 @@ function openOpdrachtWerk(kid,focus){
     $("#owArt").querySelectorAll("[data-ard]").forEach(b=>b.onclick=()=>{arts.splice(+b.dataset.ard,1);drawArt()})};
   $("#owArtAdd").onclick=()=>{arts.push({naam:"",aantal:1,prijs:""});drawArt();const l=$("#owArt").querySelectorAll('[data-af="naam"]');if(l.length)l[l.length-1].focus()};
   const drawMid=()=>{const all=(state.uitv&&state.uitv.middelen)||[];
-    $("#owMid").innerHTML=all.length?`<div class="ow-mids">${all.map(m=>`<label class="chipchk"><input type="checkbox" data-mid="${esc(m.id)}" ${mids.includes(m.id)?"checked":""}><span>${esc(m.naam||"Naamloos")}${Number(m.aantal)>1?" ("+m.aantal+")":""}</span></label>`).join("")}</div>`:`<p class="subt" style="margin:0">Er zijn geen bedrijfsmiddelen. Voeg ze toe bij <button type="button" class="linkbtn" id="owMidGo">Diensten › Bedrijfsmiddelen</button>.</p>`;
+    $("#owMid").innerHTML=all.length?`<div class="ow-mids">${all.map(m=>`<label class="chipchk"><input type="checkbox" data-mid="${esc(m.id)}" ${mids.includes(m.id)?"checked":""}><span>${esc(m.naam||"Naamloos")}${Number(m.aantal)>1?" ("+m.aantal+")":""}</span></label>`).join("")}</div>`:`<p class="subt" style="margin:0">Er zijn geen bedrijfsmiddelen. Voeg ze toe bij <button type="button" class="linkbtn" id="owMidGo">Uitvoering › Bedrijfsmiddelen</button>.</p>`;
     $("#owMid").querySelectorAll("[data-mid]").forEach(c=>c.onchange=()=>{mids=mids.filter(x=>x!==c.dataset.mid);if(c.checked)mids.push(c.dataset.mid)});
     const g=$("#owMidGo");if(g)g.onclick=()=>{state.utab="middelen";go("uitvoering")}};
   drawAanb();drawArt();drawMid();

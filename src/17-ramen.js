@@ -357,7 +357,7 @@ function buildRamen(){
   const saveCfg=()=>{clearTimeout(cfgT);cfgT=setTimeout(async()=>{try{await save("instellingen","ramen",JSON.parse(JSON.stringify(cfg)))}catch(e){err(e)}cfgT=null;cfgSrc=state.ramen},900)};
   loadCfg();
 
-  /* staffelkorting per dienst (het menu Diensten): eigen staffel per soort raam, aantallen tellen mee met hun wegingsfactor */
+  /* staffelkorting per dienst (Uitvoering › Diensten): eigen staffel per soort raam, aantallen tellen mee met hun wegingsfactor */
   const tierU=(t,n)=>{t=(t||[]).filter(x=>x[0]>0).slice().sort((a,b)=>a[0]-b[0]);let off=0;for(let i=1;i<=n;i++){let d=0;for(const [f,p] of t)if(i>=f)d=p;off+=d/100}return off};
   const tierOf=k=>cfg.tb&&Array.isArray(cfg.tb[k])?cfg.tb[k]:(/^g\d$/.test(k)?cfg.tiers:[]);
   const wgOf=k=>cfg.wg&&cfg.wg[k]!=null&&cfg.wg[k]!==""?Number(cfg.wg[k]):100;
@@ -408,7 +408,7 @@ function buildRamen(){
   let hasResult=false;
   let acT=0;
   function markStale(){if(hasResult)g("stale").hidden=false;if(host.hasAttribute("data-offerte")){clearTimeout(acT);acT=setTimeout(()=>{if(host.isConnected&&host.hasAttribute("data-offerte")){try{calculate(false)}catch(e){}}},150)}}
-  /* overige diensten uit het menu Diensten (alleen groepen die in de calculator aan staan) */
+  /* overige diensten uit Uitvoering › Diensten (alleen groepen die in de calculator aan staan) */
   let ovr={},ovrFreq={};
   const glasW=()=>{const f=FREQ[g("freq").value];return f&&f.w?f.w:8};
   const ovrList=()=>{try{return uDienstLijst().filter(d=>d.items&&d.items.length&&d.groep!=="bijz")}catch(e){return []}};let ovMore=false;
