@@ -9747,7 +9747,7 @@ function openOpdrachtWerk(kid,focus){
     <section class="kp"><div class="kp-h"><span class="objic">${I.camera||I.upload}</span><b>Foto's</b><span class="sp"></span>${state.assets?`<label class="btn small primary">${I.plus}Uploaden<input type="file" accept="image/*" multiple hidden id="owFoto"></label>`:""}</div><div class="ow-fotos" id="owFotos"></div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.chat}</span><b>Logboek</b></div>
       <div class="log">${[...(k.log||[]).map(l=>({d:l.datum,t:l.tekst,s:"Notitie"})),...state.berichten.filter(m=>m.klantId===k.id).map(m=>({d:String(m.op).slice(0,10),t:m.tekst,s:KANAAL[m.kanaal]||m.kanaal}))].sort((a,b)=>String(b.d).localeCompare(String(a.d))).slice(0,15).map(l=>`<div><span>${fmtD(l.d)} · ${esc(l.s)}</span>${esc(l.t)}</div>`).join("")||'<div style="color:var(--muted)">Er zijn nog geen logboekregels.</div>'}</div>
-      <div class="log-in"><input id="ow-log" placeholder="Bijv. gebeld, komt dinsdag beter uit" aria-label="Notitie voor het logboek"><button type="button" class="small primary" id="owLog">${I.plus}Noteer</button></div></section>
+      <div class="log-in"><input id="ow-log" placeholder="Notitie toevoegen…" aria-label="Notitie voor het logboek"><button type="button" class="small primary" id="owLog">${I.plus}Noteer</button></div></section>
   </div></div>
   <div class="row stickyfoot kk-foot"><button type="button" class="ghost danger" id="owDel">${I.trash}Opdracht verwijderen</button><span class="sp"></span><button type="button" id="owBack">Annuleren</button><button type="submit" class="primary" id="owSave">${I.check}Opslaan</button></div>`,{xwide:true});
   const $o=n=>$("#ow-"+n);
@@ -10422,7 +10422,7 @@ function openKlantView(id,opt={}){
         const N=state.kkLogN||5;
         return `<div class="lgb">${L.slice(0,N).map(l=>{const sum=l.o||kort(l.t),meer=String(l.t||"").trim()&&String(l.t).trim()!==sum;return `<details class="lgb-r"><summary><span class="lgb-d">${esc(fmtD(l.d))}${l.u?`<i>${esc(l.u)}</i>`:""}</span><span class="lgb-s ${l.s==="Notitie"?"n":""}">${esc(l.s)}</span><span class="lgb-t">${esc(sum)}</span>${meer?`<span class="lgb-oog" aria-label="Volledig bekijken">${I.eye}</span>`:""}</summary>${meer?`<div class="lgb-x">${esc(l.t)}</div>`:""}</details>`}).join("")}</div>
           ${L.length>N?`<button type="button" class="small ghost" data-act="kklogmeer" style="align-self:flex-start">Meer tonen (${L.length-N})</button>`:N>5?`<button type="button" class="small ghost" data-act="kklogmin" style="align-self:flex-start">Minder tonen</button>`:""}`})()}
-      <div class="log-in"><input id="kd-log" placeholder="Bijv. gebeld, komt dinsdag beter uit" aria-label="Notitie voor het logboek"><button type="button" class="small primary" id="kdLog">${I.plus}Noteer</button></div></section>
+      <div class="log-in"><input id="kd-log" placeholder="Notitie toevoegen…" aria-label="Notitie voor het logboek"><button type="button" class="small primary" id="kdLog">${I.plus}Noteer</button></div></section>
   </div></div>`,{xwide:true});
   form.dataset.kk=k.id;
   const re=()=>{const y=dlg.scrollTop;openKlantView(k.id);dlg.scrollTop=y};
@@ -10779,7 +10779,7 @@ function openFactuurWerk(id){
       <p class="fw-txt">${esc(rv.betaal)}</p>${rv.vwTxt?`<p class="fw-txt">${esc(rv.vwTxt)}</p>`:""}<small class="help">Wordt automatisch gemaakt uit het bedrag, de vervaldatum en je bedrijfsgegevens (Instellingen).</small></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.chat}</span><b>Logboek</b></div>
       <div class="log">${log.map(l=>`<div><span>${dt(l.d)}</span>${esc(l.t)}</div>`).join("")}</div>
-      <div class="log-in"><input id="fw-log" placeholder="Bijv. klant belt terug over de factuur" aria-label="Notitie voor het logboek"><button type="button" class="small primary" id="fwLog">${I.plus}Noteer</button></div></section>
+      <div class="log-in"><input id="fw-log" placeholder="Notitie toevoegen…" aria-label="Notitie voor het logboek"><button type="button" class="small primary" id="fwLog">${I.plus}Noteer</button></div></section>
   </div></div>
   <div class="row"><button type="button" class="ghost danger" id="delF">Factuur verwijderen</button><span class="sp"></span><button type="button" data-act="close">Sluiten</button></div>`,{xwide:true});
   const re=()=>{const y=dlg.scrollTop;openFactuurWerk(id);dlg.scrollTop=y};

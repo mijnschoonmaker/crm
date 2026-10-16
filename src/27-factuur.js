@@ -58,7 +58,7 @@ function openFactuurWerk(id){
       <p class="fw-txt">${esc(rv.betaal)}</p>${rv.vwTxt?`<p class="fw-txt">${esc(rv.vwTxt)}</p>`:""}<small class="help">Wordt automatisch gemaakt uit het bedrag, de vervaldatum en je bedrijfsgegevens (Instellingen).</small></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.chat}</span><b>Logboek</b></div>
       <div class="log">${log.map(l=>`<div><span>${dt(l.d)}</span>${esc(l.t)}</div>`).join("")}</div>
-      <div class="log-in"><input id="fw-log" placeholder="Bijv. klant belt terug over de factuur" aria-label="Notitie voor het logboek"><button type="button" class="small primary" id="fwLog">${I.plus}Noteer</button></div></section>
+      <div class="log-in"><input id="fw-log" placeholder="Notitie toevoegen…" aria-label="Notitie voor het logboek"><button type="button" class="small primary" id="fwLog">${I.plus}Noteer</button></div></section>
   </div></div>
   <div class="row"><button type="button" class="ghost danger" id="delF">Factuur verwijderen</button><span class="sp"></span><button type="button" data-act="close">Sluiten</button></div>`,{xwide:true});
   const re=()=>{const y=dlg.scrollTop;openFactuurWerk(id);dlg.scrollTop=y};
