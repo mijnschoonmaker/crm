@@ -3167,6 +3167,24 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}.inv5,.inv5 *{-webkit-t
 .log-in input{flex:1;min-width:0;border:0!important;background:none!important;box-shadow:none!important;outline:none;padding:8px 0!important;min-height:0;font-size:15px}
 .log-in button{flex:none;white-space:nowrap;margin:0;min-height:40px;border-radius:10px;padding:0 14px}
 .log-in button svg{width:16px;height:16px}
+/* versturen: per ontvanger een kaart met contact, hoofdknop en kanaalkeuze */
+.rcp-list{display:flex;flex-direction:column;gap:10px}
+.rcp{display:flex;flex-direction:column;gap:12px;padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+.rcp.klaar{border-color:color-mix(in srgb,var(--ok) 35%,var(--line));background:color-mix(in srgb,var(--ok) 4%,var(--surface))}
+.rcp-k{display:flex;align-items:flex-start;gap:12px;min-width:0}
+.rcp-k .av{width:40px;height:40px;font-size:14px;flex:none}
+.rcp-n{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.rcp-n b{font-size:15px;font-weight:650;line-height:1.3}
+.rcp-n small{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rcp-n small svg{width:14px;height:14px;flex:none}
+.rcp-n .rcp-st{color:var(--brand);font-weight:600}
+.rcp-k>.pill{flex:none}
+.rcp .rcp-go{width:100%;justify-content:center;min-height:46px;font-size:15px;margin:0}
+.rcp-a{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.rcp-l{font-size:12.5px;color:var(--muted);margin-right:2px}
+.rcp-a .btn.small,.rcp-a .small{margin:0;min-height:36px;padding:0 12px;font-size:13.5px}
+.rcp-k .rcp-cp{flex:none;margin:-4px -6px 0 0;width:36px;height:36px;padding:0;justify-content:center}
+.rcp-k .rcp-cp svg{width:17px;height:17px}
 .fw-rks{display:none}
 @media (max-width:640px){
   .fw-tw{display:none}
@@ -5220,7 +5238,7 @@ function drawCompose(){
   ${c.mail?`<label>E-mail bericht<textarea id="cmpMail" style="min-height:140px">${esc(c.mail)}</textarea></label>`:""}
   ${c.hint?`<div class="notice" style="margin:0">${c.hint}</div>`:""}
   <p class="subt" style="margin:0">${liveMail()?"<b>Versturen</b> stuurt de mail in je huisstijl direct naar de klant, met PDF als die er is. WhatsApp en sms openen met het bericht al ingevuld. Alles komt in de berichtenlog, met de status van elke mail.":"Een knop opent WhatsApp, je sms-app of je mailprogramma met het bericht al ingevuld. <b>Opgemaakt</b> kopieert de mail in je huisstijl en opent een lege mail, waarin je hem plakt. Op versturen druk je zelf. Alles komt in de berichtenlog."}</p>
-  <div class="tablewrap" style="box-shadow:none"><table class="t" style="min-width:520px" id="cmpList"></table></div>
+  <div class="rcp-list" id="cmpList"></div>
   <div class="row">${liveMail()&&c.recipients.filter(r=>r.k.email).length>1?`<button type="button" class="small primary" id="cmpAll">${I.send}Mail naar alle ${c.recipients.filter(r=>r.k.email).length}</button>`:""}${c.recipients.length>1?`<button type="button" class="small" id="cmpNums">${I.copy}Kopieer alle nummers</button><button type="button" class="small" id="cmpMails">${I.copy}Kopieer alle e-mailadressen</button>`:""}<span class="sp"></span><button type="button" data-act="close">Klaar</button></div>`,{wide:true});
   drawCmpList();
   $("#cmpTxt").oninput=e=>{c.tekst=e.target.value;drawCmpList()};
@@ -5237,9 +5255,10 @@ function drawCmpList(){
     const txtFor=kan=>kan==="email"?fill(st?st.mail:(c.mail||c.tekst),r.vars):fill(st?st.sms:c.tekst,r.vars);
     const btn=(kan,lbl)=>{const h=sendHref(kan,r.k,txtFor(kan),fill(st?st.onderwerp:c.onderwerp,r.vars));return h?`<a class="btn small${s===kan?" primary":c.kanaal===kan&&!s?" yellow":""}" href="${esc(h)}" target="_blank" rel="noopener" data-act="send" data-i="${i}" data-k="${kan}">${lbl}</a>`:""};
     const order=[["whatsapp","WhatsApp"],["sms","SMS"],["email","E-mail"]].sort((a,b)=>(b[0]===c.kanaal)-(a[0]===c.kanaal));
-    const any=order.map(([k,l])=>btn(k,l)).join("")+(r.k.email?(liveMail()?`<button type="button" class="small${s==="live"?" primary":" yellow"}" data-act="copyhtml" data-i="${i}" title="Opgemaakte mail direct versturen" ${s==="live"?"disabled":""}>${s==="live"?I.check+"Verstuurd":I.send+"Versturen"}</button>`:`<button type="button" class="small${s==="kopie"?" primary":""}" data-act="copyhtml" data-i="${i}" title="Opgemaakte mail kopiëren en je mailprogramma openen">${I.copy}Opgemaakt</button>`):"")+(st?`<br><small class="subt">${esc(st.naam)}</small>`:"");
-    return `<tr><td><b>${esc(cleanName(r.k.naam))}</b><br><span class="contact">${esc(r.k.telefoon||"")}${r.k.telefoon&&r.k.email?" · ":""}${esc(r.k.email||"")}</span>${s?`<br><span class="pill ok">${I.check}${s==="live"?"verstuurd":"geopend via "+KANAAL[s]}</span>`:""}</td>
-      <td class="r" style="white-space:nowrap">${any||'<span class="pill neutral">geen nummer of e-mail</span>'} <button type="button" class="small ghost" data-act="copymsg" data-i="${i}" aria-label="Kopieer bericht">${I.copy}</button></td></tr>`}).join("");
+    const chips=order.map(([k,l])=>btn(k,l)).join("");
+    const hoofd=r.k.email?(liveMail()?`<button type="button" class="small${s==="live"?" good":" primary"} rcp-go" data-act="copyhtml" data-i="${i}" title="Opgemaakte mail direct versturen" ${s==="live"?"disabled":""}>${s==="live"?I.check+"Mail verstuurd":I.send+"Mail versturen"}</button>`:`<button type="button" class="small${s==="kopie"?" good":" primary"} rcp-go" data-act="copyhtml" data-i="${i}" title="Opgemaakte mail kopiëren en je mailprogramma openen">${I.copy}Opgemaakte mail</button>`):"";
+    return `<div class="rcp${s?" klaar":""}"><div class="rcp-k"><span class="av" style="--h:${hue(r.k.ronde||r.k.naam||"")}">${esc(initials(r.k.naam||"?"))}</span><div class="rcp-n"><b>${esc(cleanName(r.k.naam))}</b>${r.k.telefoon?`<small>${I.phone}${esc(r.k.telefoon)}</small>`:""}${r.k.email?`<small>${I.mail}${esc(r.k.email)}</small>`:""}${st?`<small class="rcp-st">${esc(st.naam)}</small>`:""}</div>${s?`<span class="pill ok dotp">${s==="live"?"Verstuurd":"Via "+esc(KANAAL[s]||s)}</span>`:""}<button type="button" class="small ghost rcp-cp" data-act="copymsg" data-i="${i}" aria-label="Kopieer bericht" title="Kopieer bericht">${I.copy}</button></div>
+      ${chips||hoofd?`${hoofd}<div class="rcp-a"><span class="rcp-l">${hoofd?"Of open in":"Open in"}</span>${chips}</div>`:'<span class="pill neutral">Geen nummer of e-mailadres</span>'}</div>`}).join("");
 }
 async function logSend(i,kanaal){
   const c=compose,r=c&&c.recipients[i];if(!r)return;

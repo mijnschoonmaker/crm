@@ -2740,6 +2740,24 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}.inv5,.inv5 *{-webkit-t
 .log-in input{flex:1;min-width:0;border:0!important;background:none!important;box-shadow:none!important;outline:none;padding:8px 0!important;min-height:0;font-size:15px}
 .log-in button{flex:none;white-space:nowrap;margin:0;min-height:40px;border-radius:10px;padding:0 14px}
 .log-in button svg{width:16px;height:16px}
+/* versturen: per ontvanger een kaart met contact, hoofdknop en kanaalkeuze */
+.rcp-list{display:flex;flex-direction:column;gap:10px}
+.rcp{display:flex;flex-direction:column;gap:12px;padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+.rcp.klaar{border-color:color-mix(in srgb,var(--ok) 35%,var(--line));background:color-mix(in srgb,var(--ok) 4%,var(--surface))}
+.rcp-k{display:flex;align-items:flex-start;gap:12px;min-width:0}
+.rcp-k .av{width:40px;height:40px;font-size:14px;flex:none}
+.rcp-n{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.rcp-n b{font-size:15px;font-weight:650;line-height:1.3}
+.rcp-n small{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rcp-n small svg{width:14px;height:14px;flex:none}
+.rcp-n .rcp-st{color:var(--brand);font-weight:600}
+.rcp-k>.pill{flex:none}
+.rcp .rcp-go{width:100%;justify-content:center;min-height:46px;font-size:15px;margin:0}
+.rcp-a{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.rcp-l{font-size:12.5px;color:var(--muted);margin-right:2px}
+.rcp-a .btn.small,.rcp-a .small{margin:0;min-height:36px;padding:0 12px;font-size:13.5px}
+.rcp-k .rcp-cp{flex:none;margin:-4px -6px 0 0;width:36px;height:36px;padding:0;justify-content:center}
+.rcp-k .rcp-cp svg{width:17px;height:17px}
 .fw-rks{display:none}
 @media (max-width:640px){
   .fw-tw{display:none}
