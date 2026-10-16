@@ -396,12 +396,14 @@ function bankMatch(text){
 /* overslaan */
 function openSkip(id){
   const k=state.klanten.find(x=>x.id===id);if(!k)return;const R=S().skipRedenen||[];
-  openDlg(`<div class="dlg-head"><span class="objic big" style="background:var(--busy)">${I.right}</span><div style="flex:1"><h3>Job overslaan</h3><div class="subt">${esc(cleanName(k.naam))} · ${esc(jobAddr(k))}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
-  <label>Reden</label><div class="chips" style="margin:0">${R.map((r,i)=>`<label class="chipchk"><input type="radio" name="skr" value="${esc(r)}" ${i===0?"checked":""}><span>${esc(r)}</span></label>`).join("")}</div>
-  <label>Wanneer weer aanbieden?<select id="skW"><option value="1">Over 1 week</option><option value="0">Morgen al</option><option value="int">Over een heel interval (${esc(intervalTxt(k))})</option></select></label>
+  const IC={"Klant niet thuis":I.user,"Slecht weer":I.cloud||I.alert,"Ziekte/personeelsuitval":I.heart||I.alert,"Klant uitgesteld":I.clock,"Defecte apparatuur":I.wrench,"Overig":I.dots||I.note};
+  openDlg(`<div class="ow-kop jp-kop ow-soon"><div class="jp-kr1"><span class="jp-st"><i></i>Overslaan</span><span class="sp"></span><button type="button" class="jp-ib" data-act="close" aria-label="Sluiten">${I.x}</button></div>
+    <div class="jp-kr2"><span class="jp-k1"><small>${["zo","ma","di","wo","do","vr","za"][today().getDay()]} ${today().getDate()} ${["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"][today().getMonth()]}</small><b>${esc(k.tijd||"–")}</b></span><span class="jp-k2"><b>${esc(cleanName(k.naam))}</b><em>${I.pin}${esc(jobAddr(k))}</em></span><span class="jp-k3"><small>Bedrag</small><b>${eur(toon(k.prijs))}</b><em>niet gewassen</em></span></div></div>
+  <div class="sk-sec"><span class="eyebrow">${I.alert}Reden</span><div class="sk-redenen">${R.map((r,i)=>`<label class="sk-reden"><input type="radio" name="skr" value="${esc(r)}" ${i===0?"checked":""}><span>${IC[r]||I.note}<b>${esc(r)}</b></span></label>`).join("")}</div></div>
+  <div class="sk-sec"><span class="eyebrow">${I.planning}Wanneer weer aanbieden?</span><div class="sk-wanneer" role="group">${[["0","Morgen al",""],["1","Over 1 week","aanbevolen"],["int","Volgend interval",intervalTxt(k)]].map(([v,l,s],i)=>`<label class="sk-w"><input type="radio" name="skW" value="${v}" ${v==="1"?"checked":""}><span><b>${l}</b>${s?`<small>${esc(s)}</small>`:""}</span></label>`).join("")}</div></div>
   <label>Notitie (optioneel)<input id="skN" placeholder="Bijv. hond los in de tuin"></label>
-  <div class="row"><span class="sp"></span><button type="button" data-act="close">Annuleren</button><button type="submit" class="primary" id="skGo">Overslaan</button></div>`);
-  form.onsubmit=async e=>{e.preventDefault();const r=(form.querySelector('input[name="skr"]:checked')||{}).value||"Overgeslagen",w=$("#skW").value,n=$("#skN").value.trim();
+  <div class="row stickyfoot"><button type="button" class="ghost" data-act="close">Annuleren</button><span class="sp"></span><button type="submit" class="primary" id="skGo">${I.right}Overslaan</button></div>`);
+  form.onsubmit=async e=>{e.preventDefault();const r=(form.querySelector('input[name="skr"]:checked')||{}).value||"Overgeslagen",w=(form.querySelector('input[name="skW"]:checked')||{}).value||"1",n=$("#skN").value.trim();
     const tot=w==="0"?addDays(today(),1):w==="1"?addDays(today(),7):addDays(today(),freqDays(k));
     const prev={gepland:k.gepland||"",tijd:k.tijd||"",skipTot:k.skipTot||"",log:k.log||[]};
     try{await save("klanten",k.id,{...strip(k),gepland:"",tijd:"",bezig:"",skipTot:iso(tot),log:[...(k.log||[]),{datum:iso(today()),tekst:"Overgeslagen: "+r+(n?" · "+n:"")}]});dlg.close();
