@@ -93,6 +93,32 @@ const WEB_CSS=`
 .ms .zak .r{display:flex;justify-content:flex-end}
 /* vragen */
 .ms .faq{display:flex;flex-direction:column;gap:10px;margin-top:26px;max-width:820px}
+/* betalen */
+.ms .bt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}
+.ms .bt{background:#fff;border-radius:20px;padding:22px;box-shadow:0 1px 2px rgb(15 31 38 / .05),0 16px 32px -22px rgb(15 50 60 / .45)}
+.ms .bt .ic{width:42px;height:42px;border-radius:13px;background:var(--soft);color:var(--b2);display:grid;place-items:center;margin-bottom:14px}.ms .bt .ic svg{width:21px;height:21px}
+.ms .bt h3{font-size:16.5px;font-weight:800;margin-bottom:4px}.ms .bt p{font-size:14px;color:var(--muted)}
+.ms .bt-demo{margin-top:22px;display:flex;justify-content:center}
+.ms .bt-f{width:min(520px,100%);background:#fff;border-radius:22px;box-shadow:0 1px 2px rgb(15 31 38 / .05),0 24px 44px -26px rgb(15 50 60 / .55);overflow:hidden}
+.ms .bt-fh{display:flex;align-items:center;gap:12px;padding:16px 18px;color:#fff;background:var(--blauw);position:relative}.ms .bt-fh::before{content:"";position:absolute;inset:0;background:var(--lijnen);pointer-events:none}.ms .bt-fh>*{position:relative}
+.ms .bt-fh b{display:block;font-size:15.5px}.ms .bt-fh small{font-size:12.5px;opacity:.8}.ms .bt-fh>div{flex:1}
+.ms .bt-ic{width:40px;height:40px;border-radius:12px;background:rgb(255 255 255 / .16);border:1px solid rgb(255 255 255 / .25);display:grid;place-items:center}.ms .bt-ic svg{width:19px;height:19px}
+.ms .bt-pil{font-size:12px;font-weight:800;padding:5px 11px;border-radius:999px;background:#2bb673;color:#fff}
+.ms .bt-r{display:flex;justify-content:space-between;padding:12px 18px;border-top:1px solid var(--line);font-size:14.5px}.ms .bt-r:first-of-type{border-top:0}.ms .bt-r.kort b{color:#1f8a5c}.ms .bt-r.tot{font-weight:800;font-size:16px}
+.ms .bt-ok{display:flex;align-items:center;gap:8px;padding:12px 18px;background:#e0f3e9;color:#1b6b48;font-weight:700;font-size:13.5px}.ms .bt-ok svg{width:16px;height:16px}
+/* credits */
+.ms .cr4{grid-template-columns:repeat(4,1fr)}
+.ms .tg{position:relative}.ms .cr-n{position:absolute;top:18px;right:18px;font-style:normal;font-weight:800;font-size:14px;padding:5px 10px;border-radius:999px;background:#fff;color:var(--b2)}.ms .cr-n::after{content:" cr";font-size:11px;opacity:.7}
+/* dienstenwebshop-kop */
+.ms .ws-kop{margin-bottom:22px}
+/* vve */
+.ms .vve{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:center;background:#fff;border-radius:28px;padding:34px 38px;margin-top:16px;box-shadow:0 14px 34px -26px rgb(15 50 60 / .5)}
+.ms .vve-k h3{font-size:clamp(22px,2.4vw,28px);font-weight:800;letter-spacing:-.025em;line-height:1.15;margin:10px 0 10px}.ms .vve-k h3 em{font-style:normal;color:var(--b2)}.ms .vve-k p{color:var(--muted);font-size:15.5px}
+.ms .vve-l{display:flex;flex-direction:column;gap:12px}.ms .vve-l li{display:flex;gap:12px;align-items:flex-start;font-size:15px}
+.ms .vve-l li i{width:38px;height:38px;border-radius:12px;background:var(--soft);color:var(--b2);display:grid;place-items:center;flex:none;font-style:normal}.ms .vve-l li i svg{width:18px;height:18px}
+.ms .vve-l b{display:block}.ms .vve-l span{color:var(--muted);font-size:14px}
+@media (max-width:900px){.ms .bt-grid{grid-template-columns:1fr}.ms .cr4{grid-template-columns:1fr 1fr}.ms .vve{grid-template-columns:1fr;padding:24px}}
+@media (max-width:560px){.ms .cr4{grid-template-columns:1fr}.ms .cr-n{position:static;display:inline-block;margin-bottom:8px}}
 .ms details{background:#fff;border-radius:18px;padding:0 20px;box-shadow:0 8px 24px -20px rgb(15 70 85 / .6)}
 .ms summary{list-style:none;cursor:pointer;padding:18px 0;font-weight:800;font-size:16px;display:flex;justify-content:space-between;gap:12px;align-items:center}
 .ms summary::-webkit-details-marker{display:none}
@@ -254,6 +280,12 @@ function websiteBody(o){const e=esc,IC={
   rt:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="5" r="2.5"/><path d="M8.5 19H16a3.5 3.5 0 0 0 0-7H8a3.5 3.5 0 0 1 0-7h7.5"/></svg>',
   kaart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6.5 15h4"/></svg>',
   gebouw:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="1.5"/><path d="M9 7h1.5M13.5 7H15M9 11h1.5M13.5 11H15M9 15h1.5M13.5 15H15M10.5 21v-3h3v3"/></svg>',
+  gift:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4"/><path d="M5 12v8h14v-8M12 8v12M12 8c-2.5 0-4-1.2-4-2.6S9.3 3 10.5 3c1.3 0 1.5 2.3 1.5 5zm0 0c2.5 0 4-1.2 4-2.6S14.7 3 13.5 3C12.2 3 12 5.3 12 8z"/></svg>',
+  ster:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2.8 2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z"/></svg>',
+  qr:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3h-3zM20 14v2M17 20h4M14 20h1"/></svg>',
+  ideal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 10h19"/><path d="M6 15h4"/></svg>',
+  klok:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  foto:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-8 9"/></svg>',
   raam:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="1.5"/><path d="M12 3v18M4 12h16"/></svg>',
   huis:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg>'};
   const H='<svg viewBox="0 0 24 24"><path d="M4.5 10.4 12 4.2l7.5 6.2v8.4a1.4 1.4 0 0 1-1.4 1.4h-3.4v-5a1 1 0 0 0-1-1h-3.4a1 1 0 0 0-1 1v5H5.9a1.4 1.4 0 0 1-1.4-1.4z"/></svg>';
@@ -267,10 +299,10 @@ function websiteBody(o){const e=esc,IC={
     ["Hoe komt mijn prijs tot stand?",`U maakt een foto van uw woning en tikt de ramen aan. Op basis daarvan ziet u direct uw vaste prijs per beurt, inclusief kozijnen en btw. Bij de eerste beurt tellen wij ter plekke na; klopt de telling niet, dan passen wij de prijs aan en hoort u dat van ons.`],
     ["Hoe vaak komen jullie?","Dat kiest u zelf in de calculator. Hoe vaker, hoe voordeliger per beurt. Wij plannen u daarna vast in op onze route."],
     ["Hoe betaal ik?",`Na elke beurt ontvangt u de factuur per e-mail${o.mollie?", met een betaallink voor iDEAL":""}. Al uw facturen staan ook in uw klantportaal.`],
-    ["Doen jullie ook bedrijven en VvE's?","Zeker. Kies in de calculator voor Bedrijf / VvE en laat uw gegevens achter; wij nemen snel contact met u op voor een prijs op maat."]];
+    ["Doen jullie ook bedrijven en VvE's?","Zeker. Kies in de calculator voor Bedrijf / VvE en laat uw gegevens achter; wij nemen snel contact met u op voor een prijs op maat."],["Wat zijn credits?","Credits zijn korting die u spaart: 1 credit is € 1. U krijgt ze voor het aanbevelen van een buur, een Google-review, het beoordelen van een beurt of het bestellen van een extra dienst. Ze gaan automatisch van uw volgende factuur af."],["Kan ik een afspraak verzetten of overslaan?","Ja, dat regelt u zelf in uw klantportaal: verzetten, een keer overslaan of uw vakantie doorgeven. Wij passen de planning aan en u krijgt een bevestiging."]];
   return `<input type="checkbox" id="msm" hidden>
 <header class="nav"><div class="in"><a class="logo" href="#top">${logo}</a>
-  <nav class="lk"><a href="#werkwijze">Werkwijze</a><a href="#voordelen">Voordelen</a><a href="#prijs">Prijs berekenen</a><a href="#vragen">Vragen</a><a href="#contact">Contact</a>${portaal?`<a class="lk-p" href="${e(portaal)}">Mijn portaal</a>`:""}</nav>
+  <nav class="lk"><a href="#werkwijze">Werkwijze</a><a href="#voordelen">Voordelen</a><a href="#betalen">Betalen</a><a href="#prijs">Prijs berekenen</a><a href="#vragen">Vragen</a><a href="#contact">Contact</a>${portaal?`<a class="lk-p" href="${e(portaal)}">Mijn portaal</a>`:""}</nav>
   ${portaal?`<a class="portaal" href="${e(portaal)}">${IC.user}Mijn portaal</a>`:""}<a class="knop k-teal" href="#prijs">Bereken uw prijs</a>
   <label class="hb" for="msm" aria-label="Menu">${IC.menu}</label></div></header>
 <section class="hero" id="top"><div class="in"><div class="blauw">
@@ -322,10 +354,31 @@ function websiteBody(o){const e=esc,IC={
         <div class="pp-info"><span class="pp-car">${PP_AUTO}</span><div class="pp-tx"><small class="pp-st"><i></i>Live</small><b data-pp-t>Nog 2 adressen voor u</b><span data-pp-s2>Robin is in de buurt</span></div><div class="pp-eta"><small>Verwacht</small><b data-pp-eta>± 11:10</b></div></div></div>
     </div>
   </div><p class="pp-ond">Zo ziet uw portaal eruit op de dag zelf.</p></div></div></section>
-<section id="prijs"><div class="in"><div id="ms-calc"></div></div></section>
+<section id="betalen"><div class="in"><span class="oog">${IC.kaart}Makkelijk betalen</span><h2 class="kop">Betalen in <em>één minuut</em></h2><p class="lead">Na elke beurt krijgt u de factuur per e-mail. Geen gedoe met overschrijven: betaal direct${o.mollie?" met iDEAL":""} vanuit de mail of uw portaal.</p>
+  <div class="bt-grid">
+    <div class="bt"><span class="ic">${IC.ideal}</span><h3>${o.mollie?"iDEAL in één tik":"Factuur per e-mail"}</h3><p>${o.mollie?"Elke factuur heeft een betaalknop. Betaald binnen een minuut, bevestiging meteen in uw portaal.":"Duidelijke factuur met alle gegevens, direct na de beurt in uw mailbox en in uw portaal."}</p></div>
+    <div class="bt"><span class="ic">${IC.gift}</span><h3>Korting gaat er vanzelf af</h3><p>Credits die u spaart, worden automatisch van uw volgende factuur afgetrokken. U hoeft niets te doen.</p></div>
+    <div class="bt"><span class="ic">${IC.klok}</span><h3>Alles op een rij</h3><p>Openstaand, betaald, uw betaalgedrag en uw plek bij onze snelste betalers: u ziet het in uw portaal.</p></div>
+  </div>
+  <div class="bt-demo" role="img" aria-label="Voorbeeld van een factuur die online is betaald"><div class="bt-f"><div class="bt-fh"><span class="bt-ic">${IC.euro}</span><div><b>Factuur ${new Date().getFullYear()}-0127</b><small>Glasbewassing · ${e(o.plaats||"uw woning")}</small></div><span class="bt-pil">Betaald</span></div>
+    <div class="bt-r"><span>Glasbewassing · 14 ramen</span><b>€ 42,50</b></div><div class="bt-r kort"><span>Credits (aanbeveling)</span><b>− € 15,00</b></div><div class="bt-r tot"><span>Te betalen</span><b>€ 27,50</b></div>
+    <div class="bt-ok">${IC.ok}<span>Betaald${o.mollie?" met iDEAL":""} · 1 uur na ontvangst · bedankt!</span></div></div></div></div></section>
+<section id="credits"><div class="in"><div class="blauw band cr-band"><span class="oog">${IC.gift}Credits sparen</span><h2 class="kop">Korting <em>verdienen is makkelijk</em></h2><p class="lead">1 credit is € 1 korting op uw volgende factuur. Zo spaart u ze:</p>
+  <div class="tegels cr4">
+    <div class="tg"><span class="ic">${IC.user}</span><em class="cr-n">+${e(String(o.refBeloning||15))}</em><h3>Beveel een buur aan</h3><p>Uw buur krijgt ${e(String(o.refWelkom||10))} euro welkomstkorting, u krijgt ${e(String(o.refBeloning||15))} credits na de eerste beurt.</p></div>
+    <div class="tg"><span class="ic">${IC.ster}</span><em class="cr-n">+${e(String(o.crReview||5))}</em><h3>Google-review</h3><p>Help anderen ons te vinden. Eenmalig ${e(String(o.crReview||5))} credits.</p></div>
+    <div class="tg"><span class="ic">${IC.ok}</span><em class="cr-n">+${e(String(o.crBeurt||1))}</em><h3>Beoordeel elke beurt</h3><p>Geef sterren na elk bezoek. Zo blijven wij scherp, u verdient er credits mee.</p></div>
+    <div class="tg"><span class="ic">${IC.euro}</span><em class="cr-n">+${e(String(o.crExtra||3))}</em><h3>Bestel iets extra's</h3><p>Kozijnen, binnenzijde, zonnepanelen of dakgoot: credits per extra dienst.</p></div></div>
+  ${wg(-7,"opacity:.6")}<div style="height:40px"></div></div></div></section>
+<section id="prijs"><div class="in"><div class="ws-kop"><span class="oog">${IC.cam}Dienstenwebshop</span><h2 class="kop">Bereken uw prijs en <em>meld u direct aan</em></h2><p class="lead">Geen offertebezoek nodig. Maak een foto van uw woning, tik de ramen aan en u ziet direct uw vaste prijs per beurt. Aanmelden kan meteen, u krijgt binnen een minuut een bevestiging.</p></div><div id="ms-calc"></div></div></section>
 <section id="zakelijk"><div class="in"><div class="zak"><div><span class="oog">${IC.gebouw}Zakelijk</span><h2 class="kop">Ook voor <em>bedrijven en VvE's</em></h2><p class="lead">Kantoor, winkel, school of appartementencomplex: wij maken een prijs op maat en plannen het werk in wanneer het u uitkomt.</p>
   <div class="tags"><span>Kantoren</span><span>Winkels en horeca</span><span>VvE's</span><span>Scholen en zorg</span></div></div>
-  <div class="r"><a class="knop k-teal" href="#prijs">${IC.gebouw}Vraag een prijs aan</a></div></div></div></section>
+  <div class="r"><a class="knop k-teal" href="#prijs">${IC.gebouw}Vraag een prijs aan</a></div></div>
+  <div class="vve"><div class="vve-k"><span class="oog">${IC.qr}Speciaal voor VvE's</span><h3>Schoonmaak van trappenhuis en entree, <em>zichtbaar voor alle bewoners</em></h3><p>Vaste dagen in de week, een checklist per beurt en een digitaal bewonersbord in de hal: bewoners scannen de QR-code en zien wanneer er is schoongemaakt. Dat scheelt het bestuur telefoontjes.</p></div>
+    <ul class="vve-l"><li><i>${IC.cal}</i><div><b>Vaste weekdagen</b><span>Bijvoorbeeld elke dinsdag en vrijdag, altijd dezelfde schoonmaker.</span></div></li>
+      <li><i>${IC.foto}</i><div><b>Logboek met foto's</b><span>Per beurt wat er is gedaan, met opleverfoto en notitie.</span></div></li>
+      <li><i>${IC.qr}</i><div><b>Bewonersbord met QR</b><span>Een poster in de hal; bewoners zien live wanneer wij er zijn geweest.</span></div></li>
+      <li><i>${IC.bel}</i><div><b>Meldingen uit het gebouw</b><span>Kapotte lamp, grofvuil of schade: wij melden het met foto aan het bestuur.</span></div></li></ul></div></div></section>
 <section id="vragen"><div class="in"><span class="oog">${IC.bel}Veelgestelde vragen</span><h2 class="kop">Goed om <em>te weten</em></h2>
   <div class="faq">${faq.map(([q,a])=>`<details><summary>${e(q)}</summary><p>${e(a)}</p></details>`).join("")}</div></div></section>
 <section id="contact"><div class="in"><div class="blauw contact"><div><h2>Vragen? <em>Wij helpen u graag.</em></h2><p>Stuur een berichtje via WhatsApp of mail. Wij reageren meestal dezelfde dag.</p></div>
@@ -337,7 +390,7 @@ function websiteBody(o){const e=esc,IC={
 
 async function websiteDelen(){const fv=k=>{const el=typeof form!=="undefined"&&form&&form.querySelector(`[data-k="${k}"]`);return el?el.value:null};const s=S(),lg=await loadLogo();const wa=String(s.webWa||waNr(s.telefoon)||"").replace(/\D/g,"");
   const o={naam:s.naam,telefoon:s.telefoon,email:s.email,adres:s.adres,postcode:s.postcode,plaats:s.plaats,kvk:s.kvk,whatsapp:wa,logo:lg?await kleinLogo(lg.url):"",
-    portaal:LIVE?location.origin+"/portaal":"",score:String(fv("webScore")??s.webScore??"4,8").trim(),reviewUrl:String(fv("webReviewUrl")||s.webReviewUrl||"https://www.google.com/search?q=mijnschoonmaker.com+Reviews").trim(),voorwaarden:s.webVoorwaarden||s.voorwaarden||"",mollie:!!s.liveMollie,bus:typeof RV_BUS!=="undefined"?RV_BUS:""};
+    portaal:LIVE?location.origin+"/portaal":"",score:String(fv("webScore")??s.webScore??"4,8").trim(),reviewUrl:String(fv("webReviewUrl")||s.webReviewUrl||"https://www.google.com/search?q=mijnschoonmaker.com+Reviews").trim(),refBeloning:s.refBeloning!=null&&s.refBeloning!==""?Number(s.refBeloning):15,refWelkom:s.refWelkom!=null&&s.refWelkom!==""?Number(s.refWelkom):10,crReview:s.crReview??5,crBeurt:s.crBeurt??1,crExtra:s.crExtra??3,voorwaarden:s.webVoorwaarden||s.voorwaarden||"",mollie:!!s.liveMollie,bus:typeof RV_BUS!=="undefined"?RV_BUS:""};
   return {body:websiteBody(o),calc:await klantCalcHtml(wa),o}}
 /* bonnetje: echt afscheuren langs de perforatie, met rafelrand en papiersnippers */
 const WEB_JS=`root.querySelectorAll("[data-pp]").forEach(function(pp){if(pp._ms)return;pp._ms=1;
@@ -413,12 +466,21 @@ window.addEventListener("message",function(e){if(e.source!==f.contentWindow||!e.
 if(window.parent!==window){window.addEventListener("message",function(e){if(!e.data||!/^zeem-aanvraag/.test(e.data.type||""))return;if(e.source===f.contentWindow)parent.postMessage(e.data,"*");else if(e.source===parent)f.contentWindow.postMessage(e.data,"*")});var post=function(){parent.postMessage({type:"zeem-calc-height",h:document.documentElement.scrollHeight},"*")};new ResizeObserver(post).observe(document.body)}})()<\/script></body></html>`}
 /* Framer: één code component met alles erin */
 function websiteFramer(p){return `// Website ${String(p.o.naam||"mijnschoonmaker").replace(/\n/g," ")} — Framer code component (gemaakt in het CRM)
-// Zo plaatst u hem:
-// 1. Framer › Assets (links) › Code › + › New component.
-// 2. Selecteer alle voorbeeldcode, vervang door dit hele bestand en sla op (Cmd/Ctrl+S).
-// 3. Sleep "Website" op een lege pagina. Zet rechts Width op Fill en Height op Fit.
-// 4. Publish. Uw domein koppelt u bij Site Settings › Domains.
-// Verandert u later uw logo, tarieven of gegevens in het CRM? Download dan opnieuw en vervang de code.
+// Zo zet u hem online (ongeveer 20 minuten):
+// 1. Maak een gratis account op framer.com en kies "New project" › "Blank".
+// 2. Links bij Assets › Code: klik op + › "New code file" (component). Noem hem Website.
+// 3. Selecteer alle voorbeeldcode (Cmd/Ctrl+A), plak dit hele bestand erover en sla op (Cmd/Ctrl+S).
+// 4. Ga terug naar de pagina (Home). Sleep "Website" vanuit Assets › Code op het canvas.
+// 5. Rechts bij het component: Position = Absolute uit (gewoon in de layout), Width = Fill (1fr), Height = Fit content.
+//    Zet de pagina zelf op Width 1200 (Desktop) en voeg via het breakpoint-icoon Tablet en Phone toe: het component past zich aan.
+// 6. Klik rechtsboven op Preview om te testen (foto maken, prijs berekenen, aanmelden).
+// 7. Publish (rechtsboven). U krijgt een framer.app-adres; de site staat direct online.
+// 8. Eigen domein: Site Settings › Domains › "Connect a domain you own" › vul uw domein in.
+//    Zet bij uw domeinbeheerder (bijv. TransIP, Hostnet, Cloudflare) de DNS-records die Framer toont:
+//    @  A      31.43.160.6        @  A      31.43.161.6        www  CNAME  sites.framer.app
+//    Verwijder andere A/AAAA-records op @. Binnen een uur (soms een dag) is het domein actief, met gratis SSL.
+// 9. Framer › Site Settings › General: vul Title en Description in; bij SEO & Analytics zet u Google Search Console aan.
+// Verandert u later uw logo, tarieven, teksten of credits in het CRM? Download dan opnieuw en vervang de code (stap 3). Een eigen domein vereist een betaald Framer-plan (Mini/Basic).
 import { useEffect, useRef } from "react"
 
 const CSS = ${JSON.stringify(WEB_FONTS+"<style>"+WEB_CSS+"</style>")}
