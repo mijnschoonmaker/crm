@@ -2920,7 +2920,7 @@ body{background:var(--bg)!important}
 .tk-adres{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;min-width:0}
 .tk-adres .av{width:46px;height:46px;font-size:15px;flex:none}
 .tk-adres>span:nth-child(2){flex:1;min-width:0}
-.tk-adres b{display:block;font-size:22px;font-weight:700;letter-spacing:-.025em;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tk-adres b{display:block;font-size:22px;font-weight:700;letter-spacing:-.025em;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-bottom:.14em;margin-bottom:-.14em}
 .tk-adres small{display:block;font-size:13px;color:var(--muted);margin-top:2px}
 .tk-adres .chev{width:18px;height:18px;color:var(--muted)}
 .tk-feit{display:flex;gap:8px;flex-wrap:wrap}
