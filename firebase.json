@@ -40,6 +40,10 @@
         "destination": "/portaal.html"
       },
       {
+        "source": "/bord/**",
+        "destination": "/bord.html"
+      },
+      {
         "source": "/api/akkoord-info",
         "function": {
           "functionId": "akkoordInfo",

@@ -1,0 +1,56 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex"><title>Schoonmaak van uw gebouw</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--brand:#137a8a;--brand-2:#1d5a74;--ink:#0f1f26;--muted:#5d6f76;--line:#dde5e8;--bg:#f3f6f7;--surface:#fff;--ok:#23845a}
+*{box-sizing:border-box}html,body{margin:0}body{font-family:Manrope,system-ui,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+.wrap{max-width:560px;margin:0 auto;padding:16px 16px 40px}
+.kop{position:relative;overflow:hidden;color:#fff;border-radius:22px;padding:18px 20px 20px;background:linear-gradient(135deg,#0f5f6e,#137a8a 55%,#1d5a74)}
+.kop::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.06) 0 2px,transparent 2px 18px);pointer-events:none}
+.kop>*{position:relative}.kop .lg{display:flex;align-items:center;gap:10px;margin-bottom:14px}.kop .lg img{height:34px;border-radius:8px;background:#fff;padding:3px}.kop .lg b{font-size:15px}
+.kop small{display:block;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.75}.kop h1{margin:2px 0 0;font-size:24px;letter-spacing:-.02em;line-height:1.15}.kop p{margin:4px 0 0;opacity:.85;font-size:14px}
+.st{display:inline-flex;align-items:center;gap:7px;margin-top:12px;padding:6px 12px 6px 10px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);font-weight:700;font-size:13px}.st i{width:9px;height:9px;border-radius:50%;background:#fff}.st.live i{background:#5ef0b0;animation:p 2s infinite}@keyframes p{0%{box-shadow:0 0 0 0 rgba(94,240,176,.6)}100%{box-shadow:0 0 0 10px rgba(94,240,176,0)}}
+.kaart{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:16px 18px;margin-top:12px;box-shadow:0 1px 2px rgba(15,31,38,.04)}
+.kaart h2{margin:0 0 2px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}.kaart .groot{font-size:22px;font-weight:800;letter-spacing:-.02em;margin:0}.kaart .sub{margin:2px 0 0;color:var(--muted);font-size:14px}
+.taken{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}.taken span{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:600;padding:5px 10px;border-radius:999px;background:#e6f3ec;color:#1b6b48}.taken span.niet{background:#eef2f3;color:var(--muted);text-decoration:line-through}.taken svg{width:13px;height:13px}
+.fotos{display:flex;gap:8px;margin-top:12px}.fotos img{width:calc(50% - 4px);aspect-ratio:4/3;object-fit:cover;border-radius:14px;border:1px solid var(--line)}
+.not{margin:10px 0 0;font-size:14px;color:var(--ink);background:#fff7e6;border-radius:12px;padding:10px 12px}
+.rij{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line);font-size:14px}.rij:first-of-type{border-top:0}.rij b{font-weight:700}.rij small{color:var(--muted);display:block;font-size:12px}
+.contact{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.contact a{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);text-decoration:none;font-weight:700;font-size:14px}
+.voet{text-align:center;color:var(--muted);font-size:12px;margin-top:18px}.leeg{color:var(--muted);text-align:center;padding:40px 10px}
+/* print: A5 bordje met QR */
+.poster{display:none}
+@media print{body{background:#fff}.wrap,.voet{display:none}.poster{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;height:100vh;padding:24px;gap:14px}.poster .lg img{height:48px}.poster h1{margin:0;font-size:26px;letter-spacing:-.02em}.poster p{margin:0;color:#333;font-size:15px;max-width:380px}.poster .qr{width:220px;height:220px}.poster .qr svg{width:100%;height:100%}.poster .url{font-size:12px;color:#666;word-break:break-all}.poster .naam{font-weight:800;font-size:18px;margin-top:4px}}
+body.print .poster{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:100vh;padding:24px;gap:14px;background:#fff}body.print .wrap{display:none}body.print .poster .qr{width:220px;height:220px}body.print .poster .qr svg{width:100%;height:100%}body.print .poster h1{margin:0;font-size:26px}body.print .poster p{margin:0;color:#333;max-width:380px}body.print .poster .lg img{height:48px}body.print .poster .url{font-size:12px;color:#666;word-break:break-all}body.print .poster .naam{font-weight:800;font-size:18px}
+</style></head><body>
+<div class="wrap" id="app"><p class="leeg">Even geduld…</p></div>
+<div class="poster" id="poster"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const CHK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',X='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+const MND=["januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"],DG=["zondag","maandag","dinsdag","woensdag","donderdag","vrijdag","zaterdag"];
+const p=s=>new Date(s+"T12:00:00"),lang=s=>{const d=p(s);return DG[d.getDay()]+" "+d.getDate()+" "+MND[d.getMonth()]},hoofd=t=>t.charAt(0).toUpperCase()+t.slice(1);
+const t=(location.pathname.match(/\/bord\/([a-f0-9]{24,64})/)||[])[1]||new URLSearchParams(location.search).get("t")||"";
+const print=new URLSearchParams(location.search).get("print")==="1";
+const dagen=s=>Math.round((p(s)-new Date(new Date().toDateString()))/864e5);
+(async()=>{const app=document.getElementById("app");
+  if(!t){app.innerHTML='<p class="leeg">Deze link is niet compleet.</p>';return}
+  let d;try{const r=await fetch("/api/portaal/bord?t="+t);if(!r.ok)throw 0;d=await r.json()}catch(e){app.innerHTML='<p class="leeg">Dit bord is niet (meer) beschikbaar.</p>';return}
+  const b=d.bedrijf||{},l=d.bezoeken&&d.bezoeken[0],v=d.volgende;document.title="Schoonmaak · "+d.naam;
+  const lg=`<div class="lg">${b.logo?`<img src="${esc(b.logo)}" alt="">`:""}<b>${esc(b.naam)}</b></div>`;
+  const volgTxt=v?(dagen(v.datum)===0?"Vandaag":dagen(v.datum)===1?"Morgen":hoofd(lang(v.datum)))+(v.tijd?" · rond "+esc(v.tijd):""):"Binnenkort";
+  app.innerHTML=`<section class="kop">${lg}<small>Schoonmaak van het gebouw</small><h1>${esc(d.naam)}</h1><p>${esc(d.adres)}${d.plaats?", "+esc(d.plaats):""} · ${esc(d.ritme)}</p>
+      <span class="st${d.bezig?" live":""}"><i></i>${d.bezig?"Nu aan het schoonmaken":l?"Laatst schoongemaakt "+esc(lang(l.datum)):"Nog geen beurt geregistreerd"}</span></section>
+    ${l?`<section class="kaart"><h2>Laatste schoonmaakbeurt</h2><p class="groot">${esc(hoofd(lang(l.datum)))}</p>${l.tijd?`<p class="sub">Gestart om ${esc(l.tijd)}</p>`:""}
+      ${l.taken.length?`<div class="taken">${l.taken.map(x=>`<span class="${x.ok?"":"niet"}">${x.ok?CHK:X}${esc(x.naam)}</span>`).join("")}</div>`:""}
+      ${l.fotos.length?`<div class="fotos">${l.fotos.map(u=>`<img src="${esc(u)}" alt="Opleverfoto" loading="lazy">`).join("")}</div>`:""}${l.notitie?`<p class="not">${esc(l.notitie)}</p>`:""}</section>`:""}
+    <section class="kaart"><h2>Volgende schoonmaakbeurt</h2><p class="groot">${volgTxt}</p><p class="sub">${esc(hoofd(d.ritme))}</p></section>
+    ${d.bezoeken.length>1?`<section class="kaart"><h2>Eerdere beurten</h2>${d.bezoeken.slice(1).map(x=>`<div class="rij"><div><b>${esc(hoofd(lang(x.datum)))}</b><small>${x.taken.filter(t=>t.ok).length?x.taken.filter(t=>t.ok).map(t=>esc(t.naam)).join(" · "):"Schoongemaakt"}</small></div><span style="color:var(--ok)">${CHK.replace("<svg",'<svg width="18" height="18"')}</span></div>`).join("")}</section>`:""}
+    <section class="kaart"><h2>Iets opgevallen?</h2><p class="sub" style="margin-top:4px">Een kapotte lamp, grofvuil of schade in het gebouw? Laat het ons weten, wij geven het door aan het bestuur.</p>
+      <div class="contact">${b.telefoon?`<a href="tel:${esc(String(b.telefoon).replace(/\\s/g,""))}">Bellen</a>`:""}${b.email?`<a href="mailto:${esc(b.email)}?subject=${encodeURIComponent("Melding "+d.naam)}">E-mailen</a>`:""}</div></section>
+    <p class="voet">Dit bord wordt automatisch bijgewerkt door ${esc(b.naam)}.</p>`;
+  const url=location.origin+"/bord/"+t;
+  try{const q=qrcode(0,"M");q.addData(url);q.make();document.getElementById("poster").innerHTML=`${lg}<h1>Schoonmaak ${esc(d.naam)}</h1><p>Scan de code en zie wanneer het gebouw voor het laatst is schoongemaakt, wat er is gedaan en wanneer we weer komen.</p><div class="qr">${q.createSvgTag({cellSize:6,margin:0,scalable:true})}</div><p class="naam">${esc(d.ritme.charAt(0).toUpperCase()+d.ritme.slice(1))}</p><p class="url">${esc(url)}</p>`}catch(e){}
+  if(print){document.body.classList.add("print");setTimeout(()=>window.print(),600)}
+})();
+</script></body></html>

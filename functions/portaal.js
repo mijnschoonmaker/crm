@@ -100,6 +100,11 @@ module.exports = function maakPortaal(ctx) {
     } catch (e) { console.error("geo", e.message); }
     return null;
   }
+  const DAGK = ["zo", "ma", "di", "wo", "do", "vr", "za"], DAGL = ["zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"];
+  const vasteDagen = k => Array.isArray(k && k.weekdagen) && k.weekdagen.length ? [...new Set(k.weekdagen.map(Number))].filter(d => d >= 0 && d <= 6).sort() : null;
+  const ritmeTxt = k => { const dg = vasteDagen(k); if (dg) return dg.length === 7 ? "elke dag" : "elke " + dg.map(d => DAGL[d]).join(" en "); const f = Number(k.frequentie) || 4; return f === 1 ? "elke week" : "elke " + f + " weken"; };
+  const vveTakenVan = k => Array.isArray(k.vveTaken) && k.vveTaken.length ? k.vveTaken.map(String).slice(0, 20) : ["Entree en deuren", "Trappenhuis", "Lift", "Bergingsgang"];
+  const tijdVan = x => { if (x.startOp) { try { return new Intl.DateTimeFormat("nl-NL", { timeZone: "Europe/Amsterdam", hour: "2-digit", minute: "2-digit" }).format(new Date(x.startOp)); } catch (e) {} } return x.tijd || ""; };
   async function liveInfo(S) {
     const k = S.klant, dag = isoNL();
     if (!(k.gepland === dag || (Array.isArray(k.reeks) && k.reeks.some(r => r && r.d === dag)))) return null;
@@ -142,6 +147,12 @@ module.exports = function maakPortaal(ctx) {
     let verwacht = "";
     if (!volgende && k.actief !== false && !k.prospect) { const l = k.laatst ? new Date(k.laatst + "T12:00:00") : null; verwacht = l ? isoNL(new Date(Math.max(Date.now(), l.getTime() + freqW * 7 * DAG))) : ""; }
     const laatsteB = beurten[0];
+    const vve = k.soort === "vve", wdg = vasteDagen(k);
+    let bordToken = k.bordToken || "";
+    if (vve && !/^[a-f0-9]{24,}$/.test(bordToken)) { bordToken = crypto.randomBytes(16).toString("hex"); await S.kref.set({ bordToken }, { merge: true }).catch(() => {}); }
+    const fotoUrl = id => /^[\w-]{6,64}$/.test(String(id || "")) ? base + "/_blob/" + id : "";
+    const meldingenVan = (bs, kl) => [...(kl.bevindingen || []).map(b => ({ ...b, datum: b.datum || vandaag })), ...bs.flatMap(x => (x.meldingen || []).map(m => ({ ...m, datum: m.datum || x.datum })))]
+      .filter(m => m && m.id).map(m => ({ datum: m.datum, categorie: m.categorie || "", tekst: String(m.notitie || "").slice(0, 400), foto: fotoUrl(m.id) })).sort((a, b2) => String(b2.datum).localeCompare(String(a.datum))).slice(0, 20);
     const aanbevolen = [
       ...ra.docs.map(d => d.data()).filter(a => a.status === "nieuw" || a.status === "bezig").map(a => ({ naam: voornaamVan(((a.aanvraag || {}).klant || {}).naam || ""), datum: String(a.ontvangen || "").slice(0, 10), status: "aangemeld" })),
       ...rk.docs.map(d => dec(d.data())).map(x => ({ naam: voornaamVan(schoon(x.contact || x.naam)), datum: x.aangemaakt || "", status: x.aanbevelingBeloond ? "beloond" : x.actief === false ? "gestopt" : x.akkoord === false || x.prospect ? "akkoord" : "eerste" }))
@@ -149,11 +160,14 @@ module.exports = function maakPortaal(ctx) {
     const tegoed = (k.tegoed || []).filter(t => t && Number(t.bedrag) > 0);
     return {
       bedrijf: bedrijfInfo(b, base),
-      klant: { voornaam: voornaamVan(schoon(k.contact || k.naam)), naam: schoon(k.naam), contact: k.contact || "", adres: k.adres || "", postcode: k.postcode || "", plaats: k.plaats || "", pcPlaats: [k.postcode, k.plaats].filter(Boolean).join(" "), email: k.email || "", telefoon: k.telefoon || "", mobiel: k.mobiel || "", zakelijk: k.soort === "zakelijk",
+      klant: { voornaam: voornaamVan(schoon(k.contact || k.naam)), naam: schoon(k.naam), contact: k.contact || "", adres: k.adres || "", postcode: k.postcode || "", plaats: k.plaats || "", pcPlaats: [k.postcode, k.plaats].filter(Boolean).join(" "), email: k.email || "", telefoon: k.telefoon || "", mobiel: k.mobiel || "", zakelijk: k.soort === "zakelijk" || k.soort === "vve",
+        vve, ritme: ritmeTxt(k), weekdagen: wdg || [], taken: vveTakenVan(k),
         klantnr: k.klantnr || "", sinds: k.aangemaakt || (beurten.length ? beurten[beurten.length - 1].datum : ""), dienst: k.dienst || "Glasbewassing", frequentie: freqW, prijs: Number(k.prijs) || 0, binnen: !!k.binnen, actief: k.actief !== false,
         toegang: k.portaalToegang || { opties: [], tekst: "" }, nieuw: !!k.eersteKeer && !beurten.length },
       volgende, verwacht,
-      bezoeken: beurten.slice(0, 30).map(x => ({ id: x.id, datum: x.datum, dienst: x.dienst || k.dienst || "Glasbewassing", extra: x.extra || [], bedrag: Number(x.bedrag) || 0, beoordeling: x.beoordeling ? { sterren: x.beoordeling.sterren } : null })),
+      bezoeken: beurten.slice(0, 30).map(x => ({ id: x.id, datum: x.datum, tijd: tijdVan(x), dienst: x.dienst || k.dienst || "Glasbewassing", extra: x.extra || [], bedrag: Number(x.bedrag) || 0, beoordeling: x.beoordeling ? { sterren: x.beoordeling.sterren } : null,
+        ...(vve ? { taken: Array.isArray(x.taken) ? x.taken.map(t => ({ naam: String(t.naam || ""), ok: !!t.ok })) : [], fotos: (x.fotos || []).map(f => fotoUrl(f.id)).filter(Boolean), notitie: String(x.notitie || "").slice(0, 400), duur: Number(x.duur) || 0 } : {}) })),
+      ...(vve ? { bord: { url: base + "/bord/" + bordToken }, meldingen: meldingenVan(beurten, k) } : {}),
       teBeoordelen: laatsteB && !laatsteB.beoordeling && (Date.now() - new Date(laatsteB.datum + "T12:00:00").getTime()) < 21 * DAG ? { id: laatsteB.id, datum: laatsteB.datum } : null,
       aantalBezoeken: beurten.length,
       facturen,
@@ -281,6 +295,25 @@ module.exports = function maakPortaal(ctx) {
         try { const kd = await db.doc("klanten/" + f.klantId).get(); if (kd.exists) { const k = dec(kd.data()); voornaam = voornaamVan(schoon(k.contact || k.naam)); } } catch (e) {}
         res.json({ betaald: f.status === "betaald", nummer: f.nummer || "", uren: snelUren(f), zelfdeDag: zelfdeDag(f), voornaam }); return;
       }
+      /* bewonersbord: openbare, afgeslankte weergave voor het bordje in de hal (QR-code), zonder inloggen */
+      if (pad === "/bord" && req.method === "GET") {
+        const t = String(req.query.t || "");
+        if (!/^[a-f0-9]{24,64}$/.test(t)) { res.status(404).json({}); return; }
+        const q = await db.collection("klanten").where("bordToken", "==", t).limit(1).get();
+        if (q.empty) { res.status(404).json({}); return; }
+        const k = dec(q.docs[0].data()), kid = q.docs[0].id, b = await bedrijf(), bi = bedrijfInfo(b, basisUrl(req)), base = basisUrl(req);
+        if (k.soort !== "vve" || k.actief === false) { res.status(404).json({}); return; }
+        const bs = (await db.collection("beurten").where("klantId", "==", kid).get()).docs.map(d => ({ id: d.id, ...dec(d.data()) })).filter(x => x.datum).sort((a, b2) => b2.datum.localeCompare(a.datum));
+        const fotoUrl = id => /^[\w-]{6,64}$/.test(String(id || "")) ? base + "/_blob/" + id : "";
+        const vandaag = isoNL(), wdg = vasteDagen(k);
+        let volgende = k.gepland && k.gepland >= vandaag ? { datum: k.gepland, tijd: k.tijd || "" } : null;
+        if (!volgende && wdg) { const d = new Date(vandaag + "T12:00:00"); for (let i = 1; i < 9; i++) { d.setDate(d.getDate() + 1); if (wdg.includes(d.getDay())) { volgende = { datum: isoNL(d), tijd: "" }; break; } } }
+        res.set("cache-control", "public, max-age=120");
+        res.json({ bedrijf: { naam: bi.naam, logo: bi.logo, telefoon: bi.telefoon, email: bi.email || "", website: bi.website, kleur: bi.kleur }, naam: schoon(k.naam), adres: k.adres || "", plaats: k.plaats || "", ritme: ritmeTxt(k), taken: vveTakenVan(k),
+          bezig: !!k.bezig && k.gepland === vandaag, volgende,
+          bezoeken: bs.slice(0, 8).map(x => ({ datum: x.datum, tijd: tijdVan(x), taken: Array.isArray(x.taken) ? x.taken.map(t => ({ naam: String(t.naam || ""), ok: !!t.ok })) : [], fotos: (x.fotos || []).slice(0, 2).map(f => fotoUrl(f.id)).filter(Boolean), notitie: String(x.notitie || "").slice(0, 300) })) });
+        return;
+      }
       if (pad === "/ref" && req.method === "GET") {
         const c = String(req.query.c || "").toUpperCase();
         if (!/^[A-Z0-9]{3,12}$/.test(c)) { res.status(404).json({}); return; }
@@ -338,7 +371,7 @@ module.exports = function maakPortaal(ctx) {
   });
 
   /* ---------- tickets ---------- */
-  const T_CAT = { planning: "Planning of afspraak", factuur: "Factuur of betaling", kwaliteit: "Kwaliteit of klacht", toegang: "Toegang", overig: "Overig" };
+  const T_CAT = { planning: "Planning of afspraak", factuur: "Factuur of betaling", kwaliteit: "Kwaliteit of klacht", toegang: "Toegang", technisch: "Technische melding", vandalisme: "Vandalisme of schade", vuil: "Vuil of grofvuil", overig: "Overig" };
   async function ticketNummer() { const ref = db.doc("tellers/tickets"); const n = await db.runTransaction(async t => { const s = await t.get(ref); const v = (s.exists ? s.data().n : 1000) + 1; t.set(ref, { n: v }); return v; }); return "T-" + n; }
   async function bewaarFoto(f) {
     if (!f) return "";
