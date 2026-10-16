@@ -2522,9 +2522,9 @@ aside nav button .badge{font-size:10.5px}
 .ow-fxa .ow-sync{display:inline-flex;align-items:center;gap:6px;margin:0!important;padding:7px 10px;border-radius:10px;font-size:12.5px;font-weight:600}
 .ow-fxa .ow-sync:hover{background:var(--brand-soft)}
 .ow-fxa .ow-sync svg{width:14px;height:14px}
-.ow-fxa .ow-ber{display:inline-flex;align-items:center;gap:7px;padding:8px 14px!important;border-radius:11px;font-weight:600;font-size:13px}
+.ow-fxa .ow-ber{display:inline-flex;align-items:center;gap:7px;padding:8px 14px!important;border-radius:11px;font-weight:600;font-size:13px;white-space:nowrap;flex:none}
 .ow-fxa .ow-ber svg{width:15px;height:15px}
-@media (max-width:560px){.ow-fx{flex-direction:column;align-items:stretch}.ow-fxa{margin-left:0;justify-content:space-between}.ow-fxa .ow-ber{flex:1;justify-content:center}}
+@media (max-width:560px){.ow-fx{flex-direction:column;align-items:stretch}.ow-fxa{margin-left:0;flex-direction:column;align-items:stretch;gap:8px}.ow-fxa .ow-sync{justify-content:center;white-space:nowrap}.ow-fxa .ow-ber{flex:none;width:100%!important;justify-content:center;height:40px!important}}
 .ow-lt{display:block}
 .ow-step span{line-height:32px;align-self:center}
 /* ---------- zoeken in planning: resultaten ---------- */
