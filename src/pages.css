@@ -3996,3 +3996,6 @@ body.rd-busy{cursor:grabbing}
 @media (max-width:560px){.u-ffl .u-fi{flex-wrap:wrap}.u-ffl .u-fi>span:first-child{flex:1 1 100%}.u-sw{min-width:0}}
 
 .u-tb{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+
+.u-fchips{display:flex;flex-wrap:wrap;gap:6px}
+.u-fchips .chipchk span{font-size:13px}

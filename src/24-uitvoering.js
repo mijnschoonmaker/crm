@@ -114,6 +114,11 @@ function uEditHtml({g,it}){
       <label class="tgl"><span><b>Groep standaard verbergen</b><small>Niet tonen bij nieuwe opdrachten en offertes</small></span><input type="checkbox" data-u="g.verberg" id="ug-verberg" ${g.verberg?"checked":""}><i></i></label>
       ${g.type==="glas"||g.type==="bijz"?"":`<label class="tgl"><span><b>Standaard in het overzicht</b><small>Uit = deze dienst staat onder "+ Meer diensten" (bij opdracht, offerte en calculator)</small></span><input type="checkbox" data-u="g.inCalc" id="ug-incalc" ${g.inCalc!==false?"checked":""}><i></i></label>`}
       <label>Naam${uIn("ug-naam","g.naam",g.naam,{type:"text",ro:!!g.std})}</label>
+      ${g.type==="bijz"?"":(()=>{const glas=g.type==="glas";const opts=glas?RC.freqList().filter(f=>f.calcAan!==false).map(f=>({v:f.k,l:f.l,w:f.w})):freqLijst().map(w=>({v:String(w),l:freqLabel(w),w}));
+        const sel=Array.isArray(g.freqs)&&g.freqs.length?g.freqs.map(String):null,alle=!sel,adv=g.freqAdvies!=null?String(g.freqAdvies):"";
+        return `<div class="u-sec"><b>Frequenties voor deze dienst</b><span>Welke frequenties de klant kan kiezen bij deze dienst${glas?" (rekentool, website en offerte)":" (rekentool, offerte en opdracht)"}. Alles uit = alle aangeboden frequenties.</span></div>
+        <div class="u-fchips">${opts.map(o=>`<label class="chipchk"><input type="checkbox" data-act="ugfreq" data-g="${esc(g.id)}" data-v="${esc(o.v)}" ${alle||sel.includes(o.v)?"checked":""}><span>${esc(o.l)}</span></label>`).join("")}</div>
+        <label>Adviesfrequentie (staat standaard geselecteerd)<select data-u="g.freqAdvies" id="ug-fadv"><option value="">Geen voorkeur</option>${opts.filter(o=>alle||sel.includes(o.v)).map(o=>`<option value="${esc(o.v)}" ${adv===o.v?"selected":""}>${esc(o.l)}</option>`).join("")}</select></label>`})()}
       ${g.type==="glas"?`<div class="u-2"><label>Starttarief${uIn("ug-start","g.start",g.start,{pre:"€",post:"excl."})}</label><label>Minimumprijs${uIn("ug-min","g.min",g.min,{pre:"€",post:"excl."})}</label></div>
         <div class="u-sec"><b>Frequentie</b><span>Korting (%) — een negatief getal is een toeslag</span></div>
         <div class="u-fp">${fl.map(f=>`<div class="u-fpr"><span>${esc(f.l)}</span>${uIn("ufp-"+f.k,"g.fp."+f.k,(g.fp||{})[f.k]??f.p,{step:"1",post:"%"})}</div>`).join("")}</div>`:""}
@@ -188,6 +193,10 @@ function uAct(a,t){
     case"uaddtier":{const x=uSel();if(!x||!x.it)break;const tl=x.it.tiers||(x.it.tiers=[]);const last=tl[tl.length-1];tl.push(last?[Number(last[0])+10,Number(last[1])+10]:[10,10]);uDirty();uRedraw();break}
     case"udeltier":{const x=uSel();if(!x||!x.it)break;x.it.tiers.splice(Number(t.dataset.j),1);uDirty();uRedraw();break}
     case"uwebview":{if(Udirty){toast("Sla eerst op, dan rekent de calculator met je nieuwe tarieven");break}t.disabled=true;(async()=>{try{const s=S(),wa=String(s.webWa||waNr(s.telefoon)||"").replace(/\D/g,"");webCalcVoorbeeld(await klantCalcHtml(wa))}catch(e){err(e)}finally{t.disabled=false}})();break}
+    case"ugfreq":{const g=uGroup(t.dataset.g);if(!g)break;const glas=g.type==="glas";const all=(glas?RC.freqList().filter(f=>f.calcAan!==false).map(f=>f.k):freqLijst().map(String));
+      let sel=Array.isArray(g.freqs)&&g.freqs.length?g.freqs.map(String):all.slice();const v=t.dataset.v;if(t.checked){if(!sel.includes(v))sel.push(v)}else sel=sel.filter(x=>x!==v);
+      if(!sel.length){t.checked=true;toast("Minimaal één frequentie");break}
+      g.freqs=sel.length>=all.length&&all.every(x=>sel.includes(x))?[]:sel;if(g.freqAdvies&&!sel.includes(String(g.freqAdvies)))g.freqAdvies="";uDirty();uRedraw();break}
     case"uftog":{const w=Number(t.dataset.w);const i=U.freqs.findIndex(f=>Number(f.w)===w);if(i>=0)U.freqs.splice(i,1);else{U.freqs.push({w,l:/maand|jaar/.test(t.dataset.l)?t.dataset.l:""});U.freqs.sort((a,b)=>a.w-b.w)}uDirty();render();break}
     case"ufcalc":{const k=t.dataset.k;U.freqCalc=U.freqCalc||{};
       if(t.dataset.x==="1"){if(U.freqCalc[k]&&typeof U.freqCalc[k]==="object")delete U.freqCalc[k];else U.freqCalc[k]={l:t.dataset.l,w:Number(t.dataset.w)}}
@@ -205,6 +214,10 @@ function uAct(a,t){
 }
 
 /* lijst voor de knoppen bij opdracht, offerte en factuur; per groep met de diensten (eenheden) erin */
+/* frequenties per dienst(groep): g.freqs = toegestane keuzes (glas: rekentool-sleutels, overige: weken), leeg/afwezig = alles; g.freqAdvies = standaardkeuze */
+function uFreqGroep(id){const src=Udirty&&U?U:(state.uitv&&state.uitv.groepen?state.uitv:null);if(!src)return {keuzes:null,advies:null};
+  const g=[...(src.groepen||[]),...(src.eigen||[])].find(x=>x.id===id||(id==="glas"&&x.type==="glas"));if(!g)return {keuzes:null,advies:null};
+  return {keuzes:Array.isArray(g.freqs)&&g.freqs.length?g.freqs.map(String):null,advies:g.freqAdvies!=null&&g.freqAdvies!==""?String(g.freqAdvies):null}}
 function uDienstLijst(){
   if(!RC)RC=buildRamen();const c=RC.cfgAll();
   const src=Udirty&&U?U:(state.uitv&&state.uitv.groepen?state.uitv:null);
@@ -214,7 +227,7 @@ function uDienstLijst(){
     const items=(g.items||[]).map(it=>({id:it.id,naam:it.naam,eenheid:it.eenheid||"per stuk",prijs:Number(it.key?c[it.key+"_p"]:it.prijs)||0,sec:Number(it.key?c[it.key+"_s"]:it.sec)||0,tiers:it.key?((c.tb&&c.tb[it.key])||[]):(it.tiers||[]),weging:it.key?(c.wg&&c.wg[it.key]!=null&&c.wg[it.key]!==""?Number(c.wg[it.key]):100):(it.weging??100),btw:it.btw??21}));
     if(g.type==="glas"){out.push({naam:g.naam||"Glasbewassing",glas:true,prijs:0,duur:30,groep:g.id});return}
     const sec=items.reduce((a,x)=>a+x.sec,0);
-    out.push({naam:g.naam,groep:g.id,inCalc:g.inCalc!==false,items,prijs:items.length===1?items[0].prijs:0,duur:Math.max(5,Math.round(sec/60/5)*5)||30,eenheid:items.length===1?items[0].eenheid:""})});
+    const fq=uFreqGroep(g.id);out.push({naam:g.naam,groep:g.id,inCalc:g.inCalc!==false,freqs:fq.keuzes?fq.keuzes.map(Number).filter(Boolean):null,freqAdvies:fq.advies?Number(fq.advies)||0:0,items,prijs:items.length===1?items[0].prijs:0,duur:Math.max(5,Math.round(sec/60/5)*5)||30,eenheid:items.length===1?items[0].eenheid:""})});
   return out}
 /* prijs (excl.) en seconden van een regel met aantallen */
 function itemsCalc(items,W){/* staffel zoals bij de ramen: alle onderdelen van één dienst tellen samen mee (met hun wegingsfactor); halve meters tellen naar rato */
