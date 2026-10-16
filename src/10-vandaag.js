@@ -23,7 +23,7 @@ function stopCard(k,i,isNext,late,day,totaal){
         <div class="tk-tags">${tags}${isNext?'<span class="pill nextp">Volgende</span>':""}</div>
         <button type="button" class="tk-adres" data-act="klant" data-id="${esc(k.id)}"><span class="av" style="--h:${h}">${esc(initials(k.naam))}</span><span><b>${esc(a.adres||cleanName(k.naam))}</b><small>${esc([a.postcode,a.plaats].filter(Boolean).join(" "))}${a.plaats?" · ":""}${esc(cleanName(k.naam))}${o&&o.naam?" · "+esc(o.naam):""}</small></span>${I.right.replace("<svg",'<svg class="chev"')}</button>
         <div class="tk-feit"><span><b>${dienstHtml(k)}</b>${k.binnen?" + binnen":""}</span><span>${I.clock}<b>${duur(k)} min</b></span>${mw?"":`<span>${I.euro||""}<b>${eur0(toon(k.prijs))}</b></span>`}</div>
-        ${bz?(()=>{const ex=(k.tijden||[]).length&&typeof gemTijd==="function"?gemTijd(k):duur(k),f=(Date.now()-new Date(k.bezig))/60000/ex;const mn=Math.floor((Date.now()-new Date(k.bezig))/60000);return `<div class="tk-tm"><div class="tk-tmh"><span class="tk-tml"><i></i>Bezig <b data-tmin="${esc(k.bezig)}">${mn} min</b> van ${ex}</span><b class="tk-tmp" data-tpct="${esc(k.bezig)}" data-exp="${ex}">${Math.min(999,Math.round(f*100))}%</b></div><div class="bt-bar"><i data-tbar="${esc(k.bezig)}" data-exp="${ex}" class="${f>1?"over":""}" style="width:${Math.min(100,f*100)}%"></i></div><small>${(k.tijden||[]).length?"Gemiddeld "+ex+" min bij deze klant":"Verwacht "+ex+" min"}</small></div>`})():""}
+        ${bz?(()=>{const ex=(k.tijden||[]).length&&typeof gemTijd==="function"?gemTijd(k):duur(k),f=(Date.now()-new Date(k.bezig))/60000/ex;const mn=Math.floor((Date.now()-new Date(k.bezig))/60000);return `<div class="tk-tm"><div class="tk-tmh"><span class="tk-tml"><i></i>Bezig <b data-tmin="${esc(k.bezig)}">${mn} min</b> van ${ex}</span></div>${tonHtml(k.bezig,ex,f)}<div class="bt-bar"><i data-tbar="${esc(k.bezig)}" data-exp="${ex}" class="${f>1?"over":""}" style="width:${Math.min(100,f*100)}%"></i></div><small>${(k.tijden||[]).length?"Gemiddeld "+ex+" min bij deze klant":"Verwacht "+ex+" min"}</small></div>`})():""}
         <div class="tk-info">${oBeurtBlok(k)}${hospRoute(k)}${toegangHtml(k)}${ookDezeBeurt(k,day)}${objInfo(k)}${jobExtra(k)}</div>
         <div class="tk-acts"><a class="tk-a" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.nav}<span>Navigeer</span></a>${tel?`<a class="tk-a" href="tel:${esc(tel)}">${I.phone}<span>Bellen</span></a>`:""}${wa&&!bz?`<a class="tk-a" href="${esc(wa)}" target="_blank" rel="noopener">${I.msg}<span>Ik kom eraan</span></a>`:""}<button type="button" class="tk-a" data-act="skip" data-id="${esc(k.id)}">${I.right}<span>Overslaan</span></button></div>
       </div>
@@ -135,6 +135,21 @@ function openJob(id,day){
   <div class="jp-foot">${done?`${!b.gefactureerd||b.gefactureerd==="nvt"?`<button type="button" class="ghost" data-act="afterug" data-id="${esc(b.id)}">${I.refresh}Afmelding terugdraaien</button>`:""}${b.gefactureerd&&!["nvt","periodiek"].includes(b.gefactureerd)&&state.facturen.some(x=>x.id===b.gefactureerd)?`<button type="button" class="primary" data-act="factuur" data-id="${esc(b.gefactureerd)}">${I.facturen}Factuur bekijken</button>`:!b.gefactureerd&&!isMw()?`<button type="button" class="primary" data-act="beurtfact" data-id="${esc(b.id)}">${I.facturen}Factuur maken</button>`:""}`:`${day===iso(today())?`<button type="button" data-act="start" data-id="${esc(k.id)}">${isBezig(k)?I.check+"Stop &amp; afmelden "+timerHtml(k):I.play+"Start"}</button>`:""}${isMw()?"":`<button type="button" class="ghost" data-act="factureren" data-id="${esc(k.id)}">${I.facturen}Direct factureren</button>`}<button type="button" class="primary" data-act="afmelden" data-id="${esc(k.id)}">${I.check}Afmelden</button>`}</div>
   </div>`,{drawer:true});
 }
+
+/* ---------- waterton: loopt vol naarmate de verwachte tijd verstrijkt ---------- */
+const TON_D="M11 9 C4 30 4 48 11 69 C24 74 40 74 53 69 C60 48 60 30 53 9 C40 4 24 4 11 9 Z";
+function tonHtml(sinds,ex,f){const p=Math.min(1,Math.max(0,f)),id="ton"+Math.random().toString(36).slice(2,7);
+  return `<span class="tk-ton${f>1?" over":""}" data-ton="${esc(sinds)}" data-exp="${ex}" style="--p:${p.toFixed(3)}" aria-label="${Math.round(f*100)}% van de verwachte tijd">
+    <svg viewBox="0 0 64 78" aria-hidden="true"><defs><clipPath id="${id}"><path d="${TON_D}"/></clipPath>
+      <linearGradient id="${id}w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6fdcff"/><stop offset="1" stop-color="#137a8a"/></linearGradient>
+      <linearGradient id="${id}o" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffcf6b"/><stop offset="1" stop-color="#d08a2e"/></linearGradient></defs>
+      <path class="ton-bg" d="${TON_D}"/>
+      <g clip-path="url(#${id})"><g class="ton-water"><path class="ton-golf g2" fill="url(#${id}w)" d="M-64 7 Q-56 1 -48 7 T-32 7 T-16 7 T0 7 T16 7 T32 7 T48 7 T64 7 T80 7 T96 7 T112 7 T128 7 V140 H-64 Z"/><path class="ton-golf g1" fill="url(#${id}w)" d="M-64 7 Q-56 1 -48 7 T-32 7 T-16 7 T0 7 T16 7 T32 7 T48 7 T64 7 T80 7 T96 7 T112 7 T128 7 V140 H-64 Z"/>
+        <circle class="ton-bel b1" cx="22" cy="60" r="2"/><circle class="ton-bel b2" cx="38" cy="66" r="1.5"/><circle class="ton-bel b3" cx="30" cy="70" r="1.2"/></g></g>
+      <path class="ton-rand" d="${TON_D}"/>
+      <path class="ton-hoep" d="M8 26 C24 31 40 31 56 26 M6.5 40 C24 45 40 45 57.5 40 M8 54 C24 59 40 59 56 54"/>
+      <text class="ton-pct" x="32" y="43" text-anchor="middle" data-tpct="${esc(sinds)}" data-exp="${ex}">${Math.min(999,Math.round(f*100))}%</text></svg>
+    <span class="ton-drup"><i></i><i></i><i></i></span></span>`}
 
 /* ---------- Vandaag: kop in de stijl van het klantportaal ---------- */
 function vdHero(done,total,todo,omzet,verwacht,pct){if(!total)return"";const R=44,C=2*Math.PI*R,klaar=done>=total,mw=isMw();

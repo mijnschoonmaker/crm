@@ -4287,6 +4287,35 @@ body.rd-busy{cursor:grabbing}
 .tk-tm .bt-bar i.over{background:linear-gradient(90deg,#c97a1f,#e9a23b)}
 .tk-tm small{font-size:12px}
 
+/* ---------- waterton ---------- */
+.tk-adres:active{transform:none}
+.tk-tmh{align-items:center}
+.tk-ton{position:relative;width:62px;height:76px;flex:none;filter:drop-shadow(0 6px 10px rgb(19 122 138 / .25))}
+.tk-ton svg{width:100%;height:100%;overflow:visible}
+.ton-bg{fill:#eaf3f5}
+.ton-rand{fill:none;stroke:#1d5a74;stroke-width:2.6;stroke-linejoin:round}
+.ton-hoep{fill:none;stroke:#1d5a74;stroke-width:2;stroke-linecap:round;opacity:.55}
+.ton-water{transform:translateY(calc((1 - var(--p,0)) * 64px));transition:transform 1.2s cubic-bezier(.2,.8,.2,1)}
+.ton-golf{animation:tonGolf 2.6s linear infinite}.ton-golf.g2{opacity:.55;animation-duration:3.9s;animation-direction:reverse;transform:translateY(-2px)}
+@keyframes tonGolf{from{transform:translateX(0)}to{transform:translateX(-32px)}}
+.ton-golf.g2{animation-name:tonGolf2}@keyframes tonGolf2{from{transform:translate(0,-2px)}to{transform:translate(-32px,-2px)}}
+.ton-bel{fill:rgb(255 255 255 / .55);animation:tonBel 3s ease-in infinite}.ton-bel.b2{animation-delay:1s;animation-duration:3.6s}.ton-bel.b3{animation-delay:2s;animation-duration:2.7s}
+@keyframes tonBel{0%{transform:translateY(0);opacity:0}15%{opacity:.9}100%{transform:translateY(-58px);opacity:0}}
+.ton-pct{font:800 14px/1 inherit;fill:#0f1f26;paint-order:stroke;stroke:rgb(255 255 255 / .85);stroke-width:3px;letter-spacing:-.02em}
+.tk-ton.over .ton-golf{fill:url(#none);fill:#e9a23b}
+.tk-ton.over .ton-rand{stroke:#9a5a12}.tk-ton.over .ton-hoep{stroke:#9a5a12}
+.ton-drup{position:absolute;inset:0;pointer-events:none;display:none}.tk-ton.over .ton-drup{display:block}
+.ton-drup i{position:absolute;top:4px;width:5px;height:8px;border-radius:50% 50% 60% 60%;background:#e9a23b;opacity:0;animation:tonDrup 1.6s ease-in infinite}
+.ton-drup i:nth-child(1){left:4px}.ton-drup i:nth-child(2){right:4px;animation-delay:.6s}.ton-drup i:nth-child(3){left:50%;animation-delay:1.1s}
+@keyframes tonDrup{0%{transform:translateY(0);opacity:0}20%{opacity:1}100%{transform:translateY(70px);opacity:0}}
+.tk-ton.over{filter:drop-shadow(0 6px 10px rgb(208 138 46 / .35))}
+
+.tk-tm{display:grid!important;grid-template-columns:minmax(0,1fr) auto;column-gap:16px;row-gap:7px;align-items:center}
+.tk-tm .tk-tmh,.tk-tm .bt-bar,.tk-tm>small{grid-column:1}
+.tk-tm .tk-ton{grid-column:2;grid-row:1/4;width:86px;height:104px;align-self:center}
+.ton-pct{font-size:15px}
+@media(max-width:560px){.tk-tm .tk-ton{width:70px;height:86px}}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -5574,7 +5603,7 @@ function stopCard(k,i,isNext,late,day,totaal){
         <div class="tk-tags">${tags}${isNext?'<span class="pill nextp">Volgende</span>':""}</div>
         <button type="button" class="tk-adres" data-act="klant" data-id="${esc(k.id)}"><span class="av" style="--h:${h}">${esc(initials(k.naam))}</span><span><b>${esc(a.adres||cleanName(k.naam))}</b><small>${esc([a.postcode,a.plaats].filter(Boolean).join(" "))}${a.plaats?" · ":""}${esc(cleanName(k.naam))}${o&&o.naam?" · "+esc(o.naam):""}</small></span>${I.right.replace("<svg",'<svg class="chev"')}</button>
         <div class="tk-feit"><span><b>${dienstHtml(k)}</b>${k.binnen?" + binnen":""}</span><span>${I.clock}<b>${duur(k)} min</b></span>${mw?"":`<span>${I.euro||""}<b>${eur0(toon(k.prijs))}</b></span>`}</div>
-        ${bz?(()=>{const ex=(k.tijden||[]).length&&typeof gemTijd==="function"?gemTijd(k):duur(k),f=(Date.now()-new Date(k.bezig))/60000/ex;const mn=Math.floor((Date.now()-new Date(k.bezig))/60000);return `<div class="tk-tm"><div class="tk-tmh"><span class="tk-tml"><i></i>Bezig <b data-tmin="${esc(k.bezig)}">${mn} min</b> van ${ex}</span><b class="tk-tmp" data-tpct="${esc(k.bezig)}" data-exp="${ex}">${Math.min(999,Math.round(f*100))}%</b></div><div class="bt-bar"><i data-tbar="${esc(k.bezig)}" data-exp="${ex}" class="${f>1?"over":""}" style="width:${Math.min(100,f*100)}%"></i></div><small>${(k.tijden||[]).length?"Gemiddeld "+ex+" min bij deze klant":"Verwacht "+ex+" min"}</small></div>`})():""}
+        ${bz?(()=>{const ex=(k.tijden||[]).length&&typeof gemTijd==="function"?gemTijd(k):duur(k),f=(Date.now()-new Date(k.bezig))/60000/ex;const mn=Math.floor((Date.now()-new Date(k.bezig))/60000);return `<div class="tk-tm"><div class="tk-tmh"><span class="tk-tml"><i></i>Bezig <b data-tmin="${esc(k.bezig)}">${mn} min</b> van ${ex}</span></div>${tonHtml(k.bezig,ex,f)}<div class="bt-bar"><i data-tbar="${esc(k.bezig)}" data-exp="${ex}" class="${f>1?"over":""}" style="width:${Math.min(100,f*100)}%"></i></div><small>${(k.tijden||[]).length?"Gemiddeld "+ex+" min bij deze klant":"Verwacht "+ex+" min"}</small></div>`})():""}
         <div class="tk-info">${oBeurtBlok(k)}${hospRoute(k)}${toegangHtml(k)}${ookDezeBeurt(k,day)}${objInfo(k)}${jobExtra(k)}</div>
         <div class="tk-acts"><a class="tk-a" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.nav}<span>Navigeer</span></a>${tel?`<a class="tk-a" href="tel:${esc(tel)}">${I.phone}<span>Bellen</span></a>`:""}${wa&&!bz?`<a class="tk-a" href="${esc(wa)}" target="_blank" rel="noopener">${I.msg}<span>Ik kom eraan</span></a>`:""}<button type="button" class="tk-a" data-act="skip" data-id="${esc(k.id)}">${I.right}<span>Overslaan</span></button></div>
       </div>
@@ -5686,6 +5715,21 @@ function openJob(id,day){
   <div class="jp-foot">${done?`${!b.gefactureerd||b.gefactureerd==="nvt"?`<button type="button" class="ghost" data-act="afterug" data-id="${esc(b.id)}">${I.refresh}Afmelding terugdraaien</button>`:""}${b.gefactureerd&&!["nvt","periodiek"].includes(b.gefactureerd)&&state.facturen.some(x=>x.id===b.gefactureerd)?`<button type="button" class="primary" data-act="factuur" data-id="${esc(b.gefactureerd)}">${I.facturen}Factuur bekijken</button>`:!b.gefactureerd&&!isMw()?`<button type="button" class="primary" data-act="beurtfact" data-id="${esc(b.id)}">${I.facturen}Factuur maken</button>`:""}`:`${day===iso(today())?`<button type="button" data-act="start" data-id="${esc(k.id)}">${isBezig(k)?I.check+"Stop &amp; afmelden "+timerHtml(k):I.play+"Start"}</button>`:""}${isMw()?"":`<button type="button" class="ghost" data-act="factureren" data-id="${esc(k.id)}">${I.facturen}Direct factureren</button>`}<button type="button" class="primary" data-act="afmelden" data-id="${esc(k.id)}">${I.check}Afmelden</button>`}</div>
   </div>`,{drawer:true});
 }
+
+/* ---------- waterton: loopt vol naarmate de verwachte tijd verstrijkt ---------- */
+const TON_D="M11 9 C4 30 4 48 11 69 C24 74 40 74 53 69 C60 48 60 30 53 9 C40 4 24 4 11 9 Z";
+function tonHtml(sinds,ex,f){const p=Math.min(1,Math.max(0,f)),id="ton"+Math.random().toString(36).slice(2,7);
+  return `<span class="tk-ton${f>1?" over":""}" data-ton="${esc(sinds)}" data-exp="${ex}" style="--p:${p.toFixed(3)}" aria-label="${Math.round(f*100)}% van de verwachte tijd">
+    <svg viewBox="0 0 64 78" aria-hidden="true"><defs><clipPath id="${id}"><path d="${TON_D}"/></clipPath>
+      <linearGradient id="${id}w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6fdcff"/><stop offset="1" stop-color="#137a8a"/></linearGradient>
+      <linearGradient id="${id}o" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffcf6b"/><stop offset="1" stop-color="#d08a2e"/></linearGradient></defs>
+      <path class="ton-bg" d="${TON_D}"/>
+      <g clip-path="url(#${id})"><g class="ton-water"><path class="ton-golf g2" fill="url(#${id}w)" d="M-64 7 Q-56 1 -48 7 T-32 7 T-16 7 T0 7 T16 7 T32 7 T48 7 T64 7 T80 7 T96 7 T112 7 T128 7 V140 H-64 Z"/><path class="ton-golf g1" fill="url(#${id}w)" d="M-64 7 Q-56 1 -48 7 T-32 7 T-16 7 T0 7 T16 7 T32 7 T48 7 T64 7 T80 7 T96 7 T112 7 T128 7 V140 H-64 Z"/>
+        <circle class="ton-bel b1" cx="22" cy="60" r="2"/><circle class="ton-bel b2" cx="38" cy="66" r="1.5"/><circle class="ton-bel b3" cx="30" cy="70" r="1.2"/></g></g>
+      <path class="ton-rand" d="${TON_D}"/>
+      <path class="ton-hoep" d="M8 26 C24 31 40 31 56 26 M6.5 40 C24 45 40 45 57.5 40 M8 54 C24 59 40 59 56 54"/>
+      <text class="ton-pct" x="32" y="43" text-anchor="middle" data-tpct="${esc(sinds)}" data-exp="${ex}">${Math.min(999,Math.round(f*100))}%</text></svg>
+    <span class="ton-drup"><i></i><i></i><i></i></span></span>`}
 
 /* ---------- Vandaag: kop in de stijl van het klantportaal ---------- */
 function vdHero(done,total,todo,omzet,verwacht,pct){if(!total)return"";const R=44,C=2*Math.PI*R,klaar=done>=total,mw=isMw();
@@ -12746,7 +12790,7 @@ const endSw=()=>{if(!sw)return;const s=sw;sw=null;if(!s.on)return;swAt=Date.now(
 document.addEventListener("pointerup",endSw);document.addEventListener("pointercancel",endSw);
 let wasBig=big();addEventListener("resize",()=>{const b=big();if(b!==wasBig){wasBig=b;schedule()}});
 setInterval(()=>{if(!dlg.open&&(state.tab==="planning"||state.tab==="vandaag"))schedule()},60000);
-setInterval(()=>{document.querySelectorAll("[data-timer]").forEach(el=>{const t=new Date(el.dataset.timer);if(!isNaN(t))el.textContent=fmtTimer(Date.now()-t)});document.querySelectorAll("[data-tmin]").forEach(el=>{const t=new Date(el.dataset.tmin);if(!isNaN(t))el.textContent=Math.floor((Date.now()-t)/60000)+" min"});document.querySelectorAll("[data-tpct]").forEach(el=>{const t=new Date(el.dataset.tpct),ex=Number(el.dataset.exp)||30;if(isNaN(t))return;const f=(Date.now()-t)/60000/ex;el.textContent=Math.min(999,Math.round(f*100))+"%";el.classList.toggle("over",f>1)});document.querySelectorAll("[data-tbar]").forEach(el=>{const t=new Date(el.dataset.tbar),ex=Number(el.dataset.exp)||30;if(isNaN(t))return;const f=(Date.now()-t)/60000/ex;el.style.width=Math.min(100,f*100)+"%";el.classList.toggle("over",f>1)})},1000);
+setInterval(()=>{document.querySelectorAll("[data-timer]").forEach(el=>{const t=new Date(el.dataset.timer);if(!isNaN(t))el.textContent=fmtTimer(Date.now()-t)});document.querySelectorAll("[data-tmin]").forEach(el=>{const t=new Date(el.dataset.tmin);if(!isNaN(t))el.textContent=Math.floor((Date.now()-t)/60000)+" min"});document.querySelectorAll("[data-tpct]").forEach(el=>{const t=new Date(el.dataset.tpct),ex=Number(el.dataset.exp)||30;if(isNaN(t))return;const f=(Date.now()-t)/60000/ex;el.textContent=Math.min(999,Math.round(f*100))+"%";el.classList.toggle("over",f>1)});document.querySelectorAll("[data-ton]").forEach(el=>{const t=new Date(el.dataset.ton),ex=Number(el.dataset.exp)||30;if(isNaN(t))return;const f=(Date.now()-t)/60000/ex;el.style.setProperty("--p",Math.min(1,Math.max(0,f)).toFixed(3));el.classList.toggle("over",f>1)});document.querySelectorAll("[data-tbar]").forEach(el=>{const t=new Date(el.dataset.tbar),ex=Number(el.dataset.exp)||30;if(isNaN(t))return;const f=(Date.now()-t)/60000/ex;el.style.width=Math.min(100,f*100)+"%";el.classList.toggle("over",f>1)})},1000);
 render();init();
 
 /* knop "in te plannen" weg zodra de lijst onder de agenda in beeld is */
