@@ -4272,6 +4272,21 @@ body.rd-busy{cursor:grabbing}
 .tjob .tj-bot .dienst{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-weight:600}
 .tjob .tj-bot .dienst svg{width:22px;height:22px;padding:4px;border-radius:7px;background:color-mix(in srgb,var(--brand) 12%,var(--surface));stroke:var(--brand);box-sizing:border-box}
 
+/* ---------- bezig bij de klant: huisje in de kop, duidelijke voortgangsbalk ---------- */
+.tk-vlucht.thuis i{border-top-color:rgb(255 255 255 / .55)}
+.tk-huis{width:40px;height:40px;display:grid;place-items:center;border-radius:50%;background:rgb(255 255 255 / .18);border:2px solid rgb(255 255 255 / .6);box-shadow:0 0 0 6px rgb(255 255 255 / .12);animation:tkHuis 2.2s ease-in-out infinite}
+.tk-huis svg{width:22px;height:22px;stroke:#fff;fill:rgb(255 255 255 / .25)}
+@keyframes tkHuis{0%,100%{box-shadow:0 0 0 6px rgb(255 255 255 / .12)}50%{box-shadow:0 0 0 11px rgb(255 255 255 / .05)}}
+.tk-tm{gap:7px!important;padding:12px 14px;border-radius:14px;background:color-mix(in srgb,#22a46c 8%,var(--surface));border:1px solid color-mix(in srgb,#22a46c 25%,var(--line))}
+.tk-tmh{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.tk-tml{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;color:var(--ink)}.tk-tml b{font-weight:800;font-variant-numeric:tabular-nums}
+.tk-tml i{width:9px;height:9px;border-radius:50%;background:#22a46c;animation:rvLive 2s ease-out infinite}
+.tk-tmp{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;color:#1b8a5a}.tk-tmp.over{color:#d08a2e}
+.tk-tm .bt-bar{height:12px!important;border-radius:8px;background:color-mix(in srgb,#22a46c 14%,var(--surface))}
+.tk-tm .bt-bar i{background:linear-gradient(90deg,#1b8a5a,#2fc07f);box-shadow:0 0 0 1px rgb(255 255 255 / .5) inset}
+.tk-tm .bt-bar i.over{background:linear-gradient(90deg,#c97a1f,#e9a23b)}
+.tk-tm small{font-size:12px}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -5551,7 +5566,7 @@ function stopCard(k,i,isNext,late,day,totaal){
       <div class="tk-kop">
         <div class="tk-nr"><small>Stop</small><b>${i+1}</b>${totaal?`<em>van ${totaal}</em>`:""}</div>
         <div class="tk-tijd"><small>${bz?"Bezig sinds":"Aanvang"}</small><b>${bz?esc(String(new Date(k.bezig).toTimeString()).slice(0,5)):esc(k.tijd||"—")}</b>${eind&&!bz?`<em>tot ${esc(eind)}</em>`:""}</div>
-        <div class="tk-vlucht" aria-hidden="true"><i></i>${typeof RV_BUS!=="undefined"?`<span>${RV_BUS}</span>`:""}<i></i></div>
+        <div class="tk-vlucht${bz?" thuis":""}" aria-hidden="true"><i></i>${bz?`<span class="tk-huis">${HUIS}</span>`:typeof RV_BUS!=="undefined"?`<span>${RV_BUS}</span>`:""}<i></i></div>
         <div class="tk-eta">${bz?`<small>Bezig</small><b data-timer="${esc(k.bezig)}">${fmtTimer(Date.now()-new Date(k.bezig))}</b><em>${duur(k)} min gepland</em>`:reis!=null?`<small>Rijden</small><b>${reis} min</b><em>${isNext?"vanaf hier":"geschat"}</em>`:`<small>Duur</small><b>${duur(k)} min</b><em>werk</em>`}</div>
       </div>
       <div class="tk-perf" aria-hidden="true"></div>
@@ -5559,7 +5574,7 @@ function stopCard(k,i,isNext,late,day,totaal){
         <div class="tk-tags">${tags}${isNext?'<span class="pill nextp">Volgende</span>':""}</div>
         <button type="button" class="tk-adres" data-act="klant" data-id="${esc(k.id)}"><span class="av" style="--h:${h}">${esc(initials(k.naam))}</span><span><b>${esc(a.adres||cleanName(k.naam))}</b><small>${esc([a.postcode,a.plaats].filter(Boolean).join(" "))}${a.plaats?" · ":""}${esc(cleanName(k.naam))}${o&&o.naam?" · "+esc(o.naam):""}</small></span>${I.right.replace("<svg",'<svg class="chev"')}</button>
         <div class="tk-feit"><span><b>${dienstHtml(k)}</b>${k.binnen?" + binnen":""}</span><span>${I.clock}<b>${duur(k)} min</b></span>${mw?"":`<span>${I.euro||""}<b>${eur0(toon(k.prijs))}</b></span>`}</div>
-        ${bz?(()=>{const ex=(k.tijden||[]).length&&typeof gemTijd==="function"?gemTijd(k):duur(k),f=(Date.now()-new Date(k.bezig))/60000/ex;return `<div class="tk-tm"><div class="bt-bar"><i data-tbar="${esc(k.bezig)}" data-exp="${ex}" class="${f>1?"over":""}" style="width:${Math.min(100,f*100)}%"></i></div><small>${(k.tijden||[]).length?"Gemiddeld "+ex+" min bij deze klant":"Verwacht "+ex+" min"}</small></div>`})():""}
+        ${bz?(()=>{const ex=(k.tijden||[]).length&&typeof gemTijd==="function"?gemTijd(k):duur(k),f=(Date.now()-new Date(k.bezig))/60000/ex;const mn=Math.floor((Date.now()-new Date(k.bezig))/60000);return `<div class="tk-tm"><div class="tk-tmh"><span class="tk-tml"><i></i>Bezig <b data-tmin="${esc(k.bezig)}">${mn} min</b> van ${ex}</span><b class="tk-tmp" data-tpct="${esc(k.bezig)}" data-exp="${ex}">${Math.min(999,Math.round(f*100))}%</b></div><div class="bt-bar"><i data-tbar="${esc(k.bezig)}" data-exp="${ex}" class="${f>1?"over":""}" style="width:${Math.min(100,f*100)}%"></i></div><small>${(k.tijden||[]).length?"Gemiddeld "+ex+" min bij deze klant":"Verwacht "+ex+" min"}</small></div>`})():""}
         <div class="tk-info">${oBeurtBlok(k)}${hospRoute(k)}${toegangHtml(k)}${ookDezeBeurt(k,day)}${objInfo(k)}${jobExtra(k)}</div>
         <div class="tk-acts"><a class="tk-a" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.nav}<span>Navigeer</span></a>${tel?`<a class="tk-a" href="tel:${esc(tel)}">${I.phone}<span>Bellen</span></a>`:""}${wa&&!bz?`<a class="tk-a" href="${esc(wa)}" target="_blank" rel="noopener">${I.msg}<span>Ik kom eraan</span></a>`:""}<button type="button" class="tk-a" data-act="skip" data-id="${esc(k.id)}">${I.right}<span>Overslaan</span></button></div>
       </div>
@@ -12730,7 +12745,7 @@ const endSw=()=>{if(!sw)return;const s=sw;sw=null;if(!s.on)return;swAt=Date.now(
 document.addEventListener("pointerup",endSw);document.addEventListener("pointercancel",endSw);
 let wasBig=big();addEventListener("resize",()=>{const b=big();if(b!==wasBig){wasBig=b;schedule()}});
 setInterval(()=>{if(!dlg.open&&(state.tab==="planning"||state.tab==="vandaag"))schedule()},60000);
-setInterval(()=>{document.querySelectorAll("[data-timer]").forEach(el=>{const t=new Date(el.dataset.timer);if(!isNaN(t))el.textContent=fmtTimer(Date.now()-t)});document.querySelectorAll("[data-tbar]").forEach(el=>{const t=new Date(el.dataset.tbar),ex=Number(el.dataset.exp)||30;if(isNaN(t))return;const f=(Date.now()-t)/60000/ex;el.style.width=Math.min(100,f*100)+"%";el.classList.toggle("over",f>1)})},1000);
+setInterval(()=>{document.querySelectorAll("[data-timer]").forEach(el=>{const t=new Date(el.dataset.timer);if(!isNaN(t))el.textContent=fmtTimer(Date.now()-t)});document.querySelectorAll("[data-tmin]").forEach(el=>{const t=new Date(el.dataset.tmin);if(!isNaN(t))el.textContent=Math.floor((Date.now()-t)/60000)+" min"});document.querySelectorAll("[data-tpct]").forEach(el=>{const t=new Date(el.dataset.tpct),ex=Number(el.dataset.exp)||30;if(isNaN(t))return;const f=(Date.now()-t)/60000/ex;el.textContent=Math.min(999,Math.round(f*100))+"%";el.classList.toggle("over",f>1)});document.querySelectorAll("[data-tbar]").forEach(el=>{const t=new Date(el.dataset.tbar),ex=Number(el.dataset.exp)||30;if(isNaN(t))return;const f=(Date.now()-t)/60000/ex;el.style.width=Math.min(100,f*100)+"%";el.classList.toggle("over",f>1)})},1000);
 render();init();
 
 /* knop "in te plannen" weg zodra de lijst onder de agenda in beeld is */

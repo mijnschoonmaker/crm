@@ -3844,3 +3844,18 @@ body.rd-busy{cursor:grabbing}
 /* dienst-icoontje in de agenda: klein teal tegeltje */
 .tjob .tj-bot .dienst{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-weight:600}
 .tjob .tj-bot .dienst svg{width:22px;height:22px;padding:4px;border-radius:7px;background:color-mix(in srgb,var(--brand) 12%,var(--surface));stroke:var(--brand);box-sizing:border-box}
+
+/* ---------- bezig bij de klant: huisje in de kop, duidelijke voortgangsbalk ---------- */
+.tk-vlucht.thuis i{border-top-color:rgb(255 255 255 / .55)}
+.tk-huis{width:40px;height:40px;display:grid;place-items:center;border-radius:50%;background:rgb(255 255 255 / .18);border:2px solid rgb(255 255 255 / .6);box-shadow:0 0 0 6px rgb(255 255 255 / .12);animation:tkHuis 2.2s ease-in-out infinite}
+.tk-huis svg{width:22px;height:22px;stroke:#fff;fill:rgb(255 255 255 / .25)}
+@keyframes tkHuis{0%,100%{box-shadow:0 0 0 6px rgb(255 255 255 / .12)}50%{box-shadow:0 0 0 11px rgb(255 255 255 / .05)}}
+.tk-tm{gap:7px!important;padding:12px 14px;border-radius:14px;background:color-mix(in srgb,#22a46c 8%,var(--surface));border:1px solid color-mix(in srgb,#22a46c 25%,var(--line))}
+.tk-tmh{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.tk-tml{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;color:var(--ink)}.tk-tml b{font-weight:800;font-variant-numeric:tabular-nums}
+.tk-tml i{width:9px;height:9px;border-radius:50%;background:#22a46c;animation:rvLive 2s ease-out infinite}
+.tk-tmp{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;color:#1b8a5a}.tk-tmp.over{color:#d08a2e}
+.tk-tm .bt-bar{height:12px!important;border-radius:8px;background:color-mix(in srgb,#22a46c 14%,var(--surface))}
+.tk-tm .bt-bar i{background:linear-gradient(90deg,#1b8a5a,#2fc07f);box-shadow:0 0 0 1px rgb(255 255 255 / .5) inset}
+.tk-tm .bt-bar i.over{background:linear-gradient(90deg,#c97a1f,#e9a23b)}
+.tk-tm small{font-size:12px}

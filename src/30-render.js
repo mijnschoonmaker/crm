@@ -313,7 +313,7 @@ const endSw=()=>{if(!sw)return;const s=sw;sw=null;if(!s.on)return;swAt=Date.now(
 document.addEventListener("pointerup",endSw);document.addEventListener("pointercancel",endSw);
 let wasBig=big();addEventListener("resize",()=>{const b=big();if(b!==wasBig){wasBig=b;schedule()}});
 setInterval(()=>{if(!dlg.open&&(state.tab==="planning"||state.tab==="vandaag"))schedule()},60000);
-setInterval(()=>{document.querySelectorAll("[data-timer]").forEach(el=>{const t=new Date(el.dataset.timer);if(!isNaN(t))el.textContent=fmtTimer(Date.now()-t)});document.querySelectorAll("[data-tbar]").forEach(el=>{const t=new Date(el.dataset.tbar),ex=Number(el.dataset.exp)||30;if(isNaN(t))return;const f=(Date.now()-t)/60000/ex;el.style.width=Math.min(100,f*100)+"%";el.classList.toggle("over",f>1)})},1000);
+setInterval(()=>{document.querySelectorAll("[data-timer]").forEach(el=>{const t=new Date(el.dataset.timer);if(!isNaN(t))el.textContent=fmtTimer(Date.now()-t)});document.querySelectorAll("[data-tmin]").forEach(el=>{const t=new Date(el.dataset.tmin);if(!isNaN(t))el.textContent=Math.floor((Date.now()-t)/60000)+" min"});document.querySelectorAll("[data-tpct]").forEach(el=>{const t=new Date(el.dataset.tpct),ex=Number(el.dataset.exp)||30;if(isNaN(t))return;const f=(Date.now()-t)/60000/ex;el.textContent=Math.min(999,Math.round(f*100))+"%";el.classList.toggle("over",f>1)});document.querySelectorAll("[data-tbar]").forEach(el=>{const t=new Date(el.dataset.tbar),ex=Number(el.dataset.exp)||30;if(isNaN(t))return;const f=(Date.now()-t)/60000/ex;el.style.width=Math.min(100,f*100)+"%";el.classList.toggle("over",f>1)})},1000);
 render();init();
 
 /* knop "in te plannen" weg zodra de lijst onder de agenda in beeld is */
