@@ -166,12 +166,13 @@ function vPlanning(){
 /* beknopte info bij een afgeronde afspraak */
 function openBeurtInfo(id){
   const b=state.beurten.find(x=>x.id===id);if(!b)return;const k=state.klanten.find(x=>x.id===b.klantId),d=parse(b.datum);
+  if(k){openJob(k.id,b.datum);return}/* zelfde paneel als een geplande opdracht, met afgerond-kop en factuurgegevens */
   const f=b.gefactureerd?state.facturen.find(x=>x.id===b.gefactureerd):null;
   const nm=cleanName(k?k.naam:b.klantNaam),adr=k?jobAddr(k):"",tel=k?String(k.telefoon||"").replace(/[^\d+]/g,""):"";
   const rij=(l,v)=>v?`<div class="bi-r"><span>${l}</span><b>${v}</b></div>`:"";
   openDlg(`<div class="jp">
-    <div class="jp-head"><div class="jp-meta">${statusPill("ok","Afgerond")}<span>${I.planning}${["zo","ma","di","wo","do","vr","za"][d.getDay()]} ${esc(fmtD(d))}</span>${b.tijd?`<span>${I.clock}${esc(b.tijd)}</span>`:""}</div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
-    <div class="jp-who"><span class="av" style="--h:${hue(k?(k.ronde||k.naam):b.klantNaam)}">${esc(initials(nm))}</span><div style="min-width:0"><h3>${esc(nm)}</h3>${adr?`<div class="sc-sub">${I.pin}${esc(adr)}</div>`:""}${k?`<button type="button" class="linkbtn" data-act="klant" data-id="${esc(k.id)}">Naar klantkaart ${I.right}</button>`:`<small class="help">Deze klant staat niet meer in je klantenbestand.</small>`}</div></div>
+    <div class="jp-kop jp-afgerond"><div class="jp-kr1"><span class="jp-st"><i></i>Afgerond</span><span class="sp"></span><button type="button" class="jp-ib" data-act="close" aria-label="Sluiten">${I.x}</button></div>
+      <div class="jp-kr2"><span class="jp-k1"><small>${["zo","ma","di","wo","do","vr","za"][d.getDay()]} ${d.getDate()} ${["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"][d.getMonth()]}</small><b>${esc(b.tijd||"–")}</b></span><span class="jp-k2"><b>${esc(nm)}</b><em>${adr?I.pin+esc(adr):"Klant staat niet meer in je bestand"}</em></span><span class="jp-k3"><small>Bedrag</small><b>${eur(toon(Number(b.bedrag)||0))}</b><em>afgerond</em></span></div></div>
     ${k?`<div class="jp-tiles">${tel?`<a class="jp-tile" href="tel:${esc(tel)}">${I.phone}<span>Bellen</span></a>`:`<span class="jp-tile dis">${I.phone}<span>Bellen</span></span>`}${k.email?`<a class="jp-tile" href="mailto:${esc(k.email)}">${I.mail}<span>Mail</span></a>`:`<span class="jp-tile dis">${I.mail}<span>Mail</span></span>`}<a class="jp-tile" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.nav}<span>Route</span></a></div>`:""}
     <div class="jp-body"><div class="bi">
       ${rij("Dienst",esc(b.dienst||(k&&k.dienst)||"Glasbewassing"))}
