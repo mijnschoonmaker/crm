@@ -3999,3 +3999,16 @@ body.rd-busy{cursor:grabbing}
 
 .u-fchips{display:flex;flex-wrap:wrap;gap:6px}
 .u-fchips .chipchk span{font-size:13px}
+
+/* ---------- galerij (Ons werk) ---------- */
+.gal-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}.gal-top .btn{display:inline-flex;align-items:center;gap:8px;cursor:pointer}
+.gal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;align-items:start}
+.gal-it{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:8px;display:flex;flex-direction:column;gap:6px;cursor:grab}
+.gal-it.uit{opacity:.5}.gal-it.drag{opacity:.4}.gal-it.over{outline:2px solid var(--brand);outline-offset:2px}
+.gal-img{position:relative;border-radius:10px;overflow:hidden;background:var(--surface-2);aspect-ratio:4/3}.gal-img img{width:100%;height:100%;object-fit:cover;display:block}
+.gal-nr{position:absolute;left:8px;top:8px;background:rgb(15 31 38 / .7);color:#fff;font-size:11px;font-weight:800;padding:2px 7px;border-radius:999px}
+.gal-x{position:absolute;right:6px;top:6px;background:rgb(255 255 255 / .9)!important}
+.gal-it input.gal-t,.gal-it input.gal-p{min-height:34px;padding:6px 10px;font-size:13px;border-radius:9px}
+.gal-r{display:flex;gap:6px;align-items:center}.gal-r select{min-height:34px;padding:4px 28px 4px 10px;font-size:13px;border-radius:9px;flex:1}
+.gal-aan{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap;flex-direction:row}
+.gal-leeg{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:30px 20px;border:1px dashed var(--line);border-radius:16px;color:var(--muted)}.gal-leeg svg{width:28px;height:28px;color:var(--brand)}.gal-leeg b{color:var(--ink)}.gal-leeg span{max-width:460px;font-size:13.5px}

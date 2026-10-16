@@ -394,7 +394,7 @@ exports.blob = onRequest({ memory: "256MiB" }, async (req, res) => {
   try {
     const [m] = await f.getMetadata();
     res.set("content-type", m.contentType || "application/octet-stream");
-    res.set("cache-control", "private, max-age=31536000, immutable");
+    res.set("cache-control", "public, max-age=31536000, immutable");
     f.createReadStream().on("error", () => res.status(404).end()).pipe(res);
   } catch (e) { res.status(404).send(""); }
 });

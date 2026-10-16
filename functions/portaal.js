@@ -326,6 +326,14 @@ module.exports = function maakPortaal(ctx) {
         try { const kd = await db.doc("klanten/" + f.klantId).get(); if (kd.exists) { const k = dec(kd.data()); voornaam = voornaamVan(schoon(k.contact || k.naam)); } } catch (e) {}
         res.json({ betaald: f.status === "betaald", nummer: f.nummer || "", uren: snelUren(f), zelfdeDag: zelfdeDag(f), voornaam }); return;
       }
+      /* ons werk: openbare fotogalerij voor de website (beheer in het CRM, Instellingen › Ons werk) */
+      if (pad === "/werk" && req.method === "GET") {
+        res.set("Access-Control-Allow-Origin", "*"); res.set("Cache-Control", "public, max-age=300");
+        const d = await db.doc("instellingen/galerij").get(), base = basisUrl(req);
+        const items = (d.exists && Array.isArray(d.data().items) ? d.data().items : []).filter(x => x && x.blob && x.aan !== false)
+          .map(x => ({ url: base + "/_blob/" + x.blob, thumb: base + "/_blob/" + (x.thumb || x.blob), w: Number(x.w) || 4, h: Number(x.h) || 3, titel: String(x.titel || "").slice(0, 80), plaats: String(x.plaats || "").slice(0, 60), cat: String(x.cat || "woning") }));
+        res.json({ items }); return;
+      }
       /* bewonersbord: openbare, afgeslankte weergave voor het bordje in de hal (QR-code), zonder inloggen */
       if (pad === "/bord" && req.method === "GET") {
         const t = String(req.query.t || "");

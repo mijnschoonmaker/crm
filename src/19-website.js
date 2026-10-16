@@ -93,6 +93,19 @@ const WEB_CSS=`
 .ms .zak .r{display:flex;justify-content:flex-end}
 /* vragen */
 .ms .faq{display:flex;flex-direction:column;gap:10px;margin-top:26px;max-width:820px}
+/* ons werk */
+.ms .wk-filter{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 0}.ms .wk-filter button{border:1.5px solid var(--line);background:#fff;color:var(--ink);font:700 13.5px Manrope,sans-serif;padding:8px 14px;border-radius:99px;cursor:pointer}.ms .wk-filter button[aria-pressed="true"]{background:var(--b2);border-color:var(--b2);color:#fff}
+.ms .wk-grid{columns:3;column-gap:14px;margin-top:22px}
+.ms .wk-it{break-inside:avoid;margin:0 0 14px;position:relative;border-radius:18px;overflow:hidden;background:var(--soft);cursor:zoom-in;box-shadow:0 1px 2px rgb(15 31 38 / .05),0 16px 32px -22px rgb(15 50 60 / .45)}
+.ms .wk-it img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s}.ms .wk-it:hover img{transform:scale(1.03)}
+.ms .wk-it figcaption{position:absolute;left:0;right:0;bottom:0;padding:34px 14px 12px;color:#fff;background:linear-gradient(180deg,transparent,rgb(15 31 38 / .65));display:flex;flex-direction:column;gap:1px;pointer-events:none}.ms .wk-it figcaption:empty{display:none}
+.ms .wk-it b{font-size:14.5px}.ms .wk-it span{font-size:12.5px;opacity:.85}
+.wk-lb{position:fixed;inset:0;z-index:99999;background:rgb(8 20 24 / .92);display:none;align-items:center;justify-content:center;padding:20px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}.wk-lb.aan{display:flex}
+.wk-lb figure{margin:0;max-width:min(1400px,100%);max-height:100%;display:flex;flex-direction:column;align-items:center;gap:10px}.wk-lb img{max-width:100%;max-height:calc(100vh - 90px);border-radius:14px;box-shadow:0 30px 80px -30px rgb(0 0 0 / .8)}
+.wk-lb figcaption{color:#fff;text-align:center;font-family:Manrope,sans-serif}.wk-lb figcaption b{display:block;font-size:16px}.wk-lb figcaption span{font-size:13px;opacity:.75}
+.wk-lb button{position:absolute;background:rgb(255 255 255 / .12);color:#fff;border:1px solid rgb(255 255 255 / .25);width:46px;height:46px;border-radius:50%;font-size:28px;line-height:1;cursor:pointer;display:grid;place-items:center}
+.wk-lb .wk-x{top:16px;right:16px}.wk-lb .wk-p{left:16px;top:50%;transform:translateY(-50%)}.wk-lb .wk-n{right:16px;top:50%;transform:translateY(-50%)}
+@media (max-width:900px){.ms .wk-grid{columns:2}}@media (max-width:560px){.ms .wk-grid{columns:1}.wk-lb .wk-p,.wk-lb .wk-n{top:auto;bottom:16px;transform:none}}
 /* betalen */
 .ms .bt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}
 .ms .bt{background:#fff;border-radius:20px;padding:22px;box-shadow:0 1px 2px rgb(15 31 38 / .05),0 16px 32px -22px rgb(15 50 60 / .45)}
@@ -302,7 +315,7 @@ function websiteBody(o){const e=esc,IC={
     ["Doen jullie ook bedrijven en VvE's?","Zeker. Kies in de calculator voor Bedrijf / VvE en laat uw gegevens achter; wij nemen snel contact met u op voor een prijs op maat."],["Wat zijn credits?","Credits zijn korting die u spaart: 1 credit is € 1. U krijgt ze voor het aanbevelen van een buur, een Google-review, het beoordelen van een beurt of het bestellen van een extra dienst. Ze gaan automatisch van uw volgende factuur af."],["Kan ik een afspraak verzetten of overslaan?","Ja, dat regelt u zelf in uw klantportaal: verzetten, een keer overslaan of uw vakantie doorgeven. Wij passen de planning aan en u krijgt een bevestiging."]];
   return `<input type="checkbox" id="msm" hidden>
 <header class="nav"><div class="in"><a class="logo" href="#top">${logo}</a>
-  <nav class="lk"><a href="#werkwijze">Werkwijze</a><a href="#voordelen">Voordelen</a><a href="#betalen">Betalen</a><a href="#prijs">Prijs berekenen</a><a href="#vragen">Vragen</a><a href="#contact">Contact</a>${portaal?`<a class="lk-p" href="${e(portaal)}">Mijn portaal</a>`:""}</nav>
+  <nav class="lk"><a href="#werkwijze">Werkwijze</a><a href="#voordelen">Voordelen</a><a href="#betalen">Betalen</a><a href="#prijs">Prijs berekenen</a>${o.werkApi?`<a href="#werk">Ons werk</a>`:""}<a href="#vragen">Vragen</a><a href="#contact">Contact</a>${portaal?`<a class="lk-p" href="${e(portaal)}">Mijn portaal</a>`:""}</nav>
   ${portaal?`<a class="portaal" href="${e(portaal)}">${IC.user}Mijn portaal</a>`:""}<a class="knop k-teal" href="#prijs">Bereken uw prijs</a>
   <label class="hb" for="msm" aria-label="Menu">${IC.menu}</label></div></header>
 <section class="hero" id="top"><div class="in"><div class="blauw">
@@ -371,6 +384,8 @@ function websiteBody(o){const e=esc,IC={
     <div class="tg"><span class="ic">${IC.euro}</span><em class="cr-n">+${e(String(o.crExtra||3))}</em><h3>Bestel iets extra's</h3><p>Kozijnen, binnenzijde, zonnepanelen of dakgoot: credits per extra dienst.</p></div></div>
   ${wg(-7,"opacity:.6")}<div style="height:40px"></div></div></div></section>
 <section id="prijs"><div class="in"><div class="ws-kop"><span class="oog">${IC.cam}Dienstenwebshop</span><h2 class="kop">Bereken uw prijs en <em>meld u direct aan</em></h2><p class="lead">Geen offertebezoek nodig. Maak een foto van uw woning, tik de ramen aan en u ziet direct uw vaste prijs per beurt. Aanmelden kan meteen, u krijgt binnen een minuut een bevestiging.</p></div><div id="ms-calc"></div></div></section>
+<section id="werk" data-werk="${e(o.werkApi||"")}" ${o.werkApi?"":"hidden"}><div class="in"><span class="oog">${IC.foto}Ons werk</span><h2 class="kop">Zo ziet <em>schoon</em> eruit</h2><p class="lead">Echte foto's van ons werk bij klanten in de buurt. Geen stockfoto's.</p>
+  <div class="wk-filter" data-werk-filter hidden></div><div class="wk-grid" data-werk-grid></div></div></section>
 <section id="zakelijk"><div class="in"><div class="zak"><div><span class="oog">${IC.gebouw}Zakelijk</span><h2 class="kop">Ook voor <em>bedrijven en VvE's</em></h2><p class="lead">Kantoor, winkel, school of appartementencomplex: wij maken een prijs op maat en plannen het werk in wanneer het u uitkomt.</p>
   <div class="tags"><span>Kantoren</span><span>Winkels en horeca</span><span>VvE's</span><span>Scholen en zorg</span></div></div>
   <div class="r"><a class="knop k-teal" href="#prijs">${IC.gebouw}Vraag een prijs aan</a></div></div>
@@ -390,7 +405,7 @@ function websiteBody(o){const e=esc,IC={
 
 async function websiteDelen(){const fv=k=>{const el=typeof form!=="undefined"&&form&&form.querySelector(`[data-k="${k}"]`);return el?el.value:null};const s=S(),lg=await loadLogo();const wa=String(s.webWa||waNr(s.telefoon)||"").replace(/\D/g,"");
   const o={naam:s.naam,telefoon:s.telefoon,email:s.email,adres:s.adres,postcode:s.postcode,plaats:s.plaats,kvk:s.kvk,whatsapp:wa,logo:lg?await kleinLogo(lg.url):"",
-    portaal:LIVE?location.origin+"/portaal":"",score:String(fv("webScore")??s.webScore??"4,8").trim(),reviewUrl:String(fv("webReviewUrl")||s.webReviewUrl||"https://www.google.com/search?q=mijnschoonmaker.com+Reviews").trim(),refBeloning:s.refBeloning!=null&&s.refBeloning!==""?Number(s.refBeloning):15,refWelkom:s.refWelkom!=null&&s.refWelkom!==""?Number(s.refWelkom):10,crReview:s.crReview??5,crBeurt:s.crBeurt??1,crExtra:s.crExtra??3,voorwaarden:s.webVoorwaarden||s.voorwaarden||"",mollie:!!s.liveMollie,bus:typeof RV_BUS!=="undefined"?RV_BUS:""};
+    portaal:LIVE?location.origin+"/portaal":"",werkApi:LIVE?location.origin+"/api/portaal/werk":"",score:String(fv("webScore")??s.webScore??"4,8").trim(),reviewUrl:String(fv("webReviewUrl")||s.webReviewUrl||"https://www.google.com/search?q=mijnschoonmaker.com+Reviews").trim(),refBeloning:s.refBeloning!=null&&s.refBeloning!==""?Number(s.refBeloning):15,refWelkom:s.refWelkom!=null&&s.refWelkom!==""?Number(s.refWelkom):10,crReview:s.crReview??5,crBeurt:s.crBeurt??1,crExtra:s.crExtra??3,voorwaarden:s.webVoorwaarden||s.voorwaarden||"",mollie:!!s.liveMollie,bus:typeof RV_BUS!=="undefined"?RV_BUS:""};
   return {body:websiteBody(o),calc:await klantCalcHtml(wa),o}}
 /* bonnetje: echt afscheuren langs de perforatie, met rafelrand en papiersnippers */
 const WEB_JS=`root.querySelectorAll("[data-pp]").forEach(function(pp){if(pp._ms)return;pp._ms=1;
@@ -453,7 +468,21 @@ tks.forEach(function(tk){if(tk._ms)return;tk._ms=1;var l=tk.querySelector(".tk-l
   l.addEventListener("click",function(){scheurAuto(true)});tk._zet=zet;tk._reset=reset;
   nieuwePunten();zet(0);
   if(window.matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches){tk.classList.add("af");r.style.visibility="hidden";staat="weg";return}
-  if("IntersectionObserver" in window){var io=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting&&x.intersectionRatio>.7){io.disconnect();setTimeout(function(){if(staat==="heel")scheurAuto(false)},700)}})},{threshold:[.7]});io.observe(tk)}else scheurAuto(false)});`;
+  if("IntersectionObserver" in window){var io=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting&&x.intersectionRatio>.7){io.disconnect();setTimeout(function(){if(staat==="heel")scheurAuto(false)},700)}})},{threshold:[.7]});io.observe(tk)}else scheurAuto(false)});
+/* ons werk: foto's live uit het CRM */
+root.querySelectorAll("[data-werk]").forEach(function(sec){if(sec._ms)return;sec._ms=1;var api=sec.getAttribute("data-werk"),grid=sec.querySelector("[data-werk-grid]"),fil=sec.querySelector("[data-werk-filter]");if(!api||!grid)return;
+  var CAT={woning:"Woningen",zakelijk:"Zakelijk",vve:"VvE",detail:"Details"},items=[],cur="";
+  function esc(t){return String(t||"").replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+  function teken(){var L=cur?items.filter(function(x){return x.cat===cur}):items;grid.innerHTML=L.map(function(x,i){return '<figure class="wk-it" data-wi="'+items.indexOf(x)+'" style="aspect-ratio:'+(x.w||4)+'/'+(x.h||3)+'"><img src="'+esc(x.thumb)+'" alt="'+esc(x.titel||"Glasbewassing")+'" loading="lazy"><figcaption>'+(x.titel?'<b>'+esc(x.titel)+'</b>':'')+(x.plaats?'<span>'+esc(x.plaats)+'</span>':'')+'</figcaption></figure>'}).join("")}
+  function filters(){var cs=[];items.forEach(function(x){if(cs.indexOf(x.cat)<0)cs.push(x.cat)});if(cs.length<2||!fil){if(fil)fil.hidden=true;return}fil.hidden=false;fil.innerHTML='<button type="button" data-wc="" aria-pressed="true">Alles</button>'+cs.map(function(c){return '<button type="button" data-wc="'+c+'">'+(CAT[c]||c)+'</button>'}).join("");
+    fil.addEventListener("click",function(e){var b=e.target.closest("[data-wc]");if(!b)return;cur=b.getAttribute("data-wc");fil.querySelectorAll("button").forEach(function(x){x.setAttribute("aria-pressed",x===b?"true":"false")});teken()})}
+  var lb=null,li=0;function open(i){li=i;var x=items[i];if(!x)return;if(!lb){lb=document.createElement("div");lb.className="wk-lb";lb.innerHTML='<button type="button" class="wk-x" aria-label="Sluiten">&times;</button><button type="button" class="wk-p" aria-label="Vorige">&lsaquo;</button><figure><img alt=""><figcaption></figcaption></figure><button type="button" class="wk-n" aria-label="Volgende">&rsaquo;</button>';document.body.appendChild(lb);
+      lb.addEventListener("click",function(e){if(e.target===lb||e.target.closest(".wk-x"))sluit();else if(e.target.closest(".wk-p"))open((li-1+items.length)%items.length);else if(e.target.closest(".wk-n"))open((li+1)%items.length)});
+      document.addEventListener("keydown",function(e){if(!lb||!lb.classList.contains("aan"))return;if(e.key==="Escape")sluit();if(e.key==="ArrowLeft")open((li-1+items.length)%items.length);if(e.key==="ArrowRight")open((li+1)%items.length)})}
+    var img=lb.querySelector("img");img.src=x.url;img.alt=x.titel||"";lb.querySelector("figcaption").innerHTML=(x.titel?'<b>'+esc(x.titel)+'</b>':'')+(x.plaats?'<span>'+esc(x.plaats)+'</span>':'');lb.classList.add("aan");document.documentElement.style.overflow="hidden"}
+  function sluit(){if(lb){lb.classList.remove("aan");document.documentElement.style.overflow=""}}
+  grid.addEventListener("click",function(e){var f=e.target.closest("[data-wi]");if(f)open(+f.getAttribute("data-wi"))});
+  fetch(api).then(function(r){return r.json()}).then(function(j){items=(j&&j.items)||[];if(!items.length){sec.hidden=true;return}sec.hidden=false;filters();teken()}).catch(function(){sec.hidden=true})});`;
 const WEB_FONTS='<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">';
 /* losse pagina: voor de voorbeeldweergave en voor wie geen Framer gebruikt */
 function websiteHtml(p,crm){const calc=crm?p.calc.replace(/<head([^>]*)>/i,m=>m+"<script>window.ZEEM_CRM=1<\/script>"):p.calc;

@@ -1,0 +1,30 @@
+/* ---------- Ons werk: fotogalerij voor de website (beheer in het CRM, website haalt hem live op) ---------- */
+const GAL_CATS=[["woning","Woningen"],["zakelijk","Zakelijk"],["vve","VvE"],["detail","Details"]];
+const galItems=()=>Array.isArray((state.galerij||{}).items)?state.galerij.items:[];
+/* foto verkleinen in de browser: lange zijde 2200px (scherp op een groot scherm, klein genoeg om snel te laden) + miniatuur 640px */
+function galVerklein(file,max,q){return new Promise((ok,fout)=>{const img=new Image(),u=URL.createObjectURL(file);img.onload=()=>{const s=Math.min(1,max/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);c.getContext("2d").drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(b=>b?ok({blob:b,w:c.width,h:c.height}):fout(new Error("verkleinen mislukt")),"image/jpeg",q)};img.onerror=()=>{URL.revokeObjectURL(u);fout(new Error("Dit bestand is geen foto die de browser kan openen (RAW? Exporteer als JPEG)."))};img.src=u})}
+async function galUpload(files){if(!state.assets)return toast("Werkt in de live versie");const items=[...galItems()];let n=0;
+  for(const f of files){try{toast(`Foto ${n+1} van ${files.length} uploaden…`);const g=await galVerklein(f,2200,.86),t=await galVerklein(f,640,.8);
+    const [a,b]=await Promise.all([state.assets.upload(g.blob,{type:"image/jpeg"}),state.assets.upload(t.blob,{type:"image/jpeg"})]);
+    items.push({id:newId("gf"),blob:a.id,thumb:b.id,w:g.w,h:g.h,titel:"",plaats:"",cat:"woning",aan:true,op:iso(today())});n++}catch(e){console.error(e);toast("Foto overslaan: "+(e.message||e))}}
+  if(n){await save("instellingen","galerij",{items});state.galerij={items};toast(plural(n,"foto","foto's")+" toegevoegd");galTeken()}}
+async function galSave(items){await save("instellingen","galerij",{items});state.galerij={items}}
+function galHtml(){const L=galItems();
+  return `<div class="gal-top"><label class="btn primary">${I.upload||I.plus}Foto's toevoegen<input type="file" accept="image/jpeg,image/png,image/webp,image/heic" multiple hidden id="galF"></label><span class="subt">JPEG uit Lightroom/Capture One werkt het beste; de browser verkleint ze zelf naar 2200 px. Sleep om de volgorde te bepalen.</span></div>
+    ${L.length?`<div class="gal-grid" id="galGrid">${L.map((x,i)=>`<div class="gal-it${x.aan===false?" uit":""}" data-gi="${i}" draggable="true"><div class="gal-img"><img src="${BLOB}${esc(x.thumb||x.blob)}" alt="" loading="lazy"><span class="gal-nr">${i+1}</span><button type="button" class="iconbtn sm gal-x" data-act="galdel" data-i="${i}" title="Verwijderen">${I.x}</button></div>
+      <input class="gal-t" data-gk="titel" data-i="${i}" value="${esc(x.titel||"")}" placeholder="Titel, bijv. Vrijstaande woning"><input class="gal-p" data-gk="plaats" data-i="${i}" value="${esc(x.plaats||"")}" placeholder="Plaats">
+      <div class="gal-r"><select data-gk="cat" data-i="${i}">${GAL_CATS.map(([v,l])=>`<option value="${v}" ${(x.cat||"woning")===v?"selected":""}>${l}</option>`).join("")}</select><label class="gal-aan"><input type="checkbox" data-gk="aan" data-i="${i}" ${x.aan!==false?"checked":""}><span>Op de site</span></label></div></div>`).join("")}</div>`
+    :`<div class="gal-leeg">${I.camera}<b>Nog geen foto's</b><span>Voeg een paar van je beste foto's toe: een gevel voor en na, een mooie villa, een VvE-entree. Ze verschijnen direct op je website onder "Ons werk".</span></div>`}
+    <small class="help">De website haalt de foto's live op uit het CRM; je hoeft Framer niet opnieuw te updaten. Zet een foto uit met "Op de site" om hem tijdelijk te verbergen.</small>`}
+function galTeken(){const b=$("#galBox");if(b){b.innerHTML=galHtml();galBind()}}
+function galBind(){const f=$("#galF");if(f)f.onchange=e=>{const files=[...e.target.files];e.target.value="";if(files.length)galUpload(files)};
+  const box=$("#galBox");if(!box||box._gb)return;box._gb=1;
+  box.addEventListener("change",async e=>{const el=e.target.closest("[data-gk]");if(!el)return;const L=[...galItems()],it=L[+el.dataset.i];if(!it)return;it[el.dataset.gk]=el.type==="checkbox"?el.checked:el.value;await galSave(L);if(el.dataset.gk==="aan")el.closest(".gal-it").classList.toggle("uit",!el.checked)});
+  box.addEventListener("click",async e=>{const b=e.target.closest("[data-act=galdel]");if(!b)return;if(!(await vraag("Foto verwijderen","De foto verdwijnt van de website.","Verwijderen")))return;const L=[...galItems()];L.splice(+b.dataset.i,1);await galSave(L);galTeken()});
+  let drag=null;box.addEventListener("dragstart",e=>{const it=e.target.closest(".gal-it");if(!it)return;drag=+it.dataset.gi;it.classList.add("drag");e.dataTransfer.effectAllowed="move"});
+  box.addEventListener("dragover",e=>{if(drag==null)return;e.preventDefault();const it=e.target.closest(".gal-it");box.querySelectorAll(".gal-it.over").forEach(x=>x.classList.remove("over"));if(it)it.classList.add("over")});
+  box.addEventListener("drop",async e=>{const it=e.target.closest(".gal-it");if(drag==null||!it)return;e.preventDefault();const to=+it.dataset.gi,L=[...galItems()],[m]=L.splice(drag,1);L.splice(to,0,m);drag=null;await galSave(L);galTeken()});
+  box.addEventListener("dragend",()=>{drag=null;box.querySelectorAll(".drag,.over").forEach(x=>x.classList.remove("drag","over"))})}
+if(typeof SETCARDS!=="undefined"){const at=SETCARDS.findIndex(c=>c.id==="website");
+  SETCARDS.splice(at>=0?at+1:SETCARDS.length,0,{id:"galerij",t:"Ons werk (foto's)",sub:"Echte foto's van je werk op de website",ic:"camera",bg:"#8a4fff",st:()=>galItems().filter(x=>x.aan!==false).length?["ok",plural(galItems().filter(x=>x.aan!==false).length,"foto","foto's")+" online"]:["soon","Nog geen foto's"],rows:()=>[["Foto's",String(galItems().length)],["Op de website",String(galItems().filter(x=>x.aan!==false).length)]]});
+  SETEXTRA.galerij=(c,s)=>{setDlg(c,`${info("Hier zet je je eigen foto's (bijvoorbeeld van je Sony) op de website onder <b>Ons werk</b>. Titel en plaats komen als onderschrift; met de categorie kan de bezoeker filteren.")}<div id="galBox">${galHtml()}</div>`,{wide:true});galBind()}}
