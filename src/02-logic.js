@@ -1,9 +1,15 @@
 /* ---------- LOGICA ---------- */
-const freqDays=k=>(Number(k.frequentie)||4)*7;
+/* vaste weekdagen (bijv. VvE-trappenhuis elke di en vr): k.weekdagen = [2,5]; anders een interval in weken */
+const vasteDagen=k=>Array.isArray(k&&k.weekdagen)&&k.weekdagen.length?[...new Set(k.weekdagen.map(Number))].filter(d=>d>=0&&d<=6).sort():null;
+const volgendeWeekdag=(k,na)=>{const dg=vasteDagen(k);if(!dg)return null;let d=addDays(na,1);for(let i=0;i<8;i++){if(dg.includes(d.getDay()))return d;d=addDays(d,1)}return d};
+const ritmeVolgende=(k,na)=>vasteDagen(k)?volgendeWeekdag(k,na):werkdagAanpassen(addDays(na,freqDays(k)));
+const DAGK=["zo","ma","di","wo","do","vr","za"];
+const ritmeTxt=k=>{const dg=vasteDagen(k);if(dg)return(dg.length===7?"elke dag":dg.map(d=>DAGK[d]).join(" · "));const f=Number(k.frequentie)||4;return"elke "+f+" wk"};
+const freqDays=k=>{const dg=vasteDagen(k);return dg?Math.max(1,Math.round(7/dg.length)):(Number(k.frequentie)||4)*7};
 /* aanboddatum per verdieping (opdracht) bepaalt mee wanneer de klant weer aan de beurt is */
 const aanbodVan=k=>{const q=k&&k.ramenRegel;if(!q||!Array.isArray(q.f))return null;const idx=q.f.map((n,i)=>Number(n)>0?i:-1).filter(i=>i>=0);if(!idx.length)return null;
   const ds=idx.map(i=>(q.vol||[])[i]).filter(d=>d&&(!k.laatst||d>k.laatst));if(!ds.length)return null;return {min:ds.slice().sort()[0],alle:ds.length===idx.length}};
-const volgende=k=>{const l=parse(k.laatst);let v=l?addDays(l,freqDays(k)):today();{const ab=parse(k.aanbodVanaf);if(ab&&(!l||l<ab))v=ab}const a=aanbodVan(k);if(a){const av=parse(a.min);if(av&&(a.alle||av<v))v=av}const sk=parse(k.skipTot);if(sk&&sk>v)v=sk;return v};
+const volgende=k=>{const l=parse(k.laatst);let v=l?(vasteDagen(k)?volgendeWeekdag(k,l):addDays(l,freqDays(k))):(vasteDagen(k)?(vasteDagen(k).includes(today().getDay())?today():volgendeWeekdag(k,today())):today());{const ab=parse(k.aanbodVanaf);if(ab&&(!l||l<ab))v=ab}const a=aanbodVan(k);if(a){const av=parse(a.min);if(av&&(a.alle||av<v))v=av}const sk=parse(k.skipTot);if(sk&&sk>v)v=sk;return v};
 const planned=k=>parse(k.gepland)||volgende(k);
 const toMin=t=>{const m=String(t||"").match(/^(\d{1,2}):(\d{2})/);return m?Number(m[1])*60+Number(m[2]):null};
 const fromMin=m=>pad(Math.floor(m/60))+":"+pad(m%60);
@@ -12,7 +18,7 @@ const uren=m=>(Math.round(m/60*10)/10).toLocaleString("nl-NL")+"u";
 const actief=()=>state.klanten.filter(k=>k.actief!==false&&!k.prospect);
 const rondes=()=>[...new Set(state.klanten.map(k=>k.ronde).filter(Boolean))].sort();
 const unbilled=()=>state.beurten.filter(b=>!b.gefactureerd&&!b.betaald);
-const intervalTxt=k=>{const f=Number(k.frequentie)||4;return f===1?"week":f+" weken"};
+const intervalTxt=k=>{if(vasteDagen(k))return ritmeTxt(k);const f=Number(k.frequentie)||4;return f===1?"week":f+" weken"};
 function status(k){
   const v=planned(k),t=today(),diff=Math.round((v-t)/DAY);
   const l=parse(k.laatst);const pct=l?Math.min(1,Math.max(0,(t-l)/DAY/freqDays(k))):1;
@@ -26,8 +32,9 @@ function status(k){
 function occurrences(k,from,to){
   const out=[],t=today();let d=parse(k.gepland),real=true;
   if(!d)return out;
-  if(d<t){d=addDays(t,freqDays(k));real=false}
-  let g=0;while(d<=to&&g++<80){if(d>=from)out.push({date:iso(d),real});d=addDays(d,freqDays(k));real=false}
+  const stap=x=>vasteDagen(k)?volgendeWeekdag(k,x):addDays(x,freqDays(k));
+  if(d<t){d=stap(t);real=false}
+  let g=0;while(d<=to&&g++<120){if(d>=from)out.push({date:iso(d),real});d=stap(d);real=false}
   return out;
 }
 const overdue=()=>actief().filter(k=>{const p=parse(k.gepland);return p?p<today():volgende(k)<today()});

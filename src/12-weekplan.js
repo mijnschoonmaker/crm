@@ -6,7 +6,7 @@ const WP_KLEUR=["#137a8a","#e9a23b","#7c5cbf","#23845a","#d9534f","#2f6fdd","#b8
 const wpOpt=()=>{let o={};try{o=JSON.parse(localStorage.getItem("ms.wp")||"{}")||{}}catch(e){}const st=S(),ws=toMin(st.werkStart)??480,we=toMin(st.werkEind)??1020;
   return{uur:Math.min(12,Math.max(2,Number(o.uur)||Math.max(2,Math.round((we-ws-45)/60)))),vroeg:o.vroeg!=null?Number(o.vroeg):7,laat:o.laat!=null?Number(o.laat):7}};
 const wpOptSave=o=>{try{localStorage.setItem("ms.wp",JSON.stringify(o))}catch(e){}};
-const wpDagen=k=>Array.isArray(k.planDagen)&&k.planDagen.length?k.planDagen.map(Number):null;
+const wpDagen=k=>vasteDagen(k)||(Array.isArray(k.planDagen)&&k.planDagen.length?k.planDagen.map(Number):null);
 const wpMagOp=(k,d)=>{const dg=wpDagen(k);return !dg||dg.includes(parse(d).getDay())};
 const wpPc4=k=>String(jobAddrObj(k).postcode||k.postcode||"").replace(/\s/g,"").slice(0,4);
 const wpPlaats=k=>String(jobAddrObj(k).plaats||k.plaats||"").trim();

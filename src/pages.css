@@ -3961,3 +3961,7 @@ body.rd-busy{cursor:grabbing}
 .sk-reden b{white-space:normal;overflow-wrap:anywhere;hyphens:auto}
 .sk-reden span{padding:10px 10px}
 .jp-ib:focus{outline:none}.jp-ib:focus-visible{outline:2px solid rgb(255 255 255 / .7);outline-offset:2px}
+
+/* vaste weekdagen in de opdracht */
+.ow-dagen{display:flex;gap:6px;margin-top:8px}.ow-dagen button{flex:1;height:40px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);font-weight:700;font-size:13px;color:var(--muted);padding:0}
+.ow-dagen button[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
