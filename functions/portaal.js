@@ -81,16 +81,19 @@ module.exports = function maakPortaal(ctx) {
     return { ex: r2(ex), btw: r2(inc - ex), inc: r2(inc) };
   }
   /* hoe snel betaald: van het versturen van de factuur tot de betaling (alleen als beide tijden bekend zijn) */
-  const betaalSec = f => { if (f.status !== "betaald" || !f.betaaldTs) return null; const van = Date.parse(f.verstuurdOp || f.gemaakt || (f.datum ? f.datum + "T09:00:00" : "")), tot = Date.parse(f.betaaldTs); if (!(van > 0 && tot >= van)) return null; return Math.round((tot - van) / 1000); };
+  /* seconden tussen versturen en betalen; zonder exact tijdstip (oudere, handmatig afgeboekte facturen) rekenen we met de dag van betaling om 12:00 */
+  const betaalSec = f => { if (f.status !== "betaald") return null; const bo = String(f.betaaldOp || f.betaald || "").slice(0, 10), ts = f.betaaldTs || (/^\d{4}-\d{2}-\d{2}$/.test(bo) ? bo + "T12:00:00" : ""); if (!ts) return null;
+    const van = Date.parse(f.verstuurdOp || f.gemaakt || (f.datum ? f.datum + "T09:00:00" : "")), tot = Date.parse(ts); if (!(van > 0)) return null; return Math.max(0, Math.round((tot - van) / 1000)); };
+  const betaalPrecies = f => !!f.betaaldTs;
   /* ranglijst: wie betaalt gemiddeld het snelst (alle klanten, betaalde facturen van de laatste 12 maanden, op de seconde) */
   async function betaalRang(klantId) {
     const sinds = new Date(Date.now() - 365 * DAG).toISOString().slice(0, 10);
     const q = await db.collection("facturen").where("status", "==", "betaald").get();
     const per = {};
-    q.docs.forEach(d => { const f = d.data(); if (!f.klantId || f.soort === "offerte" || (f.datum || "") < sinds) return; const sec = betaalSec(f); if (sec == null) return; (per[f.klantId] = per[f.klantId] || []).push(sec); });
-    const lijst = Object.entries(per).map(([id, a]) => ({ id, sec: a.reduce((x, y) => x + y, 0) / a.length, n: a.length })).sort((a, b2) => a.sec - b2.sec);
+    q.docs.forEach(d => { const f = d.data(); if (!f.klantId || f.soort === "offerte" || (f.datum || "") < sinds) return; const sec = betaalSec(f); if (sec == null) return; (per[f.klantId] = per[f.klantId] || []).push({ sec, precies: betaalPrecies(f) }); });
+    const lijst = Object.entries(per).map(([id, a]) => ({ id, sec: a.reduce((x, y) => x + y.sec, 0) / a.length, n: a.length, precies: a.every(y => y.precies) })).sort((a, b2) => a.sec - b2.sec);
     const i = lijst.findIndex(x => x.id === klantId);
-    return { positie: i < 0 ? null : i + 1, sec: i < 0 ? null : Math.round(lijst[i].sec), beste: lijst.length ? Math.round(lijst[0].sec) : null, n: i < 0 ? 0 : lijst[i].n };
+    return { positie: i < 0 ? null : i + 1, sec: i < 0 ? null : Math.round(lijst[i].sec), beste: lijst.length ? Math.round(lijst[0].sec) : null, n: i < 0 ? 0 : lijst[i].n, precies: i < 0 ? false : lijst[i].precies };
   }
   const snelUren = f => { if (f.status !== "betaald" || !f.betaaldTs) return null; const van = Date.parse(f.verstuurdOp || f.gemaakt || ""), tot = Date.parse(f.betaaldTs); if (!(van > 0 && tot >= van)) return null; return Math.round((tot - van) / 36e5 * 10) / 10; };
   const zelfdeDag = f => !!(f.betaaldTs && (f.verstuurdOp || f.gemaakt) && isoNL(new Date(f.betaaldTs)) === isoNL(new Date(f.verstuurdOp || f.gemaakt)));
