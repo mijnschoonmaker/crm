@@ -3936,3 +3936,12 @@ body.rd-busy{cursor:grabbing}
 .tk-ruit.over .rt-pct{fill:#9a5a12}
 .tk-ruit.over{filter:drop-shadow(0 6px 10px rgb(208 138 46 / .3))}
 @media(max-width:560px){.tk-tm .tk-ruit{width:70px;height:86px}}
+
+/* ---------- voortgangskaart: meer lucht ---------- */
+.rv-tx h2{margin:16px 0 0;font-size:28px;font-weight:700;letter-spacing:-.03em;line-height:1.1}
+.rv-sub{margin:4px 0 0!important;font-size:14.5px!important;color:rgb(255 255 255 / .8)!important;font-weight:500!important}
+.rv-chips{margin-top:16px;gap:8px}
+.rv-weg{margin-top:48px;height:118px}
+.rv-weg li small{top:70px}.rv-weg li em{top:88px}
+.rv-tip{margin-top:12px}
+@media(max-width:700px){.rv-tx h2{font-size:24px}.rv-weg{margin-top:44px;height:100px}}
