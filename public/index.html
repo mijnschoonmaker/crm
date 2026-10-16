@@ -2025,6 +2025,20 @@ input[type="date"].dp-open{border-color:var(--brand);box-shadow:0 0 0 3px color-
 .msg-trk .trk-ok{color:var(--ok);font-weight:600}
 .kd-msg summary .msg-trk{flex-basis:100%;margin:0}
 .kd-msg summary .pill{margin-left:auto}
+/* verzonden berichten: kopregel met kanaal, tijd en status; onderwerp over de volle breedte */
+.kd-msgs{gap:10px}
+.kd-msg{border-radius:16px;overflow:hidden;transition:border-color .15s,box-shadow .15s}
+.kd-msg[open]{border-color:color-mix(in srgb,var(--brand) 30%,var(--line));box-shadow:0 6px 18px -14px rgb(15 50 60 / .5)}
+.kd-msg summary.km{display:flex;flex-direction:column;align-items:stretch;flex-wrap:nowrap;gap:6px;padding:14px 16px;list-style:none}
+.kd-msg summary.km::-webkit-details-marker{display:none}
+.km-kop{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;min-width:0}
+.km-kop .pill.neutral{margin:0;flex:none}
+.km-kop .pill.dotp{margin-left:auto;flex:none}
+.km-t{font-size:12.5px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.kd-msg summary .km-ow{flex:none;display:block;font-size:15.5px;font-weight:650;line-height:1.35;letter-spacing:-.01em;color:var(--ink);overflow-wrap:break-word;margin-top:4px}
+.kd-msg summary .km-naar{display:block;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:-2px}
+.kd-msg summary.km .msg-trk{margin-top:6px;padding-top:10px;border-top:1px dashed var(--line);gap:6px 16px}
+.kd-msg[open]>p{padding:12px 16px 16px;border-top:1px solid var(--line);background:var(--surface-2);font-size:14px;line-height:1.6}
 .trk-steps{margin:4px 0 0;padding-left:20px;display:grid;gap:7px;font-size:14px;line-height:1.5}.trk-steps code{font-size:12.5px}
 
 /* voorbeeld websitecalculator als eigen venster (boven open dialogen) */
@@ -10325,7 +10339,7 @@ function kkContact(kid,i){const k=state.klanten.find(x=>x.id===kid);if(!k)return
   const d=$("#kcDel");if(d)d.onclick=async()=>{const l=[...(k.contacten||[])];l.splice(i,1);try{await save("klanten",kid,{...strip(k),contacten:l});toast("Contactpersoon verwijderd");openKlantView(kid)}catch(er){err(er)}}}
 function kkBerichten(kid){const k=state.klanten.find(x=>x.id===kid);if(!k)return;const ms=state.berichten.filter(m=>m.klantId===kid).sort((a,b)=>String(b.op).localeCompare(String(a.op)));
   openDlg(`<div class="dlg-head"><span class="objic big">${I.send}</span><div style="min-width:0;flex:1"><h3>Verzonden berichten</h3><div class="subt">${esc(cleanName(k.naam))} · ${plural(ms.length,"bericht","berichten")}</div></div><button type="button" class="iconbtn" id="kbX" aria-label="Terug">${I.x}</button></div>
-    <div class="kd-msgs">${ms.map(m=>`<details class="kd-msg"><summary><span class="pill neutral">${esc(KANAAL[m.kanaal]||m.kanaal||"")}</span><b>${esc(m.onderwerp||String(m.tekst||"").slice(0,70))}</b><small>${esc(fmtTS(m.op))}${m.naar?" · "+esc(m.naar):""}</small>${(st=>statusPill(st[0]==="ok2"?"ok":st[0],st[1]))(MSTAT[mStat(m)]||MSTAT.geopend)}${mailTrk(m)}</summary><p>${esc(m.tekst||"").replace(/\n/g,"<br>")}</p></details>`).join("")||'<p class="subt">Nog geen berichten.</p>'}</div>
+    <div class="kd-msgs">${ms.map(m=>`<details class="kd-msg"><summary class="km"><div class="km-kop"><span class="pill neutral">${esc(KANAAL[m.kanaal]||m.kanaal||"")}</span><span class="km-t">${esc(fmtTS(m.op))}</span>${(st=>statusPill(st[0]==="ok2"?"ok":st[0],st[1]))(MSTAT[mStat(m)]||MSTAT.geopend)}</div><b class="km-ow">${esc(m.onderwerp||String(m.tekst||"").slice(0,70))}</b>${m.naar?`<small class="km-naar">Aan ${esc(m.naar)}</small>`:""}${mailTrk(m)}</summary><p>${esc(m.tekst||"").replace(/\n/g,"<br>")}</p></details>`).join("")||'<p class="subt">Nog geen berichten.</p>'}</div>
     <div class="row"><span class="sp"></span><button type="button" id="kbB">Terug naar klant</button></div>`,{wide:true});
   $("#kbX").onclick=$("#kbB").onclick=()=>openKlantView(kid)}
 function kkOpenOverzicht(kid){const k=state.klanten.find(x=>x.id===kid);if(!k)return;
