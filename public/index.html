@@ -3133,6 +3133,20 @@ html.zm .pl-menu{max-height:calc(100dvh / .9 - 190px)}
 .kd-row-m>i{width:8px;height:8px;border-radius:50%;flex:none;align-self:flex-start;margin-top:7px}
 .kd-row-m .kd-row-l b{font-weight:600;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 /* factuurregels: tabel op breed scherm, kaarten op de telefoon */
+/* factuurkop: nummer, klant, bedrag en status netjes gescheiden */
+.fw-head{flex-direction:column;align-items:stretch;gap:14px;padding-bottom:16px}
+.fw-h1{display:flex;align-items:center;gap:14px;min-width:0}
+.fw-ht{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.fw-ht small{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.fw-head .fw-ht h3{font-size:26px;line-height:1.1;letter-spacing:-.03em;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fw-h2{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:16px;background:var(--surface-2)}
+.fw-hk{min-width:0;display:flex;flex-direction:column;gap:2px}
+.fw-hk b{font-size:15px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fw-hk small{font-size:12.5px;color:var(--muted)}
+.fw-hb{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.fw-hb>b{font-size:19px;font-weight:750;letter-spacing:-.02em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.fw-hb .pill{font-size:11.5px}
+@media (max-width:640px){.fw-head~.kk-acts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.fw-head~.kk-acts>button{width:100%;justify-content:center;min-height:44px;margin:0}.fw-head~.kk-acts>button:last-child:nth-child(odd){grid-column:1/-1}}
 .fw-rks{display:none}
 @media (max-width:640px){
   .fw-tw{display:none}
@@ -10693,7 +10707,8 @@ function openFactuurWerk(id){
   const regKaart=(f.regels||[]).map((r,i)=>{const p=Number(r.prijs)||0,a=Number(r.aantal)||0,ex=(incl?p/(1+btw/100):p),exT=ex*a;return `<div class="fw-rk"><div class="fw-rk-k"><div class="fw-rk-t"><b>${esc(omsZonderDatum(r.omschrijving))}</b><small>Datum ${esc(fmtNum(f.datum).replace(/ /g,""))}</small></div><span class="fw-rk-a"><button type="button" class="iconbtn sm" data-fwr="${i}" aria-label="Regel aanpassen">${I.pencil}</button><button type="button" class="iconbtn sm" data-fwd="${i}" aria-label="Regel verwijderen">${I.x}</button></span></div><div class="fw-rk-b"><span>${a.toLocaleString("nl-NL")} × ${eur(ex)}<small>excl. ${eur(exT)} · btw ${eur(exT*btw/100)}</small></span><b>${eur(exT*(1+btw/100))}</b></div></div>`}).join("");
   const log=[{d:f.gemaakt||f.datum,t:"Factuur aangemaakt"},f.verstuurdOp&&{d:f.verstuurdOp,t:"Factuur verstuurd"},f.herinnerdOp&&{d:f.herinnerdOp,t:"Herinnering verstuurd"+(Number(f.herinneringen)>1?" ("+f.herinneringen+"e)":"")},f.status==="betaald"&&{d:f.betaaldOp,t:"Betaald · "+(W[f.betaalwijze]||"per bank")},f.status==="oninbaar"&&{d:f.oninbaarOp,t:"Op oninbaar gezet"},creditN&&{d:creditN.datum,t:"Gecrediteerd met "+creditN.nummer},
     ...state.berichten.filter(m=>String(m.ref||"").includes(f.id)).map(m=>({d:m.op,t:(KANAAL[m.kanaal]||"Bericht")+": "+(m.onderwerp||"")})),...(f.log||[]).map(l=>({d:l.datum,t:l.tekst}))].filter(x=>x&&x.d).sort((a,b)=>String(b.d).localeCompare(String(a.d)));
-  openDlg(`<div class="dlg-head"><span class="objic big">${I.facturen}</span><div style="min-width:0;flex:1"><h3>Factuur <span style="white-space:nowrap">${esc(f.nummer)}</span></h3><div class="subt">${esc(cleanName(f.klantNaam))} · ${eur(t.inc)}${f.periodiek?" · periodiek":""}${credit?" · creditfactuur van "+esc(credit.nummer):""}</div></div>${statusPill(st[0],st[1])}<button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
+  openDlg(`<div class="dlg-head fw-head"><div class="fw-h1"><span class="objic big">${I.facturen}</span><div class="fw-ht"><small>${credit?"Creditfactuur":"Factuur"}${f.periodiek?" · periodiek":""}</small><h3>${esc(f.nummer)}</h3></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
+    <div class="fw-h2"><div class="fw-hk"><b>${esc(cleanName(f.klantNaam))}</b><small>${esc(fmtL(String(f.datum||"").slice(0,10)))}${credit?" · van "+esc(credit.nummer):""}</small></div><div class="fw-hb"><b>${eur(t.inc)}</b>${statusPill(st[0],st[1])}</div></div></div>
   <div class="kk-acts">${f.status==="concept"?`<button type="button" class="small primary" data-fw="definitief">${I.check}Maak definitief</button>`:""}${st[1]!=="Betaald"&&f.status!=="concept"?`<button type="button" class="small good" data-fw="bank">${I.check}Betaald</button>`:""}<button type="button" class="small yellow" data-fw="send">${I.send}${st[1]==="Achterstallig"?"Stuur herinnering":"Versturen"}</button>${state.dl?`<button type="button" class="small" data-act="pdf" data-id="${esc(f.id)}">${I.dl}PDF downloaden</button>`:""}<button type="button" class="small" data-fw="bekijk">${I.eye}Bekijk factuur</button>${k?`<button type="button" class="small" data-fw="klant">${I.user}Klantkaart</button>`:""}</div>
   <div class="kk-grid kd"><div class="kk-left">
     <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klantgegevens</b><span class="sp"></span>${k?`<button type="button" class="iconbtn sm" data-fw="klant" aria-label="Naar klantkaart" title="Klantkaart">${I.right}</button>`:""}</div>
