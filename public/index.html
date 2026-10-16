@@ -8468,12 +8468,14 @@ function vInzichten(){
     /* nog te verdienen: ingeplande beurten in de rest van deze periode */
     const ti=iso(t),eind=iso(P.rg[1]),ingepland=actief().filter(k=>k.gepland&&k.gepland>=ti&&k.gepland<=eind).reduce((a,k)=>a+exAmt(k.prijs),0);
     const vorige=Fv.omzet,record=per==="maand"&&F.omzet>0&&F.omzet>=Math.max(...months.slice(0,11).map(m=>m.omzet));
-    const doel=Math.max(vorige,1),pct=Math.min(100,Math.round(F.omzet/doel*100)),pctP=Math.min(100,Math.round((F.omzet+ingepland)/doel*100));
+    /* doel van de race: de vorige periode; is die er niet, dan wat er in deze periode al vaststaat (gefactureerd + ingepland) */
+    const doelV=vorige>0?vorige:r2(F.omzet+ingepland),doel=Math.max(doelV,1),pct=Math.min(100,Math.round(F.omzet/doel*100)),pctP=Math.min(100,Math.round((F.omzet+ingepland)/doel*100));
+    const doelLbl=vorige>0?`van ${esc(V.lbl)} (${eur0(vorige)})`:`van wat vaststaat voor ${esc(P.lbl)} (${eur0(doelV)})`;
     const mot=record?"Beste maand van het afgelopen jaar. Top gedaan!":F.omzet>=vorige&&vorige>0?`Je zit al boven ${esc(V.lbl)}. Alles wat erbij komt is winst.`:vorige>0?`Nog ${eur0(vorige-F.omzet)} om ${esc(V.lbl)} te evenaren${ingepland?" · met wat ingepland staat haal je "+pctP+"%":""}.`:F.omzet>0?"Een mooie start. Elke factuur telt.":"Nog geen omzet in deze periode. De eerste factuur is de mooiste.";
     html+=`<section class="st-hero"><div class="st-hm"><span class="st-k">Omzet · ${esc(P.lbl)} · ex btw</span>
         <div class="st-big"><b>${eur0(F.omzet)}</b>${stDelta(F.omzet,vorige,"vs "+V.lbl)}</div>
         <p class="st-mot">${record?I.spark:""}${mot}</p>
-        ${vorige>0?`<div class="st-goal st-rol"><div class="fg-weg" style="--p:${pct/100}"><div class="fg-baan"><i></i></div><span class="fg-munt">${FG_MUNT}</span><span class="st-vlag">🏁</span></div><div class="st-gl"><span><b>${pct}%</b> van ${esc(V.lbl)} (${eur0(vorige)})</span>${ingepland?`<span class="st-ing"><i></i>${eur0(ingepland)} ingepland</span>`:""}</div></div>`:""}</div>
+        ${doelV>0?`<div class="st-goal st-rol"><div class="fg-weg" style="--p:${pct/100}"><div class="fg-baan"><i></i></div><span class="fg-munt">${FG_MUNT}</span><span class="st-vlag">🏁</span></div><div class="st-gl"><span><b>${pct}%</b> ${doelLbl}</span>${ingepland?`<span class="st-ing"><i></i>${eur0(ingepland)} ingepland</span>`:""}</div></div>`:""}</div>
       <div class="st-hs">${stTile(I.receipt,"Facturen",F.fs.length,"in "+esc(P.lbl))}${stTile(I.check,"Betaald",eur0(betaaldP),"incl btw","ok")}</div></section>
     <div class="st-tiles">${stTile(I.clock,"Openstaand",eur0(open.reduce((a,f)=>a+totals(f).inc,0)),plural(open.length,"factuur","facturen")+" · incl btw","",` data-act="tab" data-tab="facturen" role="button"`)}
       ${stTile(I.alert,"Te laat",eur0(late.reduce((a,f)=>a+totals(f).inc,0)),late.length?plural(late.length,"factuur","facturen")+" over tijd":"alles op tijd",late.length?"late":"ok")}
