@@ -1046,6 +1046,12 @@ aside .logo{gap:16px!important}.topbar .lg-g{font-size:14px!important}
 .bp-rang.podium .bp-rn{background:var(--kop-groen)}
 .bp-rt{display:flex;flex-direction:column;gap:2px;min-width:0}.bp-rt>b{font-size:14px;font-weight:700;letter-spacing:-.01em}.bp-rt small{font-size:12.5px;color:var(--muted);line-height:1.4}.bp-rt small b{color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
 @media (max-width:600px){.bp-rang{padding:9px 10px;gap:10px}.bp-rt>b{font-size:13.5px}.bp-rt small{font-size:12px}}
+
+/* automatisch betalen */
+.ic-body{padding:4px 16px 16px;display:flex;flex-direction:column;gap:12px;margin:0!important}
+.ic-body .stappen{margin:10px 0 4px}.ic-body .stappen li{font-weight:500;font-size:14.5px}
+.ic-body .primary{align-self:flex-start}
+@media (max-width:600px){.ic-body .primary{align-self:stretch}}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -1308,10 +1314,11 @@ function facturen(){const F=D.facturen,open=F.filter(f=>f.status!=="betaald"&&f.
   const BLIK='<svg viewBox="0 0 24 24"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12z"/></svg>';
   const pl=f=>f.status==="betaald"&&f.snelUren!=null&&f.snelUren<=24?`<span class="pill snel">${BLIK}${f.snelUren<1?"Binnen een uur betaald":f.snelUren<=4?"Binnen "+Math.round(f.snelUren)+" uur betaald":"Snel betaald"}</span>`:f.status==="betaald"?(f.betaaldOp&&f.datum?(()=>{const d=Math.max(0,Math.round((p(f.betaaldOp)-p(f.datum))/864e5)),laat=f.verval&&f.betaaldOp>f.verval;return `<span class="pill ${laat?"soon":"ok"}"><i></i>${laat?"Betaald · "+Math.round((p(f.betaaldOp)-p(f.verval))/864e5)+" d te laat":d===0?"Zelfde dag betaald":"Betaald in "+d+" d"}</span>`})():`<span class="pill ok"><i></i>Betaald</span>`)
     :f.status==="gesloten"?`<span class="pill neutral">Gesloten</span>`
+    :f.incasso&&f.incassoStatus!=="failed"&&f.incassoStatus!=="canceled"&&f.incassoStatus!=="expired"?`<span class="pill brand"><i></i>Wordt afgeschreven${f.verval?" · "+esc(kort(f.verval)):""}</span>`
     :f.verval?(()=>{const n=dagenTot(f.verval);return n<0?`<span class="pill late"><i></i>${-n} ${n===-1?"dag":"dagen"} te laat</span>`:n===0?`<span class="pill soon"><i></i>Vandaag betalen</span>`:`<span class="pill ${n<=3?"soon":"brand"}"><i></i>Nog ${n} ${n===1?"dag":"dagen"}</span>`})():`<span class="pill brand"><i></i>Open</span>`;
   const rij=f=>lr(I.fact,esc(f.nummer||"Factuur"),esc(kort(f.datum))+(f.status!=="betaald"&&f.verval?" · betalen voor "+esc(kort(f.verval)):""),eur(f.bedrag)+pl(f),{attr:`data-fact="${esc(f.id)}"`});
   const som=open.reduce((a,f)=>a+f.bedrag,0),betaald=F.filter(f=>f.status==="betaald").reduce((a,f)=>a+f.bedrag,0);
-  const oudste=P.te.slice().sort((a,b)=>a.verval.localeCompare(b.verval))[0];
+  const oudste=P.te.filter(f=>!f.incasso).slice().sort((a,b)=>a.verval.localeCompare(b.verval))[0];
   const msg=P.te.length?`${P.te.length===1?"Factuur "+esc(oudste.nummer)+" is":P.te.length+" facturen zijn"} over de betaaltermijn. Betaal vandaag, dan staat u weer helemaal goed en krijgt u geen herinneringen meer.`
     :!P.laatste.length?"Zodra u een factuur betaalt, ziet u hier hoe snel u betaalt.":P.niv.n>=5?`Top! U betaalt gemiddeld binnen ${P.gem} ${P.gem===1?"dag":"dagen"}. Daarmee hoort u bij onze beste betalers.`
     :P.niv.n===4?`U betaalt altijd binnen de termijn. Betaal direct online, dan is het in één minuut geregeld.`
@@ -1325,8 +1332,15 @@ function facturen(){const F=D.facturen,open=F.filter(f=>f.status!=="betaald"&&f.
     ${P.laatste.length?`<div class="bp-k"><div><small>Gemiddeld betaald in</small><b>${Rg&&Rg.sec!=null?duurTxt(Rg.sec,true):"na "+P.gem+" "+(P.gem===1?"dag":"dagen")}</b></div><div><small>Op tijd betaald</small><b>${P.op} van ${P.laatste.length}</b></div><div><small>Op rij op tijd</small><b>${P.reeks}×</b></div></div>`:""}
     ${betaalGrafiek(P,open)}</section>`;
   const alarm=oudste?`<button class="melding rood" data-fact="${esc(oudste.id)}"><span class="objic rood">${I.euro}</span><div class="tx"><b>${eur(oudste.bedrag)} · ${-dagenTot(oudste.verval)} ${dagenTot(oudste.verval)===-1?"dag":"dagen"} te laat</b><small>Factuur ${esc(oudste.nummer)} · vervallen op ${esc(kort(oudste.verval))}${oudste.herinnerd?" · "+plural(oudste.herinnerd,"herinnering","herinneringen")+" verstuurd":""}</small></div><span class="btn-p">Nu betalen</span></button>`:"";
+  const IC=D.klant.incasso||{};
+  const incassoKp=!IC.beschikbaar?"":IC.actief
+    ?`<section class="kp"><div class="kp-h"><span class="objic groen">${I.check}</span><div><b>Betalen gaat automatisch</b><small>${IC.rekening?esc(IC.rekening)+(IC.bank?" · "+esc(IC.bank):""):"Machtiging actief"}${IC.sinds?" · sinds "+esc(kort(IC.sinds)):""}</small></div><span class="sp"></span><button class="ghost" data-act="incassostop">Stopzetten</button></div>
+      <p class="sub" style="margin:14px 16px 16px">Elke factuur wordt rond de vervaldatum automatisch van uw rekening afgeschreven. U krijgt de factuur nog gewoon per e-mail en ziet hem hier terug. Niet eens met een afschrijving? Dan kunt u die binnen 8 weken via uw bank laten terugboeken.</p></section>`
+    :`<section class="kp"><div class="kp-h"><span class="objic">${I.euro}</span><div><b>Automatisch betalen</b><small>Nooit meer een factuur overmaken</small></div></div>
+      <div class="ic-body"><ul class="stappen"><li><span>U geeft eenmalig een machtiging via iDEAL (€ 0,01, ter controle van uw rekening).</span></li><li><span>Daarna wordt elke factuur rond de vervaldatum automatisch afgeschreven.</span></li><li><span>U houdt alles in de hand: de factuur komt nog steeds per e-mail, en stopzetten kan hier altijd.</span></li></ul>
+      <button class="primary" data-act="incasso">${I.check}Automatisch betalen instellen</button></div></section>`;
   return kop("Facturen",open.length?`Er ${open.length===1?"staat één factuur":"staan "+open.length+" facturen"} open.`:"Alles is betaald. Dank u wel.")+`<div class="pg">
-    ${alarm}
+    ${alarm}${incassoKp}
     ${F.length?hero:""}
     <div class="stats st3"><div class="stat${som>0?" rood":""}"><span class="st-ic">${I.euro}</span><div><small>Openstaand</small><b${som>0?' style="color:var(--late)"':""}>${eur0(som)}</b><em>${open.length?plural(open.length,"factuur","facturen"):"niets open"}</em></div></div><div class="stat"><span class="st-ic">${I.check}</span><div><small>Betaald</small><b>${eur0(betaald)}</b><em>${plural(F.filter(f=>f.status==="betaald").length,"factuur","facturen")}</em></div></div><div class="stat goud"><span class="st-ic">${I.cadeau}</span><div><small>Tegoed</small><b>${eur0(D.aanbevelen.tegoed)}</b><em>${D.aanbevelen.tegoed>0?"op uw volgende factuur":"via aanbevelen"}</em></div></div></div>
     ${open.length?kp(I.euro,"Te betalen",`<div class="lijst">${open.map(rij).join("")}</div>`,{kl:"rood",sub:"Betaal online met iDEAL of maak het bedrag over"}):""}
@@ -1505,6 +1519,10 @@ async function verstuur(o,body,titel,tekst){const b=o.querySelector("[data-go]")
   try{const r=await api("actie",{body});bedankt(o,titel,tekst,r&&r.ticketId);laad(true)}catch(e){b.disabled=false;f.textContent=e.message}}
 const isoP=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 const FORM={
+  async incasso(){const sluit=blad(`<div class="laden" style="min-height:160px"><div class="spin"></div><span>Even naar iDEAL…</span></div>`);try{const r=await api("incasso",{body:{}});if(r.link)location.href=r.link;else throw new Error("Geen link ontvangen")}catch(e){sluit();toast(e.message)}},
+  incassostop(){blad(`<div class="dh"><span class="objic rood">${I.x||I.euro}</span><div><h3>Automatisch betalen stopzetten?</h3><small>Facturen betaalt u daarna weer zelf, met iDEAL of door over te maken.</small></div></div>
+    <p class="fout" role="alert"></p><div class="acties"><button class="" data-sluit>Toch aan laten</button><button class="primary" data-go style="background:var(--late)!important">Stopzetten</button></div>`,
+    (o,sluit)=>{o.querySelector("[data-go]").onclick=async()=>{const b=o.querySelector("[data-go]");b.disabled=true;try{await api("incasso",{body:{stop:true}});sluit();toast("Automatisch betalen is gestopt");laad(true)}catch(e){b.disabled=false;o.querySelector(".fout").textContent=e.message}}})},
   sterren(){const b=D.teBeoordelen;if(!b)return;const n=((D.credits||{}).tarieven||{}).beurt||0;
     const sluit=blad(`<div class="dh"><span class="objic goud">${I.ster}</span><div><h3>Hoe was ons bezoek?</h3><small>Bezoek van ${esc(lang(b.datum))}${n?` · ${n} credit${n===1?"":"s"} voor uw beoordeling`:""}</small></div></div>
       <div class="sterren" style="justify-content:center;margin:6px 0 14px" role="group" aria-label="Geef een beoordeling">${[1,2,3,4,5].map(i=>`<button data-st2="${i}" aria-label="${i} ${i===1?"ster":"sterren"}">${I.ster}</button>`).join("")}</div>
@@ -1581,9 +1599,9 @@ function bladVul(o,html,na){const b=o.querySelector(".blad");b.style.minHeight=b
 async function openFactuur(id){let f;const sluit=blad(`<div class="laden" style="min-height:200px"><div class="spin"></div></div>`),o=sluit.o;
   try{f=await factuurHaal(id)}catch(e){sluit();toast(e.message);return}
   if(!o.isConnected)return;
-  const b=f.bedrijf,open=f.status==="open"||f.status==="verlopen";
+  const b=f.bedrijf,open=(f.status==="open"||f.status==="verlopen")&&!f.incasso;
   const groot=matchMedia("(min-width:761px)").matches,naam="Factuur "+(f.nummer||"")+".pdf";
-  const kopTxt=`<h3>Factuur ${esc(f.nummer)}</h3><p class="sub">${f.status==="betaald"?"Betaald"+(f.betaaldOp?" op "+esc(kort(f.betaaldOp)):"")+". Dank u wel.":f.status==="verlopen"?"De betaaltermijn is verstreken op "+esc(kort(f.verval))+".":"Graag betalen voor "+esc(kort(f.verval))+"."}</p>`;
+  const kopTxt=`<h3>Factuur ${esc(f.nummer)}</h3><p class="sub">${f.status==="betaald"?"Betaald"+(f.betaaldOp?" op "+esc(kort(f.betaaldOp)):"")+". Dank u wel.":f.incasso?"Wordt rond "+esc(kort(f.verval))+" automatisch van uw rekening afgeschreven. U hoeft niets te doen.":f.status==="verlopen"?"De betaaltermijn is verstreken op "+esc(kort(f.verval))+".":"Graag betalen voor "+esc(kort(f.verval))+"."}</p>`;
   const overmaken=open&&b.iban?`<div class="infobox">${I.euro}<span>Liever overmaken? ${eur(f.inc)} naar <b>${esc(b.iban)}</b> t.n.v. ${esc(b.naam)} onder vermelding van ${esc(f.nummer)}.</span></div>`:"";
   const betaalKnop=o2=>{const b2=o2.querySelector("[data-betaal]");if(b2)b2.onclick=async()=>{b2.disabled=true;try{const r=f.betaallink?{link:f.betaallink}:await api("betaal",{body:{id}});if(r.link)location.href=r.link}catch(e){b2.disabled=false;o2.querySelector(".fout").textContent=e.message}}};
   if(f.pdf){
@@ -1692,6 +1710,7 @@ async function lvPeil(){if(document.hidden||tab!=="home")return;let r;try{r=awai
   const h=location.hash.slice(1);if(TABS.some(t=>t[0]===h))tab=h;if(h.startsWith("ticket-")){tab="tickets";TK.open=h.slice(7)}
   if(q.get("l")){$("#app").innerHTML=`<div class="laden"><div class="spin"></div><span>Even geduld, we openen uw omgeving…</span></div>`;
     try{const r=await api("sessie",{body:{l:q.get("l")},open:true});sessie.set(r.s);history.replaceState(null,"",location.pathname+location.hash)}catch(e){history.replaceState(null,"",location.pathname+location.hash);if(!sessie.get())return toonLogin(e.message)}}
+  if(q.get("incasso")){tab="facturen";history.replaceState(null,"",location.pathname);setTimeout(()=>toast("Dank u wel! Uw machtiging wordt verwerkt; binnen een minuut staat automatisch betalen aan."),800);setTimeout(()=>laad(true),8000)}
   if(q.get("betaald")){tab="facturen";const fid=q.get("betaald");history.replaceState(null,"",location.pathname);setTimeout(()=>bedanktNaBetalen(fid),500)}
   if(!sessie.get())return toonLogin();
   laad()})();

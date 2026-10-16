@@ -30,6 +30,7 @@ function invRows(f,klant){
   const iban=String(s.iban||"").replace(/\s/g,""),vw=s.voorwaarden&&/^https?:/.test(s.voorwaarden)?s.voorwaarden.replace(/^https?:\/\//,""):s.voorwaardenPdf?"onze website":"";
   const betaal=d.off?`Deze offerte is geldig tot ${fmtNum(f.verval).replace(/ /g,"")}. Gaat u akkoord? Laat het ons weten, dan plannen wij u in.`
     :d.voldaan?`${d.voldaan}. Hartelijk dank voor uw betaling.`
+    :f.incasso?`Het bedrag van ${eur(d.t.inc)} wordt rond ${fmtNum(f.verval).replace(/ /g,"")} automatisch van uw rekening afgeschreven via uw machtiging (${s.naam||""}, factuurnummer ${f.nummer}). U hoeft niets te doen.`
     :`We verzoeken u vriendelijk het bovenstaande bedrag van ${eur(d.t.inc)} voor ${fmtNum(f.verval).replace(/ /g,"")} te voldoen op onze bankrekening: ${iban||"(IBAN)"} tnv: ${s.naam||""} onder vermelding van het factuurnummer: ${f.nummer}.${s.betaallink?" Direct betalen kan via: "+s.betaallink:""}`;
   const vwTxt=vw?`Op deze ${d.off?"offerte":"factuur"} zijn onze algemene voorwaarden van toepassing, te vinden op ${vw}.${d.off?"":" Bij niet-tijdige betaling zijn wij gerechtigd de vordering uit handen te geven en wettelijke rente en incassokosten in rekening te brengen."}`:"";
   return{...d,info,regels,betaal,vwTxt,naamKlant:d.klantNaam};
@@ -41,9 +42,9 @@ function invModel(f,klant){
   const kn=(d.info.find(x=>x[0]==="Klantnummer")||[,[""]])[1][0];
   const meta=[[d.off?"Offertenummer":"Factuurnummer",f.nummer],[d.off?"Offertedatum":"Factuurdatum",fmtL(f.datum)],[d.off?"Geldig tot":"Vervaldatum",fmtL(f.verval)],["Klantnummer",kn]];
   const coLines=[s.adres,[s.postcode,s.plaats].filter(Boolean).join(" "),s.telefoon,s.email].filter(Boolean);
-  const pay=d.off?null:d.voldaan?null:[["IBAN",String(s.iban||"—")],["T.n.v.",s.naam||"—"],["Factuurnr.",f.nummer],["Uiterlijk",fmtL(f.verval)]];
+  const pay=d.off?null:d.voldaan?null:f.incasso?[["Betaling","Automatische incasso"],["Afschrijving",fmtL(f.verval)],["Factuurnr.",f.nummer]]:[["IBAN",String(s.iban||"—")],["T.n.v.",s.naam||"—"],["Factuurnr.",f.nummer],["Uiterlijk",fmtL(f.verval)]];
   const foot=[s.naam,s.kvk&&"KvK "+s.kvk,s.btwnr&&"BTW-id "+s.btwnr,s.website].filter(Boolean);
-  const zin=d.off?`Deze offerte is geldig tot ${fmtL(f.verval)}. Gaat u akkoord? Laat het ons weten, dan plannen wij u direct in.`:d.voldaan?`${d.voldaan}. Hartelijk dank voor uw betaling.`:`Graag vóór ${fmtL(f.verval)} overmaken onder vermelding van het factuurnummer.${s.betaallink?" Direct betalen kan via "+s.betaallink+".":""}`;
+  const zin=d.off?`Deze offerte is geldig tot ${fmtL(f.verval)}. Gaat u akkoord? Laat het ons weten, dan plannen wij u direct in.`:d.voldaan?`${d.voldaan}. Hartelijk dank voor uw betaling.`:f.incasso?`Wordt rond ${fmtL(f.verval)} automatisch van uw rekening afgeschreven. U hoeft niets te doen.`:`Graag vóór ${fmtL(f.verval)} overmaken onder vermelding van het factuurnummer.${s.betaallink?" Direct betalen kan via "+s.betaallink+".":""}`;
   const pill=!d.off&&(d.st[1]==="g"||d.st[1]==="r");
   const coInfo=d.info.filter(([l])=>l!=="Offertenummer"&&l!=="Factuurnummer").map(([l,v])=>[l,v.filter(Boolean)]);
   const vervalRij=d.off?null:["Vervaldatum",[fmtNum(f.verval).replace(/ /g,"")]];if(vervalRij)coInfo.push(vervalRij);const di=coInfo.findIndex(([l])=>/datum|Geldig/i.test(l));if(di>0&&coInfo[di-1][0])coInfo.splice(di,0,["",[]]);

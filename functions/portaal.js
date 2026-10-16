@@ -156,7 +156,7 @@ module.exports = function maakPortaal(ctx) {
     ]);
     const beurten = bs.docs.map(d => ({ id: d.id, ...dec(d.data()) })).filter(x => x.datum).sort((a, b2) => b2.datum.localeCompare(a.datum));
     const facturen = fs.docs.map(d => ({ id: d.id, ...dec(d.data()) })).filter(f => f.soort !== "offerte" && f.status !== "concept").sort((a, b2) => String(b2.datum).localeCompare(String(a.datum)))
-      .map(f => ({ id: f.id, nummer: f.nummer || "", datum: f.datum || "", verval: f.verval || "", bedrag: totals(f, b).inc, status: fStatus(f), betaaldOp: f.status === "betaald" ? String(f.betaaldOp || f.betaald || "").slice(0, 10) : "", snelUren: snelUren(f), sec: betaalSec(f), herinnerd: Number(f.herinneringen) || 0, betaallink: f.status !== "betaald" ? (f.betaallink || f.mollieLink || "") : "" }));
+      .map(f => ({ id: f.id, nummer: f.nummer || "", datum: f.datum || "", verval: f.verval || "", bedrag: totals(f, b).inc, status: fStatus(f), betaaldOp: f.status === "betaald" ? String(f.betaaldOp || f.betaald || "").slice(0, 10) : "", snelUren: snelUren(f), sec: betaalSec(f), incasso: !!f.incasso, incassoStatus: f.incasso ? (f.mollieStatus || "") : "", herinnerd: Number(f.herinneringen) || 0, betaallink: f.status !== "betaald" ? (f.betaallink || f.mollieLink || "") : "" }));
     const freqW = Number(k.frequentie) || 4;
     let volgende = null;
     if (k.gepland && k.gepland >= vandaag) volgende = { datum: k.gepland, tijd: k.tijd || "", bezig: !!k.bezig && k.gepland === vandaag, reeks: (k.reeks || []).filter(x => x && x.d > k.gepland).slice(0, 12).map(x => ({ datum: x.d, tijd: x.t || "" })) };
@@ -179,7 +179,8 @@ module.exports = function maakPortaal(ctx) {
       klant: { voornaam: voornaamVan(schoon(k.contact || k.naam)), naam: schoon(k.naam), contact: k.contact || "", adres: k.adres || "", postcode: k.postcode || "", plaats: k.plaats || "", pcPlaats: [k.postcode, k.plaats].filter(Boolean).join(" "), email: k.email || "", telefoon: k.telefoon || "", mobiel: k.mobiel || "", zakelijk: k.soort === "zakelijk" || k.soort === "vve",
         vve, ritme: ritmeTxt(k), weekdagen: wdg || [], taken: vveTakenVan(k),
         klantnr: k.klantnr || "", sinds: k.aangemaakt || (beurten.length ? beurten[beurten.length - 1].datum : ""), dienst: k.dienst || "Glasbewassing", frequentie: freqW, prijs: Number(k.prijs) || 0, binnen: !!k.binnen, actief: k.actief !== false,
-        toegang: k.portaalToegang || { opties: [], tekst: "" }, nieuw: !!k.eersteKeer && !beurten.length },
+        toegang: k.portaalToegang || { opties: [], tekst: "" }, nieuw: !!k.eersteKeer && !beurten.length,
+        incasso: { actief: !!k.incasso && !!k.mollieMandateId, sinds: String(k.incassoSinds || "").slice(0, 10), bank: k.incassoBank || "", rekening: k.incassoRekening || "", beschikbaar: !!(await geheim()).mollieKey } },
       volgende, verwacht,
       bezoeken: beurten.slice(0, 30).map(x => ({ id: x.id, datum: x.datum, tijd: tijdVan(x), dienst: x.dienst || k.dienst || "Glasbewassing", extra: x.extra || [], bedrag: Number(x.bedrag) || 0, beoordeling: x.beoordeling ? { sterren: x.beoordeling.sterren } : null,
         ...(vve ? { taken: Array.isArray(x.taken) ? x.taken.map(t => ({ naam: String(t.naam || ""), ok: !!t.ok })) : [], fotos: (x.fotos || []).map(f => fotoUrl(f.id)).filter(Boolean), notitie: String(x.notitie || "").slice(0, 400), duur: Number(x.duur) || 0 } : {}) })),
@@ -361,7 +362,7 @@ module.exports = function maakPortaal(ctx) {
         const f = await db.doc("facturen/" + String(req.query.id || "")).get();
         if (!f.exists || f.data().klantId !== S.klant.id || f.data().soort === "offerte" || f.data().status === "concept") { res.status(404).json({ fout: "niet gevonden" }); return; }
         const x = dec(f.data()), b = await bedrijf();
-        res.json({ pdf: !!x.pdfId, nummer: x.nummer, datum: x.datum, verval: x.verval, klantNaam: schoon(x.klantNaam), klantAdres: x.klantAdres || "", regels: (x.regels || []).map(r => ({ omschrijving: r.omschrijving, aantal: Number(r.aantal) || 0, prijs: Number(r.prijs) || 0 })), incl: x.incl ?? b.incl ?? true, btwPct: Number(x.btw ?? b.btw ?? 21), ...totals(x, b), status: fStatus(x), betaaldOp: x.betaaldOp || "", betaallink: x.status !== "betaald" ? (x.betaallink || x.mollieLink || "") : "", notitie: x.notitie || "",
+        res.json({ pdf: !!x.pdfId, incasso: !!x.incasso && x.status !== "betaald" && !x.incassoMislukt, nummer: x.nummer, datum: x.datum, verval: x.verval, klantNaam: schoon(x.klantNaam), klantAdres: x.klantAdres || "", regels: (x.regels || []).map(r => ({ omschrijving: r.omschrijving, aantal: Number(r.aantal) || 0, prijs: Number(r.prijs) || 0 })), incl: x.incl ?? b.incl ?? true, btwPct: Number(x.btw ?? b.btw ?? 21), ...totals(x, b), status: fStatus(x), betaaldOp: x.betaaldOp || "", betaallink: x.status !== "betaald" ? (x.betaallink || x.mollieLink || "") : "", notitie: x.notitie || "",
           bedrijf: { ...bedrijfInfo(b, basisUrl(req)), adres: b.adres || "", pcPlaats: [b.postcode, b.plaats].filter(Boolean).join(" "), kvk: b.kvk || "", btwnr: b.btwnr || "", bic: b.bic || "" } }); return;
       }
       /* de echte factuur-PDF zoals het CRM hem maakt */
@@ -383,6 +384,22 @@ module.exports = function maakPortaal(ctx) {
         const p = await mollie(g.mollieKey, "payments", { method: "POST", body: JSON.stringify({ amount: { currency: "EUR", value: totals(x, b).inc.toFixed(2) }, description: ("Factuur " + (x.nummer || id)).slice(0, 255), redirectUrl: base + "/portaal?betaald=" + encodeURIComponent(id), webhookUrl: base + "/api/mollie", metadata: { factuurId: id } }) });
         const link = p._links && p._links.checkout && p._links.checkout.href;
         await f.ref.set({ mollieId: p.id, mollieLink: link || "", betaallink: link || "", mollieStatus: p.status }, { merge: true });
+        res.json({ link }); return;
+      }
+      /* automatische incasso: machtiging via een eerste iDEAL-betaling van € 0,01, daarna schrijft het CRM facturen automatisch af */
+      if (pad === "/incasso" && req.method === "POST") {
+        const g = await geheim(), b = await bedrijf(), k = S.klant, base = basisUrl(req), d = body(req);
+        if (!g.mollieKey) { res.status(409).json({ fout: "Automatisch betalen is nog niet beschikbaar." }); return; }
+        if (d.stop) {
+          if (k.mollieCustomerId && k.mollieMandateId) { try { await mollie(g.mollieKey, "customers/" + k.mollieCustomerId + "/mandates/" + k.mollieMandateId, { method: "DELETE" }); } catch (e) { console.error("mandaat intrekken", e.message); } }
+          await S.kref.set({ incasso: false, mollieMandateId: "", incassoGestopt: nu(), log: [...(Array.isArray(k.log) ? k.log : []), { datum: isoNL(), tekst: "Automatische incasso gestopt door klant (portaal)" }] }, { merge: true });
+          res.json({ ok: true }); return;
+        }
+        let cid = k.mollieCustomerId || "";
+        if (!cid) { const c = await mollie(g.mollieKey, "customers", { method: "POST", body: JSON.stringify({ name: schoon(k.naam).slice(0, 100), email: k.email || undefined, metadata: { klantId: k.id } }) }); cid = c.id; await S.kref.set({ mollieCustomerId: cid }, { merge: true }); }
+        const p = await mollie(g.mollieKey, "payments", { method: "POST", body: JSON.stringify({ amount: { currency: "EUR", value: "0.01" }, customerId: cid, sequenceType: "first", method: "ideal", description: ("Machtiging automatische incasso " + (b.naam || "")).slice(0, 255), redirectUrl: base + "/portaal?incasso=1", webhookUrl: base + "/api/mollie", metadata: { incasso: true, klantId: k.id } }) });
+        const link = p._links && p._links.checkout && p._links.checkout.href;
+        await S.kref.set({ incassoAanvraag: { id: p.id, op: nu() } }, { merge: true });
         res.json({ link }); return;
       }
       if (pad === "/tickets" && req.method === "GET") { res.json(await ticketsLijst(S)); return; }

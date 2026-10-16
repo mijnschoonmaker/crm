@@ -261,15 +261,52 @@ exports.mollieLink = onCall(async req => {
   await f.ref.set({ mollieId: p.id, mollieLink: link || "", betaallink: link || "", mollieStatus: p.status }, { merge: true });
   return { link, id: p.id };
 });
+/* factuur automatisch afschrijven bij een klant met een incasso-machtiging (sequenceType recurring) */
+exports.mollieIncasso = onCall(async req => {
+  await checkGebruiker(req.auth);
+  const { factuurId, bedrag, omschrijving, basis } = req.data || {};
+  const g = await geheim();
+  if (!g.mollieKey) throw new HttpsError("failed-precondition", "Er is nog geen Mollie-sleutel ingesteld.");
+  const f = await db.doc("facturen/" + factuurId).get();
+  if (!f.exists) throw new HttpsError("not-found", "Factuur niet gevonden.");
+  const x = f.data();
+  if (x.incasso && x.mollieId && !["failed", "canceled", "expired"].includes(x.mollieStatus || "")) return { id: x.mollieId, status: x.mollieStatus, al: true };
+  const ks = await db.doc("klanten/" + String(x.klantId || "")).get();
+  const k = ks.exists ? ks.data() : {};
+  if (!(k.incasso && k.mollieCustomerId && k.mollieMandateId)) throw new HttpsError("failed-precondition", "Deze klant heeft geen incasso-machtiging.");
+  const val = Number(bedrag);
+  if (!(val > 0)) throw new HttpsError("invalid-argument", "Ongeldig bedrag.");
+  const site = String(basis || "").replace(/\/+$/, "");
+  const p = await mollie(g.mollieKey, "payments", { method: "POST", body: JSON.stringify({
+    amount: { currency: "EUR", value: val.toFixed(2) }, customerId: k.mollieCustomerId, mandateId: k.mollieMandateId, sequenceType: "recurring",
+    description: String(omschrijving || "Factuur " + (x.nummer || factuurId)).slice(0, 255), webhookUrl: site + "/api/mollie", metadata: { factuurId } }) });
+  await f.ref.set({ incasso: true, incassoOp: nu(), mollieId: p.id, mollieStatus: p.status, betaallink: "", mollieLink: "" }, { merge: true });
+  return { id: p.id, status: p.status };
+});
 exports.mollieHook = onRequest(async (req, res) => {
   const id = (req.body && req.body.id) || "";
   if (!/^tr_\w+$/.test(id)) { res.status(400).send("geen id"); return; }
   const g = await geheim();
   try {
     const p = await mollie(g.mollieKey, "payments/" + id);   // altijd zelf opvragen: de webhook zelf is niet te vertrouwen
+    if (p.metadata && p.metadata.incasso && p.metadata.klantId) {
+      /* eerste betaling voor de machtiging: bij "paid" is er een mandaat */
+      const kref = db.doc("klanten/" + p.metadata.klantId), ks = await kref.get();
+      if (ks.exists) {
+        const upd = { incassoAanvraag: { id: p.id, op: nu(), status: p.status } };
+        if (p.status === "paid" && p.mandateId) {
+          let bank = "", rek = "";
+          try { const m = await mollie(g.mollieKey, "customers/" + p.customerId + "/mandates/" + p.mandateId); const dt = m.details || {}; bank = dt.consumerName || ""; rek = String(dt.consumerAccount || "").replace(/^(.{4}).*(.{4})$/, "$1 •••• $2"); } catch (e) {}
+          Object.assign(upd, { incasso: true, mollieCustomerId: p.customerId, mollieMandateId: p.mandateId, incassoSinds: (p.paidAt || nu()).slice(0, 10), incassoBank: bank, incassoRekening: rek, log: [...(Array.isArray(ks.data().log) ? ks.data().log : []), { datum: nu().slice(0, 10), tekst: "Automatische incasso ingesteld door klant (portaal)" + (rek ? " · " + rek : "") }] });
+        }
+        await kref.set(upd, { merge: true });
+      }
+      res.send("ok"); return;
+    }
     const fid = p.metadata && p.metadata.factuurId;
     if (fid) {
       const ref = db.doc("facturen/" + fid), upd = { mollieStatus: p.status };
+      if (p.sequenceType === "recurring" && ["failed", "canceled", "expired"].includes(p.status)) Object.assign(upd, { incassoMislukt: nu(), incassoFout: (p.details && p.details.bankReason) || p.status });
       if (p.status === "paid") Object.assign(upd, { status: "betaald", betaald: true, betaaldOp: (p.paidAt || nu()).slice(0, 10), betaaldTs: p.paidAt || nu(), betaalwijze: "mollie" });
       await ref.set(upd, { merge: true });
       if (p.status === "paid") {

@@ -234,7 +234,7 @@ function queues(){
     items:nv.map(f=>({k:state.klanten.find(x=>x.id===f.klantId)||{naam:f.klantNaam,email:f.klantEmail},vars:factVars(f),ref:"factuur:"+f.id,onSent:()=>save("facturen",f.id,{...strip(f),verstuurdOp:iso(today())})}))});
   if(st.fhAan&&(!st.fhWerkdagen||isWerkdag(t))){
     const M=fhMomenten();
-    const verv=facturen().filter(f=>{if(fStatus(f)[1]!=="Achterstallig")return false;const k=state.klanten.find(x=>x.id===f.klantId);if(st.fhIncasso&&k&&k.incasso)return false;
+    const verv=facturen().filter(f=>{if(fStatus(f)[1]!=="Achterstallig")return false;const k=state.klanten.find(x=>x.id===f.klantId);if((st.fhIncasso&&k&&k.incasso)||(f.incasso&&!f.incassoMislukt))return false;
       if(f.herinnerdOp&&(t-parse(f.herinnerdOp))/DAY<(Number(st.fhSkip)||0))return false;const over=Math.round((t-parse(f.verval))/DAY),n=Number(f.herinneringen)||0;const m=M[n];if(!m)return false;if(st.fhStop&&n>=M.length)return false;
       let j=n;while(M[j]&&!M[j].aan)j++;return M[j]&&over>=Number(M[j].dagen)});
     out.push({id:"aanmaning",titel:"Betalingsherinneringen",uitleg:"Achterstallige facturen op "+M.filter(m=>m.aan).map(m=>m.dagen).join(", ")+" dagen na de vervaldatum",

@@ -52,6 +52,7 @@ function kkPortaal(k){
       <div><small>Portaal</small><b>${k.portaalLaatst?"Laatst ingelogd "+esc(fmtD(k.portaalLaatst.slice(0,10))):k.portaalUitgenodigd?"Uitgenodigd "+esc(fmtD(k.portaalUitgenodigd.slice(0,10))):"Nog niet gebruikt"}</b></div>
       <div><small>Aanbevelingscode</small><b>${esc(k.refCode||"Wordt gemaakt bij eerste login")}</b></div>
       <div><small>Tegoed</small><b${som>0?' style="color:var(--ok)"':""}>${som>0?eur(som):"—"}</b></div>
+      <div><small>Automatische incasso</small><b${k.incasso&&k.mollieMandateId?' style="color:var(--ok)"':""}>${k.incasso&&k.mollieMandateId?"Actief"+(k.incassoRekening?" · "+esc(k.incassoRekening):"")+(k.incassoSinds?" · sinds "+esc(fmtD(k.incassoSinds)):""):"Niet ingesteld"}</b></div>
     </div>
     ${tg.length?`<div class="kd-sub"><span class="eyebrow">Gaat van de volgende factuur af</span>${tg.map(t=>`<span class="kd-li"><i style="background:var(--ok)"></i>${esc(t.reden||"Korting")}<em>${eur(t.bedrag)}</em></span>`).join("")}</div>`:""}
     ${door?`<div class="kd-sub"><span class="eyebrow">Aanbevolen door</span><span class="kd-li"><i style="background:#e9a23b"></i><button type="button" class="linkbtn" data-act="klant" data-id="${esc(door.id)}">${esc(cleanName(door.naam))}</button><em>${k.aanbevelingBeloond?"korting vrijgegeven":"korting on hold"}</em></span></div>`:""}
