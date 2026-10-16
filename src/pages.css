@@ -2719,6 +2719,8 @@ html.zm .pl-menu{max-height:calc(100dvh / .9 - 190px)}
 .fw-hb{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:5px}
 .fw-hb>b{font-size:19px;font-weight:750;letter-spacing:-.02em;font-variant-numeric:tabular-nums;white-space:nowrap}
 .fw-hb .pill{font-size:11.5px}
+.paperwrap.past{overflow:hidden}
+@media (max-width:640px){.paperwrap{padding:8px}.fw-head~.row.fw-acts{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.fw-head~.row.fw-acts>button{width:100%;justify-content:center;min-height:44px;margin:0}.fw-head~.row.fw-acts>button:last-child:nth-child(odd){grid-column:1/-1}}
 @media (max-width:640px){.fw-head~.kk-acts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.fw-head~.kk-acts>button{width:100%;justify-content:center;min-height:44px;margin:0}.fw-head~.kk-acts>button:last-child:nth-child(odd){grid-column:1/-1}}
 .fw-rks{display:none}
 @media (max-width:640px){

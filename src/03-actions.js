@@ -280,8 +280,9 @@ function openFactuur(id){const f=state.facturen.find(x=>x.id===id);if(!f)return;
 function openFactuurOud(id,fromWerk){
   const f=state.facturen.find(x=>x.id===id);if(!f)return;
   const st=fStatus(f),off=f.soort==="offerte";if(off&&f.getekendNieuw&&typeof getekendGezien==="function")getekendGezien(f);
-  openDlg(`<div class="dlg-head"><span class="objic big">${off?I.offertes:I.facturen}</span><div style="min-width:0;flex:1"><h3>${off?"Offerte":"Factuur"} ${esc(f.nummer)}</h3><div class="subt">${esc(cleanName(f.klantNaam))} · ${eur(totals(f).inc)}</div></div>${statusPill(st[0],st[1])}<button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
-  ${off&&f.getekend&&typeof getekendBox==="function"?getekendBox(f):""}<div class="row" style="justify-content:flex-start;padding:0">
+  openDlg(`<div class="dlg-head fw-head"><div class="fw-h1"><span class="objic big">${off?I.offertes:I.facturen}</span><div class="fw-ht"><small>${off?"Offerte":"Factuur"}</small><h3>${esc(f.nummer)}</h3></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
+    <div class="fw-h2"><div class="fw-hk"><b>${esc(cleanName(f.klantNaam))}</b><small>${esc(fmtL(String(f.datum||"").slice(0,10)))}</small></div><div class="fw-hb"><b>${eur(totals(f).inc)}</b>${statusPill(st[0],st[1])}</div></div></div>
+  ${off&&f.getekend&&typeof getekendBox==="function"?getekendBox(f):""}<div class="row fw-acts" style="justify-content:flex-start;padding:0">
     ${off?`${f.status!=="geaccepteerd"?`<button type="button" class="small primary" data-act="akkoord" data-id="${esc(f.id)}">${I.check}Akkoord en inplannen</button>`:""}${(f.status||"concept")==="concept"?`<button type="button" class="small" data-act="fset" data-id="${esc(f.id)}" data-s="verstuurd">Markeer verstuurd</button>`:""}${f.status!=="afgewezen"?`<button type="button" class="small" data-act="fset" data-id="${esc(f.id)}" data-s="afgewezen">Afgewezen</button>`:""}<button type="button" class="small" data-act="toinvoice" data-id="${esc(f.id)}" title="Alleen voor eenmalig werk. Vaste klanten krijgen na elke afgemelde beurt vanzelf een factuur.">Eenmalig factureren</button>`
       :f.status==="concept"?`<button type="button" class="small primary" data-act="fset" data-id="${esc(f.id)}" data-s="open">Maak definitief</button>`:f.status==="betaald"?`<button type="button" class="small" data-act="fset" data-id="${esc(f.id)}" data-s="open">Terug naar openstaand</button>`:`<button type="button" class="small good" data-act="fset" data-id="${esc(f.id)}" data-s="betaald">${I.check}Markeer betaald</button>`}
     ${state.dl?`<button type="button" class="small" data-act="pdf" data-id="${esc(f.id)}">${I.dl}PDF</button>`:""}
@@ -291,6 +292,7 @@ function openFactuurOud(id,fromWerk){
   ${f.verstuurdOp||f.herinnerdOp?`<p class="subt" style="margin:0">${f.verstuurdOp?"Verstuurd op "+fmtL(f.verstuurdOp):""}${f.verstuurdOp&&f.herinnerdOp?" · ":""}${f.herinnerdOp?"Laatste herinnering "+fmtL(f.herinnerdOp):""}</p>`:""}
   <div class="paperwrap">${paperHtml(f)}</div>
   <div class="row">${fromWerk?"":`<button type="button" class="ghost danger" id="delF">Verwijderen</button>`}<span class="sp"></span>${fromWerk?`<button type="button" id="fBack">${I.left}Terug naar factuur</button>`:`<button type="button" data-act="close">Sluiten</button>`}</div>`,{wide:true});
+  requestAnimationFrame(paperFit);
   if(fromWerk){$("#fBack").onclick=()=>openFactuurWerk(id);return}
   const d=$("#delF");let armed=false;d.onclick=async()=>{if(!armed){armed=true;d.textContent="Zeker weten? Tik nogmaals";return}
     try{for(const b of state.beurten.filter(b=>b.gefactureerd===f.id))await save("beurten",b.id,{...strip(b),gefactureerd:""});await del("facturen",f.id);dlg.close();toast(f.nummer+" verwijderd")}catch(e){err(e)}};

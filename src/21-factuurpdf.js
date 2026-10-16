@@ -50,6 +50,11 @@ function invModel(f,klant){
   return{...d,pill,A,meta,coLines,pay,foot,zin,coInfo,betreft:(d.off?"Offerte ":"Factuur ")+f.nummer,titel:d.off?"Offerte":"Factuur",stLabel:{b:"Openstaand",g:d.off?"Geaccepteerd":"Betaald",r:d.off?"Afgewezen":"Vervallen",n:d.st[0]==="VERSTUURD"?"Verstuurd":"Concept"}[d.st[1]]||d.st[0]};
 }
 const offTxt=(t,f)=>{const k=typeof invKlant==="function"?invKlant(f):null,vn=k&&k.voornaam?k.voornaam:String(cleanName(f.klantNaam||"")).split(",").slice(-1)[0].trim();let v={};try{v=k&&k.id&&typeof klantVars==="function"?klantVars(k):{}}catch(e){}return fill(t,{...v,klant:cleanName(f.klantNaam||""),naam:cleanName(f.klantNaam||""),voornaam:vn,bedrijf:S().naam||"",factuurnummer:f.nummer||"",vervaldatum:f.verval?fmtL(f.verval):""}).trim()};
+/* factuurvoorbeeld passend maken: hele A4 in de breedte van het scherm (verkleind), nooit half afgesneden */
+function paperFit(){document.querySelectorAll(".paperwrap").forEach(w=>{const p=w.querySelector(".inv5");if(!p)return;p.style.zoom="";
+  const cs=getComputedStyle(w),vrij=w.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight),s=Math.min(1,vrij/p.offsetWidth);
+  if(s<1){p.style.zoom=s.toFixed(4);w.classList.add("past")}else w.classList.remove("past")})}
+addEventListener("resize",()=>requestAnimationFrame(paperFit));
 function paperHtml(f,klant){
   const m=invModel(f,klant),s=m.s,num=x=>(Number(x)||0).toLocaleString("nl-NL",{minimumFractionDigits:2,maximumFractionDigits:2});
   const vanX=[s.kvk&&"KvK "+s.kvk,s.btwnr&&"BTW "+s.btwnr].filter(Boolean).join(" · ");
@@ -177,6 +182,7 @@ function openVoorbeeld(){
   openDlg(`<div class="dlg-head"><span class="objic" style="background:var(--brand-soft);color:var(--brand)">${I.facturen}</span><div style="flex:1;min-width:0"><h3 style="font-size:19px">Voorbeeldfactuur</h3><div class="subt">Zo ziet je factuur-PDF eruit, met je logo en bedrijfsgegevens</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
   <div class="paperwrap">${paperHtml(f,demoKlant)}</div>
   <div class="row"><span class="subt" style="flex:1;font-size:13px">Demo-data. Echte facturen gebruiken klant- en factuurgegevens.</span>${state.dl?`<button type="button" id="vbPdf">${I.dl}Download als PDF</button>`:""}<button type="button" class="primary" data-act="close">Sluiten</button></div>`,{wide:true});
+  requestAnimationFrame(paperFit);
   const b=$("#vbPdf");if(b)b.onclick=async()=>{const doc=await pdfDoc(f,demoKlant);if(doc)saveFile("Voorbeeldfactuur.pdf",doc.output("arraybuffer"),"Voorbeeld-PDF opgeslagen")};
 }
 

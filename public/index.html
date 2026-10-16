@@ -3146,6 +3146,8 @@ html.zm .pl-menu{max-height:calc(100dvh / .9 - 190px)}
 .fw-hb{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:5px}
 .fw-hb>b{font-size:19px;font-weight:750;letter-spacing:-.02em;font-variant-numeric:tabular-nums;white-space:nowrap}
 .fw-hb .pill{font-size:11.5px}
+.paperwrap.past{overflow:hidden}
+@media (max-width:640px){.paperwrap{padding:8px}.fw-head~.row.fw-acts{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.fw-head~.row.fw-acts>button{width:100%;justify-content:center;min-height:44px;margin:0}.fw-head~.row.fw-acts>button:last-child:nth-child(odd){grid-column:1/-1}}
 @media (max-width:640px){.fw-head~.kk-acts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.fw-head~.kk-acts>button{width:100%;justify-content:center;min-height:44px;margin:0}.fw-head~.kk-acts>button:last-child:nth-child(odd){grid-column:1/-1}}
 .fw-rks{display:none}
 @media (max-width:640px){
@@ -5063,8 +5065,9 @@ function openFactuur(id){const f=state.facturen.find(x=>x.id===id);if(!f)return;
 function openFactuurOud(id,fromWerk){
   const f=state.facturen.find(x=>x.id===id);if(!f)return;
   const st=fStatus(f),off=f.soort==="offerte";if(off&&f.getekendNieuw&&typeof getekendGezien==="function")getekendGezien(f);
-  openDlg(`<div class="dlg-head"><span class="objic big">${off?I.offertes:I.facturen}</span><div style="min-width:0;flex:1"><h3>${off?"Offerte":"Factuur"} ${esc(f.nummer)}</h3><div class="subt">${esc(cleanName(f.klantNaam))} · ${eur(totals(f).inc)}</div></div>${statusPill(st[0],st[1])}<button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
-  ${off&&f.getekend&&typeof getekendBox==="function"?getekendBox(f):""}<div class="row" style="justify-content:flex-start;padding:0">
+  openDlg(`<div class="dlg-head fw-head"><div class="fw-h1"><span class="objic big">${off?I.offertes:I.facturen}</span><div class="fw-ht"><small>${off?"Offerte":"Factuur"}</small><h3>${esc(f.nummer)}</h3></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
+    <div class="fw-h2"><div class="fw-hk"><b>${esc(cleanName(f.klantNaam))}</b><small>${esc(fmtL(String(f.datum||"").slice(0,10)))}</small></div><div class="fw-hb"><b>${eur(totals(f).inc)}</b>${statusPill(st[0],st[1])}</div></div></div>
+  ${off&&f.getekend&&typeof getekendBox==="function"?getekendBox(f):""}<div class="row fw-acts" style="justify-content:flex-start;padding:0">
     ${off?`${f.status!=="geaccepteerd"?`<button type="button" class="small primary" data-act="akkoord" data-id="${esc(f.id)}">${I.check}Akkoord en inplannen</button>`:""}${(f.status||"concept")==="concept"?`<button type="button" class="small" data-act="fset" data-id="${esc(f.id)}" data-s="verstuurd">Markeer verstuurd</button>`:""}${f.status!=="afgewezen"?`<button type="button" class="small" data-act="fset" data-id="${esc(f.id)}" data-s="afgewezen">Afgewezen</button>`:""}<button type="button" class="small" data-act="toinvoice" data-id="${esc(f.id)}" title="Alleen voor eenmalig werk. Vaste klanten krijgen na elke afgemelde beurt vanzelf een factuur.">Eenmalig factureren</button>`
       :f.status==="concept"?`<button type="button" class="small primary" data-act="fset" data-id="${esc(f.id)}" data-s="open">Maak definitief</button>`:f.status==="betaald"?`<button type="button" class="small" data-act="fset" data-id="${esc(f.id)}" data-s="open">Terug naar openstaand</button>`:`<button type="button" class="small good" data-act="fset" data-id="${esc(f.id)}" data-s="betaald">${I.check}Markeer betaald</button>`}
     ${state.dl?`<button type="button" class="small" data-act="pdf" data-id="${esc(f.id)}">${I.dl}PDF</button>`:""}
@@ -5074,6 +5077,7 @@ function openFactuurOud(id,fromWerk){
   ${f.verstuurdOp||f.herinnerdOp?`<p class="subt" style="margin:0">${f.verstuurdOp?"Verstuurd op "+fmtL(f.verstuurdOp):""}${f.verstuurdOp&&f.herinnerdOp?" · ":""}${f.herinnerdOp?"Laatste herinnering "+fmtL(f.herinnerdOp):""}</p>`:""}
   <div class="paperwrap">${paperHtml(f)}</div>
   <div class="row">${fromWerk?"":`<button type="button" class="ghost danger" id="delF">Verwijderen</button>`}<span class="sp"></span>${fromWerk?`<button type="button" id="fBack">${I.left}Terug naar factuur</button>`:`<button type="button" data-act="close">Sluiten</button>`}</div>`,{wide:true});
+  requestAnimationFrame(paperFit);
   if(fromWerk){$("#fBack").onclick=()=>openFactuurWerk(id);return}
   const d=$("#delF");let armed=false;d.onclick=async()=>{if(!armed){armed=true;d.textContent="Zeker weten? Tik nogmaals";return}
     try{for(const b of state.beurten.filter(b=>b.gefactureerd===f.id))await save("beurten",b.id,{...strip(b),gefactureerd:""});await del("facturen",f.id);dlg.close();toast(f.nummer+" verwijderd")}catch(e){err(e)}};
@@ -9261,6 +9265,11 @@ function invModel(f,klant){
   return{...d,pill,A,meta,coLines,pay,foot,zin,coInfo,betreft:(d.off?"Offerte ":"Factuur ")+f.nummer,titel:d.off?"Offerte":"Factuur",stLabel:{b:"Openstaand",g:d.off?"Geaccepteerd":"Betaald",r:d.off?"Afgewezen":"Vervallen",n:d.st[0]==="VERSTUURD"?"Verstuurd":"Concept"}[d.st[1]]||d.st[0]};
 }
 const offTxt=(t,f)=>{const k=typeof invKlant==="function"?invKlant(f):null,vn=k&&k.voornaam?k.voornaam:String(cleanName(f.klantNaam||"")).split(",").slice(-1)[0].trim();let v={};try{v=k&&k.id&&typeof klantVars==="function"?klantVars(k):{}}catch(e){}return fill(t,{...v,klant:cleanName(f.klantNaam||""),naam:cleanName(f.klantNaam||""),voornaam:vn,bedrijf:S().naam||"",factuurnummer:f.nummer||"",vervaldatum:f.verval?fmtL(f.verval):""}).trim()};
+/* factuurvoorbeeld passend maken: hele A4 in de breedte van het scherm (verkleind), nooit half afgesneden */
+function paperFit(){document.querySelectorAll(".paperwrap").forEach(w=>{const p=w.querySelector(".inv5");if(!p)return;p.style.zoom="";
+  const cs=getComputedStyle(w),vrij=w.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight),s=Math.min(1,vrij/p.offsetWidth);
+  if(s<1){p.style.zoom=s.toFixed(4);w.classList.add("past")}else w.classList.remove("past")})}
+addEventListener("resize",()=>requestAnimationFrame(paperFit));
 function paperHtml(f,klant){
   const m=invModel(f,klant),s=m.s,num=x=>(Number(x)||0).toLocaleString("nl-NL",{minimumFractionDigits:2,maximumFractionDigits:2});
   const vanX=[s.kvk&&"KvK "+s.kvk,s.btwnr&&"BTW "+s.btwnr].filter(Boolean).join(" · ");
@@ -9388,6 +9397,7 @@ function openVoorbeeld(){
   openDlg(`<div class="dlg-head"><span class="objic" style="background:var(--brand-soft);color:var(--brand)">${I.facturen}</span><div style="flex:1;min-width:0"><h3 style="font-size:19px">Voorbeeldfactuur</h3><div class="subt">Zo ziet je factuur-PDF eruit, met je logo en bedrijfsgegevens</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
   <div class="paperwrap">${paperHtml(f,demoKlant)}</div>
   <div class="row"><span class="subt" style="flex:1;font-size:13px">Demo-data. Echte facturen gebruiken klant- en factuurgegevens.</span>${state.dl?`<button type="button" id="vbPdf">${I.dl}Download als PDF</button>`:""}<button type="button" class="primary" data-act="close">Sluiten</button></div>`,{wide:true});
+  requestAnimationFrame(paperFit);
   const b=$("#vbPdf");if(b)b.onclick=async()=>{const doc=await pdfDoc(f,demoKlant);if(doc)saveFile("Voorbeeldfactuur.pdf",doc.output("arraybuffer"),"Voorbeeld-PDF opgeslagen")};
 }
 
