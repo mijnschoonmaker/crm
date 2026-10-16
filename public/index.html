@@ -4338,6 +4338,11 @@ body.rd-busy{cursor:grabbing}
 .rv-weg li small{top:70px}.rv-weg li em{top:88px}
 .rv-tip{margin-top:12px}
 @media(max-width:700px){.rv-tx h2{font-size:22px}.rv-weg{margin-top:40px;height:100px}}
+/* "Volgende"-label: wit tooltip-vlaggetje boven het huisje */
+.rv-nu{top:-26px;background:#fff;color:#0f5f6e;border:0;font-size:9.5px;letter-spacing:.09em;padding:3px 9px;border-radius:8px;box-shadow:0 4px 12px -4px rgb(0 0 0 / .35)}
+.rv-nu::after{content:"";position:absolute;left:50%;bottom:-5px;width:9px;height:9px;background:#fff;transform:translateX(-50%) rotate(45deg);border-radius:1px}
+.rv-weg li.nu{animation:rvNuZweef 2.6s ease-in-out infinite}
+@keyframes rvNuZweef{0%,100%{translate:0 0}50%{translate:0 -2px}}
 
 </style>
 <div class="app">
