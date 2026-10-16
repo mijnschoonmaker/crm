@@ -66,7 +66,7 @@ async function portaalUitnodigen(id){const k=state.klanten.find(x=>x.id===id);if
   try{const r=await fbFn("portaalUitnodigen")({klantId:id,basis:location.origin});toast("Uitnodiging verstuurd naar "+r.data.email)}catch(e){fnFout(e)}}
 
 /* ---------- verzoeken uit het portaal ---------- */
-const PT_TYPE={verzetten:["Afspraak verzetten","verzet"],overslaan:["Bezoek overslaan","pauze"],vakantie:["Afwezig","zon"],bericht:["Bericht","bericht"],gegevens:["Gegevens wijzigen","user"],extra:["Extra dienst","plus"],stoppen:["Opzeggen","alert"],beoordeling:["Beoordeling","spark"],toegang:["Instructies","pin"]};
+const PT_TYPE={verzetten:["Afspraak verzetten","verzet"],overslaan:["Bezoek overslaan","pauze"],vakantie:["Afwezig","zon"],bericht:["Bericht","bericht"],gegevens:["Gegevens wijzigen","user"],extra:["Extra dienst","plus"],review:["Google-review","spark"],stoppen:["Opzeggen","alert"],beoordeling:["Beoordeling","spark"],toegang:["Instructies","pin"]};
 let ptUnsub=null;state.portaalVz=state.portaalVz||[];
 function livePortaal(){if(!LIVE||ptUnsub)return;
   ptUnsub=fsDb().collection("portaalVerzoeken").where("status","==","nieuw").onSnapshot(s=>{state.portaalVz=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>String(b.op).localeCompare(String(a.op)));try{ptKaart()}catch(e){}},e=>console.error("portaal",e))}
@@ -89,7 +89,7 @@ async function ptAfhandelen(id){const l=state.portaalVz||[],v=l.find(x=>x.id===i
 function openPortaalVz(){openTickets("","",true)}
 /* ---------- instellingen ---------- */
 if(LIVE){const at=SETCARDS.findIndex(x=>x.id==="liveOverzicht")+1;
-  SETCARDS.splice(at||SETCARDS.length,0,{id:"livePortaal",t:"Klantportaal & aanbevelen",sub:"Klanten zien hun afspraken en facturen, en bevelen je aan",ic:"spark",bg:"#e09a2b",st:s=>s.refAan!==false?["ok","Actief"]:["soon","Aanbevelen staat uit"],rows:s=>[["Adres",location.host+"/portaal"],["Korting aanbeveler",s.refAan===false?"—":eur(s.refBeloning!=null&&s.refBeloning!==""?s.refBeloning:15)],["Welkomstkorting",s.refAan===false?"—":eur(s.refWelkom!=null&&s.refWelkom!==""?s.refWelkom:10)]]});
+  SETCARDS.splice(at||SETCARDS.length,0,{id:"livePortaal",t:"Klantportaal & aanbevelen",sub:"Klanten zien hun afspraken en facturen, en bevelen je aan",ic:"spark",bg:"#e09a2b",st:s=>s.refAan!==false?["ok","Actief"]:["soon","Aanbevelen staat uit"],rows:s=>[["Adres",location.host+"/portaal"],["Korting aanbeveler",s.refAan===false?"—":eur(s.refBeloning!=null&&s.refBeloning!==""?s.refBeloning:15)],["Welkomstkorting",s.refAan===false?"—":eur(s.refWelkom!=null&&s.refWelkom!==""?s.refWelkom:10)],["Credits",`review ${s.crReview??5} · beoordeling ${s.crBeurt??1} · extra dienst ${s.crExtra??3}`]]});
   SETEXTRA.livePortaal=(c,s)=>{const url=location.origin+"/portaal";
     setDlg(c,`${info("Klanten loggen in op <b>"+esc(location.host)+"/portaal</b> met hun e-mailadres; ze krijgen een inlogknop per mail, zonder wachtwoord. Ze zien hun volgende bezoek, bezoeken en facturen, kunnen online betalen, afspraken verzetten of afwezigheid doorgeven, instructies achterlaten en je aanbevelen.")}
       <div class="splitrow" style="gap:10px"><code style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">${esc(url)}</code><button type="button" class="small" id="ptCopy">${I.copy||I.check}Kopieer</button><a class="btn small" href="${esc(url)}" target="_blank" rel="noopener">Openen</a></div>
@@ -98,7 +98,10 @@ if(LIVE){const at=SETCARDS.findIndex(x=>x.id==="liveOverzicht")+1;
       ${tgl("refAan","Klanten kunnen je aanbevelen","Met een persoonlijke link en korting",s.refAan!==false)}
       <div class="grid2">${inp("refBeloning","Korting voor wie aanbeveelt (€)",s.refBeloning!=null&&s.refBeloning!==""?s.refBeloning:15,{type:"number",t:"num",attrs:'min="0" step="1"'})}${inp("refWelkom","Welkomstkorting nieuwe klant (€)",s.refWelkom!=null&&s.refWelkom!==""?s.refWelkom:10,{type:"number",t:"num",attrs:'min="0" step="1"'})}</div>
       <small class="help">De korting voor wie aanbeveelt staat <b>on hold</b> en wordt pas vrijgegeven als de nieuwe klant akkoord heeft gegeven én de eerste afspraak is uitgevoerd. Daarna gaat hij automatisch van de eerstvolgende factuur af. De welkomstkorting staat direct op de eerste factuur van de nieuwe klant.</small>
-      <small class="help">Zorg dat bij Bedrijf & Branding je <b>website</b> en bij Reviewverzoek je <b>reviewlink</b> zijn ingevuld: die gebruikt het portaal.</small>`,{wide:false});
+      ${sec("Credits")}
+      <small class="help" style="margin-top:-4px">Klanten sparen in het portaal <b>credits</b> (1 credit = € 1 korting) die automatisch van de volgende factuur afgaan. Zet een veld op 0 om die manier uit te zetten.</small>
+      <div class="grid3">${inp("crReview","Google-review",s.crReview!=null&&s.crReview!==""?s.crReview:5,{type:"number",t:"num",attrs:'min="0" step="1"',help:"Eenmalig, na jouw akkoord"})}${inp("crBeurt","Beoordeling per bezoek",s.crBeurt!=null&&s.crBeurt!==""?s.crBeurt:1,{type:"number",t:"num",attrs:'min="0" step="1"',help:"Direct bij het geven van sterren"})}${inp("crExtra","Extra dienst besteld",s.crExtra!=null&&s.crExtra!==""?s.crExtra:3,{type:"number",t:"num",attrs:'min="0" step="1"',help:"Als je het ticket oplost"})}</div>
+      <small class="help">Zorg dat bij Bedrijf & Branding je <b>website</b> en bij Reviewverzoek je <b>reviewlink</b> zijn ingevuld: die gebruikt het portaal (de reviewlink ook voor de Google-review-credits).</small>`,{wide:false});
     $("#ptCopy").onclick=async()=>{try{await navigator.clipboard.writeText(url);toast("Gekopieerd")}catch(e){}};
     bindSave()};
 }
@@ -245,7 +248,14 @@ async function tkStatus(t,st){const cur=state.tickets.find(x=>x.id===t.id)||t;if
   try{await fsDb().doc("tickets/"+t.id).set({status:st,...(st==="opgelost"?{opgelostOp:op,laatst:op,laatsteTekst:"Ticket opgelost",laatsteVan:"team",ongelezenKlant:firebase.firestore.FieldValue.increment(1)}:{})},{merge:true});
     await fsDb().collection("ticketBerichten").doc(newId("tb")).set({ticketId:t.id,klantId:t.klantId,van:"team",systeem:true,tekst:"Status: "+TK_ST[st][1],op,door:(state.me&&state.me.email)||""});
     form.querySelectorAll("[data-tks]").forEach(x=>x.setAttribute("aria-pressed",x.dataset.tks===st));toast(cur.nummer+" · "+TK_ST[st][1]);
-    if(st==="opgelost")fbFn("ticketMelding")({ticketId:t.id,basis:location.origin}).catch(()=>{})}catch(e){err(e)}}
+    if(st==="opgelost"){fbFn("ticketMelding")({ticketId:t.id,basis:location.origin}).catch(()=>{});try{await creditsVoorTicket(cur)}catch(e){console.error("credits",e)}}}catch(e){err(e)}}
+/* credits (portaal) toekennen als een review- of extra-dienst-ticket is opgelost; één keer per ticket */
+async function creditsVoorTicket(t){const vt=t.verzoek&&t.verzoek.type;if(vt!=="review"&&vt!=="extra")return;const k=state.klanten.find(x=>x.id===t.klantId);if(!k)return;
+  const s=S(),n=vt==="review"?(s.crReview!=null&&s.crReview!==""?Number(s.crReview):5):(s.crExtra!=null&&s.crExtra!==""?Number(s.crExtra):3);if(!(n>0))return;
+  const al=[...(k.tegoed||[]),...(k.tegoedGebruikt||[])].some(x=>x&&x.ref===t.id);if(al)return;
+  const reden=vt==="review"?"Credits: Google-review":"Credits: extra dienst besteld";
+  await save("klanten",k.id,{...strip(k),tegoed:[...(k.tegoed||[]),{id:newId("tg"),bedrag:n,reden,bron:vt,ref:t.id,op:iso(today())}],log:[...(k.log||[]),{datum:iso(today()),tekst:reden+" · "+n+" credit"+(n===1?"":"s")+" (€ "+n+") op de volgende factuur"}]});
+  toast(`${n} credit${n===1?"":"s"} toegekend aan ${cleanName(k.naam)}`)}
 /* zelf een ticket starten voor een klant */
 function tkNieuw(kid){if(!tkOpen)return;if(tkOpen.unsub)tkOpen.unsub();tkOpen.unsub=null;tkOpen.id="";tkOpen.foto=null;const k=state.klanten.find(x=>x.id===kid);if(!k)return;tkLijstTeken();
   $("#chxR").innerHTML=tkKop(k,`<b>Nieuw ticket</b><small>${esc(cleanName(k.naam))} · ${esc([k.adres,k.plaats].filter(Boolean).join(", "))}</small>`)

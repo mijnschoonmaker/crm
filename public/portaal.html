@@ -1002,6 +1002,40 @@ aside .logo{gap:16px!important}.topbar .lg-g{font-size:14px!important}
   .stats.st3 .stat b{font-size:24px!important}
 }
 @media (max-width:759px){.st-ic{display:none}.stats.st3 .stat{padding:12px 12px 13px!important}.stats.st3 .stat em{font-size:11px}}
+
+/* ---------- credits ---------- */
+.cr-hero{position:relative;overflow:hidden;border-radius:24px;padding:22px 22px 20px;color:#fff;background:radial-gradient(120% 140% at 100% 0%,#2aa3b3 0%,transparent 55%),linear-gradient(135deg,#0f5f6e,#137a8a 55%,#1d5a74);box-shadow:0 24px 50px -28px rgb(15 70 85 / .7)}
+.cr-hero::before{content:"";position:absolute;inset:0;background:var(--lijnen);pointer-events:none}.cr-hero>*{position:relative}
+.cr-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.cr-eb{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgb(255 255 255 / .85)}.cr-eb svg{width:15px;height:15px}
+.cr-pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:5px 11px 5px 9px;border-radius:999px;background:rgb(255 255 255 / .16);border:1px solid rgb(255 255 255 / .25)}.cr-pill svg{width:13px;height:13px}
+.cr-saldo{display:flex;align-items:center;gap:16px;margin:14px 0 4px}
+.cr-saldo>b{font-size:68px;line-height:.95;font-weight:700;letter-spacing:-.05em;font-variant-numeric:tabular-nums;text-shadow:0 4px 18px rgb(0 0 0 / .18)}
+.cr-saldo>span{display:flex;flex-direction:column;gap:3px;min-width:0}.cr-saldo em{font-style:normal;font-size:20px;font-weight:700;letter-spacing:-.02em}.cr-saldo small{font-size:13.5px;color:rgb(255 255 255 / .82)}
+.cr-doel{margin-top:16px}
+.cr-bar{position:relative;height:12px;border-radius:999px;background:rgb(255 255 255 / .18);overflow:visible}
+.cr-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:linear-gradient(90deg,#9ff0d2,#fff);box-shadow:0 0 0 1px rgb(255 255 255 / .2),0 4px 12px -4px rgb(0 0 0 / .3);min-width:12px;animation:crGroei 1.1s cubic-bezier(.2,.8,.2,1) both}
+@keyframes crGroei{from{width:0}}
+.cr-bar u{position:absolute;top:50%;width:3px;height:6px;margin-left:-1px;border-radius:2px;background:rgb(255 255 255 / .45);transform:translateY(-50%)}
+.cr-dl{display:flex;justify-content:space-between;gap:10px;margin-top:9px;font-size:13px;font-weight:600;color:rgb(255 255 255 / .9)}.cr-dl span:last-child{font-variant-numeric:tabular-nums}
+.cr-uitleg{margin:14px 0 0;font-size:12.5px;color:rgb(255 255 255 / .72)}
+.cr-ways{display:flex;flex-direction:column;gap:12px}
+.cr-wk b{display:block;font-size:17px;font-weight:700;letter-spacing:-.015em}.cr-wk small{color:var(--muted);font-size:13px}
+.cw-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+@media (min-width:1000px){.cw-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.cw{position:relative;display:flex;flex-direction:column;gap:6px;padding:16px 16px 14px;border-radius:20px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--kaart-schaduw);--c:var(--brand);--cs:var(--brand-soft)}
+.cw.a{--c:#c2185b;--cs:#fde7ef}.cw.b{--c:#b7791a;--cs:#fdf1dc}.cw.c{--c:#137a8a;--cs:#ddf0f2}.cw.d{--c:#1f8a5c;--cs:#e0f3e9}
+.cw-k{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.cw-ic{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:var(--cs);color:var(--c)}.cw-ic svg{width:20px;height:20px}
+.cw-n{font-size:14px;font-weight:800;letter-spacing:-.02em;color:var(--c);background:var(--cs);padding:5px 10px;border-radius:999px;font-variant-numeric:tabular-nums}
+.cw-n::after{content:" cr";font-weight:700;font-size:11px;opacity:.75}
+.cw>b{font-size:16px;font-weight:700;letter-spacing:-.015em}.cw>small{font-size:13px;color:var(--muted);line-height:1.45;flex:1}
+.cw-v{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;flex-wrap:wrap}
+.cw-st{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--muted)}.cw-st svg{width:13px;height:13px}.cw-st.ok{color:var(--ok)}
+.cw-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 13px;border-radius:999px;font-size:13px;font-weight:700;background:var(--c)!important;border-color:transparent!important;color:#fff!important;box-shadow:none!important}.cw-btn svg{width:14px;height:14px}
+.cl .ti{background:var(--cs);color:var(--c)}.cl.a{--c:#c2185b;--cs:#fde7ef}.cl.b{--c:#b7791a;--cs:#fdf1dc}.cl.c{--c:#137a8a;--cs:#ddf0f2}.cl.d{--c:#1f8a5c;--cs:#e0f3e9}
+.cl-n{font-size:16px;color:var(--ok)!important}
+@media (max-width:600px){.cr-hero{padding:18px 16px 16px;border-radius:22px}.cr-saldo>b{font-size:56px}.cr-saldo em{font-size:17px}.cr-saldo small{font-size:12.5px}.cw-grid{grid-template-columns:1fr 1fr;gap:8px}.cw{padding:13px 12px 12px;border-radius:16px;gap:4px}.cw-ic{width:36px;height:36px;border-radius:11px}.cw-ic svg{width:17px;height:17px}.cw>b{font-size:14px}.cw>small{font-size:12px}.cw-n{font-size:12.5px;padding:4px 8px}.cw-btn{padding:7px 11px;font-size:12.5px;width:100%;justify-content:center}.cw-v{flex-direction:column;align-items:stretch;gap:6px}.cw-st{justify-content:center}}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -1121,7 +1155,7 @@ async function toonAanbevolen(code){
 
 /* ---------- de app ---------- */
 let D=null,tab="home";
-const TABS_STD=[["home","Overzicht",I.huis],["bezoeken","Bezoeken",I.kal],["tickets","Tickets",I.ticket],["facturen","Facturen",I.fact],["aanbevelen","Aanbevelen",I.hart],["ik","Contact",I.ik]];
+const TABS_STD=[["home","Overzicht",I.huis],["bezoeken","Bezoeken",I.kal],["tickets","Tickets",I.ticket],["facturen","Facturen",I.fact],["aanbevelen","Credits",I.cadeau],["ik","Contact",I.ik]];
 const TABS_VVE=[["home","Overzicht",I.huis],["bezoeken","Logboek",I.kal],["tickets","Meldingen",I.ticket],["facturen","Facturen",I.fact],["bord","Bewonersbord",I.qr||I.huis],["ik","Contact",I.ik]];
 const isVve=()=>!!(D&&D.klant&&D.klant.vve);let TABS=TABS_STD;
 async function laad(stil){
@@ -1172,7 +1206,7 @@ function home(){const k=D.klant,openF=D.facturen.filter(f=>f.status==="open"||f.
   const lopend=D.verzoeken.filter(v=>v.status==="nieuw");
   const links=`${D.tickets&&D.tickets.ongelezen?`<button class="melding" data-tab="tickets" style="border-color:color-mix(in srgb,var(--brand) 35%,var(--line))"><span class="objic">${I.ticket}</span><div class="tx"><b>${D.tickets.ongelezen===1?"Nieuw antwoord op uw ticket":D.tickets.ongelezen+" nieuwe antwoorden"}</b><small>Bekijk wat wij hebben geantwoord</small></div><span class="btn primary">Bekijken</span></button>`:""}${liveBlok()}${bzHero()}
     ${openF.length?`<div class="melding rood"><span class="objic rood">${I.fact}</span><div class="tx"><b>${openF.length===1?"Er staat een factuur open":openF.length+" facturen staan open"}</b><small>${eur(som)}${openF.some(f=>f.status==="verlopen")?" · betaaltermijn verstreken":""}</small></div><button class="primary" data-fact="${esc(openF[0].id)}">Bekijken</button></div>`:""}
-    ${A.tegoed>0?`<div class="melding goud"><span class="objic goud">${I.cadeau}</span><div class="tx"><b>${eur0(A.tegoed)} tegoed</b><small>Gaat automatisch van uw volgende factuur af. Bedankt voor uw aanbeveling.</small></div></div>`:""}
+    ${A.tegoed>0?`<div class="melding goud"><span class="objic goud">${I.cadeau}</span><div class="tx"><b>${Math.round(A.tegoed)} credit${Math.round(A.tegoed)===1?"":"s"} · ${eur0(A.tegoed)} korting</b><small>Gaat automatisch van uw volgende factuur af.</small></div><button class="btn" data-tab="aanbevelen" style="flex:none">Bekijken</button></div>`:""}
     ${D.teBeoordelen?kp(I.ster,"Hoe was ons bezoek?",`<div class="sterren" id="beoor" role="group" aria-label="Geef een beoordeling">${[1,2,3,4,5].map(n=>`<button data-ster="${n}" aria-label="${n} ${n===1?"ster":"sterren"}">${I.ster}</button>`).join("")}</div>`,{kl:"goud",sub:"Bezoek van "+esc(lang(D.teBeoordelen.datum))}):""}
     ${lopend.length?kp(I.bericht,"Wat u ons heeft laten weten",`<div class="lijst">${lopend.map(verzoekRij).join("")}</div>`,{sub:"We komen er zo snel mogelijk op terug"}):""}
     <div class="stats st3"><div class="stat"><span class="st-ic">${I.check}</span><div><small>Bezoeken</small><b>${D.aantalBezoeken}</b><em>${k.sinds?"sinds "+esc(MK[p(k.sinds).getMonth()]+" "+p(k.sinds).getFullYear()):"&nbsp;"}</em></div></div><div class="stat"><span class="st-ic">${I.kal}</span><div><small>Ritme</small><b>${k.vve?esc(ritmeKort(k)):k.frequentie+" wk"}</b><em>${esc(k.dienst||"")}</em></div></div><div class="stat${som>0?" rood":""}"><span class="st-ic">${I.euro}</span><div><small>Open</small><b${som>0?' style="color:var(--late)"':""}>${eur0(som)}</b><em>${openF.length?plural(openF.length,"factuur","facturen"):"alles betaald"}</em></div></div></div>`;
@@ -1284,23 +1318,36 @@ function facturen(){const F=D.facturen,open=F.filter(f=>f.status!=="betaald"&&f.
     ${open.length?kp(I.euro,"Te betalen",`<div class="lijst">${open.map(rij).join("")}</div>`,{kl:"rood",sub:"Betaal online met iDEAL of maak het bedrag over"}):""}
     ${kp(I.fact,"Alle facturen",F.filter(f=>!open.includes(f)).length?`<div class="lijst">${F.filter(f=>!open.includes(f)).map(rij).join("")}</div>`:`<p class="leeg">Hier verschijnen uw facturen na een bezoek.</p>`,{sub:plural(F.length,"factuur","facturen")})}</div>`}
 
-function aanbevelen(){const A=D.aanbevelen,R=B.refBeloning,W=B.refWelkom;
+function aanbevelen(){const A=D.aanbevelen,R=B.refBeloning,W=B.refWelkom,C=D.credits||{saldo:A.tegoed,verdiend:A.verdiend+A.tegoed,regels:[],tarieven:{review:5,beurt:1,extra:3,aanbevelen:R},review:"open",beoordeeld:0};
+  const T=C.tarieven||{},cr=n=>`${n} credit${n===1?"":"s"}`;
   const st={aangemeld:["soon","Aangemeld",1],akkoord:["soon","Wacht op akkoord",2],eerste:["brand","Eerste bezoek volgt",3],klant:["brand","Eerste bezoek volgt",3],beloond:["ok","Korting vrijgegeven",4],gestopt:["neutral","Niet doorgegaan",0]};
   const hold=(A.opHold||0)*R,link=String(A.link||"").replace(/^https?:\/\//,"");
+  const pr=Number(D.klant.prijs)||0,saldo=Math.round(C.saldo||0),doel=pr&&pr>saldo?pr:0,pct=doel?Math.min(100,Math.round(saldo/doel*100)):100;
+  /* credits-hero */
+  const hero=`<section class="cr-hero"><div class="cr-top"><span class="cr-eb">${I.cadeau}Uw credits</span>${C.verdiend>0?`<span class="cr-pill">${I.check}in totaal ${eur0(C.verdiend)} verdiend</span>`:""}</div>
+      <div class="cr-saldo"><b>${saldo}</b><span><em>credits</em><small>= ${eur0(saldo)} korting op uw volgende factuur</small></span></div>
+      ${doel?`<div class="cr-doel"><div class="cr-bar"><i style="width:${pct}%"></i>${[.25,.5,.75].map(q=>`<u style="left:${q*100}%"></u>`).join("")}</div><div class="cr-dl"><span>${saldo>0?`Nog ${cr(Math.max(0,Math.ceil(doel-saldo)))} tot een gratis beurt`:`Spaar ${cr(Math.ceil(doel))} voor een gratis beurt`}</span><span>${eur0(doel)}</span></div></div>`
+        :saldo>0?`<div class="cr-doel"><div class="cr-bar"><i style="width:100%"></i></div><div class="cr-dl"><span>Uw volgende beurt is gratis!</span><span>${eur0(saldo)}</span></div></div>`:""}
+      <p class="cr-uitleg">1 credit = € 1. Credits gaan automatisch van uw eerstvolgende factuur af, u hoeft niets te doen.</p></section>`;
+  /* manieren om credits te verdienen */
+  const nB=D.aantalBezoeken||0,bq=C.beoordeeld||0;
+  const kaart=(ic,kl,n,titel,tekst,voet,cta)=>`<div class="cw ${kl}"><div class="cw-k"><span class="cw-ic">${ic}</span><span class="cw-n">+${n}</span></div><b>${titel}</b><small>${tekst}</small><div class="cw-v">${voet}${cta||""}</div></div>`;
+  const rv=C.review,rvLink=B.reviewLink||"";
+  const manieren=`<section class="cr-ways"><div class="cr-wk"><b>Zo verdient u credits</b><small>Elke manier levert direct korting op</small></div><div class="cw-grid">
+    ${B.refAan?kaart(I.hart,"a",R,"Beveel een buur aan",`${W>0?`Uw buur krijgt ${eur0(W)} welkomstkorting, u krijgt ${cr(R)}`:`${cr(R)} per nieuwe klant`} zodra het eerste bezoek is gedaan.`,`<span class="cw-st">${A.lijst.filter(x=>x.status!=="gestopt").length?plural(A.lijst.filter(x=>x.status!=="gestopt").length,"buur","buren")+" via u":"Nog geen aanbevelingen"}</span>`,`<button class="cw-btn" data-deel>${I.deel}Link delen</button>`):""}
+    ${T.review>0?kaart(I.ster,"b",T.review,"Plaats een Google-review",`Help anderen ons te vinden. Eenmalig ${cr(T.review)}, na controle door ons.`,rv==="toegekend"?`<span class="cw-st ok">${I.check}Ontvangen, dank u wel!</span>`:rv==="aangevraagd"?`<span class="cw-st">${I.klok}Wordt gecontroleerd</span>`:`<span class="cw-st">Nog niet geplaatst</span>`,rv==="open"?`<button class="cw-btn" data-act="review">${I.ster}Review plaatsen</button>`:""):""}
+    ${T.beurt>0?kaart(I.spark||I.check,"c",T.beurt,"Beoordeel elk bezoek",`Geef sterren na elk bezoek en krijg ${cr(T.beurt)} per beoordeling. Zo weten wij hoe het ging.`,`<span class="cw-st${nB&&bq>=nB?" ok":""}">${nB?`${bq} van ${nB} ${nB===1?"bezoek":"bezoeken"} beoordeeld`:"Na uw eerste bezoek"}</span>`,D.teBeoordelen?`<button class="cw-btn" data-tab="overzicht" data-scroll="beoor">${I.ster}Nu beoordelen</button>`:""):""}
+    ${T.extra>0?kaart(I.plus,"d",T.extra,"Bestel iets extra's",`Kozijnen, binnenzijde, zonnepanelen of een dakgoot: ${cr(T.extra)} per extra dienst.`,`<span class="cw-st">Wij sturen eerst de prijs</span>`,`<button class="cw-btn" data-act="extra">${I.plus}Bestellen</button>`):""}
+  </div></section>`;
   const stap=(n,t,s)=>`<li><span class="rf-sn">${n}</span><b>${t}</b><small>${s}</small></li>`;
-  const voortgang=x=>{const n=st[x.status][2];return `<div class="rf-vg" aria-hidden="true">${[1,2,3,4].map(i=>`<i class="${n>=i?"on":""}"></i>`).join("")}</div>`};
-  return kop("Aanbevelen","Tevreden? Vertel het door, dan bedanken wij u.")+`<div class="pg rf">
-    <section class="rf-hero">
+  const ref=B.refAan?`<section class="rf-hero" id="rfhero">
       <div class="rf-ht">
         <span class="rf-eb">${I.cadeau}Uw persoonlijke link</span>
         <h2>${W>0?`Geef ${eur0(W)}, krijg ${eur0(R)}`:`Krijg ${eur0(R)} per nieuwe klant`}</h2>
-        <p>${W>0?`Wie zich via uw link aanmeldt, krijgt ${eur0(W)} korting op de eerste factuur. U krijgt ${eur0(R)} korting op uw volgende factuur, voor elke nieuwe klant.`:`Voor elke nieuwe klant via uw link gaat ${eur0(R)} van uw volgende factuur af.`}</p>
+        <p>${W>0?`Wie zich via uw link aanmeldt, krijgt ${eur0(W)} korting op de eerste factuur. U krijgt ${cr(R)} (${eur0(R)}) voor elke nieuwe klant.`:`Voor elke nieuwe klant via uw link krijgt u ${cr(R)}.`}</p>
         <div class="rf-link"><span><small>Uw code · ${esc(A.code)}</small><b>${esc(link)}</b></span><button class="rf-kop" data-kopie>${I.kopie}<span>Kopieer</span></button></div>
         <div class="rf-deel"><a class="rf-btn wa" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(deelTekst())}">${I.wa}WhatsApp</a><a class="rf-btn" href="mailto:?subject=${encodeURIComponent("Tip: "+B.naam)}&body=${encodeURIComponent(deelTekst())}">${I.mail}Mail</a><button class="rf-btn" data-deel>${I.deel}Delen</button></div>
       </div>
-      ${(()=>{const pr=Number(D.klant.prijs)||0;if(!pr||!R)return"";const n=Math.max(1,Math.ceil(pr/R)),tot=Math.round((A.verdiend+A.tegoed)/R)||0,nu=tot%n,nog=n-nu;
-        return `<div class="rf-gratis"><div class="rg-k"><span>${I.cadeau}</span><div><b>${nog===n&&tot?"Weer een gratis beurt verdiend!":`Nog ${plural(nog,"buur","buren")} tot een gratis beurt`}</b><small>${n} aanbevelingen = uw glasbewassing van ${eur0(pr)} gratis</small></div></div>
-          <div class="rg-slots">${[...Array(n)].map((_,i)=>`<i class="${i<nu?"on":""}" style="--i:${i}">${i<nu?I.huis:`<em>${i+1}</em>`}</i>`).join("")}<span class="rg-doel">${I.ruit||I.ster}</span></div></div>`})()}
       <div class="rf-vis" aria-hidden="true">
         ${W>0?`<div class="rb rb-b"><div class="rb-bi"><div class="rb-stub"><span>Welkom</span></div><div class="rb-body"><div class="rb-top"><img src="${esc(B.logo||"/logo.png")}" alt=""><span>Welkomstbon</span></div><small>Uw buur krijgt</small><b>${eur0(W)}</b><div class="rb-ft">korting op de eerste factuur</div></div></div></div>`:""}
         <div class="rb rb-k"><i class="rb-glans"></i><div class="rb-top"><img src="${esc(B.logo||"/logo.png")}" alt=""><span>Bedankbon</span><em>${esc(A.code)}</em></div><small>U krijgt</small><b>${eur0(R)}</b><div class="rb-ft">per nieuwe klant</div></div>
@@ -1309,23 +1356,30 @@ function aanbevelen(){const A=D.aanbevelen,R=B.refBeloning,W=B.refWelkom;
     <section class="rf-tg">
       <div><small>On hold</small><b>${eur0(hold)}</b><span>${A.opHold?plural(A.opHold,"aanmelding","aanmeldingen")+" onderweg":"nog niets onderweg"}</span></div>
       <i aria-hidden="true">${I.chev}</i>
-      <div class="hl"><small>Klaar voor uw factuur</small><b>${eur0(A.tegoed)}</b><span>gaat van de volgende factuur af</span></div>
+      <div class="hl"><small>Klaar voor uw factuur</small><b>${eur0(C.saldo)}</b><span>gaat van de volgende factuur af</span></div>
       <i aria-hidden="true">${I.chev}</i>
       <div><small>Al verrekend</small><b>${eur0(A.verdiend)}</b><span>totaal bespaard</span></div>
     </section>
     ${(()=>{const L=A.lijst.filter(x=>x.status!=="gestopt"),n=Math.max(6,L.length+2),links=Math.floor(n/2),huis=(x,i)=>{const sn=st[x.status]||st.aangemeld,ok=sn[2]>=4;return `<div class="rs-h ${ok?"ok":"bz"}" style="--i:${i}"><span>${I.huis}</span><b>${esc((x.naam||"Buur").split(" ")[0])}</b><small>${ok?"+"+eur0(R):({1:"aangemeld",2:"wacht op akkoord",3:"bezoek volgt"})[sn[2]]||sn[1]}</small></div>`},leeg=i=>`<a class="rs-h leeg" style="--i:${i}" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(deelTekst())}"><span>${I.plus}</span><b>Buur</b><small>uitnodigen</small></a>`;
-      const slots=[...L.map(huis),...Array(n-L.length).fill(0).map((_,i)=>leeg(L.length+i))],links_=slots.slice(0,links),rechts=slots.slice(links);
+      const slots=[...L.map(huis),...Array(n-L.length).fill(0).map((_,i)=>leeg(L.length+i))];
       const verdiend=L.filter(x=>(st[x.status]||[])[2]>=4).length;
       return `<section class="rs"><div class="rs-k"><div><b>Uw straat</b><small>${L.length?`${plural(L.length,"buur","buren")} via u${verdiend?` · ${eur0(verdiend*R)} verdiend`:""}`:"Elke buur die klant wordt, krijgt hier een huisje"}</small></div>${L.length?`<span class="rs-sc">${I.ster}${L.length}</span>`:""}</div>
         <div class="rs-straat"><div class="rs-rij"><div class="rs-h ik" style="--i:0"><span>${I.huis}</span><b>U</b><small>uw huis</small></div>${slots.join("")}</div><div class="rs-weg"></div><span class="rs-bus">${AUTO}</span></div></section>`})()}
-    ${(()=>{const top=Math.max(0,...A.lijst.map(x=>(st[x.status]||[0,0,0])[2])),ic=[I.wa,I.bericht,AUTO,I.cadeau],tt=[["Deel uw link","Via WhatsApp, mail of gewoon even vertellen"],["Zij melden zich aan","Ze berekenen hun prijs via uw link"],["Eerste bezoek","Na akkoord komen wij langs"],["Korting voor u",`${eur0(R)} gaat van uw volgende factuur af`]];
+    ${(()=>{const top=Math.max(0,...A.lijst.map(x=>(st[x.status]||[0,0,0])[2])),ic=[I.wa,I.bericht,AUTO,I.cadeau],tt=[["Deel uw link","Via WhatsApp, mail of gewoon even vertellen"],["Zij melden zich aan","Ze berekenen hun prijs via uw link"],["Eerste bezoek","Na akkoord komen wij langs"],["Credits voor u",`${cr(R)} gaan van uw volgende factuur af`]];
       const bereikt=i=>i===0||top>=i+1;
-      return `<section class="rr"><div class="rr-k"><b>Zo werkt het</b><small>${top?(top>=4?"Gelukt! Uw korting staat klaar":"Zo ver is uw beste aanbeveling"):"Van link tot korting in vier stappen"}</small></div>
+      return `<section class="rr"><div class="rr-k"><b>Zo werkt aanbevelen</b><small>${top?(top>=4?"Gelukt! Uw credits staan klaar":"Zo ver is uw beste aanbeveling"):"Van link tot korting in vier stappen"}</small></div>
         <ol class="rr-ol">${tt.map(([t,d],i)=>`<li class="${bereikt(i)?"on":""}${(top?Math.min(3,top-1):0)===i?" nu":""}" style="--i:${i}"><span class="rr-ic${i===2?" bus":""}">${ic[i]}</span><span class="rr-tx"><b><em>${i+1}</em>${t}</b><small>${d}</small></span></li>`).join("")}</ol></section>`})()}
-    ${A.lijst.length?`<section class="kp rf-lijst"><div class="kp-h"><div><b>Uw aanbevelingen</b><small>${plural(A.lijst.length,"aanbeveling","aanbevelingen")}</small></div></div>
+    ${A.lijst.length?`<section class="kp rf-lijst"><div class="kp-h"><span class="objic">${I.hart}</span><div><b>Uw aanbevelingen</b><small>${plural(A.lijst.length,"aanbeveling","aanbevelingen")}</small></div></div>
       <div class="lijst">${A.lijst.map(x=>{const n=(st[x.status]||[0,0,0])[2];return `<div class="rt-r"><div class="rt-h"><span class="rf-av">${esc(((x.naam||"N")[0]||"N").toUpperCase())}</span><span class="rf-rt"><b>${esc(x.naam||"Nieuwe klant")}</b><small>${x.datum?esc(kort(x.datum.slice(0,10))):""}</small></span><span class="pill ${st[x.status][0]}"><i></i>${st[x.status][1]}</span></div>
-        <div class="rt-trk ${x.status==="gestopt"?"stop":""}" style="--p:${Math.max(0,n-1)/3}"><div class="rt-lijn"><i></i></div>${["Aangemeld","Akkoord","Bezoek","Korting"].map((l,i)=>`<span class="rt-d${n>=i+1?" on":""}" style="left:${i/3*100}%"><i></i><small>${l}</small></span>`).join("")}</div></div>`}).join("")}</div></section>`:""}
-  </div>`}
+        <div class="rt-trk ${x.status==="gestopt"?"stop":""}" style="--p:${Math.max(0,n-1)/3}"><div class="rt-lijn"><i></i></div>${["Aangemeld","Akkoord","Bezoek","Credits"].map((l,i)=>`<span class="rt-d${n>=i+1?" on":""}" style="left:${i/3*100}%"><i></i><small>${l}</small></span>`).join("")}</div></div>`}).join("")}</div></section>`:""}`:"";
+  /* overzicht van alle credits */
+  const BRON={aanbevelen:[I.hart,"a"],review:[I.ster,"b"],beoordeling:[I.spark||I.check,"c"],extra:[I.plus,"d"],overig:[I.cadeau,"a"]};
+  const regels=(C.regels||[]);
+  const ledger=regels.length?`<section class="kp"><div class="kp-h"><span class="objic goud">${I.cadeau}</span><div><b>Uw credits</b><small>${cr(saldo)} beschikbaar · ${eur0(C.verdiend)} in totaal verdiend</small></div></div>
+      <div class="lijst">${regels.map(t=>{const b=BRON[t.bron]||BRON.overig;return `<div class="lr cl ${b[1]}"><span class="ti">${b[0]}</span><span class="tx"><b>${esc(crLabel(t.reden))}</b><small>${t.op?esc(kort(t.op)):""}</small></span><span class="rt"><b class="cl-n">+${Math.round(t.bedrag)}</b><span class="pill ${t.open?"ok":"neutral"}"><i></i>${t.open?"Staat klaar":"Verrekend"}</span></span></div>`}).join("")}</div></section>`
+    :`<section class="kp"><div class="kp-h"><span class="objic goud">${I.cadeau}</span><div><b>Uw credits</b><small>Nog geen credits</small></div></div><p class="leeg">Uw eerste credits verdient u door een bezoek te beoordelen of een buur aan te bevelen.</p></section>`;
+  return kop("Credits & aanbevelen","Spaar korting op uw volgende factuur.")+`<div class="pg rf">${hero}${manieren}${ref}${ledger}</div>`}
+const crLabel=r=>{let x=String(r||"").replace(/^Credits:\s*/i,"").replace(/^Korting\s+/i,"").replace(/(\d{4}-\d{2}-\d{2})/g,m=>kort(m));return x.charAt(0).toUpperCase()+x.slice(1)};
 function deelTekst(){return `Ik laat mijn ramen wassen door ${B.naam} en ben er heel tevreden over.${B.refWelkom>0?` Met mijn link krijg je ${eur0(B.refWelkom)} korting op je eerste factuur:`:" Bereken je prijs via mijn link:"} ${D.aanbevelen.link}`}
 
 function ik(){const k=D.klant,t=k.toegang||{};
@@ -1416,6 +1470,7 @@ setInterval(async()=>{if(!D||(tab==="tickets"&&TK.open)||document.hidden)return;
 /* ---------- interactie ---------- */
 function koppel(){
   $$("[data-act]").forEach(b=>b.onclick=()=>FORM[b.dataset.act]());
+  $$("[data-scroll]").forEach(b=>b.addEventListener("click",()=>setTimeout(()=>{const e=document.getElementById(b.dataset.scroll);if(e)e.scrollIntoView({behavior:"smooth",block:"center"})},120)));
   $$("[data-fact]").forEach(b=>{b.onclick=()=>openFactuur(b.dataset.fact);b.addEventListener("pointerenter",()=>factuurHaal(b.dataset.fact).catch(()=>{}),{once:true});b.addEventListener("touchstart",()=>factuurHaal(b.dataset.fact).catch(()=>{}),{once:true,passive:true})});
   $$("[data-tk]").forEach(b=>b.onclick=()=>openTicket(b.dataset.tk));
   $$("[data-ster]").forEach(b=>{b.onmouseenter=()=>$$("[data-ster]").forEach(x=>x.classList.toggle("aan",+x.dataset.ster<=+b.dataset.ster));b.onclick=()=>beoordeel(+b.dataset.ster)});
@@ -1434,6 +1489,13 @@ async function verstuur(o,body,titel,tekst){const b=o.querySelector("[data-go]")
   try{const r=await api("actie",{body});bedankt(o,titel,tekst,r&&r.ticketId);laad(true)}catch(e){b.disabled=false;f.textContent=e.message}}
 const isoP=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 const FORM={
+  review(){const link=B.reviewLink||"";const n=((D.credits||{}).tarieven||{}).review||5;
+    blad(`<div class="dh"><span class="objic goud">${I.ster}</span><div><h3>Google-review plaatsen</h3><small>Eenmalig ${n} credit${n===1?"":"s"} (€ ${n}) na controle</small></div></div>
+    <ol class="stappen"><li><span>Open onze reviewpagina en schrijf in een paar zinnen hoe u ons werk ervaart.</span></li><li><span>Kom terug en tik op <b>Review geplaatst</b>.</span></li><li><span>Wij controleren de review en zetten de credits op uw account. U ziet ze hier terug.</span></li></ol>
+    ${link?`<a class="btn primary full big" style="margin:4px 0 12px" target="_blank" rel="noopener" href="${esc(link)}">${I.ster}Reviewpagina openen</a>`:`<div class="infobox">${I.klok}<span>Onze reviewpagina wordt nog ingesteld. Probeer het later nog eens.</span></div>`}
+    <label class="veld"><span>Onder welke naam heeft u de review geplaatst? (helpt ons bij het controleren)</span><input id="rvn" placeholder="Bijv. ${esc(D.klant.voornaam||"uw naam")}"></label>
+    <p class="fout" role="alert"></p><div class="acties"><button class="" data-sluit>Later</button><button class="primary" data-go ${link?"":"disabled"}>${I.check}Review geplaatst</button></div>`,
+    o=>{o.querySelector("[data-go]").onclick=()=>verstuur(o,{type:"review",tekst:"Review geplaatst onder de naam: "+($("#rvn").value||"(niet ingevuld)")},"Dank u wel!",`Wij controleren de review en zetten daarna ${n} credit${n===1?"":"s"} op uw account.`)})},
   verzetten(){const v=D.volgende;blad(`<h3>Afspraak verzetten</h3><p class="sub">${v?"Gepland op "+esc(lang(v.datum))+". ":""}Laat ons weten wat beter uitkomt, dan zoeken wij een nieuw moment in de route.</p>
     <span class="veld"><span>Wat komt beter uit?</span></span><div class="keus">${["Eerder","Later","Andere dag in dezelfde week","Maakt niet uit, als ik maar thuis ben"].map((x,i)=>`<label><input type="radio" name="vk" value="${esc(x)}"${i===1?" checked":""}><span>${esc(x)}</span></label>`).join("")}</div>
     <label class="veld"><span>Toelichting (niet verplicht)</span><textarea id="vt" placeholder="Bijvoorbeeld: die week ben ik er niet, maandag en dinsdag kan altijd"></textarea></label>

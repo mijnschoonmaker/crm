@@ -85,7 +85,9 @@ module.exports = function maakPortaal(ctx) {
   const zelfdeDag = f => !!(f.betaaldTs && (f.verstuurdOp || f.gemaakt) && isoNL(new Date(f.betaaldTs)) === isoNL(new Date(f.verstuurdOp || f.gemaakt)));
   const fStatus = f => f.status === "betaald" ? "betaald" : f.status === "oninbaar" ? "gesloten" : f.verval && f.verval < isoNL() ? "verlopen" : "open";
   const bedrijfInfo = (b, base) => ({ naam: b.naam || "mijnschoonmaker.com", logo: (b.logoMail || b.logo) ? base + "/_blob/" + (b.logoMail || b.logo) : "", telefoon: b.telefoon || "", mobiel: b.mobiel || b.telefoon || "", email: b.email || "", website: b.website || "", iban: b.iban || "", reviewLink: b.reviewLink || "", kleur: b.mailAccent || b.hoofdkleur || "#137a8a",
-    voorwaarden: b.voorwaardenPdf ? base + "/_blob/" + b.voorwaardenPdf : "", tijdWeergave: b.portaalTijd || "venster", refAan: b.refAan !== false, refBeloning: b.refBeloning != null && b.refBeloning !== "" ? Number(b.refBeloning) : 15, refWelkom: b.refWelkom != null && b.refWelkom !== "" ? Number(b.refWelkom) : 10, werkStart: b.werkStart || "08:00" });
+    voorwaarden: b.voorwaardenPdf ? base + "/_blob/" + b.voorwaardenPdf : "", tijdWeergave: b.portaalTijd || "venster", refAan: b.refAan !== false, refBeloning: b.refBeloning != null && b.refBeloning !== "" ? Number(b.refBeloning) : 15, refWelkom: b.refWelkom != null && b.refWelkom !== "" ? Number(b.refWelkom) : 10, werkStart: b.werkStart || "08:00",
+    credits: { review: numOf(b.crReview, 5), beurt: numOf(b.crBeurt, 1), extra: numOf(b.crExtra, 3), aanbevelen: numOf(b.refBeloning, 15) } });
+  const numOf = (v, d) => v != null && v !== "" && !isNaN(Number(v)) ? Number(v) : d;
 
   /* ---------- live meekijken: waar rijdt de glazenwasser (alleen voor klanten van vandaag) ---------- */
   const tMin = t => { const m = /^(\d{1,2}):(\d{2})/.exec(String(t || "")); return m ? (+m[1]) * 60 + (+m[2]) : 9999; };
@@ -175,11 +177,16 @@ module.exports = function maakPortaal(ctx) {
       tickets: { open: tks.filter(t => t.status !== "opgelost").length, ongelezen: tks.reduce((a, t) => a + (Number(t.ongelezenKlant) || 0), 0) },
       verzoeken: vz.docs.map(d => ({ id: d.id, ...d.data() })).filter(v => v.type !== "beoordeling" && v.type !== "toegang" && !v.ticketId).sort((a, b2) => String(b2.op).localeCompare(String(a.op))).slice(0, 8)
         .map(v => ({ type: v.type, status: v.status, op: v.op, datum: v.datum || "", tot: v.tot || "", tekst: v.tekst || "", antwoord: v.antwoord || "" })),
+      credits: (() => { const alle = [...tegoed.map(t => ({ ...t, open: true })), ...(k.tegoedGebruikt || []).map(t => ({ ...t, open: false }))].filter(t => Number(t.bedrag) > 0)
+          .map(t => ({ bedrag: Number(t.bedrag), reden: String(t.reden || ""), bron: t.bron || (/aanbeveling/i.test(t.reden || "") ? "aanbevelen" : "overig"), op: String(t.op || t.gebruiktOp || "").slice(0, 10), open: t.open })).sort((a, b2) => b2.op.localeCompare(a.op));
+        const rv = vz.docs.map(d => d.data()).filter(x => x.type === "review"); const rvDone = alle.some(t => t.bron === "review");
+        return { saldo: r2(tegoed.reduce((a, t) => a + Number(t.bedrag), 0)), verdiend: r2(alle.reduce((a, t) => a + t.bedrag, 0)), regels: alle.slice(0, 30), tarieven: bedrijfInfo(b, base).credits,
+          review: rvDone ? "toegekend" : rv.length ? "aangevraagd" : "open", beoordeeld: beurten.filter(x => x.beoordeling).length }; })(),
       aanbevelen: { code: k.refCode, link: base + "/aanbevolen/" + k.refCode, lijst: aanbevolen, tegoed: r2(tegoed.reduce((a, t) => a + Number(t.bedrag), 0)), opHold: aanbevolen.filter(x => ["aangemeld", "akkoord", "eerste"].includes(x.status)).length, tegoedRegels: tegoed.map(t => ({ bedrag: Number(t.bedrag), reden: t.reden || "" })), verdiend: r2((k.tegoedGebruikt || []).reduce((a, t) => a + (Number(t.bedrag) || 0), 0)) }
     };
   }
 
-  const TYPES = { verzetten: "Afspraak verzetten", overslaan: "Bezoek overslaan", vakantie: "Afwezig / vakantie", bericht: "Bericht", gegevens: "Gegevens wijzigen", extra: "Extra dienst aanvragen", stoppen: "Opzeggen", beoordeling: "Beoordeling", toegang: "Toegang en instructies" };
+  const TYPES = { verzetten: "Afspraak verzetten", overslaan: "Bezoek overslaan", vakantie: "Afwezig / vakantie", bericht: "Bericht", gegevens: "Gegevens wijzigen", extra: "Extra dienst aanvragen", review: "Google-review geplaatst", stoppen: "Opzeggen", beoordeling: "Beoordeling", toegang: "Toegang en instructies" };
   async function actie(req, S, d) {
     const k = S.klant, type = String(d.type || "");
     if (!TYPES[type]) throw new Error("onbekend");
@@ -209,6 +216,11 @@ module.exports = function maakPortaal(ctx) {
       await S.kref.set({ ...nieuw, log: [...(Array.isArray(k.log) ? k.log : []), { datum: isoNL(), tekst: "Gegevens gewijzigd door klant (portaal): " + Object.keys(nieuw).map(f => LBL[f] + " " + (oud[f] || "–") + " → " + (nieuw[f] || "–")).join(", ") }] }, { merge: true });
       v.wijziging = nieuw; v.oud = oud; v.status = (nieuw.adres !== undefined || nieuw.postcode !== undefined || nieuw.plaats !== undefined) ? "nieuw" : "info";
     }
+    if (type === "review") {
+      const bestaand = await db.collection("portaalVerzoeken").where("klantId", "==", k.id).where("type", "==", "review").get();
+      if (!bestaand.empty) throw new Error("U heeft dit al doorgegeven. Dank u wel!");
+      v.tekst = txt(d.tekst).slice(0, 300); v.status = "nieuw";
+    }
     if (type === "extra") { v.diensten = (Array.isArray(d.diensten) ? d.diensten : []).map(x => txt(x).slice(0, 60)).slice(0, 8); }
     if (type === "toegang") {
       const opties = (Array.isArray(d.opties) ? d.opties : []).map(x => txt(x).slice(0, 60)).slice(0, 10), toegang = { opties, tekst: txt(d.tekst).slice(0, 600), code: txt(d.code).replace(/\s+/g, " ").slice(0, 40), op: nu() };
@@ -221,6 +233,9 @@ module.exports = function maakPortaal(ctx) {
       if (!bs.exists || bs.data().klantId !== k.id) throw new Error("bezoek niet gevonden");
       await bref.set({ beoordeling: { sterren: st, tekst: v.tekst, op: nu() } }, { merge: true });
       Object.assign(v, { sterren: st, beurtId: bref.id, datum: bs.data().datum || "", status: st <= 3 ? "nieuw" : "info" });
+      /* credits voor het beoordelen van een bezoek (één keer per bezoek) */
+      try { const b = await bedrijf(), cr = bedrijfInfo(b, "").credits.beurt, al = (k.tegoed || []).concat(k.tegoedGebruikt || []).some(t => t && t.bron === "beoordeling" && t.ref === bref.id);
+        if (cr > 0 && !al) { await S.kref.set({ tegoed: [...(k.tegoed || []), { id: newId("tg"), bedrag: cr, reden: "Credits: beoordeling bezoek " + (bs.data().datum || ""), bron: "beoordeling", ref: bref.id, op: isoNL() }] }, { merge: true }); v.credits = cr; } } catch (e) { console.error("credits beoordeling", e); }
     }
     if (type === "bericht" && !v.tekst) throw new Error("Schrijf een bericht.");
     const id = newId("pv");
