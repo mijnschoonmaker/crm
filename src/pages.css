@@ -3965,3 +3965,16 @@ body.rd-busy{cursor:grabbing}
 /* vaste weekdagen in de opdracht */
 .ow-dagen{display:flex;gap:6px;margin-top:8px}.ow-dagen button{flex:1;height:40px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);font-weight:700;font-size:13px;color:var(--muted);padding:0}
 .ow-dagen button[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
+
+/* ---------- VvE oplevering ---------- */
+.vve-op{max-width:480px}
+.vve-lijst{display:flex;flex-direction:column;gap:6px}
+.vve-t input{position:absolute;opacity:0;width:1px;height:1px}
+.vve-t span{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);font-weight:600;font-size:14.5px;cursor:pointer}
+.vve-t span i{width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;flex:none}.vve-t span i svg{width:14px;height:14px;stroke:#fff;opacity:0}
+.vve-t input:checked+span{border-color:#23845a;background:color-mix(in srgb,#23845a 8%,var(--surface))}.vve-t input:checked+span i{background:#23845a;border-color:#23845a}.vve-t input:checked+span i svg{opacity:1}
+.vve-foto{border:1.5px dashed var(--line);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.vve-fh{display:flex;align-items:center;justify-content:space-between;gap:8px}.vve-fh .eyebrow{display:inline-flex;align-items:center;gap:6px}.vve-fh .eyebrow svg{width:14px;height:14px}
+.vve-fl{display:flex;gap:8px;flex-wrap:wrap}.vve-fl span{position:relative}.vve-fl img{width:72px;height:72px;object-fit:cover;border-radius:10px;display:block}.vve-fl .iconbtn{position:absolute;top:-6px;right:-6px;background:var(--surface);border:1px solid var(--line)}
+.bv-cam.dis{opacity:.5;pointer-events:none}
+.f-vve{border:1px solid var(--line);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;background:color-mix(in srgb,var(--brand) 4%,var(--surface))}.f-vve .ow-dagen{margin-top:6px}

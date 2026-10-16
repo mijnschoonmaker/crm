@@ -122,7 +122,7 @@ function openNieuweKlant(){const st=S();
     <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klantgegevens</b></div>
       <div class="lc-g lc-g2">
         ${inp("nr","Klantnummer",{im:"numeric",ph:"Automatisch",help:"Zelfde als de relatiecode in SnelStart"})}
-        ${sel("soort","Type klant",[["particulier","Particulier"],["zakelijk","Zakelijk"]],"particulier")}
+        ${sel("soort","Type klant",[["particulier","Particulier"],["zakelijk","Zakelijk"],["vve","VvE / Overheid"]],"particulier")}
         ${inp("voor","Voornaam")}${inp("ach","Achternaam")}
         ${inp("geb","Geboortedatum",{type:"date"})}${sel("gesl","Geslacht",[["","Onbekend"],["man","Man"],["vrouw","Vrouw"]],"")}
         ${inp("bedr","Bedrijfsnaam")}${inp("kvk","KVK-nummer",{im:"numeric"})}
@@ -137,6 +137,9 @@ function openNieuweKlant(){const st=S();
       <div class="lc-g lc-g2">${inp("postcode","Postcode",{ph:"1234 AB"})}${inp("plaats","Plaats")}</div>
       <div class="lc-g lc-g2"><label>Land<select id="nk-land">${Object.entries(LANDEN).map(([a,b])=>`<option value="${a}">${esc(b.n)}</option>`).join("")}</select></label><span></span></div>
       <p class="help" id="nk-msg" style="margin:0"></p></section>
+    <section class="kp f-vve" id="nk-vve" hidden><div class="kp-h"><span class="objic">${I.checksq||I.check}</span><b>VvE-instellingen</b></div>
+      <label>Vaste weekdagen<div class="ow-dagen" id="nk-wdagen">${[1,2,3,4,5,6].map(d=>`<button type="button" data-fwd="${d}" aria-pressed="false">${["zo","ma","di","wo","do","vr","za"][d]}</button>`).join("")}</div><small class="help">Bijv. di en vr: elke week op die dagen in de planning; na afmelden staat de volgende dag klaar.</small></label>
+      <label>Checklist per ruimte (één per regel)<textarea id="nk-vvetaken" style="min-height:90px">${esc(VVE_TAKEN.join("\n"))}</textarea><small class="help">Vink je af bij het afmelden, met een opleverfoto. Het bestuur ziet dit in het portaal en op het bewonersbord.</small></label></section>
   </div><aside class="lc-side">
     <section class="kp"><div class="kp-h"><span class="objic">${I.note}</span><b>Klantnotities</b><small class="subt">alleen voor jezelf</small></div>
       <textarea id="nk-notitie" style="min-height:110px" placeholder="Bijv. via via aangemeld, wil graag in het voorjaar starten"></textarea></section>
@@ -145,16 +148,17 @@ function openNieuweKlant(){const st=S();
   <div class="row stickyfoot kk-foot"><span class="sp"></span><button type="button" data-act="close">Annuleren</button><button type="submit" class="primary" id="nkSave">${I.check}Opslaan</button></div>`,{xwide:true});
   bindAdresZoek("nk-");
   const v=n=>{const e=$("#nk-"+n);return e?e.value.trim():""};
-  const collect=()=>{const zak=v("soort")==="zakelijk",voor=v("voor"),ach=v("ach"),bedr=v("bedr");
+  {const so=$("#nk-soort"),vv=$("#nk-vve");if(so&&vv){so.addEventListener("change",()=>{vv.hidden=so.value!=="vve"});vv.querySelectorAll("[data-fwd]").forEach(b=>b.onclick=()=>b.setAttribute("aria-pressed",b.getAttribute("aria-pressed")!=="true"))}}
+  const collect=()=>{const vve=v("soort")==="vve",zak=v("soort")==="zakelijk"||vve,voor=v("voor"),ach=v("ach"),bedr=v("bedr");
     const naam=zak?(bedr||[voor,ach].filter(Boolean).join(" ")):(ach?ach+(voor?", "+voor:""):voor||bedr);
     if(!naam){$(zak?"#nk-bedr":"#nk-ach").focus();toast(zak?"Vul de bedrijfsnaam in":"Vul een achternaam in");return null}
     const straat=v("straat"),plaats=v("plaats");if(!straat||!plaats){$(straat?"#nk-plaats":"#nk-straat").focus();toast("Vul het adres en de plaats in");return null}
     const telOk=t=>!t||String(t).replace(/\D/g,"").length>=10;if(!telOk(v("tel"))||!telOk(v("mob"))){$(telOk(v("tel"))?"#nk-mob":"#nk-tel").focus();toast("Een telefoonnummer heeft 10 cijfers");return null}
     const gp=v("gepland");
     return {naam,voornaam:voor,achternaam:ach,contact:zak?[voor,ach].filter(Boolean).join(" "):"",bedrijfsnaam:bedr,kvk:v("kvk"),btwnr:v("btw").toUpperCase(),functie:v("fn"),
-      klantnr:v("nr"),soort:zak?"zakelijk":"particulier",geboortedatum:v("geb"),geslacht:v("gesl"),iban:v("iban").toUpperCase(),rekeninghouder:v("rh"),email:v("email"),website:v("web"),telefoon:v("tel"),mobiel:v("mob"),
+      klantnr:v("nr"),soort:vve?"vve":zak?"zakelijk":"particulier",...(vve?(()=>{const wd=[...document.querySelectorAll('#nk-wdagen [data-fwd][aria-pressed="true"]')].map(b=>Number(b.dataset.fwd));return{weekdagen:wd,...(wd.length?{autoplan:true}:{}),vveTaken:v("vvetaken").split(/\n/).map(x=>x.trim()).filter(Boolean).slice(0,20)}})():{}),geboortedatum:v("geb"),geslacht:v("gesl"),iban:v("iban").toUpperCase(),rekeninghouder:v("rh"),email:v("email"),website:v("web"),telefoon:v("tel"),mobiel:v("mob"),
       adres:joinAdres(straat,v("huisnr"),v("toev")),straat,huisnr:v("huisnr"),toev:v("toev"),postcode:normPc(v("postcode")),plaats,land:v("land")||"NL",klantNotitie:v("notitie"),
-      dienst:v("dienst")||"Glasbewassing",prijs:Number(v("prijs"))||0,frequentie:Number(v("freq"))||4,duur:Number(v("duur"))||30,ronde:v("ronde"),laatst:v("laatst"),gepland:gp,tijd:gp?v("tijd"):"",notities:v("not"),
+      dienst:v("dienst")||"Glasbewassing",prijs:Number(v("prijs"))||0,frequentie:(vve&&document.querySelector('#nk-wdagen [data-fwd][aria-pressed="true"]'))?1:(Number(v("freq"))||4),duur:Number(v("duur"))||30,ronde:v("ronde"),laatst:v("laatst"),gepland:gp,tijd:gp?v("tijd"):"",notities:v("not"),
       incasso:false,directFactureren:false,binnen:false,objectId:"",actief:true,akkoord:false,geenReview:false,opzegReden:"",aangemaakt:iso(today()),log:[],objecten:[]}};
   let kid="";
   const opslaan=async patch=>{const d=collect();if(!d)return null;if(!kid)kid=newId("k");await save("klanten",kid,{...d,prospect:true,opdrachtVerwijderd:true,...patch});return kid};

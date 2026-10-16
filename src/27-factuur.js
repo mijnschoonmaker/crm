@@ -138,14 +138,15 @@ async function bvUpload(kid,file){const k=state.klanten.find(x=>x.id===kid);if(!
   const url=URL.createObjectURL(file);
   openDlg(`<div class="dlg-head"><span class="objic big">${I.camera}</span><div style="min-width:0;flex:1"><h3>Wat viel op?</h3><div class="subt">${esc(cleanName(k.naam))} · ${esc(jobAddr(k))}</div></div></div>
     <img src="${url}" alt="" class="bv-prev">
-    ${bvZijdeHtml()}
+    ${k.soort==="vve"?`<div class="bv-zijde"><span>Wat voor melding?</span><div class="seg bv-zs" role="group">${VVE_CAT.map(([v,l])=>`<button type="button" data-vcat="${v}" aria-pressed="${v==="technisch"}">${l}</button>`).join("")}</div></div>`:bvZijdeHtml()}
     <div class="chips" style="margin:0">${BV_SNEL.map(t=>`<button type="button" class="chip" data-bvt="${esc(t)}">${esc(t)}</button>`).join("")}</div>
     <label>Toelichting voor de klant<textarea id="bv-n" style="min-height:80px" placeholder="Bijv. aan de achterkant laat de verf los van het kozijn van de slaapkamer"></textarea></label>
     <div class="row"><span class="sp"></span><button type="button" id="bvC">Annuleren</button><button type="submit" class="primary" id="bvS">${I.check}Opslaan bij de factuur</button></div>`,{wide:true});
   form.querySelectorAll("[data-bvt]").forEach(b=>b.onclick=()=>{const t=$("#bv-n");t.value=t.value?t.value+". "+b.dataset.bvt:b.dataset.bvt;t.focus()});bvZijdeBind();
+  form.querySelectorAll("[data-vcat]").forEach(b=>b.onclick=()=>{form.querySelectorAll("[data-vcat]").forEach(x=>x.setAttribute("aria-pressed","false"));b.setAttribute("aria-pressed","true")});
   const done=()=>{URL.revokeObjectURL(url);if(back)openJob(back.job,back.d);else dlg.close()};
   $("#bvC").onclick=done;
-  form.onsubmit=async e=>{e.preventDefault();$("#bvS").disabled=true;const item={id:r.id,naam:file.name||"foto.jpg",soort:"foto",notitie:$("#bv-n").value.trim(),zijde:bvZijde(),datum:iso(today())};
+  form.onsubmit=async e=>{e.preventDefault();$("#bvS").disabled=true;const item={id:r.id,naam:file.name||"foto.jpg",soort:"foto",notitie:$("#bv-n").value.trim(),zijde:bvZijde(),categorie:((form.querySelector('[data-vcat][aria-pressed="true"]')||{}).dataset||{}).vcat||"",datum:iso(today())};
     try{const f=bvFactuurVandaag(k);
       if(f){await save("facturen",f.id,{...strip(f),bijlagen:[...(f.bijlagen||[]),item]});toast("Foto toegevoegd aan factuur "+f.nummer)}
       else{const cur=state.klanten.find(x=>x.id===kid)||k;await save("klanten",kid,{...strip(cur),bevindingen:[...(cur.bevindingen||[]),item]});toast("Foto bewaard; gaat mee met de factuur")}
