@@ -136,20 +136,19 @@ function openJob(id,day){
   </div>`,{drawer:true});
 }
 
-/* ---------- waterton: loopt vol naarmate de verwachte tijd verstrijkt ---------- */
-const TON_D="M11 9 C4 30 4 48 11 69 C24 74 40 74 53 69 C60 48 60 30 53 9 C40 4 24 4 11 9 Z";
-function tonHtml(sinds,ex,f){const p=Math.min(1,Math.max(0,f)),id="ton"+Math.random().toString(36).slice(2,7);
-  return `<span class="tk-ton${f>1?" over":""}" data-ton="${esc(sinds)}" data-exp="${ex}" style="--p:${p.toFixed(3)}" aria-label="${Math.round(f*100)}% van de verwachte tijd">
-    <svg viewBox="0 0 64 78" aria-hidden="true"><defs><clipPath id="${id}"><path d="${TON_D}"/></clipPath>
-      <linearGradient id="${id}w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6fdcff"/><stop offset="1" stop-color="#137a8a"/></linearGradient>
-      <linearGradient id="${id}o" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffcf6b"/><stop offset="1" stop-color="#d08a2e"/></linearGradient></defs>
-      <path class="ton-bg" d="${TON_D}"/>
-      <g clip-path="url(#${id})"><g class="ton-water"><path class="ton-golf g2" fill="url(#${id}w)" d="M-64 7 Q-56 1 -48 7 T-32 7 T-16 7 T0 7 T16 7 T32 7 T48 7 T64 7 T80 7 T96 7 T112 7 T128 7 V140 H-64 Z"/><path class="ton-golf g1" fill="url(#${id}w)" d="M-64 7 Q-56 1 -48 7 T-32 7 T-16 7 T0 7 T16 7 T32 7 T48 7 T64 7 T80 7 T96 7 T112 7 T128 7 V140 H-64 Z"/>
-        <circle class="ton-bel b1" cx="22" cy="60" r="2"/><circle class="ton-bel b2" cx="38" cy="66" r="1.5"/><circle class="ton-bel b3" cx="30" cy="70" r="1.2"/></g></g>
-      <path class="ton-rand" d="${TON_D}"/>
-      <path class="ton-hoep" d="M8 26 C24 31 40 31 56 26 M6.5 40 C24 45 40 45 57.5 40 M8 54 C24 59 40 59 56 54"/>
-      <text class="ton-pct" x="32" y="43" text-anchor="middle" data-tpct="${esc(sinds)}" data-exp="${ex}">${Math.min(999,Math.round(f*100))}%</text></svg>
-    <span class="ton-drup"><i></i><i></i><i></i></span></span>`}
+/* ---------- ruit die schoon wordt: de wisser zakt mee met de verwachte tijd ---------- */
+function tonHtml(sinds,ex,f){const p=Math.min(1,Math.max(0,f)),id="rt"+Math.random().toString(36).slice(2,7);
+  return `<span class="tk-ruit${f>1?" over":""}" data-ton="${esc(sinds)}" data-exp="${ex}" style="--p:${p.toFixed(3)}" aria-label="${Math.round(f*100)}% van de verwachte tijd">
+    <svg viewBox="0 0 80 96" aria-hidden="true"><defs><clipPath id="${id}"><rect x="9" y="9" width="62" height="70" rx="2"/></clipPath>
+      <linearGradient id="${id}g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eaf7fb"/><stop offset="1" stop-color="#bfe6f0"/></linearGradient></defs>
+      <rect class="rt-kozijn" x="4" y="4" width="72" height="80" rx="5"/>
+      <rect class="rt-glas" x="9" y="9" width="62" height="70" rx="2" fill="url(#${id}g)"/>
+      <g clip-path="url(#${id})"><rect class="rt-vuil" x="9" y="9" width="62" height="70"/><path class="rt-vlek" d="M18 20c6-3 10 4 16 1s8-5 14-2M14 40c8 5 14-3 22 1s10 6 18 2M16 58c7-4 12 3 20 0s9-5 16-1"/>
+        <path class="rt-glans" d="M14 76 L40 9 L52 9 L26 76Z"/></g>
+      <path class="rt-roede" d="M40 9v70M9 44h62"/>
+      <g class="rt-wisser"><rect x="6" y="-4" width="68" height="7" rx="3"/><rect x="30" y="-16" width="20" height="13" rx="4"/><rect x="38" y="-28" width="4" height="13" rx="2"/></g>
+      <rect class="rt-bank" x="0" y="82" width="80" height="7" rx="3"/>
+      <text class="rt-pct" x="40" y="31" text-anchor="middle" data-tpct="${esc(sinds)}" data-exp="${ex}">${Math.min(999,Math.round(f*100))}%</text></svg></span>`}
 
 /* ---------- Vandaag: kop in de stijl van het klantportaal ---------- */
 function vdHero(done,total,todo,omzet,verwacht,pct){if(!total)return"";const R=44,C=2*Math.PI*R,klaar=done>=total,mw=isMw();
