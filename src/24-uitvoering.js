@@ -83,10 +83,10 @@ const fmtSec=s=>{s=Math.round(Number(s)||0);if(s<60)return s+" sec";const m=Math
 
 function vUitvoering(){
   uitvLoad();const t=state.utab||"diensten";
-  const head=`<div class="pagehead"><div><p class="kicker">Uitvoering</p><h1 class="xl">${t==="diensten"?"Diensten":t==="frequenties"?"Frequenties":"Bedrijfsmiddelen"}</h1><p class="lead" style="margin:0">${t==="diensten"?"Tarieven, tijden en kortingen. De rekentool, opdrachten, offertes en de website-calculator rekenen hiermee.":t==="frequenties"?"Kies welke frequenties je aanbiedt. Die staan in alle keuzelijsten.":"Je materiaal en gereedschap op één plek."}</p></div>
+  const head=`<div class="pagehead"><div><p class="kicker">Uitvoering</p><h1 class="xl">${t==="diensten"?"Diensten":t==="frequenties"?"Frequenties":"Bedrijfsmiddelen"}</h1><p class="lead" style="margin:0">${t==="diensten"?"Tarieven, tijden en kortingen. De rekentool, opdrachten, offertes en de dienstenwebshop rekenen hiermee.":t==="frequenties"?"Kies welke frequenties je aanbiedt. Die staan in alle keuzelijsten.":"Je materiaal en gereedschap op één plek."}</p></div>
     <div class="acts"><button type="button" id="uReset" data-act="ureset" ${Udirty?"":"disabled"}>${I.refresh}Herstellen</button><button type="button" class="primary${Udirty?" pulse":""}" id="uSave" data-act="usave" ${Udirty?"":"disabled"}>${I.check}Opslaan</button></div></div>
     <div class="toolbar u-tb" style="margin-bottom:18px"><div class="seg" role="group" aria-label="Onderdeel">${[["diensten","Diensten"],["frequenties","Frequenties"],["middelen","Bedrijfsmiddelen"]].map(([x,l])=>`<button type="button" data-act="utab" data-v="${x}" aria-pressed="${t===x}">${l}</button>`).join("")}</div>
-      <button type="button" class="small" data-act="uwebview" title="Bekijk de prijscalculator zoals klanten hem op je website zien${Udirty?" (sla eerst op)":""}">${I.globe||I.eye||""}Website-calculator bekijken</button></div>`;
+      <button type="button" class="small" data-act="uwebview" title="Bekijk de dienstenwebshop (prijscalculator) zoals klanten hem op je website zien${Udirty?" (sla eerst op)":""}">${I.globe||I.eye||""}Dienstenwebshop bekijken</button></div>`;
   if(t==="frequenties")return head+uFreqHtml();
   if(t==="middelen")return head+uMiddelHtml();
   const sel=uSel();

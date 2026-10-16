@@ -133,7 +133,7 @@ if(LIVE){
   SETEXTRA.liveOverzicht=(c,s)=>{let vw=s.voorwaardenPdf||"",vwN=s.voorwaardenNaam||"",hf=s.herroepingPdf||"",hfN=s.herroepingNaam||"";
     const rij=(id,naam,lbl)=>`<div class="splitrow" style="gap:10px;align-items:center"><span style="flex:1;min-width:0"><b>${lbl}</b><br><small class="subt">${naam?esc(naam):"Nog geen PDF"}</small></span><label class="btn small">${I.upload}${naam?"Vervangen":"PDF kiezen"}<input type="file" accept="application/pdf" hidden id="${id}F"></label>${naam?`<button type="button" class="small ghost" id="${id}X">${I.x}</button>`:""}</div>`;
     setDlg(c,`${info("De klant krijgt automatisch een PDF met de bestelde diensten, aantallen en prijzen. Het <b>voorlopige</b> overzicht direct na de aanmelding via je website (met de bijlagen hieronder). Het <b>definitieve</b> overzicht na de tellingcontrole bij de O-beurt, of meteen nadat de klant een offerte online heeft ondertekend.")}
-      ${tgl("ovVoorlopigAan","Voorlopig overzicht na aanmelding","Automatisch na het indienen van de websitecalculator",s.ovVoorlopigAan!==false)}
+      ${tgl("ovVoorlopigAan","Voorlopig overzicht na aanmelding","Automatisch na het indienen van de dienstenwebshop",s.ovVoorlopigAan!==false)}
       ${tgl("ovDefinitiefAan","Definitief overzicht na tellingcontrole","Automatisch zodra de glazenwasser de telling bij de O-beurt opslaat",s.ovDefinitiefAan!==false)}
       ${inp("opzegtermijn","Opzegtermijn",s.opzegtermijn||"1 maand",{help:"Voor [noticeperiod.company] in je mailteksten."})}
       ${sec("Bijlagen bij het voorlopige overzicht")}<div id="ovPdfs"></div>
