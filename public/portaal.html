@@ -1036,6 +1036,16 @@ aside .logo{gap:16px!important}.topbar .lg-g{font-size:14px!important}
 .cl .ti{background:var(--cs);color:var(--c)}.cl.a{--c:#c2185b;--cs:#fde7ef}.cl.b{--c:#b7791a;--cs:#fdf1dc}.cl.c{--c:#137a8a;--cs:#ddf0f2}.cl.d{--c:#1f8a5c;--cs:#e0f3e9}
 .cl-n{font-size:16px;color:var(--ok)!important}
 @media (max-width:600px){.cr-hero{padding:18px 16px 16px;border-radius:22px}.cr-saldo>b{font-size:56px}.cr-saldo em{font-size:17px}.cr-saldo small{font-size:12.5px}.cw-grid{grid-template-columns:1fr 1fr;gap:8px}.cw{padding:13px 12px 12px;border-radius:16px;gap:4px}.cw-ic{width:36px;height:36px;border-radius:11px}.cw-ic svg{width:17px;height:17px}.cw>b{font-size:14px}.cw>small{font-size:12px}.cw-n{font-size:12.5px;padding:4px 8px}.cw-btn{padding:7px 11px;font-size:12.5px;width:100%;justify-content:center}.cw-v{flex-direction:column;align-items:stretch;gap:6px}.cw-st{justify-content:center}}
+
+/* positie in de ranglijst van betalers */
+.bp-rang{display:flex;align-items:center;gap:12px;margin:0 20px 16px!important;padding:10px 12px;border-radius:14px;background:var(--surface);border:1px solid var(--line)}
+@media (max-width:600px){.bp-rang{margin:0 14px 14px!important}}
+.bp-rn{flex:none;display:flex;align-items:baseline;gap:1px;min-width:44px;height:44px;padding:0 8px;border-radius:12px;background:var(--kop);color:#fff;justify-content:center;align-items:center}
+.bp-rn small{font-size:12px;font-weight:700;opacity:.8}.bp-rn b{font-size:20px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.bp-rang.top .bp-rn{background:linear-gradient(135deg,#e8b84a,#c99325)}.bp-rang.top .bp-rn small{font-size:16px;opacity:1}
+.bp-rang.podium .bp-rn{background:var(--kop-groen)}
+.bp-rt{display:flex;flex-direction:column;gap:2px;min-width:0}.bp-rt>b{font-size:14px;font-weight:700;letter-spacing:-.01em}.bp-rt small{font-size:12.5px;color:var(--muted);line-height:1.4}.bp-rt small b{color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
+@media (max-width:600px){.bp-rang{padding:9px 10px;gap:10px}.bp-rt>b{font-size:13.5px}.bp-rt small{font-size:12px}}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -1270,6 +1280,8 @@ function bord(){const u=(D.bord||{}).url||"",k=D.klant;
     ${kp(I.info||I.bericht,"Zo gebruikt u het",`<div class="lijst">${lr("1","Print het bordje","Via Bordje printen krijgt u een A5-pagina met QR-code, klaar om op te hangen bij de entree of in de lift.")}${lr("2","Bewoners scannen","Ze zien direct de laatste beurt, de checklist en de volgende datum. Geen app, geen inlog.")}${lr("3","Zelf delen","Zet de link in uw nieuwsbrief of bewonersportaal; hij blijft altijd dezelfde.")}</div>`)}</div>`}
 const plural=(n,a,b)=>n+" "+(n===1?a:b);
 
+const duurTxt=(sec,kort)=>{if(sec==null)return"";sec=Math.max(0,Math.round(sec));const d=Math.floor(sec/86400),u=Math.floor(sec%86400/3600),m=Math.floor(sec%3600/60),x=sec%60;
+  const p=[];if(d)p.push(d+(kort?" d":d===1?" dag":" dagen"));if(u)p.push(u+(kort?" u":" uur"));if(m)p.push(m+" min");if(x||!p.length)p.push(x+(kort?" s":" sec"));return (kort?p.slice(0,2):p).join(" ")};
 function betaalProfiel(F){
   const dd=(a,b)=>Math.round((p(b)-p(a))/864e5),term=f=>f.verval?Math.max(1,dd(f.datum,f.verval)):14;
   const bt=F.filter(f=>f.status==="betaald"&&f.betaaldOp&&f.datum).map(f=>({...f,dagen:Math.max(0,dd(f.datum,f.betaaldOp)),termijn:term(f),opTijd:!f.verval||f.betaaldOp<=f.verval})).sort((a,b)=>a.datum.localeCompare(b.datum));
@@ -1284,7 +1296,7 @@ function betaalProfiel(F){
 function betaalMeter(score,k){const r=44,C=2*Math.PI*r,v=score==null?0:Math.max(0,Math.min(1,score/100));
   return `<svg viewBox="0 0 104 104" class="bm"><defs><linearGradient id="bmg-${k}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--bm-${k})" stop-opacity=".55"/><stop offset="1" stop-color="var(--bm-${k})"/></linearGradient></defs><circle cx="52" cy="52" r="${r}" fill="none" stroke="var(--surface-3,#e7ecee)" stroke-width="9"/><circle cx="52" cy="52" r="${r}" fill="none" stroke="url(#bmg-${k})" stroke-width="9" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-v)}" transform="rotate(-90 52 52)" class="bm-v"/></svg>`}
 function betaalGrafiek(P,open){
-  const items=[...P.laatste.map(f=>({n:f.nummer,d:f.datum,v:f.dagen,t:f.termijn,k:f.opTijd?"ok":"soon",tip:`${f.nummer}: betaald na ${f.dagen} ${f.dagen===1?"dag":"dagen"}`})),
+  const items=[...P.laatste.map(f=>({n:f.nummer,d:f.datum,v:f.dagen,t:f.termijn,k:f.opTijd?"ok":"soon",tip:`${f.nummer}: betaald in ${f.sec!=null?duurTxt(f.sec):f.dagen+" "+(f.dagen===1?"dag":"dagen")}`})),
     ...open.filter(f=>f.datum).sort((a,b)=>a.datum.localeCompare(b.datum)).map(f=>{const v=Math.max(0,-dagenTot(f.datum)),t=f.verval?Math.max(1,Math.round((p(f.verval)-p(f.datum))/864e5)):14;return{n:f.nummer,d:f.datum,v,t,k:f.verval&&dagenTot(f.verval)<0?"late":"open",tip:`${f.nummer}: staat ${v} ${v===1?"dag":"dagen"} open`}})].slice(-12);
   if(items.length<2)return "";
   const H=78,max=Math.max(P.tm,...items.map(x=>x.v))*1.04||1,h=v=>Math.round(v/max*H);
@@ -1305,10 +1317,12 @@ function facturen(){const F=D.facturen,open=F.filter(f=>f.status!=="betaald"&&f.
     :P.niv.n===4?`U betaalt altijd binnen de termijn. Betaal direct online, dan is het in één minuut geregeld.`
     :`Tip: betaal direct online met iDEAL zodra de factuur binnenkomt. Dan hoeft u er niet meer aan te denken.`;
   const nSnel=F.filter(f=>f.snelUren!=null&&f.snelUren<=24).length;
+  const Rg=D.rang&&D.rang.positie?D.rang:null;
+  const rang=Rg?`<div class="bp-rang ${Rg.positie===1?"top":Rg.positie<=3?"podium":""}"><span class="bp-rn"><small>${Rg.positie===1?"🏆":"#"}</small><b>${Rg.positie}</b></span><span class="bp-rt"><b>${Rg.positie===1?"U bent onze snelste betaler!":`U staat op nummer ${Rg.positie} van ${Rg.totaal} klanten`}</b><small>Gemiddeld betaalt u in <b>${duurTxt(Rg.sec)}</b>${Rg.positie>1&&Rg.beste!=null?` · de snelste in ${duurTxt(Rg.beste)}`:""}</small></span></div>`:"";
   const hero=`<section class="kp bp bp-${P.niv.k}"><div class="kp-h"><span class="objic${P.te.length?" rood":""}">${I.euro}</span><div><b>Uw betaalgedrag</b><small>Hoe snel u uw facturen betaalt</small></div><span class="sp"></span>${nSnel>=2&&!P.te.length?`<span class="pill">${BLIK}Snelle betaler · ${nSnel}×</span>`:""}</div><div class="bp-in">
       <div class="bp-m">${betaalMeter(P.score,P.niv.k)}<div class="bp-mt"><b>${P.score==null?"–":P.score}</b><small>van 100</small></div></div>
-      <div class="bp-tx"><h3>${esc(P.niv.t)}</h3><div class="bp-dots" aria-hidden="true">${[1,2,3,4,5].map(i=>`<i class="${i<=P.niv.n?"on":""}"></i>`).join("")}</div><p>${msg}</p></div></div>
-    ${P.laatste.length?`<div class="bp-k"><div><small>Gemiddeld</small><b>na ${P.gem} ${P.gem===1?"dag":"dagen"}</b></div><div><small>Op tijd betaald</small><b>${P.op} van ${P.laatste.length}</b></div><div><small>Op rij op tijd</small><b>${P.reeks}×</b></div></div>`:""}
+      <div class="bp-tx"><h3>${esc(P.niv.t)}</h3><div class="bp-dots" aria-hidden="true">${[1,2,3,4,5].map(i=>`<i class="${i<=P.niv.n?"on":""}"></i>`).join("")}</div><p>${msg}</p></div></div>${rang}
+    ${P.laatste.length?`<div class="bp-k"><div><small>Gemiddeld betaald in</small><b>${Rg&&Rg.sec!=null?duurTxt(Rg.sec,true):"na "+P.gem+" "+(P.gem===1?"dag":"dagen")}</b></div><div><small>Op tijd betaald</small><b>${P.op} van ${P.laatste.length}</b></div><div><small>Op rij op tijd</small><b>${P.reeks}×</b></div></div>`:""}
     ${betaalGrafiek(P,open)}</section>`;
   const alarm=oudste?`<button class="melding rood" data-fact="${esc(oudste.id)}"><span class="objic rood">${I.euro}</span><div class="tx"><b>${eur(oudste.bedrag)} · ${-dagenTot(oudste.verval)} ${dagenTot(oudste.verval)===-1?"dag":"dagen"} te laat</b><small>Factuur ${esc(oudste.nummer)} · vervallen op ${esc(kort(oudste.verval))}${oudste.herinnerd?" · "+plural(oudste.herinnerd,"herinnering","herinneringen")+" verstuurd":""}</small></div><span class="btn-p">Nu betalen</span></button>`:"";
   return kop("Facturen",open.length?`Er ${open.length===1?"staat één factuur":"staan "+open.length+" facturen"} open.`:"Alles is betaald. Dank u wel.")+`<div class="pg">

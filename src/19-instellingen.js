@@ -376,7 +376,7 @@ function openBank(){
     <label>CSV-bestand van je bank<input type="file" id="bkF" accept=".csv,.txt,text/csv"></label><div id="bkRes"></div>`,{foot:`<button type="button" class="ghost" data-act="close">Annuleren</button><span class="sp"></span><button type="button" class="primary" id="bkGo" disabled>Afboeken</button>`});
   $("#bkF").onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>bankMatch(String(rd.result));rd.readAsText(f)};
   $("#bkGo").onclick=async()=>{const sel=bank.filter((m,i)=>form.querySelector(`[data-bk="${i}"]`)?.checked);$("#bkGo").disabled=true;
-    await runSeq(sel,async m=>{const f=m.f;await save("facturen",f.id,{...strip(f),status:"betaald",betaaldOp:m.datum||iso(today()),betaalwijze:"overmaken"});for(const b of state.beurten.filter(b=>b.gefactureerd===f.id))await save("beurten",b.id,{...strip(b),betaald:true})},plural(sel.length,"factuur","facturen")+" afgeboekt als betaald");dlg.close()};
+    await runSeq(sel,async m=>{const f=m.f;await save("facturen",f.id,{...strip(f),status:"betaald",betaaldOp:m.datum||iso(today()),betaaldTs:m.datum?m.datum+"T12:00:00.000Z":new Date().toISOString(),betaalwijze:"overmaken"});for(const b of state.beurten.filter(b=>b.gefactureerd===f.id))await save("beurten",b.id,{...strip(b),betaald:true})},plural(sel.length,"factuur","facturen")+" afgeboekt als betaald");dlg.close()};
 }
 function bankMatch(text){
   const rows=parseCSV(text);if(rows.length<2){$("#bkRes").innerHTML='<div class="notice">Geen transacties gevonden in dit bestand.</div>';return}

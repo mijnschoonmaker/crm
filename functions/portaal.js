@@ -81,6 +81,17 @@ module.exports = function maakPortaal(ctx) {
     return { ex: r2(ex), btw: r2(inc - ex), inc: r2(inc) };
   }
   /* hoe snel betaald: van het versturen van de factuur tot de betaling (alleen als beide tijden bekend zijn) */
+  const betaalSec = f => { if (f.status !== "betaald" || !f.betaaldTs) return null; const van = Date.parse(f.verstuurdOp || f.gemaakt || (f.datum ? f.datum + "T09:00:00" : "")), tot = Date.parse(f.betaaldTs); if (!(van > 0 && tot >= van)) return null; return Math.round((tot - van) / 1000); };
+  /* ranglijst: wie betaalt gemiddeld het snelst (alle klanten, betaalde facturen van de laatste 12 maanden, op de seconde) */
+  async function betaalRang(klantId) {
+    const sinds = new Date(Date.now() - 365 * DAG).toISOString().slice(0, 10);
+    const q = await db.collection("facturen").where("status", "==", "betaald").get();
+    const per = {};
+    q.docs.forEach(d => { const f = d.data(); if (!f.klantId || f.soort === "offerte" || (f.datum || "") < sinds) return; const sec = betaalSec(f); if (sec == null) return; (per[f.klantId] = per[f.klantId] || []).push(sec); });
+    const lijst = Object.entries(per).map(([id, a]) => ({ id, sec: a.reduce((x, y) => x + y, 0) / a.length, n: a.length })).sort((a, b2) => a.sec - b2.sec);
+    const i = lijst.findIndex(x => x.id === klantId);
+    return { positie: i < 0 ? null : i + 1, totaal: lijst.length, sec: i < 0 ? null : Math.round(lijst[i].sec), beste: lijst.length ? Math.round(lijst[0].sec) : null, n: i < 0 ? 0 : lijst[i].n };
+  }
   const snelUren = f => { if (f.status !== "betaald" || !f.betaaldTs) return null; const van = Date.parse(f.verstuurdOp || f.gemaakt || ""), tot = Date.parse(f.betaaldTs); if (!(van > 0 && tot >= van)) return null; return Math.round((tot - van) / 36e5 * 10) / 10; };
   const zelfdeDag = f => !!(f.betaaldTs && (f.verstuurdOp || f.gemaakt) && isoNL(new Date(f.betaaldTs)) === isoNL(new Date(f.verstuurdOp || f.gemaakt)));
   const fStatus = f => f.status === "betaald" ? "betaald" : f.status === "oninbaar" ? "gesloten" : f.verval && f.verval < isoNL() ? "verlopen" : "open";
@@ -142,7 +153,7 @@ module.exports = function maakPortaal(ctx) {
     ]);
     const beurten = bs.docs.map(d => ({ id: d.id, ...dec(d.data()) })).filter(x => x.datum).sort((a, b2) => b2.datum.localeCompare(a.datum));
     const facturen = fs.docs.map(d => ({ id: d.id, ...dec(d.data()) })).filter(f => f.soort !== "offerte" && f.status !== "concept").sort((a, b2) => String(b2.datum).localeCompare(String(a.datum)))
-      .map(f => ({ id: f.id, nummer: f.nummer || "", datum: f.datum || "", verval: f.verval || "", bedrag: totals(f, b).inc, status: fStatus(f), betaaldOp: f.status === "betaald" ? String(f.betaaldOp || f.betaald || "").slice(0, 10) : "", snelUren: snelUren(f), herinnerd: Number(f.herinneringen) || 0, betaallink: f.status !== "betaald" ? (f.betaallink || f.mollieLink || "") : "" }));
+      .map(f => ({ id: f.id, nummer: f.nummer || "", datum: f.datum || "", verval: f.verval || "", bedrag: totals(f, b).inc, status: fStatus(f), betaaldOp: f.status === "betaald" ? String(f.betaaldOp || f.betaald || "").slice(0, 10) : "", snelUren: snelUren(f), sec: betaalSec(f), herinnerd: Number(f.herinneringen) || 0, betaallink: f.status !== "betaald" ? (f.betaallink || f.mollieLink || "") : "" }));
     const freqW = Number(k.frequentie) || 4;
     let volgende = null;
     if (k.gepland && k.gepland >= vandaag) volgende = { datum: k.gepland, tijd: k.tijd || "", bezig: !!k.bezig && k.gepland === vandaag, reeks: (k.reeks || []).filter(x => x && x.d > k.gepland).slice(0, 12).map(x => ({ datum: x.d, tijd: x.t || "" })) };
@@ -173,6 +184,7 @@ module.exports = function maakPortaal(ctx) {
       teBeoordelen: laatsteB && !laatsteB.beoordeling && (Date.now() - new Date(laatsteB.datum + "T12:00:00").getTime()) < 21 * DAG ? { id: laatsteB.id, datum: laatsteB.datum } : null,
       aantalBezoeken: beurten.length,
       facturen,
+      rang: await betaalRang(k.id).catch(e => { console.error("rang", e); return null; }),
       live: await liveInfo(S).catch(e => { console.error("live", e); return null; }),
       tickets: { open: tks.filter(t => t.status !== "opgelost").length, ongelezen: tks.reduce((a, t) => a + (Number(t.ongelezenKlant) || 0), 0) },
       verzoeken: vz.docs.map(d => ({ id: d.id, ...d.data() })).filter(v => v.type !== "beoordeling" && v.type !== "toegang" && !v.ticketId).sort((a, b2) => String(b2.op).localeCompare(String(a.op))).slice(0, 8)
