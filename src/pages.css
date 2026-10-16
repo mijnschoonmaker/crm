@@ -3806,3 +3806,19 @@ dialog.drawer{clip-path:inset(0 round 28px 0 0 28px)}
 .sc2-body{display:flex;flex-direction:column;gap:12px;padding:16px 18px 18px;flex:1}
 .sc2-body dl{font-size:13.5px}
 .sc2-body .setbtn{margin-top:auto}
+
+/* ---------- alle stops: route-lijn met genummerde stops in huisstijl ---------- */
+.rlijst{position:relative}
+.rstop{position:relative;overflow:visible;border:1px solid var(--line)!important;box-shadow:0 1px 2px rgb(15 31 38 / .04)!important}
+.rstop::before{content:"";position:absolute;left:30px;top:-9px;bottom:-9px;width:3px;background:var(--line);z-index:0;pointer-events:none;border-radius:2px}
+.rstop:first-child::before{top:50%}.rstop:last-child::before{bottom:50%}
+.rstop.af::before{background:linear-gradient(180deg,#23845a,#2fa06f)}
+.rstop.nu::before{background:linear-gradient(180deg,#23845a 0%,#23845a 50%,var(--line) 50%)}
+.rstop:first-child.nu::before{background:var(--line)}
+.rnum{position:relative;z-index:1;width:34px;height:34px;border-radius:50%;background:var(--surface);color:var(--brand);border:2.5px solid var(--brand);font-weight:800;font-size:13.5px;box-shadow:0 0 0 3px var(--surface)}
+.rnum.done{background:#23845a;border-color:#23845a;color:#fff}.rnum.done svg{width:16px;height:16px;stroke:#fff}
+.rnum.nu{background:linear-gradient(135deg,#137a8a,#1d5a74);border-color:transparent;color:#fff;box-shadow:0 0 0 3px var(--surface),0 0 0 6px color-mix(in srgb,var(--brand) 22%,transparent);animation:rnumPuls 2.4s ease-in-out infinite}
+@keyframes rnumPuls{0%,100%{box-shadow:0 0 0 3px var(--surface),0 0 0 6px color-mix(in srgb,var(--brand) 22%,transparent)}50%{box-shadow:0 0 0 3px var(--surface),0 0 0 9px color-mix(in srgb,var(--brand) 8%,transparent)}}
+.rstop.nu{border-color:color-mix(in srgb,var(--brand) 40%,var(--line))!important;box-shadow:0 1px 2px rgb(15 31 38 / .04),0 10px 24px -18px rgb(19 122 138 / .5)!important}
+.rstop.nu .nm{color:var(--brand)}
+.rstop.dim{opacity:.72}.rstop.dim .nm{text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--ink) 35%,transparent)}
