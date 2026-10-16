@@ -2724,6 +2724,16 @@ html.zm .pl-menu{max-height:calc(100dvh / .9 - 190px)}
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}.inv5,.inv5 *{-webkit-text-size-adjust:none;text-size-adjust:none}
 @media (max-width:640px){.paperwrap{padding:8px}.fw-head~.row.fw-acts{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.fw-head~.row.fw-acts>button{width:100%;justify-content:center;min-height:44px;margin:0}.fw-head~.row.fw-acts>button:last-child:nth-child(odd){grid-column:1/-1}}
 @media (max-width:640px){.fw-head~.kk-acts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.fw-head~.kk-acts>button{width:100%;justify-content:center;min-height:44px;margin:0}.fw-head~.kk-acts>button:last-child:nth-child(odd){grid-column:1/-1}}
+/* bijlagen: lege staat als rustig vlak met twee duidelijke knoppen */
+.fw-leeg{display:flex;flex-direction:column;gap:12px;padding:16px;border:1.5px dashed var(--line);border-radius:14px;background:color-mix(in srgb,var(--surface-2) 55%,var(--surface))}
+.fw-leeg p{margin:0;display:flex;flex-direction:column;gap:3px}
+.fw-leeg p b{font-size:14.5px;font-weight:650;color:var(--ink)}
+.fw-leeg p span{font-size:13px;line-height:1.45;color:var(--muted)}
+.fw-leeg-k{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.fw-up{display:inline-flex!important;flex-direction:row!important;margin:0!important;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:14px;font-weight:650;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s}
+.fw-up svg{width:18px;height:18px;flex:none}
+.fw-up:hover{border-color:color-mix(in srgb,var(--brand) 40%,var(--line))}
+.fw-up.pri{background:linear-gradient(135deg,var(--brand),#1d5a74);border-color:transparent;color:#fff}
 .fw-rks{display:none}
 @media (max-width:640px){
   .fw-tw{display:none}
