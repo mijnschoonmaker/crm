@@ -41,7 +41,7 @@ const SETCARDS=[
   {id:"website",t:"Website-calculator",sub:"Prijscalculator voor je eigen website",ic:"globe",bg:"#0b0b0b",st:s=>s.webUrl?["ok","Op je website"]:["soon","Nog niet geplaatst"],rows:s=>[["Logo",s.logo?"Uit Bedrijf & Branding":"Geen logo (naam)"],["Tarieven","Zelfde als de Calculator"],["Aanvragen naar",s.email||"—"]],v:"Openen"},
 ];
 const dienstLijstOud=()=>S().diensten&&S().diensten.length?S().diensten:[{naam:"Glasbewassing",prijs:25,duur:30}];
-/* diensten komen live uit Uitvoering › Diensten (ook als je daar nog niets hebt opgeslagen: dan de standaarddiensten) */
+/* diensten komen live uit het menu Diensten (ook als je daar nog niets hebt opgeslagen: dan de standaarddiensten) */
 const dienstLijst=()=>{try{return uDienstLijst()}catch(e){return dienstLijstOud()}};
 const QUICK=[["bijschr","Bijschrijvingen","bank"],["diensten","Diensten","wrench"],["meldingen","Meldingen","bell"],["gebruikers","Gebruikers","klanten"],["planning","Planning","planning"],["bulkprijs","Bulk prijzen","trend"],["bulkduur","Bulk duur","clock"],["wachtwoord","Wachtwoord","shield"],["pwa","PWA & App","phone"],["webview","Website-calculator","globe"],["abonnement","Abonnement","card"]];
 const dagenTxt=w=>{w=w||[1,2,3,4,5];const n=["zo","ma","di","wo","do","vr","za"];if(w.length===5&&[1,2,3,4,5].every(x=>w.includes(x)))return"Ma t/m Vr (standaard)";return[1,2,3,4,5,6,0].filter(x=>w.includes(x)).map(x=>n[x]).join(", ")||"geen"};

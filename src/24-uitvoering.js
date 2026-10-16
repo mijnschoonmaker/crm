@@ -5,7 +5,7 @@
 const EENHEDEN=["per stuk","per raam","per m²","per strekkende meter","per meter","per paneel","per uur","per keer"];
 const FREQ_STD=[["1x per week",1],["1x per 2 weken",2],["1x per 3 weken",3],["1x per 4 weken",4],["1x per maand",4],["1x per 6 weken",6],["1x per 8 weken",8],["1x per 2 maanden",9],["1x per 12 weken",12],["1x per 3 maanden",13],["1x per 16 weken",16],["1x per 4 maanden",17],["1x per 24 weken",24],["1x per 26 weken",26],["1x per 6 maanden",26],["1x per 32 weken",32],["1x per 8 maanden",35],["1x per 36 weken",36],["1x per 9 maanden",39],["1x per 48 weken",48],["1x per 52 weken",52],["1x per 12 maanden",52],["1x per 2 jaar",104],["1x per 3 jaar",156],["1x per 4 jaar",208],["1x per 5 jaar",260],["Op afroep",0],["Eenmalig",0]];
 const FREQ_DEF=[1,2,3,4,6,8,12,13,16,26,52];
-/* frequenties die in de keuzelijsten staan (Uitvoering › Frequenties) */
+/* frequenties die in de keuzelijsten staan (Diensten › Frequenties) */
 const freqLijst=()=>{const f=S().freqs;return Array.isArray(f)&&f.length?f.map(x=>Number(x.w)).filter(w=>w>0):FREQ_DEF};
 const freqOpts=cur=>{const o=[...freqLijst()];const c=Number(cur);if(c>0&&!o.includes(c))o.push(c);return [...new Set(o)].sort((a,b)=>a-b)};
 const freqEigenLabel=w=>{const f=S().freqs;if(!Array.isArray(f))return"";const x=f.find(y=>Number(y.w)===Number(w));return x&&x.l?x.l:""};
@@ -69,7 +69,7 @@ async function uitvSave(){
     const doc=JSON.parse(JSON.stringify({groepen:U.groepen,eigen:U.eigen,middelen:U.middelen,freqs}));
     await save("instellingen","uitvoering",doc);state.uitv=doc;
     await save("instellingen","ramen",patch);state.ramen=patch;
-    await saveSettings({diensten:dl,freqs},"Uitvoering opgeslagen");
+    await saveSettings({diensten:dl,freqs},"Diensten opgeslagen");
     Udirty=false;uitvLoad(true);render()}
   catch(e){err(e);if(b)b.disabled=false}
 }
@@ -82,7 +82,7 @@ const fmtSec=s=>{s=Math.round(Number(s)||0);if(s<60)return s+" sec";const m=Math
 
 function vUitvoering(){
   uitvLoad();const t=state.utab||"diensten";
-  const head=`<div class="pagehead"><div><p class="kicker">Uitvoering</p><h1 class="xl">${t==="diensten"?"Diensten":t==="frequenties"?"Frequenties":"Bedrijfsmiddelen"}</h1><p class="lead" style="margin:0">${t==="diensten"?"Tarieven, tijden en kortingen. De rekentool, opdrachten, offertes en de website-calculator rekenen hiermee.":t==="frequenties"?"Kies welke frequenties je aanbiedt. Die staan in alle keuzelijsten.":"Je materiaal en gereedschap op één plek."}</p></div>
+  const head=`<div class="pagehead"><div><p class="kicker">Diensten</p><h1 class="xl">${t==="diensten"?"Diensten":t==="frequenties"?"Frequenties":"Bedrijfsmiddelen"}</h1><p class="lead" style="margin:0">${t==="diensten"?"Tarieven, tijden en kortingen. De rekentool, opdrachten, offertes en de website-calculator rekenen hiermee.":t==="frequenties"?"Kies welke frequenties je aanbiedt. Die staan in alle keuzelijsten.":"Je materiaal en gereedschap op één plek."}</p></div>
     <div class="acts"><button type="button" id="uReset" data-act="ureset" ${Udirty?"":"disabled"}>${I.refresh}Herstellen</button><button type="button" class="primary${Udirty?" pulse":""}" id="uSave" data-act="usave" ${Udirty?"":"disabled"}>${I.check}Opslaan</button></div></div>
     <div class="seg" role="group" aria-label="Onderdeel" style="margin-bottom:18px">${[["diensten","Diensten"],["frequenties","Frequenties"],["middelen","Bedrijfsmiddelen"]].map(([x,l])=>`<button type="button" data-act="utab" data-v="${x}" aria-pressed="${t===x}">${l}</button>`).join("")}</div>`;
   if(t==="frequenties")return head+uFreqHtml();
