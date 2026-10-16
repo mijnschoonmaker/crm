@@ -3902,3 +3902,12 @@ body.rd-busy{cursor:grabbing}
 .rv-weg li.nu i svg{fill:var(--brand)}
 .rv-weg.veel{height:70px}.rv-weg.veel li em,.rv-weg.veel .rv-nu{display:none}
 @media(max-width:700px){.rv-weg li em{display:none}.rv-weg{height:96px}}
+
+/* voortgangskaart: meer lucht */
+.rv-tx h2{margin:14px 0 2px;font-size:26px;font-weight:700;letter-spacing:-.03em}
+.rv-sub{margin:0 0 2px!important;font-size:14.5px;color:rgb(255 255 255 / .78)!important;font-weight:500}
+.rv-chips{margin-top:14px;gap:8px}
+.rv-weg{margin-top:44px;height:118px}
+.rv-weg li small{top:70px}.rv-weg li em{top:88px}
+.rv-tip{margin-top:12px}
+@media(max-width:700px){.rv-tx h2{font-size:22px}.rv-weg{margin-top:40px;height:100px}}

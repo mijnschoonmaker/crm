@@ -4330,6 +4330,15 @@ body.rd-busy{cursor:grabbing}
 .rv-weg.veel{height:70px}.rv-weg.veel li em,.rv-weg.veel .rv-nu{display:none}
 @media(max-width:700px){.rv-weg li em{display:none}.rv-weg{height:96px}}
 
+/* voortgangskaart: meer lucht */
+.rv-tx h2{margin:14px 0 2px;font-size:26px;font-weight:700;letter-spacing:-.03em}
+.rv-sub{margin:0 0 2px!important;font-size:14.5px;color:rgb(255 255 255 / .78)!important;font-weight:500}
+.rv-chips{margin-top:14px;gap:8px}
+.rv-weg{margin-top:44px;height:118px}
+.rv-weg li small{top:70px}.rv-weg li em{top:88px}
+.rv-tip{margin-top:12px}
+@media(max-width:700px){.rv-tx h2{font-size:22px}.rv-weg{margin-top:40px;height:100px}}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -5825,7 +5834,7 @@ function rvKaart(o){const{stops,done,todo,nx,klaar,mw,verdiend,totaal,restMin,kl
   if(vooruit||meer)setTimeout(rvAnim,60);if(state.rvMap)setTimeout(rvMapTeken,40);
   return `<section class="rv${klaar?" klaar":""}${vooruit?" rijdt":""}">
     <div class="rv-top"><div class="rv-tx"><span class="rv-fase">${klaar?RV_VLAG:'<i></i>'}${fase}<b>${done}/${n}</b></span>
-      <h2>${esc(kop)}</h2>${klaar?`<p>${esc(sub)}</p>`:`<div class="rv-chips"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/></svg><b>${todo.length}</b> ${todo.length===1?"adres":"adressen"}</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><b>${uM(werkMin)}</b> werk</span>${reisMin?`<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.6"/><circle cx="17" cy="17.5" r="1.6"/></svg><b>${rt.schat?"± ":""}${uM(reisMin)}</b> rijden</span>`:""}${klaarOm?`<span class="rv-klaar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>klaar <b>${klaarOm}</b></span>`:""}</div>`}</div>${geld}</div>
+      ${(()=>{const [h,...r]=String(kop).split(" · ");return `<h2>${esc(h)}</h2>${r.length?`<p class="rv-sub">${esc(r.join(" · "))}</p>`:""}`})()}${klaar?`<p>${esc(sub)}</p>`:`<div class="rv-chips"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/></svg><b>${todo.length}</b> ${todo.length===1?"adres":"adressen"}</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><b>${uM(werkMin)}</b> werk</span>${reisMin?`<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.6"/><circle cx="17" cy="17.5" r="1.6"/></svg><b>${rt.schat?"± ":""}${uM(reisMin)}</b> rijden</span>`:""}${klaarOm?`<span class="rv-klaar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>klaar <b>${klaarOm}</b></span>`:""}</div>`}</div>${geld}</div>
     <div class="rv-weg${n>10?" veel":""}${state.rvMap?" open":""}" style="--p:${pos};--v:${vooruit?v0:pos}" data-act="rvmap" role="button" tabindex="0" aria-expanded="${!!state.rvMap}" title="${state.rvMap?"Kaart verbergen":"Stops op de kaart"}">
       <div class="rv-asfalt"><span class="rv-af"></span></div>
       <ol>${nodes}</ol>
