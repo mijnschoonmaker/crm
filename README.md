@@ -2,7 +2,8 @@
 
 Eigen CRM voor glasbewassing, live op Firebase.
 
-- `public/` — de app (wordt gebouwd uit de broncode, `build_live.py`)
+- `src/` — de broncode van de app (de enige bron: hier wijzigen)
+- `public/` — de gebouwde app; opnieuw bouwen met `python3 build_live.py`
 - `functions/` — server: mail via Brevo, Mollie, websiteaanvragen, ingeplande mails, bestanden
 - `firestore.rules`, `storage.rules` — wie mag wat (alleen gebruikers in `/gebruikers` + de eigenaar)
 - `.github/workflows/deploy.yml` — elke wijziging op `main` gaat automatisch online
