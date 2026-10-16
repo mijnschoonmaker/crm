@@ -124,7 +124,7 @@ function openOpdrachtWerk(kid,focus){
     const fqT=w=>{const t=String(freqLabel(w)||"");return /^elke\s/i.test(t)?"1x per "+t.replace(/^elke\s+/i,""):t.toLowerCase()};
     return `<div class="ow-rk" data-calc="${di}"><div class="ow-rkh"><span class="objic">${I.check}</span><b>${esc(naam)}</b><span class="sp"></span><button type="button" class="iconbtn sm" data-redit="${di}" aria-label="Wijzigen" title="Wijzigen">${I.pencil}</button></div>
       ${q.oms?`<p class="ow-rko">${esc(q.oms)}</p>`:""}
-      ${min>0&&!c.totOver?`<div class="ow-rkl"><b>Let op:</b> ${esc(naam)} heeft een minimumprijs van <b>${eur(min)}</b> (excl. btw).${c.glas<=min+0.005&&c.rows.reduce((a,x)=>a+x.calcP,0)<min?" Deze opdracht valt nu onder het minimum.":""} Gebruik een opdrachtspecifieke dienst als je een lagere prijs wilt.</div>`:""}
+      ${min>0&&!c.totOver?`<div class="ow-rkl"><b>Let op:</b> ${esc(naam)} heeft een minimumprijs van <b>${eur(min)}</b> (excl. btw).${c.aanvul>0?` De verdiepingen komen samen op ${eur(c.rows.reduce((a,x)=>a+x.p,0))}; het verschil van ${eur(c.aanvul)} wordt automatisch aangevuld.`:""} Gebruik een opdrachtspecifieke dienst als je een lagere prijs wilt.</div>`:""}
       <dl class="ow-rkf">${q.f.map((n,j)=>{if(!n)return"";const w=Number(q.fq[j])||base;return `<dt>${FLN[j]}</dt><dd>${n} st${w?` <i>(${esc(fqT(w))})</i>`:""}</dd>`}).join("")}${(c.srows||[]).map(x=>`<dt>${esc(x.naam)}</dt><dd>${x.n} st</dd>`).join("")}</dl>
       <dl class="ow-rkt">${c.start?`<dt>Starttarief</dt><dd>${eur(c.start)}</dd>`:""}<dt>Totaal ${esc(naam)}</dt><dd>${eur(c.ex)} <small>excl. btw</small></dd></dl></div>`};
   const sumHtml=(q,c,di,isMain)=>{const base=isMain?mF:null,has=v=>v!==""&&v!=null;
@@ -134,10 +134,10 @@ function openOpdrachtWerk(kid,focus){
         return `<div class="ow-flc">${flIcon(j)}
           <div class="ow-flm"><b>${FLN[j]}</b><span>${n} ${n===1?"raam":"ramen"}${rw?` · ${rw.sec} sec per raam`:""}</span><div class="ow-tags"><span class="ow-tag">${I.planning}${esc(fq)}</span><span class="ow-tag${q.vol[j]?"":" muted"}">${I.clock}${q.vol[j]?"vanaf "+esc(fmtL(q.vol[j])):"volgende beurt"}</span></div></div>
           <div class="ow-flp"><b>${rw?eur(rw.p):"—"}</b><span>${rw?(Math.round(rw.min*10)/10).toLocaleString("nl-NL"):0} min</span><em class="${c.totOver||has(q.op[j])||has(q.od[j])?"ov":""}">${c.totOver||has(q.op[j])||has(q.od[j])?"eigen prijs":"berekend"}</em></div></div>`}).join("")}</div>
-      <div class="ow-res">${c.start?`<div class="ow-kv"><span>Starttarief</span><b>${eur(c.start)}</b></div>`:""}${c.totOver?`<div class="ow-kv"><span>Overschrijvende prijs glasbewassing</span><b>${eur(c.glas)}</b></div>`:""}<div class="ow-kv tot"><span>Totaal glasbewassing · ${c.count} ramen · ${c.min} min</span><b>${eur(c.ex)} excl. · ${eur(c.ex*1.21)} incl.</b></div></div></div>`};
+      <div class="ow-res">${c.aanvul>0?`<div class="ow-kv"><span>Aanvulling tot minimumprijs ${eur(c.c.min)}</span><b>+ ${eur(c.aanvul)}</b></div>`:""}${c.start?`<div class="ow-kv"><span>Starttarief</span><b>${eur(c.start)}</b></div>`:""}${c.totOver?`<div class="ow-kv"><span>Overschrijvende prijs glasbewassing</span><b>${eur(c.glas)}</b></div>`:""}<div class="ow-kv tot"><span>Totaal glasbewassing · ${c.count} ramen · ${c.min} min</span><b>${eur(c.ex)} excl. · ${eur(c.ex*1.21)} incl.</b></div></div></div>`};
   const resHtml=(c,q)=>{const vari=ramenVariabel(q);
     return `${c.rows.map(r=>`<div class="ow-kv"><span>${r.naam} · ${r.n} st${q.fq[r.i]?" · "+esc(freqLabel(q.fq[r.i]).toLowerCase()):""}</span><b>${eur(r.p)} · ${Math.round(r.min)} min</b></div>`).join("")}
-      ${c.krows.map(r=>`<div class="ow-kv"><span>Kozijnen ${r.naam.toLowerCase()}${q.kfq[r.i]?" · "+esc(freqLabel(q.kfq[r.i]).toLowerCase()):""}</span><b>${eur(r.p)} · ${Math.round(r.min)} min</b></div>`).join("")}
+      ${c.aanvul>0?`<div class="ow-kv"><span>Aanvulling tot minimumprijs</span><b>+ ${eur(c.aanvul)}</b></div>`:""}${c.krows.map(r=>`<div class="ow-kv"><span>Kozijnen ${r.naam.toLowerCase()}${q.kfq[r.i]?" · "+esc(freqLabel(q.kfq[r.i]).toLowerCase()):""}</span><b>${eur(r.p)} · ${Math.round(r.min)} min</b></div>`).join("")}
       ${c.minK?`<div class="ow-kv"><span>Minimumprijs kozijnreiniging</span><b>${eur(c.kozP)}</b></div>`:""}${c.start?`<div class="ow-kv"><span>Starttarief</span><b>${eur(c.start)}</b></div>`:""}
       <div class="ow-kv tot"><span>${vari?"Beurt met alles":"Prijs per keer"} · ${c.count} ramen · ${c.min} min</span><b>${eur(c.ex)} excl. · ${eur(c.ex*1.21)} incl.</b></div>
       ${vari?'<p class="subt" style="margin:4px 0 0;font-size:12.5px">Onderdelen met een eigen frequentie gaan alleen mee als ze aan de beurt zijn; de factuur rekent dan alleen die delen.</p>':""}`};
@@ -338,17 +338,17 @@ function ramenBerekening(q,opdrW,due){
   const sq=(q.sp&&!due)?q.sp:{},SS=RC.staffel(SPK.map(k=>({k,n:Number(sq[k])||0})).filter(x=>x.n));
   const srows=SPK.map(k=>{const n=Number(sq[k])||0;return n?{k,n,naam:SPN[k],p:r2(n*(c[k+"_p"]||0)*(1-(SS[k]||0))),min:n*(c[k+"_s"]||0)/60}:null}).filter(Boolean);
   rows.push(...srows.map(r=>({...r,i:"s",calcP:r.p,calcMin:Math.ceil(r.min),sp:true})));
-  let glas=rows.reduce((a,r)=>a+r.p,0),minG=false,totOver=false;
+  let glas=rows.reduce((a,r)=>a+r.p,0),minG=false,totOver=false,aanvul=0;
   if(rows.length&&has(q.tp)){/* overschrijvende prijs voor de hele glasbewassing: verdeeld naar verhouding over de verdiepingen */
     let target=Number(q.tp)||0;if(due){const all=ramenBerekening({...q,tp:"",td:""},opdrW,null),part=rows.reduce((a,r)=>a+r.p,0);target=all.glas>0?target*part/all.glas:target}
     spread(target,"p");glas=r2(target);totOver=true}
-  else if(rows.length&&!over&&glas<c.min){/* onder het minimumtarief: naar verhouding aanvullen tot het minimum, zonder melding */spread(c.min,"p");glas=c.min}
+  else if(rows.length&&!over&&glas<c.min){/* onder het minimumtarief: per verdieping blijft de echte prijs staan, het verschil wordt op de achtergrond aangevuld tot het minimum */minG=true;aanvul=r2(c.min-glas);glas=c.min}
   if(rows.length&&has(q.td)){let tm=Number(q.td)||0;if(due){const all=ramenBerekening({...q,tp:"",td:""},opdrW,null),part=rows.reduce((a,r)=>a+r.min,0);const am=all.rows.reduce((a,r)=>a+r.min,0);tm=am>0?tm*part/am:tm}spread(tm,"min")}
   const kz=[];/* kozijnreiniging zit standaard bij glasbewassing */let kover=false;
   const krows=kz.map(x=>{let p=x.n*(c.koz_p||0);if(has(q.kop[x.i])){p=Number(q.kop[x.i]);kover=true}return {i:x.i,n:x.n,naam:FLN[x.i],p:r2(p),min:has(q.kod[x.i])?Number(q.kod[x.i]):x.n*(c.koz_s||0)/60,calcP:r2(x.n*(c.koz_p||0)),calcMin:Math.ceil(x.n*(c.koz_s||0)/60)}});
   let kozP=krows.reduce((a,r)=>a+r.p,0),minK=false;if(krows.length&&!kover&&kozP<(c.kozMin||0)){minK=true;kozP=c.kozMin}const kozMin=krows.reduce((a,r)=>a+r.min,0);
   const start=rows.length?(has(q.start)?Number(q.start):(c.start||0)):0,ex=r2(glas+kozP+start);
-  return {rows,krows,glas:r2(glas),minG,totOver,kozP:r2(kozP),minK,kozMin,start,ex,min:Math.ceil(rows.reduce((a,r)=>a+r.min,0)+kozMin),count:tot+srows.reduce((a,r)=>a+r.n,0),srows,c};
+  return {rows,krows,glas:r2(glas),minG,aanvul,totOver,kozP:r2(kozP),minK,kozMin,start,ex,min:Math.ceil(rows.reduce((a,r)=>a+r.min,0)+kozMin),count:tot+srows.reduce((a,r)=>a+r.n,0),srows,c};
 }
 /* welke delen gaan mee op deze dag, en hoe schuiven de volgende data door */
 function ramenDue(k,d){const q=normR(k.ramenRegel);const ok=(fq,vol)=>!fq||!vol||vol<=d;
