@@ -1151,7 +1151,7 @@ addEventListener("resize",()=>{if(edIdx>=0)fitEd()});
 let lastTap="";
 function renderTally(){const box=g("ed-tally");if(!box)return;const all={},cur={};photos.forEach((p,i)=>p.dots.forEach(d=>{all[d.t]=(all[d.t]||0)+1;if(i===edIdx)cur[d.t]=(cur[d.t]||0)+1}));
   const ts=typeList().filter(t=>all[t]),tot=ts.reduce((a,t)=>a+all[t],0);let warn="";const p=photos[edIdx];
-  if(p)for(let a=0;a<p.dots.length&&!warn;a++)for(let b=a+1;b<p.dots.length;b++){const A=p.dots[a],B=p.dots[b];if(A.t==="s-mini"&&B.t==="s-mini")continue;if(Math.hypot(A.x-B.x,(A.y-B.y)*(p.cv.height/p.cv.width))<0.02){warn="Twee stippen liggen bijna op dezelfde plek. Is een raam dubbel aangetikt? Tik op een stip om hem weg te halen.";break}}
+  /* geen waarschuwing meer voor stippen vlak op elkaar (kleine ramen zitten vaak dicht bij elkaar) */
   if(!warn&&photos.length>1&&edIdx>=0){const dup=Object.keys(cur).filter(t=>photos.some((q,i)=>i!==edIdx&&q.dots.some(d=>d.t===t)));if(dup.length){const t=lastTap&&dup.includes(lastTap)?lastTap:dup[0],on=photos.map((q,i)=>i!==edIdx&&q.dots.some(d=>d.t===t)?i+1:0).filter(Boolean);warn="i:"+chipName(t)+" is ook aangetikt op foto "+on.join(" en ")+". Let op dat u hetzelfde raam niet op twee foto's aantikt."}}
   box.innerHTML=`<div class="et-h"><span>Totaal geteld${photos.length>1?" · "+photos.length+" foto's":""}</span><b>${tot} ${tot===1?"raam":"ramen"}</b></div>${ts.length?`<div class="et-l">${ts.map(t=>{const m=dt(t);return `<span class="${t===lastTap?"hit":""}" style="--c:${m.col}"><i style="background:${m.col}">${m.c}</i>${chipName(t)}<b>${all[t]}</b>${photos.length>1&&cur[t]&&cur[t]!==all[t]?`<em>${cur[t]} op deze foto</em>`:""}</span>`}).join("")}</div>`:`<div class="et-e">Nog niets aangetikt. Kies hieronder wat u aantikt en tik op de ramen.</div>`}${warn?(warn.startsWith("i:")?`<div class="et-n">${warn.slice(2)}</div>`:`<div class="et-w">⚠ ${warn}</div>`):""}`;lastTap=""}
 function renderTypes(){const p=photos[edIdx];if(!typeList().includes(curType))curType="f0";
@@ -1213,8 +1213,7 @@ function vanFotos(){const cnt={};photos.forEach(p=>p.dots.forEach(d=>cnt[d.t]=(c
   synced={...cnt};renderFloors();renderSpecial();renderPhsum()}
 function controles(){const W=[],ar=p=>p.cv.width/p.cv.height;
   photos.forEach((p,i)=>{if(!p.dots.length)W.push({t:`Op foto ${i+1} zijn nog geen ramen aangetikt.`,b:`Foto ${i+1} openen`,f:()=>openEd(i)})});
-  photos.forEach((p,i)=>{const r=ar(p);let dub=0;for(let a=0;a<p.dots.length;a++)for(let c=a+1;c<p.dots.length;c++){const A=p.dots[a],B=p.dots[c],dx=(A.x-B.x)*r,dy=A.y-B.y;if(Math.hypot(dx,dy)<.03)dub++}
-    if(dub)W.push({t:`Op foto ${i+1} staan ${dub>1?dub+" keer twee stippen":"twee stippen"} vlak op elkaar. Is een raam dubbel aangetikt?`,b:`Foto ${i+1} bekijken`,f:()=>openEd(i)})});
+  /* (controle op stippen vlak op elkaar is weggehaald: gaf te vaak een onterechte melding bij kleine ramen) */
   for(let i=1;i<floors.length;i++)if(floors[i]&&!floors.slice(0,i).some(Boolean)){W.push({t:`Er zijn ramen op de ${i}e verdieping aangetikt, maar geen op de begane grond. Klopt dat?`,b:"Foto 1 bekijken",f:()=>openEd(0)});break}
   if(photos.length===1)W.push({t:"U heeft één foto toegevoegd. Staan alle ramen erop? Maak ook een foto van de achterkant en de zijkanten.",b:"+ Foto toevoegen",f:()=>g("ph-in").click()});
   return W}
