@@ -187,8 +187,9 @@ button.melding{width:100%;text-align:left;font-weight:500;color:inherit}
 
 /* bladen en dialogen */
 .ov{position:fixed;inset:0;z-index:50;background:rgb(17 24 28 / .35);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:flex;align-items:flex-end;justify-content:center}
-@media (prefers-reduced-motion:no-preference){.ov{animation:fade .18s ease-out}.blad{animation:op .26s cubic-bezier(.2,.9,.25,1)}}
-@keyframes fade{from{opacity:0}}@keyframes op{from{transform:translateY(30px);opacity:.4}}
+@media (prefers-reduced-motion:no-preference){.ov{animation:fade .18s ease-out}.blad{animation:op .3s cubic-bezier(.22,1,.36,1)}}
+@keyframes fade{from{opacity:0}}@keyframes op{from{transform:translateY(40px);opacity:0}}
+.blad{will-change:transform}.pdf-slot .laden{min-height:100%}.pdf-v .laden{height:100%}
 .blad{background:var(--surface);width:100%;max-width:560px;max-height:92dvh;overflow:auto;border-radius:24px 24px 0 0;padding:10px 20px calc(20px + env(safe-area-inset-bottom));box-shadow:0 30px 70px rgb(0 0 0 / .25)}
 .blad .greep{width:40px;height:5px;border-radius:9px;background:var(--line);margin:0 auto 12px}
 @media(min-width:640px){.ov{align-items:center}.blad{border-radius:22px;padding:22px}.blad .greep{display:none}}
@@ -1060,7 +1061,7 @@ const TABS_VVE=[["home","Overzicht",I.huis],["bezoeken","Logboek",I.kal],["ticke
 const isVve=()=>!!(D&&D.klant&&D.klant.vve);let TABS=TABS_STD;
 async function laad(stil){
   if(!stil)$("#app").innerHTML=`<div class="laden"><div class="spin"></div><span>Uw omgeving wordt geopend…</span></div>`;
-  try{D=await api("data");B=D.bedrijf;teken()}catch(e){if(e.message!=="uit")$("#app").innerHTML=`<main class="welkom"><div class="wk-kaart"><h1>Dat lukte even niet</h1><p>${esc(e.message)}</p><button class="primary" onclick="laad()">Opnieuw proberen</button></div></main>`}}
+  try{D=await api("data");B=D.bedrijf;teken();facturenVooraf()}catch(e){if(e.message!=="uit")$("#app").innerHTML=`<main class="welkom"><div class="wk-kaart"><h1>Dat lukte even niet</h1><p>${esc(e.message)}</p><button class="primary" onclick="laad()">Opnieuw proberen</button></div></main>`}}
 const kp=(ic,titel,inhoud,o={})=>`<section class="kp ${o.cls||""}"><div class="kp-h"><span class="objic ${o.kl||""}">${ic}</span><div><b>${titel}</b>${o.sub?`<small>${o.sub}</small>`:""}</div><span class="sp"></span>${o.act||""}</div>${inhoud}</section>`;
 const lr=(ic,titel,sub,rt="",o={})=>{const tag=o.href?"a":o.attr?"button":"div";return `<${tag} class="lr"${o.href?` href="${esc(o.href)}"${/^https?:/.test(o.href)?' target="_blank" rel="noopener"':""}`:""}${o.attr?" "+o.attr:""}><span class="ti"${o.tis?` style="${o.tis}"`:""}>${ic}</span><span class="tx"><b>${titel}</b>${sub?`<small>${sub}</small>`:""}</span>${rt?`<span class="rt">${rt}</span>`:""}${tag!=="div"?I.chev.replace("<svg",'<svg class="chev"'):""}</${tag}>`};
 function teken(){
@@ -1348,7 +1349,7 @@ setInterval(async()=>{if(!D||(tab==="tickets"&&TK.open)||document.hidden)return;
 /* ---------- interactie ---------- */
 function koppel(){
   $$("[data-act]").forEach(b=>b.onclick=()=>FORM[b.dataset.act]());
-  $$("[data-fact]").forEach(b=>b.onclick=()=>openFactuur(b.dataset.fact));
+  $$("[data-fact]").forEach(b=>{b.onclick=()=>openFactuur(b.dataset.fact);b.addEventListener("pointerenter",()=>factuurHaal(b.dataset.fact).catch(()=>{}),{once:true});b.addEventListener("touchstart",()=>factuurHaal(b.dataset.fact).catch(()=>{}),{once:true,passive:true})});
   $$("[data-tk]").forEach(b=>b.onclick=()=>openTicket(b.dataset.tk));
   $$("[data-ster]").forEach(b=>{b.onmouseenter=()=>$$("[data-ster]").forEach(x=>x.classList.toggle("aan",+x.dataset.ster<=+b.dataset.ster));b.onclick=()=>beoordeel(+b.dataset.ster)});
   const g=$("#beoor");if(g)g.onmouseleave=()=>$$("[data-ster]").forEach(x=>x.classList.remove("aan"));
@@ -1359,7 +1360,7 @@ function koppel(){
 function blad(html,na){const o=document.createElement("div");o.className="ov";o.innerHTML=`<div class="blad" role="dialog" aria-modal="true"><div class="greep"></div>${html}</div>`;
   const sluit=()=>{o.remove();document.removeEventListener("keydown",k)};const k=e=>{if(e.key==="Escape")sluit()};
   o.addEventListener("click",e=>{if(e.target===o||e.target.closest("[data-sluit]"))sluit()});document.addEventListener("keydown",k);document.body.appendChild(o);
-  setTimeout(()=>{const f=o.querySelector("input,textarea,select,button.knop");if(f&&!matchMedia("(hover:none)").matches)f.focus()},60);if(na)na(o,sluit);return sluit}
+  setTimeout(()=>{const f=o.querySelector("input,textarea,select,button.knop");if(f&&!matchMedia("(hover:none)").matches)f.focus()},60);if(na)na(o,sluit);sluit.o=o;return sluit}
 function bedankt(o,titel,tekst,tid){o.querySelector(".blad").innerHTML=`<div class="greep"></div><div class="klaar-ic">${I.check}</div><h3 style="text-align:center">${esc(titel)}</h3><p class="sub" style="text-align:center">${esc(tekst)}${tid?"<br>U vindt het gesprek terug bij Tickets, daar ziet u ook ons antwoord.":""}</p><div class="acties"><button class="" data-sluit>Sluiten</button>${tid?`<button class="primary" data-tkopen="${esc(tid)}">${I.ticket||""}Bekijk ticket</button>`:""}</div>`;
   const t=o.querySelector("[data-tkopen]");if(t)t.onclick=()=>{o.remove();openTicket(tid)}}
 async function verstuur(o,body,titel,tekst){const b=o.querySelector("[data-go]"),f=o.querySelector(".fout");f.textContent="";b.disabled=true;
@@ -1421,29 +1422,42 @@ async function beoordeel(n){const b=D.teBeoordelen;if(!b)return;
     <label class="veld"><span>Wat ging er mis?</span><textarea id="vt" placeholder="Bijvoorbeeld: strepen op het keukenraam"></textarea></label>
     <p class="fout" role="alert"></p><div class="acties"><button class="" data-sluit>Annuleren</button><button class="primary" data-go>Versturen</button></div>`,
     o=>o.querySelector("[data-go]").onclick=()=>verstuur(o,{type:"beoordeling",beurtId:b.id,sterren:n,tekst:o.querySelector("#vt").value},"Dank u wel","We nemen uw opmerking serieus en komen erop terug."))}
-async function openFactuur(id){let f;const sluit=blad(`<div class="laden" style="min-height:200px"><div class="spin"></div></div>`);
-  try{f=await api("factuur?id="+encodeURIComponent(id))}catch(e){sluit();toast(e.message);return}sluit();
+/* factuurgegevens vooraf ophalen en bewaren, zodat openen meteen is */
+const FC={};const FPDF={};
+function factuurHaal(id){if(!FC[id])FC[id]=api("factuur?id="+encodeURIComponent(id)).catch(e=>{delete FC[id];throw e});return FC[id]}
+function factuurPdf(id){if(!FPDF[id])FPDF[id]=fetch("/api/portaal/factuurpdf?id="+encodeURIComponent(id),{headers:{authorization:"Bearer "+sessie.get()}}).then(async r=>{if(!r.ok)throw 0;return URL.createObjectURL(new Blob([await r.blob()],{type:"application/pdf"}))}).catch(()=>{delete FPDF[id];return""});return FPDF[id]}
+function facturenVooraf(){try{const F=(D&&D.facturen)||[];const open=F.filter(f=>f.status!=="betaald"&&f.status!=="gesloten").slice(0,3);const idle=window.requestIdleCallback||(fn=>setTimeout(fn,400));idle(()=>open.forEach(f=>factuurHaal(f.id).then(x=>{if(x&&x.pdf)factuurPdf(f.id)}).catch(()=>{})))}catch(e){}}
+function bladVul(o,html,na){const b=o.querySelector(".blad");b.style.minHeight=b.offsetHeight+"px";b.innerHTML=`<div class="greep"></div>${html}`;requestAnimationFrame(()=>{b.style.transition="min-height .25s ease";b.style.minHeight="0px";setTimeout(()=>{b.style.transition="";b.style.minHeight=""},260)});if(na)na(o)}
+async function openFactuur(id){let f;const sluit=blad(`<div class="laden" style="min-height:200px"><div class="spin"></div></div>`),o=sluit.o;
+  try{f=await factuurHaal(id)}catch(e){sluit();toast(e.message);return}
+  if(!o.isConnected)return;
   const b=f.bedrijf,open=f.status==="open"||f.status==="verlopen";
-  /* de echte PDF zoals wij hem gemaakt hebben (wordt door het CRM bewaard) */
-  let pdfUrl="";if(f.pdf){try{const r=await fetch("/api/portaal/factuurpdf?id="+encodeURIComponent(id),{headers:{authorization:"Bearer "+sessie.get()}});if(r.ok)pdfUrl=URL.createObjectURL(new Blob([await r.blob()],{type:"application/pdf"}))}catch(e){}}
   const groot=matchMedia("(min-width:761px)").matches,naam="Factuur "+(f.nummer||"")+".pdf";
-  if(pdfUrl)return blad(`<h3>Factuur ${esc(f.nummer)}</h3><p class="sub">${f.status==="betaald"?"Betaald"+(f.betaaldOp?" op "+esc(kort(f.betaaldOp)):"")+". Dank u wel.":f.status==="verlopen"?"De betaaltermijn is verstreken op "+esc(kort(f.verval))+".":"Graag betalen voor "+esc(kort(f.verval))+"."}</p>
-    ${groot?`<div class="pdf-v"><iframe src="${pdfUrl}#toolbar=0&navpanes=0&view=FitH" title="${esc(naam)}"></iframe></div>`:`<a class="pdf-kaart" href="${pdfUrl}" download="${esc(naam)}">${I.fact}<span><b>${esc(naam)}</b><small>Tik om de factuur te openen</small></span>${I.chev}</a>`}
-    ${open&&b.iban?`<div class="infobox">${I.euro}<span>Liever overmaken? ${eur(f.inc)} naar <b>${esc(b.iban)}</b> t.n.v. ${esc(b.naam)} onder vermelding van ${esc(f.nummer)}.</span></div>`:""}
-    <p class="fout" role="alert"></p>
-    <div class="acties"><a class="btn" href="${pdfUrl}" download="${esc(naam)}">${I.down}Downloaden</a>${open?`<button class="primary" data-betaal>${I.euro}Nu betalen</button>`:`<button class="primary" data-sluit>Sluiten</button>`}</div>`,
-    o=>{o.querySelector(".blad").classList.add("blad-pdf");const b2=o.querySelector("[data-betaal]");if(b2)b2.onclick=async()=>{b2.disabled=true;try{const r=f.betaallink?{link:f.betaallink}:await api("betaal",{body:{id}});if(r.link)location.href=r.link}catch(e){b2.disabled=false;o.querySelector(".fout").textContent=e.message}}});
-  blad(`<h3>Factuur ${esc(f.nummer)}</h3><p class="sub">${f.status==="betaald"?"Betaald"+(f.betaaldOp?" op "+esc(kort(f.betaaldOp)):"")+". Dank u wel.":f.status==="verlopen"?"De betaaltermijn is verstreken op "+esc(kort(f.verval))+".":"Graag betalen voor "+esc(kort(f.verval))+"."}</p>
+  const kopTxt=`<h3>Factuur ${esc(f.nummer)}</h3><p class="sub">${f.status==="betaald"?"Betaald"+(f.betaaldOp?" op "+esc(kort(f.betaaldOp)):"")+". Dank u wel.":f.status==="verlopen"?"De betaaltermijn is verstreken op "+esc(kort(f.verval))+".":"Graag betalen voor "+esc(kort(f.verval))+"."}</p>`;
+  const overmaken=open&&b.iban?`<div class="infobox">${I.euro}<span>Liever overmaken? ${eur(f.inc)} naar <b>${esc(b.iban)}</b> t.n.v. ${esc(b.naam)} onder vermelding van ${esc(f.nummer)}.</span></div>`:"";
+  const betaalKnop=o2=>{const b2=o2.querySelector("[data-betaal]");if(b2)b2.onclick=async()=>{b2.disabled=true;try{const r=f.betaallink?{link:f.betaallink}:await api("betaal",{body:{id}});if(r.link)location.href=r.link}catch(e){b2.disabled=false;o2.querySelector(".fout").textContent=e.message}}};
+  if(f.pdf){
+    /* de echte PDF zoals wij hem gemaakt hebben: meteen het blad tonen, PDF laadt op de achtergrond */
+    bladVul(o,`${kopTxt}
+      <div class="pdf-slot">${groot?`<div class="pdf-v"><div class="laden" style="min-height:100%"><div class="spin"></div></div></div>`:`<a class="pdf-kaart" aria-disabled="true">${I.fact}<span><b>${esc(naam)}</b><small>Factuur wordt geladen…</small></span><span class="spin" style="width:20px;height:20px;border-width:2px;flex:none"></span></a>`}</div>
+      ${overmaken}<p class="fout" role="alert"></p>
+      <div class="acties"><a class="btn" data-down aria-disabled="true" style="opacity:.55;pointer-events:none">${I.down}Downloaden</a>${open?`<button class="primary" data-betaal>${I.euro}Nu betalen</button>`:`<button class="primary" data-sluit>Sluiten</button>`}</div>`,
+      o2=>{o2.querySelector(".blad").classList.add("blad-pdf");betaalKnop(o2)});
+    const pdfUrl=await factuurPdf(id);if(!o.isConnected)return;
+    const slot=o.querySelector(".pdf-slot"),dl=o.querySelector("[data-down]");
+    if(pdfUrl){slot.innerHTML=groot?`<div class="pdf-v"><iframe src="${pdfUrl}#toolbar=0&navpanes=0&view=FitH" title="${esc(naam)}"></iframe></div>`:`<a class="pdf-kaart" href="${pdfUrl}" download="${esc(naam)}">${I.fact}<span><b>${esc(naam)}</b><small>Tik om de factuur te openen</small></span>${I.chev}</a>`;
+      if(dl){dl.href=pdfUrl;dl.download=naam;dl.removeAttribute("aria-disabled");dl.style.cssText=""}}
+    else{slot.innerHTML=`<div class="infobox">${I.klok}<span>De PDF kon nu niet worden geladen. Probeer het zo nog eens.</span></div>`;if(dl)dl.remove()}
+    return}
+  bladVul(o,`${kopTxt}
     <div class="fact-doc"><div class="fh"><div><b>${esc(b.naam)}</b><br><small style="color:var(--ink2)">${esc(b.adres)}${b.pcPlaats?"<br>"+esc(b.pcPlaats):""}</small></div><div style="text-align:right"><small style="color:var(--ink2)">Datum</small><br><b>${esc(kort(f.datum))}</b></div></div>
       <table>${f.regels.map(r=>`<tr><td>${esc(r.omschrijving)}${r.aantal!==1?` <span style="color:var(--ink2)">× ${String(r.aantal).replace(".",",")}</span>`:""}</td><td class="r${r.prijs<0?" neg":""}">${eur(r.aantal*r.prijs)}</td></tr>`).join("")}
       <tr class="sub"><td>Subtotaal excl. btw</td><td class="r">${eur(f.ex)}</td></tr><tr class="sub"><td>Btw ${f.btwPct}%</td><td class="r">${eur(f.btw)}</td></tr><tr class="tot"><td>Totaal</td><td class="r">${eur(f.inc)}</td></tr></table>
       ${f.notitie?`<p style="color:var(--ink2);margin:10px 0 0;white-space:pre-line">${esc(f.notitie)}</p>`:""}
       <p style="color:var(--ink3);font-size:12.5px;margin:12px 0 0">${[b.kvk&&"KvK "+b.kvk,b.btwnr&&"Btw "+b.btwnr,b.iban&&"IBAN "+b.iban].filter(Boolean).map(esc).join(" · ")}</p></div>
-    ${open&&b.iban?`<div class="infobox">${I.euro}<span>Liever overmaken? ${eur(f.inc)} naar <b>${esc(b.iban)}</b> t.n.v. ${esc(b.naam)} onder vermelding van ${esc(f.nummer)}.</span></div>`:""}
-    <p class="fout" role="alert"></p>
+    ${overmaken}<p class="fout" role="alert"></p>
     <div class="infobox">${I.klok}<span>De PDF van deze factuur wordt nog klaargemaakt. Probeer het over een paar minuten opnieuw om hem te downloaden.</span></div>
-    <div class="acties"><button class="" data-sluit>Sluiten</button>${open?`<button class="primary" data-betaal>${I.euro}Nu betalen</button>`:""}</div>`,
-    o=>{const b2=o.querySelector("[data-betaal]");if(b2)b2.onclick=async()=>{b2.disabled=true;try{const r=f.betaallink?{link:f.betaallink}:await api("betaal",{body:{id}});if(r.link)location.href=r.link}catch(e){b2.disabled=false;o.querySelector(".fout").textContent=e.message}}})}
+    <div class="acties"><button class="" data-sluit>Sluiten</button>${open?`<button class="primary" data-betaal>${I.euro}Nu betalen</button>`:""}</div>`,betaalKnop)}
 
 
 /* ---------- bedankt na betalen: extra feestelijk bij snel betalen ---------- */
