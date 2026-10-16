@@ -1106,7 +1106,7 @@ button.danger-bg{background:var(--late)!important;border-color:var(--late)!impor
 .i5-co tr.gap td{height:7px;padding:0}
 .i5-betreft{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #e4e7e9;padding-bottom:12px;margin-bottom:22px}
 .i5-betreft>span:first-child{display:flex;flex-direction:column;gap:3px}.i5-betreft b{font-size:13px;color:#11181c}
-@media (max-width:640px){.i5-top{flex-direction:column}.i5-co{text-align:left}.i5-co table{margin-left:0}}
+/* geen aparte telefoonopmaak: het voorbeeld wordt als geheel verkleind (paperFit), zodat het gelijk blijft aan de PDF */
 /* betreft (factuur), totaal en geldigheid */
 .inv5 .i5-betreft{background:#f6f7f8;border:0;border-radius:6px;padding:11px 16px;margin:0 0 22px;position:relative}
 .inv5 .i5-betreft::before{content:"";position:absolute;left:0;top:9px;bottom:9px;width:3px;border-radius:2px;background:var(--A)}
