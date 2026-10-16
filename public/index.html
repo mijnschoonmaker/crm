@@ -4933,12 +4933,21 @@ async function moveTo(id,date,tijd,force){
   try{await save("klanten",k.id,{...strip(k),...nw});toast(cleanName(k.naam)+(date?" ingepland op "+fmtD(date)+(nw.tijd?" om "+nw.tijd:""):" terug naar te plannen"),()=>save("klanten",k.id,{...strip(k),...prev}))}catch(e){err(e)}
 }
 async function optimize(day){
-  const js=actief().filter(k=>k.gepland===day).sort(geoCmp);if(js.length<2){toast("Minimaal twee jobs nodig op deze dag");return}
-  let m=Math.min(...js.map(k=>toMin(k.tijd)??8*60));
+  /* alle stops van deze dag die nog open staan, ook afspraken die van eerder zijn doorgeschoven */
+  const alle=routeStops(day),af=alle.filter(s=>s.done).map(s=>s.k),js=alle.filter(s=>!s.done).map(s=>s.k);
+  if(js.length<2){toast("Minimaal twee open stops nodig op deze dag");return}
+  const co=k=>typeof pkCoord==="function"?pkCoord(k):null,bk=typeof rtBedrijf==="function"?rtBedrijf():null;
+  let start=bk&&typeof pkHeeftAdres==="function"&&pkHeeftAdres(bk)?co(bk):null;if(af.length&&co(af[af.length-1]))start=co(af[af.length-1]);
+  /* dichtstbijzijnde-buur vanaf de loods (of het laatste afgeronde adres); zonder coördinaten op postcode en huisnummer */
+  const rest=js.slice(),volg=[];let pos=start;
+  while(rest.length){let bi=0;if(pos){let bd=Infinity;rest.forEach((k,i)=>{const c=co(k);const d=c?rtKm(pos,c):50+i*.001;if(d<bd){bd=d;bi=i}})}else{rest.sort(geoCmp);bi=0}
+    const k=rest.splice(bi,1)[0];volg.push(k);pos=co(k)||pos}
+  let m=Math.min(...js.map(k=>toMin(k.tijd)??1e9));if(m>=1e9)m=toMin(S().werkStart)??8*60;
   const ids=[];
-  try{for(const k of js){await save("klanten",k.id,{...strip(k),tijd:fromMin(m)});ids.push(k.id);m=Math.ceil((m+duur(k)+10)/15)*15}
-    await save("routes",day,{...strip(state.routes[day]||{}),order:ids});
-    toast("Route geoptimaliseerd: per postcode en straat, op huisnummer")}catch(e){err(e)}
+  try{let prev=start;for(const k of volg){const c=co(k),reis=prev&&c?(rtMin(prev,c)||0):0;if(ids.length)m=Math.ceil((m+reis)/5)*5;
+      await save("klanten",k.id,{...strip(k),tijd:fromMin(m)});ids.push(k.id);m+=duur(k);prev=c||prev}
+    await save("routes",day,{...strip(state.routes[day]||{}),order:[...af.map(k=>k.id),...ids]});
+    toast(start?"Route geoptimaliseerd: kortste rondje vanaf "+(af.length?"je laatste adres":"de loods"):"Route geoptimaliseerd op postcode en huisnummer")}catch(e){err(e)}
 }
 async function setFStatus(id,s){
   const f=state.facturen.find(x=>x.id===id);if(!f)return;
