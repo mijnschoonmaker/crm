@@ -29,6 +29,7 @@ h2{font-weight:700;font-size:17px;letter-spacing:-.01em;margin:3px 0 0;line-heig
 .ovf{display:flex;align-items:center;gap:10px;padding:0 14px 10px}.ovf label{font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted,#5d6f76);font-weight:700}.ovf select{flex:1;max-width:260px}
 .ovmeer{margin-top:10px;width:100%;height:46px;border-radius:14px;border:1.5px dashed var(--line);background:transparent;font:700 14px var(--f-ui,inherit);color:var(--navy-muted,#5d6f76);cursor:pointer}
 .ovg .row .pic svg{width:26px;height:26px}
+.pic:has(>svg[viewBox="0 0 64 60"]){background:none;box-shadow:none}
 .swipe{position:relative;border-radius:16px;overflow:hidden;touch-action:pan-y;background:var(--line)}
 .under{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding-inline:20px;color:#fff;font-weight:700;font-size:15px}
 .under span{display:flex;align-items:center;gap:8px;opacity:0;transition:opacity .15s,transform .15s}
@@ -45,7 +46,7 @@ h2{font-weight:700;font-size:17px;letter-spacing:-.01em;margin:3px 0 0;line-heig
 .hint .h-add{background:var(--ok-bg);color:var(--ok)}
 .hint .h-sub{background:var(--late-bg);color:var(--late)}
 .pic{width:58px;height:54px;border-radius:14px;background:var(--wall);display:grid;place-items:center;overflow:hidden}
-.pic svg{width:46px;height:46px;display:block}
+.pic svg{width:100%;height:100%;display:block}
 .row.on .pic{background:var(--blue-soft);box-shadow:inset 0 0 0 1.5px var(--blue)}
 .name{font-weight:700;font-size:15.5px;line-height:1.25}
 .sub{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
@@ -188,7 +189,7 @@ details[open] summary::after{content:"−"}
 @media (max-width:480px){
   .hint{margin-left:0}.intro{margin-left:0}
   .card{padding:16px}.row{grid-template-columns:48px minmax(0,1fr) auto;gap:10px;padding:9px 10px}
-  .pic{width:48px;height:46px}.pic svg{width:40px;height:40px}
+  .pic{width:48px;height:46px}.pic svg{width:100%;height:100%}
   .stepper button{width:31px;height:31px;font-size:17px}.stepper input{width:30px;font-size:15px}.name{font-size:15px}.sub{font-size:12px}
   .floor-actions{margin-left:54px}
   .acts{grid-template-columns:1fr}
@@ -380,27 +381,28 @@ function buildRamen(){
   const SH='stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" fill="none" opacity=".9"';
   const pane=(x,y,w,h)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="1" fill="var(--glass)" ${LN}/><path d="M${(x+w*.25).toFixed(1)} ${(y+h*.7).toFixed(1)}L${(x+w*.7).toFixed(1)} ${(y+h*.25).toFixed(1)}" ${SH}/>`;
   const SV=b=>`<svg viewBox="0 0 48 48" aria-hidden="true">${b}</svg>`;
-  function houseIcon(i,n){
-    n=Math.max(2,Math.min(n,4));const lvl=Math.min(i,n-1),rows=n-1,top=21,bot=43,h=(bot-top)/rows,attic=lvl===n-1;
-    const win=(x,y,w,hh,on)=>on?`<rect x="${x}" y="${y.toFixed(1)}" width="${w}" height="${hh.toFixed(1)}" rx="1" fill="#ffffff" stroke="var(--ink)" stroke-width="1"/>`:`<rect x="${x}" y="${y.toFixed(1)}" width="${w}" height="${hh.toFixed(1)}" rx="1" fill="var(--line)"/>`;
-    let b=`<path d="M31 11V5.5h4V14" fill="var(--surface)" ${LN}/>`;
-    b+=`<path d="M5 21.5 24 5.5 43 21.5Z" fill="${attic?"var(--glass)":"var(--surface)"}" ${LN} stroke-width="1.6"/>`;
-    b+=`<rect x="21" y="12.5" width="6" height="6" rx="1" fill="${attic?"#ffffff":"var(--line)"}"${attic?' stroke="var(--ink)" stroke-width="1"':""}/>`;
-    b+=`<rect x="9" y="${top}" width="30" height="${bot-top}" fill="var(--surface)"/>`;
-    if(!attic)b+=`<rect x="9" y="${(bot-(lvl+1)*h).toFixed(1)}" width="30" height="${h.toFixed(1)}" fill="var(--glass)"/>`;
-    for(let r=0;r<rows;r++){const y0=bot-(r+1)*h,on=r===lvl,wh=h*.5,wy=y0+h*.25;
-      if(r>0)b+=`<path d="M9 ${(bot-r*h).toFixed(1)}h30" stroke="var(--ink)" stroke-width="1" opacity=".3"/>`;
-      if(r===0)b+=`<rect x="13" y="${(bot-h*.72).toFixed(1)}" width="6" height="${(h*.72).toFixed(1)}" rx="1" fill="${on?"#ffffff":"var(--line)"}"${on?' stroke="var(--ink)" stroke-width="1"':""}/>`+win(24,wy,11,wh,on);
-      else b+=win(13,wy,8,wh,on)+win(27,wy,8,wh,on)}
-    b+=`<rect x="9" y="${top}" width="30" height="${bot-top}" fill="none" ${LN} stroke-width="1.6"/><path d="M3 43.5h42" ${LN} stroke-width="1.6"/>`;
-    return SV(b);
-  }
-  const ICON={
-    tuimel:SV(`<path d="M3 44 45 12v32Z" fill="var(--roof)" ${LN}/><path d="M7 41 41 15.2" stroke="#ffffff" stroke-width=".8" opacity=".15"/><path d="M13 38 39 18.3" stroke="#ffffff" stroke-width=".8" opacity=".15"/><g transform="rotate(-37.3 26 31)"><rect x="16" y="26.5" width="20" height="13" rx="1.4" fill="var(--surface)" ${LN}/>${pane(18,28.5,16,9)}</g>`),
-    lood:SV(`<path d="M12.5 43V21.5C12.5 14.5 17 9.2 24 5.5 31 9.2 35.5 14.5 35.5 21.5V43Z" fill="var(--surface)" ${LN}/><defs><clipPath id="arch-top"><path d="M15.5 23V21.5C15.5 16 18.6 11.6 24 8.8 29.4 11.6 32.5 16 32.5 21.5V23Z"/></clipPath></defs><path d="M15.5 23V21.5C15.5 16 18.6 11.6 24 8.8 29.4 11.6 32.5 16 32.5 21.5V23Z" fill="var(--glass)" ${LN}/><g clip-path="url(#arch-top)" stroke="var(--ink)" stroke-width=".8" opacity=".6">${[-6,-1,4,9,14,19].map(i=>`<path d="M${14+i} 24 ${25+i} 7M${25+i} 24 ${14+i} 7"/>`).join("")}</g>${pane(15.5,25.5,7.5,15)}${pane(25,25.5,7.5,15)}<path d="M10.5 43.5h27" ${LN}/>`),
-    koepel:SV(`<path d="M3 38h42" ${LN} stroke-width="2"/><rect x="10" y="32.5" width="28" height="5.5" rx="1.2" fill="var(--surface)" ${LN}/><path d="M12.5 32.5C12.5 18 35.5 18 35.5 32.5Z" fill="var(--glass)" ${LN}/><path d="M17.5 29C18.4 25.2 21.2 23 24.8 22.6" ${SH}/><path d="M3 42.5h42" stroke="var(--ink)" stroke-width="1" opacity=".3" stroke-dasharray="2.5 3"/>`),
-    mini:SV(`<rect x="9.5" y="5.5" width="29" height="36" rx="1.5" fill="var(--surface)" ${LN}/><rect x="12.5" y="8.5" width="23" height="30" fill="var(--glass)" ${LN}/><path d="M20.2 8.5v30M27.8 8.5v30M12.5 16h23M12.5 23.5h23M12.5 31h23" stroke="var(--ink)" stroke-width="1.1"/>${[[12.5,8.5],[20.2,16],[27.8,23.5],[12.5,31]].map(([x,y])=>`<path d="M${x+1.8} ${y+5.2}L${x+5.2} ${y+1.8}" ${SH}/>`).join("")}<path d="M7.5 43h33" ${LN}/>`)
-  };
+/* ---- iconen rekentool/dienstenwebshop: één stijl met het CRM (teal, rustig, met diepte) ---- */
+const IK={roof:"#163e4a",roof2:"#1d5a74",ridge:"#0f2f38",wall:"#f6f1e8",wall2:"#e8e0d3",line:"#0f1f26",frame:"#ffffff",glass:"#cfe9ee",glass2:"#8fcfdb",on:"#2aa3b3",onG:"#dff6f9",door:"#137a8a",ground:"#c9d3d6",sky:"#eef6f8"};
+const IV=b=>`<svg viewBox="0 0 64 60" aria-hidden="true"><defs><linearGradient id="kGl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eaf7fa"/><stop offset="1" stop-color="${IK.glass2}"/></linearGradient><linearGradient id="kGlOn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#7fd4e6"/></linearGradient><linearGradient id="kRoof" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${IK.roof2}"/><stop offset="1" stop-color="${IK.roof}"/></linearGradient><linearGradient id="kWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${IK.wall}"/><stop offset="1" stop-color="${IK.wall2}"/></linearGradient></defs>${b}</svg>`;
+const kRaam=(x,y,w,h,on)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="1.4" fill="${IK.frame}" stroke="${on?IK.on:"#b9c6ca"}" stroke-width="${on?1.6:1}"/><rect x="${x+1.6}" y="${y+1.6}" width="${w-3.2}" height="${h-3.2}" rx=".8" fill="url(#${on?"kGlOn":"kGl"})"/><path d="M${x+2.2} ${y+h-3}L${x+w-4} ${y+3}" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".85"/><rect x="${x+w/2-.5}" y="${y+1.6}" width="1" height="${h-3.2}" fill="${IK.frame}"/>${on?`<rect x="${x-2}" y="${y-2}" width="${w+4}" height="${h+4}" rx="2.4" fill="none" stroke="${IK.on}" stroke-width="1.2" opacity=".35"/>`:""}`;
+function houseIcon(i,n){n=Math.max(2,Math.min(n,4));const lvl=Math.min(i,n-1),rows=n,top=19,bot=55,fh=(bot-top)/rows;
+  let b=`<rect width="64" height="60" rx="8" fill="${IK.sky}"/>`;
+  b+=`<path d="M4 ${top+1}L32 4l28 ${top-3}v2H4Z" fill="url(#kRoof)"/><path d="M4 ${top+1}L32 4l28 ${top-3}" fill="none" stroke="${IK.ridge}" stroke-width="1.6" stroke-linejoin="round"/>`;
+  b+=`<rect x="40" y="7" width="5" height="8" fill="${IK.roof}"/><rect x="39.3" y="6.4" width="6.4" height="1.6" fill="${IK.ridge}"/>`;
+  b+=`<rect x="7" y="${top}" width="50" height="${bot-top}" fill="url(#kWall)"/>`;
+  for(let r=0;r<rows;r++){const fl=rows-1-r,y=top+r*fh,on=fl===lvl,wh=Math.min(10.5,fh*.6),wy=y+(fh-wh)/2;
+    if(on)b+=`<rect x="7" y="${y}" width="50" height="${fh}" fill="${IK.onG}" opacity=".9"/>`;
+    if(fl===0){b+=kRaam(11,wy,13,wh,on)+kRaam(40,wy,13,wh,on)+`<rect x="27.5" y="${y+fh*.2}" width="9" height="${bot-(y+fh*.2)}" rx="1.2" fill="${IK.door}"/><circle cx="34.6" cy="${y+fh*.62}" r=".9" fill="#fff"/>`}
+    else b+=kRaam(10.5,wy,12,wh,on)+kRaam(26,wy,12,wh,on)+kRaam(41.5,wy,12,wh,on);
+    if(r>0)b+=`<path d="M7 ${y}h50" stroke="#0f1f26" stroke-width=".6" opacity=".12"/>`}
+  b+=`<rect x="7" y="${top}" width="50" height="${bot-top}" fill="none" stroke="#0f1f26" stroke-width="1.1" opacity=".55" rx=".5"/><rect x="2" y="${bot}" width="60" height="3" rx="1.5" fill="${IK.ground}"/>`;
+  return IV(b)}
+const ICON={
+  tuimel:IV(`<rect width="64" height="60" rx="8" fill="${IK.sky}"/><path d="M0 60V26L64 4v56Z" fill="url(#kRoof)"/>${[0,1,2,3,4,5].map(i=>`<path d="M0 ${31+i*5.2}L64 ${9+i*5.2}" stroke="#fff" stroke-width=".7" opacity=".10"/>`).join("")}<path d="M0 26L64 4" stroke="${IK.ridge}" stroke-width="1.8"/><g transform="translate(32 32) rotate(-19)"><rect x="-15" y="-11" width="30" height="23" rx="2" fill="#000" opacity=".22"/><rect x="-15" y="-12" width="30" height="23" rx="2" fill="${IK.frame}" stroke="${IK.on}" stroke-width="1.4"/><rect x="-12.5" y="-9.5" width="25" height="18" rx="1" fill="url(#kGlOn)"/><path d="M-10 6L8 -7" stroke="#fff" stroke-width="1.8" stroke-linecap="round" opacity=".9"/><rect x="-6" y="9.5" width="12" height="2" rx="1" fill="#9fb0b6"/></g>`),
+  lood:IV(`<rect width="64" height="60" rx="8" fill="url(#kWall)"/><path d="M15 58V27a17 17 0 0 1 34 0v31Z" fill="#dfe6e9"/><path d="M18 56V27a14 14 0 0 1 28 0v29Z" fill="${IK.frame}" stroke="#b9c6ca" stroke-width="1"/><clipPath id="kArc"><path d="M20.5 54V27a11.5 11.5 0 0 1 23 0v27Z"/></clipPath><g clip-path="url(#kArc)"><rect x="20" y="14" width="24" height="42" fill="url(#kGl)"/><path d="M32 27L20.5 27A11.5 11.5 0 0 1 24 18.6Z" fill="#e3b23c" opacity=".85"/><path d="M32 27L24 18.6A11.5 11.5 0 0 1 32 15.5Z" fill="#2aa3b3" opacity=".85"/><path d="M32 27L32 15.5A11.5 11.5 0 0 1 40 18.6Z" fill="#c0392b" opacity=".75"/><path d="M32 27L40 18.6A11.5 11.5 0 0 1 43.5 27Z" fill="#23845a" opacity=".8"/><g stroke="#3c4a50" stroke-width=".8" opacity=".75"><path d="M12 29l28 28M20 29l28 28M28 29l28 28M4 29l28 28M52 29L24 57M44 29L16 57M36 29L8 57M60 29L32 57M20.5 27h23"/></g><path d="M20.5 52L36 16h5L26 52Z" fill="#fff" opacity=".22"/></g>`),
+  koepel:IV(`<rect width="64" height="60" rx="8" fill="${IK.sky}"/><path d="M0 41L7 34h50l7 7Z" fill="#aab6bb"/><rect y="41" width="64" height="4" fill="#8e9ba1"/><rect y="45" width="64" height="15" fill="url(#kWall)"/><rect x="17" y="31" width="30" height="4" rx="1.2" fill="${IK.frame}" stroke="#b9c6ca" stroke-width="1"/><path d="M19.5 31c1-15 24-15 25 0Z" fill="url(#kGlOn)" stroke="${IK.on}" stroke-width="1.4"/><path d="M24 27c1.2-5 5-8 9.5-8.5" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none" opacity=".9"/>`),
+  mini:IV(`<rect width="64" height="60" rx="8" fill="url(#kWall)"/><rect x="17" y="8" width="30" height="42" rx="2" fill="${IK.frame}" stroke="${IK.on}" stroke-width="1.4"/><rect x="20" y="11" width="24" height="36" rx="1" fill="url(#kGl)"/><g stroke="${IK.frame}" stroke-width="1.6"><path d="M28 11v36M36 11v36M20 20h24M20 29h24M20 38h24"/></g><path d="M22 18l4-5M30 27l4-5M38 36l4-5M22 45l4-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity=".9"/><rect x="14" y="50" width="36" height="3" rx="1.5" fill="#b9c6ca"/>`)
+};
   const stepper=(id,v,label)=>`<div class="stepper"><button type="button" data-t="${id}" data-d="-1" aria-label="Eén minder: ${label}">−</button><input id="${id}" type="number" inputmode="numeric" min="0" max="500" value="${v}" aria-label="${label}"><button type="button" data-t="${id}" data-d="1" aria-label="Eén meer: ${label}">+</button></div>`;
   const swipeWrap=(id,inner)=>`<div class="swipe" data-id="${id}"><div class="under" aria-hidden="true"><span class="u-add">+1 raam</span><span class="u-sub">−1 raam</span></div>${inner}</div>`;
   function renderFloors(){let html="";
