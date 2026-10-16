@@ -9032,157 +9032,204 @@ const websiteVoorbeeld=html=>webCalcVoorbeeld(html,"Website");
 
 /* ---------- complete website (mijnschoonmaker.com) voor Framer: één code component, gegevens en calculator uit het CRM ---------- */
 const WEB_CSS=`
-.ms{--ink:#0c121c;--muted:#5c6066;--m2:#9a9ea4;--bg:#fff;--grijs:#f2f2f2;--lijn:#dcdcdc;--line:#dcdcdc;--soft:#e3f2f4;--b1:#0f5f6e;--b2:#137a8a;--blauw:linear-gradient(135deg,#1a1f26,#2b323b);--lijnen:none;--ls:.16em;
-  font-family:Jost,"Avenir Next","Avenir","Helvetica Neue",Helvetica,Arial,sans-serif;color:var(--ink);background:#fff;-webkit-font-smoothing:antialiased;line-height:1.5;font-size:16px;font-weight:300;text-align:left;width:100%;overflow-x:clip}
-.ms *{box-sizing:border-box}.ms a{color:inherit;text-decoration:none}.ms img,.ms svg{display:block;max-width:100%}.ms [hidden]{display:none!important}
-.ms h1,.ms h2,.ms h3,.ms p{margin:0}.ms ul,.ms ol{margin:0;padding:0;list-style:none}.ms b,.ms strong{font-weight:500}
-.ms .in{width:min(1440px,100% - 80px);margin:0 auto}
-.ms p,.ms li{text-wrap:pretty}.ms h1,.ms h2,.ms h3{text-wrap:balance;overflow-wrap:break-word}
-/* typografie */
-.ms .up{text-transform:uppercase;letter-spacing:var(--ls)}
-.ms .k1{font-size:clamp(30px,3.6vw,48px);font-weight:300;line-height:1.12;letter-spacing:.06em;text-transform:uppercase}
-.ms .k2{font-size:clamp(22px,2.2vw,30px);font-weight:300;line-height:1.2;letter-spacing:.08em;text-transform:uppercase}
-.ms .k3{font-size:15px;font-weight:500;letter-spacing:.16em;text-transform:uppercase}
-.ms .tx{font-size:clamp(15px,1.15vw,17px);font-weight:300;line-height:1.6;max-width:52ch}
-.ms .vanaf{font-size:14px;letter-spacing:.06em;font-weight:400;margin-top:12px}
-/* knoppen */
-.ms .kn{display:inline-flex;align-items:center;gap:12px;height:60px;padding:0 30px;font-size:13px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;border:0;cursor:pointer;white-space:nowrap;transition:background .2s,color .2s}
-.ms .kn svg{width:20px;height:20px;flex:none;stroke-width:1.6}
-.ms .kn.wit{background:#fff;color:var(--ink)}.ms .kn.wit:hover{background:#e6e6e6}
-.ms .kn.zw{background:var(--ink);color:#fff}.ms .kn.zw:hover{background:#2b323b}
-.ms .kn.lijn{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}.ms .kn.lijn:hover{background:var(--ink);color:#fff}
-.ms .kn.tekst{background:transparent;color:#fff;padding:0 10px}.ms .kn.tekst:hover{text-decoration:underline;text-underline-offset:6px}
-.ms .kn.tekst.donker{color:var(--ink)}
-.ms .knoppen{display:flex;gap:18px;flex-wrap:wrap;align-items:center;margin-top:32px}
-.ms .rond{width:70px;height:70px;border-radius:50%;display:grid;place-items:center;border:0;cursor:pointer;color:#fff}
-.ms .rond svg{width:24px;height:24px}
-/* promo + nav */
-.ms .promo{background:var(--ink);color:#fff;text-align:center;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:400;padding:12px 16px}.ms .promo a:hover{text-decoration:underline;text-underline-offset:4px}
-.ms .nav{position:sticky;top:0;z-index:40;background:#fff;border-bottom:1px solid var(--lijn)}
-.ms .nav .in{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:92px;width:min(1920px,100% - 80px)}
-.ms .lk{display:flex;gap:28px;align-items:center;font-size:13px;font-weight:500;letter-spacing:.16em;text-transform:uppercase}
-.ms .lk a{white-space:nowrap}.ms .lk a:hover{text-decoration:underline;text-underline-offset:6px}.ms .lk .sep{width:1px;height:28px;background:var(--lijn)}.ms .lk .lk-p{display:none}
-.ms .merk{font-size:clamp(16px,1.6vw,22px);font-weight:400;letter-spacing:.38em;text-transform:uppercase;padding-left:.38em;text-align:center}.ms .merk img{height:30px;width:auto;margin:0 auto}
-.ms .util{display:flex;gap:34px;justify-content:flex-end;align-items:center;font-size:13px;font-weight:500;letter-spacing:.16em;text-transform:uppercase}
-.ms .util a{display:inline-flex;align-items:center;gap:12px}.ms .util a:hover{text-decoration:underline;text-underline-offset:6px}.ms .util svg{width:24px;height:24px;stroke-width:1.5}
-.ms #msm{display:none}.ms .hb{display:none;width:44px;height:44px;align-items:center;justify-content:center;cursor:pointer;justify-self:end}.ms .hb svg{width:26px}
-/* hero + stapelblokken (volle breedte beeld, tekst eroverheen) */
-.ms .blok{position:relative;min-height:min(100vh,960px);display:flex;align-items:flex-start;color:#fff;overflow:hidden;background:#2a2f36}
-.ms .blok.laag{min-height:min(84vh,820px)}
-.ms .bk-bg,.ms .bk-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.ms .blok.ken .bk-bg,.ms .blok.ken .bk-img{inset:-3%;width:106%;height:106%;animation:kenb 26s ease-in-out infinite alternate}
-@keyframes kenb{to{transform:scale(1.06) translate(-1%,-.6%)}}
-.ms .bk-img{display:none;max-width:none}.ms .blok.foto .bk-img{display:block}.ms .blok.foto .bk-bg{display:none}
-.ms .bk-scrim{position:absolute;inset:0;background:linear-gradient(90deg,rgb(0 0 0 / .55),rgb(0 0 0 / .15) 55%,transparent),linear-gradient(180deg,rgb(0 0 0 / .25),transparent 30%,transparent 70%,rgb(0 0 0 / .35))}
-.ms .bk-ui{position:relative;width:min(1440px,100% - 80px);margin:0 auto;padding:clamp(80px,12vh,140px) 0 110px;display:flex;flex-direction:column;gap:0}
-.ms .blok.onder .bk-ui{align-self:flex-end;padding:0 0 110px}
-.ms .bk-ui .k1{max-width:16ch;text-shadow:0 1px 20px rgb(0 0 0 / .25)}
-.ms .bk-ui .tx{margin-top:22px;color:rgb(255 255 255 / .92);max-width:46ch}
-.ms .bk-ui .vanaf{color:rgb(255 255 255 / .9)}
-.ms .meer{position:absolute;right:40px;top:40px;background:#0c121c}
-.ms .pauze{position:absolute;right:40px;bottom:40px;background:transparent;box-shadow:inset 0 0 0 1.5px #fff;width:58px;height:58px}.ms .pauze svg{width:18px;height:18px}.ms .pauze .sp{display:none}.ms.stil .pauze .sp{display:block}.ms.stil .pauze .pz{display:none}
-.ms .pijl{position:absolute;left:50%;bottom:40px;transform:translateX(-50%);background:rgb(0 0 0 / .45);width:58px;height:58px;animation:pijl 2.4s ease-in-out infinite}.ms .pijl svg{width:22px;height:22px}
-@keyframes pijl{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
-.ms.stil .blok *,.ms.stil .nacht *,.ms.stil .story *{animation-play-state:paused!important}
-/* gesplitste blokken: beeld + tekst */
-.ms .split{display:grid;grid-template-columns:1fr 1fr;min-height:min(80vh,760px);background:#fff}
-.ms .split.grijs{background:var(--grijs)}.ms .split.donker{background:var(--ink);color:#fff}
-.ms .split>.beeld{position:relative;overflow:hidden;min-height:420px;background:#e9e9e9;display:grid;place-items:center}
-.ms .split>.beeld .bk-bg,.ms .split>.beeld .bk-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.ms .split>.tekst{display:flex;flex-direction:column;justify-content:center;padding:clamp(48px,7vw,110px) clamp(32px,7vw,120px)}
-.ms .split.rechts>.beeld{order:2}
-.ms .split .k2{max-width:18ch}.ms .split .tx{margin-top:22px;color:var(--muted)}.ms .split.donker .tx{color:rgb(255 255 255 / .8)}
-.ms .split .knoppen .kn.tekst{color:var(--ink)}.ms .split.donker .knoppen .kn.tekst{color:#fff}
-.ms .split>.beeld .mock{position:relative;width:min(520px,86%);margin:60px 0}
-.ms .split>.beeld .pp{margin:50px auto;max-width:360px;box-shadow:0 0 0 9px #0f1317,0 0 0 10.5px #3a4448,0 50px 80px -40px rgb(0 0 0 / .5)}
-.ms .pp-ond{display:none}
-/* mail-/factuurmock, rechthoekig en rustig */
-.ms .mail,.ms .fact{background:#fff;color:var(--ink);box-shadow:0 30px 60px -36px rgb(0 0 0 / .35);text-align:left;font-weight:300}
-.ms .mail-h{padding:16px 22px;border-bottom:1px solid var(--lijn);display:flex;gap:14px;align-items:center;font-size:13px;color:var(--muted)}
-.ms .mail-h .av{width:40px;height:40px;background:var(--ink);color:#fff;display:grid;place-items:center;flex:none;font-size:13px;letter-spacing:.1em;font-weight:500}
-.ms .mail-h b{display:block;color:var(--ink);font-size:14px;font-weight:500;letter-spacing:.04em}.ms .mail-h .tijd{margin-left:auto;font-size:12px}
-.ms .mail-s{padding:16px 22px 0;font-weight:500;font-size:15px;letter-spacing:.02em}
-.ms .mail-b{padding:10px 22px 22px;font-size:14px;line-height:1.55}.ms .mail-b p{margin:0 0 10px}
-.ms .mail-b ul{margin:0 0 14px;display:flex;flex-direction:column;gap:6px}.ms .mail-b li{display:flex;gap:10px;align-items:flex-start}.ms .mail-b li svg{width:14px;height:14px;flex:none;margin-top:4px}
-.ms .mail-dag{display:flex;gap:14px;align-items:center;background:var(--grijs);padding:14px 16px;margin:0 0 14px}
-.ms .mail-dag .d{width:48px;height:48px;background:var(--ink);color:#fff;display:grid;place-items:center;text-align:center;line-height:1;flex:none}.ms .mail-dag .d b{display:block;font-size:20px;font-weight:400}.ms .mail-dag .d small{font-size:9px;letter-spacing:.14em;text-transform:uppercase}
-.ms .mail-dag strong{display:block;font-size:14px;font-weight:500}.ms .mail-dag span{font-size:12.5px;color:var(--muted)}
-.ms .mail-k{display:flex;gap:10px;flex-wrap:wrap}.ms .mail-k a{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 16px;font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;background:var(--ink);color:#fff}.ms .mail-k a.l{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}.ms .mail-k svg{width:14px;height:14px}
-.ms .fact-h{display:flex;align-items:center;gap:14px;padding:20px 24px;border-bottom:1px solid var(--lijn)}.ms .fact-h .av{width:44px;height:44px;background:var(--ink);color:#fff;display:grid;place-items:center;flex:none}.ms .fact-h .av svg{width:20px;height:20px}
-.ms .fact-h b{display:block;font-size:14px;font-weight:500;letter-spacing:.06em;text-transform:uppercase}.ms .fact-h small{font-size:13px;color:var(--muted)}.ms .fact-h>div{flex:1}
-.ms .fact-r{display:flex;justify-content:space-between;gap:12px;padding:14px 24px;border-top:1px solid #efefef;font-size:15px}.ms .fact-r:nth-of-type(2){border-top:0}.ms .fact-r b{font-weight:500}.ms .fact-r.tot{border-top:1px solid var(--lijn);font-weight:500}
-.ms .fact-ok{display:flex;align-items:center;gap:10px;padding:14px 24px;background:var(--ink);color:#fff;font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:500}.ms .fact-ok svg{width:16px;height:16px}
-.ms .tag{display:inline-flex;align-items:center;font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;padding:6px 12px;background:var(--grijs);color:var(--ink)}
-/* credits-cijfers in split */
-.ms .cijfers{display:grid;grid-template-columns:1fr 1fr;gap:28px 40px;margin-top:34px}
-.ms .cf b{display:block;font-size:clamp(40px,4vw,56px);font-weight:200;line-height:1;letter-spacing:.02em}.ms .cf h3{font-size:13px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;margin-top:10px}.ms .cf p{font-size:14px;color:var(--muted);margin-top:6px;font-weight:300}
-.ms .split.donker .cf p{color:rgb(255 255 255 / .7)}
-/* dienstenwebshop */
-.ms .shop{padding:clamp(72px,9vw,120px) 0 clamp(40px,6vw,80px);text-align:center}
-.ms .shop .tx{margin:22px auto 0;color:var(--muted)}
-.ms #ms-calc{min-height:600px;margin-top:clamp(40px,5vw,64px)}.ms #ms-calc iframe{display:block;width:1px;min-width:100%;border:0;background:transparent}
-/* ons werk mozaïek */
-.ms .werk{padding:clamp(72px,9vw,120px) 0;background:#fff}
-.ms .werk-k{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
-.ms .wk-filter{display:flex;gap:22px;flex-wrap:wrap}.ms .wk-filter button{border:0;background:none;color:var(--ink);font:500 12px Jost,sans-serif;letter-spacing:.16em;text-transform:uppercase;padding:8px 0;cursor:pointer;border-bottom:1.5px solid transparent}.ms .wk-filter button[aria-pressed="true"]{border-bottom-color:var(--ink)}
-.ms .wk-grid{columns:3;column-gap:16px;margin-top:clamp(32px,4vw,48px)}
-.ms .wk-it{break-inside:avoid;margin:0 0 16px;position:relative;overflow:hidden;background:#e9e9e9;cursor:zoom-in}
-.ms .wk-it img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .8s}.ms .wk-it:hover img{transform:scale(1.04)}
-.ms .wk-it figcaption{position:absolute;left:0;right:0;bottom:0;padding:40px 20px 18px;color:#fff;background:linear-gradient(180deg,transparent,rgb(0 0 0 / .6));display:flex;flex-direction:column;gap:2px;pointer-events:none}.ms .wk-it figcaption:empty{display:none}
-.ms .wk-it b{font-size:13px;font-weight:500;letter-spacing:.14em;text-transform:uppercase}.ms .wk-it span{font-size:13px;opacity:.85}
-.wk-lb{position:fixed;inset:0;z-index:99999;background:rgb(0 0 0 / .94);display:none;align-items:center;justify-content:center;padding:20px}.wk-lb.aan{display:flex}
-.wk-lb figure{margin:0;max-width:min(1600px,100%);max-height:100%;display:flex;flex-direction:column;align-items:center;gap:12px}.wk-lb img{max-width:100%;max-height:calc(100vh - 90px)}
-.wk-lb figcaption{color:#fff;text-align:center;font-family:Jost,sans-serif;font-weight:300}.wk-lb figcaption b{display:block;font-size:13px;letter-spacing:.14em;text-transform:uppercase;font-weight:500}.wk-lb figcaption span{font-size:13px;opacity:.75}
-.wk-lb button{position:absolute;background:transparent;color:#fff;border:1px solid rgb(255 255 255 / .5);width:50px;height:50px;border-radius:50%;font-size:26px;line-height:1;cursor:pointer;display:grid;place-items:center}
-.wk-lb .wk-x{top:20px;right:20px}.wk-lb .wk-p{left:20px;top:50%;transform:translateY(-50%)}.wk-lb .wk-n{right:20px;top:50%;transform:translateY(-50%)}
-/* volgende stap: 4 kaarten */
-.ms .stap4{padding:clamp(72px,9vw,120px) 0;background:var(--grijs)}
-.ms .kaarten{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:clamp(32px,4vw,48px)}
-.ms .kt{background:#fff;display:flex;flex-direction:column;min-height:260px;transition:transform .3s}.ms .kt:hover{transform:translateY(-4px)}
-.ms .kt .ki{height:150px;background:var(--ink);color:#fff;display:grid;place-items:center}.ms .kt .ki svg{width:34px;height:34px;stroke-width:1.2}
-.ms .kt .kb{padding:24px 26px 26px;display:flex;flex-direction:column;gap:8px;flex:1}
-.ms .kt h3{font-size:13px;font-weight:500;letter-spacing:.16em;text-transform:uppercase}.ms .kt p{font-size:14px;color:var(--muted);flex:1}
-.ms .kt .ga{font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:500;display:inline-flex;align-items:center;gap:10px;margin-top:8px}.ms .kt .ga::after{content:"";width:8px;height:8px;border-right:1.5px solid currentColor;border-top:1.5px solid currentColor;transform:rotate(45deg)}
+.ms{--b1:#0f5f6e;--b2:#137a8a;--b3:#1d5a74;--ink:#0f1f26;--muted:#5d6f76;--line:#dde5e8;--bg:#f3f6f7;--soft:#e3f2f4;--geel:#ebbd4c;
+  --blauw:radial-gradient(120% 160% at 100% 0%,#2aa3b3 0%,transparent 55%),linear-gradient(135deg,#0f5f6e,#137a8a 55%,#1d5a74);
+  --lijnen:radial-gradient(circle at 18% 140%,rgb(255 255 255 / .14),transparent 45%),repeating-linear-gradient(115deg,rgb(255 255 255 / .035) 0 2px,transparent 2px 26px);
+  font-family:Manrope,Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;line-height:1.5;font-size:16px;text-align:left;width:100%;overflow-x:clip}
+.ms *{box-sizing:border-box}.ms a{color:inherit;text-decoration:none}.ms img,.ms svg{display:block;max-width:100%}
+.ms h1,.ms h2,.ms h3,.ms p{margin:0}.ms ul,.ms ol{margin:0;padding:0;list-style:none}
+.ms .in{width:min(1140px,100% - 32px);margin:0 auto}
+.ms .knop{display:inline-flex;align-items:center;justify-content:center;gap:9px;height:52px;padding:0 24px;border-radius:16px;font-weight:800;font-size:15.5px;cursor:pointer;border:0;transition:transform .15s,box-shadow .15s;white-space:nowrap}
+.ms .knop:hover{transform:translateY(-2px)}.ms .knop svg{width:19px;height:19px;flex:none}
+.ms .k-wit{background:#fff;color:var(--b2);box-shadow:0 14px 28px -14px rgb(0 0 0 / .55)}
+.ms .k-glas{background:rgb(255 255 255 / .14);color:#fff;box-shadow:inset 0 0 0 1.5px rgb(255 255 255 / .35)}
+.ms .k-teal{background:linear-gradient(135deg,#1590a2,#137a8a 55%,#11677a);color:#fff;box-shadow:0 12px 24px -12px rgb(15 95 110 / .8)}
+.ms .blauw{position:relative;isolation:isolate;overflow:hidden;background:var(--blauw);color:#fff;border-radius:32px;box-shadow:0 30px 60px -34px rgb(15 70 85 / .75)}
+.ms .blauw::before{content:"";position:absolute;inset:0;background:var(--lijnen);z-index:-1;pointer-events:none}
+.ms .oog{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--b2)}
+.ms .oog::before{content:"";width:18px;height:2px;border-radius:2px;background:currentColor}
+.ms .kop{font-size:clamp(28px,3.4vw,42px);font-weight:800;letter-spacing:-.03em;line-height:1.1;margin:10px 0 12px}
+.ms .lead{color:var(--muted);font-size:17px;max-width:620px}
+.ms section{padding:44px 0;scroll-margin-top:72px}
+/* menu */
+.ms .nav{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid transparent}
+.ms .nav .in{display:flex;align-items:center;gap:22px;height:72px}
+.ms .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;letter-spacing:-.02em}.ms .logo img{height:38px;width:auto}
+.ms .lk{display:flex;gap:22px;margin-left:auto;font-weight:700;font-size:14.5px;color:var(--muted)}.ms .lk a:hover{color:var(--ink)}.ms .lk .lk-p{display:none}.ms #msm:checked~.nav .lk .lk-p{display:block;color:var(--b2)}
+.ms .nav .knop{height:44px;padding:0 18px;font-size:14.5px;border-radius:13px}
+.ms .nav .portaal{font-weight:700;font-size:14.5px;color:var(--b2);display:flex;align-items:center;gap:6px}.ms .nav .portaal svg{width:17px}
+.ms #msm{display:none}.ms .hb{display:none;margin-left:auto;width:44px;height:44px;border-radius:12px;background:#fff;box-shadow:0 4px 12px -6px rgb(0 0 0 / .3);align-items:center;justify-content:center;cursor:pointer}.ms .hb svg{width:22px}
+/* hero */
+.ms .hero{padding:18px 0 30px}
+.ms .hero .blauw{display:grid;grid-template-columns:1.1fr .9fr;gap:30px;align-items:center;padding:60px 60px 112px}
+.ms .hero h1{font-size:clamp(36px,5vw,62px);font-weight:800;letter-spacing:-.035em;line-height:1.02;margin:14px 0 16px}
+.ms .hero p.sub{font-size:clamp(17px,1.6vw,20px);color:rgb(255 255 255 / .86);max-width:520px}
+.ms .chip{display:inline-flex;align-items:center;gap:8px;background:rgb(255 255 255 / .14);border-radius:99px;padding:6px 14px 6px 8px;font-weight:700;font-size:13.5px}
+.ms .chip.ster{padding:6px 14px;gap:7px;transition:background .15s}.ms .chip.ster:hover{background:rgb(255 255 255 / .22)}.ms .chip .st{color:#fbbc05;letter-spacing:1px;font-size:14px}.ms .chip.ster b{font-weight:800}.ms .chip i{width:22px;height:22px;border-radius:50%;background:var(--geel);display:grid;place-items:center;color:var(--b1);font-style:normal;font-size:12px}
+.ms .cta{display:flex;gap:12px;flex-wrap:wrap;margin:28px 0 22px}
+.ms .vink{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:14px;font-weight:700;color:rgb(255 255 255 / .9)}.ms .vink span{display:flex;align-items:center;gap:7px}.ms .vink svg{width:16px;color:#7ee2b8}
+/* nep-iPhone met het klantportaal */
+.ms .tel{position:relative;width:262px;margin:0 auto;aspect-ratio:71.9/150;border-radius:44px;padding:3px;background:linear-gradient(140deg,#f2f3f4,#c3c5c8 12%,#fafafa 26%,#a9abaf 46%,#dcdddf 62%,#9a9ca0 80%,#e8e9ea);filter:drop-shadow(0 40px 40px rgb(5 40 50 / .45));transform:rotate(-2deg)}
+.ms .tel .sc{position:relative;height:100%;border-radius:41px;background:#000;padding:7px}
+.ms .tel .sch{position:relative;height:100%;border-radius:35px;overflow:hidden;background:#f3f6f7;display:flex;flex-direction:column;gap:9px;padding:44px 12px 14px;color:var(--ink)}
+.ms .tel .eil{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:84px;height:24px;border-radius:14px;background:#000;z-index:2}
+.ms .tel .sb{position:absolute;top:14px;left:26px;right:24px;display:flex;justify-content:space-between;font-size:12px;font-weight:800}
+.ms .tel .sch>*{flex-shrink:0}.ms .p-kaart>div{min-width:0;line-height:1.3}.ms .p-kop{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:0 4px}
+.ms .p-hero{position:relative;overflow:hidden;border-radius:18px;background:var(--blauw);color:#fff;padding:14px;display:flex;gap:12px;align-items:center}
+.ms .p-ring{width:70px;height:70px;flex:none;position:relative}.ms .p-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ms .p-ring b{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:22px;font-weight:800;line-height:1}.ms .p-ring b small{display:block;font-size:9px;font-weight:700;opacity:.8}
+.ms .p-hero small{display:block;font-size:10px;font-weight:700;opacity:.8}.ms .p-hero strong{display:block;font-size:14px;line-height:1.25}
+.ms .p-weg{position:relative;height:40px;margin:2px 4px 0}.ms .p-weg i{position:absolute;left:0;right:0;bottom:6px;height:5px;border-radius:3px;background:#dbe6e9}
+.ms .p-weg .hu{position:absolute;right:0;bottom:9px;width:26px;color:var(--b2)}.ms .p-weg .bu{position:absolute;bottom:4px;left:6%;width:44px;animation:msBus 6s ease-in-out infinite alternate}
+@keyframes msBus{to{left:58%}}
+.ms .p-kaart{background:#fff;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 8px -4px rgb(0 0 0 / .15);font-size:12px}
+.ms .p-kaart b{display:block;font-size:12.5px}.ms .p-kaart span.s{color:var(--muted);font-size:11px}
+.ms .p-ic{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;flex:none;background:var(--soft);color:var(--b2)}.ms .p-ic svg{width:16px}
+.ms .p-ok{margin-left:auto;font-size:10.5px;font-weight:800;color:#1f8a5a;background:#ddf5ea;border-radius:99px;padding:3px 8px}
+.ms .zweef{position:absolute;right:-26px;top:36%;background:#fff;color:var(--ink);border-radius:16px;padding:10px 14px;display:flex;gap:10px;align-items:center;box-shadow:0 18px 30px -16px rgb(0 0 0 / .5);font-size:13px;transform:rotate(3deg);animation:msZw 4s ease-in-out infinite alternate}
+.ms .zweef b{display:block;font-size:14px}.ms .zweef small{color:var(--muted)}
+@keyframes msZw{to{transform:rotate(1deg) translateY(-8px)}}
+/* straatje met busje */
+.ms .weg{position:absolute;left:0;right:0;bottom:0;height:90px;pointer-events:none;z-index:-1}
+.ms .weg .h{position:absolute;bottom:28px;transform:translateX(-50%)}.ms .weg .h svg{fill:rgb(255 255 255 / .1);stroke:rgb(255 255 255 / .22);stroke-width:.8}
+.ms .weg .r{position:absolute;left:0;right:0;bottom:18px;height:9px;background:rgb(0 30 40 / .22);border-top:1px solid rgb(255 255 255 / .16)}
+.ms .weg .r::after{content:"";position:absolute;left:0;right:0;top:3.5px;height:1.5px;background:repeating-linear-gradient(90deg,rgb(255 255 255 / .5) 0 14px,transparent 14px 28px)}
+.ms .weg .bus{position:absolute;bottom:21px;left:-80px;width:64px;animation:msRij 18s linear infinite;animation-delay:var(--d,0s);filter:drop-shadow(0 4px 5px rgb(0 0 0 / .35)) brightness(1.15)}
+@keyframes msRij{to{left:calc(100% + 20px)}}
+.ms .rv-wiel{transform-box:fill-box;transform-origin:center;animation:msWiel .6s linear infinite}@keyframes msWiel{to{transform:rotate(360deg)}}
+/* stappen */
+.ms .route{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:30px;position:relative}
+.ms .route::before{content:"";position:absolute;left:12%;right:12%;top:31px;border-top:2.5px dashed #b9d3d9}
+.ms .stap{position:relative;background:#fff;border-radius:22px;padding:22px;box-shadow:0 14px 34px -26px rgb(15 70 85 / .6)}
+.ms .stap .n{width:62px;height:62px;border-radius:20px;background:var(--blauw);color:#fff;display:grid;place-items:center;margin:-2px 0 16px;box-shadow:0 10px 20px -10px rgb(15 95 110 / .8)}.ms .stap .n svg{width:28px}
+.ms .stap small{font-size:12px;font-weight:800;color:var(--b2)}.ms .stap h3{font-size:18px;font-weight:800;letter-spacing:-.01em;margin:2px 0 6px}.ms .stap p{color:var(--muted);font-size:14.5px}
+/* tegels op blauw */
+.ms .band{padding:46px 46px 50px}
+.ms .band .kop{color:#fff}.ms .band .lead{color:rgb(255 255 255 / .8)}.ms .band .oog{color:#a5f0f7}
+.ms .tegels{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}
+.ms .tg{background:rgb(255 255 255 / .1);border:1px solid rgb(255 255 255 / .16);border-radius:20px;padding:20px;backdrop-filter:blur(6px)}
+.ms .tg .ic{width:42px;height:42px;border-radius:13px;background:#fff;color:var(--b2);display:grid;place-items:center;margin-bottom:14px}.ms .tg .ic svg{width:21px}
+.ms .tg h3{font-size:16.5px;font-weight:800;margin-bottom:4px}.ms .tg p{font-size:14px;color:rgb(255 255 255 / .78)}
+/* klantportaal: ticket */
+.ms .duo{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+.ms .lijst{display:flex;flex-direction:column;gap:12px;margin-top:22px}.ms .lijst li{display:flex;gap:12px;align-items:flex-start;font-size:15.5px}
+.ms .lijst li i{width:26px;height:26px;border-radius:50%;background:var(--soft);color:var(--b2);display:grid;place-items:center;flex:none;font-style:normal;margin-top:-1px}.ms .lijst li i svg{width:14px}
+.ms .lijst b{display:block}.ms .lijst span{color:var(--muted);font-size:14.5px}
+/* calculator */
+.ms .calc{background:#fff;border-radius:32px;padding:10px;box-shadow:0 30px 60px -40px rgb(15 70 85 / .6)}
+.ms .calc-k{padding:34px 30px 6px;text-align:center}.ms .calc-k .lead{margin:0 auto}
+.ms #ms-calc{min-height:600px}.ms #ms-calc iframe{display:block;width:1px;min-width:100%;border:0;background:transparent}
+/* zakelijk */
+.ms .zak{display:grid;grid-template-columns:1.2fr .8fr;gap:24px;align-items:center;background:#fff;border-radius:28px;padding:34px 38px;box-shadow:0 14px 34px -26px rgb(15 70 85 / .6)}
+.ms .zak .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}.ms .zak .tags span{background:var(--soft);color:var(--b1);border-radius:99px;padding:6px 12px;font-weight:700;font-size:13.5px}
+.ms .zak .r{display:flex;justify-content:flex-end}
 /* vragen */
-.ms .vragen{padding:clamp(72px,9vw,120px) 0}
-.ms .faq{margin-top:clamp(32px,4vw,48px);border-top:1px solid var(--lijn)}
-.ms details{border-bottom:1px solid var(--lijn)}
-.ms summary{list-style:none;cursor:pointer;padding:24px 0;font-weight:500;font-size:14px;letter-spacing:.14em;text-transform:uppercase;display:flex;justify-content:space-between;gap:16px;align-items:center}
+.ms .faq{display:flex;flex-direction:column;gap:10px;margin-top:26px;max-width:820px}
+/* live busje in de hero-telefoon */
+.ms .hero-live .zweef{right:auto;left:-34px;top:auto;bottom:118px;transform:rotate(-3deg)}
+.ms .zw-live{background:#e0f3e9!important;color:#1b6b48!important;display:grid;place-items:center}.ms .zw-live i{width:10px;height:10px;border-radius:50%;background:#22a46c;box-shadow:0 0 0 0 rgb(34 164 108 / .5);animation:msPuls 1.8s infinite}
+@keyframes msPuls{70%{box-shadow:0 0 0 9px rgb(34 164 108 / 0)}100%{box-shadow:0 0 0 0 rgb(34 164 108 / 0)}}
+.ms .hero-live .pp-tx b{font-size:14px}.ms .hero-live .pp-eta b{font-size:20px}
+@media (max-width:900px){.ms .hero-live .zweef{left:8px;bottom:170px}}
+.ms .hero-live .pp{max-width:330px;box-shadow:0 0 0 9px #11181c,0 0 0 10.5px #3a4448,0 50px 80px -40px rgb(0 0 0 / .6);transform:rotate(-2deg)}
+.ms .hero-live .pp-ond{display:none}
+.ms .tel-wrap .tel{width:300px}
+@media (max-width:900px){.ms .hero-live .pp{max-width:300px;transform:none}}
+/* ons werk */
+.ms .wk-filter{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 0}.ms .wk-filter button{border:1.5px solid var(--line);background:#fff;color:var(--ink);font:700 13.5px Manrope,sans-serif;padding:8px 14px;border-radius:99px;cursor:pointer}.ms .wk-filter button[aria-pressed="true"]{background:var(--b2);border-color:var(--b2);color:#fff}
+.ms .wk-grid{columns:3;column-gap:14px;margin-top:22px}
+.ms .wk-it{break-inside:avoid;margin:0 0 14px;position:relative;border-radius:18px;overflow:hidden;background:var(--soft);cursor:zoom-in;box-shadow:0 1px 2px rgb(15 31 38 / .05),0 16px 32px -22px rgb(15 50 60 / .45)}
+.ms .wk-it img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s}.ms .wk-it:hover img{transform:scale(1.03)}
+.ms .wk-it figcaption{position:absolute;left:0;right:0;bottom:0;padding:34px 14px 12px;color:#fff;background:linear-gradient(180deg,transparent,rgb(15 31 38 / .65));display:flex;flex-direction:column;gap:1px;pointer-events:none}.ms .wk-it figcaption:empty{display:none}
+.ms .wk-it b{font-size:14.5px}.ms .wk-it span{font-size:12.5px;opacity:.85}
+.wk-lb{position:fixed;inset:0;z-index:99999;background:rgb(8 20 24 / .92);display:none;align-items:center;justify-content:center;padding:20px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}.wk-lb.aan{display:flex}
+.wk-lb figure{margin:0;max-width:min(1400px,100%);max-height:100%;display:flex;flex-direction:column;align-items:center;gap:10px}.wk-lb img{max-width:100%;max-height:calc(100vh - 90px);border-radius:14px;box-shadow:0 30px 80px -30px rgb(0 0 0 / .8)}
+.wk-lb figcaption{color:#fff;text-align:center;font-family:Manrope,sans-serif}.wk-lb figcaption b{display:block;font-size:16px}.wk-lb figcaption span{font-size:13px;opacity:.75}
+.wk-lb button{position:absolute;background:rgb(255 255 255 / .12);color:#fff;border:1px solid rgb(255 255 255 / .25);width:46px;height:46px;border-radius:50%;font-size:28px;line-height:1;cursor:pointer;display:grid;place-items:center}
+.wk-lb .wk-x{top:16px;right:16px}.wk-lb .wk-p{left:16px;top:50%;transform:translateY(-50%)}.wk-lb .wk-n{right:16px;top:50%;transform:translateY(-50%)}
+@media (max-width:900px){.ms .wk-grid{columns:2}}@media (max-width:560px){.ms .wk-grid{columns:1}.wk-lb .wk-p,.wk-lb .wk-n{top:auto;bottom:16px;transform:none}}
+/* betalen */
+.ms .bt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}
+.ms .bt{background:#fff;border-radius:20px;padding:22px;box-shadow:0 1px 2px rgb(15 31 38 / .05),0 16px 32px -22px rgb(15 50 60 / .45)}
+.ms .bt .ic{width:42px;height:42px;border-radius:13px;background:var(--soft);color:var(--b2);display:grid;place-items:center;margin-bottom:14px}.ms .bt .ic svg{width:21px;height:21px}
+.ms .bt h3{font-size:16.5px;font-weight:800;margin-bottom:4px}.ms .bt p{font-size:14px;color:var(--muted)}
+.ms .bt-demo{margin-top:22px;display:flex;justify-content:center}
+.ms .bt-f{width:min(520px,100%);background:#fff;border-radius:22px;box-shadow:0 1px 2px rgb(15 31 38 / .05),0 24px 44px -26px rgb(15 50 60 / .55);overflow:hidden}
+.ms .bt-fh{display:flex;align-items:center;gap:12px;padding:16px 18px;color:#fff;background:var(--blauw);position:relative}.ms .bt-fh::before{content:"";position:absolute;inset:0;background:var(--lijnen);pointer-events:none}.ms .bt-fh>*{position:relative}
+.ms .bt-fh b{display:block;font-size:15.5px}.ms .bt-fh small{font-size:12.5px;opacity:.8}.ms .bt-fh>div{flex:1}
+.ms .bt-ic{width:40px;height:40px;border-radius:12px;background:rgb(255 255 255 / .16);border:1px solid rgb(255 255 255 / .25);display:grid;place-items:center}.ms .bt-ic svg{width:19px;height:19px}
+.ms .bt-pil{font-size:12px;font-weight:800;padding:5px 11px;border-radius:999px;background:#2bb673;color:#fff}
+.ms .bt-r{display:flex;justify-content:space-between;padding:12px 18px;border-top:1px solid var(--line);font-size:14.5px}.ms .bt-r:first-of-type{border-top:0}.ms .bt-r.kort b{color:#1f8a5c}.ms .bt-r.tot{font-weight:800;font-size:16px}
+.ms .bt-ok{display:flex;align-items:center;gap:8px;padding:12px 18px;background:#e0f3e9;color:#1b6b48;font-weight:700;font-size:13.5px}.ms .bt-ok svg{width:16px;height:16px}
+/* credits */
+.ms .cr4{grid-template-columns:repeat(4,1fr)}
+.ms .tg{position:relative}.ms .cr-n{position:absolute;top:18px;right:18px;font-style:normal;font-weight:800;font-size:14px;padding:5px 10px;border-radius:999px;background:#fff;color:var(--b2)}.ms .cr-n::after{content:" cr";font-size:11px;opacity:.7}
+/* dienstenwebshop-kop */
+.ms .ws-kop{margin-bottom:22px}
+/* vve */
+.ms .vve{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:center;background:#fff;border-radius:28px;padding:34px 38px;margin-top:16px;box-shadow:0 14px 34px -26px rgb(15 50 60 / .5)}
+.ms .vve-k h3{font-size:clamp(22px,2.4vw,28px);font-weight:800;letter-spacing:-.025em;line-height:1.15;margin:10px 0 10px}.ms .vve-k h3 em{font-style:normal;color:var(--b2)}.ms .vve-k p{color:var(--muted);font-size:15.5px}
+.ms .vve-l{display:flex;flex-direction:column;gap:12px}.ms .vve-l li{display:flex;gap:12px;align-items:flex-start;font-size:15px}
+.ms .vve-l li i{width:38px;height:38px;border-radius:12px;background:var(--soft);color:var(--b2);display:grid;place-items:center;flex:none;font-style:normal}.ms .vve-l li i svg{width:18px;height:18px}
+.ms .vve-l b{display:block}.ms .vve-l span{color:var(--muted);font-size:14px}
+@media (max-width:900px){.ms .bt-grid{grid-template-columns:1fr}.ms .cr4{grid-template-columns:1fr 1fr}.ms .vve{grid-template-columns:1fr;padding:24px}}
+@media (max-width:560px){.ms .cr4{grid-template-columns:1fr}.ms .cr-n{position:static;display:inline-block;margin-bottom:8px}}
+.ms details{background:#fff;border-radius:18px;padding:0 20px;box-shadow:0 8px 24px -20px rgb(15 70 85 / .6)}
+.ms summary{list-style:none;cursor:pointer;padding:18px 0;font-weight:800;font-size:16px;display:flex;justify-content:space-between;gap:12px;align-items:center}
 .ms summary::-webkit-details-marker{display:none}
-.ms summary::after{content:"";width:10px;height:10px;border-right:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink);transform:rotate(45deg);flex:none;margin-right:8px;transition:transform .25s}
-.ms details[open] summary::after{transform:rotate(-135deg)}
-.ms details p{color:var(--muted);padding:0 0 26px;font-size:16px;max-width:70ch;font-weight:300}
-/* contact / nieuwsbriefblok */
-.ms .cont{background:var(--grijs);padding:clamp(60px,8vw,100px) 0}
-.ms .cont .in{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
-.ms .cont .tx{color:var(--muted);margin-top:16px}
-.ms .cont .knoppen{margin:0;justify-content:flex-end}
-/* voet */
-.ms footer{background:var(--ink);color:#fff;padding:clamp(56px,7vw,90px) 0 40px;font-weight:300}
-.ms .vk{display:grid;grid-template-columns:repeat(4,1fr);gap:40px}
-.ms .vk h4{margin:0 0 20px;font-size:12px;font-weight:500;letter-spacing:.18em;text-transform:uppercase}
-.ms .vk li{margin:0 0 12px;font-size:14px;color:rgb(255 255 255 / .75)}.ms .vk a:hover{color:#fff;text-decoration:underline;text-underline-offset:5px}
-.ms .vmerk{margin-top:70px;padding-top:30px;border-top:1px solid rgb(255 255 255 / .18);display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:center}
-.ms .vmerk .merk{text-align:left;padding:0;font-size:18px}
-.ms .vlegal{display:flex;gap:26px;flex-wrap:wrap;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:rgb(255 255 255 / .7)}.ms .vlegal a:hover{color:#fff}
-.ms .vcopy{margin-top:30px;font-size:12px;color:rgb(255 255 255 / .55);line-height:1.7;max-width:90ch}
-/* scroll-reveal */
-.ms.js .rv{opacity:0;transform:translateY(24px);transition:opacity 1s cubic-bezier(.2,.7,.2,1),transform 1s cubic-bezier(.2,.7,.2,1)}
-.ms.js .rv.zicht{opacity:1;transform:none}
-@media (prefers-reduced-motion:reduce){.ms.js .rv{opacity:1;transform:none;transition:none}.ms *{animation:none!important}}
-.ms a:focus-visible,.ms button:focus-visible,.ms summary:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
-/* responsive */
-@media (max-width:1180px){.ms .util a span{display:none}.ms .util{gap:24px}.ms .lk{gap:18px;font-size:12px}}
-@media (max-width:980px){.ms .in{width:min(100% - 40px,1440px)}.ms .nav .in{grid-template-columns:auto 1fr auto;width:min(100% - 40px,1920px);height:72px}.ms .lk,.ms .util{display:none}.ms .merk{text-align:left;padding:0;justify-self:start}.ms .hb{display:flex}
-  .ms #msm:checked~.nav .lk{display:flex;position:absolute;top:72px;left:0;right:0;flex-direction:column;align-items:stretch;gap:0;background:#fff;border-bottom:1px solid var(--lijn);padding:10px 20px 20px}
-  .ms #msm:checked~.nav .lk a{padding:16px 0;border-bottom:1px solid var(--lijn)}.ms #msm:checked~.nav .lk .sep{display:none}.ms #msm:checked~.nav .lk .lk-p{display:block}
-  .ms .split{grid-template-columns:1fr}.ms .split.rechts>.beeld{order:0}.ms .split>.beeld{min-height:380px}
-  .ms .kaarten{grid-template-columns:1fr 1fr}.ms .vk{grid-template-columns:1fr 1fr}.ms .cont .in{grid-template-columns:1fr}.ms .cont .knoppen{justify-content:flex-start}
-  .ms .bk-ui{width:min(100% - 40px,1440px);padding:80px 0 120px}.ms .meer{right:20px;top:20px;width:56px;height:56px}.ms .pauze{right:20px;bottom:24px;width:50px;height:50px}.ms .pijl{bottom:24px;width:50px;height:50px}
-  .ms .wk-grid{columns:2}}
-@media (max-width:640px){.ms .kaarten{grid-template-columns:1fr}.ms .vk{grid-template-columns:1fr}.ms .wk-grid{columns:1}.ms .cijfers{grid-template-columns:1fr 1fr;gap:22px}
-  .ms .knoppen{flex-direction:column;align-items:stretch;gap:12px}.ms .kn{justify-content:center}.ms .kn.tekst{justify-content:flex-start;padding:0}.ms .blok{min-height:min(92vh,760px)}.ms .blok.laag{min-height:min(80vh,640px)}
-  .wk-lb .wk-p,.wk-lb .wk-n{top:auto;bottom:16px;transform:none}}
+.ms summary::after{content:"+";width:30px;height:30px;border-radius:50%;background:var(--soft);color:var(--b2);display:grid;place-items:center;font-size:20px;font-weight:600;flex:none;transition:transform .2s}
+.ms details[open] summary::after{transform:rotate(45deg)}
+.ms details p{color:var(--muted);padding:0 0 18px;font-size:15px;max-width:700px}
+/* contact + voet */
+.ms .contact{display:grid;grid-template-columns:1.2fr 1fr;gap:26px;align-items:center;padding:48px 50px 120px}
+.ms .contact h2{font-size:clamp(28px,3.4vw,40px);font-weight:800;letter-spacing:-.03em;line-height:1.1}
+.ms .contact p{color:rgb(255 255 255 / .82);margin-top:10px}
+.ms .ck{display:flex;flex-direction:column;gap:10px}
+.ms .ck a{display:flex;align-items:center;gap:12px;background:#fff;color:var(--ink);border-radius:16px;padding:12px 14px;font-weight:800;font-size:15px;line-height:1.25;box-shadow:0 12px 24px -14px rgb(0 0 0 / .45);transition:transform .15s}
+.ms .ck a:hover{transform:translateY(-2px)}.ms .ck a span.ic{width:36px;height:36px;border-radius:11px;background:var(--soft);color:var(--b2);display:grid;place-items:center;flex:none}.ms .ck a span.ic svg{width:18px}
+.ms .ck a small{display:block;color:var(--muted);font-weight:600;font-size:13px;margin-top:2px}.ms .ck a::after{content:"›";margin-left:auto;color:#9fb3ba;font-size:22px;line-height:1}
+.ms footer{padding:26px 0 40px;color:var(--muted);font-size:13.5px}.ms footer .in{display:flex;flex-wrap:wrap;gap:10px 22px;justify-content:space-between}.ms footer a{text-decoration:underline}
+.ms .wa{position:fixed;right:18px;bottom:18px;z-index:30;width:58px;height:58px;border-radius:50%;background:#25d366;color:#fff;display:grid;place-items:center;box-shadow:0 12px 26px -10px rgb(0 0 0 / .5)}.ms .wa svg{width:30px}
+/* nooit breder dan het scherm: lange woorden (e-mail) mogen afbreken */
+.ms .hero .blauw>*,.ms .duo>*,.ms .zak>*,.ms .contact>*,.ms .route>*,.ms .tegels>*{min-width:0}
+.ms .ck a>div{min-width:0;flex:1}.ms .ck a small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ms h1,.ms h2,.ms h3,.ms p,.ms .lead{overflow-wrap:break-word}
+@media (max-width:360px){.ms .ck a::after{display:none}.ms .ck a small{font-size:12px;white-space:normal;overflow-wrap:anywhere}.ms .contact{padding-left:16px!important;padding-right:16px!important}}
+@media (prefers-reduced-motion:reduce){.ms *{animation:none!important}}
+@media (max-width:980px){.ms .lk,.ms .nav .portaal{display:none}.ms .hb{display:flex;margin-left:0}.ms .nav .knop{margin-left:auto}
+  .ms #msm:checked~.nav .lk{display:flex;position:absolute;top:64px;left:16px;right:16px;flex-direction:column;gap:0;background:#fff;border-radius:18px;padding:8px;box-shadow:0 20px 40px -20px rgb(0 0 0 / .4)}
+  .ms #msm:checked~.nav .lk a{padding:12px 14px;color:var(--ink)}.ms .route{grid-template-columns:repeat(2,minmax(0,1fr))}.ms .route::before{display:none}.ms .tegels{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:760px){
+  .ms .route,.ms .tegels,.ms .duo,.ms .zak,.ms .contact{grid-template-columns:minmax(0,1fr)!important}
+  .ms .hero .blauw{grid-template-columns:minmax(0,1fr)!important}
+  .ms .nav .in{height:64px}.ms .nav .knop{display:none}.ms .hb{display:flex;margin-left:auto}
+  .ms #msm:checked~.nav .lk{display:flex;position:absolute;top:64px;left:16px;right:16px;flex-direction:column;gap:0;background:#fff;border-radius:18px;padding:8px;box-shadow:0 20px 40px -20px rgb(0 0 0 / .4)}
+  .ms #msm:checked~.nav .lk a{padding:12px 14px;color:var(--ink)}
+  .ms .hero .blauw{grid-template-columns:1fr;padding:34px 22px 110px;border-radius:26px}
+  .ms .tel{width:246px}.ms .zweef{right:auto;left:-4px;top:auto;bottom:3%}.ms #ms-calc{margin:0 -16px}
+  .ms .blauw{border-radius:26px}.ms section{padding:30px 0}
+  .ms .route,.ms .tegels,.ms .duo,.ms .zak,.ms .contact{grid-template-columns:1fr}
+  .ms .band{padding:30px 20px 34px}.ms .zak{padding:26px 22px}.ms .zak .r{justify-content:stretch}.ms .zak .r .knop{width:100%}
+  .ms .contact{padding:32px 20px 110px}.ms .ck a{font-size:14px;padding:11px 12px;gap:10px}.ms .ck a span.ic{width:32px;height:32px;border-radius:10px}.ms .ck a span.ic svg{width:16px}.ms .ck a small{font-size:12.5px}.ms .calc-k{padding:24px 14px 4px}.ms .calc{border-radius:24px;padding:4px}
+  .ms .cta .knop{flex:1}.ms .weg .h:nth-child(even){display:none}
+}
+/* ---- tekst in CRM-stijl ---- */
+.ms{font-size:15.5px;line-height:1.55;letter-spacing:-.003em}
+.ms p,.ms .lead,.ms li span{text-wrap:pretty}
+.ms .kop,.ms h1,.ms h2,.ms h3{text-wrap:balance}
+.ms .oog{gap:7px;font-size:12px;letter-spacing:.09em}
+.ms .oog::before{display:none}.ms .oog svg{width:15px;height:15px;flex:none}
+.ms .kop{font-size:clamp(28px,3.3vw,40px);letter-spacing:-.035em;line-height:1.08;margin:10px 0 12px}
+.ms .kop em,.ms .hero h1 em,.ms .contact h2 em{font-style:normal;color:var(--b2)}
+.ms .band .kop em,.ms .hero h1 em,.ms .contact h2 em{color:#a5f0f7}
+.ms .hero h1{letter-spacing:-.045em;line-height:1}
+.ms .lead{font-size:16.5px;line-height:1.6;color:var(--muted)}
+.ms .stap small{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.ms .stap small b,.ms .chip.ster b,.ms .ck a small,.ms .p-ring b{font-family:"IBM Plex Mono","SF Mono",ui-monospace,Menlo,monospace}
+.ms .stap small b{color:var(--b2);font-weight:600}
+.ms .stap h3,.ms .tg h3{letter-spacing:-.02em}.ms .stap p,.ms .tg p{line-height:1.55}
+.ms summary{letter-spacing:-.01em}.ms details p{line-height:1.6}
+.ms .tags span,.ms .vink span{letter-spacing:-.005em}
 /* ---- voorbeeld klantportaal (zoals het echt is) met live volgen ---- */
 .ms .pp{position:relative;max-width:380px;margin:0 auto;background:#f3f6f7;border-radius:46px;padding:0 0 18px;overflow:hidden;box-shadow:0 0 0 9px #11181c,0 0 0 10.5px #3a4448,0 50px 80px -40px rgb(10 40 50 / .6),0 20px 40px -24px rgb(10 40 50 / .35)}
 .ms .pp-sb{display:flex;align-items:center;justify-content:space-between;padding:14px 28px 4px;background:#fff;font-size:14px;color:#11181c}
@@ -9232,54 +9279,101 @@ const WEB_CSS=`
 .ms .pp-eta small{font-size:11px;color:var(--muted);font-weight:600}.ms .pp-eta b{font-size:20px;font-weight:600;letter-spacing:-.03em;color:#137a8a;font-variant-numeric:tabular-nums}
 .ms .pp-ond{text-align:center;font-size:12.5px;color:var(--muted);margin-top:22px}
 @media (max-width:420px){.ms .pp-adr em{display:none}.ms .pp{border-radius:40px}.ms .pp-hero h3{font-size:21px}}
-
-/* ---- avondroute: busje rijdt langs de huizen ---- */
-.ms .nacht{position:relative;padding:0;background:#000;color:#f5f5f7;overflow:hidden}
-.ms .nacht .in{position:relative;z-index:2;padding:clamp(72px,11vw,130px) 0 0}
-.ms .n-scene{position:relative;height:clamp(260px,38vw,440px);margin-top:clamp(24px,4vw,48px);background:linear-gradient(180deg,#000 0%,#0a1220 35%,#1a2a44 70%,#2a3e5c 100%)}
-.ms .n-ster{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;opacity:.6;animation:nTwink 3s ease-in-out infinite alternate}
-@keyframes nTwink{to{opacity:.15}}
-.ms .n-maan{position:absolute;right:12%;top:14%;width:44px;height:44px;border-radius:50%;background:#f5f1e3;box-shadow:0 0 40px 10px rgb(245 241 227 / .18)}
-.ms .n-grond{position:absolute;left:0;right:0;bottom:0;height:22%;background:#06090d}
-.ms .n-weg{position:absolute;left:0;right:0;bottom:8%;height:12%;background:#11161c;border-top:1px solid rgb(255 255 255 / .08)}
-.ms .n-weg::after{content:"";position:absolute;left:0;right:0;top:50%;height:2px;background:repeating-linear-gradient(90deg,rgb(255 255 255 / .35) 0 40px,transparent 40px 80px)}
-.ms .n-huis{position:absolute;bottom:22%;transform:translateX(-50%);width:clamp(70px,9vw,120px)}
-.ms .n-huis svg{width:100%;height:auto;display:block;overflow:visible}
-.ms .n-huis .dak{fill:#0d1419}.ms .n-huis .muur{fill:#141c23}.ms .n-huis .raam{fill:#1c2730;transition:fill .4s}
-.ms .n-huis .raam{animation:nLicht 16s linear infinite;animation-delay:var(--d)}
-@keyframes nLicht{0%,100%{fill:#1c2730}6%{fill:#1c2730}9%{fill:#ffe7a8;filter:drop-shadow(0 0 10px rgb(255 231 168 / .7))}60%{fill:#ffe7a8;filter:drop-shadow(0 0 10px rgb(255 231 168 / .5))}70%{fill:#1c2730;filter:none}}
-.ms .n-vink{position:absolute;left:50%;top:-18px;width:26px;height:26px;margin-left:-13px;border-radius:50%;background:#34c759;color:#fff;display:grid;place-items:center;opacity:0;transform:scale(.5);animation:nVink 16s linear infinite;animation-delay:var(--d)}.ms .n-vink svg{width:13px}
-@keyframes nVink{0%,9%{opacity:0;transform:scale(.5) translateY(6px)}11%{opacity:1;transform:scale(1.1)}13%{transform:scale(1)}60%{opacity:1}68%{opacity:0;transform:scale(.8)}100%{opacity:0}}
-.ms .n-bus{position:absolute;bottom:13%;left:-12%;width:clamp(90px,10vw,130px);animation:nRij 16s linear infinite}
-@keyframes nRij{0%{left:-12%}100%{left:108%}}
-.ms .n-bus svg{width:100%;height:auto;display:block;filter:drop-shadow(0 8px 10px rgb(0 0 0 / .6))}
-.ms .n-bus .rv-wiel{transform-box:fill-box;transform-origin:center;animation:msWiel .5s linear infinite}@keyframes msWiel{to{transform:rotate(360deg)}}
-.ms .n-licht{position:absolute;right:-180%;top:30%;width:190%;height:70%;background:linear-gradient(90deg,rgb(255 240 200 / .35),transparent 80%);clip-path:polygon(0 35%,100% 0,100% 100%,0 65%);filter:blur(4px);pointer-events:none}
-.ms .n-ond{position:absolute;left:0;right:0;bottom:0;height:60px;background:linear-gradient(180deg,transparent,#000);z-index:1}
-/* ---- fotoverhaal uit de galerij ---- */
-.ms .story{position:relative;padding:0;background:#000;color:#fff;overflow:hidden;min-height:min(86vh,820px);display:flex;align-items:flex-end}
-.ms .story .st-img{position:absolute;inset:-4%;width:108%;height:108%;object-fit:cover;opacity:0;transition:opacity 1.4s ease}.ms .story .st-img.aan{opacity:1;animation:hvZoom 18s ease-in-out infinite alternate}
-.ms .story .st-scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgb(0 0 0 / .1),transparent 40%,rgb(0 0 0 / .65))}
-.ms .story .in{position:relative;padding:0 0 clamp(36px,6vw,64px);display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap}
-.ms .story .t2{color:#fff;max-width:16ch;text-shadow:0 2px 24px rgb(0 0 0 / .3)}.ms .story .ld{color:rgb(255 255 255 / .85)}
-.ms .st-cap{font-size:14px;color:rgb(255 255 255 / .8)}.ms .st-cap b{display:block;font-size:17px;color:#fff;font-weight:600}
-.ms .st-dots{display:flex;gap:8px;margin-top:14px}.ms .st-dots i{width:8px;height:8px;border-radius:50%;background:rgb(255 255 255 / .35)}.ms .st-dots i.aan{background:#fff}
-
-/* overrides voor avondroute + fotoverhaal als volle blokken */
-.ms .nacht{position:relative;min-height:min(84vh,820px);display:flex;align-items:flex-end;padding:0}
-.ms .nacht .n-scene{position:absolute;inset:0;height:auto;margin:0}
-.ms .n-tekst{position:relative;z-index:2;width:min(1440px,100% - 80px);margin:0 auto;padding:120px 0 110px;color:#fff}.ms .n-tekst .tx{margin-top:22px;color:rgb(255 255 255 / .85)}
-.ms .n-huis{width:clamp(90px,11vw,170px)}
-.ms .story{min-height:min(90vh,900px)}.ms .story .bk-ui{align-self:flex-end;padding:0 0 110px}.ms .story .tx{margin-top:22px;color:rgb(255 255 255 / .9)}
-.ms .st-cap{margin-top:30px;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:rgb(255 255 255 / .8)}.ms .st-cap b{display:block;font-weight:500;color:#fff}
-.ms .st-dots i{border-radius:0;width:28px;height:2px}
-@media (max-width:980px){.ms .n-tekst{width:min(100% - 40px,1440px);padding:80px 0 90px}}
-.ms .pp{font-family:-apple-system,BlinkMacSystemFont,Inter,"Helvetica Neue",Arial,sans-serif;font-weight:400}
-
+/* ---- bonnetje met echte scheur ---- */
+.ms .tk{--h:13px;position:relative;max-width:470px;margin:0 auto;display:grid;grid-template-columns:1fr 112px;transform:rotate(-2.5deg);filter:drop-shadow(0 24px 28px rgb(15 70 85 / .3));cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none}
+.ms .tk-l,.ms .tk-r{-webkit-mask:radial-gradient(circle var(--h) at var(--mx) 0,#0000 97%,#000) top/100% 51% no-repeat,radial-gradient(circle var(--h) at var(--mx) 100%,#0000 97%,#000) bottom/100% 51% no-repeat;mask:radial-gradient(circle var(--h) at var(--mx) 0,#0000 97%,#000) top/100% 51% no-repeat,radial-gradient(circle var(--h) at var(--mx) 100%,#0000 97%,#000) bottom/100% 51% no-repeat}
+.ms .tk-l{--mx:calc(100% - 6px);position:relative;z-index:1;margin-right:-6px;background:linear-gradient(180deg,#fff,#fbfcfc);border-radius:20px 0 0 20px;padding:22px 26px 18px 22px}
+.ms .tk-r{--mx:0px;position:relative;z-index:2;overflow:hidden;background:var(--blauw);color:#fff;border-radius:0 20px 20px 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:14px 8px;transform-origin:0 0}
+.ms .tk-r::before{content:"";position:absolute;inset:0;background:var(--lijnen);pointer-events:none}
+.ms .tk-r::after{content:"";position:absolute;left:0;top:var(--h);bottom:var(--h);width:2px;background:radial-gradient(circle,rgb(255 255 255 / .55) 1.2px,transparent 1.6px) 0 0/2px 7px repeat-y}
+.ms .tk-r small{position:relative;font-size:10.5px;font-weight:700;opacity:.8;text-transform:uppercase;letter-spacing:.1em}
+.ms .tk-r b{position:relative;font-family:"IBM Plex Mono","SF Mono",ui-monospace,Menlo,monospace;font-size:38px;font-weight:600;line-height:1.05;letter-spacing:-.02em}
+.ms .tk-v{position:absolute;right:6px;top:50%;transform:translateY(-50%) rotate(90deg);transform-origin:center;font-size:8.5px;letter-spacing:.24em;text-transform:uppercase;opacity:.45;white-space:nowrap;right:-18px}
+.ms .tk-top{display:flex;gap:12px;align-items:center}
+.ms .tk-ic{width:40px;height:40px;border-radius:12px;background:var(--soft);color:var(--b2);display:grid;place-items:center;flex:none}.ms .tk-ic svg{width:20px}
+.ms .tk-top small{display:block;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.09em}
+.ms .tk-top b{display:block;font-size:19px;font-weight:800;letter-spacing:-.025em;line-height:1.15}
+.ms .tk-dl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px 14px;margin:16px 0 14px;padding:14px 0 0;border-top:1.5px dashed var(--line)}
+.ms .tk-dl dt{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.ms .tk-dl dd{margin:2px 0 0;font-family:"IBM Plex Mono","SF Mono",ui-monospace,Menlo,monospace;font-size:14px;font-weight:500;color:var(--ink)}
+.ms .tk-bar{display:flex;align-items:center;gap:12px;padding-top:12px;border-top:1.5px dashed var(--line)}
+.ms .tk-bar>div{display:flex;flex-direction:column;gap:4px;width:46%;max-width:160px}.ms .tk-bar i{display:block;width:100%;height:30px;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 4px,var(--ink) 4px 5px,transparent 5px 8px,var(--ink) 8px 11px,transparent 11px 12px,var(--ink) 12px 13px,transparent 13px 16px);opacity:.82;border-radius:2px}
+.ms .tk-bar code{font-size:9.5px!important;white-space:nowrap;font-family:"IBM Plex Mono","SF Mono",ui-monospace,Menlo,monospace;font-size:10.5px;letter-spacing:.14em;color:var(--muted)}
+.ms .stempel{position:absolute;right:22px;bottom:18px;display:inline-flex;align-items:center;gap:6px;border:2.5px solid #1f8a5a;color:#1f8a5a;border-radius:10px;padding:4px 11px;font-weight:800;font-size:13px;letter-spacing:.12em;text-transform:uppercase;transform:rotate(-12deg) scale(1.9);opacity:0;mix-blend-mode:multiply;
+  -webkit-mask:radial-gradient(circle at 30% 40%,#000 55%,rgb(0 0 0 / .75) 70%,#000 85%);mask:radial-gradient(circle at 30% 40%,#000 55%,rgb(0 0 0 / .75) 70%,#000 85%)}
+.ms .stempel svg{width:14px;stroke-width:3}
+.ms .tk-hint{text-align:center;font-size:12.5px;color:var(--muted);margin-top:26px;opacity:0;transition:opacity .4s 1.8s}
+.ms .tk.af+.tk-hint{opacity:1}
+.ms .tk.af .tk-l{animation:tkSchok .55s ease .55s}
+@keyframes tkSchok{0%,100%{transform:none}30%{transform:translateX(-5px) rotate(-.8deg)}65%{transform:translateX(2px) rotate(.3deg)}}
+.ms .tk.af .stempel{animation:tkStempel .32s cubic-bezier(.2,1.6,.4,1) 1.05s forwards}
+@keyframes tkStempel{to{transform:rotate(-12deg) scale(1);opacity:.9}}
+.ms .tk-snipper{position:absolute;width:3px;height:3px;border-radius:1px;background:#fff;pointer-events:none;z-index:4;box-shadow:0 0 0 .5px rgb(0 0 0 / .08)}
+@media (max-width:760px){.ms .tk{grid-template-columns:1fr 92px}.ms .tk-l{padding:18px 20px 16px 18px}.ms .tk-top b{font-size:17px}.ms .tk-dl dd{font-size:13px}.ms .tk-r b{font-size:30px}.ms .stempel{right:12px;bottom:16px;font-size:10.5px;padding:3px 8px}}
+.ms .tk-r{will-change:transform;touch-action:none;cursor:grab}.ms .tk-r:active{cursor:grabbing}
+.ms .tk-vz{position:absolute;left:0;top:0;bottom:0;width:9px;z-index:3;background:linear-gradient(90deg,#fff,#eef6f7);filter:blur(.25px);pointer-events:none}
+.ms .tk-l{transition:none}.ms .tk.bezig .tk-r::after{opacity:0}.ms .tk-vz{opacity:0}.ms .tk.bezig .tk-vz{opacity:1}
+.ms .tk.af .tk-l{animation:tkSchok .5s ease}
+.ms .tk.af .stempel{animation:tkStempel .32s cubic-bezier(.2,1.6,.4,1) .35s forwards}
+.ms .tk-hint{transition-delay:.8s}
+@media (prefers-reduced-motion:reduce){.ms .tk.af .stempel{animation:none;opacity:.9;transform:rotate(-12deg)}}
+/* klantreis + functies */
+.ms .reis{margin-top:30px;display:grid;grid-template-columns:1fr 1fr;gap:34px;align-items:start}
+.ms .reis-l{position:relative;display:flex;flex-direction:column;padding-left:48px}
+.ms .reis-l::before{content:"";position:absolute;left:17px;top:22px;bottom:22px;width:0;border-left:2px dashed #b9cfd5}
+.ms .reis-l li{position:relative;padding:14px 0;display:flex;flex-direction:column;gap:3px}
+.ms .reis-l li .n{position:absolute;left:-48px;top:12px;width:36px;height:36px;border-radius:50%;background:#fff;color:var(--b2);display:grid;place-items:center;box-shadow:0 0 0 2px var(--soft),0 8px 18px -10px rgb(15 50 60 / .5)}.ms .reis-l li .n svg{width:17px;height:17px}
+.ms .reis-l li.act .n{background:var(--blauw);color:#fff;box-shadow:0 0 0 4px var(--soft)}
+.ms .reis-l small{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--b2)}
+.ms .reis-l b{font-size:16.5px}.ms .reis-l p{color:var(--muted);font-size:14.5px}
+.ms .mail{background:#fff;border-radius:22px;box-shadow:0 1px 2px rgb(15 31 38 / .05),0 24px 44px -26px rgb(15 50 60 / .55);overflow:hidden;position:sticky;top:90px}
+.ms .mail-h{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center;font-size:13px;color:var(--muted)}
+.ms .mail-h .av{width:38px;height:38px;border-radius:12px;background:var(--blauw);color:#fff;display:grid;place-items:center;flex:none}.ms .mail-h .av svg{width:18px;height:18px}
+.ms .mail-h b{display:block;color:var(--ink);font-size:14.5px}.ms .mail-h .tijd{margin-left:auto;font-size:12px}
+.ms .mail-s{padding:14px 18px 0;font-weight:800;font-size:15.5px}
+.ms .mail-b{padding:10px 18px 18px;font-size:14px;line-height:1.55;color:#23343b}.ms .mail-b p{margin:0 0 10px}
+.ms .mail-b ul{margin:0 0 12px;display:flex;flex-direction:column;gap:5px}.ms .mail-b li{display:flex;gap:8px;align-items:flex-start}.ms .mail-b li svg{width:14px;height:14px;color:var(--b2);flex:none;margin-top:4px}
+.ms .mail-dag{display:flex;gap:12px;align-items:center;background:var(--soft);border-radius:14px;padding:12px 14px;margin:0 0 12px}
+.ms .mail-dag .d{width:46px;height:46px;border-radius:12px;background:#fff;display:grid;place-items:center;text-align:center;line-height:1;flex:none}.ms .mail-dag .d b{display:block;font-size:19px;color:var(--b2)}.ms .mail-dag .d small{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.ms .mail-dag strong{display:block;font-size:14.5px}.ms .mail-dag span{font-size:12.5px;color:var(--muted)}
+.ms .mail-k{display:flex;gap:8px;flex-wrap:wrap}.ms .mail-k a{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 14px;border-radius:12px;font-size:13px;font-weight:800;background:var(--b2);color:#fff}.ms .mail-k a.l{background:var(--soft);color:var(--b1)}.ms .mail-k svg{width:14px;height:14px}
+.ms .fx{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:30px}
+.ms .fx .kp{background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 1px 2px rgb(15 31 38 / .05),0 18px 36px -24px rgb(15 50 60 / .5);display:flex;flex-direction:column}
+.ms .fx .kp-h{position:relative;isolation:isolate;overflow:hidden;background:var(--blauw);color:#fff;padding:14px 18px;display:flex;align-items:center;gap:11px}.ms .fx .kp-h::before{content:"";position:absolute;inset:0;background:var(--lijnen);z-index:-1}
+.ms .fx .kp-h i{width:34px;height:34px;border-radius:11px;background:rgb(255 255 255 / .16);border:1px solid rgb(255 255 255 / .25);display:grid;place-items:center;font-style:normal;flex:none}.ms .fx .kp-h i svg{width:17px;height:17px}
+.ms .fx .kp-h b{display:block;font-size:14.5px}.ms .fx .kp-h small{font-size:12px;opacity:.82}
+.ms .fx .kp-b{padding:6px 18px 16px;font-size:13.5px}
+.ms .fx .rij{display:flex;align-items:center;gap:11px;padding:11px 0;border-top:1px solid var(--line)}.ms .fx .rij:first-child{border-top:0}
+.ms .fx .rij .ic{width:34px;height:34px;border-radius:11px;background:var(--soft);color:var(--b2);display:grid;place-items:center;flex:none}.ms .fx .rij .ic svg{width:16px;height:16px}.ms .fx .rij .ic.goud{background:#fbf1d6;color:#a9771a}
+.ms .fx .rij>div{flex:1;min-width:0}.ms .fx .rij b{display:block;font-size:13.5px}.ms .fx .rij span.s{display:block;color:var(--muted);font-size:12px}
+.ms .fx .rij .pijl{color:#b4c3c8;font-size:18px;line-height:1}.ms .fx .rij .ok{width:22px;height:22px;border-radius:50%;background:#e0f3e9;color:#1b6b48;display:grid;place-items:center;flex:none}.ms .fx .rij .ok svg{width:12px}
+.ms .fx .saldo{display:flex;align-items:baseline;gap:6px;padding:12px 0 4px}.ms .fx .saldo b{font-size:38px;line-height:1;letter-spacing:-.03em;color:var(--b1)}.ms .fx .saldo span{font-weight:700;color:var(--muted)}
+.ms .fx .pil{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;padding:4px 10px;border-radius:999px;background:#e0f3e9;color:#1b6b48}.ms .fx .pil.wacht{background:#fbf1d6;color:#a9771a}
+.ms .fx .ring{display:flex;align-items:center;gap:14px;padding:10px 0 6px}.ms .fx .ring svg{width:66px;height:66px;flex:none;transform:rotate(-90deg)}.ms .fx .ring .t{fill:none;stroke:var(--soft);stroke-width:9}.ms .fx .ring .v{fill:none;stroke:var(--b2);stroke-width:9;stroke-linecap:round;stroke-dasharray:264;stroke-dashoffset:0}
+.ms .fx .ring .rg{position:relative;flex:none;display:grid;place-items:center}.ms .fx .ring .rg b{position:absolute;font-size:13px;font-weight:900;color:var(--b1)}.ms .fx .ring>div b{display:block;font-size:16px}.ms .fx .ring span{font-size:12.5px;color:var(--muted)}
+.ms .fx .rang{margin-top:6px;display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#fff7df,#fdebb8);border-radius:14px;padding:10px 12px}.ms .fx .rang .nr{width:40px;height:40px;border-radius:12px;background:#fff;display:grid;place-items:center;font-weight:900;font-size:19px;color:#a9771a;flex:none;box-shadow:0 4px 10px -6px rgb(169 119 26 / .6)}
+.ms .fx .rang b{display:block;font-size:13px}.ms .fx .rang span{font-size:12px;color:#7a5a1a}
+.ms .fx .tl{position:relative;padding-left:22px;margin-top:8px}.ms .fx .tl::before{content:"";position:absolute;left:6px;top:8px;bottom:8px;width:2px;background:#d6e4e8;border-radius:2px}
+.ms .fx .tl li{position:relative;padding:7px 0}.ms .fx .tl li::before{content:"";position:absolute;left:-20px;top:13px;width:10px;height:10px;border-radius:50%;background:#fff;border:2.5px solid var(--b2)}.ms .fx .tl li.nu::before{background:var(--b2);box-shadow:0 0 0 4px var(--soft)}
+.ms .fx .tl b{display:block;font-size:13.5px}.ms .fx .tl span.s{display:block;font-size:12px;color:var(--muted)}
+.ms .fx .vink2{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.ms .fx .vink2 span{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;background:var(--soft);color:var(--b1);padding:4px 9px;border-radius:999px}.ms .fx .vink2 svg{width:11px}
+.ms .fx .sterren{display:flex;gap:4px;padding:10px 0 4px;color:#e8b53a}.ms .fx .sterren svg{width:24px;height:24px}.ms .fx .sterren svg.leeg{color:#dfe6e9}
+.ms .fx .uitleg{display:block;font-size:12.5px;color:var(--muted)}
+.ms .fx .knopje{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:38px;padding:0 14px;border-radius:12px;background:var(--b2);color:#fff;font-weight:800;font-size:13px;margin-top:10px}.ms .fx .knopje svg{width:14px;height:14px}
+.ms .fx .live{display:flex;align-items:center;gap:10px;background:#eaf6f8;border-radius:14px;padding:10px 12px;margin-top:8px}.ms .fx .live .pu{width:10px;height:10px;border-radius:50%;background:#2bb673;box-shadow:0 0 0 0 rgb(43 182 115 / .5);animation:ms-pu 1.6s infinite;flex:none}@keyframes ms-pu{to{box-shadow:0 0 0 9px rgb(43 182 115 / 0)}}
+.ms .fx .live b{display:block;font-size:13px}.ms .fx .live span{font-size:12px;color:var(--muted)}
+@media (max-width:900px){.ms .reis{grid-template-columns:1fr}.ms .mail{position:static}.ms .fx{grid-template-columns:1fr 1fr}}
+@media (max-width:600px){.ms .fx{grid-template-columns:1fr}}
+/* titels zoals in het CRM: rustig, donker, strak gespatieerd; eyebrow klein en gedempt */
+.ms .oog{font-size:11px;letter-spacing:.1em;color:var(--muted);gap:6px}.ms .oog svg{width:14px;height:14px}
+.ms .band .oog,.ms .contact .oog{color:rgb(255 255 255 / .72)}
+.ms .kop,.ms .contact h2{font-weight:800;letter-spacing:-.045em;line-height:1.04;margin:8px 0 12px;font-size:clamp(30px,3.4vw,44px)}
+.ms .vve-k h3{letter-spacing:-.035em}
+.ms .kop em,.ms .contact h2 em,.ms .vve-k h3 em,.ms .band .kop em{font-style:normal;color:inherit}
+.ms .hero h1{letter-spacing:-.05em;line-height:.98}.ms .hero h1 em{color:inherit}
+.ms .lead{margin-top:2px;font-size:17px;line-height:1.55;max-width:640px}
 `;
 
-const HV_SCENE='<svg class="hv-bg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="hvs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6fb0cf"/><stop offset=".55" stop-color="#cfe6f0"/><stop offset="1" stop-color="#f3f1ea"/></linearGradient><radialGradient id="hvz" cx=".72" cy=".22" r=".35"><stop offset="0" stop-color="#fff8e0" stop-opacity=".95"/><stop offset=".3" stop-color="#fff2c8" stop-opacity=".5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient><linearGradient id="hvg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fa86a"/><stop offset="1" stop-color="#4f7a44"/></linearGradient><filter id="hvb" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="28"/></filter></defs><rect width="1600" height="900" fill="url(#hvs)"/><rect width="1600" height="900" fill="url(#hvz)"/><g fill="#fff" opacity=".75" filter="url(#hvb)"><ellipse cx="300" cy="230" rx="220" ry="60"/><ellipse cx="520" cy="200" rx="160" ry="48"/><ellipse cx="1150" cy="300" rx="260" ry="54"/><ellipse cx="1350" cy="270" rx="140" ry="40"/></g><path d="M0 650C200 600 380 640 560 610S900 560 1100 600s320 10 500 30v270H0z" fill="#9db9a0" opacity=".55"/><g fill="#3c5a66" opacity=".55"><path d="M80 690V560l60-50 60 50v130z"/><path d="M260 690V590l45-40 45 40v100z"/><path d="M1240 690V570l70-55 70 55v120z"/><path d="M1420 690V600l50-42 50 42v90z"/></g><g fill="#2f4a3a" opacity=".6"><circle cx="420" cy="600" r="55"/><rect x="414" y="640" width="12" height="60"/><circle cx="980" cy="590" r="70"/><rect x="972" y="640" width="14" height="70"/><circle cx="1120" cy="620" r="45"/><rect x="1115" y="650" width="10" height="50"/></g><path d="M0 700C300 680 600 720 900 700s500-20 700-10v210H0z" fill="url(#hvg)"/><path d="M0 820h1600v80H0z" fill="#8a8f86" opacity=".6"/></svg>';
-const N_HUIS='<svg viewBox="0 0 100 90" aria-hidden="true"><path class="dak" d="M-4 42 50 4l54 38z"/><rect class="muur" x="8" y="40" width="84" height="50"/><rect class="raam" x="20" y="50" width="20" height="20" rx="2"/><rect class="raam" x="60" y="50" width="20" height="20" rx="2"/><rect class="deur" x="44" y="64" width="12" height="26" fill="#0a0f13"/></svg>';
 const PP_AUTO='<svg aria-hidden="true" viewBox="0 0 64 40"><defs><linearGradient id="ppzb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#26adc2"/><stop offset="1" stop-color="#11778c"/></linearGradient><linearGradient id="ppzg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eafcff"/><stop offset="1" stop-color="#86c9d5"/></linearGradient></defs><g stroke="#9fb3ba" stroke-width="1.4" stroke-linecap="round"><path d="M8 7.5H40"/><path d="M11 7.5V4.8M17 7.5V4.8M23 7.5V4.8M29 7.5V4.8M35 7.5V4.8"/><path d="M8 4.8H40"/></g><path d="M5 12a3.5 3.5 0 0 1 3.5-3.5H40c2 0 3.6.8 4.8 2.3l7.4 9.2 5.6 1.8c1.6.5 2.7 2 2.7 3.7V30a2 2 0 0 1-2 2H5z" fill="url(#ppzb)"/><path d="M42.5 12.5h1.6c.8 0 1.5.4 2 1l5.2 6.8H42.5z" fill="url(#ppzg)" stroke="#0b4552" stroke-width=".8"/><rect x="30" y="12.5" width="9.5" height="7.6" rx="1.4" fill="url(#ppzg)" stroke="#0b4552" stroke-width=".8"/><path d="M5 23.5h55" stroke="#0e6476" stroke-width=".8" opacity=".6"/><path d="M7 20.5h22" stroke="#7fe0ee" stroke-width="1.6" stroke-linecap="round" opacity=".8"/><rect x="57" y="23.5" width="3.2" height="2.2" rx="1" fill="#fffbe0"/><circle cx="16" cy="32" r="5.6" fill="#1d2a30"/><circle cx="16" cy="32" r="2.4" fill="#c8d3d7"/><circle cx="49" cy="32" r="5.6" fill="#1d2a30"/><circle cx="49" cy="32" r="2.4" fill="#c8d3d7"/></svg>',PP_BUS='<svg aria-hidden="true" viewBox="0 0 40 72"><defs><linearGradient id="pplvb" x1="0" x2="1"><stop offset="0" stop-color="#0d5a6b"/><stop offset=".22" stop-color="#1b93a8"/><stop offset=".5" stop-color="#22a6bc"/><stop offset=".78" stop-color="#1b93a8"/><stop offset="1" stop-color="#0d5a6b"/></linearGradient><linearGradient id="pplvg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9fbff"/><stop offset="1" stop-color="#7cc3d0"/></linearGradient><linearGradient id="pplvr" x1="0" x2="1"><stop offset="0" stop-color="#1688a0"/><stop offset=".5" stop-color="#2bb3c8"/><stop offset="1" stop-color="#1688a0"/></linearGradient></defs><ellipse cx="5.2" cy="18" rx="2.4" ry="1.6" fill="#0b4552"/><ellipse cx="34.8" cy="18" rx="2.4" ry="1.6" fill="#0b4552"/><rect x="6" y="3" width="28" height="66" rx="9" fill="url(#pplvb)"/><path d="M9 7.5Q20 2.8 31 7.5" stroke="#5fd2e3" stroke-width="1.2" fill="none" opacity=".8"/><rect x="9.5" y="4.2" width="4.5" height="2" rx="1" fill="#fffbe0"/><rect x="26" y="4.2" width="4.5" height="2" rx="1" fill="#fffbe0"/><path d="M9.2 15.5Q20 11.8 30.8 15.5L29.2 25H10.8z" fill="url(#pplvg)" stroke="#0b4552" stroke-width=".9"/><path d="M12 16.6Q16 15 19 14.8L18 18.5Q15 18.7 12.6 19.6z" fill="#fff" opacity=".7"/><rect x="9.8" y="27" width="20.4" height="38" rx="4.2" fill="url(#pplvr)"/><g stroke="#eef4f6" stroke-linecap="round"><path d="M15 29.5V62.5M25 29.5V62.5" stroke-width="1.7"/><path d="M15 33.5H25M15 38.5H25M15 43.5H25M15 48.5H25M15 53.5H25M15 58.5H25" stroke-width="1.2"/></g><rect x="11" y="66" width="18" height="1.6" rx=".8" fill="#ff6b5e" opacity=".9"/></svg>';
 const PP_KAART='<svg class="pp-kaart" viewBox="0 0 360 210" preserveAspectRatio="none" aria-hidden="true"><rect width="360" height="210" fill="#eef0ec"/><path d="M262 128H352V202H262z" fill="#d9e8d3"/><circle cx="300" cy="160" r="5" fill="#cfe1c8"/><circle cx="325" cy="182" r="7" fill="#cfe1c8"/><circle cx="285" cy="186" r="4" fill="#cfe1c8"/><path d="M0 62C30 58 50 70 80 64" fill="none" stroke="#cfe0e8" stroke-width="7" stroke-linecap="round"/><g fill="#e2e2dd" stroke="#d3d3cc" stroke-width=".6"><rect x="2.0" y="0.2" width="9" height="8" rx="1"/><rect x="0.2" y="13.5" width="10" height="9" rx="1"/><rect x="0.2" y="24.3" width="11" height="8" rx="1"/><rect x="1.9" y="37.7" width="8" height="7" rx="1"/><rect x="2.9" y="48.1" width="11" height="7" rx="1"/><rect x="0.4" y="72.9" width="9" height="9" rx="1"/><rect x="0.3" y="98.1" width="9" height="8" rx="1"/><rect x="1.7" y="133.6" width="9" height="7" rx="1"/><rect x="2.1" y="205.8" width="10" height="8" rx="1"/><rect x="15.5" y="2.8" width="11" height="7" rx="1"/><rect x="15.2" y="12.9" width="8" height="7" rx="1"/><rect x="15.1" y="26.7" width="11" height="8" rx="1"/><rect x="13.5" y="36.4" width="11" height="8" rx="1"/><rect x="14.2" y="72.8" width="9" height="8" rx="1"/><rect x="13.8" y="85.2" width="11" height="9" rx="1"/><rect x="13.5" y="96.5" width="11" height="7" rx="1"/><rect x="15.6" y="134.9" width="9" height="9" rx="1"/><rect x="15.7" y="146.3" width="8" height="8" rx="1"/><rect x="14.3" y="192.3" width="8" height="7" rx="1"/><rect x="14.7" y="205.6" width="8" height="7" rx="1"/><rect x="27.8" y="12.4" width="8" height="7" rx="1"/><rect x="27.1" y="24.4" width="10" height="9" rx="1"/><rect x="28.5" y="72.5" width="10" height="8" rx="1"/><rect x="28.1" y="86.7" width="10" height="7" rx="1"/><rect x="27.6" y="133.5" width="9" height="9" rx="1"/><rect x="28.5" y="146.2" width="9" height="7" rx="1"/><rect x="28.2" y="159.0" width="11" height="8" rx="1"/><rect x="39.7" y="0.7" width="10" height="7" rx="1"/><rect x="40.9" y="14.7" width="9" height="8" rx="1"/><rect x="39.3" y="38.0" width="10" height="9" rx="1"/><rect x="41.4" y="85.0" width="9" height="8" rx="1"/><rect x="39.5" y="134.7" width="9" height="7" rx="1"/><rect x="41.8" y="156.5" width="11" height="9" rx="1"/><rect x="40.5" y="206.3" width="9" height="8" rx="1"/><rect x="52.2" y="2.2" width="11" height="7" rx="1"/><rect x="52.4" y="24.5" width="11" height="9" rx="1"/><rect x="53.8" y="38.3" width="11" height="7" rx="1"/><rect x="53.5" y="73.7" width="8" height="7" rx="1"/><rect x="53.6" y="134.6" width="9" height="9" rx="1"/><rect x="52.2" y="194.0" width="9" height="8" rx="1"/><rect x="65.8" y="12.4" width="10" height="7" rx="1"/><rect x="67.7" y="24.5" width="8" height="8" rx="1"/><rect x="67.1" y="39.0" width="9" height="7" rx="1"/><rect x="66.1" y="48.3" width="11" height="7" rx="1"/><rect x="67.9" y="72.3" width="10" height="9" rx="1"/><rect x="65.8" y="96.1" width="8" height="7" rx="1"/><rect x="66.0" y="144.8" width="11" height="9" rx="1"/><rect x="65.8" y="192.4" width="9" height="7" rx="1"/><rect x="66.9" y="204.1" width="11" height="8" rx="1"/><rect x="106.0" y="2.1" width="10" height="8" rx="1"/><rect x="105.4" y="13.5" width="9" height="7" rx="1"/><rect x="106.8" y="60.1" width="10" height="7" rx="1"/><rect x="105.2" y="74.7" width="11" height="8" rx="1"/><rect x="106.2" y="96.8" width="8" height="7" rx="1"/><rect x="104.0" y="133.5" width="8" height="7" rx="1"/><rect x="104.4" y="145.0" width="10" height="9" rx="1"/><rect x="105.0" y="157.0" width="10" height="7" rx="1"/><rect x="106.6" y="192.8" width="11" height="8" rx="1"/><rect x="106.8" y="204.7" width="10" height="9" rx="1"/><rect x="119.3" y="2.4" width="10" height="7" rx="1"/><rect x="118.2" y="14.6" width="8" height="9" rx="1"/><rect x="117.2" y="26.8" width="9" height="9" rx="1"/><rect x="118.2" y="60.8" width="9" height="8" rx="1"/><rect x="119.0" y="72.9" width="10" height="8" rx="1"/><rect x="117.5" y="84.5" width="11" height="7" rx="1"/><rect x="117.7" y="98.7" width="11" height="9" rx="1"/><rect x="117.7" y="132.8" width="8" height="8" rx="1"/><rect x="119.6" y="145.1" width="8" height="9" rx="1"/><rect x="131.2" y="1.3" width="9" height="8" rx="1"/><rect x="130.2" y="62.8" width="11" height="7" rx="1"/><rect x="130.7" y="84.3" width="11" height="8" rx="1"/><rect x="132.1" y="98.5" width="8" height="9" rx="1"/><rect x="131.9" y="145.6" width="10" height="7" rx="1"/><rect x="130.2" y="157.6" width="8" height="7" rx="1"/><rect x="130.7" y="206.9" width="9" height="9" rx="1"/><rect x="143.1" y="1.5" width="10" height="7" rx="1"/><rect x="143.8" y="14.0" width="11" height="7" rx="1"/><rect x="145.9" y="60.9" width="9" height="8" rx="1"/><rect x="145.3" y="84.9" width="9" height="8" rx="1"/><rect x="145.1" y="132.6" width="11" height="7" rx="1"/><rect x="143.3" y="144.2" width="10" height="9" rx="1"/><rect x="145.0" y="157.6" width="9" height="7" rx="1"/><rect x="143.2" y="192.2" width="8" height="7" rx="1"/><rect x="145.9" y="204.6" width="8" height="9" rx="1"/><rect x="156.3" y="2.1" width="10" height="8" rx="1"/><rect x="157.0" y="14.2" width="11" height="7" rx="1"/><rect x="158.4" y="26.3" width="11" height="7" rx="1"/><rect x="158.1" y="72.9" width="10" height="9" rx="1"/><rect x="158.3" y="86.7" width="8" height="9" rx="1"/><rect x="158.5" y="96.3" width="8" height="7" rx="1"/><rect x="156.0" y="134.8" width="11" height="7" rx="1"/><rect x="156.7" y="146.6" width="9" height="9" rx="1"/><rect x="157.5" y="194.1" width="8" height="8" rx="1"/><rect x="157.3" y="205.9" width="9" height="7" rx="1"/><rect x="169.9" y="1.7" width="8" height="8" rx="1"/><rect x="170.3" y="12.6" width="10" height="7" rx="1"/><rect x="169.6" y="24.2" width="10" height="9" rx="1"/><rect x="169.4" y="96.6" width="10" height="7" rx="1"/><rect x="170.9" y="134.1" width="8" height="7" rx="1"/><rect x="170.0" y="144.1" width="8" height="8" rx="1"/><rect x="169.3" y="193.2" width="8" height="8" rx="1"/><rect x="169.5" y="206.1" width="8" height="9" rx="1"/><rect x="182.9" y="2.9" width="10" height="9" rx="1"/><rect x="183.2" y="14.6" width="10" height="8" rx="1"/><rect x="184.3" y="60.4" width="10" height="8" rx="1"/><rect x="184.4" y="73.2" width="9" height="9" rx="1"/><rect x="183.5" y="84.4" width="10" height="9" rx="1"/><rect x="182.3" y="97.5" width="9" height="7" rx="1"/><rect x="184.9" y="133.4" width="9" height="7" rx="1"/><rect x="184.7" y="145.9" width="11" height="7" rx="1"/><rect x="183.2" y="193.6" width="9" height="7" rx="1"/><rect x="182.7" y="206.2" width="8" height="7" rx="1"/><rect x="197.5" y="12.4" width="8" height="9" rx="1"/><rect x="196.3" y="25.7" width="10" height="9" rx="1"/><rect x="196.2" y="72.2" width="9" height="8" rx="1"/><rect x="197.4" y="85.5" width="10" height="7" rx="1"/><rect x="195.4" y="98.8" width="8" height="9" rx="1"/><rect x="197.9" y="158.7" width="11" height="8" rx="1"/><rect x="196.8" y="193.8" width="11" height="7" rx="1"/><rect x="195.6" y="205.2" width="10" height="7" rx="1"/><rect x="209.0" y="1.1" width="10" height="9" rx="1"/><rect x="210.6" y="26.9" width="8" height="9" rx="1"/><rect x="209.3" y="60.5" width="10" height="7" rx="1"/><rect x="209.9" y="87.0" width="10" height="8" rx="1"/><rect x="208.0" y="96.1" width="10" height="9" rx="1"/><rect x="208.3" y="133.1" width="10" height="8" rx="1"/><rect x="208.4" y="145.1" width="10" height="9" rx="1"/><rect x="209.9" y="193.7" width="8" height="7" rx="1"/><rect x="210.8" y="206.2" width="11" height="9" rx="1"/><rect x="221.2" y="0.1" width="8" height="7" rx="1"/><rect x="223.7" y="12.3" width="9" height="7" rx="1"/><rect x="222.2" y="25.6" width="9" height="7" rx="1"/><rect x="223.7" y="60.2" width="11" height="9" rx="1"/><rect x="224.0" y="72.8" width="9" height="7" rx="1"/><rect x="223.7" y="86.8" width="8" height="8" rx="1"/><rect x="221.8" y="132.7" width="8" height="7" rx="1"/><rect x="261.0" y="1.9" width="9" height="7" rx="1"/><rect x="260.9" y="14.1" width="9" height="8" rx="1"/><rect x="261.2" y="87.0" width="8" height="7" rx="1"/><rect x="273.5" y="0.4" width="9" height="9" rx="1"/><rect x="275.1" y="14.7" width="10" height="9" rx="1"/><rect x="275.1" y="24.5" width="11" height="9" rx="1"/><rect x="274.0" y="60.0" width="9" height="9" rx="1"/><rect x="273.7" y="98.1" width="10" height="9" rx="1"/><rect x="275.2" y="206.8" width="9" height="8" rx="1"/><rect x="287.4" y="0.5" width="9" height="8" rx="1"/><rect x="287.9" y="26.2" width="9" height="8" rx="1"/><rect x="288.4" y="60.7" width="11" height="8" rx="1"/><rect x="288.0" y="73.4" width="10" height="8" rx="1"/><rect x="301.6" y="1.7" width="11" height="9" rx="1"/><rect x="300.4" y="13.7" width="9" height="7" rx="1"/><rect x="300.5" y="25.5" width="9" height="9" rx="1"/><rect x="300.9" y="72.1" width="10" height="9" rx="1"/><rect x="300.5" y="85.5" width="10" height="7" rx="1"/><rect x="314.3" y="0.2" width="11" height="9" rx="1"/><rect x="312.4" y="14.0" width="11" height="9" rx="1"/><rect x="312.1" y="25.9" width="8" height="7" rx="1"/><rect x="314.1" y="62.6" width="10" height="9" rx="1"/><rect x="312.1" y="73.7" width="8" height="8" rx="1"/><rect x="313.7" y="84.1" width="8" height="8" rx="1"/><rect x="314.1" y="97.2" width="11" height="9" rx="1"/><rect x="327.0" y="2.7" width="11" height="8" rx="1"/><rect x="325.2" y="26.6" width="8" height="7" rx="1"/><rect x="327.0" y="60.4" width="11" height="8" rx="1"/><rect x="327.4" y="85.4" width="9" height="9" rx="1"/><rect x="326.7" y="206.4" width="8" height="9" rx="1"/><rect x="339.8" y="2.0" width="9" height="8" rx="1"/><rect x="339.8" y="12.0" width="9" height="8" rx="1"/><rect x="340.4" y="26.3" width="8" height="9" rx="1"/><rect x="340.3" y="62.6" width="10" height="8" rx="1"/><rect x="340.6" y="73.1" width="11" height="8" rx="1"/><rect x="338.9" y="84.1" width="8" height="7" rx="1"/><rect x="338.1" y="99.0" width="8" height="7" rx="1"/><rect x="353.8" y="12.2" width="8" height="8" rx="1"/><rect x="351.8" y="25.5" width="8" height="7" rx="1"/><rect x="352.0" y="60.0" width="8" height="7" rx="1"/><rect x="352.8" y="74.3" width="10" height="9" rx="1"/><rect x="351.8" y="84.4" width="10" height="8" rx="1"/><rect x="351.7" y="96.4" width="9" height="8" rx="1"/></g><g fill="none" stroke="#d2d6d8" stroke-linecap="square"><path d="M90 0V210" stroke-width="15"/><path d="M250 0V210" stroke-width="13"/><path d="M0 120H360" stroke-width="17"/><path d="M90 45H360" stroke-width="12"/><path d="M0 175H250" stroke-width="12"/></g><g fill="none" stroke="#fff" stroke-linecap="square"><path d="M90 0V210" stroke-width="13"/><path d="M250 0V210" stroke-width="11"/><path d="M0 120H360" stroke-width="15"/><path d="M90 45H360" stroke-width="10"/><path d="M0 175H250" stroke-width="10"/></g><path d="M0 120H360" stroke="#fbf3dc" stroke-width="11" fill="none"/><text x="128" y="122.6" font-family="Inter,Arial,sans-serif" font-size="7.5" fill="#8b979c" font-weight="600" letter-spacing=".2">Molenweg</text><text x="92.6" y="200" font-family="Inter,Arial,sans-serif" font-size="7.5" fill="#8b979c" font-weight="600" letter-spacing=".2" transform="rotate(-90 92.6 200)">Stationsweg</text><text x="252.6" y="100" font-family="Inter,Arial,sans-serif" font-size="7.5" fill="#8b979c" font-weight="600" letter-spacing=".2" transform="rotate(-90 252.6 100)">Lindenlaan</text><text x="300" y="47.5" font-family="Inter,Arial,sans-serif" font-size="7.5" fill="#8b979c" font-weight="600" letter-spacing=".2">Kerkstraat</text><path data-pp-route d="M90 8V120H250V158" fill="none" stroke="none"/></svg>';
 function websiteBody(o){const e=esc,IC={
@@ -9311,46 +9405,23 @@ function websiteBody(o){const e=esc,IC={
   const wa=o.whatsapp?`https://wa.me/${e(o.whatsapp)}?text=${encodeURIComponent("Hallo, ik heb een vraag over glasbewassing.")}`:"";
   const logo=o.logo?`<img src="${o.logo}" alt="${naam}">`:`<span>${naam}</span>`;
   const portaal=o.portaal||"";
-  const faq=[["Moet ik thuis zijn als u komt?","Voor de buitenkant hoeft u niet thuis te zijn. U krijgt 2 dagen vooraf een aankondiging met de dag waarop wij komen, en in uw klantportaal ziet u altijd wanneer de volgende beurt is."],
+  const faq=[["Moet ik thuis zijn als u komt?","Voor de buitenkant hoeft u niet thuis te zijn. U krijgt 3 dagen vooraf een planningsmail met de dag waarop wij komen, en in uw klantportaal ziet u altijd wanneer de volgende beurt is."],
     ["Hoe komt mijn prijs tot stand?",`U maakt een foto van uw woning en tikt de ramen aan. Op basis daarvan ziet u direct uw vaste prijs per beurt, inclusief kozijnen en btw. Bij de eerste beurt tellen wij ter plekke na; klopt de telling niet, dan passen wij de prijs aan en hoort u dat van ons.`],
     ["Hoe vaak komen jullie?","Dat kiest u zelf in de calculator. Hoe vaker, hoe voordeliger per beurt. Wij plannen u daarna vast in op onze route."],
     ["Hoe betaal ik?",`Na elke beurt ontvangt u de factuur per e-mail${o.mollie?", met een betaallink voor iDEAL":""}. Al uw facturen staan ook in uw klantportaal.`],
     ["Doen jullie ook bedrijven en VvE's?","Zeker. Kies in de calculator voor Bedrijf / VvE en laat uw gegevens achter; wij nemen snel contact met u op voor een prijs op maat."],["Wat zijn credits?","Credits zijn korting die u spaart: 1 credit is € 1. U krijgt ze voor het aanbevelen van een buur, een Google-review, het beoordelen van een beurt of het bestellen van een extra dienst. Ze gaan automatisch van uw volgende factuur af."],["Kan ik een afspraak verzetten of overslaan?","Ja, dat regelt u zelf in uw klantportaal: verzetten, een keer overslaan of uw vakantie doorgeven. Wij passen de planning aan en u krijgt een bevestiging."]];
-  const SC={
-    glas:'<svg class="bk-bg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1b232c"/><stop offset=".5" stop-color="#2e3a46"/><stop offset="1" stop-color="#0f141a"/></linearGradient><linearGradient id="g2" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".18"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><rect width="1600" height="900" fill="url(#g1)"/><g stroke="#8ea1b3" stroke-opacity=".35" stroke-width="3"><path d="M400 0v900M800 0v900M1200 0v900M0 450h1600"/></g><path d="M300 0 900 900h260L560 0z" fill="url(#g2)"/><path d="M1050 0 1600 760V380L1300 0z" fill="url(#g2)" opacity=".6"/></svg>',
-    kozijn:'<svg class="bk-bg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="k1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9e6df"/><stop offset="1" stop-color="#c9c4b8"/></linearGradient></defs><rect width="1600" height="900" fill="url(#k1)"/><rect x="430" y="120" width="740" height="700" fill="#f7f6f2"/><rect x="470" y="160" width="660" height="620" fill="#39434d"/><g fill="#f7f6f2"><rect x="790" y="160" width="20" height="620"/><rect x="470" y="440" width="660" height="20"/></g><rect x="470" y="160" width="660" height="620" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="2"/><path d="M470 160 1130 780" stroke="#fff" stroke-opacity=".12" stroke-width="120"/></svg>',
-    zon:'<svg class="bk-bg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="z1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6b86a3"/><stop offset=".6" stop-color="#9fb4c8"/><stop offset="1" stop-color="#3b4852"/></linearGradient><linearGradient id="z2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1b2a3a"/><stop offset="1" stop-color="#0d1620"/></linearGradient></defs><rect width="1600" height="900" fill="url(#z1)"/><path d="M0 900 300 420h1300v480z" fill="#5a5048"/><g fill="url(#z2)" stroke="#9fb4c8" stroke-opacity=".5" stroke-width="2">'+[0,1,2,3,4,5].map(i=>[0,1,2].map(j=>`<path d="M${330+i*200+j*40} ${440+j*120} h190 l-30 120 h-190z"/>`).join("")).join("")+'</g><circle cx="1350" cy="130" r="70" fill="#fff5d6" opacity=".9"/></svg>',
-    gebouw:'<svg class="bk-bg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="b1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#101418"/><stop offset="1" stop-color="#2a3139"/></linearGradient></defs><rect width="1600" height="900" fill="url(#b1)"/><g fill="#8fa6b8" fill-opacity=".22" stroke="#c9d6e0" stroke-opacity=".25">'+[0,1,2,3,4,5,6,7,8,9].map(i=>[0,1,2,3,4].map(j=>`<rect x="${120+i*140}" y="${80+j*160}" width="100" height="120"/>`).join("")).join("")+'</g><path d="M0 0 1600 900" stroke="#fff" stroke-opacity=".08" stroke-width="220"/></svg>'};
-  const mapS=(a,f)=>a.map(f).join("");
   return `<input type="checkbox" id="msm" hidden>
-<div class="promo"><a href="#credits">Nu: € ${e(String(o.refWelkom||10))} welkomstkorting via een buur, ${e(String(o.refBeloning||15))} credits voor uzelf &rsaquo;</a></div>
-<header class="nav"><div class="in">
-  <nav class="lk"><a href="#diensten">Diensten</a><a href="#portaal">Portaal</a><a href="#werk">Ontdekken</a><span class="sep"></span><a href="#prijs">Prijs berekenen</a>${portaal?`<a class="lk-p" href="${e(portaal)}">Mijn portaal</a>`:""}</nav>
-  <a class="merk" href="#top">${o.logo?`<img src="${o.logo}" alt="${naam}">`:naam}</a>
-  <div class="util">${portaal?`<a href="${e(portaal)}">${IC.user}<span>Mijn portaal</span></a>`:""}<a href="#prijs">${IC.cam}<span>Dienstenwebshop</span></a><a href="#vragen">${IC.bel}<span>Ondersteuning</span></a>${wa?`<a href="${wa}" target="_blank" rel="noopener" aria-label="WhatsApp">${IC.wa}</a>`:""}</div>
+<header class="nav"><div class="in"><a class="logo" href="#top">${logo}</a>
+  <nav class="lk"><a href="#werkwijze">Werkwijze</a><a href="#voordelen">Voordelen</a><a href="#portaal">Portaal</a><a href="#betalen">Betalen</a><a href="#prijs">Prijs berekenen</a>${o.werkApi?`<a href="#werk">Ons werk</a>`:""}<a href="#vragen">Vragen</a><a href="#contact">Contact</a>${portaal?`<a class="lk-p" href="${e(portaal)}">Mijn portaal</a>`:""}</nav>
+  ${portaal?`<a class="portaal" href="${e(portaal)}">${IC.user}Mijn portaal</a>`:""}<a class="knop k-teal" href="#prijs">Bereken uw prijs</a>
   <label class="hb" for="msm" aria-label="Menu">${IC.menu}</label></div></header>
-<section class="blok ken" id="top" data-blok="0">${HV_SCENE.replace('class="hv-bg"','class="bk-bg"')}<img class="bk-img" alt="" data-bk-img><div class="bk-scrim"></div>
-  <div class="bk-ui"><h1 class="k1">Glasbewassing<br>op vaste route</h1><p class="tx">Heldere ramen en kozijnen, elke acht weken. Vaste prijs per beurt, twee dagen vooraf aangekondigd en op de dag zelf live te volgen.</p>
-    <div class="knoppen"><a class="kn wit" href="#prijs">${IC.cam}Bereken uw prijs</a>${portaal?`<a class="kn tekst" href="${e(portaal)}">${IC.user}Mijn portaal</a>`:`<a class="kn tekst" href="#portaal">${IC.user}Het klantportaal</a>`}</div></div>
-  <button type="button" class="rond meer" aria-label="Meer" data-meer><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
-  <a class="rond pijl" href="#diensten" aria-label="Verder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></a>
-  <button type="button" class="rond pauze" data-pauze aria-label="Animatie pauzeren" aria-pressed="false"><svg class="pz" viewBox="0 0 16 16" fill="currentColor"><rect x="3.5" y="2" width="3" height="12"/><rect x="9.5" y="2" width="3" height="12"/></svg><svg class="sp" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2.5v11l9-5.5z"/></svg></button>
-</section>
-<div id="diensten">
-<section class="blok laag onder" data-blok="1">${SC.glas}<img class="bk-img" alt="" data-bk-img><div class="bk-scrim"></div>
-  <div class="bk-ui rv"><h2 class="k1">Glasbewassing</h2><p class="vanaf">Vanaf € ${e(o.minPrijs)} per beurt</p><p class="tx">Buitenzijde van alle ramen, inclusief kozijnen. Op een vaste route bij u in de buurt.</p>
-    <div class="knoppen"><a class="kn wit" href="#prijs">Ontdekken</a><a class="kn tekst" href="#prijs">${IC.cam}Prijs berekenen</a></div></div></section>
-<section class="blok laag onder" data-blok="2">${SC.kozijn}<img class="bk-img" alt="" data-bk-img><div class="bk-scrim"></div>
-  <div class="bk-ui rv"><h2 class="k1">Kozijnreiniging</h2><p class="vanaf">Vanaf € ${e(o.kozMin)} per beurt</p><p class="tx">Kunststof en geschilderde kozijnen, dorpels en dakkapellen. Los te bestellen of bij elke beurt.</p>
-    <div class="knoppen"><a class="kn wit" href="#prijs">Ontdekken</a><a class="kn tekst" href="#prijs">${IC.cam}Prijs berekenen</a></div></div></section>
-<section class="blok laag onder" data-blok="3">${SC.zon}<img class="bk-img" alt="" data-bk-img><div class="bk-scrim"></div>
-  <div class="bk-ui rv"><h2 class="k1">Zonnepanelen<br>en dakgoot</h2><p class="vanaf">Extra dienst, ${e(String(o.crExtra||3))} credits per bestelling</p><p class="tx">Meer opbrengst uit schone panelen en een dakgoot die het water weer kwijt kan. Eén tik in uw portaal.</p>
-    <div class="knoppen"><a class="kn wit" href="#prijs">Ontdekken</a><a class="kn tekst" href="#portaal">${IC.user}Via het portaal</a></div></div></section>
-<section class="blok laag onder" data-blok="4">${SC.gebouw}<img class="bk-img" alt="" data-bk-img><div class="bk-scrim"></div>
-  <div class="bk-ui rv"><h2 class="k1">Zakelijk en VvE</h2><p class="vanaf">Prijs op maat</p><p class="tx">Kantoor, winkel, school of appartementencomplex. Vaste weekdagen, logboek met foto's en een bewonersbord met QR-code in de hal.</p>
-    <div class="knoppen"><a class="kn wit" href="#prijs">Ontdekken</a><a class="kn tekst" href="#contact">${IC.mail}Contact opnemen</a></div></div></section>
-</div>
-<section class="split grijs" id="portaal"><div class="beeld"><div class="pp" data-pp role="img" aria-label="Zo ziet uw klantportaal eruit op de dag zelf: live zien waar het busje is en hoe laat we er zijn">
+<section class="hero" id="top"><div class="in"><div class="blauw">
+  <div>${o.score?`<a class="chip ster" href="${e(o.reviewUrl||"#")}" target="_blank" rel="noopener"><span class="st">★★★★★</span><b>${e(o.score)}</b> op Google</a>`:`<span class="chip"><i>✦</i>Glasbewassing${regio}</span>`}
+    <h1>Heldere ramen,<br><em>zonder omkijken.</em></h1>
+    <p class="sub">Wij wassen uw ramen en kozijnen op een vaste route. Maak een foto van uw woning en zie direct wat het kost per beurt.</p>
+    <div class="cta"><a class="knop k-wit" href="#prijs">${IC.cam}Bereken uw prijs</a>${wa?`<a class="knop k-glas" href="${wa}" target="_blank" rel="noopener">${IC.wa}WhatsApp ons</a>`:""}</div>
+    <div class="vink"><span>${IC.ok}Vaste prijs per beurt</span><span>${IC.ok}Inclusief kozijnen</span><span>${IC.ok}Planningsmail vooraf</span></div></div>
+  <div style="position:relative" class="hero-live"><div class="pp" data-pp role="img" aria-label="Zo ziet uw klantportaal eruit op de dag zelf: live zien waar het busje is en hoe laat we er zijn">
     <div class="pp-sb"><b>11:02</b><i></i><span><svg viewBox="0 0 18 12"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 26 12"><rect x=".5" y=".5" width="22" height="11" rx="3.2" fill="none" stroke="currentColor" opacity=".4"/><rect x="2.2" y="2.2" width="15" height="7.6" rx="1.8"/><rect x="23.6" y="4" width="1.8" height="4" rx=".9" opacity=".4"/></svg></span></div>
     <div class="pp-top">${o.logo?`<img src="${e(o.logo)}" alt="">`:`<span class="pp-lg">${IC.raam}</span>`}<span>Goedemiddag, Sanne</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div>
     <div class="pp-main">
@@ -9359,69 +9430,124 @@ function websiteBody(o){const e=esc,IC={
         <p class="pp-s" data-pp-sub>Rond 11:10 · we zijn onderweg</p></div>
       <div class="pp-lv"><div class="pp-map" data-pp-map>${PP_KAART}<div class="pp-ov"><span class="pp-lijn" data-pp-lijn></span><span class="pp-huis" style="left:73.3%;top:80%"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg></span><span class="pp-auto" data-pp-bus><span class="pp-pl"></span><span class="pp-rot" data-pp-rot>${PP_BUS}</span></span></div></div>
         <div class="pp-info"><span class="pp-car">${PP_AUTO}</span><div class="pp-tx"><small class="pp-st"><i></i>Live</small><b data-pp-t>Nog 2 adressen voor u</b><span data-pp-s2>Robin is in de buurt</span></div><div class="pp-eta"><small>Verwacht</small><b data-pp-eta>± 11:10</b></div></div></div>
-    </div></div></div>
-  <div class="tekst rv"><h2 class="k2">Het klantportaal</h2><p class="tx">Zonder wachtwoord, gewoon met uw e-mailadres. U ziet wanneer wij komen, volgt op de dag zelf live waar het busje is, bekijkt eerdere beurten en facturen, en regelt zelf verzetten, toegang of iets extra's.</p>
-    <div class="knoppen">${portaal?`<a class="kn zw" href="${e(portaal)}">${IC.user}Mijn portaal</a>`:""}<a class="kn tekst donker" href="#aankondiging">Ontdekken</a></div></div></section>
-<section class="split rechts" id="aankondiging"><div class="beeld" style="background:#e4e4e4"><div class="mock mail" role="img" aria-label="Voorbeeld van de aankondigingsmail"><div class="mail-h"><span class="av">MS</span><div><b>${naam}</b>aan Sanne</div><span class="tijd">zondag 26 okt.</span></div>
+    </div>
+  </div>
+  <div class="zweef" aria-hidden="true"><span class="p-ic zw-live"><i></i></span><div><b>Wij zijn onderweg</b><small>Live te volgen in uw klantportaal</small></div></div></div>
+  ${weg}</div></div></section>
+<section id="werkwijze"><div class="in"><span class="oog">${IC.rt}Zo werkt het</span><h2 class="kop">In vier stappen <em>schone ramen</em></h2><p class="lead">Geen offertebezoek, geen gedoe. U regelt het in een paar minuten online.</p>
+  <ol class="route">
+    <li class="stap"><span class="n">${IC.cam}</span><small>Stap <b>01</b></small><h3>Foto en prijs</h3><p>Maak een foto van uw woning, tik de ramen aan en zie direct uw prijs per beurt.</p></li>
+    <li class="stap"><span class="n">${IC.ok}</span><small>Stap <b>02</b></small><h3>Aanmelden</h3><p>Kies hoe vaak u wilt en laat uw gegevens achter. U krijgt meteen een bevestiging.</p></li>
+    <li class="stap"><span class="n">${IC.raam}</span><small>Stap <b>03</b></small><h3>Eerste beurt</h3><p>Wij wassen uw ramen en tellen ter plekke na of alles klopt.</p></li>
+    <li class="stap"><span class="n">${IC.rt}</span><small>Stap <b>04</b></small><h3>Vaste route</h3><p>Daarna komen wij vanzelf terug. U krijgt steeds 3 dagen vooraf een planningsmail.</p></li></ol></div></section>
+<section id="voordelen"><div class="in"><div class="blauw band"><span class="oog">${IC.ok}Waarom ${naam}</span><h2 class="kop">Alles geregeld, <em>u hoeft niets te doen</em></h2><p class="lead">Wij nemen het werk uit handen, van de planning tot de factuur.</p>
+  <div class="tegels">
+    <div class="tg"><span class="ic">${IC.euro}</span><h3>Vaste prijs per beurt</h3><p>U weet vooraf precies wat het kost. Kozijnen en btw zitten erbij in.</p></div>
+    <div class="tg"><span class="ic">${IC.bel}</span><h3>Planningsmail vooraf</h3><p>U krijgt altijd 3 dagen vooraf een mail met de dag waarop wij langskomen.</p></div>
+    <div class="tg"><span class="ic">${IC.user}</span><h3>Eigen klantportaal</h3><p>Bekijk uw volgende beurt, facturen en gegevens wanneer u wilt.</p></div>
+    <div class="tg"><span class="ic">${IC.cal}</span><h3>U kiest hoe vaak</h3><p>Hoe vaker wij komen, hoe voordeliger per beurt.</p></div>
+    <div class="tg"><span class="ic">${IC.kaart}</span><h3>Makkelijk betalen</h3><p>Factuur per e-mail${o.mollie?" en direct betalen met iDEAL":", alles terug te vinden in uw portaal"}.</p></div>
+    <div class="tg"><span class="ic">${IC.gebouw}</span><h3>Particulier en zakelijk</h3><p>Van rijtjeshuis tot kantoorpand of VvE.</p></div></div>
+  ${wg(-7,"opacity:.6")}<div style="height:40px"></div></div></div></section>
+<section id="portaal"><div class="in duo"><div><span class="oog">${IC.user}Uw klantportaal</span><h2 class="kop">Altijd weten <em>waar u aan toe bent</em></h2><p class="lead">Na uw aanmelding krijgt u een eigen portaal. Zonder wachtwoord, gewoon met uw e-mailadres.</p>
+  <ul class="lijst"><li><i>${IC.ok}</i><div><b>Wanneer komen jullie?</b><span>Uw volgende beurt, met aftellen tot de dag.</span></div></li>
+    <li><i>${IC.ok}</i><div><b>Live meekijken</b><span>Op de dag zelf ziet u waar het busje is, hoe laat we er zijn en hoeveel woningen er nog voor u zijn.</span></div></li>
+    <li><i>${IC.ok}</i><div><b>Wat is er gedaan?</b><span>Alle eerdere beurten op een rij.</span></div></li>
+    <li><i>${IC.ok}</i><div><b>Facturen en betalen</b><span>Al uw facturen bij elkaar${o.mollie?", direct te betalen":""}.</span></div></li></ul>
+  ${portaal?`<div style="margin-top:24px"><a class="knop k-teal" href="${e(portaal)}">${IC.user}Naar mijn portaal</a></div>`:""}</div>
+  <div><div class="tel-wrap"><div class="tel" aria-hidden="true"><div class="sc"><div class="sch"><span class="eil"></span><div class="sb"><span>9:41</span><span>●●●</span></div>
+    <div class="p-kop">Uw klantportaal</div>
+    <div class="p-hero"><div class="p-ring"><svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="33" fill="none" stroke="rgb(255 255 255 / .2)" stroke-width="8"/><circle cx="40" cy="40" r="33" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-dasharray="207" stroke-dashoffset="62"/></svg><b>12<small>dagen</small></b></div><div><small>Volgende beurt</small><strong>Dinsdag<br>28 oktober</strong></div></div>
+    <div class="p-weg"><i></i><span class="bu">${bus.replace(/id="ms/g,'id="mp').replace(/url\(#ms/g,"url(#mp")}</span><span class="hu">${IC.huis}</span></div>
+    <div class="p-kaart"><span class="p-ic">${IC.bel}</span><div><b>Planningsmail</b><span class="s">Wij komen dinsdag</span></div><span class="p-ok">Nieuw</span></div>
+    <div class="p-kaart"><span class="p-ic">${IC.kaart}</span><div><b>Factuur september</b><span class="s">Online betaald</span></div><span class="p-ok">✓</span></div>
+    <div class="p-kop" style="margin-top:4px">Eerdere beurten</div>
+    <div class="p-kaart"><span class="p-ic">${IC.cal}</span><div><b>2 sept.</b><span class="s">Ramen en kozijnen</span></div><span class="p-ok">✓</span></div>
+  </div></div></div></div><p class="pp-ond">Zo ziet uw portaal eruit: volgende beurt, planningsmail en facturen.</p></div></div></section>
+<section id="reis"><div class="in"><span class="oog">${IC.mail}Dit krijgt u van ons</span><h2 class="kop">U hoeft niets te onthouden, <em>wij houden u op de hoogte</em></h2><p class="lead">Van aanmelding tot betaling: bij elke stap krijgt u automatisch bericht. Zo weet u altijd wat er komt.</p>
+  <div class="reis"><ol class="reis-l">
+    <li><span class="n">${IC.ok}</span><small>Direct na aanmelding</small><b>Bevestiging met bestellingsoverzicht</b><p>U krijgt meteen een mail met uw diensten, de prijs per beurt en de voorwaarden. Daarna plannen wij u in op een route bij u in de buurt.</p></li>
+    <li class="act"><span class="n">${IC.bel}</span><small>2 dagen vooraf</small><b>Aankondiging van de beurt</b><p>De dag en richttijd, wat wij komen doen en waar u even aan moet denken (horren weg, poort open). Past het niet? Verzetten kan met één tik.</p></li>
+    <li><span class="n">${IC.rt}</span><small>Op de dag zelf</small><b>Live meekijken</b><p>In uw portaal ziet u waar het busje is, hoeveel adressen er nog voor u zijn en de verwachte aankomsttijd.</p></li>
+    <li><span class="n">${IC.euro}</span><small>Na de beurt</small><b>Factuur ${o.mollie?"met betaalknop":"per e-mail"}</b><p>Direct na de beurt in uw mailbox${o.mollie?", te betalen met iDEAL in één minuut":""}. Credits gaan er automatisch af. En u kunt de beurt beoordelen voor ${e(String(o.crBeurt||1))} credit.</p></li>
+    <li><span class="n">${IC.gift}</span><small>Na betaling</small><b>Bevestiging en credits</b><p>Uw betaling staat meteen in het portaal, en uw volgende beurt is dan alweer gepland.</p></li></ol>
+  <div class="mail" role="img" aria-label="Voorbeeld van de aankondigingsmail die u twee dagen vooraf krijgt"><div class="mail-h"><span class="av">${IC.raam}</span><div><b>${naam}</b>aan Sanne</div><span class="tijd">zondag 26 okt.</span></div>
     <div class="mail-s">Aankondiging: glasbewassing op dinsdag 28 oktober</div>
-    <div class="mail-b"><p>Beste Sanne,</p><div class="mail-dag"><span class="d"><b>28</b><small>okt</small></span><div><strong>Dinsdag 28 oktober, rond 11:00 uur</strong><span>Lindenlaan 14, Zuidhorn · buitenzijde, inclusief kozijnen</span></div></div>
-      <ul><li>${IC.ok}<span>Ramen en ventilatieroosters gesloten houden</span></li><li>${IC.ok}<span>Horren verwijderen en rolluiken openen</span></li><li>${IC.ok}<span>Poorten en hekwerk toegankelijk maken</span></li></ul>
-      <div class="mail-k"><a>Open mijn portaal</a><a class="l">Verzetten</a></div></div></div></div>
-  <div class="tekst rv"><h2 class="k2">Twee dagen vooraf weet u het</h2><p class="tx">Direct na uw aanmelding krijgt u een bevestiging met bestellingsoverzicht. Twee dagen voor elke beurt volgt de aankondiging: dag, richttijd, wat wij komen doen en waar u even aan moet denken. Past het niet? Verzetten kan met één tik.</p>
-    <div class="knoppen"><a class="kn zw" href="#prijs">Aanmelden</a><a class="kn tekst donker" href="#vragen">Veelgestelde vragen</a></div></div></section>
-<section id="route" class="nacht"><div class="n-scene" aria-hidden="true">${mapS([[6,22],[14,38],[22,61],[30,17],[38,80],[46,44],[54,70],[62,29],[70,55],[78,12],[86,66],[94,36]],([x,y])=>`<i class="n-ster" style="left:${x}%;top:${y}%;animation-delay:${(x*7)%30/10}s"></i>`)}<span class="n-maan"></span>
-    <div class="n-grond"></div><div class="n-weg"></div>
-    ${mapS([8,24,40,56,72,88],x=>{const d=((x+12)/120*16-1.44).toFixed(2);return `<span class="n-huis" style="left:${x}%;--d:${d}s">${N_HUIS}<span class="n-vink">${IC.ok}</span></span>`})}
-    <span class="n-bus"><span class="n-licht"></span>${bus.replace(/id="ms/g,'id="mn').replace(/url\(#ms/g,"url(#mn")}</span></div>
-  <div class="n-tekst rv"><h2 class="k1">Elke acht weken.<br>Vanzelf.</h2><p class="tx">U staat vast op onze route. Wij komen langs, u hoeft er niet aan te denken.</p><div class="knoppen"><a class="kn wit" href="#prijs">Aanmelden</a></div></div></section>
-<section class="split" id="betalen"><div class="beeld" style="background:#ececec"><div class="mock fact" role="img" aria-label="Voorbeeld van een online betaalde factuur"><div class="fact-h"><span class="av">${IC.euro}</span><div><b>Factuur ${new Date().getFullYear()}-0127</b><small>Glasbewassing · Lindenlaan 14, Zuidhorn</small></div><span class="tag">Betaald</span></div>
-    <div class="fact-r"><span>Glasbewassing · 14 ramen</span><b>€ 42,50</b></div><div class="fact-r"><span>Credits (aanbeveling)</span><b>− € 15,00</b></div><div class="fact-r tot"><span>Te betalen</span><b>€ 27,50</b></div>
-    <div class="fact-ok">${IC.ok}<span>Betaald${o.mollie?" met iDEAL":""} · 1 uur na ontvangst</span></div></div></div>
-  <div class="tekst rv"><h2 class="k2">Betalen in één minuut</h2><p class="tx">Na elke beurt krijgt u de factuur per e-mail${o.mollie?", met een iDEAL-knop":""}. Credits gaan er automatisch af. In uw portaal ziet u uw betaalgedrag en uw plek bij onze snelste betalers.</p>
-    <div class="knoppen"><a class="kn tekst donker" href="#credits">Over credits</a></div></div></section>
-<section class="split rechts donker" id="credits"><div class="beeld" style="background:#1a2028"><div style="padding:60px 40px;width:min(560px,90%)"><div class="cijfers">
-      <div class="cf"><b>+${e(String(o.refBeloning||15))}</b><h3>Buur aanbevelen</h3><p>Uw buur krijgt € ${e(String(o.refWelkom||10))} korting, u ${e(String(o.refBeloning||15))} credits na de eerste beurt.</p></div>
-      <div class="cf"><b>+${e(String(o.crReview||5))}</b><h3>Google-review</h3><p>Eenmalig, als dank.</p></div>
-      <div class="cf"><b>+${e(String(o.crBeurt||1))}</b><h3>Beurt beoordelen</h3><p>Na elk bezoek in uw portaal.</p></div>
-      <div class="cf"><b>+${e(String(o.crExtra||3))}</b><h3>Extra dienst</h3><p>Kozijnen, binnenzijde, zonnepanelen of dakgoot.</p></div></div></div></div>
-  <div class="tekst rv"><h2 class="k2">Credits. Korting die vanzelf komt</h2><p class="tx">1 credit is € 1 korting op uw volgende factuur. U spaart ze door een buur aan te bevelen, een review te geven, een beurt te beoordelen of iets extra's te bestellen.</p>
-    <div class="knoppen"><a class="kn wit" href="#prijs">Aanmelden</a>${portaal?`<a class="kn tekst" href="${e(portaal)}">Mijn credits</a>`:""}</div></div></section>
-<section class="shop" id="prijs"><div class="in"><div class="rv"><h2 class="k1">Bereken uw prijs</h2><p class="tx">Maak een foto van uw woning, tik de ramen aan en zie direct uw vaste prijs per beurt. Aanmelden kan meteen.</p></div><div id="ms-calc"></div></div></section>
-<section id="verhaal" class="story" data-story hidden><div data-st-imgs></div><div class="st-scrim"></div><div class="bk-ui onder"><h2 class="k1">Ons werk</h2><p class="tx">Gefotografeerd bij onze klanten, na de beurt.</p><div class="st-cap" data-st-cap></div><div class="st-dots" data-st-dots></div></div></section>
-<section id="werk" class="werk" data-werk="${e(o.werkApi||"")}" ${o.werkApi?"":"hidden"}><div class="in"><div class="werk-k rv"><div><h2 class="k2">Ontdekken</h2><p class="tx" style="margin-top:10px">Echte foto's van ons werk in de buurt. Geen stockfoto's.</p></div><div class="wk-filter" data-werk-filter hidden></div></div><div class="wk-grid" data-werk-grid></div></div></section>
-<section class="stap4" id="volgende"><div class="in"><h2 class="k2 rv">Zet de volgende stap</h2><div class="kaarten">
-  <a class="kt rv" href="#prijs"><span class="ki">${IC.cam}</span><span class="kb"><h3>Prijs berekenen</h3><p>Met een foto van uw woning, in een minuut.</p><span class="ga">Dienstenwebshop</span></span></a>
-  <a class="kt rv" href="${portaal?e(portaal):"#portaal"}"><span class="ki">${IC.user}</span><span class="kb"><h3>Mijn portaal</h3><p>Inloggen met uw e-mailadres, zonder wachtwoord.</p><span class="ga">Naar het portaal</span></span></a>
-  <a class="kt rv" href="#contact"><span class="ki">${IC.gebouw}</span><span class="kb"><h3>Zakelijk en VvE</h3><p>Een prijs op maat voor uw pand of complex.</p><span class="ga">Aanvragen</span></span></a>
-  <a class="kt rv" href="#credits"><span class="ki">${IC.gift}</span><span class="kb"><h3>Buur aanbevelen</h3><p>€ ${e(String(o.refWelkom||10))} voor uw buur, ${e(String(o.refBeloning||15))} credits voor u.</p><span class="ga">Zo werkt het</span></span></a>
-</div></div></section>
-<section class="vragen" id="vragen"><div class="in"><h2 class="k2 rv">Veelgestelde vragen</h2><div class="faq">${faq.map(([q,a])=>`<details><summary>${e(q)}</summary><p>${e(a)}</p></details>`).join("")}</div></div></section>
-<section class="cont" id="contact"><div class="in"><div class="rv"><h2 class="k2">Altijd bereikbaar</h2><p class="tx">Stuur een berichtje via WhatsApp of mail. Wij reageren meestal dezelfde dag.</p></div>
-  <div class="knoppen">${wa?`<a class="kn zw" href="${wa}" target="_blank" rel="noopener">${IC.wa}WhatsApp</a>`:""}${o.email?`<a class="kn lijn" href="mailto:${e(o.email)}">${IC.mail}E-mail</a>`:""}</div></div></section>
-<footer><div class="in"><div class="vk">
-  <div><h4>Diensten</h4><ul><li><a href="#diensten">Glasbewassing</a></li><li><a href="#diensten">Kozijnreiniging</a></li><li><a href="#diensten">Zonnepanelen en dakgoot</a></li><li><a href="#diensten">Zakelijk en VvE</a></li></ul></div>
-  <div><h4>Klanten</h4><ul>${portaal?`<li><a href="${e(portaal)}">Mijn portaal</a></li>`:""}<li><a href="#aankondiging">Aankondiging en verzetten</a></li><li><a href="#betalen">Betalen</a></li><li><a href="#credits">Credits</a></li></ul></div>
-  <div><h4>Ontdekken</h4><ul><li><a href="#werk">Ons werk</a></li><li><a href="#route">Vaste route</a></li><li><a href="#vragen">Veelgestelde vragen</a></li></ul></div>
-  <div><h4>Contact</h4><ul>${o.email?`<li><a href="mailto:${e(o.email)}">${e(o.email)}</a></li>`:""}${tel?`<li><a href="tel:${e(telH)}">${e(tel)}</a></li>`:""}${wa?`<li><a href="${wa}" target="_blank" rel="noopener">WhatsApp</a></li>`:""}${o.adres?`<li>${e(o.adres)}${o.postcode?", "+e(o.postcode):""} ${e(o.plaats||"")}</li>`:""}</ul></div></div>
-  <div class="vmerk"><span class="merk">${naam}</span><div class="vlegal">${o.voorwaarden?`<a href="${e(o.voorwaarden)}" target="_blank" rel="noopener">Algemene voorwaarden</a>`:""}${portaal?`<a href="${e(portaal)}">Klantportaal</a>`:""}<a href="#top">Naar boven</a></div></div>
-  <p class="vcopy">© ${new Date().getFullYear()} ${naam}${o.kvk?` · KvK ${e(o.kvk)}`:""}. Prijzen zijn per beurt, inclusief btw, en gelden na controle van de telling bij het eerste bezoek. Twee dagen voor elke afspraak ontvangt u een aankondiging; het genoemde tijdstip is een richttijd.</p></div></footer>
+    <div class="mail-b"><p>Beste Sanne,</p><div class="mail-dag"><span class="d"><b>28</b><small>okt</small></span><div><strong>Dinsdag 28 oktober, rond 11:00 uur</strong><span>Lindenlaan 14, Zuidhorn · glasbewassing buitenzijde, inclusief kozijnen</span></div></div>
+      <p>Graag vragen we u vooraf rekening te houden met het volgende:</p>
+      <ul><li>${IC.ok}<span>Ramen en ventilatieroosters gesloten houden</span></li><li>${IC.ok}<span>Horren verwijderen en rolluiken openen</span></li><li>${IC.ok}<span>Poorten en hekwerk toegankelijk maken</span></li><li>${IC.ok}<span>Een eventuele robotmaaier tijdelijk uitschakelen</span></li></ul>
+      <div class="mail-k"><a>${IC.user}Open mijn portaal</a><a class="l">${IC.cal}Past dit niet? Verzetten</a></div></div></div></div></div></section>
+<section id="functies"><div class="in"><span class="oog">${IC.user}Alles in uw portaal</span><h2 class="kop">Alles regelt u <em>zelf, wanneer u wilt</em></h2><p class="lead">Geen wachtwoord, geen app installeren. U logt in met uw e-mailadres en heeft alles bij de hand.</p>
+  <div class="fx">
+    <div class="kp"><div class="kp-h"><i>${IC.mail}</i><div><b>Contact</b><small>Iets melden of vragen</small></div></div><div class="kp-b">
+      <div class="rij"><span class="ic">${IC.bel}</span><div><b>Ticket aanmaken</b><span class="s">Snelste weg · u volgt de status in het portaal</span></div><span class="pijl">›</span></div>
+      <div class="rij"><span class="ic">${IC.huis}</span><div><b>Toegang en instructies</b><span class="s">Poortcode, sleutel bij de buren, hond in de tuin</span></div><span class="pijl">›</span></div>
+      <div class="rij"><span class="ic">${IC.raam}</span><div><b>Iets extra laten doen</b><span class="s">Kozijnen, binnenzijde, zonnepanelen</span></div><span class="pijl">›</span></div>
+      <div class="rij"><span class="ic">${IC.cal}</span><div><b>Beurt verzetten of overslaan</b><span class="s">Vakantie? Eén tik en wij plannen om</span></div><span class="pijl">›</span></div></div></div>
+    <div class="kp"><div class="kp-h"><i>${IC.gift}</i><div><b>Credits</b><small>Uw korting op de volgende factuur</small></div></div><div class="kp-b">
+      <div class="saldo"><b>16</b><span>credits · € 16 korting</span></div>
+      <div class="rij"><span class="ic goud">${IC.user}</span><div><b>Buurvrouw aangemeld</b><span class="s">Eerste beurt gedaan</span></div><span class="pil">+${e(String(o.refBeloning||15))}</span></div>
+      <div class="rij"><span class="ic goud">${IC.ster}</span><div><b>Beurt beoordeeld</b><span class="s">5 sterren · 2 september</span></div><span class="pil">+${e(String(o.crBeurt||1))}</span></div>
+      <div class="rij"><span class="ic">${IC.ster}</span><div><b>Google-review</b><span class="s">Nog te verdienen</span></div><span class="pil wacht">+${e(String(o.crReview||5))}</span></div></div></div>
+    <div class="kp"><div class="kp-h"><i>${IC.euro}</i><div><b>Betaalgedrag</b><small>Hoe snel u betaalt</small></div></div><div class="kp-b">
+      <div class="ring"><span class="rg"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" class="t"/><circle cx="50" cy="50" r="42" class="v"/></svg><b>100%</b></span><div><b>Alles op tijd betaald</b><span>Gemiddeld 1 uur en 12 minuten na ontvangst</span></div></div>
+      <div class="rang"><span class="nr">2</span><div><b>U staat op nummer 2</b><span>van onze snelste betalers</span></div></div>
+      <div class="rij" style="margin-top:8px"><span class="ic">${IC.kaart}</span><div><b>Factuur ${new Date().getFullYear()}-0127</b><span class="s">Betaald ${o.mollie?"met iDEAL":"online"}</span></div><span class="ok">${IC.ok}</span></div></div></div>
+    <div class="kp"><div class="kp-h"><i>${IC.cal}</i><div><b>Bezoeken</b><small>Wat er is gedaan</small></div></div><div class="kp-b">
+      <ol class="tl"><li class="nu"><b>Dinsdag 28 oktober</b><span class="s">Volgende beurt · over 12 dagen</span></li>
+        <li><b>Dinsdag 2 september</b><span class="s">Ramen en kozijnen · 25 min</span><div class="vink2"><span>${IC.ok}Voorzijde</span><span>${IC.ok}Achterzijde</span><span>${IC.ok}Dakkapel</span></div></li>
+        <li><b>Dinsdag 8 juli</b><span class="s">Ramen en kozijnen · 23 min</span></li></ol></div></div>
+    <div class="kp"><div class="kp-h"><i>${IC.ster}</i><div><b>Beoordeel uw beurt</b><small>Zo blijven wij scherp</small></div></div><div class="kp-b">
+      <div class="rij"><span class="ic">${IC.raam}</span><div><b>Beurt van 2 september</b><span class="s">Hoe tevreden bent u?</span></div></div>
+      <div class="sterren">${IC.ster}${IC.ster}${IC.ster}${IC.ster}${IC.ster.replace("<svg",'<svg class="leeg"')}</div>
+      <span class="uitleg">U verdient ${e(String(o.crBeurt||1))} credit per beoordeling. Een foto of opmerking meesturen kan ook.</span><a class="knopje">${IC.ok}Nu beoordelen</a></div></div>
+    <div class="kp"><div class="kp-h"><i>${IC.rt}</i><div><b>Live locatie</b><small>Op de dag zelf</small></div></div><div class="kp-b">
+      <div class="live"><span class="pu"></span><div><b>Robin is onderweg · nog 2 adressen</b><span>Verwacht rond 11:10 bij Lindenlaan 14</span></div></div>
+      <div class="rij" style="margin-top:6px"><span class="ic">${IC.klok}</span><div><b>Richttijd 11:00</b><span class="s">Kan door route of weer ± 45 minuten verschillen</span></div></div>
+      <div class="rij"><span class="ic">${IC.huis}</span><div><b>Poortcode doorgegeven</b><span class="s">Wij hoeven u niet te storen</span></div><span class="ok">${IC.ok}</span></div></div></div>
+  </div></div></section>
+<section id="betalen"><div class="in"><span class="oog">${IC.kaart}Makkelijk betalen</span><h2 class="kop">Betalen in <em>één minuut</em></h2><p class="lead">Na elke beurt krijgt u de factuur per e-mail. Geen gedoe met overschrijven: betaal direct${o.mollie?" met iDEAL":""} vanuit de mail of uw portaal.</p>
+  <div class="bt-grid">
+    <div class="bt"><span class="ic">${IC.ideal}</span><h3>${o.mollie?"iDEAL in één tik":"Factuur per e-mail"}</h3><p>${o.mollie?"Elke factuur heeft een betaalknop. Betaald binnen een minuut, bevestiging meteen in uw portaal.":"Duidelijke factuur met alle gegevens, direct na de beurt in uw mailbox en in uw portaal."}</p></div>
+    <div class="bt"><span class="ic">${IC.gift}</span><h3>Korting gaat er vanzelf af</h3><p>Credits die u spaart, worden automatisch van uw volgende factuur afgetrokken. U hoeft niets te doen.</p></div>
+    <div class="bt"><span class="ic">${IC.klok}</span><h3>Alles op een rij</h3><p>Openstaand, betaald, uw betaalgedrag en uw plek bij onze snelste betalers: u ziet het in uw portaal.</p></div>
+  </div>
+  <div class="bt-demo" role="img" aria-label="Voorbeeld van een factuur die online is betaald"><div class="bt-f"><div class="bt-fh"><span class="bt-ic">${IC.euro}</span><div><b>Factuur ${new Date().getFullYear()}-0127</b><small>Glasbewassing · Lindenlaan 14, Zuidhorn</small></div><span class="bt-pil">Betaald</span></div>
+    <div class="bt-r"><span>Glasbewassing · 14 ramen</span><b>€ 42,50</b></div><div class="bt-r kort"><span>Credits (aanbeveling)</span><b>− € 15,00</b></div><div class="bt-r tot"><span>Te betalen</span><b>€ 27,50</b></div>
+    <div class="bt-ok">${IC.ok}<span>Betaald${o.mollie?" met iDEAL":""} · 1 uur na ontvangst · bedankt!</span></div></div></div></div></section>
+<section id="credits"><div class="in"><div class="blauw band cr-band"><span class="oog">${IC.gift}Credits sparen</span><h2 class="kop">Korting <em>verdienen is makkelijk</em></h2><p class="lead">1 credit is € 1 korting op uw volgende factuur. Zo spaart u ze:</p>
+  <div class="tegels cr4">
+    <div class="tg"><span class="ic">${IC.user}</span><em class="cr-n">+${e(String(o.refBeloning||15))}</em><h3>Beveel een buur aan</h3><p>Uw buur krijgt ${e(String(o.refWelkom||10))} euro welkomstkorting, u krijgt ${e(String(o.refBeloning||15))} credits na de eerste beurt.</p></div>
+    <div class="tg"><span class="ic">${IC.ster}</span><em class="cr-n">+${e(String(o.crReview||5))}</em><h3>Google-review</h3><p>Help anderen ons te vinden. Eenmalig ${e(String(o.crReview||5))} credits.</p></div>
+    <div class="tg"><span class="ic">${IC.ok}</span><em class="cr-n">+${e(String(o.crBeurt||1))}</em><h3>Beoordeel elke beurt</h3><p>Geef sterren na elk bezoek. Zo blijven wij scherp, u verdient er credits mee.</p></div>
+    <div class="tg"><span class="ic">${IC.euro}</span><em class="cr-n">+${e(String(o.crExtra||3))}</em><h3>Bestel iets extra's</h3><p>Kozijnen, binnenzijde, zonnepanelen of dakgoot: credits per extra dienst.</p></div></div>
+  ${wg(-7,"opacity:.6")}<div style="height:40px"></div></div></div></section>
+<section id="prijs"><div class="in"><div class="ws-kop"><span class="oog">${IC.cam}Dienstenwebshop</span><h2 class="kop">Bereken uw prijs en <em>meld u direct aan</em></h2><p class="lead">Geen offertebezoek nodig. Maak een foto van uw woning, tik de ramen aan en u ziet direct uw vaste prijs per beurt. Aanmelden kan meteen, u krijgt binnen een minuut een bevestiging.</p></div><div id="ms-calc"></div></div></section>
+<section id="werk" data-werk="${e(o.werkApi||"")}" ${o.werkApi?"":"hidden"}><div class="in"><span class="oog">${IC.foto}Ons werk</span><h2 class="kop">Zo ziet <em>schoon</em> eruit</h2><p class="lead">Echte foto's van ons werk bij klanten in de buurt. Geen stockfoto's.</p>
+  <div class="wk-filter" data-werk-filter hidden></div><div class="wk-grid" data-werk-grid></div></div></section>
+<section id="zakelijk"><div class="in"><div class="zak"><div><span class="oog">${IC.gebouw}Zakelijk</span><h2 class="kop">Ook voor <em>bedrijven en VvE's</em></h2><p class="lead">Kantoor, winkel, school of appartementencomplex: wij maken een prijs op maat en plannen het werk in wanneer het u uitkomt.</p>
+  <div class="tags"><span>Kantoren</span><span>Winkels en horeca</span><span>VvE's</span><span>Scholen en zorg</span></div></div>
+  <div class="r"><a class="knop k-teal" href="#prijs">${IC.gebouw}Vraag een prijs aan</a></div></div>
+  <div class="vve"><div class="vve-k"><span class="oog">${IC.qr}Speciaal voor VvE's</span><h3>Schoonmaak van trappenhuis en entree, <em>zichtbaar voor alle bewoners</em></h3><p>Vaste dagen in de week, een checklist per beurt en een digitaal bewonersbord in de hal: bewoners scannen de QR-code en zien wanneer er is schoongemaakt. Dat scheelt het bestuur telefoontjes.</p></div>
+    <ul class="vve-l"><li><i>${IC.cal}</i><div><b>Vaste weekdagen</b><span>Bijvoorbeeld elke dinsdag en vrijdag, altijd dezelfde schoonmaker.</span></div></li>
+      <li><i>${IC.foto}</i><div><b>Logboek met foto's</b><span>Per beurt wat er is gedaan, met opleverfoto en notitie.</span></div></li>
+      <li><i>${IC.qr}</i><div><b>Bewonersbord met QR</b><span>Een poster in de hal; bewoners zien live wanneer wij er zijn geweest.</span></div></li>
+      <li><i>${IC.bel}</i><div><b>Meldingen uit het gebouw</b><span>Kapotte lamp, grofvuil of schade: wij melden het met foto aan het bestuur.</span></div></li></ul></div></div></section>
+<section id="vragen"><div class="in"><span class="oog">${IC.bel}Veelgestelde vragen</span><h2 class="kop">Goed om <em>te weten</em></h2>
+  <div class="faq">${faq.map(([q,a])=>`<details><summary>${e(q)}</summary><p>${e(a)}</p></details>`).join("")}</div></div></section>
+<section id="contact"><div class="in"><div class="blauw contact"><div><h2>Vragen? <em>Wij helpen u graag.</em></h2><p>Stuur een berichtje via WhatsApp of mail. Wij reageren meestal dezelfde dag.</p></div>
+  <div class="ck">${wa?`<a href="${wa}" target="_blank" rel="noopener"><span class="ic">${IC.wa}</span><div>WhatsApp<small>Stel snel een vraag</small></div></a>`:""}${o.email?`<a href="mailto:${e(o.email)}"><span class="ic">${IC.mail}</span><div>E-mail<small>${e(o.email)}</small></div></a>`:""}</div>
+  ${wg(-12)}</div></div></section>
+<footer><div class="in"><span>© ${new Date().getFullYear()} ${naam}${o.adres?` · ${e(o.adres)}${o.postcode?", "+e(o.postcode):""} ${e(o.plaats||"")}`:""}${o.kvk?` · KvK ${e(o.kvk)}`:""}</span>
+  <span>${portaal?`<a href="${e(portaal)}">Klantportaal</a> · `:""}${o.voorwaarden?`<a href="${e(o.voorwaarden)}" target="_blank" rel="noopener">Algemene voorwaarden</a>`:""}</span></div></footer>
 `}
 
 async function websiteDelen(){const fv=k=>{const el=typeof form!=="undefined"&&form&&form.querySelector(`[data-k="${k}"]`);return el?el.value:null};const s=S(),lg=await loadLogo();const wa=String(s.webWa||waNr(s.telefoon)||"").replace(/\D/g,"");
   const o={naam:s.naam,telefoon:s.telefoon,email:s.email,adres:s.adres,postcode:s.postcode,plaats:s.plaats,kvk:s.kvk,whatsapp:wa,logo:lg?await kleinLogo(lg.url):"",
-    portaal:LIVE?location.origin+"/portaal":"",werkApi:LIVE?location.origin+"/api/portaal/werk":"",score:String(fv("webScore")??s.webScore??"4,8").trim(),reviewUrl:String(fv("webReviewUrl")||s.webReviewUrl||"https://www.google.com/search?q=mijnschoonmaker.com+Reviews").trim(),refBeloning:s.refBeloning!=null&&s.refBeloning!==""?Number(s.refBeloning):15,refWelkom:s.refWelkom!=null&&s.refWelkom!==""?Number(s.refWelkom):10,crReview:s.crReview??5,crBeurt:s.crBeurt??1,crExtra:s.crExtra??3,voorwaarden:s.webVoorwaarden||s.voorwaarden||"",minPrijs:(Number((state.ramen&&state.ramen.min)??56.2)).toFixed(2).replace('.',','),kozMin:(Number((state.ramen&&state.ramen.kozMin)??40.63)).toFixed(2).replace('.',','),mollie:!!s.liveMollie,bus:typeof RV_BUS!=="undefined"?RV_BUS:""};
+    portaal:LIVE?location.origin+"/portaal":"",werkApi:LIVE?location.origin+"/api/portaal/werk":"",score:String(fv("webScore")??s.webScore??"4,8").trim(),reviewUrl:String(fv("webReviewUrl")||s.webReviewUrl||"https://www.google.com/search?q=mijnschoonmaker.com+Reviews").trim(),refBeloning:s.refBeloning!=null&&s.refBeloning!==""?Number(s.refBeloning):15,refWelkom:s.refWelkom!=null&&s.refWelkom!==""?Number(s.refWelkom):10,crReview:s.crReview??5,crBeurt:s.crBeurt??1,crExtra:s.crExtra??3,voorwaarden:s.webVoorwaarden||s.voorwaarden||"",mollie:!!s.liveMollie,bus:typeof RV_BUS!=="undefined"?RV_BUS:""};
   return {body:websiteBody(o),calc:await klantCalcHtml(wa),o}}
 /* bonnetje: echt afscheuren langs de perforatie, met rafelrand en papiersnippers */
-const WEB_JS=`var ms=(root.classList&&root.classList.contains("ms"))?root:(root.querySelector&&root.querySelector(".ms"))||root;if(ms.classList)ms.classList.add("js");function escT(t){return String(t||"").replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
-var mr=root.querySelector("[data-meer]");if(mr&&!mr._ms){mr._ms=1;mr.addEventListener("click",function(){var d=root.querySelector("#volgende");if(d)d.scrollIntoView({behavior:"smooth"})})}
-var pz=root.querySelector("[data-pauze]");if(pz&&!pz._ms){pz._ms=1;pz.addEventListener("click",function(){var aan=ms.classList.toggle("stil");pz.setAttribute("aria-pressed",aan?"true":"false");pz.setAttribute("aria-label",aan?"Animatie afspelen":"Animatie pauzeren")})}
-if(window.IntersectionObserver){var io=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting){x.target.classList.add("zicht");io.unobserve(x.target)}})},{rootMargin:"0px 0px -4% 0px",threshold:0});root.querySelectorAll(".rv").forEach(function(el){if(!el._rv){el._rv=1;io.observe(el)}})}else root.querySelectorAll(".rv").forEach(function(el){el.classList.add("zicht")});
-function fotos(items){var n=0;root.querySelectorAll("[data-blok]").forEach(function(bk){var im=bk.querySelector("[data-bk-img]"),x=items[n];if(!im||!x||im.src)return;n++;im.onload=function(){bk.classList.add("foto")};im.src=x.url});
-  var st=root.querySelector("[data-story]");if(!st||st._ms)return;st._ms=1;var L=items.slice(n,n+4);if(!L.length)L=items.slice(0,4);if(!L.length)return;st.hidden=false;var box=st.querySelector("[data-st-imgs]"),cap=st.querySelector("[data-st-cap]"),dots=st.querySelector("[data-st-dots]");
-  box.innerHTML=L.map(function(x){return '<img class="st-img" src="'+escT(x.url)+'" alt="'+escT(x.titel||"")+'" loading="lazy">'}).join("");dots.innerHTML=L.map(function(){return "<i></i>"}).join("");var i=0;
-  function toon(){for(var k=0;k<box.children.length;k++){box.children[k].classList.toggle("aan",k===i);dots.children[k].classList.toggle("aan",k===i)}var x=L[i];cap.innerHTML=(x.titel?'<b>'+escT(x.titel)+'</b>':'')+escT(x.plaats||"")}
-  toon();if(L.length>1)setInterval(function(){if(ms.classList&&ms.classList.contains("stil"))return;i=(i+1)%L.length;toon()},6500)}
-root.querySelectorAll("[data-pp]").forEach(function(pp){if(pp._ms)return;pp._ms=1;
+const WEB_JS=`root.querySelectorAll("[data-pp]").forEach(function(pp){if(pp._ms)return;pp._ms=1;
   var map=pp.querySelector("[data-pp-map]"),bus=pp.querySelector("[data-pp-bus]"),rot=pp.querySelector("[data-pp-rot]"),lijn=pp.querySelector("[data-pp-lijn]"),
     tE=pp.querySelector("[data-pp-t]"),sE=pp.querySelector("[data-pp-s2]"),eE=pp.querySelector("[data-pp-eta]"),hE=pp.querySelector("[data-pp-sub]");
   /* busje rijdt over de straten naar de woning, met twee stops onderweg */
@@ -9495,12 +9621,12 @@ root.querySelectorAll("[data-werk]").forEach(function(sec){if(sec._ms)return;sec
     var img=lb.querySelector("img");img.src=x.url;img.alt=x.titel||"";lb.querySelector("figcaption").innerHTML=(x.titel?'<b>'+esc(x.titel)+'</b>':'')+(x.plaats?'<span>'+esc(x.plaats)+'</span>':'');lb.classList.add("aan");document.documentElement.style.overflow="hidden"}
   function sluit(){if(lb){lb.classList.remove("aan");document.documentElement.style.overflow=""}}
   grid.addEventListener("click",function(e){var f=e.target.closest("[data-wi]");if(f)open(+f.getAttribute("data-wi"))});
-  fetch(api).then(function(r){return r.json()}).then(function(j){items=(j&&j.items)||[];if(!items.length){sec.hidden=true;return}sec.hidden=false;filters();teken();try{fotos(items)}catch(e){}}).catch(function(){sec.hidden=true})});`;
-const WEB_FONTS='<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@200;300;400;500&family=Inter:wght@400;500;600&display=swap">';
+  fetch(api).then(function(r){return r.json()}).then(function(j){items=(j&&j.items)||[];if(!items.length){sec.hidden=true;return}sec.hidden=false;filters();teken()}).catch(function(){sec.hidden=true})});`;
+const WEB_FONTS='<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">';
 /* losse pagina: voor de voorbeeldweergave en voor wie geen Framer gebruikt */
 function websiteHtml(p,crm){const calc=crm?p.calc.replace(/<head([^>]*)>/i,m=>m+"<script>window.ZEEM_CRM=1<\/script>"):p.calc;
   return `<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(p.o.naam||"mijnschoonmaker")} · Glasbewassing</title>
-<meta name="description" content="Glasbewassing${p.o.plaats?" in "+esc(p.o.plaats)+" en omgeving":""}. Bereken direct uw prijs met een foto van uw woning.">${WEB_FONTS}<style>html,body{margin:0;background:#fff;scroll-behavior:smooth;overflow-x:hidden;max-width:100%}${WEB_CSS}</style></head>
+<meta name="description" content="Glasbewassing${p.o.plaats?" in "+esc(p.o.plaats)+" en omgeving":""}. Bereken direct uw prijs met een foto van uw woning.">${WEB_FONTS}<style>html,body{margin:0;background:#f3f6f7;scroll-behavior:smooth;overflow-x:hidden;max-width:100%}${WEB_CSS}</style></head>
 <body><div class="ms">${p.body}</div><script>(function(root){${WEB_JS}})(document)<\/script><script>/* interne links: zelf scrollen (in een voorbeeldvenster zou de browser anders naar het CRM gaan) */
 document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a[href^='#']");if(!a)return;e.preventDefault();var id=a.getAttribute("href").slice(1),d=id==="top"?document.body:document.getElementById(id);var m=document.getElementById("msm");if(m)m.checked=false;if(d)d.scrollIntoView({behavior:"smooth",block:"start"})});
 <\/script><script>(function(){var C=${JSON.stringify(calc).replace(/<\//g,"<\\/")};var box=document.getElementById("ms-calc"),f=document.createElement("iframe");f.title="Prijscalculator";f.setAttribute("allow","camera; web-share; clipboard-write");f.srcdoc=C;f.style.height="900px";f.style.border="0";f.style.width="1px";f.style.minWidth="100%";box.appendChild(f);
@@ -9616,7 +9742,7 @@ function galBind(){const f=$("#galF");if(f)f.onchange=e=>{const files=[...e.targ
   box.addEventListener("dragend",()=>{drag=null;box.querySelectorAll(".drag,.over").forEach(x=>x.classList.remove("drag","over"))})}
 if(typeof SETCARDS!=="undefined"){const at=SETCARDS.findIndex(c=>c.id==="website");
   SETCARDS.splice(at>=0?at+1:SETCARDS.length,0,{id:"galerij",t:"Ons werk (foto's)",sub:"Echte foto's van je werk op de website",ic:"camera",bg:"#8a4fff",st:()=>galItems().filter(x=>x.aan!==false).length?["ok",plural(galItems().filter(x=>x.aan!==false).length,"foto","foto's")+" online"]:["soon","Nog geen foto's"],rows:()=>[["Foto's",String(galItems().length)],["Op de website",String(galItems().filter(x=>x.aan!==false).length)]]});
-  SETEXTRA.galerij=(c,s)=>{setDlg(c,`${info("Hier zet je je eigen foto's (bijvoorbeeld van je Sony) op de website onder <b>Ons werk</b>. Titel en plaats komen als onderschrift; met de categorie kan de bezoeker filteren. <b>De eerste foto</b> wordt ook groot in de kop van de website gebruikt (met het schoonveeg-effect), foto 2 t/m 5 in het fotoverhaal; sleep om de volgorde te bepalen.")}<div id="galBox">${galHtml()}</div>`,{wide:true,foot:`<span class="subt">Wijzigingen worden direct opgeslagen.</span><span class="sp"></span><button type="button" class="primary" data-act="close">${I.check}Klaar</button>`});galBind()}}
+  SETEXTRA.galerij=(c,s)=>{setDlg(c,`${info("Hier zet je je eigen foto's (bijvoorbeeld van je Sony) op de website onder <b>Ons werk</b>. Titel en plaats komen als onderschrift; met de categorie kan de bezoeker filteren.")}<div id="galBox">${galHtml()}</div>`,{wide:true,foot:`<span class="subt">Wijzigingen worden direct opgeslagen.</span><span class="sp"></span><button type="button" class="primary" data-act="close">${I.check}Klaar</button>`});galBind()}}
 
 /* ---------- HANDLEIDING ---------- */
 const HELP=[
