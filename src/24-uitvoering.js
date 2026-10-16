@@ -85,7 +85,8 @@ function vUitvoering(){
   uitvLoad();const t=state.utab||"diensten";
   const head=`<div class="pagehead"><div><p class="kicker">Uitvoering</p><h1 class="xl">${t==="diensten"?"Diensten":t==="frequenties"?"Frequenties":"Bedrijfsmiddelen"}</h1><p class="lead" style="margin:0">${t==="diensten"?"Tarieven, tijden en kortingen. De rekentool, opdrachten, offertes en de website-calculator rekenen hiermee.":t==="frequenties"?"Kies welke frequenties je aanbiedt. Die staan in alle keuzelijsten.":"Je materiaal en gereedschap op één plek."}</p></div>
     <div class="acts"><button type="button" id="uReset" data-act="ureset" ${Udirty?"":"disabled"}>${I.refresh}Herstellen</button><button type="button" class="primary${Udirty?" pulse":""}" id="uSave" data-act="usave" ${Udirty?"":"disabled"}>${I.check}Opslaan</button></div></div>
-    <div class="seg" role="group" aria-label="Onderdeel" style="margin-bottom:18px">${[["diensten","Diensten"],["frequenties","Frequenties"],["middelen","Bedrijfsmiddelen"]].map(([x,l])=>`<button type="button" data-act="utab" data-v="${x}" aria-pressed="${t===x}">${l}</button>`).join("")}</div>`;
+    <div class="toolbar u-tb" style="margin-bottom:18px"><div class="seg" role="group" aria-label="Onderdeel">${[["diensten","Diensten"],["frequenties","Frequenties"],["middelen","Bedrijfsmiddelen"]].map(([x,l])=>`<button type="button" data-act="utab" data-v="${x}" aria-pressed="${t===x}">${l}</button>`).join("")}</div>
+      <button type="button" class="small" data-act="uwebview" title="Bekijk de prijscalculator zoals klanten hem op je website zien${Udirty?" (sla eerst op)":""}">${I.globe||I.eye||""}Website-calculator bekijken</button></div>`;
   if(t==="frequenties")return head+uFreqHtml();
   if(t==="middelen")return head+uMiddelHtml();
   const sel=uSel();
@@ -185,6 +186,7 @@ function uAct(a,t){
     case"udeli":{const g=uGroup(t.dataset.g);g.items.splice(Number(t.dataset.i),1);state.uSel=g.items.length?{g:g.id,i:null}:null;uDirty();if(dlg.open)dlg.close();render();break}
     case"uaddtier":{const x=uSel();if(!x||!x.it)break;const tl=x.it.tiers||(x.it.tiers=[]);const last=tl[tl.length-1];tl.push(last?[Number(last[0])+10,Number(last[1])+10]:[10,10]);uDirty();uRedraw();break}
     case"udeltier":{const x=uSel();if(!x||!x.it)break;x.it.tiers.splice(Number(t.dataset.j),1);uDirty();uRedraw();break}
+    case"uwebview":{if(Udirty){toast("Sla eerst op, dan rekent de calculator met je nieuwe tarieven");break}t.disabled=true;(async()=>{try{const s=S(),wa=String(s.webWa||waNr(s.telefoon)||"").replace(/\D/g,"");webCalcVoorbeeld(await klantCalcHtml(wa))}catch(e){err(e)}finally{t.disabled=false}})();break}
     case"uftog":{const w=Number(t.dataset.w);const i=U.freqs.findIndex(f=>Number(f.w)===w);if(i>=0)U.freqs.splice(i,1);else{U.freqs.push({w,l:/maand|jaar/.test(t.dataset.l)?t.dataset.l:""});U.freqs.sort((a,b)=>a.w-b.w)}uDirty();render();break}
     case"ufcalc":{const k=t.dataset.k;U.freqCalc=U.freqCalc||{};if(U.freqCalc[k]===false)delete U.freqCalc[k];else U.freqCalc[k]=false;uDirty();render();break}
     case"ufadd":{const w=Number(t.dataset.w);if(!U.freqs.some(f=>Number(f.w)===w)){U.freqs.push({w,l:/maand|jaar/.test(t.dataset.l)?t.dataset.l:""});U.freqs.sort((a,b)=>a.w-b.w)}uDirty();render();break}

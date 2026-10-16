@@ -3994,3 +3994,5 @@ body.rd-busy{cursor:grabbing}
 .u-sw.aan{color:var(--ink)}
 .u-sw.dis{opacity:.35;cursor:default}
 @media (max-width:560px){.u-ffl .u-fi{flex-wrap:wrap}.u-ffl .u-fi>span:first-child{flex:1 1 100%}.u-sw{min-width:0}}
+
+.u-tb{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
