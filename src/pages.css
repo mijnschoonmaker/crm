@@ -3888,3 +3888,17 @@ body.rd-busy{cursor:grabbing}
 .tk-tm .tk-ton{grid-column:2;grid-row:1/4;width:86px;height:104px;align-self:center}
 .ton-pct{font-size:15px}
 @media(max-width:560px){.tk-tm .tk-ton{width:70px;height:86px}}
+
+/* ---------- voortgangsweg: duidelijker stops ---------- */
+.rv-weg{height:112px;margin-top:26px}
+.rv-weg li{top:0}
+.rv-weg li small{top:68px;font-size:12px}
+.rv-weg li em{position:absolute;top:84px;font-style:normal;font-size:10.5px;color:rgb(255 255 255 / .6);white-space:nowrap;max-width:92px;overflow:hidden;text-overflow:ellipsis}
+.rv-weg li.nu em{color:rgb(255 255 255 / .9);font-weight:600}
+.rv-weg li.af em{opacity:.55}
+.rv-weg li.af small{text-decoration:line-through;text-decoration-color:rgb(255 255 255 / .5);opacity:.75}
+.rv-nu{position:absolute;top:-22px;font-size:9.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:rgb(255 255 255 / .18);border:1px solid rgb(255 255 255 / .35);padding:2px 7px;border-radius:999px;white-space:nowrap}
+.rv-weg li.nu i{transform:scale(1.18);box-shadow:0 0 0 6px rgb(255 255 255 / .22),0 6px 14px -6px rgb(0 0 0 / .4)}
+.rv-weg li.nu i svg{fill:var(--brand)}
+.rv-weg.veel{height:70px}.rv-weg.veel li em,.rv-weg.veel .rv-nu{display:none}
+@media(max-width:700px){.rv-weg li em{display:none}.rv-weg{height:96px}}
