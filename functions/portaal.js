@@ -90,7 +90,7 @@ module.exports = function maakPortaal(ctx) {
     q.docs.forEach(d => { const f = d.data(); if (!f.klantId || f.soort === "offerte" || (f.datum || "") < sinds) return; const sec = betaalSec(f); if (sec == null) return; (per[f.klantId] = per[f.klantId] || []).push(sec); });
     const lijst = Object.entries(per).map(([id, a]) => ({ id, sec: a.reduce((x, y) => x + y, 0) / a.length, n: a.length })).sort((a, b2) => a.sec - b2.sec);
     const i = lijst.findIndex(x => x.id === klantId);
-    return { positie: i < 0 ? null : i + 1, totaal: lijst.length, sec: i < 0 ? null : Math.round(lijst[i].sec), beste: lijst.length ? Math.round(lijst[0].sec) : null, n: i < 0 ? 0 : lijst[i].n };
+    return { positie: i < 0 ? null : i + 1, sec: i < 0 ? null : Math.round(lijst[i].sec), beste: lijst.length ? Math.round(lijst[0].sec) : null, n: i < 0 ? 0 : lijst[i].n };
   }
   const snelUren = f => { if (f.status !== "betaald" || !f.betaaldTs) return null; const van = Date.parse(f.verstuurdOp || f.gemaakt || ""), tot = Date.parse(f.betaaldTs); if (!(van > 0 && tot >= van)) return null; return Math.round((tot - van) / 36e5 * 10) / 10; };
   const zelfdeDag = f => !!(f.betaaldTs && (f.verstuurdOp || f.gemaakt) && isoNL(new Date(f.betaaldTs)) === isoNL(new Date(f.verstuurdOp || f.gemaakt)));
