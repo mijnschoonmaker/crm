@@ -4406,6 +4406,9 @@ body.rd-busy{cursor:grabbing}
 .bv-cam.dis{opacity:.5;pointer-events:none}
 .f-vve{border:1px solid var(--line);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;background:color-mix(in srgb,var(--brand) 4%,var(--surface))}.f-vve .ow-dagen{margin-top:6px}
 
+/* factuur: bedrijfsnaam uitgelijnd op de gegevenskolom */
+.i5-co tr.nm td{padding-bottom:8px}.i5-co tr.nm b{font-size:11px;font-weight:600;letter-spacing:.02em;color:#11181c;display:block}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -9560,7 +9563,7 @@ function paperHtml(f,klant){
   return `<div class="inv5" style="--A:${m.A}">
   <div class="i5-top"><div class="i5-lft"><div class="i5-lg">${s.logo?`<img src="${BLOB}${esc(s.logo)}" alt="" class="i5-logo">`:`<b class="i5-coname">${esc(s.naam||"Je bedrijfsnaam")}</b>`}</div>
       <div class="i5-kl"><b>${esc(m.naamKlant)}</b>${m.naar.map(x=>`<span>${esc(x)}</span>`).join("")}</div></div>
-    <div class="i5-co"><b>${esc(s.naam||"Je bedrijfsnaam")}</b><table>${m.coInfo.map(([l,v])=>l?`<tr><th>${esc(l)}</th><td>${v.map(esc).join("<br>")}</td></tr>`:`<tr class="gap"><td colspan="2"></td></tr>`).join("")}</table></div></div>
+    <div class="i5-co"><table><tr class="nm"><th></th><td><b>${esc(s.naam||"Je bedrijfsnaam")}</b></td></tr>${m.coInfo.map(([l,v])=>l?`<tr><th>${esc(l)}</th><td>${v.map(esc).join("<br>")}</td></tr>`:`<tr class="gap"><td colspan="2"></td></tr>`).join("")}</table></div></div>
   ${f.soort==="offerte"&&offTxt(f.tekst,f)?`<div class="i5-txt">${esc(offTxt(f.tekst,f)).replace(/\n/g,"<br>")}</div>`:""}
   ${f.soort==="offerte"&&f.letop&&offTxt(f.letopTekst,f)?`<div class="i5-letop"><b>Let op:</b><span>${esc(offTxt(f.letopTekst,f)).replace(/\n/g,"<br>")}</span></div>`:""}
   ${m.off?`<table class="i5-t i5-og"><thead><tr><th>Omschrijving</th><th class="c">Aantal</th><th class="r">Prijs excl.</th><th class="r">Btw</th><th class="r">Prijs incl.</th></tr></thead><tbody>
@@ -9583,8 +9586,8 @@ async function pdfDoc(f,klant){
   // kop: logo links, onze gegevens rechts, klant links eronder
   let y=18;
   if(logo){const h=22,w=Math.min(50,h*logo.ratio);try{doc.addImage(logo.url,logo.fmt,L,y-4,w,w/logo.ratio)}catch(e){}}else{B();doc.setFontSize(15);col(C.ink);doc.text(doc.splitTextToSize(s.naam||"Je bedrijfsnaam",80)[0],L,y+6)}
-  B();doc.setFontSize(8.8);col(C.ink);{const nm=s.naam||"Je bedrijfsnaam",nw=doc.getTextWidth(nm);doc.text(nm,R,y,{align:"right"})}
   doc.setFontSize(7.6);N();const vw=Math.min(52,Math.max(24,...m.coInfo.flatMap(([l,v])=>v.map(x=>doc.getTextWidth(String(x))))));const VX=R-vw,LX=VX-3;
+  B();doc.setFontSize(8.8);col(C.ink);doc.text(doc.splitTextToSize(s.naam||"Je bedrijfsnaam",vw+2)[0],VX,y);
   let cy=y+6.5;m.coInfo.forEach(([l,v])=>{if(!l){cy+=2.4;return}N();doc.setFontSize(7.6);col(C.mut);doc.text(l,LX,cy,{align:"right"});col(C.ink);v.forEach((x,k)=>doc.text(doc.splitTextToSize(String(x),vw+2)[0],VX,cy+k*3.7));cy+=Math.max(1,v.length)*3.7+.5});
   let ky=y+(logo?Math.min(50,22*logo.ratio)/logo.ratio+9:16);N();doc.setFontSize(10);col(C.ink);B();doc.text(doc.splitTextToSize(m.naamKlant,LX-L-30)[0],L,ky);N();doc.setFontSize(8.6);col([60,68,72]);
   m.naar.forEach((x,i)=>doc.text(doc.splitTextToSize(String(x),LX-L-30)[0],L,ky+5.2+i*4.4));const kEnd=ky+5.2+m.naar.length*4.4;col(C.ink);

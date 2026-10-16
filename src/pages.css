@@ -3978,3 +3978,6 @@ body.rd-busy{cursor:grabbing}
 .vve-fl{display:flex;gap:8px;flex-wrap:wrap}.vve-fl span{position:relative}.vve-fl img{width:72px;height:72px;object-fit:cover;border-radius:10px;display:block}.vve-fl .iconbtn{position:absolute;top:-6px;right:-6px;background:var(--surface);border:1px solid var(--line)}
 .bv-cam.dis{opacity:.5;pointer-events:none}
 .f-vve{border:1px solid var(--line);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;background:color-mix(in srgb,var(--brand) 4%,var(--surface))}.f-vve .ow-dagen{margin-top:6px}
+
+/* factuur: bedrijfsnaam uitgelijnd op de gegevenskolom */
+.i5-co tr.nm td{padding-bottom:8px}.i5-co tr.nm b{font-size:11px;font-weight:600;letter-spacing:.02em;color:#11181c;display:block}
