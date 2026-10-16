@@ -2734,6 +2734,12 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}.inv5,.inv5 *{-webkit-t
 .fw-up svg{width:18px;height:18px;flex:none}
 .fw-up:hover{border-color:color-mix(in srgb,var(--brand) 40%,var(--line))}
 .fw-up.pri{background:linear-gradient(135deg,var(--brand),#1d5a74);border-color:transparent;color:#fff}
+/* logboek: invoer met de knop erin, één nette balk */
+.log-in{display:flex;align-items:center;gap:6px;padding:5px 5px 5px 14px;border:1px solid var(--line);border-radius:14px;background:var(--surface);transition:border-color .15s,box-shadow .15s}
+.log-in:focus-within{border-color:color-mix(in srgb,var(--brand) 55%,var(--line));box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 14%,transparent)}
+.log-in input{flex:1;min-width:0;border:0!important;background:none!important;box-shadow:none!important;outline:none;padding:8px 0!important;min-height:0;font-size:15px}
+.log-in button{flex:none;white-space:nowrap;margin:0;min-height:40px;border-radius:10px;padding:0 14px}
+.log-in button svg{width:16px;height:16px}
 .fw-rks{display:none}
 @media (max-width:640px){
   .fw-tw{display:none}

@@ -3161,6 +3161,12 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}.inv5,.inv5 *{-webkit-t
 .fw-up svg{width:18px;height:18px;flex:none}
 .fw-up:hover{border-color:color-mix(in srgb,var(--brand) 40%,var(--line))}
 .fw-up.pri{background:linear-gradient(135deg,var(--brand),#1d5a74);border-color:transparent;color:#fff}
+/* logboek: invoer met de knop erin, één nette balk */
+.log-in{display:flex;align-items:center;gap:6px;padding:5px 5px 5px 14px;border:1px solid var(--line);border-radius:14px;background:var(--surface);transition:border-color .15s,box-shadow .15s}
+.log-in:focus-within{border-color:color-mix(in srgb,var(--brand) 55%,var(--line));box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 14%,transparent)}
+.log-in input{flex:1;min-width:0;border:0!important;background:none!important;box-shadow:none!important;outline:none;padding:8px 0!important;min-height:0;font-size:15px}
+.log-in button{flex:none;white-space:nowrap;margin:0;min-height:40px;border-radius:10px;padding:0 14px}
+.log-in button svg{width:16px;height:16px}
 .fw-rks{display:none}
 @media (max-width:640px){
   .fw-tw{display:none}
@@ -9741,7 +9747,7 @@ function openOpdrachtWerk(kid,focus){
     <section class="kp"><div class="kp-h"><span class="objic">${I.camera||I.upload}</span><b>Foto's</b><span class="sp"></span>${state.assets?`<label class="btn small primary">${I.plus}Uploaden<input type="file" accept="image/*" multiple hidden id="owFoto"></label>`:""}</div><div class="ow-fotos" id="owFotos"></div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.chat}</span><b>Logboek</b></div>
       <div class="log">${[...(k.log||[]).map(l=>({d:l.datum,t:l.tekst,s:"Notitie"})),...state.berichten.filter(m=>m.klantId===k.id).map(m=>({d:String(m.op).slice(0,10),t:m.tekst,s:KANAAL[m.kanaal]||m.kanaal}))].sort((a,b)=>String(b.d).localeCompare(String(a.d))).slice(0,15).map(l=>`<div><span>${fmtD(l.d)} · ${esc(l.s)}</span>${esc(l.t)}</div>`).join("")||'<div style="color:var(--muted)">Er zijn nog geen logboekregels.</div>'}</div>
-      <div style="display:flex;gap:8px"><input id="ow-log" placeholder="Bijv. gebeld, komt dinsdag beter uit"><button type="button" class="small" id="owLog">Noteer</button></div></section>
+      <div class="log-in"><input id="ow-log" placeholder="Bijv. gebeld, komt dinsdag beter uit" aria-label="Notitie voor het logboek"><button type="button" class="small primary" id="owLog">${I.plus}Noteer</button></div></section>
   </div></div>
   <div class="row stickyfoot kk-foot"><button type="button" class="ghost danger" id="owDel">${I.trash}Opdracht verwijderen</button><span class="sp"></span><button type="button" id="owBack">Annuleren</button><button type="submit" class="primary" id="owSave">${I.check}Opslaan</button></div>`,{xwide:true});
   const $o=n=>$("#ow-"+n);
@@ -10416,7 +10422,7 @@ function openKlantView(id,opt={}){
         const N=state.kkLogN||5;
         return `<div class="lgb">${L.slice(0,N).map(l=>{const sum=l.o||kort(l.t),meer=String(l.t||"").trim()&&String(l.t).trim()!==sum;return `<details class="lgb-r"><summary><span class="lgb-d">${esc(fmtD(l.d))}${l.u?`<i>${esc(l.u)}</i>`:""}</span><span class="lgb-s ${l.s==="Notitie"?"n":""}">${esc(l.s)}</span><span class="lgb-t">${esc(sum)}</span>${meer?`<span class="lgb-oog" aria-label="Volledig bekijken">${I.eye}</span>`:""}</summary>${meer?`<div class="lgb-x">${esc(l.t)}</div>`:""}</details>`}).join("")}</div>
           ${L.length>N?`<button type="button" class="small ghost" data-act="kklogmeer" style="align-self:flex-start">Meer tonen (${L.length-N})</button>`:N>5?`<button type="button" class="small ghost" data-act="kklogmin" style="align-self:flex-start">Minder tonen</button>`:""}`})()}
-      <div style="display:flex;gap:8px"><input id="kd-log" placeholder="Bijv. gebeld, komt dinsdag beter uit" style="min-width:0;flex:1"><button type="button" class="small" id="kdLog" style="white-space:nowrap;flex:none">Noteer</button></div></section>
+      <div class="log-in"><input id="kd-log" placeholder="Bijv. gebeld, komt dinsdag beter uit" aria-label="Notitie voor het logboek"><button type="button" class="small primary" id="kdLog">${I.plus}Noteer</button></div></section>
   </div></div>`,{xwide:true});
   form.dataset.kk=k.id;
   const re=()=>{const y=dlg.scrollTop;openKlantView(k.id);dlg.scrollTop=y};
@@ -10773,7 +10779,7 @@ function openFactuurWerk(id){
       <p class="fw-txt">${esc(rv.betaal)}</p>${rv.vwTxt?`<p class="fw-txt">${esc(rv.vwTxt)}</p>`:""}<small class="help">Wordt automatisch gemaakt uit het bedrag, de vervaldatum en je bedrijfsgegevens (Instellingen).</small></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.chat}</span><b>Logboek</b></div>
       <div class="log">${log.map(l=>`<div><span>${dt(l.d)}</span>${esc(l.t)}</div>`).join("")}</div>
-      <div style="display:flex;gap:8px"><input id="fw-log" placeholder="Bijv. klant belt terug over de factuur"><button type="button" class="small" id="fwLog">Noteer</button></div></section>
+      <div class="log-in"><input id="fw-log" placeholder="Bijv. klant belt terug over de factuur" aria-label="Notitie voor het logboek"><button type="button" class="small primary" id="fwLog">${I.plus}Noteer</button></div></section>
   </div></div>
   <div class="row"><button type="button" class="ghost danger" id="delF">Factuur verwijderen</button><span class="sp"></span><button type="button" data-act="close">Sluiten</button></div>`,{xwide:true});
   const re=()=>{const y=dlg.scrollTop;openFactuurWerk(id);dlg.scrollTop=y};
@@ -10876,6 +10882,8 @@ async function fwCamUpload(fid,file){const f=state.facturen.find(x=>x.id===fid);
   fwSmall(fid,"Wat viel op?",I.camera,`<img src="${BLOB}${esc(r.id)}" alt="" class="bv-prev">${bvZijdeHtml()}<div class="chips" style="margin:0">${BV_SNEL.map(t=>`<button type="button" class="chip" data-bvt="${esc(t)}">${esc(t)}</button>`).join("")}</div><label>Toelichting voor de klant<textarea id="bv-n" style="min-height:80px"></textarea></label>`,
     ()=>({bijlagen:[...((state.facturen.find(x=>x.id===fid)||f).bijlagen||[]),{id:r.id,naam:file.name||"foto.jpg",soort:"foto",notitie:$("#bv-n").value.trim(),zijde:bvZijde(),datum:iso(today())}]}));
   form.querySelectorAll("[data-bvt]").forEach(b=>b.onclick=()=>{const t=$("#bv-n");t.value=t.value?t.value+". "+b.dataset.bvt:b.dataset.bvt;t.focus()});bvZijdeBind()}
+/* logboek: Enter in het invoerveld = Noteer */
+document.addEventListener("keydown",e=>{const t=e.target;if(e.key!=="Enter"||!t||t.tagName!=="INPUT"||!t.closest)return;const w=t.closest(".log-in");if(!w)return;e.preventDefault();const b=w.querySelector("button");if(b)b.click()});
 
 /* ---------- Foto bekijken: tik op een bijzonderheid → groot beeld, tekst aanpassen, erop tekenen of verwijderen ---------- */
 function fotoBekijk(bron,i){

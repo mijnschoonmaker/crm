@@ -58,7 +58,7 @@ function openFactuurWerk(id){
       <p class="fw-txt">${esc(rv.betaal)}</p>${rv.vwTxt?`<p class="fw-txt">${esc(rv.vwTxt)}</p>`:""}<small class="help">Wordt automatisch gemaakt uit het bedrag, de vervaldatum en je bedrijfsgegevens (Instellingen).</small></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.chat}</span><b>Logboek</b></div>
       <div class="log">${log.map(l=>`<div><span>${dt(l.d)}</span>${esc(l.t)}</div>`).join("")}</div>
-      <div style="display:flex;gap:8px"><input id="fw-log" placeholder="Bijv. klant belt terug over de factuur"><button type="button" class="small" id="fwLog">Noteer</button></div></section>
+      <div class="log-in"><input id="fw-log" placeholder="Bijv. klant belt terug over de factuur" aria-label="Notitie voor het logboek"><button type="button" class="small primary" id="fwLog">${I.plus}Noteer</button></div></section>
   </div></div>
   <div class="row"><button type="button" class="ghost danger" id="delF">Factuur verwijderen</button><span class="sp"></span><button type="button" data-act="close">Sluiten</button></div>`,{xwide:true});
   const re=()=>{const y=dlg.scrollTop;openFactuurWerk(id);dlg.scrollTop=y};
@@ -161,3 +161,5 @@ async function fwCamUpload(fid,file){const f=state.facturen.find(x=>x.id===fid);
   fwSmall(fid,"Wat viel op?",I.camera,`<img src="${BLOB}${esc(r.id)}" alt="" class="bv-prev">${bvZijdeHtml()}<div class="chips" style="margin:0">${BV_SNEL.map(t=>`<button type="button" class="chip" data-bvt="${esc(t)}">${esc(t)}</button>`).join("")}</div><label>Toelichting voor de klant<textarea id="bv-n" style="min-height:80px"></textarea></label>`,
     ()=>({bijlagen:[...((state.facturen.find(x=>x.id===fid)||f).bijlagen||[]),{id:r.id,naam:file.name||"foto.jpg",soort:"foto",notitie:$("#bv-n").value.trim(),zijde:bvZijde(),datum:iso(today())}]}));
   form.querySelectorAll("[data-bvt]").forEach(b=>b.onclick=()=>{const t=$("#bv-n");t.value=t.value?t.value+". "+b.dataset.bvt:b.dataset.bvt;t.focus()});bvZijdeBind()}
+/* logboek: Enter in het invoerveld = Noteer */
+document.addEventListener("keydown",e=>{const t=e.target;if(e.key!=="Enter"||!t||t.tagName!=="INPUT"||!t.closest)return;const w=t.closest(".log-in");if(!w)return;e.preventDefault();const b=w.querySelector("button");if(b)b.click()});
