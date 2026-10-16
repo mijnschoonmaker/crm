@@ -3958,3 +3958,6 @@ body.rd-busy{cursor:grabbing}
 .sk-w b{font-size:13.5px;font-weight:600}.sk-w small{font-size:11.5px;color:var(--muted)}
 .sk-w input:checked+span{border-color:var(--brand);background:color-mix(in srgb,var(--brand) 9%,var(--surface));box-shadow:0 0 0 1px var(--brand) inset}
 @media(max-width:560px){.sk-redenen{grid-template-columns:1fr 1fr}.sk-wanneer{grid-template-columns:1fr}}
+.sk-reden b{white-space:normal;overflow-wrap:anywhere;hyphens:auto}
+.sk-reden span{padding:10px 10px}
+.jp-ib:focus{outline:none}.jp-ib:focus-visible{outline:2px solid rgb(255 255 255 / .7);outline-offset:2px}

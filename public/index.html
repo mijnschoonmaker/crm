@@ -4385,6 +4385,9 @@ body.rd-busy{cursor:grabbing}
 .sk-w b{font-size:13.5px;font-weight:600}.sk-w small{font-size:11.5px;color:var(--muted)}
 .sk-w input:checked+span{border-color:var(--brand);background:color-mix(in srgb,var(--brand) 9%,var(--surface));box-shadow:0 0 0 1px var(--brand) inset}
 @media(max-width:560px){.sk-redenen{grid-template-columns:1fr 1fr}.sk-wanneer{grid-template-columns:1fr}}
+.sk-reden b{white-space:normal;overflow-wrap:anywhere;hyphens:auto}
+.sk-reden span{padding:10px 10px}
+.jp-ib:focus{outline:none}.jp-ib:focus-visible{outline:2px solid rgb(255 255 255 / .7);outline-offset:2px}
 
 </style>
 <div class="app">
@@ -8888,7 +8891,7 @@ function openSkip(id){
   const IC={"Klant niet thuis":I.user,"Slecht weer":I.cloud||I.alert,"Ziekte/personeelsuitval":I.heart||I.alert,"Klant uitgesteld":I.clock,"Defecte apparatuur":I.wrench,"Overig":I.dots||I.note};
   openDlg(`<div class="ow-kop jp-kop ow-soon"><div class="jp-kr1"><span class="jp-st"><i></i>Overslaan</span><span class="sp"></span><button type="button" class="jp-ib" data-act="close" aria-label="Sluiten">${I.x}</button></div>
     <div class="jp-kr2"><span class="jp-k1"><small>${["zo","ma","di","wo","do","vr","za"][today().getDay()]} ${today().getDate()} ${["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"][today().getMonth()]}</small><b>${esc(k.tijd||"–")}</b></span><span class="jp-k2"><b>${esc(cleanName(k.naam))}</b><em>${I.pin}${esc(jobAddr(k))}</em></span><span class="jp-k3"><small>Bedrag</small><b>${eur(toon(k.prijs))}</b><em>niet gewassen</em></span></div></div>
-  <div class="sk-sec"><span class="eyebrow">${I.alert}Reden</span><div class="sk-redenen">${R.map((r,i)=>`<label class="sk-reden"><input type="radio" name="skr" value="${esc(r)}" ${i===0?"checked":""}><span>${IC[r]||I.note}<b>${esc(r)}</b></span></label>`).join("")}</div></div>
+  <div class="sk-sec"><span class="eyebrow">${I.alert}Reden</span><div class="sk-redenen">${R.map((r,i)=>`<label class="sk-reden"><input type="radio" name="skr" value="${esc(r)}" ${i===0?"checked":""}><span>${IC[r]||I.note}<b>${esc(r==="Ziekte/personeelsuitval"?"Ziekte of uitval":r)}</b></span></label>`).join("")}</div></div>
   <div class="sk-sec"><span class="eyebrow">${I.planning}Wanneer weer aanbieden?</span><div class="sk-wanneer" role="group">${[["0","Morgen al",""],["1","Over 1 week",""],["int","Volgend interval","over "+intervalTxt(k)+" · aanbevolen"]].map(([v,l,s],i)=>`<label class="sk-w"><input type="radio" name="skW" value="${v}" ${v==="int"?"checked":""}><span><b>${l}</b>${s?`<small>${esc(s)}</small>`:""}</span></label>`).join("")}</div></div>
   <label>Notitie (optioneel)<input id="skN" placeholder="Bijv. hond los in de tuin"></label>
   <div class="row stickyfoot"><button type="button" class="ghost" data-act="close">Annuleren</button><span class="sp"></span><button type="submit" class="primary" id="skGo">${I.right}Overslaan</button></div>`);
