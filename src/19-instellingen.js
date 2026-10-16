@@ -416,7 +416,7 @@ const waNr=t=>{let d=String(t||"").replace(/\D/g,"");if(d.startsWith("00"))d=d.s
 async function klantCalcHtml(wa){const s=S();if(!RC)RC=buildRamen();const c=RC.cfgAll(),lg=await loadLogo();
   const cfg={g0_p:c.g0_p,g1_p:c.g1_p,g2_p:c.g2_p,g3_p:c.g3_p,tuimel_p:c.tuimel_p,lood_p:c.lood_p,koepel_p:c.koepel_p,mini_p:c.mini_p,start:c.start||0,min:c.min,tiers:c.tiers,tb:c.tb||{},wg:c.wg||{},fp:c.fp||{}};
   const B={naam:s.naam||"Glasbewassing",email:s.email||"",whatsapp:wa||waNr(s.telefoon),logo:lg?await kleinLogo(lg.url):"",endpoint:LIVE?location.origin+"/api/aanvraag":"",werkgebied:String((form&&form.querySelector('[data-k="webPostcodes"]')||{}).value??s.webPostcodes??"").trim(),gebieden:wgVoorCalc(),klantPc:wgKlantPcAan()?wgKlantPc().join(","):"",voorwaarden:String((form&&form.querySelector('[data-k="webVoorwaarden"]')||{}).value??s.webVoorwaarden??"").trim()};
-  const fl=KC_TPL.slice(KC_TPL.indexOf("const FREQ_LIST="),KC_TPL.indexOf("/*CFG-END*/"));
+  const fl="const FREQ_LIST="+JSON.stringify(RC.freqList().filter(f=>f.aan!==false).map(f=>[f.k,f.l,f.w?52/f.w:1,Number(f.p)||0,f.w||0]))+";\n";
   const conf=`/*CFG-START*/\nconst BEDRIJF=${JSON.stringify(B)};\nconst VAT=${(Number(s.btw)||21)/100};\nconst cfg=${JSON.stringify(cfg)};\n${fl}`;
   return KC_TPL.slice(0,KC_TPL.indexOf("/*CFG-START*/"))+conf+KC_TPL.slice(KC_TPL.indexOf("/*CFG-END*/"))}
 

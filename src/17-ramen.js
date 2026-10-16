@@ -349,7 +349,12 @@ function buildRamen(){
     ["w6","1x per 6 weken",52/6,0,6],["m8","1x per 8 weken",6.5,5,8],["mnd2","1x per 2 maanden",6,0,8],["w12","1x per 12 weken",52/12,0,12],
     ["mnd3","1x per 3 maanden",4,-150,12],["w16","1x per 16 weken",3.25,0,12],["mnd4","1x per 4 maanden",3,0,12],["w24","1x per 24 weken",52/24,0,26],
     ["mnd6","1x per 6 maanden",2,0,26],["w48","1x per 48 weken",52/48,0,52],["mnd12","1x per 12 maanden",1,0,52],["afroep","Op afroep",1,-25,0],["once","Eenmalig",1,-25,0]];
-  const FREQ={};FREQ_LIST.forEach(([k,l,y,p,w])=>FREQ[k]={l,y,pct:p,w});
+  const FREQ_BASE=FREQ_LIST.slice(),FREQ={};
+  /* extra frequenties die in Uitvoering › Frequenties voor de rekentool zijn aangezet (freqCalc[key]={l,w}) */
+  const refreshFreq=()=>{const fc=(typeof S==="function"&&S().freqCalc)||{};FREQ_LIST.length=0;FREQ_BASE.forEach(x=>FREQ_LIST.push(x));
+    Object.entries(fc).forEach(([k,v])=>{if(v&&typeof v==="object"&&Number(v.w)>0&&!FREQ_LIST.some(x=>x[0]===k))FREQ_LIST.push([k,String(v.l||"1x per "+v.w+" weken"),52/Number(v.w),0,Number(v.w)])});
+    Object.keys(FREQ).forEach(k=>delete FREQ[k]);FREQ_LIST.forEach(([k,l,y,p,w])=>FREQ[k]={l,y,pct:p,w})};
+  refreshFreq();
   const VAT=.21;
   const baseCfg=()=>{const c={};TYPES.forEach(t=>{c[t.k+"_s"]=t.s;c[t.k+"_p"]=t.p});Object.assign(c,JSON.parse(JSON.stringify(DEFAULTS)));return c};
   let cfg=baseCfg(),cfgSrc=null,cfgT=null;
@@ -788,8 +793,8 @@ function buildRamen(){
   root.querySelectorAll('input[name="koz"]').forEach(el=>el.addEventListener("change",markStale));
   g("freq").addEventListener("change",()=>{renderOverig();markStale()});
   g("calcBtn").onclick=()=>calculate();
-  {const aan=k=>{const fc=S().freqCalc;return !(fc&&fc[k]===false)},L=FREQ_LIST.filter(([k])=>aan(k)),def=L.some(([k])=>k==="m8")?"m8":(L[0]||[])[0];
-    g("freq").innerHTML=L.map(([k,l,,p])=>`<option value="${k}"${k===def?" selected":""}>${l}${p>0?` (−${p}%)`:p<0?` (+${-p}%)`:""}</option>`).join("")}
+  const fillFreq=()=>{refreshFreq();const aan=k=>{const fc=S().freqCalc;return !(fc&&fc[k]===false)},L=FREQ_LIST.filter(([k])=>aan(k)).sort((a,b)=>(a[4]||999)-(b[4]||999)),cur=g("freq").value,def=L.some(([k])=>k===cur)?cur:L.some(([k])=>k==="m8")?"m8":(L[0]||[])[0];
+    g("freq").innerHTML=L.map(([k,l,,p])=>`<option value="${k}"${k===def?" selected":""}>${l}${p>0?` (−${p}%)`:p<0?` (+${-p}%)`:""}</option>`).join("")};fillFreq();
   g("rateRows").innerHTML=TYPES.map(t=>`<tr><td>${t.l}</td><td><input id="cfg-${t.k}_s" data-k="${t.k}_s" type="number" min="0" step="1" aria-label="Seconden ${t.l}">${t.se?'<span class="flag">*</span>':""}</td><td><input id="cfg-${t.k}_p" data-k="${t.k}_p" type="number" min="0" step="0.0001" aria-label="Prijs ${t.l}">${t.pe?'<span class="flag">*</span>':""}</td></tr>`).join("");
   const cfgInputs=[...root.querySelectorAll("#rateRows input")];
   [["r-start","start"],["r-min","min"],["r-kozmin","kozMin"],["r-kozp","koz_p"],["r-kozs","koz_s"]].forEach(([id,k])=>{const el=g(id);el.dataset.k=k;cfgInputs.push(el)});
@@ -854,7 +859,8 @@ function buildRamen(){
     cfgAll(){if(loadCfg())fillCfg();return JSON.parse(JSON.stringify(cfg))},
     freqPct(w){if(loadCfg())fillCfg();const fk=({1:"w1",2:"w2",4:"w4",6:"w6",8:"m8",12:"w12",13:"mnd3",16:"w16",24:"w24",26:"mnd6",48:"w48",52:"mnd12"})[Number(w)]||"w4",f=FREQ[fk];return fpct(fk,f?f.pct:0)},
     staffel(list){if(loadCfg())fillCfg();return staffel(list)},
-    freqList(){const fc=S().freqCalc||{};return FREQ_LIST.map(([k,l,y,p,w])=>({k,l,p,w,aan:fc[k]!==false}))},
+    freqList(){refreshFreq();const fc=S().freqCalc||{};return FREQ_LIST.map(([k,l,y,p,w])=>({k,l,p,w,aan:fc[k]!==false}))},
+    refreshFreq(){refreshFreq()},
     fkVoor(w){return ({1:"w1",2:"w2",4:"w4",6:"w6",8:"m8",12:"w12",13:"mnd3",16:"w16",24:"w24",26:"mnd6",48:"w48",52:"mnd12"})[Number(w)]||"w4"},
     current(){if(!lastR||!lastQ)return null;return {regels:regelsFor(lastR),opd:opdFor(lastR,null,embed&&embed.base),extra:extrasFor(lastR),count:lastR.count}},
     refreshOverig(){renderOverig()},
@@ -866,7 +872,7 @@ function buildRamen(){
       g("k-eb").textContent=o?"Woning":"Klant";g("k-h2").textContent=o?"Foto's van de woning":"Klantgegevens";if(doReset)resetAll();if(o&&o.klantId){fillKlantSelect();g("k-sel").value=o.klantId}},
     loadFor(id){const k=state.klanten.find(x=>x.id===id);if(k&&k.ramenTelling)loadTelling(k,true)},
     setLocked(on,cb){if(on)host.setAttribute("data-locked","");else host.removeAttribute("data-locked");onSaved=on?cb:null;g("k-eb").textContent=on?"Woning":"Klant";g("k-h2").textContent=on?"Foto's en notitie":"Klantgegevens"},
-    sync(){fillKlantSelect();if(loadCfg()){fillCfg();renderFloors();renderSpecial()}renderOverig()},
+    sync(){fillKlantSelect();fillFreq();if(loadCfg()){fillCfg();renderFloors();renderSpecial()}renderOverig()},
     focusState(){const a=root.activeElement;return a&&a.id?{id:a.id,s:a.selectionStart,e:a.selectionEnd}:null},
     restoreFocus(f){const el=g(f.id);if(!el)return;try{el.focus({preventScroll:true})}catch(_){}try{if(f.s!=null)el.setSelectionRange(f.s,f.e)}catch(_){}},
     openKlant(id){fillKlantSelect();setKlant(id);const k=state.klanten.find(x=>x.id===id);if(k&&k.ramenTelling)loadTelling(k)}};
