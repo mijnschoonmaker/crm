@@ -23,7 +23,7 @@ function liveStart(stil){
   lvWakker();if(!stil)toast("Live delen staat aan · de klanten van vandaag zien waar je bent");lvKnop()}
 function liveStop(stil){if(LV.watch!=null){try{navigator.geolocation.clearWatch(LV.watch)}catch(e){}}LV.watch=null;LV.pos=null;try{LV.lock&&LV.lock.release()}catch(e){}LV.lock=null;
   lvSchrijf({actief:false});if(!stil)toast("Live delen staat uit");lvKnop()}
-function liveWissel(){state.liveDelen=!state.liveDelen;try{localStorage.setItem("ms.live",state.liveDelen?"1":"0")}catch(e){}state.liveDelen?liveStart():liveStop();render()}
+function liveWissel(){state.liveDelen=!state.liveDelen;try{localStorage.setItem("ms.live",state.liveDelen?"1":"0")}catch(e){}state.liveDelen?liveStart():liveStop();try{const d=iso(today()),r=state.routes[d]||{};state.routes[d]={...r,werk:{...(r.werk||{}),liveUit:!state.liveDelen}};save("routes",d,{...strip(r),werk:{...(r.werk||{}),liveUit:!state.liveDelen}})}catch(e){}render()}
 /* knop in de kop van de Route-pagina */
 function lvKnopHtml(){if(!LIVE)return"";const aan=state.liveDelen&&LV.watch!=null;
   return `<button type="button" class="rh-live${aan?" aan":""}" data-act="livedelen" aria-pressed="${aan}" title="Klanten van vandaag zien in hun portaal waar je bent"><i></i><span>${aan?"Live zichtbaar":"Live delen"}</span></button>`}

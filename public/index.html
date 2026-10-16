@@ -4980,6 +4980,8 @@ async function startJob(k){
   const on=!isBezig(k);
   /* direct zichtbaar maken, ook als het opslaan even duurt */
   const lokaal=patch=>{const i=state.klanten.findIndex(x=>x.id===k.id);if(i>=0){state.klanten[i]={...state.klanten[i],...patch};schedule()}};
+  /* de dag is begonnen: live delen gaat vanzelf aan, zodat de klant van vandaag kan zien dat je eraan komt (één keer vraagt de telefoon om je locatie) */
+  if(on&&typeof LIVE!=="undefined"&&LIVE&&typeof wdLive==="function"&&!(state.liveDelen&&typeof LV!=="undefined"&&LV.watch!=null)&&!(wdGet(iso(today()))||{}).liveUit)try{wdLive(true)}catch(e){}
   try{if(on){const ts=new Date().toISOString();lokaal({bezig:ts});setTimeout(()=>{const b=document.querySelector(".bs-timer");if(b){b.classList.remove("bt-flash");void b.offsetWidth;b.classList.add("bt-flash")}},80);toast("Tijd loopt bij "+cleanName(k.naam));await save("klanten",k.id,{...strip(k),bezig:ts});return}
     /* stoppen = klaar: tijd vastleggen en meteen afmelden (conceptfactuur, of zoals bij de opdracht ingesteld) */
     await afronden(k,"concept");}catch(e){err(e)}
@@ -12190,7 +12192,7 @@ function liveStart(stil){
   lvWakker();if(!stil)toast("Live delen staat aan · de klanten van vandaag zien waar je bent");lvKnop()}
 function liveStop(stil){if(LV.watch!=null){try{navigator.geolocation.clearWatch(LV.watch)}catch(e){}}LV.watch=null;LV.pos=null;try{LV.lock&&LV.lock.release()}catch(e){}LV.lock=null;
   lvSchrijf({actief:false});if(!stil)toast("Live delen staat uit");lvKnop()}
-function liveWissel(){state.liveDelen=!state.liveDelen;try{localStorage.setItem("ms.live",state.liveDelen?"1":"0")}catch(e){}state.liveDelen?liveStart():liveStop();render()}
+function liveWissel(){state.liveDelen=!state.liveDelen;try{localStorage.setItem("ms.live",state.liveDelen?"1":"0")}catch(e){}state.liveDelen?liveStart():liveStop();try{const d=iso(today()),r=state.routes[d]||{};state.routes[d]={...r,werk:{...(r.werk||{}),liveUit:!state.liveDelen}};save("routes",d,{...strip(r),werk:{...(r.werk||{}),liveUit:!state.liveDelen}})}catch(e){}render()}
 /* knop in de kop van de Route-pagina */
 function lvKnopHtml(){if(!LIVE)return"";const aan=state.liveDelen&&LV.watch!=null;
   return `<button type="button" class="rh-live${aan?" aan":""}" data-act="livedelen" aria-pressed="${aan}" title="Klanten van vandaag zien in hun portaal waar je bent"><i></i><span>${aan?"Live zichtbaar":"Live delen"}</span></button>`}
