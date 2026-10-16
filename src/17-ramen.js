@@ -788,7 +788,8 @@ function buildRamen(){
   root.querySelectorAll('input[name="koz"]').forEach(el=>el.addEventListener("change",markStale));
   g("freq").addEventListener("change",()=>{renderOverig();markStale()});
   g("calcBtn").onclick=()=>calculate();
-  g("freq").innerHTML=FREQ_LIST.map(([k,l,,p])=>`<option value="${k}"${k==="m8"?" selected":""}>${l}${p>0?` (−${p}%)`:p<0?` (+${-p}%)`:""}</option>`).join("");
+  {const aan=k=>{const fc=S().freqCalc;return !(fc&&fc[k]===false)},L=FREQ_LIST.filter(([k])=>aan(k)),def=L.some(([k])=>k==="m8")?"m8":(L[0]||[])[0];
+    g("freq").innerHTML=L.map(([k,l,,p])=>`<option value="${k}"${k===def?" selected":""}>${l}${p>0?` (−${p}%)`:p<0?` (+${-p}%)`:""}</option>`).join("")}
   g("rateRows").innerHTML=TYPES.map(t=>`<tr><td>${t.l}</td><td><input id="cfg-${t.k}_s" data-k="${t.k}_s" type="number" min="0" step="1" aria-label="Seconden ${t.l}">${t.se?'<span class="flag">*</span>':""}</td><td><input id="cfg-${t.k}_p" data-k="${t.k}_p" type="number" min="0" step="0.0001" aria-label="Prijs ${t.l}">${t.pe?'<span class="flag">*</span>':""}</td></tr>`).join("");
   const cfgInputs=[...root.querySelectorAll("#rateRows input")];
   [["r-start","start"],["r-min","min"],["r-kozmin","kozMin"],["r-kozp","koz_p"],["r-kozs","koz_s"]].forEach(([id,k])=>{const el=g(id);el.dataset.k=k;cfgInputs.push(el)});
@@ -853,7 +854,7 @@ function buildRamen(){
     cfgAll(){if(loadCfg())fillCfg();return JSON.parse(JSON.stringify(cfg))},
     freqPct(w){if(loadCfg())fillCfg();const fk=({1:"w1",2:"w2",4:"w4",6:"w6",8:"m8",12:"w12",13:"mnd3",16:"w16",24:"w24",26:"mnd6",48:"w48",52:"mnd12"})[Number(w)]||"w4",f=FREQ[fk];return fpct(fk,f?f.pct:0)},
     staffel(list){if(loadCfg())fillCfg();return staffel(list)},
-    freqList(){return FREQ_LIST.map(([k,l,y,p,w])=>({k,l,p,w}))},
+    freqList(){const fc=S().freqCalc||{};return FREQ_LIST.map(([k,l,y,p,w])=>({k,l,p,w,aan:fc[k]!==false}))},
     fkVoor(w){return ({1:"w1",2:"w2",4:"w4",6:"w6",8:"m8",12:"w12",13:"mnd3",16:"w16",24:"w24",26:"mnd6",48:"w48",52:"mnd12"})[Number(w)]||"w4"},
     current(){if(!lastR||!lastQ)return null;return {regels:regelsFor(lastR),opd:opdFor(lastR,null,embed&&embed.base),extra:extrasFor(lastR),count:lastR.count}},
     refreshOverig(){renderOverig()},
