@@ -660,15 +660,6 @@ html,body{background:var(--bg)!important}
 @keyframes bzRij{from{left:0}}
 .bz-huis{position:absolute;right:-34px;top:50%;transform:translateY(-62%);width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:#fff;color:var(--brand);box-shadow:0 0 0 4px rgb(255 255 255 / .2)}
 .bz-huis svg{width:16px;height:16px}
-/* tegelrijen op een blauwe band */
-.pg>.stats,.stats{position:relative;padding:12px;border-radius:24px;overflow:hidden;background:radial-gradient(120% 160% at 100% 0%,#2aa3b3 0%,transparent 55%),linear-gradient(135deg,#0f5f6e,#137a8a 55%,#1d5a74);box-shadow:0 24px 50px -30px rgb(15 70 85 / .7)}
-.stats::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 18% 140%,rgb(255 255 255 / .14),transparent 45%),repeating-linear-gradient(115deg,rgb(255 255 255 / .035) 0 2px,transparent 2px 26px);pointer-events:none}
-.stats .stat{position:relative;background:linear-gradient(180deg,rgb(255 255 255 / .16),rgb(255 255 255 / .07))!important;border:1px solid rgb(255 255 255 / .16)!important;box-shadow:inset 0 1px 0 rgb(255 255 255 / .18)!important;color:#fff}
-.stats .stat small{color:rgb(255 255 255 / .72)!important}.stats .stat b{color:#fff!important}
-.rf-tg{position:relative;padding:12px;border-radius:24px;overflow:hidden;background:radial-gradient(120% 160% at 100% 0%,#2aa3b3 0%,transparent 55%),linear-gradient(135deg,#0f5f6e,#137a8a 55%,#1d5a74);box-shadow:0 24px 50px -30px rgb(15 70 85 / .7)}
-.rf-tg>div{background:linear-gradient(180deg,rgb(255 255 255 / .16),rgb(255 255 255 / .07))!important;border:1px solid rgb(255 255 255 / .16)!important;box-shadow:inset 0 1px 0 rgb(255 255 255 / .18)!important;color:#fff}
-.rf-tg small,.rf-tg span{color:rgb(255 255 255 / .72)!important}.rf-tg b{color:#fff!important}.rf-tg>i{color:rgb(255 255 255 / .6)}
-.rf-tg>div.hl{background:linear-gradient(180deg,rgb(159 240 210 / .28),rgb(159 240 210 / .1))!important;border-color:rgb(159 240 210 / .4)!important}
 .bz-tr em.bz-van{width:58px!important;height:38px!important}.bz-line{margin-top:26px!important}
 /* aanbevelen: uw straat */
 .rs{padding:18px 20px 16px;border-radius:22px;background:var(--surface);border:1px solid var(--line);box-shadow:0 1px 2px rgb(15 31 38 / .04),0 14px 30px -24px rgb(15 50 60 / .35)}
@@ -717,16 +708,6 @@ html,body{background:var(--bg)!important}
 .rt-d:last-child.on i{background:#22a46c;border-color:#22a46c;box-shadow:0 0 0 4px rgb(34 164 108 / .15)}
 .rt-d small{font-size:11px;color:var(--muted);white-space:nowrap;font-weight:600}.rt-d.on small{color:var(--ink)}
 .rt-trk.stop{opacity:.5;filter:grayscale(1)}
-/* bezoeken-tegels op de blauwe band */
-.bz-tiles{position:relative;padding:12px;border-radius:24px;overflow:hidden;background:radial-gradient(120% 160% at 100% 0%,#2aa3b3 0%,transparent 55%),linear-gradient(135deg,#0f5f6e,#137a8a 55%,#1d5a74);box-shadow:0 24px 50px -30px rgb(15 70 85 / .7)}
-.bz-tiles::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 18% 140%,rgb(255 255 255 / .14),transparent 45%),repeating-linear-gradient(115deg,rgb(255 255 255 / .035) 0 2px,transparent 2px 26px);pointer-events:none}
-.bz-tile{background:linear-gradient(180deg,rgb(255 255 255 / .16),rgb(255 255 255 / .07))!important;border:1px solid rgb(255 255 255 / .16)!important;box-shadow:inset 0 1px 0 rgb(255 255 255 / .18)!important;color:#fff}
-.bz-tile small,.bz-tile em{color:rgb(255 255 255 / .72)!important}.bz-tile b{color:#fff}
-.bz-ti{background:rgb(255 255 255 / .16)!important;color:#fff!important}
-.bz-dr{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px}.bz-dr i{width:10px;height:13px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:rgb(255 255 255 / .2);animation:rsOp .4s both;animation-delay:calc(var(--i)*50ms)}.bz-dr i.on{background:linear-gradient(180deg,#c9f3ff,#7fd4e6)}.bz-dr small{font-size:11px;color:rgb(255 255 255 / .8);align-self:center}
-.bz-rt8{display:flex;gap:3px;margin-top:8px}.bz-rt8 i{flex:1;height:6px;border-radius:3px;background:rgb(255 255 255 / .2)}.bz-rt8 i.on{background:#ffe08a}
-.bz-tile .mini-st svg{color:#ffd76a}
-.bz-rt8t{font-size:11px!important;margin-top:4px}
 /* gratis-beurt-teller (vervangt de bonnen op kleine schermen) */
 .rf-gratis{display:none;margin-top:16px;padding:14px;border-radius:18px;background:rgb(255 255 255 / .12);border:1px solid rgb(255 255 255 / .2)}
 .rg-k{display:flex;align-items:center;gap:12px}.rg-k>span{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#ffe08a,#f3b63a);color:#7a4d00;flex:none}.rg-k>span svg{width:20px;height:20px}
@@ -752,25 +733,6 @@ html,body{background:var(--bg)!important}
 @keyframes rsRij{from{left:-60px}to{left:calc(100% + 10px)}}
 @media (prefers-reduced-motion:reduce){.rs-straat .rs-bus{display:none}}
 .rs-straat{background:linear-gradient(180deg,#e8f5f8 0%,#eef8f9 100%)}.rs-rij{padding-bottom:12px;border-bottom:10px solid #cfe5d3}
-/* tijdlijn als weg met stempels */
-.bz-ol{padding-left:44px!important}
-.bz-ol::before{left:10px!important;width:22px!important;top:6px!important;bottom:6px!important;border-radius:11px;background:linear-gradient(180deg,#7d8f97,#6b7c84)!important}
-.bz-ol::after{content:"";position:absolute;left:20px;top:14px;bottom:14px;width:2px;background:repeating-linear-gradient(180deg,rgb(255 255 255 / .85) 0 10px,transparent 10px 20px)}
-.bz-dot{left:-42px!important;width:28px!important;height:28px!important;border:3px solid #fff!important;box-shadow:0 2px 6px rgb(0 0 0 / .2)!important;z-index:2}
-.bz-it.verwacht .bz-dot,.bz-it.gepland .bz-dot{background:#fff;border-color:var(--brand)!important}
-.bz-it.verwacht .bz-dot::after,.bz-it.gepland .bz-dot::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--brand)}
-.bz-it.af .bz-dot{background:#22a46c!important}
-.bz-nu{height:auto!important;margin:2px 0 2px -44px!important;padding-left:44px!important;display:flex;align-items:center;gap:10px}
-.bz-nu::before{display:none!important}
-.bz-nubus{position:absolute;left:-1px;top:50%;width:44px;height:28px;transform:translateY(-50%) rotate(-90deg);z-index:3;filter:drop-shadow(0 3px 4px rgb(0 0 0 / .3));animation:bzBob 1.2s ease-in-out infinite}
-.bz-nubus svg{width:100%;height:100%}
-@keyframes bzBob{50%{transform:translateY(-62%) rotate(-90deg)}}
-.bz-nu span{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--brand)!important;padding:5px 10px;border-radius:99px;background:var(--brand-soft)}
-.bz-it.verwacht .bz-card{border:2px dashed color-mix(in srgb,var(--brand) 35%,var(--line))!important;background:linear-gradient(90deg,color-mix(in srgb,var(--brand) 5%,var(--surface)),var(--surface))}
-.bz-it.verwacht .bz-dt{background:var(--blauw,linear-gradient(135deg,#0f5f6e,#137a8a));background:linear-gradient(135deg,#0f5f6e,#137a8a);color:#fff}.bz-it.verwacht .bz-dt small{color:rgb(255 255 255 / .8)}
-.bz-stempel{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border:2px solid #22a46c;border-radius:8px;color:#1b8a5a;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;transform:rotate(-8deg);opacity:.85;mix-blend-mode:multiply}
-.bz-stempel svg{width:12px;height:12px}.bz-stempel i{font-style:normal}
-.bz-it.af .bz-card{position:relative}
 
 /* ---------- aanbevelen: tickets v3 (rustig, echt papier/kaart) ---------- */
 @media (min-width:1101px){.rf-hero{grid-template-columns:minmax(0,1fr) 360px!important}.rf-vis{height:258px!important;position:relative;margin-top:-4px}}
@@ -851,11 +813,6 @@ aside .logo{gap:16px!important}.topbar .lg-g{font-size:14px!important}
 .topbar .menu-knop:active{transform:scale(.94)}
 .topbar .menu-knop[aria-current="true"]{background:linear-gradient(135deg,var(--brand),var(--brand-2))!important;color:#fff!important;box-shadow:0 6px 16px -6px rgb(19 122 138 / .5)!important}
 
-/* tegels op overzicht: lager en rustiger */
-.stats{padding:8px!important;gap:8px!important;border-radius:20px!important}
-.stats .stat{padding:9px 14px 10px!important;border-radius:14px!important;min-height:0!important}
-.stats .stat small{font-size:12px!important;margin:0!important}
-.stats .stat b{font-size:20px!important;line-height:1.15!important;margin-top:1px!important}
 
 /* knoppen in de bezoekkaart: altijd naast elkaar */
 .bz-acts{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:8px!important;flex-wrap:nowrap!important;max-width:520px}
@@ -870,6 +827,115 @@ aside .logo{gap:16px!important}.topbar .lg-g{font-size:14px!important}
 .vv-bord{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center}.vv-qr{width:180px;height:180px;padding:12px;background:#fff;border:1px solid var(--line);border-radius:18px}.vv-qr svg{width:100%;height:100%;display:block}
 .vv-bt b{font-size:18px;display:block}.vv-bt small{color:var(--muted)}.vv-bt p{margin:8px 0 12px;font-size:14px;color:var(--muted)}.vv-acts{display:flex;gap:8px;flex-wrap:wrap}
 @media(max-width:600px){.vv-bord{grid-template-columns:1fr;justify-items:center;text-align:center}.vv-acts{justify-content:center}.vv-det{margin-left:0}}
+
+/* ====================================================================
+   Huisstijl van het CRM: gekleurde kop + witte body, hairlines, teal cijfers
+   ==================================================================== */
+:root{--kop:linear-gradient(135deg,#0f5f6e,#137a8a 55%,#1d5a74);--kop-goud:linear-gradient(135deg,#9a5a12,#d08a2e 60%,#b7781f);--kop-rood:linear-gradient(135deg,#8f2a22,#d65745 60%,#b0423a);--kop-groen:linear-gradient(135deg,#17734b,#22a46c 60%,#16805a);--kop-grijs:linear-gradient(135deg,#5b7480,#6f8893);
+  --lijnen:radial-gradient(circle at 18% 140%,rgb(255 255 255 / .14),transparent 45%),repeating-linear-gradient(115deg,rgb(255 255 255 / .035) 0 2px,transparent 2px 26px);
+  --kaart-schaduw:0 1px 2px rgb(15 31 38 / .05),0 16px 32px -22px rgb(15 50 60 / .45)}
+/* kaartkop */
+.kp{border:0!important;box-shadow:var(--kaart-schaduw)!important}
+.kp>.kp-h{position:relative;overflow:hidden;color:#fff;background:var(--kop)!important;border-bottom:0!important;padding:14px 18px 16px!important}
+.kp>.kp-h::before{content:"";display:block!important;position:absolute;inset:0;background:var(--lijnen);pointer-events:none;-webkit-mask:none;mask:none}
+.kp>.kp-h>*{position:relative}
+.kp>.kp-h b{color:#fff;font-size:17px!important;letter-spacing:-.02em}
+.kp>.kp-h small{color:rgb(255 255 255 / .78)!important;font-size:12.5px}
+.kp>.kp-h .objic{width:42px!important;height:42px!important;border-radius:13px!important;background:rgb(255 255 255 / .16)!important;border:1px solid rgb(255 255 255 / .25);color:#fff!important;box-shadow:none!important}
+.kp>.kp-h .objic svg{width:21px;height:21px}
+.kp:has(>.kp-h>.objic.goud)>.kp-h{background:var(--kop-goud)!important}
+.kp:has(>.kp-h>.objic.rood)>.kp-h{background:var(--kop-rood)!important}
+.kp:has(>.kp-h>.objic.groen)>.kp-h{background:var(--kop-groen)!important}
+.kp:has(>.kp-h>.objic.zacht)>.kp-h{background:var(--kop-grijs)!important}
+.kp>.kp-h .primary,.kp>.kp-h button:not(.ghost),.kp>.kp-h .btn{background:rgb(255 255 255 / .16)!important;border:1px solid rgb(255 255 255 / .25)!important;color:#fff!important;box-shadow:none!important;border-radius:999px!important;padding:7px 13px!important;font-size:13px}
+.kp>.kp-h .ghost{color:#fff!important}
+.kp>.kp-h .pill{background:rgb(255 255 255 / .16);color:#fff}
+.kp .lijst>.lr:first-child{border-top:0}
+.lr .tx b{font-weight:700}
+.lr .rt b,.lr .rt>span:first-child{color:var(--ink)}
+/* cijferrijen: witte kaart met hairlines, teal cijfers */
+.stats,.rf-tg,.bz-tiles{background:var(--surface)!important;border:1px solid var(--line);border-radius:20px!important;padding:0!important;gap:0!important;box-shadow:var(--kaart-schaduw)!important;overflow:hidden}
+.stats::before,.rf-tg::before,.bz-tiles::before{display:none!important}
+.stats .stat,.rf-tg>div,.bz-tile{background:none!important;border:0!important;border-left:1px solid var(--line)!important;border-radius:0!important;box-shadow:none!important;padding:12px 16px 13px!important;color:var(--ink);min-height:0!important;gap:2px!important}
+.stats .stat:first-child,.rf-tg>div:first-of-type,.bz-tile:first-child{border-left:0!important}
+.stats .stat small,.rf-tg small,.rf-tg span,.bz-tile small,.bz-tile em{color:var(--muted)!important;font-size:12px!important;font-weight:600}
+.stats .stat b,.rf-tg b,.bz-tile b{color:var(--brand)!important;font-size:21px!important;font-weight:700!important;letter-spacing:-.025em;line-height:1.15!important;margin-top:1px!important}
+.stats .stat b[style*="--late"]{color:var(--late)!important}
+.stat.goud b{color:#a8650a!important}
+.rf-tg{grid-template-columns:1fr auto 1fr auto 1fr!important}
+.rf-tg>i{display:grid!important;color:var(--line)!important;padding:0 2px;background:var(--surface)}
+.rf-tg>div.hl{background:color-mix(in srgb,#22a46c 6%,var(--surface))!important}.rf-tg>div.hl b{color:#178a5e!important}
+@media (max-width:760px){.rf-tg{grid-template-columns:repeat(3,minmax(0,1fr))!important}.rf-tg>i{display:none!important}.rf-tg small{min-height:0!important}}
+/* bezoeken-tegels */
+.bz-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.bz-tile{position:relative;padding:14px 16px 14px!important}
+.bz-ti{width:32px;height:32px;border-radius:10px;background:var(--brand-soft)!important;color:var(--brand)!important;margin-bottom:8px}
+.bz-tile b{font-size:20px!important}
+.bz-dr{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px}.bz-dr i{width:9px;height:12px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:var(--surface-3);animation:rsOp .4s both;animation-delay:calc(var(--i)*50ms)}.bz-dr i.on{background:linear-gradient(180deg,#5cc6d6,var(--brand))}.bz-dr small{font-size:11px;color:var(--muted);align-self:center}
+.bz-rt8{display:flex;gap:3px;margin-top:8px}.bz-rt8 i{flex:1;height:6px;border-radius:3px;background:var(--surface-3)}.bz-rt8 i.on{background:var(--brand)}
+.bz-rt8t{font-size:11px!important;margin-top:4px}
+.bz-tile .mini-st svg{color:var(--accent)}
+@media (max-width:640px){.bz-tiles{grid-template-columns:1fr 1fr}.bz-tile:nth-child(odd){border-left:0!important}.bz-tile:nth-child(n+3){border-top:1px solid var(--line)!important}}
+/* tijdlijn: route-lijn met stops zoals in het CRM */
+.bz-tl{padding:0!important;overflow:hidden}
+.bz-tlh{position:relative;overflow:hidden;margin:0!important;padding:14px 18px 16px;color:#fff;background:var(--kop)}
+.bz-tlh::before{content:"";position:absolute;inset:0;background:var(--lijnen);pointer-events:none}.bz-tlh>*{position:relative}
+.bz-tlh b{color:#fff;font-size:17px!important}.bz-tlh small{color:rgb(255 255 255 / .78)!important}
+.bz-ol{padding:16px 16px 16px 60px!important;gap:10px!important}
+.bz-ol::before{left:32px!important;width:3px!important;top:28px!important;bottom:28px!important;border-radius:2px;background:var(--line)!important}
+.bz-ol::after{display:none}
+.bz-dot{left:-44px!important;width:34px!important;height:34px!important;border:2.5px solid var(--brand)!important;background:var(--surface)!important;color:var(--brand);box-shadow:0 0 0 3px var(--surface)!important;z-index:2;font-weight:800;font-size:13px}
+.bz-it.af .bz-dot{background:#23845a!important;border-color:#23845a!important;color:#fff}.bz-it.af .bz-dot svg{width:16px;height:16px;stroke:#fff}
+.bz-it.gepland .bz-dot{background:var(--kop)!important;border-color:transparent!important;box-shadow:0 0 0 3px var(--surface),0 0 0 6px color-mix(in srgb,var(--brand) 22%,transparent)!important;animation:rnumPuls 2.4s ease-in-out infinite}
+.bz-it.gepland .bz-dot::after{content:"";width:10px;height:10px;border-radius:50%;background:#fff}
+.bz-it.verwacht .bz-dot{border-style:dashed!important}
+@keyframes rnumPuls{0%,100%{box-shadow:0 0 0 3px var(--surface),0 0 0 6px color-mix(in srgb,var(--brand) 22%,transparent)}50%{box-shadow:0 0 0 3px var(--surface),0 0 0 9px color-mix(in srgb,var(--brand) 8%,transparent)}}
+.bz-card{border-radius:14px;padding:10px 12px;box-shadow:0 1px 2px rgb(15 31 38 / .04)}
+.bz-it.gepland .bz-card{background:var(--surface);border-color:color-mix(in srgb,var(--brand) 40%,var(--line))}
+.bz-it.verwacht .bz-card{border:1px dashed color-mix(in srgb,var(--brand) 35%,var(--line))!important;background:var(--surface)}
+.bz-dt{width:50px;height:52px;border-radius:12px}
+.bz-it.gepland .bz-dt,.bz-it.verwacht .bz-dt{background:var(--kop);color:#fff}.bz-it.gepland .bz-dt small,.bz-it.verwacht .bz-dt small{color:rgb(255 255 255 / .8)}
+.bz-it.af .bz-dt{background:var(--brand-soft);color:var(--brand)}.bz-it.af .bz-dt small{color:var(--brand);opacity:.8}
+.bz-rt b{color:var(--ink)}
+.bz-stempel{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border:0;border-radius:99px;background:var(--ok-bg);color:var(--ok);font-size:12px;font-weight:700;letter-spacing:0;text-transform:none;transform:none;opacity:1;mix-blend-mode:normal}
+.bz-stempel svg{width:12px;height:12px}.bz-stempel i{font-style:normal}
+.bz-nu{height:auto!important;margin:0 0 0 -60px!important;padding-left:60px!important;display:flex;align-items:center;gap:10px;position:relative}
+.bz-nu::before{display:block!important;left:25px!important;width:17px!important;height:17px!important;background:var(--accent)!important;box-shadow:0 0 0 3px var(--surface),0 0 0 5px color-mix(in srgb,var(--accent) 30%,transparent)!important;z-index:2}
+.bz-nu span{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#a8650a!important;padding:5px 10px;border-radius:99px;background:var(--soon-bg)}
+.bz-nubus{display:none}
+.bz-jr{margin-left:-60px!important;padding-left:60px!important}
+.bz-tip,.bz-tl>.leeg{margin:0 18px 16px!important}
+@media (max-width:640px){.bz-ol{padding:14px 12px 14px 54px!important}.bz-ol::before{left:28px!important}.bz-dot{left:-42px!important;width:30px!important;height:30px!important}.bz-nu{margin-left:-54px!important;padding-left:54px!important}.bz-nu::before{left:22px!important;width:15px!important;height:15px!important}.bz-jr{margin-left:-54px!important;padding-left:54px!important}.bz-card{padding:9px 10px}.bz-dt{width:44px;height:48px}.bz-rt .bz-stempel{display:inline-flex}}
+/* betaalgedrag */
+.bp{box-shadow:var(--kaart-schaduw)!important}
+.bp-k b{color:var(--brand)}
+@media (max-width:600px){.bp-tx .eyebrow{justify-content:center}}
+/* aanbevelen: straat & zo werkt het met dezelfde kop */
+.rs,.rr{padding:0!important;overflow:hidden;border:0!important;box-shadow:var(--kaart-schaduw)!important}
+.rs-k,.rr-k{position:relative;overflow:hidden;margin:0!important;padding:14px 18px 16px;color:#fff;background:var(--kop)}
+.rs-k::before,.rr-k::before{content:"";position:absolute;inset:0;background:var(--lijnen);pointer-events:none}.rs-k>*,.rr-k>*{position:relative}
+.rs-k b,.rr-k b{color:#fff;font-size:17px!important}.rs-k small,.rr-k small{color:rgb(255 255 255 / .78)!important}
+.rs-sc{background:rgb(255 255 255 / .16)!important;color:#fff!important;border:1px solid rgb(255 255 255 / .25)}
+.rs-straat{margin:14px 16px 16px;border-radius:16px}
+.rr-ol{padding:18px 18px 20px}
+@media (max-width:640px){.rr-ol::before{left:47px}}
+/* meldingskaarten (tegoed, factuur open, aanbevelen) rustig en gelijk aan de rest */
+.melding{border-radius:20px!important;box-shadow:var(--kaart-schaduw)!important;border:1px solid var(--line)!important;background:var(--surface)!important}
+.melding.goud .objic{background:var(--kop-goud)}.melding.rood .objic{background:var(--kop-rood)}
+.melding .btn.primary,.melding .btn-p,.melding button.primary{border-radius:12px;box-shadow:none!important}
+/* topbalk: zelfde knop als in het CRM */
+.topbar .menu-knop{background:var(--surface)!important;border:1px solid var(--line)!important;width:44px!important;height:44px!important;border-radius:14px!important}
+/* knoppen: geen zware schaduw */
+.primary{box-shadow:0 8px 18px -10px rgb(19 122 138 / .55)!important}
+.hero-acts button,.bz-acts button{box-shadow:none!important}
+/* ticketuitleg korter en in u-vorm */
+.tk-uitleg{max-width:64ch}
+.bz-tile:last-child:nth-child(odd){grid-column:1/-1}
+.bp>.kp-h .pill svg{width:12px;height:12px;fill:currentColor}
+.bp-tx h3{margin-top:0}
+.bp>.kp-h+.bp-in{margin:0!important;padding-top:12px}
+.bp>.bp-k,.bp>.bg{margin:0!important}
+.bp-k b{color:var(--brand)!important}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -1082,7 +1148,7 @@ function bezoeken(){const v=D.volgende,b=D.bezoeken||[],k=D.klant,fq=Number(k.fr
       <div class="bz-rt">${past?(x.bedrag&&!isVve()?`<b>${eur0(x.bedrag)}</b>`:"")+`<span class="bz-stempel">${I.check}<i>${isVve()?"Gedaan":"Gewassen"}</i></span>`:`<span class="pill ${x.soort==="verwacht"?"":"brand"}"><i></i>${x.soort==="verwacht"?"Verwacht":"Gepland"}</span>`}</div></div>${past&&isVve()?vveBeurtDetail(x):""}</li>`};
   const fut=toek.slice().reverse();jr=nu.getFullYear();const lijn=fut.map(x=>item(x,false));jr=nu.getFullYear();
   const tl=`<section class="bz-tl"><div class="bz-tlh"><b>Tijdlijn</b><small>${plural(b.length,"bezoek","bezoeken")} gedaan${toek.length?" · "+plural(toek.length,"gepland","gepland").replace(/^(\d+) gepland$/,"$1 in het vooruitzicht"):""}</small></div>
-    <ol class="bz-ol">${lijn.join("")}${toek.length?`<li class="bz-nu"><em class="bz-nubus">${AUTO}</em><span>Vandaag</span></li>`:""}${b.map(x=>item(x,true)).join("")}</ol>
+    <ol class="bz-ol">${lijn.join("")}${toek.length?`<li class="bz-nu"><span>Vandaag</span></li>`:""}${b.map(x=>item(x,true)).join("")}</ol>
     ${!b.length&&!toek.length?`<p class="leeg">Na ons eerste bezoek ziet u het hier terug.</p>`:""}${!b.length&&toek.length?`<p class="bz-tip">Na ons eerste bezoek verschijnt het hier, met de datum en wat we gedaan hebben.</p>`:""}</section>`;
   return kop(isVve()?"Logboek":"Bezoeken",isVve()?"Per beurt: wanneer, wat er is gedaan en de opleverfoto.":"Wanneer we komen en wanneer we geweest zijn.")+`<div class="pg">${hero}${tiles}${tl}</div>`}
 /* ---------- VvE ---------- */
@@ -1137,9 +1203,9 @@ function facturen(){const F=D.facturen,open=F.filter(f=>f.status!=="betaald"&&f.
     :P.niv.n===4?`U betaalt altijd binnen de termijn. Betaal direct online, dan is het in één minuut geregeld.`
     :`Tip: betaal direct online met iDEAL zodra de factuur binnenkomt. Dan hoeft u er niet meer aan te denken.`;
   const nSnel=F.filter(f=>f.snelUren!=null&&f.snelUren<=24).length;
-  const hero=`<section class="kp bp bp-${P.niv.k}">${nSnel>=2&&!P.te.length?`<span class="bp-chip">${BLIK}Snelle betaler · ${nSnel}×</span>`:""}<div class="bp-in">
+  const hero=`<section class="kp bp bp-${P.niv.k}"><div class="kp-h"><span class="objic${P.te.length?" rood":""}">${I.euro}</span><div><b>Uw betaalgedrag</b><small>Hoe snel u uw facturen betaalt</small></div><span class="sp"></span>${nSnel>=2&&!P.te.length?`<span class="pill">${BLIK}Snelle betaler · ${nSnel}×</span>`:""}</div><div class="bp-in">
       <div class="bp-m">${betaalMeter(P.score,P.niv.k)}<div class="bp-mt"><b>${P.score==null?"–":P.score}</b><small>van 100</small></div></div>
-      <div class="bp-tx"><span class="eyebrow">Uw betaalgedrag</span><h3>${esc(P.niv.t)}</h3><div class="bp-dots" aria-hidden="true">${[1,2,3,4,5].map(i=>`<i class="${i<=P.niv.n?"on":""}"></i>`).join("")}</div><p>${msg}</p></div></div>
+      <div class="bp-tx"><h3>${esc(P.niv.t)}</h3><div class="bp-dots" aria-hidden="true">${[1,2,3,4,5].map(i=>`<i class="${i<=P.niv.n?"on":""}"></i>`).join("")}</div><p>${msg}</p></div></div>
     ${P.laatste.length?`<div class="bp-k"><div><small>Gemiddeld betaald na</small><b>${P.gem} ${P.gem===1?"dag":"dagen"}</b></div><div><small>Op tijd betaald</small><b>${P.op} van ${P.laatste.length}</b></div><div><small>Op rij op tijd</small><b>${P.reeks}×</b></div></div>`:""}
     ${betaalGrafiek(P,open)}</section>`;
   const alarm=oudste?`<button class="melding rood" data-fact="${esc(oudste.id)}"><span class="objic rood">${I.euro}</span><div class="tx"><b>${eur(oudste.bedrag)} · ${-dagenTot(oudste.verval)} ${dagenTot(oudste.verval)===-1?"dag":"dagen"} te laat</b><small>Factuur ${esc(oudste.nummer)} · vervallen op ${esc(kort(oudste.verval))}${oudste.herinnerd?" · "+plural(oudste.herinnerd,"herinnering","herinneringen")+" verstuurd":""}</small></div><span class="btn-p">Nu betalen</span></button>`:"";
@@ -1217,7 +1283,7 @@ function tickets(){
   const L=TK.lijst;
   const rij=t=>lr((TCAT[t.categorie]||TCAT.overig)[1],esc(t.onderwerp),`${t.ongelezen?`<b style="color:var(--brand);font-size:13px;display:inline">Nieuw antwoord · </b>`:""}${esc(t.nummer)} · ${esc(kort(String(t.laatst).slice(0,10)))}`,tPil(t.status),{attr:`data-tk="${esc(t.id)}"`,tis:t.ongelezen?"background:var(--brand);color:#fff":""});
   const open=L?L.filter(t=>t.status!=="opgelost"):[],klaar=L?L.filter(t=>t.status==="opgelost"):[];
-  return kop("Tickets",`<span class="tk-uitleg">Voor vragen, opmerkingen en verzoeken kun je onderstaand een ticket indienen. Tickets zijn de voorkeursmethode voor contact omdat informatie dan terug te lezen is en je de voortgang van je vraag/opmerking/verzoek kunt volgen. Als je aanvullende informatie op een ticket wil geven plaats deze dan in de bestaande ticket en open er geen nieuwe voor. Dit houdt het voor jezelf overzichtelijk.</span>`)+`<div class="pg">
+  return kop("Tickets",`<span class="tk-uitleg">Voor vragen, opmerkingen en verzoeken maakt u hieronder een ticket aan. Zo is alles terug te lezen en volgt u de voortgang. Heeft u een aanvulling? Zet die in het bestaande ticket in plaats van een nieuw ticket te openen; dat houdt het overzichtelijk.</span>`)+`<div class="pg">
     <button class="melding tk-nieuw" data-act="ticket"><span class="objic">${I.plus}</span><div class="tx"><b>Nieuw ticket</b><small>Stel uw vraag, ook met een foto. U krijgt bericht zodra wij reageren.</small></div><span class="btn primary">Aanmaken</span></button>
     ${L===null?`<div class="laden" style="min-height:160px"><div class="spin"></div></div>`
      :L.length?`${open.length?kp(I.ticket,"Lopende tickets",`<div class="lijst">${open.map(rij).join("")}</div>`,{sub:plural(open.length,"ticket","tickets")}):""}${klaar.length?kp(I.check,"Opgelost",`<div class="lijst">${klaar.map(rij).join("")}</div>`,{kl:"groen",sub:plural(klaar.length,"ticket","tickets")}):""}`
