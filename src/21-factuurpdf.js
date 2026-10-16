@@ -51,9 +51,12 @@ function invModel(f,klant){
 }
 const offTxt=(t,f)=>{const k=typeof invKlant==="function"?invKlant(f):null,vn=k&&k.voornaam?k.voornaam:String(cleanName(f.klantNaam||"")).split(",").slice(-1)[0].trim();let v={};try{v=k&&k.id&&typeof klantVars==="function"?klantVars(k):{}}catch(e){}return fill(t,{...v,klant:cleanName(f.klantNaam||""),naam:cleanName(f.klantNaam||""),voornaam:vn,bedrijf:S().naam||"",factuurnummer:f.nummer||"",vervaldatum:f.verval?fmtL(f.verval):""}).trim()};
 /* factuurvoorbeeld passend maken: hele A4 in de breedte van het scherm (verkleind), nooit half afgesneden */
-function paperFit(){document.querySelectorAll(".paperwrap").forEach(w=>{const p=w.querySelector(".inv5");if(!p)return;p.style.zoom="";
-  const cs=getComputedStyle(w),vrij=w.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight),s=Math.min(1,vrij/p.offsetWidth);
-  if(s<1){p.style.zoom=s.toFixed(4);w.classList.add("past")}else w.classList.remove("past")})}
+function paperFit(){document.querySelectorAll(".paperwrap").forEach(w=>{const ps=[...w.querySelectorAll(".inv5")];if(!ps.length)return;
+  ps.forEach(p=>{p.style.transform=p.style.transformOrigin=p.style.margin=p.style.zoom=""});
+  const cs=getComputedStyle(w),vrij=w.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight),s=Math.min(1,vrij/ps[0].offsetWidth);
+  if(s>=1){w.classList.remove("past");return}
+  /* schalen met transform (iOS respecteert dat beter dan zoom); de lege ruimte eronder wordt met een negatieve marge opgevangen */
+  w.classList.add("past");ps.forEach((p,i)=>{p.style.transformOrigin="top left";p.style.transform=`scale(${s.toFixed(4)})`;p.style.margin=`${i?Math.round(12*s):0}px 0 ${-Math.round(p.offsetHeight*(1-s))}px 0`})})}
 addEventListener("resize",()=>requestAnimationFrame(paperFit));
 function paperHtml(f,klant){
   const m=invModel(f,klant),s=m.s,num=x=>(Number(x)||0).toLocaleString("nl-NL",{minimumFractionDigits:2,maximumFractionDigits:2});
