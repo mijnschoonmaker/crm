@@ -29,10 +29,10 @@ function vRoute(){
   <div class="toolbar">${routeLinks(stops).map((l,i,a)=>`<a class="btn primary" href="${esc(l)}" target="_blank" rel="noopener">${I.map}${a.length>1?"Route deel "+(i+1):"Hele route in Google Maps"}</a>`).join("")}
     <button type="button" data-act="optim" data-d="${day}">${I.wand}Optimaliseer route</button><button type="button" data-act="bulkmsg">${I.msg}Bericht aan deze klanten</button></div>
   ${S().startadres?"":`<p class="subt">Tip: zet je vertrekadres bij Instellingen, dan begint de route daar.</p>`}
-  <div class="list rlijst" style="gap:8px">${stops.map((s,i)=>{const k=s.k,nu=!s.done&&nx&&k.id===nx.id;return `<div class="card rstop${s.done?" dim af":nu?" nu":""}"><span class="rnum${s.done?" done":nu?" nu":""}">${s.done?I.check:i+1}</span>
+  <div class="list rlijst" style="gap:8px">${stops.map((s,i)=>{const k=s.k,nu=!s.done&&nx&&k.id===nx.id;return `<div class="card rstop${s.done?" dim af":nu?" nu":""}" data-rid="${esc(k.id)}"${s.done?"":' data-rdrag="1"'}><span class="rnum${s.done?" done":nu?" nu":""}">${s.done?I.check:i+1}</span>
     <button type="button" class="nm" data-act="klant" data-id="${esc(k.id)}">${esc(jobAddrObj(k).adres||k.naam)}</button>
     <div class="meta"><span>${k.tijd?`<b class="mono">${esc(k.tijd)}</b>`:""}</span><span>${esc(cleanName(k.naam))}</span><span>${esc(jobAddrObj(k).plaats||"")}</span><span class="amt">${eur(toon(k.prijs))}</span></div>
-    <div class="side-col" style="flex-direction:row;align-items:center">${s.done?statusPill("ok","Afgerond"):`<button type="button" class="small ghost" data-act="rmove" data-id="${esc(k.id)}" data-n="-1" aria-label="Omhoog" ${i===0?"disabled":""}>${I.up}</button><button type="button" class="small ghost" data-act="rmove" data-id="${esc(k.id)}" data-n="1" aria-label="Omlaag">${I.down}</button><a class="btn small" href="${esc(mapsQ(k))}" target="_blank" rel="noopener" aria-label="Navigeer">${I.nav}</a>`}</div></div>`}).join("")}</div>`;
+    <div class="side-col" style="flex-direction:row;align-items:center">${s.done?statusPill("ok","Afgerond"):`<span class="rd-grip" aria-hidden="true"><i></i><i></i><i></i></span><a class="btn small" href="${esc(mapsQ(k))}" target="_blank" rel="noopener" aria-label="Navigeer">${I.nav}</a>`}</div></div>`}).join("")}</div>`;
   return html;
 }
 async function routeMove(id,n){

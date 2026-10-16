@@ -3822,3 +3822,11 @@ dialog.drawer{clip-path:inset(0 round 28px 0 0 28px)}
 .rstop.nu{border-color:color-mix(in srgb,var(--brand) 40%,var(--line))!important;box-shadow:0 1px 2px rgb(15 31 38 / .04),0 10px 24px -18px rgb(19 122 138 / .5)!important}
 .rstop.nu .nm{color:var(--brand)}
 .rstop.dim{opacity:.72}.rstop.dim .nm{text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--ink) 35%,transparent)}
+
+/* ---------- stops slepen ---------- */
+.rstop[data-rdrag]{cursor:grab;transition:transform .18s ease,box-shadow .18s;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.rstop.rd-lift{transition:none;z-index:5;cursor:grabbing;box-shadow:0 2px 4px rgb(15 31 38 / .06),0 22px 40px -18px rgb(15 50 60 / .55)!important;border-color:color-mix(in srgb,var(--brand) 45%,var(--line))!important;background:var(--surface)}
+.rstop.rd-lift::before{opacity:0}
+body.rd-busy{cursor:grabbing}
+.rd-grip{display:inline-flex;flex-direction:column;gap:3px;padding:8px 10px;opacity:.45}.rd-grip i{display:block;width:16px;height:2px;border-radius:2px;background:var(--muted)}
+.rstop:hover .rd-grip{opacity:.8}
