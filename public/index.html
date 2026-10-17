@@ -9180,8 +9180,9 @@ const WEB_CSS=`
 /* ons werk */
 .ms .wk-filter{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 0}.ms .wk-filter button{border:1.5px solid var(--line);background:#fff;color:var(--ink);font:700 13.5px Manrope,sans-serif;padding:8px 14px;border-radius:99px;cursor:pointer}.ms .wk-filter button[aria-pressed="true"]{background:var(--b2);border-color:var(--b2);color:#fff}
 .ms .wk-sl{position:relative;margin-top:26px;border-radius:26px;overflow:hidden;background:#0f1f26;aspect-ratio:16/9;box-shadow:0 2px 6px rgb(15 31 38 / .08),0 40px 70px -40px rgb(15 50 60 / .7);user-select:none;-webkit-user-select:none;touch-action:pan-y}
-.ms .wk-sl img.wk-big{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .7s ease,transform 8s linear;transform:scale(1)}
-.ms .wk-sl img.wk-big.aan{opacity:1;transform:scale(1.04)}
+.ms .wk-sld{position:absolute;inset:0;opacity:0;transition:opacity .25s ease;pointer-events:none}.ms .wk-sld.aan{opacity:1}
+.ms .wk-sld .wk-bg{position:absolute;inset:-30px;width:calc(100% + 60px);height:calc(100% + 60px);object-fit:cover;filter:blur(28px) brightness(.55) saturate(1.1);transform:scale(1.05)}
+.ms .wk-sld .wk-big{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
 .ms .wk-sl .wk-scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgb(0 0 0 / .18),transparent 30%,transparent 50%,rgb(0 0 0 / .72));pointer-events:none}
 .ms .wk-cap{position:absolute;left:clamp(18px,3vw,36px);bottom:clamp(96px,14vw,136px);color:#fff;max-width:60%;text-shadow:0 1px 14px rgb(0 0 0 / .4);pointer-events:none}
 .ms .wk-cap b{display:block;font-size:clamp(18px,2.2vw,28px);font-weight:800;letter-spacing:-.02em;line-height:1.15}.ms .wk-cap span{font-size:clamp(13px,1.2vw,15px);opacity:.9}
@@ -9195,7 +9196,7 @@ const WEB_CSS=`
 .ms .wk-open{position:absolute;inset:0;z-index:1;cursor:zoom-in;border:0;padding:0;margin:0;background:transparent;-webkit-appearance:none;appearance:none}
 @media (max-width:900px){.ms .wk-sl{aspect-ratio:4/3;border-radius:20px}.ms .wk-cap{max-width:75%;bottom:clamp(84px,22vw,110px)}.ms .wk-pijl{width:42px;height:42px}.ms .wk-dui{padding:0 16px;justify-content:flex-start}}
 @media (max-width:560px){.ms .wk-sl{aspect-ratio:3/4}.ms .wk-pijl{top:auto;bottom:96px;transform:none}.ms .wk-pijl:hover{transform:none}.ms .wk-cap{bottom:150px;max-width:85%}.ms .wk-dui{bottom:14px}.ms .wk-dui button{width:58px}}
-@media (prefers-reduced-motion:reduce){.ms .wk-sl img.wk-big{transition:opacity .3s;transform:none!important}}
+@media (prefers-reduced-motion:reduce){.ms .wk-sld{transition:none}}
 /* vergrote foto (lightbox): hangt aan <body>, dus losse (niet-.ms) selectors */
 .wk-lb{position:fixed;inset:0;z-index:2147483000;background:rgb(6 14 18 / .94);display:none;align-items:center;justify-content:center;padding:24px 72px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);font-family:Manrope,Inter,system-ui,sans-serif;touch-action:pan-y}
 .wk-lb.aan{display:flex;animation:wkLbIn .25s ease}@keyframes wkLbIn{from{opacity:0}to{opacity:1}}
@@ -9694,12 +9695,12 @@ root.querySelectorAll("[data-werk]").forEach(function(sec){if(sec._ms)return;sec
   function esc(t){return String(t||"").replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
   var sl={i:0,L:[],t:null};
   function teken(){var L=cur?items.filter(function(x){return x.cat===cur}):items;sl.L=L;sl.i=0;if(!L.length){grid.innerHTML="";return}
-    grid.innerHTML=L.map(function(x,k){return '<img class="wk-big'+(k===0?' aan':'')+'" src="'+esc(x.url||x.thumb)+'" alt="'+esc(x.titel||"Glasbewassing")+'" loading="'+(k<2?"eager":"lazy")+'" decoding="async">'}).join("")+'<div class="wk-scrim"></div><button type="button" class="wk-open" aria-label="Foto groot bekijken"></button><div class="wk-cap"></div><span class="wk-nr"></span>'
+    grid.innerHTML=L.map(function(x,k){return '<div class="wk-sld'+(k===0?' aan':'')+'"><img class="wk-bg" src="'+esc(x.thumb||x.url)+'" alt="" loading="'+(k<2?"eager":"lazy")+'"><img class="wk-big" src="'+esc(x.url||x.thumb)+'" alt="'+esc(x.titel||"Glasbewassing")+'" loading="'+(k<2?"eager":"lazy")+'" decoding="async"></div>'}).join("")+'<div class="wk-scrim"></div><button type="button" class="wk-open" aria-label="Foto groot bekijken"></button><div class="wk-cap"></div><span class="wk-nr"></span>'
       +'<button type="button" class="wk-pijl l" aria-label="Vorige foto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg></button><button type="button" class="wk-pijl r" aria-label="Volgende foto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></button>'
       +'<div class="wk-dui" role="tablist">'+L.map(function(x,k){return '<button type="button" role="tab" data-k="'+k+'" aria-label="Foto '+(k+1)+'"'+(k===0?' class="aan"':'')+'><img src="'+esc(x.thumb||x.url)+'" alt="" loading="lazy"></button>'}).join("")+'</div>';
     toon(0)}
   function toon(k){var L=sl.L;if(!L.length)return;sl.i=(k+L.length)%L.length;var x=L[sl.i];
-    grid.querySelectorAll(".wk-big").forEach(function(im,j){im.classList.toggle("aan",j===sl.i)});
+    grid.querySelectorAll(".wk-sld").forEach(function(im,j){im.classList.toggle("aan",j===sl.i);if(Math.abs(j-sl.i)<=1){var g=im.querySelector(".wk-big");if(g&&g.loading==="lazy")g.loading="eager"}});
     grid.querySelectorAll(".wk-dui button").forEach(function(b,j){b.classList.toggle("aan",j===sl.i);b.setAttribute("aria-selected",j===sl.i?"true":"false");if(j===sl.i){var du=b.parentNode;if(du&&du.scrollWidth>du.clientWidth)try{du.scrollTo({left:b.offsetLeft-(du.clientWidth-b.offsetWidth)/2,behavior:"smooth"})}catch(e){du.scrollLeft=b.offsetLeft-(du.clientWidth-b.offsetWidth)/2}}});
     grid.querySelector(".wk-cap").innerHTML=(x.titel?'<b>'+esc(x.titel)+'</b>':'')+(x.plaats?'<span>'+esc(x.plaats)+'</span>':'');grid.querySelector(".wk-nr").textContent=(sl.i+1)+" / "+L.length;
     clearTimeout(sl.t);sl.t=setTimeout(function(){if(!(ms.classList&&ms.classList.contains("stil"))&&L.length>1&&!document.hidden)toon(sl.i+1)},7000)}
