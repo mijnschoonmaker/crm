@@ -2,7 +2,7 @@
    Verzonnen klanten, facturen en beurten om instructievideo's mee op te nemen.
    Alles blijft in deze browser bewaard; datums schuiven elke dag mee, zodat de planning altijd actueel oogt.
    Opnieuw beginnen: /demo/?opnieuw */
-const DEMO_KEY="ms.demo.v1";
+const DEMO_KEY="ms.demo.v2";
 const DEMO_PLAATS=[["Zuidhorn","9801",53.2464,6.4060],["Grootegast","9861",53.2140,6.2720],["Leek","9351",53.1620,6.3770],["Marum","9363",53.1440,6.2650],["Aduard","9831",53.2560,6.4590],["Oldekerk","9821",53.2230,6.3230],["Tolbert","9356",53.1640,6.3590],["Niekerk","9822",53.2220,6.3480]];
 const DEMO_STRAAT=["Lindenlaan","Esdoornstraat","Molenweg","Kastanjelaan","Berkenhof","Wilgenpad","Populierenlaan","Meidoornstraat","Iepenlaan","Vlierstraat","Hazelaarhof","Eikenlaan","Lijsterbes","Beukenlaan","Zonnedauw","Kievitstraat","Merelhof","Fazantenlaan"];
 const DEMO_NAMEN=[["de Vries","Sanne"],["Jansen","Pieter"],["Bakker","Marieke"],["Visser","Henk"],["Smit","Lotte"],["Mulder","Gerrit"],["de Boer","Anneke"],["Postma","Jeroen"],["Dijkstra","Femke"],["Bos","Klaas"],["Hoekstra","Ilse"],["van der Meer","Bram"],["Kuipers","Ruben"],["Wiersma","Jolanda"],["Veenstra","Tom"],["Huizinga","Esther"],["Bosma","Wouter"],["Kramer","Nienke"],["Schuurman","Dirk"],["Hofman","Linda"],["Brouwer","Sander"],["Meijer","Yvonne"],["Zijlstra","Martin"],["Prins","Karin"],["Boersma","Erik"],["Haan","Petra"],["Venema","Joost"],["Kooistra","Marloes"],["Tuinstra","Hans"],["Oosterhuis","Wendy"]];
@@ -23,7 +23,7 @@ function demoMaak(){
   klanten.forEach((k,i)=>{const stap=k.frequentie*7,eerste=-(5+Math.floor(R()*stap));
     for(let d=eerste-stap*4;d<=eerste;d+=stap){if(d<-170)continue;const bid="bdemo"+i+"_"+(-d),fid="fdemo"+i+"_"+(-d),bedrag=k.prijs,datum=D(d);
       const recent=d>-12,factureer=!(recent&&i%7===0);
-      const b={id:bid,klantId:k.id,klantNaam:k.naam,datum,bedrag,betaald:false,gefactureerd:factureer?fid:"",dienst:k.dienst,tijd:"",duur:k.duur,door:i%5===0?"Jelmer":"Robin",op:datum+"T12:00:00.000Z"};
+      const b={id:bid,klantId:k.id,klantNaam:k.naam,datum,bedrag,betaald:false,gefactureerd:factureer?fid:"",dienst:k.dienst,tijd:"",duur:k.duur,door:i%5===0?"Jelmer":"Mark",op:datum+"T12:00:00.000Z"};
       beurten.push(b);k.laatst=datum;
       if(!factureer)continue;
       const verval=D(d+14),te=-d-14,f={id:fid,soort:"factuur",nummer:"",klantId:k.id,klantNaam:k.naam,klantAdres:k.adres+", "+k.postcode+" "+k.plaats,klantEmail:k.email,datum,verval,status:"open",regels:[{omschrijving:k.dienst+" "+k.adres,aantal:1,prijs:bedrag}],btw:21,incl:true,verstuurdOp:datum,gemaakt:datum+"T13:00:00.000Z",log:[]};
@@ -43,11 +43,11 @@ function demoMaak(){
   off(42,"Huisartsenpraktijk Aduard","Eikenlaan 2, 9831 AC Aduard","geaccepteerd",[{omschrijving:"Glasbewassing binnen en buiten, elke 4 weken",aantal:1,prijs:110}],-12);
   off(43,"De Wit, Marco","Kievitstraat 21, 9351 KD Leek","concept",[{omschrijving:"Glasbewassing buiten",aantal:1,prijs:27.5}],0);
   /* berichten en bank */
-  facturen.filter(f=>f.soort==="factuur").slice(-14).forEach((f,i)=>berichten.push({id:"mdemo"+i,klantId:f.klantId,klantNaam:f.klantNaam,naar:f.klantEmail,kanaal:"email",sjabloon:"factuur",onderwerp:"Factuur "+f.nummer+" – mijnschoonmaker.com",tekst:"Beste klant, in de bijlage vindt u factuur "+f.nummer+".",op:f.datum+"T13:05:00.000Z",ref:"factuur:"+f.id,status:i%3?"geopend":"bezorgd",opens:i%3?1+(i%2):0}));
+  facturen.filter(f=>f.soort==="factuur").slice(-14).forEach((f,i)=>berichten.push({id:"mdemo"+i,klantId:f.klantId,klantNaam:f.klantNaam,naar:f.klantEmail,kanaal:"email",sjabloon:"factuur",onderwerp:"Factuur "+f.nummer+" – Voorbeeld Glazenwasserij",tekst:"Beste klant, in de bijlage vindt u factuur "+f.nummer+".",op:f.datum+"T13:05:00.000Z",ref:"factuur:"+f.id,status:i%3?"geopend":"bezorgd",opens:i%3?1+(i%2):0}));
   const lo=facturen.filter(f=>f.soort==="factuur"&&f.status==="open");
   if(lo[0])banktx.push({id:"tx_demo1",datum:D(-1),bedrag:Math.max(5,totals(lo[0]).inc-2.5),naam:lo[0].klantNaam.split(",")[0].toUpperCase(),iban:"NL20INGB0001234567",omschrijving:"glazenwasser "+lo[0].nummer,status:"controleren",factuurIds:[lo[0].id],nummers:[lo[0].nummer],reden:"Bedrag wijkt af: ontvangen "+eur(Math.max(5,totals(lo[0]).inc-2.5))+", factuur "+eur(totals(lo[0]).inc),bron:"Bank Knab",op:new Date().toISOString()});
   banktx.push({id:"tx_demo2",datum:D(-2),bedrag:30,naam:"J. DE GROOT",iban:"NL55RABO0123456789",omschrijving:"ramen wassen",status:"onbekend",reden:"Geen factuur gevonden bij deze betaling",bron:"Bank Knab",op:new Date().toISOString()});
-  const inst=[{id:"bedrijf",naam:"mijnschoonmaker.com",adres:"Lindenlaan 14",postcode:"9801 AB",plaats:"Zuidhorn",telefoon:"06 12 34 56 78",email:"info@mijnschoonmaker.com",kvk:"12345678",btwnr:"NL001234567B01",iban:"NL00 DEMO 0123 4567 89",btw:21,incl:true,termijn:14,factNrStijl:"doorlopend",fhAan:true,dagAan:true},
+  const inst=[{id:"bedrijf",naam:"Voorbeeld Glazenwasserij",adres:"Lindenlaan 14",postcode:"9801 AB",plaats:"Zuidhorn",telefoon:"06 12 34 56 78",email:"info@voorbeeldglazenwasserij.nl",website:"voorbeeldglazenwasserij.nl",kvk:"12345678",btwnr:"NL001234567B01",iban:"NL00 DEMO 0123 4567 89",btw:21,incl:true,termijn:14,factNrStijl:"doorlopend",fhAan:true,dagAan:true},
     {id:"bank",gekoppeld:true,bank:"Knab",rekeningen:[{iban:"NL02 •••• 487",naam:"Zakelijke rekening"}],geldigTot:iso(addDays(t,92))+"T10:00:00.000Z",bijgewerkt:new Date(Date.now()-35*60e3).toISOString(),saldo:6474.44,laatsteSync:{nieuw:5,betaald:4,controleren:1}}];
   return {gemaakt:iso(t),geo,cols:{klanten,beurten,facturen,berichten,banktx,instellingen:inst,routes:[],kosten:[]}};
 }
@@ -64,7 +64,7 @@ async function demoStart(){
   demoBewaar();
   const _s=save,_d=del;let tm=0;const later=()=>{clearTimeout(tm);tm=setTimeout(demoBewaar,300)};
   save=async(c,id,x)=>{await _s(c,id,x);later()};del=async(c,id)=>{await _d(c,id);later()};
-  state.me={name:"Robin",email:"demo@mijnschoonmaker.com"};
+  state.me={name:"Mark",email:"mark@voorbeeldglazenwasserij.nl"};
   const DL={save:async({filename,data})=>{const b=data instanceof Blob?data:new Blob([data]),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=filename;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000)}};
   state.dl=DL;render();await init();
   state.dl=DL;$("#status").innerHTML="";state.loaded=true;render();

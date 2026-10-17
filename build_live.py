@@ -37,7 +37,11 @@ dhead = '''<!doctype html>
 <link rel="icon" href="/ms-logo-32.png" type="image/png" sizes="32x32"><link rel="apple-touch-icon" href="/ms-logo-180.png">
 '''
 demo = dhead + demo.replace("<style>", "<style>html,body{margin:0}\n", 1) + "\n</body></html>\n"
-demo = _re.sub(r'<div class="logo"><span class="mk">.*?</span><span class="wm">mijnschoonmaker</span></div>', '<div class="logo haslogo"><img class="lgimg" src="/logo.png" alt="mijnschoonmaker"><span class="wm lgtxt"></span></div>', demo)
+# geen eigen merk in de demo: neutraal icoon en een verzonnen bedrijfsnaam
+demo = demo.replace('<span class="wm">mijnschoonmaker</span>', '<span class="wm">Glazenwasserij</span>')
+demo = demo.replace("mijnschoonmaker-95789", "\x00PRJ\x00").replace("robin@mijnschoonmaker.com", "info@voorbeeldglazenwasserij.nl").replace("mijnschoonmaker.com", "voorbeeldglazenwasserij.nl")
+demo = demo.replace("Robin is ", "Mark is ").replace("mijnschoonmaker · CRM (demo)", "CRM (demo)").replace("Mijnschoonmaker", "Het CRM").replace("mijnschoonmaker", "het CRM").replace("\x00PRJ\x00", "mijnschoonmaker-95789")
+demo = demo.replace('href="/ms-logo-32.png" type="image/png" sizes="32x32"', 'href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Crect width=%2224%22 height=%2224%22 rx=%225%22 fill=%22%23137a8a%22/%3E%3Cpath d=%22M7 17L17 7%22 stroke=%22%23ebbd4c%22 stroke-width=%222.6%22 stroke-linecap=%22round%22/%3E%3C/svg%3E"').replace('<link rel="apple-touch-icon" href="/ms-logo-180.png">', '')
 os.makedirs("public/demo", exist_ok=True)
 open("public/demo/index.html", "w").write(demo)
 print("public/demo/index.html", len(demo))
