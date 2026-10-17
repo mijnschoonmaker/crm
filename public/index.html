@@ -9192,10 +9192,21 @@ const WEB_CSS=`
 .ms .wk-dui button{flex:none;width:clamp(56px,7vw,88px);aspect-ratio:4/3;border-radius:10px;border:2px solid rgb(255 255 255 / .35);padding:0;overflow:hidden;background:#223;cursor:pointer;opacity:.7;transition:opacity .2s,transform .2s,border-color .2s}
 .ms .wk-dui button img{width:100%;height:100%;object-fit:cover;display:block}
 .ms .wk-dui button.aan{opacity:1;border-color:#fff;transform:translateY(-4px);box-shadow:0 10px 20px -10px rgb(0 0 0 / .7)}.ms .wk-dui button:hover{opacity:1}
-.ms .wk-open{position:absolute;inset:0;z-index:1;cursor:zoom-in}
+.ms .wk-open{position:absolute;inset:0;z-index:1;cursor:zoom-in;border:0;padding:0;margin:0;background:transparent;-webkit-appearance:none;appearance:none}
 @media (max-width:900px){.ms .wk-sl{aspect-ratio:4/3;border-radius:20px}.ms .wk-cap{max-width:75%;bottom:clamp(84px,22vw,110px)}.ms .wk-pijl{width:42px;height:42px}.ms .wk-dui{padding:0 16px;justify-content:flex-start}}
 @media (max-width:560px){.ms .wk-sl{aspect-ratio:3/4}.ms .wk-pijl{top:auto;bottom:96px;transform:none}.ms .wk-pijl:hover{transform:none}.ms .wk-cap{bottom:150px;max-width:85%}.ms .wk-dui{bottom:14px}.ms .wk-dui button{width:58px}}
 @media (prefers-reduced-motion:reduce){.ms .wk-sl img.wk-big{transition:opacity .3s;transform:none!important}}
+/* vergrote foto (lightbox): hangt aan <body>, dus losse (niet-.ms) selectors */
+.wk-lb{position:fixed;inset:0;z-index:2147483000;background:rgb(6 14 18 / .94);display:none;align-items:center;justify-content:center;padding:24px 72px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);font-family:Manrope,Inter,system-ui,sans-serif;touch-action:pan-y}
+.wk-lb.aan{display:flex;animation:wkLbIn .25s ease}@keyframes wkLbIn{from{opacity:0}to{opacity:1}}
+.wk-lb figure{margin:0;max-width:min(1600px,100%);max-height:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
+.wk-lb img{display:block;max-width:100%;max-height:calc(100vh - 110px);border-radius:14px;box-shadow:0 30px 80px -30px rgb(0 0 0 / .8);object-fit:contain}
+.wk-lb figcaption{color:#fff;text-align:center}.wk-lb figcaption b{display:block;font-size:16px;font-weight:700}.wk-lb figcaption span{font-size:13px;opacity:.75}
+.wk-lb button{position:absolute;background:rgb(255 255 255 / .14);color:#fff;border:1px solid rgb(255 255 255 / .28);width:48px;height:48px;border-radius:50%;font-size:28px;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0;font-family:inherit;transition:background .2s}
+.wk-lb button:hover{background:rgb(255 255 255 / .26)}
+.wk-lb .wk-x{top:18px;right:18px}.wk-lb .wk-p{left:18px;top:50%;transform:translateY(-50%)}.wk-lb .wk-n{right:18px;top:50%;transform:translateY(-50%)}
+@media (max-width:640px){.wk-lb{padding:16px 12px 84px}.wk-lb .wk-p,.wk-lb .wk-n{top:auto;bottom:18px;transform:none}.wk-lb .wk-p{left:calc(50% - 60px)}.wk-lb .wk-n{right:calc(50% - 60px)}}
+
 /* betalen */
 .ms .bt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}
 .ms .bt{background:#fff;border-radius:20px;padding:22px;box-shadow:0 1px 2px rgb(15 31 38 / .05),0 16px 32px -22px rgb(15 50 60 / .45)}
@@ -9683,16 +9694,16 @@ root.querySelectorAll("[data-werk]").forEach(function(sec){if(sec._ms)return;sec
   function esc(t){return String(t||"").replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
   var sl={i:0,L:[],t:null};
   function teken(){var L=cur?items.filter(function(x){return x.cat===cur}):items;sl.L=L;sl.i=0;if(!L.length){grid.innerHTML="";return}
-    grid.innerHTML=L.map(function(x,k){return '<img class="wk-big'+(k===0?' aan':'')+'" src="'+esc(x.url||x.thumb)+'" alt="'+esc(x.titel||"Glasbewassing")+'" loading="'+(k<2?"eager":"lazy")+'" decoding="async">'}).join("")+'<div class="wk-scrim"></div><a class="wk-open" href="#" aria-label="Foto groot bekijken"></a><div class="wk-cap"></div><span class="wk-nr"></span>'
+    grid.innerHTML=L.map(function(x,k){return '<img class="wk-big'+(k===0?' aan':'')+'" src="'+esc(x.url||x.thumb)+'" alt="'+esc(x.titel||"Glasbewassing")+'" loading="'+(k<2?"eager":"lazy")+'" decoding="async">'}).join("")+'<div class="wk-scrim"></div><button type="button" class="wk-open" aria-label="Foto groot bekijken"></button><div class="wk-cap"></div><span class="wk-nr"></span>'
       +'<button type="button" class="wk-pijl l" aria-label="Vorige foto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg></button><button type="button" class="wk-pijl r" aria-label="Volgende foto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></button>'
       +'<div class="wk-dui" role="tablist">'+L.map(function(x,k){return '<button type="button" role="tab" data-k="'+k+'" aria-label="Foto '+(k+1)+'"'+(k===0?' class="aan"':'')+'><img src="'+esc(x.thumb||x.url)+'" alt="" loading="lazy"></button>'}).join("")+'</div>';
     toon(0)}
   function toon(k){var L=sl.L;if(!L.length)return;sl.i=(k+L.length)%L.length;var x=L[sl.i];
     grid.querySelectorAll(".wk-big").forEach(function(im,j){im.classList.toggle("aan",j===sl.i)});
-    grid.querySelectorAll(".wk-dui button").forEach(function(b,j){b.classList.toggle("aan",j===sl.i);b.setAttribute("aria-selected",j===sl.i?"true":"false");if(j===sl.i&&b.scrollIntoView)try{b.scrollIntoView({block:"nearest",inline:"center",behavior:"smooth"})}catch(e){}});
+    grid.querySelectorAll(".wk-dui button").forEach(function(b,j){b.classList.toggle("aan",j===sl.i);b.setAttribute("aria-selected",j===sl.i?"true":"false");if(j===sl.i){var du=b.parentNode;if(du&&du.scrollWidth>du.clientWidth)try{du.scrollTo({left:b.offsetLeft-(du.clientWidth-b.offsetWidth)/2,behavior:"smooth"})}catch(e){du.scrollLeft=b.offsetLeft-(du.clientWidth-b.offsetWidth)/2}}});
     grid.querySelector(".wk-cap").innerHTML=(x.titel?'<b>'+esc(x.titel)+'</b>':'')+(x.plaats?'<span>'+esc(x.plaats)+'</span>':'');grid.querySelector(".wk-nr").textContent=(sl.i+1)+" / "+L.length;
     clearTimeout(sl.t);sl.t=setTimeout(function(){if(!(ms.classList&&ms.classList.contains("stil"))&&L.length>1&&!document.hidden)toon(sl.i+1)},7000)}
-  grid.addEventListener("click",function(e){var b=e.target.closest(".wk-pijl.l");if(b){toon(sl.i-1);return}b=e.target.closest(".wk-pijl.r");if(b){toon(sl.i+1);return}b=e.target.closest("[data-k]");if(b){toon(+b.getAttribute("data-k"));return}if(e.target.closest(".wk-open")){e.preventDefault();var x=sl.L[sl.i];if(x)open(items.indexOf(x))}});
+  grid.addEventListener("click",function(e){var b=e.target.closest(".wk-pijl.l");if(b){toon(sl.i-1);return}b=e.target.closest(".wk-pijl.r");if(b){toon(sl.i+1);return}b=e.target.closest("[data-k]");if(b){toon(+b.getAttribute("data-k"));return}if(e.target.closest(".wk-open")){e.preventDefault();e.stopPropagation();var x=sl.L[sl.i];if(x)open(items.indexOf(x))}});
   (function(){var x0=null;grid.addEventListener("pointerdown",function(e){x0=e.clientX});grid.addEventListener("pointerup",function(e){if(x0==null)return;var d=e.clientX-x0;x0=null;if(Math.abs(d)>40)toon(sl.i+(d<0?1:-1))})})();
   sec.addEventListener("keydown",function(e){if(e.key==="ArrowLeft")toon(sl.i-1);if(e.key==="ArrowRight")toon(sl.i+1)});
   function filters(){var cs=[];items.forEach(function(x){if(cs.indexOf(x.cat)<0)cs.push(x.cat)});if(cs.length<2||!fil){if(fil)fil.hidden=true;return}fil.hidden=false;fil.innerHTML='<button type="button" data-wc="" aria-pressed="true">Alles</button>'+cs.map(function(c){return '<button type="button" data-wc="'+c+'">'+(CAT[c]||c)+'</button>'}).join("");
