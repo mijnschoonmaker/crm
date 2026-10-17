@@ -405,7 +405,7 @@ module.exports = function maakPortaal(ctx) {
         }
         let cid = k.mollieCustomerId || "";
         if (!cid) { const c = await mollie(g.mollieKey, "customers", { method: "POST", body: JSON.stringify({ name: schoon(k.naam).slice(0, 100), email: k.email || undefined, metadata: { klantId: k.id } }) }); cid = c.id; await S.kref.set({ mollieCustomerId: cid }, { merge: true }); }
-        const p = await mollie(g.mollieKey, "payments", { method: "POST", body: JSON.stringify({ amount: { currency: "EUR", value: "0.01" }, customerId: cid, sequenceType: "first", method: "ideal", description: ("Machtiging automatische incasso " + (b.naam || "")).slice(0, 255), redirectUrl: base + "/portaal?incasso=1", webhookUrl: base + "/api/mollie", metadata: { incasso: true, klantId: k.id } }) });
+        const p = await mollie(g.mollieKey, "payments", { method: "POST", body: JSON.stringify({ amount: { currency: "EUR", value: "0.01" }, customerId: cid, sequenceType: "first", method: "ideal", description: ("Machtiging automatische incasso").slice(0, 255), redirectUrl: base + "/portaal?incasso=1", webhookUrl: base + "/api/mollie", metadata: { incasso: true, klantId: k.id } }) });
         const link = p._links && p._links.checkout && p._links.checkout.href;
         await S.kref.set({ incassoAanvraag: { id: p.id, op: nu() } }, { merge: true });
         res.json({ link }); return;

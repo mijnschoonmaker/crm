@@ -10,7 +10,7 @@ const fnFout=e=>String((e&&e.message)||e||"onbekende fout").replace(/^.*?:\s*(?=
 
 async function mollieLinkVoor(f){
   if(f.betaallink&&f.mollieId&&f.mollieStatus==="open")return f.betaallink;
-  const r=await fbFn("mollieLink")({factuurId:f.id,bedrag:Math.round(totals(f).inc*100)/100,omschrijving:(S().naam||"Glasbewassing")+" · factuur "+f.nummer,basis:location.origin});
+  const r=await fbFn("mollieLink")({factuurId:f.id,bedrag:Math.round(totals(f).inc*100)/100,omschrijving:"Factuur "+f.nummer,basis:location.origin});
   return r.data.link}
 
 /* opgemaakte mail rechtstreeks versturen (vervangt kopiëren + plakken) */
@@ -23,7 +23,7 @@ async function verstuurLive(i){
     if(f&&f.soort==="offerte"){try{vars={...vars,akkoordlink:await akkoordLink(f,r.k)}}catch(e){console.error(e);toast("Link voor online akkoord maken lukte niet")}}
     let viaIncasso=false;
     /* klant met incasso-machtiging: factuur direct ter incasso aanbieden (pas na de uitgevoerde beurt; Mollie schrijft binnen enkele werkdagen af), geen betaallink */
-    if(f&&f.soort!=="offerte"&&!f.betaald&&liveMollie()&&r.k.incasso&&r.k.mollieMandateId){try{await fbFn("mollieIncasso")({factuurId:f.id,bedrag:totals(f).inc,omschrijving:`Factuur ${f.nummer} ${S().naam||""}`.trim(),basis:location.origin});f.incasso=true;viaIncasso=true;vars={...vars,betaallink:"",betaalregel:"Het bedrag wordt binnen 14 dagen automatisch van uw rekening afgeschreven via uw machtiging. U hoeft niets te doen.\n"}}catch(e){console.error(e);toast("Incasso starten lukte niet ("+fnFout(e)+"); de mail gaat met een betaallink")}}
+    if(f&&f.soort!=="offerte"&&!f.betaald&&liveMollie()&&r.k.incasso&&r.k.mollieMandateId){try{await fbFn("mollieIncasso")({factuurId:f.id,bedrag:totals(f).inc,omschrijving:"Factuur "+f.nummer,basis:location.origin});f.incasso=true;viaIncasso=true;vars={...vars,betaallink:"",betaalregel:"Het bedrag wordt binnen 14 dagen automatisch van uw rekening afgeschreven via uw machtiging. U hoeft niets te doen.\n"}}catch(e){console.error(e);toast("Incasso starten lukte niet ("+fnFout(e)+"); de mail gaat met een betaallink")}}
     if(!viaIncasso&&f&&f.soort!=="offerte"&&!f.betaald&&liveMollie()){try{vars={...vars,betaallink:await mollieLinkVoor(f)}}catch(e){console.error(e);toast("Betaallink maken lukte niet; de mail gaat zonder Mollie-link")}}
     const subj=fill(st?st.onderwerp:c.onderwerp,vars),html=mailFor(c.sjabloon,vars,tekst,{f,stap:st});
     let bijlagen=[];if(f){const doc=await pdfDoc(f);if(doc)bijlagen=[{naam:(f.soort==="offerte"?"Offerte ":"Factuur ")+f.nummer+".pdf",data:String(doc.output("datauristring")).split(",")[1]}]}
