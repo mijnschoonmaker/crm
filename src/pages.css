@@ -4022,3 +4022,6 @@ body.rd-busy{cursor:grabbing}
 .vg-gr span,.vg-br span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}.vg-gr b{font-size:12px;padding:3px 9px;border-radius:999px;background:var(--surface);color:var(--muted)}.vg-gr b.aan{background:#e0f3e9;color:#1b6b48}
 .vg-br em{font-style:normal;color:var(--muted);font-size:12.5px}
 .f-vve[hidden]{display:none!important}
+
+.kd-port{display:inline-flex;align-items:center;gap:5px;height:30px;padding:0 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);font:600 12px inherit;font-family:inherit;cursor:pointer;margin-right:4px;vertical-align:middle}.kd-port svg{width:13px;height:13px}
+.kd-port.aan{background:color-mix(in srgb,var(--brand) 12%,var(--surface));border-color:color-mix(in srgb,var(--brand) 35%,var(--line));color:var(--brand)}

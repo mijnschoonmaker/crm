@@ -4483,6 +4483,9 @@ body.rd-busy{cursor:grabbing}
 .vg-br em{font-style:normal;color:var(--muted);font-size:12.5px}
 .f-vve[hidden]{display:none!important}
 
+.kd-port{display:inline-flex;align-items:center;gap:5px;height:30px;padding:0 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);font:600 12px inherit;font-family:inherit;cursor:pointer;margin-right:4px;vertical-align:middle}.kd-port svg{width:13px;height:13px}
+.kd-port.aan{background:color-mix(in srgb,var(--brand) 12%,var(--surface));border-color:color-mix(in srgb,var(--brand) 35%,var(--line));color:var(--brand)}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -4763,6 +4766,8 @@ async function copy(text,btn){
   catch(e){const ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";(btn?.closest("dialog")||document.body).appendChild(ta);ta.select();
     let ok=false;try{ok=document.execCommand("copy")}catch(_){}ta.remove();toast(ok?"Gekopieerd":"Kopiëren lukte niet. Selecteer de tekst zelf.")}
 }
+/* wie de beurt heeft uitgevoerd (voornaam van de ingelogde gebruiker); zichtbaar in portaal, maandrapport en bewonersbord */
+const doorNaam=()=>{const m=(typeof state!=="undefined"&&state.me)||{};const n=String(m.name||String(m.email||"").split("@")[0]||"").split(/[ ._-]/)[0];return n?n.charAt(0).toUpperCase()+n.slice(1):""};
 const err=e=>toast("Niet opgeslagen: "+(e?.message||e?.code||"onbekende fout"));
 const EMPTY_ILL=`<div class="ill-fan"><span><b></b><b></b></span><span><b></b><b></b><b></b></span><span><b></b><b></b></span></div>`;
 const empty=(t,s,btn="")=>`<div class="empty"><div class="ill">${EMPTY_ILL}</div><strong>${t}</strong><span>${s}</span>${btn}</div>`;
@@ -5080,7 +5085,7 @@ async function gewassen(k){
   const _lm=lopendeMin(k),_mp=_lm&&_lm>=1?metingPatch(k,_lm):null,_last=(k.tijden||[]).slice(-1)[0],_dur=_mp?_lm:_last&&_last.datum===iso(today())?_last.min:duur(k);if(_mp)k={...k,..._mp};
   const prev={laatst:k.laatst||"",gepland:k.gepland||"",bezig:k.bezig||""},bId=newId("b"),d=iso(today());
   try{
-    await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:Number(k.prijs)||0,betaald:false,gefactureerd:"",dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",op:new Date().toISOString()});
+    await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:Number(k.prijs)||0,betaald:false,gefactureerd:"",dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString()});
     let nx="",_rk=reeksNa(k);if(_rk)nx=_rk.gepland;else if(k.autoplan){const v=ritmeVolgende(k,today());nx=iso(v)}
     await save("klanten",k.id,{...strip(k),laatst:d,gepland:nx,...(_rk?{tijd:_rk.tijd,reeks:_rk.reeks}:{}),bezig:""});aanbevelingVrijgeven(k.id);
     toast(cleanName(k.naam)+" afgerond · "+eur(k.prijs),async()=>{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev})});
@@ -5106,7 +5111,7 @@ async function afronden(k,mode,el){
   if((k.bevindingen||[]).length)f.bijlagen=k.bevindingen.map(b=>({...b,soort:"foto"}));
   if(k.nietFactureren&&!isPeriodiek(k)){/* niet factureren: beurt afmelden zonder factuur */
     try{const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed);
-      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),betaald:false,gefactureerd:"nvt",dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",op:new Date().toISOString(),...(_vve||{})});
+      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),betaald:false,gefactureerd:"nvt",dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString(),...(_vve||{})});
       let nx="",_rk=reeksNa(k);if(_rk)nx=_rk.gepland;else if(k.autoplan){nx=iso(ritmeVolgende(k,today()))}
       await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",bevindingen:[],opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,gepland:nx,...(_rk?{tijd:_rk.tijd,reeks:_rk.reeks}:{}),bezig:""});aanbevelingVrijgeven(k.id);
       const undo=async()=>{try{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
@@ -5115,7 +5120,7 @@ async function afronden(k,mode,el){
     return}
   if(isPeriodiek(k)){/* periodieke factuur: beurt afmelden zonder eigen factuur; artikelen gaan mee op de periodieke factuur */
     try{const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed);
-      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),betaald:false,gefactureerd:"periodiek",periodiek:true,dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",op:new Date().toISOString(),...(_vve||{})});
+      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),betaald:false,gefactureerd:"periodiek",periodiek:true,dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString(),...(_vve||{})});
       let nx="",_rk=reeksNa(k);if(_rk)nx=_rk.gepland;else if(k.autoplan){nx=iso(ritmeVolgende(k,today()))}
       await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,gepland:nx,...(_rk?{tijd:_rk.tijd,reeks:_rk.reeks}:{}),bezig:""});aanbevelingVrijgeven(k.id);
       const undo=async()=>{try{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
@@ -5126,7 +5131,7 @@ async function afronden(k,mode,el){
   try{
     await save("facturen",fId,f);
     const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed);
-    await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:r2(f.regels.reduce((a,r)=>a+(Number(r.aantal)||0)*(Number(r.prijs)||0),0)),extra:_ed.map(o=>o.dienst),betaald:f.status==="betaald",gefactureerd:fId,dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",op:new Date().toISOString(),...(_vve||{})});
+    await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:r2(f.regels.reduce((a,r)=>a+(Number(r.aantal)||0)*(Number(r.prijs)||0),0)),extra:_ed.map(o=>o.dienst),betaald:f.status==="betaald",gefactureerd:fId,dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString(),...(_vve||{})});
     let nx="",_rk=reeksNa(k);if(_rk)nx=_rk.gepland;else if(k.autoplan){nx=iso(ritmeVolgende(k,today()))}
     await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",artikelen:[],bevindingen:[],...(k.opdrachtVerwijderd?{actief:false}:{}),opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,gepland:nx,...(_rk?{tijd:_rk.tijd,reeks:_rk.reeks}:{}),...(_tg||{}),bezig:""});aanbevelingVrijgeven(k.id);
     const undo=async()=>{try{await del("facturen",fId);await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
@@ -11061,7 +11066,7 @@ function openKlantView(id,opt={}){
     <section class="kp"><div class="kp-h"><span class="objic">${I.note}</span><b>Opmerkingen</b><span class="sp"></span>${pen("opm","Opmerkingen aanpassen")}</div>
       ${kv("Klantnotities",k.klantNotitie?esc(k.klantNotitie).replace(/\n/g,"<br>"):"")}${kv("Factuurinstructies",k.factuurInstructie?esc(k.factuurInstructie).replace(/\n/g,"<br>"):"")}</section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.upload}</span><b>Klantdocumenten</b><span class="sp"></span>${state.assets?`<label class="iconbtn sm primary" title="Document toevoegen" aria-label="Document toevoegen">${I.plus}<input type="file" hidden multiple id="kdDoc"></label>`:""}</div>
-      ${(k.documenten||[]).length?`<table class="minitable">${k.documenten.map((d,i)=>`<tr><td><a href="${BLOB}${esc(d.id)}" target="_blank" rel="noopener"><b>${esc(d.naam)}</b></a><br><small class="subt">${esc(fmtD(d.datum))}${d.omschr?" · "+esc(d.omschr):""}</small></td><td class="r" style="white-space:nowrap"><a class="iconbtn sm" href="${BLOB}${esc(d.id)}" download="${esc(d.naam)}" aria-label="Downloaden">${I.dl}</a><button type="button" class="iconbtn sm" data-kk="docdel" data-i="${i}" aria-label="Verwijderen">${I.x}</button></td></tr>`).join("")}</table>`:`<p class="subt" style="margin:0">${state.assets?"Nog geen documenten. Voeg bijvoorbeeld een contract of een foto toe.":"Bestanden toevoegen kan hier niet."}</p>`}</section>
+      ${(k.documenten||[]).length?`<table class="minitable">${k.documenten.map((d,i)=>`<tr><td><a href="${BLOB}${esc(d.id)}" target="_blank" rel="noopener"><b>${esc(d.naam)}</b></a><br><small class="subt">${esc(fmtD(d.datum))}${d.omschr?" · "+esc(d.omschr):""}</small></td><td class="r" style="white-space:nowrap">${LIVE?`<button type="button" class="kd-port${d.portaal?" aan":""}" data-kk="docportaal" data-i="${i}" title="${d.portaal?"Zichtbaar in het klantportaal (tik om te verbergen)":"Niet zichtbaar in het klantportaal (tik om te tonen)"}">${I.globe}${d.portaal?"In portaal":"Portaal"}</button>`:""}<a class="iconbtn sm" href="${BLOB}${esc(d.id)}" download="${esc(d.naam)}" aria-label="Downloaden">${I.dl}</a><button type="button" class="iconbtn sm" data-kk="docdel" data-i="${i}" aria-label="Verwijderen">${I.x}</button></td></tr>`).join("")}</table>`:`<p class="subt" style="margin:0">${state.assets?"Nog geen documenten. Voeg bijvoorbeeld een contract, offerte of verzekeringsbewijs toe. Met de knop Portaal zet je een document klaar in het klantportaal.":"Bestanden toevoegen kan hier niet."}</p>`}</section>
   </div><div class="kk-side">
     <section class="kp"><div class="kp-h"><span class="objic">${I.globe}</span><b>Locaties</b><span class="sp"></span>${plus(`data-act="obj" data-id="${esc(k.id)}" data-o=""`,"Locatie toevoegen")}</div>
       <table class="minitable kp-click">${locs.map(l=>`<tr data-act="obj" data-id="${esc(k.id)}" data-o="${esc(l.o)}" tabindex="0" role="button"><td><b>${esc(l.adres||"")}</b><br><small class="subt">${esc(l.naam)}</small></td><td>${esc(l.postcode||"")}</td><td>${esc(l.plaats||"")}</td><td class="r">${I.pencil}</td></tr>`).join("")}</table></section>
@@ -11103,6 +11108,7 @@ function openKlantView(id,opt={}){
     if(a==="berichten")return kkBerichten(k.id);
     if(a==="openoverzicht")return kkOpenOverzicht(k.id);
     if(a==="periodiek")return openPeriodiek(k.id,"klant");
+    if(a==="docportaal"){const d=[...(cur().documenten||[])],i=Number(b.dataset.i);if(!d[i])return;d[i]={...d[i],portaal:!d[i].portaal};try{await put({documenten:d});toast(d[i].portaal?"Zichtbaar in het klantportaal (Documenten)":"Niet meer zichtbaar in het klantportaal");re()}catch(er){err(er)}}
     if(a==="docdel"){const d=[...(cur().documenten||[])];d.splice(Number(b.dataset.i),1);try{await put({documenten:d});toast("Document verwijderd");re()}catch(er){err(er)}}});
   const dc=$("#kdDoc");if(dc)dc.onchange=async e=>{const files=[...e.target.files];e.target.value="";const d=[...(cur().documenten||[])];
     for(const f of files){try{const r=await state.assets.upload(f);d.push({id:r.id,naam:f.name,datum:iso(today()),type:f.type||""})}catch(er){toast(f.name+" kon niet worden toegevoegd")}}

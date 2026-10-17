@@ -258,6 +258,8 @@ async function copy(text,btn){
   catch(e){const ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";(btn?.closest("dialog")||document.body).appendChild(ta);ta.select();
     let ok=false;try{ok=document.execCommand("copy")}catch(_){}ta.remove();toast(ok?"Gekopieerd":"Kopiëren lukte niet. Selecteer de tekst zelf.")}
 }
+/* wie de beurt heeft uitgevoerd (voornaam van de ingelogde gebruiker); zichtbaar in portaal, maandrapport en bewonersbord */
+const doorNaam=()=>{const m=(typeof state!=="undefined"&&state.me)||{};const n=String(m.name||String(m.email||"").split("@")[0]||"").split(/[ ._-]/)[0];return n?n.charAt(0).toUpperCase()+n.slice(1):""};
 const err=e=>toast("Niet opgeslagen: "+(e?.message||e?.code||"onbekende fout"));
 const EMPTY_ILL=`<div class="ill-fan"><span><b></b><b></b></span><span><b></b><b></b><b></b></span><span><b></b><b></b></span></div>`;
 const empty=(t,s,btn="")=>`<div class="empty"><div class="ill">${EMPTY_ILL}</div><strong>${t}</strong><span>${s}</span>${btn}</div>`;

@@ -182,11 +182,12 @@ module.exports = function maakPortaal(ctx) {
         toegang: k.portaalToegang || { opties: [], tekst: "" }, nieuw: !!k.eersteKeer && !beurten.length,
         incasso: { actief: !!k.incasso && !!k.mollieMandateId, sinds: String(k.incassoSinds || "").slice(0, 10), bank: k.incassoBank || "", rekening: k.incassoRekening || "", beschikbaar: !!(await geheim()).mollieKey } },
       volgende, verwacht,
-      bezoeken: beurten.slice(0, 30).map(x => ({ id: x.id, datum: x.datum, tijd: tijdVan(x), dienst: x.dienst || k.dienst || "Glasbewassing", extra: x.extra || [], bedrag: Number(x.bedrag) || 0, beoordeling: x.beoordeling ? { sterren: x.beoordeling.sterren } : null,
+      bezoeken: beurten.slice(0, 30).map(x => ({ id: x.id, datum: x.datum, tijd: tijdVan(x), door: voornaamVan(String(x.door || "")), dienst: x.dienst || k.dienst || "Glasbewassing", extra: x.extra || [], bedrag: Number(x.bedrag) || 0, beoordeling: x.beoordeling ? { sterren: x.beoordeling.sterren } : null,
         ...(vve ? { taken: Array.isArray(x.taken) ? x.taken.map(t => ({ naam: String(t.naam || ""), ok: !!t.ok })) : [], fotos: (x.fotos || []).map(f => fotoUrl(f.id)).filter(Boolean), notitie: String(x.notitie || "").slice(0, 400), duur: Number(x.duur) || 0 } : {}) })),
       ...(vve ? { bord: { url: base + "/bord/" + bordToken }, meldingen: meldingenVan(beurten, k) } : {}),
       teBeoordelen: laatsteB && !laatsteB.beoordeling && (Date.now() - new Date(laatsteB.datum + "T12:00:00").getTime()) < 21 * DAG ? { id: laatsteB.id, datum: laatsteB.datum } : null,
       aantalBezoeken: beurten.length,
+      documenten: (Array.isArray(k.documenten) ? k.documenten : []).filter(d => d && d.id && d.portaal === true).map(d => ({ naam: String(d.naam || "").slice(0, 120), soort: d.soort || "overig", datum: String(d.datum || "").slice(0, 10), url: fotoUrl(d.id) })).filter(d => d.url),
       facturen,
       rang: await betaalRang(k.id).catch(e => { console.error("rang", e); return null; }),
       live: await liveInfo(S).catch(e => { console.error("live", e); return null; }),
@@ -347,10 +348,13 @@ module.exports = function maakPortaal(ctx) {
         const vandaag = isoNL(), wdg = vasteDagen(k);
         let volgende = k.gepland && k.gepland >= vandaag ? { datum: k.gepland, tijd: k.tijd || "" } : null;
         if (!volgende && wdg) { const d = new Date(vandaag + "T12:00:00"); for (let i = 1; i < 9; i++) { d.setDate(d.getDate() + 1); if (wdg.includes(d.getDay())) { volgende = { datum: isoNL(d), tijd: "" }; break; } } }
-        res.set("cache-control", "public, max-age=120");
-        res.json({ bedrijf: { naam: bi.naam, logo: bi.logo, telefoon: bi.telefoon, email: bi.email || "", website: bi.website, kleur: bi.kleur }, naam: schoon(k.naam), adres: k.adres || "", plaats: k.plaats || "", ritme: ritmeTxt(k), taken: vveTakenVan(k),
+        /* live volgen op de dag zelf: zonder exacte plek (het bord is openbaar), wel hoeveel adressen nog en hoe laat */
+        let live = null;
+        try { const L = await liveInfo({ klant: { ...k, id: kid }, kref: q.docs[0].ref }); if (L) live = { status: L.status, voor: L.voor ?? null, eta: L.eta || "", naam: L.naam || "", bezigBij: !!L.bezigBij }; } catch (e) { console.error("bordlive", e); }
+        res.set("cache-control", live ? "no-store" : "public, max-age=120");
+        res.json({ live, bedrijf: { naam: bi.naam, logo: bi.logo, telefoon: bi.telefoon, email: bi.email || "", website: bi.website, kleur: bi.kleur }, naam: schoon(k.naam), adres: k.adres || "", plaats: k.plaats || "", ritme: ritmeTxt(k), taken: vveTakenVan(k),
           bezig: !!k.bezig && k.gepland === vandaag, volgende,
-          bezoeken: bs.slice(0, 8).map(x => ({ datum: x.datum, tijd: tijdVan(x), taken: Array.isArray(x.taken) ? x.taken.map(t => ({ naam: String(t.naam || ""), ok: !!t.ok })) : [], fotos: (x.fotos || []).slice(0, 2).map(f => fotoUrl(f.id)).filter(Boolean), notitie: String(x.notitie || "").slice(0, 300) })) });
+          bezoeken: bs.slice(0, 8).map(x => ({ datum: x.datum, tijd: tijdVan(x), door: voornaamVan(String(x.door || "")), taken: Array.isArray(x.taken) ? x.taken.map(t => ({ naam: String(t.naam || ""), ok: !!t.ok })) : [], fotos: (x.fotos || []).slice(0, 2).map(f => fotoUrl(f.id)).filter(Boolean), notitie: String(x.notitie || "").slice(0, 300) })) });
         return;
       }
       if (pad === "/ref" && req.method === "GET") {

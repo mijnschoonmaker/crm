@@ -1052,6 +1052,42 @@ aside .logo{gap:16px!important}.topbar .lg-g{font-size:14px!important}
 .ic-body .stappen{margin:10px 0 4px}.ic-body .stappen li{font-weight:500;font-size:14.5px}
 .ic-body .primary{align-self:flex-start}
 @media (max-width:600px){.ic-body .primary{align-self:stretch}}
+
+/* ---- VvE: cijfers, logboek per maand, documenten ---- */
+.vk-rij{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.vk{background:var(--card,#fff);border:1px solid var(--line);border-radius:18px;padding:14px 14px 12px;display:flex;flex-direction:column;gap:2px;box-shadow:var(--kaart-schaduw,0 10px 26px -20px rgb(15 50 60 / .35))}
+.vk-ic{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--brand) 12%,var(--surface));color:var(--brand);margin-bottom:6px}.vk-ic svg{width:16px;height:16px}
+.vk small{font-size:12px;color:var(--muted);font-weight:600}.vk b{font-size:22px;letter-spacing:-.03em;line-height:1.15}.vk em{font-style:normal;font-size:12px;color:var(--muted)}
+.vk.rood b{color:var(--late)}.vk.rood .vk-ic{background:color-mix(in srgb,var(--late) 12%,var(--surface));color:var(--late)}
+.vk.let b{color:#b7791f}
+@media (max-width:760px){.vk-rij{grid-template-columns:repeat(2,1fr)}}
+.bz-mnd{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:18px 0 6px;padding:10px 12px 10px 14px;border-radius:14px;background:color-mix(in srgb,var(--brand) 7%,var(--surface));position:relative;z-index:1}
+.bz-mnd b{display:block;font-size:15px}.bz-mnd small{font-size:12.5px;color:var(--muted)}
+.btn.sm{padding:7px 11px;font-size:12.5px;border-radius:10px;gap:6px}.btn.sm svg{width:14px;height:14px}
+.vv-det{margin-top:10px;padding:12px;border-radius:14px;background:var(--surface-2,#f4f7f8);border:1px solid var(--line)}
+.vv-taken span{padding:5px 10px;font-size:12.5px}
+.vv-fotos{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+.vv-fotos a{display:block;border-radius:12px;overflow:hidden;aspect-ratio:4/3;box-shadow:0 6px 16px -10px rgb(0 0 0 / .45);cursor:zoom-in}
+.vv-fotos img{width:100%;height:100%;object-fit:cover;border:0;border-radius:0;transition:transform .4s}.vv-fotos a:hover img{transform:scale(1.04)}
+.vv-not{padding:8px 10px;border-radius:10px;background:#fdf7ea;border-left:3px solid #e0a32b;font-size:13.5px}
+.fg-ov{position:fixed;inset:0;z-index:99999;background:rgb(6 14 18 / .92);display:flex;align-items:center;justify-content:center;padding:20px;cursor:zoom-out;animation:fgIn .2s ease}
+.fg-ov img{max-width:100%;max-height:100%;border-radius:14px;box-shadow:0 30px 70px -30px rgb(0 0 0 / .8)}
+.fg-ov button{position:absolute;top:16px;right:16px;width:44px;height:44px;border-radius:50%;border:1px solid rgb(255 255 255 / .3);background:rgb(255 255 255 / .14);color:#fff;display:grid;place-items:center}.fg-ov button svg{width:18px;height:18px}
+@keyframes fgIn{from{opacity:0}to{opacity:1}}
+.docs .dk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.dk{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:4px;padding:16px;border-radius:20px;background:var(--card,#fff);border:1px solid var(--line);box-shadow:var(--kaart-schaduw,0 10px 26px -20px rgb(15 50 60 / .35));transition:transform .15s}
+.dk:hover{transform:translateY(-2px)}
+.dk-ic{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;color:#fff;background:var(--kop,linear-gradient(135deg,#0f5f6e,#137a8a 55%,#1d5a74));margin-bottom:8px}.dk-ic svg{width:20px;height:20px}
+.dk b{font-size:15.5px}.dk small{font-size:13px;color:var(--muted);line-height:1.45;flex:1}
+.dk em{font-style:normal;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--brand);margin-top:8px}.dk em svg{width:14px;height:14px}
+@media (max-width:760px){.docs .dk-grid{grid-template-columns:1fr;gap:8px}.dk{display:grid;grid-template-columns:42px 1fr;column-gap:12px;row-gap:0;padding:12px 14px;align-items:center}.dk-ic{grid-row:span 3;margin:0}.dk b{font-size:15px}.dk small{font-size:12.5px}.dk em{margin-top:4px}.dr b{font-size:14px}}
+.dr-l{display:flex;flex-direction:column}
+.dr{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}.dr:first-child{border-top:0}
+.dr-ic{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:color-mix(in srgb,var(--brand) 10%,var(--surface));color:var(--brand);flex:none}.dr-ic svg{width:17px;height:17px}
+.dr>div{flex:1;min-width:0}.dr b{display:block;font-size:14.5px}.dr small{font-size:12.5px;color:var(--muted)}
+.dr .btn{flex:none}
+.vv-door{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}.vv-door b{color:var(--ink)}
+.vv-av{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:11.5px;font-weight:800;color:#fff;background:var(--kop,linear-gradient(135deg,#0f5f6e,#137a8a 55%,#1d5a74))}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -1172,7 +1208,7 @@ async function toonAanbevolen(code){
 /* ---------- de app ---------- */
 let D=null,tab="home";
 const TABS_STD=[["home","Overzicht",I.huis],["bezoeken","Bezoeken",I.kal],["tickets","Tickets",I.ticket],["facturen","Facturen",I.fact],["aanbevelen","Credits",I.cadeau],["ik","Contact",I.ik]];
-const TABS_VVE=[["home","Overzicht",I.huis],["bezoeken","Logboek",I.kal],["tickets","Meldingen",I.ticket],["facturen","Facturen",I.fact],["bord","Bewonersbord",I.qr||I.huis],["ik","Contact",I.ik]];
+const TABS_VVE=[["home","Overzicht",I.huis],["bezoeken","Logboek",I.kal],["tickets","Meldingen",I.ticket],["facturen","Facturen",I.fact],["docs","Documenten",I.doc],["ik","Contact",I.ik]];
 const isVve=()=>!!(D&&D.klant&&D.klant.vve);let TABS=TABS_STD;
 async function laad(stil){
   if(!stil)$("#app").innerHTML=`<div class="laden"><div class="spin"></div><span>Uw omgeving wordt geopend…</span></div>`;
@@ -1191,7 +1227,7 @@ function teken(){
       <div class="help"><b>Vragen?</b><small>Maak een ticket aan, dan helpen we u snel.</small><button class="primary full" data-act="ticket">${I.ticket}Ticket aanmaken</button></div>
       <div class="usercard"><span class="uav">${esc((k.voornaam||"?")[0].toUpperCase())}</span><div><b>${esc(k.naam)}</b><small>${k.klantnr?"Klant "+esc(k.klantnr):esc(k.adres)}</small></div><button data-uit title="Uitloggen" aria-label="Uitloggen">${I.uit}</button></div></aside>
     <div><header class="topbar">${logoHtml(merkNaam(),B.logo||"/logo.png").replace(/<\/span>$/,`<span class="lg-g">${groet()}, ${esc(k.voornaam||k.naam||"")}</span></span>`)}<span class="sp"></span><button class="menu-knop" data-tab="ik" aria-label="Menu"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h11M4 17h16"/></svg></button></header>
-    <main id="main"${tab==="tickets"&&TK.open?' class="m-chat"':""}>${({home,bezoeken,tickets,facturen,aanbevelen,bord,ik})[tab]()}</main></div></div>
+    <main id="main"${tab==="tickets"&&TK.open?' class="m-chat"':""}>${({home,bezoeken,tickets,facturen,aanbevelen,bord,docs,ik})[tab]()}</main></div></div>
     <nav class="tabs" aria-label="Menu">${nav(true)}</nav>`;
   $$("[data-kopieer]").forEach(b=>b.onclick=async()=>{try{await navigator.clipboard.writeText(b.dataset.kopieer);toast("Link gekopieerd")}catch(e){prompt("Kopieer de link:",b.dataset.kopieer)}});
   $$("[data-tab]").forEach(b=>b.onclick=()=>{const nw=b.dataset.tab;if(nw==="ik"&&tab==="ik"&&b.classList.contains("menu-knop")){tab=window._vorigeTab&&window._vorigeTab!=="ik"?window._vorigeTab:"home"}else{if(nw==="ik"&&tab!=="ik")window._vorigeTab=tab;tab=nw}if(tab==="tickets"){TK.open="";TK.d=null;TK.sig=""}teken();scrollTo({top:0});try{history.replaceState(null,"","#"+tab)}catch(e){}});
@@ -1225,7 +1261,7 @@ function home(){const k=D.klant,openF=D.facturen.filter(f=>f.status==="open"||f.
     ${A.tegoed>0?`<div class="melding goud"><span class="objic goud">${I.cadeau}</span><div class="tx"><b>${Math.round(A.tegoed)} credit${Math.round(A.tegoed)===1?"":"s"} · ${eur0(A.tegoed)} korting</b><small>${(()=>{const R=((D.credits||{}).regels||[]).filter(t=>t.open);const per={};R.forEach(t=>{const n={aanbevelen:"aanbevelen",review:"Google-review",beoordeling:"beoordelingen",extra:"extra dienst"}[t.bron]||"overig";per[n]=(per[n]||0)+t.bedrag});const d=Object.entries(per).map(([n,b])=>`${Math.round(b)} ${n}`).join(" · ");return d?d+" · gaat automatisch van uw volgende factuur af.":"Gaat automatisch van uw volgende factuur af."})()}</small></div><button class="btn" data-tab="aanbevelen" style="flex:none">Bekijken</button></div>`:""}
     ${D.teBeoordelen?kp(I.ster,"Hoe was ons bezoek?",`<div class="sterren" id="beoor" role="group" aria-label="Geef een beoordeling">${[1,2,3,4,5].map(n=>`<button data-ster="${n}" aria-label="${n} ${n===1?"ster":"sterren"}">${I.ster}</button>`).join("")}</div>`,{kl:"goud",sub:"Bezoek van "+esc(lang(D.teBeoordelen.datum))}):""}
     ${lopend.length?kp(I.bericht,"Wat u ons heeft laten weten",`<div class="lijst">${lopend.map(verzoekRij).join("")}</div>`,{sub:"We komen er zo snel mogelijk op terug"}):""}
-    <div class="stats st3"><div class="stat"><span class="st-ic">${I.check}</span><div><small>Bezoeken</small><b>${D.aantalBezoeken}</b><em>${k.sinds?"sinds "+esc(MK[p(k.sinds).getMonth()]+" "+p(k.sinds).getFullYear()):"&nbsp;"}</em></div></div><div class="stat"><span class="st-ic">${I.kal}</span><div><small>Ritme</small><b>${k.vve?esc(ritmeKort(k)):k.frequentie+" wk"}</b><em>${esc(k.dienst||"")}</em></div></div><div class="stat${som>0?" rood":""}"><span class="st-ic">${I.euro}</span><div><small>Open</small><b${som>0?' style="color:var(--late)"':""}>${eur0(som)}</b><em>${openF.length?plural(openF.length,"factuur","facturen"):"alles betaald"}</em></div></div></div>`;
+    ${k.vve?vveKpis():""}    ${k.vve?"":`<div class="stats st3"><div class="stat"><span class="st-ic">${I.check}</span><div><small>Bezoeken</small><b>${D.aantalBezoeken}</b><em>${k.sinds?"sinds "+esc(MK[p(k.sinds).getMonth()]+" "+p(k.sinds).getFullYear()):"&nbsp;"}</em></div></div><div class="stat"><span class="st-ic">${I.kal}</span><div><small>Ritme</small><b>${k.vve?esc(ritmeKort(k)):k.frequentie+" wk"}</b><em>${esc(k.dienst||"")}</em></div></div><div class="stat${som>0?" rood":""}"><span class="st-ic">${I.euro}</span><div><small>Open</small><b${som>0?' style="color:var(--late)"':""}>${eur0(som)}</b><em>${openF.length?plural(openF.length,"factuur","facturen"):"alles betaald"}</em></div></div></div>`}`;
   const rechts=`${abonnementKp()}${k.vve?vveHomeKp():""}
     ${B.refAan&&!k.vve?`<button class="melding goud" data-tab="aanbevelen"><span class="objic goud">${I.hart}</span><div class="tx"><b>Tevreden? Vertel het door</b><small>${eur0(B.refBeloning)} korting op uw volgende factuur voor elke nieuwe klant.</small></div>${I.chev}</button>`:""}`;
   return ""+
@@ -1258,9 +1294,10 @@ function bezoeken(){const v=D.volgende,b=D.bezoeken||[],k=D.klant,fq=Number(k.fr
   const tiles=`<div class="bz-tiles">${tile(I.ruit||I.check,k.vve?"Schoonmaakbeurten":"Schone ramen",plural(nB,"keer","keer"),b.length?"sinds "+(d=>d.getDate()+" "+MK[d.getMonth()]+(d.getFullYear()!==nu.getFullYear()?" "+d.getFullYear():""))(p(b[b.length-1].datum)):"nog geen bezoek",druppels)}${tile(I.verzet||I.kal,"Ritme",k.vve?hoofd(k.ritme||""):fq===1?"Elke week":"Elke "+fq+" weken",esc(k.dienst||"Glasbewassing"),k.vve?"":ritme)}${tile(I.hart,"Klant sinds",k.sinds?esc(MK[p(k.sinds).getMonth()]+" "+p(k.sinds).getFullYear()):"–",dagen?plural(dagen,"dag","dagen")+" samen":"")}${gem?tile(I.ster,"Uw beoordeling",gem.toLocaleString("nl-NL",{maximumFractionDigits:1})+" / 5",st(Math.round(gem))):""}</div>`;
   /* tijdlijn: eerst wat er komt, dan wat we gedaan hebben */
   const toek=v?[{datum:v.datum,tijd:v.tijd,soort:"gepland"},...v.reeks.map(x=>({...x,soort:"gepland"}))]:(D.verwacht&&k.actief?[{datum:D.verwacht,soort:"verwacht"}]:[]);
-  let jr="";const item=(x,past)=>{const d=p(x.datum),y=d.getFullYear(),kopJ=y!==jr?`<li class="bz-jr">${y}</li>`:"";jr=y;
+  let jr="",mn="";const VM=isVve()?Object.fromEntries(vveMaanden()):{};const item=(x,past)=>{const d=p(x.datum),y=d.getFullYear();let kopJ=y!==jr&&!(past&&isVve())?`<li class="bz-jr">${y}</li>`:"";jr=y;
+    if(past&&isVve()){const m=x.datum.slice(0,7);if(m!==mn){mn=m;const bs=VM[m]||[],af=vveAfrond(bs);kopJ=`<li class="bz-mnd"><div><b>${esc(hoofd(vveMaand(m)))}</b><small>${plural(bs.length,"beurt","beurten")}${af!=null?" · "+af+"% afgerond":""}</small></div><button class="btn sm" data-vrap="${m}">${I.fact}Maandrapport</button></li>`}}
     return kopJ+`<li class="bz-it ${past?"af":x.soort}"><span class="bz-dot">${past?I.check:""}</span><div class="bz-card"><div class="bz-dt"><b>${x.soort==="verwacht"?"wk":d.getDate()}</b><small>${x.soort==="verwacht"?weekNr(d):MK[d.getMonth()]}</small></div>
-      <div class="bz-tx"><b>${past?esc(x.dienst||"Glasbewassing")+(x.extra&&x.extra.length?" + "+esc(x.extra.join(", ").toLowerCase()):""):x.soort==="verwacht"?"Verwacht bezoek":"Gepland bezoek"}</b><small><span style="text-transform:capitalize">${x.soort==="verwacht"?"rond week "+weekNr(d):esc(dagNaam(d))}</span>${x.tijd?" · "+esc(x.tijd):""}${!past&&x.soort!=="verwacht"?" · "+esc(overTxt(dagenTot(x.datum)).toLowerCase()):""}</small>${past&&x.beoordeling?st(x.beoordeling.sterren):""}</div>
+      <div class="bz-tx"><b>${past?esc(x.dienst||"Glasbewassing")+(x.extra&&x.extra.length?" + "+esc(x.extra.join(", ").toLowerCase()):""):x.soort==="verwacht"?"Verwacht bezoek":"Gepland bezoek"}</b><small><span style="text-transform:capitalize">${x.soort==="verwacht"?"rond week "+weekNr(d):esc(dagNaam(d))}</span>${x.tijd?" · "+esc(x.tijd):""}${past&&x.door&&!isVve()?" · "+esc(x.door):""}${!past&&x.soort!=="verwacht"?" · "+esc(overTxt(dagenTot(x.datum)).toLowerCase()):""}</small>${past&&x.beoordeling?st(x.beoordeling.sterren):""}</div>
       <div class="bz-rt">${past?(x.bedrag&&!isVve()?`<b>${eur0(x.bedrag)}</b>`:"")+`<span class="bz-stempel">${I.check}<i>${isVve()?"Gedaan":"Gewassen"}</i></span>`:`<span class="pill ${x.soort==="verwacht"?"":"brand"}"><i></i>${x.soort==="verwacht"?"Verwacht":"Gepland"}</span>`}</div></div>${past&&isVve()?vveBeurtDetail(x):""}</li>`};
   const fut=toek.slice().reverse();jr=nu.getFullYear();const lijn=fut.map(x=>item(x,false));jr=nu.getFullYear();
   const tl=`<section class="bz-tl"><div class="bz-tlh"><b>Tijdlijn</b><small>${plural(b.length,"bezoek","bezoeken")} gedaan${toek.length?" · "+plural(toek.length,"gepland","gepland").replace(/^(\d+) gepland$/,"$1 in het vooruitzicht"):""}</small></div>
@@ -1269,8 +1306,8 @@ function bezoeken(){const v=D.volgende,b=D.bezoeken||[],k=D.klant,fq=Number(k.fr
   return kop(isVve()?"Logboek":"Bezoeken",isVve()?"Per beurt: wanneer, wat er is gedaan en de opleverfoto.":"Wanneer we komen en wanneer we geweest zijn.")+`<div class="pg">${hero}${tiles}${tl}</div>`}
 /* ---------- VvE ---------- */
 const ritmeKort=k=>{const dg=k.weekdagen||[];return dg.length?dg.map(d=>["zo","ma","di","wo","do","vr","za"][d]).join(" · "):k.frequentie+" wk"};
-function vveBeurtDetail(x){const t=x.taken||[],f=x.fotos||[];if(!t.length&&!f.length&&!x.notitie)return"";
-  return `<div class="vv-det">${t.length?`<div class="vv-taken">${t.map(a=>`<span class="${a.ok?"ok":"niet"}">${a.ok?I.check:I.x}${esc(a.naam)}</span>`).join("")}</div>`:""}${f.length?`<div class="vv-fotos">${f.map(u=>`<a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" alt="Opleverfoto" loading="lazy"></a>`).join("")}</div>`:""}${x.notitie?`<p class="vv-not">${esc(x.notitie)}</p>`:""}${x.tijd?`<small class="vv-tijd">${I.klok||""}Gestart om ${esc(x.tijd)}${x.duur?" · "+x.duur+" min":""}</small>`:""}</div>`}
+function vveBeurtDetail(x){const t=x.taken||[],f=x.fotos||[];if(!t.length&&!f.length&&!x.notitie&&!x.door)return"";
+  return `<div class="vv-det">${x.door?`<div class="vv-door"><span class="vv-av">${esc(x.door[0].toUpperCase())}</span><span>Schoongemaakt door <b>${esc(x.door)}</b></span></div>`:""}${t.length?`<div class="vv-taken">${t.map(a=>`<span class="${a.ok?"ok":"niet"}">${a.ok?I.check:I.x}${esc(a.naam)}</span>`).join("")}</div>`:""}${f.length?`<div class="vv-fotos">${f.map(u=>`<a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" alt="Opleverfoto" loading="lazy"></a>`).join("")}</div>`:""}${x.notitie?`<p class="vv-not">${esc(x.notitie)}</p>`:""}${x.tijd?`<small class="vv-tijd">${I.klok||""}Gestart om ${esc(x.tijd)}${x.duur?" · "+x.duur+" min":""}</small>`:""}</div>`}
 function vveHomeKp(){const b=(D.bezoeken||[])[0],M=D.meldingen||[];
   const laatste=b?kp(I.check,"Laatste beurt",`<p class="vv-sub">${esc(hoofd(lang(b.datum)))}${b.tijd?" · "+esc(b.tijd):""}</p>${vveBeurtDetail(b)}`,{sub:"Wat er is gedaan"}):"";
   const meld=kp(I.alert||I.bericht,"Meldingen uit het gebouw",M.length?`<div class="lijst">${M.slice(0,3).map(m=>lr(I.camera,esc(VV_CAT[m.categorie]||"Melding")+" · "+esc(kort(m.datum)),esc(m.tekst||""),m.foto?`<a href="${esc(m.foto)}" target="_blank" rel="noopener"><img class="vv-mini" src="${esc(m.foto)}" alt=""></a>`:"")).join("")}</div>`:`<p class="leeg" style="margin:0">Wat onze schoonmaker opmerkt (kapotte lamp, grofvuil, schade) ziet u hier, met foto.</p>`,{sub:"Door onze schoonmaker gezien"});
@@ -1284,6 +1321,70 @@ function bord(){const u=(D.bord||{}).url||"",k=D.klant;
       <p>Bewoners scannen de code en zien: de laatste schoonmaakbeurt met wat er is gedaan en de opleverfoto, en wanneer we weer komen. Zonder inloggen, altijd actueel.</p>
       <div class="vv-acts"><a class="btn primary" href="${esc(u)}" target="_blank" rel="noopener">${I.huis}Bekijk het bord</a><a class="btn" href="${esc(u)}?print=1" target="_blank" rel="noopener">${I.print||I.fact}Bordje printen</a><button class="btn" data-kopieer="${esc(u)}">${I.kopieer||I.bericht}Link kopiëren</button></div></div></section>
     ${kp(I.info||I.bericht,"Zo gebruikt u het",`<div class="lijst">${lr("1","Print het bordje","Via Bordje printen krijgt u een A5-pagina met QR-code, klaar om op te hangen bij de entree of in de lift.")}${lr("2","Bewoners scannen","Ze zien direct de laatste beurt, de checklist en de volgende datum. Geen app, geen inlog.")}${lr("3","Zelf delen","Zet de link in uw nieuwsbrief of bewonersportaal; hij blijft altijd dezelfde.")}</div>`)}</div>`}
+/* ---------- VvE: overzichtscijfers, documenten, maandrapport, schoonmaakplan ---------- */
+const vveMaand=m=>{const [y,mm]=m.split("-");return MND[+mm-1]+" "+y};
+function vveMaanden(){const per={};(D.bezoeken||[]).forEach(b=>{if(!b.datum)return;const m=b.datum.slice(0,7);(per[m]=per[m]||[]).push(b)});return Object.entries(per).sort((a,b)=>b[0].localeCompare(a[0]))}
+function vveAfrond(bs){let ok=0,n=0;bs.forEach(b=>(b.taken||[]).forEach(t=>{n++;if(t.ok)ok++}));return n?Math.round(ok/n*100):null}
+function vveKpis(){const k=D.klant,nu=vandaag(),m=nu.toISOString?(nu.getFullYear()+"-"+String(nu.getMonth()+1).padStart(2,"0")):"",bs=(D.bezoeken||[]).filter(b=>b.datum&&b.datum.slice(0,7)===m);
+  const d30=(D.bezoeken||[]).filter(b=>b.datum&&(nu-p(b.datum))/864e5<=30),af=vveAfrond(d30),openF=D.facturen.filter(f=>f.status==="open"||f.status==="verlopen"),som=openF.reduce((a,f)=>a+f.bedrag,0);
+  const tk=(D.tickets&&D.tickets.open)||0,meld=(D.meldingen||[]).filter(x=>(nu-p(x.datum))/864e5<=30).length;
+  const tile=(ic,l,w,s,cls="")=>`<div class="vk ${cls}"><span class="vk-ic">${ic}</span><small>${l}</small><b>${w}</b><em>${s}</em></div>`;
+  return `<div class="vk-rij">${tile(I.check,"Deze maand",plural(bs.length,"beurt","beurten"),esc(MND[nu.getMonth()]))}${tile(I.ruit||I.check,"Checklist afgerond",af==null?"–":af+"%","laatste 30 dagen",af!=null&&af<90?"let":"")}${tile(I.camera,"Meldingen",String(meld+tk),tk?plural(tk,"open ticket","open tickets"):"laatste 30 dagen")}${tile(I.euro,"Openstaand",eur0(som),openF.length?plural(openF.length,"factuur","facturen"):"alles betaald",som>0?"rood":"")}</div>`}
+/* ---------- printbare documenten (openen in een nieuw tabblad; Afdrukken of Bewaar als PDF) ---------- */
+function vveDocHtml(titel,inhoud){const k=D.klant,logo=B.logo||"";
+  return `<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(titel)} · ${esc(k.naam)}</title><style>
+  @page{size:A4;margin:16mm 14mm}*{box-sizing:border-box}body{margin:0;background:#eef2f3;font-family:Inter,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;color:#0f1f26;font-size:13px;line-height:1.5;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .bl{max-width:820px;margin:24px auto;background:#fff;border-radius:18px;box-shadow:0 20px 50px -30px rgb(15 50 60 / .5);overflow:hidden}
+  .kop{background:linear-gradient(135deg,#0f5f6e,#137a8a 55%,#1d5a74);color:#fff;padding:26px 30px;display:flex;justify-content:space-between;gap:20px;align-items:flex-start}
+  .kop small{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;opacity:.8;font-weight:700}.kop h1{margin:4px 0 2px;font-size:24px;letter-spacing:-.02em}.kop p{margin:0;opacity:.85}
+  .kop .lg{text-align:right;font-weight:700}.kop .lg img{max-height:46px;max-width:150px;background:#fff;border-radius:10px;padding:5px;display:block;margin-left:auto}
+  .in{padding:24px 30px 28px}h2{font-size:15px;margin:22px 0 10px;color:#0f5f6e}h2:first-child{margin-top:0}
+  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.kpi div{border:1px solid #dde5e8;border-radius:12px;padding:10px 12px}.kpi small{display:block;font-size:11px;color:#5d6f76;font-weight:600}.kpi b{font-size:20px;letter-spacing:-.02em}
+  table{width:100%;border-collapse:collapse;font-size:12px}th,td{border-bottom:1px solid #e6ecee;padding:7px 6px;text-align:left;vertical-align:top}th{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:#5d6f76;background:#f5f8f9}
+  td.c,th.c{text-align:center}.ok{color:#1b7a4c;font-weight:800}.nee{color:#c0392b;font-weight:800}
+  .fotos{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.fotos figure{margin:0}.fotos img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;display:block;border:1px solid #e6ecee}.fotos figcaption{font-size:10.5px;color:#5d6f76;margin-top:3px}
+  ul.l{margin:0;padding-left:18px}ul.l li{margin:3px 0}.meld{border-left:3px solid #e0a32b;padding:6px 10px;background:#fdf7ea;border-radius:0 8px 8px 0;margin:6px 0}
+  .tk{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.tk div{border:1px solid #dde5e8;border-radius:12px;padding:12px}.tk b{display:block;font-size:14px}
+  .voet{border-top:1px solid #e6ecee;margin-top:22px;padding-top:12px;font-size:11px;color:#5d6f76;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .knop{position:fixed;right:18px;bottom:18px;background:#137a8a;color:#fff;border:0;border-radius:999px;padding:12px 20px;font:700 14px Inter,sans-serif;box-shadow:0 10px 24px -10px rgb(0 0 0 / .5);cursor:pointer}
+  @media print{body{background:#fff}.bl{box-shadow:none;margin:0;border-radius:0;max-width:none}.knop{display:none}tr,figure,.meld{break-inside:avoid}}
+  @media (max-width:640px){.bl{margin:0;border-radius:0}.kpi{grid-template-columns:repeat(2,1fr)}.fotos{grid-template-columns:repeat(2,1fr)}.kop{flex-direction:column}.kop .lg{text-align:left}.kop .lg img{margin-left:0}}
+  </style></head><body><div class="bl"><div class="kop"><div><small>${esc(titel)}</small><h1>${esc(k.naam)}</h1><p>${esc(k.adres||"")}${k.plaats?", "+esc(k.plaats):""}</p></div><div class="lg">${logo?`<img src="${esc(absU(logo))}" alt="">`:""}${esc(B.naam||"")}</div></div>
+  <div class="in">${inhoud}<div class="voet"><span>${esc(B.naam||"")}${B.telefoon?" · "+esc(B.telefoon):""}${B.email?" · "+esc(B.email):""}</span><span>Gemaakt op ${esc(lang(new Date().toISOString().slice(0,10)))}</span></div></div></div>
+  <button class="knop" onclick="window.print()">Afdrukken of opslaan als PDF</button></body></html>`}
+const absU=u=>{try{return new URL(u,location.href).href}catch(e){return u}};
+function vveOpen(html){try{const u=URL.createObjectURL(new Blob([html],{type:"text/html"}));const w=window.open(u,"_blank");if(!w)location.href=u}catch(e){toast("Openen lukte niet")}}
+function vveRapport(m){const bs=(vveMaanden().find(x=>x[0]===m)||[0,[]])[1].slice().sort((a,b)=>a.datum.localeCompare(b.datum));
+  const taken=[...new Set(bs.flatMap(b=>(b.taken||[]).map(t=>t.naam)).concat(D.klant.taken||[]))],af=vveAfrond(bs),duur=bs.filter(b=>b.duur).map(b=>b.duur);
+  const meld=(D.meldingen||[]).filter(x=>String(x.datum).slice(0,7)===m),fotos=bs.flatMap(b=>(b.fotos||[]).map(u=>({u,d:b.datum})));
+  const rij=b=>`<tr><td><b>${esc(kort(b.datum))}</b><br><span style="color:#5d6f76;text-transform:capitalize">${esc(dagNaam(p(b.datum)))}</span></td><td>${esc(b.tijd||"")}</td><td>${b.duur?b.duur+" min":""}</td><td>${esc(b.door||"")}</td>${taken.map(t=>{const x=(b.taken||[]).find(y=>y.naam===t);return `<td class="c">${x?(x.ok?'<span class="ok">✓</span>':'<span class="nee">✕</span>'):"–"}</td>`}).join("")}<td>${esc(b.notitie||"")}</td></tr>`;
+  vveOpen(vveDocHtml("Maandrapport "+vveMaand(m),`<h2>Samenvatting</h2><div class="kpi"><div><small>Beurten</small><b>${bs.length}</b></div><div><small>Checklist afgerond</small><b>${af==null?"–":af+"%"}</b></div><div><small>Gemiddelde duur</small><b>${duur.length?Math.round(duur.reduce((a,b)=>a+b,0)/duur.length)+" min":"–"}</b></div><div><small>Meldingen</small><b>${meld.length}</b></div></div>
+    <h2>Uitgevoerde beurten</h2>${bs.length?`<table><tr><th>Datum</th><th>Start</th><th>Duur</th><th>Door</th>${taken.map(t=>`<th class="c">${esc(t)}</th>`).join("")}<th>Opmerking</th></tr>${bs.map(rij).join("")}</table>`:"<p>Geen beurten in deze maand.</p>"}
+    ${meld.length?`<h2>Meldingen uit het gebouw</h2>${meld.map(x=>`<div class="meld"><b>${esc(VV_CAT[x.categorie]||"Melding")}</b> · ${esc(kort(x.datum))}<br>${esc(x.tekst||"")}</div>`).join("")}`:""}
+    ${fotos.length?`<h2>Opleverfoto's</h2><div class="fotos">${fotos.map(f=>`<figure><img src="${esc(absU(f.u))}" alt=""><figcaption>${esc(kort(f.d))}</figcaption></figure>`).join("")}</div>`:""}`))}
+function vvePlan(){const k=D.klant,dg=(k.weekdagen||[]).map(d=>["zondag","maandag","dinsdag","woensdag","donderdag","vrijdag","zaterdag"][d]),taken=k.taken||[];
+  vveOpen(vveDocHtml("Schoonmaakplan",`<h2>Wanneer</h2><div class="tk"><div><small>Vaste dagen</small><b>${dg.length?esc(dg.join(" en ")):esc(k.ritme||"Volgens afspraak")}</b></div><div><small>Dienst</small><b>${esc(k.dienst||"Schoonmaak")}</b></div></div>
+    <h2>Wat we per beurt doen</h2><ul class="l">${taken.map(t=>`<li><b>${esc(t)}</b></li>`).join("")||"<li>Volgens afspraak</li>"}</ul>
+    <h2>Zo werkt het</h2><ul class="l"><li>Na elke beurt vinken we de checklist af en maken we een opleverfoto. Het bestuur ziet dit direct in het klantportaal.</li><li>Bewoners zien via de QR-code in de hal wanneer er is schoongemaakt en wanneer we weer komen.</li><li>Zien we iets in het gebouw (kapotte lamp, grofvuil, schade), dan melden we dat met foto in het portaal.</li><li>Vragen of klachten: maak een melding aan in het portaal. U volgt daar ook de afhandeling.</li></ul>
+    <h2>Contact</h2><p>${esc(B.naam||"")}${B.telefoon?"<br>Telefoon: "+esc(B.telefoon):""}${B.email?"<br>E-mail: "+esc(B.email):""}</p>`))}
+function fotoGroot(u){const o=document.createElement("div");o.className="fg-ov";o.innerHTML=`<img src="${esc(u)}" alt=""><button aria-label="Sluiten">${I.x}</button>`;o.onclick=()=>o.remove();document.body.appendChild(o)}
+document.addEventListener("click",e=>{const a=e.target.closest(".vv-fotos a");if(!a)return;e.preventDefault();fotoGroot(a.getAttribute("href"))});
+const DOC_SOORT={overeenkomst:"Overeenkomst",offerte:"Offerte",plan:"Schoonmaakplan",verzekering:"Verzekering of certificaat",rapport:"Rapport",overig:"Document"};
+function docs(){const k=D.klant,M=vveMaanden(),F=D.facturen||[],openF=F.filter(f=>f.status==="open"||f.status==="verlopen"),som=openF.reduce((a,f)=>a+f.bedrag,0),eig=D.documenten||[];
+  const docRij=(ic,t,s,rt)=>`<div class="dr"><span class="dr-ic">${ic}</span><div><b>${t}</b><small>${s}</small></div>${rt}</div>`;
+  const maand=M.length?M.slice(0,12).map(([m,bs])=>{const af=vveAfrond(bs);return docRij(I.fact,"Maandrapport "+esc(vveMaand(m)),plural(bs.length,"beurt","beurten")+(af!=null?" · "+af+"% van de checklist afgerond":""),`<button class="btn sm" data-vrap="${m}">${I.oog}Bekijken</button>`)}).join(""):`<p class="leeg">Na de eerste beurt verschijnt hier het maandrapport.</p>`;
+  const eigen=[...eig.map(d=>docRij(I.doc,esc(d.naam||DOC_SOORT[d.soort]||"Document"),esc(DOC_SOORT[d.soort]||"Document")+(d.datum?" · "+esc(kort(d.datum)):""),`<a class="btn sm" href="${esc(d.url)}" target="_blank" rel="noopener">${I.down}Openen</a>`)),
+    ...(B.voorwaarden?[docRij(I.doc,"Algemene voorwaarden",esc(B.naam||""),`<a class="btn sm" href="${esc(B.voorwaarden)}" target="_blank" rel="noopener">${I.down}Openen</a>`)]:[])].join("");
+  return kop("Documenten","Alles over de schoonmaak van uw gebouw op één plek: rapporten, afspraken en facturen.")+`<div class="pg docs">
+    <div class="dk-grid">
+      <button class="dk" data-vplan><span class="dk-ic">${I.check}</span><b>Schoonmaakplan</b><small>Wat we per beurt doen, op welke dagen, en hoe u ons bereikt.</small><em>${I.oog}Bekijken of printen</em></button>
+      <button class="dk" data-tab="bord"><span class="dk-ic">${I.huis}</span><b>Bewonersbord</b><small>QR-poster voor in de hal. Bewoners zien wanneer er is schoongemaakt.</small><em>${I.print}Poster printen</em></button>
+      <button class="dk" data-tab="facturen"><span class="dk-ic">${I.euro}</span><b>Facturen</b><small>${plural(F.length,"factuur","facturen")}${som>0?" · "+eur0(som)+" open":" · alles betaald"}</small><em>${I.fact}Naar facturen</em></button>
+    </div>
+    ${kp(I.fact,"Maandrapporten",`<div class="dr-l">${maand}</div>`,{sub:"Handig voor de ledenvergadering of de beheerder. Openen, en dan afdrukken of opslaan als PDF."})}
+    ${kp(I.doc,"Afspraken en documenten",eigen?`<div class="dr-l">${eigen}</div>`:`<p class="leeg" style="margin:0">Hier komen de overeenkomst, offerte en andere documenten zodra wij die voor u klaarzetten.</p>`,{sub:"Overeenkomst, offerte, verzekering en voorwaarden"})}
+  </div>`}
+document.addEventListener("click",e=>{const r=e.target.closest("[data-vrap]");if(r){vveRapport(r.dataset.vrap);return}if(e.target.closest("[data-vplan]"))vvePlan()});
 const plural=(n,a,b)=>n+" "+(n===1?a:b);
 
 const duurTxt=(sec,kort)=>{if(sec==null)return"";sec=Math.max(0,Math.round(sec));const d=Math.floor(sec/86400),u=Math.floor(sec%86400/3600),m=Math.floor(sec%3600/60),x=sec%60;
