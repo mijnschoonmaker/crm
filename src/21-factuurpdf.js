@@ -66,7 +66,7 @@ function paperHtml(f,klant){
   return `<div class="inv5" style="--A:${m.A}">
   <div class="i5-top"><div class="i5-lft"><div class="i5-lg">${s.logo?`<img src="${BLOB}${esc(s.logo)}" alt="" class="i5-logo">`:`<b class="i5-coname">${esc(s.naam||"Je bedrijfsnaam")}</b>`}</div>
       <div class="i5-kl"><b>${esc(m.naamKlant)}</b>${m.naar.map(x=>`<span>${esc(x)}</span>`).join("")}</div></div>
-    <div class="i5-co"><table><tr class="nm"><th></th><td><b>${esc(s.naam||"Je bedrijfsnaam")}</b></td></tr>${m.coInfo.map(([l,v])=>l?`<tr><th>${esc(l)}</th><td>${v.map(esc).join("<br>")}</td></tr>`:`<tr class="gap"><td colspan="2"></td></tr>`).join("")}</table></div></div>
+    <div class="i5-co"><table><tr class="i5-nm"><th></th><td><b>${esc(s.naam||"Je bedrijfsnaam")}</b></td></tr>${m.coInfo.map(([l,v])=>l?`<tr><th>${esc(l)}</th><td>${v.map(esc).join("<br>")}</td></tr>`:`<tr class="gap"><td colspan="2"></td></tr>`).join("")}</table></div></div>
   ${f.soort==="offerte"&&offTxt(f.tekst,f)?`<div class="i5-txt">${esc(offTxt(f.tekst,f)).replace(/\n/g,"<br>")}</div>`:""}
   ${f.soort==="offerte"&&f.letop&&offTxt(f.letopTekst,f)?`<div class="i5-letop"><b>Let op:</b><span>${esc(offTxt(f.letopTekst,f)).replace(/\n/g,"<br>")}</span></div>`:""}
   ${m.off?`<table class="i5-t i5-og"><thead><tr><th>Omschrijving</th><th class="c">Aantal</th><th class="r">Prijs excl.</th><th class="r">Btw</th><th class="r">Prijs incl.</th></tr></thead><tbody>
