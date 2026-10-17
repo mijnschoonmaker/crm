@@ -522,14 +522,14 @@ module.exports = function maakPortaal(ctx) {
     const stempel = opg ? `<span class="ms-st" style="display:inline-block;border:2.5px solid ${kl};color:${kl};border-radius:9px;padding:4px 11px;font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;white-space:nowrap">&#10003; Opgelost</span>`
       : `<span style="display:inline-block;background:#e3f2f4;color:${kl};border-radius:99px;padding:5px 12px;font-size:12.5px;font-weight:700;white-space:nowrap"><span class="ms-dot" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${kl};vertical-align:middle;margin:-2px 6px 0 0"></span>Nieuw antwoord</span>`;
     const kop = `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
-  <td valign="middle" style="font-size:11px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:#6b7c82;white-space:nowrap">Ticket&nbsp;<span style="font-family:${mono};letter-spacing:1px;color:${kl}">${e(t.nummer)}</span></td>
+  <td valign="middle" style="font-size:11px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:#6b7c82;white-space:nowrap">Ticket&nbsp;<span style="letter-spacing:.6px;color:${kl}">${e(t.nummer)}</span></td>
   <td align="right" valign="middle">${stempel}</td></tr></table>
 <div style="font-size:22px;font-weight:800;color:#0f1f26;line-height:1.2;margin:12px 0 4px;letter-spacing:-.4px">${e(t.onderwerp || "Uw vraag")}</div>
 <div style="border-top:1.5px dashed #dde5e8;margin:14px 0 0;height:0;line-height:0;font-size:0">&nbsp;</div>`;
     const na = bub ? `<div style="background:#f3f6f7;border-left:3px solid ${kl};border-radius:4px 14px 14px 4px;padding:12px 14px;font-size:14.5px;line-height:1.55;color:#33454c;margin:0 0 20px">${e(laatst)}</div>` : "";
     const lab = "font-size:10px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:rgba(255,255,255,.75)";
     const strook = `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
-  <td valign="middle"><div style="${lab}">${opg ? "Opgelost" : "Beantwoord"}</div><div style="font-family:${mono};font-size:14px;color:#fff;margin-top:3px;white-space:nowrap">${e(dat)} · ${e(tijd).replace(":", "&#8203;:")}</div></td>
+  <td valign="middle"><div style="${lab}">${opg ? "Opgelost" : "Beantwoord"}</div><div style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;color:#fff;margin-top:3px;white-space:nowrap">${e(dat)} · ${e(tijd).replace(":", "&#8203;:")}</div></td>
   <td valign="middle" align="center"><div style="${lab}">Status</div><div style="font-size:15px;font-weight:800;color:#fff;margin-top:2px;white-space:nowrap">${opg ? "Afgerond" : "Wacht op u"}</div></td>
   <td valign="middle" align="right" style="font-size:34px;line-height:1;font-weight:800;color:#fff">${opg ? "&#10003;" : "&#9993;"}</td></tr></table>`;
     return { css, ticket: { kleur: kl, kleur2: kl2, kop, strook }, na };
