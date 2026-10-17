@@ -896,6 +896,7 @@ html body .ov-price button{position:relative;background:#fff!important;color:var
 @media (max-width:480px){html body .ov-price{grid-template-columns:1fr}html body .ov-price button{width:100%!important}}
 html body .ed-types button.on b,html body .ed-types button.on em,html body .ed-types button.on .c,html body .ed-types [aria-checked="true"] b{color:var(--kb2)!important}
 .i2-weg .kbus{filter:drop-shadow(0 4px 5px rgb(0 0 0 / .35)) brightness(1.15)}
+.zeem-direct .wz-adr[hidden],.zeem-direct #wzBack[hidden]{display:none!important}
 </style>
 </head>
 <body>
@@ -1540,6 +1541,10 @@ g("calc3").onclick=()=>{doneStep(2);g("result").hidden=false;openStep(0,false);c
   if(matchMedia("(prefers-reduced-motion:reduce)").matches){dots.forEach(d=>{const c=col(d);n[c]=(n[c]||0)+1});set("",true);return}
   let last=0;dots.forEach(d=>{const c=col(d),t=af(d)+120;last=Math.max(last,t);setTimeout(()=>{n[c]=(n[c]||0)+1;set(c,false)},t)});
   setTimeout(()=>{const ks=chips.map(x=>x.dataset.st);set(ks[ks.length-1],false)},last+50)})();
+/* alleen vanuit het CRM (Uitvoering › Diensten › Dienstenwebshop bekijken): meteen naar het tellen, zonder soort en postcode */
+if(window.ZEEM_DIRECT){try{kiesSoort("particulier");document.body.classList.add("zeem-direct");
+  [".wz-adr","#adrMsg","#wzBack"].forEach(q=>{const el=document.querySelector(q);if(el)el.hidden=true});
+  const gs=g("goStart");if(gs){gs.hidden=false;setTimeout(()=>gs.focus(),50)}}catch(e){console.error(e)}}
 </script>
 </body>
 </html>

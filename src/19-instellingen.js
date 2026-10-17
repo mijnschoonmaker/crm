@@ -433,13 +433,13 @@ async function exportAlles(metBestanden){
 function kleinLogo(url){return new Promise(res=>{const im=new Image();im.onload=()=>{const m=240,k=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);try{res(c.toDataURL("image/png"))}catch(e){res(url)}};im.onerror=()=>res(url);im.src=url})}
 
 /* website-calculator hier openen en gebruiken, zoals klanten hem op je website zien */
-function webCalcVoorbeeld(html,titel){webCalcVoorbeeld._recent=webCalcVoorbeeld._recent||new Set();
+function webCalcVoorbeeld(html,titel,opt){webCalcVoorbeeld._recent=webCalcVoorbeeld._recent||new Set();
   const o=document.createElement("dialog");o.className="wcv-ov";
   o.innerHTML=`<div class="wcv"><div class="wcv-h"><span class="objic">${I.globe||I.eye}</span><div style="min-width:0;flex:1"><b>${titel||"Dienstenwebshop"}</b><small>Zo zien klanten ${titel?"je website":"hem op je website"}. Je kunt hem hier gewoon gebruiken.</small></div>
     <div class="seg wcv-seg"><button type="button" data-w="tel" class="${titel?"":"sel"}">Telefoon</button><button type="button" data-w="tab">Tablet</button><button type="button" data-w="pc" class="${titel?"sel":""}">Computer</button></div>
     <button type="button" class="iconbtn" data-wclose aria-label="Sluiten">${I.x}</button></div>
     <div class="wcv-b"><iframe class="wcv-f ${titel?"pc":"tel"}" title="Dienstenwebshop" allow="camera; clipboard-write"></iframe></div></div>`;
-  const f=o.querySelector("iframe"),bron=String(html).replace(/<head([^>]*)>/i,m=>m+"<script>window.ZEEM_CRM=1<\/script>");
+  const f=o.querySelector("iframe"),bron=String(html).replace(/<head([^>]*)>/i,m=>m+"<script>window.ZEEM_CRM=1"+(opt&&opt.direct?";window.ZEEM_DIRECT=1":"")+"<\/script>");
   /* direct in een leeg venster schrijven: werkt in Safari betrouwbaarder dan srcdoc of een blob-adres (die toonden de site soms zonder opmaak) */
   let bu="";const schrijf=()=>{try{const dd=f.contentDocument;if(!dd)throw 0;dd.open();dd.write(bron);dd.close();return true}catch(_){return false}};
   /* indienen in het voorbeeld: klant en opdracht komen meteen in het crm */

@@ -192,7 +192,7 @@ function uAct(a,t){
     case"udeli":{const g=uGroup(t.dataset.g);g.items.splice(Number(t.dataset.i),1);state.uSel=g.items.length?{g:g.id,i:null}:null;uDirty();if(dlg.open)dlg.close();render();break}
     case"uaddtier":{const x=uSel();if(!x||!x.it)break;const tl=x.it.tiers||(x.it.tiers=[]);const last=tl[tl.length-1];tl.push(last?[Number(last[0])+10,Number(last[1])+10]:[10,10]);uDirty();uRedraw();break}
     case"udeltier":{const x=uSel();if(!x||!x.it)break;x.it.tiers.splice(Number(t.dataset.j),1);uDirty();uRedraw();break}
-    case"uwebview":{if(Udirty){toast("Sla eerst op, dan rekent de calculator met je nieuwe tarieven");break}t.disabled=true;(async()=>{try{const s=S(),wa=String(s.webWa||waNr(s.telefoon)||"").replace(/\D/g,"");webCalcVoorbeeld(await klantCalcHtml(wa))}catch(e){err(e)}finally{t.disabled=false}})();break}
+    case"uwebview":{if(Udirty){toast("Sla eerst op, dan rekent de calculator met je nieuwe tarieven");break}t.disabled=true;(async()=>{try{const s=S(),wa=String(s.webWa||waNr(s.telefoon)||"").replace(/\D/g,"");webCalcVoorbeeld(await klantCalcHtml(wa),undefined,{direct:true})}catch(e){err(e)}finally{t.disabled=false}})();break}
     case"ugfreq":{const g=uGroup(t.dataset.g);if(!g)break;const glas=g.type==="glas";const all=(glas?RC.freqList().filter(f=>f.calcAan!==false).map(f=>f.k):freqLijst().map(String));
       let sel=Array.isArray(g.freqs)&&g.freqs.length?g.freqs.map(String):all.slice();const v=t.dataset.v;if(t.checked){if(!sel.includes(v))sel.push(v)}else sel=sel.filter(x=>x!==v);
       if(!sel.length){t.checked=true;toast("Minimaal één frequentie");break}
