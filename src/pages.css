@@ -4021,3 +4021,4 @@ body.rd-busy{cursor:grabbing}
 .vg-gr,.vg-br{display:flex;align-items:center;gap:10px;padding:10px 12px;border-top:1px solid var(--line);font-size:14px}.vg-gr:first-child,.vg-br:first-child{border-top:0}
 .vg-gr span,.vg-br span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}.vg-gr b{font-size:12px;padding:3px 9px;border-radius:999px;background:var(--surface);color:var(--muted)}.vg-gr b.aan{background:#e0f3e9;color:#1b6b48}
 .vg-br em{font-style:normal;color:var(--muted);font-size:12.5px}
+.f-vve[hidden]{display:none!important}
