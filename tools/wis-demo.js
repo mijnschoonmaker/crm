@@ -2,6 +2,8 @@
    Wordt gestart via GitHub › Actions › "Gegevens wissen" (proefdraai tenzij ECHT=ja).
    Eerst gaat er een volledige back-up naar Firebase Storage › backups/voor-wissen-<tijd>.json.gz.
    Blijft staan: instellingen (bedrijf, sjablonen, prijzen, huisstijl, website), gebruikers, tweestapsverificatie, sleutels. */
+const OUT = [], _log = console.log; console.log = (...a) => { OUT.push(a.join(" ")); _log(...a); };
+process.on("exit", () => _log("::notice title=Resultaat::" + OUT.join("\n").replace(/%/g, "%25").replace(/\n/g, "%0A")));
 const zlib = require("zlib"), path = require("path");
 const admin = require(path.join(__dirname, "..", "functions", "node_modules", "firebase-admin"));
 const P = process.env.P, ECHT = process.env.ECHT === "ja";
