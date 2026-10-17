@@ -2,7 +2,7 @@
    Verzonnen klanten, facturen en beurten om instructievideo's mee op te nemen.
    Alles blijft in deze browser bewaard; datums schuiven elke dag mee, zodat de planning altijd actueel oogt.
    Opnieuw beginnen: /demo/?opnieuw */
-const DEMO_KEY="ms.demo.v2";
+const DEMO_KEY="ms.demo.v3";
 const DEMO_PLAATS=[["Zuidhorn","9801",53.2464,6.4060],["Grootegast","9861",53.2140,6.2720],["Leek","9351",53.1620,6.3770],["Marum","9363",53.1440,6.2650],["Aduard","9831",53.2560,6.4590],["Oldekerk","9821",53.2230,6.3230],["Tolbert","9356",53.1640,6.3590],["Niekerk","9822",53.2220,6.3480]];
 const DEMO_STRAAT=["Lindenlaan","Esdoornstraat","Molenweg","Kastanjelaan","Berkenhof","Wilgenpad","Populierenlaan","Meidoornstraat","Iepenlaan","Vlierstraat","Hazelaarhof","Eikenlaan","Lijsterbes","Beukenlaan","Zonnedauw","Kievitstraat","Merelhof","Fazantenlaan"];
 const DEMO_NAMEN=[["de Vries","Sanne"],["Jansen","Pieter"],["Bakker","Marieke"],["Visser","Henk"],["Smit","Lotte"],["Mulder","Gerrit"],["de Boer","Anneke"],["Postma","Jeroen"],["Dijkstra","Femke"],["Bos","Klaas"],["Hoekstra","Ilse"],["van der Meer","Bram"],["Kuipers","Ruben"],["Wiersma","Jolanda"],["Veenstra","Tom"],["Huizinga","Esther"],["Bosma","Wouter"],["Kramer","Nienke"],["Schuurman","Dirk"],["Hofman","Linda"],["Brouwer","Sander"],["Meijer","Yvonne"],["Zijlstra","Martin"],["Prins","Karin"],["Boersma","Erik"],["Haan","Petra"],["Venema","Joost"],["Kooistra","Marloes"],["Tuinstra","Hans"],["Oosterhuis","Wendy"]];
@@ -48,7 +48,7 @@ function demoMaak(){
   if(lo[0])banktx.push({id:"tx_demo1",datum:D(-1),bedrag:Math.max(5,totals(lo[0]).inc-2.5),naam:lo[0].klantNaam.split(",")[0].toUpperCase(),iban:"NL20INGB0001234567",omschrijving:"glazenwasser "+lo[0].nummer,status:"controleren",factuurIds:[lo[0].id],nummers:[lo[0].nummer],reden:"Bedrag wijkt af: ontvangen "+eur(Math.max(5,totals(lo[0]).inc-2.5))+", factuur "+eur(totals(lo[0]).inc),bron:"Bank Knab",op:new Date().toISOString()});
   banktx.push({id:"tx_demo2",datum:D(-2),bedrag:30,naam:"J. DE GROOT",iban:"NL55RABO0123456789",omschrijving:"ramen wassen",status:"onbekend",reden:"Geen factuur gevonden bij deze betaling",bron:"Bank Knab",op:new Date().toISOString()});
   const inst=[{id:"bedrijf",naam:"Voorbeeld Glazenwasserij",adres:"Lindenlaan 14",postcode:"9801 AB",plaats:"Zuidhorn",telefoon:"06 12 34 56 78",email:"info@voorbeeldglazenwasserij.nl",website:"voorbeeldglazenwasserij.nl",kvk:"12345678",btwnr:"NL001234567B01",iban:"NL00 DEMO 0123 4567 89",btw:21,incl:true,termijn:14,factNrStijl:"doorlopend",fhAan:true,dagAan:true},
-    {id:"bank",gekoppeld:true,bank:"Knab",rekeningen:[{iban:"NL02 •••• 487",naam:"Zakelijke rekening"}],geldigTot:iso(addDays(t,92))+"T10:00:00.000Z",bijgewerkt:new Date(Date.now()-35*60e3).toISOString(),saldo:6474.44,laatsteSync:{nieuw:5,betaald:4,controleren:1}}];
+    {id:"bank",gekoppeld:true,bank:"Knab",rekeningen:[{iban:"NL91 •••• 210",naam:"Zakelijke rekening"}],geldigTot:iso(addDays(t,92))+"T10:00:00.000Z",bijgewerkt:new Date(Date.now()-35*60e3).toISOString(),saldo:3218.60,laatsteSync:{nieuw:5,betaald:4,controleren:1}}];
   return {gemaakt:iso(t),geo,cols:{klanten,beurten,facturen,berichten,banktx,instellingen:inst,routes:[],kosten:[]}};
 }
 /* datums laten meeschuiven met de dag van vandaag */
