@@ -2,6 +2,8 @@
 
 Eigen CRM voor glasbewassing, live op Firebase.
 
+**Overnemen of aanpassen? Lees eerst [OVERDRACHT.md](OVERDRACHT.md)** (opbouw, online zetten, beveiliging, back-ups terugzetten).
+
 - `src/` — de broncode van de app (de enige bron: hier wijzigen)
 - `public/` — de gebouwde app; opnieuw bouwen met `python3 build_live.py`
 - `functions/` — server: mail via Brevo, Mollie, websiteaanvragen, ingeplande mails, bestanden

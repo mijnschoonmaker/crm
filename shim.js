@@ -104,7 +104,37 @@
     $("#lgRt").onclick = () => start(u); $("#lgOut").onclick = () => auth.signOut();
   }
   let gestart = false;
+  /* tweestapsverificatie: staat het aan en is deze inlogsessie nog niet bevestigd, dan eerst de code uit de app */
+  async function mfaNodig(u) {
+    try {
+      const m = await fs.collection("mfa").doc(String(u.email || "").toLowerCase()).get();
+      if (!m.exists || m.data().aan !== true) return false;
+      const t = await u.getIdTokenResult();
+      const lijst = Array.isArray(t.claims.mfa) ? t.claims.mfa : [];
+      return !lijst.includes(Number(t.claims.auth_time));
+    } catch (e) { return false; }
+  }
+  function mfaScherm(u, herstel) {
+    toon(`<h1>Inlogcode</h1><p>${herstel ? "Vul een van je herstelcodes in (bijvoorbeeld <b>a1b2c-3d4e5</b>). Elke herstelcode werkt één keer." : "Open je authenticator-app (bijvoorbeeld Google Authenticator) en vul de 6 cijfers in voor <b>mijnschoonmaker CRM</b>."}</p>
+      <form id="lgF"><label>${herstel ? "Herstelcode" : "Code"}<input id="lgC" ${herstel ? 'autocomplete="off" placeholder="xxxxx-xxxxx"' : 'inputmode="numeric" autocomplete="one-time-code" pattern="[0-9 ]*" maxlength="7" placeholder="123 456"'} required style="letter-spacing:${herstel ? ".05em" : ".3em"};font-size:20px;text-align:center"></label>
+      <button class="lg-b" id="lgGo">Bevestigen</button></form><div class="lg-m"></div>
+      <div class="lg-row"><button class="lg-l" id="lgHs">${herstel ? "Code uit de app gebruiken" : "Telefoon kwijt? Herstelcode gebruiken"}</button><button class="lg-l" id="lgOut">Uitloggen</button></div>`);
+    $("#lgHs").onclick = () => mfaScherm(u, !herstel);
+    $("#lgOut").onclick = () => auth.signOut();
+    const inp = $("#lgC"); setTimeout(() => inp.focus(), 50);
+    if (!herstel) inp.oninput = () => { if (inp.value.replace(/\D/g, "").length === 6) $("#lgF").requestSubmit(); };
+    $("#lgF").onsubmit = async ev => {
+      ev.preventDefault(); const b = $("#lgGo"); if (b.disabled) return; b.disabled = true; msg("");
+      try {
+        const r = await firebase.app().functions("europe-west4").httpsCallable("mfaControle")({ code: inp.value });
+        await u.getIdToken(true);
+        if (r.data && r.data.viaHerstel) { try { sessionStorage.setItem("ms.herstelOver", String(r.data.overHerstel)); } catch (e) {} }
+        start(u);
+      } catch (er) { msg((er && er.message) || "Die code klopt niet."); b.disabled = false; inp.select(); }
+    };
+  }
   async function start(u) {
+    if (await mfaNodig(u)) return mfaScherm(u, false);
     try { await Promise.race([fs.collection("instellingen").limit(1).get(), new Promise((_, nee) => setTimeout(() => nee({ code: "traag" }), 8000))]); }
     catch (e) { if (e.code === "permission-denied") return geenToegang(u); }
     if (ov) ov.style.display = "none";

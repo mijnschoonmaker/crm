@@ -7,6 +7,7 @@
    - geplandVerzenden : elke 10 minuten ingeplande mails versturen
    - blob          : foto's en bestanden uit de opslag tonen (/_blob/<id>)
    - portaal       : klantportaal (/portaal, /api/portaal/**) en aanbevelingen
+   - mfa*, dagBackup, backup* : tweestapsverificatie voor het CRM en dagelijkse back-ups (beveiliging.js)
    Sleutels staan in Firestore /geheim/config (alleen de server kan ze lezen). */
 const { onCall, onRequest, HttpsError } = require("firebase-functions/v2/https");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
@@ -22,6 +23,7 @@ const EIGENAAR = "robin@mijnschoonmaker.com";
 const nu = () => new Date().toISOString();
 const newId = p => p + Date.now().toString(36) + crypto.randomBytes(3).toString("hex");
 
+const BEV = require("./beveiliging")({ admin, db, bucket, onCall, onSchedule, HttpsError, crypto, EIGENAAR });
 const geheim = async () => (await db.doc("geheim/config").get()).data() || {};
 /* logo voor in mails: als ingesloten afbeelding (zoals bij facturen en offertes), zodat mailprogramma's hem niet blokkeren als "externe afbeelding" */
 const MAILLOGO = { id: "", url: "" };
@@ -120,8 +122,9 @@ function aanvraagModel(D, b0) {
 async function checkGebruiker(auth) {
   const e = auth && auth.token && auth.token.email_verified && String(auth.token.email || "").toLowerCase();
   if (!e) throw new HttpsError("unauthenticated", "Log eerst in.");
-  if (e === EIGENAAR) return e;
-  if (!(await db.doc("gebruikers/" + e).get()).exists) throw new HttpsError("permission-denied", "Geen toegang tot het CRM.");
+  if (e !== EIGENAAR && !(await db.doc("gebruikers/" + e).get()).exists) throw new HttpsError("permission-denied", "Geen toegang tot het CRM.");
+  /* tweestapsverificatie: deze inlogsessie moet met een code zijn bevestigd (als de gebruiker het aan heeft staan) */
+  if (!(await BEV.mfaBevestigd(auth))) throw new HttpsError("permission-denied", "Bevestig eerst je inlogcode (tweestapsverificatie).");
   return e;
 }
 
@@ -478,6 +481,8 @@ exports.akkoordGeven = onRequest({ cors: true, memory: "512MiB", timeoutSeconds:
 
 /* ---------- klantportaal ---------- */
 const P = require("./portaal")({ db, onRequest, onCall, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket });
+/* tweestapsverificatie voor het CRM en dagelijkse back-ups */
+Object.assign(exports, BEV.functies);
 exports.ticketMelding = P.ticketMelding;
 exports.portaal = P.portaal;
 exports.portaalUitnodigen = P.portaalUitnodigen;

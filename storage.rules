@@ -4,7 +4,18 @@ service firebase.storage {
     function gebruiker() {
       return request.auth != null && request.auth.token.email_verified == true &&
         (request.auth.token.email.lower() == "robin@mijnschoonmaker.com" ||
-         firestore.exists(/databases/(default)/documents/gebruikers/$(request.auth.token.email.lower())));
+         firestore.exists(/databases/(default)/documents/gebruikers/$(request.auth.token.email.lower()))) &&
+        mfaOk();
+    }
+    // tweestapsverificatie: zie firestore.rules
+    function mfaOk() {
+      return !firestore.exists(/databases/(default)/documents/mfa/$(request.auth.token.email.lower())) ||
+        firestore.get(/databases/(default)/documents/mfa/$(request.auth.token.email.lower())).data.get("aan", false) != true ||
+        request.auth.token.auth_time in request.auth.token.get("mfa", []);
+    }
+    // back-ups: nooit vanuit de browser (alleen de server, via de functie backupNu)
+    match /backups/{n} {
+      allow read, write: if false;
     }
     match /assets/{id} {
       // lezen gaat via /_blob/ (server); uploaden alleen door gebruikers van het CRM

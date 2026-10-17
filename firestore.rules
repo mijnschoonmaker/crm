@@ -4,16 +4,28 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function email() { return request.auth != null && request.auth.token.email_verified == true ? request.auth.token.email.lower() : ""; }
     function eigenaar() { return email() == "robin@mijnschoonmaker.com"; }
-    function gebruiker() { return eigenaar() || (email() != "" && exists(/databases/$(database)/documents/gebruikers/$(email()))); }
+    function lid() { return eigenaar() || (email() != "" && exists(/databases/$(database)/documents/gebruikers/$(email()))); }
+    // tweestapsverificatie (alleen CRM; het klantportaal loopt via de server en valt hier niet onder):
+    // staat het aan, dan moet deze inlogsessie (auth_time) met een code zijn bevestigd
+    function mfaOk() {
+      let p = /databases/$(database)/documents/mfa/$(email());
+      return !exists(p) || get(p).data.get("aan", false) != true || request.auth.token.auth_time in request.auth.token.get("mfa", []);
+    }
+    function gebruiker() { return lid() && mfaOk(); }
 
     match /gebruikers/{e} {
       allow read: if gebruiker();
-      allow write: if eigenaar();
+      allow write: if eigenaar() && mfaOk();
     }
-    // sleutels van Brevo en Mollie: alleen schrijven door de eigenaar, nooit lezen vanuit de browser
+    // status van tweestapsverificatie: alleen lezen (eigen status), schrijven doet de server
+    match /mfa/{e} {
+      allow read: if lid() && (email() == e || eigenaar());
+      allow write: if false;
+    }
+    // sleutels van Brevo en Mollie (en de geheime codes voor tweestapsverificatie): nooit lezen vanuit de browser
     match /geheim/{d} {
       allow read: if false;
-      allow write: if eigenaar();
+      allow write: if eigenaar() && mfaOk();
     }
     match /{col}/{id} {
       allow read, write: if gebruiker() && col in ["klanten","beurten","facturen","routes","instellingen","berichten","kosten","aanvragen","geplandeMails","akkoord","portaalVerzoeken","tickets","ticketBerichten","tellers","live"];

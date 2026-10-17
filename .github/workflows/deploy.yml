@@ -33,3 +33,20 @@ jobs:
           }
           msg=$(grep -v "^\s*$" deploy.log | grep -v "npm warn" | tail -n 20 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
           echo "::notice title=Resultaat::$msg"
+      - name: Database-back-ups bij Google (dagelijks, 14 dagen) en regio controleren
+        continue-on-error: true
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
+          P: ${{ vars.FIREBASE_PROJECT }}
+        run: |
+          gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS" --quiet >/dev/null 2>&1
+          loc=$(gcloud firestore databases describe --database="(default)" --project="$P" --format="value(locationId)" 2>/dev/null)
+          echo "::notice title=Regio database::${loc:-onbekend}"
+          n=$(gcloud firestore backups schedules list --database="(default)" --project="$P" --format="value(name)" 2>/dev/null | wc -l)
+          if [ "$n" = "0" ]; then
+            gcloud firestore backups schedules create --database="(default)" --recurrence=daily --retention=14d --project="$P" --quiet \
+              && echo "::notice title=Back-ups::Dagelijkse Firestore-back-up ingesteld (14 dagen bewaard)" \
+              || echo "::warning title=Back-ups::Instellen van de Google-back-up lukte niet; de eigen nachtelijke back-up (functie dagBackup) draait wel"
+          else
+            echo "::notice title=Back-ups::Dagelijkse Firestore-back-up staat al aan ($n schema)"
+          fi
