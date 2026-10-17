@@ -33,6 +33,17 @@ body.print .poster{display:flex;flex-direction:column;align-items:center;justify
 .lk-huis{position:absolute;right:0;top:22px;width:36px;height:36px;border-radius:12px;background:#137a8a;color:#fff;display:grid;place-items:center;box-shadow:0 6px 14px -6px rgb(15 95 110 / .8)}.lk-huis svg{width:19px;height:19px}
 .lk-info{display:flex;align-items:center;gap:12px;margin-top:4px}.lk-info>div:first-child{flex:1;min-width:0}.lk-info b{display:block;font-size:17px;letter-spacing:-.01em}.lk-info small{font-size:13.5px;color:#5d6f76}
 .lk-eta{text-align:right;padding-left:12px;border-left:1px solid #e3ecef}.lk-eta small{display:block;font-size:11.5px;font-weight:600}.lk-eta b{font-size:22px;color:#137a8a;font-variant-numeric:tabular-nums}
+.lk-map{position:relative;z-index:0;height:250px;margin:14px -18px 12px;background:#e8eef0;border-top:1px solid #e3ecef;border-bottom:1px solid #e3ecef}
+.lk-map .leaflet-container{background:#e8eef0}.lv-ic{background:none;border:0}
+.lv-auto{position:relative;display:block;width:64px;height:64px}.lv-rot{position:absolute;inset:0;display:grid;place-items:center;transition:transform .8s ease}
+.lv-rot svg{width:30px;height:54px;filter:drop-shadow(0 5px 5px rgba(8,40,48,.38)) drop-shadow(0 0 1px rgba(8,40,48,.4))}
+.lv-puls{position:absolute;inset:10px;border-radius:50%;background:rgb(19 122 138 / .22);animation:lvRing 2s ease-out infinite}@keyframes lvRing{0%{transform:scale(.6);opacity:.9}100%{transform:scale(1.7);opacity:0}}
+.lv-huis{display:grid;place-items:center;width:40px;height:40px;border-radius:14px 14px 14px 4px;transform:rotate(-45deg);background:#fff;box-shadow:0 8px 18px -6px rgba(8,40,48,.4),inset 0 0 0 2px #137a8a}
+.lv-huis svg{width:20px;height:20px;transform:rotate(45deg);color:#137a8a}
+.lk-tip{position:absolute;left:10px;top:10px;z-index:500;padding:7px 11px;border-radius:999px;background:rgba(255,255,255,.92);box-shadow:0 2px 10px rgba(8,40,48,.15);font-size:12.5px;font-weight:700;color:#355058;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.lv-bron{position:absolute;right:8px;bottom:8px;z-index:500;display:flex;align-items:center;gap:6px;padding:0;border:0;background:rgba(255,255,255,.85);border-radius:999px;box-shadow:0 1px 3px rgba(0,0,0,.15);color:#5b6b72;font:600 10px/1 system-ui,sans-serif;cursor:pointer}
+.lv-bron span{width:18px;height:18px;display:grid;place-items:center;font-style:italic;font-family:Georgia,serif;font-size:11px}.lv-bron em{font-style:normal;max-width:0;overflow:hidden;white-space:nowrap;transition:max-width .25s}.lv-bron.open em{max-width:200px;padding-right:8px}
+@media (prefers-reduced-motion:reduce){.lv-puls{animation:none}}
 @media (prefers-reduced-motion:reduce){.lk-bus,.lk-st i{animation:none}}
 </style></head><body>
 <div class="wrap" id="app"><p class="leeg">Even geduld…</p></div>
@@ -47,13 +58,39 @@ const t=(location.pathname.match(/\/bord\/([a-f0-9]{24,64})/)||[])[1]||new URLSe
 const print=new URLSearchParams(location.search).get("print")==="1";
 const dagen=s=>Math.round((p(s)-new Date(new Date().toDateString()))/864e5);
 const AUTO='<svg aria-hidden="true" viewBox="0 0 64 40"><defs><linearGradient id="zb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#26adc2"/><stop offset="1" stop-color="#11778c"/></linearGradient><linearGradient id="zg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eafcff"/><stop offset="1" stop-color="#86c9d5"/></linearGradient></defs><g stroke="#9fb3ba" stroke-width="1.4" stroke-linecap="round"><path d="M8 7.5H40"/><path d="M11 7.5V4.8M17 7.5V4.8M23 7.5V4.8M29 7.5V4.8M35 7.5V4.8"/><path d="M8 4.8H40"/></g><path d="M5 12a3.5 3.5 0 0 1 3.5-3.5H40c2 0 3.6.8 4.8 2.3l7.4 9.2 5.6 1.8c1.6.5 2.7 2 2.7 3.7V30a2 2 0 0 1-2 2H5z" fill="url(#zb)"/><path d="M42.5 12.5h1.6c.8 0 1.5.4 2 1l5.2 6.8H42.5z" fill="url(#zg)" stroke="#0b4552" stroke-width=".8"/><rect x="30" y="12.5" width="9.5" height="7.6" rx="1.4" fill="url(#zg)" stroke="#0b4552" stroke-width=".8"/><path d="M5 23.5h55" stroke="#0e6476" stroke-width=".8" opacity=".6"/><path d="M7 20.5h22" stroke="#7fe0ee" stroke-width="1.6" stroke-linecap="round" opacity=".8"/><rect x="57" y="23.5" width="3.2" height="2.2" rx="1" fill="#fffbe0"/><circle cx="16" cy="32" r="5.6" fill="#1d2a30"/><circle cx="16" cy="32" r="2.4" fill="#c8d3d7"/><circle cx="49" cy="32" r="5.6" fill="#1d2a30"/><circle cx="49" cy="32" r="2.4" fill="#c8d3d7"/></svg>',BUS='<svg aria-hidden="true" viewBox="0 0 40 72"><defs><linearGradient id="lvb" x1="0" x2="1"><stop offset="0" stop-color="#0d5a6b"/><stop offset=".22" stop-color="#1b93a8"/><stop offset=".5" stop-color="#22a6bc"/><stop offset=".78" stop-color="#1b93a8"/><stop offset="1" stop-color="#0d5a6b"/></linearGradient><linearGradient id="lvg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9fbff"/><stop offset="1" stop-color="#7cc3d0"/></linearGradient><linearGradient id="lvr" x1="0" x2="1"><stop offset="0" stop-color="#1688a0"/><stop offset=".5" stop-color="#2bb3c8"/><stop offset="1" stop-color="#1688a0"/></linearGradient></defs><ellipse cx="5.2" cy="18" rx="2.4" ry="1.6" fill="#0b4552"/><ellipse cx="34.8" cy="18" rx="2.4" ry="1.6" fill="#0b4552"/><rect x="6" y="3" width="28" height="66" rx="9" fill="url(#lvb)"/><path d="M9 7.5Q20 2.8 31 7.5" stroke="#5fd2e3" stroke-width="1.2" fill="none" opacity=".8"/><rect x="9.5" y="4.2" width="4.5" height="2" rx="1" fill="#fffbe0"/><rect x="26" y="4.2" width="4.5" height="2" rx="1" fill="#fffbe0"/><path d="M9.2 15.5Q20 11.8 30.8 15.5L29.2 25H10.8z" fill="url(#lvg)" stroke="#0b4552" stroke-width=".9"/><path d="M12 16.6Q16 15 19 14.8L18 18.5Q15 18.7 12.6 19.6z" fill="#fff" opacity=".7"/><rect x="9.8" y="27" width="20.4" height="38" rx="4.2" fill="url(#lvr)"/><g stroke="#eef4f6" stroke-linecap="round"><path d="M15 29.5V62.5M25 29.5V62.5" stroke-width="1.7"/><path d="M15 33.5H25M15 38.5H25M15 43.5H25M15 48.5H25M15 53.5H25M15 58.5H25" stroke-width="1.2"/></g><rect x="11" y="66" width="18" height="1.6" rx=".8" fill="#ff6b5e" opacity=".9"/></svg>';
-/* live: op de dag zelf het busje op weg naar het gebouw, hoeveel adressen nog en hoe laat (geen exacte plek: dit bord is openbaar) */
+/* echte kaart, net als in het klantportaal: het gebouw staat erop, de bus verschijnt zodra dit gebouw bijna aan de beurt is */
+const KK={};const HUIS='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg>';
+function kkLeaflet(){if(window.L&&window.L.map)return Promise.resolve();if(KK.laadt)return KK.laadt;
+  KK.laadt=new Promise((res,rej)=>{const B="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/",c=document.createElement("link");c.rel="stylesheet";c.href=B+"leaflet.css";document.head.appendChild(c);
+    const sc=document.createElement("script");sc.src=B+"leaflet.js";sc.onload=()=>{let i=0;const w=()=>window.L&&window.L.map?res():++i>120?rej():setTimeout(w,50);w()};sc.onerror=()=>{KK.laadt=null;rej()};document.head.appendChild(sc)});return KK.laadt}
+function kkBus(Lf,p){return Lf.marker([p.lat,p.lng],{icon:Lf.divIcon({className:"lv-ic",html:`<span class="lv-auto"><span class="lv-puls"></span><span class="lv-rot" style="transform:rotate(${p.koers||0}deg)">${BUS}</span></span>`,iconSize:[64,64],iconAnchor:[32,32]}),keyboard:false,zIndexOffset:500})}
+function kkTip(L){const el=document.getElementById("lkMap");if(!el)return;let t=el.querySelector(".lk-tip");const tx=L.pos?(L.km!=null?"Bus op "+String(L.km).replace(".",",")+" km":"Bus onderweg"):"Bus verschijnt als dit gebouw bijna aan de beurt is";if(!t){t=document.createElement("span");t.className="lk-tip";el.appendChild(t)}t.textContent=tx}
+function kkFit(){if(!KK.map||KK.zelf)return;const pts=[KK.huis];if(KK.car){const v=KK.car.getLatLng();pts.push([v.lat,v.lng])}
+  if(pts.length>1)KK.map.fitBounds(pts,{padding:[50,50],maxZoom:16,animate:true});else KK.map.setView(pts[0],15,{animate:true})}
+async function kkInit(L){if(KK.map){KK.map.remove();KK.map=null}KK.car=null;KK.lijn=null;KK.zelf=false;const el=document.getElementById("lkMap");if(!el||!L||!L.huis)return;
+  try{await kkLeaflet()}catch(e){el.innerHTML='<p class="leeg" style="padding:100px 0;margin:0">Kaart kon niet laden</p>';return}
+  const Lf=window.L;el.innerHTML="";KK.huis=L.huis;
+  KK.map=Lf.map(el,{zoomControl:false,attributionControl:false,scrollWheelZoom:false,tap:true}).setView(L.huis,15);
+  Lf.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19}).addTo(KK.map);
+  {const ab=document.createElement("button");ab.type="button";ab.className="lv-bron";ab.setAttribute("aria-label","Kaartgegevens");ab.innerHTML="<span>i</span><em>© OpenStreetMap-bijdragers</em>";ab.onclick=e=>{e.stopPropagation();ab.classList.toggle("open")};el.appendChild(ab)}
+  KK.map.on("dragstart zoomstart",e=>{if(e&&e.originalEvent)KK.zelf=true});
+  Lf.marker(L.huis,{icon:Lf.divIcon({className:"lv-ic",html:`<span class="lv-huis">${HUIS}</span>`,iconSize:[40,46],iconAnchor:[20,44]}),keyboard:false}).addTo(KK.map);
+  kkPos(L,false);kkTip(L);kkFit();setTimeout(()=>{if(KK.map){KK.map.invalidateSize();kkFit()}},300)}
+function kkPos(L,soepel){const Lf=window.L;if(!KK.map||!Lf)return;const p=L.pos;
+  if(!p){if(KK.car){KK.car.remove();KK.car=null}if(KK.lijn){KK.lijn.remove();KK.lijn=null}return}
+  if(!KK.car){KK.car=kkBus(Lf,p).addTo(KK.map);KK.lijn=Lf.polyline([[p.lat,p.lng],KK.huis],{color:"#137a8a",weight:3.5,opacity:.85,dashArray:"1 9",lineCap:"round"}).addTo(KK.map);return}
+  const r=KK.car.getElement()&&KK.car.getElement().querySelector(".lv-rot");if(r&&p.koers!=null)r.style.transform=`rotate(${p.koers}deg)`;
+  if(!soepel){KK.car.setLatLng([p.lat,p.lng]);KK.lijn.setLatLngs([[p.lat,p.lng],KK.huis]);return}
+  const v=KK.car.getLatLng(),van={lat:v.lat,lng:v.lng},t0=performance.now(),dur=2200;cancelAnimationFrame(KK.anim);
+  const st=t=>{const q=Math.min(1,(t-t0)/dur),e=q<.5?2*q*q:1-Math.pow(-2*q+2,2)/2,ll=[van.lat+(p.lat-van.lat)*e,van.lng+(p.lng-van.lng)*e];KK.car.setLatLng(ll);if(KK.lijn)KK.lijn.setLatLngs([ll,KK.huis]);if(q<1)KK.anim=requestAnimationFrame(st);else kkFit()};KK.anim=requestAnimationFrame(st)}
+/* live: op de dag zelf het busje op weg naar het gebouw, hoeveel adressen nog en hoe laat (de exacte plek van de bus alleen als dit gebouw bijna aan de beurt is, net als in het klantportaal) */
 function liveHtml(L){if(!L||!["onderweg","bezig"].includes(L.status))return"";
   const vn=L.naam||"Onze schoonmaker",bezig=L.status==="bezig",v=L.voor==null?3:L.voor,pct=bezig?100:Math.max(8,Math.min(82,82-v*18));
+  const kaart=!bezig&&!!L.huis;
   const t=bezig?"Nu in het gebouw aan het werk":v===0?(L.bezigBij?"Dit gebouw is als volgende aan de beurt":vn+" is onderweg hierheen"):"Nog "+v+" "+(v===1?"adres":"adressen")+" vóór dit gebouw";
   const s=bezig?vn+" is bezig met de schoonmaak":L.eta?"Verwacht rond "+L.eta+" · "+vn+" is onderweg":"We zijn onderweg";
   return `<section class="live-k" id="live"><div class="lk-top"><span class="lk-st"><i></i>Live</span><span class="lk-dag">Vandaag</span></div>
-    <div class="lk-weg"><i class="lk-lijn"></i><i class="lk-af" style="width:${pct}%"></i><span class="lk-bus" style="left:${pct}%">${AUTO}</span><span class="lk-huis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg></span></div>
+    ${kaart?`<div class="lk-map" id="lkMap"></div>`:`<div class="lk-weg"><i class="lk-lijn"></i><i class="lk-af" style="width:${pct}%"></i><span class="lk-bus" style="left:${pct}%">${AUTO}</span><span class="lk-huis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg></span></div>`}
     <div class="lk-info"><div><b>${esc(t)}</b><small>${esc(s)}</small></div>${!bezig&&L.eta?`<div class="lk-eta"><small>Verwacht</small><b>± ${esc(L.eta)}</b></div>`:""}</div></section>`}
 (async()=>{const app=document.getElementById("app");
   if(!t){app.innerHTML='<p class="leeg">Deze link is niet compleet.</p>';return}
@@ -75,7 +112,11 @@ function liveHtml(L){if(!L||!["onderweg","bezig"].includes(L.status))return"";
   const url=location.origin+"/bord/"+t;
   try{const q=qrcode(0,"M");q.addData(url);q.make();document.getElementById("poster").innerHTML=`${lg}<h1>Schoonmaak ${esc(d.naam)}</h1><p>Scan de code en zie wanneer het gebouw voor het laatst is schoongemaakt, wat er is gedaan en wanneer we weer komen.</p><div class="qr">${q.createSvgTag({cellSize:6,margin:0,scalable:true})}</div><p class="naam">${esc(d.ritme.charAt(0).toUpperCase()+d.ritme.slice(1))}</p><p class="url">${esc(url)}</p>`}catch(e){}
   if(print){document.body.classList.add("print");setTimeout(()=>window.print(),600)}
-  if(!print&&(d.live||(v&&dagen(v.datum)===0)))setInterval(async()=>{if(document.hidden)return;try{const r=await fetch("/api/portaal/bord?t="+t,{cache:"no-store"});if(!r.ok)return;const n=await r.json(),el=document.getElementById("live"),h=liveHtml(n.live);
-    if(el)el.outerHTML=h||"";else if(h){const k=app.querySelector(".kop");if(k)k.insertAdjacentHTML("afterend",h)}}catch(e){}},30000);
+  if(!print)setTimeout(()=>kkInit(d.live),0);
+  let laatst=d.live;
+  if(!print&&(d.live||(v&&dagen(v.datum)===0)))setInterval(async()=>{if(document.hidden)return;try{const r=await fetch("/api/portaal/bord?t="+t,{cache:"no-store"});if(!r.ok)return;const n=await r.json(),L=n.live,el=document.getElementById("live"),h=liveHtml(L);
+    const zelfde=el&&KK.map&&L&&laatst&&L.status===laatst.status&&!!L.huis===!!laatst.huis&&L.status==="onderweg";laatst=L;
+    if(zelfde){const nw=document.createElement("div");nw.innerHTML=h;const ni=nw.querySelector(".lk-info"),oi=el.querySelector(".lk-info");if(ni&&oi)oi.replaceWith(ni);kkPos(L,true);kkTip(L);return}
+    if(el)el.outerHTML=h||"";else if(h){const k=app.querySelector(".kop");if(k)k.insertAdjacentHTML("afterend",h)}kkInit(L)}catch(e){}},15000);
 })();
 </script></body></html>

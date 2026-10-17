@@ -350,7 +350,7 @@ module.exports = function maakPortaal(ctx) {
         if (!volgende && wdg) { const d = new Date(vandaag + "T12:00:00"); for (let i = 1; i < 9; i++) { d.setDate(d.getDate() + 1); if (wdg.includes(d.getDay())) { volgende = { datum: isoNL(d), tijd: "" }; break; } } }
         /* live volgen op de dag zelf: zonder exacte plek (het bord is openbaar), wel hoeveel adressen nog en hoe laat */
         let live = null;
-        try { const L = await liveInfo({ klant: { ...k, id: kid }, kref: q.docs[0].ref }); if (L) live = { status: L.status, voor: L.voor ?? null, eta: L.eta || "", naam: L.naam || "", bezigBij: !!L.bezigBij }; } catch (e) { console.error("bordlive", e); }
+        try { const L = await liveInfo({ klant: { ...k, id: kid }, kref: q.docs[0].ref }); if (L) live = { status: L.status, voor: L.voor ?? null, eta: L.eta || "", naam: L.naam || "", bezigBij: !!L.bezigBij, km: L.km ?? null, huis: L.status === "onderweg" ? (L.huis || await klantGeo(q.docs[0].ref, { ...k, id: kid }).catch(() => null)) : null, pos: L.pos || null }; } catch (e) { console.error("bordlive", e); }
         res.set("cache-control", live ? "no-store" : "public, max-age=120");
         res.json({ live, bedrijf: { naam: bi.naam, logo: bi.logo, telefoon: bi.telefoon, email: bi.email || "", website: bi.website, kleur: bi.kleur }, naam: schoon(k.naam), adres: k.adres || "", plaats: k.plaats || "", ritme: ritmeTxt(k), taken: vveTakenVan(k),
           bezig: !!k.bezig && k.gepland === vandaag, volgende,
