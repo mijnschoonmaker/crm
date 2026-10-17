@@ -21,6 +21,13 @@
     ],
     "rewrites": [
       {
+        "source": "/api/bank/terug",
+        "function": {
+          "functionId": "bankTerug",
+          "region": "europe-west4"
+        }
+      },
+      {
         "source": "/api/portaal/**",
         "function": {
           "functionId": "portaal",

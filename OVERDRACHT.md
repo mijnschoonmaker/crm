@@ -159,3 +159,9 @@ cd src && python3 build.py /tmp/crm.html     # testversie zonder Firebase, opsla
 ```
 Open `/tmp/crm.html` in een browser. Het klantportaal kun je lokaal testen door
 `public/` te serveren (`python3 -m http.server`) en `/api/portaal/*` na te bootsen.
+
+## Bank: betalingen automatisch koppelen
+
+- **Facturen › Bankbestand uploaden**: CAMT.053 (XML), MT940 of CSV (Knab, ING en andere). De browser leest het bestand, de server (`functions/bank.js`, `bankVerwerk`) koppelt de betalingen.
+- **Bankkoppeling** (Facturen › Knab-strook): via Enable Banking (PSD2, alleen-lezen, gratis voor eigen rekeningen). App ID en private key (.pem) staan in `geheim/config` (`ebApp`, `ebKey`), de sessie in `geheim/bank`. De redirect URL is `https://crm.mijnschoonmaker.com/api/bank/terug`. Automatisch ophalen gebeurt om 8, 12, 16 en 20 uur (`bankSync`). De toestemming van de bank verloopt na 90 tot 180 dagen: dan opnieuw koppelen.
+- **Regel**: staat het factuurnummer in de omschrijving en klopt het bedrag, dan gaat de factuur op betaald. Ook een bekende rekening van de klant met precies het open bedrag telt. De rest komt in `banktx` met de status *controleren* of *onbekend* en wordt in het CRM met één klik gekoppeld. Uitbetalingen van Mollie worden genegeerd.

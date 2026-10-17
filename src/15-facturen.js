@@ -6,25 +6,32 @@ function vFacturen(){
   const all=facturen().sort((a,b)=>String(b.datum).localeCompare(String(a.datum))||String(b.nummer).localeCompare(String(a.nummer)));
   const by=s=>all.filter(f=>fStatus(f)[1]===s);
   const sum=l=>l.reduce((a,f)=>a+totals(f).inc,0);
-  const open=[...by("Openstaand"),...by("Achterstallig")],verst=open.filter(f=>f.verstuurdOp),ub=unbilled(),ubK=new Set(ub.map(b=>b.klantId));
-  const q=state.fq.toLowerCase(),F=state.fFilter;
-  const lists={alle:all,openstaand:by("Openstaand"),achterstallig:by("Achterstallig"),concept:by("Concept"),betaald:by("Betaald")};
-  const shown=(lists[F]||all).filter(f=>!q||[f.nummer,f.klantNaam,f.klantAdres].join(" ").toLowerCase().includes(q));
+  const open=[...by("Openstaand"),...by("Achterstallig")],ub=unbilled(),ubK=new Set(ub.map(b=>b.klantId));
+  const q=state.fq.toLowerCase();let F=state.fFilter;
+  const cash=f=>["contant","pin"].includes(f.betaalwijze);
+  const lists={openstaand:open.sort((a,b)=>String(a.verval).localeCompare(String(b.verval))),achterstallig:by("Achterstallig").sort((a,b)=>String(a.verval).localeCompare(String(b.verval))),concept:by("Concept"),bank:by("Betaald").filter(f=>!cash(f)),contant:by("Betaald").filter(cash),oninbaar:by("Oninbaar"),betaald:by("Betaald"),alle:all};
+  if(!lists[F])F="openstaand";
+  const shown=lists[F].filter(f=>!q||[f.nummer,f.klantNaam,f.klantAdres,eur(totals(f).inc)].join(" ").toLowerCase().includes(q));
+  fbSelOpschonen(new Set(all.map(f=>f.id)));
+  const bk=fbBankInfo(),tc=fbTeBekijken();
   let html=`<div class="pagehead"><div><h1>Facturen</h1><p class="lead" style="margin:0"><b>${all.length}</b> facturen · <b>${eur(sum(open))}</b> openstaand</p></div>
     <div class="acts"><button type="button" class="primary" data-act="newfactuur">${I.facturen}Nieuwe factuur</button><div class="drop"><button type="button" data-act="fmenu">Meer ${I.down}</button>${state.fmenu?`<div class="menu">
       <button type="button" data-act="perlijst">${I.receipt}Periodieke facturen (${state.klanten.filter(isPeriodiek).length})</button>
       <button type="button" data-act="billall" ${ub.length?"":"disabled"}>${I.facturen}Factureer gewassen werk (${ub.length})</button>
       <button type="button" data-act="finalizeall" ${by("Concept").length?"":"disabled"}>${I.check}Alle concepten definitief maken</button>
       <button type="button" data-act="queue" data-q="aanmaning">${I.bell}Betalingsherinneringen</button>
+      <button type="button" data-act="fbbankdlg">${I.bank}Bankkoppeling</button>
+      <button type="button" data-act="fbupload">${I.upload}Bankbestand uploaden</button>
       ${state.dl?`<button type="button" data-act="snelstart">${I.dl}Exporteer naar SnelStart</button><button type="button" data-act="fexport">${I.dl}Exporteer als CSV</button>`:""}</div>`:""}</div></div></div>
   ${fGeldstroom(all,open,by,sum)}
+  ${fbBankStrook(bk,tc)}
   ${ub.length?`<div class="banner"><div><b>${plural(ub.length,"afgemelde beurt","afgemelde beurten")} nog niet gefactureerd</b><br><small>${plural(ubK.size,"klant","klanten")} · ${eur(ub.reduce((a,b)=>a+(Number(b.bedrag)||0),0))}</small></div><button type="button" class="primary" data-act="billall">Maak ${plural(ubK.size,"factuur","facturen")}</button></div>`:""}
   ${by("Concept").length?`<div class="banner" style="background:var(--surface-2)"><div><b>${plural(by("Concept").length,"conceptfactuur","conceptfacturen")} klaar</b><br><small>Van afgemelde opdrachten · ${eur(sum(by("Concept")))}</small></div><button type="button" data-act="ff" data-v="concept">Bekijken</button><button type="button" class="primary" data-act="finalizeall">Alles definitief maken</button></div>`:""}
   ${!S().iban||!S().naam?`<div class="notice">Vul je bedrijfsnaam en IBAN in bij <button type="button" class="tiny ghost" data-act="tab" data-tab="instellingen" style="color:inherit;text-decoration:underline">Instellingen</button>, dan staan ze op elke factuur.</div>`:""}
-  <div class="toolbar"><div class="search">${I.search}<input id="fq" type="search" placeholder="Zoek op factuurnummer, klant of adres…" value="${esc(state.fq)}"></div></div>
-  <div class="tabsline">${[["alle","Alle"],["openstaand","Openstaand"],["achterstallig","Achterstallig"],["concept","Concept"],["betaald","Betaald"]].map(([v,l])=>`<button type="button" data-act="ff" data-v="${v}" aria-pressed="${F===v}">${l}<span class="n">${lists[v].length}</span></button>`).join("")}</div>`;
-  if(!shown.length)return html+(all.length?empty("Geen facturen in deze lijst","Kies een ander tabblad of zoek op iets anders."):empty("Nog geen facturen","Maak je eerste factuur via Klanten of Planning, of meld een opdracht af op Vandaag.",`<button type="button" class="primary" data-act="newfactuur">${I.facturen}Nieuwe factuur</button>`));
-  return html+factTable(shown,false);
+  <div class="toolbar fb-tools"><div class="search">${I.search}<input id="fq" type="search" placeholder="Zoek op factuurnummer, klant, adres of bedrag…" value="${esc(state.fq)}"></div><button type="button" class="fb-up" data-act="fbupload" title="CAMT.053, MT940 of CSV van je bank">${I.upload}<span>Bankbestand uploaden</span></button></div>
+  <div class="tabsline fb-tabs">${[["openstaand","Openstaand"],["achterstallig","Te laat"],["concept","Concept"],["bank","Per bank betaald"],["contant","Contant betaald"],["oninbaar","Oninbaar"],["alle","Alle"]].map(([v,l])=>`<button type="button" data-act="ff" data-v="${v}" aria-pressed="${F===v||(F==="betaald"&&(v==="bank"||v==="contant"))}">${l}<span class="n">${lists[v].length}</span></button>`).join("")}</div>`;
+  if(!shown.length)return html+(all.length?empty("Geen facturen in deze lijst",q?"Zoek op iets anders.":F==="openstaand"?"Alles is betaald. Mooi zo!":"Kies een ander tabblad."):empty("Nog geen facturen","Maak je eerste factuur via Klanten of Planning, of meld een opdracht af op Vandaag.",`<button type="button" class="primary" data-act="newfactuur">${I.facturen}Nieuwe factuur</button>`))+fbBar(all);
+  return html+fbTabel(shown,F)+fbBar(all);
 }
 function vOffertes(){
   const all=offertes().sort((a,b)=>String(b.datum).localeCompare(String(a.datum)));

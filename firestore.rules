@@ -28,7 +28,7 @@ service cloud.firestore {
       allow write: if eigenaar() && mfaOk();
     }
     match /{col}/{id} {
-      allow read, write: if gebruiker() && col in ["klanten","beurten","facturen","routes","instellingen","berichten","kosten","aanvragen","geplandeMails","akkoord","portaalVerzoeken","tickets","ticketBerichten","tellers","live"];
+      allow read, write: if gebruiker() && col in ["klanten","beurten","facturen","routes","instellingen","berichten","kosten","aanvragen","geplandeMails","akkoord","portaalVerzoeken","tickets","ticketBerichten","tellers","live","banktx"];
     }
   }
 }

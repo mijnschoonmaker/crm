@@ -7,6 +7,7 @@
    - geplandVerzenden : elke 10 minuten ingeplande mails versturen
    - blob          : foto's en bestanden uit de opslag tonen (/_blob/<id>)
    - portaal       : klantportaal (/portaal, /api/portaal/**) en aanbevelingen
+   - bank*         : bankbestand of bankkoppeling (Enable Banking): betalingen automatisch op de juiste factuur (bank.js)
    - mfa*, dagBackup, backup* : tweestapsverificatie voor het CRM en dagelijkse back-ups (beveiliging.js)
    Sleutels staan in Firestore /geheim/config (alleen de server kan ze lezen). */
 const { onCall, onRequest, HttpsError } = require("firebase-functions/v2/https");
@@ -286,6 +287,23 @@ exports.mollieIncasso = onCall(async req => {
   await f.ref.set({ incasso: true, incassoOp: nu(), mollieId: p.id, mollieStatus: p.status, betaallink: "", mollieLink: "" }, { merge: true });
   return { id: p.id, status: p.status };
 });
+/* incasso intrekken (zolang Mollie de afschrijving nog niet heeft verstuurd) */
+exports.mollieIntrekken = onCall(async req => {
+  await checkGebruiker(req.auth);
+  const { factuurId } = req.data || {};
+  const g = await geheim();
+  if (!g.mollieKey) throw new HttpsError("failed-precondition", "Er is nog geen Mollie-sleutel ingesteld.");
+  const f = await db.doc("facturen/" + String(factuurId || "")).get();
+  if (!f.exists) throw new HttpsError("not-found", "Factuur niet gevonden.");
+  const x = f.data();
+  if (!x.incasso || !x.mollieId) throw new HttpsError("failed-precondition", "Deze factuur staat niet klaar voor incasso.");
+  const p = await mollie(g.mollieKey, "payments/" + x.mollieId);
+  if (p.status === "paid") throw new HttpsError("failed-precondition", "Deze incasso is al afgeschreven.");
+  if (!p.isCancelable && !["failed", "canceled", "expired"].includes(p.status)) throw new HttpsError("failed-precondition", "Mollie heeft de afschrijving al naar de bank gestuurd; intrekken kan niet meer.");
+  if (p.isCancelable) await mollie(g.mollieKey, "payments/" + x.mollieId, { method: "DELETE" });
+  await f.ref.set({ incasso: false, mollieStatus: "canceled", mollieId: "", incassoIngetrokken: nu() }, { merge: true });
+  return { ok: true };
+});
 exports.mollieHook = onRequest(async (req, res) => {
   const id = (req.body && req.body.id) || "";
   if (!/^tr_\w+$/.test(id)) { res.status(400).send("geen id"); return; }
@@ -483,6 +501,9 @@ exports.akkoordGeven = onRequest({ cors: true, memory: "512MiB", timeoutSeconds:
 const P = require("./portaal")({ db, onRequest, onCall, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket });
 /* tweestapsverificatie voor het CRM en dagelijkse back-ups */
 Object.assign(exports, BEV.functies);
+/* bank: betalingen automatisch koppelen aan facturen (bankbestand of koppeling via Enable Banking) */
+const BANK = require("./bank")({ db, onCall, onRequest, onSchedule, HttpsError, geheim, checkGebruiker, crypto, nu, HOST });
+Object.assign(exports, BANK.functies);
 exports.ticketMelding = P.ticketMelding;
 exports.portaal = P.portaal;
 exports.portaalUitnodigen = P.portaalUitnodigen;

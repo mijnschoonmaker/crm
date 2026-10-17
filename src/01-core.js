@@ -190,7 +190,7 @@ const DEF={naam:"",adres:"",postcode:"",plaats:"",telefoon:"",email:"",kvk:"",bt
 
 const state={tab:"vandaag",klanten:[],beurten:[],facturen:[],routes:{},settings:{},sjablonen:{},berichten:[],kosten:[],prijzen:{},aangiftes:{},
   q:"",kf:"alle",ronde:"",sel:null,kpp:25,kpage:1,
-  fFilter:"alle",fq:"",oFilter:"alle",mq:"",mch:"alle",mst:"alle",mpp:25,ctab:"recent",mpage:1,tq:"",tf:"alle",tplSide:{},
+  fFilter:"openstaand",fq:"",oFilter:"alle",mq:"",mch:"alle",mst:"alle",mpp:25,ctab:"recent",mpage:1,tq:"",tf:"alle",tplSide:{},
   pview:"dag",slot:10,rowH:1,pstat:"alle",pq:"",planDay:null,multiDays:null,planMode:false,pick:null,achter:false,mon:null,
   week:startOfWeek(new Date()),vDay:null,routeDay:null,
   btab:"overzicht",bjaar:new Date().getFullYear(),bper:"jaar",itab:"geld",iper:"maand",hq:"",open:{},
@@ -216,7 +216,7 @@ if(typeof document!=="undefined"&&document.body){zoomZet();try{matchMedia("(min-
 const LIVE=typeof window!=="undefined"&&!!window.ZEEM_LIVE;
 const SETEXTRA={};
 const RAW={};
-const COLS=["klanten","beurten","facturen","routes","instellingen","berichten","kosten"];
+const COLS=["klanten","beurten","facturen","routes","instellingen","berichten","kosten","banktx"];
 const mem={};COLS.forEach(c=>mem[c]=new Map());
 function apply(col,docs){
   RAW[col]=docs;

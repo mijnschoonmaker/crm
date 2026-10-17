@@ -217,7 +217,7 @@ document.addEventListener("click",e=>{
     case"toonex":saveSettings({toonEx:t.dataset.v==="1"},"Bedragen worden nu "+(t.dataset.v==="1"?"ex":"incl")+" btw getoond").then(()=>schedule());break;
     case"voorbeeld":openVoorbeeld();break;
     case"acc":state.open[t.dataset.v]=!state.open[t.dataset.v];render();break;
-    default:if(/^u/.test(a))uAct(a,t);
+    default:if(/^fb/.test(a))fbAct(a,t,e);else if(/^u/.test(a))uAct(a,t);
   }
 });
 document.addEventListener("input",e=>{
