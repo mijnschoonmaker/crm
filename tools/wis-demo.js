@@ -7,7 +7,7 @@ process.on("exit", () => _log("::notice title=Resultaat::" + OUT.join("\n").repl
 const zlib = require("zlib"), path = require("path");
 const admin = require(path.join(__dirname, "..", "functions", "node_modules", "firebase-admin"));
 const P = process.env.P, ECHT = process.env.ECHT === "ja";
-const WIS = ["klanten", "beurten", "facturen", "berichten", "kosten", "banktx", "routes", "aanvragen", "tickets", "ticketBerichten", "portaalVerzoeken", "akkoord", "geplandeMails", "tellers", "live", "portaalSessies", "portaalLinks"];
+const WIS = ["klanten", "beurten", "facturen", "berichten", "kosten", "banktx", "routes", "aanvragen", "tickets", "ticketBerichten", "portaalVerzoeken", "akkoord", "geplandeMails", "tellers", "live", "portaalSessies", "portaalLinks", "portaalLogin", "portaalSessie"];
 const INST_WIS = ["aangiftes", "planmails"];
 const HOUD = new Set(["instellingen", "gebruikers", "mfa", "geheim"]);
 admin.initializeApp({ credential: admin.credential.applicationDefault(), projectId: P });
