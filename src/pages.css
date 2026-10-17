@@ -4083,3 +4083,4 @@ td.fb-cb:hover .fb-box{border-color:var(--brand);transform:scale(1.06)}
 @media (max-width:760px){table.fb-t{min-width:0}.fb-t td:nth-child(3){max-width:150px;overflow:hidden;text-overflow:ellipsis}.fb-t .pill{white-space:nowrap}.fb-nr{display:none}.fb-mnr{display:block!important;font-variant-numeric:tabular-nums}.fb-bk.ok span,.fb-tel span{display:none}.fb-tel{padding-right:8px}.fb-t td,.fb-t th{padding-left:8px;padding-right:8px}.fb-ops{display:none}.fb-t td small.subt:last-child{display:none}}
 .fb-ml{display:none!important}
 @media (max-width:760px){.fb-st{display:none}.fb-al{color:#c2410c}.fb-ml{display:block!important;font-size:11px;font-weight:700;color:#c2410c;white-space:nowrap}.fb-t td:nth-child(3){max-width:none}}
+.fb-in label.fb-ok{background:color-mix(in srgb,#22a46c 14%,var(--surface));border-color:#22a46c;color:#178a5e}
