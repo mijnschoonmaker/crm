@@ -1,0 +1,23 @@
+name: Gegevens wissen
+on:
+  workflow_dispatch:
+    inputs:
+      echt:
+        description: "Typ ja om echt te wissen (anders proefdraai)"
+        default: "nee"
+jobs:
+  wis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm install --omit=dev --no-audit --no-fund
+        working-directory: functions
+      - run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > "$RUNNER_TEMP/sa.json"
+      - name: Wissen
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
+          P: ${{ vars.FIREBASE_PROJECT }}
+          ECHT: ${{ inputs.echt }}
+        run: node tools/wis-demo.js
