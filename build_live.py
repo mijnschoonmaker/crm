@@ -25,3 +25,19 @@ assert html.count('class="logo haslogo"') >= 2, "logo niet vervangen"
 os.makedirs("public", exist_ok=True)
 open("public/index.html", "w").write(html)
 print("public/index.html", len(html))
+
+# demo-omgeving (verzonnen gegevens, geen server) voor instructievideo's: /demo
+demo = crm[crm.index("<title>"):]
+assert demo.count("render();init();") == 1
+demo = demo.replace("render();init();", open(os.path.join(R, "src", "demo", "demo.js")).read() + "\ndemoStart();", 1)
+demo = demo.replace("<title>mijnschoonmaker · CRM</title>", "<title>mijnschoonmaker · CRM (demo)</title>", 1)
+dhead = '''<!doctype html>
+<html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<meta name="theme-color" content="#137a8a"><meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/ms-logo-32.png" type="image/png" sizes="32x32"><link rel="apple-touch-icon" href="/ms-logo-180.png">
+'''
+demo = dhead + demo.replace("<style>", "<style>html,body{margin:0}\n", 1) + "\n</body></html>\n"
+demo = _re.sub(r'<div class="logo"><span class="mk">.*?</span><span class="wm">mijnschoonmaker</span></div>', '<div class="logo haslogo"><img class="lgimg" src="/logo.png" alt="mijnschoonmaker"><span class="wm lgtxt"></span></div>', demo)
+os.makedirs("public/demo", exist_ok=True)
+open("public/demo/index.html", "w").write(demo)
+print("public/demo/index.html", len(demo))
