@@ -8778,6 +8778,7 @@ function openSetEdit(id){
       ${inp("termijn","Betaaltermijn (dagen)",s.termijn,{type:"number",t:"num"})}
       ${sel("factNrStijl","Factuurnummers",s.factNrStijl||"jaar",[["jaar","Per jaar: "+nextNr("factuur",iso(today())).replace(/\d+$/,m=>m.replace(/./g,"0").replace(/0$/,"1"))+" …"],["doorlopend","Doorlopend zoals DienstenCRM: 26-009295"]],{help:"Doorlopend: jaar in 2 cijfers en een volgnummer van 6 cijfers dat over de jaren doorloopt. Zo krijgt je boekhouder één reeks."})}
       ${inp("factNrStart","Eerste volgnummer (bij overstap)",s.factNrStart,{type:"number",t:"num",ph:"9295",help:"Laatste factuurnummer uit het oude pakket + 1, bijv. 26-009294 → 9295. Volgende factuur: "+esc(nextNr("factuur",iso(today())))})}
+      ${inp("onderdeelVan","Onderdeel van (moederbedrijf)",s.onderdeelVan,{ph:"Mansard",help:"Komt onder elke factuur als: \""+esc(s.naam||"Je bedrijf")+" is een onderdeel van …\". Leeg laten als dat niet van toepassing is."})}
       ${sel("taal","Taal van de app",s.taal,[["nl","Nederlands"]],{help:"mijnschoonmaker is alleen in het Nederlands beschikbaar."})}`,{wide:false});bindSave();},
   email(){setDlg(c,`${info("mijnschoonmaker verstuurt zelf geen mail: elke e-mail opent in <b>je eigen mailprogramma</b>, met de tekst al ingevuld. Je klant ziet dus jouw naam en adres als afzender en antwoorden komen gewoon bij jou binnen.")}
       <label>Wat je klant ziet als afzender<input value="${esc(s.naam||"—")}" readonly><small class="help">Je bedrijfsnaam, aanpassen bij Bedrijf &amp; Branding</small></label>
@@ -9990,7 +9991,7 @@ function invModel(f,klant){
   const meta=[[d.off?"Offertenummer":"Factuurnummer",f.nummer],[d.off?"Offertedatum":"Factuurdatum",fmtL(f.datum)],[d.off?"Geldig tot":"Vervaldatum",fmtL(f.verval)],["Klantnummer",kn]];
   const coLines=[s.adres,[s.postcode,s.plaats].filter(Boolean).join(" "),s.telefoon,s.email].filter(Boolean);
   const pay=d.off?null:d.voldaan?null:f.incasso?[["Betaling","Automatische incasso"],["Afschrijving",fmtL(f.verval)],["Factuurnr.",f.nummer]]:[["IBAN",String(s.iban||"—")],["T.n.v.",s.naam||"—"],["Factuurnr.",f.nummer],["Uiterlijk",fmtL(f.verval)]];
-  const foot=[s.naam,s.kvk&&"KvK "+s.kvk,s.btwnr&&"BTW-id "+s.btwnr,s.website].filter(Boolean);
+  const foot=[s.naam&&s.onderdeelVan?s.naam+" is een onderdeel van "+s.onderdeelVan:s.naam,s.kvk&&"KvK "+s.kvk,s.btwnr&&"BTW-id "+s.btwnr,s.website].filter(Boolean);
   const zin=d.off?`Deze offerte is geldig tot ${fmtL(f.verval)}. Gaat u akkoord? Laat het ons weten, dan plannen wij u direct in.`:d.voldaan?`${d.voldaan}. Hartelijk dank voor uw betaling.`:f.incasso?`Wordt binnen 14 dagen na de uitgevoerde beurt automatisch van uw rekening afgeschreven. U hoeft niets te doen.`:`Graag vóór ${fmtL(f.verval)} overmaken onder vermelding van het factuurnummer.${s.betaallink?" Direct betalen kan via "+s.betaallink+".":""}`;
   const pill=!d.off&&(d.st[1]==="g"||d.st[1]==="r");
   const coInfo=d.info.filter(([l])=>l!=="Offertenummer"&&l!=="Factuurnummer").map(([l,v])=>[l,v.filter(Boolean)]);
