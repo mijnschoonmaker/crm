@@ -25,7 +25,7 @@ async function rvMapTeken(){const el=document.getElementById("rvMap");if(!el||!s
 }
 /* live busje op de dagkaart: zelfde gevoel als het klantportaal — rijdt mee met je GPS */
 function rvBusIcon(kk){const L=window.L,k=Number.isFinite(kk)?kk:typeof LV!=="undefined"&&Number.isFinite(LV.koers)?LV.koers:90,links=k>180&&k<360;
-  return L.divIcon({className:"rvm-bus",html:`<span class="rvb${links?" l":""}"><i class="rvb-puls"></i><img src="/img/mansard-bus.png" alt=""></span>`,iconSize:[84,22],iconAnchor:[42,20]})}
+  return L.divIcon({className:"rvm-bus",html:`<span class="rvb${links?" l":""}"><i class="rvb-puls"></i><img src="/img/mansard-bus.png" alt=""></span>`,iconSize:[44,12],iconAnchor:[22,11]})}
 function rvMapLive(nep,nk){const el=document.getElementById("rvMap");if(!el||!el._map||!window.L)return;const echt=typeof LV!=="undefined"&&LV.pos;if(!echt&&!nep)return;
   const L=window.L,doel=echt?[LV.pos.lat,LV.pos.lng]:nep;
   if(!el._bus||!el._laag.hasLayer(el._bus)){el._bus=L.marker(doel,{icon:rvBusIcon(echt?null:nk),zIndexOffset:1000,keyboard:false}).bindTooltip("Jij · live",{direction:"top",offset:[0,-30]}).addTo(el._laag);return}

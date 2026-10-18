@@ -6001,7 +6001,7 @@ async function rvMapTeken(){const el=document.getElementById("rvMap");if(!el||!s
 }
 /* live busje op de dagkaart: zelfde gevoel als het klantportaal — rijdt mee met je GPS */
 function rvBusIcon(kk){const L=window.L,k=Number.isFinite(kk)?kk:typeof LV!=="undefined"&&Number.isFinite(LV.koers)?LV.koers:90,links=k>180&&k<360;
-  return L.divIcon({className:"rvm-bus",html:`<span class="rvb${links?" l":""}"><i class="rvb-puls"></i><img src="/img/mansard-bus.png" alt=""></span>`,iconSize:[84,22],iconAnchor:[42,20]})}
+  return L.divIcon({className:"rvm-bus",html:`<span class="rvb${links?" l":""}"><i class="rvb-puls"></i><img src="/img/mansard-bus.png" alt=""></span>`,iconSize:[44,12],iconAnchor:[22,11]})}
 function rvMapLive(nep,nk){const el=document.getElementById("rvMap");if(!el||!el._map||!window.L)return;const echt=typeof LV!=="undefined"&&LV.pos;if(!echt&&!nep)return;
   const L=window.L,doel=echt?[LV.pos.lat,LV.pos.lng]:nep;
   if(!el._bus||!el._laag.hasLayer(el._bus)){el._bus=L.marker(doel,{icon:rvBusIcon(echt?null:nk),zIndexOffset:1000,keyboard:false}).bindTooltip("Jij · live",{direction:"top",offset:[0,-30]}).addTo(el._laag);return}
@@ -14469,10 +14469,10 @@ html body .vh-bus{left:max(98px,calc(var(--p)*100%))!important}
 
 /* live busje op de dagkaart */
 .rvm-bus{background:none!important;border:0!important}
-.rvb{position:relative;display:block;width:84px;height:22px}
-.rvb img{position:absolute;inset:0;width:100%;height:auto;filter:drop-shadow(0 3px 3px rgb(13 18 27 / .35));z-index:1}
+.rvb{position:relative;display:block;width:44px;height:12px}
+.rvb img{position:absolute;inset:0;width:100%;height:auto;filter:drop-shadow(0 1px 1.5px rgb(13 18 27 / .4));z-index:1}
 .rvb.l img{transform:scaleX(-1)}
-.rvb-puls{position:absolute;left:50%;bottom:-6px;width:56px;height:14px;margin-left:-28px;border-radius:50%;background:rgb(37 44 60 / .35);animation:rvbPuls 2s ease-out infinite}
+.rvb-puls{position:absolute;left:50%;bottom:-3px;width:30px;height:8px;margin-left:-15px;border-radius:50%;background:rgb(37 44 60 / .35);animation:rvbPuls 2s ease-out infinite}
 @keyframes rvbPuls{0%{transform:scale(.6);opacity:.9}100%{transform:scale(1.8);opacity:0}}
 @media (prefers-reduced-motion:reduce){.rvb-puls{animation:none}}
 
