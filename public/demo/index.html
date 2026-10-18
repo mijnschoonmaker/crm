@@ -13745,7 +13745,8 @@ addEventListener("scroll",()=>{const m=document.getElementById("mobOffer");docum
 })();
 </script>
 <style id="mansardThema">
-/* Mansard-thema: kleuren en kaarten in Range Rover-stijl. Wordt als laatste geladen en overschrijft alleen uiterlijk. */
+@import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;500;600;700&display=swap");
+/* Mansard-thema: Range Rover-stijl. Wordt als laatste geladen en overschrijft alleen uiterlijk. */
 /* Mansard: alleen kleuren, zoals de Range Rover-configurator. Vorm, letters en indeling blijven zoals in het CRM. */
 :root:root:root:root{color-scheme:light;
   --bg:#f7f7f6;--bg-tint-a:rgb(200 209 216 / .18);--bg-tint-b:rgb(242 239 233 / .5);
@@ -13937,6 +13938,92 @@ li:first-child>.rp-n,.rp-sec a:first-child .rp-n,.rp-sec>div>*:first-child .rp-n
 .rv-gb{width:100%!important;background:#eceef0!important;height:3px!important}
 .kr .kr-cs,.fg .fg-cs,.vh .vh-st,.rv .rv-chips,.ofh [class$="-cs"],.cm [class$="-cs"]{background:transparent!important;border:0!important;padding:0!important;box-shadow:none!important;backdrop-filter:none!important}
 .tk-kop svg[viewBox="0 0 64 40"],.tk-vlucht svg,.tk-kop [class*="bus"]{filter:grayscale(1) brightness(.9)}
+/* LETTERS ZOALS RANGE ROVER: Avenir Next (Mac/iPhone), anders Nunito Sans */
+:root:root:root:root{--f-ui:"Avenir Next","Avenir","Nunito Sans","Helvetica Neue",Arial,sans-serif;--f-title:"Avenir Next","Avenir","Nunito Sans","Helvetica Neue",Arial,sans-serif;--f-mono:"Avenir Next","Avenir","Nunito Sans","Helvetica Neue",Arial,sans-serif}
+body,button,input,select,textarea{font-family:var(--f-ui)!important;font-feature-settings:"tnum"}
+body{color:#0d121b}
+/* titels: groot, normaal gewicht, rustig */
+#view h1,main h1{font-weight:400!important;letter-spacing:-.01em!important}
+#view h2,#view h3,.dlg h3,.card h3,.sc2 h3{font-weight:400!important;letter-spacing:0!important}
+.vh h2,.rv h2,.rv-tx h2{font-weight:400!important;letter-spacing:-.005em!important}
+/* vet minder zwaar */
+b,strong,th,dt{font-weight:600!important}
+.fg-big b,.kr-big b,.vh-r b,.vh-st b,.fg-c b,.kr-c b,.tk-kop b,.of-kop b{font-weight:500!important;letter-spacing:-.005em!important}
+/* uitleg- en subtekst grijs en licht */
+small,p,.muted,dd{font-weight:400}
+small,.muted{color:#5d6168}
+/* kleine labels in spatiële hoofdletters */
+.ns-head,.vh-k,.fg-k,.kr-k,.fg-l,.kr-zones span,th{letter-spacing:.2em!important;text-transform:uppercase!important;font-weight:600!important}
+/* knoppen zoals 'EINDE' en 'OFFERTE AANVRAGEN' */
+button.primary,a.primary,.btn.primary,.setbtn,.btn:not(.iconbtn):not(.tiny):not([class*="pill"]){text-transform:uppercase!important;letter-spacing:.2em!important;font-weight:600!important;font-size:12px!important}
+.btn:not(.primary):not(.iconbtn){background:#fff!important;border:1px solid #bfc3c8!important;color:#0d121b!important}
+/* tabbladen zoals de bovenbalk van de configurator */
+.tabsline button{text-transform:uppercase!important;letter-spacing:.18em!important;font-weight:500!important;font-size:11.5px!important;color:#55585f!important}
+.tabsline button[aria-pressed="true"]{color:#0d121b!important;font-weight:600!important}
+/* dialoogkoppen zoals 'WILT U DE CONFIGURATOR VERLATEN?' */
+.dlg-head h3,.dlg h2{text-transform:uppercase!important;font-weight:400!important;letter-spacing:.04em!important}
+/* menu */
+nav#sideNav button .lbl{font-weight:400!important;letter-spacing:.01em}
+nav#sideNav button[aria-current="true"] .lbl{font-weight:600!important}
+html body *:not(svg):not(path){font-family:var(--f-ui)!important}
+html body h1,html body h1.xl,#view h1.xl{font-weight:400!important;letter-spacing:-.01em!important}
+#view .zzgeen{text-transform:uppercase!important;letter-spacing:.2em!important;font-weight:600!important;font-size:11.5px!important;background:#fff!important;border:1px solid #bfc3c8!important;color:#0d121b!important}
+#view .zzgeen:hover{border-color:#0d121b!important}
+#view :has(> button.primary):not(.tk *) > button:not(.primary):not(.iconbtn):not([class*="pill"]){text-transform:uppercase!important;letter-spacing:.2em!important;font-weight:600!important;font-size:11.5px!important}
+/* KNOPPEN ZOALS RANGE ROVER: 'EINDE' en 'BESCHIKBARE VOORRAAD' */
+button.primary:not(.tiny):not(.small),a.primary:not(.tiny):not(.small),.btn.primary:not(.tiny):not(.small){min-height:46px!important;padding:0 26px!important;border-radius:6px!important;background:#0d121b!important;background-image:none!important;border:1px solid #0d121b!important;color:#fff!important;box-shadow:none!important;font-weight:500!important;letter-spacing:.25em!important;font-size:12px!important;gap:12px!important}
+button.primary:not(.tiny):not(.small):hover{background:#262c36!important}
+#view :has(> button.primary):not(.tk *) > button:not(.primary):not(.iconbtn):not([class*="pill"]),.btn:not(.primary):not(.iconbtn):not(.tiny),.setbtn{min-height:46px!important;padding:0 22px!important;border-radius:6px!important;background:#fff!important;border:1px solid #b9bdc2!important;color:#0d121b!important;box-shadow:none!important;font-weight:500!important;letter-spacing:.25em!important;font-size:12px!important;gap:12px!important}
+#view :has(> button.primary) > button:not(.primary):hover,.btn:not(.primary):hover,.setbtn:hover{border-color:#0d121b!important}
+.small.primary,.btn.small{border-radius:6px!important;letter-spacing:.2em!important;font-weight:500!important;text-transform:uppercase!important;font-size:11px!important;box-shadow:none!important}
+/* knoppen in de opdrachtkaart: vorm blijft, alleen letters */
+.tk .primary{letter-spacing:.25em!important;font-weight:500!important}
+/* knoppenbalk onderaan dialogen: witte balk met haarlijn, zoals bij Range Rover */
+.dlg-foot,.dlg footer,.dlg .acts{border-top:1px solid #eceef0!important;background:#fff!important}
+dialog :has(> button.primary) > button:not(.primary):not(.iconbtn):not([class*="pill"]),dialog button[data-act="close"]:not(.iconbtn):not([aria-label]){min-height:46px!important;padding:0 22px!important;border-radius:6px!important;background:#fff!important;border:1px solid #b9bdc2!important;color:#0d121b!important;font-weight:500!important;letter-spacing:.25em!important;font-size:12px!important;text-transform:uppercase!important;box-shadow:none!important}
+.stickyfoot,.kk-foot{border-top:1px solid #eceef0!important;background:#fff!important;box-shadow:none!important}
+/* knoppenbalk bovenaan pagina: niet laten omslaan */
+#view :has(> button.primary):not(.tk *) > button:not(.primary):not(.iconbtn):not([class*="pill"]){letter-spacing:.18em!important;padding:0 16px!important;font-size:11px!important}
+#view :has(> button.primary) > button.primary{letter-spacing:.2em!important;padding:0 20px!important;font-size:11.5px!important}
+
+.tabsline button,.tabsline :has(> button.primary) > button{min-height:0!important;border:0!important;background:none!important;padding:0 14px 13px!important}
+
+#view .drop>button:first-child,#view .fb-up,#view .toolbar>button:not(.primary):not(.iconbtn){min-height:46px!important;padding:0 18px!important;border-radius:6px!important;background:#fff!important;border:1px solid #b9bdc2!important;color:#0d121b!important;box-shadow:none!important;font-weight:500!important;letter-spacing:.18em!important;font-size:11px!important;text-transform:uppercase!important;gap:10px!important}
+#view .drop>button:first-child:hover,#view .fb-up:hover,#view .toolbar>button:hover{border-color:#0d121b!important}
+/* PICTOGRAMMEN ZOALS RANGE ROVER: stevige lijn, bijna zwart, in een lichtgrijs vierkant vlak */
+#view svg[fill="none"],dialog svg[fill="none"],nav svg[fill="none"],.side svg[fill="none"]{stroke-width:2.1px;stroke-linecap:round;stroke-linejoin:round}
+.sc2 .sc2-t .ic svg{stroke-width:1.6px!important}
+:is(.objic,.ic,.kd-tool-i,.dlg-head .ic,.wd-ic,.tk-ic,.jp-kop .ic,.hosp .objic){background:#f4f5f6!important;background-image:none!important;border:0!important;border-radius:6px!important;box-shadow:none!important;color:#0d121b!important}
+:is(.objic,.ic,.kd-tool-i,.wd-ic,.tk-ic) svg{color:#0d121b!important;stroke:#0d121b}
+:is(.objic,.ic,.kd-tool-i,.wd-ic,.tk-ic) svg [fill]:not([fill="none"]){fill:#0d121b}
+.sc2 .sc2-t .ic{border-radius:0!important}
+/* kaartspeld en gekleurde iconen: donker */
+.kd-pin{background:#0d121b!important;background-image:none!important;box-shadow:0 6px 14px -8px rgb(13 18 27 / .6)!important}
+.kd-pin svg{color:#fff!important;stroke:#fff!important}
+.kd-map{background:#f4f5f6!important;background-image:none!important;border:1px solid var(--rr-rand)!important}
+/* menu-iconen iets steviger en donker */
+nav#sideNav button svg{color:#0d121b!important}
+#tabNav button svg{color:#0d121b!important}
+/* kleine actie-iconen (potlood, kruisje) rustig grijs, donker bij hover */
+.iconbtn svg,.jp-ib svg{color:#0d121b!important}
+.primary svg,.primary.ic svg,button.primary svg *{color:#fff!important;stroke:#fff!important}
+.primary.ic,.primary .ic{background:#0d121b!important}
+.hosp .objic svg,.hosp .objic svg *{fill:#0d121b!important;color:#0d121b!important}
+.tiny.ghost{border:0!important;background:none!important;min-height:0!important}
+:is(.objic,.kd-tool-i,.wd-ic,.tk-ic,.jp-kop .ic,.dlg-head .ic,.ic:not(.sc2 .ic)){width:42px!important;height:42px!important;min-width:42px;display:grid!important;place-items:center}
+:is(.objic,.kd-tool-i,.wd-ic,.tk-ic,.jp-kop .ic,.dlg-head .ic,.ic:not(.sc2 .ic))>svg{width:22px!important;height:22px!important;stroke-width:2.2px!important}
+.kd-pin svg{width:20px!important;height:20px!important;stroke-width:2.2px!important}
+:is(.objic,.kd-tool-i,.wd-ic,.tk-ic) svg{width:22px!important;height:22px!important;stroke-width:2.2px!important}
+.ns-head>:not(:first-child),.ns-head>:not(:first-child) *{text-transform:none!important;letter-spacing:0!important;font-weight:400!important;color:#7a7e84!important}
+.ns-head>:first-child{font-weight:600!important}
+#view .ns-head h2,dialog .ns-head h2{letter-spacing:.2em!important;font-weight:600!important;text-transform:uppercase!important;font-size:11.5px!important;color:#0d121b!important}
+/* TITELS ZOALS 'LAND ROVER EXPERIENCE' */
+dialog h3,dialog .dlg-head h3,dialog h2:not(.ns-head h2){text-transform:uppercase!important;font-weight:500!important;letter-spacing:.12em!important;font-size:26px!important;color:#0d121b!important;line-height:1.15!important}
+dialog .subt{color:#5d6168!important;font-size:14px!important;margin-top:6px!important}
+/* kopjes in kaarten zoals 'OVERZICHT' */
+.kp-h>b,.kp-h h3,.kp-h h4{text-transform:uppercase!important;font-weight:600!important;letter-spacing:.2em!important;font-size:13px!important;color:#0d121b!important}
+.jp-k2>b{text-transform:uppercase!important;font-weight:500!important;letter-spacing:.12em!important;font-size:26px!important;color:#0d121b!important}
+.pay-h>b,.hosp b:first-child{text-transform:uppercase!important;font-weight:600!important;letter-spacing:.2em!important;font-size:13px!important}
 
 </style>
 
