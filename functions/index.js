@@ -430,6 +430,12 @@ exports.aanvraag = onRequest({ cors: true, memory: "512MiB", timeoutSeconds: 60 
   } catch (e) { console.error(e); res.status(500).send("Er ging iets mis"); }
 });
 
+/* ---------- foto's op de instellingenkaarten (platform, per branche): openbaar leesbaar, ook voor de demo ---------- */
+exports.kaartfotos = onRequest({ memory: "256MiB" }, async (req, res) => {
+  try { const s = await rawDb.doc("platform/kaartfotos").get(); res.set("cache-control", "public, max-age=300"); res.json(s.exists ? s.data() : {}); }
+  catch (e) { res.json({}); }
+});
+
 /* ---------- bestanden: /_blob/<id> ---------- */
 exports.blob = onRequest({ memory: "256MiB" }, async (req, res) => {
   const id = String(req.path || "").split("/").pop();

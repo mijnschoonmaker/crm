@@ -77,6 +77,13 @@
           "destination": "/akkoord.html"
         },
         {
+          "source": "/api/kaartfotos",
+          "function": {
+            "functionId": "kaartfotos",
+            "region": "europe-west4"
+          }
+        },
+        {
           "source": "/_blob/**",
           "function": {
             "functionId": "blob",

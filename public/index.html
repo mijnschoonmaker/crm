@@ -8780,7 +8780,7 @@ const KF={data:null,laden:false};
 const kfBranche=()=>String(S().branche||"glazenwasser");
 const kfEigenaar=()=>{try{return String((firebase.auth().currentUser||{}).email||"").toLowerCase()==="robin@mijnschoonmaker.com"}catch(e){return false}};
 const kfDoc=()=>{try{return typeof firebase!=="undefined"&&firebase.firestore?firebase.firestore().doc("platform/kaartfotos"):null}catch(e){return null}};
-function kfLaad(){if(KF.data||KF.laden)return;const d=kfDoc();if(!d){KF.data={};return}KF.laden=true;
+function kfLaad(){if(KF.data||KF.laden)return;const d=kfDoc();if(!d){KF.laden=true;fetch("/api/kaartfotos").then(r=>r.json()).then(j=>{KF.data=j||{};KF.laden=false;if(state.tab==="instellingen")render()}).catch(()=>{KF.data={};KF.laden=false});return}KF.laden=true;
   d.get().then(s=>{KF.data=s.exists?s.data():{};KF.laden=false;
     /* eenmalig: een eerder in eigen instellingen geplaatste foto meenemen naar het platform */
     const oud=(S().kaartFoto)||{};if(kfEigenaar()&&Object.keys(oud).length){const b=kfBranche(),m={...(KF.data[b]||{})};let nieuw=false;for(const[k,v]of Object.entries(oud))if(!m[k]){m[k]=v;nieuw=true}if(nieuw){KF.data={...KF.data,[b]:m};d.set({[b]:m},{merge:true}).catch(()=>{})}}
