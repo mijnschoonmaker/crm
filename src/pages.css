@@ -4088,3 +4088,8 @@ td.fb-cb:hover .fb-box{border-color:var(--brand);transform:scale(1.06)}
 .topbar .logo .lgimg[src$="mansard-logo.png"]{width:118px;height:auto;margin:0}
 .app.collapsed aside .logo .lgimg[src$="mansard-logo.png"]{width:38px;height:38px;object-fit:cover;object-position:left center}
 .logo.haslogo:has(.lgimg[src$="mansard-logo.png"]){flex-direction:column;align-items:flex-start;gap:6px}.logo.haslogo:has(.lgimg[src$="mansard-logo.png"]) .lgtxt{font-size:12.5px;color:var(--muted);font-weight:600;margin-left:4px}.topbar .logo.haslogo:has(.lgimg[src$="mansard-logo.png"]) .lgtxt{display:none}
+.ms-balk{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 16px;padding:10px 14px;border-radius:14px;background:linear-gradient(135deg,#0f1f26,#1d3640);color:#fff;font-size:13.5px}
+.ms-balk span{flex:1;min-width:200px}.ms-balk .small{background:#fff;color:#0f1f26;border:0}.ms-balk .small.primary{background:#ebbd4c;color:#0f1f26}
+.ms-dicht{position:fixed;inset:0;z-index:2147482000;background:rgba(238,242,243,.88);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);display:grid;place-items:center;padding:16px}
+.ms-dk{max-width:420px;width:100%;background:#fff;border-radius:22px;padding:30px 26px;text-align:center;box-shadow:0 30px 70px -30px rgba(8,30,38,.5);display:flex;flex-direction:column;gap:10px;align-items:center}
+.ms-dk img{width:170px;margin-bottom:10px}.ms-dk h2{margin:0;font-size:21px}.ms-dk p{margin:0 0 8px;color:var(--muted);line-height:1.5}.ms-dk button{width:100%}

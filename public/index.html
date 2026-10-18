@@ -4580,6 +4580,11 @@ td.fb-cb:hover .fb-box{border-color:var(--brand);transform:scale(1.06)}
 .topbar .logo .lgimg[src$="mansard-logo.png"]{width:118px;height:auto;margin:0}
 .app.collapsed aside .logo .lgimg[src$="mansard-logo.png"]{width:38px;height:38px;object-fit:cover;object-position:left center}
 .logo.haslogo:has(.lgimg[src$="mansard-logo.png"]){flex-direction:column;align-items:flex-start;gap:6px}.logo.haslogo:has(.lgimg[src$="mansard-logo.png"]) .lgtxt{font-size:12.5px;color:var(--muted);font-weight:600;margin-left:4px}.topbar .logo.haslogo:has(.lgimg[src$="mansard-logo.png"]) .lgtxt{display:none}
+.ms-balk{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 16px;padding:10px 14px;border-radius:14px;background:linear-gradient(135deg,#0f1f26,#1d3640);color:#fff;font-size:13.5px}
+.ms-balk span{flex:1;min-width:200px}.ms-balk .small{background:#fff;color:#0f1f26;border:0}.ms-balk .small.primary{background:#ebbd4c;color:#0f1f26}
+.ms-dicht{position:fixed;inset:0;z-index:2147482000;background:rgba(238,242,243,.88);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);display:grid;place-items:center;padding:16px}
+.ms-dk{max-width:420px;width:100%;background:#fff;border-radius:22px;padding:30px 26px;text-align:center;box-shadow:0 30px 70px -30px rgba(8,30,38,.5);display:flex;flex-direction:column;gap:10px;align-items:center}
+.ms-dk img{width:170px;margin-bottom:10px}.ms-dk h2{margin:0;font-size:21px}.ms-dk p{margin:0 0 8px;color:var(--muted);line-height:1.5}.ms-dk button{width:100%}
 
 </style>
 <div class="app">
@@ -9007,8 +9012,8 @@ function openSetEdit(id){
       <div class="card" style="grid-template-columns:48px minmax(0,1fr) auto"><span class="av" style="--h:200">${esc(initials(me.name||S().naam||"Jij"))}</span><b>${esc(me.name||"Jij")} <span class="eyebrow" style="color:var(--brand)">jij</span></b><div class="meta">${esc(me.email||S().email||"")}</div><div class="side-col"><span class="pill late">${owner?"Eigenaar":"Gebruiker"}</span></div></div>
       <table class="minitable"><tr><td><b>Editor</b></td><td>Beheerder: alles bekijken en wijzigen</td></tr><tr><td><b>Contributor</b></td><td>Medewerker: planning, afmelden en klanten bijwerken</td></tr><tr><td><b>Viewer / Commenter</b></td><td>Alleen lezen, bijvoorbeeld je boekhouder</td></tr></table>
       ${info("Tip: geef je boekhouder de rol Viewer, dan kan hij alles inzien maar niets veranderen. Beperken per scherm kan Mansard niet; het is per rol voor de hele app.")}`,{wide:false,foot:`<button type="button" class="ghost" data-act="close">Sluiten</button><span class="sp"></span><span class="pill brand">${I.plus}Gebruiker toevoegen: knop Delen bovenaan</span>`});},
-  abonnement(){const m=iso(today()).slice(0,7),jobs=state.beurten.filter(b=>String(b.datum).startsWith(m)).length,docs=COLS.reduce((a,c)=>a+(c==="instellingen"?4:c==="routes"?Object.keys(state.routes).length:state[c].length),0);
-    setDlg({t:"Abonnement",sub:"Je plan en gebruik",ic:"card",bg:"#23845a"},`<div class="planhero"><div><span class="eyebrow">Huidig plan</span><b>Mansard</b></div><div style="text-align:right"><b>€ 0</b><small>/maand</small></div><div class="ph-row"><span>Status<br><b>Actief</b></span><span>Draait in<br><b>je Claude-account</b></span></div></div>
+  abonnement(){if(typeof aboDlg==="function"&&LIVE&&window.ZEEM_BID&&window.ZEEM_BID!=="mijnschoonmaker")return aboDlg();const m=iso(today()).slice(0,7),jobs=state.beurten.filter(b=>String(b.datum).startsWith(m)).length,docs=COLS.reduce((a,c)=>a+(c==="instellingen"?4:c==="routes"?Object.keys(state.routes).length:state[c].length),0);
+    setDlg({t:"Abonnement",sub:"Je plan en gebruik",ic:"card",bg:"#23845a"},`<div class="planhero"><div><span class="eyebrow">Huidig plan</span><b>Mansard</b></div><div style="text-align:right"><b>€ 0</b><small>/maand</small></div><div class="ph-row"><span>Status<br><b>Actief</b></span><span>Soort<br><b>Eerste bedrijf, geen kosten</b></span></div></div>
       ${sec("Gebruik deze maand")}${[["Klanten",state.klanten.length,null],["Jobs deze maand",jobs,null],["Opslag",docs,25000]].map(([l,n,mx])=>`<div class="usage"><div><b>${l}</b><span class="mono">${n}${mx?" / "+mx.toLocaleString("nl-NL"):""}</span></div><i><b style="width:${mx?Math.max(1,n/mx*100):100}%"></b></i></div>`).join("")}
       <div class="box">${sec("In dit plan")}${["Onbeperkt klanten en jobs (tot 25.000 records)","Planning, route, offertes en facturen","Delen met collega's via Delen","Werkt op telefoon en computer"].map(x=>`<div class="incl">${I.check}${x}</div>`).join("")}</div>`,{wide:false,foot:`<span class="sp"></span><button type="button" class="primary" data-act="close">Sluiten</button>`});},
   pwa(){setDlg({t:"PWA & App",sub:"Mansard op je telefoon",ic:"phone",bg:"#2a8bd1"},`${sec("App")}<div class="infobox">${I.phone}<span><b>Telefoon:</b> open deze pagina in de Claude-app, of zet de link via het deel-icoon van je browser op je beginscherm.<br><b>Computer:</b> zet de pagina in je bladwijzers of pin hem vast in Claude.</span></div>
@@ -13056,10 +13061,12 @@ if(LIVE){
     setDlg(c,`${info("Elke factuurmail krijgt een eigen <b>betaallink</b> (iDEAL, Bancontact, creditcard). Betaalt de klant, dan staat de factuur vanzelf op <b>betaald</b>.")}
       ${tgl("liveMollie","Online betalen aan","Betaallink automatisch in factuurmails en herinneringen",s.liveMollie!==false&&!!s.liveMollieKey)}
       <label class="full">Mollie API-sleutel<input type="password" id="mollieKey" autocomplete="off" placeholder="${s.liveMollieKey?"Ingesteld · laat leeg om te houden":"live_… of test_…"}"><small class="help">Te vinden in Mollie › Ontwikkelaars › API-sleutels. Begin gerust met de test-sleutel.</small></label>
+      ${String((state.me&&state.me.email)||"").toLowerCase()==="robin@mijnschoonmaker.com"?`<label class="full">Mollie-sleutel voor Mansard-abonnementen<input type="password" id="mansardKey" autocomplete="off" placeholder="${s.mansardKeyGezet?"Ingesteld · laat leeg om te houden":"live_… van je Mollie-profiel Mansard"}"><small class="help">Hiermee betalen andere glazenwassers hun Mansard-abonnement. Leeg = je gewone Mollie-sleutel hierboven.</small></label>`:""}
       <div class="warnbox">${I.alert}<span>Je Mollie-account moet eerst zijn geverifieerd (KvK, bankrekening, ID) voordat echte betalingen werken.</span></div>`,{wide:false});
     form.onsubmit=async e=>{e.preventDefault();const on=form.querySelector('[data-k="liveMollie"]').checked,key=$("#mollieKey").value.trim();
       try{if(key)await fsDb().doc("geheim/config").set({mollieKey:key},{merge:true});
-        if(await saveSettings({liveMollie:on&&!!(key||s.liveMollieKey),liveMollieKey:!!(key||s.liveMollieKey),liveMollieTest:key?key.startsWith("test_"):!!s.liveMollieTest})){dlg.close();schedule()}}catch(er){err(er)}}};
+        const mk=($("#mansardKey")||{value:""}).value.trim();if(mk)await fsDb().doc("geheim/config").set({mansardMollieKey:mk},{merge:true});
+        if(await saveSettings({...(mk?{mansardKeyGezet:true}:{}),liveMollie:on&&!!(key||s.liveMollieKey),liveMollieKey:!!(key||s.liveMollieKey),liveMollieTest:key?key.startsWith("test_"):!!s.liveMollieTest})){dlg.close();schedule()}}catch(er){err(er)}}};
 
   SETEXTRA.liveOverzicht=(c,s)=>{let vw=s.voorwaardenPdf||"",vwN=s.voorwaardenNaam||"",hf=s.herroepingPdf||"",hfN=s.herroepingNaam||"";
     const rij=(id,naam,lbl)=>`<div class="splitrow" style="gap:10px;align-items:center"><span style="flex:1;min-width:0"><b>${lbl}</b><br><small class="subt">${naam?esc(naam):"Nog geen PDF"}</small></span><label class="btn small">${I.upload}${naam?"Vervangen":"PDF kiezen"}<input type="file" accept="application/pdf" hidden id="${id}F"></label>${naam?`<button type="button" class="small ghost" id="${id}X">${I.x}</button>`:""}</div>`;
@@ -13077,12 +13084,12 @@ if(LIVE){
     const draw=async()=>{let lijst=[];try{lijst=(await (window.ZEEM_BID&&window.ZEEM_BID!=="mijnschoonmaker"?fsDb().collection("gebruikers").where("bedrijf","==",window.ZEEM_BID):fsDb().collection("gebruikers")).get()).docs.map(d=>({id:d.id,...d.data()}))}catch(e){}
       $("#usrL").innerHTML=`<table class="minitable"><tr><td><b>robin@mijnschoonmaker.com</b></td><td></td><td>Eigenaar</td><td></td></tr>${lijst.map(u=>`<tr><td>${esc(u.id)}</td><td>${esc(u.naam||"")}</td><td>${isEigenaar()?`<select class="usr-rol" data-rol="${esc(u.id)}"><option value="medewerker"${(u.rol||"beheerder")==="medewerker"?" selected":""}>Medewerker</option><option value="beheerder"${(u.rol||"beheerder")==="beheerder"?" selected":""}>Beheerder</option></select>`:esc(u.rol==="medewerker"?"Medewerker":"Beheerder")}</td><td class="r">${isEigenaar()?`<button type="button" class="tiny ghost" data-rm="${esc(u.id)}" style="color:var(--late)">Verwijderen</button>`:""}</td></tr>`).join("")}</table>`;
       $("#usrL").querySelectorAll("[data-rol]").forEach(sl=>sl.onchange=async()=>{try{await fsDb().doc("gebruikers/"+sl.dataset.rol).set({rol:sl.value},{merge:true});toast(sl.value==="medewerker"?"Ziet nu alleen Vandaag en Route, zonder bedragen":"Heeft nu toegang tot het hele CRM")}catch(er){err(er)}});
-      $("#usrL").querySelectorAll("[data-rm]").forEach(b=>b.onclick=async()=>{if(!(await vraag("Gebruiker verwijderen?",`<b>${esc(b.dataset.rm)}</b> kan daarna niet meer inloggen in het CRM.`,"Verwijderen","Annuleren")))return;await fsDb().doc("gebruikers/"+b.dataset.rm).delete();draw()})};
+      $("#usrL").querySelectorAll("[data-rm]").forEach(b=>b.onclick=async()=>{if(!(await vraag("Gebruiker verwijderen?",`<b>${esc(b.dataset.rm)}</b> kan daarna niet meer inloggen in het CRM.`,"Verwijderen","Annuleren")))return;await fsDb().doc("gebruikers/"+b.dataset.rm).delete();draw();if(window.ZEEM_BID&&window.ZEEM_BID!=="mijnschoonmaker")fbFn("abonnementBijwerken")({}).catch(()=>{})})};
     setDlg(c,`${info("Iedereen die hier staat kan inloggen met zijn eigen e-mailadres en wachtwoord. Nieuwe gebruikers maken zelf een account aan op het inlogscherm en bevestigen hun e-mailadres.<br><b>Medewerker</b> ziet alleen Vandaag en Route met de adressen, instructies en poortcodes, zonder bedragen. <b>Beheerder</b> ziet alles.")}
       <div id="usrL"><p class="subt">Laden…</p></div>
       ${isEigenaar()?`${sec("Gebruiker toevoegen")}<div class="grid2">${inp("_ue","E-mailadres","",{type:"email",ph:"naam@voorbeeld.nl"})}${inp("_un","Naam","",{ph:"Bijv. Jan"})}</div><label>Rol<select id="_ur"><option value="medewerker" selected>Medewerker (glazenwasser)</option><option value="beheerder">Beheerder (kantoor)</option></select></label><button type="button" class="small primary" id="usrAdd">${I.plus}Toevoegen</button>`:""}`,{wide:false,foot:`<span class="sp"></span><button type="button" class="primary" data-act="close">Sluiten</button>`});
     const a=$("#usrAdd");if(a)a.onclick=async()=>{const e=form.querySelector('[data-k="_ue"]').value.trim().toLowerCase(),n=form.querySelector('[data-k="_un"]').value.trim();
-      if(!/^\S+@\S+\.\S+$/.test(e))return toast("Vul een geldig e-mailadres in");try{await fsDb().doc("gebruikers/"+e).set({naam:n,rol:($("#_ur")||{}).value||"medewerker",toegevoegd:new Date().toISOString(),...(window.ZEEM_BID&&window.ZEEM_BID!=="mijnschoonmaker"?{bedrijf:window.ZEEM_BID}:{})});form.querySelector('[data-k="_ue"]').value="";form.querySelector('[data-k="_un"]').value="";toast(e+" kan nu inloggen");draw()}catch(er){err(er)}};
+      if(!/^\S+@\S+\.\S+$/.test(e))return toast("Vul een geldig e-mailadres in");try{await fsDb().doc("gebruikers/"+e).set({naam:n,rol:($("#_ur")||{}).value||"medewerker",toegevoegd:new Date().toISOString(),...(window.ZEEM_BID&&window.ZEEM_BID!=="mijnschoonmaker"?{bedrijf:window.ZEEM_BID}:{})});form.querySelector('[data-k="_ue"]').value="";form.querySelector('[data-k="_un"]').value="";toast(e+" kan nu inloggen");draw();if(window.ZEEM_BID&&window.ZEEM_BID!=="mijnschoonmaker")fbFn("abonnementBijwerken")({}).catch(()=>{})}catch(er){err(er)}};
     draw()};
 
   SETEXTRA.liveImport=(c,s)=>{if(!alleenEigenaar())return;
@@ -13142,6 +13149,45 @@ if(LIVE)setTimeout(async function w(){if(!state.loaded)return setTimeout(w,800);
   let ok=false;try{ok=!!navigator.permissions&&(await navigator.permissions.query({name:"geolocation"})).state==="granted"}catch(e){}
   if(ok)liveStart(true);else{state.liveDelen=false;try{localStorage.setItem("ms.live","0")}catch(e){}render()}},1500);
 function lvDagCheck(){if(LV.watch==null)return;const s=routeStops(iso(today()));if(s.length&&s.every(x=>x.done)){state.liveDelen=false;try{localStorage.setItem("ms.live","0")}catch(e){}liveStop(true);toast("Dag klaar · live delen is gestopt")}}
+
+/* ---------- Mansard: proefperiode en abonnement van een bedrijf ----------
+   Alleen voor nieuwe bedrijven (niet voor het eerste bedrijf). Status komt uit bedrijven/<id>. */
+const MS={doc:null,unsub:null};
+const msTenant=()=>LIVE&&!!window.ZEEM_BID&&window.ZEEM_BID!=="mijnschoonmaker";
+const msDagen=d=>d?Math.ceil((parse(d)-today())/DAY):0;
+function msStatus(){const b=MS.doc||{},v=iso(today());
+  if(b.status==="actief")return{ok:true,soort:b.achterstand?"achterstand":"actief"};
+  if(b.status==="proef")return{ok:String(b.proefTot||"")>=v,soort:String(b.proefTot||"")>=v?"proef":"verlopen",dagen:msDagen(b.proefTot)};
+  if(b.status==="opgezegd")return{ok:String(b.betaaldTot||b.proefTot||"")>=v,soort:"opgezegd",tot:b.betaaldTot||b.proefTot};
+  return{ok:false,soort:"verlopen"}}
+function msBalk(){if(!msTenant()||!MS.doc)return;const st=msStatus();let el=document.getElementById("msBalk");
+  const eig=window.ZEEM_ROL==="eigenaar";
+  const html=st.soort==="proef"?`<span><b>Proefperiode</b> · nog ${plural(Math.max(0,st.dagen),"dag","dagen")} gratis</span>${eig?`<button type="button" class="small primary" data-act="msabo">Abonnement kiezen</button>`:""}`
+    :st.soort==="achterstand"?`<span><b>De laatste betaling is mislukt.</b> Zorg dat er saldo is; we proberen het opnieuw.</span>${eig?`<button type="button" class="small" data-act="msabo">Bekijken</button>`:""}`
+    :st.soort==="opgezegd"?`<span>Abonnement opgezegd · je kunt Mansard gebruiken tot ${fmtD(st.tot)}</span>${eig?`<button type="button" class="small" data-act="msabo">Toch doorgaan</button>`:""}`:"";
+  if(!html){if(el)el.remove();}else{if(!el){el=document.createElement("div");el.id="msBalk";el.className="ms-balk";const m=document.querySelector("main");if(m)m.prepend(el)}el.innerHTML=html}
+  let ov=document.getElementById("msDicht");
+  if(!st.ok){if(!ov){ov=document.createElement("div");ov.id="msDicht";ov.className="ms-dicht";document.body.appendChild(ov)}
+    ov.innerHTML=`<div class="ms-dk"><img src="/mansard-logo.png" alt="Mansard"><h2>${st.soort==="opgezegd"?"Je abonnement is afgelopen":"Je proefperiode is voorbij"}</h2><p>Je gegevens staan veilig klaar. ${eig?"Kies een abonnement en je kunt direct verder.":"Vraag de eigenaar van je bedrijf om een abonnement te kiezen."}</p>
+      ${eig?`<button type="button" class="primary" data-act="msabo">Abonnement kiezen</button>`:""}<button type="button" class="ghost" data-act="msuit">Uitloggen</button></div>`}
+  else if(ov)ov.remove()}
+function msStart(){if(!msTenant()||MS.unsub)return;try{MS.unsub=fsDb().doc("bedrijven/"+window.ZEEM_BID).onSnapshot(s=>{MS.doc=s.exists?s.data():{};msBalk()},()=>{})}catch(e){}}
+async function aboDlg(){
+  const b=MS.doc||{},st=msStatus(),p=b.plan||{prijs:99,inbegrepen:3,extraPrijs:19.95};let n=b.gebruikers||1;
+  try{const r=await fbFn("abonnement")({});n=r.data.gebruikers||n}catch(e){}
+  const extra=Math.max(0,n-p.inbegrepen),bedrag=Math.round((p.prijs+extra*p.extraPrijs)*100)/100,eig=window.ZEEM_ROL==="eigenaar";
+  const lbl={proef:"Proefperiode",actief:"Actief",achterstand:"Betaling mislukt",opgezegd:"Opgezegd",verlopen:"Verlopen"}[st.soort]||"—";
+  openDlg(`<div class="dlg-head"><span class="objic big">${I.card}</span><div style="flex:1"><h3>Abonnement</h3><div class="subt">${esc(b.naam||S().naam||"")}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
+    <div class="planhero"><div><span class="eyebrow">Mansard</span><b>${eur(bedrag)}</b><small>per maand, excl. btw</small></div><div style="text-align:right"><span class="pill ${st.ok?"ok":"late"} dotp">${lbl}</span></div>
+      <div class="ph-row"><span>Inbegrepen<br><b>${p.inbegrepen} gebruikers</b></span><span>Nu<br><b>${plural(n,"gebruiker","gebruikers")}</b></span><span>${st.soort==="proef"?"Gratis tot":st.soort==="actief"?"Volgende afschrijving":"Tot"}<br><b>${fmtD(st.soort==="proef"?b.proefTot:b.volgende||b.betaaldTot||b.proefTot)||"—"}</b></span></div></div>
+    <table class="minitable"><tr><td>Abonnement, inclusief ${p.inbegrepen} gebruikers</td><td style="text-align:right">${eur(p.prijs)}</td></tr>${extra?`<tr><td>${plural(extra,"extra gebruiker","extra gebruikers")} × ${eur(p.extraPrijs)}</td><td style="text-align:right">${eur(extra*p.extraPrijs)}</td></tr>`:""}<tr><td><b>Per maand</b></td><td style="text-align:right"><b>${eur(bedrag)}</b></td></tr></table>
+    <p class="subt" style="margin:0">Maandelijks opzegbaar. Betalen gaat met automatische incasso via Mollie. ${st.soort==="proef"?"Kies je nu al, dan betaal je eenmalig € 0,01 voor de machtiging; de eerste maand wordt pas na je proefperiode afgeschreven.":""} Gebruikers voeg je toe bij Instellingen › Gebruikers; het maandbedrag past zich vanzelf aan.</p>
+    <div class="row">${eig&&st.soort!=="actief"&&st.soort!=="achterstand"?`<button type="button" class="primary" id="msGo">${I.card}${st.soort==="opgezegd"?"Abonnement weer starten":"Abonnement starten"}</button>`:""}${eig&&(st.soort==="actief"||st.soort==="achterstand")?`<button type="button" class="ghost danger" id="msStop">Opzeggen</button>`:""}<span class="sp"></span><button type="button" data-act="close">Sluiten</button></div>`);
+  const go=document.getElementById("msGo");if(go)go.onclick=async()=>{go.disabled=true;go.innerHTML=I.clock+"Naar betalen…";try{const r=await fbFn("abonnementStart")({basis:location.origin});if(r.data.url)location.href=r.data.url;else{toast("Je abonnement is al actief");dlg.close()}}catch(e){go.disabled=false;go.innerHTML=I.card+"Abonnement starten";toast(fnFout(e))}};
+  const stop=document.getElementById("msStop");if(stop)stop.onclick=async()=>{if(!(await vraag("Abonnement opzeggen?","Je kunt Mansard blijven gebruiken tot het einde van de betaalde periode. Daarna blijven je gegevens 90 dagen bewaard.","Opzeggen","Annuleren")))return;try{const r=await fbFn("abonnementStoppen")({});toast("Opgezegd. Je kunt Mansard gebruiken tot "+fmtD(r.data.tot));dlg.close()}catch(e){toast(fnFout(e))}}}
+document.addEventListener("click",e=>{const t=e.target.closest("[data-act=msabo],[data-act=msuit]");if(!t)return;e.preventDefault();e.stopPropagation();if(t.dataset.act==="msabo")aboDlg();else{try{firebase.auth().signOut()}catch(_){}}},true);
+if(typeof window!=="undefined"&&LIVE){const t=setInterval(()=>{if(window.ZEEM_BID&&state.loaded){clearInterval(t);msStart()}},700);
+  if(/[?&]abonnement=/.test(location.search)){try{history.replaceState(null,"",location.pathname+location.hash)}catch(_){}setTimeout(()=>toast("Dank je wel! Je abonnement wordt verwerkt; binnen een minuut staat het op actief."),1800)}}
 
 /* ---------- Rollen: eigenaar / beheerder / medewerker ----------
    Een medewerker (glazenwasser) ziet alleen wat hij nodig heeft om het werk te doen:

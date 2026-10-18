@@ -21,6 +21,13 @@
     ],
     "rewrites": [
       {
+        "source": "/api/mansard-mollie",
+        "function": {
+          "functionId": "mansardHook",
+          "region": "europe-west4"
+        }
+      },
+      {
         "source": "/api/bank/terug",
         "function": {
           "functionId": "bankTerug",

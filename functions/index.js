@@ -148,6 +148,7 @@ async function checkGebruiker(auth) {
   if (e !== EIGENAAR && !(await db.doc("gebruikers/" + e).get()).exists) throw new HttpsError("permission-denied", "Geen toegang tot het CRM.");
   /* tweestapsverificatie: deze inlogsessie moet met een code zijn bevestigd (als de gebruiker het aan heeft staan) */
   if (!(await BEV.mfaBevestigd(auth))) throw new HttpsError("permission-denied", "Bevestig eerst je inlogcode (tweestapsverificatie).");
+  if (MANSARD && !(await MANSARD.magGebruiken())) throw new HttpsError("failed-precondition", "De proefperiode is voorbij. Kies een abonnement om verder te gaan (Instellingen › Abonnement).");
   return e;
 }
 
@@ -527,7 +528,7 @@ Object.assign(exports, BEV.functies);
 const BANK = require("./bank")({ db, T, onCall, onRequest, onSchedule, HttpsError, geheim, checkGebruiker, crypto, nu, HOST });
 Object.assign(exports, BANK.functies);
 /* Mansard: nieuwe bedrijven aanmelden en abonnementen */
-const MANSARD = require("./mansard")({ rawDb, T, onCall, HttpsError, nu });
+var MANSARD; MANSARD = require("./mansard")({ rawDb, T, onCall, onRequestRaw: _onRequest, HttpsError, nu, mollie, HOST });
 Object.assign(exports, MANSARD.functies);
 exports.ticketMelding = P.ticketMelding;
 exports.portaal = P.portaal;
