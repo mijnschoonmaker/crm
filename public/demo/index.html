@@ -14062,6 +14062,19 @@ dialog .jp-kk{background:#fff!important;border:1px solid var(--rr-rand)!importan
 .jp-k2>span,.jp-k2>small{white-space:normal!important}
 @media (max-width:600px){.jp-k2>b{font-size:16px!important;letter-spacing:.08em!important}}
 .jp-k2 *{white-space:normal!important;overflow:visible!important;text-overflow:clip!important}
+/* knoppen compacter: minder hoog, tekst op één regel */
+button.primary:not(.tiny),a.primary:not(.tiny),.btn.primary:not(.tiny),.btn:not(.primary):not(.iconbtn):not(.tiny),.setbtn,#view :has(> button.primary):not(.tk *) > button:not(.primary):not(.iconbtn):not([class*="pill"]),dialog :has(> button.primary) > button:not(.primary):not(.iconbtn):not([class*="pill"]),#view .drop>button:first-child,#view .fb-up,#view .toolbar>button:not(.primary):not(.iconbtn){min-height:40px!important;padding:0 16px!important;letter-spacing:.14em!important;font-size:11px!important;line-height:1.2!important;white-space:nowrap!important;gap:8px!important}
+@media (max-width:600px){
+ button.primary:not(.tiny),a.primary:not(.tiny),.btn.primary:not(.tiny),.btn:not(.primary):not(.iconbtn):not(.tiny),.setbtn,#view :has(> button.primary):not(.tk *) > button:not(.primary):not(.iconbtn):not([class*="pill"]),dialog :has(> button.primary) > button:not(.primary):not(.iconbtn):not([class*="pill"]){padding:0 12px!important;letter-spacing:.08em!important;font-size:10.5px!important}
+}
+.tk .tk-af,.tk .primary{min-height:revert-layer}
+/* kleine knoppen (o.a. Plan de week / Alles op aanboddatum): compact en op één regel */
+button.small,.btn.small,button.small.primary{min-height:36px!important;padding:0 12px!important;letter-spacing:.1em!important;font-size:10.5px!important;line-height:1.2!important;white-space:nowrap!important;gap:6px!important;text-transform:uppercase!important;font-weight:600!important}
+.wp-2k{gap:8px!important}
+.wp-2k>button{flex:1 1 0;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.wp-2k>button svg{flex:none;width:15px;height:15px}
+.wp-2k{display:flex!important;flex-direction:column!important;gap:6px!important}
+.wp-2k>button{width:100%!important;flex:none!important;justify-content:center!important;overflow:visible!important}
 
 </style>
 
