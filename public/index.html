@@ -13864,5 +13864,152 @@ addEventListener("scroll",()=>{const m=document.getElementById("mobOffer");docum
 
 })();
 </script>
+<style id="mansardThema">
+/* Mansard-thema: kleuren en kaarten in Range Rover-stijl. Wordt als laatste geladen en overschrijft alleen uiterlijk. */
+/* Mansard: alleen kleuren, zoals de Range Rover-configurator. Vorm, letters en indeling blijven zoals in het CRM. */
+:root:root:root:root{color-scheme:light;
+  --bg:#f7f7f6;--bg-tint-a:rgb(200 209 216 / .18);--bg-tint-b:rgb(242 239 233 / .5);
+  --surface:#ffffff;--surface-2:#f2f3f4;--surface-3:#e8eaec;--ink:#0d121b;--muted:#5d6168;--line:#e1e3e5;
+  --brand:#0d121b;--brand-2:#2a313b;--brand-ink:#ffffff;--brand-soft:#eceff2;
+  --accent:#9c8a6c;--accent-ink:#1b160d;
+  --late:#a8443a;--late-bg:#f8ebe9;--soon:#8c6d34;--soon-bg:#f5efe4;--ok:#3d6e58;--ok-bg:#e8f0ec;--busy:#8c6d34;--busy-bg:#f5efe4;--plan:#55606b;--plan-bg:#edf0f2;
+  --av-s:14%;--av-l:42%;
+  --shadow:0 1px 2px rgb(13 18 27 / .04),0 10px 30px -18px rgb(13 18 27 / .16);
+  --paneel:radial-gradient(75% 110% at 100% 0%,#f4f1eb 0%,rgb(244 241 235 / 0) 62%),linear-gradient(160deg,#c9d2d9 0%,#e2e7eb 42%,#ebebea 78%,#e4e4e3 100%);
+  --blauw:var(--paneel);
+  --lijnen:none;
+}
+body{background:var(--bg)}
+/* knoppen: het bijna-zwarte nachtblauw van 'SUMMARY' */
+button.primary,a.primary,.btn.primary{background:#0d121b!important;background-image:none!important;border-color:#0d121b!important;color:#fff!important;box-shadow:0 8px 18px -12px rgb(13 18 27 / .6)!important}
+button.primary:hover,a.primary:hover,.btn.primary:hover{background:#1c2430!important}
+/* menu */
+nav#sideNav button[aria-current="true"]{background:#eef0f2!important;background-image:none!important;color:#0d121b!important;box-shadow:inset 2px 0 0 #0d121b!important}
+nav#sideNav button[aria-current="true"] svg{color:#0d121b!important}
+.badge{background:#0d121b!important;color:#fff!important}
+.uav{background:#0d121b!important;color:#fff!important}
+/* lichte panelen zoals de fotostudio achter de auto */
+:is(.vh,.fg,.rv,.ofh,.cm,.kr,.tk-kop,.of-kop,.tj-kop,.jp-kop,.sc2-kop,.wd-aan,.st-hero,.featc,.rf-map,.rf-tot,.tc-ai){background:var(--paneel)!important;color:#0d121b!important;border-color:transparent!important;box-shadow:0 1px 0 rgb(13 18 27 / .04),0 18px 40px -30px rgb(13 18 27 / .35)!important}
+:is(.vh,.fg,.rv,.ofh,.cm,.kr,.tk-kop,.of-kop,.tj-kop,.jp-kop,.sc2-kop,.wd-aan,.st-hero,.featc)::before,:is(.vh,.fg,.rv,.ofh,.cm,.kr,.tk-kop,.of-kop,.tj-kop,.jp-kop,.sc2-kop,.wd-aan,.st-hero,.featc)::after{background:none!important}
+:is(.vh,.fg,.rv,.ofh,.cm,.kr,.tk-kop,.of-kop,.tj-kop,.jp-kop,.sc2-kop,.wd-aan,.st-hero,.featc,.rf-map,.rf-tot,.tc-ai) :is(h1,h2,h3,b,strong,span,div,li,label,a){color:#0d121b!important}
+:is(.vh,.fg,.rv,.ofh,.cm,.kr,.tk-kop,.of-kop,.tj-kop,.jp-kop,.sc2-kop,.wd-aan,.st-hero,.featc,.rf-map,.rf-tot,.tc-ai) :is(small,em,p,.vh-k,.fg-k,.fg-l){color:#55585f!important}
+:is(.vh,.fg,.rv,.ofh,.cm,.kr,.tk-kop,.wd-aan) svg{color:#0d121b}
+:is(.vh,.fg,.rv,.ofh,.cm,.kr) .primary,:is(.vh,.fg,.rv,.ofh,.cm,.kr) .primary *{color:#fff!important}
+/* tegels in het paneel: wit, half doorzichtig */
+:is(.vh-st span,.fg-c,.fg-pct,.rv-geld,.rv-fase,.rv-chips>*,.ofh [class*="-c"],.cm [class*="-c"],.kr [class*="-c"]){background:rgba(255,255,255,.68)!important;border:1px solid rgba(13,18,27,.07)!important;backdrop-filter:blur(8px);box-shadow:none!important}
+.fg-c:hover{background:#fff!important;border-color:rgba(13,18,27,.25)!important}
+.rv .rv-fase i{background:#0d121b!important;box-shadow:none!important}
+.rv-klaar{background:#0d121b!important}.rv .rv-klaar,.rv .rv-klaar *{color:#fff!important}
+.rv-weg li.nu small{font-weight:700!important}
+/* weg, huisjes, voortgang */
+.rv-asfalt,.fg-baan{background:rgba(13,18,27,.08)!important;box-shadow:none!important}
+.rv-asfalt::after,.fg-baan::after{opacity:.7}
+.rv-af,.fg-baan i,.vh-weg .fg-baan i,.rv-gb i{background:linear-gradient(90deg,#55606b,#0d121b)!important;box-shadow:none!important}
+.rv-gb{background:rgba(13,18,27,.08)!important}
+.vh .vh-h,.vh .huisjes i,.rv-weg li i{background:#fff!important;border:1px solid rgba(13,18,27,.12)!important;color:#8a8f96!important;box-shadow:0 2px 6px -4px rgba(13,18,27,.3)!important}
+.vh .vh-h svg,.vh .vh-h path{fill:currentColor!important}
+.vh .vh-h.af,.vh .vh-h.nu,.vh .huisjes i.af,.rv-weg li.af i,.rv-weg li.nu i{background:#0d121b!important;color:#fff!important;border-color:#0d121b!important;box-shadow:0 0 0 4px rgba(13,18,27,.08)!important}
+.rv-weg li.nu i svg,.rv-weg li.af i svg,.rv-weg li.nu i path{fill:#fff!important}
+.rv-weg li::after{background:rgba(13,18,27,.18)!important}
+.vh-r svg .t{stroke:rgba(13,18,27,.1)!important}.vh-r svg .v{stroke:#0d121b!important}
+.vh-bus,.rv-bus{filter:grayscale(.85) brightness(1.05)}
+.fg-munt{filter:grayscale(1)}.fg-pot{filter:grayscale(1) brightness(.75)}
+/* klaar = zacht saliegroen paneel */
+.vh.klaar,.rv.klaar{background:radial-gradient(75% 110% at 100% 0%,#f2f1ea 0%,transparent 62%),linear-gradient(160deg,#c6d6cd 0%,#e0e9e3 45%,#ecefec 100%)!important}
+/* aanbod te laat = warm rozé paneel */
+.of.kx-late .of-kop,.of.kx-crit .of-kop{background:radial-gradient(75% 110% at 100% 0%,#f6efe9 0%,transparent 62%),linear-gradient(160deg,#e3c9c4 0%,#efe2df 50%,#efeceb 100%)!important}
+/* instellingen-koppen: pictogrammen in witte vakjes */
+.jp-kop svg,.sc2-kop svg{stroke:#0d121b!important}.jp-kop svg *,.sc2-kop svg *{stroke:#0d121b!important}
+.jp-kop [class*="ic"],.sc2-kop [class*="ic"]{background:#fff!important;border:1px solid rgba(13,18,27,.08)!important}
+.jp-kop [class*="pill"],.sc2-kop [class*="pill"],.jp-st{background:rgba(255,255,255,.75)!important;border:1px solid rgba(13,18,27,.07)!important}
+.jp-kop i:empty,.sc2-kop i:empty,.jp-kop [class*="pill"] i,.sc2-kop [class*="pill"] i{background:#0d121b!important}
+/* overige accenten */
+.fb-bl,.rnum.nu{background:#0d121b!important;border-color:#0d121b!important;color:#fff!important}
+.fb-bar{background:rgba(13,18,27,.95)!important}
+.fb-box.on{background:#0d121b!important;border-color:#0d121b!important}
+.fb-rv{background:#fff!important;border-color:#0d121b!important}.fb-rv>b{background:#0d121b!important}
+.tj-ok{background:#3d6e58!important}
+.tk .pill.brand,.tk .pill.next,.tk .pill.dotp.brand{background:#0d121b!important;color:#fff!important}
+.kx-st.kx-st-plan{color:#3d6e58!important}.kx-st.kx-st-plan::before{background:#3d6e58!important;box-shadow:0 0 0 3px rgb(61 110 88 / .12)!important}
+.kx-plan .kx-ring{background:conic-gradient(#c3d5cb 0,#3d6e58 100%)!important}
+.kx-av .kc .kc-m,.kx-av .kc.kc-plan .kc-m{background:linear-gradient(180deg,#4a7d66,#3d6e58)!important}
+.klx .kx-plan .kx-av .kc.kc-tile .kc-m{background:#e8f0ec!important;color:#3d6e58!important}
+.kr-d.z-gepland{background:#cfdfd6!important}.kr-d.z-gepland svg{fill:#3d6e58!important}
+.tj-kop .tj-nm,.tj-kop *{color:#0d121b!important}.tj-kop small{color:#55585f!important;border-right-color:rgba(13,18,27,.2)!important}
+/* INSTELLINGEN zoals de 'Packs' in de Range Rover-configurator */
+.setgrid{gap:22px!important}
+.sc2{background:#fff!important;border:1px solid #d9dcdf!important;border-radius:14px!important;box-shadow:none!important;overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.sc2:hover{border-color:#0d121b!important;box-shadow:0 18px 40px -28px rgb(13 18 27 / .35)!important}
+.sc2 .sc2-kop{background:#fff!important;box-shadow:none!important;border:0!important;border-radius:0!important;padding:22px 22px 0!important;position:relative}
+.sc2 .sc2-kop::before,.sc2 .sc2-kop::after{display:none!important}
+.sc2 .sc2-t{display:flex!important;flex-direction:column-reverse!important;align-items:stretch!important;gap:0!important}
+.sc2 .sc2-t h3{font-weight:500!important;font-size:20px!important;letter-spacing:-.005em!important;color:#0d121b!important;margin:0 0 4px!important}
+.sc2 .sc2-t small{font-size:14px!important;color:#5d6168!important;font-weight:400!important;white-space:normal!important;display:block;max-width:78%}
+/* status als vierkantje rechts, zoals het selectievak */
+.sc2 .jp-kr1{position:absolute!important;right:22px;top:76px;z-index:2;margin:0!important}
+.sc2 .jp-st{background:none!important;border:0!important;padding:0!important;display:inline-flex!important;align-items:center;gap:10px;font-size:12px!important;font-weight:500!important;color:#5d6168!important;letter-spacing:0!important}
+.sc2 .jp-st i{display:none!important}
+.sc2 .jp-st::after{content:"";width:26px;height:26px;border:1.5px solid #0d121b;border-radius:6px;box-sizing:border-box;flex:none;background:#fff}
+.sc2.sc2-ok .jp-st::after{background:#0d121b url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/16px no-repeat}
+/* beeldvlak: studio-achtergrond met groot lijnpictogram */
+.sc2 .sc2-t .ic{display:grid!important;place-items:center;width:auto!important;height:150px!important;margin:58px -22px 0!important;border:0!important;border-radius:0!important;box-shadow:none!important;position:relative;
+  background:radial-gradient(40% 18% at 50% 82%,rgb(13 18 27 / .16),transparent 70%),radial-gradient(75% 110% at 100% 0%,#f4f1eb 0%,transparent 62%),linear-gradient(160deg,#c9d2d9 0%,#e2e7eb 45%,#ecebea 80%,#e6e6e5 100%)!important}
+.sc2:nth-child(3n+2) .sc2-t .ic{background:radial-gradient(40% 18% at 50% 82%,rgb(13 18 27 / .16),transparent 70%),radial-gradient(80% 120% at 0% 0%,#f6f3ee 0%,transparent 60%),linear-gradient(200deg,#d9d3c8 0%,#ece8e1 45%,#efefee 100%)!important}
+.sc2:nth-child(3n) .sc2-t .ic{background:radial-gradient(40% 18% at 50% 82%,rgb(13 18 27 / .16),transparent 70%),linear-gradient(180deg,#e4e7ea 0%,#f3f4f5 60%,#e9eaeb 100%)!important}
+.sc2 .sc2-t .ic svg{width:64px!important;height:64px!important;stroke-width:1.1!important;color:#0d121b!important;stroke:#0d121b!important;filter:drop-shadow(0 10px 10px rgb(13 18 27 / .12));transform:translateY(-6px);transition:transform .4s cubic-bezier(.2,.7,.2,1)}
+.sc2 .sc2-t .ic svg *{stroke:#0d121b!important}
+.sc2:hover .sc2-t .ic svg{transform:translateY(-10px) scale(1.04)}
+.sc2 .sc2-t .ic::after{content:"i";position:absolute;right:14px;top:14px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.85);display:grid;place-items:center;font:600 14px/1 Georgia,serif;color:#0d121b}
+/* inhoud */
+.sc2 .sc2-body{padding:18px 22px 22px!important;background:#fff!important}
+.sc2 .sc2-body dt{color:#5d6168!important;font-weight:400!important}
+.sc2 .sc2-body dd{color:#0d121b!important;font-weight:500!important}
+.sc2 .setbtn{border:1px solid #d9dcdf!important;border-radius:10px!important;background:#fff!important;color:#0d121b!important;box-shadow:none!important}
+.sc2 .setbtn:hover{border-color:#0d121b!important}
+.sc2 .jp-kr1{top:auto!important;bottom:164px!important}.sc2 .sc2-t small{max-width:100%!important}.sc2 .sc2-t .ic{margin-top:52px!important}
+.sc2 .sc2-t small{min-height:2.9em}
+/* RANGE ROVER-KAARTEN OVERAL: wit, dunne grijze rand, rustige letters */
+:root{--rr-rand:#dcdfe2}
+/* tegels in de bovenste vlakken */
+:is(.vh-st span,.fg-c,.fg-pct,.rv-geld,.kr-c,.ofh [class*="-c"],.cm [class*="-c"]){background:#fff!important;border:1px solid var(--rr-rand)!important;border-radius:10px!important;backdrop-filter:none!important;box-shadow:none!important;transition:border-color .2s}
+:is(.fg-c,.kr-c,.ofh [class*="-c"],.cm [class*="-c"]):hover{border-color:#0d121b!important;background:#fff!important}
+:is(.vh-st,.fg-cs,.kr-cs,.rv-chips) b{font-weight:500!important;letter-spacing:-.01em!important}
+:is(.vh-st small,.fg-c span,.kr-c span){color:#5d6168!important;font-weight:400!important}
+.vh-st small,.fg-c>span:first-child{font-size:12px!important}
+/* status-stip in tegels: klein en ingetogen */
+.kr-c i{width:8px!important;height:8px!important;box-shadow:none!important;filter:saturate(.55) brightness(.9)}
+.fg-c.late span::after{background:var(--late)!important;box-shadow:none!important}
+.fg-c.ok span::after{background:var(--ok)!important}
+/* ritmebalk klanten: zachte zones, witte huisjes met donker pictogram */
+.kr-baan{background:#fff!important;border:1px solid var(--rr-rand)!important;border-radius:10px!important}
+.kr-zones span{letter-spacing:.16em!important;font-weight:600!important;color:#0d121b!important}
+.kr-zones .zo{background:transparent!important}.kr-zones .zb{background:#f4f0e7!important}.kr-zones .zl{background:#f6e9e6!important}
+.kr-d,.kr-d.z-gepland,.kr-d.z-ok{background:#fff!important;border:1px solid var(--rr-rand)!important;box-shadow:0 2px 6px -3px rgb(13 18 27 / .25)!important}
+.kr-d svg,.kr-d.z-gepland svg{fill:#0d121b!important}
+.kr-d.z-laat,.kr-d.z-late{background:#0d121b!important;border-color:#0d121b!important}.kr-d.z-laat svg,.kr-d.z-late svg{fill:#fff!important}
+.kr-big b,.fg-big b,.vh h2{font-weight:500!important}
+/* gewone kaarten en rijen */
+.card,.wd:not(.wd-aan),.rp-sec>div,.swipe-card:not(.tk),.srow,.banner,.list>.card{border:1px solid var(--rr-rand)!important;border-radius:10px!important;box-shadow:none!important}
+.swipe-card:not(.tk):hover,.card:hover{border-color:#0d121b!important}
+.list>.swipe{background:transparent!important;border-radius:10px!important}
+/* actie-knopjes: tekst in spatiële hoofdletters zoals 'ADD' */
+.setbtn{font-size:11.5px!important;font-weight:600!important;letter-spacing:.2em!important;text-transform:uppercase!important}
+.setbtn svg:first-child{display:none}
+.tiny.ghost{letter-spacing:.16em!important;text-transform:uppercase!important;font-size:10.5px!important;font-weight:600!important;color:#0d121b!important}
+/* koppen in kaarten rustiger */
+.card h3,.rp-sec h3{font-weight:500!important}
+/* VLAKKEN WIT, zoals de Range Rover-kaarten */
+:is(.vh,.fg,.rv,.ofh,.cm,.kr,.wd-aan,.st-hero,.featc){background:#fff!important;border:1px solid var(--rr-rand)!important;box-shadow:none!important}
+:is(.tk-kop,.of-kop,.tj-kop){background:#fff!important;box-shadow:none!important;border-bottom:1px solid var(--rr-rand)!important}
+.tk{border:1px solid var(--rr-rand)!important;box-shadow:none!important}
+.tjob{border:1px solid var(--rr-rand)!important}
+.of{border:1px solid var(--rr-rand)!important}
+.vh.klaar,.rv.klaar{background:#fff!important;border-color:#bcd3c6!important}
+.of.kx-late .of-kop,.of.kx-crit .of-kop{background:#fff!important;box-shadow:inset 3px 0 0 var(--late)!important}
+:is(.vh-st span,.fg-c,.fg-pct,.rv-geld,.kr-c,.rv-fase,.rv-chips>*){background:#fafafa!important}
+.kr-baan{background:#fafafa!important}
+.jp-kop:not(.sc2-kop){background:#fff!important;border-bottom:1px solid var(--rr-rand)!important}
+
+</style>
 
 </body></html>

@@ -2,6 +2,7 @@ import glob,re,os,sys
 D=os.path.dirname(os.path.abspath(__file__));os.chdir(D)
 OUT=sys.argv[1] if len(sys.argv)>1 else '../glazenwasser-crm.html'
 css=open('style.css').read()+"\n"+open('pages.css').read()
+thema=open('thema.css').read()
 js="\n".join(open(f).read() for f in sorted(glob.glob('[0-9][0-9]-*.js')))
 import json
 js="const FRAMER_TPL="+json.dumps(open(os.path.join(D,'kc','framer_tpl.tsx')).read()).replace("</","<\\/")+";\n"+js
@@ -36,6 +37,9 @@ html=f'''<title>Mansard</title>
 {js}
 }})();
 </script>
+<style id="mansardThema">
+{thema}
+</style>
 '''
 open(OUT,'w').write(html)
 pass
