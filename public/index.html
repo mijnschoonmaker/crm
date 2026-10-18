@@ -14468,6 +14468,13 @@ html body .klx .kx-main .nm{font-weight:500!important}
 html body .klx .kx-amt b{font-weight:500!important}
 html body .klx .kx-st{font-weight:500!important}
 html body .klx .kc b{font-weight:500!important}
+/* ritmebalk: zacht verloop i.p.v. harde vlakken, met een fijne kleurlijn onderaan */
+html body .kr-baan{position:relative;background:linear-gradient(90deg,#ffffff 0%,#fbfbfa 45%,#f7f3ea 62%,#f5efe6 74%,#f6ecea 86%,#f4e6e3 100%)!important;border:1px solid var(--rr-rand)!important;overflow:hidden}
+html body .kr-baan::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,#c9d6cf 0%,#c9d6cf 50%,#d9c39a 66%,#d9c39a 78%,#c98f86 90%,#c98f86 100%);opacity:.9;pointer-events:none}
+html body .kr-zones span,html body .kr-zones .zo,html body .kr-zones .zb,html body .kr-zones .zl{background:transparent!important}
+html body .kr-zones .zb,html body .kr-zones .zl{border-left:1px dashed rgb(13 18 27 / .12)}
+html body .kr-zones span{color:#5d6168!important;font-size:10.5px!important}
+html body .kr-zones .zl{color:#9a4a40!important}
 
 </style>
 
