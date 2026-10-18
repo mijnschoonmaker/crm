@@ -8775,6 +8775,11 @@ function bindTest(id,textFn,subjFn){const b=form.querySelector(`[data-test="${id
   const k={id:"",naam:"Test",email:v.includes("@")?v:"",telefoon:v.includes("@")?"":v};const ex={...klantVars({naam:"Fam. Voorbeeld",adres:"Dorpsstraat 1",plaats:"Voorbeeld",tijd:"09:00",duur:30,dienst:"Glasbewassing",prijs:35,frequentie:4},addDays(today(),1)),factuurnummer:today().getFullYear()+"-0001",bedrag:"€ 35,00",vervaldatum:fmtL(addDays(today(),-5)),factuurdatum:fmtL(addDays(today(),-19)),dagen_te_laat:5};
   const kan=v.includes("@")?"email":"sms",txt=fill(textFn(kan),ex),h=sendHref(kan,k,txt,fill(subjFn?subjFn():"Test",ex));if(h){const a=document.createElement("a");a.href=h;a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();a.remove();toast("Test geopend in je "+(kan==="email"?"mailprogramma":"berichten-app"))}}}
 
+/* eigen foto per instellingenkaart (zoals de pakketten bij Range Rover) */
+document.addEventListener("change",async e=>{const inp=e.target;if(!inp.matches||!inp.matches("input[data-kaartfoto]"))return;const file=inp.files&&inp.files[0];if(!file||!state.assets)return;
+  if(file.size>8*1024*1024){toast("De foto is groter dan 8 MB");return}
+  try{toast("Foto uploaden…");const r=await state.assets.upload(file);const sd={...state.settings,kaartFoto:{...((state.settings||{}).kaartFoto||{}),[inp.dataset.kaartfoto]:r.id}};await save("instellingen","bedrijf",sd);state.settings=sd;render();toast("Foto geplaatst")}
+  catch(er){toast("Uploaden lukte niet ("+(er.code||"fout")+")")}});
 const SETCARDS=[
   {id:"bedrijf",t:"Bedrijf & Branding",sub:"Bedrijfsgegevens, logo, kleuren en Peppol-gegevens",ic:"building",bg:"#0f1f26",st:s=>s.naam&&s.iban?["ok","Geconfigureerd"]:["soon","Onvolledig"],rows:s=>[["Naam",s.naam],["Email",s.email],["BTW",s.btwnr],["IBAN",s.iban]],extra:`<button type="button" class="tiny ghost" data-act="voorbeeld" style="align-self:center">Voorbeeldfactuur bekijken ${I.right}</button>`},
   {id:"land",t:"Land, valuta & BTW",sub:"Valuta, getalnotatie en btw volgen je land",ic:"globe",bg:"#2a9bb0",st:s=>["ok",s.land],rows:s=>[["Land",LANDEN[s.land]?.n||"Nederland"],["Valuta","€ EUR"],["BTW",s.btw+"% standaard"]]},
@@ -8802,7 +8807,7 @@ function volgendeFeestdag(){const t=today(),s=S();const all={...feestdagen(t.get
 function vInstellingen(){
   const s=S();
   return `<div class="pagehead"><div><p class="kicker">${I.instellingen}Configuratie</p><h1 class="xl">Instellingen</h1><p class="lead" style="margin:0">Beheer je bedrijfsprofiel, integraties en automatisering</p></div></div>
-  <div class="setgrid">${SETCARDS.map(c=>{const[cl,lb]=c.st(s),w=c.warn&&c.warn(s);return `<div class="setcard sc2 sc2-${cl}"><div class="sc2-kop jp-kop"><div class="jp-kr1"><span class="jp-st"><i></i>${esc(lb)}</span><span class="sp"></span></div><div class="sc2-t"><span class="ic">${I[c.ic]}</span><div><h3>${esc(c.t)}</h3>${c.sub?`<small>${esc(c.sub)}</small>`:""}</div></div></div>
+  <div class="setgrid">${SETCARDS.map(c=>{const[cl,lb]=c.st(s),w=c.warn&&c.warn(s);const kf=(s.kaartFoto||{})[c.id];return `<div class="setcard sc2 sc2-${cl}${kf?" heeft-foto":""}"><label class="sc2-foto${kf?" vol":""}" title="${state.assets?"Eigen foto kiezen":""}">${kf?`<img src="${BLOB}${esc(kf)}" alt="" loading="lazy">`:`<span class="sc2-fi">${I[c.ic]}</span>`}${state.assets?`<input type="file" accept="image/jpeg,image/png,image/webp" hidden data-kaartfoto="${c.id}"><span class="sc2-cam" aria-hidden="true">${I.upload||"+"}</span>`:""}</label><div class="sc2-kop jp-kop"><div class="jp-kr1"><span class="jp-st"><i></i>${esc(lb)}</span><span class="sp"></span></div><div class="sc2-t"><span class="ic">${I[c.ic]}</span><div><h3>${esc(c.t)}</h3>${c.sub?`<small>${esc(c.sub)}</small>`:""}</div></div></div>
     <div class="sc2-body"><dl>${c.rows(s).map(([a,b])=>`<dt>${esc(a)}</dt><dd title="${esc(b??"")}">${esc(b??"—")||"—"}</dd>`).join("")}</dl>
     ${w?`<div class="warnbox">${I.alert}<span>${esc(w)}</span></div>`:""}
     <button type="button" class="setbtn" data-act="setedit" data-v="${c.id}">${c.v?I.search:I.note} ${c.v||"Bewerken"}<span style="flex:1"></span>${I.right}</button>${c.extra||""}</div></div>`}).join("")}</div>
@@ -14346,6 +14351,29 @@ html body .vr:not(.klaar)::before{background-size:30px!important}
 .rt-open .tk-kop{cursor:pointer;position:relative}
 .rt-open .tk-kop::after{content:"";position:absolute;right:16px;bottom:8px;width:8px;height:8px;border-right:1.6px solid currentColor;border-bottom:1.6px solid currentColor;transform:rotate(-135deg);opacity:.6}
 .rt-open .tk-eta{padding-right:22px}
+/* INSTELLINGEN PRECIES ZOALS DE RANGE ROVER-PAKKETTEN: foto boven, titel, vierkant selectievak */
+html body .sc2{display:flex!important;flex-direction:column!important;padding:0!important;border:1px solid #d9dcdf!important;border-radius:14px!important;overflow:hidden!important;background:#fff!important}
+html body .sc2 .sc2-foto{position:relative;display:block;aspect-ratio:16/9;width:100%;overflow:hidden;cursor:pointer;margin:0;
+  background:radial-gradient(40% 18% at 50% 82%,rgb(13 18 27 / .16),transparent 70%),radial-gradient(75% 110% at 100% 0%,#f4f1eb 0%,transparent 62%),linear-gradient(160deg,#c9d2d9 0%,#e2e7eb 45%,#ecebea 80%,#e6e6e5 100%)}
+html body .sc2:nth-child(3n+2) .sc2-foto:not(.vol){background:radial-gradient(40% 18% at 50% 82%,rgb(13 18 27 / .16),transparent 70%),radial-gradient(80% 120% at 0% 0%,#f6f3ee 0%,transparent 60%),linear-gradient(200deg,#d9d3c8 0%,#ece8e1 45%,#efefee 100%)}
+html body .sc2:nth-child(3n) .sc2-foto:not(.vol){background:radial-gradient(40% 18% at 50% 82%,rgb(13 18 27 / .16),transparent 70%),linear-gradient(180deg,#e4e7ea 0%,#f3f4f5 60%,#e9eaeb 100%)}
+html body .sc2 .sc2-foto img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+html body .sc2:hover .sc2-foto img{transform:scale(1.03)}
+html body .sc2 .sc2-fi{position:absolute;inset:0;display:grid;place-items:center}
+html body .sc2 .sc2-fi svg{width:60px;height:60px;stroke-width:1.5;color:#0d121b;filter:drop-shadow(0 10px 10px rgb(13 18 27 / .12));transform:translateY(-6px)}
+html body .sc2 .sc2-cam{position:absolute;right:12px;top:12px;width:34px;height:34px;border-radius:50%;background:rgb(255 255 255 / .9);display:grid;place-items:center;color:#0d121b;opacity:0;transition:opacity .2s;box-shadow:0 2px 8px rgb(0 0 0 / .12)}
+html body .sc2 .sc2-cam svg{width:16px;height:16px}
+html body .sc2 .sc2-foto:hover .sc2-cam,html body .sc2:not(.heeft-foto) .sc2-cam{opacity:1}
+/* kop: titel + subtitel links, vierkant rechts */
+html body .sc2 .sc2-kop{position:relative!important;padding:20px 22px 6px!important;background:#fff!important;border:0!important;box-shadow:none!important}
+html body .sc2 .sc2-t{display:block!important}
+html body .sc2 .sc2-t .ic{display:none!important}
+html body .sc2 .sc2-t h3{font-size:20px!important;font-weight:400!important;margin:0 0 4px!important;padding-right:48px!important;letter-spacing:-.005em!important;text-transform:none!important}
+html body .sc2 .sc2-t small{font-size:14px!important;color:#5d6168!important;min-height:0!important;max-width:100%!important;display:block}
+html body .sc2 .jp-kr1{position:absolute!important;top:20px!important;right:22px!important;margin:0!important;display:block!important;width:auto!important}
+html body .sc2 .jp-st{font-size:0!important;gap:0!important;padding:0!important;background:none!important;border:0!important}
+html body .sc2 .jp-st::after{width:28px!important;height:28px!important;border-radius:6px!important;border:1.5px solid #0d121b!important}
+html body .sc2 .sc2-body{padding:14px 22px 22px!important}
 
 </style>
 
