@@ -14298,6 +14298,14 @@ html body dialog:has(.fw-head){background:linear-gradient(#0d121b,#0d121b) top/1
 html body dialog .fw-head .fw-h2 *:not(.pill):not(.pill *){background:transparent!important;box-shadow:none!important;border:0!important}
 html body dialog .fw-head .pill.late{background:rgb(255 140 125 / .16)!important;border:1px solid rgb(255 140 125 / .45)!important;color:#ffc9c0!important}
 html body dialog .fw-head .pill.ok{background:rgb(79 211 154 / .14)!important;border:1px solid rgb(79 211 154 / .45)!important;color:#bff0d8!important}
+/* klantenlijst: geen scheidingsstreep meer (kaarten hebben al een rand) en tags niet over het bedrag */
+html body .klx .card.kx+.card.kx::before{display:none!important}
+html body .kx-main{min-width:0!important;overflow:hidden}
+html body .kx-main .nm{display:flex!important;flex-wrap:wrap;align-items:center;gap:4px 6px;white-space:normal!important;overflow:hidden}
+html body .kx-main .nm .kx-tag{flex:none;margin:0!important}
+@media (max-width:700px){html body .kx-main .nm .kx-tag+.kx-tag{display:none!important}}
+/* klantkaart/opdracht op telefoon: onderste hoeken recht, vlak tot de onderrand */
+@media (max-width:700px){html body dialog[open]{clip-path:inset(0 round 24px 24px 0 0)!important;border-bottom-left-radius:0!important;border-bottom-right-radius:0!important;margin-bottom:0!important;bottom:0!important;max-height:calc(100dvh - env(safe-area-inset-top,0px) - 40px)!important}}
 
 </style>
 
