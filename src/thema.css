@@ -46,7 +46,7 @@ nav#sideNav button[aria-current="true"] svg{color:#0d121b!important}
 .rv-weg li.nu i svg,.rv-weg li.af i svg,.rv-weg li.nu i path{fill:#fff!important}
 .rv-weg li::after{background:rgba(13,18,27,.18)!important}
 .vh-r svg .t{stroke:rgba(13,18,27,.1)!important}.vh-r svg .v{stroke:#0d121b!important}
-.vh-bus,.rv-bus{filter:grayscale(.85) brightness(1.05)}
+/* bus: eigen kleuren */
 .fg-munt{filter:grayscale(1)}.fg-pot{filter:grayscale(1) brightness(.75)}
 /* klaar = zacht saliegroen paneel */
 .vh.klaar,.rv.klaar{background:radial-gradient(75% 110% at 100% 0%,#f2f1ea 0%,transparent 62%),linear-gradient(160deg,#c6d6cd 0%,#e0e9e3 45%,#ecefec 100%)!important}
@@ -190,7 +190,7 @@ li:first-child>.rp-n,.rp-sec a:first-child .rp-n,.rp-sec>div>*:first-child .rp-n
 .rv-geld{padding:12px 16px!important;box-sizing:border-box!important;min-width:170px}
 .rv-gb{width:100%!important;background:#eceef0!important;height:3px!important}
 .kr .kr-cs,.fg .fg-cs,.vh .vh-st,.rv .rv-chips,.ofh [class$="-cs"],.cm [class$="-cs"]{background:transparent!important;border:0!important;padding:0!important;box-shadow:none!important;backdrop-filter:none!important}
-.tk-kop svg[viewBox="0 0 64 40"],.tk-vlucht svg,.tk-kop [class*="bus"]{filter:grayscale(1) brightness(.9)}
+/* bus in ticket: eigen kleuren */
 /* LETTERS ZOALS RANGE ROVER: Avenir Next (Mac/iPhone), anders Nunito Sans */
 :root:root:root:root{--f-ui:"Avenir Next","Avenir","Nunito Sans","Helvetica Neue",Arial,sans-serif;--f-title:"Avenir Next","Avenir","Nunito Sans","Helvetica Neue",Arial,sans-serif;--f-mono:"Avenir Next","Avenir","Nunito Sans","Helvetica Neue",Arial,sans-serif}
 body,button,input,select,textarea{font-family:var(--f-ui)!important;font-feature-settings:"tnum"}
@@ -363,7 +363,7 @@ html body .swipe-card.tk.next .tk-kop::after{content:"NU AAN DE BEURT"!important
 html body .swipe-card.tk.next .tk-kop{padding-top:42px!important}
 
 html body .swipe-card.tk.next .tk-kop{border-radius:inherit;border-bottom-left-radius:0;border-bottom-right-radius:0}
-html body .swipe-card.tk.next .tk-vlucht svg,html body .swipe-card.tk.next .tk-vlucht span{filter:grayscale(1) brightness(2.2)}
+
 html body .swipe-card.tk.next .tk-vlucht i{background:rgb(255 255 255 / .35)!important;border-color:rgb(255 255 255 / .35)!important}
 html body .swipe-card.tk.next .pill.nextp{background:#252c3c!important;color:#fff!important}
 html body .swipe-card.tk.next .tk-af{box-shadow:0 12px 24px -14px rgb(13 18 27 / .8)!important}
@@ -622,7 +622,7 @@ html body .rv-weg li small,html body .rv-weg li em{color:rgb(255 255 255 / .8)!i
 html body .vh-r svg .t{stroke:rgb(255 255 255 / .16)!important}html body .vh-r svg .v{stroke:#fff!important}
 html body .rv .rv-klaar,html body .rv .rv-klaar *{background:#fff!important;color:#252c3c!important}
 html body .rv .rv-nu,html body .rv .rv-nu *{background:#fff!important;color:#252c3c!important}
-html body .vh-bus,html body .rv-bus{filter:grayscale(.3) brightness(1.25)!important}
+
 /* klanten-ritmebalk binnen het blok */
 html body .kr .kr-baan{background:rgb(255 255 255 / .06)!important;border:1px solid rgb(255 255 255 / .12)!important}
 html body .kr .kr-baan::after{opacity:.6}
@@ -645,3 +645,11 @@ html body:not(#zz) .rv .rv-nu{background:#fff!important;color:#252c3c!important}
 html body:not(#zz) .cm .cm-env svg *{stroke:#252c3c!important}
 html body:not(#zz) .rv .rv-weg b.rv-nu,html body:not(#zz) .rv .rv-nu,html body:not(#zz) .rv b.rv-nu *{background:#fff!important;color:#252c3c!important}
 html body:not(#zz) .rv .rv-fase i{background:#fff!important}
+/* witte Vito met Brian James boxvan */
+html body .rv-bus{width:84px!important;height:34px!important;top:31px!important;transform:translateX(-80%)!important;filter:drop-shadow(0 4px 6px rgb(0 0 0 / .28))!important}
+html body .rv-bus.thuis{transform:none!important}
+html body .vh-bus{width:72px!important;height:29px!important;transform:translateX(-82%)!important;filter:drop-shadow(0 4px 5px rgb(0 0 0 / .28))!important}
+html body :is(.vh-bus,.rv-bus,.tk-vlucht span,.tk-kop svg[viewBox="0 0 100 40"]),html body :is(.vh-bus,.rv-bus) *{filter:none}
+html body .tk-vlucht span svg{width:64px!important;height:26px!important}
+html body .rv-bus:not(.thuis){left:max(68px,calc(var(--h)/2 + (100% - var(--h))*var(--v)))!important}
+html body .vh-bus{left:max(60px,calc(var(--p)*100%))!important}
