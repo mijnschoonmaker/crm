@@ -484,3 +484,4 @@ html body .sc2 .jp-st::after{width:28px!important;height:28px!important;border-r
 html body .sc2 .sc2-body{padding:14px 22px 22px!important}
 /* route-lijst: alleen de adrestekst opent de klantkaart, de rest van de rij klapt het ticket open */
 html body .rlijst .rstop .nm{justify-self:start!important;width:auto!important;max-width:100%!important;display:inline-block!important}
+html body .sc2 div.sc2-foto{cursor:default}

@@ -19,6 +19,11 @@ service cloud.firestore {
     function vanBedrijf(b) { return gebruiker() && !eigenaar() && mijnBedrijf() == b; }
     function bedrijfsEigenaar(b) { return vanBedrijf(b) && mijnDoc().get("rol", "") == "eigenaar"; }
 
+    // Mansard-platform: foto's op de instellingenkaarten (per branche). Iedereen met een account leest, alleen Robin plaatst.
+    match /platform/kaartfotos {
+      allow read: if gebruiker();
+      allow write: if eigenaar() && mfaOk();
+    }
     match /gebruikers/{e} {
       allow read: if eigenaar() || email() == e || (gebruiker() && resource.data.get("bedrijf", "mijnschoonmaker") == mijnBedrijf());
       allow write: if eigenaar() && mfaOk();
