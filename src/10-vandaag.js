@@ -1,4 +1,7 @@
 /* ---------- VANDAAG ---------- */
+/* stops onder "Daarna" staan ingeklapt; tik op de kop om er een open te klappen */
+const TK_OPEN=new Set();
+document.addEventListener("click",e=>{const kop=e.target.closest&&e.target.closest(".tk-dicht .tk-kop");if(!kop)return;const c=kop.closest(".tk"),sw=kop.closest(".swipe"),id=sw&&sw.dataset.id;if(!c)return;c.classList.toggle("open");if(id){c.classList.contains("open")?TK_OPEN.add(id):TK_OPEN.delete(id)}});
 function stopCard(k,i,isNext,late,day,totaal){
   const o=jobObj(k),a=jobAddrObj(k),h=hue(k.ronde||k.naam),js=jobState(k,day),sp=STATEPILL[js],bz=isBezig(k),mw=isMw();
   const tel=String(k.telefoon||"").replace(/[^\d+]/g,""),isT=day===iso(today());
@@ -85,7 +88,7 @@ function vVandaag(){
   else{
     html+=`<div class="ns-head"><h2>Volgende stop</h2><span>${isMw()?"Veeg rechts → afmelden":"Veeg links → factureren · rechts → afmelden"}</span></div>
     <div class="list">${stopCard(todo[0].k,doneB.length,true,parse(todo[0].k.gepland)<t,d,total)}</div>
-    ${todo.length>1?`<h2 style="margin-top:24px">Daarna <small class="mono" style="font-size:13px;color:var(--muted);font-weight:400">${plural(todo.length-1,"stop","stops")}</small></h2><div class="list">${todo.slice(1).map((s,i)=>stopCard(s.k,doneB.length+i+1,false,parse(s.k.gepland)<t,d,total)).join("")}</div>`:""}
+    ${todo.length>1?`<h2 style="margin-top:24px">Daarna <small class="mono" style="font-size:13px;color:var(--muted);font-weight:400">${plural(todo.length-1,"stop","stops")}</small></h2><div class="list tk-dicht">${todo.slice(1).map((s,i)=>stopCard(s.k,doneB.length+i+1,false,parse(s.k.gepland)<t,d,total).replace('swipe-card tk','swipe-card tk'+(TK_OPEN.has(s.k.id)?' open':''))).join("")}</div>`:""}
     <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap"><button type="button" data-act="bulktoday">${I.msg}Bericht aan deze klanten</button><button type="button" data-act="toroute" data-d="${d}">Volgorde aanpassen</button></div>`;
   }
   if(doneB.length)html+=`<h2>Afgerond</h2><div class="list" style="gap:8px">${doneB.map(b=>{const k=state.klanten.find(x=>x.id===b.klantId);return k?stopRow(k,d,true):""}).join("")}</div>`;

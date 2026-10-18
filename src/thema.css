@@ -328,3 +328,8 @@ button.small,.btn.small,button.small.primary{min-height:36px!important;padding:0
 .wp-2k>button svg{flex:none;width:15px;height:15px}
 .wp-2k{display:flex!important;flex-direction:column!important;gap:6px!important}
 .wp-2k>button{width:100%!important;flex:none!important;justify-content:center!important;overflow:visible!important}
+/* werkdagknoppen (Pauze / Terug bij de loods) op één regel */
+html body .wd-k>button:not(.tiny),html body .wd-k>button.primary:not(.tiny),html body #view .wd-k>button:not(.primary):not(.iconbtn){white-space:nowrap!important;min-width:0!important;letter-spacing:.1em!important;font-size:11px!important;padding:0 12px!important;min-height:44px!important;gap:8px!important;justify-content:center!important;text-transform:uppercase!important}
+html body .wd-k>button.primary{flex:1.5 1 0!important}
+html body .wd-k>button:not(.primary){flex:1 1 0!important}
+@media (max-width:420px){html body .wd-k>button:not(.tiny),html body .wd-k>button.primary:not(.tiny),html body #view .wd-k>button:not(.primary):not(.iconbtn){letter-spacing:.05em!important;font-size:10.5px!important;padding:0 8px!important}}

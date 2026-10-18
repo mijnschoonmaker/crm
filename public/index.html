@@ -4585,6 +4585,13 @@ td.fb-cb:hover .fb-box{border-color:var(--brand);transform:scale(1.06)}
 .ms-dicht{position:fixed;inset:0;z-index:2147482000;background:rgba(238,242,243,.88);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);display:grid;place-items:center;padding:16px}
 .ms-dk{max-width:420px;width:100%;background:#fff;border-radius:22px;padding:30px 26px;text-align:center;box-shadow:0 30px 70px -30px rgba(8,30,38,.5);display:flex;flex-direction:column;gap:10px;align-items:center}
 .ms-dk img{width:170px;margin-bottom:10px}.ms-dk h2{margin:0;font-size:21px}.ms-dk p{margin:0 0 8px;color:var(--muted);line-height:1.5}.ms-dk button{width:100%}
+/* ingeklapte stops onder "Daarna" */
+.tk-dicht .tk:not(.open) :is(.tk-tags,.tk-feit,.tk-info,.tk-acts,.tk-stub,.tk-perf,.tk-tm){display:none!important}
+.tk-dicht .tk:not(.open) .tk-body{padding-top:12px!important;padding-bottom:14px!important}
+.tk-dicht .tk-kop{cursor:pointer;position:relative}
+.tk-dicht .tk-kop::after{content:"";position:absolute;right:16px;bottom:10px;width:8px;height:8px;border-right:1.6px solid #8a8e94;border-bottom:1.6px solid #8a8e94;transform:rotate(45deg);transition:transform .2s}
+.tk-dicht .tk.open .tk-kop::after{transform:rotate(-135deg);bottom:6px}
+.tk-dicht .tk-eta{padding-right:22px}
 
 </style>
 <div class="app">
@@ -5865,6 +5872,9 @@ async function afmeldingTerug(bId){
     if(dlg.open)dlg.close();toast("Afmelding teruggedraaid")}catch(e){err(e)}
 }
 /* ---------- VANDAAG ---------- */
+/* stops onder "Daarna" staan ingeklapt; tik op de kop om er een open te klappen */
+const TK_OPEN=new Set();
+document.addEventListener("click",e=>{const kop=e.target.closest&&e.target.closest(".tk-dicht .tk-kop");if(!kop)return;const c=kop.closest(".tk"),sw=kop.closest(".swipe"),id=sw&&sw.dataset.id;if(!c)return;c.classList.toggle("open");if(id){c.classList.contains("open")?TK_OPEN.add(id):TK_OPEN.delete(id)}});
 function stopCard(k,i,isNext,late,day,totaal){
   const o=jobObj(k),a=jobAddrObj(k),h=hue(k.ronde||k.naam),js=jobState(k,day),sp=STATEPILL[js],bz=isBezig(k),mw=isMw();
   const tel=String(k.telefoon||"").replace(/[^\d+]/g,""),isT=day===iso(today());
@@ -5951,7 +5961,7 @@ function vVandaag(){
   else{
     html+=`<div class="ns-head"><h2>Volgende stop</h2><span>${isMw()?"Veeg rechts → afmelden":"Veeg links → factureren · rechts → afmelden"}</span></div>
     <div class="list">${stopCard(todo[0].k,doneB.length,true,parse(todo[0].k.gepland)<t,d,total)}</div>
-    ${todo.length>1?`<h2 style="margin-top:24px">Daarna <small class="mono" style="font-size:13px;color:var(--muted);font-weight:400">${plural(todo.length-1,"stop","stops")}</small></h2><div class="list">${todo.slice(1).map((s,i)=>stopCard(s.k,doneB.length+i+1,false,parse(s.k.gepland)<t,d,total)).join("")}</div>`:""}
+    ${todo.length>1?`<h2 style="margin-top:24px">Daarna <small class="mono" style="font-size:13px;color:var(--muted);font-weight:400">${plural(todo.length-1,"stop","stops")}</small></h2><div class="list tk-dicht">${todo.slice(1).map((s,i)=>stopCard(s.k,doneB.length+i+1,false,parse(s.k.gepland)<t,d,total).replace('swipe-card tk','swipe-card tk'+(TK_OPEN.has(s.k.id)?' open':''))).join("")}</div>`:""}
     <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap"><button type="button" data-act="bulktoday">${I.msg}Bericht aan deze klanten</button><button type="button" data-act="toroute" data-d="${d}">Volgorde aanpassen</button></div>`;
   }
   if(doneB.length)html+=`<h2>Afgerond</h2><div class="list" style="gap:8px">${doneB.map(b=>{const k=state.klanten.find(x=>x.id===b.klantId);return k?stopRow(k,d,true):""}).join("")}</div>`;
@@ -14195,6 +14205,11 @@ button.small,.btn.small,button.small.primary{min-height:36px!important;padding:0
 .wp-2k>button svg{flex:none;width:15px;height:15px}
 .wp-2k{display:flex!important;flex-direction:column!important;gap:6px!important}
 .wp-2k>button{width:100%!important;flex:none!important;justify-content:center!important;overflow:visible!important}
+/* werkdagknoppen (Pauze / Terug bij de loods) op één regel */
+html body .wd-k>button:not(.tiny),html body .wd-k>button.primary:not(.tiny),html body #view .wd-k>button:not(.primary):not(.iconbtn){white-space:nowrap!important;min-width:0!important;letter-spacing:.1em!important;font-size:11px!important;padding:0 12px!important;min-height:44px!important;gap:8px!important;justify-content:center!important;text-transform:uppercase!important}
+html body .wd-k>button.primary{flex:1.5 1 0!important}
+html body .wd-k>button:not(.primary){flex:1 1 0!important}
+@media (max-width:420px){html body .wd-k>button:not(.tiny),html body .wd-k>button.primary:not(.tiny),html body #view .wd-k>button:not(.primary):not(.iconbtn){letter-spacing:.05em!important;font-size:10.5px!important;padding:0 8px!important}}
 
 </style>
 
