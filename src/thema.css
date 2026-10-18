@@ -298,3 +298,12 @@ dialog .subt{color:#5d6168!important;font-size:14px!important;margin-top:6px!imp
 /* dialoogtitel iets kleiner, in balans met icoon en ondertitel */
 dialog h3,dialog .dlg-head h3,dialog h2:not(.ns-head h2),.jp-k2>b{font-size:20px!important;letter-spacing:.14em!important;line-height:1.2!important}
 dialog .subt{font-size:13.5px!important;margin-top:4px!important}
+/* instellingskaarten: status rechtsboven naast de titel, beeldvlak altijd volle breedte (ook op telefoon) */
+.sc2 .sc2-kop{padding-right:22px!important}
+.sc2 .jp-kr1{position:absolute!important;top:22px!important;right:22px!important;bottom:auto!important;left:auto!important;width:auto!important}
+.sc2 .sc2-t h3{padding-right:120px!important}
+.sc2 .sc2-t .ic{display:grid!important;width:auto!important;min-width:0!important;max-width:none!important;height:150px!important;align-self:stretch!important;margin:22px -22px 0!important;flex:none!important}
+.sc2 .sc2-t .ic svg{width:64px!important;height:64px!important}
+.sc2 .sc2-t small{min-height:0!important}
+.sc2 .jp-kr1{position:static!important;display:flex!important;justify-content:flex-end!important;margin:0 0 -6px!important}
+.sc2 .sc2-t h3{padding-right:0!important;white-space:normal!important;overflow:visible!important}
