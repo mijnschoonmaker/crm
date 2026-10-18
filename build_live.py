@@ -37,6 +37,10 @@ dhead = '''<!doctype html>
 <meta name="theme-color" content="#137a8a"><meta name="robots" content="noindex,nofollow">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="apple-touch-icon" href="/mansard-180.png">
 '''
+_acc = os.path.join(R, "src", "demo", "accent.css")
+if os.path.exists(_acc):
+    demo = demo.replace("</script>\n<style id=\"mansardThema\">", "</script>\n<style id=\"mansardThema\">", 1)
+    demo = demo + "\n<style id=\"mansardAccent\">\n" + open(_acc).read() + "\n</style>\n"
 demo = dhead + demo.replace("<style>", "<style>html,body{margin:0}\n", 1) + "\n</body></html>\n"
 # geen eigen merk in de demo: neutraal icoon en een verzonnen bedrijfsnaam
 demo = _re.sub(r'<div class="logo"><span class="mk">.*?</span><span class="wm">Mansard</span></div>', '<div class="logo haslogo"><img class="lgimg" src="/mansard-logo.png" alt="Mansard"><span class="wm lgtxt"></span></div>', demo)

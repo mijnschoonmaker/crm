@@ -14350,4 +14350,51 @@ html body .cm .cm-env svg{filter:drop-shadow(0 6px 10px rgb(13 18 27 / .18))}
 
 </style>
 
+<style id="mansardAccent">
+/* VOORSTEL: premium met een vleugje kleur — diep petrol + messing */
+:root:root:root:root{--pt:#24545a;--pt-2:#2f6b70;--pt-bg:#e9f1f1;--ms:#b08a4a;--ms-bg:#f6efe2}
+/* menu: actief item petrol-tint met messing streepje */
+nav#sideNav button[aria-current="true"]{background:var(--pt-bg)!important;color:var(--pt)!important;box-shadow:inset 3px 0 0 var(--ms)!important}
+nav#sideNav button[aria-current="true"] svg{color:var(--pt)!important}
+.badge{background:var(--pt)!important}
+/* hoofdknoppen diep petrol i.p.v. zwart */
+html body button.primary:not(.tiny),html body a.primary,html body .btn.primary{background:var(--pt)!important;border-color:var(--pt)!important}
+html body button.primary:not(.tiny):hover{background:var(--pt-2)!important}
+/* kleine labels in messing */
+html body #view:not(#zz) .kicker,.vh-k,.fg-k,.kr-k,.ns-head h2,.sc2-t small{color:var(--ms)!important}
+html body #view:not(#zz) .kicker{color:var(--ms)!important}
+/* pictogramvlakjes zacht petrol */
+:is(.objic,.kd-tool-i,.wd-ic,.tk-ic,.cm-i,.st-ic,.ic:not(.sc2 .ic)){background:var(--pt-bg)!important}
+:is(.objic,.kd-tool-i,.wd-ic,.tk-ic,.cm-i,.st-ic) svg,:is(.objic,.kd-tool-i,.wd-ic,.tk-ic,.cm-i,.st-ic) svg *{color:var(--pt)!important;stroke:var(--pt)!important}
+/* initialen weer in zachte eigen kleur per klant */
+.av,.tk-a{background:hsl(var(--h,190) 30% 93%)!important;color:hsl(var(--h,190) 35% 30%)!important;border-color:hsl(var(--h,190) 25% 85%)!important}
+/* donkere koppen petrol-nacht met messing randje */
+html body dialog .jp-kop:not(.sc2-kop),html body dialog .fw-head,html body .swipe-card.tk.next .tk-kop{background:linear-gradient(135deg,#16343a 0%,#24545a 100%)!important}
+html body .swipe-card.tk.next .tk-kop::after{background:rgb(176 138 74 / .22)!important;color:#f3e3c3!important}
+html body .swipe-card.tk.next{border-color:var(--pt)!important}
+html body dialog:has(.jp-kop:not(.sc2-kop)),html body dialog:has(.fw-head){background:linear-gradient(#16343a,#16343a) top/100% 60px no-repeat local,#fff!important}
+/* voortgang en route in petrol */
+.rv-af,.fg-baan i,.vh-weg .fg-baan i,.rv-gb i{background:linear-gradient(90deg,var(--pt-2),var(--pt))!important}
+.vh .vh-h.af,.vh .vh-h.nu,.rv-weg li.af i,.rv-weg li.nu i,.rnum.nu,.rp-n:first-child{background:var(--pt)!important;border-color:var(--pt)!important}
+.vh-r svg .v{stroke:var(--pt)!important}
+/* geselecteerde segmenten petrol */
+html body .seg>button[aria-pressed="true"]{background:var(--pt)!important}
+.tabsline button[aria-pressed="true"]{box-shadow:inset 0 -2px 0 var(--ms)!important}
+/* bovenvlakken: heel zachte warme gloed */
+:is(.vh,.fg,.rv,.ofh,.cm,.kr,.wd-aan){background:radial-gradient(70% 120% at 100% 0%,#f6efe2 0%,transparent 55%),#fff!important}
+/* instellingen-vinkjes petrol */
+html body .sc2.sc2-ok .jp-st::after{background-color:var(--pt)!important;border-color:var(--pt)!important}
+/* knoppen overal petrol (ook binnen tickets en vensters) */
+html body :is(main,dialog) :is(button,a).primary:not(.iconbtn),html body .tk .tk-af,html body #view:not(#zz) :is(.toolbar,.acts) > .primary{background:var(--pt)!important;background-image:none!important;border-color:var(--pt)!important;color:#fff!important}
+html body .iconbtn.primary{background:#fff!important;color:var(--pt)!important}
+html body .pill.nextp,html body .tk .pill.next{background:var(--pt)!important;color:#fff!important}
+html body .badge{background:var(--pt)!important;color:#fff!important}
+html body .rv-klaar{background:var(--pt)!important}
+html body .swipe-card.tk .tk-stub .primary.tk-af,html body .swipe-card .tk-af.primary{background:var(--pt)!important;background-image:none!important;border-color:var(--pt)!important;box-shadow:0 12px 24px -14px rgb(36 84 90 / .8)!important}
+html body .tk-a{background:var(--pt-bg)!important;border:1px solid #d3e2e2!important;color:var(--pt)!important}
+html body .tk-a svg,html body .tk-a svg *{stroke:var(--pt)!important;color:var(--pt)!important}
+html body .pill.nextp{background:var(--pt)!important}
+
+</style>
+
 </body></html>
