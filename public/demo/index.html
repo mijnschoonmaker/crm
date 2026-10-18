@@ -13947,9 +13947,9 @@ nav#sideNav button[aria-current="true"] svg{color:#0d121b!important}
 .tabsline{border-bottom:1px solid var(--rr-rand)!important}
 .tabsline button[aria-pressed="true"]{box-shadow:inset 0 -1.5px 0 #0d121b!important}
 .tabsline button em,.tabsline button span{background:transparent!important}
-th{background:#fff!important}
-td{border-color:#f0f1f3!important}
-tbody tr:hover td{background:#fafbfb!important}
+th:not(.inv5 *){background:#fff!important}
+td:not(.inv5 *){border-color:#f0f1f3!important}
+tbody tr:hover td:not(.inv5 *){background:#fafbfb!important}
 /* invoer en knoppen */
 input,select,textarea{border-color:var(--rr-rand)!important;background:#fff!important}
 button.primary,a.primary,.btn.primary{box-shadow:none!important}
@@ -13980,13 +13980,13 @@ body{color:#0d121b}
 #view h2,#view h3,.dlg h3,.card h3,.sc2 h3{font-weight:400!important;letter-spacing:0!important}
 .vh h2,.rv h2,.rv-tx h2{font-weight:400!important;letter-spacing:-.005em!important}
 /* vet minder zwaar */
-b,strong,th,dt{font-weight:600!important}
+b:not(.inv5 *),strong:not(.inv5 *),th:not(.inv5 *),dt:not(.inv5 *){font-weight:600!important}
 .fg-big b,.kr-big b,.vh-r b,.vh-st b,.fg-c b,.kr-c b,.tk-kop b,.of-kop b{font-weight:500!important;letter-spacing:-.005em!important}
 /* uitleg- en subtekst grijs en licht */
-small,p,.muted,dd{font-weight:400}
-small,.muted{color:#5d6168}
+small:not(.inv5 *),p:not(.inv5 *),.muted,dd:not(.inv5 *){font-weight:400}
+small:not(.inv5 *),.muted{color:#5d6168}
 /* kleine labels in spatiële hoofdletters */
-.ns-head,.vh-k,.fg-k,.kr-k,.fg-l,.kr-zones span,th{letter-spacing:.2em!important;text-transform:uppercase!important;font-weight:600!important}
+.ns-head,.vh-k,.fg-k,.kr-k,.fg-l,.kr-zones span,th:not(.inv5 *){letter-spacing:.2em!important;text-transform:uppercase!important;font-weight:600!important}
 /* knoppen zoals 'EINDE' en 'OFFERTE AANVRAGEN' */
 button.primary,a.primary,.btn.primary,.setbtn,.btn:not(.iconbtn):not(.tiny):not([class*="pill"]){text-transform:uppercase!important;letter-spacing:.2em!important;font-weight:600!important;font-size:12px!important}
 .btn:not(.primary):not(.iconbtn){background:#fff!important;border:1px solid #bfc3c8!important;color:#0d121b!important}
@@ -13998,7 +13998,7 @@ button.primary,a.primary,.btn.primary,.setbtn,.btn:not(.iconbtn):not(.tiny):not(
 /* menu */
 nav#sideNav button .lbl{font-weight:400!important;letter-spacing:.01em}
 nav#sideNav button[aria-current="true"] .lbl{font-weight:600!important}
-html body *:not(svg):not(path){font-family:var(--f-ui)!important}
+html body *:not(svg):not(path):not(.inv5 *):not(.inv5){font-family:var(--f-ui)!important}
 html body h1,html body h1.xl,#view h1.xl{font-weight:400!important;letter-spacing:-.01em!important}
 #view .zzgeen{text-transform:uppercase!important;letter-spacing:.2em!important;font-weight:600!important;font-size:11.5px!important;background:#fff!important;border:1px solid #bfc3c8!important;color:#0d121b!important}
 #view .zzgeen:hover{border-color:#0d121b!important}
@@ -14281,6 +14281,23 @@ html body :is(.st-tiles,.st-hero) .st-tile.ok b{color:var(--ok)!important}
 @media (max-width:700px){html body .st-tiles{grid-template-columns:repeat(2,minmax(0,1fr))!important}html body :is(.st-tiles,.st-hero) .st-tile b{font-size:24px!important}}
 html body .st-pill.down{background:var(--late-bg)!important;color:var(--late)!important;border:0!important}
 html body .st-pill.up,html body .st-pill:not(.down){background:var(--ok-bg)!important;color:var(--ok)!important;border:0!important}
+
+/* OFFERTE / FACTUUR-VENSTER: donkere kop zoals de klantkaart */
+html body dialog .fw-head{background:linear-gradient(135deg,#0d121b 0%,#1e2631 100%)!important;margin:-22px -22px 16px!important;padding:22px!important;border:0!important;border-radius:inherit;border-bottom-left-radius:0!important;border-bottom-right-radius:0!important;box-shadow:0 14px 30px -22px rgb(13 18 27 / .7)!important}
+html body dialog .fw-head :is(h3,b,span,div,strong){color:#fff!important}
+html body dialog .fw-head :is(small,em,p,.subt){color:rgb(255 255 255 / .62)!important}
+html body dialog .fw-head .fw-ht small{font-size:11px!important;font-weight:600!important;letter-spacing:.2em!important;text-transform:uppercase!important}
+html body dialog .fw-head .fw-ht h3{font-size:20px!important;letter-spacing:.14em!important;font-weight:500!important}
+html body dialog .fw-head .objic{background:rgb(255 255 255 / .1)!important}
+html body dialog .fw-head .objic svg,html body dialog .fw-head .objic svg *{stroke:#fff!important;color:#fff!important}
+html body dialog .fw-head .iconbtn{background:rgb(255 255 255 / .1)!important;border:0!important}
+html body dialog .fw-head .iconbtn svg,html body dialog .fw-head .iconbtn svg *{stroke:#fff!important;color:#fff!important}
+html body dialog .fw-head .fw-h2,html body dialog .fw-head .fw-hb{background:rgb(255 255 255 / .06)!important;border:1px solid rgb(255 255 255 / .12)!important}
+html body dialog .fw-head .pill{background:rgb(255 255 255 / .1)!important;border-color:rgb(255 255 255 / .28)!important;color:#fff!important}
+html body dialog:has(.fw-head){background:linear-gradient(#0d121b,#0d121b) top/100% 60px no-repeat local,#fff!important}
+html body dialog .fw-head .fw-h2 *:not(.pill):not(.pill *){background:transparent!important;box-shadow:none!important;border:0!important}
+html body dialog .fw-head .pill.late{background:rgb(255 140 125 / .16)!important;border:1px solid rgb(255 140 125 / .45)!important;color:#ffc9c0!important}
+html body dialog .fw-head .pill.ok{background:rgb(79 211 154 / .14)!important;border:1px solid rgb(79 211 154 / .45)!important;color:#bff0d8!important}
 
 </style>
 
