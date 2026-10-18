@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mansard · Het CRM voor glazenwassers</title>
+<meta name="description" content="Mansard is het CRM voor glazenwassers: planning, route, facturen, bankkoppeling, klantportaal met live busje en een VvE-portaal. 30 dagen gratis proberen.">
+<meta name="theme-color" content="#0f1f26">
+<link rel="icon" href="/img/mansard-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/img/mansard-180.png">
+<meta property="og:title" content="Mansard · Het CRM voor glazenwassers">
+<meta property="og:description" content="Planning, route, facturen en een klantportaal in één. 30 dagen gratis.">
+<meta property="og:image" content="https://mansard.nl/img/vandaag.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+:root{--ink:#0f1f26;--ink2:#33454c;--mut:#5d6f76;--line:#e3e9eb;--bg:#f7f6f2;--card:#fff;--brand:#137a8a;--brand2:#1d5a74;--gold:#c9a24b;--r:22px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Inter,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}a{color:inherit}
+.w{max-width:1160px;margin:0 auto;padding:0 24px}
+h1,h2,h3{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;letter-spacing:-.01em;line-height:1.05;margin:0}
+h1{font-size:clamp(44px,7vw,84px)}h2{font-size:clamp(34px,4.6vw,56px)}h3{font-size:26px;line-height:1.15}
+.k{font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--brand);margin:0 0 14px}
+.lead{font-size:clamp(17px,1.6vw,20px);color:var(--ink2);max-width:640px}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:15px 24px;border-radius:999px;font-weight:600;font-size:15.5px;text-decoration:none;transition:transform .2s,box-shadow .2s,background .2s}
+.btn.p{background:var(--ink);color:#fff;box-shadow:0 12px 30px -14px rgba(15,31,38,.8)}.btn.p:hover{transform:translateY(-2px);box-shadow:0 18px 36px -14px rgba(15,31,38,.8)}
+.btn.s{background:transparent;color:var(--ink);border:1.5px solid rgba(15,31,38,.18)}.btn.s:hover{border-color:var(--ink)}
+/* nav */
+nav{position:sticky;top:0;z-index:20;background:rgba(247,246,242,.82);-webkit-backdrop-filter:blur(16px) saturate(1.4);backdrop-filter:blur(16px) saturate(1.4);border-bottom:1px solid rgba(15,31,38,.06)}
+nav .w{display:flex;align-items:center;gap:28px;height:68px}nav .lg img{height:20px;width:auto}
+nav .ln{display:flex;gap:26px;margin-left:auto;font-size:14.5px;font-weight:500}nav .ln a{text-decoration:none;color:var(--ink2)}nav .ln a:hover{color:var(--ink)}
+nav .btn{padding:10px 18px;font-size:14px}
+@media(max-width:820px){nav .ln{display:none}nav .btn.s{display:none}nav .w{justify-content:space-between}}
+/* hero */
+.hero{padding:84px 0 40px;text-align:center;overflow:hidden}
+.hero h1 em{font-style:italic;color:var(--brand)}
+.hero .lead{margin:22px auto 34px}
+.hero .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.hero small{display:block;margin-top:16px;color:var(--mut);font-size:13.5px}
+.stage{position:relative;margin:64px auto 0;max-width:1080px}
+.frame{border-radius:18px;background:#fff;box-shadow:0 2px 4px rgba(15,31,38,.04),0 50px 100px -40px rgba(15,31,38,.45);overflow:hidden;border:1px solid rgba(15,31,38,.07)}
+.frame .bar{height:34px;background:#eef1f2;display:flex;align-items:center;gap:7px;padding:0 14px}.frame .bar i{width:11px;height:11px;border-radius:50%;background:#d5dcdf}.frame .bar span{margin-left:14px;font-size:12px;color:var(--mut);background:#fff;border-radius:7px;padding:3px 12px}
+.phone{position:absolute;right:-28px;bottom:-40px;width:23%;border-radius:34px;padding:9px;background:#0f1f26;box-shadow:0 40px 80px -30px rgba(15,31,38,.6)}.phone img{border-radius:26px}
+@media(max-width:820px){.phone{display:none}}
+/* trust */
+.trust{display:flex;justify-content:center;gap:42px;flex-wrap:wrap;padding:90px 0 20px;color:var(--ink2);font-size:14.5px;font-weight:500}
+.trust span{display:flex;align-items:center;gap:9px}.trust svg{width:20px;height:20px;color:var(--brand)}
+/* sections */
+section{padding:110px 0}
+.center{text-align:center}.center .lead{margin:18px auto 0}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:56px}
+@media(max-width:920px){.grid{grid-template-columns:1fr 1fr}}@media(max-width:600px){.grid{grid-template-columns:1fr}}
+.f{background:var(--card);border-radius:var(--r);padding:28px 26px;border:1px solid rgba(15,31,38,.06);transition:transform .25s,box-shadow .25s}
+.f:hover{transform:translateY(-4px);box-shadow:0 30px 50px -34px rgba(15,31,38,.4)}
+.f .ic{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,#e6f3f4,#d4ebee);color:var(--brand);margin-bottom:18px}.f .ic svg{width:23px;height:23px}
+.f h3{font-size:24px;margin-bottom:8px}.f p{margin:0;color:var(--ink2);font-size:15px}
+.row{display:grid;grid-template-columns:1fr 1.25fr;gap:64px;align-items:center}
+.row.rev{grid-template-columns:1.25fr 1fr}.row.rev .tx{order:2}
+@media(max-width:920px){.row,.row.rev{grid-template-columns:1fr;gap:34px}.row.rev .tx{order:0}}
+.tx ul{list-style:none;padding:0;margin:24px 0 0;display:flex;flex-direction:column;gap:12px}
+.tx li{display:flex;gap:12px;color:var(--ink2)}.tx li:before{content:"";flex:none;width:20px;height:20px;margin-top:3px;border-radius:50%;background:var(--brand) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/12px no-repeat}
+.dark{background:var(--ink);color:#fff}.dark .k{color:#8fd3dc}.dark .lead,.dark .tx li{color:rgba(255,255,255,.78)}
+.live{display:grid;grid-template-columns:1.1fr 1fr;gap:56px;align-items:center}@media(max-width:920px){.live{grid-template-columns:1fr}}
+.live .map{border-radius:20px;overflow:hidden;box-shadow:0 40px 80px -40px rgba(0,0,0,.7)}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:28px}
+.tile{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:16px 18px}.tile small{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.6);font-weight:700}.tile b{font-family:"Cormorant Garamond",serif;font-size:34px;font-weight:600;color:#fff}
+.duo{display:flex;gap:22px;justify-content:center;align-items:flex-start}.duo .ph{width:46%;max-width:300px;border-radius:34px;padding:9px;background:#0f1f26;box-shadow:0 40px 80px -36px rgba(15,31,38,.55)}.duo .ph img{border-radius:26px}.duo .ph:last-child{margin-top:60px}
+/* price */
+.price{max-width:520px;margin:56px auto 0;background:var(--card);border-radius:28px;padding:42px 40px;border:1px solid rgba(15,31,38,.07);box-shadow:0 40px 80px -50px rgba(15,31,38,.5);text-align:left}
+.price .amt{display:flex;align-items:baseline;gap:10px;margin:8px 0 2px}.price .amt b{font-family:"Cormorant Garamond",serif;font-size:76px;line-height:1;font-weight:600}.price .amt span{color:var(--mut)}
+.price .sub{color:var(--mut);font-size:14px;margin:0 0 24px}
+.price ul{list-style:none;padding:0;margin:0 0 30px;display:flex;flex-direction:column;gap:11px}.price li{display:flex;gap:11px;font-size:15px}.price li:before{content:"✓";color:var(--brand);font-weight:700}
+.price .btn{width:100%;justify-content:center}
+.price .fine{font-size:12.5px;color:var(--mut);margin:14px 0 0;text-align:center}
+/* faq */
+.faq{max-width:780px;margin:48px auto 0}
+details{border-bottom:1px solid var(--line);padding:20px 4px}summary{cursor:pointer;font-weight:600;font-size:17px;list-style:none;display:flex;justify-content:space-between;gap:20px}summary::-webkit-details-marker{display:none}summary:after{content:"+";font-size:24px;line-height:1;color:var(--brand);transition:transform .2s}details[open] summary:after{transform:rotate(45deg)}
+details p{margin:12px 0 0;color:var(--ink2)}
+/* cta + footer */
+.end{text-align:center;padding:120px 0}.end .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:34px}
+footer{border-top:1px solid var(--line);padding:56px 0 40px;font-size:14px;color:var(--mut)}
+footer .w{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:30px}@media(max-width:720px){footer .w{grid-template-columns:1fr}}
+footer b{color:var(--ink);display:block;margin-bottom:10px;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+footer a{text-decoration:none;display:block;margin:4px 0}footer a:hover{color:var(--ink)}
+footer .copy{grid-column:1/-1;border-top:1px solid var(--line);padding-top:22px;margin-top:10px;font-size:12.5px}
+.rv{opacity:0;transform:translateY(28px);transition:opacity .9s ease,transform .9s cubic-bezier(.2,.8,.2,1)}.rv.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
+</style>
+</head>
+<body>
+<nav><div class="w"><a class="lg" href="/" aria-label="Mansard"><img src="/img/mansard-logo.png" alt="Mansard"></a>
+<div class="ln"><a href="#functies">Functies</a><a href="#live">Live meekijken</a><a href="#vve">VvE's</a><a href="#prijs">Prijs</a><a href="#vragen">Vragen</a></div>
+<a class="btn s" href="https://app.mansard.nl">Inloggen</a><a class="btn p" href="https://app.mansard.nl">Probeer gratis</a></div></nav>
+
+<header class="hero"><div class="w">
+  <p class="k">Het CRM voor glazenwassers</p>
+  <h1>Je hele bedrijf.<br><em>Helder</em> als glas.</h1>
+  <p class="lead">Planning, route, facturen, bankkoppeling en een klantportaal met je busje live op de kaart. Gemaakt door een glazenwasser, voor glazenwassers.</p>
+  <div class="cta"><a class="btn p" href="https://app.mansard.nl">Probeer 30 dagen gratis</a><a class="btn s" href="https://app.mansard.nl/demo/">Bekijk de demo</a></div>
+  <small>Geen betaalgegevens nodig · maandelijks opzegbaar</small>
+  <div class="stage rv"><div class="frame"><div class="bar"><i></i><i></i><i></i><span>app.mansard.nl</span></div><img src="/img/vandaag.jpg" alt="Mansard: het overzicht van vandaag met de route en de volgende stop" width="1440" height="900"></div>
+    <div class="phone"><img src="/img/mobiel.jpg" alt="Mansard op de telefoon" width="390" height="844"></div></div>
+</div></header>
+
+<div class="w trust">
+  <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>Servers in Nederland</span>
+  <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>Tweestapsverificatie</span>
+  <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0114-5.3L20 9"/><path d="M20 4v5h-5"/><path d="M20 12a8 8 0 01-14 5.3L4 15"/><path d="M4 20v-5h5"/></svg>Elke nacht een back-up</span>
+  <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>30 dagen gratis</span>
+</div>
+
+<section id="functies"><div class="w center">
+  <p class="k">Alles in één</p><h2>Alles wat je nodig hebt.<br>Niets wat je niet nodig hebt.</h2>
+  <p class="lead">Van de eerste aanvraag tot de betaalde factuur. Mansard neemt het papierwerk uit handen, zodat jij kunt doen waar je goed in bent.</p>
+  <div class="grid" style="text-align:left">
+    <div class="f rv"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div><h3>Planning en route</h3><p>Plan per dag, week of op de kaart. Het ritme per klant loopt vanzelf door en je route staat klaar in Google Maps.</p></div>
+    <div class="f rv"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></div><h3>Facturen in één klik</h3><p>Meld een beurt af en de factuur staat klaar. Selecteer facturen en verstuur, herinner of zet ze in één keer op betaald.</p></div>
+    <div class="f rv"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-6 9 6M5 10v9M19 10v9M9 10v9M15 10v9M3 21h18"/></svg></div><h3>Bankkoppeling</h3><p>Koppel je bank of upload een afschrift. Betalingen komen automatisch op de juiste factuur.</p></div>
+    <div class="f rv"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20M6 15h4"/></svg></div><h3>Online betalen en incasso</h3><p>Een betaallink in elke factuurmail, of automatische incasso die pas afschrijft nadat de beurt is uitgevoerd.</p></div>
+    <div class="f rv"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></div><h3>Klantportaal</h3><p>Klanten zien hun bezoeken, facturen en foto's, geven zelf wijzigingen door en volgen je busje op de dag zelf.</p></div>
+    <div class="f rv"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v12H7l-3 3z"/><path d="M8 9h8M8 12h5"/></svg></div><h3>Mails in je huisstijl</h3><p>Aankondigingen, facturen en herinneringen met je eigen logo. Je ziet wie de mail heeft geopend.</p></div>
+  </div>
+</div></section>
+
+<section style="padding-top:0"><div class="w">
+  <div class="row rv"><div class="tx"><p class="k">Planning</p><h2>Je week in één oogopslag.</h2><p class="lead">Sleep klanten in de planning, zie wie er bijna aan de beurt is en laat Mansard een slimme route maken. Klanten krijgen automatisch een aankondiging.</p>
+    <ul><li>Vaste ritmes per klant, van 4 tot 52 weken</li><li>Plannen op de kaart, per postcode of plaats</li><li>Automatische aankondiging en herinnering per mail</li></ul></div>
+    <div class="frame"><img src="/img/planning.jpg" alt="De planning in Mansard met de afspraken van de dag" loading="lazy" width="1440" height="900"></div></div>
+</div></section>
+
+<section style="padding-top:0"><div class="w">
+  <div class="row rev rv"><div class="tx"><p class="k">Facturen en betalingen</p><h2>Geld binnen, zonder gedoe.</h2><p class="lead">Zie meteen wat er openstaat en wat te laat is. Stuur herinneringen of een WIK-brief in één keer, en laat je bank de facturen op betaald zetten.</p>
+    <ul><li>Bulkacties: versturen, herinneren, betaald, PDF's printen</li><li>Bankkoppeling of bankbestand (CAMT, MT940, CSV)</li><li>Doorlopende factuurnummers vanaf je oude pakket</li></ul></div>
+    <div class="frame"><img src="/img/facturen.jpg" alt="De facturenlijst in Mansard met geselecteerde facturen" loading="lazy" width="1440" height="900"></div></div>
+</div></section>
+
+<section id="live" class="dark"><div class="w live">
+  <div class="map rv"><img src="/img/live-kaart.gif" alt="Kaart met het busje dat live naar de klant rijdt" loading="lazy" width="560" height="340" style="width:100%"></div>
+  <div class="tx"><p class="k">Live meekijken</p><h2>Je klant ziet je aankomen.</h2><p class="lead">Op de dag van de beurt volgen klanten je busje live op de kaart in hun klantportaal. Geen telefoontjes meer met de vraag hoe laat je komt.</p>
+    <div class="tiles"><div class="tile"><small>Aankomsttijd</small><b>± 10:40</b></div><div class="tile"><small>Woningen voor u</small><b>Nog 2</b></div></div></div>
+</div></section>
+
+<section id="vve"><div class="w">
+  <div class="row rv"><div class="tx"><p class="k">Voor VvE's</p><h2>Beheerders willen zien wat er gebeurt.</h2><p class="lead">Geef elke VvE een eigen portaal en zet een QR-code in de hal. Zo kom je professioneler over en krijg je minder vragen.</p>
+    <ul><li>Logboek met foto's van elke beurt en wie er schoonmaakte</li><li>Maandrapport, facturen en documenten op één plek</li><li>Bewonersbord met QR-code: wanneer was het, wanneer komen we weer</li></ul></div>
+    <div class="duo"><div class="ph"><img src="/img/vve-portaal.jpg" alt="Het VvE-portaal met het logboek en het volgende bezoek" loading="lazy" width="860" height="1720"></div><div class="ph"><img src="/img/vve-bord.jpg" alt="Het bewonersbord met het busje live onderweg" loading="lazy" width="860" height="1720"></div></div></div>
+</div></section>
+
+<section id="prijs" style="background:#efede7"><div class="w center">
+  <p class="k">Prijs</p><h2>Eén abonnement. Alles erin.</h2><p class="lead">Geen modules, geen verrassingen. Probeer alles 30 dagen gratis.</p>
+  <div class="price rv"><p class="k" style="margin:0">Mansard</p><div class="amt"><b>€ 99</b><span>per maand</span></div><p class="sub">Exclusief btw · inclusief 3 gebruikers · extra gebruiker € 19,95 per maand</p>
+    <ul><li>Onbeperkt klanten, beurten en facturen</li><li>Planning, route en kaartplannen</li><li>Klantportaal met live busje</li><li>VvE-portaal en bewonersbord</li><li>Bankkoppeling en online betalen</li><li>Website-calculator voor nieuwe aanvragen</li><li>Servers in Nederland, dagelijkse back-ups</li></ul>
+    <a class="btn p" href="https://app.mansard.nl">Start je gratis proefperiode</a>
+    <p class="fine">Na 30 dagen kies je zelf of je doorgaat. Betaling per maand via automatische incasso. Maandelijks opzegbaar.</p></div>
+</div></section>
+
+<section id="vragen"><div class="w center">
+  <p class="k">Vragen</p><h2>Goed om te weten.</h2>
+  <div class="faq" style="text-align:left">
+    <details><summary>Moet ik betaalgegevens invullen voor de proefperiode?</summary><p>Nee. Je maakt een account, vult je bedrijfsnaam in en kunt direct beginnen. Pas als je na 30 dagen doorgaat, kies je een abonnement.</p></details>
+    <details><summary>Kan ik mijn klanten uit een ander pakket overzetten?</summary><p>Ja. Je importeert je klanten met een Excel- of CSV-bestand, en je factuurnummers lopen gewoon door vanaf je oude pakket. Hulp nodig bij het overzetten? Neem contact op.</p></details>
+    <details><summary>Waar staan mijn gegevens?</summary><p>Op Europese servers in een datacenter in Eemshaven (Nederland). Elke nacht wordt er een back-up gemaakt. Met elke klant sluiten we een verwerkersovereenkomst volgens de AVG.</p></details>
+    <details><summary>Werkt het op mijn telefoon?</summary><p>Ja. Mansard werkt in de browser op telefoon, tablet en computer. Je kunt het als app op je beginscherm zetten.</p></details>
+    <details><summary>Hoe zeg ik op?</summary><p>Je abonnement loopt per maand en is maandelijks opzegbaar via Instellingen › Abonnement. Je gegevens kun je altijd exporteren.</p></details>
+    <details><summary>Wat als ik meer dan 3 gebruikers nodig heb?</summary><p>Voeg ze gewoon toe. Elke extra gebruiker kost € 19,95 per maand; het bedrag past zich vanzelf aan.</p></details>
+  </div>
+</div></section>
+
+<section class="end dark"><div class="w"><h2>Klaar om het rustiger te krijgen?</h2><p class="lead" style="margin:18px auto 0">Probeer Mansard 30 dagen gratis. Geen betaalgegevens nodig.</p>
+  <div class="cta"><a class="btn p" style="background:#fff;color:var(--ink)" href="https://app.mansard.nl">Probeer 30 dagen gratis</a><a class="btn s" style="color:#fff;border-color:rgba(255,255,255,.35)" href="https://app.mansard.nl/demo/">Bekijk de demo</a></div></div></section>
+
+<footer><div class="w">
+  <div><img src="/img/mansard-logo.png" alt="Mansard" style="height:18px;width:auto;margin-bottom:16px"><p style="margin:0;max-width:340px">Het CRM voor glazenwassers en schoonmaakbedrijven. Gemaakt door een glazenwasser, voor glazenwassers.</p></div>
+  <div><b>Contact</b>Mansard<br>Parklaan 7<br>9861 CD Grootegast<br><a href="mailto:info@mijnschoonmaker.com">info@mijnschoonmaker.com</a><a href="tel:+31618060606">06 18 06 06 06</a>KvK 55979068</div>
+  <div><b>Informatie</b><a href="/voorwaarden.html">Algemene voorwaarden</a><a href="/privacy.html">Privacyverklaring</a><a href="https://app.mansard.nl">Inloggen</a><a href="https://app.mansard.nl/demo/">Demo</a></div>
+  <div class="copy">© 2026 Mansard · alle prijzen exclusief btw</div>
+</div></footer>
+<script>
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.12});
+document.querySelectorAll(".rv").forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

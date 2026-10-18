@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       domein: { description: "Domein", required: true, default: "app.mansard.nl" }
+      site: { description: "Site", required: false, default: "" }
 jobs:
   koppel:
     runs-on: ubuntu-latest
@@ -12,11 +13,12 @@ jobs:
         env:
           P: ${{ vars.FIREBASE_PROJECT }}
           D: ${{ inputs.domein }}
+          S: ${{ inputs.site }}
         run: |
           gcloud auth activate-service-account --key-file="$RUNNER_TEMP/sa.json" --quiet >/dev/null 2>&1
           T=$(gcloud auth print-access-token)
           H=(-H "Authorization: Bearer $T" -H "Content-Type: application/json" -H "x-goog-user-project: $P")
-          B=https://firebasehosting.googleapis.com/v1beta1/projects/$P/sites/$P/customDomains
+          B=https://firebasehosting.googleapis.com/v1beta1/projects/$P/sites/${S:-$P}/customDomains
           c=$(curl -s -X POST "${H[@]}" "$B?customDomainId=$D" -d '{}')
           echo "aanmaken: $c" | head -c 600; echo
           sleep 20

@@ -13,179 +13,207 @@
       "runtime": "nodejs22"
     }
   ],
-  "hosting": {
-    "public": "public",
-    "ignore": [
-      "firebase.json",
-      "**/.*"
-    ],
-    "rewrites": [
-      {
-        "source": "/api/mansard-mollie",
-        "function": {
-          "functionId": "mansardHook",
-          "region": "europe-west4"
-        }
-      },
-      {
-        "source": "/api/bank/terug",
-        "function": {
-          "functionId": "bankTerug",
-          "region": "europe-west4"
-        }
-      },
-      {
-        "source": "/api/portaal/**",
-        "function": {
-          "functionId": "portaal",
-          "region": "europe-west4"
-        }
-      },
-      {
-        "source": "/portaal",
-        "destination": "/portaal.html"
-      },
-      {
-        "source": "/portaal/**",
-        "destination": "/portaal.html"
-      },
-      {
-        "source": "/aanbevolen/**",
-        "destination": "/portaal.html"
-      },
-      {
-        "source": "/bord/**",
-        "destination": "/bord.html"
-      },
-      {
-        "source": "/api/akkoord-info",
-        "function": {
-          "functionId": "akkoordInfo",
-          "region": "europe-west4"
-        }
-      },
-      {
-        "source": "/api/akkoord",
-        "function": {
-          "functionId": "akkoordGeven",
-          "region": "europe-west4"
-        }
-      },
-      {
-        "source": "/akkoord/**",
-        "destination": "/akkoord.html"
-      },
-      {
-        "source": "/_blob/**",
-        "function": {
-          "functionId": "blob",
-          "region": "europe-west4"
-        }
-      },
-      {
-        "source": "/api/aanvraag",
-        "function": {
-          "functionId": "aanvraag",
-          "region": "europe-west4"
-        }
-      },
-      {
-        "source": "/api/brevo",
-        "function": {
-          "functionId": "brevoHook",
-          "region": "europe-west4"
-        }
-      },
-      {
-        "source": "/api/mollie",
-        "function": {
-          "functionId": "mollieHook",
-          "region": "europe-west4"
-        }
-      }
-    ],
-    "headers": [
-      {
-        "source": "/",
-        "headers": [
-          {
-            "key": "Cache-Control",
-            "value": "no-cache"
+  "hosting": [
+    {
+      "public": "public",
+      "ignore": [
+        "firebase.json",
+        "**/.*"
+      ],
+      "rewrites": [
+        {
+          "source": "/api/mansard-mollie",
+          "function": {
+            "functionId": "mansardHook",
+            "region": "europe-west4"
           }
-        ]
-      },
-      {
-        "source": "**/*.html",
-        "headers": [
-          {
-            "key": "Cache-Control",
-            "value": "no-cache"
+        },
+        {
+          "source": "/api/bank/terug",
+          "function": {
+            "functionId": "bankTerug",
+            "region": "europe-west4"
           }
-        ]
-      },
-      {
-        "source": "/akkoord/**",
-        "headers": [
-          {
-            "key": "Cache-Control",
-            "value": "no-cache"
+        },
+        {
+          "source": "/api/portaal/**",
+          "function": {
+            "functionId": "portaal",
+            "region": "europe-west4"
           }
-        ]
-      },
-      {
-        "source": "/config.js",
-        "headers": [
-          {
-            "key": "Cache-Control",
-            "value": "no-cache"
+        },
+        {
+          "source": "/portaal",
+          "destination": "/portaal.html"
+        },
+        {
+          "source": "/portaal/**",
+          "destination": "/portaal.html"
+        },
+        {
+          "source": "/aanbevolen/**",
+          "destination": "/portaal.html"
+        },
+        {
+          "source": "/bord/**",
+          "destination": "/bord.html"
+        },
+        {
+          "source": "/api/akkoord-info",
+          "function": {
+            "functionId": "akkoordInfo",
+            "region": "europe-west4"
           }
-        ]
-      },
-      {
-        "source": "/portaal",
-        "headers": [
-          {
-            "key": "Cache-Control",
-            "value": "no-cache"
+        },
+        {
+          "source": "/api/akkoord",
+          "function": {
+            "functionId": "akkoordGeven",
+            "region": "europe-west4"
           }
-        ]
-      },
-      {
-        "source": "/aanbevolen/**",
-        "headers": [
-          {
-            "key": "Cache-Control",
-            "value": "no-cache"
+        },
+        {
+          "source": "/akkoord/**",
+          "destination": "/akkoord.html"
+        },
+        {
+          "source": "/_blob/**",
+          "function": {
+            "functionId": "blob",
+            "region": "europe-west4"
           }
-        ]
-      },
-      {
-        "source": "/portaal/**",
-        "headers": [
-          {
-            "key": "Cache-Control",
-            "value": "no-cache"
+        },
+        {
+          "source": "/api/aanvraag",
+          "function": {
+            "functionId": "aanvraag",
+            "region": "europe-west4"
           }
-        ]
-      },
-      {
-        "source": "/ai/**",
-        "headers": [
-          {
-            "key": "Cache-Control",
-            "value": "public, max-age=2592000"
+        },
+        {
+          "source": "/api/brevo",
+          "function": {
+            "functionId": "brevoHook",
+            "region": "europe-west4"
           }
-        ]
-      },
-      {
-        "source": "**/*.wasm",
-        "headers": [
-          {
-            "key": "Content-Type",
-            "value": "application/wasm"
+        },
+        {
+          "source": "/api/mollie",
+          "function": {
+            "functionId": "mollieHook",
+            "region": "europe-west4"
           }
-        ]
-      }
-    ]
-  }
+        }
+      ],
+      "headers": [
+        {
+          "source": "/",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache"
+            }
+          ]
+        },
+        {
+          "source": "**/*.html",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache"
+            }
+          ]
+        },
+        {
+          "source": "/akkoord/**",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache"
+            }
+          ]
+        },
+        {
+          "source": "/config.js",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache"
+            }
+          ]
+        },
+        {
+          "source": "/portaal",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache"
+            }
+          ]
+        },
+        {
+          "source": "/aanbevolen/**",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache"
+            }
+          ]
+        },
+        {
+          "source": "/portaal/**",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache"
+            }
+          ]
+        },
+        {
+          "source": "/ai/**",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public, max-age=2592000"
+            }
+          ]
+        },
+        {
+          "source": "**/*.wasm",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/wasm"
+            }
+          ]
+        }
+      ],
+      "target": "crm"
+    },
+    {
+      "target": "web",
+      "public": "web",
+      "cleanUrls": true,
+      "headers": [
+        {
+          "source": "**/*.html",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache"
+            }
+          ]
+        },
+        {
+          "source": "/img/**",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public, max-age=604800"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

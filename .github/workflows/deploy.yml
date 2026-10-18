@@ -21,6 +21,15 @@ jobs:
         run: |
           echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > "$RUNNER_TEMP/sa.json"
           echo "::notice title=Account::$(python3 -c "import json,sys;print(json.load(open(sys.argv[1]))['client_email'])" "$RUNNER_TEMP/sa.json")"
+      - name: Website-site voor mansard.nl (eenmalig aanmaken)
+        continue-on-error: true
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
+          P: ${{ vars.FIREBASE_PROJECT }}
+        run: |
+          gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS" --quiet >/dev/null 2>&1
+          T=$(gcloud auth print-access-token)
+          curl -s -X POST -H "Authorization: Bearer $T" -H "x-goog-user-project: $P" -H "Content-Type: application/json" "https://firebasehosting.googleapis.com/v1beta1/projects/$P/sites?siteId=mansard-site-95789" -d '{}' | head -c 300; echo
       - name: Naar Firebase zetten
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json

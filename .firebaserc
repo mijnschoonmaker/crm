@@ -1,1 +1,17 @@
-{ "projects": { "default": "mijnschoonmaker-95789" } }
+{
+  "projects": {
+    "default": "mijnschoonmaker-95789"
+  },
+  "targets": {
+    "mijnschoonmaker-95789": {
+      "hosting": {
+        "crm": [
+          "mijnschoonmaker-95789"
+        ],
+        "web": [
+          "mansard-site-95789"
+        ]
+      }
+    }
+  }
+}
