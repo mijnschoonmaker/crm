@@ -32,6 +32,7 @@ assert demo.count("render();init();") == 1
 demo = demo.replace("render();init();", open(os.path.join(R, "src", "demo", "demo.js")).read() + "\ndemoStart();", 1)
 demo = demo.replace("<title>Mansard</title>", "<title>Mansard (demo)</title>", 1)
 dhead = '''<!doctype html>
+<script>if(location.hostname!=='app.mansard.nl'&&/^crm\./.test(location.hostname))location.replace('https://app.mansard.nl/demo/'+location.search+location.hash)</script>
 <html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#137a8a"><meta name="robots" content="noindex,nofollow">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="apple-touch-icon" href="/mansard-180.png">
@@ -40,7 +41,7 @@ demo = dhead + demo.replace("<style>", "<style>html,body{margin:0}\n", 1) + "\n<
 # geen eigen merk in de demo: neutraal icoon en een verzonnen bedrijfsnaam
 demo = _re.sub(r'<div class="logo"><span class="mk">.*?</span><span class="wm">Mansard</span></div>', '<div class="logo haslogo"><img class="lgimg" src="/mansard-logo.png" alt="Mansard"><span class="wm lgtxt"></span></div>', demo)
 demo = demo.replace("mijnschoonmaker-95789", "\x00PRJ\x00").replace("robin@mijnschoonmaker.com", "info@voorbeeldglazenwasserij.nl").replace("mijnschoonmaker.com", "voorbeeldglazenwasserij.nl")
-demo = demo.replace("Robin is ", "Mark is ").replace("mijnschoonmaker · CRM (demo)", "CRM (demo)").replace("Mijnschoonmaker", "Het CRM").replace("mijnschoonmaker", "het CRM").replace("\x00PRJ\x00", "mijnschoonmaker-95789")
+demo = demo.replace("Robin is ", "Mark is ").replace("mijnschoonmaker · CRM (demo)", "CRM (demo)").replace("Mijnschoonmaker", "Het CRM").replace("mijnschoonmaker", "het CRM").replace("https://\x00PRJ\x00.web.app", "https://app.mansard.nl").replace("\x00PRJ\x00.web.app", "app.mansard.nl").replace("\x00PRJ\x00", "mijnschoonmaker-95789")
 os.makedirs("public/demo", exist_ok=True)
 open("public/demo/index.html", "w").write(demo)
 print("public/demo/index.html", len(demo))
