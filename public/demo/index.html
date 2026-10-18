@@ -14135,6 +14135,11 @@ html body .cm .cm-pt{width:auto!important;max-width:none!important}
 @media (max-width:700px){
  html body #view .ns-head+.toolbar>:is(a,button):is(.primary,:not(.primary)):not(.iconbtn){min-width:0!important;white-space:normal!important;letter-spacing:.06em!important;font-size:10px!important;padding:10px 6px!important;min-height:76px!important;flex-direction:column!important}
 }
+/* kaart nooit over de bovenbalk heen (ook niet tijdens slepen) */
+.leaflet-container{isolation:isolate!important;z-index:0!important}
+:has(> .leaflet-container),.rv-map,.kd-map,.rf-map{isolation:isolate;overflow:hidden}
+.topbar{z-index:1100!important}
+#tabNav{z-index:1100!important}
 
 </style>
 
