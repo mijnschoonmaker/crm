@@ -14305,6 +14305,12 @@ html body dialog .jp-kop:not(.sc2-kop) .jp-ib{border:0!important;box-shadow:none
 .tk-ruit{display:none!important}
 .tk-tm{grid-template-columns:1fr!important}
 .tk-tm>*{grid-column:1/-1!important}
+/* Route: drie actieknoppen even groot en compact (computer) */
+@media (min-width:701px){
+ html body #view .ns-head+.toolbar{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important;max-width:760px}
+ html body #view .ns-head+.toolbar>:is(a,button):is(.primary,:not(.primary)):not(.iconbtn){min-height:40px!important;height:40px!important;padding:0 12px!important;font-size:10.5px!important;letter-spacing:.12em!important;font-weight:600!important;white-space:nowrap!important;justify-content:center!important;gap:8px!important;border-radius:6px!important;min-width:0!important;width:auto!important;overflow:hidden;text-overflow:ellipsis}
+ html body #view .ns-head+.toolbar>:is(a,button) svg{width:15px!important;height:15px!important;flex:none}
+}
 
 </style>
 
