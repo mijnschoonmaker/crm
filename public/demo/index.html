@@ -14265,6 +14265,22 @@ html body .sc2 .sc2-body{padding:14px 22px 22px!important}
 /* route-lijst: alleen de adrestekst opent de klantkaart, de rest van de rij klapt het ticket open */
 html body .rlijst .rstop .nm{justify-self:start!important;width:auto!important;max-width:100%!important;display:inline-block!important}
 html body .sc2 div.sc2-foto{cursor:default}
+/* STATISTIEKEN-TEGELS: wit met subtiele rand, donkere tekst (zoals de Range Rover-kaarten) */
+html body .st-tiles{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;gap:12px!important}
+html body .st-tiles::before,html body .st-tiles::after{display:none!important}
+html body :is(.st-tiles,.st-hero) .st-tile{background:#fff!important;backdrop-filter:none!important;border:1px solid var(--rr-rand)!important;border-radius:12px!important;box-shadow:none!important;padding:18px 20px!important}
+html body :is(.st-tiles,.st-hero) .st-tile:hover{border-color:#0d121b!important;transform:none!important;box-shadow:none!important}
+html body :is(.st-tiles,.st-hero) .st-tile .st-l,html body :is(.st-tiles,.st-hero) .st-tile>span:first-child{color:#7a7e84!important;font-size:11px!important;font-weight:600!important;letter-spacing:.16em!important;text-transform:uppercase!important}
+html body :is(.st-tiles,.st-hero) .st-tile b{color:#0d121b!important;font-weight:400!important;font-size:30px!important;letter-spacing:-.01em!important}
+html body :is(.st-tiles,.st-hero) .st-tile small,html body :is(.st-tiles,.st-hero) .st-tile em,html body :is(.st-tiles,.st-hero) .st-tile p{color:#5d6168!important}
+html body :is(.st-tiles,.st-hero) .st-tile .st-ic{background:#f4f5f6!important;color:#0d121b!important;border:0!important;border-radius:6px!important;box-shadow:none!important}
+html body :is(.st-tiles,.st-hero) .st-tile .st-ic svg{color:#0d121b!important;stroke:#0d121b!important}
+html body :is(.st-tiles,.st-hero) .st-tile.late b{color:var(--late)!important}
+html body :is(.st-tiles,.st-hero) .st-tile.late .st-ic{background:var(--late-bg)!important}html body :is(.st-tiles,.st-hero) .st-tile.late .st-ic svg{stroke:var(--late)!important;color:var(--late)!important}
+html body :is(.st-tiles,.st-hero) .st-tile.ok b{color:var(--ok)!important}
+@media (max-width:700px){html body .st-tiles{grid-template-columns:repeat(2,minmax(0,1fr))!important}html body :is(.st-tiles,.st-hero) .st-tile b{font-size:24px!important}}
+html body .st-pill.down{background:var(--late-bg)!important;color:var(--late)!important;border:0!important}
+html body .st-pill.up,html body .st-pill:not(.down){background:var(--ok-bg)!important;color:var(--ok)!important;border:0!important}
 
 </style>
 
