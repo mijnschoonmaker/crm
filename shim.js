@@ -71,7 +71,7 @@
   .lg-c label{display:flex;flex-direction:column;gap:6px;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#5d6168;margin-bottom:14px}
   .lg-c input{font:inherit;font-size:15px;font-weight:500;padding:12px 14px;border:1px solid #d6d9dd;border-radius:6px;background:#fff;outline:none;color:#0d121b;text-transform:none;letter-spacing:0}.lg-c input:focus{border-color:#0d121b;box-shadow:0 0 0 1px #0d121b}
   .lg-b{width:100%;font:inherit;font-weight:600;font-size:12px;letter-spacing:.22em;text-transform:uppercase;padding:15px;border:0;border-radius:6px;color:#fff;background:#0d121b;cursor:pointer;margin-top:6px}.lg-b:hover{background:#262c36}.lg-b:disabled{opacity:.6}
-  .lg-l{background:none;border:0;font:inherit;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#0d121b;cursor:pointer;padding:0;border:0;box-shadow:none;-webkit-appearance:none;appearance:none}.lg-row{display:flex;justify-content:space-between;margin-top:16px}
+  .lg-l{background:none;border:0;font:inherit;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#0d121b;cursor:pointer;padding:0;border:0;box-shadow:none;-webkit-appearance:none;appearance:none}.lg-row{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-top:18px}.lg-row .lg-l{text-align:left;line-height:1.5}.lg-row .lg-l:last-child{text-align:right;flex:none}.lg-row .lg-l:first-child:not(:last-child){flex:1 1 auto}
   .lg-m{font-size:13.5px;min-height:20px;margin-top:12px;color:#c0392b;font-weight:600}.lg-m.ok{color:#2f6b4f}.lg-m{color:#a23a30}`;
   const mark = '<svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2.5" stroke="#fff" stroke-width="1.8"/><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="1.2" opacity=".55"/><path d="M7 17L17 7" stroke="#ebbd4c" stroke-width="2.6" stroke-linecap="round"/></svg>';
   let ov = null;
@@ -146,7 +146,7 @@
     toon(`<h1>Inlogcode</h1><p>${herstel ? "Vul een van je herstelcodes in (bijvoorbeeld <b>a1b2c-3d4e5</b>). Elke herstelcode werkt één keer." : "Open je authenticator-app (bijvoorbeeld Google Authenticator) en vul de 6 cijfers in voor <b>Mansard CRM</b>."}</p>
       <form id="lgF"><label>${herstel ? "Herstelcode" : "Code"}<input id="lgC" ${herstel ? 'autocomplete="off" placeholder="xxxxx-xxxxx"' : 'inputmode="numeric" autocomplete="one-time-code" pattern="[0-9 ]*" maxlength="7" placeholder="123 456"'} required style="letter-spacing:${herstel ? ".05em" : ".3em"};font-size:20px;text-align:center"></label>
       <button class="lg-b" id="lgGo">Bevestigen</button></form><div class="lg-m"></div>
-      <div class="lg-row"><button class="lg-l" id="lgHs">${herstel ? "Code uit de app gebruiken" : "Telefoon kwijt? Herstelcode gebruiken"}</button><button class="lg-l" id="lgOut">Uitloggen</button></div>`);
+      <div class="lg-row"><button class="lg-l" id="lgHs">${herstel ? "Code uit de app gebruiken" : "Herstelcode gebruiken"}</button><button class="lg-l" id="lgOut">Uitloggen</button></div>`);
     $("#lgHs").onclick = () => mfaScherm(u, !herstel);
     $("#lgOut").onclick = () => auth.signOut();
     const inp = $("#lgC"); setTimeout(() => inp.focus(), 50);
