@@ -66,20 +66,23 @@
       document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 60000);
     }
   };
+  /* CRM pas tonen als duidelijk is dat je ingelogd bent (geen flits van de binnenkant) */
+  document.documentElement.classList.add("lg-wacht");
+  { const w = document.createElement("style"); w.textContent = "html.lg-wacht body>.app,html.lg-wacht #tabNav,html.lg-wacht body>.topbar{visibility:hidden!important}html.lg-wacht body{background:#f7f7f6}"; document.head.appendChild(w); }
   let klaar; const ingelogd = new Promise(r => (klaar = r));
   const user = { me: async () => { const u = auth.currentUser || {}; return { name: u.displayName || String(u.email || "").split("@")[0], email: u.email || "" }; } };
   window.claude = { use: async n => { await ingelogd; return { db, assets, downloads, user }[n] || null; } };
 
   /* ---------- inlogscherm ---------- */
-  const css = `.lg-ov{position:fixed;inset:0;z-index:2147483600;display:grid;place-items:center;padding:20px;background:radial-gradient(900px 500px at 80% -10%,rgb(240 170 110 / .12),transparent 60%),radial-gradient(800px 500px at 10% 0%,rgb(19 122 138 / .12),transparent 60%),#f3f6f7;font-family:Manrope,system-ui,-apple-system,sans-serif;color:#0f1f26}
-  .lg-c{width:min(400px,100%);background:#fff;border-radius:24px;padding:32px 28px;box-shadow:0 1px 2px rgb(15 31 38 / .05),0 24px 60px -20px rgb(15 31 38 / .25)}
+  const css = `.lg-ov{position:fixed;inset:0;z-index:2147483600;display:grid;place-items:center;padding:20px;background:radial-gradient(75% 60% at 100% 0%,#f4f1eb 0%,transparent 62%),linear-gradient(160deg,#dfe5ea 0%,#eef0f2 45%,#f5f5f4 100%);font-family:"Avenir Next",Avenir,"Nunito Sans","Helvetica Neue",Arial,sans-serif;color:#0d121b}
+  .lg-c{width:min(400px,100%);background:#fff;border-radius:14px;padding:36px 30px;border:1px solid #e3e5e8;box-shadow:0 30px 60px -36px rgb(13 18 27 / .35)}
   .lg-logo{display:flex;justify-content:center;margin:-4px 0 22px}.lg-logo img{height:84px;width:auto;max-width:200px;object-fit:contain}.lg-logo span{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#137a8a,#1d5a74);display:grid;place-items:center}.lg-logo svg{width:22px;height:22px}
-  .lg-c h1{font-family:Inter,Manrope,sans-serif;font-size:26px;letter-spacing:-.02em;margin:0 0 6px}.lg-c p{color:#5d6f76;margin:0 0 20px;font-size:14.5px;line-height:1.5}
-  .lg-c label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:700;margin-bottom:14px}
-  .lg-c input{font:inherit;font-size:15px;font-weight:500;padding:12px 14px;border:1px solid #dde5e8;border-radius:12px;background:#fbfcfc;outline:none}.lg-c input:focus{border-color:#137a8a;box-shadow:0 0 0 3px rgb(19 122 138 / .15)}
-  .lg-b{width:100%;font:inherit;font-weight:700;font-size:15px;padding:13px;border:0;border-radius:12px;color:#fff;background:linear-gradient(135deg,#137a8a,#1d5a74);cursor:pointer;margin-top:4px}.lg-b:disabled{opacity:.6}
-  .lg-l{background:none;border:0;font:inherit;font-size:13.5px;font-weight:600;color:#137a8a;cursor:pointer;padding:0}.lg-row{display:flex;justify-content:space-between;margin-top:16px}
-  .lg-m{font-size:13.5px;min-height:20px;margin-top:12px;color:#c0392b;font-weight:600}.lg-m.ok{color:#23845a}`;
+  .lg-c h1{font-family:inherit;font-weight:500;font-size:20px;letter-spacing:.14em;text-transform:uppercase;margin:0 0 8px}.lg-c p{color:#5d6168;margin:0 0 22px;font-size:14.5px;line-height:1.5}
+  .lg-c label{display:flex;flex-direction:column;gap:6px;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#5d6168;margin-bottom:14px}
+  .lg-c input{font:inherit;font-size:15px;font-weight:500;padding:12px 14px;border:1px solid #d6d9dd;border-radius:6px;background:#fff;outline:none;color:#0d121b;text-transform:none;letter-spacing:0}.lg-c input:focus{border-color:#0d121b;box-shadow:0 0 0 1px #0d121b}
+  .lg-b{width:100%;font:inherit;font-weight:600;font-size:12px;letter-spacing:.22em;text-transform:uppercase;padding:15px;border:0;border-radius:6px;color:#fff;background:#0d121b;cursor:pointer;margin-top:6px}.lg-b:hover{background:#262c36}.lg-b:disabled{opacity:.6}
+  .lg-l{background:none;border:0;font:inherit;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#0d121b;cursor:pointer;padding:0;border-bottom:1px solid #b9bdc2}.lg-row{display:flex;justify-content:space-between;margin-top:16px}
+  .lg-m{font-size:13.5px;min-height:20px;margin-top:12px;color:#c0392b;font-weight:600}.lg-m.ok{color:#2f6b4f}.lg-m{color:#a23a30}`;
   const mark = '<svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2.5" stroke="#fff" stroke-width="1.8"/><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="1.2" opacity=".55"/><path d="M7 17L17 7" stroke="#ebbd4c" stroke-width="2.6" stroke-linecap="round"/></svg>';
   let ov = null;
   const toon = html => {
@@ -180,6 +183,7 @@
     try { await Promise.race([fs.collection(pf("instellingen")).limit(1).get(), new Promise((_, nee) => setTimeout(() => nee({ code: "traag" }), 8000))]); }
     catch (e) { if (e.code === "permission-denied") return geenToegang(u); }
     if (ov) ov.style.display = "none";
+    document.documentElement.classList.remove("lg-wacht");
     if (!gestart) { gestart = true; klaar(u); voegUitloggenToe(); }
   }
   function voegUitloggenToe() {
