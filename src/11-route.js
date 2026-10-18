@@ -21,9 +21,10 @@ function vRoute(){
   const navTxt=isT?"Vandaag":fmtD(d);
   const stat=(l,v,sub)=>`<div class="rd-s"><small>${l}</small><b>${v}</b>${sub?`<span>${sub}</span>`:""}</div>`;
   const nodes=stops.map((s,i)=>{const nu=!s.done&&nx&&s.k.id===nx.id;return `<li class="${s.done?"af":nu?"nu":""}" title="${esc(jobAddrObj(s.k).adres||cleanName(s.k.naam))}"><i>${s.done?`<svg viewBox="0 0 24 24"><path d="M5.5 12.8l4.2 4.2L18.5 7.6"/></svg>`:HUIS}</i><small>${esc(s.k.tijd||"")}</small></li>`}).join("");
-  let html=`<div class="rh"><div class="rh-top"><div class="rh-tt"><p class="rh-k">${I.route}<span>${longD(d)}</span><em>wk ${weekNr(d)}</em></p><h1 class="rh-t">Route${naam?`<span>${naam}</span>`:""}</h1></div>
+  let html=`<div class="rh"><div class="rh-top"><div class="rh-tt"><p class="rh-k">${I.route}<span>${longD(d)}</span><em>wk ${weekNr(d)}</em></p><h1 class="rh-t">Vandaag${naam?`<span>${naam}</span>`:""}</h1></div>
     <div class="rh-acts">${isT?lvKnopHtml():""}<div class="rh-nav" role="group" aria-label="Dag"><button type="button" data-act="rday" data-n="-1" aria-label="Vorige dag">${I.left}</button><button type="button" class="rh-nu${isT?" is-nu":""}" data-act="rday" data-n="0">${navTxt}</button><button type="button" data-act="rday" data-n="1" aria-label="Volgende dag">${I.right}</button></div></div></div>
   ${stops.length?rvKaart({stops,done,todo,nx,klaar,mw,verdiend,totaal,restMin,klaarOm,uM,day,werkMin,reisMin,rt,isT,laat}):""}</div>`;
+  if(typeof werkdagKaart==="function"&&stops.length)html+=werkdagKaart(day,isT,stops.length);
   if(!stops.length)return html+empty("Geen stops op deze dag","Plan klanten in via Planning, dan staan ze hier op volgorde.",`<button type="button" class="primary" data-act="tab" data-tab="planning">${I.planning}Naar planning</button>`);
   if(todo.length){
     const k=todo[0].k,a=jobAddrObj(k),js=jobState(k,day),sp=STATEPILL[js],tel=String(k.telefoon||"").replace(/[^\d+]/g,"");
@@ -83,7 +84,7 @@ function rtMin(a,b){if(!a||!b)return null;const km=rtKm(a,b);if(km<.05)return 0;
 let rtBezig=false;
 function rtReis(stops,todo,isT){if(typeof pkCoord!=="function")return{heen:0,tussen:Math.max(0,todo.length-1)*8,schat:true};
   const bk=rtBedrijf(),lijst=[...stops.map(s=>s.k),...(pkHeeftAdres(bk)?[bk]:[])];
-  if(!rtBezig&&pkOpen(lijst).length){rtBezig=true;Promise.resolve(pkGeocode(lijst)).finally(()=>{rtBezig=false;if(state.tab==="route")render()})}
+  if(!rtBezig&&pkOpen(lijst).length){rtBezig=true;Promise.resolve(pkGeocode(lijst)).finally(()=>{rtBezig=false;if(state.tab==="route"||state.tab==="vandaag")render()})}
   let schat=false;const m=(a,b)=>{const v=rtMin(a,b);if(v==null){schat=true;return 8}return v};
   let tussen=0;for(let i=0;i<todo.length-1;i++)tussen+=m(pkCoord(todo[i].k),pkCoord(todo[i+1].k));
   let heen=0;if(isT&&todo.length){const af=stops.filter(s=>s.done),van=(typeof LV!=="undefined"&&LV.pos&&[LV.pos.lat,LV.pos.lng])||(af.length&&pkCoord(af[af.length-1].k))||(pkHeeftAdres(bk)&&pkCoord(bk))||null;

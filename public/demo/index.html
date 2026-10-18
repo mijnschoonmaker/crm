@@ -4564,7 +4564,7 @@ const I={
   mark:'<svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2.5" stroke="#fff" stroke-width="1.8"/><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="1.2" opacity=".55"/><path d="M7 17L17 7" stroke="#ebbd4c" stroke-width="2.6" stroke-linecap="round"/></svg>',
 };
 
-const PAGES=[["vandaag","Vandaag"],["route","Route"],["planning","Planning"],["klanten","Klanten"],["communicatie","Communicatie"],["offertes","Offertes"],["facturen","Facturen"],["uitvoering","Uitvoering"],["inzichten","Statistieken"],["instellingen","Instellingen"],["handleiding","Handleiding"]];
+const PAGES=[["vandaag","Vandaag"],["planning","Planning"],["klanten","Klanten"],["communicatie","Communicatie"],["offertes","Offertes"],["facturen","Facturen"],["uitvoering","Uitvoering"],["inzichten","Statistieken"],["instellingen","Instellingen"],["handleiding","Handleiding"]];
 const DIENSTEN=["Glasbewassing","Glasbewassing buiten","Begane grond glas","Binnen en buiten","Dakgoot reinigen","Zonnepanelen reinigen","Kozijnen reinigen","Gevelreiniging","Schoonmaak"];
 const KANAAL={whatsapp:"WhatsApp",sms:"SMS",email:"E-mail"};
 const KOSTCAT=["Materiaal","Brandstof","Auto en bus","Gereedschap","Telefoon en internet","Verzekering","Kleding","Software","Overig"];
@@ -4619,7 +4619,7 @@ const state={tab:"vandaag",klanten:[],beurten:[],facturen:[],routes:{},settings:
   week:startOfWeek(new Date()),vDay:null,routeDay:null,
   btab:"overzicht",bjaar:new Date().getFullYear(),bper:"jaar",itab:"geld",iper:"maand",hq:"",open:{},
   collapsed:false,loaded:false,db:null,dl:null,assets:null,me:null};
-try{const t=localStorage.getItem("zeem.tab");if(t&&PAGES.some(x=>x[0]===t))state.tab=t;else if(window.matchMedia&&matchMedia("(max-width:979px)").matches)state.tab="route";state.collapsed=localStorage.getItem("zeem.col")==="1"}catch(e){}
+try{const t=localStorage.getItem("zeem.tab");if(t&&PAGES.some(x=>x[0]===t))state.tab=t;else if(window.matchMedia&&matchMedia("(max-width:979px)").matches)state.tab="vandaag";state.collapsed=localStorage.getItem("zeem.col")==="1"}catch(e){}
 const S=()=>({...DEF,...state.settings});
 const big=()=>matchMedia("(min-width:980px)").matches;
 
@@ -5874,9 +5874,10 @@ function vRoute(){
   const navTxt=isT?"Vandaag":fmtD(d);
   const stat=(l,v,sub)=>`<div class="rd-s"><small>${l}</small><b>${v}</b>${sub?`<span>${sub}</span>`:""}</div>`;
   const nodes=stops.map((s,i)=>{const nu=!s.done&&nx&&s.k.id===nx.id;return `<li class="${s.done?"af":nu?"nu":""}" title="${esc(jobAddrObj(s.k).adres||cleanName(s.k.naam))}"><i>${s.done?`<svg viewBox="0 0 24 24"><path d="M5.5 12.8l4.2 4.2L18.5 7.6"/></svg>`:HUIS}</i><small>${esc(s.k.tijd||"")}</small></li>`}).join("");
-  let html=`<div class="rh"><div class="rh-top"><div class="rh-tt"><p class="rh-k">${I.route}<span>${longD(d)}</span><em>wk ${weekNr(d)}</em></p><h1 class="rh-t">Route${naam?`<span>${naam}</span>`:""}</h1></div>
+  let html=`<div class="rh"><div class="rh-top"><div class="rh-tt"><p class="rh-k">${I.route}<span>${longD(d)}</span><em>wk ${weekNr(d)}</em></p><h1 class="rh-t">Vandaag${naam?`<span>${naam}</span>`:""}</h1></div>
     <div class="rh-acts">${isT?lvKnopHtml():""}<div class="rh-nav" role="group" aria-label="Dag"><button type="button" data-act="rday" data-n="-1" aria-label="Vorige dag">${I.left}</button><button type="button" class="rh-nu${isT?" is-nu":""}" data-act="rday" data-n="0">${navTxt}</button><button type="button" data-act="rday" data-n="1" aria-label="Volgende dag">${I.right}</button></div></div></div>
   ${stops.length?rvKaart({stops,done,todo,nx,klaar,mw,verdiend,totaal,restMin,klaarOm,uM,day,werkMin,reisMin,rt,isT,laat}):""}</div>`;
+  if(typeof werkdagKaart==="function"&&stops.length)html+=werkdagKaart(day,isT,stops.length);
   if(!stops.length)return html+empty("Geen stops op deze dag","Plan klanten in via Planning, dan staan ze hier op volgorde.",`<button type="button" class="primary" data-act="tab" data-tab="planning">${I.planning}Naar planning</button>`);
   if(todo.length){
     const k=todo[0].k,a=jobAddrObj(k),js=jobState(k,day),sp=STATEPILL[js],tel=String(k.telefoon||"").replace(/[^\d+]/g,"");
@@ -5936,7 +5937,7 @@ function rtMin(a,b){if(!a||!b)return null;const km=rtKm(a,b);if(km<.05)return 0;
 let rtBezig=false;
 function rtReis(stops,todo,isT){if(typeof pkCoord!=="function")return{heen:0,tussen:Math.max(0,todo.length-1)*8,schat:true};
   const bk=rtBedrijf(),lijst=[...stops.map(s=>s.k),...(pkHeeftAdres(bk)?[bk]:[])];
-  if(!rtBezig&&pkOpen(lijst).length){rtBezig=true;Promise.resolve(pkGeocode(lijst)).finally(()=>{rtBezig=false;if(state.tab==="route")render()})}
+  if(!rtBezig&&pkOpen(lijst).length){rtBezig=true;Promise.resolve(pkGeocode(lijst)).finally(()=>{rtBezig=false;if(state.tab==="route"||state.tab==="vandaag")render()})}
   let schat=false;const m=(a,b)=>{const v=rtMin(a,b);if(v==null){schat=true;return 8}return v};
   let tussen=0;for(let i=0;i<todo.length-1;i++)tussen+=m(pkCoord(todo[i].k),pkCoord(todo[i+1].k));
   let heen=0;if(isT&&todo.length){const af=stops.filter(s=>s.done),van=(typeof LV!=="undefined"&&LV.pos&&[LV.pos.lat,LV.pos.lng])||(af.length&&pkCoord(af[af.length-1].k))||(pkHeeftAdres(bk)&&pkCoord(bk))||null;
@@ -13034,7 +13035,7 @@ if(typeof window!=="undefined"&&LIVE){const t=setInterval(()=>{if(window.ZEEM_BI
    Een medewerker (glazenwasser) ziet alleen wat hij nodig heeft om het werk te doen:
    Vandaag en Route, per adres de instructies, poortcode en notities, en hij kan afmelden.
    Geen bedragen, geen facturen, offertes, instellingen of planning. */
-const MW_TABS=["vandaag","route","handleiding"];
+const MW_TABS=["vandaag","handleiding"];
 state.rol=(()=>{try{return localStorage.getItem("ms.rol")||""}catch(e){return""}})();
 function isMw(){if(!LIVE)return false;if(isEigenaar())return false;if(!state.me)return state.rol==="medewerker";return state.rol!=="beheerder"&&state.rol!=="eigenaar"}
 async function laadRol(){if(!LIVE)return;
@@ -13383,7 +13384,7 @@ if(typeof SETCARDS!=="undefined"&&LIVE){
   setTimeout(()=>{try{const n=sessionStorage.getItem("ms.herstelOver");if(n!=null){sessionStorage.removeItem("ms.herstelOver");toast(`Ingelogd met een herstelcode. Je hebt er nog ${n}. Stel tweestapsverificatie opnieuw in op je nieuwe telefoon (Instellingen › Beveiliging).`)}}catch(e){}},2500)}
 
 /* ---------- RENDER ---------- */
-const VIEWS={vandaag:vVandaag,route:vRoute,planning:vPlanning,klanten:vKlanten,communicatie:vCommunicatie,offertes:vOffertes,facturen:vFacturen,boekhouding:vBoekhouding,calculator:vRamen,uitvoering:vUitvoering,inzichten:vInzichten,instellingen:vInstellingen,handleiding:vHandleiding};
+const VIEWS={vandaag:vRoute,route:vRoute,planning:vPlanning,klanten:vKlanten,communicatie:vCommunicatie,offertes:vOffertes,facturen:vFacturen,boekhouding:vBoekhouding,calculator:vRamen,uitvoering:vUitvoering,inzichten:vInzichten,instellingen:vInstellingen,handleiding:vHandleiding};
 function render(){try{warmMailLogo()}catch(e){}
   const late=overdue().length,ach=facturen().filter(f=>fStatus(f)[1]==="Achterstallig").length,mTodo=state.loaded?queues().reduce((a,q)=>a+q.items.length,0):0;
   const st_=S(),B={planning:st_.bolPlanning===false?0:late,facturen:st_.bolFacturen===false?0:ach,communicatie:st_.bolComm===false?0:mTodo,klanten:nieuweAanmeldingen().length,offertes:state.facturen.filter(f=>f.soort==="offerte"&&f.getekendNieuw).length};
@@ -13397,7 +13398,7 @@ function render(){try{warmMailLogo()}catch(e){}
   $(".app").classList.toggle("collapsed",state.collapsed);
   const mw=isMw();document.body.classList.toggle("mw",mw);if(mw&&!MW_TABS.includes(state.tab))state.tab="vandaag";
   $("#sideNav").innerHTML=PAGES.filter(([t])=>!mw||MW_TABS.includes(t)).map(([t,l])=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}" title="${l}">${I[t]}<span class="lbl">${l}</span>${badge(t)}</button>`).join("");
-  const mob=mw?MW_TABS:["vandaag","route","planning","klanten"],inMeer=!mob.includes(state.tab),meerB=late*0+mTodo;
+  const mob=mw?MW_TABS:["vandaag","planning","klanten","facturen"],inMeer=!mob.includes(state.tab),meerB=late*0+mTodo;
   $("#tabNav").innerHTML=mw?mob.map(t=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}"><i>${I[t]}</i>${PAGES.find(p=>p[0]===t)[1]}</button>`).join(""):mob.map(t=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}"><i>${I[t]}</i>${PAGES.find(p=>p[0]===t)[1]}${badge(t)}</button>`).join("")+`<button type="button" data-act="meer" aria-current="${inMeer}"><i>${I.more}</i>Meer${meerB?`<span class="badge">${meerB}</span>`:""}</button>`;
   const nm=(state.me&&state.me.name)||S().naam||"Jouw bedrijf";
   {let lg=S().logo;if(lg){try{localStorage.setItem("ms.lg",lg)}catch(e){}}else if(LIVE){try{lg=localStorage.getItem("ms.lg")||""}catch(e){}}
@@ -13413,8 +13414,8 @@ function render(){try{warmMailLogo()}catch(e){}
   if(fid){const el=document.getElementById(fid);if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}}
 }
 /* paginawissel in de geschiedenis, zodat de terugknop naar de vorige pagina gaat */
-function go(tab){if(isMw()&&!MW_TABS.includes(tab))tab="vandaag";if(tab!==state.tab){try{history.pushState({msTab:tab},"")}catch(_){}}goTab(tab)}
-function goTab(tab){if(isMw()&&!MW_TABS.includes(tab))tab="vandaag";state.tab=tab;state.kmenu=state.fmenu=false;try{localStorage.setItem("zeem.tab",tab)}catch(_){}if(dlg.open)dlg.close();render();window.scrollTo(0,0)}
+function go(tab){if(tab==="route")tab="vandaag";if(isMw()&&!MW_TABS.includes(tab))tab="vandaag";if(tab!==state.tab){try{history.pushState({msTab:tab},"")}catch(_){}}goTab(tab)}
+function goTab(tab){if(tab==="route")tab="vandaag";if(isMw()&&!MW_TABS.includes(tab))tab="vandaag";state.tab=tab;state.kmenu=state.fmenu=false;try{localStorage.setItem("zeem.tab",tab)}catch(_){}if(dlg.open)dlg.close();render();window.scrollTo(0,0)}
 
 /* ---------- EVENTS ---------- */
 let swAt=0;

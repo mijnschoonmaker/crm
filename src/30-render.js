@@ -1,5 +1,5 @@
 /* ---------- RENDER ---------- */
-const VIEWS={vandaag:vVandaag,route:vRoute,planning:vPlanning,klanten:vKlanten,communicatie:vCommunicatie,offertes:vOffertes,facturen:vFacturen,boekhouding:vBoekhouding,calculator:vRamen,uitvoering:vUitvoering,inzichten:vInzichten,instellingen:vInstellingen,handleiding:vHandleiding};
+const VIEWS={vandaag:vRoute,route:vRoute,planning:vPlanning,klanten:vKlanten,communicatie:vCommunicatie,offertes:vOffertes,facturen:vFacturen,boekhouding:vBoekhouding,calculator:vRamen,uitvoering:vUitvoering,inzichten:vInzichten,instellingen:vInstellingen,handleiding:vHandleiding};
 function render(){try{warmMailLogo()}catch(e){}
   const late=overdue().length,ach=facturen().filter(f=>fStatus(f)[1]==="Achterstallig").length,mTodo=state.loaded?queues().reduce((a,q)=>a+q.items.length,0):0;
   const st_=S(),B={planning:st_.bolPlanning===false?0:late,facturen:st_.bolFacturen===false?0:ach,communicatie:st_.bolComm===false?0:mTodo,klanten:nieuweAanmeldingen().length,offertes:state.facturen.filter(f=>f.soort==="offerte"&&f.getekendNieuw).length};
@@ -13,7 +13,7 @@ function render(){try{warmMailLogo()}catch(e){}
   $(".app").classList.toggle("collapsed",state.collapsed);
   const mw=isMw();document.body.classList.toggle("mw",mw);if(mw&&!MW_TABS.includes(state.tab))state.tab="vandaag";
   $("#sideNav").innerHTML=PAGES.filter(([t])=>!mw||MW_TABS.includes(t)).map(([t,l])=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}" title="${l}">${I[t]}<span class="lbl">${l}</span>${badge(t)}</button>`).join("");
-  const mob=mw?MW_TABS:["vandaag","route","planning","klanten"],inMeer=!mob.includes(state.tab),meerB=late*0+mTodo;
+  const mob=mw?MW_TABS:["vandaag","planning","klanten","facturen"],inMeer=!mob.includes(state.tab),meerB=late*0+mTodo;
   $("#tabNav").innerHTML=mw?mob.map(t=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}"><i>${I[t]}</i>${PAGES.find(p=>p[0]===t)[1]}</button>`).join(""):mob.map(t=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}"><i>${I[t]}</i>${PAGES.find(p=>p[0]===t)[1]}${badge(t)}</button>`).join("")+`<button type="button" data-act="meer" aria-current="${inMeer}"><i>${I.more}</i>Meer${meerB?`<span class="badge">${meerB}</span>`:""}</button>`;
   const nm=(state.me&&state.me.name)||S().naam||"Jouw bedrijf";
   {let lg=S().logo;if(lg){try{localStorage.setItem("ms.lg",lg)}catch(e){}}else if(LIVE){try{lg=localStorage.getItem("ms.lg")||""}catch(e){}}
@@ -29,8 +29,8 @@ function render(){try{warmMailLogo()}catch(e){}
   if(fid){const el=document.getElementById(fid);if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}}
 }
 /* paginawissel in de geschiedenis, zodat de terugknop naar de vorige pagina gaat */
-function go(tab){if(isMw()&&!MW_TABS.includes(tab))tab="vandaag";if(tab!==state.tab){try{history.pushState({msTab:tab},"")}catch(_){}}goTab(tab)}
-function goTab(tab){if(isMw()&&!MW_TABS.includes(tab))tab="vandaag";state.tab=tab;state.kmenu=state.fmenu=false;try{localStorage.setItem("zeem.tab",tab)}catch(_){}if(dlg.open)dlg.close();render();window.scrollTo(0,0)}
+function go(tab){if(tab==="route")tab="vandaag";if(isMw()&&!MW_TABS.includes(tab))tab="vandaag";if(tab!==state.tab){try{history.pushState({msTab:tab},"")}catch(_){}}goTab(tab)}
+function goTab(tab){if(tab==="route")tab="vandaag";if(isMw()&&!MW_TABS.includes(tab))tab="vandaag";state.tab=tab;state.kmenu=state.fmenu=false;try{localStorage.setItem("zeem.tab",tab)}catch(_){}if(dlg.open)dlg.close();render();window.scrollTo(0,0)}
 
 /* ---------- EVENTS ---------- */
 let swAt=0;

@@ -2,7 +2,7 @@
    Een medewerker (glazenwasser) ziet alleen wat hij nodig heeft om het werk te doen:
    Vandaag en Route, per adres de instructies, poortcode en notities, en hij kan afmelden.
    Geen bedragen, geen facturen, offertes, instellingen of planning. */
-const MW_TABS=["vandaag","route","handleiding"];
+const MW_TABS=["vandaag","handleiding"];
 state.rol=(()=>{try{return localStorage.getItem("ms.rol")||""}catch(e){return""}})();
 function isMw(){if(!LIVE)return false;if(isEigenaar())return false;if(!state.me)return state.rol==="medewerker";return state.rol!=="beheerder"&&state.rol!=="eigenaar"}
 async function laadRol(){if(!LIVE)return;
