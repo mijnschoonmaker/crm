@@ -540,3 +540,18 @@ html body #view:not(#zz) .rh-t span{font-size:inherit!important;font-weight:300!
 html body #view:not(#zz) :is(.lead,.pl-sum){font-size:16px!important;font-weight:400!important;color:#5d6168!important;line-height:1.45!important}
 html body #view:not(#zz) :is(.lead,.pl-sum) b{font-weight:500!important;color:#0d121b!important}
 @media (max-width:700px){html body #view:not(#zz) h1,html body #view:not(#zz) h1.xl,html body #view:not(#zz) .rh-t{font-size:30px!important}}
+/* paginaknoppen op telefoon: hoofdknop over de volle breedte, overige als gelijke tegels */
+@media (max-width:700px){
+ html body main #view:not(#zz) :is(.toolbar,.acts):has(> .primary):has(> :not(.primary)):not(.ns-head + .toolbar){display:flex!important;flex-wrap:wrap!important;gap:8px!important;width:100%!important}
+ html body main #view:not(#zz) :is(.toolbar,.acts):has(> .primary):has(> :not(.primary)):not(.ns-head + .toolbar)>.primary{flex:0 0 100%!important;order:-1;width:100%!important;justify-content:center!important;min-height:46px!important}
+ html body main #view:not(#zz) :is(.toolbar,.acts):has(> .primary):has(> :not(.primary)):not(.ns-head + .toolbar)>.drop{flex:1 1 0!important;min-width:0!important;display:flex!important}
+ html body main #view:not(#zz) :is(.toolbar,.acts):has(> .primary):has(> :not(.primary)):not(.ns-head + .toolbar)>:is(button,a):not(.primary),html body main #view:not(#zz) :is(.toolbar,.acts):has(> .primary):has(> :not(.primary)):not(.ns-head + .toolbar)>.drop>button{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:6px!important;min-height:66px!important;height:auto!important;padding:8px 4px!important;white-space:normal!important;text-align:center!important;letter-spacing:.04em!important;font-size:9.5px!important;line-height:1.2!important;min-width:0!important;width:auto!important;flex:1 1 0!important;border-radius:8px!important;overflow-wrap:anywhere}
+ html body main #view:not(#zz) :is(.toolbar,.acts):has(> .primary):has(> :not(.primary)):not(.ns-head + .toolbar)>.drop>button{width:100%!important;height:100%!important}
+ html body main #view:not(#zz) :is(.toolbar,.acts):has(> .primary):has(> :not(.primary)):not(.ns-head + .toolbar) svg{width:18px!important;height:18px!important;margin:0!important;flex:none}
+}
+
+@media (max-width:700px){
+ /* maar één extra knop: gewoon naast elkaar op één regel */
+ html body main #view:not(#zz) :is(.toolbar,.acts):has(> .primary):has(> :not(.primary)):has(> :nth-child(2):last-child):not(.ns-head + .toolbar):not(#zz)>:is(button,a){flex:1 1 0!important;order:0!important;flex-direction:row!important;min-height:46px!important;padding:0 12px!important;font-size:10.5px!important;letter-spacing:.1em!important;gap:8px!important;white-space:nowrap!important}
+ html body main #view:not(#zz) :is(.toolbar,.acts):has(> .primary):has(> :not(.primary)):has(> :nth-child(2):last-child):not(.ns-head + .toolbar):not(#zz)>.primary{order:2!important;flex:1.4 1 0!important}
+}
