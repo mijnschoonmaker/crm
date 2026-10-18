@@ -27,7 +27,7 @@ module.exports = function maakPortaal(ctx) {
 
   function basisUrl(req) {
     const h = String(req.headers["x-forwarded-host"] || req.hostname || "").split(",")[0].trim().toLowerCase();
-    return /^[a-z0-9.-]+\.(web\.app|firebaseapp\.com|mijnschoonmaker\.com)$/.test(h) ? "https://" + h : HOST();
+    return /^[a-z0-9.-]+\.(web\.app|firebaseapp\.com|mijnschoonmaker\.com|mansard\.(nl|be|it|uk|co\.uk|eu|com))$/.test(h) ? "https://" + h : HOST();
   }
   async function limiet(sleutel, max, ms) {
     const ref = db.doc("limiet/p" + sha(sleutel).slice(0, 40));

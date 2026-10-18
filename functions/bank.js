@@ -112,7 +112,7 @@ module.exports = ({ db, onCall, onRequest, onSchedule, HttpsError, geheim, check
     if (!r.ok) { const m = j.message || j.detail || j.error || t.slice(0, 200); const e = new Error("Bank: " + m); e.status = r.status; e.code = j.code || j.error; throw e; }
     return j;
   }
-  const basisOk = s => { const u = String(s || ""); return /^https:\/\/[a-z0-9.-]+$/i.test(u) && (u === HOST() || /\.(web\.app|firebaseapp\.com)$/.test(u) || /(^|\.)mijnschoonmaker\.com$/.test(u.replace(/^https:\/\//, ""))) ? u : HOST(); };
+  const basisOk = s => { const u = String(s || ""); return /^https:\/\/[a-z0-9.-]+$/i.test(u) && (u === HOST() || /\.(web\.app|firebaseapp\.com)$/.test(u) || /(^|\.)(mijnschoonmaker\.com|mansard\.(nl|be|it|uk|co\.uk|eu|com))$/.test(u.replace(/^https:\/\//, ""))) ? u : HOST(); };
 
   const bankBanken = onCall(async req => {
     await checkGebruiker(req.auth);
