@@ -2,7 +2,7 @@
 const path = require("path"), admin = require(path.join(__dirname, "..", "functions", "node_modules", "firebase-admin"));
 admin.initializeApp({ credential: admin.credential.applicationDefault(), projectId: process.env.P });
 const k = String(process.env.KEY || ""), v = String(process.env.VAL ?? "");
-const MAG = ["onderdeelVan", "naam", "website"];
+const MAG = ["onderdeelVan", "naam", "website", "adres", "postcode", "plaats"];
 (async () => {
   if (!MAG.includes(k)) throw new Error("Dit veld mag hier niet: " + k);
   await admin.firestore().doc("instellingen/bedrijf").set({ [k]: v }, { merge: true });
