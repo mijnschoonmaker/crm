@@ -8,7 +8,7 @@ async function rvMapTeken(){const el=document.getElementById("rvMap");if(!el||!s
   if(pkOpen(lijst).length){try{await pkGeocode(lijst)}catch(e){}}
   try{await pkLaadLeaflet()}catch(e){el.innerHTML='<div class="rv-map-l">Kaart niet beschikbaar</div>';return}
   if(!document.body.contains(el))return;const L=window.L;
-  if(!el._map){el.innerHTML="";el._map=L.map(el,{zoomControl:false,attributionControl:false});L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19}).addTo(el._map);el._laag=L.layerGroup().addTo(el._map)}
+  if(!el._map){el.innerHTML="";el._map=L.map(el,{zoomControl:false,attributionControl:false});rvOndergrond(el);el._laag=L.layerGroup().addTo(el._map);rvLaagKnop(el)}
   const m=el._map;el._laag.clearLayers();const pts=[];let nx=stops.find(s=>!s.done);
   const lijn=[];
   stops.forEach((s,i)=>{const c=pkCoord(s.k);if(!c)return;pts.push(c);lijn.push(c);const nu=nx&&s.k.id===nx.k.id;
@@ -78,3 +78,15 @@ function rvEigenStart(){if(!LIVE||RVP.watch!=null||!navigator.geolocation)return
     const eerst=!RVP.pos;RVP.pos={lat:p.coords.latitude,lng:p.coords.longitude};rvMapLive();
     if(eerst){const el=document.getElementById("rvMap");try{el._map.fitBounds(el._map.getBounds().extend([RVP.pos.lat,RVP.pos.lng]),{padding:[22,22],maxZoom:15})}catch(e){}}},
     ()=>{},{enableHighAccuracy:true,maximumAge:5000,timeout:30000})}
+/* ondergrond: luchtfoto (PDOK, haarscherp voor heel Nederland) met straatnamen erover, of een rustige stratenkaart */
+state.rvSat=(()=>{try{return localStorage.getItem("ms.rvsat")!=="0"}catch(e){return true}})();
+function rvOndergrond(el){const L=window.L,m=el._map;(el._tegels||[]).forEach(t=>m.removeLayer(t));
+  el._tegels=state.rvSat?[
+    L.tileLayer("https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0/Actueel_orthoHR/EPSG:3857/{z}/{x}/{y}.jpeg",{maxZoom:20,maxNativeZoom:19}),
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png",{maxZoom:20,subdomains:"abcd",opacity:.95})
+  ]:[L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",{maxZoom:20,subdomains:"abcd"})];
+  el._tegels.forEach(t=>t.addTo(m));el.classList.toggle("sat",state.rvSat)}
+function rvLaagKnop(el){const b=document.createElement("button");b.type="button";b.className="rv-laag";
+  const zet=()=>{b.innerHTML=state.rvSat?"<span>Kaart</span>":"<span>Satelliet</span>";b.setAttribute("aria-label",state.rvSat?"Toon stratenkaart":"Toon luchtfoto")};zet();
+  b.addEventListener("click",e=>{e.stopPropagation();state.rvSat=!state.rvSat;try{localStorage.setItem("ms.rvsat",state.rvSat?"1":"0")}catch(er){}rvOndergrond(el);zet()});
+  ["mousedown","touchstart","dblclick","wheel"].forEach(t=>b.addEventListener(t,e=>e.stopPropagation(),{passive:true}));el.appendChild(b)}
