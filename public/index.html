@@ -14470,6 +14470,18 @@ html body .cm .cm-pt.p2 i svg,html body .cm .cm-pt.p2 i svg *{stroke:#fff!import
 html body .cm .cm-pt b{color:#0d121b!important;font-weight:500!important}
 html body .cm .cm-pt small{color:#5d6168!important}
 html body .cm .cm-env svg{filter:drop-shadow(0 6px 10px rgb(13 18 27 / .18))}
+/* hoofdknop in werkbalk even hoog als de rest */
+@media (min-width:701px){html body main #view:not(#zz) :is(.toolbar,.acts)>.primary{min-height:40px!important;height:40px!important;padding:0 18px!important}}
+/* filterchips als segmentbalk (zoals Recent / Klaar / Templates) */
+html body .chips{display:inline-flex!important;flex-wrap:nowrap;align-items:center;gap:2px!important;background:#fff!important;border:1px solid var(--rr-rand)!important;border-radius:6px!important;padding:4px!important;max-width:100%;overflow-x:auto;scrollbar-width:none}
+html body .chips::-webkit-scrollbar{display:none}
+html body .chips .chip{background:transparent!important;border:0!important;box-shadow:none!important;border-radius:4px!important;min-height:36px!important;padding:0 16px!important;color:#5d6168!important;font-size:11.5px!important;font-weight:600!important;letter-spacing:.16em!important;text-transform:uppercase!important;white-space:nowrap;display:inline-flex;align-items:center;gap:8px}
+html body .chips .chip:hover{background:#f4f5f6!important;color:#0d121b!important}
+html body .chips .chip :is(em,span,small,b:not(:first-child)){color:#a3a7ad!important;font-weight:500!important;font-style:normal;background:none!important;letter-spacing:.06em}
+html body .chips .chip:is(.on,[aria-pressed="true"],.active){background:#0d121b!important;color:#fff!important}
+html body .chips .chip:is(.on,[aria-pressed="true"],.active) :is(em,span,small){color:rgb(255 255 255 / .6)!important}
+html body .chips>svg,html body .chips>.chips-ic{margin:0 6px 0 8px;flex:none}
+html body .chips select,html body .chips .chip-sel{border:0!important;background:transparent!important;font-size:11.5px!important;font-weight:600!important;letter-spacing:.16em!important;text-transform:uppercase!important;color:#5d6168!important;min-height:36px!important}
 
 </style>
 
