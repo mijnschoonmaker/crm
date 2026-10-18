@@ -14,7 +14,7 @@ function vFacturen(){
   const shown=lists[F].filter(f=>!q||[f.nummer,f.klantNaam,f.klantAdres,eur(totals(f).inc)].join(" ").toLowerCase().includes(q));
   fbSelOpschonen(new Set(all.map(f=>f.id)));
   const bk=fbBankInfo(),tc=fbTeBekijken();
-  let html=`<div class="pagehead"><div><h1>Facturen</h1><p class="lead" style="margin:0"><b>${all.length}</b> facturen · <b>${eur(sum(open))}</b> openstaand</p></div>
+  let html=`<div class="pagehead"><div><p class="kicker">Administratie</p><h1 class="xl">Facturen</h1><p class="lead" style="margin:0"><b>${all.length}</b> facturen · <b>${eur(sum(open))}</b> openstaand</p></div>
     <div class="acts"><button type="button" class="primary" data-act="newfactuur">${I.facturen}Nieuwe factuur</button><div class="drop"><button type="button" data-act="fmenu">Meer ${I.down}</button>${state.fmenu?`<div class="menu">
       <button type="button" data-act="perlijst">${I.receipt}Periodieke facturen (${state.klanten.filter(isPeriodiek).length})</button>
       <button type="button" data-act="billall" ${ub.length?"":"disabled"}>${I.facturen}Factureer gewassen werk (${ub.length})</button>
