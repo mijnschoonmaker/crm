@@ -1,4 +1,10 @@
 /* ---------- ROUTE ---------- */
+/* tik op een stop in de lijst: het ticket klapt open; tik op het adres: klantkaart */
+const RT_OPEN=new Set();
+document.addEventListener("click",e=>{const t=e.target;if(!t.closest)return;
+  const kop=t.closest(".rt-open .tk-kop");if(kop){const w=kop.closest(".rt-open");RT_OPEN.delete(w.dataset.rid);render();return}
+  const row=t.closest(".rlijst .rstop");if(!row||row.classList.contains("af")||t.closest("button,a,.rd-grip,input"))return;
+  RT_OPEN.add(row.dataset.rid);render();});
 function vRoute(){
   const day=state.routeDay||iso(today()),d=parse(day),stops=routeStops(day),todo=stops.filter(s=>!s.done);
   const doneB=state.beurten.filter(b=>b.datum===day),verdiend=doneB.reduce((a,b)=>a+(Number(b.bedrag)||0),0),totaal=verdiend+todo.reduce((a,s)=>a+(Number(s.k.prijs)||0),0);
@@ -29,7 +35,7 @@ function vRoute(){
   <div class="toolbar">${routeLinks(stops).map((l,i,a)=>`<a class="btn primary" href="${esc(l)}" target="_blank" rel="noopener">${I.map}${a.length>1?"Route deel "+(i+1):"Hele route in Google Maps"}</a>`).join("")}
     <button type="button" data-act="optim" data-d="${day}">${I.wand}Optimaliseer route</button><button type="button" data-act="bulkmsg">${I.msg}Bericht aan deze klanten</button></div>
   ${S().startadres?"":`<p class="subt">Tip: zet je vertrekadres bij Instellingen, dan begint de route daar.</p>`}
-  <div class="list rlijst" style="gap:8px">${stops.map((s,i)=>{const k=s.k,nu=!s.done&&nx&&k.id===nx.id;return `<div class="card rstop${s.done?" dim af":nu?" nu":""}" data-rid="${esc(k.id)}"${s.done?"":' data-rdrag="1"'}><span class="rnum${s.done?" done":nu?" nu":""}">${s.done?I.check:i+1}</span>
+  <div class="list rlijst" style="gap:8px">${stops.map((s,i)=>{const k=s.k,nu=!s.done&&nx&&k.id===nx.id;if(!s.done&&RT_OPEN.has(k.id))return `<div class="rt-open" data-rid="${esc(k.id)}">${stopCard(k,i,nu,parse(k.gepland)<today(),day,stops.length)}</div>`;return `<div class="card rstop${s.done?" dim af":nu?" nu":""}" data-rid="${esc(k.id)}"${s.done?"":' data-rdrag="1"'}><span class="rnum${s.done?" done":nu?" nu":""}">${s.done?I.check:i+1}</span>
     <button type="button" class="nm" data-act="klant" data-id="${esc(k.id)}">${esc(jobAddrObj(k).adres||k.naam)}</button>
     <div class="meta"><span>${k.tijd?`<b class="mono">${esc(k.tijd)}</b>`:""}</span><span>${esc(cleanName(k.naam))}</span><span>${esc(jobAddrObj(k).plaats||"")}</span><span class="amt">${eur(toon(k.prijs))}</span></div>
     <div class="side-col" style="flex-direction:row;align-items:center">${s.done?statusPill("ok","Afgerond"):`<span class="rd-grip" aria-hidden="true"><i></i><i></i><i></i></span><a class="btn small" href="${esc(mapsQ(k))}" target="_blank" rel="noopener" aria-label="Navigeer">${I.nav}</a>`}</div></div>`}).join("")}</div>`;

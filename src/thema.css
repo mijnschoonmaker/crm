@@ -452,3 +452,10 @@ html body .vr h2{font-size:20px!important;font-weight:400!important;letter-spaci
 html body .vr .vr-tx>p:last-child{color:#5d6168!important;margin:0!important;font-size:14px!important}
 html body .vr:not(.klaar)::before{background-size:30px!important}
 .vk-d svg,.vk-d svg *{color:#0d121b!important;stroke:#0d121b!important}
+/* route-lijst: hele rij klikbaar om het ticket open te klappen */
+.rlijst .rstop:not(.af){cursor:pointer}
+.rlijst .rstop .nm{cursor:pointer;text-decoration:none}
+.rlijst .rstop .nm:hover{text-decoration:underline;text-underline-offset:3px}
+.rt-open .tk-kop{cursor:pointer;position:relative}
+.rt-open .tk-kop::after{content:"";position:absolute;right:16px;bottom:8px;width:8px;height:8px;border-right:1.6px solid currentColor;border-bottom:1.6px solid currentColor;transform:rotate(-135deg);opacity:.6}
+.rt-open .tk-eta{padding-right:22px}
