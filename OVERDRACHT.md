@@ -165,3 +165,11 @@ Open `/tmp/crm.html` in een browser. Het klantportaal kun je lokaal testen door
 - **Facturen › Bankbestand uploaden**: CAMT.053 (XML), MT940 of CSV (Knab, ING en andere). De browser leest het bestand, de server (`functions/bank.js`, `bankVerwerk`) koppelt de betalingen.
 - **Bankkoppeling** (Facturen › Knab-strook): via Enable Banking (PSD2, alleen-lezen, gratis voor eigen rekeningen). App ID en private key (.pem) staan in `geheim/config` (`ebApp`, `ebKey`), de sessie in `geheim/bank`. De redirect URL is `https://crm.mijnschoonmaker.com/api/bank/terug`. Automatisch ophalen gebeurt om 8, 12, 16 en 20 uur (`bankSync`). De toestemming van de bank verloopt na 90 tot 180 dagen: dan opnieuw koppelen.
 - **Regel**: staat het factuurnummer in de omschrijving en klopt het bedrag, dan gaat de factuur op betaald. Ook een bekende rekening van de klant met precies het open bedrag telt. De rest komt in `banktx` met de status *controleren* of *onbekend* en wordt in het CRM met één klik gekoppeld. Uitbetalingen van Mollie worden genegeerd.
+
+## Mansard: meerdere bedrijven en abonnementen
+
+- **Bedrijven:** elk bedrijf staat in `bedrijven/<id>` (naam, eigenaar, status, proefTot, plan, Mollie-gegevens) met al zijn gegevens daaronder (`bedrijven/<id>/klanten`, …). Het eerste bedrijf (mijnschoonmaker.com) staat in de hoofdcollecties. `gebruikers/<email>.bedrijf` bepaalt bij welk bedrijf iemand hoort; zonder dat veld is het het eerste bedrijf.
+- **Server:** `functions/tenant.js` bepaalt per verzoek het bedrijf (ingelogde gebruiker, `?b=`, of een token dat begint met `<id>_`) en stuurt elke database-aanroep naar dat bedrijf. Geplande taken draaien per bedrijf.
+- **Aanmelden:** nieuw account → scherm "Welkom bij Mansard" → `bedrijfAanmaken` (30 dagen proef).
+- **Abonnement:** `functions/mansard.js`: € 99 per maand inclusief 3 gebruikers, € 19,95 per extra gebruiker, via Mollie (sleutel `mansardMollieKey` in `geheim/config`, anders `mollieKey`). Webhook: `/api/mansard-mollie`. Na afloop van de proef of het abonnement worden serverfuncties geweigerd en toont het CRM een afsluitscherm.
+- **Hulpmiddelen (GitHub › Actions):** "Domein koppelen", "Instelling zetten", "Factuurnummer instellen", "Gegevens wissen".
