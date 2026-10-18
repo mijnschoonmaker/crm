@@ -14199,6 +14199,17 @@ html body dialog .jp-kop:not(.sc2-kop){box-shadow:0 0 0 3px #0d121b,0 14px 30px 
 html body .iconbtn.primary,html body .iconbtn.sm.primary{background:#fff!important;background-image:none!important;border:1px solid var(--rr-rand)!important;color:#0d121b!important;box-shadow:none!important;width:36px!important;height:36px!important;min-height:36px!important;padding:0!important;border-radius:6px!important}
 html body .iconbtn.primary svg,html body .iconbtn.primary svg *{color:#0d121b!important;stroke:#0d121b!important;width:16px;height:16px}
 html body .iconbtn.primary:hover{border-color:#0d121b!important;background:#f7f8f9!important}
+/* VRIJE DAG / DAG KLAAR: rustig en strak in plaats van de gekleurde tekening */
+html body .vr{display:grid!important;grid-template-columns:auto 1fr!important;align-items:center!important;gap:18px!important;padding:22px!important;background:#fff!important;border:1px solid var(--rr-rand)!important;border-radius:14px!important;box-shadow:none!important;text-align:left!important}
+html body .vr .vr-sc{display:none!important}
+html body .vr::before{content:"";width:56px;height:56px;border-radius:8px;background:#f4f5f6 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230d121b' stroke-width='1.7' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='4'/%3E%3Cpath d='M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4'/%3E%3C/svg%3E") center/26px no-repeat}
+html body .vr.klaar::before{background:#0d121b url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/26px no-repeat}
+html body .vr .vr-tx{text-align:left!important;padding:0!important}
+html body .vr .vr-k{font-size:11px!important;font-weight:600!important;letter-spacing:.2em!important;text-transform:uppercase!important;color:#7a7e84!important;margin:0 0 4px!important}
+html body .vr h2{font-size:20px!important;font-weight:400!important;letter-spacing:-.005em!important;margin:0 0 4px!important;color:#0d121b!important}
+html body .vr .vr-tx>p:last-child{color:#5d6168!important;margin:0!important;font-size:14px!important}
+html body .vr:not(.klaar)::before{background-size:30px!important}
+.vk-d svg,.vk-d svg *{color:#0d121b!important;stroke:#0d121b!important}
 
 </style>
 
