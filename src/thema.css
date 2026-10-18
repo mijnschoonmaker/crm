@@ -653,3 +653,7 @@ html body :is(.vh-bus,.rv-bus,.tk-vlucht span,.tk-kop svg[viewBox="0 0 100 40"])
 html body .tk-vlucht span svg{width:64px!important;height:26px!important}
 html body .rv-bus:not(.thuis){left:max(68px,calc(var(--h)/2 + (100% - var(--h))*var(--v)))!important}
 html body .vh-bus{left:max(60px,calc(var(--p)*100%))!important}
+html body .rv-bus{width:96px!important;height:35px!important;top:30px!important}
+html body .rv-bus:not(.thuis){left:max(78px,calc(var(--h)/2 + (100% - var(--h))*var(--v)))!important}
+html body .vh-bus{width:82px!important;height:30px!important;top:14px!important}
+html body .vh-bus{left:max(68px,calc(var(--p)*100%))!important}
