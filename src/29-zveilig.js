@@ -4,7 +4,7 @@
 const VG={st:null,lijst:null,laatst:null};
 async function vgLaad(){try{VG.st=(await fbFn("mfaStatus")()).data}catch(e){VG.st={fout:fnFout(e)}}
   if(LIVE&&vgEigenaar())try{VG.lijst=(await fbFn("backupLijst")()).data.lijst}catch(e){VG.lijst=null}}
-const vgEigenaar=()=>String((window.firebase&&firebase.auth().currentUser||{}).email||"").toLowerCase()==="robin@mijnschoonmaker.com";
+const vgEigenaar=()=>String((window.firebase&&firebase.auth().currentUser||{}).email||"").toLowerCase()==="robin@mijnschoonmaker.com"||(!!window.ZEEM_BID&&window.ZEEM_BID!=="mijnschoonmaker"&&window.ZEEM_ROL==="eigenaar");
 function vgKb(b){return b>1048576?(b/1048576).toFixed(1).replace(".",",")+" MB":Math.max(1,Math.round(b/1024))+" kB"}
 function vgQr(tekst,el){const t=()=>{try{const q=window.qrcode(0,"M");q.addData(tekst);q.make();el.innerHTML=q.createSvgTag({cellSize:5,margin:2,scalable:true})}catch(e){el.textContent=""}};
   if(window.qrcode)return t();const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js";s.onload=t;document.head.appendChild(s)}

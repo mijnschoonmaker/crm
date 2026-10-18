@@ -8952,7 +8952,7 @@ function openSkip(id){
 const waNr=t=>{let d=String(t||"").replace(/\D/g,"");if(d.startsWith("00"))d=d.slice(2);else if(d.startsWith("0"))d="31"+d.slice(1);return d};
 async function klantCalcHtml(wa){const s=S();if(!RC)RC=buildRamen();const c=RC.cfgAll(),lg=await loadLogo();
   const cfg={g0_p:c.g0_p,g1_p:c.g1_p,g2_p:c.g2_p,g3_p:c.g3_p,tuimel_p:c.tuimel_p,lood_p:c.lood_p,koepel_p:c.koepel_p,mini_p:c.mini_p,start:c.start||0,min:c.min,tiers:c.tiers,tb:c.tb||{},wg:c.wg||{},fp:c.fp||{}};
-  const B={naam:s.naam||"Glasbewassing",email:s.email||"",whatsapp:wa||waNr(s.telefoon),logo:lg?await kleinLogo(lg.url):"",endpoint:LIVE?location.origin+"/api/aanvraag":"",werkgebied:String((form&&form.querySelector('[data-k="webPostcodes"]')||{}).value??s.webPostcodes??"").trim(),gebieden:wgVoorCalc(),klantPc:wgKlantPcAan()?wgKlantPc().join(","):"",voorwaarden:String((form&&form.querySelector('[data-k="webVoorwaarden"]')||{}).value??s.webVoorwaarden??"").trim()};
+  const B={naam:s.naam||"Glasbewassing",email:s.email||"",whatsapp:wa||waNr(s.telefoon),logo:lg?await kleinLogo(lg.url):"",endpoint:LIVE?location.origin+"/api/aanvraag"+(window.ZEEM_BID&&window.ZEEM_BID!=="het CRM"?"?b="+window.ZEEM_BID:""):"",werkgebied:String((form&&form.querySelector('[data-k="webPostcodes"]')||{}).value??s.webPostcodes??"").trim(),gebieden:wgVoorCalc(),klantPc:wgKlantPcAan()?wgKlantPc().join(","):"",voorwaarden:String((form&&form.querySelector('[data-k="webVoorwaarden"]')||{}).value??s.webVoorwaarden??"").trim()};
   const fla=RC.freqList().filter(f=>f.aan!==false),fadv=(fla.find(f=>f.adv)||fla.find(f=>f.k==="m8")||fla[0]||{}).k||"m8";const fl="const FREQ_LIST="+JSON.stringify(fla.map(f=>[f.k,f.l,f.w?52/f.w:1,Number(f.p)||0,f.w||0]))+";\nconst FREQ_ADV="+JSON.stringify(fadv)+";\n";
   const conf=`/*CFG-START*/\nconst BEDRIJF=${JSON.stringify(B)};\nconst VAT=${(Number(s.btw)||21)/100};\nconst cfg=${JSON.stringify(cfg)};\n${fl}`;
   return KC_TPL.slice(0,KC_TPL.indexOf("/*CFG-START*/"))+conf+KC_TPL.slice(KC_TPL.indexOf("/*CFG-END*/")).split('${k==="m8"?" selected":""}').join('${k===FREQ_ADV?" selected":""}').split('g("freq").value==="m8"').join('g("freq").value===FREQ_ADV')}
@@ -9552,7 +9552,7 @@ function websiteBody(o){const e=esc,IC={
 
 async function websiteDelen(){const fv=k=>{const el=typeof form!=="undefined"&&form&&form.querySelector(`[data-k="${k}"]`);return el?el.value:null};const s=S(),lg=await loadLogo();const wa=String(s.webWa||waNr(s.telefoon)||"").replace(/\D/g,"");
   const o={naam:s.naam,telefoon:s.telefoon,email:s.email,adres:s.adres,postcode:s.postcode,plaats:s.plaats,kvk:s.kvk,whatsapp:wa,logo:lg?await kleinLogo(lg.url):"",
-    portaal:LIVE?location.origin+"/portaal":"",werkApi:LIVE?location.origin+"/api/portaal/werk":"",score:String(fv("webScore")??s.webScore??"4,8").trim(),reviewUrl:String(fv("webReviewUrl")||s.webReviewUrl||"https://www.google.com/search?q=voorbeeldglazenwasserij.nl+Reviews").trim(),refBeloning:s.refBeloning!=null&&s.refBeloning!==""?Number(s.refBeloning):15,refWelkom:s.refWelkom!=null&&s.refWelkom!==""?Number(s.refWelkom):10,crReview:s.crReview??5,crBeurt:s.crBeurt??1,crExtra:s.crExtra??3,voorwaarden:s.webVoorwaarden||s.voorwaarden||"",siteBase:LIVE?location.origin:"https://crm.voorbeeldglazenwasserij.nl",mollie:!!s.liveMollie,bus:typeof RV_BUS!=="undefined"?RV_BUS:""};
+    portaal:LIVE?location.origin+"/portaal":"",werkApi:LIVE?location.origin+"/api/portaal/werk"+(window.ZEEM_BID&&window.ZEEM_BID!=="het CRM"?"?b="+window.ZEEM_BID:""):"",score:String(fv("webScore")??s.webScore??"4,8").trim(),reviewUrl:String(fv("webReviewUrl")||s.webReviewUrl||"https://www.google.com/search?q=voorbeeldglazenwasserij.nl+Reviews").trim(),refBeloning:s.refBeloning!=null&&s.refBeloning!==""?Number(s.refBeloning):15,refWelkom:s.refWelkom!=null&&s.refWelkom!==""?Number(s.refWelkom):10,crReview:s.crReview??5,crBeurt:s.crBeurt??1,crExtra:s.crExtra??3,voorwaarden:s.webVoorwaarden||s.voorwaarden||"",siteBase:LIVE?location.origin:"https://crm.voorbeeldglazenwasserij.nl",mollie:!!s.liveMollie,bus:typeof RV_BUS!=="undefined"?RV_BUS:""};
   return {body:websiteBody(o),calc:await klantCalcHtml(wa),o}}
 /* bonnetje: echt afscheuren langs de perforatie, met rafelrand en papiersnippers */
 const WEB_JS=`root.querySelectorAll("[data-pp]").forEach(function(pp){if(pp._ms)return;pp._ms=1;
@@ -12739,8 +12739,8 @@ document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest
 const liveMail=()=>LIVE&&!!S().liveMail;
 const liveMollie=()=>LIVE&&!!S().liveMollie;
 const fbFn=n=>window.firebase.app().functions("europe-west4").httpsCallable(n);
-const fsDb=()=>window.firebase.firestore();
-const isEigenaar=()=>LIVE&&String((state.me&&state.me.email)||"").toLowerCase()==="info@voorbeeldglazenwasserij.nl";
+const fsDb=()=>window.ZEEM_FS||window.firebase.firestore();
+const isEigenaar=()=>LIVE&&(String((state.me&&state.me.email)||"").toLowerCase()==="info@voorbeeldglazenwasserij.nl"||(window.ZEEM_BID!=="het CRM"&&window.ZEEM_ROL==="eigenaar"));
 const randTok=(n=24)=>[...crypto.getRandomValues(new Uint8Array(n))].map(x=>"abcdefghjkmnpqrstuvwxyz23456789"[x%31]).join("");
 const fnFout=e=>String((e&&e.message)||e||"onbekende fout").replace(/^.*?:\s*(?=Versturen|Er is|Geen|Log|Ongeldig)/,"");
 
@@ -12783,7 +12783,7 @@ async function stuurDefinitief(kid,auto){const k=state.klanten.find(x=>x.id===ki
   catch(e){toast("Bestellingsoverzicht versturen lukte niet: "+fnFout(e))}}
 /* offerte: link waarmee de klant online tekent */
 async function akkoordLink(f,k){let tok=f.akkoordToken;
-  if(!tok){tok=randTok(28);await save("facturen",f.id,{...strip(f),akkoordToken:tok})}
+  if(!tok){tok=(window.ZEEM_BID&&window.ZEEM_BID!=="het CRM"?window.ZEEM_BID+"_":"")+randTok(28);await save("facturen",f.id,{...strip(f),akkoordToken:tok})}
   const kk=state.klanten.find(x=>x.id===f.klantId)||k;
   await fsDb().doc("akkoord/"+tok).set({factuurId:f.id,klantId:f.klantId||"",nummer:f.nummer||"",email:(k&&k.email)||f.klantEmail||"",naamKlant:(kk&&(kk.contact||kk.naam))||f.klantNaam||"",geldigTot:f.verval||"",model:overzichtModelOfferte(f,kk),status:f.getekend?"getekend":"open",gemaakt:new Date().toISOString()},{merge:true});
   return location.origin+"/akkoord/"+tok}
@@ -12882,7 +12882,7 @@ if(LIVE){
       [["vw",(id,n)=>{vw=id;vwN=n}],["hf",(id,n)=>{hf=id;hfN=n}]].forEach(([k,set])=>{const f=$("#"+k+"F");if(f)f.onchange=async e=>{const file=e.target.files[0];if(!file)return;try{const r=await state.assets.upload(file,{type:"application/pdf"});set(r.id,file.name);draw()}catch(er){toast("Uploaden lukte niet")}};const x=$("#"+k+"X");if(x)x.onclick=()=>{set("","");draw()}})};draw();
     bindSave(()=>({voorwaardenPdf:vw,voorwaardenNaam:vwN,herroepingPdf:hf,herroepingNaam:hfN}))};
   SETEXTRA.liveUsers=async(c,s)=>{
-    const draw=async()=>{let lijst=[];try{lijst=(await fsDb().collection("gebruikers").get()).docs.map(d=>({id:d.id,...d.data()}))}catch(e){}
+    const draw=async()=>{let lijst=[];try{lijst=(await (window.ZEEM_BID&&window.ZEEM_BID!=="het CRM"?fsDb().collection("gebruikers").where("bedrijf","==",window.ZEEM_BID):fsDb().collection("gebruikers")).get()).docs.map(d=>({id:d.id,...d.data()}))}catch(e){}
       $("#usrL").innerHTML=`<table class="minitable"><tr><td><b>info@voorbeeldglazenwasserij.nl</b></td><td></td><td>Eigenaar</td><td></td></tr>${lijst.map(u=>`<tr><td>${esc(u.id)}</td><td>${esc(u.naam||"")}</td><td>${isEigenaar()?`<select class="usr-rol" data-rol="${esc(u.id)}"><option value="medewerker"${(u.rol||"beheerder")==="medewerker"?" selected":""}>Medewerker</option><option value="beheerder"${(u.rol||"beheerder")==="beheerder"?" selected":""}>Beheerder</option></select>`:esc(u.rol==="medewerker"?"Medewerker":"Beheerder")}</td><td class="r">${isEigenaar()?`<button type="button" class="tiny ghost" data-rm="${esc(u.id)}" style="color:var(--late)">Verwijderen</button>`:""}</td></tr>`).join("")}</table>`;
       $("#usrL").querySelectorAll("[data-rol]").forEach(sl=>sl.onchange=async()=>{try{await fsDb().doc("gebruikers/"+sl.dataset.rol).set({rol:sl.value},{merge:true});toast(sl.value==="medewerker"?"Ziet nu alleen Vandaag en Route, zonder bedragen":"Heeft nu toegang tot het hele CRM")}catch(er){err(er)}});
       $("#usrL").querySelectorAll("[data-rm]").forEach(b=>b.onclick=async()=>{if(!(await vraag("Gebruiker verwijderen?",`<b>${esc(b.dataset.rm)}</b> kan daarna niet meer inloggen in het CRM.`,"Verwijderen","Annuleren")))return;await fsDb().doc("gebruikers/"+b.dataset.rm).delete();draw()})};
@@ -12890,7 +12890,7 @@ if(LIVE){
       <div id="usrL"><p class="subt">Laden…</p></div>
       ${isEigenaar()?`${sec("Gebruiker toevoegen")}<div class="grid2">${inp("_ue","E-mailadres","",{type:"email",ph:"naam@voorbeeld.nl"})}${inp("_un","Naam","",{ph:"Bijv. Jan"})}</div><label>Rol<select id="_ur"><option value="medewerker" selected>Medewerker (glazenwasser)</option><option value="beheerder">Beheerder (kantoor)</option></select></label><button type="button" class="small primary" id="usrAdd">${I.plus}Toevoegen</button>`:""}`,{wide:false,foot:`<span class="sp"></span><button type="button" class="primary" data-act="close">Sluiten</button>`});
     const a=$("#usrAdd");if(a)a.onclick=async()=>{const e=form.querySelector('[data-k="_ue"]').value.trim().toLowerCase(),n=form.querySelector('[data-k="_un"]').value.trim();
-      if(!/^\S+@\S+\.\S+$/.test(e))return toast("Vul een geldig e-mailadres in");try{await fsDb().doc("gebruikers/"+e).set({naam:n,rol:($("#_ur")||{}).value||"medewerker",toegevoegd:new Date().toISOString()});form.querySelector('[data-k="_ue"]').value="";form.querySelector('[data-k="_un"]').value="";toast(e+" kan nu inloggen");draw()}catch(er){err(er)}};
+      if(!/^\S+@\S+\.\S+$/.test(e))return toast("Vul een geldig e-mailadres in");try{await fsDb().doc("gebruikers/"+e).set({naam:n,rol:($("#_ur")||{}).value||"medewerker",toegevoegd:new Date().toISOString(),...(window.ZEEM_BID&&window.ZEEM_BID!=="het CRM"?{bedrijf:window.ZEEM_BID}:{})});form.querySelector('[data-k="_ue"]').value="";form.querySelector('[data-k="_un"]').value="";toast(e+" kan nu inloggen");draw()}catch(er){err(er)}};
     draw()};
 
   SETEXTRA.liveImport=(c,s)=>{if(!alleenEigenaar())return;
@@ -13256,7 +13256,7 @@ function tkNieuw(kid){if(!tkOpen)return;if(tkOpen.unsub)tkOpen.unsub();tkOpen.un
 const VG={st:null,lijst:null,laatst:null};
 async function vgLaad(){try{VG.st=(await fbFn("mfaStatus")()).data}catch(e){VG.st={fout:fnFout(e)}}
   if(LIVE&&vgEigenaar())try{VG.lijst=(await fbFn("backupLijst")()).data.lijst}catch(e){VG.lijst=null}}
-const vgEigenaar=()=>String((window.firebase&&firebase.auth().currentUser||{}).email||"").toLowerCase()==="info@voorbeeldglazenwasserij.nl";
+const vgEigenaar=()=>String((window.firebase&&firebase.auth().currentUser||{}).email||"").toLowerCase()==="info@voorbeeldglazenwasserij.nl"||(!!window.ZEEM_BID&&window.ZEEM_BID!=="het CRM"&&window.ZEEM_ROL==="eigenaar");
 function vgKb(b){return b>1048576?(b/1048576).toFixed(1).replace(".",",")+" MB":Math.max(1,Math.round(b/1024))+" kB"}
 function vgQr(tekst,el){const t=()=>{try{const q=window.qrcode(0,"M");q.addData(tekst);q.make();el.innerHTML=q.createSvgTag({cellSize:5,margin:2,scalable:true})}catch(e){el.textContent=""}};
   if(window.qrcode)return t();const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js";s.onload=t;document.head.appendChild(s)}

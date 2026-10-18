@@ -1,5 +1,5 @@
 rules_version = '2';
-// mijnschoonmaker CRM — alleen ingelogde gebruikers die in /gebruikers staan
+// Mansard CRM — alleen ingelogde gebruikers die in /gebruikers staan
 service cloud.firestore {
   match /databases/{database}/documents {
     function email() { return request.auth != null && request.auth.token.email_verified == true ? request.auth.token.email.lower() : ""; }
@@ -12,10 +12,19 @@ service cloud.firestore {
       return !exists(p) || get(p).data.get("aan", false) != true || request.auth.token.auth_time in request.auth.token.get("mfa", []);
     }
     function gebruiker() { return lid() && mfaOk(); }
+    // Mansard: bij welk bedrijf hoort deze gebruiker (geen "bedrijf" = het eerste bedrijf, mijnschoonmaker.com)
+    function mijnDoc() { return get(/databases/$(database)/documents/gebruikers/$(email())).data; }
+    function mijnBedrijf() { return eigenaar() ? "mijnschoonmaker" : mijnDoc().get("bedrijf", "mijnschoonmaker"); }
+    function eersteBedrijf() { return gebruiker() && mijnBedrijf() == "mijnschoonmaker"; }
+    function vanBedrijf(b) { return gebruiker() && !eigenaar() && mijnBedrijf() == b; }
+    function bedrijfsEigenaar(b) { return vanBedrijf(b) && mijnDoc().get("rol", "") == "eigenaar"; }
 
     match /gebruikers/{e} {
-      allow read: if gebruiker();
+      allow read: if eigenaar() || email() == e || (gebruiker() && resource.data.get("bedrijf", "mijnschoonmaker") == mijnBedrijf());
       allow write: if eigenaar() && mfaOk();
+      // eigenaar van een nieuw bedrijf beheert de gebruikers van zijn eigen bedrijf (niet zichzelf verwijderen)
+      allow create, update: if bedrijfsEigenaar(request.resource.data.get("bedrijf", "")) && (resource == null || resource.data.get("bedrijf", "") == request.resource.data.bedrijf);
+      allow delete: if bedrijfsEigenaar(resource.data.get("bedrijf", "")) && e != email();
     }
     // status van tweestapsverificatie: alleen lezen (eigen status), schrijven doet de server
     match /mfa/{e} {
@@ -27,8 +36,20 @@ service cloud.firestore {
       allow read: if false;
       allow write: if eigenaar() && mfaOk();
     }
+    // nieuwe bedrijven: alles onder bedrijven/<id>, alleen voor gebruikers van dat bedrijf
+    match /bedrijven/{b} {
+      allow read: if vanBedrijf(b);
+      allow write: if false;
+      match /geheim/{d} {
+        allow read: if false;
+        allow write: if bedrijfsEigenaar(b);
+      }
+      match /{col}/{id} {
+        allow read, write: if vanBedrijf(b) && col in ["klanten","beurten","facturen","routes","instellingen","berichten","kosten","aanvragen","geplandeMails","akkoord","portaalVerzoeken","tickets","ticketBerichten","tellers","live","banktx"];
+      }
+    }
     match /{col}/{id} {
-      allow read, write: if gebruiker() && col in ["klanten","beurten","facturen","routes","instellingen","berichten","kosten","aanvragen","geplandeMails","akkoord","portaalVerzoeken","tickets","ticketBerichten","tellers","live","banktx"];
+      allow read, write: if eersteBedrijf() && col in ["klanten","beurten","facturen","routes","instellingen","berichten","kosten","aanvragen","geplandeMails","akkoord","portaalVerzoeken","tickets","ticketBerichten","tellers","live","banktx"];
     }
   }
 }

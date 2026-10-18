@@ -7,6 +7,8 @@
      35 dagen bewaard. Terugzetten: tools/herstel-backup.js (zie OVERDRACHT.md). */
 const zlib = require("zlib");
 
+const TN = require("./tenant");
+const BK = () => "backups/" + (TN.isLegacy() ? "" : TN.bid() + "/");
 module.exports = ctx => {
   const { admin, db, bucket, onCall, onSchedule, HttpsError, crypto, EIGENAAR } = ctx;
 
@@ -125,9 +127,9 @@ module.exports = ctx => {
   }
   const dag = () => new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Amsterdam" }).format(new Date());
   async function bewaar(gz, naam) {
-    await bucket().file("backups/" + naam).save(gz, { contentType: "application/gzip", resumable: false, metadata: { cacheControl: "private, no-store" } });
+    await bucket().file(BK() + naam).save(gz, { contentType: "application/gzip", resumable: false, metadata: { cacheControl: "private, no-store" } });
     /* ouder dan 35 dagen opruimen */
-    const [files] = await bucket().getFiles({ prefix: "backups/" });
+    const [files] = await bucket().getFiles({ prefix: BK() });
     const grens = Date.now() - 35 * 864e5;
     await Promise.all(files.filter(f => Date.parse(f.metadata.timeCreated) < grens).map(f => f.delete().catch(() => {})));
   }
@@ -138,20 +140,20 @@ module.exports = ctx => {
   });
   async function alleenEigenaar(auth) {
     const e = await magCRM(auth);
-    if (e !== EIGENAAR) throw new HttpsError("permission-denied", "Alleen de eigenaar kan back-ups beheren.");
+    if (e !== EIGENAAR && !(TN.isLegacy() ? false : ((await db.doc("gebruikers/" + e).get()).data() || {}).rol === "eigenaar")) throw new HttpsError("permission-denied", "Alleen de eigenaar kan back-ups beheren.");
     if (!(await mfaBevestigd(auth))) throw new HttpsError("permission-denied", "Bevestig eerst je code.");
     return e;
   }
   const backupLijst = onCall(async req => {
     await alleenEigenaar(req.auth);
-    const [files] = await bucket().getFiles({ prefix: "backups/" });
-    return { lijst: files.map(f => ({ naam: f.name.replace("backups/", ""), bytes: Number(f.metadata.size) || 0, op: f.metadata.timeCreated })).sort((a, b) => b.op.localeCompare(a.op)) };
+    const [files0] = await bucket().getFiles({ prefix: BK() }), files = files0.filter(f => !f.name.slice(BK().length).includes("/"));
+    return { lijst: files.map(f => ({ naam: f.name.slice(BK().length), bytes: Number(f.metadata.size) || 0, op: f.metadata.timeCreated })).sort((a, b) => b.op.localeCompare(a.op)) };
   });
   const backupNu = onCall({ memory: "1GiB", timeoutSeconds: 300 }, async req => {
     await alleenEigenaar(req.auth);
     const naam = req.data && req.data.naam ? String(req.data.naam).replace(/[^\w.-]/g, "") : "";
     let gz, n = null;
-    if (naam) { [gz] = await bucket().file("backups/" + naam).download(); }
+    if (naam) { [gz] = await bucket().file(BK() + naam).download(); }
     else { const r = await maakBackup(); gz = r.gz; n = r.n; await bewaar(gz, dag() + "-handmatig.json.gz"); await db.doc("instellingen/backup").set({ laatst: new Date().toISOString(), documenten: n, bytes: gz.length }, { merge: true }); }
     if (gz.length > 7.5 * 1024 * 1024) return { teGroot: true, bytes: gz.length };
     return { naam: naam || ("backup-" + dag() + ".json.gz"), data: gz.toString("base64"), documenten: n, bytes: gz.length };

@@ -3,8 +3,8 @@
 const liveMail=()=>LIVE&&!!S().liveMail;
 const liveMollie=()=>LIVE&&!!S().liveMollie;
 const fbFn=n=>window.firebase.app().functions("europe-west4").httpsCallable(n);
-const fsDb=()=>window.firebase.firestore();
-const isEigenaar=()=>LIVE&&String((state.me&&state.me.email)||"").toLowerCase()==="robin@mijnschoonmaker.com";
+const fsDb=()=>window.ZEEM_FS||window.firebase.firestore();
+const isEigenaar=()=>LIVE&&(String((state.me&&state.me.email)||"").toLowerCase()==="robin@mijnschoonmaker.com"||(window.ZEEM_BID!=="mijnschoonmaker"&&window.ZEEM_ROL==="eigenaar"));
 const randTok=(n=24)=>[...crypto.getRandomValues(new Uint8Array(n))].map(x=>"abcdefghjkmnpqrstuvwxyz23456789"[x%31]).join("");
 const fnFout=e=>String((e&&e.message)||e||"onbekende fout").replace(/^.*?:\s*(?=Versturen|Er is|Geen|Log|Ongeldig)/,"");
 
@@ -47,7 +47,7 @@ async function stuurDefinitief(kid,auto){const k=state.klanten.find(x=>x.id===ki
   catch(e){toast("Bestellingsoverzicht versturen lukte niet: "+fnFout(e))}}
 /* offerte: link waarmee de klant online tekent */
 async function akkoordLink(f,k){let tok=f.akkoordToken;
-  if(!tok){tok=randTok(28);await save("facturen",f.id,{...strip(f),akkoordToken:tok})}
+  if(!tok){tok=(window.ZEEM_BID&&window.ZEEM_BID!=="mijnschoonmaker"?window.ZEEM_BID+"_":"")+randTok(28);await save("facturen",f.id,{...strip(f),akkoordToken:tok})}
   const kk=state.klanten.find(x=>x.id===f.klantId)||k;
   await fsDb().doc("akkoord/"+tok).set({factuurId:f.id,klantId:f.klantId||"",nummer:f.nummer||"",email:(k&&k.email)||f.klantEmail||"",naamKlant:(kk&&(kk.contact||kk.naam))||f.klantNaam||"",geldigTot:f.verval||"",model:overzichtModelOfferte(f,kk),status:f.getekend?"getekend":"open",gemaakt:new Date().toISOString()},{merge:true});
   return location.origin+"/akkoord/"+tok}
@@ -146,7 +146,7 @@ if(LIVE){
       [["vw",(id,n)=>{vw=id;vwN=n}],["hf",(id,n)=>{hf=id;hfN=n}]].forEach(([k,set])=>{const f=$("#"+k+"F");if(f)f.onchange=async e=>{const file=e.target.files[0];if(!file)return;try{const r=await state.assets.upload(file,{type:"application/pdf"});set(r.id,file.name);draw()}catch(er){toast("Uploaden lukte niet")}};const x=$("#"+k+"X");if(x)x.onclick=()=>{set("","");draw()}})};draw();
     bindSave(()=>({voorwaardenPdf:vw,voorwaardenNaam:vwN,herroepingPdf:hf,herroepingNaam:hfN}))};
   SETEXTRA.liveUsers=async(c,s)=>{
-    const draw=async()=>{let lijst=[];try{lijst=(await fsDb().collection("gebruikers").get()).docs.map(d=>({id:d.id,...d.data()}))}catch(e){}
+    const draw=async()=>{let lijst=[];try{lijst=(await (window.ZEEM_BID&&window.ZEEM_BID!=="mijnschoonmaker"?fsDb().collection("gebruikers").where("bedrijf","==",window.ZEEM_BID):fsDb().collection("gebruikers")).get()).docs.map(d=>({id:d.id,...d.data()}))}catch(e){}
       $("#usrL").innerHTML=`<table class="minitable"><tr><td><b>robin@mijnschoonmaker.com</b></td><td></td><td>Eigenaar</td><td></td></tr>${lijst.map(u=>`<tr><td>${esc(u.id)}</td><td>${esc(u.naam||"")}</td><td>${isEigenaar()?`<select class="usr-rol" data-rol="${esc(u.id)}"><option value="medewerker"${(u.rol||"beheerder")==="medewerker"?" selected":""}>Medewerker</option><option value="beheerder"${(u.rol||"beheerder")==="beheerder"?" selected":""}>Beheerder</option></select>`:esc(u.rol==="medewerker"?"Medewerker":"Beheerder")}</td><td class="r">${isEigenaar()?`<button type="button" class="tiny ghost" data-rm="${esc(u.id)}" style="color:var(--late)">Verwijderen</button>`:""}</td></tr>`).join("")}</table>`;
       $("#usrL").querySelectorAll("[data-rol]").forEach(sl=>sl.onchange=async()=>{try{await fsDb().doc("gebruikers/"+sl.dataset.rol).set({rol:sl.value},{merge:true});toast(sl.value==="medewerker"?"Ziet nu alleen Vandaag en Route, zonder bedragen":"Heeft nu toegang tot het hele CRM")}catch(er){err(er)}});
       $("#usrL").querySelectorAll("[data-rm]").forEach(b=>b.onclick=async()=>{if(!(await vraag("Gebruiker verwijderen?",`<b>${esc(b.dataset.rm)}</b> kan daarna niet meer inloggen in het CRM.`,"Verwijderen","Annuleren")))return;await fsDb().doc("gebruikers/"+b.dataset.rm).delete();draw()})};
@@ -154,7 +154,7 @@ if(LIVE){
       <div id="usrL"><p class="subt">Laden…</p></div>
       ${isEigenaar()?`${sec("Gebruiker toevoegen")}<div class="grid2">${inp("_ue","E-mailadres","",{type:"email",ph:"naam@voorbeeld.nl"})}${inp("_un","Naam","",{ph:"Bijv. Jan"})}</div><label>Rol<select id="_ur"><option value="medewerker" selected>Medewerker (glazenwasser)</option><option value="beheerder">Beheerder (kantoor)</option></select></label><button type="button" class="small primary" id="usrAdd">${I.plus}Toevoegen</button>`:""}`,{wide:false,foot:`<span class="sp"></span><button type="button" class="primary" data-act="close">Sluiten</button>`});
     const a=$("#usrAdd");if(a)a.onclick=async()=>{const e=form.querySelector('[data-k="_ue"]').value.trim().toLowerCase(),n=form.querySelector('[data-k="_un"]').value.trim();
-      if(!/^\S+@\S+\.\S+$/.test(e))return toast("Vul een geldig e-mailadres in");try{await fsDb().doc("gebruikers/"+e).set({naam:n,rol:($("#_ur")||{}).value||"medewerker",toegevoegd:new Date().toISOString()});form.querySelector('[data-k="_ue"]').value="";form.querySelector('[data-k="_un"]').value="";toast(e+" kan nu inloggen");draw()}catch(er){err(er)}};
+      if(!/^\S+@\S+\.\S+$/.test(e))return toast("Vul een geldig e-mailadres in");try{await fsDb().doc("gebruikers/"+e).set({naam:n,rol:($("#_ur")||{}).value||"medewerker",toegevoegd:new Date().toISOString(),...(window.ZEEM_BID&&window.ZEEM_BID!=="mijnschoonmaker"?{bedrijf:window.ZEEM_BID}:{})});form.querySelector('[data-k="_ue"]').value="";form.querySelector('[data-k="_un"]').value="";toast(e+" kan nu inloggen");draw()}catch(er){err(er)}};
     draw()};
 
   SETEXTRA.liveImport=(c,s)=>{if(!alleenEigenaar())return;

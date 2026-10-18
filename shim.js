@@ -17,10 +17,18 @@
   const dec = v => Array.isArray(v) ? v.map(dec)
     : v && typeof v === "object" ? (v.__arr ? v.__arr.map(x => x && x.__a ? x.__a.map(dec) : dec(x)) : Object.fromEntries(Object.entries(v).map(([k, x]) => [k, dec(x)]))) : v;
 
+  /* Mansard: elk bedrijf zijn eigen gegevens onder bedrijven/<id>/…; het eerste bedrijf (mijnschoonmaker.com) in de hoofdcollecties */
+  const GLOBAAL = new Set(["gebruikers", "mfa", "bedrijven", "limiet", "aanmeldingen", "platform"]);
+  window.ZEEM_BID = "mijnschoonmaker";
+  const pf = p => { const s = String(p), top = s.split("/")[0]; return window.ZEEM_BID === "mijnschoonmaker" || GLOBAAL.has(top) ? s : "bedrijven/" + window.ZEEM_BID + "/" + s; };
+  window.ZEEM_FS = new Proxy(fs, { get(t, k) {
+    if (k === "collection") return p => t.collection(pf(p));
+    if (k === "doc") return p => t.doc(pf(p));
+    const v = t[k]; return typeof v === "function" ? v.bind(t) : v; } });
   const db = {
     collection: c => ({
-      doc: id => ({ set: d => fs.collection(c).doc(id).set(enc(d)), delete: () => fs.collection(c).doc(id).delete() }),
-      onSnapshot: (cb, er) => fs.collection(c).onSnapshot(s => {
+      doc: id => ({ set: d => fs.collection(pf(c)).doc(id).set(enc(d)), delete: () => fs.collection(pf(c)).doc(id).delete() }),
+      onSnapshot: (cb, er) => fs.collection(pf(c)).onSnapshot(s => {
         try { cb({ docs: s.docs.map(d => ({ id: d.id, data: () => dec(d.data()) })) }); }
         catch (e) { console.error(c, e); (window.__fsErr = window.__fsErr || []).push(c + ": " + (e.message || e)); }
       }, e => { console.error(c, e); (window.__fsErr = window.__fsErr || []).push(c + " (laden): " + (e.code || e.message)); if (er) er(e); })
@@ -73,7 +81,7 @@
   const fout = e => msg(NL[e.code] || "Er ging iets mis (" + (e.code || e.message) + ").");
 
   function login(nieuw) {
-    toon(`<h1>${nieuw ? "Account maken" : "Inloggen"}</h1><p>${nieuw ? "Gebruik het e-mailadres waarmee je bent toegevoegd aan het CRM." : "Welkom terug. Log in om verder te gaan."}</p>
+    toon(`<h1>${nieuw ? "Account maken" : "Inloggen"}</h1><p>${nieuw ? "Nieuw bij Mansard? Maak een account en probeer 30 dagen gratis. Ben je uitgenodigd, gebruik dan dat e-mailadres." : "Welkom terug. Log in om verder te gaan."}</p>
       <form id="lgF"><label>E-mailadres<input type="email" id="lgE" autocomplete="username" required></label>
       <label>Wachtwoord<input type="password" id="lgP" autocomplete="${nieuw ? "new-password" : "current-password"}" minlength="${nieuw ? 8 : 1}" required></label>
       <button class="lg-b" id="lgGo">${nieuw ? "Account maken" : "Inloggen"}</button></form><div class="lg-m"></div>
@@ -102,6 +110,23 @@
     toon(`<h1>Nog geen toegang</h1><p>Je bent ingelogd als <b>${u.email}</b>, maar dit account is nog niet toegevoegd aan het CRM. Vraag de eigenaar om je toe te voegen bij Instellingen › Gebruikers.</p>
       <button class="lg-b" id="lgRt">Opnieuw proberen</button><div class="lg-row"><span></span><button class="lg-l" id="lgOut">Uitloggen</button></div>`);
     $("#lgRt").onclick = () => start(u); $("#lgOut").onclick = () => auth.signOut();
+  }
+  /* nog bij geen enkel bedrijf: zelf een bedrijf starten (30 dagen gratis) of wachten op een uitnodiging */
+  function nieuwBedrijf(u) {
+    toon(`<h1>Welkom bij Mansard</h1><p>Start je eigen omgeving en probeer alles <b>30 dagen gratis</b>. Geen betaalgegevens nodig.</p>
+      <form id="lgF"><label>Naam van je bedrijf<input id="lgN" required maxlength="80" placeholder="Bijv. Glazenwasserij De Vries"></label>
+      <label>Plaats<input id="lgPl" maxlength="60" placeholder="Bijv. Groningen"></label>
+      <label>Telefoonnummer<input id="lgT" type="tel" maxlength="30" placeholder="06 12 34 56 78"></label>
+      <button class="lg-b" id="lgGo">Start gratis proefperiode</button></form><div class="lg-m"></div>
+      <p style="font-size:12.5px;color:#5d6f76;margin:14px 0 0">Daarna € 99 per maand inclusief 3 gebruikers, elke extra gebruiker € 19,95. Maandelijks opzegbaar. Werk je bij een bedrijf dat Mansard al gebruikt? Vraag dan de eigenaar om je toe te voegen; je hoeft hier niets in te vullen.</p>
+      <div class="lg-row"><span></span><button class="lg-l" id="lgOut">Uitloggen</button></div>`);
+    $("#lgOut").onclick = () => auth.signOut();
+    $("#lgF").onsubmit = async ev => {
+      ev.preventDefault(); const b = $("#lgGo"); b.disabled = true; msg("");
+      try { await firebase.app().functions("europe-west4").httpsCallable("bedrijfAanmaken")({ naam: $("#lgN").value, plaats: $("#lgPl").value, telefoon: $("#lgT").value });
+        msg("Je omgeving staat klaar. Even geduld…", true); setTimeout(() => location.reload(), 800); }
+      catch (er) { msg((er && er.message) || "Aanmaken lukte niet."); b.disabled = false; }
+    };
   }
   let gestart = false;
   /* tweestapsverificatie: staat het aan en is deze inlogsessie nog niet bevestigd, dan eerst de code uit de app */
@@ -135,7 +160,14 @@
   }
   async function start(u) {
     if (await mfaNodig(u)) return mfaScherm(u, false);
-    try { await Promise.race([fs.collection("instellingen").limit(1).get(), new Promise((_, nee) => setTimeout(() => nee({ code: "traag" }), 8000))]); }
+    const e = String(u.email || "").toLowerCase();
+    if (e !== "robin@mijnschoonmaker.com") {
+      let g = null; try { g = await fs.collection("gebruikers").doc(e).get(); } catch (x) {}
+      if (!g || !g.exists) return nieuwBedrijf(u);
+      const b = String(g.data().bedrijf || ""); window.ZEEM_BID = /^b[a-z0-9]{7}$/.test(b) ? b : "mijnschoonmaker";
+      window.ZEEM_ROL = g.data().rol || "";
+    }
+    try { await Promise.race([fs.collection(pf("instellingen")).limit(1).get(), new Promise((_, nee) => setTimeout(() => nee({ code: "traag" }), 8000))]); }
     catch (e) { if (e.code === "permission-denied") return geenToegang(u); }
     if (ov) ov.style.display = "none";
     if (!gestart) { gestart = true; klaar(u); voegUitloggenToe(); }

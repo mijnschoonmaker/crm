@@ -15,9 +15,9 @@
 const crypto = require("crypto");
 
 module.exports = function maakPortaal(ctx) {
-  const { db, onRequest, onCall, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket } = ctx;
+  const { db, T, onRequest, onCall, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket } = ctx;
   const sha = s => crypto.createHash("sha256").update(String(s)).digest("hex");
-  const tok = () => crypto.randomBytes(32).toString("hex");
+  const tok = () => T.tok(32);
   const DAG = 864e5;
   const dec = v => Array.isArray(v) ? v.map(dec) : v && typeof v === "object" ? (v.__arr ? v.__arr.map(x => x && x.__a ? x.__a.map(dec) : dec(x)) : Object.fromEntries(Object.entries(v).map(([k, x]) => [k, dec(x)]))) : v;
   const lc = s => String(s || "").trim().toLowerCase();
@@ -57,7 +57,7 @@ module.exports = function maakPortaal(ctx) {
       subject: (dagen > 1 ? "Uw persoonlijke klantomgeving" : "Uw inloglink") + " · " + (b.naam || "mijnschoonmaker.com"), htmlContent: mailHtml(tekst, b, { knop: { url, tekst: "Open mijn klantomgeving" } }), textContent: tekst + "\n\n" + url, tags: ["portaal"] });
   }
   async function sessie(req) {
-    const m = /^Bearer ([a-f0-9]{64})$/.exec(String(req.headers.authorization || ""));
+    const m = /^Bearer ((?:b[a-z0-9]{7}_)?[a-f0-9]{64})$/.exec(String(req.headers.authorization || ""));
     if (!m) return null;
     const ref = db.doc("portaalSessie/" + sha(m[1])), s = await ref.get();
     if (!s.exists || s.data().exp < Date.now()) return null;
@@ -165,7 +165,7 @@ module.exports = function maakPortaal(ctx) {
     const laatsteB = beurten[0];
     const vve = k.soort === "vve", wdg = vasteDagen(k);
     let bordToken = k.bordToken || "";
-    if (vve && !/^[a-f0-9]{24,}$/.test(bordToken)) { bordToken = crypto.randomBytes(16).toString("hex"); await S.kref.set({ bordToken }, { merge: true }).catch(() => {}); }
+    if (vve && !/^(?:b[a-z0-9]{7}_)?[a-f0-9]{24,}$/.test(bordToken)) { bordToken = T.tok(16); await S.kref.set({ bordToken }, { merge: true }).catch(() => {}); }
     const fotoUrl = id => /^[\w-]{6,64}$/.test(String(id || "")) ? base + "/_blob/" + id : "";
     const meldingenVan = (bs, kl) => [...(kl.bevindingen || []).map(b => ({ ...b, datum: b.datum || vandaag })), ...bs.flatMap(x => (x.meldingen || []).map(m => ({ ...m, datum: m.datum || x.datum })))]
       .filter(m => m && m.id).map(m => ({ datum: m.datum, categorie: m.categorie || "", tekst: String(m.notitie || "").slice(0, 400), foto: fotoUrl(m.id) })).sort((a, b2) => String(b2.datum).localeCompare(String(a.datum))).slice(0, 20);
@@ -304,7 +304,7 @@ module.exports = function maakPortaal(ctx) {
       }
       if (pad === "/sessie" && req.method === "POST") {
         const l = String(body(req).l || "");
-        if (!/^[a-f0-9]{64}$/.test(l)) { res.status(400).json({ fout: "ongeldig" }); return; }
+        if (!/^(?:b[a-z0-9]{7}_)?[a-f0-9]{64}$/.test(l)) { res.status(400).json({ fout: "ongeldig" }); return; }
         const ref = db.doc("portaalLogin/" + sha(l));
         const v = await db.runTransaction(async t => { const s = await t.get(ref); if (!s.exists) return null; if (!s.data().herbruik) t.delete(ref); return s.data(); });
         if (!v || v.exp < Date.now()) { res.status(410).json({ fout: "Deze link is verlopen of al gebruikt. Vraag hieronder een nieuwe aan." }); return; }
@@ -338,7 +338,7 @@ module.exports = function maakPortaal(ctx) {
       /* bewonersbord: openbare, afgeslankte weergave voor het bordje in de hal (QR-code), zonder inloggen */
       if (pad === "/bord" && req.method === "GET") {
         const t = String(req.query.t || "");
-        if (!/^[a-f0-9]{24,64}$/.test(t)) { res.status(404).json({}); return; }
+        if (!/^(?:b[a-z0-9]{7}_)?[a-f0-9]{24,64}$/.test(t)) { res.status(404).json({}); return; }
         const q = await db.collection("klanten").where("bordToken", "==", t).limit(1).get();
         if (q.empty) { res.status(404).json({}); return; }
         const k = dec(q.docs[0].data()), kid = q.docs[0].id, b = await bedrijf(), bi = bedrijfInfo(b, basisUrl(req)), base = basisUrl(req);
@@ -393,7 +393,7 @@ module.exports = function maakPortaal(ctx) {
         if (x.betaallink && x.mollieStatus === "open") { res.json({ link: x.betaallink }); return; }
         if (!g.mollieKey) { res.status(409).json({ fout: "Online betalen is nog niet beschikbaar. U kunt het bedrag overmaken." }); return; }
         const base = basisUrl(req);
-        const p = await mollie(g.mollieKey, "payments", { method: "POST", body: JSON.stringify({ amount: { currency: "EUR", value: totals(x, b).inc.toFixed(2) }, description: ("Factuur " + (x.nummer || id)).slice(0, 255), redirectUrl: base + "/portaal?betaald=" + encodeURIComponent(id), webhookUrl: base + "/api/mollie", metadata: { factuurId: id } }) });
+        const p = await mollie(g.mollieKey, "payments", { method: "POST", body: JSON.stringify({ amount: { currency: "EUR", value: totals(x, b).inc.toFixed(2) }, description: ("Factuur " + (x.nummer || id)).slice(0, 255), redirectUrl: base + "/portaal?betaald=" + encodeURIComponent(id), webhookUrl: base + "/api/mollie" + T.hookQs(), metadata: { factuurId: id } }) });
         const link = p._links && p._links.checkout && p._links.checkout.href;
         await f.ref.set({ mollieId: p.id, mollieLink: link || "", betaallink: link || "", mollieStatus: p.status }, { merge: true });
         res.json({ link }); return;
@@ -409,7 +409,7 @@ module.exports = function maakPortaal(ctx) {
         }
         let cid = k.mollieCustomerId || "";
         if (!cid) { const c = await mollie(g.mollieKey, "customers", { method: "POST", body: JSON.stringify({ name: schoon(k.naam).slice(0, 100), email: k.email || undefined, metadata: { klantId: k.id } }) }); cid = c.id; await S.kref.set({ mollieCustomerId: cid }, { merge: true }); }
-        const p = await mollie(g.mollieKey, "payments", { method: "POST", body: JSON.stringify({ amount: { currency: "EUR", value: "0.01" }, customerId: cid, sequenceType: "first", method: "ideal", description: ("Machtiging automatische incasso").slice(0, 255), redirectUrl: base + "/portaal?incasso=1", webhookUrl: base + "/api/mollie", metadata: { incasso: true, klantId: k.id } }) });
+        const p = await mollie(g.mollieKey, "payments", { method: "POST", body: JSON.stringify({ amount: { currency: "EUR", value: "0.01" }, customerId: cid, sequenceType: "first", method: "ideal", description: ("Machtiging automatische incasso").slice(0, 255), redirectUrl: base + "/portaal?incasso=1", webhookUrl: base + "/api/mollie" + T.hookQs(), metadata: { incasso: true, klantId: k.id } }) });
         const link = p._links && p._links.checkout && p._links.checkout.href;
         await S.kref.set({ incassoAanvraag: { id: p.id, op: nu() } }, { merge: true });
         res.json({ link }); return;

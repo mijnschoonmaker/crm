@@ -5,7 +5,7 @@
    - bankOntkoppel : koppeling stoppen
    Sleutels (App ID + private key van Enable Banking) staan in /geheim/config, de sessie in /geheim/bank.
    Elke bijschrijving komt in /banktx: gekoppeld, te controleren, niet herkend of genegeerd. */
-module.exports = ({ db, onCall, onRequest, onSchedule, HttpsError, geheim, checkGebruiker, crypto, nu, HOST }) => {
+module.exports = ({ db, T, onCall, onRequest, onSchedule, HttpsError, geheim, checkGebruiker, crypto, nu, HOST }) => {
   const EB = "https://api.enablebanking.com";
   const r2 = n => Math.round((Number(n) || 0) * 100) / 100;
   const isoNL = (d = new Date()) => new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Amsterdam" }).format(d);
@@ -125,7 +125,7 @@ module.exports = ({ db, onCall, onRequest, onSchedule, HttpsError, geheim, check
     const j = await eb(g, "/aspsps?country=NL"), a = (j.aspsps || []).find(x => x.name.toLowerCase() === naam.toLowerCase());
     if (!a) throw new HttpsError("not-found", naam + " staat niet in de lijst met banken.");
     const sec = Math.min(Number(a.maximum_consent_validity) || 90 * 86400, 180 * 86400), tot = new Date(Date.now() + sec * 1000 - 3600e3).toISOString();
-    const state = crypto.randomBytes(18).toString("hex"), type = (a.psu_types || []).includes("business") && d.zakelijk !== false ? "business" : "personal";
+    const state = T.tok(18), type = (a.psu_types || []).includes("business") && d.zakelijk !== false ? "business" : "personal";
     const r = await eb(g, "/auth", { method: "POST", body: JSON.stringify({ access: { valid_until: tot }, aspsp: { name: a.name, country: "NL" }, state, redirect_url: basis + "/api/bank/terug", psu_type: type }) });
     await db.doc("geheim/bankstart").set({ state, bank: a.name, basis, op: nu() });
     return { url: r.url };

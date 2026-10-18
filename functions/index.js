@@ -10,22 +10,44 @@
    - bank*         : bankbestand of bankkoppeling (Enable Banking): betalingen automatisch op de juiste factuur (bank.js)
    - mfa*, dagBackup, backup* : tweestapsverificatie voor het CRM en dagelijkse back-ups (beveiliging.js)
    Sleutels staan in Firestore /geheim/config (alleen de server kan ze lezen). */
-const { onCall, onRequest, HttpsError } = require("firebase-functions/v2/https");
-const { onSchedule } = require("firebase-functions/v2/scheduler");
+const { onCall: _onCall, onRequest: _onRequest, HttpsError } = require("firebase-functions/v2/https");
+const { onSchedule: _onSchedule } = require("firebase-functions/v2/scheduler");
 const { setGlobalOptions } = require("firebase-functions/v2");
 const admin = require("firebase-admin");
 const crypto = require("crypto");
 
 admin.initializeApp();
 setGlobalOptions({ region: "europe-west4", maxInstances: 5 });
-const db = admin.firestore();
+const rawDb = admin.firestore();
+/* meerdere bedrijven: elke database-aanroep gaat naar het bedrijf van het lopende verzoek (tenant.js) */
+const T = require("./tenant");
+const db = T.maakDb(rawDb);
+const BIDC = new Map(), BEST = new Map();
+async function bidVanEmail(e) {
+  if (!e) return T.LEGACY; const c = BIDC.get(e); if (c && Date.now() - c.t < 60e3) return c.b;
+  let b = T.LEGACY; try { const s = await rawDb.doc("gebruikers/" + e).get(); if (s.exists && T.BID_RE.test(String(s.data().bedrijf || ""))) b = s.data().bedrijf; } catch (x) {}
+  BIDC.set(e, { b, t: Date.now() }); return b;
+}
+async function bestaat(b) { const c = BEST.get(b); if (c && Date.now() - c.t < 300e3) return c.ok; const ok = (await rawDb.doc("bedrijven/" + b).get()).exists; BEST.set(b, { ok, t: Date.now() }); return ok; }
+const onCall = (o, f) => { if (typeof o === "function") { f = o; o = {}; }
+  return _onCall(o, async req => { const a = req.auth && req.auth.token, e = a && a.email_verified ? String(a.email || "").toLowerCase() : ""; return T.metBedrijf(await bidVanEmail(e), () => f(req)); }); };
+const onRequest = (o, f) => { if (typeof o === "function") { f = o; o = {}; }
+  return _onRequest(o, async (req, res) => { const b = T.bidUitReq(req); if (b !== T.LEGACY && !(await bestaat(b))) { res.status(404).send("Onbekend bedrijf"); return; } return T.metBedrijf(b, () => f(req, res)); }); };
+/* geplande taken draaien voor elk bedrijf apart */
+const onSchedule = (o, f) => _onSchedule(o, async ev => {
+  let lijst = [T.LEGACY]; try { lijst = lijst.concat((await rawDb.collection("bedrijven").get()).docs.filter(d => !["gestopt", "verwijderd"].includes(d.data().status)).map(d => d.id)); } catch (e) { console.error("bedrijven", e); }
+  for (const b of lijst) { try { await T.metBedrijf(b, () => f(ev)); } catch (e) { console.error("taak", b, e); } }
+});
 const bucket = () => admin.storage().bucket();
 const EIGENAAR = "robin@mijnschoonmaker.com";
 const nu = () => new Date().toISOString();
 const newId = p => p + Date.now().toString(36) + crypto.randomBytes(3).toString("hex");
 
 const BEV = require("./beveiliging")({ admin, db, bucket, onCall, onSchedule, HttpsError, crypto, EIGENAAR });
-const geheim = async () => (await db.doc("geheim/config").get()).data() || {};
+const geheim = async () => { const t = (await db.doc("geheim/config").get()).data() || {}; if (T.isLegacy()) return t;
+  /* nieuwe bedrijven: de mail- en AI-sleutels van het platform, hun eigen Mollie- en banksleutels */
+  const p = (await rawDb.doc("geheim/config").get()).data() || {};
+  return { brevoKey: p.brevoKey, aiKey: p.aiKey, afzender: p.platformAfzender || p.afzender, hookToken: p.hookToken, ...t }; };
 /* logo voor in mails: als ingesloten afbeelding (zoals bij facturen en offertes), zodat mailprogramma's hem niet blokkeren als "externe afbeelding" */
 const MAILLOGO = { id: "", url: "" };
 async function laadMailLogo(b) { const id = b.logoMail || b.logo; if (!id || MAILLOGO.id === id) return; try { const [[m], [buf]] = await Promise.all([bucket().file("assets/" + id).getMetadata(), bucket().file("assets/" + id).download()]); if (buf.length < 900000) { MAILLOGO.id = id; MAILLOGO.url = "data:" + (m.contentType || "image/png") + ";base64," + buf.toString("base64"); } } catch (e) { console.warn("mail-logo", e.message || e); } }
@@ -152,7 +174,7 @@ async function maakMail({ naar, naam, onderwerp, html, tekst, bijlagen }) {
     subject: onderwerp || "Bericht",
     htmlContent: html || "<p>" + String(tekst || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/\n/g, "<br>") + "</p>",
     textContent: tekst || undefined,
-    tags: ["crm"]
+    tags: ["crm", ...(T.isLegacy() ? [] : ["b:" + T.bid()])]
   };
   if (bijlagen && bijlagen.length) mail.attachment = bijlagen.map(a => ({ name: a.naam, content: a.data }));
   return { key: g.brevoKey, mail };
@@ -161,7 +183,7 @@ async function maakMail({ naar, naam, onderwerp, html, tekst, bijlagen }) {
 /* knop "Naar uw klantportaal": persoonlijke inloglink, 30 dagen geldig en vaker te gebruiken, zodat de klant direct binnen is */
 async function portaalLinkVullen(d) {
   if (d.meta && d.meta.klantId && /__PORTAAL_LINK__/.test(String(d.html || ""))) {
-    try { const t = crypto.randomBytes(32).toString("hex"), h = crypto.createHash("sha256").update(t).digest("hex");
+    try { const t = T.tok(32), h = crypto.createHash("sha256").update(t).digest("hex");
       await db.doc("portaalLogin/" + h).set({ klantId: String(d.meta.klantId), email: String(d.naar).trim().toLowerCase(), exp: Date.now() + 30 * 864e5, herbruik: true, op: nu(), bron: "mail" });
       d.html = String(d.html).replace(/__PORTAAL_LINK__/g, "l=" + t); } catch (e) { console.error("portaallink", e); d.html = String(d.html).replace(/[?&]?__PORTAAL_LINK__/g, ""); } }
   else if (/__PORTAAL_LINK__/.test(String(d.html || ""))) d.html = String(d.html).replace(/[?&]?__PORTAAL_LINK__/g, "");
@@ -257,7 +279,7 @@ exports.mollieLink = onCall(async req => {
       amount: { currency: "EUR", value: val.toFixed(2) },
       description: String(omschrijving || "Factuur " + (f.data().nummer || factuurId)).slice(0, 255),
       redirectUrl: site ? site + "/portaal?betaald=" + encodeURIComponent(factuurId) : (b.website || "https://mijnschoonmaker.com"),
-      webhookUrl: site + "/api/mollie",
+      webhookUrl: site + "/api/mollie" + T.hookQs(),
       metadata: { factuurId }
     })
   });
@@ -283,7 +305,7 @@ exports.mollieIncasso = onCall(async req => {
   const site = String(basis || "").replace(/\/+$/, "");
   const p = await mollie(g.mollieKey, "payments", { method: "POST", body: JSON.stringify({
     amount: { currency: "EUR", value: val.toFixed(2) }, customerId: k.mollieCustomerId, mandateId: k.mollieMandateId, sequenceType: "recurring",
-    description: String(omschrijving || "Factuur " + (x.nummer || factuurId)).slice(0, 255), webhookUrl: site + "/api/mollie", metadata: { factuurId } }) });
+    description: String(omschrijving || "Factuur " + (x.nummer || factuurId)).slice(0, 255), webhookUrl: site + "/api/mollie" + T.hookQs(), metadata: { factuurId } }) });
   await f.ref.set({ incasso: true, incassoOp: nu(), mollieId: p.id, mollieStatus: p.status, betaallink: "", mollieLink: "" }, { merge: true });
   return { id: p.id, status: p.status };
 });
@@ -498,12 +520,15 @@ exports.akkoordGeven = onRequest({ cors: true, memory: "512MiB", timeoutSeconds:
 });
 
 /* ---------- klantportaal ---------- */
-const P = require("./portaal")({ db, onRequest, onCall, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket });
+const P = require("./portaal")({ db, T, onRequest, onCall, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket });
 /* tweestapsverificatie voor het CRM en dagelijkse back-ups */
 Object.assign(exports, BEV.functies);
 /* bank: betalingen automatisch koppelen aan facturen (bankbestand of koppeling via Enable Banking) */
-const BANK = require("./bank")({ db, onCall, onRequest, onSchedule, HttpsError, geheim, checkGebruiker, crypto, nu, HOST });
+const BANK = require("./bank")({ db, T, onCall, onRequest, onSchedule, HttpsError, geheim, checkGebruiker, crypto, nu, HOST });
 Object.assign(exports, BANK.functies);
+/* Mansard: nieuwe bedrijven aanmelden en abonnementen */
+const MANSARD = require("./mansard")({ rawDb, T, onCall, HttpsError, nu });
+Object.assign(exports, MANSARD.functies);
 exports.ticketMelding = P.ticketMelding;
 exports.portaal = P.portaal;
 exports.portaalUitnodigen = P.portaalUitnodigen;
