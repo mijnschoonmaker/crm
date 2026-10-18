@@ -435,3 +435,5 @@ html body dialog:has(.jp-kop:not(.sc2-kop)){background-attachment:local,local!im
 /* status 'Actief' in de donkere kop: groen */
 html body dialog .jp-kop.ow-ok .jp-kr1>.jp-st:first-child{background:rgb(79 211 154 / .14)!important;border-color:rgb(79 211 154 / .45)!important;color:#bff0d8!important}
 html body dialog .jp-kop.ow-ok .jp-kr1>.jp-st:first-child i{background:#4fd39a!important;box-shadow:0 0 0 3px rgb(79 211 154 / .22)!important}
+/* donkere kop loopt tot de rand van het venster (geen witte streep links/rechts) */
+html body dialog .jp-kop:not(.sc2-kop){box-shadow:0 0 0 3px #0d121b,0 14px 30px -22px rgb(13 18 27 / .7)!important;clip-path:inset(-3px -3px -40px -3px)}
