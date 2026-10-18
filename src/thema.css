@@ -592,3 +592,8 @@ html body :is(.addph.ai,.tc-ai,.fw-up.pri,.jp-foot button.primary,.obt-p,.aanm-i
 html body .addph.ai::before,html body .addph.ai::after,html body .tc-ai::before,html body .tc-ai::after{background:none!important}
 html body :is(.badge.nk-b,.pill.ob,.wg-pt,.wg-pt.eerste,.wg-kl,.rvm i.nu){background:#0d121b!important;color:#fff!important;border-color:#0d121b!important}
 html body [data-drop].over{background:#f4f5f6!important;outline:1.5px dashed #0d121b!important}
+/* zwarte knoppen in staalblauw (#305d74) */
+:root:root:root:root{--knop:#305d74;--knop-h:#284e62}
+html body :is(main,dialog,.lg-ov) :is(button,a).primary:not(.iconbtn),html body .btn.primary,html body .tk .tk-af,html body .lg-b,html body #view:not(#zz) :is(.toolbar,.acts)>.primary,html body :is(.addph.ai,.tc-ai,.fw-up.pri,.jp-foot button.primary){background:var(--knop)!important;background-image:none!important;border-color:var(--knop)!important;color:#fff!important}
+html body :is(main,dialog) :is(button,a).primary:not(.iconbtn):hover,html body .lg-b:hover{background:var(--knop-h)!important}
+html body .swipe-card.tk .tk-af{box-shadow:0 12px 24px -14px rgb(48 93 116 / .75)!important}
