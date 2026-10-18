@@ -432,3 +432,6 @@ html body dialog .jp-kop:not(.sc2-kop) .jp-ib{border:0!important;box-shadow:none
 }
 /* donkere strook achter de kop scrolt mee met de inhoud */
 html body dialog:has(.jp-kop:not(.sc2-kop)){background-attachment:local,local!important}
+/* status 'Actief' in de donkere kop: groen */
+html body dialog .jp-kop.ow-ok .jp-kr1>.jp-st:first-child{background:rgb(79 211 154 / .14)!important;border-color:rgb(79 211 154 / .45)!important;color:#bff0d8!important}
+html body dialog .jp-kop.ow-ok .jp-kr1>.jp-st:first-child i{background:#4fd39a!important;box-shadow:0 0 0 3px rgb(79 211 154 / .22)!important}
