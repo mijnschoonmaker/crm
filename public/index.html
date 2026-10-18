@@ -14246,6 +14246,15 @@ html body .cm .cm-pt{width:auto!important;max-width:none!important}
  html body .seg::-webkit-scrollbar{display:none}
  html body .seg>button{white-space:nowrap!important;flex:1 0 auto!important;letter-spacing:.1em!important;padding:0 12px!important}
 }
+/* Route: drie actieknoppen als nette tegels naast elkaar (zoals Navigeer / Bellen) */
+@media (max-width:700px){
+ html body #view .ns-head+.toolbar{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:8px!important}
+ html body #view .ns-head+.toolbar>:is(a,button){display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:6px!important;min-height:76px!important;padding:10px 6px!important;white-space:normal!important;text-align:center!important;letter-spacing:.06em!important;font-size:10px!important;line-height:1.25!important;border-radius:8px!important;width:auto!important}
+ html body #view .ns-head+.toolbar>:is(a,button) svg{width:20px!important;height:20px!important;margin:0!important}
+}
+@media (max-width:700px){
+ html body #view .ns-head+.toolbar>:is(a,button):is(.primary,:not(.primary)):not(.iconbtn){min-width:0!important;white-space:normal!important;letter-spacing:.06em!important;font-size:10px!important;padding:10px 6px!important;min-height:76px!important;flex-direction:column!important}
+}
 
 </style>
 
