@@ -333,37 +333,7 @@ html body .wd-k>button:not(.tiny),html body .wd-k>button.primary:not(.tiny),html
 html body .wd-k>button.primary{flex:1.5 1 0!important}
 html body .wd-k>button:not(.primary){flex:1 1 0!important}
 @media (max-width:420px){html body .wd-k>button:not(.tiny),html body .wd-k>button.primary:not(.tiny),html body #view .wd-k>button:not(.primary):not(.iconbtn){letter-spacing:.05em!important;font-size:10.5px!important;padding:0 8px!important}}
-/* COMMUNICATIE: kanalen als losse tegels, trechter verstuurd → geopend → geklikt duidelijk op een rij */
-.cm-ch{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;display:flex!important;gap:10px!important}
-.cm-s{background:#fff!important;border:1px solid var(--rr-rand)!important;border-radius:10px!important;padding:12px 16px!important;display:flex!important;align-items:center!important;gap:12px!important;min-width:120px}
-.cm-i{width:36px!important;height:36px!important;border-radius:6px!important;background:#f4f5f6!important;display:grid!important;place-items:center!important;color:#0d121b!important;box-shadow:none!important;border:0!important}
-.cm-i svg{width:18px!important;height:18px!important;color:#0d121b!important;stroke:#0d121b!important}
-.cm-s small{display:block;font-size:11px!important;letter-spacing:.14em!important;text-transform:uppercase!important;color:#7a7e84!important;font-weight:600!important}
-.cm-s b{font-size:22px!important;font-weight:500!important}
-.cm-lucht{position:relative!important;display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:28px!important;height:auto!important;min-height:0!important;margin-top:22px!important;padding:0!important;background:none!important}
-.cm-lucht>svg,.cm-env,.cm-boog{display:none!important}
-.cm-pt{position:relative!important;inset:auto!important;left:auto!important;top:auto!important;transform:none!important;display:grid!important;grid-template-columns:auto 1fr!important;grid-template-rows:auto auto!important;column-gap:14px!important;align-items:center!important;text-align:left!important;background:#fff!important;border:1px solid var(--rr-rand)!important;border-radius:10px!important;padding:16px 18px!important}
-.cm-pt i{grid-row:1/3;width:44px!important;height:44px!important;border-radius:6px!important;background:#f4f5f6!important;display:grid!important;place-items:center!important;color:#0d121b!important;border:0!important;box-shadow:none!important}
-.cm-pt i svg{width:20px!important;height:20px!important;stroke:#0d121b!important}
-.cm-pt b{font-size:28px!important;font-weight:500!important;line-height:1.1!important}
-.cm-pt small{font-size:11px!important;letter-spacing:.14em!important;text-transform:uppercase!important;color:#7a7e84!important;font-weight:600!important}
-.cm-pt.p1{border-color:#0d121b!important}
-.cm-pt.p1 i{background:#0d121b!important}.cm-pt.p1 i svg{stroke:#fff!important}
-.cm-pt:not(.p3)::after{content:"";position:absolute;right:-21px;top:50%;width:12px;height:12px;border-top:1.6px solid #b9bdc2;border-right:1.6px solid #b9bdc2;transform:translateY(-50%) rotate(45deg)}
-.cm-mot{color:#5d6168!important}
-.cm-big em{font-style:normal;font-weight:600;color:#0d121b!important}
-@media (max-width:700px){.cm-lucht{grid-template-columns:1fr!important;gap:10px!important}.cm-pt::after{display:none!important}.cm-ch{flex-wrap:wrap}.cm-s{flex:1 1 0;min-width:0}}
 html body .cm .cm-ch{background:transparent!important;border:0!important;padding:0!important}
-html body .cm .cm-lucht{width:100%!important;max-width:none!important;margin-left:0!important;margin-right:0!important}
-html body .cm .cm-pt{width:auto!important;max-width:none!important}
-@media (max-width:700px){
- html body .cm .cm-s{flex-direction:column!important;align-items:flex-start!important;gap:8px!important;padding:12px!important}
- html body .cm .cm-s small{letter-spacing:.06em!important;font-size:10px!important;white-space:nowrap}
- html body .cm .cm-i{width:30px!important;height:30px!important}
- html body .cm .cm-pt{padding:12px 14px!important}
- html body .cm .cm-pt i{width:38px!important;height:38px!important}
- html body .cm .cm-pt b{font-size:22px!important}
-}
 @media (max-width:700px){
  html body .seg{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;scrollbar-width:none;-webkit-overflow-scrolling:touch}
  html body .seg::-webkit-scrollbar{display:none}
@@ -582,3 +552,18 @@ html body .fg-pot{width:58px!important;height:48px!important;right:-48px!importa
 /* venstertitels compacter */
 html body dialog h3,html body dialog .dlg-head h3,html body dialog h2:not(.ns-head h2){font-size:16px!important;letter-spacing:.14em!important}
 html body dialog .fw-head .fw-ht h3{font-size:18px!important}
+
+/* COMMUNICATIE: oorspronkelijke opbouw (boog, envelop, drie punten), in lichte stijl */
+html body .cm .cm-s{background:#fff!important;border:1px solid var(--rr-rand)!important;border-radius:12px!important;box-shadow:none!important}
+html body .cm .cm-i{background:#f4f5f6!important;border:0!important;box-shadow:none!important;color:#0d121b!important}
+html body .cm .cm-i svg,html body .cm .cm-i svg *{color:#0d121b!important;stroke:#0d121b!important}
+html body .cm .cm-s small{color:#5d6168!important;font-weight:500!important}
+html body .cm .cm-s b{color:#0d121b!important;font-weight:500!important}
+html body .cm .cm-lucht>svg path,html body .cm .cm-lucht>svg *{stroke:#b9bdc2!important}
+html body .cm .cm-pt i{background:#fff!important;border:1px solid var(--rr-rand)!important;color:#0d121b!important;box-shadow:0 6px 14px -10px rgb(13 18 27 / .35)!important}
+html body .cm .cm-pt i svg,html body .cm .cm-pt i svg *{stroke:#0d121b!important;color:#0d121b!important}
+html body .cm .cm-pt.p2 i{background:#0d121b!important;border-color:#0d121b!important}
+html body .cm .cm-pt.p2 i svg,html body .cm .cm-pt.p2 i svg *{stroke:#fff!important;color:#fff!important}
+html body .cm .cm-pt b{color:#0d121b!important;font-weight:500!important}
+html body .cm .cm-pt small{color:#5d6168!important}
+html body .cm .cm-env svg{filter:drop-shadow(0 6px 10px rgb(13 18 27 / .18))}
