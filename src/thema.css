@@ -383,3 +383,22 @@ html body .cm .cm-pt{width:auto!important;max-width:none!important}
 :has(> .leaflet-container),.rv-map,.kd-map,.rf-map{isolation:isolate;overflow:hidden}
 .topbar{z-index:1100!important}
 #tabNav{z-index:1100!important}
+/* TICKET DIE AAN DE BEURT IS: donkere kop, duidelijke rand, rustige gloed */
+html body .swipe-card.tk.next{border:1.5px solid #0d121b!important;box-shadow:0 22px 44px -26px rgb(13 18 27 / .55),0 0 0 4px rgb(13 18 27 / .06)!important}
+html body .swipe-card.tk.next .tk-kop{background:linear-gradient(135deg,#0d121b 0%,#1e2631 100%)!important;border-bottom:0!important;position:relative}
+html body .swipe-card.tk.next .tk-kop *{color:#fff!important}
+html body .swipe-card.tk.next .tk-kop small,html body .swipe-card.tk.next .tk-kop em{color:rgb(255 255 255 / .62)!important}
+html body .swipe-card.tk.next .tk-kop::before{content:none!important}
+html body .swipe-card.tk.next .tk-kop::after{content:"NU AAN DE BEURT"!important;position:absolute!important;inset:auto!important;left:0!important;right:0!important;top:0!important;height:auto!important;width:auto!important;background:rgb(255 255 255 / .08)!important;color:#fff!important;border:0!important;border-bottom:1px solid rgb(255 255 255 / .12)!important;padding:6px 0!important;font-size:9.5px!important;font-weight:700!important;letter-spacing:.24em!important;text-align:center!important;pointer-events:none;-webkit-mask:none!important;mask:none!important;transform:none!important}
+html body .swipe-card.tk.next .tk-kop{padding-top:42px!important}
+
+html body .swipe-card.tk.next .tk-kop{border-radius:inherit;border-bottom-left-radius:0;border-bottom-right-radius:0}
+html body .swipe-card.tk.next .tk-vlucht svg,html body .swipe-card.tk.next .tk-vlucht span{filter:grayscale(1) brightness(2.2)}
+html body .swipe-card.tk.next .tk-vlucht i{background:rgb(255 255 255 / .35)!important;border-color:rgb(255 255 255 / .35)!important}
+html body .swipe-card.tk.next .pill.nextp{background:#0d121b!important;color:#fff!important}
+html body .swipe-card.tk.next .tk-af{box-shadow:0 12px 24px -14px rgb(13 18 27 / .8)!important}
+/* de andere tickets rustiger, zodat de huidige opvalt */
+html body .swipe-card.tk:not(.next){box-shadow:none!important}
+
+html body .swipe-card.tk.next .tk-vlucht{visibility:hidden!important}
+
