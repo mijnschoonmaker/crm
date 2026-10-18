@@ -20,7 +20,7 @@ function vCalculator(){
       <div class="list" style="gap:4px;margin:16px 0">${chosen.map(d=>`<div style="display:flex;justify-content:space-between;gap:8px"><span>${esc(d.naam)}</span><span class="amt">${eur(calcPrice(d,c))}</span></div>`).join("")||'<span class="subt">Kies een of meer diensten</span>'}</div>
       <label>Voor klant<select id="cc-klant"><option value="">Nieuwe klant…</option>${[...state.klanten].sort((a,b)=>cleanName(a.naam).localeCompare(cleanName(b.naam))).map(k=>`<option value="${esc(k.id)}">${esc(cleanName(k.naam))}</option>`).join("")}</select></label>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button type="button" class="primary" data-act="calcoff" ${chosen.length?"":"disabled"}>${I.offertes}Maak offerte</button><button type="button" data-act="calcset" ${chosen.length?"":"disabled"}>Prijs opslaan bij klant</button></div></div></div>
-  <div class="notice" style="background:var(--surface-2);color:var(--muted);margin-top:18px">Een calculator op je eigen website, waarmee bezoekers zelf een prijs uitrekenen en een aanvraag sturen, kan mijnschoonmaker niet hosten. Deze calculator is voor jezelf, aan de deur of aan de telefoon.</div>`;
+  <div class="notice" style="background:var(--surface-2);color:var(--muted);margin-top:18px">Een calculator op je eigen website, waarmee bezoekers zelf een prijs uitrekenen en een aanvraag sturen, kan Mansard niet hosten. Deze calculator is voor jezelf, aan de deur of aan de telefoon.</div>`;
   return html;
 }
 async function calcToKlant(mode){

@@ -11,8 +11,8 @@ V = "10.14.1"
 fb = "".join(f'<script src="https://www.gstatic.com/firebasejs/{V}/firebase-{m}-compat.js"></script>\n' for m in ["app", "auth", "firestore", "storage", "functions"])
 head = f'''<!doctype html>
 <html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
-<meta name="theme-color" content="#137a8a"><meta name="robots" content="noindex">
-<link rel="icon" href="/ms-logo-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/ms-logo-512.png" type="image/png" sizes="512x512"><link rel="shortcut icon" href="/favicon.ico?v=4"><link rel="apple-touch-icon" href="/ms-logo-180.png"><link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0f1f26"><meta name="robots" content="noindex">
+<link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-180.png"><link rel="manifest" href="/manifest.json">
 {fb}<script src="/config.js"></script>
 <script>{open("shim.js").read()}</script>
 '''
@@ -20,7 +20,7 @@ i = crm.index("<title>")
 html = head + crm[i:].replace("<style>", "<style>html,body{margin:0}\n", 1) + "\n</body></html>\n"
 # meteen het eigen logo tonen (geen Zeem-logo bij het laden); daarna vult het CRM het logo uit Instellingen in
 import re as _re
-html = _re.sub(r'<div class="logo"><span class="mk">.*?</span><span class="wm">mijnschoonmaker</span></div>', '<div class="logo haslogo"><img class="lgimg" src="/logo.png" alt="mijnschoonmaker"><span class="wm lgtxt"></span></div>', html)
+html = _re.sub(r'<div class="logo"><span class="mk">.*?</span><span class="wm">Mansard</span></div>', '<div class="logo haslogo"><img class="lgimg" src="/mansard-logo.png" alt="Mansard"><span class="wm lgtxt"></span></div>', html)
 assert html.count('class="logo haslogo"') >= 2, "logo niet vervangen"
 os.makedirs("public", exist_ok=True)
 open("public/index.html", "w").write(html)
@@ -30,18 +30,17 @@ print("public/index.html", len(html))
 demo = crm[crm.index("<title>"):]
 assert demo.count("render();init();") == 1
 demo = demo.replace("render();init();", open(os.path.join(R, "src", "demo", "demo.js")).read() + "\ndemoStart();", 1)
-demo = demo.replace("<title>mijnschoonmaker · CRM</title>", "<title>mijnschoonmaker · CRM (demo)</title>", 1)
+demo = demo.replace("<title>Mansard</title>", "<title>Mansard (demo)</title>", 1)
 dhead = '''<!doctype html>
 <html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#137a8a"><meta name="robots" content="noindex,nofollow">
-<link rel="icon" href="/ms-logo-32.png" type="image/png" sizes="32x32"><link rel="apple-touch-icon" href="/ms-logo-180.png">
+<link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="apple-touch-icon" href="/mansard-180.png">
 '''
 demo = dhead + demo.replace("<style>", "<style>html,body{margin:0}\n", 1) + "\n</body></html>\n"
 # geen eigen merk in de demo: neutraal icoon en een verzonnen bedrijfsnaam
-demo = demo.replace('<span class="wm">mijnschoonmaker</span>', '<span class="wm">Glazenwasserij</span>')
+demo = _re.sub(r'<div class="logo"><span class="mk">.*?</span><span class="wm">Mansard</span></div>', '<div class="logo haslogo"><img class="lgimg" src="/mansard-logo.png" alt="Mansard"><span class="wm lgtxt"></span></div>', demo)
 demo = demo.replace("mijnschoonmaker-95789", "\x00PRJ\x00").replace("robin@mijnschoonmaker.com", "info@voorbeeldglazenwasserij.nl").replace("mijnschoonmaker.com", "voorbeeldglazenwasserij.nl")
 demo = demo.replace("Robin is ", "Mark is ").replace("mijnschoonmaker · CRM (demo)", "CRM (demo)").replace("Mijnschoonmaker", "Het CRM").replace("mijnschoonmaker", "het CRM").replace("\x00PRJ\x00", "mijnschoonmaker-95789")
-demo = demo.replace('href="/ms-logo-32.png" type="image/png" sizes="32x32"', 'href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Crect width=%2224%22 height=%2224%22 rx=%225%22 fill=%22%23137a8a%22/%3E%3Cpath d=%22M7 17L17 7%22 stroke=%22%23ebbd4c%22 stroke-width=%222.6%22 stroke-linecap=%22round%22/%3E%3C/svg%3E"').replace('<link rel="apple-touch-icon" href="/ms-logo-180.png">', '')
 os.makedirs("public/demo", exist_ok=True)
 open("public/demo/index.html", "w").write(demo)
 print("public/demo/index.html", len(demo))

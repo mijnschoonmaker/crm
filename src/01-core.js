@@ -200,9 +200,9 @@ const S=()=>({...DEF,...state.settings});
 const big=()=>matchMedia("(min-width:980px)").matches;
 
 /* ---------- OPSLAG ----------
-   Alles wat mijnschoonmaker bewaart loopt via dit blok: save(), del(), init() en BLOB (adres van foto's en bestanden).
+   Alles wat Mansard bewaart loopt via dit blok: save(), del(), init() en BLOB (adres van foto's en bestanden).
    Bij de overstap naar een eigen server wordt alleen dit blok vervangen door de database van de server;
-   de rest van mijnschoonmaker blijft hetzelfde. Gegevensformaat per collectie: zie exportAlles() (versie 1). */
+   de rest van Mansard blijft hetzelfde. Gegevensformaat per collectie: zie exportAlles() (versie 1). */
 const BLOB="/_blob/";
 /* ---------- desktop iets uitgezoomd (90%) ----------
    html krijgt zoom .9 op een groot scherm met muis. Zwevende lagen (sleepkaart, datumkiezer, confetti, kaart,

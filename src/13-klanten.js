@@ -84,7 +84,7 @@ async function contactToevoegen(D){const k0=D.klant||{},id=newId("k");
   await save("klanten",id,k);return {...k,id}}
 function openWebAanvraag(){
   openDlg(`<div class="dlg-head"><span class="objic big">${I.globe}</span><div style="flex:1;min-width:0"><h3>Aanvraag van de website</h3><div class="subt">Plak de e-mail of het WhatsApp-bericht van de klant</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
-    <label>Bericht van de klant<textarea id="wa-in" rows="6" placeholder="Plak hier het hele bericht. mijnschoonmaker zoekt zelf de aanvraagcode (ZEEM1:…)."></textarea></label>
+    <label>Bericht van de klant<textarea id="wa-in" rows="6" placeholder="Plak hier het hele bericht. Mansard zoekt zelf de aanvraagcode (ZEEM1:…)."></textarea></label>
     <div id="wa-prev"></div>
     <div class="row stickyfoot"><button type="button" class="ghost" data-act="close">Annuleren</button><span class="sp"></span><button type="submit" class="primary" id="wa-go" disabled>${I.check}Toevoegen en aanbieden in planning</button></div>`,{wide:false});
   let D=null;const draw=()=>{D=leesAanvraag($("#wa-in").value);const box=$("#wa-prev");$("#wa-go").disabled=!D;

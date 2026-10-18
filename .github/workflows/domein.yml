@@ -1,0 +1,43 @@
+name: Domein koppelen
+on:
+  workflow_dispatch:
+    inputs:
+      domein: { description: "Domein", required: true, default: "app.mansard.nl" }
+jobs:
+  koppel:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > "$RUNNER_TEMP/sa.json"
+      - name: Koppelen
+        env:
+          P: ${{ vars.FIREBASE_PROJECT }}
+          D: ${{ inputs.domein }}
+        run: |
+          gcloud auth activate-service-account --key-file="$RUNNER_TEMP/sa.json" --quiet >/dev/null 2>&1
+          T=$(gcloud auth print-access-token)
+          H=(-H "Authorization: Bearer $T" -H "Content-Type: application/json" -H "x-goog-user-project: $P")
+          B=https://firebasehosting.googleapis.com/v1beta1/projects/$P/sites/$P/customDomains
+          c=$(curl -s -X POST "${H[@]}" "$B?customDomainId=$D" -d '{}')
+          echo "aanmaken: $c" | head -c 600; echo
+          sleep 20
+          g=$(curl -s "${H[@]}" "$B/$D")
+          echo "$g" > dom.json
+          dns=$(python3 -c "
+          import json;d=json.load(open('dom.json'))
+          out=[]
+          for s in (d.get('requiredDnsUpdates') or {}).get('desired',[]):
+            for r in s.get('records',[]): out.append(f\"{s.get('domainName','')} {r.get('type')} {r.get('rdata')} ({r.get('requiredAction','')})\")
+          print(' | '.join(out) or json.dumps(d)[:900])")
+          echo "::notice title=DNS voor $D::$dns"
+          st=$(python3 -c "import json;d=json.load(open('dom.json'));print(d.get('hostState'),d.get('ownershipState'),d.get('certState'))")
+          echo "::notice title=Status::$st"
+          # inloggen toestaan op het nieuwe domein
+          A=https://identitytoolkit.googleapis.com/admin/v2/projects/$P/config
+          cur=$(curl -s "${H[@]}" "$A")
+          nieuw=$(python3 -c "
+          import json,sys;d=json.loads(sys.argv[1]);l=d.get('authorizedDomains',[])
+          D='$D'
+          if D not in l:l.append(D)
+          print(json.dumps({'authorizedDomains':l}))" "$cur")
+          r=$(curl -s -X PATCH "${H[@]}" "$A?updateMask=authorizedDomains" -d "$nieuw" | python3 -c "import json,sys;print(json.load(sys.stdin).get('authorizedDomains'))")
+          echo "::notice title=Inlogdomeinen::$r"

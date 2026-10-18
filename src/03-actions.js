@@ -381,7 +381,7 @@ async function pdfRapport(jaar,per){
   let y=80;[["Omzet excl. btw",F.omzet],["Btw over omzet",F.btwOmzet],["Omzet incl. btw",F.omzet+F.btwOmzet]].forEach(([a,b])=>{doc.setTextColor(93,111,118);doc.text(a,L,y);doc.setTextColor(15,31,38);doc.text(E(b),R,y,{align:"right"});y+=7});
   y+=6;doc.setFont("helvetica","bold");doc.text("Facturen ("+F.fs.length+")",L,y);doc.setFont("helvetica","normal");y+=7;
   F.fs.sort((a,b)=>String(a.datum).localeCompare(String(b.datum))).forEach(f=>{if(y>275){doc.addPage();y=24}const t=totals(f);doc.text([f.nummer,fmtD(f.datum),cleanName(f.klantNaam).slice(0,34)].join("   "),L,y);doc.text(E(t.inc),R,y,{align:"right"});y+=5.5});
-  saveFile("mijnschoonmaker rapport "+lbl+".pdf",doc.output("arraybuffer"),"Rapport opgeslagen");
+  saveFile("Mansard rapport "+lbl+".pdf",doc.output("arraybuffer"),"Rapport opgeslagen");
 }
 
 /* ---------- KOSTEN / BON ---------- */

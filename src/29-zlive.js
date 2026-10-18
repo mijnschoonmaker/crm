@@ -105,7 +105,7 @@ if(LIVE){
       <div class="splitrow" style="gap:10px"><button type="button" class="small" id="liveTest" ${s.liveMail?"":"disabled"}>${I.send}Testmail naar mezelf</button><span class="subt" id="liveRes"></span></div>`,{wide:false});
     $("#hookCp").onclick=()=>copy(hook);
     $("#liveTest").onclick=async()=>{const R=$("#liveRes");R.textContent="Bezig…";
-      try{await fbFn("sendMail")({naar:s.email||s.liveAfzender,onderwerp:"Testmail vanuit het CRM",tekst:"Het versturen vanuit het CRM werkt.\n\nMet vriendelijke groet,\n"+(s.naam||"mijnschoonmaker"),meta:{klantNaam:"Test"}});R.innerHTML='<span style="color:var(--ok);font-weight:700">Verstuurd naar '+esc(s.email||s.liveAfzender)+' ✓</span>'}
+      try{await fbFn("sendMail")({naar:s.email||s.liveAfzender,onderwerp:"Testmail vanuit het CRM",tekst:"Het versturen vanuit het CRM werkt.\n\nMet vriendelijke groet,\n"+(s.naam||"Mansard"),meta:{klantNaam:"Test"}});R.innerHTML='<span style="color:var(--ok);font-weight:700">Verstuurd naar '+esc(s.email||s.liveAfzender)+' ✓</span>'}
       catch(e){R.innerHTML='<span style="color:var(--late)">'+esc(fnFout(e))+'</span>'}};
     form.onsubmit=async e=>{e.preventDefault();const p=readFields(),key=$("#brevoKey").value.trim();
       try{await fsDb().doc("geheim/config").set({...(key?{brevoKey:key}:{}),afzender:p.liveAfzender,meldAdres:p.liveMeld,hookToken:tok},{merge:true});

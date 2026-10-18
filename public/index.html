@@ -1,14 +1,14 @@
 <!doctype html>
 <html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
-<meta name="theme-color" content="#137a8a"><meta name="robots" content="noindex">
-<link rel="icon" href="/ms-logo-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/ms-logo-512.png" type="image/png" sizes="512x512"><link rel="shortcut icon" href="/favicon.ico?v=4"><link rel="apple-touch-icon" href="/ms-logo-180.png"><link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0f1f26"><meta name="robots" content="noindex">
+<link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-180.png"><link rel="manifest" href="/manifest.json">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-functions-compat.js"></script>
 <script src="/config.js"></script>
-<script>/* mijnschoonmaker CRM — koppeling met Firebase (login, database, opslag, downloads).
+<script>/* Mansard CRM — koppeling met Firebase (login, database, opslag, downloads).
    Biedt hetzelfde window.claude.use(...) als de oude versie, zodat de CRM-code gelijk blijft. */
 (function () {
   window.ZEEM_LIVE = true;
@@ -76,7 +76,7 @@
   let ov = null;
   const toon = html => {
     if (!ov) { const s = document.createElement("style"); s.textContent = css; document.head.appendChild(s); ov = document.createElement("div"); ov.className = "lg-ov"; document.body.appendChild(ov); }
-    ov.style.display = "grid"; ov.innerHTML = `<div class="lg-c"><div class="lg-logo"><img src="/logo.png" alt="mijnschoonmaker" onerror="this.remove()"></div>${html}</div>`;
+    ov.style.display = "grid"; ov.innerHTML = `<div class="lg-c"><div class="lg-logo"><img src="/mansard-logo.png" alt="Mansard" onerror="this.remove()"></div>${html}</div>`;
   };
   const $ = s => ov.querySelector(s), msg = (t, ok) => { const m = $(".lg-m"); if (m) { m.textContent = t; m.className = "lg-m" + (ok ? " ok" : ""); } };
   const NL = { "auth/invalid-credential": "E-mailadres of wachtwoord klopt niet.", "auth/wrong-password": "E-mailadres of wachtwoord klopt niet.", "auth/user-not-found": "E-mailadres of wachtwoord klopt niet.", "auth/too-many-requests": "Te veel pogingen. Probeer het over een paar minuten opnieuw.", "auth/email-already-in-use": "Er bestaat al een account met dit e-mailadres. Log in.", "auth/weak-password": "Kies een wachtwoord van minimaal 8 tekens.", "auth/invalid-email": "Controleer het e-mailadres.", "auth/network-request-failed": "Geen internetverbinding." };
@@ -125,7 +125,7 @@
     } catch (e) { return false; }
   }
   function mfaScherm(u, herstel) {
-    toon(`<h1>Inlogcode</h1><p>${herstel ? "Vul een van je herstelcodes in (bijvoorbeeld <b>a1b2c-3d4e5</b>). Elke herstelcode werkt één keer." : "Open je authenticator-app (bijvoorbeeld Google Authenticator) en vul de 6 cijfers in voor <b>mijnschoonmaker CRM</b>."}</p>
+    toon(`<h1>Inlogcode</h1><p>${herstel ? "Vul een van je herstelcodes in (bijvoorbeeld <b>a1b2c-3d4e5</b>). Elke herstelcode werkt één keer." : "Open je authenticator-app (bijvoorbeeld Google Authenticator) en vul de 6 cijfers in voor <b>Mansard CRM</b>."}</p>
       <form id="lgF"><label>${herstel ? "Herstelcode" : "Code"}<input id="lgC" ${herstel ? 'autocomplete="off" placeholder="xxxxx-xxxxx"' : 'inputmode="numeric" autocomplete="one-time-code" pattern="[0-9 ]*" maxlength="7" placeholder="123 456"'} required style="letter-spacing:${herstel ? ".05em" : ".3em"};font-size:20px;text-align:center"></label>
       <button class="lg-b" id="lgGo">Bevestigen</button></form><div class="lg-m"></div>
       <div class="lg-row"><button class="lg-l" id="lgHs">${herstel ? "Code uit de app gebruiken" : "Telefoon kwijt? Herstelcode gebruiken"}</button><button class="lg-l" id="lgOut">Uitloggen</button></div>`);
@@ -162,7 +162,7 @@
   }));
 })();
 </script>
-<title>mijnschoonmaker · CRM</title>
+<title>Mansard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -4544,18 +4544,22 @@ td.fb-cb:hover .fb-box{border-color:var(--brand);transform:scale(1.06)}
 .fb-ml{display:none!important}
 @media (max-width:760px){.fb-st{display:none}.fb-al{color:#c2410c}.fb-ml{display:block!important;font-size:11px;font-weight:700;color:#c2410c;white-space:nowrap}.fb-t td:nth-child(3){max-width:none}}
 .fb-in label.fb-ok{background:color-mix(in srgb,#22a46c 14%,var(--surface));border-color:#22a46c;color:#178a5e}
+.logo .lgimg[src$="mansard-logo.png"]{width:150px;height:auto;border-radius:0;margin:6px 0 4px 4px}
+.topbar .logo .lgimg[src$="mansard-logo.png"]{width:118px;height:auto;margin:0}
+.app.collapsed aside .logo .lgimg[src$="mansard-logo.png"]{width:38px;height:38px;object-fit:cover;object-position:left center}
+.logo.haslogo:has(.lgimg[src$="mansard-logo.png"]){flex-direction:column;align-items:flex-start;gap:6px}.logo.haslogo:has(.lgimg[src$="mansard-logo.png"]) .lgtxt{font-size:12.5px;color:var(--muted);font-weight:600;margin-left:4px}.topbar .logo.haslogo:has(.lgimg[src$="mansard-logo.png"]) .lgtxt{display:none}
 
 </style>
 <div class="app">
   <aside class="side">
-    <div class="logo haslogo"><img class="lgimg" src="/logo.png" alt="mijnschoonmaker"><span class="wm lgtxt"></span></div>
+    <div class="logo haslogo"><img class="lgimg" src="/mansard-logo.png" alt="Mansard"><span class="wm lgtxt"></span></div>
     <button type="button" class="collapse" data-act="collapse" aria-label="Menu in- of uitklappen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M16 9l-3 3 3 3"/></svg><span class="lbl">Menu inklappen</span></button>
     <nav id="sideNav" aria-label="Hoofdmenu"></nav>
     <div class="sp"></div>
     <div class="usercard" id="userCard"></div>
   </aside>
   <div style="min-width:0">
-    <div class="topbar"><div class="logo haslogo"><img class="lgimg" src="/logo.png" alt="mijnschoonmaker"><span class="wm lgtxt"></span></div><div class="sp"></div><button type="button" class="iconbtn" data-act="tab" data-tab="instellingen" aria-label="Instellingen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg></button></div>
+    <div class="topbar"><div class="logo haslogo"><img class="lgimg" src="/mansard-logo.png" alt="Mansard"><span class="wm lgtxt"></span></div><div class="sp"></div><button type="button" class="iconbtn" data-act="tab" data-tab="instellingen" aria-label="Instellingen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg></button></div>
     <main><div id="status"></div><div id="view"></div></main>
   </div>
 </div>
@@ -4767,9 +4771,9 @@ const S=()=>({...DEF,...state.settings});
 const big=()=>matchMedia("(min-width:980px)").matches;
 
 /* ---------- OPSLAG ----------
-   Alles wat mijnschoonmaker bewaart loopt via dit blok: save(), del(), init() en BLOB (adres van foto's en bestanden).
+   Alles wat Mansard bewaart loopt via dit blok: save(), del(), init() en BLOB (adres van foto's en bestanden).
    Bij de overstap naar een eigen server wordt alleen dit blok vervangen door de database van de server;
-   de rest van mijnschoonmaker blijft hetzelfde. Gegevensformaat per collectie: zie exportAlles() (versie 1). */
+   de rest van Mansard blijft hetzelfde. Gegevensformaat per collectie: zie exportAlles() (versie 1). */
 const BLOB="/_blob/";
 /* ---------- desktop iets uitgezoomd (90%) ----------
    html krijgt zoom .9 op een groot scherm met muis. Zwevende lagen (sleepkaart, datumkiezer, confetti, kaart,
@@ -5522,7 +5526,7 @@ async function pdfRapport(jaar,per){
   let y=80;[["Omzet excl. btw",F.omzet],["Btw over omzet",F.btwOmzet],["Omzet incl. btw",F.omzet+F.btwOmzet]].forEach(([a,b])=>{doc.setTextColor(93,111,118);doc.text(a,L,y);doc.setTextColor(15,31,38);doc.text(E(b),R,y,{align:"right"});y+=7});
   y+=6;doc.setFont("helvetica","bold");doc.text("Facturen ("+F.fs.length+")",L,y);doc.setFont("helvetica","normal");y+=7;
   F.fs.sort((a,b)=>String(a.datum).localeCompare(String(b.datum))).forEach(f=>{if(y>275){doc.addPage();y=24}const t=totals(f);doc.text([f.nummer,fmtD(f.datum),cleanName(f.klantNaam).slice(0,34)].join("   "),L,y);doc.text(E(t.inc),R,y,{align:"right"});y+=5.5});
-  saveFile("mijnschoonmaker rapport "+lbl+".pdf",doc.output("arraybuffer"),"Rapport opgeslagen");
+  saveFile("Mansard rapport "+lbl+".pdf",doc.output("arraybuffer"),"Rapport opgeslagen");
 }
 
 /* ---------- KOSTEN / BON ---------- */
@@ -7002,7 +7006,7 @@ async function contactToevoegen(D){const k0=D.klant||{},id=newId("k");
   await save("klanten",id,k);return {...k,id}}
 function openWebAanvraag(){
   openDlg(`<div class="dlg-head"><span class="objic big">${I.globe}</span><div style="flex:1;min-width:0"><h3>Aanvraag van de website</h3><div class="subt">Plak de e-mail of het WhatsApp-bericht van de klant</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
-    <label>Bericht van de klant<textarea id="wa-in" rows="6" placeholder="Plak hier het hele bericht. mijnschoonmaker zoekt zelf de aanvraagcode (ZEEM1:…)."></textarea></label>
+    <label>Bericht van de klant<textarea id="wa-in" rows="6" placeholder="Plak hier het hele bericht. Mansard zoekt zelf de aanvraagcode (ZEEM1:…)."></textarea></label>
     <div id="wa-prev"></div>
     <div class="row stickyfoot"><button type="button" class="ghost" data-act="close">Annuleren</button><span class="sp"></span><button type="submit" class="primary" id="wa-go" disabled>${I.check}Toevoegen en aanbieden in planning</button></div>`,{wide:false});
   let D=null;const draw=()=>{D=leesAanvraag($("#wa-in").value);const box=$("#wa-prev");$("#wa-go").disabled=!D;
@@ -7241,7 +7245,7 @@ function vCommunicatie(){
     <div class="seg">${[["alle","Alle"],["email","Email"],["sms","SMS"],["whatsapp","WhatsApp"]].map(([v,l])=>`<button type="button" data-act="mch" data-v="${v}" aria-pressed="${state.mch===v}">${l}</button>`).join("")}</div>
     <select id="mst" style="width:auto"><option value="alle">Alle statussen</option>${Object.keys(MSTAT).map(k=>`<option value="${k}" ${state.mst===k?"selected":""}>${MSTAT[k][1]}</option>`).join("")}</select></div>
   <div class="countline"><span class="eyebrow">${plural(log.length,"bericht","berichten")}</span><label style="flex-direction:row;align-items:center;gap:8px">Per pagina<select id="mpp">${[25,50,100].map(x=>`<option ${x===pp?"selected":""}>${x}</option>`).join("")}</select></label></div>`;
-  if(!log.length)return html+empty(bs.length?"Geen berichten gevonden":"Nog geen berichten","Elk bericht dat je via mijnschoonmaker opent of kopieert, komt in deze log.");
+  if(!log.length)return html+empty(bs.length?"Geen berichten gevonden":"Nog geen berichten","Elk bericht dat je via Mansard opent of kopieert, komt in deze log.");
   html+=`<div class="list">${log.slice((state.mpage-1)*pp,state.mpage*pp).map(m=>{const d=new Date(m.op),ago=Math.round((today()-new Date(d.getFullYear(),d.getMonth(),d.getDate()))/DAY),st=MSTAT[ms(m)];return `<div class="card msgc${m.klantId?" click":""}" ${m.klantId?`data-act="klant" data-id="${esc(m.klantId)}"`:""}>
     <span class="av sm" style="grid-row:1/span 3;align-self:start">${esc(initials(m.klantNaam))}</span>
     <span class="msg-to"><span class="kn ${m.kanaal}">${m.kanaal==="email"?I.mail:m.kanaal==="sms"?I.sms:I.msg}</span><b>${esc(m.naar||cleanName(m.klantNaam))}</b></span>
@@ -7567,13 +7571,13 @@ async function bhActie(a,t){
   else if(a==="bhdlomzet"){const n=bhD(van)+"_tm_"+bhD(tot);bhDownload(`revenue_${n}.csv`,bhVerkoopboek(van,tot).csv);setTimeout(()=>bhDownload(`customers_active_${n}.csv`,bhRelaties().csv),400);if(typeof ssNrVast==="function")ssNrVast();await bhLogZet({type:"Omzet",omschrijving:"Omzet "+p+" (download)",naar:"—"});render()}
   else if(a==="bhdluren"){bhDownload(`uren_${van}_${tot}.csv`,bhUren(van,tot).csv);await bhLogZet({type:"Uren",omschrijving:"Uren "+p+" (download)",naar:"—"});render()}
   else if(a==="bhmailomzet"){const vb=bhVerkoopboek(van,tot),rl=bhRelaties(),naar=($("#bhMail1")||{}).value,n=bhD(van)+"_tm_"+bhD(tot);
-    await bhMail("Omzet",naar,[{naam:`revenue_${n}.csv`,data:bhB64(vb.csv)},{naam:`customers_active_${n}.csv`,data:bhB64(rl.csv)}],`Omzet ${p} – ${S().naam||"mijnschoonmaker"}`,`Beste boekhouder,\n\nIn de bijlage de omzet van ${p} voor SnelStart (revenue) en de bijbehorende relaties (customers_active): ${vb.fs.length} facturen, ${eur(vb.omzet)} incl. btw.\n\nMet vriendelijke groet,\n${S().naam||""}`,`Omzet ${p}`)}
+    await bhMail("Omzet",naar,[{naam:`revenue_${n}.csv`,data:bhB64(vb.csv)},{naam:`customers_active_${n}.csv`,data:bhB64(rl.csv)}],`Omzet ${p} – ${S().naam||"Mansard"}`,`Beste boekhouder,\n\nIn de bijlage de omzet van ${p} voor SnelStart (revenue) en de bijbehorende relaties (customers_active): ${vb.fs.length} facturen, ${eur(vb.omzet)} incl. btw.\n\nMet vriendelijke groet,\n${S().naam||""}`,`Omzet ${p}`)}
   else if(a==="bhmailuren"){const ur=bhUren(van,tot),naar=($("#bhMail2")||{}).value;
-    await bhMail("Uren",naar,[{naam:`uren_${van}_${tot}.csv`,data:bhB64(ur.csv)}],`Uren ${p} – ${S().naam||"mijnschoonmaker"}`,`Beste boekhouder,\n\nIn de bijlage de uren van ${p}: ${ur.rows.length} werkdagen.\n\nMet vriendelijke groet,\n${S().naam||""}`,`Uren ${p}`)}
+    await bhMail("Uren",naar,[{naam:`uren_${van}_${tot}.csv`,data:bhB64(ur.csv)}],`Uren ${p} – ${S().naam||"Mansard"}`,`Beste boekhouder,\n\nIn de bijlage de uren van ${p}: ${ur.rows.length} werkdagen.\n\nMet vriendelijke groet,\n${S().naam||""}`,`Uren ${p}`)}
   else if(a==="bhmailfile"){const inp=$("#bhFile"),naar=($("#bhMail3")||{}).value,oms=($("#bhOms")||{}).value.trim()||"Bestanden";const files=[...((inp&&inp.files)||[])];
     if(!files.length)return toast("Kies eerst een bestand");if(files.some(f=>f.size>8e6))return toast("Een bestand is groter dan 8 MB");
     const bijl=[];for(const f of files){const b64=await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(String(fr.result).split(",")[1]||"");fr.readAsDataURL(f)});bijl.push({naam:f.name,data:b64})}
-    await bhMail("Bestanden",naar,bijl,`${oms} – ${S().naam||"mijnschoonmaker"}`,`Beste boekhouder,\n\nIn de bijlage: ${oms} (${files.map(f=>f.name).join(", ")}).\n\nMet vriendelijke groet,\n${S().naam||""}`,oms)}
+    await bhMail("Bestanden",naar,bijl,`${oms} – ${S().naam||"Mansard"}`,`Beste boekhouder,\n\nIn de bijlage: ${oms} (${files.map(f=>f.name).join(", ")}).\n\nMet vriendelijke groet,\n${S().naam||""}`,oms)}
 }
 document.addEventListener("change",e=>{const t=e.target;if(t&&t.dataset&&t.dataset.bhd){if(t.dataset.bhd==="van")state.bhVan=t.value;else state.bhTot=t.value;render()}});
 
@@ -7627,7 +7631,7 @@ function vBoekhouding(){
   }else if(B==="btw"){
     html+=`<div class="tablewrap"><table class="t"><thead><tr><th>Kwartaal</th><th class="r">1a omzet</th><th class="r">1a btw</th><th class="r">5b voorbelasting</th><th class="r">Saldo</th><th>Deadline</th><th>Status</th></tr></thead><tbody>${[1,2,3,4].map(q=>{const f=fin(periodRange(y,"q"+q)),key=y+"-Q"+q,dd=qDeadline(y,q),done=state.aangiftes[key],started=new Date(y,q*3-3,1)<=t;
       return `<tr class="click" data-act="aangifte" data-y="${y}" data-q="${q}"><td><b>Q${q} ${y}</b></td><td class="r amt">${eur(f.omzet)}</td><td class="r amt">${eur(f.btwOmzet)}</td><td class="r amt">${eur(f.voorbelasting)}</td><td class="r amt"><b>${eur(f.btwSaldo)}</b></td><td>${fmtD(dd)}</td><td>${done?statusPill("ok","Ingediend"):!started?statusPill("neutral","Nog niet"):dd<t?statusPill("late","Te laat"):new Date(y,q*3,0)<t?statusPill("soon","Klaarzetten"):statusPill("plan","Loopt")}</td></tr>`}).join("")}</tbody></table></div>
-      <p class="subt" style="font-size:12px">mijnschoonmaker rekent de bedragen uit. De aangifte zelf doe je in Mijn Belastingdienst Zakelijk.</p>`;
+      <p class="subt" style="font-size:12px">Mansard rekent de bedragen uit. De aangifte zelf doe je in Mijn Belastingdienst Zakelijk.</p>`;
   }else{
     const checks=[];const yr=periodRange(y,"jaar");
     const nob=state.kosten.filter(c=>inRange(c.datum,yr)&&!c.bon);if(nob.length)checks.push(["soon",plural(nob.length,"bon zonder foto","bonnen zonder foto"),"Bewaar een foto van elke bon, de Belastingdienst kan erom vragen.","inkoop"]);
@@ -7682,7 +7686,7 @@ function vCalculator(){
       <div class="list" style="gap:4px;margin:16px 0">${chosen.map(d=>`<div style="display:flex;justify-content:space-between;gap:8px"><span>${esc(d.naam)}</span><span class="amt">${eur(calcPrice(d,c))}</span></div>`).join("")||'<span class="subt">Kies een of meer diensten</span>'}</div>
       <label>Voor klant<select id="cc-klant"><option value="">Nieuwe klant…</option>${[...state.klanten].sort((a,b)=>cleanName(a.naam).localeCompare(cleanName(b.naam))).map(k=>`<option value="${esc(k.id)}">${esc(cleanName(k.naam))}</option>`).join("")}</select></label>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button type="button" class="primary" data-act="calcoff" ${chosen.length?"":"disabled"}>${I.offertes}Maak offerte</button><button type="button" data-act="calcset" ${chosen.length?"":"disabled"}>Prijs opslaan bij klant</button></div></div></div>
-  <div class="notice" style="background:var(--surface-2);color:var(--muted);margin-top:18px">Een calculator op je eigen website, waarmee bezoekers zelf een prijs uitrekenen en een aanvraag sturen, kan mijnschoonmaker niet hosten. Deze calculator is voor jezelf, aan de deur of aan de telefoon.</div>`;
+  <div class="notice" style="background:var(--surface-2);color:var(--muted);margin-top:18px">Een calculator op je eigen website, waarmee bezoekers zelf een prijs uitrekenen en een aanvraag sturen, kan Mansard niet hosten. Deze calculator is voor jezelf, aan de deur of aan de telefoon.</div>`;
   return html;
 }
 async function calcToKlant(mode){
@@ -7708,7 +7712,7 @@ function openPrijzen(){
 }
 
 /* ---------- RAMENWAS CALCULATOR: telling per verdieping, foto's met stippen, PDF-overzicht, offerte en klant ---------- */
-/* draait in een eigen shadow-DOM, zodat de opmaak los staat van de rest van mijnschoonmaker en hertekenen de telling niet wist */
+/* draait in een eigen shadow-DOM, zodat de opmaak los staat van de rest van Mansard en hertekenen de telling niet wist */
 const RC_CSS=`
 :host{display:block;color:var(--ink);font-family:var(--f-ui);font-size:15px;line-height:1.5;
   --blue:var(--brand);--blue-ink:var(--brand-ink);--blue-soft:var(--brand-soft);
@@ -8005,7 +8009,7 @@ const RC_HTML=`<div class="wrap">
       <div class="field" style="margin-top:16px"><span class="flabel">Staffelkorting normale ramen</span></div>
       <div class="extra" id="tiers"></div>
       <p class="note" style="margin-top:6px">De staffel telt alle normale ramen samen. Elke schijf krijgt zijn eigen korting; de gemiddelde korting geldt voor elke verdieping. Voorbeeld: 64 ramen geeft 25% korting.</p>
-      <p class="note">Waarden met <span class="flag">*</span> zijn een schatting. Alle prijzen zijn excl. btw. Wijzigingen worden opgeslagen in mijnschoonmaker en gelden voor iedereen met wie je mijnschoonmaker deelt.</p>
+      <p class="note">Waarden met <span class="flag">*</span> zijn een schatting. Alle prijzen zijn excl. btw. Wijzigingen worden opgeslagen in Mansard en gelden voor iedereen met wie je Mansard deelt.</p>
     </details>
   </section>
 </div>`;
@@ -8054,7 +8058,7 @@ function buildRamen(){
     {k:"koepel",l:"Lichtkoepel",s:60,p:2.20,se:true,pe:true},{k:"mini",l:"Miniraampje",s:13,p:0.40,pe:true}];
   const SPECIAL=[{k:"lood",n:"Glas-in-lood",d:"Bovenlichten met lood"},{k:"mini",n:"Miniraampjes",d:"Tel elk ruitje"},{k:"koepel",n:"Lichtkoepels",d:"Op een plat dak"},{k:"tuimel",n:"Dak- / tuimelramen",d:"Schuin in het dak"}];
   const DEFAULTS={start:0,min:56.20,kozMin:40.63,koz_p:0.65,koz_s:30,tiers:[[10,10],[20,20],[30,30],[40,40]],tb:{},wg:{},fp:{}};
-  /* frequentie: [sleutel, label, beurten per jaar, korting %, weken in mijnschoonmaker] — negatief = toeslag */
+  /* frequentie: [sleutel, label, beurten per jaar, korting %, weken in Mansard] — negatief = toeslag */
   const FREQ_LIST=[["w1","1x per week",52,0,1],["w2","1x per 2 weken",26,0,2],["w4","1x per 4 weken",13,0,4],["mnd","1x per maand",12,0,4],
     ["w6","1x per 6 weken",52/6,0,6],["m8","1x per 8 weken",6.5,5,8],["mnd2","1x per 2 maanden",6,0,8],["w12","1x per 12 weken",52/12,0,12],
     ["mnd3","1x per 3 maanden",4,-150,12],["w16","1x per 16 weken",3.25,0,12],["mnd4","1x per 4 maanden",3,0,12],["w24","1x per 24 weken",52/24,0,26],
@@ -8322,7 +8326,7 @@ const ICON={
   }
   const say=(t,c)=>{const m=g("actMsg");if(m){m.textContent=t||"";m.className="msg"+(c?" "+c:"")}};
 
-  /* ---------- naar mijnschoonmaker: klant, telling met foto's, offerte ---------- */
+  /* ---------- naar Mansard: klant, telling met foto's, offerte ---------- */
   async function uploadPhotos(){
     if(!photos.length)return {fotos:[],fail:0};
     let fail=0;
@@ -8722,8 +8726,8 @@ const SETCARDS=[
   {id:"sms",t:"SMS afzendernaam",sub:"Wat je klant onder je berichten ziet",ic:"communicatie",bg:"#e09a2c",st:s=>s.smsNaam?["ok","Eigen naam"]:["soon","Niet ingesteld"],rows:s=>[["Klant ziet",s.smsNaam||s.naam||"—"],["Ingesteld",s.smsNaam||"—"],["Verzending","Via je eigen telefoon"]]},
   {id:"dag",t:"Dagherinnering",sub:"Melden dat je morgen komt",ic:"bell",bg:"#2a8bd1",st:s=>s.dagAan?["ok","Aan"]:["soon","Uit"],rows:s=>[["Status",s.dagAan?"Staat aan":"Staat uit"],["Wanneer",(s.dagDagen||1)+" dag vooraf "+s.dagTijd],["Kanaal",KANAAL[s.dagKanaal]||"WhatsApp"]]},
   {id:"fh",t:"Factuurherinnering",sub:"Herinneren na de vervaldatum",ic:"clock",bg:"#e0822c",st:s=>s.fhAan?["ok","Aan"]:["soon","Uit"],rows:s=>[["Status",s.fhAan?"Staat aan":"Staat uit"],["Momenten",fhMomenten().filter(m=>m.aan).map(m=>m.dagen+" dgn").join(" · ")],["Tijdstip",s.fhTijd+(s.fhWerkdagen?" · werkdagen":"")]]},
-  {id:"betaal",t:"Betalingen",sub:"Hoe klanten je betalen",ic:"card",bg:"#23845a",st:s=>s.betaallink?["ok","Betaallink"]:["soon","Niet ingesteld"],rows:s=>[["Standaard",{overmaken:"Overmaken",contant:"Contant",pin:"Pin",tikkie:"Betaalverzoek"}[s.betaalwijze]||"Overmaken"],["Betaallink",s.betaallink?"Ingesteld":"—"],["Mollie","Niet in mijnschoonmaker"]],warn:s=>s.betaallink?"":"Zonder betaallink maken klanten het bedrag over op je IBAN. Een vaste betaallink (bijv. van je bank of Tikkie) komt automatisch in je facturen en herinneringen."},
-  {id:"bijschr",t:"Bijschrijvingen",sub:"Bankafschrift inlezen en facturen afboeken",ic:"bank",bg:"#1f8a7a",st:()=>["ok","Handmatig"],rows:()=>[["Rekening uitlezen","Via CSV-export"],["Banken","ING, Rabo, ABN, bunq…"]],warn:()=>"Download in je bankapp de afschriften als CSV. mijnschoonmaker herkent factuurnummers en bedragen en boekt die facturen af als betaald.",v:"Afschrift inlezen"},
+  {id:"betaal",t:"Betalingen",sub:"Hoe klanten je betalen",ic:"card",bg:"#23845a",st:s=>s.betaallink?["ok","Betaallink"]:["soon","Niet ingesteld"],rows:s=>[["Standaard",{overmaken:"Overmaken",contant:"Contant",pin:"Pin",tikkie:"Betaalverzoek"}[s.betaalwijze]||"Overmaken"],["Betaallink",s.betaallink?"Ingesteld":"—"],["Mollie","Niet in Mansard"]],warn:s=>s.betaallink?"":"Zonder betaallink maken klanten het bedrag over op je IBAN. Een vaste betaallink (bijv. van je bank of Tikkie) komt automatisch in je facturen en herinneringen."},
+  {id:"bijschr",t:"Bijschrijvingen",sub:"Bankafschrift inlezen en facturen afboeken",ic:"bank",bg:"#1f8a7a",st:()=>["ok","Handmatig"],rows:()=>[["Rekening uitlezen","Via CSV-export"],["Banken","ING, Rabo, ABN, bunq…"]],warn:()=>"Download in je bankapp de afschriften als CSV. Mansard herkent factuurnummers en bedragen en boekt die facturen af als betaald.",v:"Afschrift inlezen"},
   {id:"peppol",t:"Peppol e-facturatie",sub:"Gegevens voor e-facturen",ic:"send",bg:"#3a9fd6",st:s=>{const m=[!s.peppolId&&"peppol_id",!s.kvk&&"kvk_number"].filter(Boolean);return m.length?["soon","Mist "+m.length+" veld(en)"]:["ok","Compleet"]},rows:s=>[["Peppol ID",s.peppolId||"—"],["KvK",s.kvk||"—"],["BTW",s.btwnr||"—"],["Ontbreekt",[!s.peppolId&&"peppol_id",!s.kvk&&"kvk_number"].filter(Boolean).join(", ")||"niets"]]},
   {id:"data",t:"Data Beheer",sub:"Importeren, exporteren en voorbeelden",ic:"inbox",bg:"#4b3fd0",st:()=>["ok","Beschikbaar"],rows:()=>[["Importeren","CSV / Excel"],["Exporteren","Klanten · Jobs · Facturen · Bonnen"],["Templates","Lege voorbeelden"]]},
   {id:"afmelden",t:"Job afmelden",sub:"Redenen en standaard betaalmethode",ic:"checksq",bg:"#23845a",st:()=>["ok","Aanpasbaar"],rows:s=>[["Skip-redenen",plural((s.skipRedenen||[]).length,"reden","redenen")],["Annuleren-redenen",plural((s.annuleerRedenen||[]).length,"reden","redenen")],["Standaard betaalmethode",{overmaken:"Overmaken",contant:"Contant",pin:"Pin",tikkie:"Betaalverzoek"}[s.betaalwijze]||"Overmaken"]]},
@@ -8748,7 +8752,7 @@ function vInstellingen(){
   <div class="panel quickp"><div class="qhead"><span class="eyebrow">Sneltoegang</span><span style="flex:1"></span><span class="eyebrow" style="display:flex;align-items:center;gap:6px">${I.euro}Bedragen</span>
     <div class="seg"><button type="button" data-act="toonex" data-v="1" aria-pressed="${!!s.toonEx}">Ex BTW</button><button type="button" data-act="toonex" data-v="0" aria-pressed="${!s.toonEx}">Incl BTW</button></div></div>
     <div class="quick">${QUICK.map(([id,l,ic])=>`<button type="button" data-act="setedit" data-v="${id}"><span>${I[ic]}</span>${esc(l)}</button>`).join("")}</div></div>
-  <div class="okbox">${I.shield}<div><b>Alles op één plek</b><span>Je instellingen worden opgeslagen bij je gegevens en gelden voor iedereen met wie je mijnschoonmaker deelt. Dingen die een externe dienst nodig hebben (online betalen, sms via een provider, Peppol) staan eerlijk gemarkeerd.</span></div></div>`;
+  <div class="okbox">${I.shield}<div><b>Alles op één plek</b><span>Je instellingen worden opgeslagen bij je gegevens en gelden voor iedereen met wie je Mansard deelt. Dingen die een externe dienst nodig hebben (online betalen, sms via een provider, Peppol) staan eerlijk gemarkeerd.</span></div></div>`;
 }
 function openSetEdit(id){
   if(id==="diensten"){state.utab="diensten";go("uitvoering");return}
@@ -8779,8 +8783,8 @@ function openSetEdit(id){
       ${sel("factNrStijl","Factuurnummers",s.factNrStijl||"jaar",[["jaar","Per jaar: "+nextNr("factuur",iso(today())).replace(/\d+$/,m=>m.replace(/./g,"0").replace(/0$/,"1"))+" …"],["doorlopend","Doorlopend zoals DienstenCRM: 26-009295"]],{help:"Doorlopend: jaar in 2 cijfers en een volgnummer van 6 cijfers dat over de jaren doorloopt. Zo krijgt je boekhouder één reeks."})}
       ${inp("factNrStart","Eerste volgnummer (bij overstap)",s.factNrStart,{type:"number",t:"num",ph:"9295",help:"Laatste factuurnummer uit het oude pakket + 1, bijv. 26-009294 → 9295. Volgende factuur: "+esc(nextNr("factuur",iso(today())))})}
       ${inp("onderdeelVan","Onderdeel van (moederbedrijf)",s.onderdeelVan,{ph:"Mansard",help:"Komt onder elke factuur als: \""+esc(s.naam||"Je bedrijf")+" is een onderdeel van …\". Leeg laten als dat niet van toepassing is."})}
-      ${sel("taal","Taal van de app",s.taal,[["nl","Nederlands"]],{help:"mijnschoonmaker is alleen in het Nederlands beschikbaar."})}`,{wide:false});bindSave();},
-  email(){setDlg(c,`${info("mijnschoonmaker verstuurt zelf geen mail: elke e-mail opent in <b>je eigen mailprogramma</b>, met de tekst al ingevuld. Je klant ziet dus jouw naam en adres als afzender en antwoorden komen gewoon bij jou binnen.")}
+      ${sel("taal","Taal van de app",s.taal,[["nl","Nederlands"]],{help:"Mansard is alleen in het Nederlands beschikbaar."})}`,{wide:false});bindSave();},
+  email(){setDlg(c,`${info("Mansard verstuurt zelf geen mail: elke e-mail opent in <b>je eigen mailprogramma</b>, met de tekst al ingevuld. Je klant ziet dus jouw naam en adres als afzender en antwoorden komen gewoon bij jou binnen.")}
       <label>Wat je klant ziet als afzender<input value="${esc(s.naam||"—")}" readonly><small class="help">Je bedrijfsnaam, aanpassen bij Bedrijf &amp; Branding</small></label>
       <label>Antwoorden komen binnen op<input value="${esc(s.email||"—")}" readonly><small class="help">Je e-mailadres, aanpassen bij Bedrijf &amp; Branding</small></label>
       <label>Verzendadres<input value="${esc(s.email||"Het adres van je mailprogramma")}" readonly><small class="help">Het account waarmee je mailprogramma verstuurt</small></label>
@@ -8854,14 +8858,14 @@ function openSetEdit(id){
     bindSave(()=>{const m=fhMomenten().map(x=>({...x}));form.querySelectorAll("[data-m]").forEach(el=>{const i=Number(el.dataset.m),f=el.dataset.f;m[i][f]=f==="aan"?el.checked:f==="dagen"?Number(el.value)||1:el.value});return{fhM:m}});},
   betaal(){setDlg(c,`${sel("betaalwijze","Standaard betaalmethode bij afmelden",s.betaalwijze,[["overmaken","Overmaken (factuur blijft open)"],["contant","Contant (factuur direct betaald)"],["pin","Pin (factuur direct betaald)"],["tikkie","Betaalverzoek / betaallink"]],{help:"Geldt als je een job afmeldt met direct factureren."})}
       ${inp("betaallink","Vaste betaallink (optioneel)",s.betaallink,{cls:"full",ph:"https://…",help:"Bijv. een vast betaalverzoek van je bank of Tikkie. Komt als [mollielink.invoice] in herinneringen en onder je PDF-facturen."})}
-      <div class="warnbox">${I.alert}<span>Online betalen via Mollie of iDEAL met automatische afboeking heeft een betaalaccount en een server nodig. Dat kan mijnschoonmaker niet. Afboeken doe je met <b>Bijschrijvingen</b> (bankafschrift inlezen) of met de knop Markeer betaald.</span></div>`,{wide:false});bindSave();},
+      <div class="warnbox">${I.alert}<span>Online betalen via Mollie of iDEAL met automatische afboeking heeft een betaalaccount en een server nodig. Dat kan Mansard niet. Afboeken doe je met <b>Bijschrijvingen</b> (bankafschrift inlezen) of met de knop Markeer betaald.</span></div>`,{wide:false});bindSave();},
   bijschr(){openBank()},
   rapport(){setDlg({...c,t:"Rapport boekhouder",sub:"Maand- of kwartaal-PDF voor je boekhouder"},`${inp("boekhouderEmail","E-mail boekhouder",s.boekhouderEmail,{type:"email",cls:"full",ph:"boekhouder@kantoor.nl",help:"Het rapport wordt als mail aan dit adres klaargezet"})}
       ${sel("rapportFreq","Frequentie",s.rapportFreq||"maand",[["maand","Elke maand (vorige maand)"],["kwartaal","Elk kwartaal (vorig kwartaal)"]],{help:"Hoe vaak het rapport klaarstaat"})}
       ${sel("rapportType","Type rapport",s.rapportType||"volledig",[["volledig","Volledig (omzet + facturen + uitgaven)"],["kort","Alleen totalen"]])}
       ${tgl("rapportAan","Automatisch klaarzetten","Op de verstuurdag staat het rapport klaar in Communicatie; jij downloadt de PDF en stuurt de mail.",s.rapportAan)}
       ${sel("rapportDag","Verstuurdag",s.rapportDag,[...Array(28)].map((_,i)=>[i+1,"Dag "+(i+1)+" van de maand"]),{t:"num"})}
-      ${sec("Inkoopfacturen")}<div class="warnbox">${I.alert}<span>Automatisch doorsturen of een inkoop-mailbox met AI-scan kan mijnschoonmaker niet: daarvoor is een mailserver nodig. Voeg bonnen toe via Boekhouding of de knop Bon op Vandaag; ze staan met foto in het rapport-overzicht.</span></div>
+      ${sec("Inkoopfacturen")}<div class="warnbox">${I.alert}<span>Automatisch doorsturen of een inkoop-mailbox met AI-scan kan Mansard niet: daarvoor is een mailserver nodig. Voeg bonnen toe via Boekhouding of de knop Bon op Vandaag; ze staan met foto in het rapport-overzicht.</span></div>
       ${sec("Direct downloaden")}<p class="subt" style="margin:0">Kies de periode en download het rapport (PDF), handig om te testen of alles klopt.</p>
       <div class="grid2"><label>Jaar<select id="rpY">${[0,1,2].map(i=>today().getFullYear()-i).map(y=>`<option>${y}</option>`).join("")}</select></label><label>Periode<select id="rpP">${[...Array(12)].map((_,m)=>`<option value="m${m}" ${m===(today().getMonth()+11)%12?"selected":""}>${new Date(2000,m,1).toLocaleDateString("nl-NL",{month:"long"})}</option>`).join("")}${[1,2,3,4].map(q=>`<option value="q${q}">Q${q}</option>`).join("")}</select></label></div>
       <button type="button" class="small" id="rpGo" style="align-self:flex-start">${I.dl}Download rapport</button>`,{wide:false});
@@ -8869,13 +8873,13 @@ function openSetEdit(id){
   peppol(){const miss=[!s.peppolId&&"Peppol ID",!s.kvk&&"KvK-nummer",!s.btwnr&&"Btw-nummer"].filter(Boolean);
     setDlg(c,`${miss.length?`<div class="warnbox">${I.alert}<span>Ontbreekt: ${esc(miss.join(", "))}</span></div>`:""}
       <div class="grid2">${inp("peppolId","Peppol ID",s.peppolId,{cls:"full",ph:"0106:12345678",help:"Voor Nederlandse bedrijven: 0106 gevolgd door je KvK-nummer"})}${inp("kvk","KvK-nummer",s.kvk)}${inp("btwnr","Btw-nummer",s.btwnr)}</div>
-      ${info("Je Peppol ID komt op je facturen zodat zakelijke klanten je kunnen herkennen. Echt via het Peppol-netwerk versturen kan mijnschoonmaker niet: daarvoor is een aangesloten Peppol-dienstverlener nodig.")}`,{wide:false});bindSave();},
+      ${info("Je Peppol ID komt op je facturen zodat zakelijke klanten je kunnen herkennen. Echt via het Peppol-netwerk versturen kan Mansard niet: daarvoor is een aangesloten Peppol-dienstverlener nodig.")}`,{wide:false});bindSave();},
   data(){let tab="import",typ="klanten";
     const T=[["klanten","Klanten","Kies zelf de kolommen",I.klanten],["jobs","Jobs","Afgemelde opdrachten",I.checksq],["facturen","Facturen","Met bedragen en status",I.facturen]];
     const draw=()=>{$("#dbB").innerHTML=`<div class="seg" style="width:100%;display:grid;grid-template-columns:repeat(3,1fr)">${[["import","Importeren",I.upload],["export","Exporteren",I.dl],["tpl","Templates",I.note]].map(([k,l,ic])=>`<button type="button" data-tab2="${k}" aria-pressed="${tab===k}">${ic}${l}</button>`).join("")}</div>
       ${sec("Data type")}<div class="grid2">${T.filter(x=>tab!=="import"||x[0]==="klanten").map(([k,l,d,ic])=>`<button type="button" class="typeb${typ===k?" on":""}" data-typ="${k}"><span>${ic}</span><span><b>${l}</b><small>${d}</small></span>${typ===k?I.check:""}</button>`).join("")}</div>
-      ${tab==="import"?`${info("Je eigen Excel werkt: sla hem op als CSV (Bestand › Opslaan als › CSV). Na het kiezen zie je een <b>voorstel</b> voor de kolommen, dat je zelf kunt aanpassen. Jobs en facturen importeren kan mijnschoonmaker niet; die ontstaan vanzelf bij het afmelden.","ok")}<button type="button" class="primary" data-act="import" style="width:100%">${I.upload}Kies bestand en start import</button>`
-       :tab==="export"?`<button type="button" class="primary" id="dbGo" style="width:100%">${I.dl}Exporteer ${esc(T.find(x=>x[0]===typ)[1].toLowerCase())} als CSV</button><small class="help">Opent in Excel of Numbers. Maak af en toe een back-up van je klanten.</small>${sec("Volledige back-up")}<button type="button" id="dbAll" style="width:100%">${I.dl}Alles exporteren (JSON)</button><button type="button" id="dbAllF" style="width:100%;margin-top:8px">${I.dl}Alles + foto's (voor de overstap)</button><small class="help">Alle klanten, opdrachten, afspraken, facturen, berichten en instellingen in één bestand. Dit is ook het bestand waarmee mijnschoonmaker later naar een eigen server overgaat.</small>`
+      ${tab==="import"?`${info("Je eigen Excel werkt: sla hem op als CSV (Bestand › Opslaan als › CSV). Na het kiezen zie je een <b>voorstel</b> voor de kolommen, dat je zelf kunt aanpassen. Jobs en facturen importeren kan Mansard niet; die ontstaan vanzelf bij het afmelden.","ok")}<button type="button" class="primary" data-act="import" style="width:100%">${I.upload}Kies bestand en start import</button>`
+       :tab==="export"?`<button type="button" class="primary" id="dbGo" style="width:100%">${I.dl}Exporteer ${esc(T.find(x=>x[0]===typ)[1].toLowerCase())} als CSV</button><small class="help">Opent in Excel of Numbers. Maak af en toe een back-up van je klanten.</small>${sec("Volledige back-up")}<button type="button" id="dbAll" style="width:100%">${I.dl}Alles exporteren (JSON)</button><button type="button" id="dbAllF" style="width:100%;margin-top:8px">${I.dl}Alles + foto's (voor de overstap)</button><small class="help">Alle klanten, opdrachten, afspraken, facturen, berichten en instellingen in één bestand. Dit is ook het bestand waarmee Mansard later naar een eigen server overgaat.</small>`
        :`<button type="button" class="primary" id="dbTpl" style="width:100%">${I.note}Download lege voorbeeld-CSV</button><small class="help">Vul deze in Excel en importeer hem daarna.</small>`}`;
       const g=$("#dbGo");if(g)g.onclick=()=>{
         if(typ==="klanten")exportKlanten();else if(typ==="facturen")exportFacturen();
@@ -8906,7 +8910,7 @@ function openSetEdit(id){
     form.onsubmit=async e=>{e.preventDefault();if(await saveSettings({skipRedenen:sk,annuleerRedenen:an,afmeldStatus:st,betaalmethoden:bm,betaalwijze:bw})){dlg.close();schedule()}};},
   welkom(){const T=tpls();let vw=s.voorwaardenPdf||"",vwNaam=s.voorwaardenNaam||"";
     const pdfRow=()=>vw?`<div class="filerow">${I.note}<div style="flex:1;min-width:0"><b>${esc(vwNaam||"voorwaarden.pdf")}</b></div><a class="tiny ghost btn" href="${BLOB}${esc(vw)}" target="_blank" rel="noopener" style="color:var(--brand)">Openen</a><button type="button" class="tiny ghost danger" id="vwX" aria-label="Verwijder">${I.trash}</button></div>`:(state.assets?`<label class="btn small" style="align-self:flex-start">${I.upload}PDF uploaden<input type="file" accept="application/pdf" hidden id="vwF"></label>`:'<p class="subt" style="margin:0">Uploaden kan alleen de eigenaar van deze pagina.</p>');
-    setDlg({...c,sub:"Teksten, algemene voorwaarden en akkoord van de klant"},`${info("Je stuurt het welkomstbericht zelf, per klant, vanuit de klantkaart of Communicatie › Klaar om te versturen. In de teksten kun je <b>[name.company]</b> en <b>[name.customer]</b> gebruiken. Digitaal laten ondertekenen kan mijnschoonmaker niet; de klant gaat akkoord door op je mail te antwoorden en dat noteer je op de klantkaart.")}
+    setDlg({...c,sub:"Teksten, algemene voorwaarden en akkoord van de klant"},`${info("Je stuurt het welkomstbericht zelf, per klant, vanuit de klantkaart of Communicatie › Klaar om te versturen. In de teksten kun je <b>[name.company]</b> en <b>[name.customer]</b> gebruiken. Digitaal laten ondertekenen kan Mansard niet; de klant gaat akkoord door op je mail te antwoorden en dat noteer je op de klantkaart.")}
       ${tgl("welkomAan","Welkomstberichten klaarzetten","Nieuwe klanten verschijnen 30 dagen lang onder Klaar om te versturen.",s.welkomAan)}
       ${inp("welkomOnderwerp","Onderwerp van de mail",s.welkomOnderwerp||"Welkom bij [name.company]",{cls:"full"})}
       <label class="full">Tekst van de mail<textarea id="wTxt" style="min-height:150px">${esc(T.welkom.mail)}</textarea><small class="help">De overeenkomst en de link naar je voorwaarden worden er automatisch onder gezet.</small></label>
@@ -8929,15 +8933,15 @@ function openSetEdit(id){
       $("#rkRes").innerHTML=bad.length?`<div class="warnbox">${I.alert}<span>${plural(bad.length,"job staat","jobs staan")} op een vrije dag of feestdag: ${bad.slice(0,4).map(k=>esc(cleanName(k.naam))+" ("+fmtD(k.gepland)+")").join(", ")}. <button type="button" class="tiny" id="rkFix">Verplaats naar werkdag</button></span></div>`:`<div class="okbox" style="margin:0">${I.check}<div><span>Alle ${ok} ingeplande jobs staan netjes op een werkdag.</span></div></div>`;
       const fx=$("#rkFix");if(fx)fx.onclick=async()=>{await runSeq(bad,k=>save("klanten",k.id,{...strip(k),gepland:iso(werkdagAanpassen(parse(k.gepland)))}),"Jobs verplaatst naar een werkdag");setTimeout(check,200)}};
     setDlg({...c,t:"Doorplannen",sub:"Werkdagen, feestdagen en de controle van je planning"},`${sec("Op welke dagen werk je")}<div class="daychips">${[[1,"Ma"],[2,"Di"],[3,"Wo"],[4,"Do"],[5,"Vr"],[6,"Za"],[0,"Zo"]].map(([d,l])=>`<label><input type="checkbox" data-wd="${d}" ${w.includes(d)?"checked":""}><span>${l}</span></label>`).join("")}</div>
-      <p class="subt" style="margin:0">Valt een beurt op een dag die uit staat, dan stelt mijnschoonmaker een werkdag voor, bijvoorbeeld zaterdag → vrijdag, of 1e Kerstdag → 24 december. Het ritme loopt daarna gewoon door vanaf de laatste beurt.</p>
-      ${sel("vrijeDag","Welke werkdag pakt mijnschoonmaker dan",s.vrijeDag,[["voor","De werkdag ervóór"],["na","De werkdag erna"]])}
+      <p class="subt" style="margin:0">Valt een beurt op een dag die uit staat, dan stelt Mansard een werkdag voor, bijvoorbeeld zaterdag → vrijdag, of 1e Kerstdag → 24 december. Het ritme loopt daarna gewoon door vanaf de laatste beurt.</p>
+      ${sel("vrijeDag","Welke werkdag pakt Mansard dan",s.vrijeDag,[["voor","De werkdag ervóór"],["na","De werkdag erna"]])}
       ${tgl("feestdagen","Feestdagen overslaan",s.land==="BE"?"Nieuwjaar, Paasmaandag, 1 mei, Hemelvaart, Pinkstermaandag, 21 juli, 15 augustus, 1 en 11 november en Kerstmis.":"Nieuwjaarsdag, 2e Paasdag, Koningsdag, Hemelvaart, 2e Pinksterdag, 1e/2e Kerstdag en Bevrijdingsdag (lustrumjaren).",s.feestdagen)}
       <div class="box">${sec("Komende feestdagen")}<table class="minitable">${nx.map(d=>`<tr><td>${esc(fd[d])}</td><td class="r">${wd(parse(d))} ${fmtD(d)}</td></tr>`).join("")}</table></div>
       <div class="splitrow">${sec("Controle van je planning")}<button type="button" class="tiny ghost" id="rkAgain">${I.refresh}Opnieuw kijken</button></div><div id="rkRes"></div>`,{wide:false});
     check();$("#rkAgain").onclick=check;
     bindSave(()=>({werkdagen:[...form.querySelectorAll("[data-wd]")].filter(x=>x.checked).map(x=>Number(x.dataset.wd))}));},
   review(){const T=tpls(),rv=state.berichten.filter(m=>m.sjabloon==="review"),t=today();
-    setDlg({...c,sub:"Om een review vragen, met limiet per klant"},`${info("Een paar dagen nadat je een factuur maakt, zet mijnschoonmaker een vriendelijk reviewverzoek klaar in Communicatie. In de teksten kun je <b>[name.company]</b> en <b>[name.customer]</b> gebruiken. Op de klantkaart kun je per klant aangeven dat er géén reviewverzoeken meer heen gaan.")}
+    setDlg({...c,sub:"Om een review vragen, met limiet per klant"},`${info("Een paar dagen nadat je een factuur maakt, zet Mansard een vriendelijk reviewverzoek klaar in Communicatie. In de teksten kun je <b>[name.company]</b> en <b>[name.customer]</b> gebruiken. Op de klantkaart kun je per klant aangeven dat er géén reviewverzoeken meer heen gaan.")}
       <label class="check-row"><input type="checkbox" data-k="reviewAan" data-t="bool" ${s.reviewAan?"checked":""}>Reviewverzoek klaarzetten na een factuur</label>
       ${inp("reviewLink","Reviewlink",s.reviewLink,{cls:"full",ph:"https://g.page/r/…/review",help:"De link waar de klant zijn review achterlaat (bv. je Google-reviewlink)."})}
       <div class="grid3">${inp("reviewNa","Dagen na factuur",s.reviewNa??3,{type:"number",t:"num"})}${inp("reviewMax","Max per klant",s.reviewMax,{type:"number",t:"num"})}${inp("reviewDagen","Wachttijd (dagen)",s.reviewDagen,{type:"number",t:"num"})}</div>
@@ -8967,21 +8971,21 @@ function openSetEdit(id){
     $("#rstNt").onclick=async()=>{const l=actief().filter(k=>k.gepland&&!k.tijd);await runSeq(l,k=>save("klanten",k.id,{...strip(k),gepland:""}),plural(l.length,"job","jobs")+" terug naar te plannen");$("#rstNt").disabled=true};
     bindSave(()=>{const we=[...form.querySelectorAll("[data-we]")].filter(x=>x.checked).map(x=>Number(x.dataset.we));const p={werkdagen:[0,1,2,3,4,5,6].filter(d=>!we.includes(d)),toonEx:!$("#inclTonen").checked,kalTotMig:true};state.slot=Number(form.querySelector('[data-k="slotStd"]').value)||30;state.rowH=$("[data-k='ultra']").checked?.7:$("[data-k='compact']").checked?.85:1;return p});},
   gebruikers(){const u=state.u,me=state.me||{},owner=u&&u.isOwner?u.isOwner():true;
-    setDlg({t:"Gebruikers & Rollen",sub:"Wie met mijnschoonmaker mag werken",ic:"klanten",bg:"#3d4a5c"},`<div class="okbox" style="margin:0">${I.shield}<div><b>Rollen lopen via Delen</b><span>Collega's voeg je toe met de knop Delen bovenaan deze pagina. De rol die je daar kiest bepaalt wat iemand mag.</span></div></div>
+    setDlg({t:"Gebruikers & Rollen",sub:"Wie met Mansard mag werken",ic:"klanten",bg:"#3d4a5c"},`<div class="okbox" style="margin:0">${I.shield}<div><b>Rollen lopen via Delen</b><span>Collega's voeg je toe met de knop Delen bovenaan deze pagina. De rol die je daar kiest bepaalt wat iemand mag.</span></div></div>
       <div class="card" style="grid-template-columns:48px minmax(0,1fr) auto"><span class="av" style="--h:200">${esc(initials(me.name||S().naam||"Jij"))}</span><b>${esc(me.name||"Jij")} <span class="eyebrow" style="color:var(--brand)">jij</span></b><div class="meta">${esc(me.email||S().email||"")}</div><div class="side-col"><span class="pill late">${owner?"Eigenaar":"Gebruiker"}</span></div></div>
       <table class="minitable"><tr><td><b>Editor</b></td><td>Beheerder: alles bekijken en wijzigen</td></tr><tr><td><b>Contributor</b></td><td>Medewerker: planning, afmelden en klanten bijwerken</td></tr><tr><td><b>Viewer / Commenter</b></td><td>Alleen lezen, bijvoorbeeld je boekhouder</td></tr></table>
-      ${info("Tip: geef je boekhouder de rol Viewer, dan kan hij alles inzien maar niets veranderen. Beperken per scherm kan mijnschoonmaker niet; het is per rol voor de hele app.")}`,{wide:false,foot:`<button type="button" class="ghost" data-act="close">Sluiten</button><span class="sp"></span><span class="pill brand">${I.plus}Gebruiker toevoegen: knop Delen bovenaan</span>`});},
+      ${info("Tip: geef je boekhouder de rol Viewer, dan kan hij alles inzien maar niets veranderen. Beperken per scherm kan Mansard niet; het is per rol voor de hele app.")}`,{wide:false,foot:`<button type="button" class="ghost" data-act="close">Sluiten</button><span class="sp"></span><span class="pill brand">${I.plus}Gebruiker toevoegen: knop Delen bovenaan</span>`});},
   abonnement(){const m=iso(today()).slice(0,7),jobs=state.beurten.filter(b=>String(b.datum).startsWith(m)).length,docs=COLS.reduce((a,c)=>a+(c==="instellingen"?4:c==="routes"?Object.keys(state.routes).length:state[c].length),0);
-    setDlg({t:"Abonnement",sub:"Je plan en gebruik",ic:"card",bg:"#23845a"},`<div class="planhero"><div><span class="eyebrow">Huidig plan</span><b>mijnschoonmaker</b></div><div style="text-align:right"><b>€ 0</b><small>/maand</small></div><div class="ph-row"><span>Status<br><b>Actief</b></span><span>Draait in<br><b>je Claude-account</b></span></div></div>
+    setDlg({t:"Abonnement",sub:"Je plan en gebruik",ic:"card",bg:"#23845a"},`<div class="planhero"><div><span class="eyebrow">Huidig plan</span><b>Mansard</b></div><div style="text-align:right"><b>€ 0</b><small>/maand</small></div><div class="ph-row"><span>Status<br><b>Actief</b></span><span>Draait in<br><b>je Claude-account</b></span></div></div>
       ${sec("Gebruik deze maand")}${[["Klanten",state.klanten.length,null],["Jobs deze maand",jobs,null],["Opslag",docs,25000]].map(([l,n,mx])=>`<div class="usage"><div><b>${l}</b><span class="mono">${n}${mx?" / "+mx.toLocaleString("nl-NL"):""}</span></div><i><b style="width:${mx?Math.max(1,n/mx*100):100}%"></b></i></div>`).join("")}
       <div class="box">${sec("In dit plan")}${["Onbeperkt klanten en jobs (tot 25.000 records)","Planning, route, offertes en facturen","Delen met collega's via Delen","Werkt op telefoon en computer"].map(x=>`<div class="incl">${I.check}${x}</div>`).join("")}</div>`,{wide:false,foot:`<span class="sp"></span><button type="button" class="primary" data-act="close">Sluiten</button>`});},
-  pwa(){setDlg({t:"PWA & App",sub:"mijnschoonmaker op je telefoon",ic:"phone",bg:"#2a8bd1"},`${sec("App")}<div class="infobox">${I.phone}<span><b>Telefoon:</b> open deze pagina in de Claude-app, of zet de link via het deel-icoon van je browser op je beginscherm.<br><b>Computer:</b> zet de pagina in je bladwijzers of pin hem vast in Claude.</span></div>
-      ${sec("Meldingen")}<div class="warnbox">${I.bell}<span>Pushmeldingen kan mijnschoonmaker niet sturen. Alles wat klaarstaat zie je aan de rode bolletjes in het menu.</span></div>
+  pwa(){setDlg({t:"PWA & App",sub:"Mansard op je telefoon",ic:"phone",bg:"#2a8bd1"},`${sec("App")}<div class="infobox">${I.phone}<span><b>Telefoon:</b> open deze pagina in de Claude-app, of zet de link via het deel-icoon van je browser op je beginscherm.<br><b>Computer:</b> zet de pagina in je bladwijzers of pin hem vast in Claude.</span></div>
+      ${sec("Meldingen")}<div class="warnbox">${I.bell}<span>Pushmeldingen kan Mansard niet sturen. Alles wat klaarstaat zie je aan de rode bolletjes in het menu.</span></div>
       ${sec("Gegevens")}<div class="okbox" style="margin:0">${I.check}<div><b>Gegevens worden live bijgewerkt</b><span>Wijzigingen van collega's verschijnen vanzelf.</span></div></div>
       <button type="button" class="small" data-act="refresh" style="align-self:stretch">${I.refresh}Scherm verversen</button>`,{wide:false,foot:`<span class="sp"></span><button type="button" class="primary" data-act="close">Sluiten</button>`});},
-  wachtwoord(){setDlg({t:"Beveiliging",sub:"Inloggen en toegang",ic:"shield",bg:"#c0392b"},`<div class="infobox">${I.lock}<span>mijnschoonmaker heeft geen eigen wachtwoord: je logt in met je Claude-account. Je wachtwoord en tweestapsverificatie beheer je daar, bij je accountinstellingen.</span></div>
+  wachtwoord(){setDlg({t:"Beveiliging",sub:"Inloggen en toegang",ic:"shield",bg:"#c0392b"},`<div class="infobox">${I.lock}<span>Mansard heeft geen eigen wachtwoord: je logt in met je Claude-account. Je wachtwoord en tweestapsverificatie beheer je daar, bij je accountinstellingen.</span></div>
       ${info("Wie de pagina mag openen, bepaal jij met de knop Delen bovenaan. Haal iemand daar weg en hij kan er direct niet meer in.")}`,{wide:false,foot:`<span class="sp"></span><button type="button" class="primary" data-act="close">Sluiten</button>`});},
-  meldingen(){setDlg({t:"Meldingen",sub:"Wat je ziet als er iets te doen is",ic:"bell",bg:"#c0392b"},`<div class="warnbox">${I.alert}<span>Pushmeldingen, meldingen per mail of sms aan jezelf kan mijnschoonmaker niet sturen: daar is een server voor nodig. Wat wel kan: rode bolletjes in het menu en een dagoverzicht op Vandaag.</span></div>
+  meldingen(){setDlg({t:"Meldingen",sub:"Wat je ziet als er iets te doen is",ic:"bell",bg:"#c0392b"},`<div class="warnbox">${I.alert}<span>Pushmeldingen, meldingen per mail of sms aan jezelf kan Mansard niet sturen: daar is een server voor nodig. Wat wel kan: rode bolletjes in het menu en een dagoverzicht op Vandaag.</span></div>
       ${sec("Bolletjes in het menu")}${tgl("bolPlanning","Planning","Aantal klanten dat te laat is",s.bolPlanning!==false)}${tgl("bolFacturen","Facturen","Aantal achterstallige facturen",s.bolFacturen!==false)}${tgl("bolComm","Communicatie","Berichten die klaarstaan om te versturen",s.bolComm!==false)}
       ${sec("Dagelijks overzicht")}${tgl("dagOverzicht","Dagelijks overzicht op Vandaag","Omzet vandaag, openstaande facturen en klussen van morgen, vanaf het tijdstip hieronder.",s.dagOverzicht!==false)}
       <div class="grid2">${inp("overzichtTijd","Tijdstip",s.overzichtTijd||"18:00",{type:"time"})}<span class="subt" style="align-self:end;padding-bottom:12px">Europe/Amsterdam</span></div>`,{wide:false});bindSave();},
@@ -9065,7 +9069,7 @@ function openBulkDuur(){
 /* bankafschrift */
 let bank=null;
 function openBank(){
-  setDlg({t:"Bijschrijvingen",sub:"Bankafschrift inlezen en facturen afboeken",ic:"bank",bg:"#1f8a7a"},`${info("Download in je bankapp of internetbankieren je transacties als <b>CSV</b> (ING, Rabobank, ABN AMRO, bunq, Knab…). mijnschoonmaker zoekt factuurnummers en bedragen en stelt voor welke facturen betaald zijn.")}
+  setDlg({t:"Bijschrijvingen",sub:"Bankafschrift inlezen en facturen afboeken",ic:"bank",bg:"#1f8a7a"},`${info("Download in je bankapp of internetbankieren je transacties als <b>CSV</b> (ING, Rabobank, ABN AMRO, bunq, Knab…). Mansard zoekt factuurnummers en bedragen en stelt voor welke facturen betaald zijn.")}
     <label>CSV-bestand van je bank<input type="file" id="bkF" accept=".csv,.txt,text/csv"></label><div id="bkRes"></div>`,{foot:`<button type="button" class="ghost" data-act="close">Annuleren</button><span class="sp"></span><button type="button" class="primary" id="bkGo" disabled>Afboeken</button>`});
   $("#bkF").onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>bankMatch(String(rd.result));rd.readAsText(f)};
   $("#bkGo").onclick=async()=>{const sel=bank.filter((m,i)=>form.querySelector(`[data-bk="${i}"]`)?.checked);$("#bkGo").disabled=true;
@@ -9104,7 +9108,7 @@ function openSkip(id){
 }
 
 
-/* website-calculator: zelfde rekentool voor klanten, met logo, gegevens en tarieven uit mijnschoonmaker */
+/* website-calculator: zelfde rekentool voor klanten, met logo, gegevens en tarieven uit Mansard */
 const waNr=t=>{let d=String(t||"").replace(/\D/g,"");if(d.startsWith("00"))d=d.slice(2);else if(d.startsWith("0"))d="31"+d.slice(1);return d};
 async function klantCalcHtml(wa){const s=S();if(!RC)RC=buildRamen();const c=RC.cfgAll(),lg=await loadLogo();
   const cfg={g0_p:c.g0_p,g1_p:c.g1_p,g2_p:c.g2_p,g3_p:c.g3_p,tuimel_p:c.tuimel_p,lood_p:c.lood_p,koepel_p:c.koepel_p,mini_p:c.mini_p,start:c.start||0,min:c.min,tiers:c.tiers,tb:c.tb||{},wg:c.wg||{},fp:c.fp||{}};
@@ -12997,7 +13001,7 @@ if(LIVE){
       <div class="splitrow" style="gap:10px"><button type="button" class="small" id="liveTest" ${s.liveMail?"":"disabled"}>${I.send}Testmail naar mezelf</button><span class="subt" id="liveRes"></span></div>`,{wide:false});
     $("#hookCp").onclick=()=>copy(hook);
     $("#liveTest").onclick=async()=>{const R=$("#liveRes");R.textContent="Bezig…";
-      try{await fbFn("sendMail")({naar:s.email||s.liveAfzender,onderwerp:"Testmail vanuit het CRM",tekst:"Het versturen vanuit het CRM werkt.\n\nMet vriendelijke groet,\n"+(s.naam||"mijnschoonmaker"),meta:{klantNaam:"Test"}});R.innerHTML='<span style="color:var(--ok);font-weight:700">Verstuurd naar '+esc(s.email||s.liveAfzender)+' ✓</span>'}
+      try{await fbFn("sendMail")({naar:s.email||s.liveAfzender,onderwerp:"Testmail vanuit het CRM",tekst:"Het versturen vanuit het CRM werkt.\n\nMet vriendelijke groet,\n"+(s.naam||"Mansard"),meta:{klantNaam:"Test"}});R.innerHTML='<span style="color:var(--ok);font-weight:700">Verstuurd naar '+esc(s.email||s.liveAfzender)+' ✓</span>'}
       catch(e){R.innerHTML='<span style="color:var(--late)">'+esc(fnFout(e))+'</span>'}};
     form.onsubmit=async e=>{e.preventDefault();const p=readFields(),key=$("#brevoKey").value.trim();
       try{await fsDb().doc("geheim/config").set({...(key?{brevoKey:key}:{}),afzender:p.liveAfzender,meldAdres:p.liveMeld,hookToken:tok},{merge:true});
@@ -13440,7 +13444,7 @@ function vgBind(){
     const go=()=>vgBezig($("#vgAct"),async()=>{const h=(await fbFn("mfaActiveer")({code:c.value})).data.herstel;await firebase.auth().currentUser.getIdToken(true);
       box.innerHTML=`<div class="okbox" style="margin:0">${I.check}<div><b>Tweestapsverificatie staat aan</b><span>Bewaar deze herstelcodes op een veilige plek (bijvoorbeeld uitgeprint of in je wachtwoordbeheer). Ben je je telefoon kwijt, dan log je met één van deze codes in. Elke code werkt één keer. Je ziet ze maar één keer.</span></div></div>
         <div class="vg-hc">${h.map(x=>`<code>${esc(x)}</code>`).join("")}</div><div class="row" style="gap:8px"><button type="button" class="small" id="vgCp">${I.copy}Kopiëren</button><button type="button" class="small" id="vgDl">${I.dl}Downloaden</button><span class="sp"></span><button type="button" class="small primary" id="vgKlaar">Ik heb ze bewaard</button></div>`;
-      const txt="Herstelcodes mijnschoonmaker CRM ("+(firebase.auth().currentUser.email||"")+")\nElke code werkt één keer.\n\n"+h.join("\n")+"\n";
+      const txt="Herstelcodes Mansard CRM ("+(firebase.auth().currentUser.email||"")+")\nElke code werkt één keer.\n\n"+h.join("\n")+"\n";
       $("#vgCp").onclick=()=>copy(txt,$("#vgCp"));$("#vgDl").onclick=async()=>{const d=await window.claude.use("downloads");d.save({filename:"herstelcodes-crm.txt",data:new Blob([txt],{type:"text/plain"})})};
       $("#vgKlaar").onclick=async()=>{await vgLaad();vgTeken()}});
     $("#vgAct").onclick=go;c.oninput=()=>{if(c.value.replace(/\D/g,"").length===6)go()}});
@@ -13479,8 +13483,8 @@ function render(){try{warmMailLogo()}catch(e){}
   const nm=(state.me&&state.me.name)||S().naam||"Jouw bedrijf";
   {let lg=S().logo;if(lg){try{localStorage.setItem("ms.lg",lg)}catch(e){}}else if(LIVE){try{lg=localStorage.getItem("ms.lg")||""}catch(e){}}
     const h=new Date().getHours(),fn=state.me&&state.me.name?state.me.name.trim().split(/\s+/)[0]:"",gr=(h<6?"Goedenacht":h<12?"Goedemorgen":h<18?"Goedemiddag":"Goedenavond")+(fn?", "+fn:""),key=lg+"|"+gr;
-    if(key!==state._lgShown){state._lgShown=key;document.querySelectorAll(".logo").forEach(el=>{const src=lg?BLOB+lg:LIVE?"/logo.png":"";el.classList.toggle("haslogo",!!src);if(src)el.innerHTML=`<img class="lgimg" src="${esc(src)}" alt="mijnschoonmaker"><span class="wm lgtxt">${esc(gr)}</span>`})}}
-  $("#userCard").innerHTML=`<span class="uav">${esc(initials(nm))}</span><div style="min-width:0"><b>${esc(nm)}</b><small>${esc(S().naam&&state.me&&state.me.name?S().naam:"mijnschoonmaker · CRM")}</small></div>`;
+    if(key!==state._lgShown){state._lgShown=key;document.querySelectorAll(".logo").forEach(el=>{const src="/mansard-logo.png";el.classList.toggle("haslogo",!!src);if(src)el.innerHTML=`<img class="lgimg" src="${esc(src)}" alt="Mansard"><span class="wm lgtxt">${esc(gr)}</span>`})}}
+  $("#userCard").innerHTML=`<span class="uav">${esc(initials(nm))}</span><div style="min-width:0"><b>${esc(nm)}</b><small>${esc(S().naam&&state.me&&state.me.name?S().naam:"Mansard · CRM")}</small></div>`;
   const main=$("main");main.classList.toggle("wide",big()&&(state.tab==="vandaag"||state.tab==="planning"||state.tab==="uitvoering"));
   if(!state.loaded&&state.db){$("#view").innerHTML=empty("Gegevens laden…","Een moment.");return}
   if(state.loaded&&!state._perRun){state._perRun=1;setTimeout(()=>runPeriodiek(true),2500)}

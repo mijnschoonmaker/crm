@@ -1,5 +1,5 @@
 /* ---------- RAMENWAS CALCULATOR: telling per verdieping, foto's met stippen, PDF-overzicht, offerte en klant ---------- */
-/* draait in een eigen shadow-DOM, zodat de opmaak los staat van de rest van mijnschoonmaker en hertekenen de telling niet wist */
+/* draait in een eigen shadow-DOM, zodat de opmaak los staat van de rest van Mansard en hertekenen de telling niet wist */
 const RC_CSS=`
 :host{display:block;color:var(--ink);font-family:var(--f-ui);font-size:15px;line-height:1.5;
   --blue:var(--brand);--blue-ink:var(--brand-ink);--blue-soft:var(--brand-soft);
@@ -296,7 +296,7 @@ const RC_HTML=`<div class="wrap">
       <div class="field" style="margin-top:16px"><span class="flabel">Staffelkorting normale ramen</span></div>
       <div class="extra" id="tiers"></div>
       <p class="note" style="margin-top:6px">De staffel telt alle normale ramen samen. Elke schijf krijgt zijn eigen korting; de gemiddelde korting geldt voor elke verdieping. Voorbeeld: 64 ramen geeft 25% korting.</p>
-      <p class="note">Waarden met <span class="flag">*</span> zijn een schatting. Alle prijzen zijn excl. btw. Wijzigingen worden opgeslagen in mijnschoonmaker en gelden voor iedereen met wie je mijnschoonmaker deelt.</p>
+      <p class="note">Waarden met <span class="flag">*</span> zijn een schatting. Alle prijzen zijn excl. btw. Wijzigingen worden opgeslagen in Mansard en gelden voor iedereen met wie je Mansard deelt.</p>
     </details>
   </section>
 </div>`;
@@ -345,7 +345,7 @@ function buildRamen(){
     {k:"koepel",l:"Lichtkoepel",s:60,p:2.20,se:true,pe:true},{k:"mini",l:"Miniraampje",s:13,p:0.40,pe:true}];
   const SPECIAL=[{k:"lood",n:"Glas-in-lood",d:"Bovenlichten met lood"},{k:"mini",n:"Miniraampjes",d:"Tel elk ruitje"},{k:"koepel",n:"Lichtkoepels",d:"Op een plat dak"},{k:"tuimel",n:"Dak- / tuimelramen",d:"Schuin in het dak"}];
   const DEFAULTS={start:0,min:56.20,kozMin:40.63,koz_p:0.65,koz_s:30,tiers:[[10,10],[20,20],[30,30],[40,40]],tb:{},wg:{},fp:{}};
-  /* frequentie: [sleutel, label, beurten per jaar, korting %, weken in mijnschoonmaker] — negatief = toeslag */
+  /* frequentie: [sleutel, label, beurten per jaar, korting %, weken in Mansard] — negatief = toeslag */
   const FREQ_LIST=[["w1","1x per week",52,0,1],["w2","1x per 2 weken",26,0,2],["w4","1x per 4 weken",13,0,4],["mnd","1x per maand",12,0,4],
     ["w6","1x per 6 weken",52/6,0,6],["m8","1x per 8 weken",6.5,5,8],["mnd2","1x per 2 maanden",6,0,8],["w12","1x per 12 weken",52/12,0,12],
     ["mnd3","1x per 3 maanden",4,-150,12],["w16","1x per 16 weken",3.25,0,12],["mnd4","1x per 4 maanden",3,0,12],["w24","1x per 24 weken",52/24,0,26],
@@ -613,7 +613,7 @@ const ICON={
   }
   const say=(t,c)=>{const m=g("actMsg");if(m){m.textContent=t||"";m.className="msg"+(c?" "+c:"")}};
 
-  /* ---------- naar mijnschoonmaker: klant, telling met foto's, offerte ---------- */
+  /* ---------- naar Mansard: klant, telling met foto's, offerte ---------- */
   async function uploadPhotos(){
     if(!photos.length)return {fotos:[],fail:0};
     let fail=0;

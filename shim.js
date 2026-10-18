@@ -1,4 +1,4 @@
-/* mijnschoonmaker CRM — koppeling met Firebase (login, database, opslag, downloads).
+/* Mansard CRM — koppeling met Firebase (login, database, opslag, downloads).
    Biedt hetzelfde window.claude.use(...) als de oude versie, zodat de CRM-code gelijk blijft. */
 (function () {
   window.ZEEM_LIVE = true;
@@ -66,7 +66,7 @@
   let ov = null;
   const toon = html => {
     if (!ov) { const s = document.createElement("style"); s.textContent = css; document.head.appendChild(s); ov = document.createElement("div"); ov.className = "lg-ov"; document.body.appendChild(ov); }
-    ov.style.display = "grid"; ov.innerHTML = `<div class="lg-c"><div class="lg-logo"><img src="/logo.png" alt="mijnschoonmaker" onerror="this.remove()"></div>${html}</div>`;
+    ov.style.display = "grid"; ov.innerHTML = `<div class="lg-c"><div class="lg-logo"><img src="/mansard-logo.png" alt="Mansard" onerror="this.remove()"></div>${html}</div>`;
   };
   const $ = s => ov.querySelector(s), msg = (t, ok) => { const m = $(".lg-m"); if (m) { m.textContent = t; m.className = "lg-m" + (ok ? " ok" : ""); } };
   const NL = { "auth/invalid-credential": "E-mailadres of wachtwoord klopt niet.", "auth/wrong-password": "E-mailadres of wachtwoord klopt niet.", "auth/user-not-found": "E-mailadres of wachtwoord klopt niet.", "auth/too-many-requests": "Te veel pogingen. Probeer het over een paar minuten opnieuw.", "auth/email-already-in-use": "Er bestaat al een account met dit e-mailadres. Log in.", "auth/weak-password": "Kies een wachtwoord van minimaal 8 tekens.", "auth/invalid-email": "Controleer het e-mailadres.", "auth/network-request-failed": "Geen internetverbinding." };
@@ -115,7 +115,7 @@
     } catch (e) { return false; }
   }
   function mfaScherm(u, herstel) {
-    toon(`<h1>Inlogcode</h1><p>${herstel ? "Vul een van je herstelcodes in (bijvoorbeeld <b>a1b2c-3d4e5</b>). Elke herstelcode werkt één keer." : "Open je authenticator-app (bijvoorbeeld Google Authenticator) en vul de 6 cijfers in voor <b>mijnschoonmaker CRM</b>."}</p>
+    toon(`<h1>Inlogcode</h1><p>${herstel ? "Vul een van je herstelcodes in (bijvoorbeeld <b>a1b2c-3d4e5</b>). Elke herstelcode werkt één keer." : "Open je authenticator-app (bijvoorbeeld Google Authenticator) en vul de 6 cijfers in voor <b>Mansard CRM</b>."}</p>
       <form id="lgF"><label>${herstel ? "Herstelcode" : "Code"}<input id="lgC" ${herstel ? 'autocomplete="off" placeholder="xxxxx-xxxxx"' : 'inputmode="numeric" autocomplete="one-time-code" pattern="[0-9 ]*" maxlength="7" placeholder="123 456"'} required style="letter-spacing:${herstel ? ".05em" : ".3em"};font-size:20px;text-align:center"></label>
       <button class="lg-b" id="lgGo">Bevestigen</button></form><div class="lg-m"></div>
       <div class="lg-row"><button class="lg-l" id="lgHs">${herstel ? "Code uit de app gebruiken" : "Telefoon kwijt? Herstelcode gebruiken"}</button><button class="lg-l" id="lgOut">Uitloggen</button></div>`);

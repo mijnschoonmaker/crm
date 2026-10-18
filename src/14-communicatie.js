@@ -199,7 +199,7 @@ function vCommunicatie(){
     <div class="seg">${[["alle","Alle"],["email","Email"],["sms","SMS"],["whatsapp","WhatsApp"]].map(([v,l])=>`<button type="button" data-act="mch" data-v="${v}" aria-pressed="${state.mch===v}">${l}</button>`).join("")}</div>
     <select id="mst" style="width:auto"><option value="alle">Alle statussen</option>${Object.keys(MSTAT).map(k=>`<option value="${k}" ${state.mst===k?"selected":""}>${MSTAT[k][1]}</option>`).join("")}</select></div>
   <div class="countline"><span class="eyebrow">${plural(log.length,"bericht","berichten")}</span><label style="flex-direction:row;align-items:center;gap:8px">Per pagina<select id="mpp">${[25,50,100].map(x=>`<option ${x===pp?"selected":""}>${x}</option>`).join("")}</select></label></div>`;
-  if(!log.length)return html+empty(bs.length?"Geen berichten gevonden":"Nog geen berichten","Elk bericht dat je via mijnschoonmaker opent of kopieert, komt in deze log.");
+  if(!log.length)return html+empty(bs.length?"Geen berichten gevonden":"Nog geen berichten","Elk bericht dat je via Mansard opent of kopieert, komt in deze log.");
   html+=`<div class="list">${log.slice((state.mpage-1)*pp,state.mpage*pp).map(m=>{const d=new Date(m.op),ago=Math.round((today()-new Date(d.getFullYear(),d.getMonth(),d.getDate()))/DAY),st=MSTAT[ms(m)];return `<div class="card msgc${m.klantId?" click":""}" ${m.klantId?`data-act="klant" data-id="${esc(m.klantId)}"`:""}>
     <span class="av sm" style="grid-row:1/span 3;align-self:start">${esc(initials(m.klantNaam))}</span>
     <span class="msg-to"><span class="kn ${m.kanaal}">${m.kanaal==="email"?I.mail:m.kanaal==="sms"?I.sms:I.msg}</span><b>${esc(m.naar||cleanName(m.klantNaam))}</b></span>

@@ -48,7 +48,7 @@ function vBoekhouding(){
   }else if(B==="btw"){
     html+=`<div class="tablewrap"><table class="t"><thead><tr><th>Kwartaal</th><th class="r">1a omzet</th><th class="r">1a btw</th><th class="r">5b voorbelasting</th><th class="r">Saldo</th><th>Deadline</th><th>Status</th></tr></thead><tbody>${[1,2,3,4].map(q=>{const f=fin(periodRange(y,"q"+q)),key=y+"-Q"+q,dd=qDeadline(y,q),done=state.aangiftes[key],started=new Date(y,q*3-3,1)<=t;
       return `<tr class="click" data-act="aangifte" data-y="${y}" data-q="${q}"><td><b>Q${q} ${y}</b></td><td class="r amt">${eur(f.omzet)}</td><td class="r amt">${eur(f.btwOmzet)}</td><td class="r amt">${eur(f.voorbelasting)}</td><td class="r amt"><b>${eur(f.btwSaldo)}</b></td><td>${fmtD(dd)}</td><td>${done?statusPill("ok","Ingediend"):!started?statusPill("neutral","Nog niet"):dd<t?statusPill("late","Te laat"):new Date(y,q*3,0)<t?statusPill("soon","Klaarzetten"):statusPill("plan","Loopt")}</td></tr>`}).join("")}</tbody></table></div>
-      <p class="subt" style="font-size:12px">mijnschoonmaker rekent de bedragen uit. De aangifte zelf doe je in Mijn Belastingdienst Zakelijk.</p>`;
+      <p class="subt" style="font-size:12px">Mansard rekent de bedragen uit. De aangifte zelf doe je in Mijn Belastingdienst Zakelijk.</p>`;
   }else{
     const checks=[];const yr=periodRange(y,"jaar");
     const nob=state.kosten.filter(c=>inRange(c.datum,yr)&&!c.bon);if(nob.length)checks.push(["soon",plural(nob.length,"bon zonder foto","bonnen zonder foto"),"Bewaar een foto van elke bon, de Belastingdienst kan erom vragen.","inkoop"]);

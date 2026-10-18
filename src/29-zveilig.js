@@ -32,7 +32,7 @@ function vgBind(){
     const go=()=>vgBezig($("#vgAct"),async()=>{const h=(await fbFn("mfaActiveer")({code:c.value})).data.herstel;await firebase.auth().currentUser.getIdToken(true);
       box.innerHTML=`<div class="okbox" style="margin:0">${I.check}<div><b>Tweestapsverificatie staat aan</b><span>Bewaar deze herstelcodes op een veilige plek (bijvoorbeeld uitgeprint of in je wachtwoordbeheer). Ben je je telefoon kwijt, dan log je met één van deze codes in. Elke code werkt één keer. Je ziet ze maar één keer.</span></div></div>
         <div class="vg-hc">${h.map(x=>`<code>${esc(x)}</code>`).join("")}</div><div class="row" style="gap:8px"><button type="button" class="small" id="vgCp">${I.copy}Kopiëren</button><button type="button" class="small" id="vgDl">${I.dl}Downloaden</button><span class="sp"></span><button type="button" class="small primary" id="vgKlaar">Ik heb ze bewaard</button></div>`;
-      const txt="Herstelcodes mijnschoonmaker CRM ("+(firebase.auth().currentUser.email||"")+")\nElke code werkt één keer.\n\n"+h.join("\n")+"\n";
+      const txt="Herstelcodes Mansard CRM ("+(firebase.auth().currentUser.email||"")+")\nElke code werkt één keer.\n\n"+h.join("\n")+"\n";
       $("#vgCp").onclick=()=>copy(txt,$("#vgCp"));$("#vgDl").onclick=async()=>{const d=await window.claude.use("downloads");d.save({filename:"herstelcodes-crm.txt",data:new Blob([txt],{type:"text/plain"})})};
       $("#vgKlaar").onclick=async()=>{await vgLaad();vgTeken()}});
     $("#vgAct").onclick=go;c.oninput=()=>{if(c.value.replace(/\D/g,"").length===6)go()}});
