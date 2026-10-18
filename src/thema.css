@@ -657,3 +657,16 @@ html body .rv-bus{width:96px!important;height:35px!important;top:30px!important}
 html body .rv-bus:not(.thuis){left:max(78px,calc(var(--h)/2 + (100% - var(--h))*var(--v)))!important}
 html body .vh-bus{width:82px!important;height:30px!important;top:14px!important}
 html body .vh-bus{left:max(68px,calc(var(--p)*100%))!important}
+/* realistische Vito + Brian James Box Van */
+html body .rv-bus{width:128px!important;height:32px!important;top:32px!important;transform:translateX(-82%)!important}
+html body .rv-bus:not(.thuis){left:max(106px,calc(var(--h)/2 + (100% - var(--h))*var(--v)))!important}
+html body .vh-bus{width:110px!important;height:28px!important;top:14px!important;transform:translateX(-84%)!important}
+html body .vh-bus{left:max(92px,calc(var(--p)*100%))!important}
+html body .rv-bus svg,html body .vh-bus svg{width:100%!important;height:100%!important;overflow:visible}
+html body .mbus{display:block;width:100%;height:auto;pointer-events:none;user-select:none}
+html body .rv-bus{height:auto!important;top:34px!important}
+html body .vh-bus{height:auto!important;top:14px!important}
+html body .rv-bus{width:140px!important;top:30px!important}
+html body .rv-bus:not(.thuis){left:max(112px,calc(var(--h)/2 + (100% - var(--h))*var(--v)))!important}
+html body .vh-bus{width:120px!important;top:10px!important}
+html body .vh-bus{left:max(98px,calc(var(--p)*100%))!important}
