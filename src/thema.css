@@ -555,3 +555,7 @@ html body #view:not(#zz) :is(.lead,.pl-sum) b{font-weight:500!important;color:#0
  html body main #view:not(#zz) :is(.toolbar,.acts):has(> .primary):has(> :not(.primary)):has(> :nth-child(2):last-child):not(.ns-head + .toolbar):not(#zz)>:is(button,a){flex:1 1 0!important;order:0!important;flex-direction:row!important;min-height:46px!important;padding:0 12px!important;font-size:10.5px!important;letter-spacing:.1em!important;gap:8px!important;white-space:nowrap!important}
  html body main #view:not(#zz) :is(.toolbar,.acts):has(> .primary):has(> :not(.primary)):has(> :nth-child(2):last-child):not(.ns-head + .toolbar):not(#zz)>.primary{order:2!important;flex:1.4 1 0!important}
 }
+/* Route-kop: geen datum/week erboven; 'Mark' even groot en dik als 'Route', alleen lichter grijs */
+html body #view:not(#zz) .rh-k{display:none!important}
+html body #view:not(#zz) .rh-t span{font-weight:400!important;color:#a3a7ad!important;font-size:inherit!important;letter-spacing:inherit!important}
+html body #view:not(#zz) .rh-tt{padding-top:6px}
