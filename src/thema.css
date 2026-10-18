@@ -620,7 +620,7 @@ html body .vh .vh-h svg,html body .vh .vh-h path,html body .rv-weg li i svg,html
 html body :is(.vh .vh-h.af,.vh .vh-h.nu,.rv-weg li.af i,.rv-weg li.nu i){background:#fff!important;color:#252c3c!important;border-color:#fff!important}
 html body .rv-weg li small,html body .rv-weg li em{color:rgb(255 255 255 / .8)!important}
 html body .vh-r svg .t{stroke:rgb(255 255 255 / .16)!important}html body .vh-r svg .v{stroke:#fff!important}
-html body .rv .rv-klaar,html body .rv .rv-klaar *{background:#fff!important;color:#252c3c!important}
+html body .rv .rv-chips .rv-klaar{background:#fff!important;color:#252c3c!important;border-color:#fff!important}html body .rv .rv-chips .rv-klaar *{background:transparent!important;border:0!important;color:#252c3c!important;stroke:#252c3c!important;box-shadow:none!important}html body .rv .rv-chips .rv-klaar svg{fill:none!important}
 html body .rv .rv-nu,html body .rv .rv-nu *{background:#fff!important;color:#252c3c!important}
 
 /* klanten-ritmebalk binnen het blok */
@@ -670,3 +670,12 @@ html body .rv-bus{width:140px!important;top:30px!important}
 html body .rv-bus:not(.thuis){left:max(112px,calc(var(--h)/2 + (100% - var(--h))*var(--v)))!important}
 html body .vh-bus{width:120px!important;top:10px!important}
 html body .vh-bus{left:max(98px,calc(var(--p)*100%))!important}
+
+/* live busje op de dagkaart */
+.rvm-bus{background:none!important;border:0!important}
+.rvb{position:relative;display:block;width:84px;height:22px}
+.rvb img{position:absolute;inset:0;width:100%;height:auto;filter:drop-shadow(0 3px 3px rgb(13 18 27 / .35));z-index:1}
+.rvb.l img{transform:scaleX(-1)}
+.rvb-puls{position:absolute;left:50%;bottom:-6px;width:56px;height:14px;margin-left:-28px;border-radius:50%;background:rgb(37 44 60 / .35);animation:rvbPuls 2s ease-out infinite}
+@keyframes rvbPuls{0%{transform:scale(.6);opacity:.9}100%{transform:scale(1.8);opacity:0}}
+@media (prefers-reduced-motion:reduce){.rvb-puls{animation:none}}

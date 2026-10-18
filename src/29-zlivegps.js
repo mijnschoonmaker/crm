@@ -17,7 +17,7 @@ function liveStart(stil){
     if(koers==null&&LV.pos&&lvAfst(LV.pos,c)>15){const y=Math.sin((c.lng-LV.pos.lng)*Math.PI/180)*Math.cos(c.lat*Math.PI/180),x=Math.cos(LV.pos.lat*Math.PI/180)*Math.sin(c.lat*Math.PI/180)-Math.sin(LV.pos.lat*Math.PI/180)*Math.cos(c.lat*Math.PI/180)*Math.cos((c.lng-LV.pos.lng)*Math.PI/180);koers=Math.round((Math.atan2(y,x)*180/Math.PI+360)%360)}
     /* niet vaker dan nodig: elke 12 seconden, of eerder als je flink bent opgeschoten */
     if(nu-LV.last<12000&&lvAfst(LV.pos,c)<40)return;
-    LV.last=nu;LV.pos=c;LV.fout="";lvSchrijf({actief:true,lat:c.lat,lng:c.lng,nauw:Math.round(p.coords.accuracy||0),...(koers!=null?{koers}:{})});lvKnop()},
+    LV.last=nu;LV.pos=c;if(koers!=null)LV.koers=koers;LV.fout="";if(typeof rvMapLive==="function")rvMapLive();lvSchrijf({actief:true,lat:c.lat,lng:c.lng,nauw:Math.round(p.coords.accuracy||0),...(koers!=null?{koers}:{})});lvKnop()},
     e=>{LV.fout=e.code===1?"Geen toestemming voor je locatie. Zet locatie aan voor deze website in je telefooninstellingen.":"Je locatie is even niet beschikbaar";if(e.code===1){liveStop(true);state.liveDelen=false;try{localStorage.setItem("ms.live","0")}catch(er){}}toast(LV.fout);lvKnop()},
     {enableHighAccuracy:true,maximumAge:8000,timeout:30000});
   lvWakker();if(!stil)toast("Live delen staat aan · de klanten van vandaag zien waar je bent");lvKnop()}

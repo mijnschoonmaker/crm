@@ -6187,10 +6187,25 @@ async function rvMapTeken(){const el=document.getElementById("rvMap");if(!el||!s
       .bindTooltip(`${esc(jobAddrObj(s.k).adres||cleanName(s.k.naam))}${s.k.tijd?" · "+esc(s.k.tijd):""}`).addTo(el._laag)});
   if(lijn.length>1)L.polyline(lijn,{color:"#137a8a",weight:3,opacity:.55,dashArray:"6 8"}).addTo(el._laag);
   const lo=pkHeeftAdres(bk)&&pkCoord(bk);if(lo){pts.push(lo);L.marker(lo,{icon:L.divIcon({className:"rvm",html:`<i class="loods">${I.truck||"L"}</i>`,iconSize:[26,26],iconAnchor:[13,13]})}).bindTooltip("Loods").addTo(el._laag)}
-  const ik=typeof LV!=="undefined"&&LV.pos&&[LV.pos.lat,LV.pos.lng];if(ik){pts.push(ik);L.circleMarker(ik,{radius:7,color:"#fff",weight:3,fillColor:"#2f6fdd",fillOpacity:1}).bindTooltip("Jij").addTo(el._laag)}
+  el._bus=null;const ik=typeof LV!=="undefined"&&LV.pos&&[LV.pos.lat,LV.pos.lng];if(ik){pts.push(ik);rvMapLive()}
+  else if(!LIVE&&day===iso(today())&&nx){/* demo: laat het busje onderweg zien naar de volgende stop */
+    const vi=stops.indexOf(nx),vorig=[...stops.slice(0,vi)].reverse().map(s=>pkCoord(s.k)).find(Boolean)||lo,naar=pkCoord(nx.k);
+    if(naar){const a=vorig||naar;rvMapLive([a[0]+(naar[0]-a[0])*.62,a[1]+(naar[1]-a[1])*.62],a[1]>naar[1]?270:90)}}
   if(!pts.length){el.innerHTML='<div class="rv-map-l">Nog geen adressen gevonden op de kaart</div>';el._map=null;return}
   m.invalidateSize();m.fitBounds(pts,{padding:[22,22],maxZoom:15});
 }
+/* live busje op de dagkaart: zelfde gevoel als het klantportaal — rijdt mee met je GPS */
+function rvBusIcon(kk){const L=window.L,k=Number.isFinite(kk)?kk:typeof LV!=="undefined"&&Number.isFinite(LV.koers)?LV.koers:90,links=k>180&&k<360;
+  return L.divIcon({className:"rvm-bus",html:`<span class="rvb${links?" l":""}"><i class="rvb-puls"></i><img src="/img/mansard-bus.png" alt=""></span>`,iconSize:[84,22],iconAnchor:[42,20]})}
+function rvMapLive(nep,nk){const el=document.getElementById("rvMap");if(!el||!el._map||!window.L)return;const echt=typeof LV!=="undefined"&&LV.pos;if(!echt&&!nep)return;
+  const L=window.L,doel=echt?[LV.pos.lat,LV.pos.lng]:nep;
+  if(!el._bus||!el._laag.hasLayer(el._bus)){el._bus=L.marker(doel,{icon:rvBusIcon(echt?null:nk),zIndexOffset:1000,keyboard:false}).bindTooltip("Jij · live",{direction:"top",offset:[0,-30]}).addTo(el._laag);return}
+  el._bus.setIcon(rvBusIcon(echt?null:nk));
+  /* zacht verschuiven naar de nieuwe plek i.p.v. springen */
+  const van=el._bus.getLatLng(),t0=performance.now(),dur=1600;cancelAnimationFrame(el._busAnim);
+  const stap=n=>{const f=Math.min(1,(n-t0)/dur),e=f<.5?2*f*f:1-Math.pow(-2*f+2,2)/2;
+    el._bus.setLatLng([van.lat+(doel[0]-van.lat)*e,van.lng+(doel[1]-van.lng)*e]);if(f<1)el._busAnim=requestAnimationFrame(stap)};
+  el._busAnim=requestAnimationFrame(stap)}
 
 /* ---------- Kaartplannen ----------
    Een kaart boven de planning: waar wonen de klanten die ingepland moeten worden, en waar werk je al.
@@ -13169,7 +13184,7 @@ function liveStart(stil){
     if(koers==null&&LV.pos&&lvAfst(LV.pos,c)>15){const y=Math.sin((c.lng-LV.pos.lng)*Math.PI/180)*Math.cos(c.lat*Math.PI/180),x=Math.cos(LV.pos.lat*Math.PI/180)*Math.sin(c.lat*Math.PI/180)-Math.sin(LV.pos.lat*Math.PI/180)*Math.cos(c.lat*Math.PI/180)*Math.cos((c.lng-LV.pos.lng)*Math.PI/180);koers=Math.round((Math.atan2(y,x)*180/Math.PI+360)%360)}
     /* niet vaker dan nodig: elke 12 seconden, of eerder als je flink bent opgeschoten */
     if(nu-LV.last<12000&&lvAfst(LV.pos,c)<40)return;
-    LV.last=nu;LV.pos=c;LV.fout="";lvSchrijf({actief:true,lat:c.lat,lng:c.lng,nauw:Math.round(p.coords.accuracy||0),...(koers!=null?{koers}:{})});lvKnop()},
+    LV.last=nu;LV.pos=c;if(koers!=null)LV.koers=koers;LV.fout="";if(typeof rvMapLive==="function")rvMapLive();lvSchrijf({actief:true,lat:c.lat,lng:c.lng,nauw:Math.round(p.coords.accuracy||0),...(koers!=null?{koers}:{})});lvKnop()},
     e=>{LV.fout=e.code===1?"Geen toestemming voor je locatie. Zet locatie aan voor deze website in je telefooninstellingen.":"Je locatie is even niet beschikbaar";if(e.code===1){liveStop(true);state.liveDelen=false;try{localStorage.setItem("ms.live","0")}catch(er){}}toast(LV.fout);lvKnop()},
     {enableHighAccuracy:true,maximumAge:8000,timeout:30000});
   lvWakker();if(!stil)toast("Live delen staat aan · de klanten van vandaag zien waar je bent");lvKnop()}
@@ -14524,7 +14539,7 @@ html body .vh .vh-h svg,html body .vh .vh-h path,html body .rv-weg li i svg,html
 html body :is(.vh .vh-h.af,.vh .vh-h.nu,.rv-weg li.af i,.rv-weg li.nu i){background:#fff!important;color:#252c3c!important;border-color:#fff!important}
 html body .rv-weg li small,html body .rv-weg li em{color:rgb(255 255 255 / .8)!important}
 html body .vh-r svg .t{stroke:rgb(255 255 255 / .16)!important}html body .vh-r svg .v{stroke:#fff!important}
-html body .rv .rv-klaar,html body .rv .rv-klaar *{background:#fff!important;color:#252c3c!important}
+html body .rv .rv-chips .rv-klaar{background:#fff!important;color:#252c3c!important;border-color:#fff!important}html body .rv .rv-chips .rv-klaar *{background:transparent!important;border:0!important;color:#252c3c!important;stroke:#252c3c!important;box-shadow:none!important}html body .rv .rv-chips .rv-klaar svg{fill:none!important}
 html body .rv .rv-nu,html body .rv .rv-nu *{background:#fff!important;color:#252c3c!important}
 
 /* klanten-ritmebalk binnen het blok */
@@ -14574,6 +14589,15 @@ html body .rv-bus{width:140px!important;top:30px!important}
 html body .rv-bus:not(.thuis){left:max(112px,calc(var(--h)/2 + (100% - var(--h))*var(--v)))!important}
 html body .vh-bus{width:120px!important;top:10px!important}
 html body .vh-bus{left:max(98px,calc(var(--p)*100%))!important}
+
+/* live busje op de dagkaart */
+.rvm-bus{background:none!important;border:0!important}
+.rvb{position:relative;display:block;width:84px;height:22px}
+.rvb img{position:absolute;inset:0;width:100%;height:auto;filter:drop-shadow(0 3px 3px rgb(13 18 27 / .35));z-index:1}
+.rvb.l img{transform:scaleX(-1)}
+.rvb-puls{position:absolute;left:50%;bottom:-6px;width:56px;height:14px;margin-left:-28px;border-radius:50%;background:rgb(37 44 60 / .35);animation:rvbPuls 2s ease-out infinite}
+@keyframes rvbPuls{0%{transform:scale(.6);opacity:.9}100%{transform:scale(1.8);opacity:0}}
+@media (prefers-reduced-motion:reduce){.rvb-puls{animation:none}}
 
 </style>
 

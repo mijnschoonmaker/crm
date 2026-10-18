@@ -16,7 +16,22 @@ async function rvMapTeken(){const el=document.getElementById("rvMap");if(!el||!s
       .bindTooltip(`${esc(jobAddrObj(s.k).adres||cleanName(s.k.naam))}${s.k.tijd?" · "+esc(s.k.tijd):""}`).addTo(el._laag)});
   if(lijn.length>1)L.polyline(lijn,{color:"#137a8a",weight:3,opacity:.55,dashArray:"6 8"}).addTo(el._laag);
   const lo=pkHeeftAdres(bk)&&pkCoord(bk);if(lo){pts.push(lo);L.marker(lo,{icon:L.divIcon({className:"rvm",html:`<i class="loods">${I.truck||"L"}</i>`,iconSize:[26,26],iconAnchor:[13,13]})}).bindTooltip("Loods").addTo(el._laag)}
-  const ik=typeof LV!=="undefined"&&LV.pos&&[LV.pos.lat,LV.pos.lng];if(ik){pts.push(ik);L.circleMarker(ik,{radius:7,color:"#fff",weight:3,fillColor:"#2f6fdd",fillOpacity:1}).bindTooltip("Jij").addTo(el._laag)}
+  el._bus=null;const ik=typeof LV!=="undefined"&&LV.pos&&[LV.pos.lat,LV.pos.lng];if(ik){pts.push(ik);rvMapLive()}
+  else if(!LIVE&&day===iso(today())&&nx){/* demo: laat het busje onderweg zien naar de volgende stop */
+    const vi=stops.indexOf(nx),vorig=[...stops.slice(0,vi)].reverse().map(s=>pkCoord(s.k)).find(Boolean)||lo,naar=pkCoord(nx.k);
+    if(naar){const a=vorig||naar;rvMapLive([a[0]+(naar[0]-a[0])*.62,a[1]+(naar[1]-a[1])*.62],a[1]>naar[1]?270:90)}}
   if(!pts.length){el.innerHTML='<div class="rv-map-l">Nog geen adressen gevonden op de kaart</div>';el._map=null;return}
   m.invalidateSize();m.fitBounds(pts,{padding:[22,22],maxZoom:15});
 }
+/* live busje op de dagkaart: zelfde gevoel als het klantportaal — rijdt mee met je GPS */
+function rvBusIcon(kk){const L=window.L,k=Number.isFinite(kk)?kk:typeof LV!=="undefined"&&Number.isFinite(LV.koers)?LV.koers:90,links=k>180&&k<360;
+  return L.divIcon({className:"rvm-bus",html:`<span class="rvb${links?" l":""}"><i class="rvb-puls"></i><img src="/img/mansard-bus.png" alt=""></span>`,iconSize:[84,22],iconAnchor:[42,20]})}
+function rvMapLive(nep,nk){const el=document.getElementById("rvMap");if(!el||!el._map||!window.L)return;const echt=typeof LV!=="undefined"&&LV.pos;if(!echt&&!nep)return;
+  const L=window.L,doel=echt?[LV.pos.lat,LV.pos.lng]:nep;
+  if(!el._bus||!el._laag.hasLayer(el._bus)){el._bus=L.marker(doel,{icon:rvBusIcon(echt?null:nk),zIndexOffset:1000,keyboard:false}).bindTooltip("Jij · live",{direction:"top",offset:[0,-30]}).addTo(el._laag);return}
+  el._bus.setIcon(rvBusIcon(echt?null:nk));
+  /* zacht verschuiven naar de nieuwe plek i.p.v. springen */
+  const van=el._bus.getLatLng(),t0=performance.now(),dur=1600;cancelAnimationFrame(el._busAnim);
+  const stap=n=>{const f=Math.min(1,(n-t0)/dur),e=f<.5?2*f*f:1-Math.pow(-2*f+2,2)/2;
+    el._bus.setLatLng([van.lat+(doel[0]-van.lat)*e,van.lng+(doel[1]-van.lng)*e]);if(f<1)el._busAnim=requestAnimationFrame(stap)};
+  el._busAnim=requestAnimationFrame(stap)}
