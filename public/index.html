@@ -14505,6 +14505,49 @@ html body .swipe-card.tk .tk-af{box-shadow:0 12px 24px -14px rgb(37 44 60 / .75)
 html body dialog .jp-kop:not(.sc2-kop),html body dialog .fw-head,html body .swipe-card.tk.next .tk-kop{background:var(--gb-lijn),var(--gb-vlak)!important}
 html body :is(main,dialog,.lg-ov) :is(button,a).primary:not(.iconbtn),html body .btn.primary,html body .tk .tk-af,html body .lg-b,html body #view:not(#zz) :is(.toolbar,.acts)>.primary,html body :is(.addph.ai,.tc-ai,.fw-up.pri,.jp-foot button.primary){background:radial-gradient(130% 180% at 100% 0%,#3e4860 0%,transparent 60%),linear-gradient(135deg,#1c2231,#2a3245 60%,#1f2534)!important}
 html body :is(main,dialog) :is(button,a).primary:not(.iconbtn):hover{background:radial-gradient(130% 180% at 100% 0%,#4a5670 0%,transparent 60%),linear-gradient(135deg,#202738,#303a50 60%,#232a3a)!important}
+/* BOVENBLOKKEN IN GELDERS BLAUW (zoals vroeger, met diepte en glazen tegels) */
+html body :is(.vh,.fg,.rv,.ofh,.cm,.kr){background:var(--gb-lijn),var(--gb-vlak)!important;border:0!important;color:#fff!important;box-shadow:0 24px 50px -30px rgb(20 24 34 / .75)!important}
+html body :is(.vh,.fg,.rv,.ofh,.cm,.kr) :is(h1,h2,h3,b,strong,span,div,li,label,a,em){color:#fff!important}
+html body :is(.vh,.fg,.rv,.ofh,.cm,.kr) :is(small,p,.vh-k,.fg-k,.kr-k,.fg-l,.cm-k,.fg-mot,.kr-mot,.cm-mot){color:rgb(255 255 255 / .72)!important}
+/* glazen tegels */
+html body :is(.vh,.fg,.rv,.ofh,.cm,.kr) :is(.vh-st span,.fg-c,.fg-pct,.rv-geld,.rv-fase,.rv-chips>*,.kr-c,.cm-s,.cm-pt i,[class$="-c"]):not(.rv-klaar){background:linear-gradient(180deg,rgb(255 255 255 / .1),rgb(255 255 255 / .04))!important;border:1px solid rgb(255 255 255 / .14)!important;box-shadow:none!important;backdrop-filter:blur(6px)}
+html body :is(.vh,.fg,.rv,.ofh,.cm,.kr) :is(.fg-c,.kr-c):hover{background:rgb(255 255 255 / .14)!important;border-color:rgb(255 255 255 / .3)!important}
+html body :is(.vh,.fg,.rv,.ofh,.cm,.kr) :is(.cm-i,.st-ic){background:rgb(255 255 255 / .12)!important}
+html body :is(.vh,.fg,.rv,.ofh,.cm,.kr) svg:not(.vh-bus svg):not(.rv-bus svg):not(.fg-munt svg):not(.fg-pot svg),html body :is(.vh,.fg,.rv,.ofh,.cm,.kr) svg:not(.vh-bus svg):not(.rv-bus svg):not(.fg-munt svg):not(.fg-pot svg) *{color:#fff!important;stroke:#fff}
+/* voortgang, weg en huisjes in wit */
+html body :is(.vh,.fg,.rv,.kr) :is(.fg-baan,.rv-asfalt,.rv-gb){background:rgb(255 255 255 / .16)!important}
+html body .fg .fg-baan i{background:linear-gradient(90deg,#e8cf8f,#c99a45)!important}
+html body :is(.vh) .fg-baan i,html body .rv :is(.rv-af,.rv-gb i){background:linear-gradient(90deg,rgb(255 255 255 / .55),#fff)!important}
+html body .vh .vh-h,html body .rv-weg li i{background:rgb(255 255 255 / .1)!important;border:1px solid rgb(255 255 255 / .25)!important;color:rgb(255 255 255 / .8)!important;box-shadow:none!important}
+html body .vh .vh-h svg,html body .vh .vh-h path,html body .rv-weg li i svg,html body .rv-weg li i path{fill:currentColor!important;stroke:none!important}
+html body :is(.vh .vh-h.af,.vh .vh-h.nu,.rv-weg li.af i,.rv-weg li.nu i){background:#fff!important;color:#252c3c!important;border-color:#fff!important}
+html body .rv-weg li small,html body .rv-weg li em{color:rgb(255 255 255 / .8)!important}
+html body .vh-r svg .t{stroke:rgb(255 255 255 / .16)!important}html body .vh-r svg .v{stroke:#fff!important}
+html body .rv .rv-klaar,html body .rv .rv-klaar *{background:#fff!important;color:#252c3c!important}
+html body .rv .rv-nu,html body .rv .rv-nu *{background:#fff!important;color:#252c3c!important}
+html body .vh-bus,html body .rv-bus{filter:grayscale(.3) brightness(1.25)!important}
+/* klanten-ritmebalk binnen het blok */
+html body .kr .kr-baan{background:rgb(255 255 255 / .06)!important;border:1px solid rgb(255 255 255 / .12)!important}
+html body .kr .kr-baan::after{opacity:.6}
+html body .kr .kr-zones span{color:rgb(255 255 255 / .7)!important}
+html body .kr .kr-zones .zl{color:#ffb8ad!important}
+html body .kr .kr-zones .zb,html body .kr .kr-zones .zl{border-left-color:rgb(255 255 255 / .15)}
+html body .kr .kr-d{background:#fff!important;border-color:#fff!important}
+html body .kr .kr-d svg{fill:#252c3c!important}
+/* communicatie: boog en punten */
+html body .cm .cm-lucht>svg *{stroke:rgb(255 255 255 / .45)!important}
+html body .cm .cm-pt.p2 i{background:#fff!important;border-color:#fff!important}
+html body .cm .cm-pt.p2 i svg,html body .cm .cm-pt.p2 i svg *{stroke:#252c3c!important;color:#252c3c!important}
+/* status-stipjes zacht */
+html body .fg-c.late span::after{background:#ff9b8a!important}
+html body .kr-c i{filter:none}
+html body:not(#zz) :is(.vh,.fg,.rv,.ofh,.cm,.kr) :is(small,em,p,.cm-s small,.cm-pt small,.vh-st em,.rv-geld em,.rv-weg li em,.rv-weg li small){color:rgb(255 255 255 / .72)!important}
+html body:not(#zz) :is(.vh,.fg,.rv,.ofh,.cm,.kr) :is(b,strong,h2,.cm-s b,.cm-pt b,.cm-big em){color:#fff!important}
+html body:not(#zz) .rv-weg li.nu i svg,html body:not(#zz) .rv-weg li.nu i path,html body:not(#zz) .rv-weg li.af i svg,html body:not(#zz) .rv-weg li.af i path,html body:not(#zz) .vh .vh-h.nu svg,html body:not(#zz) .vh .vh-h.af svg{fill:#252c3c!important;color:#252c3c!important}
+html body:not(#zz) .rv .rv-nu{background:#fff!important;color:#252c3c!important}
+html body:not(#zz) .cm .cm-env svg *{stroke:#252c3c!important}
+html body:not(#zz) .rv .rv-weg b.rv-nu,html body:not(#zz) .rv .rv-nu,html body:not(#zz) .rv b.rv-nu *{background:#fff!important;color:#252c3c!important}
+html body:not(#zz) .rv .rv-fase i{background:#fff!important}
 
 </style>
 
