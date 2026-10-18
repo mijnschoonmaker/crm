@@ -620,7 +620,7 @@ html body .vh .vh-h svg,html body .vh .vh-h path,html body .rv-weg li i svg,html
 html body :is(.vh .vh-h.af,.vh .vh-h.nu,.rv-weg li.af i,.rv-weg li.nu i){background:#fff!important;color:#252c3c!important;border-color:#fff!important}
 html body .rv-weg li small,html body .rv-weg li em{color:rgb(255 255 255 / .8)!important}
 html body .vh-r svg .t{stroke:rgb(255 255 255 / .16)!important}html body .vh-r svg .v{stroke:#fff!important}
-html body .rv .rv-chips .rv-klaar{background:#fff!important;color:#252c3c!important;border-color:#fff!important}html body .rv .rv-chips .rv-klaar *{background:transparent!important;border:0!important;color:#252c3c!important;stroke:#252c3c!important;box-shadow:none!important}html body .rv .rv-chips .rv-klaar svg{fill:none!important}
+html body .rv .rv-chips .rv-klaar{background:#fff!important;color:#252c3c!important;border-color:#fff!important}html body:not(#zz) .rv .rv-chips .rv-klaar *,html body:not(#zz) .rv .rv-chips .rv-klaar b{background:transparent!important;border:0!important;color:#252c3c!important;stroke:#252c3c!important;box-shadow:none!important}html body .rv .rv-chips .rv-klaar svg{fill:none!important}
 html body .rv .rv-nu,html body .rv .rv-nu *{background:#fff!important;color:#252c3c!important}
 
 /* klanten-ritmebalk binnen het blok */
@@ -674,8 +674,8 @@ html body .vh-bus{left:max(98px,calc(var(--p)*100%))!important}
 /* live busje op de dagkaart */
 .rvm-bus{background:none!important;border:0!important}
 .rvb{position:relative;display:block;width:44px;height:12px}
-.rvb img{position:absolute;inset:0;width:100%;height:auto;filter:drop-shadow(0 1px 1.5px rgb(13 18 27 / .4));z-index:1}
-.rvb.l img{transform:scaleX(-1)}
+html body .leaflet-container .rvb img{position:absolute!important;left:0!important;top:0!important;width:44px!important;height:auto!important;max-width:none!important;max-height:none!important;filter:drop-shadow(0 1px 1.5px rgb(13 18 27 / .4));z-index:1}
+html body .leaflet-container .rvb.l img{transform:scaleX(-1)}
 .rvb-puls{position:absolute;left:50%;bottom:-3px;width:30px;height:8px;margin-left:-15px;border-radius:50%;background:rgb(37 44 60 / .35);animation:rvbPuls 2s ease-out infinite}
 @keyframes rvbPuls{0%{transform:scale(.6);opacity:.9}100%{transform:scale(1.8);opacity:0}}
 @media (prefers-reduced-motion:reduce){.rvb-puls{animation:none}}
