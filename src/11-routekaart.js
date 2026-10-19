@@ -17,12 +17,14 @@ async function rvMapTeken(){const el=document.getElementById("rvMap");if(!el||!s
   if(lijn.length>1)L.polyline(lijn,{color:"#137a8a",weight:3,opacity:.55,dashArray:"6 8"}).addTo(el._laag);
   const lo=pkHeeftAdres(bk)&&pkCoord(bk);if(lo){pts.push(lo);L.marker(lo,{icon:L.divIcon({className:"rvm",html:`<i class="loods">${I.truck||"L"}</i>`,iconSize:[26,26],iconAnchor:[13,13]})}).bindTooltip("Loods").addTo(el._laag)}
   el._bus=null;cancelAnimationFrame(RVB.anim);rvEigenStart();const mp=rvEigenPos(),ik=mp&&[mp.lat,mp.lng];if(ik){pts.push(ik);rvMapLive()}
-  else if(!LIVE&&day===iso(today())&&!nx){const eind=lo||[...stops].reverse().map(s=>pkCoord(s.k)).find(Boolean);if(eind)rvMapLive(eind)}
+  else if(!LIVE&&day===iso(today())&&!nx){const eind=lo||[...stops].reverse().map(s=>pkCoord(s.k)).find(Boolean);if(eind){el._demoF=eind;rvMapLive(eind)}}
   else if(!LIVE&&day===iso(today())&&nx){/* demo: laat het busje onderweg zien naar de volgende stop */
     const vi=stops.indexOf(nx),vorig=[...stops.slice(0,vi)].reverse().map(s=>pkCoord(s.k)).find(Boolean)||lo,naar=pkCoord(nx.k);
-    if(naar&&vorig)rvDemoRit(vorig,naar);else if(naar)rvMapLive(naar)}
+    if(naar&&vorig){el._demoF=[(vorig[0]+naar[0])/2,(vorig[1]+naar[1])/2];rvDemoRit(vorig,naar)}else if(naar)rvMapLive(naar)}
   if(!pts.length){el.innerHTML='<div class="rv-map-l">Nog geen adressen gevonden op de kaart</div>';el._map=null;return}
-  m.invalidateSize();m.fitBounds(pts,{padding:[22,22],maxZoom:15});
+  m.invalidateSize();
+  /* eerste keer: ingezoomd op het busje; daarna de stand van de gebruiker houden */
+  if(!el._gezet){el._gezet=1;const f=ik||el._demoF;if(f)m.setView(f,16);else m.fitBounds(pts,{padding:[22,22],maxZoom:15})}
 }
 /* ---------- Live busje op de dagkaart ----------
    Zelfde gevoel als het klantportaal: het busje rijdt over de echte weg (route via OSRM) van de vorige naar de nieuwe GPS-plek,
@@ -49,7 +51,9 @@ function rvBusZet(el,p){const L=window.L;
   if(!el._bus||!el._laag.hasLayer(el._bus)){el._bus=L.marker(p,{icon:rvBusIcon(),zIndexOffset:1000,keyboard:false,interactive:false}).addTo(el._laag);
     if(!el._busZoom){el._busZoom=1;el._map.on("zoom zoomend",()=>rvBusSchaal(el))}rvBusSchaal(el);
     const b2=el._bus.getElement().querySelector(".rvb");b2.style.setProperty("--r",RVB.r+"deg");b2.style.setProperty("--f",RVB.f)}
-  else el._bus.setLatLng(p)}
+  else el._bus.setLatLng(p);
+  /* busje uit beeld? rustig meeschuiven */
+  try{const m=el._map,ll=window.L.latLng(p);if(!m._rvPan&&!m.getBounds().pad(-.12).contains(ll)){m._rvPan=1;m.panTo(ll,{animate:true,duration:.8});setTimeout(()=>m._rvPan=0,1200)}}catch(e){}}
 /* rij langs een pad in dur ms */
 function rvRij(el,pad,dur,klaar){cancelAnimationFrame(RVB.anim);const d=rvLangs(pad),tot=d[d.length-1],t0=performance.now();
   const stap=n=>{if(!document.body.contains(el)||!el._map)return;const f=Math.min(1,(n-t0)/dur),o=rvOpPad(pad,d,tot*f);rvBusZet(el,o.p);rvBusRicht(el,o.a,o.b);
@@ -76,11 +80,11 @@ function rvEigenStart(){if(!LIVE||RVP.watch!=null||!navigator.geolocation)return
   RVP.watch=navigator.geolocation.watchPosition(p=>{
     if(!document.getElementById("rvMap")){navigator.geolocation.clearWatch(RVP.watch);RVP.watch=null;return}
     const eerst=!RVP.pos;RVP.pos={lat:p.coords.latitude,lng:p.coords.longitude};rvMapLive();
-    if(eerst){const el=document.getElementById("rvMap");try{el._map.fitBounds(el._map.getBounds().extend([RVP.pos.lat,RVP.pos.lng]),{padding:[22,22],maxZoom:15})}catch(e){}}},
+    if(eerst){const el=document.getElementById("rvMap");try{el._map.setView([RVP.pos.lat,RVP.pos.lng],16)}catch(e){}}},
     ()=>{},{enableHighAccuracy:true,maximumAge:5000,timeout:30000})}
 /* ondergrond: luchtfoto (PDOK, haarscherp voor heel Nederland) met PDOK-straatnamen erover, of de PDOK-stratenkaart. Geen API-sleutel nodig. */
-state.rvSat=(()=>{try{return localStorage.getItem("ms.rvsat")!=="0"}catch(e){return true}})();
-function rvOndergrond(el){const L=window.L,m=el._map;(el._tegels||[]).forEach(t=>m.removeLayer(t));
+state.rvSat=(()=>{try{return localStorage.getItem("ms.rvsat2")!=="0"}catch(e){return true}})();
+function rvOndergrond(el,mp){const L=window.L,m=mp||el._map;(el._tegels||[]).forEach(t=>m.removeLayer(t));
   const pd="https://service.pdok.nl/",o={maxZoom:20,maxNativeZoom:19};
   el._tegels=state.rvSat?[
     L.tileLayer(pd+"hwh/luchtfotorgb/wmts/v1_0/Actueel_orthoHR/EPSG:3857/{z}/{x}/{y}.jpeg",o),
@@ -88,8 +92,8 @@ function rvOndergrond(el){const L=window.L,m=el._map;(el._tegels||[]).forEach(t=
   ]:[L.tileLayer(pd+"brt/achtergrondkaart/wmts/v2_0/standaard/EPSG:3857/{z}/{x}/{y}.png",o)];
   /* valt een PDOK-laag weg, dan terug naar OpenStreetMap zodat de kaart nooit leeg is */
   el._tegels.forEach((t,i)=>{let fout=0;t.on("tileerror",()=>{if(++fout===6&&m.hasLayer(t)){m.removeLayer(t);if(i===0)el._tegels.push(L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19}).addTo(m).bringToBack())}})});
-  el._tegels.forEach(t=>t.addTo(m));el.classList.toggle("sat",state.rvSat)}
-function rvLaagKnop(el){const b=document.createElement("button");b.type="button";b.className="rv-laag";
+  el._tegels.forEach(t=>t.addTo(m).bringToBack());el._tegels.slice().reverse().forEach(t=>t.bringToBack());el.classList.toggle("sat",state.rvSat)}
+function rvLaagKnop(el,mp){const b=document.createElement("button");b.type="button";b.className="rv-laag";
   const zet=()=>{b.innerHTML=state.rvSat?"<span>Kaart</span>":"<span>Satelliet</span>";b.setAttribute("aria-label",state.rvSat?"Toon stratenkaart":"Toon luchtfoto")};zet();
-  b.addEventListener("click",e=>{e.stopPropagation();state.rvSat=!state.rvSat;try{localStorage.setItem("ms.rvsat",state.rvSat?"1":"0")}catch(er){}rvOndergrond(el);zet()});
+  b.addEventListener("click",e=>{e.stopPropagation();state.rvSat=!state.rvSat;try{localStorage.setItem("ms.rvsat2",state.rvSat?"1":"0")}catch(er){}rvOndergrond(el,mp);zet()});
   ["mousedown","touchstart","dblclick","wheel"].forEach(t=>b.addEventListener(t,e=>e.stopPropagation(),{passive:true}));el.appendChild(b)}

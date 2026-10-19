@@ -681,11 +681,12 @@ html body .leaflet-container .rvb img{position:absolute!important;left:0!importa
 @media (prefers-reduced-motion:reduce){.rvb-puls{animation:none}}
 
 /* dagkaart: wissel luchtfoto/kaart */
-html body .rv-map{position:relative}
-html body .rv-map .rv-laag{position:absolute;right:10px;top:10px;z-index:800;height:32px;padding:0 14px;border-radius:8px;border:1px solid rgb(255 255 255 / .6);background:rgb(255 255 255 / .92);backdrop-filter:blur(6px);color:#252c3c;font-family:inherit;font-size:11px;font-weight:600;line-height:1;letter-spacing:.14em;text-transform:uppercase;box-shadow:0 2px 8px rgb(13 18 27 / .18);cursor:pointer}
-html body .rv-map .rv-laag:hover{background:#fff}
+html body :is(.rv-map,.wp-map){position:relative}
+html body :is(.rv-map,.pk-map,.wp-map) .rv-laag{position:absolute;right:10px;top:10px;z-index:800;height:32px;padding:0 14px;border-radius:8px;border:1px solid rgb(255 255 255 / .6);background:rgb(255 255 255 / .92);backdrop-filter:blur(6px);color:#252c3c;font-family:inherit;font-size:11px;font-weight:600;line-height:1;letter-spacing:.14em;text-transform:uppercase;box-shadow:0 2px 8px rgb(13 18 27 / .18);cursor:pointer}
+html body :is(.pk-map,.wp-map,.rv-map) .rv-laag:hover{background:#fff}
 html body .rv-map.sat .leaflet-overlay-pane path{stroke:#fff;opacity:.9}
 html body:not(#zz) .rv .rv-map .rv-laag,html body:not(#zz) .rv .rv-map .rv-laag span{color:#252c3c!important;background-color:transparent}
 html body:not(#zz) .rv .rv-map .rv-laag{background:rgb(255 255 255 / .94)!important}
 /* geen "Vandaag Mark"-kop boven de dagnavigatie */
 html body #view:not(#zz) .rh-tt{display:none!important}html body #view:not(#zz) .rh-top{margin-top:0!important;justify-content:flex-end}
+html body:not(#zz) :is(.pk-map,.wp-map) .rv-laag,html body:not(#zz) :is(.pk-map,.wp-map) .rv-laag span{color:#252c3c!important}

@@ -161,7 +161,7 @@ async function wpZet(){const s=WP.st,v=s&&s.v;if(!v)return;const b=WP.ov.querySe
 /* kaartje: per dag een kleur */
 async function wpKaart(){const s=WP.st,v=s&&s.v;const el=WP.ov&&WP.ov.querySelector("#wpMap");if(!v||!el||el.classList.contains("hide")||typeof pkLaadLeaflet!=="function")return;
   try{await pkLaadLeaflet()}catch(e){el.classList.add("hide");return}if(!WP.ov||!WP.ov.contains(el))return;
-  const L=window.L;if(!el._map){el._map=L.map(el,{zoomControl:false,attributionControl:false});L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetmap-bijdragers"}).addTo(el._map);el._laag=L.layerGroup().addTo(el._map)}
+  const L=window.L;if(!el._map){el._map=L.map(el,{zoomControl:false,attributionControl:false});rvOndergrond(el);rvLaagKnop(el);el._laag=L.layerGroup().addTo(el._map)}
   const m=el._map;el._laag.clearLayers();const pts=[];
   v.dagen.forEach((day,i)=>{const c=WP_KLEUR[i%WP_KLEUR.length];day.items.forEach((x,j)=>{const co=wpCo(x.k);if(!co)return;pts.push(co);
     L.marker(co,{icon:L.divIcon({className:"wp-pin",html:`<i style="background:${c}">${j+1}</i>`,iconSize:[22,22],iconAnchor:[11,11]})}).bindTooltip(`${wd(parse(day.d))} ${x.tijd} · ${esc(jobAddrObj(x.k).adres||cleanName(x.k.naam))}`).addTo(el._laag)})});

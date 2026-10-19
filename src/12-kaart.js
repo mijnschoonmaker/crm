@@ -63,7 +63,7 @@ function pkNaRender(){
     if(!PK.map){PK.el.innerHTML="";const L=window.L;
       PK.map=L.map(PK.el,{zoomControl:false,attributionControl:true,scrollWheelZoom:true,zoomSnap:.5}).setView([53.2,6.3],11);PK.map.attributionControl.setPrefix(false);
       L.control.zoom({position:"bottomright"}).addTo(PK.map);
-      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'© OpenStreetMap-bijdragers'}).addTo(PK.map);
+      PK.map.attributionControl.addAttribution("© PDOK / Kadaster");rvOndergrond(PK.el,PK.map);rvLaagKnop(PK.el,PK.map);
       PK.laag=L.layerGroup().addTo(PK.map);PK.sig="";
       PK.map.on("dragstart",()=>{PK.zelf=true});PK.el.addEventListener("wheel",()=>{PK.zelf=true},{passive:true})}
     PK.map.invalidateSize();PK.fout="";pkTeken();pkStatus();
