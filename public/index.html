@@ -12236,9 +12236,10 @@ function openOpdrachtWerk(kid,focus){
       ${isMain?"":`<label class="check-row"><input type="checkbox" data-i="${i}" data-k="actief" ${r.actief!==false?"checked":""}>Actief · gaat mee met de beurt waarop hij aan de beurt is</label>`}
       <div class="ow-lsave"><button type="button" class="small primary" data-lsave="${isMain?"m":i}">${I.check}Opslaan</button></div>
     </div>`;
+  const itemsRitme=r=>{const its=(r.items||[]).filter(x=>Number(x.aantal)>0);if(!its.length)return Number(r.frequentie)||mF||52;const ws=its.map(x=>Number(x.fq)||mF||52);return Math.min(...ws)};
   const gOpts=r=>({freqDefault:mF||Number(k.frequentie)||8});
   const itemsHtml=(r,i)=>groepEditor(r,"x"+i,gOpts(r));
-  const itemsRecalc=(i,struct)=>{const r=extra[i];if(!r||!r.items)return;r.frequentie=mF;const c=groepCalc(r),mul=incl?1+(Number(st.btw)||21)/100:1;r.prijs=r2(c.ex*mul);r.duur=Math.max(5,Math.ceil(c.sec/60/5)*5);
+  const itemsRecalc=(i,struct)=>{const r=extra[i];if(!r||!r.items)return;r.frequentie=itemsRitme(r);const c=groepCalc(r),mul=incl?1+(Number(st.btw)||21)/100:1;r.prijs=r2(c.ex*mul);r.duur=Math.max(5,Math.ceil(c.sec/60/5)*5);
     const pi=$("#owLines").querySelector(`input[data-i="${i}"][data-k="prijs"]`);if(pi){pi.value=r.prijs;pi.classList.remove("flash");void pi.offsetWidth;pi.classList.add("flash")}
     if(struct)groepRedraw($("#owLines"),"x"+i,r,gOpts(r));else groepTotUpdate($("#owLines"),"x"+i,r,gOpts(r));tot()};
   const tot=()=>{const per=Number(main.prijs)||0,ex=extra.filter(o=>o.actief!==false&&o.dienst),ts=Math.max(0,Number(($o("toeslag")||{}).value)||0)/100;
@@ -12359,7 +12360,7 @@ function openOpdrachtWerk(kid,focus){
     return {...strip(cur),dienst:String(main.dienst||"").trim()||"Glasbewassing",prijs:r2(Number(main.prijs)||0),ramenRegel:main.ramen||null,frequentie:mW.length?1:(mF||4),weekdagen:mW.length?mW:[],...(mW.length?{autoplan:true}:{}),duur:mD||30,ronde:$o("ronde").value.trim(),contactPlanning:$o("contact").value,eersteKeer:$o("eerste").value==="ja",toeslag:Number($o("toeslag").value)||0,toeslagReden:$o("toeslagr").value.trim(),verbergAantal:$o("verbA").checked,verbergFreq:$o("verbF").checked,afmeldMail:$o("afmail").checked,
       binnen:false,actief,...(actief?{}:{gepland:"",tijd:""}),akkoord:$o("akkoord").checked,incasso:$o("betaal").value==="incasso",...factModusPatch($o("fact").value,k),
       taak:$o("taak").value.trim(),...($o("vvetaken")?{vveTaken:$o("vvetaken").value.split(/\n/).map(x=>x.trim()).filter(Boolean).slice(0,20)}:{}),hosp:hosp.map(x=>({c:x.c||"voorkeur",t:String(x.t||"").trim(),...(x.af?{af:x.af}:{}),...(x.c==="verteld"&&x.vanaf?{vanaf:x.vanaf}:{})})).filter(x=>x.t),bellen:$o("bellen").checked,startdatum:$o("start").value,einddatum:$o("eind").value,btwVerlegd:$o("verlegd").checked,aanbieden:cur.gepland?!!cur.aanbieden:aanb.aanbieden,uitstelTot:aanb.uitstelTot,artikelen:arts.filter(a=>String(a.naam||"").trim()).map(a=>({naam:String(a.naam).trim(),aantal:Number(a.aantal)||1,prijs:r2(Number(a.prijs)||0)})),middelen:mids,objectId:$o("obj")?$o("obj").value:cur.objectId||"",fotos,
-      opdrachten:extra.filter(o=>String(o.dienst||"").trim()).map(({_nieuw,...o})=>({...o,dienst:String(o.dienst).trim(),prijs:r2(Number(o.prijs)||0),frequentie:Number(o.frequentie)||52}))}};
+      opdrachten:extra.filter(o=>String(o.dienst||"").trim()).map(({_nieuw,...o})=>({...o,dienst:String(o.dienst).trim(),prijs:r2(Number(o.prijs)||0),frequentie:o.items?itemsRitme(o):Number(o.frequentie)||52}))}};
   $("#owLog").onclick=async()=>{const v=$o("log").value.trim();if(!v)return;const d=collect();d.log=[...(d.log||[]),{datum:iso(today()),tekst:v}];
     try{await save("klanten",kid,d);toast("Genoteerd");setTimeout(()=>openOpdrachtWerk(kid),60)}catch(er){err(er)}};
   /* opslaan per dienst: alles bewaren en in het werkblad blijven */
