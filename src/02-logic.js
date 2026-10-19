@@ -4,7 +4,9 @@ const vasteDagen=k=>Array.isArray(k&&k.weekdagen)&&k.weekdagen.length?[...new Se
 const volgendeWeekdag=(k,na)=>{const dg=vasteDagen(k);if(!dg)return null;let d=addDays(na,1);for(let i=0;i<8;i++){if(dg.includes(d.getDay()))return d;d=addDays(d,1)}return d};
 const ritmeVolgende=(k,na)=>vasteDagen(k)?volgendeWeekdag(k,na):werkdagAanpassen(addDays(na,freqDays(k)));
 const DAGK=["zo","ma","di","wo","do","vr","za"];
-const ritmeTxt=k=>{const dg=vasteDagen(k);if(dg)return(dg.length===7?"elke dag":dg.map(d=>DAGK[d]).join(" · "));const f=Number(k.frequentie)||4;return"elke "+f+" wk"};
+/* bijzondere frequenties: als heel groot aantal weken bewaard, zodat alle bestaande planning gewoon werkt (nooit vanzelf weer aan de beurt) */
+const FQ_AFROEP=999,FQ_EENMALIG=998,fqSpec=w=>Number(w)===FQ_AFROEP||Number(w)===FQ_EENMALIG,fqSpecTxt=w=>Number(w)===FQ_AFROEP?"Op afroep":"Eenmalig";
+const ritmeTxt=k=>{const dg=vasteDagen(k);if(dg)return(dg.length===7?"elke dag":dg.map(d=>DAGK[d]).join(" · "));const f=Number(k.frequentie)||4;if(fqSpec(f))return fqSpecTxt(f).toLowerCase();return"elke "+f+" wk"};
 const freqDays=k=>{const dg=vasteDagen(k);return dg?Math.max(1,Math.round(7/dg.length)):(Number(k.frequentie)||4)*7};
 /* aanboddatum per verdieping (opdracht) bepaalt mee wanneer de klant weer aan de beurt is */
 const aanbodVan=k=>{const q=k&&k.ramenRegel;if(!q||!Array.isArray(q.f))return null;const idx=q.f.map((n,i)=>Number(n)>0?i:-1).filter(i=>i>=0);if(!idx.length)return null;
@@ -18,7 +20,7 @@ const uren=m=>(Math.round(m/60*10)/10).toLocaleString("nl-NL")+"u";
 const actief=()=>state.klanten.filter(k=>k.actief!==false&&!k.prospect);
 const rondes=()=>[...new Set(state.klanten.map(k=>k.ronde).filter(Boolean))].sort();
 const unbilled=()=>state.beurten.filter(b=>!b.gefactureerd&&!b.betaald);
-const intervalTxt=k=>{if(vasteDagen(k))return ritmeTxt(k);const f=Number(k.frequentie)||4;return f===1?"week":f+" weken"};
+const intervalTxt=k=>{if(vasteDagen(k))return ritmeTxt(k);const f=Number(k.frequentie)||4;if(fqSpec(f))return fqSpecTxt(f).toLowerCase();return f===1?"week":f+" weken"};
 function status(k){
   const v=planned(k),t=today(),diff=Math.round((v-t)/DAY);
   const l=parse(k.laatst);const pct=l?Math.min(1,Math.max(0,(t-l)/DAY/freqDays(k))):1;
@@ -73,7 +75,7 @@ const jobAddr=k=>fullAddr(jobAddrObj(k));
 const mapsQ=k=>"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(jobAddr(k));
 /* opdrachten: de hoofdopdracht staat op de klant zelf, extra opdrachten (goten, zonnepanelen…) liften mee met de beurt waarop ze aan de beurt zijn */
 const isEersteKeer=k=>k.eersteKeer!=null?!!k.eersteKeer:!state.beurten.some(b=>b.klantId===k.id);
-const freqLabel=w=>{w=Number(w)||4;const el=typeof freqEigenLabel==="function"?freqEigenLabel(w):"";if(el)return el;return w===52?"Elk jaar":w===26?"Elk half jaar":w===13?"Elk kwartaal":"Elke "+w+" "+(w===1?"week":"weken")};
+const freqLabel=w=>{w=Number(w)||4;if(fqSpec(w))return fqSpecTxt(w);const el=typeof freqEigenLabel==="function"?freqEigenLabel(w):"";if(el)return el;return w===52?"Elk jaar":w===26?"Elk half jaar":w===13?"Elk kwartaal":"Elke "+w+" "+(w===1?"week":"weken")};
 const extraOpdr=k=>(k.opdrachten||[]).filter(o=>o.actief!==false);
 const extraDue=(k,day)=>{const d=day||iso(today()),out=[];extraOpdr(k).forEach(o=>{const oDue=!o.volgende||o.volgende<=d;
     if(!o.items||typeof groepCalc!=="function"){if(oDue)out.push(o);return}

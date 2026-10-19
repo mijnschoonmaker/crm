@@ -45,7 +45,7 @@ function openOfferte(opts={}){
         <label>Offertedatum<input id="ow-datum" type="date" value="${dat}"></label>
         <label>Geldig tot<input id="ow-verval" type="date" value="${ex?esc(ex.verval):iso(addDays(today(),30))}"></label>
         <label>Aanboddatum <small style="font-weight:500">(optioneel)</small><input id="ow-start" type="date" value="${ex?esc(ex.start||""):""}"><small class="help">Vanaf deze datum staat de klant na akkoord bij Te plannen</small></label>
-        <label>Frequentie<select id="ow-freq">${freqO.map(w=>`<option value="${w}" ${w===fr0?"selected":""}>Elke ${w} ${w===1?"week":"weken"}</option>`).join("")}</select></label>
+        <label>Frequentie<select id="ow-freq">${freqO.map(w=>`<option value="${w}" ${w===fr0?"selected":""}>${esc(freqLabel(w))}</option>`).join("")}</select></label>
         <label>Duur per beurt<select id="ow-duur">${durO.map(m=>`<option value="${m}" ${m===du0?"selected":""}>${m<60?m+" min":(m/60).toLocaleString("nl-NL")+" uur"}</option>`).join("")}</select></label>
       </div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.euro||I.facturen}</span><b>Facturatie</b></div>

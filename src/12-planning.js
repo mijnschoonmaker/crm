@@ -179,7 +179,7 @@ function openBeurtInfo(id){
       ${rij("Bedrag",eur(toon(Number(b.bedrag)||0)))}
       ${rij("Duur",b.duur?esc(b.duur)+" min":"")}
       ${rij("Factuur",f?esc(f.nummer||"Concept")+" · "+(f.status==="betaald"||b.betaald?"betaald":f.status==="concept"?"concept":"open")+(f.periodiek?" (periodiek)":""):b.gefactureerd==="periodiek"?"Gaat mee op de periodieke factuur":b.gefactureerd==="nvt"?"Niet gefactureerd (zo ingesteld)":b.gefactureerd?"Gefactureerd":"Nog niet gefactureerd")}
-      ${k?rij("Frequentie","elke "+esc(k.frequentie||4)+" weken"):""}
+      ${k?rij("Frequentie",esc(freqLabel(k.frequentie||4)).toLowerCase()):""}
       ${k&&k.gepland?rij("Volgende afspraak",esc(fmtL(k.gepland))+(k.tijd?" om "+esc(k.tijd):"")):""}
     </div>${b.notitie?`<div class="notebox"><span class="eyebrow">Notitie bij deze beurt</span>${esc(b.notitie)}</div>`:""}</div>
     <div class="jp-foot">${f?`<button type="button" data-act="editf" data-id="${esc(f.id)}">${I.facturen}Factuur bekijken</button>`:""}${k?`<button type="button" class="primary" data-act="klant" data-id="${esc(k.id)}">${I.klanten}Klantkaart</button>`:`<button type="button" data-act="close">Sluiten</button>`}</div>
@@ -354,7 +354,7 @@ async function planMulti(d,t){
 const VROEG_DAGEN=7;
 /* hoeveel dagen voor de vervaldatum een klant bij Te plannen verschijnt (standaard 11) */
 const zichtbaarDagen=()=>{const s=S();return s.zichtbaarDagen!=null&&s.zichtbaarDagen!==""?Math.max(0,Number(s.zichtbaarDagen)||0):(Number(s.lookahead)?Number(s.lookahead)*7:11)};
-function teVroeg(k,date){if(!k||!date||k.aanbieden)return false;try{const v=volgende(k);return v&&parse(date)<addDays(v,-VROEG_DAGEN)}catch(e){return false}}
+function teVroeg(k,date){if(!k||!date||k.aanbieden||fqSpec(k.frequentie))return false;try{const v=volgende(k);return v&&parse(date)<addDays(v,-VROEG_DAGEN)}catch(e){return false}}
 /* eigen vraagvenster (geen browser-popup), werkt ook boven een open dialoog */
 function vraag(titel,tekst,ja="Toch inplannen",nee="Annuleren"){return new Promise(res=>{
   const o=document.createElement("div");o.className="vraag-ov";o.innerHTML=`<div class="vraag" role="alertdialog" aria-modal="true"><span class="objic kd-warn">${I.alert}</span><div><b>${esc(titel)}</b><p>${tekst}</p></div><div class="vraag-k"><button type="button" data-v="0">${esc(nee)}</button><button type="button" class="primary" data-v="1">${esc(ja)}</button></div></div>`;

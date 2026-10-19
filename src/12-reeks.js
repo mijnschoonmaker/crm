@@ -27,7 +27,7 @@ function openReeks(k,date,tijd,bestaand){return new Promise(res=>{
       <div class="rk-opt">
         ${st.mode==="vast"?`<span class="rk-l">Aantal afspraken</span><div class="rk-n">${[2,3,4,5,6,7,8,9,10].map(n=>`<button type="button" data-rkn="${n}" class="${st.n===n?"on":""}" aria-pressed="${st.n===n}">${n}</button>`).join("")}</div>`:""}
         ${st.mode==="tot"?`<label class="rk-l">Tot en met<input type="date" id="rkTot" value="${esc(st.tot)}" min="${esc(iso(addDays(parse(date),7)))}"></label>`:""}
-        <label class="rk-l rk-w">Om de<select id="rkW">${[1,2,3,4,5,6,8,10,12,13,16,26].map(w=>`<option value="${w}"${st.weken===w?" selected":""}>${w===1?"week":w+" weken"}</option>`).join("")}</select>${st.weken!==(Number(k.frequentie)||4)?`<small>klant staat op elke ${Number(k.frequentie)||4} weken</small>`:`<small>frequentie van de klant</small>`}</label>
+        <label class="rk-l rk-w">Om de<select id="rkW">${[1,2,3,4,5,6,8,10,12,13,16,26].map(w=>`<option value="${w}"${st.weken===w?" selected":""}>${w===1?"week":w+" weken"}</option>`).join("")}</select>${st.weken!==(Number(k.frequentie)||4)?`<small>klant staat op ${esc(freqLabel(Number(k.frequentie)||4)).toLowerCase()}</small>`:`<small>frequentie van de klant</small>`}</label>
       </div>
       <ol class="rk-list">${rij(date,0,false)}${lijst.map((x,i)=>rij(x.d,i+1,x.schuif)).join("")}${st.mode==="door"?`<li class="rk-more"><span class="rk-i">…</span><span>en zo verder, steeds na afronden van de vorige beurt</span></li>`:""}</ol>
       ${st.mode==="tot"&&lijst.length>=59?`<p class="help">Maximaal 60 afspraken.</p>`:""}`}

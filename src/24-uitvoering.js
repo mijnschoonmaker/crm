@@ -3,7 +3,7 @@
    - tarieven, seconden, staffels, wegingsfactoren, starttarief, minimum en frequentiekortingen → instellingen/ramen (rekentool, opdrachten, website-calculator)
    - dienstenlijst (chips bij opdracht en offerte) en frequenties (keuzelijsten) → instellingen/bedrijf */
 const EENHEDEN=["per stuk","per raam","per m²","per strekkende meter","per meter","per paneel","per uur","per keer"];
-const FREQ_STD=[["1x per week",1],["1x per 2 weken",2],["1x per 3 weken",3],["1x per 4 weken",4],["1x per maand",4],["1x per 6 weken",6],["1x per 8 weken",8],["1x per 2 maanden",9],["1x per 12 weken",12],["1x per 3 maanden",13],["1x per 16 weken",16],["1x per 4 maanden",17],["1x per 24 weken",24],["1x per 26 weken",26],["1x per 6 maanden",26],["1x per 32 weken",32],["1x per 8 maanden",35],["1x per 36 weken",36],["1x per 9 maanden",39],["1x per 48 weken",48],["1x per 52 weken",52],["1x per 12 maanden",52],["1x per 2 jaar",104],["1x per 3 jaar",156],["1x per 4 jaar",208],["1x per 5 jaar",260],["Op afroep",0],["Eenmalig",0]];
+const FREQ_STD=[["1x per week",1],["1x per 2 weken",2],["1x per 3 weken",3],["1x per 4 weken",4],["1x per maand",4],["1x per 6 weken",6],["1x per 8 weken",8],["1x per 2 maanden",9],["1x per 12 weken",12],["1x per 3 maanden",13],["1x per 16 weken",16],["1x per 4 maanden",17],["1x per 24 weken",24],["1x per 26 weken",26],["1x per 6 maanden",26],["1x per 32 weken",32],["1x per 8 maanden",35],["1x per 36 weken",36],["1x per 9 maanden",39],["1x per 48 weken",48],["1x per 52 weken",52],["1x per 12 maanden",52],["1x per 2 jaar",104],["1x per 3 jaar",156],["1x per 4 jaar",208],["1x per 5 jaar",260],["Op afroep",999],["Eenmalig",998]];
 const FREQ_DEF=[1,2,3,4,6,8,12,13,16,26,52];
 /* frequenties die in de keuzelijsten staan (Uitvoering › Frequenties) */
 const freqLijst=()=>{const f=S().freqs;return Array.isArray(f)&&f.length?f.map(x=>Number(x.w)).filter(w=>w>0):FREQ_DEF};
@@ -141,15 +141,15 @@ function uEditHtml({g,it}){
     ${canDel?`<button type="button" class="small danger" data-act="udeli" data-g="${esc(g.id)}" data-i="${i}">${I.trash}Dienst verwijderen</button>`:`<p class="help" style="margin:0">Deze dienst hoort bij de rekentool en kan niet worden verwijderd.</p>`}</div>`;
 }
 function uFreqHtml(){
-  const mine=U.freqs||[],has=w=>mine.some(f=>Number(f.w)===w),fl=RC?RC.freqList():[],calcKey=(l,w)=>{const f=fl.find(x=>x.l.toLowerCase()===l.toLowerCase());return f?f.k:w>0?"w"+w+"_"+l.toLowerCase().replace(/[^a-z0-9]+/g,"").slice(0,12):""},
+  const mine=U.freqs||[],has=w=>mine.some(f=>Number(f.w)===w),fl=RC?RC.freqList():[],calcKey=(l,w)=>{const f=fl.find(x=>x.l.toLowerCase()===l.toLowerCase());return f?f.k:w>0&&!fqSpec(w)?"w"+w+"_"+l.toLowerCase().replace(/[^a-z0-9]+/g,"").slice(0,12):""},
     isExtra=k=>!fl.some(x=>x.k===k&&!(U.freqCalc&&U.freqCalc[k]&&typeof U.freqCalc[k]==="object")),calcAan=k=>isExtra(k)?!!(U.freqCalc&&U.freqCalc[k]&&typeof U.freqCalc[k]==="object"):!(U.freqCalc&&U.freqCalc[k]===false);
   const sw=(act,attrs,on,lbl)=>`<label class="u-sw${on?" aan":""}" title="${esc(lbl)}"><input type="checkbox" data-act="${act}" ${attrs} ${on?"checked":""}><i></i><span>${esc(lbl)}</span></label>`;
   return `<div class="u-grid"><section class="card u-card"><div class="u-ch"><div><b>Overzicht frequenties</b><span>Zet per frequentie aan of klanten hem kunnen kiezen: in de <b>planning</b> (klanten, opdrachten, offertes) en in de <b>rekentool</b> (calculator en website).</span></div></div>
-    <div class="u-fl u-ffl">${FREQ_STD.map(([l,w])=>{const ck=calcKey(l,w);return `<div class="u-fi"><span>${esc(l)}</span><small>${w?w+" wk":"—"}</small>
+    <div class="u-fl u-ffl">${FREQ_STD.map(([l,w])=>{const ck=calcKey(l,w);return `<div class="u-fi"><span>${esc(l)}</span><small>${w&&!fqSpec(w)?w+" wk":"—"}</small>
       ${w?sw("uftog",`data-w="${w}" data-l="${esc(l)}"`,has(w),"Planning"):`<span class="u-sw dis"><i></i><span>Planning</span></span>`}
       ${ck?sw("ufcalc",`data-k="${ck}" data-w="${w}" data-l="${esc(l)}" data-x="${isExtra(ck)?1:0}"`,calcAan(ck),"Rekentool"):`<span class="u-sw dis"><i></i><span>Rekentool</span></span>`}</div>`}).join("")}</div></section>
     <section class="card u-card"><div class="u-ch"><div><b>Jouw frequenties</b><span>Deze staan in de keuzelijsten bij klanten, opdrachten en offertes. Een eigen naam is optioneel.</span></div></div>
-    <div class="u-fl">${mine.map((f,i)=>`<div class="u-fi mine"><span class="u-fw">${f.w} wk</span><input id="uf-${i}" data-u="f.${i}.l" value="${esc(f.l||"")}" placeholder="${esc(freqLabelStd(f.w))}" aria-label="Naam">
+    <div class="u-fl">${mine.map((f,i)=>`<div class="u-fi mine"><span class="u-fw">${fqSpec(f.w)?"—":f.w+" wk"}</span><input id="uf-${i}" data-u="f.${i}.l" value="${esc(f.l||"")}" placeholder="${esc(freqLabelStd(f.w))}" aria-label="Naam">
       <button type="button" class="iconbtn sm" data-act="ufmove" data-i="${i}" data-n="-1" ${i?"":"disabled"} aria-label="Omhoog">${I.up}</button><button type="button" class="iconbtn sm" data-act="ufmove" data-i="${i}" data-n="1" ${i<mine.length-1?"":"disabled"} aria-label="Omlaag">${I.down}</button><button type="button" class="iconbtn sm" data-act="ufdel" data-i="${i}" aria-label="Verwijderen">${I.x}</button></div>`).join("")||'<p class="subt">Nog geen frequenties; de standaardlijst wordt gebruikt.</p>'}</div>
     <div class="u-addrow"><input type="number" id="ufNew" min="1" step="1" placeholder="Aantal weken"><button type="button" class="small" data-act="ufnew">${I.plus}Eigen frequentie</button></div></section></div>`;
 }
@@ -161,7 +161,7 @@ function uMiddelHtml(){
       <span class="u-mact"><button type="button" class="iconbtn sm" data-act="ummove" data-i="${i}" data-n="-1" ${i?"":"disabled"} aria-label="Omhoog">${I.up}</button><button type="button" class="iconbtn sm" data-act="ummove" data-i="${i}" data-n="1" ${i<m.length-1?"":"disabled"} aria-label="Omlaag">${I.down}</button><button type="button" class="iconbtn sm" data-act="umdel" data-i="${i}" aria-label="Verwijderen">${I.x}</button></span></div>`).join("")||'<p class="subt" style="margin:8px 0">Nog geen bedrijfsmiddelen.</p>'}</div>
     <button type="button" class="u-add big" data-act="umadd">${I.plus}Bedrijfsmiddel toevoegen</button></section>`;
 }
-const freqLabelStd=w=>{w=Number(w)||4;return w===52?"Elk jaar":w===26?"Elk half jaar":w===13?"Elk kwartaal":"Elke "+w+" "+(w===1?"week":"weken")};
+const freqLabelStd=w=>{w=Number(w)||4;if(fqSpec(w))return fqSpecTxt(w);return w===52?"Elk jaar":w===26?"Elk half jaar":w===13?"Elk kwartaal":"Elke "+w+" "+(w===1?"week":"weken")};
 
 /* invoer: pad in data-u, bijv. g.start, g.fp.m8, i.tiers.0.1, f.2.l, m.0.aantal */
 function uInput(el,commit){

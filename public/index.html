@@ -6054,7 +6054,9 @@ const vasteDagen=k=>Array.isArray(k&&k.weekdagen)&&k.weekdagen.length?[...new Se
 const volgendeWeekdag=(k,na)=>{const dg=vasteDagen(k);if(!dg)return null;let d=addDays(na,1);for(let i=0;i<8;i++){if(dg.includes(d.getDay()))return d;d=addDays(d,1)}return d};
 const ritmeVolgende=(k,na)=>vasteDagen(k)?volgendeWeekdag(k,na):werkdagAanpassen(addDays(na,freqDays(k)));
 const DAGK=["zo","ma","di","wo","do","vr","za"];
-const ritmeTxt=k=>{const dg=vasteDagen(k);if(dg)return(dg.length===7?"elke dag":dg.map(d=>DAGK[d]).join(" · "));const f=Number(k.frequentie)||4;return"elke "+f+" wk"};
+/* bijzondere frequenties: als heel groot aantal weken bewaard, zodat alle bestaande planning gewoon werkt (nooit vanzelf weer aan de beurt) */
+const FQ_AFROEP=999,FQ_EENMALIG=998,fqSpec=w=>Number(w)===FQ_AFROEP||Number(w)===FQ_EENMALIG,fqSpecTxt=w=>Number(w)===FQ_AFROEP?"Op afroep":"Eenmalig";
+const ritmeTxt=k=>{const dg=vasteDagen(k);if(dg)return(dg.length===7?"elke dag":dg.map(d=>DAGK[d]).join(" · "));const f=Number(k.frequentie)||4;if(fqSpec(f))return fqSpecTxt(f).toLowerCase();return"elke "+f+" wk"};
 const freqDays=k=>{const dg=vasteDagen(k);return dg?Math.max(1,Math.round(7/dg.length)):(Number(k.frequentie)||4)*7};
 /* aanboddatum per verdieping (opdracht) bepaalt mee wanneer de klant weer aan de beurt is */
 const aanbodVan=k=>{const q=k&&k.ramenRegel;if(!q||!Array.isArray(q.f))return null;const idx=q.f.map((n,i)=>Number(n)>0?i:-1).filter(i=>i>=0);if(!idx.length)return null;
@@ -6068,7 +6070,7 @@ const uren=m=>(Math.round(m/60*10)/10).toLocaleString("nl-NL")+"u";
 const actief=()=>state.klanten.filter(k=>k.actief!==false&&!k.prospect);
 const rondes=()=>[...new Set(state.klanten.map(k=>k.ronde).filter(Boolean))].sort();
 const unbilled=()=>state.beurten.filter(b=>!b.gefactureerd&&!b.betaald);
-const intervalTxt=k=>{if(vasteDagen(k))return ritmeTxt(k);const f=Number(k.frequentie)||4;return f===1?"week":f+" weken"};
+const intervalTxt=k=>{if(vasteDagen(k))return ritmeTxt(k);const f=Number(k.frequentie)||4;if(fqSpec(f))return fqSpecTxt(f).toLowerCase();return f===1?"week":f+" weken"};
 function status(k){
   const v=planned(k),t=today(),diff=Math.round((v-t)/DAY);
   const l=parse(k.laatst);const pct=l?Math.min(1,Math.max(0,(t-l)/DAY/freqDays(k))):1;
@@ -6123,7 +6125,7 @@ const jobAddr=k=>fullAddr(jobAddrObj(k));
 const mapsQ=k=>"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(jobAddr(k));
 /* opdrachten: de hoofdopdracht staat op de klant zelf, extra opdrachten (goten, zonnepanelen…) liften mee met de beurt waarop ze aan de beurt zijn */
 const isEersteKeer=k=>k.eersteKeer!=null?!!k.eersteKeer:!state.beurten.some(b=>b.klantId===k.id);
-const freqLabel=w=>{w=Number(w)||4;const el=typeof freqEigenLabel==="function"?freqEigenLabel(w):"";if(el)return el;return w===52?"Elk jaar":w===26?"Elk half jaar":w===13?"Elk kwartaal":"Elke "+w+" "+(w===1?"week":"weken")};
+const freqLabel=w=>{w=Number(w)||4;if(fqSpec(w))return fqSpecTxt(w);const el=typeof freqEigenLabel==="function"?freqEigenLabel(w):"";if(el)return el;return w===52?"Elk jaar":w===26?"Elk half jaar":w===13?"Elk kwartaal":"Elke "+w+" "+(w===1?"week":"weken")};
 const extraOpdr=k=>(k.opdrachten||[]).filter(o=>o.actief!==false);
 const extraDue=(k,day)=>{const d=day||iso(today()),out=[];extraOpdr(k).forEach(o=>{const oDue=!o.volgende||o.volgende<=d;
     if(!o.items||typeof groepCalc!=="function"){if(oDue)out.push(o);return}
@@ -6470,7 +6472,7 @@ function openKlantEdit(id,opt={}){
   <div><span class="eyebrow">Dienst en planning</span><div class="grid2" style="margin-top:8px">
     <label>Dienst<input id="f-dienst" list="dienstlijst" value="${esc(k.dienst||"Glasbewassing")}"><datalist id="dienstlijst">${[...dienstLijst().map(d=>d.naam),...DIENSTEN].filter((v,i,a)=>a.indexOf(v)===i).map(d=>`<option value="${esc(d)}">`).join("")}</datalist></label>
     <label>Prijs per beurt (€ ${S().incl?"incl.":"excl."} btw)<input id="f-prijs" type="number" step="0.5" min="0" inputmode="decimal" required value="${esc(k.prijs)}"></label>
-    <label>Frequentie<select id="f-frequentie">${freqOpts(k.frequentie||4).map(w=>`<option value="${w}" ${Number(k.frequentie||4)===w?"selected":""}>Elke ${w} ${w===1?"week":"weken"}</option>`).join("")}</select></label>
+    <label>Frequentie<select id="f-frequentie">${freqOpts(k.frequentie||4).map(w=>`<option value="${w}" ${Number(k.frequentie||4)===w?"selected":""}>${esc(freqLabel(w))}</option>`).join("")}</select></label>
     <label>Duur<select id="f-duur">${[...new Set([15,30,45,60,90,120,180,240,Number(k.duur||30)])].sort((a,b)=>a-b).map(m=>`<option value="${m}" ${Number(k.duur||30)===m?"selected":""}>${m<60?m+" min":(m/60).toLocaleString("nl-NL")+" uur"}</option>`).join("")}</select>${(k.tijden||[]).length?`<small class="help">Gemeten: gemiddeld ${gemTijd(k)} min over ${plural(Math.min(5,k.tijden.length),"beurt","beurten")} · laatst ${k.tijden.slice(-1)[0].min} min</small>`:'<small class="help">Wordt automatisch bijgesteld met Start en Stop op Route</small>'}</label>
     <label>Laatst gewassen<input id="f-laatst" type="date" value="${esc(k.laatst)}"></label>
     <label>Ingepland op <small style="font-weight:500">(leeg = te plannen)</small><input id="f-gepland" type="date" value="${esc(k.gepland)}"></label>
@@ -6894,7 +6896,7 @@ function openAkkoord(id){
   <p class="subt" style="margin:0">De klant wordt een vaste klant met deze afspraken. Na elke afgemelde beurt komt de factuur bij Facturen.</p>
   <div class="grid2">
     <label>Prijs per beurt (€ ${S().incl?"incl.":"excl."} btw)<input id="ak-prijs" type="number" step="0.01" min="0" inputmode="decimal" value="${esc(prijs)}" required></label>
-    <label>Frequentie<select id="ak-freq">${fo.map(w=>`<option value="${w}" ${w===fr?"selected":""}>Elke ${w} ${w===1?"week":"weken"}</option>`).join("")}</select></label>
+    <label>Frequentie<select id="ak-freq">${fo.map(w=>`<option value="${w}" ${w===fr?"selected":""}>${esc(freqLabel(w))}</option>`).join("")}</select></label>
     <label>Duur<select id="ak-duur">${dur.map(m=>`<option value="${m}" ${m===du?"selected":""}>${m<60?m+" min":(m/60).toLocaleString("nl-NL")+" uur"}</option>`).join("")}</select></label>
     <label>Dienst<input id="ak-dienst" value="${esc(k.dienst||"Glasbewassing")}"></label>
     <label>Aanboddatum<input id="ak-aanbod" type="date" value="${esc(f.start||iso(today()))}"><small class="help">Vanaf deze datum staat de klant bij Te plannen</small></label>
@@ -6928,7 +6930,7 @@ function openAfspraak(id,day){
     <label>Dienst<input id="af-dienst" value="${esc(k.dienst||"Glasbewassing")}"></label>
     <label>Prijs per beurt (€ ${S().incl?"incl.":"excl."} btw)<input id="af-prijs" type="number" step="0.01" min="0" inputmode="decimal" value="${esc(k.prijs)}"></label>
     <label>Duur<select id="af-duur">${durO.map(m=>`<option value="${m}" ${m===du?"selected":""}>${m<60?m+" min":(m/60).toLocaleString("nl-NL")+" uur"}</option>`).join("")}</select></label>
-    <label>Frequentie<select id="af-freq">${freqO.map(w=>`<option value="${w}" ${w===fr?"selected":""}>Elke ${w} ${w===1?"week":"weken"}</option>`).join("")}</select></label>
+    <label>Frequentie<select id="af-freq">${freqO.map(w=>`<option value="${w}" ${w===fr?"selected":""}>${esc(freqLabel(w))}</option>`).join("")}</select></label>
   </div>
   <p class="subt" style="margin:0">Prijs, duur, frequentie en notitie gelden voor alle volgende beurten van deze klant.</p>
   <div class="row">${isPlanned?`<button type="button" class="ghost danger" id="afUn">Terug naar te plannen</button>`:""}${isPlanned?`<button type="button" class="ghost" id="afJob">${I.eye}Open job</button>`:""}<span class="sp"></span><button type="button" id="afBack">Annuleren</button><button type="submit" class="primary" id="afGo">${I.check}${isPlanned?"Opslaan":"Inplannen"}</button></div>`);
@@ -7687,7 +7689,7 @@ function openBeurtInfo(id){
       ${rij("Bedrag",eur(toon(Number(b.bedrag)||0)))}
       ${rij("Duur",b.duur?esc(b.duur)+" min":"")}
       ${rij("Factuur",f?esc(f.nummer||"Concept")+" · "+(f.status==="betaald"||b.betaald?"betaald":f.status==="concept"?"concept":"open")+(f.periodiek?" (periodiek)":""):b.gefactureerd==="periodiek"?"Gaat mee op de periodieke factuur":b.gefactureerd==="nvt"?"Niet gefactureerd (zo ingesteld)":b.gefactureerd?"Gefactureerd":"Nog niet gefactureerd")}
-      ${k?rij("Frequentie","elke "+esc(k.frequentie||4)+" weken"):""}
+      ${k?rij("Frequentie",esc(freqLabel(k.frequentie||4)).toLowerCase()):""}
       ${k&&k.gepland?rij("Volgende afspraak",esc(fmtL(k.gepland))+(k.tijd?" om "+esc(k.tijd):"")):""}
     </div>${b.notitie?`<div class="notebox"><span class="eyebrow">Notitie bij deze beurt</span>${esc(b.notitie)}</div>`:""}</div>
     <div class="jp-foot">${f?`<button type="button" data-act="editf" data-id="${esc(f.id)}">${I.facturen}Factuur bekijken</button>`:""}${k?`<button type="button" class="primary" data-act="klant" data-id="${esc(k.id)}">${I.klanten}Klantkaart</button>`:`<button type="button" data-act="close">Sluiten</button>`}</div>
@@ -7862,7 +7864,7 @@ async function planMulti(d,t){
 const VROEG_DAGEN=7;
 /* hoeveel dagen voor de vervaldatum een klant bij Te plannen verschijnt (standaard 11) */
 const zichtbaarDagen=()=>{const s=S();return s.zichtbaarDagen!=null&&s.zichtbaarDagen!==""?Math.max(0,Number(s.zichtbaarDagen)||0):(Number(s.lookahead)?Number(s.lookahead)*7:11)};
-function teVroeg(k,date){if(!k||!date||k.aanbieden)return false;try{const v=volgende(k);return v&&parse(date)<addDays(v,-VROEG_DAGEN)}catch(e){return false}}
+function teVroeg(k,date){if(!k||!date||k.aanbieden||fqSpec(k.frequentie))return false;try{const v=volgende(k);return v&&parse(date)<addDays(v,-VROEG_DAGEN)}catch(e){return false}}
 /* eigen vraagvenster (geen browser-popup), werkt ook boven een open dialoog */
 function vraag(titel,tekst,ja="Toch inplannen",nee="Annuleren"){return new Promise(res=>{
   const o=document.createElement("div");o.className="vraag-ov";o.innerHTML=`<div class="vraag" role="alertdialog" aria-modal="true"><span class="objic kd-warn">${I.alert}</span><div><b>${esc(titel)}</b><p>${tekst}</p></div><div class="vraag-k"><button type="button" data-v="0">${esc(nee)}</button><button type="button" class="primary" data-v="1">${esc(ja)}</button></div></div>`;
@@ -7963,7 +7965,7 @@ function openReeks(k,date,tijd,bestaand){return new Promise(res=>{
       <div class="rk-opt">
         ${st.mode==="vast"?`<span class="rk-l">Aantal afspraken</span><div class="rk-n">${[2,3,4,5,6,7,8,9,10].map(n=>`<button type="button" data-rkn="${n}" class="${st.n===n?"on":""}" aria-pressed="${st.n===n}">${n}</button>`).join("")}</div>`:""}
         ${st.mode==="tot"?`<label class="rk-l">Tot en met<input type="date" id="rkTot" value="${esc(st.tot)}" min="${esc(iso(addDays(parse(date),7)))}"></label>`:""}
-        <label class="rk-l rk-w">Om de<select id="rkW">${[1,2,3,4,5,6,8,10,12,13,16,26].map(w=>`<option value="${w}"${st.weken===w?" selected":""}>${w===1?"week":w+" weken"}</option>`).join("")}</select>${st.weken!==(Number(k.frequentie)||4)?`<small>klant staat op elke ${Number(k.frequentie)||4} weken</small>`:`<small>frequentie van de klant</small>`}</label>
+        <label class="rk-l rk-w">Om de<select id="rkW">${[1,2,3,4,5,6,8,10,12,13,16,26].map(w=>`<option value="${w}"${st.weken===w?" selected":""}>${w===1?"week":w+" weken"}</option>`).join("")}</select>${st.weken!==(Number(k.frequentie)||4)?`<small>klant staat op ${esc(freqLabel(Number(k.frequentie)||4)).toLowerCase()}</small>`:`<small>frequentie van de klant</small>`}</label>
       </div>
       <ol class="rk-list">${rij(date,0,false)}${lijst.map((x,i)=>rij(x.d,i+1,x.schuif)).join("")}${st.mode==="door"?`<li class="rk-more"><span class="rk-i">…</span><span>en zo verder, steeds na afronden van de vorige beurt</span></li>`:""}</ol>
       ${st.mode==="tot"&&lijst.length>=59?`<p class="help">Maximaal 60 afspraken.</p>`:""}`}
@@ -11561,7 +11563,7 @@ function openOfferte(opts={}){
         <label>Offertedatum<input id="ow-datum" type="date" value="${dat}"></label>
         <label>Geldig tot<input id="ow-verval" type="date" value="${ex?esc(ex.verval):iso(addDays(today(),30))}"></label>
         <label>Aanboddatum <small style="font-weight:500">(optioneel)</small><input id="ow-start" type="date" value="${ex?esc(ex.start||""):""}"><small class="help">Vanaf deze datum staat de klant na akkoord bij Te plannen</small></label>
-        <label>Frequentie<select id="ow-freq">${freqO.map(w=>`<option value="${w}" ${w===fr0?"selected":""}>Elke ${w} ${w===1?"week":"weken"}</option>`).join("")}</select></label>
+        <label>Frequentie<select id="ow-freq">${freqO.map(w=>`<option value="${w}" ${w===fr0?"selected":""}>${esc(freqLabel(w))}</option>`).join("")}</select></label>
         <label>Duur per beurt<select id="ow-duur">${durO.map(m=>`<option value="${m}" ${m===du0?"selected":""}>${m<60?m+" min":(m/60).toLocaleString("nl-NL")+" uur"}</option>`).join("")}</select></label>
       </div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.euro||I.facturen}</span><b>Facturatie</b></div>
@@ -12099,7 +12101,7 @@ function berekendeMin(k,day){if(!k)return null;let m=null;
    - tarieven, seconden, staffels, wegingsfactoren, starttarief, minimum en frequentiekortingen → instellingen/ramen (rekentool, opdrachten, website-calculator)
    - dienstenlijst (chips bij opdracht en offerte) en frequenties (keuzelijsten) → instellingen/bedrijf */
 const EENHEDEN=["per stuk","per raam","per m²","per strekkende meter","per meter","per paneel","per uur","per keer"];
-const FREQ_STD=[["1x per week",1],["1x per 2 weken",2],["1x per 3 weken",3],["1x per 4 weken",4],["1x per maand",4],["1x per 6 weken",6],["1x per 8 weken",8],["1x per 2 maanden",9],["1x per 12 weken",12],["1x per 3 maanden",13],["1x per 16 weken",16],["1x per 4 maanden",17],["1x per 24 weken",24],["1x per 26 weken",26],["1x per 6 maanden",26],["1x per 32 weken",32],["1x per 8 maanden",35],["1x per 36 weken",36],["1x per 9 maanden",39],["1x per 48 weken",48],["1x per 52 weken",52],["1x per 12 maanden",52],["1x per 2 jaar",104],["1x per 3 jaar",156],["1x per 4 jaar",208],["1x per 5 jaar",260],["Op afroep",0],["Eenmalig",0]];
+const FREQ_STD=[["1x per week",1],["1x per 2 weken",2],["1x per 3 weken",3],["1x per 4 weken",4],["1x per maand",4],["1x per 6 weken",6],["1x per 8 weken",8],["1x per 2 maanden",9],["1x per 12 weken",12],["1x per 3 maanden",13],["1x per 16 weken",16],["1x per 4 maanden",17],["1x per 24 weken",24],["1x per 26 weken",26],["1x per 6 maanden",26],["1x per 32 weken",32],["1x per 8 maanden",35],["1x per 36 weken",36],["1x per 9 maanden",39],["1x per 48 weken",48],["1x per 52 weken",52],["1x per 12 maanden",52],["1x per 2 jaar",104],["1x per 3 jaar",156],["1x per 4 jaar",208],["1x per 5 jaar",260],["Op afroep",999],["Eenmalig",998]];
 const FREQ_DEF=[1,2,3,4,6,8,12,13,16,26,52];
 /* frequenties die in de keuzelijsten staan (Uitvoering › Frequenties) */
 const freqLijst=()=>{const f=S().freqs;return Array.isArray(f)&&f.length?f.map(x=>Number(x.w)).filter(w=>w>0):FREQ_DEF};
@@ -12237,15 +12239,15 @@ function uEditHtml({g,it}){
     ${canDel?`<button type="button" class="small danger" data-act="udeli" data-g="${esc(g.id)}" data-i="${i}">${I.trash}Dienst verwijderen</button>`:`<p class="help" style="margin:0">Deze dienst hoort bij de rekentool en kan niet worden verwijderd.</p>`}</div>`;
 }
 function uFreqHtml(){
-  const mine=U.freqs||[],has=w=>mine.some(f=>Number(f.w)===w),fl=RC?RC.freqList():[],calcKey=(l,w)=>{const f=fl.find(x=>x.l.toLowerCase()===l.toLowerCase());return f?f.k:w>0?"w"+w+"_"+l.toLowerCase().replace(/[^a-z0-9]+/g,"").slice(0,12):""},
+  const mine=U.freqs||[],has=w=>mine.some(f=>Number(f.w)===w),fl=RC?RC.freqList():[],calcKey=(l,w)=>{const f=fl.find(x=>x.l.toLowerCase()===l.toLowerCase());return f?f.k:w>0&&!fqSpec(w)?"w"+w+"_"+l.toLowerCase().replace(/[^a-z0-9]+/g,"").slice(0,12):""},
     isExtra=k=>!fl.some(x=>x.k===k&&!(U.freqCalc&&U.freqCalc[k]&&typeof U.freqCalc[k]==="object")),calcAan=k=>isExtra(k)?!!(U.freqCalc&&U.freqCalc[k]&&typeof U.freqCalc[k]==="object"):!(U.freqCalc&&U.freqCalc[k]===false);
   const sw=(act,attrs,on,lbl)=>`<label class="u-sw${on?" aan":""}" title="${esc(lbl)}"><input type="checkbox" data-act="${act}" ${attrs} ${on?"checked":""}><i></i><span>${esc(lbl)}</span></label>`;
   return `<div class="u-grid"><section class="card u-card"><div class="u-ch"><div><b>Overzicht frequenties</b><span>Zet per frequentie aan of klanten hem kunnen kiezen: in de <b>planning</b> (klanten, opdrachten, offertes) en in de <b>rekentool</b> (calculator en website).</span></div></div>
-    <div class="u-fl u-ffl">${FREQ_STD.map(([l,w])=>{const ck=calcKey(l,w);return `<div class="u-fi"><span>${esc(l)}</span><small>${w?w+" wk":"—"}</small>
+    <div class="u-fl u-ffl">${FREQ_STD.map(([l,w])=>{const ck=calcKey(l,w);return `<div class="u-fi"><span>${esc(l)}</span><small>${w&&!fqSpec(w)?w+" wk":"—"}</small>
       ${w?sw("uftog",`data-w="${w}" data-l="${esc(l)}"`,has(w),"Planning"):`<span class="u-sw dis"><i></i><span>Planning</span></span>`}
       ${ck?sw("ufcalc",`data-k="${ck}" data-w="${w}" data-l="${esc(l)}" data-x="${isExtra(ck)?1:0}"`,calcAan(ck),"Rekentool"):`<span class="u-sw dis"><i></i><span>Rekentool</span></span>`}</div>`}).join("")}</div></section>
     <section class="card u-card"><div class="u-ch"><div><b>Jouw frequenties</b><span>Deze staan in de keuzelijsten bij klanten, opdrachten en offertes. Een eigen naam is optioneel.</span></div></div>
-    <div class="u-fl">${mine.map((f,i)=>`<div class="u-fi mine"><span class="u-fw">${f.w} wk</span><input id="uf-${i}" data-u="f.${i}.l" value="${esc(f.l||"")}" placeholder="${esc(freqLabelStd(f.w))}" aria-label="Naam">
+    <div class="u-fl">${mine.map((f,i)=>`<div class="u-fi mine"><span class="u-fw">${fqSpec(f.w)?"—":f.w+" wk"}</span><input id="uf-${i}" data-u="f.${i}.l" value="${esc(f.l||"")}" placeholder="${esc(freqLabelStd(f.w))}" aria-label="Naam">
       <button type="button" class="iconbtn sm" data-act="ufmove" data-i="${i}" data-n="-1" ${i?"":"disabled"} aria-label="Omhoog">${I.up}</button><button type="button" class="iconbtn sm" data-act="ufmove" data-i="${i}" data-n="1" ${i<mine.length-1?"":"disabled"} aria-label="Omlaag">${I.down}</button><button type="button" class="iconbtn sm" data-act="ufdel" data-i="${i}" aria-label="Verwijderen">${I.x}</button></div>`).join("")||'<p class="subt">Nog geen frequenties; de standaardlijst wordt gebruikt.</p>'}</div>
     <div class="u-addrow"><input type="number" id="ufNew" min="1" step="1" placeholder="Aantal weken"><button type="button" class="small" data-act="ufnew">${I.plus}Eigen frequentie</button></div></section></div>`;
 }
@@ -12257,7 +12259,7 @@ function uMiddelHtml(){
       <span class="u-mact"><button type="button" class="iconbtn sm" data-act="ummove" data-i="${i}" data-n="-1" ${i?"":"disabled"} aria-label="Omhoog">${I.up}</button><button type="button" class="iconbtn sm" data-act="ummove" data-i="${i}" data-n="1" ${i<m.length-1?"":"disabled"} aria-label="Omlaag">${I.down}</button><button type="button" class="iconbtn sm" data-act="umdel" data-i="${i}" aria-label="Verwijderen">${I.x}</button></span></div>`).join("")||'<p class="subt" style="margin:8px 0">Nog geen bedrijfsmiddelen.</p>'}</div>
     <button type="button" class="u-add big" data-act="umadd">${I.plus}Bedrijfsmiddel toevoegen</button></section>`;
 }
-const freqLabelStd=w=>{w=Number(w)||4;return w===52?"Elk jaar":w===26?"Elk half jaar":w===13?"Elk kwartaal":"Elke "+w+" "+(w===1?"week":"weken")};
+const freqLabelStd=w=>{w=Number(w)||4;if(fqSpec(w))return fqSpecTxt(w);return w===52?"Elk jaar":w===26?"Elk half jaar":w===13?"Elk kwartaal":"Elke "+w+" "+(w===1?"week":"weken")};
 
 /* invoer: pad in data-u, bijv. g.start, g.fp.m8, i.tiers.0.1, f.2.l, m.0.aantal */
 function uInput(el,commit){

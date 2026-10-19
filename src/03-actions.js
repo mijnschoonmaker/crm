@@ -153,7 +153,7 @@ function openKlantEdit(id,opt={}){
   <div><span class="eyebrow">Dienst en planning</span><div class="grid2" style="margin-top:8px">
     <label>Dienst<input id="f-dienst" list="dienstlijst" value="${esc(k.dienst||"Glasbewassing")}"><datalist id="dienstlijst">${[...dienstLijst().map(d=>d.naam),...DIENSTEN].filter((v,i,a)=>a.indexOf(v)===i).map(d=>`<option value="${esc(d)}">`).join("")}</datalist></label>
     <label>Prijs per beurt (€ ${S().incl?"incl.":"excl."} btw)<input id="f-prijs" type="number" step="0.5" min="0" inputmode="decimal" required value="${esc(k.prijs)}"></label>
-    <label>Frequentie<select id="f-frequentie">${freqOpts(k.frequentie||4).map(w=>`<option value="${w}" ${Number(k.frequentie||4)===w?"selected":""}>Elke ${w} ${w===1?"week":"weken"}</option>`).join("")}</select></label>
+    <label>Frequentie<select id="f-frequentie">${freqOpts(k.frequentie||4).map(w=>`<option value="${w}" ${Number(k.frequentie||4)===w?"selected":""}>${esc(freqLabel(w))}</option>`).join("")}</select></label>
     <label>Duur<select id="f-duur">${[...new Set([15,30,45,60,90,120,180,240,Number(k.duur||30)])].sort((a,b)=>a-b).map(m=>`<option value="${m}" ${Number(k.duur||30)===m?"selected":""}>${m<60?m+" min":(m/60).toLocaleString("nl-NL")+" uur"}</option>`).join("")}</select>${(k.tijden||[]).length?`<small class="help">Gemeten: gemiddeld ${gemTijd(k)} min over ${plural(Math.min(5,k.tijden.length),"beurt","beurten")} · laatst ${k.tijden.slice(-1)[0].min} min</small>`:'<small class="help">Wordt automatisch bijgesteld met Start en Stop op Route</small>'}</label>
     <label>Laatst gewassen<input id="f-laatst" type="date" value="${esc(k.laatst)}"></label>
     <label>Ingepland op <small style="font-weight:500">(leeg = te plannen)</small><input id="f-gepland" type="date" value="${esc(k.gepland)}"></label>
@@ -577,7 +577,7 @@ function openAkkoord(id){
   <p class="subt" style="margin:0">De klant wordt een vaste klant met deze afspraken. Na elke afgemelde beurt komt de factuur bij Facturen.</p>
   <div class="grid2">
     <label>Prijs per beurt (€ ${S().incl?"incl.":"excl."} btw)<input id="ak-prijs" type="number" step="0.01" min="0" inputmode="decimal" value="${esc(prijs)}" required></label>
-    <label>Frequentie<select id="ak-freq">${fo.map(w=>`<option value="${w}" ${w===fr?"selected":""}>Elke ${w} ${w===1?"week":"weken"}</option>`).join("")}</select></label>
+    <label>Frequentie<select id="ak-freq">${fo.map(w=>`<option value="${w}" ${w===fr?"selected":""}>${esc(freqLabel(w))}</option>`).join("")}</select></label>
     <label>Duur<select id="ak-duur">${dur.map(m=>`<option value="${m}" ${m===du?"selected":""}>${m<60?m+" min":(m/60).toLocaleString("nl-NL")+" uur"}</option>`).join("")}</select></label>
     <label>Dienst<input id="ak-dienst" value="${esc(k.dienst||"Glasbewassing")}"></label>
     <label>Aanboddatum<input id="ak-aanbod" type="date" value="${esc(f.start||iso(today()))}"><small class="help">Vanaf deze datum staat de klant bij Te plannen</small></label>
@@ -611,7 +611,7 @@ function openAfspraak(id,day){
     <label>Dienst<input id="af-dienst" value="${esc(k.dienst||"Glasbewassing")}"></label>
     <label>Prijs per beurt (€ ${S().incl?"incl.":"excl."} btw)<input id="af-prijs" type="number" step="0.01" min="0" inputmode="decimal" value="${esc(k.prijs)}"></label>
     <label>Duur<select id="af-duur">${durO.map(m=>`<option value="${m}" ${m===du?"selected":""}>${m<60?m+" min":(m/60).toLocaleString("nl-NL")+" uur"}</option>`).join("")}</select></label>
-    <label>Frequentie<select id="af-freq">${freqO.map(w=>`<option value="${w}" ${w===fr?"selected":""}>Elke ${w} ${w===1?"week":"weken"}</option>`).join("")}</select></label>
+    <label>Frequentie<select id="af-freq">${freqO.map(w=>`<option value="${w}" ${w===fr?"selected":""}>${esc(freqLabel(w))}</option>`).join("")}</select></label>
   </div>
   <p class="subt" style="margin:0">Prijs, duur, frequentie en notitie gelden voor alle volgende beurten van deze klant.</p>
   <div class="row">${isPlanned?`<button type="button" class="ghost danger" id="afUn">Terug naar te plannen</button>`:""}${isPlanned?`<button type="button" class="ghost" id="afJob">${I.eye}Open job</button>`:""}<span class="sp"></span><button type="button" id="afBack">Annuleren</button><button type="submit" class="primary" id="afGo">${I.check}${isPlanned?"Opslaan":"Inplannen"}</button></div>`);
