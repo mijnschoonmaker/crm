@@ -11763,10 +11763,10 @@ function openOpdrachtWerk(kid,focus){
     <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klantgegevens</b><span class="sp"></span><button type="button" class="small" id="owKk">${I.right}Klantkaart</button></div>
       ${kv("Klantnummer",esc(nr))}${kv("Naam",esc(cleanName(k.naam)))}${kv("E-mail",k.email?`<a href="mailto:${esc(k.email)}">${esc(k.email)}</a>`:"—")}${kv("Telefoon",k.telefoon?`<a href="tel:${esc(String(k.telefoon).replace(/[^\d+]/g,""))}">${esc(k.telefoon)}</a>`:"—")}${kv("Soort",k.soort==="zakelijk"?"Zakelijk":"Particulier")}</section>
     <section class="kp" id="owAdrK"><div class="kp-h"><span class="objic">${I.pin}</span><b>Adres</b><span class="sp"></span>
-        <span id="owAdrKn" class="ow-adrkn"><button type="button" class="iconbtn sm" id="owAdrE" aria-label="Adres en ontvangers wijzigen" title="Wijzigen">${I.pencil}</button><a class="btn small" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.nav}Kaart</a></span>
+        <span id="owAdrKn" class="ow-adrkn"><button type="button" class="iconbtn sm" id="owAdrE" aria-label="Adres en ontvangers wijzigen" title="Wijzigen">${I.pencil}</button></span>
         <span id="owAdrKe" class="ow-adrkn" hidden><button type="button" class="small" id="owAdrU" aria-label="Annuleren" title="Annuleren">${I.undo||I.x}</button><button type="button" class="small primary" id="owAdrS" aria-label="Opslaan" title="Opslaan">${I.save||I.check}</button></span></div>
       <div id="owAdrV">${kv("Adres",esc(jobAddr(k)))}
-      ${[["offerte","Offerte gaat naar"],["factuur","Facturen gaan naar"],["planning","Planningsmails gaan naar"]].map(([x,l])=>kv(l,(mailK(k,x).email?esc(mailK(k,x).email):"—")+(tavK(k,x)?`<br><small class="subt">t.a.v. ${esc(tavK(k,x))}</small>`:""))).join("")}<button type="button" class="linkbtn" id="owAdr" style="align-self:flex-start">Adresgegevens aanpassen ${I.right}</button></div>
+      ${[["offerte","Offerte gaat naar"],["factuur","Facturen gaan naar"],["planning","Planningsmails gaan naar"]].map(([x,l])=>kv(l,(mailK(k,x).email?esc(mailK(k,x).email):"—")+(tavK(k,x)?`<br><small class="subt">t.a.v. ${esc(tavK(k,x))}</small>`:""))).join("")}</div>
       <div id="owAdrF" class="ow-adrf" hidden></div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.planning}</span><b>Opdracht</b><span class="sp"></span><button type="button" class="iconbtn sm" id="owOpdE" aria-label="Opdracht wijzigen" title="Wijzigen">${I.pencil}</button></div>
       <div class="ow-kvs" id="owOpdV"></div>
