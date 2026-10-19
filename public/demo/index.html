@@ -9849,7 +9849,7 @@ function anTot(lbl,v){return `<div class="ajr-tot"><small>${lbl}</small><b>${v}<
 function vAnalyse(){
   const t=today(),Y=+state.ajaar,huidig=Y===t.getFullYear(),start=new Date(Y,0,1),eind=huidig?t:new Date(Y,11,31),rg=[start,eind];
   const rgV=[new Date(Y-1,0,1),huidig?new Date(Y-1,t.getMonth(),t.getDate()):new Date(Y-1,11,31)];
-  const bron=state.abron,afs=bron==="afspraken",mw=afs?state.amw:"",plan=state.auren==="planning";
+  const bron=state.abron,afs=bron==="afspraken",mw=afs?state.amw:"",plan=false;
   const KM={};state.klanten.forEach(k=>KM[k.id]=k);
   const alleB=state.beurten.filter(b=>b.datum&&!b.geannuleerd);
   const mws=[...new Set(alleB.filter(b=>String(b.datum).startsWith(String(Y))).map(b=>b.door).filter(Boolean))].sort();
@@ -9859,7 +9859,7 @@ function vAnalyse(){
   const posten=r=>afs?bIn(r).map(b=>({d:b.datum,om:bOm(b),btw:0,k:b.klantId,b})):fIn(r).map(f=>{const tt=totals(f);return{d:f.datum,om:tt.ex,btw:tt.btw,k:f.klantId,f}});
   const P=posten(rg),PV=posten(rgV),omzet=P.reduce((a,p)=>a+p.om,0),omzetV=PV.reduce((a,p)=>a+p.om,0);
   const B=bIn(rg),dagen=new Set(B.map(b=>b.datum)),weken=new Set(B.map(b=>anWk(b.datum,Y)+"")),mnd=new Set(B.map(b=>String(b.datum).slice(0,7)));
-  const minuten=B.reduce((a,b)=>a+bMin(b),0),uren=minuten/60,omB=B.reduce((a,b)=>a+bOm(b),0),perUur=uren>0?omB/uren:0,voltijd=perUur*AN_WK*(52-AN_VAK);
+  const minuten=B.reduce((a,b)=>a+bMin(b),0),gemMin=B.filter(b=>(b.gemeten||b.startOp)&&Number(b.duur)).reduce((a,b)=>a+Number(b.duur),0),gemPct=minuten?Math.round(gemMin/minuten*100):0,urenTxt=!minuten?"nog geen uren":gemPct>=99?"alles gemeten":gemPct?gemPct+"% gemeten, rest volgens planning":"volgens planning (nog niet gemeten)",uren=minuten/60,omB=B.reduce((a,b)=>a+bOm(b),0),perUur=uren>0?omB/uren:0,voltijd=perUur*AN_WK*(52-AN_VAK);
   const per=(n)=>n?omzet/n:0,groei=omzetV?Math.round((omzet-omzetV)/omzetV*100):null;
   const pLbl=`Periode 1 jan t/m ${huidig?fmtD(t):"31 dec"}`;
   const yrs=[...new Set([...state.beurten.map(b=>String(b.datum||"").slice(0,4)),...state.facturen.map(f=>String(f.datum||"").slice(0,4)),String(t.getFullYear())].filter(x=>/^\d{4}$/.test(x)))].sort().reverse();
@@ -9867,7 +9867,6 @@ function vAnalyse(){
   let h=`<div class="ajr-bar">
     <label class="ajr-f"><small>Jaar</small><select data-an="jaar">${yrs.map(y=>`<option${+y===Y?" selected":""}>${y}</option>`).join("")}</select></label>
     <div class="ajr-f"><small>Omzet op basis van</small><div class="seg brand ajr-seg">${[["facturen","Facturen"],["afspraken","Afspraken"]].map(([v,l])=>`<button type="button" data-an="bron" data-v="${v}" aria-pressed="${bron===v}">${l}</button>`).join("")}</div></div>
-    <div class="ajr-f"><small>Uren</small><div class="seg brand ajr-seg">${[["geregistreerd","Geregistreerd"],["planning","Volgens planning"]].map(([v,l])=>`<button type="button" data-an="uren" data-v="${v}" aria-pressed="${state.auren===v}">${l}</button>`).join("")}</div></div>
     ${afs&&mws.length?`<label class="ajr-f"><small>Medewerker</small><select data-an="mw"><option value="">Iedereen</option>${mws.map(m=>`<option${m===mw?" selected":""}>${esc(m)}</option>`).join("")}</select></label>`:""}
   </div>`;
 
@@ -9875,7 +9874,7 @@ function vAnalyse(){
   const mot=groei==null?(omzet?`Eerste jaar in Mansard: ${plural(dagen.size,"werkdag","werkdagen")} gewerkt.`:"Nog geen omzet in dit jaar."):groei>=0?`${groei}% meer dan dezelfde periode in ${Y-1}. Mooi zo!`:`${Math.abs(groei)}% minder dan dezelfde periode in ${Y-1}.`;
   h+=`<section class="st-hero ajr-hero"><div class="st-hm"><span class="st-k">Omzet · ${Y} · ex btw · ${afs?"afspraken":"facturen"}${mw?" · "+esc(mw):""}</span>
       <div class="st-big"><b>${eur0(omzet)}</b>${stDelta(omzet,omzetV,"vs "+(Y-1))}</div><p class="st-mot">${mot}</p>
-      <div class="st-wk ajr-chips"><span><b>${dagen.size}</b> dagen</span><span><b>${weken.size}</b> weken</span><span><b>${mnd.size}</b> maanden gewerkt</span><span><b>${(uren).toLocaleString("nl-NL",{maximumFractionDigits:0})}u</b> ${plan?"gepland":"geregistreerd"}</span></div></div>
+      <div class="st-wk ajr-chips"><span><b>${dagen.size}</b> dagen</span><span><b>${weken.size}</b> weken</span><span><b>${mnd.size}</b> maanden gewerkt</span><span><b>${(uren).toLocaleString("nl-NL",{maximumFractionDigits:0})}u</b> bij klanten</span></div></div>
     <div class="st-hs">${stTile(I.timer,"Voltijdomzet",afs&&voltijd?eur0(voltijd):"–",afs?`per jaar bij ${AN_WK} uur/week, ${AN_VAK} wk vakantie`:"kies Afspraken","ok")}${stTile(I.euro,"Per uur",perUur?eur(perUur):"–","omzet ex btw per uur bij klanten")}</div></section>
   <div class="ajr-per">${I.planning}<span>${pLbl}</span></div>
   <div class="st-tiles ajr-kpi">
@@ -9883,7 +9882,7 @@ function vAnalyse(){
     ${stTile(I.planning,"Per werkweek",eur0(per(weken.size)),`gemiddeld over ${plural(weken.size,"week","weken")}`)}
     ${stTile(I.facturen||I.receipt,"Per maand",eur0(per(mnd.size)),`gemiddeld over ${plural(mnd.size,"maand","maanden")}`)}
     ${stTile(I.receipt,afs?"Per afspraak":"Per factuur",eur(P.length?omzet/P.length:0),`gemiddeld over ${plural(P.length,afs?"afspraak":"factuur",afs?"afspraken":"facturen")}`)}
-    ${stTile(I.clock,"Uren per dag",dagen.size?(uren/dagen.size).toLocaleString("nl-NL",{maximumFractionDigits:1})+"u":"–",plan?"volgens planning":"geregistreerd bij klanten")}
+    ${stTile(I.clock,"Uren per dag",dagen.size?(uren/dagen.size).toLocaleString("nl-NL",{maximumFractionDigits:1})+"u":"–",urenTxt)}
     ${stTile(I.trend||I.spark,"Omzetgroei",groei==null?"–":(groei>=0?"+":"")+groei+"%",`vs dezelfde periode ${Y-1}`,groei==null?"":groei>=0?"ok":"late")}
   </div>`;
 
@@ -9912,7 +9911,7 @@ function vAnalyse(){
   const ow=off.filter(f=>st(f)==="geaccepteerd").reduce((a,f)=>a+totals(f).ex,0),beslist=OD[0].n+OD[4].n;
   h+=`<div class="st-two">${anKaart("Offertes",`${plural(off.length,"offerte","offertes")} in ${Y}${beslist?` · ${Math.round(OD[0].n/beslist*100)}% geaccepteerd`:""}`,anDonut(OD),ow?anTot("Geaccepteerd",eur0(ow)):"")}
     ${anKaart("Gemiddelde voltijdomzet",`Op basis van ${AN_WK} uur per week en ${AN_VAK} weken vakantie`,afs?(voltijd?`<div class="ajr-vt"><b>${eur0(voltijd)}</b><span>per jaar</span></div>
-        <div class="ajr-vtr"><div><small>Omzet per uur</small><b>${eur(perUur)}</b></div><div><small>Uren ${plan?"gepland":"geregistreerd"}</small><b>${Math.round(uren)}u</b></div><div><small>Per week (${AN_WK}u)</small><b>${eur0(perUur*AN_WK)}</b></div></div>
+        <div class="ajr-vtr"><div><small>Omzet per uur</small><b>${eur(perUur)}</b></div><div><small>Uren bij klanten</small><b>${Math.round(uren)}u</b></div><div><small>Per week (${AN_WK}u)</small><b>${eur0(perUur*AN_WK)}</b></div></div>
         <p class="subt ajr-uitleg">Wat je${mw?" ("+esc(mw)+")":""} per jaar omzet als je fulltime bij klanten zou werken met dezelfde omzet per uur. Handig om medewerkers en prijzen te vergelijken.</p>`:`<p class="st-leeg">Nog geen afgemelde afspraken met uren in ${Y}.</p>`)
       :`<div class="ajr-hint">${I.timer}<span>Kies bovenaan <b>Afspraken</b> om de gemiddelde voltijdomzet te berekenen.</span></div>`)}</div>`;
 
@@ -9937,10 +9936,10 @@ function vAnalyse(){
     const ser=f=>mws.map((m,i)=>({n:m,v:f(MB[m]).slice(0,mN),c:AN_KL[i%AN_KL.length]}));
     const tabel=(kop,rij)=>`<table class="ajr-tab ajr-mw"><thead><tr><th>Medewerker</th>${kop.map(k=>`<th class="r">${k}</th>`).join("")}</tr></thead><tbody>${mws.map((m,i)=>`<tr><td><span class="ajr-dot" style="background:${AN_KL[i%AN_KL.length]}"></span>${esc(m)}</td>${rij(MB[m],m).map(v=>`<td class="r">${v}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
     const uurOm=x=>{const u=som(x.min)/60;return u?som(x.om)/u:0};
-    h+=`<div class="ajr-sec"><span class="st-k">Per medewerker · ${Y}</span><p class="subt">Op basis van afgemelde afspraken · uren ${plan?"volgens planning":"geregistreerd"}</p></div>
+    h+=`<div class="ajr-sec"><span class="st-k">Per medewerker · ${Y}</span><p class="subt">Op basis van afgemelde afspraken · uren: ${urenTxt}</p></div>
     <div class="st-two">${anKaart("Omzet per medewerker","Per maand, ex btw",anLijn(ser(x=>x.om.map(r2)),lab,{fmt:v=>eur0(v)})+tabel(["Omzet"],x=>[eur0(som(x.om))]))}
       ${anKaart("Afspraken per medewerker","Aantal afgemelde afspraken per maand",anLijn(ser(x=>x.n),lab)+tabel(["Afspraken"],x=>[som(x.n)]))}</div>
-    <div class="st-two">${anKaart("Uren per medewerker",`${plan?"Volgens planning":"Geregistreerd"} per maand`,anLijn(ser(x=>x.min.map(v=>Math.round(v/6)/10)),lab,{fmt:v=>Math.round(v)+"u"})+tabel(["Uren"],x=>[Math.round(som(x.min)/60)+"u"]))}
+    <div class="st-two">${anKaart("Uren per medewerker","Uren bij klanten per maand",anLijn(ser(x=>x.min.map(v=>Math.round(v/6)/10)),lab,{fmt:v=>Math.round(v)+"u"})+tabel(["Uren"],x=>[Math.round(som(x.min)/60)+"u"]))}
       ${anKaart("Omzet per uur",`Uuromzet per maand · voltijd = ${AN_WK}u × ${52-AN_VAK} weken`,anLijn(ser(x=>x.om.map((v,i)=>x.min[i]?r2(v/(x.min[i]/60)):0)),lab,{fmt:v=>eur0(v)})+tabel(["Uuromzet","Voltijdomzet"],x=>{const u=uurOm(x);return[u?eur(u):"–",u?eur0(u*AN_WK*(52-AN_VAK)):"–"]}))}</div>
     ${anKaart("Klachten per medewerker","Tickets in de categorie Kwaliteit of klacht, gekoppeld aan wie er het laatst was",(mws.some(m=>som(MB[m].kl))?anLijn(ser(x=>x.kl),lab):`<div class="ajr-hint">${I.check}<span>Geen klachten in ${Y}. Netjes gewerkt!</span></div>`)+tabel(["Klachten",""],(x,m)=>[som(x.kl),x.klL.length?`<button type="button" class="iconbtn ajr-oog" data-an="klacht" data-v="${esc(m)}" aria-label="Bekijk klachten">${I.eye}</button>`:""]))}`;
     window._anKlacht=MB;
