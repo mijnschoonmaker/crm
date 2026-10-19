@@ -106,7 +106,7 @@ nav#sideNav button[aria-current="true"] svg{color:#0d121b!important}
 :root{--rr-rand:#dcdfe2}
 /* tegels in de bovenste vlakken */
 :is(.vh-st span,.fg-c,.fg-pct,.rv-geld,.kr-c,.ofh [class*="-c"],.cm [class*="-c"]){background:#fff!important;border:1px solid var(--rr-rand)!important;border-radius:10px!important;backdrop-filter:none!important;box-shadow:none!important;transition:border-color .2s}
-:is(.fg-c,.kr-c,.ofh [class*="-c"],.cm [class*="-c"]):hover{border-color:#0d121b!important;background:#fff!important}
+:is(.fg-c,.kr-c):hover{border-color:#0d121b!important;background:#fff!important}
 :is(.vh-st,.fg-cs,.kr-cs,.rv-chips) b{font-weight:500!important;letter-spacing:-.01em!important}
 :is(.vh-st small,.fg-c span,.kr-c span){color:#5d6168!important;font-weight:400!important}
 .vh-st small,.fg-c>span:first-child{font-size:12px!important}
@@ -1017,3 +1017,6 @@ html body:not(#zz) .st-hero .st-share i:nth-child(3){background:#9aa3b5!importan
 html body:not(#zz) .st-hero .st-gl span:nth-child(3) .st-dot{background:#9aa3b5!important}
 html body:not(#zz) .st-hero .st-gl span:last-child .st-dot{background:#d9b97f!important}
 html body:not(#zz) .st-hero .st-gl span:nth-child(3):last-child .st-dot{background:#9aa3b5!important}
+
+/* containers in de blauwe blokken nooit wit bij hover */
+html body:not(#zz) :is(.ofh,.cm,.kr,.fg) :is(.of-cs,.cm-cs,.kr-cs,.fg-cs,[class$="-cs"]):hover{background:transparent!important;border-color:transparent!important}
