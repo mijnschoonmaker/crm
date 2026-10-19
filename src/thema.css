@@ -708,3 +708,9 @@ html body:not(#zz) .of .of-kop :is(b,strong,span,div){color:#fff!important}
 html body:not(#zz) .of .of-kop :is(small,em){color:rgb(255 255 255 / .72)!important}
 html body:not(#zz) .of.kx-late .of-kop em,html body:not(#zz) .of.kx-crit .of-kop em{color:#ffb4a6!important}
 html body:not(#zz) .of.kx-late .of-kop,html body:not(#zz) .of.kx-crit .of-kop{box-shadow:inset 3px 0 0 #e0533d!important}
+/* ---------- Planning: kop van de opdrachten in Gelders blauw ---------- */
+html body:not(#zz) .tjob .tj-kop{background:var(--gb-lijn),var(--gb-vlak)!important;border-bottom:0!important;color:#fff!important}
+html body:not(#zz) .tjob.st-afgerond .tj-kop,html body:not(#zz) .tjob.st-verwacht .tj-kop{background:linear-gradient(rgb(255 255 255 / .1),rgb(255 255 255 / .1)),var(--gb-lijn),var(--gb-vlak)!important}
+html body:not(#zz) .tjob .tj-kop :is(.tj-nm,b,span,button,a,div){color:#fff!important}
+html body:not(#zz) .tjob .tj-kop small{color:rgb(255 255 255 / .72)!important;border-right-color:rgb(255 255 255 / .3)!important}
+html body:not(#zz) .tjob .tj-kop .tj-amt{color:#fff!important}
