@@ -14633,6 +14633,16 @@ html body:not(#zz) .rv:has(> .rv-map){padding-bottom:var(--rvpad,26px)!important
 /* kaart-tooltips in het blauwe blok: donkere tekst op wit */
 html body:not(#zz) .rv .rv-map .leaflet-tooltip,html body:not(#zz) .rv .rv-map .leaflet-tooltip *{color:#252c3c!important;background-color:transparent}
 html body:not(#zz) .rv .rv-map .leaflet-tooltip{background:#fff!important;border:0!important;border-radius:8px!important;box-shadow:0 6px 18px -6px rgb(13 18 27 / .45)!important;padding:6px 10px!important;font-size:13px!important;font-weight:500!important;letter-spacing:0!important;text-transform:none!important}
+/* ---------- route-lijn: gedaan-vinkje en VOLGENDE verfijnd ---------- */
+html body:not(#zz) .rv .rv-weg li.af i{background:rgb(125 219 166 / .16)!important;border:1px solid rgb(125 219 166 / .55)!important;color:#a6ecc4!important;box-shadow:none!important;transform:none!important}
+html body:not(#zz) .rv .rv-weg li.af i svg,html body:not(#zz) .rv .rv-weg li.af i path,html body:not(#zz) .rv .rv-weg li.af i polyline{fill:none!important;stroke:#a6ecc4!important;stroke-width:2.6!important;stroke-linecap:round;stroke-linejoin:round}
+html body:not(#zz) .rv .rv-weg li.af i svg{width:15px!important;height:15px!important}
+html body:not(#zz) .rv .rv-weg li.nu i{background:#fff!important;border-color:#fff!important;transform:scale(1.12)!important;animation:rvNuPuls 2.6s ease-out infinite!important}
+@keyframes rvNuPuls{0%{box-shadow:0 0 0 0 rgb(255 255 255 / .45),0 8px 18px -8px rgb(0 0 0 / .5)}70%,100%{box-shadow:0 0 0 10px rgb(255 255 255 / 0),0 8px 18px -8px rgb(0 0 0 / .5)}}
+html body:not(#zz) .rv .rv-weg b.rv-nu{background:transparent!important;box-shadow:none!important;padding:0 0 0 .3em!important;top:-22px!important;font-size:9px!important;font-weight:600!important;letter-spacing:.3em!important;color:rgb(255 255 255 / .92)!important}
+html body:not(#zz) .rv .rv-weg b.rv-nu::after{width:1px!important;height:7px!important;bottom:-10px!important;left:50%!important;transform:translateX(-50%)!important;border-radius:0!important;background:rgb(255 255 255 / .5)!important}
+html body:not(#zz) .rv .rv-weg li:first-child b.rv-nu::after{left:calc(var(--h) / 2)!important}
+@media (prefers-reduced-motion:reduce){html body:not(#zz) .rv .rv-weg li.nu i{animation:none!important}}
 
 </style>
 
