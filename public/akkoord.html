@@ -47,6 +47,23 @@ input[type=text]{width:100%;font:inherit;font-size:17px;padding:13px 14px;border
 .card:not(.hero) h1{font-weight:400}
 .sub{font-size:15px}
 input[type=text]{font-weight:500}
+.ak-kop{margin-bottom:18px}.ak-kop h2{font-size:22px;font-weight:400;letter-spacing:-.01em;margin:6px 0 4px}.ak-kop p{margin:0;font-size:14px;line-height:1.5;color:var(--muted)}
+.ak-velden{border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:20px;background:#fff}
+.ak-r{display:flex!important;align-items:center;gap:12px;margin:0!important;padding:0 14px;letter-spacing:0!important;text-transform:none!important}
+.ak-r+.ak-r{border-top:1px solid var(--line)}
+.ak-r span{flex:none;width:64px;font-size:10.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.ak-r input[type=text]{border:0!important;box-shadow:none!important;padding:15px 0;background:transparent;font-size:16px}
+.ak-velden:focus-within{border-color:var(--brand);box-shadow:0 0 0 3px rgb(37 44 60 / .1)}
+.chk{font-size:min(13.5px,2.9vw)!important;padding:13px 10px!important;gap:9px!important}.chk span{white-space:nowrap}
+@media(max-width:340px){.chk span{white-space:normal}}
+.ak-velden{border:0!important;border-radius:0!important;box-shadow:none!important;margin:0 0 22px!important}
+.ak-r{padding:0!important;border-bottom:1px solid var(--line)}.ak-r+.ak-r{border-top:0!important}
+.ak-r span{width:auto!important;flex:1!important;font-size:16px!important;font-weight:500!important;letter-spacing:-.005em!important;text-transform:none!important;color:var(--ink)!important}
+.ak-r input[type=text]{flex:1.4;text-align:right;padding:18px 0!important;font-size:16px!important;font-weight:400!important;color:var(--muted)}
+.ak-r input[type=text]:focus{color:var(--ink)}
+.ak-velden:focus-within{box-shadow:none!important}
+.ak-r:focus-within{border-bottom-color:var(--brand)}
+.padkop{padding-bottom:10px}
 .foot{text-align:center;color:#9aa1ad;font-size:12.5px;margin-top:10px}
 </style></head><body><div class="wrap" id="app"><div class="card"><p class="sub">Offerte laden…</p></div></div>
 <script>
@@ -69,10 +86,10 @@ const VB=tok==="voorbeeld";/* voorbeeldpagina voor testmails: niets wordt opgesl
     <span class="kick">Uw offerte</span><h1>${esc(k.naam||"Uw offerte")}</h1><p class="sub" style="margin:0">${esc(k.adres||"")}${k.pcPlaats?", "+esc(k.pcPlaats):""}</p>
     <div class="bedrag">${gemengd?`<span>Diensten<b>${(d.groepen||[]).length}</b></span>`:`<span>Per keer incl. btw<b>${eur(tot)}</b></span>`}${d.geldigTot?`<span>Geldig tot<b>${esc(d.geldigTot.split("-").reverse().join("-"))}</b></span>`:""}</div></div>
   <div class="card"><div class="dn-kop"><span class="kick">Wat we voor u doen</span><span class="kick">Per keer</span></div>${rows}${(d.groepen||[]).length>1&&!gemengd?`<div class="dn-tot"><span>Totaal per keer</span><b>${eur(tot)}</b></div>`:""}</div>
-  <div class="card"><span class="kick">Akkoord geven</span><h1 style="font-size:22px">Teken met uw vinger</h1><p class="sub">Zet uw handtekening in het vak. Dat is alles: daarna plannen wij u in.</p>
-    <div class="g2"><div><label for="nm">Uw naam</label><input type="text" id="nm" autocomplete="name" value="${esc(k.contact||k.naam||"")}"></div><div><label for="pl">Plaats</label><input type="text" id="pl" autocomplete="address-level2" value="${esc((k.pcPlaats||"").replace(/^\d{4}\s?[a-z]{2}\s*/i,""))}"></div></div>
+  <div class="card"><div class="dn-kop"><span class="kick">Akkoord geven</span><span class="kick">Uw gegevens</span></div>
+    <div class="ak-velden"><label class="ak-r" for="nm"><span>Naam</span><input type="text" id="nm" autocomplete="name" value="${esc(k.contact||k.naam||"")}"></label><label class="ak-r" for="pl"><span>Plaats</span><input type="text" id="pl" autocomplete="address-level2" value="${esc((k.pcPlaats||"").replace(/^\d{4}\s?[a-z]{2}\s*/i,""))}"></label></div>
     <div class="padkop"><label>Handtekening</label><button class="wis" id="wis" type="button">Opnieuw</button></div><div class="pad" id="pad"><canvas id="cv"></canvas><span class="x">✕</span><span class="line"></span><span class="hint" id="hint">${pen}Teken hier met uw vinger</span></div>
-    <label class="chk"><input type="checkbox" id="ok"><span>Ik ga akkoord met deze offerte${d.voorwaarden?` en de <a href="${esc(d.voorwaarden)}" target="_blank" rel="noopener">algemene voorwaarden</a>`:" en de algemene voorwaarden"}.</span></label></div>
+    <label class="chk"><input type="checkbox" id="ok"><span>Ik ga akkoord met de offerte en de ${d.voorwaarden?`<a href="${esc(d.voorwaarden)}" target="_blank" rel="noopener">voorwaarden</a>`:"voorwaarden"}.</span></label></div>
   <p class="foot">${esc(d.bedrijf.naam)}${d.bedrijf.telefoon?" · "+esc(d.bedrijf.telefoon):""}${d.bedrijf.email?" · "+esc(d.bedrijf.email):""}</p>
   <div class="balk"><div class="in"><button class="go" id="go" type="button">Akkoord en ondertekenen</button><div class="msg" id="msg"></div></div></div>`;
   const cv=$("#cv"),ctx=cv.getContext("2d");let leeg=true,teken=false,lx=0,ly=0;
