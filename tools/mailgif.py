@@ -11,6 +11,17 @@ import io, math, os, sys, json, urllib.request
 from PIL import Image, ImageDraw, ImageFilter
 
 UIT = os.path.join(os.path.dirname(__file__), "..", "public", "mail")
+BUS = os.path.join(os.path.dirname(__file__), "..", "public", "img", "mansard-bus.png")  # dezelfde bus + Brian James boxvan als op Vandaag
+_BUSIM = None
+
+
+def busfoto():
+    global _BUSIM
+    if _BUSIM is None:
+        im = Image.open(BUS).convert("RGBA")
+        _BUSIM = im.crop(im.getbbox())
+    return _BUSIM
+
 SS = 3  # supersampling
 BG = (250, 251, 251)
 HUIS_GRIJS = (205, 212, 216)
@@ -111,7 +122,7 @@ def scene(naam, richting):
         huizen = [hh for hh in huizen if abs(hh[0] - doel[0]) > 70]
     else:
         huizen = [hh for hh in huizen if abs(hh[0] - doel[0]) > 70]
-    n = 36
+    n = 26
     frames = []
     base = 180
     for f in range(n):
@@ -133,15 +144,19 @@ def scene(naam, richting):
         # schaduw
         sh = Image.new("L", im.size, 0)
         sd = ImageDraw.Draw(sh)
-        sd.ellipse([(xv - 400) * SS, (base - 6) * SS, (xv + 4) * SS, (base + 6) * SS], fill=60)
+        sd.ellipse([(xv - 410) * SS, (base - 4) * SS, (xv + 2) * SS, (base + 8) * SS], fill=70)
         sh = sh.filter(ImageFilter.GaussianBlur(6 * SS))
         im.paste((150, 160, 168), mask=sh)
-        combinatie(d, xv * SS, base * SS, SS * .82)
+        bf = busfoto()
+        bh = 104 * SS
+        bw = round(bf.width * bh / bf.height)
+        bi = bf.resize((bw, bh), Image.LANCZOS)
+        im.paste(bi, (round(xv * SS - bw), round((base + 3) * SS - bh)), bi)
         frames.append(im.resize((W, H), Image.LANCZOS))
-    hold = [900] + [70] * (n - 2) + [1400]
+    hold = [900] + [90] * (n - 2) + [1400]
     if richting == "weg":
-        hold = [1400] + [70] * (n - 2) + [600]
-    pal = frames[-1 if richting == "aan" else 0].quantize(colors=128, method=Image.Quantize.MEDIANCUT)
+        hold = [1400] + [90] * (n - 2) + [600]
+    pal = frames[-1 if richting == "aan" else 0].quantize(colors=96, method=Image.Quantize.MEDIANCUT)
     q = [fr.quantize(palette=pal, dither=Image.Dither.NONE) for fr in frames]
     q[0].save(os.path.join(UIT, naam + ".gif"), save_all=True, append_images=q[1:], duration=hold, loop=0, optimize=True, disposal=1)
     print("geschreven", naam, os.path.getsize(os.path.join(UIT, naam + ".gif")))
@@ -277,9 +292,15 @@ def kaart():
         halo = Image.new("RGBA", im.size, (0, 0, 0, 0))
         hd = ImageDraw.Draw(halo)
         hd.ellipse([p[0] * SS - 26 * SS, p[1] * SS - 26 * SS, p[0] * SS + 26 * SS, p[1] * SS + 26 * SS], fill=(255, 255, 255, 70))
-        im = Image.alpha_composite(im, halo)
-        bus = bovenaanzicht(ang, SS * .9)
-        im.alpha_composite(bus, (round(p[0] * SS - bus.width / 2 - math.cos(ang) * 14 * SS), round(p[1] * SS - bus.height / 2 - math.sin(ang) * 14 * SS)))
+        bf = busfoto()
+        bw = 128 * SS
+        bi = bf.resize((bw, round(bf.height * bw / bf.width)), Image.LANCZOS)
+        deg = math.degrees(ang)
+        if abs(deg) > 90:  # naar links rijden: spiegelen zodat de bus niet op zijn kop staat
+            bi = bi.transpose(Image.FLIP_LEFT_RIGHT)
+            deg = deg - 180 if deg > 0 else deg + 180
+        bi = bi.rotate(-deg, resample=Image.BICUBIC, expand=True)
+        im.alpha_composite(bi, (round(p[0] * SS - bi.width / 2), round(p[1] * SS - bi.height / 2)))
         frames.append(im.convert("RGB").resize((KW, KH), Image.LANCZOS))
     pal = frames[0].quantize(colors=200, method=Image.Quantize.MEDIANCUT)
     q = [fr.quantize(palette=pal, dither=Image.Dither.NONE) for fr in frames]
