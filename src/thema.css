@@ -787,3 +787,43 @@ html body:not(#zz) .ofh .of-cs .of-c small{color:rgb(255 255 255 / .65)!importan
 html body:not(#zz) .ofh .of-cs .of-c.ok span{color:#a6ecc4!important}
 html body:not(#zz) .ofh .of-cs .of-c.late span{color:#ffb4a6!important}
 html body:not(#zz) .ofh .of-cs .of-c::before,html body:not(#zz) .ofh .of-cs .of-c::after{display:none!important}
+/* ---------- Statistieken: hero in Gelders blauw, grafieken in eigen kleuren ---------- */
+html body:not(#zz) .st-hero{background:var(--gb-lijn),var(--gb-vlak)!important;border:0!important;color:#fff!important;box-shadow:0 24px 50px -30px rgb(20 24 34 / .75)!important}
+html body:not(#zz) .st-hero .st-hm :is(b,strong,h2,h3,div,span,li){color:#fff!important}
+html body:not(#zz) .st-hero .st-hm :is(p,small,em,.st-mot){color:rgb(255 255 255 / .72)!important}
+html body:not(#zz) .st-hero .st-k{color:rgb(255 255 255 / .7)!important;letter-spacing:.18em!important}
+html body:not(#zz) .st-hero .st-pill{background:rgb(255 255 255 / .1)!important;border:1px solid rgb(255 255 255 / .16)!important}
+html body:not(#zz) .st-hero .st-pill.down,html body:not(#zz) .st-hero .st-pill.down *{color:#ffb4a6!important}
+html body:not(#zz) .st-hero .st-pill.up,html body:not(#zz) .st-hero .st-pill.up *{color:#a6ecc4!important}
+html body:not(#zz) .st-hero .st-hs .st-tile{background:linear-gradient(180deg,rgb(255 255 255 / .1),rgb(255 255 255 / .04))!important;border:1px solid rgb(255 255 255 / .14)!important;backdrop-filter:blur(6px)}
+html body:not(#zz) .st-hero .st-hs .st-tile:hover{border-color:rgb(255 255 255 / .3)!important}
+html body:not(#zz) .st-hero .st-hs .st-tile b{color:#fff!important}
+html body:not(#zz) .st-hero .st-hs .st-tile.ok b{color:#a6ecc4!important}
+html body:not(#zz) .st-hero .st-hs .st-tile.late b{color:#ffb4a6!important}
+html body:not(#zz) .st-hero .st-hs .st-tile :is(.st-l,small,em,p),html body:not(#zz) .st-hero .st-hs .st-tile>span:first-child{color:rgb(255 255 255 / .65)!important}
+html body:not(#zz) .st-hero .st-hs .st-tile .st-ic{background:rgb(255 255 255 / .1)!important}
+html body:not(#zz) .st-hero .st-hs .st-tile .st-ic svg{color:#fff!important;stroke:#fff!important}
+html body:not(#zz) .st-hero .fg-weg::before,html body:not(#zz) .st-hero .fg-baan{background:rgb(255 255 255 / .16)!important}
+html body:not(#zz) .st-hero .fg-baan i,html body:not(#zz) .st-hero .fg-weg>i{background:linear-gradient(90deg,#c9a46a,#ecd3a3)!important}
+html body:not(#zz) .st-hero .st-wijk i{background:rgb(255 255 255 / .1)!important;color:rgb(255 255 255 / .75)!important}
+html body:not(#zz) .st-hero .st-wijk i.nw{background:rgb(233 211 168 / .25)!important;color:#ecd3a3!important}
+html body:not(#zz) .st-hero .st-share{background:rgb(255 255 255 / .12)!important}
+/* staafgrafieken */
+html body:not(#zz) .st-bars .st-tr{background:#f1f2f4!important;border-radius:8px!important}
+html body:not(#zz) .st-bars .st-tr i{background:linear-gradient(180deg,#9aa3b5,#7d879b)!important;border-radius:8px!important}
+html body:not(#zz) .st-bars .st-col:hover .st-tr i{background:linear-gradient(180deg,#7d879b,#5d6780)!important}
+html body:not(#zz) .st-bars .st-col.hi .st-tr i{background:var(--gb-lijn),var(--gb-vlak)!important;box-shadow:0 10px 20px -12px rgb(20 24 34 / .7)}
+html body:not(#zz) .st-bars .st-col.hi>span{color:#252c3c!important;font-weight:700!important}
+html body:not(#zz) .st-bars .st-tr em{opacity:1!important;font-size:11px!important;font-weight:500!important;color:#7a7e84!important}
+html body:not(#zz) .st-bars .st-col.hi .st-tr em{color:#252c3c!important;font-weight:700!important;font-size:12.5px!important}
+html body:not(#zz) .st-bars .st-avg{border-top:1.5px dashed rgb(201 164 106 / .9)!important}
+html body:not(#zz) .st-bars .st-avg span{color:#9a7a45!important;background:#fff!important;border:1px solid rgb(201 164 106 / .5);font-weight:600!important}
+@media (max-width:900px){html body:not(#zz) .st-bars .st-col:not(.hi) .st-tr em{opacity:0!important}html body:not(#zz) .st-bars .st-col:not(.hi):hover .st-tr em{opacity:1!important}}
+/* donut en balken in Gelders */
+html body:not(#zz) .st-card .st-rows .st-rb{background:#f1f2f4!important}
+html body:not(#zz) .st-hero .st-wijk i svg,html body:not(#zz) .st-hero .st-wijk i path{fill:rgb(255 255 255 / .8)!important;color:rgb(255 255 255 / .8)!important}
+html body:not(#zz) .st-hero .st-share i:first-child{background:rgb(255 255 255 / .75)!important}
+html body:not(#zz) .st-hero .st-share i:nth-child(2){background:#d9b97f!important}
+html body:not(#zz) .st-hero .st-gl .st-dot:first-child,html body:not(#zz) .st-hero .st-gl span:first-child .st-dot{background:rgb(255 255 255 / .75)!important}
+html body:not(#zz) .st-hero .st-gl span:last-child .st-dot{background:#d9b97f!important}
+html body:not(#zz) .st-two>.st-card:nth-child(2) .st-rows .st-rb i{background:linear-gradient(90deg,#3e4a64,#252c3c)!important}
