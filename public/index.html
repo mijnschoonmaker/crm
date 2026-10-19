@@ -14874,6 +14874,16 @@ html body:not(#zz) .st-ring{width:156px}
  html body main #view:not(#zz) :is(.toolbar,.acts):has(> .primary):has(> :nth-child(2):last-child):not(.ns-head + .toolbar):not(#zz)>:is(button,a){flex-direction:row!important;min-height:44px!important;height:44px!important;padding:0 14px!important;font-size:10.5px!important;letter-spacing:.14em!important;gap:8px!important;white-space:nowrap!important;line-height:1!important}
  html body main #view:not(#zz) :is(.toolbar,.acts):has(> .primary):has(> :nth-child(2):last-child):not(.ns-head + .toolbar):not(#zz) svg{width:16px!important;height:16px!important}
 }
+/* sluitknop in donkere dialoogkop: rond glas */
+html body:not(#zz) dialog .jp-kop .jp-ib{width:36px!important;height:36px!important;border-radius:50%!important;background:rgb(255 255 255 / .12)!important;border:1px solid rgb(255 255 255 / .22)!important;box-shadow:none!important;outline:none!important;backdrop-filter:blur(6px);transition:background .15s}
+html body:not(#zz) dialog .jp-kop .jp-ib:hover{background:rgb(255 255 255 / .22)!important}
+html body:not(#zz) dialog .jp-kop .jp-ib:focus-visible{outline:2px solid rgb(255 255 255 / .6)!important;outline-offset:2px}
+html body:not(#zz) dialog .jp-kop .jp-ib svg{width:16px!important;height:16px!important;color:#fff!important;stroke:#fff!important}
+/* mobiel: menu van een linker Meer-knop opent naar rechts en blijft in beeld */
+@media (max-width:700px){
+ html body:not(#zz) #view .pagehead :is(.acts,.toolbar):has(> .primary):has(> :nth-child(2):last-child)>.drop .menu{left:0!important;right:auto!important}
+ html body:not(#zz) .pagehead .drop .menu{width:max-content!important;min-width:240px;max-width:calc(100vw - 32px)!important}
+}
 
 </style>
 
