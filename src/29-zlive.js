@@ -40,7 +40,11 @@ function overzichtModelKlant(k){const r=normR(k.ramenRegel),fq="1x per "+(Number
 function overzichtModelOfferte(f,k){const pct=Number(f.btw??S().btw)||21,inc=f.incl??S().incl;
   return {klant:{naam:(k&&k.naam)||f.klantNaam||"",contact:(k&&k.contact)||"",adres:(k&&k.adres)||"",pcPlaats:k?[String(k.postcode||"").toUpperCase(),k.plaats].filter(Boolean).join(" "):"",klantnummer:k?klantNr(k):""},
     groepen:(f.regels||[]).map(r=>{const tot=(Number(r.aantal)||1)*(Number(r.prijs)||0),incl=inc?tot:r2(tot*(1+pct/100)),excl=inc?r2(tot/(1+pct/100)):tot;
-      return {omschrijving:r.omschrijving||"",excl,btwPct:pct,btw:r2(incl-excl),incl,subs:(r.subs||[]).map(x=>({naam:x.naam||"",aantal:x.qty||"",freq:x.fq||""}))}})}}
+      const subs=(r.subs||[]).map(x=>({naam:x.naam||"",aantal:x.qty||"",freq:x.fq||""}));
+      /* frequentie per dienst: uit de regel zelf, anders gelijk aan alle onderdelen, anders de frequentie van de opdracht */
+      const m=String(r.omschrijving||"").match(/\((elke [^)]+|1x per [^)]+|wekelijks|maandelijks)\)/i),fs=[...new Set(subs.map(x=>x.freq).filter(Boolean))];
+      const freq=r.fq?String(r.fq):m?m[1]:fs.length===1?fs[0]:(f.opdracht&&f.opdracht.frequentie?freqLabel(f.opdracht.frequentie).toLowerCase():"");
+      return {omschrijving:String(r.omschrijving||"").replace(/\s*\((elke [^)]+|1x per [^)]+)\)/i,"").replace(/:\s.*$/,"")||r.omschrijving||"",excl,btwPct:pct,btw:r2(incl-excl),incl,freq,subs:subs.map(x=>({...x,freq:x.freq&&x.freq!==freq?x.freq:""}))}})}}
 async function stuurDefinitief(kid,auto){const k=state.klanten.find(x=>x.id===kid);if(!k)return;
   if(!k.email){if(!auto)toast("Deze klant heeft geen e-mailadres");return}
   try{const r=await fbFn("stuurOverzicht")({soort:"definitief",klantId:kid,naar:k.email,naamKlant:k.contact||k.naam,model:overzichtModelKlant(k)});toast("Definitief bestellingsoverzicht "+r.data.nummer+" gemaild naar "+k.email)}

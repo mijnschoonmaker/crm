@@ -34,6 +34,19 @@ input[type=text]{width:100%;font:inherit;font-size:17px;padding:13px 14px;border
 .go{width:100%;font:inherit;font-size:13px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:17px;border:0;border-radius:14px;color:#fff;background:radial-gradient(130% 180% at 100% 0%,#4a5670 0%,transparent 60%),linear-gradient(135deg,#1b2130,#2a3245 60%,#1d2332);box-shadow:0 12px 26px -16px rgb(20 24 34 / .8);cursor:pointer}.go:disabled{opacity:.55;cursor:default}
 .msg{margin-top:8px;font-size:13.5px;font-weight:600;color:#a4544a;min-height:18px;text-align:center}
 .done{text-align:center;padding:44px 26px}.done .ic{width:72px;height:72px;border-radius:50%;background:#e8f2ec;color:var(--ok);display:grid;place-items:center;margin:0 auto 16px;font-size:32px}.done .sig{max-width:240px;margin:18px auto 0;opacity:.85}
+.dn-kop{display:flex;justify-content:space-between;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.dn{padding:16px 0;border-bottom:1px solid var(--line)}
+.dn-h{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+.dn-t{display:flex;flex-direction:column;gap:6px;min-width:0}.dn-t b{font-size:16px;font-weight:500;letter-spacing:-.005em;line-height:1.3}
+.fq{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;letter-spacing:.06em;color:#3e4a64;background:#f0f1f4;border-radius:999px;padding:4px 10px}
+.fq::before{content:"";width:6px;height:6px;border-radius:50%;background:#c9a46a}
+.dn-p{font-size:16px;font-weight:500;white-space:nowrap}
+.dn-s{list-style:none;margin:10px 0 0;padding:0 0 0 12px;border-left:2px solid #eceef1;display:flex;flex-direction:column;gap:5px}
+.dn-s li{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;color:var(--muted)}.dn-s em{font-style:normal;white-space:nowrap}
+.dn-tot{display:flex;justify-content:space-between;align-items:baseline;padding-top:16px}.dn-tot span{font-size:10.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}.dn-tot b{font-size:22px;font-weight:500}
+.card:not(.hero) h1{font-weight:400}
+.sub{font-size:15px}
+input[type=text]{font-weight:500}
 .foot{text-align:center;color:#9aa1ad;font-size:12.5px;margin-top:10px}
 </style></head><body><div class="wrap" id="app"><div class="card"><p class="sub">Offerte laden…</p></div></div>
 <script>
@@ -42,15 +55,18 @@ const eur=n=>"€ "+(Math.round((+n||0)*100)/100).toFixed(2).replace(".",",");
 const tok=location.pathname.split("/").filter(Boolean).pop();
 const klaar=(d,naam)=>{$("#app").innerHTML=`<div class="card done"><div class="ic">✓</div><span class="kick">Ondertekend</span><h1>Bedankt${naam?", "+esc(naam):""}!</h1><p class="sub" style="margin:8px 0 0">Uw akkoord is ontvangen. U ontvangt het definitieve bestellingsoverzicht per e-mail.<br>Wij nemen contact met u op om uw eerste bezoek in te plannen.</p></div><p class="foot">${esc(d.bedrijf.naam)}${d.bedrijf.telefoon?" · "+esc(d.bedrijf.telefoon):""}</p>`};
 const VB=tok==="voorbeeld";/* voorbeeldpagina voor testmails: niets wordt opgeslagen */
-(async()=>{let d;try{if(VB){const t=new Date(Date.now()+14*864e5).toISOString().slice(0,10);d={status:"open",nummer:"VOORBEELD",geldigTot:t,bedrijf:{naam:"Voorbeeld Glazenwasserij",logo:"/logo.png"},klant:{naam:"Fam. de Vries",contact:"Anna de Vries",adres:"Lindenlaan 12",pcPlaats:"9801 AB Zuidhorn"},groepen:[{omschrijving:"Glasbewassing buiten",incl:65,subs:[{naam:"Ramen",aantal:"14",freq:"elke 8 weken"}]},{omschrijving:"Dakkapel + kozijnen",incl:15,subs:[]}]}}else{const r=await fetch("/api/akkoord-info?t="+encodeURIComponent(tok));if(!r.ok)throw 0;d=await r.json()}}catch(e){$("#app").innerHTML='<div class="card"><h1>Offerte niet gevonden</h1><p class="sub">Deze link is niet (meer) geldig. Neem contact met ons op.</p></div>';return}
+(async()=>{let d;try{if(VB){const t=new Date(Date.now()+14*864e5).toISOString().slice(0,10);d={status:"open",nummer:"VOORBEELD",geldigTot:t,bedrijf:{naam:"Voorbeeld Glazenwasserij",logo:"/logo.png"},klant:{naam:"Fam. de Vries",contact:"Anna de Vries",adres:"Lindenlaan 12",pcPlaats:"9801 AB Zuidhorn"},groepen:[{omschrijving:"Glasbewassing buiten",incl:65,freq:"elke 8 weken",subs:[{naam:"Ramen begane grond",aantal:"9 st"},{naam:"Ramen 1e verdieping",aantal:"5 st"}]},{omschrijving:"Reiniging dakkapel",incl:15,freq:"1x per jaar",subs:[]}]}}else{const r=await fetch("/api/akkoord-info?t="+encodeURIComponent(tok));if(!r.ok)throw 0;d=await r.json()}}catch(e){$("#app").innerHTML='<div class="card"><h1>Offerte niet gevonden</h1><p class="sub">Deze link is niet (meer) geldig. Neem contact met ons op.</p></div>';return}
   if(d.status==="getekend"||d.getekend){klaar(d,"");return}
-  let tot=0;const rows=(d.groepen||[]).map(g=>{tot+=+g.incl||0;return `<tr class="g"><td>${esc(g.omschrijving)}</td><td class="r">${eur(g.incl)}</td></tr>`+(g.subs||[]).map(s=>`<tr class="s"><td colspan="2">${esc(s.naam)}${s.aantal?" · "+esc(s.aantal):""}${s.freq?" · "+esc(s.freq):""}</td></tr>`).join("")}).join("");
+  const hfd=t=>{t=String(t||"");return t?t.charAt(0).toUpperCase()+t.slice(1):""};
+  let tot=0;const rows=(d.groepen||[]).map(g=>{tot+=+g.incl||0;const subs=(g.subs||[]).filter(s=>s.naam);
+    return `<div class="dn"><div class="dn-h"><div class="dn-t"><b>${esc(g.omschrijving)}</b>${g.freq?`<span class="fq">${esc(hfd(g.freq))}</span>`:""}</div><span class="dn-p">${eur(g.incl)}</span></div>
+      ${subs.length?`<ul class="dn-s">${subs.map(s=>`<li><span>${esc(s.naam)}</span><em>${[s.aantal,s.freq].filter(Boolean).map(esc).join(" · ")}</em></li>`).join("")}</ul>`:""}</div>`}).join("");
   const k=d.klant||{};
   const pen='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21c3-1 5-4 7-7 1.6-2.4 3.4-5 5.5-6.6a2.1 2.1 0 1 1 2.8 3.1C16.6 12.6 14 14.4 11.6 16 8.6 18 6 20 3 21z"/><path d="M14 8l2 2"/></svg>';
   $("#app").innerHTML=`<div class="card hero"><div class="top">${d.bedrijf.logo?`<img src="${esc(d.bedrijf.logo)}" alt="${esc(d.bedrijf.naam)}">`:`<b>${esc(d.bedrijf.naam)}</b>`}<span class="kick">Offerte ${esc(d.nummer)}</span></div>
     <span class="kick">Uw offerte</span><h1>${esc(k.naam||"Uw offerte")}</h1><p class="sub" style="margin:0">${esc(k.adres||"")}${k.pcPlaats?", "+esc(k.pcPlaats):""}</p>
     <div class="bedrag"><span>Per keer incl. btw<b>${eur(tot)}</b></span>${d.geldigTot?`<span>Geldig tot<b>${esc(d.geldigTot.split("-").reverse().join("-"))}</b></span>`:""}</div></div>
-  <div class="card"><span class="kick">Wat we voor u doen</span><table style="margin-top:12px"><tr><th>Omschrijving</th><th class="r">Per keer</th></tr>${rows}${(d.groepen||[]).length>1?`<tr class="tot"><td>Totaal per keer</td><td class="r">${eur(tot)}</td></tr>`:""}</table></div>
+  <div class="card"><div class="dn-kop"><span class="kick">Wat we voor u doen</span><span class="kick">Per keer</span></div>${rows}${(d.groepen||[]).length>1?`<div class="dn-tot"><span>Totaal per keer</span><b>${eur(tot)}</b></div>`:""}</div>
   <div class="card"><span class="kick">Akkoord geven</span><h1 style="font-size:22px">Teken met uw vinger</h1><p class="sub">Zet uw handtekening in het vak. Dat is alles: daarna plannen wij u in.</p>
     <div class="g2"><div><label for="nm">Uw naam</label><input type="text" id="nm" autocomplete="name" value="${esc(k.contact||k.naam||"")}"></div><div><label for="pl">Plaats</label><input type="text" id="pl" autocomplete="address-level2" value="${esc((k.pcPlaats||"").replace(/^\d{4}\s?[a-z]{2}\s*/i,""))}"></div></div>
     <div class="padkop"><label>Handtekening</label><button class="wis" id="wis" type="button">Opnieuw</button></div><div class="pad" id="pad"><canvas id="cv"></canvas><span class="x">✕</span><span class="line"></span><span class="hint" id="hint">${pen}Teken hier met uw vinger</span></div>
