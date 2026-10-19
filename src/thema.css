@@ -727,3 +727,22 @@ html body:not(#zz) .rv .rv-rechts .rv-chips>span b,html body:not(#zz) .rv .rv-re
   html body:not(#zz) .rv .rv-rechts .rv-chips{display:grid!important;grid-template-columns:1fr 1fr;gap:8px!important}
   html body:not(#zz) .rv .rv-rechts .rv-chips>span,html body:not(#zz) .rv .rv-rechts .rv-chips>span.rv-klaar{min-width:0;padding:10px 14px!important;align-items:flex-start!important;text-align:left}
   html body:not(#zz) .rv .rv-rechts .rv-chips>span b,html body:not(#zz) .rv .rv-rechts .rv-chips>span.rv-klaar b{font-size:24px!important}}
+/* tegels iets lager, vooral tablet */
+html body:not(#zz) .rv .rv-rechts .rv-chips>span,html body:not(#zz) .rv .rv-rechts .rv-chips>span.rv-klaar{padding:10px 14px!important;gap:3px!important}
+html body:not(#zz) .rv .rv-rechts .rv-chips>span b,html body:not(#zz) .rv .rv-rechts .rv-chips>span.rv-klaar b{font-size:26px!important}
+html body:not(#zz) .rv .rv-rechts .rv-geld{padding:10px 14px!important;gap:2px!important}
+@media (max-width:1180px){
+  html body:not(#zz) .rv .rv-rechts .rv-chips>span,html body:not(#zz) .rv .rv-rechts .rv-chips>span.rv-klaar{padding:7px 12px!important;gap:1px!important;font-size:12px!important}
+  html body:not(#zz) .rv .rv-rechts .rv-chips>span b,html body:not(#zz) .rv .rv-rechts .rv-chips>span.rv-klaar b{font-size:21px!important}
+  html body:not(#zz) .rv .rv-rechts .rv-geld{padding:7px 12px!important;gap:1px!important}
+  html body:not(#zz) .rv .rv-rechts .rv-geld small{font-size:12px!important}
+  html body:not(#zz) .rv .rv-rechts .rv-geld b{font-size:21px!important;line-height:1.05!important}
+  html body:not(#zz) .rv .rv-rechts .rv-geld em{font-size:11px!important}
+  html body:not(#zz) .rv .rv-rechts .rv-geld .rv-gb{margin:3px 0 1px!important}}
+@media (max-width:700px){
+  html body:not(#zz) .rv .rv-rechts .rv-chips>span b,html body:not(#zz) .rv .rv-rechts .rv-chips>span.rv-klaar b{font-size:22px!important}}
+@media (max-width:1180px) and (min-width:701px){
+  html body:not(#zz) .rv .rv-rechts .rv-geld{flex-direction:row!important;flex-wrap:wrap!important;align-items:baseline!important;justify-content:flex-end!important;column-gap:6px!important}
+  html body:not(#zz) .rv .rv-rechts .rv-geld small{width:100%;text-align:right}
+  html body:not(#zz) .rv .rv-rechts .rv-geld .rv-gb{order:5;width:100%}
+  html body:not(#zz) .rv .rv-rechts .rv-chips>span,html body:not(#zz) .rv .rv-rechts .rv-chips>span.rv-klaar{justify-content:center!important}}
