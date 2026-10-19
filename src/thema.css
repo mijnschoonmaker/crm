@@ -1148,3 +1148,21 @@ html body:not(#zz) #owAdrKe .small{width:42px;height:38px!important;min-height:3
 html body:not(#zz) .ow-adrf{display:flex;flex-direction:column;gap:14px;padding-top:4px}
 html body:not(#zz) .ow-adrf label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:var(--ink)}
 html body:not(#zz) .ow-adrf select{height:44px;border-radius:10px;font-size:15px}
+/* opdrachtregels zoals DienstenCRM: kozijnreiniging per onderdeel en bijzondere ramen */
+html body:not(#zz) .ow-koz{margin:8px 0 2px;padding:10px 12px;border:1px dashed var(--rr-rand);border-radius:12px;background:#fff}
+html body:not(#zz) .ow-koz.on{border-style:solid}
+html body:not(#zz) .ow-kozc{display:flex!important;flex-direction:row!important;align-items:center;gap:10px;flex-wrap:wrap;font-weight:600;font-size:14px;cursor:pointer}
+html body:not(#zz) .ow-kozc input{width:18px;height:18px;accent-color:#252c3c;margin:0}
+html body:not(#zz) .ow-kozc small{font-weight:400;color:var(--muted);font-size:12.5px}
+html body:not(#zz) .ow-koz .ow-sub{margin-top:10px}
+html body:not(#zz) .ow-spb{margin-top:18px;padding-top:16px;border-top:1px solid var(--rr-rand)}
+html body:not(#zz) .ow-spbh{display:flex;flex-direction:column;gap:2px;margin-bottom:10px}
+html body:not(#zz) .ow-spbh b{font-size:15px;font-weight:600}
+html body:not(#zz) .ow-spbh span{font-size:12.5px;color:var(--muted)}
+html body:not(#zz) .ow-rkh b small{font-weight:400;color:var(--muted);font-size:13px}
+html body:not(#zz) .ow-rkt dd i,html body:not(#zz) .ow-rkf dd i{font-style:italic;color:var(--muted);font-size:12.5px}
+html body:not(#zz) .ow-rkls{color:var(--muted);font-weight:400}
+html body:not(#zz) .ow-rk+.ow-rk{margin-top:12px}
+html body:not(#zz) .ow-koz,html body:not(#zz) .ow-koz.on,html body:not(#zz) .ow-koz:has(input:checked){background:#fff!important;color:var(--ink)!important;box-shadow:none!important}
+html body:not(#zz) .ow-koz .ow-kozc,html body:not(#zz) .ow-koz .ow-kozc span{color:var(--ink)!important;background:transparent!important}
+html body:not(#zz) .ow-koz label{color:var(--ink)!important}
