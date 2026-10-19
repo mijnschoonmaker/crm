@@ -1128,3 +1128,6 @@ html body:not(#zz) .ajr-per svg{width:14px;height:14px}
   html body:not(#zz) .seg.brand button[data-act=itab]{padding-left:9px!important;padding-right:9px!important;letter-spacing:.1em!important}}
 /* waarden in de glazen tegels van het blauwe blok: iets voller, nog steeds rustig */
 html body:not(#zz) .st-hero .st-hs .st-tile b{font-weight:500!important;letter-spacing:-.01em!important;-webkit-font-smoothing:antialiased}
+/* onderwerp in de berichtenlijst: een tikje minder vet */
+html body:not(#zz) .msg-subj{font-weight:600!important}
+html body:not(#zz) .msg-subj>span{font-weight:400!important}
