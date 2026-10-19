@@ -1133,3 +1133,5 @@ html body:not(#zz) .msg-subj{font-weight:600!important}
 html body:not(#zz) .msg-subj>span{font-weight:400!important}
 /* berichtenlijst: onderwerp iets minder vet */
 html body:not(#zz) .msgc .msg-subj{font-weight:600!important}
+/* planning: Planningsmail even hoog als Kaartplannen en Plan de week */
+html body:not(#zz) .toolbar button.primary.pl-opt,html body:not(#zz) button.primary.pl-opt{height:40px!important;min-height:40px!important;padding-top:0!important;padding-bottom:0!important}
