@@ -164,7 +164,8 @@ def scene(naam, richting):
 
 # ------------------------------------------------------------------ kaart
 # gewone woonwijk (Houten): geen echte klant. Route over echte straten tussen A en B (OSRM)
-A_LL, B_LL = (52.02060, 5.16380), (52.02270, 5.16930)
+A_LL, B_LL = (52.02150, 5.16600), (52.02420, 5.17200)
+MAX_M = 230  # alleen het eerste stuk van de route: past ruim in beeld op zoom 17
 Z = 17
 KW, KH = 560, 340
 
@@ -249,6 +250,19 @@ def kaart():
     except Exception as e:
         print("route niet bereikbaar, rechte lijn:", e)
         ll = [A_LL, (A_LL[0], B_LL[1]), B_LL]
+    # route inkorten tot MAX_M meter (zo blijft het een straatje of twee in een woonwijk)
+    def m(a, b):
+        return 6371000 * math.hypot(math.radians(b[0] - a[0]), math.radians(b[1] - a[1]) * math.cos(math.radians(a[0])))
+    kort, tot = [ll[0]], 0
+    for a2, b2 in zip(ll, ll[1:]):
+        d = m(a2, b2)
+        if tot + d >= MAX_M:
+            f = (MAX_M - tot) / d if d else 0
+            kort.append((a2[0] + (b2[0] - a2[0]) * f, a2[1] + (b2[1] - a2[1]) * f))
+            break
+        kort.append(b2)
+        tot += d
+    ll = kort
     try:
         px0, py0, pts = beeld(ll)
         foto = luchtfoto(px0, py0)
