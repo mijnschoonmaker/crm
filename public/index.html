@@ -14887,6 +14887,19 @@ html body:not(#zz) dialog .jp-kop .jp-ib svg{width:16px!important;height:16px!im
 /* filterchips: alleen de geselecteerde, zacht Gelders blauw */
 html body:not(#zz) .chips .chip:is(.on,[aria-pressed="true"],.active){background:linear-gradient(180deg,#f3f4f7,#e9ecf1)!important;color:#252c3c!important;box-shadow:inset 0 0 0 1px rgb(37 44 60 / .22),0 1px 2px rgb(20 24 34 / .06)!important}
 html body:not(#zz) .chips .chip:is(.on,[aria-pressed="true"],.active) :is(em,span,small,b:not(:first-child)){color:#6b7385!important}
+/* Planning-balk op iPad/tablet: zoekveld op eigen regel, knoppen netjes eronder */
+@media (min-width:701px) and (max-width:1400px){
+  html body:not(#zz) #view .pl-bar{flex-wrap:wrap!important;gap:8px!important}
+  html body:not(#zz) #view .pl-bar .pl-q{flex:1 1 100%!important;min-width:0!important;order:-1}
+  html body:not(#zz) #view .pl-bar>button{flex:1 1 0!important;min-width:0!important;justify-content:center!important;white-space:nowrap}
+  html body:not(#zz) #view .pl-bar>button span{overflow:hidden;text-overflow:ellipsis}
+  html body:not(#zz) #view .pl-bar .pl-meer{flex:none}
+  html body:not(#zz) #view .pl-bar .pl-chip{flex:none!important}
+  html body:not(#zz) #view .pl-bar .pl-sp{display:none!important}
+  html body:not(#zz) #view .pl-bar>button>span{display:inline!important}
+  html body:not(#zz) #view .pl-bar>button{padding:0 12px!important;gap:8px!important;letter-spacing:.12em!important}
+}
+@media (min-width:701px) and (max-width:1100px){html body:not(#zz) #view .pl-bar>button>span{display:none!important}}
 
 </style>
 
