@@ -827,3 +827,24 @@ html body:not(#zz) .st-hero .st-share i:nth-child(2){background:#d9b97f!importan
 html body:not(#zz) .st-hero .st-gl .st-dot:first-child,html body:not(#zz) .st-hero .st-gl span:first-child .st-dot{background:rgb(255 255 255 / .75)!important}
 html body:not(#zz) .st-hero .st-gl span:last-child .st-dot{background:#d9b97f!important}
 html body:not(#zz) .st-two>.st-card:nth-child(2) .st-rows .st-rb i{background:linear-gradient(90deg,#3e4a64,#252c3c)!important}
+/* ---------- Statistieken Werk: doelbalk, tempo-regel, tijdkaart in huisstijl ---------- */
+html body:not(#zz) .st-hero .st-wk{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+html body:not(#zz) .st-hero .st-wk span{display:inline-flex;align-items:baseline;gap:6px;padding:7px 12px;border-radius:10px;background:linear-gradient(180deg,rgb(255 255 255 / .1),rgb(255 255 255 / .04));border:1px solid rgb(255 255 255 / .14);font-size:12.5px;color:rgb(255 255 255 / .72)!important}
+html body:not(#zz) .st-hero .st-wk b{font-size:16px;font-weight:600;color:#fff!important}
+html body:not(#zz) .st-hero .st-gl{color:rgb(255 255 255 / .75)!important}
+html body:not(#zz) .st-hero .st-gl b{color:#fff!important}
+html body:not(#zz) .st-hero .st-ing{color:#ecd3a3!important}
+html body:not(#zz) .st-hero .st-mot{font-size:15px!important;color:rgb(255 255 255 / .85)!important}
+html body:not(#zz) .wd-st .wd-bar{height:12px!important;border-radius:6px!important;overflow:hidden;background:#f1f2f4!important}
+html body:not(#zz) .wd-st .wd-bar .f,html body:not(#zz) .wd-st .wd-leg i.f{background:#2a3245!important}
+html body:not(#zz) .wd-st .wd-bar .r,html body:not(#zz) .wd-st .wd-leg i.r{background:#c9a46a!important}
+html body:not(#zz) .wd-st .wd-bar .p,html body:not(#zz) .wd-st .wd-leg i.p{background:#c5cad3!important}
+html body:not(#zz) .wd-st .wd-kpi>div{background:#fff!important;border:1px solid var(--rr-rand)!important;border-radius:12px!important;padding:14px 16px!important}
+html body:not(#zz) .wd-st .wd-kpi small{font-size:11px!important;font-weight:600!important;letter-spacing:.14em!important;text-transform:uppercase;color:#7a7e84!important}
+html body:not(#zz) .wd-st .wd-kpi b{font-size:22px!important;font-weight:500!important;color:#0d121b!important}
+html body:not(#zz) .wd-st .st-leeg{background:#f7f8f9;border:1px dashed #d5d8dd;border-radius:12px;padding:16px 18px;color:#55585f}
+html body:not(#zz) .st-hero .fg-munt.st-hmunt{width:30px;height:30px;border-radius:50%;background:#fff!important;display:grid;place-items:center;box-shadow:0 0 0 5px rgb(255 255 255 / .14),0 6px 14px -6px rgb(0 0 0 / .5)}
+html body:not(#zz) .st-hero .fg-munt.st-hmunt svg{width:16px;height:16px;fill:#252c3c!important;color:#252c3c!important}
+html body:not(#zz) .st-hero .fg-munt.st-hmunt svg *{fill:#252c3c!important}
+html body:not(#zz) .st-di .st-dit{display:flex;justify-content:space-between;gap:10px;flex-wrap:nowrap}
+html body:not(#zz) .st-di .st-dit .mono{white-space:nowrap}

@@ -50,10 +50,14 @@ function vInzichten(){
     const mot=!bs.length?"Nog geen beurten afgemeld in deze periode. Op naar de eerste!":bs.length>bv.length?`${bs.length-bv.length} beurten meer dan ${esc(V.lbl)}. Lekker bezig!`:bs.length===bv.length?`Net zoveel beurten als ${esc(V.lbl)}. Stabiel!`:`${esc(V.lbl)} telde er ${bv.length}. Nog ${bv.length-bs.length} te gaan om gelijk te komen.`;
     html+=`<section class="st-hero"><div class="st-hm"><span class="st-k">Woningen gedaan · ${esc(P.lbl)}</span>
         <div class="st-big"><b>${bs.length}</b>${stDelta(bs.length,bv.length,"vs "+V.lbl)}</div>
-        ${bs.length?stStraat(bs.length):""}
-        <p class="st-mot">${mot}</p></div>
-      <div class="st-hs">${(()=>{const t=typeof wdPeriode==="function"?wdPeriode(P.rg):{dagen:0};return t.dagen?stTile(I.euro,"Echt per uur",t.perUur?eur(t.perUur):"–","per gewerkt uur, loods tot loods zonder pauze","ok"):stTile(I.euro,"Per klantuur",mins?eur(om/(mins/60)):"–","omzet ex btw per uur bij klanten","ok")})()}${stTile(I.receipt,"Per beurt",gem?eur(gem):"–","gemiddeld ex btw")}</div></section>
-    <div class="st-tiles">${stTile(I.timer,"Uren bij klanten",uren(mins),"gemeten of geplande duur per stop")}
+        <p class="st-mot">${mot}</p>
+        ${(()=>{if(!bv.length&&!bs.length)return"";const doel=Math.max(bv.length,1),pc=Math.min(100,Math.round(bs.length/doel*100)),rec=bs.length>=bv.length&&bv.length>0;
+          const dagen=new Set(bs.map(b=>b.datum)).size,pd=dagen?bs.length/dagen:0,rest=Math.max(0,bv.length-bs.length),nd=pd?Math.ceil(rest/pd):0;
+          return `<div class="st-goal st-rol"><div class="fg-weg" style="--p:${pc/100}"><div class="fg-baan"><i></i></div><span class="fg-munt st-hmunt">${typeof HUIS!=="undefined"?HUIS:""}</span><span class="st-vlag">🏁</span></div>
+            <div class="st-gl"><span><b>${bs.length} van ${bv.length||"–"}</b> woningen van ${esc(V.lbl)}</span><span class="st-ing">${rec?"Record-tempo 🎉":rest?`nog ${rest}${nd?` · ±${plural(nd,"werkdag","werkdagen")}`:""}`:""}</span></div></div>
+            ${pd?`<div class="st-wk"><span><b>${pd.toLocaleString("nl-NL",{maximumFractionDigits:1})}</b> woningen per werkdag</span><span><b>${dagen}</b> ${dagen===1?"dag":"dagen"} gewerkt</span>${gem?`<span><b>${eur0(gem*pd)}</b> per werkdag</span>`:""}</div>`:""}`})()}</div>
+      <div class="st-hs">${(()=>{const t=typeof wdPeriode==="function"?wdPeriode(P.rg):{dagen:0};return t.dagen&&t.perUur?stTile(I.euro,"Echt per uur",t.perUur?eur(t.perUur):"–","per gewerkt uur, loods tot loods zonder pauze","ok"):stTile(I.euro,"Per klantuur",mins?eur(om/(mins/60)):"–","omzet ex btw per uur bij klanten","ok")})()}${stTile(I.receipt,"Per beurt",gem?eur(gem):"–","gemiddeld ex btw")}</div></section>
+    <div class="st-tiles">${stTile(I.timer,"Uren bij klanten",uren(mins),"gemeten of gepland")}
       ${stTile(I.euro,"Omzet uit werk",eur(om),"afgemelde beurten ex btw")}
       ${stTile(I.spark,"Beste dag ooit",best?eur(best[1]):"–",best?esc(fmtL(best[0])):"nog geen beurten")}
       ${stTile(I.alert,"Achterstallig",ach,ach?"klanten over hun interval":"niemand achter, netjes!",ach?"late":"ok",` data-act="tab" data-tab="planning" role="button"`)}</div>

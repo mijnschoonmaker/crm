@@ -8788,10 +8788,14 @@ function vInzichten(){
     const mot=!bs.length?"Nog geen beurten afgemeld in deze periode. Op naar de eerste!":bs.length>bv.length?`${bs.length-bv.length} beurten meer dan ${esc(V.lbl)}. Lekker bezig!`:bs.length===bv.length?`Net zoveel beurten als ${esc(V.lbl)}. Stabiel!`:`${esc(V.lbl)} telde er ${bv.length}. Nog ${bv.length-bs.length} te gaan om gelijk te komen.`;
     html+=`<section class="st-hero"><div class="st-hm"><span class="st-k">Woningen gedaan · ${esc(P.lbl)}</span>
         <div class="st-big"><b>${bs.length}</b>${stDelta(bs.length,bv.length,"vs "+V.lbl)}</div>
-        ${bs.length?stStraat(bs.length):""}
-        <p class="st-mot">${mot}</p></div>
-      <div class="st-hs">${(()=>{const t=typeof wdPeriode==="function"?wdPeriode(P.rg):{dagen:0};return t.dagen?stTile(I.euro,"Echt per uur",t.perUur?eur(t.perUur):"–","per gewerkt uur, loods tot loods zonder pauze","ok"):stTile(I.euro,"Per klantuur",mins?eur(om/(mins/60)):"–","omzet ex btw per uur bij klanten","ok")})()}${stTile(I.receipt,"Per beurt",gem?eur(gem):"–","gemiddeld ex btw")}</div></section>
-    <div class="st-tiles">${stTile(I.timer,"Uren bij klanten",uren(mins),"gemeten of geplande duur per stop")}
+        <p class="st-mot">${mot}</p>
+        ${(()=>{if(!bv.length&&!bs.length)return"";const doel=Math.max(bv.length,1),pc=Math.min(100,Math.round(bs.length/doel*100)),rec=bs.length>=bv.length&&bv.length>0;
+          const dagen=new Set(bs.map(b=>b.datum)).size,pd=dagen?bs.length/dagen:0,rest=Math.max(0,bv.length-bs.length),nd=pd?Math.ceil(rest/pd):0;
+          return `<div class="st-goal st-rol"><div class="fg-weg" style="--p:${pc/100}"><div class="fg-baan"><i></i></div><span class="fg-munt st-hmunt">${typeof HUIS!=="undefined"?HUIS:""}</span><span class="st-vlag">🏁</span></div>
+            <div class="st-gl"><span><b>${bs.length} van ${bv.length||"–"}</b> woningen van ${esc(V.lbl)}</span><span class="st-ing">${rec?"Record-tempo 🎉":rest?`nog ${rest}${nd?` · ±${plural(nd,"werkdag","werkdagen")}`:""}`:""}</span></div></div>
+            ${pd?`<div class="st-wk"><span><b>${pd.toLocaleString("nl-NL",{maximumFractionDigits:1})}</b> woningen per werkdag</span><span><b>${dagen}</b> ${dagen===1?"dag":"dagen"} gewerkt</span>${gem?`<span><b>${eur0(gem*pd)}</b> per werkdag</span>`:""}</div>`:""}`})()}</div>
+      <div class="st-hs">${(()=>{const t=typeof wdPeriode==="function"?wdPeriode(P.rg):{dagen:0};return t.dagen&&t.perUur?stTile(I.euro,"Echt per uur",t.perUur?eur(t.perUur):"–","per gewerkt uur, loods tot loods zonder pauze","ok"):stTile(I.euro,"Per klantuur",mins?eur(om/(mins/60)):"–","omzet ex btw per uur bij klanten","ok")})()}${stTile(I.receipt,"Per beurt",gem?eur(gem):"–","gemiddeld ex btw")}</div></section>
+    <div class="st-tiles">${stTile(I.timer,"Uren bij klanten",uren(mins),"gemeten of gepland")}
       ${stTile(I.euro,"Omzet uit werk",eur(om),"afgemelde beurten ex btw")}
       ${stTile(I.spark,"Beste dag ooit",best?eur(best[1]):"–",best?esc(fmtL(best[0])):"nog geen beurten")}
       ${stTile(I.alert,"Achterstallig",ach,ach?"klanten over hun interval":"niemand achter, netjes!",ach?"late":"ok",` data-act="tab" data-tab="planning" role="button"`)}</div>
@@ -12857,7 +12861,7 @@ function wdPeriode(rg){const dagen=Object.keys(state.routes||{}).filter(d=>/^\d{
   const t={dagen:dagen.length,totaal:0,pauze:0,netto:0,fact:0,reis:0,omzet:0};dagen.forEach(d=>{const c=wdCijfers(d);["totaal","pauze","netto","fact","reis","omzet"].forEach(x=>t[x]+=c[x])});
   t.perUur=t.netto>0?t.omzet/(t.netto/60):0;t.perFact=t.fact>0?t.omzet/(t.fact/60):0;return t}
 function wdStatKaart(rg,lbl){const t=wdPeriode(rg);
-  if(!t.dagen)return `<section class="st-card wd-st"><div class="st-ch"><div><h3>Waar gaat je tijd naartoe?</h3><p>Facturabel, reistijd en pauze</p></div></div><p class="st-leeg">Druk op Vandaag op <b>Start werkdag</b> bij vertrek en <b>Terug bij de loods</b> aan het eind. Dan zie je hier je echte uurloon.</p></section>`;
+  if(!t.dagen||(t.netto+t.pauze)<5)return `<section class="st-card wd-st"><div class="st-ch"><div><h3>Waar gaat je tijd naartoe?</h3><p>Facturabel, reistijd en pauze</p></div></div><p class="st-leeg">Druk op Vandaag op <b>Start werkdag</b> bij vertrek en <b>Terug bij de loods</b> aan het eind. Dan zie je hier je echte uurloon.</p></section>`;
   const p=x=>t.netto+t.pauze>0?Math.round(x/(t.netto+t.pauze)*100):0;
   return `<section class="st-card wd-st"><div class="st-ch"><div><h3>Waar gaat je tijd naartoe?</h3><p>${plural(t.dagen,"werkdag","werkdagen")} gemeten · ${esc(lbl)}</p></div></div>
     <div class="wd-bar big"><i class="f" style="flex:${t.fact}"></i><i class="r" style="flex:${t.reis}"></i><i class="p" style="flex:${t.pauze||0.0001}"></i></div>
@@ -14815,6 +14819,27 @@ html body:not(#zz) .st-hero .st-share i:nth-child(2){background:#d9b97f!importan
 html body:not(#zz) .st-hero .st-gl .st-dot:first-child,html body:not(#zz) .st-hero .st-gl span:first-child .st-dot{background:rgb(255 255 255 / .75)!important}
 html body:not(#zz) .st-hero .st-gl span:last-child .st-dot{background:#d9b97f!important}
 html body:not(#zz) .st-two>.st-card:nth-child(2) .st-rows .st-rb i{background:linear-gradient(90deg,#3e4a64,#252c3c)!important}
+/* ---------- Statistieken Werk: doelbalk, tempo-regel, tijdkaart in huisstijl ---------- */
+html body:not(#zz) .st-hero .st-wk{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+html body:not(#zz) .st-hero .st-wk span{display:inline-flex;align-items:baseline;gap:6px;padding:7px 12px;border-radius:10px;background:linear-gradient(180deg,rgb(255 255 255 / .1),rgb(255 255 255 / .04));border:1px solid rgb(255 255 255 / .14);font-size:12.5px;color:rgb(255 255 255 / .72)!important}
+html body:not(#zz) .st-hero .st-wk b{font-size:16px;font-weight:600;color:#fff!important}
+html body:not(#zz) .st-hero .st-gl{color:rgb(255 255 255 / .75)!important}
+html body:not(#zz) .st-hero .st-gl b{color:#fff!important}
+html body:not(#zz) .st-hero .st-ing{color:#ecd3a3!important}
+html body:not(#zz) .st-hero .st-mot{font-size:15px!important;color:rgb(255 255 255 / .85)!important}
+html body:not(#zz) .wd-st .wd-bar{height:12px!important;border-radius:6px!important;overflow:hidden;background:#f1f2f4!important}
+html body:not(#zz) .wd-st .wd-bar .f,html body:not(#zz) .wd-st .wd-leg i.f{background:#2a3245!important}
+html body:not(#zz) .wd-st .wd-bar .r,html body:not(#zz) .wd-st .wd-leg i.r{background:#c9a46a!important}
+html body:not(#zz) .wd-st .wd-bar .p,html body:not(#zz) .wd-st .wd-leg i.p{background:#c5cad3!important}
+html body:not(#zz) .wd-st .wd-kpi>div{background:#fff!important;border:1px solid var(--rr-rand)!important;border-radius:12px!important;padding:14px 16px!important}
+html body:not(#zz) .wd-st .wd-kpi small{font-size:11px!important;font-weight:600!important;letter-spacing:.14em!important;text-transform:uppercase;color:#7a7e84!important}
+html body:not(#zz) .wd-st .wd-kpi b{font-size:22px!important;font-weight:500!important;color:#0d121b!important}
+html body:not(#zz) .wd-st .st-leeg{background:#f7f8f9;border:1px dashed #d5d8dd;border-radius:12px;padding:16px 18px;color:#55585f}
+html body:not(#zz) .st-hero .fg-munt.st-hmunt{width:30px;height:30px;border-radius:50%;background:#fff!important;display:grid;place-items:center;box-shadow:0 0 0 5px rgb(255 255 255 / .14),0 6px 14px -6px rgb(0 0 0 / .5)}
+html body:not(#zz) .st-hero .fg-munt.st-hmunt svg{width:16px;height:16px;fill:#252c3c!important;color:#252c3c!important}
+html body:not(#zz) .st-hero .fg-munt.st-hmunt svg *{fill:#252c3c!important}
+html body:not(#zz) .st-di .st-dit{display:flex;justify-content:space-between;gap:10px;flex-wrap:nowrap}
+html body:not(#zz) .st-di .st-dit .mono{white-space:nowrap}
 
 </style>
 

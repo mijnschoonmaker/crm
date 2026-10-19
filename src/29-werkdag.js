@@ -48,7 +48,7 @@ function wdPeriode(rg){const dagen=Object.keys(state.routes||{}).filter(d=>/^\d{
   const t={dagen:dagen.length,totaal:0,pauze:0,netto:0,fact:0,reis:0,omzet:0};dagen.forEach(d=>{const c=wdCijfers(d);["totaal","pauze","netto","fact","reis","omzet"].forEach(x=>t[x]+=c[x])});
   t.perUur=t.netto>0?t.omzet/(t.netto/60):0;t.perFact=t.fact>0?t.omzet/(t.fact/60):0;return t}
 function wdStatKaart(rg,lbl){const t=wdPeriode(rg);
-  if(!t.dagen)return `<section class="st-card wd-st"><div class="st-ch"><div><h3>Waar gaat je tijd naartoe?</h3><p>Facturabel, reistijd en pauze</p></div></div><p class="st-leeg">Druk op Vandaag op <b>Start werkdag</b> bij vertrek en <b>Terug bij de loods</b> aan het eind. Dan zie je hier je echte uurloon.</p></section>`;
+  if(!t.dagen||(t.netto+t.pauze)<5)return `<section class="st-card wd-st"><div class="st-ch"><div><h3>Waar gaat je tijd naartoe?</h3><p>Facturabel, reistijd en pauze</p></div></div><p class="st-leeg">Druk op Vandaag op <b>Start werkdag</b> bij vertrek en <b>Terug bij de loods</b> aan het eind. Dan zie je hier je echte uurloon.</p></section>`;
   const p=x=>t.netto+t.pauze>0?Math.round(x/(t.netto+t.pauze)*100):0;
   return `<section class="st-card wd-st"><div class="st-ch"><div><h3>Waar gaat je tijd naartoe?</h3><p>${plural(t.dagen,"werkdag","werkdagen")} gemeten · ${esc(lbl)}</p></div></div>
     <div class="wd-bar big"><i class="f" style="flex:${t.fact}"></i><i class="r" style="flex:${t.reis}"></i><i class="p" style="flex:${t.pauze||0.0001}"></i></div>
