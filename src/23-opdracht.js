@@ -61,7 +61,6 @@ function openOpdrachtWerk(kid,focus){
       <input id="owZoek" placeholder="Zoeken" style="max-width:280px">
       <div class="ow-chips" id="owChips">${dienstChips(diensten,"data-dn")}</div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.check}</span><b>Opdrachtregels</b></div><div id="owLines"></div><div class="totals" id="owTot"></div></section>
-    <section class="kp kp-rc"><div class="kp-h"><span class="objic">${I.calculator}</span><div style="min-width:0"><b>Prijs aanpassen?</b><small>${k.ramenTelling?`Laatste telling ${fmtD(k.ramenTelling.datum)} · ${k.ramenTelling.ramen} ramen. `:""}Tel opnieuw in een nieuwe offerte; na akkoord past de opdracht zich aan.</small></div><span class="sp"></span><button type="button" class="small primary" id="owOff">${I.offertes}Nieuwe offerte</button></div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.receipt}</span><div style="min-width:0"><b>Artikelen</b><small>Gaan eenmalig mee op de volgende factuur</small></div><span class="sp"></span><button type="button" class="iconbtn sm primary" id="owArtAdd" aria-label="Artikel toevoegen">${I.plus}</button></div><div id="owArt"></div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.wrench}</span><div style="min-width:0"><b>Bedrijfsmiddelen</b><small>Staan bij de klus op de route</small></div></div><div id="owMid"></div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.camera||I.upload}</span><b>Foto's</b><span class="sp"></span>${state.assets?`<label class="btn small primary">${I.plus}Uploaden<input type="file" accept="image/*" multiple hidden id="owFoto"></label>`:""}</div><div class="ow-fotos" id="owFotos"></div></section>
@@ -258,7 +257,7 @@ function openOpdrachtWerk(kid,focus){
         offerte:async()=>{const {t}=await RC.telling();await save("klanten",kid,{...collect(),...(t?{ramenTelling:t}:{})});RC.reset();openOfferte({klantId:kid,metTelling:true})}},true);
       box.hidden=false;box.appendChild(RC.host);RC.sync();if(k.ramenTelling)RC.loadFor(k.id);const b=$("#owRcT");if(b)b.hidden=true}
     catch(er){console.error(er);box.hidden=false;box.innerHTML='<p class="subt">De rekentool kon hier niet worden geladen.</p>'}};
-  $("#owOff").onclick=()=>openOfferte({klantId:kid,metTelling:true});
+  if($("#owOff"))$("#owOff").onclick=()=>openOfferte({klantId:kid,metTelling:true});
   const back=()=>openKlant(kid);$("#owX").onclick=$("#owBack").onclick=back;$("#owKk").onclick=back;
   const collect=()=>{syncRitme();const cur=state.klanten.find(x=>x.id===kid)||k,actief=$o("actief").checked;
     return {...strip(cur),dienst:String(main.dienst||"").trim()||"Glasbewassing",prijs:r2(Number(main.prijs)||0),ramenRegel:main.ramen||null,frequentie:mW.length?1:(mF||4),weekdagen:mW.length?mW:[],...(mW.length?{autoplan:true}:{}),duur:mD||30,ronde:$o("ronde").value.trim(),contactPlanning:$o("contact").value,eersteKeer:$o("eerste").value==="ja",toeslag:Number($o("toeslag").value)||0,toeslagReden:$o("toeslagr").value.trim(),verbergAantal:$o("verbA").checked,verbergFreq:$o("verbF").checked,afmeldMail:$o("afmail").checked,
