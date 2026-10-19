@@ -173,6 +173,7 @@ async function copyHtmlFor(i){
   const c=compose,r=c&&c.recipients[i];if(!r)return;
   const ref=String(r.ref||""),_ab=/^afkondiging:/.test(ref)?state.beurten.find(b=>b.id===ref.split(":")[1]):null,fid=/^(factuur|aanmaning):/.test(ref)?ref.split(":")[1]:(_ab&&_ab.gefactureerd&&!["nvt","periodiek"].includes(_ab.gefactureerd)?_ab.gefactureerd:""),f=fid?state.facturen.find(x=>x.id===fid):null;
   const st=r.stap,tekst=st?st.mail:(c.mail||c.tekst),subj=fill(st?st.onderwerp:c.onderwerp,r.vars);
+  if(f&&f.soort==="offerte"&&LIVE&&typeof akkoordLink==="function"){try{r.vars={...r.vars,akkoordlink:await akkoordLink(f,r.k)}}catch(e){console.error(e)}}
   const mid=newId("m"),tr=trackOn()&&!!r.k.email,html=tr?await trackHtml(mailFor(c.sjabloon,r.vars,tekst,{f,stap:st}),mid):mailFor(c.sjabloon,r.vars,tekst,{f,stap:st}),ok=await copyHtml(html,fill(tekst,r.vars));
   if(!ok){toast("Kopiëren lukte niet in deze weergave");return}
   if(r.k.email)openUrl("mailto:"+encodeURIComponent(r.k.email)+"?subject="+encodeURIComponent(subj));
@@ -250,7 +251,7 @@ function openMailStijl(){
   draw();
   $("#msB").addEventListener("click",async e=>{const b=e.target.closest("button");if(!b)return;
     if(b.dataset.st){stijl=b.dataset.st;draw()}else if(b.dataset.sw){acc=b.dataset.sw;draw()}else if(b.dataset.tb){tab=b.dataset.tb;draw()}
-    else if(b.id==="msTest"){const k=tk[tab],old={...state.settings};state.settings={...state.settings,mailStijl:stijl,mailAccent:acc};const v=sampleVars(),h=mailFor(k,v,T[k].mail),subj="Test: "+fill(T[k].onderwerp,v),txt=fill(T[k].mail,v);state.settings=old;
+    else if(b.id==="msTest"){const k=tk[tab],old={...state.settings};state.settings={...state.settings,mailStijl:stijl,mailAccent:acc};const v={...sampleVars(),akkoordlink:(/^https?:/.test(location.origin)?location.origin:"https://app.mansard.nl")+"/akkoord/voorbeeld"},h=mailFor(k,v,T[k].mail),subj="Test: "+fill(T[k].onderwerp,v),txt=fill(T[k].mail,v);state.settings=old;
       const naar=(state.me&&state.me.email)||s.email||s.liveAfzender||"";
       if(!LIVE){toast("In de demo wordt geen mail verstuurd. In je eigen omgeving komt de testmail direct in je inbox.");return}
       if(s.liveMail&&typeof fbFn==="function"&&naar){b.disabled=true;const lbl=b.innerHTML;b.innerHTML=I.send+"Versturen…";

@@ -41,7 +41,8 @@ const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"]/g,c=>(
 const eur=n=>"€ "+(Math.round((+n||0)*100)/100).toFixed(2).replace(".",",");
 const tok=location.pathname.split("/").filter(Boolean).pop();
 const klaar=(d,naam)=>{$("#app").innerHTML=`<div class="card done"><div class="ic">✓</div><span class="kick">Ondertekend</span><h1>Bedankt${naam?", "+esc(naam):""}!</h1><p class="sub" style="margin:8px 0 0">Uw akkoord is ontvangen. U ontvangt het definitieve bestellingsoverzicht per e-mail.<br>Wij nemen contact met u op om uw eerste bezoek in te plannen.</p></div><p class="foot">${esc(d.bedrijf.naam)}${d.bedrijf.telefoon?" · "+esc(d.bedrijf.telefoon):""}</p>`};
-(async()=>{let d;try{const r=await fetch("/api/akkoord-info?t="+encodeURIComponent(tok));if(!r.ok)throw 0;d=await r.json()}catch(e){$("#app").innerHTML='<div class="card"><h1>Offerte niet gevonden</h1><p class="sub">Deze link is niet (meer) geldig. Neem contact met ons op.</p></div>';return}
+const VB=tok==="voorbeeld";/* voorbeeldpagina voor testmails: niets wordt opgeslagen */
+(async()=>{let d;try{if(VB){const t=new Date(Date.now()+14*864e5).toISOString().slice(0,10);d={status:"open",nummer:"VOORBEELD",geldigTot:t,bedrijf:{naam:"Voorbeeld Glazenwasserij",logo:"/logo.png"},klant:{naam:"Fam. de Vries",contact:"Anna de Vries",adres:"Lindenlaan 12",pcPlaats:"9801 AB Zuidhorn"},groepen:[{omschrijving:"Glasbewassing buiten",incl:65,subs:[{naam:"Ramen",aantal:"14",freq:"elke 8 weken"}]},{omschrijving:"Dakkapel + kozijnen",incl:15,subs:[]}]}}else{const r=await fetch("/api/akkoord-info?t="+encodeURIComponent(tok));if(!r.ok)throw 0;d=await r.json()}}catch(e){$("#app").innerHTML='<div class="card"><h1>Offerte niet gevonden</h1><p class="sub">Deze link is niet (meer) geldig. Neem contact met ons op.</p></div>';return}
   if(d.status==="getekend"||d.getekend){klaar(d,"");return}
   let tot=0;const rows=(d.groepen||[]).map(g=>{tot+=+g.incl||0;return `<tr class="g"><td>${esc(g.omschrijving)}</td><td class="r">${eur(g.incl)}</td></tr>`+(g.subs||[]).map(s=>`<tr class="s"><td colspan="2">${esc(s.naam)}${s.aantal?" · "+esc(s.aantal):""}${s.freq?" · "+esc(s.freq):""}</td></tr>`).join("")}).join("");
   const k=d.klant||{};
@@ -68,6 +69,7 @@ const klaar=(d,naam)=>{$("#app").innerHTML=`<div class="card done"><div class="i
     b.disabled=true;b.textContent="Bezig met versturen…";
     /* bijsnijden en verkleinen */
     const o=document.createElement("canvas"),s=Math.min(1,600/cv.width);o.width=cv.width*s;o.height=cv.height*s;o.getContext("2d").drawImage(cv,0,0,o.width,o.height);
+    if(VB){setTimeout(()=>klaar(d,naam.split(/\s+/)[0]),600);return}
     try{const r=await fetch("/api/akkoord",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({t:tok,naam,plaats,png:o.toDataURL("image/png")})});const j=await r.json().catch(()=>({}));
       if(!r.ok)throw new Error(j.fout||"Er ging iets mis.");klaar(d,naam.split(/\s+/)[0])}
     catch(e){m.textContent=e.message||"Er ging iets mis. Probeer het opnieuw.";b.disabled=false;b.textContent="Akkoord en ondertekenen"}};
