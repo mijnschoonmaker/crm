@@ -714,3 +714,28 @@ html body:not(#zz) .tjob.st-afgerond .tj-kop,html body:not(#zz) .tjob.st-verwach
 html body:not(#zz) .tjob .tj-kop :is(.tj-nm,b,span,button,a,div){color:#fff!important}
 html body:not(#zz) .tjob .tj-kop small{color:rgb(255 255 255 / .72)!important;border-right-color:rgb(255 255 255 / .3)!important}
 html body:not(#zz) .tjob .tj-kop .tj-amt{color:#fff!important}
+/* ---------- Vandaag-hero: rustiger, Range Rover-achtige specificatieregel ---------- */
+html body:not(#zz) .rv .rv-fase{background:transparent!important;border:0!important;padding:0!important;backdrop-filter:none!important;font-size:11px!important;font-weight:600!important;letter-spacing:.2em!important;text-transform:uppercase;color:rgb(255 255 255 / .78)!important;gap:10px!important}
+html body:not(#zz) .rv .rv-fase b{color:rgb(255 255 255 / .5)!important;font-weight:500!important;letter-spacing:.12em!important;margin-left:2px}
+html body:not(#zz) .rv .rv-fase i{width:7px!important;height:7px!important;background:#7ddba6!important;box-shadow:0 0 0 0 rgb(125 219 166 / .6);animation:rvFase 2.4s ease-out infinite}
+@keyframes rvFase{0%{box-shadow:0 0 0 0 rgb(125 219 166 / .55)}70%,100%{box-shadow:0 0 0 7px rgb(125 219 166 / 0)}}
+html body:not(#zz) .rv h2{font-weight:300!important;letter-spacing:-.015em!important}
+html body:not(#zz) .rv .rv-sub{color:rgb(255 255 255 / .62)!important;font-weight:400!important}
+html body:not(#zz) .rv .rv-chips{display:flex!important;flex-wrap:nowrap!important;gap:0!important;margin-top:22px!important}
+html body:not(#zz) .rv .rv-chips>span,html body:not(#zz) .rv .rv-chips>span.rv-klaar{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:5px!important;padding:2px 26px!important;background:transparent!important;border:0!important;border-left:1px solid rgb(255 255 255 / .16)!important;border-radius:0!important;box-shadow:none!important;backdrop-filter:none!important;font-size:10.5px!important;font-weight:600!important;letter-spacing:.18em!important;text-transform:uppercase;color:rgb(255 255 255 / .55)!important;white-space:nowrap}
+html body:not(#zz) .rv .rv-chips>span:first-child{padding-left:0!important;border-left:0!important}
+html body:not(#zz) .rv .rv-chips>span svg{display:none!important}
+html body:not(#zz) .rv .rv-chips>span b,html body:not(#zz) .rv .rv-chips>span.rv-klaar b{order:-1;display:block;font-size:26px!important;font-weight:300!important;letter-spacing:-.01em!important;text-transform:none;color:#fff!important;line-height:1!important;background:transparent!important}
+html body:not(#zz) .rv .rv-chips>span.rv-klaar b{color:#e9d3a8!important}
+/* verdiend-kaart */
+html body:not(#zz) .rv .rv-geld{background:linear-gradient(180deg,rgb(255 255 255 / .08),rgb(255 255 255 / .02))!important;border:1px solid rgb(255 255 255 / .12)!important;border-radius:14px!important;padding:16px 20px!important;min-width:210px}
+html body:not(#zz) .rv .rv-geld small{font-size:10.5px!important;font-weight:600!important;letter-spacing:.18em!important;text-transform:uppercase;color:rgb(255 255 255 / .55)!important}
+html body:not(#zz) .rv .rv-geld b{font-size:40px!important;font-weight:300!important;letter-spacing:-.02em!important;color:#fff!important}
+html body:not(#zz) .rv .rv-geld .rv-gb{height:3px!important;background:rgb(255 255 255 / .14)!important;border-radius:3px!important;overflow:hidden}
+html body:not(#zz) .rv .rv-geld .rv-gb i{background:linear-gradient(90deg,#c9a46a,#ecd3a3)!important;border-radius:3px!important;min-width:4px}
+html body:not(#zz) .rv .rv-geld em{color:rgb(255 255 255 / .55)!important;font-size:12px!important}
+@media (max-width:700px){
+  html body:not(#zz) .rv .rv-chips{display:grid!important;grid-template-columns:repeat(4,1fr);margin-top:18px!important}
+  html body:not(#zz) .rv .rv-chips>span,html body:not(#zz) .rv .rv-chips>span.rv-klaar{padding:2px 0 2px 12px!important;font-size:9px!important;letter-spacing:.1em!important;min-width:0}
+  html body:not(#zz) .rv .rv-chips>span b,html body:not(#zz) .rv .rv-chips>span.rv-klaar b{font-size:20px!important}
+  html body:not(#zz) .rv .rv-geld b{font-size:34px!important}}
