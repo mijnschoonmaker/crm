@@ -139,7 +139,7 @@ def scene(naam, richting):
         huizen = [hh for hh in huizen if abs(hh[0] - doel[0]) > 70]
     else:
         huizen = [hh for hh in huizen if abs(hh[0] - doel[0]) > 70]
-    n = 26
+    n = 44
     frames = []
     base = 180
     for f in range(n):
@@ -170,9 +170,9 @@ def scene(naam, richting):
         bi = bf.resize((bw, bh), Image.LANCZOS)
         im.paste(bi, (round(xv * SS - bw), round((base + 3) * SS - bh)), bi)
         frames.append(im.resize((W, H), Image.LANCZOS))
-    hold = [900] + [90] * (n - 2) + [1400]
+    hold = [900] + [55] * (n - 2) + [1400]
     if richting == "weg":
-        hold = [1400] + [90] * (n - 2) + [600]
+        hold = [1400] + [55] * (n - 2) + [600]
     pal = frames[-1 if richting == "aan" else 0].quantize(colors=96, method=Image.Quantize.MEDIANCUT)
     q = [fr.quantize(palette=pal, dither=Image.Dither.NONE) for fr in frames]
     q[0].save(os.path.join(UIT, naam + ".gif"), save_all=True, append_images=q[1:], duration=hold, loop=0, optimize=True, disposal=1)
@@ -289,10 +289,11 @@ def kaart():
     # foto iets rustiger zodat route en bus opvallen
     foto = Image.blend(foto, Image.new("RGB", foto.size, (236, 238, 240)), .12)
     eind = pts[-1]
-    n = 40
+    n = 64
     frames = []
     for f in range(n):
-        t = .18 + .64 * (f / (n - 1))
+        u = f / (n - 1)
+        t = .22 + .62 * (u * u * (3 - 2 * u))  # zacht optrekken en afremmen
         im = foto.resize((KW * SS, KH * SS), Image.LANCZOS).convert("RGBA")
         lay = Image.new("RGBA", im.size, (0, 0, 0, 0))
         d = ImageDraw.Draw(lay)
@@ -326,19 +327,26 @@ def kaart():
         halo = Image.new("RGBA", im.size, (0, 0, 0, 0))
         hd = ImageDraw.Draw(halo)
         hd.ellipse([p[0] * SS - 26 * SS, p[1] * SS - 26 * SS, p[0] * SS + 26 * SS, p[1] * SS + 26 * SS], fill=(255, 255, 255, 70))
+        # bus en aanhanger volgen de weg: voorkant op de route, achterkant een buslengte terug op de route
+        Ltot = sum(math.dist(pts[k], pts[k + 1]) for k in range(len(pts) - 1)) or 1
+        BL = 96  # lengte van bus + boxvan in pixels
+        voor, _, _ = langs(pts, t)
+        achter, _, _ = langs(pts, max(0, t - BL / Ltot))
+        mid = ((voor[0] + achter[0]) / 2, (voor[1] + achter[1]) / 2)
+        ang2 = math.atan2(voor[1] - achter[1], voor[0] - achter[0])
         bf = busfoto()
-        bw = 112 * SS
+        bw = round(BL * 1.08 * SS)
         bi = bf.resize((bw, round(bf.height * bw / bf.width)), Image.LANCZOS)
-        deg = math.degrees(ang)
+        deg = math.degrees(ang2)
         if abs(deg) > 90:  # naar links rijden: spiegelen zodat de bus niet op zijn kop staat
             bi = bi.transpose(Image.FLIP_LEFT_RIGHT)
             deg = deg - 180 if deg > 0 else deg + 180
         bi = bi.rotate(-deg, resample=Image.BICUBIC, expand=True)
-        im.alpha_composite(bi, (round(p[0] * SS - bi.width / 2), round(p[1] * SS - bi.height / 2)))
+        im.alpha_composite(bi, (round(mid[0] * SS - bi.width / 2), round(mid[1] * SS - bi.height / 2)))
         frames.append(im.convert("RGB").resize((KW, KH), Image.LANCZOS))
     pal = frames[0].quantize(colors=200, method=Image.Quantize.MEDIANCUT)
     q = [fr.quantize(palette=pal, dither=Image.Dither.NONE) for fr in frames]
-    q[0].save(os.path.join(UIT, "live-kaart.gif"), save_all=True, append_images=q[1:], duration=[600] + [90] * (n - 2) + [1400], loop=0, optimize=True, disposal=1)
+    q[0].save(os.path.join(UIT, "live-kaart.gif"), save_all=True, append_images=q[1:], duration=[700] + [55] * (n - 2) + [1400], loop=0, optimize=True, disposal=1)
     print("geschreven live-kaart", os.path.getsize(os.path.join(UIT, "live-kaart.gif")))
 
 
