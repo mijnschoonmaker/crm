@@ -1168,3 +1168,10 @@ html body:not(#zz) .ow-koz .ow-kozc,html body:not(#zz) .ow-koz .ow-kozc span{col
 html body:not(#zz) .ow-koz label{color:var(--ink)!important}
 html body:not(#zz) .ow-line.ow-dicht{padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important}
 html body:not(#zz) .ow-line.ow-dicht .ow-rkh .iconbtn+.iconbtn{margin-left:2px}
+/* opdrachtregel met onderdelen: velden 2 × 2 zoals DienstenCRM, berekening en knop op één regel */
+html body:not(#zz) .ge-sub{display:grid!important;grid-template-columns:1fr 1fr!important;gap:12px 14px!important;align-items:end}
+html body:not(#zz) .ge-sub .ge-full,html body:not(#zz) .ge-sub .ge-sync{grid-column:1/-1}
+html body:not(#zz) .ge-ber{display:flex!important;align-items:center;justify-content:space-between;gap:12px;padding-top:10px;border-top:1px solid var(--rr-rand)}
+html body:not(#zz) .ge-ber .subt{display:inline-flex;align-items:center;gap:6px;font-size:12.5px}
+html body:not(#zz) .ge-ber .subt svg{width:14px;height:14px}
+@media (max-width:560px){html body:not(#zz) .ge-sub{grid-template-columns:1fr!important}}

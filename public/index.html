@@ -5849,6 +5849,13 @@ html body:not(#zz) .ow-koz .ow-kozc,html body:not(#zz) .ow-koz .ow-kozc span{col
 html body:not(#zz) .ow-koz label{color:var(--ink)!important}
 html body:not(#zz) .ow-line.ow-dicht{padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important}
 html body:not(#zz) .ow-line.ow-dicht .ow-rkh .iconbtn+.iconbtn{margin-left:2px}
+/* opdrachtregel met onderdelen: velden 2 × 2 zoals DienstenCRM, berekening en knop op één regel */
+html body:not(#zz) .ge-sub{display:grid!important;grid-template-columns:1fr 1fr!important;gap:12px 14px!important;align-items:end}
+html body:not(#zz) .ge-sub .ge-full,html body:not(#zz) .ge-sub .ge-sync{grid-column:1/-1}
+html body:not(#zz) .ge-ber{display:flex!important;align-items:center;justify-content:space-between;gap:12px;padding-top:10px;border-top:1px solid var(--rr-rand)}
+html body:not(#zz) .ge-ber .subt{display:inline-flex;align-items:center;gap:6px;font-size:12.5px}
+html body:not(#zz) .ge-ber .subt svg{width:14px;height:14px}
+@media (max-width:560px){html body:not(#zz) .ge-sub{grid-template-columns:1fr!important}}
 
 </style>
 <div class="app">
@@ -12749,9 +12756,9 @@ function groepEditor(g,key,{offerte=false,freqDefault=8}={}){const c=groepCalc(g
       ${on?`<div class="ge-sub">
         <label>Frequentie${fq(it,j)}</label>
         <label>Aanboddatum<input type="date" data-gk="${key}" data-gi="${j}" data-gf="vol" value="${esc(it.vol||"")}" title="Leeg = bij de volgende beurt"></label>
-        <label>Overschrijvende prijs<span class="ow-in"><i>€</i><input type="number" step="0.01" min="0" data-gk="${key}" data-gi="${j}" data-gf="op" value="${esc(gHas(it.op)?it.op:b.ex.toFixed(2))}" placeholder="${b.ex.toFixed(2)}"><em>excl.</em></span></label>
-        <label>Overschrijvende tijdsduur<span class="ow-in"><input type="number" step="1" min="0" data-gk="${key}" data-gi="${j}" data-gf="od" value="${esc(gHas(it.od)?it.od:Math.max(1,Math.ceil(b.sec/60-1e-9)))}" placeholder="${Math.round(b.sec/60)}"><em>min</em></span></label>
-        <div class="ow-flber ge-full"><button type="button" class="small primary" data-gk="${key}" data-gber="${j}">${I.calculator}Berekenen</button><span class="subt">berekent alle onderdelen van deze dienst</span></div>
+        <label>Overschrijvende prijs<span class="ow-in"><i>€</i><input type="number" step="0.01" min="0" data-gk="${key}" data-gi="${j}" data-gf="op" value="${esc(gHas(it.op)?it.op:"")}" placeholder="${b.ex.toFixed(2)}"><em>excl.</em></span></label>
+        <label>Overschrijvende tijdsduur<span class="ow-in"><input type="number" step="1" min="0" data-gk="${key}" data-gi="${j}" data-gf="od" value="${esc(gHas(it.od)?it.od:"")}" placeholder="${Math.round(b.sec/60)}"><em>min</em></span></label>
+        <div class="ow-flber ge-full ge-ber"><span class="subt">${I.calculator} ${String(it.aantal).replace(".",",")} ${esc(eenhKort(it.eenheid))} × ${eur(it.prijs)} = ${eur(b.ex)} · ${Math.max(1,Math.round(b.sec/60))} min${gHas(it.op)||gHas(it.od)?" · <b>eigen waarde</b>":""}</span><button type="button" class="small" data-gk="${key}" data-gber="${j}" title="Berekent alle onderdelen van deze dienst opnieuw">${I.calculator}Berekenen</button></div>
         ${it.vol?`<button type="button" class="linkbtn ge-sync" data-gk="${key}" data-gsync="${j}">Aanboddatum ${esc(fmtD(it.vol))} voor alle onderdelen gebruiken</button>`:""}</div>`:""}</div>`}).join("")})()}
     <div class="ge-tot"><div class="ow-kv"><span>Tijdsduur</span><b>${Math.round(c.sec/60)} minuten${gHas(g.td)?' <small class="subt">(eigen)</small>':""}</b></div><div class="ow-kv"><span>Totaalprijs "${esc(g.naam||g.dienst||"")}"</span><b>${eur(c.ex)} excl. · ${eur(c.ex*(1+btwPct/100))} incl.${gHas(g.tp)?' <small class="subt">(eigen)</small>':""}</b></div></div>
     <div class="ge-over">
