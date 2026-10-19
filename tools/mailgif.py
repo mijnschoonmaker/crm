@@ -164,7 +164,7 @@ def scene(naam, richting):
 
 # ------------------------------------------------------------------ kaart
 # gewone woonwijk (Houten): geen echte klant. Route over echte straten tussen A en B (OSRM)
-A_LL, B_LL = (52.02130, 5.17060), (52.02400, 5.17600)
+A_LL, B_LL = (52.03100, 5.15400), (52.03300, 5.15900)
 MAX_M = 230  # alleen het eerste stuk van de route: past ruim in beeld op zoom 17
 Z = 17
 KW, KH = 560, 340
