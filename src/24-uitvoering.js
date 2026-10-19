@@ -18,8 +18,8 @@ function uitvDefault(){
   const G=[
     {id:"glas",type:"glas",std:true,naam:"Glasbewassing",start:c.start||0,min:c.min,fp:{},items:[k("g0","Begane grond"),k("g1","1e verdieping"),k("g2","2e verdieping"),k("g3","3e verdieping")]},
     {id:"bijz",type:"bijz",std:true,naam:"Glasbewassing bijzondere ramen",items:[k("lood","Glas-in-lood"),k("mini","Miniraampjes"),k("koepel","Lichtkoepel"),k("tuimel","Dak-/tuimelramen")]},
-    {id:"goten",std:true,naam:"Goten",items:[itm("Leeghalen","per strekkende meter",3,90),itm("Reiniging buitenkant","per strekkende meter",5,120)]},
-    {id:"gevel",std:true,naam:"Reiniging gevelelementen",items:[itm("Daklijst","per strekkende meter",3.50,60),itm("Daklijst met klossen","per strekkende meter",5.50,120),itm("Windveren, regenpijpen etc.","per strekkende meter",3,60),itm("Beplating, luiken, garagedeuren etc.","per m²",4,90)]},
+    {id:"goten",std:true,naam:"Goten",items:[itm("Leeghalen","per strekkende meter",3,90)]},
+    {id:"gevel",std:true,naam:"Reiniging gevelelementen",items:[itm("Daklijst","per strekkende meter",3.50,60),itm("Daklijst met klossen","per strekkende meter",5.50,120),itm("Windveren, regenpijpen etc.","per strekkende meter",3,60),itm("Beplating, luiken, garagedeuren etc.","per m²",4,90),itm("Goten reiniging buitenkant","per strekkende meter",5,120)]},
     {id:"dakkapel",std:true,naam:"Reiniging dakkapel",items:[itm("Eerste verdieping","per stuk",35,1200),itm("Tweede verdieping","per stuk",45,1500)]},
     {id:"zon",std:true,naam:"Reiniging zonnepanelen",items:[itm("Reiniging zonnepanelen","per paneel",3.50,90)]},
     {id:"rolluik",std:true,inCalc:false,naam:"Reiniging rolluiken",items:[itm("Rolluik","per stuk",6,180)]},
@@ -299,3 +299,26 @@ function groepRedraw(box,key,g,opts){let el=box.querySelector(`[data-ge="${key}"
 function groepTotUpdate(box,key,g,opts){const el=box.querySelector(`[data-ge="${key}"] .ge-tot`);if(!el)return;const t=document.createElement("div");t.innerHTML=groepEditor(g,key,opts);const n=t.querySelector(".ge-tot");if(n)el.innerHTML=n.innerHTML}
 
 const fqTxt=w=>{w=Number(w)||0;return w===1?"1x per week":w===52?"1x per jaar":w===104?"1x per 2 jaar":w>0?"1x per "+w+" weken":""};
+
+/* eenmalig: "Reiniging buitenkant" van Goten naar Reiniging gevelelementen (als "Goten reiniging buitenkant"),
+   in de dienstenlijst én bij de klanten die het als opdracht hebben. Aantallen, prijs, frequentie en datums blijven gelijk. */
+async function migGotenBuiten(){try{
+  if((state.settings||{}).migGotenBuiten||window.ZEEM_MEEKIJK||(typeof isMw==="function"&&isMw()))return;
+  const NM="Goten reiniging buitenkant",isB=it=>it&&/^(goten\s+)?reiniging buitenkant$/i.test(String(it.naam||"").trim());
+  let gevelNaam="Reiniging gevelelementen",movedId=null;
+  if(state.uitv&&Array.isArray(state.uitv.groepen)){const u=JSON.parse(JSON.stringify(state.uitv)),go=u.groepen.find(g=>g.id==="goten"),gv=u.groepen.find(g=>g.id==="gevel");
+    if(gv)gevelNaam=gv.naam||gevelNaam;
+    const it=go&&(go.items||[]).find(isB);
+    if(it&&gv){go.items=go.items.filter(x=>x!==it);if(!(gv.items||[]).some(isB))gv.items=[...(gv.items||[]),{...it,naam:NM}];movedId=it.id;await save("instellingen","uitvoering",u);state.uitv=u;if(typeof U!=="undefined")U=null}}
+  const gevelItems=()=>{const g=(state.uitv&&state.uitv.groepen||[]).find(x=>x.id==="gevel")||uitvDefault().groepen.find(x=>x.id==="gevel");return(g&&g.items||[]).map(x=>({...x,aantal:0}))};
+  let n=0;
+  for(const k of state.klanten){const ops=k.opdrachten||[];if(!ops.some(o=>o.groep==="goten"&&(o.items||[]).some(isB)))continue;
+    let nieuw=ops.map(o=>({...o,items:(o.items||[]).map(x=>({...x}))}));
+    nieuw.filter(o=>o.groep==="goten").forEach(o=>{const b=o.items.find(isB);if(!b)return;o.items=o.items.filter(x=>x!==b);
+      if(Number(b.aantal)>0){o._weg=!o.items.some(x=>Number(x.aantal)>0);let gv=nieuw.find(x=>x.groep==="gevel");
+        if(!gv){gv={id:newId("o"),groep:"gevel",naam:gevelNaam,dienst:gevelNaam,frequentie:o.frequentie,volgende:o.volgende||"",laatst:o.laatst||"",actief:o.actief!==false,items:gevelItems()};nieuw.push(gv)}
+        gv.items=gv.items.filter(x=>!isB(x));gv.items.push({...b,naam:NM})}});
+    nieuw=nieuw.filter(o=>!o._weg).map(o=>{const{_weg,...r}=o;return r});
+    await save("klanten",k.id,{...strip(k),opdrachten:nieuw});n++}
+  const sd={...state.settings,migGotenBuiten:true};await save("instellingen","bedrijf",sd);state.settings=sd;
+  if(n)toast("Goten reiniging buitenkant staat nu onder "+gevelNaam+" ("+plural(n,"klant","klanten")+" bijgewerkt)")}catch(e){console.error("migGotenBuiten",e)}}

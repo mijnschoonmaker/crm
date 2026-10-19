@@ -5433,6 +5433,15 @@ html body:not(#zz) .steps3 .stepc:hover{transform:translateY(-2px);box-shadow:0 
 html body:not(#zz) .steps3 .stepc .sn{display:grid!important;place-items:center;width:38px!important;height:38px!important;margin:0 0 4px!important;border-radius:10px!important;background:linear-gradient(180deg,rgb(255 255 255 / .14),rgb(255 255 255 / .05))!important;border:1px solid rgb(255 255 255 / .22)!important;color:#ecd3a3!important;font-size:15px!important;font-weight:600!important;box-shadow:none!important}
 html body:not(#zz) .steps3 .stepc b{color:#fff!important;font-size:19px!important;font-weight:500!important;letter-spacing:.01em!important;background:transparent!important}
 html body:not(#zz) .steps3 .stepc>span:not(.sn){color:rgb(255 255 255 / .75)!important;font-size:14.5px!important;line-height:1.5!important;background:transparent!important}
+html body:not(#zz) .st-di.kan{cursor:pointer;flex-wrap:wrap}
+html body:not(#zz) .st-di.kan:hover{border-color:#b9bec6!important}
+html body:not(#zz) .st-di .st-dmeer{color:#252c3c;text-decoration:underline;text-underline-offset:3px}
+html body:not(#zz) .st-di.open .st-dmeer{text-decoration:none}
+html body:not(#zz) .st-dsub{margin-top:10px;padding-top:8px;border-top:1px solid #eef0f3;display:flex;flex-direction:column;gap:4px}
+html body:not(#zz) .st-dsub[hidden]{display:none}
+html body:not(#zz) .st-dsub div{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:4px 0}
+html body:not(#zz) .st-dsub span{color:#55585f}
+html body:not(#zz) .st-dsub b{font-weight:500;color:#0d121b;white-space:nowrap}
 
 </style>
 <div class="app">
@@ -5695,7 +5704,7 @@ async function init(){
   setTimeout(()=>{if(state.loaded||seen.has("klanten"))return;$("#status").innerHTML=`<div class="notice" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="flex:1;min-width:200px"><b>Je gegevens laden niet.</b> De opslag van je browser lijkt vast te zitten. Herstellen haalt alles opnieuw van de server; er gaat niets verloren.</span><button type="button" class="small primary" onclick="window.ZEEM_HERSTEL?ZEEM_HERSTEL():location.reload()">Herstellen</button></div>`},12000);
   if(!LIVE)$("#status").innerHTML='<div class="notice verhuisd"><b>Deze CRM is verhuisd.</b> Gebruik voortaan <a href="https://crm.voorbeeldglazenwasserij.nl" target="_blank" rel="noopener">crm.voorbeeldglazenwasserij.nl</a> (of <a href="https://app.mansard.nl" target="_blank" rel="noopener">app.mansard.nl</a>). Wat je hier wijzigt, komt niet in de nieuwe CRM.</div>';
   COLS.forEach(col=>db.collection(col).onSnapshot(s=>{
-    apply(col,s.docs.map(d=>({...d.data(),id:d.id})));seen.add(col);if(seen.size===COLS.length){if(!state.loaded)setTimeout(migGeenTijd,400);state.loaded=true}schedule();
+    apply(col,s.docs.map(d=>({...d.data(),id:d.id})));seen.add(col);if(seen.size===COLS.length){if(!state.loaded){setTimeout(migGeenTijd,400);setTimeout(()=>typeof migGotenBuiten==="function"&&migGotenBuiten(),900)}state.loaded=true}schedule();
   },e=>{$("#status").innerHTML='<div class="notice">Gegevens konden niet worden geladen ('+esc(e.code)+'). Vernieuw de pagina.</div>'}));
 }
 
@@ -9630,7 +9639,7 @@ function vInzichten(){
   }else if(state.itab==="werk"){
     const bs=state.beurten.filter(b=>inRange(b.datum,P.rg)),bv=state.beurten.filter(b=>inRange(b.datum,V.rg));
     const mins=bs.reduce((a,b)=>a+(Number(b.duur)||duur(kd(b.klantId)||{})),0),om=bs.reduce((a,b)=>a+exAmt(b.bedrag),0);
-    const per_d={};bs.forEach(b=>{const k=b.dienst||(kd(b.klantId)||{}).dienst||"Glasbewassing";per_d[k]=(per_d[k]||0)+exAmt(b.bedrag)});const dk=Object.keys(per_d).sort((a,b)=>per_d[b]-per_d[a]),dtot=dk.reduce((a,k)=>a+per_d[k],0)||1;
+    const {per:per_d,sub:sub_d}=stDienstSplit(bs);const dk=Object.keys(per_d).sort((a,b)=>per_d[b]-per_d[a]),dtot=dk.reduce((a,k)=>a+per_d[k],0)||1;
     const wdc=[0,0,0,0,0,0,0];bs.forEach(b=>{wdc[(parse(b.datum).getDay()+6)%7]+=1});const top=wdc.indexOf(Math.max(...wdc));
     const dag={};state.beurten.forEach(b=>{dag[b.datum]=(dag[b.datum]||0)+exAmt(b.bedrag)});const best=Object.entries(dag).sort((a,b)=>b[1]-a[1])[0];
     const ach=overdue().length,gem=bs.length?om/bs.length:0;
@@ -9651,7 +9660,7 @@ function vInzichten(){
     <div class="st-two"><section class="st-card"><div class="st-ch"><div><h3>Drukste dagen</h3><p>Afgemelde beurten per weekdag${wdc[top]?" · meestal op "+["maandag","dinsdag","woensdag","donderdag","vrijdag","zaterdag","zondag"][top]:""}</p></div></div>
         ${stBars(wdc,["ma","di","wo","do","vr","za","zo"],{hi:wdc[top]?top:-1,fmt:v=>String(Math.round(v)),h:200,gem:false})}</section>
       <section class="st-card"><div class="st-ch"><div><h3>Omzet per dienst</h3><p>Aandeel in de omzet uit werk</p></div></div>
-        ${dk.length?stDiensten(dk,per_d,dtot):'<p class="st-leeg">Nog geen afgemelde beurten in deze periode.</p>'}</section></div>`+(typeof wdStatKaart==="function"?wdStatKaart(P.rg,P.lbl):"");
+        ${dk.length?stDiensten(dk,per_d,dtot,sub_d):'<p class="st-leeg">Nog geen afgemelde beurten in deze periode.</p>'}</section></div>`+(typeof wdStatKaart==="function"?wdStatKaart(P.rg,P.lbl):"");
   }else{
     const ak=actief(),nieuw=state.klanten.filter(k=>inRange(k.aangemaakt,P.rg)),nieuwV=state.klanten.filter(k=>inRange(k.aangemaakt,V.rg)),inact=state.klanten.filter(k=>k.actief===false);
     const jaar=ak.reduce((a,k)=>a+exAmt(k.prijs)*365/freqDays(k),0),perK=ak.length?jaar/ak.length:0;
@@ -9681,10 +9690,29 @@ function vInzichten(){
 function stStraat(n){const max=12,m=Math.min(n,max),H=typeof HUIS!=="undefined"?HUIS:"";
   return `<div class="st-straat" role="img" aria-label="${n} woningen gedaan"><div class="st-sh">${Array.from({length:m},(_,i)=>`<span class="st-hu" style="--i:${i}">${H}<i>${I.check}</i></span>`).join("")}${n>max?`<span class="st-meer">+${n-max}</span>`:""}</div><div class="st-weg"><i></i><span class="st-bus">${typeof RV_BUS!=="undefined"?RV_BUS:""}</span></div></div>`}
 /* omzet per dienst: ring met het aandeel en per dienst een kaartje met balk */
-function stDiensten(dk,per,tot){const KL=["#2a3245","#c9a46a","#5d6780","#9aa3b5","#8a6d43","#3e4a64"],R=56,C=2*Math.PI*R,gap=dk.length>1?4:0;let acc=0;
+/* omzet per dienst uit de factuurregels van de beurten: kozijnen horen bij glasbewassing, extra opdrachten (zoals Reiniging gevelelementen) apart, met per onderdeel het bedrag */
+function stGroepen(){try{if(!RC)RC=buildRamen();const src=state.uitv&&state.uitv.groepen?state.uitv:null;return src?[...(src.groepen||[]),...(src.eigen||[])]:uitvDefault().groepen}catch(e){return[]}}
+function stDienstNorm(n){n=String(n||"").trim();if(!n||/^glasbewassing\b/i.test(n)&&(/kozijn/i.test(n)||!/binnen|bijzonder/i.test(n)))return"Glasbewassing";return n}
+function stDienstSplit(bs){const G=stGroepen().filter(g=>g.type!=="glas"&&g.naam).sort((a,b)=>b.naam.length-a.naam.length),per={},sub={},F={};(state.facturen||[]).forEach(f=>F[f.id]=f);
+  const plus=(d,v,it,iv)=>{per[d]=(per[d]||0)+v;if(it){sub[d]=sub[d]||{};sub[d][it]=(sub[d][it]||0)+iv}};
+  const KM={};(state.klanten||[]).forEach(x=>KM[x.id]=x);bs.forEach(b=>{const k=KM[b.klantId]||{},f=b.gefactureerd&&F[b.gefactureerd];
+    const regels=f&&Array.isArray(f.regels)&&f.regels.length?f.regels:null;
+    if(!regels){plus(stDienstNorm(b.dienst||k.dienst),exAmt(b.bedrag));return}
+    regels.forEach(r=>{const v=exAmt((Number(r.aantal)||0)*(Number(r.prijs)||0));if(!v)return;const om=String(r.omschrijving||"").toLowerCase();
+      const g=G.find(x=>om.includes(x.naam.toLowerCase()))||G.find(x=>(x.items||[]).some(it=>it.naam&&it.naam.length>4&&om.includes(it.naam.toLowerCase())));
+      if(!g){plus(/^(toeslag|korting|voorrijkosten)/i.test(om)||/glasbewassing|kozijn|ramen/i.test(om)||!om?"Glasbewassing":stDienstNorm(String(r.omschrijving).split("(")[0]),v);return}
+      /* verdeling over onderdelen: naar de aantallen en prijzen van die opdracht bij de klant */
+      const o=(k.opdrachten||[]).find(x=>x.groep===g.id),its=(o&&o.items||[]).filter(it=>Number(it.aantal)>0);
+      const w=its.map(it=>{const gi=(g.items||[]).find(y=>y.id===it.id||y.naam===it.naam)||{};return{n:it.naam||gi.naam||"Overig",w:(Number(it.aantal)||0)*(Number(it.prijs??gi.prijs)||0)}}),tw=w.reduce((a,x)=>a+x.w,0);
+      if(!tw){plus(g.naam,v,"Overig",v);return}
+      per[g.naam]=(per[g.naam]||0)+v;sub[g.naam]=sub[g.naam]||{};w.forEach(x=>{sub[g.naam][x.n]=(sub[g.naam][x.n]||0)+v*x.w/tw})})});
+  return{per,sub}}
+function stDiensten(dk,per,tot,sub){const KL=["#2a3245","#c9a46a","#5d6780","#9aa3b5","#8a6d43","#3e4a64"],R=56,C=2*Math.PI*R,gap=dk.length>1?4:0;let acc=0;
   const ring=dk.map((k,i)=>{const f=per[k]/tot,len=Math.max(0,f*C-gap),seg=`<circle class="st-seg" cx="70" cy="70" r="${R}" fill="none" stroke="${i===0?"url(#stg0)":KL[i%KL.length]}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${len} ${C}" stroke-dashoffset="${-acc*C}" style="--len:${len};--c:${C}"/>`;acc+=f;return seg}).join("");
   return `<div class="st-dv"><div class="st-ring"><svg viewBox="0 0 140 140"><defs><linearGradient id="stg0" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5d6a88"/><stop offset=".55" stop-color="#2f3850"/><stop offset="1" stop-color="#1b2130"/></linearGradient></defs><circle cx="70" cy="70" r="${R}" fill="none" stroke="#eef0f3" stroke-width="12"/><circle cx="70" cy="70" r="${R-13}" fill="none" stroke="#f4f5f7" stroke-width="1"/><g transform="rotate(-90 70 70)">${ring}</g></svg><div><small class="st-rk">Omzet</small><b>${eur0(tot)}</b><small>${plural(dk.length,"dienst","diensten")}</small></div></div>
-    <div class="st-dl">${dk.map((k,i)=>{const p=Math.round(per[k]/tot*100);return `<div class="st-di" style="--c:${KL[i%KL.length]}"><span class="st-dic">${I.spark}</span><div class="st-dim"><div class="st-dit"><b>${esc(k)}</b><span class="mono">${eur(per[k])}</span></div><div class="st-dib"><i style="width:${p}%"></i></div><small><b>${p}%</b> van de omzet</small></div></div>`}).join("")}</div></div>`}
+    <div class="st-dl">${dk.map((k,i)=>{const p=Math.round(per[k]/tot*100);return `<div class="st-di${sub&&sub[k]&&Object.keys(sub[k]).length?" kan":""}" style="--c:${KL[i%KL.length]}" ${sub&&sub[k]&&Object.keys(sub[k]).length?`role="button" tabindex="0"`:""}><span class="st-dic">${I.spark}</span><div class="st-dim"><div class="st-dit"><b>${esc(k)}</b><span class="mono">${eur(per[k])}</span></div><div class="st-dib"><i style="width:${p}%"></i></div><small><b>${p}%</b> van de omzet${sub&&sub[k]&&Object.keys(sub[k]).length?` · <span class="st-dmeer">onderdelen bekijken</span>`:""}</small>${sub&&sub[k]&&Object.keys(sub[k]).length?`<div class="st-dsub" hidden>${Object.entries(sub[k]).sort((a,b)=>b[1]-a[1]).map(([n,v])=>`<div><span>${esc(n)}</span><b>${eur(v)}</b></div>`).join("")}</div>`:""}</div></div>`}).join("")}</div></div>`}
+
+document.addEventListener("click",e=>{const d=e.target.closest(".st-di.kan");if(!d)return;const x=d.querySelector(".st-dsub");if(x){x.hidden=!x.hidden;d.classList.toggle("open",!x.hidden)}});
 
 /* broncode van de mail-tracking server (Cloudflare Worker), om te kopiëren vanuit Instellingen */
 const TRACK_WORKER="// het CRM \u00b7 mail-tracking (Cloudflare Worker)\n// Nodig: KV-namespace gekoppeld als TRACK en een geheime variabele KEY (dezelfde sleutel als in de CRM).\nconst GIF=Uint8Array.from(atob(\"R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"),c=>c.charCodeAt(0));\nconst CORS={\"Access-Control-Allow-Origin\":\"*\",\"Access-Control-Allow-Methods\":\"GET,POST,OPTIONS\",\"Access-Control-Allow-Headers\":\"content-type\"};\nconst okId=id=>/^[\\w-]{4,40}$/.test(id);\nasync function sig(key,id,u){const b=await crypto.subtle.digest(\"SHA-256\",new TextEncoder().encode(key+\"|\"+id+\"|\"+u));return [...new Uint8Array(b)].slice(0,6).map(x=>x.toString(16).padStart(2,\"0\")).join(\"\")}\nasync function log(env,id,ev){\n  const k=\"m:\"+id,cur=JSON.parse((await env.TRACK.get(k))||'{\"o\":[],\"c\":[]}');\n  if(ev.c)cur.c.push({t:ev.t,u:ev.u});else cur.o.push(ev.t);\n  cur.o=cur.o.slice(-40);cur.c=cur.c.slice(-40);\n  await env.TRACK.put(k,JSON.stringify(cur),{expirationTtl:60*60*24*400});\n}\nexport default{async fetch(req,env,ctx){\n  const url=new URL(req.url),p=url.pathname;\n  if(req.method===\"OPTIONS\")return new Response(null,{headers:CORS});\n  let m=p.match(/^\\/o\\/([\\w-]+)\\.gif$/);\n  if(m){if(okId(m[1]))ctx.waitUntil(log(env,m[1],{t:Date.now()}));\n    return new Response(GIF,{headers:{\"content-type\":\"image/gif\",\"cache-control\":\"no-store, no-cache, must-revalidate, max-age=0\"}})}\n  m=p.match(/^\\/c\\/([\\w-]+)$/);\n  if(m){const to=url.searchParams.get(\"u\")||\"\",s=url.searchParams.get(\"s\")||\"\";\n    if(!/^https?:\\/\\//i.test(to)||!okId(m[1])||!env.KEY||s!==await sig(env.KEY,m[1],to))return new Response(\"Ongeldige link\",{status:400});\n    ctx.waitUntil(log(env,m[1],{c:1,t:Date.now(),u:to}));return Response.redirect(to,302)}\n  if(p===\"/e\"&&req.method===\"POST\"){\n    const b=await req.json().catch(()=>({}));\n    if(!env.KEY||b.k!==env.KEY)return new Response('{\"fout\":\"sleutel\"}',{status:401,headers:{...CORS,\"content-type\":\"application/json\"}});\n    const out={};await Promise.all((b.ids||[]).filter(okId).slice(0,400).map(async id=>{const v=await env.TRACK.get(\"m:\"+id);if(v)out[id]=JSON.parse(v)}));\n    return new Response(JSON.stringify(out),{headers:{...CORS,\"content-type\":\"application/json\"}})}\n  if(p===\"/\"||p===\"/ping\")return new Response(\"het CRM tracking ok\",{headers:CORS});\n  return new Response(\"\",{status:404});\n}};\n";
@@ -11811,8 +11839,8 @@ function uitvDefault(){
   const G=[
     {id:"glas",type:"glas",std:true,naam:"Glasbewassing",start:c.start||0,min:c.min,fp:{},items:[k("g0","Begane grond"),k("g1","1e verdieping"),k("g2","2e verdieping"),k("g3","3e verdieping")]},
     {id:"bijz",type:"bijz",std:true,naam:"Glasbewassing bijzondere ramen",items:[k("lood","Glas-in-lood"),k("mini","Miniraampjes"),k("koepel","Lichtkoepel"),k("tuimel","Dak-/tuimelramen")]},
-    {id:"goten",std:true,naam:"Goten",items:[itm("Leeghalen","per strekkende meter",3,90),itm("Reiniging buitenkant","per strekkende meter",5,120)]},
-    {id:"gevel",std:true,naam:"Reiniging gevelelementen",items:[itm("Daklijst","per strekkende meter",3.50,60),itm("Daklijst met klossen","per strekkende meter",5.50,120),itm("Windveren, regenpijpen etc.","per strekkende meter",3,60),itm("Beplating, luiken, garagedeuren etc.","per m²",4,90)]},
+    {id:"goten",std:true,naam:"Goten",items:[itm("Leeghalen","per strekkende meter",3,90)]},
+    {id:"gevel",std:true,naam:"Reiniging gevelelementen",items:[itm("Daklijst","per strekkende meter",3.50,60),itm("Daklijst met klossen","per strekkende meter",5.50,120),itm("Windveren, regenpijpen etc.","per strekkende meter",3,60),itm("Beplating, luiken, garagedeuren etc.","per m²",4,90),itm("Goten reiniging buitenkant","per strekkende meter",5,120)]},
     {id:"dakkapel",std:true,naam:"Reiniging dakkapel",items:[itm("Eerste verdieping","per stuk",35,1200),itm("Tweede verdieping","per stuk",45,1500)]},
     {id:"zon",std:true,naam:"Reiniging zonnepanelen",items:[itm("Reiniging zonnepanelen","per paneel",3.50,90)]},
     {id:"rolluik",std:true,inCalc:false,naam:"Reiniging rolluiken",items:[itm("Rolluik","per stuk",6,180)]},
@@ -12092,6 +12120,29 @@ function groepRedraw(box,key,g,opts){let el=box.querySelector(`[data-ge="${key}"
 function groepTotUpdate(box,key,g,opts){const el=box.querySelector(`[data-ge="${key}"] .ge-tot`);if(!el)return;const t=document.createElement("div");t.innerHTML=groepEditor(g,key,opts);const n=t.querySelector(".ge-tot");if(n)el.innerHTML=n.innerHTML}
 
 const fqTxt=w=>{w=Number(w)||0;return w===1?"1x per week":w===52?"1x per jaar":w===104?"1x per 2 jaar":w>0?"1x per "+w+" weken":""};
+
+/* eenmalig: "Reiniging buitenkant" van Goten naar Reiniging gevelelementen (als "Goten reiniging buitenkant"),
+   in de dienstenlijst én bij de klanten die het als opdracht hebben. Aantallen, prijs, frequentie en datums blijven gelijk. */
+async function migGotenBuiten(){try{
+  if((state.settings||{}).migGotenBuiten||window.ZEEM_MEEKIJK||(typeof isMw==="function"&&isMw()))return;
+  const NM="Goten reiniging buitenkant",isB=it=>it&&/^(goten\s+)?reiniging buitenkant$/i.test(String(it.naam||"").trim());
+  let gevelNaam="Reiniging gevelelementen",movedId=null;
+  if(state.uitv&&Array.isArray(state.uitv.groepen)){const u=JSON.parse(JSON.stringify(state.uitv)),go=u.groepen.find(g=>g.id==="goten"),gv=u.groepen.find(g=>g.id==="gevel");
+    if(gv)gevelNaam=gv.naam||gevelNaam;
+    const it=go&&(go.items||[]).find(isB);
+    if(it&&gv){go.items=go.items.filter(x=>x!==it);if(!(gv.items||[]).some(isB))gv.items=[...(gv.items||[]),{...it,naam:NM}];movedId=it.id;await save("instellingen","uitvoering",u);state.uitv=u;if(typeof U!=="undefined")U=null}}
+  const gevelItems=()=>{const g=(state.uitv&&state.uitv.groepen||[]).find(x=>x.id==="gevel")||uitvDefault().groepen.find(x=>x.id==="gevel");return(g&&g.items||[]).map(x=>({...x,aantal:0}))};
+  let n=0;
+  for(const k of state.klanten){const ops=k.opdrachten||[];if(!ops.some(o=>o.groep==="goten"&&(o.items||[]).some(isB)))continue;
+    let nieuw=ops.map(o=>({...o,items:(o.items||[]).map(x=>({...x}))}));
+    nieuw.filter(o=>o.groep==="goten").forEach(o=>{const b=o.items.find(isB);if(!b)return;o.items=o.items.filter(x=>x!==b);
+      if(Number(b.aantal)>0){o._weg=!o.items.some(x=>Number(x.aantal)>0);let gv=nieuw.find(x=>x.groep==="gevel");
+        if(!gv){gv={id:newId("o"),groep:"gevel",naam:gevelNaam,dienst:gevelNaam,frequentie:o.frequentie,volgende:o.volgende||"",laatst:o.laatst||"",actief:o.actief!==false,items:gevelItems()};nieuw.push(gv)}
+        gv.items=gv.items.filter(x=>!isB(x));gv.items.push({...b,naam:NM})}});
+    nieuw=nieuw.filter(o=>!o._weg).map(o=>{const{_weg,...r}=o;return r});
+    await save("klanten",k.id,{...strip(k),opdrachten:nieuw});n++}
+  const sd={...state.settings,migGotenBuiten:true};await save("instellingen","bedrijf",sd);state.settings=sd;
+  if(n)toast("Goten reiniging buitenkant staat nu onder "+gevelNaam+" ("+plural(n,"klant","klanten")+" bijgewerkt)")}catch(e){console.error("migGotenBuiten",e)}}
 
 /* ---------- KLANTKAART: overzicht met blokken (zoals een klantdossier), per blok aanpassen ---------- */
 const factAddr=k=>k&&k.fAdres?[k.fAdres,[k.fPostcode,k.fPlaats].filter(Boolean).join(" ")].filter(Boolean).join(", "):(k&&k.adres?fullAddr(k):jobAddr(k));

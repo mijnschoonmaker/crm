@@ -43,7 +43,7 @@ function vInzichten(){
   }else if(state.itab==="werk"){
     const bs=state.beurten.filter(b=>inRange(b.datum,P.rg)),bv=state.beurten.filter(b=>inRange(b.datum,V.rg));
     const mins=bs.reduce((a,b)=>a+(Number(b.duur)||duur(kd(b.klantId)||{})),0),om=bs.reduce((a,b)=>a+exAmt(b.bedrag),0);
-    const per_d={};bs.forEach(b=>{const k=b.dienst||(kd(b.klantId)||{}).dienst||"Glasbewassing";per_d[k]=(per_d[k]||0)+exAmt(b.bedrag)});const dk=Object.keys(per_d).sort((a,b)=>per_d[b]-per_d[a]),dtot=dk.reduce((a,k)=>a+per_d[k],0)||1;
+    const {per:per_d,sub:sub_d}=stDienstSplit(bs);const dk=Object.keys(per_d).sort((a,b)=>per_d[b]-per_d[a]),dtot=dk.reduce((a,k)=>a+per_d[k],0)||1;
     const wdc=[0,0,0,0,0,0,0];bs.forEach(b=>{wdc[(parse(b.datum).getDay()+6)%7]+=1});const top=wdc.indexOf(Math.max(...wdc));
     const dag={};state.beurten.forEach(b=>{dag[b.datum]=(dag[b.datum]||0)+exAmt(b.bedrag)});const best=Object.entries(dag).sort((a,b)=>b[1]-a[1])[0];
     const ach=overdue().length,gem=bs.length?om/bs.length:0;
@@ -64,7 +64,7 @@ function vInzichten(){
     <div class="st-two"><section class="st-card"><div class="st-ch"><div><h3>Drukste dagen</h3><p>Afgemelde beurten per weekdag${wdc[top]?" · meestal op "+["maandag","dinsdag","woensdag","donderdag","vrijdag","zaterdag","zondag"][top]:""}</p></div></div>
         ${stBars(wdc,["ma","di","wo","do","vr","za","zo"],{hi:wdc[top]?top:-1,fmt:v=>String(Math.round(v)),h:200,gem:false})}</section>
       <section class="st-card"><div class="st-ch"><div><h3>Omzet per dienst</h3><p>Aandeel in de omzet uit werk</p></div></div>
-        ${dk.length?stDiensten(dk,per_d,dtot):'<p class="st-leeg">Nog geen afgemelde beurten in deze periode.</p>'}</section></div>`+(typeof wdStatKaart==="function"?wdStatKaart(P.rg,P.lbl):"");
+        ${dk.length?stDiensten(dk,per_d,dtot,sub_d):'<p class="st-leeg">Nog geen afgemelde beurten in deze periode.</p>'}</section></div>`+(typeof wdStatKaart==="function"?wdStatKaart(P.rg,P.lbl):"");
   }else{
     const ak=actief(),nieuw=state.klanten.filter(k=>inRange(k.aangemaakt,P.rg)),nieuwV=state.klanten.filter(k=>inRange(k.aangemaakt,V.rg)),inact=state.klanten.filter(k=>k.actief===false);
     const jaar=ak.reduce((a,k)=>a+exAmt(k.prijs)*365/freqDays(k),0),perK=ak.length?jaar/ak.length:0;
@@ -94,7 +94,26 @@ function vInzichten(){
 function stStraat(n){const max=12,m=Math.min(n,max),H=typeof HUIS!=="undefined"?HUIS:"";
   return `<div class="st-straat" role="img" aria-label="${n} woningen gedaan"><div class="st-sh">${Array.from({length:m},(_,i)=>`<span class="st-hu" style="--i:${i}">${H}<i>${I.check}</i></span>`).join("")}${n>max?`<span class="st-meer">+${n-max}</span>`:""}</div><div class="st-weg"><i></i><span class="st-bus">${typeof RV_BUS!=="undefined"?RV_BUS:""}</span></div></div>`}
 /* omzet per dienst: ring met het aandeel en per dienst een kaartje met balk */
-function stDiensten(dk,per,tot){const KL=["#2a3245","#c9a46a","#5d6780","#9aa3b5","#8a6d43","#3e4a64"],R=56,C=2*Math.PI*R,gap=dk.length>1?4:0;let acc=0;
+/* omzet per dienst uit de factuurregels van de beurten: kozijnen horen bij glasbewassing, extra opdrachten (zoals Reiniging gevelelementen) apart, met per onderdeel het bedrag */
+function stGroepen(){try{if(!RC)RC=buildRamen();const src=state.uitv&&state.uitv.groepen?state.uitv:null;return src?[...(src.groepen||[]),...(src.eigen||[])]:uitvDefault().groepen}catch(e){return[]}}
+function stDienstNorm(n){n=String(n||"").trim();if(!n||/^glasbewassing\b/i.test(n)&&(/kozijn/i.test(n)||!/binnen|bijzonder/i.test(n)))return"Glasbewassing";return n}
+function stDienstSplit(bs){const G=stGroepen().filter(g=>g.type!=="glas"&&g.naam).sort((a,b)=>b.naam.length-a.naam.length),per={},sub={},F={};(state.facturen||[]).forEach(f=>F[f.id]=f);
+  const plus=(d,v,it,iv)=>{per[d]=(per[d]||0)+v;if(it){sub[d]=sub[d]||{};sub[d][it]=(sub[d][it]||0)+iv}};
+  const KM={};(state.klanten||[]).forEach(x=>KM[x.id]=x);bs.forEach(b=>{const k=KM[b.klantId]||{},f=b.gefactureerd&&F[b.gefactureerd];
+    const regels=f&&Array.isArray(f.regels)&&f.regels.length?f.regels:null;
+    if(!regels){plus(stDienstNorm(b.dienst||k.dienst),exAmt(b.bedrag));return}
+    regels.forEach(r=>{const v=exAmt((Number(r.aantal)||0)*(Number(r.prijs)||0));if(!v)return;const om=String(r.omschrijving||"").toLowerCase();
+      const g=G.find(x=>om.includes(x.naam.toLowerCase()))||G.find(x=>(x.items||[]).some(it=>it.naam&&it.naam.length>4&&om.includes(it.naam.toLowerCase())));
+      if(!g){plus(/^(toeslag|korting|voorrijkosten)/i.test(om)||/glasbewassing|kozijn|ramen/i.test(om)||!om?"Glasbewassing":stDienstNorm(String(r.omschrijving).split("(")[0]),v);return}
+      /* verdeling over onderdelen: naar de aantallen en prijzen van die opdracht bij de klant */
+      const o=(k.opdrachten||[]).find(x=>x.groep===g.id),its=(o&&o.items||[]).filter(it=>Number(it.aantal)>0);
+      const w=its.map(it=>{const gi=(g.items||[]).find(y=>y.id===it.id||y.naam===it.naam)||{};return{n:it.naam||gi.naam||"Overig",w:(Number(it.aantal)||0)*(Number(it.prijs??gi.prijs)||0)}}),tw=w.reduce((a,x)=>a+x.w,0);
+      if(!tw){plus(g.naam,v,"Overig",v);return}
+      per[g.naam]=(per[g.naam]||0)+v;sub[g.naam]=sub[g.naam]||{};w.forEach(x=>{sub[g.naam][x.n]=(sub[g.naam][x.n]||0)+v*x.w/tw})})});
+  return{per,sub}}
+function stDiensten(dk,per,tot,sub){const KL=["#2a3245","#c9a46a","#5d6780","#9aa3b5","#8a6d43","#3e4a64"],R=56,C=2*Math.PI*R,gap=dk.length>1?4:0;let acc=0;
   const ring=dk.map((k,i)=>{const f=per[k]/tot,len=Math.max(0,f*C-gap),seg=`<circle class="st-seg" cx="70" cy="70" r="${R}" fill="none" stroke="${i===0?"url(#stg0)":KL[i%KL.length]}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${len} ${C}" stroke-dashoffset="${-acc*C}" style="--len:${len};--c:${C}"/>`;acc+=f;return seg}).join("");
   return `<div class="st-dv"><div class="st-ring"><svg viewBox="0 0 140 140"><defs><linearGradient id="stg0" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5d6a88"/><stop offset=".55" stop-color="#2f3850"/><stop offset="1" stop-color="#1b2130"/></linearGradient></defs><circle cx="70" cy="70" r="${R}" fill="none" stroke="#eef0f3" stroke-width="12"/><circle cx="70" cy="70" r="${R-13}" fill="none" stroke="#f4f5f7" stroke-width="1"/><g transform="rotate(-90 70 70)">${ring}</g></svg><div><small class="st-rk">Omzet</small><b>${eur0(tot)}</b><small>${plural(dk.length,"dienst","diensten")}</small></div></div>
-    <div class="st-dl">${dk.map((k,i)=>{const p=Math.round(per[k]/tot*100);return `<div class="st-di" style="--c:${KL[i%KL.length]}"><span class="st-dic">${I.spark}</span><div class="st-dim"><div class="st-dit"><b>${esc(k)}</b><span class="mono">${eur(per[k])}</span></div><div class="st-dib"><i style="width:${p}%"></i></div><small><b>${p}%</b> van de omzet</small></div></div>`}).join("")}</div></div>`}
+    <div class="st-dl">${dk.map((k,i)=>{const p=Math.round(per[k]/tot*100);return `<div class="st-di${sub&&sub[k]&&Object.keys(sub[k]).length?" kan":""}" style="--c:${KL[i%KL.length]}" ${sub&&sub[k]&&Object.keys(sub[k]).length?`role="button" tabindex="0"`:""}><span class="st-dic">${I.spark}</span><div class="st-dim"><div class="st-dit"><b>${esc(k)}</b><span class="mono">${eur(per[k])}</span></div><div class="st-dib"><i style="width:${p}%"></i></div><small><b>${p}%</b> van de omzet${sub&&sub[k]&&Object.keys(sub[k]).length?` · <span class="st-dmeer">onderdelen bekijken</span>`:""}</small>${sub&&sub[k]&&Object.keys(sub[k]).length?`<div class="st-dsub" hidden>${Object.entries(sub[k]).sort((a,b)=>b[1]-a[1]).map(([n,v])=>`<div><span>${esc(n)}</span><b>${eur(v)}</b></div>`).join("")}</div>`:""}</div></div>`}).join("")}</div></div>`}
+
+document.addEventListener("click",e=>{const d=e.target.closest(".st-di.kan");if(!d)return;const x=d.querySelector(".st-dsub");if(x){x.hidden=!x.hidden;d.classList.toggle("open",!x.hidden)}});
