@@ -591,3 +591,50 @@ exports.ramenTellen = onCall({ memory: "512MiB", timeoutSeconds: 120 }, async re
     return (Array.isArray(f.dubbel) ? f.dubbel : []).slice(0, 60).map(d => ({ x: cl(d.x), y: cl(d.y), i: Math.max(0, Math.min(fotos.length - 1, Number(d.geteld_op) || 0)) })).filter(d => d.i !== i); });
   return { fotos: per, dubbel: dub, zeker: ["hoog", "middel", "laag"].includes(out.zeker) ? out.zeker : "", opmerking: String(out.opmerking || "").slice(0, 300) };
 });
+
+/* ---------- klantgegevens uit een foto/screenshot (bv. van een ander CRM) uitlezen met AI ---------- */
+const KF_PROMPT = `Je helpt een Nederlandse glazenwasser zijn klanten over te zetten naar zijn nieuwe CRM. Je krijgt één of meer foto's of screenshots van een klantkaart of klantenlijst uit een ander programma (of een papieren kaart, notitie, visitekaartje). Lees ALLE klantinformatie uit die je ziet.
+
+Per klant:
+- naam: achternaam/bedrijfsnaam zoals het CRM hem noemt, bv. "Jansen, Piet" of "Bakkerij De Molen"
+- contact: contactpersoon (bij bedrijven), anders leeg
+- soort: "zakelijk" als het een bedrijf/instelling/VvE is, anders "particulier"
+- adres: straat + huisnummer (+ toevoeging), postcode: "1234 AB", plaats
+- telefoon, email, klantnr (klantnummer in het andere systeem)
+- diensten: elke dienst met eigen frequentie en prijs, bv. glasbewassing buiten elke 4 weken € 25, binnen elke 12 weken € 40, dakgoot 1x per jaar.
+  frequentie in WEKEN als geheel getal: wekelijks=1, 2-wekelijks=2, maandelijks/elke maand=4, elke 6 weken=6, per kwartaal/3 maanden=13, halfjaarlijks=26, jaarlijks=52.
+  prijs als getal in euro (komma wordt punt), incl: true als er incl. btw staat, false als excl. btw, null als onbekend.
+  laatst: datum van de laatste beurt (YYYY-MM-DD) als zichtbaar, volgende: geplande volgende datum (YYYY-MM-DD) als zichtbaar.
+  De belangrijkste/meest frequente dienst (meestal glasbewassing buiten) als eerste.
+- notities: overige nuttige info in het Nederlands (sleutel, hond, alarmcode, toegang, ladder nodig, betaalwijze, bijzonderheden), kort.
+Laat velden die je niet ziet leeg (""). Verzin niets. Datums zonder jaar: neem het meest logische jaar (huidig jaar is ${new Date().getFullYear()}).
+
+Antwoord ALLEEN met JSON, zonder uitleg:
+{"klanten":[{"naam":"","contact":"","soort":"particulier","adres":"","postcode":"","plaats":"","telefoon":"","email":"","klantnr":"","diensten":[{"dienst":"Glasbewassing","frequentie":4,"prijs":25,"incl":true,"laatst":"","volgende":""}],"notities":""}],"opmerking":"korte Nederlandse opmerking als iets slecht leesbaar was, anders leeg"}`;
+exports.klantFoto = onCall({ memory: "512MiB", timeoutSeconds: 120 }, async req => {
+  await checkGebruiker(req.auth);
+  const g = await geheim(), key = g.aiKey;
+  if (!key) throw new HttpsError("failed-precondition", "AI is nog niet ingesteld. Vul je Anthropic API-sleutel in bij Instellingen › AI.");
+  const fotos = (req.data && req.data.fotos || []).filter(f => f && typeof f.data === "string" && f.data.length > 100).slice(0, 6);
+  if (!fotos.length) throw new HttpsError("invalid-argument", "Geen foto's ontvangen.");
+  const content = [];
+  fotos.forEach((f, i) => { content.push({ type: "text", text: "Foto " + (i + 1) }); content.push({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: f.data.replace(/^data:image\/\w+;base64,/, "") } }); });
+  content.push({ type: "text", text: "Lees nu alle klantgegevens uit en geef het JSON-antwoord." });
+  let r, j;
+  try {
+    r = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
+      body: JSON.stringify({ model: g.aiModel || "claude-opus-5-5", max_tokens: 6000, system: KF_PROMPT, messages: [{ role: "user", content }] }) });
+    j = await r.json();
+  } catch (e) { throw new HttpsError("unavailable", "De AI was niet bereikbaar. Probeer het zo nog eens."); }
+  if (!r.ok) { const m = (j && j.error && j.error.message) || r.status; console.error("klantFoto", m);
+    throw new HttpsError(r.status === 401 ? "permission-denied" : "internal", r.status === 401 ? "De AI-sleutel klopt niet. Controleer hem bij Instellingen." : "Uitlezen lukte niet: " + m); }
+  const txt = (j.content || []).filter(c => c.type === "text").map(c => c.text).join(""), a = txt.indexOf("{"), b = txt.lastIndexOf("}");
+  let out; try { out = JSON.parse(txt.slice(a, b + 1)); } catch (e) { console.error("klantFoto parse", txt.slice(0, 400)); throw new HttpsError("internal", "De AI gaf geen bruikbaar antwoord. Probeer het opnieuw met een scherpere foto."); }
+  const s = (v, n) => String(v == null ? "" : v).trim().slice(0, n || 200), dt = v => /^\d{4}-\d{2}-\d{2}$/.test(String(v || "")) ? String(v) : "";
+  const klanten = (Array.isArray(out.klanten) ? out.klanten : []).slice(0, 50).map(k => ({
+    naam: s(k.naam, 120), contact: s(k.contact, 120), soort: k.soort === "zakelijk" ? "zakelijk" : "particulier", adres: s(k.adres, 160), postcode: s(k.postcode, 10).toUpperCase(), plaats: s(k.plaats, 80),
+    telefoon: s(k.telefoon, 40), email: s(k.email, 120), klantnr: s(k.klantnr, 40), notities: s(k.notities, 1000),
+    diensten: (Array.isArray(k.diensten) ? k.diensten : []).slice(0, 12).map(d => ({ dienst: s(d.dienst, 80) || "Glasbewassing", frequentie: Math.max(1, Math.min(104, Math.round(Number(d.frequentie) || 4))), prijs: Math.max(0, Math.round((Number(String(d.prijs).replace(",", ".")) || 0) * 100) / 100), incl: d.incl === true ? true : d.incl === false ? false : null, laatst: dt(d.laatst), volgende: dt(d.volgende) }))
+  })).filter(k => k.naam || k.adres);
+  return { klanten, opmerking: s(out.opmerking, 300) };
+});

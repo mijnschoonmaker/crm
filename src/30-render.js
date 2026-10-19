@@ -89,6 +89,7 @@ document.addEventListener("click",e=>{
     case"reveal":t.outerHTML='<span class="mono">'+esc(t.dataset.v)+'</span>';break;
     case"msgklant":{const k=K(id);if(k)openCompose({title:"Bericht aan "+cleanName(k.naam),sjabloon:"afspraak",recipients:[{k,vars:klantVars(k),ref:""}]});break}
     case"import":openImport();break;
+    case"kfoto":state.kmenu=false;openKlantFoto();break;
     case"webaanvraag":openWebAanvraag();break;
     case"planmail":openPlanMail(t.dataset.d);break;
     case"geplande":openGeplande();break;

@@ -922,3 +922,23 @@ html body:not(#zz) .app.collapsed aside .logo{display:flex!important;justify-con
 html body:not(#zz) .vraag .vraag-k{display:flex!important;flex-wrap:wrap!important;gap:8px!important;justify-content:flex-end}
 html body:not(#zz) .vraag .vraag-k button{flex:1 1 auto;min-width:0;white-space:nowrap}
 @media (max-width:700px){html body:not(#zz) .vraag .vraag-k button{flex:1 1 0}}
+/* ---------- Klanten uit foto (AI) ---------- */
+html body:not(#zz) .kf-fotos{display:flex;flex-wrap:wrap;gap:10px}
+html body:not(#zz) .kf-th{position:relative;width:110px;height:140px;border-radius:12px;overflow:hidden;border:1px solid var(--rr-rand);background:#f4f5f7}
+html body:not(#zz) .kf-th img{width:100%;height:100%;object-fit:cover;display:block}
+html body:not(#zz) .kf-th .iconbtn{position:absolute;top:6px;right:6px;width:28px;height:28px;border-radius:50%!important;background:rgb(255 255 255 / .92)!important}
+html body:not(#zz) .kf-add{width:110px;height:140px;border-radius:12px;border:1.5px dashed #c5cad3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;font-size:12px;font-weight:600;color:#55585f;cursor:pointer;padding:8px;background:#fafbfc;margin:0}
+html body:not(#zz) .kf-add svg{width:24px;height:24px;color:#252c3c}
+html body:not(#zz) .kf-add:hover{border-color:#252c3c;background:#f4f5f7}
+html body:not(#zz) .kf-lijst{display:flex;flex-direction:column;gap:14px;max-height:62vh;overflow:auto;padding-right:2px}
+html body:not(#zz) .kf-k{border:1px solid var(--rr-rand);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;background:#fff}
+html body:not(#zz) .kf-k.uit{opacity:.5}
+html body:not(#zz) .kf-kh{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+html body:not(#zz) .kf-k label.kf-mee{display:flex!important;flex-direction:row!important;align-items:center!important;gap:10px!important;margin:0!important;font-size:15px!important;color:#0d121b!important;text-transform:none!important;letter-spacing:0!important}
+html body:not(#zz) .kf-mee input{width:18px;height:18px}
+html body:not(#zz) .kf-doel{width:auto!important;min-height:34px}
+html body:not(#zz) .kf-dl{display:flex;flex-direction:column;gap:6px}
+html body:not(#zz) .kf-d,html body:not(#zz) .kf-dkop{display:grid;grid-template-columns:2fr 1.4fr .9fr 1.2fr 32px;gap:6px;align-items:center}
+html body:not(#zz) .kf-dkop{order:-1;font-size:10.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#8a8e94}
+html body:not(#zz) .kf-d input,html body:not(#zz) .kf-d select{min-width:0;margin:0}
+@media (max-width:700px){html body:not(#zz) .kf-d{grid-template-columns:1fr 1fr 32px}html body:not(#zz) .kf-d [data-d="dienst"]{grid-column:1/3}html body:not(#zz) .kf-dkop{display:none}html body:not(#zz) .kf-lijst{max-height:none}}
