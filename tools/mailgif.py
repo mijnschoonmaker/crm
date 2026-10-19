@@ -164,7 +164,7 @@ def scene(naam, richting):
 
 # ------------------------------------------------------------------ kaart
 LAT0, LON0 = 52.18735, 5.42105  # gewone woonwijk (Amersfoort, Vathorst): geen echte klant
-Z = 18
+Z = 17
 KW, KH = 560, 340
 
 
@@ -293,7 +293,7 @@ def kaart():
         hd = ImageDraw.Draw(halo)
         hd.ellipse([p[0] * SS - 26 * SS, p[1] * SS - 26 * SS, p[0] * SS + 26 * SS, p[1] * SS + 26 * SS], fill=(255, 255, 255, 70))
         bf = busfoto()
-        bw = 128 * SS
+        bw = 112 * SS
         bi = bf.resize((bw, round(bf.height * bw / bf.width)), Image.LANCZOS)
         deg = math.degrees(ang)
         if abs(deg) > 90:  # naar links rijden: spiegelen zodat de bus niet op zijn kop staat
