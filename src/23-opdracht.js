@@ -175,9 +175,16 @@ function openOpdrachtWerk(kid,focus){
   const ritmeUitRamen=()=>{const q=main.ramen;if(!q)return 0;const ws=q.f.map((n,i)=>n&&Number(q.fq[i])).filter(Boolean),leeg=q.f.some((n,i)=>n&&!q.fq[i]);return ws.length?Math.min(...ws,...(leeg?[mF]:[])):0};
   const syncRitme=()=>{const w=ritmeUitRamen();if(w)mF=w;if(main.ramen&&!(k.tijden||[]).length){const c=calcR(main,true);if(c&&c.min)mD=Math.max(5,Math.ceil(c.min/5)*5)}};
   const isGlas=n=>/glas|ramen/i.test(String(n||""));
-  const dichtHtml=(r,i)=>{const its=(r.items||[]).filter(x=>Number(x.aantal)>0);
-    return `<div class="ow-line ow-dicht"><div class="ow-dh"><span class="mono">${i+2}</span><div class="ow-dm"><b>${esc(r.dienst||"Dienst")}</b>${r.actief===false?"<small><em>niet actief</em></small>":""}</div><span class="mono ow-dp">${eur(r.prijs)}</span>
-      <button type="button" class="small" data-lopen="${i}">${I.pencil}Wijzigen</button><button type="button" class="iconbtn sm" data-rm="${i}" aria-label="Regel verwijderen">${I.x}</button></div></div>`};
+  /* opgeslagen extra dienst als overzichtskaart (zoals DienstenCRM): omschrijving, onderdelen met aantal en frequentie, totalen, potlood om te wijzigen */
+  const dichtHtml=(r,i)=>{const its=(r.items||[]).filter(x=>Number(x.aantal)>0),base=Number(r.frequentie)||mF||null;
+    const fqT=w=>{const t=String(freqLabel(w)||"");return /^elke\s/i.test(t)?"1x per "+t.replace(/^elke\s+/i,""):t.toLowerCase()};
+    let c=null;try{if(r.items)c=groepCalc(r)}catch(e){}
+    const regels=its.length?its.map(x=>`<dt>${esc(x.naam)}</dt><dd>${String(x.aantal).replace(".",",")} ${esc(eenhKort(x.eenheid))}${(Number(x.fq)||base)?` <i>(${esc(fqT(Number(x.fq)||base))})</i>`:""}</dd>`).join(""):`<dt>Hoe vaak</dt><dd>${base?esc(fqT(base)):"—"}</dd>`;
+    const ov=r.items&&(gHas(r.tp)||its.some(x=>gHas(x.op)));
+    return `<div class="ow-line ow-dicht"><div class="ow-rk"><div class="ow-rkh"><span class="objic">${I.check}</span><b>${esc(r.dienst||"Dienst")}${r.actief===false?' <small>(niet actief)</small>':""}</b><span class="sp"></span><button type="button" class="iconbtn sm" data-lopen="${i}" aria-label="Wijzigen" title="Wijzigen">${I.pencil}</button><button type="button" class="iconbtn sm" data-rm="${i}" aria-label="Regel verwijderen" title="Verwijderen">${I.x}</button></div>
+      ${r.oms?`<p class="ow-rko">${esc(r.oms)}</p>`:""}
+      <dl class="ow-rkf">${regels}</dl>
+      <dl class="ow-rkt">${c&&c.start?`<dt>Starttarief</dt><dd>${eur(c.start)}</dd>`:""}<dt>Tijdsduur</dt><dd>${c?Math.round(c.sec/60):Number(r.duur)||0} minuten</dd><dt>Totaal ${esc(r.dienst||"")}</dt><dd>${eur(c?c.ex:Number(r.prijs)||0)}${ov?" <i>(overschrijvend)</i>":""}</dd></dl></div></div>`};
   const lineHtml=(r,i,isMain)=>!isMain&&r.id&&dicht.has(r.id)?dichtHtml(r,i):`<div class="ow-line${isMain?" main":""}">
       ${isMain&&r.ramen?"":`      <div class="ow-lh"><span class="mono">${isMain?1:i+2}</span><input data-i="${isMain?"m":i}" data-k="dienst" value="${esc(r.dienst)}" placeholder="Dienst" aria-label="Dienst">${isMain?"":`<button type="button" class="small ghost" data-rm="${i}" aria-label="Regel verwijderen">${I.x}</button>`}</div>
       <div class="ow-lg">

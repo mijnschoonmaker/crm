@@ -1166,3 +1166,5 @@ html body:not(#zz) .ow-rk+.ow-rk{margin-top:12px}
 html body:not(#zz) .ow-koz,html body:not(#zz) .ow-koz.on,html body:not(#zz) .ow-koz:has(input:checked){background:#fff!important;color:var(--ink)!important;box-shadow:none!important}
 html body:not(#zz) .ow-koz .ow-kozc,html body:not(#zz) .ow-koz .ow-kozc span{color:var(--ink)!important;background:transparent!important}
 html body:not(#zz) .ow-koz label{color:var(--ink)!important}
+html body:not(#zz) .ow-line.ow-dicht{padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important}
+html body:not(#zz) .ow-line.ow-dicht .ow-rkh .iconbtn+.iconbtn{margin-left:2px}
