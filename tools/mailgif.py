@@ -163,7 +163,8 @@ def scene(naam, richting):
 
 
 # ------------------------------------------------------------------ kaart
-LAT0, LON0 = 52.18735, 5.42105  # gewone woonwijk (Amersfoort, Vathorst): geen echte klant
+# gewone woonwijk (Houten): geen echte klant. Route over echte straten tussen A en B (OSRM)
+A_LL, B_LL = (52.02060, 5.16380), (52.02270, 5.16930)
 Z = 17
 KW, KH = 560, 340
 
@@ -180,32 +181,33 @@ def haal(url, t=20):
     return urllib.request.urlopen(req, timeout=t).read()
 
 
-def luchtfoto():
-    cx, cy = tegel_xy(LAT0, LON0, Z)
-    px0, py0 = cx * 256 - KW / 2, cy * 256 - KH / 2
+def route_ll():
+    url = f"https://router.project-osrm.org/route/v1/driving/{A_LL[1]:.6f},{A_LL[0]:.6f};{B_LL[1]:.6f},{B_LL[0]:.6f}?overview=full&geometries=geojson"
+    js = json.loads(haal(url))
+    return [(lat, lon) for lon, lat in js["routes"][0]["geometry"]["coordinates"]]
+
+
+def beeld(ll):
+    """kies zoom en uitsnede zodat de hele route ruim in beeld past"""
+    global Z
+    for z in (17, 16, 15):
+        P = [tegel_xy(la, lo, z) for la, lo in ll]
+        xs, ys = [p[0] * 256 for p in P], [p[1] * 256 for p in P]
+        if max(xs) - min(xs) <= KW - 110 and max(ys) - min(ys) <= KH - 90:
+            Z = z
+            cx, cy = (max(xs) + min(xs)) / 2, (max(ys) + min(ys)) / 2
+            px0, py0 = cx - KW / 2, cy - KH / 2
+            return px0, py0, [(x - px0, y - py0) for x, y in zip(xs, ys)]
+    raise RuntimeError("route te lang")
+
+
+def luchtfoto(px0, py0):
     big = Image.new("RGB", (KW, KH))
     for tx in range(int(px0 // 256), int((px0 + KW) // 256) + 1):
         for ty in range(int(py0 // 256), int((py0 + KH) // 256) + 1):
             raw = haal(f"https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0/Actueel_orthoHR/EPSG:3857/{Z}/{tx}/{ty}.jpeg")
             big.paste(Image.open(io.BytesIO(raw)).convert("RGB"), (round(tx * 256 - px0), round(ty * 256 - py0)))
-    return big, px0, py0
-
-
-def route(px0, py0):
-    """route over echte straten tussen twee punten in beeld (OSRM), in pixels"""
-    def lonlat(px, py):
-        n = 2 ** Z
-        lon = (px0 + px) / 256 / n * 360 - 180
-        lat = math.degrees(math.atan(math.sinh(math.pi * (1 - 2 * (py0 + py) / 256 / n))))
-        return lon, lat
-    a, b = lonlat(40, KH * .72), lonlat(KW * .82, KH * .42)
-    url = f"https://router.project-osrm.org/route/v1/driving/{a[0]:.6f},{a[1]:.6f};{b[0]:.6f},{b[1]:.6f}?overview=full&geometries=geojson"
-    js = json.loads(haal(url))
-    pts = []
-    for lon, lat in js["routes"][0]["geometry"]["coordinates"]:
-        x, y = tegel_xy(lat, lon, Z)
-        pts.append((x * 256 - px0, y * 256 - py0))
-    return pts
+    return big
 
 
 def langs(pts, t):
@@ -243,15 +245,16 @@ def bovenaanzicht(ang, s):
 
 def kaart():
     try:
-        foto, px0, py0 = luchtfoto()
+        ll = route_ll()
+    except Exception as e:
+        print("route niet bereikbaar, rechte lijn:", e)
+        ll = [A_LL, (A_LL[0], B_LL[1]), B_LL]
+    try:
+        px0, py0, pts = beeld(ll)
+        foto = luchtfoto(px0, py0)
     except Exception as e:
         print("luchtfoto niet bereikbaar, bestaande kaart blijft staan:", e)
         return
-    try:
-        pts = route(px0, py0)
-    except Exception as e:
-        print("route niet bereikbaar, rechte lijn:", e)
-        pts = [(40, KH * .72), (KW * .5, KH * .72), (KW * .5, KH * .42), (KW * .82, KH * .42)]
     # foto iets rustiger zodat route en bus opvallen
     foto = Image.blend(foto, Image.new("RGB", foto.size, (236, 238, 240)), .12)
     eind = pts[-1]
