@@ -20,9 +20,12 @@ function openOpdrachtWerk(kid,focus){
   <div class="kk-grid ow-grid"><div class="kk-left">
     <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klantgegevens</b><span class="sp"></span><button type="button" class="small" id="owKk">${I.right}Klantkaart</button></div>
       ${kv("Klantnummer",esc(nr))}${kv("Naam",esc(cleanName(k.naam)))}${kv("E-mail",k.email?`<a href="mailto:${esc(k.email)}">${esc(k.email)}</a>`:"—")}${kv("Telefoon",k.telefoon?`<a href="tel:${esc(String(k.telefoon).replace(/[^\d+]/g,""))}">${esc(k.telefoon)}</a>`:"—")}${kv("Soort",k.soort==="zakelijk"?"Zakelijk":"Particulier")}</section>
-    <section class="kp"><div class="kp-h"><span class="objic">${I.pin}</span><b>Adres</b><span class="sp"></span><a class="btn small" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.nav}Kaart</a></div>
-      ${kv("Adres",esc(jobAddr(k)))}${(k.objecten||[]).length>1?`<label>Object<select id="ow-obj">${k.objecten.map(o=>`<option value="${esc(o.id)}" ${jobObj(k)&&jobObj(k).id===o.id?"selected":""}>${esc(o.naam||"Object")}</option>`).join("")}</select></label>`:""}
-      ${[["offerte","Offerte gaat naar"],["factuur","Facturen gaan naar"],["planning","Planningsmails gaan naar"]].map(([x,l])=>kv(l,(mailK(k,x).email?esc(mailK(k,x).email):"—")+(tavK(k,x)?`<br><small class="subt">t.a.v. ${esc(tavK(k,x))}</small>`:""))).join("")}<button type="button" class="linkbtn" id="owAdr" style="align-self:flex-start">Adresgegevens aanpassen ${I.right}</button></section>
+    <section class="kp" id="owAdrK"><div class="kp-h"><span class="objic">${I.pin}</span><b>Adres</b><span class="sp"></span>
+        <span id="owAdrKn" class="ow-adrkn"><button type="button" class="iconbtn sm" id="owAdrE" aria-label="Adres en ontvangers wijzigen" title="Wijzigen">${I.pencil}</button><a class="btn small" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.nav}Kaart</a></span>
+        <span id="owAdrKe" class="ow-adrkn" hidden><button type="button" class="small" id="owAdrU" aria-label="Annuleren" title="Annuleren">${I.undo||I.x}</button><button type="button" class="small primary" id="owAdrS" aria-label="Opslaan" title="Opslaan">${I.save||I.check}</button></span></div>
+      <div id="owAdrV">${kv("Adres",esc(jobAddr(k)))}
+      ${[["offerte","Offerte gaat naar"],["factuur","Facturen gaan naar"],["planning","Planningsmails gaan naar"]].map(([x,l])=>kv(l,(mailK(k,x).email?esc(mailK(k,x).email):"—")+(tavK(k,x)?`<br><small class="subt">t.a.v. ${esc(tavK(k,x))}</small>`:""))).join("")}<button type="button" class="linkbtn" id="owAdr" style="align-self:flex-start">Adresgegevens aanpassen ${I.right}</button></div>
+      <div id="owAdrF" class="ow-adrf" hidden></div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.planning}</span><b>Opdracht</b><span class="sp"></span><button type="button" class="iconbtn sm" id="owOpdE" aria-label="Opdracht wijzigen" title="Wijzigen">${I.pencil}</button></div>
       <div class="ow-kvs" id="owOpdV"></div>
       <div class="grid2" id="owOpdF" hidden>
@@ -193,6 +196,22 @@ function openOpdrachtWerk(kid,focus){
     const g=$("#owMidGo");if(g)g.onclick=()=>{state.utab="middelen";go("uitvoering")}};
   drawAanb();drawArt();drawMid();
   {const a=$("#owAdr");if(a)a.onclick=()=>kkAdres(kid)}
+  /* adres en ontvangers wijzigen in de kaart zelf (zoals in DienstenCRM): kies uit de locaties en contactpersonen van de klant */
+  {const E=$("#owAdrE"),V=$("#owAdrV"),F=$("#owAdrF"),KN=$("#owAdrKn"),KE=$("#owAdrKe");
+    const adrO=()=>{const os=(k.objecten||[]).filter(o=>o&&(o.adres||o.naam));const hoofd=fullAddr(k);const cur=jobObj(k)&&jobObj(k).adres?jobObj(k).id:"";
+      return `<option value=""${!cur?" selected":""}>${esc(hoofd||"Hoofdadres")}${os.length?" (hoofdadres)":""}</option>`+os.filter(o=>o.adres).map(o=>`<option value="${esc(o.id)}"${cur===o.id?" selected":""}>${esc(fullAddr(o))}${o.naam?" · "+esc(o.naam):""}</option>`).join("")};
+    const ontv=(x)=>{const cs=(k.contacten||[]).filter(c=>c&&c.email),em=x==="factuur"?k.fEmail:x==="offerte"?k.oEmail:k.pEmail,tv=tavK(k,x);
+      const idx=em?cs.findIndex(c=>c.email===em&&(!tv||c.naam===tv)):-1;const eigen=em&&idx<0;
+      return `<option value="std"${!em?" selected":""}>Standaard klantgegevens${k.email?" · "+esc(k.email):""}</option>`+cs.map((c,i)=>`<option value="c${i}"${idx===i?" selected":""}>${esc(c.naam)}${c.functie?" ("+esc(c.functie)+")":""} · ${esc(c.email)}</option>`).join("")+(eigen?`<option value="eigen" selected>${esc(em)}${tv?" · t.a.v. "+esc(tv):""}</option>`:"")};
+    const open=on=>{V.hidden=on;F.hidden=!on;KN.hidden=on;KE.hidden=!on;
+      if(on)F.innerHTML=`<label>Adres<select id="owA-adr">${adrO()}</select></label>${(k.objecten||[]).filter(o=>o.adres).length?"":`<small class="help">Meerdere adressen? Voeg ze toe als locatie op de klantkaart.</small>`}
+        ${[["offerte","Offerte gaat naar"],["factuur","Facturen gaan naar"],["planning","Planningsmails gaan naar"]].map(([x,l])=>`<label>${l}<select id="owA-${x}">${ontv(x)}</select></label>`).join("")}
+        ${(k.contacten||[]).some(c=>c.email)?"":`<small class="help">Andere ontvanger? Voeg een contactpersoon met e-mailadres toe op de klantkaart.</small>`}`};
+    if(E)E.onclick=()=>open(true);
+    const U=$("#owAdrU");if(U)U.onclick=()=>open(false);
+    const SV=$("#owAdrS");if(SV)SV.onclick=async()=>{const cs=(k.contacten||[]).filter(c=>c&&c.email),patch={objectId:$("#owA-adr").value||""};
+      [["offerte","o"],["factuur","f"],["planning","p"]].forEach(([x,p])=>{const v=$("#owA-"+x).value;if(v==="std"){patch[p+"Email"]="";patch[p+"Tav"]=""}else if(v[0]==="c"){const c=cs[+v.slice(1)];patch[p+"Email"]=c.email;patch[p+"Tav"]=c.naam||""}});
+      SV.disabled=true;try{await save("klanten",kid,{...strip(k),...patch});Object.assign(k,patch);toast("Adres en ontvangers opgeslagen");dlg.close();openOpdrachtWerk(kid)}catch(er){SV.disabled=false;err(er)}}}
   {const d=$("#owDel");if(d)d.onclick=()=>kkDelOpdracht(kid,"main","opdracht")}
   $o("fact").onchange=()=>{const v=$o("fact").value,h=$("#owFactH");if(h)h.textContent=FACT_HELP[v]||"";if(v==="periodiek"&&!isPeriodiek(k)){const b=$("#owPer");if(b)b.click()}};
   {const b=$("#owPer");if(b)b.onclick=async()=>{b.disabled=true;try{await save("klanten",kid,collect());openPeriodiek(kid)}catch(er){b.disabled=false;err(er)}}}

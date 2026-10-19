@@ -1141,3 +1141,10 @@ html body:not(#zz) .ms-tabs{display:grid!important;grid-template-columns:repeat(
 /* offerte: rekentool-kaart net als de andere kaarten (wit, geen los wit titelvlak op grijs) */
 html body:not(#zz) .kp.kp-rc{background:#fff!important;border:1px solid var(--rr-rand)!important}
 html body:not(#zz) .kp.kp-rc>.kp-h{background:transparent!important;box-shadow:none!important}
+/* opdracht › adres: knoppen in de kop en het bewerkformulier */
+html body:not(#zz) .ow-adrkn{display:inline-flex;gap:8px;align-items:center}
+html body:not(#zz) .ow-adrkn[hidden]{display:none!important}
+html body:not(#zz) #owAdrKe .small{width:42px;height:38px!important;min-height:38px!important;padding:0!important;justify-content:center}
+html body:not(#zz) .ow-adrf{display:flex;flex-direction:column;gap:14px;padding-top:4px}
+html body:not(#zz) .ow-adrf label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:var(--ink)}
+html body:not(#zz) .ow-adrf select{height:44px;border-radius:10px;font-size:15px}
