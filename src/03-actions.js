@@ -559,7 +559,10 @@ function openOfferSheet(){
 function openMeer(){
   const items=[["facturen","Facturen maken, versturen en opvolgen"],["communicatie","WhatsApp, sms en e-mail"],["offertes","Offertes maken en opvolgen"],["uitvoering","Diensten, frequenties en middelen"],["inzichten","Hoe gaat het met je business?"],["instellingen","Bedrijf, btw en herinneringen"],["handleiding","Uitleg per onderdeel"]];
   openDlg(`<div class="dlg-head"><h3 style="flex:1">Meer</h3><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
-  <div class="list" style="gap:6px">${items.map(([t,d])=>`<button type="button" class="objrow" data-act="tab" data-tab="${t}"><span class="objic">${I[t]}</span><span class="objtx"><b>${PAGES.find(p=>p[0]===t)[1]}</b><small>${esc(d)}</small></span>${I.right.replace("<svg",'<svg class="chev"')}</button>`).join("")}</div>`);
+  <div class="list" style="gap:6px">${items.map(([t,d])=>`<button type="button" class="objrow" data-act="tab" data-tab="${t}"><span class="objic">${I[t]}</span><span class="objtx"><b>${PAGES.find(p=>p[0]===t)[1]}</b><small>${esc(d)}</small></span>${I.right.replace("<svg",'<svg class="chev"')}</button>`).join("")}</div>
+  <div class="list meer-acc" style="gap:6px;margin-top:10px">${(()=>{const me=state.me||{},nm=me.name||S().contact||"Mijn account";return `<button type="button" class="objrow" id="meerAcc"><span class="objic uavm">${esc(initials(nm))}</span><span class="objtx"><b>Mijn account</b><small>${esc(me.email||"Gegevens en abonnement")}</small></span>${I.right.replace("<svg",'<svg class="chev"')}</button>`})()}
+    ${LIVE?`<button type="button" class="objrow meer-uit" data-act="msuit"><span class="objic">${I.x}</span><span class="objtx"><b>Uitloggen</b><small>Je gegevens blijven veilig bewaard</small></span></button>`:""}</div>`);
+  const ma=document.getElementById("meerAcc");if(ma)ma.onclick=()=>{dlg.close();setTimeout(()=>typeof openAccount==="function"&&openAccount(),60)};
 }
 
 /* offerte akkoord → opdracht: klant actief, prijs en frequentie overnemen, eerste beurt inplannen */

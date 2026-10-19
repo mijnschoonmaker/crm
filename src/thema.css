@@ -990,3 +990,6 @@ html body:not(#zz) aside #userCard>div{flex:1 1 auto;min-width:0;overflow:hidden
 html body:not(#zz) aside #userCard .lg-out{display:inline-flex!important;flex:none!important;visibility:visible!important;font-size:10.5px!important;font-weight:600!important;letter-spacing:.12em!important;text-transform:uppercase;color:#5d6168!important;padding:6px 8px!important;border-radius:6px!important}
 html body:not(#zz) aside #userCard .lg-out:hover{background:#eceef1!important;color:#0d121b!important}
 html body:not(#zz) .app.collapsed aside #userCard .lg-out{display:none!important}
+html body:not(#zz) .meer-acc{padding-top:10px;border-top:1px solid var(--rr-rand)}
+html body:not(#zz) .meer-acc .uavm{font-size:13px;font-weight:600;letter-spacing:.04em}
+html body:not(#zz) .meer-uit .objtx b{color:#a23a30!important}
