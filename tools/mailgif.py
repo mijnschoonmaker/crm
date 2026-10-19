@@ -28,6 +28,23 @@ HUIS_GRIJS = (205, 212, 216)
 HUIS_DOEL = (37, 44, 60)  # Gelders blauw
 
 
+
+_ACHTER = {}
+
+
+def achtergrond(w, h):
+    """zacht verloop: boven precies de kleur van de mail erboven (#fbfcfc), naar beneden toe wit"""
+    if (w, h) not in _ACHTER:
+        im = Image.new("RGB", (w, h))
+        d = ImageDraw.Draw(im)
+        top, bot = (251, 252, 252), (255, 255, 255)
+        for y in range(h):
+            t = min(1, y / (h * .7))
+            t = t * t * (3 - 2 * t)
+            d.line([0, y, w, y], fill=tuple(round(top[i] + (bot[i] - top[i]) * t) for i in range(3)))
+        _ACHTER[(w, h)] = im
+    return _ACHTER[(w, h)].copy()
+
 def rr(d, box, r, **kw):
     d.rounded_rectangle([round(v) for v in box], radius=round(r), **kw)
 
@@ -132,7 +149,7 @@ def scene(naam, richting):
             xv = -40 + (doel[0] - 70 + 40) * e
         else:
             xv = doel[0] + 210 + (W + 340 - doel[0] - 210) * e
-        im = Image.new("RGB", (W * SS, H * SS), BG)
+        im = achtergrond(W * SS, H * SS)
         d = ImageDraw.Draw(im)
         # weg
         d.line([0, (base + 6) * SS, W * SS, (base + 6) * SS], fill=(214, 220, 224), width=4 * SS)
