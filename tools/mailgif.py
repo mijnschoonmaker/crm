@@ -325,16 +325,6 @@ def kaart():
     print("geschreven live-kaart", os.path.getsize(os.path.join(UIT, "live-kaart.gif")))
 
 
-if __name__ == "__main__":
-    if "--overzicht" in sys.argv:
-        overzicht(52.0230, 5.1680)
-    elif "--kaart" in sys.argv:
-        kaart()
-    else:
-        scene("onderweg", "aan")
-        scene("weg", "weg")
-
-
 def overzicht(lat, lon, z=15, n=4):
     """hulpje: luchtfoto-overzicht met coordinaten, om een woonwijk voor de mailkaart te kiezen"""
     cx, cy = tegel_xy(lat, lon, z)
@@ -354,3 +344,13 @@ def overzicht(lat, lon, z=15, n=4):
         d.text((k + 2, 2), f"{lo:.4f}", fill=(255, 255, 0))
         d.text((2, k + 2), f"{la:.4f}", fill=(255, 255, 0))
     im.save(os.path.join(os.path.dirname(__file__), "overzicht.jpg"), quality=80)
+
+
+if __name__ == "__main__":
+    if "--overzicht" in sys.argv:
+        overzicht(52.0230, 5.1680)
+    elif "--kaart" in sys.argv:
+        kaart()
+    else:
+        scene("onderweg", "aan")
+        scene("weg", "weg")
