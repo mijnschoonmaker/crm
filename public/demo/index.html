@@ -6886,9 +6886,9 @@ function vKlanten(){
     <div class="drop"><button type="button" data-act="kmenu">${I.more}Meer</button>${state.kmenu?`<div class="menu"><button type="button" data-act="webaanvraag">${I.globe}Aanvraag van de website</button><button type="button" data-act="import">${I.upload}Importeren uit Excel/CSV</button>${state.dl&&all.length?`<button type="button" data-act="export">${I.dl}Exporteren als CSV</button>`:""}</div>`:""}</div>
     <button type="button" class="primary" data-act="klant">${I.plus}Nieuwe klant</button></div>
   ${all.length?kRitmeKaart():""}
-  <div class="toolbar"><div class="search">${I.search}<input id="q" type="search" placeholder="Zoek op naam, adres, e-mail…" value="${esc(state.q)}"></div></div>
+  <div class="kl-bar"><div class="toolbar"><div class="search">${I.search}<input id="q" type="search" placeholder="Zoek op naam, adres, e-mail…" value="${esc(state.q)}"></div></div>
   <div class="chips"><span style="color:var(--muted);display:grid">${I.filter}</span>${[["alle","Alle"],["particulier","Particulier"],["zakelijk","Zakelijk"],["inactief","Inactief"]].map(([v,l])=>`<button type="button" class="chip" data-act="kf" data-v="${v}" aria-pressed="${state.kf===v}">${l}<span class="n">${cnt(v)}</span></button>`).join("")}
-    ${rondes().length?`<select id="kronde" style="width:auto;border-radius:99px;padding:6px 12px"><option value="">Alle rondes</option>${rondes().map(r=>`<option ${r===state.ronde?"selected":""}>${esc(r)}</option>`).join("")}</select>`:""}</div>`;
+    ${rondes().length?`<select id="kronde" style="width:auto;border-radius:99px;padding:6px 12px"><option value="">Alle rondes</option>${rondes().map(r=>`<option ${r===state.ronde?"selected":""}>${esc(r)}</option>`).join("")}</select>`:""}</div></div>`;
   if(selm)html+=`<div class="banner"><div><b>${plural(state.sel.size,"klant","klanten")} geselecteerd</b> <button type="button" class="small ghost" data-act="selall">Selecteer alle ${ks.length}</button></div>
     <button type="button" class="small" data-act="selmsg" ${state.sel.size?"":"disabled"}>${I.msg}Bericht</button><button type="button" class="small" data-act="selplan" ${state.sel.size?"":"disabled"}>${I.planning}Plan vandaag</button><button type="button" class="small" data-act="selpause" ${state.sel.size?"":"disabled"}>Inactief maken</button><button type="button" class="small danger" data-act="seldel" ${state.sel.size?"":"disabled"}>${I.trash}Verwijderen</button></div>`;
   if(!all.length)return html+empty("Nog geen klanten","Voeg je eerste klant toe, of importeer je bestaande lijst uit Excel.",`<div style="display:flex;gap:8px"><button type="button" class="primary" data-act="klant">${I.plus}Nieuwe klant</button><button type="button" data-act="import">${I.upload}Importeren</button></div>`);
@@ -14777,6 +14777,11 @@ html body:not(#zz) .chips .chip:is(.on,[aria-pressed="true"],.active) :is(em,spa
   html body:not(#zz) #view .pl-bar>button{padding:0 12px!important;gap:8px!important;letter-spacing:.12em!important}
 }
 @media (min-width:701px) and (max-width:1100px){html body:not(#zz) #view .pl-bar>button>span{display:none!important}}
+/* Klanten: zoeken + filters in één balk, zoals bij Planning */
+html body:not(#zz) #view .kl-bar{display:flex;flex-direction:column;gap:8px;background:#fff;border:1px solid var(--rr-rand);border-radius:18px;padding:8px;margin:0 0 16px;box-shadow:0 1px 2px rgb(13 18 27 / .04)}
+html body:not(#zz) #view .kl-bar>.toolbar{margin:0!important;padding:0!important}
+html body:not(#zz) #view .kl-bar .search{box-shadow:none!important}
+html body:not(#zz) #view .kl-bar>.chips{margin:0!important;align-self:flex-start;max-width:100%}
 
 </style>
 

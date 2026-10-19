@@ -908,3 +908,8 @@ html body:not(#zz) .chips .chip:is(.on,[aria-pressed="true"],.active) :is(em,spa
   html body:not(#zz) #view .pl-bar>button{padding:0 12px!important;gap:8px!important;letter-spacing:.12em!important}
 }
 @media (min-width:701px) and (max-width:1100px){html body:not(#zz) #view .pl-bar>button>span{display:none!important}}
+/* Klanten: zoeken + filters in één balk, zoals bij Planning */
+html body:not(#zz) #view .kl-bar{display:flex;flex-direction:column;gap:8px;background:#fff;border:1px solid var(--rr-rand);border-radius:18px;padding:8px;margin:0 0 16px;box-shadow:0 1px 2px rgb(13 18 27 / .04)}
+html body:not(#zz) #view .kl-bar>.toolbar{margin:0!important;padding:0!important}
+html body:not(#zz) #view .kl-bar .search{box-shadow:none!important}
+html body:not(#zz) #view .kl-bar>.chips{margin:0!important;align-self:flex-start;max-width:100%}
