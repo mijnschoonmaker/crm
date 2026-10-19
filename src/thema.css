@@ -741,8 +741,16 @@ html body:not(#zz) .rv .rv-rechts .rv-geld{padding:10px 14px!important;gap:2px!i
   html body:not(#zz) .rv .rv-rechts .rv-geld .rv-gb{margin:3px 0 1px!important}}
 @media (max-width:700px){
   html body:not(#zz) .rv .rv-rechts .rv-chips>span b,html body:not(#zz) .rv .rv-rechts .rv-chips>span.rv-klaar b{font-size:22px!important}}
-@media (max-width:1180px) and (min-width:701px){
+@media (min-width:701px){
   html body:not(#zz) .rv .rv-rechts .rv-geld{flex-direction:row!important;flex-wrap:wrap!important;align-items:baseline!important;justify-content:flex-end!important;column-gap:6px!important}
   html body:not(#zz) .rv .rv-rechts .rv-geld small{width:100%;text-align:right}
   html body:not(#zz) .rv .rv-rechts .rv-geld .rv-gb{order:5;width:100%}
   html body:not(#zz) .rv .rv-rechts .rv-chips>span,html body:not(#zz) .rv .rv-rechts .rv-chips>span.rv-klaar{justify-content:center!important}}
+@media (min-width:1181px){
+  html body:not(#zz) .rv .rv-rechts .rv-chips>span,html body:not(#zz) .rv .rv-rechts .rv-chips>span.rv-klaar{padding:8px 14px!important;gap:1px!important}
+  html body:not(#zz) .rv .rv-rechts .rv-chips>span b,html body:not(#zz) .rv .rv-rechts .rv-chips>span.rv-klaar b{font-size:24px!important}
+  html body:not(#zz) .rv .rv-rechts .rv-geld{padding:8px 14px!important;gap:1px!important}
+  html body:not(#zz) .rv .rv-rechts .rv-geld b{font-size:24px!important;line-height:1.05!important}
+  html body:not(#zz) .rv .rv-rechts .rv-geld .rv-gb{margin:4px 0 1px!important}
+  html body:not(#zz) .rv .rv-rechts{align-self:flex-start}}
+@media (min-width:701px){html body:not(#zz) .rv .rv-rechts .rv-geld em{margin-left:6px!important}}
