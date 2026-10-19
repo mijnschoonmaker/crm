@@ -226,8 +226,15 @@ function openMailStijl(){
   draw();
   $("#msB").addEventListener("click",async e=>{const b=e.target.closest("button");if(!b)return;
     if(b.dataset.st){stijl=b.dataset.st;draw()}else if(b.dataset.sw){acc=b.dataset.sw;draw()}else if(b.dataset.tb){tab=b.dataset.tb;draw()}
-    else if(b.id==="msTest"){const k=tk[tab],old={...state.settings};state.settings={...state.settings,mailStijl:stijl,mailAccent:acc};const v=sampleVars(),h=mailFor(k,v,T[k].mail);state.settings=old;
-      if(await copyHtml(h,fill(T[k].mail,v))){if(s.email)openUrl("mailto:"+encodeURIComponent(s.email)+"?subject="+encodeURIComponent("Test: "+fill(T[k].onderwerp,v)));if(tab==="factuur"){const df=demoFactuur(),doc=await pdfDoc(df,demoKlant);if(doc)await saveFile("Voorbeeldfactuur.pdf",doc.output("arraybuffer"),"Mail gekopieerd en PDF opgeslagen: plak de mail (⌘V) en sleep de PDF erin");return}toast(s.email?"Opgemaakte mail gekopieerd: plak hem (⌘V) in de testmail":"Gekopieerd. Vul je e-mail in bij Bedrijf & Branding voor een testmail")}else toast("Kopiëren lukte niet in deze weergave")}});
+    else if(b.id==="msTest"){const k=tk[tab],old={...state.settings};state.settings={...state.settings,mailStijl:stijl,mailAccent:acc};const v=sampleVars(),h=mailFor(k,v,T[k].mail),subj="Test: "+fill(T[k].onderwerp,v),txt=fill(T[k].mail,v);state.settings=old;
+      const naar=(state.me&&state.me.email)||s.email||s.liveAfzender||"";
+      if(!LIVE){toast("In de demo wordt geen mail verstuurd. In je eigen omgeving komt de testmail direct in je inbox.");return}
+      if(s.liveMail&&typeof fbFn==="function"&&naar){b.disabled=true;const lbl=b.innerHTML;b.innerHTML=I.send+"Versturen…";
+        try{let bijlagen=[];if(tab==="factuur"){const doc=await pdfDoc(demoFactuur(),demoKlant);if(doc)bijlagen=[{naam:"Voorbeeldfactuur.pdf",data:String(doc.output("datauristring")).split(",")[1]}]}
+          await fbFn("sendMail")({naar,naam:"",onderwerp:subj,html:h,tekst:txt,bijlagen,meta:{klantNaam:"Testmail",sjabloon:"test"}});toast("Testmail verstuurd naar "+naar)}
+        catch(x){toast("Testmail lukte niet: "+String((x&&x.message)||x).replace(/^.*?:\s*/,""))}
+        finally{b.disabled=false;b.innerHTML=lbl}return}
+      if(await copyHtml(h,txt)){if(naar)openUrl("mailto:"+encodeURIComponent(naar)+"?subject="+encodeURIComponent(subj));toast(naar?"E-mail versturen staat nog niet aan: de opgemaakte mail is gekopieerd, plak hem (⌘V) in de testmail":"Gekopieerd. Vul je e-mail in bij Bedrijf & Branding voor een testmail")}else toast("Kopiëren lukte niet in deze weergave")}});
   $("#msB").addEventListener("input",e=>{if(e.target.id==="msC"){acc=e.target.value;$(".mailprev").innerHTML=prev()}});
   $("#msB").addEventListener("change",e=>{if(e.target.id==="msC")draw()});
   form.onsubmit=async e=>{e.preventDefault();$("#msSave").disabled=true;if(await saveSettings({mailStijl:stijl,mailAccent:acc},"E-mail opmaak opgeslagen")){dlg.close();schedule()}else $("#msSave").disabled=false};
