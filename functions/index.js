@@ -71,6 +71,7 @@ async function sjabloon(sleutel) { try { const d = (await db.doc("instellingen/s
 function vulIn(tekst, v) { return String(tekst || "").replace(/\[([a-z0-9_]+)\.([a-z_]+)\]/g, (m, a, b) => { const k = a + "." + b; return v[k] != null ? String(v[k]) : m; }); }
 const htmlEsc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 /* alle mails als realistisch ticket: papier met zachte schaduw, blauwe kopband, perforatie met ronde inkepingen en een blauwe strook onderaan */
+const _hx=h=>{h=String(h||"").replace("#","");if(h.length===3)h=h.split("").map(c=>c+c).join("");const n=parseInt(h,16);return isNaN(n)||h.length!==6?[19,122,138]:[n>>16&255,n>>8&255,n&255]},_mx=(h,t,p)=>{const a=_hx(h),b=_hx(t);return "#"+a.map((v,i)=>Math.round(v+(b[i]-v)*p).toString(16).padStart(2,"0")).join("")},_rg=(h,o)=>"rgba("+_hx(h).join(",")+","+o+")";
 function mailHtml(tekst, b, opts = {}) { return geenAutoLinks(mailHtmlRuw(tekst, b, opts)); }
 /* Outlook/Gmail maken van nummers, datums, domeinen en e-mailadressen lelijke blauwe links: zelf netjes opmaken of onzichtbaar onderbreken */
 function geenAutoLinks(html){let inA=0,inS=0;
@@ -81,14 +82,14 @@ function geenAutoLinks(html){let inA=0,inS=0;
       if(dom)return `<a href="https://${dom}" style="color:inherit;text-decoration:none">${dom}</a>`;
       return m.split("").join("&zwnj;")})}).join("")}
 function mailHtmlRuw(tekst, b, opts = {}) {
-  const BL = "#137a8a", BL2 = "#1d5a74", BG = "#eef2f3", INK = "#0f1f26", MUT = "#5d6f76";
+  const BL = /^#[0-9a-f]{6}$/i.test(String(b.mailAccent||""))?b.mailAccent:"#137a8a", BL2 = _mx(BL,"#000000",.28), BG = "#eef2f3", INK = "#0f1f26", MUT = "#5d6f76";
   const T = opts.ticket || null, A = (T && T.kleur) || BL;
   const lid = b.logoMail || b.logo, logo = lid ? `<img src="${HOST() + "/_blob/" + lid}" border="0" alt="${htmlEsc(b.naam || "")}" style="max-height:${Math.min(72, Number(b.logoGrootte) || 56)}px;max-width:170px;display:inline-block">` : `<b style="font-size:19px;letter-spacing:-.3px;color:${INK}">${htmlEsc(b.naam || "")}</b>`;
   const regel = r => htmlEsc(r).replace(/\*\*(.+?)\*\*/g, `<b style="color:${INK}">$1</b>`).replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, (m, t, u) => `<a href="${u}" style="color:${A};font-weight:700;text-decoration:none;border-bottom:1.5px solid ${A}55">${t}</a>`);
   const alinea = t => String(t).split(/\n\s*\n/).filter(x => x.trim()).map(p => `<p style="margin:0 0 15px;line-height:1.65;font-size:15.5px;color:#2b3a40;letter-spacing:-.1px">${p.split("\n").map(regel).join("<br>")}</p>`).join("");
-  const knop = opts.knop ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:6px auto 22px"><tr><td style="border-radius:14px;background:${A};background-image:linear-gradient(135deg,#1590a2,${A} 55%,#11677a);box-shadow:0 10px 20px -10px rgba(15,95,110,.7)"><a href="${opts.knop.url}" style="display:inline-block;padding:13px 26px;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;letter-spacing:-.1px;border-radius:14px">${htmlEsc(opts.knop.tekst)} &rarr;</a></td></tr></table>` : "";
+  const knop = opts.knop ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:6px auto 22px"><tr><td style="border-radius:14px;background:${A};background-image:linear-gradient(135deg,${_mx(BL,"#ffffff",.1)},${A} 55%,${_mx(BL,"#000000",.14)});box-shadow:0 10px 20px -10px ${_rg(BL2,.7)}"><a href="${opts.knop.url}" style="display:inline-block;padding:13px 26px;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;letter-spacing:-.1px;border-radius:14px">${htmlEsc(opts.knop.tekst)} &rarr;</a></td></tr></table>` : "";
   const mono = "'SF Mono',Menlo,Consolas,'Courier New',monospace";
-  const gat = kant => `<td width="15" style="width:15px;padding:0;background:#fbfcfc;font-size:0;line-height:0"><div style="width:15px;height:30px;background:${BG};border-radius:${kant === "l" ? "0 15px 15px 0" : "15px 0 0 15px"};box-shadow:inset ${kant === "l" ? "-2px" : "2px"} 0 3px rgba(15,70,85,.10)">&nbsp;</div></td>`;
+  const gat = kant => `<td width="15" style="width:15px;padding:0;background:#fbfcfc;font-size:0;line-height:0"><div style="width:15px;height:30px;background:${BG};border-radius:${kant === "l" ? "0 15px 15px 0" : "15px 0 0 15px"};box-shadow:inset ${kant === "l" ? "-2px" : "2px"} 0 3px ${_rg(BL2,.10)}">&nbsp;</div></td>`;
   const nr = String(opts.nummer || (T && T.nummer) || "").trim();
   /* strook: status van het ticket, of bij gewone mails de contactgegevens */
   const lab = "font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.72)";
@@ -96,15 +97,15 @@ function mailHtmlRuw(tekst, b, opts = {}) {
   const strook = T ? T.strook : `<div style="font-size:16px;font-weight:800;color:#fff;letter-spacing:-.2px">${htmlEsc(b.naam || "")}</div><div style="font-size:12.5px;color:rgba(255,255,255,.72);margin:2px 0 12px">Glasbewassing &middot; vaste route</div><table role="presentation" cellpadding="0" cellspacing="0" border="0" class="ms-nl">${[["WhatsApp",b.telefoon],["E-mail",b.email],["IBAN",b.iban]].filter(x=>x[1]).map(([l,v])=>`<tr><td style="padding:3px 14px 3px 0;font-size:10px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:rgba(255,255,255,.6);white-space:nowrap;vertical-align:top;line-height:20px">${l}</td><td style="padding:3px 0;font-size:14px;font-weight:600;color:#ffffff;line-height:20px;word-break:break-word${l==="IBAN"?";font-family:'SF Mono',Menlo,Consolas,monospace;font-weight:500;font-size:13px;letter-spacing:.5px":""}">${l==="WhatsApp"?`<a href="https://wa.me/${String(b.webWa||v).replace(/\D/g,"").replace(/^00/,"").replace(/^0/,"31")}" style="color:#ffffff;text-decoration:none">${htmlEsc(v)}</a>`:htmlEsc(v)}</td></tr>`).join("")}</table>`;
   const kop = T ? T.kop : "";
   return `<style>a[x-apple-data-detectors],.ms-nl a{color:inherit!important;text-decoration:none!important}${opts.style || ""}</style><div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:${BG};padding:26px 12px 22px;-webkit-font-smoothing:antialiased">
-<div class="ms-tk" style="width:100%;max-width:720px;margin:0 auto;border-radius:22px;box-shadow:0 1px 2px rgba(15,70,85,.06),0 22px 44px -22px rgba(15,70,85,.38)">
+<div class="ms-tk" style="width:100%;max-width:720px;margin:0 auto;border-radius:22px;box-shadow:0 1px 2px ${_rg(BL2,.06)},0 22px 44px -22px ${_rg(BL2,.38)}">
 <div style="background:#ffffff;background-image:linear-gradient(180deg,#ffffff 0%,#fbfcfc 100%);border-radius:22px 22px 0 0;overflow:hidden">
-  <div style="height:9px;background:${BL};background-image:linear-gradient(90deg,${BL2},${BL} 60%,#2aa3b3)"></div>
+  <div style="height:9px;background:${BL};background-image:linear-gradient(90deg,${BL2},${BL} 60%,${_mx(BL,"#ffffff",.25)})"></div>
   <div style="text-align:center;padding:24px 24px ${kop ? 2 : 6}px">${logo}</div>
   ${kop ? `<div style="padding:14px 34px 4px">${kop}</div>` : ""}
   <div style="padding:${kop ? 12 : 16}px 34px 8px">${alinea(tekst)}${opts.na || ""}${knop}${opts.onder ? alinea(opts.onder) : ""}</div>
 </div>
 ${T ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse"><tr>${gat("l")}<td style="background:#fbfcfc;padding:0 8px;height:30px"><div style="border-top:2px dotted #c3d2d6;height:0;line-height:0;font-size:0">&nbsp;</div></td>${gat("r")}</tr></table>` : `<div style="background:#fbfcfc;height:14px;line-height:14px;font-size:0">&nbsp;</div>`}
-<div style="background:${BL};background-image:repeating-linear-gradient(115deg,rgba(255,255,255,.035) 0 2px,transparent 2px 22px),linear-gradient(135deg,${BL2},${BL} 60%,#1a8c9c);border-radius:0 0 22px 22px;color:#ffffff;padding:18px 30px 20px">${strook}</div>
+<div style="background:${BL};background-image:repeating-linear-gradient(115deg,rgba(255,255,255,.035) 0 2px,transparent 2px 22px),linear-gradient(135deg,${BL2},${BL} 60%,${_mx(BL,"#ffffff",.12)});border-radius:0 0 22px 22px;color:#ffffff;padding:18px 30px 20px">${strook}</div>
 </div>${T ? `<p class="ms-nl" style="text-align:center;font-size:12px;color:#8a979c;margin:16px 0 0">${[b.naam, b.telefoon, b.email].filter(Boolean).map(nl).join(" &nbsp;·&nbsp; ")}</p>` : ""}</div>`;
 }
 async function bewaarPdf(buf) { const hid = crypto.randomBytes(16).toString("hex"); await bucket().file("assets/" + hid).save(Buffer.from(buf), { contentType: "application/pdf", resumable: false }); return hid; }
