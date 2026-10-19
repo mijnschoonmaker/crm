@@ -848,3 +848,30 @@ html body:not(#zz) .st-hero .fg-munt.st-hmunt svg{width:16px;height:16px;fill:#2
 html body:not(#zz) .st-hero .fg-munt.st-hmunt svg *{fill:#252c3c!important}
 html body:not(#zz) .st-di .st-dit{display:flex;justify-content:space-between;gap:10px;flex-wrap:nowrap}
 html body:not(#zz) .st-di .st-dit .mono{white-space:nowrap}
+/* ---------- Omzet per dienst: verfijnde ring ---------- */
+html body:not(#zz) .st-dv{align-items:center;gap:28px;min-height:200px}
+html body:not(#zz) .st-ring{width:170px}
+html body:not(#zz) .st-ring svg{filter:drop-shadow(0 10px 18px rgb(20 24 34 / .12))}
+html body:not(#zz) .st-ring .st-seg{animation:stRing 1.1s cubic-bezier(.2,.8,.2,1) both}
+@keyframes stRing{from{stroke-dasharray:0 var(--c)}}
+html body:not(#zz) .st-ring>div{gap:2px}
+html body:not(#zz) .st-ring .st-rk{font-size:10px!important;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#8a8e94!important}
+html body:not(#zz) .st-ring b{font-size:24px!important;font-weight:500!important;letter-spacing:-.01em!important;color:#0d121b!important}
+html body:not(#zz) .st-ring small:last-child{font-size:12px!important;color:#7a7e84!important}
+html body:not(#zz) .st-dl{flex:1;min-width:220px;display:flex;flex-direction:column;gap:10px}
+html body:not(#zz) .st-di{background:#fff!important;border:1px solid var(--rr-rand)!important;border-radius:12px!important;padding:14px 16px!important;box-shadow:none!important;align-items:center}
+html body:not(#zz) .st-di .st-dic{background:color-mix(in srgb,var(--c) 12%,#fff)!important;color:var(--c)!important;border-radius:8px!important}
+html body:not(#zz) .st-di .st-dic svg{stroke:var(--c)!important;color:var(--c)!important}
+html body:not(#zz) .st-di .st-dib{height:6px!important;border-radius:6px!important;background:#eef0f3!important;overflow:hidden}
+html body:not(#zz) .st-di .st-dib i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,color-mix(in srgb,var(--c) 70%,#fff),var(--c))!important}
+html body:not(#zz) .st-di small{color:#7a7e84!important}
+html body:not(#zz) .st-di small b{color:#0d121b!important;font-weight:600}
+@media (prefers-reduced-motion:reduce){html body:not(#zz) .st-ring .st-seg{animation:none}}
+html body:not(#zz) .st-di{display:flex!important;gap:14px}
+html body:not(#zz) .st-di .st-dim{flex:1;min-width:0}
+html body:not(#zz) .st-di .st-dit b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html body:not(#zz) .st-di .st-dib{margin:8px 0 6px}
+html body:not(#zz) .st-di .st-dit{flex-direction:column!important;align-items:flex-start!important;gap:2px!important}
+html body:not(#zz) .st-di .st-dit b{white-space:normal;font-size:13px!important;font-weight:600!important;color:#55585f!important;letter-spacing:.02em}
+html body:not(#zz) .st-di .st-dit .mono{font-size:20px!important;font-weight:500!important;color:#0d121b!important;font-family:inherit!important}
+html body:not(#zz) .st-ring{width:156px}

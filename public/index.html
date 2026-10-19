@@ -8832,10 +8832,10 @@ function vInzichten(){
 function stStraat(n){const max=12,m=Math.min(n,max),H=typeof HUIS!=="undefined"?HUIS:"";
   return `<div class="st-straat" role="img" aria-label="${n} woningen gedaan"><div class="st-sh">${Array.from({length:m},(_,i)=>`<span class="st-hu" style="--i:${i}">${H}<i>${I.check}</i></span>`).join("")}${n>max?`<span class="st-meer">+${n-max}</span>`:""}</div><div class="st-weg"><i></i><span class="st-bus">${typeof RV_BUS!=="undefined"?RV_BUS:""}</span></div></div>`}
 /* omzet per dienst: ring met het aandeel en per dienst een kaartje met balk */
-function stDiensten(dk,per,tot){const KL=["#2a3245","#c9a46a","#5d6780","#9aa3b5","#8a6d43","#3e4a64"],R=54,C=2*Math.PI*R;let acc=0;
-  const ring=dk.map((k,i)=>{const f=per[k]/tot,seg=`<circle cx="70" cy="70" r="${R}" fill="none" stroke="${KL[i%KL.length]}" stroke-width="16" stroke-dasharray="${Math.max(0,f*C-(dk.length>1?3:0))} ${C}" stroke-dashoffset="${-acc*C}" stroke-linecap="${dk.length>1?"butt":"round"}"/>`;acc+=f;return seg}).join("");
-  return `<div class="st-dv"><div class="st-ring"><svg viewBox="0 0 140 140"><circle cx="70" cy="70" r="${R}" fill="none" stroke="var(--surface-2)" stroke-width="16"/><g transform="rotate(-90 70 70)">${ring}</g></svg><div><b>${eur(tot)}</b><small>${plural(dk.length,"dienst","diensten")}</small></div></div>
-    <div class="st-dl">${dk.map((k,i)=>{const p=Math.round(per[k]/tot*100);return `<div class="st-di" style="--c:${KL[i%KL.length]}"><span class="st-dic">${I.spark}</span><div class="st-dim"><div class="st-dit"><b>${esc(k)}</b><span class="mono">${eur(per[k])}</span></div><div class="st-dib"><i style="width:${p}%"></i></div><small>${p}% van de omzet uit werk</small></div></div>`}).join("")}</div></div>`}
+function stDiensten(dk,per,tot){const KL=["#2a3245","#c9a46a","#5d6780","#9aa3b5","#8a6d43","#3e4a64"],R=56,C=2*Math.PI*R,gap=dk.length>1?4:0;let acc=0;
+  const ring=dk.map((k,i)=>{const f=per[k]/tot,len=Math.max(0,f*C-gap),seg=`<circle class="st-seg" cx="70" cy="70" r="${R}" fill="none" stroke="${i===0?"url(#stg0)":KL[i%KL.length]}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${len} ${C}" stroke-dashoffset="${-acc*C}" style="--len:${len};--c:${C}"/>`;acc+=f;return seg}).join("");
+  return `<div class="st-dv"><div class="st-ring"><svg viewBox="0 0 140 140"><defs><linearGradient id="stg0" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5d6a88"/><stop offset=".55" stop-color="#2f3850"/><stop offset="1" stop-color="#1b2130"/></linearGradient></defs><circle cx="70" cy="70" r="${R}" fill="none" stroke="#eef0f3" stroke-width="12"/><circle cx="70" cy="70" r="${R-13}" fill="none" stroke="#f4f5f7" stroke-width="1"/><g transform="rotate(-90 70 70)">${ring}</g></svg><div><small class="st-rk">Omzet</small><b>${eur0(tot)}</b><small>${plural(dk.length,"dienst","diensten")}</small></div></div>
+    <div class="st-dl">${dk.map((k,i)=>{const p=Math.round(per[k]/tot*100);return `<div class="st-di" style="--c:${KL[i%KL.length]}"><span class="st-dic">${I.spark}</span><div class="st-dim"><div class="st-dit"><b>${esc(k)}</b><span class="mono">${eur(per[k])}</span></div><div class="st-dib"><i style="width:${p}%"></i></div><small><b>${p}%</b> van de omzet</small></div></div>`}).join("")}</div></div>`}
 
 /* broncode van de mail-tracking server (Cloudflare Worker), om te kopiëren vanuit Instellingen */
 const TRACK_WORKER="// mijnschoonmaker \u00b7 mail-tracking (Cloudflare Worker)\n// Nodig: KV-namespace gekoppeld als TRACK en een geheime variabele KEY (dezelfde sleutel als in de CRM).\nconst GIF=Uint8Array.from(atob(\"R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"),c=>c.charCodeAt(0));\nconst CORS={\"Access-Control-Allow-Origin\":\"*\",\"Access-Control-Allow-Methods\":\"GET,POST,OPTIONS\",\"Access-Control-Allow-Headers\":\"content-type\"};\nconst okId=id=>/^[\\w-]{4,40}$/.test(id);\nasync function sig(key,id,u){const b=await crypto.subtle.digest(\"SHA-256\",new TextEncoder().encode(key+\"|\"+id+\"|\"+u));return [...new Uint8Array(b)].slice(0,6).map(x=>x.toString(16).padStart(2,\"0\")).join(\"\")}\nasync function log(env,id,ev){\n  const k=\"m:\"+id,cur=JSON.parse((await env.TRACK.get(k))||'{\"o\":[],\"c\":[]}');\n  if(ev.c)cur.c.push({t:ev.t,u:ev.u});else cur.o.push(ev.t);\n  cur.o=cur.o.slice(-40);cur.c=cur.c.slice(-40);\n  await env.TRACK.put(k,JSON.stringify(cur),{expirationTtl:60*60*24*400});\n}\nexport default{async fetch(req,env,ctx){\n  const url=new URL(req.url),p=url.pathname;\n  if(req.method===\"OPTIONS\")return new Response(null,{headers:CORS});\n  let m=p.match(/^\\/o\\/([\\w-]+)\\.gif$/);\n  if(m){if(okId(m[1]))ctx.waitUntil(log(env,m[1],{t:Date.now()}));\n    return new Response(GIF,{headers:{\"content-type\":\"image/gif\",\"cache-control\":\"no-store, no-cache, must-revalidate, max-age=0\"}})}\n  m=p.match(/^\\/c\\/([\\w-]+)$/);\n  if(m){const to=url.searchParams.get(\"u\")||\"\",s=url.searchParams.get(\"s\")||\"\";\n    if(!/^https?:\\/\\//i.test(to)||!okId(m[1])||!env.KEY||s!==await sig(env.KEY,m[1],to))return new Response(\"Ongeldige link\",{status:400});\n    ctx.waitUntil(log(env,m[1],{c:1,t:Date.now(),u:to}));return Response.redirect(to,302)}\n  if(p===\"/e\"&&req.method===\"POST\"){\n    const b=await req.json().catch(()=>({}));\n    if(!env.KEY||b.k!==env.KEY)return new Response('{\"fout\":\"sleutel\"}',{status:401,headers:{...CORS,\"content-type\":\"application/json\"}});\n    const out={};await Promise.all((b.ids||[]).filter(okId).slice(0,400).map(async id=>{const v=await env.TRACK.get(\"m:\"+id);if(v)out[id]=JSON.parse(v)}));\n    return new Response(JSON.stringify(out),{headers:{...CORS,\"content-type\":\"application/json\"}})}\n  if(p===\"/\"||p===\"/ping\")return new Response(\"mijnschoonmaker tracking ok\",{headers:CORS});\n  return new Response(\"\",{status:404});\n}};\n";
@@ -14840,6 +14840,33 @@ html body:not(#zz) .st-hero .fg-munt.st-hmunt svg{width:16px;height:16px;fill:#2
 html body:not(#zz) .st-hero .fg-munt.st-hmunt svg *{fill:#252c3c!important}
 html body:not(#zz) .st-di .st-dit{display:flex;justify-content:space-between;gap:10px;flex-wrap:nowrap}
 html body:not(#zz) .st-di .st-dit .mono{white-space:nowrap}
+/* ---------- Omzet per dienst: verfijnde ring ---------- */
+html body:not(#zz) .st-dv{align-items:center;gap:28px;min-height:200px}
+html body:not(#zz) .st-ring{width:170px}
+html body:not(#zz) .st-ring svg{filter:drop-shadow(0 10px 18px rgb(20 24 34 / .12))}
+html body:not(#zz) .st-ring .st-seg{animation:stRing 1.1s cubic-bezier(.2,.8,.2,1) both}
+@keyframes stRing{from{stroke-dasharray:0 var(--c)}}
+html body:not(#zz) .st-ring>div{gap:2px}
+html body:not(#zz) .st-ring .st-rk{font-size:10px!important;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#8a8e94!important}
+html body:not(#zz) .st-ring b{font-size:24px!important;font-weight:500!important;letter-spacing:-.01em!important;color:#0d121b!important}
+html body:not(#zz) .st-ring small:last-child{font-size:12px!important;color:#7a7e84!important}
+html body:not(#zz) .st-dl{flex:1;min-width:220px;display:flex;flex-direction:column;gap:10px}
+html body:not(#zz) .st-di{background:#fff!important;border:1px solid var(--rr-rand)!important;border-radius:12px!important;padding:14px 16px!important;box-shadow:none!important;align-items:center}
+html body:not(#zz) .st-di .st-dic{background:color-mix(in srgb,var(--c) 12%,#fff)!important;color:var(--c)!important;border-radius:8px!important}
+html body:not(#zz) .st-di .st-dic svg{stroke:var(--c)!important;color:var(--c)!important}
+html body:not(#zz) .st-di .st-dib{height:6px!important;border-radius:6px!important;background:#eef0f3!important;overflow:hidden}
+html body:not(#zz) .st-di .st-dib i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,color-mix(in srgb,var(--c) 70%,#fff),var(--c))!important}
+html body:not(#zz) .st-di small{color:#7a7e84!important}
+html body:not(#zz) .st-di small b{color:#0d121b!important;font-weight:600}
+@media (prefers-reduced-motion:reduce){html body:not(#zz) .st-ring .st-seg{animation:none}}
+html body:not(#zz) .st-di{display:flex!important;gap:14px}
+html body:not(#zz) .st-di .st-dim{flex:1;min-width:0}
+html body:not(#zz) .st-di .st-dit b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html body:not(#zz) .st-di .st-dib{margin:8px 0 6px}
+html body:not(#zz) .st-di .st-dit{flex-direction:column!important;align-items:flex-start!important;gap:2px!important}
+html body:not(#zz) .st-di .st-dit b{white-space:normal;font-size:13px!important;font-weight:600!important;color:#55585f!important;letter-spacing:.02em}
+html body:not(#zz) .st-di .st-dit .mono{font-size:20px!important;font-weight:500!important;color:#0d121b!important;font-family:inherit!important}
+html body:not(#zz) .st-ring{width:156px}
 
 </style>
 
