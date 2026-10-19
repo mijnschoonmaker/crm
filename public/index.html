@@ -14884,6 +14884,20 @@ html body:not(#zz) dialog .jp-kop .jp-ib svg{width:16px!important;height:16px!im
  html body:not(#zz) #view .pagehead :is(.acts,.toolbar):has(> .primary):has(> :nth-child(2):last-child)>.drop .menu{left:0!important;right:auto!important}
  html body:not(#zz) .pagehead .drop .menu{width:max-content!important;min-width:240px;max-width:calc(100vw - 32px)!important}
 }
+/* ---------- filterchips: losse pillen, op mobiel horizontaal scrollen ---------- */
+html body:not(#zz) #view .chips{gap:6px!important;padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+html body:not(#zz) #view .chips .chip{min-height:38px!important;padding:0 16px!important;border-radius:999px!important;background:#fff!important;box-shadow:inset 0 0 0 1px var(--rr-rand)!important;color:#5d6168!important;scroll-snap-align:start;flex:none;white-space:nowrap;gap:8px}
+html body:not(#zz) #view .chips .chip:hover{box-shadow:inset 0 0 0 1px #b9bec6!important;color:#0d121b!important}
+html body:not(#zz) #view .chips .chip:is(.on,[aria-pressed="true"],.active){background:var(--gb-lijn),var(--gb-vlak)!important;color:#fff!important;box-shadow:0 6px 14px -8px rgb(20 24 34 / .6)!important}
+html body:not(#zz) #view .chips .chip:is(.on,[aria-pressed="true"],.active) :is(em,span,small,b:not(:first-child)){color:rgb(255 255 255 / .65)!important}
+html body:not(#zz) #view .chips>span:first-child:has(svg){width:38px;height:38px;flex:none;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1px var(--rr-rand);place-items:center;margin:0!important}
+html body:not(#zz) #view .chips>span:first-child svg{width:16px;height:16px}
+html body:not(#zz) #view .chips select,html body:not(#zz) #view .chips .chip-sel{min-height:38px!important;border-radius:999px!important;background:#fff!important;box-shadow:inset 0 0 0 1px var(--rr-rand)!important;padding:0 34px 0 16px!important;flex:none}
+@media (max-width:700px){
+  html body:not(#zz) #view .chips{display:flex!important;width:calc(100% + 32px)!important;max-width:none!important;margin-left:-16px!important;margin-right:-16px!important;padding:2px 16px 4px!important;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 32px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 32px),transparent)}
+  html body:not(#zz) #view .chips>span:first-child:has(svg){display:none!important}
+  html body:not(#zz) #view .chips .chip{min-height:36px!important;padding:0 14px!important;font-size:11px!important;letter-spacing:.12em!important}
+}
 
 </style>
 
