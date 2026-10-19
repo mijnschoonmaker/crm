@@ -14548,6 +14548,24 @@ html body:not(#zz) .rv .rv-map .rv-laag{background:rgb(255 255 255 / .94)!import
 /* geen "Vandaag Mark"-kop boven de dagnavigatie */
 html body #view:not(#zz) .rh-tt{display:none!important}html body #view:not(#zz) .rh-top{margin-top:0!important;justify-content:flex-end}
 html body:not(#zz) :is(.pk-map,.wp-map) .rv-laag,html body:not(#zz) :is(.pk-map,.wp-map) .rv-laag span{color:#252c3c!important}
+/* ---------- Kaartplannen-kop en afspraakkop (Te plannen) in Gelders blauw ---------- */
+html body:not(#zz) .pk{background:var(--gb-lijn),var(--gb-vlak)!important;border:0!important;box-shadow:0 24px 50px -30px rgb(20 24 34 / .75)!important}
+html body:not(#zz) .pk :is(.pk-h,.pk-days){background:transparent!important}
+html body:not(#zz) .pk .pk-tt b,html body:not(#zz) .pk .pk-tt b svg{color:#fff!important}
+html body:not(#zz) .pk .pk-tt small,html body:not(#zz) .pk .pk-leg,html body:not(#zz) .pk .pk-leg span{color:rgb(255 255 255 / .78)!important}
+html body:not(#zz) .pk .pk-d{box-shadow:0 0 0 2px rgb(255 255 255 / .9)!important}
+html body:not(#zz) .pk .pk-d.pl{background:#0d121b!important}
+html body:not(#zz) .pk .pk-acts :is(button,.small,.iconbtn){background:linear-gradient(180deg,rgb(255 255 255 / .12),rgb(255 255 255 / .05))!important;border:1px solid rgb(255 255 255 / .2)!important;color:#fff!important;box-shadow:none!important}
+html body:not(#zz) .pk .pk-acts :is(button,.small,.iconbtn) :is(svg,span){color:#fff!important;stroke:currentColor}
+html body:not(#zz) .pk .pk-acts :is(button,.small,.iconbtn):hover{background:rgb(255 255 255 / .18)!important}
+html body:not(#zz) .pk .pk-days span{background:linear-gradient(180deg,rgb(255 255 255 / .1),rgb(255 255 255 / .04))!important;border:1px solid rgb(255 255 255 / .16)!important;color:#fff!important}
+html body:not(#zz) .pk .pk-days span i{box-shadow:0 0 0 1.5px rgb(255 255 255 / .85)}
+html body:not(#zz) .pk .pk-slot{border-top:1px solid rgb(255 255 255 / .08)}
+html body:not(#zz) .of .of-kop,html body:not(#zz) .of.kx-late .of-kop,html body:not(#zz) .of.kx-crit .of-kop{background:var(--gb-lijn),var(--gb-vlak)!important;color:#fff!important}
+html body:not(#zz) .of .of-kop :is(b,strong,span,div){color:#fff!important}
+html body:not(#zz) .of .of-kop :is(small,em){color:rgb(255 255 255 / .72)!important}
+html body:not(#zz) .of.kx-late .of-kop em,html body:not(#zz) .of.kx-crit .of-kop em{color:#ffb4a6!important}
+html body:not(#zz) .of.kx-late .of-kop,html body:not(#zz) .of.kx-crit .of-kop{box-shadow:inset 3px 0 0 #e0533d!important}
 
 </style>
 
