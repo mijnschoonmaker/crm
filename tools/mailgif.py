@@ -33,13 +33,13 @@ _ACHTER = {}
 
 
 def achtergrond(w, h):
-    """zacht verloop: boven precies de kleur van de mail erboven (#fbfcfc), naar beneden toe wit"""
+    """zacht verloop: boven precies de kleur van de mail erboven (#fbfcfc), naar beneden zacht grijs waar de huisjes staan"""
     if (w, h) not in _ACHTER:
         im = Image.new("RGB", (w, h))
         d = ImageDraw.Draw(im)
-        top, bot = (251, 252, 252), (255, 255, 255)
+        top, bot = (251, 252, 252), (238, 241, 243)
         for y in range(h):
-            t = min(1, y / (h * .7))
+            t = max(0, min(1, (y - h * .12) / (h * .5)))
             t = t * t * (3 - 2 * t)
             d.line([0, y, w, y], fill=tuple(round(top[i] + (bot[i] - top[i]) * t) for i in range(3)))
         _ACHTER[(w, h)] = im
