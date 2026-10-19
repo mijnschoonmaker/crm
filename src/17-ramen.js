@@ -241,10 +241,10 @@ const RC_HTML=`<div class="wrap">
       <div class="fld full keep phf">
         <span class="lab">Foto's van de woning</span>
         <div class="photos" id="photos">
-          <button type="button" class="addph ai" id="ph-ai" title="Loop om de woning, maak per zijde een foto en laat de ramen tellen"><b>✦</b><span>Tel met AI</span></button><label class="addph" for="ph-in">${RC_SVG.cam}<span>Foto toevoegen</span></label>
+          <label class="addph" for="ph-in">${RC_SVG.cam}<span>Foto toevoegen</span></label>
         </div>
         <input id="ph-in" type="file" accept="image/*" multiple hidden>
-        <span class="phhint"><b>Tel met AI</b>: maak per zijde een foto, de ramen worden automatisch geteld en per verdieping ingevuld. Of voeg zelf foto's toe: maak foto's van alle zijden. Kies per stip de verdieping of soort raam; de aantallen gaan vanzelf naar de telling. Markeer elk raam op maar één foto.</span>
+        <span class="phhint">Maak foto's van alle zijden. Kies per stip de verdieping of soort raam; de aantallen gaan vanzelf naar de telling. Markeer elk raam op maar één foto.</span>
         <div class="phsum" id="phsum" hidden></div>
       </div>
       <div class="fld full keep"><label class="lab" for="k-notitie">Notitie voor op de route</label><textarea class="in" id="k-notitie" rows="2" placeholder="Bijv. sleutel onder bloempot, hond aanwezig"></textarea></div>

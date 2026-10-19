@@ -19,7 +19,7 @@ function openTellingControle(kid,na){const k=state.klanten.find(x=>x.id===kid);i
   const gc=k.tellingGecontroleerd,voor=(gc&&gc.origF)||tcFloors(k),vsp=(gc&&gc.origSp)||tcSp(k),f=tcFloors(k).slice(),sp={...tcSp(k)};
   const p0=gc?gc.prijsVoor:Number(k.prijs)||0;let fotos=null,ai=false,spOpen=SPK.some(x=>sp[x]||vsp[x]);
   openDlg(`<div class="dlg-head"><span class="objic big">${I.calculator}</span><div style="flex:1;min-width:0"><h3>Tellingcontrole</h3><div class="subt">${esc(cleanName(k.naam))} · ${esc(fullAddr(k))}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
-    <button type="button" class="tc-ai" id="tcAi">${rfHuisSvg(-1)}<span><b>Tel met foto's</b><small id="tcAiS">Voorzijde, rechts, achter, links: klik, klik, klik, klik. De ramen worden per verdieping voor je geteld.</small></span><i>${I.camera}</i></button>
+    
     <div class="tc-or"><span>of tel zelf</span></div>
     <div class="tc-rows" id="tcRows"></div><div id="tcSum"></div>
     <div class="row stickyfoot"><button type="button" class="ghost" data-act="close">Annuleren</button><span class="sp"></span><button type="submit" class="primary" id="tcGo">${I.check}Telling klopt</button></div>`,{wide:false});
@@ -33,7 +33,7 @@ function openTellingControle(kid,na){const k=state.klanten.find(x=>x.id===kid);i
       :`<div class="warnbox">${I.alert}<span>Klant telde <b>${tv}</b>, jij telt <b>${tn}</b> ramen. ${c&&c.prijs===p0?`Prijs blijft <b>${esc(eur(p0))}</b> per beurt (minimumprijs of zelfde tarief).`:`Nieuwe prijs ${c?`<b>${esc(eur(c.prijs))}</b> per beurt (was ${esc(eur(p0))}), ± ${c.duur} min`:"wordt herberekend"}.`}</span></div>`;
     $("#tcGo").innerHTML=I.check+(sm?"Telling klopt":"Telling opslaan")};
   draw();
-  $("#tcAi").onclick=()=>openFotoTelling(k,fotos,res=>{fotos=res.fotos;ai=true;f.splice(0,4,...res.f);SPK.forEach(x=>sp[x]=res.sp[x]||0);if(SPK.some(x=>sp[x]))spOpen=true;draw();
+  if($("#tcAi"))$("#tcAi").onclick=()=>openFotoTelling(k,fotos,res=>{fotos=res.fotos;ai=true;f.splice(0,4,...res.f);SPK.forEach(x=>sp[x]=res.sp[x]||0);if(SPK.some(x=>sp[x]))spOpen=true;draw();
     $("#tcAi").classList.add("klaar");$("#tcAi>i").innerHTML=I.check;$("#tcAiS").textContent=`${res.fotos.length} foto's · ${totN()} ramen geteld. Tik om de foto's te bekijken of te verbeteren.`;
     $("#tcRows").animate([{opacity:.3,transform:"translateY(6px)"},{opacity:1,transform:"none"}],{duration:420,easing:"cubic-bezier(.2,.8,.2,1)"})});
   $("#tcRows").addEventListener("click",e=>{if(e.target.closest("[data-tcmore]")){spOpen=true;draw();return}const b=e.target.closest("[data-tcs]");if(!b)return;const [i,d]=b.dataset.tcs.split(":");const cur=/^\d$/.test(i)?f[+i]:sp[i];zet(i,cur+Number(d));draw()});

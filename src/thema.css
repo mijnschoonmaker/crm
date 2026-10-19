@@ -1138,3 +1138,6 @@ html body:not(#zz) .toolbar button.primary.pl-opt,html body:not(#zz) button.prim
 /* e-mail opmaak: vijf voorbeeld-tabs; op de telefoon horizontaal schuiven */
 html body:not(#zz) .ms-tabs{display:grid!important;grid-template-columns:repeat(5,1fr)}
 @media (max-width:760px){html body:not(#zz) .ms-tabs{display:flex!important;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}html body:not(#zz) .ms-tabs::-webkit-scrollbar{display:none}html body:not(#zz) .ms-tabs button{flex:none!important;padding:0 14px!important}}
+/* offerte: rekentool-kaart net als de andere kaarten (wit, geen los wit titelvlak op grijs) */
+html body:not(#zz) .kp.kp-rc{background:#fff!important;border:1px solid var(--rr-rand)!important}
+html body:not(#zz) .kp.kp-rc>.kp-h{background:transparent!important;box-shadow:none!important}
