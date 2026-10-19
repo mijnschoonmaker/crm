@@ -5920,7 +5920,7 @@ function rvKaart(o){const{stops,done,todo,nx,klaar,mw,verdiend,totaal,restMin,kl
   if(vooruit||meer)setTimeout(rvAnim,60);if(state.rvMap)setTimeout(rvMapTeken,40);
   return `<section class="rv${klaar?" klaar":""}${vooruit?" rijdt":""}">
     <div class="rv-top"><div class="rv-tx"><span class="rv-fase">${klaar?RV_VLAG:'<i></i>'}${fase}<b>${done}/${n}</b></span>
-      ${(()=>{const m=String(kop).match(/^(.*?[?!])\s+(.+)$/)||String(kop).match(/^(.*?)\s·\s(.+)$/);return m?`<h2>${esc(m[1])}</h2><p class="rv-sub">${esc(m[2].charAt(0).toUpperCase()+m[2].slice(1))}</p>`:`<h2>${esc(kop)}</h2>`})()}${klaar?`<p>${esc(sub)}</p>`:`<div class="rv-chips"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/></svg><b>${todo.length}</b> ${todo.length===1?"adres":"adressen"}</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><b>${uM(werkMin)}</b> werk</span>${reisMin?`<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.6"/><circle cx="17" cy="17.5" r="1.6"/></svg><b>${rt.schat?"± ":""}${uM(reisMin)}</b> rijden</span>`:""}${klaarOm?`<span class="rv-klaar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>klaar <b>${klaarOm}</b></span>`:""}</div>`}</div>${geld}</div>
+      ${(()=>{const m=String(kop).match(/^(.*?[?!])\s+(.+)$/)||String(kop).match(/^(.*?)\s·\s(.+)$/);return m?`<h2>${esc(m[1])}</h2><p class="rv-sub">${esc(m[2].charAt(0).toUpperCase()+m[2].slice(1))}</p>`:`<h2>${esc(kop)}</h2>`})()}${klaar?`<p>${esc(sub)}</p>`:""}</div><div class="rv-rechts">${klaar?"":`<div class="rv-chips"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/></svg><b>${todo.length}</b> ${todo.length===1?"adres":"adressen"}</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><b>${uM(werkMin)}</b> werk</span>${reisMin?`<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.6"/><circle cx="17" cy="17.5" r="1.6"/></svg><b>${rt.schat?"± ":""}${uM(reisMin)}</b> rijden</span>`:""}${klaarOm?`<span class="rv-klaar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>klaar <b>${klaarOm}</b></span>`:""}</div>`}${geld}</div></div>
     <div class="rv-weg${n>10?" veel":""}${state.rvMap?" open":""}" style="--p:${pos};--v:${vooruit?v0:pos}" data-act="rvmap" role="button" tabindex="0" aria-expanded="${!!state.rvMap}" title="${state.rvMap?"Kaart verbergen":"Stops op de kaart"}">
       <div class="rv-asfalt"><span class="rv-af"></span></div>
       <ol>${nodes}</ol>
@@ -14572,31 +14572,19 @@ html body:not(#zz) .tjob.st-afgerond .tj-kop,html body:not(#zz) .tjob.st-verwach
 html body:not(#zz) .tjob .tj-kop :is(.tj-nm,b,span,button,a,div){color:#fff!important}
 html body:not(#zz) .tjob .tj-kop small{color:rgb(255 255 255 / .72)!important;border-right-color:rgb(255 255 255 / .3)!important}
 html body:not(#zz) .tjob .tj-kop .tj-amt{color:#fff!important}
-/* ---------- Vandaag-hero: rustiger, Range Rover-achtige specificatieregel ---------- */
-html body:not(#zz) .rv .rv-fase{background:transparent!important;border:0!important;padding:0!important;backdrop-filter:none!important;font-size:11px!important;font-weight:600!important;letter-spacing:.2em!important;text-transform:uppercase;color:rgb(255 255 255 / .78)!important;gap:10px!important}
-html body:not(#zz) .rv .rv-fase b{color:rgb(255 255 255 / .5)!important;font-weight:500!important;letter-spacing:.12em!important;margin-left:2px}
-html body:not(#zz) .rv .rv-fase i{width:7px!important;height:7px!important;background:#7ddba6!important;box-shadow:0 0 0 0 rgb(125 219 166 / .6);animation:rvFase 2.4s ease-out infinite}
-@keyframes rvFase{0%{box-shadow:0 0 0 0 rgb(125 219 166 / .55)}70%,100%{box-shadow:0 0 0 7px rgb(125 219 166 / 0)}}
-html body:not(#zz) .rv h2{font-weight:300!important;letter-spacing:-.015em!important}
-html body:not(#zz) .rv .rv-sub{color:rgb(255 255 255 / .62)!important;font-weight:400!important}
-html body:not(#zz) .rv .rv-chips{display:flex!important;flex-wrap:nowrap!important;gap:0!important;margin-top:22px!important}
-html body:not(#zz) .rv .rv-chips>span,html body:not(#zz) .rv .rv-chips>span.rv-klaar{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:5px!important;padding:2px 26px!important;background:transparent!important;border:0!important;border-left:1px solid rgb(255 255 255 / .16)!important;border-radius:0!important;box-shadow:none!important;backdrop-filter:none!important;font-size:10.5px!important;font-weight:600!important;letter-spacing:.18em!important;text-transform:uppercase;color:rgb(255 255 255 / .55)!important;white-space:nowrap}
-html body:not(#zz) .rv .rv-chips>span:first-child{padding-left:0!important;border-left:0!important}
-html body:not(#zz) .rv .rv-chips>span svg{display:none!important}
-html body:not(#zz) .rv .rv-chips>span b,html body:not(#zz) .rv .rv-chips>span.rv-klaar b{order:-1;display:block;font-size:26px!important;font-weight:300!important;letter-spacing:-.01em!important;text-transform:none;color:#fff!important;line-height:1!important;background:transparent!important}
-html body:not(#zz) .rv .rv-chips>span.rv-klaar b{color:#e9d3a8!important}
-/* verdiend-kaart */
-html body:not(#zz) .rv .rv-geld{background:linear-gradient(180deg,rgb(255 255 255 / .08),rgb(255 255 255 / .02))!important;border:1px solid rgb(255 255 255 / .12)!important;border-radius:14px!important;padding:16px 20px!important;min-width:210px}
-html body:not(#zz) .rv .rv-geld small{font-size:10.5px!important;font-weight:600!important;letter-spacing:.18em!important;text-transform:uppercase;color:rgb(255 255 255 / .55)!important}
-html body:not(#zz) .rv .rv-geld b{font-size:40px!important;font-weight:300!important;letter-spacing:-.02em!important;color:#fff!important}
-html body:not(#zz) .rv .rv-geld .rv-gb{height:3px!important;background:rgb(255 255 255 / .14)!important;border-radius:3px!important;overflow:hidden}
-html body:not(#zz) .rv .rv-geld .rv-gb i{background:linear-gradient(90deg,#c9a46a,#ecd3a3)!important;border-radius:3px!important;min-width:4px}
-html body:not(#zz) .rv .rv-geld em{color:rgb(255 255 255 / .55)!important;font-size:12px!important}
+/* ---------- Vandaag-hero: cijfers als tegels naast Verdiend ---------- */
+html body:not(#zz) .rv .rv-top{align-items:stretch}
+html body:not(#zz) .rv .rv-rechts{display:flex;gap:10px;align-items:stretch;flex:none}
+html body:not(#zz) .rv .rv-rechts .rv-chips{display:flex!important;flex-wrap:nowrap!important;gap:10px!important;margin:0!important}
+html body:not(#zz) .rv .rv-rechts .rv-chips>span,html body:not(#zz) .rv .rv-rechts .rv-chips>span.rv-klaar{display:flex!important;flex-direction:column!important;align-items:flex-end!important;justify-content:flex-start!important;gap:6px!important;min-width:104px;padding:12px 16px!important;box-sizing:border-box;border-radius:14px!important;background:linear-gradient(180deg,rgb(255 255 255 / .1),rgb(255 255 255 / .04))!important;border:1px solid rgb(255 255 255 / .14)!important;box-shadow:none!important;backdrop-filter:blur(6px);color:rgb(255 255 255 / .8)!important;font-size:13px!important;font-weight:400!important;text-align:right;white-space:nowrap;text-transform:capitalize}
+html body:not(#zz) .rv .rv-rechts .rv-chips>span svg{display:none!important}
+html body:not(#zz) .rv .rv-rechts .rv-chips>span b,html body:not(#zz) .rv .rv-rechts .rv-chips>span.rv-klaar b{order:1;display:block;color:#fff!important;font-size:30px!important;font-weight:500!important;letter-spacing:-.01em!important;line-height:1.05!important;background:transparent!important;text-transform:none}
+@media (max-width:1180px){html body:not(#zz) .rv .rv-top{flex-direction:column}html body:not(#zz) .rv .rv-rechts{width:100%}html body:not(#zz) .rv .rv-rechts .rv-chips{flex:1}html body:not(#zz) .rv .rv-rechts .rv-chips>span{flex:1}}
 @media (max-width:700px){
-  html body:not(#zz) .rv .rv-chips{display:grid!important;grid-template-columns:repeat(4,1fr);margin-top:18px!important}
-  html body:not(#zz) .rv .rv-chips>span,html body:not(#zz) .rv .rv-chips>span.rv-klaar{padding:2px 0 2px 12px!important;font-size:9px!important;letter-spacing:.1em!important;min-width:0}
-  html body:not(#zz) .rv .rv-chips>span b,html body:not(#zz) .rv .rv-chips>span.rv-klaar b{font-size:20px!important}
-  html body:not(#zz) .rv .rv-geld b{font-size:34px!important}}
+  html body:not(#zz) .rv .rv-rechts{flex-direction:column}
+  html body:not(#zz) .rv .rv-rechts .rv-chips{display:grid!important;grid-template-columns:1fr 1fr;gap:8px!important}
+  html body:not(#zz) .rv .rv-rechts .rv-chips>span,html body:not(#zz) .rv .rv-rechts .rv-chips>span.rv-klaar{min-width:0;padding:10px 14px!important;align-items:flex-start!important;text-align:left}
+  html body:not(#zz) .rv .rv-rechts .rv-chips>span b,html body:not(#zz) .rv .rv-rechts .rv-chips>span.rv-klaar b{font-size:24px!important}}
 
 </style>
 
