@@ -17,6 +17,9 @@ html=f'''<title>Mansard</title>
 <style>
 {css}
 </style>
+<style id="mansardThema">
+{thema}
+</style>
 <div class="app">
   <aside class="side">
     <div class="logo"><span class="mk">{mark}</span><span class="wm">Mansard</span></div>
@@ -37,9 +40,7 @@ html=f'''<title>Mansard</title>
 {js}
 }})();
 </script>
-<style id="mansardThema">
-{thema}
-</style>
+<script>/* thema als laatste in de cascade houden (stond eerst onderaan; nu ook al bovenaan, zodat er bij laden geen oude kleur flitst) */(function(){{var t=document.getElementById("mansardThema");if(t)document.body.appendChild(t)}})();</script>
 '''
 open(OUT,'w').write(html)
 pass

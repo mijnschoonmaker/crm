@@ -11,7 +11,7 @@ V = "10.14.1"
 fb = "".join(f'<script src="https://www.gstatic.com/firebasejs/{V}/firebase-{m}-compat.js"></script>\n' for m in ["app", "auth", "firestore", "storage", "functions"])
 head = f'''<!doctype html>
 <html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
-<meta name="theme-color" content="#0f1f26"><meta name="robots" content="noindex">
+<meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-180.png"><link rel="manifest" href="/manifest.json">
 {fb}<script src="/config.js"></script>
 <script>{open("shim.js").read()}</script>
@@ -34,7 +34,7 @@ demo = demo.replace("<title>Mansard</title>", "<title>Mansard (demo)</title>", 1
 dhead = '''<!doctype html>
 <script>if(location.hostname!=='app.mansard.nl'&&/^crm\./.test(location.hostname))location.replace('https://app.mansard.nl/demo/'+location.search+location.hash)</script>
 <html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
-<meta name="theme-color" content="#137a8a"><meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex,nofollow">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="apple-touch-icon" href="/mansard-180.png">
 '''
 _acc = os.path.join(R, "src", "demo", "accent.css")
