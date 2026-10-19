@@ -7450,8 +7450,8 @@ function bhUren(van,tot){
   const rows=dagen.map(d=>{const c=wdCijfers(d);const tt=x=>x?new Date(x).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"}):"";return[bhD(d),naam,tt(c.w.start),tt(c.w.stop),Math.round(c.pauze),Math.round(c.netto),Math.round(c.fact),Math.round(c.reis),c.n,bhN(c.omzet)]});
   return{rows,csv:[kop,...rows].map(r=>r.join(";")).join("\r\n"),min:rows.reduce((a,r)=>a+(Number(r[5])||0),0)};
 }
-function bhDownload(naam,tekst){const bl=new Blob(["﻿"+tekst],{type:"text/csv;charset=utf-8"}),u=URL.createObjectURL(bl),a=document.createElement("a");a.href=u;a.download=naam;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000)}
-const bhB64=t=>btoa(unescape(encodeURIComponent("﻿"+t)));
+function bhDownload(naam,tekst){const bl=new Blob([tekst],{type:"text/csv;charset=utf-8"}),u=URL.createObjectURL(bl),a=document.createElement("a");a.href=u;a.download=naam;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000)}
+const bhB64=t=>btoa(unescape(encodeURIComponent(t)));/* zonder BOM: precies zoals SnelStart het van DienstenCRM gewend is */
 async function bhLogZet(item){const items=[{op:new Date().toISOString(),van:state.bhVan,tot:state.bhTot,...item},...bhLog()].slice(0,300);try{await save("instellingen","boekhouder",{items});state.boekhouder={items}}catch(e){err(e)}}
 async function bhMail(soort,naar,bijlagen,onderwerp,tekst,oms){
   if(!LIVE)return toast("Mailen werkt in de live versie");
