@@ -80,7 +80,11 @@ function geenAutoLinks(html){let inA=0,inS=0;
     return p.replace(/([\w.+-]+@[\w-]+(?:\.[\w-]+)+)|((?:[\w-]+\.)+(?:com|nl|be|eu|net|org|info)\b)|((?<![#&\w])\d[\d\s\-\/:.]{2,}\d(?![\d;]))/gi,(m,mail,dom,num)=>{
       if(mail)return `<a href="mailto:${mail}" style="color:inherit;text-decoration:none">${mail}</a>`;
       if(dom)return `<a href="https://${dom}" style="color:inherit;text-decoration:none">${dom}</a>`;
-      return m.split("").join("&zwnj;")})}).join("")}
+      return m.split("").join("&zwnj;")})
+      /* datums als "zaterdag 24 oktober": mail-apps maken er een blauwe agenda-link van; onzichtbaar onderbreken */
+      .replace(/\b(maandag|dinsdag|woensdag|donderdag|vrijdag|zaterdag|zondag|januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december|morgen|vandaag|overmorgen)\b/gi,w=>w.slice(0,2)+"&zwnj;"+w.slice(2))
+      .replace(/\b(\d{1,2})(?=(&nbsp;|\s)+[a-z]{2}&zwnj;)/gi,d=>d.split("").join("&zwnj;")+"&zwnj;")
+      .replace(/\b(\d{1,2}):(\d{2})\b/g,(m,h,mi)=>h+"&zwnj;:&zwnj;"+mi)}).join("")}
 function mailHtmlRuw(tekst, b, opts = {}) {
   const BL = /^#[0-9a-f]{6}$/i.test(String(b.mailAccent||""))?b.mailAccent:"#137a8a", BL2 = _mx(BL,"#000000",.28), BG = "#eef2f3", INK = "#0f1f26", MUT = "#5d6f76";
   const T = opts.ticket || null, A = (T && T.kleur) || BL;
