@@ -326,8 +326,31 @@ def kaart():
 
 
 if __name__ == "__main__":
-    if "--kaart" in sys.argv:
+    if "--overzicht" in sys.argv:
+        overzicht(52.0230, 5.1680)
+    elif "--kaart" in sys.argv:
         kaart()
     else:
         scene("onderweg", "aan")
         scene("weg", "weg")
+
+
+def overzicht(lat, lon, z=15, n=4):
+    """hulpje: luchtfoto-overzicht met coordinaten, om een woonwijk voor de mailkaart te kiezen"""
+    cx, cy = tegel_xy(lat, lon, z)
+    tx0, ty0 = int(cx) - n // 2, int(cy) - n // 2
+    im = Image.new("RGB", (256 * n, 256 * n))
+    for i in range(n):
+        for j in range(n):
+            raw = haal(f"https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0/Actueel_orthoHR/EPSG:3857/{z}/{tx0 + i}/{ty0 + j}.jpeg")
+            im.paste(Image.open(io.BytesIO(raw)).convert("RGB"), (i * 256, j * 256))
+    d = ImageDraw.Draw(im)
+    N = 2 ** z
+    for k in range(0, 256 * n + 1, 128):
+        lo = (tx0 + k / 256) / N * 360 - 180
+        la = math.degrees(math.atan(math.sinh(math.pi * (1 - 2 * (ty0 + k / 256) / N))))
+        d.line([k, 0, k, 256 * n], fill=(255, 255, 0), width=1)
+        d.line([0, k, 256 * n, k], fill=(255, 255, 0), width=1)
+        d.text((k + 2, 2), f"{lo:.4f}", fill=(255, 255, 0))
+        d.text((2, k + 2), f"{la:.4f}", fill=(255, 255, 0))
+    im.save(os.path.join(os.path.dirname(__file__), "overzicht.jpg"), quality=80)

@@ -37,10 +37,11 @@ jobs:
         run: |
           pip install --quiet pillow
           python3 tools/mailgif.py --kaart
+          python3 tools/mailgif.py --overzicht || true
           # het gemaakte plaatje bewaren in de repository (geen nieuwe run: pushes met GITHUB_TOKEN starten geen workflow)
-          if ! git diff --quiet -- public/mail/live-kaart.gif; then
+          if ! git diff --quiet -- public/mail/live-kaart.gif || [ -f tools/overzicht.jpg ]; then
             git config user.name "mansard-bot"; git config user.email "bot@mansard.nl"
-            git add public/mail/live-kaart.gif && git commit -qm "Mailkaart op luchtfoto bijgewerkt" && git pull -q --rebase && git push -q || echo "bewaren lukte niet"
+            git add public/mail/live-kaart.gif tools/overzicht.jpg 2>/dev/null; git commit -qm "Mailkaart op luchtfoto bijgewerkt" && git pull -q --rebase && git push -q || echo "bewaren lukte niet"
           fi
       - uses: actions/upload-artifact@v4
         continue-on-error: true
