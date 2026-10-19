@@ -218,12 +218,33 @@
       <div class="bh-k"><h2>Klanten van Mansard</h2>${bs.length ? `<table class="bh-t"><tr><th>Bedrijf</th><th>Eigenaar</th><th>Status</th><th>Proef / volgende</th><th>Gebruikers</th><th>Sinds</th><th></th></tr>${bs.map(b => { const s = st(b); return `<tr><td><b>${bEsc(b.naam || b.id)}</b><small>${bEsc(b.plaats || "")}${b.telefoon ? " · " + bEsc(b.telefoon) : ""}</small></td><td>${bEsc(b.eigenaar || "")}</td><td><span class="bh-p ${s[0]}">${bEsc(s[1])}</span></td><td>${bDat(b.status === "proef" ? b.proefTot : b.volgende || b.betaaldTot)}${b.bedrag ? `<small>${bEur(b.bedrag)} p/m</small>` : ""}</td><td>${n(b)}</td><td>${bDat(b.aangemaakt)}</td><td><button class="bh-btn" data-mk="${bEsc(b.id)}" data-naam="${bEsc(b.naam || b.id)}">Meekijken</button></td></tr>`; }).join("")}</table>` : `<p class="bh-leeg">Nog geen andere bedrijven aangemeld.</p>`}</div>
       <div class="bh-k"><h2>Abonnementen innen (Mollie)</h2><p class="bh-n">De Mollie-sleutel van het profiel <b>Mansard</b>, waarmee glazenwassers hun abonnement betalen. Hij wordt veilig op de server bewaard en is daarna niet meer te lezen.</p>
         <div class="bh-f"><label>Mollie API-sleutel Mansard<input type="password" id="bhKey" placeholder="live_… of test_…" autocomplete="off"></label><button class="bh-btn pri" id="bhKeyOk">Opslaan</button></div></div>
-      <div class="bh-k"><h2>Kaartfoto's instellingen</h2><p class="bh-n">De foto's op de instellingenkaarten gelden voor alle bedrijven in dezelfde branche. Plaats ze door bij een bedrijf mee te kijken en in Instellingen op een kaart te tikken. Tweestapsverificatie voor dit beheeraccount zet je op dezelfde manier aan bij Instellingen › Beveiliging.</p></div>`;
+      <div class="bh-k"><h2>Tweestapsverificatie</h2><div id="bhMfa"><p class="bh-n">Laden…</p></div></div>
+      <div class="bh-k"><h2>Kaartfoto's instellingen</h2><p class="bh-n">De foto's op de instellingenkaarten gelden voor alle bedrijven in dezelfde branche. Plaats ze door bij een bedrijf mee te kijken en in Instellingen op een kaart te tikken.</p></div>`;
+    bhMfa();
     el.querySelectorAll("[data-mk]").forEach(b => b.onclick = () => { try { sessionStorage.setItem("ms.meekijk", JSON.stringify({ bid: b.dataset.mk, naam: b.dataset.naam })); } catch (x) {} location.reload(); });
     document.getElementById("bhKeyOk").onclick = async () => { const k = document.getElementById("bhKey").value.trim(), b = document.getElementById("bhKeyOk");
       if (!/^(live|test)_/.test(k)) { alert("Een Mollie-sleutel begint met live_ of test_"); return; }
       b.disabled = true; try { await fs.doc("platform/geheim").set({ mansardMollieKey: k, gewijzigd: new Date().toISOString() }, { merge: true }); document.getElementById("bhKey").value = ""; b.textContent = "Opgeslagen"; } catch (x) { b.disabled = false; b.textContent = "Opnieuw"; console.error(x); } };
     document.documentElement.classList.remove("lg-wacht");
+  }
+
+  async function bhMfa() {
+    const box = document.getElementById("bhMfa"), fn = n => firebase.app().functions("europe-west4").httpsCallable(n);
+    let st = {}; try { st = (await fn("mfaStatus")({})).data || {}; } catch (x) {}
+    if (st.aan) { box.innerHTML = `<p class="bh-n"><span class="bh-p ok">Aan</span> Bij elke nieuwe inlog vraagt Mansard om een code uit je authenticator-app.</p>`; return; }
+    box.innerHTML = `<p class="bh-n">Dit account kan bij alle bedrijven meekijken. Zet tweestapsverificatie aan: bij inloggen is dan ook een code uit je telefoon nodig.</p><div class="bh-f"><button class="bh-btn pri" id="bhMfaGo">Tweestapsverificatie aanzetten</button></div>`;
+    document.getElementById("bhMfaGo").onclick = async () => {
+      let r; try { r = (await fn("mfaStart")({})).data; } catch (x) { alert((x && x.message) || "Lukt nu niet"); return; }
+      box.innerHTML = `<ol class="bh-n" style="padding-left:38px"><li>Installeer een authenticator-app (Google Authenticator, Microsoft Authenticator of de Wachtwoorden-app van je iPhone).</li>
+        <li>Scan deze QR-code:<div id="bhQr" style="width:180px;margin:10px 0"></div>Of vul de sleutel in: <code>${bEsc(r.secret.replace(/(.{4})/g, "$1 ").trim())}</code></li>
+        <li>Vul de 6 cijfers in:</li></ol><div class="bh-f"><label>Code<input id="bhCode" inputmode="numeric" maxlength="7" autocomplete="one-time-code"></label><button class="bh-btn pri" id="bhAct">Aanzetten</button></div>`;
+      const qr = () => { try { const q = window.qrcode(0, "M"); q.addData(r.uri); q.make(); document.getElementById("bhQr").innerHTML = q.createSvgTag({ cellSize: 5, margin: 2, scalable: true }); } catch (x) {} };
+      if (window.qrcode) qr(); else { const sc = document.createElement("script"); sc.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"; sc.onload = qr; document.head.appendChild(sc); }
+      document.getElementById("bhAct").onclick = async () => {
+        try { const h = (await fn("mfaActiveer")({ code: document.getElementById("bhCode").value })).data.herstel || []; await auth.currentUser.getIdToken(true);
+          box.innerHTML = `<p class="bh-n"><span class="bh-p ok">Aan</span> Bewaar deze herstelcodes veilig (elke code werkt één keer, je ziet ze maar één keer):</p><p class="bh-n" style="font-family:monospace;font-size:15px;line-height:1.9">${h.map(bEsc).join("<br>")}</p>`;
+        } catch (x) { alert((x && x.message) || "Die code klopt niet"); } };
+    };
   }
   async function start(u) {
     if (await mfaNodig(u)) return mfaScherm(u, false);
