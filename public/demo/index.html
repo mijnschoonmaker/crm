@@ -14782,6 +14782,11 @@ html body:not(#zz) #view .kl-bar{display:flex;flex-direction:column;gap:8px;back
 html body:not(#zz) #view .kl-bar>.toolbar{margin:0!important;padding:0!important}
 html body:not(#zz) #view .kl-bar .search{box-shadow:none!important}
 html body:not(#zz) #view .kl-bar>.chips{margin:0!important;align-self:flex-start;max-width:100%}
+/* ingeklapt menu: net monogram i.p.v. afgesneden logo */
+html body:not(#zz) .app.collapsed aside .logo .lgimg[src$="mansard-logo.png"]{display:none!important}
+html body:not(#zz) .app.collapsed aside .logo:has(.lgimg[src$="mansard-logo.png"])::before{content:"M";display:grid;place-items:center;width:40px;height:40px;border-radius:10px;background:var(--gb-lijn),var(--gb-vlak);color:#fff;font-family:"Avenir Next","Avenir","Nunito Sans",system-ui,sans-serif;font-size:19px;font-weight:300;letter-spacing:0;box-shadow:0 6px 14px -8px rgb(20 24 34 / .6)}
+html body:not(#zz) .app.collapsed aside .logo .lgtxt{display:none!important}
+html body:not(#zz) .app.collapsed aside .logo{display:flex!important;justify-content:center!important;align-items:center!important;padding-left:0!important;padding-right:0!important}html body:not(#zz) .app.collapsed aside .logo>*:not(.lgimg){display:none!important}html body:not(#zz) .app.collapsed aside .logo:has(.lgimg[src$="mansard-logo.png"])::before{margin:0 auto}
 
 </style>
 
