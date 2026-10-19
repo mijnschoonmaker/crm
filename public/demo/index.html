@@ -12843,7 +12843,7 @@ function openAccount(){
   if(g("accBedrijf"))g("accBedrijf").onclick=()=>{dlg.close();if(typeof openSetEdit==="function")openSetEdit("bedrijf")};
   g("accSet").onclick=()=>{dlg.close();go("instellingen")};g("accHulp").onclick=()=>{dlg.close();go("handleiding")};
   if(LIVE&&a.soort!=="eigen"&&typeof fbFn==="function")fbFn("abonnement")({}).then(r=>{const n=r&&r.data&&r.data.gebruikers;if(n){const x=g("accN"),y=g("accN2");if(x)x.textContent=n;if(y)y.textContent=n}}).catch(()=>{})}
-document.addEventListener("click",e=>{const uc=e.target.closest("#userCard");if(!uc)return;e.preventDefault();openAccount()});
+document.addEventListener("click",e=>{const uc=e.target.closest("#userCard");if(!uc||e.target.closest(".lg-out"))return;e.preventDefault();openAccount()});
 
 /* ---------- Bijlagen van verzonden berichten openen ----------
    Nieuwe mails bewaren hun PDF's, die openen direct. Bij oudere berichten maken we de PDF opnieuw:
@@ -15007,6 +15007,12 @@ html body:not(#zz) .acc-stats>div{background:#f7f8f9;border-radius:10px;padding:
 html body:not(#zz) .acc-stats b{display:block;font-size:22px;font-weight:500}
 html body:not(#zz) .acc-stats small{font-size:11.5px;color:#7a7e84}
 @media (max-width:760px){html body:not(#zz) .acc-grid{grid-template-columns:1fr}html body:not(#zz) .acc-foot{flex-wrap:wrap}}
+/* uitloggen in de naamkaart linksonder altijd zichtbaar */
+html body:not(#zz) aside #userCard{display:flex!important;align-items:center!important;gap:10px}
+html body:not(#zz) aside #userCard>div{flex:1 1 auto;min-width:0;overflow:hidden}
+html body:not(#zz) aside #userCard .lg-out{display:inline-flex!important;flex:none!important;visibility:visible!important;font-size:10.5px!important;font-weight:600!important;letter-spacing:.12em!important;text-transform:uppercase;color:#5d6168!important;padding:6px 8px!important;border-radius:6px!important}
+html body:not(#zz) aside #userCard .lg-out:hover{background:#eceef1!important;color:#0d121b!important}
+html body:not(#zz) .app.collapsed aside #userCard .lg-out{display:none!important}
 
 </style>
 

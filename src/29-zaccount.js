@@ -39,4 +39,4 @@ function openAccount(){
   if(g("accBedrijf"))g("accBedrijf").onclick=()=>{dlg.close();if(typeof openSetEdit==="function")openSetEdit("bedrijf")};
   g("accSet").onclick=()=>{dlg.close();go("instellingen")};g("accHulp").onclick=()=>{dlg.close();go("handleiding")};
   if(LIVE&&a.soort!=="eigen"&&typeof fbFn==="function")fbFn("abonnement")({}).then(r=>{const n=r&&r.data&&r.data.gebruikers;if(n){const x=g("accN"),y=g("accN2");if(x)x.textContent=n;if(y)y.textContent=n}}).catch(()=>{})}
-document.addEventListener("click",e=>{const uc=e.target.closest("#userCard");if(!uc)return;e.preventDefault();openAccount()});
+document.addEventListener("click",e=>{const uc=e.target.closest("#userCard");if(!uc||e.target.closest(".lg-out"))return;e.preventDefault();openAccount()});
