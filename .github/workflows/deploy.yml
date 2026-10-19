@@ -30,6 +30,14 @@ jobs:
           gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS" --quiet >/dev/null 2>&1
           T=$(gcloud auth print-access-token)
           curl -s -X POST -H "Authorization: Bearer $T" -H "x-goog-user-project: $P" -H "Content-Type: application/json" "https://firebasehosting.googleapis.com/v1beta1/projects/$P/sites?siteId=mansard-site-95789" -d '{}' | head -c 300; echo
+      - name: Mailplaatje met luchtfoto maken
+        continue-on-error: true
+        run: |
+          pip install --quiet pillow
+          python3 tools/mailgif.py --kaart
+      - uses: actions/upload-artifact@v4
+        continue-on-error: true
+        with: { name: mailplaatjes, path: public/mail/, retention-days: 7 }
       - name: Naar Firebase zetten
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
