@@ -262,6 +262,9 @@ async function copy(text,btn){
 const doorNaam=()=>{const m=(typeof state!=="undefined"&&state.me)||{};const n=String(m.name||String(m.email||"").split("@")[0]||"").split(/[ ._-]/)[0];return n?n.charAt(0).toUpperCase()+n.slice(1):""};
 const err=e=>toast("Niet opgeslagen: "+(e?.message||e?.code||"onbekende fout"));
 const EMPTY_ILL=`<div class="ill-fan"><span><b></b><b></b></span><span><b></b><b></b><b></b></span><span><b></b><b></b></span></div>`;
+/* VvE gedraagt zich als zakelijke klant (bedrijfsnaam, contactpersoon, t.a.v.) */
+const isZak=k=>!!k&&(k.soort==="zakelijk"||k.soort==="vve");
+const soortLbl=k=>k&&k.soort==="vve"?"VvE":k&&k.soort==="zakelijk"?"Zakelijk":"Particulier";
 const empty=(t,s,btn="")=>`<div class="empty"><div class="ill">${EMPTY_ILL}</div><strong>${t}</strong><span>${s}</span>${btn}</div>`;
 const dlg=$("#dlg"),form=$("#dlgForm");
 let dlgGuard=null;

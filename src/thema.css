@@ -1013,3 +1013,7 @@ html body:not(#zz) .ow-chips .chip.chip-meer{border:1px dashed #c5cad3!important
 html body:not(#zz) .ow-chips .chip.chip-meer svg{background:transparent;border:1px dashed #c5cad3;padding:7px}
 html body:not(#zz) .ow-chips .chip.chip-meer:hover{border-color:#252c3c!important;color:#0d121b!important}
 html body:not(#zz) dialog :is(.stickyfoot,.kk-foot,.row)>button.primary,html body:not(#zz) dialog :is(.stickyfoot,.kk-foot,.row)>button[type="submit"]{min-height:40px!important;height:40px!important;padding-top:0!important;padding-bottom:0!important}
+html body:not(#zz) .st-hero .st-share i:nth-child(3){background:#9aa3b5!important}
+html body:not(#zz) .st-hero .st-gl span:nth-child(3) .st-dot{background:#9aa3b5!important}
+html body:not(#zz) .st-hero .st-gl span:last-child .st-dot{background:#d9b97f!important}
+html body:not(#zz) .st-hero .st-gl span:nth-child(3):last-child .st-dot{background:#9aa3b5!important}

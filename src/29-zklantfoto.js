@@ -62,7 +62,7 @@ function kfReviewHtml(){const R=KFO.res,n=R.klanten.filter(k=>k.mee).length,eh=S
       ${dub?`<select data-f="doel" class="kf-doel"><option value="${esc(dub.id)}" selected>Aanvullen bij ${esc(cleanName(dub.naam))}</option><option value="">Als nieuwe klant</option></select>`:`<span class="pill neutral">Nieuwe klant</span>`}</div>
     <div class="grid3">
       <label>Naam<input data-f="naam" value="${esc(k.naam)}"></label><label>Contactpersoon<input data-f="contact" value="${esc(k.contact)}"></label>
-      <label>Soort<select data-f="soort"><option value="particulier" ${k.soort!=="zakelijk"?"selected":""}>Particulier</option><option value="zakelijk" ${k.soort==="zakelijk"?"selected":""}>Zakelijk</option></select></label>
+      <label>Soort<select data-f="soort"><option value="particulier" ${!isZak(k)?"selected":""}>Particulier</option><option value="zakelijk" ${k.soort==="zakelijk"?"selected":""}>Zakelijk</option><option value="vve" ${k.soort==="vve"?"selected":""}>VvE</option></select></label>
       <label>Adres<input data-f="adres" value="${esc(k.adres)}"></label><label>Postcode<input data-f="postcode" value="${esc(k.postcode)}"></label><label>Plaats<input data-f="plaats" value="${esc(k.plaats)}"></label>
       <label>Telefoon<input data-f="telefoon" value="${esc(k.telefoon)}"></label><label>E-mail<input data-f="email" value="${esc(k.email)}"></label><label>Klantnummer<input data-f="klantnr" value="${esc(k.klantnr)}"></label></div>
     <span class="eyebrow" style="margin-top:6px">Diensten</span>
@@ -91,7 +91,7 @@ async function kfOpslaan(){const b=$("#kfSave");b.disabled=true;const R=KFO.res,
           ...(!Number(cur.prijs)&&Number(h.prijs)?{prijs:Number(h.prijs),frequentie:Number(h.frequentie)||cur.frequentie||4}:{}),...(!cur.laatst&&h.laatst?{laatst:h.laatst}:{}),
           notities:[cur.notities,k.notities].filter(x=>String(x||"").trim()).join("\n"),opdrachten:[...(cur.opdrachten||[]),...nieuw],log:[...(cur.log||[]),log]});laatste=cur.id}
       else{const id=newId("k");
-        await save("klanten",id,{klantnr:k.klantnr||"",naam:k.naam||k.adres,contact:k.contact||"",adres:k.adres||"",postcode:String(k.postcode||"").toUpperCase(),plaats:k.plaats||"",telefoon:k.telefoon||"",email:k.email||"",soort:k.soort==="zakelijk"?"zakelijk":"particulier",
+        await save("klanten",id,{klantnr:k.klantnr||"",naam:k.naam||k.adres,contact:k.contact||"",adres:k.adres||"",postcode:String(k.postcode||"").toUpperCase(),plaats:k.plaats||"",telefoon:k.telefoon||"",email:k.email||"",soort:["zakelijk","vve"].includes(k.soort)?k.soort:"particulier",
           dienst:String(h.dienst||"Glasbewassing").trim(),frequentie:Number(h.frequentie)||4,prijs:Number(h.prijs)||0,duur:30,laatst:h.laatst||"",gepland:h.volgende&&h.volgende>=t?h.volgende:"",tijd:"",notities:k.notities||"",opdrachten:opd,
           binnen:false,actief:true,aangemaakt:t,log:[log],objecten:[]});laatste=id}
       n++}

@@ -44,7 +44,7 @@ function kkLocatie(kid,oid){const k=state.klanten.find(x=>x.id===kid);if(!k)retu
       <label>Notities<textarea id="lc-not" style="min-height:52px">${esc(src.notities||"")}</textarea></label></details>`}
   </div><aside class="lc-side">
     <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klantgegevens</b><span class="sp"></span><button type="button" class="iconbtn sm" id="lcKg" aria-label="Klantgegevens wijzigen" title="Wijzigen">${I.pencil}</button></div>
-      ${kv("Klantnummer",esc(klantNr(k)))}${kv("Type klant",k.soort==="zakelijk"?"Zakelijk":"Particulier")}${kv("Naam",esc(cleanName(k.naam)))}${k.contact?kv("Contactpersoon",esc(k.contact)):""}
+      ${kv("Klantnummer",esc(klantNr(k)))}${kv("Type klant",soortLbl(k))}${kv("Naam",esc(cleanName(k.naam)))}${k.contact?kv("Contactpersoon",esc(k.contact)):""}
       ${kv("E-mailadres",esc(k.email||"—"))}${kv("Telefoon",esc(k.telefoon||"—"))}${kv("Hoofdadres",esc(fullAddr(k)||"—"))}${k.fAdres?kv("Factuuradres",esc(factAddr(k))):""}
       ${kv("Betaalwijze",k.incasso?"Automatische incasso":"Per bank")}${kv("Klant sinds",k.aangemaakt?esc(fmtL(k.aangemaakt)):"")}</section>
     ${(k.objecten||[]).length||main?`<section class="kp"><div class="kp-h"><span class="objic">${I.globe}</span><b>Alle locaties</b></div>

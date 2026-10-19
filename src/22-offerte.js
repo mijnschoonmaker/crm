@@ -36,7 +36,7 @@ function openOfferte(opts={}){
         <label>Plaats<input id="ow-plaats" value="${v(k0,"plaats")}"></label>
         <label>E-mail <small style="font-weight:500">(offerte gaat naar)</small><input id="ow-email" type="email" value="${v(k0,"email")}"></label>
         <label>Telefoon<input id="ow-telefoon" type="tel" value="${v(k0,"telefoon")}"></label>
-        <label>Soort<select id="ow-soort"><option value="particulier">Particulier</option><option value="zakelijk" ${k0&&k0.soort==="zakelijk"?"selected":""}>Zakelijk</option></select></label>
+        <label>Soort<select id="ow-soort"><option value="particulier">Particulier</option><option value="zakelijk" ${k0&&k0.soort==="zakelijk"?"selected":""}>Zakelijk</option><option value="vve" ${k0&&k0.soort==="vve"?"selected":""}>VvE</option></select></label>
       </div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.facturen}</span><b>Details offerte</b></div>
       <div class="grid2">
@@ -131,7 +131,7 @@ function openOfferte(opts={}){
   const sub=()=>{const n=$o("naam").value.trim(),a=[$o("adres").value.trim(),[$o("postcode").value.trim(),$o("plaats").value.trim()].filter(Boolean).join(" ")].filter(Boolean).join(", ");$("#owSub").textContent=n?n+(a?" · "+a:""):"Kies een klant of vul een nieuwe klant in"};
   ["naam","adres","postcode","plaats"].forEach(n=>$o(n).addEventListener("input",sub));
   $o("k").onchange=e=>{const k=state.klanten.find(x=>x.id===e.target.value);kid=k?k.id:"";
-    ["naam","adres","postcode","plaats","email","telefoon"].forEach(n=>$o(n).value=k?k[n]||"":"");$o("soort").value=k&&k.soort==="zakelijk"?"zakelijk":"particulier";
+    ["naam","adres","postcode","plaats","email","telefoon"].forEach(n=>$o(n).value=k?k[n]||"":"");$o("soort").value=k&&(k.soort==="zakelijk"||k.soort==="vve")?k.soort:"particulier";
     if(k&&!touched.freq&&!rc){$o("freq").value=String(k.frequentie||8)}sub();if(RC)RC.sync()};
   /* rekentool: ongewijzigd, alleen gekoppeld aan dit scherm */
   try{if(!RC)RC=buildRamen();

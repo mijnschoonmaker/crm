@@ -46,7 +46,7 @@ async function runPeriodiek(stil){
 function openPeriodiek(kid,back){
   const k=state.klanten.find(x=>x.id===kid);if(!k)return;const st=S();
   const p=k.periodiek?JSON.parse(JSON.stringify(k.periodiek)):{aan:true,freq:"maand",volgende:iso(new Date(today().getFullYear(),today().getMonth()+1,1)),modus:"klaarzetten",btw:Number(st.btw)||21,
-    regels:[{omschrijving:(k.soort==="zakelijk"?"Maandelijkse factuur schoonmaakcontract ":"Glasbewassing ")+cleanName(k.naam)+" [month.current] [year.current]",prijs:"",aantal:1}]};
+    regels:[{omschrijving:(isZak(k)?"Maandelijkse factuur schoonmaakcontract ":"Glasbewassing ")+cleanName(k.naam)+" [month.current] [year.current]",prijs:"",aantal:1}]};
   const goBack=()=>back==="lijst"?openPeriodiekLijst():back==="klant"?openKlantView(kid):openOpdrachtWerk(kid);
   const draw=()=>{
     openDlg(`<div class="dlg-head"><span class="objic big">${I.receipt}</span><div style="min-width:0;flex:1"><h3>Periodieke factuur</h3><div class="subt">${esc(cleanName(k.naam))} · opdracht ${esc(klantNr(k))}-1</div></div>${k.periodiek&&k.periodiek.aan?statusPill("ok","Actief"):""}<button type="button" class="iconbtn" id="pfX" aria-label="Terug">${I.x}</button></div>

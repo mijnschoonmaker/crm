@@ -70,17 +70,17 @@ function vInzichten(){
     const jaar=ak.reduce((a,k)=>a+exAmt(k.prijs)*365/freqDays(k),0),perK=ak.length?jaar/ak.length:0;
     const rd={};ak.forEach(k=>{const r=k.ronde||"Zonder ronde";rd[r]=(rd[r]||0)+exAmt(k.prijs)*365/freqDays(k)});const rk=Object.keys(rd).sort((a,b)=>rd[b]-rd[a]),rmx=Math.max(1,...rk.map(r=>rd[r]));
     const top=state.klanten.map(k=>({k,s:echteFacturen().filter(f=>f.klantId===k.id).reduce((a,f)=>a+totals(f).ex,0)})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,6),tmx=Math.max(1,...top.map(x=>x.s));
-    const zak=ak.filter(k=>k.soort==="zakelijk").length;
+    const zak=ak.filter(k=>k.soort==="zakelijk").length,vve=ak.filter(k=>k.soort==="vve").length,prt=ak.length-zak-vve;
     const groei=[...Array(12)].map((_,i)=>{const d=new Date(t.getFullYear(),t.getMonth()-11+i+1,0);const di=iso(d);return{l:new Date(d.getFullYear(),d.getMonth(),1).toLocaleDateString("nl-NL",{month:"short"}).replace(".",""),n:ak.filter(k=>String(k.aangemaakt||"0000").slice(0,10)<=di).length}});
     const mot=nieuw.length?`${plural(nieuw.length,"nieuwe klant","nieuwe klanten")} in ${esc(P.lbl)}. Samen goed voor ${eur0(nieuw.filter(k=>k.actief!==false).reduce((a,k)=>a+exAmt(k.prijs)*365/freqDays(k),0))} per jaar.`:`Nog geen nieuwe klanten in ${esc(P.lbl)}. Een aanbeveling via het klantportaal helpt!`;
     html+=`<section class="st-hero"><div class="st-hm"><span class="st-k">Actieve klanten</span>
         <div class="st-big"><b>${ak.length}</b>${nieuw.length?`<span class="st-pill up">+${nieuw.length} in ${esc(P.lbl)}</span>`:""}</div>
         <p class="st-mot">${mot}</p>
-        <div class="st-wijk" aria-hidden="true">${ak.slice(0,60).map(k=>`<i class="${nieuw.includes(k)?"nw":""}${k.soort==="zakelijk"?" zk":""}" title="${esc(cleanName(k.naam))}">${HUIS}</i>`).join("")}${ak.length>60?`<small>+${ak.length-60}</small>`:""}</div>
-        <div class="st-goal"><div class="st-share sm"><i style="width:${ak.length?(ak.length-zak)/ak.length*100:0}%;--h:190"></i><i style="width:${ak.length?zak/ak.length*100:0}%;--h:30"></i></div><div class="st-gl"><span><span class="st-dot" style="--h:190"></span>${ak.length-zak} particulier</span><span><span class="st-dot" style="--h:30"></span>${zak} zakelijk</span></div></div></div>
+        <div class="st-wijk" aria-hidden="true">${ak.slice(0,60).map(k=>`<i class="${nieuw.includes(k)?"nw":""}${isZak(k)?" zk":""}" title="${esc(cleanName(k.naam))}">${HUIS}</i>`).join("")}${ak.length>60?`<small>+${ak.length-60}</small>`:""}</div>
+        <div class="st-goal"><div class="st-share sm"><i style="width:${ak.length?prt/ak.length*100:0}%;--h:190"></i><i style="width:${ak.length?zak/ak.length*100:0}%;--h:30"></i>${vve?`<i style="width:${vve/ak.length*100}%;--h:260"></i>`:""}</div><div class="st-gl"><span><span class="st-dot" style="--h:190"></span>${prt} particulier</span><span><span class="st-dot" style="--h:30"></span>${zak} zakelijk</span>${vve?`<span><span class="st-dot" style="--h:260"></span>${vve} VvE</span>`:""}</div></div></div>
       <div class="st-hs">${stTile(I.euro,"Verwacht per jaar",eur0(jaar),"uit vaste klanten, ex btw","ok")}${stTile(I.klanten,"Per klant",perK?eur0(perK):"–","gemiddeld per jaar")}</div></section>
     <div class="st-tiles">${stTile(I.plus,"Nieuw",nieuw.length,nieuwV.length?nieuwV.length+" in "+esc(V.lbl):"in "+esc(P.lbl),nieuw.length?"ok":"")}
-      ${stTile(I.klanten,"Actief",ak.length,`${zak} zakelijk · ${ak.length-zak} particulier`)}
+      ${stTile(I.klanten,"Actief",ak.length,`${prt} particulier · ${zak} zakelijk${vve?" · "+vve+" VvE":""}`)}
       ${stTile(I.timer,"Inactief",inact.length,"gepauzeerd of opgezegd",inact.length?"":"ok")}
       ${stTile(I.spark,"Beste klant",top[0]?eur0(top[0].s):"–",top[0]?esc(cleanName(top[0].k.naam)):"nog geen facturen")}</div>
     <section class="st-card"><div class="st-ch"><div><h3>Klantengroei</h3><p>Actieve klanten aan het eind van elke maand</p></div></div>${stBars(groei.map(g=>g.n),groei.map(g=>g.l),{hi:11,fmt:v=>String(Math.round(v)),h:200,gem:false})}</section>

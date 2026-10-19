@@ -5694,6 +5694,10 @@ html body:not(#zz) .ow-chips .chip.chip-meer{border:1px dashed #c5cad3!important
 html body:not(#zz) .ow-chips .chip.chip-meer svg{background:transparent;border:1px dashed #c5cad3;padding:7px}
 html body:not(#zz) .ow-chips .chip.chip-meer:hover{border-color:#252c3c!important;color:#0d121b!important}
 html body:not(#zz) dialog :is(.stickyfoot,.kk-foot,.row)>button.primary,html body:not(#zz) dialog :is(.stickyfoot,.kk-foot,.row)>button[type="submit"]{min-height:40px!important;height:40px!important;padding-top:0!important;padding-bottom:0!important}
+html body:not(#zz) .st-hero .st-share i:nth-child(3){background:#9aa3b5!important}
+html body:not(#zz) .st-hero .st-gl span:nth-child(3) .st-dot{background:#9aa3b5!important}
+html body:not(#zz) .st-hero .st-gl span:last-child .st-dot{background:#d9b97f!important}
+html body:not(#zz) .st-hero .st-gl span:nth-child(3):last-child .st-dot{background:#9aa3b5!important}
 
 </style>
 <div class="app">
@@ -5979,6 +5983,9 @@ async function copy(text,btn){
 const doorNaam=()=>{const m=(typeof state!=="undefined"&&state.me)||{};const n=String(m.name||String(m.email||"").split("@")[0]||"").split(/[ ._-]/)[0];return n?n.charAt(0).toUpperCase()+n.slice(1):""};
 const err=e=>toast("Niet opgeslagen: "+(e?.message||e?.code||"onbekende fout"));
 const EMPTY_ILL=`<div class="ill-fan"><span><b></b><b></b></span><span><b></b><b></b><b></b></span><span><b></b><b></b></span></div>`;
+/* VvE gedraagt zich als zakelijke klant (bedrijfsnaam, contactpersoon, t.a.v.) */
+const isZak=k=>!!k&&(k.soort==="zakelijk"||k.soort==="vve");
+const soortLbl=k=>k&&k.soort==="vve"?"VvE":k&&k.soort==="zakelijk"?"Zakelijk":"Particulier";
 const empty=(t,s,btn="")=>`<div class="empty"><div class="ill">${EMPTY_ILL}</div><strong>${t}</strong><span>${s}</span>${btn}</div>`;
 const dlg=$("#dlg"),form=$("#dlgForm");
 let dlgGuard=null;
@@ -6207,14 +6214,14 @@ function klantVars(k,datum){
   const st=S(),tm=toMin(k.tijd),tv=tm!=null?"tussen "+k.tijd+" en "+fromMin(tm+duur(k)):"in de loop van de dag";
   const _ach=k.achternaam||String(k.naam||"").split(",")[0].trim();
   const _dg=datum?iso(datum):(k.gepland||iso(planned(k)));let _dl=[];try{_dl=[k.dienst||"Glasbewassing",...(typeof extraDue==="function"?extraDue(k,_dg):[]).filter(o=>o.actief!==false).map(o=>o.dienst||o.naam||"Dienst")]}catch(e){_dl=[k.dienst||"Glasbewassing"]}
-  const _ao=jobAddrObj(k),_cn=cleanName(k.naam),_nat=k.soort!=="zakelijk"&&/,/.test(_cn)?_cn.split(",").map(x=>x.trim()).reverse().join(" "):_cn;
+  const _ao=jobAddrObj(k),_cn=cleanName(k.naam),_nat=!isZak(k)&&/,/.test(_cn)?_cn.split(",").map(x=>x.trim()).reverse().join(" "):_cn;
   const _sp=a=>{const m=String(a||"").match(/^(.*?)\s+(\d+\s*\S*)$/);return m?[m[1],m[2]]:[String(a||""),""]},[_ps,_ph]=_sp(k.straat?(k.straat+" "+(k.huisnr||"")+(k.toev||"")).trim():k.adres),[_us,_uh]=_sp(_ao.adres);
   let _sub=[];try{_sub=[(k.dienst||"Glasbewassing")+(k.ramenRegel&&typeof normR==="function"?": "+normR(k.ramenRegel).f.map((n,i)=>n?(["begane grond","1e verdieping","2e verdieping","3e verdieping"][i]+" "+n+" st"):"").filter(Boolean).join(", "):""),...(typeof extraDue==="function"?extraDue(k,_dg):[]).filter(o=>o.actief!==false).map(o=>(o.dienst||"Dienst")+((o.items||[]).length?": "+o.items.filter(x=>Number(x.aantal)>0).map(x=>x.naam+" "+x.aantal+" "+(typeof eenhKort==="function"?eenhKort(x.eenheid):"")).join(", "):""))]}catch(e){}
   const _dd=parse(_dg),_tm=toMin(k.tijd),_wk=_dd?(()=>{const d=new Date(Date.UTC(_dd.getFullYear(),_dd.getMonth(),_dd.getDate()));const n=d.getUTCDay()||7;d.setUTCDate(d.getUTCDate()+4-n);const y=new Date(Date.UTC(d.getUTCFullYear(),0,1));return Math.ceil(((d-y)/864e5+1)/7)})():"";
-  const _tags={"number.customer":k.klantnr||"","lastname.customer":_ach,"sex.customer":k.geslacht||"","company.customer":k.bedrijfsnaam||(k.soort==="zakelijk"?cleanName(k.naam):""),"street.customer":_ps,"housenumber.customer":_ph,"postal.customer":k.postcode||"","city.customer":k.plaats||"","email.customer":k.email||"","phone.customer":k.mobiel||k.telefoon||"",
+  const _tags={"number.customer":k.klantnr||"","lastname.customer":_ach,"sex.customer":k.geslacht||"","company.customer":k.bedrijfsnaam||(isZak(k)?cleanName(k.naam):""),"street.customer":_ps,"housenumber.customer":_ph,"postal.customer":k.postcode||"","city.customer":k.plaats||"","email.customer":k.email||"","phone.customer":k.mobiel||k.telefoon||"",
     "daypart.appointment":_tm==null?"":_tm<720?"ochtend":_tm<1080?"middag":"avond","weeknumber.appointment":String(_wk),"subservices.appointment":_sub.map(x=>"• "+x).join("\n"),"articles.appointment":(k.artikelen||[]).map(a=>"• "+(a.aantal||1)+"× "+(a.naam||a.omschrijving||"")).join("\n"),
     "address.appointment":_us,"housenumber.appointment":_uh,"postal.appointment":_ao.postcode||k.postcode||"","location.appointment":(typeof jobObj==="function"&&jobObj(k)&&jobObj(k).naam)||"","confirm_link.appointment":""};
-  return{..._tags,diensten:_dl.map(x=>"• "+x).join("\n"),straat:_ao.adres||"",plaats:_ao.plaats||"",aanhef:k.geslacht==="man"?"heer "+_ach:k.geslacht==="vrouw"?"mevrouw "+_ach:k.soort==="zakelijk"?"heer/mevrouw":"heer/mevrouw "+_ach,voornaam:k.voornaam||cleanName(k.naam),naam:_nat,klant:_nat,adres:k.adres?jobAddr(k):"",datum:longD(datum||planned(k)),tijd:k.tijd||"",tijdvak:tv,dienst:(k.dienst||"glasbewassing").toLowerCase(),
+  return{..._tags,diensten:_dl.map(x=>"• "+x).join("\n"),straat:_ao.adres||"",plaats:_ao.plaats||"",aanhef:k.geslacht==="man"?"heer "+_ach:k.geslacht==="vrouw"?"mevrouw "+_ach:isZak(k)?"heer/mevrouw":"heer/mevrouw "+_ach,voornaam:k.voornaam||cleanName(k.naam),naam:_nat,klant:_nat,adres:k.adres?jobAddr(k):"",datum:longD(datum||planned(k)),tijd:k.tijd||"",tijdvak:tv,dienst:(k.dienst||"glasbewassing").toLowerCase(),
     bedrijf:st.naam||"je glazenwasser",iban:st.iban||"",telefoon:st.telefoon||"",telefoonbedrijf:st.telefoon||"",prijs:eur(k.prijs),interval:k.frequentie?intervalTxt(k):"",
     betaallink:st.betaallink||"",betaalregel:st.betaallink?"U kunt direct betalen via: "+st.betaallink+"\n":"",reviewlink:st.reviewLink||"",voorwaarden:st.voorwaarden||"",opzegtermijn:st.opzegtermijn||""};
 }
@@ -8189,7 +8196,7 @@ function vKlanten(){
     <button type="button" class="primary" data-act="klant">${I.plus}Nieuwe klant</button></div>
   ${all.length?kRitmeKaart():""}
   <div class="kl-bar"><div class="toolbar"><div class="search">${I.search}<input id="q" type="search" placeholder="Zoek op naam, adres, e-mail…" value="${esc(state.q)}"></div></div>
-  <div class="chips"><span style="color:var(--muted);display:grid">${I.filter}</span>${[["alle","Alle"],["particulier","Particulier"],["zakelijk","Zakelijk"],["inactief","Inactief"]].map(([v,l])=>`<button type="button" class="chip" data-act="kf" data-v="${v}" aria-pressed="${state.kf===v}">${l}<span class="n">${cnt(v)}</span></button>`).join("")}
+  <div class="chips"><span style="color:var(--muted);display:grid">${I.filter}</span>${[["alle","Alle"],["particulier","Particulier"],["zakelijk","Zakelijk"],["vve","VvE"],["inactief","Inactief"]].map(([v,l])=>`<button type="button" class="chip" data-act="kf" data-v="${v}" aria-pressed="${state.kf===v}">${l}<span class="n">${cnt(v)}</span></button>`).join("")}
     ${rondes().length?`<select id="kronde" style="width:auto;border-radius:99px;padding:6px 12px"><option value="">Alle rondes</option>${rondes().map(r=>`<option ${r===state.ronde?"selected":""}>${esc(r)}</option>`).join("")}</select>`:""}</div></div>`;
   if(selm)html+=`<div class="banner"><div><b>${plural(state.sel.size,"klant","klanten")} geselecteerd</b> <button type="button" class="small ghost" data-act="selall">Selecteer alle ${ks.length}</button></div>
     <button type="button" class="small" data-act="selmsg" ${state.sel.size?"":"disabled"}>${I.msg}Bericht</button><button type="button" class="small" data-act="selplan" ${state.sel.size?"":"disabled"}>${I.planning}Plan vandaag</button><button type="button" class="small" data-act="selpause" ${state.sel.size?"":"disabled"}>Inactief maken</button><button type="button" class="small danger" data-act="seldel" ${state.sel.size?"":"disabled"}>${I.trash}Verwijderen</button></div>`;
@@ -8205,7 +8212,7 @@ function vKlanten(){
       const tile=(band,big)=>`<i class="kc-m">${band}</i><b>${big}</b>`;
       const c=selm?(sel?I.check:""):k.actief===false?`<b>–</b><em>inactief</em>`:k.prospect?`${I.offertes}<em>offerte</em>`:_nw?tile("nieuw",'<span class="kc-s">★</span>'):gp?tile(mnd[gp.getMonth()],gp.getDate()):s.diff===0?tile("vandaag",new Date().getDate()):s.diff<0?tile("te laat","+"+Math.abs(s.diff)):tile(s.diff===1?"dag":"dagen",s.diff);
       return `<span class="kc${!selm&&k.actief!==false&&!k.prospect?" kc-tile":""}${gp&&!selm?" kc-plan":""}" title="${esc(ttl)}">${c}</span>`})()}</span>
-    <div class="kx-main"><span class="nm">${esc(cleanName(k.naam))}${k.soort==="zakelijk"?`<em class="kx-tag">Zakelijk</em>`:""}${k.ronde?`<em class="kx-tag">${esc(k.ronde)}</em>`:""}</span>
+    <div class="kx-main"><span class="nm">${esc(cleanName(k.naam))}${isZak(k)?`<em class="kx-tag">${soortLbl(k)}</em>`:""}${k.ronde?`<em class="kx-tag">${esc(k.ronde)}</em>`:""}</span>
       <div class="kx-sub"><span>${I.pin}${esc([k.adres,k.plaats].filter(Boolean).join(", ")||"Geen adres")}</span></div></div>
     <div class="kx-due">${(()=>{const gp=k.actief!==false&&!k.prospect&&parse(k.gepland);return gp?`<span class="kx-st kx-st-plan">Ingepland</span><small>${esc(gp.toLocaleDateString("nl-NL",{weekday:"short",day:"numeric",month:"short"}))}${k.tijd?" · "+esc(k.tijd):""}</small>`:`<span class="kx-st">${k.actief===false?"Inactief":k.prospect?"Wacht op akkoord":esc(s.txt)}</span><small>${k.actief===false||k.prospect?"":esc(dag)}</small>`})()}</div>
     <div class="kx-amt"><b>${eur(k.prijs)}</b><small>${esc(intervalTxt(k))}</small></div>
@@ -9462,7 +9469,7 @@ const ICON={
     box.hidden=!t;if(!t)return;
     box.innerHTML=`<div class="last"><span><b>Eerdere telling</b> · ${t.ramen} ramen${t.fotos&&t.fotos.length?" · "+t.fotos.length+" foto's":""} · ${esc(fmtL(t.datum))}</span><button type="button" class="btn2" id="loadTel">Telling laden</button></div>`}
   function setKlant(id){const k=state.klanten.find(x=>x.id===id);g("k-sel").value=k?id:"";
-    const z=k&&k.soort==="zakelijk";g("kt-z").checked=!!z;g("kt-p").checked=!z;g("f-bedrijf").hidden=!z;
+    const z=isZak(k);g("kt-z").checked=!!z;g("kt-p").checked=!z;g("f-bedrijf").hidden=!z;
     g("k-bedrijf").value=z?cleanName(k.naam):"";g("k-naam").value=k?(z?(k.contact||""):cleanName(k.naam)):"";
     g("k-email").value=k?k.email||"":"";g("k-tel").value=k?k.telefoon||"":"";g("k-adres").value=k?k.adres||"":"";
     g("k-pc").value=k?k.postcode||"":"";g("k-plaats").value=k?k.plaats||"":"";g("k-notitie").value=k?k.notities||"":"";
@@ -9591,7 +9598,7 @@ const ICON={
     if(!naam){g(z?"k-bedrijf":"k-naam").focus();throw {msg:z?"Vul de bedrijfsnaam in.":"Vul de naam van de klant in."}}
     if(!f.adres){g("k-adres").focus();throw {msg:"Vul het adres in."}}
     const pc=f.pc.replace(/\s+/g,""),postcode=/^\d{4}[A-Z]{2}$/.test(pc)?pc.slice(0,4)+" "+pc.slice(4):f.pc;
-    const base={naam,adres:f.adres,postcode,plaats:f.plaats,telefoon:f.tel,email:f.email,soort:z?"zakelijk":"particulier",contact:z?f.naam:"",notities:f.notitie};
+    const base={naam,adres:f.adres,postcode,plaats:f.plaats,telefoon:f.tel,email:f.email,soort:z?(ex&&ex.soort==="vve"?"vve":"zakelijk"):"particulier",contact:z?f.naam:"",notities:f.notitie};
     if(ex){const k={...strip(ex),...base,id:ex.id};return k}
     const k={...base,klantnr:"",ronde:"",frequentie:4,prijs:0,laatst:"",gepland:"",tijd:"",duur:30,dienst:"Glasbewassing",objectId:"",binnen:false,actief:true,incasso:false,akkoord:false,geenReview:false,opzegReden:"",aangemaakt:iso(today()),log:[],objecten:[],id:newId("k")};
     return k;
@@ -9915,17 +9922,17 @@ function vInzichten(){
     const jaar=ak.reduce((a,k)=>a+exAmt(k.prijs)*365/freqDays(k),0),perK=ak.length?jaar/ak.length:0;
     const rd={};ak.forEach(k=>{const r=k.ronde||"Zonder ronde";rd[r]=(rd[r]||0)+exAmt(k.prijs)*365/freqDays(k)});const rk=Object.keys(rd).sort((a,b)=>rd[b]-rd[a]),rmx=Math.max(1,...rk.map(r=>rd[r]));
     const top=state.klanten.map(k=>({k,s:echteFacturen().filter(f=>f.klantId===k.id).reduce((a,f)=>a+totals(f).ex,0)})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,6),tmx=Math.max(1,...top.map(x=>x.s));
-    const zak=ak.filter(k=>k.soort==="zakelijk").length;
+    const zak=ak.filter(k=>k.soort==="zakelijk").length,vve=ak.filter(k=>k.soort==="vve").length,prt=ak.length-zak-vve;
     const groei=[...Array(12)].map((_,i)=>{const d=new Date(t.getFullYear(),t.getMonth()-11+i+1,0);const di=iso(d);return{l:new Date(d.getFullYear(),d.getMonth(),1).toLocaleDateString("nl-NL",{month:"short"}).replace(".",""),n:ak.filter(k=>String(k.aangemaakt||"0000").slice(0,10)<=di).length}});
     const mot=nieuw.length?`${plural(nieuw.length,"nieuwe klant","nieuwe klanten")} in ${esc(P.lbl)}. Samen goed voor ${eur0(nieuw.filter(k=>k.actief!==false).reduce((a,k)=>a+exAmt(k.prijs)*365/freqDays(k),0))} per jaar.`:`Nog geen nieuwe klanten in ${esc(P.lbl)}. Een aanbeveling via het klantportaal helpt!`;
     html+=`<section class="st-hero"><div class="st-hm"><span class="st-k">Actieve klanten</span>
         <div class="st-big"><b>${ak.length}</b>${nieuw.length?`<span class="st-pill up">+${nieuw.length} in ${esc(P.lbl)}</span>`:""}</div>
         <p class="st-mot">${mot}</p>
-        <div class="st-wijk" aria-hidden="true">${ak.slice(0,60).map(k=>`<i class="${nieuw.includes(k)?"nw":""}${k.soort==="zakelijk"?" zk":""}" title="${esc(cleanName(k.naam))}">${HUIS}</i>`).join("")}${ak.length>60?`<small>+${ak.length-60}</small>`:""}</div>
-        <div class="st-goal"><div class="st-share sm"><i style="width:${ak.length?(ak.length-zak)/ak.length*100:0}%;--h:190"></i><i style="width:${ak.length?zak/ak.length*100:0}%;--h:30"></i></div><div class="st-gl"><span><span class="st-dot" style="--h:190"></span>${ak.length-zak} particulier</span><span><span class="st-dot" style="--h:30"></span>${zak} zakelijk</span></div></div></div>
+        <div class="st-wijk" aria-hidden="true">${ak.slice(0,60).map(k=>`<i class="${nieuw.includes(k)?"nw":""}${isZak(k)?" zk":""}" title="${esc(cleanName(k.naam))}">${HUIS}</i>`).join("")}${ak.length>60?`<small>+${ak.length-60}</small>`:""}</div>
+        <div class="st-goal"><div class="st-share sm"><i style="width:${ak.length?prt/ak.length*100:0}%;--h:190"></i><i style="width:${ak.length?zak/ak.length*100:0}%;--h:30"></i>${vve?`<i style="width:${vve/ak.length*100}%;--h:260"></i>`:""}</div><div class="st-gl"><span><span class="st-dot" style="--h:190"></span>${prt} particulier</span><span><span class="st-dot" style="--h:30"></span>${zak} zakelijk</span>${vve?`<span><span class="st-dot" style="--h:260"></span>${vve} VvE</span>`:""}</div></div></div>
       <div class="st-hs">${stTile(I.euro,"Verwacht per jaar",eur0(jaar),"uit vaste klanten, ex btw","ok")}${stTile(I.klanten,"Per klant",perK?eur0(perK):"–","gemiddeld per jaar")}</div></section>
     <div class="st-tiles">${stTile(I.plus,"Nieuw",nieuw.length,nieuwV.length?nieuwV.length+" in "+esc(V.lbl):"in "+esc(P.lbl),nieuw.length?"ok":"")}
-      ${stTile(I.klanten,"Actief",ak.length,`${zak} zakelijk · ${ak.length-zak} particulier`)}
+      ${stTile(I.klanten,"Actief",ak.length,`${prt} particulier · ${zak} zakelijk${vve?" · "+vve+" VvE":""}`)}
       ${stTile(I.timer,"Inactief",inact.length,"gepauzeerd of opgezegd",inact.length?"":"ok")}
       ${stTile(I.spark,"Beste klant",top[0]?eur0(top[0].s):"–",top[0]?esc(cleanName(top[0].k.naam)):"nog geen facturen")}</div>
     <section class="st-card"><div class="st-ch"><div><h3>Klantengroei</h3><p>Actieve klanten aan het eind van elke maand</p></div></div>${stBars(groei.map(g=>g.n),groei.map(g=>g.l),{hi:11,fmt:v=>String(Math.round(v)),h:200,gem:false})}</section>
@@ -11237,7 +11244,7 @@ function invData(f,klant){
   let naar=String(f.klantAdres||"").split(", ").filter(Boolean);const kl=String(kAdr||"").split(", ").filter(Boolean);
   if(naar.length<2&&kl.length>naar.length)naar=kl;
   const tav=typeof tavK==="function"?tavK(k,off?"offerte":"factuur"):"";if(tav&&!naar.some(x=>x.includes(tav)))naar.unshift("T.a.v. "+tav);
-  if(k&&k.soort==="zakelijk"&&k.contact&&!tav)naar.unshift("T.a.v. "+k.contact);
+  if(isZak(k)&&k.contact&&!tav)naar.unshift("T.a.v. "+k.contact);
   return{s,off,t,btw,regels,st,titel:off?"OFFERTE":"FACTUUR",
     van:[s.adres,[s.postcode,s.plaats].filter(Boolean).join(" "),(LANDEN[s.land]||LANDEN.NL).n,s.btwnr&&"BTW "+s.btwnr,s.kvk&&"KvK "+s.kvk].filter(Boolean),
     klantNaam:cleanName(f.klantNaam||k.naam||""),naar,klantContact:[k.email||f.klantEmail,k.telefoon].filter(Boolean).join(" · "),
@@ -11507,7 +11514,7 @@ function openOfferte(opts={}){
         <label>Plaats<input id="ow-plaats" value="${v(k0,"plaats")}"></label>
         <label>E-mail <small style="font-weight:500">(offerte gaat naar)</small><input id="ow-email" type="email" value="${v(k0,"email")}"></label>
         <label>Telefoon<input id="ow-telefoon" type="tel" value="${v(k0,"telefoon")}"></label>
-        <label>Soort<select id="ow-soort"><option value="particulier">Particulier</option><option value="zakelijk" ${k0&&k0.soort==="zakelijk"?"selected":""}>Zakelijk</option></select></label>
+        <label>Soort<select id="ow-soort"><option value="particulier">Particulier</option><option value="zakelijk" ${k0&&k0.soort==="zakelijk"?"selected":""}>Zakelijk</option><option value="vve" ${k0&&k0.soort==="vve"?"selected":""}>VvE</option></select></label>
       </div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.facturen}</span><b>Details offerte</b></div>
       <div class="grid2">
@@ -11602,7 +11609,7 @@ function openOfferte(opts={}){
   const sub=()=>{const n=$o("naam").value.trim(),a=[$o("adres").value.trim(),[$o("postcode").value.trim(),$o("plaats").value.trim()].filter(Boolean).join(" ")].filter(Boolean).join(", ");$("#owSub").textContent=n?n+(a?" · "+a:""):"Kies een klant of vul een nieuwe klant in"};
   ["naam","adres","postcode","plaats"].forEach(n=>$o(n).addEventListener("input",sub));
   $o("k").onchange=e=>{const k=state.klanten.find(x=>x.id===e.target.value);kid=k?k.id:"";
-    ["naam","adres","postcode","plaats","email","telefoon"].forEach(n=>$o(n).value=k?k[n]||"":"");$o("soort").value=k&&k.soort==="zakelijk"?"zakelijk":"particulier";
+    ["naam","adres","postcode","plaats","email","telefoon"].forEach(n=>$o(n).value=k?k[n]||"":"");$o("soort").value=k&&(k.soort==="zakelijk"||k.soort==="vve")?k.soort:"particulier";
     if(k&&!touched.freq&&!rc){$o("freq").value=String(k.frequentie||8)}sub();if(RC)RC.sync()};
   /* rekentool: ongewijzigd, alleen gekoppeld aan dit scherm */
   try{if(!RC)RC=buildRamen();
@@ -11924,7 +11931,7 @@ function openOpdrachtWerk(kid,focus){
   const mountRc=()=>{const box=$("#owRc");if(!box||!box.hidden)return;
     try{if(!RC)RC=buildRamen();
       RC.setEmbed({klantId:k.id,base:k,
-        form:()=>({naam:cleanName(k.naam),adres:k.adres||"",pc:k.postcode||"",plaats:k.plaats||"",tel:k.telefoon||"",email:k.email||"",notitie:"",zakelijk:k.soort==="zakelijk"}),
+        form:()=>({naam:cleanName(k.naam),adres:k.adres||"",pc:k.postcode||"",plaats:k.plaats||"",tel:k.telefoon||"",email:k.email||"",notitie:"",zakelijk:isZak(k),soort:k.soort||"particulier"}),
         onCalc:()=>{if(!$("#owLines"))return;const c=RC.current();if(!c)return;rcLive=true;main.prijs=c.opd.prijs;if(c.extra&&c.extra.length){const gs=new Set(c.extra.map(e=>e.groep));extra=[...extra.filter(o=>!o.groep||!gs.has(o.groep)),...c.extra]}
           const sf=$o("freq"),w=String(c.opd.frequentie);if(c.opd.frequentie){if(![...sf.options].some(o=>o.value===w))sf.insertAdjacentHTML("beforeend",`<option value="${w}">${esc(freqLabel(w))}</option>`);sf.value=w}
           if(!(k.tijden||[]).length&&c.opd.duur){const sd=$o("duur"),m=String(c.opd.duur);if(![...sd.options].some(o=>o.value===m))sd.insertAdjacentHTML("beforeend",`<option value="${m}">${m} min</option>`);sd.value=m}
@@ -12401,7 +12408,7 @@ function openKlantView(id,opt={}){
   <div class="kk-grid kd"><div class="kk-left">
     <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klantgegevens</b><span class="sp"></span>${pen("edit","Klantgegevens aanpassen")}</div>
       <a class="kd-map" href="${esc(mapsQ(k))}" target="_blank" rel="noopener" aria-label="Open in kaarten"><span class="kd-pin">${I.pin}</span><span><b>${esc(k.adres||"")}</b><small>${esc([k.postcode,k.plaats].filter(Boolean).join(" "))}</small></span><em>${I.nav}Route</em></a>
-      ${kv("Klantnummer",esc(nr))}${kv("Type klant",k.soort==="zakelijk"?"Zakelijk":"Particulier")}${kv("Naam",esc(cleanName(k.naam)))}${k.contact?kv("Contactpersoon",esc(k.contact)):""}${k.geboortedatum?kv("Geboortedatum",esc(fmtL(k.geboortedatum))):""}
+      ${kv("Klantnummer",esc(nr))}${kv("Type klant",soortLbl(k))}${kv("Naam",esc(cleanName(k.naam)))}${k.contact?kv("Contactpersoon",esc(k.contact)):""}${k.geboortedatum?kv("Geboortedatum",esc(fmtL(k.geboortedatum))):""}
       ${kv("E-mailadres",mail(k.email))}${kv("Telefoon",tel(k.telefoon))}${k.mobiel?kv("Mobiel",tel(k.mobiel)):""}${k.website?kv("Website",`<a href="${esc(/^https?:/.test(k.website)?k.website:"https://"+k.website)}" target="_blank" rel="noopener">${esc(k.website)}</a>`):""}${k.iban?kv("IBAN",esc(k.iban)+(k.rekeninghouder?`<br><small class="subt">${esc(k.rekeninghouder)}</small>`:"")):""}${k.termijn?kv("Betalingstermijn",esc(k.termijn)+" dagen"):""}${kv("Klant sinds",k.aangemaakt?esc(fmtL(k.aangemaakt)):"")}${kv("Betaalwijze",k.incasso?"Automatische incasso":"Per bank")}${k.ronde?kv("Ronde",esc(k.ronde)):""}
       ${payBlok(bg)}
       ${bg.laatste.length?`<div class="kd-sub kd-rows"><span class="eyebrow">Laatste ${bg.laatste.length} facturen</span>${bg.laatste.map(f=>{const st=fStatus(f),h=Number(f.herinneringen)||0,[pc,pt]=st[1]==="Betaald"?(h?["soon","Na herinnering"]:["ok","Op tijd betaald"]):st;return `<button type="button" class="kd-row" data-act="factuur" data-id="${esc(f.id)}"><span class="kd-row-l"><b>${esc(f.nummer)}</b><small>${esc(fmtD(String(f.datum||"").slice(0,10)))}</small></span><span class="kd-row-r"><b>${eur(totals(f).inc)}</b>${statusPill(pc,pt)}</span></button>`}).join("")}</div>`:""}
@@ -12512,15 +12519,15 @@ function jobExtra0(k){const m=(k.middelen||[]).map(id=>((state.uitv&&state.uitv.
 
 /* klantgegevens aanpassen (zoals in een klantdossier) */
 function kkGegevens(kid){const k=state.klanten.find(x=>x.id===kid);if(!k)return;const st=S(),T=tpls();
-  const nm=String(k.naam||""),ach=k.achternaam??(k.soort==="zakelijk"?"":nm.includes(",")?nm.split(",")[0].trim():nm),voor=k.voornaam??(k.soort!=="zakelijk"&&nm.includes(",")?nm.split(",").slice(1).join(",").trim():"");
+  const nm=String(k.naam||""),ach=k.achternaam??(isZak(k)?"":nm.includes(",")?nm.split(",")[0].trim():nm),voor=k.voornaam??(!isZak(k)&&nm.includes(",")?nm.split(",").slice(1).join(",").trim():"");
   const sel=(id,opts,v)=>`<select id="${id}">${opts.map(([a,b])=>`<option value="${esc(a)}" ${String(v)===String(a)?"selected":""}>${esc(b)}</option>`).join("")}</select>`;
   const groepen=[...new Set(["Standaard",...state.klanten.map(x=>x.nbGroep).filter(Boolean)])];
   kkSmall(kid,"Klantgegevens",I.user,()=>`<div class="grid2 kg">
     <label>Klantnummer<input id="kg-nr" inputmode="numeric" value="${esc(k.klantnr||"")}" placeholder="${esc(klantNr(k))}"><small class="help">Zelfde als de relatiecode in SnelStart</small></label>
-    <label>Type klant${sel("kg-soort",[["particulier","Particulier"],["zakelijk","Zakelijk"]],k.soort==="zakelijk"?"zakelijk":"particulier")}</label>
+    <label>Type klant${sel("kg-soort",[["particulier","Particulier"],["zakelijk","Zakelijk"],["vve","VvE"]],isZak(k)?k.soort:"particulier")}</label>
     <label>Nieuwsbrief${sel("kg-nb",[["ja","Ja"],["nee","Nee"]],k.nieuwsbrief===false?"nee":"ja")}</label>
     <label>Klantgroep nieuwsbrief<input id="kg-nbg" list="kg-nbl" value="${esc(k.nbGroep||"Standaard")}"><datalist id="kg-nbl">${groepen.map(g=>`<option value="${esc(g)}">`).join("")}</datalist></label>
-    <label class="full kg-bedr" ${k.soort==="zakelijk"?"":"hidden"}>Bedrijfsnaam<input id="kg-bedr" value="${esc(k.soort==="zakelijk"?nm:"")}"></label>
+    <label class="full kg-bedr" ${isZak(k)?"":"hidden"}>Bedrijfsnaam / naam VvE<input id="kg-bedr" value="${esc(isZak(k)?nm:"")}"></label>
     <label>KVK-nummer<input id="kg-kvk" inputmode="numeric" value="${esc(k.kvk||"")}"></label>
     <label>BTW-nummer<input id="kg-btw" value="${esc(k.btwnr||"")}" placeholder="NL000000000B00"></label>
     <label>Functie<input id="kg-fn" value="${esc(k.functie||"")}"></label><span></span>
@@ -12549,17 +12556,17 @@ function kkGegevens(kid){const k=state.klanten.find(x=>x.id===kid);if(!k)return;
     <label class="check-row"><input id="kg-geenrev" type="checkbox" ${k.geenReview?"checked":""}>Geen reviewverzoeken</label>
     <span></span>
     <button type="button" class="small ghost danger" id="kgDel" style="justify-self:start">${I.trash}Klant verwijderen</button>
-  </div>`,()=>{const v=id=>$("#"+id).value.trim(),zak=$("#kg-soort").value==="zakelijk",voorn=v("kg-voor"),achn=v("kg-ach"),bedr=v("kg-bedr");
+  </div>`,()=>{const v=id=>$("#"+id).value.trim(),zak=$("#kg-soort").value!=="particulier",voorn=v("kg-voor"),achn=v("kg-ach"),bedr=v("kg-bedr");
     const naam=zak?(bedr||[voorn,achn].filter(Boolean).join(" ")):(achn?achn+(voorn?", "+voorn:""):voorn);
     if(!naam){$(zak?"#kg-bedr":"#kg-ach").focus();toast("Vul een naam in");return null}
     if(!v("kg-adres")){$("#kg-adres").focus();toast("Vul het adres in");return null}
     const telOk=t=>!t||String(t).replace(/\D/g,"").length>=10;if(!telOk(v("kg-tel"))||!telOk(v("kg-mob"))){toast("Een telefoonnummer heeft 10 cijfers");return null}
     const actief=$("#kg-actief").checked;
-    return {naam,voornaam:voorn,achternaam:achn,contact:zak?[voorn,achn].filter(Boolean).join(" "):(k.contact||""),klantnr:v("kg-nr"),soort:zak?"zakelijk":"particulier",nieuwsbrief:$("#kg-nb").value==="ja",nbGroep:v("kg-nbg")||"Standaard",
+    return {naam,voornaam:voorn,achternaam:achn,contact:zak?[voorn,achn].filter(Boolean).join(" "):(k.contact||""),klantnr:v("kg-nr"),soort:$("#kg-soort").value,nieuwsbrief:$("#kg-nb").value==="ja",nbGroep:v("kg-nbg")||"Standaard",
       geboortedatum:v("kg-geb"),verjaardagTpl:$("#kg-vtpl").value,geslacht:$("#kg-gesl").value,nieuweKlant:$("#kg-nieuw").value==="ja",maxOpen:Number($("#kg-maxo").value)||0,termijn:Math.max(0,Number(v("kg-term"))||0),
       kvk:v("kg-kvk"),btwnr:v("kg-btw").toUpperCase(),functie:v("kg-fn"),...(zak?{bedrijfsnaam:bedr}:{}),iban:v("kg-iban").toUpperCase(),rekeninghouder:v("kg-rh"),email:v("kg-email"),website:v("kg-web"),telefoon:v("kg-tel"),mobiel:v("kg-mob"),adres:v("kg-adres"),postcode:v("kg-pc").toUpperCase(),plaats:v("kg-pl"),
       actief,...(actief?{}:{gepland:"",tijd:""}),opzegReden:$("#kg-reden").value,geenReview:$("#kg-geenrev").checked}});
-  $("#kg-soort").onchange=e=>{const b=form.querySelector(".kg-bedr");if(b)b.hidden=e.target.value!=="zakelijk"};
+  $("#kg-soort").onchange=e=>{const b=form.querySelector(".kg-bedr");if(b)b.hidden=e.target.value==="particulier"};
   const d=$("#kgDel");let armed=false;d.onclick=async()=>{if(!armed){armed=true;d.textContent="Zeker weten? Tik nogmaals";return}try{await del("klanten",kid);dlg.close();toast(cleanName(k.naam)+" verwijderd")}catch(er){err(er)}};
 }
 
@@ -12642,7 +12649,7 @@ async function runPeriodiek(stil){
 function openPeriodiek(kid,back){
   const k=state.klanten.find(x=>x.id===kid);if(!k)return;const st=S();
   const p=k.periodiek?JSON.parse(JSON.stringify(k.periodiek)):{aan:true,freq:"maand",volgende:iso(new Date(today().getFullYear(),today().getMonth()+1,1)),modus:"klaarzetten",btw:Number(st.btw)||21,
-    regels:[{omschrijving:(k.soort==="zakelijk"?"Maandelijkse factuur schoonmaakcontract ":"Glasbewassing ")+cleanName(k.naam)+" [month.current] [year.current]",prijs:"",aantal:1}]};
+    regels:[{omschrijving:(isZak(k)?"Maandelijkse factuur schoonmaakcontract ":"Glasbewassing ")+cleanName(k.naam)+" [month.current] [year.current]",prijs:"",aantal:1}]};
   const goBack=()=>back==="lijst"?openPeriodiekLijst():back==="klant"?openKlantView(kid):openOpdrachtWerk(kid);
   const draw=()=>{
     openDlg(`<div class="dlg-head"><span class="objic big">${I.receipt}</span><div style="min-width:0;flex:1"><h3>Periodieke factuur</h3><div class="subt">${esc(cleanName(k.naam))} · opdracht ${esc(klantNr(k))}-1</div></div>${k.periodiek&&k.periodiek.aan?statusPill("ok","Actief"):""}<button type="button" class="iconbtn" id="pfX" aria-label="Terug">${I.x}</button></div>
@@ -12765,7 +12772,7 @@ function openFactuurWerk(id){
   <div class="kk-acts">${f.status==="concept"?`<button type="button" class="small primary" data-fw="definitief">${I.check}Maak definitief</button>`:""}${st[1]!=="Betaald"&&f.status!=="concept"?`<button type="button" class="small good" data-fw="bank">${I.check}Betaald</button>`:""}<button type="button" class="small yellow" data-fw="send">${I.send}${st[1]==="Achterstallig"?"Stuur herinnering":"Versturen"}</button>${state.dl?`<button type="button" class="small" data-act="pdf" data-id="${esc(f.id)}">${I.dl}PDF downloaden</button>`:""}<button type="button" class="small" data-fw="bekijk">${I.eye}Bekijk factuur</button>${k?`<button type="button" class="small" data-fw="klant">${I.user}Klantkaart</button>`:""}</div>
   <div class="kk-grid kd"><div class="kk-left">
     <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klantgegevens</b><span class="sp"></span>${k?`<button type="button" class="iconbtn sm" data-fw="klant" aria-label="Naar klantkaart" title="Klantkaart">${I.right}</button>`:""}</div>
-      ${k?`${k.soort==="zakelijk"?kv("Bedrijfsnaam",esc(cleanName(k.naam))):""}${kv("Voornaam",esc(k.voornaam||""))}${kv("Achternaam",esc(k.achternaam||(k.soort==="zakelijk"?"":cleanName(k.naam))))}${kv("E-mailadres",mail(k.email))}${kv("Telefoon",tel(k.telefoon))}${kv("Mobiel",tel(k.mobiel))}
+      ${k?`${isZak(k)?kv(k.soort==="vve"?"Naam VvE":"Bedrijfsnaam",esc(cleanName(k.naam))):""}${kv("Voornaam",esc(k.voornaam||""))}${kv("Achternaam",esc(k.achternaam||(isZak(k)?"":cleanName(k.naam))))}${kv("E-mailadres",mail(k.email))}${kv("Telefoon",tel(k.telefoon))}${kv("Mobiel",tel(k.mobiel))}
       ${payBlok(bg)}`:kv("Klant",esc(cleanName(f.klantNaam))+' <small class="subt">(niet meer in je klantenbestand)</small>')}</section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.pin}</span><b>Adresgegevens</b><span class="sp"></span><button type="button" class="iconbtn sm" data-fw="adres" aria-label="Adres op factuur aanpassen">${I.pencil}</button></div>
       ${k?kv("Werklocatie",esc(jobAddr(k))):""}${kv("Factuuradres",esc(f.klantAdres||""))}${kv("Facturen gaan naar",mail(f.klantEmail)+(f.tav||(k&&tavK(k,"factuur"))?`<br><small class="subt">t.a.v. ${esc(f.tav||tavK(k,"factuur"))}</small>`:""))}</section>
@@ -12991,7 +12998,7 @@ function kkLocatie(kid,oid){const k=state.klanten.find(x=>x.id===kid);if(!k)retu
       <label>Notities<textarea id="lc-not" style="min-height:52px">${esc(src.notities||"")}</textarea></label></details>`}
   </div><aside class="lc-side">
     <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klantgegevens</b><span class="sp"></span><button type="button" class="iconbtn sm" id="lcKg" aria-label="Klantgegevens wijzigen" title="Wijzigen">${I.pencil}</button></div>
-      ${kv("Klantnummer",esc(klantNr(k)))}${kv("Type klant",k.soort==="zakelijk"?"Zakelijk":"Particulier")}${kv("Naam",esc(cleanName(k.naam)))}${k.contact?kv("Contactpersoon",esc(k.contact)):""}
+      ${kv("Klantnummer",esc(klantNr(k)))}${kv("Type klant",soortLbl(k))}${kv("Naam",esc(cleanName(k.naam)))}${k.contact?kv("Contactpersoon",esc(k.contact)):""}
       ${kv("E-mailadres",esc(k.email||"—"))}${kv("Telefoon",esc(k.telefoon||"—"))}${kv("Hoofdadres",esc(fullAddr(k)||"—"))}${k.fAdres?kv("Factuuradres",esc(factAddr(k))):""}
       ${kv("Betaalwijze",k.incasso?"Automatische incasso":"Per bank")}${kv("Klant sinds",k.aangemaakt?esc(fmtL(k.aangemaakt)):"")}</section>
     ${(k.objecten||[]).length||main?`<section class="kp"><div class="kp-h"><span class="objic">${I.globe}</span><b>Alle locaties</b></div>
@@ -14273,7 +14280,7 @@ function kfReviewHtml(){const R=KFO.res,n=R.klanten.filter(k=>k.mee).length,eh=S
       ${dub?`<select data-f="doel" class="kf-doel"><option value="${esc(dub.id)}" selected>Aanvullen bij ${esc(cleanName(dub.naam))}</option><option value="">Als nieuwe klant</option></select>`:`<span class="pill neutral">Nieuwe klant</span>`}</div>
     <div class="grid3">
       <label>Naam<input data-f="naam" value="${esc(k.naam)}"></label><label>Contactpersoon<input data-f="contact" value="${esc(k.contact)}"></label>
-      <label>Soort<select data-f="soort"><option value="particulier" ${k.soort!=="zakelijk"?"selected":""}>Particulier</option><option value="zakelijk" ${k.soort==="zakelijk"?"selected":""}>Zakelijk</option></select></label>
+      <label>Soort<select data-f="soort"><option value="particulier" ${!isZak(k)?"selected":""}>Particulier</option><option value="zakelijk" ${k.soort==="zakelijk"?"selected":""}>Zakelijk</option><option value="vve" ${k.soort==="vve"?"selected":""}>VvE</option></select></label>
       <label>Adres<input data-f="adres" value="${esc(k.adres)}"></label><label>Postcode<input data-f="postcode" value="${esc(k.postcode)}"></label><label>Plaats<input data-f="plaats" value="${esc(k.plaats)}"></label>
       <label>Telefoon<input data-f="telefoon" value="${esc(k.telefoon)}"></label><label>E-mail<input data-f="email" value="${esc(k.email)}"></label><label>Klantnummer<input data-f="klantnr" value="${esc(k.klantnr)}"></label></div>
     <span class="eyebrow" style="margin-top:6px">Diensten</span>
@@ -14302,7 +14309,7 @@ async function kfOpslaan(){const b=$("#kfSave");b.disabled=true;const R=KFO.res,
           ...(!Number(cur.prijs)&&Number(h.prijs)?{prijs:Number(h.prijs),frequentie:Number(h.frequentie)||cur.frequentie||4}:{}),...(!cur.laatst&&h.laatst?{laatst:h.laatst}:{}),
           notities:[cur.notities,k.notities].filter(x=>String(x||"").trim()).join("\n"),opdrachten:[...(cur.opdrachten||[]),...nieuw],log:[...(cur.log||[]),log]});laatste=cur.id}
       else{const id=newId("k");
-        await save("klanten",id,{klantnr:k.klantnr||"",naam:k.naam||k.adres,contact:k.contact||"",adres:k.adres||"",postcode:String(k.postcode||"").toUpperCase(),plaats:k.plaats||"",telefoon:k.telefoon||"",email:k.email||"",soort:k.soort==="zakelijk"?"zakelijk":"particulier",
+        await save("klanten",id,{klantnr:k.klantnr||"",naam:k.naam||k.adres,contact:k.contact||"",adres:k.adres||"",postcode:String(k.postcode||"").toUpperCase(),plaats:k.plaats||"",telefoon:k.telefoon||"",email:k.email||"",soort:["zakelijk","vve"].includes(k.soort)?k.soort:"particulier",
           dienst:String(h.dienst||"Glasbewassing").trim(),frequentie:Number(h.frequentie)||4,prijs:Number(h.prijs)||0,duur:30,laatst:h.laatst||"",gepland:h.volgende&&h.volgende>=t?h.volgende:"",tijd:"",notities:k.notities||"",opdrachten:opd,
           binnen:false,actief:true,aangemaakt:t,log:[log],objecten:[]});laatste=id}
       n++}

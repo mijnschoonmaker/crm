@@ -500,7 +500,7 @@ const ICON={
     box.hidden=!t;if(!t)return;
     box.innerHTML=`<div class="last"><span><b>Eerdere telling</b> · ${t.ramen} ramen${t.fotos&&t.fotos.length?" · "+t.fotos.length+" foto's":""} · ${esc(fmtL(t.datum))}</span><button type="button" class="btn2" id="loadTel">Telling laden</button></div>`}
   function setKlant(id){const k=state.klanten.find(x=>x.id===id);g("k-sel").value=k?id:"";
-    const z=k&&k.soort==="zakelijk";g("kt-z").checked=!!z;g("kt-p").checked=!z;g("f-bedrijf").hidden=!z;
+    const z=isZak(k);g("kt-z").checked=!!z;g("kt-p").checked=!z;g("f-bedrijf").hidden=!z;
     g("k-bedrijf").value=z?cleanName(k.naam):"";g("k-naam").value=k?(z?(k.contact||""):cleanName(k.naam)):"";
     g("k-email").value=k?k.email||"":"";g("k-tel").value=k?k.telefoon||"":"";g("k-adres").value=k?k.adres||"":"";
     g("k-pc").value=k?k.postcode||"":"";g("k-plaats").value=k?k.plaats||"":"";g("k-notitie").value=k?k.notities||"":"";
@@ -629,7 +629,7 @@ const ICON={
     if(!naam){g(z?"k-bedrijf":"k-naam").focus();throw {msg:z?"Vul de bedrijfsnaam in.":"Vul de naam van de klant in."}}
     if(!f.adres){g("k-adres").focus();throw {msg:"Vul het adres in."}}
     const pc=f.pc.replace(/\s+/g,""),postcode=/^\d{4}[A-Z]{2}$/.test(pc)?pc.slice(0,4)+" "+pc.slice(4):f.pc;
-    const base={naam,adres:f.adres,postcode,plaats:f.plaats,telefoon:f.tel,email:f.email,soort:z?"zakelijk":"particulier",contact:z?f.naam:"",notities:f.notitie};
+    const base={naam,adres:f.adres,postcode,plaats:f.plaats,telefoon:f.tel,email:f.email,soort:z?(ex&&ex.soort==="vve"?"vve":"zakelijk"):"particulier",contact:z?f.naam:"",notities:f.notitie};
     if(ex){const k={...strip(ex),...base,id:ex.id};return k}
     const k={...base,klantnr:"",ronde:"",frequentie:4,prijs:0,laatst:"",gepland:"",tijd:"",duur:30,dienst:"Glasbewassing",objectId:"",binnen:false,actief:true,incasso:false,akkoord:false,geenReview:false,opzegReden:"",aangemaakt:iso(today()),log:[],objecten:[],id:newId("k")};
     return k;

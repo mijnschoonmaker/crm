@@ -249,7 +249,7 @@ function openOpdrachtWerk(kid,focus){
   const mountRc=()=>{const box=$("#owRc");if(!box||!box.hidden)return;
     try{if(!RC)RC=buildRamen();
       RC.setEmbed({klantId:k.id,base:k,
-        form:()=>({naam:cleanName(k.naam),adres:k.adres||"",pc:k.postcode||"",plaats:k.plaats||"",tel:k.telefoon||"",email:k.email||"",notitie:"",zakelijk:k.soort==="zakelijk"}),
+        form:()=>({naam:cleanName(k.naam),adres:k.adres||"",pc:k.postcode||"",plaats:k.plaats||"",tel:k.telefoon||"",email:k.email||"",notitie:"",zakelijk:isZak(k),soort:k.soort||"particulier"}),
         onCalc:()=>{if(!$("#owLines"))return;const c=RC.current();if(!c)return;rcLive=true;main.prijs=c.opd.prijs;if(c.extra&&c.extra.length){const gs=new Set(c.extra.map(e=>e.groep));extra=[...extra.filter(o=>!o.groep||!gs.has(o.groep)),...c.extra]}
           const sf=$o("freq"),w=String(c.opd.frequentie);if(c.opd.frequentie){if(![...sf.options].some(o=>o.value===w))sf.insertAdjacentHTML("beforeend",`<option value="${w}">${esc(freqLabel(w))}</option>`);sf.value=w}
           if(!(k.tijden||[]).length&&c.opd.duur){const sd=$o("duur"),m=String(c.opd.duur);if(![...sd.options].some(o=>o.value===m))sd.insertAdjacentHTML("beforeend",`<option value="${m}">${m} min</option>`);sd.value=m}

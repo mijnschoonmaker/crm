@@ -601,7 +601,7 @@ BELANGRIJK: meestal horen alle foto's bij ÉÉN klant: de eerste foto toont de k
 Per klant:
 - naam: achternaam/bedrijfsnaam zoals het CRM hem noemt, bv. "Jansen, Piet" of "Bakkerij De Molen"
 - contact: contactpersoon (bij bedrijven), anders leeg
-- soort: "zakelijk" als het een bedrijf/instelling/VvE is, anders "particulier"
+- soort: "vve" bij een Vereniging van Eigenaren, "zakelijk" bij een bedrijf of instelling, anders "particulier"
 - adres: straat + huisnummer (+ toevoeging), postcode: "1234 AB", plaats
 - telefoon, email, klantnr (klantnummer in het andere systeem)
 - diensten: elke dienst met eigen frequentie en prijs, bv. glasbewassing buiten elke 4 weken € 25, binnen elke 12 weken € 40, dakgoot 1x per jaar.
@@ -635,7 +635,7 @@ exports.klantFoto = onCall({ memory: "512MiB", timeoutSeconds: 120 }, async req 
   let out; try { out = JSON.parse(txt.slice(a, b + 1)); } catch (e) { console.error("klantFoto parse", txt.slice(0, 400)); throw new HttpsError("internal", "De AI gaf geen bruikbaar antwoord. Probeer het opnieuw met een scherpere foto."); }
   const s = (v, n) => String(v == null ? "" : v).trim().slice(0, n || 200), dt = v => /^\d{4}-\d{2}-\d{2}$/.test(String(v || "")) ? String(v) : "";
   const klanten = (Array.isArray(out.klanten) ? out.klanten : []).slice(0, 50).map(k => ({
-    naam: s(k.naam, 120), contact: s(k.contact, 120), soort: k.soort === "zakelijk" ? "zakelijk" : "particulier", adres: s(k.adres, 160), postcode: s(k.postcode, 10).toUpperCase(), plaats: s(k.plaats, 80),
+    naam: s(k.naam, 120), contact: s(k.contact, 120), soort: ["zakelijk", "vve"].includes(k.soort) ? k.soort : "particulier", adres: s(k.adres, 160), postcode: s(k.postcode, 10).toUpperCase(), plaats: s(k.plaats, 80),
     telefoon: s(k.telefoon, 40), email: s(k.email, 120), klantnr: s(k.klantnr, 40), notities: s(k.notities, 1000),
     diensten: (Array.isArray(k.diensten) ? k.diensten : []).slice(0, 12).map(d => ({ dienst: s(d.dienst, 80) || "Glasbewassing", frequentie: Math.max(1, Math.min(104, Math.round(Number(d.frequentie) || 4))), prijs: Math.max(0, Math.round((Number(String(d.prijs).replace(",", ".")) || 0) * 100) / 100), incl: d.incl === true ? true : d.incl === false ? false : null, laatst: dt(d.laatst), volgende: dt(d.volgende) }))
   })).filter(k => k.naam || k.adres);

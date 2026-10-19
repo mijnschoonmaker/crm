@@ -13,7 +13,7 @@ function invData(f,klant){
   let naar=String(f.klantAdres||"").split(", ").filter(Boolean);const kl=String(kAdr||"").split(", ").filter(Boolean);
   if(naar.length<2&&kl.length>naar.length)naar=kl;
   const tav=typeof tavK==="function"?tavK(k,off?"offerte":"factuur"):"";if(tav&&!naar.some(x=>x.includes(tav)))naar.unshift("T.a.v. "+tav);
-  if(k&&k.soort==="zakelijk"&&k.contact&&!tav)naar.unshift("T.a.v. "+k.contact);
+  if(isZak(k)&&k.contact&&!tav)naar.unshift("T.a.v. "+k.contact);
   return{s,off,t,btw,regels,st,titel:off?"OFFERTE":"FACTUUR",
     van:[s.adres,[s.postcode,s.plaats].filter(Boolean).join(" "),(LANDEN[s.land]||LANDEN.NL).n,s.btwnr&&"BTW "+s.btwnr,s.kvk&&"KvK "+s.kvk].filter(Boolean),
     klantNaam:cleanName(f.klantNaam||k.naam||""),naar,klantContact:[k.email||f.klantEmail,k.telefoon].filter(Boolean).join(" · "),

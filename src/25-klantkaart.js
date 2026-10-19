@@ -48,7 +48,7 @@ function openKlantView(id,opt={}){
   <div class="kk-grid kd"><div class="kk-left">
     <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klantgegevens</b><span class="sp"></span>${pen("edit","Klantgegevens aanpassen")}</div>
       <a class="kd-map" href="${esc(mapsQ(k))}" target="_blank" rel="noopener" aria-label="Open in kaarten"><span class="kd-pin">${I.pin}</span><span><b>${esc(k.adres||"")}</b><small>${esc([k.postcode,k.plaats].filter(Boolean).join(" "))}</small></span><em>${I.nav}Route</em></a>
-      ${kv("Klantnummer",esc(nr))}${kv("Type klant",k.soort==="zakelijk"?"Zakelijk":"Particulier")}${kv("Naam",esc(cleanName(k.naam)))}${k.contact?kv("Contactpersoon",esc(k.contact)):""}${k.geboortedatum?kv("Geboortedatum",esc(fmtL(k.geboortedatum))):""}
+      ${kv("Klantnummer",esc(nr))}${kv("Type klant",soortLbl(k))}${kv("Naam",esc(cleanName(k.naam)))}${k.contact?kv("Contactpersoon",esc(k.contact)):""}${k.geboortedatum?kv("Geboortedatum",esc(fmtL(k.geboortedatum))):""}
       ${kv("E-mailadres",mail(k.email))}${kv("Telefoon",tel(k.telefoon))}${k.mobiel?kv("Mobiel",tel(k.mobiel)):""}${k.website?kv("Website",`<a href="${esc(/^https?:/.test(k.website)?k.website:"https://"+k.website)}" target="_blank" rel="noopener">${esc(k.website)}</a>`):""}${k.iban?kv("IBAN",esc(k.iban)+(k.rekeninghouder?`<br><small class="subt">${esc(k.rekeninghouder)}</small>`:"")):""}${k.termijn?kv("Betalingstermijn",esc(k.termijn)+" dagen"):""}${kv("Klant sinds",k.aangemaakt?esc(fmtL(k.aangemaakt)):"")}${kv("Betaalwijze",k.incasso?"Automatische incasso":"Per bank")}${k.ronde?kv("Ronde",esc(k.ronde)):""}
       ${payBlok(bg)}
       ${bg.laatste.length?`<div class="kd-sub kd-rows"><span class="eyebrow">Laatste ${bg.laatste.length} facturen</span>${bg.laatste.map(f=>{const st=fStatus(f),h=Number(f.herinneringen)||0,[pc,pt]=st[1]==="Betaald"?(h?["soon","Na herinnering"]:["ok","Op tijd betaald"]):st;return `<button type="button" class="kd-row" data-act="factuur" data-id="${esc(f.id)}"><span class="kd-row-l"><b>${esc(f.nummer)}</b><small>${esc(fmtD(String(f.datum||"").slice(0,10)))}</small></span><span class="kd-row-r"><b>${eur(totals(f).inc)}</b>${statusPill(pc,pt)}</span></button>`}).join("")}</div>`:""}
@@ -159,15 +159,15 @@ function jobExtra0(k){const m=(k.middelen||[]).map(id=>((state.uitv&&state.uitv.
 
 /* klantgegevens aanpassen (zoals in een klantdossier) */
 function kkGegevens(kid){const k=state.klanten.find(x=>x.id===kid);if(!k)return;const st=S(),T=tpls();
-  const nm=String(k.naam||""),ach=k.achternaam??(k.soort==="zakelijk"?"":nm.includes(",")?nm.split(",")[0].trim():nm),voor=k.voornaam??(k.soort!=="zakelijk"&&nm.includes(",")?nm.split(",").slice(1).join(",").trim():"");
+  const nm=String(k.naam||""),ach=k.achternaam??(isZak(k)?"":nm.includes(",")?nm.split(",")[0].trim():nm),voor=k.voornaam??(!isZak(k)&&nm.includes(",")?nm.split(",").slice(1).join(",").trim():"");
   const sel=(id,opts,v)=>`<select id="${id}">${opts.map(([a,b])=>`<option value="${esc(a)}" ${String(v)===String(a)?"selected":""}>${esc(b)}</option>`).join("")}</select>`;
   const groepen=[...new Set(["Standaard",...state.klanten.map(x=>x.nbGroep).filter(Boolean)])];
   kkSmall(kid,"Klantgegevens",I.user,()=>`<div class="grid2 kg">
     <label>Klantnummer<input id="kg-nr" inputmode="numeric" value="${esc(k.klantnr||"")}" placeholder="${esc(klantNr(k))}"><small class="help">Zelfde als de relatiecode in SnelStart</small></label>
-    <label>Type klant${sel("kg-soort",[["particulier","Particulier"],["zakelijk","Zakelijk"]],k.soort==="zakelijk"?"zakelijk":"particulier")}</label>
+    <label>Type klant${sel("kg-soort",[["particulier","Particulier"],["zakelijk","Zakelijk"],["vve","VvE"]],isZak(k)?k.soort:"particulier")}</label>
     <label>Nieuwsbrief${sel("kg-nb",[["ja","Ja"],["nee","Nee"]],k.nieuwsbrief===false?"nee":"ja")}</label>
     <label>Klantgroep nieuwsbrief<input id="kg-nbg" list="kg-nbl" value="${esc(k.nbGroep||"Standaard")}"><datalist id="kg-nbl">${groepen.map(g=>`<option value="${esc(g)}">`).join("")}</datalist></label>
-    <label class="full kg-bedr" ${k.soort==="zakelijk"?"":"hidden"}>Bedrijfsnaam<input id="kg-bedr" value="${esc(k.soort==="zakelijk"?nm:"")}"></label>
+    <label class="full kg-bedr" ${isZak(k)?"":"hidden"}>Bedrijfsnaam / naam VvE<input id="kg-bedr" value="${esc(isZak(k)?nm:"")}"></label>
     <label>KVK-nummer<input id="kg-kvk" inputmode="numeric" value="${esc(k.kvk||"")}"></label>
     <label>BTW-nummer<input id="kg-btw" value="${esc(k.btwnr||"")}" placeholder="NL000000000B00"></label>
     <label>Functie<input id="kg-fn" value="${esc(k.functie||"")}"></label><span></span>
@@ -196,17 +196,17 @@ function kkGegevens(kid){const k=state.klanten.find(x=>x.id===kid);if(!k)return;
     <label class="check-row"><input id="kg-geenrev" type="checkbox" ${k.geenReview?"checked":""}>Geen reviewverzoeken</label>
     <span></span>
     <button type="button" class="small ghost danger" id="kgDel" style="justify-self:start">${I.trash}Klant verwijderen</button>
-  </div>`,()=>{const v=id=>$("#"+id).value.trim(),zak=$("#kg-soort").value==="zakelijk",voorn=v("kg-voor"),achn=v("kg-ach"),bedr=v("kg-bedr");
+  </div>`,()=>{const v=id=>$("#"+id).value.trim(),zak=$("#kg-soort").value!=="particulier",voorn=v("kg-voor"),achn=v("kg-ach"),bedr=v("kg-bedr");
     const naam=zak?(bedr||[voorn,achn].filter(Boolean).join(" ")):(achn?achn+(voorn?", "+voorn:""):voorn);
     if(!naam){$(zak?"#kg-bedr":"#kg-ach").focus();toast("Vul een naam in");return null}
     if(!v("kg-adres")){$("#kg-adres").focus();toast("Vul het adres in");return null}
     const telOk=t=>!t||String(t).replace(/\D/g,"").length>=10;if(!telOk(v("kg-tel"))||!telOk(v("kg-mob"))){toast("Een telefoonnummer heeft 10 cijfers");return null}
     const actief=$("#kg-actief").checked;
-    return {naam,voornaam:voorn,achternaam:achn,contact:zak?[voorn,achn].filter(Boolean).join(" "):(k.contact||""),klantnr:v("kg-nr"),soort:zak?"zakelijk":"particulier",nieuwsbrief:$("#kg-nb").value==="ja",nbGroep:v("kg-nbg")||"Standaard",
+    return {naam,voornaam:voorn,achternaam:achn,contact:zak?[voorn,achn].filter(Boolean).join(" "):(k.contact||""),klantnr:v("kg-nr"),soort:$("#kg-soort").value,nieuwsbrief:$("#kg-nb").value==="ja",nbGroep:v("kg-nbg")||"Standaard",
       geboortedatum:v("kg-geb"),verjaardagTpl:$("#kg-vtpl").value,geslacht:$("#kg-gesl").value,nieuweKlant:$("#kg-nieuw").value==="ja",maxOpen:Number($("#kg-maxo").value)||0,termijn:Math.max(0,Number(v("kg-term"))||0),
       kvk:v("kg-kvk"),btwnr:v("kg-btw").toUpperCase(),functie:v("kg-fn"),...(zak?{bedrijfsnaam:bedr}:{}),iban:v("kg-iban").toUpperCase(),rekeninghouder:v("kg-rh"),email:v("kg-email"),website:v("kg-web"),telefoon:v("kg-tel"),mobiel:v("kg-mob"),adres:v("kg-adres"),postcode:v("kg-pc").toUpperCase(),plaats:v("kg-pl"),
       actief,...(actief?{}:{gepland:"",tijd:""}),opzegReden:$("#kg-reden").value,geenReview:$("#kg-geenrev").checked}});
-  $("#kg-soort").onchange=e=>{const b=form.querySelector(".kg-bedr");if(b)b.hidden=e.target.value!=="zakelijk"};
+  $("#kg-soort").onchange=e=>{const b=form.querySelector(".kg-bedr");if(b)b.hidden=e.target.value==="particulier"};
   const d=$("#kgDel");let armed=false;d.onclick=async()=>{if(!armed){armed=true;d.textContent="Zeker weten? Tik nogmaals";return}try{await del("klanten",kid);dlg.close();toast(cleanName(k.naam)+" verwijderd")}catch(er){err(er)}};
 }
 
