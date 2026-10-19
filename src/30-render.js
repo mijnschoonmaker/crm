@@ -21,7 +21,7 @@ function render(){try{warmMailLogo()}catch(e){}
     if(key!==state._lgShown){state._lgShown=key;document.querySelectorAll(".logo").forEach(el=>{const src="/mansard-logo.png";el.classList.toggle("haslogo",!!src);if(src)el.innerHTML=`<img class="lgimg" src="${esc(src)}" alt="Mansard"><span class="wm lgtxt">${esc(gr)}</span>`})}}
   $("#userCard").innerHTML=`<span class="uav">${esc(initials(nm))}</span><div style="min-width:0"><b>${esc(nm)}</b><small>${esc(S().naam&&state.me&&state.me.name?S().naam:"Mansard · CRM")}</small></div>`;
   const main=$("main");main.classList.toggle("wide",big()&&(state.tab==="vandaag"||state.tab==="planning"||state.tab==="uitvoering"));
-  if(!state.loaded&&state.db){$("#view").innerHTML=empty("Gegevens laden…","Een moment.");return}
+  if(!state.loaded&&state.db){$("#view").innerHTML=`<div class="ms-laden" role="status" aria-label="Gegevens laden"><i></i></div>`;return}
   if(state.loaded&&!state._perRun){state._perRun=1;setTimeout(()=>runPeriodiek(true),2500)}
   const ae=document.activeElement,fid=ae&&ae.id&&$("#view").contains(ae)?ae.id:null,pos=fid&&ae.selectionStart;
   const rcF=RC&&state.tab==="calculator"?RC.focusState():null;
