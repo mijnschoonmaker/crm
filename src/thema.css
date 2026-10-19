@@ -1135,3 +1135,6 @@ html body:not(#zz) .msg-subj>span{font-weight:400!important}
 html body:not(#zz) .msgc .msg-subj{font-weight:600!important}
 /* planning: Planningsmail even hoog als Kaartplannen en Plan de week */
 html body:not(#zz) .toolbar button.primary.pl-opt,html body:not(#zz) button.primary.pl-opt{height:40px!important;min-height:40px!important;padding-top:0!important;padding-bottom:0!important}
+/* e-mail opmaak: vijf voorbeeld-tabs; op de telefoon horizontaal schuiven */
+html body:not(#zz) .ms-tabs{display:grid!important;grid-template-columns:repeat(5,1fr)}
+@media (max-width:760px){html body:not(#zz) .ms-tabs{display:flex!important;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}html body:not(#zz) .ms-tabs::-webkit-scrollbar{display:none}html body:not(#zz) .ms-tabs button{flex:none!important;padding:0 14px!important}}

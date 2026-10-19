@@ -5541,6 +5541,9 @@ html body:not(#zz) .msg-subj>span{font-weight:400!important}
 html body:not(#zz) .msgc .msg-subj{font-weight:600!important}
 /* planning: Planningsmail even hoog als Kaartplannen en Plan de week */
 html body:not(#zz) .toolbar button.primary.pl-opt,html body:not(#zz) button.primary.pl-opt{height:40px!important;min-height:40px!important;padding-top:0!important;padding-bottom:0!important}
+/* e-mail opmaak: vijf voorbeeld-tabs; op de telefoon horizontaal schuiven */
+html body:not(#zz) .ms-tabs{display:grid!important;grid-template-columns:repeat(5,1fr)}
+@media (max-width:760px){html body:not(#zz) .ms-tabs{display:flex!important;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}html body:not(#zz) .ms-tabs::-webkit-scrollbar{display:none}html body:not(#zz) .ms-tabs button{flex:none!important;padding:0 14px!important}}
 
 </style>
 <div class="app">
@@ -8384,13 +8387,13 @@ function vCommunicatie(){
 function openMailStijl(){
   const s=S();let stijl=s.mailStijl||"modern",acc=s.mailAccent||"#137a8a",tab="factuur";
   const SW=[["#252c3c","Gelders blauw"],["#137a8a","Mansard petrol"],["#2b3cb0","Blauw"],["#2f7a6e","Groen"],["#b3263c","Rood"],["#121826","Zwart"]],ST=[["klassiek","Klassiek","Zakelijk en vertrouwd: wit, serif koptekst, logo links en dunne lijnen in uw accentkleur."],["modern","Modern","Strakke witte kaart met afgeronde hoeken, gecentreerd logo en een accentstreep bovenaan."],["luxe","Luxe","Premium uitstraling: donkere kopband, serif titel, veel witruimte en een fijne accentlijn."]];
-  const T=tpls(),tk={factuur:"factuur",aankondiging:"aankondiging",herinnering:"aanmaning",review:"review"};
-  const prev=()=>{const k=tk[tab],v=sampleVars(),vv={...v,klant:tab==="factuur"?"mevrouw De Vries":"klant"};const old={...state.settings};state.settings={...state.settings,mailStijl:stijl,mailAccent:acc};
+  const T=tpls(),tk={factuur:"factuur",offerte:"offerte",aankondiging:"aankondiging",herinnering:"aanmaning",review:"review"};
+  const prev=()=>{const k=tk[tab],v=sampleVars(),vv={...v,klant:tab==="factuur"||tab==="offerte"?"mevrouw De Vries":"klant"};const old={...state.settings};state.settings={...state.settings,mailStijl:stijl,mailAccent:acc};
     const h=mailFor(k,vv,T[k].mail,{preview:true});state.settings=old;return h};
   const draw=()=>{$("#msB").innerHTML=`<div class="stgrid">${ST.map(([k,l,d])=>`<button type="button" class="stc${stijl===k?" on":""}" data-st="${k}"><span class="stv ${k}"><i></i><i></i><i></i></span><b>${l}${stijl===k?I.check:""}</b><small>${d}</small></button>`).join("")}</div>
     <div class="secl" style="color:var(--ink);font-size:14px;letter-spacing:0;text-transform:none">Accentkleur</div><div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">${SW.map(([c,n])=>`<button type="button" class="swatch${acc.toLowerCase()===c?" on":""}" data-sw="${c}" style="background:${c}!important" title="${n}" aria-label="${n}"></button>`).join("")}<span class="subt">Eigen kleur</span><input type="color" id="msC" value="${esc(acc)}" style="width:52px;height:44px;padding:3px"></div>
     <div class="splitrow"><b style="display:flex;gap:8px;align-items:center">${I.search}Voorbeeld</b><button type="button" class="small" id="msTest">${I.send}Testmail naar mij</button></div>
-    <div class="seg" style="display:grid;grid-template-columns:repeat(4,1fr)">${[["factuur","Factuur"],["aankondiging","Aankondiging"],["herinnering","Herinnering"],["review","Review"]].map(([k,l])=>`<button type="button" data-tb="${k}" aria-pressed="${tab===k}">${l}</button>`).join("")}</div>
+    <div class="seg ms-tabs">${[["factuur","Factuur"],["offerte","Offerte"],["aankondiging","Aankondiging"],["herinnering","Herinnering"],["review","Review"]].map(([k,l])=>`<button type="button" data-tb="${k}" aria-pressed="${tab===k}">${l}</button>`).join("")}</div>
     <div class="mailprev">${prev()}</div><small class="help">Deze stijl geldt voor de knop <b>Opgemaakt</b> bij facturen, herinneringen, offertes, reviewverzoeken en aankondigingen. Logo en bedrijfsgegevens komen uit Instellingen › Bedrijf &amp; Branding. Je logo staat in de voorbeelden; in een geplakte mail verschijnt je bedrijfsnaam, want het logo staat in je privé-pagina.</small>`};
   openDlg(`<div class="dlg-head"><span class="objic big" style="background:linear-gradient(135deg,#f0a33c,#e0822c)">${I.spark}</span><div style="flex:1"><h3>E-mail opmaak</h3><div class="subt">Kies hoe je opgemaakte mails eruitzien</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
   <div id="msB" class="setbody"></div><div class="row stickyfoot"><button type="button" class="ghost" data-act="close">Annuleren</button><span class="sp"></span><button type="submit" class="primary" id="msSave">Opmaak opslaan</button></div>`,{wide:true});
