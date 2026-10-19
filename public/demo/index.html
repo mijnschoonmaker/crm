@@ -8678,7 +8678,7 @@ function bindTest(id,textFn,subjFn){const b=form.querySelector(`[data-test="${id
 /* foto's op de instellingenkaarten: centraal door Mansard (Robin) geplaatst, per branche voor alle bedrijven */
 const KF={data:null,laden:false};
 const kfBranche=()=>String(S().branche||"glazenwasser");
-const kfEigenaar=()=>{try{return String((firebase.auth().currentUser||{}).email||"").toLowerCase()==="info@voorbeeldglazenwasserij.nl"}catch(e){return false}};
+const kfEigenaar=()=>{try{return String((firebase.auth().currentUser||{}).email||"").toLowerCase()==="robin@mansard.nl"}catch(e){return false}};/* alleen Mansard-beheer plaatst kaartfoto's */
 const kfDoc=()=>{try{return typeof firebase!=="undefined"&&firebase.firestore?firebase.firestore().doc("platform/kaartfotos"):null}catch(e){return null}};
 function kfLaad(){if(KF.data||KF.laden)return;const d=kfDoc();if(!d){KF.laden=true;fetch("/api/kaartfotos").then(r=>r.json()).then(j=>{KF.data=j||{};KF.laden=false;if(state.tab==="instellingen")render()}).catch(()=>{KF.data={};KF.laden=false});return}KF.laden=true;
   d.get().then(s=>{KF.data=s.exists?s.data():{};KF.laden=false;
@@ -13144,11 +13144,11 @@ if(LIVE){
     setDlg(c,`${info("Elke factuurmail krijgt een eigen <b>betaallink</b> (iDEAL, Bancontact, creditcard). Betaalt de klant, dan staat de factuur vanzelf op <b>betaald</b>.")}
       ${tgl("liveMollie","Online betalen aan","Betaallink automatisch in factuurmails en herinneringen",s.liveMollie!==false&&!!s.liveMollieKey)}
       <label class="full">Mollie API-sleutel<input type="password" id="mollieKey" autocomplete="off" placeholder="${s.liveMollieKey?"Ingesteld · laat leeg om te houden":"live_… of test_…"}"><small class="help">Te vinden in Mollie › Ontwikkelaars › API-sleutels. Begin gerust met de test-sleutel.</small></label>
-      ${String((state.me&&state.me.email)||"").toLowerCase()==="info@voorbeeldglazenwasserij.nl"?`<label class="full">Mollie-sleutel voor Mansard-abonnementen<input type="password" id="mansardKey" autocomplete="off" placeholder="${s.mansardKeyGezet?"Ingesteld · laat leeg om te houden":"live_… van je Mollie-profiel Mansard"}"><small class="help">Hiermee betalen andere glazenwassers hun Mansard-abonnement. Leeg = je gewone Mollie-sleutel hierboven.</small></label>`:""}
+
       <div class="warnbox">${I.alert}<span>Je Mollie-account moet eerst zijn geverifieerd (KvK, bankrekening, ID) voordat echte betalingen werken.</span></div>`,{wide:false});
     form.onsubmit=async e=>{e.preventDefault();const on=form.querySelector('[data-k="liveMollie"]').checked,key=$("#mollieKey").value.trim();
       try{if(key)await fsDb().doc("geheim/config").set({mollieKey:key},{merge:true});
-        const mk=($("#mansardKey")||{value:""}).value.trim();if(mk)await fsDb().doc("geheim/config").set({mansardMollieKey:mk},{merge:true});
+        const mk="";
         if(await saveSettings({...(mk?{mansardKeyGezet:true}:{}),liveMollie:on&&!!(key||s.liveMollieKey),liveMollieKey:!!(key||s.liveMollieKey),liveMollieTest:key?key.startsWith("test_"):!!s.liveMollieTest})){dlg.close();schedule()}}catch(er){err(er)}}};
 
   SETEXTRA.liveOverzicht=(c,s)=>{let vw=s.voorwaardenPdf||"",vwN=s.voorwaardenNaam||"",hf=s.herroepingPdf||"",hfN=s.herroepingNaam||"";
@@ -13164,7 +13164,7 @@ if(LIVE){
       [["vw",(id,n)=>{vw=id;vwN=n}],["hf",(id,n)=>{hf=id;hfN=n}]].forEach(([k,set])=>{const f=$("#"+k+"F");if(f)f.onchange=async e=>{const file=e.target.files[0];if(!file)return;try{const r=await state.assets.upload(file,{type:"application/pdf"});set(r.id,file.name);draw()}catch(er){toast("Uploaden lukte niet")}};const x=$("#"+k+"X");if(x)x.onclick=()=>{set("","");draw()}})};draw();
     bindSave(()=>({voorwaardenPdf:vw,voorwaardenNaam:vwN,herroepingPdf:hf,herroepingNaam:hfN}))};
   SETEXTRA.liveUsers=async(c,s)=>{
-    const draw=async()=>{let lijst=[];try{lijst=(await (window.ZEEM_BID&&window.ZEEM_BID!=="het CRM"?fsDb().collection("gebruikers").where("bedrijf","==",window.ZEEM_BID):fsDb().collection("gebruikers")).get()).docs.map(d=>({id:d.id,...d.data()})).filter(u=>(u.bedrijf||"het CRM")===(window.ZEEM_BID||"het CRM"))}catch(e){}
+    const draw=async()=>{let lijst=[];try{lijst=(window.ZEEM_BID&&window.ZEEM_BID!=="het CRM"?(await fsDb().collection("gebruikers").where("bedrijf","==",window.ZEEM_BID).get()).docs.map(d=>({id:d.id,...d.data()})):((await fbFn("gebruikersLijst")({})).data.gebruikers||[]))}catch(e){}
       $("#usrL").innerHTML=`<table class="minitable">${!window.ZEEM_BID||window.ZEEM_BID==="het CRM"?`<tr><td><b>info@voorbeeldglazenwasserij.nl</b></td><td></td><td>Eigenaar</td><td></td></tr>`:""}${lijst.map(u=>`<tr><td>${esc(u.id)}</td><td>${esc(u.naam||"")}</td><td>${isEigenaar()?`<select class="usr-rol" data-rol="${esc(u.id)}"><option value="medewerker"${(u.rol||"beheerder")==="medewerker"?" selected":""}>Medewerker</option><option value="beheerder"${(u.rol||"beheerder")==="beheerder"?" selected":""}>Beheerder</option></select>`:esc(u.rol==="medewerker"?"Medewerker":"Beheerder")}</td><td class="r">${isEigenaar()?`<button type="button" class="tiny ghost" data-rm="${esc(u.id)}" style="color:var(--late)">Verwijderen</button>`:""}</td></tr>`).join("")}</table>`;
       $("#usrL").querySelectorAll("[data-rol]").forEach(sl=>sl.onchange=async()=>{try{await fsDb().doc("gebruikers/"+sl.dataset.rol).set({rol:sl.value},{merge:true});toast(sl.value==="medewerker"?"Ziet nu alleen Vandaag en Route, zonder bedragen":"Heeft nu toegang tot het hele CRM")}catch(er){err(er)}});
       $("#usrL").querySelectorAll("[data-rm]").forEach(b=>b.onclick=async()=>{if(!(await vraag("Gebruiker verwijderen?",`<b>${esc(b.dataset.rm)}</b> kan daarna niet meer inloggen in het CRM.`,"Verwijderen","Annuleren")))return;await fsDb().doc("gebruikers/"+b.dataset.rm).delete();draw();if(window.ZEEM_BID&&window.ZEEM_BID!=="het CRM")fbFn("abonnementBijwerken")({}).catch(()=>{})})};
@@ -13243,7 +13243,7 @@ function msStatus(){const b=MS.doc||{},v=iso(today());
   if(b.status==="proef")return{ok:String(b.proefTot||"")>=v,soort:String(b.proefTot||"")>=v?"proef":"verlopen",dagen:msDagen(b.proefTot)};
   if(b.status==="opgezegd")return{ok:String(b.betaaldTot||b.proefTot||"")>=v,soort:"opgezegd",tot:b.betaaldTot||b.proefTot};
   return{ok:false,soort:"verlopen"}}
-function msBalk(){if(!msTenant()||!MS.doc)return;const st=msStatus();let el=document.getElementById("msBalk");
+function msBalk(){if(!msTenant()||!MS.doc||window.ZEEM_MEEKIJK)return;const st=msStatus();let el=document.getElementById("msBalk");
   const eig=window.ZEEM_ROL==="eigenaar";
   const html=st.soort==="proef"?`<span><b>Proefperiode</b> · nog ${plural(Math.max(0,st.dagen),"dag","dagen")} gratis</span>${eig?`<button type="button" class="small primary" data-act="msabo">Abonnement kiezen</button>`:""}`
     :st.soort==="achterstand"?`<span><b>De laatste betaling is mislukt.</b> Zorg dat er saldo is; we proberen het opnieuw.</span>${eig?`<button type="button" class="small" data-act="msabo">Bekijken</button>`:""}`

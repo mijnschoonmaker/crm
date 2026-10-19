@@ -3,7 +3,7 @@ service firebase.storage {
   match /b/{bucket}/o {
     function gebruiker() {
       return request.auth != null && request.auth.token.email_verified == true &&
-        (request.auth.token.email.lower() == "robin@mijnschoonmaker.com" ||
+        (request.auth.token.email.lower() == "robin@mijnschoonmaker.com" || request.auth.token.email.lower() == "robin@mansard.nl" ||
          firestore.exists(/databases/(default)/documents/gebruikers/$(request.auth.token.email.lower()))) &&
         mfaOk();
     }

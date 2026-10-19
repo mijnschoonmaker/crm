@@ -33,7 +33,7 @@ module.exports = ({ rawDb, T, onCall, onRequestRaw, HttpsError, nu, mollie, HOST
   const r2 = n => Math.round(n * 100) / 100;
   const vandaag = () => new Date().toISOString().slice(0, 10);
   const plusMaand = d => { const x = new Date(d + "T12:00:00Z"); x.setUTCMonth(x.getUTCMonth() + 1); return x.toISOString().slice(0, 10); };
-  async function sleutel() { const g = (await rawDb.doc("geheim/config").get()).data() || {}; const k = g.mansardMollieKey || g.mollieKey; if (!k) throw new HttpsError("failed-precondition", "Betalen is nog niet ingesteld bij Mansard."); return k; }
+  async function sleutel() { const pl = (await rawDb.doc("platform/geheim").get()).data() || {}, g = (await rawDb.doc("geheim/config").get()).data() || {}; const k = pl.mansardMollieKey || g.mansardMollieKey || g.mollieKey; if (!k) throw new HttpsError("failed-precondition", "Betalen is nog niet ingesteld bij Mansard."); return k; }
   async function aantalGebruikers(bid) { return (await rawDb.collection("gebruikers").where("bedrijf", "==", bid).get()).size; }
   const bedragVoor = (n, plan = PLAN) => r2(plan.prijs + Math.max(0, n - plan.inbegrepen) * plan.extraPrijs);
   async function eigenaarVan(auth) {

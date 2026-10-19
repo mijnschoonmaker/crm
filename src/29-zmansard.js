@@ -8,7 +8,7 @@ function msStatus(){const b=MS.doc||{},v=iso(today());
   if(b.status==="proef")return{ok:String(b.proefTot||"")>=v,soort:String(b.proefTot||"")>=v?"proef":"verlopen",dagen:msDagen(b.proefTot)};
   if(b.status==="opgezegd")return{ok:String(b.betaaldTot||b.proefTot||"")>=v,soort:"opgezegd",tot:b.betaaldTot||b.proefTot};
   return{ok:false,soort:"verlopen"}}
-function msBalk(){if(!msTenant()||!MS.doc)return;const st=msStatus();let el=document.getElementById("msBalk");
+function msBalk(){if(!msTenant()||!MS.doc||window.ZEEM_MEEKIJK)return;const st=msStatus();let el=document.getElementById("msBalk");
   const eig=window.ZEEM_ROL==="eigenaar";
   const html=st.soort==="proef"?`<span><b>Proefperiode</b> · nog ${plural(Math.max(0,st.dagen),"dag","dagen")} gratis</span>${eig?`<button type="button" class="small primary" data-act="msabo">Abonnement kiezen</button>`:""}`
     :st.soort==="achterstand"?`<span><b>De laatste betaling is mislukt.</b> Zorg dat er saldo is; we proberen het opnieuw.</span>${eig?`<button type="button" class="small" data-act="msabo">Bekijken</button>`:""}`

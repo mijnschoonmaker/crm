@@ -25,7 +25,7 @@ function bindTest(id,textFn,subjFn){const b=form.querySelector(`[data-test="${id
 /* foto's op de instellingenkaarten: centraal door Mansard (Robin) geplaatst, per branche voor alle bedrijven */
 const KF={data:null,laden:false};
 const kfBranche=()=>String(S().branche||"glazenwasser");
-const kfEigenaar=()=>{try{return String((firebase.auth().currentUser||{}).email||"").toLowerCase()==="robin@mijnschoonmaker.com"}catch(e){return false}};
+const kfEigenaar=()=>{try{return String((firebase.auth().currentUser||{}).email||"").toLowerCase()==="robin@mansard.nl"}catch(e){return false}};/* alleen Mansard-beheer plaatst kaartfoto's */
 const kfDoc=()=>{try{return typeof firebase!=="undefined"&&firebase.firestore?firebase.firestore().doc("platform/kaartfotos"):null}catch(e){return null}};
 function kfLaad(){if(KF.data||KF.laden)return;const d=kfDoc();if(!d){KF.laden=true;fetch("/api/kaartfotos").then(r=>r.json()).then(j=>{KF.data=j||{};KF.laden=false;if(state.tab==="instellingen")render()}).catch(()=>{KF.data={};KF.laden=false});return}KF.laden=true;
   d.get().then(s=>{KF.data=s.exists?s.data():{};KF.laden=false;

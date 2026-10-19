@@ -4,7 +4,9 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function email() { return request.auth != null && request.auth.token.email_verified == true ? request.auth.token.email.lower() : ""; }
     function eigenaar() { return email() == "robin@mijnschoonmaker.com"; }
-    function lid() { return eigenaar() || (email() != "" && exists(/databases/$(database)/documents/gebruikers/$(email()))); }
+    // beheer van het Mansard-platform (los van het eigen glazenwassersbedrijf): ziet alle bedrijven, kijkt alleen-lezen mee
+    function beheerMail() { return email() == "robin@mansard.nl"; }
+    function lid() { return eigenaar() || beheerMail() || (email() != "" && exists(/databases/$(database)/documents/gebruikers/$(email()))); }
     // tweestapsverificatie (alleen CRM; het klantportaal loopt via de server en valt hier niet onder):
     // staat het aan, dan moet deze inlogsessie (auth_time) met een code zijn bevestigd
     function mfaOk() {
@@ -12,28 +14,40 @@ service cloud.firestore {
       return !exists(p) || get(p).data.get("aan", false) != true || request.auth.token.auth_time in request.auth.token.get("mfa", []);
     }
     function gebruiker() { return lid() && mfaOk(); }
+    function beheer() { return beheerMail() && mfaOk(); }
     // Mansard: bij welk bedrijf hoort deze gebruiker (geen "bedrijf" = het eerste bedrijf, mijnschoonmaker.com)
     function mijnDoc() { return get(/databases/$(database)/documents/gebruikers/$(email())).data; }
     function mijnBedrijf() { return eigenaar() ? "mijnschoonmaker" : mijnDoc().get("bedrijf", "mijnschoonmaker"); }
-    function eersteBedrijf() { return gebruiker() && mijnBedrijf() == "mijnschoonmaker"; }
-    function vanBedrijf(b) { return gebruiker() && !eigenaar() && mijnBedrijf() == b; }
+    function eersteBedrijf() { return gebruiker() && !beheerMail() && mijnBedrijf() == "mijnschoonmaker"; }
+    function vanBedrijf(b) { return gebruiker() && !eigenaar() && !beheerMail() && mijnBedrijf() == b; }
     function bedrijfsEigenaar(b) { return vanBedrijf(b) && mijnDoc().get("rol", "") == "eigenaar"; }
 
     // Mansard-platform: foto's op de instellingenkaarten (per branche). Iedereen met een account leest, alleen Robin plaatst.
     match /platform/kaartfotos {
       allow read: if gebruiker();
-      allow write: if eigenaar() && mfaOk();
+      allow write: if beheer();
+    }
+    // sleutel voor de Mansard-abonnementen: nooit lezen vanuit de browser, alleen beheer schrijft
+    match /platform/geheim {
+      allow read: if false;
+      allow write: if beheer();
+    }
+    match /aanmeldingen/{id} {
+      allow read: if beheer();
     }
     match /gebruikers/{e} {
-      allow read: if eigenaar() || email() == e || (gebruiker() && resource.data.get("bedrijf", "mijnschoonmaker") == mijnBedrijf());
-      allow write: if eigenaar() && mfaOk();
+      allow read: if beheer() || email() == e || (gebruiker() && !beheerMail() && resource.data.get("bedrijf", "mijnschoonmaker") == mijnBedrijf());
+      allow write: if beheer();
+      // eigenaar van mijnschoonmaker.com beheert alleen de gebruikers van zijn eigen bedrijf
+      allow create, update: if eigenaar() && mfaOk() && request.resource.data.get("bedrijf", "") == "" && (resource == null || resource.data.get("bedrijf", "") == "");
+      allow delete: if eigenaar() && mfaOk() && resource.data.get("bedrijf", "") == "";
       // eigenaar van een nieuw bedrijf beheert de gebruikers van zijn eigen bedrijf (niet zichzelf verwijderen)
       allow create, update: if bedrijfsEigenaar(request.resource.data.get("bedrijf", "")) && (resource == null || resource.data.get("bedrijf", "") == request.resource.data.bedrijf);
       allow delete: if bedrijfsEigenaar(resource.data.get("bedrijf", "")) && e != email();
     }
     // status van tweestapsverificatie: alleen lezen (eigen status), schrijven doet de server
     match /mfa/{e} {
-      allow read: if lid() && (email() == e || eigenaar());
+      allow read: if lid() && (email() == e || eigenaar() || beheerMail());
       allow write: if false;
     }
     // sleutels van Brevo en Mollie (en de geheime codes voor tweestapsverificatie): nooit lezen vanuit de browser
@@ -43,7 +57,7 @@ service cloud.firestore {
     }
     // nieuwe bedrijven: alles onder bedrijven/<id>, alleen voor gebruikers van dat bedrijf
     match /bedrijven/{b} {
-      allow read: if vanBedrijf(b);
+      allow read: if vanBedrijf(b) || beheer();
       allow write: if false;
       match /geheim/{d} {
         allow read: if false;
@@ -51,6 +65,7 @@ service cloud.firestore {
       }
       match /{col}/{id} {
         allow read, write: if vanBedrijf(b) && col in ["klanten","beurten","facturen","routes","instellingen","berichten","kosten","aanvragen","geplandeMails","akkoord","portaalVerzoeken","tickets","ticketBerichten","tellers","live","banktx"];
+        allow read: if beheer() && col in ["klanten","beurten","facturen","routes","instellingen","berichten","kosten","aanvragen","geplandeMails","akkoord","portaalVerzoeken","tickets","ticketBerichten","tellers","live","banktx"];
       }
     }
     match /{col}/{id} {

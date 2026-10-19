@@ -10,7 +10,7 @@ const zlib = require("zlib");
 const TN = require("./tenant");
 const BK = () => "backups/" + (TN.isLegacy() ? "" : TN.bid() + "/");
 module.exports = ctx => {
-  const { admin, db, bucket, onCall, onSchedule, HttpsError, crypto, EIGENAAR } = ctx;
+  const { admin, db, bucket, onCall, onSchedule, HttpsError, crypto, EIGENAAR, BEHEER } = ctx;
 
   /* ---------- TOTP (RFC 6238) ---------- */
   const B32 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
@@ -25,7 +25,7 @@ module.exports = ctx => {
   async function magCRM(auth) {
     const e = mailVan(auth);
     if (!e) throw new HttpsError("unauthenticated", "Log eerst in.");
-    if (e !== EIGENAAR && !(await db.doc("gebruikers/" + e).get()).exists) throw new HttpsError("permission-denied", "Geen toegang tot het CRM.");
+    if (e !== EIGENAAR && e !== BEHEER && !(await db.doc("gebruikers/" + e).get()).exists) throw new HttpsError("permission-denied", "Geen toegang tot het CRM.");
     return e;
   }
   /* staat tweestapsverificatie aan en is deze inlogsessie bevestigd? (gebruikt door checkGebruiker) */
@@ -49,9 +49,11 @@ module.exports = ctx => {
     const e = await magCRM(req.auth);
     const m = await db.doc("mfa/" + e).get(), d = m.exists ? m.data() : {};
     const uit = { aan: d.aan === true, sinds: d.sinds || "", bevestigd: await mfaBevestigd(req.auth) };
-    if (e === EIGENAAR) {
+    if (e === EIGENAAR || e === BEHEER) {
+      /* eigenaar mijnschoonmaker: alleen de eigen gebruikers (zonder bedrijf); beheer: iedereen */
       const gs = await db.collection("gebruikers").get(), ms = await db.collection("mfa").get(), aan = new Set(ms.docs.filter(x => x.data().aan === true).map(x => x.id));
-      uit.gebruikers = [EIGENAAR, ...gs.docs.map(x => x.id).filter(x => x !== EIGENAAR)].map(x => ({ email: x, aan: aan.has(x) }));
+      const eigen = gs.docs.filter(x => e === BEHEER || !x.data().bedrijf).map(x => x.id);
+      uit.gebruikers = [e, ...eigen.filter(x => x !== e)].map(x => ({ email: x, aan: aan.has(x) }));
     }
     return uit;
   });
@@ -98,7 +100,8 @@ module.exports = ctx => {
     const doel = String((req.data && req.data.email) || e).toLowerCase();
     if (doel !== e) {
       /* de eigenaar kan tweestapsverificatie van een medewerker resetten (telefoon kwijt) */
-      if (e !== EIGENAAR) throw new HttpsError("permission-denied", "Alleen de eigenaar kan dit.");
+      if (e !== EIGENAAR && e !== BEHEER) throw new HttpsError("permission-denied", "Alleen de eigenaar kan dit.");
+      if (e === EIGENAAR && ((await db.doc("gebruikers/" + doel).get()).data() || {}).bedrijf) throw new HttpsError("permission-denied", "Deze gebruiker hoort bij een ander bedrijf.");
       if (!(await mfaBevestigd(req.auth))) throw new HttpsError("permission-denied", "Bevestig eerst je eigen code.");
     } else {
       const ref = db.doc("geheim/mfa_" + e), g = (await ref.get()).data() || {};

@@ -27,7 +27,8 @@
     const v = t[k]; return typeof v === "function" ? v.bind(t) : v; } });
   const db = {
     collection: c => ({
-      doc: id => ({ set: d => fs.collection(pf(c)).doc(id).set(enc(d)), delete: () => fs.collection(pf(c)).doc(id).delete() }),
+      doc: id => ({ set: d => window.ZEEM_MEEKIJK ? Promise.reject(new Error("Meekijken is alleen lezen: er wordt niets opgeslagen.")) : fs.collection(pf(c)).doc(id).set(enc(d)),
+        delete: () => window.ZEEM_MEEKIJK ? Promise.reject(new Error("Meekijken is alleen lezen: er wordt niets verwijderd.")) : fs.collection(pf(c)).doc(id).delete() }),
       onSnapshot: (cb, er) => fs.collection(pf(c)).onSnapshot(s => {
         try { cb({ docs: s.docs.map(d => ({ id: d.id, data: () => dec(d.data()) })) }); }
         catch (e) { console.error(c, e); (window.__fsErr = window.__fsErr || []).push(c + ": " + (e.message || e)); }
@@ -161,10 +162,68 @@
       } catch (er) { msg((er && er.message) || "Die code klopt niet."); b.disabled = false; inp.select(); }
     };
   }
+
+  /* ---------- Mansard-beheer (robin@mansard.nl): los van het eigen glazenwassersbedrijf ---------- */
+  const BEHEER = "robin@mansard.nl";
+  const bcss = `.bh{position:fixed;inset:0;z-index:2147483600;overflow:auto;background:#f5f5f4;font-family:"Avenir Next",Avenir,"Nunito Sans","Helvetica Neue",system-ui,sans-serif;color:#0d121b}
+  .bh-top{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:16px;padding:16px 28px;color:#fff;background:repeating-linear-gradient(115deg,rgb(255 255 255 / .018) 0 1px,transparent 1px 26px),radial-gradient(120% 140% at 100% 0%,#4a5670 0%,transparent 55%),linear-gradient(135deg,#1a1f2c 0%,#2a3245 55%,#1d2332 100%)}
+  .bh-top img{height:26px;filter:brightness(0) invert(1)}.bh-tag{font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:#1d2332;background:linear-gradient(90deg,#c9a46a,#ecd3a3);padding:6px 12px;border-radius:999px}
+  .bh-top .sp{flex:1}.bh-top small{color:rgb(255 255 255 / .7);font-size:13px}.bh-btn{font:inherit;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;padding:10px 16px;border-radius:8px;border:1px solid #d6d9dd;background:#fff;color:#0d121b;cursor:pointer}
+  .bh-top .bh-btn{background:rgb(255 255 255 / .1);border-color:rgb(255 255 255 / .25);color:#fff}.bh-btn.pri{background:linear-gradient(135deg,#1c2231,#2a3245);color:#fff;border:0}
+  .bh-in{max-width:1180px;margin:0 auto;padding:28px}.bh-in h1{font-weight:400;font-size:32px;margin:0 0 4px}.bh-in>p{color:#5d6168;margin:0 0 22px}
+  .bh-st{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}.bh-st div{background:#fff;border:1px solid #e3e5e8;border-radius:12px;padding:16px 18px}.bh-st small{display:block;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#7a7e84}.bh-st b{font-size:28px;font-weight:400}
+  .bh-k{background:#fff;border:1px solid #e3e5e8;border-radius:14px;padding:6px 0;margin-bottom:22px;overflow-x:auto}.bh-k h2{font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;margin:14px 20px 8px}
+  .bh-t{width:100%;border-collapse:collapse;font-size:14px}.bh-t th{text-align:left;font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#7a7e84;padding:10px 20px;border-bottom:1px solid #eef0f2}.bh-t td{padding:12px 20px;border-bottom:1px solid #f2f3f5;vertical-align:middle}.bh-t tr:last-child td{border-bottom:0}.bh-t td small{display:block;color:#7a7e84;font-size:12px}
+  .bh-p{display:inline-block;font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;background:#eef0f3;color:#3e4a64}.bh-p.ok{background:#e4f3ea;color:#2f6b4f}.bh-p.proef{background:#f6efe2;color:#8a6d43}.bh-p.late{background:#f7e4e1;color:#a23a30}
+  .bh-f{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;padding:6px 20px 18px}.bh-f label{display:flex;flex-direction:column;gap:6px;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#5d6168;flex:1;min-width:240px}.bh-f input{font:inherit;font-size:14px;padding:11px 12px;border:1px solid #d6d9dd;border-radius:6px;text-transform:none;letter-spacing:0}
+  .bh-n{padding:0 20px 16px;color:#5d6168;font-size:13.5px;line-height:1.5;margin:0}.bh-leeg{padding:22px 20px;color:#7a7e84}
+  @media (max-width:760px){.bh-st{grid-template-columns:1fr 1fr}.bh-in{padding:18px}.bh-top{padding:14px 16px;flex-wrap:wrap}}
+  .mk-balk{position:fixed;left:0;right:0;top:0;z-index:2147483500;display:flex;align-items:center;justify-content:center;gap:14px;padding:8px 16px;background:linear-gradient(90deg,#c9a46a,#ecd3a3);color:#1d2332;font:600 13px/1.3 "Avenir Next",Avenir,system-ui,sans-serif}
+  .mk-balk button{font:inherit;font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:6px 12px;border-radius:6px;border:0;background:#1d2332;color:#fff;cursor:pointer}html.mk body{padding-top:38px}html.mk .topbar{top:38px}`;
+  const bEsc = v => String(v == null ? "" : v).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  const bDat = d => d ? new Date(String(d).slice(0, 10) + "T12:00:00").toLocaleDateString("nl-NL", { day: "numeric", month: "short", year: "numeric" }) : "—";
+  const bEur = n => "€ " + (Number(n) || 0).toLocaleString("nl-NL", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  function meekijkBalk() {
+    const zet = () => { document.documentElement.classList.add("mk"); if (!document.getElementById("bhCss")) { const s = document.createElement("style"); s.id = "bhCss"; s.textContent = bcss; document.head.appendChild(s); }
+      let b = document.getElementById("mkBalk"); if (!b) { b = document.createElement("div"); b.id = "mkBalk"; b.className = "mk-balk"; document.body.appendChild(b); }
+      b.innerHTML = `<span>Mansard-beheer · je kijkt mee bij <b>${bEsc(window.ZEEM_MEEKIJK)}</b> · alleen lezen</span><button type="button" id="mkTerug">Terug naar beheer</button>`;
+      document.getElementById("mkTerug").onclick = () => { try { sessionStorage.removeItem("ms.meekijk"); } catch (x) {} location.reload(); }; };
+    document.body ? zet() : document.addEventListener("DOMContentLoaded", zet, { once: true });
+  }
+  async function beheerScherm(u) {
+    if (ov) ov.style.display = "none";
+    if (!document.getElementById("bhCss")) { const s = document.createElement("style"); s.id = "bhCss"; s.textContent = bcss; document.head.appendChild(s); }
+    let el = document.getElementById("bhScherm"); if (!el) { el = document.createElement("div"); el.id = "bhScherm"; el.className = "bh"; document.body.appendChild(el); }
+    el.innerHTML = `<div class="bh-top"><img src="/mansard-logo.png" alt="Mansard" onerror="this.remove()"><span class="bh-tag">Mansard beheer</span><span class="sp"></span><small>${bEsc(u.email)}</small><button class="bh-btn" id="bhUit">Uitloggen</button></div><div class="bh-in"><p class="bh-leeg">Laden…</p></div>`;
+    document.getElementById("bhUit").onclick = () => auth.signOut();
+    let bs = [], gs = [];
+    try { bs = (await fs.collection("bedrijven").get()).docs.map(d => ({ id: d.id, ...d.data() })); } catch (x) { console.error(x); }
+    try { gs = (await fs.collection("gebruikers").get()).docs.map(d => ({ id: d.id, ...d.data() })); } catch (x) {}
+    const n = b => gs.filter(g => g.bedrijf === b.id).length || b.gebruikers || 0, v = new Date().toISOString().slice(0, 10);
+    const st = b => b.status === "actief" ? (b.achterstand ? ["late", "Betaling mislukt"] : ["ok", "Actief"]) : b.status === "proef" ? (String(b.proefTot || "") >= v ? ["proef", "Proef"] : ["late", "Proef verlopen"]) : b.status === "opgezegd" ? ["", "Opgezegd"] : ["late", b.status || "—"];
+    bs.sort((a, b) => String(b.aangemaakt || "").localeCompare(String(a.aangemaakt || "")));
+    const act = bs.filter(b => b.status === "actief"), proef = bs.filter(b => b.status === "proef" && String(b.proefTot || "") >= v), mrr = act.reduce((a, b) => a + (Number(b.bedrag) || 0), 0);
+    el.querySelector(".bh-in").innerHTML = `<h1>Bedrijven op Mansard</h1><p>Hier werk je namens Mansard. Je eigen glazenwasserij (mijnschoonmaker.com) open je door in te loggen met robin@mijnschoonmaker.com.</p>
+      <div class="bh-st"><div><small>Bedrijven</small><b>${bs.length}</b></div><div><small>In proefperiode</small><b>${proef.length}</b></div><div><small>Actief abonnement</small><b>${act.length}</b></div><div><small>Per maand</small><b>${bEur(mrr)}</b></div></div>
+      <div class="bh-k"><h2>Klanten van Mansard</h2>${bs.length ? `<table class="bh-t"><tr><th>Bedrijf</th><th>Eigenaar</th><th>Status</th><th>Proef / volgende</th><th>Gebruikers</th><th>Sinds</th><th></th></tr>${bs.map(b => { const s = st(b); return `<tr><td><b>${bEsc(b.naam || b.id)}</b><small>${bEsc(b.plaats || "")}${b.telefoon ? " · " + bEsc(b.telefoon) : ""}</small></td><td>${bEsc(b.eigenaar || "")}</td><td><span class="bh-p ${s[0]}">${bEsc(s[1])}</span></td><td>${bDat(b.status === "proef" ? b.proefTot : b.volgende || b.betaaldTot)}${b.bedrag ? `<small>${bEur(b.bedrag)} p/m</small>` : ""}</td><td>${n(b)}</td><td>${bDat(b.aangemaakt)}</td><td><button class="bh-btn" data-mk="${bEsc(b.id)}" data-naam="${bEsc(b.naam || b.id)}">Meekijken</button></td></tr>`; }).join("")}</table>` : `<p class="bh-leeg">Nog geen andere bedrijven aangemeld.</p>`}</div>
+      <div class="bh-k"><h2>Abonnementen innen (Mollie)</h2><p class="bh-n">De Mollie-sleutel van het profiel <b>Mansard</b>, waarmee glazenwassers hun abonnement betalen. Hij wordt veilig op de server bewaard en is daarna niet meer te lezen.</p>
+        <div class="bh-f"><label>Mollie API-sleutel Mansard<input type="password" id="bhKey" placeholder="live_… of test_…" autocomplete="off"></label><button class="bh-btn pri" id="bhKeyOk">Opslaan</button></div></div>
+      <div class="bh-k"><h2>Kaartfoto's instellingen</h2><p class="bh-n">De foto's op de instellingenkaarten gelden voor alle bedrijven in dezelfde branche. Plaats ze door bij een bedrijf mee te kijken en in Instellingen op een kaart te tikken. Tweestapsverificatie voor dit beheeraccount zet je op dezelfde manier aan bij Instellingen › Beveiliging.</p></div>`;
+    el.querySelectorAll("[data-mk]").forEach(b => b.onclick = () => { try { sessionStorage.setItem("ms.meekijk", JSON.stringify({ bid: b.dataset.mk, naam: b.dataset.naam })); } catch (x) {} location.reload(); });
+    document.getElementById("bhKeyOk").onclick = async () => { const k = document.getElementById("bhKey").value.trim(), b = document.getElementById("bhKeyOk");
+      if (!/^(live|test)_/.test(k)) { alert("Een Mollie-sleutel begint met live_ of test_"); return; }
+      b.disabled = true; try { await fs.doc("platform/geheim").set({ mansardMollieKey: k, gewijzigd: new Date().toISOString() }, { merge: true }); document.getElementById("bhKey").value = ""; b.textContent = "Opgeslagen"; } catch (x) { b.disabled = false; b.textContent = "Opnieuw"; console.error(x); } };
+    document.documentElement.classList.remove("lg-wacht");
+  }
   async function start(u) {
     if (await mfaNodig(u)) return mfaScherm(u, false);
     const e = String(u.email || "").toLowerCase();
-    if (e !== "robin@mijnschoonmaker.com") {
+    if (e === BEHEER) {
+      /* Mansard-beheer: geen eigen bedrijf. Standaard het beheerscherm; bij "Meekijken" alleen-lezen het CRM van dat bedrijf */
+      let mk = null; try { mk = JSON.parse(sessionStorage.getItem("ms.meekijk") || "null"); } catch (x) {}
+      if (!mk || !/^b[a-z0-9]{7}$/.test(mk.bid || "")) return beheerScherm(u);
+      window.ZEEM_BID = mk.bid; window.ZEEM_ROL = "meekijk"; window.ZEEM_MEEKIJK = mk.naam || mk.bid; meekijkBalk();
+    } else if (e !== "robin@mijnschoonmaker.com") {
       let g = null; try { g = await fs.collection("gebruikers").doc(e).get(); } catch (x) {}
       if (!g || !g.exists) return nieuwBedrijf(u);
       const b = String(g.data().bedrijf || ""); window.ZEEM_BID = /^b[a-z0-9]{7}$/.test(b) ? b : "mijnschoonmaker";

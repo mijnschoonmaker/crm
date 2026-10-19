@@ -39,11 +39,12 @@ const onSchedule = (o, f) => _onSchedule(o, async ev => {
   for (const b of lijst) { try { await T.metBedrijf(b, () => f(ev)); } catch (e) { console.error("taak", b, e); } }
 });
 const bucket = () => admin.storage().bucket();
-const EIGENAAR = "robin@mijnschoonmaker.com";
+const EIGENAAR = "robin@mijnschoonmaker.com"; /* eigenaar van het eerste bedrijf (mijnschoonmaker.com) */
+const BEHEER = "robin@mansard.nl"; /* beheer van het Mansard-platform */
 const nu = () => new Date().toISOString();
 const newId = p => p + Date.now().toString(36) + crypto.randomBytes(3).toString("hex");
 
-const BEV = require("./beveiliging")({ admin, db, bucket, onCall, onSchedule, HttpsError, crypto, EIGENAAR });
+const BEV = require("./beveiliging")({ admin, db, bucket, onCall, onSchedule, HttpsError, crypto, EIGENAAR, BEHEER });
 const geheim = async () => { const t = (await db.doc("geheim/config").get()).data() || {}; if (T.isLegacy()) return t;
   /* nieuwe bedrijven: de mail- en AI-sleutels van het platform, hun eigen Mollie- en banksleutels */
   const p = (await rawDb.doc("geheim/config").get()).data() || {};
@@ -639,4 +640,12 @@ exports.klantFoto = onCall({ memory: "512MiB", timeoutSeconds: 120 }, async req 
     diensten: (Array.isArray(k.diensten) ? k.diensten : []).slice(0, 12).map(d => ({ dienst: s(d.dienst, 80) || "Glasbewassing", frequentie: Math.max(1, Math.min(104, Math.round(Number(d.frequentie) || 4))), prijs: Math.max(0, Math.round((Number(String(d.prijs).replace(",", ".")) || 0) * 100) / 100), incl: d.incl === true ? true : d.incl === false ? false : null, laatst: dt(d.laatst), volgende: dt(d.volgende) }))
   })).filter(k => k.naam || k.adres);
   return { klanten, opmerking: s(out.opmerking, 300) };
+});
+
+/* gebruikers van het eigen bedrijf (de lijst mag niet rechtstreeks uit de database: daar staan ook andere bedrijven in) */
+exports.gebruikersLijst = onCall(async req => {
+  const e = await checkGebruiker(req.auth);
+  const mijn = e === EIGENAAR ? "" : String(((await db.doc("gebruikers/" + e).get()).data() || {}).bedrijf || "");
+  const gs = await rawDb.collection("gebruikers").get();
+  return { gebruikers: gs.docs.filter(d => String(d.data().bedrijf || "") === mijn).map(d => ({ id: d.id, naam: d.data().naam || "", rol: d.data().rol || "" })) };
 });
