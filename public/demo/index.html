@@ -5044,6 +5044,11 @@ async function afronden(k,mode,el){
       feest(k);toast(cleanName(k.naam)+" afgemeld · gaat mee op de periodieke factuur ("+fmtD(k.periodiek.volgende)+")",[{label:"Ongedaan",fn:undo}])}
     catch(e){if(el){const c=el.querySelector(".swipe-card");if(c)c.style.transform="";el.classList.remove("armed")}err(e)}
     return}
+  if(direct){/* veeg factureren: eerst bevestigen, want de factuur gaat meteen naar de klant */
+    const _t=totals(f),_em=mailK(k,"factuur").email||f.klantEmail||"";
+    const _rg=f.regels.map(r=>`${esc(r.omschrijving)}${(Number(r.aantal)||1)!==1?" × "+r.aantal:""} · <b>${eur((Number(r.aantal)||0)*(Number(r.prijs)||0))}</b>`).join("<br>");
+    const ok=await vraag("Factuur direct versturen?",`${_rg}<br><br>Totaal <b>${eur(_t.inc)}</b> incl. btw${f.status==="betaald"?" · al betaald ("+esc(st.betaalwijze)+")":""}<br>${_em?`Gaat meteen naar <b>${esc(_em)}</b>.`:"Deze klant heeft geen e-mailadres; je kiest daarna hoe je hem verstuurt."} Kloppen de bedragen?`,"Versturen","Annuleren");
+    if(ok!==true){if(el){const c=el.querySelector(".swipe-card");if(c)c.style.transform="";el.classList.remove("armed")}render();return}}
   const _tg=tegoedVerrekenen(k,f);
   try{
     await save("facturen",fId,f);
@@ -14788,6 +14793,10 @@ html body:not(#zz) .app.collapsed aside .logo .lgimg[src$="mansard-logo.png"]{di
 html body:not(#zz) .app.collapsed aside .logo:has(.lgimg[src$="mansard-logo.png"])::before{content:"M";display:grid;place-items:center;width:40px;height:40px;border-radius:10px;background:var(--gb-lijn),var(--gb-vlak);color:#fff;font-family:"Avenir Next","Avenir","Nunito Sans",system-ui,sans-serif;font-size:19px;font-weight:300;letter-spacing:0;box-shadow:0 6px 14px -8px rgb(20 24 34 / .6)}
 html body:not(#zz) .app.collapsed aside .logo .lgtxt{display:none!important}
 html body:not(#zz) .app.collapsed aside .logo{display:flex!important;justify-content:center!important;align-items:center!important;padding-left:0!important;padding-right:0!important}html body:not(#zz) .app.collapsed aside .logo>*:not(.lgimg){display:none!important}html body:not(#zz) .app.collapsed aside .logo:has(.lgimg[src$="mansard-logo.png"])::before{margin:0 auto}
+/* bevestigvenster: knoppen altijd binnen beeld */
+html body:not(#zz) .vraag .vraag-k{display:flex!important;flex-wrap:wrap!important;gap:8px!important;justify-content:flex-end}
+html body:not(#zz) .vraag .vraag-k button{flex:1 1 auto;min-width:0;white-space:nowrap}
+@media (max-width:700px){html body:not(#zz) .vraag .vraag-k button{flex:1 1 0}}
 
 </style>
 
