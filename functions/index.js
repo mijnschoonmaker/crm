@@ -595,6 +595,8 @@ exports.ramenTellen = onCall({ memory: "512MiB", timeoutSeconds: 120 }, async re
 /* ---------- klantgegevens uit een foto/screenshot (bv. van een ander CRM) uitlezen met AI ---------- */
 const KF_PROMPT = `Je helpt een Nederlandse glazenwasser zijn klanten over te zetten naar zijn nieuwe CRM. Je krijgt één of meer foto's of screenshots van een klantkaart of klantenlijst uit een ander programma (of een papieren kaart, notitie, visitekaartje). Lees ALLE klantinformatie uit die je ziet.
 
+BELANGRIJK: meestal horen alle foto's bij ÉÉN klant: de eerste foto toont de klantgegevens, de volgende foto's elk een opdracht/dienst van diezelfde klant (bv. glasbewassing, reinigen gevelelementen). Voeg die samen tot één klant met alle diensten. Maak alleen meerdere klanten als een foto duidelijk een lijst met verschillende klanten toont of de foto's duidelijk verschillende klanten (andere naam én ander adres) laten zien. Zet dezelfde dienst niet dubbel.
+
 Per klant:
 - naam: achternaam/bedrijfsnaam zoals het CRM hem noemt, bv. "Jansen, Piet" of "Bakkerij De Molen"
 - contact: contactpersoon (bij bedrijven), anders leeg
@@ -615,7 +617,7 @@ exports.klantFoto = onCall({ memory: "512MiB", timeoutSeconds: 120 }, async req 
   await checkGebruiker(req.auth);
   const g = await geheim(), key = g.aiKey;
   if (!key) throw new HttpsError("failed-precondition", "AI is nog niet ingesteld. Vul je Anthropic API-sleutel in bij Instellingen › AI.");
-  const fotos = (req.data && req.data.fotos || []).filter(f => f && typeof f.data === "string" && f.data.length > 100).slice(0, 6);
+  const fotos = (req.data && req.data.fotos || []).filter(f => f && typeof f.data === "string" && f.data.length > 100).slice(0, 8);
   if (!fotos.length) throw new HttpsError("invalid-argument", "Geen foto's ontvangen.");
   const content = [];
   fotos.forEach((f, i) => { content.push({ type: "text", text: "Foto " + (i + 1) }); content.push({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: f.data.replace(/^data:image\/\w+;base64,/, "") } }); });

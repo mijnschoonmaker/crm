@@ -14,20 +14,40 @@ async function kfVerklein(file){const u=URL.createObjectURL(file),im=new Image()
 function kfVoorbeeld(){const j=new Date().getFullYear();return{opmerking:"Voorbeeld in de demo: in je eigen CRM leest de AI de echte foto uit.",klanten:[
   {naam:"Jansen, Piet",contact:"",soort:"particulier",adres:"Kerkstraat 12",postcode:"9351 AB",plaats:"Leek",telefoon:"06 1234 5678",email:"p.jansen@voorbeeld.nl",klantnr:"1043",notities:"Sleutel onder de bloempot · hond in de tuin",
     diensten:[{dienst:"Glasbewassing",frequentie:4,prijs:24.5,incl:true,laatst:j+"-10-02",volgende:j+"-10-30"},{dienst:"Glasbewassing binnen",frequentie:13,prijs:35,incl:true,laatst:"",volgende:""},{dienst:"Dakgoot reinigen",frequentie:52,prijs:45,incl:true,laatst:"",volgende:""}]}]}}
-function openKlantFoto(){KFO.fotos=[];KFO.res=null;KFO.bezig=false;KFO.fout="";kfTeken()}
+function openKlantFoto(){KFO.fotos=[];KFO.res=null;KFO.bezig=false;KFO.fout="";KFO.modus=navigator.mediaDevices&&navigator.mediaDevices.getUserMedia?"cam":"lijst";kfTeken()}
+const KFO_MAX=8;
+function kfCamStop(){try{(KFO.cam&&KFO.cam.getTracks()||[]).forEach(t=>t.stop())}catch(e){}KFO.cam=null}
+async function kfCamStart(){const v=$("#kfVid");if(!v)return;
+  try{if(!KFO.cam)KFO.cam=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"},width:{ideal:1920},height:{ideal:1440}},audio:false});
+    if(!document.body.contains(v)){kfCamStop();return}v.srcObject=KFO.cam;await v.play().catch(()=>{});
+    if(!dlg._kfStop){dlg._kfStop=1;dlg.addEventListener("close",()=>{dlg._kfStop=0;kfCamStop()},{once:true})}}
+  catch(e){kfCamStop();KFO.modus="lijst";KFO.fout="De camera kon niet worden geopend. Kies hieronder foto's of screenshots, of geef de browser toegang tot de camera.";kfTeken()}}
+function kfKlik(){const v=$("#kfVid");if(!v||!v.videoWidth||KFO.fotos.length>=KFO_MAX)return;
+  const m=1800,s=Math.min(1,m/Math.max(v.videoWidth,v.videoHeight)),w=Math.round(v.videoWidth*s),h=Math.round(v.videoHeight*s);
+  const cv=document.createElement("canvas");cv.width=w;cv.height=h;cv.getContext("2d").drawImage(v,0,0,w,h);KFO.fotos.push(cv.toDataURL("image/jpeg",.85));
+  const box=$("#kfCam");if(box){box.classList.remove("flits");void box.offsetWidth;box.classList.add("flits")}kfStrip()}
+function kfStap(i){return ["Klantgegevens","Opdracht 1","Opdracht 2","Opdracht 3","Opdracht 4","Opdracht 5","Opdracht 6","Opdracht 7"][i]||"Extra"}
+function kfStrip(){const el=$("#kfStrip");if(el)el.innerHTML=KFO.fotos.map((f,i)=>`<div class="kf-th"><img src="${f}" alt="Foto ${i+1}"><small>${i===0?"Gegevens":"Opdr. "+i}</small><button type="button" class="iconbtn sm" data-kfrm="${i}" aria-label="Foto verwijderen">${I.x}</button></div>`).join("");
+  document.querySelectorAll("[data-kfrm]").forEach(b=>b.onclick=()=>{KFO.fotos.splice(Number(b.dataset.kfrm),1);kfStrip()});
+  const go=$("#kfGo");if(go){go.disabled=!KFO.fotos.length||KFO.bezig;go.innerHTML=KFO.bezig?I.clock+"Uitlezen…":I.check+(KFO.fotos.length?`Klaar · uitlezen (${KFO.fotos.length})`:"Klaar · uitlezen")}
+  const nx=$("#kfNext");if(nx)nx.textContent=KFO.fotos.length>=KFO_MAX?"Maximaal "+KFO_MAX+" foto's":"Volgende foto: "+kfStap(KFO.fotos.length);
+  const sh=$("#kfShot");if(sh)sh.disabled=KFO.fotos.length>=KFO_MAX}
 function kfTeken(){
   const head=`<div class="dlg-head"><span class="objic big">${I.camera}</span><div style="flex:1"><h3>Klanten uit foto</h3><div class="subt">AI leest de gegevens uit een ander CRM, kaart of lijst</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>`;
-  if(KFO.res){openDlg(head+kfReviewHtml(),{wide:true});kfReviewBind();return}
+  if(KFO.res){kfCamStop();openDlg(head+kfReviewHtml(),{wide:true});kfReviewBind();return}
+  const cam=KFO.modus==="cam"&&!KFO.bezig;
   openDlg(head+`
-    <p class="subt" style="margin:0">Maak een foto van je scherm of een screenshot van de klantkaart in je oude CRM. Meerdere foto's mag (bijvoorbeeld gegevens en diensten op aparte schermen). Ook een klantenlijst met meerdere klanten werkt.</p>
-    <div class="kf-fotos">${KFO.fotos.map((f,i)=>`<div class="kf-th"><img src="${f}" alt="Foto ${i+1}"><button type="button" class="iconbtn sm" data-kfrm="${i}" aria-label="Foto verwijderen">${I.x}</button></div>`).join("")}
-      <label class="kf-add">${I.camera}<span>${KFO.fotos.length?"Nog een foto":"Foto maken of kiezen"}</span><input type="file" id="kfIn" accept="image/*" multiple hidden></label></div>
+    <p class="subt" style="margin:0">Maak per scherm een foto: eerst de <b>klantgegevens</b>, dan elke <b>opdracht</b> apart (bijvoorbeeld glasbewassing, daarna reinigen gevelelementen). Klaar? Dan leest de AI alles in één keer uit en voegt het samen tot één klant.</p>
+    ${cam?`<div class="kf-cam" id="kfCam"><video id="kfVid" playsinline muted autoplay></video><span class="kf-next" id="kfNext"></span>
+      <button type="button" class="kf-shot" id="kfShot" aria-label="Foto maken"><i></i></button></div>`:""}
+    <div class="kf-fotos" id="kfStrip"></div>
     ${KFO.fout?`<div class="notice">${esc(KFO.fout)}</div>`:""}
     ${LIVE&&!S().liveAI?`<div class="notice">AI staat nog uit. Zet hem aan bij Instellingen › AI (je Anthropic-sleutel).</div>`:""}
-    <div class="row"><span class="sp"></span><button type="button" data-act="close">Annuleren</button><button type="button" class="primary" id="kfGo" ${KFO.fotos.length&&!KFO.bezig?"":"disabled"}>${KFO.bezig?I.clock+"Uitlezen…":I.spark+"Gegevens uitlezen"}</button></div>`,{wide:true});
-  const inp=$("#kfIn");inp.onchange=async e=>{const fs=[...e.target.files].slice(0,6-KFO.fotos.length);for(const f of fs){try{KFO.fotos.push(await kfVerklein(f))}catch(er){}}KFO.fout="";kfTeken()};
-  document.querySelectorAll("[data-kfrm]").forEach(b=>b.onclick=()=>{KFO.fotos.splice(Number(b.dataset.kfrm),1);kfTeken()});
-  $("#kfGo").onclick=kfUitlezen}
+    <div class="row kf-acts"><label class="small kf-kies">${I.upload||I.camera}<span>${cam?"Of kies foto's":"Foto's of screenshots kiezen"}</span><input type="file" id="kfIn" accept="image/*" multiple hidden></label><span class="sp"></span><button type="button" data-act="close">Annuleren</button><button type="button" class="primary" id="kfGo" disabled></button></div>`,{wide:true});
+  const inp=$("#kfIn");inp.onchange=async e=>{const fs=[...e.target.files].slice(0,KFO_MAX-KFO.fotos.length);for(const f of fs){try{KFO.fotos.push(await kfVerklein(f))}catch(er){}}KFO.fout="";kfStrip()};
+  const sh=$("#kfShot");if(sh)sh.onclick=kfKlik;
+  $("#kfGo").onclick=()=>{kfCamStop();kfUitlezen()};
+  kfStrip();if(cam)kfCamStart()}
 async function kfUitlezen(){if(!KFO.fotos.length||KFO.bezig)return;KFO.bezig=true;KFO.fout="";kfTeken();
   try{let res;if(!LIVE){await new Promise(r=>setTimeout(r,1400));res=kfVoorbeeld()}else{const r=await fbFn("klantFoto")({fotos:KFO.fotos.map(d=>({data:d.split(",")[1]}))});res=r.data||{}}
     const ks=(res.klanten||[]).map(k=>{const dub=kfDubbel(k);return{...k,mee:true,doel:dub?dub.id:"",diensten:(k.diensten&&k.diensten.length?k.diensten:[{dienst:"Glasbewassing",frequentie:4,prijs:0,incl:null,laatst:"",volgende:""}]).map(d=>({...d,prijs:kfPrijs(d)}))}});
