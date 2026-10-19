@@ -6193,7 +6193,7 @@ async function rvMapTeken(){const el=document.getElementById("rvMap");if(!el||!s
     const vi=stops.indexOf(nx),vorig=[...stops.slice(0,vi)].reverse().map(s=>pkCoord(s.k)).find(Boolean)||lo,naar=pkCoord(nx.k);
     if(naar&&vorig){el._demoF=[(vorig[0]+naar[0])/2,(vorig[1]+naar[1])/2];rvDemoRit(vorig,naar)}else if(naar)rvMapLive(naar)}
   if(!pts.length){el.innerHTML='<div class="rv-map-l">Nog geen adressen gevonden op de kaart</div>';el._map=null;return}
-  m.invalidateSize();
+  rvMapMaat(el);m.invalidateSize();
   /* eerste keer: ingezoomd op het busje; daarna de stand van de gebruiker houden */
   if(!el._gezet){el._gezet=1;const f=ik||el._demoF;if(f)m.setView(f,16);else m.fitBounds(pts,{padding:[22,22],maxZoom:15})}
 }
@@ -6201,7 +6201,7 @@ async function rvMapTeken(){const el=document.getElementById("rvMap");if(!el||!s
    Zelfde gevoel als het klantportaal: het busje rijdt over de echte weg (route via OSRM) van de vorige naar de nieuwe GPS-plek,
    kijkt de kant op waar het heen rijdt (kantelt mee met de weg) en schaalt mee met in- en uitzoomen. */
 const RVB={anim:0,route:{},laatst:0,doel:null,r:0,f:1};
-function rvBusB(z){return Math.round(Math.max(18,Math.min(110,44*Math.pow(1.45,z-14))))}
+function rvBusB(z){return Math.round(Math.max(18,Math.min(110,44*Math.pow(1.45,z-16))))}
 function rvBusSchaal(el){if(el&&el._map)el.style.setProperty("--busw",rvBusB(el._map.getZoom())+"px")}
 function rvBusIcon(){return window.L.divIcon({className:"rvm-bus",html:`<span class="rvb"><i class="rvb-puls"></i><img src="/img/mansard-bus.png" alt=""></span>`,iconSize:[0,0],iconAnchor:[0,0]})}
 /* richting op het scherm: rechts = 0°, omlaag = 90°. Zijaanzicht: naar rechts gewoon, naar links gespiegeld, kantelen tot ±80° */
@@ -6268,6 +6268,13 @@ function rvLaagKnop(el,mp){const b=document.createElement("button");b.type="butt
   const zet=()=>{b.innerHTML=state.rvSat?"<span>Kaart</span>":"<span>Satelliet</span>";b.setAttribute("aria-label",state.rvSat?"Toon stratenkaart":"Toon luchtfoto")};zet();
   b.addEventListener("click",e=>{e.stopPropagation();state.rvSat=!state.rvSat;try{localStorage.setItem("ms.rvsat2",state.rvSat?"1":"0")}catch(er){}rvOndergrond(el,mp);zet()});
   ["mousedown","touchstart","dblclick","wheel"].forEach(t=>b.addEventListener(t,e=>e.stopPropagation(),{passive:true}));el.appendChild(b)}
+/* tablet/desktop liggend: kaart precies zo hoog dat het hele blok in beeld past */
+function rvMapMaat(el){el=el||document.getElementById("rvMap");if(!el)return;const rv=el.closest(".rv");
+  const cs=rv&&getComputedStyle(rv),pl=cs?parseFloat(cs.paddingLeft)||26:26;if(rv)rv.style.setProperty("--rvpad",pl+"px");
+  if(innerWidth<=700||innerHeight>innerWidth){el.style.height="";return}
+  const top=el.getBoundingClientRect().top+scrollY,h=Math.round(innerHeight-top-pl-14);
+  el.style.height=Math.max(200,Math.min(620,h))+"px";if(el._map)el._map.invalidateSize()}
+addEventListener("resize",()=>{clearTimeout(rvMapMaat._t);rvMapMaat._t=setTimeout(()=>rvMapMaat(),150)});
 
 /* ---------- Kaartplannen ----------
    Een kaart boven de planning: waar wonen de klanten die ingepland moeten worden, en waar werk je al.
@@ -14702,7 +14709,7 @@ html body:not(#zz) .rv .rv-rechts .rv-chips{display:flex!important;flex-wrap:now
 html body:not(#zz) .rv .rv-rechts .rv-chips>span,html body:not(#zz) .rv .rv-rechts .rv-chips>span.rv-klaar{display:flex!important;flex-direction:column!important;align-items:flex-end!important;justify-content:flex-start!important;gap:6px!important;min-width:104px;padding:12px 16px!important;box-sizing:border-box;border-radius:14px!important;background:linear-gradient(180deg,rgb(255 255 255 / .1),rgb(255 255 255 / .04))!important;border:1px solid rgb(255 255 255 / .14)!important;box-shadow:none!important;backdrop-filter:blur(6px);color:rgb(255 255 255 / .8)!important;font-size:13px!important;font-weight:400!important;text-align:right;white-space:nowrap;text-transform:capitalize}
 html body:not(#zz) .rv .rv-rechts .rv-chips>span svg{display:none!important}
 html body:not(#zz) .rv .rv-rechts .rv-chips>span b,html body:not(#zz) .rv .rv-rechts .rv-chips>span.rv-klaar b{order:1;display:block;color:#fff!important;font-size:30px!important;font-weight:500!important;letter-spacing:-.01em!important;line-height:1.05!important;background:transparent!important;text-transform:none}
-@media (max-width:1180px){html body:not(#zz) .rv .rv-top{flex-direction:column}html body:not(#zz) .rv .rv-rechts{width:100%}html body:not(#zz) .rv .rv-rechts .rv-chips{flex:1}html body:not(#zz) .rv .rv-rechts .rv-chips>span{flex:1}}
+@media (max-width:1440px){html body:not(#zz) .rv .rv-top{flex-direction:column}html body:not(#zz) .rv .rv-rechts{width:100%}html body:not(#zz) .rv .rv-rechts .rv-chips{flex:1}html body:not(#zz) .rv .rv-rechts .rv-chips>span{flex:1}}
 @media (max-width:700px){
   html body:not(#zz) .rv .rv-rechts{flex-direction:column}
   html body:not(#zz) .rv .rv-rechts .rv-chips{display:grid!important;grid-template-columns:1fr 1fr;gap:8px!important}
@@ -14735,6 +14742,17 @@ html body:not(#zz) .rv .rv-rechts .rv-geld{padding:10px 14px!important;gap:2px!i
   html body:not(#zz) .rv .rv-rechts .rv-geld .rv-gb{margin:4px 0 1px!important}
   html body:not(#zz) .rv .rv-rechts{align-self:flex-start}}
 @media (min-width:701px){html body:not(#zz) .rv .rv-rechts .rv-geld em{margin-left:6px!important}}
+/* ---------- Vandaag-hero: fase, titel, VOLGENDE, kaartmarge ---------- */
+html body:not(#zz) .rv .rv-fase{white-space:nowrap!important;flex-wrap:nowrap!important;width:max-content;max-width:100%}
+html body:not(#zz) .rv .rv-tx h2{text-transform:uppercase!important;font-weight:600!important;letter-spacing:.07em!important;font-size:24px!important;line-height:1.15!important;margin-top:16px!important}
+html body:not(#zz) .rv .rv-tx .rv-sub{margin-top:6px!important;font-size:15px!important;color:rgb(255 255 255 / .7)!important;font-weight:400!important;letter-spacing:.01em}
+@media (max-width:700px){html body:not(#zz) .rv .rv-tx h2{font-size:20px!important;letter-spacing:.06em!important}}
+html body:not(#zz) .rv .rv-weg b.rv-nu{top:-27px!important;padding:4px 8px 4px 10px!important;border-radius:4px!important;font-size:8.5px!important;font-weight:600!important;letter-spacing:.24em!important;line-height:1!important;border:0!important;box-shadow:0 6px 16px -6px rgb(0 0 0 / .45)!important;left:50%;transform:translateX(-50%)}
+html body:not(#zz) .rv .rv-weg b.rv-nu::after{width:7px!important;height:7px!important;bottom:-3px!important;border-radius:1px!important;background:#fff!important}
+html body:not(#zz) .rv .rv-weg li:first-child b.rv-nu{left:0;transform:none}
+html body:not(#zz) .rv .rv-weg li:first-child b.rv-nu::after{left:calc(var(--h) / 2)!important}
+html body:not(#zz) .rv .rv-map{margin:18px 0 0!important}
+html body:not(#zz) .rv:has(> .rv-map){padding-bottom:var(--rvpad,26px)!important}
 
 </style>
 

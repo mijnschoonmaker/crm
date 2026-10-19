@@ -22,7 +22,7 @@ async function rvMapTeken(){const el=document.getElementById("rvMap");if(!el||!s
     const vi=stops.indexOf(nx),vorig=[...stops.slice(0,vi)].reverse().map(s=>pkCoord(s.k)).find(Boolean)||lo,naar=pkCoord(nx.k);
     if(naar&&vorig){el._demoF=[(vorig[0]+naar[0])/2,(vorig[1]+naar[1])/2];rvDemoRit(vorig,naar)}else if(naar)rvMapLive(naar)}
   if(!pts.length){el.innerHTML='<div class="rv-map-l">Nog geen adressen gevonden op de kaart</div>';el._map=null;return}
-  m.invalidateSize();
+  rvMapMaat(el);m.invalidateSize();
   /* eerste keer: ingezoomd op het busje; daarna de stand van de gebruiker houden */
   if(!el._gezet){el._gezet=1;const f=ik||el._demoF;if(f)m.setView(f,16);else m.fitBounds(pts,{padding:[22,22],maxZoom:15})}
 }
@@ -30,7 +30,7 @@ async function rvMapTeken(){const el=document.getElementById("rvMap");if(!el||!s
    Zelfde gevoel als het klantportaal: het busje rijdt over de echte weg (route via OSRM) van de vorige naar de nieuwe GPS-plek,
    kijkt de kant op waar het heen rijdt (kantelt mee met de weg) en schaalt mee met in- en uitzoomen. */
 const RVB={anim:0,route:{},laatst:0,doel:null,r:0,f:1};
-function rvBusB(z){return Math.round(Math.max(18,Math.min(110,44*Math.pow(1.45,z-14))))}
+function rvBusB(z){return Math.round(Math.max(18,Math.min(110,44*Math.pow(1.45,z-16))))}
 function rvBusSchaal(el){if(el&&el._map)el.style.setProperty("--busw",rvBusB(el._map.getZoom())+"px")}
 function rvBusIcon(){return window.L.divIcon({className:"rvm-bus",html:`<span class="rvb"><i class="rvb-puls"></i><img src="/img/mansard-bus.png" alt=""></span>`,iconSize:[0,0],iconAnchor:[0,0]})}
 /* richting op het scherm: rechts = 0°, omlaag = 90°. Zijaanzicht: naar rechts gewoon, naar links gespiegeld, kantelen tot ±80° */
@@ -97,3 +97,10 @@ function rvLaagKnop(el,mp){const b=document.createElement("button");b.type="butt
   const zet=()=>{b.innerHTML=state.rvSat?"<span>Kaart</span>":"<span>Satelliet</span>";b.setAttribute("aria-label",state.rvSat?"Toon stratenkaart":"Toon luchtfoto")};zet();
   b.addEventListener("click",e=>{e.stopPropagation();state.rvSat=!state.rvSat;try{localStorage.setItem("ms.rvsat2",state.rvSat?"1":"0")}catch(er){}rvOndergrond(el,mp);zet()});
   ["mousedown","touchstart","dblclick","wheel"].forEach(t=>b.addEventListener(t,e=>e.stopPropagation(),{passive:true}));el.appendChild(b)}
+/* tablet/desktop liggend: kaart precies zo hoog dat het hele blok in beeld past */
+function rvMapMaat(el){el=el||document.getElementById("rvMap");if(!el)return;const rv=el.closest(".rv");
+  const cs=rv&&getComputedStyle(rv),pl=cs?parseFloat(cs.paddingLeft)||26:26;if(rv)rv.style.setProperty("--rvpad",pl+"px");
+  if(innerWidth<=700||innerHeight>innerWidth){el.style.height="";return}
+  const top=el.getBoundingClientRect().top+scrollY,h=Math.round(innerHeight-top-pl-14);
+  el.style.height=Math.max(200,Math.min(620,h))+"px";if(el._map)el._map.invalidateSize()}
+addEventListener("resize",()=>{clearTimeout(rvMapMaat._t);rvMapMaat._t=setTimeout(()=>rvMapMaat(),150)});
