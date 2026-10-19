@@ -13,7 +13,7 @@ function stopCard(k,i,isNext,late,day,totaal){
   const tags=`${statusPill(sp[0],sp[1])}${late?'<span class="pill late">Achterstallig</span>':""}`;
   return `<div class="swipe" data-id="${esc(k.id)}">
     <div class="sbg sbg-r"><span>${I.check} Afmelden<small>conceptfactuur</small></span></div>
-    <div class="sbg sbg-l"><span>Factureren<small>direct, open factuur</small></span></div>
+    <div class="sbg sbg-l"><span>Factureren<small>direct naar de klant</small></span></div>
     <div class="swipe-card tk${isNext?" next":""}${bz?" bezig":""}">
       <div class="tk-kop">
         <div class="tk-nr"><small>Stop</small><b>${i+1}</b>${totaal?`<em>van ${totaal}</em>`:""}</div>

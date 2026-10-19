@@ -15,7 +15,8 @@ async function afronden(k,mode,el){
   let _vve=null;if(k.soort==="vve"&&typeof vveOplevering==="function"){_vve=await vveOplevering(k);if(_vve===null){render();return}}
   const _lm=lopendeMin(k),_mp=_lm&&_lm>=1?metingPatch(k,_lm):null,_last=(k.tijden||[]).slice(-1)[0],_dur=_mp?_lm:_last&&_last.datum===iso(today())?_last.min:duur(k);if(_mp)k={...k,..._mp};
   const _mw=isMw();if(_mw)mode="concept";/* medewerker: altijd concept, kantoor controleert en verstuurt */
-  const direct=mode==="concept"&&!!k.directFactureren&&!_mw;if(direct)mode="open";
+  /* afmelden = conceptfactuur (niet versturen) · factureren (veeg naar links) = definitieve factuur én direct naar de klant */
+  const direct=mode==="open"&&!_mw;
   const d=iso(today()),st=S(),bId=newId("b"),fId=newId("f"),prev={laatst:k.laatst||"",gepland:k.gepland||"",bezig:k.bezig||""};
   let _rr=null;try{if(k.ramenRegel&&ramenVariabel(normR(k.ramenRegel))){const {q,due}=ramenDue(k,d),b=ramenBerekening(q,Number(k.frequentie)||4,due),mul=st.incl?1+(Number(st.btw)||21)/100:1;
     _rr={q,due,bedrag:r2(b.ex*mul),regels:[...(b.rows.length?[{omschrijving:(k.dienst||"Glasbewassing")+" "+b.rows.map(r=>r.naam.toLowerCase()).join(", ")+(k.verbergAantal?"":", "+b.count+" ramen")+regelExtra(k),aantal:1,prijs:r2((b.glas+b.start)*mul)}]:[]),...(b.kozP?[{omschrijving:"Kozijnreiniging "+b.krows.map(r=>r.naam.toLowerCase()).join(", "),aantal:1,prijs:r2(b.kozP*mul)}]:[])]}}}catch(e){console.error(e);_rr=null}
@@ -55,9 +56,9 @@ async function afronden(k,mode,el){
     const undo=async()=>{try{await del("facturen",fId);await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
     feest(k);
     if(_mw){toast(cleanName(k.naam)+" afgemeld",[{label:"Ongedaan",fn:undo}]);return}
-    toast(mode==="open"?cleanName(k.naam)+(f.status==="betaald"?" afgerekend ("+st.betaalwijze+") · ":" gefactureerd · ")+f.nummer:cleanName(k.naam)+" afgemeld · conceptfactuur klaar",
+    toast(mode==="open"?cleanName(k.naam)+(f.status==="betaald"?" afgerekend ("+st.betaalwijze+") · ":" gefactureerd en verstuurd · ")+f.nummer:cleanName(k.naam)+" afgemeld · conceptfactuur klaar",
       [{label:"Ongedaan",fn:undo},...(mode==="open"?[{label:"Versturen",fn:()=>sendF(fId)}]:[{label:"Bericht",fn:()=>openCompose({title:"Werk voltooid · "+cleanName(k.naam),sjabloon:"voltooid",recipients:[{k,vars:klantVars(k,today()),ref:""}]})}])]);
-    if(direct&&f.status!=="betaald"){let n=0;const go=()=>{if(state.facturen.some(x=>x.id===fId))sendF(fId);else if(++n<30)setTimeout(go,100)};setTimeout(go,300)}
+    if(direct){let n=0;const go=()=>{if(state.facturen.some(x=>x.id===fId))sendF(fId,{direct:true});else if(++n<30)setTimeout(go,100)};setTimeout(go,300)}
   }catch(e){if(el){const c=el.querySelector(".swipe-card");if(c)c.style.transform="";el.classList.remove("armed")}err(e)}
 }
 async function startJob(k){
