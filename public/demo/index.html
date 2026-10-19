@@ -6054,13 +6054,16 @@ function rvEigenStart(){if(!LIVE||RVP.watch!=null||!navigator.geolocation)return
     const eerst=!RVP.pos;RVP.pos={lat:p.coords.latitude,lng:p.coords.longitude};rvMapLive();
     if(eerst){const el=document.getElementById("rvMap");try{el._map.fitBounds(el._map.getBounds().extend([RVP.pos.lat,RVP.pos.lng]),{padding:[22,22],maxZoom:15})}catch(e){}}},
     ()=>{},{enableHighAccuracy:true,maximumAge:5000,timeout:30000})}
-/* ondergrond: luchtfoto (PDOK, haarscherp voor heel Nederland) met straatnamen erover, of een rustige stratenkaart */
+/* ondergrond: luchtfoto (PDOK, haarscherp voor heel Nederland) met PDOK-straatnamen erover, of de PDOK-stratenkaart. Geen API-sleutel nodig. */
 state.rvSat=(()=>{try{return localStorage.getItem("ms.rvsat")!=="0"}catch(e){return true}})();
 function rvOndergrond(el){const L=window.L,m=el._map;(el._tegels||[]).forEach(t=>m.removeLayer(t));
+  const pd="https://service.pdok.nl/",o={maxZoom:20,maxNativeZoom:19};
   el._tegels=state.rvSat?[
-    L.tileLayer("https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0/Actueel_orthoHR/EPSG:3857/{z}/{x}/{y}.jpeg",{maxZoom:20,maxNativeZoom:19}),
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png",{maxZoom:20,subdomains:"abcd",opacity:.95})
-  ]:[L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",{maxZoom:20,subdomains:"abcd"})];
+    L.tileLayer(pd+"hwh/luchtfotorgb/wmts/v1_0/Actueel_orthoHR/EPSG:3857/{z}/{x}/{y}.jpeg",o),
+    L.tileLayer(pd+"bzk/luchtfotolabels/wmts/v1_0/lufolabels/EPSG:3857/{z}/{x}/{y}.png",o)
+  ]:[L.tileLayer(pd+"brt/achtergrondkaart/wmts/v2_0/standaard/EPSG:3857/{z}/{x}/{y}.png",o)];
+  /* valt een PDOK-laag weg, dan terug naar OpenStreetMap zodat de kaart nooit leeg is */
+  el._tegels.forEach((t,i)=>{let fout=0;t.on("tileerror",()=>{if(++fout===6&&m.hasLayer(t)){m.removeLayer(t);if(i===0)el._tegels.push(L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19}).addTo(m).bringToBack())}})});
   el._tegels.forEach(t=>t.addTo(m));el.classList.toggle("sat",state.rvSat)}
 function rvLaagKnop(el){const b=document.createElement("button");b.type="button";b.className="rv-laag";
   const zet=()=>{b.innerHTML=state.rvSat?"<span>Kaart</span>":"<span>Satelliet</span>";b.setAttribute("aria-label",state.rvSat?"Toon stratenkaart":"Toon luchtfoto")};zet();
