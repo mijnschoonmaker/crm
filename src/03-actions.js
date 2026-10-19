@@ -48,7 +48,7 @@ async function afronden(k,mode,el){
     return}
   if(direct){/* veeg factureren: eerst bevestigen, want de factuur gaat meteen naar de klant */
     const _t=totals(f),_em=mailK(k,"factuur").email||f.klantEmail||"";
-    const _rg=f.regels.map(r=>`${esc(r.omschrijving)}${(Number(r.aantal)||1)!==1?" × "+r.aantal:""} · <b>${eur((Number(r.aantal)||0)*(Number(r.prijs)||0))}</b>`).join("<br>");
+    const _rx=regelExtra(k),_rg=f.regels.map(r=>`${esc(_rx?String(r.omschrijving).split(_rx).join(""):r.omschrijving)}${(Number(r.aantal)||1)!==1?" × "+r.aantal:""} · <b>${eur((Number(r.aantal)||0)*(Number(r.prijs)||0))}</b>`).join("<br>");
     const ok=await vraag("Factuur direct versturen?",`${_rg}<br><br>Totaal <b>${eur(_t.inc)}</b> incl. btw${f.status==="betaald"?" · al betaald ("+esc(st.betaalwijze)+")":""}<br>${_em?`Gaat meteen naar <b>${esc(_em)}</b>.`:"Deze klant heeft geen e-mailadres; je kiest daarna hoe je hem verstuurt."} Kloppen de bedragen?`,"Versturen","Annuleren");
     if(ok!==true){if(el){const c=el.querySelector(".swipe-card");if(c)c.style.transform="";el.classList.remove("armed")}render();return}}
   const _tg=tegoedVerrekenen(k,f);
