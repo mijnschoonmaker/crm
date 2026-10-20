@@ -1205,7 +1205,7 @@ html body:not(#zz) .bz h2,html body:not(#zz) .bz-dag,html body:not(#zz) .bz-hero
 html body:not(#zz) main>h1,html body:not(#zz) main .ph h1,html body:not(#zz) .pg-h h1,html body:not(#zz) .kop h1{text-transform:uppercase!important;letter-spacing:.16em!important;font-weight:600!important;font-size:clamp(20px,2.4vw,26px)!important}
 html body:not(#zz) .kp>.kp-h b{letter-spacing:.01em}
 /* knoppen: overal dezelfde maat */
-html body:not(#zz) .kp :is(button,.btn):not(.iconbtn):not([data-ster]):not([data-st2]):not(.lr):not(.cw-btn):not(.rf-btn):not(.rf-kop),html body:not(#zz) .melding :is(button,.btn){min-height:40px!important;padding:0 16px!important;font-size:11px!important;letter-spacing:.16em!important;font-weight:700!important;border-radius:10px!important}
+html body:not(#zz) .kp :is(button,.btn):not(.iconbtn):not([data-ster]):not([data-st2]):not(.lr):not(.cw-btn):not(.rf-btn):not(.rf-kop):not(.ab-x),html body:not(#zz) .melding :is(button,.btn){min-height:40px!important;padding:0 16px!important;font-size:11px!important;letter-spacing:.16em!important;font-weight:700!important;border-radius:10px!important}
 /* menu links over de volle hoogte */
 @media (min-width:900px){html body:not(#zz) .app{min-height:100vh}html body:not(#zz) .side{position:sticky;top:0;height:100vh;align-self:start;background:#fff;border-right:1px solid var(--line)}}
 html body:not(#zz) .side nav button[aria-current="true"]{background:#f1f2f5!important;color:#0d121b!important;font-weight:700}
@@ -1598,6 +1598,32 @@ html body:not(#zz) .bz-rt8 i.on{background:linear-gradient(90deg,#3a4150,#1c2231
 html body:not(#zz) .bz-tile .mini-st{color:#3a4150;letter-spacing:.15em}
 @media (max-width:640px){html body:not(#zz) .bz-tiles>.bz-tile{padding:18px!important}html body:not(#zz) .bz-tile small{left:66px!important;top:18px!important}html body:not(#zz) .bz-tile b{font-size:25px!important;margin-top:16px!important}html body:not(#zz) .bz-tiles>.bz-tile+.bz-tile::before{display:none}}
 @media (prefers-reduced-motion:reduce){html body:not(#zz) .bz-tiles::before{animation:none;opacity:0}}
+
+/* abonnement-kaart v2: satijn, gegraveerd, ruim */
+html body:not(#zz) section.kp.ab-kp{background:radial-gradient(120% 140% at 0% 0%,#fbfbfa 0%,transparent 55%),linear-gradient(180deg,#f4f4f2 0%,#ebebe8 55%,#e1e1de 100%)!important;border:1px solid #d8d8d4!important;box-shadow:inset 0 1px 0 #fff,0 24px 44px -34px rgb(26 32 48 / .55)!important;position:relative;isolation:isolate}
+html body:not(#zz) section.kp.ab-kp::before{content:"";position:absolute;top:0;bottom:0;left:0;width:30%;z-index:2;pointer-events:none;background:linear-gradient(90deg,transparent,rgb(255 255 255 / .55),transparent);animation:svGlans 10s ease-in-out infinite 2s}
+html body:not(#zz) .ab-top{background:none!important;color:#14181f!important;padding:24px 24px 20px!important}
+html body:not(#zz) .ab-ic{width:38px!important;height:38px!important;border-radius:50%!important;background:linear-gradient(180deg,#f9f9f8,#e4e4e1)!important;border:1px solid #cfcfca!important;box-shadow:inset 0 1px 0 #fff,0 6px 12px -8px rgb(0 0 0 / .25)}
+html body:not(#zz) .ab-ic svg{color:#4a505c!important;width:16px!important;height:16px!important}
+html body:not(#zz) .ab-eb{color:#6f7480!important;font-size:9.5px!important;letter-spacing:.28em!important}
+html body:not(#zz) .ab-d{display:block!important;margin-top:22px!important}
+html body:not(#zz) .ab-d>b{display:block;font-size:12px!important;font-weight:700!important;letter-spacing:.2em;text-transform:uppercase;color:#3a4150}
+html body:not(#zz) .ab-pr{text-align:left!important;margin-top:10px;display:flex;align-items:baseline;gap:10px}
+html body:not(#zz) .ab-pr em{font-size:44px!important;font-weight:400!important;letter-spacing:0!important;background:linear-gradient(180deg,#1c2231 0%,#3a4150 60%,#1c2231 100%)!important;-webkit-background-clip:text!important;background-clip:text!important;color:transparent!important}
+html body:not(#zz) .ab-pr small{margin:0!important;color:#80858f!important}
+html body:not(#zz) .ab-ch{border-top:0!important;padding-top:0!important;margin-top:16px!important;gap:6px!important}
+html body:not(#zz) .ab-ch span{background:rgb(255 255 255 / .6)!important;border:1px solid #d6d6d1!important;color:#3a4150!important;box-shadow:inset 0 1px 0 #fff;height:30px!important}
+html body:not(#zz) .ab-ch svg{color:#4a505c}
+html body:not(#zz) .ab-kp .ab-x{position:relative;z-index:1;padding:18px 24px 20px!important;min-height:76px!important;height:auto!important;background:rgb(255 255 255 / .55)!important;border-top:1px solid #d8d8d4!important;align-items:center!important;overflow:visible}
+html body:not(#zz) .ab-kp .ab-x:hover{background:rgb(255 255 255 / .85)!important}
+html body:not(#zz) .ab-xi{border-radius:50%!important;background:linear-gradient(180deg,#f9f9f8,#e4e4e1)!important;border:1px solid #cfcfca!important;box-shadow:inset 0 1px 0 #fff}
+html body:not(#zz) .ab-xt b{line-height:1.3!important}
+html body:not(#zz) .ab-xt small{line-height:1.4!important;white-space:normal}
+
+html body:not(#zz) section.kp.ab-kp{height:auto!important;max-height:none!important;align-self:start!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+html body:not(#zz) section.kp.ab-kp::before{z-index:0!important;background:linear-gradient(90deg,transparent,rgb(255 255 255 / .35),transparent)!important}
+html body:not(#zz) section.kp.ab-kp>*{position:relative;z-index:1}
+html body:not(#zz) .ab-kp .ab-x{flex:none!important;box-sizing:border-box}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
