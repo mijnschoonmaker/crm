@@ -5938,6 +5938,10 @@ html body:not(#zz) .pt-acts>button svg{width:15px!important;height:15px!importan
 }
 @media (min-width:900px){html body:not(#zz) .pt-kk{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
 
+/* Factuurkop: geen witte rand links (1px overlap met de dialoogrand) */
+html body:not(#zz) dialog .fw-head{margin:-23px -23px 16px!important;padding:23px!important;width:calc(100% + 46px)!important;max-width:none!important;box-sizing:border-box!important}
+html body:not(#zz) dialog:has(.fw-head){background:linear-gradient(#252c3c,#252c3c) top/100% 40px no-repeat,var(--surface,#fff)!important}
+
 </style>
 <div class="app">
   <aside class="side">
