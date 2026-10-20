@@ -5665,6 +5665,14 @@ html body:not(#zz) .pt-acts>button svg{width:15px!important;height:15px!importan
 /* Factuurkop: geen witte rand links (1px overlap met de dialoogrand) */
 html body:not(#zz) dialog .fw-head{margin:-23px -23px 16px!important;padding:23px!important;width:calc(100% + 46px)!important;max-width:none!important;box-sizing:border-box!important}
 
+/* Telling-editor: eigen dialoog in CRM-stijl */
+html body dialog.rc-ed-dlg{padding:0!important;border:0!important;outline:none!important;background:#fff!important;width:min(1180px,calc(100vw - 32px))!important;max-width:none!important;height:calc(100dvh - 40px)!important;max-height:none!important;border-radius:24px!important;overflow:hidden!important;box-shadow:0 30px 80px -20px rgb(13 18 27 / .45)!important}
+html body dialog.rc-ed-dlg::backdrop{background:rgb(13 18 27 / .55);backdrop-filter:blur(4px)}
+html body dialog.rc-ed-dlg #rcEdHost{position:absolute;inset:0}
+@media (max-width:640px){html body dialog.rc-ed-dlg{width:100vw!important;height:100dvh!important;border-radius:0!important;margin:0!important}}
+/* Rekentool-kop zoals de andere kaarttitels */
+html body:not(#zz) .kp-rc .kp-h div>b{display:block;text-transform:uppercase;font-weight:600;letter-spacing:.2em;font-size:13px;color:#0d121b;margin-bottom:4px}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -9186,6 +9194,38 @@ details[open] summary::after{content:"−"}
 .acts .b3{grid-column:auto}
 .pv-stage{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;align-items:center;gap:14px;padding:6px 0}
 .pv-stage img{width:min(100%,760px);height:auto;border-radius:6px;box-shadow:0 4px 18px rgb(0 0 0 / .5);background:#fff}
+/* ---- telling-editor in CRM-stijl ---- */
+.ed{position:absolute;inset:0;background:#fff;color:#0d121b;padding:22px 24px calc(env(safe-area-inset-bottom,0px) + 20px);font-family:inherit}
+.ed-top{padding:0 0 16px;margin-bottom:16px;border-bottom:1px solid #eceef1}
+.ed-top b{display:inline-block;font-weight:600;font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:#0d121b;margin-bottom:6px}
+.ed-top span{font-size:13.5px;color:#6b7180;line-height:1.45}
+.ed-stage{background:#f4f5f6;border-radius:16px;padding:0}
+@media (max-width:640px){.ed{padding:18px 16px calc(env(safe-area-inset-bottom,0px) + 14px)}.ed-bar button{letter-spacing:.1em;font-size:11px;padding:0 6px;white-space:nowrap}.ed-types button{height:34px;font-size:12px}}
+.ed-wrap img{border-radius:8px}
+.ed-tally{background:#fff;color:#0d121b;border:1px solid #e3e6ea;border-radius:16px;padding:14px 16px 12px;margin-top:14px;box-shadow:none}
+.et-h{color:#6b7180;font-size:10.5px;letter-spacing:.2em;font-weight:600}.et-h b{color:#252c3c;font-size:18px;font-weight:600}
+.et-l span{border-color:#e3e6ea;border-radius:10px;color:#6b7180;font-weight:500}.et-l b{color:#0d121b;font-weight:600}
+.et-e,.et-n{color:#6b7180}
+.ed-lab{font-size:10.5px;letter-spacing:.2em;color:#6b7180;font-weight:600;padding:16px 2px 8px}
+.ed-types{gap:8px}
+.ed-types button{height:38px;padding:0 14px 0 7px;border-radius:99px;border:1px solid #dfe2e7;background:#fff;color:#252c3c;font:600 12.5px/1 inherit;font-family:inherit;transition:background .15s,border-color .15s}
+.ed-types button:hover{border-color:#252c3c}
+.ed-types button i{border:0;box-shadow:0 0 0 2px #fff}
+.ed-types button b{color:#8a8f99;font-weight:600}
+.ed-types button[aria-checked="true"]{background:#252c3c;border-color:#252c3c;color:#fff}
+.ed-types button[aria-checked="true"] b{color:#ecd3a3}
+.ed-bar{gap:10px;padding-top:16px;margin-top:4px;border-top:1px solid #eceef1}
+.ed-bar button{height:46px;border-radius:10px;border:1px solid #d4d7dd;background:#fff;color:#252c3c;font:600 12px/1 inherit;font-family:inherit;letter-spacing:.16em;text-transform:uppercase;transition:background .15s}
+.ed-bar button:hover{background:#f4f5f6}
+.ed-bar .done{background:#252c3c;color:#fff;border-color:#252c3c}
+.ed-bar .done:hover{background:#323b50}
+#pv .pv-stage{background:#f4f5f6;border-radius:16px;padding:16px}
+#pv .pv-stage p{color:#6b7180!important}
+#pv .pv-stage img{box-shadow:0 6px 20px -8px rgb(13 18 27 / .35)}
+/* titels zoals de rest van het CRM */
+.head .eyebrow{font-size:10.5px;letter-spacing:.2em;font-weight:600;color:#8a8f99}
+.head h2{font-size:13px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;margin-top:5px}
+.num{background:#252c3c;color:#fff;font-weight:600;font-size:13px}
 `;
 const RC_SVG={
   cam:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.6-2.4h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.6"/></svg>',
@@ -9313,7 +9353,7 @@ function buildRamen(){
   const root=host.attachShadow({mode:"open"});root.innerHTML=`<style>${RC_CSS}</style>${RC_HTML}`;
   const edHost=document.createElement("div");edHost.id="rcEdHost";
   const eroot=edHost.attachShadow({mode:"open"});eroot.innerHTML=`<style>${RC_CSS}</style>${RC_ED}${RC_PV}`;
-  document.body.appendChild(edHost);
+  const edDlg=document.createElement("dialog");edDlg.className="rc-ed-dlg";edDlg.appendChild(edHost);document.body.appendChild(edDlg);edDlg.addEventListener("cancel",e=>{e.preventDefault();if(!ge("pv").hidden)ge("pv-close").click();else if(!ge("ed").hidden)closeEd()});
   const g=id=>root.getElementById(id),ge=id=>eroot.getElementById(id);
 
   /* prijzen excl. btw en tijden: BG € 1,75 / 51 s · 1e € 1,90 / 55 s */
@@ -9458,8 +9498,8 @@ const ICON={
     const getV=t=>t.startsWith("s-")?(special[t.slice(2)]||0):(floors[+t.slice(1)]||0);
     new Set([...Object.keys(cnt),...Object.keys(synced)]).forEach(t=>{if(g(t)){const base=Math.max(0,getV(t)-(synced[t]||0));setVal(t,base+(cnt[t]||0))}});
     synced={...cnt};renderPhsum()}
-  function openEd(i){ge("ed-undo").onclick=undo1;ge("ed-msg").textContent="Kies hieronder wat je aantikt en tik op elk raam. Tik op een stip om hem weg te halen.";const par=dlg.open&&dlg.contains(host)?dlg:document.body;if(edHost.parentNode!==par)par.appendChild(edHost);edIdx=i;ge("ed-img").src=photos[i].url;ge("ed").hidden=false;document.body.style.overflow="hidden";renderDots();requestAnimationFrame(fitEd)}
-  function closeEd(){ge("ed").hidden=true;document.body.style.overflow="";edIdx=-1;renderPhotos();syncFromPhotos();markStale()}
+  function openEd(i){ge("ed-undo").onclick=undo1;ge("ed-msg").textContent="Kies hieronder wat je aantikt en tik op elk raam. Tik op een stip om hem weg te halen.";if(!edDlg.open)edDlg.showModal();edIdx=i;ge("ed-img").src=photos[i].url;ge("ed").hidden=false;document.body.style.overflow="hidden";renderDots();requestAnimationFrame(fitEd)}
+  function closeEd(){ge("ed").hidden=true;if(ge("pv").hidden&&edDlg.open)edDlg.close();document.body.style.overflow="";edIdx=-1;renderPhotos();syncFromPhotos();markStale()}
 
   /* ---------- klant ---------- */
   const val=id=>g(id).value.trim();
@@ -9661,7 +9701,7 @@ const ICON={
       let n=0;const tryOpen=()=>{if(state.facturen.some(x=>x.id===id)){send?sendF(id):openFactuur(id)}else if(++n<30)setTimeout(tryOpen,100)};setTimeout(tryOpen,60);
     })}
   async function viewPdf(){const R=calculate(false);if(!R||!lastQ)return;const Q=lastQ;
-    const par=dlg.open&&dlg.contains(host)?dlg:document.body;if(edHost.parentNode!==par)par.appendChild(edHost);
+    if(!edDlg.open)edDlg.showModal();
     ge("pv-stage").innerHTML='<p style="color:#aab2b8">Overzicht maken…</p>';ge("pv").hidden=false;document.body.style.overflow="hidden";
     try{const pages=await drawPages(Q,1.4);ge("pv-stage").innerHTML=pages.map((cv,i)=>`<img src="${cv.toDataURL("image/jpeg",0.9)}" alt="Pagina ${i+1}">`).join("")}
     catch(e){ge("pv-stage").innerHTML='<p style="color:#aab2b8">Het overzicht kon niet worden gemaakt.</p>'}
@@ -9825,11 +9865,11 @@ const ICON={
   const undo1=()=>{const p=photos[edIdx];if(p&&p.dots.length){p.dots.pop();renderDots()}};ge("ed-undo").onclick=undo1;
   ge("ed-clear").onclick=()=>{const p=photos[edIdx];if(p){p.dots=[];renderDots()}};
   ge("ed-done").onclick=closeEd;
-  const closePv=()=>{ge("pv").hidden=true;document.body.style.overflow=""};
+  const closePv=()=>{ge("pv").hidden=true;if(ge("ed").hidden&&edDlg.open)edDlg.close();document.body.style.overflow=""};
   ge("pv-close").onclick=closePv;ge("pv-dl").onclick=()=>{closePv();doPdf()};
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!ge("pv").hidden){e.preventDefault();closePv()}});
   ge("ed-types").addEventListener("click",e=>{const b=e.target.closest("[data-t]");if(!b)return;curType=b.dataset.t;renderTypes()});
-  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!ge("ed").hidden)closeEd()});
+  
 
   fillCfg();renderFloors();renderSpecial();EMPTY_OUT=g("out").innerHTML;
   return {host,

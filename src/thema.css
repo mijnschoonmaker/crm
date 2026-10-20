@@ -1258,3 +1258,11 @@ html body:not(#zz) .pt-acts>button svg{width:15px!important;height:15px!importan
 
 /* Factuurkop: geen witte rand links (1px overlap met de dialoogrand) */
 html body:not(#zz) dialog .fw-head{margin:-23px -23px 16px!important;padding:23px!important;width:calc(100% + 46px)!important;max-width:none!important;box-sizing:border-box!important}
+
+/* Telling-editor: eigen dialoog in CRM-stijl */
+html body dialog.rc-ed-dlg{padding:0!important;border:0!important;outline:none!important;background:#fff!important;width:min(1180px,calc(100vw - 32px))!important;max-width:none!important;height:calc(100dvh - 40px)!important;max-height:none!important;border-radius:24px!important;overflow:hidden!important;box-shadow:0 30px 80px -20px rgb(13 18 27 / .45)!important}
+html body dialog.rc-ed-dlg::backdrop{background:rgb(13 18 27 / .55);backdrop-filter:blur(4px)}
+html body dialog.rc-ed-dlg #rcEdHost{position:absolute;inset:0}
+@media (max-width:640px){html body dialog.rc-ed-dlg{width:100vw!important;height:100dvh!important;border-radius:0!important;margin:0!important}}
+/* Rekentool-kop zoals de andere kaarttitels */
+html body:not(#zz) .kp-rc .kp-h div>b{display:block;text-transform:uppercase;font-weight:600;letter-spacing:.2em;font-size:13px;color:#0d121b;margin-bottom:4px}
