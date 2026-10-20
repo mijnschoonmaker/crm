@@ -1183,3 +1183,5 @@ html body:not(#zz) .bv-duo{display:grid;grid-template-columns:1fr 1fr;gap:10px;a
 html body:not(#zz) .bv-duo>.bv{margin:0;height:100%}
 html body:not(#zz) .bv-tt{margin:0;font-size:14px;line-height:1.5;color:var(--ink);white-space:pre-line}
 @media (max-width:700px){html body:not(#zz) .bv-duo{grid-template-columns:1fr}}
+/* tickets met echte gaten: de oude rondjes niet meer tekenen */
+html body .tk-gat .tk-perf::before,html body .tk-gat .tk-perf::after,html body .tk-gat .ft-perf::before,html body .tk-gat .ft-perf::after{display:none!important}

@@ -5864,6 +5864,8 @@ html body:not(#zz) .bv-duo{display:grid;grid-template-columns:1fr 1fr;gap:10px;a
 html body:not(#zz) .bv-duo>.bv{margin:0;height:100%}
 html body:not(#zz) .bv-tt{margin:0;font-size:14px;line-height:1.5;color:var(--ink);white-space:pre-line}
 @media (max-width:700px){html body:not(#zz) .bv-duo{grid-template-columns:1fr}}
+/* tickets met echte gaten: de oude rondjes niet meer tekenen */
+html body .tk-gat .tk-perf::before,html body .tk-gat .tk-perf::after,html body .tk-gat .ft-perf::before,html body .tk-gat .ft-perf::after{display:none!important}
 
 </style>
 <div class="app">
@@ -14644,6 +14646,25 @@ async function bijlOpen(mid,i){
     throw new Error("Deze bijlage is niet bewaard")}
   catch(e){try{w&&w.close()}catch(er){}toast((typeof fnFout==="function"?fnFout(e):e.message||e)+"")}}
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-bij]");if(!b)return;e.preventDefault();e.stopPropagation();bijlOpen(b.dataset.bij,+b.dataset.n)},true);
+
+/* ---------- tickets: echte ronde inkepingen bij de perforatie ----------
+   In plaats van gekleurde rondjes (die nooit precies de achtergrondkleur hebben door schaduwen) knippen we
+   met een masker echte gaten in het ticket, zodat je er de achtergrond doorheen ziet. */
+function ticketGaten(root){(root||document).querySelectorAll(".swipe-card.tk,.ft").forEach(c=>{
+  const ps=[...c.querySelectorAll(":scope>.tk-perf,:scope>.ft-perf,:scope .tk-perf,:scope .ft-perf")].filter(p=>p.offsetParent!==null);
+  const w=c.offsetWidth,h=c.offsetHeight;if(!w||!h){return}
+  const key=w+"x"+h+":"+ps.map(p=>p.offsetTop).join(",");if(c._gk===key)return;c._gk=key;
+  if(!ps.length){c.style.webkitMaskImage=c.style.maskImage="";c.classList.remove("tk-gat");return}
+  const cr=c.getBoundingClientRect(),r=12;
+  const cir=(x,y)=>`M${x-r},${y}a${r},${r} 0 1,0 ${2*r},0a${r},${r} 0 1,0 ${-2*r},0Z`;
+  const gaten=ps.map(p=>{const y=p.getBoundingClientRect().top-cr.top+1;return cir(0,y)+cir(w,y)}).join("");
+  /* alfamasker: het hele ticket dekkend, de cirkels uitgespaard (evenodd) */
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><path fill="#000" fill-rule="evenodd" d="M0,0H${w}V${h}H0Z${gaten}"/></svg>`;
+  const u=`url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+  c.style.webkitMaskImage=c.style.maskImage=u;c.style.webkitMaskSize=c.style.maskSize="100% 100%";c.style.webkitMaskRepeat=c.style.maskRepeat="no-repeat";c.classList.add("tk-gat")})}
+(function(){let t=0;const go=()=>{clearTimeout(t);t=setTimeout(()=>ticketGaten(),60)};
+  new MutationObserver(go).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:["class"]});
+  addEventListener("resize",go);document.addEventListener("click",()=>setTimeout(go,260),true)})();
 
 /* ---------- na vernieuwen op dezelfde plek terugkomen: pagina, subtab, open venster en scrollpositie ---------- */
 (function(){

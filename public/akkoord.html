@@ -92,6 +92,8 @@ input[type=text]{font-weight:500}
 .tko-c b{font-size:20px;font-weight:500}
 .tko-feiten{grid-template-columns:repeat(3,minmax(0,1fr))!important}
 @media(max-width:480px){.tko-feiten{grid-template-columns:1.2fr 1.2fr .8fr!important;gap:8px!important}.tko-feiten>div{padding:10px 9px!important}.tko-feiten b{font-size:13.5px!important;text-overflow:clip!important}.tko-feiten span{font-size:9px!important;letter-spacing:.1em!important}}
+.tko.gat .tko-perf::before,.tko.gat .tko-perf::after{display:none}
+html,body{background:#f5f5f4!important}
 .foot{text-align:center;color:#9aa1ad;font-size:12.5px;margin-top:10px}
 </style></head><body><div class="wrap" id="app"><div class="card"><p class="sub">Offerte laden…</p></div></div>
 <script>
@@ -140,4 +142,10 @@ const VB=tok==="voorbeeld";/* voorbeeldpagina voor testmails: niets wordt opgesl
       if(!r.ok)throw new Error(j.fout||"Er ging iets mis.");klaar(d,naam.split(/\s+/)[0])}
     catch(e){m.textContent=e.message||"Er ging iets mis. Probeer het opnieuw.";b.disabled=false;b.textContent="Akkoord en ondertekenen"}};
 })();
+
+/* echte ronde gaten bij de perforatie (masker), zodat de achtergrond er precies doorheen komt */
+function gaten(){const c=document.querySelector(".tko"),p=c&&c.querySelector(".tko-perf");if(!p)return;const w=c.offsetWidth,h=c.offsetHeight,y=p.offsetTop+1;
+  const r=13,ci=x=>`M${x-r},${y}a${r},${r} 0 1,0 ${2*r},0a${r},${r} 0 1,0 ${-2*r},0Z`,svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><path fill="#000" fill-rule="evenodd" d="M0,0H${w}V${h}H0Z${ci(0)}${ci(w)}"/></svg>`,u=`url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+  c.style.webkitMaskImage=c.style.maskImage=u;c.style.webkitMaskSize=c.style.maskSize="100% 100%";c.classList.add("gat")}
+addEventListener("resize",()=>setTimeout(gaten,50));setTimeout(gaten,60);setTimeout(gaten,600);new MutationObserver(()=>setTimeout(gaten,30)).observe(document.getElementById("app"),{childList:true});
 </script></body></html>
