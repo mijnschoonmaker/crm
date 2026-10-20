@@ -98,6 +98,7 @@ html,body{background:#f5f5f4!important}
 .tko-scheur{margin-top:2px}
 .tko-stub .kick{color:var(--muted)}
 .tko-stub{padding-top:20px!important}.tko-stub .dn:last-child{border-bottom:0;padding-bottom:4px}
+.door{display:flex;flex-direction:column;align-items:center;gap:7px;margin:24px 0 10px;opacity:.6}.door small{font-size:8.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}.door img{height:11px;width:auto;display:block;filter:brightness(0)}
 .foot{text-align:center;color:#9aa1ad;font-size:12.5px;margin-top:10px}
 </style></head><body><div class="wrap" id="app"><div class="card"><p class="sub">Offerte laden…</p></div></div>
 <script>
@@ -126,7 +127,7 @@ const VB=tok==="voorbeeld";/* voorbeeldpagina voor testmails: niets wordt opgesl
     <div class="ak-velden"><label class="ak-r" for="nm"><span>Naam</span><input type="text" id="nm" autocomplete="name" value="${esc(k.contact||k.naam||"")}"></label><label class="ak-r" for="pl"><span>Plaats</span><input type="text" id="pl" autocomplete="address-level2" value="${esc((k.pcPlaats||"").replace(/^\d{4}\s?[a-z]{2}\s*/i,""))}"></label></div>
     <div class="padkop"><label>Handtekening</label><button class="wis" id="wis" type="button">Opnieuw</button></div><div class="pad" id="pad"><canvas id="cv"></canvas><span class="x">✕</span><span class="line"></span><span class="hint" id="hint">${pen}Teken hier met uw vinger</span></div>
     <label class="chk"><input type="checkbox" id="ok"><span>Ik ga akkoord met de offerte en de ${d.voorwaarden?`<a href="${esc(d.voorwaarden)}" target="_blank" rel="noopener">voorwaarden</a>`:"voorwaarden"}.</span></label></div>
-  <p class="foot">${esc(d.bedrijf.naam)}${d.bedrijf.telefoon?" · "+esc(d.bedrijf.telefoon):""}${d.bedrijf.email?" · "+esc(d.bedrijf.email):""}</p>
+  <div class="door"><small>Deze service wordt mogelijk gemaakt door</small><img src="/mansard-logo.png" alt="Mansard"></div>
   <div class="balk"><div class="in"><button class="go" id="go" type="button">Akkoord en ondertekenen</button><div class="msg" id="msg"></div></div></div>`;
   const cv=$("#cv"),ctx=cv.getContext("2d");let leeg=true,teken=false,lx=0,ly=0;
   const maat=()=>{const r=cv.getBoundingClientRect(),dp=window.devicePixelRatio||1;cv.width=r.width*dp;cv.height=r.height*dp;ctx.setTransform(dp,0,0,dp,0,0);ctx.lineWidth=2.6;ctx.lineCap="round";ctx.lineJoin="round";ctx.strokeStyle="#111";leeg=true;$("#hint").style.display=""};maat();addEventListener("resize",()=>{if(leeg)maat()});
