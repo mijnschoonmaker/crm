@@ -922,6 +922,19 @@ html body .wz-opt{font-family:var(--f-ui)!important;font-weight:600!important;fo
 html body .wz-door{display:flex;flex-direction:column;align-items:center;gap:8px;opacity:.7;margin-top:18px}
 html body .wz-door small{font-size:8.5px;letter-spacing:.2em;text-transform:uppercase;color:#fff;font-weight:500}
 html body .wz-door img{height:11px;width:auto;display:block}
+/* hero verfijnd */
+html body .intro2 .i2-kick{display:flex;align-items:center;gap:12px;margin:0 0 14px;font-size:10.5px;letter-spacing:.32em;text-transform:uppercase;color:#ecd3a3;font-weight:500}
+html body .intro2 .i2-kick::before{content:"";width:28px;height:1px;background:#c9a46a}
+html body:not(#zz) .intro2 h1.ml-title{font-weight:300!important;letter-spacing:.14em!important;text-transform:uppercase;font-size:clamp(26px,3vw,38px)!important;line-height:1.15!important;margin:0 0 10px!important;padding:0!important}
+html body:not(#zz) .intro2 .ml-sub{font-size:15.5px!important;font-weight:400!important;letter-spacing:.01em!important;color:rgb(255 255 255 / .62)!important;margin:0 0 30px!important}
+html body:not(#zz) .ml-steps{gap:0!important}
+html body:not(#zz) .ml-steps li{gap:16px!important;padding-bottom:18px!important}
+html body:not(#zz) .ml-steps li:last-child{padding-bottom:0!important}
+html body:not(#zz) .ml-steps .n{width:28px!important;height:28px!important;background:transparent!important;border:1px solid rgb(236 211 163 / .55)!important;color:#ecd3a3!important;font-size:11.5px!important;font-weight:500!important;box-shadow:none!important}
+html body:not(#zz) .ml-steps li:last-child .n{background:#c9a46a!important;border-color:#c9a46a!important;color:#1c2231!important}
+html body:not(#zz) .ml-steps li:not(:last-child)::before{background:linear-gradient(rgb(236 211 163 / .45),rgb(236 211 163 / .12))!important;width:1px!important;left:13.5px!important;top:34px!important;bottom:4px!important}
+html body:not(#zz) .ml-steps li b{font-size:12.5px!important;font-weight:600!important;letter-spacing:.18em!important;text-transform:uppercase;color:#fff!important;display:block;margin:5px 0 4px}
+html body:not(#zz) .ml-steps li div>span{font-size:14px!important;font-weight:400!important;letter-spacing:.005em!important;color:rgb(255 255 255 / .6)!important;line-height:1.45}
 html body .kbus{width:132px!important;bottom:17px!important;filter:drop-shadow(0 4px 6px rgb(0 0 0 / .35))!important}
 @media (max-width:640px){html body .kbus{width:104px!important}}
 </style>
@@ -931,6 +944,7 @@ html body .kbus{width:132px!important;bottom:17px!important;filter:drop-shadow(0
   <header class="intro2">
     <div class="i2-txt">
       
+      <p class="i2-kick">Dienstenwebshop</p>
       <h1 class="ml-title">Bereken uw prijs</h1>
       <p class="ml-sub">Nu op basis van uw eigen foto.</p>
       <ol class="ml-steps">
