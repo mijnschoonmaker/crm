@@ -95,6 +95,9 @@ input[type=text]{font-weight:500}
 .tko.gat .tko-perf::before,.tko.gat .tko-perf::after{display:none}
 html,body{background:#f5f5f4!important}
 .dn-p{text-align:right}.dn-p small{display:block;font-size:10.5px;font-weight:500;color:#9aa1ad;margin-top:3px;letter-spacing:.04em}
+.tko-scheur{margin-top:2px}
+.tko-stub .kick{color:var(--muted)}
+.tko-stub{padding-top:20px!important}.tko-stub .dn:last-child{border-bottom:0;padding-bottom:4px}
 .foot{text-align:center;color:#9aa1ad;font-size:12.5px;margin-top:10px}
 </style></head><body><div class="wrap" id="app"><div class="card"><p class="sub">Offerte laden…</p></div></div>
 <script>
@@ -118,8 +121,7 @@ const VB=tok==="voorbeeld";/* voorbeeldpagina voor testmails: niets wordt opgesl
     <div class="tko-kop tko-c">${d.bedrijf.logo?`<img src="${esc(d.bedrijf.logo)}" alt="${esc(d.bedrijf.naam||"")}">`:`<b>${esc(d.bedrijf.naam||"")}</b>`}</div>
     <div class="tko-perf" aria-hidden="true"></div>
     <div class="tko-body"><div class="tko-adr"><span class="av">${esc(ini||"•")}</span><span><b>${esc(k.naam||"")}</b><small>${esc(k.adres||"")}${k.pcPlaats?", "+esc(k.pcPlaats):""}</small></span></div>
-      <div class="tko-feiten"><div><span>Offerte</span><b>${esc(String(d.nummer||"").replace(/^OFF-/,""))}</b></div>${gt?`<div><span>Geldig tot</span><b>${esc(gt)}</b></div>`:""}${gemengd?`<div><span>Diensten</span><b>${(d.groepen||[]).length}</b></div>`:`<div><span>Per keer incl. btw</span><b>${eur(tot)}</b></div>`}</div></div></div>
-  <div class="card"><div class="dn-kop"><span class="kick">Wat we voor u doen</span><span class="kick">Per keer</span></div>${rows}${(d.groepen||[]).length>1&&!gemengd?`<div class="dn-tot"><span>Totaal per keer incl. btw</span><b>${eur(tot)}</b></div>`:""}</div>
+      <div class="tko-feiten"><div><span>Offerte</span><b>${esc(String(d.nummer||"").replace(/^OFF-/,""))}</b></div>${gt?`<div><span>Geldig tot</span><b>${esc(gt)}</b></div>`:""}${gemengd?`<div><span>Diensten</span><b>${(d.groepen||[]).length}</b></div>`:`<div><span>Per keer incl. btw</span><b>${eur(tot)}</b></div>`}</div></div><div class="tko-perf tko-scheur" aria-hidden="true"></div><div class="tko-body tko-stub"><div class="dn-kop"><span class="kick">Wat we voor u doen</span><span class="kick">Per keer</span></div>${rows}${(d.groepen||[]).length>1&&!gemengd?`<div class="dn-tot"><span>Totaal per keer incl. btw</span><b>${eur(tot)}</b></div>`:""}</div></div>
   <div class="card"><div class="dn-kop"><span class="kick">Akkoord geven</span><span class="kick">Uw gegevens</span></div>
     <div class="ak-velden"><label class="ak-r" for="nm"><span>Naam</span><input type="text" id="nm" autocomplete="name" value="${esc(k.contact||k.naam||"")}"></label><label class="ak-r" for="pl"><span>Plaats</span><input type="text" id="pl" autocomplete="address-level2" value="${esc((k.pcPlaats||"").replace(/^\d{4}\s?[a-z]{2}\s*/i,""))}"></label></div>
     <div class="padkop"><label>Handtekening</label><button class="wis" id="wis" type="button">Opnieuw</button></div><div class="pad" id="pad"><canvas id="cv"></canvas><span class="x">✕</span><span class="line"></span><span class="hint" id="hint">${pen}Teken hier met uw vinger</span></div>
@@ -145,8 +147,8 @@ const VB=tok==="voorbeeld";/* voorbeeldpagina voor testmails: niets wordt opgesl
 })();
 
 /* echte ronde gaten bij de perforatie (masker), zodat de achtergrond er precies doorheen komt */
-function gaten(){const c=document.querySelector(".tko"),p=c&&c.querySelector(".tko-perf");if(!p)return;const w=c.offsetWidth,h=c.offsetHeight,y=p.offsetTop+1;
-  const r=13,ci=x=>`M${x-r},${y}a${r},${r} 0 1,0 ${2*r},0a${r},${r} 0 1,0 ${-2*r},0Z`,svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><path fill="#000" fill-rule="evenodd" d="M0,0H${w}V${h}H0Z${ci(0)}${ci(w)}"/></svg>`,u=`url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+function gaten(){const c=document.querySelector(".tko"),ps=c?[...c.querySelectorAll(".tko-perf")]:[];if(!ps.length)return;const w=c.offsetWidth,h=c.offsetHeight,r=13;
+  const ci=(x,y)=>`M${x-r},${y}a${r},${r} 0 1,0 ${2*r},0a${r},${r} 0 1,0 ${-2*r},0Z`,cr=c.getBoundingClientRect(),d=ps.map(p=>{const y=p.getBoundingClientRect().top-cr.top+1;return ci(0,y)+ci(w,y)}).join(""),svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><path fill="#000" fill-rule="evenodd" d="M0,0H${w}V${h}H0Z${d}"/></svg>`,u=`url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
   c.style.webkitMaskImage=c.style.maskImage=u;c.style.webkitMaskSize=c.style.maskSize="100% 100%";c.classList.add("gat")}
 addEventListener("resize",()=>setTimeout(gaten,50));setTimeout(gaten,60);setTimeout(gaten,600);new MutationObserver(()=>setTimeout(gaten,30)).observe(document.getElementById("app"),{childList:true});
 </script></body></html>
