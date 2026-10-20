@@ -5880,6 +5880,39 @@ html body:not(#zz) .featc.fx .fx-pil{flex:none;font-size:10.5px;font-weight:600;
 html body:not(#zz) .featc.fx>svg{width:18px;height:18px;color:#9aa1ad!important;flex:none}
 @media (max-width:640px){html body:not(#zz) .featc.fx .fx-pil{display:none}}
 
+/* Bank dialoog: knoppen even hoog */
+html body:not(#zz) .fb-foot{align-items:stretch;gap:10px}
+html body:not(#zz) .fb-foot>button{min-height:46px;height:46px;padding:0 18px;display:inline-flex;align-items:center;justify-content:center;gap:10px;font-size:12px;letter-spacing:.14em}
+html body:not(#zz) .fb-rij{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch}
+html body:not(#zz) .fb-rij input{flex:1 1 100%}
+html body:not(#zz) .fb-rij>.btn,html body:not(#zz) .fb-rij>button{min-height:46px;height:46px;padding:0 18px;display:inline-flex;flex-direction:row;align-items:center;justify-content:center;gap:10px;flex:1 1 0;white-space:nowrap;font-size:12px;letter-spacing:.14em}
+html body:not(#zz) .fb-rij>.btn svg{margin:0}
+
+/* Offerte dialoog: kop + voet */
+html body:not(#zz) .ow-kick{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#8a8f99;font-weight:600;line-height:1;margin-bottom:5px}
+html body:not(#zz) .dlg-head h3.ow-h{font-size:19px;font-weight:600;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0;line-height:1.2}
+html body:not(#zz) .dlg-head #owSub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body:not(#zz) .ow-foot{display:flex;align-items:center;gap:14px;flex-wrap:nowrap}
+html body:not(#zz) .ow-neven{display:flex;align-items:center;gap:4px;flex:1;min-width:0;flex-wrap:wrap}
+html body:not(#zz) .ow-link{background:none!important;border:0!important;box-shadow:none!important;padding:8px 10px!important;min-height:0!important;height:auto!important;font-size:10.5px!important;letter-spacing:.16em;text-transform:uppercase;color:#6b7180!important;display:inline-flex;align-items:center;gap:7px;font-weight:600}
+html body:not(#zz) .ow-link svg{width:14px;height:14px}
+html body:not(#zz) .ow-link:hover{color:#252c3c!important}
+html body:not(#zz) .ow-link.danger{color:#b4473b!important}
+html body:not(#zz) .ow-hoofd{display:flex;gap:10px;align-items:stretch}
+html body:not(#zz) .ow-hoofd>button{height:46px;min-height:46px;padding:0 20px;display:inline-flex;align-items:center;justify-content:center;gap:9px;white-space:nowrap}
+@media (max-width:760px){
+ html body:not(#zz) .ow-foot{flex-direction:column-reverse;align-items:stretch;gap:8px}
+ html body:not(#zz) .ow-hoofd{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+ html body:not(#zz) .ow-hoofd>#owSend{grid-column:1/-1;order:-1}
+ html body:not(#zz) .ow-hoofd>button{padding:0 10px;font-size:11.5px}
+ html body:not(#zz) .ow-neven{justify-content:center;gap:0}
+ html body:not(#zz) .ow-link{padding:8px 8px!important;font-size:9.5px!important}
+}
+html body:not(#zz) .fb-foot{display:grid;grid-template-columns:1fr 1fr}
+html body:not(#zz) .fb-foot>.sp{display:none}
+html body:not(#zz) .fb-foot>button{background:#fff!important;border:1px solid #d4d7dd!important;color:#252c3c!important;text-transform:uppercase;font-weight:600;letter-spacing:.14em!important;font-size:11.5px!important;border-radius:10px!important;box-shadow:none!important;height:48px!important;min-height:48px!important;white-space:nowrap}
+html body:not(#zz) .fb-foot>button svg{width:16px;height:16px}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -11897,7 +11930,7 @@ function openOfferte(opts={}){
   let dns=((ex&&ex.diensten)||[]).map(d=>({...d,items:(d.items||[]).map(i=>({...i}))}));
   /* oudere offertes: dienstregels die per ongeluk ook als eigen regel bewaard zijn niet dubbel tonen */
   if(dns.length)extra=extra.filter(r=>!dns.some(d=>String(d.groepOms||d.naam||"").trim()===String(r.omschrijving||"").trim()));
-  openDlg(`<div class="dlg-head"><span class="objic big">${I.offertes}</span><div style="min-width:0;flex:1"><h3>${ex?"Offerte "+esc(ex.nummer):"Nieuwe offerte"}</h3><div class="subt" id="owSub">${k0?esc(cleanName(k0.naam))+" · "+esc(fullAddr(k0)):"Kies een klant of vul een nieuwe klant in"}</div></div><span class="pill ${stPill[0]} dotp">${esc(stPill[1])}</span><button type="button" class="iconbtn" data-act="${opts.back?"offback":"close"}" data-id="${esc(opts.back||"")}" aria-label="Sluiten">${I.x}</button></div>
+  openDlg(`<div class="dlg-head"><span class="objic big">${I.offertes}</span><div style="min-width:0;flex:1"><div class="ow-kick">Offerte</div><h3 class="ow-h">${ex?esc(ex.nummer):"Nieuw"}</h3><div class="subt" id="owSub">${k0?esc(cleanName(k0.naam))+" · "+esc(fullAddr(k0)):"Kies een klant of vul een nieuwe klant in"}</div></div><span class="pill ${stPill[0]} dotp">${esc(stPill[1])}</span><button type="button" class="iconbtn" data-act="${opts.back?"offback":"close"}" data-id="${esc(opts.back||"")}" aria-label="Sluiten">${I.x}</button></div>
   <div class="kk-grid ow-grid"><div class="kk-left">
     <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klantgegevens</b></div>
       <div class="grid2">
@@ -11949,8 +11982,7 @@ function openOfferte(opts={}){
       <div id="owRegels"></div>
       <div class="totals" id="owTot" style="margin-top:10px"></div></section>
   </div></div>
-  <div class="row stickyfoot kk-foot">${ex?`<button type="button" class="ghost danger" id="owDel">Verwijderen</button>`:""}<span class="sp"></span><button type="button" data-act="${opts.back?"offback":"close"}" data-id="${esc(opts.back||"")}">Annuleren</button>
-    <button type="button" id="owSent">${I.right}Handmatig op verstuurd</button><button type="button" id="owSave">${I.check}Opslaan</button><button type="button" id="owView">${I.eye}Bekijk offerte</button><button type="submit" class="primary" id="owSend">${I.send||I.msg}Versturen</button></div>`,{xwide:true});
+  <div class="row stickyfoot kk-foot ow-foot"><div class="ow-neven">${ex?`<button type="button" class="ow-link danger" id="owDel">${I.trash||""}Verwijderen</button>`:""}<button type="button" class="ow-link" id="owSent">${I.right}Handmatig op verstuurd</button><button type="button" class="ow-link" data-act="${opts.back?"offback":"close"}" data-id="${esc(opts.back||"")}">Annuleren</button></div><div class="ow-hoofd"><button type="button" id="owSave">${I.check}Opslaan</button><button type="button" id="owView">${I.eye}Bekijk offerte</button><button type="submit" class="primary" id="owSend">${I.send||I.msg}Versturen</button></div></div>`,{xwide:true});
   const $o=n=>$("#ow-"+n);
   const ex2inc=p=>st.incl?r2(Number(p)/(1+Number($o("btw").value)/100)):Number(p);
   const dnsCalc=d=>groepCalc(d);
@@ -13876,11 +13908,11 @@ function fbBankDlg(){
     :`<section class="fb-uitleg"><p>Koppel je zakelijke rekening, bijvoorbeeld bij Knab. Het CRM kijkt dan vier keer per dag naar nieuwe bijschrijvingen en zet facturen <b>automatisch op betaald</b>. Net als bij SnelStart werkt dit via PSD2 met alleen leesrechten. De koppeling loopt via <b>Enable Banking</b>, een erkende partij die gratis is voor je eigen rekeningen.</p>
       ${stap(1,"Maak een gratis account bij Enable Banking",`Ga naar <a href="https://enablebanking.com/sign-in/" target="_blank" rel="noopener">enablebanking.com</a>. Kies bij <i>API applications</i> voor <b>Add a new application</b>, omgeving <b>Production</b>. Vul als redirect URL in: <code class="fb-code">${esc(terug)}</code> <button type="button" class="tiny" id="fbCopy">${I.copy}Kopieer</button>. Na opslaan downloadt je browser een sleutelbestand (.pem).`)}
       ${stap(2,"Koppel je rekening bij Enable Banking","Klik bij je nieuwe applicatie op <b>Link accounts</b> en log in bij Knab. Dit moet één keer, want in de gratis versie kan alleen een rekening die je daar hebt gekoppeld worden gelezen.")}
-      ${stap(3,"Vul hier de App ID en de sleutel in",eig?`<span class="fb-in"><input id="fbApp" placeholder="${bk.sleutel?"Ingesteld · laat leeg om te houden":"Application ID, bijv. 3f9c…"}" autocomplete="off"><label class="btn small">${I.upload}<span id="fbPemL">${bk.sleutel?"Andere .pem kiezen":".pem kiezen"}</span><input type="file" id="fbPem" accept=".pem,.key,.txt" hidden></label><button type="button" class="small primary" id="fbSla">Opslaan</button></span>`:"Alleen de eigenaar van het CRM kan dit doen.")}
+      ${stap(3,"Vul hier de App ID en de sleutel in",eig?`<span class="fb-in fb-rij"><input id="fbApp" placeholder="${bk.sleutel?"Ingesteld · laat leeg om te houden":"Application ID, bijv. 3f9c…"}" autocomplete="off"><label class="btn small">${I.upload}<span id="fbPemL">${bk.sleutel?"Andere .pem kiezen":".pem kiezen"}</span><input type="file" id="fbPem" accept=".pem,.key,.txt" hidden></label><button type="button" class="small primary" id="fbSla">Opslaan</button></span>`:"Alleen de eigenaar van het CRM kan dit doen.")}
       ${stap(4,"Koppel",`<span class="fb-in"><select id="fbBank"><option>Knab</option><option>ING</option><option>Rabobank</option><option>ABN AMRO</option><option>bunq</option><option>Triodos Bank</option><option>ASN Bank</option><option>SNS</option><option>RegioBank</option></select><button type="button" class="small primary" id="fbKop">${I.bank}Koppel mijn bank</button></span><small class="subt">Je logt in bij je bank en geeft toestemming (meestal 90 of 180 dagen). Daarna kom je hier terug.</small>`)}
     </section>`}
     <section class="fb-bestand"><div><b>Liever zelf een bankbestand uploaden?</b><p class="subt" style="margin:2px 0 0">Download in je bankapp een afschrift als <b>CAMT.053</b> (XML), <b>MT940</b> of <b>CSV</b> en upload het hier. Dezelfde betaling wordt nooit twee keer verwerkt.${lb?`<br>Laatste bestand: ${esc(lb.naam)} · ${new Date(lb.op).toLocaleDateString("nl-NL")} · ${lb.betaald||0} op betaald gezet`:""}</p></div><button type="button" class="small" data-act="fbupload">${I.upload}Bankbestand uploaden</button></section>
-    <div class="row"><button type="button" class="small ghost" data-act="fbreview">${I.receipt}Alle bankbetalingen</button><span class="sp"></span><button type="button" data-act="close">Klaar</button></div>`,{wide:true});
+    <div class="row fb-foot"><button type="button" class="ghost" data-act="fbreview">${I.receipt}Alle bankbetalingen</button><span class="sp"></span><button type="button" data-act="close">Klaar</button></div>`,{wide:true});
   const on=(id,f)=>{const el=document.getElementById(id);if(el)el.onclick=f};
   on("fbCopy",e=>copy(terug,e.currentTarget));
   let pem="";const pi=document.getElementById("fbPem");if(pi)pi.onchange=async()=>{const f=pi.files[0];if(!f)return;pem=(await f.text()).trim();if(!/BEGIN (RSA |EC )?PRIVATE KEY/.test(pem)){pem="";toast("Dit is geen geldig .pem-sleutelbestand");return}$("#fbPemL").textContent="✓ "+f.name;$("#fbPemL").closest("label").classList.add("fb-ok")};

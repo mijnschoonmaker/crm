@@ -25,7 +25,7 @@ function openOfferte(opts={}){
   let dns=((ex&&ex.diensten)||[]).map(d=>({...d,items:(d.items||[]).map(i=>({...i}))}));
   /* oudere offertes: dienstregels die per ongeluk ook als eigen regel bewaard zijn niet dubbel tonen */
   if(dns.length)extra=extra.filter(r=>!dns.some(d=>String(d.groepOms||d.naam||"").trim()===String(r.omschrijving||"").trim()));
-  openDlg(`<div class="dlg-head"><span class="objic big">${I.offertes}</span><div style="min-width:0;flex:1"><h3>${ex?"Offerte "+esc(ex.nummer):"Nieuwe offerte"}</h3><div class="subt" id="owSub">${k0?esc(cleanName(k0.naam))+" · "+esc(fullAddr(k0)):"Kies een klant of vul een nieuwe klant in"}</div></div><span class="pill ${stPill[0]} dotp">${esc(stPill[1])}</span><button type="button" class="iconbtn" data-act="${opts.back?"offback":"close"}" data-id="${esc(opts.back||"")}" aria-label="Sluiten">${I.x}</button></div>
+  openDlg(`<div class="dlg-head"><span class="objic big">${I.offertes}</span><div style="min-width:0;flex:1"><div class="ow-kick">Offerte</div><h3 class="ow-h">${ex?esc(ex.nummer):"Nieuw"}</h3><div class="subt" id="owSub">${k0?esc(cleanName(k0.naam))+" · "+esc(fullAddr(k0)):"Kies een klant of vul een nieuwe klant in"}</div></div><span class="pill ${stPill[0]} dotp">${esc(stPill[1])}</span><button type="button" class="iconbtn" data-act="${opts.back?"offback":"close"}" data-id="${esc(opts.back||"")}" aria-label="Sluiten">${I.x}</button></div>
   <div class="kk-grid ow-grid"><div class="kk-left">
     <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klantgegevens</b></div>
       <div class="grid2">
@@ -77,8 +77,7 @@ function openOfferte(opts={}){
       <div id="owRegels"></div>
       <div class="totals" id="owTot" style="margin-top:10px"></div></section>
   </div></div>
-  <div class="row stickyfoot kk-foot">${ex?`<button type="button" class="ghost danger" id="owDel">Verwijderen</button>`:""}<span class="sp"></span><button type="button" data-act="${opts.back?"offback":"close"}" data-id="${esc(opts.back||"")}">Annuleren</button>
-    <button type="button" id="owSent">${I.right}Handmatig op verstuurd</button><button type="button" id="owSave">${I.check}Opslaan</button><button type="button" id="owView">${I.eye}Bekijk offerte</button><button type="submit" class="primary" id="owSend">${I.send||I.msg}Versturen</button></div>`,{xwide:true});
+  <div class="row stickyfoot kk-foot ow-foot"><div class="ow-neven">${ex?`<button type="button" class="ow-link danger" id="owDel">${I.trash||""}Verwijderen</button>`:""}<button type="button" class="ow-link" id="owSent">${I.right}Handmatig op verstuurd</button><button type="button" class="ow-link" data-act="${opts.back?"offback":"close"}" data-id="${esc(opts.back||"")}">Annuleren</button></div><div class="ow-hoofd"><button type="button" id="owSave">${I.check}Opslaan</button><button type="button" id="owView">${I.eye}Bekijk offerte</button><button type="submit" class="primary" id="owSend">${I.send||I.msg}Versturen</button></div></div>`,{xwide:true});
   const $o=n=>$("#ow-"+n);
   const ex2inc=p=>st.incl?r2(Number(p)/(1+Number($o("btw").value)/100)):Number(p);
   const dnsCalc=d=>groepCalc(d);
