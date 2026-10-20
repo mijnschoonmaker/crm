@@ -1627,6 +1627,20 @@ html body:not(#zz) .ab-kp .ab-x{flex:none!important;box-sizing:border-box}
 
 html body:not(#zz) .bw-stap,html body:not(#zz) .bw-lbl{display:none!important}
 @media (max-width:760px){html body:not(#zz) .bz-wacht{display:none!important}}
+
+/* live meekijken: bus met boxvan netjes */
+html body:not(#zz) .lv-car{width:72px!important;height:46px!important;border-radius:12px!important;background:var(--sv-satijn-l)!important;border:1px solid #dcdcd8;overflow:hidden;display:grid!important;place-items:center}
+html body:not(#zz) .lv-car img{width:62px!important;height:auto!important;max-width:none;display:block;filter:drop-shadow(0 2px 2px rgb(0 0 0 / .25))}
+html body:not(#zz) .lv-wacht>img{width:120px;height:auto;display:block;filter:drop-shadow(0 6px 8px rgb(0 0 0 / .25))}
+html body:not(#zz) .lv-rot{display:block;width:96px;transition:transform .4s}
+html body:not(#zz) .lv-rot img{width:96px;height:auto;display:block;filter:drop-shadow(0 4px 5px rgb(0 0 0 / .45))}
+html body:not(#zz) .lv-rot.links{transform:scaleX(-1)}
+html body:not(#zz) .lv-auto .lv-puls{left:50%!important;top:62%!important}
+html body:not(#zz) .lv-map{min-height:260px;background:#5d6b55}
+
+html body:not(#zz) .lv-wacht{flex-direction:row-reverse;background:var(--sv-satijn-l)!important}
+html body:not(#zz) .lv-wacht>span{background:#252c3c!important;opacity:.55}
+html body:not(#zz) .lv-wacht>svg:first-child{color:#252c3c!important}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -2328,13 +2342,13 @@ async function lvInit(){clearInterval(LVK.timer);const L=D&&D.live;if(!L||L.stat
   try{await lvLeaflet()}catch(e){el.innerHTML=`<p class="lv-fout">Kaart kon niet laden</p>`;return}
   const Lf=window.L;el.innerHTML="";LVK.zelf=false;
   LVK.map=Lf.map(el,{zoomControl:false,attributionControl:false,preferCanvas:true,dragging:true,scrollWheelZoom:false,tap:true}).setView([L.pos.lat,L.pos.lng],14);
-  Lf.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(LVK.map);
+  Lf.tileLayer("https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0/Actueel_orthoHR/EPSG:3857/{z}/{x}/{y}.jpeg",{maxZoom:19,maxNativeZoom:19,attribution:"Luchtfoto © PDOK"}).addTo(LVK.map);
   /* bronvermelding is verplicht voor de kaart, maar klein: een i-knopje dat openklapt */
-  {const ab=document.createElement("button");ab.type="button";ab.className="lv-bron";ab.setAttribute("aria-label","Kaartgegevens");ab.innerHTML="<span>i</span><em>© OpenStreetMap-bijdragers</em>";ab.onclick=e=>{e.stopPropagation();ab.classList.toggle("open")};el.appendChild(ab)}
+  {const ab=document.createElement("button");ab.type="button";ab.className="lv-bron";ab.setAttribute("aria-label","Kaartgegevens");ab.innerHTML="<span>i</span><em>Luchtfoto © PDOK / Beeldmateriaal Nederland</em>";ab.onclick=e=>{e.stopPropagation();ab.classList.toggle("open")};el.appendChild(ab)}
   LVK.map.on("dragstart zoomstart",e=>{if(e&&e.originalEvent)LVK.zelf=true});
   if(L.huis){LVK.huis=Lf.marker(L.huis,{icon:Lf.divIcon({className:"lv-ic",html:`<span class="lv-huis">${I.huis}</span>`,iconSize:[40,46],iconAnchor:[20,44]}),keyboard:false}).addTo(LVK.map);
     LVK.lijn=Lf.polyline([[L.pos.lat,L.pos.lng],L.huis],{color:"#252c3c",weight:3.5,opacity:.85,dashArray:"1 9",lineCap:"round"}).addTo(LVK.map)}
-  LVK.car=Lf.marker([L.pos.lat,L.pos.lng],{icon:Lf.divIcon({className:"lv-ic",html:`<span class="lv-auto"><span class="lv-puls"></span><span class="lv-rot" style="transform:rotate(${L.pos.koers||0}deg)">${BUS}</span></span>`,iconSize:[64,64],iconAnchor:[32,32]}),keyboard:false,zIndexOffset:500}).addTo(LVK.map);
+  LVK.car=Lf.marker([L.pos.lat,L.pos.lng],{icon:Lf.divIcon({className:"lv-ic",html:`<span class="lv-auto"><span class="lv-puls"></span><span class="lv-rot">${AUTO}</span></span>`,iconSize:[96,64],iconAnchor:[48,40]}),keyboard:false,zIndexOffset:500}).addTo(LVK.map);
   LVK.naar={lat:L.pos.lat,lng:L.pos.lng};lvFit();setTimeout(()=>{if(LVK.map){LVK.map.invalidateSize();LVK.map.fire("moveend");lvFit()}},300)}
 function lvFit(){if(!LVK.map||LVK.zelf)return;const L=D.live,pts=[[LVK.naar.lat,LVK.naar.lng]];if(L.huis)pts.push(L.huis);
   if(pts.length>1)LVK.map.fitBounds(pts,{padding:[50,50],maxZoom:16,animate:true});else LVK.map.panTo(pts[0],{animate:true})}
@@ -2345,7 +2359,7 @@ async function lvPeil(){if(document.hidden||tab!=="home")return;let r;try{r=awai
   const was=D.live;D.live=L;
   if(!L||L.status!=="onderweg"||!!L.pos!==!!(was&&was.pos)){teken();return}
   const T=lvTekst(L),q=id=>document.getElementById(id);if(q("lvT"))q("lvT").textContent=T.t;if(q("lvS"))q("lvS").textContent=T.s;if(q("lvE"))q("lvE").textContent="± "+L.eta;
-  if(L.pos&&LVK.car){LVK.naar={lat:L.pos.lat,lng:L.pos.lng};lvRij(LVK.naar);const r_=LVK.car.getElement()&&LVK.car.getElement().querySelector(".lv-rot");if(r_&&L.pos.koers!=null)r_.style.transform=`rotate(${L.pos.koers}deg)`;setTimeout(lvFit,2300)}}
+  if(L.pos&&LVK.car){LVK.naar={lat:L.pos.lat,lng:L.pos.lng};lvRij(LVK.naar);const r_=LVK.car.getElement()&&LVK.car.getElement().querySelector(".lv-rot");if(r_&&L.pos.koers!=null)r_.classList.toggle("links",((L.pos.koers%360)+360)%360>180);setTimeout(lvFit,2300)}}
 /* ---------- start ---------- */
 (async()=>{const q=new URLSearchParams(location.search),seg=location.pathname.split("/").filter(Boolean);
   if(seg[0]==="aanbevolen"&&seg[1])return toonAanbevolen(decodeURIComponent(seg[1]).toUpperCase());
