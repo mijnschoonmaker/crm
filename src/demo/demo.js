@@ -36,7 +36,8 @@ function demoMaak(){
   const tijden=["08:00","08:40","09:15","09:50","10:30","11:15","13:00","13:45","14:30","15:15"];
   const zh=klanten.filter(k=>["Zuidhorn","Aduard","Niekerk"].includes(k.plaats)).slice(0,8);
   zh.forEach((k,i)=>{k.gepland=D(0);k.tijd=tijden[i]});
-  if(zh[0])zh[0].taak="Ramen buiten en kozijnen. Achterom via de poort aan de zijkant; graag de plantenbakken op de vensterbank laten staan.";
+  const TK=["Ramen buiten en kozijnen. Achterom via de poort aan de zijkant; graag de plantenbakken op de vensterbank laten staan.","Ook het glas van de voordeur en de serre. Ladder niet tegen de dakgoot zetten.","Alleen buitenkant. Sleutel van de poort hangt in het kastje naast de voordeur."];
+  zh.forEach((k,i)=>{if(i<6)k.taak=TK[i%3]});
   klanten.filter(k=>!k.gepland).forEach((k,i)=>{if(i%5===4)return;let d=1+Math.floor(R()*20);const wd=addDays(t,d).getDay();if(wd===0)d++;if(wd===6)d+=2;k.gepland=D(d);k.tijd=tijden[Math.floor(R()*tijden.length)]});
   /* offertes */
   const off=(n,naam,adres,st,regels,dd)=>facturen.push({id:"odemo"+n,soort:"offerte",nummer:"OFF-"+t.getFullYear()+"-"+String(n).padStart(3,"0"),klantId:"",klantNaam:naam,klantAdres:adres,klantEmail:"",datum:D(dd),verval:D(dd+30),status:st,regels,btw:21,incl:true,gemaakt:D(dd)+"T09:00:00.000Z"});
@@ -61,6 +62,9 @@ async function demoStart(){
   if(opnieuw)try{history.replaceState(null,"",location.pathname)}catch(_){}
   if(!d){d=demoMaak();try{const G=JSON.parse(localStorage.getItem("ms.geo")||"{}");localStorage.setItem("ms.geo",JSON.stringify({...G,...d.geo}))}catch(e){}}
   else{const n=Math.round((today()-parse(d.gemaakt))/DAY);if(n>0)d.cols=demoSchuif(d.cols,n)}
+  /* bestaande demo's: voorbeeld-taakomschrijvingen bij de adressen van vandaag (eenmalig) */
+  try{const kl=d.cols.klanten||[];if(!kl.some(k=>k.taak)){const TK=["Ramen buiten en kozijnen. Achterom via de poort aan de zijkant; graag de plantenbakken op de vensterbank laten staan.","Ook het glas van de voordeur en de serre. Ladder niet tegen de dakgoot zetten.","Alleen buitenkant. Sleutel van de poort hangt in het kastje naast de voordeur."];
+    kl.filter(k=>k.gepland===iso(today())).slice(0,6).forEach((k,i)=>k.taak=TK[i%3])}}catch(e){}
   COLS.forEach(c=>{mem[c]=new Map((d.cols[c]||[]).map(x=>[x.id,x]));apply(c,[...mem[c].values()])});
   demoBewaar();
   const _s=save,_d=del;let tm=0;const later=()=>{clearTimeout(tm);tm=setTimeout(demoBewaar,300)};
