@@ -55,13 +55,30 @@ async function akkoordLink(f,k){let tok=f.akkoordToken;
   const kk=state.klanten.find(x=>x.id===f.klantId)||k;
   await fsDb().doc("akkoord/"+tok).set({factuurId:f.id,klantId:f.klantId||"",nummer:f.nummer||"",email:(k&&k.email)||f.klantEmail||"",naamKlant:(kk&&(kk.contact||kk.naam))||f.klantNaam||"",geldigTot:f.verval||"",model:overzichtModelOfferte(f,kk),status:f.getekend?"getekend":"open",gemaakt:new Date().toISOString()},{merge:true});
   return location.origin+"/akkoord/"+tok}
-function getekendBox(f){const g=f.getekend||{};return `<div class="okbox" style="margin:0 0 12px">${I.check}<div><b>Online ondertekend door ${esc(g.naam||"")}${g.plaats?" uit "+esc(g.plaats):""}</b><span>${esc(g.datum||"")} · ${esc(g.browser||"")} · ${esc(g.systeem||"")}. Het definitieve bestellingsoverzicht is naar de klant gemaild. Zet de klant nu om met <b>Akkoord</b> om hem in te plannen.</span>${g.handtekening?`<img src="${BLOB}${esc(g.handtekening)}" alt="Handtekening" style="max-height:60px;margin-top:6px;background:#fff;border-radius:8px;padding:4px">`:""}</div></div>`}
+function getekendBox(f){const g=f.getekend||{};return `<div class="okbox" style="margin:0 0 12px">${I.check}<div><b>Online ondertekend door ${esc(g.naam||"")}${g.plaats?" uit "+esc(g.plaats):""}</b><span>${esc(g.datum||"")} · ${esc(g.browser||"")} · ${esc(g.systeem||"")}. Het definitieve bestellingsoverzicht is naar de klant gemaild. De klant is automatisch omgezet naar vaste klant en staat bij Te plannen.</span>${g.handtekening?`<img src="${BLOB}${esc(g.handtekening)}" alt="Handtekening" style="max-height:60px;margin-top:6px;background:#fff;border-radius:8px;padding:4px">`:""}</div></div>`}
 async function getekendGezien(f){try{await save("facturen",f.id,{...strip(f),getekendNieuw:false})}catch(e){}}
 let _getekendGezien=null;
 function meldGetekend(){if(!LIVE||!state.loaded)return;const l=state.facturen.filter(f=>f.soort==="offerte"&&f.getekendNieuw);
   if(_getekendGezien===null){_getekendGezien=new Set(l.map(f=>f.id));return}
   l.filter(f=>!_getekendGezien.has(f.id)).forEach(f=>{_getekendGezien.add(f.id);toast(`Offerte ${f.nummer} is online ondertekend door ${(f.getekend||{}).naam||"de klant"}`)})}
 if(LIVE)setInterval(()=>{try{meldGetekend()}catch(_){}},4000);
+/* online ondertekend: klant automatisch omzetten naar vaste klant en bij Te plannen zetten (zelfde als Akkoord en inplannen, met de gegevens uit de offerte) */
+const _autoAk=new Set();
+async function autoAkkoordGetekend(f){
+  if(_autoAk.has(f.id))return;_autoAk.add(f.id);
+  const k=state.klanten.find(x=>x.id===f.klantId);if(!k||!k.prospect||f.autoAkkoord)return;
+  const o=f.opdracht||{},t=totals(f),p=r2(Number(o.prijs??(S().incl?t.inc:t.ex))||0),fr=Number(o.frequentie||k.frequentie||4),du=Number(o.duur||k.duur||30),aanbod=f.start||iso(today());
+  try{
+    await save("klanten",k.id,{...strip(k),...(o.extra&&o.extra.length?{opdrachten:[...(k.opdrachten||[]).filter(x=>!x.groep||!o.extra.some(e=>e.groep===x.groep)),...o.extra]}:{}),prospect:false,opdrachtVerwijderd:false,...(f.facturatie&&typeof factModusPatch==="function"?factModusPatch(f.facturatie,k):{}),actief:true,akkoord:true,prijs:p,frequentie:fr,duur:du,
+      dienst:k.dienst||"Glasbewassing",gepland:"",tijd:"",aanbodVanaf:aanbod,aanbieden:!(aanbod>iso(today())),opzegReden:"",log:[...(k.log||[]),{datum:iso(today()),tekst:"Offerte "+f.nummer+" online ondertekend door "+((f.getekend||{}).naam||"de klant")+" · "+eur(p)+" per beurt, elke "+fr+" weken · staat bij Te plannen vanaf "+fmtD(parse(aanbod))}]});
+    const ff=state.facturen.find(x=>x.id===f.id)||f;
+    await save("facturen",f.id,{...strip(ff),status:"geaccepteerd",akkoordOp:ff.akkoordOp||iso(today()),autoAkkoord:true});
+    toast(cleanName(k.naam)+" heeft getekend en staat nu bij Te plannen");
+  }catch(e){_autoAk.delete(f.id);console.error("auto akkoord",e)}
+}
+function checkGetekend(){if(!LIVE||!state.loaded)return;state.facturen.filter(f=>f.soort==="offerte"&&f.getekend&&f.status==="geaccepteerd"&&!f.autoAkkoord).forEach(f=>{const k=state.klanten.find(x=>x.id===f.klantId);if(k&&k.prospect)autoAkkoordGetekend(f)})}
+if(LIVE)setInterval(()=>{try{checkGetekend()}catch(_){}},5000);
+
 
 /* aanvragen van de website (de server zet ze in /aanvragen): automatisch als klant + opdracht toevoegen */
 let aanvrUnsub=null;

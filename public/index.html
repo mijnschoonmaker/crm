@@ -6859,7 +6859,7 @@ function openFactuurOud(id,fromWerk){
   openDlg(`<div class="dlg-head fw-head"><div class="fw-h1"><span class="objic big">${off?I.offertes:I.facturen}</span><div class="fw-ht"><small>${off?"Offerte":"Factuur"}</small><h3>${esc(f.nummer)}</h3></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
     <div class="fw-h2"><div class="fw-hk"><b>${esc(cleanName(f.klantNaam))}</b><small>${esc(fmtL(String(f.datum||"").slice(0,10)))}</small></div><div class="fw-hb"><b>${eur(totals(f).inc)}</b>${statusPill(st[0],st[1])}</div></div></div>
   ${off&&f.getekend&&typeof getekendBox==="function"?getekendBox(f):""}<div class="row fw-acts" style="justify-content:flex-start;padding:0">
-    ${off?`${f.status!=="geaccepteerd"?`<button type="button" class="small primary" data-act="akkoord" data-id="${esc(f.id)}">${I.check}Akkoord en inplannen</button>`:""}${(f.status||"concept")==="concept"?`<button type="button" class="small" data-act="fset" data-id="${esc(f.id)}" data-s="verstuurd">Markeer verstuurd</button>`:""}${f.status!=="afgewezen"?`<button type="button" class="small" data-act="fset" data-id="${esc(f.id)}" data-s="afgewezen">Afgewezen</button>`:""}<button type="button" class="small" data-act="toinvoice" data-id="${esc(f.id)}" title="Alleen voor eenmalig werk. Vaste klanten krijgen na elke afgemelde beurt vanzelf een factuur.">Eenmalig factureren</button>`
+    ${off?`${f.status!=="geaccepteerd"||(state.klanten.find(x=>x.id===f.klantId)||{}).prospect?`<button type="button" class="small primary" data-act="akkoord" data-id="${esc(f.id)}">${I.check}Akkoord en inplannen</button>`:""}${(f.status||"concept")==="concept"?`<button type="button" class="small" data-act="fset" data-id="${esc(f.id)}" data-s="verstuurd">Markeer verstuurd</button>`:""}${f.status!=="afgewezen"?`<button type="button" class="small" data-act="fset" data-id="${esc(f.id)}" data-s="afgewezen">Afgewezen</button>`:""}<button type="button" class="small" data-act="toinvoice" data-id="${esc(f.id)}" title="Alleen voor eenmalig werk. Vaste klanten krijgen na elke afgemelde beurt vanzelf een factuur.">Eenmalig factureren</button>`
       :f.status==="concept"?`<button type="button" class="small primary" data-act="fset" data-id="${esc(f.id)}" data-s="open">Maak definitief</button>`:f.status==="betaald"?`<button type="button" class="small" data-act="fset" data-id="${esc(f.id)}" data-s="open">Terug naar openstaand</button>`:`<button type="button" class="small good" data-act="fset" data-id="${esc(f.id)}" data-s="betaald">${I.check}Markeer betaald</button>`}
     ${state.dl?`<button type="button" class="small" data-act="pdf" data-id="${esc(f.id)}">${I.dl}PDF</button>`:""}
     <button type="button" class="small yellow" data-act="sendf" data-id="${esc(f.id)}">${I.send}${st[1]==="Achterstallig"?"Stuur herinnering":"Versturen"}</button>
@@ -14980,13 +14980,30 @@ async function akkoordLink(f,k){let tok=f.akkoordToken;
   const kk=state.klanten.find(x=>x.id===f.klantId)||k;
   await fsDb().doc("akkoord/"+tok).set({factuurId:f.id,klantId:f.klantId||"",nummer:f.nummer||"",email:(k&&k.email)||f.klantEmail||"",naamKlant:(kk&&(kk.contact||kk.naam))||f.klantNaam||"",geldigTot:f.verval||"",model:overzichtModelOfferte(f,kk),status:f.getekend?"getekend":"open",gemaakt:new Date().toISOString()},{merge:true});
   return location.origin+"/akkoord/"+tok}
-function getekendBox(f){const g=f.getekend||{};return `<div class="okbox" style="margin:0 0 12px">${I.check}<div><b>Online ondertekend door ${esc(g.naam||"")}${g.plaats?" uit "+esc(g.plaats):""}</b><span>${esc(g.datum||"")} · ${esc(g.browser||"")} · ${esc(g.systeem||"")}. Het definitieve bestellingsoverzicht is naar de klant gemaild. Zet de klant nu om met <b>Akkoord</b> om hem in te plannen.</span>${g.handtekening?`<img src="${BLOB}${esc(g.handtekening)}" alt="Handtekening" style="max-height:60px;margin-top:6px;background:#fff;border-radius:8px;padding:4px">`:""}</div></div>`}
+function getekendBox(f){const g=f.getekend||{};return `<div class="okbox" style="margin:0 0 12px">${I.check}<div><b>Online ondertekend door ${esc(g.naam||"")}${g.plaats?" uit "+esc(g.plaats):""}</b><span>${esc(g.datum||"")} · ${esc(g.browser||"")} · ${esc(g.systeem||"")}. Het definitieve bestellingsoverzicht is naar de klant gemaild. De klant is automatisch omgezet naar vaste klant en staat bij Te plannen.</span>${g.handtekening?`<img src="${BLOB}${esc(g.handtekening)}" alt="Handtekening" style="max-height:60px;margin-top:6px;background:#fff;border-radius:8px;padding:4px">`:""}</div></div>`}
 async function getekendGezien(f){try{await save("facturen",f.id,{...strip(f),getekendNieuw:false})}catch(e){}}
 let _getekendGezien=null;
 function meldGetekend(){if(!LIVE||!state.loaded)return;const l=state.facturen.filter(f=>f.soort==="offerte"&&f.getekendNieuw);
   if(_getekendGezien===null){_getekendGezien=new Set(l.map(f=>f.id));return}
   l.filter(f=>!_getekendGezien.has(f.id)).forEach(f=>{_getekendGezien.add(f.id);toast(`Offerte ${f.nummer} is online ondertekend door ${(f.getekend||{}).naam||"de klant"}`)})}
 if(LIVE)setInterval(()=>{try{meldGetekend()}catch(_){}},4000);
+/* online ondertekend: klant automatisch omzetten naar vaste klant en bij Te plannen zetten (zelfde als Akkoord en inplannen, met de gegevens uit de offerte) */
+const _autoAk=new Set();
+async function autoAkkoordGetekend(f){
+  if(_autoAk.has(f.id))return;_autoAk.add(f.id);
+  const k=state.klanten.find(x=>x.id===f.klantId);if(!k||!k.prospect||f.autoAkkoord)return;
+  const o=f.opdracht||{},t=totals(f),p=r2(Number(o.prijs??(S().incl?t.inc:t.ex))||0),fr=Number(o.frequentie||k.frequentie||4),du=Number(o.duur||k.duur||30),aanbod=f.start||iso(today());
+  try{
+    await save("klanten",k.id,{...strip(k),...(o.extra&&o.extra.length?{opdrachten:[...(k.opdrachten||[]).filter(x=>!x.groep||!o.extra.some(e=>e.groep===x.groep)),...o.extra]}:{}),prospect:false,opdrachtVerwijderd:false,...(f.facturatie&&typeof factModusPatch==="function"?factModusPatch(f.facturatie,k):{}),actief:true,akkoord:true,prijs:p,frequentie:fr,duur:du,
+      dienst:k.dienst||"Glasbewassing",gepland:"",tijd:"",aanbodVanaf:aanbod,aanbieden:!(aanbod>iso(today())),opzegReden:"",log:[...(k.log||[]),{datum:iso(today()),tekst:"Offerte "+f.nummer+" online ondertekend door "+((f.getekend||{}).naam||"de klant")+" · "+eur(p)+" per beurt, elke "+fr+" weken · staat bij Te plannen vanaf "+fmtD(parse(aanbod))}]});
+    const ff=state.facturen.find(x=>x.id===f.id)||f;
+    await save("facturen",f.id,{...strip(ff),status:"geaccepteerd",akkoordOp:ff.akkoordOp||iso(today()),autoAkkoord:true});
+    toast(cleanName(k.naam)+" heeft getekend en staat nu bij Te plannen");
+  }catch(e){_autoAk.delete(f.id);console.error("auto akkoord",e)}
+}
+function checkGetekend(){if(!LIVE||!state.loaded)return;state.facturen.filter(f=>f.soort==="offerte"&&f.getekend&&f.status==="geaccepteerd"&&!f.autoAkkoord).forEach(f=>{const k=state.klanten.find(x=>x.id===f.klantId);if(k&&k.prospect)autoAkkoordGetekend(f)})}
+if(LIVE)setInterval(()=>{try{checkGetekend()}catch(_){}},5000);
+
 
 /* aanvragen van de website (de server zet ze in /aanvragen): automatisch als klant + opdracht toevoegen */
 let aanvrUnsub=null;
