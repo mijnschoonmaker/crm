@@ -1205,7 +1205,7 @@ html body:not(#zz) .bz h2,html body:not(#zz) .bz-dag,html body:not(#zz) .bz-hero
 html body:not(#zz) main>h1,html body:not(#zz) main .ph h1,html body:not(#zz) .pg-h h1,html body:not(#zz) .kop h1{text-transform:uppercase!important;letter-spacing:.16em!important;font-weight:600!important;font-size:clamp(20px,2.4vw,26px)!important}
 html body:not(#zz) .kp>.kp-h b{letter-spacing:.01em}
 /* knoppen: overal dezelfde maat */
-html body:not(#zz) .kp :is(button,.btn):not(.iconbtn):not([data-ster]):not([data-st2]),html body:not(#zz) .melding :is(button,.btn),html body:not(#zz) .lr button{min-height:40px!important;padding:0 16px!important;font-size:11px!important;letter-spacing:.16em!important;font-weight:700!important;border-radius:10px!important}
+html body:not(#zz) .kp :is(button,.btn):not(.iconbtn):not([data-ster]):not([data-st2]):not(.lr):not(.cw-btn):not(.rf-btn):not(.rf-kop),html body:not(#zz) .melding :is(button,.btn){min-height:40px!important;padding:0 16px!important;font-size:11px!important;letter-spacing:.16em!important;font-weight:700!important;border-radius:10px!important}
 /* menu links over de volle hoogte */
 @media (min-width:900px){html body:not(#zz) .app{min-height:100vh}html body:not(#zz) .side{position:sticky;top:0;height:100vh;align-self:start;background:#fff;border-right:1px solid var(--line)}}
 html body:not(#zz) .side nav button[aria-current="true"]{background:#f1f2f5!important;color:#0d121b!important;font-weight:700}
@@ -1290,6 +1290,16 @@ html body:not(#zz) .rf-tg .hl{background:#f4f8f5!important}
 html body:not(#zz) .rf-tg .hl b{color:#2f8a5f!important}
 html body:not(#zz) .rf-tg>i{color:#c3c8d0}
 @media (max-width:640px){html body:not(#zz) .rf-deel{grid-template-columns:1fr 1fr}html body:not(#zz) .rf-btn.wa{grid-column:1/-1}html body:not(#zz) .rf-ht h2{letter-spacing:.08em!important}html body:not(#zz) .rf-link b{font-size:13.5px!important}html body:not(#zz) .rf-kop span{display:none}html body:not(#zz) .rf-kop{padding:0 14px!important}}
+
+/* lijstregels (contact, gegevens): gewone rijen, geen knoppen */
+html body:not(#zz) .kp .lr,html body:not(#zz) .lr{display:flex!important;align-items:center;gap:14px;width:100%;min-height:0!important;padding:14px 20px!important;margin:0!important;border:0!important;border-top:1px solid var(--line)!important;border-radius:0!important;background:#fff!important;box-shadow:none!important;text-align:left;text-transform:none!important;letter-spacing:0!important;font-size:15px!important;font-weight:400!important;color:var(--ink)!important;text-decoration:none}
+html body:not(#zz) .kp>.kp-h+.lr,html body:not(#zz) .kp>.kp-h+*>.lr:first-child{border-top:0!important}
+html body:not(#zz) .lr:hover{background:#f7f8fa!important}
+html body:not(#zz) .lr .tx{flex:1;min-width:0}
+html body:not(#zz) .lr .tx b{display:block;font-size:15px!important;font-weight:600!important;letter-spacing:0!important;text-transform:none!important}
+html body:not(#zz) .lr .tx small,html body:not(#zz) .lr .tx span{display:block;font-size:13px!important;font-weight:400!important;color:var(--muted)!important;letter-spacing:0!important;text-transform:none!important;margin-top:2px;line-height:1.4}
+html body:not(#zz) .lr .ti{width:40px!important;height:40px!important;flex:none}
+html body:not(#zz) .lr .pill{font-size:11px!important;letter-spacing:.04em!important}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -1717,8 +1727,7 @@ function ik(){const k=D.klant,t=k.toegang||{};
   const tel=(B.mobiel||B.telefoon||"").replace(/[^\d+]/g,""),wa=tel.replace(/^\+/,"").replace(/^0/,"31");
   return kop("Contact","We helpen u graag. Maak een ticket aan, dan reageren we snel.")+`<div class="pg"><div class="grid2">
     ${kp(I.ticket,"Contact met ons",`<div class="lijst">${lr(I.ticket,"Ticket aanmaken",`Snelste weg · u volgt de status in het portaal`,`<span class="pill brand">Voorkeur</span>`,{attr:'data-act="ticket"',tis:"background:var(--brand);color:#fff"})}</div>`,{sub:"Wij werken niet telefonisch, maar reageren snel op tickets"})}
-    ${kp(I.sleutel,"Bij u thuis",`<div class="lijst">${lr(I.sleutel,"Toegang en instructies",(t.opties||[]).length||t.tekst||t.code?esc([t.code?"Poortcode ingesteld":"",...(t.opties||[]),t.tekst].filter(Boolean).join(" · ").slice(0,90)):"Poortcode, achterom open, hond aanwezig","",{attr:'data-act="toegang"'})}
-      ${lr(I.plus,"Iets extra laten doen","Kozijnen, binnenzijde, zonnepanelen","",{attr:'data-act="extra"'})}</div>`,{kl:"goud"})}
+    ${kp(I.sleutel,"Bij u thuis",`<div class="lijst">${lr(I.sleutel,"Toegang en instructies",(t.opties||[]).length||t.tekst||t.code?esc([t.code?"Poortcode ingesteld":"",...(t.opties||[]),t.tekst].filter(Boolean).join(" · ").slice(0,90)):"Poortcode, achterom open, hond aanwezig","",{attr:'data-act="toegang"'})}</div>`,{kl:"goud"})}
     ${kp(I.ik,"Mijn gegevens",`<div class="lijst">${lr(I.huis,esc(k.naam),esc(k.adres)+"<br>"+esc(k.pcPlaats),"",{attr:'data-act="gegevens"'})}
       ${lr(I.tel,"Telefoon en e-mail",esc([k.telefoon||k.mobiel,k.email].filter(Boolean).join(" · ")||"Nog niet bekend"),"",{attr:'data-act="gegevens"'})}
       ${k.klantnr?lr(I.doc,"Klantnummer",esc(k.klantnr)):""}${B.voorwaarden?lr(I.doc,"Algemene voorwaarden","PDF","",{href:B.voorwaarden}):""}
