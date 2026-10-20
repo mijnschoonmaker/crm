@@ -1175,3 +1175,6 @@ html body:not(#zz) .ge-ber{display:flex!important;align-items:center;justify-con
 html body:not(#zz) .ge-ber .subt{display:inline-flex;align-items:center;gap:6px;font-size:12.5px}
 html body:not(#zz) .ge-ber .subt svg{width:14px;height:14px}
 @media (max-width:560px){html body:not(#zz) .ge-sub{grid-template-columns:1fr!important}}
+/* zoeken in planning: gevonden afspraak duidelijk laten oplichten */
+html body:not(#zz) .tjob.pq-flits,html body:not(#zz) .pq-flits{animation:pqFlits2 2.4s ease-out!important;z-index:5;position:relative}
+@keyframes pqFlits2{0%,40%{box-shadow:0 0 0 3px #c9a46a,0 12px 28px -10px rgb(20 24 34 / .5);transform:scale(1.02)}100%{box-shadow:0 0 0 0 transparent;transform:none}}

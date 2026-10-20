@@ -16,7 +16,7 @@ function pqResHtml(offerAll){if(!state.pqOpen)return"";const q=String(state.pq||
 function pqKies(id){const k=state.klanten.find(x=>x.id===id);if(!k)return;const t=iso(today());state.pqOpen=false;state.pqDicht=Date.now();try{document.activeElement&&document.activeElement.blur()}catch(e){}
   const gp=k.gepland&&k.gepland>=t?k.gepland:"";
   if(gp){state.planDay=gp;if(state.pview==="maand")state.pview="dag";if(state.pview==="week"||state.pview==="multi"){state.week=startOfWeek(parse(gp));state.multiDays=null}
-    render();setTimeout(()=>pqFlits(`.job[data-drag="${id}"],.job[data-id="${id}"]`),80);return}
+    render();setTimeout(()=>{if(!pqFlits(`.tjob[data-drag="${id}"],.job[data-drag="${id}"],.job[data-id="${id}"],[data-drag="${id}"]`))openKlantView(id)},120);return}
   render();
   setTimeout(()=>{
     if(state.pkaart&&PK.map&&PK.mk&&PK.mk[id]){const m=PK.mk[id];PK.zelf=true;PK.map.flyTo(m.getLatLng(),Math.max(PK.map.getZoom(),15),{duration:.7});setTimeout(()=>{m.openTooltip();const el=m.getElement();if(el){el.classList.add("pk-hl");setTimeout(()=>el.classList.remove("pk-hl"),2600)}},750)}

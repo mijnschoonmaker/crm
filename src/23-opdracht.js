@@ -184,7 +184,7 @@ function openOpdrachtWerk(kid,focus){
     return `<div class="ow-line ow-dicht"><div class="ow-rk"><div class="ow-rkh"><span class="objic">${I.check}</span><b>${esc(r.dienst||"Dienst")}${r.actief===false?' <small>(niet actief)</small>':""}</b><span class="sp"></span><button type="button" class="iconbtn sm" data-lopen="${i}" aria-label="Wijzigen" title="Wijzigen">${I.pencil}</button><button type="button" class="iconbtn sm" data-rm="${i}" aria-label="Regel verwijderen" title="Verwijderen">${I.x}</button></div>
       ${r.oms?`<p class="ow-rko">${esc(r.oms)}</p>`:""}
       <dl class="ow-rkf">${regels}</dl>
-      <dl class="ow-rkt">${c&&c.start?`<dt>Starttarief</dt><dd>${eur(c.start)}</dd>`:""}<dt>Tijdsduur</dt><dd>${c?Math.round(c.sec/60):Number(r.duur)||0} minuten</dd><dt>Totaal ${esc(r.dienst||"")}</dt><dd>${eur(c?c.ex:Number(r.prijs)||0)}${ov?" <i>(overschrijvend)</i>":""}</dd></dl></div></div>`};
+      <dl class="ow-rkt">${c&&c.start?`<dt>Starttarief</dt><dd>${eur(c.start)}</dd>`:""}<dt>Tijdsduur</dt><dd>${c?Math.round(c.sec/60):Number(r.duur)||0} minuten</dd><dt>Totaal ${esc(r.dienst||"")}</dt><dd>${eur(c?(S().toonEx?c.ex:c.ex*(1+(Number(st.btw)||21)/100)):toon(r.prijs))}${ov?" <i>(overschrijvend)</i>":""}</dd></dl></div></div>`};
   const lineHtml=(r,i,isMain)=>!isMain&&r.id&&dicht.has(r.id)?dichtHtml(r,i):`<div class="ow-line${isMain?" main":""}">
       ${isMain&&r.ramen?"":`      <div class="ow-lh"><span class="mono">${isMain?1:i+2}</span><input data-i="${isMain?"m":i}" data-k="dienst" value="${esc(r.dienst)}" placeholder="Dienst" aria-label="Dienst">${isMain?"":`<button type="button" class="small ghost" data-rm="${i}" aria-label="Regel verwijderen">${I.x}</button>`}</div>
       <div class="ow-lg">
@@ -207,8 +207,8 @@ function openOpdrachtWerk(kid,focus){
     if(struct)groepRedraw($("#owLines"),"x"+i,r,gOpts(r));else groepTotUpdate($("#owLines"),"x"+i,r,gOpts(r));tot()};
   const tot=()=>{const per=Number(main.prijs)||0,ex=extra.filter(o=>o.actief!==false&&o.dienst),ts=Math.max(0,Number(($o("toeslag")||{}).value)||0)/100;
     const jaar=(per*52/(mF||4)+ex.reduce((a,o)=>a+(Number(o.prijs)||0)*52/(Number(o.frequentie)||52),0))*(1+ts);
-    $("#owTot").innerHTML=`<span>Per beurt (${esc(main.dienst||"hoofdopdracht")})</span><span>${eur(per)}</span>${ts?`<span>Toeslag ${r2(ts*100)}%</span><span>+ ${eur(per*ts)}</span><span class="grand">Per beurt incl. toeslag</span><span class="grand">${eur(per*(1+ts))}</span>`:""}${ex.length?`<span>Extra opdrachten, per keer${ts?" incl. toeslag":""}</span><span>${eur(ex.reduce((a,o)=>a+(Number(o.prijs)||0),0)*(1+ts))}</span>`:""}`;
-    const h=$("#owTsl");if(h)h.textContent=ts?`+ ${r2(ts*100)}% toeslag = ${eur(per*(1+ts))} per keer`:""};
+    $("#owTot").innerHTML=`<span>Per beurt (${esc(main.dienst||"hoofdopdracht")})</span><span>${eur(toon(per))}</span>${ts?`<span>Toeslag ${r2(ts*100)}%</span><span>+ ${eur(toon(per)*ts)}</span><span class="grand">Per beurt incl. toeslag</span><span class="grand">${eur(toon(per)*(1+ts))}</span>`:""}${ex.length?`<span>Extra opdrachten, per keer${ts?" incl. toeslag":""}</span><span>${eur(ex.reduce((a,o)=>a+(Number(o.prijs)||0),0)*(1+ts))}</span>`:""}`;
+    const h=$("#owTsl");if(h)h.textContent=ts?`+ ${r2(ts*100)}% toeslag = ${eur(toon(per)*(1+ts))} per keer`:""};
   const draw=()=>{syncRitme();$("#owLines").innerHTML=lineHtml(main,0,true)+extra.map((r,i)=>lineHtml(r,i,false)).join("");tot()};
   const allFotos=()=>[...tFotos.map(f=>({...f,naam:"Uit de telling",t:1})),...fotos];
   const drawFotos=()=>{const all=allFotos();
