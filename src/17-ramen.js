@@ -383,7 +383,7 @@ function buildRamen(){
     ["w6","1x per 6 weken",52/6,0,6],["m8","1x per 8 weken",6.5,5,8],["mnd2","1x per 2 maanden",6,0,8],["w12","1x per 12 weken",52/12,0,12],
     ["mnd3","1x per 3 maanden",4,-150,12],["w16","1x per 16 weken",3.25,0,12],["mnd4","1x per 4 maanden",3,0,12],["w24","1x per 24 weken",52/24,0,26],
     ["mnd6","1x per 6 maanden",2,0,26],["w48","1x per 48 weken",52/48,0,52],["mnd12","1x per 12 maanden",1,0,52],["afroep","Op afroep",1,-25,0],["once","Eenmalig",1,-25,0]];
-  const FREQ_BASE=FREQ_LIST.slice(),FREQ={};
+  const FREQ_BASE=FREQ_LIST.slice(),FREQ={};FREQ_LIST.forEach(([k,,y])=>{window.FREQ_Y=window.FREQ_Y||{};window.FREQ_Y[k]=y});
   /* extra frequenties die in Uitvoering › Frequenties voor de rekentool zijn aangezet (freqCalc[key]={l,w}) */
   const refreshFreq=()=>{const fc=(typeof S==="function"&&S().freqCalc)||{};FREQ_LIST.length=0;FREQ_BASE.forEach(x=>FREQ_LIST.push(x));
     Object.entries(fc).forEach(([k,v])=>{if(v&&typeof v==="object"&&Number(v.w)>0&&!FREQ_LIST.some(x=>x[0]===k))FREQ_LIST.push([k,String(v.l||"1x per "+v.w+" weken"),52/Number(v.w),0,Number(v.w)])});

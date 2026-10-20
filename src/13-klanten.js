@@ -57,23 +57,24 @@ function openPostcodes(){
 function leesAanvraag(txt){const m=String(txt||"").match(/ZEEM1:([A-Za-z0-9_-]+)/);if(!m)return null;
   try{let b=m[1].replace(/-/g,"+").replace(/_/g,"/");while(b.length%4)b+="=";const d=JSON.parse(decodeURIComponent(escape(atob(b))));return d&&(d.formaat==="zeem.aanvraag"||d.formaat==="zeem.contact")?d:null}catch(e){return null}}
 function aanvraagKlant(d){const k=d.klant||{},t=d.telling||{},fl=(t.floors||[]).map(n=>Number(n)||0),sp={lood:0,mini:0,koepel:0,tuimel:0,...(t.special||{})};
-  if(!RC)RC=buildRamen();const R=RC.prijs({floors:fl,special:sp,fk:"m8",koz:false});
+  if(!RC)RC=buildRamen();const fq0=String(t.freq||"m8"),fqi=(RC.freqList().find(f=>f.k===fq0)||null),fk=fqi?fq0:"m8",fy=fqi?((window.FREQ_Y||{})[fk]||0):6.5;const R=RC.prijs({floors:fl,special:sp,fk,koz:false});
+  const weken=fk==="once"?FQ_EENMALIG:fk==="afroep"?FQ_AFROEP:(()=>{const wy=Math.round(52/(fy||6.5)),w=fqi&&fqi.w||0;return Math.max(1,w&&Math.abs(wy-w)<=1?w:wy)})(),fqLabel=fqi?fqi.l:"1x per 8 weken";
   const prijs=r2(S().incl?R.inc:R.ex),duur=Math.max(15,Math.ceil(R.sec/60/5)*5);
   const f4=[0,1,2,3].map(i=>i<3?(fl[i]||0):fl.slice(3).reduce((a,b)=>a+b,0));const geenBijz=!Object.values(sp).some(n=>n>0);
   const regels=[...fl.map((n,i)=>n?[FLN[Math.min(i,3)]||((i)+"e verdieping"),n]:null),...Object.entries(sp).map(([k2,n])=>n?[{lood:"Glas-in-lood",mini:"Miniraampjes",koepel:"Lichtkoepels",tuimel:"Dak- / tuimelramen"}[k2],n]:null)].filter(Boolean);
-  return {k,t,fl,sp,R,prijs,duur,f4,geenBijz,regels,ramen:R.count}}
+  return {k,t,fl,sp,R,prijs,duur,f4,geenBijz,regels,ramen:R.count,fk,weken,fqLabel}}
 /* aanvraag → klant met opdracht (glasbewassing per verdieping); eerste beurt = O-beurt met tellingcontrole.
    fotos: [{blob,naam,w,h,dots}] als de aanvraag rechtstreeks uit de calculator in het crm komt */
 async function aanvraagToevoegen(D,fotos=[]){const a=aanvraagKlant(D),id=newId("k");
   const zak=D.soort==="zakelijk"&&a.k.bedrijf;const tf=[];
   for(const f of (fotos||[])){try{if(!state.assets||!f.blob)break;const file=new File([f.blob],f.naam||"woning-foto.jpg",{type:f.blob.type||"image/jpeg"});const r=await state.assets.upload(file);tf.push({id:r.id,naam:f.naam||"Foto",datum:iso(today()),w:f.w||0,h:f.h||0,dots:(f.dots||[]).map(d=>({x:d.x,y:d.y,t:d.t}))})}catch(er){console.error(er)}}
   const k={naam:zak?a.k.bedrijf:(a.k.naam||"Nieuwe klant"),contact:zak?a.k.naam||"":"",adres:a.k.adres||"",postcode:String(a.k.postcode||"").toUpperCase(),plaats:a.k.plaats||"",email:a.k.email||"",telefoon:a.k.telefoon||"",
-    notities:a.k.opmerking||"",dienst:"Glasbewassing",prijs:a.prijs,frequentie:8,duur:a.duur,ronde:"",laatst:"",gepland:"",tijd:"",aanbieden:true,eersteKeer:true,tellingControle:true,
+    notities:a.k.opmerking||"",dienst:"Glasbewassing",prijs:a.prijs,frequentie:a.weken,duur:a.duur,ronde:"",laatst:"",gepland:"",tijd:"",aanbieden:true,eersteKeer:true,tellingControle:true,
     ramenRegel:a.geenBijz?normR({f:a.f4,fq:["","","",""]}):null,
-    ramenTelling:{floors:a.fl,special:a.sp,freq:"m8",koz:false,ramen:a.ramen,datum:iso(today()),fotos:tf,bron:"klant"},
+    ramenTelling:{floors:a.fl,special:a.sp,freq:a.fk,koz:false,ramen:a.ramen,datum:iso(today()),fotos:tf,bron:"klant"},
     bron:"website",nieuwAangemeld:true,binnen:false,soort:zak?"zakelijk":"particulier",actief:true,prospect:false,akkoord:true,opdrachtVerwijderd:false,aangemaakt:iso(today()),
     ...aanbevelingBijAanvraag(D),
-    log:[{datum:iso(today()),tekst:(D.aanbevolenDoor?"Aanbevolen via code "+(D.ref||"")+" · ":"")+"Aanvraag via de website · "+a.ramen+" ramen (telling klant) · "+eur(a.prijs)+" per beurt, elke 8 weken · eerste beurt O-beurt met tellingcontrole"}],objecten:[]};
+    log:[{datum:iso(today()),tekst:(D.aanbevolenDoor?"Aanbevolen via code "+(D.ref||"")+" · ":"")+"Aanvraag via de website · "+a.ramen+" ramen (telling klant) · "+eur(a.prijs)+" per beurt, "+a.fqLabel.replace(/^1x /,"")+" · eerste beurt O-beurt met tellingcontrole"}],objecten:[]};
   await save("klanten",id,k);return {...k,id}}
 /* contactverzoek van een bedrijf / VvE: klant als prospect, nog zonder opdracht */
 async function contactToevoegen(D){const k0=D.klant||{},id=newId("k");
@@ -96,7 +97,7 @@ function openWebAanvraag(){
       <b style="font-size:16px">${esc(D.soort==="zakelijk"&&a.k.bedrijf?a.k.bedrijf:(a.k.naam||"Onbekend"))}</b>${D.soort==="zakelijk"?`<span class="pill neutral" style="align-self:flex-start">Zakelijk${a.k.bedrijf?" · t.a.v. "+esc(a.k.naam||""):""}</span>`:""}<span class="subt">${esc([a.k.adres,[a.k.postcode,a.k.plaats].filter(Boolean).join(" ")].filter(Boolean).join(", "))}</span>
       <span class="subt">${esc([a.k.email,a.k.telefoon].filter(Boolean).join(" · "))}</span>
       <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">${a.regels.map(([n,c])=>`<span class="pill neutral">${esc(n)} <b>${c}</b></span>`).join("")}</div>
-      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:6px;border-top:1px solid var(--line);padding-top:8px"><span>${a.ramen} ramen · elke 8 weken · ± ${a.duur} min</span><b style="font-size:18px">${eur(a.prijs)}</b></div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:6px;border-top:1px solid var(--line);padding-top:8px"><span>${a.ramen} ramen · ${esc(a.fqLabel.replace(/^1x /,""))} · ± ${a.duur} min</span><b style="font-size:18px">${eur(a.prijs)}</b></div>
       ${a.k.opmerking?`<span class="subt">Opmerking: ${esc(a.k.opmerking)}</span>`:""}
       ${D.fotos?`<span class="subt">${D.fotos===1?"De foto":D.fotos+" foto’s"} met aangetikte ramen ${D.fotos===1?"zit":"zitten"} als bijlage bij het bericht. Voeg ${D.fotos===1?"hem":"ze"} toe in de opdracht onder Foto’s.</span>`:""}</div>
       ${dub?`<div class="warnbox">${I.alert}<span>Op dit adres staat al een klant: <b>${esc(cleanName(dub.naam))}</b>. Toevoegen maakt een tweede klant aan.</span></div>`:""}`};

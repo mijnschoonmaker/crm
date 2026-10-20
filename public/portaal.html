@@ -1539,6 +1539,40 @@ html body:not(#zz) .bz-tile em{display:block;min-height:18px}
 html body:not(#zz) .bz-tile>.bz-dr,html body:not(#zz) .bz-tile>.bz-rt8,html body:not(#zz) .bz-tile>.mini-st{margin-top:14px!important}
 html body:not(#zz) .bz-tile>.bz-rt8t{display:block;margin-top:6px!important;font-size:11px!important}
 @media (max-width:640px){html body:not(#zz) .bz-tiles>.bz-tile{padding:16px!important}html body:not(#zz) .bz-tile small{left:62px;top:16px}}
+
+/* abonnement-kaart */
+html body:not(#zz) .ab-kp{padding:0!important;overflow:hidden}
+html body:not(#zz) .ab-top{position:relative;isolation:isolate;padding:20px 22px 20px;color:#fff;background:repeating-linear-gradient(115deg,rgb(255 255 255 / .03) 0 1px,transparent 1px 24px),radial-gradient(120% 120% at 100% 0%,rgb(255 255 255 / .1),transparent 55%),linear-gradient(150deg,#323b50 0%,#252c3c 55%,#1c2231 100%)}
+html body:not(#zz) .ab-k{display:flex;align-items:center;gap:12px}
+html body:not(#zz) .ab-ic{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:rgb(255 255 255 / .1);border:1px solid rgb(255 255 255 / .2)}
+html body:not(#zz) .ab-ic svg{width:18px;height:18px;color:#fff}
+html body:not(#zz) .ab-eb{font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:rgb(255 255 255 / .8)}
+html body:not(#zz) .ab-d{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-top:22px}
+html body:not(#zz) .ab-d>b{font-size:17px;font-weight:600;letter-spacing:.01em}
+html body:not(#zz) .ab-pr{text-align:right;line-height:1}
+html body:not(#zz) .ab-pr em{display:block;font-style:normal;font-size:36px;font-weight:300;letter-spacing:.01em;background:linear-gradient(180deg,#fff 0%,#e3e8f1 50%,#a9b3c6 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+html body:not(#zz) .ab-pr small{display:block;margin-top:6px;font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgb(255 255 255 / .6)}
+html body:not(#zz) .ab-ch{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid rgb(255 255 255 / .12)}
+html body:not(#zz) .ab-ch span{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border-radius:99px;background:rgb(255 255 255 / .08);border:1px solid rgb(255 255 255 / .16);font-size:12px;font-weight:600;color:rgb(255 255 255 / .9)}
+html body:not(#zz) .ab-ch svg{width:13px;height:13px}
+html body:not(#zz) .ab-x{display:flex!important;align-items:center;gap:14px;width:100%;padding:16px 20px!important;border:0!important;border-radius:0!important;background:var(--sv-satijn-l)!important;box-shadow:none!important;text-align:left;text-transform:none!important;letter-spacing:0!important;cursor:pointer;min-height:0!important;transition:background .2s}
+html body:not(#zz) .ab-x:hover{background:#fff!important}
+html body:not(#zz) .ab-xi{width:38px;height:38px;flex:none;border-radius:11px;display:grid;place-items:center;background:#fff;border:1px solid #dcdcd8;color:#252c3c;transition:transform .3s cubic-bezier(.3,1.6,.5,1)}
+html body:not(#zz) .ab-x:hover .ab-xi{transform:rotate(90deg)}
+html body:not(#zz) .ab-xi svg{width:17px;height:17px}
+html body:not(#zz) .ab-xt{flex:1;min-width:0}
+html body:not(#zz) .ab-xt b{display:block;font-size:15px!important;font-weight:600!important;color:#0d121b}
+html body:not(#zz) .ab-xt small{display:block;font-size:12.5px!important;color:var(--muted);margin-top:2px;font-weight:400!important}
+html body:not(#zz) .ab-xc{color:#8a909c;transition:transform .2s}
+html body:not(#zz) .ab-xc svg{width:16px;height:16px}
+html body:not(#zz) .ab-x:hover .ab-xc{transform:translateX(3px)}
+
+html body:not(#zz) section.kp.ab-kp{padding:0!important;gap:0!important;border-radius:20px!important}
+html body:not(#zz) .ab-pr em{font-size:32px;white-space:nowrap}
+html body:not(#zz) .ab-d>b{min-width:0}
+html body:not(#zz) .ab-x,html body:not(#zz) .ab-x *{letter-spacing:0!important;text-transform:none!important}
+html body:not(#zz) .ab-x{margin:0!important;flex-shrink:0}
+html body:not(#zz) section.kp.ab-kp>.ab-top{margin:0!important}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -1701,10 +1735,11 @@ function hero(){const v=D.volgende,k=D.klant;
      :`<h2>${w?"Rond week "+w:"Binnenkort"}</h2><p>We plannen u in zodra uw route rond is en laten u vooraf weten wanneer we komen.</p>`}</div></div>
     <div class="hero-acts"><button data-act="toegang">${I.sleutel}Instructies</button><button data-act="ticket">${I.bericht}Vraag</button></div></section>`}
 
-function abonnementKp(){const k=D.klant;
-  return kp(I.ruit,"Uw abonnement",`<div class="lijst">
-    ${lr(I.ruit,esc(k.dienst)+(k.binnen?" binnen en buiten":""),(k.vve?hoofd(k.ritme||""):"Elke "+(k.frequentie===1?"week":k.frequentie+" weken"))+(k.sinds?" · klant sinds "+esc(MND[p(k.sinds).getMonth()]+" "+p(k.sinds).getFullYear()):""),eur0(k.prijs)+`<small style="color:var(--muted);font-weight:600;font-size:12px">per beurt</small>`)}
-    ${lr(I.plus,"Iets extra laten doen",isVve()?"Extra beurt, ramen, galerij of grote schoonmaak":"Kozijnen, binnenzijde, zonnepanelen","",{attr:'data-act="extra"'})}</div>`)}
+function abonnementKp(){const k=D.klant,rt=k.vve?hoofd(k.ritme||""):"Elke "+(k.frequentie===1?"week":k.frequentie+" weken"),sd=k.sinds?esc(MND[p(k.sinds).getMonth()]+" "+p(k.sinds).getFullYear()):"";
+  return `<section class="kp ab-kp"><div class="ab-top"><div class="ab-k"><span class="ab-ic">${I.ruit}</span><span class="ab-eb">Uw abonnement</span></div>
+    <div class="ab-d"><b>${esc(k.dienst)}${k.binnen?" binnen en buiten":""}</b><div class="ab-pr"><em>${eur0(k.prijs)}</em><small>per beurt</small></div></div>
+    <div class="ab-ch"><span>${I.verzet||I.kal}${esc(rt)}</span>${sd?`<span>${I.hart}Klant sinds ${sd}</span>`:""}</div></div>
+    <button class="ab-x" data-act="extra"><span class="ab-xi">${I.plus}</span><span class="ab-xt"><b>Iets extra laten doen</b><small>${isVve()?"Extra beurt, ramen, galerij of grote schoonmaak":"Kozijnen, binnenzijde, zonnepanelen"}</small></span><span class="ab-xc">${I.chev}</span></button></section>`}
 function home(){const k=D.klant,openF=D.facturen.filter(f=>f.status==="open"||f.status==="verlopen"),som=openF.reduce((a,f)=>a+f.bedrag,0),A=D.aanbevelen;
   const lopend=D.verzoeken.filter(v=>v.status==="nieuw");
   const links=`${D.tickets&&D.tickets.ongelezen?`<button class="melding" data-tab="tickets" style="border-color:color-mix(in srgb,var(--brand) 35%,var(--line))"><span class="objic">${I.ticket}</span><div class="tx"><b>${D.tickets.ongelezen===1?"Nieuw antwoord op uw ticket":D.tickets.ongelezen+" nieuwe antwoorden"}</b><small>Bekijk wat wij hebben geantwoord</small></div><span class="btn primary">Bekijken</span></button>`:""}${liveBlok()}${bzHero()}
