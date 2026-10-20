@@ -1437,6 +1437,14 @@ html body:not(#zz) .rb-body{background:repeating-linear-gradient(135deg,rgb(28 3
 html body:not(#zz) .rb-stub{background:repeating-linear-gradient(90deg,rgb(255 255 255 / .04) 0 1px,transparent 1px 3px),linear-gradient(180deg,#3a4152,#1c2231)!important}
 html body:not(#zz) .rb-b b{font-weight:600!important;text-shadow:0 1px 0 #fff}
 @media (prefers-reduced-motion:reduce){html body:not(#zz) .rf-hero::before,html body:not(#zz) .rb-k,html body:not(#zz) .rb-b,html body:not(#zz) .rb-k::before,html body:not(#zz) .rb-k::after,html body:not(#zz) .rf-btn.wa::after{animation:none!important}}
+
+/* Contact: kaartkoppen in Gelders blauw */
+html body:not(#zz) main[data-t="ik"] .kp>.kp-h,html body:not(#zz) main[data-t="ik"] .kp:has(>.kp-h>.objic)>.kp-h{background:repeating-linear-gradient(115deg,rgb(255 255 255 / .03) 0 1px,transparent 1px 24px),linear-gradient(150deg,#323b50 0%,#252c3c 55%,#1c2231 100%)!important;color:#fff!important;border-bottom:0!important;min-height:84px}
+html body:not(#zz) main[data-t="ik"] .kp>.kp-h b{color:#fff!important}
+html body:not(#zz) main[data-t="ik"] .kp>.kp-h small{color:rgb(255 255 255 / .68)!important}
+html body:not(#zz) main[data-t="ik"] .kp>.kp-h .objic{background:rgb(255 255 255 / .1)!important;border:1px solid rgb(255 255 255 / .2)!important;color:#fff!important}
+html body:not(#zz) main[data-t="ik"] .kp>.kp-h .objic svg{color:#fff!important}
+html body:not(#zz) main[data-t="ik"] .kp{overflow:hidden}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -1576,7 +1584,7 @@ function teken(){
       <div class="help"><b>Vragen?</b><small>Maak een ticket aan, dan helpen we u snel.</small><button class="primary full" data-act="ticket">${I.ticket}Ticket aanmaken</button></div>
       <div class="usercard"><span class="uav">${esc((k.voornaam||"?")[0].toUpperCase())}</span><div><b>${esc(k.naam)}</b><small>${k.klantnr?"Klant "+esc(k.klantnr):esc(k.adres)}</small></div><button data-uit title="Uitloggen" aria-label="Uitloggen">${I.uit}</button></div></aside>
     <div><header class="topbar">${logoHtml(merkNaam(),B.logo||"/logo.png").replace(/<\/span>$/,`<span class="lg-g">${groet()}, ${esc(k.voornaam||k.naam||"")}</span></span>`)}<span class="sp"></span><button class="menu-knop" data-tab="ik" aria-label="Menu"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h11M4 17h16"/></svg></button></header>
-    <main id="main"${tab==="tickets"&&TK.open?' class="m-chat"':""}>${({home,bezoeken,tickets,facturen,aanbevelen,bord,docs,ik})[tab]()}</main></div></div>
+    <main id="main" data-t="${tab}"${tab==="tickets"&&TK.open?' class="m-chat"':""}>${({home,bezoeken,tickets,facturen,aanbevelen,bord,docs,ik})[tab]()}</main></div></div>
     <nav class="tabs" aria-label="Menu">${nav(true)}</nav>`;
   $$("[data-kopieer]").forEach(b=>b.onclick=async()=>{try{await navigator.clipboard.writeText(b.dataset.kopieer);toast("Link gekopieerd")}catch(e){prompt("Kopieer de link:",b.dataset.kopieer)}});
   $$("[data-tab]").forEach(b=>b.onclick=()=>{const nw=b.dataset.tab;if(nw==="ik"&&tab==="ik"&&b.classList.contains("menu-knop")){tab=window._vorigeTab&&window._vorigeTab!=="ik"?window._vorigeTab:"home"}else{if(nw==="ik"&&tab!=="ik")window._vorigeTab=tab;tab=nw}if(tab==="tickets"){TK.open="";TK.d=null;TK.sig=""}teken();scrollTo({top:0});try{history.replaceState(null,"","#"+tab)}catch(e){}});
