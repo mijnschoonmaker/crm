@@ -1229,6 +1229,27 @@ html body:not(#zz) .rs-straat .rs-bus img{display:block;width:100%!important;hei
 @keyframes rsRijB{from{left:-130px}to{left:calc(100% + 10px)}}
 @media (max-width:560px){html body:not(#zz) .rs-straat .rs-bus{width:92px!important;bottom:10px!important}}
 @media (prefers-reduced-motion:reduce){html body:not(#zz) .rs-straat .rs-bus{animation:none!important;left:12px}}
+
+/* credits verdienen: kaarten die uitnodigen tot actie */
+html body:not(#zz) .cw-grid{gap:14px!important}
+html body:not(#zz) .cw{padding:0!important;gap:0!important;overflow:hidden;border-radius:20px!important;border:1px solid var(--line)!important;background:#fff!important;box-shadow:0 1px 2px rgb(26 32 48 / .04)!important;transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .25s}
+html body:not(#zz) .cw:hover{transform:translateY(-4px);box-shadow:0 24px 44px -28px rgb(26 32 48 / .55)!important}
+html body:not(#zz) .cw-k{position:relative;margin:0!important;padding:18px 18px 16px!important;background:var(--gb-lijn),linear-gradient(150deg,#323b50 0%,#252c3c 55%,#1c2231 100%)!important;color:#fff;align-items:flex-end!important;min-height:96px}
+html body:not(#zz) .cw-k .cw-n{order:-1;background:none!important;padding:0!important;color:#fff!important;font-size:40px!important;font-weight:300!important;letter-spacing:-.01em!important;line-height:1;display:flex;flex-direction:column}
+html body:not(#zz) .cw-k .cw-n::after{content:"credits = korting";font-size:9.5px!important;font-weight:700!important;letter-spacing:.2em;text-transform:uppercase;opacity:.65!important;margin-top:8px}
+html body:not(#zz) .cw-k .cw-ic{align-self:flex-start;width:40px!important;height:40px!important;border-radius:12px!important;background:rgb(255 255 255 / .1)!important;border:1px solid rgb(255 255 255 / .2)!important;color:#fff!important}
+html body:not(#zz) .cw-k .cw-ic svg{color:#fff!important}
+html body:not(#zz) .cw>b{padding:16px 18px 0;font-size:15px!important;font-weight:700!important;letter-spacing:.005em!important}
+html body:not(#zz) .cw>small{padding:6px 18px 0;font-size:13px!important;line-height:1.5!important}
+html body:not(#zz) .cw-v{padding:14px 18px 18px;margin-top:auto!important;flex-direction:column!important;align-items:stretch!important;gap:10px!important}
+html body:not(#zz) .cw-st{justify-content:flex-start!important;font-size:11.5px!important;font-weight:700!important;color:var(--muted)!important;background:#f1f2f5;border-radius:99px;padding:6px 11px;align-self:flex-start}
+html body:not(#zz) .cw-st.ok{background:#e6f3ec;color:#2f8a5f!important}
+html body:not(#zz) .cw-btn{width:100%!important;justify-content:center!important;min-height:46px!important;border-radius:12px!important;font-size:11.5px!important;font-weight:700!important;letter-spacing:.16em!important;background:linear-gradient(150deg,#323b50,#252c3c 60%,#1c2231)!important;box-shadow:0 12px 24px -16px rgb(26 32 48 / .8)!important;position:relative;transition:filter .2s}
+html body:not(#zz) .cw-btn::after{content:"→";margin-left:8px;font-size:15px;letter-spacing:0;transition:transform .2s}
+html body:not(#zz) .cw:hover .cw-btn::after{transform:translateX(4px)}
+html body:not(#zz) .cw-btn:hover{filter:brightness(1.15)}
+@media (max-width:640px){html body:not(#zz) .cw-k{min-height:80px;padding:14px 14px 12px!important}html body:not(#zz) .cw-k .cw-n{font-size:32px!important}html body:not(#zz) .cw>b{padding:12px 14px 0;font-size:14px!important}html body:not(#zz) .cw>small{padding:4px 14px 0;font-size:12px!important}html body:not(#zz) .cw-v{padding:12px 14px 14px}html body:not(#zz) .cw-btn{min-height:42px!important;font-size:10.5px!important;letter-spacing:.12em!important}}
+@media (max-width:640px){html body:not(#zz) .cw-k .cw-n::after{content:"credits";letter-spacing:.16em}html body:not(#zz) .cw-btn{white-space:nowrap;letter-spacing:.08em!important;padding:0 8px!important;gap:5px!important}html body:not(#zz) .cw-btn::after{display:none}html body:not(#zz) .cw-st{font-size:10.5px!important;padding:5px 9px}}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
