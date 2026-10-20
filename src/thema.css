@@ -1178,3 +1178,8 @@ html body:not(#zz) .ge-ber .subt svg{width:14px;height:14px}
 /* zoeken in planning: gevonden afspraak duidelijk laten oplichten */
 html body:not(#zz) .tjob.pq-flits,html body:not(#zz) .pq-flits{animation:pqFlits2 2.4s ease-out!important;z-index:5;position:relative}
 @keyframes pqFlits2{0%,40%{box-shadow:0 0 0 3px #c9a46a,0 12px 28px -10px rgb(20 24 34 / .5);transform:scale(1.02)}100%{box-shadow:0 0 0 0 transparent;transform:none}}
+/* ticket: taakomschrijving naast Opgemerkt */
+html body:not(#zz) .bv-duo{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:stretch}
+html body:not(#zz) .bv-duo>.bv{margin:0;height:100%}
+html body:not(#zz) .bv-tt{margin:0;font-size:14px;line-height:1.5;color:var(--ink);white-space:pre-line}
+@media (max-width:700px){html body:not(#zz) .bv-duo{grid-template-columns:1fr}}

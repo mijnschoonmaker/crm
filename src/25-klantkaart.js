@@ -153,7 +153,9 @@ function kkOpenOverzicht(kid){const k=state.klanten.find(x=>x.id===kid);if(!k)re
 }
 
 /* extra info bij een klus op de route: bellen en mee te nemen bedrijfsmiddelen */
-function jobExtra(k){return jobExtra0(k)+(k&&k.id?bvHtml(k):"")}
+function jobExtra(k){if(!k||!k.id)return jobExtra0(k);const t=String(k.taak||"").trim();
+  /* taakomschrijving uit de opdracht naast Opgemerkt, in dezelfde omlijning */
+  return jobExtra0(k)+(t?`<div class="bv-duo"><div class="bv bv-taak"><div class="bv-h"><span class="eyebrow">${I.pencil}Taakomschrijving</span></div><p class="bv-tt">${esc(t)}</p></div>${bvHtml(k)}</div>`:bvHtml(k))}
 function jobExtra0(k){const m=(k.middelen||[]).map(id=>((state.uitv&&state.uitv.middelen)||[]).find(x=>x.id===id)).filter(Boolean);
   return (k.bellen?`<div class="notebox"><span class="eyebrow">Onderweg</span>${I.phone} Bel de klant even voor je aankomt${k.telefoon?" · "+esc(k.telefoon):""}</div>`:"")+(m.length?`<div class="notebox"><span class="eyebrow">Meenemen</span>${m.map(x=>esc(x.naam)).join(", ")}</div>`:"")}
 

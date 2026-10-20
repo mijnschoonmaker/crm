@@ -36,6 +36,7 @@ function demoMaak(){
   const tijden=["08:00","08:40","09:15","09:50","10:30","11:15","13:00","13:45","14:30","15:15"];
   const zh=klanten.filter(k=>["Zuidhorn","Aduard","Niekerk"].includes(k.plaats)).slice(0,8);
   zh.forEach((k,i)=>{k.gepland=D(0);k.tijd=tijden[i]});
+  if(zh[0])zh[0].taak="Ramen buiten en kozijnen. Achterom via de poort aan de zijkant; graag de plantenbakken op de vensterbank laten staan.";
   klanten.filter(k=>!k.gepland).forEach((k,i)=>{if(i%5===4)return;let d=1+Math.floor(R()*20);const wd=addDays(t,d).getDay();if(wd===0)d++;if(wd===6)d+=2;k.gepland=D(d);k.tijd=tijden[Math.floor(R()*tijden.length)]});
   /* offertes */
   const off=(n,naam,adres,st,regels,dd)=>facturen.push({id:"odemo"+n,soort:"offerte",nummer:"OFF-"+t.getFullYear()+"-"+String(n).padStart(3,"0"),klantId:"",klantNaam:naam,klantAdres:adres,klantEmail:"",datum:D(dd),verval:D(dd+30),status:st,regels,btw:21,incl:true,gemaakt:D(dd)+"T09:00:00.000Z"});

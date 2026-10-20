@@ -88,7 +88,6 @@ const extraNa=(k,d,ed)=>(k.opdrachten||[]).map(o=>{const x=ed.find(y=>y.id===o.i
 function objInfo(k,day){const o=jobObj(k)||{};const it=[];
   try{if(k.ramenRegel&&ramenVariabel(normR(k.ramenRegel))){const {q,due}=ramenDue(k,day||iso(today()));const parts=q.f.map((n,i)=>n&&due.f[i]?FLN[i].toLowerCase()+" ("+n+")":"").filter(Boolean);it.push(`<span><b>Deze keer</b> ${esc(parts.join(", ")||"niets")}</span>`)}}catch(e){}
   if(isEersteKeer(k))it.push(`<span><b>Eerste keer</b> ja</span>`);
-  if(k.taak)it.push(`<span><b>Taak</b> ${esc(k.taak)}</span>`);
   const ed=extraDue(k,day);if(ed.length)it.push(`<span><b>Ook</b> ${ed.map(x=>esc(x.dienst)).join(", ")}</span>`);
   if(o.toegang)it.push(`<span><b>Toegang</b> ${esc(o.toegang)}</span>`);
   if(o.alarmcode)it.push(`<span><b>Alarm</b> <button type="button" class="reveal" data-act="reveal" data-v="${esc(o.alarmcode)}">${I.lock}Toon code</button></span>`);
