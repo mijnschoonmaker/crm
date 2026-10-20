@@ -1221,6 +1221,14 @@ html body:not(#zz) .objic.groen svg{color:#2f8a5f!important}
 
 html body:not(#zz) .pagehead h1{text-transform:uppercase!important;letter-spacing:.16em!important;font-weight:600!important;font-size:clamp(20px,2.4vw,26px)!important;line-height:1.25!important}
 html body:not(#zz) .cw-btn{background:#252c3c!important;border-radius:10px!important;font-size:11px!important;letter-spacing:.14em!important;text-transform:uppercase}
+
+/* Uw straat: kleine bus met boxvan die over de weg rijdt */
+html body:not(#zz) .rs-straat{position:relative;overflow:hidden}
+html body:not(#zz) .rs-straat .rs-bus{display:block!important;position:absolute!important;bottom:9px!important;left:-130px;width:118px!important;height:auto!important;z-index:3;animation:rsRijB 14s linear infinite!important;pointer-events:none}
+html body:not(#zz) .rs-straat .rs-bus img{display:block;width:100%!important;height:auto!important;max-width:none;filter:drop-shadow(0 4px 4px rgb(0 0 0 / .3))}
+@keyframes rsRijB{from{left:-130px}to{left:calc(100% + 10px)}}
+@media (max-width:560px){html body:not(#zz) .rs-straat .rs-bus{width:92px!important;bottom:10px!important}}
+@media (prefers-reduced-motion:reduce){html body:not(#zz) .rs-straat .rs-bus{animation:none!important;left:12px}}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
