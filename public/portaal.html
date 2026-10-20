@@ -1349,6 +1349,36 @@ html body:not(#zz) .cw.in{animation:opkomen .6s cubic-bezier(.2,.7,.2,1) both;an
 
 html body:not(#zz) .cw-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
 @media (max-width:640px){html body:not(#zz) .cw-grid{grid-template-columns:1fr!important}}
+
+/* ===== metalen kaarten: platinum, titanium, black ===== */
+@keyframes metaalglans{0%,62%{transform:translateX(-130%) skewX(-20deg)}100%{transform:translateX(330%) skewX(-20deg)}}
+html body:not(#zz) .cw .cw-k{--borst:repeating-linear-gradient(90deg,rgb(255 255 255 / .05) 0 1px,rgb(0 0 0 / .035) 1px 2px,transparent 2px 3px)}
+html body:not(#zz) .cw.a .cw-k{background:var(--borst),radial-gradient(120% 90% at 85% -20%,rgb(255 255 255 / .9),transparent 55%),linear-gradient(125deg,#f3f4f6 0%,#c4c9d1 20%,#eceef2 38%,#a6adb8 58%,#e4e7ec 78%,#b9bfc8 100%)!important;color:#1c2231!important}
+html body:not(#zz) .cw.b .cw-k{background:var(--borst),radial-gradient(120% 90% at 85% -20%,rgb(255 255 255 / .35),transparent 55%),linear-gradient(125deg,#9198a3 0%,#5c636e 22%,#a2a9b3 42%,#4a515b 66%,#7f8691 84%,#5a616b 100%)!important;color:#fff!important}
+html body:not(#zz) .cw.d .cw-k{background:var(--borst),radial-gradient(120% 90% at 85% -20%,rgb(255 255 255 / .16),transparent 55%),linear-gradient(125deg,#3b3e45 0%,#17191d 28%,#2e3137 52%,#0c0d10 78%,#25272c 100%)!important;color:#fff!important}
+html body:not(#zz) .cw .cw-k{box-shadow:inset 0 1px 0 rgb(255 255 255 / .55),inset 0 -1px 0 rgb(0 0 0 / .18)}
+html body:not(#zz) .cw.d .cw-k,html body:not(#zz) .cw.b .cw-k{box-shadow:inset 0 1px 0 rgb(255 255 255 / .22),inset 0 -1px 0 rgb(0 0 0 / .4)}
+/* altijd af en toe een glans */
+html body:not(#zz) .cw .cw-k::after{background:linear-gradient(90deg,transparent,rgb(255 255 255 / .55),transparent)!important;width:38%!important;animation:metaalglans 7s ease-in-out infinite!important}
+html body:not(#zz) .cw.b .cw-k::after{animation-delay:1.2s!important;background:linear-gradient(90deg,transparent,rgb(255 255 255 / .35),transparent)!important}
+html body:not(#zz) .cw.d .cw-k::after{animation-delay:2.4s!important;background:linear-gradient(90deg,transparent,rgb(255 255 255 / .18),transparent)!important}
+/* gegraveerde cijfers */
+html body:not(#zz) .cw.a .cw-k .cw-n{color:#1c2231!important;text-shadow:0 1px 0 rgb(255 255 255 / .8),0 -1px 0 rgb(0 0 0 / .12)!important}
+html body:not(#zz) .cw.a .cw-k .cw-n::after{color:#3a4252}
+html body:not(#zz) .cw.b .cw-k .cw-n,html body:not(#zz) .cw.d .cw-k .cw-n{text-shadow:0 1px 0 rgb(0 0 0 / .35),0 -1px 0 rgb(255 255 255 / .12)!important}
+html body:not(#zz) .cw.a .cw-k .cw-ic{background:rgb(28 34 49 / .08)!important;border-color:rgb(28 34 49 / .18)!important;color:#1c2231!important}
+html body:not(#zz) .cw.a .cw-k .cw-ic svg{color:#1c2231!important}
+/* metaalnaam rechtsonder */
+html body:not(#zz) .cw .cw-k::before{position:absolute;right:18px;bottom:14px;font-size:9px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;opacity:.6}
+html body:not(#zz) .cw.a .cw-k::before{content:"Platinum";color:#1c2231}
+html body:not(#zz) .cw.b .cw-k::before{content:"Titanium";color:#fff}
+html body:not(#zz) .cw.d .cw-k::before{content:"Black";color:#fff}
+/* knoppen in hetzelfde metaal */
+html body:not(#zz) .cw.a .cw-btn{background:linear-gradient(125deg,#eceef2,#bfc5ce 45%,#e3e6eb 70%,#b3bac4)!important;color:#1c2231!important;box-shadow:inset 0 1px 0 #fff,0 12px 22px -14px rgb(26 32 48 / .6)!important}
+html body:not(#zz) .cw.a .cw-btn svg{color:#1c2231!important}
+html body:not(#zz) .cw.b .cw-btn{background:linear-gradient(125deg,#868d98,#535a64 45%,#7b828d 70%,#4d545e)!important;box-shadow:inset 0 1px 0 rgb(255 255 255 / .3),0 12px 22px -14px rgb(26 32 48 / .7)!important}
+html body:not(#zz) .cw.d .cw-btn{background:linear-gradient(125deg,#33363c,#141518 45%,#2a2d32 70%,#0e0f12)!important;box-shadow:inset 0 1px 0 rgb(255 255 255 / .14),0 12px 22px -14px rgb(0 0 0 / .8)!important}
+@media (prefers-reduced-motion:reduce){html body:not(#zz) .cw .cw-k::after{animation:none!important;opacity:0}}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
