@@ -1346,6 +1346,9 @@ html body:not(#zz) .cw-btn::before{content:"";position:absolute;top:0;bottom:0;l
 html body:not(#zz) .cw-btn:hover::before{animation:glans .9s ease-out}
 html body:not(#zz) .cw.in{animation:opkomen .6s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--n,0) * 90ms)}
 @media (prefers-reduced-motion:reduce){html body:not(#zz) .cr-hero::before,html body:not(#zz) .cr-bar i,html body:not(#zz) .cr-bar i::after,html body:not(#zz) .cr-card .cr-glans,html body:not(#zz) .cw.in{animation:none!important}}
+
+html body:not(#zz) .cw-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+@media (max-width:640px){html body:not(#zz) .cw-grid{grid-template-columns:1fr!important}}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -1723,7 +1726,6 @@ function aanbevelen(){const A=D.aanbevelen,R=B.refBeloning,W=B.refWelkom,C=D.cre
   const manieren=`<section class="cr-ways"><div class="cr-wk"><b>Zo verdient u credits</b><small>Elke manier levert direct korting op</small></div><div class="cw-grid">
     ${B.refAan?kaart(I.hart,"a",R,"Beveel een buur aan",`${W>0?`Uw buur krijgt ${eur0(W)} welkomstkorting, u krijgt ${cr(R)}`:`${cr(R)} per nieuwe klant`} zodra het eerste bezoek is gedaan.`,`<span class="cw-st">${A.lijst.filter(x=>x.status!=="gestopt").length?plural(A.lijst.filter(x=>x.status!=="gestopt").length,"buur","buren")+" via u":"Nog geen aanbevelingen"}</span>`,`<button class="cw-btn" data-deel>${I.deel}Link delen</button>`):""}
     ${T.review>0?kaart(I.ster,"b",T.review,"Plaats een Google-review",`Help anderen ons te vinden. Eenmalig ${cr(T.review)}, na controle door ons.`,rv==="toegekend"?`<span class="cw-st ok">${I.check}Ontvangen, dank u wel!</span>`:rv==="aangevraagd"?`<span class="cw-st">${I.klok}Wordt gecontroleerd</span>`:`<span class="cw-st">Nog niet geplaatst</span>`,rv==="open"?`<button class="cw-btn" data-act="review">${I.ster}Review plaatsen</button>`:""):""}
-    ${T.beurt>0?kaart(I.spark||I.check,"c",T.beurt,"Beoordeel elk bezoek",`Geef sterren na elk bezoek en krijg ${cr(T.beurt)} per beoordeling. Zo weten wij hoe het ging.`,`<span class="cw-st${nB&&bq>=nB?" ok":""}">${nB?`${bq} van ${nB} ${nB===1?"bezoek":"bezoeken"} beoordeeld`:"Na uw eerste bezoek"}</span>`,D.teBeoordelen?`<button class="cw-btn" data-act="sterren">${I.ster}Nu beoordelen</button>`:""):""}
     ${T.extra>0?kaart(I.plus,"d",T.extra,"Bestel iets extra's",`Kozijnen, binnenzijde, zonnepanelen of een dakgoot: ${cr(T.extra)} per extra dienst.`,`<span class="cw-st">Wij sturen eerst de prijs</span>`,`<button class="cw-btn" data-act="extra">${I.plus}Bestellen</button>`):""}
   </div></section>`;
   const stap=(n,t,s)=>`<li><span class="rf-sn">${n}</span><b>${t}</b><small>${s}</small></li>`;
