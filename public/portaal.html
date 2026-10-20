@@ -1445,6 +1445,47 @@ html body:not(#zz) main[data-t="ik"] .kp>.kp-h small{color:rgb(255 255 255 / .68
 html body:not(#zz) main[data-t="ik"] .kp>.kp-h .objic{background:rgb(255 255 255 / .1)!important;border:1px solid rgb(255 255 255 / .2)!important;color:#fff!important}
 html body:not(#zz) main[data-t="ik"] .kp>.kp-h .objic svg{color:#fff!important}
 html body:not(#zz) main[data-t="ik"] .kp{overflow:hidden}
+
+/* bezoeken: tegels als losse kaarten met diepte */
+html body:not(#zz) .bz-tiles{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))!important;gap:14px!important;background:none!important;border:0!important;box-shadow:none!important;border-radius:0!important;overflow:visible!important}
+html body:not(#zz) .bz-tile{position:relative;overflow:hidden;background:#fff!important;border:1px solid var(--line)!important;border-left:1px solid var(--line)!important;border-radius:20px!important;padding:18px 20px 18px!important;box-shadow:0 1px 2px rgb(26 32 48 / .04)!important;transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .25s}
+html body:not(#zz) .bz-tile:hover{transform:translateY(-3px);box-shadow:0 22px 40px -28px rgb(26 32 48 / .5)!important}
+html body:not(#zz) .bz-tile::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:linear-gradient(90deg,#323b50,#252c3c 60%,#1c2231)}
+html body:not(#zz) .bz-tile .bz-ti{display:grid!important;place-items:center;border-radius:12px!important;width:42px!important;height:42px!important;margin-bottom:12px;background:linear-gradient(150deg,#323b50,#252c3c 60%,#1c2231)!important;color:#fff!important;box-shadow:0 10px 18px -12px rgb(26 32 48 / .8)!important}
+html body:not(#zz) .bz-tile .bz-ti svg{width:20px!important;height:20px!important;color:#fff!important}
+html body:not(#zz) .bz-tile small{font-size:10px!important;font-weight:700!important;letter-spacing:.22em!important;text-transform:uppercase}
+html body:not(#zz) .bz-tile b{font-size:26px!important;font-weight:400!important;letter-spacing:0!important;color:#0d121b!important;margin:4px 0 2px!important}
+html body:not(#zz) .bz-tile em{font-size:12.5px!important;font-weight:500!important}
+html body:not(#zz) .bz-dr{gap:5px;margin-top:12px}
+html body:not(#zz) .bz-dr i{width:10px;height:14px;background:#e6e8ed}
+html body:not(#zz) .bz-dr i.on{background:linear-gradient(180deg,#5d6880,#252c3c)!important;box-shadow:inset 0 1px 0 rgb(255 255 255 / .3)}
+html body:not(#zz) .bz-rt8{gap:4px;margin-top:12px}
+html body:not(#zz) .bz-rt8 i{height:7px;border-radius:4px;background:#e6e8ed}
+html body:not(#zz) .bz-rt8 i.on{background:linear-gradient(90deg,#3a4560,#252c3c)!important}
+/* lege tijdlijn: uitnodigend */
+html body:not(#zz) .bz-leeg{display:flex;flex-direction:column;align-items:center;text-align:center;padding:38px 24px 34px;gap:8px}
+html body:not(#zz) .bz-li{width:58px;height:58px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(150deg,#323b50,#252c3c 60%,#1c2231);color:#fff;box-shadow:0 16px 28px -16px rgb(26 32 48 / .8);margin-bottom:8px}
+html body:not(#zz) .bz-li svg{width:26px;height:26px}
+html body:not(#zz) .bz-leeg b{font-size:12.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#0d121b}
+html body:not(#zz) .bz-leeg small{max-width:44ch;font-size:14px;line-height:1.55;color:var(--muted)}
+html body:not(#zz) .bz-lv{position:relative;display:flex;justify-content:space-between;width:min(360px,80%);margin-top:20px}
+html body:not(#zz) .bz-lv::before{content:"";position:absolute;left:6px;right:6px;top:50%;border-top:2px dashed #d5d9e0}
+html body:not(#zz) .bz-lv i{position:relative;width:14px;height:14px;border-radius:50%;background:#fff;border:2px solid #d5d9e0}
+html body:not(#zz) .bz-lv i:first-child{background:#252c3c;border-color:#252c3c;box-shadow:0 0 0 0 rgb(37 44 60 / .4);animation:bzPuls 2s infinite}
+@keyframes bzPuls{0%{box-shadow:0 0 0 0 rgb(37 44 60 / .45)}70%{box-shadow:0 0 0 10px rgb(37 44 60 / 0)}100%{box-shadow:0 0 0 0 rgb(37 44 60 / 0)}}
+@media (max-width:640px){html body:not(#zz) .bz-tiles{grid-template-columns:1fr 1fr!important;gap:10px!important}html body:not(#zz) .bz-tile{padding:14px!important}html body:not(#zz) .bz-tile b{font-size:21px!important}}
+
+html body:not(#zz) .bz-tiles>.bz-tile{grid-column:auto!important}
+html body:not(#zz) .bz-tiles:has(>.bz-tile:nth-child(3):last-child){grid-template-columns:repeat(3,minmax(0,1fr))!important}
+@media (max-width:640px){html body:not(#zz) .bz-tiles:has(>.bz-tile:nth-child(3):last-child){grid-template-columns:1fr 1fr!important}html body:not(#zz) .bz-tiles>.bz-tile:nth-child(3):last-child{grid-column:1/-1!important}}
+
+/* SV-satijngrijs (Range Rover SV): warm zilvergrijs verloop */
+:root:root{--sv-satijn:linear-gradient(180deg,#efefec 0%,#e7e7e3 45%,#d9d9d6 100%);--sv-satijn-l:linear-gradient(180deg,#f5f5f3 0%,#ececea 60%,#e3e3e0 100%)}
+html body:not(#zz) .bz-tile{background:var(--sv-satijn-l)!important;border-color:#dcdcd8!important}
+html body:not(#zz) .bz-tile::before{display:none}
+html body:not(#zz) .bz-dr i,html body:not(#zz) .bz-rt8 i{background:#d3d3cf}
+html body:not(#zz) .bz-leeg{background:var(--sv-satijn-l);margin:14px;border-radius:18px}
+html body:not(#zz) .bz-lv i{background:#f5f5f3}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -1659,7 +1700,7 @@ function bezoeken(){const v=D.volgende,b=D.bezoeken||[],k=D.klant,fq=Number(k.fr
   const fut=toek.slice().reverse();jr=nu.getFullYear();const lijn=fut.map(x=>item(x,false));jr=nu.getFullYear();
   const tl=`<section class="bz-tl"><div class="bz-tlh"><b>Tijdlijn</b><small>${plural(b.length,"bezoek","bezoeken")} gedaan${toek.length?" · "+plural(toek.length,"gepland","gepland").replace(/^(\d+) gepland$/,"$1 in het vooruitzicht"):""}</small></div>
     <ol class="bz-ol">${lijn.join("")}${toek.length?`<li class="bz-nu"><span>Vandaag</span></li>`:""}${b.map(x=>item(x,true)).join("")}</ol>
-    ${!b.length&&!toek.length?`<p class="leeg">Na ons eerste bezoek ziet u het hier terug.</p>`:""}${!b.length&&toek.length?`<p class="bz-tip">Na ons eerste bezoek verschijnt het hier, met de datum en wat we gedaan hebben.</p>`:""}</section>`;
+    ${!b.length&&!toek.length?`<div class="bz-leeg"><span class="bz-li">${I.kal}</span><b>Uw tijdlijn begint bij ons eerste bezoek</b><small>Daarna ziet u hier elk bezoek terug: wanneer we er waren, wie er kwam en wat er is gedaan.</small><div class="bz-lv" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div></div>`:""}${!b.length&&toek.length?`<p class="bz-tip">Na ons eerste bezoek verschijnt het hier, met de datum en wat we gedaan hebben.</p>`:""}</section>`;
   return kop(isVve()?"Logboek":"Bezoeken",isVve()?"Per beurt: wanneer, wat er is gedaan en de opleverfoto.":"Wanneer we komen en wanneer we geweest zijn.")+`<div class="pg">${hero}${tiles}${tl}</div>`}
 /* ---------- VvE ---------- */
 const ritmeKort=k=>{const dg=k.weekdagen||[];return dg.length?dg.map(d=>["zo","ma","di","wo","do","vr","za"][d]).join(" · "):k.frequentie+" wk"};
