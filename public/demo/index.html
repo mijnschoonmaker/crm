@@ -8363,10 +8363,11 @@ function mailFor(sjabloon,vars,tekst,{f,stap,preview}={}){
   const o={stijl:s.mailStijl||"modern",accent:s.mailAccent||s.hoofdkleur||"#111111",kicker:K[0],titel:fill(K[1].replace("{onderwerp}",s.reviewOnderwerp||"Tevreden over ons werk?"),vars),tekst:fill(tekst,vars),rich:_rich,logo:s.logoMail||s.logo,preview};
   if(["factuur","offerte"].includes(kind)){const t=f?totals(f):{inc:96.8};o.meta=[[kind==="offerte"?"Offertenummer":"Factuurnummer",vars.factuurnummer],[kind==="offerte"?"Datum":"Factuurdatum",f?fmtNum(f.datum):fmtNum(today())],[kind==="offerte"?"Geldig tot":"Vervaldatum",f?fmtNum(f.verval):fmtNum(addDays(today(),14))],...(kind==="offerte"&&f&&f.totaalTonen===false?[]:[["Totaal incl. BTW",eur(t.inc)]])];
     o.regels=f?f.regels.map(r=>Array.isArray(r.subs)&&r.subs.length?{...r,omschrijving:r.omschrijving+": "+r.subs.map(x=>String(x.naam).toLowerCase()+" "+(x.qty||"")).join(", ").trim()}:r):sampleRegels;if(!(kind==="offerte"&&f&&f.totaalTonen===false))o.totaal=eur(t.inc)}
-  const _inc=kind==="factuur"&&f&&f.incasso&&f.status!=="betaald"&&!f.incassoMislukt;
+  const _inc=(kind==="factuur"||kind==="afkondiging")&&f&&f.incasso&&f.status!=="betaald"&&!f.incassoMislukt;
+  const _afF=kind==="afkondiging"&&((f&&f.soort!=="offerte"&&f.status!=="betaald")||preview);
   if(_inc)o.incasso="Dit bedrag wordt binnen 14 dagen automatisch van uw rekening afgeschreven via uw machtiging, nu de beurt is uitgevoerd. U hoeft niets te doen.";
-  else if(["factuur","aanmaning","wik"].includes(kind)&&(vars.betaallink||s.betaallink||preview)){const bl=vars.betaallink||s.betaallink||"#";if(!_inc&&s.iban)o.betaal=bl;else if(bl!=="#")o.knop={tekst:"Direct betalen",url:bl}}
-  if(!_inc&&["factuur","aanmaning","wik"].includes(kind)&&s.iban)o.bank=[["IBAN",s.iban],["T.n.v.",s.naam||"—"],["Kenmerk",vars.factuurnummer]];
+  else if((["factuur","aanmaning","wik"].includes(kind)||_afF)&&(vars.betaallink||s.betaallink||preview)){const bl=vars.betaallink||s.betaallink||"#";if(!_inc&&s.iban)o.betaal=bl;else if(bl!=="#")o.knop={tekst:"Direct betalen",url:bl}}
+  if(!_inc&&(["factuur","aanmaning","wik"].includes(kind)||_afF)&&s.iban)o.bank=[["IBAN",s.iban],["T.n.v.",s.naam||"—"],["Kenmerk",vars.factuurnummer||(f&&f.nummer)||"2026-0042"]];
   if(kind==="offerte"&&(vars.akkoordlink||preview))o.teken=vars.akkoordlink||"#";
   const _em=vars["email.customer"]||"",_pu=(LIVE&&/^https?:/.test(location.origin)?location.origin:"https://app.mansard.nl")+"/portaal"+(preview?(_em?"?e="+encodeURIComponent(_em):""):"?__PORTAAL_LINK__");
   /* elke mail aan een klant: kaartje met directe link naar het klantportaal (zonder inloggen); bij de aankondiging met live volgen */
