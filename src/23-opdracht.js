@@ -414,7 +414,9 @@ function ramenBerekening(q,opdrW,due){
   return {rows,krows,glas:r2(glas),minG,aanvul,totOver,kozP:r2(kozP),minK,kozMin,start,ex,min:Math.ceil(rows.reduce((a,r)=>a+r.min,0)+kozMin),count:tot+srows.reduce((a,r)=>a+r.n,0),srows,c};
 }
 /* welke delen gaan mee op deze dag, en hoe schuiven de volgende data door */
-function ramenDue(k,d){const q=normR(k.ramenRegel);const ok=(fq,vol)=>!fq||!vol||vol<=d;
+/* gaat er op deze dag een andere dienst mee (bv. reiniging gevelelementen), dan gaat de hele glasbewassing standaard mee (uit te zetten bij Instellingen › Planning) */
+function glasMeeDag(k,d){try{return S().glasMee!==false&&typeof extraDue==="function"&&extraDue(k,d).length>0}catch(e){return false}}
+function ramenDue(k,d){const q=normR(k.ramenRegel);const mee=glasMeeDag(k,d),ok=(fq,vol)=>mee||!fq||!vol||vol<=d;
   return {q,due:{f:q.f.map((n,i)=>!!n&&ok(q.fq[i],q.vol[i])),k:q.f.map((n,i)=>!!n&&q.kf[i]&&ok(q.kfq[i],q.kvol[i])),
     sp:SPK.reduce((o,k)=>(o[k]=!!q.sp[k]&&ok(q.spfq[k],q.spvol[k]),o),{}),sk:SPK.reduce((o,k)=>(o[k]=!!q.sp[k]&&q.spkf[k]&&ok(q.spkfq[k],q.spkvol[k]),o),{})}}}
 function ramenDoorschuiven(q,due,d){const n={...q,vol:[...q.vol],kvol:[...q.kvol]},nx=w=>iso(addDays(parse(d),Number(w)*7));

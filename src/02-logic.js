@@ -41,7 +41,9 @@ function occurrences(k,from,to){
 }
 const overdue=()=>actief().filter(k=>{const p=parse(k.gepland);return p?p<today():volgende(k)<today()});
 const dueOf=k=>{const p=parse(k.gepland);return p&&p<today()?p:k.aanbieden&&!p?today():volgende(k)};
-function teplannen(upTo){const t=today(),ti=iso(t);return actief().filter(k=>{if(k.uitstelTot&&k.uitstelTot>ti&&!k.gepland)return false;if(k.einddatum&&k.einddatum<ti&&!k.gepland)return false;if(k.opdrachtVerwijderd&&!k.gepland)return false;if(Number(k.maxOpen)>0&&!k.gepland&&state.facturen.filter(f=>f.klantId===k.id&&f.soort!=="offerte"&&["Openstaand","Achterstallig"].includes(fStatus(f)[1])).length>=Number(k.maxOpen))return false;const p=parse(k.gepland);return p?p<t:(k.aanbieden||volgende(k)<=upTo)}).sort((a,b)=>dueOf(a)-dueOf(b))}
+function teplannen(upTo){const t=today(),ti=iso(t);return actief().filter(k=>{if(k.uitstelTot&&k.uitstelTot>ti&&!k.gepland)return false;if(k.einddatum&&k.einddatum<ti&&!k.gepland)return false;if(k.opdrachtVerwijderd&&!k.gepland)return false;if(Number(k.maxOpen)>0&&!k.gepland&&state.facturen.filter(f=>f.klantId===k.id&&f.soort!=="offerte"&&["Openstaand","Achterstallig"].includes(fStatus(f)[1])).length>=Number(k.maxOpen))return false;const p=parse(k.gepland);return p?p<t:(k.aanbieden||volgende(k)<=upTo||extraAanBeurt(k,upTo))}).sort((a,b)=>dueOf(a)-dueOf(b))}
+/* een andere dienst (bv. reiniging gevelelementen) is aan de beurt: dan komt de klant bij Te plannen en gaat de glasbewassing mee */
+function extraAanBeurt(k,upTo){if(S().glasMee===false)return false;const u=iso(upTo instanceof Date?upTo:parse(upTo)||today());return (k.opdrachten||[]).some(o=>o.actief!==false&&o.volgende&&o.volgende<=u&&(!k.laatst||o.volgende>k.laatst))}
 function dueTxt(k){
   const p=parse(k.gepland),t=today();
   if(p&&p<t)return{cls:"late",txt:"Gepland "+fmtD(p)+", niet gedaan"};
@@ -88,7 +90,7 @@ const extraNa=(k,d,ed)=>(k.opdrachten||[]).map(o=>{const x=ed.find(y=>y.id===o.i
 function objInfo(k,day){const o=jobObj(k)||{};const it=[];
   try{if(k.ramenRegel&&ramenVariabel(normR(k.ramenRegel))){const {q,due}=ramenDue(k,day||iso(today()));const parts=q.f.map((n,i)=>n&&due.f[i]?FLN[i].toLowerCase()+" ("+n+")":"").filter(Boolean);it.push(`<span><b>Deze keer</b> ${esc(parts.join(", ")||"niets")}</span>`)}}catch(e){}
   if(isEersteKeer(k))it.push(`<span><b>Eerste keer</b> ja</span>`);
-  const ed=extraDue(k,day);if(ed.length)it.push(`<span><b>Ook</b> ${ed.map(x=>esc(x.dienst)).join(", ")}</span>`);
+  const ed=extraDue(k,day);if(ed.length)it.push(`<span><b>Ook</b> ${ed.map(x=>esc(x.dienst)).join(", ")}${S().glasMee!==false?` <small class="subt">· ${esc((k.dienst||"Glasbewassing").toLowerCase())} gaat mee</small>`:""}</span>`);
   if(o.toegang)it.push(`<span><b>Toegang</b> ${esc(o.toegang)}</span>`);
   if(o.alarmcode)it.push(`<span><b>Alarm</b> <button type="button" class="reveal" data-act="reveal" data-v="${esc(o.alarmcode)}">${I.lock}Toon code</button></span>`);
   if(o.parkeren)it.push(`<span><b>Parkeren</b> ${esc(o.parkeren)}</span>`);

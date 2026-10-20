@@ -83,7 +83,8 @@ async function moveTo(id,date,tijd,force){
   const nw={gepland:date,tijd:!date?"":tijd!==undefined?tijd:(k.tijd||""),...(date?{aanbieden:false}:{})};
   if(date&&!force&&!k.gepland&&typeof ADV!=="undefined"&&ADV.reeks){const r=await openReeks(k,date,nw.tijd);if(!r)return;return reeksOpslaan(k,date,nw.tijd,r)}
   if(prev.gepland===nw.gepland&&prev.tijd===nw.tijd)return;
-  try{await save("klanten",k.id,{...strip(k),...nw});toast(cleanName(k.naam)+(date?" ingepland op "+fmtD(date)+(nw.tijd?" om "+nw.tijd:""):" terug naar te plannen"),()=>save("klanten",k.id,{...strip(k),...prev}))}catch(e){err(e)}
+  let mee="";try{if(date&&typeof glasMeeDag==="function"&&glasMeeDag(k,date)){const ed=extraDue(k,date).map(o=>o.dienst||o.naam).filter(Boolean);if(ed.length)mee=" · "+(k.dienst||"Glasbewassing")+" gaat mee met "+ed.join(" en ").toLowerCase()}}catch(e){}
+  try{await save("klanten",k.id,{...strip(k),...nw});toast(cleanName(k.naam)+(date?" ingepland op "+fmtD(date)+(nw.tijd?" om "+nw.tijd:""):" terug naar te plannen")+mee,()=>save("klanten",k.id,{...strip(k),...prev}))}catch(e){err(e)}
 }
 async function optimize(day){
   /* alle stops van deze dag die nog open staan, ook afspraken die van eerder zijn doorgeschoven */

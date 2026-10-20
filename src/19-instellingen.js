@@ -282,6 +282,7 @@ function openSetEdit(id){
       ${sel("slotStd","Slot duur (min)",s.slotStd,[[10,"10 minuten"],[15,"15 minuten"],[30,"30 minuten"]],{t:"num"})}${inp("zichtbaarDagen","Te plannen zichtbaar (dagen vooraf)",s.zichtbaarDagen??11,{type:"number",t:"num",attrs:'min="0" max="60"',help:"Zoveel dagen voordat een klant weer aan de beurt is, verschijnt hij bij 'Te plannen'. Meer dan 7 dagen te vroeg inplannen geeft een waarschuwing."})}
       ${inp("maxJobs","Max jobs per dag",s.maxJobs,{type:"number",t:"num",attrs:'min="0"',help:"0 = geen drempel. Waarschuwt als er meer jobs op een dag staan."})}<span></span></div>
       <label>Weekenddagen (vrij)</label><div class="daychips inv">${[[0,"Zo"],[1,"Ma"],[2,"Di"],[3,"Wo"],[4,"Do"],[5,"Vr"],[6,"Za"]].map(([d,l])=>`<label><input type="checkbox" data-we="${d}" ${w.includes(d)?"":"checked"}><span>${l}</span></label>`).join("")}</div><small class="help">Tik om aan/uit te zetten. Vrije dagen zijn gearceerd in de planning.</small>
+      ${tgl("glasMee","Glasbewassing altijd mee","Plan je een andere dienst in, zoals reiniging gevelelementen, dan gaat de glasbewassing standaard mee",s.glasMee!==false)}
       ${tgl("overlap","Taak overlap toestaan","Twee jobs op hetzelfde tijdstip toestaan",s.overlap)}
       ${tgl("compact","Compacte dagweergave","Toon meer per scherm in de dagweergave",s.compact)}
       ${tgl("ultra","Ultra-compacte weergave","Maximaal info-dichtheid (kleinere slots)",s.ultra)}
