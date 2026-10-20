@@ -5745,6 +5745,7 @@ const I={
   send:sv('<path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/>'),
   shield:sv('<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/>'),
   trend:sv('<path d="M23 6l-9.5 9.5-5-5L1 18M17 6h6v6"/>'),
+  wa:sv('<path d="M3.5 20.5l1.3-4.2A8.6 8.6 0 1 1 8 19.4z"/><path d="M9.2 8.6c.2-.5.6-.6 1-.5l.6 1.4c.1.3 0 .5-.2.7l-.4.5c.5 1.1 1.4 2 2.5 2.5l.5-.4c.2-.2.4-.3.7-.2l1.4.6c.1.4 0 .8-.5 1-.9.5-2 .4-3-.2a8 8 0 0 1-2.8-2.8c-.6-1-.7-2.1-.2-3z" stroke-width="1.5"/>'),
   undo:sv('<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>'),save:sv('<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/>'),
   expand:sv('<path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>'),
   camera:sv('<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>'),
@@ -6912,7 +6913,7 @@ function stopCard(k,i,isNext,late,day,totaal){
         <div class="tk-feit"><span><b>${dienstHtml(k)}</b>${k.binnen?" + binnen":""}</span><span>${I.clock}<b>${duur(k)} min</b></span>${mw?"":`<span>${I.euro||""}<b>${eur0(toon(k.prijs))}</b></span>`}</div>
         ${bz?(()=>{const ex=(k.tijden||[]).length&&typeof gemTijd==="function"?gemTijd(k):duur(k),f=(Date.now()-new Date(k.bezig))/60000/ex;const mn=Math.floor((Date.now()-new Date(k.bezig))/60000);return `<div class="tk-tm"><div class="tk-tmh"><span class="tk-tml"><i></i>Bezig <b data-tmin="${esc(k.bezig)}">${mn} min</b> van ${ex}</span></div>${tonHtml(k.bezig,ex,f)}<div class="bt-bar"><i data-tbar="${esc(k.bezig)}" data-exp="${ex}" class="${f>1?"over":""}" style="width:${Math.min(100,f*100)}%"></i></div><small>${(k.tijden||[]).length?"Gemiddeld "+ex+" min bij deze klant":"Verwacht "+ex+" min"}</small></div>`})():""}
         <div class="tk-info">${oBeurtBlok(k)}${hospRoute(k)}${toegangHtml(k)}${ookDezeBeurt(k,day)}${objInfo(k)}${jobExtra(k)}</div>
-        <div class="tk-acts"><a class="tk-a" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.nav}<span>Navigeer</span></a>${tel?`<a class="tk-a" href="tel:${esc(tel)}">${I.phone}<span>Bellen</span></a>`:""}${wa&&!bz?`<a class="tk-a" href="${esc(wa)}" target="_blank" rel="noopener">${I.msg}<span>Ik kom eraan</span></a>`:""}<button type="button" class="tk-a" data-act="skip" data-id="${esc(k.id)}">${I.right}<span>Overslaan</span></button></div>
+        <div class="tk-acts"><a class="tk-a" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.nav}<span>Navigeer</span></a>${tel?`<a class="tk-a" href="tel:${esc(tel)}">${I.phone}<span>Bellen</span></a>`:""}${wa&&!bz?`<a class="tk-a" href="${esc(wa)}" target="_blank" rel="noopener">${I.wa}<span>Ik kom eraan</span></a>`:""}<button type="button" class="tk-a" data-act="skip" data-id="${esc(k.id)}">${I.right}<span>Overslaan</span></button></div>
       </div>
       <div class="tk-perf" aria-hidden="true"></div>
       <div class="tk-stub">${bz?`<span class="tk-live"><i></i>Bezig · na afloop afmelden</span>`:`<button type="button" class="tk-start" data-act="start" data-id="${esc(k.id)}">${I.clock}Start</button>`}<button type="button" class="primary tk-af" data-act="afmelden" data-id="${esc(k.id)}">${I.check}Afmelden</button></div>
