@@ -9,7 +9,10 @@ function stopCard(k,i,isNext,late,day,totaal){
   let reis=null;try{if(isT&&typeof rtMin==="function"&&typeof pkCoord==="function"){const vorige=routeStops(day).filter(x=>x.done).slice(-1)[0];const van=(typeof LV!=="undefined"&&LV.pos&&[LV.pos.lat,LV.pos.lng])||(vorige&&pkCoord(vorige.k))||null;reis=van?rtMin(van,pkCoord(k)):null}}catch(e){}
   const tm=toMin(k.tijd),eind=tm!=null?fromMin(tm+duur(k)):"";
   const naam=String((state.me&&state.me.name)||"").split(" ")[0]||"",vn=k.voornaam||cleanName(k.naam).split(",").slice(-1)[0].trim();
-  const wa=tel&&typeof waLink==="function"?waLink(tel,`Goedendag${vn?" "+vn:""}, we zijn ${reis?"over ongeveer "+reis+" minuten":"zo"} bij u voor de glasbewassing. Groet, ${naam||(S().naam||"")}`):"";
+  /* "Ik kom eraan": sjabloon Onderweg (aan te passen bij Communicatie), met de gegevens van deze klant; live volgen via het klantportaal */
+  const wa=tel&&typeof waLink==="function"?(()=>{let t="";try{const T=tpls().onderweg||{},v=klantVars(k,parse(day||iso(today())));t=fill(T.sms||T.tekst||T.mail||"",v)}catch(e){}
+    if(!t)t=`Beste ${vn}, wij zijn onderweg naar u.`;const pl=(/^https?:/.test(location.origin)&&LIVE?location.origin:"https://app.mansard.nl")+"/portaal"+(k.email?"?e="+encodeURIComponent(k.email):"");
+    return waLink(tel,t+"\n\nLive volgen: "+pl)})():"";
   const tags=`${statusPill(sp[0],sp[1])}${late?'<span class="pill late">Achterstallig</span>':""}`;
   return `<div class="swipe" data-id="${esc(k.id)}">
     <div class="sbg sbg-r"><span>${I.check} Afmelden<small>conceptfactuur</small></span></div>
