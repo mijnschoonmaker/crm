@@ -15,7 +15,7 @@
 const crypto = require("crypto");
 
 module.exports = function maakPortaal(ctx) {
-  const { db, T, onRequest, onCall, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket } = ctx;
+  const { db, T, onRequest, onCall, onSchedule, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket } = ctx;
   const sha = s => crypto.createHash("sha256").update(String(s)).digest("hex");
   const tok = () => T.tok(32);
   const DAG = 864e5;
@@ -100,7 +100,7 @@ module.exports = function maakPortaal(ctx) {
   const fStatus = f => f.status === "betaald" ? "betaald" : f.status === "oninbaar" ? "gesloten" : f.verval && f.verval < isoNL() ? "verlopen" : "open";
   const bedrijfInfo = (b, base) => ({ naam: b.naam || "mijnschoonmaker.com", logo: (b.logoMail || b.logo) ? base + "/_blob/" + (b.logoMail || b.logo) : "", telefoon: b.telefoon || "", mobiel: b.mobiel || b.telefoon || "", email: b.email || "", website: b.website || "", iban: b.iban || "", reviewLink: b.reviewLink || "", kleur: b.mailAccent || b.hoofdkleur || "#137a8a",
     voorwaarden: b.voorwaardenPdf ? base + "/_blob/" + b.voorwaardenPdf : "", tijdWeergave: b.portaalTijd || "venster", refAan: b.refAan !== false, refBeloning: b.refBeloning != null && b.refBeloning !== "" ? Number(b.refBeloning) : 15, refWelkom: b.refWelkom != null && b.refWelkom !== "" ? Number(b.refWelkom) : 10, werkStart: b.werkStart || "08:00",
-    credits: { review: numOf(b.crReview, 5), beurt: numOf(b.crBeurt, 1), extra: numOf(b.crExtra, 3), aanbevelen: numOf(b.refBeloning, 15) } });
+    credits: { review: numOf(b.crReview, 5), beurt: numOf(b.crBeurt, 1), extra: numOf(b.crExtra, 3), aanbevelen: numOf(b.refBeloning, 15), snel: numOf(b.crSnel, 1), jaar: numOf(b.crJaar, 10), incasso: numOf(b.crIncasso, 5) } });
   const numOf = (v, d) => v != null && v !== "" && !isNaN(Number(v)) ? Number(v) : d;
 
   /* ---------- live meekijken: waar rijdt de glazenwasser (alleen voor klanten van vandaag) ---------- */
@@ -556,5 +556,48 @@ module.exports = function maakPortaal(ctx) {
     const q = await db.collection("klanten").where("refCode", "==", c).limit(1).get();
     return q.empty ? null : { id: q.docs[0].id, code: c, naam: q.docs[0].data().naam || "" };
   }
-  return { portaal, portaalUitnodigen, ticketMelding, refKlant };
+
+  /* ---------- automatische credits: snel betaald, automatisch betalen, jaren klant ----------
+     Draait elk uur overdag. Elke toekenning heeft een vaste bron+ref, dus nooit dubbel. */
+  const creditsAuto = onSchedule ? onSchedule({ schedule: "7 7-22 * * *", timeZone: "Europe/Amsterdam", timeoutSeconds: 300, memory: "512MiB" }, async () => {
+    const b = await bedrijf(), cr = bedrijfInfo(b, "").credits, vandaag = isoNL(), md = vandaag.slice(5), jaar = Number(vandaag.slice(0, 4));
+    if (!(cr.snel > 0 || cr.jaar > 0 || cr.incasso > 0)) return;
+    const [ks, fs] = await Promise.all([db.collection("klanten").get(), cr.snel > 0 ? db.collection("facturen").where("status", "==", "betaald").get() : null]);
+    const K = new Map(ks.docs.map(d => [d.id, { id: d.id, ref: d.ref, ...dec(d.data()) }]));
+    const nieuw = new Map(), jubileum = [];
+    const heeft = (k, bron, ref) => (k.tegoed || []).concat(k.tegoedGebruikt || []).concat(nieuw.get(k.id) || []).some(t => t && t.bron === bron && String(t.ref || "") === String(ref));
+    const geef = (k, bedrag, reden, bron, ref) => { if (!(bedrag > 0) || heeft(k, bron, ref)) return false; const l = nieuw.get(k.id) || []; l.push({ id: newId("tg"), bedrag, reden, bron, ref: String(ref), op: vandaag }); nieuw.set(k.id, l); return true; };
+    const week = Date.now() - 7 * 864e5;
+    if (fs) for (const d of fs.docs) {
+      const f = { id: d.id, ...dec(d.data()) }, k = K.get(f.klantId);
+      if (!k || f.soort === "offerte" || f.incasso || f.betaalwijze === "incasso") continue;
+      const tot = Date.parse(f.betaaldTs || ""), van = Date.parse(f.verstuurdOp || f.gemaakt || "");
+      if (!(tot > week && van > 0 && tot >= van && tot - van <= 24 * 36e5)) continue;
+      geef(k, cr.snel, "Credits: factuur " + (f.nummer || "") + " binnen 24 uur betaald", "snel", f.id);
+    }
+    for (const k of K.values()) {
+      if (k.actief === false || k.prospect) continue;
+      if (cr.incasso > 0 && k.incasso && k.mollieMandateId) geef(k, cr.incasso, "Credits: automatisch betalen aangezet", "incasso", "incasso");
+      const sinds = String(k.aangemaakt || "");
+      if (cr.jaar > 0 && /^\d{4}-\d{2}-\d{2}$/.test(sinds) && sinds.slice(5) === md && jaar - Number(sinds.slice(0, 4)) >= 1) {
+        const n = jaar - Number(sinds.slice(0, 4));
+        if (geef(k, cr.jaar, "Credits: " + n + " jaar klant", "jaar", jaar)) jubileum.push([k, n]);
+      }
+    }
+    for (const [id, l] of nieuw) { const k = K.get(id); await k.ref.set({ tegoed: [...(k.tegoed || []), ...l] }, { merge: true }); }
+    /* bedankmail op de jaardag */
+    if (jubileum.length) { const g = await geheim(); if (g.brevoKey) for (const [k, n] of jubileum) {
+      const email = String(k.email || "").trim(); if (!/@/.test(email)) continue;
+      try {
+        const vn = voornaamVan(schoon(k.contact || k.naam)), naam = b.naam || "mijnschoonmaker.com";
+        const onderwerp = `${n} jaar klant: dank u wel! · ${naam}`;
+        const tekst = `Beste ${vn},\n\nVandaag bent u precies ${n === 1 ? "één jaar" : n + " jaar"} klant bij ons. Dank u wel voor uw vertrouwen!\n\nAls bedankje hebben wij **${cr.jaar} credits (€ ${cr.jaar})** voor u klaargezet. Die gaan automatisch van uw volgende factuur af; u hoeft niets te doen. In uw klantportaal ziet u uw credits altijd terug.\n\nMet vriendelijke groet,\n${naam}`;
+        const afz = g.afzender || b.email || "info@mijnschoonmaker.com";
+        await brevoSend(g.brevoKey, { sender: { name: naam, email: afz }, replyTo: { email: b.email || afz }, to: [{ email, name: schoon(k.naam) || undefined }], subject: onderwerp, htmlContent: mailHtml(tekst, b) });
+        await db.doc("berichten/" + newId("m")).set({ klantId: k.id, klantNaam: k.naam || "", naar: email, kanaal: "email", sjabloon: "jubileum", onderwerp, tekst, status: "verstuurd", verstuurdOp: nu(), op: nu(), door: "automatisch" });
+      } catch (e) { console.error("jubileummail", k.id, e.message); }
+    } }
+    console.log("credits automatisch", [...nieuw.values()].reduce((a, l) => a + l.length, 0));
+  }) : null;
+  return { portaal, portaalUitnodigen, ticketMelding, refKlant, creditsAuto };
 };

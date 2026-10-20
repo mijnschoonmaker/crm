@@ -533,7 +533,7 @@ exports.akkoordGeven = onRequest({ cors: true, memory: "512MiB", timeoutSeconds:
 });
 
 /* ---------- klantportaal ---------- */
-const P = require("./portaal")({ db, T, onRequest, onCall, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket });
+const P = require("./portaal")({ db, T, onRequest, onCall, onSchedule, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket });
 /* tweestapsverificatie voor het CRM en dagelijkse back-ups */
 Object.assign(exports, BEV.functies);
 /* bank: betalingen automatisch koppelen aan facturen (bankbestand of koppeling via Enable Banking) */
@@ -545,6 +545,7 @@ Object.assign(exports, MANSARD.functies);
 exports.ticketMelding = P.ticketMelding;
 exports.portaal = P.portaal;
 exports.portaalUitnodigen = P.portaalUitnodigen;
+exports.creditsAuto = P.creditsAuto;
 
 /* ---------- ramen tellen met AI: foto's per zijde van de woning, terug: stippen per raam met soort ---------- */
 const RT_PROMPT = `Je helpt een Nederlandse glazenwasser het aantal ramen van een woning te tellen. Je krijgt foto's van de zijden van één woning (voorzijde, zijkanten, achterzijde, eventueel extra). Zoek op elke foto ieder raam dat een glazenwasser aan de buitenkant wast, en geef per raam een stip in het midden van het glas.
