@@ -1185,3 +1185,16 @@ html body:not(#zz) .bv-tt{margin:0;font-size:14px;line-height:1.5;color:var(--in
 @media (max-width:700px){html body:not(#zz) .bv-duo{grid-template-columns:1fr}}
 /* tickets met echte gaten: de oude rondjes niet meer tekenen */
 html body .tk-gat .tk-perf::before,html body .tk-gat .tk-perf::after,html body .tk-gat .ft-perf::before,html body .tk-gat .ft-perf::after{display:none!important}
+/* communicatie: E-mail opmaak en Reviewverzoek als nette kaarten */
+html body:not(#zz) .featc.fx{display:flex!important;align-items:center;gap:16px;padding:18px 20px!important;border-radius:18px!important;background:#fff!important;border:1px solid var(--rr-rand)!important;box-shadow:0 1px 2px rgb(20 24 34 / .04)!important;transition:border-color .15s,box-shadow .15s,transform .15s}
+html body:not(#zz) .featc.fx::before{display:none!important}
+html body:not(#zz) .featc.fx:hover{border-color:#c9ccd3!important;box-shadow:0 14px 28px -20px rgb(20 24 34 / .5)!important;transform:translateY(-1px)}
+html body:not(#zz) .featc.fx .fx-ic{flex:none;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:var(--gb-lijn),var(--gb-vlak)!important;box-shadow:0 10px 20px -14px rgb(20 24 34 / .8)}
+html body:not(#zz) .featc.fx .fx-ic svg{width:22px;height:22px;color:#fff!important;stroke:#fff}
+html body:not(#zz) .featc.fx .fx-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+html body:not(#zz) .featc.fx .fx-t em{font-style:normal;font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#8a909b!important}
+html body:not(#zz) .featc.fx .fx-t b{font-size:17px!important;font-weight:500!important;color:#14181f!important;letter-spacing:-.005em}
+html body:not(#zz) .featc.fx .fx-t small{font-size:13px!important;color:#6b7280!important;font-weight:400!important}
+html body:not(#zz) .featc.fx .fx-pil{flex:none;font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#3e4a64!important;background:#f0f1f4;border-radius:999px;padding:6px 11px}
+html body:not(#zz) .featc.fx>svg{width:18px;height:18px;color:#9aa1ad!important;flex:none}
+@media (max-width:640px){html body:not(#zz) .featc.fx .fx-pil{display:none}}
