@@ -100,7 +100,7 @@ module.exports = function maakPortaal(ctx) {
   const fStatus = f => f.status === "betaald" ? "betaald" : f.status === "oninbaar" ? "gesloten" : f.verval && f.verval < isoNL() ? "verlopen" : "open";
   const bedrijfInfo = (b, base) => ({ naam: b.naam || "mijnschoonmaker.com", logo: (b.logoMail || b.logo) ? base + "/_blob/" + (b.logoMail || b.logo) : "", telefoon: b.telefoon || "", mobiel: b.mobiel || b.telefoon || "", email: b.email || "", website: b.website || "", iban: b.iban || "", reviewLink: b.reviewLink || "", kleur: b.mailAccent || b.hoofdkleur || "#137a8a",
     voorwaarden: b.voorwaardenPdf ? base + "/_blob/" + b.voorwaardenPdf : "", tijdWeergave: b.portaalTijd || "venster", refAan: b.refAan !== false, refBeloning: b.refBeloning != null && b.refBeloning !== "" ? Number(b.refBeloning) : 15, refWelkom: b.refWelkom != null && b.refWelkom !== "" ? Number(b.refWelkom) : 10, werkStart: b.werkStart || "08:00",
-    credits: { review: numOf(b.crReview, 5), beurt: numOf(b.crBeurt, 1), extra: numOf(b.crExtra, 3), aanbevelen: numOf(b.refBeloning, 15), snel: numOf(b.crSnel, 1), jaar: numOf(b.crJaar, 10), incasso: numOf(b.crIncasso, 5) } });
+    credits: { review: numOf(b.crReview, 5), beurt: numOf(b.crBeurt, 1), extra: numOf(b.crExtra, 3), aanbevelen: numOf(b.refBeloning, 15), snel: numOf(b.crSnel, 1), jaar: numOf(b.crJaar, 10) } });
   const numOf = (v, d) => v != null && v !== "" && !isNaN(Number(v)) ? Number(v) : d;
 
   /* ---------- live meekijken: waar rijdt de glazenwasser (alleen voor klanten van vandaag) ---------- */
@@ -564,7 +564,7 @@ module.exports = function maakPortaal(ctx) {
      Draait elk uur overdag. Elke toekenning heeft een vaste bron+ref, dus nooit dubbel. */
   const creditsAuto = onSchedule ? onSchedule({ schedule: "7 7-22 * * *", timeZone: "Europe/Amsterdam", timeoutSeconds: 300, memory: "512MiB" }, async () => {
     const b = await bedrijf(), cr = bedrijfInfo(b, "").credits, vandaag = isoNL(), md = vandaag.slice(5), jaar = Number(vandaag.slice(0, 4));
-    if (!(cr.snel > 0 || cr.jaar > 0 || cr.incasso > 0)) return;
+    if (!(cr.snel > 0 || cr.jaar > 0)) return;
     const [ks, fs] = await Promise.all([db.collection("klanten").get(), cr.snel > 0 ? db.collection("facturen").where("status", "==", "betaald").get() : null]);
     const K = new Map(ks.docs.map(d => [d.id, { id: d.id, ref: d.ref, ...dec(d.data()) }]));
     const nieuw = new Map(), jubileum = [];
@@ -580,7 +580,6 @@ module.exports = function maakPortaal(ctx) {
     }
     for (const k of K.values()) {
       if (k.actief === false || k.prospect) continue;
-      if (cr.incasso > 0 && k.incasso && k.mollieMandateId) geef(k, cr.incasso, "Credits: automatisch betalen aangezet", "incasso", "incasso");
       const sinds = String(k.aangemaakt || "");
       if (cr.jaar > 0 && /^\d{4}-\d{2}-\d{2}$/.test(sinds) && sinds.slice(5) === md && jaar - Number(sinds.slice(0, 4)) >= 1) {
         const n = jaar - Number(sinds.slice(0, 4));
