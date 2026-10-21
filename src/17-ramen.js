@@ -240,6 +240,7 @@ details[open] summary::after{content:"−"}
 .head .eyebrow{font-size:10.5px;letter-spacing:.2em;font-weight:600;color:#8a8f99}
 .head h2{font-size:13px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;margin-top:5px}
 .num{background:#252c3c;color:#fff;font-weight:600;font-size:13px}
+:host{--rr-leisteen:#56616a;--rr-leisteen-d:#4d575f;--rr-zilverwit:#f8f9f9;--rr-wit:#ffffff;--rr-lijn:#dfe0e0;--sv-satijn:linear-gradient(180deg,#efefec 0%,#e7e7e3 45%,#d9d9d6 100%);--sv-satijn-l:linear-gradient(180deg,#f5f5f3 0%,#ececea 60%,#e3e3e0 100%)}
 `;
 const RC_SVG={
   cam:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.6-2.4h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.6"/></svg>',

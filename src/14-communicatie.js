@@ -239,7 +239,7 @@ function vCommunicatie(){
 }
 function openMailStijl(){
   const s=S();let stijl=s.mailStijl||"modern",acc=s.mailAccent||"#137a8a",tab="factuur";
-  const SW=[["#252c3c","Gelders blauw"],["#137a8a","Mansard petrol"],["#2b3cb0","Blauw"],["#2f7a6e","Groen"],["#b3263c","Rood"],["#121826","Zwart"],["#d9d9d6","SV satijngrijs"],["#f8f9f9","Zilverwit"]],ST=[["klassiek","Klassiek","Zakelijk en vertrouwd: wit, serif koptekst, logo links en dunne lijnen in uw accentkleur."],["modern","Modern","Strakke witte kaart met afgeronde hoeken, gecentreerd logo en een accentstreep bovenaan."],["luxe","Luxe","Premium uitstraling: donkere kopband, serif titel, veel witruimte en een fijne accentlijn."]];
+  const SW=[["#252c3c","Gelders blauw"],["#137a8a","Mansard petrol"],["#2b3cb0","Blauw"],["#2f7a6e","Groen"],["#b3263c","Rood"],["#121826","Zwart"],["#d9d9d6","SV satijngrijs"],["#f8f9f9","Zilverwit"],["#56616a","Leisteengrijs"]],ST=[["klassiek","Klassiek","Zakelijk en vertrouwd: wit, serif koptekst, logo links en dunne lijnen in uw accentkleur."],["modern","Modern","Strakke witte kaart met afgeronde hoeken, gecentreerd logo en een accentstreep bovenaan."],["luxe","Luxe","Premium uitstraling: donkere kopband, serif titel, veel witruimte en een fijne accentlijn."]];
   const T=tpls(),tk={factuur:"factuur",offerte:"offerte",aankondiging:"aankondiging",herinnering:"aanmaning",review:"review"};
   const prev=()=>{const k=tk[tab],v=sampleVars(),vv={...v,klant:tab==="factuur"||tab==="offerte"?"mevrouw De Vries":"klant"};const old={...state.settings};state.settings={...state.settings,mailStijl:stijl,mailAccent:acc};
     const h=mailFor(k,vv,T[k].mail,{preview:true});state.settings=old;return h};
