@@ -1641,6 +1641,15 @@ html body:not(#zz) .lv-map{min-height:260px;background:#5d6b55}
 html body:not(#zz) .lv-wacht{flex-direction:row-reverse;background:var(--sv-satijn-l)!important}
 html body:not(#zz) .lv-wacht>span{background:#252c3c!important;opacity:.55}
 html body:not(#zz) .lv-wacht>svg:first-child{color:#252c3c!important}
+
+/* bezoeken-paneel: leesbaarder tekst en duidelijker iconen */
+html body:not(#zz) .bz-tile .bz-ti{width:42px!important;height:42px!important;background:linear-gradient(180deg,#ffffff,#ececea)!important;border:1px solid #c9c9c4!important;box-shadow:inset 0 1px 0 #fff,inset 0 -2px 3px rgb(0 0 0 / .05),0 1px 2px rgb(0 0 0 / .1),0 8px 16px -10px rgb(0 0 0 / .35)!important}
+html body:not(#zz) .bz-tile .bz-ti svg{width:19px!important;height:19px!important;color:#252c3c!important;stroke-width:1.9px!important;filter:none!important}
+html body:not(#zz) .bz-tile small{left:84px!important;height:42px!important;color:#3a4150!important;font-size:10.5px!important;font-weight:700!important;letter-spacing:.22em!important}
+html body:not(#zz) .bz-tile b{font-size:30px!important;font-weight:500!important;letter-spacing:-.005em!important;background:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;color:#14181f!important;margin:22px 0 6px!important}
+html body:not(#zz) .bz-tile em{font-size:13.5px!important;font-weight:500!important;color:#5f6572!important;letter-spacing:0!important}
+html body:not(#zz) .bz-tile>.bz-rt8t{color:#5f6572!important;font-size:12px!important}
+@media (max-width:640px){html body:not(#zz) .bz-tile small{left:70px!important}html body:not(#zz) .bz-tile b{font-size:23px!important}}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -1845,7 +1854,7 @@ function bezoeken(){const v=D.volgende,b=D.bezoeken||[],k=D.klant,fq=Number(k.fr
   const nB=D.aantalBezoeken||b.length,dagen=k.sinds?Math.max(1,Math.round((nu-p(k.sinds))/864e5)):0;
   const druppels=`<div class="bz-dr">${[...Array(Math.min(12,Math.max(nB,1)))].map((_,i)=>`<i class="${i<nB?"on":""}" style="--i:${i}"></i>`).join("")}${nB>12?`<small>+${nB-12}</small>`:""}</div>`;
   const laatst=b.length?b[0].datum:"",wk=laatst?Math.floor((nu-p(laatst))/864e5/7):0,ritme=`<div class="bz-rt8" title="${wk} van ${fq} weken sinds het laatste bezoek">${[...Array(Math.min(fq,12))].map((_,i)=>`<i class="${i<wk?"on":""}"></i>`).join("")}</div><em class="bz-rt8t">${laatst?`${wk} van ${fq} weken voorbij`:""}</em>`;
-  const tiles=`<div class="bz-tiles">${tile(I.ruit||I.check,k.vve?"Schoonmaakbeurten":"Schone ramen",plural(nB,"keer","keer"),b.length?"sinds "+(d=>d.getDate()+" "+MK[d.getMonth()]+(d.getFullYear()!==nu.getFullYear()?" "+d.getFullYear():""))(p(b[b.length-1].datum)):"nog geen bezoek",druppels)}${tile(I.verzet||I.kal,"Ritme",k.vve?hoofd(k.ritme||""):fq===1?"Elke week":"Elke "+fq+" weken",esc(k.dienst||"Glasbewassing"),k.vve?"":ritme)}${tile(I.hart,"Klant sinds",k.sinds?esc(MK[p(k.sinds).getMonth()]+" "+p(k.sinds).getFullYear()):"–",dagen?plural(dagen,"dag","dagen")+" samen":"")}${gem?tile(I.ster,"Uw beoordeling",gem.toLocaleString("nl-NL",{maximumFractionDigits:1})+" / 5",st(Math.round(gem))):""}</div>`;
+  const tiles=`<div class="bz-tiles">${tile(I.ruit||I.check,k.vve?"Schoonmaakbeurten":"Schone ramen",nB?plural(nB,"keer","keer"):"Nog geen",b.length?"sinds "+(d=>d.getDate()+" "+MK[d.getMonth()]+(d.getFullYear()!==nu.getFullYear()?" "+d.getFullYear():""))(p(b[b.length-1].datum)):"eerste bezoek volgt",druppels)}${tile(I.verzet||I.kal,"Ritme",k.vve?hoofd(k.ritme||""):fq===1?"Elke week":"Elke "+fq+" weken",esc(k.dienst||"Glasbewassing"),k.vve?"":ritme)}${tile(I.hart,"Klant sinds",k.sinds?esc(MND[p(k.sinds).getMonth()]+" "+p(k.sinds).getFullYear()):"–",dagen?plural(dagen,"dag","dagen")+" samen":"")}${gem?tile(I.ster,"Uw beoordeling",gem.toLocaleString("nl-NL",{maximumFractionDigits:1})+" / 5",st(Math.round(gem))):""}</div>`;
   /* tijdlijn: eerst wat er komt, dan wat we gedaan hebben */
   const toek=v?[{datum:v.datum,tijd:v.tijd,soort:"gepland"},...v.reeks.map(x=>({...x,soort:"gepland"}))]:(D.verwacht&&k.actief?[{datum:D.verwacht,soort:"verwacht"}]:[]);
   let jr="",mn="";const VM=isVve()?Object.fromEntries(vveMaanden()):{};const item=(x,past)=>{const d=p(x.datum),y=d.getFullYear();let kopJ=y!==jr&&!(past&&isVve())?`<li class="bz-jr">${y}</li>`:"";jr=y;
