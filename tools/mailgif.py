@@ -371,11 +371,51 @@ def overzicht(lat, lon, z=15, n=4):
     im.save(os.path.join(os.path.dirname(__file__), "overzicht.jpg"), quality=80)
 
 
+def hero():
+    """grote luchtfoto (zoom 18) met route in pixels voor de website: public/mail/hero-kaart.jpg + hero-route.json"""
+    global Z
+    if os.path.exists(os.path.join(UIT, "hero-kaart.jpg")) and "--opnieuw" not in sys.argv:
+        print("hero-kaart bestaat al"); return
+    try:
+        ll = route_ll()
+    except Exception as e:
+        print("route niet bereikbaar:", e); return
+    def m(a, b):
+        return 6371000 * math.hypot(math.radians(b[0] - a[0]), math.radians(b[1] - a[1]) * math.cos(math.radians(a[0])))
+    kort, tot = [ll[0]], 0
+    for a2, b2 in zip(ll, ll[1:]):
+        d = m(a2, b2)
+        if tot + d >= 420:
+            f = (420 - tot) / d if d else 0
+            kort.append((a2[0] + (b2[0] - a2[0]) * f, a2[1] + (b2[1] - a2[1]) * f)); break
+        kort.append(b2); tot += d
+    W, H, z = 1600, 1000, 18
+    P = [tegel_xy(la, lo, z) for la, lo in kort]
+    xs, ys = [p[0] * 256 for p in P], [p[1] * 256 for p in P]
+    if max(xs) - min(xs) > W - 300 or max(ys) - min(ys) > H - 240:
+        z = 17; P = [tegel_xy(la, lo, z) for la, lo in kort]; xs, ys = [p[0] * 256 for p in P], [p[1] * 256 for p in P]
+    cx, cy = (max(xs) + min(xs)) / 2, (max(ys) + min(ys)) / 2
+    px0, py0 = cx - W / 2, cy - H / 2
+    big = Image.new("RGB", (W, H))
+    for tx in range(int(px0 // 256), int((px0 + W) // 256) + 1):
+        for ty in range(int(py0 // 256), int((py0 + H) // 256) + 1):
+            raw = haal(f"https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0/Actueel_orthoHR/EPSG:3857/{z}/{tx}/{ty}.jpeg")
+            big.paste(Image.open(io.BytesIO(raw)).convert("RGB"), (round(tx * 256 - px0), round(ty * 256 - py0)))
+    big.save(os.path.join(UIT, "hero-kaart.jpg"), quality=84, optimize=True, progressive=True)
+    with open(os.path.join(UIT, "hero-route.json"), "w") as f:
+        json.dump({"w": W, "h": H, "z": z, "pts": [[round(x - px0, 1), round(y - py0, 1)] for x, y in zip(xs, ys)]}, f)
+    print("geschreven hero-kaart", z, len(xs))
+
+
 if __name__ == "__main__":
     if "--overzicht" in sys.argv:
         overzicht(52.0230, 5.1680)
     elif "--kaart" in sys.argv:
         kaart()
+        try:
+            hero()
+        except Exception as e:
+            print("hero-kaart mislukt:", e)
     else:
         scene("onderweg", "aan")
         scene("weg", "weg")
