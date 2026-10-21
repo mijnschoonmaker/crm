@@ -1664,6 +1664,22 @@ html body:not(#zz) .app .kp>.kp-h :is(button,.btn,a.btn){background:rgb(255 255 
 html body:not(#zz) .app .kp>.kp-h :is(button,.btn) svg{color:#fff!important}
 html body:not(#zz) .app .kp>.kp-h .pill{background:rgb(255 255 255 / .14)!important;color:#fff!important}
 html body:not(#zz) .app .kp{overflow:hidden}
+
+/* overzicht: blokken links en rechts op één lijn (via lijnUit) */
+@media (min-width:1100px){
+html body:not(#zz) .pg.met-paneel.lijn{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(300px,380px)!important;column-gap:20px!important;row-gap:20px!important;align-items:stretch!important}
+html body:not(#zz) .pg.met-paneel.lijn>.col{display:contents!important}
+html body:not(#zz) .pg.met-paneel.lijn .col>*{margin:0!important}
+html body:not(#zz) .pg.met-paneel.lijn .stats,html body:not(#zz) .pg.met-paneel.lijn .paneel>.melding.goud{height:100%;box-sizing:border-box}
+html body:not(#zz) .pg.met-paneel.lijn .stats .stat{height:100%;box-sizing:border-box;align-items:center}
+html body:not(#zz) .pg.met-paneel.lijn .paneel>.melding.goud{align-items:center;border-radius:20px!important}
+html body:not(#zz) .pg.met-paneel.lijn section.kp.ab-kp{height:auto!important;max-height:none!important;align-self:stretch!important}
+html body:not(#zz) .pg.met-paneel.lijn .ab-top{flex:1 1 auto}
+html body:not(#zz) .pg.met-paneel.lijn .bz-hero{align-self:stretch}
+}
+html body:not(#zz) .pg.met-paneel .paneel>.melding.goud .objic{background:#f1f2f5!important;color:#0d121b!important}
+html body:not(#zz) .pg.met-paneel .paneel>.melding.goud .tx b{font-size:15px!important}
+html body:not(#zz) .pg.met-paneel .paneel>.melding.goud .tx small{font-size:13px!important;font-weight:400!important;color:var(--muted)!important}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -2419,4 +2435,16 @@ async function lvPeil(){if(document.hidden||tab!=="home")return;let r;try{r=awai
 
 /* aanbevelen: bonnen bewegen mee met de muis */
 (()=>{if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;const bind=()=>{document.querySelectorAll(".rf-hero:not([data-par])").forEach(h=>{h.dataset.par=1;h.addEventListener("pointermove",e=>{const r=h.getBoundingClientRect();h.style.setProperty("--px",((e.clientX-r.left)/r.width-.5).toFixed(3));h.style.setProperty("--py",((e.clientY-r.top)/r.height-.5).toFixed(3))});h.addEventListener("pointerleave",()=>{h.style.setProperty("--px",0);h.style.setProperty("--py",0)})})};new MutationObserver(bind).observe(document.documentElement,{childList:true,subtree:true});bind()})();
+
+/* overzicht: abonnement naast de grote kaart, aanbevelen naast de tegels */
+function lijnUit(){const pg=document.querySelector(".pg.met-paneel");if(!pg||pg.dataset.lijn)return;pg.dataset.lijn=1;
+  const L=pg.children[0],R=pg.children[1];if(!L||!R)return;const lk=[...L.children],rk=[...R.children];
+  const h=lk.findIndex(e=>e.matches(".bz-hero,.hero")),st=lk.findIndex(e=>e.matches(".stats")),ab=rk.find(e=>e.matches(".ab-kp")),tv=rk.find(e=>e.matches(".melding.goud"));
+  if(h<0||!ab)return;const rest=rk.filter(e=>e!==ab&&e!==tv);
+  lk.forEach((e,i)=>{e.style.gridColumn="1";e.style.gridRow=String(i+1)});
+  ab.style.gridColumn="2";ab.style.gridRow=String(h+1);
+  if(tv){tv.style.gridColumn="2";tv.style.gridRow=String((st>=0?st:h+1)+1)}
+  let r=h+2;rest.forEach(e=>{e.style.gridColumn="2";if(tv&&st>=0&&r===st+1)r++;e.style.gridRow=String(r++)});
+  pg.classList.add("lijn")}
+new MutationObserver(()=>{try{lijnUit()}catch(e){}}).observe(document.documentElement,{childList:true,subtree:true});
 </script></body></html>
