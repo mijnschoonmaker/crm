@@ -6,6 +6,7 @@ const BETAALW=[["bank","Per bank"],["incasso","Automatische incasso"],["contant"
 function openOfferte(opts={}){
   const ex=opts.id?state.facturen.find(x=>x.id===opts.id):null;
   if(opts.id&&!ex)return;
+  if(ex&&ex.getekendNieuw&&typeof getekendGezien==="function")getekendGezien(ex);
   let kid=ex?ex.klantId:opts.klantId||"";
   const k0=state.klanten.find(x=>x.id===kid)||null;if(!k0)kid="";
   const st=S(),dat=ex?ex.datum:iso(today());

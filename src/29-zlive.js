@@ -56,6 +56,7 @@ async function akkoordLink(f,k){let tok=f.akkoordToken;
   await fsDb().doc("akkoord/"+tok).set({factuurId:f.id,klantId:f.klantId||"",nummer:f.nummer||"",email:(k&&k.email)||f.klantEmail||"",naamKlant:(kk&&(kk.contact||kk.naam))||f.klantNaam||"",geldigTot:f.verval||"",model:overzichtModelOfferte(f,kk),status:f.getekend?"getekend":"open",gemaakt:new Date().toISOString()},{merge:true});
   return location.origin+"/akkoord/"+tok}
 function getekendBox(f){const g=f.getekend||{};return `<div class="okbox" style="margin:0 0 12px">${I.check}<div><b>Online ondertekend door ${esc(g.naam||"")}${g.plaats?" uit "+esc(g.plaats):""}</b><span>${esc(g.datum||"")} · ${esc(g.browser||"")} · ${esc(g.systeem||"")}. Het definitieve bestellingsoverzicht is naar de klant gemaild. De klant is automatisch omgezet naar vaste klant en staat bij Te plannen.</span>${g.handtekening?`<img src="${BLOB}${esc(g.handtekening)}" alt="Handtekening" style="max-height:60px;margin-top:6px;background:#fff;border-radius:8px;padding:4px">`:""}</div></div>`}
+function getekendAfgehandeld(f){const k=state.klanten.find(x=>x.id===f.klantId);return !!(k&&!k.prospect&&(k.gepland||k.aanbieden||(k.reeks||[]).length||f.autoAkkoord))}
 async function getekendGezien(f){try{await save("facturen",f.id,{...strip(f),getekendNieuw:false})}catch(e){}}
 let _getekendGezien=null;
 function meldGetekend(){if(!LIVE||!state.loaded)return;const l=state.facturen.filter(f=>f.soort==="offerte"&&f.getekendNieuw);
@@ -76,7 +77,7 @@ async function autoAkkoordGetekend(f){
     toast(cleanName(k.naam)+" heeft getekend en staat nu bij Te plannen");
   }catch(e){_autoAk.delete(f.id);console.error("auto akkoord",e)}
 }
-function checkGetekend(){if(!LIVE||!state.loaded)return;state.facturen.filter(f=>f.soort==="offerte"&&f.getekend&&f.status==="geaccepteerd"&&!f.autoAkkoord).forEach(f=>{const k=state.klanten.find(x=>x.id===f.klantId);if(k&&k.prospect)autoAkkoordGetekend(f)})}
+function checkGetekend(){if(!LIVE||!state.loaded)return;state.facturen.filter(f=>f.soort==="offerte"&&f.getekendNieuw&&getekendAfgehandeld(f)&&!_autoAk.has("g"+f.id)).forEach(f=>{_autoAk.add("g"+f.id);getekendGezien(f)});state.facturen.filter(f=>f.soort==="offerte"&&f.getekend&&f.status==="geaccepteerd"&&!f.autoAkkoord).forEach(f=>{const k=state.klanten.find(x=>x.id===f.klantId);if(k&&k.prospect)autoAkkoordGetekend(f)})}
 if(LIVE)setInterval(()=>{try{checkGetekend()}catch(_){}},5000);
 
 
