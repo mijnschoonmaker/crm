@@ -1693,6 +1693,11 @@ html body:not(#zz) .stats.st3 small{font-size:9px!important;letter-spacing:.2em!
 html body:not(#zz) .stats.st3 b{font-size:22px!important;font-weight:500!important;margin-top:2px}
 html body:not(#zz) .stats.st3 em{font-size:11px!important}
 }
+html body:not(#zz) .bp>.kp-h{flex-wrap:wrap;row-gap:10px}
+html body:not(#zz) .bp>.kp-h>div{min-width:0;flex:1 1 auto}
+html body:not(#zz) .bp>.kp-h b,html body:not(#zz) .bp>.kp-h small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+html body:not(#zz) .bp-k small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+@media (max-width:560px){html body:not(#zz) .bp>.kp-h>.sp{display:none}html body:not(#zz) .bp>.kp-h>.pill{order:5;margin-left:calc(44px + 12px)}html body:not(#zz) .bp-k small{font-size:11.5px}}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -1920,7 +1925,7 @@ function bezoeken(){const v=D.volgende,b=D.bezoeken||[],k=D.klant,fq=Number(k.fr
   let jr="",mn="";const VM=isVve()?Object.fromEntries(vveMaanden()):{};const item=(x,past)=>{const d=p(x.datum),y=d.getFullYear();let kopJ=y!==jr&&!(past&&isVve())?`<li class="bz-jr">${y}</li>`:"";jr=y;
     if(past&&isVve()){const m=x.datum.slice(0,7);if(m!==mn){mn=m;const bs=VM[m]||[],af=vveAfrond(bs);kopJ=`<li class="bz-mnd"><div><b>${esc(hoofd(vveMaand(m)))}</b><small>${plural(bs.length,"beurt","beurten")}${af!=null?" · "+af+"% afgerond":""}</small></div><button class="btn sm" data-vrap="${m}">${I.fact}Maandrapport</button></li>`}}
     return kopJ+`<li class="bz-it ${past?"af":x.soort}"><span class="bz-dot">${past?I.check:""}</span><div class="bz-card"><div class="bz-dt"><b>${x.soort==="verwacht"?"wk":d.getDate()}</b><small>${x.soort==="verwacht"?weekNr(d):MK[d.getMonth()]}</small></div>
-      <div class="bz-tx"><b>${past?esc(x.dienst||"Glasbewassing")+(x.extra&&x.extra.length?" + "+esc(x.extra.join(", ").toLowerCase()):""):x.soort==="verwacht"?"Verwacht bezoek":"Gepland bezoek"}</b><small><span style="text-transform:capitalize">${x.soort==="verwacht"?"rond week "+weekNr(d):esc(dagNaam(d))}</span>${x.tijd?" · "+esc(x.tijd):""}${past&&x.door&&!isVve()?" · "+esc(x.door):""}${!past&&x.soort!=="verwacht"?" · "+esc(overTxt(dagenTot(x.datum)).toLowerCase()):""}</small>${past&&x.beoordeling?st(x.beoordeling.sterren):""}</div>
+      <div class="bz-tx"><b>${past?esc(x.dienst||"Glasbewassing")+(x.extra&&x.extra.length?" + "+esc(x.extra.join(", ").toLowerCase()):""):x.soort==="verwacht"?"Verwacht bezoek":"Gepland bezoek"}</b><small><span style="text-transform:capitalize">${x.soort==="verwacht"?"rond week "+weekNr(d):esc(dagNaam(d))}</span>${x.tijd?" · "+esc(x.tijd):""}${past&&x.door?" · "+(isVve()?"door ":"")+esc(x.door):""}${!past&&x.soort!=="verwacht"?" · "+esc(overTxt(dagenTot(x.datum)).toLowerCase()):""}</small>${past&&x.beoordeling?st(x.beoordeling.sterren):""}</div>
       <div class="bz-rt">${past?(x.bedrag&&!isVve()?`<b>${eur0(x.bedrag)}</b>`:"")+`<span class="bz-stempel">${I.check}<i>${isVve()?"Gedaan":"Gewassen"}</i></span>`:`<span class="pill ${x.soort==="verwacht"?"":"brand"}"><i></i>${x.soort==="verwacht"?"Verwacht":"Gepland"}</span>`}</div></div>${past&&isVve()?vveBeurtDetail(x):""}</li>`};
   const fut=toek.slice().reverse();jr=nu.getFullYear();const lijn=fut.map(x=>item(x,false));jr=nu.getFullYear();
   const tl=`<section class="bz-tl"><div class="bz-tlh"><b>Tijdlijn</b><small>${plural(b.length,"bezoek","bezoeken")} gedaan${toek.length?" · "+plural(toek.length,"gepland","gepland").replace(/^(\d+) gepland$/,"$1 in het vooruitzicht"):""}</small></div>
@@ -2053,7 +2058,7 @@ function facturen(){const F=D.facturen,open=F.filter(f=>f.status!=="betaald"&&f.
   const hero=`<section class="kp bp bp-${P.niv.k}"><div class="kp-h"><span class="objic${P.te.length?" rood":""}">${I.euro}</span><div><b>Uw betaalgedrag</b><small>Hoe snel u uw facturen betaalt</small></div><span class="sp"></span>${nSnel>=2&&!P.te.length?`<span class="pill">${BLIK}Snelle betaler · ${nSnel}×</span>`:""}</div><div class="bp-in">
       <div class="bp-m">${betaalMeter(P.score,P.niv.k)}<div class="bp-mt"><b>${P.score==null?"–":P.score}</b><small>van 100</small></div></div>
       <div class="bp-tx"><h3>${esc(P.niv.t)}</h3><div class="bp-dots" aria-hidden="true">${[1,2,3,4,5].map(i=>`<i class="${i<=P.niv.n?"on":""}"></i>`).join("")}</div><p>${msg}</p></div></div>${rang}
-    ${P.laatste.length?`<div class="bp-k"><div><small>Gemiddeld betaald in</small><b>${Rg&&Rg.sec!=null?duurTxt(Rg.sec,true):"na "+P.gem+" "+(P.gem===1?"dag":"dagen")}</b></div><div><small>Op tijd betaald</small><b>${P.op} van ${P.laatste.length}</b></div><div><small>Op rij op tijd</small><b>${P.reeks}×</b></div></div>`:""}
+    ${P.laatste.length?`<div class="bp-k"><div><small>Gemiddeld</small><b>${Rg&&Rg.sec!=null?duurTxt(Rg.sec,true):"na "+P.gem+" "+(P.gem===1?"dag":"dagen")}</b></div><div><small>Op tijd betaald</small><b>${P.op} van ${P.laatste.length}</b></div><div><small>Op rij op tijd</small><b>${P.reeks}×</b></div></div>`:""}
     ${betaalGrafiek(P,open)}</section>`;
   const alarm=oudste?`<button class="melding rood" data-fact="${esc(oudste.id)}"><span class="objic rood">${I.euro}</span><div class="tx"><b>${eur(oudste.bedrag)} · ${-dagenTot(oudste.verval)} ${dagenTot(oudste.verval)===-1?"dag":"dagen"} te laat</b><small>Factuur ${esc(oudste.nummer)} · vervallen op ${esc(kort(oudste.verval))}${oudste.herinnerd?" · "+plural(oudste.herinnerd,"herinnering","herinneringen")+" verstuurd":""}</small></div><span class="btn-p">Nu betalen</span></button>`:"";
   const IC=D.klant.incasso||{};
