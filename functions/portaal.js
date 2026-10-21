@@ -174,8 +174,11 @@ module.exports = function maakPortaal(ctx) {
       ...rk.docs.map(d => dec(d.data())).map(x => ({ naam: voornaamVan(schoon(x.contact || x.naam)), datum: x.aangemaakt || "", status: x.aanbevelingBeloond ? "beloond" : x.actief === false ? "gestopt" : x.akkoord === false || x.prospect ? "akkoord" : "eerste" }))
     ].sort((a, b2) => String(b2.datum).localeCompare(String(a.datum)));
     const tegoed = (k.tegoed || []).filter(t => t && Number(t.bedrag) > 0);
+    let extraDiensten = [];
+    try { const ud = await db.doc("instellingen/uitvoering").get(); if (ud.exists) { const u = dec(ud.data());
+      extraDiensten = [...(u.groepen || []), ...(u.eigen || [])].filter(g => g && !g.verberg && g.type !== "glas" && g.type !== "bijz" && String(g.naam || "").trim()).map(g => String(g.naam).trim()).slice(0, 24); } } catch (e) { console.error("diensten", e); }
     return {
-      bedrijf: bedrijfInfo(b, base),
+      bedrijf: { ...bedrijfInfo(b, base), extraDiensten },
       klant: { voornaam: voornaamVan(schoon(k.contact || k.naam)), naam: schoon(k.naam), contact: k.contact || "", adres: k.adres || "", postcode: k.postcode || "", plaats: k.plaats || "", pcPlaats: [k.postcode, k.plaats].filter(Boolean).join(" "), email: k.email || "", telefoon: k.telefoon || "", mobiel: k.mobiel || "", zakelijk: k.soort === "zakelijk" || k.soort === "vve",
         vve, ritme: ritmeTxt(k), weekdagen: wdg || [], taken: vveTakenVan(k),
         klantnr: k.klantnr || "", sinds: k.aangemaakt || (beurten.length ? beurten[beurten.length - 1].datum : ""), dienst: k.dienst || "Glasbewassing", frequentie: freqW, prijs: Number(k.prijs) || 0, binnen: !!k.binnen, actief: k.actief !== false,
