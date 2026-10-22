@@ -4,6 +4,9 @@ function openOpdrachtWerk(kid,focus){
   const st=S(),incl=!!st.incl,btwL=incl?"incl.":"excl.";
   let extra=(k.opdrachten||[]).map(o=>({...o}));
   if(focus==="new")extra.push({id:newId("o"),dienst:"",prijs:"",frequentie:52,duur:30,volgende:"",actief:true,_nieuw:true});
+  /* een extra of nieuwe opdracht opent als eigen opdrachtkaart met een eigen nummer (bijv. 1002-2); de hoofdopdracht blijft ongemoeid */
+  const soloId=focus&&!["main","hosp"].includes(focus)?(focus==="new"?extra[extra.length-1].id:focus):null,soloI=soloId?extra.findIndex(o=>o.id===soloId):-1;
+  const soloNr=(()=>{if(soloI<0)return 1;const eo=typeof extraOpdr==="function"?extraOpdr(k):(k.opdrachten||[]),j=eo.findIndex(o=>o.id===soloId);return j>=0?j+2:eo.length+2})();
   let fotos=[...(k.fotos||[])];
   const tFotos=(k.ramenTelling&&k.ramenTelling.fotos)||[];
   const fs=state.facturen.filter(f=>f.klantId===k.id&&f.soort!=="offerte"),open=fs.filter(f=>["Openstaand","Achterstallig"].includes(fStatus(f)[1]));
@@ -15,7 +18,7 @@ function openOpdrachtWerk(kid,focus){
   const diensten=dienstLijst();
   const nr=klantNr(k);
   openDlg(`<div class="ow-kop jp-kop ow-${status[0]}"><div class="jp-kr1"><span class="jp-st"><i></i>${status[1]}</span><span class="sp"></span><button type="button" class="jp-ib" id="owX" aria-label="Terug naar klantkaart">${I.x}</button></div>
-    <div class="jp-kr2"><span class="jp-k1"><small>Opdracht</small><b>${esc(nr)}-1</b></span><span class="jp-k2"><b>${esc(cleanName(k.naam))}</b><em>${I.pin}${esc(jobAddr(k))}</em></span><span class="jp-k3"><small>${esc(k.dienst||"Glasbewassing")}</small><b>${eur(toon(k.prijs))}</b><em>${esc(ritmeTxt(k))} · ${duur(k)} min</em></span></div></div>
+    <div class="jp-kr2"><span class="jp-k1"><small>${soloI>=0&&extra[soloI]._nieuw?"Nieuwe opdracht":"Opdracht"}</small><b>${esc(nr)}-${soloNr}</b></span><span class="jp-k2"><b>${esc(cleanName(k.naam))}</b><em>${I.pin}${esc(jobAddr(k))}</em></span>${soloI>=0?`<span class="jp-k3"><small>${esc(extra[soloI].dienst||"Kies een dienst")}</small><b>${extra[soloI].prijs!==""&&extra[soloI].prijs!=null?eur(toon(extra[soloI].prijs)):"—"}</b><em>${esc(freqLabel(Number(extra[soloI].frequentie)||52))}</em></span>`:`<span class="jp-k3"><small>${esc(k.dienst||"Glasbewassing")}</small><b>${eur(toon(k.prijs))}</b><em>${esc(ritmeTxt(k))} · ${duur(k)} min</em></span>`}</div></div>
   <div class="hosp-top" id="owHospTop">${hospBlok(k,{leegKnop:false})}</div>
   <div class="kk-grid ow-grid"><div class="kk-left">
     <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klantgegevens</b><span class="sp"></span><button type="button" class="small" id="owKk">${I.right}Klantkaart</button></div>
@@ -71,7 +74,7 @@ function openOpdrachtWerk(kid,focus){
       <div class="log">${[...(k.log||[]).map(l=>({d:l.datum,t:l.tekst,s:"Notitie"})),...state.berichten.filter(m=>m.klantId===k.id).map(m=>({d:String(m.op).slice(0,10),t:m.tekst,s:KANAAL[m.kanaal]||m.kanaal}))].sort((a,b)=>String(b.d).localeCompare(String(a.d))).slice(0,15).map(l=>`<div><span>${fmtD(l.d)} · ${esc(l.s)}</span>${esc(l.t)}</div>`).join("")||'<div style="color:var(--muted)">Er zijn nog geen logboekregels.</div>'}</div>
       <div class="log-in"><input id="ow-log" placeholder="Notitie toevoegen…" aria-label="Notitie voor het logboek"><button type="button" class="small primary" id="owLog">${I.plus}Noteer</button></div></section>
   </div></div>
-  <div class="row stickyfoot kk-foot"><button type="button" class="ghost danger" id="owDel">${I.trash}Opdracht verwijderen</button><span class="sp"></span><button type="button" id="owBack">Annuleren</button><button type="submit" class="primary" id="owSave">${I.check}Opslaan</button></div>`,{xwide:true});
+  <div class="row stickyfoot kk-foot">${soloI>=0?"":`<button type="button" class="ghost danger" id="owDel">${I.trash}Opdracht verwijderen</button>`}<span class="sp"></span><button type="button" id="owBack">Annuleren</button><button type="submit" class="primary" id="owSave">${I.check}Opslaan</button></div>`,{xwide:true});
   const $o=n=>$("#ow-"+n);
   /* Opdracht: rustig overzicht (zoals het vorige CRM); potlood = wijzigen */
   const drawOpdV=()=>{const v=$("#owOpdV");if(!v)return;const g=n=>$o(n),ja=c=>c&&c.checked?"Ja":"Nee",sel=n=>{const e=g(n);return e&&e.selectedIndex>=0?e.options[e.selectedIndex].text:"—"};
@@ -209,7 +212,7 @@ function openOpdrachtWerk(kid,focus){
     const jaar=(per*52/(mF||4)+ex.reduce((a,o)=>a+(Number(o.prijs)||0)*52/(Number(o.frequentie)||52),0))*(1+ts);
     $("#owTot").innerHTML=`<span>Per beurt (${esc(main.dienst||"hoofdopdracht")})</span><span>${eur(toon(per))}</span>${ts?`<span>Toeslag ${r2(ts*100)}%</span><span>+ ${eur(toon(per)*ts)}</span><span class="grand">Per beurt incl. toeslag</span><span class="grand">${eur(toon(per)*(1+ts))}</span>`:""}${ex.length?`<span>Extra opdrachten, per keer${ts?" incl. toeslag":""}</span><span>${eur(ex.reduce((a,o)=>a+(Number(o.prijs)||0),0)*(1+ts))}</span>`:""}`;
     const h=$("#owTsl");if(h)h.textContent=ts?`+ ${r2(ts*100)}% toeslag = ${eur(toon(per)*(1+ts))} per keer`:""};
-  const draw=()=>{syncRitme();$("#owLines").innerHTML=lineHtml(main,0,true)+extra.map((r,i)=>lineHtml(r,i,false)).join("");tot()};
+  const draw=()=>{syncRitme();$("#owLines").innerHTML=soloI>=0&&extra[soloI]?lineHtml(extra[soloI],soloI,false):lineHtml(main,0,true)+extra.map((r,i)=>lineHtml(r,i,false)).join("");tot()};
   const allFotos=()=>[...tFotos.map(f=>({...f,naam:"Uit de telling",t:1})),...fotos];
   const drawFotos=()=>{const all=allFotos();
     $("#owFotos").innerHTML=all.length?all.map((f,i)=>fotoCard(f,i,!f.t)).join(""):'<p class="subt ow-fempty">Nog geen foto\'s. Upload een foto en tik de ramen aan die gewassen moeten worden. Foto\'s uit de rekentool verschijnen hier vanzelf.</p>'};

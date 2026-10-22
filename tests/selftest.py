@@ -218,6 +218,20 @@ def teplannen(pg):
     check(G, "Latere aanboddatum laat de afspraak staan", r["b"] is False, r)
 
 
+def nieuweOpdracht(pg):
+    G = "Opdrachten"
+    r = pg.evaluate("""async()=>{const T=MSTEST;if(!T.openOpdrachtWerk)return null;const id=T.newId('ko');
+      await T.save('klanten',id,{naam:'Opdracht, Test',klantnr:'1099',prijs:40,frequentie:8,actief:true,dienst:'Glasbewassing',log:[],objecten:[]});
+      T.openOpdrachtWerk(id,'new');await new Promise(r=>setTimeout(r,300));const kop=(document.querySelector('.jp-k1 b')||{}).textContent||'',lijnen=document.querySelectorAll('#owLines .ow-line').length;
+      document.querySelectorAll('dialog[open]').forEach(d=>d.close());T.openOpdrachtWerk(id,'main');await new Promise(r=>setTimeout(r,300));const kop2=(document.querySelector('.jp-k1 b')||{}).textContent||'';
+      document.querySelectorAll('dialog[open]').forEach(d=>d.close());await T.del('klanten',id);return {kop,lijnen,kop2}}""")
+    if r is None:
+        return check(G, "Nieuwe opdracht", False, "openOpdrachtWerk niet gevonden")
+    check(G, "Nieuwe opdracht krijgt een eigen nummer (…-2)", r["kop"].endswith("-2"), r)
+    check(G, "Nieuwe opdracht toont alleen zijn eigen regel", r["lijnen"] == 1, r)
+    check(G, "Hoofdopdracht blijft …-1", r["kop2"].endswith("-1"), r)
+
+
 def portaal(b, base):
     G = "Klantportaal"
     for w, h, naam in [(1300, 900, "computer"), (390, 844, "telefoon")]:
@@ -252,6 +266,7 @@ def main():
             frequentie(pg)
             herinneringen(pg)
             teplannen(pg)
+            nieuweOpdracht(pg)
             check("Laden", "Geen fouten tijdens de flows", not pg.fouten, "; ".join(pg.fouten))
             pg.close()
             pm = crm(b, base, 390, 844)
