@@ -18,7 +18,7 @@ function liveStart(stil){
     /* niet vaker dan nodig: elke 12 seconden, of eerder als je flink bent opgeschoten */
     if(nu-LV.last<12000&&lvAfst(LV.pos,c)<40)return;
     if(typeof kmTik==="function")kmTik(LV.pos,c,p.coords.accuracy);LV.last=nu;LV.pos=c;if(koers!=null)LV.koers=koers;LV.fout="";if(typeof rvMapLive==="function")rvMapLive();lvSchrijf({actief:true,lat:c.lat,lng:c.lng,nauw:Math.round(p.coords.accuracy||0),...(koers!=null?{koers}:{})});lvKnop()},
-    e=>{LV.fout=e.code===1?"Geen toestemming voor je locatie. Zet locatie aan voor deze website in je telefooninstellingen.":"Je locatie is even niet beschikbaar";if(e.code===1){liveStop(true);state.liveDelen=false;try{localStorage.setItem("ms.live","0")}catch(er){}}toast(LV.fout);lvKnop()},
+    e=>{LV.fout=e.code===1?"Geen toestemming voor je locatie. Zet locatie aan voor deze website in je telefooninstellingen.":"Je locatie is even niet beschikbaar";if(e.code===1){liveStop(true);state.liveDelen=false;try{localStorage.setItem("ms.live","0")}catch(er){}toast(LV.fout)}/* even geen signaal (binnen, computer): geen melding, de telefoon probeert het vanzelf opnieuw */lvKnop()},
     {enableHighAccuracy:true,maximumAge:8000,timeout:30000});
   lvWakker();if(!stil)toast("Live delen staat aan · de klanten van vandaag zien waar je bent");lvKnop()}
 function liveStop(stil){if(LV.watch!=null){try{navigator.geolocation.clearWatch(LV.watch)}catch(e){}}LV.watch=null;LV.pos=null;try{LV.lock&&LV.lock.release()}catch(e){}LV.lock=null;
