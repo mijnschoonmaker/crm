@@ -208,6 +208,13 @@ module.exports = function maakPortaal(ctx) {
   }
 
   const TYPES = { verzetten: "Afspraak verzetten", overslaan: "Bezoek overslaan", vakantie: "Afwezig / vakantie", bericht: "Bericht", gegevens: "Gegevens wijzigen", extra: "Extra dienst aanvragen", review: "Google-review geplaatst", stoppen: "Opzeggen", beoordeling: "Beoordeling", toegang: "Toegang en instructies" };
+  /* ligt de afspraak (datum + tijd, Nederlandse tijd) binnen 48 uur? Zonder tijd: 08:00 */
+  function binnen48(datum, tijd) {
+    const t = /^\d{1,2}:\d{2}/.test(String(tijd || "")) ? String(tijd).slice(0, 5).padStart(5, "0") : "08:00";
+    const ruw = new Date(datum + "T" + t + ":00Z").getTime();
+    const off = (() => { try { const p = new Intl.DateTimeFormat("en-US", { timeZone: "Europe/Amsterdam", timeZoneName: "shortOffset" }).formatToParts(new Date(ruw)).find(x => x.type === "timeZoneName").value; const m = /GMT([+-]\d+)/.exec(p); return m ? Number(m[1]) : 1; } catch (e) { return 1; } })();
+    return ruw - off * 3600e3 - Date.now() < 48 * 3600e3;
+  }
   async function actie(req, S, d) {
     const k = S.klant, type = String(d.type || "");
     if (!TYPES[type]) throw new Error("onbekend");
@@ -215,7 +222,9 @@ module.exports = function maakPortaal(ctx) {
     if (!(await limiet("actie" + k.id, 30, 3600e3))) throw new Error("te veel");
     const txt = s => String(s || "").trim().slice(0, 1500), dt = s => /^\d{4}-\d{2}-\d{2}$/.test(String(s || "")) ? String(s) : "";
     const v = { klantId: k.id, klantNaam: k.naam || "", adres: [k.adres, k.plaats].filter(Boolean).join(", "), type, titel: TYPES[type], tekst: txt(d.tekst), status: "nieuw", op: nu(), bron: "portaal" };
-    if (type === "verzetten" || type === "overslaan") { v.datum = dt(d.datum) || k.gepland || ""; v.voorkeur = txt(d.voorkeur).slice(0, 200); }
+    if (type === "verzetten" || type === "overslaan") { v.datum = dt(d.datum) || k.gepland || ""; v.voorkeur = txt(d.voorkeur).slice(0, 200);
+      /* tot 48 uur voor de afspraak; daarna staat de route vast */
+      if (v.datum && v.datum === k.gepland && binnen48(v.datum, k.tijd)) throw new Error("Verzetten of overslaan kan tot 48 uur voor de afspraak. Neem even contact met ons op, dan kijken we wat er nog kan."); }
     if (type === "vakantie") { v.datum = dt(d.datum); v.tot = dt(d.tot); if (!v.datum || !v.tot || v.tot < v.datum) throw new Error("Kies een begin- en einddatum."); }
     if (type === "gegevens") {
       /* direct doorvoeren op de klant in het CRM */

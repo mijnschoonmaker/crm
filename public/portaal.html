@@ -1763,6 +1763,9 @@ const weekNr=d=>{const t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDat
 
 /* ---------- api ---------- */
 const SK="ms.portaal.s";
+/* verzetten en overslaan kan tot 48 uur voor de afspraak */
+function teLaat48(v){if(!v||!v.datum)return false;const t=/^\d{1,2}:\d{2}/.test(String(v.tijd||""))?String(v.tijd).slice(0,5):"08:00";const d=new Date(v.datum+"T"+t.padStart(5,"0")+":00");return d-Date.now()<48*36e5}
+function teLaatBlad(wat){blad(`<h3>Afspraak ${wat==="overslaan"?"overslaan":"verzetten"}</h3><p class="sub">Verzetten of overslaan kan tot 48 uur voor de afspraak. Daarna staat de route vast. Maak een ticket aan of bel ons, dan kijken we wat er nog kan.</p><div class="acties"><button class="" data-sluit>Sluiten</button><button class="primary" data-tab="tickets" data-sluit>Ticket aanmaken</button></div>`)}
 /* voorbeelden van extra diensten: de actieve diensten van dit bedrijf (Uitvoering in het CRM) */
 function extraTxt(of){const l=((typeof B!=="undefined"&&B&&B.extraDiensten)||[]).slice(0,4).map((x,i)=>i?String(x).toLowerCase():String(x));if(!l.length)return"Goten, gevel of zonnepanelen";return l.length>1&&of?l.slice(0,-1).join(", ")+" of "+l[l.length-1]:l.join(", ")}
 /* meekijken vanuit het CRM: balk bovenaan, alleen bekijken */
@@ -2267,12 +2270,12 @@ const FORM={
     <p class="sub">Schrijf in een paar zinnen hoe u ons werk ervaart. Eerlijk is het mooist, ook als er iets beter kan.</p>
     ${link?`<a class="btn primary full big" style="margin:4px 0 12px" target="_blank" rel="noopener" href="${esc(link)}">${I.ster}Reviewpagina openen</a>`:`<div class="infobox">${I.klok}<span>Onze reviewpagina wordt nog ingesteld. Probeer het later nog eens.</span></div>`}
     <div class="acties"><button class="" data-sluit>Sluiten</button></div>`)},
-  verzetten(){const v=D.volgende;blad(`<h3>Afspraak verzetten</h3><p class="sub">${v?"Gepland op "+esc(lang(v.datum))+". ":""}Laat ons weten wat beter uitkomt, dan zoeken wij een nieuw moment in de route.</p>
+  verzetten(){const v=D.volgende;if(teLaat48(v))return teLaatBlad("verzetten");blad(`<h3>Afspraak verzetten</h3><p class="sub">${v?"Gepland op "+esc(lang(v.datum))+". ":""}Laat ons weten wat beter uitkomt, dan zoeken wij een nieuw moment in de route.</p>
     <span class="veld"><span>Wat komt beter uit?</span></span><div class="keus">${["Eerder","Later","Andere dag in dezelfde week","Maakt niet uit, als ik maar thuis ben"].map((x,i)=>`<label><input type="radio" name="vk" value="${esc(x)}"${i===1?" checked":""}><span>${esc(x)}</span></label>`).join("")}</div>
     <label class="veld"><span>Toelichting (niet verplicht)</span><textarea id="vt" placeholder="Bijvoorbeeld: die week ben ik er niet, maandag en dinsdag kan altijd"></textarea></label>
     <p class="fout" role="alert"></p><div class="acties"><button class="" data-sluit>Annuleren</button><button class="primary" data-go>Verzoek versturen</button></div>`,
     o=>o.querySelector("[data-go]").onclick=()=>verstuur(o,{type:"verzetten",datum:v&&v.datum,voorkeur:(o.querySelector("[name=vk]:checked")||{}).value,tekst:o.querySelector("#vt").value},"Verzoek ontvangen","We kijken naar een nieuw moment en laten het u zo snel mogelijk weten."))},
-  overslaan(){const v=D.volgende;blad(`<h3>Bezoek overslaan</h3><p class="sub">${v?"Het bezoek van "+esc(lang(v.datum))+" slaan we dan over. ":""}Het bezoek daarna gaat gewoon door.</p>
+  overslaan(){const v=D.volgende;if(teLaat48(v))return teLaatBlad("overslaan");blad(`<h3>Bezoek overslaan</h3><p class="sub">${v?"Het bezoek van "+esc(lang(v.datum))+" slaan we dan over. ":""}Het bezoek daarna gaat gewoon door.</p>
     <label class="veld"><span>Reden (niet verplicht)</span><textarea id="vt" placeholder="Bijvoorbeeld: verbouwing, steiger staat voor het huis"></textarea></label>
     <p class="fout" role="alert"></p><div class="acties"><button class="" data-sluit>Annuleren</button><button class="primary" data-go>Overslaan aanvragen</button></div>`,
     o=>o.querySelector("[data-go]").onclick=()=>verstuur(o,{type:"overslaan",datum:v&&v.datum,tekst:o.querySelector("#vt").value},"Verzoek ontvangen","We passen de planning aan en bevestigen het aan u."))},
