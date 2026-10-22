@@ -2,7 +2,7 @@
    - tegoed op de klant (k.tegoed) wordt verrekend met de eerstvolgende factuur
    - aanbevelingskorting staat "on hold" tot de nieuwe klant akkoord heeft (k.akkoord) én de eerste afspraak is uitgevoerd
    - verzoeken uit het portaal (portaalVerzoeken) komen binnen als kaart in de zijbalk */
-const refBeloning=()=>{const v=S().refBeloning;return v!=null&&v!==""?Number(v)||0:15};
+const refBeloning=()=>{const v=S().refBeloning;return v!=null&&v!==""?Number(v)||0:20};
 const refWelkom=()=>{const v=S().refWelkom;return v!=null&&v!==""?Number(v)||0:10};
 const refAan=()=>S().refAan!==false;
 
@@ -94,22 +94,23 @@ async function ptAfhandelen(id){const l=state.portaalVz||[],v=l.find(x=>x.id===i
 function openPortaalVz(){openTickets("","",true)}
 /* ---------- instellingen ---------- */
 if(LIVE){const at=SETCARDS.findIndex(x=>x.id==="liveOverzicht")+1;
-  SETCARDS.splice(at||SETCARDS.length,0,{id:"livePortaal",t:"Klantportaal & aanbevelen",sub:"Klanten zien hun afspraken en facturen, en bevelen je aan",ic:"spark",bg:"#e09a2b",st:s=>s.refAan!==false?["ok","Actief"]:["soon","Aanbevelen staat uit"],rows:s=>[["Adres",location.host+"/portaal"],["Korting aanbeveler",s.refAan===false?"—":eur(s.refBeloning!=null&&s.refBeloning!==""?s.refBeloning:15)],["Welkomstkorting",s.refAan===false?"—":eur(s.refWelkom!=null&&s.refWelkom!==""?s.refWelkom:10)],["Credits",`review ${s.crReview??5} · beoordeling ${s.crBeurt??1} · extra dienst ${s.crExtra??3}`]]});
+  SETCARDS.splice(at||SETCARDS.length,0,{id:"livePortaal",t:"Klantportaal & aanbevelen",sub:"Klanten zien hun afspraken en facturen, en bevelen je aan",ic:"spark",bg:"#e09a2b",st:s=>s.refAan!==false?["ok","Actief"]:["soon","Aanbevelen staat uit"],rows:s=>[["Adres",location.host+"/portaal"],["Korting aanbeveler",s.refAan===false?"—":eur(s.refBeloning!=null&&s.refBeloning!==""?s.refBeloning:20)],["Welkomstkorting",s.refAan===false?"—":eur(s.refWelkom!=null&&s.refWelkom!==""?s.refWelkom:10)],["Credits",`aanbevelen ${s.refBeloning??20} · extra dienst ${s.crExtra??3} · jaar klant ${s.crJaar??10}`]]});
   SETEXTRA.livePortaal=(c,s)=>{const url=location.origin+"/portaal";
     setDlg(c,`${info("Klanten loggen in op <b>"+esc(location.host)+"/portaal</b> met hun e-mailadres; ze krijgen een inlogknop per mail, zonder wachtwoord. Ze zien hun volgende bezoek, bezoeken en facturen, kunnen online betalen, afspraken verzetten of afwezigheid doorgeven, instructies achterlaten en je aanbevelen.")}
       <div class="splitrow" style="gap:10px"><code style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">${esc(url)}</code><button type="button" class="small" id="ptCopy">${I.copy||I.check}Kopieer</button><a class="btn small" href="${esc(url)}" target="_blank" rel="noopener">Openen</a></div>
       ${sel("portaalTijd","Tijd van het bezoek tonen als",s.portaalTijd||"venster",[["venster","Tijdvak van 2 uur (bijv. tussen 09:30 en 11:30)"],["vak","Dagdeel (in de ochtend / middag)"],["exact","Rond de geplande tijd"]],{cls:"full"})}
       ${sec("Aanbevelen")}
       ${tgl("refAan","Klanten kunnen je aanbevelen","Met een persoonlijke link en korting",s.refAan!==false)}
-      <div class="grid2">${inp("refBeloning","Korting voor wie aanbeveelt (€)",s.refBeloning!=null&&s.refBeloning!==""?s.refBeloning:15,{type:"number",t:"num",attrs:'min="0" step="1"'})}${inp("refWelkom","Welkomstkorting nieuwe klant (€)",s.refWelkom!=null&&s.refWelkom!==""?s.refWelkom:10,{type:"number",t:"num",attrs:'min="0" step="1"'})}</div>
+      <div class="grid2">${inp("refBeloning","Korting voor wie aanbeveelt (€)",s.refBeloning!=null&&s.refBeloning!==""?s.refBeloning:20,{type:"number",t:"num",attrs:'min="0" step="1"'})}${inp("refWelkom","Welkomstkorting nieuwe klant (€)",s.refWelkom!=null&&s.refWelkom!==""?s.refWelkom:10,{type:"number",t:"num",attrs:'min="0" step="1"'})}</div>
       <small class="help">De korting voor wie aanbeveelt staat <b>on hold</b> en wordt pas vrijgegeven als de nieuwe klant akkoord heeft gegeven én de eerste afspraak is uitgevoerd. Daarna gaat hij automatisch van de eerstvolgende factuur af. De welkomstkorting staat direct op de eerste factuur van de nieuwe klant.</small>
       ${sec("VvE's")}
       ${tgl("vveDoor","VvE's zien welke medewerker is geweest","Voornaam van de medewerker bij elk bezoek, in het portaal van het bestuur en op het bewonersbord",s.vveDoor!==false)}
       ${sec("Credits")}
       <small class="help" style="margin-top:-4px">Klanten sparen in het portaal <b>credits</b> (1 credit = € 1 korting) die automatisch van de volgende factuur afgaan. Zet een veld op 0 om die manier uit te zetten.</small>
-      <div class="grid3">${inp("crReview","Google-review",s.crReview!=null&&s.crReview!==""?s.crReview:5,{type:"number",t:"num",attrs:'min="0" step="1"',help:"Eenmalig, na jouw akkoord"})}${inp("crBeurt","Beoordeling per bezoek",s.crBeurt!=null&&s.crBeurt!==""?s.crBeurt:1,{type:"number",t:"num",attrs:'min="0" step="1"',help:"Direct bij het geven van sterren"})}${inp("crExtra","Extra dienst besteld",s.crExtra!=null&&s.crExtra!==""?s.crExtra:3,{type:"number",t:"num",attrs:'min="0" step="1"',help:"Als je het ticket oplost"})}</div>
+      <div class="grid3">${inp("crBeurt","Beoordeling per bezoek",s.crBeurt!=null&&s.crBeurt!==""?s.crBeurt:1,{type:"number",t:"num",attrs:'min="0" step="1"',help:"Direct bij het geven van sterren"})}${inp("crExtra","Extra dienst besteld",s.crExtra!=null&&s.crExtra!==""?s.crExtra:3,{type:"number",t:"num",attrs:'min="0" step="1"',help:"Als je het ticket oplost"})}</div>
       <div class="grid3">${inp("crSnel","Factuur binnen 24 uur betaald",s.crSnel!=null&&s.crSnel!==""?s.crSnel:1,{type:"number",t:"num",attrs:'min="0" step="1"',help:"Per factuur"})}${inp("crJaar","Elk jaar klant",s.crJaar!=null&&s.crJaar!==""?s.crJaar:10,{type:"number",t:"num",attrs:'min="0" step="1"',help:"Op de jaardag, met een bedankmail"})}</div>
-      <small class="help">Zorg dat bij Bedrijf & Branding je <b>website</b> en bij Reviewverzoek je <b>reviewlink</b> zijn ingevuld: die gebruikt het portaal (de reviewlink ook voor de Google-review-credits).</small>`,{wide:false});
+      <div class="infobox" style="margin-top:4px">${I.handleiding}<span><b>Geen credits voor reviews.</b> Belonen voor reviews mag juridisch niet: Google verbiedt het en verwijdert zulke reviews, en volgens de Nederlandse regels voor consumentenreviews moet een beloonde review als zodanig herkenbaar zijn. Daarom is er in plaats daarvan <b>Elk jaar klant</b>: een bedankje voor trouwe klanten. Om een review vragen mag wel, zonder beloning.</span></div>
+      <small class="help">Zorg dat bij Bedrijf & Branding je <b>website</b> en bij Reviewverzoek je <b>reviewlink</b> zijn ingevuld: die gebruikt het portaal (de reviewlink om klanten om een review te vragen).</small>`,{wide:false});
     $("#ptCopy").onclick=async()=>{try{await navigator.clipboard.writeText(url);toast("Gekopieerd")}catch(e){}};
     bindSave()};
 }
@@ -259,7 +260,7 @@ async function tkStatus(t,st){const cur=state.tickets.find(x=>x.id===t.id)||t;if
     if(st==="opgelost"){fbFn("ticketMelding")({ticketId:t.id,basis:location.origin}).catch(()=>{});try{await creditsVoorTicket(cur)}catch(e){console.error("credits",e)}}}catch(e){err(e)}}
 /* credits (portaal) toekennen als een review- of extra-dienst-ticket is opgelost; één keer per ticket */
 async function creditsVoorTicket(t){const vt=t.verzoek&&t.verzoek.type;if(vt!=="review"&&vt!=="extra")return;const k=state.klanten.find(x=>x.id===t.klantId);if(!k)return;
-  const s=S(),n=vt==="review"?(s.crReview!=null&&s.crReview!==""?Number(s.crReview):5):(s.crExtra!=null&&s.crExtra!==""?Number(s.crExtra):3);if(!(n>0))return;
+  const s=S(),n=vt==="review"?0:(s.crExtra!=null&&s.crExtra!==""?Number(s.crExtra):3);if(!(n>0))return;
   const al=[...(k.tegoed||[]),...(k.tegoedGebruikt||[])].some(x=>x&&x.ref===t.id);if(al)return;
   const reden=vt==="review"?"Credits: Google-review":"Credits: extra dienst besteld";
   await save("klanten",k.id,{...strip(k),tegoed:[...(k.tegoed||[]),{id:newId("tg"),bedrag:n,reden,bron:vt,ref:t.id,op:iso(today())}],log:[...(k.log||[]),{datum:iso(today()),tekst:reden+" · "+n+" credit"+(n===1?"":"s")+" (€ "+n+") op de volgende factuur"}]});
