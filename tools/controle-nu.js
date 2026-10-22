@@ -11,5 +11,5 @@ const C = require("../functions/controle.js")({ db, onCall: (o, f) => f, onSched
   const oud = (await db.doc("instellingen/systeemcontrole").get()).data() || {};
   await db.doc("instellingen/systeemcontrole").set({ ...u, mailOp: oud.mailOp || "" });
   const t = [`## Systeemcontrole: ${u.status}`, "", "| Status | Controle | Aantal |", "|---|---|---|", ...u.checks.map(c => `| ${{ groen: "🟢", oranje: "🟠", rood: "🔴" }[c.status]} | ${c.titel} | ${c.aantal} |`)].join("\n");
-  console.log(t); if (process.env.GITHUB_STEP_SUMMARY) require("fs").appendFileSync(process.env.GITHUB_STEP_SUMMARY, t + "\n");
+  console.log(t); console.log("::notice title=Systeemcontrole " + u.status + "::" + u.checks.map(c => c.status + " " + c.aantal + " " + c.titel).join("%0A")); if (process.env.GITHUB_STEP_SUMMARY) require("fs").appendFileSync(process.env.GITHUB_STEP_SUMMARY, t + "\n");
 })().catch(e => { console.error(e); process.exit(1); });
