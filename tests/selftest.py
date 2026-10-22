@@ -170,6 +170,18 @@ def statistieken(pg):
     check(G, "Offerte-prospect telt niet als klant", r["actP"] is False, r)
 
 
+def frequentie(pg):
+    G = "Offerte-editor"
+    r = pg.evaluate("""()=>{if(!MSTEST.groepEditor)return null;const g={naam:'Gevel',items:[{id:'a',naam:'Daklijst',eenheid:'per strekkende meter',prijs:3.5,sec:60,aantal:20}]};
+      const h=MSTEST.groepEditor(g,'t',{offerte:true,freqDefault:8}),d=document.createElement('div');d.innerHTML=h;const s=d.querySelector('select[data-gf=fq]');
+      const g2={...g,items:[{...g.items[0],fq:0}]},d2=document.createElement('div');d2.innerHTML=MSTEST.groepEditor(g2,'t',{});
+      return {leeg:s&&s.value==='',tekst:s&&s.options[s.selectedIndex].text,zelfde:d2.querySelector('select[data-gf=fq]').options[d2.querySelector('select[data-gf=fq]').selectedIndex].text}}""")
+    if r is None:
+        return check(G, "Frequentie-keuze aanwezig", False, "groepEditor niet gevonden")
+    check(G, "Frequentie staat niet vooraf ingevuld (Selecteer)", r["leeg"] and r["tekst"] == "Selecteer", r)
+    check(G, "Gekozen 'Zelfde als glasbewassing' blijft staan", r["zelfde"] == "Zelfde als glasbewassing", r)
+
+
 def portaal(b, base):
     G = "Klantportaal"
     for w, h, naam in [(1300, 900, "computer"), (390, 844, "telefoon")]:
@@ -201,6 +213,7 @@ def main():
             nummering(pg)
             afmelden(pg)
             statistieken(pg)
+            frequentie(pg)
             check("Laden", "Geen fouten tijdens de flows", not pg.fouten, "; ".join(pg.fouten))
             pg.close()
             pm = crm(b, base, 390, 844)

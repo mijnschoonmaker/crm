@@ -7856,6 +7856,12 @@ function vraag(titel,tekst,ja="Toch inplannen",nee="Annuleren"){return new Promi
   const done=v=>{try{d.close()}catch(_){}d.remove();res(v)};o.addEventListener("click",e=>{const b=e.target.closest("[data-v]");if(b)done(b.dataset.v==="1");else if(e.target===o)done(null)});
   d.addEventListener("cancel",e=>{e.preventDefault();done(null)});
   try{d.showModal()}catch(_){d.setAttribute("open","")}setTimeout(()=>{const b=o.querySelector('[data-v="1"]');if(b)b.focus()},30)})}
+/* melding met alleen een OK-knop */
+function melding(titel,tekst){return new Promise(res=>{const o=document.createElement("div");o.className="vraag-ov";
+  o.innerHTML=`<div class="vraag" role="alertdialog" aria-modal="true"><span class="objic kd-warn">${I.alert}</span><div><b>${esc(titel)}</b><p>${esc(tekst)}</p></div><div class="vraag-k"><button type="button" class="primary" data-v="1">OK</button></div></div>`;
+  const d=document.createElement("dialog");d.className="vraag-dlg";d.appendChild(o);document.body.appendChild(d);
+  const done=()=>{try{d.close()}catch(_){}d.remove();res(true)};o.addEventListener("click",e=>{if(e.target.closest("[data-v]")||e.target===o)done()});d.addEventListener("cancel",e=>{e.preventDefault();done()});
+  try{d.showModal()}catch(_){d.setAttribute("open","")}setTimeout(()=>{const b=o.querySelector("[data-v]");if(b)b.focus()},30)})}
 async function vroegOk(list,date){const vr=list.filter(k=>teVroeg(k,date));if(!vr.length)return true;
   const t=vr.length===1?`${esc(cleanName(vr[0].naam))} is pas op <b>${esc(fmtL(iso(volgende(vr[0]))))}</b> aan de beurt (elke ${esc(vr[0].frequentie||4)} weken). Je plant hem nu op ${esc(fmtL(date))}, meer dan een week te vroeg.`
     :`${vr.length} afspraken worden meer dan een week te vroeg ingepland:<br>${vr.slice(0,6).map(k=>`• ${esc(cleanName(k.naam))}: aan de beurt ${esc(fmtD(iso(volgende(k))))}`).join("<br>")}${vr.length>6?"<br>…":""}`;
@@ -12630,7 +12636,7 @@ function groepOmschrijving(g,rowsIts,verbergAantal){const its=(rowsIts||(g.items
 function groepDetail(its,base){return its.map(x=>x.naam.toLowerCase()+" "+String(x.aantal).replace(".",",")+" "+eenhKort(x.eenheid)+(base&&x.fq&&Number(x.fq)!==Number(base)?" ("+freqLabel(Number(x.fq)).toLowerCase()+")":"")).join(", ")}
 /* editor; key = id van de kaart; offerte = toont groepsomschrijving */
 function groepEditor(g,key,{offerte=false,freqDefault=8}={}){const c=groepCalc(g),btwPct=Number(S().btw)||21;
-  const fq=(it,j)=>`<select data-gk="${key}" data-gi="${j}" data-gf="fq"><option value="">Zelfde als glasbewassing</option>${freqOpts(it.fq||freqDefault).map(w=>`<option value="${w}" ${String(it.fq)===String(w)?"selected":""}>${esc(freqLabel(w))}</option>`).join("")}</select>`;
+  const fq=(it,j)=>`<select data-gk="${key}" data-gi="${j}" data-gf="fq"><option value="" ${it.fq===""||it.fq==null?"selected":""}>Selecteer</option><option value="0" ${String(it.fq)==="0"?"selected":""}>Zelfde als glasbewassing</option>${freqOpts(it.fq||freqDefault).map(w=>`<option value="${w}" ${String(it.fq)===String(w)?"selected":""}>${esc(freqLabel(w))}</option>`).join("")}</select>`;
   return `<div class="ge" data-ge="${key}">
     <label class="ge-full">Werkomschrijving<textarea data-gk="${key}" data-gf="oms" placeholder="Bijv. daklijsten voor- en achterzijde, inclusief klossen">${esc(g.oms||"")}</textarea></label>
     <p class="help ge-note">Let op: afspraken die al ingepland zijn veranderen niet als je hieronder iets aanpast.</p>
@@ -12659,7 +12665,9 @@ function groepBind(box,getG,done){if(box._gb)return;box._gb=1;
   box.addEventListener("change",e=>{const el=e.target;if(!el.dataset||!el.dataset.gk||!el.dataset.gf)return;if(set(el))done(el.dataset.gk,["aantal","fq","vol"].includes(el.dataset.gf))});
   box.addEventListener("click",e=>{const b=e.target.closest("[data-gst],[data-gsync],[data-gber]");if(!b||!b.dataset.gk)return;const g=getG(b.dataset.gk);if(!g)return;
     if(b.dataset.gst){const [j,d]=b.dataset.gst.split(":").map(Number),it=g.items[j];it.aantal=Math.max(0,r2((Number(it.aantal)||0)+d))}
-    else if(b.dataset.gber!=null){(g.items||[]).forEach(it=>{it.op="";it.od=""});g.tp="";g.td=""}
+    else if(b.dataset.gber!=null){/* eerst een frequentie kiezen: die vullen we niet vooraf in */
+      if((g.items||[]).some(it=>Number(it.aantal)>0&&(it.fq===""||it.fq==null))){melding("Let op","Er is nog geen frequentie ingevuld.");return}
+      (g.items||[]).forEach(it=>{it.op="";it.od=""});g.tp="";g.td=""}
     else{const v=g.items[+b.dataset.gsync].vol;g.items.forEach(it=>{if(Number(it.aantal)>0)it.vol=v})}
     done(b.dataset.gk,true)})}
 /* herteken één editor zonder de rest van het scherm */
@@ -15928,7 +15936,7 @@ addEventListener("scroll",()=>{const m=document.getElementById("mobOffer");docum
    of bedragen, btw, factuurnummers en het afmelden nog kloppen. */
 if(!LIVE&&typeof location!=="undefined"&&/[?&]selftest\b/.test(location.search)){
   window.MSTEST={state,S,save,del,totals,nextNr,nrDelen,wikKosten,fStatus,afronden,gewassen,billAll,setFStatus,iso,today,addDays,newId,strip,render,
-    fin,beurtOmzet,stDienstSplit,klantActiefIn,kmFmt:typeof kmFmt==="function"?kmFmt:null,kmAfst:typeof kmAfst==="function"?kmAfst:null,saveSettings,
+    fin,beurtOmzet,groepEditor:typeof groepEditor==="function"?groepEditor:null,melding,stDienstSplit,klantActiefIn,kmFmt:typeof kmFmt==="function"?kmFmt:null,kmAfst:typeof kmAfst==="function"?kmAfst:null,saveSettings,
     views:()=>PAGES.map(p=>p[0]),ga:t=>{state.tab=t;render()}};
 }
 

@@ -259,7 +259,7 @@ function groepOmschrijving(g,rowsIts,verbergAantal){const its=(rowsIts||(g.items
 function groepDetail(its,base){return its.map(x=>x.naam.toLowerCase()+" "+String(x.aantal).replace(".",",")+" "+eenhKort(x.eenheid)+(base&&x.fq&&Number(x.fq)!==Number(base)?" ("+freqLabel(Number(x.fq)).toLowerCase()+")":"")).join(", ")}
 /* editor; key = id van de kaart; offerte = toont groepsomschrijving */
 function groepEditor(g,key,{offerte=false,freqDefault=8}={}){const c=groepCalc(g),btwPct=Number(S().btw)||21;
-  const fq=(it,j)=>`<select data-gk="${key}" data-gi="${j}" data-gf="fq"><option value="">Zelfde als glasbewassing</option>${freqOpts(it.fq||freqDefault).map(w=>`<option value="${w}" ${String(it.fq)===String(w)?"selected":""}>${esc(freqLabel(w))}</option>`).join("")}</select>`;
+  const fq=(it,j)=>`<select data-gk="${key}" data-gi="${j}" data-gf="fq"><option value="" ${it.fq===""||it.fq==null?"selected":""}>Selecteer</option><option value="0" ${String(it.fq)==="0"?"selected":""}>Zelfde als glasbewassing</option>${freqOpts(it.fq||freqDefault).map(w=>`<option value="${w}" ${String(it.fq)===String(w)?"selected":""}>${esc(freqLabel(w))}</option>`).join("")}</select>`;
   return `<div class="ge" data-ge="${key}">
     <label class="ge-full">Werkomschrijving<textarea data-gk="${key}" data-gf="oms" placeholder="Bijv. daklijsten voor- en achterzijde, inclusief klossen">${esc(g.oms||"")}</textarea></label>
     <p class="help ge-note">Let op: afspraken die al ingepland zijn veranderen niet als je hieronder iets aanpast.</p>
@@ -288,7 +288,9 @@ function groepBind(box,getG,done){if(box._gb)return;box._gb=1;
   box.addEventListener("change",e=>{const el=e.target;if(!el.dataset||!el.dataset.gk||!el.dataset.gf)return;if(set(el))done(el.dataset.gk,["aantal","fq","vol"].includes(el.dataset.gf))});
   box.addEventListener("click",e=>{const b=e.target.closest("[data-gst],[data-gsync],[data-gber]");if(!b||!b.dataset.gk)return;const g=getG(b.dataset.gk);if(!g)return;
     if(b.dataset.gst){const [j,d]=b.dataset.gst.split(":").map(Number),it=g.items[j];it.aantal=Math.max(0,r2((Number(it.aantal)||0)+d))}
-    else if(b.dataset.gber!=null){(g.items||[]).forEach(it=>{it.op="";it.od=""});g.tp="";g.td=""}
+    else if(b.dataset.gber!=null){/* eerst een frequentie kiezen: die vullen we niet vooraf in */
+      if((g.items||[]).some(it=>Number(it.aantal)>0&&(it.fq===""||it.fq==null))){melding("Let op","Er is nog geen frequentie ingevuld.");return}
+      (g.items||[]).forEach(it=>{it.op="";it.od=""});g.tp="";g.td=""}
     else{const v=g.items[+b.dataset.gsync].vol;g.items.forEach(it=>{if(Number(it.aantal)>0)it.vol=v})}
     done(b.dataset.gk,true)})}
 /* herteken één editor zonder de rest van het scherm */

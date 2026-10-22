@@ -363,6 +363,12 @@ function vraag(titel,tekst,ja="Toch inplannen",nee="Annuleren"){return new Promi
   const done=v=>{try{d.close()}catch(_){}d.remove();res(v)};o.addEventListener("click",e=>{const b=e.target.closest("[data-v]");if(b)done(b.dataset.v==="1");else if(e.target===o)done(null)});
   d.addEventListener("cancel",e=>{e.preventDefault();done(null)});
   try{d.showModal()}catch(_){d.setAttribute("open","")}setTimeout(()=>{const b=o.querySelector('[data-v="1"]');if(b)b.focus()},30)})}
+/* melding met alleen een OK-knop */
+function melding(titel,tekst){return new Promise(res=>{const o=document.createElement("div");o.className="vraag-ov";
+  o.innerHTML=`<div class="vraag" role="alertdialog" aria-modal="true"><span class="objic kd-warn">${I.alert}</span><div><b>${esc(titel)}</b><p>${esc(tekst)}</p></div><div class="vraag-k"><button type="button" class="primary" data-v="1">OK</button></div></div>`;
+  const d=document.createElement("dialog");d.className="vraag-dlg";d.appendChild(o);document.body.appendChild(d);
+  const done=()=>{try{d.close()}catch(_){}d.remove();res(true)};o.addEventListener("click",e=>{if(e.target.closest("[data-v]")||e.target===o)done()});d.addEventListener("cancel",e=>{e.preventDefault();done()});
+  try{d.showModal()}catch(_){d.setAttribute("open","")}setTimeout(()=>{const b=o.querySelector("[data-v]");if(b)b.focus()},30)})}
 async function vroegOk(list,date){const vr=list.filter(k=>teVroeg(k,date));if(!vr.length)return true;
   const t=vr.length===1?`${esc(cleanName(vr[0].naam))} is pas op <b>${esc(fmtL(iso(volgende(vr[0]))))}</b> aan de beurt (elke ${esc(vr[0].frequentie||4)} weken). Je plant hem nu op ${esc(fmtL(date))}, meer dan een week te vroeg.`
     :`${vr.length} afspraken worden meer dan een week te vroeg ingepland:<br>${vr.slice(0,6).map(k=>`• ${esc(cleanName(k.naam))}: aan de beurt ${esc(fmtD(iso(volgende(k))))}`).join("<br>")}${vr.length>6?"<br>…":""}`;
