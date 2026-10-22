@@ -6252,7 +6252,7 @@ const empty=(t,s,btn="")=>`<div class="empty"><div class="ill">${EMPTY_ILL}</div
 const dlg=$("#dlg"),form=$("#dlgForm");
 let dlgGuard=null;
 async function sluitDlg(then){if(dlgGuard){let ok=false;try{ok=await dlgGuard()}catch(e){console.error(e)}if(!ok)return}dlgGuard=null;if(then)then();else dlg.close()}
-function openDlg(html,{wide=false,drawer=false,xwide=false}={}){dlgGuard=null;dlg.className=drawer?"drawer":xwide?"xwide":wide?"wide":"";form.dataset.sheet="";form.innerHTML=html;form.onsubmit=e=>e.preventDefault();if(!dlg.open)dlg.showModal();dlg.scrollTop=0}
+function openDlg(html,{wide=false,drawer=false,xwide=false}={}){dlgGuard=null;dlg.className=drawer?"drawer":xwide?"xwide":wide?"wide":"";form.dataset.sheet="";form.innerHTML=html;form.onsubmit=e=>e.preventDefault();form.oninput=null;form.onchange=null;if(!dlg.open)dlg.showModal();dlg.scrollTop=0}
 /* klik buiten het venster sluit alleen als je ook buiten bent begonnen (niet bij tekst selecteren en naar buiten slepen),
    en nooit bij een venster waarin je tekst aan het bewerken bent: dat sluit alleen via Annuleren of Opslaan */
 let dlgDownBuiten=false;
@@ -6866,8 +6866,15 @@ function rowToKlant(r){
 async function runImport(){
   const b=$("#impGo");b.disabled=true;let n=0;
   const list=imp.rows.map(rowToKlant).filter(k=>k.naam&&k.adres);
-  try{for(const k of list){await save("klanten",newId("k"),k);n++;if(n%10===0)b.textContent=n+" van "+list.length+"…"}
-    dlg.close();toast(n+" klanten geïmporteerd");state.tab="klanten";schedule()}
+  /* bestaat de klant al (zelfde klantnummer, of zelfde postcode en adres)? Dan vullen we hem aan in plaats van een tweede aan te maken.
+     Zo kun je het klantenbestand uit een SnelStart-export (customers_active) gebruiken om de relatiecodes te koppelen. */
+  const nA=x=>String(x||"").toLowerCase().replace(/[^a-z0-9]/g,""),zoek=k=>state.klanten.find(x=>!x.hoofdKlantId&&((k.klantnr&&String(x.klantnr||"")===String(k.klantnr))||(k.postcode&&nA(x.postcode)===nA(k.postcode)&&nA(x.adres)===nA(k.adres))));
+  let bij=0;
+  try{for(const k of list){const oud=zoek(k);
+      if(oud){const p={...strip(oud)};["naam","adres","postcode","plaats","telefoon","email","ronde","notities"].forEach(f=>{if(!String(p[f]||"").trim()&&k[f])p[f]=k[f]});
+        if(k.klantnr&&!relBezet(k.klantnr,oud.id))p.klantnr=k.klantnr;if(!p.prijs&&k.prijs)p.prijs=k.prijs;await save("klanten",oud.id,p);bij++}
+      else await save("klanten",newId("k"),k);n++;if(n%10===0)b.textContent=n+" van "+list.length+"…"}
+    dlg.close();toast((n-bij)+" klanten geïmporteerd"+(bij?", "+bij+" bestaande aangevuld":""));state.tab="klanten";schedule()}
   catch(e){b.disabled=false;toast(n+" geïmporteerd, daarna fout: "+(e.message||e.code))}
 }
 async function saveFile(filename,data,okMsg){
@@ -10876,7 +10883,7 @@ function openBulkPrijs(){
   const calc=k=>{const v=Number($("#bpVal").value)||0,dir=Number($("#bpDir").value),p=Number(k.prijs)||0;let n=$("#bpType").value==="pct"?p*(1+dir*v/100):p+dir*v;const rd=Number($("#bpRound").value);if(rd)n=Math.round(n/rd)*rd;return Math.max(0,r2(n))};
   const prev=()=>{$("#bpLbl").textContent=$("#bpType").value==="pct"?"Percentage (%)":"Bedrag (€)";$("#bpGo").textContent=$("#bpDir").value==="1"?"Verhogen":"Verlagen";const ks=scopeKlanten();const oud=ks.reduce((a,k)=>a+(Number(k.prijs)||0)*365/freqDays(k),0),nw=ks.reduce((a,k)=>a+calc(k)*365/freqDays(k),0);
     $("#bpPrev").innerHTML=`${sec("Voorbeeld")}<p class="subt" style="margin:0 0 8px">${plural(ks.length,"klant","klanten")} · jaaromzet ${eur0(oud)} → <b>${eur0(nw)}</b></p><table class="minitable">${ks.slice(0,5).map(k=>`<tr><td>${esc(cleanName(k.naam))}</td><td class="r">${eur(k.prijs)} → <b>${eur(calc(k))}</b></td></tr>`).join("")}</table>`};
-  form.addEventListener("input",prev);form.addEventListener("change",prev);prev();
+  form.oninput=prev;form.onchange=prev;prev();
   form.onsubmit=async e=>{e.preventDefault();if(!Number($("#bpVal").value)){$("#bpVal").focus();return}const ks=scopeKlanten();$("#bpGo").disabled=true;await runSeq(ks,k=>save("klanten",k.id,{...strip(k),prijs:calc(k)}),"Prijs aangepast bij "+plural(ks.length,"klant","klanten"));dlg.close()};
 }
 function openBulkDuur(){
@@ -10884,7 +10891,7 @@ function openBulkDuur(){
     <label>Nieuwe duur (min)<input type="number" id="bdV" min="5" max="600" step="5" placeholder="bv. 30" required><small class="help">Tussen 5 en 600 minuten</small></label>
     <label class="tgl"><span><b>Ook ingeplande jobs bijwerken</b><small>Geldt ook voor klanten die al op een dag staan</small></span><input type="checkbox" id="bdIn" checked><i></i></label>
     ${scopeHtml()}<p class="subt" id="bdN" style="margin:0"></p>`,{wide:false,foot:`<button type="button" class="ghost" data-act="close">Annuleren</button><span class="sp"></span><button type="submit" class="primary" id="bdGo">Aanpassen</button>`});
-  const cnt=()=>{const ks=scopeKlanten().filter(k=>$("#bdIn").checked||!k.gepland);$("#bdN").textContent=plural(ks.length,"klant wordt","klanten worden")+" aangepast"};form.addEventListener("change",cnt);cnt();
+  const cnt=()=>{const ks=scopeKlanten().filter(k=>$("#bdIn").checked||!k.gepland);$("#bdN").textContent=plural(ks.length,"klant wordt","klanten worden")+" aangepast"};form.onchange=cnt;cnt();
   form.onsubmit=async e=>{e.preventDefault();const v=Number($("#bdV").value);if(!(v>=5&&v<=600)){$("#bdV").focus();return}const ks=scopeKlanten().filter(k=>$("#bdIn").checked||!k.gepland);$("#bdGo").disabled=true;await runSeq(ks,k=>save("klanten",k.id,{...strip(k),duur:v}),"Duur aangepast bij "+plural(ks.length,"klant","klanten"));dlg.close()};
 }
 /* bankafschrift */
@@ -12011,7 +12018,7 @@ function openSnelstart(){
   const get=()=>{const c={...cfg};Object.keys(SS_DEF).forEach(k=>c[k]=$("#ss-"+k).value.trim()||SS_DEF[k]);return c};
   const upd=()=>{const d=ssData($("#ss-van").value,$("#ss-tot").value,get());$("#ss-sum").innerHTML=`${I.facturen}<span><b>${plural(d.fs.length,"factuur","facturen")}</b> · ${plural(d.nRel,"klant","klanten")} · ${eur(d.fs.reduce((a,f)=>a+totals(f).inc,0))} incl. btw</span>`;
     $("#ss-nk").textContent=plural(d.nRel,"klant","klanten")+" · alle actieve klanten";$("#ss-nf").textContent=plural(d.fs.length,"factuur","facturen")+" · "+d.fs.length*3+" boekingsregels";$("#ss-k").disabled=!d.nRel;$("#ss-f").disabled=!d.fs.length};
-  form.addEventListener("input",upd);upd();form.onsubmit=e=>e.preventDefault();
+  form.oninput=upd;upd();form.onsubmit=e=>e.preventDefault();
   const run=async w=>{const van=$("#ss-van").value,tot=$("#ss-tot").value,c=get(),d=ssData(van,tot,c),tag=ssDate(van)+" tm "+ssDate(tot);
     if(w==="k"){await saveFile("customers_active_"+tag+".csv",d.cus,"Klantenbestand voor SnelStart opgeslagen");await ssNrVast()}
     else{await saveFile("revenue_"+tag+".csv",d.rev,"Factuurbestand voor SnelStart opgeslagen");await ssNrVast();const {laatst,...rest}=c;state.settings={...state.settings,snelstart:{...rest,laatst:tot}};try{await save("instellingen","bedrijf",state.settings)}catch(e){}}};
@@ -16261,7 +16268,7 @@ addEventListener("scroll",()=>{const m=document.getElementById("mobOffer");docum
    of bedragen, btw, factuurnummers en het afmelden nog kloppen. */
 if(!LIVE&&typeof location!=="undefined"&&/[?&]selftest\b/.test(location.search)){
   window.MSTEST={state,S,save,del,totals,nextNr,nrDelen,wikKosten,fStatus,afronden,gewassen,billAll,setFStatus,iso,today,addDays,newId,strip,render,
-    fin,beurtOmzet,klantFilter,extraOpdr,opdrNr:typeof opdrNr==="function"?opdrNr:null,openOpdrachtWerk:typeof openOpdrachtWerk==="function"?openOpdrachtWerk:null,teplannen,fhVolgende:typeof fhVolgende==="function"?fhVolgende:null,fhPoort:typeof fhPoort==="function"?fhPoort:null,groepEditor:typeof groepEditor==="function"?groepEditor:null,melding,stDienstSplit,klantActiefIn,relVolgende:typeof relVolgende==="function"?relVolgende:null,beurtMin,meetTeKort,wdCijfers:typeof wdCijfers==="function"?wdCijfers:null,kmFmt:typeof kmFmt==="function"?kmFmt:null,kmAfst:typeof kmAfst==="function"?kmAfst:null,saveSettings,
+    fin,beurtOmzet,klantFilter,extraOpdr,opdrNr:typeof opdrNr==="function"?opdrNr:null,openOpdrachtWerk:typeof openOpdrachtWerk==="function"?openOpdrachtWerk:null,teplannen,fhVolgende:typeof fhVolgende==="function"?fhVolgende:null,fhPoort:typeof fhPoort==="function"?fhPoort:null,groepEditor:typeof groepEditor==="function"?groepEditor:null,melding,stDienstSplit,klantActiefIn,openImport,relVolgende:typeof relVolgende==="function"?relVolgende:null,beurtMin,meetTeKort,wdCijfers:typeof wdCijfers==="function"?wdCijfers:null,kmFmt:typeof kmFmt==="function"?kmFmt:null,kmAfst:typeof kmAfst==="function"?kmAfst:null,saveSettings,
     views:()=>PAGES.map(p=>p[0]),ga:t=>{state.tab=t;render()}};
 }
 

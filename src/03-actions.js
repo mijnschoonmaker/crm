@@ -286,8 +286,15 @@ function rowToKlant(r){
 async function runImport(){
   const b=$("#impGo");b.disabled=true;let n=0;
   const list=imp.rows.map(rowToKlant).filter(k=>k.naam&&k.adres);
-  try{for(const k of list){await save("klanten",newId("k"),k);n++;if(n%10===0)b.textContent=n+" van "+list.length+"…"}
-    dlg.close();toast(n+" klanten geïmporteerd");state.tab="klanten";schedule()}
+  /* bestaat de klant al (zelfde klantnummer, of zelfde postcode en adres)? Dan vullen we hem aan in plaats van een tweede aan te maken.
+     Zo kun je het klantenbestand uit een SnelStart-export (customers_active) gebruiken om de relatiecodes te koppelen. */
+  const nA=x=>String(x||"").toLowerCase().replace(/[^a-z0-9]/g,""),zoek=k=>state.klanten.find(x=>!x.hoofdKlantId&&((k.klantnr&&String(x.klantnr||"")===String(k.klantnr))||(k.postcode&&nA(x.postcode)===nA(k.postcode)&&nA(x.adres)===nA(k.adres))));
+  let bij=0;
+  try{for(const k of list){const oud=zoek(k);
+      if(oud){const p={...strip(oud)};["naam","adres","postcode","plaats","telefoon","email","ronde","notities"].forEach(f=>{if(!String(p[f]||"").trim()&&k[f])p[f]=k[f]});
+        if(k.klantnr&&!relBezet(k.klantnr,oud.id))p.klantnr=k.klantnr;if(!p.prijs&&k.prijs)p.prijs=k.prijs;await save("klanten",oud.id,p);bij++}
+      else await save("klanten",newId("k"),k);n++;if(n%10===0)b.textContent=n+" van "+list.length+"…"}
+    dlg.close();toast((n-bij)+" klanten geïmporteerd"+(bij?", "+bij+" bestaande aangevuld":""));state.tab="klanten";schedule()}
   catch(e){b.disabled=false;toast(n+" geïmporteerd, daarna fout: "+(e.message||e.code))}
 }
 async function saveFile(filename,data,okMsg){

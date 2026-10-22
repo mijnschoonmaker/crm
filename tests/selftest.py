@@ -41,7 +41,7 @@ def nieuwe_pagina(b, w, h):
     pg = b.new_page(viewport={"width": w, "height": h})
     pg.route(lambda u: not u.startswith("http://127.0.0.1"), lambda r: r.abort())
     pg.fouten = []
-    pg.on("pageerror", lambda e: pg.fouten.append(str(e)))
+    pg.on("pageerror", lambda e: pg.fouten.append(str(e)+" @ "+str(getattr(e,"stack","") or "")[:400].replace(chr(10)," | ")))
     return pg
 
 
@@ -283,13 +283,23 @@ def relatiecodes(pg):
       const ids2=[T.newId('kr'),T.newId('kr')];await Promise.all(ids2.map(id=>T.save('klanten',id,{naam:'Rel, '+id,prijs:10,frequentie:8,actief:true,log:[],objecten:[]})));
       const nrs2=ids2.map(id=>T.state.klanten.find(k=>k.id===id).klantnr);
       const eigen=T.newId('kr');await T.save('klanten',eigen,{naam:'Rel, eigen',klantnr:'8237',prijs:10,frequentie:8,actief:true,log:[],objecten:[]});const e=T.state.klanten.find(k=>k.id===eigen).klantnr;
+      /* customers_active uit SnelStart/DienstenCRM importeren: bestaande klant wordt aangevuld, niet dubbel */
+      const best=T.newId('kr');await T.save('klanten',best,{naam:'Import, Bestaand',adres:'Kerkstraat 12',postcode:'9861 AB',plaats:'Grootegast',prijs:40,frequentie:8,actief:true,log:[],objecten:[]});
+      document.querySelectorAll('dialog[open]').forEach(d=>d.close());await new Promise(r=>setTimeout(r,100));const voor=T.state.klanten.length;T.openImport();await new Promise(r=>setTimeout(r,200));const ta=document.getElementById('impText');
+      ta.value='Relatiecode;Naam;Contactpersoon;Adres;Postcode;Plaats;Telefoon;Fax;Email\\n7311;Import, Bestaand;;Kerkstraat 12;9861AB;Grootegast;;;\\n7312;Import, Nieuw;;Dorpsweg 3;9861 CD;Grootegast;;;';
+      ta.dispatchEvent(new Event('input',{bubbles:true}));await new Promise(r=>setTimeout(r,200));document.getElementById('impGo').click();await new Promise(r=>setTimeout(r,800));
+      const kb=T.state.klanten.find(k=>k.id===best),nw=T.state.klanten.filter(k=>k.naam==='Import, Nieuw');
+      const imp={erbij:T.state.klanten.length-voor,code:kb&&kb.klantnr,prijs:kb&&kb.prijs,nieuw:nw.map(k=>k.klantnr)};
+      for(const k of nw)await T.del('klanten',k.id);await T.del('klanten',best);
       for(const id of [...ids,...ids2,eigen])await T.del('klanten',id);await T.saveSettings({bhKlantStart:oud||''});
-      return {nrs,nrs2,e}}""")
+      return {nrs,nrs2,e,imp}}""")
     if r is None:
         return check(G, "Relatiecodes", False, "relVolgende niet gevonden")
     check(G, "Nieuwe klanten krijgen een vast nummer vanaf het ingestelde begin", r["nrs"][0] >= "9000" and len(set(r["nrs"])) == 3, r)
     check(G, "Tegelijk opslaan geeft geen dubbele relatiecodes", len(set(r["nrs2"] + r["nrs"])) == 5, r)
     check(G, "Oud klantnummer (uit DienstenCRM) blijft staan", r["e"] == "8237", r)
+    check(G, "Import van customers_active vult bestaande klant aan met relatiecode", r["imp"]["code"] == "7311" and r["imp"]["prijs"] == 40, r["imp"])
+    check(G, "Import maakt geen dubbele klant aan", r["imp"]["erbij"] == 1 and r["imp"]["nieuw"] == ["7312"], r["imp"])
 
 
 def portaal(b, base):

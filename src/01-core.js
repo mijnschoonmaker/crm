@@ -272,7 +272,7 @@ const empty=(t,s,btn="")=>`<div class="empty"><div class="ill">${EMPTY_ILL}</div
 const dlg=$("#dlg"),form=$("#dlgForm");
 let dlgGuard=null;
 async function sluitDlg(then){if(dlgGuard){let ok=false;try{ok=await dlgGuard()}catch(e){console.error(e)}if(!ok)return}dlgGuard=null;if(then)then();else dlg.close()}
-function openDlg(html,{wide=false,drawer=false,xwide=false}={}){dlgGuard=null;dlg.className=drawer?"drawer":xwide?"xwide":wide?"wide":"";form.dataset.sheet="";form.innerHTML=html;form.onsubmit=e=>e.preventDefault();if(!dlg.open)dlg.showModal();dlg.scrollTop=0}
+function openDlg(html,{wide=false,drawer=false,xwide=false}={}){dlgGuard=null;dlg.className=drawer?"drawer":xwide?"xwide":wide?"wide":"";form.dataset.sheet="";form.innerHTML=html;form.onsubmit=e=>e.preventDefault();form.oninput=null;form.onchange=null;if(!dlg.open)dlg.showModal();dlg.scrollTop=0}
 /* klik buiten het venster sluit alleen als je ook buiten bent begonnen (niet bij tekst selecteren en naar buiten slepen),
    en nooit bij een venster waarin je tekst aan het bewerken bent: dat sluit alleen via Annuleren of Opslaan */
 let dlgDownBuiten=false;

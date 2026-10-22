@@ -379,7 +379,7 @@ function openBulkPrijs(){
   const calc=k=>{const v=Number($("#bpVal").value)||0,dir=Number($("#bpDir").value),p=Number(k.prijs)||0;let n=$("#bpType").value==="pct"?p*(1+dir*v/100):p+dir*v;const rd=Number($("#bpRound").value);if(rd)n=Math.round(n/rd)*rd;return Math.max(0,r2(n))};
   const prev=()=>{$("#bpLbl").textContent=$("#bpType").value==="pct"?"Percentage (%)":"Bedrag (€)";$("#bpGo").textContent=$("#bpDir").value==="1"?"Verhogen":"Verlagen";const ks=scopeKlanten();const oud=ks.reduce((a,k)=>a+(Number(k.prijs)||0)*365/freqDays(k),0),nw=ks.reduce((a,k)=>a+calc(k)*365/freqDays(k),0);
     $("#bpPrev").innerHTML=`${sec("Voorbeeld")}<p class="subt" style="margin:0 0 8px">${plural(ks.length,"klant","klanten")} · jaaromzet ${eur0(oud)} → <b>${eur0(nw)}</b></p><table class="minitable">${ks.slice(0,5).map(k=>`<tr><td>${esc(cleanName(k.naam))}</td><td class="r">${eur(k.prijs)} → <b>${eur(calc(k))}</b></td></tr>`).join("")}</table>`};
-  form.addEventListener("input",prev);form.addEventListener("change",prev);prev();
+  form.oninput=prev;form.onchange=prev;prev();
   form.onsubmit=async e=>{e.preventDefault();if(!Number($("#bpVal").value)){$("#bpVal").focus();return}const ks=scopeKlanten();$("#bpGo").disabled=true;await runSeq(ks,k=>save("klanten",k.id,{...strip(k),prijs:calc(k)}),"Prijs aangepast bij "+plural(ks.length,"klant","klanten"));dlg.close()};
 }
 function openBulkDuur(){
@@ -387,7 +387,7 @@ function openBulkDuur(){
     <label>Nieuwe duur (min)<input type="number" id="bdV" min="5" max="600" step="5" placeholder="bv. 30" required><small class="help">Tussen 5 en 600 minuten</small></label>
     <label class="tgl"><span><b>Ook ingeplande jobs bijwerken</b><small>Geldt ook voor klanten die al op een dag staan</small></span><input type="checkbox" id="bdIn" checked><i></i></label>
     ${scopeHtml()}<p class="subt" id="bdN" style="margin:0"></p>`,{wide:false,foot:`<button type="button" class="ghost" data-act="close">Annuleren</button><span class="sp"></span><button type="submit" class="primary" id="bdGo">Aanpassen</button>`});
-  const cnt=()=>{const ks=scopeKlanten().filter(k=>$("#bdIn").checked||!k.gepland);$("#bdN").textContent=plural(ks.length,"klant wordt","klanten worden")+" aangepast"};form.addEventListener("change",cnt);cnt();
+  const cnt=()=>{const ks=scopeKlanten().filter(k=>$("#bdIn").checked||!k.gepland);$("#bdN").textContent=plural(ks.length,"klant wordt","klanten worden")+" aangepast"};form.onchange=cnt;cnt();
   form.onsubmit=async e=>{e.preventDefault();const v=Number($("#bdV").value);if(!(v>=5&&v<=600)){$("#bdV").focus();return}const ks=scopeKlanten().filter(k=>$("#bdIn").checked||!k.gepland);$("#bdGo").disabled=true;await runSeq(ks,k=>save("klanten",k.id,{...strip(k),duur:v}),"Duur aangepast bij "+plural(ks.length,"klant","klanten"));dlg.close()};
 }
 /* bankafschrift */

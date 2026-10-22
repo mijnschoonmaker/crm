@@ -238,7 +238,7 @@ function openSnelstart(){
   const get=()=>{const c={...cfg};Object.keys(SS_DEF).forEach(k=>c[k]=$("#ss-"+k).value.trim()||SS_DEF[k]);return c};
   const upd=()=>{const d=ssData($("#ss-van").value,$("#ss-tot").value,get());$("#ss-sum").innerHTML=`${I.facturen}<span><b>${plural(d.fs.length,"factuur","facturen")}</b> · ${plural(d.nRel,"klant","klanten")} · ${eur(d.fs.reduce((a,f)=>a+totals(f).inc,0))} incl. btw</span>`;
     $("#ss-nk").textContent=plural(d.nRel,"klant","klanten")+" · alle actieve klanten";$("#ss-nf").textContent=plural(d.fs.length,"factuur","facturen")+" · "+d.fs.length*3+" boekingsregels";$("#ss-k").disabled=!d.nRel;$("#ss-f").disabled=!d.fs.length};
-  form.addEventListener("input",upd);upd();form.onsubmit=e=>e.preventDefault();
+  form.oninput=upd;upd();form.onsubmit=e=>e.preventDefault();
   const run=async w=>{const van=$("#ss-van").value,tot=$("#ss-tot").value,c=get(),d=ssData(van,tot,c),tag=ssDate(van)+" tm "+ssDate(tot);
     if(w==="k"){await saveFile("customers_active_"+tag+".csv",d.cus,"Klantenbestand voor SnelStart opgeslagen");await ssNrVast()}
     else{await saveFile("revenue_"+tag+".csv",d.rev,"Factuurbestand voor SnelStart opgeslagen");await ssNrVast();const {laatst,...rest}=c;state.settings={...state.settings,snelstart:{...rest,laatst:tot}};try{await save("instellingen","bedrijf",state.settings)}catch(e){}}};
