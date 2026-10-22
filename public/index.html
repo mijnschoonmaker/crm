@@ -5955,6 +5955,9 @@ html body:not(#zz) .kp-rc .kp-h div>b{display:block;text-transform:uppercase;fon
 label.btn.bv-cam{display:inline-flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:8px!important;height:38px!important;min-height:0!important;padding:0 16px!important;white-space:nowrap!important;letter-spacing:.12em!important;font-size:11px!important;line-height:1!important;width:auto!important;border-radius:11px!important}
 label.btn.bv-cam svg{width:16px!important;height:16px!important;margin:0!important;flex:none}
 
+/* dag klaar: zelfde Gelders blauw als tijdens de dag (was wit, waardoor de witte tekst wegviel) */
+html body :is(.vh,.rv).klaar{background:var(--gb-lijn),var(--gb-vlak)!important;border:0!important;color:#fff!important}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -6331,7 +6334,7 @@ function occurrences(k,from,to){
 }
 const overdue=()=>actief().filter(k=>{const p=parse(k.gepland);return p?p<today():volgende(k)<today()});
 const dueOf=k=>{const p=parse(k.gepland);return p&&p<today()?p:k.aanbieden&&!p?today():volgende(k)};
-function teplannen(upTo){const t=today(),ti=iso(t);return actief().filter(k=>{if(k.uitstelTot&&k.uitstelTot>ti&&!k.gepland)return false;if(k.einddatum&&k.einddatum<ti&&!k.gepland)return false;if(k.opdrachtVerwijderd&&!k.gepland)return false;if(Number(k.maxOpen)>0&&!k.gepland&&state.facturen.filter(f=>f.klantId===k.id&&f.soort!=="offerte"&&["Openstaand","Achterstallig"].includes(fStatus(f)[1])).length>=Number(k.maxOpen))return false;const p=parse(k.gepland);return p?p<t:(k.aanbieden||volgende(k)<=upTo||extraAanBeurt(k,upTo))}).sort((a,b)=>dueOf(a)-dueOf(b))}
+function teplannen(upTo){const t=today(),ti=iso(t);return actief().filter(k=>{if(k.uitstelTot&&k.uitstelTot>ti&&!k.gepland)return false;if(k.einddatum&&k.einddatum<ti&&!k.gepland)return false;if(k.opdrachtVerwijderd&&!k.gepland)return false;if(Number(k.maxOpen)>0&&!k.gepland&&state.facturen.filter(f=>f.klantId===k.id&&f.soort!=="offerte"&&["Openstaand","Achterstallig"].includes(fStatus(f)[1])).length>=Number(k.maxOpen))return false;const p=parse(k.gepland);if(p&&p>t){/* al ingepland, maar met een eerdere aanboddatum in de opdracht: dan toch aanbieden om eerder te plannen */const a=aanbodVan(k),av=a&&parse(a.min);return !!(av&&av<p&&av<=upTo)}return p?p<t:(k.aanbieden||volgende(k)<=upTo||extraAanBeurt(k,upTo))}).sort((a,b)=>dueOf(a)-dueOf(b))}
 /* een andere dienst (bv. reiniging gevelelementen) is aan de beurt: dan komt de klant bij Te plannen en gaat de glasbewassing mee */
 function extraAanBeurt(k,upTo){if(S().glasMee===false)return false;const u=iso(upTo instanceof Date?upTo:parse(upTo)||today());return (k.opdrachten||[]).some(o=>o.actief!==false&&o.volgende&&o.volgende<=u&&(!k.laatst||o.volgende>k.laatst))}
 function dueTxt(k){
@@ -16197,7 +16200,7 @@ addEventListener("scroll",()=>{const m=document.getElementById("mobOffer");docum
    of bedragen, btw, factuurnummers en het afmelden nog kloppen. */
 if(!LIVE&&typeof location!=="undefined"&&/[?&]selftest\b/.test(location.search)){
   window.MSTEST={state,S,save,del,totals,nextNr,nrDelen,wikKosten,fStatus,afronden,gewassen,billAll,setFStatus,iso,today,addDays,newId,strip,render,
-    fin,beurtOmzet,fhVolgende:typeof fhVolgende==="function"?fhVolgende:null,fhPoort:typeof fhPoort==="function"?fhPoort:null,groepEditor:typeof groepEditor==="function"?groepEditor:null,melding,stDienstSplit,klantActiefIn,kmFmt:typeof kmFmt==="function"?kmFmt:null,kmAfst:typeof kmAfst==="function"?kmAfst:null,saveSettings,
+    fin,beurtOmzet,teplannen,fhVolgende:typeof fhVolgende==="function"?fhVolgende:null,fhPoort:typeof fhPoort==="function"?fhPoort:null,groepEditor:typeof groepEditor==="function"?groepEditor:null,melding,stDienstSplit,klantActiefIn,kmFmt:typeof kmFmt==="function"?kmFmt:null,kmAfst:typeof kmAfst==="function"?kmAfst:null,saveSettings,
     views:()=>PAGES.map(p=>p[0]),ga:t=>{state.tab=t;render()}};
 }
 

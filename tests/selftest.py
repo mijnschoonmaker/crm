@@ -205,6 +205,19 @@ def herinneringen(pg):
     check(G, "WIK-brief kan niet vóór de herinnering", r["p"] is False, r["p"])
 
 
+def teplannen(pg):
+    G = "Planning"
+    r = pg.evaluate("""async()=>{const T=MSTEST;if(!T.teplannen)return null;const d=n=>T.iso(T.addDays(T.today(),n)),id=T.newId('kp');
+      await T.save('klanten',id,{naam:'Plan, Test',prijs:40,frequentie:8,laatst:d(-10),gepland:d(30),actief:true,ramenRegel:{f:[5],vol:[d(2)]},log:[],objecten:[]});
+      const a=T.teplannen(T.addDays(T.today(),7)).some(k=>k.id===id);
+      const k=T.state.klanten.find(x=>x.id===id);await T.save('klanten',id,{...T.strip(k),ramenRegel:{f:[5],vol:[d(40)]}});
+      const b=T.teplannen(T.addDays(T.today(),7)).some(k=>k.id===id);await T.del('klanten',id);return {a,b}}""")
+    if r is None:
+        return check(G, "Te plannen", False, "teplannen niet gevonden")
+    check(G, "Eerdere aanboddatum komt bij Te plannen", r["a"] is True, r)
+    check(G, "Latere aanboddatum laat de afspraak staan", r["b"] is False, r)
+
+
 def portaal(b, base):
     G = "Klantportaal"
     for w, h, naam in [(1300, 900, "computer"), (390, 844, "telefoon")]:
@@ -238,6 +251,7 @@ def main():
             statistieken(pg)
             frequentie(pg)
             herinneringen(pg)
+            teplannen(pg)
             check("Laden", "Geen fouten tijdens de flows", not pg.fouten, "; ".join(pg.fouten))
             pg.close()
             pm = crm(b, base, 390, 844)

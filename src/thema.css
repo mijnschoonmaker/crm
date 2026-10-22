@@ -1273,3 +1273,6 @@ html body:not(#zz) .kp-rc .kp-h div>b{display:block;text-transform:uppercase;fon
 /* knop "Foto bijzonderheid": icoon naast de tekst, rustige verhouding */
 label.btn.bv-cam{display:inline-flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:8px!important;height:38px!important;min-height:0!important;padding:0 16px!important;white-space:nowrap!important;letter-spacing:.12em!important;font-size:11px!important;line-height:1!important;width:auto!important;border-radius:11px!important}
 label.btn.bv-cam svg{width:16px!important;height:16px!important;margin:0!important;flex:none}
+
+/* dag klaar: zelfde Gelders blauw als tijdens de dag (was wit, waardoor de witte tekst wegviel) */
+html body :is(.vh,.rv).klaar{background:var(--gb-lijn),var(--gb-vlak)!important;border:0!important;color:#fff!important}
