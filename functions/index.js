@@ -549,6 +549,7 @@ Object.assign(exports, MANSARD.functies);
 exports.ticketMelding = P.ticketMelding;
 exports.portaal = P.portaal;
 exports.portaalUitnodigen = P.portaalUitnodigen;
+exports.portaalVoorbeeld = P.portaalVoorbeeld;
 exports.creditsAuto = P.creditsAuto;
 
 /* ---------- ramen tellen met AI: foto's per zijde van de woning, terug: stippen per raam met soort ---------- */

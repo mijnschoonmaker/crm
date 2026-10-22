@@ -1763,7 +1763,10 @@ const weekNr=d=>{const t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDat
 
 /* ---------- api ---------- */
 const SK="ms.portaal.s";
-const sessie={get(){try{return localStorage.getItem(SK)||""}catch(e){return window.__s||""}},set(v){window.__s=v;try{v?localStorage.setItem(SK,v):localStorage.removeItem(SK)}catch(e){}}};
+/* meekijken vanuit het CRM: balk bovenaan, alleen bekijken */
+function voorbeeldBalk(){if(document.getElementById("vbBalk"))return;const n=(D&&D.klant&&(D.klant.contact||D.klant.naam))||"deze klant";
+  document.body.insertAdjacentHTML("afterbegin",`<div id="vbBalk" style="position:sticky;top:0;z-index:9999;display:flex;align-items:center;justify-content:center;gap:10px;padding:9px max(16px,env(safe-area-inset-left,0px));background:linear-gradient(150deg,#323b50,#252c3c 55%,#1c2231);color:#fff;font:600 12px/1.3 'Avenir Next',Avenir,'Nunito Sans',sans-serif;letter-spacing:.04em;text-align:center"><span style="font-size:10px;letter-spacing:.22em;text-transform:uppercase;border:1px solid rgb(255 255 255 / .35);border-radius:99px;padding:3px 9px">Voorbeeld</span><span>Je bekijkt het portaal als ${String(n).replace(/[<>&]/g,"")} · alleen bekijken, er wordt niets opgeslagen</span></div>`)}
+const sessie={get(){if(window.__s)return window.__s;try{return localStorage.getItem(SK)||""}catch(e){return ""}},set(v){window.__s=v;try{v?localStorage.setItem(SK,v):localStorage.removeItem(SK)}catch(e){}}};
 
 /* ---------- demo: ?demo in de link toont een voorbeeldklant, zonder server ---------- */
 const DEMO=/[?&]demo\b/.test(location.search);
@@ -1839,7 +1842,7 @@ const TABS_VVE=[["home","Overzicht",I.huis],["bezoeken","Logboek",I.kal],["ticke
 const isVve=()=>!!(D&&D.klant&&D.klant.vve);let TABS=TABS_STD;
 async function laad(stil){
   if(!stil)$("#app").innerHTML=`<div class="laden"><div class="spin"></div><span>Uw omgeving wordt geopend…</span></div>`;
-  try{D=await api("data");B=D.bedrijf;teken();facturenVooraf()}catch(e){if(e.message!=="uit")$("#app").innerHTML=`<main class="welkom"><div class="wk-kaart"><h1>Dat lukte even niet</h1><p>${esc(e.message)}</p><button class="primary" onclick="laad()">Opnieuw proberen</button></div></main>`}}
+  try{D=await api("data");B=D.bedrijf;teken();if(D.voorbeeld)voorbeeldBalk();facturenVooraf()}catch(e){if(e.message!=="uit")$("#app").innerHTML=`<main class="welkom"><div class="wk-kaart"><h1>Dat lukte even niet</h1><p>${esc(e.message)}</p><button class="primary" onclick="laad()">Opnieuw proberen</button></div></main>`}}
 const kp=(ic,titel,inhoud,o={})=>`<section class="kp ${o.cls||""}"><div class="kp-h"><span class="objic ${o.kl||""}">${ic}</span><div><b>${titel}</b>${o.sub?`<small>${o.sub}</small>`:""}</div><span class="sp"></span>${o.act||""}</div>${inhoud}</section>`;
 const lr=(ic,titel,sub,rt="",o={})=>{const tag=o.href?"a":o.attr?"button":"div";return `<${tag} class="lr"${o.href?` href="${esc(o.href)}"${/^https?:/.test(o.href)?' target="_blank" rel="noopener"':""}`:""}${o.attr?" "+o.attr:""}><span class="ti"${o.tis?` style="${o.tis}"`:""}>${ic}</span><span class="tx"><b>${titel}</b>${sub?`<small>${sub}</small>`:""}</span>${rt?`<span class="rt">${rt}</span>`:""}${tag!=="div"?I.chev.replace("<svg",'<svg class="chev"'):""}</${tag}>`};
 function teken(){
@@ -2162,7 +2165,7 @@ function tickets(){
   const L=TK.lijst;
   const rij=t=>lr((TCAT[t.categorie]||TCAT.overig)[1],esc(t.onderwerp),`${t.ongelezen?`<b style="color:var(--brand);font-size:13px;display:inline">Nieuw antwoord · </b>`:""}${esc(t.nummer)} · ${esc(kort(String(t.laatst).slice(0,10)))}`,tPil(t.status),{attr:`data-tk="${esc(t.id)}"`,tis:t.ongelezen?"background:var(--brand);color:#fff":""});
   const open=L?L.filter(t=>t.status!=="opgelost"):[],klaar=L?L.filter(t=>t.status==="opgelost"):[];
-  return kop("Tickets",`<span class="tk-uitleg">Voor vragen, opmerkingen en verzoeken maakt u hieronder een ticket aan. Zo is alles terug te lezen en volgt u de voortgang. Heeft u een aanvulling? Zet die in het bestaande ticket in plaats van een nieuw ticket te openen; dat houdt het overzichtelijk.</span>`)+`<div class="pg">
+  return (isVve()?kop("Meldingen",`<span class="tk-uitleg">Kapotte lamp, schade of een vraag over het gebouw? Maak hieronder een melding, met foto. U volgt de voortgang en alles blijft terug te lezen voor het hele bestuur.</span>`):kop("Tickets",`<span class="tk-uitleg">Voor vragen, opmerkingen en verzoeken maakt u hieronder een ticket aan. Zo is alles terug te lezen en volgt u de voortgang. Heeft u een aanvulling? Zet die in het bestaande ticket in plaats van een nieuw ticket te openen; dat houdt het overzichtelijk.</span>`))+`<div class="pg">
     <button class="melding tk-nieuw" data-act="ticket"><span class="objic">${I.plus}</span><div class="tx"><b>Nieuw ticket</b><small>Stel uw vraag, ook met een foto. U krijgt bericht zodra wij reageren.</small></div><span class="btn primary">Aanmaken</span></button>
     ${L===null?`<div class="laden" style="min-height:160px"><div class="spin"></div></div>`
      :L.length?`${open.length?kp(I.ticket,"Lopende tickets",`<div class="lijst">${open.map(rij).join("")}</div>`,{sub:plural(open.length,"ticket","tickets")}):""}${klaar.length?kp(I.check,"Opgelost",`<div class="lijst">${klaar.map(rij).join("")}</div>`,{kl:"groen",sub:plural(klaar.length,"ticket","tickets")}):""}`
@@ -2438,7 +2441,7 @@ async function lvPeil(){if(document.hidden||tab!=="home")return;let r;try{r=awai
   if(seg[0]==="aanbevolen"&&seg[1])return toonAanbevolen(decodeURIComponent(seg[1]).toUpperCase());
   const h=location.hash.slice(1);if(TABS.some(t=>t[0]===h))tab=h;if(h.startsWith("ticket-")){tab="tickets";TK.open=h.slice(7)}
   if(q.get("l")){$("#app").innerHTML=`<div class="laden"><div class="spin"></div><span>Even geduld, we openen uw omgeving…</span></div>`;
-    try{const r=await api("sessie",{body:{l:q.get("l")},open:true});sessie.set(r.s);history.replaceState(null,"",location.pathname+location.hash)}catch(e){history.replaceState(null,"",location.pathname+location.hash);if(!sessie.get())return toonLogin(e.message)}}
+    try{const r=await api("sessie",{body:{l:q.get("l")},open:true});if(r.voorbeeld)window.__s=r.s;else sessie.set(r.s);history.replaceState(null,"",location.pathname+location.hash)}catch(e){history.replaceState(null,"",location.pathname+location.hash);if(!sessie.get())return toonLogin(e.message)}}
   if(q.get("incasso")){tab="facturen";history.replaceState(null,"",location.pathname);setTimeout(()=>toast("Dank u wel! Uw machtiging wordt verwerkt; binnen een minuut staat automatisch betalen aan."),800);setTimeout(()=>laad(true),8000)}
   if(q.get("betaald")){tab="facturen";const fid=q.get("betaald");history.replaceState(null,"",location.pathname);setTimeout(()=>bedanktNaBetalen(fid),500)}
   if(DEMO){document.body.insertAdjacentHTML("afterbegin",'<div style="position:fixed;right:12px;top:calc(env(safe-area-inset-top,0px) + 76px);z-index:999;background:#252c3c;color:#fff;font:700 9px/1 system-ui;letter-spacing:.14em;text-transform:uppercase;padding:6px 10px;border-radius:99px;white-space:nowrap;box-shadow:0 8px 18px -10px rgb(0 0 0 / .6)">Voorbeeld</div>');return laad()}

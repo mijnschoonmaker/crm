@@ -70,6 +70,7 @@ document.addEventListener("click",e=>{
     case"tkopen":openTickets(id);break;
     case"tknieuw":openTickets("",id);break;
     case"ptinvite":portaalUitnodigen(id);break;
+    case"ptkijk":portaalBekijken(id);break;
     case"reeksinfo":openReeksInfo(id,t.dataset.d);break;
     case"reeksnew":{const k=K(id);if(k&&k.gepland)openReeks(k,k.gepland,k.tijd||"",true).then(r=>{if(r)reeksOpslaan(k,k.gepland,k.tijd||"",r,true)})}break;
     case"beurtinfo":openBeurtInfo(id);break;

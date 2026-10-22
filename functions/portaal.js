@@ -63,8 +63,9 @@ module.exports = function maakPortaal(ctx) {
     if (!s.exists || s.data().exp < Date.now()) return null;
     const k = await db.doc("klanten/" + s.data().klantId).get();
     if (!k.exists) return null;
-    if (Date.now() - (s.data().gezien || 0) > DAG) ref.set({ gezien: Date.now(), exp: Date.now() + 180 * DAG }, { merge: true }).catch(() => {});
-    return { ref, klant: { id: k.id, ...dec(k.data()) }, kref: k.ref };
+    const voorbeeld = !!s.data().voorbeeld;
+    if (!voorbeeld && Date.now() - (s.data().gezien || 0) > DAG) ref.set({ gezien: Date.now(), exp: Date.now() + 180 * DAG }, { merge: true }).catch(() => {});
+    return { ref, klant: { id: k.id, ...dec(k.data()) }, kref: k.ref, voorbeeld };
   }
   async function maakRefCode(k) {
     const basis = schoon(k.contact || k.naam).split(/\s+/)[0].normalize("NFD").replace(/[^A-Za-z]/g, "").toUpperCase().slice(0, 6) || "VRIEND";
@@ -312,6 +313,11 @@ module.exports = function maakPortaal(ctx) {
         const v = await db.runTransaction(async t => { const s = await t.get(ref); if (!s.exists) return null; if (!s.data().herbruik) t.delete(ref); return s.data(); });
         if (!v || v.exp < Date.now()) { res.status(410).json({ fout: "Deze link is verlopen of al gebruikt. Vraag hieronder een nieuwe aan." }); return; }
         const s = tok();
+        if (v.voorbeeld) {
+          /* meekijken vanuit het CRM: alleen bekijken, een uur geldig, telt niet als inloggen van de klant */
+          await db.doc("portaalSessie/" + sha(s)).set({ klantId: v.klantId, email: "", exp: Date.now() + 3600e3, voorbeeld: true, door: v.door || "", op: nu() });
+          res.json({ ok: true, s, voorbeeld: true }); return;
+        }
         await db.doc("portaalSessie/" + sha(s)).set({ klantId: v.klantId, email: v.email, exp: Date.now() + 180 * DAG, gezien: Date.now(), op: nu(), ua: String(req.headers["user-agent"] || "").slice(0, 160) });
         await db.doc("klanten/" + v.klantId).set({ portaalLaatst: nu() }, { merge: true }).catch(() => {});
         res.json({ ok: true, s }); return;
@@ -370,7 +376,8 @@ module.exports = function maakPortaal(ctx) {
       }
       const S = await sessie(req);
       if (!S) { res.status(401).json({ fout: "Log opnieuw in." }); return; }
-      if (pad === "/data" && req.method === "GET") { res.json(await data(req, S)); return; }
+      if (S.voorbeeld && req.method !== "GET" && pad !== "/uit") { res.status(403).json({ fout: "Dit is een voorbeeld vanuit het CRM: hier kun je alleen kijken." }); return; }
+      if (pad === "/data" && req.method === "GET") { const d = await data(req, S); if (S.voorbeeld) d.voorbeeld = true; res.json(d); return; }
       if (pad === "/live" && req.method === "GET") { res.json({ live: await liveInfo(S) }); return; }
       if (pad === "/uit" && req.method === "POST") { await S.ref.delete(); res.json({ ok: true }); return; }
       if (pad === "/factuur" && req.method === "GET") {
@@ -454,7 +461,7 @@ module.exports = function maakPortaal(ctx) {
     const q = await db.collection("ticketBerichten").where("ticketId", "==", s.id).get();
     const berichten = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => String(a.op).localeCompare(String(b.op)))
       .map(m => ({ id: m.id, van: m.van, tekst: m.tekst || "", foto: m.foto || "", op: m.op, naam: m.van === "team" ? (m.doorNaam || "") : "", systeem: !!m.systeem }));
-    await ref.set({ ongelezenKlant: 0, gezienKlant: nu() }, { merge: true });
+    if (!S.voorbeeld) await ref.set({ ongelezenKlant: 0, gezienKlant: nu() }, { merge: true });
     return { ticket: tKort({ id: s.id, ...s.data() }), berichten, gezienTeam: s.data().gezienTeam || "" };
   }
   async function ticketNieuw(S, d) {
@@ -552,6 +559,18 @@ module.exports = function maakPortaal(ctx) {
     return { ok: true, email };
   });
 
+  /* CRM: het portaal bekijken zoals deze klant het ziet (alleen bekijken, link 10 minuten geldig) */
+  const portaalVoorbeeld = onCall({ memory: "256MiB" }, async req => {
+    const wie = await checkGebruiker(req.auth);
+    const { klantId, basis } = req.data || {};
+    const s = await db.doc("klanten/" + String(klantId || "")).get();
+    if (!s.exists) throw new HttpsError("not-found", "Klant niet gevonden.");
+    const t = tok();
+    await db.doc("portaalLogin/" + sha(t)).set({ klantId: s.id, email: "", exp: Date.now() + 600e3, herbruik: false, voorbeeld: true, door: String(wie || ""), op: nu(), bron: "crm" });
+    const b = /^https:\/\/[\w.-]+$/.test(String(basis || "")) ? String(basis) : HOST();
+    return { url: b + "/portaal?l=" + t };
+  });
+
   /* aanbevelingscode bij een websiteaanvraag omzetten naar de klant die aanbeveelt */
   async function refKlant(code) {
     const c = String(code || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
@@ -601,5 +620,5 @@ module.exports = function maakPortaal(ctx) {
     } }
     console.log("credits automatisch", [...nieuw.values()].reduce((a, l) => a + l.length, 0));
   }) : null;
-  return { portaal, portaalUitnodigen, ticketMelding, refKlant, creditsAuto };
+  return { portaal, portaalUitnodigen, portaalVoorbeeld, ticketMelding, refKlant, creditsAuto };
 };
