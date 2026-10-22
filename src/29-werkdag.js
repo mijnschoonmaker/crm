@@ -10,10 +10,10 @@ function wdCijfers(d){const w=wdGet(d)||{},nu=wdNu(),eind=w.stop||(w.start&&d===
   const pauze=(w.pauzes||[]).reduce((a,p)=>a+wdMin(p.van,p.tot||(w.stop?w.stop:nu)),0);
   /* alleen stops die tijdens de werkdag zijn afgemeld (tussen vertrek en terugkomst bij de loods), anders kloppen reistijd en uurloon niet */
   const binnen=b=>{if(!w.start||!b.op)return true;const t=new Date(b.op).getTime();return t>=new Date(w.start).getTime()-6e4&&(!eind||t<=new Date(eind).getTime()+6e4)};
-  const alle=state.beurten.filter(b=>b.datum===d),bs=alle.filter(binnen),buiten=alle.length-bs.length;
+  const alle=state.beurten.filter(b=>b.datum===d&&!b.geannuleerd),bs=alle.filter(binnen),buiten=alle.length-bs.length;
   const fact=bs.reduce((a,b)=>a+(Number(b.duur)||0),0),gemeten=bs.filter(b=>b.gemeten||b.startOp).length;
   const totaal=wdMin(w.start,eind),netto=Math.max(0,totaal-pauze),reis=Math.max(0,netto-fact);
-  const omzet=bs.reduce((a,b)=>a+exAmt(b.bedrag),0);
+  const omzet=bs.reduce((a,b)=>a+beurtOmzet(b),0);
   return {w,totaal,pauze,netto,fact,reis,omzet,n:bs.length,buiten,gemeten,perUur:netto>0?omzet/(netto/60):0,perFact:fact>0?omzet/(fact/60):0}}
 const wdU=m=>{m=Math.round(m||0);const h=Math.floor(m/60),mm=m%60;return h?`${h}u${String(mm).padStart(2,"0")}`:`${mm} min`};
 const wdT=ts=>ts?new Date(ts).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"}):"";

@@ -128,6 +128,19 @@ function waLink(tel,text){
 
 /* geld */
 const exAmt=x=>S().incl?(Number(x)||0)/(1+Number(S().btw)/100):(Number(x)||0);
+/* omzet van één afgemelde beurt, ex btw, overal hetzelfde (statistieken, analyse, werkdag):
+   - gefactureerd: het deel van de factuur (totaal ex btw gedeeld door het aantal beurten op die factuur), met de btw van die factuur zelf (ook verlegd)
+   - niet factureren: 0 · geannuleerd: 0 · periodiek zonder bedrag: de prijs van de klant · anders: het bedrag van de beurt */
+let _BO=null;
+function boMap(){if(_BO&&_BO.b===state.beurten&&_BO.f===state.facturen)return _BO;const F={},n={};(state.facturen||[]).forEach(f=>F[f.id]=f);
+  (state.beurten||[]).forEach(b=>{if(b.gefactureerd&&F[b.gefactureerd])n[b.gefactureerd]=(n[b.gefactureerd]||0)+1});return _BO={b:state.beurten,f:state.facturen,F,n}}
+function beurtOmzet(b){if(!b||b.geannuleerd||b.gefactureerd==="nvt")return 0;const M=boMap(),f=b.gefactureerd&&M.F[b.gefactureerd];
+  if(f&&f.soort!=="offerte")return totals(f).ex/(M.n[f.id]||1);
+  if(b.periodiek&&!Number(b.bedrag)){const k=state.klanten.find(x=>x.id===b.klantId);return k?exAmt(k.prijs):0}
+  return exAmt(b.bedrag)}
+/* was een klant actief in (een deel van) de periode s..e (iso)? Zelfde regel voor Statistieken › Klanten en Analyse */
+function klantActiefIn(k,s,e,laatstB){if(k.prospect)return false;const a=String(k.aangemaakt||"").slice(0,10);if(a&&a>e)return false;if(k.actief!==false)return true;
+  const stop=String(k.inactiefOp||k.gepauzeerdOp||(laatstB&&laatstB[k.id])||"").slice(0,10);return !!stop&&stop>=s}
 function totals(f){
   const btw=Number(f.btw??S().btw)/100,incl=f.incl??S().incl;
   const sum=(f.regels||[]).reduce((a,r)=>a+(Number(r.aantal)||0)*(Number(r.prijs)||0),0);

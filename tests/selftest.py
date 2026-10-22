@@ -142,6 +142,34 @@ def afmelden(pg):
     check(G, "Op betaald zetten zet datum en beurt op betaald", r.get("betaald") == "betaald" and r.get("betaaldOp") == r["vd"] and r.get("beurtBetaald") is True, r)
 
 
+def statistieken(pg):
+    """Statistieken, Analyse, werkdag en facturen rekenen met dezelfde bedragen"""
+    G = "Statistieken kloppen"
+    r = pg.evaluate("""async()=>{const T=MSTEST,vd=T.iso(T.today()),id=x=>T.newId(x),kA=id('kst'),kB=id('kst'),kP=id('kst'),f1=id('fst'),f2=id('fst'),b=[id('bst'),id('bst'),id('bst'),id('bst')];
+      const kl=(i,x)=>T.save('klanten',i,{naam:'Statistiek, '+x,prijs:60.5,frequentie:4,actief:true,aangemaakt:vd,log:[],objecten:[]});
+      await kl(kA,'A');await kl(kB,'B');await T.save('klanten',kP,{naam:'Statistiek, Prospect',prospect:true,actief:true,aangemaakt:vd,log:[],objecten:[]});
+      /* factuur voor twee beurten: 2 x 60,50 incl 21% = 100 ex */
+      await T.save('facturen',f1,{soort:'factuur',nummer:'ST-1',klantId:kA,datum:vd,status:'open',btw:21,incl:true,regels:[{omschrijving:'Glasbewassing',aantal:1,prijs:60.5},{omschrijving:'Glasbewassing',aantal:1,prijs:60.5}]});
+      /* btw verlegd: 80 ex */
+      await T.save('facturen',f2,{soort:'factuur',nummer:'ST-2',klantId:kB,datum:vd,status:'open',btw:0,incl:true,regels:[{omschrijving:'Glasbewassing',aantal:1,prijs:80}]});
+      await T.save('beurten',b[0],{klantId:kA,datum:vd,bedrag:60.5,gefactureerd:f1,dienst:'Glasbewassing'});
+      await T.save('beurten',b[1],{klantId:kA,datum:vd,bedrag:60.5,gefactureerd:f1,dienst:'Glasbewassing'});
+      await T.save('beurten',b[2],{klantId:kB,datum:vd,bedrag:80,gefactureerd:f2,dienst:'Glasbewassing'});
+      await T.save('beurten',b[3],{klantId:kB,datum:vd,bedrag:50,gefactureerd:'',dienst:'Glasbewassing',geannuleerd:true});
+      const bs=T.state.beurten.filter(x=>b.includes(x.id)),fs=T.state.facturen.filter(x=>[f1,f2].includes(x.id));
+      const werk=bs.reduce((a,x)=>a+T.beurtOmzet(x),0),sp=T.stDienstSplit(bs),dienst=Object.values(sp.per).reduce((a,v)=>a+v,0);
+      const geld=fs.reduce((a,f)=>a+T.totals(f).ex,0),F=T.fin([T.today(),T.today()]),inFin=fs.every(f=>F.fs.includes(f));
+      const kP_=T.state.klanten.find(x=>x.id===kP),actP=T.klantActiefIn(kP_,vd,vd,{});
+      for(const x of b)await T.del('beurten',x);for(const x of [f1,f2])await T.del('facturen',x);for(const x of [kA,kB,kP])await T.del('klanten',x);
+      const r=v=>Math.round(v*100)/100;return {werk:r(werk),dienst:r(dienst),geld:r(geld),inFin,actP,geann:T.beurtOmzet({geannuleerd:true,bedrag:50})}}""")
+    check(G, "Omzet uit werk = gefactureerde omzet (€ 180 ex btw)", r["werk"] == 180 and r["geld"] == 180, r)
+    check(G, "Factuur met twee beurten telt niet dubbel bij omzet per dienst", r["dienst"] == r["werk"], r)
+    check(G, "Btw verlegd telt voor het volle bedrag", r["geld"] == 180, r)
+    check(G, "Facturen tellen mee in Geld en Boekhouding (zelfde periode)", r["inFin"], r)
+    check(G, "Geannuleerde afspraak telt niet als omzet", r["geann"] == 0, r)
+    check(G, "Offerte-prospect telt niet als klant", r["actP"] is False, r)
+
+
 def portaal(b, base):
     G = "Klantportaal"
     for w, h, naam in [(1300, 900, "computer"), (390, 844, "telefoon")]:
@@ -172,6 +200,7 @@ def main():
             rekenregels(pg)
             nummering(pg)
             afmelden(pg)
+            statistieken(pg)
             check("Laden", "Geen fouten tijdens de flows", not pg.fouten, "; ".join(pg.fouten))
             pg.close()
             pm = crm(b, base, 390, 844)

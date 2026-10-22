@@ -45,7 +45,7 @@ function vAnalyse(){
   const alleB=state.beurten.filter(b=>b.datum&&!b.geannuleerd);
   const mws=[...new Set(alleB.filter(b=>String(b.datum).startsWith(String(Y))).map(b=>b.door).filter(Boolean))].sort();
   const bIn=r=>alleB.filter(b=>inRange(b.datum,r)&&(!mw||b.door===mw)),fIn=r=>echteFacturen().filter(f=>inRange(f.datum,r));
-  const bOm=b=>exAmt(b.bedrag),bMin=b=>plan?duur(KM[b.klantId]||{}):(Number(b.duur)||duur(KM[b.klantId]||{}));
+  const bOm=b=>beurtOmzet(b),bMin=b=>plan?duur(KM[b.klantId]||{}):(Number(b.duur)||duur(KM[b.klantId]||{}));
   /* omzet-posten volgens de gekozen bron */
   const posten=r=>afs?bIn(r).map(b=>({d:b.datum,om:bOm(b),btw:0,k:b.klantId,b})):fIn(r).map(f=>{const tt=totals(f);return{d:f.datum,om:tt.ex,btw:tt.btw,k:f.klantId,f}});
   const P=posten(rg),PV=posten(rgV),omzet=P.reduce((a,p)=>a+p.om,0),omzetV=PV.reduce((a,p)=>a+p.om,0);
@@ -87,11 +87,11 @@ function vAnalyse(){
       :anKaart("Btw per maand","Af te dragen btw over je facturen",stBars(bv.map(r2),AN_MND,{hi:hiM,h:210,gem:false}),anTot("Totaal",eur0(bv.reduce((a,v)=>a+v,0))))}</div>`;
 
   /* klanten: nieuw per week en verloop */
-  const nk=Array(nW).fill(0);state.klanten.forEach(k=>{if(!String(k.aangemaakt||"").startsWith(String(Y)))return;const w=anWk(k.aangemaakt,Y);if(w>=1&&w<=nW)nk[w-1]++;else if(w===0)nk[0]++});
+  const nk=Array(nW).fill(0);state.klanten.forEach(k=>{if(k.prospect||!String(k.aangemaakt||"").startsWith(String(Y)))return;const w=anWk(k.aangemaakt,Y);if(w>=1&&w<=nW)nk[w-1]++;else if(w===0)nk[0]++});
   const tot=huidig?Math.min(nW,weekNr(t)):nW,lbls=[...Array(tot)].map((_,i)=>"wk "+(i+1));
   const wkEind=i=>{const d=new Date(Y,0,4);const dag=(d.getDay()||7)-1;d.setDate(d.getDate()-dag+7*i+6);return iso(d)};
   const laatstB={};alleB.forEach(b=>{if(!laatstB[b.klantId]||b.datum>laatstB[b.klantId])laatstB[b.klantId]=b.datum});
-  const verloop=[...Array(tot)].map((_,i)=>{const e=wkEind(i),s=iso(addDays(parse(e),-6));return state.klanten.filter(k=>{const a=String(k.aangemaakt||"").slice(0,10);if(a&&a>e)return false;if(k.actief!==false)return true;const stop=String(k.inactiefOp||k.gepauzeerdOp||laatstB[k.id]||"").slice(0,10);return stop&&stop>=s}).length});
+  const verloop=[...Array(tot)].map((_,i)=>{const e=wkEind(i),s=iso(addDays(parse(e),-6));return state.klanten.filter(k=>klantActiefIn(k,s,e,laatstB)).length});
   h+=`<div class="st-two">${anKaart("Nieuwe klanten per week",`Klanten toegevoegd in ${Y}`,anLijn([{v:nk.slice(0,tot)}],lbls.map(l=>l.slice(3)),{elk:4}),anTot("Totaal",nk.reduce((a,v)=>a+v,0)))}
     ${anKaart("Klantenverloop","Actieve klanten per week",anLijn([{v:verloop,c:"#c9a46a"}],lbls.map(l=>l.slice(3)),{elk:4}),anTot("Nu",verloop[verloop.length-1]||0))}</div>`;
 

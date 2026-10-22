@@ -18,7 +18,7 @@ function vInzichten(){
   if(state.itab==="analyse")return html+vAnalyse();
   const kd=id=>state.klanten.find(k=>k.id===id);
   if(state.itab==="geld"){
-    const F=fin(P.rg),Fv=fin(V.rg),Y=fin(curPeriod("jaar").rg),Yv=fin([new Date(t.getFullYear()-1,0,1),new Date(t.getFullYear()-1,t.getMonth(),t.getDate())]);
+    const F=fin(P.rg),Fv=fin(V.rg),Y=fin([new Date(t.getFullYear(),0,1),t]),Yv=fin([new Date(t.getFullYear()-1,0,1),new Date(t.getFullYear()-1,t.getMonth(),t.getDate())]);
     const open=facturen().filter(f=>["Openstaand","Achterstallig"].includes(fStatus(f)[1])),late=open.filter(f=>fStatus(f)[1]==="Achterstallig");
     const paid=facturen().filter(f=>f.status==="betaald"&&f.betaaldOp),term=paid.length?Math.round(paid.reduce((a,f)=>a+(parse(f.betaaldOp)-parse(f.datum))/DAY,0)/paid.length):null;
     const betaaldP=F.fs.filter(f=>f.status==="betaald").reduce((a,f)=>a+totals(f).inc,0);
@@ -42,11 +42,11 @@ function vInzichten(){
     <section class="st-card"><div class="st-ch"><div><h3>Omzet per maand</h3><p>Laatste 12 maanden · ex btw · stippellijn = gemiddelde</p></div>${state.dl?`<button type="button" class="small" data-act="rapport">${I.dl}Rapport (PDF)</button>`:""}</div>
       ${stBars(months.map(m=>m.omzet),months.map(m=>m.l),{hi:11,h:230})}</section>`;
   }else if(state.itab==="werk"){
-    const bs=state.beurten.filter(b=>inRange(b.datum,P.rg)),bv=state.beurten.filter(b=>inRange(b.datum,V.rg));
-    const mins=bs.reduce((a,b)=>a+(Number(b.duur)||duur(kd(b.klantId)||{})),0),om=bs.reduce((a,b)=>a+exAmt(b.bedrag),0);
+    const bs=state.beurten.filter(b=>!b.geannuleerd&&inRange(b.datum,P.rg)),bv=state.beurten.filter(b=>!b.geannuleerd&&inRange(b.datum,V.rg));
+    const mins=bs.reduce((a,b)=>a+(Number(b.duur)||duur(kd(b.klantId)||{})),0),om=bs.reduce((a,b)=>a+beurtOmzet(b),0);
     const {per:per_d,sub:sub_d}=stDienstSplit(bs);const dk=Object.keys(per_d).sort((a,b)=>per_d[b]-per_d[a]),dtot=dk.reduce((a,k)=>a+per_d[k],0)||1;
     const wdc=[0,0,0,0,0,0,0];bs.forEach(b=>{wdc[(parse(b.datum).getDay()+6)%7]+=1});const top=wdc.indexOf(Math.max(...wdc));
-    const dag={};state.beurten.forEach(b=>{dag[b.datum]=(dag[b.datum]||0)+exAmt(b.bedrag)});const best=Object.entries(dag).sort((a,b)=>b[1]-a[1])[0];
+    const dag={};state.beurten.forEach(b=>{if(b.geannuleerd)return;dag[b.datum]=(dag[b.datum]||0)+beurtOmzet(b)});const best=Object.entries(dag).sort((a,b)=>b[1]-a[1])[0];
     const ach=overdue().length,gem=bs.length?om/bs.length:0;
     const mot=!bs.length?"Nog geen beurten afgemeld in deze periode. Op naar de eerste!":bs.length>bv.length?`${bs.length-bv.length} beurten meer dan ${esc(V.lbl)}. Lekker bezig!`:bs.length===bv.length?`Net zoveel beurten als ${esc(V.lbl)}. Stabiel!`:`${esc(V.lbl)} telde er ${bv.length}. Nog ${bv.length-bs.length} te gaan om gelijk te komen.`;
     html+=`<section class="st-hero"><div class="st-hm"><span class="st-k">Woningen gedaan · ${esc(P.lbl)}</span>
@@ -67,12 +67,13 @@ function vInzichten(){
       <section class="st-card"><div class="st-ch"><div><h3>Omzet per dienst</h3><p>Aandeel in de omzet uit werk</p></div></div>
         ${dk.length?stDiensten(dk,per_d,dtot,sub_d):'<p class="st-leeg">Nog geen afgemelde beurten in deze periode.</p>'}</section></div>`+(typeof wdStatKaart==="function"?wdStatKaart(P.rg,P.lbl):"");
   }else{
-    const ak=actief(),nieuw=state.klanten.filter(k=>inRange(k.aangemaakt,P.rg)),nieuwV=state.klanten.filter(k=>inRange(k.aangemaakt,V.rg)),inact=state.klanten.filter(k=>k.actief===false);
+    const ak=actief(),nieuw=state.klanten.filter(k=>!k.prospect&&inRange(k.aangemaakt,P.rg)),nieuwV=state.klanten.filter(k=>!k.prospect&&inRange(k.aangemaakt,V.rg)),inact=state.klanten.filter(k=>k.actief===false&&!k.prospect);
     const jaar=ak.reduce((a,k)=>a+exAmt(k.prijs)*365/freqDays(k),0),perK=ak.length?jaar/ak.length:0;
     const rd={};ak.forEach(k=>{const r=k.ronde||"Zonder ronde";rd[r]=(rd[r]||0)+exAmt(k.prijs)*365/freqDays(k)});const rk=Object.keys(rd).sort((a,b)=>rd[b]-rd[a]),rmx=Math.max(1,...rk.map(r=>rd[r]));
     const top=state.klanten.map(k=>({k,s:echteFacturen().filter(f=>f.klantId===k.id).reduce((a,f)=>a+totals(f).ex,0)})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,6),tmx=Math.max(1,...top.map(x=>x.s));
     const zak=ak.filter(k=>k.soort==="zakelijk").length,vve=ak.filter(k=>k.soort==="vve").length,prt=ak.length-zak-vve;
-    const groei=[...Array(12)].map((_,i)=>{const d=new Date(t.getFullYear(),t.getMonth()-11+i+1,0);const di=iso(d);return{l:new Date(d.getFullYear(),d.getMonth(),1).toLocaleDateString("nl-NL",{month:"short"}).replace(".",""),n:ak.filter(k=>String(k.aangemaakt||"0000").slice(0,10)<=di).length}});
+    const laatstB={};state.beurten.forEach(b=>{if(!b.geannuleerd&&b.datum&&(!laatstB[b.klantId]||b.datum>laatstB[b.klantId]))laatstB[b.klantId]=b.datum});
+    const groei=[...Array(12)].map((_,i)=>{const d=new Date(t.getFullYear(),t.getMonth()-11+i+1,0);const di=iso(d),ds=iso(new Date(d.getFullYear(),d.getMonth(),1));return{l:new Date(d.getFullYear(),d.getMonth(),1).toLocaleDateString("nl-NL",{month:"short"}).replace(".",""),n:i===11?ak.length:state.klanten.filter(k=>klantActiefIn(k,ds,di,laatstB)).length}});
     const mot=nieuw.length?`${plural(nieuw.length,"nieuwe klant","nieuwe klanten")} in ${esc(P.lbl)}. Samen goed voor ${eur0(nieuw.filter(k=>k.actief!==false).reduce((a,k)=>a+exAmt(k.prijs)*365/freqDays(k),0))} per jaar.`:`Nog geen nieuwe klanten in ${esc(P.lbl)}. Een aanbeveling via het klantportaal helpt!`;
     html+=`<section class="st-hero"><div class="st-hm"><span class="st-k">Actieve klanten</span>
         <div class="st-big"><b>${ak.length}</b>${nieuw.length?`<span class="st-pill up">+${nieuw.length} in ${esc(P.lbl)}</span>`:""}</div>
@@ -102,8 +103,10 @@ function stDienstSplit(bs){const G=stGroepen().filter(g=>g.type!=="glas"&&g.naam
   const plus=(d,v,it,iv)=>{per[d]=(per[d]||0)+v;if(it){sub[d]=sub[d]||{};sub[d][it]=(sub[d][it]||0)+iv}};
   const KM={};(state.klanten||[]).forEach(x=>KM[x.id]=x);bs.forEach(b=>{const k=KM[b.klantId]||{},f=b.gefactureerd&&F[b.gefactureerd];
     const regels=f&&Array.isArray(f.regels)&&f.regels.length?f.regels:null;
-    if(!regels){plus(stDienstNorm(b.dienst||k.dienst),exAmt(b.bedrag));return}
-    regels.forEach(r=>{const v=exAmt((Number(r.aantal)||0)*(Number(r.prijs)||0));if(!v)return;const om=String(r.omschrijving||"").toLowerCase();
+    if(!regels){const v=beurtOmzet(b);if(v)plus(stDienstNorm(b.dienst||k.dienst),v);return}
+    /* een factuur met meerdere beurten telt per beurt voor zijn deel, met de btw van die factuur zelf */
+    const sum=regels.reduce((a,r)=>a+(Number(r.aantal)||0)*(Number(r.prijs)||0),0),fac=sum?beurtOmzet(b)/sum:0;
+    regels.forEach(r=>{const v=(Number(r.aantal)||0)*(Number(r.prijs)||0)*fac;if(!v)return;const om=String(r.omschrijving||"").toLowerCase();
       const g=G.find(x=>om.includes(x.naam.toLowerCase()))||G.find(x=>(x.items||[]).some(it=>it.naam&&it.naam.length>4&&om.includes(it.naam.toLowerCase())));
       if(!g){plus(/^(toeslag|korting|voorrijkosten)/i.test(om)||/glasbewassing|kozijn|ramen/i.test(om)||!om?"Glasbewassing":stDienstNorm(String(r.omschrijving).split("(")[0]),v);return}
       /* verdeling over onderdelen: naar de aantallen en prijzen van die opdracht bij de klant */
