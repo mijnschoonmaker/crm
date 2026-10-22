@@ -539,6 +539,10 @@ Object.assign(exports, BEV.functies);
 /* bank: betalingen automatisch koppelen aan facturen (bankbestand of koppeling via Enable Banking) */
 const BANK = require("./bank")({ db, T, onCall, onRequest, onSchedule, HttpsError, geheim, checkGebruiker, crypto, nu, HOST });
 Object.assign(exports, BANK.functies);
+/* systeemcontrole: elke nacht nagaan of de gegevens kloppen (alleen lezen) */
+const CONTROLE = require("./controle")({ db, onCall, onSchedule, geheim, bedrijf, brevoSend, checkGebruiker, nu });
+exports.systeemControle = CONTROLE.systeemControle;
+exports.controleNu = CONTROLE.controleNu;
 /* Mansard: nieuwe bedrijven aanmelden en abonnementen */
 var MANSARD; MANSARD = require("./mansard")({ rawDb, T, onCall, onRequestRaw: _onRequest, HttpsError, nu, mollie, HOST });
 Object.assign(exports, MANSARD.functies);

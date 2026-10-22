@@ -1,0 +1,209 @@
+"""Zelftest van het Mansard CRM.
+
+Draait bij elke update in GitHub (workflow "Online zetten") vóórdat er iets live gaat.
+Faalt er één controle, dan stopt de update en staat in het overzicht precies wat er mis is.
+
+Lokaal draaien:  python3 tests/selftest.py   (vanuit de map van de repository)
+"""
+import http.server, json, os, socketserver, sys, threading, functools
+from playwright.sync_api import sync_playwright
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+RES = []  # (groep, naam, ok, detail)
+
+
+def check(groep, naam, ok, detail=""):
+    RES.append((groep, naam, bool(ok), str(detail)[:300]))
+
+
+class Handler(http.server.SimpleHTTPRequestHandler):
+    """repository als webroot; bestaat een bestand niet, dan uit public/ (zoals de live site)"""
+    def translate_path(self, path):
+        p = super().translate_path(path)
+        if not os.path.exists(p):
+            alt = os.path.join(ROOT, "public", os.path.relpath(p, ROOT))
+            if os.path.exists(alt):
+                return alt
+        return p
+
+    def log_message(self, *a):
+        pass
+
+
+def server():
+    h = functools.partial(Handler, directory=ROOT)
+    s = socketserver.TCPServer(("127.0.0.1", 0), h)
+    threading.Thread(target=s.serve_forever, daemon=True).start()
+    return s, s.server_address[1]
+
+
+def nieuwe_pagina(b, w, h):
+    pg = b.new_page(viewport={"width": w, "height": h})
+    pg.route(lambda u: not u.startswith("http://127.0.0.1"), lambda r: r.abort())
+    pg.fouten = []
+    pg.on("pageerror", lambda e: pg.fouten.append(str(e)))
+    return pg
+
+
+def crm(b, base, w=1300, h=900):
+    pg = nieuwe_pagina(b, w, h)
+    pg.goto(base + "/glazenwasser-crm.html?selftest")
+    pg.wait_for_function("window.MSTEST && MSTEST.state", timeout=20000)
+    pg.wait_for_timeout(800)
+    return pg
+
+
+def pagina_s(pg, groep):
+    """elke pagina van het CRM openen: geen fouten en er staat iets op"""
+    for v in pg.evaluate("MSTEST.views()"):
+        voor = len(pg.fouten)
+        try:
+            pg.evaluate("v=>MSTEST.ga(v)", v)
+            pg.wait_for_timeout(250)
+            n = pg.evaluate("(document.querySelector('main')||document.body).innerText.trim().length")
+            nieuw = pg.fouten[voor:]
+            check(groep, f"Pagina '{v}' opent", not nieuw and n > 20, "; ".join(nieuw) or f"{n} tekens")
+        except Exception as e:
+            check(groep, f"Pagina '{v}' opent", False, e)
+
+
+def instellingen(pg):
+    """elke instellingenkaart openen en weer sluiten"""
+    G = "Instellingen"
+    pg.evaluate("MSTEST.ga('instellingen')")
+    pg.wait_for_timeout(400)
+    ids = pg.evaluate("[...new Set([...document.querySelectorAll('[data-act=setedit]')].map(e=>e.dataset.v))]")
+    for v in ids:
+        voor = len(pg.fouten)
+        pg.evaluate("v=>{MSTEST.ga('instellingen');const e=document.querySelector('[data-act=setedit][data-v=\"'+v+'\"]');if(e)e.click()}", v)
+        pg.wait_for_timeout(250)
+        open_ = pg.evaluate("!!document.querySelector('dialog[open]')||MSTEST.state.tab!=='instellingen'")
+        pg.evaluate("document.querySelectorAll('dialog[open]').forEach(d=>{try{d.close()}catch(e){}})")
+        nieuw = pg.fouten[voor:]
+        check(G, f"Instelling '{v}' opent zonder fouten", not nieuw and open_, "; ".join(nieuw) or ("geen venster" if not open_ else ""))
+
+
+def rekenregels(pg):
+    G = "Rekenregels"
+    t = lambda f: pg.evaluate("f=>MSTEST.totals(f)", f)
+    r = t({"regels": [{"aantal": 1, "prijs": 121}], "btw": 21, "incl": True})
+    check(G, "Btw 21% inclusief: € 121 = € 100 + € 21", r == {"ex": 100, "btw": 21, "inc": 121}, r)
+    r = t({"regels": [{"aantal": 2, "prijs": 50}], "btw": 21, "incl": False})
+    check(G, "Btw 21% exclusief: 2 × € 50 = € 121 incl.", r == {"ex": 100, "btw": 21, "inc": 121}, r)
+    r = t({"regels": [{"aantal": 3, "prijs": 10.9}], "btw": 9, "incl": True})
+    check(G, "Btw 9%: 3 × € 10,90 = € 30 + € 2,70", r == {"ex": 30, "btw": 2.7, "inc": 32.7}, r)
+    r = t({"regels": [{"aantal": 1, "prijs": 80}], "btw": 0, "incl": True})
+    check(G, "Btw verlegd (0%): geen btw", r == {"ex": 80, "btw": 0, "inc": 80}, r)
+    r = t({"regels": [{"aantal": 1, "prijs": 45}, {"aantal": 1, "prijs": -5}], "btw": 21, "incl": True})
+    check(G, "Korting als minregel telt mee", r["inc"] == 40, r)
+    w = pg.evaluate("[MSTEST.wikKosten(0),MSTEST.wikKosten(100),MSTEST.wikKosten(3000),MSTEST.wikKosten(1e7)]")
+    check(G, "Wettelijke incassokosten (WIK-staffel)", w == [0, 40, 425, 6775], w)
+    d = pg.evaluate("MSTEST.nrDelen('2026-0141')")
+    check(G, "Factuurnummer uit elkaar halen", d == {"pre": "2026-", "n": 141, "pad": 4}, d)
+    if pg.evaluate("!!MSTEST.kmFmt"):
+        k = pg.evaluate("['v962fn','VFL32F','12abc3','ab12cd'].map(MSTEST.kmFmt)")
+        check(G, "Kentekens netjes schrijven", k == ["V-962-FN", "VFL-32-F", "12-ABC-3", "AB-12-CD"], k)
+
+
+def nummering(pg):
+    G = "Factuurnummers"
+    r = pg.evaluate("""async()=>{const T=MSTEST,j=String(new Date().getFullYear()+5),d=j+'-03-01';
+      const a=T.newId('ftest'),b=T.newId('ftest');
+      await T.save('facturen',a,{soort:'factuur',nummer:j+'-0007',datum:d,regels:[],status:'open'});
+      await T.save('facturen',b,{soort:'factuur',nummer:j+'-0012',datum:d,regels:[],status:'open'});
+      const uit={volgende:T.nextNr('factuur',d),offerte:T.nextNr('offerte',d)};
+      await T.del('facturen',a);await T.del('facturen',b);return {...uit,j}}""")
+    check(G, "Volgend factuurnummer sluit aan op het hoogste", r["volgende"] == r["j"] + "-0013", r)
+    check(G, "Eerste offertenummer van het jaar", r["offerte"] == "OFF-" + r["j"] + "-001", r)
+
+
+def afmelden(pg):
+    G = "Afmelden en factureren"
+    r = pg.evaluate("""async()=>{const T=MSTEST,id=T.newId('ktest'),vd=T.iso(T.today());
+      await T.save('klanten',id,{naam:'Zelftest, Klant',adres:'Teststraat 1',postcode:'1234 AB',plaats:'Teststad',email:'test@voorbeeld.nl',
+        prijs:45,frequentie:4,dienst:'Glasbewassing',gepland:vd,tijd:'09:00',duur:30,actief:true,autoplan:true,tellingGecontroleerd:true,soort:'particulier',log:[],objecten:[]});
+      const k=T.state.klanten.find(x=>x.id===id);
+      await T.afronden(k,'concept');await new Promise(r=>setTimeout(r,400));
+      const k2=T.state.klanten.find(x=>x.id===id)||{},b=T.state.beurten.find(x=>x.klantId===id),f=T.state.facturen.find(x=>x.klantId===id&&x.soort==='factuur');
+      const uit={laatst:k2.laatst,gepland:k2.gepland,vd,beurt:!!b,factuur:!!f,status:f&&f.status,inc:f?T.totals(f).inc:null,koppeling:!!(b&&f&&b.gefactureerd===f.id)};
+      if(f){await T.setFStatus(f.id,'betaald');await new Promise(r=>setTimeout(r,300));
+        const f2=T.state.facturen.find(x=>x.id===f.id),b2=T.state.beurten.find(x=>x.id===b.id);
+        uit.betaald=f2&&f2.status;uit.betaaldOp=f2&&f2.betaaldOp;uit.beurtBetaald=b2&&b2.betaald}
+      try{const dl=document.querySelector('dialog[open]');if(dl)dl.close()}catch(e){}
+      for(const x of T.state.beurten.filter(x=>x.klantId===id))await T.del('beurten',x.id);
+      for(const x of T.state.facturen.filter(x=>x.klantId===id))await T.del('facturen',x.id);
+      await T.del('klanten',id);return uit}""")
+    check(G, "Afmelden maakt een beurt aan", r["beurt"], r)
+    check(G, "Afmelden maakt een conceptfactuur", r["factuur"] and r["status"] == "concept", r)
+    check(G, "Factuurbedrag is de prijs van de klant (€ 45)", r["inc"] == 45, r)
+    check(G, "Beurt is aan de factuur gekoppeld", r["koppeling"], r)
+    check(G, "Laatste bezoek staat op vandaag", r["laatst"] == r["vd"], r)
+    check(G, "Volgende afspraak is doorgepland", bool(r["gepland"]) and r["gepland"] > r["vd"], r)
+    check(G, "Op betaald zetten zet datum en beurt op betaald", r.get("betaald") == "betaald" and r.get("betaaldOp") == r["vd"] and r.get("beurtBetaald") is True, r)
+
+
+def portaal(b, base):
+    G = "Klantportaal"
+    for w, h, naam in [(1300, 900, "computer"), (390, 844, "telefoon")]:
+        pg = nieuwe_pagina(b, w, h)
+        pg.goto(base + "/public/portaal.html?demo")
+        pg.wait_for_timeout(2500)
+        tabs = pg.evaluate("[...new Set([...document.querySelectorAll('[data-tab]')].map(e=>e.dataset.tab))]")
+        check(G, f"Portaal opent ({naam})", not pg.fouten and len(tabs) >= 3, "; ".join(pg.fouten) or tabs)
+        for t in tabs:
+            voor = len(pg.fouten)
+            pg.evaluate("t=>{const e=[...document.querySelectorAll('[data-tab]')].find(x=>x.dataset.tab===t&&x.offsetParent);if(e)e.click()}", t)
+            pg.wait_for_timeout(500)
+            n = pg.evaluate("document.body.innerText.trim().length")
+            check(G, f"Tab '{t}' ({naam})", not pg.fouten[voor:] and n > 50, "; ".join(pg.fouten[voor:]))
+        pg.close()
+
+
+def main():
+    s, port = server()
+    base = f"http://127.0.0.1:{port}"
+    with sync_playwright() as p:
+        b = p.chromium.launch()
+        try:
+            pg = crm(b, base)
+            check("Laden", "CRM laadt zonder fouten", not pg.fouten, "; ".join(pg.fouten))
+            pagina_s(pg, "Pagina's (computer)")
+            instellingen(pg)
+            rekenregels(pg)
+            nummering(pg)
+            afmelden(pg)
+            check("Laden", "Geen fouten tijdens de flows", not pg.fouten, "; ".join(pg.fouten))
+            pg.close()
+            pm = crm(b, base, 390, 844)
+            pagina_s(pm, "Pagina's (telefoon)")
+            pm.close()
+        except Exception as e:
+            check("Zelftest", "Zelftest kon niet afmaken", False, e)
+        try:
+            portaal(b, base)
+        except Exception as e:
+            check("Klantportaal", "Portaaltest kon niet afmaken", False, e)
+        b.close()
+    s.shutdown()
+
+    fout = [r for r in RES if not r[2]]
+    regels = [f"## Zelftest: {len(RES) - len(fout)} van {len(RES)} goed", ""]
+    if fout:
+        regels += ["### Niet goed", "", "| Onderdeel | Controle | Wat er mis is |", "|---|---|---|"]
+        regels += [f"| {g} | {n} | {d.replace('|', '/')} |" for g, n, _, d in fout]
+        regels.append("")
+    regels += ["<details><summary>Alle controles</summary>", "", "| | Onderdeel | Controle |", "|---|---|---|"]
+    regels += [f"| {'✅' if ok else '❌'} | {g} | {n} |" for g, n, ok, _ in RES]
+    regels += ["", "</details>"]
+    tekst = "\n".join(regels)
+    print(tekst)
+    if os.environ.get("GITHUB_STEP_SUMMARY"):
+        with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
+            f.write(tekst + "\n")
+    with open(os.path.join(ROOT, "tests", "uitslag.json"), "w") as f:
+        json.dump([{"groep": g, "naam": n, "ok": ok, "detail": d} for g, n, ok, d in RES], f, ensure_ascii=False, indent=1)
+    sys.exit(1 if fout else 0)
+
+
+if __name__ == "__main__":
+    main()

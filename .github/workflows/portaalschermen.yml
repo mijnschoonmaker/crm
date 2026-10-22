@@ -1,0 +1,31 @@
+name: Portaalschermen
+# echte schermafbeeldingen van het klantportaal voor de website (public/site/portaal-*.jpg)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["public/portaal.html", "tools/portaalschermen.*"]
+concurrency:
+  group: portaalschermen
+  cancel-in-progress: true
+jobs:
+  schermen:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Playwright installeren
+        run: pip install --quiet playwright==1.47.0 pillow && python -m playwright install --with-deps chromium >/dev/null
+      - name: Schermen maken
+        run: python tools/portaalschermen.py
+      - uses: actions/upload-artifact@v4
+        with: { name: portaalschermen, path: public/site/, retention-days: 14 }
+      - name: Bewaren in de repository
+        run: |
+          if [ -n "$(git status --porcelain public/site)" ]; then
+            git config user.name "mansard-bot"; git config user.email "bot@mansard.nl"
+            git add public/site && git commit -qm "Portaalschermen bijgewerkt" && git pull -q --rebase && git push -q
+          fi

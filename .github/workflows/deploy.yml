@@ -8,7 +8,37 @@ concurrency:
   group: online-zetten
   cancel-in-progress: false
 jobs:
+  # ---------- zelftest: eerst controleren, dan pas online zetten ----------
+  zelftest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "21" }
+      - name: Gebouwde versie gelijk aan de broncode
+        run: |
+          (cd src && python3 build.py >/dev/null) && python3 build_live.py >/dev/null 2>&1
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "::error title=Zelftest::De gebouwde versie (public/index.html) loopt niet gelijk met de broncode in src/. Draai de build en zet de uitkomst mee in de update."
+            git status --short | head -20; exit 1
+          fi
+      - name: Testbrowser installeren
+        run: pip install --quiet playwright==1.47.0 && python -m playwright install --with-deps chromium >/dev/null
+      - name: Zelftest CRM en klantportaal
+        run: python tests/selftest.py
+      - name: Database-regels (elk bedrijf ziet alleen zijn eigen gegevens)
+        run: npx --yes firebase-tools@13 emulators:exec --only firestore --project demo-mansard "python3 tests/regels.py"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        continue-on-error: true
+        with: { name: zelftest-uitslag, path: tests/uitslag.json, retention-days: 30 }
   deploy:
+    needs: zelftest
     permissions:
       contents: write
     runs-on: ubuntu-latest
