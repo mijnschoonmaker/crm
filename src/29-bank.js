@@ -31,12 +31,13 @@ function fbRij(f){
   const k=state.klanten.find(x=>x.id===f.klantId),plaats=(k&&k.plaats)||"";
   const pills=[f.incasso&&f.status!=="betaald"?`<span class="pill ${f.incassoMislukt?"late":"brand"}" title="${f.incassoMislukt?"Incasso mislukt: "+esc(f.incassoFout||""):"Wordt automatisch afgeschreven"}">${f.incassoMislukt?"incasso mislukt":"incasso"}</span>`:"",
     openF&&!f.verstuurdOp?`<span class="pill neutral">niet verstuurd</span>`:"",f.betaaldBedrag!==""&&f.betaaldBedrag!=null&&Math.abs(Number(f.betaaldBedrag)-t)>.01&&f.status==="betaald"?`<span class="pill soon">${eur(f.betaaldBedrag)} ontvangen</span>`:""].join("");
-  const mailAct=f.status==="concept"?"":openF?(f.verstuurdOp?`<button type="button" class="iconbtn fb-q" data-act="fbqher" data-id="${esc(f.id)}" title="Herinnering sturen" aria-label="Herinnering sturen">${I.bell}</button>`:`<button type="button" class="iconbtn fb-q" data-act="fbqsend" data-id="${esc(f.id)}" title="Factuur versturen" aria-label="Factuur versturen">${I.send}</button>`):"";
+  const _v=typeof fhVolgende==="function"?fhVolgende(f):null,_vk=_v&&_v.klaar&&(_v.soort==="herinnering"||_v.soort==="wik");
+  const mailAct=f.status==="concept"?"":openF?(f.verstuurdOp?`<button type="button" class="iconbtn fb-q" data-act="fbqher" data-id="${esc(f.id)}" ${_vk?"":"disabled"} title="${_vk?esc(_v.lbl)+" versturen":_v&&_v.datum&&_v.soort!=="bijlikifin"?esc((_v.soort==="likifin"?"Likifin":_v.lbl)+" vanaf "+fmtD(_v.datum)):"Nog geen herinnering nodig"}" aria-label="Herinnering sturen">${I.bell}</button>`:`<button type="button" class="iconbtn fb-q" data-act="fbqsend" data-id="${esc(f.id)}" title="Factuur versturen" aria-label="Factuur versturen">${I.send}</button>`):"";
   return `<tr class="click${sel?" fb-on":""}" data-act="factuur" data-id="${esc(f.id)}"><td class="fb-cb" data-act="fbsel" data-id="${esc(f.id)}"><span class="fb-box${sel?" on":""}">${I.check}</span></td>
     <td class="mono fb-nr">${esc(f.nummer)}<small class="subt fb-d">${fbKort(f.datum)}</small></td>
     <td><b>${esc(cleanName(f.klantNaam))}</b><small class="subt fb-mnr">${esc(f.nummer)} · ${fbKort(f.datum)}</small><small class="subt">${esc([f.klantAdres||"",plaats&&!String(f.klantAdres||"").toLowerCase().includes(plaats.toLowerCase())?plaats:""].filter(Boolean).join(", "))}</small></td>
     <td class="fb-hm">${fbKort(f.verval)}${late?`<small class="fb-late">${late} ${late===1?"dag":"dagen"} te laat</small>`:openF&&f.verval?`<small class="subt">over ${Math.max(0,-fbDagen(f.verval))} d.</small>`:""}</td>
-    <td class="fb-hm">${la?`${esc(la[1])}<small class="subt">${fbKort(la[0])}${f.status!=="betaald"?" · "+fbDagen(la[0])+" d. geleden":""}</small>`:`<span class="subt">—</span>`}</td>
+    <td class="fb-hm">${la?`${esc(la[1])}<small class="subt">${fbKort(la[0])}${f.status!=="betaald"?" · "+fbDagen(la[0])+" d. geleden":""}</small>`:`<span class="subt">—</span>`}${typeof fhRegel==="function"?fhRegel(f):""}</td>
     <td class="fb-st">${statusPill(st[0],st[1]==="Achterstallig"?"Te laat":st[1])}${pills?`<div class="fb-pills">${pills}</div>`:""}</td>
     <td class="r amt${late?" fb-al":""}">${eur(t)}${late?`<small class="fb-ml">${late} d. te laat</small>`:""}</td><td class="fb-ops">${mailAct}</td></tr>`}
 
@@ -52,7 +53,7 @@ function fbBar(all){
       <button type="button" data-act="fbcontant">${I.euro}Contant betaald</button><button type="button" data-act="fbpin">${I.card}Per pin betaald</button>
       <button type="button" data-act="fbinc">${I.bank}Incasso klaarzetten (Mollie SEPA)</button><button type="button" data-act="fbincweg">${I.x}Incasso intrekken</button>
       <button type="button" data-act="fbpdf">${I.dl}PDF's downloaden om te printen</button><button type="button" data-act="fbcsv">${I.dl}Exporteer selectie (CSV)</button>
-      <button type="button" data-act="fbheropen">${I.refresh}Weer op openstaand</button><button type="button" data-act="fboninb" class="danger">${I.x}Oninbaar</button></div>`:""}</div>
+      <button type="button" data-act="fbliki">${I.send}Overgedragen aan Likifin</button><button type="button" data-act="fbheropen">${I.refresh}Weer op openstaand</button><button type="button" data-act="fboninb" class="danger">${I.x}Oninbaar</button></div>`:""}</div>
     <button type="button" class="iconbtn fb-x" data-act="fbclr" aria-label="Selectie wissen" title="Selectie wissen">${I.x}</button></div>`}
 
 /* strook boven de lijst: bankstatus + betalingen die je even moet bekijken */
@@ -85,11 +86,14 @@ function fbVersturen(list){
   go()}
 /* herinnering: per factuur de volgende stap uit je instellingen (1e, 2e herinnering), of de WIK-brief */
 function fbHerinner(list,wik){
-  const M=fhMomenten(),nl=list.filter(f=>f.status==="open");if(!nl.length)return toast("Kies openstaande facturen");
+  const M=fhMomenten(),open=list.filter(f=>f.status==="open");if(!open.length)return toast("Kies openstaande facturen");
+  const nl=open.filter(f=>{const v=fhVolgende(f);return v&&v.klaar&&(wik?v.soort==="wik":v.soort==="herinnering")}),over=open.filter(f=>!nl.includes(f));
+  if(!nl.length){if(open.length===1)fhPoort(open[0],wik);else{const ds=over.map(f=>fhVolgende(f)).filter(v=>v&&v.datum&&!v.klaar).map(v=>v.datum).sort();toast((wik?"Nog geen WIK-brief aan de beurt":"Nog geen herinnering aan de beurt")+(ds[0]?" · eerstvolgende "+fmtD(ds[0]):""))}return}
+  if(over.length)toast(plural(over.length,"factuur","facturen")+" overgeslagen: nog niet aan de beurt");
   const wm=M.find(m=>m.wik)||{naam:"WIK-brief",wik:true,...(tpls().wik||{})};
   const items=nl.map(f=>{const o=fbOntvanger(f),n=Number(f.herinneringen)||0;let st=null;
-    if(wik)st={...wm,sms:wm.sms||wm.mail};else{const nw=M.filter(m=>!m.wik);st=nw[Math.min(n,nw.length-1)]||{};st={...st,naam:st.naam||"Herinnering",sms:st.sms||st.mail}}
-    return{k:o.k,vars:o.v,ref:"aanmaning:"+f.id+":"+(wik?"wik":n+1),stap:st,onSent:()=>{fbKlaar(f.id);const c=state.facturen.find(x=>x.id===f.id)||f;return save("facturen",f.id,{...strip(c),herinnerdOp:iso(today()),herinneringen:(Number(c.herinneringen)||0)+1,...(wik?{wikOp:iso(today())}:{})})}}});
+    const v=fhVolgende(f);if(wik)st={...wm,...(v&&v.stap||{}),sms:(v&&v.stap&&v.stap.sms)||wm.sms||wm.mail};else{st=(v&&v.stap)||M.filter(m=>!m.wik)[0]||{};st={...st,naam:st.naam||"Herinnering",sms:st.sms||st.mail}}
+    return{k:o.k,vars:o.v,ref:"aanmaning:"+f.id+":"+(wik?"wik":n+1),stap:st,onSent:()=>{fbKlaar(f.id);const c=state.facturen.find(x=>x.id===f.id)||f;return save("facturen",f.id,{...strip(c),herinnerdOp:iso(today()),herinneringen:v&&v.j!=null?v.j+1:(Number(c.herinneringen)||0)+1,...(wik?{wikOp:iso(today())}:{})})}}});
   const T=tpls()[wik?"wik":"aanmaning"]||{};
   openCompose({title:wik?"WIK-brief ("+plural(nl.length,"factuur","facturen")+")":plural(nl.length,"herinnering","herinneringen"),sjabloon:wik?"wik":"aanmaning",recipients:items,tekst:T.sms,mail:T.mail,onderwerp:T.onderwerp,kanaal:"email",
     hint:wik?esc("De WIK-brief geeft de klant 14 dagen om te betalen, met de wettelijke incassokosten. Stuur hem alleen na een gewone herinnering."):""})}
@@ -140,7 +144,8 @@ function fbAct(a,t,e){
     case"fboninb":fbStatus(fbGekozen(),"oninbaar");break;
     case"fbheropen":fbStatus(fbGekozen(),"open");break;
     case"fbqsend":if(e)e.stopPropagation();sendF(id,{direct:true,btn:t});break;
-    case"fbqher":if(e)e.stopPropagation();{const f=state.facturen.find(x=>x.id===id);if(f)fbHerinner([f],false)}break;
+    case"fbqher":if(e)e.stopPropagation();{const f=state.facturen.find(x=>x.id===id),v=f&&fhVolgende(f);if(f)fbHerinner([f],!!(v&&v.soort==="wik"))}break;
+    case"fbliki":fhLikifin(fbGekozen());break;
     case"fbupload":fbKiesBestand();break;
     case"fbbankdlg":fbBankDlg();break;
     case"fbreview":fbReview();break;

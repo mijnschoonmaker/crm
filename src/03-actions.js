@@ -470,7 +470,10 @@ async function logSend(i,kanaal){
   drawCmpList();
 }
 function sendF(id,o={}){
-  const f=state.facturen.find(x=>x.id===id);if(!f)return;const off=f.soort==="offerte",late=!off&&(o.herinnering||o.wik||fStatus(f)[1]==="Achterstallig");
+  const f=state.facturen.find(x=>x.id===id);if(!f)return;
+  /* herinnering of WIK-brief: alleen als die stap aan de beurt is (het CRM bepaalt wanneer) */
+  if((o.herinnering||o.wik)&&typeof fhPoort==="function"&&!fhPoort(f,!!o.wik))return;
+  const off=f.soort==="offerte",late=!off&&(o.herinnering||o.wik||fStatus(f)[1]==="Achterstallig");
   const _k=state.klanten.find(x=>x.id===f.klantId),_mail=_k?mailK(_k,off?"offerte":"factuur").email:f.klantEmail;
   /* direct versturen: zonder tussenscherm de opgemaakte mail met PDF naar de klant */
   if(o.direct&&typeof liveMail==="function"&&liveMail()&&_mail){const T=tpls(),sj=o.wik?"wik":late?"aanmaning":off?"offerte":"factuur",TT=T[sj]||T.vrij,b=o.btn;

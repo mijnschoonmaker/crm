@@ -25,6 +25,7 @@ function vFacturen(){
       ${state.dl?`<button type="button" data-act="snelstart">${I.dl}Exporteer naar SnelStart</button><button type="button" data-act="fexport">${I.dl}Exporteer als CSV</button>`:""}</div>`:""}</div></div></div>
   ${fGeldstroom(all,open,by,sum)}
   ${fbBankStrook(bk,tc)}
+  ${typeof fhStrook==="function"?fhStrook():""}
   ${ub.length?`<div class="banner"><div><b>${plural(ub.length,"afgemelde beurt","afgemelde beurten")} nog niet gefactureerd</b><br><small>${plural(ubK.size,"klant","klanten")} · ${eur(ub.reduce((a,b)=>a+(Number(b.bedrag)||0),0))}</small></div><button type="button" class="primary" data-act="billall">Maak ${plural(ubK.size,"factuur","facturen")}</button></div>`:""}
   ${by("Concept").length?`<div class="banner" style="background:var(--surface-2)"><div><b>${plural(by("Concept").length,"conceptfactuur","conceptfacturen")} klaar</b><br><small>Van afgemelde opdrachten · ${eur(sum(by("Concept")))}</small></div><button type="button" data-act="ff" data-v="concept">Bekijken</button><button type="button" class="primary" data-act="finalizeall">Alles definitief maken</button></div>`:""}
   ${!S().iban||!S().naam?`<div class="notice">Vul je bedrijfsnaam en IBAN in bij <button type="button" class="tiny ghost" data-act="tab" data-tab="instellingen" style="color:inherit;text-decoration:underline">Instellingen</button>, dan staan ze op elke factuur.</div>`:""}

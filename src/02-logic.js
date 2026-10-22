@@ -250,11 +250,10 @@ function queues(){
     items:nv.map(f=>({k:state.klanten.find(x=>x.id===f.klantId)||{naam:f.klantNaam,email:f.klantEmail},vars:factVars(f),ref:"factuur:"+f.id,onSent:()=>save("facturen",f.id,{...strip(f),verstuurdOp:iso(today())})}))});
   if(st.fhAan&&(!st.fhWerkdagen||isWerkdag(t))){
     const M=fhMomenten();
-    const verv=facturen().filter(f=>{if(fStatus(f)[1]!=="Achterstallig")return false;const k=state.klanten.find(x=>x.id===f.klantId);if((st.fhIncasso&&k&&k.incasso)||(f.incasso&&!f.incassoMislukt))return false;
-      if(f.herinnerdOp&&(t-parse(f.herinnerdOp))/DAY<(Number(st.fhSkip)||0))return false;const over=Math.round((t-parse(f.verval))/DAY),n=Number(f.herinneringen)||0;const m=M[n];if(!m)return false;if(st.fhStop&&n>=M.length)return false;
-      let j=n;while(M[j]&&!M[j].aan)j++;return M[j]&&over>=Number(M[j].dagen)});
-    out.push({id:"aanmaning",titel:"Betalingsherinneringen",uitleg:"Achterstallige facturen op "+M.filter(m=>m.aan).map(m=>m.dagen).join(", ")+" dagen na de vervaldatum",
-      items:verv.map(f=>{const n=Number(f.herinneringen)||0;let j=n;while(M[j]&&!M[j].aan)j++;const m=M[j];return{k:state.klanten.find(x=>x.id===f.klantId)||{naam:f.klantNaam,email:f.klantEmail},vars:factVars(f),ref:"aanmaning:"+f.id+":"+(j+1),stap:m,onSent:()=>save("facturen",f.id,{...strip(f),herinnerdOp:iso(today()),herinneringen:j+1})}}),
+    /* wat er aan de beurt is, bepaalt fhVolgende (29-zaanmaning): zelfde regels als de factuurlijst */
+    const verv=facturen().filter(f=>{const v=typeof fhVolgende==="function"?fhVolgende(f):null;return v&&v.klaar&&(v.soort==="herinnering"||v.soort==="wik")});
+    out.push({id:"aanmaning",titel:"Betalingsherinneringen",uitleg:"Herinneringen en WIK-brieven die vandaag aan de beurt zijn",
+      items:verv.map(f=>{const v=fhVolgende(f),m=v.stap,j=v.j;return{k:state.klanten.find(x=>x.id===f.klantId)||{naam:f.klantNaam,email:f.klantEmail},vars:factVars(f),ref:"aanmaning:"+f.id+":"+(j+1),stap:m,onSent:()=>save("facturen",f.id,{...strip(f),herinnerdOp:iso(today()),herinneringen:j+1,...(m.wik?{wikOp:iso(today())}:{})})}}),
       kanaal:(M.find(m=>m.aan)||M[0]).kanaal,tekst:(M.find(m=>m.aan)||M[0]).sms,mail:(M.find(m=>m.aan)||M[0]).mail,onderwerp:(M.find(m=>m.aan)||M[0]).onderwerp});}
   if(st.welkomAan&&!LIVE){const w=actief().filter(k=>!refs.has("welkom:"+k.id)&&k.aangemaakt&&(t-parse(k.aangemaakt))/DAY<=30);
     const ov=()=>{const x=[];x.push("\n\n— "+(st.ovTitel||"Serviceovereenkomst")+" —");x.push(st.ovInleiding||"");x.push("Dienst: [service.appointment], elke [interval.appointment], [price.appointment] per beurt.");if(st.opzegtermijn&&st.opzegtermijn!=="geen")x.push("Opzegtermijn: [noticeperiod.company].");if(st.ovExtra)x.push(st.ovExtra);
