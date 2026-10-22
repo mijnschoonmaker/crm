@@ -193,8 +193,8 @@ function openVoorbeeld(){
 /* ---------- klantnummer (relatiecode) ---------- */
 function klantNr(k){
   if(!k)return "";if(k.klantnr)return String(k.klantnr);
-  const i=[...state.klanten].sort((a,b)=>String(a.aangemaakt||"").localeCompare(String(b.aangemaakt||""))||String(a.id).localeCompare(String(b.id))).findIndex(x=>x.id===k.id);
-  return String(1000+Math.max(1,i+1));
+  const los=state.klanten.filter(x=>!x.klantnr&&!x.hoofdKlantId).sort((a,b)=>String(a.aangemaakt||"").localeCompare(String(b.aangemaakt||""))||String(a.id).localeCompare(String(b.id))),i=los.findIndex(x=>x.id===k.id);
+  return String(Number(relVolgende())+Math.max(0,i));
 }
 /* ---------- SnelStart-export: relaties + verkoopboekingen ---------- */
 const SS_DEF={dagboek:"1300",deb:"1300",omzet:"8000",btwH:"3101",btwL:"3102",omzet0:"8000"};

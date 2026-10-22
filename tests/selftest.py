@@ -274,6 +274,24 @@ def werkdagTijd(pg):
     check(G, "Echte meting blijft staan", r["echt"] == 25, r)
 
 
+def relatiecodes(pg):
+    G = "SnelStart"
+    r = pg.evaluate("""async()=>{const T=MSTEST;if(!T.relVolgende)return null;const ids=[T.newId('kr'),T.newId('kr'),T.newId('kr')],oud=T.S().bhKlantStart;
+      await T.saveSettings({bhKlantStart:'9000'});
+      for(const id of ids)await T.save('klanten',id,{naam:'Rel, '+id,prijs:10,frequentie:8,actief:true,log:[],objecten:[]});
+      const nrs=ids.map(id=>T.state.klanten.find(k=>k.id===id).klantnr);
+      const ids2=[T.newId('kr'),T.newId('kr')];await Promise.all(ids2.map(id=>T.save('klanten',id,{naam:'Rel, '+id,prijs:10,frequentie:8,actief:true,log:[],objecten:[]})));
+      const nrs2=ids2.map(id=>T.state.klanten.find(k=>k.id===id).klantnr);
+      const eigen=T.newId('kr');await T.save('klanten',eigen,{naam:'Rel, eigen',klantnr:'8237',prijs:10,frequentie:8,actief:true,log:[],objecten:[]});const e=T.state.klanten.find(k=>k.id===eigen).klantnr;
+      for(const id of [...ids,...ids2,eigen])await T.del('klanten',id);await T.saveSettings({bhKlantStart:oud||''});
+      return {nrs,nrs2,e}}""")
+    if r is None:
+        return check(G, "Relatiecodes", False, "relVolgende niet gevonden")
+    check(G, "Nieuwe klanten krijgen een vast nummer vanaf het ingestelde begin", r["nrs"][0] >= "9000" and len(set(r["nrs"])) == 3, r)
+    check(G, "Tegelijk opslaan geeft geen dubbele relatiecodes", len(set(r["nrs2"] + r["nrs"])) == 5, r)
+    check(G, "Oud klantnummer (uit DienstenCRM) blijft staan", r["e"] == "8237", r)
+
+
 def portaal(b, base):
     G = "Klantportaal"
     for w, h, naam in [(1300, 900, "computer"), (390, 844, "telefoon")]:
@@ -311,6 +329,7 @@ def main():
             nieuweOpdracht(pg)
             opdrachtNummers(pg)
             werkdagTijd(pg)
+            relatiecodes(pg)
             check("Laden", "Geen fouten tijdens de flows", not pg.fouten, "; ".join(pg.fouten))
             pg.close()
             pm = crm(b, base, 390, 844)

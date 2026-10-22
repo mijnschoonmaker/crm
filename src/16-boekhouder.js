@@ -81,6 +81,10 @@ function vBoekhouder(){bhInit();
         <div class="bh-gb"><div class="bh-gbh">${BH_TYPES.map(([v,l])=>`<b>${l}</b>`).join("")}</div>
         ${BH_GB.map(([veld,l])=>`<div class="bh-gbl">${esc(l)}</div><div class="bh-gbr">${BH_TYPES.map(([t])=>`<input data-bh="bhGb_${t}_${veld}" value="${esc(S()["bhGb_"+t+"_"+veld]??"")}" placeholder="${esc(BH_GB.find(x=>x[0]===veld)[2])}" inputmode="numeric" aria-label="${esc(l)} ${t}">`).join("")}</div>`).join("")}</div>
       </section>
+      <section class="panel bh-p"><h3>${I.klanten||I.boekhouding}Relatiecodes</h3>
+        ${inpS("bhKlantStart","Eerstvolgend klantnummer","1001")}
+        <small class="help">Nieuwe klanten krijgen een nummer vanaf hier (of hoger, als er al hogere nummers zijn). Kom je van DienstenCRM of een ander pakket? Zet dit dan boven het hoogste relatienummer dat al in SnelStart staat, zodat een nieuwe klant nooit op een bestaande relatie wordt geboekt. Volgende nummer nu: <b>${esc(relVolgende())}</b>.</small>
+      </section>
       <section class="panel bh-p"><h3>${I.bank||I.boekhouding}BTW-codes</h3>
         ${inpS("bhBtw0","BTW-code 0%")}${inpS("bhBtwLaag","BTW-code laag")}${inpS("bhBtwHoog","BTW-code hoog")}${inpS("bhBtwVerlegd","BTW-code verlegd")}
       </section></div></div>

@@ -143,7 +143,7 @@ function openKlantEdit(id,opt={}){
     <label>Postcode<input id="f-postcode" value="${esc(k.postcode)}" placeholder="1234 AB"></label>
     <label>Plaats<input id="f-plaats" value="${esc(k.plaats)}"></label>
     <label>Telefoon<input id="f-telefoon" type="tel" value="${esc(k.telefoon)}"></label>
-    <label>Klantnummer<input id="f-klantnr" inputmode="numeric" value="${esc(k.klantnr||"")}" placeholder="${isNew?"Automatisch":esc(klantNr(k))}"><small class="help">Zelfde als de relatiecode in SnelStart</small></label>
+    <label>Klantnummer<input id="f-klantnr" inputmode="numeric" value="${esc(k.klantnr||"")}" placeholder="${isNew?"Automatisch ("+relVolgende()+")":esc(klantNr(k))}"><small class="help">Zelfde als de relatiecode in SnelStart. Komt de klant uit DienstenCRM? Vul dan zijn oude klantnummer in.</small></label>
     <label>E-mail<input id="f-email" type="email" value="${esc(k.email)}"></label>
     <label>Ronde<input id="f-ronde" list="rondelijst" value="${esc(k.ronde)}" placeholder="bijv. Ronde Noord"><datalist id="rondelijst">${rondes().map(r=>`<option value="${esc(r)}">`).join("")}</datalist></label>
     <label>Soort<select id="f-soort"><option value="particulier" ${k.soort!=="zakelijk"&&k.soort!=="vve"?"selected":""}>Particulier</option><option value="zakelijk" ${k.soort==="zakelijk"?"selected":""}>Zakelijk</option><option value="vve" ${k.soort==="vve"?"selected":""}>VvE / Overheid</option></select></label>
@@ -182,7 +182,7 @@ function openKlantEdit(id,opt={}){
       duur:Number(g("duur").value)||30,dienst:g("dienst").value.trim()||"Glasbewassing",objectId:g("object")?g("object").value:"",binnen:false,
       actief:isNew?true:g("actief").checked,incasso:g("incasso").checked,directFactureren:g("direct").checked,akkoord:g("akkoord").checked,geenReview:g("geenreview").checked,opzegReden:g("reden")?g("reden").value:"",aangemaakt:cur.aangemaakt||iso(today()),log:cur.log||[],objecten:cur.objecten||[]}};
   let newKid=k.id||"";
-  const saveK=async(patch={})=>{const base=collect();if(!base)throw{msg:"Vul eerst de naam en het adres van de klant in (links)."};if(!newKid)newKid=newId("k");await save("klanten",newKid,{...base,...patch});return newKid};
+  const saveK=async(patch={})=>{const base=collect();if(!base)throw{msg:"Vul eerst de naam en het adres van de klant in (links)."};{const dub=relBezet(base.klantnr,newKid||k.id);if(dub){g("klantnr").focus();throw{msg:"Klantnummer "+base.klantnr+" hoort al bij "+cleanName(dub.naam)+". Een relatiecode mag in SnelStart maar bij één klant horen."}}}if(!newKid)newKid=newId("k");await save("klanten",newKid,{...base,...patch});return newKid};
   {const so=$("#f-soort"),vv=$("#f-vve");if(so&&vv){so.addEventListener("change",()=>{vv.hidden=so.value!=="vve"});vv.querySelectorAll("[data-fwd]").forEach(b=>b.onclick=()=>b.setAttribute("aria-pressed",b.getAttribute("aria-pressed")!=="true"))}}
   form.onsubmit=async e=>{e.preventDefault();$("#saveK").disabled=true;
     try{let extraP={};if(rcLive&&RC&&RC.current()){const {t}=await RC.telling();if(t)extraP={ramenTelling:t}}

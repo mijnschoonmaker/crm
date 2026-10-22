@@ -6723,7 +6723,7 @@ function openKlantEdit(id,opt={}){
     <label>Postcode<input id="f-postcode" value="${esc(k.postcode)}" placeholder="1234 AB"></label>
     <label>Plaats<input id="f-plaats" value="${esc(k.plaats)}"></label>
     <label>Telefoon<input id="f-telefoon" type="tel" value="${esc(k.telefoon)}"></label>
-    <label>Klantnummer<input id="f-klantnr" inputmode="numeric" value="${esc(k.klantnr||"")}" placeholder="${isNew?"Automatisch":esc(klantNr(k))}"><small class="help">Zelfde als de relatiecode in SnelStart</small></label>
+    <label>Klantnummer<input id="f-klantnr" inputmode="numeric" value="${esc(k.klantnr||"")}" placeholder="${isNew?"Automatisch ("+relVolgende()+")":esc(klantNr(k))}"><small class="help">Zelfde als de relatiecode in SnelStart. Komt de klant uit DienstenCRM? Vul dan zijn oude klantnummer in.</small></label>
     <label>E-mail<input id="f-email" type="email" value="${esc(k.email)}"></label>
     <label>Ronde<input id="f-ronde" list="rondelijst" value="${esc(k.ronde)}" placeholder="bijv. Ronde Noord"><datalist id="rondelijst">${rondes().map(r=>`<option value="${esc(r)}">`).join("")}</datalist></label>
     <label>Soort<select id="f-soort"><option value="particulier" ${k.soort!=="zakelijk"&&k.soort!=="vve"?"selected":""}>Particulier</option><option value="zakelijk" ${k.soort==="zakelijk"?"selected":""}>Zakelijk</option><option value="vve" ${k.soort==="vve"?"selected":""}>VvE / Overheid</option></select></label>
@@ -6762,7 +6762,7 @@ function openKlantEdit(id,opt={}){
       duur:Number(g("duur").value)||30,dienst:g("dienst").value.trim()||"Glasbewassing",objectId:g("object")?g("object").value:"",binnen:false,
       actief:isNew?true:g("actief").checked,incasso:g("incasso").checked,directFactureren:g("direct").checked,akkoord:g("akkoord").checked,geenReview:g("geenreview").checked,opzegReden:g("reden")?g("reden").value:"",aangemaakt:cur.aangemaakt||iso(today()),log:cur.log||[],objecten:cur.objecten||[]}};
   let newKid=k.id||"";
-  const saveK=async(patch={})=>{const base=collect();if(!base)throw{msg:"Vul eerst de naam en het adres van de klant in (links)."};if(!newKid)newKid=newId("k");await save("klanten",newKid,{...base,...patch});return newKid};
+  const saveK=async(patch={})=>{const base=collect();if(!base)throw{msg:"Vul eerst de naam en het adres van de klant in (links)."};{const dub=relBezet(base.klantnr,newKid||k.id);if(dub){g("klantnr").focus();throw{msg:"Klantnummer "+base.klantnr+" hoort al bij "+cleanName(dub.naam)+". Een relatiecode mag in SnelStart maar bij één klant horen."}}}if(!newKid)newKid=newId("k");await save("klanten",newKid,{...base,...patch});return newKid};
   {const so=$("#f-soort"),vv=$("#f-vve");if(so&&vv){so.addEventListener("change",()=>{vv.hidden=so.value!=="vve"});vv.querySelectorAll("[data-fwd]").forEach(b=>b.onclick=()=>b.setAttribute("aria-pressed",b.getAttribute("aria-pressed")!=="true"))}}
   form.onsubmit=async e=>{e.preventDefault();$("#saveK").disabled=true;
     try{let extraP={};if(rcLive&&RC&&RC.current()){const {t}=await RC.telling();if(t)extraP={ramenTelling:t}}
@@ -9112,6 +9112,10 @@ function vBoekhouder(){bhInit();
       <section class="panel bh-p"><h3>${I.boekhouding}Grootboekrekeningen</h3>
         <div class="bh-gb"><div class="bh-gbh">${BH_TYPES.map(([v,l])=>`<b>${l}</b>`).join("")}</div>
         ${BH_GB.map(([veld,l])=>`<div class="bh-gbl">${esc(l)}</div><div class="bh-gbr">${BH_TYPES.map(([t])=>`<input data-bh="bhGb_${t}_${veld}" value="${esc(S()["bhGb_"+t+"_"+veld]??"")}" placeholder="${esc(BH_GB.find(x=>x[0]===veld)[2])}" inputmode="numeric" aria-label="${esc(l)} ${t}">`).join("")}</div>`).join("")}</div>
+      </section>
+      <section class="panel bh-p"><h3>${I.klanten||I.boekhouding}Relatiecodes</h3>
+        ${inpS("bhKlantStart","Eerstvolgend klantnummer","1001")}
+        <small class="help">Nieuwe klanten krijgen een nummer vanaf hier (of hoger, als er al hogere nummers zijn). Kom je van DienstenCRM of een ander pakket? Zet dit dan boven het hoogste relatienummer dat al in SnelStart staat, zodat een nieuwe klant nooit op een bestaande relatie wordt geboekt. Volgende nummer nu: <b>${esc(relVolgende())}</b>.</small>
       </section>
       <section class="panel bh-p"><h3>${I.bank||I.boekhouding}BTW-codes</h3>
         ${inpS("bhBtw0","BTW-code 0%")}${inpS("bhBtwLaag","BTW-code laag")}${inpS("bhBtwHoog","BTW-code hoog")}${inpS("bhBtwVerlegd","BTW-code verlegd")}
@@ -11962,8 +11966,8 @@ function openVoorbeeld(){
 /* ---------- klantnummer (relatiecode) ---------- */
 function klantNr(k){
   if(!k)return "";if(k.klantnr)return String(k.klantnr);
-  const i=[...state.klanten].sort((a,b)=>String(a.aangemaakt||"").localeCompare(String(b.aangemaakt||""))||String(a.id).localeCompare(String(b.id))).findIndex(x=>x.id===k.id);
-  return String(1000+Math.max(1,i+1));
+  const los=state.klanten.filter(x=>!x.klantnr&&!x.hoofdKlantId).sort((a,b)=>String(a.aangemaakt||"").localeCompare(String(b.aangemaakt||""))||String(a.id).localeCompare(String(b.id))),i=los.findIndex(x=>x.id===k.id);
+  return String(Number(relVolgende())+Math.max(0,i));
 }
 /* ---------- SnelStart-export: relaties + verkoopboekingen ---------- */
 const SS_DEF={dagboek:"1300",deb:"1300",omzet:"8000",btwH:"3101",btwL:"3102",omzet0:"8000"};
@@ -15829,6 +15833,18 @@ function tkNieuw(kid){if(!tkOpen)return;if(tkOpen.unsub)tkOpen.unsub();tkOpen.un
       await fsDb().collection("ticketBerichten").doc(newId("tb")).set({ticketId:id,klantId:k.id,van:"team",tekst,foto,op,door:(state.me&&state.me.email)||"",doorNaam:tkNaam()});
       fbFn("ticketMelding")({ticketId:id,basis:location.origin}).catch(()=>{});toast("Ticket T-"+tel+" aangemaakt");setTimeout(()=>tkDetail(id),300)}catch(e){err(e);s.disabled=false}})}
 
+/* ---------- relatiecodes (klantnummers) voor SnelStart ----------
+   Elke klant krijgt bij het opslaan meteen een vast klantnummer. Nieuwe nummers beginnen nooit lager dan
+   "Eerstvolgend klantnummer" (Boekhouder › Instellingen), zodat ze niet botsen met relaties die al in SnelStart
+   staan, bijvoorbeeld uit DienstenCRM. Een nummer dat al bij een andere klant hoort, kan niet nog eens. */
+const relStart=()=>Math.max(1001,parseInt(S().bhKlantStart,10)||0);
+const relMax=(zonder)=>state.klanten.filter(k=>k.id!==zonder&&!k.hoofdKlantId).reduce((m,k)=>{const n=parseInt(k.klantnr,10);return /^\d+$/.test(String(k.klantnr||""))&&n>m?n:m},0);
+const relVolgende=zonder=>String(Math.max(relStart(),relMax(zonder)+1));
+const relBezet=(nr,id)=>!!nr&&state.klanten.find(k=>k.id!==id&&!k.hoofdKlantId&&String(k.klantnr||"")===String(nr));
+{const _save=save;save=async function(col,id,data){
+  if(col==="klanten"&&data&&!data.hoofdKlantId&&!String(data.klantnr||"").trim()){const oud=state.klanten.find(k=>k.id===id);data={...data,klantnr:(oud&&oud.klantnr)||relVolgende(id)}}
+  return _save.apply(this,[col,id,data,...[].slice.call(arguments,3)])}}
+
 /* ---------- Systeemcontrole ----------
    Elke nacht kijkt de server (functions/controle.js) of je gegevens kloppen: factuurnummers, betaalde facturen,
    gekoppelde beurten, mails, back-up en bedrijfsgegevens. Alleen lezen, er wordt niets aangepast.
@@ -16245,7 +16261,7 @@ addEventListener("scroll",()=>{const m=document.getElementById("mobOffer");docum
    of bedragen, btw, factuurnummers en het afmelden nog kloppen. */
 if(!LIVE&&typeof location!=="undefined"&&/[?&]selftest\b/.test(location.search)){
   window.MSTEST={state,S,save,del,totals,nextNr,nrDelen,wikKosten,fStatus,afronden,gewassen,billAll,setFStatus,iso,today,addDays,newId,strip,render,
-    fin,beurtOmzet,klantFilter,extraOpdr,opdrNr:typeof opdrNr==="function"?opdrNr:null,openOpdrachtWerk:typeof openOpdrachtWerk==="function"?openOpdrachtWerk:null,teplannen,fhVolgende:typeof fhVolgende==="function"?fhVolgende:null,fhPoort:typeof fhPoort==="function"?fhPoort:null,groepEditor:typeof groepEditor==="function"?groepEditor:null,melding,stDienstSplit,klantActiefIn,beurtMin,meetTeKort,wdCijfers:typeof wdCijfers==="function"?wdCijfers:null,kmFmt:typeof kmFmt==="function"?kmFmt:null,kmAfst:typeof kmAfst==="function"?kmAfst:null,saveSettings,
+    fin,beurtOmzet,klantFilter,extraOpdr,opdrNr:typeof opdrNr==="function"?opdrNr:null,openOpdrachtWerk:typeof openOpdrachtWerk==="function"?openOpdrachtWerk:null,teplannen,fhVolgende:typeof fhVolgende==="function"?fhVolgende:null,fhPoort:typeof fhPoort==="function"?fhPoort:null,groepEditor:typeof groepEditor==="function"?groepEditor:null,melding,stDienstSplit,klantActiefIn,relVolgende:typeof relVolgende==="function"?relVolgende:null,beurtMin,meetTeKort,wdCijfers:typeof wdCijfers==="function"?wdCijfers:null,kmFmt:typeof kmFmt==="function"?kmFmt:null,kmAfst:typeof kmAfst==="function"?kmAfst:null,saveSettings,
     views:()=>PAGES.map(p=>p[0]),ga:t=>{state.tab=t;render()}};
 }
 
