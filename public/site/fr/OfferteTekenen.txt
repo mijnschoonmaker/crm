@@ -114,13 +114,13 @@ export default function OfferteTekenen(props: Props) {
     return (
         <div style={{ ...style, ...ff, width: "100%", filter: "drop-shadow(0 30px 40px rgba(0,0,0,.18))" }}>
             <div style={{ ...kaart, borderRadius: `${r}px ${r}px 0 0`, overflow: "hidden" }}>
-                <div style={{ background: achtergrond, padding: 26, display: "grid", placeItems: "center", position: "relative", minHeight: 46 }}>
+                <div style={{ background: achtergrond, padding: "36px 26px 24px", display: "grid", placeItems: "center", position: "relative", minHeight: 46 }}>
                     {logo ? (
                         <img src={logo} alt={bedrijf || "Logo"} style={{ height: 46, width: "auto", display: "block" }} />
                     ) : (
-                        <span style={{ color: "#fff", fontSize: 13, letterSpacing: "0.32em", textTransform: "uppercase" }}>{bedrijf || "Uw bedrijf"}</span>
+                        <span style={{ color: "#fff", fontSize: 13, letterSpacing: "0.28em", textTransform: "uppercase", textAlign: "center" }}>{bedrijf || "Uw bedrijf"}</span>
                     )}
-                    <span style={{ position: "absolute", right: 16, top: 16, color: "#fff", border: "1px solid rgba(255,255,255,.35)", borderRadius: 99, padding: "5px 11px", fontSize: 9.5, letterSpacing: "0.2em", textTransform: "uppercase" }}>
+                    <span style={{ position: "absolute", right: 12, top: 12, color: "#fff", border: "1px solid rgba(255,255,255,.35)", borderRadius: 99, padding: "4px 9px", fontSize: 8.5, letterSpacing: "0.2em", textTransform: "uppercase" }}>
                         Probeer het
                     </span>
                 </div>
