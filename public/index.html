@@ -13816,11 +13816,13 @@ async function fbBetaald(list,wijze){
   for(const f of n){await save("facturen",f.id,{...strip(f),status:"betaald",betaalwijze:wijze==="bank"?(f.betaalwijze==="incasso"?"incasso":"overmaken"):wijze,betaaldOp:iso(today()),betaaldTs:new Date().toISOString(),oninbaarOp:""});
     for(const b of state.beurten.filter(b=>b.gefactureerd===f.id))await save("beurten",b.id,{...strip(b),betaald:true})}
   FB_SEL.clear();state.fbMenu=false;toast(plural(n.length,"factuur","facturen")+" op betaald gezet");render()}
+/* verstuurd: vinkje weg; is niets meer geselecteerd, dan verdwijnt ook de balk onderin */
+function fbKlaar(id){FB_SEL.delete(id);if(!FB_SEL.size)state.fbMenu=false;schedule()}
 function fbVersturen(list){
   const nl=list.filter(f=>f.status==="open"||f.status==="concept");if(!nl.length)return toast("Kies openstaande facturen om te versturen");
   const go=async()=>{for(const f of nl.filter(f=>f.status==="concept"))await save("facturen",f.id,{...strip(f),status:"open"});
     openCompose({title:plural(nl.length,"factuur","facturen")+" versturen",sjabloon:"factuur",hint:liveMail()?"":esc("Wil je de PDF meesturen? Download hem bij de factuur en voeg hem in je mail toe."),
-      recipients:nl.map(f0=>{const f=state.facturen.find(x=>x.id===f0.id)||f0,o=fbOntvanger(f);return{k:o.k,vars:o.v,ref:"factuur:"+f.id,onSent:()=>{const c=state.facturen.find(x=>x.id===f.id)||f;return save("facturen",f.id,{...strip(c),verstuurdOp:c.verstuurdOp||iso(today())})}}})})};
+      recipients:nl.map(f0=>{const f=state.facturen.find(x=>x.id===f0.id)||f0,o=fbOntvanger(f);return{k:o.k,vars:o.v,ref:"factuur:"+f.id,onSent:()=>{fbKlaar(f.id);const c=state.facturen.find(x=>x.id===f.id)||f;return save("facturen",f.id,{...strip(c),verstuurdOp:c.verstuurdOp||iso(today())})}}})})};
   go()}
 /* herinnering: per factuur de volgende stap uit je instellingen (1e, 2e herinnering), of de WIK-brief */
 function fbHerinner(list,wik){
@@ -13828,7 +13830,7 @@ function fbHerinner(list,wik){
   const wm=M.find(m=>m.wik)||{naam:"WIK-brief",wik:true,...(tpls().wik||{})};
   const items=nl.map(f=>{const o=fbOntvanger(f),n=Number(f.herinneringen)||0;let st=null;
     if(wik)st={...wm,sms:wm.sms||wm.mail};else{const nw=M.filter(m=>!m.wik);st=nw[Math.min(n,nw.length-1)]||{};st={...st,naam:st.naam||"Herinnering",sms:st.sms||st.mail}}
-    return{k:o.k,vars:o.v,ref:"aanmaning:"+f.id+":"+(wik?"wik":n+1),stap:st,onSent:()=>{const c=state.facturen.find(x=>x.id===f.id)||f;return save("facturen",f.id,{...strip(c),herinnerdOp:iso(today()),herinneringen:(Number(c.herinneringen)||0)+1,...(wik?{wikOp:iso(today())}:{})})}}});
+    return{k:o.k,vars:o.v,ref:"aanmaning:"+f.id+":"+(wik?"wik":n+1),stap:st,onSent:()=>{fbKlaar(f.id);const c=state.facturen.find(x=>x.id===f.id)||f;return save("facturen",f.id,{...strip(c),herinnerdOp:iso(today()),herinneringen:(Number(c.herinneringen)||0)+1,...(wik?{wikOp:iso(today())}:{})})}}});
   const T=tpls()[wik?"wik":"aanmaning"]||{};
   openCompose({title:wik?"WIK-brief ("+plural(nl.length,"factuur","facturen")+")":plural(nl.length,"herinnering","herinneringen"),sjabloon:wik?"wik":"aanmaning",recipients:items,tekst:T.sms,mail:T.mail,onderwerp:T.onderwerp,kanaal:"email",
     hint:wik?esc("De WIK-brief geeft de klant 14 dagen om te betalen, met de wettelijke incassokosten. Stuur hem alleen na een gewone herinnering."):""})}
