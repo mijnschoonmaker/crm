@@ -87,7 +87,7 @@ function vAnalyse(){
       :anKaart("Btw per maand","Af te dragen btw over je facturen",stBars(bv.map(r2),AN_MND,{hi:hiM,h:210,gem:false}),anTot("Totaal",eur0(bv.reduce((a,v)=>a+v,0))))}</div>`;
 
   /* klanten: nieuw per week en verloop */
-  const nk=Array(nW).fill(0);state.klanten.forEach(k=>{if(k.prospect||!String(k.aangemaakt||"").startsWith(String(Y)))return;const w=anWk(k.aangemaakt,Y);if(w>=1&&w<=nW)nk[w-1]++;else if(w===0)nk[0]++});
+  const nk=Array(nW).fill(0);state.klanten.forEach(k=>{if(k.prospect||k.hoofdKlantId||!String(k.aangemaakt||"").startsWith(String(Y)))return;const w=anWk(k.aangemaakt,Y);if(w>=1&&w<=nW)nk[w-1]++;else if(w===0)nk[0]++});
   const tot=huidig?Math.min(nW,weekNr(t)):nW,lbls=[...Array(tot)].map((_,i)=>"wk "+(i+1));
   const wkEind=i=>{const d=new Date(Y,0,4);const dag=(d.getDay()||7)-1;d.setDate(d.getDate()-dag+7*i+6);return iso(d)};
   const laatstB={};alleB.forEach(b=>{if(!laatstB[b.klantId]||b.datum>laatstB[b.klantId])laatstB[b.klantId]=b.datum});

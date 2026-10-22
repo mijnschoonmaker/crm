@@ -1,11 +1,11 @@
 /* ---------- KLANTEN ---------- */
 function klantFilter(){
   const q=state.q.toLowerCase(),f=state.kf,rz=state.krz;
-  return state.klanten.filter(k=>(!rz||kRitme(k).z===rz)&&(f==="alle"?true:f==="inactief"?k.actief===false:k.actief!==false&&(k.soort||"particulier")===f)&&(!state.ronde||k.ronde===state.ronde)&&(!q||[k.naam,k.adres,k.plaats,k.postcode,k.telefoon,k.email].join(" ").toLowerCase().includes(q)))
+  return state.klanten.filter(k=>!k.hoofdKlantId&&(!rz||kRitme(k).z===rz)&&(f==="alle"?true:f==="inactief"?k.actief===false:k.actief!==false&&(k.soort||"particulier")===f)&&(!state.ronde||k.ronde===state.ronde)&&(!q||[k.naam,k.adres,k.plaats,k.postcode,k.telefoon,k.email].join(" ").toLowerCase().includes(q)))
     .sort((a,b)=>(a.actief===false)-(b.actief===false)||cleanName(a.naam).localeCompare(cleanName(b.naam)));
 }
 function vKlanten(){
-  const all=state.klanten,act=actief().length,ks=klantFilter(),pp=state.kpp,pages=Math.max(1,Math.ceil(ks.length/pp));
+  const all=state.klanten.filter(k=>!k.hoofdKlantId),act=actief().filter(k=>!k.hoofdKlantId).length,ks=klantFilter(),pp=state.kpp,pages=Math.max(1,Math.ceil(ks.length/pp));
   if(state.kpage>pages)state.kpage=pages;
   const shown=ks.slice((state.kpage-1)*pp,state.kpage*pp),selm=!!state.sel;
   const cnt=f=>all.filter(k=>f==="alle"?true:f==="inactief"?k.actief===false:k.actief!==false&&(k.soort||"particulier")===f).length;

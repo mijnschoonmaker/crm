@@ -6,7 +6,7 @@ function openOpdrachtWerk(kid,focus){
   if(focus==="new")extra.push({id:newId("o"),dienst:"",prijs:"",frequentie:52,duur:30,volgende:"",actief:true,_nieuw:true});
   /* een extra of nieuwe opdracht opent als eigen opdrachtkaart met een eigen nummer (bijv. 1002-2); de hoofdopdracht blijft ongemoeid */
   const soloId=focus&&!["main","hosp"].includes(focus)?(focus==="new"?extra[extra.length-1].id:focus):null,soloI=soloId?extra.findIndex(o=>o.id===soloId):-1;
-  const soloNr=(()=>{if(soloI<0)return 1;const eo=typeof extraOpdr==="function"?extraOpdr(k):(k.opdrachten||[]),j=eo.findIndex(o=>o.id===soloId);return j>=0?j+2:eo.length+2})();
+  const soloNr=(()=>{if(soloI<0)return 1;const eo=typeof extraOpdr==="function"?extraOpdr(k):(k.opdrachten||[]),j=eo.findIndex(o=>o.id===soloId);return (soloId&&typeof opdrNr==="function"&&(k.opdrachten||[]).some(o=>o.id===soloId))?(extra[soloI].nr||opdrNr(k,soloId)):typeof opdrVolgNr==="function"?opdrVolgNr(k):(j>=0?j+2:eo.length+2)})();
   let fotos=[...(k.fotos||[])];
   const tFotos=(k.ramenTelling&&k.ramenTelling.fotos)||[];
   const fs=state.facturen.filter(f=>f.klantId===k.id&&f.soort!=="offerte"),open=fs.filter(f=>["Openstaand","Achterstallig"].includes(fStatus(f)[1]));
@@ -199,7 +199,8 @@ function openOpdrachtWerk(kid,focus){
             <label>Volgende keer<input data-i="${i}" data-k="volgende" type="date" value="${esc(r.volgende||"")}" title="Leeg = bij de volgende beurt"></label>`}
       </div>`}
       ${!isMain&&r.items?itemsHtml(r,i):r.ramen?calcHtml(r,i,isMain):isGlas(r.dienst)?`<button type="button" class="small" data-calcopen="${isMain?"m":i}">${I.calculator}Ramen per verdieping invullen</button>`:""}
-      ${isMain?"":`<label class="check-row"><input type="checkbox" data-i="${i}" data-k="actief" ${r.actief!==false?"checked":""}>Actief · gaat mee met de beurt waarop hij aan de beurt is</label>`}
+      ${isMain?"":`<label class="check-row"><input type="checkbox" data-i="${i}" data-k="actief" ${r.actief!==false?"checked":""}>Actief${r.apart?"":" · gaat mee met de beurt waarop hij aan de beurt is"}</label>
+      <label class="check-row"><input type="checkbox" data-i="${i}" data-k="apart" ${r.apart?"checked":""}>Apart inplannen · eigen afspraak in de agenda, met eigen tijd en factuur <small class="subt">(voor grote klussen; anders gaat hij mee met de glasbewassing)</small></label>`}
       <div class="ow-lsave"><button type="button" class="small primary" data-lsave="${isMain?"m":i}">${I.check}Opslaan</button></div>
     </div>`;
   const itemsRitme=r=>{const its=(r.items||[]).filter(x=>Number(x.aantal)>0);if(!its.length)return Number(r.frequentie)||mF||52;const ws=its.map(x=>Number(x.fq)||mF||52);return Math.min(...ws)};
@@ -288,6 +289,7 @@ function openOpdrachtWerk(kid,focus){
   $("#owLines").addEventListener("input",e=>{const el=e.target,i=el.dataset.i,key=el.dataset.k;if(i==null||!key)return;const tgt=i==="m"?main:extra[+i];
     tgt[key]=el.type==="checkbox"?el.checked:key==="prijs"||key==="frequentie"?(el.value===""?"":Number(el.value)):el.value;tot()});
   $("#owLines").addEventListener("change",e=>{if(e.target.dataset.k==="actief"){extra[+e.target.dataset.i].actief=e.target.checked;tot()}
+    if(e.target.dataset.k==="apart"){extra[+e.target.dataset.i].apart=e.target.checked;tot()}
     if(e.target.dataset.k==="frequentie"&&e.target.dataset.i!=="m"){const r=extra[+e.target.dataset.i];if(r&&r.items)groepRedraw($("#owLines"),"x"+e.target.dataset.i,r,gOpts(r))}});
   $("#owLines").addEventListener("click",e=>{const b=e.target.closest("[data-rm]");if(b){extra.splice(+b.dataset.rm,1);draw()}});
   groepBind($("#owLines"),key=>extra[+key.slice(1)],(key,struct)=>itemsRecalc(+key.slice(1),struct));

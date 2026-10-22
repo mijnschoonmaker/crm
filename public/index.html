@@ -6336,7 +6336,7 @@ const overdue=()=>actief().filter(k=>{const p=parse(k.gepland);return p?p<today(
 const dueOf=k=>{const p=parse(k.gepland);return p&&p<today()?p:k.aanbieden&&!p?today():volgende(k)};
 function teplannen(upTo){const t=today(),ti=iso(t);return actief().filter(k=>{if(k.uitstelTot&&k.uitstelTot>ti&&!k.gepland)return false;if(k.einddatum&&k.einddatum<ti&&!k.gepland)return false;if(k.opdrachtVerwijderd&&!k.gepland)return false;if(Number(k.maxOpen)>0&&!k.gepland&&state.facturen.filter(f=>f.klantId===k.id&&f.soort!=="offerte"&&["Openstaand","Achterstallig"].includes(fStatus(f)[1])).length>=Number(k.maxOpen))return false;const p=parse(k.gepland);if(p&&p>t){/* al ingepland, maar met een eerdere aanboddatum in de opdracht: dan toch aanbieden om eerder te plannen */const a=aanbodVan(k),av=a&&parse(a.min);return !!(av&&av<p&&av<=upTo)}return p?p<t:(k.aanbieden||volgende(k)<=upTo||extraAanBeurt(k,upTo))}).sort((a,b)=>dueOf(a)-dueOf(b))}
 /* een andere dienst (bv. reiniging gevelelementen) is aan de beurt: dan komt de klant bij Te plannen en gaat de glasbewassing mee */
-function extraAanBeurt(k,upTo){if(S().glasMee===false)return false;const u=iso(upTo instanceof Date?upTo:parse(upTo)||today());return (k.opdrachten||[]).some(o=>o.actief!==false&&o.volgende&&o.volgende<=u&&(!k.laatst||o.volgende>k.laatst))}
+function extraAanBeurt(k,upTo){if(S().glasMee===false)return false;const u=iso(upTo instanceof Date?upTo:parse(upTo)||today());return (k.opdrachten||[]).some(o=>o.actief!==false&&!o.apart&&o.volgende&&o.volgende<=u&&(!k.laatst||o.volgende>k.laatst))}
 function dueTxt(k){
   const p=parse(k.gepland),t=today();
   if(p&&p<t)return{cls:"late",txt:"Gepland "+fmtD(p)+", niet gedaan"};
@@ -6371,7 +6371,7 @@ const mapsQ=k=>"https://www.google.com/maps/search/?api=1&query="+encodeURICompo
 /* opdrachten: de hoofdopdracht staat op de klant zelf, extra opdrachten (goten, zonnepanelen…) liften mee met de beurt waarop ze aan de beurt zijn */
 const isEersteKeer=k=>k.eersteKeer!=null?!!k.eersteKeer:!state.beurten.some(b=>b.klantId===k.id);
 const freqLabel=w=>{w=Number(w)||4;if(fqSpec(w))return fqSpecTxt(w);const el=typeof freqEigenLabel==="function"?freqEigenLabel(w):"";if(el)return el;return w===52?"Elk jaar":w===26?"Elk half jaar":w===13?"Elk kwartaal":"Elke "+w+" "+(w===1?"week":"weken")};
-const extraOpdr=k=>(k.opdrachten||[]).filter(o=>o.actief!==false);
+const extraOpdr=k=>(k.opdrachten||[]).filter(o=>o.actief!==false&&!o.apart);/* apart ingeplande opdrachten gaan niet mee met de glasbewassing */
 const extraDue=(k,day)=>{const d=day||iso(today()),out=[];extraOpdr(k).forEach(o=>{const oDue=!o.volgende||o.volgende<=d;
     if(!o.items||typeof groepCalc!=="function"){if(oDue)out.push(o);return}
     const c=groepCalc(o,it=>it.fq?(!it.vol||it.vol<=d):(!it.vol||it.vol<=d));if(!c.rows.length)return;const st=S(),mul=st.incl?1+(Number(st.btw)||21)/100:1;
@@ -6432,7 +6432,7 @@ function beurtOmzet(b){if(!b||b.geannuleerd||b.gefactureerd==="nvt")return 0;con
   if(b.periodiek&&!Number(b.bedrag)){const k=state.klanten.find(x=>x.id===b.klantId);return k?exAmt(k.prijs):0}
   return exAmt(b.bedrag)}
 /* was een klant actief in (een deel van) de periode s..e (iso)? Zelfde regel voor Statistieken › Klanten en Analyse */
-function klantActiefIn(k,s,e,laatstB){if(k.prospect)return false;const a=String(k.aangemaakt||"").slice(0,10);if(a&&a>e)return false;if(k.actief!==false)return true;
+function klantActiefIn(k,s,e,laatstB){if(k.prospect||k.hoofdKlantId)return false;const a=String(k.aangemaakt||"").slice(0,10);if(a&&a>e)return false;if(k.actief!==false)return true;
   const stop=String(k.inactiefOp||k.gepauzeerdOp||(laatstB&&laatstB[k.id])||"").slice(0,10);return !!stop&&stop>=s}
 function totals(f){
   const btw=Number(f.btw??S().btw)/100,incl=f.incl??S().incl;
@@ -8469,11 +8469,11 @@ async function wpKaart(){const s=WP.st,v=s&&s.v;const el=WP.ov&&WP.ov.querySelec
 /* ---------- KLANTEN ---------- */
 function klantFilter(){
   const q=state.q.toLowerCase(),f=state.kf,rz=state.krz;
-  return state.klanten.filter(k=>(!rz||kRitme(k).z===rz)&&(f==="alle"?true:f==="inactief"?k.actief===false:k.actief!==false&&(k.soort||"particulier")===f)&&(!state.ronde||k.ronde===state.ronde)&&(!q||[k.naam,k.adres,k.plaats,k.postcode,k.telefoon,k.email].join(" ").toLowerCase().includes(q)))
+  return state.klanten.filter(k=>!k.hoofdKlantId&&(!rz||kRitme(k).z===rz)&&(f==="alle"?true:f==="inactief"?k.actief===false:k.actief!==false&&(k.soort||"particulier")===f)&&(!state.ronde||k.ronde===state.ronde)&&(!q||[k.naam,k.adres,k.plaats,k.postcode,k.telefoon,k.email].join(" ").toLowerCase().includes(q)))
     .sort((a,b)=>(a.actief===false)-(b.actief===false)||cleanName(a.naam).localeCompare(cleanName(b.naam)));
 }
 function vKlanten(){
-  const all=state.klanten,act=actief().length,ks=klantFilter(),pp=state.kpp,pages=Math.max(1,Math.ceil(ks.length/pp));
+  const all=state.klanten.filter(k=>!k.hoofdKlantId),act=actief().filter(k=>!k.hoofdKlantId).length,ks=klantFilter(),pp=state.kpp,pages=Math.max(1,Math.ceil(ks.length/pp));
   if(state.kpage>pages)state.kpage=pages;
   const shown=ks.slice((state.kpage-1)*pp,state.kpage*pp),selm=!!state.sel;
   const cnt=f=>all.filter(k=>f==="alle"?true:f==="inactief"?k.actief===false:k.actief!==false&&(k.soort||"particulier")===f).length;
@@ -10280,7 +10280,7 @@ function vInzichten(){
       <section class="st-card"><div class="st-ch"><div><h3>Omzet per dienst</h3><p>Aandeel in de omzet uit werk</p></div></div>
         ${dk.length?stDiensten(dk,per_d,dtot,sub_d):'<p class="st-leeg">Nog geen afgemelde beurten in deze periode.</p>'}</section></div>`+(typeof wdStatKaart==="function"?wdStatKaart(P.rg,P.lbl):"");
   }else{
-    const ak=actief(),nieuw=state.klanten.filter(k=>!k.prospect&&inRange(k.aangemaakt,P.rg)),nieuwV=state.klanten.filter(k=>!k.prospect&&inRange(k.aangemaakt,V.rg)),inact=state.klanten.filter(k=>k.actief===false&&!k.prospect);
+    const ak=actief().filter(k=>!k.hoofdKlantId),nieuw=state.klanten.filter(k=>!k.prospect&&!k.hoofdKlantId&&inRange(k.aangemaakt,P.rg)),nieuwV=state.klanten.filter(k=>!k.prospect&&inRange(k.aangemaakt,V.rg)),inact=state.klanten.filter(k=>k.actief===false&&!k.prospect);
     const jaar=ak.reduce((a,k)=>a+exAmt(k.prijs)*365/freqDays(k),0),perK=ak.length?jaar/ak.length:0;
     const rd={};ak.forEach(k=>{const r=k.ronde||"Zonder ronde";rd[r]=(rd[r]||0)+exAmt(k.prijs)*365/freqDays(k)});const rk=Object.keys(rd).sort((a,b)=>rd[b]-rd[a]),rmx=Math.max(1,...rk.map(r=>rd[r]));
     const top=state.klanten.map(k=>({k,s:echteFacturen().filter(f=>f.klantId===k.id).reduce((a,f)=>a+totals(f).ex,0)})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,6),tmx=Math.max(1,...top.map(x=>x.s));
@@ -10424,7 +10424,7 @@ function vAnalyse(){
       :anKaart("Btw per maand","Af te dragen btw over je facturen",stBars(bv.map(r2),AN_MND,{hi:hiM,h:210,gem:false}),anTot("Totaal",eur0(bv.reduce((a,v)=>a+v,0))))}</div>`;
 
   /* klanten: nieuw per week en verloop */
-  const nk=Array(nW).fill(0);state.klanten.forEach(k=>{if(k.prospect||!String(k.aangemaakt||"").startsWith(String(Y)))return;const w=anWk(k.aangemaakt,Y);if(w>=1&&w<=nW)nk[w-1]++;else if(w===0)nk[0]++});
+  const nk=Array(nW).fill(0);state.klanten.forEach(k=>{if(k.prospect||k.hoofdKlantId||!String(k.aangemaakt||"").startsWith(String(Y)))return;const w=anWk(k.aangemaakt,Y);if(w>=1&&w<=nW)nk[w-1]++;else if(w===0)nk[0]++});
   const tot=huidig?Math.min(nW,weekNr(t)):nW,lbls=[...Array(tot)].map((_,i)=>"wk "+(i+1));
   const wkEind=i=>{const d=new Date(Y,0,4);const dag=(d.getDay()||7)-1;d.setDate(d.getDate()-dag+7*i+6);return iso(d)};
   const laatstB={};alleB.forEach(b=>{if(!laatstB[b.klantId]||b.datum>laatstB[b.klantId])laatstB[b.klantId]=b.datum});
@@ -12221,7 +12221,7 @@ function openOpdrachtWerk(kid,focus){
   if(focus==="new")extra.push({id:newId("o"),dienst:"",prijs:"",frequentie:52,duur:30,volgende:"",actief:true,_nieuw:true});
   /* een extra of nieuwe opdracht opent als eigen opdrachtkaart met een eigen nummer (bijv. 1002-2); de hoofdopdracht blijft ongemoeid */
   const soloId=focus&&!["main","hosp"].includes(focus)?(focus==="new"?extra[extra.length-1].id:focus):null,soloI=soloId?extra.findIndex(o=>o.id===soloId):-1;
-  const soloNr=(()=>{if(soloI<0)return 1;const eo=typeof extraOpdr==="function"?extraOpdr(k):(k.opdrachten||[]),j=eo.findIndex(o=>o.id===soloId);return j>=0?j+2:eo.length+2})();
+  const soloNr=(()=>{if(soloI<0)return 1;const eo=typeof extraOpdr==="function"?extraOpdr(k):(k.opdrachten||[]),j=eo.findIndex(o=>o.id===soloId);return (soloId&&typeof opdrNr==="function"&&(k.opdrachten||[]).some(o=>o.id===soloId))?(extra[soloI].nr||opdrNr(k,soloId)):typeof opdrVolgNr==="function"?opdrVolgNr(k):(j>=0?j+2:eo.length+2)})();
   let fotos=[...(k.fotos||[])];
   const tFotos=(k.ramenTelling&&k.ramenTelling.fotos)||[];
   const fs=state.facturen.filter(f=>f.klantId===k.id&&f.soort!=="offerte"),open=fs.filter(f=>["Openstaand","Achterstallig"].includes(fStatus(f)[1]));
@@ -12414,7 +12414,8 @@ function openOpdrachtWerk(kid,focus){
             <label>Volgende keer<input data-i="${i}" data-k="volgende" type="date" value="${esc(r.volgende||"")}" title="Leeg = bij de volgende beurt"></label>`}
       </div>`}
       ${!isMain&&r.items?itemsHtml(r,i):r.ramen?calcHtml(r,i,isMain):isGlas(r.dienst)?`<button type="button" class="small" data-calcopen="${isMain?"m":i}">${I.calculator}Ramen per verdieping invullen</button>`:""}
-      ${isMain?"":`<label class="check-row"><input type="checkbox" data-i="${i}" data-k="actief" ${r.actief!==false?"checked":""}>Actief · gaat mee met de beurt waarop hij aan de beurt is</label>`}
+      ${isMain?"":`<label class="check-row"><input type="checkbox" data-i="${i}" data-k="actief" ${r.actief!==false?"checked":""}>Actief${r.apart?"":" · gaat mee met de beurt waarop hij aan de beurt is"}</label>
+      <label class="check-row"><input type="checkbox" data-i="${i}" data-k="apart" ${r.apart?"checked":""}>Apart inplannen · eigen afspraak in de agenda, met eigen tijd en factuur <small class="subt">(voor grote klussen; anders gaat hij mee met de glasbewassing)</small></label>`}
       <div class="ow-lsave"><button type="button" class="small primary" data-lsave="${isMain?"m":i}">${I.check}Opslaan</button></div>
     </div>`;
   const itemsRitme=r=>{const its=(r.items||[]).filter(x=>Number(x.aantal)>0);if(!its.length)return Number(r.frequentie)||mF||52;const ws=its.map(x=>Number(x.fq)||mF||52);return Math.min(...ws)};
@@ -12503,6 +12504,7 @@ function openOpdrachtWerk(kid,focus){
   $("#owLines").addEventListener("input",e=>{const el=e.target,i=el.dataset.i,key=el.dataset.k;if(i==null||!key)return;const tgt=i==="m"?main:extra[+i];
     tgt[key]=el.type==="checkbox"?el.checked:key==="prijs"||key==="frequentie"?(el.value===""?"":Number(el.value)):el.value;tot()});
   $("#owLines").addEventListener("change",e=>{if(e.target.dataset.k==="actief"){extra[+e.target.dataset.i].actief=e.target.checked;tot()}
+    if(e.target.dataset.k==="apart"){extra[+e.target.dataset.i].apart=e.target.checked;tot()}
     if(e.target.dataset.k==="frequentie"&&e.target.dataset.i!=="m"){const r=extra[+e.target.dataset.i];if(r&&r.items)groepRedraw($("#owLines"),"x"+e.target.dataset.i,r,gOpts(r))}});
   $("#owLines").addEventListener("click",e=>{const b=e.target.closest("[data-rm]");if(b){extra.splice(+b.dataset.rm,1);draw()}});
   groepBind($("#owLines"),key=>extra[+key.slice(1)],(key,struct)=>itemsRecalc(+key.slice(1),struct));
@@ -13024,12 +13026,13 @@ function openKlantView(id,opt={}){
   const PER=Number(state.kkPP)||5,fq=String(state.kkFQ||"").toLowerCase(),facsF=fq?facs.filter(f=>[f.nummer,f.datum,fmtNum(f.datum),fStatus(f)[1],String(totals(f).inc.toFixed(2)).replace(".",",")].join(" ").toLowerCase().includes(fq)):facs,fpages=Math.max(1,Math.ceil(facsF.length/PER)),fPage=Math.min(fpages-1,Math.max(0,state.kkFP||0));
   const openF=facs.filter(f=>["Openstaand","Achterstallig"].includes(fStatus(f)[1]));
   const showArch=!!state.kkArch;
-  const opdr=[...(k.opdrachtVerwijderd?[]:[{id:"main",nr:nr+"-1",dienst:(k.dienst||"Glasbewassing"),prijs:r2((Number(k.prijs)||0)*(1+(Number(k.toeslag)||0)/100)),frequentie:k.frequentie||4,info:k.prospect?["soon","Wacht op akkoord"]:k.actief===false?["neutral","Gestopt"]:k.gepland?["ok","Ingepland "+fmtD(k.gepland)]:["late","Te plannen"],per:isPeriodiek(k)}]),
-    ...extraOpdr(k).map((o,i)=>({id:o.id,nr:nr+"-"+(i+2),dienst:o.dienst,prijs:o.prijs,frequentie:o.frequentie,info:o.actief===false?["neutral","Uit"]:["neutral",o.volgende?"Volgende "+fmtD(o.volgende):"Bij volgende beurt"]}))];
+  const opdr=[...(k.opdrachtVerwijderd?[]:[{id:"main",nr:(()=>{const h=k.hoofdKlantId&&k.opdrachtNr&&state.klanten.find(x=>x.id===k.hoofdKlantId);return h?klantNr(h)+"-"+k.opdrachtNr:nr+"-1"})(),dienst:(k.dienst||"Glasbewassing"),prijs:r2((Number(k.prijs)||0)*(1+(Number(k.toeslag)||0)/100)),frequentie:k.frequentie||4,info:k.prospect?["soon","Wacht op akkoord"]:k.actief===false?["neutral","Gestopt"]:k.gepland?["ok","Ingepland "+fmtD(k.gepland)]:["late","Te plannen"],per:isPeriodiek(k)}]),
+    ...(k.opdrachten||[]).filter(o=>o.actief!==false).map(o=>{const j=o.apart&&opdrJob(k,o.id);return{id:o.id,nr:nr+"-"+(o.nr||opdrNr(k,o.id)),dienst:o.dienst,prijs:o.prijs,frequentie:o.frequentie,
+      info:o.apart?(j&&j.gepland?["ok","Apart ingepland "+fmtD(j.gepland)]:["late","Apart · te plannen"]):["neutral",o.volgende?"Volgende "+fmtD(o.volgende):"Bij volgende beurt"]}})];
   const locs=[{naam:k.locOms||"Hoofdadres",adres:k.adres,postcode:k.postcode,plaats:k.plaats,o:"main"},...(k.objecten||[]).map(o=>({naam:o.naam||"Object",adres:o.adres||k.adres,postcode:o.adres?o.postcode||"":k.postcode,plaats:o.adres?o.plaats||"":k.plaats,o:o.id}))];
   openDlg(`<div class="ow-kop jp-kop kk-kop ow-${k.prospect?"soon":k.actief===false?"neutral":"ok"}"><div class="jp-kr1"><span class="jp-st"><i></i>${k.prospect?"Prospect":k.actief===false?"Inactief":"Actief"}</span>${k.nieuweKlant?`<span class="jp-st">Nieuwe klant</span>`:""}<span class="sp"></span><button type="button" class="jp-ib" data-act="close" aria-label="Sluiten">${I.x}</button></div>
     <div class="jp-kr2"><span class="jp-k1 kk-av"><span class="av" style="--h:${hue(k.ronde||k.naam)}">${esc(initials(k.naam))}</span></span><span class="jp-k2"><b>${esc(cleanName(k.naam))}</b><em>${I.pin}${esc(fullAddr(k))}</em></span><span class="jp-k3"><small>Klant ${esc(nr)}</small><b>${eur(toon(k.prijs))}</b><em>${esc(k.dienst||"Glasbewassing")} · ${esc(ritmeTxt(k))}</em></span></div></div>
-  ${isOBeurt(k)?`<div class="hosp-top">${oBeurtBlok(k)}</div>`:""}<div class="hosp-top">${hospBlok(k)}</div>
+  ${typeof opdrJobBanner==="function"?opdrJobBanner(k):""}${isOBeurt(k)?`<div class="hosp-top">${oBeurtBlok(k)}</div>`:""}<div class="hosp-top">${hospBlok(k)}</div>
   ${k.prospect?(()=>{const of=offs.find(f=>f.status!=="afgewezen"&&f.status!=="geaccepteerd");return of||offs.length?`<div class="banner"><div><b>Offerte${of?" "+esc(of.nummer):""} wacht op akkoord</b><br><small>Deze klant staat nog niet in de planning.</small></div>${of?`<button type="button" class="primary small" data-act="akkoord" data-id="${esc(of.id)}">Akkoord en inplannen</button>`:""}</div>`:`<div class="banner"><div><b>Nieuwe klant · nog geen offerte</b><br><small>Volgende stap: offerte maken. Na akkoord komt de klant in de planning.</small></div><button type="button" class="primary small" data-act="newofferte" data-id="${esc(k.id)}">${I.offertes}Offerte maken</button></div>`})():""}
   <div class="kk-grid kd"><div class="kk-left">
     <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klantgegevens</b><span class="sp"></span>${pen("edit","Klantgegevens aanpassen")}</div>
@@ -15508,6 +15511,39 @@ function openKlantMw(id){const k=state.klanten.find(x=>x.id===id);if(!k)return;
     <div class="row"><span class="sp"></span><button type="button" class="primary" data-act="close">Sluiten</button></div>`);
 }
 
+/* ---------- Opdrachten: vaste nummers en "apart inplannen" ----------
+   - Elke extra opdracht krijgt bij het opslaan een vast nummer (2, 3, ...). Verwijder je er een, dan houden de andere hun nummer;
+     een nummer wordt nooit opnieuw gebruikt (opdrNrMax op de klant).
+   - Standaard gaat een extra opdracht mee met de glasbewassing (zelfde bezoek, zelfde factuur).
+   - Met "Apart inplannen" wordt het een eigen afspraak: Mansard maakt er een losse job van (een klantregel met hoofdKlantId),
+     die in Te plannen verschijnt met eigen datum, tijd, duur en factuur. In het klantenbestand en de statistieken telt die
+     job niet als extra klant; in het klantportaal ziet de klant de bezoeken en facturen ervan gewoon terug. */
+function opdrNummers(k){const m={},l=(k&&k.opdrachten)||[];let max=Math.max(1,Number(k&&k.opdrNrMax)||1);
+  l.forEach(o=>{if(Number(o.nr)>1){m[o.id]=Number(o.nr);max=Math.max(max,Number(o.nr))}});l.forEach(o=>{if(!m[o.id])m[o.id]=++max});return m}
+const opdrNr=(k,id)=>opdrNummers(k)[id]||null;
+const opdrVolgNr=k=>{const m=opdrNummers(k);return Math.max(1,Number(k&&k.opdrNrMax)||1,...Object.values(m))+1};
+const opdrJob=(k,oid)=>state.klanten.find(x=>x.hoofdKlantId===k.id&&x.opdrachtId===oid);
+const isJob=k=>!!(k&&k.hoofdKlantId);
+function opdrStempel(d){const m=opdrNummers(d),ops=(d.opdrachten||[]).map(o=>({...o,nr:m[o.id]}));return{...d,opdrachten:ops,opdrNrMax:Math.max(Number(d.opdrNrMax)||1,...ops.map(o=>o.nr||1))}}
+/* losse jobs bijwerken na het opslaan van de klant */
+const OPDR_VELDEN=["naam","contact","adres","postcode","plaats","email","fEmail","pEmail","oEmail","telefoon","mobiel","soort","klantnr","lat","lng","geo","ronde","termijn","btwVerlegd","incasso","akkoord"];
+async function opdrJobsSync(kid,d){const nu=iso(today());
+  for(const o of d.opdrachten||[]){const job=opdrJob({id:kid},o.id),aan=o.apart&&o.actief!==false;
+    if(aan){const basis={};OPDR_VELDEN.forEach(f=>{if(d[f]!==undefined)basis[f]=d[f]});
+      const v={...basis,dienst:o.dienst||"Extra opdracht",prijs:Number(o.prijs)||0,duur:Number(o.duur)||30,frequentie:Number(o.frequentie)||52,hoofdKlantId:kid,opdrachtId:o.id,opdrachtNr:o.nr||null,actief:true,prospect:false};
+      if(!job){await save("klanten",newId("k"),{...v,autoplan:true,gepland:"",tijd:"",aanbieden:true,aanbodVanaf:o.volgende||"",aangemaakt:nu,log:[{datum:nu,tekst:"Losse opdracht aangemaakt vanuit de klant"}],objecten:[],opdrachten:[],eersteKeer:false})}
+      else if(["dienst","prijs","duur","frequentie","naam","adres","plaats","email","actief","opdrachtNr"].some(f=>String(job[f]??"")!==String(v[f]??"")))await save("klanten",job.id,{...strip(job),...v})}
+    else if(job&&job.actief!==false)await save("klanten",job.id,{...strip(job),actief:false,gepland:"",tijd:"",log:[...(job.log||[]),{datum:nu,tekst:"Losse opdracht gestopt (niet meer apart ingepland)"}]})}
+  /* opdracht verwijderd: losse job stoppen */
+  for(const job of state.klanten.filter(x=>x.hoofdKlantId===kid&&x.actief!==false))if(!(d.opdrachten||[]).some(o=>o.id===job.opdrachtId))await save("klanten",job.id,{...strip(job),actief:false,gepland:"",tijd:""})}
+/* alle opslagen van klanten lopen hierlangs: nummers vastleggen en losse jobs bijwerken */
+{const _save=save;save=async function(col,id,data){
+  const hoofd=col==="klanten"&&data&&Array.isArray(data.opdrachten)&&!data.hoofdKlantId;if(hoofd)data=opdrStempel(data);
+  const r=await _save(col,id,data);if(hoofd&&!opdrJobsSync._bezig){opdrJobsSync._bezig=true;try{await opdrJobsSync(id,data)}catch(e){console.error("losse opdrachten",e)}finally{opdrJobsSync._bezig=false}}return r}}
+/* klantkaart van een losse job: waar hoort hij bij */
+function opdrJobBanner(k){if(!isJob(k))return"";const h=state.klanten.find(x=>x.id===k.hoofdKlantId);
+  return `<div class="banner" style="margin-bottom:12px"><div><b>Losse opdracht${h&&k.opdrachtNr?" "+esc(klantNr(h))+"-"+esc(k.opdrachtNr):""}</b><br><small>Hoort bij ${h?esc(cleanName(h.naam)):"een andere klant"}. Wordt apart ingepland, met een eigen afspraak en factuur. Prijs, frequentie en duur pas je aan bij de opdracht van de klant.</small></div>${h?`<button type="button" data-act="klant" data-id="${esc(h.id)}">${I.right||""}Naar de klant</button>`:""}</div>`}
+
 /* ---------- Klantportaal & aanbevelingen (CRM-kant) ----------
    - tegoed op de klant (k.tegoed) wordt verrekend met de eerstvolgende factuur
    - aanbevelingskorting staat "on hold" tot de nieuwe klant akkoord heeft (k.akkoord) én de eerste afspraak is uitgevoerd
@@ -16203,7 +16239,7 @@ addEventListener("scroll",()=>{const m=document.getElementById("mobOffer");docum
    of bedragen, btw, factuurnummers en het afmelden nog kloppen. */
 if(!LIVE&&typeof location!=="undefined"&&/[?&]selftest\b/.test(location.search)){
   window.MSTEST={state,S,save,del,totals,nextNr,nrDelen,wikKosten,fStatus,afronden,gewassen,billAll,setFStatus,iso,today,addDays,newId,strip,render,
-    fin,beurtOmzet,openOpdrachtWerk:typeof openOpdrachtWerk==="function"?openOpdrachtWerk:null,teplannen,fhVolgende:typeof fhVolgende==="function"?fhVolgende:null,fhPoort:typeof fhPoort==="function"?fhPoort:null,groepEditor:typeof groepEditor==="function"?groepEditor:null,melding,stDienstSplit,klantActiefIn,kmFmt:typeof kmFmt==="function"?kmFmt:null,kmAfst:typeof kmAfst==="function"?kmAfst:null,saveSettings,
+    fin,beurtOmzet,klantFilter,extraOpdr,opdrNr:typeof opdrNr==="function"?opdrNr:null,openOpdrachtWerk:typeof openOpdrachtWerk==="function"?openOpdrachtWerk:null,teplannen,fhVolgende:typeof fhVolgende==="function"?fhVolgende:null,fhPoort:typeof fhPoort==="function"?fhPoort:null,groepEditor:typeof groepEditor==="function"?groepEditor:null,melding,stDienstSplit,klantActiefIn,kmFmt:typeof kmFmt==="function"?kmFmt:null,kmAfst:typeof kmAfst==="function"?kmAfst:null,saveSettings,
     views:()=>PAGES.map(p=>p[0]),ga:t=>{state.tab=t;render()}};
 }
 

@@ -41,8 +41,8 @@ module.exports = function maakPortaal(ctx) {
 
   async function klantenMetEmail(email) {
     const e = lc(email); if (!/^\S+@\S+\.\S+$/.test(e)) return [];
-    const s = await db.collection("klanten").select("email", "fEmail", "pEmail", "oEmail", "actief", "naam", "contact", "prospect").get();
-    return s.docs.filter(d => { const x = d.data(); return [x.email, x.fEmail, x.pEmail, x.oEmail].some(m => String(m || "").toLowerCase().split(/[;,\s]+/).includes(e)); })
+    const s = await db.collection("klanten").select("email", "fEmail", "pEmail", "oEmail", "actief", "naam", "contact", "prospect", "hoofdKlantId").get();
+    return s.docs.filter(d => { const x = d.data(); if (x.hoofdKlantId) return false; return [x.email, x.fEmail, x.pEmail, x.oEmail].some(m => String(m || "").toLowerCase().split(/[;,\s]+/).includes(e)); })
       .map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (b.actief !== false) - (a.actief !== false));
   }
   async function stuurInlogMail(req, k, email, dagen) {
@@ -148,9 +148,11 @@ module.exports = function maakPortaal(ctx) {
     const k = S.klant, b = await bedrijf(), base = basisUrl(req), vandaag = isoNL();
     if (!k.refCode) { k.refCode = await maakRefCode(k); await S.kref.set({ refCode: k.refCode }, { merge: true }); }
     const tq = await db.collection("tickets").where("klantId", "==", k.id).get(), tks = tq.docs.map(d => d.data());
+    /* losse opdrachten (apart ingepland) horen bij deze klant: hun bezoeken en facturen ook tonen */
+    const jq = await db.collection("klanten").where("hoofdKlantId", "==", k.id).get().catch(() => ({ docs: [] })), ids = [k.id, ...jq.docs.map(d => d.id)].slice(0, 10);
     const [bs, fs, vz, rk, ra] = await Promise.all([
-      db.collection("beurten").where("klantId", "==", k.id).get(),
-      db.collection("facturen").where("klantId", "==", k.id).get(),
+      db.collection("beurten").where("klantId", "in", ids).get(),
+      db.collection("facturen").where("klantId", "in", ids).get(),
       db.collection("portaalVerzoeken").where("klantId", "==", k.id).get(),
       db.collection("klanten").where("aanbevolenDoor", "==", k.id).get(),
       db.collection("aanvragen").where("aanbevolenDoor", "==", k.id).get()
@@ -215,6 +217,8 @@ module.exports = function maakPortaal(ctx) {
     const off = (() => { try { const p = new Intl.DateTimeFormat("en-US", { timeZone: "Europe/Amsterdam", timeZoneName: "shortOffset" }).formatToParts(new Date(ruw)).find(x => x.type === "timeZoneName").value; const m = /GMT([+-]\d+)/.exec(p); return m ? Number(m[1]) : 1; } catch (e) { return 1; } })();
     return ruw - off * 3600e3 - Date.now() < 48 * 3600e3;
   }
+  /* hoort deze factuur bij de ingelogde klant (of bij een losse opdracht van die klant)? */
+  async function vanKlant(S, kid) { if (kid === S.klant.id) return true; if (!kid) return false; try { const j = await db.doc("klanten/" + kid).get(); return j.exists && j.data().hoofdKlantId === S.klant.id; } catch (e) { return false; } }
   async function actie(req, S, d) {
     const k = S.klant, type = String(d.type || "");
     if (!TYPES[type]) throw new Error("onbekend");
@@ -391,7 +395,7 @@ module.exports = function maakPortaal(ctx) {
       if (pad === "/uit" && req.method === "POST") { await S.ref.delete(); res.json({ ok: true }); return; }
       if (pad === "/factuur" && req.method === "GET") {
         const f = await db.doc("facturen/" + String(req.query.id || "")).get();
-        if (!f.exists || f.data().klantId !== S.klant.id || f.data().soort === "offerte" || f.data().status === "concept") { res.status(404).json({ fout: "niet gevonden" }); return; }
+        if (!f.exists || !(await vanKlant(S, f.data().klantId)) || f.data().soort === "offerte" || f.data().status === "concept") { res.status(404).json({ fout: "niet gevonden" }); return; }
         const x = dec(f.data()), b = await bedrijf();
         res.json({ pdf: !!x.pdfId, incasso: !!x.incasso && x.status !== "betaald" && !x.incassoMislukt, nummer: x.nummer, datum: x.datum, verval: x.verval, klantNaam: schoon(x.klantNaam), klantAdres: x.klantAdres || "", regels: (x.regels || []).map(r => ({ omschrijving: r.omschrijving, aantal: Number(r.aantal) || 0, prijs: Number(r.prijs) || 0 })), incl: x.incl ?? b.incl ?? true, btwPct: Number(x.btw ?? b.btw ?? 21), ...totals(x, b), status: fStatus(x), betaaldOp: x.betaaldOp || "", betaallink: x.status !== "betaald" ? (x.betaallink || x.mollieLink || "") : "", notitie: x.notitie || "",
           bedrijf: { ...bedrijfInfo(b, basisUrl(req)), adres: b.adres || "", pcPlaats: [b.postcode, b.plaats].filter(Boolean).join(" "), kvk: b.kvk || "", btwnr: b.btwnr || "", bic: b.bic || "" } }); return;
@@ -399,7 +403,7 @@ module.exports = function maakPortaal(ctx) {
       /* de echte factuur-PDF zoals het CRM hem maakt */
       if (pad === "/factuurpdf" && req.method === "GET") {
         const f = await db.doc("facturen/" + String(req.query.id || "")).get();
-        if (!f.exists || f.data().klantId !== S.klant.id || f.data().soort === "offerte" || f.data().status === "concept" || !f.data().pdfId) { res.status(404).json({ fout: "niet gevonden" }); return; }
+        if (!f.exists || !(await vanKlant(S, f.data().klantId)) || f.data().soort === "offerte" || f.data().status === "concept" || !f.data().pdfId) { res.status(404).json({ fout: "niet gevonden" }); return; }
         const x = f.data(), file = bucket().file("assets/" + String(x.pdfId));
         try { const [buf] = await file.download(); res.set("content-type", "application/pdf"); res.set("content-disposition", `inline; filename="Factuur ${String(x.nummer || "").replace(/[^\w.-]/g, "")}.pdf"`); res.send(buf); }
         catch (e) { res.status(404).json({ fout: "niet gevonden" }); }
@@ -407,7 +411,7 @@ module.exports = function maakPortaal(ctx) {
       }
       if (pad === "/betaal" && req.method === "POST") {
         const id = String(body(req).id || ""), f = await db.doc("facturen/" + id).get();
-        if (!f.exists || f.data().klantId !== S.klant.id || f.data().status === "betaald" || f.data().soort === "offerte" || f.data().status === "concept") { res.status(404).json({ fout: "niet gevonden" }); return; }
+        if (!f.exists || !(await vanKlant(S, f.data().klantId)) || f.data().status === "betaald" || f.data().soort === "offerte" || f.data().status === "concept") { res.status(404).json({ fout: "niet gevonden" }); return; }
         const x = dec(f.data()), b = await bedrijf(), g = await geheim();
         if (x.betaallink && x.mollieStatus === "open") { res.json({ link: x.betaallink }); return; }
         if (!g.mollieKey) { res.status(409).json({ fout: "Online betalen is nog niet beschikbaar. U kunt het bedrag overmaken." }); return; }

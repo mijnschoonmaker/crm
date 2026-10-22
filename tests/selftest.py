@@ -232,6 +232,31 @@ def nieuweOpdracht(pg):
     check(G, "Hoofdopdracht blijft …-1", r["kop2"].endswith("-1"), r)
 
 
+def opdrachtNummers(pg):
+    G = "Opdrachten"
+    r = pg.evaluate("""async()=>{const T=MSTEST,id=T.newId('kn'),w=()=>new Promise(r=>setTimeout(r,250)),K=()=>T.state.klanten.find(x=>x.id===id);
+      await T.save('klanten',id,{naam:'Nummer, Test',klantnr:'1098',prijs:40,frequentie:8,actief:true,dienst:'Glasbewassing',log:[],objecten:[],opdrachten:[{id:'oa',dienst:'Goten',prijs:30,frequentie:52},{id:'ob',dienst:'Dakkapel',prijs:50,frequentie:52}]});await w();
+      const n1=K().opdrachten.map(o=>o.nr);
+      await T.save('klanten',id,{...T.strip(K()),opdrachten:K().opdrachten.filter(o=>o.id!=='oa')});await w();const n2=K().opdrachten.map(o=>o.nr);
+      await T.save('klanten',id,{...T.strip(K()),opdrachten:[...K().opdrachten,{id:'oc',dienst:'Zonnepanelen',prijs:20,frequentie:52}]});await w();const n3=K().opdrachten.map(o=>o.nr);
+      /* apart inplannen */
+      await T.save('klanten',id,{...T.strip(K()),opdrachten:K().opdrachten.map(o=>o.id==='ob'?{...o,apart:true,duur:240}:o)});await w();await w();
+      const job=T.state.klanten.find(x=>x.hoofdKlantId===id&&x.opdrachtId==='ob');
+      const inPlan=!!job&&T.teplannen(T.addDays(T.today(),7)).some(k=>k.id===job.id),inLijst=!!job&&T.klantFilter().some(k=>k.id===job.id),meelift=T.extraOpdr(K()).some(o=>o.id==='ob');
+      await T.save('klanten',id,{...T.strip(K()),opdrachten:K().opdrachten.map(o=>o.id==='ob'?{...o,apart:false}:o)});await w();await w();
+      const job2=job&&T.state.klanten.find(x=>x.id===job.id);
+      for(const x of T.state.klanten.filter(x=>x.hoofdKlantId===id))await T.del('klanten',x.id);await T.del('klanten',id);
+      return {n1,n2,n3,job:!!job,duur:job&&job.duur,inPlan,inLijst,meelift,uit:job2?job2.actief===false:null}}""")
+    check(G, "Extra opdrachten krijgen vaste nummers (2 en 3)", r["n1"] == [2, 3], r)
+    check(G, "Na verwijderen houdt de andere opdracht zijn nummer", r["n2"] == [3], r)
+    check(G, "Een nummer wordt niet opnieuw gebruikt", r["n3"] == [3, 4], r)
+    check(G, "Apart inplannen maakt een eigen afspraak (job)", r["job"] and r["duur"] == 240, r)
+    check(G, "Losse opdracht staat in Te plannen", r["inPlan"] is True, r)
+    check(G, "Losse opdracht telt niet als extra klant", r["inLijst"] is False, r)
+    check(G, "Losse opdracht gaat niet mee met de glasbewassing", r["meelift"] is False, r)
+    check(G, "Vinkje uit: losse afspraak stopt", r["uit"] is True, r)
+
+
 def portaal(b, base):
     G = "Klantportaal"
     for w, h, naam in [(1300, 900, "computer"), (390, 844, "telefoon")]:
@@ -267,6 +292,7 @@ def main():
             herinneringen(pg)
             teplannen(pg)
             nieuweOpdracht(pg)
+            opdrachtNummers(pg)
             check("Laden", "Geen fouten tijdens de flows", not pg.fouten, "; ".join(pg.fouten))
             pg.close()
             pm = crm(b, base, 390, 844)

@@ -43,7 +43,7 @@ const overdue=()=>actief().filter(k=>{const p=parse(k.gepland);return p?p<today(
 const dueOf=k=>{const p=parse(k.gepland);return p&&p<today()?p:k.aanbieden&&!p?today():volgende(k)};
 function teplannen(upTo){const t=today(),ti=iso(t);return actief().filter(k=>{if(k.uitstelTot&&k.uitstelTot>ti&&!k.gepland)return false;if(k.einddatum&&k.einddatum<ti&&!k.gepland)return false;if(k.opdrachtVerwijderd&&!k.gepland)return false;if(Number(k.maxOpen)>0&&!k.gepland&&state.facturen.filter(f=>f.klantId===k.id&&f.soort!=="offerte"&&["Openstaand","Achterstallig"].includes(fStatus(f)[1])).length>=Number(k.maxOpen))return false;const p=parse(k.gepland);if(p&&p>t){/* al ingepland, maar met een eerdere aanboddatum in de opdracht: dan toch aanbieden om eerder te plannen */const a=aanbodVan(k),av=a&&parse(a.min);return !!(av&&av<p&&av<=upTo)}return p?p<t:(k.aanbieden||volgende(k)<=upTo||extraAanBeurt(k,upTo))}).sort((a,b)=>dueOf(a)-dueOf(b))}
 /* een andere dienst (bv. reiniging gevelelementen) is aan de beurt: dan komt de klant bij Te plannen en gaat de glasbewassing mee */
-function extraAanBeurt(k,upTo){if(S().glasMee===false)return false;const u=iso(upTo instanceof Date?upTo:parse(upTo)||today());return (k.opdrachten||[]).some(o=>o.actief!==false&&o.volgende&&o.volgende<=u&&(!k.laatst||o.volgende>k.laatst))}
+function extraAanBeurt(k,upTo){if(S().glasMee===false)return false;const u=iso(upTo instanceof Date?upTo:parse(upTo)||today());return (k.opdrachten||[]).some(o=>o.actief!==false&&!o.apart&&o.volgende&&o.volgende<=u&&(!k.laatst||o.volgende>k.laatst))}
 function dueTxt(k){
   const p=parse(k.gepland),t=today();
   if(p&&p<t)return{cls:"late",txt:"Gepland "+fmtD(p)+", niet gedaan"};
@@ -78,7 +78,7 @@ const mapsQ=k=>"https://www.google.com/maps/search/?api=1&query="+encodeURICompo
 /* opdrachten: de hoofdopdracht staat op de klant zelf, extra opdrachten (goten, zonnepanelen…) liften mee met de beurt waarop ze aan de beurt zijn */
 const isEersteKeer=k=>k.eersteKeer!=null?!!k.eersteKeer:!state.beurten.some(b=>b.klantId===k.id);
 const freqLabel=w=>{w=Number(w)||4;if(fqSpec(w))return fqSpecTxt(w);const el=typeof freqEigenLabel==="function"?freqEigenLabel(w):"";if(el)return el;return w===52?"Elk jaar":w===26?"Elk half jaar":w===13?"Elk kwartaal":"Elke "+w+" "+(w===1?"week":"weken")};
-const extraOpdr=k=>(k.opdrachten||[]).filter(o=>o.actief!==false);
+const extraOpdr=k=>(k.opdrachten||[]).filter(o=>o.actief!==false&&!o.apart);/* apart ingeplande opdrachten gaan niet mee met de glasbewassing */
 const extraDue=(k,day)=>{const d=day||iso(today()),out=[];extraOpdr(k).forEach(o=>{const oDue=!o.volgende||o.volgende<=d;
     if(!o.items||typeof groepCalc!=="function"){if(oDue)out.push(o);return}
     const c=groepCalc(o,it=>it.fq?(!it.vol||it.vol<=d):(!it.vol||it.vol<=d));if(!c.rows.length)return;const st=S(),mul=st.incl?1+(Number(st.btw)||21)/100:1;
@@ -139,7 +139,7 @@ function beurtOmzet(b){if(!b||b.geannuleerd||b.gefactureerd==="nvt")return 0;con
   if(b.periodiek&&!Number(b.bedrag)){const k=state.klanten.find(x=>x.id===b.klantId);return k?exAmt(k.prijs):0}
   return exAmt(b.bedrag)}
 /* was een klant actief in (een deel van) de periode s..e (iso)? Zelfde regel voor Statistieken › Klanten en Analyse */
-function klantActiefIn(k,s,e,laatstB){if(k.prospect)return false;const a=String(k.aangemaakt||"").slice(0,10);if(a&&a>e)return false;if(k.actief!==false)return true;
+function klantActiefIn(k,s,e,laatstB){if(k.prospect||k.hoofdKlantId)return false;const a=String(k.aangemaakt||"").slice(0,10);if(a&&a>e)return false;if(k.actief!==false)return true;
   const stop=String(k.inactiefOp||k.gepauzeerdOp||(laatstB&&laatstB[k.id])||"").slice(0,10);return !!stop&&stop>=s}
 function totals(f){
   const btw=Number(f.btw??S().btw)/100,incl=f.incl??S().incl;
