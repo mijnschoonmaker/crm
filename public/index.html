@@ -12658,6 +12658,7 @@ const freqEigenLabel=w=>{const f=S().freqs;if(!Array.isArray(f))return"";const x
 
 const uid=p=>p+Math.random().toString(36).slice(2,9);
 const itm=(naam,eenheid,prijs,sec,extra)=>({id:uid("d"),naam,artikel:"",extern:"",eenheid,prijs,btw:21,sec,weging:100,tiers:[],factAantal:true,...(extra||{})});
+const UITV_WEG=["rolluik","antispin","antialg","schoorsteen","spoed","hogedruk"];
 function uitvDefault(){
   if(!RC)RC=buildRamen();const c=RC.cfgAll();
   const k=(key,naam)=>itm(naam,"per raam",c[key+"_p"],c[key+"_s"],{key});
@@ -12668,13 +12669,7 @@ function uitvDefault(){
     {id:"gevel",std:true,naam:"Reiniging gevelelementen",items:[itm("Daklijst","per strekkende meter",3.50,60),itm("Daklijst met klossen","per strekkende meter",5.50,120),itm("Windveren, regenpijpen etc.","per strekkende meter",3,60),itm("Beplating, luiken, garagedeuren etc.","per m²",4,90),itm("Goten reiniging buitenkant","per strekkende meter",5,120)]},
     {id:"dakkapel",std:true,naam:"Reiniging dakkapel",items:[itm("Eerste verdieping","per stuk",35,1200),itm("Tweede verdieping","per stuk",45,1500)]},
     {id:"zon",std:true,naam:"Reiniging zonnepanelen",items:[itm("Reiniging zonnepanelen","per paneel",3.50,90)]},
-    {id:"rolluik",std:true,inCalc:false,naam:"Reiniging rolluiken",items:[itm("Rolluik","per stuk",6,180)]},
-    {id:"binnen",std:true,naam:"Glasbewassing binnen",items:[itm("Normale ramen","per raam",2.25,60),itm("Dak- / tuimelramen","per raam",2.10,70),itm("Miniraampjes","per raam",0.60,15)]},
-    {id:"antispin",std:true,inCalc:false,naam:"Antispin behandeling",items:[itm("Antispin","per raam",1,20)]},
-    {id:"antialg",std:true,inCalc:false,naam:"Anti-alg behandeling",items:[itm("Anti-alg","per m²",2.50,30)]},
-    {id:"schoorsteen",std:true,inCalc:false,naam:"Schoorsteenvegen",items:[itm("Schoorsteen","per keer",65,2700)]},
-    {id:"spoed",std:true,inCalc:false,naam:"Spoedopdracht (+ 72 uur)",items:[itm("Spoedtoeslag","per keer",25,0)]},
-    {id:"hogedruk",std:true,inCalc:false,naam:"Hogedrukreiniging (buitenkraan benodigd)",items:[itm("Hogedruk","per m²",3.50,120)]}];
+    {id:"binnen",std:true,naam:"Glasbewassing binnen",items:[itm("Normale ramen","per raam",2.25,60),itm("Dak- / tuimelramen","per raam",2.10,70),itm("Miniraampjes","per raam",0.60,15)]}];
   G.forEach(g=>g.items.forEach((it,i)=>{it.id=g.id+"_"+i}));/* vaste ids, zodat tellingen blijven kloppen */
   return {groepen:G,eigen:[],middelen:[],freqs:FREQ_DEF.map(w=>({w,l:""}))};
 }
@@ -12684,6 +12679,9 @@ function uitvLoad(force){
   if(U&&!force)return U;
   const base=uitvDefault(),sv=state.uitv&&state.uitv.groepen?JSON.parse(JSON.stringify(state.uitv)):null;
   const u=sv?{...base,...sv}:base;
+  /* vroegere standaarddiensten die niet meer standaard zijn: weg, tenzij een klant ze gebruikt (wie ze nodig heeft, maakt ze zelf aan) */
+  if(sv){const inGebruik=new Set();(state.klanten||[]).forEach(k=>(k.opdrachten||[]).forEach(o=>o&&o.groep&&inGebruik.add(o.groep)));
+    u.groepen=(u.groepen||[]).filter(g=>!UITV_WEG.includes(g.id)||inGebruik.has(g.id))}
   if(!sv){/* eerste keer: eigen diensten uit de oude lijst overnemen */
     const bekend=new Set(base.groepen.map(g=>g.naam.toLowerCase()));
     (S().diensten||[]).forEach(d=>{const n=String(d.naam||"").trim();if(!n||/^glasbewassing$/i.test(n)||bekend.has(n.toLowerCase()))return;u.eigen.push({id:uid("g"),naam:n,items:[itm(n,"per keer",Number(d.prijs)||0,(Number(d.duur)||30)*60)]})});
