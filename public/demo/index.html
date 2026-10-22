@@ -6078,6 +6078,11 @@ const timerHtml=k=>`<span class="tmr" data-timer="${esc(k.bezig)}">${fmtTimer(Da
 const gemTijd=k=>{const t=(k.tijden||[]).slice(-5);return t.length?Math.round(t.reduce((a,x)=>a+(Number(x.min)||0),0)/t.length):0};
 function metingPatch(k,min){const tijden=[...(k.tijden||[]),{datum:iso(today()),min}].slice(-20),t=tijden.slice(-5),gem=Math.round(t.reduce((a,x)=>a+x.min,0)/t.length);
   return {tijden,duur:Math.max(5,Math.ceil(gem/5)*5)}}
+/* een meting die veel korter is dan de geplande duur (bijv. per ongeluk Start en meteen Afmelden) is geen echte meting:
+   die telt niet mee voor de planning en niet als facturabele tijd */
+const meetTeKort=(min,plan)=>(Number(min)||0)<Math.max(5,0.3*(Number(plan)||0));
+const beurtTeKort=b=>{if(!b.gemeten)return false;const k=state.klanten.find(x=>x.id===b.klantId);return !!k&&meetTeKort(b.duur,duur(k))};
+const beurtMin=b=>{const k=state.klanten.find(x=>x.id===b.klantId),m=Number(b.duur)||0;return m&&!beurtTeKort(b)?m:(k?duur(k):m)};
 const lopendeMin=k=>isBezig(k)?Math.max(0,Math.round((Date.now()-new Date(k.bezig))/60000)):null;
 function jobState(k,day){
   if(state.beurten.some(b=>b.klantId===k.id&&b.datum===day))return"afgerond";
@@ -6300,7 +6305,7 @@ const GLAS_REGEL="Andere diensten kunnen alleen samen met glasbewassing worden u
 
 /* ---------- ACTIES ---------- */
 async function gewassen(k){
-  const _lm=lopendeMin(k),_mp=_lm&&_lm>=1?metingPatch(k,_lm):null,_last=(k.tijden||[]).slice(-1)[0],_dur=_mp?_lm:_last&&_last.datum===iso(today())?_last.min:duur(k);if(_mp)k={...k,..._mp};
+  const _lm=lopendeMin(k),_mp=_lm&&_lm>=1&&!meetTeKort(_lm,duur(k))?metingPatch(k,_lm):null,_last=(k.tijden||[]).slice(-1)[0],_dur=_mp?_lm:_last&&_last.datum===iso(today())?_last.min:duur(k);if(_mp)k={...k,..._mp};
   const prev={laatst:k.laatst||"",gepland:k.gepland||"",bezig:k.bezig||""},bId=newId("b"),d=iso(today());
   try{
     await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:Number(k.prijs)||0,betaald:false,gefactureerd:"",dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString()});
@@ -9981,7 +9986,7 @@ function vInzichten(){
       ${stBars(months.map(m=>m.omzet),months.map(m=>m.l),{hi:11,h:230})}</section>`;
   }else if(state.itab==="werk"){
     const bs=state.beurten.filter(b=>!b.geannuleerd&&inRange(b.datum,P.rg)),bv=state.beurten.filter(b=>!b.geannuleerd&&inRange(b.datum,V.rg));
-    const mins=bs.reduce((a,b)=>a+(Number(b.duur)||duur(kd(b.klantId)||{})),0),om=bs.reduce((a,b)=>a+beurtOmzet(b),0);
+    const mins=bs.reduce((a,b)=>a+beurtMin(b),0),om=bs.reduce((a,b)=>a+beurtOmzet(b),0);
     const {per:per_d,sub:sub_d}=stDienstSplit(bs);const dk=Object.keys(per_d).sort((a,b)=>per_d[b]-per_d[a]),dtot=dk.reduce((a,k)=>a+per_d[k],0)||1;
     const wdc=[0,0,0,0,0,0,0];bs.forEach(b=>{wdc[(parse(b.datum).getDay()+6)%7]+=1});const top=wdc.indexOf(Math.max(...wdc));
     const dag={};state.beurten.forEach(b=>{if(b.geannuleerd)return;dag[b.datum]=(dag[b.datum]||0)+beurtOmzet(b)});const best=Object.entries(dag).sort((a,b)=>b[1]-a[1])[0];
@@ -10107,12 +10112,12 @@ function vAnalyse(){
   const alleB=state.beurten.filter(b=>b.datum&&!b.geannuleerd);
   const mws=[...new Set(alleB.filter(b=>String(b.datum).startsWith(String(Y))).map(b=>b.door).filter(Boolean))].sort();
   const bIn=r=>alleB.filter(b=>inRange(b.datum,r)&&(!mw||b.door===mw)),fIn=r=>echteFacturen().filter(f=>inRange(f.datum,r));
-  const bOm=b=>beurtOmzet(b),bMin=b=>plan?duur(KM[b.klantId]||{}):(Number(b.duur)||duur(KM[b.klantId]||{}));
+  const bOm=b=>beurtOmzet(b),bMin=b=>plan?duur(KM[b.klantId]||{}):beurtMin(b);
   /* omzet-posten volgens de gekozen bron */
   const posten=r=>afs?bIn(r).map(b=>({d:b.datum,om:bOm(b),btw:0,k:b.klantId,b})):fIn(r).map(f=>{const tt=totals(f);return{d:f.datum,om:tt.ex,btw:tt.btw,k:f.klantId,f}});
   const P=posten(rg),PV=posten(rgV),omzet=P.reduce((a,p)=>a+p.om,0),omzetV=PV.reduce((a,p)=>a+p.om,0);
   const B=bIn(rg),dagen=new Set(B.map(b=>b.datum)),weken=new Set(B.map(b=>anWk(b.datum,Y)+"")),mnd=new Set(B.map(b=>String(b.datum).slice(0,7)));
-  const minuten=B.reduce((a,b)=>a+bMin(b),0),gemMin=B.filter(b=>(b.gemeten||b.startOp)&&Number(b.duur)).reduce((a,b)=>a+Number(b.duur),0),gemPct=minuten?Math.round(gemMin/minuten*100):0,urenTxt=!minuten?"nog geen uren":gemPct>=99?"alles gemeten":gemPct?gemPct+"% gemeten, rest volgens planning":"volgens planning (nog niet gemeten)",uren=minuten/60,omB=B.reduce((a,b)=>a+bOm(b),0),perUur=uren>0?omB/uren:0,voltijd=perUur*AN_WK*(52-AN_VAK);
+  const minuten=B.reduce((a,b)=>a+bMin(b),0),gemMin=B.filter(b=>(b.gemeten||b.startOp)&&Number(b.duur)&&!beurtTeKort(b)).reduce((a,b)=>a+Number(b.duur),0),gemPct=minuten?Math.round(gemMin/minuten*100):0,urenTxt=!minuten?"nog geen uren":gemPct>=99?"alles gemeten":gemPct?gemPct+"% gemeten, rest volgens planning":"volgens planning (nog niet gemeten)",uren=minuten/60,omB=B.reduce((a,b)=>a+bOm(b),0),perUur=uren>0?omB/uren:0,voltijd=perUur*AN_WK*(52-AN_VAK);
   const per=(n)=>n?omzet/n:0,groei=omzetV?Math.round((omzet-omzetV)/omzetV*100):null;
   const pLbl=`Periode 1 jan t/m ${huidig?fmtD(t):"31 dec"}`;
   const yrs=[...new Set([...state.beurten.map(b=>String(b.datum||"").slice(0,4)),...state.facturen.map(f=>String(f.datum||"").slice(0,4)),String(t.getFullYear())].filter(x=>/^\d{4}$/.test(x)))].sort().reverse();
@@ -14304,10 +14309,11 @@ function wdCijfers(d){const w=wdGet(d)||{},nu=wdNu(),eind=w.stop||(w.start&&d===
   /* alleen stops die tijdens de werkdag zijn afgemeld (tussen vertrek en terugkomst bij de loods), anders kloppen reistijd en uurloon niet */
   const binnen=b=>{if(!w.start||!b.op)return true;const t=new Date(b.op).getTime();return t>=new Date(w.start).getTime()-6e4&&(!eind||t<=new Date(eind).getTime()+6e4)};
   const alle=state.beurten.filter(b=>b.datum===d&&!b.geannuleerd),bs=alle.filter(binnen),buiten=alle.length-bs.length;
-  const fact=bs.reduce((a,b)=>a+(Number(b.duur)||0),0),gemeten=bs.filter(b=>b.gemeten||b.startOp).length;
+  const geschat=bs.filter(beurtTeKort).length;
+  const fact=bs.reduce((a,b)=>a+beurtMin(b),0),gemeten=bs.filter(b=>b.gemeten||b.startOp).length;
   const totaal=wdMin(w.start,eind),netto=Math.max(0,totaal-pauze),reis=Math.max(0,netto-fact);
   const omzet=bs.reduce((a,b)=>a+beurtOmzet(b),0);
-  return {w,totaal,pauze,netto,fact,reis,omzet,n:bs.length,buiten,gemeten,perUur:netto>0?omzet/(netto/60):0,perFact:fact>0?omzet/(fact/60):0}}
+  return {w,totaal,pauze,netto,fact,reis,omzet,n:bs.length,buiten,gemeten,geschat,perUur:netto>0?omzet/(netto/60):0,perFact:fact>0?omzet/(fact/60):0}}
 const wdU=m=>{m=Math.round(m||0);const h=Math.floor(m/60),mm=m%60;return h?`${h}u${String(mm).padStart(2,"0")}`:`${mm} min`};
 const wdT=ts=>ts?new Date(ts).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"}):"";
 function werkdagKaart(d,isT,total){const c=wdCijfers(d),w=c.w,inP=(w.pauzes||[]).some(p=>!p.tot);
@@ -14320,7 +14326,7 @@ function werkdagKaart(d,isT,total){const c=wdCijfers(d),w=c.w,inP=(w.pauzes||[])
     <div class="wd-tl"><span><small>Vertrek loods</small><b>${wdT(w.start)}</b></span><i></i><span><small>Terug bij de loods</small><b>${wdT(w.stop)}</b></span></div>
     ${c.netto>0?`<div class="wd-bar" role="img" aria-label="Verdeling van je werktijd">${c.fact?`<i class="f" style="flex:${c.fact}"></i>`:""}${c.reis?`<i class="r" style="flex:${c.reis}"></i>`:""}${c.pauze?`<i class="p" style="flex:${c.pauze}"></i>`:""}</div>
     <div class="wd-3"><div><i class="f"></i><small>Bij klanten</small><b>${wdU(c.fact)}</b><em>${pct(c.fact)}%</em></div><div><i class="r"></i><small>Reistijd</small><b>${wdU(c.reis)}</b><em>${pct(c.reis)}%</em></div><div><i class="p"></i><small>Pauze</small><b>${wdU(c.pauze)}</b><em>${pct(c.pauze)}%</em></div></div>`:""}
-    <div class="wd-kpi"><div class="hoofd"><small>Omzet ex btw</small><b>${eur(c.omzet)}</b><em>${plural(c.n,"stop","stops")}</em></div><div><small>Per gewerkt uur</small><b>${c.perUur?eur(c.perUur):"–"}</b></div><div><small>Per facturabel uur</small><b>${c.perFact?eur(c.perFact):"–"}</b></div></div>
+    <div class="wd-kpi"><div class="hoofd"><small>Omzet ex btw</small><b>${eur(c.omzet)}</b><em>${plural(c.n,"stop","stops")}</em></div><div><small>Per gewerkt uur</small><b>${c.perUur?eur(c.perUur):"–"}</b></div><div><small>Per facturabel uur</small><b>${c.perFact?eur(c.perFact):"–"}</b></div></div>${c.geschat?`<p class="subt wd-noot" style="margin:8px 2px 0;font-size:12px">${c.geschat===1?"1 stop is":c.geschat+" stops zijn"} veel korter gemeten dan gepland (bijv. Start en direct Afmelden). Daarvoor is de geplande duur geteld.</p>`:""}
     ${tips.length?`<div class="wd-tips">${I.info||I.alert}<div>${tips.map(t=>`<p>${t}</p>`).join("")}</div></div>`:""}</section>`}
   const pz=(w.pauzes||[]).find(p=>!p.tot);
   return `<section class="wd wd-aan${inP?" wd-pz":""}"><div class="wd-h"><span class="wd-ic">${inP?(I.coffee||I.clock):(I.truck||I.route)}</span><div class="wd-m"><b>${inP?"Pauze":"Onderweg"} <span class="wd-tm" data-wdsince="${esc(inP?pz.van:w.start)}">${wdU(wdMin(inP?pz.van:w.start,wdNu()))}</span></b><small>Vertrokken om ${wdT(w.start)}${c.pauze?` · ${wdU(c.pauze)} pauze`:""} · ${plural(c.n,"stop","stops")} klaar${total?` van ${total}`:""}</small></div></div>
@@ -16041,7 +16047,7 @@ addEventListener("scroll",()=>{const m=document.getElementById("mobOffer");docum
    of bedragen, btw, factuurnummers en het afmelden nog kloppen. */
 if(!LIVE&&typeof location!=="undefined"&&/[?&]selftest\b/.test(location.search)){
   window.MSTEST={state,S,save,del,totals,nextNr,nrDelen,wikKosten,fStatus,afronden,gewassen,billAll,setFStatus,iso,today,addDays,newId,strip,render,
-    fin,beurtOmzet,klantFilter,extraOpdr,opdrNr:typeof opdrNr==="function"?opdrNr:null,openOpdrachtWerk:typeof openOpdrachtWerk==="function"?openOpdrachtWerk:null,teplannen,fhVolgende:typeof fhVolgende==="function"?fhVolgende:null,fhPoort:typeof fhPoort==="function"?fhPoort:null,groepEditor:typeof groepEditor==="function"?groepEditor:null,melding,stDienstSplit,klantActiefIn,kmFmt:typeof kmFmt==="function"?kmFmt:null,kmAfst:typeof kmAfst==="function"?kmAfst:null,saveSettings,
+    fin,beurtOmzet,klantFilter,extraOpdr,opdrNr:typeof opdrNr==="function"?opdrNr:null,openOpdrachtWerk:typeof openOpdrachtWerk==="function"?openOpdrachtWerk:null,teplannen,fhVolgende:typeof fhVolgende==="function"?fhVolgende:null,fhPoort:typeof fhPoort==="function"?fhPoort:null,groepEditor:typeof groepEditor==="function"?groepEditor:null,melding,stDienstSplit,klantActiefIn,beurtMin,meetTeKort,wdCijfers:typeof wdCijfers==="function"?wdCijfers:null,kmFmt:typeof kmFmt==="function"?kmFmt:null,kmAfst:typeof kmAfst==="function"?kmAfst:null,saveSettings,
     views:()=>PAGES.map(p=>p[0]),ga:t=>{state.tab=t;render()}};
 }
 

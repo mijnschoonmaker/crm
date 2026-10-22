@@ -60,6 +60,11 @@ const timerHtml=k=>`<span class="tmr" data-timer="${esc(k.bezig)}">${fmtTimer(Da
 const gemTijd=k=>{const t=(k.tijden||[]).slice(-5);return t.length?Math.round(t.reduce((a,x)=>a+(Number(x.min)||0),0)/t.length):0};
 function metingPatch(k,min){const tijden=[...(k.tijden||[]),{datum:iso(today()),min}].slice(-20),t=tijden.slice(-5),gem=Math.round(t.reduce((a,x)=>a+x.min,0)/t.length);
   return {tijden,duur:Math.max(5,Math.ceil(gem/5)*5)}}
+/* een meting die veel korter is dan de geplande duur (bijv. per ongeluk Start en meteen Afmelden) is geen echte meting:
+   die telt niet mee voor de planning en niet als facturabele tijd */
+const meetTeKort=(min,plan)=>(Number(min)||0)<Math.max(5,0.3*(Number(plan)||0));
+const beurtTeKort=b=>{if(!b.gemeten)return false;const k=state.klanten.find(x=>x.id===b.klantId);return !!k&&meetTeKort(b.duur,duur(k))};
+const beurtMin=b=>{const k=state.klanten.find(x=>x.id===b.klantId),m=Number(b.duur)||0;return m&&!beurtTeKort(b)?m:(k?duur(k):m)};
 const lopendeMin=k=>isBezig(k)?Math.max(0,Math.round((Date.now()-new Date(k.bezig))/60000)):null;
 function jobState(k,day){
   if(state.beurten.some(b=>b.klantId===k.id&&b.datum===day))return"afgerond";

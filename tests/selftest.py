@@ -257,6 +257,23 @@ def opdrachtNummers(pg):
     check(G, "Vinkje uit: losse afspraak stopt", r["uit"] is True, r)
 
 
+def werkdagTijd(pg):
+    G = "Werkdag"
+    r = pg.evaluate("""async()=>{const T=MSTEST;if(!T.wdCijfers)return null;const id=T.newId('kw'),d=T.iso(T.addDays(T.today(),-400)),bid=T.newId('b'),b2=T.newId('b');
+      await T.save('klanten',id,{naam:'Werk, Test',prijs:56.2,frequentie:8,duur:30,actief:true,log:[],objecten:[]});
+      await T.save('routes',d,{werk:{start:d+'T09:00:00.000Z',stop:d+'T11:00:00.000Z',pauzes:[]}});
+      await T.save('beurten',bid,{klantId:id,datum:d,bedrag:56.2,duur:3,gemeten:true,gefactureerd:'',op:d+'T10:00:00.000Z'});
+      const c=T.wdCijfers(d),kort=T.beurtMin(T.state.beurten.find(x=>x.id===bid));
+      await T.save('beurten',b2,{klantId:id,datum:'1999-01-01',bedrag:1,duur:25,gemeten:true});const echt=T.beurtMin(T.state.beurten.find(x=>x.id===b2));
+      await T.del('beurten',bid);await T.del('beurten',b2);await T.del('routes',d);await T.del('klanten',id);
+      return {fact:c.fact,omzet:c.omzet,perFact:Math.round(c.perFact*100)/100,geschat:c.geschat,kort,echt}}""")
+    if r is None:
+        return check(G, "Facturabele tijd", False, "wdCijfers niet gevonden")
+    check(G, "Te korte meting telt als geplande duur", r["kort"] == 30 and r["fact"] == 30, r)
+    check(G, "Per facturabel uur blijft realistisch", r["omzet"] > 0 and abs(r["perFact"] - r["omzet"] * 2) < 0.02 and r["geschat"] == 1, r)
+    check(G, "Echte meting blijft staan", r["echt"] == 25, r)
+
+
 def portaal(b, base):
     G = "Klantportaal"
     for w, h, naam in [(1300, 900, "computer"), (390, 844, "telefoon")]:
@@ -293,6 +310,7 @@ def main():
             teplannen(pg)
             nieuweOpdracht(pg)
             opdrachtNummers(pg)
+            werkdagTijd(pg)
             check("Laden", "Geen fouten tijdens de flows", not pg.fouten, "; ".join(pg.fouten))
             pg.close()
             pm = crm(b, base, 390, 844)

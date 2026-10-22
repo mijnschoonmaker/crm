@@ -45,12 +45,12 @@ function vAnalyse(){
   const alleB=state.beurten.filter(b=>b.datum&&!b.geannuleerd);
   const mws=[...new Set(alleB.filter(b=>String(b.datum).startsWith(String(Y))).map(b=>b.door).filter(Boolean))].sort();
   const bIn=r=>alleB.filter(b=>inRange(b.datum,r)&&(!mw||b.door===mw)),fIn=r=>echteFacturen().filter(f=>inRange(f.datum,r));
-  const bOm=b=>beurtOmzet(b),bMin=b=>plan?duur(KM[b.klantId]||{}):(Number(b.duur)||duur(KM[b.klantId]||{}));
+  const bOm=b=>beurtOmzet(b),bMin=b=>plan?duur(KM[b.klantId]||{}):beurtMin(b);
   /* omzet-posten volgens de gekozen bron */
   const posten=r=>afs?bIn(r).map(b=>({d:b.datum,om:bOm(b),btw:0,k:b.klantId,b})):fIn(r).map(f=>{const tt=totals(f);return{d:f.datum,om:tt.ex,btw:tt.btw,k:f.klantId,f}});
   const P=posten(rg),PV=posten(rgV),omzet=P.reduce((a,p)=>a+p.om,0),omzetV=PV.reduce((a,p)=>a+p.om,0);
   const B=bIn(rg),dagen=new Set(B.map(b=>b.datum)),weken=new Set(B.map(b=>anWk(b.datum,Y)+"")),mnd=new Set(B.map(b=>String(b.datum).slice(0,7)));
-  const minuten=B.reduce((a,b)=>a+bMin(b),0),gemMin=B.filter(b=>(b.gemeten||b.startOp)&&Number(b.duur)).reduce((a,b)=>a+Number(b.duur),0),gemPct=minuten?Math.round(gemMin/minuten*100):0,urenTxt=!minuten?"nog geen uren":gemPct>=99?"alles gemeten":gemPct?gemPct+"% gemeten, rest volgens planning":"volgens planning (nog niet gemeten)",uren=minuten/60,omB=B.reduce((a,b)=>a+bOm(b),0),perUur=uren>0?omB/uren:0,voltijd=perUur*AN_WK*(52-AN_VAK);
+  const minuten=B.reduce((a,b)=>a+bMin(b),0),gemMin=B.filter(b=>(b.gemeten||b.startOp)&&Number(b.duur)&&!beurtTeKort(b)).reduce((a,b)=>a+Number(b.duur),0),gemPct=minuten?Math.round(gemMin/minuten*100):0,urenTxt=!minuten?"nog geen uren":gemPct>=99?"alles gemeten":gemPct?gemPct+"% gemeten, rest volgens planning":"volgens planning (nog niet gemeten)",uren=minuten/60,omB=B.reduce((a,b)=>a+bOm(b),0),perUur=uren>0?omB/uren:0,voltijd=perUur*AN_WK*(52-AN_VAK);
   const per=(n)=>n?omzet/n:0,groei=omzetV?Math.round((omzet-omzetV)/omzetV*100):null;
   const pLbl=`Periode 1 jan t/m ${huidig?fmtD(t):"31 dec"}`;
   const yrs=[...new Set([...state.beurten.map(b=>String(b.datum||"").slice(0,4)),...state.facturen.map(f=>String(f.datum||"").slice(0,4)),String(t.getFullYear())].filter(x=>/^\d{4}$/.test(x)))].sort().reverse();

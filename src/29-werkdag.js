@@ -11,10 +11,11 @@ function wdCijfers(d){const w=wdGet(d)||{},nu=wdNu(),eind=w.stop||(w.start&&d===
   /* alleen stops die tijdens de werkdag zijn afgemeld (tussen vertrek en terugkomst bij de loods), anders kloppen reistijd en uurloon niet */
   const binnen=b=>{if(!w.start||!b.op)return true;const t=new Date(b.op).getTime();return t>=new Date(w.start).getTime()-6e4&&(!eind||t<=new Date(eind).getTime()+6e4)};
   const alle=state.beurten.filter(b=>b.datum===d&&!b.geannuleerd),bs=alle.filter(binnen),buiten=alle.length-bs.length;
-  const fact=bs.reduce((a,b)=>a+(Number(b.duur)||0),0),gemeten=bs.filter(b=>b.gemeten||b.startOp).length;
+  const geschat=bs.filter(beurtTeKort).length;
+  const fact=bs.reduce((a,b)=>a+beurtMin(b),0),gemeten=bs.filter(b=>b.gemeten||b.startOp).length;
   const totaal=wdMin(w.start,eind),netto=Math.max(0,totaal-pauze),reis=Math.max(0,netto-fact);
   const omzet=bs.reduce((a,b)=>a+beurtOmzet(b),0);
-  return {w,totaal,pauze,netto,fact,reis,omzet,n:bs.length,buiten,gemeten,perUur:netto>0?omzet/(netto/60):0,perFact:fact>0?omzet/(fact/60):0}}
+  return {w,totaal,pauze,netto,fact,reis,omzet,n:bs.length,buiten,gemeten,geschat,perUur:netto>0?omzet/(netto/60):0,perFact:fact>0?omzet/(fact/60):0}}
 const wdU=m=>{m=Math.round(m||0);const h=Math.floor(m/60),mm=m%60;return h?`${h}u${String(mm).padStart(2,"0")}`:`${mm} min`};
 const wdT=ts=>ts?new Date(ts).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"}):"";
 function werkdagKaart(d,isT,total){const c=wdCijfers(d),w=c.w,inP=(w.pauzes||[]).some(p=>!p.tot);
@@ -27,7 +28,7 @@ function werkdagKaart(d,isT,total){const c=wdCijfers(d),w=c.w,inP=(w.pauzes||[])
     <div class="wd-tl"><span><small>Vertrek loods</small><b>${wdT(w.start)}</b></span><i></i><span><small>Terug bij de loods</small><b>${wdT(w.stop)}</b></span></div>
     ${c.netto>0?`<div class="wd-bar" role="img" aria-label="Verdeling van je werktijd">${c.fact?`<i class="f" style="flex:${c.fact}"></i>`:""}${c.reis?`<i class="r" style="flex:${c.reis}"></i>`:""}${c.pauze?`<i class="p" style="flex:${c.pauze}"></i>`:""}</div>
     <div class="wd-3"><div><i class="f"></i><small>Bij klanten</small><b>${wdU(c.fact)}</b><em>${pct(c.fact)}%</em></div><div><i class="r"></i><small>Reistijd</small><b>${wdU(c.reis)}</b><em>${pct(c.reis)}%</em></div><div><i class="p"></i><small>Pauze</small><b>${wdU(c.pauze)}</b><em>${pct(c.pauze)}%</em></div></div>`:""}
-    <div class="wd-kpi"><div class="hoofd"><small>Omzet ex btw</small><b>${eur(c.omzet)}</b><em>${plural(c.n,"stop","stops")}</em></div><div><small>Per gewerkt uur</small><b>${c.perUur?eur(c.perUur):"–"}</b></div><div><small>Per facturabel uur</small><b>${c.perFact?eur(c.perFact):"–"}</b></div></div>
+    <div class="wd-kpi"><div class="hoofd"><small>Omzet ex btw</small><b>${eur(c.omzet)}</b><em>${plural(c.n,"stop","stops")}</em></div><div><small>Per gewerkt uur</small><b>${c.perUur?eur(c.perUur):"–"}</b></div><div><small>Per facturabel uur</small><b>${c.perFact?eur(c.perFact):"–"}</b></div></div>${c.geschat?`<p class="subt wd-noot" style="margin:8px 2px 0;font-size:12px">${c.geschat===1?"1 stop is":c.geschat+" stops zijn"} veel korter gemeten dan gepland (bijv. Start en direct Afmelden). Daarvoor is de geplande duur geteld.</p>`:""}
     ${tips.length?`<div class="wd-tips">${I.info||I.alert}<div>${tips.map(t=>`<p>${t}</p>`).join("")}</div></div>`:""}</section>`}
   const pz=(w.pauzes||[]).find(p=>!p.tot);
   return `<section class="wd wd-aan${inP?" wd-pz":""}"><div class="wd-h"><span class="wd-ic">${inP?(I.coffee||I.clock):(I.truck||I.route)}</span><div class="wd-m"><b>${inP?"Pauze":"Onderweg"} <span class="wd-tm" data-wdsince="${esc(inP?pz.van:w.start)}">${wdU(wdMin(inP?pz.van:w.start,wdNu()))}</span></b><small>Vertrokken om ${wdT(w.start)}${c.pauze?` · ${wdU(c.pauze)} pauze`:""} · ${plural(c.n,"stop","stops")} klaar${total?` van ${total}`:""}</small></div></div>

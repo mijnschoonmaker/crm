@@ -43,7 +43,7 @@ function vInzichten(){
       ${stBars(months.map(m=>m.omzet),months.map(m=>m.l),{hi:11,h:230})}</section>`;
   }else if(state.itab==="werk"){
     const bs=state.beurten.filter(b=>!b.geannuleerd&&inRange(b.datum,P.rg)),bv=state.beurten.filter(b=>!b.geannuleerd&&inRange(b.datum,V.rg));
-    const mins=bs.reduce((a,b)=>a+(Number(b.duur)||duur(kd(b.klantId)||{})),0),om=bs.reduce((a,b)=>a+beurtOmzet(b),0);
+    const mins=bs.reduce((a,b)=>a+beurtMin(b),0),om=bs.reduce((a,b)=>a+beurtOmzet(b),0);
     const {per:per_d,sub:sub_d}=stDienstSplit(bs);const dk=Object.keys(per_d).sort((a,b)=>per_d[b]-per_d[a]),dtot=dk.reduce((a,k)=>a+per_d[k],0)||1;
     const wdc=[0,0,0,0,0,0,0];bs.forEach(b=>{wdc[(parse(b.datum).getDay()+6)%7]+=1});const top=wdc.indexOf(Math.max(...wdc));
     const dag={};state.beurten.forEach(b=>{if(b.geannuleerd)return;dag[b.datum]=(dag[b.datum]||0)+beurtOmzet(b)});const best=Object.entries(dag).sort((a,b)=>b[1]-a[1])[0];

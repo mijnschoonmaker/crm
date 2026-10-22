@@ -1,6 +1,6 @@
 /* ---------- ACTIES ---------- */
 async function gewassen(k){
-  const _lm=lopendeMin(k),_mp=_lm&&_lm>=1?metingPatch(k,_lm):null,_last=(k.tijden||[]).slice(-1)[0],_dur=_mp?_lm:_last&&_last.datum===iso(today())?_last.min:duur(k);if(_mp)k={...k,..._mp};
+  const _lm=lopendeMin(k),_mp=_lm&&_lm>=1&&!meetTeKort(_lm,duur(k))?metingPatch(k,_lm):null,_last=(k.tijden||[]).slice(-1)[0],_dur=_mp?_lm:_last&&_last.datum===iso(today())?_last.min:duur(k);if(_mp)k={...k,..._mp};
   const prev={laatst:k.laatst||"",gepland:k.gepland||"",bezig:k.bezig||""},bId=newId("b"),d=iso(today());
   try{
     await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:Number(k.prijs)||0,betaald:false,gefactureerd:"",dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString()});
