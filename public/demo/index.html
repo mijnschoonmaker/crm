@@ -16095,7 +16095,16 @@ function demoMaak(){
 /* datums laten meeschuiven met de dag van vandaag */
 function demoSchuif(v,n){if(!n)return v;if(typeof v==="string"&&/^\d{4}-\d{2}-\d{2}/.test(v)){const d=iso(addDays(parse(v.slice(0,10)),n));return d+v.slice(10)}if(Array.isArray(v))return v.map(x=>demoSchuif(x,n));if(v&&typeof v==="object")return Object.fromEntries(Object.entries(v).map(([k,x])=>[k,k==="nummer"||k==="id"?x:demoSchuif(x,n)]));return v}
 function demoBewaar(){try{const cols={};COLS.forEach(c=>cols[c]=[...mem[c].values()]);localStorage.setItem(DEMO_KEY,JSON.stringify({gemaakt:iso(today()),cols}))}catch(e){}}
+/* foto's in de demo: geen server, dus verkleind in deze browser bewaard; /_blob/<id> wordt in beeld vervangen door de foto zelf */
+const DEMO_AKEY="ms.demo.assets";let DEMO_A={};try{DEMO_A=JSON.parse(localStorage.getItem(DEMO_AKEY)||"{}")||{}}catch(e){DEMO_A={}}
+function demoAssetsBewaar(){for(let i=0;i<20;i++){try{localStorage.setItem(DEMO_AKEY,JSON.stringify(DEMO_A));return}catch(e){const k=Object.keys(DEMO_A);if(!k.length)return;delete DEMO_A[k[0]]}}}
+const demoVerklein=file=>new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{const m=1400,k=Math.min(1,m/Math.max(im.naturalWidth,im.naturalHeight)),c=document.createElement("canvas");c.width=Math.round(im.naturalWidth*k);c.height=Math.round(im.naturalHeight*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);res(c.toDataURL("image/jpeg",.8))};im.onerror=()=>{URL.revokeObjectURL(u);rej(new Error("Deze foto kan niet worden gelezen"))};im.src=u});
+const demoAssets={upload:async(file)=>{const id=[...crypto.getRandomValues(new Uint8Array(16))].map(x=>x.toString(16).padStart(2,"0")).join("");DEMO_A[id]=/^image\//.test(file.type||"image/jpeg")?await demoVerklein(file):await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(file)});demoAssetsBewaar();demoBlobFix(document);return {id}},
+  list:async()=>({assets:Object.keys(DEMO_A).map(id=>({id}))})};
+function demoBlobFix(root){(root.querySelectorAll?root.querySelectorAll('img[src*="/_blob/"],a[href*="/_blob/"]'):[]).forEach(el=>{const at=el.tagName==="A"?"href":"src",v=el.getAttribute(at)||"",id=v.split("/_blob/")[1];if(id&&DEMO_A[id.split(/[?#]/)[0]])el.setAttribute(at,DEMO_A[id.split(/[?#]/)[0]])})}
+new MutationObserver(ms=>{for(const m of ms){if(m.type==="attributes")demoBlobFix(m.target.parentNode||document);else m.addedNodes.forEach(n=>{if(n.nodeType===1){if(n.matches&&n.matches('img,a'))demoBlobFix(n.parentNode||document);demoBlobFix(n)}})}}).observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:["src","href"]});
 async function demoStart(){
+  if(!state.assets)state.assets=demoAssets;
   let d=null;const opnieuw=/[?&]opnieuw/.test(location.search);
   try{if(!opnieuw)d=JSON.parse(localStorage.getItem(DEMO_KEY)||"null")}catch(e){}
   if(opnieuw)try{history.replaceState(null,"",location.pathname)}catch(_){}
@@ -16111,7 +16120,7 @@ async function demoStart(){
   state.me={name:"Mark",email:"mark@voorbeeldglazenwasserij.nl"};
   const DL={save:async({filename,data})=>{const b=data instanceof Blob?data:new Blob([data]),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=filename;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000)}};
   state.dl=DL;render();await init();
-  state.dl=DL;$("#status").innerHTML="";state.loaded=true;render();
+  state.dl=DL;if(!state.assets)state.assets=demoAssets;$("#status").innerHTML="";state.loaded=true;render();
 }
 
 demoStart();
