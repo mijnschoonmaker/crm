@@ -118,7 +118,7 @@ function openOpdrachtWerk(kid,focus){
         <label><span class="ow-lt">Tijdsduur <small>· overschrijven</small></span><span class="ow-in"><input data-i="${di}" data-rk="spod:${k}" type="number" step="1" min="0" value="${esc(q.spod[k]??"")}" placeholder="${rw?Math.ceil(rw.cm):0}"><em>min</em></span></label></div>
         <div class="ow-fx">${rw?`<p class="ow-calcd">${I.calculator}<span>${cnt} st · ${eur(rw.cp)} · ${Math.ceil(rw.cm)} min</span>${rw.ovP||rw.ovD?"<b>eigen waarde</b>":""}</p>`:"<span></span>"}<div class="ow-fxa"><button type="button" class="small ow-ber" data-sber="${di}:${k}" title="Prijs en tijd opnieuw berekenen">${I.calculator}Berekenen</button></div></div>
         ${kozBlok(di,"s",k,q.spkf[k],q.spkfq[k],q.spkvol[k],q.spkop[k],q.spkod[k])}`:""}</div>`}).join("")}</div></div>`;
-  const calcHtml=(r,i,isMain)=>{const q=normR(r.ramen);r.ramen=q;const c=calcR(r,isMain)||{c:{min:0,kozMin:0,start:0},rows:[],count:0,min:0,glas:0,kozP:0,ex:0,inc:0};const di=isMain?"m":i;
+  const calcHtml=(r,i,isMain)=>{const q=normR(r.ramen);r.ramen=q;const c=calcR(r,isMain)||{c:{min:0,kozMin:0,start:0},rows:[],count:0,min:0,glas:0,kozP:0,ex:0,inc:0};const di=isMain?"m":String(i);
     const heeft=q.f.some(n=>n)||SPK.some(x=>Number(q.sp[x]));
     if(!editR.has(di)&&heeft)return regelKaart(r,q,c,di,isMain);
     return `<div class="ow-calc" data-calc="${di}">${heeft?`<div style="display:flex;justify-content:flex-end"><button type="button" class="small" data-rdone="${di}">${I.check}Klaar met wijzigen</button></div>`:""}
