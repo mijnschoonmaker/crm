@@ -97,7 +97,7 @@ function openKlantView(id,opt={}){
   const re=()=>{const y=dlg.scrollTop;openKlantView(k.id);dlg.scrollTop=y};
   const cur=()=>state.klanten.find(x=>x.id===k.id)||k;
   const put=async patch=>{await save("klanten",k.id,{...strip(cur()),...patch})};
-  form.querySelectorAll("[data-kk]").forEach(b=>b.onclick=async e=>{e.preventDefault();const a=b.dataset.kk;if(a==="opdrfirst"){toast(k.opdrachtVerwijderd||k.prospect?"Maak eerst een offerte via de knop “Offerte maken”. Na akkoord ontstaat de opdracht, daarna kun je hier extra diensten toevoegen.":GLAS_REGEL+" Deze klant heeft geen lopende glasbewassing.");const o=form.querySelector('.kp [data-act="newofferte"]');if(o){o.scrollIntoView({block:"center",behavior:"smooth"});o.classList.remove("flash");void o.offsetWidth;o.classList.add("flash")}return}
+  form.querySelectorAll("[data-kk]").forEach(b=>b.onclick=async e=>{e.preventDefault();const a=b.dataset.kk;if(a==="opdrfirst"){/* nieuwe klant of klant zonder opdracht: direct een (hoofd)opdracht aanmaken */if(k.opdrachtVerwijderd||k.prospect){kkNieuweHoofd(k.id);return}toast(GLAS_REGEL+" Deze klant heeft geen lopende glasbewassing.");const o=form.querySelector('.kp [data-act="newofferte"]');if(o){o.scrollIntoView({block:"center",behavior:"smooth"});o.classList.remove("flash");void o.offsetWidth;o.classList.add("flash")}return}
     if(a==="edit")return kkGegevens(k.id);
     if(a==="arch"){state.kkArch=!state.kkArch;return re()}
     if(a==="fp"){state.kkFP=Math.max(0,(state.kkFP||0)+Number(b.dataset.n));return re()}
@@ -231,7 +231,7 @@ function kkDelOpdracht(kid,oid,back){const k=state.klanten.find(x=>x.id===kid);i
 }
 /* nieuwe opdracht bij een klant zonder opdrachten: wordt weer de hoofdopdracht */
 async function kkNieuweHoofd(kid){const k=state.klanten.find(x=>x.id===kid);if(!k)return;
-  try{await save("klanten",kid,{...strip(k),opdrachtVerwijderd:false,actief:true,dienst:"Glasbewassing",prijs:0,ramenRegel:null,opdrachten:k.opdrachten||[]});setTimeout(()=>openOpdrachtWerk(kid),60)}catch(er){err(er)}}
+  try{await save("klanten",kid,{...strip(k),opdrachtVerwijderd:false,prospect:false,actief:true,dienst:"Glasbewassing",prijs:0,ramenRegel:null,opdrachten:k.opdrachten||[]});setTimeout(()=>openOpdrachtWerk(kid),60)}catch(er){err(er)}}
 
 /* offerte verwijderen vanuit de klantkaart */
 function kkDelOfferte(fid){const f=state.facturen.find(x=>x.id===fid);if(!f)return;const kid=f.klantId;

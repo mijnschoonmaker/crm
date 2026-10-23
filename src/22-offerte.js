@@ -111,7 +111,7 @@ function openOfferte(opts={}){
     if(e.target.closest("#owRcX")){rc=null;draw();return}const b=e.target.closest("[data-rm]");if(b){extra.splice(Number(b.dataset.rm),1);draw()}});
   $("#owAdd").onclick=()=>{extra.push({omschrijving:"",aantal:1,prijs:""});draw();const l=$("#owRegels").querySelectorAll(".line input[data-k=omschrijving]");if(l.length)l[l.length-1].focus()};
   form.querySelectorAll("[data-dn]").forEach(b=>b.onclick=()=>{const d=diensten[+b.dataset.dn];
-    if(d.glas){const r=$("#owRc");if(r)r.scrollIntoView({block:"start",behavior:"smooth"});toast("Maak foto's en tik de ramen aan in de rekentool");return}
+    if(d.glas){/* voorkeur: foto's aantikken; de aantallen kunnen ook met de hand */try{RC.handmatig(true)}catch(e){}const r=$("#owRc");if(r)r.scrollIntoView({block:"start",behavior:"smooth"});toast("Tik bij voorkeur de ramen aan op foto's. Geen foto? Vul de aantallen per verdieping zelf in.");return}
     if(d.items&&d.items.length){const bestaand=dns.findIndex(x=>x.groep===d.groep);if(bestaand<0)dns.push({id:newId("o"),groep:d.groep,naam:d.naam,frequentie:Number($o("freq").value)||8,items:d.items.map(it=>({...it,aantal:0}))});draw();const c=$("#owRegels").querySelectorAll(".ow-dn");const el=c[bestaand<0?c.length-1:bestaand];if(el)el.scrollIntoView({block:"center",behavior:"smooth"});return}
     extra.push({omschrijving:d.naam,aantal:1,prijs:r2(ex2inc(d.prijs||0))});draw()});
   $o("btw").onchange=tot;

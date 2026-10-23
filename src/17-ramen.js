@@ -204,6 +204,10 @@ details[open] summary::after{content:"−"}
 :host([data-offerte]) #ovCard,:host([data-offerte]) #cFreq,:host([data-offerte]) #cFloors,:host([data-offerte]) #cSpecial,:host([data-offerte]) #cRates,:host([data-offerte]) .kozf,:host([data-offerte]) .desk-calc,:host([data-offerte]) #stale,:host([data-offerte]) #result,:host([data-offerte]) .mbar{display:none!important}
 :host([data-offerte]) #cFreq .head h2{font-size:0}:host([data-offerte]) #cFreq .head h2::after{content:"Frequentie";font-size:20px}
 :host([data-embed]) .wrap{max-width:none}
+.handm{display:none}
+:host([data-offerte]) .handm{display:inline-flex;align-self:flex-start;margin-top:8px;background:none;border:0;padding:0;font:inherit;font-size:13px;font-weight:600;color:#0d121b;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+:host([data-offerte][data-handmatig]) #cFloors,:host([data-offerte][data-handmatig]) #cSpecial{display:block!important}
+:host([data-offerte][data-handmatig]) #cFloors .hint,:host([data-offerte][data-handmatig]) #cSpecial .hint{display:none}
 .acts .b3{grid-column:auto}
 .pv-stage{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;align-items:center;gap:14px;padding:6px 0}
 .pv-stage img{width:min(100%,760px);height:auto;border-radius:6px;box-shadow:0 4px 18px rgb(0 0 0 / .5);background:#fff}
@@ -280,6 +284,7 @@ const RC_HTML=`<div class="wrap">
         <input id="ph-in" type="file" accept="image/*" multiple hidden>
         <span class="phhint">Maak foto's van alle zijden. Kies per stip de verdieping of soort raam; de aantallen gaan vanzelf naar de telling. Markeer elk raam op maar één foto.</span>
         <div class="phsum" id="phsum" hidden></div>
+        <button type="button" class="handm" id="handm">Geen foto bij de hand? Vul de aantallen zelf in</button>
       </div>
       <div class="fld full keep"><label class="lab" for="k-notitie">Notitie voor op de route</label><textarea class="in" id="k-notitie" rows="2" placeholder="Bijv. sleutel onder bloempot, hond aanwezig"></textarea></div>
     </div>
@@ -448,6 +453,7 @@ const ICON={
   function updateCount(){g("barCount").textContent=totalCount()}
   let hasResult=false;
   let acT=0;
+  function setHandm(on){if(on)host.setAttribute("data-handmatig","");else host.removeAttribute("data-handmatig");const b=g("handm");if(b)b.textContent=on?"Handmatige telling verbergen":"Geen foto bij de hand? Vul de aantallen zelf in";if(on){renderFloors();renderSpecial()}}
   function markStale(){if(hasResult)g("stale").hidden=false;if(host.hasAttribute("data-offerte")){clearTimeout(acT);acT=setTimeout(()=>{if(host.isConnected&&host.hasAttribute("data-offerte")){try{calculate(false)}catch(e){}}},150)}}
   /* overige diensten uit Uitvoering › Diensten (alleen groepen die in de calculator aan staan) */
   let ovr={},ovrFreq={};
@@ -858,6 +864,7 @@ const ICON={
   root.querySelector(".form").addEventListener("input",e=>{if(e.target.id!=="ph-in"&&e.target.id!=="k-sel")markStale()});
   g("k-last").addEventListener("click",e=>{if(e.target.closest("#loadTel")){const k=state.klanten.find(x=>x.id===g("k-sel").value);if(k)loadTelling(k)}});
   /* foto's */
+  g("handm").addEventListener("click",()=>{const on=!host.hasAttribute("data-handmatig");setHandm(on);if(on){const c=g("cFloors");if(c)c.scrollIntoView({block:"start",behavior:"smooth"})}});
   g("ph-in").addEventListener("change",async e=>{const files=[...e.target.files];e.target.value="";
     for(const f of files){try{photos.push(await loadPhoto(f))}catch(_){}}renderPhotos();markStale();if(files.length===1&&photos.length)openEd(photos.length-1)});
   /* ramen tellen met AI (zelfde telling als bij de tellingcontrole): de foto's met stippen komen hier binnen en de aantallen gaan naar de telling */
@@ -903,8 +910,11 @@ const ICON={
     async telling(){if(!lastR)return {t:null,fail:0};return tellingFor(lastR,{})},
     loadObj(t){if(t)return loadTelling({ramenTelling:t},true)},
     getFreq(){return g("freq").value},setFreq(fk){if(FREQ[fk]){g("freq").value=fk;markStale()}},
-    setOfferte(on){if(on)host.setAttribute("data-offerte","");else host.removeAttribute("data-offerte");if(on&&lastQ)calculate(false)},
-    setEmbed(o,doReset){embed=o||null;host.removeAttribute("data-offerte");if(o)host.setAttribute("data-embed","");else host.removeAttribute("data-embed");host.removeAttribute("data-locked");onSaved=null;
+    setOfferte(on){if(on)host.setAttribute("data-offerte","");else host.removeAttribute("data-offerte");if(on&&totalCount()>photos.flatMap(p=>p.dots).length)setHandm(true);if(on&&lastQ)calculate(false)},
+    /* aantallen zelf invullen (zonder foto's); foto's blijven de voorkeur */
+    handmatig(on){setHandm(on)},
+    isHandmatig(){return host.hasAttribute("data-handmatig")},
+    setEmbed(o,doReset){embed=o||null;host.removeAttribute("data-offerte");host.removeAttribute("data-handmatig");if(o)host.setAttribute("data-embed","");else host.removeAttribute("data-embed");host.removeAttribute("data-locked");onSaved=null;
       g("k-eb").textContent=o?"Woning":"Klant";g("k-h2").textContent=o?"Foto's van de woning":"Klantgegevens";if(doReset)resetAll();if(o&&o.klantId){fillKlantSelect();g("k-sel").value=o.klantId}},
     loadFor(id){const k=state.klanten.find(x=>x.id===id);if(k&&k.ramenTelling)loadTelling(k,true)},
     setLocked(on,cb){if(on)host.setAttribute("data-locked","");else host.removeAttribute("data-locked");onSaved=on?cb:null;g("k-eb").textContent=on?"Woning":"Klant";g("k-h2").textContent=on?"Foto's en notitie":"Klantgegevens"},
