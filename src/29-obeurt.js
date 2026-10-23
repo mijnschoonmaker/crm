@@ -123,7 +123,13 @@ function dpOpen(i){if(dpIn===i){dpClose();return}dpClose();dpIn=i;i.classList.ad
   dpEl=document.createElement("div");dpEl.className="dp";dpEl.setAttribute("role","dialog");dpEl.setAttribute("aria-label","Datum kiezen");dpDraw();
   (i.closest("dialog")||document.body).appendChild(dpEl);
   const r=vpR(i),W=Math.min(320,innerWidth-16),H=dpEl.offsetHeight;let x=Math.min(Math.max(8,r.left),innerWidth-W-8),y=r.bottom+6;if(y+H>innerHeight-8)y=Math.max(8,r.top-H-6);
-  Object.assign(dpEl.style,{left:x+"px",top:y+"px",width:W+"px"});document.addEventListener("keydown",dpKey,true);
+  Object.assign(dpEl.style,{left:x+"px",top:y+"px",width:W+"px"});
+  /* nameten en binnen beeld schuiven: binnen een venster valt alles buiten de rand van dat venster weg */
+  {const a=dpEl.getBoundingClientRect(),dl=i.closest("dialog"),c=dl?dl.getBoundingClientRect():null,vw=document.documentElement.clientWidth||innerWidth,vh=document.documentElement.clientHeight||innerHeight,k=a.width?W/a.width:1;
+    const L=Math.max(8,c?c.left+8:8),R=Math.min(vw-8,c?c.right-8:vw-8),T=Math.max(8,c?c.top+8:8),B=Math.min(vh-8,c?c.bottom-8:vh-8);let dx=0,dy=0;
+    if(a.right>R)dx=R-a.right;if(a.left+dx<L)dx=L-a.left;if(a.bottom>B)dy=B-a.bottom;if(a.top+dy<T)dy=T-a.top;
+    if(dx||dy)Object.assign(dpEl.style,{left:(x+dx*k)+"px",top:(y+dy*k)+"px"})}
+  document.addEventListener("keydown",dpKey,true);
   dpEl.addEventListener("click",e=>{e.stopPropagation();const b=e.target.closest("button");if(!b)return;
     if(b.dataset.dp){dpSet(dpParse(b.dataset.dp));return}if(b.dataset.dpq!=null){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+(+b.dataset.dpq));dpSet(d);return}
     if(b.dataset.dpm){dpView.setMonth(dpView.getMonth()+(+b.dataset.dpm));dpDraw();return}if(b.hasAttribute("data-dpc")){dpSet(null)}});
