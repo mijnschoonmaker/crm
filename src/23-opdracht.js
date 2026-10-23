@@ -319,7 +319,7 @@ function openOpdrachtWerk(kid,focus){
   const fotoUpload=async f=>{if(state.assets)return state.assets.upload(f);if(window.ZEEM_PUT){const id=[...crypto.getRandomValues(new Uint8Array(16))].map(x=>x.toString(16).padStart(2,"0")).join("");await window.ZEEM_PUT(id,f,f.type||"image/jpeg");return {id}}throw new Error("Uploaden kan hier niet")};
   const ff=$("#owFoto");if(ff&&ff.parentElement)ff.parentElement.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();ff.click()}};
   if(ff)ff.onchange=async e=>{const files=[...e.target.files];e.target.value="";const start=fotos.length;
-    for(const file of files){try{const sz=await imgSize(file);const r=await fotoUpload(file);fotos.push({id:r.id,naam:file.name,datum:iso(today()),w:sz.w,h:sz.h,dots:[]})}catch(er){toast("Foto "+file.name+" kon niet worden geüpload")}}
+    for(const file of files){try{const sz=await imgSize(file);const r=await fotoUpload(file);fotos.push({id:r.id,naam:file.name,datum:iso(today()),w:sz.w,h:sz.h,dots:[]})}catch(er){console.error("foto uploaden",er);toast("Foto "+file.name+" kon niet worden geüpload ("+String((er&&(er.code||er.message))||"onbekende fout").replace(/^storage\//,"")+")")}}
     drawFotos();if(fotos.length>start)openFotoViewer(allFotos(),tFotos.length+start,{edit:i=>i>=tFotos.length,onChange:(i,dots)=>{fotos[i-tFotos.length].dots=dots;drawFotos()}})};
   $("#owFotos").addEventListener("click",e=>{const b=e.target.closest("[data-frm]");if(b){e.preventDefault();e.stopPropagation();fotos.splice(+b.dataset.frm-tFotos.length,1);drawFotos();return}
     const c=e.target.closest("[data-fi]");if(c){e.preventDefault();openFotoViewer(allFotos(),+c.dataset.fi,{edit:i=>i>=tFotos.length,onChange:(i,dots)=>{fotos[i-tFotos.length].dots=dots;drawFotos()}})}});
