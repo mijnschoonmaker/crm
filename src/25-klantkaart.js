@@ -230,8 +230,11 @@ function kkDelOpdracht(kid,oid,back){const k=state.klanten.find(x=>x.id===kid);i
     try{await save("klanten",kid,{...strip(cur),...p});toast("Opdracht verwijderd"+(fut&&cur.gepland&&main?" · afspraak "+fmtD(cur.gepland)+" vervalt":""));openKlantView(kid)}catch(er){$("#odS").disabled=false;err(er)}};
 }
 /* nieuwe opdracht bij een klant zonder opdrachten: wordt weer de hoofdopdracht */
+/* begint leeg: geen aantallen, prijzen of kozijnen van de verwijderde opdracht; de foto's van de woning blijven bij de klant (zonder stippen) */
 async function kkNieuweHoofd(kid){const k=state.klanten.find(x=>x.id===kid);if(!k)return;
-  try{await save("klanten",kid,{...strip(k),opdrachtVerwijderd:false,prospect:false,actief:true,dienst:"Glasbewassing",prijs:0,ramenRegel:null,opdrachten:k.opdrachten||[]});setTimeout(()=>openOpdrachtWerk(kid),60)}catch(er){err(er)}}
+  const oud=((k.ramenTelling||{}).fotos||[]).filter(f=>f&&f.id&&!(k.fotos||[]).some(x=>x.id===f.id)).map(f=>({id:f.id,naam:"Woning (vorige telling)",datum:(k.ramenTelling||{}).datum||iso(today())}));
+  try{await save("klanten",kid,{...strip(k),opdrachtVerwijderd:false,prospect:false,actief:true,dienst:"Glasbewassing",prijs:0,ramenRegel:null,ramenTelling:null,taak:"",toeslag:0,toeslagReden:"",
+    fotos:[...(k.fotos||[]),...oud],opdrachten:(k.opdrachten||[]).filter(o=>o.actief!==false)});setTimeout(()=>openOpdrachtWerk(kid),60)}catch(er){err(er)}}
 
 /* offerte verwijderen vanuit de klantkaart */
 function kkDelOfferte(fid){const f=state.facturen.find(x=>x.id===fid);if(!f)return;const kid=f.klantId;
