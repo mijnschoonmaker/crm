@@ -1,0 +1,156 @@
+import { useEffect, useRef, useState } from "react"
+import { addPropertyControls, ControlType, createStore } from "framer"
+
+type Img = { src?: string; alt?: string } | string | undefined
+const src = (i: Img, d: string) => (typeof i === "string" ? i : i?.src) || d
+const useStore = createStore({ actief: 0, auto: true })
+
+const FONT = '"Nunito Sans","Avenir Next","Avenir","Segoe UI",system-ui,sans-serif'
+const DISPLAY = '"Avenir Next","Avenir","Nunito Sans","Segoe UI",system-ui,sans-serif'
+const GB = "#252c3c", MUTED = "#646b7a", LINE = "#e2e5ea"
+const BASIS = "https://app.mansard.nl/site/"
+const DUUR = 6500
+
+const TABS = [
+    { k: "overzicht", t: "Overzicht", s: "Uw volgende bezoek, met aftelling en snelle acties.", d: "M3 11.5 12 4l9 7.5|M5.5 10v9.5h13V10", f: "portaal-home.jpg", n: 0 },
+    { k: "live", t: "Live volgen", s: "Zie ons aankomen en hoeveel adressen er nog voor u zijn.", d: "M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z|C12 9.5 2.5", f: "portaal-live.jpg", n: 0 },
+    { k: "facturen", t: "Facturen", s: "Alles op een rij, open facturen betaalt u met iDEAL.", d: "M6 3h9l4 4v14H6z|M9 12h7M9 16h5", f: "portaal-facturen.jpg", n: 3 },
+    { k: "credits", t: "Credits", s: "Uw spaarsaldo en hoe u meer korting verdient.", d: "R3 8 18 4|M5 12v8h14v-8M12 8v12", f: "portaal-credits.jpg", n: 4 },
+    { k: "tickets", t: "Tickets", s: "Vragen en verzoeken, met foto, en u volgt de voortgang.", d: "M3 7.5A1.5 1.5 0 0 1 4.5 6h15A1.5 1.5 0 0 1 21 7.5V10a2 2 0 0 0 0 4v2.5a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 16.5V14a2 2 0 0 0 0-4z", f: "portaal-tickets.jpg", n: 2 },
+    { k: "afspraken", t: "Afspraken", s: "Verzetten, overslaan of uw vakantie doorgeven.", d: "R3 4.5 18 16.5|M3 10h18M8 2.5v4M16 2.5v4", f: "portaal-bezoeken.jpg", n: 1 },
+]
+
+function Icoon({ d, size = 20 }: { d: string; size?: number }) {
+    return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            {d.split("|").map((p, i) => {
+                if (p[0] === "C") { const [x, y, r] = p.slice(1).split(" ").map(Number); return <circle key={i} cx={x} cy={y} r={r} /> }
+                if (p[0] === "R") { const [x, y, w, h] = p.slice(1).split(" ").map(Number); return <rect key={i} x={x} y={y} width={w} height={h} rx={w > 10 ? 2.5 : 0} /> }
+                return <path key={i} d={p} />
+            })}
+        </svg>
+    )
+}
+
+/**
+ * De onderdelen van het klantportaal, klikbaar. Wisselt vanzelf en stuurt de telefoon ernaast aan.
+ * @framerSupportedLayoutWidth any-prefer-fixed
+ * @framerSupportedLayoutHeight auto
+ * @framerIntrinsicWidth 520
+ */
+export default function PortaalTabs(props: { kleur: string; style?: React.CSSProperties }) {
+    const { kleur = GB, style } = props
+    const [st, setSt] = useStore()
+    const [w, setW] = useState(520)
+    const doos = useRef<HTMLDivElement>(null)
+    const [t0, setT0] = useState(0)
+
+    useEffect(() => {
+        const meet = () => doos.current && setW(doos.current.clientWidth)
+        meet()
+        window.addEventListener("resize", meet)
+        return () => window.removeEventListener("resize", meet)
+    }, [])
+    useEffect(() => {
+        if (!st.auto) return
+        const stil = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        if (stil) return
+        setT0(Date.now())
+        const id = setTimeout(() => setSt({ actief: (st.actief + 1) % TABS.length }), DUUR)
+        return () => clearTimeout(id)
+    }, [st.actief, st.auto])
+
+    const smal = w < 460
+    return (
+        <div ref={doos} style={{ ...style, width: "100%", fontFamily: FONT, color: "#0d121b", WebkitFontSmoothing: "antialiased" }}>
+            <style>{`@keyframes kpVul{from{width:0}to{width:100%}}`}</style>
+            <div role="tablist" aria-label="Onderdelen van het portaal" style={{ display: "grid", gap: smal ? 8 : 4, gridTemplateColumns: smal ? "repeat(3,minmax(0,1fr))" : "1fr" }}>
+                {TABS.map((t, i) => {
+                    const on = i === st.actief
+                    return (
+                        <button
+                            key={t.k}
+                            role="tab"
+                            aria-selected={on}
+                            type="button"
+                            onClick={() => setSt({ actief: i, auto: false })}
+                            style={{
+                                display: "grid", gridTemplateColumns: smal ? "1fr" : "44px minmax(0,1fr)", justifyItems: smal ? "center" : "stretch",
+                                gap: smal ? 8 : 16, alignItems: "center", textAlign: smal ? "center" : "left", background: on ? "#fff" : "transparent",
+                                border: `1px solid ${on ? LINE : "transparent"}`, borderRadius: 16, padding: smal ? "12px 6px" : "14px 16px", cursor: "pointer",
+                                color: "inherit", position: "relative", fontFamily: FONT, transition: "background .2s",
+                            }}
+                        >
+                            <span style={{ width: 44, height: 44, borderRadius: 12, display: "grid", placeItems: "center", background: on ? kleur : "#fff", border: `1px solid ${on ? kleur : LINE}`, color: on ? "#fff" : kleur, transition: "all .2s" }}>
+                                <Icoon d={t.d} />
+                            </span>
+                            <span>
+                                <b style={{ display: "block", fontFamily: DISPLAY, fontSize: smal ? 9.5 : 12, letterSpacing: smal ? "0.14em" : "0.2em", textTransform: "uppercase", fontWeight: 600 }}>{t.t}</b>
+                                {!smal && <span style={{ display: "block", fontSize: 14, color: MUTED, lineHeight: 1.45, marginTop: 3 }}>{t.s}</span>}
+                            </span>
+                            {on && (
+                                <span style={{ position: "absolute", left: smal ? 12 : 76, right: smal ? 12 : 16, bottom: smal ? 4 : 8, height: 2, borderRadius: 2, background: LINE, overflow: "hidden" }}>
+                                    <i key={st.actief + "-" + t0} style={{ display: "block", height: "100%", width: st.auto ? 0 : "100%", background: kleur, animation: st.auto ? `kpVul ${DUUR}ms linear forwards` : "none" }} />
+                                </span>
+                            )}
+                        </button>
+                    )
+                })}
+            </div>
+        </div>
+    )
+}
+
+/**
+ * Telefoon met het echte klantportaal. Toont het scherm dat bij de gekozen tab hoort.
+ * @framerSupportedLayoutWidth fixed
+ * @framerSupportedLayoutHeight auto
+ * @framerIntrinsicWidth 330
+ */
+export function PortaalTelefoon(props: { overzicht?: Img; live?: Img; facturen?: Img; credits?: Img; tickets?: Img; afspraken?: Img; kleur: string; style?: React.CSSProperties }) {
+    const { kleur = GB, style } = props
+    const [st] = useStore()
+    const beelden = TABS.map((t) => src((props as any)[t.k], BASIS + t.f))
+    const NAV = [
+        { t: "Overzicht", d: TABS[0].d }, { t: "Bezoeken", d: "R3 4.5 18 16.5|M3 10h18" }, { t: "Tickets", d: TABS[4].d },
+        { t: "Facturen", d: TABS[2].d }, { t: "Credits", d: TABS[3].d },
+    ]
+    const navOn = TABS[st.actief].n
+    return (
+        <div style={{ ...style, width: "100%", fontFamily: FONT }} aria-live="polite">
+            <div style={{ width: "100%", aspectRatio: "9 / 19", borderRadius: 52, padding: 11, boxSizing: "border-box", background: "linear-gradient(145deg,#5d6068,#1b1d22 20%,#3d4047 55%,#16181c 85%,#4d5057)", boxShadow: "0 60px 90px -50px rgba(26,32,48,.8), 0 0 0 1px rgba(0,0,0,.4)", position: "relative" }}>
+                <div style={{ width: "100%", height: "100%", borderRadius: 42, background: "#f4f5f7", overflow: "hidden", position: "relative", display: "flex", flexDirection: "column" }}>
+                    <div style={{ position: "absolute", top: 10, left: "50%", width: 96, height: 28, marginLeft: -48, borderRadius: 20, background: "#000", zIndex: 5 }} />
+                    <div style={{ display: "flex", justifyContent: "space-between", padding: "16px 26px 0", fontSize: 12, fontWeight: 700, height: 44, flex: "none", color: "#0d121b", boxSizing: "border-box" }}>
+                        <span>9:41</span>
+                        <svg height="11" viewBox="0 0 64 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1" /><rect x="5" y="5" width="3" height="7" rx="1" /><rect x="10" y="3" width="3" height="9" rx="1" /><rect x="15" y="1" width="3" height="11" rx="1" /><rect x="38" y="1" width="22" height="10" rx="3" fill="none" stroke="currentColor" /><rect x="40" y="3" width="16" height="6" rx="1.5" /></svg>
+                    </div>
+                    <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
+                        {beelden.map((b, i) => (
+                            <img key={i} src={b} alt={TABS[i].t + " in het klantportaal"} loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", opacity: i === st.actief ? 1 : 0, transition: "opacity .45s ease" }} />
+                        ))}
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-around", padding: "8px 6px 18px", background: "#fff", borderTop: `1px solid ${LINE}`, flex: "none" }}>
+                        {NAV.map((n, i) => (
+                            <span key={n.t} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, fontSize: 8.5, fontWeight: 700, color: i === navOn ? kleur : "#9aa0ab" }}>
+                                <Icoon d={n.d} size={17} />
+                                {n.t}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+addPropertyControls(PortaalTabs, { kleur: { type: ControlType.Color, title: "Kleur", defaultValue: GB } })
+addPropertyControls(PortaalTelefoon, {
+    kleur: { type: ControlType.Color, title: "Kleur", defaultValue: GB },
+    overzicht: { type: ControlType.ResponsiveImage, title: "Overzicht" },
+    live: { type: ControlType.ResponsiveImage, title: "Live" },
+    facturen: { type: ControlType.ResponsiveImage, title: "Facturen" },
+    credits: { type: ControlType.ResponsiveImage, title: "Credits" },
+    tickets: { type: ControlType.ResponsiveImage, title: "Tickets" },
+    afspraken: { type: ControlType.ResponsiveImage, title: "Afspraken" },
+})

@@ -1,0 +1,85 @@
+import { useEffect, useRef, useState } from "react"
+import { addPropertyControls, ControlType } from "framer"
+
+type Kaart = { aantal: number; titel: string; tekst: string }
+const FONT = '"Nunito Sans","Avenir Next","Avenir","Segoe UI",system-ui,sans-serif'
+const DISPLAY = '"Avenir Next","Avenir","Nunito Sans","Segoe UI",system-ui,sans-serif'
+const STANDAARD: Kaart[] = [
+    { aantal: 20, titel: "Beveel een buur aan", tekst: "Uw buur krijgt € 10 welkomstkorting, u krijgt 20 credits na de eerste beurt." },
+    { aantal: 10, titel: "Elk jaar klant", tekst: "Op de dag dat u weer een jaar klant bent, als bedankje." },
+    { aantal: 1, titel: "Betaal binnen 24 uur", tekst: "Voor elke factuur die u binnen een dag betaalt." },
+    { aantal: 3, titel: "Bestel iets extra's", tekst: "Goten, gevelelementen, dakkapel of zonnepanelen." },
+]
+const STREEP = "repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 1px,rgba(0,0,0,.03) 1px 2px,transparent 2px 3px)"
+const METAAL = [
+    { naam: "Platinum", kleur: "#1c2231", sub: "#3a4150", bg: `${STREEP},radial-gradient(120% 90% at 80% -20%,rgba(255,255,255,.9),transparent 55%),linear-gradient(125deg,#f3f4f6,#c4c9d1 20%,#eceef2 38%,#a6adb8 58%,#e4e7ec 78%,#b9bfc8)` },
+    { naam: "Titanium", kleur: "#fff", sub: "rgba(255,255,255,.8)", bg: `${STREEP},radial-gradient(120% 90% at 80% -20%,rgba(255,255,255,.35),transparent 55%),linear-gradient(125deg,#9198a3,#5c636e 22%,#a2a9b3 42%,#4a515b 66%,#7f8691 84%,#5a616b)` },
+    { naam: "Black", kleur: "#fff", sub: "rgba(255,255,255,.75)", bg: `${STREEP},radial-gradient(120% 90% at 80% -20%,rgba(255,255,255,.16),transparent 55%),linear-gradient(125deg,#3b3e45,#17191d 28%,#2e3137 52%,#0c0d10 78%,#25272c)` },
+    { naam: "Pearl", kleur: "#1c2231", sub: "#4a5160", bg: `repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 1px,transparent 1px 3px),radial-gradient(90% 70% at 20% 120%,rgba(196,214,236,.55),transparent 60%),radial-gradient(80% 70% at 90% -10%,rgba(236,222,240,.7),transparent 60%),linear-gradient(125deg,#fbfbfc,#e6e8ee 30%,#f7f4f8 50%,#dfe5ee 75%,#f2f3f6)` },
+]
+
+/**
+ * Vier metalen spaarkaarten (Platinum, Titanium, Black, Pearl) met glans en optellende getallen.
+ * @framerSupportedLayoutWidth any-prefer-fixed
+ * @framerSupportedLayoutHeight auto
+ * @framerIntrinsicWidth 880
+ */
+export default function CreditKaarten(props: { kaarten: Kaart[]; style?: React.CSSProperties }) {
+    const { style } = props
+    const kaarten = (props.kaarten && props.kaarten.length ? props.kaarten : STANDAARD).slice(0, 4)
+    const doos = useRef<HTMLDivElement>(null)
+    const [w, setW] = useState(880)
+    const [tel, setTel] = useState(0)
+    useEffect(() => {
+        const el = doos.current
+        if (!el) return
+        const meet = () => setW(el.clientWidth)
+        meet()
+        window.addEventListener("resize", meet)
+        const stil = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        let raf = 0
+        const start = () => {
+            if (stil) { setTel(1); return }
+            const t0 = performance.now()
+            const stap = (t: number) => { const p = Math.min(1, (t - t0) / 1100); setTel(1 - Math.pow(1 - p, 3)); if (p < 1) raf = requestAnimationFrame(stap) }
+            raf = requestAnimationFrame(stap)
+        }
+        let io: IntersectionObserver | null = null
+        if ("IntersectionObserver" in window) {
+            io = new IntersectionObserver((es) => { if (es[0].isIntersecting) { start(); io && io.disconnect() } }, { rootMargin: "0px 0px -15% 0px" })
+            io.observe(el)
+        } else setTel(1)
+        return () => { window.removeEventListener("resize", meet); io && io.disconnect(); cancelAnimationFrame(raf) }
+    }, [])
+    const smal = w < 560
+    return (
+        <div ref={doos} style={{ ...style, width: "100%", fontFamily: FONT, WebkitFontSmoothing: "antialiased" }}>
+            <style>{`@keyframes ckGlans{0%{transform:translateX(-120%)}55%,100%{transform:translateX(320%)}}`}</style>
+            <div style={{ display: "grid", gridTemplateColumns: smal ? "1fr" : "repeat(2,minmax(0,1fr))", gap: smal ? 14 : 22 }}>
+                {kaarten.map((k, i) => {
+                    const m = METAAL[i % 4]
+                    return (
+                        <article key={i} style={{ position: "relative", overflow: "hidden", borderRadius: 22, padding: 28, minHeight: smal ? 0 : 230, color: m.kleur, background: m.bg, boxShadow: "inset 0 1px 0 rgba(255,255,255,.6), 0 30px 50px -36px rgba(0,0,0,.6)", display: "flex", flexDirection: "column", gap: 6 }}>
+                            <span aria-hidden="true" style={{ position: "absolute", top: 0, bottom: 0, left: 0, width: "36%", background: "linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent)", animation: `ckGlans 7s ease-in-out ${i * 1.4}s infinite`, pointerEvents: "none" }} />
+                            <span style={{ position: "absolute", right: 26, top: 28, fontFamily: DISPLAY, fontSize: 11, letterSpacing: "0.32em", textTransform: "uppercase", fontWeight: 700, opacity: 0.75 }}>{m.naam}</span>
+                            <div style={{ fontFamily: DISPLAY, fontWeight: 200, fontSize: 52, lineHeight: 1, letterSpacing: "0.01em", position: "relative" }}>
+                                +{Math.round(k.aantal * tel)}
+                                <sup style={{ fontSize: 13, letterSpacing: "0.2em", marginLeft: 8, verticalAlign: 16, fontWeight: 600, opacity: 0.85 }}>{k.aantal === 1 ? "credit" : "credits"}</sup>
+                            </div>
+                            <h3 style={{ margin: "20px 0 0", fontFamily: DISPLAY, fontSize: 13, letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, position: "relative" }}>{k.titel}</h3>
+                            <p style={{ margin: 0, fontSize: 15, lineHeight: 1.55, color: m.sub, position: "relative" }}>{k.tekst}</p>
+                        </article>
+                    )
+                })}
+            </div>
+        </div>
+    )
+}
+
+addPropertyControls(CreditKaarten, {
+    kaarten: {
+        type: ControlType.Array, title: "Kaarten", maxCount: 4,
+        control: { type: ControlType.Object, controls: { aantal: { type: ControlType.Number, title: "Credits", defaultValue: 5, min: 1, step: 1 }, titel: { type: ControlType.String, title: "Titel", defaultValue: "Titel" }, tekst: { type: ControlType.String, title: "Tekst", defaultValue: "Uitleg", displayTextArea: true } } },
+        defaultValue: STANDAARD,
+    },
+})

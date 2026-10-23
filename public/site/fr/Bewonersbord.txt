@@ -1,0 +1,103 @@
+import { useMemo } from "react"
+import { addPropertyControls, ControlType } from "framer"
+
+type Rij = { taak: string; door: string; wanneer: string }
+const FONT = '"Nunito Sans","Avenir Next","Avenir","Segoe UI",system-ui,sans-serif'
+const DISPLAY = '"Avenir Next","Avenir","Nunito Sans","Segoe UI",system-ui,sans-serif'
+const MUTED = "#646b7a", LINE = "#e2e5ea", INK = "#0d121b"
+const STANDAARD: Rij[] = [
+    { taak: "Trappenhuis en entree", door: "Mark", wanneer: "Vandaag 08:40" },
+    { taak: "Glas entree en lift", door: "Mark", wanneer: "Vandaag 08:55" },
+    { taak: "Fietsenberging", door: "Sem", wanneer: "Di 13 okt" },
+]
+
+/* decoratieve QR-achtige code */
+function qr(): boolean[][] {
+    const n = 21, g = [...Array(n)].map(() => Array(n).fill(false))
+    let sd = 7
+    const rnd = () => (sd = (sd * 9301 + 49297) % 233280) / 233280
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+        if ((x < 8 && y < 8) || (x > 12 && y < 8) || (x < 8 && y > 12)) continue
+        g[y][x] = rnd() > 0.52
+    }
+    const vind = (ox: number, oy: number) => {
+        for (let y = 0; y < 7; y++) for (let x = 0; x < 7; x++) {
+            const rand = x === 0 || y === 0 || x === 6 || y === 6, kern = x >= 2 && x <= 4 && y >= 2 && y <= 4
+            g[oy + y][ox + x] = rand || kern
+        }
+    }
+    vind(0, 0); vind(14, 0); vind(0, 14)
+    return g
+}
+
+/**
+ * Bewonersbord voor in de hal: wat er is gedaan, door wie en wanneer.
+ * @framerSupportedLayoutWidth any-prefer-fixed
+ * @framerSupportedLayoutHeight auto
+ * @framerIntrinsicWidth 520
+ */
+export default function Bewonersbord(props: { plek: string; rijen: Rij[]; volgende: string; toonQr: boolean; style?: React.CSSProperties }) {
+    const { plek = "Hal · Parkweg 2-48", volgende = "Vr 23 okt", toonQr = true, style } = props
+    const rijen = props.rijen && props.rijen.length ? props.rijen : STANDAARD
+    const raster = useMemo(qr, [])
+    const vink = (
+        <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#2f6b4f", color: "#fff", display: "grid", placeItems: "center", flex: "none" }}>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg>
+        </span>
+    )
+    return (
+        <div style={{ ...style, width: "100%", fontFamily: FONT, color: INK, WebkitFontSmoothing: "antialiased" }}>
+            <div style={{ background: "#fff", borderRadius: 24, padding: 24, display: "grid", gridTemplateColumns: toonQr ? "minmax(0,1fr) 128px" : "1fr", gap: 20, alignItems: "start", boxShadow: "0 40px 70px -40px rgba(0,0,0,.7)", transform: "rotate(-1.2deg)" }}>
+                <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <h3 style={{ margin: 0, fontFamily: DISPLAY, fontSize: 14, letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600 }}>Bewonersbord</h3>
+                        <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#3fbf7f", boxShadow: "0 0 0 4px rgba(63,191,127,.18)" }} />
+                    </div>
+                    <div style={{ color: MUTED, fontSize: 13, marginTop: 4 }}>{plek}</div>
+                    <ul style={{ listStyle: "none", padding: 0, margin: "18px 0 0", display: "grid", gap: 10 }}>
+                        {rijen.map((r, i) => (
+                            <li key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, fontSize: 14, paddingBottom: 10, borderBottom: `1px solid ${LINE}` }}>
+                                <div style={{ minWidth: 0 }}>
+                                    <div>{r.taak}</div>
+                                    <em style={{ display: "flex", alignItems: "center", gap: 7, fontStyle: "normal", color: MUTED, fontSize: 13, marginTop: 4 }}>
+                                        <i style={{ width: 19, height: 19, borderRadius: "50%", background: "#1c2231", color: "#fff", display: "grid", placeItems: "center", fontStyle: "normal", fontSize: 10, fontWeight: 800 }}>{(r.door || "?").slice(0, 1).toUpperCase()}</i>
+                                        door {r.door}
+                                    </em>
+                                </div>
+                                <span style={{ display: "flex", alignItems: "center", gap: 8, color: MUTED, whiteSpace: "nowrap" }}>{vink}{r.wanneer}</span>
+                            </li>
+                        ))}
+                        <li style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, fontSize: 14 }}>
+                            Volgende beurt
+                            <span style={{ display: "flex", alignItems: "center", gap: 8, color: MUTED }}>
+                                <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#eef0f3", display: "grid", placeItems: "center" }}>
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={INK} strokeWidth="2.2" strokeLinecap="round"><circle cx="12" cy="12" r="8" /><path d="M12 8v4l2.5 2" /></svg>
+                                </span>
+                                {volgende}
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+                {toonQr && (
+                    <div style={{ background: "#f4f5f7", borderRadius: 16, padding: 12, textAlign: "center" }}>
+                        <svg viewBox="0 0 21 21" width="100%" shapeRendering="crispEdges" style={{ display: "block", background: "#fff", padding: 4, boxSizing: "border-box", borderRadius: 4 }}>
+                            {raster.map((r, y) => r.map((v, x) => (v ? <rect key={x + "-" + y} x={x} y={y} width="1" height="1" fill="#1a2030" /> : null)))}
+                        </svg>
+                        <small style={{ display: "block", fontFamily: DISPLAY, fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: MUTED, marginTop: 8, lineHeight: 1.4 }}>Scan in de hal</small>
+                    </div>
+                )}
+            </div>
+        </div>
+    )
+}
+
+addPropertyControls(Bewonersbord, {
+    plek: { type: ControlType.String, title: "Plek", defaultValue: "Hal · Parkweg 2-48" },
+    rijen: {
+        type: ControlType.Array, title: "Taken",
+        control: { type: ControlType.Object, controls: { taak: { type: ControlType.String, title: "Taak", defaultValue: "Trappenhuis" }, door: { type: ControlType.String, title: "Door", defaultValue: "Mark" }, wanneer: { type: ControlType.String, title: "Wanneer", defaultValue: "Vandaag 09:00" } } },
+        defaultValue: STANDAARD, maxCount: 6,
+    },
+    volgende: { type: ControlType.String, title: "Volgende beurt", defaultValue: "Vr 23 okt" },
+    toonQr: { type: ControlType.Boolean, title: "QR-code", defaultValue: true },
+})
