@@ -9622,7 +9622,7 @@ const RC_HTML=`<div class="wrap">
     <p class="intro">Hoeveel normale ramen zijn er per verdieping?</p>
     <p class="hint">Loop om de woning en swipe per raam: <i class="h-add">→ +1</i><i class="h-sub">← −1</i></p>
     <div class="rows" id="floors"></div>
-    <div class="floor-actions"><button class="link" id="addFloor" type="button">+ Verdieping toevoegen</button><button class="link" id="removeFloor" type="button">Bovenste verwijderen</button></div>
+    <div class="floor-actions"><button class="link" id="addFloor" type="button">+ Verdieping toevoegen</button><button class="link" id="removeFloor" type="button">Hoogste verdieping verwijderen</button></div>
     <div class="tip"><b>Tip</b><span>Tel elk los glasvlak als één raam. Een raam met een bovenlicht en een onderraam telt dus als twee.</span></div>
   </section>
   <section class="card" id="cSpecial">
@@ -9773,7 +9773,8 @@ const ICON={
   const stepper=(id,v,label)=>`<div class="stepper"><button type="button" data-t="${id}" data-d="-1" aria-label="Eén minder: ${label}">−</button><input id="${id}" type="number" inputmode="numeric" min="0" max="500" value="${v}" aria-label="${label}"><button type="button" data-t="${id}" data-d="1" aria-label="Eén meer: ${label}">+</button></div>`;
   const swipeWrap=(id,inner)=>`<div class="swipe" data-id="${id}"><div class="under" aria-hidden="true"><span class="u-add">+1 raam</span><span class="u-sub">−1 raam</span></div>${inner}</div>`;
   function renderFloors(){let html="";
-    for(let i=floors.length-1;i>=0;i--){const n=floorName(i),k=winKey(i);
+    /* begane grond bovenaan, zoals bij de opdracht en op de offerte */
+    for(let i=0;i<floors.length;i++){const n=floorName(i),k=winKey(i);
       html+=swipeWrap("f"+i,`<div class="row${floors[i]?" on":""}"><div class="pic">${houseIcon(i,floors.length)}</div><div><div class="name">${n}</div><div class="sub">${cfg[k+"_s"]} sec · ${eur(cfg[k+"_p"])} per raam</div></div>${stepper("f"+i,floors[i],"Ramen "+n)}</div>`)}
     g("floors").innerHTML=html;g("removeFloor").disabled=floors.length<=1;g("addFloor").disabled=floors.length>=8;updateCount()}
   function renderSpecial(){g("special").innerHTML=SPECIAL.map(s=>swipeWrap("s-"+s.k,`<div class="row${special[s.k]?" on":""}"><div class="pic">${ICON[s.k]}</div><div><div class="name">${s.n}</div><div class="sub">${s.d} · ${cfg[s.k+"_s"]} sec</div></div>${stepper("s-"+s.k,special[s.k],s.n)}</div>`)).join("");updateCount()}
