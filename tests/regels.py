@@ -84,6 +84,10 @@ def main():
     mag("Geheime sleutels niet leesbaar (bedrijf A)", False, "GET", "bedrijven/baaaaaaa/geheim/config", ta)
     mag("Bedrijf A leest NIET de gebruikers van bedrijf B", False, "GET", f"gebruikers/{B}", ta)
     mag("Gebruiker maakt zichzelf NIET lid van een ander bedrijf", False, "PATCH", f"gebruikers/{A}", ta, {"fields": {"bedrijf": {"stringValue": "bbbbbbbb"}}})
+    nw = {"fields": {"bedrijf": {"stringValue": "baaaaaaa"}, "rol": {"stringValue": "medewerker"}}}
+    mag("Eigenaar bedrijf A voegt eigen medewerker toe", True, "PATCH", "gebruikers/nieuw@bedrijf-a.nl", ta, nw)
+    mag("Eigenaar bedrijf A maakt NIET het account van de platformeigenaar aan", False, "PATCH", f"gebruikers/{EIG}", ta, nw)
+    mag("Eigenaar bedrijf A maakt NIET het beheeraccount aan", False, "PATCH", "gebruikers/robin@mansard.nl", ta, nw)
     zet(f"mfa/{A}", {"aan": True})
     mag("Tweestapsverificatie aan: zonder code geen toegang", False, "GET", "bedrijven/baaaaaaa/klanten/k1", token(A))
     mag("Tweestapsverificatie aan: met bevestigde code wel toegang", True, "GET", "bedrijven/baaaaaaa/klanten/k1", token(A, mfa=[1700000000]))

@@ -5848,7 +5848,7 @@ const I={
 };
 
 const PAGES=[["vandaag","Vandaag"],["planning","Planning"],["klanten","Klanten"],["communicatie","Communicatie"],["offertes","Offertes"],["facturen","Facturen"],["uitvoering","Uitvoering"],["inzichten","Statistieken"],["instellingen","Instellingen"],["handleiding","Handleiding"]];
-const DIENSTEN=["Glasbewassing","Glasbewassing buiten","Begane grond glas","Binnen en buiten","Dakgoot reinigen","Zonnepanelen reinigen","Kozijnen reinigen","Gevelreiniging","Schoonmaak"];
+const DIENSTEN=["Glasbewassing","Begane grond glas","Binnen en buiten","Dakgoot reinigen","Zonnepanelen reinigen","Kozijnen reinigen","Gevelreiniging","Schoonmaak"];
 const KANAAL={whatsapp:"WhatsApp",sms:"SMS",email:"E-mail"};
 const KOSTCAT=["Materiaal","Brandstof","Auto en bus","Gereedschap","Telefoon en internet","Verzekering","Kleding","Software","Overig"];
 const TPL={
@@ -8989,7 +8989,7 @@ function openAangifte(y,q){
 }
 
 /* ---------- CALCULATOR ---------- */
-const DEFPRIJS=[{id:"d1",naam:"Glasbewassing buiten",perRaam:1.25,perM2:0,start:10,minimum:20},{id:"d2",naam:"Binnen en buiten",perRaam:2.25,perM2:0,start:12,minimum:32},
+const DEFPRIJS=[{id:"d1",naam:"Glasbewassing",perRaam:1.25,perM2:0,start:10,minimum:20},{id:"d2",naam:"Binnen en buiten",perRaam:2.25,perM2:0,start:12,minimum:32},
   {id:"d3",naam:"Begane grond glas",perRaam:1,perM2:0,start:8,minimum:18},{id:"d4",naam:"Dakgoot reinigen",perRaam:0,perM2:0,start:45,minimum:45},
   {id:"d5",naam:"Zonnepanelen reinigen",perRaam:3.5,perM2:0,start:25,minimum:60},{id:"d6",naam:"Schoonmaak",perRaam:0,perM2:1.8,start:0,minimum:40}];
 const prijslijst=()=>state.prijzen.diensten&&state.prijzen.diensten.length?state.prijzen.diensten:DEFPRIJS;
@@ -11685,7 +11685,7 @@ async function pdf(id){
 }
 const demoKlant={naam:"Familie de Vries",adres:"Voorbeeldstraat 12",postcode:"1234 AB",plaats:"Amsterdam",email:"klant@voorbeeld.nl",telefoon:"06 12 34 56 78"};
 const demoFactuur=()=>({soort:"factuur",nummer:today().getFullYear()+"-VOORBEELD",klantNaam:demoKlant.naam,klantAdres:fullAddr(demoKlant),datum:iso(today()),verval:iso(addDays(today(),Number(S().termijn)||14)),status:"open",btw:21,incl:false,
-  regels:[{omschrijving:"Glasbewassing buitenzijde (8-wekelijks)",aantal:1,prijs:45},{omschrijving:"Dakgoten uitzuigen",aantal:2,prijs:32.5},{omschrijving:"Zonnepanelen reinigen",aantal:1,prijs:60}],notitie:"Dit is een voorbeeldfactuur om je opmaak te bekijken. Er is niets verstuurd."});
+  regels:[{omschrijving:"Glasbewassing (8-wekelijks)",aantal:1,prijs:45},{omschrijving:"Dakgoten uitzuigen",aantal:2,prijs:32.5},{omschrijving:"Zonnepanelen reinigen",aantal:1,prijs:60}],notitie:"Dit is een voorbeeldfactuur om je opmaak te bekijken. Er is niets verstuurd."});
 function openVoorbeeld(){
   const f=demoFactuur();
   openDlg(`<div class="dlg-head"><span class="objic" style="background:var(--brand-soft);color:var(--brand)">${I.facturen}</span><div style="flex:1;min-width:0"><h3 style="font-size:19px">Voorbeeldfactuur</h3><div class="subt">Zo ziet je factuur-PDF eruit, met je logo en bedrijfsgegevens</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
@@ -15143,7 +15143,7 @@ if(LIVE){
       const n=Object.values(d.collecties).reduce((a,l)=>a+l.length,0),nb=(d.bestanden||[]).filter(b=>b.data).length;
       if(!(await vraag("Gegevens overzetten?",`${n} records en ${nb} foto's/bestanden uit de back-up van <b>${esc(d.gemaakt?fmtL(d.gemaakt.slice(0,10)):"onbekend")}</b> worden ingeladen.`,"Overzetten","Annuleren")))return;
       let k=0;const tik=()=>{R.textContent=`Bezig… ${k} van ${n+nb}`};
-      try{for(const b of d.bestanden||[]){if(!b.data)continue;const bl=await (await fetch(b.data)).blob();await window.ZEEM_PUT(b.id,bl,b.type||bl.type);k++;if(k%5===0)tik()}
+      try{for(const b of d.bestanden||[]){if(!b.data)continue;const bl=await (await fetch(b.data)).blob();try{await window.ZEEM_PUT(b.id,bl,b.type||bl.type)}catch(e){/* bestaat al */}k++;if(k%5===0)tik()}
         for(const col of COLS){for(const doc of d.collecties[col]||[]){const {id,...rest}=doc;if(!id)continue;await save(col,id,rest);k++;if(k%20===0)tik()}}
         R.innerHTML='<b style="color:var(--ok)">Klaar ✓</b> '+k+' onderdelen overgezet.';toast("Gegevens overgezet");controle()}
       catch(er){console.error(er);R.innerHTML='<span style="color:var(--late)">Overzetten stopte bij '+k+': '+esc(er.message||String(er))+'</span>'}}};
@@ -16025,9 +16025,9 @@ function demoMaak(){
   klanten.filter(k=>!k.gepland).forEach((k,i)=>{if(i%5===4)return;let d=1+Math.floor(R()*20);const wd=addDays(t,d).getDay();if(wd===0)d++;if(wd===6)d+=2;k.gepland=D(d);k.tijd=tijden[Math.floor(R()*tijden.length)]});
   /* offertes */
   const off=(n,naam,adres,st,regels,dd)=>facturen.push({id:"odemo"+n,soort:"offerte",nummer:"OFF-"+t.getFullYear()+"-"+String(n).padStart(3,"0"),klantId:"",klantNaam:naam,klantAdres:adres,klantEmail:"",datum:D(dd),verval:D(dd+30),status:st,regels,btw:21,incl:true,gemaakt:D(dd)+"T09:00:00.000Z"});
-  off(41,"Familie Wijnstra","Molenweg 7, 9363 AB Marum","verstuurd",[{omschrijving:"Glasbewassing buiten, elke 6 weken",aantal:1,prijs:32.5},{omschrijving:"Eenmalig kozijnen reinigen",aantal:1,prijs:85}],-3);
+  off(41,"Familie Wijnstra","Molenweg 7, 9363 AB Marum","verstuurd",[{omschrijving:"Glasbewassing, elke 6 weken",aantal:1,prijs:32.5},{omschrijving:"Eenmalig kozijnen reinigen",aantal:1,prijs:85}],-3);
   off(42,"Huisartsenpraktijk Aduard","Eikenlaan 2, 9831 AC Aduard","geaccepteerd",[{omschrijving:"Glasbewassing binnen en buiten, elke 4 weken",aantal:1,prijs:110}],-12);
-  off(43,"De Wit, Marco","Kievitstraat 21, 9351 KD Leek","concept",[{omschrijving:"Glasbewassing buiten",aantal:1,prijs:27.5}],0);
+  off(43,"De Wit, Marco","Kievitstraat 21, 9351 KD Leek","concept",[{omschrijving:"Glasbewassing",aantal:1,prijs:27.5}],0);
   /* berichten en bank */
   facturen.filter(f=>f.soort==="factuur").slice(-14).forEach((f,i)=>berichten.push({id:"mdemo"+i,klantId:f.klantId,klantNaam:f.klantNaam,naar:f.klantEmail,kanaal:"email",sjabloon:"factuur",onderwerp:"Factuur "+f.nummer+" – Voorbeeld Glazenwasserij",tekst:"Beste klant, in de bijlage vindt u factuur "+f.nummer+".",op:f.datum+"T13:05:00.000Z",ref:"factuur:"+f.id,status:i%3?"geopend":"bezorgd",opens:i%3?1+(i%2):0}));
   const lo=facturen.filter(f=>f.soort==="factuur"&&f.status==="open");

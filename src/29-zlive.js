@@ -196,7 +196,7 @@ if(LIVE){
       const n=Object.values(d.collecties).reduce((a,l)=>a+l.length,0),nb=(d.bestanden||[]).filter(b=>b.data).length;
       if(!(await vraag("Gegevens overzetten?",`${n} records en ${nb} foto's/bestanden uit de back-up van <b>${esc(d.gemaakt?fmtL(d.gemaakt.slice(0,10)):"onbekend")}</b> worden ingeladen.`,"Overzetten","Annuleren")))return;
       let k=0;const tik=()=>{R.textContent=`Bezig… ${k} van ${n+nb}`};
-      try{for(const b of d.bestanden||[]){if(!b.data)continue;const bl=await (await fetch(b.data)).blob();await window.ZEEM_PUT(b.id,bl,b.type||bl.type);k++;if(k%5===0)tik()}
+      try{for(const b of d.bestanden||[]){if(!b.data)continue;const bl=await (await fetch(b.data)).blob();try{await window.ZEEM_PUT(b.id,bl,b.type||bl.type)}catch(e){/* bestaat al */}k++;if(k%5===0)tik()}
         for(const col of COLS){for(const doc of d.collecties[col]||[]){const {id,...rest}=doc;if(!id)continue;await save(col,id,rest);k++;if(k%20===0)tik()}}
         R.innerHTML='<b style="color:var(--ok)">Klaar ✓</b> '+k+' onderdelen overgezet.';toast("Gegevens overgezet");controle()}
       catch(er){console.error(er);R.innerHTML='<span style="color:var(--late)">Overzetten stopte bij '+k+': '+esc(er.message||String(er))+'</span>'}}};

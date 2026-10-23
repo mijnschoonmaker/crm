@@ -24,8 +24,9 @@ const T = require("./tenant");
 const db = T.maakDb(rawDb);
 const BIDC = new Map(), BEST = new Map();
 async function bidVanEmail(e) {
-  if (!e) return T.LEGACY; const c = BIDC.get(e); if (c && Date.now() - c.t < 60e3) return c.b;
-  let b = T.LEGACY; try { const s = await rawDb.doc("gebruikers/" + e).get(); if (s.exists && T.BID_RE.test(String(s.data().bedrijf || ""))) b = s.data().bedrijf; } catch (x) {}
+  if (!e || e === "robin@mijnschoonmaker.com") return T.LEGACY; const c = BIDC.get(e); if (c && Date.now() - c.t < 60e3) return c.b;
+  /* lukt het opzoeken niet, dan geen gok (nooit terugvallen op het eerste bedrijf) */
+  let b = T.LEGACY; const s = await rawDb.doc("gebruikers/" + e).get(); if (s.exists && T.BID_RE.test(String(s.data().bedrijf || ""))) b = s.data().bedrijf;
   BIDC.set(e, { b, t: Date.now() }); return b;
 }
 async function bestaat(b) { const c = BEST.get(b); if (c && Date.now() - c.t < 300e3) return c.ok; const ok = (await rawDb.doc("bedrijven/" + b).get()).exists; BEST.set(b, { ok, t: Date.now() }); return ok; }
@@ -62,14 +63,14 @@ const nlTijd = (d = new Date()) => new Intl.DateTimeFormat("nl-NL", { timeZone: 
 async function leesAsset(id) { if (!id) return null; try { const f = bucket().file("assets/" + id); const [[m], [buf]] = await Promise.all([f.getMetadata(), f.download()]); return { bytes: buf, type: m.contentType || "" }; } catch (e) { return null; } }
 async function volgNummer() { const ref = db.doc("tellers/overzicht"); const n = await db.runTransaction(async t => { const s = await t.get(ref); const v = (s.exists ? s.data().n : 1800) + 1; t.set(ref, { n: v }); return v; }); return String(new Date().getFullYear()).slice(2) + "-" + String(n).padStart(6, "0"); }
 function bedrijfModel(b, logo) { return { naam: b.naam || "mijnschoonmaker.com", adres: b.adres || "", pcPlaats: [b.postcode, b.plaats].filter(Boolean).join(" "), telefoon: b.telefoon || "", email: b.email || "", kvk: b.kvk || "", btwnr: b.btwnr || "", iban: b.iban || "", bic: b.bic || "", logo }; }
-const voornaamVan = naam => { const n = String(naam || "").trim(); if (n.includes(",")) return n.split(",").slice(1).join(",").trim() || n; return n.split(/\s+/)[0] || n; };
+const voornaamVan = naam => { const n = String(naam || "").replace(/[\[\]()*<>"`]/g, "").trim(); if (n.includes(",")) return n.split(",").slice(1).join(",").trim() || n; return n.split(/\s+/)[0] || n; };
 const TPL_STD = {
   voorlopig: { onderwerp: "[name.company] - Voorlopig bestellingsoverzicht [nr.invoice]", mail: "Beste [firstname.customer],\n\nBedankt voor uw bestelling via mijnschoonmaker.com.\nIn de bijlage vindt u uw voorlopige bestellingsoverzicht en onze algemene voorwaarden.\n\nUw eerste bezoek\nTijdens uw eerste bezoek voeren we de door u bestelde diensten uit. Dit eerste bezoek noemen we de 0-beurt. We controleren daarbij ook of de opgegeven aantallen overeenkomen met de situatie ter plaatse. Mocht hierin een verschil zitten, dan kan dit gevolgen hebben voor de prijs. Meer informatie hierover vindt u in onze algemene voorwaarden.\nDe planning\nWe plannen uw woning in op een passende route, waarbij we afspraken zoveel mogelijk per omgeving combineren. Hierdoor kan het eerste bezoek iets langer op zich laten wachten. Houd rekening met een wachttijd van ongeveer 2 tot 8 weken.\n\nNa uw eerste bezoek komen we iedere 8 weken bij u langs. Twee dagen voor iedere afspraak ontvangt u een e-mail met de datum en het tijdstip.\nZodra uw eerste bezoek is ingepland, ontvangt u hiervan bericht.\n\nMet vriendelijke groet,\nmijnschoonmaker.com\nWhatsapp: [06 18 06 06 06](https://wa.me/message/GPFV7VR2JSCHC1) | ma - vrij 10:00 uur - 17:30 uur" },
   definitief: { onderwerp: "[name.company] - Definitief bestellingsoverzicht [nr.invoice]", mail: "Beste [firstname.customer],\n\nHartelijk dank voor uw vertrouwen in mijnschoonmaker.com.\nBijgaand ontvangt u het definitieve bestellingsoverzicht van de door u gekozen diensten.\n\nUw overeenkomst heeft een standaardlooptijd van één jaar.\nNa deze periode zetten wij de dienstverlening voort volgens de afgesproken frequentie, totdat de overeenkomst wordt beëindigd conform onze algemene voorwaarden.\nOp deze overeenkomst zijn onze algemene voorwaarden van toepassing.\n\nMet vriendelijke groet,\nmijnschoonmaker.com" }
 };
 async function sjabloon(sleutel) { try { const d = (await db.doc("instellingen/sjablonen").get()).data() || {}; const t = d[sleutel]; if (t && t.mail) return { onderwerp: t.onderwerp || TPL_STD[sleutel].onderwerp, mail: t.mail }; } catch (e) {} return TPL_STD[sleutel]; }
 function vulIn(tekst, v) { return String(tekst || "").replace(/\[([a-z0-9_]+)\.([a-z_]+)\]/g, (m, a, b) => { const k = a + "." + b; return v[k] != null ? String(v[k]) : m; }); }
-const htmlEsc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const htmlEsc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 /* alle mails als realistisch ticket: papier met zachte schaduw, blauwe kopband, perforatie met ronde inkepingen en een blauwe strook onderaan */
 const _hx=h=>{h=String(h||"").replace("#","");if(h.length===3)h=h.split("").map(c=>c+c).join("");const n=parseInt(h,16);return isNaN(n)||h.length!==6?[19,122,138]:[n>>16&255,n>>8&255,n&255]},_mx=(h,t,p)=>{const a=_hx(h),b=_hx(t);return "#"+a.map((v,i)=>Math.round(v+(b[i]-v)*p).toString(16).padStart(2,"0")).join("")},_rg=(h,o)=>"rgba("+_hx(h).join(",")+","+o+")";
 function mailHtml(tekst, b, opts = {}) { return geenAutoLinks(mailHtmlRuw(tekst, b, opts)); }
@@ -449,7 +450,14 @@ exports.blob = onRequest({ memory: "256MiB" }, async (req, res) => {
   const f = bucket().file("assets/" + id);
   try {
     const [m] = await f.getMetadata();
-    res.set("content-type", m.contentType || "application/octet-stream");
+    /* alleen foto's en PDF's tonen; al het andere (html, scripts) als download, zodat er nooit code op dit domein draait */
+    const ct = String(m.contentType || "").toLowerCase().split(";")[0].trim();
+    const veilig = /^image\/(jpeg|jpg|png|gif|webp|heic|heif|avif|svg\+xml)$/.test(ct) || ct === "application/pdf";
+    res.set("content-type", veilig ? ct : "application/octet-stream");
+    if (!veilig) res.set("content-disposition", "attachment");
+    res.set("x-content-type-options", "nosniff");
+    /* svg kan scripts bevatten: in een afgeschermde omgeving zonder scripts tonen (niet bij PDF: dan toont Chrome hem niet) */
+    if (ct === "image/svg+xml" || !veilig) res.set("content-security-policy", "default-src 'none'; style-src 'unsafe-inline'; sandbox");
     res.set("cache-control", "public, max-age=31536000, immutable");
     f.createReadStream().on("error", () => res.status(404).end()).pipe(res);
   } catch (e) { res.status(404).send(""); }
@@ -525,7 +533,8 @@ exports.akkoordGeven = onRequest({ cors: true, memory: "512MiB", timeoutSeconds:
     if (f && f.exists) await f.ref.set({ status: "geaccepteerd", akkoordOp: nu().slice(0, 10), getekend, getekendNieuw: true }, { merge: true });
     const m = a.model || {}, naar = a.email || "";
     let nummer = "";
-    if (naar) { const r = await stuurOverzichtMail({ soort: "definitief", naar, naamKlant: a.naamKlant || (m.klant || {}).naam || "", klantId: a.klantId || "", meta: { factuurId: a.factuurId || "" }, model: { ...m, handtekening: { naam, plaats, datum, browser, systeem, png: buf } } }); nummer = r.nummer; }
+    /* vanaf hier is de handtekening opgeslagen: een mislukte bevestigingsmail mag de offerte niet terugzetten op open */
+    if (naar) try { const r = await stuurOverzichtMail({ soort: "definitief", naar, naamKlant: a.naamKlant || (m.klant || {}).naam || "", klantId: a.klantId || "", meta: { factuurId: a.factuurId || "" }, model: { ...m, handtekening: { naam, plaats, datum, browser, systeem, png: buf } } }); nummer = r.nummer; } catch (e) { console.error("bevestiging akkoord", e); }
     /* melding naar het bedrijf */
     try { const [g, b] = await Promise.all([geheim(), bedrijf()]); if (g.brevoKey && (g.meldAdres || b.email)) await brevoSend(g.brevoKey, { sender: { name: "mijnschoonmaker CRM", email: g.afzender || b.email }, to: [{ email: g.meldAdres || b.email }], subject: `Offerte ${a.nummer || ""} ondertekend door ${naam}`, textContent: `${naam}${plaats ? " uit " + plaats : ""} heeft offerte ${a.nummer || ""} online ondertekend op ${datum}.\nHet definitieve bestellingsoverzicht${nummer ? " (" + nummer + ")" : ""} is naar de klant gemaild.\n\nOpen het CRM om de klant in te plannen.` }); } catch (e) { console.error(e); }
     res.json({ ok: true });

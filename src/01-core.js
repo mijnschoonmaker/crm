@@ -143,7 +143,7 @@ const I={
 };
 
 const PAGES=[["vandaag","Vandaag"],["planning","Planning"],["klanten","Klanten"],["communicatie","Communicatie"],["offertes","Offertes"],["facturen","Facturen"],["uitvoering","Uitvoering"],["inzichten","Statistieken"],["instellingen","Instellingen"],["handleiding","Handleiding"]];
-const DIENSTEN=["Glasbewassing","Glasbewassing buiten","Begane grond glas","Binnen en buiten","Dakgoot reinigen","Zonnepanelen reinigen","Kozijnen reinigen","Gevelreiniging","Schoonmaak"];
+const DIENSTEN=["Glasbewassing","Begane grond glas","Binnen en buiten","Dakgoot reinigen","Zonnepanelen reinigen","Kozijnen reinigen","Gevelreiniging","Schoonmaak"];
 const KANAAL={whatsapp:"WhatsApp",sms:"SMS",email:"E-mail"};
 const KOSTCAT=["Materiaal","Brandstof","Auto en bus","Gereedschap","Telefoon en internet","Verzekering","Kleding","Software","Overig"];
 const TPL={

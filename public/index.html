@@ -49,7 +49,8 @@
   window.ZEEM_PUT = (id, blob, type) => st.ref("assets/" + id).put(blob, { contentType: type || blob.type || "application/octet-stream" });
   const assets = {
     upload: async (file, o = {}) => { const id = rid(); await window.ZEEM_PUT(id, file, o.type || file.type); return { id }; },
-    list: async () => { const r = await st.ref("assets").listAll(); return { assets: r.items.map(i => ({ id: i.name })) }; }
+    /* alleen de bestanden die in de eigen gegevens van dit bedrijf voorkomen (de opslag zelf is gedeeld) */
+    list: async () => { const ids = new Set((JSON.stringify(typeof RAW !== "undefined" ? RAW : {}).match(/\b[a-f0-9]{32}\b/g) || [])); return { assets: [...ids].map(id => ({ id })) }; }
   };
   const downloads = {
     /* op iPhone/iPad opende Safari het bestand in hetzelfde tabblad; daarna gaf "terug" een foutmelding.
@@ -6123,7 +6124,7 @@ const I={
 };
 
 const PAGES=[["vandaag","Vandaag"],["planning","Planning"],["klanten","Klanten"],["communicatie","Communicatie"],["offertes","Offertes"],["facturen","Facturen"],["uitvoering","Uitvoering"],["inzichten","Statistieken"],["instellingen","Instellingen"],["handleiding","Handleiding"]];
-const DIENSTEN=["Glasbewassing","Glasbewassing buiten","Begane grond glas","Binnen en buiten","Dakgoot reinigen","Zonnepanelen reinigen","Kozijnen reinigen","Gevelreiniging","Schoonmaak"];
+const DIENSTEN=["Glasbewassing","Begane grond glas","Binnen en buiten","Dakgoot reinigen","Zonnepanelen reinigen","Kozijnen reinigen","Gevelreiniging","Schoonmaak"];
 const KANAAL={whatsapp:"WhatsApp",sms:"SMS",email:"E-mail"};
 const KOSTCAT=["Materiaal","Brandstof","Auto en bus","Gereedschap","Telefoon en internet","Verzekering","Kleding","Software","Overig"];
 const TPL={
@@ -9264,7 +9265,7 @@ function openAangifte(y,q){
 }
 
 /* ---------- CALCULATOR ---------- */
-const DEFPRIJS=[{id:"d1",naam:"Glasbewassing buiten",perRaam:1.25,perM2:0,start:10,minimum:20},{id:"d2",naam:"Binnen en buiten",perRaam:2.25,perM2:0,start:12,minimum:32},
+const DEFPRIJS=[{id:"d1",naam:"Glasbewassing",perRaam:1.25,perM2:0,start:10,minimum:20},{id:"d2",naam:"Binnen en buiten",perRaam:2.25,perM2:0,start:12,minimum:32},
   {id:"d3",naam:"Begane grond glas",perRaam:1,perM2:0,start:8,minimum:18},{id:"d4",naam:"Dakgoot reinigen",perRaam:0,perM2:0,start:45,minimum:45},
   {id:"d5",naam:"Zonnepanelen reinigen",perRaam:3.5,perM2:0,start:25,minimum:60},{id:"d6",naam:"Schoonmaak",perRaam:0,perM2:1.8,start:0,minimum:40}];
 const prijslijst=()=>state.prijzen.diensten&&state.prijzen.diensten.length?state.prijzen.diensten:DEFPRIJS;
@@ -11960,7 +11961,7 @@ async function pdf(id){
 }
 const demoKlant={naam:"Familie de Vries",adres:"Voorbeeldstraat 12",postcode:"1234 AB",plaats:"Amsterdam",email:"klant@voorbeeld.nl",telefoon:"06 12 34 56 78"};
 const demoFactuur=()=>({soort:"factuur",nummer:today().getFullYear()+"-VOORBEELD",klantNaam:demoKlant.naam,klantAdres:fullAddr(demoKlant),datum:iso(today()),verval:iso(addDays(today(),Number(S().termijn)||14)),status:"open",btw:21,incl:false,
-  regels:[{omschrijving:"Glasbewassing buitenzijde (8-wekelijks)",aantal:1,prijs:45},{omschrijving:"Dakgoten uitzuigen",aantal:2,prijs:32.5},{omschrijving:"Zonnepanelen reinigen",aantal:1,prijs:60}],notitie:"Dit is een voorbeeldfactuur om je opmaak te bekijken. Er is niets verstuurd."});
+  regels:[{omschrijving:"Glasbewassing (8-wekelijks)",aantal:1,prijs:45},{omschrijving:"Dakgoten uitzuigen",aantal:2,prijs:32.5},{omschrijving:"Zonnepanelen reinigen",aantal:1,prijs:60}],notitie:"Dit is een voorbeeldfactuur om je opmaak te bekijken. Er is niets verstuurd."});
 function openVoorbeeld(){
   const f=demoFactuur();
   openDlg(`<div class="dlg-head"><span class="objic" style="background:var(--brand-soft);color:var(--brand)">${I.facturen}</span><div style="flex:1;min-width:0"><h3 style="font-size:19px">Voorbeeldfactuur</h3><div class="subt">Zo ziet je factuur-PDF eruit, met je logo en bedrijfsgegevens</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
@@ -15418,7 +15419,7 @@ if(LIVE){
       const n=Object.values(d.collecties).reduce((a,l)=>a+l.length,0),nb=(d.bestanden||[]).filter(b=>b.data).length;
       if(!(await vraag("Gegevens overzetten?",`${n} records en ${nb} foto's/bestanden uit de back-up van <b>${esc(d.gemaakt?fmtL(d.gemaakt.slice(0,10)):"onbekend")}</b> worden ingeladen.`,"Overzetten","Annuleren")))return;
       let k=0;const tik=()=>{R.textContent=`Bezig… ${k} van ${n+nb}`};
-      try{for(const b of d.bestanden||[]){if(!b.data)continue;const bl=await (await fetch(b.data)).blob();await window.ZEEM_PUT(b.id,bl,b.type||bl.type);k++;if(k%5===0)tik()}
+      try{for(const b of d.bestanden||[]){if(!b.data)continue;const bl=await (await fetch(b.data)).blob();try{await window.ZEEM_PUT(b.id,bl,b.type||bl.type)}catch(e){/* bestaat al */}k++;if(k%5===0)tik()}
         for(const col of COLS){for(const doc of d.collecties[col]||[]){const {id,...rest}=doc;if(!id)continue;await save(col,id,rest);k++;if(k%20===0)tik()}}
         R.innerHTML='<b style="color:var(--ok)">Klaar ✓</b> '+k+' onderdelen overgezet.';toast("Gegevens overgezet");controle()}
       catch(er){console.error(er);R.innerHTML='<span style="color:var(--late)">Overzetten stopte bij '+k+': '+esc(er.message||String(er))+'</span>'}}};

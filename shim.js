@@ -39,7 +39,8 @@
   window.ZEEM_PUT = (id, blob, type) => st.ref("assets/" + id).put(blob, { contentType: type || blob.type || "application/octet-stream" });
   const assets = {
     upload: async (file, o = {}) => { const id = rid(); await window.ZEEM_PUT(id, file, o.type || file.type); return { id }; },
-    list: async () => { const r = await st.ref("assets").listAll(); return { assets: r.items.map(i => ({ id: i.name })) }; }
+    /* alleen de bestanden die in de eigen gegevens van dit bedrijf voorkomen (de opslag zelf is gedeeld) */
+    list: async () => { const ids = new Set((JSON.stringify(typeof RAW !== "undefined" ? RAW : {}).match(/\b[a-f0-9]{32}\b/g) || [])); return { assets: [...ids].map(id => ({ id })) }; }
   };
   const downloads = {
     /* op iPhone/iPad opende Safari het bestand in hetzelfde tabblad; daarna gaf "terug" een foutmelding.

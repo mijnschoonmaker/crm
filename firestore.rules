@@ -42,7 +42,7 @@ service cloud.firestore {
       allow create, update: if eigenaar() && mfaOk() && request.resource.data.get("bedrijf", "") == "" && (resource == null || resource.data.get("bedrijf", "") == "");
       allow delete: if eigenaar() && mfaOk() && resource.data.get("bedrijf", "") == "";
       // eigenaar van een nieuw bedrijf beheert de gebruikers van zijn eigen bedrijf (niet zichzelf verwijderen)
-      allow create, update: if bedrijfsEigenaar(request.resource.data.get("bedrijf", "")) && (resource == null || resource.data.get("bedrijf", "") == request.resource.data.bedrijf);
+      allow create, update: if e != "robin@mijnschoonmaker.com" && e != "robin@mansard.nl" && bedrijfsEigenaar(request.resource.data.get("bedrijf", "")) && (resource == null || resource.data.get("bedrijf", "") == request.resource.data.bedrijf);
       allow delete: if bedrijfsEigenaar(resource.data.get("bedrijf", "")) && e != email();
     }
     // status van tweestapsverificatie: alleen lezen (eigen status), schrijven doet de server

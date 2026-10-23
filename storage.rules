@@ -19,8 +19,10 @@ service firebase.storage {
     }
     match /assets/{id} {
       // lezen gaat via /_blob/ (server); uploaden alleen door gebruikers van het CRM
-      allow read: if gebruiker();
-      allow write: if gebruiker() && request.resource.size < 25 * 1024 * 1024;
+      // alleen een bekend bestand openen (geen lijst van alle bestanden: die is van alle bedrijven samen)
+      allow get: if gebruiker();
+      // alleen nieuwe bestanden; een bestaand bestand (ook van een ander bedrijf) kan niet worden overschreven of gewist
+      allow create: if gebruiker() && request.resource.size < 25 * 1024 * 1024;
     }
   }
 }

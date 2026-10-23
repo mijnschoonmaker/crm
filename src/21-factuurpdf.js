@@ -180,7 +180,7 @@ async function pdf(id){
 }
 const demoKlant={naam:"Familie de Vries",adres:"Voorbeeldstraat 12",postcode:"1234 AB",plaats:"Amsterdam",email:"klant@voorbeeld.nl",telefoon:"06 12 34 56 78"};
 const demoFactuur=()=>({soort:"factuur",nummer:today().getFullYear()+"-VOORBEELD",klantNaam:demoKlant.naam,klantAdres:fullAddr(demoKlant),datum:iso(today()),verval:iso(addDays(today(),Number(S().termijn)||14)),status:"open",btw:21,incl:false,
-  regels:[{omschrijving:"Glasbewassing buitenzijde (8-wekelijks)",aantal:1,prijs:45},{omschrijving:"Dakgoten uitzuigen",aantal:2,prijs:32.5},{omschrijving:"Zonnepanelen reinigen",aantal:1,prijs:60}],notitie:"Dit is een voorbeeldfactuur om je opmaak te bekijken. Er is niets verstuurd."});
+  regels:[{omschrijving:"Glasbewassing (8-wekelijks)",aantal:1,prijs:45},{omschrijving:"Dakgoten uitzuigen",aantal:2,prijs:32.5},{omschrijving:"Zonnepanelen reinigen",aantal:1,prijs:60}],notitie:"Dit is een voorbeeldfactuur om je opmaak te bekijken. Er is niets verstuurd."});
 function openVoorbeeld(){
   const f=demoFactuur();
   openDlg(`<div class="dlg-head"><span class="objic" style="background:var(--brand-soft);color:var(--brand)">${I.facturen}</span><div style="flex:1;min-width:0"><h3 style="font-size:19px">Voorbeeldfactuur</h3><div class="subt">Zo ziet je factuur-PDF eruit, met je logo en bedrijfsgegevens</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>

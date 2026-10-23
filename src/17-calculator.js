@@ -1,5 +1,5 @@
 /* ---------- CALCULATOR ---------- */
-const DEFPRIJS=[{id:"d1",naam:"Glasbewassing buiten",perRaam:1.25,perM2:0,start:10,minimum:20},{id:"d2",naam:"Binnen en buiten",perRaam:2.25,perM2:0,start:12,minimum:32},
+const DEFPRIJS=[{id:"d1",naam:"Glasbewassing",perRaam:1.25,perM2:0,start:10,minimum:20},{id:"d2",naam:"Binnen en buiten",perRaam:2.25,perM2:0,start:12,minimum:32},
   {id:"d3",naam:"Begane grond glas",perRaam:1,perM2:0,start:8,minimum:18},{id:"d4",naam:"Dakgoot reinigen",perRaam:0,perM2:0,start:45,minimum:45},
   {id:"d5",naam:"Zonnepanelen reinigen",perRaam:3.5,perM2:0,start:25,minimum:60},{id:"d6",naam:"Schoonmaak",perRaam:0,perM2:1.8,start:0,minimum:40}];
 const prijslijst=()=>state.prijzen.diensten&&state.prijzen.diensten.length?state.prijzen.diensten:DEFPRIJS;

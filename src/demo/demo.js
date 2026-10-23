@@ -41,9 +41,9 @@ function demoMaak(){
   klanten.filter(k=>!k.gepland).forEach((k,i)=>{if(i%5===4)return;let d=1+Math.floor(R()*20);const wd=addDays(t,d).getDay();if(wd===0)d++;if(wd===6)d+=2;k.gepland=D(d);k.tijd=tijden[Math.floor(R()*tijden.length)]});
   /* offertes */
   const off=(n,naam,adres,st,regels,dd)=>facturen.push({id:"odemo"+n,soort:"offerte",nummer:"OFF-"+t.getFullYear()+"-"+String(n).padStart(3,"0"),klantId:"",klantNaam:naam,klantAdres:adres,klantEmail:"",datum:D(dd),verval:D(dd+30),status:st,regels,btw:21,incl:true,gemaakt:D(dd)+"T09:00:00.000Z"});
-  off(41,"Familie Wijnstra","Molenweg 7, 9363 AB Marum","verstuurd",[{omschrijving:"Glasbewassing buiten, elke 6 weken",aantal:1,prijs:32.5},{omschrijving:"Eenmalig kozijnen reinigen",aantal:1,prijs:85}],-3);
+  off(41,"Familie Wijnstra","Molenweg 7, 9363 AB Marum","verstuurd",[{omschrijving:"Glasbewassing, elke 6 weken",aantal:1,prijs:32.5},{omschrijving:"Eenmalig kozijnen reinigen",aantal:1,prijs:85}],-3);
   off(42,"Huisartsenpraktijk Aduard","Eikenlaan 2, 9831 AC Aduard","geaccepteerd",[{omschrijving:"Glasbewassing binnen en buiten, elke 4 weken",aantal:1,prijs:110}],-12);
-  off(43,"De Wit, Marco","Kievitstraat 21, 9351 KD Leek","concept",[{omschrijving:"Glasbewassing buiten",aantal:1,prijs:27.5}],0);
+  off(43,"De Wit, Marco","Kievitstraat 21, 9351 KD Leek","concept",[{omschrijving:"Glasbewassing",aantal:1,prijs:27.5}],0);
   /* berichten en bank */
   facturen.filter(f=>f.soort==="factuur").slice(-14).forEach((f,i)=>berichten.push({id:"mdemo"+i,klantId:f.klantId,klantNaam:f.klantNaam,naar:f.klantEmail,kanaal:"email",sjabloon:"factuur",onderwerp:"Factuur "+f.nummer+" – Voorbeeld Glazenwasserij",tekst:"Beste klant, in de bijlage vindt u factuur "+f.nummer+".",op:f.datum+"T13:05:00.000Z",ref:"factuur:"+f.id,status:i%3?"geopend":"bezorgd",opens:i%3?1+(i%2):0}));
   const lo=facturen.filter(f=>f.soort==="factuur"&&f.status==="open");
