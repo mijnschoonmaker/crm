@@ -6208,8 +6208,20 @@ function apply(col,docs){
   if(col==="instellingen"&&!state._slotInit&&docs.length){state._slotInit=1;const b=docs.find(x=>x.id==="bedrijf");if(b){state.slot=[10,15].includes(Number(b.slotStd))?Number(b.slotStd):10;if(b.ultra)state.rowH=.7;else if(b.compact)state.rowH=.85}}
   else if(col==="routes"){state.routes={};docs.forEach(d=>state.routes[d.id]=d)}
   else state[col]=docs;
+  if(col==="facturen")setTimeout(nrBewaker,0);
 }
-async function save(col,id,data){if(state.db)await state.db.collection(col).doc(id).set(data);else{mem[col].set(id,{...data,id});apply(col,[...mem[col].values()]);schedule()}}
+/* factuurnummers: maakten twee mensen tegelijk een factuur met hetzelfde nummer, dan krijgt de nieuwste (van deze
+   gebruiker, nog niet verstuurd of betaald) meteen het volgende vrije nummer. De oudste houdt altijd zijn nummer. */
+const MIJN_F=new Set();let nrBezig=0;
+async function nrBewaker(){if(nrBezig||!MIJN_F.size)return;nrBezig=1;
+  try{const per={};(state.facturen||[]).forEach(f=>{if(f.nummer)(per[(f.soort==="offerte"?"o:":"f:")+f.nummer]=per[(f.soort==="offerte"?"o:":"f:")+f.nummer]||[]).push(f)});
+    const skip={f:0,o:0};
+    for(const l of Object.values(per)){if(l.length<2)continue;l.sort((x,y)=>String(x.id)<String(y.id)?-1:1);
+      for(const f of l.slice(1)){if(!MIJN_F.has(f.id)||f.verstuurdOp||f.status==="betaald")continue;
+        const soort=f.soort==="offerte"?"offerte":"factuur",k=soort==="offerte"?"o":"f",nr=nextNr(soort,f.datum||iso(today()),skip[k]++);
+        const {id,...rest}=f;await save("facturen",id,{...strip(rest),nummer:nr});toast((soort==="offerte"?"Offertenummer":"Factuurnummer")+" "+f.nummer+" was al in gebruik; deze heeft nu "+nr)}}}
+  catch(e){console.error("nrBewaker",e)}finally{nrBezig=0}}
+async function save(col,id,data){if(col==="facturen"&&!(state.facturen||[]).some(f=>f.id===id))MIJN_F.add(id);if(state.db)await state.db.collection(col).doc(id).set(data);else{mem[col].set(id,{...data,id});apply(col,[...mem[col].values()]);schedule()}}
 async function del(col,id){if(state.db)await state.db.collection(col).doc(id).delete();else{mem[col].delete(id);apply(col,[...mem[col].values()]);schedule()}}
 let rq=0;function schedule(){if(rq)return;rq=requestAnimationFrame(()=>{rq=0;render()})}
 async function init(){
@@ -13413,7 +13425,7 @@ function openFactuurWerk(id){
   const regRows=(f.regels||[]).map((r,i)=>{const p=Number(r.prijs)||0,a=Number(r.aantal)||0,ex=(incl?p/(1+btw/100):p),exT=ex*a;return `<tr><td>${esc(omsZonderDatum(r.omschrijving))}<br><small class="subt">Datum: ${esc(fmtNum(f.datum).replace(/ /g,""))}</small></td><td class="r">${a.toLocaleString("nl-NL")}</td><td class="r">${eur(ex)}</td><td class="r">${eur(exT)}</td><td class="r">${eur(exT*btw/100)}</td><td class="r">${eur(exT*(1+btw/100))}</td><td class="r fw-ro"><button type="button" class="iconbtn sm" data-fwr="${i}" aria-label="Regel aanpassen">${I.pencil}</button><button type="button" class="iconbtn sm" data-fwd="${i}" aria-label="Regel verwijderen">${I.x}</button></td></tr>`}).join("");
   /* op de telefoon: regels als kaarten in plaats van een brede tabel */
   const regKaart=(f.regels||[]).map((r,i)=>{const p=Number(r.prijs)||0,a=Number(r.aantal)||0,ex=(incl?p/(1+btw/100):p),exT=ex*a;return `<div class="fw-rk"><div class="fw-rk-k"><div class="fw-rk-t"><b>${esc(omsZonderDatum(r.omschrijving))}</b><small>Datum ${esc(fmtNum(f.datum).replace(/ /g,""))}</small></div><span class="fw-rk-a"><button type="button" class="iconbtn sm" data-fwr="${i}" aria-label="Regel aanpassen">${I.pencil}</button><button type="button" class="iconbtn sm" data-fwd="${i}" aria-label="Regel verwijderen">${I.x}</button></span></div><div class="fw-rk-b"><span>${a.toLocaleString("nl-NL")} × ${eur(ex)}<small>excl. ${eur(exT)} · btw ${eur(exT*btw/100)}</small></span><b>${eur(exT*(1+btw/100))}</b></div></div>`}).join("");
-  const log=[{d:f.gemaakt||f.datum,t:"Factuur aangemaakt"},f.verstuurdOp&&{d:f.verstuurdOp,t:"Factuur verstuurd"},f.herinnerdOp&&{d:f.herinnerdOp,t:"Herinnering verstuurd"+(Number(f.herinneringen)>1?" ("+f.herinneringen+"e)":"")},f.status==="betaald"&&{d:f.betaaldOp,t:"Betaald · "+(W[f.betaalwijze]||"per bank")},f.status==="oninbaar"&&{d:f.oninbaarOp,t:"Op oninbaar gezet"},creditN&&{d:creditN.datum,t:"Gecrediteerd met "+creditN.nummer},
+  const log=[{d:f.gemaakt||f.datum,t:"Factuur aangemaakt"},f.verstuurdOp&&{d:f.verstuurdOp,t:"Factuur verstuurd"},f.herinnerdOp&&{d:f.herinnerdOp,t:"Herinnering verstuurd"+(Number(f.herinneringen)>1?" ("+f.herinneringen+"e)":"")},...(Array.isArray(f.deelBetalingen)?f.deelBetalingen:[]).map(x=>({d:x.op,t:"Deels betaald via Mollie · "+eur(Number(x.bedrag)||0)})),f.status==="betaald"&&{d:f.betaaldOp,t:"Betaald · "+(W[f.betaalwijze]||"per bank")},f.status==="oninbaar"&&{d:f.oninbaarOp,t:"Op oninbaar gezet"},creditN&&{d:creditN.datum,t:"Gecrediteerd met "+creditN.nummer},
     ...state.berichten.filter(m=>String(m.ref||"").includes(f.id)).map(m=>({d:m.op,t:(KANAAL[m.kanaal]||"Bericht")+": "+(m.onderwerp||"")})),...(f.log||[]).map(l=>({d:l.datum,t:l.tekst}))].filter(x=>x&&x.d).sort((a,b)=>String(b.d).localeCompare(String(a.d)));
   openDlg(`<div class="dlg-head fw-head"><div class="fw-h1"><span class="objic big">${I.facturen}</span><div class="fw-ht"><small>${credit?"Creditfactuur":"Factuur"}${f.periodiek?" · periodiek":""}</small><h3>${esc(f.nummer)}</h3></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
     <div class="fw-h2"><div class="fw-hk"><b>${esc(cleanName(f.klantNaam))}</b><small>${esc(fmtL(String(f.datum||"").slice(0,10)))}${credit?" · van "+esc(credit.nummer):""}</small></div><div class="fw-hb"><b>${eur(t.inc)}</b>${statusPill(st[0],st[1])}</div></div></div>
@@ -15232,8 +15244,10 @@ const randTok=(n=24)=>[...crypto.getRandomValues(new Uint8Array(n))].map(x=>"abc
 const fnFout=e=>String((e&&e.message)||e||"onbekende fout").replace(/^.*?:\s*(?=Versturen|Er is|Geen|Log|Ongeldig)/,"");
 
 async function mollieLinkVoor(f){
-  if(f.betaallink&&f.mollieId&&f.mollieStatus==="open")return f.betaallink;
-  const r=await fbFn("mollieLink")({factuurId:f.id,bedrag:Math.round(totals(f).inc*100)/100,omschrijving:"Factuur "+f.nummer,basis:location.origin});
+  /* openstaand bedrag (min een eventuele deelbetaling); een oude link alleen hergebruiken als het bedrag nog klopt */
+  const bedrag=Math.round((totals(f).inc-(Number(f.deelBetaald)||0))*100)/100;
+  if(f.betaallink&&f.mollieId&&f.mollieStatus==="open"&&(f.mollieBedrag==null||Math.abs(Number(f.mollieBedrag)-bedrag)<0.01))return f.betaallink;
+  const r=await fbFn("mollieLink")({factuurId:f.id,bedrag,omschrijving:"Factuur "+f.nummer,basis:location.origin});
   return r.data.link}
 
 /* opgemaakte mail rechtstreeks versturen (vervangt kopiëren + plakken) */
@@ -15468,33 +15482,35 @@ const MS={doc:null,unsub:null};
 const msTenant=()=>LIVE&&!!window.ZEEM_BID&&window.ZEEM_BID!=="mijnschoonmaker";
 const msDagen=d=>d?Math.ceil((parse(d)-today())/DAY):0;
 function msStatus(){const b=MS.doc||{},v=iso(today());
-  if(b.status==="actief")return{ok:true,soort:b.achterstand?"achterstand":"actief"};
+  if(b.status==="actief"){if(!b.achterstand)return{ok:true,soort:"actief"};
+    /* zelfde regel als de server: 14 dagen na de mislukte betaling gaat het CRM dicht tot er betaald is */
+    const tot=iso(addDays(parse(String(b.foutOp||v).slice(0,10)),14));return{ok:tot>=v,soort:tot>=v?"achterstand":"onbetaald",tot}}
   if(b.status==="proef")return{ok:String(b.proefTot||"")>=v,soort:String(b.proefTot||"")>=v?"proef":"verlopen",dagen:msDagen(b.proefTot)};
   if(b.status==="opgezegd")return{ok:String(b.betaaldTot||b.proefTot||"")>=v,soort:"opgezegd",tot:b.betaaldTot||b.proefTot};
   return{ok:false,soort:"verlopen"}}
 function msBalk(){if(!msTenant()||!MS.doc||window.ZEEM_MEEKIJK)return;const st=msStatus();let el=document.getElementById("msBalk");
   const eig=window.ZEEM_ROL==="eigenaar";
   const html=st.soort==="proef"?`<span><b>Proefperiode</b> · nog ${plural(Math.max(0,st.dagen),"dag","dagen")} gratis</span>${eig?`<button type="button" class="small primary" data-act="msabo">Abonnement kiezen</button>`:""}`
-    :st.soort==="achterstand"?`<span><b>De laatste betaling is mislukt.</b> Zorg dat er saldo is; we proberen het opnieuw.</span>${eig?`<button type="button" class="small" data-act="msabo">Bekijken</button>`:""}`
+    :st.soort==="achterstand"?`<span><b>De laatste betaling is mislukt.</b> Betaal het bedrag vóór ${fmtD(st.tot)}; daarna gaat Mansard dicht tot er betaald is.</span>${eig?`<button type="button" class="small" data-act="msabo">Nu betalen</button>`:""}`
     :st.soort==="opgezegd"?`<span>Abonnement opgezegd · je kunt Mansard gebruiken tot ${fmtD(st.tot)}</span>${eig?`<button type="button" class="small" data-act="msabo">Toch doorgaan</button>`:""}`:"";
   if(!html){if(el)el.remove();}else{if(!el){el=document.createElement("div");el.id="msBalk";el.className="ms-balk";const m=document.querySelector("main");if(m)m.prepend(el)}el.innerHTML=html}
   let ov=document.getElementById("msDicht");
   if(!st.ok){if(!ov){ov=document.createElement("div");ov.id="msDicht";ov.className="ms-dicht";document.body.appendChild(ov)}
-    ov.innerHTML=`<div class="ms-dk"><img src="/mansard-logo.png" alt="Mansard"><h2>${st.soort==="opgezegd"?"Je abonnement is afgelopen":"Je proefperiode is voorbij"}</h2><p>Je gegevens staan veilig klaar. ${eig?"Kies een abonnement en je kunt direct verder.":"Vraag de eigenaar van je bedrijf om een abonnement te kiezen."}</p>
-      ${eig?`<button type="button" class="primary" data-act="msabo">Abonnement kiezen</button>`:""}<button type="button" class="ghost" data-act="msuit">Uitloggen</button></div>`}
+    ov.innerHTML=`<div class="ms-dk"><img src="/mansard-logo.png" alt="Mansard"><h2>${st.soort==="opgezegd"?"Je abonnement is afgelopen":st.soort==="onbetaald"?"De betaling is niet gelukt":"Je proefperiode is voorbij"}</h2><p>Je gegevens staan veilig klaar. ${st.soort==="onbetaald"?(eig?"Betaal het openstaande bedrag en je kunt direct verder.":"Vraag de eigenaar van je bedrijf om de betaling te regelen."):eig?"Kies een abonnement en je kunt direct verder.":"Vraag de eigenaar van je bedrijf om een abonnement te kiezen."}</p>
+      ${eig?`<button type="button" class="primary" data-act="msabo">${st.soort==="onbetaald"?"Nu betalen":"Abonnement kiezen"}</button>`:""}<button type="button" class="ghost" data-act="msuit">Uitloggen</button></div>`}
   else if(ov)ov.remove()}
 function msStart(){if(!msTenant()||MS.unsub)return;try{MS.unsub=fsDb().doc("bedrijven/"+window.ZEEM_BID).onSnapshot(s=>{MS.doc=s.exists?s.data():{};msBalk()},()=>{})}catch(e){}}
 async function aboDlg(){
   const b=MS.doc||{},st=msStatus(),p=b.plan||{prijs:99,inbegrepen:3,extraPrijs:19.95};let n=b.gebruikers||1;
   try{const r=await fbFn("abonnement")({});n=r.data.gebruikers||n}catch(e){}
   const extra=Math.max(0,n-p.inbegrepen),bedrag=Math.round((p.prijs+extra*p.extraPrijs)*100)/100,eig=window.ZEEM_ROL==="eigenaar";
-  const lbl={proef:"Proefperiode",actief:"Actief",achterstand:"Betaling mislukt",opgezegd:"Opgezegd",verlopen:"Verlopen"}[st.soort]||"—";
+  const lbl={proef:"Proefperiode",actief:"Actief",achterstand:"Betaling mislukt",onbetaald:"Niet betaald",opgezegd:"Opgezegd",verlopen:"Verlopen"}[st.soort]||"—";
   openDlg(`<div class="dlg-head"><span class="objic big">${I.card}</span><div style="flex:1"><h3>Abonnement</h3><div class="subt">${esc(b.naam||S().naam||"")}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
     <div class="planhero"><div><span class="eyebrow">Mansard</span><b>${eur(bedrag)}</b><small>per maand, excl. btw</small></div><div style="text-align:right"><span class="pill ${st.ok?"ok":"late"} dotp">${lbl}</span></div>
       <div class="ph-row"><span>Inbegrepen<br><b>${p.inbegrepen} gebruikers</b></span><span>Nu<br><b>${plural(n,"gebruiker","gebruikers")}</b></span><span>${st.soort==="proef"?"Gratis tot":st.soort==="actief"?"Volgende afschrijving":"Tot"}<br><b>${fmtD(st.soort==="proef"?b.proefTot:b.volgende||b.betaaldTot||b.proefTot)||"—"}</b></span></div></div>
     <table class="minitable"><tr><td>Abonnement, inclusief ${p.inbegrepen} gebruikers</td><td style="text-align:right">${eur(p.prijs)}</td></tr>${extra?`<tr><td>${plural(extra,"extra gebruiker","extra gebruikers")} × ${eur(p.extraPrijs)}</td><td style="text-align:right">${eur(extra*p.extraPrijs)}</td></tr>`:""}<tr><td><b>Per maand</b></td><td style="text-align:right"><b>${eur(bedrag)}</b></td></tr></table>
     <p class="subt" style="margin:0">Maandelijks opzegbaar. Betalen gaat met automatische incasso via Mollie. ${st.soort==="proef"?"Kies je nu al, dan betaal je eenmalig € 0,01 voor de machtiging; de eerste maand wordt pas na je proefperiode afgeschreven.":""} Gebruikers voeg je toe bij Instellingen › Gebruikers; het maandbedrag past zich vanzelf aan.</p>
-    <div class="row">${eig&&st.soort!=="actief"&&st.soort!=="achterstand"?`<button type="button" class="primary" id="msGo">${I.card}${st.soort==="opgezegd"?"Abonnement weer starten":"Abonnement starten"}</button>`:""}${eig&&(st.soort==="actief"||st.soort==="achterstand")?`<button type="button" class="ghost danger" id="msStop">Opzeggen</button>`:""}<span class="sp"></span><button type="button" data-act="close">Sluiten</button></div>`);
+    <div class="row">${eig&&st.soort!=="actief"?`<button type="button" class="primary" id="msGo">${I.card}${st.soort==="achterstand"||st.soort==="onbetaald"?"Nu betalen":st.soort==="opgezegd"?"Abonnement weer starten":"Abonnement starten"}</button>`:""}${eig&&(st.soort==="actief"||st.soort==="achterstand"||st.soort==="onbetaald")?`<button type="button" class="ghost danger" id="msStop">Opzeggen</button>`:""}<span class="sp"></span><button type="button" data-act="close">Sluiten</button></div>`);
   const go=document.getElementById("msGo");if(go)go.onclick=async()=>{go.disabled=true;go.innerHTML=I.clock+"Naar betalen…";try{const r=await fbFn("abonnementStart")({basis:location.origin});if(r.data.url)location.href=r.data.url;else{toast("Je abonnement is al actief");dlg.close()}}catch(e){go.disabled=false;go.innerHTML=I.card+"Abonnement starten";toast(fnFout(e))}};
   const stop=document.getElementById("msStop");if(stop)stop.onclick=async()=>{if(!(await vraag("Abonnement opzeggen?","Je kunt Mansard blijven gebruiken tot het einde van de betaalde periode. Daarna blijven je gegevens 90 dagen bewaard.","Opzeggen","Annuleren")))return;try{const r=await fbFn("abonnementStoppen")({});toast("Opgezegd. Je kunt Mansard gebruiken tot "+fmtD(r.data.tot));dlg.close()}catch(e){toast(fnFout(e))}}}
 document.addEventListener("click",e=>{const t=e.target.closest("[data-act=msabo],[data-act=msuit]");if(!t)return;e.preventDefault();e.stopPropagation();if(t.dataset.act==="msabo")aboDlg();else{try{firebase.auth().signOut()}catch(_){}}},true);
@@ -16270,6 +16286,7 @@ addEventListener("scroll",()=>{const m=document.getElementById("mobOffer");docum
 if(!LIVE&&typeof location!=="undefined"&&/[?&]selftest\b/.test(location.search)){
   window.MSTEST={state,S,save,del,totals,nextNr,nrDelen,wikKosten,fStatus,afronden,gewassen,billAll,setFStatus,iso,today,addDays,newId,strip,render,
     fin,beurtOmzet,klantFilter,extraOpdr,opdrNr:typeof opdrNr==="function"?opdrNr:null,openOpdrachtWerk:typeof openOpdrachtWerk==="function"?openOpdrachtWerk:null,teplannen,fhVolgende:typeof fhVolgende==="function"?fhVolgende:null,fhPoort:typeof fhPoort==="function"?fhPoort:null,groepEditor:typeof groepEditor==="function"?groepEditor:null,melding,stDienstSplit,klantActiefIn,openImport,relVolgende:typeof relVolgende==="function"?relVolgende:null,beurtMin,meetTeKort,wdCijfers:typeof wdCijfers==="function"?wdCijfers:null,kmFmt:typeof kmFmt==="function"?kmFmt:null,kmAfst:typeof kmAfst==="function"?kmAfst:null,saveSettings,
+    nrBewaker,msStatus:typeof msStatus==="function"?msStatus:null,MS:typeof MS!=="undefined"?MS:null,
     views:()=>PAGES.map(p=>p[0]),ga:t=>{state.tab=t;render()}};
 }
 

@@ -58,10 +58,13 @@ const bedrijf = async () => { const b = (await db.doc("instellingen/bedrijf").ge
 /* ---------- bestellingsoverzicht: gedeelde hulpjes ---------- */
 const { maakOverzichtPdf, eur } = require("./overzicht");
 const HOST = () => { try { return "https://" + (process.env.GCLOUD_PROJECT || JSON.parse(process.env.FIREBASE_CONFIG || "{}").projectId) + ".web.app"; } catch (e) { return ""; } };
+/* datum (jjjj-mm-dd) in Nederlandse tijd: een betaling om 00:30 hoort bij die dag, niet bij gisteren (UTC) */
+const decF = v => Array.isArray(v) ? v.map(decF) : v && typeof v === "object" ? (v.__arr ? v.__arr.map(x => x && x.__a ? x.__a.map(decF) : decF(x)) : Object.fromEntries(Object.entries(v).map(([k, x]) => [k, decF(x)]))) : v;
+const dagNL = (d = new Date()) => new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Amsterdam" }).format(new Date(d));
 const nlDatum = (d = new Date()) => new Intl.DateTimeFormat("nl-NL", { timeZone: "Europe/Amsterdam", day: "2-digit", month: "2-digit", year: "numeric" }).format(d).replace(/\//g, "-");
 const nlTijd = (d = new Date()) => new Intl.DateTimeFormat("nl-NL", { timeZone: "Europe/Amsterdam", hour: "2-digit", minute: "2-digit" }).format(d);
 async function leesAsset(id) { if (!id) return null; try { const f = bucket().file("assets/" + id); const [[m], [buf]] = await Promise.all([f.getMetadata(), f.download()]); return { bytes: buf, type: m.contentType || "" }; } catch (e) { return null; } }
-async function volgNummer() { const ref = db.doc("tellers/overzicht"); const n = await db.runTransaction(async t => { const s = await t.get(ref); const v = (s.exists ? s.data().n : 1800) + 1; t.set(ref, { n: v }); return v; }); return String(new Date().getFullYear()).slice(2) + "-" + String(n).padStart(6, "0"); }
+async function volgNummer() { const ref = db.doc("tellers/overzicht"); const n = await db.runTransaction(async t => { const s = await t.get(ref); const v = (s.exists ? s.data().n : 1800) + 1; t.set(ref, { n: v }); return v; }); return dagNL().slice(2, 4) + "-" + String(n).padStart(6, "0"); }
 function bedrijfModel(b, logo) { return { naam: b.naam || "mijnschoonmaker.com", adres: b.adres || "", pcPlaats: [b.postcode, b.plaats].filter(Boolean).join(" "), telefoon: b.telefoon || "", email: b.email || "", kvk: b.kvk || "", btwnr: b.btwnr || "", iban: b.iban || "", bic: b.bic || "", logo }; }
 const voornaamVan = naam => { const n = String(naam || "").replace(/[\[\]()*<>"`]/g, "").trim(); if (n.includes(",")) return n.split(",").slice(1).join(",").trim() || n; return n.split(/\s+/)[0] || n; };
 const TPL_STD = {
@@ -155,7 +158,7 @@ async function checkGebruiker(auth) {
   if (e !== EIGENAAR && !(await db.doc("gebruikers/" + e).get()).exists) throw new HttpsError("permission-denied", "Geen toegang tot het CRM.");
   /* tweestapsverificatie: deze inlogsessie moet met een code zijn bevestigd (als de gebruiker het aan heeft staan) */
   if (!(await BEV.mfaBevestigd(auth))) throw new HttpsError("permission-denied", "Bevestig eerst je inlogcode (tweestapsverificatie).");
-  if (MANSARD && !(await MANSARD.magGebruiken())) throw new HttpsError("failed-precondition", "De proefperiode is voorbij. Kies een abonnement om verder te gaan (Instellingen › Abonnement).");
+  if (MANSARD && !(await MANSARD.magGebruiken())) throw new HttpsError("failed-precondition", "De proefperiode of het abonnement is verlopen. Regel het abonnement om verder te gaan (Instellingen › Abonnement).");
   return e;
 }
 
@@ -292,7 +295,7 @@ exports.mollieLink = onCall(async req => {
     })
   });
   const link = p._links && p._links.checkout && p._links.checkout.href;
-  await f.ref.set({ mollieId: p.id, mollieLink: link || "", betaallink: link || "", mollieStatus: p.status }, { merge: true });
+  await f.ref.set({ mollieId: p.id, mollieLink: link || "", betaallink: link || "", mollieStatus: p.status, mollieBedrag: val }, { merge: true });
   return { link, id: p.id };
 });
 /* factuur automatisch afschrijven bij een klant met een incasso-machtiging (sequenceType recurring) */
@@ -303,8 +306,16 @@ exports.mollieIncasso = onCall(async req => {
   if (!g.mollieKey) throw new HttpsError("failed-precondition", "Er is nog geen Mollie-sleutel ingesteld.");
   const f = await db.doc("facturen/" + factuurId).get();
   if (!f.exists) throw new HttpsError("not-found", "Factuur niet gevonden.");
+  /* eerst vastleggen dat deze factuur wordt afgeschreven (in één transactie): een dubbelklik maakt zo nooit twee afschrijvingen */
+  const fout = ["failed", "canceled", "expired"];
+  const claim = await db.runTransaction(async t => { const s = await t.get(f.ref), y = s.data() || {};
+    if (y.incasso && y.mollieId && !fout.includes(y.mollieStatus || "")) return { al: y };
+    if (y.incassoBezig && Date.now() - Number(y.incassoBezig) < 120e3) return { bezig: true };
+    t.update(f.ref, { incassoBezig: Date.now() }); return {}; });
+  if (claim.al) return { id: claim.al.mollieId, status: claim.al.mollieStatus, al: true };
+  if (claim.bezig) return { bezig: true, al: true };
   const x = f.data();
-  if (x.incasso && x.mollieId && !["failed", "canceled", "expired"].includes(x.mollieStatus || "")) return { id: x.mollieId, status: x.mollieStatus, al: true };
+  try {
   const ks = await db.doc("klanten/" + String(x.klantId || "")).get();
   const k = ks.exists ? ks.data() : {};
   if (!(k.incasso && k.mollieCustomerId && k.mollieMandateId)) throw new HttpsError("failed-precondition", "Deze klant heeft geen incasso-machtiging.");
@@ -314,8 +325,9 @@ exports.mollieIncasso = onCall(async req => {
   const p = await mollie(g.mollieKey, "payments", { method: "POST", body: JSON.stringify({
     amount: { currency: "EUR", value: val.toFixed(2) }, customerId: k.mollieCustomerId, mandateId: k.mollieMandateId, sequenceType: "recurring",
     description: String(omschrijving || "Factuur " + (x.nummer || factuurId)).slice(0, 255), webhookUrl: site + "/api/mollie" + T.hookQs(), metadata: { factuurId } }) });
-  await f.ref.set({ incasso: true, incassoOp: nu(), mollieId: p.id, mollieStatus: p.status, betaallink: "", mollieLink: "" }, { merge: true });
+  await f.ref.set({ incasso: true, incassoOp: nu(), mollieId: p.id, mollieStatus: p.status, mollieBedrag: val, betaallink: "", mollieLink: "", incassoBezig: 0 }, { merge: true });
   return { id: p.id, status: p.status };
+  } catch (e) { await f.ref.set({ incassoBezig: 0 }, { merge: true }).catch(() => {}); throw e; }
 });
 /* incasso intrekken (zolang Mollie de afschrijving nog niet heeft verstuurd) */
 exports.mollieIntrekken = onCall(async req => {
@@ -348,7 +360,7 @@ exports.mollieHook = onRequest(async (req, res) => {
         if (p.status === "paid" && p.mandateId) {
           let bank = "", rek = "";
           try { const m = await mollie(g.mollieKey, "customers/" + p.customerId + "/mandates/" + p.mandateId); const dt = m.details || {}; bank = dt.consumerName || ""; rek = String(dt.consumerAccount || "").replace(/^(.{4}).*(.{4})$/, "$1 •••• $2"); } catch (e) {}
-          Object.assign(upd, { incasso: true, mollieCustomerId: p.customerId, mollieMandateId: p.mandateId, incassoSinds: (p.paidAt || nu()).slice(0, 10), incassoBank: bank, incassoRekening: rek, log: [...(Array.isArray(ks.data().log) ? ks.data().log : []), { datum: nu().slice(0, 10), tekst: "Automatische incasso ingesteld door klant (portaal)" + (rek ? " · " + rek : "") }] });
+          Object.assign(upd, { incasso: true, mollieCustomerId: p.customerId, mollieMandateId: p.mandateId, incassoSinds: dagNL(p.paidAt || Date.now()), incassoBank: bank, incassoRekening: rek, log: [...(Array.isArray(ks.data().log) ? ks.data().log : []), { datum: nu().slice(0, 10), tekst: "Automatische incasso ingesteld door klant (portaal)" + (rek ? " · " + rek : "") }] });
         }
         await kref.set(upd, { merge: true });
       }
@@ -356,11 +368,24 @@ exports.mollieHook = onRequest(async (req, res) => {
     }
     const fid = p.metadata && p.metadata.factuurId;
     if (fid) {
-      const ref = db.doc("facturen/" + fid), upd = { mollieStatus: p.status };
-      if (p.sequenceType === "recurring" && ["failed", "canceled", "expired"].includes(p.status)) Object.assign(upd, { incassoMislukt: nu(), incassoFout: (p.details && p.details.bankReason) || p.status });
-      if (p.status === "paid") Object.assign(upd, { status: "betaald", betaald: true, betaaldOp: (p.paidAt || nu()).slice(0, 10), betaaldTs: p.paidAt || nu(), betaalwijze: "mollie" });
-      await ref.set(upd, { merge: true });
-      if (p.status === "paid") {
+      const ref = db.doc("facturen/" + fid), b0 = await bedrijf();
+      /* in één transactie: dezelfde melding twee keer telt niet dubbel, en een oud of te laag bedrag zet de factuur niet op betaald */
+      const volledig = await db.runTransaction(async t => {
+        const s = await t.get(ref); if (!s.exists) return false;
+        const x = decF(s.data()), upd = { mollieStatus: p.status };
+        if (p.sequenceType === "recurring" && ["failed", "canceled", "expired"].includes(p.status)) Object.assign(upd, { incassoMislukt: nu(), incassoFout: (p.details && p.details.bankReason) || p.status });
+        let vol = false;
+        if (p.status === "paid") {
+          const gehad = Array.isArray(x.mollieBetaald) ? x.mollieBetaald : [];
+          if (gehad.includes(p.id)) return x.status === "betaald";
+          const bedrag = Number((p.amount || {}).value) || 0, al = Number(x.deelBetaald) || 0, rest = Math.round((BANK.totals(x, b0) - al) * 100) / 100;
+          upd.mollieBetaald = [...gehad, p.id].slice(-20);
+          if (bedrag + 0.01 >= rest) { vol = true; Object.assign(upd, { status: "betaald", betaald: true, betaaldOp: dagNL(p.paidAt || Date.now()), betaaldTs: p.paidAt || nu(), betaalwijze: "mollie" }); }
+          else Object.assign(upd, { deelBetaald: Math.round((al + bedrag) * 100) / 100, deelBetaaldOp: dagNL(p.paidAt || Date.now()), betaallink: "", mollieLink: "",
+            deelBetalingen: [...(Array.isArray(x.deelBetalingen) ? x.deelBetalingen : []), { op: dagNL(p.paidAt || Date.now()), bedrag, id: p.id }] });
+        }
+        t.set(ref, upd, { merge: true }); return vol; });
+      if (volledig) {
         const bs = await db.collection("beurten").where("gefactureerd", "==", fid).get();
         for (const d of bs.docs) await d.ref.set({ betaald: true }, { merge: true });
       }
@@ -530,7 +555,7 @@ exports.akkoordGeven = onRequest({ cors: true, memory: "512MiB", timeoutSeconds:
     const datum = nlDatum() + " - " + nlTijd(), getekend = { naam, plaats, datum, browser, systeem, handtekening: hid, op: nu() };
     await ref.update({ status: "getekend", getekend });
     const f = a.factuurId ? await db.doc("facturen/" + a.factuurId).get() : null;
-    if (f && f.exists) await f.ref.set({ status: "geaccepteerd", akkoordOp: nu().slice(0, 10), getekend, getekendNieuw: true }, { merge: true });
+    if (f && f.exists) await f.ref.set({ status: "geaccepteerd", akkoordOp: dagNL(), getekend, getekendNieuw: true }, { merge: true });
     const m = a.model || {}, naar = a.email || "";
     let nummer = "";
     /* vanaf hier is de handtekening opgeslagen: een mislukte bevestigingsmail mag de offerte niet terugzetten op open */

@@ -26,12 +26,14 @@ module.exports = ({ rawDb, T, onCall, onRequestRaw, HttpsError, nu, mollie, HOST
     if (T.isLegacy()) return { status: "eigen", plan: PLAN };
     const s = await rawDb.doc("bedrijven/" + T.bid()).get(), d = s.data() || {};
     const n = (await rawDb.collection("gebruikers").where("bedrijf", "==", T.bid()).get()).size;
-    return { status: d.status, proefTot: d.proefTot || "", plan: d.plan || PLAN, gebruikers: n, naam: d.naam };
+    return { status: d.status, achterstand: !!d.achterstand, respijtTot: d.achterstand ? respijtTot(d) : "", proefTot: d.proefTot || "", plan: d.plan || PLAN, gebruikers: n, naam: d.naam };
   });
 
   /* ---------- abonnement via Mollie (account van Mansard zelf) ---------- */
   const r2 = n => Math.round(n * 100) / 100;
-  const vandaag = () => new Date().toISOString().slice(0, 10);
+  const vandaag = () => new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Amsterdam" }).format(new Date());
+  /* na een mislukte betaling nog 14 dagen gewoon doorwerken; daarna dicht tot er (via "Nu betalen") betaald is */
+  const RESPIJT = 14, respijtTot = b => { const x = new Date(String(b.foutOp || nu()).slice(0, 10) + "T12:00:00Z"); x.setUTCDate(x.getUTCDate() + RESPIJT); return x.toISOString().slice(0, 10); };
   const plusMaand = d => { const x = new Date(d + "T12:00:00Z"); x.setUTCMonth(x.getUTCMonth() + 1); return x.toISOString().slice(0, 10); };
   async function sleutel() { const pl = (await rawDb.doc("platform/geheim").get()).data() || {}, g = (await rawDb.doc("geheim/config").get()).data() || {}; const k = pl.mansardMollieKey || g.mansardMollieKey || g.mollieKey; if (!k) throw new HttpsError("failed-precondition", "Betalen is nog niet ingesteld bij Mansard."); return k; }
   async function aantalGebruikers(bid) { return (await rawDb.collection("gebruikers").where("bedrijf", "==", bid).get()).size; }
@@ -46,7 +48,7 @@ module.exports = ({ rawDb, T, onCall, onRequestRaw, HttpsError, nu, mollie, HOST
 
   const abonnementStart = onCall(async req => {
     const e = await eigenaarVan(req.auth), bid = T.bid(), ref = rawDb.doc("bedrijven/" + bid), b = (await ref.get()).data() || {};
-    if (b.status === "actief" && b.mollieSub) return { al: true };
+    if (b.status === "actief" && b.mollieSub && !b.achterstand) return { al: true };
     const key = await sleutel(), basis = basisOk((req.data || {}).basis), n = await aantalGebruikers(bid), plan = b.plan || PLAN;
     let cid = b.mollieCustomer;
     if (!cid) { const c = await mollie(key, "customers", { method: "POST", body: JSON.stringify({ name: b.naam || e, email: e, metadata: { mansard: bid } }) }); cid = c.id; await ref.set({ mollieCustomer: cid }, { merge: true }); }
@@ -83,11 +85,11 @@ module.exports = ({ rawDb, T, onCall, onRequestRaw, HttpsError, nu, mollie, HOST
         await ref.set({ mollieMandate: p.mandateId }, { merge: true });
         const start = p.metadata.inProef && String(b.proefTot || "") > vandaag() ? b.proefTot : plusMaand(vandaag());
         await zetSub(bid, key, start);
-        if (!p.metadata.inProef) await ref.set({ betaaldTot: start }, { merge: true });
+        if (!p.metadata.inProef) await ref.set({ betaaldTot: start, status: "actief", achterstand: false }, { merge: true });
       } else if (p.subscriptionId && p.status === "paid") {
         await ref.set({ status: "actief", betaaldTot: plusMaand(vandaag()), laatsteBetaling: p.paidAt || nu(), achterstand: false }, { merge: true });
       } else if (p.subscriptionId && ["failed", "expired", "canceled"].includes(p.status)) {
-        await ref.set({ achterstand: true, laatsteFout: p.status, foutOp: nu() }, { merge: true });
+        await ref.set({ achterstand: true, laatsteFout: p.status, foutOp: b.achterstand && b.foutOp ? b.foutOp : nu() }, { merge: true });
       }
       res.send("ok");
     } catch (e) { console.error("mansardHook", e); res.status(500).send("fout"); }
@@ -115,7 +117,7 @@ module.exports = ({ rawDb, T, onCall, onRequestRaw, HttpsError, nu, mollie, HOST
   async function magGebruiken() {
     if (T.isLegacy()) return true;
     const b = (await rawDb.doc("bedrijven/" + T.bid()).get()).data() || {}, d = vandaag();
-    if (b.status === "actief") return true;
+    if (b.status === "actief") return !b.achterstand || respijtTot(b) >= d;
     if (b.status === "proef") return String(b.proefTot || "") >= d;
     if (b.status === "opgezegd") return String(b.betaaldTot || b.proefTot || "") >= d;
     return false;

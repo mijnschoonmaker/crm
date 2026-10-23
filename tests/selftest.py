@@ -115,6 +115,28 @@ def nummering(pg):
       await T.del('facturen',a);await T.del('facturen',b);return {...uit,j}}""")
     check(G, "Volgend factuurnummer sluit aan op het hoogste", r["volgende"] == r["j"] + "-0013", r)
     check(G, "Eerste offertenummer van het jaar", r["offerte"] == "OFF-" + r["j"] + "-001", r)
+    # twee gebruikers maken tegelijk een factuur met hetzelfde nummer: de nieuwste (van deze gebruiker) schuift door
+    r = pg.evaluate("""async()=>{const T=MSTEST,j=String(new Date().getFullYear()+6),d=j+'-03-01';
+      await T.save('facturen','fzz-ander',{soort:'factuur',nummer:j+'-0001',datum:d,regels:[],status:'open'});
+      await T.save('facturen','fzz-mijn',{soort:'factuur',nummer:j+'-0001',datum:d,regels:[],status:'concept'});
+      await T.nrBewaker();await new Promise(r=>setTimeout(r,300));
+      const g=id=>(T.state.facturen.find(x=>x.id===id)||{}).nummer,uit={ander:g('fzz-ander'),mijn:g('fzz-mijn'),j};
+      await T.del('facturen','fzz-ander');await T.del('facturen','fzz-mijn');return uit}""")
+    check(G, "Dubbel nummer: de oudste houdt zijn nummer", r["ander"] == r["j"] + "-0001", r)
+    check(G, "Dubbel nummer: de nieuwe krijgt het volgende vrije nummer", r["mijn"] == r["j"] + "-0002", r)
+
+
+def abonnement(pg):
+    G = "Abonnement"
+    r = pg.evaluate("""()=>{const T=MSTEST;if(!T.msStatus||!T.MS)return null;const oud=T.MS.doc,v=T.iso(T.today()),dag=n=>T.iso(T.addDays(T.today(),n));
+      const s=d=>{T.MS.doc=d;return T.msStatus()};
+      const uit={goed:s({status:'actief'}),kort:s({status:'actief',achterstand:true,foutOp:dag(-3)}),lang:s({status:'actief',achterstand:true,foutOp:dag(-20)})};
+      T.MS.doc=oud;return uit}""")
+    if r is None:
+        check(G, "Abonnementsstatus te testen", False, "msStatus niet bereikbaar"); return
+    check(G, "Actief abonnement: toegang", r["goed"]["ok"], r["goed"])
+    check(G, "Mislukte betaling: eerst 14 dagen gewoon doorwerken", r["kort"]["ok"] and r["kort"]["soort"] == "achterstand", r["kort"])
+    check(G, "Na 14 dagen zonder betaling: dicht", (not r["lang"]["ok"]) and r["lang"]["soort"] == "onbetaald", r["lang"])
 
 
 def afmelden(pg):
@@ -331,6 +353,7 @@ def main():
             instellingen(pg)
             rekenregels(pg)
             nummering(pg)
+            abonnement(pg)
             afmelden(pg)
             statistieken(pg)
             frequentie(pg)

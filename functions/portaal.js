@@ -413,12 +413,15 @@ module.exports = function maakPortaal(ctx) {
         const id = String(body(req).id || ""), f = await db.doc("facturen/" + id).get();
         if (!f.exists || !(await vanKlant(S, f.data().klantId)) || f.data().status === "betaald" || f.data().soort === "offerte" || f.data().status === "concept") { res.status(404).json({ fout: "niet gevonden" }); return; }
         const x = dec(f.data()), b = await bedrijf(), g = await geheim();
-        if (x.betaallink && x.mollieStatus === "open") { res.json({ link: x.betaallink }); return; }
+        /* openstaand bedrag (min een eventuele deelbetaling); een oude link alleen als het bedrag nog klopt */
+        const rest = Math.round((totals(x, b).inc - (Number(x.deelBetaald) || 0)) * 100) / 100;
+        if (!(rest > 0)) { res.status(409).json({ fout: "Deze factuur staat niet meer open." }); return; }
+        if (x.betaallink && x.mollieStatus === "open" && (x.mollieBedrag == null || Math.abs(Number(x.mollieBedrag) - rest) < 0.01)) { res.json({ link: x.betaallink }); return; }
         if (!g.mollieKey) { res.status(409).json({ fout: "Online betalen is nog niet beschikbaar. U kunt het bedrag overmaken." }); return; }
         const base = basisUrl(req);
-        const p = await mollie(g.mollieKey, "payments", { method: "POST", body: JSON.stringify({ amount: { currency: "EUR", value: totals(x, b).inc.toFixed(2) }, description: ("Factuur " + (x.nummer || id)).slice(0, 255), redirectUrl: base + "/portaal?betaald=" + encodeURIComponent(id), webhookUrl: base + "/api/mollie" + T.hookQs(), metadata: { factuurId: id } }) });
+        const p = await mollie(g.mollieKey, "payments", { method: "POST", body: JSON.stringify({ amount: { currency: "EUR", value: rest.toFixed(2) }, description: ("Factuur " + (x.nummer || id)).slice(0, 255), redirectUrl: base + "/portaal?betaald=" + encodeURIComponent(id), webhookUrl: base + "/api/mollie" + T.hookQs(), metadata: { factuurId: id } }) });
         const link = p._links && p._links.checkout && p._links.checkout.href;
-        await f.ref.set({ mollieId: p.id, mollieLink: link || "", betaallink: link || "", mollieStatus: p.status }, { merge: true });
+        await f.ref.set({ mollieId: p.id, mollieLink: link || "", betaallink: link || "", mollieStatus: p.status, mollieBedrag: rest }, { merge: true });
         res.json({ link }); return;
       }
       /* automatische incasso: machtiging via een eerste iDEAL-betaling van € 0,01, daarna schrijft het CRM facturen automatisch af */

@@ -227,8 +227,20 @@ function apply(col,docs){
   if(col==="instellingen"&&!state._slotInit&&docs.length){state._slotInit=1;const b=docs.find(x=>x.id==="bedrijf");if(b){state.slot=[10,15].includes(Number(b.slotStd))?Number(b.slotStd):10;if(b.ultra)state.rowH=.7;else if(b.compact)state.rowH=.85}}
   else if(col==="routes"){state.routes={};docs.forEach(d=>state.routes[d.id]=d)}
   else state[col]=docs;
+  if(col==="facturen")setTimeout(nrBewaker,0);
 }
-async function save(col,id,data){if(state.db)await state.db.collection(col).doc(id).set(data);else{mem[col].set(id,{...data,id});apply(col,[...mem[col].values()]);schedule()}}
+/* factuurnummers: maakten twee mensen tegelijk een factuur met hetzelfde nummer, dan krijgt de nieuwste (van deze
+   gebruiker, nog niet verstuurd of betaald) meteen het volgende vrije nummer. De oudste houdt altijd zijn nummer. */
+const MIJN_F=new Set();let nrBezig=0;
+async function nrBewaker(){if(nrBezig||!MIJN_F.size)return;nrBezig=1;
+  try{const per={};(state.facturen||[]).forEach(f=>{if(f.nummer)(per[(f.soort==="offerte"?"o:":"f:")+f.nummer]=per[(f.soort==="offerte"?"o:":"f:")+f.nummer]||[]).push(f)});
+    const skip={f:0,o:0};
+    for(const l of Object.values(per)){if(l.length<2)continue;l.sort((x,y)=>String(x.id)<String(y.id)?-1:1);
+      for(const f of l.slice(1)){if(!MIJN_F.has(f.id)||f.verstuurdOp||f.status==="betaald")continue;
+        const soort=f.soort==="offerte"?"offerte":"factuur",k=soort==="offerte"?"o":"f",nr=nextNr(soort,f.datum||iso(today()),skip[k]++);
+        const {id,...rest}=f;await save("facturen",id,{...strip(rest),nummer:nr});toast((soort==="offerte"?"Offertenummer":"Factuurnummer")+" "+f.nummer+" was al in gebruik; deze heeft nu "+nr)}}}
+  catch(e){console.error("nrBewaker",e)}finally{nrBezig=0}}
+async function save(col,id,data){if(col==="facturen"&&!(state.facturen||[]).some(f=>f.id===id))MIJN_F.add(id);if(state.db)await state.db.collection(col).doc(id).set(data);else{mem[col].set(id,{...data,id});apply(col,[...mem[col].values()]);schedule()}}
 async function del(col,id){if(state.db)await state.db.collection(col).doc(id).delete();else{mem[col].delete(id);apply(col,[...mem[col].values()]);schedule()}}
 let rq=0;function schedule(){if(rq)return;rq=requestAnimationFrame(()=>{rq=0;render()})}
 async function init(){

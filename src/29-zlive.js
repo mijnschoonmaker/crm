@@ -9,8 +9,10 @@ const randTok=(n=24)=>[...crypto.getRandomValues(new Uint8Array(n))].map(x=>"abc
 const fnFout=e=>String((e&&e.message)||e||"onbekende fout").replace(/^.*?:\s*(?=Versturen|Er is|Geen|Log|Ongeldig)/,"");
 
 async function mollieLinkVoor(f){
-  if(f.betaallink&&f.mollieId&&f.mollieStatus==="open")return f.betaallink;
-  const r=await fbFn("mollieLink")({factuurId:f.id,bedrag:Math.round(totals(f).inc*100)/100,omschrijving:"Factuur "+f.nummer,basis:location.origin});
+  /* openstaand bedrag (min een eventuele deelbetaling); een oude link alleen hergebruiken als het bedrag nog klopt */
+  const bedrag=Math.round((totals(f).inc-(Number(f.deelBetaald)||0))*100)/100;
+  if(f.betaallink&&f.mollieId&&f.mollieStatus==="open"&&(f.mollieBedrag==null||Math.abs(Number(f.mollieBedrag)-bedrag)<0.01))return f.betaallink;
+  const r=await fbFn("mollieLink")({factuurId:f.id,bedrag,omschrijving:"Factuur "+f.nummer,basis:location.origin});
   return r.data.link}
 
 /* opgemaakte mail rechtstreeks versturen (vervangt kopiëren + plakken) */
