@@ -101,7 +101,7 @@ module.exports = function maakPortaal(ctx) {
   const fStatus = f => f.status === "betaald" ? "betaald" : f.status === "oninbaar" ? "gesloten" : f.verval && f.verval < isoNL() ? "verlopen" : "open";
   const bedrijfInfo = (b, base) => ({ naam: b.naam || "mijnschoonmaker.com", logo: (b.logoMail || b.logo) ? base + "/_blob/" + (b.logoMail || b.logo) : "", telefoon: b.telefoon || "", mobiel: b.mobiel || b.telefoon || "", email: b.email || "", website: b.website || "", iban: b.iban || "", reviewLink: b.reviewLink || "", kleur: b.mailAccent || b.hoofdkleur || "#137a8a",
     voorwaarden: b.voorwaardenPdf ? base + "/_blob/" + b.voorwaardenPdf : "", tijdWeergave: b.portaalTijd || "venster", refAan: b.refAan !== false, refBeloning: b.refBeloning != null && b.refBeloning !== "" ? Number(b.refBeloning) : 20, refWelkom: b.refWelkom != null && b.refWelkom !== "" ? Number(b.refWelkom) : 10, werkStart: b.werkStart || "08:00",
-    credits: { review: 0, beurt: numOf(b.crBeurt, 1), extra: numOf(b.crExtra, 3), aanbevelen: numOf(b.refBeloning, 20), snel: numOf(b.crSnel, 1), jaar: numOf(b.crJaar, 10) } });
+    credits: { review: 0, beurt: 0, extra: numOf(b.crExtra, 3), aanbevelen: numOf(b.refBeloning, 20), snel: numOf(b.crSnel, 1), jaar: numOf(b.crJaar, 10) } });
   const numOf = (v, d) => v != null && v !== "" && !isNaN(Number(v)) ? Number(v) : d;
 
   /* ---------- live meekijken: waar rijdt de glazenwasser (alleen voor klanten van vandaag) ---------- */
@@ -267,9 +267,7 @@ module.exports = function maakPortaal(ctx) {
       if (!bs.exists || bs.data().klantId !== k.id) throw new Error("bezoek niet gevonden");
       await bref.set({ beoordeling: { sterren: st, tekst: v.tekst, op: nu() } }, { merge: true });
       Object.assign(v, { sterren: st, beurtId: bref.id, datum: bs.data().datum || "", status: st <= 3 ? "nieuw" : "info" });
-      /* credits voor het beoordelen van een bezoek (één keer per bezoek) */
-      try { const b = await bedrijf(), cr = bedrijfInfo(b, "").credits.beurt, al = (k.tegoed || []).concat(k.tegoedGebruikt || []).some(t => t && t.bron === "beoordeling" && t.ref === bref.id);
-        if (cr > 0 && !al) { await S.kref.set({ tegoed: [...(k.tegoed || []), { id: newId("tg"), bedrag: cr, reden: "Credits: beoordeling bezoek " + (bs.data().datum || ""), bron: "beoordeling", ref: bref.id, op: isoNL() }] }, { merge: true }); v.credits = cr; } } catch (e) { console.error("credits beoordeling", e); }
+      /* beoordelen van een bezoek levert geen credits meer op */
     }
     if (type === "bericht" && !v.tekst) throw new Error("Schrijf een bericht.");
     const id = newId("pv");
