@@ -1,0 +1,120 @@
+import { useEffect, useRef, useState } from "react"
+import { addPropertyControls, ControlType } from "framer"
+
+type Img = { src?: string; alt?: string } | string | undefined
+type Stop = { tijd: string; adres: string }
+interface Props {
+    stops: Stop[]
+    bus?: Img
+    achtergrond: boolean
+    style?: React.CSSProperties
+}
+
+const STANDAARD: Stop[] = [
+    { tijd: "08:00", adres: "Lindenlaan 14" },
+    { tijd: "08:40", adres: "Populierenlaan 3" },
+    { tijd: "09:25", adres: "Iepenlaan 68" },
+    { tijd: "10:00", adres: "Kievitstraat 9" },
+    { tijd: "10:45", adres: "Fazantenlaan 2" },
+    { tijd: "11:20", adres: "Wilgenpad 23" },
+    { tijd: "12:10", adres: "Beukenlaan 22" },
+]
+const FONT = '"Nunito Sans","Avenir Next","Avenir","Segoe UI",system-ui,sans-serif'
+const DISPLAY = '"Avenir Next","Avenir","Nunito Sans","Segoe UI",system-ui,sans-serif'
+const src = (i: Img) => (typeof i === "string" ? i : i?.src) || ""
+const HUIS = "M4.5 10.4 12 4.2l7.5 6.2v8.4a1.4 1.4 0 0 1-1.4 1.4h-3.4v-5a1 1 0 0 0-1-1h-3.4a1 1 0 0 0-1 1v5H5.9a1.4 1.4 0 0 1-1.4-1.4z"
+
+/**
+ * De dagroute: de bus met boxvan rijdt langs de adressen en vinkt ze af.
+ * @framerSupportedLayoutWidth any-prefer-fixed
+ * @framerSupportedLayoutHeight auto
+ * @framerIntrinsicWidth 1200
+ */
+export default function BusRoute(props: Props) {
+    const { achtergrond = true, style } = props
+    const alle = props.stops && props.stops.length ? props.stops : STANDAARD
+    const bus = src(props.bus) || "https://app.mansard.nl/site/bus.png"
+    const doos = useRef<HTMLDivElement>(null)
+    const [w, setW] = useState(1200)
+    const [p, setP] = useState(0.18)
+
+    useEffect(() => {
+        const meet = () => doos.current && setW(doos.current.getBoundingClientRect().width)
+        meet()
+        const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(meet) : null
+        if (ro && doos.current) ro.observe(doos.current)
+        const stil = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        if (stil) return () => ro && ro.disconnect()
+        const DUR = 16000
+        let t0: number | null = null, raf = 0
+        const tik = (t: number) => {
+            if (t0 === null) t0 = t
+            setP(((t - t0) % DUR) / DUR)
+            raf = requestAnimationFrame(tik)
+        }
+        raf = requestAnimationFrame(tik)
+        return () => { cancelAnimationFrame(raf); ro && ro.disconnect() }
+    }, [])
+
+    const smal = w < 760
+    const stops = smal ? alle.slice(0, 4) : alle
+    const n = stops.length
+    const busW = Math.max(smal ? 130 : 150, Math.min(240, w * 0.15))
+    const kol = w / n
+    const midden = (i: number) => kol * (i + 0.5)
+    /* de bus rijdt van links buiten beeld naar rechts buiten beeld */
+    const x = -busW + (w + busW * 2) * p
+    const voor = x + busW * 0.92
+    const klaar = stops.map((_, i) => voor > midden(i) + 10)
+    const volgende = klaar.indexOf(false)
+    const lijnTop = smal ? 84 : 98
+    const H = smal ? 158 : 178
+
+    return (
+        <div ref={doos} aria-hidden="true" style={{ ...style, width: "100%", height: H, position: "relative", overflow: "hidden", fontFamily: FONT, color: "#fff", WebkitFontSmoothing: "antialiased",
+            ...(achtergrond ? { background: "linear-gradient(180deg, rgba(20,25,37,.42), rgba(20,25,37,.68))", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", borderTop: "1px solid rgba(255,255,255,.14)" } : {}) }}>
+            <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:opsz,wght@6..12,400;6..12,700&display=swap" />
+            <div style={{ position: "absolute", left: "3%", right: "3%", top: lijnTop, height: 22, borderRadius: 11, background: "rgba(255,255,255,.09)" }}>
+                <div style={{ position: "absolute", left: 12, right: 12, top: 10, borderTop: "2px dashed rgba(255,255,255,.38)" }} />
+            </div>
+            {stops.map((s, i) => {
+                const done = klaar[i], next = i === volgende
+                const maat = next ? (smal ? 42 : 50) : smal ? 36 : 42
+                return (
+                    <div key={i} style={{ position: "absolute", left: midden(i), top: 0, transform: "translateX(-50%)", width: kol, display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+                        <span style={{ height: smal ? 22 : 26, display: "flex", alignItems: "flex-end", fontFamily: DISPLAY, fontSize: smal ? 9.5 : 11, letterSpacing: "0.24em", textTransform: "uppercase", fontWeight: 700, opacity: next ? 1 : 0, transition: "opacity .3s" }}>Volgende</span>
+                        <span style={{ height: smal ? 52 : 62, display: "flex", alignItems: "center" }}>
+                            <span style={{
+                                width: maat, height: maat, borderRadius: 12, display: "grid", placeItems: "center", transition: "all .35s",
+                                border: `1px solid ${done ? "#4b8c6c" : next ? "#fff" : "rgba(255,255,255,.3)"}`,
+                                background: done ? "#2f6b4f" : next ? "#fff" : "rgba(255,255,255,.07)",
+                                color: next ? "#252c3c" : "#fff", boxShadow: next ? "0 8px 20px -8px rgba(0,0,0,.6)" : "none",
+                            }}>
+                                {done ? (
+                                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg>
+                                ) : (
+                                    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d={HUIS} /></svg>
+                                )}
+                            </span>
+                        </span>
+                        <b style={{ marginTop: smal ? 34 : 38, fontSize: smal ? 13.5 : 16, fontWeight: 700, fontVariantNumeric: "tabular-nums", textDecoration: done ? "line-through" : "none", color: done ? "rgba(255,255,255,.5)" : "#fff" }}>{s.tijd}</b>
+                        <small style={{ fontSize: smal ? 10.5 : 12.5, color: next ? "#fff" : "rgba(255,255,255,.65)", fontWeight: next ? 700 : 400, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "94%" }}>{s.adres}</small>
+                    </div>
+                )
+            })}
+            <img src={bus} alt="" style={{ position: "absolute", left: 0, top: lijnTop + 11 - busW * 0.2575 + 2, width: busW, transform: `translateX(${x}px)`, filter: "drop-shadow(0 6px 8px rgba(0,0,0,.45))", zIndex: 2, pointerEvents: "none" }} />
+        </div>
+    )
+}
+
+addPropertyControls(BusRoute, {
+    stops: {
+        type: ControlType.Array,
+        title: "Adressen",
+        control: { type: ControlType.Object, controls: { tijd: { type: ControlType.String, title: "Tijd", defaultValue: "09:00" }, adres: { type: ControlType.String, title: "Adres", defaultValue: "Straat 1" } } },
+        defaultValue: STANDAARD,
+        maxCount: 9,
+    },
+    bus: { type: ControlType.ResponsiveImage, title: "Bus" },
+    achtergrond: { type: ControlType.Boolean, title: "Glas", defaultValue: true },
+})
