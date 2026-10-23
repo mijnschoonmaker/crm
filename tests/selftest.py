@@ -238,6 +238,13 @@ def teplannen(pg):
         return check(G, "Te plannen", False, "teplannen niet gevonden")
     check(G, "Eerdere aanboddatum komt bij Te plannen", r["a"] is True, r)
     check(G, "Latere aanboddatum laat de afspraak staan", r["b"] is False, r)
+    # gemiste afspraak (eerder ingepland dan de frequentie): verplaatsen naar morgen is niet "te vroeg"
+    r = pg.evaluate("""()=>{const T=MSTEST;if(!T.teVroeg)return null;const d=n=>T.iso(T.addDays(T.today(),n));
+      const k={naam:'Vroeg, Test',frequentie:6,laatst:d(-14),actief:true};
+      return {zonder:T.teVroeg(k,d(1)),gemist:T.teVroeg({...k,gepland:d(-1)},d(1))}}""")
+    if r is not None:
+        check(G, "Ver vóór de beurt inplannen geeft een waarschuwing", r["zonder"] is True, r)
+        check(G, "Gemiste afspraak verplaatsen is niet te vroeg", r["gemist"] is False, r)
 
 
 def nieuweOpdracht(pg):

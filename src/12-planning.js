@@ -354,7 +354,10 @@ async function planMulti(d,t){
 const VROEG_DAGEN=7;
 /* hoeveel dagen voor de vervaldatum een klant bij Te plannen verschijnt (standaard 11) */
 const zichtbaarDagen=()=>{const s=S();return s.zichtbaarDagen!=null&&s.zichtbaarDagen!==""?Math.max(0,Number(s.zichtbaarDagen)||0):(Number(s.lookahead)?Number(s.lookahead)*7:11)};
-function teVroeg(k,date){if(!k||!date||k.aanbieden||fqSpec(k.frequentie))return false;try{const v=volgende(k);return v&&parse(date)<addDays(v,-VROEG_DAGEN)}catch(e){return false}}
+/* vanaf wanneer is de klant aan de beurt? Stond hij al eerder ingepland (bijv. een gemiste afspraak), dan telt die datum:
+   verplaatsen naar rond die datum is dan niet "te vroeg" */
+function beurtVanaf(k){const v=volgende(k),gp=parse(k.gepland);return gp&&v&&gp<v?gp:v}
+function teVroeg(k,date){if(!k||!date||k.aanbieden||fqSpec(k.frequentie))return false;try{const v=beurtVanaf(k);return v&&parse(date)<addDays(v,-VROEG_DAGEN)}catch(e){return false}}
 /* eigen vraagvenster (geen browser-popup), werkt ook boven een open dialoog */
 function vraag(titel,tekst,ja="Toch inplannen",nee="Annuleren"){return new Promise(res=>{
   const o=document.createElement("div");o.className="vraag-ov";o.innerHTML=`<div class="vraag" role="alertdialog" aria-modal="true"><span class="objic kd-warn">${I.alert}</span><div><b>${esc(titel)}</b><p>${tekst}</p></div><div class="vraag-k"><button type="button" data-v="0">${esc(nee)}</button><button type="button" class="primary" data-v="1">${esc(ja)}</button></div></div>`;
@@ -370,8 +373,8 @@ function melding(titel,tekst){return new Promise(res=>{const o=document.createEl
   const done=()=>{try{d.close()}catch(_){}d.remove();res(true)};o.addEventListener("click",e=>{if(e.target.closest("[data-v]")||e.target===o)done()});d.addEventListener("cancel",e=>{e.preventDefault();done()});
   try{d.showModal()}catch(_){d.setAttribute("open","")}setTimeout(()=>{const b=o.querySelector("[data-v]");if(b)b.focus()},30)})}
 async function vroegOk(list,date){const vr=list.filter(k=>teVroeg(k,date));if(!vr.length)return true;
-  const t=vr.length===1?`${esc(cleanName(vr[0].naam))} is pas op <b>${esc(fmtL(iso(volgende(vr[0]))))}</b> aan de beurt (elke ${esc(vr[0].frequentie||4)} weken). Je plant hem nu op ${esc(fmtL(date))}, meer dan een week te vroeg.`
-    :`${vr.length} afspraken worden meer dan een week te vroeg ingepland:<br>${vr.slice(0,6).map(k=>`• ${esc(cleanName(k.naam))}: aan de beurt ${esc(fmtD(iso(volgende(k))))}`).join("<br>")}${vr.length>6?"<br>…":""}`;
+  const t=vr.length===1?`${esc(cleanName(vr[0].naam))} is pas op <b>${esc(fmtL(iso(beurtVanaf(vr[0]))))}</b> aan de beurt (elke ${esc(vr[0].frequentie||4)} weken). Je plant hem nu op ${esc(fmtL(date))}, meer dan een week te vroeg.`
+    :`${vr.length} afspraken worden meer dan een week te vroeg ingepland:<br>${vr.slice(0,6).map(k=>`• ${esc(cleanName(k.naam))}: aan de beurt ${esc(fmtD(iso(beurtVanaf(k))))}`).join("<br>")}${vr.length>6?"<br>…":""}`;
   return vraag("Te vroeg ingepland",t)}
 
 /* ---------- meerdere afspraken selecteren en tegelijk verplaatsen ---------- */
