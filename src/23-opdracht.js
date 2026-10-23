@@ -188,6 +188,9 @@ function openOpdrachtWerk(kid,focus){
       ${r.oms?`<p class="ow-rko">${esc(r.oms)}</p>`:""}
       <dl class="ow-rkf">${regels}</dl>
       <dl class="ow-rkt">${c&&c.start?`<dt>Starttarief</dt><dd>${eur(c.start)}</dd>`:""}<dt>Tijdsduur</dt><dd>${c?Math.round(c.sec/60):Number(r.duur)||0} minuten</dd><dt>Totaal ${esc(r.dienst||"")}</dt><dd>${eur(c?(S().toonEx?c.ex:c.ex*(1+(Number(st.btw)||21)/100)):toon(r.prijs))}${ov?" <i>(overschrijvend)</i>":""}</dd></dl></div></div>`};
+  /* op welk adres: hoofdadres of een van de locaties van de klant; een ander adres wordt een eigen afspraak */
+  const adresKeuze=(r,i)=>{const ls=(k.objecten||[]).filter(o=>o.adres);if(!ls.length)return `<small class="help">Glasbewassing op een ander adres? Voeg dat adres eerst toe bij Locaties op de klantkaart; dan kies je het hier.</small>`;
+    return `<label>Adres<select data-i="${i}" data-k="objectId"><option value="">${esc(fullAddr(k))} (hoofdadres)</option>${ls.map(o=>`<option value="${esc(o.id)}" ${o.id===r.objectId?"selected":""}>${esc([o.adres,[o.postcode,o.plaats].filter(Boolean).join(" ")].filter(Boolean).join(", "))}${o.naam?" · "+esc(o.naam):""}</option>`).join("")}</select>${r.objectId?`<small class="help">Ander adres: wordt apart ingepland, met een eigen afspraak en factuur.</small>`:""}</label>`};
   const lineHtml=(r,i,isMain)=>!isMain&&r.id&&dicht.has(r.id)?dichtHtml(r,i):`<div class="ow-line${isMain?" main":""}">
       ${isMain&&r.ramen?"":`      <div class="ow-lh"><span class="mono">${isMain?1:i+2}</span><input data-i="${isMain?"m":i}" data-k="dienst" value="${esc(r.dienst)}" placeholder="Dienst" aria-label="Dienst">${isMain?"":`<button type="button" class="small ghost" data-rm="${i}" aria-label="Regel verwijderen">${I.x}</button>`}</div>
       <div class="ow-lg">
@@ -199,6 +202,7 @@ function openOpdrachtWerk(kid,focus){
             <label>Volgende keer<input data-i="${i}" data-k="volgende" type="date" value="${esc(r.volgende||"")}" title="Leeg = bij de volgende beurt"></label>`}
       </div>`}
       ${!isMain&&r.items?itemsHtml(r,i):r.ramen?calcHtml(r,i,isMain):isGlas(r.dienst)?`<button type="button" class="small" data-calcopen="${isMain?"m":i}">${I.calculator}Ramen per verdieping invullen</button>`:""}
+      ${!isMain&&(r.ramen||isGlas(r.dienst))?adresKeuze(r,i):""}
       ${isMain?"":`<label class="check-row"><input type="checkbox" data-i="${i}" data-k="actief" ${r.actief!==false?"checked":""}>Actief${r.apart?"":" · gaat mee met de beurt waarop hij aan de beurt is"}</label>
       <label class="check-row"><input type="checkbox" data-i="${i}" data-k="apart" ${r.apart?"checked":""}>Apart inplannen · eigen afspraak in de agenda, met eigen tijd en factuur <small class="subt">(voor grote klussen; anders gaat hij mee met de glasbewassing)</small></label>`}
       <div class="ow-lsave"><button type="button" class="small primary" data-lsave="${isMain?"m":i}">${I.check}Opslaan</button></div>
@@ -209,7 +213,8 @@ function openOpdrachtWerk(kid,focus){
   const itemsRecalc=(i,struct)=>{const r=extra[i];if(!r||!r.items)return;r.frequentie=itemsRitme(r);const c=groepCalc(r),mul=incl?1+(Number(st.btw)||21)/100:1;r.prijs=r2(c.ex*mul);r.duur=Math.max(5,Math.ceil(c.sec/60/5)*5);
     const pi=$("#owLines").querySelector(`input[data-i="${i}"][data-k="prijs"]`);if(pi){pi.value=r.prijs;pi.classList.remove("flash");void pi.offsetWidth;pi.classList.add("flash")}
     if(struct)groepRedraw($("#owLines"),"x"+i,r,gOpts(r));else groepTotUpdate($("#owLines"),"x"+i,r,gOpts(r));tot()};
-  const tot=()=>{const per=Number(main.prijs)||0,ex=extra.filter(o=>o.actief!==false&&o.dienst),ts=Math.max(0,Number(($o("toeslag")||{}).value)||0)/100;
+  const tot=()=>{if(soloI>=0&&extra[soloI]){const r=extra[soloI];$("#owTot").innerHTML=`<span>Per keer (${esc(r.dienst||"deze opdracht")})</span><span>${eur(toon(Number(r.prijs)||0))}</span>`;return}
+    const per=Number(main.prijs)||0,ex=extra.filter(o=>o.actief!==false&&o.dienst),ts=Math.max(0,Number(($o("toeslag")||{}).value)||0)/100;
     const jaar=(per*52/(mF||4)+ex.reduce((a,o)=>a+(Number(o.prijs)||0)*52/(Number(o.frequentie)||52),0))*(1+ts);
     $("#owTot").innerHTML=`<span>Per beurt (${esc(main.dienst||"hoofdopdracht")})</span><span>${eur(toon(per))}</span>${ts?`<span>Toeslag ${r2(ts*100)}%</span><span>+ ${eur(toon(per)*ts)}</span><span class="grand">Per beurt incl. toeslag</span><span class="grand">${eur(toon(per)*(1+ts))}</span>`:""}${ex.length?`<span>Extra opdrachten, per keer${ts?" incl. toeslag":""}</span><span>${eur(ex.reduce((a,o)=>a+(Number(o.prijs)||0),0)*(1+ts))}</span>`:""}`;
     const h=$("#owTsl");if(h)h.textContent=ts?`+ ${r2(ts*100)}% toeslag = ${eur(toon(per)*(1+ts))} per keer`:""};
@@ -290,16 +295,23 @@ function openOpdrachtWerk(kid,focus){
     tgt[key]=el.type==="checkbox"?el.checked:key==="prijs"||key==="frequentie"?(el.value===""?"":Number(el.value)):el.value;tot()});
   $("#owLines").addEventListener("change",e=>{if(e.target.dataset.k==="actief"){extra[+e.target.dataset.i].actief=e.target.checked;tot()}
     if(e.target.dataset.k==="apart"){extra[+e.target.dataset.i].apart=e.target.checked;tot()}
+    if(e.target.dataset.k==="objectId"){const r=extra[+e.target.dataset.i];if(r){r.objectId=e.target.value||"";if(r.objectId)r.apart=true;draw()}}
     if(e.target.dataset.k==="frequentie"&&e.target.dataset.i!=="m"){const r=extra[+e.target.dataset.i];if(r&&r.items)groepRedraw($("#owLines"),"x"+e.target.dataset.i,r,gOpts(r))}});
   $("#owLines").addEventListener("click",e=>{const b=e.target.closest("[data-rm]");if(b){extra.splice(+b.dataset.rm,1);draw()}});
   groepBind($("#owLines"),key=>extra[+key.slice(1)],(key,struct)=>itemsRecalc(+key.slice(1),struct));
   const addLine=(dienst,prijs)=>{extra.push({id:newId("o"),dienst,prijs,frequentie:52,duur:30,volgende:"",actief:true});draw();const l=$("#owLines").querySelectorAll('input[data-k="dienst"]');const last=l[l.length-1];if(last){last.scrollIntoView({block:"center",behavior:"smooth"});if(!dienst)last.focus()}};
   const leegR=()=>uitTelling()||normR({});
   form.querySelectorAll("[data-dn]").forEach(b=>b.onclick=()=>{const d=diensten[+b.dataset.dn];if(!d.glas&&!(heeftGlas(k)||isGlas(main.dienst))){toast(GLAS_REGEL+" Maak eerst een offerte met glasbewassing.");return}
+    /* nieuwe (losse) opdracht: de gekozen dienst vult deze opdracht zelf; glasbewassing opnieuw berekenen (ander adres = andere aantallen) */
+    if(soloI>=0&&extra[soloI]){const r=extra[soloI];delete r.items;delete r.ramen;delete r.groep;
+      if(d.items&&d.items.length)Object.assign(r,{dienst:d.naam,groep:d.groep,items:d.items.map(it=>({...it,aantal:0})),prijs:0,frequentie:mF||8,duur:d.duur||30});
+      else if(d.glas||isGlas(d.naam)){Object.assign(r,{dienst:d.naam,prijs:"",frequentie:mF||8,duur:30,ramen:normR({})});editR.add(String(soloI))}
+      else Object.assign(r,{dienst:d.naam,prijs:Number(d.prijs)||""});
+      draw();const l=$("#owLines").querySelector(".ow-line");if(l)l.scrollIntoView({block:"start",behavior:"smooth"});return}
     if(d.items&&d.items.length){extra.push({id:newId("o"),dienst:d.naam,groep:d.groep,items:d.items.map(it=>({...it,aantal:0})),prijs:0,frequentie:mF||8,duur:d.duur||30,volgende:"",actief:true});draw();const l=$("#owLines").querySelectorAll(".ow-line");l[l.length-1].scrollIntoView({block:"start",behavior:"smooth"});return}
     if(d.glas||isGlas(d.naam)){if(isGlas(main.dienst)&&!main.ramen){main.ramen=leegR();editR.add("m");draw();const c=$("#owLines").querySelector('[data-calc="m"]');if(c)c.scrollIntoView({block:"start",behavior:"smooth"});return}
       if(isGlas(main.dienst)&&main.ramen&&d.naam.toLowerCase()===String(main.dienst).toLowerCase()){editR.add("m");draw();const c=$("#owLines").querySelector('[data-calc="m"]');if(c)c.scrollIntoView({block:"start",behavior:"smooth"});return}
-      extra.push({id:newId("o"),dienst:d.naam,prijs:"",frequentie:mF||8,duur:30,volgende:"",actief:true,ramen:leegR()});editR.add(String(extra.length-1));draw();const l=$("#owLines").querySelectorAll(".ow-line");l[l.length-1].scrollIntoView({block:"start",behavior:"smooth"});return}
+      extra.push({id:newId("o"),dienst:d.naam,prijs:"",frequentie:mF||8,duur:30,volgende:"",actief:true,ramen:normR({})});editR.add(String(extra.length-1));draw();const l=$("#owLines").querySelectorAll(".ow-line");l[l.length-1].scrollIntoView({block:"start",behavior:"smooth"});return}
     addLine(d.naam,Number(d.prijs)||"")});
   $("#owEigen").onclick=()=>addLine("","");
   $("#owZoek").oninput=e=>{const q=e.target.value.toLowerCase();if(q){const m=form.querySelector("#owChips .chips-meer"),mb=form.querySelector("#owChips [data-meer]");if(m)m.hidden=false;if(mb)mb.hidden=true}form.querySelectorAll("#owChips [data-dn]").forEach(b=>b.hidden=!!q&&!b.textContent.toLowerCase().includes(q))};
