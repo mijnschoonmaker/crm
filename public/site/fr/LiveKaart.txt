@@ -31,6 +31,7 @@ export default function LiveKaart(props: Props) {
     const [f, setF] = useState(0.55)
     const doos = useRef<HTMLDivElement>(null)
     const [smal, setSmal] = useState(false)
+    const [mini, setMini] = useState(false)
 
     useEffect(() => {
         const R = route.current, D = klaar.current, B = busG.current
@@ -63,7 +64,7 @@ export default function LiveKaart(props: Props) {
         return () => cancelAnimationFrame(raf)
     }, [])
     useEffect(() => {
-        const meet = () => doos.current && setSmal(doos.current.getBoundingClientRect().width < 380)
+        const meet = () => { if (!doos.current) return; const b = doos.current.getBoundingClientRect().width; setSmal(b < 380); setMini(b < 320) }
         meet()
         window.addEventListener("resize", meet)
         return () => window.removeEventListener("resize", meet)
@@ -83,7 +84,7 @@ export default function LiveKaart(props: Props) {
     return (
         <div ref={doos} style={{ ...style, width: "100%", position: "relative", paddingBottom: smal ? 66 : 58, fontFamily: FONT, WebkitFontSmoothing: "antialiased" }}>
             <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:opsz,wght@6..12,400;6..12,700;6..12,800&display=swap" />
-            <div role="img" aria-label="Live kaart: onze bus met boxvan rijdt over de weg naar uw woning" style={{ position: "relative", aspectRatio: smal ? "1 / 0.95" : "10 / 7.6", borderRadius: 26, background: "#3c4636", boxShadow: "0 60px 90px -50px rgba(0,0,0,.85), 0 0 0 1px rgba(255,255,255,.1)" }}>
+            <div role="img" aria-label="Live kaart: onze bus met boxvan rijdt over de weg naar uw woning" style={{ position: "relative", aspectRatio: "10 / 7", borderRadius: 26, background: "#3c4636", boxShadow: "0 60px 90px -50px rgba(0,0,0,.85), 0 0 0 1px rgba(255,255,255,.1)" }}>
                 <svg viewBox="600 200 560 392" preserveAspectRatio="xMidYMid slice" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block", borderRadius: 26, clipPath: "inset(0 round 26px)" }} aria-hidden="true">
                     <defs>
                         <radialGradient id="lkVig" cx="50%" cy="50%" r="75%"><stop offset="55%" stopColor="#0d121b" stopOpacity="0" /><stop offset="100%" stopColor="#0d121b" stopOpacity=".35" /></radialGradient>
@@ -120,16 +121,16 @@ export default function LiveKaart(props: Props) {
             <div style={{ ...glas, right: smal ? 10 : 24, left: smal ? 10 : "auto", bottom: 0, width: smal ? "auto" : "min(400px, calc(100% - 48px))", padding: smal ? "12px 14px" : "14px 18px", justifyContent: "space-between", gap: 18, boxShadow: "0 30px 50px -24px rgba(0,0,0,.7)" }}>
                 <div style={{ minWidth: 0, flex: 1 }}>
                     <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10, fontWeight: 800, letterSpacing: "0.2em", color: "#2f8a5f", textTransform: "uppercase" }}>{stip}Live</span>
-                    <b style={{ display: "block", fontSize: smal ? 15 : 17, fontWeight: 700, marginTop: 4 }}>{titel}</b>
-                    <small style={{ display: "block", fontSize: 12.5, color: "#6b7180", marginTop: 1 }}>{sub}</small>
+                    <b style={{ display: "block", fontSize: smal ? 15 : 17, fontWeight: 700, marginTop: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{titel}</b>
+                    <small style={{ display: "block", fontSize: 12.5, color: "#6b7180", marginTop: 1 }}>{mini ? (f < 0.97 ? "Verwacht ± " + tijd : "Tot zo") : sub}</small>
                     <div style={{ height: 4, borderRadius: 4, background: "#e6e8ec", marginTop: 10, overflow: "hidden" }}>
                         <i style={{ display: "block", height: "100%", width: 15 + f * 85 + "%", borderRadius: 4, background: "linear-gradient(90deg,#3a4560,#252c3c)" }} />
                     </div>
                 </div>
-                <div style={{ textAlign: "right", borderLeft: "1px solid #e3e5e8", paddingLeft: smal ? 14 : 18, flex: "none" }}>
+                {!mini && <div style={{ textAlign: "right", borderLeft: "1px solid #e3e5e8", paddingLeft: smal ? 14 : 18, flex: "none" }}>
                     <small style={klein}>Verwacht</small>
                     <b style={{ display: "block", fontSize: smal ? 21 : 26, fontWeight: 400, marginTop: 2, fontVariantNumeric: "tabular-nums" }}>{f < 0.97 ? "± " + tijd : "Nu"}</b>
-                </div>
+                </div>}
             </div>
         </div>
     )
