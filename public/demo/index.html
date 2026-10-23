@@ -12050,7 +12050,7 @@ function openOpdrachtWerk(kid,focus){
     <section class="kp"><div class="kp-h"><span class="objic">${I.check}</span><b>Opdrachtregels</b></div><div id="owLines"></div><div class="totals" id="owTot"></div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.receipt}</span><div style="min-width:0"><b>Artikelen</b><small>Gaan eenmalig mee op de volgende factuur</small></div><span class="sp"></span><button type="button" class="iconbtn sm primary" id="owArtAdd" aria-label="Artikel toevoegen">${I.plus}</button></div><div id="owArt"></div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.wrench}</span><div style="min-width:0"><b>Bedrijfsmiddelen</b><small>Staan bij de klus op de route</small></div></div><div id="owMid"></div></section>
-    <section class="kp"><div class="kp-h"><span class="objic">${I.camera||I.upload}</span><b>Foto's</b><span class="sp"></span>${state.assets?`<label class="btn small primary">${I.plus}Uploaden<input type="file" accept="image/*" multiple hidden id="owFoto"></label>`:""}</div><div class="ow-fotos" id="owFotos"></div></section>
+    <section class="kp"><div class="kp-h"><span class="objic">${I.camera||I.upload}</span><b>Foto's</b><span class="sp"></span><label class="iconbtn sm primary" role="button" tabindex="0" aria-label="Foto's van de woning toevoegen" title="Foto's van de woning toevoegen" style="cursor:pointer">${I.plus}<input type="file" accept="image/*" multiple hidden id="owFoto"></label></div><div class="ow-fotos" id="owFotos"></div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.chat}</span><b>Logboek</b></div>
       <div class="log">${[...(k.log||[]).map(l=>({d:l.datum,t:l.tekst,s:"Notitie"})),...state.berichten.filter(m=>m.klantId===k.id).map(m=>({d:String(m.op).slice(0,10),t:m.tekst,s:KANAAL[m.kanaal]||m.kanaal}))].sort((a,b)=>String(b.d).localeCompare(String(a.d))).slice(0,15).map(l=>`<div><span>${fmtD(l.d)} · ${esc(l.s)}</span>${esc(l.t)}</div>`).join("")||'<div style="color:var(--muted)">Er zijn nog geen logboekregels.</div>'}</div>
       <div class="log-in"><input id="ow-log" placeholder="Notitie toevoegen…" aria-label="Notitie voor het logboek"><button type="button" class="small primary" id="owLog">${I.plus}Noteer</button></div></section>
@@ -12202,7 +12202,7 @@ function openOpdrachtWerk(kid,focus){
   const draw=()=>{syncRitme();$("#owLines").innerHTML=soloI>=0&&extra[soloI]?lineHtml(extra[soloI],soloI,false):lineHtml(main,0,true)+extra.map((r,i)=>lineHtml(r,i,false)).join("");tot()};
   const allFotos=()=>[...tFotos.map(f=>({...f,naam:"Uit de telling",t:1})),...fotos];
   const drawFotos=()=>{const all=allFotos();
-    $("#owFotos").innerHTML=all.length?all.map((f,i)=>fotoCard(f,i,!f.t)).join(""):'<p class="subt ow-fempty">Nog geen foto\'s. Upload een foto en tik de ramen aan die gewassen moeten worden. Foto\'s uit de rekentool verschijnen hier vanzelf.</p>'};
+    $("#owFotos").innerHTML=all.length?all.map((f,i)=>fotoCard(f,i,!f.t)).join(""):'<p class="subt ow-fempty">Nog geen foto\'s. Klik op + om foto\'s van de woning toe te voegen en tik de ramen aan die gewassen moeten worden. Foto\'s uit de rekentool verschijnen hier vanzelf.</p>'};
   draw();drawFotos();
   /* aanbieden / uitstellen, artikelen, bedrijfsmiddelen */
   let aanb={aanbieden:!!k.aanbieden,uitstelTot:k.uitstelTot||""},arts=(k.artikelen||[]).map(a=>({...a})),mids=[...(k.middelen||[])];
@@ -12296,8 +12296,11 @@ function openOpdrachtWerk(kid,focus){
     addLine(d.naam,Number(d.prijs)||"")});
   $("#owEigen").onclick=()=>addLine("","");
   $("#owZoek").oninput=e=>{const q=e.target.value.toLowerCase();if(q){const m=form.querySelector("#owChips .chips-meer"),mb=form.querySelector("#owChips [data-meer]");if(m)m.hidden=false;if(mb)mb.hidden=true}form.querySelectorAll("#owChips [data-dn]").forEach(b=>b.hidden=!!q&&!b.textContent.toLowerCase().includes(q))};
-  const ff=$("#owFoto");if(ff)ff.onchange=async e=>{const files=[...e.target.files];e.target.value="";const start=fotos.length;
-    for(const file of files){try{const sz=await imgSize(file);const r=await state.assets.upload(file);fotos.push({id:r.id,naam:file.name,datum:iso(today()),w:sz.w,h:sz.h,dots:[]})}catch(er){toast("Foto "+file.name+" kon niet worden geüpload")}}
+  /* foto uploaden: via de opslag van het CRM (ook als die later is geladen) */
+  const fotoUpload=async f=>{if(state.assets)return state.assets.upload(f);if(window.ZEEM_PUT){const id=[...crypto.getRandomValues(new Uint8Array(16))].map(x=>x.toString(16).padStart(2,"0")).join("");await window.ZEEM_PUT(id,f,f.type||"image/jpeg");return {id}}throw new Error("Uploaden kan hier niet")};
+  const ff=$("#owFoto");if(ff&&ff.parentElement)ff.parentElement.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();ff.click()}};
+  if(ff)ff.onchange=async e=>{const files=[...e.target.files];e.target.value="";const start=fotos.length;
+    for(const file of files){try{const sz=await imgSize(file);const r=await fotoUpload(file);fotos.push({id:r.id,naam:file.name,datum:iso(today()),w:sz.w,h:sz.h,dots:[]})}catch(er){toast("Foto "+file.name+" kon niet worden geüpload")}}
     drawFotos();if(fotos.length>start)openFotoViewer(allFotos(),tFotos.length+start,{edit:i=>i>=tFotos.length,onChange:(i,dots)=>{fotos[i-tFotos.length].dots=dots;drawFotos()}})};
   $("#owFotos").addEventListener("click",e=>{const b=e.target.closest("[data-frm]");if(b){e.preventDefault();e.stopPropagation();fotos.splice(+b.dataset.frm-tFotos.length,1);drawFotos();return}
     const c=e.target.closest("[data-fi]");if(c){e.preventDefault();openFotoViewer(allFotos(),+c.dataset.fi,{edit:i=>i>=tFotos.length,onChange:(i,dots)=>{fotos[i-tFotos.length].dots=dots;drawFotos()}})}});
