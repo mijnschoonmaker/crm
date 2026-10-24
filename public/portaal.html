@@ -2002,11 +2002,41 @@ function vveDocHtml(titel,inhoud){const k=D.klant,logo=B.logo||"";
   .tk{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.tk div{border:1px solid #dde5e8;border-radius:12px;padding:12px}.tk b{display:block;font-size:14px}
   .voet{border-top:1px solid #e6ecee;margin-top:22px;padding-top:12px;font-size:11px;color:#5d6f76;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
   .knop{position:fixed;right:18px;bottom:18px;background:#252c3c;color:#fff;border:0;border-radius:999px;padding:12px 20px;font:700 14px Inter,sans-serif;box-shadow:0 10px 24px -10px rgb(0 0 0 / .5);cursor:pointer}
+  .knoppen{position:fixed;right:18px;bottom:18px;display:flex;gap:8px}.knoppen .knop{position:static}.knop.licht{background:#fff;color:#252c3c;box-shadow:0 6px 18px -10px rgb(0 0 0 / .4);border:1px solid #dde5e8}.knop:disabled{opacity:.6;cursor:wait}
+  body.pdf .bl{margin:0 auto;box-shadow:none;border-radius:0}body.pdf .knoppen{display:none}
+  @media print{.knoppen{display:none}}
   @media print{body{background:#fff}.bl{box-shadow:none;margin:0;border-radius:0;max-width:none}.knop{display:none}tr,figure,.meld{break-inside:avoid}}
   @media (max-width:640px){.bl{margin:0;border-radius:0}.kpi{grid-template-columns:repeat(2,1fr)}.fotos{grid-template-columns:repeat(2,1fr)}.kop{flex-direction:column}.kop .lg{text-align:left}.kop .lg img{margin-left:0}}
   </style></head><body><div class="bl"><div class="kop"><div><small>${esc(titel)}</small><h1>${esc(k.naam)}</h1><p>${esc(k.adres||"")}${k.plaats?", "+esc(k.plaats):""}</p></div><div class="lg">${logo?`<img src="${esc(absU(logo))}" alt="">`:esc(B.naam||"")}</div></div>
   <div class="in">${inhoud}<div class="voet"><span>${esc(B.naam||"")}</span><span>Gemaakt op ${esc(lang(new Date().toISOString().slice(0,10)))}</span></div></div></div>
-  <button class="knop" onclick="window.print()">Afdrukken of opslaan als PDF</button></body></html>`}
+  <div class="knoppen"><button class="knop licht" onclick="window.print()">Afdrukken</button><button class="knop" id="pdfK">PDF downloaden</button></div><script>(${vvePdf.toString()})(${JSON.stringify(titel+" "+k.naam)})<\/script></body></html>`}
+/* PDF downloaden (in het document zelf): Safari maakt van "Opslaan als PDF" bij zo'n los venster een lege pagina, dus we maken de PDF zelf.
+   html2canvas tekent het document, wij knippen het op tussen regels/blokken in A4-pagina's en schrijven een eenvoudige PDF met JPEG-pagina's. */
+function vvePdf(naam){const knop=document.getElementById("pdfK");if(!knop)return;
+  const laad=()=>window.html2canvas?Promise.resolve():new Promise((ok,nee)=>{const sc=document.createElement("script");sc.src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";sc.onload=ok;sc.onerror=nee;document.head.appendChild(sc)});
+  const maakPdf=(imgs,w,h)=>{const enc=new TextEncoder(),parts=[],offs=[];let len=0;const add=x=>{const b=typeof x==="string"?enc.encode(x):x;parts.push(b);len+=b.length};
+    const obj=(i,body)=>{offs[i]=len;add(i+" 0 obj\n");(Array.isArray(body)?body:[body]).forEach(add);add("\nendobj\n")};
+    add("%PDF-1.4\n");const n=imgs.length,kids=imgs.map((_,p)=>(3+p*3)+" 0 R").join(" ");
+    obj(1,"<< /Type /Catalog /Pages 2 0 R >>");obj(2,"<< /Type /Pages /Kids ["+kids+"] /Count "+n+" >>");
+    imgs.forEach((d,p)=>{const pi=3+p*3,bin=Uint8Array.from(atob(d.split(",")[1]),c=>c.charCodeAt(0)),cs="q 595.28 0 0 841.89 0 0 cm /Im0 Do Q";
+      obj(pi,"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /XObject << /Im0 "+(pi+2)+" 0 R >> >> /Contents "+(pi+1)+" 0 R >>");
+      obj(pi+1,["<< /Length "+cs.length+" >>\nstream\n",cs,"\nendstream"]);
+      obj(pi+2,["<< /Type /XObject /Subtype /Image /Width "+w+" /Height "+h+" /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length "+bin.length+" >>\nstream\n",bin,"\nendstream"])});
+    const tot=3+n*3,xr=len;let x="xref\n0 "+tot+"\n0000000000 65535 f \n";for(let i=1;i<tot;i++)x+=String(offs[i]).padStart(10,"0")+" 00000 n \n";
+    add(x+"trailer\n<< /Size "+tot+" /Root 1 0 R >>\nstartxref\n"+xr+"\n%%EOF");return new Blob(parts,{type:"application/pdf"})};
+  knop.onclick=async()=>{const oud=knop.textContent;knop.disabled=true;knop.textContent="PDF maken…";
+    try{await laad();const el=document.querySelector(".bl");document.body.classList.add("pdf");await new Promise(r=>setTimeout(r,60));
+      const sc=2,cv=await window.html2canvas(el,{scale:sc,backgroundColor:"#ffffff",useCORS:true,logging:false});
+      const W=cv.width,H=Math.round(W*297/210),marge=Math.round(28*sc),top0=el.getBoundingClientRect().top;
+      const knip=[...el.querySelectorAll("tr,.meld,figure,h2,.kpi,.tk,li,p,.voet,.in>div")].map(e=>Math.round((e.getBoundingClientRect().top-top0)*sc)).filter(y=>y>0).sort((a,b)=>a-b);
+      const imgs=[];let y=0;
+      while(y<cv.height-4){const boven=imgs.length?marge:0,ruimte=H-boven-(imgs.length?0:0)-marge;let eind=Math.min(cv.height,y+ruimte);
+        if(eind<cv.height){const b=knip.filter(c=>c>y+ruimte*.4&&c<=eind).pop();if(b)eind=b}
+        const pc=document.createElement("canvas");pc.width=W;pc.height=H;const g=pc.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,W,H);g.drawImage(cv,0,y,W,eind-y,0,boven,W,eind-y);
+        imgs.push(pc.toDataURL("image/jpeg",.92));y=eind}
+      const blob=maakPdf(imgs,W,H),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=String(naam).replace(/[\\/:*?"<>|]+/g,"-").trim()+".pdf";document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(a.href)},4000)}
+    catch(e){alert("De PDF maken lukte niet. Gebruik Afdrukken en kies daar Opslaan als PDF.")}
+    finally{document.body.classList.remove("pdf");knop.disabled=false;knop.textContent=oud}}}
 const absU=u=>{try{return new URL(u,location.href).href}catch(e){return u}};
 function vveOpen(html){try{const u=URL.createObjectURL(new Blob([html],{type:"text/html"}));const w=window.open(u,"_blank");if(!w)location.href=u}catch(e){toast("Openen lukte niet")}}
 function vveRapport(m){const bs=(vveMaanden().find(x=>x[0]===m)||[0,[]])[1].slice().sort((a,b)=>a.datum.localeCompare(b.datum));
@@ -2335,7 +2365,7 @@ const FORM={
     <div class="infobox">${I.huis}<span>Gaat u verhuizen? Pas uw adres aan, dan nemen wij contact met u op over de planning op uw nieuwe adres.</span></div>
     <p class="fout" role="alert"></p><div class="acties"><button data-sluit>Annuleren</button><button class="primary" data-go>Opslaan</button></div>`,
     o=>o.querySelector("[data-go]").onclick=()=>{const g=id=>o.querySelector(id).value;verstuur(o,{type:"gegevens",naam:g("#gn"),adres:g("#ga"),postcode:g("#gp"),plaats:g("#gl"),telefoon:g("#gt"),mobiel:g("#gm"),email:g("#ge")},"Opgeslagen","Uw gegevens zijn bijgewerkt.")})},
-  extra(){const X=(B.extraDiensten&&B.extraDiensten.length)?B.extraDiensten:["Goten","Reiniging gevelelementen","Reiniging dakkapel","Reiniging zonnepanelen"];
+  extra(){const X=isVve()?["Extra schoonmaakbeurt","Grote schoonmaak","Ramen in het trappenhuis","Galerijen","Bergingsgang of kelder","Glasbewassing van de gevel"]:(B.extraDiensten&&B.extraDiensten.length)?B.extraDiensten:["Goten","Reiniging gevelelementen","Reiniging dakkapel","Reiniging zonnepanelen"];
     blad(`<h3>Iets extra laten doen</h3><p class="sub">Kies een extra dienst, we sturen u vooraf de prijs.</p>
     <div class="keus">${X.map(x=>`<label><input type="checkbox" value="${esc(x)}"><span>${esc(x)}</span></label>`).join("")}</div>
     <label class="veld"><span>Toelichting (niet verplicht)</span><textarea id="vt"></textarea></label>
