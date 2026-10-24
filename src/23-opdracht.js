@@ -22,7 +22,7 @@ function openOpdrachtWerk(kid,focus){
   <div class="hosp-top" id="owHospTop">${hospBlok(k,{leegKnop:false})}</div>
   <div class="kk-grid ow-grid"><div class="kk-left">
     <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klantgegevens</b><span class="sp"></span><button type="button" class="small" id="owKk">${I.right}Klantkaart</button></div>
-      ${kv("Klantnummer",esc(nr))}${kv("Naam",esc(cleanName(k.naam)))}${kv("E-mail",k.email?`<a href="mailto:${esc(k.email)}">${esc(k.email)}</a>`:"—")}${kv("Telefoon",k.telefoon?`<a href="tel:${esc(String(k.telefoon).replace(/[^\d+]/g,""))}">${esc(k.telefoon)}</a>`:"—")}${kv("Soort",k.soort==="zakelijk"?"Zakelijk":"Particulier")}</section>
+      ${kv("Klantnummer",esc(nr))}${kv("Naam",esc(cleanName(k.naam)))}${kv("E-mail",k.email?`<a href="mailto:${esc(k.email)}">${esc(k.email)}</a>`:"—")}${kv("Telefoon",k.telefoon?`<a href="tel:${esc(String(k.telefoon).replace(/[^\d+]/g,""))}">${esc(k.telefoon)}</a>`:"—")}${kv("Soort",soortLbl(k))}</section>
     <section class="kp" id="owAdrK"><div class="kp-h"><span class="objic">${I.pin}</span><b>Adres</b><span class="sp"></span>
         <span id="owAdrKn" class="ow-adrkn"><button type="button" class="iconbtn sm" id="owAdrE" aria-label="Adres en ontvangers wijzigen" title="Wijzigen">${I.pencil}</button></span>
         <span id="owAdrKe" class="ow-adrkn" hidden><button type="button" class="small" id="owAdrU" aria-label="Annuleren" title="Annuleren">${I.undo||I.x}</button><button type="button" class="small primary" id="owAdrS" aria-label="Opslaan" title="Opslaan">${I.save||I.check}</button></span></div>
@@ -61,8 +61,9 @@ function openOpdrachtWerk(kid,focus){
       <textarea id="ow-taak" style="min-height:70px" placeholder="Bijv. wassen ramen incl. kozijnen, achterom via de poort">${esc(k.taak||"")}</textarea>
 </section>
     ${k.soort==="vve"?`<section class="kp"><div class="kp-h"><span class="objic">${I.checksq||I.check}</span><b>Checklist VvE</b></div>
-      <p class="subt" style="margin:0 0 6px">Per ruimte één regel. Bij het afmelden vink je af wat gedaan is; het bestuur ziet dit in het portaal.</p>
-      <textarea id="ow-vvetaken" style="min-height:96px" placeholder="Entree en deuren\nTrappenhuis\nLift\nBergingsgang">${esc(vveTaken(k).join("\n"))}</textarea></section>`:""}
+      <p class="subt" style="margin:0 0 8px">Per ruimte of taak hoe vaak. Bij het afmelden ziet je medewerker alleen wat die dag aan de beurt is; het bestuur ziet het in het portaal.</p>
+      <div id="ow-vvetaken" class="vve-ed">${vveTaken(k).map(t=>vveEdRij(t,vveFreq(k,t))).join("")}</div>
+      <button type="button" class="small" id="owVveTk" style="margin-top:8px">${I.plus}Ruimte of taak toevoegen</button></section>`:""}
     <section class="kp"><div class="kp-h"><span class="objic">${I.plus}</span><b>Opdrachtregel toevoegen</b><span class="sp"></span><button type="button" class="small" id="owEigen">${I.plus}Eigen dienst</button></div>
       <input id="owZoek" placeholder="Zoeken" style="max-width:280px">
       <div class="ow-chips" id="owChips">${dienstChips(diensten,"data-dn")}</div></section>
@@ -344,7 +345,7 @@ function openOpdrachtWerk(kid,focus){
   const collect=()=>{syncRitme();const cur=state.klanten.find(x=>x.id===kid)||k,actief=$o("actief").checked;
     return {...strip(cur),dienst:String(main.dienst||"").trim()||"Glasbewassing",prijs:r2(Number(main.prijs)||0),ramenRegel:main.ramen||null,frequentie:mW.length?1:(mF||4),weekdagen:mW.length?mW:[],...(mW.length?{autoplan:true}:{}),duur:mD||30,ronde:$o("ronde").value.trim(),contactPlanning:$o("contact").value,eersteKeer:$o("eerste").value==="ja",toeslag:Number($o("toeslag").value)||0,toeslagReden:$o("toeslagr").value.trim(),verbergAantal:$o("verbA").checked,verbergFreq:$o("verbF").checked,afmeldMail:$o("afmail").checked,
       binnen:false,actief,...(actief?{}:{gepland:"",tijd:""}),akkoord:$o("akkoord").checked,incasso:$o("betaal").value==="incasso",...factModusPatch($o("fact").value,k),
-      taak:$o("taak").value.trim(),...($o("vvetaken")?{vveTaken:$o("vvetaken").value.split(/\n/).map(x=>x.trim()).filter(Boolean).slice(0,20)}:{}),hosp:hosp.map(x=>({c:x.c||"voorkeur",t:String(x.t||"").trim(),...(x.af?{af:x.af}:{}),...(x.c==="verteld"&&x.vanaf?{vanaf:x.vanaf}:{})})).filter(x=>x.t),bellen:$o("bellen").checked,startdatum:$o("start").value,einddatum:$o("eind").value,btwVerlegd:$o("verlegd").checked,aanbieden:cur.gepland?!!cur.aanbieden:aanb.aanbieden,uitstelTot:aanb.uitstelTot,artikelen:arts.filter(a=>String(a.naam||"").trim()).map(a=>({naam:String(a.naam).trim(),aantal:Number(a.aantal)||1,prijs:r2(Number(a.prijs)||0)})),middelen:mids,objectId:$o("obj")?$o("obj").value:cur.objectId||"",fotos,
+      taak:$o("taak").value.trim(),...($o("vvetaken")?vveEdLees($o("vvetaken")):{}),hosp:hosp.map(x=>({c:x.c||"voorkeur",t:String(x.t||"").trim(),...(x.af?{af:x.af}:{}),...(x.c==="verteld"&&x.vanaf?{vanaf:x.vanaf}:{})})).filter(x=>x.t),bellen:$o("bellen").checked,startdatum:$o("start").value,einddatum:$o("eind").value,btwVerlegd:$o("verlegd").checked,aanbieden:cur.gepland?!!cur.aanbieden:aanb.aanbieden,uitstelTot:aanb.uitstelTot,artikelen:arts.filter(a=>String(a.naam||"").trim()).map(a=>({naam:String(a.naam).trim(),aantal:Number(a.aantal)||1,prijs:r2(Number(a.prijs)||0)})),middelen:mids,objectId:$o("obj")?$o("obj").value:cur.objectId||"",fotos,
       opdrachten:extra.filter(o=>String(o.dienst||"").trim()).map(({_nieuw,_toon,...o})=>({...o,dienst:String(o.dienst).trim(),prijs:r2(Number(o.prijs)||0),frequentie:o.items?itemsRitme(o):Number(o.frequentie)||52}))}};
   $("#owLog").onclick=async()=>{const v=$o("log").value.trim();if(!v)return;const d=collect();d.log=[...(d.log||[]),{datum:iso(today()),tekst:v}];
     try{await save("klanten",kid,d);toast("Genoteerd");setTimeout(()=>openOpdrachtWerk(kid),60)}catch(er){err(er)}};
@@ -462,3 +463,9 @@ function berekendeMin(k,day){if(!k)return null;let m=null;
   if(m==null)return null;
   try{(typeof extraDue==="function"?extraDue(k,day||iso(today())):[]).forEach(o=>{m+=Number(o.duur)||0})}catch(e){}
   return Math.round(m)}
+
+/* VvE-checklist in de opdracht: per taak een frequentie */
+function vveEdRij(t,f){return `<div class="vve-er"><input data-vtn value="${esc(t)}" placeholder="Bijv. hekwerk" maxlength="60"><select data-vtf>${VVE_FREQ.map(([c,l])=>`<option value="${c}"${c===f?" selected":""}>${esc(l)}</option>`).join("")}</select><button type="button" class="iconbtn sm" data-vtx aria-label="Weghalen">${I.x}</button></div>`}
+function vveEdLees(el){const vveTaken=[],vveFreq={};el.querySelectorAll(".vve-er").forEach(r=>{const n=r.querySelector("[data-vtn]").value.trim(),f=r.querySelector("[data-vtf]").value;if(n&&!vveTaken.includes(n)&&vveTaken.length<20){vveTaken.push(n);if(f!=="beurt")vveFreq[n]=f}});return{vveTaken,vveFreq}}
+document.addEventListener("click",e=>{const x=e.target.closest&&e.target.closest("[data-vtx]");if(x){x.closest(".vve-er").remove();return}
+  const p=e.target.closest&&e.target.closest("#owVveTk");if(p){const el=document.getElementById("ow-vvetaken");if(el){el.insertAdjacentHTML("beforeend",vveEdRij("","beurt"));el.lastElementChild.querySelector("input").focus()}}});

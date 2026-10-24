@@ -274,6 +274,24 @@ def nieuweOpdracht(pg):
     check(G, "Nieuwe opdracht krijgt een eigen nummer (…-2)", r["kop"].endswith("-2"), r)
     check(G, "Nieuwe opdracht toont alleen zijn eigen regel", r["lijnen"] == 1, r)
     check(G, "Hoofdopdracht blijft …-1", r["kop2"].endswith("-1"), r)
+    # VvE: per taak een frequentie; bij het afmelden alleen wat aan de beurt is
+    r = pg.evaluate("""async()=>{const T=MSTEST;if(!T.vveAanDeBeurt)return null;const id=T.newId('kv'),d=n=>T.iso(T.addDays(T.today(),n));
+      await T.save('klanten',id,{naam:'VvE Freq',soort:'vve',klantnr:'1098',prijs:60,frequentie:1,actief:true,dienst:'Trappenhuis schoonmaak',log:[],objecten:[],vveTaken:['Trappenhuis','Hekwerk'],vveFreq:{Hekwerk:'kwartaal'}});
+      const k=T.state.klanten.find(x=>x.id===id),bid=T.newId('b');
+      const eerst={trap:T.vveAanDeBeurt(k,'Trappenhuis',d(0)),hek:T.vveAanDeBeurt(k,'Hekwerk',d(0))};
+      await T.save('beurten',bid,{klantId:id,datum:d(-20),taken:[{naam:'Hekwerk',ok:true},{naam:'Trappenhuis',ok:true}]});
+      const na={hek:T.vveAanDeBeurt(k,'Hekwerk',d(0)),hekLater:T.vveAanDeBeurt(k,'Hekwerk',d(75))};
+      T.openOpdrachtWerk(id,'main');await new Promise(r=>setTimeout(r,300));
+      const rijen=[...document.querySelectorAll('#ow-vvetaken .vve-er')].map(r=>r.querySelector('[data-vtn]').value+'='+r.querySelector('[data-vtf]').value);
+      document.getElementById('owVveTk').click();const nr=document.querySelector('#ow-vvetaken .vve-er:last-child');nr.querySelector('[data-vtn]').value='Ramen';nr.querySelector('[data-vtf]').value='jaar';
+      document.getElementById('owSave').click();await new Promise(r=>setTimeout(r,500));const k2=T.state.klanten.find(x=>x.id===id)||{};
+      document.querySelectorAll('dialog[open]').forEach(x=>x.close());await T.del('beurten',bid);await T.del('klanten',id);
+      return {eerst,na,rijen,taken:k2.vveTaken,freq:k2.vveFreq}}""")
+    if r is not None:
+        check(G, "VvE: nieuwe periodieke taak is meteen aan de beurt", r["eerst"]["hek"] is True and r["eerst"]["trap"] is True, r)
+        check(G, "VvE: kwartaaltaak niet opnieuw na 20 dagen, wel na 95", r["na"]["hek"] is False and r["na"]["hekLater"] is True, r)
+        check(G, "VvE: frequentie per taak in de opdracht", r["rijen"] == ["Trappenhuis=beurt", "Hekwerk=kwartaal"], r)
+        check(G, "VvE: taak met frequentie opslaan", r["taken"] == ["Trappenhuis", "Hekwerk", "Ramen"] and r["freq"] == {"Hekwerk": "kwartaal", "Ramen": "jaar"}, r)
 
 
 def opdrachtNummers(pg):

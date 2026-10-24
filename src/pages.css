@@ -4110,3 +4110,7 @@ td.fb-cb:hover .fb-box{border-color:var(--brand);transform:scale(1.06)}
 .vv-rij{display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid var(--line)}.vv-rij:first-child{border-top:0}
 .vv-rij>div{flex:1;min-width:0}.vv-rij b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.vv-rij small{display:block;color:var(--muted);font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:520px){.vv-rij{flex-wrap:wrap}.vv-rij>div{flex-basis:100%}}
+
+/* VvE-checklist met frequentie */
+.vve-ed{display:grid;gap:6px}.vve-er{display:grid;grid-template-columns:1fr 150px 32px;gap:6px;align-items:center}.vve-er input,.vve-er select{margin:0;min-width:0}
+.vve-per{color:var(--muted);font-weight:500;font-size:.85em}
