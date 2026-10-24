@@ -120,7 +120,7 @@ module.exports = function maakPortaal(ctx) {
   const DAGK = ["zo", "ma", "di", "wo", "do", "vr", "za"], DAGL = ["zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"];
   const vasteDagen = k => Array.isArray(k && k.weekdagen) && k.weekdagen.length ? [...new Set(k.weekdagen.map(Number))].filter(d => d >= 0 && d <= 6).sort() : null;
   const ritmeTxt = k => { const dg = vasteDagen(k); if (dg) return dg.length === 7 ? "elke dag" : "elke " + dg.map(d => DAGL[d]).join(" en "); const f = Number(k.frequentie) || 4; return f === 1 ? "elke week" : "elke " + f + " weken"; };
-  const vveTakenVan = k => Array.isArray(k.vveTaken) && k.vveTaken.length ? k.vveTaken.map(String).slice(0, 20) : ["Entree en deuren", "Trappenhuis", "Lift", "Bergingsgang"];
+  const vveTakenVan = (k, b) => Array.isArray(k.vveTaken) && k.vveTaken.length ? k.vveTaken.map(String).slice(0, 20) : b && Array.isArray(b.vveTakenStd) && b.vveTakenStd.length ? b.vveTakenStd.map(String).slice(0, 20) : ["Entree en deuren", "Trappenhuis", "Lift", "Bergingsgang"];
   const tijdVan = x => { if (x.startOp) { try { return new Intl.DateTimeFormat("nl-NL", { timeZone: "Europe/Amsterdam", hour: "2-digit", minute: "2-digit" }).format(new Date(x.startOp)); } catch (e) {} } return x.tijd || ""; };
   async function liveInfo(S) {
     const k = S.klant, dag = isoNL();
@@ -183,7 +183,7 @@ module.exports = function maakPortaal(ctx) {
     return {
       bedrijf: { ...bedrijfInfo(b, base), extraDiensten },
       klant: { voornaam: voornaamVan(schoon(k.contact || k.naam)), naam: schoon(k.naam), contact: k.contact || "", adres: k.adres || "", postcode: k.postcode || "", plaats: k.plaats || "", pcPlaats: [k.postcode, k.plaats].filter(Boolean).join(" "), email: k.email || "", telefoon: k.telefoon || "", mobiel: k.mobiel || "", zakelijk: k.soort === "zakelijk" || k.soort === "vve",
-        vve, ritme: ritmeTxt(k), weekdagen: wdg || [], taken: vveTakenVan(k),
+        vve, ritme: ritmeTxt(k), weekdagen: wdg || [], taken: vveTakenVan(k, b),
         klantnr: k.klantnr || "", sinds: k.aangemaakt || (beurten.length ? beurten[beurten.length - 1].datum : ""), dienst: k.dienst || "Glasbewassing", frequentie: freqW, prijs: Number(k.prijs) || 0, binnen: !!k.binnen, actief: k.actief !== false,
         toegang: k.portaalToegang || { opties: [], tekst: "" }, nieuw: !!k.eersteKeer && !beurten.length,
         incasso: { actief: !!k.incasso && !!k.mollieMandateId, sinds: String(k.incassoSinds || "").slice(0, 10), bank: k.incassoBank || "", rekening: k.incassoRekening || "", beschikbaar: !!(await geheim()).mollieKey } },
@@ -370,11 +370,11 @@ module.exports = function maakPortaal(ctx) {
         if (!volgende && wdg) { const d = new Date(vandaag + "T12:00:00"); for (let i = 1; i < 9; i++) { d.setDate(d.getDate() + 1); if (wdg.includes(d.getDay())) { volgende = { datum: isoNL(d), tijd: "" }; break; } } }
         /* live volgen op de dag zelf: zonder exacte plek (het bord is openbaar), wel hoeveel adressen nog en hoe laat */
         let live = null;
-        try { const L = await liveInfo({ klant: { ...k, id: kid }, kref: q.docs[0].ref }); if (L) live = { status: L.status, voor: L.voor ?? null, eta: L.eta || "", naam: L.naam || "", bezigBij: !!L.bezigBij, km: L.km ?? null, huis: L.status === "onderweg" ? (L.huis || await klantGeo(q.docs[0].ref, { ...k, id: kid }).catch(() => null)) : null, pos: L.pos || null }; } catch (e) { console.error("bordlive", e); }
+        if (b.vveBordLive !== false) try { const L = await liveInfo({ klant: { ...k, id: kid }, kref: q.docs[0].ref }); if (L) live = { status: L.status, voor: L.voor ?? null, eta: L.eta || "", naam: L.naam || "", bezigBij: !!L.bezigBij, km: L.km ?? null, huis: L.status === "onderweg" ? (L.huis || await klantGeo(q.docs[0].ref, { ...k, id: kid }).catch(() => null)) : null, pos: L.pos || null }; } catch (e) { console.error("bordlive", e); }
         res.set("cache-control", live ? "no-store" : "public, max-age=120");
-        res.json({ live, bedrijf: { naam: bi.naam, logo: bi.logo, telefoon: bi.telefoon, email: bi.email || "", website: bi.website, kleur: bi.kleur }, naam: schoon(k.naam), adres: k.adres || "", plaats: k.plaats || "", ritme: ritmeTxt(k), taken: vveTakenVan(k),
+        res.json({ live, bedrijf: { naam: bi.naam, logo: bi.logo, telefoon: bi.telefoon, email: bi.email || "", website: bi.website, kleur: bi.kleur }, naam: schoon(k.naam), adres: k.adres || "", plaats: k.plaats || "", ritme: ritmeTxt(k), taken: vveTakenVan(k, b),
           bezig: !!k.bezig && k.gepland === vandaag, volgende,
-          bezoeken: bs.slice(0, 8).map(x => ({ datum: x.datum, tijd: tijdVan(x), door: b.vveDoor === false ? "" : voornaamVan(String(x.door || "")), taken: Array.isArray(x.taken) ? x.taken.map(t => ({ naam: String(t.naam || ""), ok: !!t.ok })) : [], fotos: (x.fotos || []).slice(0, 2).map(f => fotoUrl(f.id)).filter(Boolean), notitie: String(x.notitie || "").slice(0, 300) })) });
+          bezoeken: bs.slice(0, 8).map(x => ({ datum: x.datum, tijd: tijdVan(x), door: b.vveDoor === false ? "" : voornaamVan(String(x.door || "")), taken: b.vveBordTaken !== false && Array.isArray(x.taken) ? x.taken.map(t => ({ naam: String(t.naam || ""), ok: !!t.ok })) : [], fotos: b.vveBordFotos === true ? (x.fotos || []).slice(0, 2).map(f => fotoUrl(f.id)).filter(Boolean) : [], notitie: b.vveBordFotos === true ? String(x.notitie || "").slice(0, 300) : "" })) });
         return;
       }
       if (pad === "/ref" && req.method === "GET") {

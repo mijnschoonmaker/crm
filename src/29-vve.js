@@ -1,8 +1,10 @@
 /* ---------- VvE: checklist en opleverfoto bij het afmelden ----------
    Bij een VvE (klant.soort === "vve") vraagt afmelden eerst wat er is gedaan (per ruimte) en een foto uit de camera.
    Dat komt op de beurt te staan (taken, fotos, meldingen) en is zichtbaar in het klantportaal en op het bewonersbord. */
-const VVE_TAKEN=["Entree en deuren","Trappenhuis","Lift","Bergingsgang"];
-const vveTaken=k=>Array.isArray(k.vveTaken)&&k.vveTaken.length?k.vveTaken:VVE_TAKEN;
+const VVE_STD=["Entree en deuren","Trappenhuis","Lift","Bergingsgang"];
+/* standaard checklist voor nieuwe VvE's: in te stellen bij Instellingen › Klantportaal VvE */
+const vveStd=()=>{const t=state.settings&&state.settings.vveTakenStd;return Array.isArray(t)&&t.length?t:VVE_STD};
+const vveTaken=k=>Array.isArray(k.vveTaken)&&k.vveTaken.length?k.vveTaken:vveStd();
 const VVE_CAT=[["technisch","Technisch",I.wrench],["vandalisme","Vandalisme",I.alert],["vuil","Vuil / grofvuil",I.trash||I.alert],["overig","Overig",I.note]];
 function vveOplevering(k){return new Promise(res=>{
   const taken=vveTaken(k),fotos=[];let bezig=false;

@@ -139,7 +139,7 @@ function openNieuweKlant(){const st=S();
       <p class="help" id="nk-msg" style="margin:0"></p></section>
     <section class="kp f-vve" id="nk-vve" hidden><div class="kp-h"><span class="objic">${I.checksq||I.check}</span><b>VvE-instellingen</b></div>
       <label>Vaste weekdagen<div class="ow-dagen" id="nk-wdagen">${[1,2,3,4,5,6].map(d=>`<button type="button" data-fwd="${d}" aria-pressed="false">${["zo","ma","di","wo","do","vr","za"][d]}</button>`).join("")}</div><small class="help">Bijv. di en vr: elke week op die dagen in de planning; na afmelden staat de volgende dag klaar.</small></label>
-      <label>Checklist per ruimte (één per regel)<textarea id="nk-vvetaken" style="min-height:90px">${esc(VVE_TAKEN.join("\n"))}</textarea><small class="help">Vink je af bij het afmelden, met een opleverfoto. Het bestuur ziet dit in het portaal en op het bewonersbord.</small></label></section>
+      <label>Checklist per ruimte (één per regel)<textarea id="nk-vvetaken" style="min-height:90px">${esc(vveStd().join("\n"))}</textarea><small class="help">Vink je af bij het afmelden, met een opleverfoto. Het bestuur ziet dit in het portaal en op het bewonersbord.</small></label></section>
   </div><aside class="lc-side">
     <section class="kp"><div class="kp-h"><span class="objic">${I.note}</span><b>Klantnotities</b><small class="subt">alleen voor jezelf</small></div>
       <textarea id="nk-notitie" style="min-height:110px" placeholder="Bijv. via via aangemeld, wil graag in het voorjaar starten"></textarea></section>
