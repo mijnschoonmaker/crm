@@ -6862,8 +6862,8 @@ function openObject(kid,oid){
 }
 
 /* ---------- IMPORT / EXPORT ---------- */
-const FIELDS=[["klantnr","Klantnummer / relatiecode",/(relatiecode|klantnummer|klantnr|debiteur)/],["naam","Naam",/^(naam|klant|klantnaam|name|bedrijf|bedrijfsnaam|achternaam)/],["adres","Adres / straat",/(adres|straat|address|street)/],["huisnr","Huisnummer",/(huisn|huisnummer|^nr$|^nummer$|number)/],
-  ["postcode","Postcode",/(postcode|zip|postal)/],["plaats","Plaats",/(plaats|woonplaats|stad|city|gemeente)/],["telefoon","Telefoon",/(tel|mobiel|gsm|phone)/],["email","E-mail",/(mail)/],
+const FIELDS=[["klantnr","Klantnummer / relatiecode",/(relatiecode|klantnummer|klantnr|debiteur)/],["naam","Naam",/^(naam|klant|klantnaam|name|bedrijf|bedrijfsnaam|achternaam)/],["contact","Contactpersoon",/(contactpers|^contact|t\.?a\.?v)/],["adres","Adres / straat",/^(adres|straat|address|street|bezoekadres)/],["huisnr","Huisnummer",/(huisn|huisnummer|^nr$|^nummer$|number)/],
+  ["postcode","Postcode",/(postcode|zip|postal)/],["plaats","Plaats",/(plaats|woonplaats|stad|city|gemeente)/],["telefoon","Telefoon",/(tel|mobiel|gsm|phone)/],["email","E-mail",/(mail)/],["soort","Soort (particulier/zakelijk/VvE)",/^(soort|type|klanttype|relatiesoort)/],
   ["prijs","Prijs",/(prijs|bedrag|tarief|price)/],["frequentie","Frequentie (weken)",/(freq|interval|weken|cyclus)/],["ronde","Ronde",/(ronde|wijk|route|gebied)/],["dienst","Dienst",/(dienst|service)/],["laatst","Laatst gewassen",/(laatst|vorige|last)/],["notities","Notities",/(notitie|opmerking|note|info)/]];
 function parseCSV(text){
   const first=text.split(/\r?\n/)[0]||"";
@@ -6891,7 +6891,10 @@ function openImport(){
     const head=rows[0].map(h=>String(h).trim()),map={};
     FIELDS.forEach(([f,,re])=>{const i=head.findIndex((h,ix)=>re.test(h.toLowerCase())&&!Object.values(map).includes(ix));if(i>-1)map[f]=i});
     imp={head,rows:rows.slice(1),map};drawMap()};
-  $("#impFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{$("#impText").value="";load(String(rd.result))};rd.readAsText(f)};
+  $("#impFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{let t=String(rd.result);
+    /* exports uit SnelStart/DienstenCRM zijn vaak Windows-1252: dan opnieuw lezen zodat é, ë en ü goed blijven */
+    if(t.includes("\uFFFD")){const r2=new FileReader();r2.onload=()=>{$("#impText").value="";load(String(r2.result).replace(/^\uFEFF/,""))};r2.readAsText(f,"windows-1252");return}
+    $("#impText").value="";load(t.replace(/^\uFEFF/,""))};rd.readAsText(f)};
   $("#impText").oninput=e=>{if(e.target.value.trim())load(e.target.value)};
   $("#impGo").onclick=runImport;
 }
@@ -6899,15 +6902,18 @@ function drawMap(){
   const{head,rows,map}=imp;
   $("#impMap").innerHTML=`<span class="eyebrow">Kolommen koppelen · ${rows.length} klanten gevonden</span>
   <div class="grid3" style="margin-top:8px">${FIELDS.map(([f,lbl])=>`<label>${lbl}<select data-map="${f}"><option value="">— niet —</option>${head.map((h,i)=>`<option value="${i}" ${map[f]===i?"selected":""}>${esc(h||"kolom "+(i+1))}</option>`).join("")}</select></label>`).join("")}</div>
-  <div class="importprev" style="margin-top:12px"><table><tr>${["Naam","Adres","Postcode","Plaats","Prijs","Freq."].map(h=>`<th>${h}</th>`).join("")}</tr>${rows.slice(0,5).map(r=>{const k=rowToKlant(r);return `<tr><td>${esc(k.naam)}</td><td>${esc(k.adres)}</td><td>${esc(k.postcode)}</td><td>${esc(k.plaats)}</td><td>${eur(k.prijs)}</td><td>${k.frequentie} wk</td></tr>`}).join("")}</table></div>`;
+  <div class="importprev" style="margin-top:12px"><table><tr>${["Nr","Naam","Soort","Adres","Postcode","Plaats",...(imp.map.prijs!=null?["Prijs","Freq."]:[])].map(h=>`<th>${h}</th>`).join("")}</tr>${rows.slice(0,8).map(r=>{const k=rowToKlant(r);return `<tr><td>${esc(k.klantnr)}</td><td>${esc(k.naam)}${k.contact?`<br><small class="subt">t.a.v. ${esc(k.contact)}</small>`:""}</td><td>${esc(soortLbl(k))}</td><td>${esc(k.adres)}</td><td>${esc(k.postcode)}</td><td>${esc(k.plaats)}</td>${imp.map.prijs!=null?`<td>${eur(k.prijs)}</td><td>${k.frequentie} wk</td>`:""}</tr>`}).join("")}</table></div>
+  ${imp.map.prijs==null?`<div class="infobox" style="margin-top:10px">${I.handleiding}<span>Er zit geen prijs of frequentie in dit bestand. De klanten komen erin <b>zonder opdracht</b>: ze staan niet in de planning tot je bij de klant op <b>+ Opdracht</b> klikt. Soort wordt herkend aan de naam (VvE, B.V., Stichting …); controleer dat in het voorbeeld hierboven.</span></div>`:""}`;
   $("#impMap").querySelectorAll("[data-map]").forEach(s=>s.onchange=()=>{const v=s.value;if(v==="")delete imp.map[s.dataset.map];else imp.map[s.dataset.map]=Number(v);drawMap()});
   const ok=imp.map.naam!=null&&imp.map.adres!=null;$("#impGo").disabled=!ok;$("#impGo").textContent=ok?"Importeer "+rows.length+" klanten":"Koppel naam en adres";
 }
 function rowToKlant(r){
   const g=f=>imp.map[f]!=null?String(r[imp.map[f]]??"").trim():"";
-  return{klantnr:g("klantnr"),naam:g("naam"),adres:[g("adres"),g("huisnr")].filter(Boolean).join(" "),postcode:g("postcode").toUpperCase(),plaats:g("plaats"),telefoon:g("telefoon"),email:g("email"),
+  const naam=g("naam"),so=g("soort").toLowerCase(),geenOpdr=imp.map.prijs==null&&imp.map.frequentie==null;
+  const soort=/vve|eigenaar/.test(so)||/\bv\.?v\.?e\b|vereniging van eigenaars|eigenaarsvereniging|\bcoöp|\bcoop\b/i.test(naam)?"vve":/zak|bedrijf|organisatie/.test(so)||/\b(b\.?v\.?|n\.?v\.?|v\.?o\.?f\.?|holding|stichting|gemeente|kerk|school|vereniging|praktijk|kantoor|hotel|restaurant|cafe|café|bakkerij|garage|makelaar|tandarts|huisarts|apotheek|kinderopvang|woningcorporatie|beheer|groep|group|services?|bedrijf)\b/i.test(naam)?"zakelijk":"particulier";
+  return{klantnr:g("klantnr"),naam,contact:g("contact"),adres:[g("adres"),g("huisnr")].filter(Boolean).join(" "),postcode:g("postcode").toUpperCase(),plaats:g("plaats"),telefoon:g("telefoon"),email:g("email"),
     prijs:parseNum(g("prijs")),frequentie:Math.max(1,Math.round(parseNum(g("frequentie")))||4),ronde:g("ronde"),dienst:g("dienst")||"Glasbewassing",duur:30,laatst:parseDate(g("laatst")),gepland:"",tijd:"",notities:g("notities"),
-    binnen:false,soort:"particulier",actief:true,aangemaakt:iso(today()),log:[],objecten:[]};
+    binnen:false,soort,actief:true,aangemaakt:iso(today()),log:[],objecten:[],bron:"import",...(geenOpdr?{opdrachtVerwijderd:true,prospect:false}:{})};
 }
 async function runImport(){
   const b=$("#impGo");b.disabled=true;let n=0;
@@ -6917,7 +6923,7 @@ async function runImport(){
   const nA=x=>String(x||"").toLowerCase().replace(/[^a-z0-9]/g,""),zoek=k=>state.klanten.find(x=>!x.hoofdKlantId&&((k.klantnr&&String(x.klantnr||"")===String(k.klantnr))||(k.postcode&&nA(x.postcode)===nA(k.postcode)&&nA(x.adres)===nA(k.adres))));
   let bij=0;
   try{for(const k of list){const oud=zoek(k);
-      if(oud){const p={...strip(oud)};["naam","adres","postcode","plaats","telefoon","email","ronde","notities"].forEach(f=>{if(!String(p[f]||"").trim()&&k[f])p[f]=k[f]});
+      if(oud){const p={...strip(oud)};["naam","contact","adres","postcode","plaats","telefoon","email","ronde","notities"].forEach(f=>{if(!String(p[f]||"").trim()&&k[f])p[f]=k[f]});
         if(k.klantnr&&!relBezet(k.klantnr,oud.id))p.klantnr=k.klantnr;if(!p.prijs&&k.prijs)p.prijs=k.prijs;await save("klanten",oud.id,p);bij++}
       else await save("klanten",newId("k"),k);n++;if(n%10===0)b.textContent=n+" van "+list.length+"…"}
     dlg.close();toast((n-bij)+" klanten geïmporteerd"+(bij?", "+bij+" bestaande aangevuld":""));state.tab="klanten";schedule()}
@@ -8564,18 +8570,18 @@ function vKlanten(){
   html+=`<div class="countline"><span class="eyebrow">${plural(ks.length,"resultaat","resultaten")}</span><label style="flex-direction:row;align-items:center;gap:8px">Per pagina<select id="kpp">${[25,50,100].map(n=>`<option ${n===pp?"selected":""}>${n}</option>`).join("")}</select></label></div>`;
   if(!ks.length)return html+empty("Geen klanten gevonden","Probeer een andere zoekterm of filter.");
   html+=`<div class="list klx">${shown.map(k=>{const s=status(k),sel=selm&&state.sel.has(k.id),C=2*Math.PI*27,_t=today(),_due=s.v,_st=parse(k.laatst)||(_due?addDays(_due,-freqDays(k)):_t),_span=Math.max(1,(_due-_st)/DAY),pct=k.actief===false||(!k.laatst&&!k.gepland)?0:Math.round(Math.max(0,Math.min(1,(_t-_st)/DAY/_span))*100),
-      _nw=s.diff===-999,_gp=k.actief!==false&&!k.prospect&&!!parse(k.gepland),rc=k.actief===false?"neutral":k.prospect?"soon":_nw?"nieuw":_gp?"plan":s.diff<0?"late":s.diff<7?"crit":s.diff<=10?"warn":s.diff<=14?"attn":"ok",_ang=pct/100*2*Math.PI-Math.PI/2,_kx=(30+27*Math.cos(_ang)).toFixed(1),_ky=(30+27*Math.sin(_ang)).toFixed(1);
+      _nw=s.diff===-999,_gp=k.actief!==false&&!k.prospect&&!!parse(k.gepland),rc=k.actief===false?"neutral":k.prospect?"soon":k.opdrachtVerwijderd&&!_gp?"neutral":_nw?"nieuw":_gp?"plan":s.diff<0?"late":s.diff<7?"crit":s.diff<=10?"warn":s.diff<=14?"attn":"ok",_ang=pct/100*2*Math.PI-Math.PI/2,_kx=(30+27*Math.cos(_ang)).toFixed(1),_ky=(30+27*Math.sin(_ang)).toFixed(1);
     const dag=s.v?s.v.toLocaleDateString("nl-NL",{day:"numeric",month:"short"}):"",tel=k.mobiel||k.telefoon;
     return `<div class="card click kx kx-${rc}${k.actief===false?" dim":""}${sel?" sel":""}${selm?" kx-selm":""}" data-act="${selm?"selk":"klant"}" data-id="${esc(k.id)}" style="--h:${hue(k.ronde||k.naam)}">
     <span class="kx-av"><svg viewBox="0 0 60 60" aria-hidden="true"><circle cx="30" cy="30" r="27" class="kx-tr"/></svg><i class="kx-ring" style="--p:${Math.max(0,Math.min(100,pct))}%"></i>${pct>2&&pct<100&&!_gp?`<i class="kx-knob" style="left:${(_kx/.6).toFixed(2)}%;top:${(_ky/.6).toFixed(2)}%"></i>`:""}${(()=>{const gp=parse(k.gepland),ttl=(_nw?"Nieuwe klant, nog niet gewassen":gp?"Ingepland op "+fmtL(k.gepland)+(k.tijd?" om "+k.tijd:""):s.diff<0?Math.abs(s.diff)+" dagen te laat, nog niet ingepland":s.diff===0?"Vandaag aan de beurt, nog niet ingepland":"Over "+s.diff+" dagen aan de beurt, nog niet ingepland")+" · "+pct+"% van het ritme";
       const mnd=["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"];
       const tile=(band,big)=>`<i class="kc-m">${band}</i><b>${big}</b>`;
-      const c=selm?(sel?I.check:""):k.actief===false?`<b>–</b><em>inactief</em>`:k.prospect?`${I.offertes}<em>offerte</em>`:_nw?tile("nieuw",'<span class="kc-s">★</span>'):gp?tile(mnd[gp.getMonth()],gp.getDate()):s.diff===0?tile("vandaag",new Date().getDate()):s.diff<0?tile("te laat","+"+Math.abs(s.diff)):tile(s.diff===1?"dag":"dagen",s.diff);
+      const c=selm?(sel?I.check:""):k.actief===false?`<b>–</b><em>inactief</em>`:k.prospect?`${I.offertes}<em>offerte</em>`:k.opdrachtVerwijderd&&!gp?`<b>–</b><em>geen</em>`:_nw?tile("nieuw",'<span class="kc-s">★</span>'):gp?tile(mnd[gp.getMonth()],gp.getDate()):s.diff===0?tile("vandaag",new Date().getDate()):s.diff<0?tile("te laat","+"+Math.abs(s.diff)):tile(s.diff===1?"dag":"dagen",s.diff);
       return `<span class="kc${!selm&&k.actief!==false&&!k.prospect?" kc-tile":""}${gp&&!selm?" kc-plan":""}" title="${esc(ttl)}">${c}</span>`})()}</span>
     <div class="kx-main"><span class="nm">${esc(cleanName(k.naam))}${isZak(k)?`<em class="kx-tag">${soortLbl(k)}</em>`:""}${k.ronde?`<em class="kx-tag">${esc(k.ronde)}</em>`:""}</span>
       <div class="kx-sub"><span>${I.pin}${esc([k.adres,k.plaats].filter(Boolean).join(", ")||"Geen adres")}</span></div></div>
-    <div class="kx-due">${(()=>{const gp=k.actief!==false&&!k.prospect&&parse(k.gepland);return gp?`<span class="kx-st kx-st-plan">Ingepland</span><small>${esc(gp.toLocaleDateString("nl-NL",{weekday:"short",day:"numeric",month:"short"}))}${k.tijd?" · "+esc(k.tijd):""}</small>`:`<span class="kx-st">${k.actief===false?"Inactief":k.prospect?"Wacht op akkoord":esc(s.txt)}</span><small>${k.actief===false||k.prospect?"":esc(dag)}</small>`})()}</div>
-    <div class="kx-amt"><b>${eur(k.prijs)}</b><small>${esc(intervalTxt(k))}</small></div>
+    <div class="kx-due">${(()=>{const gp=k.actief!==false&&!k.prospect&&parse(k.gepland);return gp?`<span class="kx-st kx-st-plan">Ingepland</span><small>${esc(gp.toLocaleDateString("nl-NL",{weekday:"short",day:"numeric",month:"short"}))}${k.tijd?" · "+esc(k.tijd):""}</small>`:`<span class="kx-st">${k.actief===false?"Inactief":k.prospect?"Wacht op akkoord":k.opdrachtVerwijderd?"Geen opdracht":esc(s.txt)}</span><small>${k.actief===false||k.prospect||k.opdrachtVerwijderd?"":esc(dag)}</small>`})()}</div>
+    <div class="kx-amt">${k.opdrachtVerwijderd&&!k.prijs?`<b>–</b><small>${esc(soortLbl(k))}</small>`:`<b>${eur(k.prijs)}</b><small>${esc(intervalTxt(k))}</small>`}</div>
     <div class="kx-act">${tel?`<a class="kx-b" href="tel:${esc(String(tel).replace(/\s/g,""))}" title="Bellen" onclick="event.stopPropagation()">${I.phone}</a>`:""}${k.adres?`<a class="kx-b" href="${esc(mapsQ(k))}" target="_blank" rel="noopener" title="Route" onclick="event.stopPropagation()">${I.route}</a>`:""}<span class="kx-b kx-go">${I.right}</span></div></div>`}).join("")}</div>`;
   if(pages>1)html+=`<div class="pager"><button type="button" class="small" data-act="kpage" data-n="-1" ${state.kpage<=1?"disabled":""}>${I.left}</button><span class="mono">${state.kpage} / ${pages}</span><button type="button" class="small" data-act="kpage" data-n="1" ${state.kpage>=pages?"disabled":""}>${I.right}</button></div>`;
   return html;
@@ -8646,12 +8652,12 @@ function openWebAanvraag(){
 
 /* ---------- Ritmekaart: waar staat elke klant in zijn ritme ---------- */
 function kRitme(k){const t=today(),p=parse(k.gepland);
-  if(k.actief===false)return{z:"uit",f:0};
+  if(k.actief===false||(k.opdrachtVerwijderd&&!p))return{z:"uit",f:0};
   if(p&&p>=t)return{z:"gepland",f:Math.min(1,1-(p-t)/DAY/Math.max(7,freqDays(k)))};
   if(!k.laatst)return{z:"nieuw",f:1.15};
   const v=volgende(k),fd=Math.max(7,freqDays(k)),f=1-(v-t)/DAY/fd,d=Math.round((v-t)/DAY);
   return{z:d<0||(p&&p<t)?"laat":d<=7?"week":"ok",f}}
-function kRitmeKaart(){const ak=actief(),r=ak.map(k=>({k,...kRitme(k)})),n=z=>r.filter(x=>x.z===z).length,rz=state.krz;
+function kRitmeKaart(){const ak=actief().filter(k=>!(k.opdrachtVerwijderd&&!k.gepland)),r=ak.map(k=>({k,...kRitme(k)})),n=z=>r.filter(x=>x.z===z).length,rz=state.krz;
   const laat=n("laat"),week=n("week"),opSchema=n("ok")+n("gepland"),pct=ak.length?Math.round(opSchema/ak.length*100):0;
   const mot=!ak.length?"Nog geen actieve klanten.":laat?`${plural(laat,"klant loopt","klanten lopen")} achter. Plan ze in, dan is iedereen weer in ritme.`:week?`Iedereen in ritme. ${week} deze week aan de beurt.`:"Iedereen loopt keurig in zijn ritme!";
   const chip=(z,l,c)=>`<button type="button" class="kr-c${rz===z?" on":""}" data-act="krz" data-v="${z}" style="--c:${c}"><i></i><b>${n(z)}</b><span>${l}</span></button>`;

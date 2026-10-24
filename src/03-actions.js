@@ -236,8 +236,8 @@ function openObject(kid,oid){
 }
 
 /* ---------- IMPORT / EXPORT ---------- */
-const FIELDS=[["klantnr","Klantnummer / relatiecode",/(relatiecode|klantnummer|klantnr|debiteur)/],["naam","Naam",/^(naam|klant|klantnaam|name|bedrijf|bedrijfsnaam|achternaam)/],["adres","Adres / straat",/(adres|straat|address|street)/],["huisnr","Huisnummer",/(huisn|huisnummer|^nr$|^nummer$|number)/],
-  ["postcode","Postcode",/(postcode|zip|postal)/],["plaats","Plaats",/(plaats|woonplaats|stad|city|gemeente)/],["telefoon","Telefoon",/(tel|mobiel|gsm|phone)/],["email","E-mail",/(mail)/],
+const FIELDS=[["klantnr","Klantnummer / relatiecode",/(relatiecode|klantnummer|klantnr|debiteur)/],["naam","Naam",/^(naam|klant|klantnaam|name|bedrijf|bedrijfsnaam|achternaam)/],["contact","Contactpersoon",/(contactpers|^contact|t\.?a\.?v)/],["adres","Adres / straat",/^(adres|straat|address|street|bezoekadres)/],["huisnr","Huisnummer",/(huisn|huisnummer|^nr$|^nummer$|number)/],
+  ["postcode","Postcode",/(postcode|zip|postal)/],["plaats","Plaats",/(plaats|woonplaats|stad|city|gemeente)/],["telefoon","Telefoon",/(tel|mobiel|gsm|phone)/],["email","E-mail",/(mail)/],["soort","Soort (particulier/zakelijk/VvE)",/^(soort|type|klanttype|relatiesoort)/],
   ["prijs","Prijs",/(prijs|bedrag|tarief|price)/],["frequentie","Frequentie (weken)",/(freq|interval|weken|cyclus)/],["ronde","Ronde",/(ronde|wijk|route|gebied)/],["dienst","Dienst",/(dienst|service)/],["laatst","Laatst gewassen",/(laatst|vorige|last)/],["notities","Notities",/(notitie|opmerking|note|info)/]];
 function parseCSV(text){
   const first=text.split(/\r?\n/)[0]||"";
@@ -265,7 +265,10 @@ function openImport(){
     const head=rows[0].map(h=>String(h).trim()),map={};
     FIELDS.forEach(([f,,re])=>{const i=head.findIndex((h,ix)=>re.test(h.toLowerCase())&&!Object.values(map).includes(ix));if(i>-1)map[f]=i});
     imp={head,rows:rows.slice(1),map};drawMap()};
-  $("#impFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{$("#impText").value="";load(String(rd.result))};rd.readAsText(f)};
+  $("#impFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{let t=String(rd.result);
+    /* exports uit SnelStart/DienstenCRM zijn vaak Windows-1252: dan opnieuw lezen zodat é, ë en ü goed blijven */
+    if(t.includes("\uFFFD")){const r2=new FileReader();r2.onload=()=>{$("#impText").value="";load(String(r2.result).replace(/^\uFEFF/,""))};r2.readAsText(f,"windows-1252");return}
+    $("#impText").value="";load(t.replace(/^\uFEFF/,""))};rd.readAsText(f)};
   $("#impText").oninput=e=>{if(e.target.value.trim())load(e.target.value)};
   $("#impGo").onclick=runImport;
 }
@@ -273,15 +276,18 @@ function drawMap(){
   const{head,rows,map}=imp;
   $("#impMap").innerHTML=`<span class="eyebrow">Kolommen koppelen · ${rows.length} klanten gevonden</span>
   <div class="grid3" style="margin-top:8px">${FIELDS.map(([f,lbl])=>`<label>${lbl}<select data-map="${f}"><option value="">— niet —</option>${head.map((h,i)=>`<option value="${i}" ${map[f]===i?"selected":""}>${esc(h||"kolom "+(i+1))}</option>`).join("")}</select></label>`).join("")}</div>
-  <div class="importprev" style="margin-top:12px"><table><tr>${["Naam","Adres","Postcode","Plaats","Prijs","Freq."].map(h=>`<th>${h}</th>`).join("")}</tr>${rows.slice(0,5).map(r=>{const k=rowToKlant(r);return `<tr><td>${esc(k.naam)}</td><td>${esc(k.adres)}</td><td>${esc(k.postcode)}</td><td>${esc(k.plaats)}</td><td>${eur(k.prijs)}</td><td>${k.frequentie} wk</td></tr>`}).join("")}</table></div>`;
+  <div class="importprev" style="margin-top:12px"><table><tr>${["Nr","Naam","Soort","Adres","Postcode","Plaats",...(imp.map.prijs!=null?["Prijs","Freq."]:[])].map(h=>`<th>${h}</th>`).join("")}</tr>${rows.slice(0,8).map(r=>{const k=rowToKlant(r);return `<tr><td>${esc(k.klantnr)}</td><td>${esc(k.naam)}${k.contact?`<br><small class="subt">t.a.v. ${esc(k.contact)}</small>`:""}</td><td>${esc(soortLbl(k))}</td><td>${esc(k.adres)}</td><td>${esc(k.postcode)}</td><td>${esc(k.plaats)}</td>${imp.map.prijs!=null?`<td>${eur(k.prijs)}</td><td>${k.frequentie} wk</td>`:""}</tr>`}).join("")}</table></div>
+  ${imp.map.prijs==null?`<div class="infobox" style="margin-top:10px">${I.handleiding}<span>Er zit geen prijs of frequentie in dit bestand. De klanten komen erin <b>zonder opdracht</b>: ze staan niet in de planning tot je bij de klant op <b>+ Opdracht</b> klikt. Soort wordt herkend aan de naam (VvE, B.V., Stichting …); controleer dat in het voorbeeld hierboven.</span></div>`:""}`;
   $("#impMap").querySelectorAll("[data-map]").forEach(s=>s.onchange=()=>{const v=s.value;if(v==="")delete imp.map[s.dataset.map];else imp.map[s.dataset.map]=Number(v);drawMap()});
   const ok=imp.map.naam!=null&&imp.map.adres!=null;$("#impGo").disabled=!ok;$("#impGo").textContent=ok?"Importeer "+rows.length+" klanten":"Koppel naam en adres";
 }
 function rowToKlant(r){
   const g=f=>imp.map[f]!=null?String(r[imp.map[f]]??"").trim():"";
-  return{klantnr:g("klantnr"),naam:g("naam"),adres:[g("adres"),g("huisnr")].filter(Boolean).join(" "),postcode:g("postcode").toUpperCase(),plaats:g("plaats"),telefoon:g("telefoon"),email:g("email"),
+  const naam=g("naam"),so=g("soort").toLowerCase(),geenOpdr=imp.map.prijs==null&&imp.map.frequentie==null;
+  const soort=/vve|eigenaar/.test(so)||/\bv\.?v\.?e\b|vereniging van eigenaars|eigenaarsvereniging|\bcoöp|\bcoop\b/i.test(naam)?"vve":/zak|bedrijf|organisatie/.test(so)||/\b(b\.?v\.?|n\.?v\.?|v\.?o\.?f\.?|holding|stichting|gemeente|kerk|school|vereniging|praktijk|kantoor|hotel|restaurant|cafe|café|bakkerij|garage|makelaar|tandarts|huisarts|apotheek|kinderopvang|woningcorporatie|beheer|groep|group|services?|bedrijf)\b/i.test(naam)?"zakelijk":"particulier";
+  return{klantnr:g("klantnr"),naam,contact:g("contact"),adres:[g("adres"),g("huisnr")].filter(Boolean).join(" "),postcode:g("postcode").toUpperCase(),plaats:g("plaats"),telefoon:g("telefoon"),email:g("email"),
     prijs:parseNum(g("prijs")),frequentie:Math.max(1,Math.round(parseNum(g("frequentie")))||4),ronde:g("ronde"),dienst:g("dienst")||"Glasbewassing",duur:30,laatst:parseDate(g("laatst")),gepland:"",tijd:"",notities:g("notities"),
-    binnen:false,soort:"particulier",actief:true,aangemaakt:iso(today()),log:[],objecten:[]};
+    binnen:false,soort,actief:true,aangemaakt:iso(today()),log:[],objecten:[],bron:"import",...(geenOpdr?{opdrachtVerwijderd:true,prospect:false}:{})};
 }
 async function runImport(){
   const b=$("#impGo");b.disabled=true;let n=0;
@@ -291,7 +297,7 @@ async function runImport(){
   const nA=x=>String(x||"").toLowerCase().replace(/[^a-z0-9]/g,""),zoek=k=>state.klanten.find(x=>!x.hoofdKlantId&&((k.klantnr&&String(x.klantnr||"")===String(k.klantnr))||(k.postcode&&nA(x.postcode)===nA(k.postcode)&&nA(x.adres)===nA(k.adres))));
   let bij=0;
   try{for(const k of list){const oud=zoek(k);
-      if(oud){const p={...strip(oud)};["naam","adres","postcode","plaats","telefoon","email","ronde","notities"].forEach(f=>{if(!String(p[f]||"").trim()&&k[f])p[f]=k[f]});
+      if(oud){const p={...strip(oud)};["naam","contact","adres","postcode","plaats","telefoon","email","ronde","notities"].forEach(f=>{if(!String(p[f]||"").trim()&&k[f])p[f]=k[f]});
         if(k.klantnr&&!relBezet(k.klantnr,oud.id))p.klantnr=k.klantnr;if(!p.prijs&&k.prijs)p.prijs=k.prijs;await save("klanten",oud.id,p);bij++}
       else await save("klanten",newId("k"),k);n++;if(n%10===0)b.textContent=n+" van "+list.length+"…"}
     dlg.close();toast((n-bij)+" klanten geïmporteerd"+(bij?", "+bij+" bestaande aangevuld":""));state.tab="klanten";schedule()}

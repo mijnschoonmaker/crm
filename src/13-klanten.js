@@ -26,18 +26,18 @@ function vKlanten(){
   html+=`<div class="countline"><span class="eyebrow">${plural(ks.length,"resultaat","resultaten")}</span><label style="flex-direction:row;align-items:center;gap:8px">Per pagina<select id="kpp">${[25,50,100].map(n=>`<option ${n===pp?"selected":""}>${n}</option>`).join("")}</select></label></div>`;
   if(!ks.length)return html+empty("Geen klanten gevonden","Probeer een andere zoekterm of filter.");
   html+=`<div class="list klx">${shown.map(k=>{const s=status(k),sel=selm&&state.sel.has(k.id),C=2*Math.PI*27,_t=today(),_due=s.v,_st=parse(k.laatst)||(_due?addDays(_due,-freqDays(k)):_t),_span=Math.max(1,(_due-_st)/DAY),pct=k.actief===false||(!k.laatst&&!k.gepland)?0:Math.round(Math.max(0,Math.min(1,(_t-_st)/DAY/_span))*100),
-      _nw=s.diff===-999,_gp=k.actief!==false&&!k.prospect&&!!parse(k.gepland),rc=k.actief===false?"neutral":k.prospect?"soon":_nw?"nieuw":_gp?"plan":s.diff<0?"late":s.diff<7?"crit":s.diff<=10?"warn":s.diff<=14?"attn":"ok",_ang=pct/100*2*Math.PI-Math.PI/2,_kx=(30+27*Math.cos(_ang)).toFixed(1),_ky=(30+27*Math.sin(_ang)).toFixed(1);
+      _nw=s.diff===-999,_gp=k.actief!==false&&!k.prospect&&!!parse(k.gepland),rc=k.actief===false?"neutral":k.prospect?"soon":k.opdrachtVerwijderd&&!_gp?"neutral":_nw?"nieuw":_gp?"plan":s.diff<0?"late":s.diff<7?"crit":s.diff<=10?"warn":s.diff<=14?"attn":"ok",_ang=pct/100*2*Math.PI-Math.PI/2,_kx=(30+27*Math.cos(_ang)).toFixed(1),_ky=(30+27*Math.sin(_ang)).toFixed(1);
     const dag=s.v?s.v.toLocaleDateString("nl-NL",{day:"numeric",month:"short"}):"",tel=k.mobiel||k.telefoon;
     return `<div class="card click kx kx-${rc}${k.actief===false?" dim":""}${sel?" sel":""}${selm?" kx-selm":""}" data-act="${selm?"selk":"klant"}" data-id="${esc(k.id)}" style="--h:${hue(k.ronde||k.naam)}">
     <span class="kx-av"><svg viewBox="0 0 60 60" aria-hidden="true"><circle cx="30" cy="30" r="27" class="kx-tr"/></svg><i class="kx-ring" style="--p:${Math.max(0,Math.min(100,pct))}%"></i>${pct>2&&pct<100&&!_gp?`<i class="kx-knob" style="left:${(_kx/.6).toFixed(2)}%;top:${(_ky/.6).toFixed(2)}%"></i>`:""}${(()=>{const gp=parse(k.gepland),ttl=(_nw?"Nieuwe klant, nog niet gewassen":gp?"Ingepland op "+fmtL(k.gepland)+(k.tijd?" om "+k.tijd:""):s.diff<0?Math.abs(s.diff)+" dagen te laat, nog niet ingepland":s.diff===0?"Vandaag aan de beurt, nog niet ingepland":"Over "+s.diff+" dagen aan de beurt, nog niet ingepland")+" · "+pct+"% van het ritme";
       const mnd=["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"];
       const tile=(band,big)=>`<i class="kc-m">${band}</i><b>${big}</b>`;
-      const c=selm?(sel?I.check:""):k.actief===false?`<b>–</b><em>inactief</em>`:k.prospect?`${I.offertes}<em>offerte</em>`:_nw?tile("nieuw",'<span class="kc-s">★</span>'):gp?tile(mnd[gp.getMonth()],gp.getDate()):s.diff===0?tile("vandaag",new Date().getDate()):s.diff<0?tile("te laat","+"+Math.abs(s.diff)):tile(s.diff===1?"dag":"dagen",s.diff);
+      const c=selm?(sel?I.check:""):k.actief===false?`<b>–</b><em>inactief</em>`:k.prospect?`${I.offertes}<em>offerte</em>`:k.opdrachtVerwijderd&&!gp?`<b>–</b><em>geen</em>`:_nw?tile("nieuw",'<span class="kc-s">★</span>'):gp?tile(mnd[gp.getMonth()],gp.getDate()):s.diff===0?tile("vandaag",new Date().getDate()):s.diff<0?tile("te laat","+"+Math.abs(s.diff)):tile(s.diff===1?"dag":"dagen",s.diff);
       return `<span class="kc${!selm&&k.actief!==false&&!k.prospect?" kc-tile":""}${gp&&!selm?" kc-plan":""}" title="${esc(ttl)}">${c}</span>`})()}</span>
     <div class="kx-main"><span class="nm">${esc(cleanName(k.naam))}${isZak(k)?`<em class="kx-tag">${soortLbl(k)}</em>`:""}${k.ronde?`<em class="kx-tag">${esc(k.ronde)}</em>`:""}</span>
       <div class="kx-sub"><span>${I.pin}${esc([k.adres,k.plaats].filter(Boolean).join(", ")||"Geen adres")}</span></div></div>
-    <div class="kx-due">${(()=>{const gp=k.actief!==false&&!k.prospect&&parse(k.gepland);return gp?`<span class="kx-st kx-st-plan">Ingepland</span><small>${esc(gp.toLocaleDateString("nl-NL",{weekday:"short",day:"numeric",month:"short"}))}${k.tijd?" · "+esc(k.tijd):""}</small>`:`<span class="kx-st">${k.actief===false?"Inactief":k.prospect?"Wacht op akkoord":esc(s.txt)}</span><small>${k.actief===false||k.prospect?"":esc(dag)}</small>`})()}</div>
-    <div class="kx-amt"><b>${eur(k.prijs)}</b><small>${esc(intervalTxt(k))}</small></div>
+    <div class="kx-due">${(()=>{const gp=k.actief!==false&&!k.prospect&&parse(k.gepland);return gp?`<span class="kx-st kx-st-plan">Ingepland</span><small>${esc(gp.toLocaleDateString("nl-NL",{weekday:"short",day:"numeric",month:"short"}))}${k.tijd?" · "+esc(k.tijd):""}</small>`:`<span class="kx-st">${k.actief===false?"Inactief":k.prospect?"Wacht op akkoord":k.opdrachtVerwijderd?"Geen opdracht":esc(s.txt)}</span><small>${k.actief===false||k.prospect||k.opdrachtVerwijderd?"":esc(dag)}</small>`})()}</div>
+    <div class="kx-amt">${k.opdrachtVerwijderd&&!k.prijs?`<b>–</b><small>${esc(soortLbl(k))}</small>`:`<b>${eur(k.prijs)}</b><small>${esc(intervalTxt(k))}</small>`}</div>
     <div class="kx-act">${tel?`<a class="kx-b" href="tel:${esc(String(tel).replace(/\s/g,""))}" title="Bellen" onclick="event.stopPropagation()">${I.phone}</a>`:""}${k.adres?`<a class="kx-b" href="${esc(mapsQ(k))}" target="_blank" rel="noopener" title="Route" onclick="event.stopPropagation()">${I.route}</a>`:""}<span class="kx-b kx-go">${I.right}</span></div></div>`}).join("")}</div>`;
   if(pages>1)html+=`<div class="pager"><button type="button" class="small" data-act="kpage" data-n="-1" ${state.kpage<=1?"disabled":""}>${I.left}</button><span class="mono">${state.kpage} / ${pages}</span><button type="button" class="small" data-act="kpage" data-n="1" ${state.kpage>=pages?"disabled":""}>${I.right}</button></div>`;
   return html;
@@ -108,12 +108,12 @@ function openWebAanvraag(){
 
 /* ---------- Ritmekaart: waar staat elke klant in zijn ritme ---------- */
 function kRitme(k){const t=today(),p=parse(k.gepland);
-  if(k.actief===false)return{z:"uit",f:0};
+  if(k.actief===false||(k.opdrachtVerwijderd&&!p))return{z:"uit",f:0};
   if(p&&p>=t)return{z:"gepland",f:Math.min(1,1-(p-t)/DAY/Math.max(7,freqDays(k)))};
   if(!k.laatst)return{z:"nieuw",f:1.15};
   const v=volgende(k),fd=Math.max(7,freqDays(k)),f=1-(v-t)/DAY/fd,d=Math.round((v-t)/DAY);
   return{z:d<0||(p&&p<t)?"laat":d<=7?"week":"ok",f}}
-function kRitmeKaart(){const ak=actief(),r=ak.map(k=>({k,...kRitme(k)})),n=z=>r.filter(x=>x.z===z).length,rz=state.krz;
+function kRitmeKaart(){const ak=actief().filter(k=>!(k.opdrachtVerwijderd&&!k.gepland)),r=ak.map(k=>({k,...kRitme(k)})),n=z=>r.filter(x=>x.z===z).length,rz=state.krz;
   const laat=n("laat"),week=n("week"),opSchema=n("ok")+n("gepland"),pct=ak.length?Math.round(opSchema/ak.length*100):0;
   const mot=!ak.length?"Nog geen actieve klanten.":laat?`${plural(laat,"klant loopt","klanten lopen")} achter. Plan ze in, dan is iedereen weer in ritme.`:week?`Iedereen in ritme. ${week} deze week aan de beurt.`:"Iedereen loopt keurig in zijn ritme!";
   const chip=(z,l,c)=>`<button type="button" class="kr-c${rz===z?" on":""}" data-act="krz" data-v="${z}" style="--c:${c}"><i></i><b>${n(z)}</b><span>${l}</span></button>`;
