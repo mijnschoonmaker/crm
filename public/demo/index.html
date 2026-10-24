@@ -12347,7 +12347,7 @@ function openOpdrachtWerk(kid,focus){
 /* ---------- foto's met aangetikte ramen ---------- */
 const DOTCOL=t=>({"s-lood":"#12a594","s-mini":"#d6409f","s-koepel":"#3e63dd","s-tuimel":"#0090ff"})[t]||["#e5484d","#f76b15","#8e4ec6","#6e56cf","#5b5bd6"][Math.min(4,+String(t||"f0").slice(1)||0)]||"#e5484d";
 const imgSize=file=>new Promise(res=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{res({w:im.naturalWidth,h:im.naturalHeight});URL.revokeObjectURL(u)};im.onerror=()=>{res({w:4,h:3});URL.revokeObjectURL(u)};im.src=u});
-const dotsHtml=(f,big)=>(f.dots||[]).map((d,j)=>`<span class="fdot${big?" big":""}" data-dj="${j}" style="left:${d.x*100}%;top:${d.y*100}%;background:${d.t?DOTCOL(d.t):"var(--brand,#137a8a)"}">${d.t?"":j+1}</span>`).join("");
+const dotsHtml=(f,big)=>(f.dots||[]).map((d,j)=>`<span class="fdot${big?" big":""}" data-dj="${j}" style="left:${d.x*100}%;top:${d.y*100}%;background:${d.t?DOTCOL(d.t):"var(--brand,#137a8a)"}"></span>`).join("");
 function fotoCard(f,i,removable){const ar=f.w&&f.h?`${f.w}/${f.h}`:"4/3",n=(f.dots||[]).length;
   return `<div class="ow-foto" data-fi="${i}" role="button" tabindex="0" title="Openen en ramen aantikken"><span class="fwrap" style="aspect-ratio:${ar}"><img src="${BLOB}${esc(f.id)}" alt="${esc(f.naam||"Foto")}" loading="lazy">${dotsHtml(f)}</span><small>${n?`<b>${n} ${n===1?"raam":"ramen"}</b> · `:""}${esc(f.naam||"Foto")}</small>${removable?`<button type="button" class="ow-frm" data-frm="${i}" aria-label="Foto verwijderen">${I.x}</button>`:""}</div>`}
 function openFotoViewer(list,start,opt={}){
