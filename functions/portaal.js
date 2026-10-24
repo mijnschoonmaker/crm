@@ -189,7 +189,7 @@ module.exports = function maakPortaal(ctx) {
         incasso: { actief: !!k.incasso && !!k.mollieMandateId, sinds: String(k.incassoSinds || "").slice(0, 10), bank: k.incassoBank || "", rekening: k.incassoRekening || "", beschikbaar: !!(await geheim()).mollieKey } },
       volgende, verwacht,
       bezoeken: beurten.slice(0, 30).map(x => ({ id: x.id, datum: x.datum, tijd: tijdVan(x), door: vve && b.vveDoor === false ? "" : voornaamVan(String(x.door || "")), dienst: x.dienst || k.dienst || "Glasbewassing", extra: x.extra || [], bedrag: Number(x.bedrag) || 0, beoordeling: x.beoordeling ? { sterren: x.beoordeling.sterren } : null,
-        ...(vve ? { taken: Array.isArray(x.taken) ? x.taken.map(t => ({ naam: String(t.naam || ""), ok: !!t.ok })) : [], fotos: (x.fotos || []).map(f => fotoUrl(f.id)).filter(Boolean), notitie: String(x.notitie || "").slice(0, 400), duur: Number(x.duur) || 0 } : {}) })),
+        ...(vve ? { taken: Array.isArray(x.taken) ? x.taken.map(t => ({ naam: String(t.naam || ""), ok: !!t.ok })) : [], fotos: (x.fotos || []).map(f => fotoUrl(f.id)).filter(Boolean), notitie: String(x.notitie || "").slice(0, 400) } : {}) })),
       ...(vve ? { bord: { url: base + "/bord/" + bordToken }, meldingen: meldingenVan(beurten, k) } : {}),
       teBeoordelen: laatsteB && !laatsteB.beoordeling && (Date.now() - new Date(laatsteB.datum + "T12:00:00").getTime()) < 21 * DAG ? { id: laatsteB.id, datum: laatsteB.datum } : null,
       aantalBezoeken: beurten.length,
