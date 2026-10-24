@@ -1,0 +1,27 @@
+name: Foto's testgegevens opruimen
+on:
+  workflow_dispatch:
+    inputs:
+      modus: { description: "tellen of wissen", required: true, default: "tellen" }
+      run_id: { description: "Run-id van CRM opschonen (back-up)", required: true }
+permissions:
+  actions: read
+  contents: read
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm install --omit=dev --no-audit --no-fund
+        working-directory: functions
+      - uses: actions/download-artifact@v4
+        with: { name: backup-opschonen, path: backup-in, run-id: "${{ inputs.run_id }}", github-token: "${{ github.token }}" }
+      - run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > "$RUNNER_TEMP/sa.json"
+      - env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
+          P: ${{ vars.FIREBASE_PROJECT }}
+          BUCKET: ${{ vars.FIREBASE_BUCKET }}
+          MODUS: ${{ inputs.modus }}
+        run: node tools/fotos-opruimen.js
