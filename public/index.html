@@ -9430,7 +9430,8 @@ textarea.in{height:auto;padding:12px 14px;resize:vertical;line-height:1.45}
 .ed-stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .ed-wrap{position:relative;touch-action:manipulation}
 .ed-wrap img{display:block;width:100%;height:100%;border-radius:10px;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
-.dot{position:absolute;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#e5484d;border:1.5px solid #fff;color:#fff;font:700 7.5px/1 var(--f-ui);display:grid;place-items:center;box-shadow:0 1px 4px rgb(0 0 0 / .5);cursor:pointer;padding:0}
+.dot{position:absolute;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:#e5484d;border:1px solid #fff;color:#fff;font:700 5.5px/1 var(--f-ui);letter-spacing:-.02em;display:grid;place-items:center;box-shadow:0 1px 2px rgb(0 0 0 / .45);cursor:pointer;padding:0}
+.dot::after{content:"";position:absolute;inset:-7px;border-radius:50%}
 .ed-tally{background:linear-gradient(180deg,#f7fafb,#eef4f5);color:#0f1f26;border-radius:16px;padding:12px 12px 10px;margin-top:12px;box-shadow:0 8px 24px -12px rgb(0 0 0 / .6)}
 .et-h{display:flex;justify-content:space-between;align-items:baseline;font-size:11px;color:#5d6f76;text-transform:uppercase;letter-spacing:.09em;font-weight:700;padding:0 2px}.et-h b{color:#137a8a;font-size:17px;letter-spacing:0;text-transform:none;font-weight:800}
 .et-l{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:6px;margin-top:9px}
@@ -9836,7 +9837,7 @@ const ICON={
       return `<button type="button" role="radio" aria-checked="${t===curType}" data-t="${t}"><i style="background:${m.col}">${m.c}</i>${chipName(t)}${n?`<b>${n}</b>`:""}</button>`}).join("");renderTally()}
   function renderDots(){const w=ge("ed-wrap");w.querySelectorAll(".dot").forEach(n=>n.remove());const p=photos[edIdx];if(!p)return;
     p.dots.forEach((d,j)=>{const m=dt(d.t);const b=document.createElement("button");b.type="button";b.className="dot";b.dataset.j=j;b.textContent=m.c;
-      b.style.background=m.col;if(m.c.length>1)b.style.fontSize="5.5px";b.style.left=(d.x*100)+"%";b.style.top=(d.y*100)+"%";b.setAttribute("aria-label",`${m.n}: stip verwijderen`);w.appendChild(b)});
+      b.style.background=m.col;if(m.c.length>1)b.style.fontSize="4.2px";b.style.left=(d.x*100)+"%";b.style.top=(d.y*100)+"%";b.setAttribute("aria-label",`${m.n}: stip verwijderen`);w.appendChild(b)});
     renderTypes()}
   function dotSummary(dots){const cnt={};dots.forEach(d=>cnt[d.t]=(cnt[d.t]||0)+1);return typeList().filter(t=>cnt[t]).map(t=>[t,cnt[t]])}
   function renderPhsum(){const all=photos.flatMap(p=>p.dots),box=g("phsum"),sum=dotSummary(all);box.hidden=!sum.length;
