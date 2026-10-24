@@ -455,6 +455,8 @@ aside .help .primary{margin-top:2px;font-size:13.5px;padding:9px}aside .help .pr
 
 /* ---------- live meekijken ---------- */
 .lv{position:relative;border-radius:24px;overflow:hidden;background:var(--surface);border:1px solid var(--line);box-shadow:0 20px 44px -30px rgba(8,40,48,.55)}
+.lv-centreer{position:absolute;right:10px;bottom:38px;z-index:600;display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 13px!important;border:1px solid rgba(255,255,255,.6)!important;border-radius:8px!important;background:rgba(255,255,255,.94)!important;color:#252c3c!important;font:700 10.5px/1 Manrope,system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;box-shadow:0 2px 8px rgba(13,18,27,.18)!important;cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.lv-centreer[hidden]{display:none!important}
 .lv-map{height:260px;background:#eceef1;position:relative;z-index:0}
 .lv-laad{position:absolute;inset:0;background:linear-gradient(110deg,#eceef1 30%,#f4f5f7 50%,#eceef1 70%);background-size:200% 100%;animation:lvShim 1.4s linear infinite}
 @keyframes lvShim{to{background-position:-200% 0}}
@@ -2420,25 +2422,30 @@ async function lvInit(){clearInterval(LVK.timer);const L=D&&D.live;if(!L||L.stat
   const el=document.getElementById("lvMap");if(!el||!L.pos)return;
   try{await lvLeaflet()}catch(e){el.innerHTML=`<p class="lv-fout">Kaart kon niet laden</p>`;return}
   const Lf=window.L;el.innerHTML="";LVK.zelf=false;
-  LVK.map=Lf.map(el,{zoomControl:false,attributionControl:false,preferCanvas:true,dragging:true,scrollWheelZoom:false,tap:true}).setView([L.pos.lat,L.pos.lng],14);
+  LVK.map=Lf.map(el,{zoomControl:false,attributionControl:false,preferCanvas:true,dragging:true,scrollWheelZoom:false,tap:true});LVK.prog=1;LVK.map.setView([L.pos.lat,L.pos.lng],15);setTimeout(()=>LVK.prog=0,450);
   Lf.tileLayer("https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0/Actueel_orthoHR/EPSG:3857/{z}/{x}/{y}.jpeg",{maxZoom:19,maxNativeZoom:19,attribution:"Luchtfoto © PDOK"}).addTo(LVK.map);
   /* bronvermelding is verplicht voor de kaart, maar klein: een i-knopje dat openklapt */
   {const ab=document.createElement("button");ab.type="button";ab.className="lv-bron";ab.setAttribute("aria-label","Kaartgegevens");ab.innerHTML="<span>i</span><em>Luchtfoto © PDOK / Beeldmateriaal Nederland</em>";ab.onclick=e=>{e.stopPropagation();ab.classList.toggle("open")};el.appendChild(ab)}
-  LVK.map.on("dragstart zoomstart",e=>{if(e&&e.originalEvent)LVK.zelf=true});
+  /* de kaart rijdt mee met de bus; zelf schuiven of zoomen zet dat uit en toont "Centreren" */
+  {const cb=document.createElement("button");cb.type="button";cb.className="lv-centreer";cb.hidden=true;cb.setAttribute("aria-label","Kaart weer op de bus centreren");
+    cb.innerHTML='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/><circle cx="12" cy="12" r="7.5"/></svg><span>Centreren</span>';
+    cb.onclick=e=>{e.stopPropagation();LVK.zelf=false;cb.hidden=true;if(LVK.car){LVK.prog=1;LVK.map.setView(LVK.car.getLatLng(),Math.max(LVK.map.getZoom(),15),{animate:true});setTimeout(()=>LVK.prog=0,450)}};
+    ["mousedown","touchstart","dblclick","wheel"].forEach(t=>cb.addEventListener(t,ev=>ev.stopPropagation(),{passive:true}));el.appendChild(cb);LVK.knop=cb}
+  LVK.map.on("dragstart zoomstart",()=>{if(LVK.prog)return;LVK.zelf=true;if(LVK.knop)LVK.knop.hidden=false});
   if(L.huis){LVK.huis=Lf.marker(L.huis,{icon:Lf.divIcon({className:"lv-ic",html:`<span class="lv-huis">${I.huis}</span>`,iconSize:[40,46],iconAnchor:[20,44]}),keyboard:false}).addTo(LVK.map);
     LVK.lijn=Lf.polyline([[L.pos.lat,L.pos.lng],L.huis],{color:"#252c3c",weight:3.5,opacity:.85,dashArray:"1 9",lineCap:"round"}).addTo(LVK.map)}
   LVK.car=Lf.marker([L.pos.lat,L.pos.lng],{icon:Lf.divIcon({className:"lv-ic",html:`<span class="lv-auto"><span class="lv-puls"></span><span class="lv-rot">${AUTO}</span></span>`,iconSize:[96,64],iconAnchor:[48,40]}),keyboard:false,zIndexOffset:500}).addTo(LVK.map);
   LVK.naar={lat:L.pos.lat,lng:L.pos.lng};lvFit();setTimeout(()=>{if(LVK.map){LVK.map.invalidateSize();LVK.map.fire("moveend");lvFit()}},300)}
-function lvFit(){if(!LVK.map||LVK.zelf)return;const L=D.live,pts=[[LVK.naar.lat,LVK.naar.lng]];if(L.huis)pts.push(L.huis);
-  if(pts.length>1)LVK.map.fitBounds(pts,{padding:[50,50],maxZoom:16,animate:true});else LVK.map.panTo(pts[0],{animate:true})}
+/* de bus in het midden houden */
+function lvFit(){if(!LVK.map||LVK.zelf||!LVK.car)return;LVK.prog=1;LVK.map.setView(LVK.car.getLatLng(),LVK.map.getZoom(),{animate:false});setTimeout(()=>LVK.prog=0,50)}
 /* soepel rijden tussen twee meldingen in */
 function lvRij(n){if(!LVK.car)return;const v=LVK.car.getLatLng(),van={lat:v.lat,lng:v.lng},t0=performance.now(),dur=2200;cancelAnimationFrame(LVK.anim);
-  const st=t=>{const p=Math.min(1,(t-t0)/dur),e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2,ll=[van.lat+(n.lat-van.lat)*e,van.lng+(n.lng-van.lng)*e];LVK.car.setLatLng(ll);if(LVK.lijn&&D.live.huis)LVK.lijn.setLatLngs([ll,D.live.huis]);if(p<1)LVK.anim=requestAnimationFrame(st)};LVK.anim=requestAnimationFrame(st)}
+  const st=t=>{const p=Math.min(1,(t-t0)/dur),e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2,ll=[van.lat+(n.lat-van.lat)*e,van.lng+(n.lng-van.lng)*e];LVK.car.setLatLng(ll);if(!LVK.zelf&&LVK.map){LVK.prog=1;LVK.map.setView(ll,LVK.map.getZoom(),{animate:false});LVK.prog=0}if(LVK.lijn&&D.live.huis)LVK.lijn.setLatLngs([ll,D.live.huis]);if(p<1)LVK.anim=requestAnimationFrame(st)};LVK.anim=requestAnimationFrame(st)}
 async function lvPeil(){if(document.hidden||tab!=="home")return;let r;try{r=await api("live")}catch(e){return}const L=r.live;
   const was=D.live;D.live=L;
   if(!L||L.status!=="onderweg"||!!L.pos!==!!(was&&was.pos)){teken();return}
   const T=lvTekst(L),q=id=>document.getElementById(id);if(q("lvT"))q("lvT").textContent=T.t;if(q("lvS"))q("lvS").textContent=T.s;if(q("lvE"))q("lvE").textContent="± "+L.eta;
-  if(L.pos&&LVK.car){LVK.naar={lat:L.pos.lat,lng:L.pos.lng};lvRij(LVK.naar);const r_=LVK.car.getElement()&&LVK.car.getElement().querySelector(".lv-rot");if(r_&&L.pos.koers!=null)r_.classList.toggle("links",((L.pos.koers%360)+360)%360>180);setTimeout(lvFit,2300)}}
+  if(L.pos&&LVK.car){LVK.naar={lat:L.pos.lat,lng:L.pos.lng};lvRij(LVK.naar);const r_=LVK.car.getElement()&&LVK.car.getElement().querySelector(".lv-rot");if(r_&&L.pos.koers!=null)r_.classList.toggle("links",((L.pos.koers%360)+360)%360>180);}}
 /* ---------- start ---------- */
 (async()=>{const q=new URLSearchParams(location.search),seg=location.pathname.split("/").filter(Boolean);
   if(seg[0]==="aanbevolen"&&seg[1])return toonAanbevolen(decodeURIComponent(seg[1]).toUpperCase());

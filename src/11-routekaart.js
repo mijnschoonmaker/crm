@@ -8,7 +8,7 @@ async function rvMapTeken(){const el=document.getElementById("rvMap");if(!el||!s
   if(pkOpen(lijst).length){try{await pkGeocode(lijst)}catch(e){}}
   try{await pkLaadLeaflet()}catch(e){el.innerHTML='<div class="rv-map-l">Kaart niet beschikbaar</div>';return}
   if(!document.body.contains(el))return;const L=window.L;
-  if(!el._map){el.innerHTML="";el._map=L.map(el,{zoomControl:false,attributionControl:false});rvOndergrond(el);el._laag=L.layerGroup().addTo(el._map);rvLaagKnop(el)}
+  if(!el._map){el.innerHTML="";el._map=L.map(el,{zoomControl:false,attributionControl:false});rvOndergrond(el);el._laag=L.layerGroup().addTo(el._map);rvLaagKnop(el);rvVolgKnop(el)}
   const m=el._map;el._laag.clearLayers();const pts=[];let nx=stops.find(s=>!s.done);
   const lijn=[];
   stops.forEach((s,i)=>{const c=pkCoord(s.k);if(!c)return;pts.push(c);lijn.push(c);const nu=nx&&s.k.id===nx.k.id;
@@ -24,7 +24,7 @@ async function rvMapTeken(){const el=document.getElementById("rvMap");if(!el||!s
   if(!pts.length){el.innerHTML='<div class="rv-map-l">Nog geen adressen gevonden op de kaart</div>';el._map=null;return}
   rvMapMaat(el);m.invalidateSize();
   /* eerste keer: ingezoomd op het busje; daarna de stand van de gebruiker houden */
-  if(!el._gezet){el._gezet=1;const f=ik||el._demoF;if(f)m.setView(f,16);else m.fitBounds(pts,{padding:[22,22],maxZoom:15})}
+  if(!el._gezet){el._gezet=1;const f=(el._bus&&el._bus.getLatLng())||ik||el._demoF;rvProg(m,()=>{if(f)m.setView(f,16);else m.fitBounds(pts,{padding:[22,22],maxZoom:15})})}
 }
 /* ---------- Live busje op de dagkaart ----------
    Zelfde gevoel als het klantportaal: het busje rijdt over de echte weg (route via OSRM) van de vorige naar de nieuwe GPS-plek,
@@ -47,13 +47,22 @@ async function rvWeg(a,b){const k=a.map(v=>v.toFixed(5))+">"+b.map(v=>v.toFixed(
   return [a,b]}
 function rvLangs(pad){const d=[0];for(let i=1;i<pad.length;i++)d.push(d[i-1]+rvAfstM(pad[i-1],pad[i]));return d}
 function rvOpPad(pad,d,s){let i=1;while(i<pad.length-1&&d[i]<s)i++;const a=pad[i-1],b=pad[i],f=d[i]>d[i-1]?Math.min(1,Math.max(0,(s-d[i-1])/(d[i]-d[i-1]))):1;return{p:[a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f],a,b}}
-function rvBusZet(el,p){const L=window.L;
+function rvBusZet(el,p){const L=window.L;if(!el._map._loaded)rvProg(el._map,()=>el._map.setView(p,16));
   if(!el._bus||!el._laag.hasLayer(el._bus)){el._bus=L.marker(p,{icon:rvBusIcon(),zIndexOffset:1000,keyboard:false,interactive:false}).addTo(el._laag);
     if(!el._busZoom){el._busZoom=1;el._map.on("zoom zoomend",()=>rvBusSchaal(el))}rvBusSchaal(el);
     const b2=el._bus.getElement().querySelector(".rvb");b2.style.setProperty("--r",RVB.r+"deg");b2.style.setProperty("--f",RVB.f)}
   else el._bus.setLatLng(p);
-  /* busje uit beeld? rustig meeschuiven */
-  try{const m=el._map,ll=window.L.latLng(p);if(!m._rvPan&&!m.getBounds().pad(-.12).contains(ll)){m._rvPan=1;m.panTo(ll,{animate:true,duration:.8});setTimeout(()=>m._rvPan=0,1200)}}catch(e){}}
+  /* de kaart rijdt mee: het busje blijft in het midden (tot je zelf schuift of zoomt; dan verschijnt "Centreren") */
+  try{const m=el._map;if(el._volg!==false&&!m._rvProgN)m.setView(p,m.getZoom(),{animate:false});rvVolgToon(el)}catch(e){}}
+/* programmatisch bewegen telt niet als "zelf geschoven" */
+function rvProg(m,f){m._rvProgN=(m._rvProgN||0)+1;try{f()}finally{setTimeout(()=>{m._rvProgN=Math.max(0,(m._rvProgN||1)-1)},450)}}
+function rvVolgToon(el){const b=el._volgKnop;if(b)b.hidden=!(el._bus&&el._volg===false)}
+function rvVolgKnop(el){const m=el._map,b=document.createElement("button");b.type="button";b.className="rv-laag rv-centreer";b.hidden=true;
+  b.innerHTML=`<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/><circle cx="12" cy="12" r="7.5"/></svg><span>Centreren</span>`;
+  b.setAttribute("aria-label","Kaart weer op het busje centreren");el._volgKnop=b;
+  b.addEventListener("click",e=>{e.stopPropagation();el._volg=true;rvVolgToon(el);if(el._bus)rvProg(m,()=>m.setView(el._bus.getLatLng(),Math.max(m.getZoom(),15),{animate:true}))});
+  ["mousedown","touchstart","dblclick","wheel"].forEach(t=>b.addEventListener(t,ev=>ev.stopPropagation(),{passive:true}));el.appendChild(b);
+  m.on("dragstart zoomstart",()=>{if(m._rvProgN)return;el._volg=false;rvVolgToon(el)})}
 /* rij langs een pad in dur ms */
 function rvRij(el,pad,dur,klaar){cancelAnimationFrame(RVB.anim);const d=rvLangs(pad),tot=d[d.length-1],t0=performance.now();
   const stap=n=>{if(!document.body.contains(el)||!el._map)return;const f=Math.min(1,(n-t0)/dur),o=rvOpPad(pad,d,tot*f);rvBusZet(el,o.p);rvBusRicht(el,o.a,o.b);

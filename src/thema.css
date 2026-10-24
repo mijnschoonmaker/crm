@@ -1276,3 +1276,8 @@ label.btn.bv-cam svg{width:16px!important;height:16px!important;margin:0!importa
 
 /* dag klaar: zelfde Gelders blauw als tijdens de dag (was wit, waardoor de witte tekst wegviel) */
 html body :is(.vh,.rv).klaar{background:var(--gb-lijn),var(--gb-vlak)!important;border:0!important;color:#fff!important}
+
+/* kaart: knop "Centreren" (verschijnt als je zelf schuift of zoomt) */
+html body :is(.rv-map,.pk-map,.wp-map) .rv-laag.rv-centreer{top:auto;bottom:10px;display:inline-flex;align-items:center;gap:7px}
+html body :is(.rv-map,.pk-map,.wp-map) .rv-laag.rv-centreer[hidden]{display:none}
+html body:not(#zz) :is(.rv-map,.pk-map,.wp-map) .rv-laag.rv-centreer svg,html body:not(#zz) :is(.rv-map,.pk-map,.wp-map) .rv-laag.rv-centreer svg *{color:#252c3c!important;stroke:#252c3c!important;flex:none}
