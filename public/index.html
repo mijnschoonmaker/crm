@@ -12502,7 +12502,7 @@ function openOpdrachtWerk(kid,focus){
     const h=$("#owTsl");if(h)h.textContent=ts?`+ ${r2(ts*100)}% toeslag = ${eur(toon(per)*(1+ts))} per keer`:""};
   /* nieuwe opdracht: de opdrachtregels verschijnen pas als je een dienst kiest (zoals in DienstenCRM) */
   const soloLeeg=()=>{const r=soloI>=0&&extra[soloI];return !!r&&!String(r.dienst||"").trim()&&!r.ramen&&!r.items&&!r._toon};
-  const draw=()=>{syncRitme();{const sk=$("#owRegelsK");if(sk)sk.hidden=soloLeeg()}$("#owLines").innerHTML=soloI>=0&&extra[soloI]?lineHtml(extra[soloI],soloI,false):lineHtml(main,0,true)+extra.map((r,i)=>lineHtml(r,i,false)).join("");tot()};
+  const draw=()=>{syncRitme();{const sk=$("#owRegelsK");if(sk)sk.style.display=soloLeeg()?"none":""}$("#owLines").innerHTML=soloI>=0&&extra[soloI]?lineHtml(extra[soloI],soloI,false):lineHtml(main,0,true)+extra.map((r,i)=>lineHtml(r,i,false)).join("");tot()};
   const allFotos=()=>[...tFotos.map(f=>({...f,naam:"Uit de telling",t:1})),...fotos];
   const drawFotos=()=>{const all=allFotos();
     $("#owFotos").innerHTML=all.length?all.map((f,i)=>fotoCard(f,i,!f.t)).join(""):'<p class="subt ow-fempty">Nog geen foto\'s. Klik op + om foto\'s van de woning toe te voegen en tik de ramen aan die gewassen moeten worden. Foto\'s uit de rekentool verschijnen hier vanzelf.</p>'};
