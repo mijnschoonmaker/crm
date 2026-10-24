@@ -20,7 +20,7 @@ async function afronden(k,mode,el){
   const d=iso(today()),st=S(),bId=newId("b"),fId=newId("f"),prev={laatst:k.laatst||"",gepland:k.gepland||"",bezig:k.bezig||""};
   let _rr=null;try{if(k.ramenRegel&&ramenVariabel(normR(k.ramenRegel))){const {q,due}=ramenDue(k,d),b=ramenBerekening(q,Number(k.frequentie)||4,due),mul=st.incl?1+(Number(st.btw)||21)/100:1;
     _rr={q,due,bedrag:r2(b.ex*mul),regels:[...(b.rows.length?[{omschrijving:(k.dienst||"Glasbewassing")+" "+b.rows.map(r=>r.naam.toLowerCase()).join(", ")+(k.verbergAantal?"":", "+b.count+" ramen")+regelExtra(k),aantal:1,prijs:r2((b.glas+b.start)*mul)}]:[]),...(b.kozP?[{omschrijving:"Kozijnreiniging "+b.krows.map(r=>r.naam.toLowerCase()).join(", "),aantal:1,prijs:r2(b.kozP*mul)}]:[])]}}}catch(e){console.error(e);_rr=null}
-  const f={soort:"factuur",nummer:nextNr("factuur",d),klantId:k.id,klantNaam:k.naam,klantAdres:factAddr(k),klantEmail:mailK(k,"factuur").email||"",datum:d,
+  const f={soort:"factuur",nummer:nextNr("factuur",d),klantId:k.id,...(k.beheercode?{beheercode:k.beheercode}:{}),klantNaam:k.naam,klantAdres:factAddr(k),klantEmail:mailK(k,"factuur").email||"",datum:d,
     verval:iso(addDays(today(),Number(k.termijn)||Number(st.termijn)||14)),regels:[...(_rr&&_rr.regels.length?_rr.regels:[{omschrijving:(k.dienst||"Glasbewassing")+regelExtra(k),aantal:1,prijs:Number(k.prijs)||0}]),...extraDue(k,d).map(o=>({omschrijving:(o.groepOms?o.groepOms:o.dienst+(k.verbergFreq?"":" ("+freqLabel(o.frequentie).toLowerCase()+")")+(o.items&&!k.verbergAantal&&o.items.length?": "+groepDetail(o.items,k.verbergFreq?0:o.frequentie):"")),aantal:1,prijs:Number(o.prijs)||0}))],
     btw:Number(st.btw),incl:!!st.incl,status:mode==="open"?"open":"concept",notitie:k.factuurInstructie||"",gemaakt:new Date().toISOString(),betaalwijze:st.betaalwijze||"overmaken"};
   if(mode==="open"&&["contant","pin"].includes(st.betaalwijze)){f.status="betaald";f.betaaldOp=d}
@@ -116,7 +116,7 @@ async function billAll(btn,ids){
   try{for(const kid of Object.keys(groups)){
     const k=state.klanten.find(x=>x.id===kid)||{naam:groups[kid][0].klantNaam};
     const id=newId("f"),regels=groups[kid].sort((a,b)=>String(a.datum).localeCompare(String(b.datum))).map(b=>({omschrijving:(b.dienst||k.dienst||"Glasbewassing")+" "+fmtL(b.datum),aantal:1,prijs:Number(b.bedrag)||0}));
-    await save("facturen",id,{soort:"factuur",nummer:pre+String(base+i).padStart(nrPad,"0"),klantId:kid,klantNaam:k.naam,klantAdres:k.adres?factAddr(k):"",klantEmail:mailK(k,"factuur").email||"",datum:d,verval:iso(addDays(today(),Number(k.termijn)||Number(st.termijn)||14)),regels,btw:Number(st.btw),incl:!!st.incl,status:"open",notitie:"",gemaakt:new Date().toISOString()});
+    await save("facturen",id,{soort:"factuur",nummer:pre+String(base+i).padStart(nrPad,"0"),klantId:kid,...(k.beheercode?{beheercode:k.beheercode}:{}),klantNaam:k.naam,klantAdres:k.adres?factAddr(k):"",klantEmail:mailK(k,"factuur").email||"",datum:d,verval:iso(addDays(today(),Number(k.termijn)||Number(st.termijn)||14)),regels,btw:Number(st.btw),incl:!!st.incl,status:"open",notitie:"",gemaakt:new Date().toISOString()});
     for(const b of groups[kid])await save("beurten",b.id,{...strip(b),gefactureerd:id});
     laatsteId=id;i++}
     if(ids){toast("Factuur aangemaakt");if(btn)btn.disabled=false;return laatsteId}
@@ -356,7 +356,7 @@ function openFactuurForm(opts={}){
   const doSave=async status=>{
     const kid=$("#ff-klant").value;if(!kid){$("#ff-klant").focus();return}
     const k=state.klanten.find(x=>x.id===kid);const datum=$("#ff-datum").value||iso(today());
-    const data={soort,nummer:ex?ex.nummer:nextNr(soort,datum),klantId:kid,klantNaam:k.naam,klantAdres:soort==="offerte"?jobAddr(k):factAddr(k),klantEmail:mailK(k,soort==="offerte"?"offerte":"factuur").email||"",datum,verval:$("#ff-verval").value,
+    const data={soort,nummer:ex?ex.nummer:nextNr(soort,datum),klantId:kid,...(soort!=="factuur"?{}:ex&&ex.status!=="concept"&&ex.beheercode!=null?{beheercode:ex.beheercode}:k.beheercode?{beheercode:k.beheercode}:{}),klantNaam:k.naam,klantAdres:soort==="offerte"?jobAddr(k):factAddr(k),klantEmail:mailK(k,soort==="offerte"?"offerte":"factuur").email||"",datum,verval:$("#ff-verval").value,
       regels:lines.filter(r=>r.omschrijving||r.prijs).map(r=>({omschrijving:String(r.omschrijving||""),aantal:Number(r.aantal)||0,prijs:Number(r.prijs)||0})),
       btw:Number($("#ff-btw").value),incl:$("#ff-incl").checked,status:ex?ex.status:status,notitie:$("#ff-notitie").value.trim(),betaaldOp:ex?ex.betaaldOp||"":"",vanOfferte:ex?ex.vanOfferte||"":opts.vanOfferte||"",gemaakt:ex?ex.gemaakt||"":new Date().toISOString(),
       verstuurdOp:ex?ex.verstuurdOp||"":"",herinnerdOp:ex?ex.herinnerdOp||"":"",herinneringen:ex?ex.herinneringen||0:0};

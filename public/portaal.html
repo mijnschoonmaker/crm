@@ -1798,7 +1798,7 @@ async function demoApi(pad,opt){await new Promise(r=>setTimeout(r,250));
   if(pad==="live")return {live:null};
   if(/^factuur\?/.test(pad)){const id=decodeURIComponent((pad.split("id=")[1]||"")),f=DEMO_DATA.facturen.find(x=>x.id===id)||DEMO_DATA.facturen[0];const inc=f.bedrag,ex=Math.round(inc/1.21*100)/100;
     return {pdf:false,demo:true,incasso:false,nummer:f.nummer,datum:f.datum,verval:f.verval,klantNaam:"Sanne de Vries",klantAdres:"Lindenlaan 14, 9801 AB Zuidhorn",regels:[{omschrijving:"Glasbewassing · 14 ramen",aantal:1,prijs:inc}],incl:true,btwPct:21,ex:ex,btw:Math.round((inc-ex)*100)/100,inc:inc,status:f.status,betaaldOp:f.betaaldOp||"",betaallink:"",notitie:"",bedrijf:{...DEMO_DATA.bedrijf,adres:"Voorbeeldstraat 1",pcPlaats:"1234 AB Voorbeeld",kvk:"",btwnr:"",bic:""}}}
-  if(opt&&opt.body){const b=opt.body||{};if(pad==="actie"&&b.type==="beoordeling"&&DEMO_DATA.teBeoordelen){const v=DEMO_DATA.bezoeken.find(x=>x.id===b.beurtId);if(v)v.beoordeling={sterren:b.sterren};DEMO_DATA.teBeoordelen=null}
+  if(opt&&opt.body){const b=opt.body||{};if(pad==="actie"&&b.type==="beheercode")DEMO_DATA.klant.beheercode=String(b.code||"").trim().slice(0,60);if(pad==="actie"&&b.type==="beoordeling"&&DEMO_DATA.teBeoordelen){const v=DEMO_DATA.bezoeken.find(x=>x.id===b.beurtId);if(v)v.beoordeling={sterren:b.sterren};DEMO_DATA.teBeoordelen=null}
     if(pad==="betaal"||pad==="incasso"){toast("Voorbeeld: hier opent normaal iDEAL");return {}}
     setTimeout(()=>toast("Voorbeeldomgeving: er is niets echt verstuurd"),1200);return {ok:true,id:"demo",nummer:"T-0413"}}
   return {}}
@@ -2165,10 +2165,10 @@ function ik(){const k=D.klant,t=k.toegang||{};
   const tel=(B.mobiel||B.telefoon||"").replace(/[^\d+]/g,""),wa=tel.replace(/^\+/,"").replace(/^0/,"31");
   return kop("Contact","We helpen u graag. Maak een ticket aan, dan reageren we snel.")+`<div class="pg"><div class="grid2">
     ${kp(I.ticket,"Contact met ons",`<div class="lijst">${lr(I.ticket,"Ticket aanmaken",`Snelste weg · u volgt de status in het portaal`,`<span class="pill brand">Voorkeur</span>`,{attr:'data-act="ticket"',tis:"background:var(--brand);color:#fff"})}</div>`,{sub:"Wij werken niet telefonisch, maar reageren snel op tickets"})}
-    ${kp(I.sleutel,"Bij u thuis",`<div class="lijst">${lr(I.sleutel,"Toegang en instructies",(t.opties||[]).length||t.tekst||t.code?esc([t.code?"Poortcode ingesteld":"",...(t.opties||[]),t.tekst].filter(Boolean).join(" · ").slice(0,90)):"Poortcode, achterom open, hond aanwezig","",{attr:'data-act="toegang"'})}</div>`,{kl:"goud"})}
+    ${kp(I.sleutel,isVve()?"In het gebouw":"Bij u thuis",`<div class="lijst">${lr(I.sleutel,"Toegang en instructies",(t.opties||[]).length||t.tekst||t.code?esc([t.code?(isVve()?"Code ingesteld":"Poortcode ingesteld"):"",...(t.opties||[]),t.tekst].filter(Boolean).join(" · ").slice(0,90)):isVve()?"Sleutel, sleutelkastje of werkkast":"Poortcode, achterom open, hond aanwezig","",{attr:'data-act="toegang"'})}</div>`,{kl:"goud"})}
     ${kp(I.ik,"Mijn gegevens",`<div class="lijst">${lr(I.huis,esc(k.naam),esc(k.adres)+"<br>"+esc(k.pcPlaats),"",{attr:'data-act="gegevens"'})}
       ${lr(I.tel,"Telefoon en e-mail",esc([k.telefoon||k.mobiel,k.email].filter(Boolean).join(" · ")||"Nog niet bekend"),"",{attr:'data-act="gegevens"'})}
-      ${k.klantnr?lr(I.doc,"Klantnummer",esc(k.klantnr)):""}${B.voorwaarden?lr(I.doc,"Algemene voorwaarden","PDF","",{href:B.voorwaarden}):""}
+      ${k.klantnr?lr(I.doc,"Klantnummer",esc(k.klantnr)):""}${lr(I.fact,"Beheercode op de factuur",k.beheercode?esc(k.beheercode):"Bijvoorbeeld van uw beheerder of VvE. Komt op elke factuur.","",{attr:'data-act="beheercode"'})}${B.voorwaarden?lr(I.doc,"Algemene voorwaarden","PDF","",{href:B.voorwaarden}):""}
       ${lr(I.uit,"Uitloggen","Op dit apparaat","",{attr:"data-uit"})}</div>`,{kl:"zacht",act:`<button class="primary" data-act="gegevens">${I.pen}Wijzigen</button>`})}
     ${abonnementKp()}</div></div>`}
 
@@ -2300,6 +2300,11 @@ const FORM={
     <p class="fout" role="alert"></p><div class="acties"><button class="" data-sluit>Annuleren</button><button class="primary" data-go>Doorgeven</button></div>`,
     o=>{o.querySelector("#v1").onchange=e=>{const b=o.querySelector("#v2");b.min=e.target.value;if(!b.value||b.value<e.target.value)b.value=e.target.value};
       o.querySelector("[data-go]").onclick=()=>verstuur(o,{type:"vakantie",datum:o.querySelector("#v1").value,tot:o.querySelector("#v2").value,tekst:[(o.querySelector("[name=vw]:checked")||{}).value,o.querySelector("#vt").value].filter(Boolean).join(". ")},"Fijne tijd!","We houden er rekening mee in de planning.")})},
+  beheercode(){const k=D.klant;
+    blad(`<h3>Beheercode op de factuur</h3><p class="sub">Vraagt uw beheerder, VvE of administratie om een vaste code of kenmerk op de factuur? Vul hem hier in. Hij komt op elke volgende factuur, ook de periodieke.</p>
+    <label class="veld">Beheercode<input id="bc" maxlength="60" autocomplete="off" placeholder="Bijvoorbeeld 1334.0001 SVC: 068829" value="${esc(k.beheercode||"")}"><small class="hulp">Op de factuur staat dan: Beheercode: …  Laat leeg om hem weg te halen.</small></label>
+    <p class="fout" role="alert"></p><div class="acties"><button class="" data-sluit>Annuleren</button><button class="primary" data-go>Opslaan</button></div>`,
+    o=>{o.querySelector("[data-go]").onclick=()=>verstuur(o,{type:"beheercode",code:o.querySelector("#bc").value},"Opgeslagen","De beheercode staat vanaf nu op uw facturen.")})},
   toegang(){const t=D.klant.toegang||{},op=t.opties||[];const vv=isVve(),OPT=vv?["Sleutel of druppel nodig voor de entree","Sleutelkastje bij de entree","Werkkast met water en stroom"]:["Achterom is open","Hond aanwezig","Bel aan bij aankomst","Niet aanbellen","Ik ben vaak niet thuis","Sleutel of code nodig voor de poort","Kat binnen houden, deuren dicht","Kinderen of baby slapen, graag stil"];
     blad(`<h3>Toegang en instructies</h3><p class="sub">${vv?"Zo weet onze schoonmaker precies wat hij in het gebouw kan verwachten. We nemen dit mee bij elke beurt.":"Zo weet de glazenwasser precies wat hij kan verwachten. We nemen dit mee bij elk bezoek."}</p>
     <div class="keus">${OPT.map(x=>`<label><input type="checkbox" value="${esc(x)}"${op.includes(x)?" checked":""}><span>${esc(x)}</span></label>`).join("")}</div>

@@ -14,6 +14,8 @@ function invData(f,klant){
   if(naar.length<2&&kl.length>naar.length)naar=kl;
   const tav=typeof tavK==="function"?tavK(k,off?"offerte":"factuur"):"";if(tav&&!naar.some(x=>x.includes(tav)))naar.unshift("T.a.v. "+tav);
   if(isZak(k)&&k.contact&&!tav)naar.unshift("T.a.v. "+k.contact);
+  /* beheercode/kenmerk van de klant (VvE, beheerder): op elke factuur, ook de periodieke */
+  {const bc=String((f.status==="concept"?k.beheercode:f.beheercode)||"").trim();if(bc&&!off)naar.push("Beheercode: "+bc)}
   return{s,off,t,btw,regels,st,titel:off?"OFFERTE":"FACTUUR",
     van:[s.adres,[s.postcode,s.plaats].filter(Boolean).join(" "),(LANDEN[s.land]||LANDEN.NL).n,s.btwnr&&"BTW "+s.btwnr,s.kvk&&"KvK "+s.kvk].filter(Boolean),
     klantNaam:cleanName(f.klantNaam||k.naam||""),naar,klantContact:[k.email||f.klantEmail,k.telefoon].filter(Boolean).join(" · "),

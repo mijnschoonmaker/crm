@@ -185,7 +185,7 @@ module.exports = function maakPortaal(ctx) {
       klant: { voornaam: voornaamVan(schoon(k.contact || k.naam)), naam: schoon(k.naam), contact: k.contact || "", adres: k.adres || "", postcode: k.postcode || "", plaats: k.plaats || "", pcPlaats: [k.postcode, k.plaats].filter(Boolean).join(" "), email: k.email || "", telefoon: k.telefoon || "", mobiel: k.mobiel || "", zakelijk: k.soort === "zakelijk" || k.soort === "vve",
         vve, ritme: ritmeTxt(k), weekdagen: wdg || [], taken: vveTakenVan(k, b),
         klantnr: k.klantnr || "", sinds: k.aangemaakt || (beurten.length ? beurten[beurten.length - 1].datum : ""), dienst: k.dienst || "Glasbewassing", frequentie: freqW, prijs: Number(k.prijs) || 0, binnen: !!k.binnen, actief: k.actief !== false,
-        toegang: k.portaalToegang || { opties: [], tekst: "" }, nieuw: !!k.eersteKeer && !beurten.length,
+        toegang: k.portaalToegang || { opties: [], tekst: "" }, beheercode: String(k.beheercode || ""), nieuw: !!k.eersteKeer && !beurten.length,
         incasso: { actief: !!k.incasso && !!k.mollieMandateId, sinds: String(k.incassoSinds || "").slice(0, 10), bank: k.incassoBank || "", rekening: k.incassoRekening || "", beschikbaar: !!(await geheim()).mollieKey } },
       volgende, verwacht,
       bezoeken: beurten.slice(0, 30).map(x => ({ id: x.id, datum: x.datum, tijd: tijdVan(x), door: vve && b.vveDoor === false ? "" : voornaamVan(String(x.door || "")), dienst: x.dienst || k.dienst || "Glasbewassing", extra: x.extra || [], bedrag: Number(x.bedrag) || 0, beoordeling: x.beoordeling ? { sterren: x.beoordeling.sterren } : null,
@@ -209,7 +209,7 @@ module.exports = function maakPortaal(ctx) {
     };
   }
 
-  const TYPES = { verzetten: "Afspraak verzetten", overslaan: "Bezoek overslaan", vakantie: "Afwezig / vakantie", bericht: "Bericht", gegevens: "Gegevens wijzigen", extra: "Extra dienst aanvragen", review: "Google-review geplaatst", stoppen: "Opzeggen", beoordeling: "Beoordeling", toegang: "Toegang en instructies" };
+  const TYPES = { verzetten: "Afspraak verzetten", overslaan: "Bezoek overslaan", vakantie: "Afwezig / vakantie", bericht: "Bericht", gegevens: "Gegevens wijzigen", extra: "Extra dienst aanvragen", review: "Google-review geplaatst", stoppen: "Opzeggen", beoordeling: "Beoordeling", toegang: "Toegang en instructies", beheercode: "Beheercode op de factuur" };
   /* ligt de afspraak (datum + tijd, Nederlandse tijd) binnen 48 uur? Zonder tijd: 08:00 */
   function binnen48(datum, tijd) {
     const t = /^\d{1,2}:\d{2}/.test(String(tijd || "")) ? String(tijd).slice(0, 5).padStart(5, "0") : "08:00";
@@ -260,6 +260,11 @@ module.exports = function maakPortaal(ctx) {
       const opties = (Array.isArray(d.opties) ? d.opties : []).map(x => txt(x).slice(0, 60)).slice(0, 10), toegang = { opties, tekst: txt(d.tekst).slice(0, 600), code: txt(d.code).replace(/\s+/g, " ").slice(0, 40), op: nu() };
       await S.kref.set({ portaalToegang: toegang }, { merge: true });
       v.toegang = toegang; v.status = "info";
+    }
+    if (type === "beheercode") {
+      const bc = txt(d.code).replace(/\s+/g, " ").trim().slice(0, 60);
+      await S.kref.set({ beheercode: bc }, { merge: true });
+      v.beheercode = bc; v.status = "info";
     }
     if (type === "beoordeling") {
       const st = Math.max(1, Math.min(5, Math.round(Number(d.sterren) || 0)));

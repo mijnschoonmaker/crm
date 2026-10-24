@@ -5960,7 +5960,11 @@ async function nrBewaker(){if(nrBezig||!MIJN_F.size)return;nrBezig=1;
         const soort=f.soort==="offerte"?"offerte":"factuur",k=soort==="offerte"?"o":"f",nr=nextNr(soort,f.datum||iso(today()),skip[k]++);
         const {id,...rest}=f;await save("facturen",id,{...strip(rest),nummer:nr});toast((soort==="offerte"?"Offertenummer":"Factuurnummer")+" "+f.nummer+" was al in gebruik; deze heeft nu "+nr)}}}
   catch(e){console.error("nrBewaker",e)}finally{nrBezig=0}}
-async function save(col,id,data){if(col==="facturen"&&!(state.facturen||[]).some(f=>f.id===id))MIJN_F.add(id);if(state.db)await state.db.collection(col).doc(id).set(data);else{mem[col].set(id,{...data,id});apply(col,[...mem[col].values()]);schedule()}}
+/* beheercode op de factuur: een concept volgt altijd de klant; zodra de factuur definitief is, wordt de code van dat moment vastgelegd */
+function bcVast(data){if(!data||data.soort!=="factuur")return data;const d={...data};
+  if(d.status==="concept"){delete d.beheercode;return d}
+  if(d.beheercode==null){const k=(state.klanten||[]).find(x=>x.id===d.klantId);if(k&&k.beheercode)d.beheercode=String(k.beheercode)}return d}
+async function save(col,id,data){if(col==="facturen")data=bcVast(data);if(col==="facturen"&&!(state.facturen||[]).some(f=>f.id===id))MIJN_F.add(id);if(state.db)await state.db.collection(col).doc(id).set(data);else{mem[col].set(id,{...data,id});apply(col,[...mem[col].values()]);schedule()}}
 async function del(col,id){if(state.db)await state.db.collection(col).doc(id).delete();else{mem[col].delete(id);apply(col,[...mem[col].values()]);schedule()}}
 let rq=0;function schedule(){if(rq)return;rq=requestAnimationFrame(()=>{rq=0;render()})}
 async function init(){
@@ -6352,7 +6356,7 @@ async function afronden(k,mode,el){
   const d=iso(today()),st=S(),bId=newId("b"),fId=newId("f"),prev={laatst:k.laatst||"",gepland:k.gepland||"",bezig:k.bezig||""};
   let _rr=null;try{if(k.ramenRegel&&ramenVariabel(normR(k.ramenRegel))){const {q,due}=ramenDue(k,d),b=ramenBerekening(q,Number(k.frequentie)||4,due),mul=st.incl?1+(Number(st.btw)||21)/100:1;
     _rr={q,due,bedrag:r2(b.ex*mul),regels:[...(b.rows.length?[{omschrijving:(k.dienst||"Glasbewassing")+" "+b.rows.map(r=>r.naam.toLowerCase()).join(", ")+(k.verbergAantal?"":", "+b.count+" ramen")+regelExtra(k),aantal:1,prijs:r2((b.glas+b.start)*mul)}]:[]),...(b.kozP?[{omschrijving:"Kozijnreiniging "+b.krows.map(r=>r.naam.toLowerCase()).join(", "),aantal:1,prijs:r2(b.kozP*mul)}]:[])]}}}catch(e){console.error(e);_rr=null}
-  const f={soort:"factuur",nummer:nextNr("factuur",d),klantId:k.id,klantNaam:k.naam,klantAdres:factAddr(k),klantEmail:mailK(k,"factuur").email||"",datum:d,
+  const f={soort:"factuur",nummer:nextNr("factuur",d),klantId:k.id,...(k.beheercode?{beheercode:k.beheercode}:{}),klantNaam:k.naam,klantAdres:factAddr(k),klantEmail:mailK(k,"factuur").email||"",datum:d,
     verval:iso(addDays(today(),Number(k.termijn)||Number(st.termijn)||14)),regels:[...(_rr&&_rr.regels.length?_rr.regels:[{omschrijving:(k.dienst||"Glasbewassing")+regelExtra(k),aantal:1,prijs:Number(k.prijs)||0}]),...extraDue(k,d).map(o=>({omschrijving:(o.groepOms?o.groepOms:o.dienst+(k.verbergFreq?"":" ("+freqLabel(o.frequentie).toLowerCase()+")")+(o.items&&!k.verbergAantal&&o.items.length?": "+groepDetail(o.items,k.verbergFreq?0:o.frequentie):"")),aantal:1,prijs:Number(o.prijs)||0}))],
     btw:Number(st.btw),incl:!!st.incl,status:mode==="open"?"open":"concept",notitie:k.factuurInstructie||"",gemaakt:new Date().toISOString(),betaalwijze:st.betaalwijze||"overmaken"};
   if(mode==="open"&&["contant","pin"].includes(st.betaalwijze)){f.status="betaald";f.betaaldOp=d}
@@ -6448,7 +6452,7 @@ async function billAll(btn,ids){
   try{for(const kid of Object.keys(groups)){
     const k=state.klanten.find(x=>x.id===kid)||{naam:groups[kid][0].klantNaam};
     const id=newId("f"),regels=groups[kid].sort((a,b)=>String(a.datum).localeCompare(String(b.datum))).map(b=>({omschrijving:(b.dienst||k.dienst||"Glasbewassing")+" "+fmtL(b.datum),aantal:1,prijs:Number(b.bedrag)||0}));
-    await save("facturen",id,{soort:"factuur",nummer:pre+String(base+i).padStart(nrPad,"0"),klantId:kid,klantNaam:k.naam,klantAdres:k.adres?factAddr(k):"",klantEmail:mailK(k,"factuur").email||"",datum:d,verval:iso(addDays(today(),Number(k.termijn)||Number(st.termijn)||14)),regels,btw:Number(st.btw),incl:!!st.incl,status:"open",notitie:"",gemaakt:new Date().toISOString()});
+    await save("facturen",id,{soort:"factuur",nummer:pre+String(base+i).padStart(nrPad,"0"),klantId:kid,...(k.beheercode?{beheercode:k.beheercode}:{}),klantNaam:k.naam,klantAdres:k.adres?factAddr(k):"",klantEmail:mailK(k,"factuur").email||"",datum:d,verval:iso(addDays(today(),Number(k.termijn)||Number(st.termijn)||14)),regels,btw:Number(st.btw),incl:!!st.incl,status:"open",notitie:"",gemaakt:new Date().toISOString()});
     for(const b of groups[kid])await save("beurten",b.id,{...strip(b),gefactureerd:id});
     laatsteId=id;i++}
     if(ids){toast("Factuur aangemaakt");if(btn)btn.disabled=false;return laatsteId}
@@ -6688,7 +6692,7 @@ function openFactuurForm(opts={}){
   const doSave=async status=>{
     const kid=$("#ff-klant").value;if(!kid){$("#ff-klant").focus();return}
     const k=state.klanten.find(x=>x.id===kid);const datum=$("#ff-datum").value||iso(today());
-    const data={soort,nummer:ex?ex.nummer:nextNr(soort,datum),klantId:kid,klantNaam:k.naam,klantAdres:soort==="offerte"?jobAddr(k):factAddr(k),klantEmail:mailK(k,soort==="offerte"?"offerte":"factuur").email||"",datum,verval:$("#ff-verval").value,
+    const data={soort,nummer:ex?ex.nummer:nextNr(soort,datum),klantId:kid,...(soort!=="factuur"?{}:ex&&ex.status!=="concept"&&ex.beheercode!=null?{beheercode:ex.beheercode}:k.beheercode?{beheercode:k.beheercode}:{}),klantNaam:k.naam,klantAdres:soort==="offerte"?jobAddr(k):factAddr(k),klantEmail:mailK(k,soort==="offerte"?"offerte":"factuur").email||"",datum,verval:$("#ff-verval").value,
       regels:lines.filter(r=>r.omschrijving||r.prijs).map(r=>({omschrijving:String(r.omschrijving||""),aantal:Number(r.aantal)||0,prijs:Number(r.prijs)||0})),
       btw:Number($("#ff-btw").value),incl:$("#ff-incl").checked,status:ex?ex.status:status,notitie:$("#ff-notitie").value.trim(),betaaldOp:ex?ex.betaaldOp||"":"",vanOfferte:ex?ex.vanOfferte||"":opts.vanOfferte||"",gemaakt:ex?ex.gemaakt||"":new Date().toISOString(),
       verstuurdOp:ex?ex.verstuurdOp||"":"",herinnerdOp:ex?ex.herinnerdOp||"":"",herinneringen:ex?ex.herinneringen||0:0};
@@ -11571,6 +11575,8 @@ function invData(f,klant){
   if(naar.length<2&&kl.length>naar.length)naar=kl;
   const tav=typeof tavK==="function"?tavK(k,off?"offerte":"factuur"):"";if(tav&&!naar.some(x=>x.includes(tav)))naar.unshift("T.a.v. "+tav);
   if(isZak(k)&&k.contact&&!tav)naar.unshift("T.a.v. "+k.contact);
+  /* beheercode/kenmerk van de klant (VvE, beheerder): op elke factuur, ook de periodieke */
+  {const bc=String((f.status==="concept"?k.beheercode:f.beheercode)||"").trim();if(bc&&!off)naar.push("Beheercode: "+bc)}
   return{s,off,t,btw,regels,st,titel:off?"OFFERTE":"FACTUUR",
     van:[s.adres,[s.postcode,s.plaats].filter(Boolean).join(" "),(LANDEN[s.land]||LANDEN.NL).n,s.btwnr&&"BTW "+s.btwnr,s.kvk&&"KvK "+s.kvk].filter(Boolean),
     klantNaam:cleanName(f.klantNaam||k.naam||""),naar,klantContact:[k.email||f.klantEmail,k.telefoon].filter(Boolean).join(" · "),
@@ -12858,6 +12864,7 @@ function openKlantView(id,opt={}){
       ${(k.contacten||[]).length?`<table class="minitable">${k.contacten.map((c,i)=>`<tr><td><b>${esc(c.naam)}</b>${c.functie?`<br><small class="subt">${esc(c.functie)}</small>`:""}</td><td>${mail(c.email)}${c.email&&c.tel?"<br>":""}${tel(c.tel)}</td><td class="r" style="white-space:nowrap"><button type="button" class="iconbtn sm" data-kk="contact" data-i="${i}" aria-label="Aanpassen">${I.pencil}</button></td></tr>`).join("")}</table>`:'<p class="subt" style="margin:0">Er zijn geen contactpersonen.</p>'}</section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.pin}</span><b>Adresgegevens</b><span class="sp"></span>${pen("adres","Adresgegevens aanpassen")}</div>
       ${kv("Factuuradres",esc(factAddr(k))+(k.fAdres?"":` <small class="subt">(zelfde als hoofdadres)</small>`))}
+      ${k.beheercode?kv("Beheercode op de factuur",esc(k.beheercode)):""}
       ${kv("Facturen gaan naar",mail(mailK(k,"factuur").email)+(tavK(k,"factuur")?`<br><small class="subt">t.a.v. ${esc(tavK(k,"factuur"))}</small>`:""))}
       ${kv("Offertes gaan naar",mail(mailK(k,"offerte").email)+(tavK(k,"offerte")?`<br><small class="subt">t.a.v. ${esc(tavK(k,"offerte"))}</small>`:""))}
       ${kv("Planningsmails gaan naar",mail(mailK(k,"planning").email)+(tavK(k,"planning")?`<br><small class="subt">t.a.v. ${esc(tavK(k,"planning"))}</small>`:""))}</section>
@@ -12925,9 +12932,9 @@ function kkSmall(kid,title,ic,body,read){
 }
 function kkAdres(kid){const v=id=>$("#"+id).value.trim();
   kkSmall(kid,"Adresgegevens",I.pin,k=>`<p class="subt" style="margin:0">Leeg laten betekent: het hoofdadres en het gewone e-mailadres (${esc(k.email||"nog niet ingevuld")}).</p>
-    <div class="secl">Factuuradres</div><div class="grid2"><label class="full">Straat en huisnummer<input id="ka-fa" value="${esc(k.fAdres||"")}" placeholder="${esc(k.adres||"")}"></label><label>Postcode<input id="ka-fp" value="${esc(k.fPostcode||"")}" placeholder="${esc(k.postcode||"")}"></label><label>Plaats<input id="ka-fpl" value="${esc(k.fPlaats||"")}" placeholder="${esc(k.plaats||"")}"></label></div>
+    <div class="secl">Factuuradres</div><div class="grid2"><label class="full">Straat en huisnummer<input id="ka-fa" value="${esc(k.fAdres||"")}" placeholder="${esc(k.adres||"")}"></label><label>Postcode<input id="ka-fp" value="${esc(k.fPostcode||"")}" placeholder="${esc(k.postcode||"")}"></label><label>Plaats<input id="ka-fpl" value="${esc(k.fPlaats||"")}" placeholder="${esc(k.plaats||"")}"></label><label class="full">Beheercode op de factuur<input id="ka-bc" maxlength="60" value="${esc(k.beheercode||"")}" placeholder="Bijvoorbeeld 1334.0001 SVC: 068829"><small class="help">Komt als <b>Beheercode: …</b> onder het adres op elke factuur, ook de periodieke. De klant kan dit ook zelf invullen in het klantportaal.</small></label></div>
     ${[["f","Facturen gaan naar"],["o","Offertes gaan naar"],["p","Planningsmails gaan naar"]].map(([x,l])=>`<div class="secl">${l}</div><div class="grid2"><label>E-mailadres<input id="ka-${x}e" type="email" value="${esc(k[x+"Email"]||"")}" placeholder="${esc(k.email||"")}"></label><label>Ter attentie van<input id="ka-${x}t" value="${esc(k[x+"Tav"]||"")}" placeholder="${esc(cleanName(k.naam))}"></label></div>`).join("")}`,
-  ()=>({fAdres:v("ka-fa"),fPostcode:v("ka-fp").toUpperCase(),fPlaats:v("ka-fpl"),fEmail:v("ka-fe"),fTav:v("ka-ft"),oEmail:v("ka-oe"),oTav:v("ka-ot"),pEmail:v("ka-pe"),pTav:v("ka-pt")}))}
+  ()=>({beheercode:v("ka-bc").replace(/\s+/g," ").slice(0,60),fAdres:v("ka-fa"),fPostcode:v("ka-fp").toUpperCase(),fPlaats:v("ka-fpl"),fEmail:v("ka-fe"),fTav:v("ka-ft"),oEmail:v("ka-oe"),oTav:v("ka-ot"),pEmail:v("ka-pe"),pTav:v("ka-pt")}))}
 function kkOpm(kid){
   kkSmall(kid,"Opmerkingen",I.note,k=>`<label>Klantnotities <small class="help">alleen voor jezelf</small><textarea id="ko-n" style="min-height:110px">${esc(k.klantNotitie||"")}</textarea></label>
     <label>Factuurinstructies <small class="help">komt onderaan op elke factuur</small><textarea id="ko-f" style="min-height:80px" placeholder="Bijv. inkoopnummer 4500123 vermelden">${esc(k.factuurInstructie||"")}</textarea></label>`,
@@ -13074,7 +13081,7 @@ async function perMaak(k,datum){
   const regels=(p.regels||[]).filter(r=>String(r.omschrijving||"").trim()||Number(r.prijs)).map(r=>({omschrijving:perFill(r.omschrijving,datum),aantal:Number(r.aantal)||1,prijs:Number(r.prijs)||0}));
   (k.artikelen||[]).forEach(a=>{if(a&&a.naam)regels.push({omschrijving:a.naam,aantal:Number(a.aantal)||1,prijs:st.incl?r2((Number(a.prijs)||0)/(1+(Number(p.btw??st.btw)||0)/100)):Number(a.prijs)||0})});
   if(!regels.length)return null;
-  const versturen=p.modus==="versturen",f={soort:"factuur",nummer:nextNr("factuur",datum),klantId:k.id,klantNaam:k.naam,klantAdres:factAddr(k),klantEmail:mailK(k,"factuur").email||"",datum,
+  const versturen=p.modus==="versturen",f={soort:"factuur",nummer:nextNr("factuur",datum),klantId:k.id,...(k.beheercode?{beheercode:k.beheercode}:{}),klantNaam:k.naam,klantAdres:factAddr(k),klantEmail:mailK(k,"factuur").email||"",datum,
     verval:iso(addDays(parse(datum),Number(k.termijn)||Number(st.termijn)||14)),regels,btw:k.btwVerlegd?0:Number(p.btw??st.btw),incl:false,status:versturen?"open":"concept",
     notitie:[k.factuurInstructie||"",k.btwVerlegd?"Btw verlegd":""].filter(Boolean).join("\n"),bijlagen:(k.bevindingen||[]).map(b=>({...b,soort:"foto"})),gemaakt:new Date().toISOString(),betaalwijze:k.incasso?"incasso":st.betaalwijze||"overmaken",periodiek:true};
   await save("facturen",fId,f);if(!state.facturen.some(x=>x.id===fId))state.facturen.push({...f,id:fId});
@@ -16212,7 +16219,7 @@ addEventListener("scroll",()=>{const m=document.getElementById("mobOffer");docum
 if(!LIVE&&typeof location!=="undefined"&&/[?&]selftest\b/.test(location.search)){
   window.MSTEST={state,S,save,del,totals,nextNr,nrDelen,wikKosten,fStatus,afronden,gewassen,billAll,setFStatus,iso,today,addDays,newId,strip,render,
     fin,beurtOmzet,klantFilter,extraOpdr,opdrNr:typeof opdrNr==="function"?opdrNr:null,openOpdrachtWerk:typeof openOpdrachtWerk==="function"?openOpdrachtWerk:null,teplannen,fhVolgende:typeof fhVolgende==="function"?fhVolgende:null,fhPoort:typeof fhPoort==="function"?fhPoort:null,groepEditor:typeof groepEditor==="function"?groepEditor:null,melding,stDienstSplit,klantActiefIn,openImport,relVolgende:typeof relVolgende==="function"?relVolgende:null,beurtMin,meetTeKort,wdCijfers:typeof wdCijfers==="function"?wdCijfers:null,kmFmt:typeof kmFmt==="function"?kmFmt:null,kmAfst:typeof kmAfst==="function"?kmAfst:null,saveSettings,
-    teVroeg:typeof teVroeg==="function"?teVroeg:null,nrBewaker,msStatus:typeof msStatus==="function"?msStatus:null,MS:typeof MS!=="undefined"?MS:null,
+    teVroeg:typeof teVroeg==="function"?teVroeg:null,invData:typeof invData==="function"?invData:null,bcVast,nrBewaker,msStatus:typeof msStatus==="function"?msStatus:null,MS:typeof MS!=="undefined"?MS:null,
     views:()=>PAGES.map(p=>p[0]),ga:t=>{state.tab=t;render()}};
 }
 

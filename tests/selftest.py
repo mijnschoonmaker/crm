@@ -245,6 +245,21 @@ def teplannen(pg):
     if r is not None:
         check(G, "Ver vóór de beurt inplannen geeft een waarschuwing", r["zonder"] is True, r)
         check(G, "Gemiste afspraak verplaatsen is niet te vroeg", r["gemist"] is False, r)
+    # beheercode van de klant: op concepten live van de klant, op verstuurde facturen de vastgelegde code
+    r = pg.evaluate("""()=>{const T=MSTEST;if(!T.invData)return null;const k={id:'bc1',naam:'VvE Test',soort:'vve',adres:'Laan 1',postcode:'1234 AB',plaats:'Stad',beheercode:'1334.0001 SVC: 068829'};
+      const f={soort:'factuur',nummer:'T-1',klantId:'bc1',klantNaam:'VvE Test',datum:T.iso(T.today()),verval:T.iso(T.today()),regels:[],status:'concept'};
+      const n=x=>T.invData(x,k).naar.join(' | ');
+      return {concept:n(f),vast:n({...f,status:'verstuurd',beheercode:'OUD 1'}),geen:n({...f,status:'verstuurd'}),offerte:n({...f,soort:'offerte'})}}""")
+    if r is not None:
+        check(G, "Beheercode staat op de conceptfactuur", "Beheercode: 1334.0001 SVC: 068829" in r["concept"], r)
+        check(G, "Verstuurde factuur houdt de vastgelegde beheercode", "Beheercode: OUD 1" in r["vast"] and "1334" not in r["vast"], r)
+        check(G, "Oude verstuurde factuur krijgt geen beheercode achteraf", "Beheercode" not in r["geen"], r)
+        check(G, "Geen beheercode op een offerte", "Beheercode" not in r["offerte"], r)
+    r = pg.evaluate("""()=>{const T=MSTEST;if(!T.bcVast)return null;const id=T.newId('k');T.state.klanten.push({id,naam:'VvE Vast',beheercode:'ABC 1'});
+      const c=T.bcVast({soort:'factuur',klantId:id,status:'concept',beheercode:'X'}),v=T.bcVast({soort:'factuur',klantId:id,status:'verstuurd'}),o=T.bcVast({soort:'factuur',klantId:id,status:'betaald',beheercode:'OUD'});
+      T.state.klanten.pop();return {c:'beheercode' in c,v:v.beheercode||'',o:o.beheercode}}""")
+    if r is not None:
+        check(G, "Beheercode wordt vastgelegd bij versturen", r["v"] == "ABC 1" and r["c"] is False and r["o"] == "OUD", r)
 
 
 def nieuweOpdracht(pg):

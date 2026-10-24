@@ -240,7 +240,11 @@ async function nrBewaker(){if(nrBezig||!MIJN_F.size)return;nrBezig=1;
         const soort=f.soort==="offerte"?"offerte":"factuur",k=soort==="offerte"?"o":"f",nr=nextNr(soort,f.datum||iso(today()),skip[k]++);
         const {id,...rest}=f;await save("facturen",id,{...strip(rest),nummer:nr});toast((soort==="offerte"?"Offertenummer":"Factuurnummer")+" "+f.nummer+" was al in gebruik; deze heeft nu "+nr)}}}
   catch(e){console.error("nrBewaker",e)}finally{nrBezig=0}}
-async function save(col,id,data){if(col==="facturen"&&!(state.facturen||[]).some(f=>f.id===id))MIJN_F.add(id);if(state.db)await state.db.collection(col).doc(id).set(data);else{mem[col].set(id,{...data,id});apply(col,[...mem[col].values()]);schedule()}}
+/* beheercode op de factuur: een concept volgt altijd de klant; zodra de factuur definitief is, wordt de code van dat moment vastgelegd */
+function bcVast(data){if(!data||data.soort!=="factuur")return data;const d={...data};
+  if(d.status==="concept"){delete d.beheercode;return d}
+  if(d.beheercode==null){const k=(state.klanten||[]).find(x=>x.id===d.klantId);if(k&&k.beheercode)d.beheercode=String(k.beheercode)}return d}
+async function save(col,id,data){if(col==="facturen")data=bcVast(data);if(col==="facturen"&&!(state.facturen||[]).some(f=>f.id===id))MIJN_F.add(id);if(state.db)await state.db.collection(col).doc(id).set(data);else{mem[col].set(id,{...data,id});apply(col,[...mem[col].values()]);schedule()}}
 async function del(col,id){if(state.db)await state.db.collection(col).doc(id).delete();else{mem[col].delete(id);apply(col,[...mem[col].values()]);schedule()}}
 let rq=0;function schedule(){if(rq)return;rq=requestAnimationFrame(()=>{rq=0;render()})}
 async function init(){

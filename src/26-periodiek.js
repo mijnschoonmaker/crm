@@ -27,7 +27,7 @@ async function perMaak(k,datum){
   const regels=(p.regels||[]).filter(r=>String(r.omschrijving||"").trim()||Number(r.prijs)).map(r=>({omschrijving:perFill(r.omschrijving,datum),aantal:Number(r.aantal)||1,prijs:Number(r.prijs)||0}));
   (k.artikelen||[]).forEach(a=>{if(a&&a.naam)regels.push({omschrijving:a.naam,aantal:Number(a.aantal)||1,prijs:st.incl?r2((Number(a.prijs)||0)/(1+(Number(p.btw??st.btw)||0)/100)):Number(a.prijs)||0})});
   if(!regels.length)return null;
-  const versturen=p.modus==="versturen",f={soort:"factuur",nummer:nextNr("factuur",datum),klantId:k.id,klantNaam:k.naam,klantAdres:factAddr(k),klantEmail:mailK(k,"factuur").email||"",datum,
+  const versturen=p.modus==="versturen",f={soort:"factuur",nummer:nextNr("factuur",datum),klantId:k.id,...(k.beheercode?{beheercode:k.beheercode}:{}),klantNaam:k.naam,klantAdres:factAddr(k),klantEmail:mailK(k,"factuur").email||"",datum,
     verval:iso(addDays(parse(datum),Number(k.termijn)||Number(st.termijn)||14)),regels,btw:k.btwVerlegd?0:Number(p.btw??st.btw),incl:false,status:versturen?"open":"concept",
     notitie:[k.factuurInstructie||"",k.btwVerlegd?"Btw verlegd":""].filter(Boolean).join("\n"),bijlagen:(k.bevindingen||[]).map(b=>({...b,soort:"foto"})),gemaakt:new Date().toISOString(),betaalwijze:k.incasso?"incasso":st.betaalwijze||"overmaken",periodiek:true};
   await save("facturen",fId,f);if(!state.facturen.some(x=>x.id===fId))state.facturen.push({...f,id:fId});
