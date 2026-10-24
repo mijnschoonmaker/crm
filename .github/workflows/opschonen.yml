@@ -1,12 +1,11 @@
-name: Gegevens wissen
+name: CRM opschonen
 on:
   workflow_dispatch:
     inputs:
-      echt:
-        description: "Typ ja om echt te wissen (anders proefdraai)"
-        default: "nee"
+      modus: { description: "tellen of wissen", required: true, default: "tellen" }
+      collecties: { description: "Komma-gescheiden collecties om te wissen (alleen bij wissen)", required: false, default: "" }
 jobs:
-  wis:
+  run:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -15,9 +14,12 @@ jobs:
       - run: npm install --omit=dev --no-audit --no-fund
         working-directory: functions
       - run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > "$RUNNER_TEMP/sa.json"
-      - name: Wissen
-        env:
+      - env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
           P: ${{ vars.FIREBASE_PROJECT }}
-          ECHT: ${{ inputs.echt }}
-        run: node tools/wis-demo.js
+          MODUS: ${{ inputs.modus }}
+          COLLECTIES: ${{ inputs.collecties }}
+        run: node tools/opschonen.js
+      - if: inputs.modus == 'wissen'
+        uses: actions/upload-artifact@v4
+        with: { name: backup-opschonen, path: backup/, retention-days: 30 }
