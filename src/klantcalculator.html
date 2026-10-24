@@ -956,6 +956,15 @@ html body .kbus{width:132px!important;bottom:17px!important;filter:drop-shadow(0
 @media (max-width:640px){html body .kbus{width:104px!important}}
 /* Range Rover-palet */
 :root{--rr-leisteen:#56616a;--rr-leisteen-d:#4d575f;--rr-zilverwit:#f8f9f9;--rr-wit:#ffffff;--rr-lijn:#dfe0e0;--sv-satijn:linear-gradient(180deg,#efefec 0%,#e7e7e3 45%,#d9d9d6 100%);--sv-satijn-l:linear-gradient(180deg,#f5f5f3 0%,#ececea 60%,#e3e3e0 100%)}
+
+/* prijsblok: rustiger en verfijnder (zoals de tegels in het CRM): dunne cijfers, kleine kapitalen, slanke knop */
+html body:not(#zz) .ov-price{border-radius:18px!important;padding:22px 24px!important;gap:20px}
+html body:not(#zz) .ov-price .op-l small:first-child{font-size:10.5px!important;font-weight:700!important;letter-spacing:.2em;text-transform:uppercase;color:rgb(255 255 255 / .62)!important}
+html body:not(#zz) .ov-price .op-l small:last-child{font-size:12.5px!important;font-weight:500!important;color:rgb(255 255 255 / .7)!important}
+html body:not(#zz) .ov-price b{font-size:36px!important;font-weight:300!important;letter-spacing:-.01em!important;line-height:1.1;margin:6px 0 4px!important}
+html body:not(#zz) .ov-price button:not(.det),html body:not(#zz) .ov-price .go2{height:44px;padding:0 22px!important;border-radius:6px!important;font:700 11px/1 var(--body)!important;letter-spacing:.2em!important;text-transform:uppercase;color:#252c3c!important;background:#fff!important;box-shadow:0 10px 22px -14px rgb(0 0 0 / .55)!important}
+html body:not(#zz) .ov-price button:not(.det):hover{background:#f3f4f6!important}
+@media (max-width:480px){html body:not(#zz) .ov-price b{font-size:32px!important}}
 </style>
 </head>
 <body>
