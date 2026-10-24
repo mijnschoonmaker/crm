@@ -14,11 +14,11 @@ async function vveBordLink(k){if(!LIVE)return location.origin+"/bord.html?demo";
 function vveBordVoorbeeld(extra=""){const on=(k,d)=>{const el=form.querySelector(`[data-k="${k}"]`);return el?el.checked:d};
   const q=["demo","door="+(on("vveDoor",true)?1:0),"live="+(on("vveBordLive",true)?1:0),"taken="+(on("vveBordTaken",true)?1:0),"fotos="+(on("vveBordFotos",false)?1:0)];
   return location.origin+"/bord.html?"+q.join("&")+extra}
-SETCARDS.push({id:"vve",t:"Klantportaal VvE",sub:"Wat het bestuur en de bewoners van een VvE zien",ic:"building",bg:"#137a8a",
+SETCARDS.push({id:"vve",t:"Klantportaal VvE",sub:"Wat het bestuur en de bewoners van een VvE zien",ic:"building",bg:"#252c3c",
   st:()=>{const n=vveKlanten().length;return n?["ok",plural(n,"VvE","VvE's")]:["soon","Nog geen VvE's"]},
   rows:s=>[["Bestuur","Klantportaal VvE"],["Bewoners (QR)",(s.vveDoor===false?"Wanneer":"Wanneer en door wie")+(s.vveBordTaken===false?"":" + aftekenlijst")],["Standaard checklist",String((vveStd()||[]).length)+" ruimtes"]]});
 SETEXTRA.vve=(c,s)=>{const vv=vveKlanten();
-  const tegel=(id,ic,t,sub)=>`<button type="button" class="vv-tegel" id="${id}"><span class="objic" style="background:#137a8a">${I[ic]}</span><span><b>${esc(t)}</b><small>${esc(sub)}</small></span>${I.ext||""}</button>`;
+  const tegel=(id,ic,t,sub)=>`<button type="button" class="vv-tegel" id="${id}"><span class="objic" >${I[ic]}</span><span><b>${esc(t)}</b><small>${esc(sub)}</small></span>${I.ext||""}</button>`;
   setDlg(c,`${info("Een VvE heeft twee kanten. Het <b>bestuur</b> logt in op het klantportaal VvE: logboek met checklist en opleverfoto's, meldingen, facturen en documenten. De <b>bewoners</b> scannen de QR-code in de trappenhal en zien wanneer en door wie er is schoongemaakt, met de aftekenlijst van die dag. Zij komen niet in het klantportaal: dat is alleen voor het bestuur.")}
     <div class="vv-tegels">
       ${tegel("vvPortaal","eye","Bekijk klantportaal VvE","Wat het bestuur ziet na inloggen")}

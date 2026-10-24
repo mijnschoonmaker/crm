@@ -4103,8 +4103,8 @@ td.fb-cb:hover .fb-box{border-color:var(--brand);transform:scale(1.06)}
 /* Instellingen › Klantportaal VvE */
 .vv-tegels{display:grid;gap:8px;margin:4px 0 6px}
 .vv-tegel{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:inherit;font:inherit;cursor:pointer;transition:border-color .15s,box-shadow .15s}
-.vv-tegel:hover{border-color:#137a8a;box-shadow:0 4px 14px -8px rgb(19 122 138 / .5)}
-.vv-tegel .objic{flex:none;color:#fff}.vv-tegel>span:nth-child(2){flex:1;min-width:0}.vv-tegel b{display:block;font-weight:600}.vv-tegel small{display:block;color:var(--muted);font-size:12.5px;margin-top:1px}
+.vv-tegel:hover{border-color:#252c3c;box-shadow:0 4px 14px -8px rgb(37 44 60 / .45)}
+.vv-tegel .objic{flex:none}.vv-tegel>span:nth-child(2){flex:1;min-width:0}.vv-tegel b{display:block;font-weight:600}.vv-tegel small{display:block;color:var(--muted);font-size:12.5px;margin-top:1px}
 .vv-tegel>svg{width:16px;height:16px;flex:none;color:var(--muted)}
 .vv-lijst{display:grid;gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden}
 .vv-rij{display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid var(--line)}.vv-rij:first-child{border-top:0}
