@@ -239,6 +239,23 @@ function openObject(kid,oid){
 const FIELDS=[["klantnr","Klantnummer / relatiecode",/(relatiecode|klantnummer|klantnr|debiteur)/],["naam","Naam",/^(naam|klant|klantnaam|name|bedrijf|bedrijfsnaam|achternaam)/],["contact","Contactpersoon",/(contactpers|^contact|t\.?a\.?v)/],["adres","Adres / straat",/^(adres|straat|address|street|bezoekadres)/],["huisnr","Huisnummer",/(huisn|huisnummer|^nr$|^nummer$|number)/],
   ["postcode","Postcode",/(postcode|zip|postal)/],["plaats","Plaats",/(plaats|woonplaats|stad|city|gemeente)/],["telefoon","Telefoon",/(tel|mobiel|gsm|phone)/],["email","E-mail",/(mail)/],["soort","Soort (particulier/zakelijk/VvE)",/^(soort|type|klanttype|relatiesoort)/],
   ["prijs","Prijs",/(prijs|bedrag|tarief|price)/],["frequentie","Frequentie (weken)",/(freq|interval|weken|cyclus)/],["ronde","Ronde",/(ronde|wijk|route|gebied)/],["dienst","Dienst",/(dienst|service)/],["laatst","Laatst gewassen",/(laatst|vorige|last)/],["notities","Notities",/(notitie|opmerking|note|info)/]];
+/* kopregel zoeken: exports hebben soms eerst een titel ("customers_active_23-10-2026 tm 23-10-2026") */
+function impKop(rows){for(let i=0;i<Math.min(10,rows.length);i++){const n=rows[i].filter(h=>FIELDS.some(([,,re])=>re.test(String(h).trim().toLowerCase()))).length;if(n>=2)return rows.slice(i)}return rows}
+function leesHtmlTabel(t){const d=new DOMParser().parseFromString(t,"text/html");return [...d.querySelectorAll("tr")].map(tr=>[...tr.querySelectorAll("th,td")].map(c=>c.textContent.replace(/\s+/g," ").trim())).filter(r=>r.some(Boolean))}
+/* minimale .xlsx-lezer (zip + XML), zonder externe bibliotheek: eerste werkblad, gedeelde teksten en getallen */
+async function leesXlsx(buf){const dv=new DataView(buf.buffer,buf.byteOffset,buf.byteLength);let e=buf.length-22;while(e>0&&dv.getUint32(e,true)!==0x06054b50)e--;if(e<=0)throw new Error("geen geldig xlsx");
+  const n=dv.getUint16(e+10,true);let p=dv.getUint32(e+16,true);const files={};
+  for(let i=0;i<n;i++){const meth=dv.getUint16(p+10,true),cs=dv.getUint32(p+20,true),nl=dv.getUint16(p+28,true),xl=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true),off=dv.getUint32(p+42,true);
+    const naam=new TextDecoder().decode(buf.slice(p+46,p+46+nl));files[naam]={meth,cs,off};p+=46+nl+xl+cl}
+  const lees=async naam=>{const f=files[naam];if(!f)return"";const lo=f.off,ln=dv.getUint16(lo+26,true),le=dv.getUint16(lo+28,true),data=buf.slice(lo+30+ln+le,lo+30+ln+le+f.cs);
+    if(f.meth===0)return new TextDecoder().decode(data);if(typeof DecompressionStream==="undefined")throw new Error("deze browser kan geen xlsx uitpakken");
+    return await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).text()};
+  const X=t=>new DOMParser().parseFromString(t,"application/xml");
+  const ss=[...X(await lees("xl/sharedStrings.xml")||"<sst/>").getElementsByTagName("si")].map(si=>[...si.getElementsByTagName("t")].map(t=>t.textContent).join(""));
+  const blad=Object.keys(files).filter(k=>/^xl\/worksheets\/sheet\d+\.xml$/.test(k)).sort((a,b)=>parseInt(a.match(/\d+/))-parseInt(b.match(/\d+/)))[0];if(!blad)throw new Error("geen werkblad");
+  const kol=r=>{let c=0;for(const ch of r.replace(/\d+/g,""))c=c*26+ch.charCodeAt(0)-64;return c-1};
+  return [...X(await lees(blad)).getElementsByTagName("row")].map(row=>{const uit=[];[...row.getElementsByTagName("c")].forEach(c=>{const t=c.getAttribute("t"),v=c.getElementsByTagName("v")[0],is=c.getElementsByTagName("is")[0];
+    const w=t==="s"?ss[Number(v&&v.textContent)]||"":t==="inlineStr"?(is?is.textContent:""):v?v.textContent:"";uit[kol(c.getAttribute("r")||"A1")]=w});return [...uit].map(x=>x??"")}).filter(r=>r.some(x=>String(x).trim()))}
 function parseCSV(text){
   const first=text.split(/\r?\n/)[0]||"";
   const delim=[";","\t",","].map(d=>[d,first.split(d).length]).sort((a,b)=>b[1]-a[1])[0][0];
@@ -255,17 +272,26 @@ const parseNum=v=>{const s=String(v||"").replace(/[€\s]/g,"");if(!s)return 0;c
 const parseDate=v=>{const s=String(v||"").trim();let m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);if(m)return m[1]+"-"+pad(m[2])+"-"+pad(m[3]);m=s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})/);if(m){const y=m[3].length===2?"20"+m[3]:m[3];return y+"-"+pad(m[2])+"-"+pad(m[1])}return""};
 let imp=null;
 function openImport(){
-  openDlg(`<div class="dlg-head"><span class="objic big">${I.upload}</span><div style="flex:1"><h3>Klanten importeren</h3><div class="subt">Uit Excel of CSV, kolommen worden herkend</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
-  <p class="subt" style="margin:0">Sla je lijst in Excel op als CSV (Bestand › Opslaan als › CSV) en kies het bestand. Of plak de rijen hieronder, met de kolomnamen op de eerste regel.</p>
-  <label>CSV-bestand<input type="file" id="impFile" accept=".csv,.txt,text/csv"></label>
+  openDlg(`<div class="dlg-head"><span class="objic big">${I.upload}</span><div style="flex:1"><h3>Klanten importeren</h3><div class="subt">Uit Excel (.xlsx) of CSV, kolommen worden herkend</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
+  <p class="subt" style="margin:0">Kies je Excel- of CSV-bestand, bijvoorbeeld <b>customers_active</b> uit DienstenCRM of SnelStart. Of plak de rijen hieronder, met de kolomnamen erboven.</p>
+  <label>Bestand (Excel of CSV)<input type="file" id="impFile" accept=".csv,.txt,.xlsx,.xls,.htm,.html,text/csv"></label>
   <label>Of plak hier<textarea id="impText" placeholder="Naam;Adres;Postcode;Plaats;Telefoon;Prijs&#10;Fam. Bakker;Dorpsstraat 4;1234 AB;Zeist;0612345678;22,50"></textarea></label>
   <div id="impMap"></div>
   <div class="row"><span class="sp"></span><button type="button" data-act="close">Annuleren</button><button type="button" class="primary" id="impGo" disabled>Importeren</button></div>`,{wide:true});
-  const load=t=>{const rows=parseCSV(t);if(rows.length<2){$("#impMap").innerHTML='<div class="notice">Er zijn minimaal een kopregel en één klantregel nodig.</div>';$("#impGo").disabled=true;return}
+  const load=t=>loadRows(parseCSV(t));
+  const loadRows=rows0=>{const rows=impKop(rows0);if(rows.length<2){$("#impMap").innerHTML='<div class="notice">Er zijn minimaal een kopregel en één klantregel nodig.</div>';$("#impGo").disabled=true;return}
     const head=rows[0].map(h=>String(h).trim()),map={};
     FIELDS.forEach(([f,,re])=>{const i=head.findIndex((h,ix)=>re.test(h.toLowerCase())&&!Object.values(map).includes(ix));if(i>-1)map[f]=i});
     imp={head,rows:rows.slice(1),map};drawMap()};
-  $("#impFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{let t=String(rd.result);
+  $("#impFile").onchange=async e=>{const f=e.target.files[0];if(!f)return;
+    /* Excel: .xlsx zelf uitlezen; een .xls uit DienstenCRM is vaak een HTML-tabel */
+    try{const buf=new Uint8Array(await f.arrayBuffer());
+      if(buf[0]===0x50&&buf[1]===0x4b){$("#impText").value="";loadRows(await leesXlsx(buf));return}
+      if(buf[0]===0xd0&&buf[1]===0xcf){$("#impMap").innerHTML='<div class="notice">Dit is een oud Excel-bestand (.xls). Open het in Excel of Numbers en bewaar het als <b>.xlsx</b> of <b>CSV</b>, en kies het dan opnieuw.</div>';$("#impGo").disabled=true;return}
+      const kop=new TextDecoder().decode(buf.slice(0,600)).toLowerCase();
+      if(/<table|<html/.test(kop)){let t=new TextDecoder().decode(buf);if(t.includes("\uFFFD"))t=new TextDecoder("windows-1252").decode(buf);$("#impText").value="";loadRows(leesHtmlTabel(t));return}}
+    catch(er){$("#impMap").innerHTML='<div class="notice">Dit bestand kon ik niet lezen ('+esc(er.message||"onbekend")+'). Bewaar het als CSV en probeer opnieuw.</div>';return}
+    const rd=new FileReader();rd.onload=()=>{let t=String(rd.result);
     /* exports uit SnelStart/DienstenCRM zijn vaak Windows-1252: dan opnieuw lezen zodat é, ë en ü goed blijven */
     if(t.includes("\uFFFD")){const r2=new FileReader();r2.onload=()=>{$("#impText").value="";load(String(r2.result).replace(/^\uFEFF/,""))};r2.readAsText(f,"windows-1252");return}
     $("#impText").value="";load(t.replace(/^\uFEFF/,""))};rd.readAsText(f)};
@@ -285,7 +311,7 @@ function rowToKlant(r){
   const g=f=>imp.map[f]!=null?String(r[imp.map[f]]??"").trim():"";
   const naam=g("naam"),so=g("soort").toLowerCase(),geenOpdr=imp.map.prijs==null&&imp.map.frequentie==null;
   const soort=/vve|eigenaar/.test(so)||/\bv\.?v\.?e\b|vereniging van eigenaars|eigenaarsvereniging|\bcoöp|\bcoop\b/i.test(naam)?"vve":/zak|bedrijf|organisatie/.test(so)||/\b(b\.?v\.?|n\.?v\.?|v\.?o\.?f\.?|holding|stichting|gemeente|kerk|school|vereniging|praktijk|kantoor|hotel|restaurant|cafe|café|bakkerij|garage|makelaar|tandarts|huisarts|apotheek|kinderopvang|woningcorporatie|beheer|groep|group|services?|bedrijf)\b/i.test(naam)?"zakelijk":"particulier";
-  return{klantnr:g("klantnr"),naam,contact:g("contact"),adres:[g("adres"),g("huisnr")].filter(Boolean).join(" "),postcode:g("postcode").toUpperCase(),plaats:g("plaats"),telefoon:g("telefoon"),email:g("email"),
+  return{klantnr:g("klantnr"),naam,contact:g("contact").toLowerCase()===naam.toLowerCase()?"":g("contact"),adres:[g("adres"),g("huisnr")].filter(Boolean).join(" "),postcode:typeof normPc==="function"?normPc(g("postcode")):g("postcode").toUpperCase(),plaats:g("plaats"),telefoon:g("telefoon"),email:g("email"),
     prijs:parseNum(g("prijs")),frequentie:Math.max(1,Math.round(parseNum(g("frequentie")))||4),ronde:g("ronde"),dienst:g("dienst")||"Glasbewassing",duur:30,laatst:parseDate(g("laatst")),gepland:"",tijd:"",notities:g("notities"),
     binnen:false,soort,actief:true,aangemaakt:iso(today()),log:[],objecten:[],bron:"import",...(geenOpdr?{opdrachtVerwijderd:true,prospect:false}:{})};
 }
