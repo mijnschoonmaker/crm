@@ -365,7 +365,8 @@ function openFactuurForm(opts={}){
   const k0=ex?state.klanten.find(x=>x.id===ex.klantId):opts.klantId?state.klanten.find(x=>x.id===opts.klantId):null;
   const lines=ex?ex.regels.map(r=>({...r})):opts.regels||[{omschrijving:soort==="offerte"?((k0&&k0.dienst)||"Glasbewassing")+", per beurt":((k0&&k0.dienst)||"Glasbewassing"),aantal:1,prijs:k0?Number(k0.prijs)||0:""}];
   const ks=[...state.klanten].sort((a,b)=>cleanName(a.naam).localeCompare(cleanName(b.naam)));
-  const totHtml=()=>{const t=totals({regels:lines,btw:Number($("#ff-btw").value),incl:$("#ff-incl").checked});return `<span>Subtotaal excl. btw</span><span>${eur(t.ex)}</span><span>Btw ${$("#ff-btw").value}%</span><span>${eur(t.btw)}</span><span class="grand">Totaal</span><span class="grand">${eur(t.inc)}</span>`};
+  const totHtml=()=>{const kk=state.klanten.find(x=>x.id===($("#ff-klant")||{}).value),t=totals({regels:kk&&(!ex||ex.status==="concept")?btwRegels(kk,lines):lines,btw:Number($("#ff-btw").value),incl:$("#ff-incl").checked});
+    return `<span>Subtotaal excl. btw</span><span>${eur(t.ex)}</span>${t.tarieven.map(x=>`<span>Btw ${x.pct}%</span><span>${eur(x.btw)}</span>`).join("")}<span class="grand">Totaal</span><span class="grand">${eur(t.inc)}</span>`};
   const draw=()=>{$("#ffLines").innerHTML=lines.map((r,i)=>`<div class="line"><input data-l="${i}" data-k="omschrijving" value="${esc(r.omschrijving)}" placeholder="Omschrijving" aria-label="Omschrijving"><input data-l="${i}" data-k="aantal" type="number" min="0" step="1" value="${esc(r.aantal)}" aria-label="Aantal"><input data-l="${i}" data-k="prijs" type="number" step="0.01" value="${esc(r.prijs)}" placeholder="Prijs" aria-label="Prijs"><button type="button" class="small ghost" data-rm="${i}" aria-label="Regel verwijderen">${I.x}</button></div>`).join("");$("#ffTot").innerHTML=totHtml()};
   openDlg(`<div class="dlg-head"><span class="objic big">${soort==="offerte"?I.offertes:I.facturen}</span><div style="flex:1"><h3>${ex?"Bewerk "+esc(ex.nummer):soort==="offerte"?"Nieuwe offerte":"Nieuwe factuur"}</h3></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
   <div class="grid2">
@@ -389,7 +390,7 @@ function openFactuurForm(opts={}){
     const kid=$("#ff-klant").value;if(!kid){$("#ff-klant").focus();return}
     const k=state.klanten.find(x=>x.id===kid);const datum=$("#ff-datum").value||iso(today());
     const data={soort,nummer:ex?ex.nummer:nextNr(soort,datum),klantId:kid,...(soort!=="factuur"?{}:ex&&ex.status!=="concept"&&ex.beheercode!=null?{beheercode:ex.beheercode}:k.beheercode?{beheercode:k.beheercode}:{}),klantNaam:k.naam,klantAdres:soort==="offerte"?jobAddr(k):factAddr(k),klantEmail:mailK(k,soort==="offerte"?"offerte":"factuur").email||"",datum,verval:$("#ff-verval").value,
-      regels:lines.filter(r=>r.omschrijving||r.prijs).map(r=>({omschrijving:String(r.omschrijving||""),aantal:Number(r.aantal)||0,prijs:Number(r.prijs)||0})),
+      regels:lines.filter(r=>r.omschrijving||r.prijs).map(r=>({omschrijving:String(r.omschrijving||""),aantal:Number(r.aantal)||0,prijs:Number(r.prijs)||0,...(r.btw!=null&&r.btw!==""?{btw:Number(r.btw)}:{})})),
       btw:Number($("#ff-btw").value),incl:$("#ff-incl").checked,status:ex?ex.status:status,notitie:$("#ff-notitie").value.trim(),betaaldOp:ex?ex.betaaldOp||"":"",vanOfferte:ex?ex.vanOfferte||"":opts.vanOfferte||"",gemaakt:ex?ex.gemaakt||"":new Date().toISOString(),
       verstuurdOp:ex?ex.verstuurdOp||"":"",herinnerdOp:ex?ex.herinnerdOp||"":"",herinneringen:ex?ex.herinneringen||0:0};
     if(!data.regels.length){toast("Voeg minimaal één regel toe");return}

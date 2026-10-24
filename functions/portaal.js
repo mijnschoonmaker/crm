@@ -75,11 +75,13 @@ module.exports = function maakPortaal(ctx) {
     }
     return basis + crypto.randomBytes(2).toString("hex").toUpperCase();
   }
+  /* btw per regel (9% en 21% op één factuur kan); btw 0 op de factuur = alles 0% (verlegd) */
   function totals(f, b) {
-    const btw = Number(f.btw ?? b.btw ?? 21) / 100, incl = f.incl ?? b.incl ?? true;
-    const sum = (f.regels || []).reduce((a, r) => a + (Number(r.aantal) || 0) * (Number(r.prijs) || 0), 0);
-    const inc = incl ? sum : sum * (1 + btw), ex = incl ? sum / (1 + btw) : sum;
-    return { ex: r2(ex), btw: r2(inc - ex), inc: r2(inc) };
+    const fb = f.btw != null && f.btw !== "" ? Number(f.btw) : Number(b.btw ?? 21), incl = f.incl ?? b.incl ?? true, g = {};
+    (f.regels || []).forEach(r => { const p = fb === 0 && f.btw != null ? 0 : (r.btw != null && r.btw !== "" && !isNaN(Number(r.btw)) ? Number(r.btw) : fb); (g[p] = g[p] || { pct: p, som: 0 }).som += (Number(r.aantal) || 0) * (Number(r.prijs) || 0); });
+    if (!Object.keys(g).length) g[fb] = { pct: fb, som: 0 };
+    let ex = 0, inc = 0; const tarieven = Object.values(g).sort((a, c) => c.pct - a.pct).map(x => { const e = incl ? x.som / (1 + x.pct / 100) : x.som, i = incl ? x.som : x.som * (1 + x.pct / 100); ex += e; inc += i; return { pct: x.pct, ex: r2(e), btw: r2(i - e), inc: r2(i) }; });
+    return { ex: r2(ex), btw: r2(inc - ex), inc: r2(inc), tarieven };
   }
   /* hoe snel betaald: van het versturen van de factuur tot de betaling (alleen als beide tijden bekend zijn) */
   /* seconden tussen versturen en betalen; zonder exact tijdstip (oudere, handmatig afgeboekte facturen) rekenen we met de dag van betaling om 12:00 */

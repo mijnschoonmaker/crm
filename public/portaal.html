@@ -2413,7 +2413,7 @@ async function openFactuur(id){let f;const sluit=blad(`<div class="laden" style=
   bladVul(o,`${kopTxt}
     <div class="fact-doc"><div class="fh"><div><b>${esc(b.naam)}</b><br><small style="color:var(--ink2)">${esc(b.adres)}${b.pcPlaats?"<br>"+esc(b.pcPlaats):""}</small></div><div style="text-align:right"><small style="color:var(--ink2)">Datum</small><br><b>${esc(kort(f.datum))}</b></div></div>
       <table>${f.regels.map(r=>`<tr><td>${esc(r.omschrijving)}${r.aantal!==1?` <span style="color:var(--ink2)">× ${String(r.aantal).replace(".",",")}</span>`:""}</td><td class="r${r.prijs<0?" neg":""}">${eur(r.aantal*r.prijs)}</td></tr>`).join("")}
-      <tr class="sub"><td>Subtotaal excl. btw</td><td class="r">${eur(f.ex)}</td></tr><tr class="sub"><td>Btw ${f.btwPct}%</td><td class="r">${eur(f.btw)}</td></tr><tr class="tot"><td>Totaal</td><td class="r">${eur(f.inc)}</td></tr></table>
+      <tr class="sub"><td>Subtotaal excl. btw</td><td class="r">${eur(f.ex)}</td></tr>${(f.tarieven&&f.tarieven.length?f.tarieven:[{pct:f.btwPct,btw:f.btw}]).map(x=>`<tr class="sub"><td>Btw ${x.pct}%</td><td class="r">${eur(x.btw)}</td></tr>`).join("")}<tr class="tot"><td>Totaal</td><td class="r">${eur(f.inc)}</td></tr></table>
       ${f.notitie?`<p style="color:var(--ink2);margin:10px 0 0;white-space:pre-line">${esc(f.notitie)}</p>`:""}
       <p style="color:var(--ink3);font-size:12.5px;margin:12px 0 0">${[b.kvk&&"KvK "+b.kvk,b.btwnr&&"Btw "+b.btwnr,b.iban&&"IBAN "+b.iban].filter(Boolean).map(esc).join(" · ")}</p></div>
     ${overmaken}<p class="fout" role="alert"></p>

@@ -99,8 +99,8 @@ function openOfferte(opts={}){
       ${dns.length?`<div class="ow-dns">${dnsHtml()}</div>`:""}
       <div class="lines">${extra.map((r,i)=>`<div class="line"><input data-l="${i}" data-k="omschrijving" value="${esc(r.omschrijving)}" placeholder="Omschrijving" aria-label="Omschrijving"><input data-l="${i}" data-k="aantal" type="number" min="0" step="1" value="${esc(r.aantal)}" aria-label="Aantal"><input data-l="${i}" data-k="prijs" type="number" step="0.01" value="${esc(r.prijs)}" placeholder="Prijs excl." aria-label="Prijs excl. btw"><button type="button" class="small ghost" data-rm="${i}" aria-label="Regel verwijderen">${I.x}</button></div>`).join("")}</div>`;
     tot()};
-  const tot=()=>{const t=totals({regels:allRegels(),btw:Number($o("btw").value),incl:false});
-    $("#owTot").innerHTML=`<span>Subtotaal excl. btw</span><span>${eur(t.ex)}</span><span>Btw ${$o("btw").value}%</span><span>${eur(t.btw)}</span><span class="grand">Totaal per beurt</span><span class="grand">${eur(t.inc)}</span>`};
+  const tot=()=>{const kk=state.klanten.find(x=>x.id===kid),t=totals({regels:kk?btwRegels(kk,allRegels()):allRegels(),btw:Number($o("btw").value),incl:false});
+    $("#owTot").innerHTML=`<span>Subtotaal excl. btw</span><span>${eur(t.ex)}</span>${t.tarieven.map(x=>`<span>Btw ${x.pct}%</span><span>${eur(x.btw)}</span>`).join("")}<span class="grand">Totaal per beurt</span><span class="grand">${eur(t.inc)}</span>`};
   $("#owRegels").addEventListener("input",e=>{const i=e.target.dataset.l;if(i==null)return;const key=e.target.dataset.k;extra[i][key]=key==="omschrijving"?e.target.value:e.target.value===""?"":Number(e.target.value);tot()});
   groepBind($("#owRegels"),key=>dns[+key.slice(1)],(key,struct)=>{const d=dns[+key.slice(1)];if(!d)return;if(struct)draw();else{groepTotUpdate($("#owRegels"),key,d,{offerte:true,freqDefault:glasW()});const h=$("#owRegels").querySelector(`[data-ge="${key}"]`);const m=h&&h.closest(".ow-dn")?h.closest(".ow-dn").querySelector(".ow-dnh .mono"):null;if(m){const c=dnsCalc(d);m.textContent=c.ex?eur(c.ex):""}tot()}});
   $("#owRegels").addEventListener("change",e=>{const el=e.target;

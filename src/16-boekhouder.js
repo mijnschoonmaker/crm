@@ -21,15 +21,17 @@ const bhInit=()=>{if(!state.bhVan){const l=bhLaatst();state.bhVan=l?iso(addDays(
 function bhVerkoopboek(van,tot){
   const fs=echteFacturen().filter(f=>f.datum>=van&&f.datum<=tot).sort((a,b)=>String(a.datum).localeCompare(String(b.datum))||String(a.nummer).localeCompare(String(b.nummer),"nl",{numeric:true}));
   const rows=[],kop=["Dagboek","Boekingcode","Datum","Grootboeknummer","Debet","Credit","Omschrijving","Relatiecode","Factuurnummer"];const fout=[];
-  fs.forEach(f=>{const k=state.klanten.find(x=>x.id===f.klantId),t=bhType(k),T=totals(f),pct=Number(f.btw??S().btw);
+  fs.forEach(f=>{const k=state.klanten.find(x=>x.id===f.klantId),t=bhType(k),T=totals(f);
     const rel=k?klantNr(k):"",nr=String(f.nummer||f.id),code=bhCode(nr),dat=bhD(f.datum),db=bhS("bhVerkoopboek");
-    const omzetGb=f.btwVerlegd||k&&k.btwVerlegd?bhGb(t,"verlegd"):pct===0?bhGb(t,"omzet0"):pct===9?bhGb(t,"omzet9"):bhGb(t,"omzet21");
-    const btwGb=pct===9?bhGb(t,"btw9"):pct===21?bhGb(t,"btw21"):"";
-    if(!omzetGb)fout.push(nr+": geen grootboekrekening omzet "+pct+"% voor "+t);
-    if(T.btw>0&&!btwGb)fout.push(nr+": geen grootboekrekening btw "+pct+"%");
     rows.push([db,code,dat,bhS("bhDebiteuren"),bhN(T.inc),bhN(0),nr,rel,nr]);
-    rows.push([db,code,dat,omzetGb,bhN(0),bhN(T.ex),nr,rel,nr]);
-    if(T.btw>0)rows.push([db,code,dat,btwGb,bhN(0),bhN(T.btw),nr,rel,nr]);
+    /* per btw-tarief een omzet- en btw-regel: één factuur kan 9% en 21% hebben */
+    (T.tarieven||[{pct:Number(f.btw??S().btw),ex:T.ex,btw:T.btw}]).forEach(x=>{const pct=x.pct;if(!x.ex&&!x.btw)return;
+      const omzetGb=f.btwVerlegd||k&&k.btwVerlegd?bhGb(t,"verlegd"):pct===0?bhGb(t,"omzet0"):pct===9?bhGb(t,"omzet9"):bhGb(t,"omzet21");
+      const btwGb=pct===9?bhGb(t,"btw9"):pct===21?bhGb(t,"btw21"):"";
+      if(!omzetGb)fout.push(nr+": geen grootboekrekening omzet "+pct+"% voor "+t);
+      if(x.btw>0&&!btwGb)fout.push(nr+": geen grootboekrekening btw "+pct+"%");
+      rows.push([db,code,dat,omzetGb,bhN(0),bhN(x.ex),nr,rel,nr]);
+      if(x.btw>0)rows.push([db,code,dat,btwGb,bhN(0),bhN(x.btw),nr,rel,nr])});
   });
   const csv=[kop,...rows].map(r=>r.map(x=>String(x??"").replace(/[;\r\n]/g," ")).join(";")).join("\r\n")+"\r\n";
   return{fs,rows,csv,fout,omzet:fs.reduce((a,f)=>a+totals(f).inc,0)};

@@ -41,7 +41,7 @@ function overzichtModelKlant(k){const r=normR(k.ramenRegel),fq="1x per "+(Number
     groepen:[{omschrijving:k.dienst||"Glasbewassing",excl,btwPct:pct,btw:r2(incl-excl),incl,subs}]}}
 function overzichtModelOfferte(f,k){const pct=Number(f.btw??S().btw)||21,inc=f.incl??S().incl;
   return {klant:{naam:(k&&k.naam)||f.klantNaam||"",contact:(k&&k.contact)||"",adres:(k&&k.adres)||"",pcPlaats:k?[String(k.postcode||"").toUpperCase(),k.plaats].filter(Boolean).join(" "):"",klantnummer:k?klantNr(k):""},
-    groepen:(f.regels||[]).map(r=>{const tot=(Number(r.aantal)||1)*(Number(r.prijs)||0),incl=inc?tot:r2(tot*(1+pct/100)),excl=inc?r2(tot/(1+pct/100)):tot;
+    groepen:(f.regels||[]).map(r=>{const pct=rBtw(f,r)||0,tot=(Number(r.aantal)||1)*(Number(r.prijs)||0),incl=inc?tot:r2(tot*(1+pct/100)),excl=inc?r2(tot/(1+pct/100)):tot;
       const subs=(r.subs||[]).map(x=>({naam:x.naam||"",aantal:x.qty||"",freq:x.fq||""}));
       /* frequentie per dienst: uit de regel zelf, anders gelijk aan alle onderdelen, anders de frequentie van de opdracht */
       const m=String(r.omschrijving||"").match(/\((elke [^)]+|1x per [^)]+|wekelijks|maandelijks)\)/i),fs=[...new Set(subs.map(x=>x.freq).filter(Boolean))];

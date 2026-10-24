@@ -67,14 +67,17 @@ function vBoekhouding(){
 function openAangifte(y,q){
   const f=fin(periodRange(y,"q"+q)),key=y+"-Q"+q,done=state.aangiftes[key];
   const r=n=>Math.floor(n);// Belastingdienst rondt af op hele euro's in je voordeel
-  const txt=`Btw-aangifte Q${q} ${y}\n1a Leveringen/diensten belast met hoog tarief: omzet € ${r(f.omzet)}, btw € ${r(f.btwOmzet)}\n5b Voorbelasting: € ${Math.ceil(f.voorbelasting)}\nTotaal te betalen: € ${r(f.btwOmzet)-Math.ceil(f.voorbelasting)}`;
+  const R=f.rub||{a:{omzet:f.omzet,btw:f.btwOmzet},b:{omzet:0,btw:0},e:{omzet:0,btw:0}};
+  const txt=`Btw-aangifte Q${q} ${y}\n1a Leveringen/diensten belast met hoog tarief: omzet € ${r(R.a.omzet)}, btw € ${r(R.a.btw)}${R.b.omzet?`\n1b Leveringen/diensten belast met laag tarief: omzet € ${r(R.b.omzet)}, btw € ${r(R.b.btw)}`:""}${R.e.omzet?`\n1e Leveringen/diensten belast met 0% of niet bij u belast: omzet € ${r(R.e.omzet)}`:""}\n5b Voorbelasting: € ${Math.ceil(f.voorbelasting)}\nTotaal te betalen: € ${r(f.btwOmzet)-Math.ceil(f.voorbelasting)}`;
   openDlg(`<div class="dlg-head"><span class="objic big">${I.bank}</span><div style="flex:1"><h3>Btw-aangifte Q${q} ${y}</h3><div class="subt">Uiterlijk ${fmtL(qDeadline(y,q))}${done?" · ingediend op "+fmtL(done):""}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
   <div class="tablewrap" style="box-shadow:none"><table class="t" style="min-width:0"><thead><tr><th>Rubriek</th><th class="r">Omzet</th><th class="r">Btw</th></tr></thead><tbody>
-    <tr><td><b>1a</b> Leveringen/diensten belast met hoog tarief</td><td class="r amt">€ ${r(f.omzet)}</td><td class="r amt">€ ${r(f.btwOmzet)}</td></tr>
+    <tr><td><b>1a</b> Leveringen/diensten belast met hoog tarief</td><td class="r amt">€ ${r(R.a.omzet)}</td><td class="r amt">€ ${r(R.a.btw)}</td></tr>
+    ${R.b.omzet?`<tr><td><b>1b</b> Leveringen/diensten belast met laag tarief</td><td class="r amt">€ ${r(R.b.omzet)}</td><td class="r amt">€ ${r(R.b.btw)}</td></tr>`:""}
+    ${R.e.omzet?`<tr><td><b>1e</b> Leveringen/diensten belast met 0% of niet bij u belast</td><td class="r amt">€ ${r(R.e.omzet)}</td><td></td></tr>`:""}
     <tr><td><b>5a</b> Verschuldigde omzetbelasting</td><td></td><td class="r amt">€ ${r(f.btwOmzet)}</td></tr>
     <tr><td><b>5b</b> Voorbelasting</td><td></td><td class="r amt">€ ${Math.ceil(f.voorbelasting)}</td></tr>
     <tr style="font-weight:800"><td>Totaal te betalen</td><td></td><td class="r amt">€ ${r(f.btwOmzet)-Math.ceil(f.voorbelasting)}</td></tr></tbody></table></div>
-  <p class="subt" style="margin:0">Gebaseerd op ${plural(f.fs.length,"factuur","facturen")} en ${plural(f.ks.length,"bon","bonnen")} in dit kwartaal, afgerond op hele euro's. Facturen met 9% of 0% btw staan nu ook onder 1a; controleer dat als je die gebruikt. Indienen doe je zelf in Mijn Belastingdienst Zakelijk.</p>
+  <p class="subt" style="margin:0">Gebaseerd op ${plural(f.fs.length,"factuur","facturen")} en ${plural(f.ks.length,"bon","bonnen")} in dit kwartaal, afgerond op hele euro's. Regels met 9% staan onder 1b, 0% en btw verlegd onder 1e. Indienen doe je zelf in Mijn Belastingdienst Zakelijk.</p>
   <div class="row"><button type="button" class="small" id="agCopy">${I.copy}Kopieer bedragen</button><span class="sp"></span>${done?`<button type="button" class="ghost danger" id="agUndo">Markering weghalen</button>`:`<button type="button" class="primary" id="agDone">${I.check}Markeer als ingediend</button>`}</div>`);
   $("#agCopy").onclick=e=>copy(txt,e.currentTarget);
   const setA=async v=>{const a={...state.aangiftes};if(v)a[key]=v;else delete a[key];try{await save("instellingen","aangiftes",a);dlg.close();toast(v?"Aangifte gemarkeerd als ingediend":"Markering weggehaald")}catch(er){err(er)}};

@@ -12,10 +12,13 @@ module.exports = ({ db, T, onCall, onRequest, onSchedule, HttpsError, geheim, ch
   const dec = v => Array.isArray(v) ? v.map(dec) : v && typeof v === "object" ? (v.__arr ? v.__arr.map(x => x && x.__a ? x.__a.map(dec) : dec(x)) : Object.fromEntries(Object.entries(v).map(([k, x]) => [k, dec(x)]))) : v;
   const eur = n => "€ " + r2(n).toFixed(2).replace(".", ",");
 
+  /* btw per regel (9% en 21% op één factuur kan); btw 0 op de factuur = alles 0% (verlegd) */
   function totals(f, b) {
-    const btw = Number(f.btw ?? b.btw ?? 21) / 100, incl = f.incl ?? b.incl ?? true;
-    const sum = (f.regels || []).reduce((a, r) => a + (Number(r.aantal) || 0) * (Number(r.prijs) || 0), 0);
-    return r2(incl ? sum : sum * (1 + btw));
+    const fb = f.btw != null && f.btw !== "" ? Number(f.btw) : Number(b.btw ?? 21), incl = f.incl ?? b.incl ?? true, g = {};
+    (f.regels || []).forEach(r => { const p = fb === 0 && f.btw != null ? 0 : (r.btw != null && r.btw !== "" && !isNaN(Number(r.btw)) ? Number(r.btw) : fb); (g[p] = g[p] || { pct: p, som: 0 }).som += (Number(r.aantal) || 0) * (Number(r.prijs) || 0); });
+    if (!Object.keys(g).length) g[fb] = { pct: fb, som: 0 };
+    let ex = 0, inc = 0; const tarieven = Object.values(g).sort((a, c) => c.pct - a.pct).map(x => { const e = incl ? x.som / (1 + x.pct / 100) : x.som, i = incl ? x.som : x.som * (1 + x.pct / 100); ex += e; inc += i; return { pct: x.pct, ex: r2(e), btw: r2(i - e), inc: r2(i) }; });
+    return r2(inc);
   }
   /* factuurnummer als zoekpatroon: scheidingstekens mogen ontbreken of anders zijn ("26-009324" = "26009324" = "26 009324") */
   function nrPatroon(nr) {

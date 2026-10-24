@@ -146,12 +146,30 @@ function beurtOmzet(b){if(!b||b.geannuleerd||b.gefactureerd==="nvt")return 0;con
 /* was een klant actief in (een deel van) de periode s..e (iso)? Zelfde regel voor Statistieken › Klanten en Analyse */
 function klantActiefIn(k,s,e,laatstB){if(k.prospect||k.hoofdKlantId)return false;const a=String(k.aangemaakt||"").slice(0,10);if(a&&a>e)return false;if(k.actief!==false)return true;
   const stop=String(k.inactiefOp||k.gepauzeerdOp||(laatstB&&laatstB[k.id])||"").slice(0,10);return !!stop&&stop>=s}
+/* btw per regel: een regel kan een eigen tarief hebben (bijv. 9% voor trappenhuis van een VvE of glasbewassing binnen),
+   anders geldt het tarief van de factuur. Btw verlegd / 0% op de factuur = alle regels 0%. */
+function rBtw(f,r){const fb=f&&f.btw!=null&&f.btw!==""?Number(f.btw):Number(S().btw);if(f&&f.btw!=null&&Number(f.btw)===0)return 0;
+  return r&&r.btw!=null&&r.btw!==""&&!isNaN(Number(r.btw))?Number(r.btw):fb}
 function totals(f){
-  const btw=Number(f.btw??S().btw)/100,incl=f.incl??S().incl;
-  const sum=(f.regels||[]).reduce((a,r)=>a+(Number(r.aantal)||0)*(Number(r.prijs)||0),0);
-  let ex,inc;if(incl){inc=sum;ex=sum/(1+btw)}else{ex=sum;inc=sum*(1+btw)}
-  return{ex:r2(ex),btw:r2(inc-ex),inc:r2(inc)};
+  const incl=f.incl??S().incl,g={};
+  (f.regels||[]).forEach(r=>{const p=rBtw(f,r);(g[p]=g[p]||{pct:p,som:0}).som+=(Number(r.aantal)||0)*(Number(r.prijs)||0)});
+  if(!Object.keys(g).length){const p=rBtw(f,null);g[p]={pct:p,som:0}}
+  let ex=0,inc=0;const tarieven=Object.values(g).sort((a,b)=>b.pct-a.pct).map(x=>{const e=incl?x.som/(1+x.pct/100):x.som,i=incl?x.som:x.som*(1+x.pct/100);ex+=e;inc+=i;return{pct:x.pct,ex:r2(e),btw:r2(i-e),inc:r2(i)}});
+  return{ex:r2(ex),btw:r2(inc-ex),inc:r2(inc),tarieven};
 }
+/* welk tarief hoort bij een regel? Nederland: schoonmaak van woningen valt onder 9%:
+   - VvE: trappenhuis, entree, galerij, lift, bergingen en ramen binnen (gemeenschappelijke ruimtes van een woongebouw)
+   - particulier: glasbewassing binnen. Buiten, gevel, zonnepanelen, goten en zakelijke klanten blijven 21%.
+   Aan/uit bij Instellingen › Land, valuta & BTW. null = tarief van de factuur. */
+function btwRegel(k,oms){const st=S();if(!k||k.btwVerlegd||(st.land||"NL")!=="NL")return null;const o=String(oms||"").toLowerCase();
+  if(/buiten|gevel|zonnepan|goot|goten|dakkapel|dakgoot|kozijn|schoorsteen|rolluik|hogedruk/.test(o))return null;
+  if(k.soort==="vve"&&st.btw9Vve!==false&&/trap|schoonma|entree|portiek|galerij|lift|berging|kelder|binnen|hal\b|gang/.test(o))return 9;
+  if(k.soort!=="zakelijk"&&k.soort!=="vve"&&st.btw9Binnen!==false&&/binnen/.test(o)&&/glas|raam|ramen|wassen/.test(o))return 9;
+  return null}
+/* bij opslaan van een nieuwe of conceptfactuur/-offerte: regels zonder eigen tarief krijgen het tarief van hierboven (verstuurde facturen blijven ongemoeid) */
+function btwRegels(k,regels){return (regels||[]).map(r=>{if(r.btw!=null&&r.btw!=="")return r;const b=btwRegel(k,r.omschrijving);return b==null?r:{...r,btw:b}})}
+function btwVast(data,nieuw){if(!data||!["factuur","offerte"].includes(data.soort)||!Array.isArray(data.regels))return data;if(!nieuw&&data.status!=="concept")return data;
+  const k=(state.klanten||[]).find(x=>x.id===data.klantId);if(!k)return data;return {...data,regels:btwRegels(k,data.regels)}}
 function fStatus(f){
   if(f.soort==="offerte")return({concept:["neutral","Concept"],verstuurd:["soon","Verstuurd"],geaccepteerd:["ok","Geaccepteerd"],afgewezen:["late","Afgewezen"]})[f.status||"concept"]||["neutral","Concept"];
   if(f.status==="betaald")return["ok","Betaald"];
@@ -186,8 +204,10 @@ const inRange=(s,[a,b])=>{const d=parse(s);return d&&d>=a&&d<=b};
 function fin(range){
   const fs=echteFacturen().filter(f=>inRange(f.datum,range)),ks=state.kosten.filter(c=>inRange(c.datum,range));
   const omzet=fs.reduce((a,f)=>a+totals(f).ex,0),btwOmzet=fs.reduce((a,f)=>a+totals(f).btw,0);
+  /* btw-aangifte per rubriek: 1a hoog (21%), 1b laag (9%), 1e 0% of verlegd */
+  const rub={a:{omzet:0,btw:0},b:{omzet:0,btw:0},e:{omzet:0,btw:0}};fs.forEach(f=>(totals(f).tarieven||[]).forEach(x=>{const k=x.pct>=15?"a":x.pct>0?"b":"e";rub[k].omzet+=x.ex;rub[k].btw+=x.btw}));
   const kosten=ks.reduce((a,c)=>a+kostEx(c),0),voorbelasting=ks.reduce((a,c)=>a+kostBtw(c),0);
-  return{fs,ks,omzet:r2(omzet),btwOmzet:r2(btwOmzet),kosten:r2(kosten),voorbelasting:r2(voorbelasting),winst:r2(omzet-kosten),btwSaldo:r2(btwOmzet-voorbelasting)};
+  return{fs,ks,rub,omzet:r2(omzet),btwOmzet:r2(btwOmzet),kosten:r2(kosten),voorbelasting:r2(voorbelasting),winst:r2(omzet-kosten),btwSaldo:r2(btwOmzet-voorbelasting)};
 }
 const qDeadline=(y,q)=>new Date(y,q*3+1,0);// laatste dag van de maand na het kwartaal (q = 1..4)
 function aangifteStatus(){

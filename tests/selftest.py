@@ -85,7 +85,7 @@ def instellingen(pg):
 
 def rekenregels(pg):
     G = "Rekenregels"
-    t = lambda f: pg.evaluate("f=>MSTEST.totals(f)", f)
+    t = lambda f: {k: v for k, v in pg.evaluate("f=>MSTEST.totals(f)", f).items() if k != "tarieven"}
     r = t({"regels": [{"aantal": 1, "prijs": 121}], "btw": 21, "incl": True})
     check(G, "Btw 21% inclusief: € 121 = € 100 + € 21", r == {"ex": 100, "btw": 21, "inc": 121}, r)
     r = t({"regels": [{"aantal": 2, "prijs": 50}], "btw": 21, "incl": False})
@@ -260,6 +260,23 @@ def teplannen(pg):
       T.state.klanten.pop();return {c:'beheercode' in c,v:v.beheercode||'',o:o.beheercode}}""")
     if r is not None:
         check(G, "Beheercode wordt vastgelegd bij versturen", r["v"] == "ABC 1" and r["c"] is False and r["o"] == "OUD", r)
+    # btw per regel: 9% voor glasbewassing binnen (particulier) en trappenhuis VvE, de rest 21%
+    r = pg.evaluate("""()=>{const T=MSTEST;if(!T.btwVast)return null;const S=T.state,id1=T.newId('k'),id2=T.newId('k'),id3=T.newId('k');
+      S.klanten.push({id:id1,naam:'Part',soort:'particulier'},{id:id2,naam:'VvE',soort:'vve'},{id:id3,naam:'Zak',soort:'zakelijk'});
+      const f=(kid,oms,st)=>T.btwVast({soort:'factuur',klantId:kid,status:st||'concept',btw:21,incl:true,regels:oms.map(o=>({omschrijving:o,aantal:1,prijs:100}))},!st);
+      const p=f(id1,['Glasbewassing buiten','Glasbewassing binnen']),v=f(id2,['Trappenhuis schoonmaak','Glasbewassing','Glasbewassing van de gevel','Ramen in het trappenhuis']),z=f(id3,['Glasbewassing binnen']);
+      const oud=f(id1,['Glasbewassing binnen'],'open'),tp=T.totals(p),verl=T.totals({...p,btw:0});
+      S.klanten.splice(-3,3);
+      return {p:p.regels.map(r=>r.btw??null),v:v.regels.map(r=>r.btw??null),z:z.regels.map(r=>r.btw??null),oud:oud.regels.map(r=>r.btw??null),
+        inc:tp.inc,ex:tp.ex,n:tp.tarieven.length,b9:(tp.tarieven.find(x=>x.pct===9)||{}).btw,verl:verl.btw}}""")
+    if r is not None:
+        G2 = "Facturen"
+        check(G2, "Btw: glasbewassing binnen particulier 9%, buiten 21%", r["p"] == [None, 9], r)
+        check(G2, "Btw: VvE trappenhuis 9%, glas/gevel 21%", r["v"] == [9, None, None, 9], r)
+        check(G2, "Btw: zakelijk binnen blijft 21%", r["z"] == [None], r)
+        check(G2, "Btw: verstuurde factuur wordt niet aangepast", r["oud"] == [None], r)
+        check(G2, "Btw: totaal per tarief klopt (incl. prijzen)", r["inc"] == 200 and r["n"] == 2 and abs(r["ex"] - round(100/1.21 + 100/1.09, 2)) < 0.011 and abs(r["b9"] - round(100 - 100/1.09, 2)) < 0.011, r)
+        check(G2, "Btw verlegd: alles 0%", r["verl"] == 0, r)
 
 
 def nieuweOpdracht(pg):

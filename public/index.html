@@ -6254,7 +6254,7 @@ async function nrBewaker(){if(nrBezig||!MIJN_F.size)return;nrBezig=1;
 function bcVast(data){if(!data||data.soort!=="factuur")return data;const d={...data};
   if(d.status==="concept"){delete d.beheercode;return d}
   if(d.beheercode==null){const k=(state.klanten||[]).find(x=>x.id===d.klantId);if(k&&k.beheercode)d.beheercode=String(k.beheercode)}return d}
-async function save(col,id,data){if(col==="facturen")data=bcVast(data);if(col==="facturen"&&!(state.facturen||[]).some(f=>f.id===id))MIJN_F.add(id);if(state.db)await state.db.collection(col).doc(id).set(data);else{mem[col].set(id,{...data,id});apply(col,[...mem[col].values()]);schedule()}}
+async function save(col,id,data){if(col==="facturen"){data=bcVast(data);if(typeof btwVast==="function")data=btwVast(data,!(state.facturen||[]).some(f=>f.id===id))}if(col==="facturen"&&!(state.facturen||[]).some(f=>f.id===id))MIJN_F.add(id);if(state.db)await state.db.collection(col).doc(id).set(data);else{mem[col].set(id,{...data,id});apply(col,[...mem[col].values()]);schedule()}}
 async function del(col,id){if(state.db)await state.db.collection(col).doc(id).delete();else{mem[col].delete(id);apply(col,[...mem[col].values()]);schedule()}}
 let rq=0;function schedule(){if(rq)return;rq=requestAnimationFrame(()=>{rq=0;render()})}
 async function init(){
@@ -6485,12 +6485,30 @@ function beurtOmzet(b){if(!b||b.geannuleerd||b.gefactureerd==="nvt")return 0;con
 /* was een klant actief in (een deel van) de periode s..e (iso)? Zelfde regel voor Statistieken › Klanten en Analyse */
 function klantActiefIn(k,s,e,laatstB){if(k.prospect||k.hoofdKlantId)return false;const a=String(k.aangemaakt||"").slice(0,10);if(a&&a>e)return false;if(k.actief!==false)return true;
   const stop=String(k.inactiefOp||k.gepauzeerdOp||(laatstB&&laatstB[k.id])||"").slice(0,10);return !!stop&&stop>=s}
+/* btw per regel: een regel kan een eigen tarief hebben (bijv. 9% voor trappenhuis van een VvE of glasbewassing binnen),
+   anders geldt het tarief van de factuur. Btw verlegd / 0% op de factuur = alle regels 0%. */
+function rBtw(f,r){const fb=f&&f.btw!=null&&f.btw!==""?Number(f.btw):Number(S().btw);if(f&&f.btw!=null&&Number(f.btw)===0)return 0;
+  return r&&r.btw!=null&&r.btw!==""&&!isNaN(Number(r.btw))?Number(r.btw):fb}
 function totals(f){
-  const btw=Number(f.btw??S().btw)/100,incl=f.incl??S().incl;
-  const sum=(f.regels||[]).reduce((a,r)=>a+(Number(r.aantal)||0)*(Number(r.prijs)||0),0);
-  let ex,inc;if(incl){inc=sum;ex=sum/(1+btw)}else{ex=sum;inc=sum*(1+btw)}
-  return{ex:r2(ex),btw:r2(inc-ex),inc:r2(inc)};
+  const incl=f.incl??S().incl,g={};
+  (f.regels||[]).forEach(r=>{const p=rBtw(f,r);(g[p]=g[p]||{pct:p,som:0}).som+=(Number(r.aantal)||0)*(Number(r.prijs)||0)});
+  if(!Object.keys(g).length){const p=rBtw(f,null);g[p]={pct:p,som:0}}
+  let ex=0,inc=0;const tarieven=Object.values(g).sort((a,b)=>b.pct-a.pct).map(x=>{const e=incl?x.som/(1+x.pct/100):x.som,i=incl?x.som:x.som*(1+x.pct/100);ex+=e;inc+=i;return{pct:x.pct,ex:r2(e),btw:r2(i-e),inc:r2(i)}});
+  return{ex:r2(ex),btw:r2(inc-ex),inc:r2(inc),tarieven};
 }
+/* welk tarief hoort bij een regel? Nederland: schoonmaak van woningen valt onder 9%:
+   - VvE: trappenhuis, entree, galerij, lift, bergingen en ramen binnen (gemeenschappelijke ruimtes van een woongebouw)
+   - particulier: glasbewassing binnen. Buiten, gevel, zonnepanelen, goten en zakelijke klanten blijven 21%.
+   Aan/uit bij Instellingen › Land, valuta & BTW. null = tarief van de factuur. */
+function btwRegel(k,oms){const st=S();if(!k||k.btwVerlegd||(st.land||"NL")!=="NL")return null;const o=String(oms||"").toLowerCase();
+  if(/buiten|gevel|zonnepan|goot|goten|dakkapel|dakgoot|kozijn|schoorsteen|rolluik|hogedruk/.test(o))return null;
+  if(k.soort==="vve"&&st.btw9Vve!==false&&/trap|schoonma|entree|portiek|galerij|lift|berging|kelder|binnen|hal\b|gang/.test(o))return 9;
+  if(k.soort!=="zakelijk"&&k.soort!=="vve"&&st.btw9Binnen!==false&&/binnen/.test(o)&&/glas|raam|ramen|wassen/.test(o))return 9;
+  return null}
+/* bij opslaan van een nieuwe of conceptfactuur/-offerte: regels zonder eigen tarief krijgen het tarief van hierboven (verstuurde facturen blijven ongemoeid) */
+function btwRegels(k,regels){return (regels||[]).map(r=>{if(r.btw!=null&&r.btw!=="")return r;const b=btwRegel(k,r.omschrijving);return b==null?r:{...r,btw:b}})}
+function btwVast(data,nieuw){if(!data||!["factuur","offerte"].includes(data.soort)||!Array.isArray(data.regels))return data;if(!nieuw&&data.status!=="concept")return data;
+  const k=(state.klanten||[]).find(x=>x.id===data.klantId);if(!k)return data;return {...data,regels:btwRegels(k,data.regels)}}
 function fStatus(f){
   if(f.soort==="offerte")return({concept:["neutral","Concept"],verstuurd:["soon","Verstuurd"],geaccepteerd:["ok","Geaccepteerd"],afgewezen:["late","Afgewezen"]})[f.status||"concept"]||["neutral","Concept"];
   if(f.status==="betaald")return["ok","Betaald"];
@@ -6525,8 +6543,10 @@ const inRange=(s,[a,b])=>{const d=parse(s);return d&&d>=a&&d<=b};
 function fin(range){
   const fs=echteFacturen().filter(f=>inRange(f.datum,range)),ks=state.kosten.filter(c=>inRange(c.datum,range));
   const omzet=fs.reduce((a,f)=>a+totals(f).ex,0),btwOmzet=fs.reduce((a,f)=>a+totals(f).btw,0);
+  /* btw-aangifte per rubriek: 1a hoog (21%), 1b laag (9%), 1e 0% of verlegd */
+  const rub={a:{omzet:0,btw:0},b:{omzet:0,btw:0},e:{omzet:0,btw:0}};fs.forEach(f=>(totals(f).tarieven||[]).forEach(x=>{const k=x.pct>=15?"a":x.pct>0?"b":"e";rub[k].omzet+=x.ex;rub[k].btw+=x.btw}));
   const kosten=ks.reduce((a,c)=>a+kostEx(c),0),voorbelasting=ks.reduce((a,c)=>a+kostBtw(c),0);
-  return{fs,ks,omzet:r2(omzet),btwOmzet:r2(btwOmzet),kosten:r2(kosten),voorbelasting:r2(voorbelasting),winst:r2(omzet-kosten),btwSaldo:r2(btwOmzet-voorbelasting)};
+  return{fs,ks,rub,omzet:r2(omzet),btwOmzet:r2(btwOmzet),kosten:r2(kosten),voorbelasting:r2(voorbelasting),winst:r2(omzet-kosten),btwSaldo:r2(btwOmzet-voorbelasting)};
 }
 const qDeadline=(y,q)=>new Date(y,q*3+1,0);// laatste dag van de maand na het kwartaal (q = 1..4)
 function aangifteStatus(){
@@ -6991,7 +7011,8 @@ function openFactuurForm(opts={}){
   const k0=ex?state.klanten.find(x=>x.id===ex.klantId):opts.klantId?state.klanten.find(x=>x.id===opts.klantId):null;
   const lines=ex?ex.regels.map(r=>({...r})):opts.regels||[{omschrijving:soort==="offerte"?((k0&&k0.dienst)||"Glasbewassing")+", per beurt":((k0&&k0.dienst)||"Glasbewassing"),aantal:1,prijs:k0?Number(k0.prijs)||0:""}];
   const ks=[...state.klanten].sort((a,b)=>cleanName(a.naam).localeCompare(cleanName(b.naam)));
-  const totHtml=()=>{const t=totals({regels:lines,btw:Number($("#ff-btw").value),incl:$("#ff-incl").checked});return `<span>Subtotaal excl. btw</span><span>${eur(t.ex)}</span><span>Btw ${$("#ff-btw").value}%</span><span>${eur(t.btw)}</span><span class="grand">Totaal</span><span class="grand">${eur(t.inc)}</span>`};
+  const totHtml=()=>{const kk=state.klanten.find(x=>x.id===($("#ff-klant")||{}).value),t=totals({regels:kk&&(!ex||ex.status==="concept")?btwRegels(kk,lines):lines,btw:Number($("#ff-btw").value),incl:$("#ff-incl").checked});
+    return `<span>Subtotaal excl. btw</span><span>${eur(t.ex)}</span>${t.tarieven.map(x=>`<span>Btw ${x.pct}%</span><span>${eur(x.btw)}</span>`).join("")}<span class="grand">Totaal</span><span class="grand">${eur(t.inc)}</span>`};
   const draw=()=>{$("#ffLines").innerHTML=lines.map((r,i)=>`<div class="line"><input data-l="${i}" data-k="omschrijving" value="${esc(r.omschrijving)}" placeholder="Omschrijving" aria-label="Omschrijving"><input data-l="${i}" data-k="aantal" type="number" min="0" step="1" value="${esc(r.aantal)}" aria-label="Aantal"><input data-l="${i}" data-k="prijs" type="number" step="0.01" value="${esc(r.prijs)}" placeholder="Prijs" aria-label="Prijs"><button type="button" class="small ghost" data-rm="${i}" aria-label="Regel verwijderen">${I.x}</button></div>`).join("");$("#ffTot").innerHTML=totHtml()};
   openDlg(`<div class="dlg-head"><span class="objic big">${soort==="offerte"?I.offertes:I.facturen}</span><div style="flex:1"><h3>${ex?"Bewerk "+esc(ex.nummer):soort==="offerte"?"Nieuwe offerte":"Nieuwe factuur"}</h3></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
   <div class="grid2">
@@ -7015,7 +7036,7 @@ function openFactuurForm(opts={}){
     const kid=$("#ff-klant").value;if(!kid){$("#ff-klant").focus();return}
     const k=state.klanten.find(x=>x.id===kid);const datum=$("#ff-datum").value||iso(today());
     const data={soort,nummer:ex?ex.nummer:nextNr(soort,datum),klantId:kid,...(soort!=="factuur"?{}:ex&&ex.status!=="concept"&&ex.beheercode!=null?{beheercode:ex.beheercode}:k.beheercode?{beheercode:k.beheercode}:{}),klantNaam:k.naam,klantAdres:soort==="offerte"?jobAddr(k):factAddr(k),klantEmail:mailK(k,soort==="offerte"?"offerte":"factuur").email||"",datum,verval:$("#ff-verval").value,
-      regels:lines.filter(r=>r.omschrijving||r.prijs).map(r=>({omschrijving:String(r.omschrijving||""),aantal:Number(r.aantal)||0,prijs:Number(r.prijs)||0})),
+      regels:lines.filter(r=>r.omschrijving||r.prijs).map(r=>({omschrijving:String(r.omschrijving||""),aantal:Number(r.aantal)||0,prijs:Number(r.prijs)||0,...(r.btw!=null&&r.btw!==""?{btw:Number(r.btw)}:{})})),
       btw:Number($("#ff-btw").value),incl:$("#ff-incl").checked,status:ex?ex.status:status,notitie:$("#ff-notitie").value.trim(),betaaldOp:ex?ex.betaaldOp||"":"",vanOfferte:ex?ex.vanOfferte||"":opts.vanOfferte||"",gemaakt:ex?ex.gemaakt||"":new Date().toISOString(),
       verstuurdOp:ex?ex.verstuurdOp||"":"",herinnerdOp:ex?ex.herinnerdOp||"":"",herinneringen:ex?ex.herinneringen||0:0};
     if(!data.regels.length){toast("Voeg minimaal één regel toe");return}
@@ -9150,15 +9171,17 @@ const bhInit=()=>{if(!state.bhVan){const l=bhLaatst();state.bhVan=l?iso(addDays(
 function bhVerkoopboek(van,tot){
   const fs=echteFacturen().filter(f=>f.datum>=van&&f.datum<=tot).sort((a,b)=>String(a.datum).localeCompare(String(b.datum))||String(a.nummer).localeCompare(String(b.nummer),"nl",{numeric:true}));
   const rows=[],kop=["Dagboek","Boekingcode","Datum","Grootboeknummer","Debet","Credit","Omschrijving","Relatiecode","Factuurnummer"];const fout=[];
-  fs.forEach(f=>{const k=state.klanten.find(x=>x.id===f.klantId),t=bhType(k),T=totals(f),pct=Number(f.btw??S().btw);
+  fs.forEach(f=>{const k=state.klanten.find(x=>x.id===f.klantId),t=bhType(k),T=totals(f);
     const rel=k?klantNr(k):"",nr=String(f.nummer||f.id),code=bhCode(nr),dat=bhD(f.datum),db=bhS("bhVerkoopboek");
-    const omzetGb=f.btwVerlegd||k&&k.btwVerlegd?bhGb(t,"verlegd"):pct===0?bhGb(t,"omzet0"):pct===9?bhGb(t,"omzet9"):bhGb(t,"omzet21");
-    const btwGb=pct===9?bhGb(t,"btw9"):pct===21?bhGb(t,"btw21"):"";
-    if(!omzetGb)fout.push(nr+": geen grootboekrekening omzet "+pct+"% voor "+t);
-    if(T.btw>0&&!btwGb)fout.push(nr+": geen grootboekrekening btw "+pct+"%");
     rows.push([db,code,dat,bhS("bhDebiteuren"),bhN(T.inc),bhN(0),nr,rel,nr]);
-    rows.push([db,code,dat,omzetGb,bhN(0),bhN(T.ex),nr,rel,nr]);
-    if(T.btw>0)rows.push([db,code,dat,btwGb,bhN(0),bhN(T.btw),nr,rel,nr]);
+    /* per btw-tarief een omzet- en btw-regel: één factuur kan 9% en 21% hebben */
+    (T.tarieven||[{pct:Number(f.btw??S().btw),ex:T.ex,btw:T.btw}]).forEach(x=>{const pct=x.pct;if(!x.ex&&!x.btw)return;
+      const omzetGb=f.btwVerlegd||k&&k.btwVerlegd?bhGb(t,"verlegd"):pct===0?bhGb(t,"omzet0"):pct===9?bhGb(t,"omzet9"):bhGb(t,"omzet21");
+      const btwGb=pct===9?bhGb(t,"btw9"):pct===21?bhGb(t,"btw21"):"";
+      if(!omzetGb)fout.push(nr+": geen grootboekrekening omzet "+pct+"% voor "+t);
+      if(x.btw>0&&!btwGb)fout.push(nr+": geen grootboekrekening btw "+pct+"%");
+      rows.push([db,code,dat,omzetGb,bhN(0),bhN(x.ex),nr,rel,nr]);
+      if(x.btw>0)rows.push([db,code,dat,btwGb,bhN(0),bhN(x.btw),nr,rel,nr])});
   });
   const csv=[kop,...rows].map(r=>r.map(x=>String(x??"").replace(/[;\r\n]/g," ")).join(";")).join("\r\n")+"\r\n";
   return{fs,rows,csv,fout,omzet:fs.reduce((a,f)=>a+totals(f).inc,0)};
@@ -9339,14 +9362,17 @@ function vBoekhouding(){
 function openAangifte(y,q){
   const f=fin(periodRange(y,"q"+q)),key=y+"-Q"+q,done=state.aangiftes[key];
   const r=n=>Math.floor(n);// Belastingdienst rondt af op hele euro's in je voordeel
-  const txt=`Btw-aangifte Q${q} ${y}\n1a Leveringen/diensten belast met hoog tarief: omzet € ${r(f.omzet)}, btw € ${r(f.btwOmzet)}\n5b Voorbelasting: € ${Math.ceil(f.voorbelasting)}\nTotaal te betalen: € ${r(f.btwOmzet)-Math.ceil(f.voorbelasting)}`;
+  const R=f.rub||{a:{omzet:f.omzet,btw:f.btwOmzet},b:{omzet:0,btw:0},e:{omzet:0,btw:0}};
+  const txt=`Btw-aangifte Q${q} ${y}\n1a Leveringen/diensten belast met hoog tarief: omzet € ${r(R.a.omzet)}, btw € ${r(R.a.btw)}${R.b.omzet?`\n1b Leveringen/diensten belast met laag tarief: omzet € ${r(R.b.omzet)}, btw € ${r(R.b.btw)}`:""}${R.e.omzet?`\n1e Leveringen/diensten belast met 0% of niet bij u belast: omzet € ${r(R.e.omzet)}`:""}\n5b Voorbelasting: € ${Math.ceil(f.voorbelasting)}\nTotaal te betalen: € ${r(f.btwOmzet)-Math.ceil(f.voorbelasting)}`;
   openDlg(`<div class="dlg-head"><span class="objic big">${I.bank}</span><div style="flex:1"><h3>Btw-aangifte Q${q} ${y}</h3><div class="subt">Uiterlijk ${fmtL(qDeadline(y,q))}${done?" · ingediend op "+fmtL(done):""}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
   <div class="tablewrap" style="box-shadow:none"><table class="t" style="min-width:0"><thead><tr><th>Rubriek</th><th class="r">Omzet</th><th class="r">Btw</th></tr></thead><tbody>
-    <tr><td><b>1a</b> Leveringen/diensten belast met hoog tarief</td><td class="r amt">€ ${r(f.omzet)}</td><td class="r amt">€ ${r(f.btwOmzet)}</td></tr>
+    <tr><td><b>1a</b> Leveringen/diensten belast met hoog tarief</td><td class="r amt">€ ${r(R.a.omzet)}</td><td class="r amt">€ ${r(R.a.btw)}</td></tr>
+    ${R.b.omzet?`<tr><td><b>1b</b> Leveringen/diensten belast met laag tarief</td><td class="r amt">€ ${r(R.b.omzet)}</td><td class="r amt">€ ${r(R.b.btw)}</td></tr>`:""}
+    ${R.e.omzet?`<tr><td><b>1e</b> Leveringen/diensten belast met 0% of niet bij u belast</td><td class="r amt">€ ${r(R.e.omzet)}</td><td></td></tr>`:""}
     <tr><td><b>5a</b> Verschuldigde omzetbelasting</td><td></td><td class="r amt">€ ${r(f.btwOmzet)}</td></tr>
     <tr><td><b>5b</b> Voorbelasting</td><td></td><td class="r amt">€ ${Math.ceil(f.voorbelasting)}</td></tr>
     <tr style="font-weight:800"><td>Totaal te betalen</td><td></td><td class="r amt">€ ${r(f.btwOmzet)-Math.ceil(f.voorbelasting)}</td></tr></tbody></table></div>
-  <p class="subt" style="margin:0">Gebaseerd op ${plural(f.fs.length,"factuur","facturen")} en ${plural(f.ks.length,"bon","bonnen")} in dit kwartaal, afgerond op hele euro's. Facturen met 9% of 0% btw staan nu ook onder 1a; controleer dat als je die gebruikt. Indienen doe je zelf in Mijn Belastingdienst Zakelijk.</p>
+  <p class="subt" style="margin:0">Gebaseerd op ${plural(f.fs.length,"factuur","facturen")} en ${plural(f.ks.length,"bon","bonnen")} in dit kwartaal, afgerond op hele euro's. Regels met 9% staan onder 1b, 0% en btw verlegd onder 1e. Indienen doe je zelf in Mijn Belastingdienst Zakelijk.</p>
   <div class="row"><button type="button" class="small" id="agCopy">${I.copy}Kopieer bedragen</button><span class="sp"></span>${done?`<button type="button" class="ghost danger" id="agUndo">Markering weghalen</button>`:`<button type="button" class="primary" id="agDone">${I.check}Markeer als ingediend</button>`}</div>`);
   $("#agCopy").onclick=e=>copy(txt,e.currentTarget);
   const setA=async v=>{const a={...state.aangiftes};if(v)a[key]=v;else delete a[key];try{await save("instellingen","aangiftes",a);dlg.close();toast(v?"Aangifte gemarkeerd als ingediend":"Markering weggehaald")}catch(er){err(er)}};
@@ -10705,6 +10731,9 @@ function openSetEdit(id){
       <div class="grid2"><div class="minibox"><span class="eyebrow">${I.euro} Valuta</span><b>€ EUR</b><small>Voorbeeld: € 1.234,50</small></div><div class="minibox"><span class="eyebrow">${I.receipt} BTW</span><b>${L.btw.join("% · ")}%</b><small>Standaard: ${s.btw}%</small></div></div>
       ${sel("btw","Standaard btw-tarief",s.btw,L.btw.map(v=>[v,v+"%"+(v===21?" (hoog)":v===9||v===6?" (laag)":v===0?" (nul)":"")]),{t:"num",help:"Wordt voorgesteld bij nieuwe facturen en offertes"})}
       ${tgl("incl","Prijzen zijn incl. btw","De prijs per beurt bij klanten is inclusief btw",s.incl)}
+      ${(s.land||"NL")==="NL"?`${tgl("btw9Vve","9% btw voor trappenhuis van een VvE","Schoonmaak van trappenhuis, entree, galerij, lift en bergingen van een woongebouw. Glas buiten en gevel blijven 21%.",s.btw9Vve!==false)}
+      ${tgl("btw9Binnen","9% btw voor glasbewassing binnen bij particulieren","Regels met ‘binnen’ bij een particuliere klant. Buiten en zakelijk blijven 21%.",s.btw9Binnen!==false)}
+      <small class="help" style="margin-top:-4px">Op één factuur kunnen zo regels met 9% en 21% staan; de factuur toont de btw per tarief. Per regel kun je het tarief ook zelf kiezen.</small>`:""}
       ${inp("termijn","Betaaltermijn (dagen)",s.termijn,{type:"number",t:"num"})}
       ${sel("factNrStijl","Factuurnummers",s.factNrStijl||"jaar",[["jaar","Per jaar: "+nextNr("factuur",iso(today())).replace(/\d+$/,m=>m.replace(/./g,"0").replace(/0$/,"1"))+" …"],["doorlopend","Doorlopend zoals DienstenCRM: 26-009295"]],{help:"Doorlopend: jaar in 2 cijfers en een volgnummer van 6 cijfers dat over de jaren doorloopt. Zo krijgt je boekhouder één reeks."})}
       ${inp("factNrStart","Eerste volgnummer (bij overstap)",s.factNrStart,{type:"number",t:"num",ph:"9295",help:"Laatste factuurnummer uit het oude pakket + 1, bijv. 26-009294 → 9295. Volgende factuur: "+esc(nextNr("factuur",iso(today())))})}
@@ -11889,7 +11918,7 @@ function invKlant(f){const ks=state.klanten||[];return ks.find(x=>x.id===f.klant
 function invData(f,klant){
   const s=S(),off=f.soort==="offerte",t=totals(f),btw=Number(f.btw??s.btw),incl=f.incl??s.incl;
   const k=klant||invKlant(f)||{};
-  const regels=(f.regels||[]).map(r=>{const p=Number(r.prijs)||0,ex=incl?p/(1+btw/100):p,a=Number(r.aantal)||0;return{oms:omsZonderDatum(String(r.omschrijving||"").replace(/ ?\(minimumtarief\)/gi,"")),aantal:a,prijs:r2(ex),btw,tot:r2(ex*a),subs:Array.isArray(r.subs)?r.subs:null}});
+  const regels=(f.regels||[]).map(r=>{const rb=rBtw(f,r),p=Number(r.prijs)||0,ex=incl?p/(1+rb/100):p,a=Number(r.aantal)||0;return{oms:omsZonderDatum(String(r.omschrijving||"").replace(/ ?\(minimumtarief\)/gi,"")),aantal:a,prijs:r2(ex),btw:rb,tot:r2(ex*a),subs:Array.isArray(r.subs)?r.subs:null}});
   const st=off?{concept:["CONCEPT","n"],verstuurd:["VERSTUURD","b"],geaccepteerd:["GEACCEPTEERD","g"],afgewezen:["AFGEWEZEN","r"]}[f.status||"concept"]:f.status==="betaald"?["BETAALD","g"]:f.status==="concept"?["CONCEPT","n"]:fStatus(f)[1]==="Achterstallig"?["VERVALLEN","r"]:["TE BETALEN","b"];
   /* volledige naam/adres: adres van de factuur, aangevuld met het (factuur)adres van de klant als daar iets ontbreekt */
   const kAdr=k&&(k.adres||k.fAdres)?(typeof factAddr==="function"&&(off?false:k.fAdres)?factAddr(k):fullAddr(k)):"";
@@ -11959,7 +11988,7 @@ function paperHtml(f,klant){
   :`<table class="i5-t"><thead><tr><th>Omschrijving</th><th class="c">Aantal</th><th class="r">Prijs</th><th class="r">Bedrag</th></tr></thead><tbody>
     ${m.regels.map(r=>`<tr><td>${esc(r.oms)}</td><td class="c">${r.aantal}</td><td class="r">€ ${num(r.prijs)}</td><td class="r"><b>€ ${num(r.ex)}</b></td></tr>`).join("")}</tbody></table>`}
   <div class="i5-sum"><div class="i5-pay">${m.pay?`<span class="i5-l">Betaalgegevens</span><table>${m.pay.filter(x=>x[0]!=="Uiterlijk").map(([a,b])=>`<tr><th>${esc(a)}</th><td>${esc(b)}</td></tr>`).join("")}</table>`:`<span class="i5-l">${m.off?"Geldigheid":"Betaling"}</span>`}${m.off?`<b class="i5-pnr">Offerte ${esc(f.nummer)}</b>`:""}<p>${esc(m.zin)}</p></div>
-    ${m.off&&f.totaalTonen===false?"<div></div>":`<div class="i5-tot"><div><span>Subtotaal</span><span>€ ${num(m.t.ex)}</span></div><div><span>BTW ${m.btw}%</span><span>€ ${num(m.t.btw)}</span></div><div class="g"><span><b>${m.off?"Totaal per beurt":m.voldaan||m.st[1]==="g"?"Betaald":"Te betalen"}</b><small>${m.off?"incl. "+m.btw+"% btw":m.voldaan||m.st[1]==="g"?"Hartelijk dank":"Vóór "+esc(fmtL(f.verval))}</small></span><span class="i5-amt">€ ${num(m.t.inc)}</span></div></div>`}</div>
+    ${m.off&&f.totaalTonen===false?"<div></div>":`<div class="i5-tot"><div><span>Subtotaal</span><span>€ ${num(m.t.ex)}</span></div>${m.t.tarieven.map(x=>`<div><span>BTW ${x.pct}%</span><span>€ ${num(x.btw)}</span></div>`).join("")}<div class="g"><span><b>${m.off?"Totaal per beurt":m.voldaan||m.st[1]==="g"?"Betaald":"Te betalen"}</b><small>${m.off?(m.t.tarieven.length>1?"incl. btw":"incl. "+m.t.tarieven[0].pct+"% btw"):m.voldaan||m.st[1]==="g"?"Hartelijk dank":"Vóór "+esc(fmtL(f.verval))}</small></span><span class="i5-amt">€ ${num(m.t.inc)}</span></div></div>`}</div>
   ${f.notitie?`<div class="i5-note"><span class="i5-l">Opmerking</span>${esc(f.notitie)}</div>`:""}
   ${f.soort==="offerte"&&offTxt(f.voettekst,f)?`<div class="i5-txt">${esc(offTxt(f.voettekst,f)).replace(/\n/g,"<br>")}</div>`:""}
     ${m.vwTxt?`<p class="i5-vw">${esc(m.vwTxt)}</p>`:""}
@@ -12011,11 +12040,11 @@ async function pdfDoc(f,klant){
   // totalen
   const TX=126,ty0=y;let tyEnd=y;
   if(!(m.off&&f.totaalTonen===false)){doc.setFontSize(8.2);
-  [["Subtotaal",m.t.ex],["BTW "+m.btw+"%",m.t.btw]].forEach(([a,b])=>{N();col(C.mut);doc.text(a,TX,y+4);col(C.ink);doc.text(E(b),R,y+4,{align:"right"});y+=6});
+  [["Subtotaal",m.t.ex],...m.t.tarieven.map(x=>["BTW "+x.pct+"%",x.btw])].forEach(([a,b])=>{N();col(C.mut);doc.text(a,TX,y+4);col(C.ink);doc.text(E(b),R,y+4,{align:"right"});y+=6});
   y+=1;const paid=m.voldaan||m.st[1]==="g",tint=A.map(v=>Math.round(v*.08+255*.92)),edge=A.map(v=>Math.round(v*.3+255*.7));
   doc.setFillColor(...C.soft);doc.roundedRect(TX-4,y,R-TX+4,13.5,2,2,"F");
   B();doc.setFontSize(8.8);col(C.ink);doc.text(m.off?"Totaal per beurt":paid?"Betaald":"Te betalen",TX,y+6);
-  N();doc.setFontSize(6.8);col(C.mut);doc.text(m.off?"incl. "+m.btw+"% btw":paid?"Hartelijk dank":"Vóór "+fmtL(f.verval),TX,y+9.8);
+  N();doc.setFontSize(6.8);col(C.mut);doc.text(m.off?(m.t.tarieven.length>1?"incl. btw":"incl. "+m.t.tarieven[0].pct+"% btw"):paid?"Hartelijk dank":"Vóór "+fmtL(f.verval),TX,y+9.8);
   B();doc.setFontSize(11);col(A);doc.text(E(m.t.inc),R-4,y+8.3,{align:"right"});col(C.ink);tyEnd=y+13.5;}
   // betaalgegevens
   y=ty0;const PW=TX-L-12,pr=m.pay?m.pay.filter(x=>x[0]!=="Uiterlijk"):[],zl=(N(),doc.setFontSize(7.6),doc.splitTextToSize(m.zin,PW-10)),bh=10+pr.length*4.6+zl.length*3.8+3+(m.off?5.4:0);
@@ -12082,7 +12111,7 @@ function klantNr(k){
   return String(Number(relVolgende())+Math.max(0,i));
 }
 /* ---------- SnelStart-export: relaties + verkoopboekingen ---------- */
-const SS_DEF={dagboek:"1300",deb:"1300",omzet:"8000",btwH:"3101",btwL:"3102",omzet0:"8000"};
+const SS_DEF={dagboek:"1300",deb:"1300",omzet:"8000",omzet9:"8000",btwH:"3101",btwL:"3102",omzet0:"8000"};
 const ssNum=v=>(Number(v)||0).toLocaleString("nl-NL",{minimumFractionDigits:2,maximumFractionDigits:2,useGrouping:true});
 const ssDate=d=>{const x=parse(d);return x?String(x.getDate()).padStart(2,"0")+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+x.getFullYear():""};
 function ssData(van,tot,cfg){
@@ -12093,7 +12122,8 @@ function ssData(van,tot,cfg){
     const inc=r2(t.inc),ex=r2(t.ex),btw=r2(inc-ex),rate=Number(f.btw??S().btw)||0,neg=inc<0,A=Math.abs;
     const bc=(String(f.nummer).match(/(\d+)\D*$/)||[,""])[1].replace(/^0+(?=\d)/,"");
     const L=(gb,amt,debet)=>rows.push([cfg.dagboek,bc,ssDate(f.datum),gb,ssNum(debet!==neg?A(amt):0),ssNum(debet!==neg?0:A(amt)),f.nummer,code,f.nummer].join(";"));
-    L(cfg.deb,inc,true);L(rate?cfg.omzet:(cfg.omzet0||cfg.omzet),ex,false);if(btw)L(rate>=15?cfg.btwH:cfg.btwL,btw,false);
+    L(cfg.deb,inc,true);/* per btw-tarief een omzet- en btw-regel (9% en 21% op één factuur kan) */
+    t.tarieven.forEach(x=>{if(!x.ex&&!x.btw)return;L(x.pct?(x.pct<15?(cfg.omzet9||cfg.omzet):cfg.omzet):(cfg.omzet0||cfg.omzet),x.ex,false);if(x.btw)L(x.pct>=15?cfg.btwH:cfg.btwL,x.btw,false)});
     if(code&&!rel.has(code)){const src=k||{naam:f.klantNaam};rel.set(code,src)}
   });
   /* klantenbestand zoals DienstenCRM het maakt: alle actieve klanten (plus wie in deze periode een factuur kreeg), op relatiecode */
@@ -12113,7 +12143,7 @@ function openSnelstart(){
   <div class="grid2"><label>Van<input type="date" id="ss-van" value="${van0}"></label><label>Tot en met<input type="date" id="ss-tot" value="${iso(t)}"></label></div>
   <div id="ss-sum" class="te-cnt"></div>
   <details><summary style="cursor:pointer;font-weight:700">Grootboekrekeningen</summary>
-  <div class="grid2" style="margin-top:12px">${[["dagboek","Dagboek (verkoop)"],["deb","Debiteuren"],["omzet","Omzet"],["omzet0","Omzet 0% / verlegd"],["btwH","BTW hoog (21%)"],["btwL","BTW laag (9%)"]].map(([k,l])=>`<label>${l}<input id="ss-${k}" value="${esc(cfg[k])}" inputmode="numeric"></label>`).join("")}</div>
+  <div class="grid2" style="margin-top:12px">${[["dagboek","Dagboek (verkoop)"],["deb","Debiteuren"],["omzet","Omzet 21%"],["omzet9","Omzet 9%"],["omzet0","Omzet 0% / verlegd"],["btwH","BTW hoog (21%)"],["btwL","BTW laag (9%)"]].map(([k,l])=>`<label>${l}<input id="ss-${k}" value="${esc(cfg[k])}" inputmode="numeric"></label>`).join("")}</div>
   <small class="help">Standaard zoals in je voorbeeld: dagboek 1300, debiteuren 1300, omzet 8000, BTW hoog 3101. Controleer BTW laag in je SnelStart-administratie.</small></details>
   <div class="ss-two">
     <div class="ss-card"><span class="objic" style="background:var(--plan-bg);color:var(--plan)">${I.klanten}</span><div><b>1. Klanten (relaties)</b><small id="ss-nk"></small></div><button type="button" id="ss-k">${I.dl}Download klanten</button></div>
@@ -12231,8 +12261,8 @@ function openOfferte(opts={}){
       ${dns.length?`<div class="ow-dns">${dnsHtml()}</div>`:""}
       <div class="lines">${extra.map((r,i)=>`<div class="line"><input data-l="${i}" data-k="omschrijving" value="${esc(r.omschrijving)}" placeholder="Omschrijving" aria-label="Omschrijving"><input data-l="${i}" data-k="aantal" type="number" min="0" step="1" value="${esc(r.aantal)}" aria-label="Aantal"><input data-l="${i}" data-k="prijs" type="number" step="0.01" value="${esc(r.prijs)}" placeholder="Prijs excl." aria-label="Prijs excl. btw"><button type="button" class="small ghost" data-rm="${i}" aria-label="Regel verwijderen">${I.x}</button></div>`).join("")}</div>`;
     tot()};
-  const tot=()=>{const t=totals({regels:allRegels(),btw:Number($o("btw").value),incl:false});
-    $("#owTot").innerHTML=`<span>Subtotaal excl. btw</span><span>${eur(t.ex)}</span><span>Btw ${$o("btw").value}%</span><span>${eur(t.btw)}</span><span class="grand">Totaal per beurt</span><span class="grand">${eur(t.inc)}</span>`};
+  const tot=()=>{const kk=state.klanten.find(x=>x.id===kid),t=totals({regels:kk?btwRegels(kk,allRegels()):allRegels(),btw:Number($o("btw").value),incl:false});
+    $("#owTot").innerHTML=`<span>Subtotaal excl. btw</span><span>${eur(t.ex)}</span>${t.tarieven.map(x=>`<span>Btw ${x.pct}%</span><span>${eur(x.btw)}</span>`).join("")}<span class="grand">Totaal per beurt</span><span class="grand">${eur(t.inc)}</span>`};
   $("#owRegels").addEventListener("input",e=>{const i=e.target.dataset.l;if(i==null)return;const key=e.target.dataset.k;extra[i][key]=key==="omschrijving"?e.target.value:e.target.value===""?"":Number(e.target.value);tot()});
   groepBind($("#owRegels"),key=>dns[+key.slice(1)],(key,struct)=>{const d=dns[+key.slice(1)];if(!d)return;if(struct)draw();else{groepTotUpdate($("#owRegels"),key,d,{offerte:true,freqDefault:glasW()});const h=$("#owRegels").querySelector(`[data-ge="${key}"]`);const m=h&&h.closest(".ow-dn")?h.closest(".ow-dn").querySelector(".ow-dnh .mono"):null;if(m){const c=dnsCalc(d);m.textContent=c.ex?eur(c.ex):""}tot()}});
   $("#owRegels").addEventListener("change",e=>{const el=e.target;
@@ -13542,9 +13572,9 @@ function openFactuurWerk(id){
   const opt=(ic,lbl,act,date,cls="")=>`<tr><td>${act?`<button type="button" class="linkbtn fw-opt ${cls}" data-fw="${act}">${ic}${lbl}</button>`:`<span class="fw-opt plain">${ic}${lbl}</span>`}</td><td class="r">${date||"—"}</td></tr>`;
   const betaaldMet=w=>f.status==="betaald"&&(f.betaalwijze||"overmaken")===w?dt(f.betaaldOp):"";
   const rv=invRows(f,k);
-  const regRows=(f.regels||[]).map((r,i)=>{const p=Number(r.prijs)||0,a=Number(r.aantal)||0,ex=(incl?p/(1+btw/100):p),exT=ex*a;return `<tr><td>${esc(omsZonderDatum(r.omschrijving))}<br><small class="subt">Datum: ${esc(fmtNum(f.datum).replace(/ /g,""))}</small></td><td class="r">${a.toLocaleString("nl-NL")}</td><td class="r">${eur(ex)}</td><td class="r">${eur(exT)}</td><td class="r">${eur(exT*btw/100)}</td><td class="r">${eur(exT*(1+btw/100))}</td><td class="r fw-ro"><button type="button" class="iconbtn sm" data-fwr="${i}" aria-label="Regel aanpassen">${I.pencil}</button><button type="button" class="iconbtn sm" data-fwd="${i}" aria-label="Regel verwijderen">${I.x}</button></td></tr>`}).join("");
+  const regRows=(f.regels||[]).map((r,i)=>{const btw=rBtw(f,r),p=Number(r.prijs)||0,a=Number(r.aantal)||0,ex=(incl?p/(1+btw/100):p),exT=ex*a;return `<tr><td>${esc(omsZonderDatum(r.omschrijving))}<br><small class="subt">Datum: ${esc(fmtNum(f.datum).replace(/ /g,""))} · btw ${btw}%</small></td><td class="r">${a.toLocaleString("nl-NL")}</td><td class="r">${eur(ex)}</td><td class="r">${eur(exT)}</td><td class="r">${eur(exT*btw/100)}</td><td class="r">${eur(exT*(1+btw/100))}</td><td class="r fw-ro"><button type="button" class="iconbtn sm" data-fwr="${i}" aria-label="Regel aanpassen">${I.pencil}</button><button type="button" class="iconbtn sm" data-fwd="${i}" aria-label="Regel verwijderen">${I.x}</button></td></tr>`}).join("");
   /* op de telefoon: regels als kaarten in plaats van een brede tabel */
-  const regKaart=(f.regels||[]).map((r,i)=>{const p=Number(r.prijs)||0,a=Number(r.aantal)||0,ex=(incl?p/(1+btw/100):p),exT=ex*a;return `<div class="fw-rk"><div class="fw-rk-k"><div class="fw-rk-t"><b>${esc(omsZonderDatum(r.omschrijving))}</b><small>Datum ${esc(fmtNum(f.datum).replace(/ /g,""))}</small></div><span class="fw-rk-a"><button type="button" class="iconbtn sm" data-fwr="${i}" aria-label="Regel aanpassen">${I.pencil}</button><button type="button" class="iconbtn sm" data-fwd="${i}" aria-label="Regel verwijderen">${I.x}</button></span></div><div class="fw-rk-b"><span>${a.toLocaleString("nl-NL")} × ${eur(ex)}<small>excl. ${eur(exT)} · btw ${eur(exT*btw/100)}</small></span><b>${eur(exT*(1+btw/100))}</b></div></div>`}).join("");
+  const regKaart=(f.regels||[]).map((r,i)=>{const btw=rBtw(f,r),p=Number(r.prijs)||0,a=Number(r.aantal)||0,ex=(incl?p/(1+btw/100):p),exT=ex*a;return `<div class="fw-rk"><div class="fw-rk-k"><div class="fw-rk-t"><b>${esc(omsZonderDatum(r.omschrijving))}</b><small>Datum ${esc(fmtNum(f.datum).replace(/ /g,""))}</small></div><span class="fw-rk-a"><button type="button" class="iconbtn sm" data-fwr="${i}" aria-label="Regel aanpassen">${I.pencil}</button><button type="button" class="iconbtn sm" data-fwd="${i}" aria-label="Regel verwijderen">${I.x}</button></span></div><div class="fw-rk-b"><span>${a.toLocaleString("nl-NL")} × ${eur(ex)}<small>excl. ${eur(exT)} · btw ${btw}% ${eur(exT*btw/100)}</small></span><b>${eur(exT*(1+btw/100))}</b></div></div>`}).join("");
   const log=[{d:f.gemaakt||f.datum,t:"Factuur aangemaakt"},f.verstuurdOp&&{d:f.verstuurdOp,t:"Factuur verstuurd"},f.herinnerdOp&&{d:f.herinnerdOp,t:"Herinnering verstuurd"+(Number(f.herinneringen)>1?" ("+f.herinneringen+"e)":"")},...(Array.isArray(f.deelBetalingen)?f.deelBetalingen:[]).map(x=>({d:x.op,t:"Deels betaald via Mollie · "+eur(Number(x.bedrag)||0)})),f.status==="betaald"&&{d:f.betaaldOp,t:"Betaald · "+(W[f.betaalwijze]||"per bank")},f.status==="oninbaar"&&{d:f.oninbaarOp,t:"Op oninbaar gezet"},creditN&&{d:creditN.datum,t:"Gecrediteerd met "+creditN.nummer},
     ...state.berichten.filter(m=>String(m.ref||"").includes(f.id)).map(m=>({d:m.op,t:(KANAAL[m.kanaal]||"Bericht")+": "+(m.onderwerp||"")})),...(f.log||[]).map(l=>({d:l.datum,t:l.tekst}))].filter(x=>x&&x.d).sort((a,b)=>String(b.d).localeCompare(String(a.d)));
   openDlg(`<div class="dlg-head fw-head"><div class="fw-h1"><span class="objic big">${I.facturen}</span><div class="fw-ht"><small>${credit?"Creditfactuur":"Factuur"}${f.periodiek?" · periodiek":""}</small><h3>${esc(f.nummer)}</h3></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
@@ -13643,8 +13673,9 @@ function fwRegel(id,i){const f=state.facturen.find(x=>x.id===id);if(!f)return;co
   const ds=(typeof dienstLijst==="function"?dienstLijst():[]).flatMap(d=>d.items&&d.items.length?d.items.map(it=>({naam:d.items.length>1?d.naam+" – "+it.naam:d.naam,prijs:it.prijs})):d.glas?[]:[d]);
   fwSmall(id,i>=0?"Factuurregel aanpassen":"Factuurregel toevoegen",I.receipt,`${i<0&&ds.length?`<div class="chips" style="margin:0">${ds.map((d,j)=>`<button type="button" class="chip" data-fdn="${j}">${I.plus}${esc(d.naam)}</button>`).join("")}</div>`:""}
     <label>Omschrijving<input id="fr-o" value="${esc(r.omschrijving||"")}" required></label>
-    <div class="grid2"><label>Aantal<input id="fr-a" type="number" step="0.01" value="${esc(r.aantal??1)}"></label><label>Prijs per eenheid (${incl?"incl.":"excl."} btw)<span class="ow-in"><i>€</i><input id="fr-p" type="number" step="0.01" value="${esc(r.prijs??"")}"></span></label></div>`,
-  ()=>{const o=$("#fr-o").value.trim();if(!o){$("#fr-o").focus();return null}const l=[...(f.regels||[])],n={omschrijving:o,aantal:Number($("#fr-a").value)||0,prijs:Number($("#fr-p").value)||0};if(i>=0)l[i]={...l[i],...n};else l.push(n);return {regels:l}});
+    <div class="grid2"><label>Aantal<input id="fr-a" type="number" step="0.01" value="${esc(r.aantal??1)}"></label><label>Prijs per eenheid (${incl?"incl.":"excl."} btw)<span class="ow-in"><i>€</i><input id="fr-p" type="number" step="0.01" value="${esc(r.prijs??"")}"></span></label></div>
+    <label>Btw-tarief van deze regel<select id="fr-b"><option value="">Zoals de factuur (${Number(f.btw??S().btw)}%)</option>${[21,9,0].map(v=>`<option value="${v}"${r.btw!=null&&r.btw!==""&&Number(r.btw)===v?" selected":""}>${v}%</option>`).join("")}</select><small class="help">Bijv. 9% voor glasbewassing binnen bij een particulier of het trappenhuis van een VvE.</small></label>`,
+  ()=>{const o=$("#fr-o").value.trim();if(!o){$("#fr-o").focus();return null}const l=[...(f.regels||[])],n={omschrijving:o,aantal:Number($("#fr-a").value)||0,prijs:Number($("#fr-p").value)||0},bv=$("#fr-b").value;if(i>=0){l[i]={...l[i],...n};if(bv==="")delete l[i].btw;else l[i].btw=Number(bv)}else{if(bv!=="")n.btw=Number(bv);l.push(n)}return {regels:l}});
   form.querySelectorAll("[data-fdn]").forEach(b=>b.onclick=()=>{const d=ds[+b.dataset.fdn];$("#fr-o").value=d.naam;const p=Number(d.prijs)||0;$("#fr-p").value=incl?r2(p*(1+(Number(f.btw??S().btw)||0)/100)):p});
 }
 
@@ -15412,7 +15443,7 @@ function overzichtModelKlant(k){const r=normR(k.ramenRegel),fq="1x per "+(Number
     groepen:[{omschrijving:k.dienst||"Glasbewassing",excl,btwPct:pct,btw:r2(incl-excl),incl,subs}]}}
 function overzichtModelOfferte(f,k){const pct=Number(f.btw??S().btw)||21,inc=f.incl??S().incl;
   return {klant:{naam:(k&&k.naam)||f.klantNaam||"",contact:(k&&k.contact)||"",adres:(k&&k.adres)||"",pcPlaats:k?[String(k.postcode||"").toUpperCase(),k.plaats].filter(Boolean).join(" "):"",klantnummer:k?klantNr(k):""},
-    groepen:(f.regels||[]).map(r=>{const tot=(Number(r.aantal)||1)*(Number(r.prijs)||0),incl=inc?tot:r2(tot*(1+pct/100)),excl=inc?r2(tot/(1+pct/100)):tot;
+    groepen:(f.regels||[]).map(r=>{const pct=rBtw(f,r)||0,tot=(Number(r.aantal)||1)*(Number(r.prijs)||0),incl=inc?tot:r2(tot*(1+pct/100)),excl=inc?r2(tot/(1+pct/100)):tot;
       const subs=(r.subs||[]).map(x=>({naam:x.naam||"",aantal:x.qty||"",freq:x.fq||""}));
       /* frequentie per dienst: uit de regel zelf, anders gelijk aan alle onderdelen, anders de frequentie van de opdracht */
       const m=String(r.omschrijving||"").match(/\((elke [^)]+|1x per [^)]+|wekelijks|maandelijks)\)/i),fs=[...new Set(subs.map(x=>x.freq).filter(Boolean))];
@@ -16470,7 +16501,7 @@ addEventListener("scroll",()=>{const m=document.getElementById("mobOffer");docum
 if(!LIVE&&typeof location!=="undefined"&&/[?&]selftest\b/.test(location.search)){
   window.MSTEST={state,S,save,del,totals,nextNr,nrDelen,wikKosten,fStatus,afronden,gewassen,billAll,setFStatus,iso,today,addDays,newId,strip,render,
     fin,beurtOmzet,klantFilter,extraOpdr,opdrNr:typeof opdrNr==="function"?opdrNr:null,openOpdrachtWerk:typeof openOpdrachtWerk==="function"?openOpdrachtWerk:null,teplannen,fhVolgende:typeof fhVolgende==="function"?fhVolgende:null,fhPoort:typeof fhPoort==="function"?fhPoort:null,groepEditor:typeof groepEditor==="function"?groepEditor:null,melding,stDienstSplit,klantActiefIn,openImport,relVolgende:typeof relVolgende==="function"?relVolgende:null,beurtMin,meetTeKort,wdCijfers:typeof wdCijfers==="function"?wdCijfers:null,kmFmt:typeof kmFmt==="function"?kmFmt:null,kmAfst:typeof kmAfst==="function"?kmAfst:null,saveSettings,
-    teVroeg:typeof teVroeg==="function"?teVroeg:null,invData:typeof invData==="function"?invData:null,bcVast,vveAanDeBeurt:typeof vveAanDeBeurt==="function"?vveAanDeBeurt:null,nrBewaker,msStatus:typeof msStatus==="function"?msStatus:null,MS:typeof MS!=="undefined"?MS:null,
+    teVroeg:typeof teVroeg==="function"?teVroeg:null,invData:typeof invData==="function"?invData:null,bcVast,openFactuurWerk:typeof openFactuurWerk==="function"?openFactuurWerk:null,paperHtml:typeof paperHtml==="function"?paperHtml:null,btwRegel:typeof btwRegel==="function"?btwRegel:null,btwVast:typeof btwVast==="function"?btwVast:null,vveAanDeBeurt:typeof vveAanDeBeurt==="function"?vveAanDeBeurt:null,nrBewaker,msStatus:typeof msStatus==="function"?msStatus:null,MS:typeof MS!=="undefined"?MS:null,
     views:()=>PAGES.map(p=>p[0]),ga:t=>{state.tab=t;render()}};
 }
 

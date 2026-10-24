@@ -99,6 +99,9 @@ function openSetEdit(id){
       <div class="grid2"><div class="minibox"><span class="eyebrow">${I.euro} Valuta</span><b>€ EUR</b><small>Voorbeeld: € 1.234,50</small></div><div class="minibox"><span class="eyebrow">${I.receipt} BTW</span><b>${L.btw.join("% · ")}%</b><small>Standaard: ${s.btw}%</small></div></div>
       ${sel("btw","Standaard btw-tarief",s.btw,L.btw.map(v=>[v,v+"%"+(v===21?" (hoog)":v===9||v===6?" (laag)":v===0?" (nul)":"")]),{t:"num",help:"Wordt voorgesteld bij nieuwe facturen en offertes"})}
       ${tgl("incl","Prijzen zijn incl. btw","De prijs per beurt bij klanten is inclusief btw",s.incl)}
+      ${(s.land||"NL")==="NL"?`${tgl("btw9Vve","9% btw voor trappenhuis van een VvE","Schoonmaak van trappenhuis, entree, galerij, lift en bergingen van een woongebouw. Glas buiten en gevel blijven 21%.",s.btw9Vve!==false)}
+      ${tgl("btw9Binnen","9% btw voor glasbewassing binnen bij particulieren","Regels met ‘binnen’ bij een particuliere klant. Buiten en zakelijk blijven 21%.",s.btw9Binnen!==false)}
+      <small class="help" style="margin-top:-4px">Op één factuur kunnen zo regels met 9% en 21% staan; de factuur toont de btw per tarief. Per regel kun je het tarief ook zelf kiezen.</small>`:""}
       ${inp("termijn","Betaaltermijn (dagen)",s.termijn,{type:"number",t:"num"})}
       ${sel("factNrStijl","Factuurnummers",s.factNrStijl||"jaar",[["jaar","Per jaar: "+nextNr("factuur",iso(today())).replace(/\d+$/,m=>m.replace(/./g,"0").replace(/0$/,"1"))+" …"],["doorlopend","Doorlopend zoals DienstenCRM: 26-009295"]],{help:"Doorlopend: jaar in 2 cijfers en een volgnummer van 6 cijfers dat over de jaren doorloopt. Zo krijgt je boekhouder één reeks."})}
       ${inp("factNrStart","Eerste volgnummer (bij overstap)",s.factNrStart,{type:"number",t:"num",ph:"9295",help:"Laatste factuurnummer uit het oude pakket + 1, bijv. 26-009294 → 9295. Volgende factuur: "+esc(nextNr("factuur",iso(today())))})}

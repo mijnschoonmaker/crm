@@ -6,7 +6,7 @@ function invKlant(f){const ks=state.klanten||[];return ks.find(x=>x.id===f.klant
 function invData(f,klant){
   const s=S(),off=f.soort==="offerte",t=totals(f),btw=Number(f.btw??s.btw),incl=f.incl??s.incl;
   const k=klant||invKlant(f)||{};
-  const regels=(f.regels||[]).map(r=>{const p=Number(r.prijs)||0,ex=incl?p/(1+btw/100):p,a=Number(r.aantal)||0;return{oms:omsZonderDatum(String(r.omschrijving||"").replace(/ ?\(minimumtarief\)/gi,"")),aantal:a,prijs:r2(ex),btw,tot:r2(ex*a),subs:Array.isArray(r.subs)?r.subs:null}});
+  const regels=(f.regels||[]).map(r=>{const rb=rBtw(f,r),p=Number(r.prijs)||0,ex=incl?p/(1+rb/100):p,a=Number(r.aantal)||0;return{oms:omsZonderDatum(String(r.omschrijving||"").replace(/ ?\(minimumtarief\)/gi,"")),aantal:a,prijs:r2(ex),btw:rb,tot:r2(ex*a),subs:Array.isArray(r.subs)?r.subs:null}});
   const st=off?{concept:["CONCEPT","n"],verstuurd:["VERSTUURD","b"],geaccepteerd:["GEACCEPTEERD","g"],afgewezen:["AFGEWEZEN","r"]}[f.status||"concept"]:f.status==="betaald"?["BETAALD","g"]:f.status==="concept"?["CONCEPT","n"]:fStatus(f)[1]==="Achterstallig"?["VERVALLEN","r"]:["TE BETALEN","b"];
   /* volledige naam/adres: adres van de factuur, aangevuld met het (factuur)adres van de klant als daar iets ontbreekt */
   const kAdr=k&&(k.adres||k.fAdres)?(typeof factAddr==="function"&&(off?false:k.fAdres)?factAddr(k):fullAddr(k)):"";
@@ -76,7 +76,7 @@ function paperHtml(f,klant){
   :`<table class="i5-t"><thead><tr><th>Omschrijving</th><th class="c">Aantal</th><th class="r">Prijs</th><th class="r">Bedrag</th></tr></thead><tbody>
     ${m.regels.map(r=>`<tr><td>${esc(r.oms)}</td><td class="c">${r.aantal}</td><td class="r">€ ${num(r.prijs)}</td><td class="r"><b>€ ${num(r.ex)}</b></td></tr>`).join("")}</tbody></table>`}
   <div class="i5-sum"><div class="i5-pay">${m.pay?`<span class="i5-l">Betaalgegevens</span><table>${m.pay.filter(x=>x[0]!=="Uiterlijk").map(([a,b])=>`<tr><th>${esc(a)}</th><td>${esc(b)}</td></tr>`).join("")}</table>`:`<span class="i5-l">${m.off?"Geldigheid":"Betaling"}</span>`}${m.off?`<b class="i5-pnr">Offerte ${esc(f.nummer)}</b>`:""}<p>${esc(m.zin)}</p></div>
-    ${m.off&&f.totaalTonen===false?"<div></div>":`<div class="i5-tot"><div><span>Subtotaal</span><span>€ ${num(m.t.ex)}</span></div><div><span>BTW ${m.btw}%</span><span>€ ${num(m.t.btw)}</span></div><div class="g"><span><b>${m.off?"Totaal per beurt":m.voldaan||m.st[1]==="g"?"Betaald":"Te betalen"}</b><small>${m.off?"incl. "+m.btw+"% btw":m.voldaan||m.st[1]==="g"?"Hartelijk dank":"Vóór "+esc(fmtL(f.verval))}</small></span><span class="i5-amt">€ ${num(m.t.inc)}</span></div></div>`}</div>
+    ${m.off&&f.totaalTonen===false?"<div></div>":`<div class="i5-tot"><div><span>Subtotaal</span><span>€ ${num(m.t.ex)}</span></div>${m.t.tarieven.map(x=>`<div><span>BTW ${x.pct}%</span><span>€ ${num(x.btw)}</span></div>`).join("")}<div class="g"><span><b>${m.off?"Totaal per beurt":m.voldaan||m.st[1]==="g"?"Betaald":"Te betalen"}</b><small>${m.off?(m.t.tarieven.length>1?"incl. btw":"incl. "+m.t.tarieven[0].pct+"% btw"):m.voldaan||m.st[1]==="g"?"Hartelijk dank":"Vóór "+esc(fmtL(f.verval))}</small></span><span class="i5-amt">€ ${num(m.t.inc)}</span></div></div>`}</div>
   ${f.notitie?`<div class="i5-note"><span class="i5-l">Opmerking</span>${esc(f.notitie)}</div>`:""}
   ${f.soort==="offerte"&&offTxt(f.voettekst,f)?`<div class="i5-txt">${esc(offTxt(f.voettekst,f)).replace(/\n/g,"<br>")}</div>`:""}
     ${m.vwTxt?`<p class="i5-vw">${esc(m.vwTxt)}</p>`:""}
@@ -128,11 +128,11 @@ async function pdfDoc(f,klant){
   // totalen
   const TX=126,ty0=y;let tyEnd=y;
   if(!(m.off&&f.totaalTonen===false)){doc.setFontSize(8.2);
-  [["Subtotaal",m.t.ex],["BTW "+m.btw+"%",m.t.btw]].forEach(([a,b])=>{N();col(C.mut);doc.text(a,TX,y+4);col(C.ink);doc.text(E(b),R,y+4,{align:"right"});y+=6});
+  [["Subtotaal",m.t.ex],...m.t.tarieven.map(x=>["BTW "+x.pct+"%",x.btw])].forEach(([a,b])=>{N();col(C.mut);doc.text(a,TX,y+4);col(C.ink);doc.text(E(b),R,y+4,{align:"right"});y+=6});
   y+=1;const paid=m.voldaan||m.st[1]==="g",tint=A.map(v=>Math.round(v*.08+255*.92)),edge=A.map(v=>Math.round(v*.3+255*.7));
   doc.setFillColor(...C.soft);doc.roundedRect(TX-4,y,R-TX+4,13.5,2,2,"F");
   B();doc.setFontSize(8.8);col(C.ink);doc.text(m.off?"Totaal per beurt":paid?"Betaald":"Te betalen",TX,y+6);
-  N();doc.setFontSize(6.8);col(C.mut);doc.text(m.off?"incl. "+m.btw+"% btw":paid?"Hartelijk dank":"Vóór "+fmtL(f.verval),TX,y+9.8);
+  N();doc.setFontSize(6.8);col(C.mut);doc.text(m.off?(m.t.tarieven.length>1?"incl. btw":"incl. "+m.t.tarieven[0].pct+"% btw"):paid?"Hartelijk dank":"Vóór "+fmtL(f.verval),TX,y+9.8);
   B();doc.setFontSize(11);col(A);doc.text(E(m.t.inc),R-4,y+8.3,{align:"right"});col(C.ink);tyEnd=y+13.5;}
   // betaalgegevens
   y=ty0;const PW=TX-L-12,pr=m.pay?m.pay.filter(x=>x[0]!=="Uiterlijk"):[],zl=(N(),doc.setFontSize(7.6),doc.splitTextToSize(m.zin,PW-10)),bh=10+pr.length*4.6+zl.length*3.8+3+(m.off?5.4:0);
@@ -199,7 +199,7 @@ function klantNr(k){
   return String(Number(relVolgende())+Math.max(0,i));
 }
 /* ---------- SnelStart-export: relaties + verkoopboekingen ---------- */
-const SS_DEF={dagboek:"1300",deb:"1300",omzet:"8000",btwH:"3101",btwL:"3102",omzet0:"8000"};
+const SS_DEF={dagboek:"1300",deb:"1300",omzet:"8000",omzet9:"8000",btwH:"3101",btwL:"3102",omzet0:"8000"};
 const ssNum=v=>(Number(v)||0).toLocaleString("nl-NL",{minimumFractionDigits:2,maximumFractionDigits:2,useGrouping:true});
 const ssDate=d=>{const x=parse(d);return x?String(x.getDate()).padStart(2,"0")+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+x.getFullYear():""};
 function ssData(van,tot,cfg){
@@ -210,7 +210,8 @@ function ssData(van,tot,cfg){
     const inc=r2(t.inc),ex=r2(t.ex),btw=r2(inc-ex),rate=Number(f.btw??S().btw)||0,neg=inc<0,A=Math.abs;
     const bc=(String(f.nummer).match(/(\d+)\D*$/)||[,""])[1].replace(/^0+(?=\d)/,"");
     const L=(gb,amt,debet)=>rows.push([cfg.dagboek,bc,ssDate(f.datum),gb,ssNum(debet!==neg?A(amt):0),ssNum(debet!==neg?0:A(amt)),f.nummer,code,f.nummer].join(";"));
-    L(cfg.deb,inc,true);L(rate?cfg.omzet:(cfg.omzet0||cfg.omzet),ex,false);if(btw)L(rate>=15?cfg.btwH:cfg.btwL,btw,false);
+    L(cfg.deb,inc,true);/* per btw-tarief een omzet- en btw-regel (9% en 21% op één factuur kan) */
+    t.tarieven.forEach(x=>{if(!x.ex&&!x.btw)return;L(x.pct?(x.pct<15?(cfg.omzet9||cfg.omzet):cfg.omzet):(cfg.omzet0||cfg.omzet),x.ex,false);if(x.btw)L(x.pct>=15?cfg.btwH:cfg.btwL,x.btw,false)});
     if(code&&!rel.has(code)){const src=k||{naam:f.klantNaam};rel.set(code,src)}
   });
   /* klantenbestand zoals DienstenCRM het maakt: alle actieve klanten (plus wie in deze periode een factuur kreeg), op relatiecode */
@@ -230,7 +231,7 @@ function openSnelstart(){
   <div class="grid2"><label>Van<input type="date" id="ss-van" value="${van0}"></label><label>Tot en met<input type="date" id="ss-tot" value="${iso(t)}"></label></div>
   <div id="ss-sum" class="te-cnt"></div>
   <details><summary style="cursor:pointer;font-weight:700">Grootboekrekeningen</summary>
-  <div class="grid2" style="margin-top:12px">${[["dagboek","Dagboek (verkoop)"],["deb","Debiteuren"],["omzet","Omzet"],["omzet0","Omzet 0% / verlegd"],["btwH","BTW hoog (21%)"],["btwL","BTW laag (9%)"]].map(([k,l])=>`<label>${l}<input id="ss-${k}" value="${esc(cfg[k])}" inputmode="numeric"></label>`).join("")}</div>
+  <div class="grid2" style="margin-top:12px">${[["dagboek","Dagboek (verkoop)"],["deb","Debiteuren"],["omzet","Omzet 21%"],["omzet9","Omzet 9%"],["omzet0","Omzet 0% / verlegd"],["btwH","BTW hoog (21%)"],["btwL","BTW laag (9%)"]].map(([k,l])=>`<label>${l}<input id="ss-${k}" value="${esc(cfg[k])}" inputmode="numeric"></label>`).join("")}</div>
   <small class="help">Standaard zoals in je voorbeeld: dagboek 1300, debiteuren 1300, omzet 8000, BTW hoog 3101. Controleer BTW laag in je SnelStart-administratie.</small></details>
   <div class="ss-two">
     <div class="ss-card"><span class="objic" style="background:var(--plan-bg);color:var(--plan)">${I.klanten}</span><div><b>1. Klanten (relaties)</b><small id="ss-nk"></small></div><button type="button" id="ss-k">${I.dl}Download klanten</button></div>
