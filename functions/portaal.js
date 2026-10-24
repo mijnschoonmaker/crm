@@ -141,7 +141,7 @@ module.exports = function maakPortaal(ctx) {
     const eta = new Date(Date.now() + (voor ? werk + rij : rij) * 60e3);
     const etaTxt = new Intl.DateTimeFormat("nl-NL", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" }).format(eta);
     /* de exacte plek van de bus alleen als u bijna aan de beurt bent: zo zien klanten niet bij wie we verder allemaal komen */
-    const dichtbij = voor <= 2;
+    const dichtbij = voor <= 4;
     return { status: "onderweg", voor, bezigBij, eta: etaTxt, km: km != null ? Math.round(km * 10) / 10 : null, naam: L.naam || "", huis: dichtbij ? huis : null,
       pos: dichtbij ? { lat: L.lat, lng: L.lng, koers: L.koers ?? null, ts: L.ts } : null };
   }
