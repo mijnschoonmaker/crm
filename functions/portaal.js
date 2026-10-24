@@ -372,9 +372,9 @@ module.exports = function maakPortaal(ctx) {
         let live = null;
         if (b.vveBordLive !== false) try { const L = await liveInfo({ klant: { ...k, id: kid }, kref: q.docs[0].ref }); if (L) live = { status: L.status, voor: L.voor ?? null, eta: L.eta || "", naam: L.naam || "", bezigBij: !!L.bezigBij, km: L.km ?? null, huis: L.status === "onderweg" ? (L.huis || await klantGeo(q.docs[0].ref, { ...k, id: kid }).catch(() => null)) : null, pos: L.pos || null }; } catch (e) { console.error("bordlive", e); }
         res.set("cache-control", live ? "no-store" : "public, max-age=120");
-        res.json({ live, bedrijf: { naam: bi.naam, logo: bi.logo, telefoon: bi.telefoon, whatsapp: String(b.webWa || b.mobiel || b.telefoon || ""), email: bi.email || "", website: bi.website, kleur: bi.kleur }, naam: schoon(k.naam), adres: k.adres || "", plaats: k.plaats || "", ritme: ritmeTxt(k), taken: vveTakenVan(k, b),
+        res.json({ live, bedrijf: { naam: bi.naam, logo: bi.logo, telefoon: bi.telefoon, whatsapp: String(b.webWa || b.mobiel || b.telefoon || ""), email: bi.email || "", website: bi.website, kleur: bi.kleur }, naam: schoon(k.naam), adres: k.adres || "", plaats: k.plaats || "", ritme: ritmeTxt(k),
           bezig: !!k.bezig && k.gepland === vandaag, volgende,
-          bezoeken: bs.slice(0, 8).map(x => ({ datum: x.datum, tijd: tijdVan(x), door: b.vveDoor === false ? "" : voornaamVan(String(x.door || "")), taken: b.vveBordTaken !== false && Array.isArray(x.taken) ? x.taken.map(t => ({ naam: String(t.naam || ""), ok: !!t.ok })) : [], fotos: b.vveBordFotos === true ? (x.fotos || []).slice(0, 2).map(f => fotoUrl(f.id)).filter(Boolean) : [], notitie: b.vveBordFotos === true ? String(x.notitie || "").slice(0, 300) : "" })) });
+          bezoeken: bs.slice(0, 8).map(x => ({ datum: x.datum, tijd: tijdVan(x), door: b.vveDoor === false ? "" : voornaamVan(String(x.door || "")), taken: [], fotos: [], notitie: "" })) });
         return;
       }
       if (pad === "/ref" && req.method === "GET") {
