@@ -12062,7 +12062,7 @@ function openOpdrachtWerk(kid,focus){
     <section class="kp"><div class="kp-h"><span class="objic">${I.plus}</span><b>Opdrachtregel toevoegen</b><span class="sp"></span><button type="button" class="small" id="owEigen">${I.plus}Eigen dienst</button></div>
       <input id="owZoek" placeholder="Zoeken" style="max-width:280px">
       <div class="ow-chips" id="owChips">${dienstChips(diensten,"data-dn")}</div></section>
-    <section class="kp"><div class="kp-h"><span class="objic">${I.check}</span><b>Opdrachtregels</b></div><div id="owLines"></div><div class="totals" id="owTot"></div></section>
+    <section class="kp" id="owRegelsK"><div class="kp-h"><span class="objic">${I.check}</span><b>Opdrachtregels</b></div><div id="owLines"></div><div class="totals" id="owTot"></div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.receipt}</span><div style="min-width:0"><b>Artikelen</b><small>Gaan eenmalig mee op de volgende factuur</small></div><span class="sp"></span><button type="button" class="iconbtn sm primary" id="owArtAdd" aria-label="Artikel toevoegen">${I.plus}</button></div><div id="owArt"></div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.wrench}</span><div style="min-width:0"><b>Bedrijfsmiddelen</b><small>Staan bij de klus op de route</small></div></div><div id="owMid"></div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.camera||I.upload}</span><b>Foto's</b><span class="sp"></span><label class="iconbtn sm primary" role="button" tabindex="0" aria-label="Foto's van de woning toevoegen" title="Foto's van de woning toevoegen" style="cursor:pointer">${I.plus}<input type="file" accept="image/*" multiple hidden id="owFoto"></label></div><div class="ow-fotos" id="owFotos"></div></section>
@@ -12214,7 +12214,9 @@ function openOpdrachtWerk(kid,focus){
     const jaar=(per*52/(mF||4)+ex.reduce((a,o)=>a+(Number(o.prijs)||0)*52/(Number(o.frequentie)||52),0))*(1+ts);
     $("#owTot").innerHTML=`<span>Per beurt (${esc(main.dienst||"hoofdopdracht")})</span><span>${eur(toon(per))}</span>${ts?`<span>Toeslag ${r2(ts*100)}%</span><span>+ ${eur(toon(per)*ts)}</span><span class="grand">Per beurt incl. toeslag</span><span class="grand">${eur(toon(per)*(1+ts))}</span>`:""}${ex.length?`<span>Extra opdrachten, per keer${ts?" incl. toeslag":""}</span><span>${eur(ex.reduce((a,o)=>a+(Number(o.prijs)||0),0)*(1+ts))}</span>`:""}`;
     const h=$("#owTsl");if(h)h.textContent=ts?`+ ${r2(ts*100)}% toeslag = ${eur(toon(per)*(1+ts))} per keer`:""};
-  const draw=()=>{syncRitme();$("#owLines").innerHTML=soloI>=0&&extra[soloI]?lineHtml(extra[soloI],soloI,false):lineHtml(main,0,true)+extra.map((r,i)=>lineHtml(r,i,false)).join("");tot()};
+  /* nieuwe opdracht: de opdrachtregels verschijnen pas als je een dienst kiest (zoals in DienstenCRM) */
+  const soloLeeg=()=>{const r=soloI>=0&&extra[soloI];return !!r&&!String(r.dienst||"").trim()&&!r.ramen&&!r.items&&!r._toon};
+  const draw=()=>{syncRitme();{const sk=$("#owRegelsK");if(sk)sk.hidden=soloLeeg()}$("#owLines").innerHTML=soloI>=0&&extra[soloI]?lineHtml(extra[soloI],soloI,false):lineHtml(main,0,true)+extra.map((r,i)=>lineHtml(r,i,false)).join("");tot()};
   const allFotos=()=>[...tFotos.map(f=>({...f,naam:"Uit de telling",t:1})),...fotos];
   const drawFotos=()=>{const all=allFotos();
     $("#owFotos").innerHTML=all.length?all.map((f,i)=>fotoCard(f,i,!f.t)).join(""):'<p class="subt ow-fempty">Nog geen foto\'s. Klik op + om foto\'s van de woning toe te voegen en tik de ramen aan die gewassen moeten worden. Foto\'s uit de rekentool verschijnen hier vanzelf.</p>'};
@@ -12293,7 +12295,7 @@ function openOpdrachtWerk(kid,focus){
     if(e.target.dataset.k==="apart"){extra[+e.target.dataset.i].apart=e.target.checked;tot()}
     if(e.target.dataset.k==="objectId"){const r=extra[+e.target.dataset.i];if(r){r.objectId=e.target.value||"";if(r.objectId)r.apart=true;draw()}}
     if(e.target.dataset.k==="frequentie"&&e.target.dataset.i!=="m"){const r=extra[+e.target.dataset.i];if(r&&r.items)groepRedraw($("#owLines"),"x"+e.target.dataset.i,r,gOpts(r))}});
-  $("#owLines").addEventListener("click",e=>{const b=e.target.closest("[data-rm]");if(b){extra.splice(+b.dataset.rm,1);draw()}});
+  $("#owLines").addEventListener("click",e=>{const b=e.target.closest("[data-rm]");if(b){const i=+b.dataset.rm;if(soloI>=0&&i===soloI){const r=extra[i];delete r.ramen;delete r.items;delete r.groep;Object.assign(r,{dienst:"",prijs:"",objectId:"",apart:false,_toon:false});editR.delete(String(i));draw();return}extra.splice(i,1);draw()}});
   groepBind($("#owLines"),key=>extra[+key.slice(1)],(key,struct)=>itemsRecalc(+key.slice(1),struct));
   const addLine=(dienst,prijs)=>{extra.push({id:newId("o"),dienst,prijs,frequentie:52,duur:30,volgende:"",actief:true});draw();const l=$("#owLines").querySelectorAll('input[data-k="dienst"]');const last=l[l.length-1];if(last){last.scrollIntoView({block:"center",behavior:"smooth"});if(!dienst)last.focus()}};
   const leegR=()=>uitTelling()||normR({});
@@ -12309,7 +12311,7 @@ function openOpdrachtWerk(kid,focus){
       if(isGlas(main.dienst)&&main.ramen&&d.naam.toLowerCase()===String(main.dienst).toLowerCase()){editR.add("m");draw();const c=$("#owLines").querySelector('[data-calc="m"]');if(c)c.scrollIntoView({block:"start",behavior:"smooth"});return}
       extra.push({id:newId("o"),dienst:d.naam,prijs:"",frequentie:mF||8,duur:30,volgende:"",actief:true,ramen:normR({})});editR.add(String(extra.length-1));draw();const l=$("#owLines").querySelectorAll(".ow-line");l[l.length-1].scrollIntoView({block:"start",behavior:"smooth"});return}
     addLine(d.naam,Number(d.prijs)||"")});
-  $("#owEigen").onclick=()=>addLine("","");
+  $("#owEigen").onclick=()=>{if(soloI>=0&&extra[soloI]){extra[soloI]._toon=true;draw();const d=$("#owLines").querySelector('input[data-k="dienst"]');if(d){d.scrollIntoView({block:"center",behavior:"smooth"});d.focus()}return}addLine("","")};
   $("#owZoek").oninput=e=>{const q=e.target.value.toLowerCase();if(q){const m=form.querySelector("#owChips .chips-meer"),mb=form.querySelector("#owChips [data-meer]");if(m)m.hidden=false;if(mb)mb.hidden=true}form.querySelectorAll("#owChips [data-dn]").forEach(b=>b.hidden=!!q&&!b.textContent.toLowerCase().includes(q))};
   /* foto uploaden: via de opslag van het CRM (ook als die later is geladen) */
   const fotoUpload=async f=>{if(state.assets)return state.assets.upload(f);if(window.ZEEM_PUT){const id=[...crypto.getRandomValues(new Uint8Array(16))].map(x=>x.toString(16).padStart(2,"0")).join("");await window.ZEEM_PUT(id,f,f.type||"image/jpeg");return {id}}throw new Error("Uploaden kan hier niet")};
@@ -12339,7 +12341,7 @@ function openOpdrachtWerk(kid,focus){
     return {...strip(cur),dienst:String(main.dienst||"").trim()||"Glasbewassing",prijs:r2(Number(main.prijs)||0),ramenRegel:main.ramen||null,frequentie:mW.length?1:(mF||4),weekdagen:mW.length?mW:[],...(mW.length?{autoplan:true}:{}),duur:mD||30,ronde:$o("ronde").value.trim(),contactPlanning:$o("contact").value,eersteKeer:$o("eerste").value==="ja",toeslag:Number($o("toeslag").value)||0,toeslagReden:$o("toeslagr").value.trim(),verbergAantal:$o("verbA").checked,verbergFreq:$o("verbF").checked,afmeldMail:$o("afmail").checked,
       binnen:false,actief,...(actief?{}:{gepland:"",tijd:""}),akkoord:$o("akkoord").checked,incasso:$o("betaal").value==="incasso",...factModusPatch($o("fact").value,k),
       taak:$o("taak").value.trim(),...($o("vvetaken")?{vveTaken:$o("vvetaken").value.split(/\n/).map(x=>x.trim()).filter(Boolean).slice(0,20)}:{}),hosp:hosp.map(x=>({c:x.c||"voorkeur",t:String(x.t||"").trim(),...(x.af?{af:x.af}:{}),...(x.c==="verteld"&&x.vanaf?{vanaf:x.vanaf}:{})})).filter(x=>x.t),bellen:$o("bellen").checked,startdatum:$o("start").value,einddatum:$o("eind").value,btwVerlegd:$o("verlegd").checked,aanbieden:cur.gepland?!!cur.aanbieden:aanb.aanbieden,uitstelTot:aanb.uitstelTot,artikelen:arts.filter(a=>String(a.naam||"").trim()).map(a=>({naam:String(a.naam).trim(),aantal:Number(a.aantal)||1,prijs:r2(Number(a.prijs)||0)})),middelen:mids,objectId:$o("obj")?$o("obj").value:cur.objectId||"",fotos,
-      opdrachten:extra.filter(o=>String(o.dienst||"").trim()).map(({_nieuw,...o})=>({...o,dienst:String(o.dienst).trim(),prijs:r2(Number(o.prijs)||0),frequentie:o.items?itemsRitme(o):Number(o.frequentie)||52}))}};
+      opdrachten:extra.filter(o=>String(o.dienst||"").trim()).map(({_nieuw,_toon,...o})=>({...o,dienst:String(o.dienst).trim(),prijs:r2(Number(o.prijs)||0),frequentie:o.items?itemsRitme(o):Number(o.frequentie)||52}))}};
   $("#owLog").onclick=async()=>{const v=$o("log").value.trim();if(!v)return;const d=collect();d.log=[...(d.log||[]),{datum:iso(today()),tekst:v}];
     try{await save("klanten",kid,d);toast("Genoteerd");setTimeout(()=>openOpdrachtWerk(kid),60)}catch(er){err(er)}};
   /* opslaan per dienst: alles bewaren en in het werkblad blijven */
