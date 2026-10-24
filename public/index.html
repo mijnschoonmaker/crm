@@ -122,7 +122,8 @@
     $("#lgOut").onclick = () => auth.signOut();
   }
   function geenToegang(u) {
-    toon(`<h1>Nog geen toegang</h1><p>Je bent ingelogd als <b>${u.email}</b>, maar dit account is nog niet toegevoegd aan het CRM. Vraag de eigenaar om je toe te voegen bij Instellingen › Gebruikers.</p>
+    const eig = String(u.email || "").toLowerCase() === "robin@mijnschoonmaker.com";
+    toon((eig ? `<h1>Even geen verbinding</h1><p>Je bent ingelogd als <b>${u.email}</b>, maar je gegevens konden niet worden geopend. Sluit andere tabbladen met het CRM en probeer het opnieuw. Lukt het niet, log dan uit en weer in.</p>` : `<h1>Nog geen toegang</h1><p>Je bent ingelogd als <b>${u.email}</b>, maar dit account is nog niet toegevoegd aan het CRM. Vraag de eigenaar om je toe te voegen bij Instellingen › Gebruikers.</p>`) + `
       <button class="lg-b" id="lgRt">Opnieuw proberen</button><div class="lg-row"><span></span><button class="lg-l" id="lgOut">Uitloggen</button></div>`);
     $("#lgRt").onclick = () => start(u); $("#lgOut").onclick = () => auth.signOut();
   }
@@ -261,8 +262,17 @@
       const b = String(g.data().bedrijf || ""); window.ZEEM_BID = /^b[a-z0-9]{7}$/.test(b) ? b : "mijnschoonmaker";
       window.ZEEM_ROL = g.data().rol || "";
     }
-    try { await Promise.race([fs.collection(pf("instellingen")).limit(1).get(), new Promise((_, nee) => setTimeout(() => nee({ code: "traag" }), 8000))]); }
-    catch (e) { if (e.code === "permission-denied") return geenToegang(u); }
+    /* toegang proberen; geweigerd? eerst het inlogbewijs vernieuwen en nog twee keer proberen (na de inlogcode, of met een ander tabblad open, loopt de database soms een paar tellen achter) */
+    const proef = () => Promise.race([fs.collection(pf("instellingen")).limit(1).get({ source: "server" }), new Promise((_, nee) => setTimeout(() => nee({ code: "traag" }), 8000))]);
+    for (let poging = 0; ; poging++) {
+      try { await proef(); break; }
+      catch (e) {
+        if (e.code !== "permission-denied") break;
+        if (poging >= 2) return geenToegang(u);
+        try { await u.getIdToken(true); } catch (x) {}
+        await new Promise(r => setTimeout(r, 1200 * (poging + 1)));
+      }
+    }
     if (ov) ov.style.display = "none";
     document.documentElement.classList.remove("lg-wacht");
     if (!gestart) { gestart = true; klaar(u); voegUitloggenToe(); }
