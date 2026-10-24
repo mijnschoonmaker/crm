@@ -1700,6 +1700,11 @@ html body:not(#zz) .bp>.kp-h>div{min-width:0;flex:1 1 auto}
 html body:not(#zz) .bp>.kp-h b,html body:not(#zz) .bp>.kp-h small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
 html body:not(#zz) .bp-k small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
 @media (max-width:560px){html body:not(#zz) .bp>.kp-h>.sp{display:none}html body:not(#zz) .bp>.kp-h>.pill{order:5;margin-left:calc(44px + 12px)}html body:not(#zz) .bp-k small{font-size:11.5px}}
+/* documentkaarten: rustige tekst, alleen de actie in kleine kapitalen */
+html body:not(#zz) .dk{text-transform:none!important;letter-spacing:normal!important;font-size:inherit!important;font-weight:400!important;border-radius:18px;padding:18px}
+html body:not(#zz) .dk b{text-transform:none!important;letter-spacing:-.005em!important;font-size:16px!important;font-weight:600!important;color:var(--ink);margin-top:2px}
+html body:not(#zz) .dk small{text-transform:none!important;letter-spacing:normal!important;font-size:13.5px!important;font-weight:400!important;color:var(--muted);line-height:1.5}
+html body:not(#zz) .dk em{text-transform:uppercase;letter-spacing:.14em;font-size:11px!important;font-weight:600!important;color:var(--brand);margin-top:12px}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -2027,9 +2032,9 @@ function docs(){const k=D.klant,M=vveMaanden(),F=D.facturen||[],openF=F.filter(f
     ...(B.voorwaarden?[docRij(I.doc,"Algemene voorwaarden",esc(B.naam||""),`<a class="btn sm" href="${esc(B.voorwaarden)}" target="_blank" rel="noopener">${I.down}Openen</a>`)]:[])].join("");
   return kop("Documenten","Alles over de schoonmaak van uw gebouw op één plek: rapporten, afspraken en facturen.")+`<div class="pg docs">
     <div class="dk-grid">
-      <button class="dk" data-vplan><span class="dk-ic">${I.check}</span><b>Schoonmaakplan</b><small>Wat we per beurt doen, op welke dagen, en hoe u ons bereikt.</small><em>${I.oog}Bekijken of printen</em></button>
-      <button class="dk" data-tab="bord"><span class="dk-ic">${I.huis}</span><b>Bewonersbord</b><small>QR-poster voor in de hal. Bewoners zien wanneer er is schoongemaakt.</small><em>${I.print}Poster printen</em></button>
-      <button class="dk" data-tab="facturen"><span class="dk-ic">${I.euro}</span><b>Facturen</b><small>${plural(F.length,"factuur","facturen")}${som>0?" · "+eur0(som)+" open":" · alles betaald"}</small><em>${I.fact}Naar facturen</em></button>
+      <button class="dk" data-vplan><span class="dk-ic">${I.check}</span><b>Schoonmaakplan</b><small>Wat we elke beurt doen en op welke dagen we komen.</small><em>${I.oog}Bekijken of printen</em></button>
+      <button class="dk" data-tab="bord"><span class="dk-ic">${I.huis}</span><b>Bewonersbord</b><small>Het bordje met QR-code voor in de hal. Bewoners zien wanneer en door wie er is schoongemaakt.</small><em>${I.print}Bordje printen</em></button>
+      <button class="dk" data-tab="facturen"><span class="dk-ic">${I.euro}</span><b>Facturen</b><small>${plural(F.length,"factuur","facturen")}${som>0?" · "+eur0(som)+" staat nog open":", alles is betaald"}</small><em>${I.fact}Naar facturen</em></button>
     </div>
     ${kp(I.fact,"Maandrapporten",`<div class="dr-l">${maand}</div>`,{sub:"Handig voor de ledenvergadering of de beheerder. Openen, en dan afdrukken of opslaan als PDF."})}
     ${kp(I.doc,"Afspraken en documenten",eigen?`<div class="dr-l">${eigen}</div>`:`<p class="leeg" style="margin:0">Hier komen de overeenkomst, offerte en andere documenten zodra wij die voor u klaarzetten.</p>`,{sub:"Overeenkomst, offerte, verzekering en voorwaarden"})}
