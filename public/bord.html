@@ -148,7 +148,7 @@ function liveHtml(L){if(!L||!["onderweg","bezig"].includes(L.status))return"";
       <div class="contact">${waNr(b.whatsapp||b.telefoon)?`<a href="https://wa.me/${waNr(b.whatsapp||b.telefoon)}?text=${encodeURIComponent("Melding "+d.naam+": ")}" target="_blank" rel="noopener">WhatsApp</a>`:""}</div></section>`:""}
     <p class="voet">Dit bord wordt automatisch bijgewerkt door ${esc(b.naam)}.</p>`;
   const url=DEMO?location.origin+"/bord/voorbeeld":location.origin+"/bord/"+t;
-  {let qr="";try{const q=qrcode(0,"M");q.addData(url);q.make();qr=q.createSvgTag({cellSize:6,margin:0,scalable:true})}catch(e){}document.getElementById("poster").innerHTML=`${lg}<h1>Schoonmaak ${esc(d.naam)}</h1><p>Scan de code en zie wanneer en door wie het gebouw is schoongemaakt en wanneer we weer komen.</p><div class="qr">${qr}</div><p class="naam">${esc(d.ritme.charAt(0).toUpperCase()+d.ritme.slice(1))}</p><p class="url">${esc(url)}</p>`}
+  {let qr="";try{const q=qrcode(0,"M");q.addData(url);q.make();qr=q.createSvgTag({cellSize:6,margin:0,scalable:true})}catch(e){}document.getElementById("poster").innerHTML=`${lg}<h1>Schoonmaak ${esc(d.naam)}</h1><p>Scan de code en zie wanneer en door wie het gebouw is schoongemaakt en wanneer we weer komen.</p><div class="qr">${qr}</div><p class="url">${esc(url)}</p>`}
   if(DEMO)document.body.insertAdjacentHTML("afterbegin",`<div class="demo-b"><em>Voorbeeld</em><span>${POSTER?"het bordje voor in de trappenhal":"wat bewoners zien na het scannen"}</span></div>`);
   if(print){document.body.classList.add("print");if(!POSTER)setTimeout(()=>window.print(),600)}
   if(!print)setTimeout(()=>kkInit(d.live),0);
