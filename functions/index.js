@@ -551,7 +551,7 @@ async function inplannenNaAkkoord(fd, klantId) {
   const kid = klantId || fd.klantId; if (!kid) return null;
   const kref = db.doc("klanten/" + kid), ks = await kref.get(); if (!ks.exists) return null;
   const k = decF(ks.data()), vandaag = dagNL();
-  if (k.actief !== false && !k.prospect && (k.gepland || k.aanbieden)) return null;
+  if (k.actief !== false && !k.prospect && !k.opdrachtVerwijderd && (k.gepland || k.aanbieden)) return null;
   const o = fd.opdracht || {}, start = /^\d{4}-\d{2}-\d{2}$/.test(String(fd.start || "")) ? fd.start : vandaag;
   const fm = fd.facturatie, fact = fm === "periodiek" ? { directFactureren: false, nietFactureren: false } : fm ? { directFactureren: fm === "direct", nietFactureren: fm === "geen" } : {};
   const prijs = o.prijs != null && o.prijs !== "" ? Number(o.prijs) : Number(k.prijs) || 0, freq = Number(o.frequentie || k.frequentie || 4), duur = Number(o.duur || k.duur || 30);
