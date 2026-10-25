@@ -104,7 +104,7 @@ function mailHtmlRuw(tekst, b, opts = {}) {
   const nl = x => htmlEsc(x);
   const strook = T ? T.strook : `<div style="font-size:16px;font-weight:600;color:#fff;letter-spacing:-.2px">${htmlEsc(b.naam || "")}</div><div style="font-size:12.5px;color:rgba(255,255,255,.72);margin:2px 0 12px">Glasbewassing &middot; vaste route</div><table role="presentation" cellpadding="0" cellspacing="0" border="0" class="ms-nl">${[["WhatsApp",b.telefoon],["E-mail",b.email],["IBAN",b.iban]].filter(x=>x[1]).map(([l,v])=>`<tr><td style="padding:3px 14px 3px 0;font-size:10px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;color:rgba(255,255,255,.6);white-space:nowrap;vertical-align:top;line-height:20px">${l}</td><td style="padding:3px 0;font-size:14px;font-weight:600;color:#ffffff;line-height:20px;word-break:break-word${l==="IBAN"?";font-family:'SF Mono',Menlo,Consolas,monospace;font-weight:500;font-size:13px;letter-spacing:.5px":""}">${l==="WhatsApp"?`<a href="https://wa.me/${String(b.webWa||v).replace(/\D/g,"").replace(/^00/,"").replace(/^0/,"31")}" style="color:#ffffff;text-decoration:none">${htmlEsc(v)}</a>`:htmlEsc(v)}</td></tr>`).join("")}</table>`;
   const kop = T ? T.kop : "";
-  return `<style>a[x-apple-data-detectors],.ms-nl a{color:inherit!important;text-decoration:none!important}${opts.style || ""}</style><div style="font-family:'Avenir Next',Avenir,-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:${BG};padding:26px 12px 22px;-webkit-font-smoothing:antialiased">
+  return `<style>a[x-apple-data-detectors],.ms-nl a{color:inherit!important;text-decoration:none!important}@media (max-width:560px){.ms-kol{display:block!important;width:100%!important}.ms-kr{text-align:left!important;padding:16px 0 0!important}}${opts.style || ""}</style><div style="font-family:'Avenir Next',Avenir,-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:${BG};padding:26px 12px 22px;-webkit-font-smoothing:antialiased">
 <div class="ms-tk" style="width:100%;max-width:720px;margin:0 auto;border-radius:22px;box-shadow:0 1px 2px ${_rg(BL2,.06)},0 22px 44px -22px ${_rg(BL2,.38)}">
 <div style="background:#ffffff;background-image:linear-gradient(180deg,#ffffff 0%,#fbfcfc 100%);border-radius:22px 22px 0 0;overflow:hidden">
   <div style="height:9px;background:${BL};background-image:linear-gradient(90deg,${BL2},${BL} 60%,${_mx(BL,"#ffffff",.25)})"></div>
@@ -113,7 +113,7 @@ function mailHtmlRuw(tekst, b, opts = {}) {
   <div style="padding:${kop ? 12 : 16}px 34px 8px">${alinea(tekst)}${opts.na || ""}${knop}${opts.onder ? alinea(opts.onder) : ""}</div>
 </div>
 ${T ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse"><tr>${gat("l")}<td style="background:#fbfcfc;padding:0 8px;height:30px"><div style="border-top:2px dotted #c3d2d6;height:0;line-height:0;font-size:0">&nbsp;</div></td>${gat("r")}</tr></table>` : `<div style="background:#fbfcfc;height:14px;line-height:14px;font-size:0">&nbsp;</div>`}
-<div style="background:${BL};background-image:repeating-linear-gradient(115deg,rgba(255,255,255,.035) 0 2px,transparent 2px 22px),linear-gradient(135deg,${BL2},${BL} 60%,${_mx(BL,"#ffffff",.12)});border-radius:0 0 22px 22px;color:#ffffff;padding:18px 30px 20px">${strook}</div>
+<div style="background:${BL};background-image:repeating-linear-gradient(115deg,rgba(255,255,255,.035) 0 2px,transparent 2px 22px),linear-gradient(135deg,${BL2},${BL} 60%,${_mx(BL,"#ffffff",.12)});border-radius:0 0 22px 22px;color:#ffffff;padding:18px 30px 20px">${opts.portaal && !T ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td class="ms-kol" valign="top" style="vertical-align:top">${strook}</td><td class="ms-kol ms-kr" align="right" valign="middle" style="vertical-align:middle;text-align:right;padding-left:16px"><a href="${htmlEsc(opts.portaal)}" style="display:inline-block;background:#ffffff;color:${INK};text-decoration:none;font-weight:600;font-size:14px;line-height:18px;padding:12px 20px;border-radius:999px;white-space:nowrap">Mijn klantportaal&nbsp;&rarr;</a></td></tr></table>` : strook}</div>
 </div>${T ? `<p class="ms-nl" style="text-align:center;font-size:12px;color:#8a979c;margin:16px 0 0">${[b.naam, b.telefoon, b.email].filter(Boolean).map(nl).join(" &nbsp;·&nbsp; ")}</p>` : ""}</div>`;
 }
 async function bewaarPdf(buf) { const hid = crypto.randomBytes(16).toString("hex"); await bucket().file("assets/" + hid).save(Buffer.from(buf), { contentType: "application/pdf", resumable: false }); return hid; }
@@ -132,7 +132,7 @@ async function stuurOverzichtMail({ soort, model, naar, naamKlant, klantId, meta
   if (vw) bijlagen.push({ name: b.voorwaardenNaam || "Algemene voorwaarden.pdf", content: Buffer.from(vw.bytes).toString("base64") });
   if (hf) bijlagen.push({ name: b.herroepingNaam || "Herroepingsformulier.pdf", content: Buffer.from(hf.bytes).toString("base64") });
   const afz = g.afzender || b.email || "info@mijnschoonmaker.com";
-  const brevoId = await brevoSend(g.brevoKey, { sender: { name: b.naam || "mijnschoonmaker", email: afz }, replyTo: { email: b.email || afz }, to: [{ email: naar, name: naamKlant || undefined }], subject: onderwerp, htmlContent: mailHtml(tekst, b), textContent: tekst.replace(/\*\*/g, "").replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, "$1 ($2)"), attachment: bijlagen, tags: ["crm", soort] });
+  const brevoId = await brevoSend(g.brevoKey, { sender: { name: b.naam || "mijnschoonmaker", email: afz }, replyTo: { email: b.email || afz }, to: [{ email: naar, name: naamKlant || undefined }], subject: onderwerp, htmlContent: mailHtml(tekst, b, { portaal: await portaalUrl(klantId, naar) }), textContent: tekst.replace(/\*\*/g, "").replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, "$1 ($2)"), attachment: bijlagen, tags: ["crm", soort] });
   const id = newId("m");
   let pdfId = ""; try { pdfId = await bewaarPdf(pdf); } catch (e) { console.error("pdf bewaren", e); }
   const bl = [{ naam: bijlagen[0].name, id: pdfId }]; if (vw) bl.push({ naam: bijlagen[1].name, id: b.voorwaardenPdf || "" }); if (hf) bl.push({ naam: bijlagen[bijlagen.length - 1].name, id: b.herroepingPdf || "" });
@@ -191,6 +191,13 @@ async function maakMail({ naar, naam, onderwerp, html, tekst, bijlagen }) {
   return { key: g.brevoKey, mail };
 }
 
+/* persoonlijke inloglink voor de knop "Mijn klantportaal" in mails die de server zelf maakt */
+async function portaalUrl(klantId, email) {
+  if (!klantId || !/@/.test(String(email || ""))) return "";
+  try { const t = T.tok(32), h = crypto.createHash("sha256").update(t).digest("hex");
+    await db.doc("portaalLogin/" + h).set({ klantId: String(klantId), email: String(email).trim().toLowerCase(), exp: Date.now() + 30 * 864e5, herbruik: true, op: nu(), bron: "mail" });
+    return HOST() + "/portaal?l=" + t; } catch (e) { console.error("portaalUrl", e); return HOST() + "/portaal"; }
+}
 /* knop "Naar uw klantportaal": persoonlijke inloglink, 30 dagen geldig en vaker te gebruiken, zodat de klant direct binnen is */
 async function portaalLinkVullen(d) {
   if (d.meta && d.meta.klantId && /__PORTAAL_LINK__/.test(String(d.html || ""))) {
@@ -567,7 +574,7 @@ exports.akkoordGeven = onRequest({ cors: true, memory: "512MiB", timeoutSeconds:
 });
 
 /* ---------- klantportaal ---------- */
-const P = require("./portaal")({ db, T, onRequest, onCall, onSchedule, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket });
+const P = require("./portaal")({ db, T, onRequest, onCall, onSchedule, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket, portaalUrl });
 /* tweestapsverificatie voor het CRM en dagelijkse back-ups */
 Object.assign(exports, BEV.functies);
 /* bank: betalingen automatisch koppelen aan facturen (bankbestand of koppeling via Enable Banking) */

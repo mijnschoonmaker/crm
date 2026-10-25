@@ -15,7 +15,7 @@
 const crypto = require("crypto");
 
 module.exports = function maakPortaal(ctx) {
-  const { db, T, onRequest, onCall, onSchedule, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket } = ctx;
+  const { db, T, onRequest, onCall, onSchedule, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket, portaalUrl } = ctx;
   const sha = s => crypto.createHash("sha256").update(String(s)).digest("hex");
   const tok = () => T.tok(32);
   const DAG = 864e5;
@@ -640,7 +640,7 @@ module.exports = function maakPortaal(ctx) {
         const onderwerp = `${n} jaar klant: dank u wel! · ${naam}`;
         const tekst = `Beste ${vn},\n\nVandaag bent u precies ${n === 1 ? "één jaar" : n + " jaar"} klant bij ons. Dank u wel voor uw vertrouwen!\n\nAls bedankje hebben wij **${cr.jaar} credits (€ ${cr.jaar})** voor u klaargezet. Die gaan automatisch van uw volgende factuur af; u hoeft niets te doen. In uw klantportaal ziet u uw credits altijd terug.\n\nMet vriendelijke groet,\n${naam}`;
         const afz = g.afzender || b.email || "info@mijnschoonmaker.com";
-        await brevoSend(g.brevoKey, { sender: { name: naam, email: afz }, replyTo: { email: b.email || afz }, to: [{ email, name: schoon(k.naam) || undefined }], subject: onderwerp, htmlContent: mailHtml(tekst, b) });
+        await brevoSend(g.brevoKey, { sender: { name: naam, email: afz }, replyTo: { email: b.email || afz }, to: [{ email, name: schoon(k.naam) || undefined }], subject: onderwerp, htmlContent: mailHtml(tekst, b, { portaal: await portaalUrl(k.id, email) }) });
         await db.doc("berichten/" + newId("m")).set({ klantId: k.id, klantNaam: k.naam || "", naar: email, kanaal: "email", sjabloon: "jubileum", onderwerp, tekst, status: "verstuurd", verstuurdOp: nu(), op: nu(), door: "automatisch" });
       } catch (e) { console.error("jubileummail", k.id, e.message); }
     } }
