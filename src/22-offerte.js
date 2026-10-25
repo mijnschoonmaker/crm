@@ -29,7 +29,7 @@ function openOfferte(opts={}){
   if(dns.length)extra=extra.filter(r=>!dns.some(d=>String(d.groepOms||d.naam||"").trim()===String(r.omschrijving||"").trim()));
   openDlg(`<div class="dlg-head"><span class="objic big">${I.offertes}</span><div style="min-width:0;flex:1"><div class="ow-kick">Offerte</div><h3 class="ow-h">${ex?esc(ex.nummer):"Nieuw"}</h3><div class="subt" id="owSub">${k0?esc(cleanName(k0.naam))+" · "+esc(fullAddr(k0)):"Kies een klant of vul een nieuwe klant in"}</div></div><span class="pill ${stPill[0]} dotp">${esc(stPill[1])}</span><button type="button" class="iconbtn" data-act="${opts.back?"offback":"close"}" data-id="${esc(opts.back||"")}" aria-label="Sluiten">${I.x}</button></div>
   <div class="kk-grid ow-grid"><div class="kk-left">
-    <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klantgegevens</b></div>
+    <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klantgegevens</b><button type="button" class="ow-kk" id="owKk" title="Naar de klantkaart" aria-label="Naar de klantkaart"${kid?"":" hidden"}>${I.user}<span>Klantkaart</span>${I.ext||""}</button></div>
       <div class="grid2">
         <label class="full">Klant<select id="ow-k"><option value="">Nieuwe klant</option>${ks.map(k=>`<option value="${esc(k.id)}" ${k.id===kid?"selected":""}>${esc(cleanName(k.naam))}${k.adres?" — "+esc(k.adres):""}</option>`).join("")}</select></label>
         <label class="full">Naam<input id="ow-naam" value="${v(k0,"naam")}" required></label>
@@ -131,6 +131,9 @@ function openOfferte(opts={}){
   $o("freq").onchange=()=>{touched.freq=true;draw()};$o("duur").onchange=()=>touched.duur=true;
   const sub=()=>{const n=$o("naam").value.trim(),a=[$o("adres").value.trim(),[$o("postcode").value.trim(),$o("plaats").value.trim()].filter(Boolean).join(" ")].filter(Boolean).join(", ");$("#owSub").textContent=n?n+(a?" · "+a:""):"Kies een klant of vul een nieuwe klant in"};
   ["naam","adres","postcode","plaats"].forEach(n=>$o(n).addEventListener("input",sub));
+  /* naar de klantkaart van de gekozen klant (vraagt eerst of je wijzigingen wilt bewaren, zoals bij sluiten) */
+  const kkB=$("#owKk");if(kkB)kkB.onclick=()=>{const id=$o("k").value;if(!id)return;sluitDlg(()=>openKlant(id))};
+  $o("k").addEventListener("change",()=>{if(kkB)kkB.hidden=!$o("k").value});
   $o("k").onchange=e=>{const k=state.klanten.find(x=>x.id===e.target.value);kid=k?k.id:"";
     ["naam","adres","postcode","plaats","email","telefoon"].forEach(n=>$o(n).value=k?k[n]||"":"");$o("soort").value=k&&(k.soort==="zakelijk"||k.soort==="vve")?k.soort:"particulier";
     if(k&&!touched.freq&&!rc){$o("freq").value=String(k.frequentie||8)}sub();if(RC)RC.sync()};
