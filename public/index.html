@@ -35,9 +35,30 @@
     if (k === "collection") return p => t.collection(pf(p));
     if (k === "doc") return p => t.doc(pf(p));
     const v = t[k]; return typeof v === "function" ? v.bind(t) : v; } });
+  /* De server zet betalingen (Mollie, bank) en credits rechtstreeks in de database. Een tabblad dat nog een oude kopie
+     heeft, mag die bij het opslaan niet terugdraaien: betaalgegevens en nieuwe credits van de server blijven staan.
+     Alleen een bewuste statuswijziging in het CRM (_handmatig) mag een betaalde factuur weer op open zetten. */
+  const BETAAL = ["status", "betaald", "betaaldOp", "betaaldTs", "betaalwijze", "mollieStatus", "mollieBetaald", "deelBetaald", "deelBetaaldOp", "deelBetalingen", "bankTx"];
+  const bewaar = (c, cur, d) => { const o = { ...d }; delete o._handmatig; if (!cur) return o;
+    if (c === "facturen") {
+      const sm = Array.isArray(cur.mollieBetaald) ? cur.mollieBetaald : [], dm = Array.isArray(d.mollieBetaald) ? d.mollieBetaald : [];
+      const terug = !d._handmatig && ((cur.status === "betaald" && d.status !== "betaald") || sm.some(x => !dm.includes(x)) || (cur.bankTx && cur.bankTx !== d.bankTx));
+      if (terug) BETAAL.forEach(k => { if (cur[k] !== undefined) o[k] = cur[k]; });
+      ["mollieStatus", "mollieBetaald", "incassoMislukt", "incassoFout"].forEach(k => { if (o[k] === undefined && cur[k] !== undefined) o[k] = cur[k]; });
+    }
+    if (c === "klanten") {
+      const ids = new Set([...(Array.isArray(d.tegoed) ? d.tegoed : []), ...(Array.isArray(d.tegoedGebruikt) ? d.tegoedGebruikt : [])].map(t => t && t.id).filter(Boolean));
+      const extra = (Array.isArray(cur.tegoed) ? cur.tegoed : []).filter(t => t && t.id && !ids.has(t.id));
+      if (extra.length) o.tegoed = [...(Array.isArray(d.tegoed) ? d.tegoed : []), ...extra];
+    }
+    return o; };
+  const zet = (c, id, d) => { const ref = fs.collection(pf(c)).doc(id);
+    if (c !== "facturen" && c !== "klanten") return ref.set(enc(d));
+    return fs.runTransaction(async t => { const s = await t.get(ref); t.set(ref, enc(bewaar(c, s.exists ? dec(s.data()) : null, d))); })
+      .catch(e => { if (e && /permission/i.test(String(e.code || e.message))) throw e; const o = { ...d }; delete o._handmatig; return ref.set(enc(o)); }); };
   const db = {
     collection: c => ({
-      doc: id => ({ set: d => window.ZEEM_MEEKIJK ? Promise.reject(new Error("Meekijken is alleen lezen: er wordt niets opgeslagen.")) : fs.collection(pf(c)).doc(id).set(enc(d)),
+      doc: id => ({ set: d => window.ZEEM_MEEKIJK ? Promise.reject(new Error("Meekijken is alleen lezen: er wordt niets opgeslagen.")) : zet(c, id, d),
         delete: () => window.ZEEM_MEEKIJK ? Promise.reject(new Error("Meekijken is alleen lezen: er wordt niets verwijderd.")) : fs.collection(pf(c)).doc(id).delete() }),
       onSnapshot: (cb, er) => fs.collection(pf(c)).onSnapshot(s => {
         try { cb({ docs: s.docs.map(d => ({ id: d.id, data: () => dec(d.data()) })) }); }
@@ -6437,7 +6458,7 @@ async function nrBewaker(){if(nrBezig||!MIJN_F.size)return;nrBezig=1;
 function bcVast(data){if(!data||data.soort!=="factuur")return data;const d={...data};
   if(d.status==="concept"){delete d.beheercode;return d}
   if(d.beheercode==null){const k=(state.klanten||[]).find(x=>x.id===d.klantId);if(k&&k.beheercode)d.beheercode=String(k.beheercode)}return d}
-async function save(col,id,data){if(col==="klanten"&&typeof OW_NIEUW!=="undefined"&&OW_NIEUW&&OW_NIEUW.kid===id&&OW_NIEUW.klaar)OW_NIEUW.bewaard=true;if(col==="facturen"){data=bcVast(data);if(typeof btwVast==="function")data=btwVast(data,!(state.facturen||[]).some(f=>f.id===id))}if(col==="facturen"&&!(state.facturen||[]).some(f=>f.id===id))MIJN_F.add(id);if(state.db)await state.db.collection(col).doc(id).set(data);else{mem[col].set(id,{...data,id});apply(col,[...mem[col].values()]);schedule()}}
+async function save(col,id,data){if(col==="klanten"&&typeof OW_NIEUW!=="undefined"&&OW_NIEUW&&OW_NIEUW.kid===id&&OW_NIEUW.klaar)OW_NIEUW.bewaard=true;if(col==="facturen"){data=bcVast(data);if(typeof btwVast==="function")data=btwVast(data,!(state.facturen||[]).some(f=>f.id===id))}if(col==="facturen"&&!(state.facturen||[]).some(f=>f.id===id))MIJN_F.add(id);if(state.db)await state.db.collection(col).doc(id).set(data);else{if(data&&data._handmatig){data={...data};delete data._handmatig}mem[col].set(id,{...data,id});apply(col,[...mem[col].values()]);schedule()}}
 async function del(col,id){if(state.db)await state.db.collection(col).doc(id).delete();else{mem[col].delete(id);apply(col,[...mem[col].values()]);schedule()}}
 let rq=0;function schedule(){if(rq)return;rq=requestAnimationFrame(()=>{rq=0;render()})}
 async function init(){
@@ -6942,7 +6963,7 @@ async function optimize(day){
 }
 async function setFStatus(id,s){
   const f=state.facturen.find(x=>x.id===id);if(!f)return;
-  try{await save("facturen",id,{...strip(f),status:s,betaaldOp:s==="betaald"?iso(today()):"",betaaldTs:s==="betaald"?(f.betaaldTs||new Date().toISOString()):""});
+  try{await save("facturen",id,{...strip(f),_handmatig:true,status:s,betaaldOp:s==="betaald"?iso(today()):"",betaaldTs:s==="betaald"?(f.betaaldTs||new Date().toISOString()):""});
     if(f.soort!=="offerte")for(const b of state.beurten.filter(b=>b.gefactureerd===id))await save("beurten",b.id,{...strip(b),betaald:s==="betaald"});
     toast(s==="betaald"?"Betaling verwerkt":"Status bijgewerkt");setTimeout(()=>openFactuur(id),50)}catch(e){err(e)}
 }

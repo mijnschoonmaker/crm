@@ -5,7 +5,7 @@
    - bankOntkoppel : koppeling stoppen
    Sleutels (App ID + private key van Enable Banking) staan in /geheim/config, de sessie in /geheim/bank.
    Elke bijschrijving komt in /banktx: gekoppeld, te controleren, niet herkend of genegeerd. */
-module.exports = ({ db, T, onCall, onRequest, onSchedule, HttpsError, geheim, checkGebruiker, crypto, nu, HOST }) => {
+module.exports = ({ db, T, onCall, onRequest, onSchedule, HttpsError, geheim, checkGebruiker, crypto, nu, HOST, snelCredit }) => {
   const EB = "https://api.enablebanking.com";
   const r2 = n => Math.round((Number(n) || 0) * 100) / 100;
   const isoNL = (d = new Date()) => new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Amsterdam" }).format(d);
@@ -79,6 +79,7 @@ module.exports = ({ db, T, onCall, onRequest, onSchedule, HttpsError, geheim, ch
           const bs = await db.collection("beurten").where("gefactureerd", "==", fid).get();
           for (const d of bs.docs) await d.ref.set({ betaald: true }, { merge: true });
           uit.betaald.push({ nummer: f.nummer, bedrag: totals(f, b), naam: f.klantNaam || "" });
+          if (typeof snelCredit === "function") await snelCredit(fid);
           /* rekening onthouden: de volgende keer herkennen we de klant ook zonder factuurnummer */
           if (t.iban && f.klantId && klanten.has(f.klantId)) { const k = klanten.get(f.klantId), l = (k.bankIbans || []).map(schoonIban); if (!l.includes(t.iban)) { k.bankIbans = [...l, t.iban].slice(-4); await db.doc("klanten/" + f.klantId).set({ bankIbans: k.bankIbans }, { merge: true }); } }
         }

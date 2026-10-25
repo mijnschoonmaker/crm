@@ -6151,7 +6151,7 @@ async function nrBewaker(){if(nrBezig||!MIJN_F.size)return;nrBezig=1;
 function bcVast(data){if(!data||data.soort!=="factuur")return data;const d={...data};
   if(d.status==="concept"){delete d.beheercode;return d}
   if(d.beheercode==null){const k=(state.klanten||[]).find(x=>x.id===d.klantId);if(k&&k.beheercode)d.beheercode=String(k.beheercode)}return d}
-async function save(col,id,data){if(col==="klanten"&&typeof OW_NIEUW!=="undefined"&&OW_NIEUW&&OW_NIEUW.kid===id&&OW_NIEUW.klaar)OW_NIEUW.bewaard=true;if(col==="facturen"){data=bcVast(data);if(typeof btwVast==="function")data=btwVast(data,!(state.facturen||[]).some(f=>f.id===id))}if(col==="facturen"&&!(state.facturen||[]).some(f=>f.id===id))MIJN_F.add(id);if(state.db)await state.db.collection(col).doc(id).set(data);else{mem[col].set(id,{...data,id});apply(col,[...mem[col].values()]);schedule()}}
+async function save(col,id,data){if(col==="klanten"&&typeof OW_NIEUW!=="undefined"&&OW_NIEUW&&OW_NIEUW.kid===id&&OW_NIEUW.klaar)OW_NIEUW.bewaard=true;if(col==="facturen"){data=bcVast(data);if(typeof btwVast==="function")data=btwVast(data,!(state.facturen||[]).some(f=>f.id===id))}if(col==="facturen"&&!(state.facturen||[]).some(f=>f.id===id))MIJN_F.add(id);if(state.db)await state.db.collection(col).doc(id).set(data);else{if(data&&data._handmatig){data={...data};delete data._handmatig}mem[col].set(id,{...data,id});apply(col,[...mem[col].values()]);schedule()}}
 async function del(col,id){if(state.db)await state.db.collection(col).doc(id).delete();else{mem[col].delete(id);apply(col,[...mem[col].values()]);schedule()}}
 let rq=0;function schedule(){if(rq)return;rq=requestAnimationFrame(()=>{rq=0;render()})}
 async function init(){
@@ -6656,7 +6656,7 @@ async function optimize(day){
 }
 async function setFStatus(id,s){
   const f=state.facturen.find(x=>x.id===id);if(!f)return;
-  try{await save("facturen",id,{...strip(f),status:s,betaaldOp:s==="betaald"?iso(today()):"",betaaldTs:s==="betaald"?(f.betaaldTs||new Date().toISOString()):""});
+  try{await save("facturen",id,{...strip(f),_handmatig:true,status:s,betaaldOp:s==="betaald"?iso(today()):"",betaaldTs:s==="betaald"?(f.betaaldTs||new Date().toISOString()):""});
     if(f.soort!=="offerte")for(const b of state.beurten.filter(b=>b.gefactureerd===id))await save("beurten",b.id,{...strip(b),betaald:s==="betaald"});
     toast(s==="betaald"?"Betaling verwerkt":"Status bijgewerkt");setTimeout(()=>openFactuur(id),50)}catch(e){err(e)}
 }

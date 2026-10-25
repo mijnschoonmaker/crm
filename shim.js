@@ -25,9 +25,30 @@
     if (k === "collection") return p => t.collection(pf(p));
     if (k === "doc") return p => t.doc(pf(p));
     const v = t[k]; return typeof v === "function" ? v.bind(t) : v; } });
+  /* De server zet betalingen (Mollie, bank) en credits rechtstreeks in de database. Een tabblad dat nog een oude kopie
+     heeft, mag die bij het opslaan niet terugdraaien: betaalgegevens en nieuwe credits van de server blijven staan.
+     Alleen een bewuste statuswijziging in het CRM (_handmatig) mag een betaalde factuur weer op open zetten. */
+  const BETAAL = ["status", "betaald", "betaaldOp", "betaaldTs", "betaalwijze", "mollieStatus", "mollieBetaald", "deelBetaald", "deelBetaaldOp", "deelBetalingen", "bankTx"];
+  const bewaar = (c, cur, d) => { const o = { ...d }; delete o._handmatig; if (!cur) return o;
+    if (c === "facturen") {
+      const sm = Array.isArray(cur.mollieBetaald) ? cur.mollieBetaald : [], dm = Array.isArray(d.mollieBetaald) ? d.mollieBetaald : [];
+      const terug = !d._handmatig && ((cur.status === "betaald" && d.status !== "betaald") || sm.some(x => !dm.includes(x)) || (cur.bankTx && cur.bankTx !== d.bankTx));
+      if (terug) BETAAL.forEach(k => { if (cur[k] !== undefined) o[k] = cur[k]; });
+      ["mollieStatus", "mollieBetaald", "incassoMislukt", "incassoFout"].forEach(k => { if (o[k] === undefined && cur[k] !== undefined) o[k] = cur[k]; });
+    }
+    if (c === "klanten") {
+      const ids = new Set([...(Array.isArray(d.tegoed) ? d.tegoed : []), ...(Array.isArray(d.tegoedGebruikt) ? d.tegoedGebruikt : [])].map(t => t && t.id).filter(Boolean));
+      const extra = (Array.isArray(cur.tegoed) ? cur.tegoed : []).filter(t => t && t.id && !ids.has(t.id));
+      if (extra.length) o.tegoed = [...(Array.isArray(d.tegoed) ? d.tegoed : []), ...extra];
+    }
+    return o; };
+  const zet = (c, id, d) => { const ref = fs.collection(pf(c)).doc(id);
+    if (c !== "facturen" && c !== "klanten") return ref.set(enc(d));
+    return fs.runTransaction(async t => { const s = await t.get(ref); t.set(ref, enc(bewaar(c, s.exists ? dec(s.data()) : null, d))); })
+      .catch(e => { if (e && /permission/i.test(String(e.code || e.message))) throw e; const o = { ...d }; delete o._handmatig; return ref.set(enc(o)); }); };
   const db = {
     collection: c => ({
-      doc: id => ({ set: d => window.ZEEM_MEEKIJK ? Promise.reject(new Error("Meekijken is alleen lezen: er wordt niets opgeslagen.")) : fs.collection(pf(c)).doc(id).set(enc(d)),
+      doc: id => ({ set: d => window.ZEEM_MEEKIJK ? Promise.reject(new Error("Meekijken is alleen lezen: er wordt niets opgeslagen.")) : zet(c, id, d),
         delete: () => window.ZEEM_MEEKIJK ? Promise.reject(new Error("Meekijken is alleen lezen: er wordt niets verwijderd.")) : fs.collection(pf(c)).doc(id).delete() }),
       onSnapshot: (cb, er) => fs.collection(pf(c)).onSnapshot(s => {
         try { cb({ docs: s.docs.map(d => ({ id: d.id, data: () => dec(d.data()) })) }); }

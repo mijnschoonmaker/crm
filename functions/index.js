@@ -355,6 +355,24 @@ exports.mollieIntrekken = onCall(async req => {
   await f.ref.set({ incasso: false, mollieStatus: "canceled", mollieId: "", incassoIngetrokken: nu() }, { merge: true });
   return { ok: true };
 });
+/* credits voor snel betalen meteen toekennen (niet pas bij de volgende ronde van de planner): binnen 24 uur na versturen betaald,
+   niet bij automatische incasso. Vaste bron+ref, dus nooit dubbel; de planner doet hetzelfde als vangnet. */
+async function snelCredit(fid) {
+  try {
+    const fs = await db.doc("facturen/" + fid).get(); if (!fs.exists) return;
+    const f = decF(fs.data()); if (f.soort === "offerte" || f.status !== "betaald" || f.incasso || f.betaalwijze === "incasso" || !f.klantId) return;
+    const b = (await db.doc("instellingen/bedrijf").get()).data() || {}, n = b.crSnel != null && b.crSnel !== "" && !isNaN(Number(b.crSnel)) ? Number(b.crSnel) : 0.5;
+    if (!(n > 0)) return;
+    const tot = Date.parse(f.betaaldTs || ""), van = Date.parse(f.verstuurdOp || f.gemaakt || "");
+    if (!(van > 0 && tot >= van && tot - van <= 24 * 36e5)) return;
+    const kref = db.doc("klanten/" + f.klantId);
+    await db.runTransaction(async t => { const ks = await t.get(kref); if (!ks.exists) return; const k = decF(ks.data());
+      if ([...(k.tegoed || []), ...(k.tegoedGebruikt || [])].some(x => x && x.bron === "snel" && String(x.ref || "") === String(fid))) return;
+      const reden = "Credits: factuur " + (f.nummer || "") + " binnen 24 uur betaald";
+      t.set(kref, encF({ tegoed: [...(Array.isArray(k.tegoed) ? k.tegoed : []), { id: newId("tg"), bedrag: n, reden, bron: "snel", ref: String(fid), op: dagNL() }],
+        log: [...(Array.isArray(k.log) ? k.log : []), { datum: dagNL(), tekst: reden + " · " + String(n).replace(".", ",") + " credit (€ " + n.toFixed(2).replace(".", ",") + ") op de volgende factuur" }] }), { merge: true }); });
+  } catch (e) { console.error("snelCredit", e); }
+}
 exports.mollieHook = onRequest(async (req, res) => {
   const id = (req.body && req.body.id) || "";
   if (!/^tr_\w+$/.test(id)) { res.status(400).send("geen id"); return; }
@@ -397,6 +415,7 @@ exports.mollieHook = onRequest(async (req, res) => {
       if (volledig) {
         const bs = await db.collection("beurten").where("gefactureerd", "==", fid).get();
         for (const d of bs.docs) await d.ref.set({ betaald: true }, { merge: true });
+        await snelCredit(fid);
       }
     }
     res.send("ok");
@@ -600,7 +619,7 @@ const P = require("./portaal")({ db, T, onRequest, onCall, onSchedule, HttpsErro
 /* tweestapsverificatie voor het CRM en dagelijkse back-ups */
 Object.assign(exports, BEV.functies);
 /* bank: betalingen automatisch koppelen aan facturen (bankbestand of koppeling via Enable Banking) */
-const BANK = require("./bank")({ db, T, onCall, onRequest, onSchedule, HttpsError, geheim, checkGebruiker, crypto, nu, HOST });
+const BANK = require("./bank")({ db, T, onCall, onRequest, onSchedule, HttpsError, geheim, checkGebruiker, crypto, nu, HOST, snelCredit });
 Object.assign(exports, BANK.functies);
 /* systeemcontrole: elke nacht nagaan of de gegevens kloppen (alleen lezen) */
 const CONTROLE = require("./controle")({ db, onCall, onSchedule, geheim, bedrijf, brevoSend, checkGebruiker, nu });

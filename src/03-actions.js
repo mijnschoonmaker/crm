@@ -111,7 +111,7 @@ async function optimize(day){
 }
 async function setFStatus(id,s){
   const f=state.facturen.find(x=>x.id===id);if(!f)return;
-  try{await save("facturen",id,{...strip(f),status:s,betaaldOp:s==="betaald"?iso(today()):"",betaaldTs:s==="betaald"?(f.betaaldTs||new Date().toISOString()):""});
+  try{await save("facturen",id,{...strip(f),_handmatig:true,status:s,betaaldOp:s==="betaald"?iso(today()):"",betaaldTs:s==="betaald"?(f.betaaldTs||new Date().toISOString()):""});
     if(f.soort!=="offerte")for(const b of state.beurten.filter(b=>b.gefactureerd===id))await save("beurten",b.id,{...strip(b),betaald:s==="betaald"});
     toast(s==="betaald"?"Betaling verwerkt":"Status bijgewerkt");setTimeout(()=>openFactuur(id),50)}catch(e){err(e)}
 }
