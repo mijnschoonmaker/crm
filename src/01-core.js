@@ -216,6 +216,14 @@ function zoomZet(){const on=!!(window.matchMedia&&matchMedia("(min-width:1100px)
   const h=document.documentElement;h.classList.toggle("zm",on);ZOOM.f=on?.9:1;
   if(on){try{const t=document.createElement("div");t.style.cssText="position:fixed;left:0;top:0;width:100px;height:10px;visibility:hidden;pointer-events:none";document.body.appendChild(t);ZOOM.sc=t.getBoundingClientRect().width<95;t.remove()}catch(e){ZOOM.sc=true}}}
 function vpR(el){const r=el.getBoundingClientRect();if(ZOOM.f===1||ZOOM.sc)return r;const f=ZOOM.f;return{left:r.left*f,top:r.top*f,right:r.right*f,bottom:r.bottom*f,width:r.width*f,height:r.height*f,x:r.x*f,y:r.y*f}}
+/* vensters altijd helemaal in beeld: Safari rekent de zoom van 90% bij vensters anders, waardoor de knoppen onderaan
+   (Opslaan, Verwijderen) onder het scherm vielen. Na openen meten en zo nodig de maximale hoogte inkorten; de inhoud scrolt dan. */
+function dlgPas(d){try{if(!d||!d.open||d.classList.contains("drawer"))return;d.style.maxHeight="";
+  const r=vpR(d),vh=window.innerHeight||document.documentElement.clientHeight;if(r.bottom<=vh-8&&r.top>=0)return;
+  const sc=d.offsetHeight?r.height/d.offsetHeight:1;d.style.maxHeight=Math.max(240,Math.floor((vh-32)/(sc||1)))+"px"}catch(e){}}
+if(typeof HTMLDialogElement!=="undefined"&&!HTMLDialogElement.prototype._pasGezet){const P=HTMLDialogElement.prototype,o=P.showModal;P._pasGezet=1;
+  P.showModal=function(){const r=o.apply(this,arguments);const d=this;requestAnimationFrame(()=>dlgPas(d));setTimeout(()=>dlgPas(d),350);return r};
+  window.addEventListener("resize",()=>document.querySelectorAll("dialog[open]").forEach(dlgPas))}
 if(typeof document!=="undefined"&&document.body){zoomZet();try{matchMedia("(min-width:1100px) and (pointer:fine)").addEventListener("change",zoomZet)}catch(e){}}
 const LIVE=typeof window!=="undefined"&&!!window.ZEEM_LIVE;
 const SETEXTRA={};
@@ -289,7 +297,7 @@ const empty=(t,s,btn="")=>`<div class="empty"><div class="ill">${EMPTY_ILL}</div
 const dlg=$("#dlg"),form=$("#dlgForm");
 let dlgGuard=null;
 async function sluitDlg(then){if(dlgGuard){let ok=false;try{ok=await dlgGuard()}catch(e){console.error(e)}if(!ok)return}dlgGuard=null;if(then)then();else dlg.close()}
-function openDlg(html,{wide=false,drawer=false,xwide=false}={}){dlgGuard=null;dlg.className=drawer?"drawer":xwide?"xwide":wide?"wide":"";form.dataset.sheet="";form.innerHTML=html;form.onsubmit=e=>e.preventDefault();form.oninput=null;form.onchange=null;if(!dlg.open)dlg.showModal();dlg.scrollTop=0}
+function openDlg(html,{wide=false,drawer=false,xwide=false}={}){dlgGuard=null;dlg.className=drawer?"drawer":xwide?"xwide":wide?"wide":"";form.dataset.sheet="";form.innerHTML=html;form.onsubmit=e=>e.preventDefault();form.oninput=null;form.onchange=null;if(!dlg.open)dlg.showModal();else if(typeof dlgPas==="function")requestAnimationFrame(()=>dlgPas(dlg));dlg.scrollTop=0}
 /* klik buiten het venster sluit alleen als je ook buiten bent begonnen (niet bij tekst selecteren en naar buiten slepen),
    en nooit bij een venster waarin je tekst aan het bewerken bent: dat sluit alleen via Annuleren of Opslaan */
 let dlgDownBuiten=false;
