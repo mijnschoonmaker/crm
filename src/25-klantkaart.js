@@ -232,10 +232,18 @@ function kkDelOpdracht(kid,oid,back){const k=state.klanten.find(x=>x.id===kid);i
 }
 /* nieuwe opdracht bij een klant zonder opdrachten: wordt weer de hoofdopdracht */
 /* begint leeg: geen aantallen, prijzen of kozijnen van de verwijderde opdracht; de foto's van de woning blijven bij de klant (zonder stippen) */
+/* nieuwe opdracht vanaf de klantkaart: pas echt als je opslaat. Sluit je het werkblad met Annuleren of het kruisje,
+   dan gaat de klant terug naar hoe hij was (geen opdracht, niet bij Te plannen). */
+var OW_NIEUW=null;
+async function owNieuwTerug(kid){const n=OW_NIEUW;if(!n||(kid&&n.kid!==kid))return;OW_NIEUW=null;if(n.bewaard)return;
+  const cur=state.klanten.find(x=>x.id===n.kid);if(!cur)return;try{await save("klanten",n.kid,{...strip(cur),...n.prev});toast("Opdracht niet aangemaakt")}catch(e){err(e)}}
+if(typeof dlg!=="undefined")dlg.addEventListener("close",()=>{if(OW_NIEUW)owNieuwTerug()});
 async function kkNieuweHoofd(kid){const k=state.klanten.find(x=>x.id===kid);if(!k)return;
+  const velden=["opdrachtVerwijderd","prospect","actief","dienst","prijs","ramenRegel","ramenTelling","taak","toeslag","toeslagReden","fotos","opdrachten","aanbieden","gepland","tijd"];
+  const prev={};velden.forEach(v=>{prev[v]=k[v]===undefined?(v==="opdrachtVerwijderd"||v==="prospect"?false:v==="actief"?true:Array.isArray(k[v])?[]:""):k[v]});
   const oud=((k.ramenTelling||{}).fotos||[]).filter(f=>f&&f.id&&!(k.fotos||[]).some(x=>x.id===f.id)).map(f=>({id:f.id,naam:"Woning (vorige telling)",datum:(k.ramenTelling||{}).datum||iso(today())}));
   try{await save("klanten",kid,{...strip(k),opdrachtVerwijderd:false,prospect:false,actief:true,dienst:"Glasbewassing",prijs:0,ramenRegel:null,ramenTelling:null,taak:"",toeslag:0,toeslagReden:"",
-    fotos:[...(k.fotos||[]),...oud],opdrachten:(k.opdrachten||[]).filter(o=>o.actief!==false)});setTimeout(()=>openOpdrachtWerk(kid),60)}catch(er){err(er)}}
+    fotos:[...(k.fotos||[]),...oud],opdrachten:(k.opdrachten||[]).filter(o=>o.actief!==false)});OW_NIEUW={kid,prev,klaar:true,bewaard:false};setTimeout(()=>openOpdrachtWerk(kid),60)}catch(er){err(er)}}
 
 /* offerte verwijderen vanuit de klantkaart */
 function kkDelOfferte(fid){const f=state.facturen.find(x=>x.id===fid);if(!f)return;const kid=f.klantId;

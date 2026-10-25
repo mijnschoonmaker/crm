@@ -340,8 +340,8 @@ function openOpdrachtWerk(kid,focus){
         offerte:async()=>{const {t}=await RC.telling();await save("klanten",kid,{...collect(),...(t?{ramenTelling:t}:{})});RC.reset();openOfferte({klantId:kid,metTelling:true})}},true);
       box.hidden=false;box.appendChild(RC.host);RC.sync();if(k.ramenTelling)RC.loadFor(k.id);const b=$("#owRcT");if(b)b.hidden=true}
     catch(er){console.error(er);box.hidden=false;box.innerHTML='<p class="subt">De rekentool kon hier niet worden geladen.</p>'}};
-  if($("#owOff"))$("#owOff").onclick=()=>openOfferte({klantId:kid,metTelling:true});
-  const back=()=>openKlant(kid);$("#owX").onclick=$("#owBack").onclick=back;$("#owKk").onclick=back;
+  if($("#owOff"))$("#owOff").onclick=async()=>{if(typeof owNieuwTerug==="function")await owNieuwTerug(kid);openOfferte({klantId:kid,metTelling:true})};
+  const back=async()=>{if(typeof owNieuwTerug==="function")await owNieuwTerug(kid);openKlant(kid)};$("#owX").onclick=$("#owBack").onclick=back;$("#owKk").onclick=back;
   const collect=()=>{syncRitme();const cur=state.klanten.find(x=>x.id===kid)||k,actief=$o("actief").checked;
     return {...strip(cur),dienst:String(main.dienst||"").trim()||"Glasbewassing",prijs:r2(Number(main.prijs)||0),ramenRegel:main.ramen||null,frequentie:mW.length?1:(mF||4),weekdagen:mW.length?mW:[],...(mW.length?{autoplan:true}:{}),duur:mD||30,ronde:$o("ronde").value.trim(),contactPlanning:$o("contact").value,eersteKeer:$o("eerste").value==="ja",toeslag:Number($o("toeslag").value)||0,toeslagReden:$o("toeslagr").value.trim(),verbergAantal:$o("verbA").checked,verbergFreq:$o("verbF").checked,afmeldMail:$o("afmail").checked,
       binnen:false,actief,...(actief?{}:{gepland:"",tijd:""}),akkoord:$o("akkoord").checked,incasso:$o("betaal").value==="incasso",...factModusPatch($o("fact").value,k),

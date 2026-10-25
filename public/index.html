@@ -6437,7 +6437,7 @@ async function nrBewaker(){if(nrBezig||!MIJN_F.size)return;nrBezig=1;
 function bcVast(data){if(!data||data.soort!=="factuur")return data;const d={...data};
   if(d.status==="concept"){delete d.beheercode;return d}
   if(d.beheercode==null){const k=(state.klanten||[]).find(x=>x.id===d.klantId);if(k&&k.beheercode)d.beheercode=String(k.beheercode)}return d}
-async function save(col,id,data){if(col==="facturen"){data=bcVast(data);if(typeof btwVast==="function")data=btwVast(data,!(state.facturen||[]).some(f=>f.id===id))}if(col==="facturen"&&!(state.facturen||[]).some(f=>f.id===id))MIJN_F.add(id);if(state.db)await state.db.collection(col).doc(id).set(data);else{mem[col].set(id,{...data,id});apply(col,[...mem[col].values()]);schedule()}}
+async function save(col,id,data){if(col==="klanten"&&typeof OW_NIEUW!=="undefined"&&OW_NIEUW&&OW_NIEUW.kid===id&&OW_NIEUW.klaar)OW_NIEUW.bewaard=true;if(col==="facturen"){data=bcVast(data);if(typeof btwVast==="function")data=btwVast(data,!(state.facturen||[]).some(f=>f.id===id))}if(col==="facturen"&&!(state.facturen||[]).some(f=>f.id===id))MIJN_F.add(id);if(state.db)await state.db.collection(col).doc(id).set(data);else{mem[col].set(id,{...data,id});apply(col,[...mem[col].values()]);schedule()}}
 async function del(col,id){if(state.db)await state.db.collection(col).doc(id).delete();else{mem[col].delete(id);apply(col,[...mem[col].values()]);schedule()}}
 let rq=0;function schedule(){if(rq)return;rq=requestAnimationFrame(()=>{rq=0;render()})}
 async function init(){
@@ -12929,8 +12929,8 @@ function openOpdrachtWerk(kid,focus){
         offerte:async()=>{const {t}=await RC.telling();await save("klanten",kid,{...collect(),...(t?{ramenTelling:t}:{})});RC.reset();openOfferte({klantId:kid,metTelling:true})}},true);
       box.hidden=false;box.appendChild(RC.host);RC.sync();if(k.ramenTelling)RC.loadFor(k.id);const b=$("#owRcT");if(b)b.hidden=true}
     catch(er){console.error(er);box.hidden=false;box.innerHTML='<p class="subt">De rekentool kon hier niet worden geladen.</p>'}};
-  if($("#owOff"))$("#owOff").onclick=()=>openOfferte({klantId:kid,metTelling:true});
-  const back=()=>openKlant(kid);$("#owX").onclick=$("#owBack").onclick=back;$("#owKk").onclick=back;
+  if($("#owOff"))$("#owOff").onclick=async()=>{if(typeof owNieuwTerug==="function")await owNieuwTerug(kid);openOfferte({klantId:kid,metTelling:true})};
+  const back=async()=>{if(typeof owNieuwTerug==="function")await owNieuwTerug(kid);openKlant(kid)};$("#owX").onclick=$("#owBack").onclick=back;$("#owKk").onclick=back;
   const collect=()=>{syncRitme();const cur=state.klanten.find(x=>x.id===kid)||k,actief=$o("actief").checked;
     return {...strip(cur),dienst:String(main.dienst||"").trim()||"Glasbewassing",prijs:r2(Number(main.prijs)||0),ramenRegel:main.ramen||null,frequentie:mW.length?1:(mF||4),weekdagen:mW.length?mW:[],...(mW.length?{autoplan:true}:{}),duur:mD||30,ronde:$o("ronde").value.trim(),contactPlanning:$o("contact").value,eersteKeer:$o("eerste").value==="ja",toeslag:Number($o("toeslag").value)||0,toeslagReden:$o("toeslagr").value.trim(),verbergAantal:$o("verbA").checked,verbergFreq:$o("verbF").checked,afmeldMail:$o("afmail").checked,
       binnen:false,actief,...(actief?{}:{gepland:"",tijd:""}),akkoord:$o("akkoord").checked,incasso:$o("betaal").value==="incasso",...factModusPatch($o("fact").value,k),
@@ -13618,10 +13618,18 @@ function kkDelOpdracht(kid,oid,back){const k=state.klanten.find(x=>x.id===kid);i
 }
 /* nieuwe opdracht bij een klant zonder opdrachten: wordt weer de hoofdopdracht */
 /* begint leeg: geen aantallen, prijzen of kozijnen van de verwijderde opdracht; de foto's van de woning blijven bij de klant (zonder stippen) */
+/* nieuwe opdracht vanaf de klantkaart: pas echt als je opslaat. Sluit je het werkblad met Annuleren of het kruisje,
+   dan gaat de klant terug naar hoe hij was (geen opdracht, niet bij Te plannen). */
+var OW_NIEUW=null;
+async function owNieuwTerug(kid){const n=OW_NIEUW;if(!n||(kid&&n.kid!==kid))return;OW_NIEUW=null;if(n.bewaard)return;
+  const cur=state.klanten.find(x=>x.id===n.kid);if(!cur)return;try{await save("klanten",n.kid,{...strip(cur),...n.prev});toast("Opdracht niet aangemaakt")}catch(e){err(e)}}
+if(typeof dlg!=="undefined")dlg.addEventListener("close",()=>{if(OW_NIEUW)owNieuwTerug()});
 async function kkNieuweHoofd(kid){const k=state.klanten.find(x=>x.id===kid);if(!k)return;
+  const velden=["opdrachtVerwijderd","prospect","actief","dienst","prijs","ramenRegel","ramenTelling","taak","toeslag","toeslagReden","fotos","opdrachten","aanbieden","gepland","tijd"];
+  const prev={};velden.forEach(v=>{prev[v]=k[v]===undefined?(v==="opdrachtVerwijderd"||v==="prospect"?false:v==="actief"?true:Array.isArray(k[v])?[]:""):k[v]});
   const oud=((k.ramenTelling||{}).fotos||[]).filter(f=>f&&f.id&&!(k.fotos||[]).some(x=>x.id===f.id)).map(f=>({id:f.id,naam:"Woning (vorige telling)",datum:(k.ramenTelling||{}).datum||iso(today())}));
   try{await save("klanten",kid,{...strip(k),opdrachtVerwijderd:false,prospect:false,actief:true,dienst:"Glasbewassing",prijs:0,ramenRegel:null,ramenTelling:null,taak:"",toeslag:0,toeslagReden:"",
-    fotos:[...(k.fotos||[]),...oud],opdrachten:(k.opdrachten||[]).filter(o=>o.actief!==false)});setTimeout(()=>openOpdrachtWerk(kid),60)}catch(er){err(er)}}
+    fotos:[...(k.fotos||[]),...oud],opdrachten:(k.opdrachten||[]).filter(o=>o.actief!==false)});OW_NIEUW={kid,prev,klaar:true,bewaard:false};setTimeout(()=>openOpdrachtWerk(kid),60)}catch(er){err(er)}}
 
 /* offerte verwijderen vanuit de klantkaart */
 function kkDelOfferte(fid){const f=state.facturen.find(x=>x.id===fid);if(!f)return;const kid=f.klantId;
