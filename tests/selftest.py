@@ -291,6 +291,18 @@ def teplannen(pg):
         check(G3, "Signaal vervallen facturen alleen als ze er zijn (kritiek)", r["sigOk"], r)
         check(G3, "Elke melding heeft uitleg en een knop", r["allesGeldig"], r)
         check(G3, "Zoeken vindt klanten (naam en postcode)", r["zoek"] >= 2, r)
+    r = pg.evaluate("""()=>{const T=MSTEST;if(!T.ccAlle)return null;const S=T.state,id='cctl1',kid='cck1';const oud=S.ccStatus;
+      S.klanten.push({id:kid,naam:'Wachtrij, Test'});S.facturen.push({id,soort:'factuur',nummer:'T-9',klantId:kid,klantNaam:'Wachtrij, Test',status:'open',datum:'2026-01-01',verval:'2026-01-15',regels:[{omschrijving:'x',aantal:1,prijs:10}],btw:21,incl:true});
+      const key='fv:'+id,in0=T.ccSignalen().some(m=>m.key===key);
+      S.ccStatus={later:{[key]:new Date(Date.now()+3600e3).toISOString()}};const inLater=T.ccSignalen().some(m=>m.key===key);
+      S.ccStatus={afgehandeld:{[key]:new Date().toISOString()}};const inKlaar=T.ccSignalen().some(m=>m.key===key);
+      S.ccStatus={afgehandeld:{[key]:new Date(Date.now()-8*864e5).toISOString()}};const terug=T.ccSignalen().some(m=>m.key===key);
+      S.ccStatus=oud;S.facturen.pop();S.klanten.pop();return {in0,inLater,inKlaar,terug}}""")
+    if r is not None:
+        check(G3, "Wachtrij: vervallen factuur staat erin", r["in0"], r)
+        check(G3, "Wachtrij: 'later' haalt hem tijdelijk weg", not r["inLater"], r)
+        check(G3, "Wachtrij: afgehandeld haalt hem weg", not r["inKlaar"], r)
+        check(G3, "Wachtrij: na 7 dagen komt een nog vervallen factuur terug", r["terug"], r)
 
 
 def nieuweOpdracht(pg):

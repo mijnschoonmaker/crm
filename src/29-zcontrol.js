@@ -4,7 +4,7 @@
    routeStops, overdue, queues). Slaat niets op en maakt geen nieuwe gegevens; de scheiding tussen bedrijven blijft zoals hij is.
    Alle signalen en cijfers komen uit echte gegevens; is er niets, dan staat er een lege status. */
 I.control=I.control||sv('<rect x="3.5" y="3.5" width="7" height="8" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="5" rx="1.6"/><rect x="13.5" y="11.5" width="7" height="9" rx="1.6"/><rect x="3.5" y="14.5" width="7" height="6" rx="1.6"/>');
-const CC={q:"",zoek:false,weer:null,weerBezig:false};
+const CC={q:"",zoek:false,weer:null,weerBezig:false,alles:false,sel:-1,menu:"",toonVerborgen:false};
 const ccDag=n=>iso(addDays(today(),n||0));
 const ccRest=f=>Math.max(0,r2(totals(f).inc-(Number(f.deelBetaald)||0)));
 const ccDagen=(a,b)=>Math.round((parse(b)-parse(a))/864e5);
@@ -27,49 +27,90 @@ function ccKpis(){const t=today(),M=curPeriod("maand"),V=curPeriod("maand",-1),f
 
 /* ---------- MANSARD adviseert: signalen uit echte gegevens, op urgentie ---------- */
 const CC_PRIO={kritiek:[0,"Kritiek","late"],hoog:[1,"Hoog","warn"],normaal:[2,"Normaal","soon"],laag:[3,"Laag","ok"]};
-function ccSignalen(){const s=[],t=today(),ti=iso(t),morgen=ccDag(1);
-  /* kritiek: vervallen facturen */
-  const ach=facturen().filter(f=>!["concept","betaald","oninbaar"].includes(f.status)&&fStatus(f)[1]==="Achterstallig");
-  if(ach.length){const som=ach.reduce((a,f)=>a+ccRest(f),0),oud=Math.max(...ach.map(f=>ccDagen(f.verval,ti)));
-    s.push({p:"kritiek",ic:"facturen",t:plural(ach.length,"factuur vervallen","facturen vervallen"),u:`Samen ${eur(som)} open, de oudste ${plural(oud,"dag","dagen")} over de vervaldatum. Een herinnering voorkomt betalingsachterstand.`,
-      b:ccLijst(ach.map(f=>ccNaam(ccKlant(f.klantId))||cleanName(f.klantNaam||""))),knop:"Bekijk facturen",go:"ff:achterstallig"})}
-  /* kritiek: mislukte incasso */
-  const mis=facturen().filter(f=>f.incassoMislukt&&f.status!=="betaald");
-  if(mis.length)s.push({p:"kritiek",ic:"bank",t:plural(mis.length,"incasso mislukt","incasso's mislukt"),u:"De automatische afschrijving is niet gelukt. Stuur een betaallink of neem contact op.",
-    b:ccLijst(mis.map(f=>cleanName(f.klantNaam||""))),knop:"Bekijk facturen",go:"ff:openstaand"});
-  /* hoog: offertes zonder reactie */
-  const off=state.facturen.filter(f=>f.soort==="offerte"&&f.status==="verstuurd"&&ccDagen(String(f.verstuurdOp||f.datum||"").slice(0,10),ti)>=7);
-  if(off.length)s.push({p:"hoog",ic:"offertes",t:plural(off.length,"offerte wacht","offertes wachten")+" op reactie",u:"Langer dan 7 dagen verstuurd zonder akkoord of afwijzing. Even nabellen of een herinnering sturen vergroot de kans op akkoord.",
-    b:ccLijst(off.map(f=>cleanName(f.klantNaam||""))),knop:"Bekijk offertes",go:"of:verstuurd"});
-  /* hoog: klanten te laat en nog niet ingepland */
-  const laat=overdue().filter(k=>!k.gepland&&!k.opdrachtVerwijderd);
-  if(laat.length)s.push({p:"hoog",ic:"planning",t:plural(laat.length,"klant is","klanten zijn")+" aan de beurt maar niet ingepland",u:"Hun termijn is verstreken. Plan ze in om het ritme vast te houden.",b:ccLijst(laat.map(ccNaam)),knop:"Open planning",go:"tab:planning"});
-  /* hoog: afspraken vandaag/morgen zonder tijd */
-  const zt=actief().filter(k=>(k.gepland===ti||k.gepland===morgen)&&!k.tijd);
-  if(zt.length)s.push({p:"hoog",ic:"clock",t:plural(zt.length,"afspraak heeft","afspraken hebben")+" nog geen tijd",u:"Vandaag of morgen ingepland zonder tijdstip. De klant krijgt dan geen nauwkeurige aankondiging.",b:ccLijst(zt.map(ccNaam)),knop:"Open planning",go:"tab:planning"});
-  /* hoog: conceptfacturen van afgemeld werk */
-  const con=facturen().filter(f=>f.status==="concept"&&String(f.datum||"")<=ti);
-  if(con.length)s.push({p:"hoog",ic:"receipt",t:plural(con.length,"factuur staat","facturen staan")+" nog als concept",u:`Samen ${eur(con.reduce((a,f)=>a+totals(f).inc,0))}. Maak ze definitief en verstuur ze, dan komt het geld sneller binnen.`,b:ccLijst(con.map(f=>cleanName(f.klantNaam||""))),knop:"Bekijk concepten",go:"ff:concept"});
-  /* normaal: klantportaal (tickets en verzoeken) */
-  const tk=(state.tickets||[]).filter(x=>x.status!=="opgelost"&&(Number(x.ongelezenTeam)>0||x.status==="open")),vz=state.portaalVz||[];
-  if(tk.length||vz.length)s.push({p:"normaal",ic:"ticket",t:[tk.length?plural(tk.length,"ticket wacht","tickets wachten"):"",vz.length?plural(vz.length,"verzoek","verzoeken")+" uit het portaal":""].filter(Boolean).join(" · "),
-    u:"Klanten wachten op een reactie in het klantportaal.",b:ccLijst([...tk.map(x=>cleanName(x.klantNaam||"")),...vz.map(x=>cleanName(x.klantNaam||""))]),knop:"Open tickets",go:"tickets"});
+/* Elke melding gaat over één ding (factuur, offerte, klant, ticket) met een vaste sleutel. Afgehandeld of "later" wordt bewaard in
+   instellingen/control (alleen deze sleutels en datums, geen klantgegevens), zodat de wachtrij op elk apparaat gelijk is.
+   Terugkerende zaken (vervallen factuur, wachtende offerte, te late klant) komen na 7 dagen terug als ze nog steeds spelen. */
+const CC_TERUG=["fv","im","ow","tl","hh"];
+function ccStatus(){return state.ccStatus||{}}
+function ccVerborgen(key){const st=ccStatus(),nu=new Date(),a=(st.afgehandeld||{})[key],l=(st.later||{})[key];
+  if(l&&new Date(l)>nu)return "later";
+  if(a){if(CC_TERUG.includes(key.split(":")[0]))return (nu-new Date(a))/864e5<7?"klaar":false;return "klaar"}return false}
+async function ccZet(key,soort,tot){const st=ccStatus(),af={...(st.afgehandeld||{})},la={...(st.later||{})},grens=Date.now()-60*864e5;
+  if(soort==="klaar"){af[key]=new Date().toISOString();delete la[key]}else if(soort==="later"){la[key]=tot;delete af[key]}else{delete af[key];delete la[key]}
+  Object.keys(af).forEach(k=>{if(new Date(af[k]).getTime()<grens)delete af[k]});Object.keys(la).forEach(k=>{if(new Date(la[k]).getTime()<Date.now())delete la[k]});
+  const d={afgehandeld:af,later:la};state.ccStatus=d;render();try{await save("instellingen","control",d)}catch(e){err(e)}}
+const ccTel=k=>k?String(k.mobiel||k.telefoon||"").replace(/[^\d+]/g,""):"";
+/* "Ik kom eraan": zelfde tekst als op Vandaag (sjabloon Onderweg), met link naar het klantportaal */
+function ccKomEraan(k){const tel=ccTel(k);if(!tel||typeof waLink!=="function")return "";let t="";try{const T=tpls().onderweg||{};t=fill(T.sms||T.tekst||T.mail||"",klantVars(k,today()))}catch(e){}
+  const vn=k.voornaam||cleanName(k.naam).split(",").slice(-1)[0].trim();if(!t)t=`Beste ${vn}, wij zijn onderweg naar u.`;
+  const pl=(/^https?:/.test(location.origin)&&LIVE?location.origin:"https://app.mansard.nl")+"/portaal"+(k.email?"?e="+encodeURIComponent(k.email):"");return waLink(tel,t+"\n\nLive volgen: "+pl)}
+function ccAlle(){const s=[],t=today(),ti=iso(t),morgen=ccDag(1);
+  const add=o=>s.push({acts:[],...o});
+  const bel=k=>ccTel(k)?{l:"Bellen",ic:"phone",href:"tel:"+ccTel(k)}:null;
+  /* kritiek: vervallen facturen, per factuur */
+  facturen().filter(f=>!["concept","betaald","oninbaar"].includes(f.status)&&fStatus(f)[1]==="Achterstallig").forEach(f=>{const k=ccKlant(f.klantId),dd=ccDagen(f.verval,ti);
+    add({key:"fv:"+f.id,p:"kritiek",ic:"facturen",t:`Factuur ${f.nummer} vervallen · ${eur(ccRest(f))}`,u:`${plural(dd,"dag","dagen")} over de vervaldatum${f.herinneringen?" · "+plural(Number(f.herinneringen),"herinnering","herinneringen")+" verstuurd":""}.`,
+      b:ccNaam(k)||cleanName(f.klantNaam||""),leeftijd:dd,knop:"Open factuur",go:"f:"+f.id,acts:[{l:"Herinnering",ic:"mail",cc:"herinner:"+f.id},bel(k)].filter(Boolean)})});
+  facturen().filter(f=>f.incassoMislukt&&f.status!=="betaald").forEach(f=>{const k=ccKlant(f.klantId);
+    add({key:"im:"+f.id,p:"kritiek",ic:"bank",t:`Incasso mislukt · ${f.nummer}`,u:"De automatische afschrijving is niet gelukt. Stuur de factuur met betaallink of bel de klant.",b:ccNaam(k)||cleanName(f.klantNaam||""),leeftijd:0,knop:"Open factuur",go:"f:"+f.id,
+      acts:[{l:"Factuur sturen",ic:"send",cc:"stuur:"+f.id},bel(k)].filter(Boolean)})});
+  /* hoog: offertes zonder reactie (7+ dagen) */
+  state.facturen.filter(f=>f.soort==="offerte"&&f.status==="verstuurd").forEach(f=>{const dd=ccDagen(String(f.verstuurdOp||f.datum||"").slice(0,10),ti);if(dd<7)return;const k=ccKlant(f.klantId);
+    add({key:"ow:"+f.id,p:"hoog",ic:"offertes",t:`Offerte ${String(f.nummer||"").replace(/^OFF-/,"")} wacht op reactie · ${eur(totals(f).inc)}`,u:`${plural(dd,"dag","dagen")} geleden verstuurd, nog geen akkoord of afwijzing.`,b:ccNaam(k)||cleanName(f.klantNaam||""),leeftijd:dd,knop:"Open offerte",go:"f:"+f.id,
+      acts:[bel(k),{l:"Opnieuw sturen",ic:"send",cc:"stuur:"+f.id}].filter(Boolean)})});
+  /* hoog: aan de beurt maar niet ingepland */
+  overdue().filter(k=>!k.gepland&&!k.opdrachtVerwijderd).forEach(k=>{const v=volgende(k),dd=v?Math.max(0,Math.round((t-v)/864e5)):0;
+    add({key:"tl:"+k.id+":"+(v?iso(v):""),p:"hoog",ic:"planning",t:`${ccNaam(k)} is aan de beurt`,u:`${dd?plural(dd,"dag","dagen")+" over de termijn":"Vandaag aan de beurt"}, nog niet ingepland.`,b:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),leeftijd:dd,knop:"Open klant",go:"klant:"+k.id,
+      acts:[{l:"Inplannen",ic:"planning",cc:"plan:"+k.id},bel(k)].filter(Boolean)})});
+  /* hoog: afspraak vandaag/morgen zonder tijd: tijd direct invullen */
+  actief().filter(k=>(k.gepland===ti||k.gepland===morgen)&&!k.tijd).forEach(k=>add({key:"zt:"+k.id+":"+k.gepland,p:"hoog",ic:"clock",t:`${ccNaam(k)} heeft nog geen tijd`,u:`Ingepland ${k.gepland===ti?"vandaag":"morgen"}. Met een tijd krijgt de klant een nauwkeurige aankondiging.`,b:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),leeftijd:0,knop:"Open klant",go:"klant:"+k.id,tijd:k.id}));
+  /* hoog: conceptfacturen */
+  facturen().filter(f=>f.status==="concept"&&String(f.datum||"")<=ti).forEach(f=>add({key:"cf:"+f.id,p:"hoog",ic:"receipt",t:`Conceptfactuur ${f.nummer} · ${eur(totals(f).inc)}`,u:"Afgemeld werk dat nog niet is verstuurd. Maak hem definitief, dan komt het geld sneller binnen.",b:cleanName(f.klantNaam||""),leeftijd:ccDagen(f.datum,ti),knop:"Open factuur",go:"f:"+f.id,
+    acts:[{l:"Versturen",ic:"send",cc:"stuur:"+f.id}]}));
+  /* normaal: tickets en verzoeken uit het klantportaal */
+  (state.tickets||[]).filter(x=>x.status!=="opgelost"&&(Number(x.ongelezenTeam)>0||x.status==="open")).forEach(x=>{const k=ccKlant(x.klantId);
+    add({key:"tk:"+x.id+":"+String(x.laatst||""),p:"normaal",ic:"ticket",t:`Ticket: ${x.onderwerp||"vraag van klant"}`,u:Number(x.ongelezenTeam)>0?plural(Number(x.ongelezenTeam),"nieuw bericht","nieuwe berichten")+" van de klant.":"Wacht op een reactie.",b:cleanName(x.klantNaam||""),leeftijd:0,nieuw:true,knop:"Beantwoorden",go:"ticket:"+x.id,acts:[bel(k)].filter(Boolean)})});
+  (state.portaalVz||[]).forEach(x=>add({key:"vz:"+x.id,p:"normaal",ic:"inbox",t:`Verzoek: ${x.typeLabel||x.type||"uit het klantportaal"}`,u:String(x.tekst||"Een klant heeft iets doorgegeven in het portaal.").slice(0,140),b:cleanName(x.klantNaam||""),leeftijd:0,nieuw:true,knop:"Afhandelen",go:"tickets"}));
   /* normaal: nieuwe aanmeldingen */
-  const nw=nieuweAanmeldingen();
-  if(nw.length)s.push({p:"normaal",ic:"klanten",t:plural(nw.length,"nieuwe aanmelding","nieuwe aanmeldingen"),u:"Via de website aangemeld en nog niet opgevolgd.",b:ccLijst(nw.map(ccNaam)),knop:"Bekijk klanten",go:"tab:klanten"});
+  nieuweAanmeldingen().forEach(k=>add({key:"nk:"+k.id,p:"normaal",ic:"klanten",t:`Nieuwe aanmelding: ${ccNaam(k)}`,u:"Via de website aangemeld. Bel of mail om de eerste afspraak te maken.",b:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),leeftijd:0,nieuw:true,knop:"Open klant",go:"klant:"+k.id,acts:[bel(k)].filter(Boolean)}));
   /* normaal: berichten in de wachtrij */
-  let wq=0;try{wq=queues().reduce((a,q)=>a+q.items.length,0)}catch(e){}
-  if(wq)s.push({p:"normaal",ic:"communicatie",t:plural(wq,"bericht klaar","berichten klaar")+" om te versturen",u:"Herinneringen of aankondigingen in de wachtrij van Communicatie.",b:"",knop:"Open communicatie",go:"tab:communicatie"});
-  /* laag: btw-aangifte */
+  {let wq=0;try{wq=queues().reduce((a,q)=>a+q.items.length,0)}catch(e){}
+    if(wq)add({key:"wq:"+ti,p:"normaal",ic:"communicatie",t:plural(wq,"bericht klaar","berichten klaar")+" om te versturen",u:"Herinneringen of aankondigingen in de wachtrij van Communicatie.",b:"",leeftijd:0,knop:"Open communicatie",go:"tab:communicatie"})}
+  /* btw-aangifte */
   {const q=Math.floor(t.getMonth()/3),pq=q===0?4:q,py=q===0?t.getFullYear()-1:t.getFullYear(),dl=qDeadline(py,pq),dd=Math.round((dl-t)/864e5),key=py+"-Q"+pq;
     if(dd>=0&&dd<=21&&!(state.aangiftes||{})[key]&&echteFacturen().some(f=>inRange(f.datum,periodRange(py,"q"+pq))))
-      s.push({p:dd<=7?"hoog":"laag",ic:"bank",t:`Btw-aangifte Q${pq} ${py} nog indienen`,u:`Uiterlijk ${longD(dl)}, nog ${plural(dd,"dag","dagen")}. De bedragen staan klaar in Boekhouding.`,b:"",knop:"Open boekhouding",go:"tab:boekhouding"})}
-  /* laag: kans op herhaalopdracht (klant zonder opdracht die het afgelopen jaar minstens 3 keer kwam) */
+      add({key:"btw:"+key,p:dd<=7?"hoog":"laag",ic:"bank",t:`Btw-aangifte Q${pq} ${py} nog indienen`,u:`Uiterlijk ${longD(dl)}, nog ${plural(dd,"dag","dagen")}. De bedragen staan klaar in Boekhouding.`,b:"",leeftijd:0,knop:"Open boekhouding",go:"tab:boekhouding"})}
+  /* laag: kans op herhaalopdracht */
   {const jaar=iso(addDays(t,-365)),n={};state.beurten.forEach(b=>{if(b.datum>=jaar)n[b.klantId]=(n[b.klantId]||0)+1});
-    const her=state.klanten.filter(k=>(k.opdrachtVerwijderd||k.actief===false)&&!k.prospect&&(n[k.id]||0)>=3);
-    if(her.length)s.push({p:"laag",ic:"refresh",t:"Kans op herhaalopdracht",u:`${plural(her.length,"klant kwam","klanten kwamen")} het afgelopen jaar minstens 3 keer, maar ${her.length===1?"heeft":"hebben"} nu geen opdracht. Tijd voor een check-in.`,
-      b:ccLijst(her.map(ccNaam)),knop:her.length===1?"Open klant":"Bekijk klanten",go:her.length===1?"klant:"+her[0].id:"tab:klanten"})}
-  return s.sort((a,b)=>CC_PRIO[a.p][0]-CC_PRIO[b.p][0])}
+    state.klanten.filter(k=>(k.opdrachtVerwijderd||k.actief===false)&&!k.prospect&&(n[k.id]||0)>=3).forEach(k=>add({key:"hh:"+k.id,p:"laag",ic:"refresh",t:`Kans op herhaalopdracht: ${ccNaam(k)}`,u:`Kwam het afgelopen jaar ${n[k.id]} keer, maar heeft nu geen opdracht. Tijd voor een check-in.`,b:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),leeftijd:0,knop:"Open klant",go:"klant:"+k.id,acts:[bel(k)].filter(Boolean)}))}
+  return s.sort((a,b)=>CC_PRIO[a.p][0]-CC_PRIO[b.p][0]||(b.leeftijd||0)-(a.leeftijd||0))}
+/* de wachtrij: wat nog open staat (afgehandeld en "later" eruit) */
+function ccSignalen(){return ccAlle().filter(m=>!ccVerborgen(m.key))}
+/* "Nu doen": alleen wat binnen een uur aandacht vraagt */
+function ccNuDoen(){const uit=[],nu=new Date(),nm=nu.getHours()*60+nu.getMinutes(),ti=iso(today());
+  routeStops(ti).filter(x=>!x.done&&!x.k.bezig).forEach(({k})=>{const m=toMin(k.tijd);if(m==null||m<nm-15||m>nm+60)return;
+    uit.push({ic:"route",t:m>=nm?`Over ${m-nm} min: ${ccNaam(k)}`:`${ccNaam(k)} (${k.tijd}) is nu aan de beurt`,s:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),kom:ccKomEraan(k),go:"klant:"+k.id})});
+  (state.tickets||[]).filter(x=>x.status!=="opgelost"&&Number(x.ongelezenTeam)>0&&nu-new Date(x.laatst||0)<3600e3).forEach(x=>uit.push({ic:"ticket",t:`Nieuw bericht van ${cleanName(x.klantNaam||"een klant")}`,s:x.onderwerp||"",go:"ticket:"+x.id}));
+  facturen().filter(f=>f.incassoMislukt&&f.status!=="betaald"&&String(f.incassoMisluktOp||f.incassoMislukt||"").slice(0,10)===ti).forEach(f=>uit.push({ic:"bank",t:`Incasso vandaag mislukt: ${cleanName(f.klantNaam||"")}`,s:f.nummer,go:"f:"+f.id}));
+  return uit}
+function ccVolgende(){const nm=new Date().getHours()*60+new Date().getMinutes(),r=routeStops(iso(today())).filter(x=>!x.done).map(x=>x.k).filter(k=>toMin(k.tijd)!=null&&toMin(k.tijd)>nm).sort((a,b)=>toMin(a.tijd)-toMin(b.tijd))[0];return r?`${r.tijd} ${ccNaam(r)}`:""}
+
+/* ---------- live: nieuwe meldingen met geluid, browsermelding en teller in het tabblad ---------- */
+const CCL={gezien:null,piep:null};
+function ccGezien(){if(CCL.gezien)return CCL.gezien;try{CCL.gezien=new Set(JSON.parse(localStorage.getItem("ms.cc.gezien")||"[]"))}catch(e){CCL.gezien=new Set()}return CCL.gezien}
+function ccBewaarGezien(){try{localStorage.setItem("ms.cc.gezien",JSON.stringify([...ccGezien()].slice(-400)))}catch(e){}}
+function ccPiep(){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const c=CCL.piep||(CCL.piep=new A());[0,.16].forEach((d,i)=>{const o=c.createOscillator(),g=c.createGain();o.type="sine";o.frequency.value=i?1046:784;g.gain.setValueAtTime(.0001,c.currentTime+d);g.gain.exponentialRampToValueAtTime(.18,c.currentTime+d+.02);g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+d+.22);o.connect(g).connect(c.destination);o.start(c.currentTime+d);o.stop(c.currentTime+d+.25)})}catch(e){}}
+let ccLiveT=0;
+function ccLiveCheck(){if(!state.loaded||isMw())return;clearTimeout(ccLiveT);ccLiveT=setTimeout(()=>{try{
+  const open=ccSignalen(),G=ccGezien(),eerst=!localStorage.getItem("ms.cc.gezien");
+  const nieuw=open.filter(m=>m.nieuw||m.p==="kritiek").filter(m=>!G.has(m.key));
+  document.title=(open.length?"("+open.length+") ":"")+"Mansard";
+  if(nieuw.length&&!eerst&&S().ccGeluid!==false){ccPiep();
+    if(S().ccNotif!==false&&"Notification" in window&&Notification.permission==="granted"&&document.hidden){try{const n=new Notification("Mansard · "+nieuw[0].t,{body:[nieuw[0].b,nieuw.length>1?"+"+(nieuw.length-1)+" meer":""].filter(Boolean).join(" · "),tag:"mansard-cc"});n.onclick=()=>{window.focus();go("control")}}catch(e){}}}
+  if(eerst){open.forEach(m=>G.add(m.key));ccBewaarGezien()}
+  }catch(e){}},400)}
+/* knipperende stip blijft tot je de melding hebt gezien (op het scherm met het Control Center open) */
+function ccMarkeerGezien(){if(state.tab!=="control"||document.hidden)return;const G=ccGezien();let n=0;ccSignalen().forEach(m=>{if(!G.has(m.key)){G.add(m.key);n++}});if(n)setTimeout(ccBewaarGezien,0)}
 
 /* ---------- planning vandaag (zelfde lijst als Vandaag) ---------- */
 function ccPlanning(){const ti=iso(today());return routeStops(ti).map(({k,done})=>{const g=parse(k.gepland),laat=!done&&g&&g<today();
@@ -137,12 +178,26 @@ function ccDonut(verd){const tot=verd.reduce((a,x)=>a+x[1],0);if(!tot)return "";
   const top=verd.slice(0,5),rest=verd.slice(5).reduce((a,x)=>a+x[1],0),rows=rest?[...top,["Overig",rest]]:top;
   return `<div class="cc-donut"><svg viewBox="0 0 90 90" role="img" aria-label="Verdeling opdrachten">${rows.map(([n,v],i)=>{const l=v/tot*C,s=`<circle cx="45" cy="45" r="${r}" stroke="${K[i%K.length]}" stroke-dasharray="${l.toFixed(2)} ${(C-l).toFixed(2)}" stroke-dashoffset="${(-o).toFixed(2)}"><title>${esc(n)}: ${v}</title></circle>`;o+=l;return s}).join("")}<text x="45" y="45">${tot}</text><text x="45" y="57" class="s">totaal</text></svg>
     <ul>${rows.map(([n,v],i)=>`<li><i style="background:${K[i%K.length]}"></i><span>${esc(n)}</span><b>${Math.round(v/tot*100)}%</b></li>`).join("")}</ul></div>`}
+/* wachtrij-weergave: per melding direct handelen, afvinken of uitstellen */
+function ccWachtrijHtml(L){const G=ccGezien(),toon=CC.alles?L:L.slice(0,6);
+  const verb=ccAlle().filter(m=>ccVerborgen(m.key));
+  const item=(m,i)=>{const [,lbl,cls]=CC_PRIO[m.p],sel=CC.sel===i;
+    const acts=(m.acts||[]).map(a=>a.href?`<a class="cc-ab" href="${esc(a.href)}">${I[a.ic]||""}${esc(a.l)}</a>`:`<button type="button" class="cc-ab" data-cc="${esc(a.cc)}">${I[a.ic]||""}${esc(a.l)}</button>`).join("");
+    const tijd=m.tijd?`<span class="cc-tijd"><input type="time" step="300" id="ccT_${esc(m.tijd)}" aria-label="Tijd"><button type="button" class="cc-ab pr" data-cc="tijd:${esc(m.tijd)}">${I.check}Opslaan</button></span>`:"";
+    const menu=CC.menu===m.key?`<span class="cc-lm">${[["Over 1 uur",1],["Vanmiddag","mid"],["Morgen","morgen"],["Volgende week","week"]].map(([l,v])=>`<button type="button" data-cc="later:${v}:${esc(m.key)}">${l}</button>`).join("")}</span>`:"";
+    return `<div class="cc-mi${sel?" sel":""}${(m.nieuw||m.p==="kritiek")&&!G.has(m.key)?" nw":""}" data-i="${i}"><span class="cc-si ${cls}">${I[m.ic]||I.alert}</span>
+      <div class="cc-st"><span class="cc-mh"><span class="cc-pr ${cls}">${lbl}</span>${i<9?`<kbd>${i+1}</kbd>`:""}</span><b>${esc(m.t)}</b><p>${esc(m.u)}</p>${m.b?`<small>${esc(m.b)}</small>`:""}
+        <div class="cc-acts">${acts}${tijd}<button type="button" class="cc-ab" data-cc="${esc(m.go)}">${esc(m.knop)}</button><span class="sp"></span>
+          <button type="button" class="cc-ab ghost" data-cc="menu:${esc(m.key)}" aria-expanded="${CC.menu===m.key}">${I.clock}Later</button>${menu}<button type="button" class="cc-ab ok" data-cc="klaar:${esc(m.key)}" title="Afgehandeld (E)">${I.check}Afgehandeld</button></div></div></div>`};
+  return (L.length?toon.map(item).join(""):`<div class="cc-rust">${I.check}<div><b>Alles op orde</b><p>Niets meer in de wachtrij. Mooi zo.</p></div></div>`)
+    +(L.length>6?`<button type="button" class="cc-meer" data-cc="alles">${CC.alles?"Minder tonen":`Toon alle ${L.length}`}</button>`:"")
+    +(verb.length?`<div class="cc-verb"><button type="button" class="cc-meer" data-cc="verborgen">${CC.toonVerborgen?"Verberg":"Toon"} ${plural(verb.length,"afgehandelde of uitgestelde melding","afgehandelde of uitgestelde meldingen")}</button>${CC.toonVerborgen?verb.map(m=>{const l=(ccStatus().later||{})[m.key];return `<div class="cc-vi"><span>${esc(m.t)}<small>${l?"Later: "+esc(new Date(l).toLocaleString("nl-NL",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})):"Afgehandeld"}</small></span><button type="button" class="cc-ab ghost" data-cc="terug:${esc(m.key)}">Terugzetten</button></div>`}).join(""):""}</div>`:"")}
+function ccNuDoenHtml(){const L=ccNuDoen();if(!L.length){const v=ccVolgende();return `<div class="cc-nu rust"><span class="cc-nd">${I.check}</span><b>Niets dringends</b>${v?`<small>Volgende afspraak: ${esc(v)}</small>`:""}</div>`}
+  return `<div class="cc-nu"><span class="cc-nl"><i></i>Nu doen</span>${L.map(x=>`<div class="cc-nuit"><span>${I[x.ic]||""}</span><button type="button" data-cc="${esc(x.go)}"><b>${esc(x.t)}</b>${x.s?`<small>${esc(x.s)}</small>`:""}</button>${x.kom?`<a class="cc-ab pr" href="${esc(x.kom)}" target="_blank" rel="noopener">${I.wa||I.send}Kom eraan</a>`:""}</div>`).join("")}</div>`}
 function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActiviteit(),R=ccPrestaties(),t=today();
   const dag=t.toLocaleDateString("nl-NL",{weekday:"long"}),dat=t.toLocaleDateString("nl-NL",{day:"numeric",month:"long",year:"numeric"});
   const kpi=(ic,cls,l,v,sub,subCls,act)=>`<button type="button" class="cc-kpi" data-cc="${act}"><span class="cc-ki ${cls}">${I[ic]}</span><span class="cc-kt"><small>${l}</small><b>${v}</b><em class="${subCls||""}">${sub}</em></span></button>`;
-  const sig=S_.length?S_.map(s=>{const [,lbl,cls]=CC_PRIO[s.p];return `<div class="cc-sig"><span class="cc-si ${cls}">${I[s.ic]||I.alert}</span><span class="cc-pr ${cls}">${lbl}</span>
-      <div class="cc-st"><b>${esc(s.t)}</b><p>${esc(s.u)}</p>${s.b?`<small>Betreft: ${esc(s.b)}</small>`:""}</div><button type="button" class="cc-sk" data-cc="${esc(s.go)}">${esc(s.knop)}${I.right||""}</button></div>`}).join("")
-    :`<div class="cc-rust">${I.check}<div><b>Alles op orde</b><p>Geen vervallen facturen, wachtende offertes of planningsproblemen. Mooi zo.</p></div></div>`;
+  const sig=ccWachtrijHtml(S_);
   const plan=P.length?`<ul class="cc-plan">${P.map(x=>`<li class="st-${x.st[0]}"><span class="cc-pt">${esc(x.tijd||"—")}</span><button type="button" class="cc-pk" data-cc="klant:${esc(x.k.id)}"><b>${esc(x.dienst)}</b> · ${esc(ccNaam(x.k))}<small>${esc([jobAddrObj(x.k).adres,x.k.plaats].filter(Boolean).join(", "))}</small></button><span class="pill ${x.st[0]}">${x.st[1]}</span></li>`).join("")}</ul>`
     :`<p class="cc-leeg">Vandaag staat er niets op de planning.</p>`;
   const nu=P.filter(x=>!x.st||x.st[1]!=="Afgerond").length,klaar=P.length-nu;
@@ -150,12 +205,13 @@ function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActivite
     :`<p class="cc-leeg">Nog geen activiteit in de afgelopen 30 dagen.</p>`;
   const prf=(l,v,sub)=>`<div class="cc-pf"><small>${l}</small><b>${v==null?"—":v}</b><em>${sub}</em></div>`;
   const heeftOmzet=R.weken.some(w=>w.v>0);
-  setTimeout(()=>{ccKaart();ccWeerLaad();ccZoekTeken()},30);
+  setTimeout(()=>{ccKaart();ccWeerLaad();ccZoekTeken();ccLiveCheck()},30);clearTimeout(CC.gzT);CC.gzT=setTimeout(()=>{ccMarkeerGezien();document.querySelectorAll('.cc-mi.nw').forEach(e=>e.classList.add('gz'))},8000);
   return `<div class="cc">
   <div class="cc-head"><div><h1>Control Center</h1><p>Het complete overzicht van je bedrijf. Alles wat je moet weten, op één plek.</p></div>
     <div class="cc-tools"><div class="cc-zoek"><span>${I.search}</span><input id="ccQ" type="search" autocomplete="off" placeholder="Zoek klant, adres, offerte, factuur…" value="${esc(CC.q)}" aria-label="Zoeken"><kbd>${/Mac|iP/.test(navigator.platform||"")?"⌘":"Ctrl"} K</kbd><div class="cc-zr" id="ccZr" hidden></div></div>
-      <button type="button" class="cc-bel" data-cc="naar:ccAdv" aria-label="${plural(S_.length,"signaal","signalen")}">${I.bell}${S_.length?`<i>${S_.length}</i>`:""}</button>
+      ${"Notification" in window&&Notification.permission==="default"?`<button type="button" class="cc-ntf" data-cc="notif">${I.bell}Meldingen aan</button>`:""}<button type="button" class="cc-bel cc-snd${S().ccGeluid===false?" uit":""}" data-cc="geluid" aria-label="${S().ccGeluid===false?"Geluid aanzetten":"Geluid uitzetten"}" title="${S().ccGeluid===false?"Geluid staat uit":"Geluid bij nieuwe meldingen"}">${S().ccGeluid===false?sv('<path d="M11 5 6 9H3v6h3l5 4z"/><path d="m22 9-6 6M16 9l6 6"/>'):sv('<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>')}</button><button type="button" class="cc-bel" data-cc="naar:ccAdv" aria-label="${plural(S_.length,"signaal","signalen")}">${I.bell}${S_.length?`<i>${S_.length}</i>`:""}</button>
       <div class="cc-dag"><b>${esc(dag.charAt(0).toUpperCase()+dag.slice(1))}</b><small>${esc(dat)}</small></div>${ccWeerHtml()}</div></div>
+  ${ccNuDoenHtml()}
   <div class="cc-grid">
     <div class="cc-main">
       <div class="cc-kpis">
@@ -165,13 +221,17 @@ function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActivite
         ${kpi("inbox","k4","Nieuwe aanvragen",K.aanvr,K.aanvrWeek?"▲ "+K.aanvrWeek+" deze week":"afgelopen 30 dagen",K.aanvrWeek?"up":"","tab:klanten")}
       </div>
       <div class="cc-row2">
-        <section class="cc-adv" id="ccAdv"><div class="cc-ah"><span class="cc-aic">${I.spark}</span><div><b>MANSARD adviseert</b><small>Signalen en aanbevolen acties uit je eigen bedrijfsgegevens</small></div>${S_.length?`<span class="cc-cnt">${plural(S_.length,"actie","acties")}</span>`:""}</div>${sig}</section>
+        <section class="cc-adv" id="ccAdv"><div class="cc-ah"><span class="cc-aic">${I.spark}</span><div><b>MANSARD adviseert</b><small>${S_.length?`Nog ${S_.length} open · werk ze af van boven naar beneden`:"Alles is afgehandeld"}</small></div>${S_.length?`<span class="cc-cnt">${S_.length}</span>`:""}</div>${sig}</section>
+        <div class="cc-rcol">
         <section class="cc-card cc-live"><div class="cc-ch"><div><b>${I.map}Live operatie</b><small>${P.length?`${plural(P.length,"adres","adressen")} vandaag · ${klaar} klaar`:"Vandaag geen adressen"}</small></div><button type="button" class="cc-link" data-cc="tab:vandaag">Naar Vandaag${I.right||""}</button></div>
           <div class="cc-map"><div class="rv-map" id="rvMap"><div class="rv-map-l">Kaart laden…</div></div></div>
           <div class="cc-leg"><span><i class="af"></i>Afgerond</span><span><i class="nu"></i>Volgende</span><span><i></i>Gepland</span><span><i class="bus"></i>Bus (live)</span></div></section>
+        <section class="cc-card"><div class="cc-ch"><div><b>${I.planning}Vandaag – planning</b><small>${esc(longD(t))}</small></div><button type="button" class="cc-link" data-cc="tab:planning">Bekijk planning${I.right||""}</button></div>${plan}</section>
+        </div>
+
       </div>
       <div class="cc-row3">
-        <section class="cc-card"><div class="cc-ch"><div><b>${I.planning}Vandaag – planning</b><small>${esc(longD(t))}</small></div><button type="button" class="cc-link" data-cc="tab:planning">Bekijk planning${I.right||""}</button></div>${plan}</section>
+
         <section class="cc-card"><div class="cc-ch"><div><b>${I.trend}Bedrijfsprestaties</b><small>Laatste 90 dagen, uit je facturen, offertes en klanten</small></div></div>
           <div class="cc-pfs">${prf("Conversie offertes",R.conv==null?null:R.conv+"%",R.conv==null?"te weinig offertes":R.ja+" van "+R.afgesl+" afgerond")}${prf("Klantbehoud",R.behoud==null?null:R.behoud+"%",R.behoud==null?"nog geen jaar historie":"klanten van >1 jaar actief")}${prf("Gem. betaaltijd",R.betaal==null?null:String(R.betaal).replace(".",",")+" d",R.betaal==null?"te weinig betalingen":"factuur → betaald")}</div>
           <div class="cc-charts"><div><h4>Omzet per week (excl. btw)</h4>${heeftOmzet?ccSpark(R.weken):`<p class="cc-leeg">Nog geen gefactureerde omzet in de laatste 8 weken.</p>`}</div><div><h4>Verdeling opdrachten</h4>${R.verd.length?ccDonut(R.verd):`<p class="cc-leeg">Nog geen actieve opdrachten.</p>`}</div></div></section>
@@ -179,7 +239,7 @@ function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActivite
     </div>
     <aside class="cc-side">
       <section class="cc-card"><div class="cc-ch"><div><b>${I.spark}Snelle acties</b></div></div>
-        <div class="cc-qa">${[["klanten","Nieuwe klant","nieuw:klant"],["offertes","Offerte maken","nieuw:offerte"],["facturen","Factuur maken","nieuw:factuur"],["phone","Klant bellen","bellen"],["msg","Bericht sturen","tab:communicatie"],["planning","Planning openen","tab:planning"]].map(([ic,l,a])=>`<button type="button" data-cc="${a}">${I[ic]}<span>${l}</span></button>`).join("")}</div></section>
+        <div class="cc-qa">${[["klanten","Nieuwe klant","nieuw:klant","N"],["offertes","Offerte maken","nieuw:offerte","O"],["facturen","Factuur maken","nieuw:factuur","F"],["phone","Klant bellen","bellen","⌘K"],["msg","Bericht sturen","tab:communicatie","C"],["planning","Planning openen","tab:planning","P"]].map(([ic,l,a,kb])=>`<button type="button" data-cc="${a}">${I[ic]}<span>${l}</span><kbd>${kb}</kbd></button>`).join("")}</div></section>
       <section class="cc-card"><div class="cc-ch"><div><b>${I.bell}Recente activiteiten</b><small>Afgelopen 30 dagen</small></div></div>${act}</section>
     </aside>
   </div></div>`}
@@ -197,6 +257,22 @@ function ccActie(a){if(!a)return;const [k,...r]=a.split(":"),v=r.join(":");
   if(k==="tickets")return typeof openTickets==="function"?openTickets():go("communicatie");
   if(k==="nieuw"){if(v==="klant")return openNieuweKlant();if(v==="offerte")return openOfferte();if(v==="factuur")return openFactuurForm()}
   if(k==="bellen"){const q=document.getElementById("ccQ");if(q){q.focus();q.placeholder="Typ de naam van de klant om te bellen…"}return}
+  if(k==="notif"){try{Notification.requestPermission().then(()=>render())}catch(e){}return}
+  if(k==="geluid"){const aan=S().ccGeluid===false;saveSettings({ccGeluid:aan},aan?"Geluid staat aan":"Geluid staat uit").then(()=>{if(aan)ccPiep();render()});return}
+  if(k==="herinner")return sendF(v,{herinnering:true});
+  if(k==="stuur")return sendF(v);
+  if(k==="plan")return openAfspraak(v);
+  if(k==="ticket")return typeof openTickets==="function"?openTickets(v):go("communicatie");
+  if(k==="klaar"){CC.sel=-1;CC.menu="";return ccZet(v,"klaar")}
+  if(k==="terug")return ccZet(v,"terug");
+  if(k==="menu"){CC.menu=CC.menu===v?"":v;return render()}
+  if(k==="later"){const [w,...kk]=v.split(":"),key=kk.join(":"),d=new Date();
+    if(w==="1")d.setHours(d.getHours()+1);else if(w==="mid"){if(d.getHours()>=13)d.setHours(d.getHours()+3);else d.setHours(13,0,0,0)}else if(w==="morgen"){d.setDate(d.getDate()+1);d.setHours(7,0,0,0)}else{d.setDate(d.getDate()+7);d.setHours(7,0,0,0)}
+    CC.menu="";return ccZet(key,"later",d.toISOString())}
+  if(k==="alles"){CC.alles=!CC.alles;return render()}
+  if(k==="verborgen"){CC.toonVerborgen=!CC.toonVerborgen;return render()}
+  if(k==="tijd"){const kl=ccKlant(v),inp=document.getElementById("ccT_"+v),tv=inp&&inp.value;if(!kl||!tv){if(inp)inp.focus();return}
+    return save("klanten",kl.id,{...strip(kl),tijd:tv}).then(()=>toast("Tijd opgeslagen: "+tv)).catch(err)}
   if(k==="naar"){const el=document.getElementById(v);if(el)el.scrollIntoView({behavior:"smooth",block:"start"})}}
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-cc]");
   if(!b||!b.closest(".cc")){if(CC.zoek&&!(e.target.closest&&e.target.closest(".cc-zoek"))){CC.zoek=false;ccZoekTeken()}return}
@@ -205,5 +281,18 @@ document.addEventListener("input",e=>{if(e.target&&e.target.id==="ccQ"){CC.q=e.t
 document.addEventListener("focusin",e=>{if(e.target&&e.target.id==="ccQ"){CC.zoek=true;ccZoekTeken()}});
 document.addEventListener("keydown",e=>{
   if((e.metaKey||e.ctrlKey)&&String(e.key).toLowerCase()==="k"&&!isMw()&&state.loaded){e.preventDefault();if(state.tab!=="control")go("control");setTimeout(()=>{const q=document.getElementById("ccQ");if(q){q.focus();q.select()}},40);return}
+  /* sneltoetsen op het Control Center (niet tijdens typen of met een venster open) */
+  if(state.tab==="control"&&!isMw()&&!e.metaKey&&!e.ctrlKey&&!e.altKey&&!(e.target&&/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))&&!(typeof dlg!=="undefined"&&dlg.open)){
+    const k=String(e.key).toLowerCase(),L=ccSignalen();
+    if(/^[1-9]$/.test(k)&&L[Number(k)-1]){e.preventDefault();CC.sel=Number(k)-1;render();setTimeout(()=>{const el=document.querySelector('.cc-mi.sel');if(el)el.scrollIntoView({block:"nearest",behavior:"smooth"})},20);return}
+    if(k==="e"&&L[CC.sel]){e.preventDefault();return ccActie("klaar:"+L[CC.sel].key)}
+    if(k==="l"&&L[CC.sel]){e.preventDefault();return ccActie("later:morgen:"+L[CC.sel].key)}
+    if(k==="enter"&&L[CC.sel]){e.preventDefault();return ccActie(L[CC.sel].go)}
+    if(k==="escape"&&CC.sel>=0){CC.sel=-1;CC.menu="";return render()}
+    const sn={n:"nieuw:klant",o:"nieuw:offerte",f:"nieuw:factuur",p:"tab:planning",c:"tab:communicatie"}[k];if(sn){e.preventDefault();return ccActie(sn)}}
   if(e.target&&e.target.id==="ccQ"){if(e.key==="Escape"){CC.zoek=false;e.target.blur();ccZoekTeken()}
     if(e.key==="Enter"){const f=document.querySelector("#ccZr .cc-zi");if(f){e.preventDefault();CC.zoek=false;ccActie(f.dataset.cc)}}}});
+
+/* live: elke paar seconden de wachtrij nalopen (geluid/melding bij iets nieuws, teller in het tabblad) */
+setInterval(()=>{try{ccLiveCheck()}catch(e){}},5000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&state.tab==="control")setTimeout(ccMarkeerGezien,8000)});
