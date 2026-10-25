@@ -47,6 +47,10 @@ function teplannen(upTo){const t=today(),ti=iso(t);return actief().filter(k=>{if
     Heb je hem bewust na die datum ingepland (aanbodGezien), dan staat hij alleen in de agenda. */const a=aanbodVan(k),av=a&&parse(a.min);return !!(av&&av<p&&av<=upTo&&(!k.aanbodGezien||a.min<k.aanbodGezien))}if(p)return p<t;
     /* staat bij elke verdieping een aanboddatum en ligt de vroegste na de gekozen datum, dan nog niet aanbieden (ook niet als hij als nieuw/aanbieden is gemarkeerd) */
     {const a=aanbodVan(k),av=a&&a.alle&&parse(a.min);if(av&&av>upTo)return extraAanBeurt(k,upTo)}
+    /* "aanbieden vanaf" (of bij een losse opdracht: "Volgende keer" bij de opdracht van de hoofdklant) ligt na de gekozen datum: nog niet aanbieden */
+    {const u=upTo instanceof Date?upTo:parse(upTo)||t;let ab=parse(k.aanbodVanaf);
+      if(k.hoofdKlantId){const h=state.klanten.find(x=>x.id===k.hoofdKlantId),o=h&&(h.opdrachten||[]).find(x=>x.id===k.opdrachtId),ov=o&&parse(o.volgende);if(ov&&(!k.laatst||o.volgende>k.laatst))ab=ov}
+      if(ab&&ab>u&&(!k.laatst||iso(ab)>k.laatst))return extraAanBeurt(k,upTo)}
     return k.aanbieden||volgende(k)<=upTo||extraAanBeurt(k,upTo)}).sort((a,b)=>dueOf(a)-dueOf(b))}
 /* een andere dienst (bv. reiniging gevelelementen) is aan de beurt: dan komt de klant bij Te plannen en gaat de glasbewassing mee */
 function extraAanBeurt(k,upTo){if(S().glasMee===false)return false;const u=iso(upTo instanceof Date?upTo:parse(upTo)||today());return (k.opdrachten||[]).some(o=>o.actief!==false&&!o.apart&&o.volgende&&o.volgende<=u&&(!k.laatst||o.volgende>k.laatst))}

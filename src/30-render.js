@@ -79,7 +79,9 @@ document.addEventListener("click",e=>{
     case"afspraak":openAfspraak(id,t.dataset.d);break;
     case"afsprdel":afspraakVerwijderen(id);break;
     case"hospedit":kkHosp(id);break;
-    case"opdracht":{const kk=state.klanten.find(x=>x.id===id);if(kk&&kk.opdrachtVerwijderd&&t.dataset.o==="new"){kkNieuweHoofd(id);break}openOpdrachtWerk(id,t.dataset.o);break}
+    case"opdracht":{const kk=state.klanten.find(x=>x.id===id);
+      /* losse opdracht (apart ingepland): open de opdracht bij de hoofdklant, zoals op de klantkaart */
+      if(kk&&kk.hoofdKlantId&&kk.opdrachtId&&state.klanten.some(x=>x.id===kk.hoofdKlantId&&(x.opdrachten||[]).some(o=>o.id===kk.opdrachtId))){openOpdrachtWerk(kk.hoofdKlantId,kk.opdrachtId);break}if(kk&&kk.opdrachtVerwijderd&&t.dataset.o==="new"){kkNieuweHoofd(id);break}openOpdrachtWerk(id,t.dataset.o);break}
     case"offedit":{const f=state.facturen.find(x=>x.id===id);openOfferte({id,back:state.tab==="offertes"?"":f&&f.klantId});break}
     case"offback":sluitDlg(()=>{if(id&&state.klanten.some(x=>x.id===id))openKlantView(id);else dlg.close()});break;
     case"offdel":kkDelOfferte(id);break;

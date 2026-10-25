@@ -237,13 +237,17 @@ def teplannen(pg):
       const k=T.state.klanten.find(x=>x.id===id);await T.save('klanten',id,{...T.strip(k),ramenRegel:{f:[5],vol:[d(40)]}});
       const b=T.teplannen(T.addDays(T.today(),7)).some(k=>k.id===id);await T.del('klanten',id);
       const id2=T.newId('kp');await T.save('klanten',id2,{naam:'Nieuw, Test',prijs:50,frequentie:16,actief:true,aanbieden:true,ramenRegel:{f:[11,5],vol:[d(60),d(60)]},log:[],objecten:[]});
-      const e=T.teplannen(T.today()).some(k=>k.id===id2),f=T.teplannen(T.addDays(T.today(),61)).some(k=>k.id===id2);await T.del('klanten',id2);return {a,b,c,e,f}}""")
+      const e=T.teplannen(T.today()).some(k=>k.id===id2),f=T.teplannen(T.addDays(T.today(),61)).some(k=>k.id===id2);await T.del('klanten',id2);
+      const h3=T.newId('kp'),j3=T.newId('kp');await T.save('klanten',h3,{naam:'Hoofd, Test',prijs:50,frequentie:16,actief:true,laatst:d(-5),opdrachten:[{id:'oT',dienst:'Glasbewassing',prijs:100,frequentie:16,volgende:d(60),actief:true}],log:[],objecten:[]});
+      await T.save('klanten',j3,{naam:'Hoofd, Test',prijs:100,frequentie:16,actief:true,aanbieden:true,hoofdKlantId:h3,opdrachtId:'oT',log:[],objecten:[],opdrachten:[]});
+      const g=T.teplannen(T.today()).some(k=>k.id===j3),h=T.teplannen(T.addDays(T.today(),61)).some(k=>k.id===j3);await T.del('klanten',j3);await T.del('klanten',h3);return {a,b,c,e,f,g,h}}""")
     if r is None:
         return check(G, "Te plannen", False, "teplannen niet gevonden")
     check(G, "Eerdere aanboddatum komt bij Te plannen", r["a"] is True, r)
     check(G, "Bewust later ingepland: niet nog eens bij Te plannen", r.get("c") is False, r)
     check(G, "Latere aanboddatum laat de afspraak staan", r["b"] is False, r)
     check(G, "Nieuwe klant met latere aanboddatum: nog niet bij Te plannen", r.get("e") is False and r.get("f") is True, r)
+    check(G, "Losse opdracht volgt 'Volgende keer' van de hoofdklant", r.get("g") is False and r.get("h") is True, r)
     # gemiste afspraak (eerder ingepland dan de frequentie): verplaatsen naar morgen is niet "te vroeg"
     r = pg.evaluate("""()=>{const T=MSTEST;if(!T.teVroeg)return null;const d=n=>T.iso(T.addDays(T.today(),n));
       const k={naam:'Vroeg, Test',frequentie:6,laatst:d(-14),actief:true};
