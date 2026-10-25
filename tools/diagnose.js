@@ -23,5 +23,7 @@ const pick = (o, ks) => Object.fromEntries(ks.filter(k => o && o[k] !== undefine
   }
   const ins = (await db.doc("instellingen/bedrijf").get()).data() || {};
   log("crSnel instelling: " + JSON.stringify(ins.crSnel));
+  const ks = await db.collection("klanten").get(); const nrs = ks.docs.map(d => d.data()).filter(k => !k.hoofdKlantId).map(k => String(k.klantnr || "")).filter(x => /^\d+$/.test(x)).map(Number).sort((a, b) => a - b);
+  log("relatiecodes: " + nrs.length + " klanten met code van " + nrs.length + " · laagste " + (nrs[0] || "-") + " · hoogste " + (nrs[nrs.length - 1] || "-") + " · zonder code: " + ks.docs.filter(d => !d.data().hoofdKlantId && !/^\d+$/.test(String(d.data().klantnr || ""))).length + " · Eerstvolgend klantnummer (instelling): " + JSON.stringify(ins.bhKlantStart || ""));
   uit.forEach((t, i) => console.log("::notice title=Diagnose " + (i + 1) + "::" + t.replace(/\n/g, " ")));
 })().catch(x => { console.error(x); process.exit(1); });
