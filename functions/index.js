@@ -355,6 +355,9 @@ exports.mollieIntrekken = onCall(async req => {
   await f.ref.set({ incasso: false, mollieStatus: "canceled", mollieId: "", incassoIngetrokken: nu() }, { merge: true });
   return { ok: true };
 });
+/* moment van versturen: het precieze tijdstip als dat er is; het CRM bewaart soms alleen de datum, dan het aanmaakmoment van die dag */
+const vanTs = f => { if (!f) return ""; if (f.verstuurdTs) return f.verstuurdTs; const v = String(f.verstuurdOp || ""); if (/T\d/.test(v)) return v;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(v)) { const g = String(f.gemaakt || ""); return g && g.slice(0, 10) === v ? g : v + "T00:00:00"; } return f.gemaakt || ""; };
 /* credits voor snel betalen meteen toekennen (niet pas bij de volgende ronde van de planner): binnen 24 uur na versturen betaald,
    niet bij automatische incasso. Vaste bron+ref, dus nooit dubbel; de planner doet hetzelfde als vangnet. */
 async function snelCredit(fid) {
@@ -363,7 +366,7 @@ async function snelCredit(fid) {
     const f = decF(fs.data()); if (f.soort === "offerte" || f.status !== "betaald" || f.incasso || f.betaalwijze === "incasso" || !f.klantId) return;
     const b = (await db.doc("instellingen/bedrijf").get()).data() || {}, n = b.crSnel != null && b.crSnel !== "" && !isNaN(Number(b.crSnel)) ? Number(b.crSnel) : 0.5;
     if (!(n > 0)) return;
-    const tot = Date.parse(f.betaaldTs || ""), van = Date.parse(f.verstuurdOp || f.gemaakt || "");
+    const tot = Date.parse(f.betaaldTs || ""), van = Date.parse(vanTs(f));
     if (!(van > 0 && tot >= van && tot - van <= 24 * 36e5)) return;
     const kref = db.doc("klanten/" + f.klantId);
     await db.runTransaction(async t => { const ks = await t.get(kref); if (!ks.exists) return; const k = decF(ks.data());

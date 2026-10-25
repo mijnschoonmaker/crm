@@ -16,6 +16,9 @@ const crypto = require("crypto");
 
 module.exports = function maakPortaal(ctx) {
   const { db, T, onRequest, onCall, onSchedule, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket, portaalUrl, verwerkFactuurBetaling } = ctx;
+  /* moment van versturen: het precieze tijdstip als dat er is; het CRM bewaart soms alleen de datum, dan het aanmaakmoment van die dag */
+  const vanTs = f => { if (!f) return ""; if (f.verstuurdTs) return f.verstuurdTs; const v = String(f.verstuurdOp || ""); if (/T\d/.test(v)) return v;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(v)) { const g = String(f.gemaakt || ""); return g && g.slice(0, 10) === v ? g : v + "T00:00:00"; } return f.gemaakt || ""; };
   const sha = s => crypto.createHash("sha256").update(String(s)).digest("hex");
   const tok = () => T.tok(32);
   const DAG = 864e5;
@@ -86,7 +89,7 @@ module.exports = function maakPortaal(ctx) {
   /* hoe snel betaald: van het versturen van de factuur tot de betaling (alleen als beide tijden bekend zijn) */
   /* seconden tussen versturen en betalen; zonder exact tijdstip (oudere, handmatig afgeboekte facturen) rekenen we met de dag van betaling om 12:00 */
   const betaalSec = f => { if (f.status !== "betaald") return null; const bo = String(f.betaaldOp || f.betaald || "").slice(0, 10), ts = f.betaaldTs || (/^\d{4}-\d{2}-\d{2}$/.test(bo) ? bo + "T12:00:00" : ""); if (!ts) return null;
-    const van = Date.parse(f.verstuurdOp || f.gemaakt || (f.datum ? f.datum + "T09:00:00" : "")), tot = Date.parse(ts); if (!(van > 0)) return null; return Math.max(0, Math.round((tot - van) / 1000)); };
+    const van = Date.parse(vanTs(f) || (f.datum ? f.datum + "T09:00:00" : "")), tot = Date.parse(ts); if (!(van > 0)) return null; return Math.max(0, Math.round((tot - van) / 1000)); };
   const betaalPrecies = f => !!f.betaaldTs;
   /* ranglijst: wie betaalt gemiddeld het snelst (alle klanten, betaalde facturen van de laatste 12 maanden, op de seconde) */
   async function betaalRang(klantId) {
@@ -98,8 +101,8 @@ module.exports = function maakPortaal(ctx) {
     const i = lijst.findIndex(x => x.id === klantId);
     return { positie: i < 0 ? null : i + 1, sec: i < 0 ? null : Math.round(lijst[i].sec), beste: lijst.length ? Math.round(lijst[0].sec) : null, n: i < 0 ? 0 : lijst[i].n, precies: i < 0 ? false : lijst[i].precies };
   }
-  const snelUren = f => { if (f.status !== "betaald" || !f.betaaldTs) return null; const van = Date.parse(f.verstuurdOp || f.gemaakt || ""), tot = Date.parse(f.betaaldTs); if (!(van > 0 && tot >= van)) return null; return Math.round((tot - van) / 36e5 * 10) / 10; };
-  const zelfdeDag = f => !!(f.betaaldTs && (f.verstuurdOp || f.gemaakt) && isoNL(new Date(f.betaaldTs)) === isoNL(new Date(f.verstuurdOp || f.gemaakt)));
+  const snelUren = f => { if (f.status !== "betaald" || !f.betaaldTs) return null; const van = Date.parse(vanTs(f)), tot = Date.parse(f.betaaldTs); if (!(van > 0 && tot >= van)) return null; return Math.round((tot - van) / 36e5 * 10) / 10; };
+  const zelfdeDag = f => !!(f.betaaldTs && (f.verstuurdOp || f.gemaakt) && isoNL(new Date(f.betaaldTs)) === isoNL(new Date(vanTs(f))));
   const fStatus = f => f.status === "betaald" ? "betaald" : f.status === "oninbaar" ? "gesloten" : f.verval && f.verval < isoNL() ? "verlopen" : "open";
   const bedrijfInfo = (b, base) => ({ naam: b.naam || "mijnschoonmaker.com", logo: (b.logoMail || b.logo) ? base + "/_blob/" + (b.logoMail || b.logo) : "", telefoon: b.telefoon || "", mobiel: b.mobiel || b.telefoon || "", email: b.email || "", website: b.website || "", iban: b.iban || "", reviewLink: b.reviewLink || "", kleur: b.mailAccent || b.hoofdkleur || "#137a8a",
     voorwaarden: b.voorwaardenPdf ? base + "/_blob/" + b.voorwaardenPdf : "", tijdWeergave: b.portaalTijd || "venster", refAan: b.refAan !== false, refBeloning: b.refBeloning != null && b.refBeloning !== "" ? Number(b.refBeloning) : 20, refWelkom: b.refWelkom != null && b.refWelkom !== "" ? Number(b.refWelkom) : 10, werkStart: b.werkStart || "08:00",
@@ -625,7 +628,7 @@ module.exports = function maakPortaal(ctx) {
     if (fs) for (const d of fs.docs) {
       const f = { id: d.id, ...dec(d.data()) }, k = K.get(f.klantId);
       if (!k || f.soort === "offerte" || f.incasso || f.betaalwijze === "incasso") continue;
-      const tot = Date.parse(f.betaaldTs || ""), van = Date.parse(f.verstuurdOp || f.gemaakt || "");
+      const tot = Date.parse(f.betaaldTs || ""), van = Date.parse(vanTs(f));
       if (!(tot > week && van > 0 && tot >= van && tot - van <= 24 * 36e5)) continue;
       geef(k, cr.snel, "Credits: factuur " + (f.nummer || "") + " binnen 24 uur betaald", "snel", f.id);
     }

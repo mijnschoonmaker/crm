@@ -274,7 +274,7 @@ function queues(){
     if(vj.length){const X=T2[vj[0].verjaardagTpl]||T2.verjaardag||{};out.push({id:"verjaardag",titel:"Verjaardagen vandaag",uitleg:"Klanten die vandaag jarig zijn",items:vj.map(k=>{const Y=T2[k.verjaardagTpl]||X;return{k,vars:klantVars(k),ref:"verjaardag:"+y+":"+k.id,stap:{naam:Y.naam||"Verjaardag",mail:Y.mail||"",sms:Y.sms||Y.mail||"",onderwerp:Y.onderwerp||""}}}),kanaal:"email",tekst:X.sms||"",mail:X.mail||"",onderwerp:X.onderwerp||"",sjabloon:vj[0].verjaardagTpl})}}
   const nv=facturen().filter(f=>fStatus(f)[1]==="Openstaand"&&!f.verstuurdOp);
   out.push({id:"factuur",titel:"Facturen versturen",uitleg:"Open facturen die je nog niet hebt verstuurd",hint:"Wil je de PDF meesturen? Download hem bij de factuur en voeg hem in je mail toe.",
-    items:nv.map(f=>({k:state.klanten.find(x=>x.id===f.klantId)||{naam:f.klantNaam,email:f.klantEmail},vars:factVars(f),ref:"factuur:"+f.id,onSent:()=>save("facturen",f.id,{...strip(f),verstuurdOp:iso(today())})}))});
+    items:nv.map(f=>({k:state.klanten.find(x=>x.id===f.klantId)||{naam:f.klantNaam,email:f.klantEmail},vars:factVars(f),ref:"factuur:"+f.id,onSent:()=>save("facturen",f.id,{...strip(f),verstuurdOp:iso(today()),verstuurdTs:f.verstuurdTs||new Date().toISOString()})}))});
   if(st.fhAan&&(!st.fhWerkdagen||isWerkdag(t))){
     const M=fhMomenten();
     /* wat er aan de beurt is, bepaalt fhVolgende (29-zaanmaning): zelfde regels als de factuurlijst */

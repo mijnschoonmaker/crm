@@ -526,11 +526,11 @@ function sendF(id,o={}){
     const ok=()=>{if(b){b.disabled=false;b.innerHTML=I.check+"Verstuurd"}};
     if(b){b.disabled=true;b.innerHTML=I.clock+"Versturen…"}
     compose={title:"",sjabloon:sj,tekst:TT.sms??TT.tekst,mail:TT.mail||"",onderwerp:TT.onderwerp||"Bericht van [name.company]",sent:{},hint:"",groep:false,stil:true,recipients:[{k:_k?mailK(_k,off?"offerte":"factuur"):{naam:f.klantNaam,email:f.klantEmail},vars:(()=>{const v=factVars(f),t=tavK(_k,off?"offerte":"factuur");if(t)v.klant=t;return v})(),ref:(late?"aanmaning:":"factuur:")+f.id,
-      onSent:()=>save("facturen",f.id,late?{...strip(f),herinnerdOp:iso(today()),herinneringen:(Number(f.herinneringen)||0)+1,...(o.wik?{wikOp:iso(today())}:{})}:{...strip(f),verstuurdOp:f.verstuurdOp||iso(today()),status:off&&(f.status||"concept")==="concept"?"verstuurd":f.status})}]};
+      onSent:()=>save("facturen",f.id,late?{...strip(f),herinnerdOp:iso(today()),herinneringen:(Number(f.herinneringen)||0)+1,...(o.wik?{wikOp:iso(today())}:{})}:{...strip(f),verstuurdOp:f.verstuurdOp||iso(today()),verstuurdTs:f.verstuurdTs||new Date().toISOString(),status:off&&(f.status||"concept")==="concept"?"verstuurd":f.status})}]};
     verstuurLive(0).then(()=>{if(compose&&compose.sent[0]==="live")ok();else if(b){b.disabled=false;b.innerHTML=I.send+"Opnieuw proberen"}});return}
   openCompose({title:(o.wik?"WIK-brief ":off?"Offerte ":late?"Herinnering ":"Factuur ")+f.nummer,sjabloon:o.wik?"wik":late?"aanmaning":off?"offerte":"factuur",hint:esc("Wil je de PDF meesturen? Download hem eerst bij de factuur en voeg hem in je mail toe."),
     recipients:[{k:(()=>{const kk=state.klanten.find(x=>x.id===f.klantId);return kk?mailK(kk,off?"offerte":"factuur"):{naam:f.klantNaam,email:f.klantEmail}})(),vars:(()=>{const v=factVars(f),kk=state.klanten.find(x=>x.id===f.klantId),t=tavK(kk,off?"offerte":"factuur");if(t)v.klant=t;return v})(),ref:(late?"aanmaning:":"factuur:")+f.id,
-      onSent:()=>save("facturen",f.id,late?{...strip(f),herinnerdOp:iso(today()),herinneringen:(Number(f.herinneringen)||0)+1,...(o.wik?{wikOp:iso(today())}:{})}:{...strip(f),verstuurdOp:f.verstuurdOp||iso(today()),status:off&&(f.status||"concept")==="concept"?"verstuurd":f.status})}]});
+      onSent:()=>save("facturen",f.id,late?{...strip(f),herinnerdOp:iso(today()),herinneringen:(Number(f.herinneringen)||0)+1,...(o.wik?{wikOp:iso(today())}:{})}:{...strip(f),verstuurdOp:f.verstuurdOp||iso(today()),verstuurdTs:f.verstuurdTs||new Date().toISOString(),status:off&&(f.status||"concept")==="concept"?"verstuurd":f.status})}]});
 }
 function openBulk(group,tpl){
   const t=today();let ks=[],title="Groepsbericht",datum=null;
