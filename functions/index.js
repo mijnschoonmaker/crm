@@ -393,6 +393,12 @@ exports.mollieHook = onRequest(async (req, res) => {
       }
       res.send("ok"); return;
     }
+    await verwerkFactuurBetaling(p);
+    res.send("ok");
+  } catch (e) { console.error(e); res.status(500).send("fout"); }
+});
+/* een Mollie-betaling van een factuur verwerken (vanuit de webhook én vanuit het nakijken hieronder) */
+async function verwerkFactuurBetaling(p) {
     const fid = p.metadata && p.metadata.factuurId;
     if (fid) {
       const ref = db.doc("facturen/" + fid), b0 = await bedrijf();
@@ -417,9 +423,23 @@ exports.mollieHook = onRequest(async (req, res) => {
         for (const d of bs.docs) await d.ref.set({ betaald: true }, { merge: true });
         await snelCredit(fid);
       }
+      return volledig;
     }
-    res.send("ok");
-  } catch (e) { console.error(e); res.status(500).send("fout"); }
+    return false;
+}
+/* vangnet: elk kwartier de laatste Mollie-betalingen nalopen. Komt een webhook niet aan, of is een factuur door een
+   oud tabblad teruggezet op open, dan staat hij toch op betaald (zelfde regels als de webhook, nooit dubbel). */
+exports.mollieNakijken = onSchedule({ schedule: "*/15 * * * *", timeZone: "Europe/Amsterdam", timeoutSeconds: 120 }, async () => {
+  const g = await geheim(); if (!g.mollieKey) return;
+  let r; try { r = await mollie(g.mollieKey, "payments?limit=100"); } catch (e) { console.error("mollie lijst", e); return; }
+  const grens = Date.now() - 14 * 864e5;
+  for (const p of ((r && r._embedded && r._embedded.payments) || [])) {
+    if (p.status !== "paid" || !p.metadata || !p.metadata.factuurId || (p.metadata.incasso && !p.metadata.factuurId)) continue;
+    if (Date.parse(p.paidAt || p.createdAt || 0) < grens) continue;
+    try { const s = await db.doc("facturen/" + p.metadata.factuurId).get(); if (!s.exists) continue; const x = decF(s.data());
+      if (x.status === "betaald" && (x.mollieBetaald || []).includes(p.id)) continue;
+      const vol = await verwerkFactuurBetaling(p); if (vol) console.log("nagekeken: betaald", x.nummer || p.metadata.factuurId); } catch (e) { console.error("nakijken", p.id, e); }
+  }
 });
 
 /* ---------- websitecalculator + contactformulier ---------- */
