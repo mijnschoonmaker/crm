@@ -179,7 +179,7 @@ function ccDonut(verd){const tot=verd.reduce((a,x)=>a+x[1],0);if(!tot)return "";
   return `<div class="cc-donut"><svg viewBox="0 0 90 90" role="img" aria-label="Verdeling opdrachten">${rows.map(([n,v],i)=>{const l=v/tot*C,s=`<circle cx="45" cy="45" r="${r}" stroke="${K[i%K.length]}" stroke-dasharray="${l.toFixed(2)} ${(C-l).toFixed(2)}" stroke-dashoffset="${(-o).toFixed(2)}"><title>${esc(n)}: ${v}</title></circle>`;o+=l;return s}).join("")}<text x="45" y="45">${tot}</text><text x="45" y="57" class="s">totaal</text></svg>
     <ul>${rows.map(([n,v],i)=>`<li><i style="background:${K[i%K.length]}"></i><span>${esc(n)}</span><b>${Math.round(v/tot*100)}%</b></li>`).join("")}</ul></div>`}
 /* wachtrij-weergave: per melding direct handelen, afvinken of uitstellen */
-function ccWachtrijHtml(L){const G=ccGezien(),toon=CC.alles?L:L.slice(0,6);
+function ccWachtrijHtml(L){const G=ccGezien(),max=innerWidth<1100?5:40,toon=CC.alles?L:L.slice(0,max);
   const verb=ccAlle().filter(m=>ccVerborgen(m.key));
   const item=(m,i)=>{const [,lbl,cls]=CC_PRIO[m.p],sel=CC.sel===i;
     const acts=(m.acts||[]).map(a=>a.href?`<a class="cc-ab" href="${esc(a.href)}">${I[a.ic]||""}${esc(a.l)}</a>`:`<button type="button" class="cc-ab" data-cc="${esc(a.cc)}">${I[a.ic]||""}${esc(a.l)}</button>`).join("");
@@ -190,11 +190,16 @@ function ccWachtrijHtml(L){const G=ccGezien(),toon=CC.alles?L:L.slice(0,6);
         <div class="cc-acts">${acts}${tijd}<button type="button" class="cc-ab" data-cc="${esc(m.go)}">${esc(m.knop)}</button><span class="sp"></span>
           <button type="button" class="cc-ab ghost" data-cc="menu:${esc(m.key)}" aria-expanded="${CC.menu===m.key}">${I.clock}Later</button>${menu}<button type="button" class="cc-ab ok" data-cc="klaar:${esc(m.key)}" title="Afgehandeld (E)">${I.check}Afgehandeld</button></div></div></div>`};
   return (L.length?toon.map(item).join(""):`<div class="cc-rust">${I.check}<div><b>Alles op orde</b><p>Niets meer in de wachtrij. Mooi zo.</p></div></div>`)
-    +(L.length>6?`<button type="button" class="cc-meer" data-cc="alles">${CC.alles?"Minder tonen":`Toon alle ${L.length}`}</button>`:"")
+    +(L.length>max?`<button type="button" class="cc-meer" data-cc="alles">${CC.alles?"Minder tonen":`Toon alle ${L.length}`}</button>`:"")
     +(verb.length?`<div class="cc-verb"><button type="button" class="cc-meer" data-cc="verborgen">${CC.toonVerborgen?"Verberg":"Toon"} ${plural(verb.length,"afgehandelde of uitgestelde melding","afgehandelde of uitgestelde meldingen")}</button>${CC.toonVerborgen?verb.map(m=>{const l=(ccStatus().later||{})[m.key];return `<div class="cc-vi"><span>${esc(m.t)}<small>${l?"Later: "+esc(new Date(l).toLocaleString("nl-NL",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})):"Afgehandeld"}</small></span><button type="button" class="cc-ab ghost" data-cc="terug:${esc(m.key)}">Terugzetten</button></div>`}).join(""):""}</div>`:"")}
 function ccNuDoenHtml(){const L=ccNuDoen();if(!L.length){const v=ccVolgende();return `<div class="cc-nu rust"><span class="cc-nd">${I.check}</span><b>Niets dringends</b>${v?`<small>Volgende afspraak: ${esc(v)}</small>`:""}</div>`}
   return `<div class="cc-nu"><span class="cc-nl"><i></i>Nu doen</span>${L.map(x=>`<div class="cc-nuit"><span>${I[x.ic]||""}</span><button type="button" data-cc="${esc(x.go)}"><b>${esc(x.t)}</b>${x.s?`<small>${esc(x.s)}</small>`:""}</button>${x.kom?`<a class="cc-ab pr" href="${esc(x.kom)}" target="_blank" rel="noopener">${I.wa||I.send}Kom eraan</a>`:""}</div>`).join("")}</div>`}
 function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActiviteit(),R=ccPrestaties(),t=today();
+  /* vandaag in cijfers: verdiend (afgemelde beurten), volgende stop en verwachte eindtijd van de route */
+  const D=(()=>{const ti=iso(t),om=state.beurten.filter(b=>b.datum===ti).reduce((a,b)=>a+(Number(b.bedrag)||0),0),open=P.filter(x=>x.st[1]!=="Afgerond");
+    const nm=new Date().getHours()*60+new Date().getMinutes(),vl=open.find(x=>toMin(x.tijd)!=null&&toMin(x.tijd)>=nm-30)||open[0];
+    const laatste=[...open].reverse().find(x=>toMin(x.tijd)!=null);let eind="";if(laatste){const m=toMin(laatste.tijd)+(Number(typeof duur==="function"?duur(laatste.k):30)||30);eind=String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0")}
+    return {omzet:om,volgende:vl?[vl.tijd,ccNaam(vl.k)].filter(Boolean).join(" · "):"",eind}})();
   const dag=t.toLocaleDateString("nl-NL",{weekday:"long"}),dat=t.toLocaleDateString("nl-NL",{day:"numeric",month:"long",year:"numeric"});
   const kpi=(ic,cls,l,v,sub,subCls,act)=>`<button type="button" class="cc-kpi" data-cc="${act}"><span class="cc-ki ${cls}">${I[ic]}</span><span class="cc-kt"><small>${l}</small><b>${v}</b><em class="${subCls||""}">${sub}</em></span></button>`;
   const sig=ccWachtrijHtml(S_);
@@ -212,37 +217,32 @@ function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActivite
       ${"Notification" in window&&Notification.permission==="default"?`<button type="button" class="cc-ntf" data-cc="notif">${I.bell}Meldingen aan</button>`:""}<button type="button" class="cc-bel cc-snd${S().ccGeluid===false?" uit":""}" data-cc="geluid" aria-label="${S().ccGeluid===false?"Geluid aanzetten":"Geluid uitzetten"}" title="${S().ccGeluid===false?"Geluid staat uit":"Geluid bij nieuwe meldingen"}">${S().ccGeluid===false?sv('<path d="M11 5 6 9H3v6h3l5 4z"/><path d="m22 9-6 6M16 9l6 6"/>'):sv('<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>')}</button><button type="button" class="cc-bel" data-cc="naar:ccAdv" aria-label="${plural(S_.length,"signaal","signalen")}">${I.bell}${S_.length?`<i>${S_.length}</i>`:""}</button>
       <div class="cc-dag"><b>${esc(dag.charAt(0).toUpperCase()+dag.slice(1))}</b><small>${esc(dat)}</small></div>${ccWeerHtml()}</div></div>
   ${ccNuDoenHtml()}
-  <div class="cc-grid">
-    <div class="cc-main">
-      <div class="cc-kpis">
+  <div class="cc-ops">
+    <section class="cc-card cc-live"><div class="cc-ch"><div><b>${I.map}Live operatie · vandaag</b><small>${esc(longD(t))}</small></div><button type="button" class="cc-link" data-cc="tab:vandaag">Naar Vandaag${I.right||""}</button></div>
+      <div class="cc-dagstat">${[["Adressen",P.length],["Klaar",klaar],["Nog te gaan",nu],["Verdiend vandaag",eur0(D.omzet)],["Verwacht klaar",D.eind||"—"]].map(([l,v])=>`<div><small>${l}</small><b>${v}</b></div>`).join("")}</div>
+      <div class="cc-map"><div class="rv-map" id="rvMap"><div class="rv-map-l">Kaart laden…</div></div></div>
+      <div class="cc-leg"><span><i class="af"></i>Afgerond</span><span><i class="nu"></i>Volgende</span><span><i></i>Gepland</span><span><i class="bus"></i>Bus (live)</span>${D.volgende?`<span class="cc-vlg">Volgende: <b>${esc(D.volgende)}</b></span>`:""}</div></section>
+    <section class="cc-adv" id="ccAdv"><div class="cc-ah"><span class="cc-aic">${I.spark}</span><div><b>Meldingen · MANSARD adviseert</b><small>${S_.length?`Nog ${S_.length} open · van boven naar beneden afwerken`:"Alles is afgehandeld"}</small></div>${S_.length?`<span class="cc-cnt">${S_.length}</span>`:""}</div><div class="cc-q">${sig}</div></section>
+  </div>
+  <div class="cc-dagrij">
+    <section class="cc-card"><div class="cc-ch"><div><b>${I.planning}Planning vandaag</b><small>${P.length?`${plural(P.length,"adres","adressen")} · ${klaar} klaar`:"Vandaag geen adressen"}</small></div><button type="button" class="cc-link" data-cc="tab:planning">Bekijk planning${I.right||""}</button></div>${plan}</section>
+    <div class="cc-side">
+      <section class="cc-card"><div class="cc-ch"><div><b>${I.spark}Snelle acties</b></div></div>
+        <div class="cc-qa">${[["klanten","Nieuwe klant","nieuw:klant","N"],["offertes","Offerte maken","nieuw:offerte","O"],["facturen","Factuur maken","nieuw:factuur","F"],["phone","Klant bellen","bellen","⌘K"],["msg","Bericht sturen","tab:communicatie","C"],["planning","Planning openen","tab:planning","P"]].map(([ic,l,a,kb])=>`<button type="button" data-cc="${a}">${I[ic]}<span>${l}</span><kbd>${kb}</kbd></button>`).join("")}</div></section>
+      <section class="cc-card"><div class="cc-ch"><div><b>${I.bell}Recente activiteiten</b><small>Afgelopen 30 dagen</small></div></div>${act}</section>
+    </div>
+  </div>
+  <h2 class="cc-sec">${I.trend}Bedrijfscijfers</h2>
+  <div class="cc-kpis">
         ${kpi("euro","k1","Omzet "+esc(K.maand.split(" ")[0]),eur0(K.omzet),K.pct==null?"excl. btw":(K.pct>=0?"▲ ":"▼ ")+Math.abs(K.pct)+"% t.o.v. vorige maand",K.pct==null?"":K.pct>=0?"up":"down","tab:inzichten")}
         ${kpi("facturen","k2","Openstaande facturen",eur0(K.open),K.nAch?plural(K.nAch,"vervallen","vervallen"):plural(K.nOpen,"factuur","facturen")+" open",K.nAch?"down":"","ff:"+(K.nAch?"achterstallig":"openstaand"))}
         ${kpi("checksq","k3","Actieve opdrachten",K.opdr,K.dezeWeek+" deze week aan de beurt","","tab:planning")}
         ${kpi("inbox","k4","Nieuwe aanvragen",K.aanvr,K.aanvrWeek?"▲ "+K.aanvrWeek+" deze week":"afgelopen 30 dagen",K.aanvrWeek?"up":"","tab:klanten")}
       </div>
-      <div class="cc-row2">
-        <section class="cc-adv" id="ccAdv"><div class="cc-ah"><span class="cc-aic">${I.spark}</span><div><b>MANSARD adviseert</b><small>${S_.length?`Nog ${S_.length} open · werk ze af van boven naar beneden`:"Alles is afgehandeld"}</small></div>${S_.length?`<span class="cc-cnt">${S_.length}</span>`:""}</div>${sig}</section>
-        <div class="cc-rcol">
-        <section class="cc-card cc-live"><div class="cc-ch"><div><b>${I.map}Live operatie</b><small>${P.length?`${plural(P.length,"adres","adressen")} vandaag · ${klaar} klaar`:"Vandaag geen adressen"}</small></div><button type="button" class="cc-link" data-cc="tab:vandaag">Naar Vandaag${I.right||""}</button></div>
-          <div class="cc-map"><div class="rv-map" id="rvMap"><div class="rv-map-l">Kaart laden…</div></div></div>
-          <div class="cc-leg"><span><i class="af"></i>Afgerond</span><span><i class="nu"></i>Volgende</span><span><i></i>Gepland</span><span><i class="bus"></i>Bus (live)</span></div></section>
-        <section class="cc-card"><div class="cc-ch"><div><b>${I.planning}Vandaag – planning</b><small>${esc(longD(t))}</small></div><button type="button" class="cc-link" data-cc="tab:planning">Bekijk planning${I.right||""}</button></div>${plan}</section>
-        </div>
-
-      </div>
-      <div class="cc-row3">
-
-        <section class="cc-card"><div class="cc-ch"><div><b>${I.trend}Bedrijfsprestaties</b><small>Laatste 90 dagen, uit je facturen, offertes en klanten</small></div></div>
+  <section class="cc-card"><div class="cc-ch"><div><b>${I.trend}Bedrijfsprestaties</b><small>Laatste 90 dagen, uit je facturen, offertes en klanten</small></div></div>
           <div class="cc-pfs">${prf("Conversie offertes",R.conv==null?null:R.conv+"%",R.conv==null?"te weinig offertes":R.ja+" van "+R.afgesl+" afgerond")}${prf("Klantbehoud",R.behoud==null?null:R.behoud+"%",R.behoud==null?"nog geen jaar historie":"klanten van >1 jaar actief")}${prf("Gem. betaaltijd",R.betaal==null?null:String(R.betaal).replace(".",",")+" d",R.betaal==null?"te weinig betalingen":"factuur → betaald")}</div>
           <div class="cc-charts"><div><h4>Omzet per week (excl. btw)</h4>${heeftOmzet?ccSpark(R.weken):`<p class="cc-leeg">Nog geen gefactureerde omzet in de laatste 8 weken.</p>`}</div><div><h4>Verdeling opdrachten</h4>${R.verd.length?ccDonut(R.verd):`<p class="cc-leeg">Nog geen actieve opdrachten.</p>`}</div></div></section>
-      </div>
-    </div>
-    <aside class="cc-side">
-      <section class="cc-card"><div class="cc-ch"><div><b>${I.spark}Snelle acties</b></div></div>
-        <div class="cc-qa">${[["klanten","Nieuwe klant","nieuw:klant","N"],["offertes","Offerte maken","nieuw:offerte","O"],["facturen","Factuur maken","nieuw:factuur","F"],["phone","Klant bellen","bellen","⌘K"],["msg","Bericht sturen","tab:communicatie","C"],["planning","Planning openen","tab:planning","P"]].map(([ic,l,a,kb])=>`<button type="button" data-cc="${a}">${I[ic]}<span>${l}</span><kbd>${kb}</kbd></button>`).join("")}</div></section>
-      <section class="cc-card"><div class="cc-ch"><div><b>${I.bell}Recente activiteiten</b><small>Afgelopen 30 dagen</small></div></div>${act}</section>
-    </aside>
-  </div></div>`}
+</div>`}
 
 /* kaart: de bestaande dagkaart van Vandaag (zelfde stops, busje en live GPS), altijd voor vandaag */
 function ccKaart(){if(state.tab!=="control"||typeof rvMapTeken!=="function")return;const w=state.rvMap,d=state.routeDay;state.rvMap=true;state.routeDay=null;try{rvMapTeken()}finally{state.rvMap=w;state.routeDay=d}}

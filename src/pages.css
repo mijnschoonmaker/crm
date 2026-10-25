@@ -4233,3 +4233,16 @@ td.fb-cb:hover .fb-box{border-color:var(--brand);transform:scale(1.06)}
 .cc-mi p{margin:2px 0 0}.cc-acts{margin-top:8px}
 @media(max-width:760px){.cc-row2{order:1}.cc-kpis{order:2;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px}.cc-row3{order:3}
   .cc-kpi{padding:12px;gap:8px;flex-direction:column}.cc-ki{width:32px;height:32px}.cc-ki svg{width:15px;height:15px}.cc-kt b{font-size:19px}.cc-kt small,.cc-kt em{font-size:11.5px}}
+/* Control Center indeling: vandaag en meldingen boven, bedrijfscijfers onder */
+.cc-ops{display:grid;grid-template-columns:minmax(0,1fr) 440px;gap:18px;align-items:stretch}
+.cc-live{display:flex;flex-direction:column}.cc-live .cc-map{flex:1;display:flex}.cc-live .cc-map .rv-map{height:auto!important;min-height:520px;flex:1}
+.cc-adv{display:flex;flex-direction:column;max-height:820px}.cc-q{flex:1;overflow-y:auto;margin:0 -10px;padding:0 10px;scrollbar-width:thin;scrollbar-color:rgb(255 255 255 / .2) transparent}
+.cc-dagstat{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:12px}.cc-dagstat div{background:#f6f7f8;border-radius:10px;padding:8px 10px}
+.cc-dagstat small{display:block;font-size:11.5px;color:var(--cc-mut)}.cc-dagstat b{display:block;font-size:18px;font-weight:600;color:var(--cc-ink);font-feature-settings:"tnum"}
+.cc-vlg{margin-left:auto;color:var(--cc-ink)}.cc-vlg b{font-weight:600}
+.cc-dagrij{display:grid;grid-template-columns:minmax(0,1fr) 440px;gap:18px;align-items:start}.cc-dagrij .cc-side{display:flex;flex-direction:column;gap:18px}
+.cc-sec{display:flex;align-items:center;gap:8px;margin:10px 0 -4px;font-size:13px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--cc-mut)}.cc-sec svg{width:16px;height:16px}
+.cc-row3,.cc-grid{display:none}
+@media(max-width:1280px){.cc-ops,.cc-dagrij{grid-template-columns:minmax(0,1fr) 380px}}
+@media(max-width:1100px){.cc-ops,.cc-dagrij{grid-template-columns:minmax(0,1fr)}.cc-adv{max-height:none;order:-1}.cc-q{overflow:visible}.cc-live .cc-map .rv-map{min-height:420px}.cc-dagrij .cc-side{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.cc-dagstat{grid-template-columns:repeat(3,minmax(0,1fr))}.cc-dagstat div:nth-child(n+4){grid-column:span 1}.cc-live .cc-map .rv-map{min-height:320px}.cc-dagrij .cc-side{grid-template-columns:minmax(0,1fr)}.cc-vlg{margin-left:0;width:100%}}
