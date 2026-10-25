@@ -232,7 +232,7 @@ function openObject(kid,oid){
   <div class="row">${isNew?"":`<button type="button" class="ghost danger" id="delO">Verwijderen</button>`}<span class="sp"></span><button type="button" id="oBack">Annuleren</button><button type="submit" class="primary" id="oSave">Opslaan</button></div>`);
   $("#oShow").onclick=()=>{const i=$("#o-alarmcode");i.type=i.type==="password"?"text":"password";$("#oShow").textContent=i.type==="password"?"Toon":"Verberg"};
   $("#oBack").onclick=$("#oX").onclick=()=>openKlant(k.id,{keepCalc:true});
-  const write=async list=>{const objectId=list.some(x=>x.id===k.objectId)?k.objectId:(list[0]?list[0].id:"");await save("klanten",k.id,{...strip(k),objecten:list,objectId})};
+  const write=async list=>{const objectId=k.objectId==="hoofd"||list.some(x=>x.id===k.objectId)?k.objectId:(list[0]?list[0].id:"");await save("klanten",k.id,{...strip(k),objecten:list,objectId})};
   form.onsubmit=async e=>{e.preventDefault();const g=n=>$("#o-"+n).value.trim();
     const data={id:o.id||newId("o"),naam:g("naam")||"Object",adres:g("adres"),postcode:g("postcode").toUpperCase(),plaats:g("plaats"),ramen:g("ramen"),m2:g("m2"),toegang:g("toegang"),alarmcode:g("alarmcode"),parkeren:g("parkeren"),materialen:g("materialen"),notities:g("notities")};
     const list=isNew?[...os,data]:os.map(x=>x.id===o.id?data:x);

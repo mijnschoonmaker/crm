@@ -83,7 +83,7 @@ function kkLocatie(kid,oid){const k=state.klanten.find(x=>x.id===kid);if(!k)retu
     else{const data={...(o0||{}),id:o0?o0.id:newId("o"),naam:v("naam")||"Locatie",adres,straat,huisnr,toev,postcode:adres?postcode:"",plaats:adres?plaats:"",land:$l("land").value,contact,
         ramen:v("ramen"),m2:v("m2"),toegang:v("toegang"),alarmcode:$l("alarm").value.trim(),parkeren:v("park"),materialen:v("mat"),notities:v("not")};
       const list=isNew?[...(cur.objecten||[]),data]:(cur.objecten||[]).map(x=>x.id===data.id?data:x);
-      nw={...strip(cur),objecten:list,objectId:list.some(x=>x.id===cur.objectId)?cur.objectId:(list[0]?list[0].id:"")}}
+      nw={...strip(cur),objecten:list,objectId:cur.objectId==="hoofd"||list.some(x=>x.id===cur.objectId)?cur.objectId:(list[0]?list[0].id:"")}}
     $("#lcSave").disabled=true;
     try{await save("klanten",kid,nw);const n=await adresDoorvoeren({...cur},{...nw,id:kid});
       const gewijzigd=fullAddr(cur)!==fullAddr({...nw})||jobAddr(cur)!==jobAddr({...nw,id:kid});
@@ -92,7 +92,7 @@ function kkLocatie(kid,oid){const k=state.klanten.find(x=>x.id===kid);if(!k)retu
     catch(er){$("#lcSave").disabled=false;err(er)}};
   const d=$("#lcDel");if(d){let armed=false;d.onclick=async()=>{if(!armed){armed=true;d.innerHTML=I.trash+"Zeker weten? Tik nogmaals";return}
     const cur=state.klanten.find(x=>x.id===kid)||k,list=(cur.objecten||[]).filter(x=>x.id!==oid);
-    try{await save("klanten",kid,{...strip(cur),objecten:list,objectId:list.some(x=>x.id===cur.objectId)?cur.objectId:(list[0]?list[0].id:"")});toast("Locatie verwijderd");setTimeout(()=>openKlantView(kid),60)}catch(er){err(er)}}}
+    try{await save("klanten",kid,{...strip(cur),objecten:list,objectId:cur.objectId==="hoofd"||list.some(x=>x.id===cur.objectId)?cur.objectId:(list[0]?list[0].id:"")});toast("Locatie verwijderd");setTimeout(()=>openKlantView(kid),60)}catch(er){err(er)}}}
 }
 
 /* adres snel zoeken (PDOK) voor een set velden met hetzelfde voorvoegsel: q, straat, huisnr, toev, postcode, plaats */

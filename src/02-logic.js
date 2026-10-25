@@ -78,7 +78,8 @@ function nextFree(dayIso){let e=8*60;actief().filter(k=>k.gepland===dayIso&&toMi
 const dienstHtml=k=>`<span class="dienst">${I.wrench}${esc(k.dienst||"Glasbewassing")}</span>`;
 
 /* objecten en adressen */
-const jobObj=k=>{const os=k.objecten||[];return os.find(o=>o.id===k.objectId)||os[0]||null};
+/* objectId "hoofd" = bewust het hoofdadres van de klant (anders valt hij terug op de eerste locatie) */
+const jobObj=k=>{if(k&&k.objectId==="hoofd")return null;const os=k.objecten||[];return os.find(o=>o.id===k.objectId)||os[0]||null};
 const jobAddrObj=k=>{const o=jobObj(k);return o&&o.adres?o:k};
 const jobAddr=k=>fullAddr(jobAddrObj(k));
 const mapsQ=k=>"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(jobAddr(k));

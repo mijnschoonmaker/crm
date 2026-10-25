@@ -247,7 +247,7 @@ function openOpdrachtWerk(kid,focus){
   /* adres en ontvangers wijzigen in de kaart zelf (zoals in DienstenCRM): kies uit de locaties en contactpersonen van de klant */
   {const E=$("#owAdrE"),V=$("#owAdrV"),F=$("#owAdrF"),KN=$("#owAdrKn"),KE=$("#owAdrKe");
     const adrO=()=>{const os=(k.objecten||[]).filter(o=>o&&(o.adres||o.naam));const hoofd=fullAddr(k);const cur=jobObj(k)&&jobObj(k).adres?jobObj(k).id:"";
-      return `<option value=""${!cur?" selected":""}>${esc(hoofd||"Hoofdadres")}${os.length?" (hoofdadres)":""}</option>`+os.filter(o=>o.adres).map(o=>`<option value="${esc(o.id)}"${cur===o.id?" selected":""}>${esc(fullAddr(o))}${o.naam?" · "+esc(o.naam):""}</option>`).join("")};
+      return `<option value="hoofd"${!cur?" selected":""}>${esc(hoofd||"Hoofdadres")}${os.length?" (hoofdadres)":""}</option>`+os.filter(o=>o.adres).map(o=>`<option value="${esc(o.id)}"${cur===o.id?" selected":""}>${esc(fullAddr(o))}${o.naam?" · "+esc(o.naam):""}</option>`).join("")};
     const ontv=(x)=>{const cs=(k.contacten||[]).filter(c=>c&&c.email),em=x==="factuur"?k.fEmail:x==="offerte"?k.oEmail:k.pEmail,tv=tavK(k,x);
       const idx=em?cs.findIndex(c=>c.email===em&&(!tv||c.naam===tv)):-1;const eigen=em&&idx<0;
       return `<option value="std"${!em?" selected":""}>Standaard klantgegevens${k.email?" · "+esc(k.email):""}</option>`+cs.map((c,i)=>`<option value="c${i}"${idx===i?" selected":""}>${esc(c.naam)}${c.functie?" ("+esc(c.functie)+")":""} · ${esc(c.email)}</option>`).join("")+(eigen?`<option value="eigen" selected>${esc(em)}${tv?" · t.a.v. "+esc(tv):""}</option>`:"")};
@@ -257,7 +257,7 @@ function openOpdrachtWerk(kid,focus){
         ${(k.contacten||[]).some(c=>c.email)?"":`<small class="help">Andere ontvanger? Voeg een contactpersoon met e-mailadres toe op de klantkaart.</small>`}`};
     if(E)E.onclick=()=>open(true);
     const U=$("#owAdrU");if(U)U.onclick=()=>open(false);
-    const SV=$("#owAdrS");if(SV)SV.onclick=async()=>{const cs=(k.contacten||[]).filter(c=>c&&c.email),patch={objectId:$("#owA-adr").value||""};
+    const SV=$("#owAdrS");if(SV)SV.onclick=async()=>{const cs=(k.contacten||[]).filter(c=>c&&c.email),patch={objectId:$("#owA-adr").value||"hoofd"};
       [["offerte","o"],["factuur","f"],["planning","p"]].forEach(([x,p])=>{const v=$("#owA-"+x).value;if(v==="std"){patch[p+"Email"]="";patch[p+"Tav"]=""}else if(v[0]==="c"){const c=cs[+v.slice(1)];patch[p+"Email"]=c.email;patch[p+"Tav"]=c.naam||""}});
       SV.disabled=true;try{await save("klanten",kid,{...strip(k),...patch});Object.assign(k,patch);toast("Adres en ontvangers opgeslagen");dlg.close();openOpdrachtWerk(kid)}catch(er){SV.disabled=false;err(er)}}}
   {const d=$("#owDel");if(d)d.onclick=()=>kkDelOpdracht(kid,"main","opdracht")}

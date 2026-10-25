@@ -683,7 +683,7 @@ const ICON={
   }
   const objMet=(k,count)=>{const os=[...(k.objecten||[])];const i=os.findIndex(o=>o.id===k.objectId);const j=i>-1?i:0;
     if(os[j])os[j]={...os[j],ramen:String(count)};else os.push({id:newId("o"),naam:"Woning",adres:"",postcode:"",plaats:"",ramen:String(count),m2:"",toegang:"",alarmcode:"",parkeren:"",materialen:"",notities:""});
-    return {objecten:os,objectId:os.some(o=>o.id===k.objectId)?k.objectId:os[0].id}};
+    return {objecten:os,objectId:k.objectId==="hoofd"||os.some(o=>o.id===k.objectId)?k.objectId:os[0].id}};
   async function writeKlant(k,extra){const {id,...data}={...k,...extra};await save("klanten",id,data);return id}
   async function busy(btn,fn){const all=root.querySelectorAll(".acts button");all.forEach(b=>b.disabled=true);const t=btn.innerHTML;btn.innerHTML=btn.innerHTML.replace(/[^>]*$/,"Bezig…");
     try{await fn()}catch(e){say(e&&e.msg?e.msg:"Niet opgeslagen: "+(e&&(e.message||e.code)||"onbekende fout"),"bad")}finally{const b2=g(btn.id);if(b2)b2.innerHTML=t;root.querySelectorAll(".acts button").forEach(b=>b.disabled=false)}}

@@ -6629,7 +6629,8 @@ function nextFree(dayIso){let e=8*60;actief().filter(k=>k.gepland===dayIso&&toMi
 const dienstHtml=k=>`<span class="dienst">${I.wrench}${esc(k.dienst||"Glasbewassing")}</span>`;
 
 /* objecten en adressen */
-const jobObj=k=>{const os=k.objecten||[];return os.find(o=>o.id===k.objectId)||os[0]||null};
+/* objectId "hoofd" = bewust het hoofdadres van de klant (anders valt hij terug op de eerste locatie) */
+const jobObj=k=>{if(k&&k.objectId==="hoofd")return null;const os=k.objecten||[];return os.find(o=>o.id===k.objectId)||os[0]||null};
 const jobAddrObj=k=>{const o=jobObj(k);return o&&o.adres?o:k};
 const jobAddr=k=>fullAddr(jobAddrObj(k));
 const mapsQ=k=>"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(jobAddr(k));
@@ -7092,7 +7093,7 @@ function openObject(kid,oid){
   <div class="row">${isNew?"":`<button type="button" class="ghost danger" id="delO">Verwijderen</button>`}<span class="sp"></span><button type="button" id="oBack">Annuleren</button><button type="submit" class="primary" id="oSave">Opslaan</button></div>`);
   $("#oShow").onclick=()=>{const i=$("#o-alarmcode");i.type=i.type==="password"?"text":"password";$("#oShow").textContent=i.type==="password"?"Toon":"Verberg"};
   $("#oBack").onclick=$("#oX").onclick=()=>openKlant(k.id,{keepCalc:true});
-  const write=async list=>{const objectId=list.some(x=>x.id===k.objectId)?k.objectId:(list[0]?list[0].id:"");await save("klanten",k.id,{...strip(k),objecten:list,objectId})};
+  const write=async list=>{const objectId=k.objectId==="hoofd"||list.some(x=>x.id===k.objectId)?k.objectId:(list[0]?list[0].id:"");await save("klanten",k.id,{...strip(k),objecten:list,objectId})};
   form.onsubmit=async e=>{e.preventDefault();const g=n=>$("#o-"+n).value.trim();
     const data={id:o.id||newId("o"),naam:g("naam")||"Object",adres:g("adres"),postcode:g("postcode").toUpperCase(),plaats:g("plaats"),ramen:g("ramen"),m2:g("m2"),toegang:g("toegang"),alarmcode:g("alarmcode"),parkeren:g("parkeren"),materialen:g("materialen"),notities:g("notities")};
     const list=isNew?[...os,data]:os.map(x=>x.id===o.id?data:x);
@@ -10362,7 +10363,7 @@ const ICON={
   }
   const objMet=(k,count)=>{const os=[...(k.objecten||[])];const i=os.findIndex(o=>o.id===k.objectId);const j=i>-1?i:0;
     if(os[j])os[j]={...os[j],ramen:String(count)};else os.push({id:newId("o"),naam:"Woning",adres:"",postcode:"",plaats:"",ramen:String(count),m2:"",toegang:"",alarmcode:"",parkeren:"",materialen:"",notities:""});
-    return {objecten:os,objectId:os.some(o=>o.id===k.objectId)?k.objectId:os[0].id}};
+    return {objecten:os,objectId:k.objectId==="hoofd"||os.some(o=>o.id===k.objectId)?k.objectId:os[0].id}};
   async function writeKlant(k,extra){const {id,...data}={...k,...extra};await save("klanten",id,data);return id}
   async function busy(btn,fn){const all=root.querySelectorAll(".acts button");all.forEach(b=>b.disabled=true);const t=btn.innerHTML;btn.innerHTML=btn.innerHTML.replace(/[^>]*$/,"Bezig…");
     try{await fn()}catch(e){say(e&&e.msg?e.msg:"Niet opgeslagen: "+(e&&(e.message||e.code)||"onbekende fout"),"bad")}finally{const b2=g(btn.id);if(b2)b2.innerHTML=t;root.querySelectorAll(".acts button").forEach(b=>b.disabled=false)}}
@@ -12868,7 +12869,7 @@ function openOpdrachtWerk(kid,focus){
   /* adres en ontvangers wijzigen in de kaart zelf (zoals in DienstenCRM): kies uit de locaties en contactpersonen van de klant */
   {const E=$("#owAdrE"),V=$("#owAdrV"),F=$("#owAdrF"),KN=$("#owAdrKn"),KE=$("#owAdrKe");
     const adrO=()=>{const os=(k.objecten||[]).filter(o=>o&&(o.adres||o.naam));const hoofd=fullAddr(k);const cur=jobObj(k)&&jobObj(k).adres?jobObj(k).id:"";
-      return `<option value=""${!cur?" selected":""}>${esc(hoofd||"Hoofdadres")}${os.length?" (hoofdadres)":""}</option>`+os.filter(o=>o.adres).map(o=>`<option value="${esc(o.id)}"${cur===o.id?" selected":""}>${esc(fullAddr(o))}${o.naam?" · "+esc(o.naam):""}</option>`).join("")};
+      return `<option value="hoofd"${!cur?" selected":""}>${esc(hoofd||"Hoofdadres")}${os.length?" (hoofdadres)":""}</option>`+os.filter(o=>o.adres).map(o=>`<option value="${esc(o.id)}"${cur===o.id?" selected":""}>${esc(fullAddr(o))}${o.naam?" · "+esc(o.naam):""}</option>`).join("")};
     const ontv=(x)=>{const cs=(k.contacten||[]).filter(c=>c&&c.email),em=x==="factuur"?k.fEmail:x==="offerte"?k.oEmail:k.pEmail,tv=tavK(k,x);
       const idx=em?cs.findIndex(c=>c.email===em&&(!tv||c.naam===tv)):-1;const eigen=em&&idx<0;
       return `<option value="std"${!em?" selected":""}>Standaard klantgegevens${k.email?" · "+esc(k.email):""}</option>`+cs.map((c,i)=>`<option value="c${i}"${idx===i?" selected":""}>${esc(c.naam)}${c.functie?" ("+esc(c.functie)+")":""} · ${esc(c.email)}</option>`).join("")+(eigen?`<option value="eigen" selected>${esc(em)}${tv?" · t.a.v. "+esc(tv):""}</option>`:"")};
@@ -12878,7 +12879,7 @@ function openOpdrachtWerk(kid,focus){
         ${(k.contacten||[]).some(c=>c.email)?"":`<small class="help">Andere ontvanger? Voeg een contactpersoon met e-mailadres toe op de klantkaart.</small>`}`};
     if(E)E.onclick=()=>open(true);
     const U=$("#owAdrU");if(U)U.onclick=()=>open(false);
-    const SV=$("#owAdrS");if(SV)SV.onclick=async()=>{const cs=(k.contacten||[]).filter(c=>c&&c.email),patch={objectId:$("#owA-adr").value||""};
+    const SV=$("#owAdrS");if(SV)SV.onclick=async()=>{const cs=(k.contacten||[]).filter(c=>c&&c.email),patch={objectId:$("#owA-adr").value||"hoofd"};
       [["offerte","o"],["factuur","f"],["planning","p"]].forEach(([x,p])=>{const v=$("#owA-"+x).value;if(v==="std"){patch[p+"Email"]="";patch[p+"Tav"]=""}else if(v[0]==="c"){const c=cs[+v.slice(1)];patch[p+"Email"]=c.email;patch[p+"Tav"]=c.naam||""}});
       SV.disabled=true;try{await save("klanten",kid,{...strip(k),...patch});Object.assign(k,patch);toast("Adres en ontvangers opgeslagen");dlg.close();openOpdrachtWerk(kid)}catch(er){SV.disabled=false;err(er)}}}
   {const d=$("#owDel");if(d)d.onclick=()=>kkDelOpdracht(kid,"main","opdracht")}
@@ -14111,7 +14112,7 @@ function kkLocatie(kid,oid){const k=state.klanten.find(x=>x.id===kid);if(!k)retu
     else{const data={...(o0||{}),id:o0?o0.id:newId("o"),naam:v("naam")||"Locatie",adres,straat,huisnr,toev,postcode:adres?postcode:"",plaats:adres?plaats:"",land:$l("land").value,contact,
         ramen:v("ramen"),m2:v("m2"),toegang:v("toegang"),alarmcode:$l("alarm").value.trim(),parkeren:v("park"),materialen:v("mat"),notities:v("not")};
       const list=isNew?[...(cur.objecten||[]),data]:(cur.objecten||[]).map(x=>x.id===data.id?data:x);
-      nw={...strip(cur),objecten:list,objectId:list.some(x=>x.id===cur.objectId)?cur.objectId:(list[0]?list[0].id:"")}}
+      nw={...strip(cur),objecten:list,objectId:cur.objectId==="hoofd"||list.some(x=>x.id===cur.objectId)?cur.objectId:(list[0]?list[0].id:"")}}
     $("#lcSave").disabled=true;
     try{await save("klanten",kid,nw);const n=await adresDoorvoeren({...cur},{...nw,id:kid});
       const gewijzigd=fullAddr(cur)!==fullAddr({...nw})||jobAddr(cur)!==jobAddr({...nw,id:kid});
@@ -14120,7 +14121,7 @@ function kkLocatie(kid,oid){const k=state.klanten.find(x=>x.id===kid);if(!k)retu
     catch(er){$("#lcSave").disabled=false;err(er)}};
   const d=$("#lcDel");if(d){let armed=false;d.onclick=async()=>{if(!armed){armed=true;d.innerHTML=I.trash+"Zeker weten? Tik nogmaals";return}
     const cur=state.klanten.find(x=>x.id===kid)||k,list=(cur.objecten||[]).filter(x=>x.id!==oid);
-    try{await save("klanten",kid,{...strip(cur),objecten:list,objectId:list.some(x=>x.id===cur.objectId)?cur.objectId:(list[0]?list[0].id:"")});toast("Locatie verwijderd");setTimeout(()=>openKlantView(kid),60)}catch(er){err(er)}}}
+    try{await save("klanten",kid,{...strip(cur),objecten:list,objectId:cur.objectId==="hoofd"||list.some(x=>x.id===cur.objectId)?cur.objectId:(list[0]?list[0].id:"")});toast("Locatie verwijderd");setTimeout(()=>openKlantView(kid),60)}catch(er){err(er)}}}
 }
 
 /* adres snel zoeken (PDOK) voor een set velden met hetzelfde voorvoegsel: q, straat, huisnr, toev, postcode, plaats */
