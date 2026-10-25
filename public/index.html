@@ -12639,6 +12639,8 @@ function openOpdrachtWerk(kid,focus){
   /* een extra of nieuwe opdracht opent als eigen opdrachtkaart met een eigen nummer (bijv. 1002-2); de hoofdopdracht blijft ongemoeid */
   const soloId=focus&&!["main","hosp"].includes(focus)?(focus==="new"?extra[extra.length-1].id:focus):null,soloI=soloId?extra.findIndex(o=>o.id===soloId):-1;
   const soloNr=(()=>{if(soloI<0)return 1;const eo=typeof extraOpdr==="function"?extraOpdr(k):(k.opdrachten||[]),j=eo.findIndex(o=>o.id===soloId);return (soloId&&typeof opdrNr==="function"&&(k.opdrachten||[]).some(o=>o.id===soloId))?(extra[soloI].nr||opdrNr(k,soloId)):typeof opdrVolgNr==="function"?opdrVolgNr(k):(j>=0?j+2:eo.length+2)})();
+  /* losse opdracht (eigen nummer): het adres stel je links bij Adres in, voor deze opdracht */
+  const soloR=soloI>=0?extra[soloI]:null,soloAdr=()=>{const o=soloR&&soloR.objectId&&(k.objecten||[]).find(x=>x.id===soloR.objectId&&x.adres);return o?fullAddr(o)+(o.naam?" · "+o.naam:""):fullAddr(k)};
   let fotos=[...(k.fotos||[])];
   const tFotos=(k.ramenTelling&&k.ramenTelling.fotos)||[];
   const fs=state.facturen.filter(f=>f.klantId===k.id&&f.soort!=="offerte"),open=fs.filter(f=>["Openstaand","Achterstallig"].includes(fStatus(f)[1]));
@@ -12658,7 +12660,7 @@ function openOpdrachtWerk(kid,focus){
     <section class="kp" id="owAdrK"><div class="kp-h"><span class="objic">${I.pin}</span><b>Adres</b><span class="sp"></span>
         <span id="owAdrKn" class="ow-adrkn"><button type="button" class="iconbtn sm" id="owAdrE" aria-label="Adres en ontvangers wijzigen" title="Wijzigen">${I.pencil}</button></span>
         <span id="owAdrKe" class="ow-adrkn" hidden><button type="button" class="small" id="owAdrU" aria-label="Annuleren" title="Annuleren">${I.undo||I.x}</button><button type="button" class="small primary" id="owAdrS" aria-label="Opslaan" title="Opslaan">${I.save||I.check}</button></span></div>
-      <div id="owAdrV">${kv("Adres",esc(jobAddr(k)))}
+      <div id="owAdrV">${kv("Adres",esc(soloR?soloAdr():jobAddr(k)))}
       ${[["offerte","Offerte gaat naar"],["factuur","Facturen gaan naar"],["planning","Planningsmails gaan naar"]].map(([x,l])=>kv(l,(mailK(k,x).email?esc(mailK(k,x).email):"—")+(tavK(k,x)?`<br><small class="subt">t.a.v. ${esc(tavK(k,x))}</small>`:""))).join("")}</div>
       <div id="owAdrF" class="ow-adrf" hidden></div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.planning}</span><b>Opdracht</b><span class="sp"></span><button type="button" class="iconbtn sm" id="owOpdE" aria-label="Opdracht wijzigen" title="Wijzigen">${I.pencil}</button></div>
@@ -12824,8 +12826,10 @@ function openOpdrachtWerk(kid,focus){
   /* op welk adres: hoofdadres of een van de locaties van de klant; een ander adres wordt een eigen afspraak */
   const adresKeuze=(r,i)=>{const ls=(k.objecten||[]).filter(o=>o.adres);if(!ls.length)return `<small class="help">Glasbewassing op een ander adres? Voeg dat adres eerst toe bij Locaties op de klantkaart; dan kies je het hier.</small>`;
     return `<label>Adres<select data-i="${i}" data-k="objectId"><option value="">${esc(fullAddr(k))} (hoofdadres)</option>${ls.map(o=>`<option value="${esc(o.id)}" ${o.id===r.objectId?"selected":""}>${esc([o.adres,[o.postcode,o.plaats].filter(Boolean).join(" ")].filter(Boolean).join(", "))}${o.naam?" · "+esc(o.naam):""}</option>`).join("")}</select>${r.objectId?`<small class="help">Ander adres: wordt apart ingepland, met een eigen afspraak en factuur.</small>`:""}</label>`};
+  /* losse opdracht met ramen of onderdelen: naam, prijs, ritme en datum staan al in de regels eronder (per verdieping), dus geen dubbele kop */
+  const soloKaal=(r,i,isMain)=>!isMain&&soloI===i&&!!(r.ramen||r.items)&&!!String(r.dienst||"").trim();
   const lineHtml=(r,i,isMain)=>!isMain&&r.id&&dicht.has(r.id)?dichtHtml(r,i):`<div class="ow-line${isMain?" main":""}">
-      ${isMain&&r.ramen?"":`      <div class="ow-lh"><span class="mono">${isMain?1:i+2}</span><input data-i="${isMain?"m":i}" data-k="dienst" value="${esc(r.dienst)}" placeholder="Dienst" aria-label="Dienst">${isMain?"":`<button type="button" class="small ghost" data-rm="${i}" aria-label="Regel verwijderen">${I.x}</button>`}</div>
+      ${isMain&&r.ramen||soloKaal(r,i,isMain)?"":`      <div class="ow-lh"><span class="mono">${isMain?1:i+2}</span><input data-i="${isMain?"m":i}" data-k="dienst" value="${esc(r.dienst)}" placeholder="Dienst" aria-label="Dienst">${isMain?"":`<button type="button" class="small ghost" data-rm="${i}" aria-label="Regel verwijderen">${I.x}</button>`}</div>
       <div class="ow-lg">
         <label>Prijs per keer (€ ${btwL})<input data-i="${isMain?"m":i}" data-k="prijs" type="number" step="0.01" min="0" value="${esc(r.prijs)}">${isMain?'<small class="help ow-tsl" id="owTsl"></small>':""}</label>
         ${isMain&&r.ramen?`<label>Ritme planning<input value="${esc(freqLabel(mF))}${ritmeUitRamen()?" (kortste frequentie)":""}" disabled></label><label>Tijdsduur per beurt<input value="${mD} min${(k.tijden||[]).length?" (gemeten)":" (berekend)"}" disabled></label>`
@@ -12835,7 +12839,7 @@ function openOpdrachtWerk(kid,focus){
             <label>Volgende keer<input data-i="${i}" data-k="volgende" type="date" value="${esc(r.volgende||"")}" title="Leeg = bij de volgende beurt"></label>`}
       </div>`}
       ${!isMain&&r.items?itemsHtml(r,i):r.ramen?calcHtml(r,i,isMain):isGlas(r.dienst)?`<button type="button" class="small" data-calcopen="${isMain?"m":i}">${I.calculator}Ramen per verdieping invullen</button>`:""}
-      ${!isMain&&(r.ramen||isGlas(r.dienst))?adresKeuze(r,i):""}
+      ${!isMain&&soloI!==i&&(r.ramen||isGlas(r.dienst))?adresKeuze(r,i):""}
       ${isMain?"":`<label class="check-row"><input type="checkbox" data-i="${i}" data-k="actief" ${r.actief!==false?"checked":""}>Actief${r.apart?"":" · gaat mee met de beurt waarop hij aan de beurt is"}</label>
       <label class="check-row"><input type="checkbox" data-i="${i}" data-k="apart" ${r.apart?"checked":""}>Apart inplannen · eigen afspraak in de agenda, met eigen tijd en factuur <small class="subt">(voor grote klussen; anders gaat hij mee met de glasbewassing)</small></label>`}
       <div class="ow-lsave"><button type="button" class="small primary" data-lsave="${isMain?"m":i}">${I.check}Opslaan</button></div>
@@ -12878,7 +12882,7 @@ function openOpdrachtWerk(kid,focus){
   {const a=$("#owAdr");if(a)a.onclick=()=>kkAdres(kid)}
   /* adres en ontvangers wijzigen in de kaart zelf (zoals in DienstenCRM): kies uit de locaties en contactpersonen van de klant */
   {const E=$("#owAdrE"),V=$("#owAdrV"),F=$("#owAdrF"),KN=$("#owAdrKn"),KE=$("#owAdrKe");
-    const adrO=()=>{const os=(k.objecten||[]).filter(o=>o&&(o.adres||o.naam));const hoofd=fullAddr(k);const cur=jobObj(k)&&jobObj(k).adres?jobObj(k).id:"";
+    const adrO=()=>{const os=(k.objecten||[]).filter(o=>o&&(o.adres||o.naam));const hoofd=fullAddr(k);const cur=soloR?(soloR.objectId||""):jobObj(k)&&jobObj(k).adres?jobObj(k).id:"";
       return `<option value="hoofd"${!cur?" selected":""}>${esc(hoofd||"Hoofdadres")}${os.length?" (hoofdadres)":""}</option>`+os.filter(o=>o.adres).map(o=>`<option value="${esc(o.id)}"${cur===o.id?" selected":""}>${esc(fullAddr(o))}${o.naam?" · "+esc(o.naam):""}</option>`).join("")};
     const ontv=(x)=>{const cs=(k.contacten||[]).filter(c=>c&&c.email),em=x==="factuur"?k.fEmail:x==="offerte"?k.oEmail:k.pEmail,tv=tavK(k,x);
       const idx=em?cs.findIndex(c=>c.email===em&&(!tv||c.naam===tv)):-1;const eigen=em&&idx<0;
@@ -12891,6 +12895,8 @@ function openOpdrachtWerk(kid,focus){
     const U=$("#owAdrU");if(U)U.onclick=()=>open(false);
     const SV=$("#owAdrS");if(SV)SV.onclick=async()=>{const cs=(k.contacten||[]).filter(c=>c&&c.email),patch={objectId:$("#owA-adr").value||"hoofd"};
       [["offerte","o"],["factuur","f"],["planning","p"]].forEach(([x,p])=>{const v=$("#owA-"+x).value;if(v==="std"){patch[p+"Email"]="";patch[p+"Tav"]=""}else if(v[0]==="c"){const c=cs[+v.slice(1)];patch[p+"Email"]=c.email;patch[p+"Tav"]=c.naam||""}});
+      if(soloR){const v=patch.objectId;delete patch.objectId;soloR.objectId=v==="hoofd"?"":v;SV.disabled=true;
+        try{await save("klanten",kid,{...collect(),...patch});toast("Adres en ontvangers opgeslagen");dlg.close();openOpdrachtWerk(kid,soloR.id)}catch(er){SV.disabled=false;err(er)}return}
       SV.disabled=true;try{await save("klanten",kid,{...strip(k),...patch});Object.assign(k,patch);toast("Adres en ontvangers opgeslagen");dlg.close();openOpdrachtWerk(kid)}catch(er){SV.disabled=false;err(er)}}}
   {const d=$("#owDel");if(d)d.onclick=()=>kkDelOpdracht(kid,"main","opdracht")}
   $o("fact").onchange=()=>{const v=$o("fact").value,h=$("#owFactH");if(h)h.textContent=FACT_HELP[v]||"";if(v==="periodiek"&&!isPeriodiek(k)){const b=$("#owPer");if(b)b.click()}};
@@ -12974,11 +12980,15 @@ function openOpdrachtWerk(kid,focus){
     catch(er){console.error(er);box.hidden=false;box.innerHTML='<p class="subt">De rekentool kon hier niet worden geladen.</p>'}};
   if($("#owOff"))$("#owOff").onclick=async()=>{if(typeof owNieuwTerug==="function")await owNieuwTerug(kid);openOfferte({klantId:kid,metTelling:true})};
   const back=async()=>{if(typeof owNieuwTerug==="function")await owNieuwTerug(kid);openKlant(kid)};$("#owX").onclick=$("#owBack").onclick=back;$("#owKk").onclick=back;
+  /* ramen per verdieping: ritme = kortste frequentie, volgende keer = vroegste aanboddatum (alleen als elke verdieping er een heeft) */
+  const ramenRitmeDatum=o=>{const q=o.ramen,uit={};if(!q||!Array.isArray(q.f))return uit;const idx=q.f.map((n,i)=>Number(n)>0?i:-1).filter(i=>i>=0);if(!idx.length)return uit;
+    const ws=idx.map(i=>Number((q.fq||[])[i])).filter(Boolean);if(ws.length)uit.frequentie=Math.min(...ws);
+    const ds=idx.map(i=>(q.vol||[])[i]).filter(Boolean);if(ds.length===idx.length)uit.volgende=ds.sort()[0];return uit};
   const collect=()=>{syncRitme();const cur=state.klanten.find(x=>x.id===kid)||k,actief=$o("actief").checked;
     return {...strip(cur),dienst:String(main.dienst||"").trim()||"Glasbewassing",prijs:r2(Number(main.prijs)||0),ramenRegel:main.ramen||null,frequentie:mW.length?1:(mF||4),weekdagen:mW.length?mW:[],...(mW.length?{autoplan:true}:{}),duur:mD||30,ronde:$o("ronde").value.trim(),contactPlanning:$o("contact").value,eersteKeer:$o("eerste").value==="ja",toeslag:Number($o("toeslag").value)||0,toeslagReden:$o("toeslagr").value.trim(),verbergAantal:$o("verbA").checked,verbergFreq:$o("verbF").checked,afmeldMail:$o("afmail").checked,
       binnen:false,actief,...(actief?{}:{gepland:"",tijd:""}),akkoord:$o("akkoord").checked,incasso:$o("betaal").value==="incasso",...factModusPatch($o("fact").value,k),
       taak:$o("taak").value.trim(),...($o("vvetaken")?vveEdLees($o("vvetaken")):{}),hosp:hosp.map(x=>({c:x.c||"voorkeur",t:String(x.t||"").trim(),...(x.af?{af:x.af}:{}),...(x.c==="verteld"&&x.vanaf?{vanaf:x.vanaf}:{})})).filter(x=>x.t),bellen:$o("bellen").checked,startdatum:$o("start").value,einddatum:$o("eind").value,btwVerlegd:$o("verlegd").checked,aanbieden:cur.gepland?!!cur.aanbieden:aanb.aanbieden,uitstelTot:aanb.uitstelTot,artikelen:arts.filter(a=>String(a.naam||"").trim()).map(a=>({naam:String(a.naam).trim(),aantal:Number(a.aantal)||1,prijs:r2(Number(a.prijs)||0)})),middelen:mids,objectId:$o("obj")?$o("obj").value:cur.objectId||"",fotos,
-      opdrachten:extra.filter(o=>String(o.dienst||"").trim()).map(({_nieuw,_toon,_bestaand,...o})=>({...o,dienst:String(o.dienst).trim(),prijs:r2(Number(o.prijs)||0),frequentie:o.items?itemsRitme(o):Number(o.frequentie)||52}))}};
+      opdrachten:extra.filter(o=>String(o.dienst||"").trim()).map(({_nieuw,_toon,_bestaand,...o})=>({...o,dienst:String(o.dienst).trim(),prijs:r2(Number(o.prijs)||0),frequentie:o.items?itemsRitme(o):Number(o.frequentie)||52,...(o.ramen?ramenRitmeDatum(o):{})}))}};
   $("#owLog").onclick=async()=>{const v=$o("log").value.trim();if(!v)return;const d=collect();d.log=[...(d.log||[]),{datum:iso(today()),tekst:v}];
     try{await save("klanten",kid,d);toast("Genoteerd");setTimeout(()=>openOpdrachtWerk(kid),60)}catch(er){err(er)}};
   /* opslaan per dienst: alles bewaren en in het werkblad blijven */
