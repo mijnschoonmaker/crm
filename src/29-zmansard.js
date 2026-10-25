@@ -17,11 +17,21 @@ function msBalk(){if(!msTenant()||!MS.doc||window.ZEEM_MEEKIJK)return;const st=m
     :st.soort==="opgezegd"?`<span>Abonnement opgezegd · je kunt Mansard gebruiken tot ${fmtD(st.tot)}</span>${eig?`<button type="button" class="small" data-act="msabo">Toch doorgaan</button>`:""}`:"";
   if(!html){if(el)el.remove();}else{if(!el){el=document.createElement("div");el.id="msBalk";el.className="ms-balk";const m=document.querySelector("main");if(m)m.prepend(el)}el.innerHTML=html}
   let ov=document.getElementById("msDicht");
+  /* nieuwe bedrijven: de proefperiode is de voorbeeldomgeving; de eigen (lege) omgeving gaat open zodra er een abonnement is */
+  if(st.soort==="proef"&&MS.doc.proefDemo){if(!ov){ov=document.createElement("div");ov.id="msDicht";ov.className="ms-dicht";document.body.appendChild(ov)}
+    const dg=Math.max(0,st.dagen),url="/demo/?proef=1&d="+dg;
+    ov.innerHTML=`<div class="ms-dk ms-proef"><img src="/mansard-logo.png" alt="Mansard"><h2>Welkom bij Mansard</h2><p>Je proefperiode loopt nog <b>${plural(dg,"dag","dagen")}</b>. Probeer alles uit in de voorbeeldomgeving, met voorbeeldklanten, planning, offertes en facturen. Daar wordt niets bewaard, dus je kunt niets kapot maken.</p>
+      <a class="btn primary" href="${url}">${I.eye||""}Naar de voorbeeldomgeving</a>
+      <p class="ms-pk">${eig?"Wil je beginnen met je eigen bedrijf? Kies een abonnement, dan kom je meteen in je eigen, lege omgeving. Tijdens de proef betaal je alleen € 0,01 voor de machtiging; de eerste maand gaat pas na je proefperiode af.":"Je eigen omgeving gaat open zodra de eigenaar van je bedrijf een abonnement kiest."}</p>
+      ${eig?`<button type="button" data-act="msabo">${I.card||""}Abonnement kiezen</button>`:""}<button type="button" class="ghost" data-act="msuit">Uitloggen</button></div>`;return}
   if(!st.ok){if(!ov){ov=document.createElement("div");ov.id="msDicht";ov.className="ms-dicht";document.body.appendChild(ov)}
-    ov.innerHTML=`<div class="ms-dk"><img src="/mansard-logo.png" alt="Mansard"><h2>${st.soort==="opgezegd"?"Je abonnement is afgelopen":st.soort==="onbetaald"?"De betaling is niet gelukt":"Je proefperiode is voorbij"}</h2><p>Je gegevens staan veilig klaar. ${st.soort==="onbetaald"?(eig?"Betaal het openstaande bedrag en je kunt direct verder.":"Vraag de eigenaar van je bedrijf om de betaling te regelen."):eig?"Kies een abonnement en je kunt direct verder.":"Vraag de eigenaar van je bedrijf om een abonnement te kiezen."}</p>
+    ov.innerHTML=`<div class="ms-dk"><img src="/mansard-logo.png" alt="Mansard"><h2>${st.soort==="opgezegd"?"Je abonnement is afgelopen":st.soort==="onbetaald"?"De betaling is niet gelukt":"Je proefperiode is voorbij"}</h2><p>${MS.doc.proefDemo&&st.soort==="verlopen"?"Je hebt Mansard kunnen proberen in de voorbeeldomgeving.":"Je gegevens staan veilig klaar."} ${st.soort==="onbetaald"?(eig?"Betaal het openstaande bedrag en je kunt direct verder.":"Vraag de eigenaar van je bedrijf om de betaling te regelen."):eig?"Kies een abonnement en je kunt direct verder.":"Vraag de eigenaar van je bedrijf om een abonnement te kiezen."}</p>
       ${eig?`<button type="button" class="primary" data-act="msabo">${st.soort==="onbetaald"?"Nu betalen":"Abonnement kiezen"}</button>`:""}<button type="button" class="ghost" data-act="msuit">Uitloggen</button></div>`}
   else if(ov)ov.remove()}
-function msStart(){if(!msTenant()||MS.unsub)return;try{MS.unsub=fsDb().doc("bedrijven/"+window.ZEEM_BID).onSnapshot(s=>{MS.doc=s.exists?s.data():{};msBalk()},()=>{})}catch(e){}}
+function msStart(){if(!msTenant()||MS.unsub)return;try{MS.unsub=fsDb().doc("bedrijven/"+window.ZEEM_BID).onSnapshot(s=>{MS.doc=s.exists?s.data():{};msBalk();
+  /* vanuit de voorbeeldomgeving op "Abonnement kiezen" getikt: meteen het abonnementsvenster */
+  if(MS.kies){MS.kies=false;setTimeout(aboDlg,300)}},()=>{})}catch(e){}}
+if(typeof window!=="undefined"&&LIVE&&/[?&]kies-abonnement=1/.test(location.search)){MS.kies=true;try{history.replaceState(null,"",location.pathname+location.hash)}catch(_){}}
 async function aboDlg(){
   const b=MS.doc||{},st=msStatus(),p=b.plan||{prijs:99,inbegrepen:3,extraPrijs:19.95};let n=b.gebruikers||1;
   try{const r=await fbFn("abonnement")({});n=r.data.gebruikers||n}catch(e){}

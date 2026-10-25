@@ -4898,6 +4898,12 @@ html body .leaflet-container .pl-bus img{width:52px!important;max-width:none!imp
 .kp-h .ow-kk[hidden]{display:none}
 /* Communicatie › Templates: knoppen onder elkaar op de telefoon, niets buiten beeld */
 @media (max-width:560px){.tpl-kn{width:100%}.tpl-kn>button{flex:1 1 140px;min-width:0;white-space:normal}}
+/* proefperiode = voorbeeldomgeving */
+.ms-proef .btn.primary{width:100%;justify-content:center}.ms-proef .ms-pk{font-size:13.5px;margin:10px 0 2px!important}
+.pf-balk{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:2147481000;display:flex;align-items:center;gap:12px;max-width:calc(100vw - 24px);padding:10px 10px 10px 16px;border-radius:999px;background:#252c3c;color:#fff;box-shadow:0 14px 34px -12px rgba(15,20,35,.55);font-size:13px}
+.pf-balk span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pf-balk b{font-weight:700}
+.pf-balk a{flex:none;background:#fff;color:#252c3c;text-decoration:none;font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:9px 14px;border-radius:999px}
+@media (max-width:760px){.pf-balk{bottom:calc(84px + env(safe-area-inset-bottom));left:12px;right:12px;transform:none;max-width:none;border-radius:16px}.pf-balk span{white-space:normal}}
 
 </style>
 <style id="mansardThema">
@@ -16260,11 +16266,21 @@ function msBalk(){if(!msTenant()||!MS.doc||window.ZEEM_MEEKIJK)return;const st=m
     :st.soort==="opgezegd"?`<span>Abonnement opgezegd · je kunt Mansard gebruiken tot ${fmtD(st.tot)}</span>${eig?`<button type="button" class="small" data-act="msabo">Toch doorgaan</button>`:""}`:"";
   if(!html){if(el)el.remove();}else{if(!el){el=document.createElement("div");el.id="msBalk";el.className="ms-balk";const m=document.querySelector("main");if(m)m.prepend(el)}el.innerHTML=html}
   let ov=document.getElementById("msDicht");
+  /* nieuwe bedrijven: de proefperiode is de voorbeeldomgeving; de eigen (lege) omgeving gaat open zodra er een abonnement is */
+  if(st.soort==="proef"&&MS.doc.proefDemo){if(!ov){ov=document.createElement("div");ov.id="msDicht";ov.className="ms-dicht";document.body.appendChild(ov)}
+    const dg=Math.max(0,st.dagen),url="/demo/?proef=1&d="+dg;
+    ov.innerHTML=`<div class="ms-dk ms-proef"><img src="/mansard-logo.png" alt="Mansard"><h2>Welkom bij Mansard</h2><p>Je proefperiode loopt nog <b>${plural(dg,"dag","dagen")}</b>. Probeer alles uit in de voorbeeldomgeving, met voorbeeldklanten, planning, offertes en facturen. Daar wordt niets bewaard, dus je kunt niets kapot maken.</p>
+      <a class="btn primary" href="${url}">${I.eye||""}Naar de voorbeeldomgeving</a>
+      <p class="ms-pk">${eig?"Wil je beginnen met je eigen bedrijf? Kies een abonnement, dan kom je meteen in je eigen, lege omgeving. Tijdens de proef betaal je alleen € 0,01 voor de machtiging; de eerste maand gaat pas na je proefperiode af.":"Je eigen omgeving gaat open zodra de eigenaar van je bedrijf een abonnement kiest."}</p>
+      ${eig?`<button type="button" data-act="msabo">${I.card||""}Abonnement kiezen</button>`:""}<button type="button" class="ghost" data-act="msuit">Uitloggen</button></div>`;return}
   if(!st.ok){if(!ov){ov=document.createElement("div");ov.id="msDicht";ov.className="ms-dicht";document.body.appendChild(ov)}
-    ov.innerHTML=`<div class="ms-dk"><img src="/mansard-logo.png" alt="Mansard"><h2>${st.soort==="opgezegd"?"Je abonnement is afgelopen":st.soort==="onbetaald"?"De betaling is niet gelukt":"Je proefperiode is voorbij"}</h2><p>Je gegevens staan veilig klaar. ${st.soort==="onbetaald"?(eig?"Betaal het openstaande bedrag en je kunt direct verder.":"Vraag de eigenaar van je bedrijf om de betaling te regelen."):eig?"Kies een abonnement en je kunt direct verder.":"Vraag de eigenaar van je bedrijf om een abonnement te kiezen."}</p>
+    ov.innerHTML=`<div class="ms-dk"><img src="/mansard-logo.png" alt="Mansard"><h2>${st.soort==="opgezegd"?"Je abonnement is afgelopen":st.soort==="onbetaald"?"De betaling is niet gelukt":"Je proefperiode is voorbij"}</h2><p>${MS.doc.proefDemo&&st.soort==="verlopen"?"Je hebt Mansard kunnen proberen in de voorbeeldomgeving.":"Je gegevens staan veilig klaar."} ${st.soort==="onbetaald"?(eig?"Betaal het openstaande bedrag en je kunt direct verder.":"Vraag de eigenaar van je bedrijf om de betaling te regelen."):eig?"Kies een abonnement en je kunt direct verder.":"Vraag de eigenaar van je bedrijf om een abonnement te kiezen."}</p>
       ${eig?`<button type="button" class="primary" data-act="msabo">${st.soort==="onbetaald"?"Nu betalen":"Abonnement kiezen"}</button>`:""}<button type="button" class="ghost" data-act="msuit">Uitloggen</button></div>`}
   else if(ov)ov.remove()}
-function msStart(){if(!msTenant()||MS.unsub)return;try{MS.unsub=fsDb().doc("bedrijven/"+window.ZEEM_BID).onSnapshot(s=>{MS.doc=s.exists?s.data():{};msBalk()},()=>{})}catch(e){}}
+function msStart(){if(!msTenant()||MS.unsub)return;try{MS.unsub=fsDb().doc("bedrijven/"+window.ZEEM_BID).onSnapshot(s=>{MS.doc=s.exists?s.data():{};msBalk();
+  /* vanuit de voorbeeldomgeving op "Abonnement kiezen" getikt: meteen het abonnementsvenster */
+  if(MS.kies){MS.kies=false;setTimeout(aboDlg,300)}},()=>{})}catch(e){}}
+if(typeof window!=="undefined"&&LIVE&&/[?&]kies-abonnement=1/.test(location.search)){MS.kies=true;try{history.replaceState(null,"",location.pathname+location.hash)}catch(_){}}
 async function aboDlg(){
   const b=MS.doc||{},st=msStatus(),p=b.plan||{prijs:99,inbegrepen:3,extraPrijs:19.95};let n=b.gebruikers||1;
   try{const r=await fbFn("abonnement")({});n=r.data.gebruikers||n}catch(e){}
@@ -16704,6 +16720,16 @@ function tkNieuw(kid){if(!tkOpen)return;if(tkOpen.unsub)tkOpen.unsub();tkOpen.un
       await fsDb().doc("tickets/"+id).set({klantId:k.id,klantNaam:k.naam||"",adres:[k.adres,k.plaats].filter(Boolean).join(", "),nummer:"T-"+tel,onderwerp:ond,categorie:$("#tkNc").value,status:"behandeling",aangemaakt:op,laatst:op,laatsteTekst:tekst,laatsteVan:"team",ongelezenTeam:0,ongelezenKlant:1,gezienTeam:op,bron:"crm"});
       await fsDb().collection("ticketBerichten").doc(newId("tb")).set({ticketId:id,klantId:k.id,van:"team",tekst,foto,op,door:(state.me&&state.me.email)||"",doorNaam:tkNaam()});
       fbFn("ticketMelding")({ticketId:id,basis:location.origin}).catch(()=>{});toast("Ticket T-"+tel+" aangemaakt");setTimeout(()=>tkDetail(id),300)}catch(e){err(e);s.disabled=false}})}
+
+/* ---------- Voorbeeldomgeving tijdens de proefperiode ----------
+   Wie zich aanmeldt, probeert Mansard 30 dagen in de demo (/demo/?proef=1). Een balk onderin zegt dat er niets bewaard wordt
+   en brengt je met "Abonnement kiezen" terug naar je eigen account, waar het abonnementsvenster meteen opent. */
+if(typeof window!=="undefined"&&!LIVE){(()=>{let pf=null;
+  try{const q=new URLSearchParams(location.search);if(q.get("proef")==="1"){pf={d:Number(q.get("d"))||0,op:Date.now()};localStorage.setItem("ms.proef",JSON.stringify(pf))}else pf=JSON.parse(localStorage.getItem("ms.proef")||"null")}catch(e){}
+  if(!pf)return;const dg=Math.max(0,(pf.d||0)-Math.floor((Date.now()-(pf.op||Date.now()))/864e5));
+  const zet=()=>{if(document.getElementById("pfBalk")||!document.body)return;const b=document.createElement("div");b.id="pfBalk";b.className="pf-balk";
+    b.innerHTML=`<span><b>Voorbeeldomgeving</b> · proefperiode nog ${dg} ${dg===1?"dag":"dagen"} · er wordt niets bewaard</span><a href="/?kies-abonnement=1">Abonnement kiezen</a>`;document.body.appendChild(b)};
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",zet);else zet()})()}
 
 /* ---------- relatiecodes (klantnummers) voor SnelStart ----------
    Elke klant krijgt bij het opslaan meteen een vast klantnummer. Nieuwe nummers beginnen nooit lager dan

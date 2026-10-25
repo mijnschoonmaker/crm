@@ -13,7 +13,7 @@ module.exports = ({ rawDb, T, onCall, onRequestRaw, HttpsError, nu, mollie, HOST
     let bid = T.nieuwBid(); for (let i = 0; i < 5 && (await rawDb.doc("bedrijven/" + bid).get()).exists; i++) bid = T.nieuwBid();
     const proefTot = new Date(Date.now() + PLAN.proefDagen * 864e5).toISOString().slice(0, 10);
     const b = rawDb.batch();
-    b.set(rawDb.doc("bedrijven/" + bid), { naam, eigenaar: e, telefoon: tel, plaats, status: "proef", proefTot, plan: PLAN, gebruikers: 1, aangemaakt: nu() });
+    b.set(rawDb.doc("bedrijven/" + bid), { naam, eigenaar: e, telefoon: tel, plaats, status: "proef", proefTot, proefDemo: true, plan: PLAN, gebruikers: 1, aangemaakt: nu() });
     b.set(rawDb.doc("gebruikers/" + e), { bedrijf: bid, rol: "eigenaar", naam: String((req.auth.token && req.auth.token.name) || ""), toegevoegd: nu() });
     b.set(rawDb.doc("bedrijven/" + bid + "/instellingen/bedrijf"), { naam, email: e, telefoon: tel, plaats, btw: 21, incl: true, termijn: 14, liveMail: true, portaalKnop: true, aangemaakt: nu() });
     await b.commit();
