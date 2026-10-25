@@ -304,6 +304,24 @@ def teplannen(pg):
         check(G3, "Wachtrij: afgehandeld haalt hem weg", not r["inKlaar"], r)
         check(G3, "Wachtrij: na 7 dagen komt een nog vervallen factuur terug", r["terug"], r)
 
+    r = pg.evaluate("""()=>{const T=MSTEST;if(!T.volgendeNa)return null;const d=n=>T.iso(T.addDays(T.today(),n));
+      const k={id:'vp1',naam:'Verplaats, Test',gepland:d(3),tijd:'09:00',frequentie:4,autoplan:true,reeks:[{d:d(31),t:'09:00'},{d:d(59),t:'09:00'}]};
+      const alle=T.verplaatsAllePatch(k,d(5),'11:00');
+      const k2={id:'vp2',naam:'Ritme, Test',gepland:d(0),tijd:'08:00',frequentie:4,autoplan:true,eenmalig:{van:d(2),tijd:'10:00'}};
+      const na=T.volgendeNa(k2);
+      const k3={id:'vp3',naam:'Vast, Test',gepland:d(1),tijd:'08:00',weekdagen:[T.addDays(T.today(),1).getDay()]};
+      const al3=T.verplaatsAllePatch(k3,d(2),'08:00');
+      const k4={id:'vp4',naam:'Los, Test',gepland:d(1),tijd:'08:00',frequentie:998};const k5={id:'vp5',naam:'Ritme, Zonder',gepland:d(0),tijd:'08:00',frequentie:4,eenmalig:{van:d(2),tijd:'08:30'}};const na5=T.volgendeNa(k5);
+      return {r0:alle.reeks[0].d===d(33)&&alle.reeks[0].t==='11:00',r1:alle.reeks[1].d===d(61),tijd:alle.tijd==='11:00'&&alle.gepland===d(5)&&alle.eenmalig==='',
+        naTijd:na.tijd,naOk:na.gepland>T.iso(T.today()),naEm:na.eenmalig==='',wd:(al3.weekdagen||[])[0]===T.addDays(T.today(),2).getDay(),v1:T.heeftVervolg(k),v4:T.heeftVervolg(k4),ab5:na5.aanbodVanaf===T.iso(T.addDays(T.today(),30))||na5.aanbodVanaf>T.iso(T.today()),g5:na5.gepland,t5:na5.tijd}}""")
+    if r is not None:
+        G4 = "Afspraak verplaatsen"
+        check(G4, "Alle afspraken: reeks schuift even ver mee met de nieuwe tijd", r["r0"] and r["r1"] and r["tijd"], r)
+        check(G4, "Alleen deze: daarna weer de vaste tijd en het oude ritme", r["naTijd"] == "10:00" and r["naOk"] and r["naEm"], r)
+        check(G4, "Alle afspraken: vaste weekdag schuift mee", r["wd"], r)
+        check(G4, "Vraag alleen bij opdrachten met vervolgafspraken", r["v1"] and not r["v4"], r)
+        check(G4, "Alleen deze, zonder doorplannen: weer aan de beurt volgens het oude ritme", r["ab5"] and r["g5"] == "" and r["t5"] == "08:30", r)
+
 
 def nieuweOpdracht(pg):
     G = "Opdrachten"

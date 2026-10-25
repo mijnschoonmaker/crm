@@ -1,11 +1,11 @@
 /* ---------- ACTIES ---------- */
 async function gewassen(k){
   const _lm=lopendeMin(k),_mp=_lm&&_lm>=1&&!meetTeKort(_lm,duur(k))?metingPatch(k,_lm):null,_last=(k.tijden||[]).slice(-1)[0],_dur=_mp?_lm:_last&&_last.datum===iso(today())?_last.min:duur(k);if(_mp)k={...k,..._mp};
-  const prev={laatst:k.laatst||"",gepland:k.gepland||"",bezig:k.bezig||""},bId=newId("b"),d=iso(today());
+  const prev={laatst:k.laatst||"",gepland:k.gepland||"",bezig:k.bezig||"",tijd:k.tijd||"",reeks:k.reeks||[],eenmalig:k.eenmalig||""},bId=newId("b"),d=iso(today());
   try{
     await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:Number(k.prijs)||0,betaald:false,gefactureerd:"",dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString()});
-    let nx="",_rk=reeksNa(k);if(_rk)nx=_rk.gepland;else if(k.autoplan){const v=ritmeVolgende(k,today());nx=iso(v)}
-    await save("klanten",k.id,{...strip(k),laatst:d,gepland:nx,...(_rk?{tijd:_rk.tijd,reeks:_rk.reeks}:{}),bezig:""});aanbevelingVrijgeven(k.id);
+    const _vn=volgendeNa(k),nx=_vn.gepland;
+    await save("klanten",k.id,{...strip(k),laatst:d,..._vn,bezig:""});aanbevelingVrijgeven(k.id);
     toast(cleanName(k.naam)+" afgerond · "+eur(k.prijs),async()=>{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev})});
   }catch(e){err(e)}
 }
@@ -17,7 +17,7 @@ async function afronden(k,mode,el){
   const _mw=isMw();if(_mw)mode="concept";/* medewerker: altijd concept, kantoor controleert en verstuurt */
   /* afmelden = conceptfactuur (niet versturen) · factureren (veeg naar links) = definitieve factuur én direct naar de klant */
   const direct=mode==="open"&&!_mw;
-  const d=iso(today()),st=S(),bId=newId("b"),fId=newId("f"),prev={laatst:k.laatst||"",gepland:k.gepland||"",bezig:k.bezig||""};
+  const d=iso(today()),st=S(),bId=newId("b"),fId=newId("f"),prev={laatst:k.laatst||"",gepland:k.gepland||"",bezig:k.bezig||"",tijd:k.tijd||"",reeks:k.reeks||[],eenmalig:k.eenmalig||""};
   let _rr=null;try{if(k.ramenRegel&&ramenVariabel(normR(k.ramenRegel))){const {q,due}=ramenDue(k,d),b=ramenBerekening(q,Number(k.frequentie)||4,due),mul=st.incl?1+(Number(st.btw)||21)/100:1;
     _rr={q,due,bedrag:r2(b.ex*mul),regels:[...(b.rows.length?[{omschrijving:(k.dienst||"Glasbewassing")+" "+b.rows.map(r=>r.naam.toLowerCase()).join(", ")+(k.verbergAantal?"":", "+b.count+" ramen")+regelExtra(k),aantal:1,prijs:r2((b.glas+b.start)*mul)}]:[]),...(b.kozP?[{omschrijving:"Kozijnreiniging "+b.krows.map(r=>r.naam.toLowerCase()).join(", "),aantal:1,prijs:r2(b.kozP*mul)}]:[])]}}}catch(e){console.error(e);_rr=null}
   const f={soort:"factuur",nummer:nextNr("factuur",d),klantId:k.id,...(k.beheercode?{beheercode:k.beheercode}:{}),klantNaam:k.naam,klantAdres:factAddr(k),klantEmail:mailK(k,"factuur").email||"",datum:d,
@@ -31,8 +31,8 @@ async function afronden(k,mode,el){
   if(k.nietFactureren&&!isPeriodiek(k)){/* niet factureren: beurt afmelden zonder factuur */
     try{const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed);
       await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),betaald:false,gefactureerd:"nvt",dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString(),...(_vve||{})});
-      let nx="",_rk=reeksNa(k);if(_rk)nx=_rk.gepland;else if(k.autoplan){nx=iso(ritmeVolgende(k,today()))}
-      await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",bevindingen:[],opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,gepland:nx,...(_rk?{tijd:_rk.tijd,reeks:_rk.reeks}:{}),bezig:""});aanbevelingVrijgeven(k.id);
+      const _vn=volgendeNa(k),nx=_vn.gepland;
+      await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",bevindingen:[],opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,bezig:""});aanbevelingVrijgeven(k.id);
       const undo=async()=>{try{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
       feest(k);toast(cleanName(k.naam)+" afgemeld · niet gefactureerd (staat zo bij de opdracht)",[{label:"Ongedaan",fn:undo}])}
     catch(e){if(el){const c=el.querySelector(".swipe-card");if(c)c.style.transform="";el.classList.remove("armed")}err(e)}
@@ -40,8 +40,8 @@ async function afronden(k,mode,el){
   if(isPeriodiek(k)){/* periodieke factuur: beurt afmelden zonder eigen factuur; artikelen gaan mee op de periodieke factuur */
     try{const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed);
       await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),betaald:false,gefactureerd:"periodiek",periodiek:true,dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString(),...(_vve||{})});
-      let nx="",_rk=reeksNa(k);if(_rk)nx=_rk.gepland;else if(k.autoplan){nx=iso(ritmeVolgende(k,today()))}
-      await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,gepland:nx,...(_rk?{tijd:_rk.tijd,reeks:_rk.reeks}:{}),bezig:""});aanbevelingVrijgeven(k.id);
+      const _vn=volgendeNa(k),nx=_vn.gepland;
+      await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,bezig:""});aanbevelingVrijgeven(k.id);
       const undo=async()=>{try{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
       feest(k);toast(cleanName(k.naam)+" afgemeld · gaat mee op de periodieke factuur ("+fmtD(k.periodiek.volgende)+")",[{label:"Ongedaan",fn:undo}])}
     catch(e){if(el){const c=el.querySelector(".swipe-card");if(c)c.style.transform="";el.classList.remove("armed")}err(e)}
@@ -56,8 +56,8 @@ async function afronden(k,mode,el){
     await save("facturen",fId,f);
     const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed);
     await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:r2(f.regels.reduce((a,r)=>a+(Number(r.aantal)||0)*(Number(r.prijs)||0),0)),extra:_ed.map(o=>o.dienst),betaald:f.status==="betaald",gefactureerd:fId,dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString(),...(_vve||{})});
-    let nx="",_rk=reeksNa(k);if(_rk)nx=_rk.gepland;else if(k.autoplan){nx=iso(ritmeVolgende(k,today()))}
-    await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",artikelen:[],bevindingen:[],...(k.opdrachtVerwijderd?{actief:false}:{}),opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,gepland:nx,...(_rk?{tijd:_rk.tijd,reeks:_rk.reeks}:{}),...(_tg||{}),bezig:""});aanbevelingVrijgeven(k.id);
+    const _vn=volgendeNa(k),nx=_vn.gepland;
+    await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",artikelen:[],bevindingen:[],...(k.opdrachtVerwijderd?{actief:false}:{}),opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,...(_tg||{}),bezig:""});aanbevelingVrijgeven(k.id);
     const undo=async()=>{try{await del("facturen",fId);await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
     feest(k);
     if(_mw){toast(cleanName(k.naam)+" afgemeld",[{label:"Ongedaan",fn:undo}]);return}
@@ -83,8 +83,14 @@ async function moveTo(id,date,tijd,force){
   const nw={gepland:date,tijd:!date?"":tijd!==undefined?tijd:(k.tijd||""),...(date?{aanbieden:false}:{})};
   if(date&&!force&&!k.gepland&&typeof ADV!=="undefined"&&ADV.reeks){const r=await openReeks(k,date,nw.tijd);if(!r)return;return reeksOpslaan(k,date,nw.tijd,r)}
   if(prev.gepland===nw.gepland&&prev.tijd===nw.tijd)return;
+  /* een bestaande afspraak verplaatsen van een opdracht met vervolgafspraken: alleen deze, of alle afspraken daarna */
+  let wat="";
+  if(date&&!force&&k.gepland&&heeftVervolg(k)){wat=await vraagVerplaats(k);if(!wat)return;
+    Object.assign(prev,{reeks:k.reeks||[],weekdagen:k.weekdagen||[],eenmalig:k.eenmalig||""});
+    if(wat==="alle")Object.assign(nw,verplaatsAllePatch(k,date,nw.tijd));
+    else{const em=k.eenmalig&&k.eenmalig.van?k.eenmalig:{van:k.gepland,tijd:k.tijd||""};nw.eenmalig=em.van===date&&String(em.tijd||"")===nw.tijd?"":em}}
   let mee="";try{if(date&&typeof glasMeeDag==="function"&&glasMeeDag(k,date)){const ed=extraDue(k,date).map(o=>o.dienst||o.naam).filter(Boolean);if(ed.length)mee=" · "+(k.dienst||"Glasbewassing")+" gaat mee met "+ed.join(" en ").toLowerCase()}}catch(e){}
-  try{await save("klanten",k.id,{...strip(k),...nw});toast(cleanName(k.naam)+(date?" ingepland op "+fmtD(date)+(nw.tijd?" om "+nw.tijd:""):" terug naar te plannen")+mee,()=>save("klanten",k.id,{...strip(k),...prev}))}catch(e){err(e)}
+  try{await save("klanten",k.id,{...strip(k),...nw});toast(cleanName(k.naam)+(date?(wat==="alle"?" en alle afspraken daarna verplaatst · nu ":wat==="deze"?" alleen deze afspraak verplaatst naar ":" ingepland op ")+fmtD(date)+(nw.tijd?" om "+nw.tijd:""):" terug naar te plannen")+mee,()=>save("klanten",k.id,{...strip(k),...prev}))}catch(e){err(e)}
 }
 async function optimize(day){
   /* alle stops van deze dag die nog open staan, ook afspraken die van eerder zijn doorgeschoven */

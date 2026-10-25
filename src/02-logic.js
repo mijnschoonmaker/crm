@@ -36,7 +36,9 @@ function occurrences(k,from,to){
   if(!d)return out;
   const stap=x=>vasteDagen(k)?volgendeWeekdag(k,x):addDays(x,freqDays(k));
   if(d<t){d=stap(t);real=false}
-  let g=0;while(d<=to&&g++<120){if(d>=from)out.push({date:iso(d),real});d=stap(d);real=false}
+  /* alleen deze afspraak verplaatst: de verwachte afspraken daarna volgen het oorspronkelijke ritme */
+  const em=k.eenmalig&&k.eenmalig.van&&!vasteDagen(k)?parse(k.eenmalig.van):null;
+  let g=0;while(d<=to&&g++<120){if(d>=from)out.push({date:iso(d),real});d=real&&em?stap(em):stap(d);real=false}
   return out;
 }
 const overdue=()=>actief().filter(k=>{const p=parse(k.gepland);return p?p<today():volgende(k)<today()});

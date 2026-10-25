@@ -2,6 +2,31 @@
    k.reeks = [{d:"2026-11-09",t:"09:30"},…]  = de afspraken NA k.gepland.
    Na afronden schuift de eerste uit de reeks door naar k.gepland. */
 const RK_IC={n:sv('<path d="M10 6h11M10 12h11M10 18h11"/><path d="M4 6h1v4M4 10h2M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/>'),tot:sv('<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="m9 15.5 2 2 4-4"/>')};
+/* na het afmelden: de volgende afspraak. Was alleen deze afspraak verplaatst (k.eenmalig), dan gaat het ritme verder
+   vanaf de oorspronkelijke datum en geldt weer de vaste tijd. */
+function volgendeNa(k){const em=k.eenmalig&&k.eenmalig.van?k.eenmalig:null,kt=em?String(em.tijd||""):(k.tijd||"");
+  const t=iso(today()),r=(k.reeks||[]).filter(x=>x&&x.d&&x.d>t);
+  if(r.length)return{gepland:r[0].d,tijd:r[0].t||kt,reeks:r.slice(1),eenmalig:""};
+  let nx="",ab="";if(em&&!vasteDagen(k)&&!fqSpec(k.frequentie)){const v=iso(ritmeVolgende(k,parse(em.van)));if(v>t)ab=v}
+  if(k.autoplan)nx=ab||iso(ritmeVolgende(k,today()));
+  /* zonder automatisch doorplannen: weer aan de beurt volgens het oorspronkelijke ritme (Te plannen vanaf die datum) */
+  return{gepland:nx,...(em?{tijd:kt}:{}),...(ab&&!k.autoplan?{aanbodVanaf:ab}:{}),eenmalig:""}}
+/* heeft deze opdracht afspraken na deze? (reeks, vaste weekdagen of automatisch doorplannen) */
+const heeftVervolg=k=>!!((k.reeks||[]).some(x=>x&&x.d&&x.d>(k.gepland||""))||k.autoplan||vasteDagen(k)||(!fqSpec(k.frequentie)&&!k.hoofdKlantId&&k.opdrachtVerwijderd!==true));
+/* alle toekomstige afspraken van de opdracht mee verschuiven: zelfde aantal dagen, en de nieuwe tijd als die is veranderd */
+function verplaatsAllePatch(k,date,tijd){const oud=k.gepland,dd=Math.round((parse(date)-parse(oud))/864e5),tw=tijd!==(k.tijd||"");
+  const reeks=(k.reeks||[]).map(r=>r&&r.d&&r.d>oud?{...r,d:dd?iso(addDays(parse(r.d),dd)):r.d,...(tw?{t:tijd}:{})}:r).sort((a,b)=>String(a&&a.d).localeCompare(String(b&&b.d)));
+  const p={gepland:date,tijd,reeks,eenmalig:""};
+  const vd=vasteDagen(k),wo=parse(oud).getDay(),wn=parse(date).getDay();
+  if(vd&&wo!==wn&&vd.includes(wo))p.weekdagen=[...new Set(vd.map(x=>x===wo?wn:x))].sort();
+  return p}
+/* keuze zoals in DienstenCRM: alleen deze afspraak of ook alle afspraken daarna */
+function vraagVerplaats(k){return new Promise(res=>{
+  const o=document.createElement("div");o.className="vraag-ov";o.innerHTML=`<div class="vraag" role="alertdialog" aria-modal="true"><span class="objic">${I.planning||I.alert}</span><div><b>Verplaatsen</b><p>Wilt u ook alle afspraken in de toekomst die gekoppeld zijn aan deze opdracht verplaatsen?<br><small class="subt">${esc(cleanName(k.naam))}${k.dienst?" · "+esc(k.dienst):""}</small></p></div><div class="vraag-k"><button type="button" data-v="">Annuleren</button><button type="button" data-v="deze">Alleen deze afspraak</button><button type="button" class="primary" data-v="alle">Alle afspraken</button></div></div>`;
+  const d=document.createElement("dialog");d.className="vraag-dlg";d.appendChild(o);document.body.appendChild(d);
+  const done=v=>{try{d.close()}catch(_){}d.remove();res(v||null)};o.addEventListener("click",e=>{const b=e.target.closest("[data-v]");if(b)done(b.dataset.v);else if(e.target===o)done(null)});
+  d.addEventListener("cancel",e=>{e.preventDefault();done(null)});
+  try{d.showModal()}catch(_){d.setAttribute("open","")}setTimeout(()=>{const b=o.querySelector('[data-v="deze"]');if(b)b.focus()},30)})}
 function reeksNa(k){const t=iso(today()),r=(k.reeks||[]).filter(x=>x&&x.d&&x.d>t);if(!r.length)return null;return{gepland:r[0].d,tijd:r[0].t||k.tijd||"",reeks:r.slice(1)}}
 /* datums na de eerste afspraak; altijd gerekend vanaf de startdatum, dus geen verloop door verschuivingen */
 function reeksDatums(start,weken,mode,n,tot){
