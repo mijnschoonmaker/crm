@@ -4589,6 +4589,8 @@ html body .leaflet-container .pl-bus img{width:52px!important;max-width:none!imp
 .kp-h .ow-kk svg{width:14px;height:14px}.kp-h .ow-kk svg:last-child{width:12px;height:12px;opacity:.6}
 .kp-h .ow-kk:hover{border-color:var(--ink);background:var(--surface-2,#f4f4f2)}
 .kp-h .ow-kk[hidden]{display:none}
+/* Communicatie › Templates: knoppen onder elkaar op de telefoon, niets buiten beeld */
+@media (max-width:560px){.tpl-kn{width:100%}.tpl-kn>button{flex:1 1 140px;min-width:0;white-space:normal}}
 
 </style>
 <style id="mansardThema">
@@ -8858,7 +8860,7 @@ function vCommunicatie(){
     <div class="panels" style="margin-bottom:16px"><button type="button" class="featc fx" data-act="mailstijl"><span class="fx-ic">${I.mail}</span><span class="fx-t"><em>Opmaak</em><b>E-mail opmaak</b><small>Klassiek, Modern of Luxe, met je eigen accentkleur</small></span><span class="fx-pil">${esc(stl)}</span>${I.right}</button>
       <button type="button" class="featc fx" data-act="setedit" data-v="review"><span class="fx-ic">${I.spark}</span><span class="fx-t"><em>Automatisch</em><b>Reviewverzoek</b><small>Tekst, wachttijd en reviewlink, verstuurd na een factuur</small></span><span class="fx-pil">${S().reviewLink?"Aan":"Instellen"}</span>${I.right}</button></div>
     <div class="splitrow" style="margin-bottom:14px"><p class="subt" style="margin:0;flex:1 1 300px">Eén kaart per doel. Schakel binnen de kaart tussen <b>E-mail</b> en <b>SMS</b>. Woorden zoals <code>[name.customer]</code> worden per klant ingevuld.</p>
-      <span style="display:flex;gap:8px"><button type="button" data-act="tplstd">${I.copy}Standaard laden</button><button type="button" class="primary" data-act="tplnew">${I.plus}Nieuwe template</button></span></div>`;
+      <span class="tpl-kn" style="display:flex;gap:8px;flex-wrap:wrap;max-width:100%;min-width:0"><button type="button" data-act="tplstd">${I.copy}Standaard laden</button><button type="button" class="primary" data-act="tplnew">${I.plus}Nieuwe template</button></span></div>`;
     if(!keys.length)return html+empty("Geen templates gevonden","Probeer een andere zoekterm.");
     return html+`<div class="tplgrid">${keys.map(k=>{const t=T[k],v=state.tplSide[k]||(t.mail?"email":"sms"),sv=state.sjablonen[k]&&TPL[k];
       const isS=v!=="email",vc=[...new Set(((isS?t.sms||"":(t.onderwerp||"")+(t.mail||""))).match(/\[[a-z0-9_]+\.[a-z_]+\]|\{\w+\}/g)||[])].length,cat=t.cat||TPLGUESS[k]||"Algemeen",cg=CATGRAD[cat]||CATGRAD.Algemeen;
