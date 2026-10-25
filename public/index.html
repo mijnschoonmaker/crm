@@ -12375,7 +12375,8 @@ function openSnelstart(){
 /* ---------- OFFERTE-WERKBLAD: klant links, tekst + rekentool + offerteregels rechts ---------- */
 const OFF_TEKST="Beste [firstname.customer],\n\nHierbij ontvangt u van ons een offerte voor de onderstaande diensten. De prijzen in de offerte zijn de prijzen per keer. Facturatie gebeurt per beurt achteraf.";
 const OFF_LETOP="Onderstaande bedragen zijn inclusief middelen, materialen en voorrijkosten.\nOnze voorwaarden zijn van toepassing.";
-const OFF_VOET="Wij vertrouwen erop u hiermee een passend aanbod te hebben gedaan. Heeft u nog vragen of wilt u een nadere toelichting? Neem dan gerust contact met ons op.\n\nMet vriendelijke groet,\n[name.company]";
+/* geen standaard voettekst onder de offerte; wie er een wil, vult hem zelf in (per offerte of bij Instellingen) */
+const OFF_VOET="";
 const BETAALW=[["bank","Per bank"],["incasso","Automatische incasso"],["contant","Contant"],["pin","PIN"]];
 function openOfferte(opts={}){
   const ex=opts.id?state.facturen.find(x=>x.id===opts.id):null;
