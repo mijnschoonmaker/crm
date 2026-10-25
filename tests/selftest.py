@@ -321,6 +321,10 @@ def teplannen(pg):
         check(G4, "Alle afspraken: vaste weekdag schuift mee", r["wd"], r)
         check(G4, "Vraag alleen bij opdrachten met vervolgafspraken", r["v1"] and not r["v4"], r)
         check(G4, "Alleen deze, zonder doorplannen: weer aan de beurt volgens het oude ritme", r["ab5"] and r["g5"] == "" and r["t5"] == "08:30", r)
+    r = pg.evaluate("""()=>{const T=MSTEST;if(!T.ccAlle)return null;const id='ogtest1';T.state.facturen.push({id,soort:'offerte',nummer:'OFF-T-1',klantNaam:'Test, Getekend',status:'geaccepteerd',akkoordOp:T.iso(T.today()),getekend:{naam:'Test',op:new Date().toISOString()},getekendNieuw:true,regels:[{omschrijving:'Glas',aantal:1,prijs:50}],btw:21,incl:true});
+      const m=T.ccAlle().find(x=>x.key==='og:'+id);T.state.facturen.pop();return {er:!!m,nieuw:!!(m&&m.nieuw),knop:m&&m.go}}""")
+    if r is not None:
+        check("Control Center", "Ondertekende offerte geeft een melding", r["er"] and r["nieuw"] and r["knop"] == "f:ogtest1", r)
 
 
 def nieuweOpdracht(pg):
