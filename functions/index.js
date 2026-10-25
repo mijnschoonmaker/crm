@@ -60,6 +60,8 @@ const { maakOverzichtPdf, eur } = require("./overzicht");
 const HOST = () => { try { return "https://" + (process.env.GCLOUD_PROJECT || JSON.parse(process.env.FIREBASE_CONFIG || "{}").projectId) + ".web.app"; } catch (e) { return ""; } };
 /* datum (jjjj-mm-dd) in Nederlandse tijd: een betaling om 00:30 hoort bij die dag, niet bij gisteren (UTC) */
 const decF = v => Array.isArray(v) ? v.map(decF) : v && typeof v === "object" ? (v.__arr ? v.__arr.map(x => x && x.__a ? x.__a.map(decF) : decF(x)) : Object.fromEntries(Object.entries(v).map(([k, x]) => [k, decF(x)]))) : v;
+const encF = v => Array.isArray(v) ? (v.some(Array.isArray) ? { __arr: v.map(x => Array.isArray(x) ? { __a: x.map(encF) } : encF(x)) } : v.map(encF))
+  : v && typeof v === "object" && !(v instanceof Date) ? Object.fromEntries(Object.entries(v).filter(([, x]) => x !== undefined).map(([k, x]) => [k, encF(x)])) : v;
 const dagNL = (d = new Date()) => new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Amsterdam" }).format(new Date(d));
 const nlDatum = (d = new Date()) => new Intl.DateTimeFormat("nl-NL", { timeZone: "Europe/Amsterdam", day: "2-digit", month: "2-digit", year: "numeric" }).format(d).replace(/\//g, "-");
 const nlTijd = (d = new Date()) => new Intl.DateTimeFormat("nl-NL", { timeZone: "Europe/Amsterdam", hour: "2-digit", minute: "2-digit" }).format(d);
@@ -543,6 +545,24 @@ exports.akkoordInfo = onRequest({ cors: true }, async (req, res) => {
     bedrijf: { naam: b.naam || "", logo: (b.logoMail || b.logo) ? HOST() + "/_blob/" + (b.logoMail || b.logo) : "", telefoon: b.telefoon || "", email: b.email || "" },
     voorwaarden: b.voorwaardenPdf ? HOST() + "/_blob/" + b.voorwaardenPdf : (b.voorwaarden && /^https?:/.test(b.voorwaarden) ? b.voorwaarden : ""), getekend: a.getekend ? { naam: a.getekend.naam, datum: a.getekend.datum } : null });
 });
+/* na een online handtekening: de klant wordt vaste klant met de afspraken uit de offerte en staat bij Te plannen
+   (vanaf de aanboddatum van de offerte). Een klant die al vast is en al een afspraak of aanbod heeft, blijft zoals hij is. */
+async function inplannenNaAkkoord(fd, klantId) {
+  const kid = klantId || fd.klantId; if (!kid) return null;
+  const kref = db.doc("klanten/" + kid), ks = await kref.get(); if (!ks.exists) return null;
+  const k = decF(ks.data()), vandaag = dagNL();
+  if (k.actief !== false && !k.prospect && (k.gepland || k.aanbieden)) return null;
+  const o = fd.opdracht || {}, start = /^\d{4}-\d{2}-\d{2}$/.test(String(fd.start || "")) ? fd.start : vandaag;
+  const fm = fd.facturatie, fact = fm === "periodiek" ? { directFactureren: false, nietFactureren: false } : fm ? { directFactureren: fm === "direct", nietFactureren: fm === "geen" } : {};
+  const prijs = o.prijs != null && o.prijs !== "" ? Number(o.prijs) : Number(k.prijs) || 0, freq = Number(o.frequentie || k.frequentie || 4), duur = Number(o.duur || k.duur || 30);
+  const eu = n => "€ " + (Math.round(n * 100) / 100).toFixed(2).replace(".", ",");
+  const log = [...(Array.isArray(k.log) ? k.log : []), { datum: vandaag, tekst: `Offerte ${fd.nummer || ""} online ondertekend · ${eu(prijs)} per beurt, elke ${freq} weken · staat bij Te plannen${start > vandaag ? " vanaf " + start.split("-").reverse().join("-") : ""}` }];
+  const patch = { prospect: false, opdrachtVerwijderd: false, actief: true, akkoord: true, prijs, frequentie: freq, duur, aanbodVanaf: start, aanbieden: !(start > vandaag), opzegReden: "", log, ...fact };
+  if (k.prospect || k.actief === false) { patch.gepland = ""; patch.tijd = ""; }
+  if (Array.isArray(o.extra) && o.extra.length) patch.opdrachten = [...(Array.isArray(k.opdrachten) ? k.opdrachten : []).filter(x => !x || !x.groep || !o.extra.some(e => e.groep === x.groep)), ...o.extra];
+  await kref.set(encF(patch), { merge: true });
+  return patch;
+}
 exports.akkoordGeven = onRequest({ cors: true, memory: "512MiB", timeoutSeconds: 60 }, async (req, res) => {
   if (req.method !== "POST") { res.status(405).send("POST"); return; }
   const d = typeof req.body === "object" ? req.body : JSON.parse(req.body || "{}");
@@ -563,6 +583,8 @@ exports.akkoordGeven = onRequest({ cors: true, memory: "512MiB", timeoutSeconds:
     await ref.update({ status: "getekend", getekend });
     const f = a.factuurId ? await db.doc("facturen/" + a.factuurId).get() : null;
     if (f && f.exists) await f.ref.set({ status: "geaccepteerd", akkoordOp: dagNL(), getekend, getekendNieuw: true }, { merge: true });
+    /* ondertekend = vaste klant: meteen bij Te plannen (zoals Akkoord en inplannen in het CRM) */
+    if (f && f.exists) try { await inplannenNaAkkoord(decF(f.data()), a.klantId || ""); } catch (e) { console.error("inplannen na akkoord", e); }
     const m = a.model || {}, naar = a.email || "";
     let nummer = "";
     /* vanaf hier is de handtekening opgeslagen: een mislukte bevestigingsmail mag de offerte niet terugzetten op open */
