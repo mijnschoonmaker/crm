@@ -277,6 +277,20 @@ def teplannen(pg):
         check(G2, "Btw: verstuurde factuur wordt niet aangepast", r["oud"] == [None], r)
         check(G2, "Btw: totaal per tarief klopt (incl. prijzen)", r["inc"] == 200 and r["n"] == 2 and abs(r["ex"] - round(100/1.21 + 100/1.09, 2)) < 0.011 and abs(r["b9"] - round(100 - 100/1.09, 2)) < 0.011, r)
         check(G2, "Btw verlegd: alles 0%", r["verl"] == 0, r)
+    # Control Center: cijfers gelijk aan de rest van het CRM, signalen alleen uit echte gegevens
+    r = pg.evaluate("""()=>{const T=MSTEST;if(!T.ccKpis)return null;const K=T.ccKpis(),S=T.ccSignalen();
+      const open=T.state.facturen.filter(f=>f.soort!=='offerte'&&!['concept','betaald','oninbaar'].includes(f.status));
+      const som=Math.round(open.reduce((a,f)=>a+Math.max(0,T.totals(f).inc-(Number(f.deelBetaald)||0)),0)*100)/100;
+      const ach=open.filter(f=>T.fStatus(f)[1]==='Achterstallig').length,sig=S.find(s=>/vervallen/.test(s.t));
+      T.state.klanten.push({id:'cczoek1',naam:'Zoektest, Anna',adres:'Kerkstraat 1',postcode:'9801 AB',plaats:'Zuidhorn'});const z=T.ccZoek('zoektest').concat(T.ccZoek('9801ab'));T.state.klanten.pop();
+      return {kOpen:K.open,som,kAch:K.nAch,ach,sigOk:ach?!!sig&&sig.p==='kritiek':!sig,zoek:z.length,allesGeldig:S.every(s=>s.t&&s.u&&s.go&&s.knop)}}""")
+    if r is not None:
+        G3 = "Control Center"
+        check(G3, "Openstaand bedrag gelijk aan Facturen", abs(r["kOpen"] - r["som"]) < 0.01, r)
+        check(G3, "Aantal vervallen facturen klopt", r["kAch"] == r["ach"], r)
+        check(G3, "Signaal vervallen facturen alleen als ze er zijn (kritiek)", r["sigOk"], r)
+        check(G3, "Elke melding heeft uitleg en een knop", r["allesGeldig"], r)
+        check(G3, "Zoeken vindt klanten (naam en postcode)", r["zoek"] >= 2, r)
 
 
 def nieuweOpdracht(pg):

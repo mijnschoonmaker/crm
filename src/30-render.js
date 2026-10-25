@@ -1,10 +1,10 @@
 /* ---------- RENDER ---------- */
-const VIEWS={vandaag:vRoute,route:vRoute,planning:vPlanning,klanten:vKlanten,communicatie:vCommunicatie,offertes:vOffertes,facturen:vFacturen,boekhouding:vBoekhouding,calculator:vRamen,uitvoering:vUitvoering,inzichten:vInzichten,instellingen:vInstellingen,handleiding:vHandleiding};
+const VIEWS={control:vControl,vandaag:vRoute,route:vRoute,planning:vPlanning,klanten:vKlanten,communicatie:vCommunicatie,offertes:vOffertes,facturen:vFacturen,boekhouding:vBoekhouding,calculator:vRamen,uitvoering:vUitvoering,inzichten:vInzichten,instellingen:vInstellingen,handleiding:vHandleiding};
 function render(){try{warmMailLogo()}catch(e){}
   const late=overdue().length,ach=facturen().filter(f=>fStatus(f)[1]==="Achterstallig").length,mTodo=state.loaded?queues().reduce((a,q)=>a+q.items.length,0):0;
   const st_=S(),B={planning:st_.bolPlanning===false?0:late,facturen:st_.bolFacturen===false?0:ach,communicatie:st_.bolComm===false?0:mTodo,klanten:nieuweAanmeldingen().length,offertes:state.facturen.filter(f=>f.soort==="offerte"&&f.getekendNieuw&&!getekendAfgehandeld(f)).length};
   meldNieuweAanmelding();
-  const badge=t=>t==="offertes"&&B[t]?`<span class="badge nk-b" title="Online ondertekend"><i>${B[t]}</i><em>getekend</em></span>`:t==="klanten"&&B[t]?`<span class="badge nk-b" title="${B[t]===1?"Nieuwe klant aangemeld":B[t]+" nieuwe klanten aangemeld"}"><i>${B[t]}</i><em>nieuw</em></span>`:B[t]?`<span class="badge">${B[t]}</span>`:"";
+  const badge=t=>t==="control"&&iso(today())<"2026-12-15"?`<span class="badge cc-nieuw">Nieuw</span>`:t==="offertes"&&B[t]?`<span class="badge nk-b" title="Online ondertekend"><i>${B[t]}</i><em>getekend</em></span>`:t==="klanten"&&B[t]?`<span class="badge nk-b" title="${B[t]===1?"Nieuwe klant aangemeld":B[t]+" nieuwe klanten aangemeld"}"><i>${B[t]}</i><em>nieuw</em></span>`:B[t]?`<span class="badge">${B[t]}</span>`:"";
   try{nieuwKaart()}catch(e){console.error(e)}
   try{ptKaart()}catch(e){console.error(e)}
   try{tkKaart()}catch(e){console.error(e)}
@@ -13,14 +13,14 @@ function render(){try{warmMailLogo()}catch(e){}
   $(".app").classList.toggle("collapsed",state.collapsed);
   const mw=isMw();document.body.classList.toggle("mw",mw);if(mw&&!MW_TABS.includes(state.tab))state.tab="vandaag";
   $("#sideNav").innerHTML=PAGES.filter(([t])=>!mw||MW_TABS.includes(t)).map(([t,l])=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}" title="${l}">${I[t]}<span class="lbl">${l}</span>${badge(t)}</button>`).join("");
-  const mob=mw?MW_TABS:["vandaag","planning","klanten","facturen"],inMeer=!mob.includes(state.tab),meerB=late*0+mTodo;
-  $("#tabNav").innerHTML=mw?mob.map(t=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}"><i>${I[t]}</i>${PAGES.find(p=>p[0]===t)[1]}</button>`).join(""):mob.map(t=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}"><i>${I[t]}</i>${PAGES.find(p=>p[0]===t)[1]}${badge(t)}</button>`).join("")+`<button type="button" data-act="meer" aria-current="${inMeer}"><i>${I.more}</i>Meer${meerB?`<span class="badge">${meerB}</span>`:""}</button>`;
+  const mob=mw?MW_TABS:["control","vandaag","planning","klanten"],inMeer=!mob.includes(state.tab),meerB=late*0+mTodo;
+  $("#tabNav").innerHTML=mw?mob.map(t=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}"><i>${I[t]}</i>${PAGES.find(p=>p[0]===t)[1]}</button>`).join(""):mob.map(t=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}"><i>${I[t]}</i>${t==="control"?"Overzicht":PAGES.find(p=>p[0]===t)[1]}${t==="control"?"":badge(t)}</button>`).join("")+`<button type="button" data-act="meer" aria-current="${inMeer}"><i>${I.more}</i>Meer${meerB?`<span class="badge">${meerB}</span>`:""}</button>`;
   const nm=(state.me&&state.me.name)||S().naam||"Jouw bedrijf";
   {let lg=S().logo;if(lg){try{localStorage.setItem("ms.lg",lg)}catch(e){}}else if(LIVE){try{lg=localStorage.getItem("ms.lg")||""}catch(e){}}
     const h=new Date().getHours(),fn=state.me&&state.me.name?state.me.name.trim().split(/\s+/)[0]:"",gr=(h<6?"Goedenacht":h<12?"Goedemorgen":h<18?"Goedemiddag":"Goedenavond")+(fn?", "+fn:""),key=lg+"|"+gr;
     if(key!==state._lgShown){state._lgShown=key;document.querySelectorAll(".logo").forEach(el=>{const src="/mansard-logo.png";el.classList.toggle("haslogo",!!src);if(src)el.innerHTML=`<img class="lgimg" src="${esc(src)}" alt="Mansard"><span class="wm lgtxt">${esc(gr)}</span>`})}}
   $("#userCard").innerHTML=`<span class="uav">${esc(initials(nm))}</span><div style="min-width:0"><b>${esc(nm)}</b><small>${esc(S().naam&&state.me&&state.me.name?S().naam:"Mansard · CRM")}</small></div>`;
-  const main=$("main");main.classList.toggle("wide",big()&&(state.tab==="vandaag"||state.tab==="planning"||state.tab==="uitvoering"));
+  const main=$("main");main.classList.toggle("wide",big()&&(state.tab==="control"||state.tab==="vandaag"||state.tab==="planning"||state.tab==="uitvoering"));
   if(!state.loaded&&state.db){$("#view").innerHTML=`<div class="ms-laden" role="status" aria-label="Gegevens laden"><i></i></div>`;return}
   if(state.loaded&&!state._perRun){state._perRun=1;setTimeout(()=>runPeriodiek(true),2500)}
   const ae=document.activeElement,fid=ae&&ae.id&&$("#view").contains(ae)?ae.id:null,pos=fid&&ae.selectionStart;
