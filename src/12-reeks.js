@@ -86,11 +86,11 @@ const rkBadge=x=>`<span class="rk-b" title="Afspraak ${x.r.i} van ${x.r.n} in ee
 function tjobReeks(x,top,height,left,width){const k=x.k,a=jobAddrObj(k),cmp=height<58?" compact":"",dim=pqMatch(k)?"":" faded";
   return `<div class="tjob st-gepland rk-job${dim}${cmp}" data-act="reeksinfo" data-id="${esc(k.id)}" data-d="${esc(k.gepland)}" style="--h:${hue(k.ronde||k.naam)};top:${top}px;height:${height}px;left:calc(${left}% + 3px);width:calc(${width}% - 6px)">
     <div class="tj-top"><button type="button" class="tj-nm" data-act="reeksinfo" data-id="${esc(k.id)}" data-d="${esc(k.gepland)}">${esc(a.adres||cleanName(k.naam))}${a.plaats?", "+esc(a.plaats):""}</button></div>
-    <div class="tj-bot">${dienstHtml(k)}<span class="amt">${eur0(toon(k.prijs))}</span>${rkBadge(x)}</div></div>`}
+    <div class="tj-bot">${dienstHtml(k)}<span class="amt">${eur(toon(k.prijs))}</span>${rkBadge(x)}</div></div>`}
 function reeksCard(x){const k=x.k;
   return `<div class="job rk-job${pqMatch(k)?"":" faded"}" style="--h:${hue(k.ronde||k.naam)}">
     <div class="jn">${k.tijd?`<span class="tm">${esc(k.tijd)}</span>`:""}<button type="button" data-act="reeksinfo" data-id="${esc(k.id)}" data-d="${esc(k.gepland)}">${esc(jobAddrObj(k).adres||cleanName(k.naam))}</button></div>
-    <div class="ja">${esc(cleanName(k.naam))}</div><div class="jf"><span class="amt">${eur0(toon(k.prijs))}</span>${rkBadge(x)}</div></div>`}
+    <div class="ja">${esc(cleanName(k.naam))}</div><div class="jf"><span class="amt">${eur(toon(k.prijs))}</span>${rkBadge(x)}</div></div>`}
 
 function reeksBlok(k){const r=k.reeks||[];
   if(r.length)return `<div class="rk-blok"><span class="rk-bi">${I.refresh}</span><div><b>Reeks · nog ${plural(r.length,"afspraak","afspraken")} na deze</b><small>Volgende: ${esc(rkDag(r[0].d))}${r[0].t?" om "+esc(r[0].t):""} · laatste ${esc(rkDag(r[r.length-1].d))}</small></div><button type="button" class="small" data-act="reeksinfo" data-id="${esc(k.id)}" data-d="${esc(k.gepland)}">Bekijken</button></div>`;
