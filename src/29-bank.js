@@ -198,12 +198,19 @@ function fbCsvLees(txt){
     if(cCD>=0){const x=String(c[cCD]).toLowerCase();if(/^(d|af|debet|debit)/.test(x))v=-Math.abs(v);else if(/^(c|bij|credit)/.test(x))v=Math.abs(v)}
     out.push({datum:dt,bedrag:v,naam:cN>=0?c[cN]:"",iban:cI>=0?c[cI]:"",omschrijving:cO>=0?c[cO]:"",ref:cR>=0?c[cR]:""})}
   return out}
+/* ABN AMRO .TAB-export (zonder kopregel): rekening, munt, datum, beginsaldo, eindsaldo, rentedatum, bedrag, omschrijving */
+function fbAbnTab(txt){const out=[];
+  txt.split(/\r?\n/).forEach(l=>{const c=l.split("\t");if(c.length<8||!/^\d{8}$/.test(c[2].trim()))return;const v=fbNum(c[6]);if(isNaN(v))return;
+    const o=c.slice(7).join(" ").replace(/\s+/g," ").trim(),tag=k=>{const m=o.match(new RegExp("/"+k+"/([^/]*)"));return m?m[1].trim():""},lbl=k=>{const m=o.match(new RegExp(k+":\\s*(.*?)(?=\\s+(?:IBAN|BIC|Naam|Omschrijving|Kenmerk|Machtiging|Incassant):|$)","i"));return m?m[1].trim():""};
+    out.push({datum:fbDatum(c[2].trim()),bedrag:v,naam:tag("NAME")||lbl("Naam"),iban:tag("IBAN")||lbl("IBAN"),omschrijving:tag("REMI")||lbl("Omschrijving")||o,ref:tag("EREF").replace(/^NOTPROVIDED$/,"")||lbl("Kenmerk")})});
+  return out}
 function fbLees(naam,txt){
   const t=txt.trim();
+  if(/^[A-Z]{2}\d{2}[A-Z0-9]{8,30}\t[A-Z]{3}\t\d{8}\t/m.test(t))return fbAbnTab(t);
   if(/^<\?xml|<Document[\s>]/i.test(t)&&/BkToCstmrStmt|Ntry/.test(t))return fbCamt(t);
   if(/^:20:|\n:61:/.test(t)||/:61:\d{6}/.test(t))return fbMt940(t);
   return fbCsvLees(t)}
-function fbKiesBestand(){const i=document.createElement("input");i.type="file";i.accept=".xml,.csv,.txt,.sta,.940,.mt940,.zip";i.multiple=true;
+function fbKiesBestand(){const i=document.createElement("input");i.type="file";i.accept=".xml,.csv,.txt,.tab,.sta,.940,.mt940,.zip";i.multiple=true;
   i.onchange=async()=>{const files=[...i.files];if(!files.length)return;let tx=[],namen=[];
     for(const f of files){try{const l=fbLees(f.name,await f.text());tx=tx.concat(l);namen.push(f.name)}catch(e){toast(f.name+": "+(e.message||"kan ik niet lezen"))}}
     const bij=tx.filter(x=>x.bedrag>0&&x.datum);

@@ -43,7 +43,7 @@ document.addEventListener("click",e=>{
   if(state.pselMode&&state.tab==="planning"&&a==="job"&&id){e.preventDefault();if(state.psel.has(id))state.psel.delete(id);else state.psel.add(id);render();return}
   if(a==="send"){logSend(Number(t.dataset.i),t.dataset.k);return}
   if(t.tagName==="A")return;
-  if(a!=="kmenu"&&a!=="fmenu"&&(state.kmenu||state.fmenu)){state.kmenu=state.fmenu=false;if(!["billall","finalizeall","queue","fexport","import","export"].includes(a))render()}
+  if(a!=="kmenu"&&a!=="fmenu"&&(state.kmenu||state.fmenu)){state.kmenu=state.fmenu=false;if(!["billall","finalizeall","queue","fhmenu","fexport","import","export"].includes(a))render()}
   const n=Number(t.dataset.n);
   switch(a){
     case"tab":go(t.dataset.tab);break;
@@ -133,6 +133,8 @@ document.addEventListener("click",e=>{
     case"snelstart":state.fmenu=false;state.tab="boekhouding";state.btab="boekhouder";state.bhtab="overzichten";render();window.scrollTo({top:0});break;
     /* communicatie */
     case"copymsg":{const r=compose&&compose.recipients[Number(t.dataset.i)];if(r)copy(fill(compose.tekst,r.vars),t);break}
+    case"fhmenu":{const K=fhKlaar();if(K.herinnering.length)fbHerinner(K.herinnering,false);else if(K.wik.length)fbHerinner(K.wik,true);else if(K.likifin.length)fhLikifin(K.likifin);
+      else{const ds=facturen().map(f=>fhVolgende(f)).filter(v=>v&&v.datum&&!v.klaar&&v.soort!=="bijlikifin").map(v=>v.datum).sort();toast(ds[0]?"Vandaag geen herinneringen aan de beurt · eerstvolgende "+fmtD(ds[0]):"Geen openstaande facturen die een herinnering nodig hebben")}break}
     case"queue":{const q=queues().find(x=>x.id===t.dataset.q);if(q&&q.items.length)openCompose({title:q.titel,sjabloon:q.sjabloon||q.id,recipients:q.items,hint:q.hint?esc(q.hint):"",tekst:q.tekst,mail:q.mail,onderwerp:q.onderwerp,kanaal:q.kanaal});else toast(q?"Niets klaar om te versturen":"Zet factuurherinneringen aan bij Instellingen");break}
     case"bulk":{const g=$("#bulkGroup"),tp=$("#bulkTpl");openBulk(g?g.value:"alle",tp?tp.value:"weer");break}
     case"bulktoday":openBulk("vandaag","afspraak");break;

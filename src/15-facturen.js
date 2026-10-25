@@ -19,7 +19,7 @@ function vFacturen(){
       <button type="button" data-act="perlijst">${I.receipt}Periodieke facturen (${state.klanten.filter(isPeriodiek).length})</button>
       <button type="button" data-act="billall" ${ub.length?"":"disabled"}>${I.facturen}Factureer gewassen werk (${ub.length})</button>
       <button type="button" data-act="finalizeall" ${by("Concept").length?"":"disabled"}>${I.check}Alle concepten definitief maken</button>
-      <button type="button" data-act="queue" data-q="aanmaning">${I.bell}Betalingsherinneringen</button>
+      <button type="button" data-act="fhmenu">${I.bell}Betalingsherinneringen</button>
       <button type="button" data-act="fbbankdlg">${I.bank}Bankkoppeling</button>
       <button type="button" data-act="fbupload">${I.upload}Bankbestand uploaden</button>
       ${state.dl?`<button type="button" data-act="snelstart">${I.dl}Exporteer naar SnelStart</button><button type="button" data-act="fexport">${I.dl}Exporteer als CSV</button>`:""}</div>`:""}</div></div></div>

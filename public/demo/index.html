@@ -8979,7 +8979,7 @@ function vFacturen(){
       <button type="button" data-act="perlijst">${I.receipt}Periodieke facturen (${state.klanten.filter(isPeriodiek).length})</button>
       <button type="button" data-act="billall" ${ub.length?"":"disabled"}>${I.facturen}Factureer gewassen werk (${ub.length})</button>
       <button type="button" data-act="finalizeall" ${by("Concept").length?"":"disabled"}>${I.check}Alle concepten definitief maken</button>
-      <button type="button" data-act="queue" data-q="aanmaning">${I.bell}Betalingsherinneringen</button>
+      <button type="button" data-act="fhmenu">${I.bell}Betalingsherinneringen</button>
       <button type="button" data-act="fbbankdlg">${I.bank}Bankkoppeling</button>
       <button type="button" data-act="fbupload">${I.upload}Bankbestand uploaden</button>
       ${state.dl?`<button type="button" data-act="snelstart">${I.dl}Exporteer naar SnelStart</button><button type="button" data-act="fexport">${I.dl}Exporteer als CSV</button>`:""}</div>`:""}</div></div></div>
@@ -14016,12 +14016,19 @@ function fbCsvLees(txt){
     if(cCD>=0){const x=String(c[cCD]).toLowerCase();if(/^(d|af|debet|debit)/.test(x))v=-Math.abs(v);else if(/^(c|bij|credit)/.test(x))v=Math.abs(v)}
     out.push({datum:dt,bedrag:v,naam:cN>=0?c[cN]:"",iban:cI>=0?c[cI]:"",omschrijving:cO>=0?c[cO]:"",ref:cR>=0?c[cR]:""})}
   return out}
+/* ABN AMRO .TAB-export (zonder kopregel): rekening, munt, datum, beginsaldo, eindsaldo, rentedatum, bedrag, omschrijving */
+function fbAbnTab(txt){const out=[];
+  txt.split(/\r?\n/).forEach(l=>{const c=l.split("\t");if(c.length<8||!/^\d{8}$/.test(c[2].trim()))return;const v=fbNum(c[6]);if(isNaN(v))return;
+    const o=c.slice(7).join(" ").replace(/\s+/g," ").trim(),tag=k=>{const m=o.match(new RegExp("/"+k+"/([^/]*)"));return m?m[1].trim():""},lbl=k=>{const m=o.match(new RegExp(k+":\\s*(.*?)(?=\\s+(?:IBAN|BIC|Naam|Omschrijving|Kenmerk|Machtiging|Incassant):|$)","i"));return m?m[1].trim():""};
+    out.push({datum:fbDatum(c[2].trim()),bedrag:v,naam:tag("NAME")||lbl("Naam"),iban:tag("IBAN")||lbl("IBAN"),omschrijving:tag("REMI")||lbl("Omschrijving")||o,ref:tag("EREF").replace(/^NOTPROVIDED$/,"")||lbl("Kenmerk")})});
+  return out}
 function fbLees(naam,txt){
   const t=txt.trim();
+  if(/^[A-Z]{2}\d{2}[A-Z0-9]{8,30}\t[A-Z]{3}\t\d{8}\t/m.test(t))return fbAbnTab(t);
   if(/^<\?xml|<Document[\s>]/i.test(t)&&/BkToCstmrStmt|Ntry/.test(t))return fbCamt(t);
   if(/^:20:|\n:61:/.test(t)||/:61:\d{6}/.test(t))return fbMt940(t);
   return fbCsvLees(t)}
-function fbKiesBestand(){const i=document.createElement("input");i.type="file";i.accept=".xml,.csv,.txt,.sta,.940,.mt940,.zip";i.multiple=true;
+function fbKiesBestand(){const i=document.createElement("input");i.type="file";i.accept=".xml,.csv,.txt,.tab,.sta,.940,.mt940,.zip";i.multiple=true;
   i.onchange=async()=>{const files=[...i.files];if(!files.length)return;let tx=[],namen=[];
     for(const f of files){try{const l=fbLees(f.name,await f.text());tx=tx.concat(l);namen.push(f.name)}catch(e){toast(f.name+": "+(e.message||"kan ik niet lezen"))}}
     const bij=tx.filter(x=>x.bedrag>0&&x.datum);
@@ -16517,7 +16524,7 @@ document.addEventListener("click",e=>{
   if(state.pselMode&&state.tab==="planning"&&a==="job"&&id){e.preventDefault();if(state.psel.has(id))state.psel.delete(id);else state.psel.add(id);render();return}
   if(a==="send"){logSend(Number(t.dataset.i),t.dataset.k);return}
   if(t.tagName==="A")return;
-  if(a!=="kmenu"&&a!=="fmenu"&&(state.kmenu||state.fmenu)){state.kmenu=state.fmenu=false;if(!["billall","finalizeall","queue","fexport","import","export"].includes(a))render()}
+  if(a!=="kmenu"&&a!=="fmenu"&&(state.kmenu||state.fmenu)){state.kmenu=state.fmenu=false;if(!["billall","finalizeall","queue","fhmenu","fexport","import","export"].includes(a))render()}
   const n=Number(t.dataset.n);
   switch(a){
     case"tab":go(t.dataset.tab);break;
@@ -16607,6 +16614,8 @@ document.addEventListener("click",e=>{
     case"snelstart":state.fmenu=false;state.tab="boekhouding";state.btab="boekhouder";state.bhtab="overzichten";render();window.scrollTo({top:0});break;
     /* communicatie */
     case"copymsg":{const r=compose&&compose.recipients[Number(t.dataset.i)];if(r)copy(fill(compose.tekst,r.vars),t);break}
+    case"fhmenu":{const K=fhKlaar();if(K.herinnering.length)fbHerinner(K.herinnering,false);else if(K.wik.length)fbHerinner(K.wik,true);else if(K.likifin.length)fhLikifin(K.likifin);
+      else{const ds=facturen().map(f=>fhVolgende(f)).filter(v=>v&&v.datum&&!v.klaar&&v.soort!=="bijlikifin").map(v=>v.datum).sort();toast(ds[0]?"Vandaag geen herinneringen aan de beurt · eerstvolgende "+fmtD(ds[0]):"Geen openstaande facturen die een herinnering nodig hebben")}break}
     case"queue":{const q=queues().find(x=>x.id===t.dataset.q);if(q&&q.items.length)openCompose({title:q.titel,sjabloon:q.sjabloon||q.id,recipients:q.items,hint:q.hint?esc(q.hint):"",tekst:q.tekst,mail:q.mail,onderwerp:q.onderwerp,kanaal:q.kanaal});else toast(q?"Niets klaar om te versturen":"Zet factuurherinneringen aan bij Instellingen");break}
     case"bulk":{const g=$("#bulkGroup"),tp=$("#bulkTpl");openBulk(g?g.value:"alle",tp?tp.value:"weer");break}
     case"bulktoday":openBulk("vandaag","afspraak");break;
@@ -16888,7 +16897,7 @@ addEventListener("scroll",()=>{const m=document.getElementById("mobOffer");docum
 if(!LIVE&&typeof location!=="undefined"&&/[?&]selftest\b/.test(location.search)){
   window.MSTEST={state,S,save,del,totals,nextNr,nrDelen,wikKosten,fStatus,afronden,gewassen,billAll,setFStatus,iso,today,addDays,newId,strip,render,
     fin,beurtOmzet,klantFilter,extraOpdr,opdrNr:typeof opdrNr==="function"?opdrNr:null,openOpdrachtWerk:typeof openOpdrachtWerk==="function"?openOpdrachtWerk:null,teplannen,fhVolgende:typeof fhVolgende==="function"?fhVolgende:null,fhPoort:typeof fhPoort==="function"?fhPoort:null,groepEditor:typeof groepEditor==="function"?groepEditor:null,melding,stDienstSplit,klantActiefIn,openImport,relVolgende:typeof relVolgende==="function"?relVolgende:null,beurtMin,meetTeKort,wdCijfers:typeof wdCijfers==="function"?wdCijfers:null,kmFmt:typeof kmFmt==="function"?kmFmt:null,kmAfst:typeof kmAfst==="function"?kmAfst:null,saveSettings,
-    teVroeg:typeof teVroeg==="function"?teVroeg:null,invData:typeof invData==="function"?invData:null,bcVast,ccKpis:typeof ccKpis==="function"?ccKpis:null,ccSignalen:typeof ccSignalen==="function"?ccSignalen:null,ccZoek:typeof ccZoek==="function"?ccZoek:null,ccAlle:typeof ccAlle==="function"?ccAlle:null,openFactuurWerk:typeof openFactuurWerk==="function"?openFactuurWerk:null,paperHtml:typeof paperHtml==="function"?paperHtml:null,btwRegel:typeof btwRegel==="function"?btwRegel:null,btwVast:typeof btwVast==="function"?btwVast:null,vveAanDeBeurt:typeof vveAanDeBeurt==="function"?vveAanDeBeurt:null,nrBewaker,msStatus:typeof msStatus==="function"?msStatus:null,MS:typeof MS!=="undefined"?MS:null,
+    teVroeg:typeof teVroeg==="function"?teVroeg:null,fbLees:typeof fbLees==="function"?fbLees:null,bhVerkoopboek:typeof bhVerkoopboek==="function"?bhVerkoopboek:null,invData:typeof invData==="function"?invData:null,bcVast,ccKpis:typeof ccKpis==="function"?ccKpis:null,ccSignalen:typeof ccSignalen==="function"?ccSignalen:null,ccZoek:typeof ccZoek==="function"?ccZoek:null,ccAlle:typeof ccAlle==="function"?ccAlle:null,openFactuurWerk:typeof openFactuurWerk==="function"?openFactuurWerk:null,paperHtml:typeof paperHtml==="function"?paperHtml:null,btwRegel:typeof btwRegel==="function"?btwRegel:null,btwVast:typeof btwVast==="function"?btwVast:null,vveAanDeBeurt:typeof vveAanDeBeurt==="function"?vveAanDeBeurt:null,nrBewaker,msStatus:typeof msStatus==="function"?msStatus:null,MS:typeof MS!=="undefined"?MS:null,
     views:()=>PAGES.map(p=>p[0]),ga:t=>{state.tab=t;render()}};
 }
 
