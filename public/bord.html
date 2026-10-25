@@ -144,7 +144,7 @@ function liveHtml(L){if(!L||!["onderweg","bezig"].includes(L.status))return"";
       ${l.fotos.length?`<div class="fotos">${l.fotos.map(u=>`<img src="${esc(u)}" alt="Opleverfoto" loading="lazy">`).join("")}</div>`:""}${l.notitie?`<p class="not">${esc(l.notitie)}</p>`:""}</section>`:""}
     <section class="kaart"><h2>Volgende schoonmaakbeurt</h2><p class="groot">${volgTxt}</p><p class="sub">${esc(hoofd(d.ritme))}</p></section>
     ${d.bezoeken.length>1?`<section class="kaart"><h2>Eerdere beurten</h2>${d.bezoeken.slice(1).map(x=>`<div class="rij"><div><b>${esc(hoofd(lang(x.datum)))}</b><small>${[x.door?"Door "+esc(x.door):"",x.tijd?"om "+esc(x.tijd):""].filter(Boolean).join(" ")||"Schoongemaakt"}</small></div><span style="color:var(--ok)">${CHK.replace("<svg",'<svg width="18" height="18"')}</span></div>`).join("")}</section>`:""}
-    ${waNr(b.whatsapp||b.telefoon)?`<section class="kaart"><h2>Iets opgevallen?</h2><p class="sub" style="margin-top:4px">Een kapotte lamp, grofvuil of schade in het gebouw? Stuur ons een WhatsApp, wij geven het door aan het bestuur.</p>
+    ${waNr(b.whatsapp||b.telefoon)?`<section class="kaart"><h2>Iets opgevallen?</h2><p class="sub" style="margin-top:4px">Een kapotte lamp of schade in het gebouw? Stuur ons een WhatsApp, wij geven het door aan het bestuur.</p>
       <div class="contact">${waNr(b.whatsapp||b.telefoon)?`<a href="https://wa.me/${waNr(b.whatsapp||b.telefoon)}?text=${encodeURIComponent("Melding "+d.naam+": ")}" target="_blank" rel="noopener">WhatsApp</a>`:""}</div></section>`:""}
     <p class="voet">Dit bord wordt automatisch bijgewerkt door ${esc(b.naam)}.</p>`;
   const url=DEMO?location.origin+"/bord/voorbeeld":location.origin+"/bord/"+t;

@@ -539,7 +539,7 @@ function websiteBody(o){const e=esc,IC={
     <ul class="vve-l"><li><i>${IC.cal}</i><div><b>Vaste weekdagen</b><span>Bijvoorbeeld elke dinsdag en vrijdag, altijd dezelfde schoonmaker.</span></div></li>
       <li><i>${IC.foto}</i><div><b>Logboek met foto's</b><span>Per beurt wat er is gedaan, met opleverfoto en notitie.</span></div></li>
       <li><i>${IC.qr}</i><div><b>Bewonersbord met QR</b><span>Een poster in de hal; bewoners zien live wanneer wij er zijn geweest.</span></div></li>
-      <li><i>${IC.bel}</i><div><b>Meldingen uit het gebouw</b><span>Kapotte lamp, grofvuil of schade: wij melden het met foto aan het bestuur.</span></div></li></ul></div></div></section>
+      <li><i>${IC.bel}</i><div><b>Meldingen uit het gebouw</b><span>Kapotte lamp of schade: wij melden het met foto aan het bestuur.</span></div></li></ul></div></div></section>
 <section id="vragen"><div class="in"><span class="oog">${IC.bel}Veelgestelde vragen</span><h2 class="kop">Goed om <em>te weten</em></h2>
   <div class="faq">${faq.map(([q,a])=>`<details><summary>${e(q)}</summary><p>${e(a)}</p></details>`).join("")}</div></div></section>
 <section id="contact"><div class="in"><div class="blauw contact"><div><h2>Vragen? <em>Wij helpen u graag.</em></h2><p>Stuur een berichtje via WhatsApp of mail. Wij reageren meestal dezelfde dag.</p></div>

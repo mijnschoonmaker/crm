@@ -103,7 +103,7 @@ module.exports = function maakPortaal(ctx) {
   const fStatus = f => f.status === "betaald" ? "betaald" : f.status === "oninbaar" ? "gesloten" : f.verval && f.verval < isoNL() ? "verlopen" : "open";
   const bedrijfInfo = (b, base) => ({ naam: b.naam || "mijnschoonmaker.com", logo: (b.logoMail || b.logo) ? base + "/_blob/" + (b.logoMail || b.logo) : "", telefoon: b.telefoon || "", mobiel: b.mobiel || b.telefoon || "", email: b.email || "", website: b.website || "", iban: b.iban || "", reviewLink: b.reviewLink || "", kleur: b.mailAccent || b.hoofdkleur || "#137a8a",
     voorwaarden: b.voorwaardenPdf ? base + "/_blob/" + b.voorwaardenPdf : "", tijdWeergave: b.portaalTijd || "venster", refAan: b.refAan !== false, refBeloning: b.refBeloning != null && b.refBeloning !== "" ? Number(b.refBeloning) : 20, refWelkom: b.refWelkom != null && b.refWelkom !== "" ? Number(b.refWelkom) : 10, werkStart: b.werkStart || "08:00",
-    credits: { review: 0, beurt: 0, extra: numOf(b.crExtra, 3), aanbevelen: numOf(b.refBeloning, 20), snel: numOf(b.crSnel, 1), jaar: numOf(b.crJaar, 10) } });
+    credits: { review: 0, beurt: 0, extra: numOf(b.crExtra, 3), aanbevelen: numOf(b.refBeloning, 20), snel: numOf(b.crSnel, 0.5), jaar: numOf(b.crJaar, 10) } });
   const numOf = (v, d) => v != null && v !== "" && !isNaN(Number(v)) ? Number(v) : d;
 
   /* ---------- live meekijken: waar rijdt de glazenwasser (alleen voor klanten van vandaag) ---------- */
@@ -197,7 +197,7 @@ module.exports = function maakPortaal(ctx) {
       volgende, verwacht,
       bezoeken: beurten.slice(0, 30).map(x => ({ id: x.id, datum: x.datum, tijd: tijdVan(x), door: vve && b.vveDoor === false ? "" : voornaamVan(String(x.door || "")), dienst: x.dienst || k.dienst || "Glasbewassing", extra: x.extra || [], bedrag: Number(x.bedrag) || 0, beoordeling: x.beoordeling ? { sterren: x.beoordeling.sterren } : null,
         ...(vve ? { taken: Array.isArray(x.taken) ? x.taken.map(t => ({ naam: String(t.naam || ""), ok: !!t.ok })) : [], fotos: (x.fotos || []).map(f => fotoUrl(f.id)).filter(Boolean), notitie: String(x.notitie || "").slice(0, 400) } : {}) })),
-      ...(vve ? { bord: { url: base + "/bord/" + bordToken }, meldingen: meldingenVan(beurten, k) } : {}),
+      ...(vve ? { bord: { url: base + "/bord/" + bordToken }, meldingen: meldingenVan(beurten, k).filter(m => m.categorie !== "vuil") } : {}),
       teBeoordelen: laatsteB && !laatsteB.beoordeling && (Date.now() - new Date(laatsteB.datum + "T12:00:00").getTime()) < 21 * DAG ? { id: laatsteB.id, datum: laatsteB.datum } : null,
       aantalBezoeken: beurten.length,
       documenten: (Array.isArray(k.documenten) ? k.documenten : []).filter(d => d && d.id && d.portaal === true).map(d => ({ naam: String(d.naam || "").slice(0, 120), soort: d.soort || "overig", datum: String(d.datum || "").slice(0, 10), url: fotoUrl(d.id) })).filter(d => d.url),
