@@ -236,7 +236,7 @@ function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActivite
     <section class="cc-card"><div class="cc-ch"><div><b>${I.planning}Voortgang vandaag</b><small>${P.length?`${klaar} van ${P.length} afgemeld${P.some(x=>x.st[0]==="soon")?" · 1 bezig":""}`:"Vandaag geen adressen"}</small></div><button type="button" class="cc-link" data-cc="tab:planning">Bekijk planning${I.right||""}</button></div>${plan}</section>
     <div class="cc-side">
       <section class="cc-card"><div class="cc-ch"><div><b>${I.spark}Snelle acties</b></div></div>
-        <div class="cc-qa">${[["klanten","Nieuwe klant","nieuw:klant","N"],["offertes","Offerte maken","nieuw:offerte","O"],["facturen","Factuur maken","nieuw:factuur","F"],["phone","Klant bellen","bellen","⌘K"],["msg","Bericht sturen","tab:communicatie","C"],["planning","Planning openen","tab:planning","P"]].map(([ic,l,a,kb])=>`<button type="button" data-cc="${a}">${I[ic]}<span>${l}</span><kbd>${kb}</kbd></button>`).join("")}</div></section>
+        <div class="cc-qa">${[["klanten","Nieuwe klant","nieuw:klant","N"],["offertes","Offerte maken","nieuw:offerte","O"],["facturen","Factuur maken","nieuw:factuur","F"],["phone","Klant bellen","kies:bel","B"],["wa","WhatsApp","kies:wa","W"],["planning","Planning openen","tab:planning","P"]].map(([ic,l,a,kb])=>`<button type="button" data-cc="${a}">${I[ic]}<span>${l}</span><kbd>${kb}</kbd></button>`).join("")}</div></section>
       <section class="cc-card"><div class="cc-ch"><div><b>${I.bell}Recente activiteiten</b><small>Afgelopen 30 dagen</small></div></div>${act}</section>
     </div>
   </div>
@@ -264,6 +264,7 @@ function ccActie(a){if(!a)return;const [k,...r]=a.split(":"),v=r.join(":");
   if(k==="f"){const f=state.facturen.find(x=>x.id===v);if(!f)return;return f.soort==="offerte"?openOfferte({id:v}):openFactuur(v)}
   if(k==="tickets")return typeof openTickets==="function"?openTickets():go("communicatie");
   if(k==="nieuw"){if(v==="klant")return openNieuweKlant();if(v==="offerte")return openOfferte();if(v==="factuur")return openFactuurForm()}
+  if(k==="kies")return ccKies(v);
   if(k==="bellen"){const q=document.getElementById("ccQ");if(q){q.focus();q.placeholder="Typ de naam van de klant om te bellen…"}return}
   if(k==="notif"){try{Notification.requestPermission().then(()=>render())}catch(e){}return}
   if(k==="geluid"){const aan=S().ccGeluid===false;saveSettings({ccGeluid:aan},aan?"Geluid staat aan":"Geluid staat uit").then(()=>{if(aan)ccPiep();render()});return}
@@ -297,10 +298,31 @@ document.addEventListener("keydown",e=>{
     if(k==="l"&&L[CC.sel]){e.preventDefault();return ccActie("later:morgen:"+L[CC.sel].key)}
     if(k==="enter"&&L[CC.sel]){e.preventDefault();return ccActie(L[CC.sel].go)}
     if(k==="escape"&&CC.sel>=0){CC.sel=-1;CC.menu="";return render()}
-    const sn={n:"nieuw:klant",o:"nieuw:offerte",f:"nieuw:factuur",p:"tab:planning",c:"tab:communicatie"}[k];if(sn){e.preventDefault();return ccActie(sn)}}
+    const sn={n:"nieuw:klant",o:"nieuw:offerte",f:"nieuw:factuur",p:"tab:planning",c:"tab:communicatie",b:"kies:bel",w:"kies:wa"}[k];if(sn){e.preventDefault();return ccActie(sn)}}
   if(e.target&&e.target.id==="ccQ"){if(e.key==="Escape"){CC.zoek=false;e.target.blur();ccZoekTeken()}
     if(e.key==="Enter"){const f=document.querySelector("#ccZr .cc-zi");if(f){e.preventDefault();CC.zoek=false;ccActie(f.dataset.cc)}}}});
 
 /* live: elke paar seconden de wachtrij nalopen (geluid/melding bij iets nieuws, teller in het tabblad) */
 setInterval(()=>{try{ccLiveCheck()}catch(e){}},5000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&state.tab==="control")setTimeout(ccMarkeerGezien,8000)});
+
+/* ---------- snel bellen of WhatsAppen: één tik op de klant ----------
+   Bovenaan de klanten van vandaag (op routevolgorde), typ om te zoeken in alle klanten met een nummer. */
+function ccKies(modus){const wa=modus==="wa",ti=iso(today());
+  const metNr=k=>!!ccTel(k)&&!k.hoofdKlantId;
+  const vandaag=routeStops(ti).map(x=>x.k).filter(metNr);
+  const rij=k=>{const tel=ccTel(k),href=wa?waLink(tel,""):"tel:"+tel,stop=vandaag.includes(k);
+    return `<a class="cc-kr" href="${esc(href)}"${wa?' target="_blank" rel="noopener"':""} data-kies="1"><span class="cc-kav">${esc(initials(ccNaam(k))||"?")}</span><span class="cc-kt2"><b>${esc(ccNaam(k))}</b><small>${esc([stop&&k.tijd?"Vandaag "+k.tijd:"",[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),k.mobiel||k.telefoon].filter(Boolean).join(" · "))}</small></span><span class="cc-kgo ${wa?"wa":""}">${wa?I.wa:I.phone}</span></a>`};
+  const lijst=q=>{q=String(q||"").trim().toLowerCase();const nq=q.replace(/\s+/g,"");
+    if(!q)return vandaag.length?`<p class="cc-kh">Vandaag op de route</p>${vandaag.map(rij).join("")}`:`<p class="cc-leeg">Typ een naam, adres of nummer.</p>`;
+    const r=state.klanten.filter(metNr).filter(k=>{const h=[k.naam,k.contact,k.adres,k.postcode,k.plaats,k.telefoon,k.mobiel,k.klantnr].map(x=>String(x||"").toLowerCase()).join(" ");return h.includes(q)||h.replace(/\s+/g,"").includes(nq)})
+      .sort((a,b)=>(vandaag.includes(b)?1:0)-(vandaag.includes(a)?1:0)||ccNaam(a).localeCompare(ccNaam(b),"nl")).slice(0,30);
+    return r.length?r.map(rij).join(""):`<p class="cc-leeg">Geen klant met telefoonnummer gevonden voor “${esc(q)}”.</p>`};
+  openDlg(`<div class="dlg-head"><span class="objic big" style="${wa?"background:#25a35a;color:#fff":""}">${wa?I.wa:I.phone}</span><div style="flex:1"><h3>${wa?"WhatsApp naar klant":"Klant bellen"}</h3><div class="subt">Tik op de klant${wa?" om WhatsApp te openen":" om direct te bellen"}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
+    <div class="cc-kz"><span>${I.search}</span><input id="ccKz" type="search" autocomplete="off" placeholder="Naam, adres of nummer…" aria-label="Zoek klant"></div>
+    <div class="cc-kl" id="ccKl">${lijst("")}</div>`);
+  const inp=document.getElementById("ccKz"),L=document.getElementById("ccKl");
+  setTimeout(()=>{try{inp.focus()}catch(e){}},50);
+  inp.addEventListener("input",()=>{L.innerHTML=lijst(inp.value)});
+  inp.addEventListener("keydown",e=>{if(e.key==="Enter"){const a=L.querySelector(".cc-kr");if(a){e.preventDefault();a.click()}}});
+  L.addEventListener("click",e=>{if(e.target.closest("[data-kies]"))setTimeout(()=>{try{dlg.close()}catch(_){}},150)})}
