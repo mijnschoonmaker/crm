@@ -1,8 +1,10 @@
 /* ---------- RENDER ---------- */
 const VIEWS={control:vControl,vandaag:vRoute,route:vRoute,planning:vPlanning,klanten:vKlanten,communicatie:vCommunicatie,offertes:vOffertes,facturen:vFacturen,boekhouding:vBoekhouding,calculator:vRamen,uitvoering:vUitvoering,inzichten:vInzichten,instellingen:vInstellingen,handleiding:vHandleiding};
 function render(){try{warmMailLogo()}catch(e){}
-  const late=overdue().length,ach=facturen().filter(f=>fStatus(f)[1]==="Achterstallig").length,mTodo=state.loaded?queues().reduce((a,q)=>a+q.items.length,0):0;
-  const st_=S(),B={planning:st_.bolPlanning===false?0:late,facturen:st_.bolFacturen===false?0:ach,communicatie:st_.bolComm===false?0:mTodo,klanten:nieuweAanmeldingen().length,offertes:state.facturen.filter(f=>f.soort==="offerte"&&f.getekendNieuw&&!getekendAfgehandeld(f)).length};
+  /* tellers in het menu: wat je in het Control Center op afgehandeld of later hebt gezet, telt niet mee */
+  const af=typeof ccAf==="function"?ccAf:()=>false;
+  const late=overdue().filter(k=>!(k.gepland==null||k.gepland==="")||!af(ccTlKey(k))).length,ach=facturen().filter(f=>fStatus(f)[1]==="Achterstallig"&&!af("fv:"+f.id)).length,mTodo=state.loaded?(typeof wqOpen==="function"?wqOpen():queues().reduce((a,q)=>a+q.items.length,0)):0;
+  const st_=S(),B={planning:st_.bolPlanning===false?0:late,facturen:st_.bolFacturen===false?0:ach,communicatie:st_.bolComm===false?0:mTodo,klanten:nieuweAanmeldingen().filter(k=>!af("nk:"+k.id)).length,offertes:state.facturen.filter(f=>f.soort==="offerte"&&f.getekendNieuw&&!getekendAfgehandeld(f)&&!af("og:"+f.id)).length};
   meldNieuweAanmelding();
   const badge=t=>t==="control"&&iso(today())<"2026-12-15"?`<span class="badge cc-nieuw">Nieuw</span>`:t==="offertes"&&B[t]?`<span class="badge nk-b" title="Online ondertekend"><i>${B[t]}</i><em>getekend</em></span>`:t==="klanten"&&B[t]?`<span class="badge nk-b" title="${B[t]===1?"Nieuwe klant aangemeld":B[t]+" nieuwe klanten aangemeld"}"><i>${B[t]}</i><em>nieuw</em></span>`:B[t]?`<span class="badge">${B[t]}</span>`:"";
   try{nieuwKaart()}catch(e){console.error(e)}

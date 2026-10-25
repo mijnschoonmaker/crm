@@ -38,7 +38,16 @@ function ccVerborgen(key){const st=ccStatus(),nu=new Date(),a=(st.afgehandeld||{
 async function ccZet(key,soort,tot){const st=ccStatus(),af={...(st.afgehandeld||{})},la={...(st.later||{})},grens=Date.now()-60*864e5;
   if(soort==="klaar"){af[key]=new Date().toISOString();delete la[key]}else if(soort==="later"){la[key]=tot;delete af[key]}else{delete af[key];delete la[key]}
   Object.keys(af).forEach(k=>{if(new Date(af[k]).getTime()<grens)delete af[k]});Object.keys(la).forEach(k=>{if(new Date(la[k]).getTime()<Date.now())delete la[k]});
-  const d={afgehandeld:af,later:la};state.ccStatus=d;render();try{await save("instellingen","control",d)}catch(e){err(e)}}
+  const d={afgehandeld:af,later:la};
+  /* berichten in de wachtrij: onthoud welke er stonden toen je het afhandelde, dan telt het menu alleen nieuwe */
+  {const ti=iso(today()),oud=st.wqDag===ti?(st.wqRefs||[]):[];if(key.startsWith("wq:")&&soort){d.wqDag=ti;d.wqRefs=[...new Set([...oud,...wqAlleRefs()])]}else if(oud.length){d.wqDag=ti;d.wqRefs=oud}}
+  state.ccStatus=d;render();try{await save("instellingen","control",d)}catch(e){err(e)}}
+/* ---------- wat in het Control Center is afgehandeld, telt ook elders niet meer mee (menu-tellers) ---------- */
+const wqRef=(q,it)=>q.id+":"+(it.ref||(it.k&&it.k.id)||"");
+function wqAlleRefs(){try{return queues().flatMap(q=>q.items.map(it=>wqRef(q,it)))}catch(e){return[]}}
+function wqOpen(){let r=[];try{r=queues().flatMap(q=>q.items.map(it=>wqRef(q,it)))}catch(e){}const st=ccStatus(),ti=iso(today());if(st.wqDag!==ti){/* eerder afgehandeld (vóór deze telling bestond): dan voor vandaag niets meer */return Object.keys(st.afgehandeld||{}).some(k=>k.startsWith("wq:"+ti))||Object.keys(st.later||{}).some(k=>k.startsWith("wq:")&&new Date(st.later[k])>new Date())?0:r.length}const w=new Set(st.wqRefs||[]);return r.filter(x=>!w.has(x)).length}
+const ccAf=key=>!!(state.ccStatus&&ccVerborgen(key));
+const ccTlKey=k=>{const v=volgende(k);return "tl:"+k.id+":"+(v?iso(v):"")};
 const ccTel=k=>k?String(k.mobiel||k.telefoon||"").replace(/[^\d+]/g,""):"";
 /* "Ik kom eraan": zelfde tekst als op Vandaag (sjabloon Onderweg), met link naar het klantportaal */
 function ccKomEraan(k){const tel=ccTel(k);if(!tel||typeof waLink!=="function")return "";let t="";try{const T=tpls().onderweg||{};t=fill(T.sms||T.tekst||T.mail||"",klantVars(k,today()))}catch(e){}
@@ -77,8 +86,8 @@ function ccAlle(){const s=[],t=today(),ti=iso(t),morgen=ccDag(1);
     add({key:"og:"+f.id,p:"hoog",ic:"offertes",t:`Offerte ${f.nummer} ondertekend · ${eur(totals(f).inc)}`,u:gp?`Eerste beurt staat op ${fmtD(k.gepland)}${k.tijd?" om "+k.tijd:""}.`:"Getekend door "+(f.getekend.naam||"de klant")+". De klant staat bij Te plannen: plan de eerste beurt in.",b:ccNaam(k)||cleanName(f.klantNaam||""),leeftijd:ccDagen(f.akkoordOp||String(f.getekend.op||"").slice(0,10),ti),nieuw:!!f.getekendNieuw,knop:"Open offerte",go:"f:"+f.id,acts:[...(k.id&&!gp?[{l:"Inplannen",ic:"planning",cc:"plan:"+k.id}]:[]),...(k.id?[{l:"Klantkaart",ic:"user",cc:"klant:"+k.id}]:[])]})})}
   nieuweAanmeldingen().forEach(k=>add({key:"nk:"+k.id,p:"normaal",ic:"klanten",t:`Nieuwe aanmelding: ${ccNaam(k)}`,u:"Via de website aangemeld. Bel of mail om de eerste afspraak te maken.",b:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),leeftijd:0,nieuw:true,knop:"Open klant",go:"klant:"+k.id,acts:[bel(k)].filter(Boolean)}));
   /* normaal: berichten in de wachtrij */
-  {let wq=0;try{wq=queues().reduce((a,q)=>a+q.items.length,0)}catch(e){}
-    if(wq)add({key:"wq:"+ti,p:"normaal",ic:"communicatie",t:plural(wq,"bericht klaar","berichten klaar")+" om te versturen",u:"Herinneringen of aankondigingen in de wachtrij van Communicatie.",b:"",leeftijd:0,knop:"Open communicatie",go:"tab:communicatie"})}
+  {const wq=wqOpen();
+    if(wq)add({key:"wq:"+ti+":"+wq,p:"normaal",ic:"communicatie",t:plural(wq,"bericht klaar","berichten klaar")+" om te versturen",u:"Herinneringen of aankondigingen in de wachtrij van Communicatie.",b:"",leeftijd:0,knop:"Open communicatie",go:"tab:communicatie"})}
   /* btw-aangifte */
   {const q=Math.floor(t.getMonth()/3),pq=q===0?4:q,py=q===0?t.getFullYear()-1:t.getFullYear(),dl=qDeadline(py,pq),dd=Math.round((dl-t)/864e5),key=py+"-Q"+pq;
     if(false&&dd>=0&&dd<=21&&!(state.aangiftes||{})[key]&&echteFacturen().some(f=>inRange(f.datum,periodRange(py,"q"+pq))))

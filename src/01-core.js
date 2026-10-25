@@ -14,7 +14,8 @@ const wd=d=>d.toLocaleDateString("nl-NL",{weekday:"short"}).replace(".","");
 const monthName=(y,m)=>new Date(y,m,1).toLocaleDateString("nl-NL",{month:"long",year:"numeric"});
 const r2=n=>Math.round((Number(n)||0)*100)/100;
 const eur=n=>"€ "+(Number(n)||0).toLocaleString("nl-NL",{minimumFractionDigits:2,maximumFractionDigits:2});
-const eur0=n=>"€ "+Math.round(Number(n)||0).toLocaleString("nl-NL");
+/* overal in het CRM het juiste bedrag met centen (vroeger afgerond op hele euro's) */
+const eur0=n=>eur(Math.round((Number(n)||0)*100)/100);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const cleanName=n=>String(n||"").replace(/^Voorbeeld:\s*/,"");
 const initials=n=>{const w=cleanName(n).replace(/^(fam\.?|familie|dhr\.?|mevr\.?)\s+/i,"").split(/\s+/).filter(Boolean);return ((w[0]||"?")[0]+(w.length>1?w[w.length-1][0]:"")).toUpperCase()};

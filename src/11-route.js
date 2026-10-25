@@ -75,7 +75,7 @@ function rvKaart(o){const{stops,done,todo,nx,klaar,mw,verdiend,totaal,restMin,kl
       <span class="rv-finish">${RV_VLAG}</span>
     </div>${rvMapHtml()}${state.rvMap?"":`<small class="rv-tip">Tik op de weg voor de kaart</small>`}</section>`}
 function rvAnim(){const w=document.querySelector(".rv-weg");if(w){requestAnimationFrame(()=>{w.style.setProperty("--v",getComputedStyle(w).getPropertyValue("--p"))});setTimeout(()=>{const r=document.querySelector(".rv.rijdt");r&&r.classList.remove("rijdt")},1900)}
-  const b=document.querySelector(".rv-geld b[data-tel]");if(b){const a=+b.dataset.van,z=+b.dataset.tel;if(z>a){const t0=performance.now(),st=t=>{const k=Math.min(1,(t-t0)/1400),e=1-Math.pow(1-k,3);b.textContent=eur0(Math.round(a+(z-a)*e));if(k<1&&b.isConnected)requestAnimationFrame(st);else b.classList.add("pop")};requestAnimationFrame(st)}}}
+  const b=document.querySelector(".rv-geld b[data-tel]");if(b){const a=+b.dataset.van,z=+b.dataset.tel;if(z>a){const t0=performance.now(),st=t=>{const k=Math.min(1,(t-t0)/1400),e=1-Math.pow(1-k,3);b.textContent=eur0(a+(z-a)*e);if(k<1&&b.isConnected)requestAnimationFrame(st);else b.classList.add("pop")};requestAnimationFrame(st)}}}
 
 /* ---------- reistijd tussen adressen (hemelsbreed × weg-factor, gemiddeld 50 km/u, + 2 min parkeren) ---------- */
 const rtBedrijf=()=>{const st=S();return{id:"_bedrijf",adres:st.adres||"",postcode:st.postcode||"",plaats:st.plaats||""}};

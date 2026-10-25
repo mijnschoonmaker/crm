@@ -6227,7 +6227,8 @@ const wd=d=>d.toLocaleDateString("nl-NL",{weekday:"short"}).replace(".","");
 const monthName=(y,m)=>new Date(y,m,1).toLocaleDateString("nl-NL",{month:"long",year:"numeric"});
 const r2=n=>Math.round((Number(n)||0)*100)/100;
 const eur=n=>"€ "+(Number(n)||0).toLocaleString("nl-NL",{minimumFractionDigits:2,maximumFractionDigits:2});
-const eur0=n=>"€ "+Math.round(Number(n)||0).toLocaleString("nl-NL");
+/* overal in het CRM het juiste bedrag met centen (vroeger afgerond op hele euro's) */
+const eur0=n=>eur(Math.round((Number(n)||0)*100)/100);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const cleanName=n=>String(n||"").replace(/^Voorbeeld:\s*/,"");
 const initials=n=>{const w=cleanName(n).replace(/^(fam\.?|familie|dhr\.?|mevr\.?)\s+/i,"").split(/\s+/).filter(Boolean);return ((w[0]||"?")[0]+(w.length>1?w[w.length-1][0]:"")).toUpperCase()};
@@ -7854,7 +7855,7 @@ function rvKaart(o){const{stops,done,todo,nx,klaar,mw,verdiend,totaal,restMin,kl
       <span class="rv-finish">${RV_VLAG}</span>
     </div>${rvMapHtml()}${state.rvMap?"":`<small class="rv-tip">Tik op de weg voor de kaart</small>`}</section>`}
 function rvAnim(){const w=document.querySelector(".rv-weg");if(w){requestAnimationFrame(()=>{w.style.setProperty("--v",getComputedStyle(w).getPropertyValue("--p"))});setTimeout(()=>{const r=document.querySelector(".rv.rijdt");r&&r.classList.remove("rijdt")},1900)}
-  const b=document.querySelector(".rv-geld b[data-tel]");if(b){const a=+b.dataset.van,z=+b.dataset.tel;if(z>a){const t0=performance.now(),st=t=>{const k=Math.min(1,(t-t0)/1400),e=1-Math.pow(1-k,3);b.textContent=eur0(Math.round(a+(z-a)*e));if(k<1&&b.isConnected)requestAnimationFrame(st);else b.classList.add("pop")};requestAnimationFrame(st)}}}
+  const b=document.querySelector(".rv-geld b[data-tel]");if(b){const a=+b.dataset.van,z=+b.dataset.tel;if(z>a){const t0=performance.now(),st=t=>{const k=Math.min(1,(t-t0)/1400),e=1-Math.pow(1-k,3);b.textContent=eur0(a+(z-a)*e);if(k<1&&b.isConnected)requestAnimationFrame(st);else b.classList.add("pop")};requestAnimationFrame(st)}}}
 
 /* ---------- reistijd tussen adressen (hemelsbreed × weg-factor, gemiddeld 50 km/u, + 2 min parkeren) ---------- */
 const rtBedrijf=()=>{const st=S();return{id:"_bedrijf",adres:st.adres||"",postcode:st.postcode||"",plaats:st.plaats||""}};
@@ -15381,7 +15382,16 @@ function ccVerborgen(key){const st=ccStatus(),nu=new Date(),a=(st.afgehandeld||{
 async function ccZet(key,soort,tot){const st=ccStatus(),af={...(st.afgehandeld||{})},la={...(st.later||{})},grens=Date.now()-60*864e5;
   if(soort==="klaar"){af[key]=new Date().toISOString();delete la[key]}else if(soort==="later"){la[key]=tot;delete af[key]}else{delete af[key];delete la[key]}
   Object.keys(af).forEach(k=>{if(new Date(af[k]).getTime()<grens)delete af[k]});Object.keys(la).forEach(k=>{if(new Date(la[k]).getTime()<Date.now())delete la[k]});
-  const d={afgehandeld:af,later:la};state.ccStatus=d;render();try{await save("instellingen","control",d)}catch(e){err(e)}}
+  const d={afgehandeld:af,later:la};
+  /* berichten in de wachtrij: onthoud welke er stonden toen je het afhandelde, dan telt het menu alleen nieuwe */
+  {const ti=iso(today()),oud=st.wqDag===ti?(st.wqRefs||[]):[];if(key.startsWith("wq:")&&soort){d.wqDag=ti;d.wqRefs=[...new Set([...oud,...wqAlleRefs()])]}else if(oud.length){d.wqDag=ti;d.wqRefs=oud}}
+  state.ccStatus=d;render();try{await save("instellingen","control",d)}catch(e){err(e)}}
+/* ---------- wat in het Control Center is afgehandeld, telt ook elders niet meer mee (menu-tellers) ---------- */
+const wqRef=(q,it)=>q.id+":"+(it.ref||(it.k&&it.k.id)||"");
+function wqAlleRefs(){try{return queues().flatMap(q=>q.items.map(it=>wqRef(q,it)))}catch(e){return[]}}
+function wqOpen(){let r=[];try{r=queues().flatMap(q=>q.items.map(it=>wqRef(q,it)))}catch(e){}const st=ccStatus(),ti=iso(today());if(st.wqDag!==ti){/* eerder afgehandeld (vóór deze telling bestond): dan voor vandaag niets meer */return Object.keys(st.afgehandeld||{}).some(k=>k.startsWith("wq:"+ti))||Object.keys(st.later||{}).some(k=>k.startsWith("wq:")&&new Date(st.later[k])>new Date())?0:r.length}const w=new Set(st.wqRefs||[]);return r.filter(x=>!w.has(x)).length}
+const ccAf=key=>!!(state.ccStatus&&ccVerborgen(key));
+const ccTlKey=k=>{const v=volgende(k);return "tl:"+k.id+":"+(v?iso(v):"")};
 const ccTel=k=>k?String(k.mobiel||k.telefoon||"").replace(/[^\d+]/g,""):"";
 /* "Ik kom eraan": zelfde tekst als op Vandaag (sjabloon Onderweg), met link naar het klantportaal */
 function ccKomEraan(k){const tel=ccTel(k);if(!tel||typeof waLink!=="function")return "";let t="";try{const T=tpls().onderweg||{};t=fill(T.sms||T.tekst||T.mail||"",klantVars(k,today()))}catch(e){}
@@ -15420,8 +15430,8 @@ function ccAlle(){const s=[],t=today(),ti=iso(t),morgen=ccDag(1);
     add({key:"og:"+f.id,p:"hoog",ic:"offertes",t:`Offerte ${f.nummer} ondertekend · ${eur(totals(f).inc)}`,u:gp?`Eerste beurt staat op ${fmtD(k.gepland)}${k.tijd?" om "+k.tijd:""}.`:"Getekend door "+(f.getekend.naam||"de klant")+". De klant staat bij Te plannen: plan de eerste beurt in.",b:ccNaam(k)||cleanName(f.klantNaam||""),leeftijd:ccDagen(f.akkoordOp||String(f.getekend.op||"").slice(0,10),ti),nieuw:!!f.getekendNieuw,knop:"Open offerte",go:"f:"+f.id,acts:[...(k.id&&!gp?[{l:"Inplannen",ic:"planning",cc:"plan:"+k.id}]:[]),...(k.id?[{l:"Klantkaart",ic:"user",cc:"klant:"+k.id}]:[])]})})}
   nieuweAanmeldingen().forEach(k=>add({key:"nk:"+k.id,p:"normaal",ic:"klanten",t:`Nieuwe aanmelding: ${ccNaam(k)}`,u:"Via de website aangemeld. Bel of mail om de eerste afspraak te maken.",b:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),leeftijd:0,nieuw:true,knop:"Open klant",go:"klant:"+k.id,acts:[bel(k)].filter(Boolean)}));
   /* normaal: berichten in de wachtrij */
-  {let wq=0;try{wq=queues().reduce((a,q)=>a+q.items.length,0)}catch(e){}
-    if(wq)add({key:"wq:"+ti,p:"normaal",ic:"communicatie",t:plural(wq,"bericht klaar","berichten klaar")+" om te versturen",u:"Herinneringen of aankondigingen in de wachtrij van Communicatie.",b:"",leeftijd:0,knop:"Open communicatie",go:"tab:communicatie"})}
+  {const wq=wqOpen();
+    if(wq)add({key:"wq:"+ti+":"+wq,p:"normaal",ic:"communicatie",t:plural(wq,"bericht klaar","berichten klaar")+" om te versturen",u:"Herinneringen of aankondigingen in de wachtrij van Communicatie.",b:"",leeftijd:0,knop:"Open communicatie",go:"tab:communicatie"})}
   /* btw-aangifte */
   {const q=Math.floor(t.getMonth()/3),pq=q===0?4:q,py=q===0?t.getFullYear()-1:t.getFullYear(),dl=qDeadline(py,pq),dd=Math.round((dl-t)/864e5),key=py+"-Q"+pq;
     if(false&&dd>=0&&dd<=21&&!(state.aangiftes||{})[key]&&echteFacturen().some(f=>inRange(f.datum,periodRange(py,"q"+pq))))
@@ -16886,8 +16896,10 @@ SETEXTRA.vve=(c,s)=>{const vv=vveKlanten();
 /* ---------- RENDER ---------- */
 const VIEWS={control:vControl,vandaag:vRoute,route:vRoute,planning:vPlanning,klanten:vKlanten,communicatie:vCommunicatie,offertes:vOffertes,facturen:vFacturen,boekhouding:vBoekhouding,calculator:vRamen,uitvoering:vUitvoering,inzichten:vInzichten,instellingen:vInstellingen,handleiding:vHandleiding};
 function render(){try{warmMailLogo()}catch(e){}
-  const late=overdue().length,ach=facturen().filter(f=>fStatus(f)[1]==="Achterstallig").length,mTodo=state.loaded?queues().reduce((a,q)=>a+q.items.length,0):0;
-  const st_=S(),B={planning:st_.bolPlanning===false?0:late,facturen:st_.bolFacturen===false?0:ach,communicatie:st_.bolComm===false?0:mTodo,klanten:nieuweAanmeldingen().length,offertes:state.facturen.filter(f=>f.soort==="offerte"&&f.getekendNieuw&&!getekendAfgehandeld(f)).length};
+  /* tellers in het menu: wat je in het Control Center op afgehandeld of later hebt gezet, telt niet mee */
+  const af=typeof ccAf==="function"?ccAf:()=>false;
+  const late=overdue().filter(k=>!(k.gepland==null||k.gepland==="")||!af(ccTlKey(k))).length,ach=facturen().filter(f=>fStatus(f)[1]==="Achterstallig"&&!af("fv:"+f.id)).length,mTodo=state.loaded?(typeof wqOpen==="function"?wqOpen():queues().reduce((a,q)=>a+q.items.length,0)):0;
+  const st_=S(),B={planning:st_.bolPlanning===false?0:late,facturen:st_.bolFacturen===false?0:ach,communicatie:st_.bolComm===false?0:mTodo,klanten:nieuweAanmeldingen().filter(k=>!af("nk:"+k.id)).length,offertes:state.facturen.filter(f=>f.soort==="offerte"&&f.getekendNieuw&&!getekendAfgehandeld(f)&&!af("og:"+f.id)).length};
   meldNieuweAanmelding();
   const badge=t=>t==="control"&&iso(today())<"2026-12-15"?`<span class="badge cc-nieuw">Nieuw</span>`:t==="offertes"&&B[t]?`<span class="badge nk-b" title="Online ondertekend"><i>${B[t]}</i><em>getekend</em></span>`:t==="klanten"&&B[t]?`<span class="badge nk-b" title="${B[t]===1?"Nieuwe klant aangemeld":B[t]+" nieuwe klanten aangemeld"}"><i>${B[t]}</i><em>nieuw</em></span>`:B[t]?`<span class="badge">${B[t]}</span>`:"";
   try{nieuwKaart()}catch(e){console.error(e)}
@@ -17215,7 +17227,7 @@ addEventListener("scroll",()=>{const m=document.getElementById("mobOffer");docum
 if(!LIVE&&typeof location!=="undefined"&&/[?&]selftest\b/.test(location.search)){
   window.MSTEST={state,S,save,del,totals,nextNr,nrDelen,wikKosten,fStatus,afronden,gewassen,billAll,setFStatus,iso,today,addDays,newId,strip,render,
     fin,beurtOmzet,klantFilter,extraOpdr,opdrNr:typeof opdrNr==="function"?opdrNr:null,openOpdrachtWerk:typeof openOpdrachtWerk==="function"?openOpdrachtWerk:null,teplannen,fhVolgende:typeof fhVolgende==="function"?fhVolgende:null,fhPoort:typeof fhPoort==="function"?fhPoort:null,groepEditor:typeof groepEditor==="function"?groepEditor:null,melding,stDienstSplit,klantActiefIn,openImport,relVolgende:typeof relVolgende==="function"?relVolgende:null,beurtMin,meetTeKort,wdCijfers:typeof wdCijfers==="function"?wdCijfers:null,kmFmt:typeof kmFmt==="function"?kmFmt:null,kmAfst:typeof kmAfst==="function"?kmAfst:null,saveSettings,
-    teVroeg:typeof teVroeg==="function"?teVroeg:null,mailFor:typeof mailFor==="function"?mailFor:null,volgendeNa:typeof volgendeNa==="function"?volgendeNa:null,verplaatsAllePatch:typeof verplaatsAllePatch==="function"?verplaatsAllePatch:null,heeftVervolg:typeof heeftVervolg==="function"?heeftVervolg:null,occurrences:typeof occurrences==="function"?occurrences:null,fbLees:typeof fbLees==="function"?fbLees:null,bhVerkoopboek:typeof bhVerkoopboek==="function"?bhVerkoopboek:null,invData:typeof invData==="function"?invData:null,bcVast,ccKpis:typeof ccKpis==="function"?ccKpis:null,ccSignalen:typeof ccSignalen==="function"?ccSignalen:null,ccZoek:typeof ccZoek==="function"?ccZoek:null,ccAlle:typeof ccAlle==="function"?ccAlle:null,openFactuurWerk:typeof openFactuurWerk==="function"?openFactuurWerk:null,paperHtml:typeof paperHtml==="function"?paperHtml:null,btwRegel:typeof btwRegel==="function"?btwRegel:null,btwVast:typeof btwVast==="function"?btwVast:null,vveAanDeBeurt:typeof vveAanDeBeurt==="function"?vveAanDeBeurt:null,nrBewaker,msStatus:typeof msStatus==="function"?msStatus:null,MS:typeof MS!=="undefined"?MS:null,
+    wqOpen:typeof wqOpen==="function"?wqOpen:null,ccZet:typeof ccZet==="function"?ccZet:null,ccSignalen:typeof ccSignalen==="function"?ccSignalen:null,teVroeg:typeof teVroeg==="function"?teVroeg:null,mailFor:typeof mailFor==="function"?mailFor:null,volgendeNa:typeof volgendeNa==="function"?volgendeNa:null,verplaatsAllePatch:typeof verplaatsAllePatch==="function"?verplaatsAllePatch:null,heeftVervolg:typeof heeftVervolg==="function"?heeftVervolg:null,occurrences:typeof occurrences==="function"?occurrences:null,fbLees:typeof fbLees==="function"?fbLees:null,bhVerkoopboek:typeof bhVerkoopboek==="function"?bhVerkoopboek:null,invData:typeof invData==="function"?invData:null,bcVast,ccKpis:typeof ccKpis==="function"?ccKpis:null,ccSignalen:typeof ccSignalen==="function"?ccSignalen:null,ccZoek:typeof ccZoek==="function"?ccZoek:null,ccAlle:typeof ccAlle==="function"?ccAlle:null,openFactuurWerk:typeof openFactuurWerk==="function"?openFactuurWerk:null,paperHtml:typeof paperHtml==="function"?paperHtml:null,btwRegel:typeof btwRegel==="function"?btwRegel:null,btwVast:typeof btwVast==="function"?btwVast:null,vveAanDeBeurt:typeof vveAanDeBeurt==="function"?vveAanDeBeurt:null,nrBewaker,msStatus:typeof msStatus==="function"?msStatus:null,MS:typeof MS!=="undefined"?MS:null,
     views:()=>PAGES.map(p=>p[0]),ga:t=>{state.tab=t;render()}};
 }
 
