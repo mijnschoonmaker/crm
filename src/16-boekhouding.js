@@ -10,7 +10,11 @@ function barChart(series,labels,opts={}){
   return s+`</svg>`;
 }
 const legend=series=>`<div class="legend">${series.map(s=>`<span><i style="background:${s.c}"></i>${esc(s.n)}</span>`).join("")}</div>`;
-function vBoekhouding(){
+/* Boekhouding = alleen de export naar de boekhouder (SnelStart). De btw-aangifte, inkoopfacturen, cijfers, btw en controle
+   worden niet gebruikt (Mansard is geen boekhoudpakket) en staan niet meer in beeld; de code eronder blijft voor later. */
+function vBoekhouding(){state.btab="boekhouder";
+  return `<div class="pagehead"><div><h1>Boekhouding</h1><p class="lead" style="margin:0">Export naar je boekhouder en SnelStart</p></div></div>`+vBoekhouder()}
+function vBoekhoudingOud(){
   const y=state.bjaar,per=state.bper,rg=periodRange(y,per),F=fin(rg),t=today();
   const years=[...new Set([t.getFullYear(),...state.facturen.map(f=>Number(String(f.datum).slice(0,4))),...state.kosten.map(c=>Number(String(c.datum).slice(0,4)))].filter(Boolean))].sort((a,b)=>b-a);
   const ag=aangifteStatus(),cur=ag[0],dl=Math.round((cur.deadline-t)/DAY),older=ag.slice(1).filter(a=>!a.gedaan&&(a.y===t.getFullYear()||a.q===4));

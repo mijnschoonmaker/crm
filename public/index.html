@@ -9552,7 +9552,11 @@ function barChart(series,labels,opts={}){
   return s+`</svg>`;
 }
 const legend=series=>`<div class="legend">${series.map(s=>`<span><i style="background:${s.c}"></i>${esc(s.n)}</span>`).join("")}</div>`;
-function vBoekhouding(){
+/* Boekhouding = alleen de export naar de boekhouder (SnelStart). De btw-aangifte, inkoopfacturen, cijfers, btw en controle
+   worden niet gebruikt (Mansard is geen boekhoudpakket) en staan niet meer in beeld; de code eronder blijft voor later. */
+function vBoekhouding(){state.btab="boekhouder";
+  return `<div class="pagehead"><div><h1>Boekhouding</h1><p class="lead" style="margin:0">Export naar je boekhouder en SnelStart</p></div></div>`+vBoekhouder()}
+function vBoekhoudingOud(){
   const y=state.bjaar,per=state.bper,rg=periodRange(y,per),F=fin(rg),t=today();
   const years=[...new Set([t.getFullYear(),...state.facturen.map(f=>Number(String(f.datum).slice(0,4))),...state.kosten.map(c=>Number(String(c.datum).slice(0,4)))].filter(Boolean))].sort((a,b)=>b-a);
   const ag=aangifteStatus(),cur=ag[0],dl=Math.round((cur.deadline-t)/DAY),older=ag.slice(1).filter(a=>!a.gedaan&&(a.y===t.getFullYear()||a.q===4));
@@ -15417,7 +15421,7 @@ function ccAlle(){const s=[],t=today(),ti=iso(t),morgen=ccDag(1);
     if(wq)add({key:"wq:"+ti,p:"normaal",ic:"communicatie",t:plural(wq,"bericht klaar","berichten klaar")+" om te versturen",u:"Herinneringen of aankondigingen in de wachtrij van Communicatie.",b:"",leeftijd:0,knop:"Open communicatie",go:"tab:communicatie"})}
   /* btw-aangifte */
   {const q=Math.floor(t.getMonth()/3),pq=q===0?4:q,py=q===0?t.getFullYear()-1:t.getFullYear(),dl=qDeadline(py,pq),dd=Math.round((dl-t)/864e5),key=py+"-Q"+pq;
-    if(dd>=0&&dd<=21&&!(state.aangiftes||{})[key]&&echteFacturen().some(f=>inRange(f.datum,periodRange(py,"q"+pq))))
+    if(false&&dd>=0&&dd<=21&&!(state.aangiftes||{})[key]&&echteFacturen().some(f=>inRange(f.datum,periodRange(py,"q"+pq))))
       add({key:"btw:"+key,p:dd<=7?"hoog":"laag",ic:"bank",t:`Btw-aangifte Q${pq} ${py} nog indienen`,u:`Uiterlijk ${longD(dl)}, nog ${plural(dd,"dag","dagen")}. De bedragen staan klaar in Boekhouding.`,b:"",leeftijd:0,knop:"Open boekhouding",go:"tab:boekhouding"})}
   /* laag: kans op herhaalopdracht */
   {const jaar=iso(addDays(t,-365)),n={};state.beurten.forEach(b=>{if(b.datum>=jaar)n[b.klantId]=(n[b.klantId]||0)+1});

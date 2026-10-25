@@ -81,7 +81,7 @@ function ccAlle(){const s=[],t=today(),ti=iso(t),morgen=ccDag(1);
     if(wq)add({key:"wq:"+ti,p:"normaal",ic:"communicatie",t:plural(wq,"bericht klaar","berichten klaar")+" om te versturen",u:"Herinneringen of aankondigingen in de wachtrij van Communicatie.",b:"",leeftijd:0,knop:"Open communicatie",go:"tab:communicatie"})}
   /* btw-aangifte */
   {const q=Math.floor(t.getMonth()/3),pq=q===0?4:q,py=q===0?t.getFullYear()-1:t.getFullYear(),dl=qDeadline(py,pq),dd=Math.round((dl-t)/864e5),key=py+"-Q"+pq;
-    if(dd>=0&&dd<=21&&!(state.aangiftes||{})[key]&&echteFacturen().some(f=>inRange(f.datum,periodRange(py,"q"+pq))))
+    if(false&&dd>=0&&dd<=21&&!(state.aangiftes||{})[key]&&echteFacturen().some(f=>inRange(f.datum,periodRange(py,"q"+pq))))
       add({key:"btw:"+key,p:dd<=7?"hoog":"laag",ic:"bank",t:`Btw-aangifte Q${pq} ${py} nog indienen`,u:`Uiterlijk ${longD(dl)}, nog ${plural(dd,"dag","dagen")}. De bedragen staan klaar in Boekhouding.`,b:"",leeftijd:0,knop:"Open boekhouding",go:"tab:boekhouding"})}
   /* laag: kans op herhaalopdracht */
   {const jaar=iso(addDays(t,-365)),n={};state.beurten.forEach(b=>{if(b.datum>=jaar)n[b.klantId]=(n[b.klantId]||0)+1});
