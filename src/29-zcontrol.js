@@ -115,7 +115,7 @@ function ccMarkeerGezien(){if(state.tab!=="control"||document.hidden)return;cons
 /* ---------- planning vandaag (zelfde lijst als Vandaag) ---------- */
 /* voortgang van vandaag: afgemeld (door wie, hoe laat), bezig (sinds wanneer), volgende, gepland. Geen "te laat" uit het ritme. */
 function ccPlanning(){const ti=iso(today()),hm=x=>{const d=new Date(x);return isNaN(d)?"":String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")};let volgendeGezet=false;
-  const R=routeStops(ti),laatst=Math.max(-1,...R.map((x,i)=>x.done||x.k.bezig?i:-1));
+  const R=typeof rvStopFilter==="function"&&state.tab==="control"?rvStopFilter(routeStops(ti)):routeStops(ti),laatst=Math.max(-1,...R.map((x,i)=>x.done||x.k.bezig?i:-1));
   return R.map(({k,done},i)=>{let st,info="";
     if(done){const b=state.beurten.filter(x=>x.klantId===k.id&&x.datum===ti).sort((a,c)=>String(c.op||"").localeCompare(String(a.op||"")))[0]||{};
       st=["ok","Afgerond"];info=["Afgemeld"+(b.door?" door "+String(b.door).split(/[\s@]/)[0]:"")+(b.op?" om "+hm(b.op):""),b.duur?Math.round(b.duur)+" min":"",b.bedrag?eur(b.bedrag):""].filter(Boolean).join(" · ")}
@@ -123,7 +123,7 @@ function ccPlanning(){const ti=iso(today()),hm=x=>{const d=new Date(x);return is
     else if(i<laatst){st=["open","Niet afgemeld"];info="Overgeslagen of nog niet afgemeld"}
     else if(!volgendeGezet){volgendeGezet=true;st=["next","Volgende"];info=k.gepland&&k.gepland<ti?"Doorgeschoven van "+fmtD(k.gepland):"Hierna aan de beurt"}
     else{st=["neutral","Gepland"];info=k.gepland&&k.gepland<ti?"Doorgeschoven van "+fmtD(k.gepland):""}
-    return {k,tijd:k.tijd||"",st,info,dienst:k.dienst||"Glasbewassing"}})}
+    return {k,i,tijd:k.tijd||"",st,info,dienst:k.dienst||"Glasbewassing"}})}
 
 /* ---------- recente activiteiten, samengesteld uit bestaande gegevens (niets wordt extra geregistreerd) ---------- */
 function ccActiviteit(){const ev=[],grens=iso(addDays(today(),-30)),d10=s=>String(s||"").slice(0,10),tijd=(s,fb)=>{const m=String(s||"").match(/T(\d{2}:\d{2})/);return m?m[1]:fb||""};
@@ -204,7 +204,7 @@ function ccNuDoenHtml(){const L=ccNuDoen();if(!L.length){const v=ccVolgende();re
   return `<div class="cc-nu"><span class="cc-nl"><i></i>Nu doen</span>${L.map(x=>`<div class="cc-nuit"><span>${I[x.ic]||""}</span><button type="button" data-cc="${esc(x.go)}"><b>${esc(x.t)}</b>${x.s?`<small>${esc(x.s)}</small>`:""}</button>${x.kom?`<a class="cc-ab pr" href="${esc(x.kom)}" target="_blank" rel="noopener">${I.wa||I.send}Kom eraan</a>`:""}</div>`).join("")}</div>`}
 function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActiviteit(),R=ccPrestaties(),t=today();
   /* vandaag in cijfers: verdiend (afgemelde beurten), volgende stop en verwachte eindtijd van de route */
-  const D=(()=>{const ti=iso(t),om=state.beurten.filter(b=>b.datum===ti).reduce((a,b)=>a+(Number(b.bedrag)||0),0),open=P.filter(x=>x.st[1]!=="Afgerond");
+  const D=(()=>{const ti=iso(t),om=state.beurten.filter(b=>b.datum===ti&&(!(typeof plSel==="function"&&plSel())||P.some(x=>x.k.id===b.klantId))).reduce((a,b)=>a+(Number(b.bedrag)||0),0),open=P.filter(x=>x.st[1]!=="Afgerond");
     const nm=new Date().getHours()*60+new Date().getMinutes(),vl=open.find(x=>toMin(x.tijd)!=null&&toMin(x.tijd)>=nm-30)||open[0];
     const laatste=[...open].reverse().find(x=>toMin(x.tijd)!=null);let eind="";if(laatste){const m=toMin(laatste.tijd)+(Number(typeof duur==="function"?duur(laatste.k):30)||30);eind=String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0")}
     return {omzet:om,volgende:vl?[vl.tijd,ccNaam(vl.k)].filter(Boolean).join(" · "):"",eind}})();
@@ -212,7 +212,7 @@ function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActivite
   const kpi=(ic,cls,l,v,sub,subCls,act)=>`<button type="button" class="cc-kpi" data-cc="${act}"><span class="cc-ki ${cls}">${I[ic]}</span><span class="cc-kt"><small>${l}</small><b>${v}</b><em class="${subCls||""}">${sub}</em></span></button>`;
   const sig=ccWachtrijHtml(S_);
   const nu=P.filter(x=>!x.st||x.st[1]!=="Afgerond").length,klaar=P.length-nu;
-  const plan=P.length?`<div class="cc-voortgang"><span style="width:${P.length?Math.round(klaar/P.length*100):0}%"></span></div><ul class="cc-plan">${P.map(x=>`<li class="st-${x.st[0]}"><span class="cc-pt">${esc(x.tijd||"—")}</span><button type="button" class="cc-pk" data-cc="klant:${esc(x.k.id)}"><b>${esc(x.dienst)}</b> · ${esc(ccNaam(x.k))}<small>${esc([jobAddrObj(x.k).adres,x.k.plaats].filter(Boolean).join(", "))}</small>${x.info?`<em class="cc-pinfo ${x.st[0]}">${esc(x.info)}</em>`:""}</button><span class="cc-pst ${x.st[0]}">${x.st[0]==="ok"?I.check:x.st[0]==="soon"?'<i class="cc-puls"></i>':""}${x.st[1]}</span></li>`).join("")}</ul>`
+  const plan=P.length?`<div class="cc-voortgang"><span style="width:${P.length?Math.round(klaar/P.length*100):0}%"></span></div><ul class="cc-plan">${P.map(x=>`<li class="st-${x.st[0]}"><span class="cc-pt">${esc(x.tijd||"—")}</span><button type="button" class="cc-pk" data-cc="klant:${esc(x.k.id)}"><b>${esc(x.dienst)}</b> · ${esc(ccNaam(x.k))}<small>${esc([jobAddrObj(x.k).adres,x.k.plaats].filter(Boolean).join(", "))}</small>${x.info?`<em class="cc-pinfo ${x.st[0]}">${esc(x.info)}</em>`:""}</button>${typeof plWieHtml==="function"?plWieHtml(x.k,x.i,P.length):""}<span class="cc-pst ${x.st[0]}">${x.st[0]==="ok"?I.check:x.st[0]==="soon"?'<i class="cc-puls"></i>':""}${x.st[1]}</span></li>`).join("")}</ul>`
     :`<p class="cc-leeg">Vandaag staat er niets op de planning.</p>`;
   const act=A.length?`<ul class="cc-act">${A.map(e=>`<li><span class="cc-at">${esc(e.lbl)}</span><span class="cc-ai ${e.kl}">${I[e.ic]||I.check}</span><button type="button" data-cc="${esc(e.act)}"><b>${esc(e.t)}</b><small>${esc(e.s)}</small></button></li>`).join("")}</ul>`
     :`<p class="cc-leeg">Nog geen activiteit in de afgelopen 30 dagen.</p>`;
@@ -227,13 +227,14 @@ function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActivite
   ${ccNuDoenHtml()}
   <div class="cc-ops">
     <section class="cc-card cc-live"><div class="cc-ch"><div><b>${I.map}Live operatie · vandaag</b><small>${esc(longD(t))}</small></div><button type="button" class="cc-link" data-cc="tab:vandaag">Naar Vandaag${I.right||""}</button></div>
-      <div class="cc-dagstat">${[["Adressen",P.length],["Klaar",klaar],["Nog te gaan",nu],["Verdiend vandaag",eur0(D.omzet)],["Verwacht klaar",D.eind||"—"]].map(([l,v])=>`<div><small>${l}</small><b>${v}</b></div>`).join("")}</div>
+      <div class="cc-dagstat">${[[typeof plSel==="function"&&plSel()?"Adressen "+esc(plSel()):"Adressen",P.length],["Klaar",klaar],["Nog te gaan",nu],["Verdiend vandaag",eur0(D.omzet)],["Verwacht klaar",D.eind||"—"]].map(([l,v])=>`<div><small>${l}</small><b>${v}</b></div>`).join("")}</div>
       <div class="cc-map"><div class="rv-map" id="rvMap"><div class="rv-map-l">Kaart laden…</div></div></div>
       <div class="cc-leg"><span><i class="af"></i>Afgerond</span><span><i class="nu"></i>Volgende</span><span><i></i>Gepland</span><span><i class="bus"></i>Bus (live)</span>${D.volgende?`<span class="cc-vlg">Volgende: <b>${esc(D.volgende)}</b></span>`:""}</div></section>
     <section class="cc-adv" id="ccAdv"><div class="cc-ah"><span class="cc-aic">${I.spark}</span><div><b>Meldingen · MANSARD adviseert</b><small>${S_.length?`Nog ${S_.length} open · van boven naar beneden afwerken`:"Alles is afgehandeld"}</small></div>${S_.length?`<span class="cc-cnt">${S_.length}</span>`:""}</div><div class="cc-q">${sig}</div></section>
   </div>
+  ${typeof plRijHtml==="function"?plRijHtml():""}
   <div class="cc-dagrij">
-    <section class="cc-card"><div class="cc-ch"><div><b>${I.planning}Voortgang vandaag</b><small>${P.length?`${klaar} van ${P.length} afgemeld${P.some(x=>x.st[0]==="soon")?" · 1 bezig":""}`:"Vandaag geen adressen"}</small></div><button type="button" class="cc-link" data-cc="tab:planning">Bekijk planning${I.right||""}</button></div>${plan}</section>
+    <section class="cc-card"><div class="cc-ch"><div><b>${I.planning}Voortgang vandaag${typeof plSel==="function"&&plSel()?" · "+esc(plSel()):""}</b><small>${P.length?`${klaar} van ${P.length} afgemeld${P.some(x=>x.st[0]==="soon")?" · 1 bezig":""}`:"Vandaag geen adressen"}</small></div><button type="button" class="cc-link" data-cc="tab:planning">Bekijk planning${I.right||""}</button></div>${plan}</section>
     <div class="cc-side">
       <section class="cc-card"><div class="cc-ch"><div><b>${I.spark}Snelle acties</b></div></div>
         <div class="cc-qa">${[["klanten","Nieuwe klant","nieuw:klant","N"],["offertes","Offerte maken","nieuw:offerte","O"],["facturen","Factuur maken","nieuw:factuur","F"],["phone","Klant bellen","kies:bel","B"],["wa","WhatsApp","kies:wa","W"],["planning","Planning openen","tab:planning","P"]].map(([ic,l,a,kb])=>`<button type="button" data-cc="${a}">${I[ic]}<span>${l}</span><kbd>${kb}</kbd></button>`).join("")}</div></section>
@@ -282,6 +283,7 @@ function ccActie(a){if(!a)return;const [k,...r]=a.split(":"),v=r.join(":");
   if(k==="verborgen"){CC.toonVerborgen=!CC.toonVerborgen;return render()}
   if(k==="tijd"){const kl=ccKlant(v),inp=document.getElementById("ccT_"+v),tv=inp&&inp.value;if(!kl||!tv){if(inp)inp.focus();return}
     return save("klanten",kl.id,{...strip(kl),tijd:tv}).then(()=>toast("Tijd opgeslagen: "+tv)).catch(err)}
+  if(k==="mw"&&typeof plKies==="function")return plKies(v);
   if(k==="naar"){const el=document.getElementById(v);if(el)el.scrollIntoView({behavior:"smooth",block:"start"})}}
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-cc]");
   if(!b||!b.closest(".cc")){if(CC.zoek&&!(e.target.closest&&e.target.closest(".cc-zoek"))){CC.zoek=false;ccZoekTeken()}return}

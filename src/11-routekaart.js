@@ -3,7 +3,7 @@ state.rvMap=(()=>{try{return localStorage.getItem("ms.rvmap")==="1"}catch(e){ret
 function rvMapHtml(){return state.rvMap?`<div class="rv-map" id="rvMap"><div class="rv-map-l">Kaart laden…</div></div>`:""}
 function rvMapToggle(){state.rvMap=!state.rvMap;try{localStorage.setItem("ms.rvmap",state.rvMap?"1":"0")}catch(e){}render()}
 async function rvMapTeken(){const el=document.getElementById("rvMap");if(!el||!state.rvMap||typeof pkLaadLeaflet!=="function")return;
-  const day=state.routeDay||iso(today()),stops=routeStops(day),bk=rtBedrijf();
+  const day=state.routeDay||iso(today()),stops=typeof rvStopFilter==="function"?rvStopFilter(routeStops(day)):routeStops(day),bk=rtBedrijf();
   const lijst=[...stops.map(s=>s.k),...(pkHeeftAdres(bk)?[bk]:[])];
   if(pkOpen(lijst).length){try{await pkGeocode(lijst)}catch(e){}}
   try{await pkLaadLeaflet()}catch(e){el.innerHTML='<div class="rv-map-l">Kaart niet beschikbaar</div>';return}
@@ -12,11 +12,11 @@ async function rvMapTeken(){const el=document.getElementById("rvMap");if(!el||!s
   const m=el._map;el._laag.clearLayers();const pts=[];let nx=stops.find(s=>!s.done);
   const lijn=[];
   stops.forEach((s,i)=>{const c=pkCoord(s.k);if(!c)return;pts.push(c);lijn.push(c);const nu=nx&&s.k.id===nx.k.id;
-    L.marker(c,{icon:L.divIcon({className:"rvm",html:`<i class="${s.done?"af":nu?"nu":""}">${s.done?"✓":i+1}</i>`,iconSize:nu?[30,30]:[24,24],iconAnchor:nu?[15,15]:[12,12]}),zIndexOffset:nu?500:s.done?0:100})
+    L.marker(c,{icon:L.divIcon({className:"rvm",html:`<i class="${s.done?"af":nu?"nu":""}"${(()=>{const kc=typeof rvStopKleur==="function"&&rvStopKleur(s.k);return kc?` style="box-shadow:0 0 0 3px ${kc}"`:""})()}>${s.done?"✓":i+1}</i>`,iconSize:nu?[30,30]:[24,24],iconAnchor:nu?[15,15]:[12,12]}),zIndexOffset:nu?500:s.done?0:100})
       .bindTooltip(`${esc(jobAddrObj(s.k).adres||cleanName(s.k.naam))}${s.k.tijd?" · "+esc(s.k.tijd):""}`).addTo(el._laag)});
   if(lijn.length>1)L.polyline(lijn,{color:"#137a8a",weight:3,opacity:.55,dashArray:"6 8"}).addTo(el._laag);
   const lo=pkHeeftAdres(bk)&&pkCoord(bk);if(lo){pts.push(lo);L.marker(lo,{icon:L.divIcon({className:"rvm",html:`<i class="loods">${I.truck||"L"}</i>`,iconSize:[26,26],iconAnchor:[13,13]})}).bindTooltip("Loods").addTo(el._laag)}
-  el._bus=null;cancelAnimationFrame(RVB.anim);rvEigenStart();const mp=rvEigenPos(),ik=mp&&[mp.lat,mp.lng];if(ik){pts.push(ik);rvMapLive()}
+  el._bus=null;cancelAnimationFrame(RVB.anim);const ploeg=typeof rvPloeg==="function"&&rvPloeg(el,pts);if(!ploeg)rvEigenStart();const mp=ploeg?null:rvEigenPos(),ik=mp&&[mp.lat,mp.lng];if(ploeg){}else if(ik){pts.push(ik);rvMapLive()}
   else if(!LIVE&&day===iso(today())&&!nx){const eind=lo||[...stops].reverse().map(s=>pkCoord(s.k)).find(Boolean);if(eind){el._demoF=eind;rvMapLive(eind)}}
   else if(!LIVE&&day===iso(today())&&nx){/* demo: laat het busje onderweg zien naar de volgende stop */
     const vi=stops.indexOf(nx),vorig=[...stops.slice(0,vi)].reverse().map(s=>pkCoord(s.k)).find(Boolean)||lo,naar=pkCoord(nx.k);
@@ -84,7 +84,7 @@ async function rvDemoRit(a,b){const el=document.getElementById("rvMap");if(!el||
     rvBusZet(el,o.p);rvBusRicht(el,o.a,o.b,t<.01);RVB.anim=requestAnimationFrame(stap)};RVB.anim=requestAnimationFrame(stap)}
 /* eigen positie op de kaart, ook als Live delen uit staat (alleen op dit toestel, gaat niet naar klanten) */
 const RVP={watch:null,pos:null};
-function rvEigenPos(){return RVP.pos||(typeof LV!=="undefined"&&LV.pos)||null}
+function rvEigenPos(){const pb=typeof plBusPos==="function"?plBusPos():undefined;if(pb!==undefined)return pb;return RVP.pos||(typeof LV!=="undefined"&&LV.pos)||null}
 function rvEigenStart(){if(!LIVE||RVP.watch!=null||!navigator.geolocation)return;
   RVP.watch=navigator.geolocation.watchPosition(p=>{
     if(!document.getElementById("rvMap")){navigator.geolocation.clearWatch(RVP.watch);RVP.watch=null;return}

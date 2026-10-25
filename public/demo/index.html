@@ -4563,6 +4563,27 @@ td.fb-cb:hover .fb-box{border-color:var(--brand);transform:scale(1.06)}
 .cc-kav{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#eceef2;color:#252c3c;font-weight:600;font-size:13px}
 .cc-kt2{flex:1;min-width:0}.cc-kt2 b{display:block;font-weight:600;font-size:15px}.cc-kt2 small{display:block;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cc-kgo{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:#252c3c}.cc-kgo svg{width:18px;height:18px;stroke:#fff;color:#fff}.cc-kgo.wa{background:#25a35a}
+/* Control Center · meerdere bussen */
+.cc-plan li:has(.pl-tag),.cc-plan li:has(.pl-sel){grid-template-columns:52px minmax(0,1fr) auto auto}
+.pl-rij{padding:14px 16px}
+.pl-kop{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px}.pl-kop b{display:inline-flex;align-items:center;gap:7px;font-size:15px}.pl-kop b svg{width:17px;height:17px}.pl-kop small{color:#6b7480;font-size:12.5px}
+.pl-chips{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 4px;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+.pl-chip{flex:0 0 auto;display:flex;align-items:center;gap:10px;min-width:200px;max-width:280px;padding:9px 12px 9px 9px;border:1.5px solid var(--cc-line,#e3e7ec);border-radius:14px;background:#fff;cursor:pointer;text-align:left;font:inherit;color:inherit;transition:border-color .15s,box-shadow .15s,background .15s}
+.pl-chip:hover{border-color:color-mix(in srgb,var(--pk) 45%,#fff)}
+.cc .pl-chip.on{border-color:#252c3c;background:#252c3c;color:#fff;box-shadow:0 0 0 3px color-mix(in srgb,var(--pk) 30%,transparent)}.cc .pl-chip.on .pl-tx small{color:rgba(255,255,255,.72)}.cc .pl-chip.on .pl-tel{background:rgba(255,255,255,.16);color:#fff}.cc .pl-chip.on .pl-av{box-shadow:0 0 0 2px #252c3c,0 0 0 4px var(--pk)}
+.pl-av{position:relative;flex:0 0 36px;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--pk);color:#fff;font-weight:700;font-size:15px}.pl-av svg{width:18px;height:18px}
+.pl-puls{position:absolute;right:-1px;bottom:-1px;width:11px;height:11px;border-radius:50%;background:#22a55a;border:2px solid #fff;animation:plp 1.6s infinite}
+@keyframes plp{0%{box-shadow:0 0 0 0 rgba(34,165,90,.55)}70%{box-shadow:0 0 0 7px rgba(34,165,90,0)}100%{box-shadow:0 0 0 0 rgba(34,165,90,0)}}
+.pl-tx{min-width:0;flex:1;display:flex;flex-direction:column}.pl-tx b{font-size:14px}.pl-tx small{font-size:12px;color:#6b7480;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl-chip.st-ok .pl-tx small{color:#1f8a4c}.pl-chip.st-soon .pl-tx small{color:#b26a12}
+.pl-tel{font-size:12.5px;font-weight:700;color:#3a4250;background:#f1f3f6;border-radius:99px;padding:3px 8px;font-variant-numeric:tabular-nums}
+.pl-tag{display:inline-block;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:99px;color:var(--pk);background:color-mix(in srgb,var(--pk) 12%,#fff);white-space:nowrap}
+.pl-sel{font:inherit;font-size:12px;padding:4px 6px;border:1px dashed #b8c0cb;border-radius:8px;background:#fff;color:#4a5260;max-width:110px}
+.pl-bus{background:none!important;border:0!important;width:0!important;height:0!important;overflow:visible!important}
+.pl-bus span{position:absolute;left:-26px;top:-22px;display:flex;flex-direction:column;align-items:center;width:52px;cursor:pointer}
+html body .leaflet-container .pl-bus img{width:52px!important;max-width:none!important;height:auto!important;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))}
+.pl-bus b{margin-top:1px;font-size:11px;font-weight:700;color:#fff;background:var(--pk);padding:1px 7px;border-radius:99px;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+@media(max-width:760px){.pl-chip{min-width:0;max-width:220px;padding:7px 10px 7px 7px;gap:8px}.pl-av{flex-basis:30px;width:30px;height:30px;font-size:13px}.pl-tx small{max-width:120px}.pl-kop small{display:none}.cc-plan li:has(.pl-tag),.cc-plan li:has(.pl-sel){grid-template-columns:52px minmax(0,1fr) auto}.cc-plan li .pl-tag,.cc-plan li .pl-sel{grid-column:2;grid-row:2;justify-self:start;margin-top:-4px}}
 
 </style>
 <style id="mansardThema">
@@ -6581,7 +6602,7 @@ async function startJob(k){
   const lokaal=patch=>{const i=state.klanten.findIndex(x=>x.id===k.id);if(i>=0){state.klanten[i]={...state.klanten[i],...patch};schedule()}};
   /* de dag is begonnen: live delen gaat vanzelf aan, zodat de klant van vandaag kan zien dat je eraan komt (één keer vraagt de telefoon om je locatie) */
   if(on&&typeof LIVE!=="undefined"&&LIVE&&typeof wdLive==="function"&&!(state.liveDelen&&typeof LV!=="undefined"&&LV.watch!=null)&&!(wdGet(iso(today()))||{}).liveUit)try{wdLive(true)}catch(e){}
-  try{if(on){const ts=new Date().toISOString();lokaal({bezig:ts});setTimeout(()=>{const b=document.querySelector(".bs-timer");if(b){b.classList.remove("bt-flash");void b.offsetWidth;b.classList.add("bt-flash")}},80);toast("Tijd loopt bij "+cleanName(k.naam));await save("klanten",k.id,{...strip(k),bezig:ts});return}
+  try{if(on){const ts=new Date().toISOString();lokaal({bezig:ts,bezigDoor:doorNaam()});setTimeout(()=>{const b=document.querySelector(".bs-timer");if(b){b.classList.remove("bt-flash");void b.offsetWidth;b.classList.add("bt-flash")}},80);toast("Tijd loopt bij "+cleanName(k.naam));await save("klanten",k.id,{...strip(k),bezig:ts,bezigDoor:doorNaam()});return}
     /* stoppen = klaar: tijd vastleggen en meteen afmelden (conceptfactuur, of zoals bij de opdracht ingesteld) */
     await afronden(k,"concept");}catch(e){err(e)}
 }
@@ -7546,7 +7567,7 @@ state.rvMap=(()=>{try{return localStorage.getItem("ms.rvmap")==="1"}catch(e){ret
 function rvMapHtml(){return state.rvMap?`<div class="rv-map" id="rvMap"><div class="rv-map-l">Kaart laden…</div></div>`:""}
 function rvMapToggle(){state.rvMap=!state.rvMap;try{localStorage.setItem("ms.rvmap",state.rvMap?"1":"0")}catch(e){}render()}
 async function rvMapTeken(){const el=document.getElementById("rvMap");if(!el||!state.rvMap||typeof pkLaadLeaflet!=="function")return;
-  const day=state.routeDay||iso(today()),stops=routeStops(day),bk=rtBedrijf();
+  const day=state.routeDay||iso(today()),stops=typeof rvStopFilter==="function"?rvStopFilter(routeStops(day)):routeStops(day),bk=rtBedrijf();
   const lijst=[...stops.map(s=>s.k),...(pkHeeftAdres(bk)?[bk]:[])];
   if(pkOpen(lijst).length){try{await pkGeocode(lijst)}catch(e){}}
   try{await pkLaadLeaflet()}catch(e){el.innerHTML='<div class="rv-map-l">Kaart niet beschikbaar</div>';return}
@@ -7555,11 +7576,11 @@ async function rvMapTeken(){const el=document.getElementById("rvMap");if(!el||!s
   const m=el._map;el._laag.clearLayers();const pts=[];let nx=stops.find(s=>!s.done);
   const lijn=[];
   stops.forEach((s,i)=>{const c=pkCoord(s.k);if(!c)return;pts.push(c);lijn.push(c);const nu=nx&&s.k.id===nx.k.id;
-    L.marker(c,{icon:L.divIcon({className:"rvm",html:`<i class="${s.done?"af":nu?"nu":""}">${s.done?"✓":i+1}</i>`,iconSize:nu?[30,30]:[24,24],iconAnchor:nu?[15,15]:[12,12]}),zIndexOffset:nu?500:s.done?0:100})
+    L.marker(c,{icon:L.divIcon({className:"rvm",html:`<i class="${s.done?"af":nu?"nu":""}"${(()=>{const kc=typeof rvStopKleur==="function"&&rvStopKleur(s.k);return kc?` style="box-shadow:0 0 0 3px ${kc}"`:""})()}>${s.done?"✓":i+1}</i>`,iconSize:nu?[30,30]:[24,24],iconAnchor:nu?[15,15]:[12,12]}),zIndexOffset:nu?500:s.done?0:100})
       .bindTooltip(`${esc(jobAddrObj(s.k).adres||cleanName(s.k.naam))}${s.k.tijd?" · "+esc(s.k.tijd):""}`).addTo(el._laag)});
   if(lijn.length>1)L.polyline(lijn,{color:"#137a8a",weight:3,opacity:.55,dashArray:"6 8"}).addTo(el._laag);
   const lo=pkHeeftAdres(bk)&&pkCoord(bk);if(lo){pts.push(lo);L.marker(lo,{icon:L.divIcon({className:"rvm",html:`<i class="loods">${I.truck||"L"}</i>`,iconSize:[26,26],iconAnchor:[13,13]})}).bindTooltip("Loods").addTo(el._laag)}
-  el._bus=null;cancelAnimationFrame(RVB.anim);rvEigenStart();const mp=rvEigenPos(),ik=mp&&[mp.lat,mp.lng];if(ik){pts.push(ik);rvMapLive()}
+  el._bus=null;cancelAnimationFrame(RVB.anim);const ploeg=typeof rvPloeg==="function"&&rvPloeg(el,pts);if(!ploeg)rvEigenStart();const mp=ploeg?null:rvEigenPos(),ik=mp&&[mp.lat,mp.lng];if(ploeg){}else if(ik){pts.push(ik);rvMapLive()}
   else if(!LIVE&&day===iso(today())&&!nx){const eind=lo||[...stops].reverse().map(s=>pkCoord(s.k)).find(Boolean);if(eind){el._demoF=eind;rvMapLive(eind)}}
   else if(!LIVE&&day===iso(today())&&nx){/* demo: laat het busje onderweg zien naar de volgende stop */
     const vi=stops.indexOf(nx),vorig=[...stops.slice(0,vi)].reverse().map(s=>pkCoord(s.k)).find(Boolean)||lo,naar=pkCoord(nx.k);
@@ -7627,7 +7648,7 @@ async function rvDemoRit(a,b){const el=document.getElementById("rvMap");if(!el||
     rvBusZet(el,o.p);rvBusRicht(el,o.a,o.b,t<.01);RVB.anim=requestAnimationFrame(stap)};RVB.anim=requestAnimationFrame(stap)}
 /* eigen positie op de kaart, ook als Live delen uit staat (alleen op dit toestel, gaat niet naar klanten) */
 const RVP={watch:null,pos:null};
-function rvEigenPos(){return RVP.pos||(typeof LV!=="undefined"&&LV.pos)||null}
+function rvEigenPos(){const pb=typeof plBusPos==="function"?plBusPos():undefined;if(pb!==undefined)return pb;return RVP.pos||(typeof LV!=="undefined"&&LV.pos)||null}
 function rvEigenStart(){if(!LIVE||RVP.watch!=null||!navigator.geolocation)return;
   RVP.watch=navigator.geolocation.watchPosition(p=>{
     if(!document.getElementById("rvMap")){navigator.geolocation.clearWatch(RVP.watch);RVP.watch=null;return}
@@ -11749,7 +11770,7 @@ if(GAL_KAART&&typeof SETCARDS!=="undefined"){const at=SETCARDS.findIndex(c=>c.id
 
 /* ---------- HANDLEIDING ---------- */
 const HELP=[
-  ["control","Control Center (startscherm)",[["Wat zie ik hier?","Het Control Center is je cockpit: bovenaan omzet deze maand, openstaande facturen, actieve opdrachten en nieuwe aanvragen. Daaronder MANSARD adviseert, de live kaart van vandaag, je planning, bedrijfsprestaties, snelle acties en recente activiteiten. Alles komt uit je eigen gegevens; er wordt niets verzonnen en niets opgeslagen."],["MANSARD adviseert","Signalen op urgentie: vervallen facturen en mislukte incasso's (kritiek), offertes die al een week wachten, klanten die aan de beurt zijn maar niet ingepland, afspraken zonder tijd en conceptfacturen (hoog), tickets en aanmeldingen (normaal), btw-aangifte en kansen op herhaalopdrachten (laag). Elke melding heeft een knop naar de juiste plek. Is alles in orde, dan staat er Alles op orde."],["Zoeken (⌘K of Ctrl K)","Druk overal op ⌘K (Mac) of Ctrl K om te zoeken op naam, adres, postcode, telefoon, e-mail, klant-, offerte- of factuurnummer. Enter opent het eerste resultaat. Bij klanten met een nummer staat een belknop."],["Werken als een meldkamer","Elke melding gaat over één ding (factuur, offerte, klant, ticket) en heeft knoppen om direct te handelen: Herinnering, Bellen, Inplannen, Opnieuw sturen, of een tijd invullen. Klaar? Klik Afgehandeld. Nu even niet? Later: over 1 uur, vanmiddag, morgen of volgende week. Afgehandelde vervallen facturen, wachtende offertes en te late klanten komen na 7 dagen terug als ze nog steeds spelen. Onderaan kun je afgehandelde meldingen terugzetten."],["Nu doen","De balk bovenaan toont alleen wat binnen een uur aandacht vraagt: de volgende afspraak (met knop Kom eraan via WhatsApp), een nieuw bericht van een klant of een incasso die vandaag mislukte. Anders staat er Niets dringends."],["Sneltoetsen","1 t/m 9 selecteert een melding, E = afgehandeld, L = later (morgen), Enter = openen, Esc = loslaten. N nieuwe klant, O offerte, F factuur, P planning, C communicatie, B klant bellen, W WhatsApp, ⌘K of Ctrl K zoeken."],["Geluid en meldingen","Bij een nieuwe melding (ticket, aanmelding, mislukte incasso, vervallen factuur) hoor je een signaal; zet het uit met het luidsprekertje. Met Meldingen aan krijg je ook een melding van je computer als het tabblad niet open staat. In de tab van je browser staat het aantal open meldingen. Het weer komt van Open-Meteo voor de plaats uit je bedrijfsgegevens."]]],
+  ["control","Control Center (startscherm)",[["Meerdere bussen","Rijden er vandaag twee of meer mensen, dan staat onder de kaart de rij Onderweg vandaag met hun namen. Tik op een naam: de kaart toont waar die rijdt en alleen zijn adressen, en de voortgang eronder telt alleen zijn adressen. Iedereen laat alle bussen tegelijk zien, elk met zijn eigen kleur. Wie welk adres doet volgt uit wie het afmeldt of start; een adres dat nog niet is ingedeeld deel je in met Wie? bij de voortgang. De klant ziet in zijn portaal dan de bus die naar hem toe komt. Elke medewerker zet zelf Live delen aan op zijn telefoon."],["Wat zie ik hier?","Het Control Center is je cockpit: bovenaan omzet deze maand, openstaande facturen, actieve opdrachten en nieuwe aanvragen. Daaronder MANSARD adviseert, de live kaart van vandaag, je planning, bedrijfsprestaties, snelle acties en recente activiteiten. Alles komt uit je eigen gegevens; er wordt niets verzonnen en niets opgeslagen."],["MANSARD adviseert","Signalen op urgentie: vervallen facturen en mislukte incasso's (kritiek), offertes die al een week wachten, klanten die aan de beurt zijn maar niet ingepland, afspraken zonder tijd en conceptfacturen (hoog), tickets en aanmeldingen (normaal), btw-aangifte en kansen op herhaalopdrachten (laag). Elke melding heeft een knop naar de juiste plek. Is alles in orde, dan staat er Alles op orde."],["Zoeken (⌘K of Ctrl K)","Druk overal op ⌘K (Mac) of Ctrl K om te zoeken op naam, adres, postcode, telefoon, e-mail, klant-, offerte- of factuurnummer. Enter opent het eerste resultaat. Bij klanten met een nummer staat een belknop."],["Werken als een meldkamer","Elke melding gaat over één ding (factuur, offerte, klant, ticket) en heeft knoppen om direct te handelen: Herinnering, Bellen, Inplannen, Opnieuw sturen, of een tijd invullen. Klaar? Klik Afgehandeld. Nu even niet? Later: over 1 uur, vanmiddag, morgen of volgende week. Afgehandelde vervallen facturen, wachtende offertes en te late klanten komen na 7 dagen terug als ze nog steeds spelen. Onderaan kun je afgehandelde meldingen terugzetten."],["Nu doen","De balk bovenaan toont alleen wat binnen een uur aandacht vraagt: de volgende afspraak (met knop Kom eraan via WhatsApp), een nieuw bericht van een klant of een incasso die vandaag mislukte. Anders staat er Niets dringends."],["Sneltoetsen","1 t/m 9 selecteert een melding, E = afgehandeld, L = later (morgen), Enter = openen, Esc = loslaten. N nieuwe klant, O offerte, F factuur, P planning, C communicatie, B klant bellen, W WhatsApp, ⌘K of Ctrl K zoeken."],["Geluid en meldingen","Bij een nieuwe melding (ticket, aanmelding, mislukte incasso, vervallen factuur) hoor je een signaal; zet het uit met het luidsprekertje. Met Meldingen aan krijg je ook een melding van je computer als het tabblad niet open staat. In de tab van je browser staat het aantal open meldingen. Het weer komt van Open-Meteo voor de plaats uit je bedrijfsgegevens."]]],
   ["vandaag","Vandaag",[["Wat zie ik hier?","Bovenaan staat de voortgang van je dag: een weg met huisjes en het busje, hoeveel je verdiend hebt, hoeveel adressen klaar zijn en hoeveel er nog te gaan zijn. Daaronder je volgende stop, de rest van de dag en onderaan de lijst Afgerond. Met de pijltjes bovenaan kijk je naar een andere dag."],["Werkdag starten en stoppen","Tik bij vertrek bij de loods op Start werkdag. Je live locatie gaat dan meteen aan, zodat klanten je in hun portaal zien aankomen. Gebruik Pauze en Pauze voorbij tussendoor, en Terug bij de loods aan het eind. De dagkaart laat daarna zien hoeveel tijd facturabel was, hoeveel reistijd en pauze, je omzet ex btw en wat je per gewerkt en per facturabel uur verdiende. Met Heropenen gaat de werkdag weer lopen."],["Volgende stop","De kaart van je volgende stop toont adres, dienst, duur, prijs, toegang of poortcode, objectinfo, hospitality-punten en extra diensten die deze beurt meegaan. Navigeer opent Google Maps, Ik kom eraan stuurt een WhatsApp met je aankomsttijd, Overslaan vraagt om een reden."],["Tijd meten en afmelden","Tik Start als je begint: de minuten lopen in de knop. Met Afmelden rond je af en staat er een conceptfactuur klaar. Direct factureren maakt meteen een open factuur. De gemeten tijd komt in de klantkaart; het gemiddelde wordt de duur waarmee de planning rekent."],["Vegen","Op de telefoon veeg je een opdracht naar rechts om af te melden, of naar links om af te melden en direct te factureren. Na elke afmelding loopt er een huisje vol en komt er confetti."],["Een afgeronde beurt openen","Tik in Afgerond op een regel. Je ziet hoe laat je afmeldde, hoe lang je bij de klant was, en de factuur met status (tik op het nummer om hem te openen). Ook zie je wanneer de volgende beurt staat, of plan je hem in met Inplannen. Met Factuur maken of Factuur bekijken ga je verder; zolang er nog geen factuur is kun je de afmelding terugdraaien."],["Wie is er vandaag aan de beurt?","Staan er klanten die vandaag aan de beurt zijn maar nog niet ingepland, dan zie je een melding met de knop Plan vandaag in. Met Dagnotitie zet je een notitie bij de dag, bijvoorbeeld 'ladder ophalen'."]]],
   ["route","Route",[["Volgorde en navigeren","Route toont alle stops van een dag op volgorde. Verschuif stops met de pijltjes, of tik Optimaliseer route: die sorteert per postcodegebied en straat op huisnummer. Hele route in Google Maps opent de stops in één keer (per 10 stops)."],["Live delen","Met Live delen zien klanten die vandaag aan de beurt zijn in hun portaal waar het busje is, hoe laat je er ongeveer bent en hoeveel woningen er nog voor hen zijn. Het gaat vanzelf aan bij Start werkdag. Het scherm blijft aan zolang live delen loopt."],["Bericht aan deze klanten","Stuur alle klanten van die dag in één keer een bericht, bijvoorbeeld als het later wordt."]]],
   ["planning","Planning",[["Vaste weekdagen (VvE)","Bij een opdracht kies je onder Hoe vaak voor Vaste weekdagen en tik je de dagen aan, bijvoorbeeld di en vr. De klant komt dan elke week op die dagen in de planning; na elke afmelding staat de volgende dag automatisch klaar. In de weekweergave zie je de volgende beurten alvast als verwacht."],["Plan de week","Eén knop boven de agenda (of in het menu ⋯). Het CRM pakt iedereen die aan de beurt is, groepeert ze per buurt en verdeelt ze over je werkdagen, met een logische volgorde en een verwachte tijd per adres. Vaste afspraken blijven staan; over-tijd-klanten gaan voor. Je ziet het voorstel per dag, schuift een adres naar een andere dag of zet het op Niet deze week, en tikt op Zet in agenda. Via het kalender-icoontje bij een klant geef je voorkeursdagen op (bijvoorbeeld niet op maandag); die onthoudt het systeem. Is een dag nog half leeg, tik dan op Vul aan: de dichtstbijzijnde klanten die binnenkort aan de beurt zijn komen erbij. Max per dag en Mag te vroeg stel je bovenin in."],["Weergaven","Kies Dag, Week, Multi of Maand. In Multi zet je zelf dagen naast elkaar met Dag toevoegen. Met Hoogte en Tijdvak pas je de schaal aan; de agenda loopt standaard tot 22:00 (instelbaar bij Instellingen › Planning). Zoek een klant of adres met het zoekveld."],["Te plannen","Klanten die volgens hun frequentie aan de beurt zijn, staan bij Te plannen. Sleep ze naar een dag of tijdslot. Sorteer op datum, postcode of plaats, of plan alles in één keer met Alles inplannen op aanboddatum. Plan je iemand te vroeg in, dan vraagt de app het eerst."],["Op de telefoon","Onder de agenda staat de lijst In te plannen. Houd een klant vast en sleep hem naar de agenda; de agenda scrolt vanzelf mee. De zwevende knop brengt je naar die lijst."],["Meerdere afspraken tegelijk","Met Selecteren kies je meerdere afspraken en verplaats je ze naar een andere dag, met dezelfde tijd of op de eerste vrije tijd, of zet je ze terug naar te plannen. Bulk dag (onder Acties) verplaatst een hele dag, handig bij regen, en kan de klanten meteen een bericht sturen."],["Afspraakreeks","Bij inplannen kies je Eén afspraak, Vast aantal, Tot een datum of Doorlopend. Valt een afspraak op een vrije dag of feestdag, dan schuift hij naar een werkdag. Een reeks stop je met Reeks stoppen."],["Automatisch doorplannen","Staat doorplannen aan bij een klant, dan staat na elke afmelding de volgende beurt direct in de planning, op dezelfde tijd. Staat het uit, dan verschijnt de klant bij Te plannen als hij weer aan de beurt is."],["Planningsmail","Met Planningsmail laat je klanten weten wanneer je komt. Kies de dag en de afspraken, controleer de tekst en druk op Verzenden: na je bevestiging gaat de mail direct weg. Je kunt hem ook klaarzetten om later te versturen, standaard 2 dagen voor de afspraak; die zie je onder Geplande berichten."],["Kaartplannen","Met de kaart zie je wie te plannen, te laat of ingepland is. Selecteer klanten in beeld en plan ze samen in."]]],
@@ -15049,7 +15070,7 @@ function ccMarkeerGezien(){if(state.tab!=="control"||document.hidden)return;cons
 /* ---------- planning vandaag (zelfde lijst als Vandaag) ---------- */
 /* voortgang van vandaag: afgemeld (door wie, hoe laat), bezig (sinds wanneer), volgende, gepland. Geen "te laat" uit het ritme. */
 function ccPlanning(){const ti=iso(today()),hm=x=>{const d=new Date(x);return isNaN(d)?"":String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")};let volgendeGezet=false;
-  const R=routeStops(ti),laatst=Math.max(-1,...R.map((x,i)=>x.done||x.k.bezig?i:-1));
+  const R=typeof rvStopFilter==="function"&&state.tab==="control"?rvStopFilter(routeStops(ti)):routeStops(ti),laatst=Math.max(-1,...R.map((x,i)=>x.done||x.k.bezig?i:-1));
   return R.map(({k,done},i)=>{let st,info="";
     if(done){const b=state.beurten.filter(x=>x.klantId===k.id&&x.datum===ti).sort((a,c)=>String(c.op||"").localeCompare(String(a.op||"")))[0]||{};
       st=["ok","Afgerond"];info=["Afgemeld"+(b.door?" door "+String(b.door).split(/[\s@]/)[0]:"")+(b.op?" om "+hm(b.op):""),b.duur?Math.round(b.duur)+" min":"",b.bedrag?eur(b.bedrag):""].filter(Boolean).join(" · ")}
@@ -15057,7 +15078,7 @@ function ccPlanning(){const ti=iso(today()),hm=x=>{const d=new Date(x);return is
     else if(i<laatst){st=["open","Niet afgemeld"];info="Overgeslagen of nog niet afgemeld"}
     else if(!volgendeGezet){volgendeGezet=true;st=["next","Volgende"];info=k.gepland&&k.gepland<ti?"Doorgeschoven van "+fmtD(k.gepland):"Hierna aan de beurt"}
     else{st=["neutral","Gepland"];info=k.gepland&&k.gepland<ti?"Doorgeschoven van "+fmtD(k.gepland):""}
-    return {k,tijd:k.tijd||"",st,info,dienst:k.dienst||"Glasbewassing"}})}
+    return {k,i,tijd:k.tijd||"",st,info,dienst:k.dienst||"Glasbewassing"}})}
 
 /* ---------- recente activiteiten, samengesteld uit bestaande gegevens (niets wordt extra geregistreerd) ---------- */
 function ccActiviteit(){const ev=[],grens=iso(addDays(today(),-30)),d10=s=>String(s||"").slice(0,10),tijd=(s,fb)=>{const m=String(s||"").match(/T(\d{2}:\d{2})/);return m?m[1]:fb||""};
@@ -15138,7 +15159,7 @@ function ccNuDoenHtml(){const L=ccNuDoen();if(!L.length){const v=ccVolgende();re
   return `<div class="cc-nu"><span class="cc-nl"><i></i>Nu doen</span>${L.map(x=>`<div class="cc-nuit"><span>${I[x.ic]||""}</span><button type="button" data-cc="${esc(x.go)}"><b>${esc(x.t)}</b>${x.s?`<small>${esc(x.s)}</small>`:""}</button>${x.kom?`<a class="cc-ab pr" href="${esc(x.kom)}" target="_blank" rel="noopener">${I.wa||I.send}Kom eraan</a>`:""}</div>`).join("")}</div>`}
 function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActiviteit(),R=ccPrestaties(),t=today();
   /* vandaag in cijfers: verdiend (afgemelde beurten), volgende stop en verwachte eindtijd van de route */
-  const D=(()=>{const ti=iso(t),om=state.beurten.filter(b=>b.datum===ti).reduce((a,b)=>a+(Number(b.bedrag)||0),0),open=P.filter(x=>x.st[1]!=="Afgerond");
+  const D=(()=>{const ti=iso(t),om=state.beurten.filter(b=>b.datum===ti&&(!(typeof plSel==="function"&&plSel())||P.some(x=>x.k.id===b.klantId))).reduce((a,b)=>a+(Number(b.bedrag)||0),0),open=P.filter(x=>x.st[1]!=="Afgerond");
     const nm=new Date().getHours()*60+new Date().getMinutes(),vl=open.find(x=>toMin(x.tijd)!=null&&toMin(x.tijd)>=nm-30)||open[0];
     const laatste=[...open].reverse().find(x=>toMin(x.tijd)!=null);let eind="";if(laatste){const m=toMin(laatste.tijd)+(Number(typeof duur==="function"?duur(laatste.k):30)||30);eind=String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0")}
     return {omzet:om,volgende:vl?[vl.tijd,ccNaam(vl.k)].filter(Boolean).join(" · "):"",eind}})();
@@ -15146,7 +15167,7 @@ function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActivite
   const kpi=(ic,cls,l,v,sub,subCls,act)=>`<button type="button" class="cc-kpi" data-cc="${act}"><span class="cc-ki ${cls}">${I[ic]}</span><span class="cc-kt"><small>${l}</small><b>${v}</b><em class="${subCls||""}">${sub}</em></span></button>`;
   const sig=ccWachtrijHtml(S_);
   const nu=P.filter(x=>!x.st||x.st[1]!=="Afgerond").length,klaar=P.length-nu;
-  const plan=P.length?`<div class="cc-voortgang"><span style="width:${P.length?Math.round(klaar/P.length*100):0}%"></span></div><ul class="cc-plan">${P.map(x=>`<li class="st-${x.st[0]}"><span class="cc-pt">${esc(x.tijd||"—")}</span><button type="button" class="cc-pk" data-cc="klant:${esc(x.k.id)}"><b>${esc(x.dienst)}</b> · ${esc(ccNaam(x.k))}<small>${esc([jobAddrObj(x.k).adres,x.k.plaats].filter(Boolean).join(", "))}</small>${x.info?`<em class="cc-pinfo ${x.st[0]}">${esc(x.info)}</em>`:""}</button><span class="cc-pst ${x.st[0]}">${x.st[0]==="ok"?I.check:x.st[0]==="soon"?'<i class="cc-puls"></i>':""}${x.st[1]}</span></li>`).join("")}</ul>`
+  const plan=P.length?`<div class="cc-voortgang"><span style="width:${P.length?Math.round(klaar/P.length*100):0}%"></span></div><ul class="cc-plan">${P.map(x=>`<li class="st-${x.st[0]}"><span class="cc-pt">${esc(x.tijd||"—")}</span><button type="button" class="cc-pk" data-cc="klant:${esc(x.k.id)}"><b>${esc(x.dienst)}</b> · ${esc(ccNaam(x.k))}<small>${esc([jobAddrObj(x.k).adres,x.k.plaats].filter(Boolean).join(", "))}</small>${x.info?`<em class="cc-pinfo ${x.st[0]}">${esc(x.info)}</em>`:""}</button>${typeof plWieHtml==="function"?plWieHtml(x.k,x.i,P.length):""}<span class="cc-pst ${x.st[0]}">${x.st[0]==="ok"?I.check:x.st[0]==="soon"?'<i class="cc-puls"></i>':""}${x.st[1]}</span></li>`).join("")}</ul>`
     :`<p class="cc-leeg">Vandaag staat er niets op de planning.</p>`;
   const act=A.length?`<ul class="cc-act">${A.map(e=>`<li><span class="cc-at">${esc(e.lbl)}</span><span class="cc-ai ${e.kl}">${I[e.ic]||I.check}</span><button type="button" data-cc="${esc(e.act)}"><b>${esc(e.t)}</b><small>${esc(e.s)}</small></button></li>`).join("")}</ul>`
     :`<p class="cc-leeg">Nog geen activiteit in de afgelopen 30 dagen.</p>`;
@@ -15161,13 +15182,14 @@ function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActivite
   ${ccNuDoenHtml()}
   <div class="cc-ops">
     <section class="cc-card cc-live"><div class="cc-ch"><div><b>${I.map}Live operatie · vandaag</b><small>${esc(longD(t))}</small></div><button type="button" class="cc-link" data-cc="tab:vandaag">Naar Vandaag${I.right||""}</button></div>
-      <div class="cc-dagstat">${[["Adressen",P.length],["Klaar",klaar],["Nog te gaan",nu],["Verdiend vandaag",eur0(D.omzet)],["Verwacht klaar",D.eind||"—"]].map(([l,v])=>`<div><small>${l}</small><b>${v}</b></div>`).join("")}</div>
+      <div class="cc-dagstat">${[[typeof plSel==="function"&&plSel()?"Adressen "+esc(plSel()):"Adressen",P.length],["Klaar",klaar],["Nog te gaan",nu],["Verdiend vandaag",eur0(D.omzet)],["Verwacht klaar",D.eind||"—"]].map(([l,v])=>`<div><small>${l}</small><b>${v}</b></div>`).join("")}</div>
       <div class="cc-map"><div class="rv-map" id="rvMap"><div class="rv-map-l">Kaart laden…</div></div></div>
       <div class="cc-leg"><span><i class="af"></i>Afgerond</span><span><i class="nu"></i>Volgende</span><span><i></i>Gepland</span><span><i class="bus"></i>Bus (live)</span>${D.volgende?`<span class="cc-vlg">Volgende: <b>${esc(D.volgende)}</b></span>`:""}</div></section>
     <section class="cc-adv" id="ccAdv"><div class="cc-ah"><span class="cc-aic">${I.spark}</span><div><b>Meldingen · MANSARD adviseert</b><small>${S_.length?`Nog ${S_.length} open · van boven naar beneden afwerken`:"Alles is afgehandeld"}</small></div>${S_.length?`<span class="cc-cnt">${S_.length}</span>`:""}</div><div class="cc-q">${sig}</div></section>
   </div>
+  ${typeof plRijHtml==="function"?plRijHtml():""}
   <div class="cc-dagrij">
-    <section class="cc-card"><div class="cc-ch"><div><b>${I.planning}Voortgang vandaag</b><small>${P.length?`${klaar} van ${P.length} afgemeld${P.some(x=>x.st[0]==="soon")?" · 1 bezig":""}`:"Vandaag geen adressen"}</small></div><button type="button" class="cc-link" data-cc="tab:planning">Bekijk planning${I.right||""}</button></div>${plan}</section>
+    <section class="cc-card"><div class="cc-ch"><div><b>${I.planning}Voortgang vandaag${typeof plSel==="function"&&plSel()?" · "+esc(plSel()):""}</b><small>${P.length?`${klaar} van ${P.length} afgemeld${P.some(x=>x.st[0]==="soon")?" · 1 bezig":""}`:"Vandaag geen adressen"}</small></div><button type="button" class="cc-link" data-cc="tab:planning">Bekijk planning${I.right||""}</button></div>${plan}</section>
     <div class="cc-side">
       <section class="cc-card"><div class="cc-ch"><div><b>${I.spark}Snelle acties</b></div></div>
         <div class="cc-qa">${[["klanten","Nieuwe klant","nieuw:klant","N"],["offertes","Offerte maken","nieuw:offerte","O"],["facturen","Factuur maken","nieuw:factuur","F"],["phone","Klant bellen","kies:bel","B"],["wa","WhatsApp","kies:wa","W"],["planning","Planning openen","tab:planning","P"]].map(([ic,l,a,kb])=>`<button type="button" data-cc="${a}">${I[ic]}<span>${l}</span><kbd>${kb}</kbd></button>`).join("")}</div></section>
@@ -15216,6 +15238,7 @@ function ccActie(a){if(!a)return;const [k,...r]=a.split(":"),v=r.join(":");
   if(k==="verborgen"){CC.toonVerborgen=!CC.toonVerborgen;return render()}
   if(k==="tijd"){const kl=ccKlant(v),inp=document.getElementById("ccT_"+v),tv=inp&&inp.value;if(!kl||!tv){if(inp)inp.focus();return}
     return save("klanten",kl.id,{...strip(kl),tijd:tv}).then(()=>toast("Tijd opgeslagen: "+tv)).catch(err)}
+  if(k==="mw"&&typeof plKies==="function")return plKies(v);
   if(k==="naar"){const el=document.getElementById(v);if(el)el.scrollIntoView({behavior:"smooth",block:"start"})}}
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-cc]");
   if(!b||!b.closest(".cc")){if(CC.zoek&&!(e.target.closest&&e.target.closest(".cc-zoek"))){CC.zoek=false;ccZoekTeken()}return}
@@ -15805,7 +15828,10 @@ if(LIVE){
 const LV={watch:null,last:0,pos:null,lock:null,fout:""};
 state.liveDelen=(()=>{try{return localStorage.getItem("ms.live")==="1"}catch(e){return false}})();
 const lvAfst=(a,b)=>{if(!a||!b)return 1e9;const R=6371e3,r=x=>x*Math.PI/180,dl=r(b.lat-a.lat),dg=r(b.lng-a.lng),h=Math.sin(dl/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(dg/2)**2;return 2*R*Math.asin(Math.sqrt(h))};
-async function lvSchrijf(extra){if(!LIVE)return;try{await fsDb().doc("live/rit").set({...extra,naam:String((state.me&&state.me.name)||"").split(" ")[0]||"",door:(state.me&&state.me.email)||"",datum:iso(today()),ts:new Date().toISOString()},{merge:true})}catch(e){console.warn("live",e)}}
+async function lvSchrijf(extra){if(!LIVE)return;const em=String((state.me&&state.me.email)||"").toLowerCase(),d={...extra,naam:String((state.me&&state.me.name)||"").split(" ")[0]||"",door:em,datum:iso(today()),ts:new Date().toISOString()};
+  try{await fsDb().doc("live/rit").set(d,{merge:true})}catch(e){console.warn("live",e)}
+  /* ook per medewerker, zodat het Control Center bij meerdere bussen ieder apart kan volgen */
+  if(em)try{await fsDb().doc("live/mw_"+em.replace(/[^a-z0-9]/g,"_").slice(0,80)).set({...d,naam:doorNaam()||d.naam},{merge:true})}catch(e){console.warn("live mw",e)}}
 async function lvWakker(){try{if(LV.watch&&"wakeLock" in navigator&&!LV.lock&&document.visibilityState==="visible"){LV.lock=await navigator.wakeLock.request("screen");LV.lock.addEventListener("release",()=>{LV.lock=null})}}catch(e){}}
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&LV.watch)lvWakker()});
 function liveStart(stil){
@@ -15939,6 +15965,88 @@ async function opdrJobsSync(kid,d){const nu=iso(today());
 /* klantkaart van een losse job: waar hoort hij bij */
 function opdrJobBanner(k){if(!isJob(k))return"";const h=state.klanten.find(x=>x.id===k.hoofdKlantId);
   return `<div class="banner" style="margin-bottom:12px"><div><b>Losse opdracht${h&&k.opdrachtNr?" "+esc(klantNr(h))+"-"+esc(k.opdrachtNr):""}</b><br><small>Hoort bij ${h?esc(cleanName(h.naam)):"een andere klant"}. Wordt apart ingepland, met een eigen afspraak en factuur. Prijs, frequentie en duur pas je aan bij de opdracht van de klant.</small></div>${h?`<button type="button" data-act="klant" data-id="${esc(h.id)}">${I.right||""}Naar de klant</button>`:""}</div>`}
+
+/* ---------- Control Center · meerdere bussen ----------
+   Rij met de mensen die vandaag onderweg zijn. Tik op een naam: de kaart toont waar die rijdt en zijn adressen,
+   de voortgang eronder alleen zijn adressen. "Iedereen" laat alle bussen tegelijk zien.
+   Wie welk adres doet: afgemeld door (beurt), gestart door (bezigDoor) of ingedeeld in de dagroute (routes/<dag>.wie).
+   Elke medewerker die live deelt schrijft zijn eigen live/mw_<email>; live/rit blijft zoals het was. */
+const PL={live:{},unsub:null,dag:""};
+const PL_KLEUR=["#137a8a","#d9822b","#7b5cd6","#2f9e5b","#c0447a","#3b6fd8"];
+CC.mw=(()=>{try{return localStorage.getItem("ms.cc.mw")||""}catch(e){return""}})();
+const plNm=s=>{const n=String(s||"").trim().split(/[\s@._-]/)[0];return n?n.charAt(0).toUpperCase()+n.slice(1).toLowerCase():""};
+const plVers=L=>L&&L.actief&&L.datum===iso(today())&&Date.now()-Date.parse(L.ts||0)<5*60e3;
+/* demo: twee bussen, Mark en Sem, die elk een deel van de route rijden */
+const plDemo=()=>!LIVE;
+function plWie(k,day,i,n){day=day||iso(today());
+  if(plDemo()){const R=routeStops(day),j=i!=null?i:R.findIndex(s=>s.k.id===k.id),t=n!=null?n:R.length;return j<Math.ceil(t/2)?"Mark":"Sem"}
+  const b=state.beurten.filter(x=>x.klantId===k.id&&x.datum===day&&x.door).sort((a,c)=>String(c.op||"").localeCompare(String(a.op||"")))[0];if(b)return plNm(b.door);
+  if(k.bezig&&k.bezigDoor)return plNm(k.bezigDoor);
+  const w=((state.routes[day]||{}).wie||{})[k.id];return w?plNm(w):""}
+/* demo: plek van een bus = halverwege zijn laatste klare adres en zijn volgende */
+function plDemoPos(nm){const R=routeStops(iso(today())).filter((s,i,a)=>plWie(s.k,null,i,a.length)===nm),bk=rtBedrijf(),lo=pkHeeftAdres(bk)&&pkCoord(bk);
+  const nx=R.findIndex(s=>!s.done),na=nx>=0?pkCoord(R[nx].k):null,vo=[...R.slice(0,nx<0?R.length:nx)].reverse().map(s=>pkCoord(s.k)).find(Boolean)||lo;
+  if(na&&vo)return{lat:(vo[0]+na[0])/2,lng:(vo[1]+na[1])/2};const c=na||vo;return c?{lat:c[0],lng:c[1]}:null}
+/* iedereen die vandaag onderweg is, met zijn adressen */
+function plMensen(){const ti=iso(today()),R=routeStops(ti),M={};
+  const p=nm=>M[nm]||(M[nm]={naam:nm,stops:[],live:null});
+  R.forEach((s,i)=>{const w=plWie(s.k,ti,i,R.length);if(w)p(w).stops.push(s)});
+  Object.values(PL.live).forEach(L=>{const nm=plNm(L.naam||L.door);if(nm&&L.datum===ti)p(nm).live=L});
+  if(plDemo())Object.values(M).forEach(m=>{const q=plDemoPos(m.naam);if(q)m.live={...q,actief:true,datum:ti,ts:new Date().toISOString(),demo:1}});
+  return Object.values(M).sort((a,b)=>a.naam.localeCompare(b.naam,"nl")).map((m,i)=>({...m,kleur:PL_KLEUR[i%PL_KLEUR.length],klaar:m.stops.filter(s=>s.done).length}))}
+const plMeer=()=>plMensen().length>=2;
+/* kandidaten om een adres aan toe te wijzen: wie vandaag onderweg is en wie de laatste 60 dagen heeft afgemeld */
+function plKandidaten(){const s=new Set(plMensen().map(m=>m.naam)),g=iso(addDays(today(),-60));
+  if(!plDemo())state.beurten.forEach(b=>{if(b.door&&b.datum>=g)s.add(plNm(b.door))});
+  return [...s].filter(Boolean).sort((a,b)=>a.localeCompare(b,"nl"))}
+function plKies(nm){CC.mw=CC.mw===nm?"":nm;try{localStorage.setItem("ms.cc.mw",CC.mw)}catch(e){}const el=document.getElementById("rvMap");if(el){el._gezet=0;el._volg=true}render()}
+function plSel(){if(!CC.mw)return"";return plMensen().some(m=>m.naam===CC.mw)?CC.mw:""}
+
+/* ---------- de rij met namen ---------- */
+function plStatus(m){const open=m.stops.filter(s=>!s.done),bz=m.stops.find(s=>!s.done&&s.k.bezig);
+  if(m.stops.length&&!open.length)return["ok","Klaar voor vandaag"];
+  if(bz)return["soon","Bezig bij "+ccNaam(bz.k)];
+  if(plVers(m.live)||(m.live&&m.live.demo))return["live",open[0]?"Onderweg naar "+ccNaam(open[0].k):"Onderweg"];
+  if(m.klaar)return["neutral","Laatst afgemeld "+(()=>{const b=state.beurten.filter(x=>x.datum===iso(today())&&plNm(x.door)===m.naam).map(x=>x.op).filter(Boolean).sort().pop();return b?new Date(b).toTimeString().slice(0,5):""})()];
+  return["neutral",m.stops.length?"Nog niet gestart":"Geen adressen ingedeeld"]}
+function plRijHtml(){const M=plMensen();if(M.length<2)return"";const sel=plSel(),tot=M.reduce((a,m)=>a+m.stops.length,0),kl=M.reduce((a,m)=>a+m.klaar,0);
+  const R=routeStops(iso(today())),los=R.length-tot;
+  const chip=(nm,kleur,titel,sub,teller,cls,act)=>`<button type="button" class="pl-chip${cls}" data-cc="${act}" aria-pressed="${cls.includes(" on")}" style="--pk:${kleur}"><span class="pl-av">${titel}</span><span class="pl-tx"><b>${esc(nm)}</b><small>${esc(sub)}</small></span><span class="pl-tel">${teller}</span></button>`;
+  return `<section class="cc-card pl-rij" id="ccPloeg"><div class="pl-kop"><b>${I.truck||""}Onderweg vandaag</b><small>Tik op een naam: de kaart toont waar die rijdt, de voortgang eronder alleen zijn adressen</small></div>
+    <div class="pl-chips">${chip("Iedereen","#252c3c",I.klanten||"",plural(M.length,"bus","bussen")+" · "+plural(R.length,"adres","adressen")+(los>0?" · "+los+" niet ingedeeld":""),kl+"/"+R.length,sel?"":" on","mw:")}
+    ${M.map(m=>{const st=plStatus(m);return chip(m.naam,m.kleur,esc(m.naam.charAt(0))+(st[0]==="live"||st[0]==="soon"?'<i class="pl-puls"></i>':""),st[1],m.klaar+"/"+m.stops.length,(sel===m.naam?" on":"")+" st-"+st[0],"mw:"+esc(m.naam))}).join("")}</div></section>`}
+
+/* ---------- kaart ---------- */
+/* alleen de adressen van wie je hebt aangeklikt */
+function rvStopFilter(stops){if(state.tab!=="control")return stops;const sel=plSel();if(!sel)return stops;const n=stops.length;return stops.filter((s,i)=>plWie(s.k,null,i,n)===sel)}
+/* kleur van het adres: van welke bus (alleen als er meer bussen zijn en je iedereen bekijkt) */
+function rvStopKleur(k){if(state.tab!=="control"||plSel()||!plMeer())return"";const m=plMensen().find(x=>x.stops.some(s=>s.k.id===k.id));return m?m.kleur:""}
+/* de bus op de kaart: van wie je hebt aangeklikt (undefined = gewoon je eigen telefoon) */
+function plBusPos(){if(state.tab!=="control"||!plMeer())return undefined;const sel=plSel();if(!sel)return null;
+  const m=plMensen().find(x=>x.naam===sel);if(!m||!m.live)return null;if(m.live.demo)return undefined;return plVers(m.live)?{lat:m.live.lat,lng:m.live.lng}:null}
+/* iedereen: alle bussen tegelijk, met naam. true = de kaart hoeft zelf geen bus te tekenen */
+function rvPloeg(el,pts){if(state.tab!=="control"||!plMeer()||plSel())return false;const L=window.L;
+  plMensen().forEach(m=>{const v=m.live;if(!v||!(v.demo||plVers(v)))return;const c=[v.lat,v.lng];pts.push(c);
+    L.marker(c,{icon:L.divIcon({className:"pl-bus",html:`<span style="--pk:${m.kleur}"><img src="/img/mansard-bus.png" alt=""><b>${esc(m.naam)}</b></span>`,iconSize:[0,0],iconAnchor:[0,0]}),zIndexOffset:900})
+      .on("click",()=>plKies(m.naam)).addTo(el._laag)});
+  return true}
+
+/* ---------- indelen: welk adres rijdt wie ---------- */
+async function plIndelen(id,nm){const day=iso(today()),r=state.routes[day]||{},wie={...(r.wie||{})};if(nm)wie[id]=nm;else delete wie[id];
+  if(plDemo()){toast("In de demo kun je niet indelen; in je eigen Mansard wel");return render()}
+  state.routes[day]={...r,wie};render();try{await save("routes",day,{...strip(r),wie});toast(nm?cleanName((state.klanten.find(k=>k.id===id)||{}).naam||"")+" → "+nm:"Indeling weggehaald")}catch(e){err(e)}}
+document.addEventListener("change",e=>{const s=e.target.closest&&e.target.closest("select[data-ccwie]");if(s)plIndelen(s.dataset.ccwie,s.value)});
+function plWieHtml(k,i,n){if(!plMeer()||plSel())return"";const w=plWie(k,null,i,n),M=plMensen(),m=M.find(x=>x.naam===w);
+  if(w)return `<span class="pl-tag" style="--pk:${m?m.kleur:"#64748b"}">${esc(w)}</span>`;
+  return `<select class="pl-sel" data-ccwie="${esc(k.id)}" aria-label="Wie rijdt dit adres"><option value="">Wie?</option>${plKandidaten().map(x=>`<option>${esc(x)}</option>`).join("")}</select>`}
+
+/* ---------- live posities van alle medewerkers (alleen eigenaar en beheerder) ---------- */
+function plLuister(){if(!LIVE||PL.unsub||!state.loaded||isMw())return;
+  try{PL.unsub=fsDb().collection("live").onSnapshot(q=>{const n={};q.docs.forEach(d=>{if(d.id.startsWith("mw_"))n[d.id]=d.data()});PL.live=n;plVernieuw()},()=>{PL.unsub=null})}catch(e){}}
+function plVernieuw(){if(state.tab!=="control")return;const r=document.getElementById("ccPloeg"),h=plRijHtml();
+  if(!!r!==!!h)return render();if(r)r.outerHTML=h;
+  const el=document.getElementById("rvMap");if(!el||!el._map)return;if(plSel())rvMapLive();else ccKaart()}
+if(LIVE)setTimeout(function w(){if(!state.loaded)return setTimeout(w,1000);plLuister()},2000);
 
 /* ---------- Klantportaal & aanbevelingen (CRM-kant) ----------
    - tegoed op de klant (k.tegoed) wordt verrekend met de eerstvolgende factuur

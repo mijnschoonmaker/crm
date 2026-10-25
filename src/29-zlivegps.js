@@ -4,7 +4,10 @@
 const LV={watch:null,last:0,pos:null,lock:null,fout:""};
 state.liveDelen=(()=>{try{return localStorage.getItem("ms.live")==="1"}catch(e){return false}})();
 const lvAfst=(a,b)=>{if(!a||!b)return 1e9;const R=6371e3,r=x=>x*Math.PI/180,dl=r(b.lat-a.lat),dg=r(b.lng-a.lng),h=Math.sin(dl/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(dg/2)**2;return 2*R*Math.asin(Math.sqrt(h))};
-async function lvSchrijf(extra){if(!LIVE)return;try{await fsDb().doc("live/rit").set({...extra,naam:String((state.me&&state.me.name)||"").split(" ")[0]||"",door:(state.me&&state.me.email)||"",datum:iso(today()),ts:new Date().toISOString()},{merge:true})}catch(e){console.warn("live",e)}}
+async function lvSchrijf(extra){if(!LIVE)return;const em=String((state.me&&state.me.email)||"").toLowerCase(),d={...extra,naam:String((state.me&&state.me.name)||"").split(" ")[0]||"",door:em,datum:iso(today()),ts:new Date().toISOString()};
+  try{await fsDb().doc("live/rit").set(d,{merge:true})}catch(e){console.warn("live",e)}
+  /* ook per medewerker, zodat het Control Center bij meerdere bussen ieder apart kan volgen */
+  if(em)try{await fsDb().doc("live/mw_"+em.replace(/[^a-z0-9]/g,"_").slice(0,80)).set({...d,naam:doorNaam()||d.naam},{merge:true})}catch(e){console.warn("live mw",e)}}
 async function lvWakker(){try{if(LV.watch&&"wakeLock" in navigator&&!LV.lock&&document.visibilityState==="visible"){LV.lock=await navigator.wakeLock.request("screen");LV.lock.addEventListener("release",()=>{LV.lock=null})}}catch(e){}}
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&LV.watch)lvWakker()});
 function liveStart(stil){

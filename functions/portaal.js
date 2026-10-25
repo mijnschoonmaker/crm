@@ -131,9 +131,14 @@ module.exports = function maakPortaal(ctx) {
     const klaar = new Set(bs.docs.map(d => d.data().klantId));
     if (klaar.has(k.id)) return { status: "klaar" };
     if (k.bezig && k.gepland === dag) return { status: "bezig" };
-    const L = ls.exists ? ls.data() : null;
+    /* meerdere bussen: als dit adres in de dagroute aan iemand is toegewezen, volgen we die bus en tellen we alleen zijn adressen */
+    const nmW = x => String(x || "").trim().split(/[\s@._-]/)[0].toLowerCase();
+    let wie = {}, L = ls.exists ? ls.data() : null;
+    try { const rd = await db.doc("routes/" + dag).get(); if (rd.exists) wie = (rd.data() || {}).wie || {}; } catch (e) {}
+    const mijn = nmW(wie[k.id]);
+    if (mijn) { try { const lq = await db.collection("live").where("datum", "==", dag).get(); const m = lq.docs.filter(d => d.id.startsWith("mw_")).map(d => d.data()).find(x => nmW(x.naam) === mijn); if (m) L = m; } catch (e) {} }
     if (!L || !L.actief || L.datum !== dag || !(Date.now() - Date.parse(L.ts) < 5 * 60e3)) return { status: "uit" };
-    const lijst = ks.docs.map(d => ({ id: d.id, ...dec(d.data()) })).filter(x => x.actief !== false && !klaar.has(x.id)).sort((a, b) => tMin(a.tijd) - tMin(b.tijd));
+    const lijst = ks.docs.map(d => ({ id: d.id, ...dec(d.data()) })).filter(x => x.actief !== false && !klaar.has(x.id) && (!mijn || nmW(wie[x.id]) === mijn)).sort((a, b) => tMin(a.tijd) - tMin(b.tijd));
     const i = lijst.findIndex(x => x.id === k.id), voor = Math.max(0, i), bezigBij = lijst.slice(0, Math.max(0, i)).some(x => x.bezig);
     const huis = await klantGeo(S.kref, k);
     const km = huis ? afstand(L.lat, L.lng, huis[0], huis[1]) : null, rij = km != null ? Math.round(km * 1.35 / 38 * 60) + 2 : 12;
