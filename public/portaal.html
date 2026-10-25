@@ -2408,7 +2408,10 @@ async function openFactuur(id){let f;const sluit=blad(`<div class="laden" style=
   const groot=matchMedia("(min-width:761px)").matches,naam="Factuur "+(f.nummer||"")+".pdf";
   const kopTxt=`<h3>Factuur ${esc(f.nummer)}</h3><p class="sub">${f.status==="betaald"?"Betaald"+(f.betaaldOp?" op "+esc(kort(f.betaaldOp)):"")+". Dank u wel.":f.incasso?"Wordt binnen 14 dagen na de uitgevoerde beurt automatisch van uw rekening afgeschreven. U hoeft niets te doen.":f.status==="verlopen"?"De betaaltermijn is verstreken op "+esc(kort(f.verval))+".":"Graag betalen voor "+esc(kort(f.verval))+"."}</p>`;
   const overmaken=open&&b.iban?`<div class="infobox">${I.euro}<span>Liever overmaken? ${eur(f.inc)} naar <b>${esc(b.iban)}</b> t.n.v. ${esc(b.naam)} onder vermelding van ${esc(f.nummer)}.</span></div>`:"";
-  const betaalKnop=o2=>{const b2=o2.querySelector("[data-betaal]");if(b2)b2.onclick=async()=>{b2.disabled=true;try{const r=f.betaallink?{link:f.betaallink}:await api("betaal",{body:{id}});if(r.link)location.href=r.link}catch(e){b2.disabled=false;o2.querySelector(".fout").textContent=e.message}}};
+  /* altijd eerst bij de server navragen: is de factuur intussen betaald, dan geen nieuwe betaling maar een melding */
+  const betaalKnop=o2=>{const b2=o2.querySelector("[data-betaal]");if(b2)b2.onclick=async()=>{b2.disabled=true;try{const r=await api("betaal",{body:{id}});
+    if(r.betaald){b2.remove();const fo=o2.querySelector(".fout");if(fo){fo.textContent="";fo.insertAdjacentHTML("beforebegin",`<div class="infobox">${I.check||I.euro}<span><b>${esc(r.melding||"Deze factuur is al betaald.")}</b></span></div>`)}else toast(r.melding||"Deze factuur is al betaald.");try{laad(true)}catch(_){}return}
+    if(r.link)location.href=r.link;else b2.disabled=false}catch(e){b2.disabled=false;const fo=o2.querySelector(".fout");if(fo)fo.textContent=e.message;else toast(e.message)}}};
   if(f.pdf){
     /* de echte PDF zoals wij hem gemaakt hebben: meteen het blad tonen, PDF laadt op de achtergrond */
     bladVul(o,`${kopTxt}

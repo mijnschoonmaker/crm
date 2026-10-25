@@ -15,7 +15,7 @@
 const crypto = require("crypto");
 
 module.exports = function maakPortaal(ctx) {
-  const { db, T, onRequest, onCall, onSchedule, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket, portaalUrl } = ctx;
+  const { db, T, onRequest, onCall, onSchedule, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket, portaalUrl, verwerkFactuurBetaling } = ctx;
   const sha = s => crypto.createHash("sha256").update(String(s)).digest("hex");
   const tok = () => T.tok(32);
   const DAG = 864e5;
@@ -421,8 +421,14 @@ module.exports = function maakPortaal(ctx) {
       }
       if (pad === "/betaal" && req.method === "POST") {
         const id = String(body(req).id || ""), f = await db.doc("facturen/" + id).get();
-        if (!f.exists || !(await vanKlant(S, f.data().klantId)) || f.data().status === "betaald" || f.data().soort === "offerte" || f.data().status === "concept") { res.status(404).json({ fout: "niet gevonden" }); return; }
+        if (!f.exists || !(await vanKlant(S, f.data().klantId)) || f.data().soort === "offerte" || f.data().status === "concept") { res.status(404).json({ fout: "niet gevonden" }); return; }
+        const albetaald = { betaald: true, melding: "Deze factuur is al betaald. Dank u wel! U hoeft niets meer te doen." };
+        if (f.data().status === "betaald") { res.json(albetaald); return; }
         const x = dec(f.data()), b = await bedrijf(), g = await geheim();
+        /* nooit dubbel laten betalen: is de vorige Mollie-betaling al gelukt (maar nog niet verwerkt), dan nu verwerken en melden */
+        if (x.mollieId && g.mollieKey && typeof verwerkFactuurBetaling === "function") { try { const p0 = await mollie(g.mollieKey, "payments/" + x.mollieId);
+          if (p0 && p0.status === "paid" && p0.metadata && p0.metadata.factuurId === id) { const vol = await verwerkFactuurBetaling(p0); if (vol) { res.json(albetaald); return; } }
+          if (p0 && p0.status === "open" && p0._links && p0._links.checkout && Math.abs(Number((p0.amount || {}).value) - (Math.round((totals(x, b).inc - (Number(x.deelBetaald) || 0)) * 100) / 100)) < 0.01) { res.json({ link: p0._links.checkout.href }); return; } } catch (e) { console.error("mollie check", e); } }
         /* openstaand bedrag (min een eventuele deelbetaling); een oude link alleen als het bedrag nog klopt */
         const rest = Math.round((totals(x, b).inc - (Number(x.deelBetaald) || 0)) * 100) / 100;
         if (!(rest > 0)) { res.status(409).json({ fout: "Deze factuur staat niet meer open." }); return; }

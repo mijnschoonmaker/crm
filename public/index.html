@@ -44,7 +44,7 @@
       const sm = Array.isArray(cur.mollieBetaald) ? cur.mollieBetaald : [], dm = Array.isArray(d.mollieBetaald) ? d.mollieBetaald : [];
       const terug = !d._handmatig && ((cur.status === "betaald" && d.status !== "betaald") || sm.some(x => !dm.includes(x)) || (cur.bankTx && cur.bankTx !== d.bankTx));
       if (terug) BETAAL.forEach(k => { if (cur[k] !== undefined) o[k] = cur[k]; });
-      ["mollieStatus", "mollieBetaald", "incassoMislukt", "incassoFout"].forEach(k => { if (o[k] === undefined && cur[k] !== undefined) o[k] = cur[k]; });
+      ["mollieStatus", "mollieBetaald", "mollieId", "mollieLink", "betaallink", "mollieBedrag", "incassoMislukt", "incassoFout"].forEach(k => { if (o[k] === undefined && cur[k] !== undefined) o[k] = cur[k]; });
     }
     if (c === "klanten") {
       const ids = new Set([...(Array.isArray(d.tegoed) ? d.tegoed : []), ...(Array.isArray(d.tegoedGebruikt) ? d.tegoedGebruikt : [])].map(t => t && t.id).filter(Boolean));

@@ -635,7 +635,7 @@ exports.akkoordGeven = onRequest({ cors: true, memory: "512MiB", timeoutSeconds:
 });
 
 /* ---------- klantportaal ---------- */
-const P = require("./portaal")({ db, T, onRequest, onCall, onSchedule, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket, portaalUrl });
+const P = require("./portaal")({ db, T, onRequest, onCall, onSchedule, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket, portaalUrl, verwerkFactuurBetaling });
 /* tweestapsverificatie voor het CRM en dagelijkse back-ups */
 Object.assign(exports, BEV.functies);
 /* bank: betalingen automatisch koppelen aan facturen (bankbestand of koppeling via Enable Banking) */
