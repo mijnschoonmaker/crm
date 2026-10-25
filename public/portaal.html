@@ -2390,7 +2390,7 @@ const FORM={
 async function beoordeel(n){const b=D.teBeoordelen;if(!b)return;
   if(n>=4){try{await api("actie",{body:{type:"beoordeling",beurtId:b.id,sterren:n}})}catch(e){toast(e.message);return}
     blad(`<div class="klaar-ic" style="background:var(--sun-s);color:var(--sun)">${I.ster}</div><h3 style="text-align:center">Wat fijn om te horen!</h3><p class="sub" style="text-align:center">${B.reviewLink?"Zou u dat ook met anderen willen delen? Een korte Google-review helpt ons enorm.":"Dank u wel voor uw beoordeling."}</p>
-      <div class="acties">${B.reviewLink?`<button class="" data-sluit>Nu niet</button><a class="primary" target="_blank" rel="noopener" href="${esc(B.reviewLink)}">Review schrijven</a>`:`<button class="primary" data-sluit>Sluiten</button>`}</div>`);laad(true);return}
+      <div class="acties">${B.reviewLink?`<button class="" data-sluit>Nu niet</button><a class="btn primary" style="white-space:nowrap;letter-spacing:.1em;gap:8px" target="_blank" rel="noopener" href="${esc(B.reviewLink)}" data-sluit>${I.ster}Review schrijven</a>`:`<button class="primary" data-sluit>Sluiten</button>`}</div>`);laad(true);return}
   blad(`<h3>Dank voor uw eerlijkheid</h3><p class="sub">Wat kon er beter? Dan zorgen we dat het de volgende keer wel goed gaat. Waar nodig nemen we contact met u op.</p>
     <label class="veld"><span>Wat ging er mis?</span><textarea id="vt" placeholder="Bijvoorbeeld: strepen op het keukenraam"></textarea></label>
     <p class="fout" role="alert"></p><div class="acties"><button class="" data-sluit>Annuleren</button><button class="primary" data-go>Versturen</button></div>`,
