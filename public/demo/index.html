@@ -4547,6 +4547,14 @@ td.fb-cb:hover .fb-box{border-color:var(--brand);transform:scale(1.06)}
 @media(max-width:1280px){.cc-ops,.cc-dagrij{grid-template-columns:minmax(0,1fr) 380px}}
 @media(max-width:1100px){.cc-ops,.cc-dagrij{grid-template-columns:minmax(0,1fr)}.cc-adv{max-height:none;order:-1}.cc-q{overflow:visible}.cc-live .cc-map .rv-map{min-height:420px}.cc-dagrij .cc-side{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){.cc-dagstat{grid-template-columns:repeat(3,minmax(0,1fr))}.cc-dagstat div:nth-child(n+4){grid-column:span 1}.cc-live .cc-map .rv-map{min-height:320px}.cc-dagrij .cc-side{grid-template-columns:minmax(0,1fr)}.cc-vlg{margin-left:0;width:100%}}
+/* voortgang vandaag */
+.cc-voortgang{height:6px;border-radius:3px;background:#eceef2;overflow:hidden;margin:-4px 0 8px}.cc-voortgang span{display:block;height:100%;background:linear-gradient(90deg,#3f8b6a,#23845a);border-radius:3px;transition:width .6s}
+.cc-pinfo{display:block;font-style:normal;font-size:12px;margin-top:2px;color:var(--cc-mut)}.cc-pinfo.ok{color:#2f6b4c}.cc-pinfo.soon{color:#3b5f9b}.cc-pinfo.next{color:#252c3c;font-weight:600}
+.cc-pst{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:5px 10px;border-radius:99px;border:1px solid var(--cc-line);color:#5b6472;white-space:nowrap}.cc-pst svg{width:13px;height:13px}
+.cc-pst.ok{background:#e8f2ec;border-color:#cfe5d7;color:#2f6b4c}.cc-pst.soon{background:#e9eef8;border-color:#cdd8ee;color:#3b5f9b}.cc-pst.next{background:#252c3c;border-color:#252c3c;color:#fff}
+.cc-puls{width:8px;height:8px;border-radius:50%;background:#3b5f9b;animation:ccPuls3 1.4s ease-out infinite}@keyframes ccPuls3{0%{box-shadow:0 0 0 0 rgb(59 95 155 / .5)}100%{box-shadow:0 0 0 8px rgb(59 95 155 / 0)}}
+.cc-plan li.st-next::before{background:#252c3c}.cc-plan li.st-ok .cc-pt{color:#7c8794}
+.cc-pst.open{background:#fff7ec;border-color:#f1d9b5;color:#a45f12}.cc-pinfo.open{color:#a45f12}.cc-plan li.st-open::before{background:#e0a050}
 
 </style>
 <style id="mansardThema">
@@ -15031,9 +15039,17 @@ function ccLiveCheck(){if(!state.loaded||isMw())return;clearTimeout(ccLiveT);ccL
 function ccMarkeerGezien(){if(state.tab!=="control"||document.hidden)return;const G=ccGezien();let n=0;ccSignalen().forEach(m=>{if(!G.has(m.key)){G.add(m.key);n++}});if(n)setTimeout(ccBewaarGezien,0)}
 
 /* ---------- planning vandaag (zelfde lijst als Vandaag) ---------- */
-function ccPlanning(){const ti=iso(today());return routeStops(ti).map(({k,done})=>{const g=parse(k.gepland),laat=!done&&g&&g<today();
-  const st=done?["ok","Afgerond"]:k.bezig?["soon","In uitvoering"]:laat?["late","Te laat"]:["neutral","Gepland"];
-  return {k,tijd:k.tijd||"",st,dienst:k.dienst||"Glasbewassing"}})}
+/* voortgang van vandaag: afgemeld (door wie, hoe laat), bezig (sinds wanneer), volgende, gepland. Geen "te laat" uit het ritme. */
+function ccPlanning(){const ti=iso(today()),hm=x=>{const d=new Date(x);return isNaN(d)?"":String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")};let volgendeGezet=false;
+  const R=routeStops(ti),laatst=Math.max(-1,...R.map((x,i)=>x.done||x.k.bezig?i:-1));
+  return R.map(({k,done},i)=>{let st,info="";
+    if(done){const b=state.beurten.filter(x=>x.klantId===k.id&&x.datum===ti).sort((a,c)=>String(c.op||"").localeCompare(String(a.op||"")))[0]||{};
+      st=["ok","Afgerond"];info=["Afgemeld"+(b.door?" door "+String(b.door).split(/[\s@]/)[0]:"")+(b.op?" om "+hm(b.op):""),b.duur?Math.round(b.duur)+" min":"",b.bedrag?eur(b.bedrag):""].filter(Boolean).join(" · ")}
+    else if(k.bezig){const m=Math.max(0,Math.round((Date.now()-new Date(k.bezig))/6e4));st=["soon","Bezig"];info="Gestart om "+hm(k.bezig)+(m?" · "+m+" min bezig":"")}
+    else if(i<laatst){st=["open","Niet afgemeld"];info="Overgeslagen of nog niet afgemeld"}
+    else if(!volgendeGezet){volgendeGezet=true;st=["next","Volgende"];info=k.gepland&&k.gepland<ti?"Doorgeschoven van "+fmtD(k.gepland):"Hierna aan de beurt"}
+    else{st=["neutral","Gepland"];info=k.gepland&&k.gepland<ti?"Doorgeschoven van "+fmtD(k.gepland):""}
+    return {k,tijd:k.tijd||"",st,info,dienst:k.dienst||"Glasbewassing"}})}
 
 /* ---------- recente activiteiten, samengesteld uit bestaande gegevens (niets wordt extra geregistreerd) ---------- */
 function ccActiviteit(){const ev=[],grens=iso(addDays(today(),-30)),d10=s=>String(s||"").slice(0,10),tijd=(s,fb)=>{const m=String(s||"").match(/T(\d{2}:\d{2})/);return m?m[1]:fb||""};
@@ -15121,9 +15137,9 @@ function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActivite
   const dag=t.toLocaleDateString("nl-NL",{weekday:"long"}),dat=t.toLocaleDateString("nl-NL",{day:"numeric",month:"long",year:"numeric"});
   const kpi=(ic,cls,l,v,sub,subCls,act)=>`<button type="button" class="cc-kpi" data-cc="${act}"><span class="cc-ki ${cls}">${I[ic]}</span><span class="cc-kt"><small>${l}</small><b>${v}</b><em class="${subCls||""}">${sub}</em></span></button>`;
   const sig=ccWachtrijHtml(S_);
-  const plan=P.length?`<ul class="cc-plan">${P.map(x=>`<li class="st-${x.st[0]}"><span class="cc-pt">${esc(x.tijd||"—")}</span><button type="button" class="cc-pk" data-cc="klant:${esc(x.k.id)}"><b>${esc(x.dienst)}</b> · ${esc(ccNaam(x.k))}<small>${esc([jobAddrObj(x.k).adres,x.k.plaats].filter(Boolean).join(", "))}</small></button><span class="pill ${x.st[0]}">${x.st[1]}</span></li>`).join("")}</ul>`
-    :`<p class="cc-leeg">Vandaag staat er niets op de planning.</p>`;
   const nu=P.filter(x=>!x.st||x.st[1]!=="Afgerond").length,klaar=P.length-nu;
+  const plan=P.length?`<div class="cc-voortgang"><span style="width:${P.length?Math.round(klaar/P.length*100):0}%"></span></div><ul class="cc-plan">${P.map(x=>`<li class="st-${x.st[0]}"><span class="cc-pt">${esc(x.tijd||"—")}</span><button type="button" class="cc-pk" data-cc="klant:${esc(x.k.id)}"><b>${esc(x.dienst)}</b> · ${esc(ccNaam(x.k))}<small>${esc([jobAddrObj(x.k).adres,x.k.plaats].filter(Boolean).join(", "))}</small>${x.info?`<em class="cc-pinfo ${x.st[0]}">${esc(x.info)}</em>`:""}</button><span class="cc-pst ${x.st[0]}">${x.st[0]==="ok"?I.check:x.st[0]==="soon"?'<i class="cc-puls"></i>':""}${x.st[1]}</span></li>`).join("")}</ul>`
+    :`<p class="cc-leeg">Vandaag staat er niets op de planning.</p>`;
   const act=A.length?`<ul class="cc-act">${A.map(e=>`<li><span class="cc-at">${esc(e.lbl)}</span><span class="cc-ai ${e.kl}">${I[e.ic]||I.check}</span><button type="button" data-cc="${esc(e.act)}"><b>${esc(e.t)}</b><small>${esc(e.s)}</small></button></li>`).join("")}</ul>`
     :`<p class="cc-leeg">Nog geen activiteit in de afgelopen 30 dagen.</p>`;
   const prf=(l,v,sub)=>`<div class="cc-pf"><small>${l}</small><b>${v==null?"—":v}</b><em>${sub}</em></div>`;
@@ -15143,7 +15159,7 @@ function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActivite
     <section class="cc-adv" id="ccAdv"><div class="cc-ah"><span class="cc-aic">${I.spark}</span><div><b>Meldingen · MANSARD adviseert</b><small>${S_.length?`Nog ${S_.length} open · van boven naar beneden afwerken`:"Alles is afgehandeld"}</small></div>${S_.length?`<span class="cc-cnt">${S_.length}</span>`:""}</div><div class="cc-q">${sig}</div></section>
   </div>
   <div class="cc-dagrij">
-    <section class="cc-card"><div class="cc-ch"><div><b>${I.planning}Planning vandaag</b><small>${P.length?`${plural(P.length,"adres","adressen")} · ${klaar} klaar`:"Vandaag geen adressen"}</small></div><button type="button" class="cc-link" data-cc="tab:planning">Bekijk planning${I.right||""}</button></div>${plan}</section>
+    <section class="cc-card"><div class="cc-ch"><div><b>${I.planning}Voortgang vandaag</b><small>${P.length?`${klaar} van ${P.length} afgemeld${P.some(x=>x.st[0]==="soon")?" · 1 bezig":""}`:"Vandaag geen adressen"}</small></div><button type="button" class="cc-link" data-cc="tab:planning">Bekijk planning${I.right||""}</button></div>${plan}</section>
     <div class="cc-side">
       <section class="cc-card"><div class="cc-ch"><div><b>${I.spark}Snelle acties</b></div></div>
         <div class="cc-qa">${[["klanten","Nieuwe klant","nieuw:klant","N"],["offertes","Offerte maken","nieuw:offerte","O"],["facturen","Factuur maken","nieuw:factuur","F"],["phone","Klant bellen","bellen","⌘K"],["msg","Bericht sturen","tab:communicatie","C"],["planning","Planning openen","tab:planning","P"]].map(([ic,l,a,kb])=>`<button type="button" data-cc="${a}">${I[ic]}<span>${l}</span><kbd>${kb}</kbd></button>`).join("")}</div></section>
