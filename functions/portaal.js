@@ -106,7 +106,7 @@ module.exports = function maakPortaal(ctx) {
   const fStatus = f => f.status === "betaald" ? "betaald" : f.status === "oninbaar" ? "gesloten" : f.verval && f.verval < isoNL() ? "verlopen" : "open";
   const bedrijfInfo = (b, base) => ({ naam: b.naam || "mijnschoonmaker.com", logo: (b.logoMail || b.logo) ? base + "/_blob/" + (b.logoMail || b.logo) : "", telefoon: b.telefoon || "", mobiel: b.mobiel || b.telefoon || "", email: b.email || "", website: b.website || "", iban: b.iban || "", reviewLink: b.reviewLink || "", kleur: b.mailAccent || b.hoofdkleur || "#137a8a",
     voorwaarden: b.voorwaardenPdf ? base + "/_blob/" + b.voorwaardenPdf : "", tijdWeergave: b.portaalTijd || "venster", refAan: b.refAan !== false, refBeloning: b.refBeloning != null && b.refBeloning !== "" ? Number(b.refBeloning) : 20, refWelkom: b.refWelkom != null && b.refWelkom !== "" ? Number(b.refWelkom) : 10, werkStart: b.werkStart || "08:00",
-    credits: { review: 0, beurt: 0, extra: numOf(b.crExtra, 3), aanbevelen: numOf(b.refBeloning, 20), snel: numOf(b.crSnel, 0.5), jaar: numOf(b.crJaar, 10) } });
+    credits: { review: 0, beurt: 0, extra: numOf(b.crExtra, 3), aanbevelen: numOf(b.refBeloning, 20), snel: numOf(b.crSnel, 0.5), jaar: 0 } });
   const numOf = (v, d) => v != null && v !== "" && !isNaN(Number(v)) ? Number(v) : d;
 
   /* ---------- live meekijken: waar rijdt de glazenwasser (alleen voor klanten van vandaag) ---------- */
@@ -635,7 +635,7 @@ module.exports = function maakPortaal(ctx) {
     for (const k of K.values()) {
       if (k.actief === false || k.prospect) continue;
       const sinds = String(k.aangemaakt || "");
-      if (cr.jaar > 0 && /^\d{4}-\d{2}-\d{2}$/.test(sinds) && sinds.slice(5) === md && jaar - Number(sinds.slice(0, 4)) >= 1) {
+      if (false && cr.jaar > 0 && /^\d{4}-\d{2}-\d{2}$/.test(sinds) && sinds.slice(5) === md && jaar - Number(sinds.slice(0, 4)) >= 1) {
         const n = jaar - Number(sinds.slice(0, 4));
         if (geef(k, cr.jaar, "Credits: " + n + " jaar klant", "jaar", jaar)) jubileum.push([k, n]);
       }

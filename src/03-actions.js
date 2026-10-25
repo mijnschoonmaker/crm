@@ -532,7 +532,7 @@ function sendF(id,o={}){
     recipients:[{k:(()=>{const kk=state.klanten.find(x=>x.id===f.klantId);return kk?mailK(kk,off?"offerte":"factuur"):{naam:f.klantNaam,email:f.klantEmail}})(),vars:(()=>{const v=factVars(f),kk=state.klanten.find(x=>x.id===f.klantId),t=tavK(kk,off?"offerte":"factuur");if(t)v.klant=t;return v})(),ref:(late?"aanmaning:":"factuur:")+f.id,
       onSent:()=>save("facturen",f.id,late?{...strip(f),herinnerdOp:iso(today()),herinneringen:(Number(f.herinneringen)||0)+1,...(o.wik?{wikOp:iso(today())}:{})}:{...strip(f),verstuurdOp:f.verstuurdOp||iso(today()),verstuurdTs:f.verstuurdTs||new Date().toISOString(),status:off&&(f.status||"concept")==="concept"?"verstuurd":f.status})}]});
 }
-function openBulk(group,tpl){
+function openBulk(group,tpl){if(typeof group!=="string")group="";
   const t=today();let ks=[],title="Groepsbericht",datum=null;
   if(group==="route"){datum=parse(state.routeDay||iso(t));ks=routeStops(iso(datum)).filter(s=>!s.done).map(s=>s.k);title="Klanten van "+longD(datum)}
   else if(group==="alle"){ks=actief();title="Alle actieve klanten"}
