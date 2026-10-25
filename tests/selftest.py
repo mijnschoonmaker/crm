@@ -235,12 +235,15 @@ def teplannen(pg):
       {const k0=T.state.klanten.find(x=>x.id===id);await T.save('klanten',id,{...T.strip(k0),aanbodGezien:d(2)})}
       const c=T.teplannen(T.addDays(T.today(),7)).some(k=>k.id===id);
       const k=T.state.klanten.find(x=>x.id===id);await T.save('klanten',id,{...T.strip(k),ramenRegel:{f:[5],vol:[d(40)]}});
-      const b=T.teplannen(T.addDays(T.today(),7)).some(k=>k.id===id);await T.del('klanten',id);return {a,b,c}}""")
+      const b=T.teplannen(T.addDays(T.today(),7)).some(k=>k.id===id);await T.del('klanten',id);
+      const id2=T.newId('kp');await T.save('klanten',id2,{naam:'Nieuw, Test',prijs:50,frequentie:16,actief:true,aanbieden:true,ramenRegel:{f:[11,5],vol:[d(60),d(60)]},log:[],objecten:[]});
+      const e=T.teplannen(T.today()).some(k=>k.id===id2),f=T.teplannen(T.addDays(T.today(),61)).some(k=>k.id===id2);await T.del('klanten',id2);return {a,b,c,e,f}}""")
     if r is None:
         return check(G, "Te plannen", False, "teplannen niet gevonden")
     check(G, "Eerdere aanboddatum komt bij Te plannen", r["a"] is True, r)
     check(G, "Bewust later ingepland: niet nog eens bij Te plannen", r.get("c") is False, r)
     check(G, "Latere aanboddatum laat de afspraak staan", r["b"] is False, r)
+    check(G, "Nieuwe klant met latere aanboddatum: nog niet bij Te plannen", r.get("e") is False and r.get("f") is True, r)
     # gemiste afspraak (eerder ingepland dan de frequentie): verplaatsen naar morgen is niet "te vroeg"
     r = pg.evaluate("""()=>{const T=MSTEST;if(!T.teVroeg)return null;const d=n=>T.iso(T.addDays(T.today(),n));
       const k={naam:'Vroeg, Test',frequentie:6,laatst:d(-14),actief:true};

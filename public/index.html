@@ -6596,7 +6596,10 @@ function occurrences(k,from,to){
 const overdue=()=>actief().filter(k=>{const p=parse(k.gepland);return p?p<today():volgende(k)<today()});
 const dueOf=k=>{const p=parse(k.gepland);return p&&p<today()?p:k.aanbieden&&!p?today():volgende(k)};
 function teplannen(upTo){const t=today(),ti=iso(t);return actief().filter(k=>{if(k.uitstelTot&&k.uitstelTot>ti&&!k.gepland)return false;if(k.einddatum&&k.einddatum<ti&&!k.gepland)return false;if(k.opdrachtVerwijderd&&!k.gepland)return false;if(Number(k.maxOpen)>0&&!k.gepland&&state.facturen.filter(f=>f.klantId===k.id&&f.soort!=="offerte"&&["Openstaand","Achterstallig"].includes(fStatus(f)[1])).length>=Number(k.maxOpen))return false;const p=parse(k.gepland);if(p&&p>t){/* al ingepland, maar een verdieping is eerder aan de beurt dan toen je hem inplande: dan toch aanbieden om eerder te plannen.
-    Heb je hem bewust na die datum ingepland (aanbodGezien), dan staat hij alleen in de agenda. */const a=aanbodVan(k),av=a&&parse(a.min);return !!(av&&av<p&&av<=upTo&&(!k.aanbodGezien||a.min<k.aanbodGezien))}return p?p<t:(k.aanbieden||volgende(k)<=upTo||extraAanBeurt(k,upTo))}).sort((a,b)=>dueOf(a)-dueOf(b))}
+    Heb je hem bewust na die datum ingepland (aanbodGezien), dan staat hij alleen in de agenda. */const a=aanbodVan(k),av=a&&parse(a.min);return !!(av&&av<p&&av<=upTo&&(!k.aanbodGezien||a.min<k.aanbodGezien))}if(p)return p<t;
+    /* staat bij elke verdieping een aanboddatum en ligt de vroegste na de gekozen datum, dan nog niet aanbieden (ook niet als hij als nieuw/aanbieden is gemarkeerd) */
+    {const a=aanbodVan(k),av=a&&a.alle&&parse(a.min);if(av&&av>upTo)return extraAanBeurt(k,upTo)}
+    return k.aanbieden||volgende(k)<=upTo||extraAanBeurt(k,upTo)}).sort((a,b)=>dueOf(a)-dueOf(b))}
 /* een andere dienst (bv. reiniging gevelelementen) is aan de beurt: dan komt de klant bij Te plannen en gaat de glasbewassing mee */
 function extraAanBeurt(k,upTo){if(S().glasMee===false)return false;const u=iso(upTo instanceof Date?upTo:parse(upTo)||today());return (k.opdrachten||[]).some(o=>o.actief!==false&&!o.apart&&o.volgende&&o.volgende<=u&&(!k.laatst||o.volgende>k.laatst))}
 function dueTxt(k){
