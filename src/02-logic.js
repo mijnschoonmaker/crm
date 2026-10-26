@@ -94,9 +94,14 @@ const mapsQ=k=>"https://www.google.com/maps/search/?api=1&query="+encodeURICompo
 /* opdrachten: de hoofdopdracht staat op de klant zelf, extra opdrachten (goten, zonnepanelen…) liften mee met de beurt waarop ze aan de beurt zijn */
 const isEersteKeer=k=>k.eersteKeer!=null?!!k.eersteKeer:!state.beurten.some(b=>b.klantId===k.id);
 const freqLabel=w=>{w=Number(w)||4;if(fqSpec(w))return fqSpecTxt(w);const el=typeof freqEigenLabel==="function"?freqEigenLabel(w):"";if(el)return el;return w===52?"Elk jaar":w===26?"Elk half jaar":w===13?"Elk kwartaal":"Elke "+w+" "+(w===1?"week":"weken")};
-const extraOpdr=k=>{/* een dienst die bij een losse (apart ingeplande) opdracht hoort (o.bij), gaat mee met die afspraak, niet met de glasbewassing op het hoofdadres */
-  if(k&&k.hoofdKlantId){const h=state.klanten.find(x=>x.id===k.hoofdKlantId);return h?(h.opdrachten||[]).filter(o=>o.actief!==false&&o.bij&&o.bij===k.opdrachtId):[]}
-  const L=(k&&k.opdrachten)||[];return L.filter(o=>o.actief!==false&&!o.apart&&!(o.bij&&L.some(p=>p.id===o.bij&&p.apart&&p.actief!==false)))};/* apart ingeplande opdrachten gaan niet mee met de glasbewassing */
+/* bij welke opdracht hoort een extra dienst? Gekoppeld (o.bij), of anders: dezelfde locatie als een losse (apart ingeplande) opdracht.
+   Zo gaat een dienst alleen mee met de glasbewassing op hetzelfde adres; andere adressen staan er los van. */
+function opdrBij(k,o){const L=(k&&k.opdrachten)||[];if(!o||o.apart)return"";
+  if(o.bij&&o.bij!==o.id&&L.some(p=>p.id===o.bij&&p.actief!==false))return o.bij;
+  const loc=o.objectId&&o.objectId!=="hoofd"?o.objectId:"";if(!loc)return"";const p=L.find(p=>p.apart&&p.actief!==false&&p.objectId===loc);return p?p.id:""}
+const extraOpdr=k=>{
+  if(k&&k.hoofdKlantId){const h=state.klanten.find(x=>x.id===k.hoofdKlantId);return h?(h.opdrachten||[]).filter(o=>o.actief!==false&&opdrBij(h,o)===k.opdrachtId):[]}
+  const L=(k&&k.opdrachten)||[];return L.filter(o=>o.actief!==false&&!o.apart&&!opdrBij(k,o))};/* apart ingeplande opdrachten gaan niet mee met de glasbewassing */
 const extraDue=(k,day)=>{const d=day||iso(today()),out=[];extraOpdr(k).forEach(o=>{const oDue=!o.volgende||o.volgende<=d;
     if(!o.items||typeof groepCalc!=="function"){if(oDue)out.push(o);return}
     const c=groepCalc(o,it=>it.fq?(!it.vol||it.vol<=d):(!it.vol||it.vol<=d));if(!c.rows.length)return;const st=S(),mul=st.incl?1+(Number(st.btw)||21)/100:1;

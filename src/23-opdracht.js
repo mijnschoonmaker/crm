@@ -2,7 +2,7 @@
 function openOpdrachtWerk(kid,focus){
   const k=state.klanten.find(x=>x.id===kid);if(!k)return;
   /* een dienst die bij een andere opdracht hoort, opent in die opdracht */
-  {const c=focus&&(k.opdrachten||[]).find(o=>o.id===focus);if(c&&c.bij&&(k.opdrachten||[]).some(o=>o.id===c.bij))focus=c.bij}
+  {const c=focus&&(k.opdrachten||[]).find(o=>o.id===focus),p=c&&opdrBij(k,c);if(p)focus=p}
   const st=S(),incl=!!st.incl,btwL=incl?"incl.":"excl.";
   /* bestaande extra opdrachten (eigen nummer, bijv. 1002-2) horen niet in het werkblad van de hoofdopdracht; ze blijven wel bewaard */
   let extra=(k.opdrachten||[]).map(o=>({...o,_bestaand:true}));
@@ -14,7 +14,7 @@ function openOpdrachtWerk(kid,focus){
   const soloNr=(()=>{if(soloI<0)return 1;const eo=typeof extraOpdr==="function"?extraOpdr(k):(k.opdrachten||[]),j=eo.findIndex(o=>o.id===soloId);return (soloId&&typeof opdrNr==="function"&&(k.opdrachten||[]).some(o=>o.id===soloId))?(extra[soloI].nr||opdrNr(k,soloId)):typeof opdrVolgNr==="function"?opdrVolgNr(k):(j>=0?j+2:eo.length+2)})();
   /* losse opdracht (eigen nummer): het adres stel je links bij Adres in, voor deze opdracht */
   /* in een losse opdracht kun je meer diensten toevoegen: elke extra dienst wordt een eigen opdracht (eigen nummer) op hetzelfde adres */
-  const soloSet=new Set(soloI>=0?[soloI,...extra.map((o,i)=>o.bij&&o.bij===soloId&&o.actief!==false?i:-1).filter(i=>i>=0)]:[]);
+  const soloSet=new Set(soloI>=0?[soloI,...extra.map((o,i)=>i!==soloI&&o.actief!==false&&opdrBij(k,o)===soloId?i:-1).filter(i=>i>=0)]:[]);
   const soloR=soloI>=0?extra[soloI]:null,soloAdr=()=>{const o=soloR&&soloR.objectId&&(k.objecten||[]).find(x=>x.id===soloR.objectId&&x.adres);return o?fullAddr(o)+(o.naam?" · "+o.naam:""):fullAddr(k)};
   let fotos=[...(k.fotos||[])];
   const tFotos=(k.ramenTelling&&k.ramenTelling.fotos)||[];
@@ -215,7 +215,7 @@ function openOpdrachtWerk(kid,focus){
       </div>`}
       ${!isMain&&r.items?itemsHtml(r,i):r.ramen?calcHtml(r,i,isMain):isGlas(r.dienst)?`<button type="button" class="small" data-calcopen="${isMain?"m":i}">${I.calculator}Ramen per verdieping invullen</button>`:""}
       ${!isMain&&!soloSet.has(i)&&(r.ramen||isGlas(r.dienst))?adresKeuze(r,i):""}
-      ${isMain?"":r.bij&&r.bij!==r.id&&soloSet.has(i)&&i!==soloI?`<label class="check-row"><input type="checkbox" data-i="${i}" data-k="actief" ${r.actief!==false?"checked":""}>Actief · gaat mee met deze opdracht</label>`:`<label class="check-row"><input type="checkbox" data-i="${i}" data-k="actief" ${r.actief!==false?"checked":""}>Actief${r.apart?"":" · gaat mee met de beurt waarop hij aan de beurt is"}</label>
+      ${isMain?"":soloSet.has(i)&&i!==soloI?`<label class="check-row"><input type="checkbox" data-i="${i}" data-k="actief" ${r.actief!==false?"checked":""}>Actief · gaat mee met de dienst ${esc(String((soloR&&soloR.dienst)||"glasbewassing").toLowerCase())} van deze opdracht wanneer die weer aan de beurt is</label>`:`<label class="check-row"><input type="checkbox" data-i="${i}" data-k="actief" ${r.actief!==false?"checked":""}>Actief${r.apart?"":" · gaat mee met de dienst glasbewassing wanneer deze weer aan de beurt is"}</label>
       <label class="check-row"><input type="checkbox" data-i="${i}" data-k="apart" ${r.apart?"checked":""}>Apart inplannen · eigen afspraak in de agenda, met eigen tijd en factuur <small class="subt">(voor grote klussen; anders gaat hij mee met de glasbewassing)</small></label>
       ${i===soloI&&!extra.some(x=>x.bij===r.id)?(()=>{const kand=extra.filter(x=>x.id!==r.id&&!x.bij&&!x._nieuw&&x.actief!==false&&String(x.dienst||"").trim()&&(x.objectId||"")===(r.objectId||""));return kand.length?`<label>Hoort bij opdracht<select data-i="${i}" data-k="bij"><option value="">Eigen opdracht</option>${kand.map(x=>`<option value="${esc(x.id)}" ${r.bij===x.id?"selected":""}>#${esc(nr)}-${esc(x.nr||opdrNr(k,x.id))} · ${esc(x.dienst)}</option>`).join("")}</select><small class="help">Kies een opdracht op hetzelfde adres: deze dienst gaat dan mee met die afspraak.</small></label>`:""})():""}`}
       <div class="ow-lsave"><button type="button" class="small primary" data-lsave="${isMain?"m":i}">${I.check}Opslaan</button></div>
@@ -374,7 +374,7 @@ function openOpdrachtWerk(kid,focus){
     return {...strip(cur),dienst:String(main.dienst||"").trim()||"Glasbewassing",prijs:r2(Number(main.prijs)||0),ramenRegel:main.ramen||null,frequentie:mW.length?1:(mF||4),weekdagen:mW.length?mW:[],...(mW.length?{autoplan:true}:{}),duur:mD||30,ronde:$o("ronde").value.trim(),contactPlanning:$o("contact").value,eersteKeer:$o("eerste").value==="ja",toeslag:Number($o("toeslag").value)||0,toeslagReden:$o("toeslagr").value.trim(),verbergAantal:$o("verbA").checked,verbergFreq:$o("verbF").checked,afmeldMail:$o("afmail").checked,
       binnen:false,actief,...(actief?{}:{gepland:"",tijd:""}),akkoord:$o("akkoord").checked,incasso:$o("betaal").value==="incasso",...factModusPatch($o("fact").value,k),
       taak:soloR?(cur.taak||""):$o("taak").value.trim(),...($o("vvetaken")?vveEdLees($o("vvetaken")):{}),hosp:hosp.map(x=>({c:x.c||"voorkeur",t:String(x.t||"").trim(),...(x.af?{af:x.af}:{}),...(x.c==="verteld"&&x.vanaf?{vanaf:x.vanaf}:{})})).filter(x=>x.t),bellen:$o("bellen").checked,startdatum:$o("start").value,einddatum:$o("eind").value,btwVerlegd:$o("verlegd").checked,aanbieden:cur.gepland?!!cur.aanbieden:aanb.aanbieden,uitstelTot:aanb.uitstelTot,artikelen:arts.filter(a=>String(a.naam||"").trim()).map(a=>({naam:String(a.naam).trim(),aantal:Number(a.aantal)||1,prijs:r2(Number(a.prijs)||0)})),middelen:mids,objectId:$o("obj")?$o("obj").value:cur.objectId||"",fotos,
-      opdrachten:extra.filter(o=>String(o.dienst||"").trim()).map(({_nieuw,_toon,_bestaand,_solo,...o})=>({...o,dienst:String(o.dienst).trim(),prijs:r2(Number(o.prijs)||0),frequentie:o.items?itemsRitme(o):Number(o.frequentie)||52,...(o.ramen?ramenRitmeDatum(o):{})}))}};
+      opdrachten:extra.filter(o=>String(o.dienst||"").trim()).map(({_nieuw,_toon,_bestaand,_solo,...o})=>({...o,dienst:String(o.dienst).trim(),prijs:r2(Number(o.prijs)||0),frequentie:o.items?itemsRitme(o):Number(o.frequentie)||52,...(o.ramen?ramenRitmeDatum(o):{}),...(o.objectId&&o.objectId!=="hoofd"&&!o.bij&&!o.apart&&!opdrBij({opdrachten:extra},o)?{apart:true}:{})}))}};
   $("#owLog").onclick=async()=>{const v=$o("log").value.trim();if(!v)return;const d=collect();d.log=[...(d.log||[]),{datum:iso(today()),tekst:v}];
     try{await save("klanten",kid,d);toast("Genoteerd");setTimeout(()=>openOpdrachtWerk(kid),60)}catch(er){err(er)}};
   /* opslaan per dienst: alles bewaren en in het werkblad blijven */
