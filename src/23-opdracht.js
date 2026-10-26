@@ -4,6 +4,8 @@ function openOpdrachtWerk(kid,focus){
   const st=S(),incl=!!st.incl,btwL=incl?"incl.":"excl.";
   /* bestaande extra opdrachten (eigen nummer, bijv. 1002-2) horen niet in het werkblad van de hoofdopdracht; ze blijven wel bewaard */
   let extra=(k.opdrachten||[]).map(o=>({...o,_bestaand:true}));
+  /* gewijzigde tarieven (Uitvoering › Diensten) meteen in de opdracht; de nieuwe prijs wordt bewaard bij Opslaan */
+  extra.forEach(o=>{try{if(o.items&&groepTarievenBij(o)){const c=groepCalc(o),mul=incl?1+(Number(st.btw)||21)/100:1;o.prijs=r2(c.ex*mul);o.duur=Math.max(5,Math.ceil(c.sec/60/5)*5)}}catch(e){console.error(e)}});
   if(focus==="new")extra.push({id:newId("o"),dienst:"",prijs:"",frequentie:52,duur:30,volgende:"",actief:true,_nieuw:true});
   /* een extra of nieuwe opdracht opent als eigen opdrachtkaart met een eigen nummer (bijv. 1002-2); de hoofdopdracht blijft ongemoeid */
   const soloId=focus&&!["main","hosp"].includes(focus)?(focus==="new"?extra[extra.length-1].id:focus):null,soloI=soloId?extra.findIndex(o=>o.id===soloId):-1;

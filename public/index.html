@@ -6525,8 +6525,11 @@ async function nrBewaker(){if(nrBezig||!MIJN_F.size)return;nrBezig=1;
 function bcVast(data){if(!data||data.soort!=="factuur")return data;const d={...data};
   if(d.status==="concept"){delete d.beheercode;return d}
   if(d.beheercode==null){const k=(state.klanten||[]).find(x=>x.id===d.klantId);if(k&&k.beheercode)d.beheercode=String(k.beheercode)}return d}
-async function save(col,id,data){if(col==="klanten"&&typeof OW_NIEUW!=="undefined"&&OW_NIEUW&&OW_NIEUW.kid===id&&OW_NIEUW.klaar)OW_NIEUW.bewaard=true;if(col==="facturen"){data=bcVast(data);if(typeof btwVast==="function")data=btwVast(data,!(state.facturen||[]).some(f=>f.id===id))}if(col==="facturen"&&!(state.facturen||[]).some(f=>f.id===id))MIJN_F.add(id);if(state.db)await state.db.collection(col).doc(id).set(data);else{if(data&&data._handmatig){data={...data};delete data._handmatig}mem[col].set(id,{...data,id});apply(col,[...mem[col].values()]);schedule()}}
-async function del(col,id){if(state.db)await state.db.collection(col).doc(id).delete();else{mem[col].delete(id);apply(col,[...mem[col].values()]);schedule()}}
+async function save(col,id,data){if(col==="klanten"&&typeof OW_NIEUW!=="undefined"&&OW_NIEUW&&OW_NIEUW.kid===id&&OW_NIEUW.klaar)OW_NIEUW.bewaard=true;if(col==="facturen"){data=bcVast(data);if(typeof btwVast==="function")data=btwVast(data,!(state.facturen||[]).some(f=>f.id===id))}if(col==="facturen"&&!(state.facturen||[]).some(f=>f.id===id))MIJN_F.add(id);if(state.db){await state.db.collection(col).doc(id).set(data);
+    /* meteen in beeld (zonder te vernieuwen): de opslag via de server meldt zich soms pas later terug; die melding overschrijft dit daarna gewoon */
+    try{const L=RAW[col];if(Array.isArray(L)){const d={...data,id};if(d._handmatig)delete d._handmatig;const i=L.findIndex(x=>x.id===id);apply(col,i>=0?L.map((x,j)=>j===i?d:x):[...L,d]);schedule()}}catch(e){}}
+  else{if(data&&data._handmatig){data={...data};delete data._handmatig}mem[col].set(id,{...data,id});apply(col,[...mem[col].values()]);schedule()}}
+async function del(col,id){if(state.db){await state.db.collection(col).doc(id).delete();try{const L=RAW[col];if(Array.isArray(L)&&L.some(x=>x.id===id)){apply(col,L.filter(x=>x.id!==id));schedule()}}catch(e){}}else{mem[col].delete(id);apply(col,[...mem[col].values()]);schedule()}}
 let rq=0;function schedule(){if(rq)return;rq=requestAnimationFrame(()=>{rq=0;render()})}
 async function init(){
   const use=async n=>{try{return window.claude?await window.claude.use(n):null}catch(e){return null}};
@@ -12693,6 +12696,8 @@ function openOpdrachtWerk(kid,focus){
   const st=S(),incl=!!st.incl,btwL=incl?"incl.":"excl.";
   /* bestaande extra opdrachten (eigen nummer, bijv. 1002-2) horen niet in het werkblad van de hoofdopdracht; ze blijven wel bewaard */
   let extra=(k.opdrachten||[]).map(o=>({...o,_bestaand:true}));
+  /* gewijzigde tarieven (Uitvoering › Diensten) meteen in de opdracht; de nieuwe prijs wordt bewaard bij Opslaan */
+  extra.forEach(o=>{try{if(o.items&&groepTarievenBij(o)){const c=groepCalc(o),mul=incl?1+(Number(st.btw)||21)/100:1;o.prijs=r2(c.ex*mul);o.duur=Math.max(5,Math.ceil(c.sec/60/5)*5)}}catch(e){console.error(e)}});
   if(focus==="new")extra.push({id:newId("o"),dienst:"",prijs:"",frequentie:52,duur:30,volgende:"",actief:true,_nieuw:true});
   /* een extra of nieuwe opdracht opent als eigen opdrachtkaart met een eigen nummer (bijv. 1002-2); de hoofdopdracht blijft ongemoeid */
   const soloId=focus&&!["main","hosp"].includes(focus)?(focus==="new"?extra[extra.length-1].id:focus):null,soloI=soloId?extra.findIndex(o=>o.id===soloId):-1;
@@ -13390,6 +13395,14 @@ function uAct(a,t){
 function uFreqGroep(id){const src=Udirty&&U?U:(state.uitv&&state.uitv.groepen?state.uitv:null);if(!src)return {keuzes:null,advies:null};
   const g=[...(src.groepen||[]),...(src.eigen||[])].find(x=>x.id===id||(id==="glas"&&x.type==="glas"));if(!g)return {keuzes:null,advies:null};
   return {keuzes:Array.isArray(g.freqs)&&g.freqs.length?g.freqs.map(String):null,advies:g.freqAdvies!=null&&g.freqAdvies!==""?String(g.freqAdvies):null}}
+/* opdracht openen: tarieven van de onderdelen bijwerken naar wat nu bij Uitvoering › Diensten staat (overschreven prijzen blijven) */
+function groepTarievenBij(o){if(!o||!Array.isArray(o.items)||!o.groep)return false;if(!RC)RC=buildRamen();const c=RC.cfgAll();
+  const src=(typeof Udirty!=="undefined"&&Udirty&&U)?U:(state.uitv&&state.uitv.groepen?state.uitv:null);if(!src)return false;
+  const g=[...(src.groepen||[]),...(src.eigen||[])].find(x=>x.id===o.groep);if(!g)return false;let anders=false;
+  o.items=o.items.map(it=>{const d=(g.items||[]).find(x=>x.id===it.id);if(!d)return it;
+    const nw={prijs:Number(d.key?c[d.key+"_p"]:d.prijs)||0,sec:Number(d.key?c[d.key+"_s"]:d.sec)||0,eenheid:d.eenheid||it.eenheid,tiers:d.key?((c.tb&&c.tb[d.key])||[]):(d.tiers||[]),weging:d.key?(c.wg&&c.wg[d.key]!=null&&c.wg[d.key]!==""?Number(c.wg[d.key]):100):(d.weging??100),btw:d.btw??it.btw??21};
+    if(["prijs","sec","eenheid","weging","btw"].some(k=>String(it[k]??"")!==String(nw[k]??""))||JSON.stringify(it.tiers||[])!==JSON.stringify(nw.tiers)){anders=true;return {...it,...nw}}return it});
+  return anders}
 function uDienstLijst(){
   if(!RC)RC=buildRamen();const c=RC.cfgAll();
   const src=Udirty&&U?U:(state.uitv&&state.uitv.groepen?state.uitv:null);
@@ -17313,7 +17326,7 @@ addEventListener("scroll",()=>{const m=document.getElementById("mobOffer");docum
 if(!LIVE&&typeof location!=="undefined"&&/[?&]selftest\b/.test(location.search)){
   window.MSTEST={state,S,save,del,totals,nextNr,nrDelen,wikKosten,fStatus,afronden,gewassen,billAll,setFStatus,iso,today,addDays,newId,strip,render,
     fin,beurtOmzet,klantFilter,extraOpdr,opdrNr:typeof opdrNr==="function"?opdrNr:null,openOpdrachtWerk:typeof openOpdrachtWerk==="function"?openOpdrachtWerk:null,teplannen,fhVolgende:typeof fhVolgende==="function"?fhVolgende:null,fhPoort:typeof fhPoort==="function"?fhPoort:null,groepEditor:typeof groepEditor==="function"?groepEditor:null,melding,stDienstSplit,klantActiefIn,openImport,relVolgende:typeof relVolgende==="function"?relVolgende:null,beurtMin,meetTeKort,wdCijfers:typeof wdCijfers==="function"?wdCijfers:null,kmFmt:typeof kmFmt==="function"?kmFmt:null,kmAfst:typeof kmAfst==="function"?kmAfst:null,saveSettings,
-    groepCalc:typeof groepCalc==="function"?groepCalc:null,wqOpen:typeof wqOpen==="function"?wqOpen:null,ccZet:typeof ccZet==="function"?ccZet:null,ccSignalen:typeof ccSignalen==="function"?ccSignalen:null,teVroeg:typeof teVroeg==="function"?teVroeg:null,mailFor:typeof mailFor==="function"?mailFor:null,volgendeNa:typeof volgendeNa==="function"?volgendeNa:null,verplaatsAllePatch:typeof verplaatsAllePatch==="function"?verplaatsAllePatch:null,heeftVervolg:typeof heeftVervolg==="function"?heeftVervolg:null,occurrences:typeof occurrences==="function"?occurrences:null,fbLees:typeof fbLees==="function"?fbLees:null,bhVerkoopboek:typeof bhVerkoopboek==="function"?bhVerkoopboek:null,invData:typeof invData==="function"?invData:null,bcVast,ccKpis:typeof ccKpis==="function"?ccKpis:null,ccSignalen:typeof ccSignalen==="function"?ccSignalen:null,ccZoek:typeof ccZoek==="function"?ccZoek:null,ccAlle:typeof ccAlle==="function"?ccAlle:null,openFactuurWerk:typeof openFactuurWerk==="function"?openFactuurWerk:null,paperHtml:typeof paperHtml==="function"?paperHtml:null,btwRegel:typeof btwRegel==="function"?btwRegel:null,btwVast:typeof btwVast==="function"?btwVast:null,vveAanDeBeurt:typeof vveAanDeBeurt==="function"?vveAanDeBeurt:null,nrBewaker,msStatus:typeof msStatus==="function"?msStatus:null,MS:typeof MS!=="undefined"?MS:null,
+    groepTarievenBij:typeof groepTarievenBij==="function"?groepTarievenBij:null,groepCalc:typeof groepCalc==="function"?groepCalc:null,wqOpen:typeof wqOpen==="function"?wqOpen:null,ccZet:typeof ccZet==="function"?ccZet:null,ccSignalen:typeof ccSignalen==="function"?ccSignalen:null,teVroeg:typeof teVroeg==="function"?teVroeg:null,mailFor:typeof mailFor==="function"?mailFor:null,volgendeNa:typeof volgendeNa==="function"?volgendeNa:null,verplaatsAllePatch:typeof verplaatsAllePatch==="function"?verplaatsAllePatch:null,heeftVervolg:typeof heeftVervolg==="function"?heeftVervolg:null,occurrences:typeof occurrences==="function"?occurrences:null,fbLees:typeof fbLees==="function"?fbLees:null,bhVerkoopboek:typeof bhVerkoopboek==="function"?bhVerkoopboek:null,invData:typeof invData==="function"?invData:null,bcVast,ccKpis:typeof ccKpis==="function"?ccKpis:null,ccSignalen:typeof ccSignalen==="function"?ccSignalen:null,ccZoek:typeof ccZoek==="function"?ccZoek:null,ccAlle:typeof ccAlle==="function"?ccAlle:null,openFactuurWerk:typeof openFactuurWerk==="function"?openFactuurWerk:null,paperHtml:typeof paperHtml==="function"?paperHtml:null,btwRegel:typeof btwRegel==="function"?btwRegel:null,btwVast:typeof btwVast==="function"?btwVast:null,vveAanDeBeurt:typeof vveAanDeBeurt==="function"?vveAanDeBeurt:null,nrBewaker,msStatus:typeof msStatus==="function"?msStatus:null,MS:typeof MS!=="undefined"?MS:null,
     views:()=>PAGES.map(p=>p[0]),ga:t=>{state.tab=t;render()}};
 }
 

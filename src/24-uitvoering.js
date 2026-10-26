@@ -218,6 +218,14 @@ function uAct(a,t){
 function uFreqGroep(id){const src=Udirty&&U?U:(state.uitv&&state.uitv.groepen?state.uitv:null);if(!src)return {keuzes:null,advies:null};
   const g=[...(src.groepen||[]),...(src.eigen||[])].find(x=>x.id===id||(id==="glas"&&x.type==="glas"));if(!g)return {keuzes:null,advies:null};
   return {keuzes:Array.isArray(g.freqs)&&g.freqs.length?g.freqs.map(String):null,advies:g.freqAdvies!=null&&g.freqAdvies!==""?String(g.freqAdvies):null}}
+/* opdracht openen: tarieven van de onderdelen bijwerken naar wat nu bij Uitvoering › Diensten staat (overschreven prijzen blijven) */
+function groepTarievenBij(o){if(!o||!Array.isArray(o.items)||!o.groep)return false;if(!RC)RC=buildRamen();const c=RC.cfgAll();
+  const src=(typeof Udirty!=="undefined"&&Udirty&&U)?U:(state.uitv&&state.uitv.groepen?state.uitv:null);if(!src)return false;
+  const g=[...(src.groepen||[]),...(src.eigen||[])].find(x=>x.id===o.groep);if(!g)return false;let anders=false;
+  o.items=o.items.map(it=>{const d=(g.items||[]).find(x=>x.id===it.id);if(!d)return it;
+    const nw={prijs:Number(d.key?c[d.key+"_p"]:d.prijs)||0,sec:Number(d.key?c[d.key+"_s"]:d.sec)||0,eenheid:d.eenheid||it.eenheid,tiers:d.key?((c.tb&&c.tb[d.key])||[]):(d.tiers||[]),weging:d.key?(c.wg&&c.wg[d.key]!=null&&c.wg[d.key]!==""?Number(c.wg[d.key]):100):(d.weging??100),btw:d.btw??it.btw??21};
+    if(["prijs","sec","eenheid","weging","btw"].some(k=>String(it[k]??"")!==String(nw[k]??""))||JSON.stringify(it.tiers||[])!==JSON.stringify(nw.tiers)){anders=true;return {...it,...nw}}return it});
+  return anders}
 function uDienstLijst(){
   if(!RC)RC=buildRamen();const c=RC.cfgAll();
   const src=Udirty&&U?U:(state.uitv&&state.uitv.groepen?state.uitv:null);

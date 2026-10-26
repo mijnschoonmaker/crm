@@ -232,10 +232,15 @@ def freqkorting(pg):
     r = pg.evaluate("""()=>{const T=MSTEST;if(!T.groepCalc)return null;const oud=T.state.uitv;
       T.state.uitv={groepen:[{id:'goten',naam:'Goten',items:[],fpw:{"999":-50,"8":10}}],eigen:[]};
       const g=f=>T.groepCalc({groep:'goten',frequentie:f,items:[{id:'a',naam:'Goot',eenheid:'per meter',prijs:2,sec:30,aantal:10,tiers:[]}]}).ex;
-      const res={af:g(999),w8:g(8),w4:g(4)};T.state.uitv=oud;return res}""")
+      const af=g(999),w8=g(8),w4=g(4);
+      const o={groep:'goten',frequentie:4,items:[{id:'a',naam:'Goot',eenheid:'per meter',prijs:2,sec:30,aantal:10,tiers:[]}]};
+      T.state.uitv={groepen:[{id:'goten',naam:'Goten',items:[{id:'a',naam:'Goot',eenheid:'per meter',prijs:4,sec:30,tiers:[]}]}],eigen:[]};
+      const bij=T.groepTarievenBij(o);
+      const res={af,w8,w4,bij,np:o.items[0].prijs,aantal:o.items[0].aantal};T.state.uitv=oud;return res}""")
     if r is None:
         return check(G, "Frequentiekorting per dienst", False, "groepCalc niet gevonden")
     check(G, "Frequentiekorting per dienst (toeslag, korting, geen)", r["af"] == 30 and r["w8"] == 18 and r["w4"] == 20, r)
+    check(G, "Gewijzigd tarief komt in bestaande opdracht", r.get("bij") is True and r.get("np") == 4 and r.get("aantal") == 10, r)
 
 
 def teplannen(pg):
