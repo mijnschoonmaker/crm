@@ -9,7 +9,7 @@ function invData(f,klant){
   const regels=(f.regels||[]).map(r=>{const rb=rBtw(f,r),p=Number(r.prijs)||0,ex=incl?p/(1+rb/100):p,a=Number(r.aantal)||0;return{oms:omsZonderDatum(String(r.omschrijving||"").replace(/ ?\(minimumtarief\)/gi,"")),aantal:a,prijs:r2(ex),btw:rb,tot:r2(ex*a),subs:Array.isArray(r.subs)?r.subs:null}});
   const st=off?{concept:["CONCEPT","n"],verstuurd:["VERSTUURD","b"],geaccepteerd:["GEACCEPTEERD","g"],afgewezen:["AFGEWEZEN","r"]}[f.status||"concept"]:f.status==="betaald"?["BETAALD","g"]:f.status==="concept"?["CONCEPT","n"]:fStatus(f)[1]==="Achterstallig"?["VERVALLEN","r"]:["TE BETALEN","b"];
   /* volledige naam/adres: adres van de factuur, aangevuld met het (factuur)adres van de klant als daar iets ontbreekt */
-  const kAdr=k&&(k.adres||k.fAdres)?(typeof factAddr==="function"&&(off?false:k.fAdres)?factAddr(k):fullAddr(k)):"";
+  const kAdr=k&&(k.adres||k.fAdres)?(typeof factAddr==="function"&&!off&&(k.fAdres||k.hoofdKlantId)?factAddr(k):fullAddr(k)):"";
   let naar=String(f.klantAdres||"").split(", ").filter(Boolean);const kl=String(kAdr||"").split(", ").filter(Boolean);
   if(naar.length<2&&kl.length>naar.length)naar=kl;
   const tav=typeof tavK==="function"?tavK(k,off?"offerte":"factuur"):"";if(tav&&!naar.some(x=>x.includes(tav)))naar.unshift("T.a.v. "+tav);

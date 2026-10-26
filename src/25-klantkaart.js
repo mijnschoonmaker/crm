@@ -1,10 +1,14 @@
 /* klant + zijn losse opdrachten (apart ingeplande jobs met eigen afspraak en factuur): op de klantkaart samen tonen */
 const kkIds=k=>{if(!k)return[];const h=k.hoofdKlantId||k.id;return [h,...state.klanten.filter(x=>x.hoofdKlantId&&x.hoofdKlantId===h).map(x=>x.id)]};/* ook vanaf de kaart van een losse opdracht: alles van de klant */
 /* ---------- KLANTKAART: overzicht met blokken (zoals een klantdossier), per blok aanpassen ---------- */
-const factAddr=k=>k&&k.fAdres?[k.fAdres,[k.fPostcode,k.fPlaats].filter(Boolean).join(" ")].filter(Boolean).join(", "):(k&&k.adres?fullAddr(k):jobAddr(k));
+/* losse opdracht (eigen uitvoerlocatie): factuuradres, ontvangers en t.a.v. komen van de klant zelf (zoals in DienstenCRM: één factuuradres, meerdere locaties) */
+const kkHoofd=k=>k&&k.hoofdKlantId?(state.klanten.find(x=>x.id===k.hoofdKlantId)||k):k;
+const factAddr=k0=>{const k=kkHoofd(k0);return factAddr0(k)};
+const factAddr0=k=>k&&k.fAdres?[k.fAdres,[k.fPostcode,k.fPlaats].filter(Boolean).join(" ")].filter(Boolean).join(", "):(k&&k.adres?fullAddr(k):jobAddr(k));
 /* naar welk e-mailadres gaat wat: facturen, offertes of planningsmails (leeg = gewone e-mail) */
-const mailK=(k,soort)=>{if(!k)return k;const m=soort==="factuur"?k.fEmail:soort==="offerte"?k.oEmail:soort==="planning"?k.pEmail:"";return m?{...k,email:m}:k};
-const tavK=(k,soort)=>k?(soort==="factuur"?k.fTav:soort==="offerte"?k.oTav:soort==="planning"?k.pTav:"")||"":"";
+const mailK=(k,soort)=>{if(!k)return k;const h=kkHoofd(k)||k;const m=soort==="factuur"?h.fEmail:soort==="offerte"?h.oEmail:soort==="planning"?h.pEmail:"";return m?{...k,email:m}:(h!==k&&h.email?{...k,email:h.email}:k)};
+const tavK=(k0,soort)=>{const k=kkHoofd(k0);return tavK0(k,soort)};
+const tavK0=(k,soort)=>k?(soort==="factuur"?k.fTav:soort==="offerte"?k.oTav:soort==="planning"?k.pTav:"")||"":"";
 function betaalgedrag(fs){
   const f=fs.filter(x=>x.soort!=="offerte"&&x.status!=="concept");
   const c={aanmaning:0,herinnering:0,optijd:0,open:0};
