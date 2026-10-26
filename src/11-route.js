@@ -53,7 +53,9 @@ const RV_BUS='<img class="mbus" src="/img/mansard-bus.png" alt="" draggable="fal
 const RV_VLAG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/><path d="M5 4h13l-2.6 4L18 12H5z" fill="currentColor"/></svg>';
 function rvKaart(o){const{stops,done,todo,nx,klaar,mw,verdiend,totaal,restMin,klaarOm,uM,day,werkMin,reisMin,rt,isT,laat}=o,n=stops.length,pct=Math.round(done/n*100);
   /* waar staat het busje: bij het volgende adres onderweg (halverwege), aan het eind als alles klaar is */
-  const pos=klaar?1:n<2?0:done===0?0:Math.min(1,(done-.5)/(n-1));
+  /* busje staat vlak voor het VOLGENDE adres op de weg (niet op basis van het aantal klaar: een afgemeld adres kan ook verderop staan) */
+  const nxI=nx?stops.findIndex(s=>s.k.id===nx.id):-1;
+  const pos=klaar?1:n<2?0:nxI>0?Math.min(1,(nxI-.5)/(n-1)):nxI===0?0:done===0?0:Math.min(1,(done-.5)/(n-1));
   const sk="ms.rv."+day;let v0=pos,e0=verdiend;try{const x=JSON.parse(sessionStorage.getItem(sk)||"null");if(x){v0=x.v;e0=x.e}sessionStorage.setItem(sk,JSON.stringify({v:pos,e:verdiend}))}catch(e){}
   const vooruit=pos>v0+.001,meer=verdiend>e0+.5;
   const fase=klaar?"Dag klaar":laat?"Niet gestart":isT===false?"Gepland":done===0?"Klaar voor de start":todo.length===1?"Laatste adres":"Onderweg";
