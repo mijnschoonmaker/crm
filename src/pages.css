@@ -4303,3 +4303,7 @@ html body .leaflet-container .pl-bus img{width:52px!important;max-width:none!imp
   #view{overflow-wrap:break-word}
   .cc-ab,.cc-pst,.cc-sk,.cc-link,.cc-cnt,.pl-tag{white-space:normal;max-width:100%;min-width:0;text-align:left}
 }
+
+/* eigen diensten (Uitvoering › Diensten › bedrijfsspecifiek): blauwe rand zodat je ze herkent */
+.chip.chip-eigen,.ow-chips .chip.chip-eigen,button.chip.chip-eigen{border:1.5px solid #3b5f9b!important;box-shadow:none;background:rgb(59 95 155 / .06);color:#22355c}
+.chip.chip-eigen .chip-eg{margin-left:6px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:#3b5f9b;border-radius:99px;padding:1px 7px}

@@ -1281,3 +1281,7 @@ html body :is(.vh,.rv).klaar{background:var(--gb-lijn),var(--gb-vlak)!important;
 html body :is(.rv-map,.pk-map,.wp-map) .rv-laag.rv-centreer{top:auto;bottom:10px;display:inline-flex;align-items:center;gap:7px}
 html body :is(.rv-map,.pk-map,.wp-map) .rv-laag.rv-centreer[hidden]{display:none}
 html body:not(#zz) :is(.rv-map,.pk-map,.wp-map) .rv-laag.rv-centreer svg,html body:not(#zz) :is(.rv-map,.pk-map,.wp-map) .rv-laag.rv-centreer svg *{color:#252c3c!important;stroke:#252c3c!important;flex:none}
+/* eigen diensten: blauwe rand (Mansard-blauw) */
+html body:not(#zz) .chip.chip-eigen,html body:not(#zz) .ow-chips .chip.chip-eigen{border:1.5px solid #3b5f9b!important;background:rgb(59 95 155 / .06)!important;color:#22355c!important}
+html body:not(#zz) .ow-chips .chip.chip-eigen svg{background:rgb(59 95 155 / .14)}
+html body:not(#zz) .ow-chips .chip.chip-eigen:hover{border-color:#2f4f86!important}

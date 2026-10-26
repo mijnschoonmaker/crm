@@ -229,13 +229,13 @@ function groepTarievenBij(o){if(!o||!Array.isArray(o.items)||!o.groep)return fal
 function uDienstLijst(){
   if(!RC)RC=buildRamen();const c=RC.cfgAll();
   const src=Udirty&&U?U:(state.uitv&&state.uitv.groepen?state.uitv:null);
-  const groepen=src?[...(src.groepen||[]),...(src.eigen||[])]:uitvDefault().groepen;
+  const groepen=src?[...(src.groepen||[]),...(src.eigen||[]).map(g=>({...g,_eigen:true}))]:uitvDefault().groepen;
   const out=[];
   groepen.forEach(g=>{if(g.verberg)return;
     const items=(g.items||[]).map(it=>({id:it.id,naam:it.naam,eenheid:it.eenheid||"per stuk",prijs:Number(it.key?c[it.key+"_p"]:it.prijs)||0,sec:Number(it.key?c[it.key+"_s"]:it.sec)||0,tiers:it.key?((c.tb&&c.tb[it.key])||[]):(it.tiers||[]),weging:it.key?(c.wg&&c.wg[it.key]!=null&&c.wg[it.key]!==""?Number(c.wg[it.key]):100):(it.weging??100),btw:it.btw??21}));
     if(g.type==="glas"){out.push({naam:g.naam||"Glasbewassing",glas:true,prijs:0,duur:30,groep:g.id});return}
     const sec=items.reduce((a,x)=>a+x.sec,0);
-    const fq=uFreqGroep(g.id);out.push({naam:g.naam,groep:g.id,inCalc:g.inCalc!==false,freqs:fq.keuzes?fq.keuzes.map(Number).filter(Boolean):null,freqAdvies:fq.advies?Number(fq.advies)||0:0,items,prijs:items.length===1?items[0].prijs:0,duur:Math.max(5,Math.round(sec/60/5)*5)||30,eenheid:items.length===1?items[0].eenheid:""})});
+    const fq=uFreqGroep(g.id);out.push({naam:g.naam,groep:g.id,eigen:!!g._eigen,inCalc:g.inCalc!==false,freqs:fq.keuzes?fq.keuzes.map(Number).filter(Boolean):null,freqAdvies:fq.advies?Number(fq.advies)||0:0,items,prijs:items.length===1?items[0].prijs:0,duur:Math.max(5,Math.round(sec/60/5)*5)||30,eenheid:items.length===1?items[0].eenheid:""})});
   return out}
 /* prijs (excl.) en seconden van een regel met aantallen */
 function itemsCalc(items,W){/* staffel zoals bij de ramen: alle onderdelen van één dienst tellen samen mee (met hun wegingsfactor); halve meters tellen naar rato */
@@ -247,7 +247,7 @@ function itemsWeight(items){return Math.round((items||[]).reduce((a,it)=>{const 
 const eenhKort=e=>({"per strekkende meter":"m","per meter":"m","per m²":"m²","per uur":"uur","per paneel":"panelen","per raam":"ramen","per keer":"×"})[e]||"st";
 
 /* knoppen voor diensten: de gewone direct, de rest onder "+ Meer diensten" */
-function dienstChips(list,attr){const chip=(d,i)=>`<button type="button" class="chip" ${attr}="${i}">${I.plus}${esc(d.naam)}</button>`;
+function dienstChips(list,attr){const chip=(d,i)=>`<button type="button" class="chip${d.eigen?" chip-eigen":""}" ${attr}="${i}"${d.eigen?' title="Eigen dienst (Uitvoering › Diensten)"':""}>${I.plus}${esc(d.naam)}${d.eigen?'<small class="chip-eg">eigen</small>':""}</button>`;
   const hoofd=[],meer=[];list.forEach((d,i)=>(d.inCalc===false?meer:hoofd).push(chip(d,i)));
   return hoofd.join("")+(meer.length?`<button type="button" class="chip chip-meer" data-meer>${I.plus}Meer diensten (${meer.length})</button><span class="chips-meer" hidden>${meer.join("")}</span>`:"")}
 document.addEventListener("click",e=>{const b=e.target.closest("[data-meer]");if(!b)return;const s=b.nextElementSibling;if(s){s.hidden=false;b.hidden=true}});
