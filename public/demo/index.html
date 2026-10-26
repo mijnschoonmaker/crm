@@ -14569,11 +14569,16 @@ function dpOpen(i){if(dpIn===i){dpClose();return}dpClose();dpIn=i;i.classList.ad
   (i.closest("dialog")||document.body).appendChild(dpEl);
   const r=vpR(i),W=Math.min(320,innerWidth-16),H=dpEl.offsetHeight;let x=Math.min(Math.max(8,r.left),innerWidth-W-8),y=r.bottom+6;if(y+H>innerHeight-8)y=Math.max(8,r.top-H-6);
   Object.assign(dpEl.style,{left:x+"px",top:y+"px",width:W+"px"});
+  /* rechts in beeld houden (ook bij de 90%-weergave op een groot scherm): gemeten breedte, zelfde eenheden als left */
+  {const dl=i.closest("dialog"),cR=(dl?Math.min(vpR(dl).right,innerWidth):innerWidth)-8,Wv=vpR(dpEl).width||W;if(x+Wv>cR){x=Math.max(8,Math.min(r.right,cR)-Wv);dpEl.style.left=x+"px"}}
   /* nameten en binnen beeld schuiven: binnen een venster valt alles buiten de rand van dat venster weg */
   {const a=dpEl.getBoundingClientRect(),dl=i.closest("dialog"),c=dl?dl.getBoundingClientRect():null,vw=document.documentElement.clientWidth||innerWidth,vh=document.documentElement.clientHeight||innerHeight,k=a.width?W/a.width:1;
     const L=Math.max(8,c?c.left+8:8),R=Math.min(vw-8,c?c.right-8:vw-8),T=Math.max(8,c?c.top+8:8),B=Math.min(vh-8,c?c.bottom-8:vh-8);let dx=0,dy=0;
     if(a.right>R)dx=R-a.right;if(a.left+dx<L)dx=L-a.left;if(a.bottom>B)dy=B-a.bottom;if(a.top+dy<T)dy=T-a.top;
-    if(dx||dy)Object.assign(dpEl.style,{left:(x+dx*k)+"px",top:(y+dy*k)+"px"})}
+    if(dx||dy)Object.assign(dpEl.style,{left:(x+dx*k)+"px",top:(y+dy*k)+"px"});
+    /* Safari met zoom rekent soms anders: nameten en bijschuiven tot hij echt binnen het venster valt */
+    for(let n=0;n<4;n++){const b=dpEl.getBoundingClientRect(),c2=dl?dl.getBoundingClientRect():{left:0,right:vw};const rr=Math.min(vw,c2.right)-8,ll=Math.max(0,c2.left)+8;let d=0;if(b.right>rr+0.5)d=rr-b.right;else if(b.left<ll-0.5)d=ll-b.left;if(!d)break;
+      const L0=parseFloat(dpEl.style.left)||0;dpEl.style.left=(L0+d)+"px";const b2=dpEl.getBoundingClientRect(),moved=b2.left-b.left;if(moved&&Math.abs(moved-d)>0.5){dpEl.style.left=(L0+d*d/moved)+"px"}}}
   document.addEventListener("keydown",dpKey,true);
   dpEl.addEventListener("click",e=>{e.stopPropagation();const b=e.target.closest("button");if(!b)return;
     if(b.dataset.dp){dpSet(dpParse(b.dataset.dp));return}if(b.dataset.dpq!=null){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+(+b.dataset.dpq));dpSet(d);return}
