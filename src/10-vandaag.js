@@ -131,7 +131,7 @@ function openJob(id,day){
       ${k.email?`<div><dt>E-mail</dt><dd><a href="mailto:${esc(k.email)}">${esc(k.email)}</a></dd></div>`:""}
       <div><dt>Medewerker</dt><dd>${esc((state.me&&state.me.name)||st.naam||"")}</dd></div>
       <div><dt>Tijdsduur</dt><dd>${duur(k)} min${gemTijd(k)?` <small>gemeten ${gemTijd(k)} min</small>`:""} <button type="button" class="iconbtn sm" data-act="opdracht" data-id="${esc(k.id)}" aria-label="Opdracht aanpassen" title="Opdracht aanpassen">${I.edit||I.note}</button></dd></div>
-      <div class="jp-uit"><dt>Uit te voeren</dt><dd>${esc(k.dienst||"Glasbewassing")}${k.binnen?" (buiten en binnen)":""}${extraDue(k,day).length?` · ${extraDue(k,day).map(o=>esc(o.naam||o.dienst||"extra")).join(" · ")}`:""}${k.taak?`<small>${esc(k.taak)}</small>`:""}</dd></div>
+      <div class="jp-uit"><dt>Uit te voeren</dt><dd>${esc(k.dienst||"Glasbewassing")}${k.binnen?" (buiten en binnen)":""}${extraDue(k,day).length?` · ${extraDue(k,day).map(o=>esc(o.naam||o.dienst||"extra")+(o.taak?` <small>(${esc(o.taak)})</small>`:"")).join(" · ")}`:""}${k.taak?`<small>${esc(k.taak)}</small>`:""}</dd></div>
     </dl></div></div>
     <div><span class="eyebrow">Diensten</span><div class="jp-svc">${diensten.map(([n,p])=>`<div><span class="jp-ic">${I.wrench}</span><b>${esc(n)}${k.binnen?" (buiten en binnen)":""}</b><span>${eur(toon(p))}</span></div>`).join("")}</div></div>
     ${oBeurtBlok(k)}${hospRoute(k)}${toegangHtml(k)}${ookDezeBeurt(k,typeof day!=="undefined"?day:undefined)}${objInfo(k)}${jobExtra(k)}

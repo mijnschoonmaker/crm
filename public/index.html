@@ -7805,7 +7805,7 @@ function openJob(id,day){
       ${k.email?`<div><dt>E-mail</dt><dd><a href="mailto:${esc(k.email)}">${esc(k.email)}</a></dd></div>`:""}
       <div><dt>Medewerker</dt><dd>${esc((state.me&&state.me.name)||st.naam||"")}</dd></div>
       <div><dt>Tijdsduur</dt><dd>${duur(k)} min${gemTijd(k)?` <small>gemeten ${gemTijd(k)} min</small>`:""} <button type="button" class="iconbtn sm" data-act="opdracht" data-id="${esc(k.id)}" aria-label="Opdracht aanpassen" title="Opdracht aanpassen">${I.edit||I.note}</button></dd></div>
-      <div class="jp-uit"><dt>Uit te voeren</dt><dd>${esc(k.dienst||"Glasbewassing")}${k.binnen?" (buiten en binnen)":""}${extraDue(k,day).length?` · ${extraDue(k,day).map(o=>esc(o.naam||o.dienst||"extra")).join(" · ")}`:""}${k.taak?`<small>${esc(k.taak)}</small>`:""}</dd></div>
+      <div class="jp-uit"><dt>Uit te voeren</dt><dd>${esc(k.dienst||"Glasbewassing")}${k.binnen?" (buiten en binnen)":""}${extraDue(k,day).length?` · ${extraDue(k,day).map(o=>esc(o.naam||o.dienst||"extra")+(o.taak?` <small>(${esc(o.taak)})</small>`:"")).join(" · ")}`:""}${k.taak?`<small>${esc(k.taak)}</small>`:""}</dd></div>
     </dl></div></div>
     <div><span class="eyebrow">Diensten</span><div class="jp-svc">${diensten.map(([n,p])=>`<div><span class="jp-ic">${I.wrench}</span><b>${esc(n)}${k.binnen?" (buiten en binnen)":""}</b><span>${eur(toon(p))}</span></div>`).join("")}</div></div>
     ${oBeurtBlok(k)}${hospRoute(k)}${toegangHtml(k)}${ookDezeBeurt(k,typeof day!=="undefined"?day:undefined)}${objInfo(k)}${jobExtra(k)}
@@ -12755,7 +12755,7 @@ function openOpdrachtWerk(kid,focus){
       ${kv("Openstaande facturen",open.length?`<span class="pill late">${plural(open.length,"factuur","facturen")} · ${eur(open.reduce((a,f)=>a+totals(f).inc,0))}</span>`:"Nee")}</section>
   </div><div class="kk-side">
     <section class="kp"><div class="kp-h"><span class="objic">${I.pencil}</span><b>Taakomschrijving</b></div>
-      <textarea id="ow-taak" style="min-height:70px" placeholder="Bijv. wassen ramen incl. kozijnen, achterom via de poort">${esc(k.taak||"")}</textarea>
+      <textarea id="ow-taak" style="min-height:70px" placeholder="Bijv. wassen ramen incl. kozijnen, achterom via de poort">${esc(soloR?(soloR.taak||""):(k.taak||""))}</textarea>
 </section>
     ${k.soort==="vve"?`<section class="kp"><div class="kp-h"><span class="objic">${I.checksq||I.check}</span><b>Checklist VvE</b></div>
       <p class="subt" style="margin:0 0 8px">Per ruimte of taak hoe vaak. Bij het afmelden ziet je medewerker alleen wat die dag aan de beurt is; het bestuur ziet het in het portaal.</p>
@@ -13048,9 +13048,11 @@ function openOpdrachtWerk(kid,focus){
     const ws=idx.map(i=>Number((q.fq||[])[i])).filter(Boolean);if(ws.length)uit.frequentie=Math.min(...ws);
     const ds=idx.map(i=>(q.vol||[])[i]).filter(Boolean);if(ds.length===idx.length)uit.volgende=ds.sort()[0];return uit};
   const collect=()=>{syncRitme();const cur=state.klanten.find(x=>x.id===kid)||k,actief=$o("actief").checked;
+    /* taakomschrijving hoort bij deze opdracht: bij een losse opdracht (eigen nummer) in die opdracht, niet bij de klant */
+    if(soloR)soloR.taak=$o("taak").value.trim();
     return {...strip(cur),dienst:String(main.dienst||"").trim()||"Glasbewassing",prijs:r2(Number(main.prijs)||0),ramenRegel:main.ramen||null,frequentie:mW.length?1:(mF||4),weekdagen:mW.length?mW:[],...(mW.length?{autoplan:true}:{}),duur:mD||30,ronde:$o("ronde").value.trim(),contactPlanning:$o("contact").value,eersteKeer:$o("eerste").value==="ja",toeslag:Number($o("toeslag").value)||0,toeslagReden:$o("toeslagr").value.trim(),verbergAantal:$o("verbA").checked,verbergFreq:$o("verbF").checked,afmeldMail:$o("afmail").checked,
       binnen:false,actief,...(actief?{}:{gepland:"",tijd:""}),akkoord:$o("akkoord").checked,incasso:$o("betaal").value==="incasso",...factModusPatch($o("fact").value,k),
-      taak:$o("taak").value.trim(),...($o("vvetaken")?vveEdLees($o("vvetaken")):{}),hosp:hosp.map(x=>({c:x.c||"voorkeur",t:String(x.t||"").trim(),...(x.af?{af:x.af}:{}),...(x.c==="verteld"&&x.vanaf?{vanaf:x.vanaf}:{})})).filter(x=>x.t),bellen:$o("bellen").checked,startdatum:$o("start").value,einddatum:$o("eind").value,btwVerlegd:$o("verlegd").checked,aanbieden:cur.gepland?!!cur.aanbieden:aanb.aanbieden,uitstelTot:aanb.uitstelTot,artikelen:arts.filter(a=>String(a.naam||"").trim()).map(a=>({naam:String(a.naam).trim(),aantal:Number(a.aantal)||1,prijs:r2(Number(a.prijs)||0)})),middelen:mids,objectId:$o("obj")?$o("obj").value:cur.objectId||"",fotos,
+      taak:soloR?(cur.taak||""):$o("taak").value.trim(),...($o("vvetaken")?vveEdLees($o("vvetaken")):{}),hosp:hosp.map(x=>({c:x.c||"voorkeur",t:String(x.t||"").trim(),...(x.af?{af:x.af}:{}),...(x.c==="verteld"&&x.vanaf?{vanaf:x.vanaf}:{})})).filter(x=>x.t),bellen:$o("bellen").checked,startdatum:$o("start").value,einddatum:$o("eind").value,btwVerlegd:$o("verlegd").checked,aanbieden:cur.gepland?!!cur.aanbieden:aanb.aanbieden,uitstelTot:aanb.uitstelTot,artikelen:arts.filter(a=>String(a.naam||"").trim()).map(a=>({naam:String(a.naam).trim(),aantal:Number(a.aantal)||1,prijs:r2(Number(a.prijs)||0)})),middelen:mids,objectId:$o("obj")?$o("obj").value:cur.objectId||"",fotos,
       opdrachten:extra.filter(o=>String(o.dienst||"").trim()).map(({_nieuw,_toon,_bestaand,...o})=>({...o,dienst:String(o.dienst).trim(),prijs:r2(Number(o.prijs)||0),frequentie:o.items?itemsRitme(o):Number(o.frequentie)||52,...(o.ramen?ramenRitmeDatum(o):{})}))}};
   $("#owLog").onclick=async()=>{const v=$o("log").value.trim();if(!v)return;const d=collect();d.log=[...(d.log||[]),{datum:iso(today()),tekst:v}];
     try{await save("klanten",kid,d);toast("Genoteerd");setTimeout(()=>openOpdrachtWerk(kid),60)}catch(er){err(er)}};
@@ -16460,9 +16462,9 @@ async function opdrJobsSync(kid,d){const nu=iso(today());
     if(aan){const basis={};OPDR_VELDEN.forEach(f=>{if(d[f]!==undefined)basis[f]=d[f]});
       /* eigen adres (locatie van de klant): dat adres, en opnieuw op de kaart zetten */
       const loc=o.objectId&&(d.objecten||[]).find(x=>x.id===o.objectId&&x.adres);if(loc)Object.assign(basis,{adres:loc.adres,postcode:loc.postcode||"",plaats:loc.plaats||"",lat:null,lng:null,geo:null});
-      const v={...basis,dienst:o.dienst||"Extra opdracht",prijs:Number(o.prijs)||0,duur:Number(o.duur)||30,frequentie:Number(o.frequentie)||52,hoofdKlantId:kid,opdrachtId:o.id,opdrachtNr:o.nr||null,actief:true,prospect:false};
+      const v={...basis,dienst:o.dienst||"Extra opdracht",prijs:Number(o.prijs)||0,duur:Number(o.duur)||30,frequentie:Number(o.frequentie)||52,hoofdKlantId:kid,opdrachtId:o.id,opdrachtNr:o.nr||null,actief:true,prospect:false,taak:o.taak||""};
       if(!job){await save("klanten",newId("k"),{...v,autoplan:true,gepland:"",tijd:"",aanbieden:true,aanbodVanaf:o.volgende||"",aangemaakt:nu,log:[{datum:nu,tekst:"Losse opdracht aangemaakt vanuit de klant"}],objecten:[],opdrachten:[],eersteKeer:false})}
-      else if(["dienst","prijs","duur","frequentie","naam","adres","postcode","plaats","email","actief","opdrachtNr"].some(f=>String(job[f]??"")!==String(v[f]??"")))await save("klanten",job.id,{...strip(job),...v})}
+      else if(["dienst","prijs","duur","frequentie","naam","adres","postcode","plaats","email","actief","opdrachtNr","taak"].some(f=>String(job[f]??"")!==String(v[f]??"")))await save("klanten",job.id,{...strip(job),...v})}
     else if(job&&job.actief!==false)await save("klanten",job.id,{...strip(job),actief:false,gepland:"",tijd:"",log:[...(job.log||[]),{datum:nu,tekst:"Losse opdracht gestopt (niet meer apart ingepland)"}]})}
   /* opdracht verwijderd: losse job stoppen */
   for(const job of state.klanten.filter(x=>x.hoofdKlantId===kid&&x.actief!==false))if(!(d.opdrachten||[]).some(o=>o.id===job.opdrachtId))await save("klanten",job.id,{...strip(job),actief:false,gepland:"",tijd:""})}
