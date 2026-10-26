@@ -246,12 +246,12 @@ def freqkorting(pg):
 def bijopdracht(pg):
     G = "Opdrachten"
     r = pg.evaluate("""()=>{const T=MSTEST;if(!T.extraOpdr)return null;
-      const h={id:'hX',naam:'H',opdrachten:[{id:'p1',dienst:'Glasbewassing',apart:true,actief:true},{id:'c1',dienst:'Gevel',bij:'p1',actief:true},{id:'z1',dienst:'Goten',actief:true},{id:'p1x',dienst:'x',actief:true}].slice(0,3).concat([{id:'a2',dienst:'Glas',apart:true,actief:true,objectId:'locB'},{id:'c2',dienst:'Gevel B',actief:true,objectId:'locB'},{id:'c3',dienst:'Gevel C',actief:true,objectId:'locC',apart:true}])};
+      const h={id:'hX',naam:'H',opdrachten:[{id:'p1',dienst:'Glasbewassing',apart:true,actief:true},{id:'c1',dienst:'Gevel',bij:'p1',actief:true},{id:'z1',dienst:'Goten',actief:true},{id:'p1x',dienst:'x',actief:true}].slice(0,3).concat([{id:'a2',dienst:'Glas',apart:true,actief:true,objectId:'locB'},{id:'c2',dienst:'Gevel B',actief:true,objectId:'locB'},{id:'c3',dienst:'Gevel C',actief:true,objectId:'locC',apart:true},{id:'d1',dienst:'Glasbewassing',actief:true,objectId:'locD'},{id:'d2',dienst:'Gevel D',actief:true,objectId:'locD'}])};
       const j={id:'jX',hoofdKlantId:'hX',opdrachtId:'p1',opdrachten:[]},j2={id:'jY',hoofdKlantId:'hX',opdrachtId:'a2',opdrachten:[]};T.state.klanten.push(h,j,j2);
-      const res={hoofd:T.extraOpdr(h).map(o=>o.id),job:T.extraOpdr(j).map(o=>o.id),job2:T.extraOpdr(j2).map(o=>o.id)};T.state.klanten=T.state.klanten.filter(k=>!['hX','jX','jY'].includes(k.id));return res}""")
+      const res={hoofd:T.extraOpdr(h).map(o=>o.id),job:T.extraOpdr(j).map(o=>o.id),job2:T.extraOpdr(j2).map(o=>o.id),d2:T.opdrBij?T.opdrBij(h,h.opdrachten.find(o=>o.id==='d2')):'?'};T.state.klanten=T.state.klanten.filter(k=>!['hX','jX','jY'].includes(k.id));return res}""")
     if r is None:
         return check(G, "Dienst bij losse opdracht", False, "extraOpdr niet gevonden")
-    check(G, "Dienst bij losse opdracht gaat mee met die afspraak, niet met het hoofdadres", r["hoofd"] == ["z1"] and r["job"] == ["c1"] and r.get("job2") == ["c2"], r)
+    check(G, "Dienst bij losse opdracht gaat mee met die afspraak, niet met het hoofdadres", r["hoofd"] == ["z1"] and r["job"] == ["c1"] and r.get("job2") == ["c2"] and r.get("d2") == "d1", r)
 
 
 def teplannen(pg):

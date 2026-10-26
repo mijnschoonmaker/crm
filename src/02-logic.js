@@ -98,10 +98,12 @@ const freqLabel=w=>{w=Number(w)||4;if(fqSpec(w))return fqSpecTxt(w);const el=typ
    Zo gaat een dienst alleen mee met de glasbewassing op hetzelfde adres; andere adressen staan er los van. */
 function opdrBij(k,o){const L=(k&&k.opdrachten)||[];if(!o||o.apart)return"";
   if(o.bij&&o.bij!==o.id&&L.some(p=>p.id===o.bij&&p.actief!==false))return o.bij;
-  const loc=o.objectId&&o.objectId!=="hoofd"?o.objectId:"";if(!loc)return"";const p=L.find(p=>p.apart&&p.actief!==false&&p.objectId===loc);return p?p.id:""}
+  const loc=o.objectId&&o.objectId!=="hoofd"?o.objectId:"";if(!loc)return"";
+  /* hoofdopdracht van die locatie: de apart ingeplande, anders de glasbewassing, anders de eerste */
+  const c=L.filter(p=>p.actief!==false&&p.objectId===loc&&!p.bij),r=c.find(p=>p.apart)||c.find(p=>p.ramen||/glas/i.test(p.dienst||""))||c[0];return r&&r.id!==o.id?r.id:""}
 const extraOpdr=k=>{
   if(k&&k.hoofdKlantId){const h=state.klanten.find(x=>x.id===k.hoofdKlantId);return h?(h.opdrachten||[]).filter(o=>o.actief!==false&&opdrBij(h,o)===k.opdrachtId):[]}
-  const L=(k&&k.opdrachten)||[];return L.filter(o=>o.actief!==false&&!o.apart&&!opdrBij(k,o))};/* apart ingeplande opdrachten gaan niet mee met de glasbewassing */
+  const L=(k&&k.opdrachten)||[];return L.filter(o=>o.actief!==false&&!o.apart&&!opdrBij(k,o)&&!(o.objectId&&o.objectId!=="hoofd"))};/* op een ander adres nooit mee met het hoofdadres *//* apart ingeplande opdrachten gaan niet mee met de glasbewassing */
 const extraDue=(k,day)=>{const d=day||iso(today()),out=[];extraOpdr(k).forEach(o=>{const oDue=!o.volgende||o.volgende<=d;
     if(!o.items||typeof groepCalc!=="function"){if(oDue)out.push(o);return}
     const c=groepCalc(o,it=>it.fq?(!it.vol||it.vol<=d):(!it.vol||it.vol<=d));if(!c.rows.length)return;const st=S(),mul=st.incl?1+(Number(st.btw)||21)/100:1;
