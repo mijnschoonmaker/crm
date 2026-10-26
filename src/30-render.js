@@ -1,6 +1,6 @@
 /* ---------- RENDER ---------- */
 const VIEWS={control:vControl,vandaag:vRoute,route:vRoute,planning:vPlanning,klanten:vKlanten,communicatie:vCommunicatie,offertes:vOffertes,facturen:vFacturen,boekhouding:vBoekhouding,calculator:vRamen,uitvoering:vUitvoering,inzichten:vInzichten,instellingen:vInstellingen,handleiding:vHandleiding};
-function render(){try{warmMailLogo()}catch(e){}
+function render(){try{warmMailLogo()}catch(e){}try{sessionStorage.setItem("ms.tab",state.tab||"control");if(state.utab)sessionStorage.setItem("ms.utab",state.utab)}catch(e){}
   /* tellers in het menu: wat je in het Control Center op afgehandeld of later hebt gezet, telt niet mee */
   const af=typeof ccAf==="function"?ccAf:()=>false;
   const late=overdue().filter(k=>!(k.gepland==null||k.gepland==="")||!af(ccTlKey(k))).length,ach=facturen().filter(f=>fStatus(f)[1]==="Achterstallig"&&!af("fv:"+f.id)).length,mTodo=state.loaded?(typeof wqOpen==="function"?wqOpen():queues().reduce((a,q)=>a+q.items.length,0)):0;
@@ -32,7 +32,7 @@ function render(){try{warmMailLogo()}catch(e){}
 }
 /* paginawissel in de geschiedenis, zodat de terugknop naar de vorige pagina gaat */
 function go(tab){if(tab==="route")tab="vandaag";if(isMw()&&!MW_TABS.includes(tab))tab="vandaag";if(tab!==state.tab){try{history.pushState({msTab:tab},"")}catch(_){}}goTab(tab)}
-function goTab(tab){if(tab==="route")tab="vandaag";if(isMw()&&!MW_TABS.includes(tab))tab="vandaag";state.tab=tab;state.kmenu=state.fmenu=false;try{localStorage.setItem("zeem.tab",tab)}catch(_){}if(dlg.open)dlg.close();render();window.scrollTo(0,0)}
+function goTab(tab){if(tab==="route")tab="vandaag";if(isMw()&&!MW_TABS.includes(tab))tab="vandaag";state.tab=tab;state.kmenu=state.fmenu=false;try{localStorage.setItem("zeem.tab",tab);sessionStorage.setItem("ms.tab",tab)}catch(_){}if(dlg.open)dlg.close();render();window.scrollTo(0,0)}
 
 /* ---------- EVENTS ---------- */
 let swAt=0;

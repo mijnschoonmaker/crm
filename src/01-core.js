@@ -201,6 +201,8 @@ const state={tab:"vandaag",klanten:[],beurten:[],facturen:[],routes:{},settings:
   collapsed:false,loaded:false,db:null,dl:null,assets:null,me:null};
 /* startscherm: het Control Center (na vernieuwen herstelt 29-zherstel de vorige pagina; medewerkers gaan naar Vandaag) */
 try{state.tab="control";state.collapsed=localStorage.getItem("zeem.col")==="1"}catch(e){}
+/* vernieuwen (Cmd+R): op dezelfde pagina blijven. sessionStorage hoort bij dit tabblad, dus een nieuw geopende app begint gewoon bij het Control Center */
+try{const t=sessionStorage.getItem("ms.tab");if(t&&(PAGES.some(p=>p[0]===t)||["calculator","boekhouding"].includes(t)))state.tab=t;const u=sessionStorage.getItem("ms.utab");if(u)state.utab=u}catch(e){}
 const S=()=>({...DEF,...state.settings});
 const big=()=>matchMedia("(min-width:980px)").matches;
 

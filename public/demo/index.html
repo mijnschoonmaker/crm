@@ -6107,6 +6107,8 @@ const state={tab:"vandaag",klanten:[],beurten:[],facturen:[],routes:{},settings:
   collapsed:false,loaded:false,db:null,dl:null,assets:null,me:null};
 /* startscherm: het Control Center (na vernieuwen herstelt 29-zherstel de vorige pagina; medewerkers gaan naar Vandaag) */
 try{state.tab="control";state.collapsed=localStorage.getItem("zeem.col")==="1"}catch(e){}
+/* vernieuwen (Cmd+R): op dezelfde pagina blijven. sessionStorage hoort bij dit tabblad, dus een nieuw geopende app begint gewoon bij het Control Center */
+try{const t=sessionStorage.getItem("ms.tab");if(t&&(PAGES.some(p=>p[0]===t)||["calculator","boekhouding"].includes(t)))state.tab=t;const u=sessionStorage.getItem("ms.utab");if(u)state.utab=u}catch(e){}
 const S=()=>({...DEF,...state.settings});
 const big=()=>matchMedia("(min-width:980px)").matches;
 
@@ -16614,7 +16616,7 @@ SETEXTRA.vve=(c,s)=>{const vv=vveKlanten();
 
 /* ---------- RENDER ---------- */
 const VIEWS={control:vControl,vandaag:vRoute,route:vRoute,planning:vPlanning,klanten:vKlanten,communicatie:vCommunicatie,offertes:vOffertes,facturen:vFacturen,boekhouding:vBoekhouding,calculator:vRamen,uitvoering:vUitvoering,inzichten:vInzichten,instellingen:vInstellingen,handleiding:vHandleiding};
-function render(){try{warmMailLogo()}catch(e){}
+function render(){try{warmMailLogo()}catch(e){}try{sessionStorage.setItem("ms.tab",state.tab||"control");if(state.utab)sessionStorage.setItem("ms.utab",state.utab)}catch(e){}
   /* tellers in het menu: wat je in het Control Center op afgehandeld of later hebt gezet, telt niet mee */
   const af=typeof ccAf==="function"?ccAf:()=>false;
   const late=overdue().filter(k=>!(k.gepland==null||k.gepland==="")||!af(ccTlKey(k))).length,ach=facturen().filter(f=>fStatus(f)[1]==="Achterstallig"&&!af("fv:"+f.id)).length,mTodo=state.loaded?(typeof wqOpen==="function"?wqOpen():queues().reduce((a,q)=>a+q.items.length,0)):0;
@@ -16646,7 +16648,7 @@ function render(){try{warmMailLogo()}catch(e){}
 }
 /* paginawissel in de geschiedenis, zodat de terugknop naar de vorige pagina gaat */
 function go(tab){if(tab==="route")tab="vandaag";if(isMw()&&!MW_TABS.includes(tab))tab="vandaag";if(tab!==state.tab){try{history.pushState({msTab:tab},"")}catch(_){}}goTab(tab)}
-function goTab(tab){if(tab==="route")tab="vandaag";if(isMw()&&!MW_TABS.includes(tab))tab="vandaag";state.tab=tab;state.kmenu=state.fmenu=false;try{localStorage.setItem("zeem.tab",tab)}catch(_){}if(dlg.open)dlg.close();render();window.scrollTo(0,0)}
+function goTab(tab){if(tab==="route")tab="vandaag";if(isMw()&&!MW_TABS.includes(tab))tab="vandaag";state.tab=tab;state.kmenu=state.fmenu=false;try{localStorage.setItem("zeem.tab",tab);sessionStorage.setItem("ms.tab",tab)}catch(_){}if(dlg.open)dlg.close();render();window.scrollTo(0,0)}
 
 /* ---------- EVENTS ---------- */
 let swAt=0;
