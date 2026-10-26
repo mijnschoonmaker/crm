@@ -7,7 +7,7 @@ document.addEventListener("click",e=>{const t=e.target;if(!t.closest)return;
   RT_OPEN.add(row.dataset.rid);render();});
 function vRoute(){
   const day=state.routeDay||iso(today()),d=parse(day),stops=routeStops(day),todo=stops.filter(s=>!s.done);
-  const doneB=state.beurten.filter(b=>b.datum===day),verdiend=doneB.reduce((a,b)=>a+(Number(b.bedrag)||0),0),totaal=verdiend+todo.reduce((a,s)=>a+(Number(s.k.prijs)||0),0);
+  const doneB=state.beurten.filter(b=>b.datum===day),verdiend=doneB.reduce((a,b)=>a+toon(b.bedrag),0),totaal=verdiend+todo.reduce((a,s)=>a+toon(s.k.prijs),0);/* zelfde incl./excl. btw als de bedragen bij de stops */
   const pct=stops.length?Math.round((stops.length-todo.length)/stops.length*100):0,C=2*Math.PI*54;
   const isT=day===iso(today()),mw=isMw(),naam=esc((state.me&&state.me.name?state.me.name.split(" ")[0]:"")||"");
   const done=stops.length-todo.length,werkMin=todo.reduce((a,s)=>a+duur(s.k),0);
