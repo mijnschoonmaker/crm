@@ -110,7 +110,7 @@ function openWebAanvraag(){
 function kRitme(k){const t=today(),p=parse(k.gepland);
   if(k.actief===false||(k.opdrachtVerwijderd&&!p))return{z:"uit",f:0};
   if(p&&p>=t)return{z:"gepland",f:Math.min(1,1-(p-t)/DAY/Math.max(7,freqDays(k)))};
-  if(!k.laatst)return{z:"nieuw",f:1.15};
+  /* nieuw (nog nooit gewassen) is niet te laat: aan het begin van de baan */if(!k.laatst)return{z:"nieuw",f:0};
   const v=volgende(k),fd=Math.max(7,freqDays(k)),f=1-(v-t)/DAY/fd,d=Math.round((v-t)/DAY);
   return{z:d<0||(p&&p<t)?"laat":d<=7?"week":"ok",f}}
 function kRitmeKaart(){const ak=actief().filter(k=>!(k.opdrachtVerwijderd&&!k.gepland)),r=ak.map(k=>({k,...kRitme(k)})),n=z=>r.filter(x=>x.z===z).length,rz=state.krz;
