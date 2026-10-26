@@ -428,9 +428,9 @@ function ramenBerekening(q,opdrW,due){
   const calc=x=>{const key="g"+Math.min(3,x.i),w=Number(q.fq[x.i])||opdrW;return {p:x.n*(c[key+"_p"]||0)*(1-(SD[key]||0))*(1-RC.freqPct(w)/100),min:x.n*(c[key+"_s"]||0)/60}};
   const rows=fl.map(x=>{const b=calc(x);let p=b.p;if(has(q.op[x.i])){p=Number(q.op[x.i]);over=true}return {i:x.i,n:x.n,naam:FLN[x.i],p:r2(p),min:has(q.od[x.i])?Number(q.od[x.i]):b.min,calcP:r2(b.p),calcMin:Math.ceil(b.min),sec:c["g"+Math.min(3,x.i)+"_s"]||0,pp:c["g"+Math.min(3,x.i)+"_p"]||0,ovP:has(q.op[x.i]),ovD:has(q.od[x.i])}});
   const spread=(target,key)=>{const sum=rows.reduce((a,r)=>a+r[key],0);if(!rows.length||!(sum>0))return;const f=target/sum;let acc=0;rows.forEach((r,ix)=>{if(ix===rows.length-1)r[key]=key==="p"?r2(target-acc):Math.max(0,target-acc);else{r[key]=key==="p"?r2(r[key]*f):r[key]*f;acc+=r[key]}})};
-  /* bijzondere ramen (dak/tuimel, koepel, glas-in-lood, mini): eigen tarief, zonder frequentiekorting (zoals de calculator) */
+  /* bijzondere ramen (dak/tuimel, koepel, glas-in-lood, mini): eigen tarief, met de frequentiekorting van die dienst (Uitvoering › Diensten) */
   const spOk=k=>!due||!due.sp||due.sp[k];const sq=SPK.reduce((o,k)=>(o[k]=q.sp&&spOk(k)?Number(q.sp[k])||0:0,o),{}),SS=RC.staffel(SPK.map(k=>({k,n:Number(sq[k])||0})).filter(x=>x.n));
-  const srows=SPK.map(k=>{const n=Number(sq[k])||0;if(!n)return null;const cp=r2(n*(c[k+"_p"]||0)*(1-(SS[k]||0))),cm=n*(c[k+"_s"]||0)/60,op=q.spop&&q.spop[k],od=q.spod&&q.spod[k];if(has(op))over=true;
+  const srows=SPK.map(k=>{const n=Number(sq[k])||0;if(!n)return null;const cp=r2(n*(c[k+"_p"]||0)*(1-(SS[k]||0))*(typeof dienstFreqFactor==="function"?dienstFreqFactor("bijz",Number(q.spfq&&q.spfq[k])||opdrW):1)),cm=n*(c[k+"_s"]||0)/60,op=q.spop&&q.spop[k],od=q.spod&&q.spod[k];if(has(op))over=true;
     return {k,n,naam:SPN[k],p:has(op)?r2(Number(op)):cp,min:has(od)?Number(od):cm,cp,cm,ovP:has(op),ovD:has(od)}}).filter(Boolean);
   rows.push(...srows.map(r=>({...r,i:"s",calcP:r.cp,calcMin:Math.ceil(r.cm),sp:true})));
   let glas=rows.reduce((a,r)=>a+r.p,0),minG=false,totOver=false,aanvul=0;

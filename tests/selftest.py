@@ -227,6 +227,17 @@ def herinneringen(pg):
     check(G, "WIK-brief kan niet vóór de herinnering", r["p"] is False, r["p"])
 
 
+def freqkorting(pg):
+    G = "Diensten"
+    r = pg.evaluate("""()=>{const T=MSTEST;if(!T.groepCalc)return null;const oud=T.state.uitv;
+      T.state.uitv={groepen:[{id:'goten',naam:'Goten',items:[],fpw:{"999":-50,"8":10}}],eigen:[]};
+      const g=f=>T.groepCalc({groep:'goten',frequentie:f,items:[{id:'a',naam:'Goot',eenheid:'per meter',prijs:2,sec:30,aantal:10,tiers:[]}]}).ex;
+      const res={af:g(999),w8:g(8),w4:g(4)};T.state.uitv=oud;return res}""")
+    if r is None:
+        return check(G, "Frequentiekorting per dienst", False, "groepCalc niet gevonden")
+    check(G, "Frequentiekorting per dienst (toeslag, korting, geen)", r["af"] == 30 and r["w8"] == 18 and r["w4"] == 20, r)
+
+
 def teplannen(pg):
     G = "Planning"
     r = pg.evaluate("""async()=>{const T=MSTEST;if(!T.teplannen)return null;const d=n=>T.iso(T.addDays(T.today(),n)),id=T.newId('kp');
@@ -474,6 +485,7 @@ def main():
             frequentie(pg)
             herinneringen(pg)
             teplannen(pg)
+            freqkorting(pg)
             nieuweOpdracht(pg)
             opdrachtNummers(pg)
             werkdagTijd(pg)

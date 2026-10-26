@@ -119,7 +119,9 @@ function uEditHtml({g,it}){
         <label>Adviesfrequentie (staat standaard geselecteerd)<select data-u="g.freqAdvies" id="ug-fadv"><option value="">Geen voorkeur</option>${opts.filter(o=>alle||sel.includes(o.v)).map(o=>`<option value="${esc(o.v)}" ${adv===o.v?"selected":""}>${esc(o.l)}</option>`).join("")}</select></label>`})()}
       ${g.type==="glas"?`<div class="u-2"><label>Starttarief${uIn("ug-start","g.start",g.start,{pre:"€",post:"excl."})}</label><label>Minimumprijs${uIn("ug-min","g.min",g.min,{pre:"€",post:"excl."})}</label></div>
         <div class="u-sec"><b>Frequentie</b><span>Korting (%) — een negatief getal is een toeslag</span></div>
-        <div class="u-fp">${fl.map(f=>`<div class="u-fpr"><span>${esc(f.l)}</span>${uIn("ufp-"+f.k,"g.fp."+f.k,(g.fp||{})[f.k]??f.p,{step:"1",post:"%"})}</div>`).join("")}</div>`:""}
+        <div class="u-fp">${fl.map(f=>`<div class="u-fpr"><span>${esc(f.l)}</span>${uIn("ufp-"+f.k,"g.fp."+f.k,(g.fp||{})[f.k]??f.p,{step:"1",post:"%"})}</div>`).join("")}</div>`
+        :`<div class="u-sec"><b>Frequentie</b><span>Korting (%) per frequentie — een negatief getal is een toeslag (bijv. −50 bij op afroep)</span></div>
+        <div class="u-fp">${dienstFreqKeuzes().map(w=>`<div class="u-fpr"><span>${esc(fqSpec(w)?fqSpecTxt(w):fqTxt(w)||freqLabel(w))}</span>${uIn("ufw-"+w,"g.fpw."+w,(g.fpw||{})[w]??0,{step:"1",post:"%"})}</div>`).join("")}</div>`}
       ${del?`<button type="button" class="small danger" data-act="udelg" data-g="${esc(g.id)}">${I.trash}Categorie verwijderen</button>`:""}</div>`}
   const i=g.items.indexOf(it),canDel=!it.key;
   return `<div class="card u-ed"><div class="u-edh"><span class="objic">${I.wrench}</span><div><span class="eyebrow">${esc(g.naam)}</span><h3>${esc(it.naam||"Naamloos")}</h3></div>${!big()?`<button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button>`:""}</div>
@@ -244,9 +246,14 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-meer]");if
 
 /* ---------- regel met onderdelen (zoals Reiniging gevelelementen): per onderdeel frequentie, aanboddatum en eigen prijs/tijd ---------- */
 const gHas=v=>v!==""&&v!=null;
+/* frequentiekorting per dienst (zoals in DienstenCRM): instellingen/uitvoering · groep.fpw = {weken: %}. Negatief = toeslag. Glasbewassing zelf houdt zijn eigen kortingen (rekentool). */
+function dienstFreqPct(gid,w){if(!gid||gid==="glas")return 0;const src=(typeof Udirty!=="undefined"&&Udirty&&U)?U:state.uitv;if(!src)return 0;const g=[...(src.groepen||[]),...(src.eigen||[])].find(x=>x.id===gid);
+  const v=g&&g.fpw?g.fpw[String(Number(w)||0)]:null;return v===""||v==null?0:Math.max(-500,Math.min(100,Number(v)||0))}
+const dienstFreqFactor=(gid,w)=>1-dienstFreqPct(gid,w)/100;
+const dienstFreqKeuzes=()=>{const l=[...new Set(freqLijst().map(Number))].sort((a,b)=>a-b).filter(w=>!fqSpec(w));return [...l,FQ_AFROEP,FQ_EENMALIG]};
 function groepCalc(g,due){
   const all=(g.items||[]).filter(it=>Number(it.aantal)>0),its=due?all.filter(due):all;
-  const Wg=itemsWeight(all),row=it=>{const b=itemsCalc([it],Wg);return {it,p:gHas(it.op)?Number(it.op)||0:b.ex,sec:gHas(it.od)?(Number(it.od)||0)*60:b.sec,calcP:b.ex,calcSec:b.sec}};
+  const Wg=itemsWeight(all),row=it=>{const b0=itemsCalc([it],Wg),fk=dienstFreqFactor(g.groep,Number(it.fq)||Number(g.frequentie)),b={...b0,ex:r2(b0.ex*fk)};return {it,p:gHas(it.op)?Number(it.op)||0:b.ex,sec:gHas(it.od)?(Number(it.od)||0)*60:b.sec,calcP:b.ex,calcSec:b.sec}};
   const rowsAll=all.map(row),rows=due?rowsAll.filter(r=>its.includes(r.it)):rowsAll;
   const sumP=l=>l.reduce((a,r)=>a+r.p,0),sumS=l=>l.reduce((a,r)=>a+r.sec,0);
   let ex=sumP(rows),sec=sumS(rows);
@@ -263,7 +270,7 @@ function groepEditor(g,key,{offerte=false,freqDefault=8}={}){const c=groepCalc(g
   return `<div class="ge" data-ge="${key}">
     <label class="ge-full">Werkomschrijving<textarea data-gk="${key}" data-gf="oms" placeholder="Bijv. daklijsten voor- en achterzijde, inclusief klossen">${esc(g.oms||"")}</textarea></label>
     <p class="help ge-note">Let op: afspraken die al ingepland zijn veranderen niet als je hieronder iets aanpast.</p>
-    ${(()=>{const Wg=itemsWeight(g.items||[]);return (g.items||[]).map((it,j)=>{const on=Number(it.aantal)>0,b=itemsCalc([it],Wg);return `<div class="ge-it${on?" aan":""}">
+    ${(()=>{const Wg=itemsWeight(g.items||[]);return (g.items||[]).map((it,j)=>{const on=Number(it.aantal)>0,b0=itemsCalc([it],Wg),b={...b0,ex:r2(b0.ex*dienstFreqFactor(g.groep,Number(it.fq)||Number(g.frequentie)||freqDefault))};return `<div class="ge-it${on?" aan":""}">
       <div class="ge-row"><div class="ge-nm"><b>${esc(it.naam)}</b><small>${eur(it.prijs)} ${esc(it.eenheid)} excl. · ${it.sec} sec</small></div>
         <div class="ow-step"><button type="button" data-gk="${key}" data-gst="${j}:-1" aria-label="Min">−</button><input data-gk="${key}" data-gi="${j}" data-gf="aantal" type="number" min="0" step="any" inputmode="decimal" value="${esc(it.aantal||0)}" aria-label="Aantal ${esc(it.naam)}"><span>${esc(eenhKort(it.eenheid))}</span><button type="button" data-gk="${key}" data-gst="${j}:1" aria-label="Plus">+</button></div></div>
       ${on?`<div class="ge-sub">
