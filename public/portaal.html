@@ -1814,6 +1814,7 @@ async function demoApi(pad,opt){await new Promise(r=>setTimeout(r,250));
   if(/^tickets/.test(pad))return DEMO_TK;
   if(pad==="merk")return {naam:DEMO_DATA.bedrijf.naam,logo:"/logo.png"};
   if(pad==="live")return {live:null};
+  if(/^factuur\?id=o1/.test(pad)){const inc=96.8,ex=80;return {soort:"offerte",getekend:{naam:"Sanne de Vries",datum:"2026-03-04"},pdf:false,demo:true,nummer:"26-0012",datum:"2026-03-02",klantNaam:"Sanne de Vries",klantAdres:"Lindenlaan 14, 9801 AB Zuidhorn",regels:[{omschrijving:"Glasbewassing buiten (elke 8 weken)",aantal:1,prijs:80}],ex,btw:16.8,btwPct:21,inc,status:"geaccepteerd",bedrijf:{naam:DEMO_DATA.bedrijf.naam,adres:"Voorbeeldstraat 1",pcPlaats:"9800 AA Zuidhorn",kvk:"",btwnr:"",iban:""}}}
   if(/^factuur\?/.test(pad)){const id=decodeURIComponent((pad.split("id=")[1]||"")),f=DEMO_DATA.facturen.find(x=>x.id===id)||DEMO_DATA.facturen[0];const inc=f.bedrag,ex=Math.round(inc/1.21*100)/100;
     return {pdf:false,demo:true,incasso:false,nummer:f.nummer,datum:f.datum,verval:f.verval,klantNaam:"Sanne de Vries",klantAdres:"Lindenlaan 14, 9801 AB Zuidhorn",regels:[{omschrijving:"Glasbewassing · 14 ramen",aantal:1,prijs:inc}],incl:true,btwPct:21,ex:ex,btw:Math.round((inc-ex)*100)/100,inc:inc,status:f.status,betaaldOp:f.betaaldOp||"",betaallink:"",notitie:"",bedrijf:{...DEMO_DATA.bedrijf,adres:"Voorbeeldstraat 1",pcPlaats:"1234 AB Voorbeeld",kvk:"",btwnr:"",bic:""}}}
   if(opt&&opt.body){const b=opt.body||{};if(pad==="actie"&&b.type==="beheercode")DEMO_DATA.klant.beheercode=String(b.code||"").trim().slice(0,60);if(pad==="actie"&&b.type==="beoordeling"&&DEMO_DATA.teBeoordelen){const v=DEMO_DATA.bezoeken.find(x=>x.id===b.beurtId);if(v)v.beoordeling={sterren:b.sterren};DEMO_DATA.teBeoordelen=null}
@@ -2113,9 +2114,9 @@ function betaalGrafiek(P,open){
     <div class="bg-leg">${soorten.has("ok")?`<span><i class="ok"></i>Op tijd</span>`:""}${soorten.has("soon")?`<span><i class="soon"></i>Na de termijn</span>`:""}${soorten.has("open")?`<span><i class="open"></i>Staat open</span>`:""}${soorten.has("late")?`<span><i class="late"></i>Te laat</span>`:""}</div></div>`}
 /* getekende offertes terugzien */
 function offertes(){const O=D.offertes||[];
-  const rij=o=>lr(I.doc||I.fact,"Offerte "+esc(o.nummer||""),(o.getekendOp?"Getekend op "+esc(kort(o.getekendOp))+(o.getekendDoor?" door "+esc(o.getekendDoor):""):"Akkoord")+" · "+esc(kort(o.datum)),eur(o.bedrag),o.link?{href:o.link}:{});
+  const rij=o=>lr(I.doc||I.fact,"Offerte "+esc(o.nummer||""),(o.getekendOp?"Getekend op "+esc(kort(o.getekendOp))+(o.getekendDoor?" door "+esc(o.getekendDoor):""):"Akkoord")+" · "+esc(kort(o.datum)),eur(o.bedrag),{attr:`data-fact="${esc(o.id)}"`});
   return kop("Offertes",O.length?"De offertes die u heeft ondertekend.":"Hier ziet u uw ondertekende offertes.")+`<div class="pg">
-    ${kp(I.doc||I.fact,"Ondertekende offertes",O.length?`<div class="lijst">${O.map(rij).join("")}</div><p class="leeg" style="margin-top:10px">Tik op een offerte om hem met uw handtekening te bekijken.</p>`:`<p class="leeg">U heeft nog geen offerte ondertekend.</p>`,{sub:O.length?(O.length===1?"1 offerte":O.length+" offertes"):""})}</div>`}
+    ${kp(I.doc||I.fact,"Ondertekende offertes",O.length?`<div class="lijst">${O.map(rij).join("")}</div><p class="leeg" style="margin-top:10px">Tik op een offerte om hem te bekijken of als PDF te downloaden.</p>`:`<p class="leeg">U heeft nog geen offerte ondertekend.</p>`,{sub:O.length?(O.length===1?"1 offerte":O.length+" offertes"):""})}</div>`}
 function facturen(){const F=D.facturen,open=F.filter(f=>f.status!=="betaald"&&f.status!=="gesloten"),P=betaalProfiel(F);
   const BLIK='<svg viewBox="0 0 24 24"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12z"/></svg>';
   const pl=f=>f.status==="betaald"&&f.snelUren!=null&&f.snelUren<=24?`<span class="pill snel">${BLIK}${f.snelUren<1?"Binnen een uur betaald":f.snelUren<=4?"Binnen "+Math.round(f.snelUren)+" uur betaald":"Snel betaald"}</span>`:f.status==="betaald"?(f.betaaldOp&&f.datum?(()=>{const d=Math.max(0,Math.round((p(f.betaaldOp)-p(f.datum))/864e5)),laat=f.verval&&f.betaaldOp>f.verval;return `<span class="pill ${laat?"soon":"ok"}"><i></i>${laat?"Betaald · "+Math.round((p(f.betaaldOp)-p(f.verval))/864e5)+" d te laat":d===0?"Zelfde dag betaald":"Betaald in "+d+" d"}</span>`})():`<span class="pill ok"><i></i>Betaald</span>`)
@@ -2409,9 +2410,9 @@ function bladVul(o,html,na){const b=o.querySelector(".blad");b.style.minHeight=b
 async function openFactuur(id){let f;const sluit=blad(`<div class="laden" style="min-height:200px"><div class="spin"></div></div>`),o=sluit.o;
   try{f=await factuurHaal(id)}catch(e){sluit();toast(e.message);return}
   if(!o.isConnected)return;
-  const b=f.bedrijf,open=(f.status==="open"||f.status==="verlopen")&&!f.incasso;
-  const groot=matchMedia("(min-width:761px)").matches,naam="Factuur "+(f.nummer||"")+".pdf";
-  const kopTxt=`<h3>Factuur ${esc(f.nummer)}</h3><p class="sub">${f.status==="betaald"?"Betaald"+(f.betaaldOp?" op "+esc(kort(f.betaaldOp)):"")+". Dank u wel.":f.incasso?"Wordt binnen 14 dagen na de uitgevoerde beurt automatisch van uw rekening afgeschreven. U hoeft niets te doen.":f.status==="verlopen"?"De betaaltermijn is verstreken op "+esc(kort(f.verval))+".":"Graag betalen voor "+esc(kort(f.verval))+"."}</p>`;
+  const off=f.soort==="offerte",b=f.bedrijf,open=!off&&(f.status==="open"||f.status==="verlopen")&&!f.incasso;
+  const groot=matchMedia("(min-width:761px)").matches,naam=(off?"Offerte ":"Factuur ")+(f.nummer||"")+".pdf";
+  const kopTxt=off?`<h3>Offerte ${esc(String(f.nummer||"").replace(/^OFF-/,""))}</h3><p class="sub">${f.getekend&&f.getekend.datum?"Ondertekend op "+esc(kort(f.getekend.datum))+(f.getekend.naam?" door "+esc(f.getekend.naam):"")+".":"Akkoord gegeven."}</p>`:`<h3>Factuur ${esc(f.nummer)}</h3><p class="sub">${f.status==="betaald"?"Betaald"+(f.betaaldOp?" op "+esc(kort(f.betaaldOp)):"")+". Dank u wel.":f.incasso?"Wordt binnen 14 dagen na de uitgevoerde beurt automatisch van uw rekening afgeschreven. U hoeft niets te doen.":f.status==="verlopen"?"De betaaltermijn is verstreken op "+esc(kort(f.verval))+".":"Graag betalen voor "+esc(kort(f.verval))+"."}</p>`;
   const overmaken=open&&b.iban?`<div class="infobox">${I.euro}<span>Liever overmaken? ${eur(f.inc)} naar <b>${esc(b.iban)}</b> t.n.v. ${esc(b.naam)} onder vermelding van ${esc(f.nummer)}.</span></div>`:"";
   /* altijd eerst bij de server navragen: is de factuur intussen betaald, dan geen nieuwe betaling maar een melding */
   const betaalKnop=o2=>{const b2=o2.querySelector("[data-betaal]");if(b2)b2.onclick=async()=>{b2.disabled=true;try{const r=await api("betaal",{body:{id}});
@@ -2420,13 +2421,13 @@ async function openFactuur(id){let f;const sluit=blad(`<div class="laden" style=
   if(f.pdf){
     /* de echte PDF zoals wij hem gemaakt hebben: meteen het blad tonen, PDF laadt op de achtergrond */
     bladVul(o,`${kopTxt}
-      <div class="pdf-slot">${groot?`<div class="pdf-v"><div class="laden" style="min-height:100%"><div class="spin"></div></div></div>`:`<a class="pdf-kaart" aria-disabled="true">${I.fact}<span><b>${esc(naam)}</b><small>Factuur wordt geladen…</small></span><span class="spin" style="width:20px;height:20px;border-width:2px;flex:none"></span></a>`}</div>
+      <div class="pdf-slot">${groot?`<div class="pdf-v"><div class="laden" style="min-height:100%"><div class="spin"></div></div></div>`:`<a class="pdf-kaart" aria-disabled="true">${I.fact}<span><b>${esc(naam)}</b><small>${off?"Offerte":"Factuur"} wordt geladen…</small></span><span class="spin" style="width:20px;height:20px;border-width:2px;flex:none"></span></a>`}</div>
       ${overmaken}<p class="fout" role="alert"></p>
       <div class="acties"><a class="btn" data-down aria-disabled="true" style="opacity:.55;pointer-events:none">${I.down}Downloaden</a>${open?`<button class="primary" data-betaal>${I.euro}Nu betalen</button>`:`<button class="primary" data-sluit>Sluiten</button>`}</div>`,
       o2=>{o2.querySelector(".blad").classList.add("blad-pdf");betaalKnop(o2)});
     const pdfUrl=await factuurPdf(id);if(!o.isConnected)return;
     const slot=o.querySelector(".pdf-slot"),dl=o.querySelector("[data-down]");
-    if(pdfUrl){slot.innerHTML=groot?`<div class="pdf-v"><iframe src="${pdfUrl}#toolbar=0&navpanes=0&view=FitH" title="${esc(naam)}"></iframe></div>`:`<a class="pdf-kaart" href="${pdfUrl}" download="${esc(naam)}">${I.fact}<span><b>${esc(naam)}</b><small>Tik om de factuur te openen</small></span>${I.chev}</a>`;
+    if(pdfUrl){slot.innerHTML=groot?`<div class="pdf-v"><iframe src="${pdfUrl}#toolbar=0&navpanes=0&view=FitH" title="${esc(naam)}"></iframe></div>`:`<a class="pdf-kaart" href="${pdfUrl}" download="${esc(naam)}">${I.fact}<span><b>${esc(naam)}</b><small>Tik om de ${off?"offerte":"factuur"} te openen</small></span>${I.chev}</a>`;
       if(dl){dl.href=pdfUrl;dl.download=naam;dl.removeAttribute("aria-disabled");dl.style.cssText=""}}
     else{slot.innerHTML=`<div class="infobox">${I.klok}<span>De PDF kon nu niet worden geladen. Probeer het zo nog eens.</span></div>`;if(dl)dl.remove()}
     return}
@@ -2437,7 +2438,7 @@ async function openFactuur(id){let f;const sluit=blad(`<div class="laden" style=
       ${f.notitie?`<p style="color:var(--ink2);margin:10px 0 0;white-space:pre-line">${esc(f.notitie)}</p>`:""}
       <p style="color:var(--ink3);font-size:12.5px;margin:12px 0 0">${[b.kvk&&"KvK "+b.kvk,b.btwnr&&"Btw "+b.btwnr,b.iban&&"IBAN "+b.iban].filter(Boolean).map(esc).join(" · ")}</p></div>
     ${overmaken}<p class="fout" role="alert"></p>
-    <div class="infobox">${I.klok}<span>${DEMO?"Voorbeeldfactuur: in het echte portaal kunt u hier de PDF downloaden.":"De PDF van deze factuur wordt nog klaargemaakt. Probeer het over een paar minuten opnieuw om hem te downloaden."}</span></div>
+    <div class="infobox">${I.klok}<span>${DEMO?(off?"Voorbeeldofferte":"Voorbeeldfactuur")+": in het echte portaal kunt u hier de PDF downloaden.":(off?"De PDF van deze offerte":"De PDF van deze factuur")+" wordt nog klaargemaakt. Probeer het over een paar minuten opnieuw om hem te downloaden."}</span></div>
     <div class="acties"><button class="" data-sluit>Sluiten</button>${open?`<button class="primary" data-betaal>${I.euro}Nu betalen</button>`:""}</div>`,betaalKnop)}
 
 

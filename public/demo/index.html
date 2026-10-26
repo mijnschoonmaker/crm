@@ -14780,7 +14780,7 @@ let pdfBezig=false,pdfMislukt=new Set();
 async function pdfSync(){
   if(!LIVE||pdfBezig||!state.loaded||isMw()||!state.assets||typeof pdfDoc!=="function")return;
   const grens=iso(addDays(today(),-550));
-  const todo=state.facturen.filter(f=>f.soort!=="offerte"&&f.status!=="concept"&&f.nummer&&String(f.datum||"")>=grens&&!pdfMislukt.has(f.id)&&f.pdfSig!==pdfSig(f));
+  const todo=state.facturen.filter(f=>(f.soort!=="offerte"||f.getekend||f.status==="geaccepteerd")&&f.status!=="concept"&&f.nummer&&String(f.datum||"")>=grens&&!pdfMislukt.has(f.id)&&f.pdfSig!==pdfSig(f));
   if(!todo.length)return;pdfBezig=true;
   try{for(const f0 of todo.slice(0,6)){const f=state.facturen.find(x=>x.id===f0.id);if(!f)continue;const sig=pdfSig(f);if(!sig||f.pdfSig===sig)continue;
       try{const doc=await pdfDoc(f);if(!doc)throw new Error("pdf");const blob=new Blob([doc.output("arraybuffer")],{type:"application/pdf"});

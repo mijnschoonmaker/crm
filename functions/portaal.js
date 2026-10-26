@@ -154,6 +154,12 @@ module.exports = function maakPortaal(ctx) {
       pos: dichtbij ? { lat: L.lat, lng: L.lng, koers: L.koers ?? null, ts: L.ts } : null };
   }
 
+  /* getekende offerte: online ondertekend of op akkoord gezet; datum altijd als JJJJ-MM-DD */
+  const offGetekend = f => !!(f && f.soort === "offerte" && (f.getekend || f.status === "geaccepteerd"));
+  const offDatum = f => { const g = (f && f.getekend) || {}; for (const v of [g.datum, g.op, f.akkoordOp, f.geaccepteerdOp]) { if (v == null || v === "") continue;
+      if (typeof v === "number") return new Date(v).toISOString().slice(0, 10); if (v && typeof v.toDate === "function") return v.toDate().toISOString().slice(0, 10);
+      const t = String(v); if (/^\d{4}-\d{2}-\d{2}/.test(t)) return t.slice(0, 10); const m = t.match(/^(\d{1,2})-(\d{1,2})-(\d{4})/); if (m) return m[3] + "-" + m[2].padStart(2, "0") + "-" + m[1].padStart(2, "0");
+      const d = new Date(t); if (!isNaN(d)) return d.toISOString().slice(0, 10); } return ""; };
   async function data(req, S) {
     const k = S.klant, b = await bedrijf(), base = basisUrl(req), vandaag = isoNL();
     if (!k.refCode) { k.refCode = await maakRefCode(k); await S.kref.set({ refCode: k.refCode }, { merge: true }); }
@@ -174,7 +180,7 @@ module.exports = function maakPortaal(ctx) {
     for (const f of offRuw.sort((a, b2) => String(b2.datum).localeCompare(String(a.datum))).slice(0, 20)) {
       let link = ""; try { const q = await db.collection("akkoord").where("factuurId", "==", f.id).limit(1).get(); if (!q.empty) link = base + "/akkoord/" + q.docs[0].id; } catch (x) {}
       const g = f.getekend || {};
-      offertes.push({ id: f.id, nummer: String(f.nummer || "").replace(/^OFF-/, ""), datum: f.datum || "", bedrag: totals(f, b).inc, getekendOp: String(g.datum || g.op || f.akkoordOp || "").slice(0, 10), getekendDoor: g.naam || "", link });
+      offertes.push({ id: f.id, nummer: String(f.nummer || "").replace(/^OFF-/, ""), datum: f.datum || "", bedrag: totals(f, b).inc, getekendOp: offDatum(f), getekendDoor: g.naam || "", link });
     }
     const facturen = fs.docs.map(d => ({ id: d.id, ...dec(d.data()) })).filter(f => f.soort !== "offerte" && f.status !== "concept").sort((a, b2) => String(b2.datum).localeCompare(String(a.datum)))
       .map(f => ({ id: f.id, nummer: f.nummer || "", datum: f.datum || "", verval: f.verval || "", bedrag: totals(f, b).inc, status: fStatus(f), betaaldOp: f.status === "betaald" ? String(f.betaaldOp || f.betaald || "").slice(0, 10) : "", snelUren: snelUren(f), sec: betaalSec(f), incasso: !!f.incasso, incassoStatus: f.incasso ? (f.mollieStatus || "") : "", herinnerd: Number(f.herinneringen) || 0, betaallink: f.status !== "betaald" ? (f.betaallink || f.mollieLink || "") : "" }));
@@ -416,17 +422,17 @@ module.exports = function maakPortaal(ctx) {
       if (pad === "/uit" && req.method === "POST") { await S.ref.delete(); res.json({ ok: true }); return; }
       if (pad === "/factuur" && req.method === "GET") {
         const f = await db.doc("facturen/" + String(req.query.id || "")).get();
-        if (!f.exists || !(await vanKlant(S, f.data().klantId)) || f.data().soort === "offerte" || f.data().status === "concept") { res.status(404).json({ fout: "niet gevonden" }); return; }
+        if (!f.exists || !(await vanKlant(S, f.data().klantId)) || (f.data().soort === "offerte" && !offGetekend(f.data())) || f.data().status === "concept") { res.status(404).json({ fout: "niet gevonden" }); return; }
         const x = dec(f.data()), b = await bedrijf();
-        res.json({ pdf: !!x.pdfId, incasso: !!x.incasso && x.status !== "betaald" && !x.incassoMislukt, nummer: x.nummer, datum: x.datum, verval: x.verval, klantNaam: schoon(x.klantNaam), klantAdres: x.klantAdres || "", regels: (x.regels || []).map(r => ({ omschrijving: r.omschrijving, aantal: Number(r.aantal) || 0, prijs: Number(r.prijs) || 0 })), incl: x.incl ?? b.incl ?? true, btwPct: Number(x.btw ?? b.btw ?? 21), ...totals(x, b), status: fStatus(x), betaaldOp: x.betaaldOp || "", betaallink: x.status !== "betaald" ? (x.betaallink || x.mollieLink || "") : "", notitie: x.notitie || "",
+        res.json({ soort: x.soort === "offerte" ? "offerte" : "factuur", getekend: x.soort === "offerte" ? { naam: (x.getekend || {}).naam || "", datum: offDatum(x) } : null, pdf: !!x.pdfId, incasso: !!x.incasso && x.status !== "betaald" && !x.incassoMislukt, nummer: x.nummer, datum: x.datum, verval: x.verval, klantNaam: schoon(x.klantNaam), klantAdres: x.klantAdres || "", regels: (x.regels || []).map(r => ({ omschrijving: r.omschrijving, aantal: Number(r.aantal) || 0, prijs: Number(r.prijs) || 0 })), incl: x.incl ?? b.incl ?? true, btwPct: Number(x.btw ?? b.btw ?? 21), ...totals(x, b), status: fStatus(x), betaaldOp: x.betaaldOp || "", betaallink: x.status !== "betaald" ? (x.betaallink || x.mollieLink || "") : "", notitie: x.notitie || "",
           bedrijf: { ...bedrijfInfo(b, basisUrl(req)), adres: b.adres || "", pcPlaats: [b.postcode, b.plaats].filter(Boolean).join(" "), kvk: b.kvk || "", btwnr: b.btwnr || "", bic: b.bic || "" } }); return;
       }
       /* de echte factuur-PDF zoals het CRM hem maakt */
       if (pad === "/factuurpdf" && req.method === "GET") {
         const f = await db.doc("facturen/" + String(req.query.id || "")).get();
-        if (!f.exists || !(await vanKlant(S, f.data().klantId)) || f.data().soort === "offerte" || f.data().status === "concept" || !f.data().pdfId) { res.status(404).json({ fout: "niet gevonden" }); return; }
+        if (!f.exists || !(await vanKlant(S, f.data().klantId)) || (f.data().soort === "offerte" && !offGetekend(f.data())) || f.data().status === "concept" || !f.data().pdfId) { res.status(404).json({ fout: "niet gevonden" }); return; }
         const x = f.data(), file = bucket().file("assets/" + String(x.pdfId));
-        try { const [buf] = await file.download(); res.set("content-type", "application/pdf"); res.set("content-disposition", `inline; filename="Factuur ${String(x.nummer || "").replace(/[^\w.-]/g, "")}.pdf"`); res.send(buf); }
+        try { const [buf] = await file.download(); res.set("content-type", "application/pdf"); res.set("content-disposition", `inline; filename="${x.soort === "offerte" ? "Offerte" : "Factuur"} ${String(x.nummer || "").replace(/[^\w.-]/g, "")}.pdf"`); res.send(buf); }
         catch (e) { res.status(404).json({ fout: "niet gevonden" }); }
         return;
       }
