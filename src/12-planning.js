@@ -46,7 +46,7 @@ function tjob(x,top,height,left,width){
   const tijd=x.b?x.b.tijd||k.tijd||"":k.tijd||"";
   return `<div class="tjob st-${x.st}${dim}${cmp}${state.flash&&!x.b&&state.flash===k.id?" just-in":""}${state.pselMode&&!x.b&&state.psel.has(k.id)?" psel":""}${state.pselMode&&!x.b?" pselable":""}" ${act} data-d="${esc(x.b?x.b.datum:k.gepland)}" ${x.st!=="afgerond"?`data-drag="${esc(k.id)}"`:x.b?`data-drag="b:${esc(x.b.id)}"`:""} draggable="${x.st!=="afgerond"}" style="top:${top}px;height:${height}px;left:${left}%;width:${width}%;--h:${hue(k.ronde||k.naam)}" title="${esc(cleanName(k.naam))}">
     <div class="tj-kop">${tijd?`<small>${esc(tijd)}</small>`:""}<button type="button" class="tj-nm" ${act} data-d="${esc(x.b?x.b.datum:k.gepland)}">${esc(a.adres||cleanName(k.naam))}${a.plaats?", "+esc(a.plaats):""}</button>${x.st==="bezig"?'<i class="tj-live"></i>':""}<span class="tj-amt">${eur(toon(x.b?x.b.bedrag:k.prijs))}</span></div>
-    <div class="tj-bot"><span class="tj-wie">${esc(cleanName(k.naam))}</span>${dienstHtml(k)}${x.st==="afgerond"?`<span class="tj-ok done">${I.check}</span>`:`<button type="button" class="tj-ok" data-act="was" data-id="${esc(k.id)}" aria-label="${esc(cleanName(k.naam))} afgerond">${I.check}</button>`}</div></div>`;
+    <div class="tj-bot"><span class="tj-wie">${esc(cleanName(k.naam))}</span>${dienstHtml(k)}${x.st==="afgerond"?"":tjMailHtml(k)}${x.st==="afgerond"?`<span class="tj-ok done">${I.check}</span>`:`<button type="button" class="tj-ok" data-act="was" data-id="${esc(k.id)}" aria-label="${esc(cleanName(k.naam))} afgerond">${I.check}</button>`}</div></div>`;
 }
 function dayHead(d,showWk){
   const dd=parse(d),s=daySum(d),isT=d===iso(today()),fd=feestdag(dd),off=!isWerkdag(dd),te=S().maxJobs&&s.n>S().maxJobs;
@@ -400,3 +400,15 @@ document.addEventListener("click",e=>{if(!state.pmeer)return;const m=e.target.cl
   if(m&&e.target.closest('.pl-menu [data-act]:not([data-act="rowh"]):not([data-act="slotsz"])')){state.pmeer=false;return}
   if(!m){state.pmeer=false;document.querySelectorAll(".pl-meer.open").forEach(x=>x.classList.remove("open"))}},true);
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&state.pmeer){state.pmeer=false;document.querySelectorAll(".pl-meer.open").forEach(x=>x.classList.remove("open"))}});
+
+/* ---------- envelop bij een ingeplande afspraak: is de mail over deze afspraak geopend of aangeklikt? ----------
+   Grijs = verstuurd, nog niet geopend · groen = geopend of op een link geklikt · gestippeld = nog geen mail over deze afspraak. */
+function tjMail(k){if(!k||!k.gepland)return null;const d=k.gepland,van=iso(addDays(parse(d),-60));
+  const L=(state.berichten||[]).filter(m=>m.klantId===k.id&&m.kanaal!=="sms"&&m.kanaal!=="whatsapp"&&String(m.op||"").slice(0,10)<=d&&String(m.op||"").slice(0,10)>=van&&
+    (String(m.ref||"").includes(d)||/aankondiging|planning|afspraak|herinnering|bevestig|uur/i.test(String(m.sjabloon||"")+" "+String(m.ref||""))));
+  if(!L.length)return null;const m=L.sort((a,b)=>String(b.op).localeCompare(String(a.op)))[0];
+  const st=m.geklikOp?"geklikt":m.gelezenOp?"geopend":"verstuurd";return {m,st}}
+function tjMailHtml(k){const r=tjMail(k);
+  if(!r)return `<span class="tj-mail none" title="Nog geen mail over deze afspraak verstuurd">${I.mail}</span>`;
+  const t=r.st==="geklikt"?"Klant heeft op een link in de mail geklikt":r.st==="geopend"?"Klant heeft de mail geopend":"Mail verstuurd, nog niet geopend";
+  return `<span class="tj-mail ${r.st==="verstuurd"?"sent":"open"}" title="${esc(t)}${r.m.onderwerp?" · "+esc(r.m.onderwerp):""} · ${esc(fmtD(String(r.m.op).slice(0,10)))}">${I.mail}</span>`}

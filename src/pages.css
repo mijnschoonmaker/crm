@@ -4307,3 +4307,9 @@ html body .leaflet-container .pl-bus img{width:52px!important;max-width:none!imp
 /* eigen diensten (Uitvoering › Diensten › bedrijfsspecifiek): blauwe rand zodat je ze herkent */
 .chip.chip-eigen,.ow-chips .chip.chip-eigen,button.chip.chip-eigen{border:1.5px solid #3b5f9b!important;box-shadow:none;background:rgb(59 95 155 / .06);color:#22355c}
 .chip.chip-eigen .chip-eg{margin-left:6px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:#3b5f9b;border-radius:99px;padding:1px 7px}
+
+/* envelop in het agendablok: mail over de afspraak verstuurd (grijs) of geopend/geklikt (groen) */
+.tj-mail{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;flex:none;margin-left:6px;background:#eef0f3;color:#7a7f88}
+.tj-mail svg{width:14px;height:14px}
+.tj-mail.open{background:#2f7d55;color:#fff}
+.tj-mail.none{background:transparent;border:1px dashed #c5cad3;color:#b5bac2}
