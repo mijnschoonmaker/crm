@@ -4960,6 +4960,13 @@ html body .leaflet-container .pl-bus img{width:52px!important;max-width:none!imp
 .pf-balk span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pf-balk b{font-weight:700}
 .pf-balk a{flex:none;background:#fff;color:#252c3c;text-decoration:none;font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:9px 14px;border-radius:999px}
 @media (max-width:760px){.pf-balk{bottom:calc(84px + env(safe-area-inset-bottom));left:12px;right:12px;transform:none;max-width:none;border-radius:16px}.pf-balk span{white-space:normal}}
+/* telefoon: niets mag breder worden dan het scherm (lange namen, knoppen en labels lopen anders rechts eruit) */
+@media (max-width:760px){
+  html,body{max-width:100%;overflow-x:clip}
+  #view,#view section,#view .card,#view [class^="cc-"],#view [class*=" cc-"]{min-width:0;max-width:100%}
+  #view{overflow-wrap:break-word}
+  .cc-ab,.cc-pst,.cc-sk,.cc-link,.cc-cnt,.pl-tag{white-space:normal;max-width:100%;min-width:0;text-align:left}
+}
 
 </style>
 <style id="mansardThema">
