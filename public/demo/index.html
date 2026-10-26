@@ -14857,7 +14857,7 @@ async function wdZet(d,patch){const r=state.routes[d]||{},w={...(r.werk||{}),...
 function wdCijfers(d){const w=wdGet(d)||{},nu=wdNu(),eind=w.stop||(w.start&&d===iso(today())?nu:"");
   const pauze=(w.pauzes||[]).reduce((a,p)=>a+wdMin(p.van,p.tot||(w.stop?w.stop:nu)),0);
   /* alleen stops die tijdens de werkdag zijn afgemeld (tussen vertrek en terugkomst bij de loods), anders kloppen reistijd en uurloon niet */
-  const binnen=b=>{if(!w.start||!b.op)return true;const t=new Date(b.op).getTime();return t>=new Date(w.start).getTime()-6e4&&(!eind||t<=new Date(eind).getTime()+6e4)};
+  const binnen=b=>{if(!w.start||!b.op)return true;const t=new Date(b.op).getTime();return t>=new Date(w.start).getTime()-6e4&&(!eind||w.gecorrigeerd||t<=new Date(eind).getTime()+6e4)};/* achteraf gecorrigeerd: afmeldingen na de (eerdere) terugkomst tellen gewoon mee */
   const alle=state.beurten.filter(b=>b.datum===d&&!b.geannuleerd),bs=alle.filter(binnen),buiten=alle.length-bs.length;
   const geschat=bs.filter(beurtTeKort).length;
   const fact=bs.reduce((a,b)=>a+beurtMin(b),0),gemeten=bs.filter(b=>b.gemeten||b.startOp).length;
@@ -14872,7 +14872,7 @@ function werkdagKaart(d,isT,total){const c=wdCijfers(d),w=c.w,inP=(w.pauzes||[])
     <div class="wd-leg"><span><i class="f"></i>Bij klanten <b>${wdU(c.fact)}</b></span><span><i class="r"></i>Reistijd <b>${wdU(c.reis)}</b></span><span><i class="p"></i>Pauze <b>${wdU(c.pauze)}</b></span></div>`:"";
   if(!w.start)return `<section class="wd wd-0"><span class="wd-ic">${I.truck||I.route}</span><div class="wd-m"><b>Klaar om te vertrekken?</b><small>Tik bij vertrek bij de loods op start. Dan zie je vanavond je reistijd, pauzes en wat je echt per uur verdient.</small></div><button type="button" class="primary" data-act="wdstart">${I.play||I.clock}Start werkdag</button></section>`;
   if(w.stop){const pct=v=>c.netto>0?Math.round(v/c.netto*100):0,tips=[c.n&&c.gemeten<c.n?`${plural(c.n-c.gemeten,"stop is","stops zijn")} afgemeld zonder op Start te drukken; daar telt de geplande duur.`:"",c.buiten?`${plural(c.buiten,"stop is","stops zijn")} buiten deze werkdag afgemeld en ${c.buiten===1?"telt":"tellen"} hier niet mee.`:"",c.fact>c.netto+1?"De tijd bij klanten is langer dan je werkdag. Controleer of je op tijd op Start werkdag drukte.":""].filter(Boolean);
-    return `<section class="wd wd-klaar"><div class="wd-h"><span class="wd-ic">${I.check}</span><div class="wd-m"><small class="wd-eb">Werkdag afgerond</small><b class="wd-dur">${wdU(c.totaal)}</b></div>${isT?`<button type="button" class="small ghost wd-her" data-act="wdheropen" title="Werkdag heropenen">${I.refresh||""}<span>Heropenen</span></button>`:""}</div>
+    return `<section class="wd wd-klaar"><div class="wd-h"><span class="wd-ic">${I.check}</span><div class="wd-m"><small class="wd-eb">Werkdag afgerond</small><b class="wd-dur">${wdU(c.totaal)}</b></div>${!isMw()?`<button type="button" class="iconbtn sm wd-pen" data-act="wdbewerk" data-d="${esc(d)}" title="Tijden aanpassen" aria-label="Tijden aanpassen">${I.pencil}</button>`:""}${isT?`<button type="button" class="small ghost wd-her" data-act="wdheropen" title="Werkdag heropenen">${I.refresh||""}<span>Heropenen</span></button>`:""}</div>
     <div class="wd-tl"><span><small>Vertrek loods</small><b>${wdT(w.start)}</b></span><i></i><span><small>Terug bij de loods</small><b>${wdT(w.stop)}</b></span></div>
     ${c.netto>0?`<div class="wd-bar" role="img" aria-label="Verdeling van je werktijd">${c.fact?`<i class="f" style="flex:${c.fact}"></i>`:""}${c.reis?`<i class="r" style="flex:${c.reis}"></i>`:""}${c.pauze?`<i class="p" style="flex:${c.pauze}"></i>`:""}</div>
     <div class="wd-3"><div><i class="f"></i><small>Bij klanten</small><b>${wdU(c.fact)}</b><em>${pct(c.fact)}%</em></div><div><i class="r"></i><small>Reistijd</small><b>${wdU(c.reis)}</b><em>${pct(c.reis)}%</em></div><div><i class="p"></i><small>Pauze</small><b>${wdU(c.pauze)}</b><em>${pct(c.pauze)}%</em></div></div>`:""}
@@ -14881,7 +14881,8 @@ function werkdagKaart(d,isT,total){const c=wdCijfers(d),w=c.w,inP=(w.pauzes||[])
   const pz=(w.pauzes||[]).find(p=>!p.tot);
   return `<section class="wd wd-aan${inP?" wd-pz":""}"><div class="wd-h"><span class="wd-ic">${inP?(I.coffee||I.clock):(I.truck||I.route)}</span><div class="wd-m"><b>${inP?"Pauze":"Onderweg"} <span class="wd-tm" data-wdsince="${esc(inP?pz.van:w.start)}">${wdU(wdMin(inP?pz.van:w.start,wdNu()))}</span></b><small>Vertrokken om ${wdT(w.start)}${c.pauze?` · ${wdU(c.pauze)} pauze`:""} · ${plural(c.n,"stop","stops")} klaar${total?` van ${total}`:""}</small></div></div>
     ${balk}<div class="wd-k">${inP?`<button type="button" class="primary" data-act="wdpauze">${I.play||I.check}Pauze voorbij</button>`:`<button type="button" data-act="wdpauze">${I.coffee||I.clock}Pauze</button><button type="button" class="primary" data-act="wdstop">${I.home||I.check}Terug bij de loods</button>`}</div></section>`}
-document.addEventListener("click",async e=>{const b=e.target.closest&&e.target.closest("[data-act^='wd']");if(!b)return;const a=b.dataset.act;if(!["wdstart","wdstop","wdpauze","wdheropen"].includes(a))return;e.preventDefault();e.stopPropagation();
+document.addEventListener("click",async e=>{const b=e.target.closest&&e.target.closest("[data-act^='wd']");if(!b)return;const a=b.dataset.act;if(!["wdstart","wdstop","wdpauze","wdheropen","wdbewerk"].includes(a))return;e.preventDefault();e.stopPropagation();
+  if(a==="wdbewerk"){if(!isMw())wdBewerk(b.dataset.d||iso(today()));return}
   const d=iso(today()),w=wdGet(d)||{};
   if(a==="wdstart"){await wdZet(d,{start:wdNu(),stop:"",pauzes:[]});wdLive(true);toast("Werkdag gestart · live delen staat aan");try{navigator.vibrate&&navigator.vibrate(20)}catch(_){}}
   else if(a==="wdpauze"){const pz=[...(w.pauzes||[])],open=pz.findIndex(p=>!p.tot);if(open>=0){pz[open]={...pz[open],tot:wdNu()};toast("Pauze voorbij · "+wdU(wdMin(pz[open].van,pz[open].tot)))}else{pz.push({van:wdNu()});toast("Pauze gestart")}await wdZet(d,{pauzes:pz})}
@@ -14913,6 +14914,24 @@ async function wdLive(aan,auto){if(typeof liveStart!=="function")return;
   state.liveDelen=aan;try{localStorage.setItem("ms.live",aan?"1":"0")}catch(e){}aan?liveStart(true):liveStop(true);render()}
 /* CRM opnieuw geopend tijdens een lopende werkdag: live delen weer aanzetten */
 setTimeout(()=>{try{const w=wdGet(iso(today()));if(w&&w.start&&!w.stop&&typeof LV!=="undefined"&&LV.watch==null)wdLive(true,true)}catch(e){}},4000);
+
+/* ---------- werkdag achteraf corrigeren (eigenaar en beheerder): te laat op Terug bij de loods gedrukt? ----------
+   Pas vertrek of terugkomst aan, of vul de echte reistijd in: dan rekent Mansard de terugkomst uit. */
+function wdBewerk(d){const c=wdCijfers(d),w=c.w;if(!w.start)return;const hm=ts=>ts?wdT(ts):"";
+  openDlg(`<div class="dlg-head"><span class="objic big">${I.pencil}</span><div style="flex:1"><h3>Werkdag aanpassen</h3><div class="subt">${esc(fmtL(d))} · bij klanten ${wdU(c.fact)}${c.pauze?" · pauze "+wdU(c.pauze):""}</div></div><button type="button" class="iconbtn" id="wbX" aria-label="Sluiten">${I.x}</button></div>
+    <div class="u-2"><label>Vertrek loods<input id="wb-van" type="time" value="${esc(hm(w.start))}" required></label><label>Terug bij de loods<input id="wb-tot" type="time" value="${esc(hm(w.stop))}"></label></div>
+    <label>Of vul de echte reistijd in<span class="ow-in"><input id="wb-reis" type="number" min="0" step="1" inputmode="numeric" placeholder="${Math.round(c.reis)}"><i>min</i></span><small class="help">Mansard rekent dan de terugkomst uit: vertrek + tijd bij klanten + pauze + reistijd.</small></label>
+    <p class="subt" id="wb-uit" style="margin:0"></p>
+    <div class="row"><span class="sp"></span><button type="button" id="wbC">Annuleren</button><button type="submit" class="primary">${I.check}Opslaan</button></div>`,{wide:false});
+  const op=(t,basis)=>{const m=String(t||"").match(/^(\d{1,2}):(\d{2})/);if(!m)return"";const x=new Date(basis||w.start||parse(d));const y=new Date(parse(d));y.setHours(+m[1],+m[2],0,0);return y.toISOString()};
+  const reken=()=>{const r=$("#wb-reis").value;if(r!==""){const van=op($("#wb-van").value);if(van){const t=new Date(new Date(van).getTime()+(c.fact+c.pauze+Number(r))*6e4);$("#wb-tot").value=String(t.getHours()).padStart(2,"0")+":"+String(t.getMinutes()).padStart(2,"0")}}
+    const van=op($("#wb-van").value),tot=op($("#wb-tot").value);$("#wb-uit").textContent=van&&tot?`Werkdag ${wdU(wdMin(van,tot))} · reistijd ${wdU(Math.max(0,wdMin(van,tot)-c.pauze-c.fact))}`:""};
+  ["wb-van","wb-tot","wb-reis"].forEach(id=>$("#"+id).addEventListener("input",reken));reken();
+  $("#wbX").onclick=$("#wbC").onclick=()=>dlg.close();
+  form.onsubmit=async e=>{e.preventDefault();const van=op($("#wb-van").value),tot=op($("#wb-tot").value);
+    if(!van){toast("Vul de vertrektijd in");return}if(tot&&new Date(tot)<=new Date(van)){toast("Terug bij de loods moet na vertrek liggen");return}
+    const pz=(w.pauzes||[]).map(p=>p.tot||!tot?p:{...p,tot});
+    await wdZet(d,{start:van,stop:tot||w.stop||"",pauzes:pz,gecorrigeerd:new Date().toISOString()});dlg.close();const n=wdCijfers(d);toast(`Opgeslagen · reistijd ${wdU(n.reis)}`)}}
 
 /* ---------- Werkgebieden: op de kaart tekenen waar de website-calculator aanvragen aanneemt ---------- */
 const WG_SOORT={beide:"Particulier en zakelijk",particulier:"Alleen particulier",zakelijk:"Alleen zakelijk"};
