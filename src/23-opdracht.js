@@ -1,6 +1,8 @@
 /* ---------- OPDRACHT-WERKBLAD: alles van één opdracht in één scherm ---------- */
 function openOpdrachtWerk(kid,focus){
   const k=state.klanten.find(x=>x.id===kid);if(!k)return;
+  /* een dienst die bij een andere opdracht hoort, opent in die opdracht */
+  {const c=focus&&(k.opdrachten||[]).find(o=>o.id===focus);if(c&&c.bij&&(k.opdrachten||[]).some(o=>o.id===c.bij))focus=c.bij}
   const st=S(),incl=!!st.incl,btwL=incl?"incl.":"excl.";
   /* bestaande extra opdrachten (eigen nummer, bijv. 1002-2) horen niet in het werkblad van de hoofdopdracht; ze blijven wel bewaard */
   let extra=(k.opdrachten||[]).map(o=>({...o,_bestaand:true}));
@@ -12,7 +14,7 @@ function openOpdrachtWerk(kid,focus){
   const soloNr=(()=>{if(soloI<0)return 1;const eo=typeof extraOpdr==="function"?extraOpdr(k):(k.opdrachten||[]),j=eo.findIndex(o=>o.id===soloId);return (soloId&&typeof opdrNr==="function"&&(k.opdrachten||[]).some(o=>o.id===soloId))?(extra[soloI].nr||opdrNr(k,soloId)):typeof opdrVolgNr==="function"?opdrVolgNr(k):(j>=0?j+2:eo.length+2)})();
   /* losse opdracht (eigen nummer): het adres stel je links bij Adres in, voor deze opdracht */
   /* in een losse opdracht kun je meer diensten toevoegen: elke extra dienst wordt een eigen opdracht (eigen nummer) op hetzelfde adres */
-  const soloSet=new Set(soloI>=0?[soloI]:[]);
+  const soloSet=new Set(soloI>=0?[soloI,...extra.map((o,i)=>o.bij&&o.bij===soloId&&o.actief!==false?i:-1).filter(i=>i>=0)]:[]);
   const soloR=soloI>=0?extra[soloI]:null,soloAdr=()=>{const o=soloR&&soloR.objectId&&(k.objecten||[]).find(x=>x.id===soloR.objectId&&x.adres);return o?fullAddr(o)+(o.naam?" · "+o.naam:""):fullAddr(k)};
   let fotos=[...(k.fotos||[])];
   const tFotos=(k.ramenTelling&&k.ramenTelling.fotos)||[];
@@ -213,8 +215,9 @@ function openOpdrachtWerk(kid,focus){
       </div>`}
       ${!isMain&&r.items?itemsHtml(r,i):r.ramen?calcHtml(r,i,isMain):isGlas(r.dienst)?`<button type="button" class="small" data-calcopen="${isMain?"m":i}">${I.calculator}Ramen per verdieping invullen</button>`:""}
       ${!isMain&&!soloSet.has(i)&&(r.ramen||isGlas(r.dienst))?adresKeuze(r,i):""}
-      ${isMain?"":`<label class="check-row"><input type="checkbox" data-i="${i}" data-k="actief" ${r.actief!==false?"checked":""}>Actief${r.apart?"":" · gaat mee met de beurt waarop hij aan de beurt is"}</label>
-      <label class="check-row"><input type="checkbox" data-i="${i}" data-k="apart" ${r.apart?"checked":""}>Apart inplannen · eigen afspraak in de agenda, met eigen tijd en factuur <small class="subt">(voor grote klussen; anders gaat hij mee met de glasbewassing)</small></label>`}
+      ${isMain?"":r.bij&&r.bij!==r.id&&soloSet.has(i)&&i!==soloI?`<label class="check-row"><input type="checkbox" data-i="${i}" data-k="actief" ${r.actief!==false?"checked":""}>Actief · gaat mee met deze opdracht</label>`:`<label class="check-row"><input type="checkbox" data-i="${i}" data-k="actief" ${r.actief!==false?"checked":""}>Actief${r.apart?"":" · gaat mee met de beurt waarop hij aan de beurt is"}</label>
+      <label class="check-row"><input type="checkbox" data-i="${i}" data-k="apart" ${r.apart?"checked":""}>Apart inplannen · eigen afspraak in de agenda, met eigen tijd en factuur <small class="subt">(voor grote klussen; anders gaat hij mee met de glasbewassing)</small></label>
+      ${i===soloI&&!extra.some(x=>x.bij===r.id)?(()=>{const kand=extra.filter(x=>x.id!==r.id&&!x.bij&&!x._nieuw&&x.actief!==false&&String(x.dienst||"").trim()&&(x.objectId||"")===(r.objectId||""));return kand.length?`<label>Hoort bij opdracht<select data-i="${i}" data-k="bij"><option value="">Eigen opdracht</option>${kand.map(x=>`<option value="${esc(x.id)}" ${r.bij===x.id?"selected":""}>#${esc(nr)}-${esc(x.nr||opdrNr(k,x.id))} · ${esc(x.dienst)}</option>`).join("")}</select><small class="help">Kies een opdracht op hetzelfde adres: deze dienst gaat dan mee met die afspraak.</small></label>`:""})():""}`}
       <div class="ow-lsave"><button type="button" class="small primary" data-lsave="${isMain?"m":i}">${I.check}Opslaan</button></div>
     </div>`;
   const itemsRitme=r=>{const its=(r.items||[]).filter(x=>Number(x.aantal)>0);if(!its.length)return Number(r.frequentie)||mF||52;const ws=its.map(x=>Number(x.fq)||mF||52);return Math.min(...ws)};
@@ -309,6 +312,7 @@ function openOpdrachtWerk(kid,focus){
     tgt[key]=el.type==="checkbox"?el.checked:key==="prijs"||key==="frequentie"?(el.value===""?"":Number(el.value)):el.value;tot()});
   $("#owLines").addEventListener("change",e=>{if(e.target.dataset.k==="actief"){extra[+e.target.dataset.i].actief=e.target.checked;tot()}
     if(e.target.dataset.k==="apart"){extra[+e.target.dataset.i].apart=e.target.checked;tot()}
+    if(e.target.dataset.k==="bij"){const r=extra[+e.target.dataset.i];if(r){r.bij=e.target.value||"";if(r.bij)r.apart=false}}
     if(e.target.dataset.k==="objectId"){const r=extra[+e.target.dataset.i];if(r){r.objectId=e.target.value||"";if(r.objectId)r.apart=true;draw()}}
     if(e.target.dataset.k==="frequentie"&&e.target.dataset.i!=="m"){const r=extra[+e.target.dataset.i];if(r&&r.items)groepRedraw($("#owLines"),"x"+e.target.dataset.i,r,gOpts(r))}});
   $("#owLines").addEventListener("click",e=>{const b=e.target.closest("[data-rm]");if(b){const i=+b.dataset.rm;if(soloI>=0&&i===soloI){const r=extra[i];delete r.ramen;delete r.items;delete r.groep;Object.assign(r,{dienst:"",prijs:"",objectId:"",apart:false,_toon:false});editR.delete(String(i));draw();return}extra.splice(i,1);if(soloSet.has(i)){const n=[...soloSet].filter(x=>x!==i).map(x=>x>i?x-1:x);soloSet.clear();n.forEach(x=>soloSet.add(x))}draw()}});
@@ -319,7 +323,7 @@ function openOpdrachtWerk(kid,focus){
     /* nieuwe (losse) opdracht: de gekozen dienst vult deze opdracht zelf; glasbewassing opnieuw berekenen (ander adres = andere aantallen) */
     const soloGevuld=soloI>=0&&extra[soloI]&&(String(extra[soloI].dienst||"").trim()||extra[soloI].items||extra[soloI].ramen);
     if(soloGevuld){/* deze opdracht heeft al een dienst: de nieuwe dienst komt erbij als eigen opdracht, de eerste blijft staan */
-      const o={id:newId("o"),dienst:d.naam,prijs:"",frequentie:mF||8,duur:30,volgende:"",actief:true,_nieuw:true,_solo:true};
+      const o={id:newId("o"),dienst:d.naam,prijs:"",frequentie:mF||8,duur:30,volgende:"",actief:true,_nieuw:true,_solo:true,bij:soloId};
       if(d.items&&d.items.length)Object.assign(o,{groep:d.groep,items:d.items.map(it=>({...it,aantal:0})),prijs:0,duur:d.duur||30});
       else if(d.glas||isGlas(d.naam))o.ramen=normR({});else o.prijs=Number(d.prijs)||"";
       extra.push(o);const ni=extra.length-1;soloSet.add(ni);if(o.ramen)editR.add(String(ni));draw();
@@ -366,7 +370,7 @@ function openOpdrachtWerk(kid,focus){
     const ds=idx.map(i=>(q.vol||[])[i]).filter(Boolean);if(ds.length===idx.length)uit.volgende=ds.sort()[0];return uit};
   const collect=()=>{syncRitme();const cur=state.klanten.find(x=>x.id===kid)||k,actief=$o("actief").checked;
     /* taakomschrijving hoort bij deze opdracht: bij een losse opdracht (eigen nummer) in die opdracht, niet bij de klant */
-    if(soloR){soloR.taak=$o("taak").value.trim();soloSet.forEach(i=>{const o=extra[i];if(o&&o!==soloR&&o._solo){o.objectId=soloR.objectId||"";o.apart=!!soloR.apart}})}
+    if(soloR){soloR.taak=$o("taak").value.trim();soloSet.forEach(i=>{const o=extra[i];if(o&&o!==soloR&&(o._solo||o.bij===soloR.id)){o.objectId=soloR.objectId||"";o.apart=false;o.bij=soloR.id}})}
     return {...strip(cur),dienst:String(main.dienst||"").trim()||"Glasbewassing",prijs:r2(Number(main.prijs)||0),ramenRegel:main.ramen||null,frequentie:mW.length?1:(mF||4),weekdagen:mW.length?mW:[],...(mW.length?{autoplan:true}:{}),duur:mD||30,ronde:$o("ronde").value.trim(),contactPlanning:$o("contact").value,eersteKeer:$o("eerste").value==="ja",toeslag:Number($o("toeslag").value)||0,toeslagReden:$o("toeslagr").value.trim(),verbergAantal:$o("verbA").checked,verbergFreq:$o("verbF").checked,afmeldMail:$o("afmail").checked,
       binnen:false,actief,...(actief?{}:{gepland:"",tijd:""}),akkoord:$o("akkoord").checked,incasso:$o("betaal").value==="incasso",...factModusPatch($o("fact").value,k),
       taak:soloR?(cur.taak||""):$o("taak").value.trim(),...($o("vvetaken")?vveEdLees($o("vvetaken")):{}),hosp:hosp.map(x=>({c:x.c||"voorkeur",t:String(x.t||"").trim(),...(x.af?{af:x.af}:{}),...(x.c==="verteld"&&x.vanaf?{vanaf:x.vanaf}:{})})).filter(x=>x.t),bellen:$o("bellen").checked,startdatum:$o("start").value,einddatum:$o("eind").value,btwVerlegd:$o("verlegd").checked,aanbieden:cur.gepland?!!cur.aanbieden:aanb.aanbieden,uitstelTot:aanb.uitstelTot,artikelen:arts.filter(a=>String(a.naam||"").trim()).map(a=>({naam:String(a.naam).trim(),aantal:Number(a.aantal)||1,prijs:r2(Number(a.prijs)||0)})),middelen:mids,objectId:$o("obj")?$o("obj").value:cur.objectId||"",fotos,

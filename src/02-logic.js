@@ -94,11 +94,16 @@ const mapsQ=k=>"https://www.google.com/maps/search/?api=1&query="+encodeURICompo
 /* opdrachten: de hoofdopdracht staat op de klant zelf, extra opdrachten (goten, zonnepanelen…) liften mee met de beurt waarop ze aan de beurt zijn */
 const isEersteKeer=k=>k.eersteKeer!=null?!!k.eersteKeer:!state.beurten.some(b=>b.klantId===k.id);
 const freqLabel=w=>{w=Number(w)||4;if(fqSpec(w))return fqSpecTxt(w);const el=typeof freqEigenLabel==="function"?freqEigenLabel(w):"";if(el)return el;return w===52?"Elk jaar":w===26?"Elk half jaar":w===13?"Elk kwartaal":"Elke "+w+" "+(w===1?"week":"weken")};
-const extraOpdr=k=>(k.opdrachten||[]).filter(o=>o.actief!==false&&!o.apart);/* apart ingeplande opdrachten gaan niet mee met de glasbewassing */
+const extraOpdr=k=>{/* een dienst die bij een losse (apart ingeplande) opdracht hoort (o.bij), gaat mee met die afspraak, niet met de glasbewassing op het hoofdadres */
+  if(k&&k.hoofdKlantId){const h=state.klanten.find(x=>x.id===k.hoofdKlantId);return h?(h.opdrachten||[]).filter(o=>o.actief!==false&&o.bij&&o.bij===k.opdrachtId):[]}
+  const L=(k&&k.opdrachten)||[];return L.filter(o=>o.actief!==false&&!o.apart&&!(o.bij&&L.some(p=>p.id===o.bij&&p.apart&&p.actief!==false)))};/* apart ingeplande opdrachten gaan niet mee met de glasbewassing */
 const extraDue=(k,day)=>{const d=day||iso(today()),out=[];extraOpdr(k).forEach(o=>{const oDue=!o.volgende||o.volgende<=d;
     if(!o.items||typeof groepCalc!=="function"){if(oDue)out.push(o);return}
     const c=groepCalc(o,it=>it.fq?(!it.vol||it.vol<=d):(!it.vol||it.vol<=d));if(!c.rows.length)return;const st=S(),mul=st.incl?1+(Number(st.btw)||21)/100:1;
     out.push({...o,items:c.rows.map(r=>r.it),prijs:r2(c.ex*mul),_oDue:oDue})});return out};
+/* losse opdracht afgemeld: de diensten die erbij horen staan bij de hoofdklant; daar de volgende datum doorschuiven */
+async function extraNaBij(k,d,ed){try{if(!k||!k.hoofdKlantId||!(ed||[]).length)return;const h=state.klanten.find(x=>x.id===k.hoofdKlantId);if(!h)return;
+  await save("klanten",h.id,{...strip(h),opdrachten:extraNa(h,d,ed)})}catch(e){console.error("extraNaBij",e)}}
 /* na de beurt: volgende datum van extra opdrachten en van onderdelen met een eigen frequentie doorschuiven */
 const extraNa=(k,d,ed)=>(k.opdrachten||[]).map(o=>{const x=ed.find(y=>y.id===o.id);if(!x)return o;const n={...o,laatst:d};
   if(!o.items||x._oDue!==false)n.volgende=iso(addDays(parse(d),(Number(o.frequentie)||52)*7));

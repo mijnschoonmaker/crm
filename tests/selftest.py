@@ -243,6 +243,17 @@ def freqkorting(pg):
     check(G, "Gewijzigd tarief komt in bestaande opdracht", r.get("bij") is True and r.get("np") == 4 and r.get("aantal") == 10, r)
 
 
+def bijopdracht(pg):
+    G = "Opdrachten"
+    r = pg.evaluate("""()=>{const T=MSTEST;if(!T.extraOpdr)return null;
+      const h={id:'hX',naam:'H',opdrachten:[{id:'p1',dienst:'Glasbewassing',apart:true,actief:true},{id:'c1',dienst:'Gevel',bij:'p1',actief:true},{id:'z1',dienst:'Goten',actief:true}]};
+      const j={id:'jX',hoofdKlantId:'hX',opdrachtId:'p1',opdrachten:[]};T.state.klanten.push(h,j);
+      const res={hoofd:T.extraOpdr(h).map(o=>o.id),job:T.extraOpdr(j).map(o=>o.id)};T.state.klanten=T.state.klanten.filter(k=>k.id!=='hX'&&k.id!=='jX');return res}""")
+    if r is None:
+        return check(G, "Dienst bij losse opdracht", False, "extraOpdr niet gevonden")
+    check(G, "Dienst bij losse opdracht gaat mee met die afspraak, niet met het hoofdadres", r["hoofd"] == ["z1"] and r["job"] == ["c1"], r)
+
+
 def teplannen(pg):
     G = "Planning"
     r = pg.evaluate("""async()=>{const T=MSTEST;if(!T.teplannen)return null;const d=n=>T.iso(T.addDays(T.today(),n)),id=T.newId('kp');
@@ -491,6 +502,7 @@ def main():
             herinneringen(pg)
             teplannen(pg)
             freqkorting(pg)
+            bijopdracht(pg)
             nieuweOpdracht(pg)
             opdrachtNummers(pg)
             werkdagTijd(pg)
