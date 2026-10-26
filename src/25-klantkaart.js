@@ -1,5 +1,5 @@
 /* klant + zijn losse opdrachten (apart ingeplande jobs met eigen afspraak en factuur): op de klantkaart samen tonen */
-const kkIds=k=>k?[k.id,...state.klanten.filter(x=>x.hoofdKlantId&&x.hoofdKlantId===k.id).map(x=>x.id)]:[];
+const kkIds=k=>{if(!k)return[];const h=k.hoofdKlantId||k.id;return [h,...state.klanten.filter(x=>x.hoofdKlantId&&x.hoofdKlantId===h).map(x=>x.id)]};/* ook vanaf de kaart van een losse opdracht: alles van de klant */
 /* ---------- KLANTKAART: overzicht met blokken (zoals een klantdossier), per blok aanpassen ---------- */
 const factAddr=k=>k&&k.fAdres?[k.fAdres,[k.fPostcode,k.fPlaats].filter(Boolean).join(" ")].filter(Boolean).join(", "):(k&&k.adres?fullAddr(k):jobAddr(k));
 /* naar welk e-mailadres gaat wat: facturen, offertes of planningsmails (leeg = gewone e-mail) */
