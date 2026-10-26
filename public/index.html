@@ -13588,6 +13588,8 @@ async function migGotenBuiten(){try{
   const sd={...state.settings,migGotenBuiten:true};await save("instellingen","bedrijf",sd);state.settings=sd;
   if(n)toast("Goten reiniging buitenkant staat nu onder "+gevelNaam+" ("+plural(n,"klant","klanten")+" bijgewerkt)")}catch(e){console.error("migGotenBuiten",e)}}
 
+/* klant + zijn losse opdrachten (apart ingeplande jobs met eigen afspraak en factuur): op de klantkaart samen tonen */
+const kkIds=k=>k?[k.id,...state.klanten.filter(x=>x.hoofdKlantId&&x.hoofdKlantId===k.id).map(x=>x.id)]:[];
 /* ---------- KLANTKAART: overzicht met blokken (zoals een klantdossier), per blok aanpassen ---------- */
 const factAddr=k=>k&&k.fAdres?[k.fAdres,[k.fPostcode,k.fPlaats].filter(Boolean).join(" ")].filter(Boolean).join(", "):(k&&k.adres?fullAddr(k):jobAddr(k));
 /* naar welk e-mailadres gaat wat: facturen, offertes of planningsmails (leeg = gewone e-mail) */
@@ -13618,9 +13620,9 @@ function donut(c){const parts=[["late",c.aanmaning],["soon",c.herinnering],["ok"
 function openKlantView(id,opt={}){
   if(state._kkLast!==id){state._kkLast=id;state.kkFQ="";state.kkFP=0}
   const k=state.klanten.find(x=>x.id===id);if(!k)return openKlantEdit(null);
-  const nr=klantNr(k),fs=state.facturen.filter(f=>f.klantId===k.id).sort((a,b)=>String(b.datum).localeCompare(String(a.datum))),offs=fs.filter(f=>f.soort==="offerte"),facs=fs.filter(f=>f.soort!=="offerte");
-  const hist=state.beurten.filter(b=>b.klantId===k.id).sort((a,b)=>String(b.datum).localeCompare(String(a.datum)));
-  const bg=betaalgedrag(fs),msgs=state.berichten.filter(m=>m.klantId===k.id).sort((a,b)=>String(b.op).localeCompare(String(a.op)));
+  const kIds=kkIds(k),nr=klantNr(k),fs=state.facturen.filter(f=>kIds.includes(f.klantId)).sort((a,b)=>String(b.datum).localeCompare(String(a.datum))),offs=fs.filter(f=>f.soort==="offerte"),facs=fs.filter(f=>f.soort!=="offerte");
+  const hist=state.beurten.filter(b=>kIds.includes(b.klantId)).sort((a,b)=>String(b.datum).localeCompare(String(a.datum)));
+  const bg=betaalgedrag(fs),msgs=state.berichten.filter(m=>kIds.includes(m.klantId)).sort((a,b)=>String(b.op).localeCompare(String(a.op)));
   const kv=(a,b)=>`<div class="ow-kv"><span>${a}</span><b>${b||"—"}</b></div>`;
   const mail=e=>e?`<a href="mailto:${esc(e)}">${esc(e)}</a>`:"",tel=t=>t?`<a href="tel:${esc(String(t).replace(/[^\d+]/g,""))}">${esc(t)}</a>`:"";
   const pen=(act,lbl)=>`<button type="button" class="iconbtn sm" data-kk="${act}" aria-label="${lbl}" title="${lbl}">${I.pencil}</button>`;
@@ -13731,7 +13733,7 @@ function kkContact(kid,i){const k=state.klanten.find(x=>x.id===kid);if(!k)return
     ${i>=0?`<button type="button" class="small ghost danger" id="kcDel" style="align-self:flex-start">${I.trash}Verwijderen</button>`:""}`,
   ()=>{const n=$("#kc-n").value.trim();if(!n){$("#kc-n").focus();return null}const l=[...(k.contacten||[])],o={naam:n,functie:$("#kc-f").value.trim(),email:$("#kc-e").value.trim(),tel:$("#kc-t").value.trim()};if(i>=0)l[i]=o;else l.push(o);return {contacten:l}});
   const d=$("#kcDel");if(d)d.onclick=async()=>{const l=[...(k.contacten||[])];l.splice(i,1);try{await save("klanten",kid,{...strip(k),contacten:l});toast("Contactpersoon verwijderd");openKlantView(kid)}catch(er){err(er)}}}
-function kkBerichten(kid){const k=state.klanten.find(x=>x.id===kid);if(!k)return;const ms=state.berichten.filter(m=>m.klantId===kid).sort((a,b)=>String(b.op).localeCompare(String(a.op)));
+function kkBerichten(kid){const k=state.klanten.find(x=>x.id===kid);if(!k)return;const ids=kkIds(k),ms=state.berichten.filter(m=>ids.includes(m.klantId)).sort((a,b)=>String(b.op).localeCompare(String(a.op)));
   openDlg(`<div class="dlg-head"><span class="objic big">${I.send}</span><div style="min-width:0;flex:1"><h3>Verzonden berichten</h3><div class="subt">${esc(cleanName(k.naam))} · ${plural(ms.length,"bericht","berichten")}</div></div><button type="button" class="iconbtn" id="kbX" aria-label="Terug">${I.x}</button></div>
     <div class="kd-msgs">${ms.map(m=>`<details class="kd-msg"><summary class="km"><div class="km-kop"><span class="pill neutral">${esc(KANAAL[m.kanaal]||m.kanaal||"")}</span><span class="km-t">${esc(fmtTS(m.op))}</span>${(st=>statusPill(st[0]==="ok2"?"ok":st[0],st[1]))(MSTAT[mStat(m)]||MSTAT.geopend)}</div><b class="km-ow">${esc(m.onderwerp||String(m.tekst||"").slice(0,70))}</b>${m.naar?`<small class="km-naar">Aan ${esc(m.naar)}</small>`:""}${mailTrk(m)}</summary><p>${esc(m.tekst||"").replace(/\n/g,"<br>")}</p></details>`).join("")||'<p class="subt">Nog geen berichten.</p>'}</div>
     <div class="row"><span class="sp"></span><button type="button" id="kbB">Terug naar klant</button></div>`,{wide:true});
