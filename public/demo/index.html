@@ -6371,7 +6371,7 @@ const extraOpdr=k=>{
   const L=(k&&k.opdrachten)||[];return L.filter(o=>o.actief!==false&&!o.apart&&!opdrBij(k,o)&&!(o.objectId&&o.objectId!=="hoofd"))};/* op een ander adres nooit mee met het hoofdadres *//* apart ingeplande opdrachten gaan niet mee met de glasbewassing */
 const extraDue=(k,day)=>{const d=day||iso(today()),out=[];extraOpdr(k).forEach(o=>{const oDue=!o.volgende||o.volgende<=d;
     if(!o.items||typeof groepCalc!=="function"){if(oDue)out.push(o);return}
-    const c=groepCalc(o,it=>it.fq?(!it.vol||it.vol<=d):(!it.vol||it.vol<=d));if(!c.rows.length)return;const st=S(),mul=st.incl?1+(Number(st.btw)||21)/100:1;
+    const c=groepCalc(o,it=>it.fq?(!it.vol||it.vol<=d):(!it.vol||it.vol<=d));if(!c.rows.length&&!(c.vast&&oDue))return;const st=S(),mul=st.incl?1+(Number(st.btw)||21)/100:1;
     out.push({...o,items:c.rows.map(r=>r.it),prijs:r2(c.ex*mul),_oDue:oDue})});return out};
 /* losse opdracht afgemeld: de diensten die erbij horen staan bij de hoofdklant; daar de volgende datum doorschuiven */
 async function extraNaBij(k,d,ed){try{if(!k||!k.hoofdKlantId||!(ed||[]).length)return;const h=state.klanten.find(x=>x.id===k.hoofdKlantId);if(!h)return;
@@ -12560,14 +12560,15 @@ function openOpdrachtWerk(kid,focus){
   const adresKeuze=(r,i)=>{const ls=(k.objecten||[]).filter(o=>o.adres);if(!ls.length)return `<small class="help">Glasbewassing op een ander adres? Voeg dat adres eerst toe bij Locaties op de klantkaart; dan kies je het hier.</small>`;
     return `<label>Adres<select data-i="${i}" data-k="objectId"><option value="">${esc(fullAddr(k))} (hoofdadres)</option>${ls.map(o=>`<option value="${esc(o.id)}" ${o.id===r.objectId?"selected":""}>${esc([o.adres,[o.postcode,o.plaats].filter(Boolean).join(" ")].filter(Boolean).join(", "))}${o.naam?" · "+esc(o.naam):""}</option>`).join("")}</select>${r.objectId?`<small class="help">Ander adres: wordt apart ingepland, met een eigen afspraak en factuur.</small>`:""}</label>`};
   /* losse opdracht met ramen of onderdelen: naam, prijs, ritme en datum staan al in de regels eronder (per verdieping), dus geen dubbele kop */
-  const soloKaal=(r,i,isMain)=>!isMain&&soloI===i&&!!(r.ramen||r.items)&&!!String(r.dienst||"").trim();
+  const soloKaal=(r,i,isMain)=>!isMain&&soloI===i&&!!r.ramen&&!!String(r.dienst||"").trim();
   const lineHtml=(r,i,isMain)=>!isMain&&r.id&&dicht.has(r.id)?dichtHtml(r,i):`<div class="ow-line${isMain?" main":""}">
       ${isMain&&r.ramen||soloKaal(r,i,isMain)?"":`      <div class="ow-lh"><span class="mono">${isMain?1:i+2}</span><input data-i="${isMain?"m":i}" data-k="dienst" value="${esc(r.dienst)}" placeholder="Dienst" aria-label="Dienst">${isMain?"":`<button type="button" class="small ghost" data-rm="${i}" aria-label="Regel verwijderen">${I.x}</button>`}</div>
       <div class="ow-lg">
         <label>Prijs per keer (€ ${btwL})<input data-i="${isMain?"m":i}" data-k="prijs" type="number" step="0.01" min="0" value="${esc(r.prijs)}">${isMain?'<small class="help ow-tsl" id="owTsl"></small>':""}</label>
         ${isMain&&r.ramen?`<label>Ritme planning<input value="${esc(freqLabel(mF))}${ritmeUitRamen()?" (kortste frequentie)":""}" disabled></label><label>Tijdsduur per beurt<input value="${mD} min${(k.tijden||[]).length?" (gemeten)":" (berekend)"}" disabled></label>`
           :isMain?`<label>Hoe vaak (ritme planning)<select id="ow-freq">${freqO(mF).map(w=>`<option value="${w}" ${w===mF&&!mW.length?"selected":""}>${esc(freqLabel(w))}</option>`).join("")}<option value="dagen" ${mW.length?"selected":""}>Vaste weekdagen (bijv. VvE)</option></select>${mW.length?`<div class="ow-dagen" role="group" aria-label="Weekdagen">${[1,2,3,4,5,6].map(d=>`<button type="button" data-wd="${d}" aria-pressed="${mW.includes(d)}">${["zo","ma","di","wo","do","vr","za"][d]}</button>`).join("")}</div><small class="help">Elke week op deze dagen; na afmelden staat de volgende dag automatisch in de planning.</small>`:""}</label><label>Tijdsduur per beurt<select id="ow-duur">${[...new Set([5,10,15,20,25,30,35,40,45,50,55,60,75,90,120,150,180,240,mD])].sort((a,b)=>a-b).map(m=>`<option value="${m}" ${m===mD?"selected":""}>${m<60?m+" min":(m/60).toLocaleString("nl-NL")+" uur"}</option>`).join("")}</select>${(k.tijden||[]).length?`<small class="help">Gemeten gemiddeld ${gemTijd(k)} min</small>`:""}</label>`
-          :r.items?`<div class="ow-kv" style="grid-column:1/-1"><span>Ritme</span><b>Zelfde als glasbewassing (${esc(freqLabel(mF).toLowerCase())}) <small class="subt">· per onderdeel aan te passen</small></b></div>`
+          :r.items?`<label>Hoe vaak<select data-i="${i}" data-k="frequentie"><option value="">Selecteer…</option>${freqO(r.frequentie).map(w=>`<option value="${w}" ${w===Number(r.frequentie)?"selected":""}>${esc(freqLabel(w))}</option>`).join("")}</select><small class="help">Per onderdeel aan te passen</small></label>
+            <label>Aanboddatum<input data-i="${i}" data-k="volgende" type="date" value="${esc(r.volgende||"")}" title="Leeg = bij de volgende beurt"></label>`
           :`<label>Hoe vaak<select data-i="${i}" data-k="frequentie">${freqO(r.frequentie).map(w=>`<option value="${w}" ${w===Number(r.frequentie)?"selected":""}>${esc(freqLabel(w))}</option>`).join("")}</select></label>
             <label>Volgende keer<input data-i="${i}" data-k="volgende" type="date" value="${esc(r.volgende||"")}" title="Leeg = bij de volgende beurt"></label>
             <label>Tijdsduur<span class="ow-in"><input data-i="${i}" data-k="duur" type="number" min="0" step="5" inputmode="numeric" value="${esc(r.duur??"")}" placeholder="30"><i>min</i></span></label>`}
@@ -12579,10 +12580,10 @@ function openOpdrachtWerk(kid,focus){
       ${i===soloI&&!extra.some(x=>x.bij===r.id)?(()=>{const kand=extra.filter(x=>x.id!==r.id&&!x.bij&&!x._nieuw&&x.actief!==false&&String(x.dienst||"").trim()&&(x.objectId||"")===(r.objectId||""));return kand.length?`<label>Hoort bij opdracht<select data-i="${i}" data-k="bij"><option value="">Eigen opdracht</option>${kand.map(x=>`<option value="${esc(x.id)}" ${r.bij===x.id?"selected":""}>#${esc(nr)}-${esc(x.nr||opdrNr(k,x.id))} · ${esc(x.dienst)}</option>`).join("")}</select><small class="help">Kies een opdracht op hetzelfde adres: deze dienst gaat dan mee met die afspraak.</small></label>`:""})():""}`}
       <div class="ow-lsave"><button type="button" class="small primary" data-lsave="${isMain?"m":i}">${I.check}Opslaan</button></div>
     </div>`;
-  const itemsRitme=r=>{const its=(r.items||[]).filter(x=>Number(x.aantal)>0);if(!its.length)return Number(r.frequentie)||mF||52;const ws=its.map(x=>Number(x.fq)||mF||52);return Math.min(...ws)};
+  const itemsRitme=r=>{const its=(r.items||[]).filter(x=>Number(x.aantal)>0);if(!its.length)return Number(r.frequentie)||mF||52;const ws=its.map(x=>Number(x.fq)||Number(r.frequentie)||mF||52);return Math.min(...ws)};
   const gOpts=r=>({freqDefault:mF||Number(k.frequentie)||8});
   const itemsHtml=(r,i)=>groepEditor(r,"x"+i,gOpts(r));
-  const itemsRecalc=(i,struct)=>{const r=extra[i];if(!r||!r.items)return;r.frequentie=itemsRitme(r);const c=groepCalc(r),mul=incl?1+(Number(st.btw)||21)/100:1;r.prijs=r2(c.ex*mul);r.duur=Math.max(5,Math.ceil(c.sec/60/5)*5);
+  const itemsRecalc=(i,struct)=>{const r=extra[i];if(!r||!r.items)return;const c=groepCalc(r),mul=incl?1+(Number(st.btw)||21)/100:1;r.prijs=r2(c.ex*mul);r.duur=Math.max(5,Math.ceil(c.sec/60/5)*5);
     const pi=$("#owLines").querySelector(`input[data-i="${i}"][data-k="prijs"]`);if(pi){pi.value=r.prijs;pi.classList.remove("flash");void pi.offsetWidth;pi.classList.add("flash")}
     if(struct)groepRedraw($("#owLines"),"x"+i,r,gOpts(r));else groepTotUpdate($("#owLines"),"x"+i,r,gOpts(r));tot()};
   const tot=()=>{if(soloI>=0&&extra[soloI]){const L=[...soloSet].map(i=>extra[i]).filter(Boolean);$("#owTot").innerHTML=L.map(r=>`<span>Per keer (${esc(r.dienst||"deze opdracht")})</span><span>${eur(toon(Number(r.prijs)||0))}</span>`).join("");return}
@@ -12683,16 +12684,16 @@ function openOpdrachtWerk(kid,focus){
     const soloGevuld=soloI>=0&&extra[soloI]&&(String(extra[soloI].dienst||"").trim()||extra[soloI].items||extra[soloI].ramen);
     if(soloGevuld){/* deze opdracht heeft al een dienst: de nieuwe dienst komt erbij als eigen opdracht, de eerste blijft staan */
       const o={id:newId("o"),dienst:d.naam,prijs:"",frequentie:mF||8,duur:30,volgende:"",actief:true,_nieuw:true,_solo:true,bij:soloId};
-      if(d.items&&d.items.length)Object.assign(o,{groep:d.groep,items:d.items.map(it=>({...it,aantal:0})),prijs:0,duur:d.duur||30});
+      if(d.items&&d.items.length)Object.assign(o,{groep:d.groep,items:d.items.map(it=>({...it,aantal:0})),prijs:0,frequentie:"",duur:d.duur||30});
       else if(d.glas||isGlas(d.naam))o.ramen=normR({});else o.prijs=Number(d.prijs)||"";
       extra.push(o);const ni=extra.length-1;soloSet.add(ni);if(o.ramen)editR.add(String(ni));draw();
       const l=$("#owLines").querySelectorAll(".ow-line");if(l.length)l[l.length-1].scrollIntoView({block:"start",behavior:"smooth"});return}
     if(soloI>=0&&extra[soloI]){const r=extra[soloI];delete r.items;delete r.ramen;delete r.groep;
-      if(d.items&&d.items.length)Object.assign(r,{dienst:d.naam,groep:d.groep,items:d.items.map(it=>({...it,aantal:0})),prijs:0,frequentie:mF||8,duur:d.duur||30});
+      if(d.items&&d.items.length)Object.assign(r,{dienst:d.naam,groep:d.groep,items:d.items.map(it=>({...it,aantal:0})),prijs:0,frequentie:"",duur:d.duur||30});
       else if(d.glas||isGlas(d.naam)){Object.assign(r,{dienst:d.naam,prijs:"",frequentie:mF||8,duur:30,ramen:normR({})});editR.add(String(soloI))}
       else Object.assign(r,{dienst:d.naam,prijs:Number(d.prijs)||""});
       draw();const l=$("#owLines").querySelector(".ow-line");if(l)l.scrollIntoView({block:"start",behavior:"smooth"});return}
-    if(d.items&&d.items.length){extra.push({id:newId("o"),dienst:d.naam,groep:d.groep,items:d.items.map(it=>({...it,aantal:0})),prijs:0,frequentie:mF||8,duur:d.duur||30,volgende:"",actief:true});draw();const l=$("#owLines").querySelectorAll(".ow-line");l[l.length-1].scrollIntoView({block:"start",behavior:"smooth"});return}
+    if(d.items&&d.items.length){extra.push({id:newId("o"),dienst:d.naam,groep:d.groep,items:d.items.map(it=>({...it,aantal:0})),prijs:0,frequentie:"",duur:d.duur||30,volgende:"",actief:true});draw();const l=$("#owLines").querySelectorAll(".ow-line");l[l.length-1].scrollIntoView({block:"start",behavior:"smooth"});return}
     if(d.glas||isGlas(d.naam)){if(isGlas(main.dienst)&&!main.ramen){main.ramen=leegR();editR.add("m");draw();const c=$("#owLines").querySelector('[data-calc="m"]');if(c)c.scrollIntoView({block:"start",behavior:"smooth"});return}
       if(isGlas(main.dienst)&&main.ramen&&d.naam.toLowerCase()===String(main.dienst).toLowerCase()){editR.add("m");draw();const c=$("#owLines").querySelector('[data-calc="m"]');if(c)c.scrollIntoView({block:"start",behavior:"smooth"});return}
       extra.push({id:newId("o"),dienst:d.naam,prijs:"",frequentie:mF||8,duur:30,volgende:"",actief:true,ramen:normR({})});editR.add(String(extra.length-1));draw();const l=$("#owLines").querySelectorAll(".ow-line");l[l.length-1].scrollIntoView({block:"start",behavior:"smooth"});return}
@@ -12744,9 +12745,9 @@ function openOpdrachtWerk(kid,focus){
     catch(er){err(er)}finally{b.disabled=false}});
   /* zoals in DienstenCRM: bij elke verdieping en elk bijzonder raam met een aantal moet de gebruiker zelf een frequentie kiezen */
   const fqOntbreekt=()=>{const L=soloI>=0?[...soloSet].map(i=>[String(i),extra[i]]):[["m",main],...extra.map((r,i)=>[String(i),r]).filter(x=>!x[1]._bestaand)];
-    return L.filter(([,r])=>{const q=r&&r.ramen;if(!q)return false;return (q.f||[]).some((n,j)=>Number(n)>0&&!(q.fq||[])[j])||Object.keys(q.sp||{}).some(k=>Number(q.sp[k])>0&&!(q.spfq||{})[k])}).map(x=>x[0])};
-  const fqMelding=async()=>{const mis=fqOntbreekt();if(!mis.length)return false;mis.forEach(x=>{editR.add(x);const r=x==="m"?main:extra[+x];if(r&&r.id)dicht.delete(r.id)});draw();await melding("Let op: Er is nog geen frequentie ingevuld.","Kies bij elke verdieping (en elk bijzonder raam) met een aantal een frequentie.");
-    const s=$("#owLines").querySelector('select[data-rk^="fq"] option[value=""]:checked, select[data-rk^="spfq:"] option[value=""]:checked');if(s){const el=s.parentElement;el.scrollIntoView({block:"center",behavior:"smooth"});el.focus()}return true};
+    return L.filter(([,r])=>{if(r&&r.items&&String(r.dienst||"").trim()){const ak=r.items.filter(it=>Number(it.aantal)>0);if(!Number(r.frequentie)&&!(ak.length&&ak.every(it=>Number(it.fq))))return true}const q=r&&r.ramen;if(!q)return false;return (q.f||[]).some((n,j)=>Number(n)>0&&!(q.fq||[])[j])||Object.keys(q.sp||{}).some(k=>Number(q.sp[k])>0&&!(q.spfq||{})[k])}).map(x=>x[0])};
+  const fqMelding=async()=>{const mis=fqOntbreekt();if(!mis.length)return false;mis.forEach(x=>{editR.add(x);const r=x==="m"?main:extra[+x];if(r&&r.id)dicht.delete(r.id)});draw();await melding("Let op: Er is nog geen frequentie ingevuld.","Kies bij elke verdieping en elke dienst een frequentie.");
+    const s=$("#owLines").querySelector('select[data-rk^="fq"] option[value=""]:checked, select[data-rk^="spfq:"] option[value=""]:checked, select[data-k="frequentie"] option[value=""]:checked');if(s){const el=s.parentElement;el.scrollIntoView({block:"center",behavior:"smooth"});el.focus()}return true};
   form.onsubmit=async e=>{e.preventDefault();if(await fqMelding())return;$("#owSave").disabled=true;
     try{let d=collect();if(rcLive&&RC&&RC.current()){const {t}=await RC.telling();if(t)d={...d,ramenTelling:t}}
       /* aanboddatum gewijzigd terwijl er al een afspraak staat: vragen of die mee moet */
@@ -13132,6 +13133,8 @@ function groepCalc(g,due){
   if(rows.length&&gHas(g.tp)){const fp=sumP(rowsAll)||1;ex=(Number(g.tp)||0)*(due?sumP(rows)/fp:1)}
   if(rows.length&&gHas(g.td)){const fs=sumS(rowsAll)||1;sec=(Number(g.td)||0)*60*(due?sumS(rows)/fs:1)}
   const start=rows.length&&gHas(g.start)?Number(g.start)||0:0;
+  /* geen aantallen ingevuld, wel een overschrijvende prijs (vaste prijs voor de hele dienst): die geldt dan */
+  if(!all.length&&gHas(g.tp)){const st0=gHas(g.start)?Number(g.start)||0:0;return {rows:[],vast:true,ex:r2((Number(g.tp)||0)+st0),sec:gHas(g.td)?(Number(g.td)||0)*60:0,start:st0,calcEx:0,calcSec:0}}
   return {rows,ex:r2(ex+start),sec,start,calcEx:r2(sumP(rowsAll)),calcSec:sumS(rowsAll)}}
 function groepOmschrijving(g,rowsIts,verbergAantal){const its=(rowsIts||(g.items||[]).filter(x=>Number(x.aantal)>0));
   if(g.groepOms)return g.groepOms;const n=g.naam||g.dienst||"";return n+(!verbergAantal&&its.length?": "+groepDetail(its,g.frequentie):"")}

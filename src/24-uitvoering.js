@@ -268,6 +268,8 @@ function groepCalc(g,due){
   if(rows.length&&gHas(g.tp)){const fp=sumP(rowsAll)||1;ex=(Number(g.tp)||0)*(due?sumP(rows)/fp:1)}
   if(rows.length&&gHas(g.td)){const fs=sumS(rowsAll)||1;sec=(Number(g.td)||0)*60*(due?sumS(rows)/fs:1)}
   const start=rows.length&&gHas(g.start)?Number(g.start)||0:0;
+  /* geen aantallen ingevuld, wel een overschrijvende prijs (vaste prijs voor de hele dienst): die geldt dan */
+  if(!all.length&&gHas(g.tp)){const st0=gHas(g.start)?Number(g.start)||0:0;return {rows:[],vast:true,ex:r2((Number(g.tp)||0)+st0),sec:gHas(g.td)?(Number(g.td)||0)*60:0,start:st0,calcEx:0,calcSec:0}}
   return {rows,ex:r2(ex+start),sec,start,calcEx:r2(sumP(rowsAll)),calcSec:sumS(rowsAll)}}
 function groepOmschrijving(g,rowsIts,verbergAantal){const its=(rowsIts||(g.items||[]).filter(x=>Number(x.aantal)>0));
   if(g.groepOms)return g.groepOms;const n=g.naam||g.dienst||"";return n+(!verbergAantal&&its.length?": "+groepDetail(its,g.frequentie):"")}

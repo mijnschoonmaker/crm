@@ -106,7 +106,7 @@ const extraOpdr=k=>{
   const L=(k&&k.opdrachten)||[];return L.filter(o=>o.actief!==false&&!o.apart&&!opdrBij(k,o)&&!(o.objectId&&o.objectId!=="hoofd"))};/* op een ander adres nooit mee met het hoofdadres *//* apart ingeplande opdrachten gaan niet mee met de glasbewassing */
 const extraDue=(k,day)=>{const d=day||iso(today()),out=[];extraOpdr(k).forEach(o=>{const oDue=!o.volgende||o.volgende<=d;
     if(!o.items||typeof groepCalc!=="function"){if(oDue)out.push(o);return}
-    const c=groepCalc(o,it=>it.fq?(!it.vol||it.vol<=d):(!it.vol||it.vol<=d));if(!c.rows.length)return;const st=S(),mul=st.incl?1+(Number(st.btw)||21)/100:1;
+    const c=groepCalc(o,it=>it.fq?(!it.vol||it.vol<=d):(!it.vol||it.vol<=d));if(!c.rows.length&&!(c.vast&&oDue))return;const st=S(),mul=st.incl?1+(Number(st.btw)||21)/100:1;
     out.push({...o,items:c.rows.map(r=>r.it),prijs:r2(c.ex*mul),_oDue:oDue})});return out};
 /* losse opdracht afgemeld: de diensten die erbij horen staan bij de hoofdklant; daar de volgende datum doorschuiven */
 async function extraNaBij(k,d,ed){try{if(!k||!k.hoofdKlantId||!(ed||[]).length)return;const h=state.klanten.find(x=>x.id===k.hoofdKlantId);if(!h)return;
