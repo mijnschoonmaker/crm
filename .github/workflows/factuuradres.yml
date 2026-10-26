@@ -1,0 +1,24 @@
+name: Factuuradres aanpassen (één factuur)
+on:
+  workflow_dispatch:
+    inputs:
+      nummer: { description: "Factuurnummer", required: true }
+      adres: { description: "Nieuw factuuradres", required: true }
+      locatie: { description: "Uitvoerlocatie (optioneel, komt in de notitie)", required: false, default: "" }
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm install --omit=dev --no-audit --no-fund
+        working-directory: functions
+      - run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > "$RUNNER_TEMP/sa.json"
+      - env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
+          P: ${{ vars.FIREBASE_PROJECT }}
+          NUMMER: ${{ inputs.nummer }}
+          ADRES: ${{ inputs.adres }}
+          LOCATIE: ${{ inputs.locatie }}
+        run: node tools/factuur-adres.js
