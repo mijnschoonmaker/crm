@@ -1,6 +1,6 @@
 /* Mansard als platform: een nieuw bedrijf aanmelden (30 dagen gratis), de status van het abonnement lezen.
    Een bedrijf = bedrijven/<id> (naam, eigenaar, status, proefTot, plan) met daaronder al zijn gegevens. */
-module.exports = ({ rawDb, T, onCall, onRequestRaw, HttpsError, nu, mollie, HOST }) => {
+module.exports = ({ rawDb, T, onCall, onRequestRaw, HttpsError, nu, mollie, HOST, mfaOk }) => {
   const PLAN = { naam: "Mansard", prijs: 99, inbegrepen: 3, extraPrijs: 19.95, proefDagen: 30 };
   const emailVan = auth => { const a = auth && auth.token; if (!a || !a.email_verified) throw new HttpsError("unauthenticated", "Bevestig eerst je e-mailadres."); return String(a.email || "").toLowerCase(); };
 
@@ -123,5 +123,56 @@ module.exports = ({ rawDb, T, onCall, onRequestRaw, HttpsError, nu, mollie, HOST
     return false;
   }
 
-  return { functies: { bedrijfAanmaken, abonnement, abonnementStart, abonnementBijwerken, abonnementStoppen, mansardHook }, PLAN, magGebruiken };
+  /* ---------- Mansard-beheer (alleen robin@mansard.nl, met bevestigde tweestapsverificatie als die aan staat) ----------
+     Alles werkt alleen op nieuwe bedrijven (bedrijven/b…); het eigen bedrijf in de hoofdcollecties is hier nooit te raken.
+     Elke actie komt in beheerLog. */
+  const BEHEER_MAIL = "robin@mansard.nl", DATA_COLS = ["klanten","beurten","facturen","routes","instellingen","berichten","kosten","aanvragen","geplandeMails","akkoord","portaalVerzoeken","tickets","ticketBerichten","tellers","live","banktx","abonnementBetalingen"];
+  const plusDagen = (d, n) => { const x = new Date(d + "T12:00:00Z"); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); };
+  const beheer = onCall({ timeoutSeconds: 300, memory: "512MiB" }, async req => {
+    const e = emailVan(req.auth); if (e !== BEHEER_MAIL) throw new HttpsError("permission-denied", "Alleen voor Mansard-beheer.");
+    if (mfaOk && !(await mfaOk(req.auth))) throw new HttpsError("permission-denied", "Bevestig eerst je inlogcode (tweestapsverificatie).");
+    const d = req.data || {}, actie = String(d.actie || "");
+    const log = async (bid, tekst) => { try { await rawDb.collection("beheerLog").add({ bid: bid || "", tekst, door: e, op: nu() }); } catch (x) {} };
+    if (actie === "log") { const q = await rawDb.collection("beheerLog").orderBy("op", "desc").limit(40).get(); return { log: q.docs.map(x => x.data()) }; }
+    const bid = String(d.bid || ""); if (!T.BID_RE.test(bid)) throw new HttpsError("invalid-argument", "Onbekend bedrijf.");
+    const ref = rawDb.doc("bedrijven/" + bid), snap = await ref.get(); if (!snap.exists) throw new HttpsError("not-found", "Dit bedrijf bestaat niet (meer).");
+    const b = snap.data() || {};
+    if (actie === "details") {
+      const gs = (await rawDb.collection("gebruikers").where("bedrijf", "==", bid).get()).docs.map(x => ({ email: x.id, rol: x.data().rol || "", naam: x.data().naam || "", toegevoegd: x.data().toegevoegd || "" }));
+      const tel = async c => { try { return (await ref.collection(c).count().get()).data().count; } catch (x) { return null; } };
+      const [klanten, facturen, beurten] = await Promise.all([tel("klanten"), tel("facturen"), tel("beurten")]);
+      const bet = (await ref.collection("abonnementBetalingen").orderBy("op", "desc").limit(12).get().catch(() => ({ docs: [] }))).docs.map(x => ({ id: x.id, ...x.data() }));
+      const lg = (await rawDb.collection("beheerLog").where("bid", "==", bid).get().catch(() => ({ docs: [] }))).docs.map(x => x.data()).sort((a, c) => String(c.op).localeCompare(String(a.op))).slice(0, 20);
+      return { gebruikers: gs, tellers: { klanten, facturen, beurten }, betalingen: bet, log: lg, notitie: b.beheerNotitie || "" };
+    }
+    if (actie === "proefVerlengen") {
+      const n = Math.max(1, Math.min(180, Math.round(Number(d.dagen) || 0))), basis = String(b.proefTot || "") > vandaag() ? b.proefTot : vandaag(), tot = plusDagen(basis, n);
+      await ref.set({ proefTot: tot, ...(b.status === "actief" ? {} : { status: "proef" }) }, { merge: true }); await log(bid, "Proefperiode verlengd met " + n + " dagen, tot " + tot); return { proefTot: tot };
+    }
+    if (actie === "blokkeren") { if (b.status === "geblokkeerd") return { ok: true }; await ref.set({ status: "geblokkeerd", vorigeStatus: b.status || "proef", geblokkeerdOp: nu(), blokReden: String(d.reden || "").slice(0, 200) }, { merge: true }); await log(bid, "Toegang geblokkeerd" + (d.reden ? ": " + String(d.reden).slice(0, 200) : "")); return { ok: true }; }
+    if (actie === "deblokkeren") { const st = b.vorigeStatus && b.vorigeStatus !== "geblokkeerd" ? b.vorigeStatus : "proef"; await ref.set({ status: st, vorigeStatus: "", blokReden: "" }, { merge: true }); await log(bid, "Toegang weer open (" + st + ")"); return { status: st }; }
+    if (actie === "notitie") { const t = String(d.tekst || "").slice(0, 2000); await ref.set({ beheerNotitie: t }, { merge: true }); await log(bid, "Notitie bijgewerkt"); return { ok: true }; }
+    if (actie === "gebruikerVerwijderen") {
+      const m = String(d.email || "").toLowerCase(), g = await rawDb.doc("gebruikers/" + m).get();
+      if (!g.exists || g.data().bedrijf !== bid) throw new HttpsError("not-found", "Deze gebruiker hoort niet bij dit bedrijf.");
+      if (g.data().rol === "eigenaar" || m === b.eigenaar) throw new HttpsError("failed-precondition", "De eigenaar kun je niet los verwijderen. Verwijder dan het hele bedrijf.");
+      await g.ref.delete(); const n = await aantalGebruikers(bid); await ref.set({ gebruikers: n }, { merge: true }); await log(bid, "Gebruiker " + m + " verwijderd"); return { gebruikers: n };
+    }
+    if (actie === "export") {
+      const uit = { bedrijf: b, gebruikers: (await rawDb.collection("gebruikers").where("bedrijf", "==", bid).get()).docs.map(x => ({ id: x.id, ...x.data() })), geexporteerd: nu() };
+      for (const c of DATA_COLS) uit[c] = (await ref.collection(c).get()).docs.map(x => ({ id: x.id, ...x.data() }));
+      const json = JSON.stringify(uit); if (json.length > 9e6) throw new HttpsError("resource-exhausted", "Te groot om hier te downloaden.");
+      await log(bid, "Gegevens geëxporteerd"); return { json };
+    }
+    if (actie === "verwijderen") {
+      if (String(d.bevestig || "").trim().toLowerCase() !== String(b.naam || bid).trim().toLowerCase()) throw new HttpsError("failed-precondition", "Typ de naam van het bedrijf precies over om te bevestigen.");
+      if (b.mollieSub && b.mollieCustomer) { try { await mollie(await sleutel(), "customers/" + b.mollieCustomer + "/subscriptions/" + b.mollieSub, { method: "DELETE" }); } catch (x) { console.error("abonnement stoppen", x); } }
+      const gs = await rawDb.collection("gebruikers").where("bedrijf", "==", bid).get(); const bt = rawDb.batch(); gs.docs.forEach(x => bt.delete(x.ref)); await bt.commit();
+      await rawDb.recursiveDelete(ref);
+      await log(bid, "Bedrijf verwijderd: " + (b.naam || bid) + " (" + (b.eigenaar || "") + ", " + gs.size + " gebruiker(s))"); return { ok: true };
+    }
+    throw new HttpsError("invalid-argument", "Onbekende actie.");
+  });
+
+  return { functies: { bedrijfAanmaken, abonnement, abonnementStart, abonnementBijwerken, abonnementStoppen, mansardHook, beheer }, PLAN, magGebruiken };
 };

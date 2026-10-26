@@ -15984,6 +15984,7 @@ function msStatus(){const b=MS.doc||{},v=iso(today());
     const tot=iso(addDays(parse(String(b.foutOp||v).slice(0,10)),14));return{ok:tot>=v,soort:tot>=v?"achterstand":"onbetaald",tot}}
   if(b.status==="proef")return{ok:String(b.proefTot||"")>=v,soort:String(b.proefTot||"")>=v?"proef":"verlopen",dagen:msDagen(b.proefTot)};
   if(b.status==="opgezegd")return{ok:String(b.betaaldTot||b.proefTot||"")>=v,soort:"opgezegd",tot:b.betaaldTot||b.proefTot};
+  if(b.status==="geblokkeerd")return{ok:false,soort:"geblokkeerd"};
   return{ok:false,soort:"verlopen"}}
 function msBalk(){if(!msTenant()||!MS.doc||window.ZEEM_MEEKIJK)return;const st=msStatus();let el=document.getElementById("msBalk");
   const eig=window.ZEEM_ROL==="eigenaar";
@@ -16000,6 +16001,7 @@ function msBalk(){if(!msTenant()||!MS.doc||window.ZEEM_MEEKIJK)return;const st=m
       <p class="ms-pk">${eig?"Wil je beginnen met je eigen bedrijf? Kies een abonnement, dan kom je meteen in je eigen, lege omgeving. Tijdens de proef betaal je alleen € 0,01 voor de machtiging; de eerste maand gaat pas na je proefperiode af.":"Je eigen omgeving gaat open zodra de eigenaar van je bedrijf een abonnement kiest."}</p>
       ${eig?`<button type="button" data-act="msabo">${I.card||""}Abonnement kiezen</button>`:""}<button type="button" class="ghost" data-act="msuit">Uitloggen</button></div>`;return}
   if(!st.ok){if(!ov){ov=document.createElement("div");ov.id="msDicht";ov.className="ms-dicht";document.body.appendChild(ov)}
+    if(st.soort==="geblokkeerd"){ov.innerHTML=`<div class="ms-dk"><img src="/mansard-logo.png" alt="Mansard"><h2>Je account is tijdelijk gepauzeerd</h2><p>Je gegevens staan veilig. Neem contact op met Mansard om het weer te openen.</p><button type="button" class="ghost" data-act="msuit">Uitloggen</button></div>`;return}
     ov.innerHTML=`<div class="ms-dk"><img src="/mansard-logo.png" alt="Mansard"><h2>${st.soort==="opgezegd"?"Je abonnement is afgelopen":st.soort==="onbetaald"?"De betaling is niet gelukt":"Je proefperiode is voorbij"}</h2><p>${MS.doc.proefDemo&&st.soort==="verlopen"?"Je hebt Mansard kunnen proberen in de voorbeeldomgeving.":"Je gegevens staan veilig klaar."} ${st.soort==="onbetaald"?(eig?"Betaal het openstaande bedrag en je kunt direct verder.":"Vraag de eigenaar van je bedrijf om de betaling te regelen."):eig?"Kies een abonnement en je kunt direct verder.":"Vraag de eigenaar van je bedrijf om een abonnement te kiezen."}</p>
       ${eig?`<button type="button" class="primary" data-act="msabo">${st.soort==="onbetaald"?"Nu betalen":"Abonnement kiezen"}</button>`:""}<button type="button" class="ghost" data-act="msuit">Uitloggen</button></div>`}
   else if(ov)ov.remove()}
@@ -16011,7 +16013,7 @@ async function aboDlg(){
   const b=MS.doc||{},st=msStatus(),p=b.plan||{prijs:99,inbegrepen:3,extraPrijs:19.95};let n=b.gebruikers||1;
   try{const r=await fbFn("abonnement")({});n=r.data.gebruikers||n}catch(e){}
   const extra=Math.max(0,n-p.inbegrepen),bedrag=Math.round((p.prijs+extra*p.extraPrijs)*100)/100,eig=window.ZEEM_ROL==="eigenaar";
-  const lbl={proef:"Proefperiode",actief:"Actief",achterstand:"Betaling mislukt",onbetaald:"Niet betaald",opgezegd:"Opgezegd",verlopen:"Verlopen"}[st.soort]||"—";
+  const lbl={proef:"Proefperiode",actief:"Actief",achterstand:"Betaling mislukt",onbetaald:"Niet betaald",opgezegd:"Opgezegd",verlopen:"Verlopen",geblokkeerd:"Gepauzeerd"}[st.soort]||"—";
   openDlg(`<div class="dlg-head"><span class="objic big">${I.card}</span><div style="flex:1"><h3>Abonnement</h3><div class="subt">${esc(b.naam||S().naam||"")}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
     <div class="planhero"><div><span class="eyebrow">Mansard</span><b>${eur(bedrag)}</b><small>per maand, excl. btw</small></div><div style="text-align:right"><span class="pill ${st.ok?"ok":"late"} dotp">${lbl}</span></div>
       <div class="ph-row"><span>Inbegrepen<br><b>${p.inbegrepen} gebruikers</b></span><span>Nu<br><b>${plural(n,"gebruiker","gebruikers")}</b></span><span>${st.soort==="proef"?"Gratis tot":st.soort==="actief"?"Volgende afschrijving":"Tot"}<br><b>${fmtD(st.soort==="proef"?b.proefTot:b.volgende||b.betaaldTot||b.proefTot)||"—"}</b></span></div></div>

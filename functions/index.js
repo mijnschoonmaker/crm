@@ -649,7 +649,7 @@ const CONTROLE = require("./controle")({ db, onCall, onSchedule, geheim, bedrijf
 exports.systeemControle = CONTROLE.systeemControle;
 exports.controleNu = CONTROLE.controleNu;
 /* Mansard: nieuwe bedrijven aanmelden en abonnementen */
-var MANSARD; MANSARD = require("./mansard")({ rawDb, T, onCall, onRequestRaw: _onRequest, HttpsError, nu, mollie, HOST });
+var MANSARD; MANSARD = require("./mansard")({ rawDb, T, onCall, onRequestRaw: _onRequest, HttpsError, nu, mollie, HOST, mfaOk: a => BEV.mfaBevestigd(a) });
 Object.assign(exports, MANSARD.functies);
 exports.ticketMelding = P.ticketMelding;
 exports.portaal = P.portaal;
