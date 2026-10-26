@@ -8562,8 +8562,10 @@ const zichtbaarDagen=()=>{const s=S();return s.zichtbaarDagen!=null&&s.zichtbaar
 function beurtVanaf(k){const v=volgende(k),gp=parse(k.gepland);return gp&&v&&gp<v?gp:v}
 function teVroeg(k,date){if(!k||!date||k.aanbieden||fqSpec(k.frequentie))return false;try{const v=beurtVanaf(k);return v&&parse(date)<addDays(v,-VROEG_DAGEN)}catch(e){return false}}
 /* eigen vraagvenster (geen browser-popup), werkt ook boven een open dialoog */
+/* melding met alleen OK (zoals de pop-ups in DienstenCRM) */
+function melding(titel,tekst){return vraag(titel,tekst,"OK","").then(()=>{})}
 function vraag(titel,tekst,ja="Toch inplannen",nee="Annuleren"){return new Promise(res=>{
-  const o=document.createElement("div");o.className="vraag-ov";o.innerHTML=`<div class="vraag" role="alertdialog" aria-modal="true"><span class="objic kd-warn">${I.alert}</span><div><b>${esc(titel)}</b><p>${tekst}</p></div><div class="vraag-k"><button type="button" data-v="0">${esc(nee)}</button><button type="button" class="primary" data-v="1">${esc(ja)}</button></div></div>`;
+  const o=document.createElement("div");o.className="vraag-ov";o.innerHTML=`<div class="vraag" role="alertdialog" aria-modal="true"><span class="objic kd-warn">${I.alert}</span><div><b>${esc(titel)}</b><p>${tekst}</p></div><div class="vraag-k">${nee?`<button type="button" data-v="0">${esc(nee)}</button>`:""}<button type="button" class="primary" data-v="1">${esc(ja)}</button></div></div>`;
   /* eigen venster in de bovenste laag: bleef anders onzichtbaar binnen een scrollend (mobiel) venster, waardoor Opslaan leek te hangen */
   const d=document.createElement("dialog");d.className="vraag-dlg";d.appendChild(o);document.body.appendChild(d);
   const done=v=>{try{d.close()}catch(_){}d.remove();res(v)};o.addEventListener("click",e=>{const b=e.target.closest("[data-v]");if(b)done(b.dataset.v==="1");else if(e.target===o)done(null)});
@@ -12834,7 +12836,7 @@ function openOpdrachtWerk(kid,focus){
   /* glasbewassing bijzondere ramen: per soort een aantal met eigen frequentie, aanboddatum, prijs, tijdsduur en kozijnreiniging */
   const spBlok=(q,c,di)=>`<div class="ow-spb"><div class="ow-spbh"><b>Glasbewassing bijzondere ramen</b><span>Dak- en tuimelramen, lichtkoepels, glas-in-lood en miniraampjes, elk met een eigen tarief.</span></div>
     <div class="ow-floors">${SPK.map(k=>{const cnt=Number(q.sp[k])||0,rw=(c.srows||[]).find(x=>x.k===k);return `<div class="ow-flb${cnt?" ow-on":""}"><div class="ow-fl"><span>${SPN[k]}</span><div class="ow-step"><button type="button" data-sst="${di}:${k}:-1" aria-label="Min">−</button><input data-i="${di}" data-rk="sp:${k}" type="number" min="0" inputmode="numeric" value="${cnt}" aria-label="${SPN[k]}"><span>st</span><button type="button" data-sst="${di}:${k}:1" aria-label="Plus">+</button></div></div>
-      ${cnt?`<div class="ow-sub"><label>Frequentie${fqSel(di,"spfq:"+k,q.spfq[k],"Zelfde als opdracht")}</label><label>Aanboddatum<input data-i="${di}" data-rk="spvol:${k}" type="date" value="${esc(q.spvol[k]||"")}"></label>
+      ${cnt?`<div class="ow-sub"><label>Frequentie${fqSel(di,"spfq:"+k,q.spfq[k],"Selecteer…")}</label><label>Aanboddatum<input data-i="${di}" data-rk="spvol:${k}" type="date" value="${esc(q.spvol[k]||"")}"></label>
         <label><span class="ow-lt">Prijs <small>· overschrijven</small></span><span class="ow-in"><i>€</i><input data-i="${di}" data-rk="spop:${k}" type="number" step="0.01" min="0" value="${esc(q.spop[k]??"")}" placeholder="${rw?esc(rw.cp.toFixed(2)):"0,00"}"><em>excl.</em></span></label>
         <label><span class="ow-lt">Tijdsduur <small>· overschrijven</small></span><span class="ow-in"><input data-i="${di}" data-rk="spod:${k}" type="number" step="1" min="0" value="${esc(q.spod[k]??"")}" placeholder="${rw?Math.ceil(rw.cm):0}"><em>min</em></span></label></div>
         <div class="ow-fx">${rw?`<p class="ow-calcd">${I.calculator}<span>${cnt} st · ${eur(rw.cp)} · ${Math.ceil(rw.cm)} min</span>${rw.ovP||rw.ovD?"<b>eigen waarde</b>":""}</p>`:"<span></span>"}<div class="ow-fxa"><button type="button" class="small ow-ber" data-sber="${di}:${k}" title="Prijs en tijd opnieuw berekenen">${I.calculator}Berekenen</button></div></div>
@@ -12847,7 +12849,7 @@ function openOpdrachtWerk(kid,focus){
       <p class="ow-note">Prijs en tijdsduur worden per verdieping berekend uit je tarieven (prijs en seconden per raam). Pas Overschrijvende prijs of tijdsduur alleen aan als je er bewust van wilt afwijken. Berekenen rekent alles opnieuw uit met de ingevoerde aantallen. Afspraken die al ingepland zijn veranderen niet.</p>
       ${q.f.some(n=>n)?`<div class="ow-berbar"><span class="subt">Prijs en tijdsduur van alle verdiepingen berekenen met de ingevoerde aantallen en je tarieven.</span><button type="button" class="small primary" data-ber="${di}">${I.calculator}Berekenen</button></div>`:""}
       <div class="ow-floors">${FL.map((n,j)=>{const cnt=Number(q.f[j])||0,rw=c.rows.find(x=>x.i===j),kr=c.krows.find(x=>x.i===j);return `<div class="ow-flb${cnt?" ow-on":""}"><div class="ow-fl"><span>${n}</span><div class="ow-step"><button type="button" data-st="${di}:${j}:-1" aria-label="Min">−</button><input data-i="${di}" data-rk="f${j}" type="number" min="0" inputmode="numeric" value="${cnt}" aria-label="${n}"><span>st</span><button type="button" data-st="${di}:${j}:1" aria-label="Plus">+</button></div></div>
-        ${cnt?`<div class="ow-sub"><label>Frequentie${fqSel(di,"fq"+j,q.fq[j],"Zelfde als opdracht")}</label><label>Aanboddatum<input data-i="${di}" data-rk="vol${j}" type="date" value="${esc(q.vol[j]||"")}" title="Leeg = bij de volgende beurt"></label>
+        ${cnt?`<div class="ow-sub"><label>Frequentie${fqSel(di,"fq"+j,q.fq[j],"Selecteer…")}</label><label>Aanboddatum<input data-i="${di}" data-rk="vol${j}" type="date" value="${esc(q.vol[j]||"")}" title="Leeg = bij de volgende beurt"></label>
           <label><span class="ow-lt">Prijs <small>· overschrijven</small></span><span class="ow-in"><i>€</i><input data-i="${di}" data-rk="op${j}" type="number" step="0.01" min="0" value="${esc(has0(q.op[j])?q.op[j]:rw?rw.p.toFixed(2):"")}" placeholder="${rw?esc(rw.calcP.toFixed(2)):"0,00"}"><em>excl.</em></span></label><label><span class="ow-lt">Tijdsduur <small>· overschrijven</small></span><span class="ow-in"><input data-i="${di}" data-rk="od${j}" type="number" step="1" min="0" value="${esc(has0(q.od[j])?q.od[j]:rw?Math.max(1,Math.ceil(rw.min-1e-9)):"")}" placeholder="${rw?rw.calcMin:0}"><em>min</em></span></label></div>
           <div class="ow-fx">${rw?`<p class="ow-calcd">${I.calculator}<span>${cnt} × ${eur(rw.pp)}<i>·</i>${cnt} × ${rw.sec} sec = ${(cnt*rw.sec/60).toLocaleString("nl-NL",{maximumFractionDigits:1})} min</span>${rw.ovP||rw.ovD?"<b>eigen waarde</b>":""}</p>`:"<span></span>"}
             <div class="ow-fxa">${q.vol[j]?`<button type="button" class="linkbtn ow-sync" data-sync="${di}:${j}" title="Aanboddatum ${esc(fmtD(q.vol[j]))} voor alle verdiepingen gebruiken">${I.planning}Datum voor alle verdiepingen</button>`:""}<button type="button" class="small ow-ber" data-ber="${di}:${j}" title="Berekent prijs en tijd van alle verdiepingen van deze dienst">${I.calculator}Berekenen</button></div></div>
@@ -12884,7 +12886,7 @@ function openOpdrachtWerk(kid,focus){
   const sumHtml=(q,c,di,isMain)=>{const base=isMain?mF:null,has=v=>v!==""&&v!=null;
     return `<div class="ow-calc ow-sum" data-calc="${di}"><div class="ow-sumh"><b>Ramen per verdieping</b><button type="button" class="small" data-redit="${di}">${I.pencil}Wijzigen</button></div>
       ${q.oms?`<p class="ow-oms">${esc(q.oms)}</p>`:""}
-      <div class="ow-fls">${q.f.map((n,j)=>{if(!n)return"";const rw=c.rows.find(x=>x.i===j);const fq=q.fq[j]?freqLabel(q.fq[j]):(base?freqLabel(base):"Zelfde als opdracht");
+      <div class="ow-fls">${q.f.map((n,j)=>{if(!n)return"";const rw=c.rows.find(x=>x.i===j);const fq=q.fq[j]?freqLabel(q.fq[j]):"Frequentie nog kiezen";
         return `<div class="ow-flc">${flIcon(j)}
           <div class="ow-flm"><b>${FLN[j]}</b><span>${n} ${n===1?"raam":"ramen"}${rw?` · ${rw.sec} sec per raam`:""}</span><div class="ow-tags"><span class="ow-tag">${I.planning}${esc(fq)}</span><span class="ow-tag${q.vol[j]?"":" muted"}">${I.clock}${q.vol[j]?"vanaf "+esc(fmtL(q.vol[j])):"volgende beurt"}</span></div></div>
           <div class="ow-flp"><b>${rw?eur(rw.p):"—"}</b><span>${rw?(Math.round(rw.min*10)/10).toLocaleString("nl-NL"):0} min</span><em class="${c.totOver||has(q.op[j])||has(q.od[j])?"ov":""}">${c.totOver||has(q.op[j])||has(q.od[j])?"eigen prijs":"berekend"}</em></div></div>`}).join("")}</div>
@@ -13009,10 +13011,10 @@ function openOpdrachtWerk(kid,focus){
       const inp=$("#owLines").querySelector(`input[data-i="${di}"][data-rk="f${j}"]`);if(inp)inp.value=r.ramen.f[+j];recalc(di);if(!was!==!r.ramen.f[+j])draw();return}
     const ss=e.target.closest("[data-sst]");if(ss){const [di,sk,d]=ss.dataset.sst.split(":");const q=(di==="m"?main:extra[+di]).ramen;const was=Number(q.sp[sk])||0;q.sp[sk]=Math.max(0,was+Number(d));
       const inp=$("#owLines").querySelector(`input[data-i="${di}"][data-rk="sp:${sk}"]`);if(inp)inp.value=q.sp[sk];recalc(di);if(!was!==!q.sp[sk])draw();return}
-    const sb=e.target.closest("[data-sber]");if(sb){const [di,sk]=sb.dataset.sber.split(":");const r=di==="m"?main:extra[+di],q=r.ramen;q.spop[sk]="";q.spod[sk]="";if(!q.spfq[sk])q.spfq[sk]=String(di==="m"?mF:Number(r.frequentie)||52);if(!q.spvol[sk])q.spvol[sk]=k.gepland||iso(today());recalc(di);draw();return}
+    const sb=e.target.closest("[data-sber]");if(sb){const [di,sk]=sb.dataset.sber.split(":");const r=di==="m"?main:extra[+di],q=r.ramen;q.spop[sk]="";q.spod[sk]="";if(!q.spvol[sk])q.spvol[sk]=k.gepland||iso(today());recalc(di);draw();return}
     const be=e.target.closest("[data-ber]");if(be){const di=be.dataset.ber.split(":")[0];const isM=di==="m",r=isM?main:extra[+di],q=r.ramen;
       const w=isM?mF:Number(r.frequentie)||52;const leeg={...q,op:["","","",""],od:["","","",""],tp:"",td:""};const b=ramenBerekening(leeg,w,null);
-      q.f.forEach((n,j)=>{q.op[j]="";q.od[j]="";if(!n)return;if(!q.fq[j])q.fq[j]=String(w);if(!q.vol[j])q.vol[j]=k.gepland||iso(today())});
+      q.f.forEach((n,j)=>{q.op[j]="";q.od[j]="";if(!n)return;if(!q.vol[j])q.vol[j]=k.gepland||iso(today())});
       recalc(di);draw();return}
     const sy=e.target.closest("[data-sync]");if(sy){const [di,j]=sy.dataset.sync.split(":");const q=(di==="m"?main:extra[+di]).ramen,v=q.vol[+j];q.f.forEach((n,i)=>{if(n){q.vol[i]=v;if(q.kf[i]&&q.kfq[i])q.kvol[i]=v}});draw();toast("Aanboddatum "+fmtD(v)+" voor alle verdiepingen");return}
     const oc=e.target.closest("[data-ovclr]");if(oc){const di=oc.dataset.ovclr,q=(di==="m"?main:extra[+di]).ramen;q.tp="";q.td="";q.start="";recalc(di);draw();return}
@@ -13090,11 +13092,16 @@ function openOpdrachtWerk(kid,focus){
     try{await save("klanten",kid,d);toast("Genoteerd");setTimeout(()=>openOpdrachtWerk(kid),60)}catch(er){err(er)}};
   /* opslaan per dienst: alles bewaren en in het werkblad blijven */
   $("#owLines").addEventListener("click",e=>{const o=e.target.closest("[data-lopen]");if(!o)return;const r=extra[+o.dataset.lopen];if(r&&r.id){dicht.delete(r.id);draw()}});
-  $("#owLines").addEventListener("click",async e=>{const b=e.target.closest("[data-lsave]");if(!b)return;e.preventDefault();b.disabled=true;
+  $("#owLines").addEventListener("click",async e=>{const b=e.target.closest("[data-lsave]");if(!b)return;e.preventDefault();if(await fqMelding())return;b.disabled=true;
     try{let d=collect();if(rcLive&&RC&&RC.current()){const {t}=await RC.telling();if(t)d={...d,ramenTelling:t}}await save("klanten",kid,d);
       const di=b.dataset.lsave,r=di==="m"?main:extra[+di];toast("“"+((r&&r.dienst)||"Glasbewassing")+"” opgeslagen");if(editR.has(di))editR.delete(di);if(di!=="m"&&r&&r.id)dicht.add(r.id);draw()}
     catch(er){err(er)}finally{b.disabled=false}});
-  form.onsubmit=async e=>{e.preventDefault();$("#owSave").disabled=true;
+  /* zoals in DienstenCRM: bij elke verdieping en elk bijzonder raam met een aantal moet de gebruiker zelf een frequentie kiezen */
+  const fqOntbreekt=()=>{const L=soloI>=0?[...soloSet].map(i=>[String(i),extra[i]]):[["m",main],...extra.map((r,i)=>[String(i),r]).filter(x=>!x[1]._bestaand)];
+    return L.filter(([,r])=>{const q=r&&r.ramen;if(!q)return false;return (q.f||[]).some((n,j)=>Number(n)>0&&!(q.fq||[])[j])||Object.keys(q.sp||{}).some(k=>Number(q.sp[k])>0&&!(q.spfq||{})[k])}).map(x=>x[0])};
+  const fqMelding=async()=>{const mis=fqOntbreekt();if(!mis.length)return false;mis.forEach(x=>{editR.add(x);const r=x==="m"?main:extra[+x];if(r&&r.id)dicht.delete(r.id)});draw();await melding("Let op: Er is nog geen frequentie ingevuld.","Kies bij elke verdieping (en elk bijzonder raam) met een aantal een frequentie.");
+    const s=$("#owLines").querySelector('select[data-rk^="fq"] option[value=""]:checked, select[data-rk^="spfq:"] option[value=""]:checked');if(s){const el=s.parentElement;el.scrollIntoView({block:"center",behavior:"smooth"});el.focus()}return true};
+  form.onsubmit=async e=>{e.preventDefault();if(await fqMelding())return;$("#owSave").disabled=true;
     try{let d=collect();if(rcLive&&RC&&RC.current()){const {t}=await RC.telling();if(t)d={...d,ramenTelling:t}}
       /* aanboddatum gewijzigd terwijl er al een afspraak staat: vragen of die mee moet */
       {const cur=state.klanten.find(x=>x.id===kid)||k,a0=aanbodVan(cur),a1=aanbodVan(d);

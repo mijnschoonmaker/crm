@@ -359,8 +359,10 @@ const zichtbaarDagen=()=>{const s=S();return s.zichtbaarDagen!=null&&s.zichtbaar
 function beurtVanaf(k){const v=volgende(k),gp=parse(k.gepland);return gp&&v&&gp<v?gp:v}
 function teVroeg(k,date){if(!k||!date||k.aanbieden||fqSpec(k.frequentie))return false;try{const v=beurtVanaf(k);return v&&parse(date)<addDays(v,-VROEG_DAGEN)}catch(e){return false}}
 /* eigen vraagvenster (geen browser-popup), werkt ook boven een open dialoog */
+/* melding met alleen OK (zoals de pop-ups in DienstenCRM) */
+function melding(titel,tekst){return vraag(titel,tekst,"OK","").then(()=>{})}
 function vraag(titel,tekst,ja="Toch inplannen",nee="Annuleren"){return new Promise(res=>{
-  const o=document.createElement("div");o.className="vraag-ov";o.innerHTML=`<div class="vraag" role="alertdialog" aria-modal="true"><span class="objic kd-warn">${I.alert}</span><div><b>${esc(titel)}</b><p>${tekst}</p></div><div class="vraag-k"><button type="button" data-v="0">${esc(nee)}</button><button type="button" class="primary" data-v="1">${esc(ja)}</button></div></div>`;
+  const o=document.createElement("div");o.className="vraag-ov";o.innerHTML=`<div class="vraag" role="alertdialog" aria-modal="true"><span class="objic kd-warn">${I.alert}</span><div><b>${esc(titel)}</b><p>${tekst}</p></div><div class="vraag-k">${nee?`<button type="button" data-v="0">${esc(nee)}</button>`:""}<button type="button" class="primary" data-v="1">${esc(ja)}</button></div></div>`;
   /* eigen venster in de bovenste laag: bleef anders onzichtbaar binnen een scrollend (mobiel) venster, waardoor Opslaan leek te hangen */
   const d=document.createElement("dialog");d.className="vraag-dlg";d.appendChild(o);document.body.appendChild(d);
   const done=v=>{try{d.close()}catch(_){}d.remove();res(v)};o.addEventListener("click",e=>{const b=e.target.closest("[data-v]");if(b)done(b.dataset.v==="1");else if(e.target===o)done(null)});
