@@ -12904,7 +12904,11 @@ function openFotoViewer(list,start,opt={}){
     let ww=aw,hh=aw/rt;if(hh>ah){hh=ah;ww=ah*rt}wEl.style.width=Math.max(50,ww)+"px";wEl.style.height=Math.max(50,hh)+"px";wEl.style.aspectRatio="auto";
     ov.querySelector(".fv-x").onclick=close;ov.querySelector(".fv-done").onclick=close;
     const l=ov.querySelector(".fv-nav.l"),r=ov.querySelector(".fv-nav.r");if(l)l.onclick=()=>go(-1);if(r)r.onclick=()=>go(1);
-    const opslaan=()=>{if(opt.onChange)opt.onChange(i,f.dots||[],f);draw()};
+    /* alleen de stippen, markeringen en teksten bijwerken: de foto zelf blijft staan, zodat het scherm niet knippert */
+    const ververs=()=>{const w=ov.querySelector(".fv-wrap");if(!w)return draw();w.querySelectorAll(".fdot,svg.fmark").forEach(x=>x.remove());w.insertAdjacentHTML("beforeend",dotsHtml(f,true));
+      const n2=(f.dots||[]).length,m2=(f.strokes||[]).length,sp=ov.querySelector(".fv-top span");if(sp)sp.textContent=`${f.naam||"Foto"} · ${n2} ${n2===1?"raam":"ramen"} aangetikt${m2?` · ${m2} ${m2===1?"markering":"markeringen"}`:""}${list.length>1?` · foto ${i+1} van ${list.length}`:""}`;
+      const u=ov.querySelector(".fv-undo"),c=ov.querySelector(".fv-clear");if(u)u.disabled=!(hist.length||n2||m2);if(c)c.disabled=!(n2||m2)};
+    const opslaan=()=>{if(opt.onChange)opt.onChange(i,f.dots||[],f);ververs()};
     const set=dots=>{f.dots=dots;opslaan()};
     if(ed){const w=wEl,pt=e=>{const b=w.getBoundingClientRect();return[Math.round(Math.min(1,Math.max(0,(e.clientX-b.left)/b.width))*10000)/10000,Math.round(Math.min(1,Math.max(0,(e.clientY-b.top)/b.height))*10000)/10000]};
       ov.querySelectorAll("[data-fvm]").forEach(b=>b.onclick=()=>{mode=b.dataset.fvm;draw()});
@@ -12917,7 +12921,7 @@ function openFotoViewer(list,start,opt={}){
         const [x,y]=pt(e);dots.push({x,y});hist.push("d");set(dots)}}
       else{let cur=null,svg=null,pl=null;const H=f.w&&f.h?Math.round(1000*f.h/f.w):750;
         w.onpointerdown=e=>{e.preventDefault();w.setPointerCapture(e.pointerId);cur={c:kleur,w:Number(f.bw)||0.03,p:[pt(e)]};
-          svg=w.querySelector("svg.fmark");if(!svg){w.insertAdjacentHTML("afterbegin",`<svg class="fmark" viewBox="0 0 1000 ${H}" preserveAspectRatio="none"></svg>`);svg=w.querySelector("svg.fmark");w.prepend(w.querySelector("img"))}
+          svg=w.querySelector("svg.fmark");if(!svg){w.querySelector("img").insertAdjacentHTML("afterend",`<svg class="fmark" viewBox="0 0 1000 ${H}" preserveAspectRatio="none"></svg>`);svg=w.querySelector("svg.fmark")}
           svg.insertAdjacentHTML("beforeend",`<g opacity=".45"><polyline fill="none" stroke="${FMARK[kleur]}" stroke-width="${Math.round(cur.w*1000)}" stroke-linecap="round" stroke-linejoin="round" points=""/></g>`);pl=svg.lastElementChild.firstElementChild;
           const rd=()=>pl.setAttribute("points",cur.p.map(q=>Math.round(q[0]*1000)+","+Math.round(q[1]*H)).join(" ")+(cur.p.length===1?" "+(Math.round(cur.p[0][0]*1000)+0.1)+","+Math.round(cur.p[0][1]*H):""));rd();w._rd=rd};
         w.onpointermove=e=>{if(!cur)return;const q=pt(e),z=cur.p[cur.p.length-1];if(Math.abs(q[0]-z[0])+Math.abs(q[1]-z[1])>0.004){cur.p.push(q);w._rd()}};
