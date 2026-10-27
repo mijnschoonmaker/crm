@@ -1,5 +1,5 @@
 /* Alleen lezen: waarom komt er geen inlogmail voor het klantportaal? Telt klanten met dit e-mailadres,
-   recente inloglinks en of de mailsleutel is ingesteld. Toont geen namen of sleutels. Wijzigt niets. */
+   recente inloglinks en of de mailsleutel is ingesteld. Vraagt bij Brevo de afleverstatus op (de sleutel blijft op de server). Toont geen namen of sleutels. Wijzigt niets. */
 const admin = require("../functions/node_modules/firebase-admin");
 admin.initializeApp({ projectId: process.env.P });
 const db = admin.firestore();
@@ -16,6 +16,14 @@ const sha = s => crypto.createHash("sha256").update(String(s)).digest("hex");
   uit.push("inloglinks voor dit adres (laatste tijd): " + lg.length + (lg.length ? " · nieuwste aangemaakt " + lg.map(x => x.op).sort().pop() : ""));
   const g = (await db.doc("geheim/config").get()).data() || {};
   uit.push("Brevo-sleutel ingesteld: " + !!g.brevoKey + " · afzender ingesteld: " + !!g.afzender);
+  if (g.brevoKey) {
+    try {
+      const r = await fetch("https://api.brevo.com/v3/smtp/statistics/events?limit=15&days=2&email=" + encodeURIComponent(e), { headers: { "api-key": g.brevoKey, accept: "application/json" } });
+      const j = await r.json();
+      const ev = (j.events || []).map(x => (x.date || "").slice(0, 19) + " " + x.event + (x.subject ? " · " + String(x.subject).slice(0, 40) : "") + (x.reason ? " · " + String(x.reason).slice(0, 80) : ""));
+      uit.push("Brevo (status " + r.status + ") gebeurtenissen laatste 2 dagen: " + (ev.length ? ev.join(" | ") : "geen"));
+    } catch (x) { uit.push("Brevo opvragen mislukt: " + x.message); }
+  }
   const lim = (await db.doc("limiet/p" + sha("em" + e).slice(0, 40)).get()).data();
   uit.push("aanvragen-teller dit adres: " + (lim ? lim.n + " sinds " + new Date(lim.t).toISOString() : "geen"));
   uit.forEach((t, i) => console.log("::notice title=Portaal " + (i + 1) + "::" + t));
