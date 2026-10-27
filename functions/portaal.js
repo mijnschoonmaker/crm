@@ -127,6 +127,18 @@ module.exports = function maakPortaal(ctx) {
   }
   const DAGK = ["zo", "ma", "di", "wo", "do", "vr", "za"], DAGL = ["zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"];
   const vasteDagen = k => Array.isArray(k && k.weekdagen) && k.weekdagen.length ? [...new Set(k.weekdagen.map(Number))].filter(d => d >= 0 && d <= 6).sort() : null;
+  /* VvE: trappenhal-schoonmaak (vaste dagen, checklist) of alleen buitendiensten (glasbewassing, zonnepanelen, dakinspectie…) */
+  const vveSoortVan = k => /trap|schoonma|entree|portiek|\bhal\b/i.test(String(k.dienst || "")) || (vasteDagen(k) && !/glas|zonne|dak|goot|gevel/i.test(String(k.dienst || ""))) ? "schoon" : "buiten";
+  const freqTxt = w => { w = Number(w) || 0; return w === 999 ? "op afroep" : w === 998 ? "eenmalig" : w === 1 ? "elke week" : w === 13 ? "elk kwartaal" : w === 26 ? "elk half jaar" : w === 52 ? "elk jaar" : w ? "elke " + w + " weken" : ""; };
+  const plusW = (d, w) => { const x = new Date(d + "T12:00:00"); x.setDate(x.getDate() + Number(w) * 7); return isoNL(x); };
+  function vveDiensten(k, jobs) {
+    const nu = isoNL(), uit = [];
+    const volg = (gepland, laatst, w, vanaf) => gepland && gepland >= nu ? gepland : vanaf && vanaf >= nu ? vanaf : laatst && Number(w) > 0 && Number(w) < 998 ? (plusW(laatst, w) < nu ? nu : plusW(laatst, w)) : "";
+    if (k.actief !== false && !k.opdrachtVerwijderd) uit.push({ naam: k.dienst || "Glasbewassing", ritme: freqTxt(k.frequentie), volgende: volg(k.gepland, k.laatst, k.frequentie, k.aanbodVanaf), ingepland: !!(k.gepland && k.gepland >= nu), laatst: k.laatst || "" });
+    (Array.isArray(k.opdrachten) ? k.opdrachten : []).filter(o => o && o.actief !== false && !o.apart && o.dienst).forEach(o => uit.push({ naam: String(o.dienst), ritme: freqTxt(o.frequentie), volgende: o.volgende && o.volgende >= nu ? o.volgende : "", ingepland: false, laatst: "" }));
+    (jobs || []).filter(j => j.actief !== false).forEach(j => uit.push({ naam: j.dienst || j.naam || "Opdracht", ritme: freqTxt(j.frequentie), volgende: volg(j.gepland, j.laatst, j.frequentie, j.aanbodVanaf), ingepland: !!(j.gepland && j.gepland >= nu), laatst: j.laatst || "" }));
+    const gezien = new Set(); return uit.filter(x => { const key = x.naam.toLowerCase() + "|" + x.ritme; if (gezien.has(key)) return false; gezien.add(key); return true; }).slice(0, 12);
+  }
   const ritmeTxt = k => { const dg = vasteDagen(k); if (dg) return dg.length === 7 ? "elke dag" : "elke " + dg.map(d => DAGL[d]).join(" en "); const f = Number(k.frequentie) || 4; return f === 1 ? "elke week" : "elke " + f + " weken"; };
   const vveTakenVan = (k, b) => Array.isArray(k.vveTaken) && k.vveTaken.length ? k.vveTaken.map(String).slice(0, 20) : b && Array.isArray(b.vveTakenStd) && b.vveTakenStd.length ? b.vveTakenStd.map(String).slice(0, 20) : ["Entree en deuren", "Trappenhuis", "Lift", "Bergingsgang"];
   const tijdVan = x => { if (x.startOp) { try { return new Intl.DateTimeFormat("nl-NL", { timeZone: "Europe/Amsterdam", hour: "2-digit", minute: "2-digit" }).format(new Date(x.startOp)); } catch (e) {} } return x.tijd || ""; };
@@ -210,7 +222,7 @@ module.exports = function maakPortaal(ctx) {
     return {
       bedrijf: { ...bedrijfInfo(b, base), extraDiensten },
       klant: { voornaam: voornaamVan(schoon(k.contact || k.naam)), naam: schoon(k.naam), contact: k.contact || "", adres: k.adres || "", postcode: k.postcode || "", plaats: k.plaats || "", pcPlaats: [k.postcode, k.plaats].filter(Boolean).join(" "), email: k.email || "", telefoon: k.telefoon || "", mobiel: k.mobiel || "", zakelijk: k.soort === "zakelijk" || k.soort === "vve",
-        vve, ritme: ritmeTxt(k), weekdagen: wdg || [], taken: vveTakenVan(k, b), takenFreq: Object.fromEntries(Object.entries(k.vveFreq && typeof k.vveFreq === "object" ? k.vveFreq : {}).filter(([n, f]) => typeof f === "string" && ["week", "2week", "maand", "kwartaal", "halfjaar", "jaar"].includes(f)).slice(0, 20).map(([n, f]) => [String(n).slice(0, 60), f])),
+        vve, vveSoort: vve ? vveSoortVan(k) : "", diensten: vve ? vveDiensten(k, jq.docs.map(d => ({ id: d.id, ...dec(d.data()) }))) : [], ritme: ritmeTxt(k), weekdagen: wdg || [], taken: vveTakenVan(k, b), takenFreq: Object.fromEntries(Object.entries(k.vveFreq && typeof k.vveFreq === "object" ? k.vveFreq : {}).filter(([n, f]) => typeof f === "string" && ["week", "2week", "maand", "kwartaal", "halfjaar", "jaar"].includes(f)).slice(0, 20).map(([n, f]) => [String(n).slice(0, 60), f])),
         klantnr: k.klantnr || "", sinds: k.aangemaakt || (beurten.length ? beurten[beurten.length - 1].datum : ""), dienst: k.dienst || "Glasbewassing", frequentie: freqW, prijs: Number(k.prijs) || 0, binnen: !!k.binnen, actief: k.actief !== false,
         toegang: k.portaalToegang || { opties: [], tekst: "" }, beheercode: String(k.beheercode || ""), nieuw: !!k.eersteKeer && !beurten.length,
         incasso: { actief: !!k.incasso && !!k.mollieMandateId, sinds: String(k.incassoSinds || "").slice(0, 10), bank: k.incassoBank || "", rekening: k.incassoRekening || "", beschikbaar: !!(await geheim()).mollieKey } },
@@ -404,7 +416,7 @@ module.exports = function maakPortaal(ctx) {
         let live = null;
         if (b.vveBordLive !== false) try { const L = await liveInfo({ klant: { ...k, id: kid }, kref: q.docs[0].ref }); if (L) live = { status: L.status, voor: L.voor ?? null, eta: L.eta || "", naam: L.naam || "", bezigBij: !!L.bezigBij, km: L.km ?? null, huis: L.status === "onderweg" ? (L.huis || await klantGeo(q.docs[0].ref, { ...k, id: kid }).catch(() => null)) : null, pos: L.pos || null }; } catch (e) { console.error("bordlive", e); }
         res.set("cache-control", live ? "no-store" : "public, max-age=120");
-        res.json({ live, bedrijf: { naam: bi.naam, logo: bi.logo, telefoon: bi.telefoon, whatsapp: String(b.webWa || b.mobiel || b.telefoon || ""), email: bi.email || "", website: bi.website, kleur: bi.kleur }, naam: schoon(k.naam), adres: k.adres || "", plaats: k.plaats || "", ritme: ritmeTxt(k),
+        res.json({ live, bedrijf: { naam: bi.naam, logo: bi.logo, telefoon: bi.telefoon, whatsapp: String(b.webWa || b.mobiel || b.telefoon || ""), email: bi.email || "", website: bi.website, kleur: bi.kleur }, naam: schoon(k.naam), adres: k.adres || "", plaats: k.plaats || "", ritme: ritmeTxt(k), soort: vveSoortVan(k), diensten: vveSoortVan(k) === "buiten" ? vveDiensten(k, (await db.collection("klanten").where("hoofdKlantId", "==", kid).get().catch(() => ({ docs: [] }))).docs.map(d => ({ id: d.id, ...dec(d.data()) }))).map(x => ({ naam: x.naam, ritme: x.ritme, volgende: x.volgende })) : [],
           bezig: !!k.bezig && k.gepland === vandaag, volgende,
           bezoeken: bs.slice(0, 8).map(x => ({ datum: x.datum, tijd: tijdVan(x), door: b.vveDoor === false ? "" : voornaamVan(String(x.door || "")), taken: [], fotos: [], notitie: "" })) });
         return;
