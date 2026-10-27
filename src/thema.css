@@ -1285,3 +1285,7 @@ html body:not(#zz) :is(.rv-map,.pk-map,.wp-map) .rv-laag.rv-centreer svg,html bo
 html body:not(#zz) .chip.chip-eigen,html body:not(#zz) .ow-chips .chip.chip-eigen{border:1.5px solid #3b5f9b!important;background:rgb(59 95 155 / .06)!important;color:#22355c!important}
 html body:not(#zz) .ow-chips .chip.chip-eigen svg{background:rgb(59 95 155 / .14)}
 html body:not(#zz) .ow-chips .chip.chip-eigen:hover{border-color:#2f4f86!important}
+
+/* tabbalken: grijze lijn als schaduw binnen de balk, zodat niets 1px uitsteekt en de balk alleen zijwaarts schuift */
+html body:not(#zz) .tabsline{border-bottom:0!important;box-shadow:inset 0 -1px 0 var(--rr-rand,var(--line))!important;overflow-y:hidden!important}
+html body:not(#zz) .tabsline button{margin-bottom:0!important}

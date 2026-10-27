@@ -4029,7 +4029,7 @@ body.rd-busy{cursor:grabbing}
 /* ---------- Facturen: selecteren + bank ---------- */
 .fb-tools{display:flex;gap:10px;align-items:stretch}.fb-tools .search{flex:1}
 .fb-up{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;border-radius:14px}
-.fb-tabs{overflow-x:auto;scrollbar-width:none}.fb-tabs::-webkit-scrollbar{display:none}.fb-tabs button{white-space:nowrap}
+.fb-tabs{overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;scrollbar-width:none}.fb-tabs::-webkit-scrollbar{display:none}.fb-tabs button{white-space:nowrap}
 .fb-t th.fb-cb,.fb-t td.fb-cb{width:44px;padding-right:0;cursor:pointer}
 .fb-box{width:20px;height:20px;border-radius:7px;border:1.6px solid color-mix(in srgb,var(--muted) 55%,transparent);display:grid;place-items:center;background:var(--surface);padding:0;min-height:0;color:#fff;transition:background .15s,border-color .15s,transform .15s;box-shadow:none}
 .fb-box svg{width:13px;height:13px;opacity:0;stroke-width:3}
