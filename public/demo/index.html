@@ -16823,8 +16823,13 @@ function render(){try{warmMailLogo()}catch(e){}try{sessionStorage.setItem("ms.ta
   if(state.loaded&&!state._perRun){state._perRun=1;setTimeout(()=>runPeriodiek(true),2500)}
   const ae=document.activeElement,fid=ae&&ae.id&&$("#view").contains(ae)?ae.id:null,pos=fid&&ae.selectionStart;
   const rcF=RC&&state.tab==="calculator"?RC.focusState():null;
+  const tlAct=e=>e.querySelector('[aria-pressed="true"],[aria-current="true"],[aria-selected="true"]'),tlKey=a=>a?(a.dataset.v||a.dataset.tab||a.textContent):"",tlOud=[...$("#view").querySelectorAll(".tabsline")].map(e=>({x:e.scrollLeft,a:tlKey(tlAct(e))})),tlTab=state.tab;
   try{$("#view").innerHTML=(VIEWS[state.tab]||vVandaag)();if(state.tab==="calculator"){mountRamen();if(rcF)RC.restoreFocus(rcF)}if(state.tab==="planning")pkNaRender()}catch(e){console.error(e);$("#view").innerHTML=`<div class="notice">Deze pagina kon niet worden getoond (${esc(e.message)}). Ga naar een andere pagina of vernieuw.</div>`}
   if(fid){const el=document.getElementById(fid);if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}}
+  /* zijwaarts schuivende tabbalken houden hun plek na opnieuw tekenen; de gekozen tab blijft in beeld */
+  $("#view").querySelectorAll(".tabsline").forEach((e,i)=>{if(e.scrollWidth<=e.clientWidth)return;const o=tlTab===state.tab?tlOud[i]:null;if(o)e.scrollLeft=o.x;
+    const a=tlAct(e);if(!a||(o&&o.a===tlKey(a)))return;const l=a.offsetLeft-e.offsetLeft,r=l+a.offsetWidth;
+    if(l<e.scrollLeft)e.scrollLeft=Math.max(0,l-16);else if(r>e.scrollLeft+e.clientWidth)e.scrollLeft=r-e.clientWidth+16});
 }
 /* paginawissel in de geschiedenis, zodat de terugknop naar de vorige pagina gaat */
 function go(tab){if(tab==="route")tab="vandaag";if(isMw()&&!MW_TABS.includes(tab))tab="vandaag";if(tab!==state.tab){try{history.pushState({msTab:tab},"")}catch(_){}}goTab(tab)}
