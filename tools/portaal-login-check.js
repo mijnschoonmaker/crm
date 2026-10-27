@@ -22,6 +22,8 @@ const sha = s => crypto.createHash("sha256").update(String(s)).digest("hex");
       const j = await r.json();
       const ev = (j.events || []).map(x => (x.date || "").slice(0, 19) + " " + x.event + (x.subject ? " · " + String(x.subject).slice(0, 40) : "") + (x.reason ? " · " + String(x.reason).slice(0, 80) : ""));
       uit.push("Brevo (status " + r.status + ") gebeurtenissen laatste 2 dagen: " + (ev.length ? ev.join(" | ") : "geen"));
+      const a = await (await fetch("https://api.brevo.com/v3/account", { headers: { "api-key": g.brevoKey, accept: "application/json" } })).json();
+      uit.push("Brevo-account: " + JSON.stringify((a.plan || []).map(p => ({ type: p.type, credits: p.credits, creditsType: p.creditsType, eind: p.endDate }))) + " · relay: " + JSON.stringify(a.relay ? { enabled: a.relay.enabled } : null));
     } catch (x) { uit.push("Brevo opvragen mislukt: " + x.message); }
   }
   const lim = (await db.doc("limiet/p" + sha("em" + e).slice(0, 40)).get()).data();
