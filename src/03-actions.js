@@ -66,7 +66,7 @@ async function afronden(k,mode,el){
     if(_mw){toast(cleanName(k.naam)+" afgemeld",[{label:"Ongedaan",fn:undo}]);return}
     toast(mode==="open"?cleanName(k.naam)+(f.status==="betaald"?" afgerekend ("+st.betaalwijze+") · ":" gefactureerd en verstuurd · ")+f.nummer:cleanName(k.naam)+" afgemeld · conceptfactuur klaar",
       [{label:"Ongedaan",fn:undo},...(mode==="open"?[{label:"Versturen",fn:()=>sendF(fId)}]:[])]);
-    if(direct){let n=0;const go=()=>{if(state.facturen.some(x=>x.id===fId))sendF(fId,{direct:true});else if(++n<30)setTimeout(go,100)};setTimeout(go,300)}
+    if(direct){let n=0;const go=()=>{if(state.facturen.some(x=>x.id===fId))sendF(fId,{direct:true,bevestigd:true});else if(++n<30)setTimeout(go,100)};setTimeout(go,300)}
   }catch(e){if(el){const c=el.querySelector(".swipe-card");if(c)c.style.transform="";el.classList.remove("armed")}err(e)}
 }
 async function startJob(k){
@@ -524,7 +524,11 @@ function sendF(id,o={}){
   if((o.herinnering||o.wik)&&typeof fhPoort==="function"&&!fhPoort(f,!!o.wik))return;
   const off=f.soort==="offerte",late=!off&&(o.herinnering||o.wik||fStatus(f)[1]==="Achterstallig");
   const _k=state.klanten.find(x=>x.id===f.klantId),_mail=_k?mailK(_k,off?"offerte":"factuur").email:f.klantEmail;
-  /* direct versturen: zonder tussenscherm de opgemaakte mail met PDF naar de klant */
+  /* met e-mail versturen aan en een e-mailadres: geen tussenscherm meer, alleen een korte bevestiging en dan direct de opgemaakte mail met PDF */
+  if(!o.handmatig&&typeof liveMail==="function"&&liveMail()&&_mail){
+    if(!o.bevestigd){const wat=o.wik?"WIK-brief":late?"Herinnering":off?"Offerte":"Factuur",ml=!off&&!f.betaald&&f.status!=="betaald"&&typeof liveMollie==="function"&&liveMollie();
+      vraag(wat+" "+f.nummer+" versturen?",`Naar <b>${esc(_mail)}</b> · ${eur(totals(f).inc)}<br>De mail met de PDF${ml?" en een betaallink":""} gaat meteen naar de klant.`,"Versturen","Annuleren").then(ok=>{if(ok===true)sendF(id,{...o,direct:true,bevestigd:true})});return}
+    o={...o,direct:true}}
   if(o.direct&&typeof liveMail==="function"&&liveMail()&&_mail){const T=tpls(),sj=o.wik?"wik":late?"aanmaning":off?"offerte":"factuur",TT=T[sj]||T.vrij,b=o.btn;
     const ok=()=>{if(b){b.disabled=false;b.innerHTML=I.check+"Verstuurd"}};
     if(b){b.disabled=true;b.innerHTML=I.clock+"Versturen…"}
