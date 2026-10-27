@@ -197,14 +197,14 @@ async function maakMail({ naar, naam, onderwerp, html, tekst, bijlagen }) {
 async function portaalUrl(klantId, email) {
   if (!klantId || !/@/.test(String(email || ""))) return "";
   try { const t = T.tok(32), h = crypto.createHash("sha256").update(t).digest("hex");
-    await db.doc("portaalLogin/" + h).set({ klantId: String(klantId), email: String(email).trim().toLowerCase(), exp: Date.now() + 30 * 864e5, herbruik: true, op: nu(), bron: "mail" });
+    await db.doc("portaalLogin/" + h).set({ klantId: String(klantId), email: String(email).trim().toLowerCase(), exp: Date.now() + 70 * 864e5, herbruik: true, op: nu(), bron: "mail" });
     return HOST() + "/portaal?l=" + t; } catch (e) { console.error("portaalUrl", e); return HOST() + "/portaal"; }
 }
-/* knop "Naar uw klantportaal": persoonlijke inloglink, 30 dagen geldig en vaker te gebruiken, zodat de klant direct binnen is */
+/* knop "Naar uw klantportaal": persoonlijke inloglink, 70 dagen geldig (langer dan een ritme van 8 weken) en vaker te gebruiken, zodat de klant direct binnen is */
 async function portaalLinkVullen(d) {
   if (d.meta && d.meta.klantId && /__PORTAAL_LINK__/.test(String(d.html || ""))) {
     try { const t = T.tok(32), h = crypto.createHash("sha256").update(t).digest("hex");
-      await db.doc("portaalLogin/" + h).set({ klantId: String(d.meta.klantId), email: String(d.naar).trim().toLowerCase(), exp: Date.now() + 30 * 864e5, herbruik: true, op: nu(), bron: "mail" });
+      await db.doc("portaalLogin/" + h).set({ klantId: String(d.meta.klantId), email: String(d.naar).trim().toLowerCase(), exp: Date.now() + 70 * 864e5, herbruik: true, op: nu(), bron: "mail" });
       d.html = String(d.html).replace(/__PORTAAL_LINK__/g, "l=" + t); } catch (e) { console.error("portaallink", e); d.html = String(d.html).replace(/[?&]?__PORTAAL_LINK__/g, ""); } }
   else if (/__PORTAAL_LINK__/.test(String(d.html || ""))) d.html = String(d.html).replace(/[?&]?__PORTAAL_LINK__/g, "");
 }
