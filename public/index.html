@@ -4978,6 +4978,11 @@ html body .leaflet-container .pl-bus img{width:52px!important;max-width:none!imp
 .tj-mail.open{background:#2f7d55;color:#fff}
 .tj-mail.none{background:transparent;border:1px dashed #c5cad3;color:#b5bac2}
 .kd-or-m>small svg{width:13px;height:13px;vertical-align:-2px;margin-right:4px}
+.wd-live{display:flex;align-items:center;gap:10px;margin:10px 0 2px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,#e8a33d 14%,var(--surface));border:1px solid color-mix(in srgb,#e8a33d 45%,var(--line))}
+.wd-live[hidden]{display:none}
+.wd-live>span svg{width:18px;height:18px;color:#b7791f;display:block}
+.wd-live>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.wd-live b{font-size:14px}.wd-live small{font-size:12.5px;color:var(--muted)}
+.wd-live button{flex:none}
 
 </style>
 <style id="mansardThema">
@@ -15274,11 +15279,13 @@ function werkdagKaart(d,isT,total){const c=wdCijfers(d),w=c.w,inP=(w.pauzes||[])
     ${tips.length?`<div class="wd-tips">${I.info||I.alert}<div>${tips.map(t=>`<p>${t}</p>`).join("")}</div></div>`:""}</section>`}
   const pz=(w.pauzes||[]).find(p=>!p.tot);
   return `<section class="wd wd-aan${inP?" wd-pz":""}"><div class="wd-h"><span class="wd-ic">${inP?(I.coffee||I.clock):(I.truck||I.route)}</span><div class="wd-m"><b>${inP?"Pauze":"Onderweg"} <span class="wd-tm" data-wdsince="${esc(inP?pz.van:w.start)}">${wdU(wdMin(inP?pz.van:w.start,wdNu()))}</span></b><small>Vertrokken om ${wdT(w.start)}${c.pauze?` · ${wdU(c.pauze)} pauze`:""} · ${plural(c.n,"stop","stops")} klaar${total?` van ${total}`:""}</small></div></div>
+    ${LIVE&&!w.liveUit?`<div class="wd-live"${typeof LV!=="undefined"&&state.liveDelen&&LV.watch!=null?" hidden":""}><span>${I.alert||I.info||""}</span><div><b>Live delen staat uit</b><small data-lvfout>${esc((typeof LV!=="undefined"&&LV.fout)||"Klanten zien je nu niet onderweg.")}</small></div><button type="button" class="small primary" data-act="livedelen">Aanzetten</button></div>`:""}
     ${balk}<div class="wd-k">${inP?`<button type="button" class="primary" data-act="wdpauze">${I.play||I.check}Pauze voorbij</button>`:`<button type="button" data-act="wdpauze">${I.coffee||I.clock}Pauze</button><button type="button" class="primary" data-act="wdstop">${I.home||I.check}Terug bij de loods</button>`}</div></section>`}
 document.addEventListener("click",async e=>{const b=e.target.closest&&e.target.closest("[data-act^='wd']");if(!b)return;const a=b.dataset.act;if(!["wdstart","wdstop","wdpauze","wdheropen","wdbewerk"].includes(a))return;e.preventDefault();e.stopPropagation();
   if(a==="wdbewerk"){if(!isMw())wdBewerk(b.dataset.d||iso(today()));return}
   const d=iso(today()),w=wdGet(d)||{};
-  if(a==="wdstart"){await wdZet(d,{start:wdNu(),stop:"",pauzes:[]});wdLive(true);toast("Werkdag gestart · live delen staat aan");try{navigator.vibrate&&navigator.vibrate(20)}catch(_){}}
+  /* live delen meteen bij de tik aanzetten (vóór het opslaan): dan mag de telefoon om je locatie vragen */
+  if(a==="wdstart"){wdLive(true);await wdZet(d,{start:wdNu(),stop:"",pauzes:[],liveUit:false});toast("Werkdag gestart · live delen staat aan");try{navigator.vibrate&&navigator.vibrate(20)}catch(_){}}
   else if(a==="wdpauze"){const pz=[...(w.pauzes||[])],open=pz.findIndex(p=>!p.tot);if(open>=0){pz[open]={...pz[open],tot:wdNu()};toast("Pauze voorbij · "+wdU(wdMin(pz[open].van,pz[open].tot)))}else{pz.push({van:wdNu()});toast("Pauze gestart")}await wdZet(d,{pauzes:pz})}
   else if(a==="wdstop"){const bz=state.klanten.filter(k=>typeof isBezig==="function"&&isBezig(k));
     if(bz.length&&!(await vraag("Nog bezig bij een klant",`De tijd loopt nog bij <b>${esc(cleanName(bz[0].naam))}</b>. Toch de werkdag stoppen? Meld die stop daarna nog af.`,"Toch stoppen","Annuleren")))return;
@@ -15307,7 +15314,10 @@ async function wdLive(aan,auto){if(typeof liveStart!=="function")return;
   if(aan&&auto&&!(await wdMagLocatie()))return;
   state.liveDelen=aan;try{localStorage.setItem("ms.live",aan?"1":"0")}catch(e){}aan?liveStart(true):liveStop(true);render()}
 /* CRM opnieuw geopend tijdens een lopende werkdag: live delen weer aanzetten */
-setTimeout(()=>{try{const w=wdGet(iso(today()));if(w&&w.start&&!w.stop&&typeof LV!=="undefined"&&LV.watch==null)wdLive(true,true)}catch(e){}},4000);
+const wdHervat=()=>{try{const w=wdGet(iso(today()));if(w&&w.start&&!w.stop&&!w.liveUit&&typeof LV!=="undefined"&&LV.watch==null)wdLive(true,true)}catch(e){}};
+setTimeout(wdHervat,4000);
+/* terug in de app (scherm weer aan, andere app gesloten): live delen weer oppakken */
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")setTimeout(wdHervat,800)});
 
 /* ---------- werkdag achteraf corrigeren (eigenaar en beheerder): te laat op Terug bij de loods gedrukt? ----------
    Pas vertrek of terugkomst aan, of vul de echte reistijd in: dan rekent Mansard de terugkomst uit. */
@@ -16124,7 +16134,10 @@ async function kmTerug(rit,d){const gps=kmGps(rit.id),route=kmRoute(rit,d),gis=g
 function kmDoor(act){const b=document.createElement("button");b.type="button";b.dataset.act=act;b.dataset.kmok="1";b.hidden=true;document.body.appendChild(b);b.click();b.remove()}
 window.addEventListener("click",async e=>{const b=e.target.closest&&e.target.closest("[data-act='wdstart'],[data-act='wdstop']");if(!b||b.dataset.kmok)return;
   const a=b.dataset.act,d=iso(today());
-  if(a==="wdstart"){if(!kmAan())return;e.preventDefault();e.stopPropagation();const r=await kmVertrek();if(!r)return;
+  if(a==="wdstart"){if(!kmAan())return;e.preventDefault();e.stopPropagation();
+    /* live delen al bij deze tik starten: na de kilometerstand is het geen tik meer en vraagt de telefoon niet om je locatie */
+    const lv=typeof liveStart==="function"&&typeof LV!=="undefined"&&LV.watch==null;if(lv){state.liveDelen=true;try{localStorage.setItem("ms.live","1")}catch(_){}liveStart(true)}
+    const r=await kmVertrek();if(!r){if(lv){state.liveDelen=false;try{localStorage.setItem("ms.live","0")}catch(_){}liveStop(true)}return}
     if(!r.skip){try{await kmBewaar(d,{id:newId("rit"),nr:kmVolgNr(r.auto,d),auto:r.auto,begin:r.begin,eind:"",startTs:new Date().toISOString(),stopTs:"",van:kmVan(),naar:"",route:"",type:"zakelijk",door:kmMij(),bron:"werkdag"})}catch(er){err(er)}}
     kmDoor("wdstart")}
   else{const rit=kmOpen();if(!rit)return;e.preventDefault();e.stopPropagation();const r=await kmTerug(rit,d);if(!r)return;
@@ -16469,16 +16482,19 @@ function liveStart(stil){
     /* niet vaker dan nodig: elke 12 seconden, of eerder als je flink bent opgeschoten */
     if(nu-LV.last<12000&&lvAfst(LV.pos,c)<40)return;
     if(typeof kmTik==="function")kmTik(LV.pos,c,p.coords.accuracy);LV.last=nu;LV.pos=c;if(koers!=null)LV.koers=koers;LV.fout="";if(typeof rvMapLive==="function")rvMapLive();lvSchrijf({actief:true,lat:c.lat,lng:c.lng,nauw:Math.round(p.coords.accuracy||0),...(koers!=null?{koers}:{})});lvKnop()},
-    e=>{LV.fout=e.code===1?"Geen toestemming voor je locatie. Zet locatie aan voor deze website in je telefooninstellingen.":"Je locatie is even niet beschikbaar";if(e.code===1){liveStop(true);state.liveDelen=false;try{localStorage.setItem("ms.live","0")}catch(er){}toast(LV.fout)}/* even geen signaal (binnen, computer): geen melding, de telefoon probeert het vanzelf opnieuw */lvKnop()},
+    e=>{LV.fout=e.code===1?"Geen toestemming voor je locatie. iPhone/iPad: Instellingen › Privacy en beveiliging › Locatievoorzieningen › Safari-websites › Tijdens gebruik van de app.":"Je locatie is even niet beschikbaar";if(e.code===1){liveStop(true);state.liveDelen=false;try{localStorage.setItem("ms.live","0")}catch(er){}toast(LV.fout)}/* even geen signaal (binnen, computer): geen melding, de telefoon probeert het vanzelf opnieuw */lvKnop()},
     {enableHighAccuracy:true,maximumAge:8000,timeout:30000});
   lvWakker();if(!stil)toast("Live delen staat aan · de klanten van vandaag zien waar je bent");lvKnop()}
 function liveStop(stil){if(LV.watch!=null){try{navigator.geolocation.clearWatch(LV.watch)}catch(e){}}LV.watch=null;LV.pos=null;try{LV.lock&&LV.lock.release()}catch(e){}LV.lock=null;
   lvSchrijf({actief:false});if(!stil)toast("Live delen staat uit");lvKnop()}
-function liveWissel(){state.liveDelen=!state.liveDelen;try{localStorage.setItem("ms.live",state.liveDelen?"1":"0")}catch(e){}state.liveDelen?liveStart():liveStop();try{const d=iso(today()),r=state.routes[d]||{};state.routes[d]={...r,werk:{...(r.werk||{}),liveUit:!state.liveDelen}};save("routes",d,{...strip(r),werk:{...(r.werk||{}),liveUit:!state.liveDelen}})}catch(e){}render()}
+/* wisselen op wat de knop laat zien: staat hij grijs (ook als het aanzetten eerder mislukte), dan gaat hij aan */
+function liveWissel(){state.liveDelen=!(state.liveDelen&&LV.watch!=null);try{localStorage.setItem("ms.live",state.liveDelen?"1":"0")}catch(e){}state.liveDelen?liveStart():liveStop();try{const d=iso(today()),r=state.routes[d]||{};state.routes[d]={...r,werk:{...(r.werk||{}),liveUit:!state.liveDelen}};save("routes",d,{...strip(r),werk:{...(r.werk||{}),liveUit:!state.liveDelen}})}catch(e){}render()}
 /* knop in de kop van de Route-pagina */
 function lvKnopHtml(){if(!LIVE)return"";const aan=state.liveDelen&&LV.watch!=null;
   return `<button type="button" class="rh-live${aan?" aan":""}" data-act="livedelen" aria-pressed="${aan}" title="Klanten van vandaag zien in hun portaal waar je bent"><i></i><span>${aan?"Live zichtbaar":"Live delen"}</span></button>`}
-function lvKnop(){const b=document.querySelector(".rh-live");if(b)b.outerHTML=lvKnopHtml()}
+function lvKnop(){const b=document.querySelector(".rh-live");if(b)b.outerHTML=lvKnopHtml();
+  /* melding in de werkdagkaart: live delen staat uit terwijl je onderweg bent */
+  const w=document.querySelector(".wd-live");if(w){const aan=state.liveDelen&&LV.watch!=null;w.hidden=aan;const f=w.querySelector("[data-lvfout]");if(f)f.textContent=LV.fout||"Klanten zien je nu niet onderweg."}}
 /* automatisch: na het herladen weer aan, en uit als de dag klaar is */
 /* bij openen alleen hervatten als locatie al is toegestaan (anders zou de browser telkens om toestemming vragen) */
 if(LIVE)setTimeout(async function w(){if(!state.loaded)return setTimeout(w,800);if(!state.liveDelen)return;

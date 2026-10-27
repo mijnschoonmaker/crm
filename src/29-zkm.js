@@ -59,7 +59,10 @@ async function kmTerug(rit,d){const gps=kmGps(rit.id),route=kmRoute(rit,d),gis=g
 function kmDoor(act){const b=document.createElement("button");b.type="button";b.dataset.act=act;b.dataset.kmok="1";b.hidden=true;document.body.appendChild(b);b.click();b.remove()}
 window.addEventListener("click",async e=>{const b=e.target.closest&&e.target.closest("[data-act='wdstart'],[data-act='wdstop']");if(!b||b.dataset.kmok)return;
   const a=b.dataset.act,d=iso(today());
-  if(a==="wdstart"){if(!kmAan())return;e.preventDefault();e.stopPropagation();const r=await kmVertrek();if(!r)return;
+  if(a==="wdstart"){if(!kmAan())return;e.preventDefault();e.stopPropagation();
+    /* live delen al bij deze tik starten: na de kilometerstand is het geen tik meer en vraagt de telefoon niet om je locatie */
+    const lv=typeof liveStart==="function"&&typeof LV!=="undefined"&&LV.watch==null;if(lv){state.liveDelen=true;try{localStorage.setItem("ms.live","1")}catch(_){}liveStart(true)}
+    const r=await kmVertrek();if(!r){if(lv){state.liveDelen=false;try{localStorage.setItem("ms.live","0")}catch(_){}liveStop(true)}return}
     if(!r.skip){try{await kmBewaar(d,{id:newId("rit"),nr:kmVolgNr(r.auto,d),auto:r.auto,begin:r.begin,eind:"",startTs:new Date().toISOString(),stopTs:"",van:kmVan(),naar:"",route:"",type:"zakelijk",door:kmMij(),bron:"werkdag"})}catch(er){err(er)}}
     kmDoor("wdstart")}
   else{const rit=kmOpen();if(!rit)return;e.preventDefault();e.stopPropagation();const r=await kmTerug(rit,d);if(!r)return;

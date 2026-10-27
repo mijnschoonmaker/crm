@@ -4314,3 +4314,8 @@ html body .leaflet-container .pl-bus img{width:52px!important;max-width:none!imp
 .tj-mail.open{background:#2f7d55;color:#fff}
 .tj-mail.none{background:transparent;border:1px dashed #c5cad3;color:#b5bac2}
 .kd-or-m>small svg{width:13px;height:13px;vertical-align:-2px;margin-right:4px}
+.wd-live{display:flex;align-items:center;gap:10px;margin:10px 0 2px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,#e8a33d 14%,var(--surface));border:1px solid color-mix(in srgb,#e8a33d 45%,var(--line))}
+.wd-live[hidden]{display:none}
+.wd-live>span svg{width:18px;height:18px;color:#b7791f;display:block}
+.wd-live>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.wd-live b{font-size:14px}.wd-live small{font-size:12.5px;color:var(--muted)}
+.wd-live button{flex:none}

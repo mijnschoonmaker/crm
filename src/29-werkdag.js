@@ -32,11 +32,13 @@ function werkdagKaart(d,isT,total){const c=wdCijfers(d),w=c.w,inP=(w.pauzes||[])
     ${tips.length?`<div class="wd-tips">${I.info||I.alert}<div>${tips.map(t=>`<p>${t}</p>`).join("")}</div></div>`:""}</section>`}
   const pz=(w.pauzes||[]).find(p=>!p.tot);
   return `<section class="wd wd-aan${inP?" wd-pz":""}"><div class="wd-h"><span class="wd-ic">${inP?(I.coffee||I.clock):(I.truck||I.route)}</span><div class="wd-m"><b>${inP?"Pauze":"Onderweg"} <span class="wd-tm" data-wdsince="${esc(inP?pz.van:w.start)}">${wdU(wdMin(inP?pz.van:w.start,wdNu()))}</span></b><small>Vertrokken om ${wdT(w.start)}${c.pauze?` · ${wdU(c.pauze)} pauze`:""} · ${plural(c.n,"stop","stops")} klaar${total?` van ${total}`:""}</small></div></div>
+    ${LIVE&&!w.liveUit?`<div class="wd-live"${typeof LV!=="undefined"&&state.liveDelen&&LV.watch!=null?" hidden":""}><span>${I.alert||I.info||""}</span><div><b>Live delen staat uit</b><small data-lvfout>${esc((typeof LV!=="undefined"&&LV.fout)||"Klanten zien je nu niet onderweg.")}</small></div><button type="button" class="small primary" data-act="livedelen">Aanzetten</button></div>`:""}
     ${balk}<div class="wd-k">${inP?`<button type="button" class="primary" data-act="wdpauze">${I.play||I.check}Pauze voorbij</button>`:`<button type="button" data-act="wdpauze">${I.coffee||I.clock}Pauze</button><button type="button" class="primary" data-act="wdstop">${I.home||I.check}Terug bij de loods</button>`}</div></section>`}
 document.addEventListener("click",async e=>{const b=e.target.closest&&e.target.closest("[data-act^='wd']");if(!b)return;const a=b.dataset.act;if(!["wdstart","wdstop","wdpauze","wdheropen","wdbewerk"].includes(a))return;e.preventDefault();e.stopPropagation();
   if(a==="wdbewerk"){if(!isMw())wdBewerk(b.dataset.d||iso(today()));return}
   const d=iso(today()),w=wdGet(d)||{};
-  if(a==="wdstart"){await wdZet(d,{start:wdNu(),stop:"",pauzes:[]});wdLive(true);toast("Werkdag gestart · live delen staat aan");try{navigator.vibrate&&navigator.vibrate(20)}catch(_){}}
+  /* live delen meteen bij de tik aanzetten (vóór het opslaan): dan mag de telefoon om je locatie vragen */
+  if(a==="wdstart"){wdLive(true);await wdZet(d,{start:wdNu(),stop:"",pauzes:[],liveUit:false});toast("Werkdag gestart · live delen staat aan");try{navigator.vibrate&&navigator.vibrate(20)}catch(_){}}
   else if(a==="wdpauze"){const pz=[...(w.pauzes||[])],open=pz.findIndex(p=>!p.tot);if(open>=0){pz[open]={...pz[open],tot:wdNu()};toast("Pauze voorbij · "+wdU(wdMin(pz[open].van,pz[open].tot)))}else{pz.push({van:wdNu()});toast("Pauze gestart")}await wdZet(d,{pauzes:pz})}
   else if(a==="wdstop"){const bz=state.klanten.filter(k=>typeof isBezig==="function"&&isBezig(k));
     if(bz.length&&!(await vraag("Nog bezig bij een klant",`De tijd loopt nog bij <b>${esc(cleanName(bz[0].naam))}</b>. Toch de werkdag stoppen? Meld die stop daarna nog af.`,"Toch stoppen","Annuleren")))return;
@@ -65,7 +67,10 @@ async function wdLive(aan,auto){if(typeof liveStart!=="function")return;
   if(aan&&auto&&!(await wdMagLocatie()))return;
   state.liveDelen=aan;try{localStorage.setItem("ms.live",aan?"1":"0")}catch(e){}aan?liveStart(true):liveStop(true);render()}
 /* CRM opnieuw geopend tijdens een lopende werkdag: live delen weer aanzetten */
-setTimeout(()=>{try{const w=wdGet(iso(today()));if(w&&w.start&&!w.stop&&typeof LV!=="undefined"&&LV.watch==null)wdLive(true,true)}catch(e){}},4000);
+const wdHervat=()=>{try{const w=wdGet(iso(today()));if(w&&w.start&&!w.stop&&!w.liveUit&&typeof LV!=="undefined"&&LV.watch==null)wdLive(true,true)}catch(e){}};
+setTimeout(wdHervat,4000);
+/* terug in de app (scherm weer aan, andere app gesloten): live delen weer oppakken */
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")setTimeout(wdHervat,800)});
 
 /* ---------- werkdag achteraf corrigeren (eigenaar en beheerder): te laat op Terug bij de loods gedrukt? ----------
    Pas vertrek of terugkomst aan, of vul de echte reistijd in: dan rekent Mansard de terugkomst uit. */
