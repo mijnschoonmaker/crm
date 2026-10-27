@@ -1405,6 +1405,8 @@ html body:not(#zz) .cw.g .cw-btn{background:linear-gradient(125deg,#f7f7f9,#e1e4
 
 html body:not(#zz) .side .help button,html body:not(#zz) .side .help .primary{font-size:10.5px!important;letter-spacing:.14em!important;min-height:40px!important;padding:0 12px!important;gap:8px!important}
 html body:not(#zz) .side .help button svg{width:15px!important;height:15px!important}
+/* Zijbalk past altijd in beeld: echte schermhoogte (dvh) min eventuele voorbeeldbalk */
+@media (min-width:900px){html body:not(#zz) .side{top:var(--vbh,0px);height:calc(100vh - var(--vbh,0px));height:calc(100dvh - var(--vbh,0px))}}
 
 /* ===== aanbevelen-hero, deel 2: aurora, metalen bonnen, diepte ===== */
 @keyframes rfAurora{0%{transform:translate(0,0) scale(1)}50%{transform:translate(-8%,6%) scale(1.18)}100%{transform:translate(0,0) scale(1)}}
@@ -1789,7 +1791,8 @@ function teLaatBlad(wat){blad(`<h3>Afspraak ${wat==="overslaan"?"overslaan":"ver
 function extraTxt(of){const l=((typeof B!=="undefined"&&B&&B.extraDiensten)||[]).slice(0,4).map((x,i)=>i?String(x).toLowerCase():String(x));if(!l.length)return"Goten, gevel of zonnepanelen";return l.length>1&&of?l.slice(0,-1).join(", ")+" of "+l[l.length-1]:l.join(", ")}
 /* meekijken vanuit het CRM: balk bovenaan, alleen bekijken */
 function voorbeeldBalk(){if(document.getElementById("vbBalk"))return;const n=(D&&D.klant&&(D.klant.contact||D.klant.naam))||"deze klant";
-  document.body.insertAdjacentHTML("afterbegin",`<div id="vbBalk" style="position:sticky;top:0;z-index:9999;display:flex;align-items:center;justify-content:center;gap:10px;padding:9px max(16px,env(safe-area-inset-left,0px));background:linear-gradient(150deg,#323b50,#252c3c 55%,#1c2231);color:#fff;font:600 12px/1.3 'Avenir Next',Avenir,'Nunito Sans',sans-serif;letter-spacing:.04em;text-align:center"><span style="font-size:10px;letter-spacing:.22em;text-transform:uppercase;border:1px solid rgb(255 255 255 / .35);border-radius:99px;padding:3px 9px">Voorbeeld</span><span>Je bekijkt het portaal als ${String(n).replace(/[<>&]/g,"")} · alleen bekijken, er wordt niets opgeslagen</span></div>`)}
+  document.body.insertAdjacentHTML("afterbegin",`<div id="vbBalk" style="position:sticky;top:0;z-index:9999;display:flex;align-items:center;justify-content:center;gap:10px;padding:9px max(16px,env(safe-area-inset-left,0px));background:linear-gradient(150deg,#323b50,#252c3c 55%,#1c2231);color:#fff;font:600 12px/1.3 'Avenir Next',Avenir,'Nunito Sans',sans-serif;letter-spacing:.04em;text-align:center"><span style="font-size:10px;letter-spacing:.22em;text-transform:uppercase;border:1px solid rgb(255 255 255 / .35);border-radius:99px;padding:3px 9px">Voorbeeld</span><span>Je bekijkt het portaal als ${String(n).replace(/[<>&]/g,"")} · alleen bekijken, er wordt niets opgeslagen</span></div>`);
+  const vb=document.getElementById("vbBalk"),zet=()=>document.documentElement.style.setProperty("--vbh",vb.offsetHeight+"px");zet();try{new ResizeObserver(zet).observe(vb)}catch(e){addEventListener("resize",zet)}}
 const sessie={get(){if(window.__s)return window.__s;try{return localStorage.getItem(SK)||""}catch(e){return ""}},set(v){window.__s=v;try{v?localStorage.setItem(SK,v):localStorage.removeItem(SK)}catch(e){}}};
 
 /* ---------- demo: ?demo in de link toont een voorbeeldklant, zonder server ---------- */
