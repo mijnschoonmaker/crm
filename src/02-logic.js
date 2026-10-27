@@ -248,7 +248,9 @@ function aangifteStatus(){
 
 /* berichten */
 function normTpl(d,sv){sv=sv||{};const r={...d,...sv,eigen:!d.naam};r.mail=sv.mail??sv.tekst??d.mail??"";r.sms=sv.sms??(sv.mail==null&&sv.tekst!=null&&!d.naam?sv.tekst:d.sms)??"";r.onderwerp=sv.onderwerp??d.onderwerp??"Bericht van [name.company]";if(isRich(r.mail)){r.mailHtml=r.mail;r.mail=richText(r.mail)}r.tekst=r.sms||r.mail;return r}
-const tpls=()=>{const o={};Object.keys(TPL).forEach(k=>o[k]=normTpl(TPL[k],state.sjablonen[k]));Object.keys(state.sjablonen).forEach(k=>{if(!o[k]&&state.sjablonen[k])o[k]=normTpl({},state.sjablonen[k])});return o};
+/* sjablonen die niet meer bestaan (ook niet als er ooit een aangepaste versie van is opgeslagen) */
+const TPL_WEG=["voltooid"];
+const tpls=()=>{const o={};Object.keys(TPL).forEach(k=>o[k]=normTpl(TPL[k],state.sjablonen[k]));Object.keys(state.sjablonen).forEach(k=>{if(!o[k]&&state.sjablonen[k]&&!TPL_WEG.includes(k))o[k]=normTpl({},state.sjablonen[k])});return o};
 function klantVars(k,datum){
   const st=S(),tm=toMin(k.tijd),tv=tm!=null?"tussen "+k.tijd+" en "+fromMin(tm+duur(k)):"in de loop van de dag";
   const _ach=k.achternaam||String(k.naam||"").split(",")[0].trim();

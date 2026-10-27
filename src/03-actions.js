@@ -65,7 +65,7 @@ async function afronden(k,mode,el){
     feest(k);
     if(_mw){toast(cleanName(k.naam)+" afgemeld",[{label:"Ongedaan",fn:undo}]);return}
     toast(mode==="open"?cleanName(k.naam)+(f.status==="betaald"?" afgerekend ("+st.betaalwijze+") · ":" gefactureerd en verstuurd · ")+f.nummer:cleanName(k.naam)+" afgemeld · conceptfactuur klaar",
-      [{label:"Ongedaan",fn:undo},...(mode==="open"?[{label:"Versturen",fn:()=>sendF(fId)}]:[{label:"Bericht",fn:()=>openCompose({title:"Werk voltooid · "+cleanName(k.naam),sjabloon:"voltooid",recipients:[{k,vars:klantVars(k,today()),ref:""}]})}])]);
+      [{label:"Ongedaan",fn:undo},...(mode==="open"?[{label:"Versturen",fn:()=>sendF(fId)}]:[])]);
     if(direct){let n=0;const go=()=>{if(state.facturen.some(x=>x.id===fId))sendF(fId,{direct:true});else if(++n<30)setTimeout(go,100)};setTimeout(go,300)}
   }catch(e){if(el){const c=el.querySelector(".swipe-card");if(c)c.style.transform="";el.classList.remove("armed")}err(e)}
 }
@@ -603,10 +603,10 @@ function openNewJob(d){
     try{await save("klanten",k.id,{...strip(k),gepland:$("#nj-d").value,tijd:$("#nj-t").value,dienst:$("#nj-s").value.trim()||k.dienst||"Glasbewassing",prijs:$("#nj-p").value===""?k.prijs:Number($("#nj-p").value)});dlg.close();toast(cleanName(k.naam)+" ingepland")}catch(er){$("#njGo").disabled=false;err(er)}};
 }
 function openOfferSheet(){
-  const day=curDay();let offer=teplannen(offerUpTo(parse(day)>addDays(state.week,6)?parse(day):addDays(state.week,6)));if(state.achter)offer=offer.filter(k=>dueOf(k)<today());offer=offerFilter(offer);const y=dlg.open?dlg.scrollTop:0;
+  const day=curDay();let offer=teplannen(offerUpTo(parse(day)>addDays(state.week,6)?parse(day):addDays(state.week,6)));if(state.achter)offer=offer.filter(k=>dueOf(k)<today());offer=offerFilter(offer);offer=offerZoek(offer);const y=dlg.open?dlg.scrollTop:0;
   openDlg(`<div class="dlg-head"><span class="objic big">${I.inbox}</span><div style="min-width:0;flex:1"><h3>${offer.length} te plannen</h3><div class="subt">Plannen op ${esc(longD(parse(day)))}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
   <div class="sheet-adv">${advHtml(offer,day)}</div>
-  ${offer.length?`<div class="list">${offerCards(offer,parse(day)<today()?"":day,true)}</div>`:empty("Alles ingepland","Er is niemand meer aan de beurt in deze week.")}`);
+  ${offer.length?`<div class="list">${offerCards(offer,parse(day)<today()?"":day,true)}</div>`:ADV.zoek?empty("Niets gevonden","Geen opdracht past bij “"+esc(ADV.zoek)+"”."):empty("Alles ingepland","Er is niemand meer aan de beurt in deze week.")}`);
   form.dataset.sheet="offer";dlg.scrollTop=y;
 }
 function openMeer(){

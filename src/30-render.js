@@ -233,6 +233,7 @@ document.addEventListener("input",e=>{
   const id=e.target.id;
   const map={q:"q",fq:"fq",mq:"mq",pq:"pq",hq:"hq",tq:"tq"};
   if(map[id]){state[map[id]]=e.target.value;if(id==="q")state.kpage=1;render();return}
+  if(id==="advZoek"){ADV.zoek=e.target.value;const p=e.target.selectionStart,inSheet=dlg.open&&dlg.contains(e.target);reOffer();if(inSheet){const el=form.querySelector("#advZoek");if(el){el.focus();try{el.setSelectionRange(p,p)}catch(_){}}}return}
   if(id&&id.startsWith("cc-")&&id!=="cc-klant"){const c=state.calc;c[id.slice(3)]=Math.max(0,Number(e.target.value)||0);render()}
 });
 function reOffer(){render();if(dlg.open&&form.dataset.sheet==="offer")openOfferSheet()}

@@ -1507,6 +1507,7 @@ dialog.xwide{width:min(1340px,calc(100vw - 24px))}
 .adv-ov b{font-size:14px;color:var(--ink)}
 .adv-ov .seg{align-self:stretch;display:flex}
 .adv-ov .seg button{flex:1}
+.adv-zoek{margin:0 0 12px;width:100%}.adv-zoek input{width:100%}
 .msel-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:9px 12px;border-radius:12px;background:var(--surface-2);font-size:13px;color:var(--muted);margin:0 0 10px}
 .msel-bar.act{background:var(--brand-soft);color:var(--ink)}
 .msel-acts{display:flex;align-items:center;gap:10px}
@@ -6464,7 +6465,6 @@ const TPL={
   herinnering:{naam:"Herinnering afspraak",doel:"Dag vooraf herinneren",onderwerp:"Herinnering: afspraak morgen – [name.company]",mail:"Beste [name.customer],\n\nDit is een herinnering dat wij morgen bij u langskomen.\n\nDatum: [date.appointment]\nTijd: [timeslot.appointment]\nAdres: [fulladdress.appointment]\nDienst: [service.appointment]\n\nAlvast bedankt dat u ervoor zorgt dat wij erbij kunnen.\n\nMet vriendelijke groet,\n[name.company]",sms:"Herinnering: morgen ([date.appointment]) [timeslot.appointment] komen we langs op [fulladdress.appointment]. [name.company]"},
   offerte:{naam:"Offerte versturen",doel:"Offerte naar een klant",onderwerp:"Uw offerte van [name.company]",mail:"Beste [name.customer],\n\nHartelijk dank voor uw interesse. Hierbij ontvangt u onze offerte [nr.invoice] voor [total.invoice]. De offerte is geldig tot [duedate.invoice].\n\nU kunt de offerte direct online bekijken en ondertekenen met uw vinger op het scherm. Na uw handtekening plannen we u meteen in.\n\nMet vriendelijke groet,\n[name.company]",sms:""},
   welkom:{naam:"Welkom nieuwe klant",doel:"Nieuwe klant verwelkomen",onderwerp:"Welkom bij [name.company]!",mail:"Beste [name.customer],\n\nHartelijk welkom bij [name.company]! Wij zijn verheugd u als klant te mogen verwelkomen.\n\nWij wassen uw ramen elke [interval.appointment] voor [price.appointment]. Vragen of iets aanpassen? Stuur gerust een bericht.\n\nMet vriendelijke groet,\n[name.company]",sms:""},
-  voltooid:{naam:"Werk voltooid",doel:"Bedanken na de klus",onderwerp:"Job voltooid – dank u wel! – [name.company]",mail:"Beste [name.customer],\n\nWij hebben vandaag de werkzaamheden bij u uitgevoerd.\n\nUitgevoerde dienst: [service.appointment]\nAdres: [fulladdress.appointment]\n\nBedankt voor uw vertrouwen. De factuur ontvangt u apart.\n\nMet vriendelijke groet,\n[name.company]",sms:"Hoi [name.customer], we zijn klaar met de [service.appointment] op [fulladdress.appointment]. Bedankt! [name.company]"},
   review:{naam:"Reviewverzoek",doel:"Om een review vragen",onderwerp:"Tevreden over ons werk?",mail:"Beste [name.customer],\n\nBedankt dat we voor u mochten werken!\n\nZou u ons willen helpen met een korte review? Het kost u minder dan een minuut en het helpt ons enorm om nieuwe klanten te bereiken.\n\nMet vriendelijke groet,\n[name.company]",sms:"Hoi [name.customer], bedankt dat we je ramen weer mochten wassen! Zou je een korte review willen geven? [link.review] [name.company]"},
   nieuwsbrief:{naam:"Nieuwsbrief / algemeen",doel:"Bericht aan meerdere klanten",onderwerp:"Nieuws van [name.company]",mail:"Beste [name.customer],\n\nEen kort bericht van [name.company]: \n\nMet vriendelijke groet,\n[name.company]",sms:"Hoi [name.customer], een kort bericht van [name.company]: "},
   verjaardag:{naam:"Verjaardag",doel:"Klant feliciteren op de verjaardag",onderwerp:"Van harte gefeliciteerd! – [name.company]",mail:"Beste [name.customer],\n\nVan harte gefeliciteerd met uw verjaardag! Wij wensen u een fijne dag.\n\nMet vriendelijke groet,\n[name.company]",sms:"Hoi [name.customer], van harte gefeliciteerd met uw verjaardag! Groet, [name.company]"},
@@ -6888,7 +6888,9 @@ function aangifteStatus(){
 
 /* berichten */
 function normTpl(d,sv){sv=sv||{};const r={...d,...sv,eigen:!d.naam};r.mail=sv.mail??sv.tekst??d.mail??"";r.sms=sv.sms??(sv.mail==null&&sv.tekst!=null&&!d.naam?sv.tekst:d.sms)??"";r.onderwerp=sv.onderwerp??d.onderwerp??"Bericht van [name.company]";if(isRich(r.mail)){r.mailHtml=r.mail;r.mail=richText(r.mail)}r.tekst=r.sms||r.mail;return r}
-const tpls=()=>{const o={};Object.keys(TPL).forEach(k=>o[k]=normTpl(TPL[k],state.sjablonen[k]));Object.keys(state.sjablonen).forEach(k=>{if(!o[k]&&state.sjablonen[k])o[k]=normTpl({},state.sjablonen[k])});return o};
+/* sjablonen die niet meer bestaan (ook niet als er ooit een aangepaste versie van is opgeslagen) */
+const TPL_WEG=["voltooid"];
+const tpls=()=>{const o={};Object.keys(TPL).forEach(k=>o[k]=normTpl(TPL[k],state.sjablonen[k]));Object.keys(state.sjablonen).forEach(k=>{if(!o[k]&&state.sjablonen[k]&&!TPL_WEG.includes(k))o[k]=normTpl({},state.sjablonen[k])});return o};
 function klantVars(k,datum){
   const st=S(),tm=toMin(k.tijd),tv=tm!=null?"tussen "+k.tijd+" en "+fromMin(tm+duur(k)):"in de loop van de dag";
   const _ach=k.achternaam||String(k.naam||"").split(",")[0].trim();
@@ -7041,7 +7043,7 @@ async function afronden(k,mode,el){
     feest(k);
     if(_mw){toast(cleanName(k.naam)+" afgemeld",[{label:"Ongedaan",fn:undo}]);return}
     toast(mode==="open"?cleanName(k.naam)+(f.status==="betaald"?" afgerekend ("+st.betaalwijze+") · ":" gefactureerd en verstuurd · ")+f.nummer:cleanName(k.naam)+" afgemeld · conceptfactuur klaar",
-      [{label:"Ongedaan",fn:undo},...(mode==="open"?[{label:"Versturen",fn:()=>sendF(fId)}]:[{label:"Bericht",fn:()=>openCompose({title:"Werk voltooid · "+cleanName(k.naam),sjabloon:"voltooid",recipients:[{k,vars:klantVars(k,today()),ref:""}]})}])]);
+      [{label:"Ongedaan",fn:undo},...(mode==="open"?[{label:"Versturen",fn:()=>sendF(fId)}]:[])]);
     if(direct){let n=0;const go=()=>{if(state.facturen.some(x=>x.id===fId))sendF(fId,{direct:true});else if(++n<30)setTimeout(go,100)};setTimeout(go,300)}
   }catch(e){if(el){const c=el.querySelector(".swipe-card");if(c)c.style.transform="";el.classList.remove("armed")}err(e)}
 }
@@ -7579,10 +7581,10 @@ function openNewJob(d){
     try{await save("klanten",k.id,{...strip(k),gepland:$("#nj-d").value,tijd:$("#nj-t").value,dienst:$("#nj-s").value.trim()||k.dienst||"Glasbewassing",prijs:$("#nj-p").value===""?k.prijs:Number($("#nj-p").value)});dlg.close();toast(cleanName(k.naam)+" ingepland")}catch(er){$("#njGo").disabled=false;err(er)}};
 }
 function openOfferSheet(){
-  const day=curDay();let offer=teplannen(offerUpTo(parse(day)>addDays(state.week,6)?parse(day):addDays(state.week,6)));if(state.achter)offer=offer.filter(k=>dueOf(k)<today());offer=offerFilter(offer);const y=dlg.open?dlg.scrollTop:0;
+  const day=curDay();let offer=teplannen(offerUpTo(parse(day)>addDays(state.week,6)?parse(day):addDays(state.week,6)));if(state.achter)offer=offer.filter(k=>dueOf(k)<today());offer=offerFilter(offer);offer=offerZoek(offer);const y=dlg.open?dlg.scrollTop:0;
   openDlg(`<div class="dlg-head"><span class="objic big">${I.inbox}</span><div style="min-width:0;flex:1"><h3>${offer.length} te plannen</h3><div class="subt">Plannen op ${esc(longD(parse(day)))}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
   <div class="sheet-adv">${advHtml(offer,day)}</div>
-  ${offer.length?`<div class="list">${offerCards(offer,parse(day)<today()?"":day,true)}</div>`:empty("Alles ingepland","Er is niemand meer aan de beurt in deze week.")}`);
+  ${offer.length?`<div class="list">${offerCards(offer,parse(day)<today()?"":day,true)}</div>`:ADV.zoek?empty("Niets gevonden","Geen opdracht past bij “"+esc(ADV.zoek)+"”."):empty("Alles ingepland","Er is niemand meer aan de beurt in deze week.")}`);
   form.dataset.sheet="offer";dlg.scrollTop=y;
 }
 function openMeer(){
@@ -8331,7 +8333,7 @@ state.planMode=false;
 function vPlanning(){
   const v=state.pview,t=today(),days=viewDays(),first=parse(days[0]),last=parse(days[days.length-1]);
   state.week=startOfWeek(v==="maand"?parse(curDay()):first);
-  let offer=teplannen(offerUpTo(addDays(last<t?t:last,zichtbaarDagen())));if(state.achter)offer=offer.filter(k=>dueOf(k)<t);offer=offerFilter(offer);
+  let offer=teplannen(offerUpTo(addDays(last<t?t:last,zichtbaarDagen())));if(state.achter)offer=offer.filter(k=>dueOf(k)<t);offer=offerFilter(offer);offer=offerZoek(offer);
   const offerAll=offer;if(state.pkaart&&state.ksel.size){[...state.ksel].forEach(id=>{if(!offerAll.some(k=>k.id===id))state.ksel.delete(id)});if(state.ksel.size)offer=offer.filter(k=>state.ksel.has(k.id))}
   const offerSum=offer.reduce((a,k)=>a+(Number(k.prijs)||0),0);
   const tot=days.reduce((a,d)=>{const s=daySum(d);a.n+=s.n;a.sum+=s.sum;return a},{n:0,sum:0});
@@ -8387,13 +8389,13 @@ function vPlanning(){
   const offerCol=`<aside class="rpanel offercol" data-drop=""><div class="rp-h2"><span class="eyebrow rp-h">${I.inbox}Te plannen</span><span class="mono">${offer.length} · ${eur0(toon(offerSum))} <small>${btwLbl()}</small></span></div>
     ${state.pkaart&&state.ksel.size?`<div class="pk-selbar">${I.map}<span><b>${plural(offer.length,"adres","adressen")}</b> geselecteerd op de kaart</span><button type="button" class="tiny ghost" data-act="pkwis">Alles tonen</button></div>`:""}
     ${advHtml(offer,d0)}
-    ${offer.length>1&&!state.planMode?`<div class="wp-2k"><button type="button" class="small primary" data-act="weekplan" data-d="${iso(state.week)}">${I.wand}Plan de week</button><button type="button" class="small" data-act="planall">Alles op aanboddatum</button></div>`:""}
-    <div class="list" style="gap:8px">${offer.length?offerCards(offer,v==="dag"&&parse(d0)>=t?d0:""):`<p class="subt" style="text-align:center;font-style:italic;margin:30px 0">Alles ingepland</p>`}</div></aside>`;
+    ${offer.length>1&&!state.planMode&&!ADV.zoek?`<div class="wp-2k"><button type="button" class="small primary" data-act="weekplan" data-d="${iso(state.week)}">${I.wand}Plan de week</button><button type="button" class="small" data-act="planall">Alles op aanboddatum</button></div>`:""}
+    <div class="list" style="gap:8px">${offer.length?offerCards(offer,v==="dag"&&parse(d0)>=t?d0:""):`<p class="subt" style="text-align:center;font-style:italic;margin:30px 0">${ADV.zoek?"Niets gevonden voor “"+esc(ADV.zoek)+"”":"Alles ingepland"}</p>`}</div></aside>`;
   if(big())return `<div class="withside">`+`<div class="mainc">${html}</div>${offerCol}</div>`;
   /* telefoon: te plannen opdrachten onder de agenda; lang indrukken en in de agenda slepen (zoals in DienstenCRM) */
   if(v==="maand")return html+(offer.length?`<button type="button" class="fab-plan" data-act="offersheet">${I.inbox}${offer.length} in te plannen</button>`:"");
   return html+`<section class="mob-offer" id="mobOffer"><div class="mo-h"><span class="objic">${I.inbox}</span><div><b>In te plannen</b><small>${offer.length?`${plural(offer.length,"opdracht","opdrachten")} · houd vast en sleep naar de agenda`:"Alles ingepland"}</small></div><span class="sp"></span>${offer.length?`<span class="mono">${eur0(toon(offerSum))}</span>`:""}</div>
-    ${offer.length?`<div class="sheet-adv">${advHtml(offer,d0)}</div>${offer.length>1&&!state.planMode?`<button type="button" class="small" style="width:100%;margin:2px 0 10px" data-act="planall">Alles inplannen op aanboddatum</button>`:""}<div class="list" style="gap:8px">${offerCards(offer,v==="dag"&&parse(d0)>=t?d0:"")}</div>`:""}</section>`
+    ${offer.length||ADV.zoek?`<div class="sheet-adv">${advHtml(offer,d0)}</div>${offer.length>1&&!state.planMode&&!ADV.zoek?`<button type="button" class="small" style="width:100%;margin:2px 0 10px" data-act="planall">Alles inplannen op aanboddatum</button>`:""}<div class="list" style="gap:8px">${offer.length?offerCards(offer,v==="dag"&&parse(d0)>=t?d0:""):`<p class="subt" style="text-align:center;font-style:italic;margin:20px 0">Niets gevonden voor “${esc(ADV.zoek)}”</p>`}</div>`:""}</section>`
     +(offer.length?`<button type="button" class="fab-plan mo-fab" data-act="naarofferlijst">${I.inbox}${offer.length} in te plannen</button>`:"");
 }
 
@@ -8541,6 +8543,10 @@ function offerFilter(list){
   [...mSel].forEach(id=>{if(!o.some(k=>k.id===id))mSel.delete(id)});
   return o;
 }
+/* zoeken in de te plannen opdrachten: op naam, adres, postcode, plaats, groep, telefoon of e-mail; alle woorden moeten passen */
+const zkNorm=x=>String(x||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+function offerZoek(o){const q=zkNorm(ADV.zoek).trim();if(!q)return o;const w=q.split(/\s+/);
+  return o.filter(k=>{const a=jobAddrObj(k)||{},h=zkNorm([cleanName(k.naam),k.naam,jobAddr(k),a.postcode,k.postcode,a.plaats,k.plaats,k.ronde,k.telefoon,k.email].join(" ")),hc=h.replace(/\s/g,"");return w.every(x=>h.includes(x)||hc.includes(x))})}
 function offerUpTo(def){return ADV.datum?parse(ADV.datum):def}
 function offerCards(o,dayIso,timed){
   const card=k=>ADV.meer?`<div class="msel-w${mSel.has(k.id)?" chk":""}"><button type="button" class="msel-c" data-act="msel" data-id="${esc(k.id)}" aria-pressed="${mSel.has(k.id)}" aria-label="Selecteer ${esc(cleanName(k.naam))}">${I.check}</button>${offerHtml(k,dayIso,timed)}</div>`:offerHtml(k,dayIso,timed);
@@ -8570,6 +8576,7 @@ function advHtml(o,d0){
     </div></div>`:""}
   <label class="adv-date">Aanbod zien op datum<span class="adv-dr"><input type="date" id="advDatum" value="${esc(ADV.datum)}">${ADV.datum?`<button type="button" class="iconbtn" data-act="advdatum0" aria-label="Datum wissen">${I.x}</button>`:""}</span></label>
   <div class="adv-ov"><b>Overzicht afspraken (${o.length})</b><div class="seg" role="group" aria-label="Sorteren">${[["datum","Datum"],["postcode","Postcode"],["plaats","Plaats"]].map(([x,l])=>`<button type="button" data-act="osort" data-v="${x}" aria-pressed="${ADV.sort===x}">${l}</button>`).join("")}</div></div>
+  <div class="search adv-zoek">${I.search}<input id="advZoek" type="search" placeholder="Zoek op naam, adres, postcode…" value="${esc(ADV.zoek||"")}" autocomplete="off" aria-label="Zoek in te plannen opdrachten"></div>
   ${ADV.meer?`<div class="msel-bar${mSel.size?" act":""}"><span>${mSel.size?`<b>${mSel.size} gekozen</b> · ${Math.floor(selDur/60)}u${pad(selDur%60)}${mSel.size?" — tik een tijdslot":""}`:"Vink klanten aan en tik daarna een tijdslot"}</span>${mSel.size?`<span class="msel-acts"><button type="button" class="small primary" data-act="mselplan" data-d="${esc(parse(d0)<today()?iso(today()):d0)}">Plan ${esc(wd(parse(parse(d0)<today()?iso(today()):d0))+" "+parse(parse(d0)<today()?iso(today()):d0).getDate())}</button><button type="button" class="linkbtn" data-act="mselclr">Wissen</button></span>`:`<button type="button" class="linkbtn" data-act="mselall">Alles</button>`}</div>`:""}`;
 }
 async function planMulti(d,t){
@@ -17381,6 +17388,7 @@ document.addEventListener("input",e=>{
   const id=e.target.id;
   const map={q:"q",fq:"fq",mq:"mq",pq:"pq",hq:"hq",tq:"tq"};
   if(map[id]){state[map[id]]=e.target.value;if(id==="q")state.kpage=1;render();return}
+  if(id==="advZoek"){ADV.zoek=e.target.value;const p=e.target.selectionStart,inSheet=dlg.open&&dlg.contains(e.target);reOffer();if(inSheet){const el=form.querySelector("#advZoek");if(el){el.focus();try{el.setSelectionRange(p,p)}catch(_){}}}return}
   if(id&&id.startsWith("cc-")&&id!=="cc-klant"){const c=state.calc;c[id.slice(3)]=Math.max(0,Number(e.target.value)||0);render()}
 });
 function reOffer(){render();if(dlg.open&&form.dataset.sheet==="offer")openOfferSheet()}

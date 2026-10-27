@@ -843,6 +843,7 @@ dialog.xwide{width:min(1340px,calc(100vw - 24px))}
 .adv-ov b{font-size:14px;color:var(--ink)}
 .adv-ov .seg{align-self:stretch;display:flex}
 .adv-ov .seg button{flex:1}
+.adv-zoek{margin:0 0 12px;width:100%}.adv-zoek input{width:100%}
 .msel-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:9px 12px;border-radius:12px;background:var(--surface-2);font-size:13px;color:var(--muted);margin:0 0 10px}
 .msel-bar.act{background:var(--brand-soft);color:var(--ink)}
 .msel-acts{display:flex;align-items:center;gap:10px}

@@ -97,7 +97,7 @@ state.planMode=false;
 function vPlanning(){
   const v=state.pview,t=today(),days=viewDays(),first=parse(days[0]),last=parse(days[days.length-1]);
   state.week=startOfWeek(v==="maand"?parse(curDay()):first);
-  let offer=teplannen(offerUpTo(addDays(last<t?t:last,zichtbaarDagen())));if(state.achter)offer=offer.filter(k=>dueOf(k)<t);offer=offerFilter(offer);
+  let offer=teplannen(offerUpTo(addDays(last<t?t:last,zichtbaarDagen())));if(state.achter)offer=offer.filter(k=>dueOf(k)<t);offer=offerFilter(offer);offer=offerZoek(offer);
   const offerAll=offer;if(state.pkaart&&state.ksel.size){[...state.ksel].forEach(id=>{if(!offerAll.some(k=>k.id===id))state.ksel.delete(id)});if(state.ksel.size)offer=offer.filter(k=>state.ksel.has(k.id))}
   const offerSum=offer.reduce((a,k)=>a+(Number(k.prijs)||0),0);
   const tot=days.reduce((a,d)=>{const s=daySum(d);a.n+=s.n;a.sum+=s.sum;return a},{n:0,sum:0});
@@ -153,13 +153,13 @@ function vPlanning(){
   const offerCol=`<aside class="rpanel offercol" data-drop=""><div class="rp-h2"><span class="eyebrow rp-h">${I.inbox}Te plannen</span><span class="mono">${offer.length} · ${eur0(toon(offerSum))} <small>${btwLbl()}</small></span></div>
     ${state.pkaart&&state.ksel.size?`<div class="pk-selbar">${I.map}<span><b>${plural(offer.length,"adres","adressen")}</b> geselecteerd op de kaart</span><button type="button" class="tiny ghost" data-act="pkwis">Alles tonen</button></div>`:""}
     ${advHtml(offer,d0)}
-    ${offer.length>1&&!state.planMode?`<div class="wp-2k"><button type="button" class="small primary" data-act="weekplan" data-d="${iso(state.week)}">${I.wand}Plan de week</button><button type="button" class="small" data-act="planall">Alles op aanboddatum</button></div>`:""}
-    <div class="list" style="gap:8px">${offer.length?offerCards(offer,v==="dag"&&parse(d0)>=t?d0:""):`<p class="subt" style="text-align:center;font-style:italic;margin:30px 0">Alles ingepland</p>`}</div></aside>`;
+    ${offer.length>1&&!state.planMode&&!ADV.zoek?`<div class="wp-2k"><button type="button" class="small primary" data-act="weekplan" data-d="${iso(state.week)}">${I.wand}Plan de week</button><button type="button" class="small" data-act="planall">Alles op aanboddatum</button></div>`:""}
+    <div class="list" style="gap:8px">${offer.length?offerCards(offer,v==="dag"&&parse(d0)>=t?d0:""):`<p class="subt" style="text-align:center;font-style:italic;margin:30px 0">${ADV.zoek?"Niets gevonden voor “"+esc(ADV.zoek)+"”":"Alles ingepland"}</p>`}</div></aside>`;
   if(big())return `<div class="withside">`+`<div class="mainc">${html}</div>${offerCol}</div>`;
   /* telefoon: te plannen opdrachten onder de agenda; lang indrukken en in de agenda slepen (zoals in DienstenCRM) */
   if(v==="maand")return html+(offer.length?`<button type="button" class="fab-plan" data-act="offersheet">${I.inbox}${offer.length} in te plannen</button>`:"");
   return html+`<section class="mob-offer" id="mobOffer"><div class="mo-h"><span class="objic">${I.inbox}</span><div><b>In te plannen</b><small>${offer.length?`${plural(offer.length,"opdracht","opdrachten")} · houd vast en sleep naar de agenda`:"Alles ingepland"}</small></div><span class="sp"></span>${offer.length?`<span class="mono">${eur0(toon(offerSum))}</span>`:""}</div>
-    ${offer.length?`<div class="sheet-adv">${advHtml(offer,d0)}</div>${offer.length>1&&!state.planMode?`<button type="button" class="small" style="width:100%;margin:2px 0 10px" data-act="planall">Alles inplannen op aanboddatum</button>`:""}<div class="list" style="gap:8px">${offerCards(offer,v==="dag"&&parse(d0)>=t?d0:"")}</div>`:""}</section>`
+    ${offer.length||ADV.zoek?`<div class="sheet-adv">${advHtml(offer,d0)}</div>${offer.length>1&&!state.planMode&&!ADV.zoek?`<button type="button" class="small" style="width:100%;margin:2px 0 10px" data-act="planall">Alles inplannen op aanboddatum</button>`:""}<div class="list" style="gap:8px">${offer.length?offerCards(offer,v==="dag"&&parse(d0)>=t?d0:""):`<p class="subt" style="text-align:center;font-style:italic;margin:20px 0">Niets gevonden voor “${esc(ADV.zoek)}”</p>`}</div>`:""}</section>`
     +(offer.length?`<button type="button" class="fab-plan mo-fab" data-act="naarofferlijst">${I.inbox}${offer.length} in te plannen</button>`:"");
 }
 
@@ -307,6 +307,10 @@ function offerFilter(list){
   [...mSel].forEach(id=>{if(!o.some(k=>k.id===id))mSel.delete(id)});
   return o;
 }
+/* zoeken in de te plannen opdrachten: op naam, adres, postcode, plaats, groep, telefoon of e-mail; alle woorden moeten passen */
+const zkNorm=x=>String(x||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+function offerZoek(o){const q=zkNorm(ADV.zoek).trim();if(!q)return o;const w=q.split(/\s+/);
+  return o.filter(k=>{const a=jobAddrObj(k)||{},h=zkNorm([cleanName(k.naam),k.naam,jobAddr(k),a.postcode,k.postcode,a.plaats,k.plaats,k.ronde,k.telefoon,k.email].join(" ")),hc=h.replace(/\s/g,"");return w.every(x=>h.includes(x)||hc.includes(x))})}
 function offerUpTo(def){return ADV.datum?parse(ADV.datum):def}
 function offerCards(o,dayIso,timed){
   const card=k=>ADV.meer?`<div class="msel-w${mSel.has(k.id)?" chk":""}"><button type="button" class="msel-c" data-act="msel" data-id="${esc(k.id)}" aria-pressed="${mSel.has(k.id)}" aria-label="Selecteer ${esc(cleanName(k.naam))}">${I.check}</button>${offerHtml(k,dayIso,timed)}</div>`:offerHtml(k,dayIso,timed);
@@ -336,6 +340,7 @@ function advHtml(o,d0){
     </div></div>`:""}
   <label class="adv-date">Aanbod zien op datum<span class="adv-dr"><input type="date" id="advDatum" value="${esc(ADV.datum)}">${ADV.datum?`<button type="button" class="iconbtn" data-act="advdatum0" aria-label="Datum wissen">${I.x}</button>`:""}</span></label>
   <div class="adv-ov"><b>Overzicht afspraken (${o.length})</b><div class="seg" role="group" aria-label="Sorteren">${[["datum","Datum"],["postcode","Postcode"],["plaats","Plaats"]].map(([x,l])=>`<button type="button" data-act="osort" data-v="${x}" aria-pressed="${ADV.sort===x}">${l}</button>`).join("")}</div></div>
+  <div class="search adv-zoek">${I.search}<input id="advZoek" type="search" placeholder="Zoek op naam, adres, postcode…" value="${esc(ADV.zoek||"")}" autocomplete="off" aria-label="Zoek in te plannen opdrachten"></div>
   ${ADV.meer?`<div class="msel-bar${mSel.size?" act":""}"><span>${mSel.size?`<b>${mSel.size} gekozen</b> · ${Math.floor(selDur/60)}u${pad(selDur%60)}${mSel.size?" — tik een tijdslot":""}`:"Vink klanten aan en tik daarna een tijdslot"}</span>${mSel.size?`<span class="msel-acts"><button type="button" class="small primary" data-act="mselplan" data-d="${esc(parse(d0)<today()?iso(today()):d0)}">Plan ${esc(wd(parse(parse(d0)<today()?iso(today()):d0))+" "+parse(parse(d0)<today()?iso(today()):d0).getDate())}</button><button type="button" class="linkbtn" data-act="mselclr">Wissen</button></span>`:`<button type="button" class="linkbtn" data-act="mselall">Alles</button>`}</div>`:""}`;
 }
 async function planMulti(d,t){
