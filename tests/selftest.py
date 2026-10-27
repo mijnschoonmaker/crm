@@ -162,6 +162,20 @@ def afmelden(pg):
     check(G, "Laatste bezoek staat op vandaag", r["laatst"] == r["vd"], r)
     check(G, "Volgende afspraak is doorgepland", bool(r["gepland"]) and r["gepland"] > r["vd"], r)
     check(G, "Op betaald zetten zet datum en beurt op betaald", r.get("betaald") == "betaald" and r.get("betaaldOp") == r["vd"] and r.get("beurtBetaald") is True, r)
+    # aanboddatum per verdieping schuift door, ook als alle verdiepingen dezelfde frequentie hebben
+    r2 = pg.evaluate("""async()=>{const T=MSTEST,id=T.newId('ktest'),vd=T.iso(T.today()),gis=T.iso(new Date(Date.now()-864e5)),na=T.iso(new Date(T.today().getTime()+182*864e5));
+      await T.save('klanten',id,{naam:'Zelftest, Verdiepingen',adres:'Teststraat 2',postcode:'1234 AB',plaats:'Teststad',email:'test@voorbeeld.nl',
+        prijs:200,frequentie:26,dienst:'Glasbewassing',gepland:vd,tijd:'09:00',duur:60,actief:true,autoplan:true,tellingGecontroleerd:true,soort:'zakelijk',log:[],objecten:[],
+        ramenRegel:{f:[10,5,0,0],fq:[26,26,'',''],vol:[gis,gis,'','']}});
+      const k=T.state.klanten.find(x=>x.id===id);await T.afronden(k,'concept');await new Promise(r=>setTimeout(r,400));
+      const k2=T.state.klanten.find(x=>x.id===id)||{},f=T.state.facturen.find(x=>x.klantId===id&&x.soort==='factuur'),q=k2.ramenRegel||{};
+      const uit={vol:q.vol,na,inc:f?T.totals(f).inc:null};
+      try{const dl=document.querySelector('dialog[open]');if(dl)dl.close()}catch(e){}
+      for(const x of T.state.beurten.filter(x=>x.klantId===id))await T.del('beurten',x.id);
+      for(const x of T.state.facturen.filter(x=>x.klantId===id))await T.del('facturen',x.id);
+      await T.del('klanten',id);return uit}""")
+    check(G, "Aanboddatum per verdieping schuift door bij gelijke frequentie", bool(r2["vol"]) and r2["vol"][0] == r2["na"] and r2["vol"][1] == r2["na"], r2)
+    check(G, "Factuur bij gelijke frequentie houdt de prijs van de klant", r2["inc"] == 200, r2)
 
 
 def statistieken(pg):
