@@ -1262,7 +1262,7 @@ function calculate(scroll){const R=compute(),{f,fRows,sRows,all,count,normal,fre
   const korting=avgD>0||f.pct>0;
   out.innerHTML=`<div class="rc"><div class="eyebrow">Uw prijs</div>
       <div class="ov-list">${all.map(r=>`<div class="ov-row"><span>${r.n}</span><b>${r.c}</b></div>`).join("")}<div class="ov-row tot"><span>Totaal</span><b>${count===1?"1 raam":count+" ramen"}</b></div></div>
-      <div class="ov-price"><div class="op-l"><small>Uw prijs per beurt</small><b>${eur(SOORT==="zakelijk"?ex:inc)}</b><small>Elke 8 weken · ${SOORT==="zakelijk"?"excl. btw":"incl. btw"} en kozijnen</small><small class="op-live">Met klantportaal: op de dag zelf ziet u ons live op de kaart zodra er nog 4 adressen of minder vóór u zijn.</small></div><button type="button" class="go2" id="toForm">Gegevens invullen</button></div></div>`;
+      <div class="ov-price"><div class="op-l"><small>Uw prijs per beurt</small><b>${eur(SOORT==="zakelijk"?ex:inc)}</b><small>Elke 8 weken · ${SOORT==="zakelijk"?"excl. btw":"incl. btw"} en kozijnen</small><small class="op-live">Met klantportaal: op de dag zelf ziet u ons live op de kaart zodra er nog 2 adressen of minder vóór u zijn.</small></div><button type="button" class="go2" id="toForm">Gegevens invullen</button></div></div>`;
   g("toForm").onclick=()=>{openStep(5);setTimeout(()=>g("k-naam").focus({preventScroll:true}),400)};
   out.querySelectorAll("[data-adj]").forEach(b=>b.onclick=()=>{const n=+b.dataset.adj;if(n===1){openStep(1,false);g("ph-in").click()}else openStep(n)});
   last=R;
@@ -1295,7 +1295,7 @@ function renderOv(){
   ovW=controles();
   g("ovWarn").innerHTML=ovW.length?ovW.map((w,k)=>`<div class="ov-warn">${IC_W}<div>${esc(w.t)}<br><button type="button" data-ovw="${k}">${esc(w.b)}</button></div></div>`).join(""):`<div class="ov-ok">${IC_OK}<span>Alles aangetikt? Dan klopt uw prijs hieronder.</span></div>`;
   const fv=g("freq").value;
-  g("ovPrice").innerHTML=last?`<div class="op-l"><small>Uw prijs per beurt</small><b>${eur(SOORT==="zakelijk"?last.ex:last.inc)}</b><small>Elke 8 weken · ${SOORT==="zakelijk"?"excl. btw":"incl. btw"} en kozijnen</small><small class="op-live">Met klantportaal: op de dag zelf ziet u ons live op de kaart zodra er nog 4 adressen of minder vóór u zijn.</small></div><button type="button" class="go2" data-ovgo>Gegevens invullen</button>`:""}
+  g("ovPrice").innerHTML=last?`<div class="op-l"><small>Uw prijs per beurt</small><b>${eur(SOORT==="zakelijk"?last.ex:last.inc)}</b><small>Elke 8 weken · ${SOORT==="zakelijk"?"excl. btw":"incl. btw"} en kozijnen</small><small class="op-live">Met klantportaal: op de dag zelf ziet u ons live op de kaart zodra er nog 2 adressen of minder vóór u zijn.</small></div><button type="button" class="go2" data-ovgo>Gegevens invullen</button>`:""}
 g("ov").addEventListener("keydown",e=>{const t=e.target.closest("[data-ovi]");if(t&&e.target===t&&(e.key==="Enter"||e.key===" ")){e.preventDefault();openEd(+t.dataset.ovi)}});
 g("ov").addEventListener("click",e=>{const rm=e.target.closest("[data-ovrm]");
   if(rm){e.stopPropagation();if(!rm.classList.contains("zeker")){g("ov").querySelectorAll(".ov-rm.zeker").forEach(x=>{x.classList.remove("zeker");x.querySelector("span").textContent="Verwijderen"});rm.classList.add("zeker");rm.querySelector("span").textContent="Zeker? Tik nogmaals";clearTimeout(rm._t);rm._t=setTimeout(()=>{rm.classList.remove("zeker");rm.querySelector("span").textContent="Verwijderen"},4000);return}

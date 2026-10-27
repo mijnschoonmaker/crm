@@ -14,6 +14,9 @@
    CRM leest: portaalVerzoeken */
 const crypto = require("crypto");
 
+/* live kaart: het busje is zichtbaar zodra er nog zoveel adressen (of minder) vóór de klant zijn; zo blijven andere adressen privé */
+const LIVE_KAART_VANAF = 2;
+
 module.exports = function maakPortaal(ctx) {
   const { db, T, onRequest, onCall, onSchedule, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket, portaalUrl, verwerkFactuurBetaling, snelBetaald } = ctx;
   /* moment van versturen: het precieze tijdstip als dat er is; het CRM bewaart soms alleen de datum, dan het aanmaakmoment van die dag */
@@ -149,7 +152,7 @@ module.exports = function maakPortaal(ctx) {
     const eta = new Date(Date.now() + (voor ? werk + rij : rij) * 60e3);
     const etaTxt = new Intl.DateTimeFormat("nl-NL", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" }).format(eta);
     /* de exacte plek van de bus alleen als u bijna aan de beurt bent: zo zien klanten niet bij wie we verder allemaal komen */
-    const dichtbij = voor <= 4;
+    const dichtbij = voor <= LIVE_KAART_VANAF;
     return { status: "onderweg", voor, bezigBij, eta: etaTxt, km: km != null ? Math.round(km * 10) / 10 : null, naam: L.naam || "", huis: dichtbij ? huis : null,
       pos: dichtbij ? { lat: L.lat, lng: L.lng, koers: L.koers ?? null, ts: L.ts } : null };
   }
