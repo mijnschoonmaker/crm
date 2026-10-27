@@ -1,0 +1,35 @@
+name: Dienstenwebshop bijwerken
+# vaste pagina app.mansard.nl/webshop/mijnschoonmaker.html met de tarieven uit het CRM; elke nacht en op verzoek
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3 * * *"
+concurrency:
+  group: webshop
+  cancel-in-progress: true
+jobs:
+  maak:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm install --omit=dev --no-audit --no-fund
+        working-directory: functions
+      - run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > "$RUNNER_TEMP/sa.json"
+      - env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
+          P: ${{ vars.FIREBASE_PROJECT }}
+        run: node tools/webshop-maak.js
+      - name: Bewaren en online zetten
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -n "$(git status --porcelain public/webshop)" ]; then
+            git config user.name "mansard-bot"; git config user.email "bot@mansard.nl"
+            git add public/webshop && git commit -qm "Dienstenwebshop bijgewerkt" && git pull -q --rebase && git push -q
+            gh workflow run deploy.yml --ref main
+          fi
