@@ -6178,7 +6178,17 @@ function apply(col,docs){
   else if(col==="routes"){state.routes={};docs.forEach(d=>state.routes[d.id]=d)}
   else state[col]=docs;
   if(col==="facturen")setTimeout(nrBewaker,0);
+  if(col==="facturen"||col==="berichten")setTimeout(verzondenHerstel,1500);
 }
+/* een factuur die aantoonbaar verstuurd is (staat als verstuurd bij Verzonden berichten), maar waarvan het vastleggen
+   destijds niet lukte (app viel weg tijdens het versturen): alsnog als verstuurd markeren, met het echte verzendmoment */
+const VZ_GEDAAN=new Set();let vzBezig=0;
+async function verzondenHerstel(){if(vzBezig||!Array.isArray(state.berichten)||!Array.isArray(state.facturen))return;vzBezig=1;
+  try{const per={};state.berichten.forEach(b=>{const m=/^factuur:(.+)$/.exec(String(b.ref||""));if(m&&b.status==="verstuurd"&&b.verstuurdOp){const v=per[m[1]];if(!v||String(b.verstuurdOp)<String(v))per[m[1]]=b.verstuurdOp}});
+    for(const f of state.facturen){const ts=per[f.id];if(!ts||f.verstuurdOp||VZ_GEDAAN.has(f.id))continue;VZ_GEDAAN.add(f.id);
+      const dag=new Intl.DateTimeFormat("sv-SE",{timeZone:"Europe/Amsterdam"}).format(new Date(ts));
+      await save("facturen",f.id,{...strip(f),verstuurdOp:dag,verstuurdTs:ts,...(f.soort==="offerte"&&(f.status||"concept")==="concept"?{status:"verstuurd"}:{})})}}
+  catch(e){console.error("verzondenHerstel",e)}finally{vzBezig=0}}
 /* factuurnummers: maakten twee mensen tegelijk een factuur met hetzelfde nummer, dan krijgt de nieuwste (van deze
    gebruiker, nog niet verstuurd of betaald) meteen het volgende vrije nummer. De oudste houdt altijd zijn nummer. */
 const MIJN_F=new Set();let nrBezig=0;
@@ -6645,7 +6655,7 @@ async function afronden(k,mode,el){
   const f={soort:"factuur",nummer:nextNr("factuur",d),klantId:k.id,...(k.beheercode?{beheercode:k.beheercode}:{}),klantNaam:k.naam,klantAdres:factAddr(k),klantEmail:mailK(k,"factuur").email||"",...(k.hoofdKlantId&&k.adres?{locatie:fullAddr(k)}:{}),datum:d,
     verval:iso(addDays(today(),Number(k.termijn)||Number(st.termijn)||14)),regels:[...(_rr&&_rr.regels.length?_rr.regels:[{omschrijving:(k.dienst||"Glasbewassing")+regelExtra(k),aantal:1,prijs:Number(k.prijs)||0}]),...extraDue(k,d).map(o=>({omschrijving:(o.groepOms?o.groepOms:o.dienst+(k.verbergFreq?"":" ("+freqLabel(o.frequentie).toLowerCase()+")")+(o.items&&!k.verbergAantal&&o.items.length?": "+groepDetail(o.items,k.verbergFreq?0:o.frequentie):"")),aantal:1,prijs:Number(o.prijs)||0}))],
     btw:Number(st.btw),incl:!!st.incl,status:mode==="open"?"open":"concept",notitie:k.factuurInstructie||"",gemaakt:new Date().toISOString(),betaalwijze:st.betaalwijze||"overmaken"};
-  if(mode==="open"&&["contant","pin"].includes(st.betaalwijze)){f.status="betaald";f.betaaldOp=d}
+  if(mode==="open"&&["contant","pin"].includes(st.betaalwijze)){f.status="betaald";f.betaaldOp=d;f.betaaldTs=new Date().toISOString()}
   if(Number(k.toeslag)>0){const sub=f.regels.reduce((a,r)=>a+(Number(r.aantal)||0)*(Number(r.prijs)||0),0);f.regels.push({omschrijving:"Toeslag "+Number(k.toeslag)+"%"+(k.toeslagReden?" ("+k.toeslagReden+")":""),aantal:1,prijs:r2(sub*Number(k.toeslag)/100)})}
   (k.artikelen||[]).forEach(a=>{if(a&&a.naam)f.regels.push({omschrijving:a.naam,aantal:Number(a.aantal)||1,prijs:Number(a.prijs)||0})});
   if(k.hoofdKlantId&&k.adres)f.notitie=["Uitvoerlocatie: "+fullAddr(k),f.notitie].filter(Boolean).join("\n");
@@ -7149,11 +7159,11 @@ function sendF(id,o={}){
     const ok=()=>{if(b){b.disabled=false;b.innerHTML=I.check+"Verstuurd"}};
     if(b){b.disabled=true;b.innerHTML=I.clock+"Versturen…"}
     compose={title:"",sjabloon:sj,tekst:TT.sms??TT.tekst,mail:TT.mail||"",onderwerp:TT.onderwerp||"Bericht van [name.company]",sent:{},hint:"",groep:false,stil:true,recipients:[{k:_k?mailK(_k,off?"offerte":"factuur"):{naam:f.klantNaam,email:f.klantEmail},vars:(()=>{const v=factVars(f),t=tavK(_k,off?"offerte":"factuur");if(t)v.klant=t;return v})(),ref:(late?"aanmaning:":"factuur:")+f.id,
-      onSent:()=>save("facturen",f.id,late?{...strip(f),herinnerdOp:iso(today()),herinneringen:(Number(f.herinneringen)||0)+1,...(o.wik?{wikOp:iso(today())}:{})}:{...strip(f),verstuurdOp:f.verstuurdOp||iso(today()),verstuurdTs:f.verstuurdTs||new Date().toISOString(),status:off&&(f.status||"concept")==="concept"?"verstuurd":f.status})}]};
+      onSent:()=>{const g=state.facturen.find(x=>x.id===f.id)||f;return save("facturen",f.id,late?{...strip(g),herinnerdOp:iso(today()),herinneringen:(Number(g.herinneringen)||0)+1,...(o.wik?{wikOp:iso(today())}:{})}:{...strip(g),verstuurdOp:g.verstuurdOp||iso(today()),verstuurdTs:g.verstuurdTs||new Date().toISOString(),status:off&&(g.status||"concept")==="concept"?"verstuurd":g.status})}}]};
     verstuurLive(0).then(()=>{if(compose&&compose.sent[0]==="live")ok();else if(b){b.disabled=false;b.innerHTML=I.send+"Opnieuw proberen"}});return}
   openCompose({title:(o.wik?"WIK-brief ":off?"Offerte ":late?"Herinnering ":"Factuur ")+f.nummer,sjabloon:o.wik?"wik":late?"aanmaning":off?"offerte":"factuur",hint:esc("Wil je de PDF meesturen? Download hem eerst bij de factuur en voeg hem in je mail toe."),
     recipients:[{k:(()=>{const kk=state.klanten.find(x=>x.id===f.klantId);return kk?mailK(kk,off?"offerte":"factuur"):{naam:f.klantNaam,email:f.klantEmail}})(),vars:(()=>{const v=factVars(f),kk=state.klanten.find(x=>x.id===f.klantId),t=tavK(kk,off?"offerte":"factuur");if(t)v.klant=t;return v})(),ref:(late?"aanmaning:":"factuur:")+f.id,
-      onSent:()=>save("facturen",f.id,late?{...strip(f),herinnerdOp:iso(today()),herinneringen:(Number(f.herinneringen)||0)+1,...(o.wik?{wikOp:iso(today())}:{})}:{...strip(f),verstuurdOp:f.verstuurdOp||iso(today()),verstuurdTs:f.verstuurdTs||new Date().toISOString(),status:off&&(f.status||"concept")==="concept"?"verstuurd":f.status})}]});
+      onSent:()=>{const g=state.facturen.find(x=>x.id===f.id)||f;return save("facturen",f.id,late?{...strip(g),herinnerdOp:iso(today()),herinneringen:(Number(g.herinneringen)||0)+1,...(o.wik?{wikOp:iso(today())}:{})}:{...strip(g),verstuurdOp:g.verstuurdOp||iso(today()),verstuurdTs:g.verstuurdTs||new Date().toISOString(),status:off&&(g.status||"concept")==="concept"?"verstuurd":g.status})}}]});
 }
 function openBulk(group,tpl){if(typeof group!=="string")group="";
   const t=today();let ks=[],title="Groepsbericht",datum=null;
@@ -17220,7 +17230,7 @@ addEventListener("scroll",()=>{const m=document.getElementById("mobOffer");docum
    zelftest (tests/selftest.mjs) toegang tot de rekenregels en acties, zodat bij elke update wordt gecontroleerd
    of bedragen, btw, factuurnummers en het afmelden nog kloppen. */
 if(!LIVE&&typeof location!=="undefined"&&/[?&]selftest\b/.test(location.search)){
-  window.MSTEST={vraagBetaaldatum:typeof vraagBetaaldatum==="function"?vraagBetaaldatum:null,betaaldTsVan:typeof betaaldTsVan==="function"?betaaldTsVan:null,state,S,save,del,totals,nextNr,nrDelen,wikKosten,fStatus,afronden,gewassen,billAll,setFStatus,iso,today,addDays,newId,strip,render,
+  window.MSTEST={verzondenHerstel:typeof verzondenHerstel==="function"?verzondenHerstel:null,vraagBetaaldatum:typeof vraagBetaaldatum==="function"?vraagBetaaldatum:null,betaaldTsVan:typeof betaaldTsVan==="function"?betaaldTsVan:null,state,S,save,del,totals,nextNr,nrDelen,wikKosten,fStatus,afronden,gewassen,billAll,setFStatus,iso,today,addDays,newId,strip,render,
     fin,beurtOmzet,klantFilter,extraOpdr,opdrNr:typeof opdrNr==="function"?opdrNr:null,openOpdrachtWerk:typeof openOpdrachtWerk==="function"?openOpdrachtWerk:null,teplannen,fhVolgende:typeof fhVolgende==="function"?fhVolgende:null,fhPoort:typeof fhPoort==="function"?fhPoort:null,groepEditor:typeof groepEditor==="function"?groepEditor:null,melding,stDienstSplit,klantActiefIn,openImport,relVolgende:typeof relVolgende==="function"?relVolgende:null,beurtMin,meetTeKort,wdCijfers:typeof wdCijfers==="function"?wdCijfers:null,kmFmt:typeof kmFmt==="function"?kmFmt:null,kmAfst:typeof kmAfst==="function"?kmAfst:null,saveSettings,
     opdrBij:typeof opdrBij==="function"?opdrBij:null,extraOpdr:typeof extraOpdr==="function"?extraOpdr:null,openOpdrachtWerk:typeof openOpdrachtWerk==="function"?openOpdrachtWerk:null,groepTarievenBij:typeof groepTarievenBij==="function"?groepTarievenBij:null,groepCalc:typeof groepCalc==="function"?groepCalc:null,wqOpen:typeof wqOpen==="function"?wqOpen:null,ccZet:typeof ccZet==="function"?ccZet:null,ccSignalen:typeof ccSignalen==="function"?ccSignalen:null,teVroeg:typeof teVroeg==="function"?teVroeg:null,mailFor:typeof mailFor==="function"?mailFor:null,volgendeNa:typeof volgendeNa==="function"?volgendeNa:null,verplaatsAllePatch:typeof verplaatsAllePatch==="function"?verplaatsAllePatch:null,heeftVervolg:typeof heeftVervolg==="function"?heeftVervolg:null,occurrences:typeof occurrences==="function"?occurrences:null,fbLees:typeof fbLees==="function"?fbLees:null,bhVerkoopboek:typeof bhVerkoopboek==="function"?bhVerkoopboek:null,invData:typeof invData==="function"?invData:null,bcVast,ccKpis:typeof ccKpis==="function"?ccKpis:null,ccSignalen:typeof ccSignalen==="function"?ccSignalen:null,ccZoek:typeof ccZoek==="function"?ccZoek:null,ccAlle:typeof ccAlle==="function"?ccAlle:null,openFactuurWerk:typeof openFactuurWerk==="function"?openFactuurWerk:null,paperHtml:typeof paperHtml==="function"?paperHtml:null,btwRegel:typeof btwRegel==="function"?btwRegel:null,btwVast:typeof btwVast==="function"?btwVast:null,vveAanDeBeurt:typeof vveAanDeBeurt==="function"?vveAanDeBeurt:null,nrBewaker,msStatus:typeof msStatus==="function"?msStatus:null,MS:typeof MS!=="undefined"?MS:null,
     opdrLoc:typeof opdrLoc==="function"?opdrLoc:null,hoofdLoc:typeof hoofdLoc==="function"?hoofdLoc:null,openKlant:typeof openKlant==="function"?openKlant:null,

@@ -239,7 +239,17 @@ function apply(col,docs){
   else if(col==="routes"){state.routes={};docs.forEach(d=>state.routes[d.id]=d)}
   else state[col]=docs;
   if(col==="facturen")setTimeout(nrBewaker,0);
+  if(col==="facturen"||col==="berichten")setTimeout(verzondenHerstel,1500);
 }
+/* een factuur die aantoonbaar verstuurd is (staat als verstuurd bij Verzonden berichten), maar waarvan het vastleggen
+   destijds niet lukte (app viel weg tijdens het versturen): alsnog als verstuurd markeren, met het echte verzendmoment */
+const VZ_GEDAAN=new Set();let vzBezig=0;
+async function verzondenHerstel(){if(vzBezig||!Array.isArray(state.berichten)||!Array.isArray(state.facturen))return;vzBezig=1;
+  try{const per={};state.berichten.forEach(b=>{const m=/^factuur:(.+)$/.exec(String(b.ref||""));if(m&&b.status==="verstuurd"&&b.verstuurdOp){const v=per[m[1]];if(!v||String(b.verstuurdOp)<String(v))per[m[1]]=b.verstuurdOp}});
+    for(const f of state.facturen){const ts=per[f.id];if(!ts||f.verstuurdOp||VZ_GEDAAN.has(f.id))continue;VZ_GEDAAN.add(f.id);
+      const dag=new Intl.DateTimeFormat("sv-SE",{timeZone:"Europe/Amsterdam"}).format(new Date(ts));
+      await save("facturen",f.id,{...strip(f),verstuurdOp:dag,verstuurdTs:ts,...(f.soort==="offerte"&&(f.status||"concept")==="concept"?{status:"verstuurd"}:{})})}}
+  catch(e){console.error("verzondenHerstel",e)}finally{vzBezig=0}}
 /* factuurnummers: maakten twee mensen tegelijk een factuur met hetzelfde nummer, dan krijgt de nieuwste (van deze
    gebruiker, nog niet verstuurd of betaald) meteen het volgende vrije nummer. De oudste houdt altijd zijn nummer. */
 const MIJN_F=new Set();let nrBezig=0;

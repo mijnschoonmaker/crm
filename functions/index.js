@@ -225,6 +225,13 @@ exports.sendMail = onCall({ memory: "512MiB", timeoutSeconds: 60 }, async req =>
     ...(d.meta || {}), naar: d.naar, kanaal: "email", onderwerp: d.onderwerp || "", tekst: d.tekst || "",
     status: "verstuurd", brevoId, verstuurdOp: nu(), op: nu(), door: wie, bijlage: (d.bijlagen || []).map(a => a.naam).join(", ")
   }, { merge: true });
+  /* factuur of offerte meteen op de server als verstuurd vastleggen: ook als de app daarna wegvalt
+     (telefoon op slot, geen bereik), staat hij dan niet meer onterecht op "niet verstuurd" */
+  try { const m = /^factuur:([\w-]{4,60})$/.exec(String((d.meta || {}).ref || ""));
+    if (m) { const fr = db.doc("facturen/" + m[1]);
+      await db.runTransaction(async t => { const s = await t.get(fr); if (!s.exists) return; const f = s.data() || {}; if (f.verstuurdOp) return;
+        const p = { verstuurdOp: dagNL(), verstuurdTs: nu() }; if (f.soort === "offerte" && (f.status || "concept") === "concept") p.status = "verstuurd";
+        t.set(fr, p, { merge: true }); }); } } catch (e) { console.error("verstuurd vastleggen", e); }
   /* bijlagen bewaren, zodat je ze later bij Verzonden berichten kunt openen */
   try { const bl = []; for (const a of (d.bijlagen || []).slice(0, 6)) { let bid = ""; if (a && a.data && /\.pdf$/i.test(a.naam || "")) bid = await bewaarPdf(Buffer.from(String(a.data), "base64")); bl.push({ naam: String((a && a.naam) || "bijlage"), id: bid }); }
     if (bl.length) await db.doc("berichten/" + id).set({ bijlagen: bl }, { merge: true }); } catch (e) { console.error("bijlage bewaren", e); }
