@@ -257,6 +257,19 @@ def freqkorting(pg):
     check(G, "Gewijzigd tarief komt in bestaande opdracht", r.get("bij") is True and r.get("np") == 4 and r.get("aantal") == 10, r)
 
 
+def uitvoerlocatie(pg):
+    """opdracht op het hoofdadres terwijl de hoofdopdracht op een andere locatie is: eigen afspraak op het hoofdadres"""
+    G = "Opdrachten"
+    r = pg.evaluate("""()=>{const T=MSTEST;if(!T.opdrLoc||!T.hoofdLoc)return null;
+      const k={id:'uX',naam:'U',adres:'Markt 1',plaats:'A',objectId:'',objecten:[{id:'lB',adres:'Straat 2',plaats:'B'}],
+        opdrachten:[{id:'u1',dienst:'Glasbewassing',actief:true,objectId:'hoofd',apart:true},{id:'u2',dienst:'Goten',actief:true},{id:'u3',dienst:'Gevel',actief:true,objectId:'hoofd'}]};
+      return {hl:T.hoofdLoc(k),l1:T.opdrLoc(k,k.opdrachten[0]),l2:T.opdrLoc(k,k.opdrachten[1]),mee:T.extraOpdr(k).map(o=>o.id),bij3:T.opdrBij(k,k.opdrachten[2])}}""")
+    if r is None:
+        return check(G, "Uitvoerlocatie per opdracht", False, "opdrLoc niet gevonden")
+    check(G, "Uitvoerlocatie per opdracht: hoofdadres gaat niet mee met de beurt op een andere locatie",
+          r["hl"] == "lB" and r["l1"] == "hoofd" and r["l2"] == "lB" and r["mee"] == ["u2"] and r["bij3"] == "u1", r)
+
+
 def bijopdracht(pg):
     G = "Opdrachten"
     r = pg.evaluate("""()=>{const T=MSTEST;if(!T.extraOpdr)return null;
@@ -517,6 +530,7 @@ def main():
             teplannen(pg)
             freqkorting(pg)
             bijopdracht(pg)
+            uitvoerlocatie(pg)
             nieuweOpdracht(pg)
             opdrachtNummers(pg)
             werkdagTijd(pg)

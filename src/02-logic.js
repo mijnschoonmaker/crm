@@ -90,6 +90,12 @@ const dienstHtml=k=>`<span class="dienst">${I.wrench}${esc(k.dienst||"Glasbewass
 const jobObj=k=>{if(k&&k.objectId==="hoofd")return null;const os=k.objecten||[];return os.find(o=>o.id===k.objectId)||os[0]||null};
 const jobAddrObj=k=>{const o=jobObj(k);return o&&o.adres?o:k};
 const jobAddr=k=>fullAddr(jobAddrObj(k));
+/* uitvoerlocatie: waar een opdracht wordt uitgevoerd. "hoofd" = het hoofdadres van de klant (ook het factuuradres), anders de id van een locatie.
+   hoofdLoc = locatie van de hoofdopdracht; opdrLoc = locatie van een extra opdracht (leeg = oude opdracht zonder keuze: zelfde plek als de hoofdopdracht) */
+const hoofdLoc=k=>{if(!k||k.objectId==="hoofd")return"hoofd";const o=jobObj(k);return o&&o.adres?o.id:"hoofd"};
+const opdrLoc=(k,o)=>{const id=o&&o.objectId;return id?id:hoofdLoc(k)};
+const locAdr=(k,id)=>{const o=id&&id!=="hoofd"&&((k&&k.objecten)||[]).find(x=>x.id===id&&x.adres);return o?fullAddr(o):fullAddr(k||{})};
+const locNaam=(k,id)=>{const o=id&&id!=="hoofd"&&((k&&k.objecten)||[]).find(x=>x.id===id&&x.adres);return o?(o.naam||""):(k&&k.locOms)||"Hoofdadres"};
 const mapsQ=k=>"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(jobAddr(k));
 /* opdrachten: de hoofdopdracht staat op de klant zelf, extra opdrachten (goten, zonnepanelen…) liften mee met de beurt waarop ze aan de beurt zijn */
 const isEersteKeer=k=>k.eersteKeer!=null?!!k.eersteKeer:!state.beurten.some(b=>b.klantId===k.id);
@@ -98,12 +104,12 @@ const freqLabel=w=>{w=Number(w)||4;if(fqSpec(w))return fqSpecTxt(w);const el=typ
    Zo gaat een dienst alleen mee met de glasbewassing op hetzelfde adres; andere adressen staan er los van. */
 function opdrBij(k,o){const L=(k&&k.opdrachten)||[];if(!o||o.apart)return"";
   if(o.bij&&o.bij!==o.id&&L.some(p=>p.id===o.bij&&p.actief!==false))return o.bij;
-  const loc=o.objectId&&o.objectId!=="hoofd"?o.objectId:"";if(!loc)return"";
+  const loc=opdrLoc(k,o);if(loc===hoofdLoc(k))return"";
   /* hoofdopdracht van die locatie: de apart ingeplande, anders de glasbewassing, anders de eerste */
-  const c=L.filter(p=>p.actief!==false&&p.objectId===loc&&!p.bij),r=c.find(p=>p.apart)||c.find(p=>p.ramen||/glas/i.test(p.dienst||""))||c[0];return r&&r.id!==o.id?r.id:""}
+  const c=L.filter(p=>p.actief!==false&&opdrLoc(k,p)===loc&&!p.bij),r=c.find(p=>p.apart)||c.find(p=>p.ramen||/glas/i.test(p.dienst||""))||c[0];return r&&r.id!==o.id?r.id:""}
 const extraOpdr=k=>{
   if(k&&k.hoofdKlantId){const h=state.klanten.find(x=>x.id===k.hoofdKlantId);return h?(h.opdrachten||[]).filter(o=>o.actief!==false&&opdrBij(h,o)===k.opdrachtId):[]}
-  const L=(k&&k.opdrachten)||[];return L.filter(o=>o.actief!==false&&!o.apart&&!opdrBij(k,o)&&!(o.objectId&&o.objectId!=="hoofd"))};/* op een ander adres nooit mee met het hoofdadres *//* apart ingeplande opdrachten gaan niet mee met de glasbewassing */
+  const L=(k&&k.opdrachten)||[];return L.filter(o=>o.actief!==false&&!o.apart&&!opdrBij(k,o)&&opdrLoc(k,o)===hoofdLoc(k))};/* op een ander adres nooit mee met het hoofdadres *//* apart ingeplande opdrachten gaan niet mee met de glasbewassing */
 const extraDue=(k,day)=>{const d=day||iso(today()),out=[];extraOpdr(k).forEach(o=>{const oDue=!o.volgende||o.volgende<=d;
     if(!o.items||typeof groepCalc!=="function"){if(oDue)out.push(o);return}
     const c=groepCalc(o,it=>it.fq?(!it.vol||it.vol<=d):(!it.vol||it.vol<=d));if(!c.rows.length&&!(c.vast&&oDue))return;const st=S(),mul=st.incl?1+(Number(st.btw)||21)/100:1;
