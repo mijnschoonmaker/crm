@@ -403,6 +403,16 @@ def nieuweOpdracht(pg):
     check(G, "Nieuwe opdracht krijgt een eigen nummer (…-2)", r["kop"].endswith("-2"), r)
     check(G, "Nieuwe opdracht toont alleen zijn eigen regel", r["lijnen"] == 1, r)
     check(G, "Hoofdopdracht blijft …-1", r["kop2"].endswith("-1"), r)
+    # foto's horen bij de opdracht: de hoofdopdracht en een losse opdracht hebben elk hun eigen foto's
+    r = pg.evaluate("""async()=>{const T=MSTEST;const id=T.newId('kf');
+      await T.save('klanten',id,{naam:'Foto, Test',klantnr:'1097',prijs:40,frequentie:8,actief:true,dienst:'Glasbewassing',log:[],objecten:[],fotos:[{id:'fotoglas',w:4,h:3,dots:[]}],
+        opdrachten:[{id:'ox1',nr:2,dienst:'Reinigen gevelelementen',prijs:100,frequentie:52,actief:true,fotos:[{id:'fotogevel',w:4,h:3,dots:[]}]}]});
+      const srcs=()=>[...document.querySelectorAll('dialog[open] .ow-foto img')].map(x=>x.getAttribute('src').split('/').pop());
+      T.openOpdrachtWerk(id,'ox1');await new Promise(r=>setTimeout(r,300));const los=srcs();
+      document.querySelectorAll('dialog[open]').forEach(d=>d.close());T.openOpdrachtWerk(id,'main');await new Promise(r=>setTimeout(r,300));const hoofd=srcs();
+      document.querySelectorAll('dialog[open]').forEach(d=>d.close());await T.del('klanten',id);return {los,hoofd}}""")
+    check(G, "Losse opdracht toont alleen zijn eigen foto's", r["los"] == ["fotogevel"], r)
+    check(G, "Hoofdopdracht toont alleen zijn eigen foto's", r["hoofd"] == ["fotoglas"], r)
     # VvE: per taak een frequentie; bij het afmelden alleen wat aan de beurt is
     r = pg.evaluate("""async()=>{const T=MSTEST;if(!T.vveAanDeBeurt)return null;const id=T.newId('kv'),d=n=>T.iso(T.addDays(T.today(),n));
       await T.save('klanten',id,{naam:'VvE Freq',soort:'vve',klantnr:'1098',prijs:60,frequentie:1,actief:true,dienst:'Trappenhuis schoonmaak',log:[],objecten:[],vveTaken:['Trappenhuis','Hekwerk'],vveFreq:{Hekwerk:'kwartaal'}});

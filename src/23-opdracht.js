@@ -20,8 +20,9 @@ function openOpdrachtWerk(kid,focus){
   const uLocs=[{id:"hoofd",adr:fullAddr(k),naam:k.locOms||"Hoofdadres"},...(k.objecten||[]).filter(o=>o&&o.adres).map(o=>({id:o.id,adr:fullAddr(o),naam:o.naam||""}))];
   let uLoc=soloR?opdrLoc(k,soloR):hoofdLoc(k);const uLoc0=uLoc;
   const uLocTxt=id=>{const l=uLocs.find(x=>x.id===id)||uLocs[0];return l.adr+(l.naam?" · "+l.naam:"")};
-  let fotos=[...(k.fotos||[])];
-  const tFotos=(k.ramenTelling&&k.ramenTelling.fotos)||[];
+  /* foto's horen bij de opdracht: een losse opdracht (eigen nummer) heeft eigen foto's, los van de hoofdopdracht */
+  let fotos=[...((soloR?soloR.fotos:k.fotos)||[])];
+  const tFotos=soloR?[]:(k.ramenTelling&&k.ramenTelling.fotos)||[];
   const fs=state.facturen.filter(f=>f.klantId===k.id&&f.soort!=="offerte"),open=fs.filter(f=>["Openstaand","Achterstallig"].includes(fStatus(f)[1]));
   const off=state.facturen.filter(f=>f.klantId===k.id&&f.soort==="offerte"&&f.status==="geaccepteerd").sort((a,b)=>String(b.akkoordOp||b.datum).localeCompare(String(a.akkoordOp||a.datum)))[0];
   const status=k.prospect?["soon","Wacht op akkoord"]:k.actief===false?["neutral","Gestopt"]:["ok","Lopend"];
@@ -387,10 +388,10 @@ function openOpdrachtWerk(kid,focus){
     /* opdracht op een ander adres dan de hoofdopdracht: altijd een eigen afspraak (gaat niet mee met de beurt op het andere adres) */
     const ctxL={...cur,objectId:soloR||uLoc===uLoc0?(cur.objectId||""):uLoc,opdrachten:extra};
     /* taakomschrijving hoort bij deze opdracht: bij een losse opdracht (eigen nummer) in die opdracht, niet bij de klant */
-    if(soloR){soloR.objectId=uLoc;soloR.taak=$o("taak").value.trim();soloSet.forEach(i=>{const o=extra[i];if(o&&o!==soloR&&(o._solo||o.bij===soloR.id)){o.objectId=soloR.objectId||"";o.apart=false;o.bij=soloR.id}})}
+    if(soloR){soloR.objectId=uLoc;soloR.taak=$o("taak").value.trim();soloR.fotos=fotos.map(f=>({...f}));soloSet.forEach(i=>{const o=extra[i];if(o&&o!==soloR&&(o._solo||o.bij===soloR.id)){o.objectId=soloR.objectId||"";o.apart=false;o.bij=soloR.id}})}
     return {...strip(cur),dienst:String(main.dienst||"").trim()||"Glasbewassing",prijs:r2(Number(main.prijs)||0),ramenRegel:main.ramen||null,frequentie:mW.length?1:(mF||4),weekdagen:mW.length?mW:[],...(mW.length?{autoplan:true}:{}),duur:mD||30,ronde:$o("ronde").value.trim(),contactPlanning:$o("contact").value,eersteKeer:$o("eerste").value==="ja",toeslag:Number($o("toeslag").value)||0,toeslagReden:$o("toeslagr").value.trim(),verbergAantal:$o("verbA").checked,verbergFreq:$o("verbF").checked,afmeldMail:$o("afmail").checked,
       binnen:false,actief,...(actief?{}:{gepland:"",tijd:""}),akkoord:$o("akkoord").checked,incasso:$o("betaal").value==="incasso",...factModusPatch($o("fact").value,k),
-      taak:soloR?(cur.taak||""):$o("taak").value.trim(),...($o("vvetaken")?vveEdLees($o("vvetaken")):{}),hosp:hosp.map(x=>({c:x.c||"voorkeur",t:String(x.t||"").trim(),...(x.af?{af:x.af}:{}),...(x.c==="verteld"&&x.vanaf?{vanaf:x.vanaf}:{})})).filter(x=>x.t),bellen:$o("bellen").checked,startdatum:$o("start").value,einddatum:$o("eind").value,btwVerlegd:$o("verlegd").checked,aanbieden:cur.gepland?!!cur.aanbieden:aanb.aanbieden,uitstelTot:aanb.uitstelTot,artikelen:arts.filter(a=>String(a.naam||"").trim()).map(a=>({naam:String(a.naam).trim(),aantal:Number(a.aantal)||1,prijs:r2(Number(a.prijs)||0)})),middelen:mids,objectId:soloR||uLoc===uLoc0?(cur.objectId||""):uLoc,fotos,
+      taak:soloR?(cur.taak||""):$o("taak").value.trim(),...($o("vvetaken")?vveEdLees($o("vvetaken")):{}),hosp:hosp.map(x=>({c:x.c||"voorkeur",t:String(x.t||"").trim(),...(x.af?{af:x.af}:{}),...(x.c==="verteld"&&x.vanaf?{vanaf:x.vanaf}:{})})).filter(x=>x.t),bellen:$o("bellen").checked,startdatum:$o("start").value,einddatum:$o("eind").value,btwVerlegd:$o("verlegd").checked,aanbieden:cur.gepland?!!cur.aanbieden:aanb.aanbieden,uitstelTot:aanb.uitstelTot,artikelen:arts.filter(a=>String(a.naam||"").trim()).map(a=>({naam:String(a.naam).trim(),aantal:Number(a.aantal)||1,prijs:r2(Number(a.prijs)||0)})),middelen:mids,objectId:soloR||uLoc===uLoc0?(cur.objectId||""):uLoc,fotos:soloR?(cur.fotos||[]):fotos,
       opdrachten:extra.filter(o=>String(o.dienst||"").trim()).map(({_nieuw,_toon,_bestaand,_solo,...o})=>({...o,dienst:String(o.dienst).trim(),prijs:r2(Number(o.prijs)||0),duur:Number(o.duur)||30,frequentie:o.items?itemsRitme(o):Number(o.frequentie)||52,...(o.ramen?ramenRitmeDatum(o):{}),...(opdrLoc(ctxL,o)!==hoofdLoc(ctxL)&&!o.bij&&!o.apart&&!opdrBij(ctxL,o)?{apart:true}:{})}))}};
   $("#owLog").onclick=async()=>{const v=$o("log").value.trim();if(!v)return;const d=collect();d.log=[...(d.log||[]),{datum:iso(today()),tekst:v}];
     try{await save("klanten",kid,d);toast("Genoteerd");setTimeout(()=>openOpdrachtWerk(kid),60)}catch(er){err(er)}};
@@ -473,7 +474,8 @@ function openFotoViewer(list,start,opt={}){
       ov.querySelector(".fv-clear").onclick=()=>{f.dots=[];f.strokes=[];hist=[];opslaan()}}};
   document.addEventListener("keydown",key);draw();
 }
-const jobFotos=k=>[...(((k.ramenTelling||{}).fotos)||[]).map(f=>({...f,naam:"Uit de telling",t:1})),...(k.fotos||[])];
+const jobFotos=k=>{let ex=[];try{const d=iso(today());ex=(typeof extraDue==="function"?extraDue(k,d):[]).flatMap(o=>(o.fotos||[]).map(f=>({...f,naam:(o.dienst||"Extra")+" · "+(f.naam||"Foto")})))}catch(e){}
+  return [...(((k.ramenTelling||{}).fotos)||[]).map(f=>({...f,naam:"Uit de telling",t:1})),...(k.fotos||[]),...ex]};
 document.addEventListener("click",e=>{const c=e.target.closest("[data-jfi]");if(!c)return;const jp=c.closest("#jobPanel");if(!jp)return;e.preventDefault();
   const k=state.klanten.find(x=>x.id===jp.dataset.k);if(k)openFotoViewer(jobFotos(k),+c.dataset.jfi,{edit:false})});
 
