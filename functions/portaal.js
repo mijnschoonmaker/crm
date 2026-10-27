@@ -15,7 +15,7 @@
 const crypto = require("crypto");
 
 module.exports = function maakPortaal(ctx) {
-  const { db, T, onRequest, onCall, onSchedule, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket, portaalUrl, verwerkFactuurBetaling } = ctx;
+  const { db, T, onRequest, onCall, onSchedule, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket, portaalUrl, verwerkFactuurBetaling, snelBetaald } = ctx;
   /* moment van versturen: het precieze tijdstip als dat er is; het CRM bewaart soms alleen de datum, dan het aanmaakmoment van die dag */
   const vanTs = f => { if (!f) return ""; if (f.verstuurdTs) return f.verstuurdTs; const v = String(f.verstuurdOp || ""); if (/T\d/.test(v)) return v;
     if (/^\d{4}-\d{2}-\d{2}$/.test(v)) { const g = String(f.gemaakt || ""); return g && g.slice(0, 10) === v ? g : v + "T00:00:00"; } return f.gemaakt || ""; };
@@ -642,8 +642,7 @@ module.exports = function maakPortaal(ctx) {
     if (fs) for (const d of fs.docs) {
       const f = { id: d.id, ...dec(d.data()) }, k = K.get(f.klantId);
       if (!k || f.soort === "offerte" || f.incasso || f.betaalwijze === "incasso") continue;
-      const tot = Date.parse(f.betaaldTs || ""), van = Date.parse(vanTs(f));
-      if (!(tot > week && van > 0 && tot >= van && tot - van <= 24 * 36e5)) continue;
+      if (!(Date.parse(f.betaaldTs || "") > week && snelBetaald(f))) continue;
       geef(k, cr.snel, "Credits: factuur " + (f.nummer || "") + " binnen 24 uur betaald", "snel", f.id);
     }
     for (const k of K.values()) {

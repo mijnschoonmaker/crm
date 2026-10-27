@@ -74,7 +74,7 @@ module.exports = ({ db, T, onCall, onRequest, onSchedule, HttpsError, geheim, ch
       if (doc.status === "gekoppeld") {
         for (const fid of doc.factuurIds) {
           const f = facturen.find(x => x.id === fid), log = Array.isArray(f.log) ? f.log : [];
-          await db.doc("facturen/" + fid).set({ status: "betaald", betaald: true, betaaldOp: t.datum, betaaldTs: nu(), betaalwijze: f.betaalwijze === "incasso" ? "incasso" : "overmaken", bankTx: id, oninbaarOp: "", log: [...log, { datum: nu(), tekst: "Betaling ontvangen via de bank" + (t.naam ? " van " + t.naam : "") + " (" + eur(t.bedrag) + ")" }] }, { merge: true });
+          await db.doc("facturen/" + fid).set({ status: "betaald", betaald: true, betaaldOp: t.datum, betaaldTs: t.datum && t.datum < new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Amsterdam" }).format(new Date()) ? t.datum + "T12:00:00.000Z" : nu(), betaalwijze: f.betaalwijze === "incasso" ? "incasso" : "overmaken", bankTx: id, oninbaarOp: "", log: [...log, { datum: nu(), tekst: "Betaling ontvangen via de bank" + (t.naam ? " van " + t.naam : "") + " (" + eur(t.bedrag) + ")" }] }, { merge: true });
           f.status = "betaald";
           const bs = await db.collection("beurten").where("gefactureerd", "==", fid).get();
           for (const d of bs.docs) await d.ref.set({ betaald: true }, { merge: true });

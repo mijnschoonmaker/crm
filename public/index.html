@@ -8602,6 +8602,17 @@ function vraag(titel,tekst,ja="Toch inplannen",nee="Annuleren"){return new Promi
   const done=v=>{try{d.close()}catch(_){}d.remove();res(v)};o.addEventListener("click",e=>{const b=e.target.closest("[data-v]");if(b)done(b.dataset.v==="1");else if(e.target===o)done(null)});
   d.addEventListener("cancel",e=>{e.preventDefault();done(null)});
   try{d.showModal()}catch(_){d.setAttribute("open","")}setTimeout(()=>{const b=o.querySelector('[data-v="1"]');if(b)b.focus()},30)})}
+/* betaaldatum vragen bij handmatig "per bank betaald": de datum waarop het geld binnenkwam telt voor de snelbetaal-credits */
+const betaaldTsVan=d=>d&&d!==iso(today())?d+"T12:00:00.000Z":new Date().toISOString();
+function vraagBetaaldatum(titel,tekst,ja="Op betaald zetten"){return new Promise(res=>{
+  const o=document.createElement("div");o.className="vraag-ov";const vd=iso(today());
+  o.innerHTML=`<div class="vraag" role="alertdialog" aria-modal="true"><span class="objic">${I.euro||I.check||""}</span><div><b>${esc(titel)}</b><p>${tekst}</p><label style="display:block;margin-top:12px"><span style="display:block;font-size:13px;color:var(--muted);margin-bottom:4px">Geld ontvangen op</span><input type="date" data-bd value="${vd}" max="${vd}" style="width:100%"></label></div><div class="vraag-k"><button type="button" data-v="0">Annuleren</button><button type="button" class="primary" data-v="1">${esc(ja)}</button></div></div>`;
+  const d=document.createElement("dialog");d.className="vraag-dlg";d.appendChild(o);document.body.appendChild(d);
+  const inp=o.querySelector("[data-bd]");
+  const done=v=>{const w=v?(/^\d{4}-\d{2}-\d{2}$/.test(inp.value)&&inp.value<=vd?inp.value:vd):null;try{d.close()}catch(_){}d.remove();res(w)};
+  o.addEventListener("click",e=>{const b=e.target.closest("[data-v]");if(b)done(b.dataset.v==="1");else if(e.target===o)done(false)});
+  d.addEventListener("cancel",e=>{e.preventDefault();done(false)});
+  try{d.showModal()}catch(_){d.setAttribute("open","")}setTimeout(()=>inp.focus(),30)})}
 /* melding met alleen een OK-knop */
 function melding(titel,tekst){return new Promise(res=>{const o=document.createElement("div");o.className="vraag-ov";
   o.innerHTML=`<div class="vraag" role="alertdialog" aria-modal="true"><span class="objic kd-warn">${I.alert}</span><div><b>${esc(titel)}</b><p>${esc(tekst)}</p></div><div class="vraag-k"><button type="button" class="primary" data-v="1">OK</button></div></div>`;
@@ -14102,7 +14113,7 @@ function openFactuurWerk(id){
     definitief:()=>put({status:"open"},"Factuur is definitief"),
     contant:async()=>{await beurtenBetaald(true);put({status:"betaald",betaalwijze:"contant",betaaldOp:iso(today()),betaaldTs:new Date().toISOString()},"Contant betaald")},
     pin:async()=>{await beurtenBetaald(true);put({status:"betaald",betaalwijze:"pin",betaaldOp:iso(today()),betaaldTs:new Date().toISOString()},"Per pin betaald")},
-    bank:async()=>{await beurtenBetaald(true);put({status:"betaald",betaalwijze:cur().betaalwijze==="incasso"?"incasso":"overmaken",betaaldOp:iso(today()),betaaldTs:new Date().toISOString()},"Per bank betaald")},
+    bank:async()=>{const inc=cur().betaalwijze==="incasso",d=inc?iso(today()):await vraagBetaaldatum("Per bank betaald","Wanneer stond het geld op je rekening? Betaald op de dag van versturen of de dag erna levert de klant snelbetaal-credits op.");if(!d)return;await beurtenBetaald(true);put({status:"betaald",betaalwijze:inc?"incasso":"overmaken",betaaldOp:d,betaaldTs:betaaldTsVan(d)},"Per bank betaald")},
     open:async()=>{await beurtenBetaald(false);put({status:"open",betaaldOp:"",betaaldTs:"",oninbaarOp:""},"Factuur staat weer open")},
     oninbaar:()=>put({status:"oninbaar",oninbaarOp:iso(today())},"Op oninbaar gezet; er gaan geen herinneringen meer uit"),
     send:()=>sendF(id,{direct:true,btn:form.querySelector('[data-fw="send"]')}),
@@ -14476,8 +14487,9 @@ const fbK=f=>state.klanten.find(x=>x.id===f.klantId);
 function fbOntvanger(f,soort){const kk=fbK(f),v=factVars(f),t=typeof tavK==="function"?tavK(kk,soort||"factuur"):"";if(t)v.klant=t;return{k:kk?mailK(kk,"factuur"):{naam:f.klantNaam,email:f.klantEmail},v}}
 async function fbBetaald(list,wijze){
   const n=list.filter(f=>f.status!=="betaald");if(!n.length)return toast("Deze facturen zijn al betaald");
-  const ok=await vraag(plural(n.length,"factuur","facturen")+" op betaald zetten?",`${wijze==="contant"?"Contant":wijze==="pin"?"Per pin":"Per bank"} · samen <b>${eur(n.reduce((a,f)=>a+totals(f).inc,0))}</b>. Er gaan geen herinneringen meer uit.`,"Op betaald zetten");if(!ok)return;
-  for(const f of n){await save("facturen",f.id,{...strip(f),status:"betaald",betaalwijze:wijze==="bank"?(f.betaalwijze==="incasso"?"incasso":"overmaken"):wijze,betaaldOp:iso(today()),betaaldTs:new Date().toISOString(),oninbaarOp:""});
+  const tt=plural(n.length,"factuur","facturen")+" op betaald zetten?",tx=`${wijze==="contant"?"Contant":wijze==="pin"?"Per pin":"Per bank"} · samen <b>${eur(n.reduce((a,f)=>a+totals(f).inc,0))}</b>. Er gaan geen herinneringen meer uit.`;
+  const dag=wijze==="bank"?await vraagBetaaldatum(tt,tx):(await vraag(tt,tx,"Op betaald zetten"))?iso(today()):null;if(!dag)return;
+  for(const f of n){await save("facturen",f.id,{...strip(f),status:"betaald",betaalwijze:wijze==="bank"?(f.betaalwijze==="incasso"?"incasso":"overmaken"):wijze,betaaldOp:dag,betaaldTs:betaaldTsVan(dag),oninbaarOp:""});
     for(const b of state.beurten.filter(b=>b.gefactureerd===f.id))await save("beurten",b.id,{...strip(b),betaald:true})}
   FB_SEL.clear();state.fbMenu=false;toast(plural(n.length,"factuur","facturen")+" op betaald gezet");render()}
 /* verstuurd: vinkje weg; is niets meer geselecteerd, dan verdwijnt ook de balk onderin */
@@ -14660,7 +14672,7 @@ function fbReview(){
       setTimeout(fbReview,60)}catch(e){err(e)}})}
 async function fbKoppel(t,fid){
   const f=state.facturen.find(x=>x.id===fid);if(!f)return;const tot=totals(f).inc;
-  await save("facturen",f.id,{...strip(f),status:"betaald",betaalwijze:f.betaalwijze==="incasso"?"incasso":"overmaken",betaaldOp:t.datum,betaaldTs:new Date().toISOString(),bankTx:t.id,oninbaarOp:"",...(Math.abs(tot-t.bedrag)>.01?{betaaldBedrag:t.bedrag}:{}),log:[...(f.log||[]),{datum:new Date().toISOString(),tekst:"Betaling via de bank gekoppeld"+(t.naam?" ("+t.naam+", "+eur(t.bedrag)+")":"")}]});
+  await save("facturen",f.id,{...strip(f),status:"betaald",betaalwijze:f.betaalwijze==="incasso"?"incasso":"overmaken",betaaldOp:t.datum,betaaldTs:betaaldTsVan(t.datum),bankTx:t.id,oninbaarOp:"",...(Math.abs(tot-t.bedrag)>.01?{betaaldBedrag:t.bedrag}:{}),log:[...(f.log||[]),{datum:new Date().toISOString(),tekst:"Betaling via de bank gekoppeld"+(t.naam?" ("+t.naam+", "+eur(t.bedrag)+")":"")}]});
   for(const b of state.beurten.filter(b=>b.gefactureerd===f.id))await save("beurten",b.id,{...strip(b),betaald:true});
   const k=fbK(f),ib=String(t.iban||"").replace(/\s/g,"").toUpperCase();
   if(k&&ib&&!(k.bankIbans||[]).includes(ib))await save("klanten",k.id,{...strip(k),bankIbans:[...(k.bankIbans||[]),ib].slice(-4)});
@@ -17468,7 +17480,7 @@ addEventListener("scroll",()=>{const m=document.getElementById("mobOffer");docum
    zelftest (tests/selftest.mjs) toegang tot de rekenregels en acties, zodat bij elke update wordt gecontroleerd
    of bedragen, btw, factuurnummers en het afmelden nog kloppen. */
 if(!LIVE&&typeof location!=="undefined"&&/[?&]selftest\b/.test(location.search)){
-  window.MSTEST={state,S,save,del,totals,nextNr,nrDelen,wikKosten,fStatus,afronden,gewassen,billAll,setFStatus,iso,today,addDays,newId,strip,render,
+  window.MSTEST={vraagBetaaldatum:typeof vraagBetaaldatum==="function"?vraagBetaaldatum:null,betaaldTsVan:typeof betaaldTsVan==="function"?betaaldTsVan:null,state,S,save,del,totals,nextNr,nrDelen,wikKosten,fStatus,afronden,gewassen,billAll,setFStatus,iso,today,addDays,newId,strip,render,
     fin,beurtOmzet,klantFilter,extraOpdr,opdrNr:typeof opdrNr==="function"?opdrNr:null,openOpdrachtWerk:typeof openOpdrachtWerk==="function"?openOpdrachtWerk:null,teplannen,fhVolgende:typeof fhVolgende==="function"?fhVolgende:null,fhPoort:typeof fhPoort==="function"?fhPoort:null,groepEditor:typeof groepEditor==="function"?groepEditor:null,melding,stDienstSplit,klantActiefIn,openImport,relVolgende:typeof relVolgende==="function"?relVolgende:null,beurtMin,meetTeKort,wdCijfers:typeof wdCijfers==="function"?wdCijfers:null,kmFmt:typeof kmFmt==="function"?kmFmt:null,kmAfst:typeof kmAfst==="function"?kmAfst:null,saveSettings,
     opdrBij:typeof opdrBij==="function"?opdrBij:null,extraOpdr:typeof extraOpdr==="function"?extraOpdr:null,openOpdrachtWerk:typeof openOpdrachtWerk==="function"?openOpdrachtWerk:null,groepTarievenBij:typeof groepTarievenBij==="function"?groepTarievenBij:null,groepCalc:typeof groepCalc==="function"?groepCalc:null,wqOpen:typeof wqOpen==="function"?wqOpen:null,ccZet:typeof ccZet==="function"?ccZet:null,ccSignalen:typeof ccSignalen==="function"?ccSignalen:null,teVroeg:typeof teVroeg==="function"?teVroeg:null,mailFor:typeof mailFor==="function"?mailFor:null,volgendeNa:typeof volgendeNa==="function"?volgendeNa:null,verplaatsAllePatch:typeof verplaatsAllePatch==="function"?verplaatsAllePatch:null,heeftVervolg:typeof heeftVervolg==="function"?heeftVervolg:null,occurrences:typeof occurrences==="function"?occurrences:null,fbLees:typeof fbLees==="function"?fbLees:null,bhVerkoopboek:typeof bhVerkoopboek==="function"?bhVerkoopboek:null,invData:typeof invData==="function"?invData:null,bcVast,ccKpis:typeof ccKpis==="function"?ccKpis:null,ccSignalen:typeof ccSignalen==="function"?ccSignalen:null,ccZoek:typeof ccZoek==="function"?ccZoek:null,ccAlle:typeof ccAlle==="function"?ccAlle:null,openFactuurWerk:typeof openFactuurWerk==="function"?openFactuurWerk:null,paperHtml:typeof paperHtml==="function"?paperHtml:null,btwRegel:typeof btwRegel==="function"?btwRegel:null,btwVast:typeof btwVast==="function"?btwVast:null,vveAanDeBeurt:typeof vveAanDeBeurt==="function"?vveAanDeBeurt:null,nrBewaker,msStatus:typeof msStatus==="function"?msStatus:null,MS:typeof MS!=="undefined"?MS:null,
     opdrLoc:typeof opdrLoc==="function"?opdrLoc:null,hoofdLoc:typeof hoofdLoc==="function"?hoofdLoc:null,openKlant:typeof openKlant==="function"?openKlant:null,

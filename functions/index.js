@@ -358,6 +358,11 @@ exports.mollieIntrekken = onCall(async req => {
 /* moment van versturen: het precieze tijdstip als dat er is; het CRM bewaart soms alleen de datum, dan het aanmaakmoment van die dag */
 const vanTs = f => { if (!f) return ""; if (f.verstuurdTs) return f.verstuurdTs; const v = String(f.verstuurdOp || ""); if (/T\d/.test(v)) return v;
   if (/^\d{4}-\d{2}-\d{2}$/.test(v)) { const g = String(f.gemaakt || ""); return g && g.slice(0, 10) === v ? g : v + "T00:00:00"; } return f.gemaakt || ""; };
+/* op tijd voor de snelbetaal-credits: binnen 24 uur na versturen. Bij een bankoverschrijving kent de bank alleen de datum,
+   dan telt de boekingsdatum (betaaldOp): op de dag van versturen of de dag erna. */
+const snelBetaald = f => { const van = Date.parse(vanTs(f)); if (!(van > 0)) return false;
+  if (f.betaalwijze === "overmaken" && /^\d{4}-\d{2}-\d{2}$/.test(String(f.betaaldOp || ""))) { const v = dagNL(van), d = new Date(v + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() + 1); return f.betaaldOp >= v && f.betaaldOp <= d.toISOString().slice(0, 10); }
+  const tot = Date.parse(f.betaaldTs || ""); return tot >= van && tot - van <= 24 * 36e5; };
 /* credits voor snel betalen meteen toekennen (niet pas bij de volgende ronde van de planner): binnen 24 uur na versturen betaald,
    niet bij automatische incasso. Vaste bron+ref, dus nooit dubbel; de planner doet hetzelfde als vangnet. */
 async function snelCredit(fid) {
@@ -366,8 +371,7 @@ async function snelCredit(fid) {
     const f = decF(fs.data()); if (f.soort === "offerte" || f.status !== "betaald" || f.incasso || f.betaalwijze === "incasso" || !f.klantId) return;
     const b = (await db.doc("instellingen/bedrijf").get()).data() || {}, n = b.crSnel != null && b.crSnel !== "" && !isNaN(Number(b.crSnel)) ? Number(b.crSnel) : 0.5;
     if (!(n > 0)) return;
-    const tot = Date.parse(f.betaaldTs || ""), van = Date.parse(vanTs(f));
-    if (!(van > 0 && tot >= van && tot - van <= 24 * 36e5)) return;
+    if (!snelBetaald(f)) return;
     const kref = db.doc("klanten/" + f.klantId);
     await db.runTransaction(async t => { const ks = await t.get(kref); if (!ks.exists) return; const k = decF(ks.data());
       if ([...(k.tegoed || []), ...(k.tegoedGebruikt || [])].some(x => x && x.bron === "snel" && String(x.ref || "") === String(fid))) return;
@@ -638,7 +642,7 @@ exports.akkoordGeven = onRequest({ cors: true, memory: "512MiB", timeoutSeconds:
 });
 
 /* ---------- klantportaal ---------- */
-const P = require("./portaal")({ db, T, onRequest, onCall, onSchedule, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket, portaalUrl, verwerkFactuurBetaling });
+const P = require("./portaal")({ snelBetaald, db, T, onRequest, onCall, onSchedule, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket, portaalUrl, verwerkFactuurBetaling });
 /* tweestapsverificatie voor het CRM en dagelijkse back-ups */
 Object.assign(exports, BEV.functies);
 /* bank: betalingen automatisch koppelen aan facturen (bankbestand of koppeling via Enable Banking) */

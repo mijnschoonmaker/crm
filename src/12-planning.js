@@ -368,6 +368,17 @@ function vraag(titel,tekst,ja="Toch inplannen",nee="Annuleren"){return new Promi
   const done=v=>{try{d.close()}catch(_){}d.remove();res(v)};o.addEventListener("click",e=>{const b=e.target.closest("[data-v]");if(b)done(b.dataset.v==="1");else if(e.target===o)done(null)});
   d.addEventListener("cancel",e=>{e.preventDefault();done(null)});
   try{d.showModal()}catch(_){d.setAttribute("open","")}setTimeout(()=>{const b=o.querySelector('[data-v="1"]');if(b)b.focus()},30)})}
+/* betaaldatum vragen bij handmatig "per bank betaald": de datum waarop het geld binnenkwam telt voor de snelbetaal-credits */
+const betaaldTsVan=d=>d&&d!==iso(today())?d+"T12:00:00.000Z":new Date().toISOString();
+function vraagBetaaldatum(titel,tekst,ja="Op betaald zetten"){return new Promise(res=>{
+  const o=document.createElement("div");o.className="vraag-ov";const vd=iso(today());
+  o.innerHTML=`<div class="vraag" role="alertdialog" aria-modal="true"><span class="objic">${I.euro||I.check||""}</span><div><b>${esc(titel)}</b><p>${tekst}</p><label style="display:block;margin-top:12px"><span style="display:block;font-size:13px;color:var(--muted);margin-bottom:4px">Geld ontvangen op</span><input type="date" data-bd value="${vd}" max="${vd}" style="width:100%"></label></div><div class="vraag-k"><button type="button" data-v="0">Annuleren</button><button type="button" class="primary" data-v="1">${esc(ja)}</button></div></div>`;
+  const d=document.createElement("dialog");d.className="vraag-dlg";d.appendChild(o);document.body.appendChild(d);
+  const inp=o.querySelector("[data-bd]");
+  const done=v=>{const w=v?(/^\d{4}-\d{2}-\d{2}$/.test(inp.value)&&inp.value<=vd?inp.value:vd):null;try{d.close()}catch(_){}d.remove();res(w)};
+  o.addEventListener("click",e=>{const b=e.target.closest("[data-v]");if(b)done(b.dataset.v==="1");else if(e.target===o)done(false)});
+  d.addEventListener("cancel",e=>{e.preventDefault();done(false)});
+  try{d.showModal()}catch(_){d.setAttribute("open","")}setTimeout(()=>inp.focus(),30)})}
 /* melding met alleen een OK-knop */
 function melding(titel,tekst){return new Promise(res=>{const o=document.createElement("div");o.className="vraag-ov";
   o.innerHTML=`<div class="vraag" role="alertdialog" aria-modal="true"><span class="objic kd-warn">${I.alert}</span><div><b>${esc(titel)}</b><p>${esc(tekst)}</p></div><div class="vraag-k"><button type="button" class="primary" data-v="1">OK</button></div></div>`;

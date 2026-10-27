@@ -72,8 +72,9 @@ const fbK=f=>state.klanten.find(x=>x.id===f.klantId);
 function fbOntvanger(f,soort){const kk=fbK(f),v=factVars(f),t=typeof tavK==="function"?tavK(kk,soort||"factuur"):"";if(t)v.klant=t;return{k:kk?mailK(kk,"factuur"):{naam:f.klantNaam,email:f.klantEmail},v}}
 async function fbBetaald(list,wijze){
   const n=list.filter(f=>f.status!=="betaald");if(!n.length)return toast("Deze facturen zijn al betaald");
-  const ok=await vraag(plural(n.length,"factuur","facturen")+" op betaald zetten?",`${wijze==="contant"?"Contant":wijze==="pin"?"Per pin":"Per bank"} · samen <b>${eur(n.reduce((a,f)=>a+totals(f).inc,0))}</b>. Er gaan geen herinneringen meer uit.`,"Op betaald zetten");if(!ok)return;
-  for(const f of n){await save("facturen",f.id,{...strip(f),status:"betaald",betaalwijze:wijze==="bank"?(f.betaalwijze==="incasso"?"incasso":"overmaken"):wijze,betaaldOp:iso(today()),betaaldTs:new Date().toISOString(),oninbaarOp:""});
+  const tt=plural(n.length,"factuur","facturen")+" op betaald zetten?",tx=`${wijze==="contant"?"Contant":wijze==="pin"?"Per pin":"Per bank"} · samen <b>${eur(n.reduce((a,f)=>a+totals(f).inc,0))}</b>. Er gaan geen herinneringen meer uit.`;
+  const dag=wijze==="bank"?await vraagBetaaldatum(tt,tx):(await vraag(tt,tx,"Op betaald zetten"))?iso(today()):null;if(!dag)return;
+  for(const f of n){await save("facturen",f.id,{...strip(f),status:"betaald",betaalwijze:wijze==="bank"?(f.betaalwijze==="incasso"?"incasso":"overmaken"):wijze,betaaldOp:dag,betaaldTs:betaaldTsVan(dag),oninbaarOp:""});
     for(const b of state.beurten.filter(b=>b.gefactureerd===f.id))await save("beurten",b.id,{...strip(b),betaald:true})}
   FB_SEL.clear();state.fbMenu=false;toast(plural(n.length,"factuur","facturen")+" op betaald gezet");render()}
 /* verstuurd: vinkje weg; is niets meer geselecteerd, dan verdwijnt ook de balk onderin */
@@ -256,7 +257,7 @@ function fbReview(){
       setTimeout(fbReview,60)}catch(e){err(e)}})}
 async function fbKoppel(t,fid){
   const f=state.facturen.find(x=>x.id===fid);if(!f)return;const tot=totals(f).inc;
-  await save("facturen",f.id,{...strip(f),status:"betaald",betaalwijze:f.betaalwijze==="incasso"?"incasso":"overmaken",betaaldOp:t.datum,betaaldTs:new Date().toISOString(),bankTx:t.id,oninbaarOp:"",...(Math.abs(tot-t.bedrag)>.01?{betaaldBedrag:t.bedrag}:{}),log:[...(f.log||[]),{datum:new Date().toISOString(),tekst:"Betaling via de bank gekoppeld"+(t.naam?" ("+t.naam+", "+eur(t.bedrag)+")":"")}]});
+  await save("facturen",f.id,{...strip(f),status:"betaald",betaalwijze:f.betaalwijze==="incasso"?"incasso":"overmaken",betaaldOp:t.datum,betaaldTs:betaaldTsVan(t.datum),bankTx:t.id,oninbaarOp:"",...(Math.abs(tot-t.bedrag)>.01?{betaaldBedrag:t.bedrag}:{}),log:[...(f.log||[]),{datum:new Date().toISOString(),tekst:"Betaling via de bank gekoppeld"+(t.naam?" ("+t.naam+", "+eur(t.bedrag)+")":"")}]});
   for(const b of state.beurten.filter(b=>b.gefactureerd===f.id))await save("beurten",b.id,{...strip(b),betaald:true});
   const k=fbK(f),ib=String(t.iban||"").replace(/\s/g,"").toUpperCase();
   if(k&&ib&&!(k.bankIbans||[]).includes(ib))await save("klanten",k.id,{...strip(k),bankIbans:[...(k.bankIbans||[]),ib].slice(-4)});
