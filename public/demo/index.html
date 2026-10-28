@@ -15475,12 +15475,12 @@ function ccAlle(){const s=[],t=today(),ti=iso(t),morgen=ccDag(1);
       acts:[bel(k),{l:"Opnieuw sturen",ic:"send",cc:"stuur:"+f.id}].filter(Boolean)})});
   /* kritiek: nieuwe klant via de website (blijft staan tot hij gezien is) */
   state.klanten.filter(k=>k.nieuwAangemeld&&k.actief!==false).forEach(k=>{const t2=k.ramenTelling||{},ct=k.aanvraagType==="contact",dd=k.aangemaakt?ccDagen(String(k.aangemaakt).slice(0,10),ti):0;
-    add({key:"na:"+k.id,p:"kritiek",ic:"klanten",t:ct?`Nieuw contactverzoek: ${ccNaam(k)}`:`Nieuwe klant aangemeld: ${ccNaam(k)}`,u:ct?"Bedrijf of VvE vraagt een offerte op maat.":`Via je website${t2.ramen?" · "+t2.ramen+" ramen (telling klant)":""}${k.prijs?" · "+eur(Number(k.prijs))+" per beurt":""}. ${typeof isOBeurt==="function"&&isOBeurt(k)?"Plan de eerste beurt in; daarbij doe je de tellingcontrole.":""}`,
+    add({key:"na:"+k.id,p:"kritiek",top:2,ic:"klanten",t:ct?`Nieuw contactverzoek: ${ccNaam(k)}`:`Nieuwe klant aangemeld: ${ccNaam(k)}`,u:ct?"Bedrijf of VvE vraagt een offerte op maat.":`Via je website${t2.ramen?" · "+t2.ramen+" ramen (telling klant)":""}${k.prijs?" · "+eur(Number(k.prijs))+" per beurt":""}. ${typeof isOBeurt==="function"&&isOBeurt(k)?"Plan de eerste beurt in; daarbij doe je de tellingcontrole.":""}`,
       b:[k.adres,k.plaats].filter(Boolean).join(", "),leeftijd:Math.max(0,dd||0),knop:"Open klant",go:"klant:"+k.id,
       acts:[ct?{l:"Offerte maken",ic:"offertes",cc:"off:"+k.id}:{l:"Inplannen",ic:"planning",cc:"plan:"+k.id},bel(k),{l:"Gezien",ic:"check",cc:"gezien:"+k.id}].filter(Boolean)})});
   /* hoog: tellingcontrole nog nodig (eerste beurt na een aanmelding via de website) */
   state.klanten.filter(k=>k.actief!==false&&typeof isOBeurt==="function"&&isOBeurt(k)&&!k.tellingGecontroleerd).forEach(k=>{const t2=k.ramenTelling||{};
-    add({key:"tc:"+k.id,p:"hoog",ic:"calculator",t:`Tellingcontrole nodig: ${ccNaam(k)}`,u:`De klant telde zelf${t2.ramen?" "+t2.ramen+" ramen":""}${(t2.fotos||[]).length?" en stuurde "+plural(t2.fotos.length,"foto","foto's")+" mee":""}. Controleer de telling vóór of bij de eerste beurt; daarna gaat het definitieve bestellingsoverzicht naar de klant.`,
+    add({key:"tc:"+k.id,p:"hoog",top:1,ic:"calculator",t:`Tellingcontrole nodig: ${ccNaam(k)}`,u:`De klant telde zelf${t2.ramen?" "+t2.ramen+" ramen":""}${(t2.fotos||[]).length?" en stuurde "+plural(t2.fotos.length,"foto","foto's")+" mee":""}. Controleer de telling vóór of bij de eerste beurt; daarna gaat het definitieve bestellingsoverzicht naar de klant.`,
       b:[k.adres,k.plaats].filter(Boolean).join(", "),leeftijd:0,knop:"Open klant",go:"klant:"+k.id,
       acts:[{l:"Telling controleren",ic:"calculator",cc:"tc:"+k.id},!k.gepland?{l:"Inplannen",ic:"planning",cc:"plan:"+k.id}:null].filter(Boolean)})});
   /* hoog: aan de beurt maar niet ingepland */
@@ -15511,7 +15511,7 @@ function ccAlle(){const s=[],t=today(),ti=iso(t),morgen=ccDag(1);
   /* laag: kans op herhaalopdracht */
   {const jaar=iso(addDays(t,-365)),n={};state.beurten.forEach(b=>{if(b.datum>=jaar)n[b.klantId]=(n[b.klantId]||0)+1});
     state.klanten.filter(k=>(k.opdrachtVerwijderd||k.actief===false)&&!k.prospect&&(n[k.id]||0)>=3).forEach(k=>add({key:"hh:"+k.id,p:"laag",ic:"refresh",t:`Kans op herhaalopdracht: ${ccNaam(k)}`,u:`Kwam het afgelopen jaar ${n[k.id]} keer, maar heeft nu geen opdracht. Tijd voor een check-in.`,b:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),leeftijd:0,knop:"Open klant",go:"klant:"+k.id,acts:[bel(k)].filter(Boolean)}))}
-  return s.sort((a,b)=>CC_PRIO[a.p][0]-CC_PRIO[b.p][0]||(b.leeftijd||0)-(a.leeftijd||0))}
+  return s.sort((a,b)=>(b.top||0)-(a.top||0)||CC_PRIO[a.p][0]-CC_PRIO[b.p][0]||(b.leeftijd||0)-(a.leeftijd||0))}
 /* de wachtrij: wat nog open staat (afgehandeld en "later" eruit) */
 function ccSignalen(){return ccAlle().filter(m=>!ccVerborgen(m.key))}
 /* "Nu doen": alleen wat binnen een uur aandacht vraagt */
