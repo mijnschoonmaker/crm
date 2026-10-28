@@ -13470,7 +13470,7 @@ function groepRedraw(box,key,g,opts){let el=box.querySelector(`[data-ge="${key}"
   el=box.querySelector(`[data-ge="${key}"]`);if(!el||!el.parentNode)return;const t=document.createElement("div");t.innerHTML=groepEditor(g,key,opts);try{el.parentNode.replaceChild(t.firstElementChild,el)}catch(e){}}
 function groepTotUpdate(box,key,g,opts){const el=box.querySelector(`[data-ge="${key}"] .ge-tot`);if(!el)return;const t=document.createElement("div");t.innerHTML=groepEditor(g,key,opts);const n=t.querySelector(".ge-tot");if(n)el.innerHTML=n.innerHTML}
 
-const fqTxt=w=>{w=Number(w)||0;return w===1?"1x per week":w===52?"1x per jaar":w===104?"1x per 2 jaar":w>0?"1x per "+w+" weken":""};
+const fqTxt=w=>{w=Number(w)||0;if(fqSpec(w))return fqSpecTxt(w);return w===1?"1x per week":w===52?"1x per jaar":w===104?"1x per 2 jaar":w>0?"1x per "+w+" weken":""};
 
 /* eenmalig: "Reiniging buitenkant" van Goten naar Reiniging gevelelementen (als "Goten reiniging buitenkant"),
    in de dienstenlijst én bij de klanten die het als opdracht hebben. Aantallen, prijs, frequentie en datums blijven gelijk. */
@@ -16204,7 +16204,7 @@ async function verstuurLive(i){
   drawCmpList()}
 
 /* ---------- bestellingsoverzicht ---------- */
-function overzichtModelKlant(k){const r=normR(k.ramenRegel),fq="1x per "+(Number(k.frequentie)||8)+" weken",pct=Number(S().btw)||21,p=Number(k.prijs)||0,incl=S().incl?p:r2(p*(1+pct/100)),excl=S().incl?r2(p/(1+pct/100)):p;
+function overzichtModelKlant(k){const r=normR(k.ramenRegel),fq=(w=>fqSpec(w)?fqSpecTxt(w):"1x per "+w+" weken")(Number(k.frequentie)||8),pct=Number(S().btw)||21,p=Number(k.prijs)||0,incl=S().incl?p:r2(p*(1+pct/100)),excl=S().incl?r2(p/(1+pct/100)):p;
   const sp=r.sp||{},subs=[...r.f.map((n,i)=>n?{naam:TC_FL[i]||(i+"e verdieping"),aantal:n+" st",freq:fq}:null),...(typeof SPK!=="undefined"?SPK:[]).map(x=>Number(sp[x])?{naam:(typeof TC_SPN!=="undefined"&&TC_SPN[x])||x,aantal:Number(sp[x])+" st",freq:fq}:null)].filter(Boolean);
   return {klant:{naam:k.naam||"",contact:k.contact||"",adres:k.adres||"",pcPlaats:[String(k.postcode||"").toUpperCase(),k.plaats].filter(Boolean).join(" "),klantnummer:klantNr(k)},
     groepen:[{omschrijving:k.dienst||"Glasbewassing",excl,btwPct:pct,btw:r2(incl-excl),incl,subs}]}}

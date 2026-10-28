@@ -320,7 +320,7 @@ function groepRedraw(box,key,g,opts){let el=box.querySelector(`[data-ge="${key}"
   el=box.querySelector(`[data-ge="${key}"]`);if(!el||!el.parentNode)return;const t=document.createElement("div");t.innerHTML=groepEditor(g,key,opts);try{el.parentNode.replaceChild(t.firstElementChild,el)}catch(e){}}
 function groepTotUpdate(box,key,g,opts){const el=box.querySelector(`[data-ge="${key}"] .ge-tot`);if(!el)return;const t=document.createElement("div");t.innerHTML=groepEditor(g,key,opts);const n=t.querySelector(".ge-tot");if(n)el.innerHTML=n.innerHTML}
 
-const fqTxt=w=>{w=Number(w)||0;return w===1?"1x per week":w===52?"1x per jaar":w===104?"1x per 2 jaar":w>0?"1x per "+w+" weken":""};
+const fqTxt=w=>{w=Number(w)||0;if(fqSpec(w))return fqSpecTxt(w);return w===1?"1x per week":w===52?"1x per jaar":w===104?"1x per 2 jaar":w>0?"1x per "+w+" weken":""};
 
 /* eenmalig: "Reiniging buitenkant" van Goten naar Reiniging gevelelementen (als "Goten reiniging buitenkant"),
    in de dienstenlijst én bij de klanten die het als opdracht hebben. Aantallen, prijs, frequentie en datums blijven gelijk. */

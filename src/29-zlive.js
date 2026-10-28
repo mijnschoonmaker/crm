@@ -35,7 +35,7 @@ async function verstuurLive(i){
   drawCmpList()}
 
 /* ---------- bestellingsoverzicht ---------- */
-function overzichtModelKlant(k){const r=normR(k.ramenRegel),fq="1x per "+(Number(k.frequentie)||8)+" weken",pct=Number(S().btw)||21,p=Number(k.prijs)||0,incl=S().incl?p:r2(p*(1+pct/100)),excl=S().incl?r2(p/(1+pct/100)):p;
+function overzichtModelKlant(k){const r=normR(k.ramenRegel),fq=(w=>fqSpec(w)?fqSpecTxt(w):"1x per "+w+" weken")(Number(k.frequentie)||8),pct=Number(S().btw)||21,p=Number(k.prijs)||0,incl=S().incl?p:r2(p*(1+pct/100)),excl=S().incl?r2(p/(1+pct/100)):p;
   const sp=r.sp||{},subs=[...r.f.map((n,i)=>n?{naam:TC_FL[i]||(i+"e verdieping"),aantal:n+" st",freq:fq}:null),...(typeof SPK!=="undefined"?SPK:[]).map(x=>Number(sp[x])?{naam:(typeof TC_SPN!=="undefined"&&TC_SPN[x])||x,aantal:Number(sp[x])+" st",freq:fq}:null)].filter(Boolean);
   return {klant:{naam:k.naam||"",contact:k.contact||"",adres:k.adres||"",pcPlaats:[String(k.postcode||"").toUpperCase(),k.plaats].filter(Boolean).join(" "),klantnummer:klantNr(k)},
     groepen:[{omschrijving:k.dienst||"Glasbewassing",excl,btwPct:pct,btw:r2(incl-excl),incl,subs}]}}
