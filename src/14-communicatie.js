@@ -306,7 +306,7 @@ function openTplEdit(k){
     <div class="te-lab">Inhoud<div class="rtx">
       <div class="rt-bar" role="toolbar" aria-label="Opmaak">
         <select data-rt="fontName" title="Lettertype"><option value="">Lettertype</option><option value="-apple-system,'Segoe UI',Helvetica,Arial,sans-serif">Standaard</option><option value="Arial,Helvetica,sans-serif">Arial</option><option value="Georgia,'Times New Roman',serif">Georgia</option><option value="'Times New Roman',Times,serif">Times</option><option value="Verdana,Geneva,sans-serif">Verdana</option><option value="'Trebuchet MS',sans-serif">Trebuchet</option><option value="'Courier New',monospace">Courier</option></select>
-        <select data-rt="fontSize" title="Grootte"><option value="">Grootte</option><option value="2">Klein</option><option value="3">Normaal</option><option value="4">Groot</option><option value="5">Extra groot</option><option value="6">Kop</option></select>
+        <select data-rt="fontSize" title="Grootte"><option value="">Grootte</option><option value="2">Klein</option><option value="14px">Iets kleiner</option><option value="3">Normaal</option><option value="4">Groot</option><option value="5">Extra groot</option><option value="6">Kop</option></select>
         <span class="rt-sep"></span>
         <button type="button" data-rc="bold" title="Vet (⌘B)"><b>B</b></button><button type="button" data-rc="italic" title="Schuin (⌘I)"><i>I</i></button><button type="button" data-rc="underline" title="Onderstrepen (⌘U)"><u>U</u></button>
         <span class="rt-sep"></span>
@@ -330,7 +330,12 @@ function openTplEdit(k){
   const terug=()=>{ed.focus();if(rng){const sl=getSelection();sl.removeAllRanges();sl.addRange(rng)}};
   ["keyup","mouseup","input","blur"].forEach(ev=>ed.addEventListener(ev,keep));
   form.querySelectorAll("[data-rc]").forEach(b=>{b.onmousedown=e=>e.preventDefault();b.onclick=()=>{terug();document.execCommand(b.dataset.rc,false,null);keep()}});
-  form.querySelectorAll("[data-rt]").forEach(x=>x.addEventListener(x.type==="color"?"input":"change",()=>{if(!x.value)return;terug();document.execCommand(x.dataset.rt,false,x.value);keep();if(x.tagName==="SELECT")x.value=""}));
+  form.querySelectorAll("[data-rt]").forEach(x=>x.addEventListener(x.type==="color"?"input":"change",()=>{if(!x.value)return;terug();
+    /* tussenmaat in px (bv. "Iets kleiner"): eerst maat 7 zetten als merkteken, daarna vervangen door de echte px-waarde */
+    if(x.dataset.rt==="fontSize"&&/px$/.test(x.value)){document.execCommand("fontSize",false,"7");
+      ed.querySelectorAll('font[size="7"]').forEach(f=>{f.removeAttribute("size");f.style.fontSize=x.value});
+      ed.querySelectorAll("span[style*='font-size']").forEach(sp=>{if(/xxx-large/.test(sp.style.fontSize))sp.style.fontSize=x.value})}
+    else document.execCommand(x.dataset.rt,false,x.value);keep();if(x.tagName==="SELECT")x.value=""}));
   ed.addEventListener("paste",e=>{e.preventDefault();const t=(e.clipboardData||window.clipboardData).getData("text/plain");document.execCommand("insertText",false,t)});
   form.querySelectorAll("textarea,#te-o").forEach(x=>x.addEventListener("focus",()=>last=x));ed.addEventListener("focus",()=>last=ed);
   form.querySelectorAll("[data-var]").forEach(b=>{b.onmousedown=e=>e.preventDefault();b.onclick=()=>{const v="["+b.dataset.var+"]",x=last||(kanaal==="mail"?ed:$("#te-s"));
