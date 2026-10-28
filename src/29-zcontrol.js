@@ -53,6 +53,8 @@ const ccTel=k=>k?String(k.mobiel||k.telefoon||"").replace(/[^\d+]/g,""):"";
 function ccKomEraan(k){const tel=ccTel(k);if(!tel||typeof waLink!=="function")return "";let t="";try{const T=tpls().onderweg||{};t=fill(T.sms||T.tekst||T.mail||"",klantVars(k,today()))}catch(e){}
   const vn=k.voornaam||cleanName(k.naam).split(",").slice(-1)[0].trim();if(!t)t=`Beste ${vn}, wij zijn onderweg naar u.`;
   const pl=(/^https?:/.test(location.origin)&&LIVE?location.origin:"https://app.mansard.nl")+"/portaal"+(k.email?"?e="+encodeURIComponent(k.email):"");return waLink(tel,t+"\n\nLive volgen: "+pl)}
+/* opvallend icoon voor een nieuwe klant: persoon met plus */
+const CC_NK_SVG='<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.6"/><path d="M2.8 20c.6-3.6 3.1-5.6 6.2-5.6s5.6 2 6.2 5.6"/><path d="M19 7.5v6M16 10.5h6"/></svg>';
 function ccAlle(){const s=[],t=today(),ti=iso(t),morgen=ccDag(1);
   const add=o=>s.push({acts:[],...o});
   const bel=k=>ccTel(k)?{l:"Bellen",ic:"phone",href:"tel:"+ccTel(k)}:null;
@@ -69,7 +71,7 @@ function ccAlle(){const s=[],t=today(),ti=iso(t),morgen=ccDag(1);
       acts:[bel(k),{l:"Opnieuw sturen",ic:"send",cc:"stuur:"+f.id}].filter(Boolean)})});
   /* kritiek: nieuwe klant via de website (blijft staan tot hij gezien is) */
   state.klanten.filter(k=>k.nieuwAangemeld&&k.actief!==false).forEach(k=>{const t2=k.ramenTelling||{},ct=k.aanvraagType==="contact",dd=k.aangemaakt?ccDagen(String(k.aangemaakt).slice(0,10),ti):0;
-    add({key:"na:"+k.id,p:"kritiek",top:2,ic:"klanten",t:ct?`Nieuw contactverzoek: ${ccNaam(k)}`:`Nieuwe klant aangemeld: ${ccNaam(k)}`,u:ct?"Bedrijf of VvE vraagt een offerte op maat.":`Via je website${t2.ramen?" · "+t2.ramen+" ramen (telling klant)":""}${k.prijs?" · "+eur(Number(k.prijs))+" per beurt":""}. ${typeof isOBeurt==="function"&&isOBeurt(k)?"Plan de eerste beurt in; daarbij doe je de tellingcontrole.":""}`,
+    add({key:"na:"+k.id,p:"kritiek",top:2,siCls:"nk",svg:CC_NK_SVG,ic:"klanten",t:ct?`Nieuw contactverzoek: ${ccNaam(k)}`:`Nieuwe klant aangemeld: ${ccNaam(k)}`,u:ct?"Bedrijf of VvE vraagt een offerte op maat.":`Via je website${t2.ramen?" · "+t2.ramen+" ramen (telling klant)":""}${k.prijs?" · "+eur(Number(k.prijs))+" per beurt":""}. ${typeof isOBeurt==="function"&&isOBeurt(k)?"Plan de eerste beurt in; daarbij doe je de tellingcontrole.":""}`,
       b:[k.adres,k.plaats].filter(Boolean).join(", "),leeftijd:Math.max(0,dd||0),knop:"Open klant",go:"klant:"+k.id,
       acts:[ct?{l:"Offerte maken",ic:"offertes",cc:"off:"+k.id}:{l:"Inplannen",ic:"planning",cc:"plan:"+k.id},bel(k),{l:"Gezien",ic:"check",cc:"gezien:"+k.id}].filter(Boolean)})});
   /* hoog: tellingcontrole nog nodig (eerste beurt na een aanmelding via de website) */
@@ -215,7 +217,7 @@ function ccWachtrijHtml(L){const G=ccGezien(),max=innerWidth<1100?5:40,toon=CC.a
     const acts=(m.acts||[]).map(a=>a.href?`<a class="cc-ab" href="${esc(a.href)}">${I[a.ic]||""}${esc(a.l)}</a>`:`<button type="button" class="cc-ab" data-cc="${esc(a.cc)}">${I[a.ic]||""}${esc(a.l)}</button>`).join("");
     const tijd=m.tijd?`<span class="cc-tijd"><input type="time" step="300" id="ccT_${esc(m.tijd)}" aria-label="Tijd"><button type="button" class="cc-ab pr" data-cc="tijd:${esc(m.tijd)}">${I.check}Opslaan</button></span>`:"";
     const menu=CC.menu===m.key?`<span class="cc-lm">${[["Over 1 uur",1],["Vanmiddag","mid"],["Morgen","morgen"],["Volgende week","week"]].map(([l,v])=>`<button type="button" data-cc="later:${v}:${esc(m.key)}">${l}</button>`).join("")}</span>`:"";
-    return `<div class="cc-mi${sel?" sel":""}${(m.nieuw||m.p==="kritiek")&&!G.has(m.key)?" nw":""}" data-i="${i}"><span class="cc-si ${cls}">${I[m.ic]||I.alert}</span>
+    return `<div class="cc-mi${sel?" sel":""}${(m.nieuw||m.p==="kritiek")&&!G.has(m.key)?" nw":""}" data-i="${i}"><span class="cc-si ${m.siCls||cls}">${m.svg||I[m.ic]||I.alert}</span>
       <div class="cc-st"><span class="cc-mh"><span class="cc-pr ${cls}">${lbl}</span>${i<9?`<kbd>${i+1}</kbd>`:""}</span><b>${esc(m.t)}</b><p>${esc(m.u)}</p>${m.b?`<small>${esc(m.b)}</small>`:""}
         <div class="cc-acts">${acts}${tijd}<button type="button" class="cc-ab" data-cc="${esc(m.go)}">${esc(m.knop)}</button><span class="sp"></span>
           <button type="button" class="cc-ab ghost" data-cc="menu:${esc(m.key)}" aria-expanded="${CC.menu===m.key}">${I.clock}Later</button>${menu}<button type="button" class="cc-ab ok" data-cc="klaar:${esc(m.key)}" title="Afgehandeld (E)">${I.check}Afgehandeld</button></div></div></div>`};

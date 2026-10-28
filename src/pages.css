@@ -4380,3 +4380,9 @@ html body .ms-plan.on{border-color:#252c3c!important;box-shadow:0 0 0 3px rgba(3
 .tc-prijs small{width:100%;text-align:right;color:var(--muted);font-size:12.5px}
 .tc-prijs s{color:var(--muted);font-weight:600}
 .tc-fbtn{display:inline-flex;align-items:center;gap:6px;margin-top:10px}
+/* Control Center: nieuwe klant valt op */
+html body .cc-si.nk{position:relative;width:38px;height:38px;margin:-4px 0 0 -4px;background:linear-gradient(145deg,#e6c47e,#b98a3c 60%,#8f6726);box-shadow:0 0 0 3px rgb(230 196 126 / .22),0 8px 18px -6px rgb(185 138 60 / .7)}
+html body .cc-si.nk svg{width:19px;height:19px;stroke:#fff}
+html body .cc-si.nk::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:2px solid #e6c47e;animation:ccNk 1.8s ease-out infinite;pointer-events:none}
+@keyframes ccNk{0%{transform:scale(1);opacity:.8}100%{transform:scale(1.55);opacity:0}}
+@media (prefers-reduced-motion:reduce){html body .cc-si.nk::after{animation:none}}
