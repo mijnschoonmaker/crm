@@ -15995,7 +15995,7 @@ function ccWachtrijHtml(L){const G=ccGezien(),max=innerWidth<1100?5:40,toon=CC.a
     return `<div class="cc-mi${sel?" sel":""}${(m.nieuw||m.p==="kritiek")&&!G.has(m.key)?" nw":""}" data-i="${i}"><span class="cc-si ${m.siCls||cls}">${m.svg||I[m.ic]||I.alert}</span>
       <div class="cc-st"><span class="cc-mh"><span class="cc-pr ${cls}">${lbl}</span>${i<9?`<kbd>${i+1}</kbd>`:""}</span><b>${esc(m.t)}</b><p>${esc(m.u)}</p>${m.b?`<small>${esc(m.b)}</small>`:""}
         <div class="cc-acts">${acts}${tijd}<button type="button" class="cc-ab" data-cc="${esc(m.go)}">${esc(m.knop)}</button><span class="sp"></span>
-          <button type="button" class="cc-ab ghost" data-cc="menu:${esc(m.key)}" aria-expanded="${CC.menu===m.key}">${I.clock}Later</button>${menu}<button type="button" class="cc-ab ok" data-cc="klaar:${esc(m.key)}" title="Afgehandeld (E)">${I.check}Afgehandeld</button></div></div></div>`};
+          <button type="button" class="cc-ab ok" data-cc="klaar:${esc(m.key)}" title="Afgehandeld (E)">${I.check}Afgehandeld</button></div></div></div>`};
   return (L.length?toon.map(item).join(""):`<div class="cc-rust">${I.check}<div><b>Alles op orde</b><p>Niets meer in de wachtrij. Mooi zo.</p></div></div>`)
     +(L.length>max?`<button type="button" class="cc-meer" data-cc="alles">${CC.alles?"Minder tonen":`Toon alle ${L.length}`}</button>`:"")
     +(verb.length?`<div class="cc-verb"><button type="button" class="cc-meer" data-cc="verborgen">${CC.toonVerborgen?"Verberg":"Toon"} ${plural(verb.length,"afgehandelde of uitgestelde melding","afgehandelde of uitgestelde meldingen")}</button>${CC.toonVerborgen?verb.map(m=>{const l=(ccStatus().later||{})[m.key];return `<div class="cc-vi"><span>${esc(m.t)}<small>${l?"Later: "+esc(new Date(l).toLocaleString("nl-NL",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})):"Afgehandeld"}</small></span><button type="button" class="cc-ab ghost" data-cc="terug:${esc(m.key)}">Terugzetten</button></div>`}).join(""):""}</div>`:"")}
@@ -16070,7 +16070,7 @@ function ccActie(a){if(!a)return;const [k,...r]=a.split(":"),v=r.join(":");
   if(k==="geluid"){const aan=S().ccGeluid===false;saveSettings({ccGeluid:aan},aan?"Geluid staat aan":"Geluid staat uit").then(()=>{if(aan)ccPiep();render()});return}
   if(k==="herinner")return sendF(v,{herinnering:true});
   if(k==="stuur")return sendF(v);
-  if(k==="plan")return openAfspraak(v);
+  if(k==="plan")return go("planning");
   if(k==="tc")return openTellingControle(v);
   if(k==="off")return openOfferte({klantId:v});
   if(k==="gezien"){if(typeof aanmGezien==="function")return aanmGezien(v);return}
