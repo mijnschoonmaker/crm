@@ -4361,3 +4361,22 @@ html body .leaflet-container .pl-bus img{width:52px!important;max-width:none!imp
 @media (max-width:560px){.ms-plans{grid-template-columns:1fr}}
 html body .ms-plan,html body .ms-plan.on,html body .ms-plan:hover{background:var(--surface)!important;color:var(--ink)!important;text-transform:none;letter-spacing:normal;height:auto;min-height:0;justify-content:flex-start;align-items:stretch;text-align:left;font-weight:400}
 html body .ms-plan.on{border-color:#252c3c!important;box-shadow:0 0 0 3px rgba(37,44,60,.14)!important}
+/* fotoviewer: soort raam kiezen (gelijk aan de dienstenwebshop) */
+.fdot.lb{color:#fff;font:800 9px/1 var(--f-ui,system-ui);letter-spacing:0}
+.fdot.big.lb{width:calc(20px * var(--ds,1))!important;height:calc(20px * var(--ds,1))!important;font-size:calc(9px * var(--ds,1))}
+.fdot.big.lb.sm{font-size:calc(7.5px * var(--ds,1))}
+.fwrap .fdot.lb{font-size:0}
+.fv-ty{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;max-width:760px}
+.fv-ty button{display:inline-flex;align-items:center;gap:7px;min-height:34px;padding:0 12px 0 5px;border-radius:99px;border:1px solid rgb(255 255 255 / .16);background:rgb(255 255 255 / .06);color:#dfe4e8;font:700 12.5px/1 var(--f-ui,system-ui);cursor:pointer;transition:background .15s,border-color .15s}
+.fv-ty button i{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--c);color:#fff;font:800 9.5px/1 var(--f-ui,system-ui);font-style:normal;border:2px solid #fff}
+.fv-ty button b{min-width:20px;height:20px;padding:0 6px;border-radius:99px;display:inline-grid;place-items:center;background:color-mix(in srgb,var(--c) 30%,transparent);color:#fff;font-size:11px}
+.fv-ty button[aria-checked="true"]{background:#fff;color:#0b0f12;border-color:#fff;box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 45%,transparent)}
+.fv-ty button[aria-checked="true"] b{background:var(--c)}
+.fv-tyh{width:100%;text-align:center;color:#9aa3ab;font-size:12px}
+/* tellingcontrole: prijs onderaan */
+.tc-prijs{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding:14px 16px;margin:0 0 10px;border-radius:14px;background:var(--surface-2,#f3f4f6);border:1px solid var(--line)}
+.tc-prijs span{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.tc-prijs b{font-size:24px;font-weight:800;letter-spacing:-.02em;color:var(--ink);margin-left:auto}
+.tc-prijs small{width:100%;text-align:right;color:var(--muted);font-size:12.5px}
+.tc-prijs s{color:var(--muted);font-weight:600}
+.tc-fbtn{display:inline-flex;align-items:center;gap:6px;margin-top:10px}

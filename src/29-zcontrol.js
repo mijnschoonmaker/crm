@@ -67,6 +67,16 @@ function ccAlle(){const s=[],t=today(),ti=iso(t),morgen=ccDag(1);
   state.facturen.filter(f=>f.soort==="offerte"&&f.status==="verstuurd").forEach(f=>{const dd=ccDagen(String(f.verstuurdOp||f.datum||"").slice(0,10),ti);if(dd<7)return;const k=ccKlant(f.klantId);
     add({key:"ow:"+f.id,p:"hoog",ic:"offertes",t:`Offerte ${String(f.nummer||"").replace(/^OFF-/,"")} wacht op reactie · ${eur(totals(f).inc)}`,u:`${plural(dd,"dag","dagen")} geleden verstuurd, nog geen akkoord of afwijzing.`,b:ccNaam(k)||cleanName(f.klantNaam||""),leeftijd:dd,knop:"Open offerte",go:"f:"+f.id,
       acts:[bel(k),{l:"Opnieuw sturen",ic:"send",cc:"stuur:"+f.id}].filter(Boolean)})});
+  /* kritiek: nieuwe klant via de website (blijft staan tot hij gezien is) */
+  state.klanten.filter(k=>k.nieuwAangemeld&&k.actief!==false).forEach(k=>{const t2=k.ramenTelling||{},ct=k.aanvraagType==="contact",dd=k.aangemaakt?ccDagen(String(k.aangemaakt).slice(0,10),ti):0;
+    add({key:"na:"+k.id,p:"kritiek",ic:"klanten",t:ct?`Nieuw contactverzoek: ${ccNaam(k)}`:`Nieuwe klant aangemeld: ${ccNaam(k)}`,u:ct?"Bedrijf of VvE vraagt een offerte op maat.":`Via je website${t2.ramen?" · "+t2.ramen+" ramen (telling klant)":""}${k.prijs?" · "+eur(Number(k.prijs))+" per beurt":""}. ${typeof isOBeurt==="function"&&isOBeurt(k)?"Plan de eerste beurt in; daarbij doe je de tellingcontrole.":""}`,
+      b:[k.adres,k.plaats].filter(Boolean).join(", "),leeftijd:Math.max(0,dd||0),knop:"Open klant",go:"klant:"+k.id,
+      acts:[ct?{l:"Offerte maken",ic:"offertes",cc:"off:"+k.id}:{l:"Inplannen",ic:"planning",cc:"plan:"+k.id},bel(k),{l:"Gezien",ic:"check",cc:"gezien:"+k.id}].filter(Boolean)})});
+  /* hoog: tellingcontrole nog nodig (eerste beurt na een aanmelding via de website) */
+  state.klanten.filter(k=>k.actief!==false&&typeof isOBeurt==="function"&&isOBeurt(k)&&!k.tellingGecontroleerd).forEach(k=>{const t2=k.ramenTelling||{};
+    add({key:"tc:"+k.id,p:"hoog",ic:"calculator",t:`Tellingcontrole nodig: ${ccNaam(k)}`,u:`De klant telde zelf${t2.ramen?" "+t2.ramen+" ramen":""}${(t2.fotos||[]).length?" en stuurde "+plural(t2.fotos.length,"foto","foto's")+" mee":""}. Controleer de telling vóór of bij de eerste beurt; daarna gaat het definitieve bestellingsoverzicht naar de klant.`,
+      b:[k.adres,k.plaats].filter(Boolean).join(", "),leeftijd:0,knop:"Open klant",go:"klant:"+k.id,
+      acts:[{l:"Telling controleren",ic:"calculator",cc:"tc:"+k.id},!k.gepland?{l:"Inplannen",ic:"planning",cc:"plan:"+k.id}:null].filter(Boolean)})});
   /* hoog: aan de beurt maar niet ingepland */
   overdue().filter(k=>!k.gepland&&!k.opdrachtVerwijderd).forEach(k=>{const v=volgende(k),dd=v?Math.max(0,Math.round((t-v)/864e5)):0;
     add({key:"tl:"+k.id+":"+(v?iso(v):""),p:"hoog",ic:"planning",t:`${ccNaam(k)} is aan de beurt`,u:`${dd?plural(dd,"dag","dagen")+" over de termijn":"Vandaag aan de beurt"}, nog niet ingepland.`,b:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),leeftijd:dd,knop:"Open klant",go:"klant:"+k.id,
@@ -84,7 +94,7 @@ function ccAlle(){const s=[],t=today(),ti=iso(t),morgen=ccDag(1);
   /* offerte online ondertekend (laatste 14 dagen): de klant staat al bij Te plannen, plan de eerste beurt */
   {const g14=iso(addDays(today(),-14));state.facturen.filter(f=>f.soort==="offerte"&&f.getekend&&String(f.akkoordOp||String(f.getekend.op||"").slice(0,10))>=g14).forEach(f=>{const k=state.klanten.find(x=>x.id===f.klantId)||{},gp=k.gepland&&k.gepland>=ti;
     add({key:"og:"+f.id,p:"hoog",ic:"offertes",t:`Offerte ${f.nummer} ondertekend · ${eur(totals(f).inc)}`,u:gp?`Eerste beurt staat op ${fmtD(k.gepland)}${k.tijd?" om "+k.tijd:""}.`:"Getekend door "+(f.getekend.naam||"de klant")+". De klant staat bij Te plannen: plan de eerste beurt in.",b:ccNaam(k)||cleanName(f.klantNaam||""),leeftijd:ccDagen(f.akkoordOp||String(f.getekend.op||"").slice(0,10),ti),nieuw:!!f.getekendNieuw,knop:"Open offerte",go:"f:"+f.id,acts:[...(k.id&&!gp?[{l:"Inplannen",ic:"planning",cc:"plan:"+k.id}]:[]),...(k.id?[{l:"Klantkaart",ic:"user",cc:"klant:"+k.id}]:[])]})})}
-  nieuweAanmeldingen().forEach(k=>add({key:"nk:"+k.id,p:"normaal",ic:"klanten",t:`Nieuwe aanmelding: ${ccNaam(k)}`,u:"Via de website aangemeld. Bel of mail om de eerste afspraak te maken.",b:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),leeftijd:0,nieuw:true,knop:"Open klant",go:"klant:"+k.id,acts:[bel(k)].filter(Boolean)}));
+  /* (staat nu bovenaan als kritieke melding) */ if(0)nieuweAanmeldingen().forEach(k=>add({key:"nk:"+k.id,p:"normaal",ic:"klanten",t:`Nieuwe aanmelding: ${ccNaam(k)}`,u:"Via de website aangemeld. Bel of mail om de eerste afspraak te maken.",b:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),leeftijd:0,nieuw:true,knop:"Open klant",go:"klant:"+k.id,acts:[bel(k)].filter(Boolean)}));
   /* normaal: berichten in de wachtrij */
   {const wq=wqOpen();
     if(wq)add({key:"wq:"+ti+":"+wq,p:"normaal",ic:"communicatie",t:plural(wq,"bericht klaar","berichten klaar")+" om te versturen",u:"Herinneringen of aankondigingen in de wachtrij van Communicatie.",b:"",leeftijd:0,knop:"Open communicatie",go:"tab:communicatie"})}
@@ -284,6 +294,9 @@ function ccActie(a){if(!a)return;const [k,...r]=a.split(":"),v=r.join(":");
   if(k==="herinner")return sendF(v,{herinnering:true});
   if(k==="stuur")return sendF(v);
   if(k==="plan")return openAfspraak(v);
+  if(k==="tc")return openTellingControle(v);
+  if(k==="off")return openOfferte({klantId:v});
+  if(k==="gezien"){if(typeof aanmGezien==="function")return aanmGezien(v);return}
   if(k==="ticket")return typeof openTickets==="function"?openTickets(v):go("communicatie");
   if(k==="klaar"){CC.sel=-1;CC.menu="";return ccZet(v,"klaar")}
   if(k==="terug")return ccZet(v,"terug");

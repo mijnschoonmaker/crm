@@ -17,17 +17,19 @@ function oBeurtBlok(k){if(!isOBeurt(k))return "";const f=tcFloors(k),sp=tcSp(k),
     <button type="button" class="small${g?"":" primary"}" data-tctl="${esc(k.id)}">${g?I.calculator+"Telling aanpassen":I.camera+"Telling controleren"}</button></div>`}
 function tcFotosHtml(tf){if(!tf.length)return `<div class="tc-fotos leeg">${I.camera||""}<span>De klant heeft geen foto's meegestuurd. Tel de ramen ter plekke.</span></div>`;
   const n=tf.reduce((a,f)=>a+(f.dots||[]).length,0);
-  return `<div class="tc-fotos"><div class="tc-fh"><b>Foto's van de klant</b><small>${tf.length} ${tf.length===1?"foto":"foto's"}${n?` · ${n} ramen aangetikt`:""} · tik om groot te bekijken</small></div>
+  return `<div class="tc-fotos"><div class="tc-fh"><b>Foto's van de klant</b><small>${tf.length} ${tf.length===1?"foto":"foto's"}${n?` · ${n} ramen aangetikt`:""} · tik op een foto om de stippen te controleren of aan te passen</small></div>
     <div class="tc-fg" id="tcFg">${tf.map((f,i)=>`<button type="button" data-tcf="${i}" aria-label="${esc(f.naam||"Foto")} bekijken"><span class="fwrap" style="aspect-ratio:${f.w&&f.h?f.w+"/"+f.h:"4/3"}"><img src="${BLOB}${esc(f.id)}" alt="" loading="lazy">${dotsHtml(f)}</span>${(f.dots||[]).length?`<em>${(f.dots||[]).length}</em>`:""}</button>`).join("")}</div></div>`}
 function openTellingControle(kid,na){const k=state.klanten.find(x=>x.id===kid);if(!k)return;
   const gc=k.tellingGecontroleerd,voor=(gc&&gc.origF)||tcFloors(k),vsp=(gc&&gc.origSp)||tcSp(k),f=tcFloors(k).slice(),sp={...tcSp(k)};
   const p0=gc?gc.prijsVoor:Number(k.prijs)||0;let fotos=null,ai=false,spOpen=SPK.some(x=>sp[x]||vsp[x]);
   /* foto's van de klant (uit de dienstenwebshop, met de aangetikte ramen) en eerder gemaakte controlefoto's */
-  const tf=[...(((k.ramenTelling||{}).fotos)||[]).filter(x=>x&&x.id).map((x,i)=>({...x,naam:x.zijde||("Foto "+(i+1)+" van de klant"),t:1})),...(k.fotos||[]).filter(x=>x&&x.id),...((gc&&gc.fotos)||[]).filter(x=>x&&x.id).map(x=>({...x,naam:"Controle · "+(x.zijde||"foto")}))].filter((x,i,a)=>a.findIndex(y=>y.id===x.id)===i);
+  const tf0=[...(((k.ramenTelling||{}).fotos)||[]).filter(x=>x&&x.id).map((x,i)=>({...x,naam:x.zijde||("Foto "+(i+1)+" van de klant"),t:1})),...(k.fotos||[]).filter(x=>x&&x.id),...((gc&&gc.fotos)||[]).filter(x=>x&&x.id).map(x=>({...x,naam:"Controle · "+(x.zijde||"foto")}))].filter((x,i,a)=>a.findIndex(y=>y.id===x.id)===i);
+  /* eigen kopie: stippen aanpassen raakt de klant pas bij opslaan */
+  const tf=tf0.map(x=>({...x,dots:(x.dots||[]).map(d=>({...d}))}));let stipAan=false;
   openDlg(`<div class="dlg-head"><span class="objic big">${I.calculator}</span><div style="flex:1;min-width:0"><h3>Tellingcontrole</h3><div class="subt">${esc(cleanName(k.naam))} · ${esc(fullAddr(k))}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
     ${tcFotosHtml(tf)}
     <div class="tc-or"><span>${tf.length?"jouw telling":"tel zelf"}</span></div>
-    <div class="tc-rows" id="tcRows"></div><div id="tcSum"></div>
+    <div class="tc-rows" id="tcRows"></div><div id="tcPrijs"></div><div id="tcSum"></div>
     <div class="row stickyfoot"><button type="button" class="ghost" data-act="close">Annuleren</button><span class="sp"></span><button type="submit" class="primary" id="tcGo">${I.check}Telling klopt</button></div>`,{wide:false});
   const same=()=>f.every((n,i)=>n===voor[i])&&SPK.every(x=>sp[x]===vsp[x]);
   const totV=()=>voor.reduce((a,b)=>a+b,0)+SPK.reduce((a,x)=>a+vsp[x],0),totN=()=>f.reduce((a,b)=>a+b,0)+SPK.reduce((a,x)=>a+sp[x],0);
@@ -37,9 +39,16 @@ function openTellingControle(kid,na){const k=state.klanten.find(x=>x.id===kid);i
   const sum=()=>{const sm=same(),tv=totV(),tn=totN(),c=sm?null:tcPrijs(k,f,sp);
     $("#tcSum").innerHTML=sm?`<div class="okbox" style="margin:0">${I.check}<div><b>Zelfde als de klant: ${tn} ramen</b><span>Prijs blijft ${esc(eur(p0))} per beurt.</span></div></div>`
       :`<div class="warnbox">${I.alert}<span>Klant telde <b>${tv}</b>, jij telt <b>${tn}</b> ramen. ${c&&c.prijs===p0?`Prijs blijft <b>${esc(eur(p0))}</b> per beurt (minimumprijs of zelfde tarief).`:`Nieuwe prijs ${c?`<b>${esc(eur(c.prijs))}</b> per beurt (was ${esc(eur(p0))}), ± ${c.duur} min`:"wordt herberekend"}.`}</span></div>`;
+    {const nu=sm?p0:(c?c.prijs:p0),m=S().incl?"incl. btw":"excl. btw";$("#tcPrijs").innerHTML=`<div class="tc-prijs"><span>Prijs per beurt</span><b>${esc(eur(nu))}</b><small>${m}${!sm&&nu!==p0?` · was <s>${esc(eur(p0))}</s>`:""}${c&&c.duur?` · ± ${c.duur} min`:""} · ${tn} ${tn===1?"raam":"ramen"}</small></div>`}
     $("#tcGo").innerHTML=I.check+(sm?"Telling klopt":"Telling opslaan")};
   draw();
-  {const g=$("#tcFg");if(g)g.onclick=e=>{const b=e.target.closest("[data-tcf]");if(b)openFotoViewer(tf,+b.dataset.tcf,{edit:false,titel:"Foto van de klant: controleer de aangetikte ramen"})}}
+  /* stippen op de foto's = de telling: na aanpassen tellen we per soort opnieuw */
+  const uitStippen=()=>{const nf=[0,0,0,0],ns=SPK.reduce((o,x)=>(o[x]=0,o),{});
+    tf.forEach(x=>(x.dots||[]).forEach(d=>{const t=d.t||"f0";if(String(t).startsWith("s-")){const kk=t.slice(2);if(kk in ns)ns[kk]++}else nf[Math.min(3,+String(t).slice(1)||0)]++}));
+    f.splice(0,4,...nf);SPK.forEach(x=>sp[x]=ns[x]);if(SPK.some(x=>sp[x]))spOpen=true;stipAan=true;
+    const g=$("#tcFg");if(g){const w=document.createElement("div");w.innerHTML=tcFotosHtml(tf);const ng=w.querySelector("#tcFg"),h=w.querySelector(".tc-fh small");if(ng)g.innerHTML=ng.innerHTML;const oh=document.querySelector(".tc-fh small");if(h&&oh)oh.textContent=h.textContent}
+    draw()};
+  {const g=$("#tcFg");if(g)g.onclick=e=>{const b=e.target.closest("[data-tcf]");if(b)openFotoViewer(tf,+b.dataset.tcf,{edit:true,titelEdit:"Controleer de stippen · kies een soort en tik ramen aan of verbeter ze",onChange:()=>uitStippen()})}}
   if($("#tcAi"))$("#tcAi").onclick=()=>openFotoTelling(k,fotos,res=>{fotos=res.fotos;ai=true;f.splice(0,4,...res.f);SPK.forEach(x=>sp[x]=res.sp[x]||0);if(SPK.some(x=>sp[x]))spOpen=true;draw();
     $("#tcAi").classList.add("klaar");$("#tcAi>i").innerHTML=I.check;$("#tcAiS").textContent=`${res.fotos.length} foto's · ${totN()} ramen geteld. Tik om de foto's te bekijken of te verbeteren.`;
     $("#tcRows").animate([{opacity:.3,transform:"translateY(6px)"},{opacity:1,transform:"none"}],{duration:420,easing:"cubic-bezier(.2,.8,.2,1)"})});
@@ -51,9 +60,13 @@ function openTellingControle(kid,na){const k=state.klanten.find(x=>x.id===kid);i
     if(fotos&&fotos.length){b.innerHTML=I.camera+"Foto's bewaren…";const up=[];
       for(const p of fotos){try{const r=state.assets?await state.assets.upload(new File([p.blob],"telling-"+p.zijde.toLowerCase().replace(/\W+/g,"-")+".jpg",{type:"image/jpeg"})):null;if(r&&r.id)up.push({id:r.id,w:p.w,h:p.h,zijde:p.zijde,dots:p.dots.map(d=>({x:Math.round(d.x*1e4)/1e4,y:Math.round(d.y*1e4)/1e4,t:d.t}))})}catch(er){console.warn(er)}}
       if(up.length)fo=up}
-    const g={datum:iso(today()),voor:tv,na:tn,origF:voor,origSp:vsp,prijsVoor:p0,prijsNa:c?c.prijs:p0,...(ai||(gc&&gc.ai)?{ai:true}:{}),...(fo.length?{fotos:fo}:{})};
+    const kd=x=>({id:x.id,...(x.w?{w:x.w,h:x.h}:{}),...(x.zijde?{zijde:x.zijde}:{}),dots:(x.dots||[]).map(d=>({x:d.x,y:d.y,...(d.t?{t:d.t}:{}),...(d.s&&d.s!==1?{s:d.s}:{})}))});
+    if(stipAan&&!(fotos&&fotos.length))fo=tf.filter(x=>(x.dots||[]).length).map(kd);
+    const nieuweDots=id=>{const x=tf.find(y=>y.id===id);return x?x.dots.map(d=>({...d})):null};
+    const g={datum:iso(today()),voor:tv,na:tn,origF:voor,origSp:vsp,prijsVoor:p0,prijsNa:c?c.prijs:p0,...(ai||(gc&&gc.ai)?{ai:true}:{}),...(stipAan?{stippen:true}:{}),...(fo.length?{fotos:fo}:{})};
     const patch={tellingGecontroleerd:g,ramenRegel:normR({...(cur.ramenRegel||{}),f:f.slice(),sp:{...sp}}),...(c?{prijs:c.prijs,...(!(cur.tijden||[]).length?{duur:c.duur}:{})}:{}),
-      ramenTelling:{...(cur.ramenTelling||{}),gecontroleerd:g},log:[...(cur.log||[]),{datum:iso(today()),tekst:(sm?`Tellingcontrole O-beurt: klopt (${tn} ramen)`:`Tellingcontrole O-beurt: ${tv} → ${tn} ramen · prijs ${eur(p0)} → ${eur(c?c.prijs:p0)}`)+(ai?" · geteld met foto's":"")}]};
+      ramenTelling:{...(cur.ramenTelling||{}),gecontroleerd:g,...(stipAan&&(cur.ramenTelling||{}).fotos?{fotos:cur.ramenTelling.fotos.map(x=>{const d=x&&nieuweDots(x.id);return d?{...x,dots:d}:x})}:{})},
+      ...(stipAan&&(cur.fotos||[]).length?{fotos:cur.fotos.map(x=>{const d=x&&nieuweDots(x.id);return d?{...x,dots:d}:x})}:{}),log:[...(cur.log||[]),{datum:iso(today()),tekst:(sm?`Tellingcontrole O-beurt: klopt (${tn} ramen)`:`Tellingcontrole O-beurt: ${tv} → ${tn} ramen · prijs ${eur(p0)} → ${eur(c?c.prijs:p0)}`)+(ai?" · geteld met foto's":"")+(stipAan?" · stippen op de foto's aangepast":"")}]};
     try{await save("klanten",kid,{...strip(cur),...patch});toast(sm?"Telling klopt · vastgelegd":"Telling aangepast · nieuwe prijs "+eur(c?c.prijs:p0)+" per beurt");dlg.close();render();if(typeof na==="function")na();
       if(typeof stuurDefinitief==="function"&&liveMail()&&S().ovDefinitiefAan!==false)setTimeout(()=>stuurDefinitief(kid,true),400)}catch(er){b.disabled=false;err(er)}};
 }

@@ -5026,6 +5026,25 @@ html body .leaflet-container .pl-bus img{width:52px!important;max-width:none!imp
 @media (max-width:560px){.ms-plans{grid-template-columns:1fr}}
 html body .ms-plan,html body .ms-plan.on,html body .ms-plan:hover{background:var(--surface)!important;color:var(--ink)!important;text-transform:none;letter-spacing:normal;height:auto;min-height:0;justify-content:flex-start;align-items:stretch;text-align:left;font-weight:400}
 html body .ms-plan.on{border-color:#252c3c!important;box-shadow:0 0 0 3px rgba(37,44,60,.14)!important}
+/* fotoviewer: soort raam kiezen (gelijk aan de dienstenwebshop) */
+.fdot.lb{color:#fff;font:800 9px/1 var(--f-ui,system-ui);letter-spacing:0}
+.fdot.big.lb{width:calc(20px * var(--ds,1))!important;height:calc(20px * var(--ds,1))!important;font-size:calc(9px * var(--ds,1))}
+.fdot.big.lb.sm{font-size:calc(7.5px * var(--ds,1))}
+.fwrap .fdot.lb{font-size:0}
+.fv-ty{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;max-width:760px}
+.fv-ty button{display:inline-flex;align-items:center;gap:7px;min-height:34px;padding:0 12px 0 5px;border-radius:99px;border:1px solid rgb(255 255 255 / .16);background:rgb(255 255 255 / .06);color:#dfe4e8;font:700 12.5px/1 var(--f-ui,system-ui);cursor:pointer;transition:background .15s,border-color .15s}
+.fv-ty button i{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--c);color:#fff;font:800 9.5px/1 var(--f-ui,system-ui);font-style:normal;border:2px solid #fff}
+.fv-ty button b{min-width:20px;height:20px;padding:0 6px;border-radius:99px;display:inline-grid;place-items:center;background:color-mix(in srgb,var(--c) 30%,transparent);color:#fff;font-size:11px}
+.fv-ty button[aria-checked="true"]{background:#fff;color:#0b0f12;border-color:#fff;box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 45%,transparent)}
+.fv-ty button[aria-checked="true"] b{background:var(--c)}
+.fv-tyh{width:100%;text-align:center;color:#9aa3ab;font-size:12px}
+/* tellingcontrole: prijs onderaan */
+.tc-prijs{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding:14px 16px;margin:0 0 10px;border-radius:14px;background:var(--surface-2,#f3f4f6);border:1px solid var(--line)}
+.tc-prijs span{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.tc-prijs b{font-size:24px;font-weight:800;letter-spacing:-.02em;color:var(--ink);margin-left:auto}
+.tc-prijs small{width:100%;text-align:right;color:var(--muted);font-size:12.5px}
+.tc-prijs s{color:var(--muted);font-weight:600}
+.tc-fbtn{display:inline-flex;align-items:center;gap:6px;margin-top:10px}
 
 </style>
 <style id="mansardThema">
@@ -13293,11 +13312,17 @@ const FMARK={groen:"#30a46c",geel:"#ffc53d",blauw:"#0090ff",oranje:"#f76b15"};
 /* markeringen (dakgoot, beplating, windveer…): halfdoorzichtige penseelstreken over de foto, coördinaten 0–1 */
 const strokesSvg=f=>{const S=(f.strokes||[]).filter(x=>x&&Array.isArray(x.p)&&x.p.length);if(!S.length)return"";const H=f.w&&f.h?Math.round(1000*f.h/f.w):750;
   return `<svg class="fmark" viewBox="0 0 1000 ${H}" preserveAspectRatio="none" aria-hidden="true">${S.map(x=>`<g opacity=".45"><polyline points="${x.p.map(q=>Math.round(q[0]*1000)+","+Math.round(q[1]*H)).join(" ")}" fill="none" stroke="${FMARK[x.c]||x.c||FMARK.groen}" stroke-width="${Math.round((Number(x.w)||0.03)*1000)}" stroke-linecap="round" stroke-linejoin="round"/></g>`).join("")}</svg>`};
-const dotsHtml=(f,big)=>strokesSvg(f)+(f.dots||[]).map((d,j)=>`<span class="fdot${big?" big":""}" data-dj="${j}" style="left:${d.x*100}%;top:${d.y*100}%;background:${d.t?DOTCOL(d.t):"#e5484d"};--ds:${Number(d.s)||Number(f.ds)||1}"></span>`).join("");
+/* soorten stippen, gelijk aan de dienstenwebshop: BG, 1, 2, 3 per verdieping en T/K/L/M voor bijzondere ramen */
+const DOT_TYPEN=["f0","f1","f2","f3","s-tuimel","s-koepel","s-lood","s-mini"];
+const DOTLBL=t=>({"s-tuimel":"T","s-koepel":"K","s-lood":"L","s-mini":"M"})[t]||(+String(t||"f0").slice(1)?String(+String(t).slice(1)):"BG");
+const DOTNM=t=>({"s-tuimel":"Dak- / tuimelraam","s-koepel":"Lichtkoepel","s-lood":"Glas-in-lood","s-mini":"Miniraampje"})[t]||(+String(t||"f0").slice(1)?String(t).slice(1)+"e verdieping":"Begane grond");
+const dotsHtml=(f,big)=>strokesSvg(f)+(f.dots||[]).map((d,j)=>`<span class="fdot${big?" big":""}${d.t?" lb":""}${d.t&&DOTLBL(d.t).length>1?" sm":""}" data-dj="${j}" style="left:${d.x*100}%;top:${d.y*100}%;background:${d.t?DOTCOL(d.t):"#e5484d"};--ds:${Number(d.s)||Number(f.ds)||1}"${d.t?` title="${DOTNM(d.t)}"`:""}>${d.t?DOTLBL(d.t):""}</span>`).join("");
 function fotoCard(f,i,removable){const ar=f.w&&f.h?`${f.w}/${f.h}`:"4/3",n=(f.dots||[]).length;
   return `<div class="ow-foto" data-fi="${i}" role="button" tabindex="0" title="Openen en ramen aantikken"><span class="fwrap" style="aspect-ratio:${ar}"><img src="${BLOB}${esc(f.id)}" alt="${esc(f.naam||"Foto")}" loading="lazy">${dotsHtml(f)}</span><small>${n?`<b>${n} ${n===1?"raam":"ramen"}</b> · `:""}${esc(f.naam||"Foto")}</small>${removable?`<button type="button" class="ow-frm" data-frm="${i}" aria-label="Foto verwijderen">${I.x}</button>`:""}</div>`}
 function openFotoViewer(list,start,opt={}){
-  let i=start,hist=[],mode="ramen",kleur="groen",nds=0;const canEdit=j=>typeof opt.edit==="function"?opt.edit(j):!!opt.edit;
+  let i=start,hist=[],mode="ramen",kleur="groen",nds=0,ty=opt.type||"f0";const canEdit=j=>typeof opt.edit==="function"?opt.edit(j):!!opt.edit;
+  const TY=opt.typen===false?null:(Array.isArray(opt.typen)?opt.typen:DOT_TYPEN);
+  const tellen=()=>{const c={};list.forEach(x=>(x.dots||[]).forEach(d=>{const t=d.t||"f0";c[t]=(c[t]||0)+1}));return c};
   const ov=document.createElement("div");ov.className="fv";ov.setAttribute("role","dialog");ov.setAttribute("aria-modal","true");
   (dlg.open?dlg:document.body).appendChild(ov);
   const close=()=>{ov.remove();document.removeEventListener("keydown",key)};
@@ -13305,11 +13330,12 @@ function openFotoViewer(list,start,opt={}){
   const go=d=>{if(list.length<2)return;i=(i+d+list.length)%list.length;hist=[];draw()};
   const draw=()=>{const f=list[i],ed=canEdit(i),n=(f.dots||[]).length,nm=(f.strokes||[]).length,ds=nds||Number(f.ds)||1,bw=Number(f.bw)||0.03;
     const sub=`${n} ${n===1?"raam":"ramen"} aangetikt${nm?` · ${nm} ${nm===1?"markering":"markeringen"}`:""}`;
-    ov.innerHTML=`<div class="fv-top"><div><b>${ed?(mode==="markeren"?"Markeer met je muis of vinger wat er moet gebeuren":"Tik de ramen aan die gewassen moeten worden"):(opt.titel||"Wat er moet gebeuren")}</b><br><span>${esc(f.naam||"Foto")} · ${sub}${list.length>1?` · foto ${i+1} van ${list.length}`:""}${!ed&&f.t?" · stippen komen uit de rekentool":""}</span></div><button type="button" class="fv-x" aria-label="Sluiten">${I.x}</button></div>
+    ov.innerHTML=`<div class="fv-top"><div><b>${ed?(mode==="markeren"?"Markeer met je muis of vinger wat er moet gebeuren":TY?(opt.titelEdit||"Kies een soort en tik de ramen aan"):"Tik de ramen aan die gewassen moeten worden"):(opt.titel||"Wat er moet gebeuren")}</b><br><span>${esc(f.naam||"Foto")} · ${sub}${list.length>1?` · foto ${i+1} van ${list.length}`:""}${!ed&&f.t?" · stippen komen uit de rekentool":""}</span></div><button type="button" class="fv-x" aria-label="Sluiten">${I.x}</button></div>
       <div class="fv-stage">${list.length>1?`<button type="button" class="fv-nav l" aria-label="Vorige foto">${I.left||"‹"}</button>`:""}<div class="fv-wrap${ed?" ed":""}${ed&&mode==="markeren"?" mk":""}" style="aspect-ratio:${f.w&&f.h?f.w+"/"+f.h:"4/3"}"><img src="${BLOB}${esc(f.id)}" alt="">${dotsHtml(f,true)}</div>${list.length>1?`<button type="button" class="fv-nav r" aria-label="Volgende foto">${I.right}</button>`:""}</div>
-      ${ed?`<div class="fv-tools"><div class="fv-seg" role="group" aria-label="Gereedschap"><button type="button" data-fvm="ramen" aria-pressed="${mode==="ramen"}"><i class="fv-sw" style="background:#e5484d;border-radius:50%"></i>Ramen</button><button type="button" data-fvm="markeren" aria-pressed="${mode==="markeren"}"><i class="fv-sw" style="background:${FMARK[kleur]}"></i>Markeren</button></div>
+      ${ed?`<div class="fv-tools"><div class="fv-seg" role="group" aria-label="Gereedschap"><button type="button" data-fvm="ramen" aria-pressed="${mode==="ramen"}"><i class="fv-sw" style="background:${TY?DOTCOL(ty):"#e5484d"};border-radius:50%"></i>Ramen</button><button type="button" data-fvm="markeren" aria-pressed="${mode==="markeren"}"><i class="fv-sw" style="background:${FMARK[kleur]}"></i>Markeren</button></div>
+        ${mode==="ramen"&&TY?(()=>{const c=tellen();return `<div class="fv-ty" role="radiogroup" aria-label="Soort raam">${TY.map(t=>`<button type="button" role="radio" data-fvt="${t}" aria-checked="${t===ty}" style="--c:${DOTCOL(t)}"><i>${DOTLBL(t)}</i>${DOTNM(t)}${c[t]?`<b>${c[t]}</b>`:""}</button>`).join("")}</div><div class="fv-tyh">Tik op een stip om hem te wissen. Kies je eerst een ander soort, dan verandert de stip naar dat soort.</div>`})():""}
         ${mode==="markeren"?`<div class="fv-kl" role="group" aria-label="Kleur">${Object.entries(FMARK).map(([k,c])=>`<button type="button" data-fvk="${k}" aria-pressed="${k===kleur}" title="${k}" style="--c:${c}"></button>`).join("")}</div>`:""}
-        <label class="fv-sl"><span>${mode==="markeren"?"Penseel":"Bolletje"}</span><input type="range" class="fv-size" min="${mode==="markeren"?10:5}" max="${mode==="markeren"?120:25}" value="${mode==="markeren"?Math.round(bw*1000):Math.round(ds*10)}"><i class="fv-pv" style="${mode==="markeren"?`background:${FMARK[kleur]};opacity:.55;border-radius:99px;width:${Math.max(6,Math.round(bw*400))}px;height:${Math.max(6,Math.round(bw*400))}px`:`background:#e5484d;border:2px solid #fff;border-radius:50%;width:${Math.round(16*ds)}px;height:${Math.round(16*ds)}px`}"></i></label></div>`:""}
+        <label class="fv-sl"><span>${mode==="markeren"?"Penseel":"Bolletje"}</span><input type="range" class="fv-size" min="${mode==="markeren"?10:5}" max="${mode==="markeren"?120:25}" value="${mode==="markeren"?Math.round(bw*1000):Math.round(ds*10)}"><i class="fv-pv" style="${mode==="markeren"?`background:${FMARK[kleur]};opacity:.55;border-radius:99px;width:${Math.max(6,Math.round(bw*400))}px;height:${Math.max(6,Math.round(bw*400))}px`:`background:${TY?DOTCOL(ty):"#e5484d"};border:2px solid #fff;border-radius:50%;width:${Math.round(16*ds)}px;height:${Math.round(16*ds)}px`}"></i></label></div>`:""}
       <div class="fv-bar">${ed?`<button type="button" class="fv-undo"${hist.length||n||nm?"":" disabled"}>Ongedaan</button><button type="button" class="fv-clear"${n||nm?"":" disabled"}>Alles wissen</button>`:""}<button type="button" class="fv-done">${ed?"Klaar":"Sluiten"}</button></div>`;
     const wEl=ov.querySelector(".fv-wrap"),stg=ov.querySelector(".fv-stage").getBoundingClientRect(),rt=(f.w&&f.h)?f.w/f.h:4/3,aw=stg.width-(list.length>1?120:24),ah=stg.height-8;
     let ww=aw,hh=aw/rt;if(hh>ah){hh=ah;ww=ah*rt}wEl.style.width=Math.max(50,ww)+"px";wEl.style.height=Math.max(50,hh)+"px";wEl.style.aspectRatio="auto";
@@ -13318,19 +13344,21 @@ function openFotoViewer(list,start,opt={}){
     /* alleen de stippen, markeringen en teksten bijwerken: de foto zelf blijft staan, zodat het scherm niet knippert */
     const ververs=()=>{const w=ov.querySelector(".fv-wrap");if(!w)return draw();w.querySelectorAll(".fdot,svg.fmark").forEach(x=>x.remove());w.insertAdjacentHTML("beforeend",dotsHtml(f,true));
       const n2=(f.dots||[]).length,m2=(f.strokes||[]).length,sp=ov.querySelector(".fv-top span");if(sp)sp.textContent=`${f.naam||"Foto"} · ${n2} ${n2===1?"raam":"ramen"} aangetikt${m2?` · ${m2} ${m2===1?"markering":"markeringen"}`:""}${list.length>1?` · foto ${i+1} van ${list.length}`:""}`;
-      const u=ov.querySelector(".fv-undo"),c=ov.querySelector(".fv-clear");if(u)u.disabled=!(hist.length||n2||m2);if(c)c.disabled=!(n2||m2)};
+      const u=ov.querySelector(".fv-undo"),c=ov.querySelector(".fv-clear");if(u)u.disabled=!(hist.length||n2||m2);if(c)c.disabled=!(n2||m2);
+      if(TY){const tc=tellen();ov.querySelectorAll("[data-fvt]").forEach(b=>{let e=b.querySelector("b");const v=tc[b.dataset.fvt]||0;if(v){if(!e){e=document.createElement("b");b.appendChild(e)}e.textContent=v}else if(e)e.remove()})}};
     const opslaan=()=>{if(opt.onChange)opt.onChange(i,f.dots||[],f);ververs()};
     const set=dots=>{f.dots=dots;opslaan()};
     if(ed){const w=wEl,pt=e=>{const b=w.getBoundingClientRect();return[Math.round(Math.min(1,Math.max(0,(e.clientX-b.left)/b.width))*10000)/10000,Math.round(Math.min(1,Math.max(0,(e.clientY-b.top)/b.height))*10000)/10000]};
       ov.querySelectorAll("[data-fvm]").forEach(b=>b.onclick=()=>{mode=b.dataset.fvm;draw()});
       ov.querySelectorAll("[data-fvk]").forEach(b=>b.onclick=()=>{kleur=b.dataset.fvk;draw()});
+      ov.querySelectorAll("[data-fvt]").forEach(b=>b.onclick=()=>{ty=b.dataset.fvt;draw()});
       const sl=ov.querySelector(".fv-size");sl.oninput=()=>{const v=+sl.value,pv=ov.querySelector(".fv-pv");
         if(mode==="markeren"){f.bw=v/1000;pv.style.width=pv.style.height=Math.max(6,Math.round(v*.4))+"px"}else{nds=v/10;pv.style.width=pv.style.height=Math.round(16*v/10)+"px"}};
       /* bolletje: de schuif geldt alleen voor de volgende stip; gezette stippen houden hun maat */
       sl.onchange=()=>{if(mode==="markeren")opslaan()};
       if(mode==="ramen"){w.onclick=e=>{const dEl=e.target.closest(".fdot");const dots=[...(f.dots||[])];
-        if(dEl){dots.splice(+dEl.dataset.dj,1);set(dots);return}
-        const [x,y]=pt(e),sz=nds||Number(f.ds)||1;dots.push(sz!==1?{x,y,s:sz}:{x,y});hist.push("d");set(dots)}}
+        if(dEl){const j=+dEl.dataset.dj,d=dots[j];if(TY&&d&&(d.t||"f0")!==ty){dots[j]={...d,t:ty};set(dots);return}dots.splice(j,1);set(dots);return}
+        const [x,y]=pt(e),sz=nds||Number(f.ds)||1;dots.push({x,y,...(TY?{t:ty}:{}),...(sz!==1?{s:sz}:{})});hist.push("d");set(dots)}}
       else{let cur=null,svg=null,pl=null;const H=f.w&&f.h?Math.round(1000*f.h/f.w):750;
         w.onpointerdown=e=>{e.preventDefault();w.setPointerCapture(e.pointerId);cur={c:kleur,w:Number(f.bw)||0.03,p:[pt(e)]};
           svg=w.querySelector("svg.fmark");if(!svg){w.querySelector("img").insertAdjacentHTML("afterend",`<svg class="fmark" viewBox="0 0 1000 ${H}" preserveAspectRatio="none"></svg>`);svg=w.querySelector("svg.fmark")}
@@ -15037,17 +15065,19 @@ function oBeurtBlok(k){if(!isOBeurt(k))return "";const f=tcFloors(k),sp=tcSp(k),
     <button type="button" class="small${g?"":" primary"}" data-tctl="${esc(k.id)}">${g?I.calculator+"Telling aanpassen":I.camera+"Telling controleren"}</button></div>`}
 function tcFotosHtml(tf){if(!tf.length)return `<div class="tc-fotos leeg">${I.camera||""}<span>De klant heeft geen foto's meegestuurd. Tel de ramen ter plekke.</span></div>`;
   const n=tf.reduce((a,f)=>a+(f.dots||[]).length,0);
-  return `<div class="tc-fotos"><div class="tc-fh"><b>Foto's van de klant</b><small>${tf.length} ${tf.length===1?"foto":"foto's"}${n?` · ${n} ramen aangetikt`:""} · tik om groot te bekijken</small></div>
+  return `<div class="tc-fotos"><div class="tc-fh"><b>Foto's van de klant</b><small>${tf.length} ${tf.length===1?"foto":"foto's"}${n?` · ${n} ramen aangetikt`:""} · tik op een foto om de stippen te controleren of aan te passen</small></div>
     <div class="tc-fg" id="tcFg">${tf.map((f,i)=>`<button type="button" data-tcf="${i}" aria-label="${esc(f.naam||"Foto")} bekijken"><span class="fwrap" style="aspect-ratio:${f.w&&f.h?f.w+"/"+f.h:"4/3"}"><img src="${BLOB}${esc(f.id)}" alt="" loading="lazy">${dotsHtml(f)}</span>${(f.dots||[]).length?`<em>${(f.dots||[]).length}</em>`:""}</button>`).join("")}</div></div>`}
 function openTellingControle(kid,na){const k=state.klanten.find(x=>x.id===kid);if(!k)return;
   const gc=k.tellingGecontroleerd,voor=(gc&&gc.origF)||tcFloors(k),vsp=(gc&&gc.origSp)||tcSp(k),f=tcFloors(k).slice(),sp={...tcSp(k)};
   const p0=gc?gc.prijsVoor:Number(k.prijs)||0;let fotos=null,ai=false,spOpen=SPK.some(x=>sp[x]||vsp[x]);
   /* foto's van de klant (uit de dienstenwebshop, met de aangetikte ramen) en eerder gemaakte controlefoto's */
-  const tf=[...(((k.ramenTelling||{}).fotos)||[]).filter(x=>x&&x.id).map((x,i)=>({...x,naam:x.zijde||("Foto "+(i+1)+" van de klant"),t:1})),...(k.fotos||[]).filter(x=>x&&x.id),...((gc&&gc.fotos)||[]).filter(x=>x&&x.id).map(x=>({...x,naam:"Controle · "+(x.zijde||"foto")}))].filter((x,i,a)=>a.findIndex(y=>y.id===x.id)===i);
+  const tf0=[...(((k.ramenTelling||{}).fotos)||[]).filter(x=>x&&x.id).map((x,i)=>({...x,naam:x.zijde||("Foto "+(i+1)+" van de klant"),t:1})),...(k.fotos||[]).filter(x=>x&&x.id),...((gc&&gc.fotos)||[]).filter(x=>x&&x.id).map(x=>({...x,naam:"Controle · "+(x.zijde||"foto")}))].filter((x,i,a)=>a.findIndex(y=>y.id===x.id)===i);
+  /* eigen kopie: stippen aanpassen raakt de klant pas bij opslaan */
+  const tf=tf0.map(x=>({...x,dots:(x.dots||[]).map(d=>({...d}))}));let stipAan=false;
   openDlg(`<div class="dlg-head"><span class="objic big">${I.calculator}</span><div style="flex:1;min-width:0"><h3>Tellingcontrole</h3><div class="subt">${esc(cleanName(k.naam))} · ${esc(fullAddr(k))}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
     ${tcFotosHtml(tf)}
     <div class="tc-or"><span>${tf.length?"jouw telling":"tel zelf"}</span></div>
-    <div class="tc-rows" id="tcRows"></div><div id="tcSum"></div>
+    <div class="tc-rows" id="tcRows"></div><div id="tcPrijs"></div><div id="tcSum"></div>
     <div class="row stickyfoot"><button type="button" class="ghost" data-act="close">Annuleren</button><span class="sp"></span><button type="submit" class="primary" id="tcGo">${I.check}Telling klopt</button></div>`,{wide:false});
   const same=()=>f.every((n,i)=>n===voor[i])&&SPK.every(x=>sp[x]===vsp[x]);
   const totV=()=>voor.reduce((a,b)=>a+b,0)+SPK.reduce((a,x)=>a+vsp[x],0),totN=()=>f.reduce((a,b)=>a+b,0)+SPK.reduce((a,x)=>a+sp[x],0);
@@ -15057,9 +15087,16 @@ function openTellingControle(kid,na){const k=state.klanten.find(x=>x.id===kid);i
   const sum=()=>{const sm=same(),tv=totV(),tn=totN(),c=sm?null:tcPrijs(k,f,sp);
     $("#tcSum").innerHTML=sm?`<div class="okbox" style="margin:0">${I.check}<div><b>Zelfde als de klant: ${tn} ramen</b><span>Prijs blijft ${esc(eur(p0))} per beurt.</span></div></div>`
       :`<div class="warnbox">${I.alert}<span>Klant telde <b>${tv}</b>, jij telt <b>${tn}</b> ramen. ${c&&c.prijs===p0?`Prijs blijft <b>${esc(eur(p0))}</b> per beurt (minimumprijs of zelfde tarief).`:`Nieuwe prijs ${c?`<b>${esc(eur(c.prijs))}</b> per beurt (was ${esc(eur(p0))}), ± ${c.duur} min`:"wordt herberekend"}.`}</span></div>`;
+    {const nu=sm?p0:(c?c.prijs:p0),m=S().incl?"incl. btw":"excl. btw";$("#tcPrijs").innerHTML=`<div class="tc-prijs"><span>Prijs per beurt</span><b>${esc(eur(nu))}</b><small>${m}${!sm&&nu!==p0?` · was <s>${esc(eur(p0))}</s>`:""}${c&&c.duur?` · ± ${c.duur} min`:""} · ${tn} ${tn===1?"raam":"ramen"}</small></div>`}
     $("#tcGo").innerHTML=I.check+(sm?"Telling klopt":"Telling opslaan")};
   draw();
-  {const g=$("#tcFg");if(g)g.onclick=e=>{const b=e.target.closest("[data-tcf]");if(b)openFotoViewer(tf,+b.dataset.tcf,{edit:false,titel:"Foto van de klant: controleer de aangetikte ramen"})}}
+  /* stippen op de foto's = de telling: na aanpassen tellen we per soort opnieuw */
+  const uitStippen=()=>{const nf=[0,0,0,0],ns=SPK.reduce((o,x)=>(o[x]=0,o),{});
+    tf.forEach(x=>(x.dots||[]).forEach(d=>{const t=d.t||"f0";if(String(t).startsWith("s-")){const kk=t.slice(2);if(kk in ns)ns[kk]++}else nf[Math.min(3,+String(t).slice(1)||0)]++}));
+    f.splice(0,4,...nf);SPK.forEach(x=>sp[x]=ns[x]);if(SPK.some(x=>sp[x]))spOpen=true;stipAan=true;
+    const g=$("#tcFg");if(g){const w=document.createElement("div");w.innerHTML=tcFotosHtml(tf);const ng=w.querySelector("#tcFg"),h=w.querySelector(".tc-fh small");if(ng)g.innerHTML=ng.innerHTML;const oh=document.querySelector(".tc-fh small");if(h&&oh)oh.textContent=h.textContent}
+    draw()};
+  {const g=$("#tcFg");if(g)g.onclick=e=>{const b=e.target.closest("[data-tcf]");if(b)openFotoViewer(tf,+b.dataset.tcf,{edit:true,titelEdit:"Controleer de stippen · kies een soort en tik ramen aan of verbeter ze",onChange:()=>uitStippen()})}}
   if($("#tcAi"))$("#tcAi").onclick=()=>openFotoTelling(k,fotos,res=>{fotos=res.fotos;ai=true;f.splice(0,4,...res.f);SPK.forEach(x=>sp[x]=res.sp[x]||0);if(SPK.some(x=>sp[x]))spOpen=true;draw();
     $("#tcAi").classList.add("klaar");$("#tcAi>i").innerHTML=I.check;$("#tcAiS").textContent=`${res.fotos.length} foto's · ${totN()} ramen geteld. Tik om de foto's te bekijken of te verbeteren.`;
     $("#tcRows").animate([{opacity:.3,transform:"translateY(6px)"},{opacity:1,transform:"none"}],{duration:420,easing:"cubic-bezier(.2,.8,.2,1)"})});
@@ -15071,9 +15108,13 @@ function openTellingControle(kid,na){const k=state.klanten.find(x=>x.id===kid);i
     if(fotos&&fotos.length){b.innerHTML=I.camera+"Foto's bewaren…";const up=[];
       for(const p of fotos){try{const r=state.assets?await state.assets.upload(new File([p.blob],"telling-"+p.zijde.toLowerCase().replace(/\W+/g,"-")+".jpg",{type:"image/jpeg"})):null;if(r&&r.id)up.push({id:r.id,w:p.w,h:p.h,zijde:p.zijde,dots:p.dots.map(d=>({x:Math.round(d.x*1e4)/1e4,y:Math.round(d.y*1e4)/1e4,t:d.t}))})}catch(er){console.warn(er)}}
       if(up.length)fo=up}
-    const g={datum:iso(today()),voor:tv,na:tn,origF:voor,origSp:vsp,prijsVoor:p0,prijsNa:c?c.prijs:p0,...(ai||(gc&&gc.ai)?{ai:true}:{}),...(fo.length?{fotos:fo}:{})};
+    const kd=x=>({id:x.id,...(x.w?{w:x.w,h:x.h}:{}),...(x.zijde?{zijde:x.zijde}:{}),dots:(x.dots||[]).map(d=>({x:d.x,y:d.y,...(d.t?{t:d.t}:{}),...(d.s&&d.s!==1?{s:d.s}:{})}))});
+    if(stipAan&&!(fotos&&fotos.length))fo=tf.filter(x=>(x.dots||[]).length).map(kd);
+    const nieuweDots=id=>{const x=tf.find(y=>y.id===id);return x?x.dots.map(d=>({...d})):null};
+    const g={datum:iso(today()),voor:tv,na:tn,origF:voor,origSp:vsp,prijsVoor:p0,prijsNa:c?c.prijs:p0,...(ai||(gc&&gc.ai)?{ai:true}:{}),...(stipAan?{stippen:true}:{}),...(fo.length?{fotos:fo}:{})};
     const patch={tellingGecontroleerd:g,ramenRegel:normR({...(cur.ramenRegel||{}),f:f.slice(),sp:{...sp}}),...(c?{prijs:c.prijs,...(!(cur.tijden||[]).length?{duur:c.duur}:{})}:{}),
-      ramenTelling:{...(cur.ramenTelling||{}),gecontroleerd:g},log:[...(cur.log||[]),{datum:iso(today()),tekst:(sm?`Tellingcontrole O-beurt: klopt (${tn} ramen)`:`Tellingcontrole O-beurt: ${tv} → ${tn} ramen · prijs ${eur(p0)} → ${eur(c?c.prijs:p0)}`)+(ai?" · geteld met foto's":"")}]};
+      ramenTelling:{...(cur.ramenTelling||{}),gecontroleerd:g,...(stipAan&&(cur.ramenTelling||{}).fotos?{fotos:cur.ramenTelling.fotos.map(x=>{const d=x&&nieuweDots(x.id);return d?{...x,dots:d}:x})}:{})},
+      ...(stipAan&&(cur.fotos||[]).length?{fotos:cur.fotos.map(x=>{const d=x&&nieuweDots(x.id);return d?{...x,dots:d}:x})}:{}),log:[...(cur.log||[]),{datum:iso(today()),tekst:(sm?`Tellingcontrole O-beurt: klopt (${tn} ramen)`:`Tellingcontrole O-beurt: ${tv} → ${tn} ramen · prijs ${eur(p0)} → ${eur(c?c.prijs:p0)}`)+(ai?" · geteld met foto's":"")+(stipAan?" · stippen op de foto's aangepast":"")}]};
     try{await save("klanten",kid,{...strip(cur),...patch});toast(sm?"Telling klopt · vastgelegd":"Telling aangepast · nieuwe prijs "+eur(c?c.prijs:p0)+" per beurt");dlg.close();render();if(typeof na==="function")na();
       if(typeof stuurDefinitief==="function"&&liveMail()&&S().ovDefinitiefAan!==false)setTimeout(()=>stuurDefinitief(kid,true),400)}catch(er){b.disabled=false;err(er)}};
 }
@@ -15795,6 +15836,16 @@ function ccAlle(){const s=[],t=today(),ti=iso(t),morgen=ccDag(1);
   state.facturen.filter(f=>f.soort==="offerte"&&f.status==="verstuurd").forEach(f=>{const dd=ccDagen(String(f.verstuurdOp||f.datum||"").slice(0,10),ti);if(dd<7)return;const k=ccKlant(f.klantId);
     add({key:"ow:"+f.id,p:"hoog",ic:"offertes",t:`Offerte ${String(f.nummer||"").replace(/^OFF-/,"")} wacht op reactie · ${eur(totals(f).inc)}`,u:`${plural(dd,"dag","dagen")} geleden verstuurd, nog geen akkoord of afwijzing.`,b:ccNaam(k)||cleanName(f.klantNaam||""),leeftijd:dd,knop:"Open offerte",go:"f:"+f.id,
       acts:[bel(k),{l:"Opnieuw sturen",ic:"send",cc:"stuur:"+f.id}].filter(Boolean)})});
+  /* kritiek: nieuwe klant via de website (blijft staan tot hij gezien is) */
+  state.klanten.filter(k=>k.nieuwAangemeld&&k.actief!==false).forEach(k=>{const t2=k.ramenTelling||{},ct=k.aanvraagType==="contact",dd=k.aangemaakt?ccDagen(String(k.aangemaakt).slice(0,10),ti):0;
+    add({key:"na:"+k.id,p:"kritiek",ic:"klanten",t:ct?`Nieuw contactverzoek: ${ccNaam(k)}`:`Nieuwe klant aangemeld: ${ccNaam(k)}`,u:ct?"Bedrijf of VvE vraagt een offerte op maat.":`Via je website${t2.ramen?" · "+t2.ramen+" ramen (telling klant)":""}${k.prijs?" · "+eur(Number(k.prijs))+" per beurt":""}. ${typeof isOBeurt==="function"&&isOBeurt(k)?"Plan de eerste beurt in; daarbij doe je de tellingcontrole.":""}`,
+      b:[k.adres,k.plaats].filter(Boolean).join(", "),leeftijd:Math.max(0,dd||0),knop:"Open klant",go:"klant:"+k.id,
+      acts:[ct?{l:"Offerte maken",ic:"offertes",cc:"off:"+k.id}:{l:"Inplannen",ic:"planning",cc:"plan:"+k.id},bel(k),{l:"Gezien",ic:"check",cc:"gezien:"+k.id}].filter(Boolean)})});
+  /* hoog: tellingcontrole nog nodig (eerste beurt na een aanmelding via de website) */
+  state.klanten.filter(k=>k.actief!==false&&typeof isOBeurt==="function"&&isOBeurt(k)&&!k.tellingGecontroleerd).forEach(k=>{const t2=k.ramenTelling||{};
+    add({key:"tc:"+k.id,p:"hoog",ic:"calculator",t:`Tellingcontrole nodig: ${ccNaam(k)}`,u:`De klant telde zelf${t2.ramen?" "+t2.ramen+" ramen":""}${(t2.fotos||[]).length?" en stuurde "+plural(t2.fotos.length,"foto","foto's")+" mee":""}. Controleer de telling vóór of bij de eerste beurt; daarna gaat het definitieve bestellingsoverzicht naar de klant.`,
+      b:[k.adres,k.plaats].filter(Boolean).join(", "),leeftijd:0,knop:"Open klant",go:"klant:"+k.id,
+      acts:[{l:"Telling controleren",ic:"calculator",cc:"tc:"+k.id},!k.gepland?{l:"Inplannen",ic:"planning",cc:"plan:"+k.id}:null].filter(Boolean)})});
   /* hoog: aan de beurt maar niet ingepland */
   overdue().filter(k=>!k.gepland&&!k.opdrachtVerwijderd).forEach(k=>{const v=volgende(k),dd=v?Math.max(0,Math.round((t-v)/864e5)):0;
     add({key:"tl:"+k.id+":"+(v?iso(v):""),p:"hoog",ic:"planning",t:`${ccNaam(k)} is aan de beurt`,u:`${dd?plural(dd,"dag","dagen")+" over de termijn":"Vandaag aan de beurt"}, nog niet ingepland.`,b:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),leeftijd:dd,knop:"Open klant",go:"klant:"+k.id,
@@ -15812,7 +15863,7 @@ function ccAlle(){const s=[],t=today(),ti=iso(t),morgen=ccDag(1);
   /* offerte online ondertekend (laatste 14 dagen): de klant staat al bij Te plannen, plan de eerste beurt */
   {const g14=iso(addDays(today(),-14));state.facturen.filter(f=>f.soort==="offerte"&&f.getekend&&String(f.akkoordOp||String(f.getekend.op||"").slice(0,10))>=g14).forEach(f=>{const k=state.klanten.find(x=>x.id===f.klantId)||{},gp=k.gepland&&k.gepland>=ti;
     add({key:"og:"+f.id,p:"hoog",ic:"offertes",t:`Offerte ${f.nummer} ondertekend · ${eur(totals(f).inc)}`,u:gp?`Eerste beurt staat op ${fmtD(k.gepland)}${k.tijd?" om "+k.tijd:""}.`:"Getekend door "+(f.getekend.naam||"de klant")+". De klant staat bij Te plannen: plan de eerste beurt in.",b:ccNaam(k)||cleanName(f.klantNaam||""),leeftijd:ccDagen(f.akkoordOp||String(f.getekend.op||"").slice(0,10),ti),nieuw:!!f.getekendNieuw,knop:"Open offerte",go:"f:"+f.id,acts:[...(k.id&&!gp?[{l:"Inplannen",ic:"planning",cc:"plan:"+k.id}]:[]),...(k.id?[{l:"Klantkaart",ic:"user",cc:"klant:"+k.id}]:[])]})})}
-  nieuweAanmeldingen().forEach(k=>add({key:"nk:"+k.id,p:"normaal",ic:"klanten",t:`Nieuwe aanmelding: ${ccNaam(k)}`,u:"Via de website aangemeld. Bel of mail om de eerste afspraak te maken.",b:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),leeftijd:0,nieuw:true,knop:"Open klant",go:"klant:"+k.id,acts:[bel(k)].filter(Boolean)}));
+  /* (staat nu bovenaan als kritieke melding) */ if(0)nieuweAanmeldingen().forEach(k=>add({key:"nk:"+k.id,p:"normaal",ic:"klanten",t:`Nieuwe aanmelding: ${ccNaam(k)}`,u:"Via de website aangemeld. Bel of mail om de eerste afspraak te maken.",b:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),leeftijd:0,nieuw:true,knop:"Open klant",go:"klant:"+k.id,acts:[bel(k)].filter(Boolean)}));
   /* normaal: berichten in de wachtrij */
   {const wq=wqOpen();
     if(wq)add({key:"wq:"+ti+":"+wq,p:"normaal",ic:"communicatie",t:plural(wq,"bericht klaar","berichten klaar")+" om te versturen",u:"Herinneringen of aankondigingen in de wachtrij van Communicatie.",b:"",leeftijd:0,knop:"Open communicatie",go:"tab:communicatie"})}
@@ -16012,6 +16063,9 @@ function ccActie(a){if(!a)return;const [k,...r]=a.split(":"),v=r.join(":");
   if(k==="herinner")return sendF(v,{herinnering:true});
   if(k==="stuur")return sendF(v);
   if(k==="plan")return openAfspraak(v);
+  if(k==="tc")return openTellingControle(v);
+  if(k==="off")return openOfferte({klantId:v});
+  if(k==="gezien"){if(typeof aanmGezien==="function")return aanmGezien(v);return}
   if(k==="ticket")return typeof openTickets==="function"?openTickets(v):go("communicatie");
   if(k==="klaar"){CC.sel=-1;CC.menu="";return ccZet(v,"klaar")}
   if(k==="terug")return ccZet(v,"terug");
@@ -16442,7 +16496,7 @@ async function verstuurLive(i){
 
 /* ---------- bestellingsoverzicht ---------- */
 function overzichtModelKlant(k){const r=normR(k.ramenRegel),fq="1x per "+(Number(k.frequentie)||8)+" weken",pct=Number(S().btw)||21,p=Number(k.prijs)||0,incl=S().incl?p:r2(p*(1+pct/100)),excl=S().incl?r2(p/(1+pct/100)):p;
-  const subs=r.f.map((n,i)=>n?{naam:TC_FL[i],aantal:n+" st",freq:fq}:null).filter(Boolean);
+  const sp=r.sp||{},subs=[...r.f.map((n,i)=>n?{naam:TC_FL[i]||(i+"e verdieping"),aantal:n+" st",freq:fq}:null),...(typeof SPK!=="undefined"?SPK:[]).map(x=>Number(sp[x])?{naam:(typeof TC_SPN!=="undefined"&&TC_SPN[x])||x,aantal:Number(sp[x])+" st",freq:fq}:null)].filter(Boolean);
   return {klant:{naam:k.naam||"",contact:k.contact||"",adres:k.adres||"",pcPlaats:[String(k.postcode||"").toUpperCase(),k.plaats].filter(Boolean).join(" "),klantnummer:klantNr(k)},
     groepen:[{omschrijving:k.dienst||"Glasbewassing",excl,btwPct:pct,btw:r2(incl-excl),incl,subs}]}}
 function overzichtModelOfferte(f,k){const pct=Number(f.btw??S().btw)||21,inc=f.incl??S().incl;
@@ -17651,7 +17705,7 @@ addEventListener("scroll",()=>{const m=document.getElementById("mobOffer");docum
 if(!LIVE&&typeof location!=="undefined"&&/[?&]selftest\b/.test(location.search)){
   window.MSTEST={sendF:typeof sendF==="function"?sendF:null,verzondenHerstel:typeof verzondenHerstel==="function"?verzondenHerstel:null,vraagBetaaldatum:typeof vraagBetaaldatum==="function"?vraagBetaaldatum:null,betaaldTsVan:typeof betaaldTsVan==="function"?betaaldTsVan:null,state,S,save,del,totals,nextNr,nrDelen,wikKosten,fStatus,afronden,gewassen,billAll,setFStatus,iso,today,addDays,newId,strip,render,
     fin,beurtOmzet,klantFilter,extraOpdr,opdrNr:typeof opdrNr==="function"?opdrNr:null,openOpdrachtWerk:typeof openOpdrachtWerk==="function"?openOpdrachtWerk:null,teplannen,fhVolgende:typeof fhVolgende==="function"?fhVolgende:null,fhPoort:typeof fhPoort==="function"?fhPoort:null,groepEditor:typeof groepEditor==="function"?groepEditor:null,melding,stDienstSplit,klantActiefIn,openImport,relVolgende:typeof relVolgende==="function"?relVolgende:null,beurtMin,meetTeKort,wdCijfers:typeof wdCijfers==="function"?wdCijfers:null,kmFmt:typeof kmFmt==="function"?kmFmt:null,kmAfst:typeof kmAfst==="function"?kmAfst:null,saveSettings,
-    msAbo:typeof aboDlg==="function"?(d,f)=>{MS.doc=d;window.fbFn=f;window.ZEEM_ROL="eigenaar";return aboDlg()}:null,opdrBij:typeof opdrBij==="function"?opdrBij:null,openFotoViewer:typeof openFotoViewer==="function"?openFotoViewer:null,dotsHtml:typeof dotsHtml==="function"?dotsHtml:null,omsZonderDatum:typeof omsZonderDatum==="function"?omsZonderDatum:null,extraOpdr:typeof extraOpdr==="function"?extraOpdr:null,openOpdrachtWerk:typeof openOpdrachtWerk==="function"?openOpdrachtWerk:null,groepTarievenBij:typeof groepTarievenBij==="function"?groepTarievenBij:null,groepCalc:typeof groepCalc==="function"?groepCalc:null,wqOpen:typeof wqOpen==="function"?wqOpen:null,ccZet:typeof ccZet==="function"?ccZet:null,ccSignalen:typeof ccSignalen==="function"?ccSignalen:null,teVroeg:typeof teVroeg==="function"?teVroeg:null,mailFor:typeof mailFor==="function"?mailFor:null,volgendeNa:typeof volgendeNa==="function"?volgendeNa:null,verplaatsAllePatch:typeof verplaatsAllePatch==="function"?verplaatsAllePatch:null,heeftVervolg:typeof heeftVervolg==="function"?heeftVervolg:null,occurrences:typeof occurrences==="function"?occurrences:null,fbLees:typeof fbLees==="function"?fbLees:null,bhVerkoopboek:typeof bhVerkoopboek==="function"?bhVerkoopboek:null,invData:typeof invData==="function"?invData:null,pdfDoc:typeof pdfDoc==="function"?pdfDoc:null,paperHtml:typeof paperHtml==="function"?paperHtml:null,openTellingControle:typeof openTellingControle==="function"?openTellingControle:null,bcVast,ccKpis:typeof ccKpis==="function"?ccKpis:null,ccSignalen:typeof ccSignalen==="function"?ccSignalen:null,ccZoek:typeof ccZoek==="function"?ccZoek:null,ccAlle:typeof ccAlle==="function"?ccAlle:null,openFactuurWerk:typeof openFactuurWerk==="function"?openFactuurWerk:null,paperHtml:typeof paperHtml==="function"?paperHtml:null,btwRegel:typeof btwRegel==="function"?btwRegel:null,btwVast:typeof btwVast==="function"?btwVast:null,vveAanDeBeurt:typeof vveAanDeBeurt==="function"?vveAanDeBeurt:null,nrBewaker,msStatus:typeof msStatus==="function"?msStatus:null,MS:typeof MS!=="undefined"?MS:null,
+    st:()=>state,msAbo:typeof aboDlg==="function"?(d,f)=>{MS.doc=d;window.fbFn=f;window.ZEEM_ROL="eigenaar";return aboDlg()}:null,opdrBij:typeof opdrBij==="function"?opdrBij:null,openFotoViewer:typeof openFotoViewer==="function"?openFotoViewer:null,dotsHtml:typeof dotsHtml==="function"?dotsHtml:null,omsZonderDatum:typeof omsZonderDatum==="function"?omsZonderDatum:null,extraOpdr:typeof extraOpdr==="function"?extraOpdr:null,openOpdrachtWerk:typeof openOpdrachtWerk==="function"?openOpdrachtWerk:null,groepTarievenBij:typeof groepTarievenBij==="function"?groepTarievenBij:null,groepCalc:typeof groepCalc==="function"?groepCalc:null,wqOpen:typeof wqOpen==="function"?wqOpen:null,ccZet:typeof ccZet==="function"?ccZet:null,ccSignalen:typeof ccSignalen==="function"?ccSignalen:null,teVroeg:typeof teVroeg==="function"?teVroeg:null,mailFor:typeof mailFor==="function"?mailFor:null,volgendeNa:typeof volgendeNa==="function"?volgendeNa:null,verplaatsAllePatch:typeof verplaatsAllePatch==="function"?verplaatsAllePatch:null,heeftVervolg:typeof heeftVervolg==="function"?heeftVervolg:null,occurrences:typeof occurrences==="function"?occurrences:null,fbLees:typeof fbLees==="function"?fbLees:null,bhVerkoopboek:typeof bhVerkoopboek==="function"?bhVerkoopboek:null,invData:typeof invData==="function"?invData:null,pdfDoc:typeof pdfDoc==="function"?pdfDoc:null,paperHtml:typeof paperHtml==="function"?paperHtml:null,openTellingControle:typeof openTellingControle==="function"?openTellingControle:null,bcVast,ccKpis:typeof ccKpis==="function"?ccKpis:null,ccSignalen:typeof ccSignalen==="function"?ccSignalen:null,ccZoek:typeof ccZoek==="function"?ccZoek:null,ccAlle:typeof ccAlle==="function"?ccAlle:null,openFactuurWerk:typeof openFactuurWerk==="function"?openFactuurWerk:null,paperHtml:typeof paperHtml==="function"?paperHtml:null,btwRegel:typeof btwRegel==="function"?btwRegel:null,btwVast:typeof btwVast==="function"?btwVast:null,vveAanDeBeurt:typeof vveAanDeBeurt==="function"?vveAanDeBeurt:null,nrBewaker,msStatus:typeof msStatus==="function"?msStatus:null,MS:typeof MS!=="undefined"?MS:null,
     opdrLoc:typeof opdrLoc==="function"?opdrLoc:null,hoofdLoc:typeof hoofdLoc==="function"?hoofdLoc:null,openKlant:typeof openKlant==="function"?openKlant:null,
     views:()=>PAGES.map(p=>p[0]),ga:t=>{state.tab=t;render()}};
 }

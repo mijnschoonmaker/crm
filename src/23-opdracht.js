@@ -424,11 +424,17 @@ const FMARK={groen:"#30a46c",geel:"#ffc53d",blauw:"#0090ff",oranje:"#f76b15"};
 /* markeringen (dakgoot, beplating, windveer…): halfdoorzichtige penseelstreken over de foto, coördinaten 0–1 */
 const strokesSvg=f=>{const S=(f.strokes||[]).filter(x=>x&&Array.isArray(x.p)&&x.p.length);if(!S.length)return"";const H=f.w&&f.h?Math.round(1000*f.h/f.w):750;
   return `<svg class="fmark" viewBox="0 0 1000 ${H}" preserveAspectRatio="none" aria-hidden="true">${S.map(x=>`<g opacity=".45"><polyline points="${x.p.map(q=>Math.round(q[0]*1000)+","+Math.round(q[1]*H)).join(" ")}" fill="none" stroke="${FMARK[x.c]||x.c||FMARK.groen}" stroke-width="${Math.round((Number(x.w)||0.03)*1000)}" stroke-linecap="round" stroke-linejoin="round"/></g>`).join("")}</svg>`};
-const dotsHtml=(f,big)=>strokesSvg(f)+(f.dots||[]).map((d,j)=>`<span class="fdot${big?" big":""}" data-dj="${j}" style="left:${d.x*100}%;top:${d.y*100}%;background:${d.t?DOTCOL(d.t):"#e5484d"};--ds:${Number(d.s)||Number(f.ds)||1}"></span>`).join("");
+/* soorten stippen, gelijk aan de dienstenwebshop: BG, 1, 2, 3 per verdieping en T/K/L/M voor bijzondere ramen */
+const DOT_TYPEN=["f0","f1","f2","f3","s-tuimel","s-koepel","s-lood","s-mini"];
+const DOTLBL=t=>({"s-tuimel":"T","s-koepel":"K","s-lood":"L","s-mini":"M"})[t]||(+String(t||"f0").slice(1)?String(+String(t).slice(1)):"BG");
+const DOTNM=t=>({"s-tuimel":"Dak- / tuimelraam","s-koepel":"Lichtkoepel","s-lood":"Glas-in-lood","s-mini":"Miniraampje"})[t]||(+String(t||"f0").slice(1)?String(t).slice(1)+"e verdieping":"Begane grond");
+const dotsHtml=(f,big)=>strokesSvg(f)+(f.dots||[]).map((d,j)=>`<span class="fdot${big?" big":""}${d.t?" lb":""}${d.t&&DOTLBL(d.t).length>1?" sm":""}" data-dj="${j}" style="left:${d.x*100}%;top:${d.y*100}%;background:${d.t?DOTCOL(d.t):"#e5484d"};--ds:${Number(d.s)||Number(f.ds)||1}"${d.t?` title="${DOTNM(d.t)}"`:""}>${d.t?DOTLBL(d.t):""}</span>`).join("");
 function fotoCard(f,i,removable){const ar=f.w&&f.h?`${f.w}/${f.h}`:"4/3",n=(f.dots||[]).length;
   return `<div class="ow-foto" data-fi="${i}" role="button" tabindex="0" title="Openen en ramen aantikken"><span class="fwrap" style="aspect-ratio:${ar}"><img src="${BLOB}${esc(f.id)}" alt="${esc(f.naam||"Foto")}" loading="lazy">${dotsHtml(f)}</span><small>${n?`<b>${n} ${n===1?"raam":"ramen"}</b> · `:""}${esc(f.naam||"Foto")}</small>${removable?`<button type="button" class="ow-frm" data-frm="${i}" aria-label="Foto verwijderen">${I.x}</button>`:""}</div>`}
 function openFotoViewer(list,start,opt={}){
-  let i=start,hist=[],mode="ramen",kleur="groen",nds=0;const canEdit=j=>typeof opt.edit==="function"?opt.edit(j):!!opt.edit;
+  let i=start,hist=[],mode="ramen",kleur="groen",nds=0,ty=opt.type||"f0";const canEdit=j=>typeof opt.edit==="function"?opt.edit(j):!!opt.edit;
+  const TY=opt.typen===false?null:(Array.isArray(opt.typen)?opt.typen:DOT_TYPEN);
+  const tellen=()=>{const c={};list.forEach(x=>(x.dots||[]).forEach(d=>{const t=d.t||"f0";c[t]=(c[t]||0)+1}));return c};
   const ov=document.createElement("div");ov.className="fv";ov.setAttribute("role","dialog");ov.setAttribute("aria-modal","true");
   (dlg.open?dlg:document.body).appendChild(ov);
   const close=()=>{ov.remove();document.removeEventListener("keydown",key)};
@@ -436,11 +442,12 @@ function openFotoViewer(list,start,opt={}){
   const go=d=>{if(list.length<2)return;i=(i+d+list.length)%list.length;hist=[];draw()};
   const draw=()=>{const f=list[i],ed=canEdit(i),n=(f.dots||[]).length,nm=(f.strokes||[]).length,ds=nds||Number(f.ds)||1,bw=Number(f.bw)||0.03;
     const sub=`${n} ${n===1?"raam":"ramen"} aangetikt${nm?` · ${nm} ${nm===1?"markering":"markeringen"}`:""}`;
-    ov.innerHTML=`<div class="fv-top"><div><b>${ed?(mode==="markeren"?"Markeer met je muis of vinger wat er moet gebeuren":"Tik de ramen aan die gewassen moeten worden"):(opt.titel||"Wat er moet gebeuren")}</b><br><span>${esc(f.naam||"Foto")} · ${sub}${list.length>1?` · foto ${i+1} van ${list.length}`:""}${!ed&&f.t?" · stippen komen uit de rekentool":""}</span></div><button type="button" class="fv-x" aria-label="Sluiten">${I.x}</button></div>
+    ov.innerHTML=`<div class="fv-top"><div><b>${ed?(mode==="markeren"?"Markeer met je muis of vinger wat er moet gebeuren":TY?(opt.titelEdit||"Kies een soort en tik de ramen aan"):"Tik de ramen aan die gewassen moeten worden"):(opt.titel||"Wat er moet gebeuren")}</b><br><span>${esc(f.naam||"Foto")} · ${sub}${list.length>1?` · foto ${i+1} van ${list.length}`:""}${!ed&&f.t?" · stippen komen uit de rekentool":""}</span></div><button type="button" class="fv-x" aria-label="Sluiten">${I.x}</button></div>
       <div class="fv-stage">${list.length>1?`<button type="button" class="fv-nav l" aria-label="Vorige foto">${I.left||"‹"}</button>`:""}<div class="fv-wrap${ed?" ed":""}${ed&&mode==="markeren"?" mk":""}" style="aspect-ratio:${f.w&&f.h?f.w+"/"+f.h:"4/3"}"><img src="${BLOB}${esc(f.id)}" alt="">${dotsHtml(f,true)}</div>${list.length>1?`<button type="button" class="fv-nav r" aria-label="Volgende foto">${I.right}</button>`:""}</div>
-      ${ed?`<div class="fv-tools"><div class="fv-seg" role="group" aria-label="Gereedschap"><button type="button" data-fvm="ramen" aria-pressed="${mode==="ramen"}"><i class="fv-sw" style="background:#e5484d;border-radius:50%"></i>Ramen</button><button type="button" data-fvm="markeren" aria-pressed="${mode==="markeren"}"><i class="fv-sw" style="background:${FMARK[kleur]}"></i>Markeren</button></div>
+      ${ed?`<div class="fv-tools"><div class="fv-seg" role="group" aria-label="Gereedschap"><button type="button" data-fvm="ramen" aria-pressed="${mode==="ramen"}"><i class="fv-sw" style="background:${TY?DOTCOL(ty):"#e5484d"};border-radius:50%"></i>Ramen</button><button type="button" data-fvm="markeren" aria-pressed="${mode==="markeren"}"><i class="fv-sw" style="background:${FMARK[kleur]}"></i>Markeren</button></div>
+        ${mode==="ramen"&&TY?(()=>{const c=tellen();return `<div class="fv-ty" role="radiogroup" aria-label="Soort raam">${TY.map(t=>`<button type="button" role="radio" data-fvt="${t}" aria-checked="${t===ty}" style="--c:${DOTCOL(t)}"><i>${DOTLBL(t)}</i>${DOTNM(t)}${c[t]?`<b>${c[t]}</b>`:""}</button>`).join("")}</div><div class="fv-tyh">Tik op een stip om hem te wissen. Kies je eerst een ander soort, dan verandert de stip naar dat soort.</div>`})():""}
         ${mode==="markeren"?`<div class="fv-kl" role="group" aria-label="Kleur">${Object.entries(FMARK).map(([k,c])=>`<button type="button" data-fvk="${k}" aria-pressed="${k===kleur}" title="${k}" style="--c:${c}"></button>`).join("")}</div>`:""}
-        <label class="fv-sl"><span>${mode==="markeren"?"Penseel":"Bolletje"}</span><input type="range" class="fv-size" min="${mode==="markeren"?10:5}" max="${mode==="markeren"?120:25}" value="${mode==="markeren"?Math.round(bw*1000):Math.round(ds*10)}"><i class="fv-pv" style="${mode==="markeren"?`background:${FMARK[kleur]};opacity:.55;border-radius:99px;width:${Math.max(6,Math.round(bw*400))}px;height:${Math.max(6,Math.round(bw*400))}px`:`background:#e5484d;border:2px solid #fff;border-radius:50%;width:${Math.round(16*ds)}px;height:${Math.round(16*ds)}px`}"></i></label></div>`:""}
+        <label class="fv-sl"><span>${mode==="markeren"?"Penseel":"Bolletje"}</span><input type="range" class="fv-size" min="${mode==="markeren"?10:5}" max="${mode==="markeren"?120:25}" value="${mode==="markeren"?Math.round(bw*1000):Math.round(ds*10)}"><i class="fv-pv" style="${mode==="markeren"?`background:${FMARK[kleur]};opacity:.55;border-radius:99px;width:${Math.max(6,Math.round(bw*400))}px;height:${Math.max(6,Math.round(bw*400))}px`:`background:${TY?DOTCOL(ty):"#e5484d"};border:2px solid #fff;border-radius:50%;width:${Math.round(16*ds)}px;height:${Math.round(16*ds)}px`}"></i></label></div>`:""}
       <div class="fv-bar">${ed?`<button type="button" class="fv-undo"${hist.length||n||nm?"":" disabled"}>Ongedaan</button><button type="button" class="fv-clear"${n||nm?"":" disabled"}>Alles wissen</button>`:""}<button type="button" class="fv-done">${ed?"Klaar":"Sluiten"}</button></div>`;
     const wEl=ov.querySelector(".fv-wrap"),stg=ov.querySelector(".fv-stage").getBoundingClientRect(),rt=(f.w&&f.h)?f.w/f.h:4/3,aw=stg.width-(list.length>1?120:24),ah=stg.height-8;
     let ww=aw,hh=aw/rt;if(hh>ah){hh=ah;ww=ah*rt}wEl.style.width=Math.max(50,ww)+"px";wEl.style.height=Math.max(50,hh)+"px";wEl.style.aspectRatio="auto";
@@ -449,19 +456,21 @@ function openFotoViewer(list,start,opt={}){
     /* alleen de stippen, markeringen en teksten bijwerken: de foto zelf blijft staan, zodat het scherm niet knippert */
     const ververs=()=>{const w=ov.querySelector(".fv-wrap");if(!w)return draw();w.querySelectorAll(".fdot,svg.fmark").forEach(x=>x.remove());w.insertAdjacentHTML("beforeend",dotsHtml(f,true));
       const n2=(f.dots||[]).length,m2=(f.strokes||[]).length,sp=ov.querySelector(".fv-top span");if(sp)sp.textContent=`${f.naam||"Foto"} · ${n2} ${n2===1?"raam":"ramen"} aangetikt${m2?` · ${m2} ${m2===1?"markering":"markeringen"}`:""}${list.length>1?` · foto ${i+1} van ${list.length}`:""}`;
-      const u=ov.querySelector(".fv-undo"),c=ov.querySelector(".fv-clear");if(u)u.disabled=!(hist.length||n2||m2);if(c)c.disabled=!(n2||m2)};
+      const u=ov.querySelector(".fv-undo"),c=ov.querySelector(".fv-clear");if(u)u.disabled=!(hist.length||n2||m2);if(c)c.disabled=!(n2||m2);
+      if(TY){const tc=tellen();ov.querySelectorAll("[data-fvt]").forEach(b=>{let e=b.querySelector("b");const v=tc[b.dataset.fvt]||0;if(v){if(!e){e=document.createElement("b");b.appendChild(e)}e.textContent=v}else if(e)e.remove()})}};
     const opslaan=()=>{if(opt.onChange)opt.onChange(i,f.dots||[],f);ververs()};
     const set=dots=>{f.dots=dots;opslaan()};
     if(ed){const w=wEl,pt=e=>{const b=w.getBoundingClientRect();return[Math.round(Math.min(1,Math.max(0,(e.clientX-b.left)/b.width))*10000)/10000,Math.round(Math.min(1,Math.max(0,(e.clientY-b.top)/b.height))*10000)/10000]};
       ov.querySelectorAll("[data-fvm]").forEach(b=>b.onclick=()=>{mode=b.dataset.fvm;draw()});
       ov.querySelectorAll("[data-fvk]").forEach(b=>b.onclick=()=>{kleur=b.dataset.fvk;draw()});
+      ov.querySelectorAll("[data-fvt]").forEach(b=>b.onclick=()=>{ty=b.dataset.fvt;draw()});
       const sl=ov.querySelector(".fv-size");sl.oninput=()=>{const v=+sl.value,pv=ov.querySelector(".fv-pv");
         if(mode==="markeren"){f.bw=v/1000;pv.style.width=pv.style.height=Math.max(6,Math.round(v*.4))+"px"}else{nds=v/10;pv.style.width=pv.style.height=Math.round(16*v/10)+"px"}};
       /* bolletje: de schuif geldt alleen voor de volgende stip; gezette stippen houden hun maat */
       sl.onchange=()=>{if(mode==="markeren")opslaan()};
       if(mode==="ramen"){w.onclick=e=>{const dEl=e.target.closest(".fdot");const dots=[...(f.dots||[])];
-        if(dEl){dots.splice(+dEl.dataset.dj,1);set(dots);return}
-        const [x,y]=pt(e),sz=nds||Number(f.ds)||1;dots.push(sz!==1?{x,y,s:sz}:{x,y});hist.push("d");set(dots)}}
+        if(dEl){const j=+dEl.dataset.dj,d=dots[j];if(TY&&d&&(d.t||"f0")!==ty){dots[j]={...d,t:ty};set(dots);return}dots.splice(j,1);set(dots);return}
+        const [x,y]=pt(e),sz=nds||Number(f.ds)||1;dots.push({x,y,...(TY?{t:ty}:{}),...(sz!==1?{s:sz}:{})});hist.push("d");set(dots)}}
       else{let cur=null,svg=null,pl=null;const H=f.w&&f.h?Math.round(1000*f.h/f.w):750;
         w.onpointerdown=e=>{e.preventDefault();w.setPointerCapture(e.pointerId);cur={c:kleur,w:Number(f.bw)||0.03,p:[pt(e)]};
           svg=w.querySelector("svg.fmark");if(!svg){w.querySelector("img").insertAdjacentHTML("afterend",`<svg class="fmark" viewBox="0 0 1000 ${H}" preserveAspectRatio="none"></svg>`);svg=w.querySelector("svg.fmark")}
