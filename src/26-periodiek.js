@@ -4,11 +4,15 @@
 const PER_FREQ=[["week","Per week"],["2weken","Per 2 weken"],["4weken","Per 4 weken"],["maand","Per maand"],["kwartaal","Per kwartaal"],["halfjaar","Per halfjaar"],["jaar","Per jaar"]];
 const MAANDEN=["januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"];
 const isPeriodiek=k=>!!(k&&k.periodiek&&k.periodiek.aan);
+/* is bij deze opdracht 'Periodieke factuur' gekozen? Dan krijgt een beurt nooit een eigen factuur,
+   ook als de periodieke factuur zelf nog niet is aangemaakt (de beurten gaan later mee op de eerste periodieke factuur). */
+function perKeuze(k){if(!k)return false;if(isPeriodiek(k)||k.factPer)return true;
+  if(k.hoofdKlantId){const h=(state.klanten||[]).find(x=>x.id===k.hoofdKlantId),o=h&&(h.opdrachten||[]).find(x=>x.id===k.opdrachtId);if(o&&o.facturatie==="periodiek")return true}return false}
 /* facturatie per opdracht (zoals in een klantdossier) */
 const FACT_OPT=[["direct","Direct versturen"],["periodiek","Periodieke factuur"],["concept","Factuur klaarzetten"],["geen","Niet factureren"]];
-const FACT_HELP={direct:"Na het afmelden gaat de factuur meteen naar de klant.",periodiek:"Beurten krijgen geen eigen factuur; er gaat één vaste factuur per week, maand of kwartaal.",concept:"Na het afmelden staat er een conceptfactuur klaar in Facturen.",geen:"Na het afmelden wordt er geen factuur gemaakt (bijv. bij ruilen of een gratis beurt)."};
-const factModus=k=>isPeriodiek(k)?"periodiek":k&&k.nietFactureren?"geen":k&&k.directFactureren?"direct":"concept";
-const factModusPatch=(m,k)=>m==="periodiek"?{directFactureren:false,nietFactureren:false}:{directFactureren:m==="direct",nietFactureren:m==="geen",...(isPeriodiek(k)?{periodiek:{...k.periodiek,aan:false}}:{})};
+const FACT_HELP={direct:"Na het afmelden gaat de factuur meteen naar de klant.",periodiek:"Beurten krijgen geen eigen factuur; er gaat één vaste factuur per week, maand of kwartaal.",concept:"Na het afmelden staat er een conceptfactuur klaar in Facturen.",geen:"Na het afmelden wordt er geen factuur per beurt gemaakt. Een periodieke factuur (bijv. trappenhal per maand) loopt gewoon door."};
+const factModus=k=>k&&k.nietFactureren?"geen":perKeuze(k)?"periodiek":k&&k.directFactureren?"direct":"concept";
+const factModusPatch=(m,k)=>m==="periodiek"?{directFactureren:false,nietFactureren:false,factPer:true}:{directFactureren:m==="direct",nietFactureren:m==="geen",factPer:false,...(isPeriodiek(k)&&m!=="geen"?{periodiek:{...k.periodiek,aan:false}}:{})};
 /* via een (getekende) offerte: een lopende periodieke factuur blijft aan; de gekozen facturatie geldt dan voor de extra diensten */
 const factModusPatchOfferte=(m,k)=>isPeriodiek(k)&&m!=="periodiek"?{periodiek:{...k.periodiek,extraModus:["direct","concept","geen"].includes(m)?m:"concept"}}:factModusPatch(m,k);
 /* extra diensten (bijv. glasbewassing 1x per 3 maanden) bij een periodieke factuur: zo factureren */
@@ -16,7 +20,7 @@ const PER_EXTRA=[["concept","Per beurt factuur klaarzetten"],["direct","Per beur
 /* facturatie per extra opdracht (los van de hoofdopdracht en van elkaar).
    Gaat mee met de beurt: "" = op dezelfde factuur · concept/direct = eigen factuur · geen = niet factureren.
    Apart ingepland (eigen afspraak): direct / concept / geen / periodiek, net als een hoofdopdracht. */
-const OPDR_FACT_HELP={"":"Komt op dezelfde factuur als de hoofdopdracht.",concept:"Na het afmelden staat er een eigen conceptfactuur voor deze opdracht klaar.",direct:"Na het afmelden gaat er een eigen factuur voor deze opdracht naar de klant.",geen:"Deze opdracht wordt niet gefactureerd.",periodiek:"Beurten van deze opdracht krijgen geen eigen factuur; er gaat één vaste factuur per week, maand of kwartaal."};
+const OPDR_FACT_HELP={"":"Komt op dezelfde factuur als de hoofdopdracht.",concept:"Na het afmelden staat er een eigen conceptfactuur voor deze opdracht klaar.",direct:"Na het afmelden gaat er een eigen factuur voor deze opdracht naar de klant.",geen:"Geen factuur per beurt. Een periodieke factuur voor deze opdracht (bijv. trappenhal per maand) loopt gewoon door.",periodiek:"Beurten van deze opdracht krijgen geen eigen factuur; er gaat één vaste factuur per week, maand of kwartaal."};
 const opdrFactOpt=(o,k)=>(typeof opdrApart==="function"?opdrApart(k,o):o&&o.apart)?[["concept","Factuur klaarzetten"],["direct","Direct versturen"],["periodiek","Periodieke factuur"],["geen","Niet factureren"]]:[["","Op dezelfde factuur als de hoofdopdracht"],["concept","Eigen factuur klaarzetten"],["direct","Eigen factuur direct versturen"],["geen","Niet factureren"]];
 function opdrFactVan(k,o){if(!o)return"";if(o.facturatie!=null&&o.facturatie!=="")return o.facturatie;
   if(typeof opdrApart==="function"?opdrApart(k,o):o.apart){const j=typeof opdrJob==="function"?opdrJob(k,o.id):null;return j?factModus(j):"concept"}return""}
@@ -92,13 +96,13 @@ function openPeriodiek(kid,back){
     form.querySelectorAll("[data-ins]").forEach(b=>b.onmousedown=e=>{e.preventDefault();const el=lastIn&&lastIn.dataset.rf==="omschrijving"?lastIn:form.querySelector('[data-rf="omschrijving"]');if(!el)return;const s=el.selectionStart??el.value.length;el.value=el.value.slice(0,s)+b.dataset.ins+el.value.slice(el.selectionEnd??s);el.dispatchEvent(new Event("input"));el.focus()});
     $("#pfX").onclick=$("#pfBack").onclick=goBack;
     const so=$("#pfStop");if(so){let armed=false;so.onclick=async()=>{if(!armed){armed=true;so.textContent="Zeker weten? Tik nogmaals";return}
-      try{const cur=state.klanten.find(x=>x.id===kid)||k;await save("klanten",kid,{...strip(cur),periodiek:{...cur.periodiek,aan:false}});toast("Periodieke factuur gestopt; beurten krijgen weer een eigen factuur");goBack()}catch(er){err(er)}}}
+      try{const cur=state.klanten.find(x=>x.id===kid)||k;await save("klanten",kid,{...strip(cur),periodiek:{...cur.periodiek,aan:false},factPer:false});toast("Periodieke factuur gestopt; beurten krijgen weer een eigen factuur");goBack()}catch(er){err(er)}}}
     form.onsubmit=async e=>{e.preventDefault();keep();
       if(!p.volgende){$("#pf-vol").focus();return toast("Kies de volgende verzenddatum")}
       if(!p.regels.some(r=>String(r.omschrijving||"").trim()&&Number(r.prijs))){return toast("Vul minimaal één factuurregel met een prijs in")}
       $("#pfSave").disabled=true;
       try{const cur=state.klanten.find(x=>x.id===kid)||k;const np={...p,aan:true,regels:p.regels.filter(r=>String(r.omschrijving||"").trim()||Number(r.prijs))};
-        await save("klanten",kid,{...strip(cur),periodiek:np});toast("Periodieke factuur opgeslagen · eerste op "+fmtD(np.volgende));
+        await save("klanten",kid,{...strip(cur),periodiek:np,factPer:!cur.nietFactureren,directFactureren:false});toast("Periodieke factuur opgeslagen · eerste op "+fmtD(np.volgende));
         if(np.volgende<=iso(today()))setTimeout(()=>runPeriodiek(),300);goBack()}catch(er){$("#pfSave").disabled=false;err(er)}};
   };
   let lastIn=null;draw();

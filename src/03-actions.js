@@ -29,7 +29,7 @@ async function afronden(k,mode,el){
   const _mw=isMw();if(_mw)mode="concept";/* medewerker: altijd concept, kantoor controleert en verstuurt */
   /* afmelden = conceptfactuur (niet versturen) · factureren (veeg naar links) = definitieve factuur én direct naar de klant */
   const direct=mode==="open"&&!_mw;
-  const _hs=isPeriodiek(k)?"periodiek":k.nietFactureren?"geen":(mode==="open"&&!_mw?"open":"concept");
+  const _hs=perKeuze(k)?"periodiek":k.nietFactureren?"geen":(mode==="open"&&!_mw?"open":"concept");
   const d=iso(today()),st=S(),bId=newId("b"),fId=newId("f"),prev={laatst:k.laatst||"",gepland:k.gepland||"",bezig:k.bezig||"",tijd:k.tijd||"",reeks:k.reeks||[],eenmalig:k.eenmalig||""};
   let _rr=null;try{if(k.ramenRegel&&ramenVariabel(normR(k.ramenRegel))){const {q,due}=ramenDue(k,d),b=ramenBerekening(q,Number(k.frequentie)||4,due),mul=st.incl?1+(Number(st.btw)||21)/100:1;
     _rr={q,due,bedrag:r2(b.ex*mul),regels:[...(b.rows.length?[{omschrijving:(k.dienst||"Glasbewassing")+" "+b.rows.map(r=>r.naam.toLowerCase()).join(", ")+(k.verbergAantal?"":", "+b.count+" ramen")+regelExtra(k),aantal:1,prijs:r2((b.glas+b.start)*mul)}]:[]),...(b.kozP?[{omschrijving:"Kozijnreiniging "+b.krows.map(r=>r.naam.toLowerCase()).join(", "),aantal:1,prijs:r2(b.kozP*mul)}]:[])]}}
@@ -44,7 +44,7 @@ async function afronden(k,mode,el){
   if(k.hoofdKlantId&&k.adres)f.notitie=["Uitvoerlocatie: "+fullAddr(k),f.notitie].filter(Boolean).join("\n");
   if(k.btwVerlegd){f.btw=0;f.notitie=[f.notitie,"Btw verlegd"].filter(Boolean).join("\n")}
   if((k.bevindingen||[]).length)f.bijlagen=k.bevindingen.map(b=>({...b,soort:"foto"}));
-  if(k.nietFactureren&&!isPeriodiek(k)){/* niet factureren: beurt afmelden zonder factuur */
+  if(k.nietFactureren&&!perKeuze(k)){/* niet factureren: beurt afmelden zonder factuur */
     try{const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed),_los=await losseExtraFacturen(k,d,_ed,f,_mw,_hs);
       await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),betaald:false,gefactureerd:"nvt",...(_los.length?{extraFacturen:_los}:{}),dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString(),...(_vve||{})});
       const _vn=volgendeNa(k),nx=_vn.gepland;
@@ -53,7 +53,7 @@ async function afronden(k,mode,el){
       feest(k);toast(cleanName(k.naam)+" afgemeld · niet gefactureerd (staat zo bij de opdracht)",[{label:"Ongedaan",fn:undo}])}
     catch(e){if(el){const c=el.querySelector(".swipe-card");if(c)c.style.transform="";el.classList.remove("armed")}err(e)}
     return}
-  if(isPeriodiek(k)){/* periodieke factuur: beurt afmelden zonder eigen factuur; artikelen gaan mee op de periodieke factuur */
+  if(perKeuze(k)){/* periodieke factuur (ook als die nog aangemaakt moet worden): beurt afmelden zonder eigen factuur; artikelen gaan mee op de periodieke factuur */
     try{const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed);
       /* extra opdrachten (bijv. glasbewassing) staan niet op de periodieke factuur: eigen factuur, per opdracht ingesteld */
       const _los=await losseExtraFacturen(k,d,_ed,f,_mw,_hs);
@@ -61,7 +61,7 @@ async function afronden(k,mode,el){
       const _vn=volgendeNa(k),nx=_vn.gepland;
       await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,bezig:""});aanbevelingVrijgeven(k.id);await extraNaBij(k,d,_ed);
       const undo=async()=>{try{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
-      feest(k);toast(cleanName(k.naam)+" afgemeld · gaat mee op de periodieke factuur ("+fmtD(k.periodiek.volgende)+")"+(_los.length?" · eigen factuur voor de extra opdracht":""),[{label:"Ongedaan",fn:async()=>{for(const x of _los){try{await del("facturen",x)}catch(e){}}await undo()}}])}
+      feest(k);toast(cleanName(k.naam)+" afgemeld · "+(isPeriodiek(k)?"gaat mee op de periodieke factuur ("+fmtD(k.periodiek.volgende)+")":"geen factuur per beurt · maak nog de periodieke factuur aan bij de opdracht")+(_los.length?" · eigen factuur voor de extra opdracht":""),[{label:"Ongedaan",fn:async()=>{for(const x of _los){try{await del("facturen",x)}catch(e){}}await undo()}}])}
     catch(e){if(el){const c=el.querySelector(".swipe-card");if(c)c.style.transform="";el.classList.remove("armed")}err(e)}
     return}
   /* credits eerst verrekenen, zodat de bevestiging het echte bedrag toont (bij annuleren wordt niets opgeslagen) */
