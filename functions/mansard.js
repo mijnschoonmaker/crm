@@ -2,7 +2,7 @@
    Een bedrijf = bedrijven/<id> (naam, eigenaar, status, proefTot, plan) met daaronder al zijn gegevens. */
 module.exports = ({ rawDb, T, onCall, onRequestRaw, HttpsError, nu, mollie, HOST, mfaOk }) => {
   /* pakketten (bedragen excl. btw; Mollie schrijft incl. 21% btw af). De eerste maand (proef) kost € 1. */
-  const BTW = 21, STARTPRIJS = 1;
+  const BTW = 21, STARTPRIJS = 1;   // eerste maand, excl. btw (Mollie rekent incl.: € 1,21)
   const PLANS = {
     starter: { key: "starter", naam: "Starter", prijs: 69, inbegrepen: 1, extraPrijs: 0, maxGebruikers: 1, maxKlanten: 150, proefDagen: 30 },
     mansard: { key: "mansard", naam: "Mansard", prijs: 99, inbegrepen: 3, extraPrijs: 19.95, proefDagen: 30 },
@@ -74,7 +74,7 @@ module.exports = ({ rawDb, T, onCall, onRequestRaw, HttpsError, nu, mollie, HOST
     if (!cid) { const c = await mollie(key, "customers", { method: "POST", body: JSON.stringify({ name: b.naam || e, email: e, metadata: { mansard: bid } }) }); cid = c.id; await ref.set({ mollieCustomer: cid }, { merge: true }); }
     const inProef = b.status === "proef" && String(b.proefTot || "") > vandaag();
     /* tijdens de eerste maand: € 1 (incl. btw) en het abonnement gaat pas na die maand in */
-    const bedrag = inProef ? STARTPRIJS : bedragVoor(n, plan);
+    const bedrag = inProef ? r2(STARTPRIJS * (1 + BTW/100)) : bedragVoor(n, plan);
     const p = await mollie(key, "payments", { method: "POST", body: JSON.stringify({
       amount: { currency: "EUR", value: bedrag.toFixed(2) }, customerId: cid, sequenceType: "first",
       description: inProef ? "Mansard " + plan.naam + " · eerste maand" : "Mansard " + plan.naam + " " + vandaag().slice(0, 7),

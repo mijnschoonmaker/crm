@@ -107,7 +107,7 @@
   const fout = e => msg(NL[e.code] || "Er ging iets mis (" + (e.code || e.message) + ").");
 
   function login(nieuw) {
-    toon(`<h1>${nieuw ? "Account maken" : "Inloggen"}</h1><p>${nieuw ? "Nieuw bij Mansard? Maak een account en probeer 30 dagen gratis. Ben je uitgenodigd, gebruik dan dat e-mailadres." : "Welkom terug. Log in om verder te gaan."}</p>
+    toon(`<h1>${nieuw ? "Account maken" : "Inloggen"}</h1><p>${nieuw ? "Nieuw bij Mansard? Maak een account; de eerste maand kost € 1 (excl. btw). Ben je uitgenodigd, gebruik dan dat e-mailadres." : "Welkom terug. Log in om verder te gaan."}</p>
       <form id="lgF"><label>E-mailadres<input type="email" id="lgE" autocomplete="username" required></label>
       <label>Wachtwoord<input type="password" id="lgP" autocomplete="${nieuw ? "new-password" : "current-password"}" minlength="${nieuw ? 8 : 1}" required></label>
       <button class="lg-b" id="lgGo">${nieuw ? "Account maken" : "Inloggen"}</button></form><div class="lg-m"></div>
@@ -140,7 +140,7 @@
   }
   /* nog bij geen enkel bedrijf: zelf een bedrijf starten (30 dagen gratis) of wachten op een uitnodiging */
   function nieuwBedrijf(u) {
-    toon(`<h1>Welkom bij Mansard</h1><p>Start je eigen omgeving en probeer alles <b>30 dagen gratis</b>. Geen betaalgegevens nodig.</p>
+    toon(`<h1>Welkom bij Mansard</h1><p>Start je eigen omgeving en kijk rustig rond. De eerste maand kost <b>€ 1</b> (excl. btw); een pakket kies je later.</p>
       <form id="lgF"><label>Naam van je bedrijf<input id="lgN" required maxlength="80" placeholder="Bijv. Glazenwasserij De Vries"></label>
       <label>Plaats<input id="lgPl" maxlength="60" placeholder="Bijv. Groningen"></label>
       <label>Telefoonnummer<input id="lgT" type="tel" maxlength="30" placeholder="06 12 34 56 78"></label>

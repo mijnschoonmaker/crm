@@ -117,7 +117,7 @@
   const fout = e => msg(NL[e.code] || "Er ging iets mis (" + (e.code || e.message) + ").");
 
   function login(nieuw) {
-    toon(`<h1>${nieuw ? "Account maken" : "Inloggen"}</h1><p>${nieuw ? "Nieuw bij Mansard? Maak een account en probeer 30 dagen gratis. Ben je uitgenodigd, gebruik dan dat e-mailadres." : "Welkom terug. Log in om verder te gaan."}</p>
+    toon(`<h1>${nieuw ? "Account maken" : "Inloggen"}</h1><p>${nieuw ? "Nieuw bij Mansard? Maak een account; de eerste maand kost € 1 (excl. btw). Ben je uitgenodigd, gebruik dan dat e-mailadres." : "Welkom terug. Log in om verder te gaan."}</p>
       <form id="lgF"><label>E-mailadres<input type="email" id="lgE" autocomplete="username" required></label>
       <label>Wachtwoord<input type="password" id="lgP" autocomplete="${nieuw ? "new-password" : "current-password"}" minlength="${nieuw ? 8 : 1}" required></label>
       <button class="lg-b" id="lgGo">${nieuw ? "Account maken" : "Inloggen"}</button></form><div class="lg-m"></div>
@@ -150,7 +150,7 @@
   }
   /* nog bij geen enkel bedrijf: zelf een bedrijf starten (30 dagen gratis) of wachten op een uitnodiging */
   function nieuwBedrijf(u) {
-    toon(`<h1>Welkom bij Mansard</h1><p>Start je eigen omgeving en probeer alles <b>30 dagen gratis</b>. Geen betaalgegevens nodig.</p>
+    toon(`<h1>Welkom bij Mansard</h1><p>Start je eigen omgeving en kijk rustig rond. De eerste maand kost <b>€ 1</b> (excl. btw); een pakket kies je later.</p>
       <form id="lgF"><label>Naam van je bedrijf<input id="lgN" required maxlength="80" placeholder="Bijv. Glazenwasserij De Vries"></label>
       <label>Plaats<input id="lgPl" maxlength="60" placeholder="Bijv. Groningen"></label>
       <label>Telefoonnummer<input id="lgT" type="tel" maxlength="30" placeholder="06 12 34 56 78"></label>
@@ -16680,7 +16680,7 @@ function msBalk(){if(!msTenant()||!MS.doc||window.ZEEM_MEEKIJK)return;const st=m
     const dg=Math.max(0,st.dagen),url="/demo/?proef=1&d="+dg;
     ov.innerHTML=`<div class="ms-dk ms-proef"><img src="/mansard-logo.png" alt="Mansard"><h2>Welkom bij Mansard</h2><p>Je proefperiode loopt nog <b>${plural(dg,"dag","dagen")}</b>. Probeer alles uit in de voorbeeldomgeving, met voorbeeldklanten, planning, offertes en facturen. Daar wordt niets bewaard, dus je kunt niets kapot maken.</p>
       <a class="btn primary" href="${url}">${I.eye||""}Naar de voorbeeldomgeving</a>
-      <p class="ms-pk">${eig?"Wil je beginnen met je eigen bedrijf? Kies een pakket, dan kom je meteen in je eigen, lege omgeving. De eerste maand kost € 1; daarna gaat het maandbedrag pas af.":"Je eigen omgeving gaat open zodra de eigenaar van je bedrijf een abonnement kiest."}</p>
+      <p class="ms-pk">${eig?"Wil je beginnen met je eigen bedrijf? Kies een pakket, dan kom je meteen in je eigen, lege omgeving. De eerste maand kost € 1 (excl. btw); daarna gaat het maandbedrag pas af.":"Je eigen omgeving gaat open zodra de eigenaar van je bedrijf een abonnement kiest."}</p>
       ${eig?`<button type="button" data-act="msabo">${I.card||""}Abonnement kiezen</button>`:""}<button type="button" class="ghost" data-act="msuit">Uitloggen</button></div>`;return}
   if(!st.ok){if(!ov){ov=document.createElement("div");ov.id="msDicht";ov.className="ms-dicht";document.body.appendChild(ov)}
     if(st.soort==="geblokkeerd"){ov.innerHTML=`<div class="ms-dk"><img src="/mansard-logo.png" alt="Mansard"><h2>Je account is tijdelijk gepauzeerd</h2><p>Je gegevens staan veilig. Neem contact op met Mansard om het weer te openen.</p><button type="button" class="ghost" data-act="msuit">Uitloggen</button></div>`;return}
@@ -16706,11 +16706,11 @@ async function aboDlg(kies){
   openDlg(`<div class="dlg-head"><span class="objic big">${I.card}</span><div style="flex:1"><h3>Abonnement</h3><div class="subt">${esc(b.naam||S().naam||"")} · <span class="pill ${st.ok?"ok":"late"} dotp">${lbl}</span></div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
     <div class="ms-plans" id="msPlans">${Object.values(MS_PLANS).map(kaart).join("")}</div>
     <div id="msSom"></div>
-    <p class="subt" style="margin:0">Maandelijks opzegbaar. Betalen gaat met automatische incasso via Mollie. Alle bedragen zijn excl. 21% btw. ${st.soort==="proef"?"Kies je nu, dan betaal je € 1 voor de eerste maand; het maandbedrag gaat pas daarna af.":""} Gebruikers voeg je toe bij Instellingen › Gebruikers.</p>
+    <p class="subt" style="margin:0">Maandelijks opzegbaar. Betalen gaat met automatische incasso via Mollie. Alle bedragen zijn excl. 21% btw. ${st.soort==="proef"?"Kies je nu, dan betaal je € 1 (excl. btw) voor de eerste maand; het maandbedrag gaat pas daarna af.":""} Gebruikers voeg je toe bij Instellingen › Gebruikers.</p>
     <div class="row" id="msKnoppen"></div>`);
   const draw=()=>{const p=MS_PLANS[keus],ex=msExcl(p,n),inc=Math.round(ex*1.21*100)/100,extra=Math.max(0,n-p.inbegrepen);
     $("#msPlans").querySelectorAll("[data-msplan]").forEach(x=>x.classList.toggle("on",x.dataset.msplan===keus));
-    $("#msSom").innerHTML=`<table class="minitable"><tr><td>${p.naam}${p.maxGebruikers?", 1 gebruiker":", inclusief "+p.inbegrepen+" gebruikers"}</td><td style="text-align:right">${eur(p.prijs)}</td></tr>${extra&&p.extraPrijs?`<tr><td>${plural(extra,"extra gebruiker","extra gebruikers")} × ${eur(p.extraPrijs)}</td><td style="text-align:right">${eur(extra*p.extraPrijs)}</td></tr>`:""}<tr><td>Btw 21%</td><td style="text-align:right">${eur(Math.round((inc-ex)*100)/100)}</td></tr><tr><td><b>Per maand</b></td><td style="text-align:right"><b>${eur(inc)}</b></td></tr>${st.soort==="proef"?`<tr><td>Eerste maand</td><td style="text-align:right"><b>${eur(1)}</b></td></tr>`:""}</table>`;
+    $("#msSom").innerHTML=`<table class="minitable"><tr><td>${p.naam}${p.maxGebruikers?", 1 gebruiker":", inclusief "+p.inbegrepen+" gebruikers"}</td><td style="text-align:right">${eur(p.prijs)}</td></tr>${extra&&p.extraPrijs?`<tr><td>${plural(extra,"extra gebruiker","extra gebruikers")} × ${eur(p.extraPrijs)}</td><td style="text-align:right">${eur(extra*p.extraPrijs)}</td></tr>`:""}<tr><td>Btw 21%</td><td style="text-align:right">${eur(Math.round((inc-ex)*100)/100)}</td></tr><tr><td><b>Per maand</b></td><td style="text-align:right"><b>${eur(inc)}</b></td></tr>${st.soort==="proef"?`<tr><td>Eerste maand (excl. btw)</td><td style="text-align:right"><b>${eur(1)}</b></td></tr>`:""}</table>`;
     const actief=st.soort==="actief"||st.soort==="achterstand"||st.soort==="onbetaald",ander=actief&&b.plan&&b.plan.key&&b.plan.key!==keus;
     $("#msKnoppen").innerHTML=`${eig&&!actief?`<button type="button" class="primary" id="msGo">${I.card}${st.soort==="opgezegd"?"Abonnement weer starten":"Start met "+p.naam}</button>`:""}${eig&&(st.soort==="achterstand"||st.soort==="onbetaald")?`<button type="button" class="primary" id="msGo">${I.card}Nu betalen</button>`:""}${eig&&ander?`<button type="button" class="primary" id="msWissel">${I.check||""}Overstappen naar ${p.naam}</button>`:""}${eig&&actief?`<button type="button" class="ghost danger" id="msStop">Opzeggen</button>`:""}<span class="sp"></span><button type="button" data-act="close">Sluiten</button>`;
     const go=document.getElementById("msGo");if(go)go.onclick=async()=>{go.disabled=true;go.innerHTML=I.clock+"Naar betalen…";try{const r=await fbFn("abonnementStart")({basis:location.origin,plan:keus});if(r.data.url)location.href=r.data.url;else{toast("Je abonnement is al actief");dlg.close()}}catch(e){go.disabled=false;draw();toast(fnFout(e))}};
