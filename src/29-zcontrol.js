@@ -80,8 +80,8 @@ function ccAlle(){const s=[],t=today(),ti=iso(t),morgen=ccDag(1);
       b:[k.adres,k.plaats].filter(Boolean).join(", "),leeftijd:0,knop:"Open klant",go:"klant:"+k.id,
       acts:[{l:"Telling controleren",ic:"calculator",cc:"tc:"+k.id},!k.gepland?{l:"Inplannen",ic:"planning",cc:"plan:"+k.id}:null].filter(Boolean)})});
   /* aan de beurt maar niet ingepland: gemiddeld, vanaf een week over de termijn hoog */
-  overdue().filter(k=>!k.gepland&&!k.opdrachtVerwijderd).forEach(k=>{const v=volgende(k),dd=v?Math.max(0,Math.round((t-v)/864e5)):0;
-    add({key:"tl:"+k.id+":"+(v?iso(v):""),p:dd>=7?"hoog":"normaal",ic:"planning",t:`${ccNaam(k)} is aan de beurt`,u:`${dd?plural(dd,"dag","dagen")+" over de termijn":"Vandaag aan de beurt"}, nog niet ingepland.`,b:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),leeftijd:dd,knop:"Open klant",go:"klant:"+k.id,
+  overdue().filter(k=>!k.gepland&&!k.opdrachtVerwijderd).forEach(k=>{const v=dueOf(k),dd=v?Math.max(0,Math.round((t-v)/864e5)):0;
+    add({key:"tl:"+k.id+":"+(v?iso(v):""),p:dd>=7?"hoog":"normaal",ic:"planning",t:`${ccNaam(k)} is aan de beurt`,u:`${dd?plural(dd,"dag","dagen")+" over de termijn":"Vandaag aan de beurt"}, nog niet ingepland.${(()=>{try{const n=S().glasMee===false?[]:extraDue(k,iso(t)).map(o=>o.dienst||o.naam).filter(Boolean);return n.length?" Ook: "+n.join(", ")+".":""}catch(e){return ""}})()}`,b:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),leeftijd:dd,knop:"Open klant",go:"klant:"+k.id,
       acts:[{l:"Inplannen",ic:"planning",cc:"plan:"+k.id},bel(k)].filter(Boolean)})});
   /* hoog: afspraak vandaag/morgen zonder tijd: tijd direct invullen */
   actief().filter(k=>(k.gepland===ti||k.gepland===morgen)&&!k.tijd).forEach(k=>add({key:"zt:"+k.id+":"+k.gepland,p:"hoog",ic:"clock",t:`${ccNaam(k)} heeft nog geen tijd`,u:`Ingepland ${k.gepland===ti?"vandaag":"morgen"}. Met een tijd krijgt de klant een nauwkeurige aankondiging.`,b:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),leeftijd:0,knop:"Open klant",go:"klant:"+k.id,tijd:k.id}));

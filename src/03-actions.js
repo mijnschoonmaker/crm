@@ -84,7 +84,7 @@ async function moveTo(id,date,tijd,force){
   const k=state.klanten.find(x=>x.id===id);if(!k)return;
   if(date&&!force&&date!==k.gepland&&typeof vroegOk==="function"&&!(await vroegOk([k],date)))return;
   const prev={gepland:k.gepland||"",tijd:k.tijd||""};
-  const nw={gepland:date,tijd:!date?"":tijd!==undefined?tijd:(k.tijd||""),...(date?{aanbieden:false,aanbodGezien:(typeof aanbodVan==="function"&&aanbodVan(k)||{}).min||""}:{})};
+  const nw={gepland:date,tijd:!date?"":tijd!==undefined?tijd:(k.tijd||""),...(date?{aanbieden:false,aanbodGezien:typeof aanbodMinAlles==="function"?aanbodMinAlles(k):((typeof aanbodVan==="function"&&aanbodVan(k)||{}).min||"")}:{})};
   if(date&&!force&&!k.gepland&&typeof ADV!=="undefined"&&ADV.reeks){const r=await openReeks(k,date,nw.tijd);if(!r)return;return reeksOpslaan(k,date,nw.tijd,r)}
   if(prev.gepland===nw.gepland&&prev.tijd===nw.tijd)return;
   /* een bestaande afspraak verplaatsen van een opdracht met vervolgafspraken: alleen deze, of alle afspraken daarna */

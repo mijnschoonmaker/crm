@@ -14,17 +14,21 @@ function offerHtml(k,dayIso,timed){
   let cls,band,big,ad,extra="";const dtx=x=>wd(x)+" "+x.getDate()+" "+mnd[x.getMonth()]+(x.getFullYear()!==t.getFullYear()?" "+x.getFullYear():"");
   if(gp&&gp<t){cls="late";band="gemist";big=gp.getDate();ad=gp;extra="gemist"}
   else if(!k.laatst){cls="nieuw";band="nieuw";big='<span class="kc-s">★</span>';ad=volgende(k);if(ad<t)ad=t;extra="nieuwe klant"}
-  else{const v=volgende(k),d=Math.round((v-t)/DAY);ad=v;
+  else{let v=volgende(k);{const ew=S().glasMee===false?"":extraWanneer(k),ed=ew&&parse(ew);if(ed&&ed<v)v=ed}const d=Math.round((v-t)/DAY);ad=v;
     if(d<0){cls="late";band="te laat";big="+"+Math.abs(d)}
     else if(d===0){cls="crit";band="vandaag";big=t.getDate()}
     else{cls=d<7?"crit":d<=10?"warn":d<=14?"attn":"ok";band=d===1?"dag":"dagen";big=d}}
   const adTxt=iso(ad)===iso(t)?"vandaag":dtx(ad);
+  /* extra opdrachten die op die dag ook aan de beurt zijn: tonen, en meetellen in prijs en tijd */
+  let ex=[];try{ex=(S().glasMee===false?[]:extraDue(k,iso(ad>t?ad:t))).filter(o=>o.actief!==false)}catch(e){ex=[]}
+  const exP=ex.reduce((a,o)=>a+(Number(o.prijs)||0),0),exM=ex.reduce((a,o)=>a+(Number(o.duur)||0),0);
+  const exLbl=o=>{const its=(o.items||[]).filter(x=>Number(x.aantal)>0),n=its.reduce((a,x)=>a+(Number(x.aantal)||0),0);return (o.dienst||o.naam||"Extra")+(its.length===1&&n>1?" "+n+"x":"")};
   const ao=jobAddrObj(k),sdD=parse(sd);
   const st=extra?extra.charAt(0).toUpperCase()+extra.slice(1):band==="te laat"?"Te laat":band==="vandaag"?"Vandaag":band==="dag"||band==="dagen"?"Over "+big+" "+band:"Aanbod";
   return `<div class="job offer of kx-${cls}${picked?" picked":""}" style="--h:${h}" draggable="true" data-drag="${esc(k.id)}"${state.planMode?` data-act="pmpick" data-id="${esc(k.id)}"`:""}>
-    <div class="of-kop"><span class="of-k1"><small>${esc(band)}</small><b>${big}</b></span><span class="of-k2"><small>Aanbod</small><b>${esc(adTxt)}</b>${extra||cls==="late"||cls==="crit"?`<em>${esc(st)}</em>`:""}</span><span class="of-k3"><small>Prijs</small><b>${eur(toon(k.prijs))}</b><em>${duur(k)} min</em></span></div>
+    <div class="of-kop"><span class="of-k1"><small>${esc(band)}</small><b>${big}</b></span><span class="of-k2"><small>Aanbod</small><b>${esc(adTxt)}</b>${extra||cls==="late"||cls==="crit"?`<em>${esc(st)}</em>`:""}</span><span class="of-k3"><small>Prijs</small><b>${eur(toon(r2((Number(k.prijs)||0)+exP)))}</b><em>${duur(k)+exM} min</em></span></div>
     <div class="of-body"><button type="button" class="of-adr" data-act="opdracht" data-id="${esc(k.id)}" title="Opdracht openen"><span class="av of-av2">${esc((cleanName(k.naam)||"?").slice(0,1).toUpperCase())}</span><span><b>${esc(ao.adres||cleanName(k.naam))}</b><small>${esc(cleanName(k.naam))}${ao.plaats?" · "+esc(ao.plaats):""}</small></span>${I.right}</button>
-      <div class="of-chips"><span>${I.wrench}${esc(k.dienst||"Glasbewassing")}</span><span>${I.refresh||I.clock}${esc(ritmeTxt(k))}</span>${k.ronde?`<span class="of-r"><i style="background:hsl(${h} 65% 52%)"></i>${esc(k.ronde)}</span>`:""}</div>
+      <div class="of-chips"><span>${I.wrench}${esc(k.dienst||"Glasbewassing")}</span>${ex.map(o=>`<span class="of-ex">${I.plus}${esc(exLbl(o))}</span>`).join("")}<span>${I.refresh||I.clock}${esc(ritmeTxt(k))}</span>${k.ronde?`<span class="of-r"><i style="background:hsl(${h} 65% 52%)"></i>${esc(k.ronde)}</span>`:""}</div>
       ${state.planMode?`<div class="of-pm${picked?" on":""}">${picked?"Gekozen · tik een tijdslot":"Tik om te kiezen"}</div>`:""}</div>
   </div>`;
 }

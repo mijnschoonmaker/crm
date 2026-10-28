@@ -5054,6 +5054,9 @@ html body .cc-si.nk::after{content:"";position:absolute;inset:-3px;border-radius
 /* planning: op grote schermen (iMac 24"/27") de volle breedte gebruiken */
 @media (min-width:1500px){html body .withside.pl-wide .mainc{max-width:none;padding-left:32px;padding-right:32px}}
 @media (min-width:2200px){html body .withside.pl-wide{grid-template-columns:minmax(0,1fr) 400px}}
+/* te plannen: extra dienst die mee gaat */
+html body .of-chips .of-ex{background:#eef4ff;color:#2f4f8f;border-color:#d5e2fb}
+html body .of-chips .of-ex svg{stroke:#2f4f8f}
 
 </style>
 <style id="mansardThema">
@@ -6778,10 +6781,11 @@ function occurrences(k,from,to){
   let g=0;while(d<=to&&g++<120){if(d>=from)out.push({date:iso(d),real});d=real&&em?stap(em):stap(d);real=false}
   return out;
 }
-const overdue=()=>actief().filter(k=>{const p=parse(k.gepland);return p?p<today():volgende(k)<today()});
-const dueOf=k=>{const p=parse(k.gepland);return p&&p<today()?p:k.aanbieden&&!p?today():volgende(k)};
+const overdue=()=>actief().filter(k=>{const p=parse(k.gepland);return p?p<today():dueOf(k)<today()});/* dueOf telt ook extra opdrachten mee */
+const dueOf=k=>{const p=parse(k.gepland);if(p&&p<today())return p;if(k.aanbieden&&!p)return today();const v=volgende(k);let e=null;try{const w=S().glasMee===false?"":extraWanneer(k);e=w&&parse(w)}catch(_){}return e&&e<v?e:v};
 function teplannen(upTo){const t=today(),ti=iso(t);return actief().filter(k=>{if(k.uitstelTot&&k.uitstelTot>ti&&!k.gepland)return false;if(k.einddatum&&k.einddatum<ti&&!k.gepland)return false;if(k.opdrachtVerwijderd&&!k.gepland)return false;if(Number(k.maxOpen)>0&&!k.gepland&&state.facturen.filter(f=>f.klantId===k.id&&f.soort!=="offerte"&&["Openstaand","Achterstallig"].includes(fStatus(f)[1])).length>=Number(k.maxOpen))return false;const p=parse(k.gepland);if(p&&p>t){/* al ingepland, maar een verdieping is eerder aan de beurt dan toen je hem inplande: dan toch aanbieden om eerder te plannen.
-    Heb je hem bewust na die datum ingepland (aanbodGezien), dan staat hij alleen in de agenda. */const a=aanbodVan(k),av=a&&parse(a.min);return !!(av&&av<p&&av<=upTo&&(!k.aanbodGezien||a.min<k.aanbodGezien))}if(p)return p<t;
+    Heb je hem bewust na die datum ingepland (aanbodGezien), dan staat hij alleen in de agenda. */const a=aanbodVan(k),av=a&&parse(a.min);if(av&&av<p&&av<=upTo&&(!k.aanbodGezien||a.min<k.aanbodGezien))return true;
+      const ew=S().glasMee===false?"":extraWanneer(k),ed=ew&&parse(ew);return !!(ed&&ed<p&&ed<=upTo&&(!k.aanbodGezien||ew<k.aanbodGezien))}if(p)return p<t;
     /* staat bij elke verdieping een aanboddatum en ligt de vroegste na de gekozen datum, dan nog niet aanbieden (ook niet als hij als nieuw/aanbieden is gemarkeerd) */
     {const a=aanbodVan(k),av=a&&a.alle&&parse(a.min);if(av&&av>upTo)return extraAanBeurt(k,upTo)}
     /* "aanbieden vanaf" (of bij een losse opdracht: "Volgende keer" bij de opdracht van de hoofdklant) ligt na de gekozen datum: nog niet aanbieden */
@@ -6790,7 +6794,17 @@ function teplannen(upTo){const t=today(),ti=iso(t);return actief().filter(k=>{if
       if(ab&&ab>u&&(!k.laatst||iso(ab)>k.laatst))return extraAanBeurt(k,upTo)}
     return k.aanbieden||volgende(k)<=upTo||extraAanBeurt(k,upTo)}).sort((a,b)=>dueOf(a)-dueOf(b))}
 /* een andere dienst (bv. reiniging gevelelementen) is aan de beurt: dan komt de klant bij Te plannen en gaat de glasbewassing mee */
-function extraAanBeurt(k,upTo){if(S().glasMee===false)return false;const u=iso(upTo instanceof Date?upTo:parse(upTo)||today());return (k.opdrachten||[]).some(o=>o.actief!==false&&!o.apart&&o.volgende&&o.volgende<=u&&(!k.laatst||o.volgende>k.laatst))}
+/* vroegste datum waarop een extra opdracht (dakkapel, goten, gevel…) aan de beurt is, ook per onderdeel met een eigen frequentie.
+   Nog nooit gedaan = nu aan de beurt. Zelfde opdrachten als extraDue (zelfde adres, niet apart ingepland). */
+function extraWanneer(k){let min="";const ti=iso(today()),zet=d=>{if(d&&(!min||d<min))min=d};
+  try{extraOpdr(k).forEach(o=>{const ov=o.volgende||(o.laatst?"":ti);
+    const its=(o.items||[]).filter(it=>Number(it.aantal)>0);
+    if(!its.length){zet(ov);return}
+    its.forEach(it=>zet(it.vol||(it.fq?(o.laatst&&o.volgende?o.volgende:ti):ov)))})}catch(e){}
+  return min&&min<ti?ti:min}
+function extraAanBeurt(k,upTo){if(S().glasMee===false)return false;const u=iso(upTo instanceof Date?upTo:parse(upTo)||today()),e=extraWanneer(k);return !!e&&e<=u}
+/* vroegste aanbod: verdieping met eigen aanboddatum of extra opdracht */
+function aanbodMinAlles(k){const a=(typeof aanbodVan==="function"&&aanbodVan(k)||{}).min||"",e=S().glasMee===false?"":extraWanneer(k);return [a,e].filter(Boolean).sort()[0]||""}
 function dueTxt(k){
   const p=parse(k.gepland),t=today();
   if(p&&p<t)return{cls:"late",txt:"Gepland "+fmtD(p)+", niet gedaan"};
@@ -7159,7 +7173,7 @@ async function moveTo(id,date,tijd,force){
   const k=state.klanten.find(x=>x.id===id);if(!k)return;
   if(date&&!force&&date!==k.gepland&&typeof vroegOk==="function"&&!(await vroegOk([k],date)))return;
   const prev={gepland:k.gepland||"",tijd:k.tijd||""};
-  const nw={gepland:date,tijd:!date?"":tijd!==undefined?tijd:(k.tijd||""),...(date?{aanbieden:false,aanbodGezien:(typeof aanbodVan==="function"&&aanbodVan(k)||{}).min||""}:{})};
+  const nw={gepland:date,tijd:!date?"":tijd!==undefined?tijd:(k.tijd||""),...(date?{aanbieden:false,aanbodGezien:typeof aanbodMinAlles==="function"?aanbodMinAlles(k):((typeof aanbodVan==="function"&&aanbodVan(k)||{}).min||"")}:{})};
   if(date&&!force&&!k.gepland&&typeof ADV!=="undefined"&&ADV.reeks){const r=await openReeks(k,date,nw.tijd);if(!r)return;return reeksOpslaan(k,date,nw.tijd,r)}
   if(prev.gepland===nw.gepland&&prev.tijd===nw.tijd)return;
   /* een bestaande afspraak verplaatsen van een opdracht met vervolgafspraken: alleen deze, of alle afspraken daarna */
@@ -8356,17 +8370,21 @@ function offerHtml(k,dayIso,timed){
   let cls,band,big,ad,extra="";const dtx=x=>wd(x)+" "+x.getDate()+" "+mnd[x.getMonth()]+(x.getFullYear()!==t.getFullYear()?" "+x.getFullYear():"");
   if(gp&&gp<t){cls="late";band="gemist";big=gp.getDate();ad=gp;extra="gemist"}
   else if(!k.laatst){cls="nieuw";band="nieuw";big='<span class="kc-s">★</span>';ad=volgende(k);if(ad<t)ad=t;extra="nieuwe klant"}
-  else{const v=volgende(k),d=Math.round((v-t)/DAY);ad=v;
+  else{let v=volgende(k);{const ew=S().glasMee===false?"":extraWanneer(k),ed=ew&&parse(ew);if(ed&&ed<v)v=ed}const d=Math.round((v-t)/DAY);ad=v;
     if(d<0){cls="late";band="te laat";big="+"+Math.abs(d)}
     else if(d===0){cls="crit";band="vandaag";big=t.getDate()}
     else{cls=d<7?"crit":d<=10?"warn":d<=14?"attn":"ok";band=d===1?"dag":"dagen";big=d}}
   const adTxt=iso(ad)===iso(t)?"vandaag":dtx(ad);
+  /* extra opdrachten die op die dag ook aan de beurt zijn: tonen, en meetellen in prijs en tijd */
+  let ex=[];try{ex=(S().glasMee===false?[]:extraDue(k,iso(ad>t?ad:t))).filter(o=>o.actief!==false)}catch(e){ex=[]}
+  const exP=ex.reduce((a,o)=>a+(Number(o.prijs)||0),0),exM=ex.reduce((a,o)=>a+(Number(o.duur)||0),0);
+  const exLbl=o=>{const its=(o.items||[]).filter(x=>Number(x.aantal)>0),n=its.reduce((a,x)=>a+(Number(x.aantal)||0),0);return (o.dienst||o.naam||"Extra")+(its.length===1&&n>1?" "+n+"x":"")};
   const ao=jobAddrObj(k),sdD=parse(sd);
   const st=extra?extra.charAt(0).toUpperCase()+extra.slice(1):band==="te laat"?"Te laat":band==="vandaag"?"Vandaag":band==="dag"||band==="dagen"?"Over "+big+" "+band:"Aanbod";
   return `<div class="job offer of kx-${cls}${picked?" picked":""}" style="--h:${h}" draggable="true" data-drag="${esc(k.id)}"${state.planMode?` data-act="pmpick" data-id="${esc(k.id)}"`:""}>
-    <div class="of-kop"><span class="of-k1"><small>${esc(band)}</small><b>${big}</b></span><span class="of-k2"><small>Aanbod</small><b>${esc(adTxt)}</b>${extra||cls==="late"||cls==="crit"?`<em>${esc(st)}</em>`:""}</span><span class="of-k3"><small>Prijs</small><b>${eur(toon(k.prijs))}</b><em>${duur(k)} min</em></span></div>
+    <div class="of-kop"><span class="of-k1"><small>${esc(band)}</small><b>${big}</b></span><span class="of-k2"><small>Aanbod</small><b>${esc(adTxt)}</b>${extra||cls==="late"||cls==="crit"?`<em>${esc(st)}</em>`:""}</span><span class="of-k3"><small>Prijs</small><b>${eur(toon(r2((Number(k.prijs)||0)+exP)))}</b><em>${duur(k)+exM} min</em></span></div>
     <div class="of-body"><button type="button" class="of-adr" data-act="opdracht" data-id="${esc(k.id)}" title="Opdracht openen"><span class="av of-av2">${esc((cleanName(k.naam)||"?").slice(0,1).toUpperCase())}</span><span><b>${esc(ao.adres||cleanName(k.naam))}</b><small>${esc(cleanName(k.naam))}${ao.plaats?" · "+esc(ao.plaats):""}</small></span>${I.right}</button>
-      <div class="of-chips"><span>${I.wrench}${esc(k.dienst||"Glasbewassing")}</span><span>${I.refresh||I.clock}${esc(ritmeTxt(k))}</span>${k.ronde?`<span class="of-r"><i style="background:hsl(${h} 65% 52%)"></i>${esc(k.ronde)}</span>`:""}</div>
+      <div class="of-chips"><span>${I.wrench}${esc(k.dienst||"Glasbewassing")}</span>${ex.map(o=>`<span class="of-ex">${I.plus}${esc(exLbl(o))}</span>`).join("")}<span>${I.refresh||I.clock}${esc(ritmeTxt(k))}</span>${k.ronde?`<span class="of-r"><i style="background:hsl(${h} 65% 52%)"></i>${esc(k.ronde)}</span>`:""}</div>
       ${state.planMode?`<div class="of-pm${picked?" on":""}">${picked?"Gekozen · tik een tijdslot":"Tik om te kiezen"}</div>`:""}</div>
   </div>`;
 }
@@ -15861,8 +15879,8 @@ function ccAlle(){const s=[],t=today(),ti=iso(t),morgen=ccDag(1);
       b:[k.adres,k.plaats].filter(Boolean).join(", "),leeftijd:0,knop:"Open klant",go:"klant:"+k.id,
       acts:[{l:"Telling controleren",ic:"calculator",cc:"tc:"+k.id},!k.gepland?{l:"Inplannen",ic:"planning",cc:"plan:"+k.id}:null].filter(Boolean)})});
   /* aan de beurt maar niet ingepland: gemiddeld, vanaf een week over de termijn hoog */
-  overdue().filter(k=>!k.gepland&&!k.opdrachtVerwijderd).forEach(k=>{const v=volgende(k),dd=v?Math.max(0,Math.round((t-v)/864e5)):0;
-    add({key:"tl:"+k.id+":"+(v?iso(v):""),p:dd>=7?"hoog":"normaal",ic:"planning",t:`${ccNaam(k)} is aan de beurt`,u:`${dd?plural(dd,"dag","dagen")+" over de termijn":"Vandaag aan de beurt"}, nog niet ingepland.`,b:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),leeftijd:dd,knop:"Open klant",go:"klant:"+k.id,
+  overdue().filter(k=>!k.gepland&&!k.opdrachtVerwijderd).forEach(k=>{const v=dueOf(k),dd=v?Math.max(0,Math.round((t-v)/864e5)):0;
+    add({key:"tl:"+k.id+":"+(v?iso(v):""),p:dd>=7?"hoog":"normaal",ic:"planning",t:`${ccNaam(k)} is aan de beurt`,u:`${dd?plural(dd,"dag","dagen")+" over de termijn":"Vandaag aan de beurt"}, nog niet ingepland.${(()=>{try{const n=S().glasMee===false?[]:extraDue(k,iso(t)).map(o=>o.dienst||o.naam).filter(Boolean);return n.length?" Ook: "+n.join(", ")+".":""}catch(e){return ""}})()}`,b:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),leeftijd:dd,knop:"Open klant",go:"klant:"+k.id,
       acts:[{l:"Inplannen",ic:"planning",cc:"plan:"+k.id},bel(k)].filter(Boolean)})});
   /* hoog: afspraak vandaag/morgen zonder tijd: tijd direct invullen */
   actief().filter(k=>(k.gepland===ti||k.gepland===morgen)&&!k.tijd).forEach(k=>add({key:"zt:"+k.id+":"+k.gepland,p:"hoog",ic:"clock",t:`${ccNaam(k)} heeft nog geen tijd`,u:`Ingepland ${k.gepland===ti?"vandaag":"morgen"}. Met een tijd krijgt de klant een nauwkeurige aankondiging.`,b:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),leeftijd:0,knop:"Open klant",go:"klant:"+k.id,tijd:k.id}));

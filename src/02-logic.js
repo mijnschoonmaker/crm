@@ -41,10 +41,11 @@ function occurrences(k,from,to){
   let g=0;while(d<=to&&g++<120){if(d>=from)out.push({date:iso(d),real});d=real&&em?stap(em):stap(d);real=false}
   return out;
 }
-const overdue=()=>actief().filter(k=>{const p=parse(k.gepland);return p?p<today():volgende(k)<today()});
-const dueOf=k=>{const p=parse(k.gepland);return p&&p<today()?p:k.aanbieden&&!p?today():volgende(k)};
+const overdue=()=>actief().filter(k=>{const p=parse(k.gepland);return p?p<today():dueOf(k)<today()});/* dueOf telt ook extra opdrachten mee */
+const dueOf=k=>{const p=parse(k.gepland);if(p&&p<today())return p;if(k.aanbieden&&!p)return today();const v=volgende(k);let e=null;try{const w=S().glasMee===false?"":extraWanneer(k);e=w&&parse(w)}catch(_){}return e&&e<v?e:v};
 function teplannen(upTo){const t=today(),ti=iso(t);return actief().filter(k=>{if(k.uitstelTot&&k.uitstelTot>ti&&!k.gepland)return false;if(k.einddatum&&k.einddatum<ti&&!k.gepland)return false;if(k.opdrachtVerwijderd&&!k.gepland)return false;if(Number(k.maxOpen)>0&&!k.gepland&&state.facturen.filter(f=>f.klantId===k.id&&f.soort!=="offerte"&&["Openstaand","Achterstallig"].includes(fStatus(f)[1])).length>=Number(k.maxOpen))return false;const p=parse(k.gepland);if(p&&p>t){/* al ingepland, maar een verdieping is eerder aan de beurt dan toen je hem inplande: dan toch aanbieden om eerder te plannen.
-    Heb je hem bewust na die datum ingepland (aanbodGezien), dan staat hij alleen in de agenda. */const a=aanbodVan(k),av=a&&parse(a.min);return !!(av&&av<p&&av<=upTo&&(!k.aanbodGezien||a.min<k.aanbodGezien))}if(p)return p<t;
+    Heb je hem bewust na die datum ingepland (aanbodGezien), dan staat hij alleen in de agenda. */const a=aanbodVan(k),av=a&&parse(a.min);if(av&&av<p&&av<=upTo&&(!k.aanbodGezien||a.min<k.aanbodGezien))return true;
+      const ew=S().glasMee===false?"":extraWanneer(k),ed=ew&&parse(ew);return !!(ed&&ed<p&&ed<=upTo&&(!k.aanbodGezien||ew<k.aanbodGezien))}if(p)return p<t;
     /* staat bij elke verdieping een aanboddatum en ligt de vroegste na de gekozen datum, dan nog niet aanbieden (ook niet als hij als nieuw/aanbieden is gemarkeerd) */
     {const a=aanbodVan(k),av=a&&a.alle&&parse(a.min);if(av&&av>upTo)return extraAanBeurt(k,upTo)}
     /* "aanbieden vanaf" (of bij een losse opdracht: "Volgende keer" bij de opdracht van de hoofdklant) ligt na de gekozen datum: nog niet aanbieden */
@@ -53,7 +54,17 @@ function teplannen(upTo){const t=today(),ti=iso(t);return actief().filter(k=>{if
       if(ab&&ab>u&&(!k.laatst||iso(ab)>k.laatst))return extraAanBeurt(k,upTo)}
     return k.aanbieden||volgende(k)<=upTo||extraAanBeurt(k,upTo)}).sort((a,b)=>dueOf(a)-dueOf(b))}
 /* een andere dienst (bv. reiniging gevelelementen) is aan de beurt: dan komt de klant bij Te plannen en gaat de glasbewassing mee */
-function extraAanBeurt(k,upTo){if(S().glasMee===false)return false;const u=iso(upTo instanceof Date?upTo:parse(upTo)||today());return (k.opdrachten||[]).some(o=>o.actief!==false&&!o.apart&&o.volgende&&o.volgende<=u&&(!k.laatst||o.volgende>k.laatst))}
+/* vroegste datum waarop een extra opdracht (dakkapel, goten, gevel…) aan de beurt is, ook per onderdeel met een eigen frequentie.
+   Nog nooit gedaan = nu aan de beurt. Zelfde opdrachten als extraDue (zelfde adres, niet apart ingepland). */
+function extraWanneer(k){let min="";const ti=iso(today()),zet=d=>{if(d&&(!min||d<min))min=d};
+  try{extraOpdr(k).forEach(o=>{const ov=o.volgende||(o.laatst?"":ti);
+    const its=(o.items||[]).filter(it=>Number(it.aantal)>0);
+    if(!its.length){zet(ov);return}
+    its.forEach(it=>zet(it.vol||(it.fq?(o.laatst&&o.volgende?o.volgende:ti):ov)))})}catch(e){}
+  return min&&min<ti?ti:min}
+function extraAanBeurt(k,upTo){if(S().glasMee===false)return false;const u=iso(upTo instanceof Date?upTo:parse(upTo)||today()),e=extraWanneer(k);return !!e&&e<=u}
+/* vroegste aanbod: verdieping met eigen aanboddatum of extra opdracht */
+function aanbodMinAlles(k){const a=(typeof aanbodVan==="function"&&aanbodVan(k)||{}).min||"",e=S().glasMee===false?"":extraWanneer(k);return [a,e].filter(Boolean).sort()[0]||""}
 function dueTxt(k){
   const p=parse(k.gepland),t=today();
   if(p&&p<t)return{cls:"late",txt:"Gepland "+fmtD(p)+", niet gedaan"};

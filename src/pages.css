@@ -4389,3 +4389,6 @@ html body .cc-si.nk::after{content:"";position:absolute;inset:-3px;border-radius
 /* planning: op grote schermen (iMac 24"/27") de volle breedte gebruiken */
 @media (min-width:1500px){html body .withside.pl-wide .mainc{max-width:none;padding-left:32px;padding-right:32px}}
 @media (min-width:2200px){html body .withside.pl-wide{grid-template-columns:minmax(0,1fr) 400px}}
+/* te plannen: extra dienst die mee gaat */
+html body .of-chips .of-ex{background:#eef4ff;color:#2f4f8f;border-color:#d5e2fb}
+html body .of-chips .of-ex svg{stroke:#2f4f8f}
