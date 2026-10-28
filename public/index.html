@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="06994edb267e"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -5074,6 +5074,10 @@ html body .tjob.low .tj-bot .tj-dn{display:inline-flex}
 html body .ow-lg.ow-lg-weg{display:none!important}
 /* offerte: toelichting per onderdeel, klein en lichtgrijs */
 .i5-og tr.i5g-s td small.i5-st{display:block;font-size:7.6px;line-height:1.35;color:#a0a6ac;margin-top:2px;font-weight:400;max-width:96%}
+/* melding: nieuwe versie */
+.ms-versie{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:9999;display:flex;align-items:center;gap:12px;padding:10px 10px 10px 18px;border-radius:16px;background:#1d2433;color:#fff;box-shadow:0 18px 40px -16px rgb(0 0 0 / .55);font-size:13.5px;max-width:calc(100vw - 24px)}
+.ms-versie b{font-weight:700}.ms-versie .iconbtn{background:transparent;color:#fff;border-color:rgb(255 255 255 / .25)}.ms-versie .iconbtn svg{stroke:#fff}
+@media (max-width:640px){.ms-versie{bottom:84px;font-size:12.5px}}
 
 </style>
 <style id="mansardThema">
@@ -17400,6 +17404,20 @@ if(typeof SETCARDS!=="undefined"&&LIVE){
   setTimeout(()=>{vgLaad().then(()=>{try{if(state.tab==="instellingen")render()}catch(e){}})},4000);
   /* na inloggen met een herstelcode: laten weten hoeveel er nog over zijn */
   setTimeout(()=>{try{const n=sessionStorage.getItem("ms.herstelOver");if(n!=null){sessionStorage.removeItem("ms.herstelOver");toast(`Ingelogd met een herstelcode. Je hebt er nog ${n}. Stel tweestapsverificatie opnieuw in op je nieuwe telefoon (Instellingen › Beveiliging).`)}}catch(e){}},2500)}
+
+/* ---------- nieuwe versie online? ----------
+   Het CRM staat vaak de hele dag open. Elke paar minuten kijken we of er een nieuwere versie staat;
+   zo ja: een balk met Vernieuwen, en als het tabblad niet in beeld is en er geen venster open staat, vanzelf vernieuwen. */
+(function(){if(typeof window==="undefined"||!LIVE)return;const meta=document.querySelector('meta[name="ms-versie"]'),nu=meta&&meta.content;if(!nu)return;
+  let nieuw=false;
+  const balk=()=>{if(document.getElementById("msVersie"))return;const b=document.createElement("div");b.id="msVersie";b.className="ms-versie";b.setAttribute("role","status");
+    b.innerHTML=`<span><b>Er staat een nieuwe versie klaar</b> · vernieuw om de laatste verbeteringen te zien</span><button type="button" class="primary small">Vernieuwen</button><button type="button" class="iconbtn sm" aria-label="Later">${I.x}</button>`;
+    b.querySelector(".primary").onclick=()=>location.reload();b.querySelector(".iconbtn").onclick=()=>b.remove();document.body.appendChild(b)};
+  const rustig=()=>!(typeof dlg!=="undefined"&&dlg&&dlg.open)&&!document.querySelector(".fv,.vraag-dlg[open],dialog[open]");
+  const kijk=async()=>{if(nieuw){if(document.hidden&&rustig())location.reload();return}
+    try{const r=await fetch(location.pathname+"?v="+Date.now(),{cache:"no-store",credentials:"same-origin"});if(!r.ok)return;const t=await r.text(),m=t.match(/name="ms-versie" content="([0-9a-f]+)"/);
+      if(m&&m[1]!==nu){nieuw=true;balk();if(document.hidden&&rustig())location.reload()}}catch(e){}};
+  setInterval(kijk,5*60*1000);document.addEventListener("visibilitychange",()=>{if(!document.hidden)kijk();else if(nieuw&&rustig())location.reload()});setTimeout(kijk,60*1000)})();
 
 /* ---------- Instellingen › Klantportaal VvE ----------
    Twee kanten: het klantportaal van het bestuur (inloggen: logboek, meldingen, facturen, documenten)

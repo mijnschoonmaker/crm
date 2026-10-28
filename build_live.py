@@ -22,6 +22,9 @@ html = head + crm[i:].replace("<style>", "<style>html,body{margin:0}\n", 1) + "\
 import re as _re
 html = _re.sub(r'<div class="logo"><span class="mk">.*?</span><span class="wm">Mansard</span></div>', '<div class="logo haslogo"><img class="lgimg" src="/mansard-logo.png" alt="Mansard"><span class="wm lgtxt"></span></div>', html)
 assert html.count('class="logo haslogo"') >= 2, "logo niet vervangen"
+# versiekenmerk: het CRM ziet zo dat er een nieuwe versie online staat (melding + vernieuwen)
+import hashlib as _hl
+html = html.replace('<meta charset="utf-8">', '<meta charset="utf-8"><meta name="ms-versie" content="' + _hl.md5(html.encode()).hexdigest()[:12] + '">', 1)
 os.makedirs("public", exist_ok=True)
 open("public/index.html", "w").write(html)
 print("public/index.html", len(html))

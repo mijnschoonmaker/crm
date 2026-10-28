@@ -4409,3 +4409,7 @@ html body .tjob.low .tj-bot .tj-dn{display:inline-flex}
 html body .ow-lg.ow-lg-weg{display:none!important}
 /* offerte: toelichting per onderdeel, klein en lichtgrijs */
 .i5-og tr.i5g-s td small.i5-st{display:block;font-size:7.6px;line-height:1.35;color:#a0a6ac;margin-top:2px;font-weight:400;max-width:96%}
+/* melding: nieuwe versie */
+.ms-versie{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:9999;display:flex;align-items:center;gap:12px;padding:10px 10px 10px 18px;border-radius:16px;background:#1d2433;color:#fff;box-shadow:0 18px 40px -16px rgb(0 0 0 / .55);font-size:13.5px;max-width:calc(100vw - 24px)}
+.ms-versie b{font-weight:700}.ms-versie .iconbtn{background:transparent;color:#fff;border-color:rgb(255 255 255 / .25)}.ms-versie .iconbtn svg{stroke:#fff}
+@media (max-width:640px){.ms-versie{bottom:84px;font-size:12.5px}}
