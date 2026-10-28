@@ -392,10 +392,13 @@ function buildRamen(){
     ["mnd6","1x per 6 maanden",2,0,26],["w48","1x per 48 weken",52/48,0,52],["mnd12","1x per 12 maanden",1,0,52],["afroep","Op afroep",1,-25,0],["once","Eenmalig",1,-25,0]];
   const FREQ_BASE=FREQ_LIST.slice(),FREQ={};FREQ_LIST.forEach(([k,,y])=>{window.FREQ_Y=window.FREQ_Y||{};window.FREQ_Y[k]=y});
   /* extra frequenties die in Uitvoering › Frequenties voor de rekentool zijn aangezet (freqCalc[key]={l,w}) */
-  const refreshFreq=()=>{const fc=(typeof S==="function"&&S().freqCalc)||{};FREQ_LIST.length=0;FREQ_BASE.forEach(x=>FREQ_LIST.push(x));
-    Object.entries(fc).forEach(([k,v])=>{if(v&&typeof v==="object"&&Number(v.w)>0&&!FREQ_LIST.some(x=>x[0]===k))FREQ_LIST.push([k,String(v.l||"1x per "+v.w+" weken"),52/Number(v.w),0,Number(v.w)])});
+  const refreshFreq=()=>{const fc=(typeof S==="function"&&S().freqCalc)||{},fw=(typeof S==="function"&&S().freqWeb)||{};FREQ_LIST.length=0;FREQ_BASE.forEach(x=>FREQ_LIST.push(x));
+    [...Object.entries(fc),...Object.entries(fw)].forEach(([k,v])=>{if(v&&typeof v==="object"&&Number(v.w)>0&&!FREQ_LIST.some(x=>x[0]===k))FREQ_LIST.push([k,String(v.l||"1x per "+v.w+" weken"),52/Number(v.w),0,Number(v.w)])});
     Object.keys(FREQ).forEach(k=>delete FREQ[k]);FREQ_LIST.forEach(([k,l,y,p,w])=>FREQ[k]={l,y,pct:p,w})};
   refreshFreq();
+  /* rekentool: standaardfrequentie aan tenzij uitgezet; extra frequentie alleen als hij voor de rekentool is aangezet. Dienstenwebshop: eigen keuze, anders gelijk aan de rekentool */
+  const calcOn=k=>{const fc=(typeof S==="function"&&S().freqCalc)||{};return FREQ_BASE.some(x=>x[0]===k)?fc[k]!==false:!!(fc[k]&&typeof fc[k]==="object")};
+  const webOn=k=>{const fw=(typeof S==="function"&&S().freqWeb)||{},v=fw[k];return v===undefined?calcOn(k):!!v};
   const VAT=.21;
   const baseCfg=()=>{const c={};TYPES.forEach(t=>{c[t.k+"_s"]=t.s;c[t.k+"_p"]=t.p});Object.assign(c,JSON.parse(JSON.stringify(DEFAULTS)));return c};
   let cfg=baseCfg(),cfgSrc=null,cfgT=null;
@@ -837,7 +840,7 @@ const ICON={
   root.querySelectorAll('input[name="koz"]').forEach(el=>el.addEventListener("change",markStale));
   let freqTouched=false;g("freq").addEventListener("change",()=>{freqTouched=true;renderOverig();markStale()});
   g("calcBtn").onclick=()=>calculate();
-  const fillFreq=()=>{refreshFreq();const gf=typeof uFreqGroep==="function"?uFreqGroep("glas"):{keuzes:null,advies:null},aan=k=>{const fc=S().freqCalc;return !(fc&&fc[k]===false)&&(!gf.keuzes||gf.keuzes.includes(k))},L=FREQ_LIST.filter(([k])=>aan(k)).sort((a,b)=>(a[4]||999)-(b[4]||999)),cur=g("freq").value,def=freqTouched&&L.some(([k])=>k===cur)?cur:gf.advies&&L.some(([k])=>k===gf.advies)?gf.advies:L.some(([k])=>k===cur)?cur:L.some(([k])=>k==="m8")?"m8":(L[0]||[])[0];
+  const fillFreq=()=>{refreshFreq();const gf=typeof uFreqGroep==="function"?uFreqGroep("glas"):{keuzes:null,advies:null},aan=k=>calcOn(k)&&(!gf.keuzes||gf.keuzes.includes(k)),L=FREQ_LIST.filter(([k])=>aan(k)).sort((a,b)=>(a[4]||999)-(b[4]||999)),cur=g("freq").value,def=freqTouched&&L.some(([k])=>k===cur)?cur:gf.advies&&L.some(([k])=>k===gf.advies)?gf.advies:L.some(([k])=>k===cur)?cur:L.some(([k])=>k==="m8")?"m8":(L[0]||[])[0];
     g("freq").innerHTML=L.map(([k,l,,p])=>`<option value="${k}"${k===def?" selected":""}>${l}${p>0?` (−${p}%)`:p<0?` (+${-p}%)`:""}</option>`).join("")};fillFreq();
   g("rateRows").innerHTML=TYPES.map(t=>`<tr><td>${t.l}</td><td><input id="cfg-${t.k}_s" data-k="${t.k}_s" type="number" min="0" step="1" aria-label="Seconden ${t.l}">${t.se?'<span class="flag">*</span>':""}</td><td><input id="cfg-${t.k}_p" data-k="${t.k}_p" type="number" min="0" step="0.0001" aria-label="Prijs ${t.l}">${t.pe?'<span class="flag">*</span>':""}</td></tr>`).join("");
   const cfgInputs=[...root.querySelectorAll("#rateRows input")];
@@ -904,7 +907,8 @@ const ICON={
     cfgAll(){if(loadCfg())fillCfg();return JSON.parse(JSON.stringify(cfg))},
     freqPct(w){if(loadCfg())fillCfg();const fk=({1:"w1",2:"w2",4:"w4",6:"w6",8:"m8",12:"w12",13:"mnd3",16:"w16",24:"w24",26:"mnd6",48:"w48",52:"mnd12"})[Number(w)]||"w4",f=FREQ[fk];return fpct(fk,f?f.pct:0)},
     staffel(list){if(loadCfg())fillCfg();return staffel(list)},
-    freqList(){refreshFreq();const fc=S().freqCalc||{},gf=typeof uFreqGroep==="function"?uFreqGroep("glas"):{keuzes:null,advies:null};return FREQ_LIST.map(([k,l,y,p,w])=>({k,l,p,w,calcAan:fc[k]!==false,aan:fc[k]!==false&&(!gf.keuzes||gf.keuzes.includes(k)),adv:gf.advies===k}))},
+    isBase:k=>FREQ_BASE.some(x=>x[0]===k),
+    freqList(){refreshFreq();const gf=typeof uFreqGroep==="function"?uFreqGroep("glas"):{keuzes:null,advies:null},mag=k=>!gf.keuzes||gf.keuzes.includes(k);return FREQ_LIST.map(([k,l,y,p,w])=>({k,l,p,w,calcAan:calcOn(k),aan:calcOn(k)&&mag(k),webAan:webOn(k)&&mag(k),adv:gf.advies===k}))},
     refreshFreq(){refreshFreq()},
     fkVoor(w){return ({1:"w1",2:"w2",4:"w4",6:"w6",8:"m8",12:"w12",13:"mnd3",16:"w16",24:"w24",26:"mnd6",48:"w48",52:"mnd12"})[Number(w)]||"w4"},
     current(){if(!lastR||!lastQ)return null;return {regels:regelsFor(lastR),opd:opdFor(lastR,null,embed&&embed.base),extra:extrasFor(lastR),count:lastR.count}},

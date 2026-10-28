@@ -41,6 +41,7 @@ function uitvLoad(force){
     (S().diensten||[]).forEach(d=>{const n=String(d.naam||"").trim();if(!n||/^glasbewassing$/i.test(n)||bekend.has(n.toLowerCase()))return;u.eigen.push({id:uid("g"),naam:n,items:[itm(n,"per keer",Number(d.prijs)||0,(Number(d.duur)||30)*60)]})});
     if(Array.isArray(S().freqs))u.freqs=S().freqs}
   u.freqCalc=(sv&&sv.freqCalc)||S().freqCalc||{};
+  u.freqWeb=(sv&&sv.freqWeb)||S().freqWeb||{};
   /* tarieven met een sleutel komen altijd uit de rekentool (die kan ook elders zijn aangepast) */
   if(!RC)RC=buildRamen();const c=RC.cfgAll();
   u.groepen.forEach(g=>{(g.items||[]).forEach(it=>{if(!it.key)return;it.prijs=c[it.key+"_p"];it.sec=c[it.key+"_s"];
@@ -65,10 +66,10 @@ async function uitvSave(){
     const dl=[{naam:"Glasbewassing",prijs:Number(S().diensten&&(S().diensten.find(d=>/^glasbewassing$/i.test(d.naam))||{}).prijs)||25,duur:30}];
     uGroups().filter(g=>!g.verberg&&g.type!=="glas"&&g.type!=="bijz").forEach(g=>(g.items||[]).forEach(it=>{dl.push({naam:g.items.length>1?g.naam+" · "+it.naam:g.naam,prijs:r2(Number(it.prijs)||0),duur:Math.max(5,Math.round((Number(it.sec)||0)/60/5)*5)||30,eenheid:it.eenheid})}));
     const freqs=(U.freqs||[]).filter(f=>Number(f.w)>0).map(f=>({w:Number(f.w),l:String(f.l||"").trim()}));
-    const freqCalc=U.freqCalc||{};const doc=JSON.parse(JSON.stringify({groepen:U.groepen,eigen:U.eigen,middelen:U.middelen,freqs,freqCalc}));
+    const freqCalc=U.freqCalc||{},freqWeb=U.freqWeb||{};const doc=JSON.parse(JSON.stringify({groepen:U.groepen,eigen:U.eigen,middelen:U.middelen,freqs,freqCalc,freqWeb}));
     await save("instellingen","uitvoering",doc);state.uitv=doc;
     await save("instellingen","ramen",patch);state.ramen=patch;
-    await saveSettings({diensten:dl,freqs,freqCalc},"Uitvoering opgeslagen");if(RC&&RC.refreshFreq)RC.refreshFreq();
+    await saveSettings({diensten:dl,freqs,freqCalc,freqWeb},"Uitvoering opgeslagen");if(RC&&RC.refreshFreq)RC.refreshFreq();
     Udirty=false;uitvLoad(true);render()}
   catch(e){err(e);if(b)b.disabled=false}
 }
@@ -142,12 +143,14 @@ function uEditHtml({g,it}){
 }
 function uFreqHtml(){
   const mine=U.freqs||[],has=w=>mine.some(f=>Number(f.w)===w),fl=RC?RC.freqList():[],calcKey=(l,w)=>{const f=fl.find(x=>x.l.toLowerCase()===l.toLowerCase());return f?f.k:w>0&&!fqSpec(w)?"w"+w+"_"+l.toLowerCase().replace(/[^a-z0-9]+/g,"").slice(0,12):""},
-    isExtra=k=>!fl.some(x=>x.k===k&&!(U.freqCalc&&U.freqCalc[k]&&typeof U.freqCalc[k]==="object")),calcAan=k=>isExtra(k)?!!(U.freqCalc&&U.freqCalc[k]&&typeof U.freqCalc[k]==="object"):!(U.freqCalc&&U.freqCalc[k]===false);
+    isExtra=k=>RC&&RC.isBase?!RC.isBase(k):!fl.some(x=>x.k===k&&!(U.freqCalc&&U.freqCalc[k]&&typeof U.freqCalc[k]==="object")),calcAan=k=>isExtra(k)?!!(U.freqCalc&&U.freqCalc[k]&&typeof U.freqCalc[k]==="object"):!(U.freqCalc&&U.freqCalc[k]===false),
+    webAan=k=>{const v=(U.freqWeb||{})[k];return v===undefined?calcAan(k):!!v};
   const sw=(act,attrs,on,lbl)=>`<label class="u-sw${on?" aan":""}" title="${esc(lbl)}"><input type="checkbox" data-act="${act}" ${attrs} ${on?"checked":""}><i></i><span>${esc(lbl)}</span></label>`;
-  return `<div class="u-grid"><section class="card u-card"><div class="u-ch"><div><b>Overzicht frequenties</b><span>Zet per frequentie aan of klanten hem kunnen kiezen: in de <b>planning</b> (klanten, opdrachten, offertes) en in de <b>rekentool</b> (calculator en website).</span></div></div>
+  return `<div class="u-grid"><section class="card u-card"><div class="u-ch"><div><b>Overzicht frequenties</b><span>Zet per frequentie aan waar je hem aanbiedt. Planning: klanten, opdrachten en offertes. Rekentool: de calculator in het CRM. Dienstenwebshop: de prijscalculator op je website.</span></div></div>
     <div class="u-fl u-ffl">${FREQ_STD.map(([l,w])=>{const ck=calcKey(l,w);return `<div class="u-fi"><span>${esc(l)}</span><small>${w&&!fqSpec(w)?w+" wk":"—"}</small>
       ${w?sw("uftog",`data-w="${w}" data-l="${esc(l)}"`,has(w),"Planning"):`<span class="u-sw dis"><i></i><span>Planning</span></span>`}
-      ${ck?sw("ufcalc",`data-k="${ck}" data-w="${w}" data-l="${esc(l)}" data-x="${isExtra(ck)?1:0}"`,calcAan(ck),"Rekentool"):`<span class="u-sw dis"><i></i><span>Rekentool</span></span>`}</div>`}).join("")}</div></section>
+      ${ck?sw("ufcalc",`data-k="${ck}" data-w="${w}" data-l="${esc(l)}" data-x="${isExtra(ck)?1:0}"`,calcAan(ck),"Rekentool"):`<span class="u-sw dis"><i></i><span>Rekentool</span></span>`}
+      ${ck?sw("ufweb",`data-k="${ck}" data-w="${w}" data-l="${esc(l)}" data-x="${isExtra(ck)?1:0}"`,webAan(ck),"Dienstenwebshop"):`<span class="u-sw dis"><i></i><span>Dienstenwebshop</span></span>`}</div>`}).join("")}</div></section>
     <section class="card u-card"><div class="u-ch"><div><b>Jouw frequenties</b><span>Deze staan in de keuzelijsten bij klanten, opdrachten en offertes. Een eigen naam is optioneel.</span></div></div>
     <div class="u-fl">${mine.map((f,i)=>`<div class="u-fi mine"><span class="u-fw">${fqSpec(f.w)?"—":f.w+" wk"}</span><input id="uf-${i}" data-u="f.${i}.l" value="${esc(f.l||"")}" placeholder="${esc(freqLabelStd(f.w))}" aria-label="Naam">
       <button type="button" class="iconbtn sm" data-act="ufmove" data-i="${i}" data-n="-1" ${i?"":"disabled"} aria-label="Omhoog">${I.up}</button><button type="button" class="iconbtn sm" data-act="ufmove" data-i="${i}" data-n="1" ${i<mine.length-1?"":"disabled"} aria-label="Omlaag">${I.down}</button><button type="button" class="iconbtn sm" data-act="ufdel" data-i="${i}" aria-label="Verwijderen">${I.x}</button></div>`).join("")||'<p class="subt">Nog geen frequenties; de standaardlijst wordt gebruikt.</p>'}</div>
@@ -202,6 +205,8 @@ function uAct(a,t){
       if(t.dataset.x==="1"){if(U.freqCalc[k]&&typeof U.freqCalc[k]==="object")delete U.freqCalc[k];else U.freqCalc[k]={l:t.dataset.l,w:Number(t.dataset.w)}}
       else{if(U.freqCalc[k]===false)delete U.freqCalc[k];else U.freqCalc[k]=false}
       uDirty();render();break}
+    case"ufweb":{const k=t.dataset.k;U.freqWeb=U.freqWeb||{};const cur=(()=>{const v=U.freqWeb[k];if(v!==undefined)return !!v;const fc=U.freqCalc||{};return t.dataset.x==="1"?!!(fc[k]&&typeof fc[k]==="object"):fc[k]!==false})();
+      U.freqWeb[k]=cur?false:(t.dataset.x==="1"?{l:t.dataset.l,w:Number(t.dataset.w)}:true);uDirty();render();break}
     case"ufadd":{const w=Number(t.dataset.w);if(!U.freqs.some(f=>Number(f.w)===w)){U.freqs.push({w,l:/maand|jaar/.test(t.dataset.l)?t.dataset.l:""});U.freqs.sort((a,b)=>a.w-b.w)}uDirty();render();break}
     case"ufnew":{const w=Math.round(Number(($("#ufNew")||{}).value)||0);if(w<1){toast("Vul een aantal weken in");break}if(!U.freqs.some(f=>Number(f.w)===w)){U.freqs.push({w,l:""});U.freqs.sort((a,b)=>a.w-b.w)}uDirty();render();break}
     case"ufmove":{const i=Number(t.dataset.i),j=i+Number(t.dataset.n);[U.freqs[i],U.freqs[j]]=[U.freqs[j],U.freqs[i]];uDirty();render();break}

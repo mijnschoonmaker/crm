@@ -16,11 +16,11 @@ const waNr = t => { let d = String(t || "").replace(/\D/g, ""); if (d.startsWith
   const c = { ...TYPES, ...JSON.parse(JSON.stringify(DEF)) }; Object.keys(r).forEach(k => { if (k in c) c[k] = r[k]; }); if (!Array.isArray(c.tiers)) c.tiers = DEF.tiers;
   const cfg = { g0_p: c.g0_p, g1_p: c.g1_p, g2_p: c.g2_p, g3_p: c.g3_p, tuimel_p: c.tuimel_p, lood_p: c.lood_p, koepel_p: c.koepel_p, mini_p: c.mini_p, start: c.start || 0, min: c.min, tiers: c.tiers, tb: c.tb || {}, wg: c.wg || {}, fp: c.fp || {} };
   /* frequenties: zoals RC.freqList() in het CRM */
-  const fc = s.freqCalc || {}, list = FREQ_BASE.slice();
-  Object.entries(fc).forEach(([k, v]) => { if (v && typeof v === "object" && Number(v.w) > 0 && !list.some(x => x[0] === k)) list.push([k, String(v.l || "1x per " + v.w + " weken"), 52 / Number(v.w), 0, Number(v.w)]); });
+  const fc = s.freqCalc || {}, fw = s.freqWeb || {}, list = FREQ_BASE.slice();
+  [...Object.entries(fc), ...Object.entries(fw)].forEach(([k, v]) => { if (v && typeof v === "object" && Number(v.w) > 0 && !list.some(x => x[0] === k)) list.push([k, String(v.l || "1x per " + v.w + " weken"), 52 / Number(v.w), 0, Number(v.w)]); });
   const g = [...(u.groepen || []), ...(u.eigen || [])].find(x => x && (x.id === "glas" || x.type === "glas"));
   const keuzes = g && Array.isArray(g.freqs) && g.freqs.length ? g.freqs.map(String) : null, advies = g && g.freqAdvies != null && g.freqAdvies !== "" ? String(g.freqAdvies) : null;
-  const fla = list.map(([k, l, y, p, w]) => ({ k, l, p, w, aan: fc[k] !== false && (!keuzes || keuzes.includes(k)), adv: advies === k })).filter(f => f.aan);
+  const fla = list.map(([k, l, y, p, w]) => ({ k, l, p, w, aan: (fw[k] === undefined ? (FREQ_BASE.some(x => x[0] === k) ? fc[k] !== false : !!(fc[k] && typeof fc[k] === "object")) : !!fw[k]) && (!keuzes || keuzes.includes(k)), adv: advies === k })).filter(f => f.aan);
   const fadv = (fla.find(f => f.adv) || fla.find(f => f.k === "m8") || fla[0] || {}).k || "m8";
   /* werkgebied */
   const gebieden = (s.webGebieden || []).filter(x => x && x.aan !== false && Array.isArray(x.pts) && x.pts.length >= 3).map(x => ({ s: x.soort || "beide", p: x.pts.map(q => [Math.round(q[0] * 1e5) / 1e5, Math.round(q[1] * 1e5) / 1e5]) }));
