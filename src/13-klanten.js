@@ -70,7 +70,7 @@ async function aanvraagToevoegen(D,fotos=[]){const a=aanvraagKlant(D),id=newId("
   for(const f of (fotos||[])){try{if(!state.assets||!f.blob)break;const file=new File([f.blob],f.naam||"woning-foto.jpg",{type:f.blob.type||"image/jpeg"});const r=await state.assets.upload(file);tf.push({id:r.id,naam:f.naam||"Foto",datum:iso(today()),w:f.w||0,h:f.h||0,dots:(f.dots||[]).map(d=>({x:d.x,y:d.y,t:d.t}))})}catch(er){console.error(er)}}
   const k={naam:zak?a.k.bedrijf:(a.k.naam||"Nieuwe klant"),contact:zak?a.k.naam||"":"",adres:a.k.adres||"",postcode:String(a.k.postcode||"").toUpperCase(),plaats:a.k.plaats||"",email:a.k.email||"",telefoon:a.k.telefoon||"",
     notities:a.k.opmerking||"",dienst:"Glasbewassing",prijs:a.prijs,frequentie:a.weken,duur:a.duur,ronde:"",laatst:"",gepland:"",tijd:"",aanbieden:true,eersteKeer:true,tellingControle:true,
-    ramenRegel:a.geenBijz?normR({f:a.f4,fq:["","","",""]}):null,
+    ramenRegel:a.geenBijz?normR({f:a.f4,fq:a.f4.map(n=>n?a.weken:"")}):null,
     ramenTelling:{floors:a.fl,special:a.sp,freq:a.fk,koz:false,ramen:a.ramen,datum:iso(today()),fotos:tf,bron:"klant"},
     bron:"website",nieuwAangemeld:true,binnen:false,soort:zak?"zakelijk":"particulier",actief:true,prospect:false,akkoord:true,opdrachtVerwijderd:false,aangemaakt:iso(today()),
     ...aanbevelingBijAanvraag(D),

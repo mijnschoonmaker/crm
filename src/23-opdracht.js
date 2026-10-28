@@ -117,7 +117,7 @@ function openOpdrachtWerk(kid,focus){
   /* aantallen uit de telling (offerte/rekentool) overnemen als de opdracht nog geen eigen aantallen heeft */
   const uitTelling=()=>{const t=k.ramenTelling;if(!t||!Array.isArray(t.floors))return null;const f=[0,1,2,3].map(i=>Number(t.floors[i])||0);return f.some(n=>n)?normR({f}):null};
   const heeftAantallen=q=>q&&(q.f||[]).some(n=>Number(n)>0);
-  let main={dienst:k.dienst||"Glasbewassing",prijs:k.prijs??"",ramen:heeftAantallen(k.ramenRegel)?normR(JSON.parse(JSON.stringify(k.ramenRegel))):(/glas|ramen/i.test(k.dienst||"Glasbewassing")?uitTelling():null)};
+  let main={dienst:k.dienst||"Glasbewassing",prijs:k.prijs??"",ramen:fqVul(heeftAantallen(k.ramenRegel)?normR(JSON.parse(JSON.stringify(k.ramenRegel))):(/glas|ramen/i.test(k.dienst||"Glasbewassing")?uitTelling():null),Number(k.frequentie)||0)};
   /* glasbewassing per verdieping: prijs en tijd volgens de tarieven van de rekentool */
   const FL=["Begane grond","1e verdieping","2e verdieping","3e verdieping"];
   const calcR=(r,isMain)=>{const q=r.ramen;if(!q)return null;try{const w=isMain?mF:Number(r.frequentie)||52,b=ramenBerekening(normR(q),w,null);
@@ -493,6 +493,8 @@ document.addEventListener("click",e=>{const c=e.target.closest("[data-jfi]");if(
 const FLN=["Begane grond","1e verdieping","2e verdieping","3e verdieping"];
 const has0=v=>v!==""&&v!=null;
 const SPK=["tuimel","koepel","lood","mini"],SPN={tuimel:"Dak- / tuimelramen",koepel:"Lichtkoepels",lood:"Glas-in-lood",mini:"Miniraampjes"};
+/* frequentie per onderdeel leeg (bv. aanmelding via de dienstenwebshop): vul de frequentie van de opdracht in */
+const fqVul=(q,w)=>{if(!q||!w)return q;const r={...q,fq:[0,1,2,3].map(i=>(q.fq&&q.fq[i])||(q.f&&Number(q.f[i])?w:"")),spfq:{...(q.spfq||{})}};SPK.forEach(x=>{if(q.sp&&Number(q.sp[x])&&!r.spfq[x])r.spfq[x]=w});return r};
 const normR=q=>{q=q||{};const a=(x,d)=>[0,1,2,3].map(i=>x&&x[i]!=null?x[i]:d);
   const r={f:a(q.f,0).map(n=>Number(n)||0),fq:a(q.fq,""),vol:a(q.vol,""),op:a(q.op,""),od:a(q.od,""),kf:a(q.kf,false).map(Boolean),kfq:a(q.kfq,""),kvol:a(q.kvol,""),kop:a(q.kop,""),kod:a(q.kod,""),start:q.start??"",tp:q.tp??"",td:q.td??"",oms:q.oms||"",sp:SPK.reduce((o,k)=>(o[k]=Math.max(0,Math.round(Number(q.sp&&q.sp[k])||0)),o),{})};
   const so=(x,d)=>SPK.reduce((o,k)=>(o[k]=x&&x[k]!=null?x[k]:d,o),{});["spfq","spvol","spop","spod","spkfq","spkvol","spkop","spkod"].forEach(n=>r[n]=so(q[n],""));r.spkf=SPK.reduce((o,k)=>(o[k]=!!(q.spkf&&q.spkf[k]),o),{});

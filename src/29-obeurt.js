@@ -64,7 +64,7 @@ function openTellingControle(kid,na){const k=state.klanten.find(x=>x.id===kid);i
     if(stipAan&&!(fotos&&fotos.length))fo=tf.filter(x=>(x.dots||[]).length).map(kd);
     const nieuweDots=id=>{const x=tf.find(y=>y.id===id);return x?x.dots.map(d=>({...d})):null};
     const g={datum:iso(today()),voor:tv,na:tn,origF:voor,origSp:vsp,prijsVoor:p0,prijsNa:c?c.prijs:p0,...(ai||(gc&&gc.ai)?{ai:true}:{}),...(stipAan?{stippen:true}:{}),...(fo.length?{fotos:fo}:{})};
-    const patch={tellingGecontroleerd:g,ramenRegel:normR({...(cur.ramenRegel||{}),f:f.slice(),sp:{...sp}}),...(c?{prijs:c.prijs,...(!(cur.tijden||[]).length?{duur:c.duur}:{})}:{}),
+    const patch={tellingGecontroleerd:g,ramenRegel:fqVul(normR({...(cur.ramenRegel||{}),f:f.slice(),sp:{...sp}}),Number(cur.frequentie)||0),...(c?{prijs:c.prijs,...(!(cur.tijden||[]).length?{duur:c.duur}:{})}:{}),
       ramenTelling:{...(cur.ramenTelling||{}),gecontroleerd:g,...(stipAan&&(cur.ramenTelling||{}).fotos?{fotos:cur.ramenTelling.fotos.map(x=>{const d=x&&nieuweDots(x.id);return d?{...x,dots:d}:x})}:{})},
       ...(stipAan&&(cur.fotos||[]).length?{fotos:cur.fotos.map(x=>{const d=x&&nieuweDots(x.id);return d?{...x,dots:d}:x})}:{}),log:[...(cur.log||[]),{datum:iso(today()),tekst:(sm?`Tellingcontrole O-beurt: klopt (${tn} ramen)`:`Tellingcontrole O-beurt: ${tv} → ${tn} ramen · prijs ${eur(p0)} → ${eur(c?c.prijs:p0)}`)+(ai?" · geteld met foto's":"")+(stipAan?" · stippen op de foto's aangepast":"")}]};
     try{await save("klanten",kid,{...strip(cur),...patch});toast(sm?"Telling klopt · vastgelegd":"Telling aangepast · nieuwe prijs "+eur(c?c.prijs:p0)+" per beurt");dlg.close();render();if(typeof na==="function")na();
