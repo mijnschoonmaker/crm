@@ -4349,3 +4349,15 @@ html body .leaflet-container .pl-bus img{width:52px!important;max-width:none!imp
 .tc-fg button:hover{transform:translateY(-1px);box-shadow:0 8px 18px -12px rgba(13,18,27,.45)}
 .tc-fg .fwrap{position:relative;display:block;width:100%}.tc-fg .fwrap img{width:100%;height:100%;object-fit:cover;display:block}
 .tc-fg em{position:absolute;top:6px;right:6px;font-style:normal;font-size:11px;font-weight:800;color:#fff;background:rgba(13,18,27,.7);padding:2px 7px;border-radius:99px}
+
+/* abonnement: pakketkeuze */
+.ms-plans{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:2px 0 12px}
+.ms-plan{all:unset;box-sizing:border-box;display:flex;flex-direction:column;gap:3px;padding:16px;border:1.5px solid var(--line);border-radius:16px;background:var(--surface);cursor:pointer;transition:border-color .2s,box-shadow .2s}
+.ms-plan:hover{border-color:#b9bec5}.ms-plan.on{border-color:#252c3c;box-shadow:0 0 0 3px rgba(37,44,60,.12)}
+.ms-plan.nee{opacity:.55;cursor:not-allowed}
+.ms-pn{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}.ms-pn i{font-style:normal;margin-left:6px;padding:2px 7px;border-radius:99px;background:#e8f0ec;color:#3d6e58;letter-spacing:.04em}
+.ms-plan b{font-size:26px;font-weight:800;letter-spacing:-.02em;color:var(--ink)}.ms-plan small{color:var(--muted);font-size:12px}
+.ms-plan ul{margin:8px 0 0;padding:0 0 0 16px;font-size:13px;line-height:1.6;color:var(--ink)}.ms-plan em{font-style:normal;font-size:12px;color:#a8443a;margin-top:4px}
+@media (max-width:560px){.ms-plans{grid-template-columns:1fr}}
+html body .ms-plan,html body .ms-plan.on,html body .ms-plan:hover{background:var(--surface)!important;color:var(--ink)!important;text-transform:none;letter-spacing:normal;height:auto;min-height:0;justify-content:flex-start;align-items:stretch;text-align:left;font-weight:400}
+html body .ms-plan.on{border-color:#252c3c!important;box-shadow:0 0 0 3px rgba(37,44,60,.14)!important}

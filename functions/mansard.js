@@ -1,7 +1,14 @@
-/* Mansard als platform: een nieuw bedrijf aanmelden (30 dagen gratis), de status van het abonnement lezen.
+/* Mansard als platform: een nieuw bedrijf aanmelden (eerste maand € 1), de status van het abonnement lezen.
    Een bedrijf = bedrijven/<id> (naam, eigenaar, status, proefTot, plan) met daaronder al zijn gegevens. */
 module.exports = ({ rawDb, T, onCall, onRequestRaw, HttpsError, nu, mollie, HOST, mfaOk }) => {
-  const PLAN = { naam: "Mansard", prijs: 99, inbegrepen: 3, extraPrijs: 19.95, proefDagen: 30 };
+  /* pakketten (bedragen excl. btw; Mollie schrijft incl. 21% btw af). De eerste maand (proef) kost € 1. */
+  const BTW = 21, STARTPRIJS = 1;
+  const PLANS = {
+    starter: { key: "starter", naam: "Starter", prijs: 69, inbegrepen: 1, extraPrijs: 0, maxGebruikers: 1, maxKlanten: 150, proefDagen: 30 },
+    mansard: { key: "mansard", naam: "Mansard", prijs: 99, inbegrepen: 3, extraPrijs: 19.95, proefDagen: 30 },
+  };
+  const PLAN = PLANS.mansard;
+  const planVan = b => { const p = b && b.plan; if (p && PLANS[p.key]) return PLANS[p.key]; if (p && p.naam === "Starter") return PLANS.starter; return PLANS.mansard; };
   const emailVan = auth => { const a = auth && auth.token; if (!a || !a.email_verified) throw new HttpsError("unauthenticated", "Bevestig eerst je e-mailadres."); return String(a.email || "").toLowerCase(); };
 
   const bedrijfAanmaken = onCall(async req => {
@@ -26,7 +33,7 @@ module.exports = ({ rawDb, T, onCall, onRequestRaw, HttpsError, nu, mollie, HOST
     if (T.isLegacy()) return { status: "eigen", plan: PLAN };
     const s = await rawDb.doc("bedrijven/" + T.bid()).get(), d = s.data() || {};
     const n = (await rawDb.collection("gebruikers").where("bedrijf", "==", T.bid()).get()).size;
-    return { status: d.status, achterstand: !!d.achterstand, respijtTot: d.achterstand ? respijtTot(d) : "", proefTot: d.proefTot || "", plan: d.plan || PLAN, gebruikers: n, naam: d.naam };
+    return { status: d.status, achterstand: !!d.achterstand, respijtTot: d.achterstand ? respijtTot(d) : "", proefTot: d.proefTot || "", plan: planVan(d), plans: PLANS, btw: BTW, startPrijs: STARTPRIJS, gebruikers: n, naam: d.naam };
   });
 
   /* ---------- abonnement via Mollie (account van Mansard zelf) ---------- */
@@ -37,7 +44,17 @@ module.exports = ({ rawDb, T, onCall, onRequestRaw, HttpsError, nu, mollie, HOST
   const plusMaand = d => { const x = new Date(d + "T12:00:00Z"); x.setUTCMonth(x.getUTCMonth() + 1); return x.toISOString().slice(0, 10); };
   async function sleutel() { const pl = (await rawDb.doc("platform/geheim").get()).data() || {}, g = (await rawDb.doc("geheim/config").get()).data() || {}; const k = pl.mansardMollieKey || g.mansardMollieKey || g.mollieKey; if (!k) throw new HttpsError("failed-precondition", "Betalen is nog niet ingesteld bij Mansard."); return k; }
   async function aantalGebruikers(bid) { return (await rawDb.collection("gebruikers").where("bedrijf", "==", bid).get()).size; }
-  const bedragVoor = (n, plan = PLAN) => r2(plan.prijs + Math.max(0, n - plan.inbegrepen) * plan.extraPrijs);
+  const exclVoor = (n, plan = PLAN) => r2(plan.prijs + Math.max(0, n - plan.inbegrepen) * (plan.extraPrijs || 0));
+  /* wat Mollie afschrijft: incl. btw */
+  const bedragVoor = (n, plan = PLAN) => r2(exclVoor(n, plan) * (1 + BTW / 100));
+  /* actieve klanten: alles behalve wat op inactief staat (oude klanten zonder het veld tellen mee) */
+  async function aantalKlanten(bid) { const c = rawDb.collection("bedrijven/" + bid + "/klanten"); try { const [alle, uit] = await Promise.all([c.count().get(), c.where("actief", "==", false).count().get()]); return alle.data().count - uit.data().count; } catch (e) { return 0; } }
+  async function pastInPlan(bid, plan) {
+    const n = await aantalGebruikers(bid);
+    if (plan.maxGebruikers && n > plan.maxGebruikers) throw new HttpsError("failed-precondition", "Het pakket " + plan.naam + " is voor " + plan.maxGebruikers + " gebruiker. Verwijder eerst andere gebruikers of kies het pakket Mansard.");
+    if (plan.maxKlanten) { const k = await aantalKlanten(bid); if (k > plan.maxKlanten) throw new HttpsError("failed-precondition", "Je hebt " + k + " klanten. Het pakket " + plan.naam + " is voor maximaal " + plan.maxKlanten + " klanten. Kies het pakket Mansard."); }
+    return n;
+  }
   async function eigenaarVan(auth) {
     const e = emailVan(auth); if (T.isLegacy()) throw new HttpsError("failed-precondition", "Dit bedrijf heeft geen abonnement nodig.");
     const g = (await rawDb.doc("gebruikers/" + e).get()).data() || {};
@@ -49,14 +66,18 @@ module.exports = ({ rawDb, T, onCall, onRequestRaw, HttpsError, nu, mollie, HOST
   const abonnementStart = onCall(async req => {
     const e = await eigenaarVan(req.auth), bid = T.bid(), ref = rawDb.doc("bedrijven/" + bid), b = (await ref.get()).data() || {};
     if (b.status === "actief" && b.mollieSub && !b.achterstand) return { al: true };
-    const key = await sleutel(), basis = basisOk((req.data || {}).basis), n = await aantalGebruikers(bid), plan = b.plan || PLAN;
+    const gekozen = PLANS[String((req.data || {}).plan || "")] || planVan(b);
+    const n = await pastInPlan(bid, gekozen), plan = gekozen;
+    if (!b.plan || b.plan.key !== plan.key) await ref.set({ plan }, { merge: true });
+    const key = await sleutel(), basis = basisOk((req.data || {}).basis);
     let cid = b.mollieCustomer;
     if (!cid) { const c = await mollie(key, "customers", { method: "POST", body: JSON.stringify({ name: b.naam || e, email: e, metadata: { mansard: bid } }) }); cid = c.id; await ref.set({ mollieCustomer: cid }, { merge: true }); }
     const inProef = b.status === "proef" && String(b.proefTot || "") > vandaag();
-    const bedrag = inProef ? 0.01 : bedragVoor(n, plan);
+    /* tijdens de eerste maand: € 1 (incl. btw) en het abonnement gaat pas na die maand in */
+    const bedrag = inProef ? STARTPRIJS : bedragVoor(n, plan);
     const p = await mollie(key, "payments", { method: "POST", body: JSON.stringify({
       amount: { currency: "EUR", value: bedrag.toFixed(2) }, customerId: cid, sequenceType: "first",
-      description: inProef ? "Machtiging Mansard-abonnement" : "Mansard abonnement " + vandaag().slice(0, 7),
+      description: inProef ? "Mansard " + plan.naam + " · eerste maand" : "Mansard " + plan.naam + " " + vandaag().slice(0, 7),
       redirectUrl: basis + "/?abonnement=" + bid, webhookUrl: HOST() + "/api/mansard-mollie", metadata: { mansard: bid, soort: "start", inProef } }) });
     await ref.set({ startBetaling: p.id }, { merge: true });
     return { url: p._links && p._links.checkout && p._links.checkout.href };
@@ -66,9 +87,9 @@ module.exports = ({ rawDb, T, onCall, onRequestRaw, HttpsError, nu, mollie, HOST
     const ref = rawDb.doc("bedrijven/" + bid), b = (await ref.get()).data() || {}, n = await aantalGebruikers(bid);
     if (b.mollieSub) return b.mollieSub;
     const sub = await mollie(key, "customers/" + b.mollieCustomer + "/subscriptions", { method: "POST", body: JSON.stringify({
-      amount: { currency: "EUR", value: bedragVoor(n, b.plan || PLAN).toFixed(2) }, interval: "1 month", startDate,
-      description: "Mansard abonnement (" + (b.naam || bid) + ")", webhookUrl: HOST() + "/api/mansard-mollie", metadata: { mansard: bid } }) });
-    await ref.set({ mollieSub: sub.id, status: "actief", abonnementSinds: nu(), volgende: startDate, bedrag: Number(sub.amount.value), gebruikers: n }, { merge: true });
+      amount: { currency: "EUR", value: bedragVoor(n, planVan(b)).toFixed(2) }, interval: "1 month", startDate,
+      description: "Mansard " + planVan(b).naam + " (" + (b.naam || bid) + ")", webhookUrl: HOST() + "/api/mansard-mollie", metadata: { mansard: bid } }) });
+    await ref.set({ mollieSub: sub.id, status: "actief", abonnementSinds: nu(), volgende: startDate, bedrag: Number(sub.amount.value), bedragExcl: exclVoor(n, planVan(b)), gebruikers: n }, { merge: true });
     return sub.id;
   }
 
@@ -97,13 +118,23 @@ module.exports = ({ rawDb, T, onCall, onRequestRaw, HttpsError, nu, mollie, HOST
 
   /* na het toevoegen of verwijderen van een gebruiker: het maandbedrag aanpassen */
   const abonnementBijwerken = onCall(async req => {
-    await eigenaarVan(req.auth); const bid = T.bid(), ref = rawDb.doc("bedrijven/" + bid), b = (await ref.get()).data() || {}, n = await aantalGebruikers(bid), bedrag = bedragVoor(n, b.plan || PLAN);
+    await eigenaarVan(req.auth); const bid = T.bid(), ref = rawDb.doc("bedrijven/" + bid), b = (await ref.get()).data() || {}, n = await aantalGebruikers(bid), bedrag = bedragVoor(n, planVan(b));
     if (b.mollieSub && b.mollieCustomer && Number(b.bedrag) !== bedrag) {
       const key = await sleutel();
       await mollie(key, "customers/" + b.mollieCustomer + "/subscriptions/" + b.mollieSub, { method: "PATCH", body: JSON.stringify({ amount: { currency: "EUR", value: bedrag.toFixed(2) } }) });
     }
-    await ref.set({ gebruikers: n, bedrag }, { merge: true });
+    await ref.set({ gebruikers: n, bedrag, bedragExcl: exclVoor(n, planVan(b)) }, { merge: true });
     return { gebruikers: n, bedrag };
+  });
+
+  /* ander pakket kiezen (Starter <-> Mansard); het maandbedrag past zich meteen aan */
+  const abonnementPlan = onCall(async req => {
+    await eigenaarVan(req.auth); const bid = T.bid(), ref = rawDb.doc("bedrijven/" + bid), b = (await ref.get()).data() || {};
+    const plan = PLANS[String((req.data || {}).plan || "")]; if (!plan) throw new HttpsError("invalid-argument", "Onbekend pakket.");
+    const n = await pastInPlan(bid, plan), bedrag = bedragVoor(n, plan);
+    if (b.mollieSub && b.mollieCustomer) { const key = await sleutel(); await mollie(key, "customers/" + b.mollieCustomer + "/subscriptions/" + b.mollieSub, { method: "PATCH", body: JSON.stringify({ amount: { currency: "EUR", value: bedrag.toFixed(2) }, description: "Mansard " + plan.naam + " (" + (b.naam || bid) + ")" }) }); }
+    await ref.set({ plan, gebruikers: n, bedrag, bedragExcl: exclVoor(n, plan), planGewijzigd: nu() }, { merge: true });
+    return { plan: plan.key, bedrag };
   });
 
   const abonnementStoppen = onCall(async req => {
@@ -174,5 +205,5 @@ module.exports = ({ rawDb, T, onCall, onRequestRaw, HttpsError, nu, mollie, HOST
     throw new HttpsError("invalid-argument", "Onbekende actie.");
   });
 
-  return { functies: { bedrijfAanmaken, abonnement, abonnementStart, abonnementBijwerken, abonnementStoppen, mansardHook, beheer }, PLAN, magGebruiken };
+  return { functies: { bedrijfAanmaken, abonnement, abonnementStart, abonnementBijwerken, abonnementPlan, abonnementStoppen, mansardHook, beheer }, PLAN, magGebruiken };
 };
