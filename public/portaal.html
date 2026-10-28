@@ -1879,7 +1879,7 @@ async function toonAanbevolen(code){
   $("#app").innerHTML=`<main class="welkom"><div class="wk-kaart wk-c">${wkLogo((d&&d.bedrijf.logo)||await merkLogo())}
     <span class="wk-pil">Persoonlijke aanbeveling</span>
     <h1>${d?esc(d.voornaam)+" raadt ons aan":"U bent aanbevolen"}</h1>
-    <p>Wij wassen uw ramen in een vast ritme, laten vooraf weten wanneer we komen en u ziet alles terug in uw eigen klantomgeving.</p>
+    <p>Wij wassen uw ramen in een vast ritme en u ziet alles terug in uw eigen klantomgeving.</p>
     ${d&&d.welkom>0?`<div class="melding goud" style="margin-bottom:18px;box-shadow:none"><span class="objic goud">${I.cadeau}</span><div class="tx"><b>${eur0(d.welkom)} welkomstkorting</b><small>Op uw eerste factuur, omdat ${esc(d.voornaam)} u heeft aanbevolen.</small></div></div>`:""}
     <a class="btn primary full big" href="${esc(url)}">${I.euro}Bereken direct uw prijs</a>
     <p class="subt klein">Uw code <b style="letter-spacing:.06em;color:var(--ink)">${esc(code)}</b> gaat automatisch mee met uw aanvraag.</p></div></main>`}
@@ -1926,7 +1926,7 @@ function hero(){const v=D.volgende,k=D.klant;
     <div class="hero-tx"><p class="eyebrow">${I.kal}Uw volgende bezoek</p>
     ${k.nieuw?`<h2>We plannen uw eerste bezoek</h2><p>We combineren afspraken per omgeving. U hoort van ons zodra de datum vaststaat.</p>`
      :!k.actief?`<h2>Er staan geen bezoeken gepland</h2><p>Wilt u weer gebruikmaken van onze diensten? Laat het ons weten.</p>`
-     :`<h2>${w?"Rond week "+w:"Binnenkort"}</h2><p>We plannen u in zodra uw route rond is en laten u vooraf weten wanneer we komen.</p>`}</div></div>
+     :`<h2>${w?"Rond week "+w:"Binnenkort"}</h2><p>We plannen u in zodra uw route rond is.</p>`}</div></div>
     <div class="hero-acts"><button data-act="toegang">${I.sleutel}Instructies</button><button data-act="ticket">${I.bericht}Vraag</button></div></section>`}
 
 function abonnementKp(){const k=D.klant,rt=k.vve&&k.vveSoort!=="buiten"?hoofd(k.ritme||""):k.vve?hoofd(((k.diensten||[])[0]||{}).ritme||k.ritme||""):"Elke "+(k.frequentie===1?"week":k.frequentie+" weken"),sd=k.sinds?esc(MND[p(k.sinds).getMonth()]+" "+p(k.sinds).getFullYear()):"";
