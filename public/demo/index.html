@@ -4688,6 +4688,9 @@ html body .cc-si.nk svg{width:19px;height:19px;stroke:#fff}
 html body .cc-si.nk::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:2px solid #e6c47e;animation:ccNk 1.8s ease-out infinite;pointer-events:none}
 @keyframes ccNk{0%{transform:scale(1);opacity:.8}100%{transform:scale(1.55);opacity:0}}
 @media (prefers-reduced-motion:reduce){html body .cc-si.nk::after{animation:none}}
+/* planning: op grote schermen (iMac 24"/27") de volle breedte gebruiken */
+@media (min-width:1500px){html body .withside.pl-wide .mainc{max-width:none;padding-left:32px;padding-right:32px}}
+@media (min-width:2200px){html body .withside.pl-wide{grid-template-columns:minmax(0,1fr) 400px}}
 
 </style>
 <style id="mansardThema">
@@ -8131,7 +8134,7 @@ function vPlanning(){
     ${advHtml(offer,d0)}
     ${offer.length>1&&!state.planMode&&!ADV.zoek?`<div class="wp-2k"><button type="button" class="small primary" data-act="weekplan" data-d="${iso(state.week)}">${I.wand}Plan de week</button><button type="button" class="small" data-act="planall">Alles op aanboddatum</button></div>`:""}
     <div class="list" style="gap:8px">${offer.length?offerCards(offer,v==="dag"&&parse(d0)>=t?d0:""):`<p class="subt" style="text-align:center;font-style:italic;margin:30px 0">${ADV.zoek?"Niets gevonden voor “"+esc(ADV.zoek)+"”":"Alles ingepland"}</p>`}</div></aside>`;
-  if(big())return `<div class="withside">`+`<div class="mainc">${html}</div>${offerCol}</div>`;
+  if(big())return `<div class="withside pl-wide">`+`<div class="mainc">${html}</div>${offerCol}</div>`;
   /* telefoon: te plannen opdrachten onder de agenda; lang indrukken en in de agenda slepen (zoals in DienstenCRM) */
   if(v==="maand")return html+(offer.length?`<button type="button" class="fab-plan" data-act="offersheet">${I.inbox}${offer.length} in te plannen</button>`:"");
   return html+`<section class="mob-offer" id="mobOffer"><div class="mo-h"><span class="objic">${I.inbox}</span><div><b>In te plannen</b><small>${offer.length?`${plural(offer.length,"opdracht","opdrachten")} · houd vast en sleep naar de agenda`:"Alles ingepland"}</small></div><span class="sp"></span>${offer.length?`<span class="mono">${eur0(toon(offerSum))}</span>`:""}</div>
