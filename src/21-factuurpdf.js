@@ -49,12 +49,14 @@ function invModel(f,klant){
   const meta=[[d.off?"Offertenummer":"Factuurnummer",f.nummer],[d.off?"Offertedatum":"Factuurdatum",fmtL(f.datum)],[d.off?"Geldig tot":"Vervaldatum",fmtL(f.verval)],["Klantnummer",kn]];
   const coLines=[s.adres,[s.postcode,s.plaats].filter(Boolean).join(" "),s.telefoon,s.email].filter(Boolean);
   const pay=d.off?null:d.voldaan?null:f.incasso?[["Betaling","Automatische incasso"],["Afschrijving",fmtL(f.verval)],["Factuurnr.",f.nummer]]:[["IBAN",String(s.iban||"—")],["T.n.v.",s.naam||"—"],["Factuurnr.",f.nummer],["Uiterlijk",fmtL(f.verval)]];
-  const foot=[s.naam&&s.onderdeelVan?s.naam+" is een onderdeel van "+s.onderdeelVan:s.naam,s.kvk&&"KvK "+s.kvk,s.btwnr&&"BTW-id "+s.btwnr,s.website].filter(Boolean);
+  /* moederbedrijf Mansard: als logo in plaats van tekst */
+  const footLogo=!!(s.naam&&/^\s*mansard\s*$/i.test(String(s.onderdeelVan||"")));
+  const foot=[s.naam&&s.onderdeelVan?s.naam+" is een onderdeel van "+(footLogo?"":s.onderdeelVan):s.naam,s.kvk&&"KvK "+s.kvk,s.btwnr&&"BTW-id "+s.btwnr,s.website].filter(Boolean);
   const zin=d.off?`Deze offerte is geldig tot ${fmtL(f.verval)}. Gaat u akkoord? Laat het ons weten, dan plannen wij u direct in.`:d.voldaan?`${d.voldaan}. Hartelijk dank voor uw betaling.`:f.incasso?`Wordt binnen 14 dagen na de uitgevoerde beurt automatisch van uw rekening afgeschreven. U hoeft niets te doen.`:`Graag vóór ${fmtL(f.verval)} overmaken onder vermelding van het factuurnummer.${s.betaallink?" Direct betalen kan via "+s.betaallink+".":""}`;
   const pill=!d.off&&(d.st[1]==="g"||d.st[1]==="r");
   const coInfo=d.info.filter(([l])=>l!=="Offertenummer"&&l!=="Factuurnummer").map(([l,v])=>[l,v.filter(Boolean)]);
   const vervalRij=d.off?null:["Vervaldatum",[fmtNum(f.verval).replace(/ /g,"")]];if(vervalRij)coInfo.push(vervalRij);const di=coInfo.findIndex(([l])=>/datum|Geldig/i.test(l));if(di>0&&coInfo[di-1][0])coInfo.splice(di,0,["",[]]);
-  return{...d,pill,A,meta,coLines,pay,foot,zin,coInfo,betreft:(d.off?"Offerte ":"Factuur ")+f.nummer,titel:d.off?"Offerte":"Factuur",stLabel:{b:"Openstaand",g:d.off?"Geaccepteerd":"Betaald",r:d.off?"Afgewezen":"Vervallen",n:d.st[0]==="VERSTUURD"?"Verstuurd":"Concept"}[d.st[1]]||d.st[0]};
+  return{...d,pill,A,meta,coLines,pay,foot,footLogo,zin,coInfo,betreft:(d.off?"Offerte ":"Factuur ")+f.nummer,titel:d.off?"Offerte":"Factuur",stLabel:{b:"Openstaand",g:d.off?"Geaccepteerd":"Betaald",r:d.off?"Afgewezen":"Vervallen",n:d.st[0]==="VERSTUURD"?"Verstuurd":"Concept"}[d.st[1]]||d.st[0]};
 }
 const offTxt=(t,f)=>{const k=typeof invKlant==="function"?invKlant(f):null,vn=k&&k.voornaam?k.voornaam:String(cleanName(f.klantNaam||"")).split(",").slice(-1)[0].trim();let v={};try{v=k&&k.id&&typeof klantVars==="function"?klantVars(k):{}}catch(e){}return fill(t,{...v,klant:cleanName(f.klantNaam||""),naam:cleanName(f.klantNaam||""),voornaam:vn,bedrijf:S().naam||"",factuurnummer:f.nummer||"",vervaldatum:f.verval?fmtL(f.verval):""}).trim()};
 /* factuurvoorbeeld passend maken: hele A4 in de breedte van het scherm (verkleind), nooit half afgesneden */
@@ -84,8 +86,12 @@ function paperHtml(f,klant){
   ${f.notitie?`<div class="i5-note"><span class="i5-l">Opmerking</span>${esc(f.notitie)}</div>`:""}
   ${f.soort==="offerte"&&offTxt(f.voettekst,f)?`<div class="i5-txt">${esc(offTxt(f.voettekst,f)).replace(/\n/g,"<br>")}</div>`:""}
     ${m.vwTxt?`<p class="i5-vw">${esc(m.vwTxt)}</p>`:""}
-  <div class="i5-foot">${m.foot.map(x=>`<span>${esc(x)}</span>`).join("")}</div></div>${(()=>{const fb=f.soort!=="offerte"&&typeof factFotos==="function"&&factFotos(f).length?`<div class="i5-fotos"><span class="i5-l">Bijlage · foto's</span><b class="i5-ft">Opgemerkt tijdens ons werk</b><span class="i5-fs">Tijdens de beurt${f.datum?" van "+esc(fmtL(f.datum)):""} viel ons het volgende op.</span><div class="${factFotos(f).length===1?"een":""}">${factFotos(f).map((b,i)=>`<figure><span class="i5-fi"><img src="${BLOB}${esc(b.id)}" alt="">${b.zijde?`<em>${esc(b.zijde)}</em>`:""}</span><figcaption><i>${String(i+1).padStart(2,"0")}</i><span><b>${esc(b.notitie||"Bijzonderheid")}</b><small>${esc(fmtL(b.datum||f.datum))}</small></span></figcaption></figure>`).join("")}</div></div>`:"";return fb?`<div class="inv5 i5-p2" style="--A:${m.A}">${fb}<div class="i5-foot">${m.foot.map(x=>`<span>${esc(x)}</span>`).join("")}</div></div>`:""})()}`;
+  <div class="i5-foot">${m.foot.map((x,i)=>i===0&&m.footLogo?`<span class="i5-ov">${esc(x)}<img src="/mansard-logo.png" alt="Mansard"></span>`:`<span>${esc(x)}</span>`).join("")}</div></div>${(()=>{const fb=f.soort!=="offerte"&&typeof factFotos==="function"&&factFotos(f).length?`<div class="i5-fotos"><span class="i5-l">Bijlage · foto's</span><b class="i5-ft">Opgemerkt tijdens ons werk</b><span class="i5-fs">Tijdens de beurt${f.datum?" van "+esc(fmtL(f.datum)):""} viel ons het volgende op.</span><div class="${factFotos(f).length===1?"een":""}">${factFotos(f).map((b,i)=>`<figure><span class="i5-fi"><img src="${BLOB}${esc(b.id)}" alt="">${b.zijde?`<em>${esc(b.zijde)}</em>`:""}</span><figcaption><i>${String(i+1).padStart(2,"0")}</i><span><b>${esc(b.notitie||"Bijzonderheid")}</b><small>${esc(fmtL(b.datum||f.datum))}</small></span></figcaption></figure>`).join("")}</div></div>`:"";return fb?`<div class="inv5 i5-p2" style="--A:${m.A}">${fb}<div class="i5-foot">${m.foot.map(x=>`<span>${esc(x)}</span>`).join("")}</div></div>`:""})()}`;
 }
+let _mLogo=null;
+async function mansardLogo(){if(_mLogo)return _mLogo;try{const r=await fetch("/mansard-logo.png");if(!r.ok)return null;const b=await r.blob();
+  const url=await new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.readAsDataURL(b)});
+  const im=await new Promise(res=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>res(null);i.src=url});if(!im)return null;_mLogo={url,r:im.width/im.height};return _mLogo}catch(e){return null}}
 async function pdfDoc(f,klant){
   const doc=newPdf();if(!doc)return null;const m=invModel(f,klant),s=m.s,L=20,R=190,W=R-L,logo=await loadLogo(),A=hexRgb(m.A);
   const C={ink:[17,24,28],mut:[112,122,127],soft:[250,251,251],line:[228,231,233]};
@@ -176,8 +182,11 @@ async function pdfDoc(f,klant){
           N();doc.setFontSize(7.4);col([43,51,55]);doc.text(notes[j],x+6,ty,{lineHeightFactor:1.4});
           doc.setFontSize(6.2);col(C.mut);doc.text(fmtL(im.p.datum||f.datum),x+6,ty+notes[j].length*3.5+.2);col(C.ink)}
         yy+=ch+gap}}}
+  const mLogo=m.footLogo?await mansardLogo():null;
   const pages=doc.getNumberOfPages();for(let p=1;p<=pages;p++){doc.setPage(p);doc.setDrawColor(...C.line);doc.setLineWidth(.25);doc.line(L,277,R,277);N();doc.setFontSize(6.8);col(C.mut);
-    doc.text(m.foot.join("   ·   "),L,282);if(pages>1)doc.text("Pagina "+p+" / "+pages,R,282,{align:"right"});col(C.ink)}
+    if(m.footLogo&&mLogo){const t0=m.foot[0],rest=m.foot.slice(1).join("   ·   "),lh=1.75,lw=lh*mLogo.r;doc.text(t0.trim(),L,282);let x=L+doc.getTextWidth(t0.trim())+1.5;
+      try{doc.addImage(mLogo.url,"PNG",x,282-lh+.15,lw,lh,"mansardlogo","FAST")}catch(e){}x+=lw;if(rest)doc.text("   ·   "+rest,x,282)}
+    else doc.text(m.foot.join("   ·   ").replace(/ is een onderdeel van $/,""),L,282);if(pages>1)doc.text("Pagina "+p+" / "+pages,R,282,{align:"right"});col(C.ink)}
   return doc;
 }
 async function pdf(id){
