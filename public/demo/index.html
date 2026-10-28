@@ -13763,17 +13763,19 @@ function kkGegevens(kid){const k=state.klanten.find(x=>x.id===kid);if(!k)return;
 /* opdracht verwijderen, met keuze voor de toekomstig ingeplande afspraken */
 function kkDelOpdracht(kid,oid,back){const k=state.klanten.find(x=>x.id===kid);if(!k)return;
   const main=oid==="main",o=main?null:(k.opdrachten||[]).find(x=>x.id===oid);if(!main&&!o)return;
-  const naam=main?(k.dienst||"Glasbewassing"):o.dienst,extra=(k.opdrachten||[]).filter(x=>x.id!==oid&&x.actief!==false);
+  const naam=main?(k.dienst||"Glasbewassing"):o.dienst,extra=(k.opdrachten||[]).filter(x=>x.id!==oid&&x.actief!==false&&!(main&&opdrApart(k,x)));
   const goBack=()=>back==="opdracht"?openOpdrachtWerk(kid):openKlantView(kid);
   openDlg(`<div class="dlg-head"><span class="objic big kd-warn">${I.alert}</span><div style="min-width:0;flex:1"><h3>Verwijderen</h3><div class="subt">${esc(cleanName(k.naam))} · ${esc(naam)}</div></div><button type="button" class="iconbtn" id="odX" aria-label="Annuleren">${I.x}</button></div>
     <p style="margin:0;font-size:15px">Weet je zeker dat je deze opdracht wilt verwijderen?</p>
     <label class="check-row"><input type="checkbox" id="od-fut" ${main&&k.gepland?"checked":"checked"}>In de toekomst ingeplande afspraken verwijderen</label>
-    ${main?`<p class="help" style="margin:0">${k.gepland?"Er staat een afspraak op "+esc(fmtL(k.gepland))+(k.tijd?" om "+esc(k.tijd):"")+". ":""}${extra.length?"<b>Let op:</b> "+esc(extra.map(x=>x.dienst).join(", "))+" stopt dan ook, want andere diensten worden alleen samen met glasbewassing uitgevoerd. ":""}De klant blijft in je klantenbestand, maar wordt niet meer aangeboden in de planning. Facturen en de wasgeschiedenis blijven bewaard.</p>`:`<p class="help" style="margin:0">Facturen en de wasgeschiedenis blijven bewaard.</p>`}
+    ${main?`<p class="help" style="margin:0">${k.gepland?"Er staat een afspraak op "+esc(fmtL(k.gepland))+(k.tijd?" om "+esc(k.tijd):"")+". ":""}${extra.length?"<b>Let op:</b> "+esc(extra.map(x=>x.dienst).join(", "))+" stopt dan ook, want andere diensten worden alleen samen met glasbewassing uitgevoerd. ":""}${(()=>{const bl=(k.opdrachten||[]).filter(x=>x.actief!==false&&opdrApart(k,x));return bl.length?"Deze dienst wordt niet meer aangeboden. <b>"+esc(bl.map(x=>x.dienst).join(", "))+"</b> blijft gewoon lopen, met eigen planning en facturatie.":"De klant blijft in je klantenbestand, maar wordt niet meer aangeboden in de planning."})()} Facturen en de wasgeschiedenis blijven bewaard.</p>`:`<p class="help" style="margin:0">Facturen en de wasgeschiedenis blijven bewaard.</p>`}
     <div class="row"><span class="sp"></span><button type="button" id="odC">Annuleren</button><button type="submit" class="primary danger-bg" id="odS">${I.trash}Verwijderen</button></div>`,{wide:false});
   $("#odX").onclick=$("#odC").onclick=goBack;
   form.onsubmit=async e=>{e.preventDefault();$("#odS").disabled=true;const fut=$("#od-fut").checked,cur=state.klanten.find(x=>x.id===kid)||k;let p={};
     if(!main)p={opdrachten:(cur.opdrachten||[]).filter(x=>x.id!==oid&&opdrBij(cur,x)!==oid)};
-    else p={opdrachten:(cur.opdrachten||[]).map(x=>({...x,actief:false})),opdrachtVerwijderd:true,aanbieden:false,periodiek:cur.periodiek?{...cur.periodiek,aan:false}:cur.periodiek,...(fut||!cur.gepland?{gepland:"",tijd:"",actief:false}:{})};
+    else{/* losse opdrachten (eigen afspraak, bijv. trappenhal van een VvE) blijven gewoon lopen; de klant blijft dan actief */
+      const blijf=(cur.opdrachten||[]).filter(x=>x.actief!==false&&opdrApart(cur,x));
+      p={opdrachten:(cur.opdrachten||[]).map(x=>blijf.includes(x)?x:{...x,actief:false}),opdrachtVerwijderd:true,aanbieden:false,periodiek:cur.periodiek?{...cur.periodiek,aan:false}:cur.periodiek,...(fut||!cur.gepland?{gepland:"",tijd:"",...(blijf.length?{}:{actief:false})}:{})}}
     try{await save("klanten",kid,{...strip(cur),...p});toast("Opdracht verwijderd"+(fut&&cur.gepland&&main?" · afspraak "+fmtD(cur.gepland)+" vervalt":""));openKlantView(kid)}catch(er){$("#odS").disabled=false;err(er)}};
 }
 /* nieuwe opdracht bij een klant zonder opdrachten: wordt weer de hoofdopdracht */
