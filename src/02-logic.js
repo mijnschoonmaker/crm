@@ -101,6 +101,10 @@ function jobState(k,day){
 const STATEPILL={gepland:["plan","Gepland"],bezig:["busy","Bezig"],afgerond:["ok","Afgerond"]};
 function nextFree(dayIso){let e=8*60;actief().filter(k=>k.gepland===dayIso&&toMin(k.tijd)!=null).forEach(k=>{e=Math.max(e,toMin(k.tijd)+duur(k))});actief().forEach(k=>(k.reeks||[]).forEach(r=>{if(r&&r.d===dayIso&&toMin(r.t)!=null)e=Math.max(e,toMin(r.t)+duur(k))}));e=Math.ceil(e/15)*15;return fromMin(Math.min(e,19*60))}
 const dienstHtml=k=>`<span class="dienst">${I.wrench}${esc(k.dienst||"Glasbewassing")}</span>`;
+/* alle diensten van deze afspraak: eigen dienst + extra opdrachten die die dag mee gaan (bv. "Reiniging dakkapel 2x") */
+function dienstenVan(k,d){const l=[{naam:k.dienst||"Glasbewassing",extra:false}];
+  try{if(S().glasMee!==false&&typeof extraDue==="function")extraDue(k,d||k.gepland||iso(today())).filter(o=>o.actief!==false).forEach(o=>{const its=(o.items||[]).filter(x=>Number(x.aantal)>0),n=its.reduce((a,x)=>a+(Number(x.aantal)||0),0);l.push({naam:(o.dienst||o.naam||"Extra")+(its.length===1&&n>1?" "+n+"x":""),extra:true})})}catch(e){}return l}
+const dienstenHtml=(k,d)=>`<span class="tj-dn">${dienstenVan(k,d).map(x=>`<span class="tj-dc${x.extra?" ex":""}">${x.extra?I.plus:I.wrench}${esc(x.naam)}</span>`).join("")}</span>`;
 
 /* objecten en adressen */
 /* objectId "hoofd" = bewust het hoofdadres van de klant (anders valt hij terug op de eerste locatie) */

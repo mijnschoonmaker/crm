@@ -4393,3 +4393,15 @@ html body .cc-si.nk::after{content:"";position:absolute;inset:-3px;border-radius
 html body .of-chips .of-ex{background:#eef4ff;color:#2f4f8f;border-color:#d5e2fb}
 html body .of-chips .of-ex svg{stroke:#2f4f8f}
 .rpanel{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+/* planning: alle diensten van de afspraak in één oogopslag */
+html body .tjob .tj-dn{display:inline-flex;align-items:center;gap:5px;margin-left:auto;min-width:0;overflow:hidden;flex:0 1 auto}
+html body .tjob .tj-bot .tj-wie{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html body .tjob .tj-dc{display:inline-flex;align-items:center;gap:5px;flex:none;padding:3px 9px 3px 5px;border-radius:99px;background:color-mix(in srgb,var(--brand) 9%,var(--surface));color:var(--ink);font-size:11.5px;font-weight:700;white-space:nowrap}
+html body .tjob .tj-dc svg{width:15px;height:15px;stroke:var(--brand);flex:none}
+html body .tjob .tj-dc.ex{background:#eef4ff;color:#2f4f8f}html body .tjob .tj-dc.ex svg{stroke:#2f4f8f}
+html body .tjob .tj-kop .tj-dn{margin-left:auto;margin-right:8px}
+html body .tjob .tj-kop .tj-dc{background:rgb(255 255 255 / .14);color:#fff;padding:2px 8px 2px 4px;font-size:11px}
+html body .tjob .tj-kop .tj-dc svg{stroke:#fff;width:13px;height:13px}
+html body .tjob .tj-kop .tj-dc.ex{background:rgb(120 160 255 / .28)}
+html body .tjob.low .tj-bot .tj-dn{display:inline-flex}
+@media (max-width:760px){html body .tjob .tj-kop .tj-dn{display:none}}
