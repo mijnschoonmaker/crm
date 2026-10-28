@@ -15438,7 +15438,7 @@ function ccKpis(){const t=today(),M=curPeriod("maand"),V=curPeriod("maand",-1),f
     aanvr:aanvrRecent.length,aanvrWeek:aanvrRecent.filter(k=>String(k.aangemaakt||"")>=wk).length}}
 
 /* ---------- MANSARD adviseert: signalen uit echte gegevens, op urgentie ---------- */
-const CC_PRIO={kritiek:[0,"Kritiek","late"],hoog:[1,"Hoog","warn"],normaal:[2,"Normaal","soon"],laag:[3,"Laag","ok"]};
+const CC_PRIO={kritiek:[0,"Kritiek","late"],hoog:[1,"Hoog","warn"],normaal:[2,"Gemiddeld","soon"],laag:[3,"Laag","ok"]};
 /* Elke melding gaat over één ding (factuur, offerte, klant, ticket) met een vaste sleutel. Afgehandeld of "later" wordt bewaard in
    instellingen/control (alleen deze sleutels en datums, geen klantgegevens), zodat de wachtrij op elk apparaat gelijk is.
    Terugkerende zaken (vervallen factuur, wachtende offerte, te late klant) komen na 7 dagen terug als ze nog steeds spelen. */
@@ -15491,9 +15491,9 @@ function ccAlle(){const s=[],t=today(),ti=iso(t),morgen=ccDag(1);
     add({key:"tc:"+k.id,p:"hoog",top:1,ic:"calculator",t:`Tellingcontrole nodig: ${ccNaam(k)}`,u:`De klant telde zelf${t2.ramen?" "+t2.ramen+" ramen":""}${(t2.fotos||[]).length?" en stuurde "+plural(t2.fotos.length,"foto","foto's")+" mee":""}. Controleer de telling vóór of bij de eerste beurt; daarna gaat het definitieve bestellingsoverzicht naar de klant.`,
       b:[k.adres,k.plaats].filter(Boolean).join(", "),leeftijd:0,knop:"Open klant",go:"klant:"+k.id,
       acts:[{l:"Telling controleren",ic:"calculator",cc:"tc:"+k.id},!k.gepland?{l:"Inplannen",ic:"planning",cc:"plan:"+k.id}:null].filter(Boolean)})});
-  /* hoog: aan de beurt maar niet ingepland */
+  /* aan de beurt maar niet ingepland: gemiddeld, vanaf een week over de termijn hoog */
   overdue().filter(k=>!k.gepland&&!k.opdrachtVerwijderd).forEach(k=>{const v=volgende(k),dd=v?Math.max(0,Math.round((t-v)/864e5)):0;
-    add({key:"tl:"+k.id+":"+(v?iso(v):""),p:"hoog",ic:"planning",t:`${ccNaam(k)} is aan de beurt`,u:`${dd?plural(dd,"dag","dagen")+" over de termijn":"Vandaag aan de beurt"}, nog niet ingepland.`,b:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),leeftijd:dd,knop:"Open klant",go:"klant:"+k.id,
+    add({key:"tl:"+k.id+":"+(v?iso(v):""),p:dd>=7?"hoog":"normaal",ic:"planning",t:`${ccNaam(k)} is aan de beurt`,u:`${dd?plural(dd,"dag","dagen")+" over de termijn":"Vandaag aan de beurt"}, nog niet ingepland.`,b:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),leeftijd:dd,knop:"Open klant",go:"klant:"+k.id,
       acts:[{l:"Inplannen",ic:"planning",cc:"plan:"+k.id},bel(k)].filter(Boolean)})});
   /* hoog: afspraak vandaag/morgen zonder tijd: tijd direct invullen */
   actief().filter(k=>(k.gepland===ti||k.gepland===morgen)&&!k.tijd).forEach(k=>add({key:"zt:"+k.id+":"+k.gepland,p:"hoog",ic:"clock",t:`${ccNaam(k)} heeft nog geen tijd`,u:`Ingepland ${k.gepland===ti?"vandaag":"morgen"}. Met een tijd krijgt de klant een nauwkeurige aankondiging.`,b:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),leeftijd:0,knop:"Open klant",go:"klant:"+k.id,tijd:k.id}));
