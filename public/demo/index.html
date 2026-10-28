@@ -6289,12 +6289,15 @@ function apply(col,docs){
 }
 /* een factuur die aantoonbaar verstuurd is (staat als verstuurd bij Verzonden berichten), maar waarvan het vastleggen
    destijds niet lukte (app viel weg tijdens het versturen): alsnog als verstuurd markeren, met het echte verzendmoment */
+/* status na versturen: een concept-offerte wordt "verstuurd", een conceptfactuur wordt definitief ("open") */
+function naVerstuurd(f){if(!f)return {};if(f.soort==="offerte")return (f.status||"concept")==="concept"?{status:"verstuurd"}:{};return f.status==="concept"?{status:"open"}:{}}
 const VZ_GEDAAN=new Set();let vzBezig=0;
 async function verzondenHerstel(){if(vzBezig||!Array.isArray(state.berichten)||!Array.isArray(state.facturen))return;vzBezig=1;
   try{const per={};state.berichten.forEach(b=>{const m=/^factuur:(.+)$/.exec(String(b.ref||""));if(m&&b.status==="verstuurd"&&b.verstuurdOp){const v=per[m[1]];if(!v||String(b.verstuurdOp)<String(v))per[m[1]]=b.verstuurdOp}});
-    for(const f of state.facturen){const ts=per[f.id];if(!ts||f.verstuurdOp||VZ_GEDAAN.has(f.id))continue;VZ_GEDAAN.add(f.id);
+    for(const f of state.facturen){if(f.soort!=="offerte"&&f.verstuurdOp&&f.status==="concept"&&!VZ_GEDAAN.has(f.id)){VZ_GEDAAN.add(f.id);await save("facturen",f.id,{...strip(f),status:"open"});continue}
+      const ts=per[f.id];if(!ts||f.verstuurdOp||VZ_GEDAAN.has(f.id))continue;VZ_GEDAAN.add(f.id);
       const dag=new Intl.DateTimeFormat("sv-SE",{timeZone:"Europe/Amsterdam"}).format(new Date(ts));
-      await save("facturen",f.id,{...strip(f),verstuurdOp:dag,verstuurdTs:ts,...(f.soort==="offerte"&&(f.status||"concept")==="concept"?{status:"verstuurd"}:{})})}}
+      await save("facturen",f.id,{...strip(f),verstuurdOp:dag,verstuurdTs:ts,...naVerstuurd(f)})}}
   catch(e){console.error("verzondenHerstel",e)}finally{vzBezig=0}}
 /* factuurnummers: maakten twee mensen tegelijk een factuur met hetzelfde nummer, dan krijgt de nieuwste (van deze
    gebruiker, nog niet verstuurd of betaald) meteen het volgende vrije nummer. De oudste houdt altijd zijn nummer. */
@@ -7313,11 +7316,11 @@ function sendF(id,o={}){
     const ok=()=>{if(b){b.disabled=false;b.innerHTML=I.check+"Verstuurd"}};
     if(b){b.disabled=true;b.innerHTML=I.clock+"Versturen…"}
     compose={title:"",sjabloon:sj,tekst:TT.sms??TT.tekst,mail:TT.mail||"",onderwerp:TT.onderwerp||"Bericht van [name.company]",sent:{},hint:"",groep:false,stil:true,recipients:[{k:_k?mailK(_k,off?"offerte":"factuur"):{naam:f.klantNaam,email:f.klantEmail},vars:(()=>{const v=factVars(f),t=tavK(_k,off?"offerte":"factuur");if(t)v.klant=t;return v})(),ref:(late?"aanmaning:":"factuur:")+f.id,
-      onSent:()=>{const g=state.facturen.find(x=>x.id===f.id)||f;return save("facturen",f.id,late?{...strip(g),herinnerdOp:iso(today()),herinneringen:(Number(g.herinneringen)||0)+1,...(o.wik?{wikOp:iso(today())}:{})}:{...strip(g),verstuurdOp:g.verstuurdOp||iso(today()),verstuurdTs:g.verstuurdTs||new Date().toISOString(),status:off&&(g.status||"concept")==="concept"?"verstuurd":g.status})}}]};
+      onSent:()=>{const g=state.facturen.find(x=>x.id===f.id)||f;return save("facturen",f.id,late?{...strip(g),herinnerdOp:iso(today()),herinneringen:(Number(g.herinneringen)||0)+1,...(o.wik?{wikOp:iso(today())}:{})}:{...strip(g),verstuurdOp:g.verstuurdOp||iso(today()),verstuurdTs:g.verstuurdTs||new Date().toISOString(),...naVerstuurd(g)})}}]};
     verstuurLive(0).then(()=>{if(compose&&compose.sent[0]==="live")ok();else if(b){b.disabled=false;b.innerHTML=I.send+"Opnieuw proberen"}});return}
   openCompose({title:(o.wik?"WIK-brief ":off?"Offerte ":late?"Herinnering ":"Factuur ")+f.nummer,sjabloon:o.wik?"wik":late?"aanmaning":off?"offerte":"factuur",hint:esc("Wil je de PDF meesturen? Download hem eerst bij de factuur en voeg hem in je mail toe."),
     recipients:[{k:(()=>{const kk=state.klanten.find(x=>x.id===f.klantId);return kk?mailK(kk,off?"offerte":"factuur"):{naam:f.klantNaam,email:f.klantEmail}})(),vars:(()=>{const v=factVars(f),kk=state.klanten.find(x=>x.id===f.klantId),t=tavK(kk,off?"offerte":"factuur");if(t)v.klant=t;return v})(),ref:(late?"aanmaning:":"factuur:")+f.id,
-      onSent:()=>{const g=state.facturen.find(x=>x.id===f.id)||f;return save("facturen",f.id,late?{...strip(g),herinnerdOp:iso(today()),herinneringen:(Number(g.herinneringen)||0)+1,...(o.wik?{wikOp:iso(today())}:{})}:{...strip(g),verstuurdOp:g.verstuurdOp||iso(today()),verstuurdTs:g.verstuurdTs||new Date().toISOString(),status:off&&(g.status||"concept")==="concept"?"verstuurd":g.status})}}]});
+      onSent:()=>{const g=state.facturen.find(x=>x.id===f.id)||f;return save("facturen",f.id,late?{...strip(g),herinnerdOp:iso(today()),herinneringen:(Number(g.herinneringen)||0)+1,...(o.wik?{wikOp:iso(today())}:{})}:{...strip(g),verstuurdOp:g.verstuurdOp||iso(today()),verstuurdTs:g.verstuurdTs||new Date().toISOString(),...naVerstuurd(g)})}}]});
 }
 function openBulk(group,tpl){if(typeof group!=="string")group="";
   const t=today();let ks=[],title="Groepsbericht",datum=null;
@@ -14430,7 +14433,7 @@ function fbVersturen(list){
   const nl=list.filter(f=>f.status==="open"||f.status==="concept");if(!nl.length)return toast("Kies openstaande facturen om te versturen");
   const go=async()=>{for(const f of nl.filter(f=>f.status==="concept"))await save("facturen",f.id,{...strip(f),status:"open"});
     openCompose({title:plural(nl.length,"factuur","facturen")+" versturen",sjabloon:"factuur",hint:liveMail()?"":esc("Wil je de PDF meesturen? Download hem bij de factuur en voeg hem in je mail toe."),
-      recipients:nl.map(f0=>{const f=state.facturen.find(x=>x.id===f0.id)||f0,o=fbOntvanger(f);return{k:o.k,vars:o.v,ref:"factuur:"+f.id,onSent:()=>{fbKlaar(f.id);const c=state.facturen.find(x=>x.id===f.id)||f;return save("facturen",f.id,{...strip(c),verstuurdOp:c.verstuurdOp||iso(today())})}}})})};
+      recipients:nl.map(f0=>{const f=state.facturen.find(x=>x.id===f0.id)||f0,o=fbOntvanger(f);return{k:o.k,vars:o.v,ref:"factuur:"+f.id,onSent:()=>{fbKlaar(f.id);const c=state.facturen.find(x=>x.id===f.id)||f;return save("facturen",f.id,{...strip(c),verstuurdOp:c.verstuurdOp||iso(today()),...naVerstuurd(c)})}}})})};
   go()}
 /* herinnering: per factuur de volgende stap uit je instellingen (1e, 2e herinnering), of de WIK-brief */
 function fbHerinner(list,wik){

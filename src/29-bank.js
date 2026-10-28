@@ -83,7 +83,7 @@ function fbVersturen(list){
   const nl=list.filter(f=>f.status==="open"||f.status==="concept");if(!nl.length)return toast("Kies openstaande facturen om te versturen");
   const go=async()=>{for(const f of nl.filter(f=>f.status==="concept"))await save("facturen",f.id,{...strip(f),status:"open"});
     openCompose({title:plural(nl.length,"factuur","facturen")+" versturen",sjabloon:"factuur",hint:liveMail()?"":esc("Wil je de PDF meesturen? Download hem bij de factuur en voeg hem in je mail toe."),
-      recipients:nl.map(f0=>{const f=state.facturen.find(x=>x.id===f0.id)||f0,o=fbOntvanger(f);return{k:o.k,vars:o.v,ref:"factuur:"+f.id,onSent:()=>{fbKlaar(f.id);const c=state.facturen.find(x=>x.id===f.id)||f;return save("facturen",f.id,{...strip(c),verstuurdOp:c.verstuurdOp||iso(today())})}}})})};
+      recipients:nl.map(f0=>{const f=state.facturen.find(x=>x.id===f0.id)||f0,o=fbOntvanger(f);return{k:o.k,vars:o.v,ref:"factuur:"+f.id,onSent:()=>{fbKlaar(f.id);const c=state.facturen.find(x=>x.id===f.id)||f;return save("facturen",f.id,{...strip(c),verstuurdOp:c.verstuurdOp||iso(today()),...naVerstuurd(c)})}}})})};
   go()}
 /* herinnering: per factuur de volgende stap uit je instellingen (1e, 2e herinnering), of de WIK-brief */
 function fbHerinner(list,wik){
