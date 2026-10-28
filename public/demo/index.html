@@ -17342,7 +17342,7 @@ setInterval(()=>{document.querySelectorAll("[data-timer]").forEach(el=>{const t=
    Verzonnen klanten, facturen en beurten om instructievideo's mee op te nemen.
    Alles blijft in deze browser bewaard; datums schuiven elke dag mee, zodat de planning altijd actueel oogt.
    Opnieuw beginnen: /demo/?opnieuw */
-const DEMO_KEY="ms.demo.v3";
+const DEMO_KEY="ms.demo.v4";
 const DEMO_PLAATS=[["Zuidhorn","9801",53.2464,6.4060],["Grootegast","9861",53.2140,6.2720],["Leek","9351",53.1620,6.3770],["Marum","9363",53.1440,6.2650],["Aduard","9831",53.2560,6.4590],["Oldekerk","9821",53.2230,6.3230],["Tolbert","9356",53.1640,6.3590],["Niekerk","9822",53.2220,6.3480]];
 const DEMO_STRAAT=["Lindenlaan","Esdoornstraat","Molenweg","Kastanjelaan","Berkenhof","Wilgenpad","Populierenlaan","Meidoornstraat","Iepenlaan","Vlierstraat","Hazelaarhof","Eikenlaan","Lijsterbes","Beukenlaan","Zonnedauw","Kievitstraat","Merelhof","Fazantenlaan"];
 const DEMO_NAMEN=[["de Vries","Sanne"],["Jansen","Pieter"],["Bakker","Marieke"],["Visser","Henk"],["Smit","Lotte"],["Mulder","Gerrit"],["de Boer","Anneke"],["Postma","Jeroen"],["Dijkstra","Femke"],["Bos","Klaas"],["Hoekstra","Ilse"],["van der Meer","Bram"],["Kuipers","Ruben"],["Wiersma","Jolanda"],["Veenstra","Tom"],["Huizinga","Esther"],["Bosma","Wouter"],["Kramer","Nienke"],["Schuurman","Dirk"],["Hofman","Linda"],["Brouwer","Sander"],["Meijer","Yvonne"],["Zijlstra","Martin"],["Prins","Karin"],["Boersma","Erik"],["Haan","Petra"],["Venema","Joost"],["Kooistra","Marloes"],["Tuinstra","Hans"],["Oosterhuis","Wendy"]];
@@ -17379,6 +17379,11 @@ function demoMaak(){
   const TK=["Ramen buiten en kozijnen. Achterom via de poort aan de zijkant; graag de plantenbakken op de vensterbank laten staan.","Ook het glas van de voordeur en de serre. Ladder niet tegen de dakgoot zetten.","Alleen buitenkant. Sleutel van de poort hangt in het kastje naast de voordeur."];
   zh.forEach((k,i)=>{if(i<6)k.taak=TK[i%3]});
   klanten.filter(k=>!k.gepland).forEach((k,i)=>{if(i%5===4)return;let d=1+Math.floor(R()*20);const wd=addDays(t,d).getDay();if(wd===0)d++;if(wd===6)d+=2;k.gepland=D(d);k.tijd=tijden[Math.floor(R()*tijden.length)]});
+  /* nieuwe aanmelding via de website, met foto en aangetikte ramen: tellingcontrole nodig */
+  {const k=nieuwK("Zijlstra, Marloes","particulier",39.5,8,1);const P=(x,y,t)=>({x,y,t});
+    Object.assign(k,{gepland:"",tijd:"",laatst:"",aangemaakt:D(0),nieuwAangemeld:true,eersteKeer:true,tellingControle:true,aanbieden:true,duur:35,
+      ramenRegel:{f:[5,3,0,0],sp:{tuimel:3}},log:[{datum:D(0),tekst:"Aanvraag via de website · 11 ramen (telling klant) · € 39,50 per beurt, elke 8 weken"}],
+      ramenTelling:{ramen:11,floors:[5,3],special:{tuimel:3},fotos:[{id:"demo-huis",w:642,h:530,zijde:"Voorkant",dots:[P(.127,.67,"f0"),P(.383,.70,"f0"),P(.458,.70,"f0"),P(.66,.67,"f0"),P(.693,.72,"f0"),P(.726,.42,"f1"),P(.762,.42,"f1"),P(.796,.42,"f1"),P(.16,.48,"s-tuimel"),P(.273,.47,"s-tuimel"),P(.39,.44,"s-tuimel")]}]}})}
   /* offertes */
   const off=(n,naam,adres,st,regels,dd)=>facturen.push({id:"odemo"+n,soort:"offerte",nummer:"OFF-"+t.getFullYear()+"-"+String(n).padStart(3,"0"),klantId:"",klantNaam:naam,klantAdres:adres,klantEmail:"",datum:D(dd),verval:D(dd+30),status:st,regels,btw:21,incl:true,gemaakt:D(dd)+"T09:00:00.000Z"});
   off(41,"Familie Wijnstra","Molenweg 7, 9363 AB Marum","verstuurd",[{omschrijving:"Glasbewassing, elke 6 weken",aantal:1,prijs:32.5},{omschrijving:"Eenmalig kozijnen reinigen",aantal:1,prijs:85}],-3);
@@ -17402,7 +17407,8 @@ function demoAssetsBewaar(){for(let i=0;i<20;i++){try{localStorage.setItem(DEMO_
 const demoVerklein=file=>new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{const m=1400,k=Math.min(1,m/Math.max(im.naturalWidth,im.naturalHeight)),c=document.createElement("canvas");c.width=Math.round(im.naturalWidth*k);c.height=Math.round(im.naturalHeight*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);res(c.toDataURL("image/jpeg",.8))};im.onerror=()=>{URL.revokeObjectURL(u);rej(new Error("Deze foto kan niet worden gelezen"))};im.src=u});
 const demoAssets={upload:async(file)=>{const id=[...crypto.getRandomValues(new Uint8Array(16))].map(x=>x.toString(16).padStart(2,"0")).join("");DEMO_A[id]=/^image\//.test(file.type||"image/jpeg")?await demoVerklein(file):await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(file)});demoAssetsBewaar();demoBlobFix(document);return {id}},
   list:async()=>({assets:Object.keys(DEMO_A).map(id=>({id}))})};
-function demoBlobFix(root){(root.querySelectorAll?root.querySelectorAll('img[src*="/_blob/"],a[href*="/_blob/"]'):[]).forEach(el=>{const at=el.tagName==="A"?"href":"src",v=el.getAttribute(at)||"",id=v.split("/_blob/")[1];if(id&&DEMO_A[id.split(/[?#]/)[0]])el.setAttribute(at,DEMO_A[id.split(/[?#]/)[0]])})}
+const DEMO_FOTO={"demo-huis":"/site/huis.jpg"};
+function demoBlobFix(root){(root.querySelectorAll?root.querySelectorAll('img[src*="/_blob/demo-"]'):[]).forEach(el=>{const id=(el.getAttribute("src")||"").split("/_blob/")[1];if(DEMO_FOTO[id])el.setAttribute("src",DEMO_FOTO[id])});(root.querySelectorAll?root.querySelectorAll('img[src*="/_blob/"],a[href*="/_blob/"]'):[]).forEach(el=>{const at=el.tagName==="A"?"href":"src",v=el.getAttribute(at)||"",id=v.split("/_blob/")[1];if(id&&DEMO_A[id.split(/[?#]/)[0]])el.setAttribute(at,DEMO_A[id.split(/[?#]/)[0]])})}
 new MutationObserver(ms=>{for(const m of ms){if(m.type==="attributes")demoBlobFix(m.target.parentNode||document);else m.addedNodes.forEach(n=>{if(n.nodeType===1){if(n.matches&&n.matches('img,a'))demoBlobFix(n.parentNode||document);demoBlobFix(n)}})}}).observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:["src","href"]});
 async function demoStart(){
   if(!state.assets)state.assets=demoAssets;
