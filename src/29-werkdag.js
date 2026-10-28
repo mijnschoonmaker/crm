@@ -10,7 +10,9 @@ function wdCijfers(d){const w=wdGet(d)||{},nu=wdNu(),eind=w.stop||(w.start&&d===
   const pauze=(w.pauzes||[]).reduce((a,p)=>a+wdMin(p.van,p.tot||(w.stop?w.stop:nu)),0);
   /* alleen stops die tijdens de werkdag zijn afgemeld (tussen vertrek en terugkomst bij de loods), anders kloppen reistijd en uurloon niet */
   const binnen=b=>{if(!w.start||!b.op)return true;const t=new Date(b.op).getTime();return t>=new Date(w.start).getTime()-6e4&&(!eind||w.gecorrigeerd||t<=new Date(eind).getTime()+6e4)};/* achteraf gecorrigeerd: afmeldingen na de (eerdere) terugkomst tellen gewoon mee */
-  const alle=state.beurten.filter(b=>b.datum===d&&!b.geannuleerd),bs=alle.filter(binnen),buiten=alle.length-bs.length;
+  /* werken er meerdere mensen op deze dag, dan telt alleen wat degene die de werkdag startte zelf heeft afgemeld */
+  const wNm=x=>String(x||"").trim().split(/[\s@._-]/)[0].toLowerCase(),alle0=state.beurten.filter(b=>b.datum===d&&!b.geannuleerd),mijn=w.door?alle0.filter(b=>wNm(b.door)===wNm(w.door)):[];
+  const alle=new Set(alle0.map(b=>wNm(b.door))).size>1&&mijn.length?mijn:alle0,bs=alle.filter(binnen),buiten=alle.length-bs.length;
   const geschat=bs.filter(beurtTeKort).length;
   const fact=bs.reduce((a,b)=>a+beurtMin(b),0),gemeten=bs.filter(b=>b.gemeten||b.startOp).length;
   const totaal=wdMin(w.start,eind),netto=Math.max(0,totaal-pauze),reis=Math.max(0,netto-fact);

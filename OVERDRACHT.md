@@ -173,3 +173,10 @@ Open `/tmp/crm.html` in een browser. Het klantportaal kun je lokaal testen door
 - **Aanmelden:** nieuw account → scherm "Welkom bij Mansard" → `bedrijfAanmaken` (30 dagen proef).
 - **Abonnement:** `functions/mansard.js`: € 99 per maand inclusief 3 gebruikers, € 19,95 per extra gebruiker, via Mollie (sleutel `mansardMollieKey` in `geheim/config`, anders `mollieKey`). Webhook: `/api/mansard-mollie`. Na afloop van de proef of het abonnement worden serverfuncties geweigerd en toont het CRM een afsluitscherm.
 - **Hulpmiddelen (GitHub › Actions):** "Domein koppelen", "Instelling zetten", "Factuurnummer instellen", "Gegevens wissen".
+
+## Demo (`/demo`)
+
+- Bron: `src/demo/demo.js`, door `build_live.py` in `public/demo/index.html` gezet. Geen server: alles staat in de browser (IndexedDB `ms-demo`).
+- Verzonnen glazenwasserij in het Westerkwartier: ± 300 actieve klanten (particulier, zakelijk, VvE), Mark en Sem met elk een bus, geschiedenis vanaf 1 januari vorig jaar (beurten, facturen met echt betaalgedrag, herinneringen, WIK, oninbaar, creditnota, periodieke facturen, kosten, werkdagen en kilometers).
+- Elke nieuwe dag wordt de demo opnieuw opgebouwd rond de datum van vandaag (zelfde klanten). De voortgang van vandaag volgt de echte klok (`demoVandaag`): 's ochtends is er weinig af, 's avonds is de route klaar.
+- Opnieuw beginnen: `/demo/?opnieuw`.
