@@ -9,6 +9,18 @@ async function gewassen(k){
     toast(cleanName(k.naam)+" afgerond · "+eur(k.prijs),async()=>{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev})});
   }catch(e){err(e)}
 }
+/* extra opdrachten bij het afmelden: op de factuur van de hoofdopdracht, een eigen factuur, of niet factureren (instelling per opdracht) */
+function exModus(k,o,hs){const f=o&&o.facturatie;if(f==="geen")return"geen";if(f==="concept")return"concept";if(f==="direct")return"open";
+  if(hs==="periodiek"){const m=typeof perExtraModus==="function"?perExtraModus(k):"concept";return m==="direct"?"open":m==="geen"?"geen":"concept"}return hs}
+const exMee=(o,hs)=>!(o&&o.facturatie)&&(hs==="open"||hs==="concept");
+const exRegel=(k,o)=>({omschrijving:(o.groepOms?o.groepOms:o.dienst+(k.verbergFreq?"":" ("+freqLabel(o.frequentie).toLowerCase()+")")+(o.items&&!k.verbergAantal&&o.items.length?": "+groepDetail(o.items,k.verbergFreq?0:o.frequentie):"")),aantal:1,prijs:Number(o.prijs)||0});
+async function losseExtraFacturen(k,d,list,basis,mw,hs){const ids=[],groepen={};list.forEach(o=>{const m=exModus(k,o,hs);if(m==="open"||m==="concept")(groepen[m]=groepen[m]||[]).push(o)});
+  for(const m of Object.keys(groepen)){const regels=groepen[m].map(o=>exRegel(k,o)).filter(r=>r.prijs);if(!regels.length)continue;
+    const fx={...basis,nummer:nextNr("factuur",d),regels,status:m==="open"&&!mw?"open":"concept",gemaakt:new Date().toISOString()};delete fx.betaaldOp;delete fx.betaaldTs;delete fx.bijlagen;
+    if(fx.status==="open"){const t=totals(fx),em=mailK(k,"factuur").email||fx.klantEmail||"";if((await vraag("Factuur extra opdracht versturen?",`${regels.map(r=>esc(r.omschrijving)+" · <b>"+eur(r.prijs)+"</b>").join("<br>")}<br><br>Totaal <b>${eur(t.inc)}</b> incl. btw. ${em?`Gaat meteen naar <b>${esc(em)}</b>.`:"Deze klant heeft geen e-mailadres."}`,"Versturen","Klaarzetten"))!==true)fx.status="concept"}
+    const id=newId("f");await save("facturen",id,fx);ids.push(id);
+    if(fx.status==="open"){let n=0;const go=()=>{if(state.facturen.some(x=>x.id===id))sendF(id,{direct:true,bevestigd:true});else if(++n<30)setTimeout(go,100)};setTimeout(go,300)}}
+  return ids}
 async function afronden(k,mode,el){
   if(typeof isOBeurt==="function"&&isOBeurt(k)&&!k.tellingGecontroleerd&&!k._tcSkip){const a=await vraag("Telling nog niet gecontroleerd",`Dit is de O-beurt van <b>${esc(cleanName(k.naam))}</b>. Controleer eerst ter plekke of de telling van de klant klopt.`,"Toch afmelden","Telling controleren");
     if(a===null){render();return}if(a===false){render();openTellingControle(k.id);return}}
@@ -17,13 +29,14 @@ async function afronden(k,mode,el){
   const _mw=isMw();if(_mw)mode="concept";/* medewerker: altijd concept, kantoor controleert en verstuurt */
   /* afmelden = conceptfactuur (niet versturen) · factureren (veeg naar links) = definitieve factuur én direct naar de klant */
   const direct=mode==="open"&&!_mw;
+  const _hs=isPeriodiek(k)?"periodiek":k.nietFactureren?"geen":(mode==="open"&&!_mw?"open":"concept");
   const d=iso(today()),st=S(),bId=newId("b"),fId=newId("f"),prev={laatst:k.laatst||"",gepland:k.gepland||"",bezig:k.bezig||"",tijd:k.tijd||"",reeks:k.reeks||[],eenmalig:k.eenmalig||""};
   let _rr=null;try{if(k.ramenRegel&&ramenVariabel(normR(k.ramenRegel))){const {q,due}=ramenDue(k,d),b=ramenBerekening(q,Number(k.frequentie)||4,due),mul=st.incl?1+(Number(st.btw)||21)/100:1;
     _rr={q,due,bedrag:r2(b.ex*mul),regels:[...(b.rows.length?[{omschrijving:(k.dienst||"Glasbewassing")+" "+b.rows.map(r=>r.naam.toLowerCase()).join(", ")+(k.verbergAantal?"":", "+b.count+" ramen")+regelExtra(k),aantal:1,prijs:r2((b.glas+b.start)*mul)}]:[]),...(b.kozP?[{omschrijving:"Kozijnreiniging "+b.krows.map(r=>r.naam.toLowerCase()).join(", "),aantal:1,prijs:r2(b.kozP*mul)}]:[])]}}
     /* zelfde frequentie op alle verdiepingen: prijs blijft gelijk, maar de aanboddatum per verdieping schuift wel door */
     else if(k.ramenRegel){const {q,due}=ramenDue(k,d);_rr={q,due,regels:[]}}}catch(e){console.error(e);_rr=null}
   const f={soort:"factuur",nummer:nextNr("factuur",d),klantId:k.id,...(k.beheercode?{beheercode:k.beheercode}:{}),klantNaam:k.naam,klantAdres:factAddr(k),klantEmail:mailK(k,"factuur").email||"",...(k.hoofdKlantId&&k.adres?{locatie:fullAddr(k)}:{}),datum:d,
-    verval:iso(addDays(today(),Number(k.termijn)||Number(st.termijn)||14)),regels:[...(_rr&&_rr.regels.length?_rr.regels:[{omschrijving:(k.dienst||"Glasbewassing")+regelExtra(k),aantal:1,prijs:Number(k.prijs)||0}]),...extraDue(k,d).map(o=>({omschrijving:(o.groepOms?o.groepOms:o.dienst+(k.verbergFreq?"":" ("+freqLabel(o.frequentie).toLowerCase()+")")+(o.items&&!k.verbergAantal&&o.items.length?": "+groepDetail(o.items,k.verbergFreq?0:o.frequentie):"")),aantal:1,prijs:Number(o.prijs)||0}))],
+    verval:iso(addDays(today(),Number(k.termijn)||Number(st.termijn)||14)),regels:[...(_rr&&_rr.regels.length?_rr.regels:[{omschrijving:(k.dienst||"Glasbewassing")+regelExtra(k),aantal:1,prijs:Number(k.prijs)||0}]),...extraDue(k,d).filter(o=>exMee(o,_hs)).map(o=>exRegel(k,o))],
     btw:Number(st.btw),incl:!!st.incl,status:mode==="open"?"open":"concept",notitie:k.factuurInstructie||"",gemaakt:new Date().toISOString(),betaalwijze:st.betaalwijze||"overmaken"};
   if(mode==="open"&&["contant","pin"].includes(st.betaalwijze)){f.status="betaald";f.betaaldOp=d;f.betaaldTs=new Date().toISOString()}
   if(Number(k.toeslag)>0){const sub=f.regels.reduce((a,r)=>a+(Number(r.aantal)||0)*(Number(r.prijs)||0),0);f.regels.push({omschrijving:"Toeslag "+Number(k.toeslag)+"%"+(k.toeslagReden?" ("+k.toeslagReden+")":""),aantal:1,prijs:r2(sub*Number(k.toeslag)/100)})}
@@ -32,8 +45,8 @@ async function afronden(k,mode,el){
   if(k.btwVerlegd){f.btw=0;f.notitie=[f.notitie,"Btw verlegd"].filter(Boolean).join("\n")}
   if((k.bevindingen||[]).length)f.bijlagen=k.bevindingen.map(b=>({...b,soort:"foto"}));
   if(k.nietFactureren&&!isPeriodiek(k)){/* niet factureren: beurt afmelden zonder factuur */
-    try{const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed);
-      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),betaald:false,gefactureerd:"nvt",dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString(),...(_vve||{})});
+    try{const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed),_los=await losseExtraFacturen(k,d,_ed,f,_mw,_hs);
+      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),betaald:false,gefactureerd:"nvt",...(_los.length?{extraFacturen:_los}:{}),dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString(),...(_vve||{})});
       const _vn=volgendeNa(k),nx=_vn.gepland;
       await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",bevindingen:[],opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,bezig:""});aanbevelingVrijgeven(k.id);await extraNaBij(k,d,_ed);
       const undo=async()=>{try{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
@@ -42,18 +55,13 @@ async function afronden(k,mode,el){
     return}
   if(isPeriodiek(k)){/* periodieke factuur: beurt afmelden zonder eigen factuur; artikelen gaan mee op de periodieke factuur */
     try{const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed);
-      /* extra diensten (bijv. glasbewassing) staan niet op de periodieke factuur: eigen factuur, zoals ingesteld bij de periodieke factuur */
-      let _exF=null;const _em=typeof perExtraModus==="function"?perExtraModus(k):"concept";
-      if(_ed.length&&_em!=="geen"){const _exR=_ed.map(o=>({omschrijving:(o.groepOms?o.groepOms:o.dienst+(k.verbergFreq?"":" ("+freqLabel(o.frequentie).toLowerCase()+")")+(o.items&&!k.verbergAantal&&o.items.length?": "+groepDetail(o.items,k.verbergFreq?0:o.frequentie):"")),aantal:1,prijs:Number(o.prijs)||0})).filter(r=>r.prijs);
-        if(_exR.length){const _dir=_em==="direct"&&!_mw;_exF={...f,regels:_exR,status:_dir?"open":"concept"};if(!_dir&&_exF.status==="betaald")_exF.status="concept";delete _exF.betaaldOp;delete _exF.betaaldTs;
-          if(_dir){const t=totals(_exF),em=mailK(k,"factuur").email||_exF.klantEmail||"";if((await vraag("Factuur extra diensten versturen?",`${_exR.map(r=>esc(r.omschrijving)+" · <b>"+eur(r.prijs)+"</b>").join("<br>")}<br><br>Totaal <b>${eur(t.inc)}</b> incl. btw. ${em?`Gaat meteen naar <b>${esc(em)}</b>.`:"Deze klant heeft geen e-mailadres."}`,"Versturen","Klaarzetten"))!==true)_exF.status="concept"}
-          await save("facturen",fId,_exF)}}
-      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),...(_exF?{extraFactuur:fId}:{}),betaald:false,gefactureerd:"periodiek",periodiek:true,dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString(),...(_vve||{})});
+      /* extra opdrachten (bijv. glasbewassing) staan niet op de periodieke factuur: eigen factuur, per opdracht ingesteld */
+      const _los=await losseExtraFacturen(k,d,_ed,f,_mw,_hs);
+      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),...(_los.length?{extraFacturen:_los}:{}),betaald:false,gefactureerd:"periodiek",periodiek:true,dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString(),...(_vve||{})});
       const _vn=volgendeNa(k),nx=_vn.gepland;
       await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,bezig:""});aanbevelingVrijgeven(k.id);await extraNaBij(k,d,_ed);
       const undo=async()=>{try{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
-      feest(k);toast(cleanName(k.naam)+" afgemeld · gaat mee op de periodieke factuur ("+fmtD(k.periodiek.volgende)+")"+(_exF?(_exF.status==="open"?" · extra diensten gefactureerd en verstuurd":" · factuur extra diensten klaargezet"):""),[{label:"Ongedaan",fn:async()=>{if(_exF){try{await del("facturen",fId)}catch(e){}}await undo()}}]);
-      if(_exF&&_exF.status==="open"){let n=0;const go=()=>{if(state.facturen.some(x=>x.id===fId))sendF(fId,{direct:true,bevestigd:true});else if(++n<30)setTimeout(go,100)};setTimeout(go,300)}}
+      feest(k);toast(cleanName(k.naam)+" afgemeld · gaat mee op de periodieke factuur ("+fmtD(k.periodiek.volgende)+")"+(_los.length?" · eigen factuur voor de extra opdracht":""),[{label:"Ongedaan",fn:async()=>{for(const x of _los){try{await del("facturen",x)}catch(e){}}await undo()}}])}
     catch(e){if(el){const c=el.querySelector(".swipe-card");if(c)c.style.transform="";el.classList.remove("armed")}err(e)}
     return}
   /* credits eerst verrekenen, zodat de bevestiging het echte bedrag toont (bij annuleren wordt niets opgeslagen) */
@@ -65,7 +73,7 @@ async function afronden(k,mode,el){
     if(ok!==true){if(el){const c=el.querySelector(".swipe-card");if(c)c.style.transform="";el.classList.remove("armed")}render();return}}
   try{
     await save("facturen",fId,f);
-    const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed);
+    const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed),_los=await losseExtraFacturen(k,d,_ed.filter(o=>!exMee(o,_hs)),f,_mw,_hs);
     await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:r2(f.regels.reduce((a,r)=>a+(Number(r.aantal)||0)*(Number(r.prijs)||0),0)),extra:_ed.map(o=>o.dienst),betaald:f.status==="betaald",gefactureerd:fId,dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString(),...(_vve||{})});
     const _vn=volgendeNa(k),nx=_vn.gepland;
     await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",artikelen:[],bevindingen:[],...(k.opdrachtVerwijderd?{actief:false}:{}),opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,...(_tg||{}),bezig:""});aanbevelingVrijgeven(k.id);await extraNaBij(k,d,_ed);

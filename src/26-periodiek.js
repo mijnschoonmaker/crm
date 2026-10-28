@@ -13,6 +13,13 @@ const factModusPatch=(m,k)=>m==="periodiek"?{directFactureren:false,nietFacturer
 const factModusPatchOfferte=(m,k)=>isPeriodiek(k)&&m!=="periodiek"?{periodiek:{...k.periodiek,extraModus:["direct","concept","geen"].includes(m)?m:"concept"}}:factModusPatch(m,k);
 /* extra diensten (bijv. glasbewassing 1x per 3 maanden) bij een periodieke factuur: zo factureren */
 const PER_EXTRA=[["concept","Per beurt factuur klaarzetten"],["direct","Per beurt direct versturen"],["geen","Niet factureren"]];
+/* facturatie per extra opdracht (los van de hoofdopdracht en van elkaar).
+   Gaat mee met de beurt: "" = op dezelfde factuur · concept/direct = eigen factuur · geen = niet factureren.
+   Apart ingepland (eigen afspraak): direct / concept / geen / periodiek, net als een hoofdopdracht. */
+const OPDR_FACT_HELP={"":"Komt op dezelfde factuur als de hoofdopdracht.",concept:"Na het afmelden staat er een eigen conceptfactuur voor deze opdracht klaar.",direct:"Na het afmelden gaat er een eigen factuur voor deze opdracht naar de klant.",geen:"Deze opdracht wordt niet gefactureerd.",periodiek:"Beurten van deze opdracht krijgen geen eigen factuur; er gaat één vaste factuur per week, maand of kwartaal."};
+const opdrFactOpt=o=>o&&o.apart?[["concept","Factuur klaarzetten"],["direct","Direct versturen"],["periodiek","Periodieke factuur"],["geen","Niet factureren"]]:[["","Op dezelfde factuur als de hoofdopdracht"],["concept","Eigen factuur klaarzetten"],["direct","Eigen factuur direct versturen"],["geen","Niet factureren"]];
+function opdrFactVan(k,o){if(!o)return"";if(o.facturatie!=null&&o.facturatie!=="")return o.facturatie;
+  if(o.apart){const j=typeof opdrJob==="function"?opdrJob(k,o.id):null;return j?factModus(j):"concept"}return""}
 const perExtraModus=k=>(k&&k.periodiek&&k.periodiek.extraModus)||"concept";
 const perLabel=f=>(PER_FREQ.find(x=>x[0]===f)||PER_FREQ[3])[1];
 function perVolgende(d,f){const x=parse(d);
@@ -52,7 +59,7 @@ function openPeriodiek(kid,back){
   const k=state.klanten.find(x=>x.id===kid);if(!k)return;const st=S();
   const p=k.periodiek?JSON.parse(JSON.stringify(k.periodiek)):{aan:true,freq:"maand",volgende:iso(new Date(today().getFullYear(),today().getMonth()+1,1)),modus:"klaarzetten",btw:Number(st.btw)||21,
     regels:[{omschrijving:(isZak(k)?"Maandelijkse factuur schoonmaakcontract ":"Glasbewassing ")+cleanName(k.naam)+" [month.current] [year.current]",prijs:"",aantal:1}]};
-  const goBack=()=>back==="lijst"?openPeriodiekLijst():back==="klant"?openKlantView(kid):openOpdrachtWerk(kid);
+  const goBack=()=>typeof back==="function"?back():back==="lijst"?openPeriodiekLijst():back==="klant"?openKlantView(kid):openOpdrachtWerk(kid);
   const draw=()=>{
     openDlg(`<div class="dlg-head"><span class="objic big">${I.receipt}</span><div style="min-width:0;flex:1"><h3>Periodieke factuur</h3><div class="subt">${esc(cleanName(k.naam))} · opdracht ${esc(klantNr(k))}-1</div></div>${k.periodiek&&k.periodiek.aan?statusPill("ok","Actief"):k.periodiek?statusPill("neutral","Gestopt"):""}<button type="button" class="iconbtn" id="pfX" aria-label="Terug">${I.x}</button></div>
     ${k.periodiek&&!k.periodiek.aan?`<div class="warnbox" style="margin:0 0 12px">${I.alert}<span>Deze periodieke factuur staat <b>uit</b>: er worden geen periodieke facturen gemaakt en elke beurt krijgt weer een eigen factuur. Controleer de volgende verzenddatum en kies <b>Opslaan</b> om hem weer aan te zetten.</span></div>`:""}<div class="pf-grid"><section class="kp"><div class="kp-h"><span class="objic">${I.facturen}</span><b>Factuurdetails</b></div>
