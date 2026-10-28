@@ -49,8 +49,8 @@ function invModel(f,klant){
   const meta=[[d.off?"Offertenummer":"Factuurnummer",f.nummer],[d.off?"Offertedatum":"Factuurdatum",fmtL(f.datum)],[d.off?"Geldig tot":"Vervaldatum",fmtL(f.verval)],["Klantnummer",kn]];
   const coLines=[s.adres,[s.postcode,s.plaats].filter(Boolean).join(" "),s.telefoon,s.email].filter(Boolean);
   const pay=d.off?null:d.voldaan?null:f.incasso?[["Betaling","Automatische incasso"],["Afschrijving",fmtL(f.verval)],["Factuurnr.",f.nummer]]:[["IBAN",String(s.iban||"—")],["T.n.v.",s.naam||"—"],["Factuurnr.",f.nummer],["Uiterlijk",fmtL(f.verval)]];
-  /* moederbedrijf Mansard: als logo in plaats van tekst */
-  const footLogo=!!(s.naam&&/^\s*mansard\s*$/i.test(String(s.onderdeelVan||"")));
+  /* moederbedrijf Mansard: als logo in plaats van tekst, alleen bij mijnschoonmaker (niet bij andere CRM-gebruikers of in de demo) */
+  const footLogo=!!(typeof LIVE!=="undefined"&&LIVE&&(!window.ZEEM_BID||window.ZEEM_BID==="mijnschoonmaker")&&s.naam&&/^\s*mansard\s*$/i.test(String(s.onderdeelVan||"")));
   const foot=[s.naam&&s.onderdeelVan?s.naam+" is een onderdeel van "+(footLogo?"":s.onderdeelVan):s.naam,s.kvk&&"KvK "+s.kvk,s.btwnr&&"BTW-id "+s.btwnr,s.website].filter(Boolean);
   const zin=d.off?`Deze offerte is geldig tot ${fmtL(f.verval)}. Gaat u akkoord? Laat het ons weten, dan plannen wij u direct in.`:d.voldaan?`${d.voldaan}. Hartelijk dank voor uw betaling.`:f.incasso?`Wordt binnen 14 dagen na de uitgevoerde beurt automatisch van uw rekening afgeschreven. U hoeft niets te doen.`:`Graag vóór ${fmtL(f.verval)} overmaken onder vermelding van het factuurnummer.${s.betaallink?" Direct betalen kan via "+s.betaallink+".":""}`;
   const pill=!d.off&&(d.st[1]==="g"||d.st[1]==="r");
