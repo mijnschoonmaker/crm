@@ -12186,7 +12186,7 @@ function invModel(f,klant){
   /* andere CRM-gebruikers zijn geen onderdeel van Mansard: dan niets vermelden */
   const ov=s.onderdeelVan&&!(isMansard&&!isMs)?s.onderdeelVan:"";
   const foot=[s.naam&&ov?s.naam+" is een onderdeel van "+(footLogo?"":ov):s.naam,s.kvk&&"KvK "+s.kvk,s.btwnr&&"BTW-id "+s.btwnr,s.website].filter(Boolean);
-  const zin=d.off?`Deze offerte is geldig tot ${fmtL(f.verval)}. Gaat u akkoord? Laat het ons weten, dan plannen wij u direct in.`:d.voldaan?`${d.voldaan}. Hartelijk dank voor uw betaling.`:f.incasso?`Wordt binnen 14 dagen na de uitgevoerde beurt automatisch van uw rekening afgeschreven. U hoeft niets te doen.`:`Graag vóór ${fmtL(f.verval)} overmaken onder vermelding van het factuurnummer.${s.betaallink?" Direct betalen kan via "+s.betaallink+".":""}`;
+  const zin=d.off?`Deze offerte is geldig tot ${fmtL(f.verval)}.`:d.voldaan?`${d.voldaan}. Hartelijk dank voor uw betaling.`:f.incasso?`Wordt binnen 14 dagen na de uitgevoerde beurt automatisch van uw rekening afgeschreven. U hoeft niets te doen.`:`Graag vóór ${fmtL(f.verval)} overmaken onder vermelding van het factuurnummer.${s.betaallink?" Direct betalen kan via "+s.betaallink+".":""}`;
   const pill=!d.off&&(d.st[1]==="g"||d.st[1]==="r");
   const coInfo=d.info.filter(([l])=>l!=="Offertenummer"&&l!=="Factuurnummer").map(([l,v])=>[l,v.filter(Boolean)]);
   const vervalRij=d.off?null:["Vervaldatum",[fmtNum(f.verval).replace(/ /g,"")]];if(vervalRij)coInfo.push(vervalRij);const di=coInfo.findIndex(([l])=>/datum|Geldig/i.test(l));if(di>0&&coInfo[di-1][0])coInfo.splice(di,0,["",[]]);
