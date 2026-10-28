@@ -51,8 +51,19 @@ const geheim = async () => { const t = (await db.doc("geheim/config").get()).dat
   const p = (await rawDb.doc("geheim/config").get()).data() || {};
   return { brevoKey: p.brevoKey, aiKey: p.aiKey, afzender: p.platformAfzender || p.afzender, hookToken: p.hookToken, ...t }; };
 /* logo voor in mails: als ingesloten afbeelding (zoals bij facturen en offertes), zodat mailprogramma's hem niet blokkeren als "externe afbeelding" */
-const MAILLOGO = { id: "", url: "" };
-async function laadMailLogo(b) { const id = b.logoMail || b.logo; if (!id || MAILLOGO.id === id) return; try { const [[m], [buf]] = await Promise.all([bucket().file("assets/" + id).getMetadata(), bucket().file("assets/" + id).download()]); if (buf.length < 900000) { MAILLOGO.id = id; MAILLOGO.url = "data:" + (m.contentType || "image/png") + ";base64," + buf.toString("base64"); } } catch (e) { console.warn("mail-logo", e.message || e); } }
+const MAILLOGO = { id: "", url: "", ratio: 0 };
+/* breedte/hoogte uit een PNG- of JPEG-bestand lezen (voor een logo met vaste maten in mails) */
+function imgRatio(b) { try {
+  if (b.readUInt32BE(0) === 0x89504e47) { const w = b.readUInt32BE(16), h = b.readUInt32BE(20); return h ? w / h : 0; }
+  if (b[0] === 0xff && b[1] === 0xd8) { let i = 2; while (i < b.length - 9) { if (b[i] !== 0xff) { i++; continue; } const m = b[i + 1], len = b.readUInt16BE(i + 2);
+    if (m >= 0xc0 && m <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(m)) { const h = b.readUInt16BE(i + 5), w = b.readUInt16BE(i + 7); return h ? w / h : 0; } i += 2 + len; } }
+} catch (e) {} return 0; }
+function logoImg(src, alt, maxH, maxW, ratio) {
+  if (!ratio) return `<img src="${src}" border="0" alt="${alt}" style="max-height:${maxH}px;max-width:${maxW}px;display:inline-block">`;
+  let h = maxH, w = Math.round(h * ratio); if (w > maxW) { w = maxW; h = Math.round(w / ratio); }
+  return `<img src="${src}" border="0" alt="${alt}" width="${w}" height="${h}" style="display:inline-block;width:${w}px;height:${h}px;max-width:100%">`;
+}
+async function laadMailLogo(b) { const id = b.logoMail || b.logo; if (!id || MAILLOGO.id === id || MAILLOGO.rid === id) return; try { const [[m], [buf]] = await Promise.all([bucket().file("assets/" + id).getMetadata(), bucket().file("assets/" + id).download()]); MAILLOGO.ratio = imgRatio(buf); MAILLOGO.rid = id; if (buf.length < 900000) { MAILLOGO.id = id; MAILLOGO.url = "data:" + (m.contentType || "image/png") + ";base64," + buf.toString("base64"); } } catch (e) { console.warn("mail-logo", e.message || e); } }
 const bedrijf = async () => { const b = (await db.doc("instellingen/bedrijf").get()).data() || {}; await laadMailLogo(b); return b; };
 
 /* ---------- bestellingsoverzicht: gedeelde hulpjes ---------- */
@@ -94,7 +105,7 @@ function geenAutoLinks(html){let inA=0,inS=0;
 function mailHtmlRuw(tekst, b, opts = {}) {
   const BL = /^#[0-9a-f]{6}$/i.test(String(b.mailAccent||""))?b.mailAccent:"#137a8a", BL2 = _mx(BL,"#000000",.28), BG = "#eef2f3", INK = "#0f1f26", MUT = "#5d6f76";
   const T = opts.ticket || null, A = (T && T.kleur) || BL;
-  const lid = b.logoMail || b.logo, logo = lid ? `<img src="${HOST() + "/_blob/" + lid}" border="0" alt="${htmlEsc(b.naam || "")}" style="max-height:${Math.min(72, Number(b.logoGrootte) || 56)}px;max-width:170px;display:inline-block">` : `<b style="font-size:19px;letter-spacing:-.3px;color:${INK}">${htmlEsc(b.naam || "")}</b>`;
+  const lid = b.logoMail || b.logo, logo = lid ? logoImg(HOST() + "/_blob/" + lid, htmlEsc(b.naam || ""), Math.min(72, Number(b.logoGrootte) || 56), 170, MAILLOGO.rid === lid ? MAILLOGO.ratio : 0) : `<b style="font-size:19px;letter-spacing:-.3px;color:${INK}">${htmlEsc(b.naam || "")}</b>`;
   const regel = r => htmlEsc(r).replace(/\*\*(.+?)\*\*/g, `<b style="color:${INK}">$1</b>`).replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, (m, t, u) => `<a href="${u}" style="color:${A};font-weight:600;text-decoration:none;border-bottom:1.5px solid ${A}55">${t}</a>`);
   const alinea = t => String(t).split(/\n\s*\n/).filter(x => x.trim()).map(p => `<p style="margin:0 0 15px;line-height:1.65;font-size:15.5px;color:#2b3a40;letter-spacing:-.1px">${p.split("\n").map(regel).join("<br>")}</p>`).join("");
   const knop = opts.knop ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:6px auto 22px"><tr><td style="border-radius:14px;background:${A};background-image:linear-gradient(135deg,${_mx(BL,"#ffffff",.1)},${A} 55%,${_mx(BL,"#000000",.14)});box-shadow:0 10px 20px -10px ${_rg(BL2,.7)}"><a href="${opts.knop.url}" style="display:inline-block;padding:13px 26px;color:#ffffff;text-decoration:none;font-weight:600;font-size:15px;letter-spacing:-.1px;border-radius:14px">${htmlEsc(opts.knop.tekst)} &rarr;</a></td></tr></table>` : "";

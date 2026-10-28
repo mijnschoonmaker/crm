@@ -412,7 +412,7 @@ function openFactuurForm(opts={}){
   form.onsubmit=e=>{e.preventDefault();doSave(soort==="offerte"?"concept":"open")};
   const c=$("#ffConcept");if(c)c.onclick=()=>doSave("concept");
 }
-function newPdf(){const J=window.jspdf&&window.jspdf.jsPDF;if(!J){toast("De PDF-module is niet geladen. Vernieuw de pagina.");return null}return new J({unit:"mm",format:"a4"})}
+function newPdf(){const J=window.jspdf&&window.jspdf.jsPDF;if(!J){toast("De PDF-module is niet geladen. Vernieuw de pagina.");return null}return new J({unit:"mm",format:"a4",compress:true})}
 const E=n=>"EUR "+(Number(n)||0).toLocaleString("nl-NL",{minimumFractionDigits:2,maximumFractionDigits:2});
 const hexRgb=h=>{const m=String(h||"").match(/^#?([0-9a-f]{6})$/i);if(!m)return[19,122,138];const n=parseInt(m[1],16);return[n>>16&255,n>>8&255,n&255]};
 async function loadLogo(){
@@ -420,6 +420,9 @@ async function loadLogo(){
   try{const r=await fetch(BLOB+id);if(!r.ok)return null;const b=await r.blob();if(!/png|jpe?g/.test(b.type))return null;
     const url=await new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.readAsDataURL(b)});
     const im=await new Promise(res=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>res(null);i.src=url});if(!im)return null;
+    /* groot logo verkleinen (max 600 px): anders wordt elke PDF megabytes groot */
+    const sc=Math.min(1,600/Math.max(im.width,im.height));if(sc<1){try{const c=document.createElement("canvas");c.width=Math.round(im.width*sc);c.height=Math.round(im.height*sc);c.getContext("2d").drawImage(im,0,0,c.width,c.height);
+      const png=/png/.test(b.type);return{url:png?c.toDataURL("image/png"):c.toDataURL("image/jpeg",.9),fmt:png?"PNG":"JPEG",ratio:im.width/im.height}}catch(e){}}
     return{url,fmt:/png/.test(b.type)?"PNG":"JPEG",ratio:im.width/im.height}}catch(e){return null}
 }
 function pdfHeader(doc,title,logo){// voor rapporten

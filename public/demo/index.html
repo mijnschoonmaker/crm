@@ -7071,7 +7071,7 @@ function openFactuurForm(opts={}){
   form.onsubmit=e=>{e.preventDefault();doSave(soort==="offerte"?"concept":"open")};
   const c=$("#ffConcept");if(c)c.onclick=()=>doSave("concept");
 }
-function newPdf(){const J=window.jspdf&&window.jspdf.jsPDF;if(!J){toast("De PDF-module is niet geladen. Vernieuw de pagina.");return null}return new J({unit:"mm",format:"a4"})}
+function newPdf(){const J=window.jspdf&&window.jspdf.jsPDF;if(!J){toast("De PDF-module is niet geladen. Vernieuw de pagina.");return null}return new J({unit:"mm",format:"a4",compress:true})}
 const E=n=>"EUR "+(Number(n)||0).toLocaleString("nl-NL",{minimumFractionDigits:2,maximumFractionDigits:2});
 const hexRgb=h=>{const m=String(h||"").match(/^#?([0-9a-f]{6})$/i);if(!m)return[19,122,138];const n=parseInt(m[1],16);return[n>>16&255,n>>8&255,n&255]};
 async function loadLogo(){
@@ -7079,6 +7079,9 @@ async function loadLogo(){
   try{const r=await fetch(BLOB+id);if(!r.ok)return null;const b=await r.blob();if(!/png|jpe?g/.test(b.type))return null;
     const url=await new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.readAsDataURL(b)});
     const im=await new Promise(res=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>res(null);i.src=url});if(!im)return null;
+    /* groot logo verkleinen (max 600 px): anders wordt elke PDF megabytes groot */
+    const sc=Math.min(1,600/Math.max(im.width,im.height));if(sc<1){try{const c=document.createElement("canvas");c.width=Math.round(im.width*sc);c.height=Math.round(im.height*sc);c.getContext("2d").drawImage(im,0,0,c.width,c.height);
+      const png=/png/.test(b.type);return{url:png?c.toDataURL("image/png"):c.toDataURL("image/jpeg",.9),fmt:png?"PNG":"JPEG",ratio:im.width/im.height}}catch(e){}}
     return{url,fmt:/png/.test(b.type)?"PNG":"JPEG",ratio:im.width/im.height}}catch(e){return null}
 }
 function pdfHeader(doc,title,logo){// voor rapporten
@@ -8911,7 +8914,7 @@ function emailHtmlRuw({stijl,accent,kicker,titel,tekst,rich,meta,regels,totaal,k
       <tr><td style="padding:4px 18px 18px"><a href="${e(portaal)}" style="display:inline-block;background:${PA};color:${PI};border:1px solid ${PI==="#ffffff"?PA:"#cfd3d8"};text-decoration:none;font-weight:600;font-size:12px;letter-spacing:1.6px;text-transform:uppercase;padding:13px 20px;border-radius:10px;font-family:${sans}">Open uw klantportaal &rarr;</a></td></tr></table>`}
   else if(portaal)block+=`<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:2px 0 22px;border-collapse:separate;background:${_mx(PA,"#ffffff",.93)};border:1px solid ${_mx(PA,"#ffffff",.9)};border-radius:14px"><tr><td style="padding:14px 16px;font-family:${sans}"><div style="font-size:14px;font-weight:600;color:#0f1f26">Uw klantportaal</div><div style="font-size:13px;color:#5d6f76;margin-top:2px;line-height:1.45">Facturen, bezoeken en vragen. Direct ingelogd.</div></td><td align="right" style="padding:14px 16px 14px 0;white-space:nowrap"><a href="${e(portaal)}" style="display:inline-block;background:${PA};color:${PI};border:1px solid ${PI==="#ffffff"?PA:"#cfd3d8"};text-decoration:none;font-weight:600;font-size:13.5px;padding:9px 14px;border-radius:10px;font-family:${sans}">Openen &rarr;</a></td></tr><tr><td colspan="2" style="padding:0 16px 8px;font-family:${sans}">${pinfo}</td></tr></table>`;
   const body=rich?richMetKnop(rich,block):paras.slice(0,sig).map(P).join("")+block+paras.slice(sig).map(sigP).join("");
-  const naam=s.naam||"Je bedrijf",lgSrc=logo?(preview?BLOB+logo:(LIVE?location.origin+BLOB+logo:(state.mailLogo&&state.mailLogo.id===logo?state.mailLogo.url:""))):"",lg=lgSrc?`<img src="${e(lgSrc)}" alt="" style="max-height:${Math.min(80,Number(s.logoGrootte)||64)}px;max-width:180px">`:"";
+  const naam=s.naam||"Je bedrijf",lgSrc=logo?(preview?BLOB+logo:(LIVE?location.origin+BLOB+logo:(state.mailLogo&&state.mailLogo.id===logo?state.mailLogo.url:""))):"",lg=lgSrc?mailLogoImg(e(lgSrc),Math.min(80,Number(s.logoGrootte)||64),180,state.mailLogo&&state.mailLogo.id===logo?state.mailLogo.ratio:0):"";
   /* knop "Mijn klantportaal" onderaan elke klantmail (niet bij offertes): de server maakt er een persoonlijke inloglink van */
   const pkKnop=(bg,fg)=>portaal?`<a href="${e(portaal)}" style="display:inline-block;background:${bg};color:${fg};text-decoration:none;font-weight:600;font-size:14px;line-height:18px;padding:12px 20px;border-radius:999px;white-space:nowrap;font-family:${sans}">Mijn klantportaal&nbsp;&rarr;</a>`:"";
   const foot=`${portaal?`<p style="text-align:center;margin:22px 0 0">${pkKnop(A,"#ffffff")}</p>`:""}<p style="text-align:center;font-size:12px;color:#8a979c;margin:18px 0 0;line-height:1.7">${[naam,s.telefoon,s.email].filter(Boolean).map(e).join(" &nbsp;·&nbsp; ")}${s.iban?`<br>IBAN: ${e(s.iban)}`:""}</p>`;
@@ -8968,9 +8971,13 @@ async function copyHtml(html,plain){
   const r=document.createRange();r.selectNodeContents(d);const sel=getSelection();sel.removeAllRanges();sel.addRange(r);let ok=false;try{ok=document.execCommand("copy")}catch(e){}sel.removeAllRanges();d.remove();return ok;
 }
 function openUrl(h){const a=document.createElement("a");a.href=h;a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();a.remove()}
+/* logo in mails met vaste breedte én hoogte: Gmail negeert max-height en rekte het logo uit */
+function mailLogoImg(src,maxH,maxW,ratio){if(!ratio)return `<img src="${src}" alt="" style="max-height:${maxH}px;max-width:${maxW}px">`;
+  let h=maxH,w=Math.round(h*ratio);if(w>maxW){w=maxW;h=Math.round(w/ratio)}
+  return `<img src="${src}" alt="" width="${w}" height="${h}" style="display:inline-block;width:${w}px;height:${h}px;max-width:100%;border:0">`}
 async function warmMailLogo(){
   const s=S(),id=s.logoMail||s.logo;if(!id||(state.mailLogo&&state.mailLogo.id===id))return;
-  try{const r=await fetch(BLOB+id);if(!r.ok)return;const b=await r.blob();const url=await new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.readAsDataURL(b)});state.mailLogo={id,url}}catch(e){}
+  try{const r=await fetch(BLOB+id);if(!r.ok)return;const b=await r.blob();const url=await new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.readAsDataURL(b)});const ratio=await new Promise(res=>{const i=new Image();i.onload=()=>res(i.naturalHeight?i.naturalWidth/i.naturalHeight:0);i.onerror=()=>res(0);i.src=url});state.mailLogo={id,url,ratio}}catch(e){}
 }
 async function copyHtmlFor(i){
   if(liveMail())return verstuurLive(i);
