@@ -715,7 +715,8 @@ function openOpdracht(kid,oid){
     catch(er){$("#opGo").disabled=false;err(er)}};
 }
 
-const regelExtra=k=>{const x=[k.verbergFreq?"":freqLabel(k.frequentie).toLowerCase()].filter(Boolean);return x.length?" ("+x.join(", ")+")":""};
+/* frequentie staat niet meer achter de regel op facturen */
+const regelExtra=k=>"";
 
 /* ingeplande afspraak verwijderen: direct weer aanbieden, of doorschuiven op de frequentie */
 function afspraakVerwijderen(id){

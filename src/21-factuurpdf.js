@@ -1,5 +1,9 @@
 /* datum achter een omschrijving weghalen; de datum staat al in een eigen kolom */
-const omsZonderDatum=t=>String(t||"").replace(/\s+\d{1,2} (januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december) \d{4}\s*$/i,"");
+/* frequentie tussen haakjes achter een regel, bv. "Glasbewassing (elke 8 weken)": niet op facturen en factuurmails */
+const isFreqTxt=x=>{x=String(x||"").trim().toLowerCase();if(/^(elke?|iedere|om de)\s|^\d+\s*x\s*per\s|^(wekelijks|tweewekelijks|maandelijks|op afroep|eenmalig)$/.test(x))return true;
+  try{return (S().freqs||[]).some(f=>f&&f.l&&String(f.l).trim().toLowerCase()===x)}catch(e){return false}};
+const zonderFreq=t=>String(t||"").replace(/\s*\(([^()]*)\)/g,(m,b)=>isFreqTxt(b)?"":m);
+const omsZonderDatum=t=>zonderFreq(t).replace(/\s+\d{1,2} (januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december) \d{4}\s*$/i,"");
 /* ---------- FACTUUR-OPMAAK (scherm en PDF, A4) ---------- */
 /* klant bij een factuur: op id, anders op naam (oude of handmatige facturen) */
 function invKlant(f){const ks=state.klanten||[];return ks.find(x=>x.id===f.klantId)||(f.klantNaam?ks.find(x=>cleanName(x.naam).trim().toLowerCase()===cleanName(f.klantNaam).trim().toLowerCase()):null)||null}

@@ -500,6 +500,8 @@ def relatiecodes(pg):
     check(G, "Tegelijk opslaan geeft geen dubbele relatiecodes", len(set(r["nrs2"] + r["nrs"])) == 5, r)
     check(G, "Oud klantnummer (uit DienstenCRM) blijft staan", r["e"] == "8237", r)
     check(G, "Import van customers_active vult bestaande klant aan met relatiecode", r["imp"]["code"] == "7311" and r["imp"]["prijs"] == 40, r["imp"])
+    rf = pg.evaluate("""()=>{const T=MSTEST;if(!T.omsZonderDatum)return null;return [T.omsZonderDatum('Glasbewassing (elke 8 weken)'),T.omsZonderDatum('Glasbewassing begane grond, 12 ramen (elk kwartaal)'),T.omsZonderDatum('Toeslag 10% (hoogwerker)')]}""")
+    check(G, "Frequentie staat niet achter de regel op factuur en factuurmail", rf is not None and rf[0] == "Glasbewassing" and rf[1] == "Glasbewassing begane grond, 12 ramen" and rf[2] == "Toeslag 10% (hoogwerker)", rf)
     check(G, "Import maakt geen dubbele klant aan", r["imp"]["erbij"] == 1 and r["imp"]["nieuw"] == ["7312"], r["imp"])
 
 
