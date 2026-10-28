@@ -432,3 +432,10 @@ function tjMailHtml(k){const r=tjMail(k);
   if(!r)return `<span class="tj-mail none" title="Nog geen mail over deze afspraak verstuurd">${I.mail}</span>`;
   const t=r.st==="geklikt"?"Klant heeft op een link in de mail geklikt":r.st==="geopend"?"Klant heeft de mail geopend":"Mail verstuurd, nog niet geopend";
   return `<span class="tj-mail ${r.st==="verstuurd"?"sent":"open"}" title="${esc(t)}${r.m.onderwerp?" · "+esc(r.m.onderwerp):""} · ${esc(fmtD(String(r.m.op).slice(0,10)))}">${I.mail}</span>`}
+/* lijst Te plannen (rechts): scrollen met muis/trackpad scrolt altijd de lijst zelf, niet de planning ernaast.
+   Safari met de 90%-weergave gaf het scrollen soms door aan de pagina. */
+document.addEventListener("wheel",e=>{const p=e.target.closest&&e.target.closest(".rpanel");if(!p||e.ctrlKey)return;
+  const dy=e.deltaMode===1?e.deltaY*16:e.deltaMode===2?e.deltaY*p.clientHeight:e.deltaY;if(!dy||Math.abs(e.deltaX)>Math.abs(dy))return;
+  const max=p.scrollHeight-p.clientHeight;if(max<=1)return;
+  if((dy<0&&p.scrollTop<=0)||(dy>0&&p.scrollTop>=max-1)){e.preventDefault();return}
+  e.preventDefault();p.scrollTop=Math.max(0,Math.min(max,p.scrollTop+dy))},{passive:false});

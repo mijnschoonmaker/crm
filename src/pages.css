@@ -4392,3 +4392,4 @@ html body .cc-si.nk::after{content:"";position:absolute;inset:-3px;border-radius
 /* te plannen: extra dienst die mee gaat */
 html body .of-chips .of-ex{background:#eef4ff;color:#2f4f8f;border-color:#d5e2fb}
 html body .of-chips .of-ex svg{stroke:#2f4f8f}
+.rpanel{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
