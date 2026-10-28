@@ -4337,5 +4337,5 @@ html body .leaflet-container .pl-bus img{width:52px!important;max-width:none!imp
 .fv-sl input[type=range]{width:min(260px,40vw);accent-color:#e5484d;padding:0;min-height:0;background:transparent;border:0;box-shadow:none}
 .fv-pv{display:inline-block;flex:none;box-shadow:0 1px 4px rgb(0 0 0 / .4)}
 /* factuur: "onderdeel van" met het Mansard-logo */
-.i5-foot .i5-ov{display:inline-flex;align-items:center;gap:4px}
-.i5-foot .i5-ov img{height:7px;width:auto;display:inline-block;vertical-align:middle;opacity:.8;transform:translateY(.5px)}
+.i5-foot .i5-ov{display:inline-flex;align-items:center;gap:.45em}
+.i5-foot .i5-ml{flex:none;display:inline-block;height:6.6px;aspect-ratio:1216/149;background-color:currentColor;-webkit-mask:url(/mansard-logo.png) center/contain no-repeat;mask:url(/mansard-logo.png) center/contain no-repeat;transform:translateY(.3px)}
