@@ -42,11 +42,18 @@ async function afronden(k,mode,el){
     return}
   if(isPeriodiek(k)){/* periodieke factuur: beurt afmelden zonder eigen factuur; artikelen gaan mee op de periodieke factuur */
     try{const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed);
-      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),betaald:false,gefactureerd:"periodiek",periodiek:true,dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString(),...(_vve||{})});
+      /* extra diensten (bijv. glasbewassing) staan niet op de periodieke factuur: eigen factuur, zoals ingesteld bij de periodieke factuur */
+      let _exF=null;const _em=typeof perExtraModus==="function"?perExtraModus(k):"concept";
+      if(_ed.length&&_em!=="geen"){const _exR=_ed.map(o=>({omschrijving:(o.groepOms?o.groepOms:o.dienst+(k.verbergFreq?"":" ("+freqLabel(o.frequentie).toLowerCase()+")")+(o.items&&!k.verbergAantal&&o.items.length?": "+groepDetail(o.items,k.verbergFreq?0:o.frequentie):"")),aantal:1,prijs:Number(o.prijs)||0})).filter(r=>r.prijs);
+        if(_exR.length){const _dir=_em==="direct"&&!_mw;_exF={...f,regels:_exR,status:_dir?"open":"concept"};if(!_dir&&_exF.status==="betaald")_exF.status="concept";delete _exF.betaaldOp;delete _exF.betaaldTs;
+          if(_dir){const t=totals(_exF),em=mailK(k,"factuur").email||_exF.klantEmail||"";if((await vraag("Factuur extra diensten versturen?",`${_exR.map(r=>esc(r.omschrijving)+" · <b>"+eur(r.prijs)+"</b>").join("<br>")}<br><br>Totaal <b>${eur(t.inc)}</b> incl. btw. ${em?`Gaat meteen naar <b>${esc(em)}</b>.`:"Deze klant heeft geen e-mailadres."}`,"Versturen","Klaarzetten"))!==true)_exF.status="concept"}
+          await save("facturen",fId,_exF)}}
+      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),...(_exF?{extraFactuur:fId}:{}),betaald:false,gefactureerd:"periodiek",periodiek:true,dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString(),...(_vve||{})});
       const _vn=volgendeNa(k),nx=_vn.gepland;
       await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,bezig:""});aanbevelingVrijgeven(k.id);await extraNaBij(k,d,_ed);
       const undo=async()=>{try{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
-      feest(k);toast(cleanName(k.naam)+" afgemeld · gaat mee op de periodieke factuur ("+fmtD(k.periodiek.volgende)+")",[{label:"Ongedaan",fn:undo}])}
+      feest(k);toast(cleanName(k.naam)+" afgemeld · gaat mee op de periodieke factuur ("+fmtD(k.periodiek.volgende)+")"+(_exF?(_exF.status==="open"?" · extra diensten gefactureerd en verstuurd":" · factuur extra diensten klaargezet"):""),[{label:"Ongedaan",fn:async()=>{if(_exF){try{await del("facturen",fId)}catch(e){}}await undo()}}]);
+      if(_exF&&_exF.status==="open"){let n=0;const go=()=>{if(state.facturen.some(x=>x.id===fId))sendF(fId,{direct:true,bevestigd:true});else if(++n<30)setTimeout(go,100)};setTimeout(go,300)}}
     catch(e){if(el){const c=el.querySelector(".swipe-card");if(c)c.style.transform="";el.classList.remove("armed")}err(e)}
     return}
   /* credits eerst verrekenen, zodat de bevestiging het echte bedrag toont (bij annuleren wordt niets opgeslagen) */
@@ -650,7 +657,7 @@ function openAkkoord(id){
   form.onsubmit=async e=>{e.preventDefault();const b=$("#akGo");b.disabled=true;
     const dat=$("#ak-dat").value,tijd=dat?($("#ak-tijd").value||nextFree(dat)):"",p=r2(Number($("#ak-prijs").value)||0);
     try{const cur=state.klanten.find(x=>x.id===k.id)||k;
-      await save("klanten",k.id,{...strip(cur),...(o.extra&&o.extra.length?{opdrachten:[...(cur.opdrachten||[]).filter(x=>!x.groep||!o.extra.some(e=>e.groep===x.groep)),...o.extra]}:{}),prospect:false,opdrachtVerwijderd:false,...(f.facturatie?factModusPatch(f.facturatie,cur):{}),actief:true,akkoord:$("#ak-ov").checked||!!cur.akkoord,prijs:p,frequentie:Number($("#ak-freq").value),duur:Number($("#ak-duur").value),
+      await save("klanten",k.id,{...strip(cur),...(o.extra&&o.extra.length?{opdrachten:[...(cur.opdrachten||[]).filter(x=>!x.groep||!o.extra.some(e=>e.groep===x.groep)),...o.extra]}:{}),prospect:false,opdrachtVerwijderd:false,...(f.facturatie?(typeof factModusPatchOfferte==="function"?factModusPatchOfferte:factModusPatch)(f.facturatie,cur):{}),actief:true,akkoord:$("#ak-ov").checked||!!cur.akkoord,prijs:p,frequentie:Number($("#ak-freq").value),duur:Number($("#ak-duur").value),
         dienst:$("#ak-dienst").value.trim()||"Glasbewassing",gepland:dat,tijd,aanbodVanaf:$("#ak-aanbod").value||"",aanbieden:!dat&&!($("#ak-aanbod").value>iso(today())),opzegReden:"",log:[...(cur.log||[]),{datum:iso(today()),tekst:"Akkoord op offerte "+f.nummer+" · "+eur(p)+" per beurt, elke "+$("#ak-freq").value+" weken"+(dat?" · eerste beurt "+fmtD(parse(dat)):"")+($("#ak-aanbod").value?" · aanboddatum "+fmtD(parse($("#ak-aanbod").value)):"")}]});
       await save("facturen",f.id,{...strip(f),status:"geaccepteerd",akkoordOp:iso(today())});
       if(f.facturatie==="periodiek"&&!isPeriodiek(cur)){toast(cleanName(k.naam)+" is nu vaste klant · stel nu de periodieke factuur in");setTimeout(()=>openPeriodiek(k.id,"klant"),80);return}

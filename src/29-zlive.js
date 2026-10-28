@@ -72,7 +72,7 @@ async function autoAkkoordGetekend(f){
   const k=state.klanten.find(x=>x.id===f.klantId);if(!k||!k.prospect||f.autoAkkoord)return;
   const o=f.opdracht||{},t=totals(f),p=r2(Number(o.prijs??(S().incl?t.inc:t.ex))||0),fr=Number(o.frequentie||k.frequentie||4),du=Number(o.duur||k.duur||30),aanbod=f.start||iso(today());
   try{
-    await save("klanten",k.id,{...strip(k),...(o.extra&&o.extra.length?{opdrachten:[...(k.opdrachten||[]).filter(x=>!x.groep||!o.extra.some(e=>e.groep===x.groep)),...o.extra]}:{}),prospect:false,opdrachtVerwijderd:false,...(f.facturatie&&typeof factModusPatch==="function"?factModusPatch(f.facturatie,k):{}),actief:true,akkoord:true,prijs:p,frequentie:fr,duur:du,
+    await save("klanten",k.id,{...strip(k),...(o.extra&&o.extra.length?{opdrachten:[...(k.opdrachten||[]).filter(x=>!x.groep||!o.extra.some(e=>e.groep===x.groep)),...o.extra]}:{}),prospect:false,opdrachtVerwijderd:false,...(f.facturatie&&typeof factModusPatchOfferte==="function"?factModusPatchOfferte(f.facturatie,k):{}),actief:true,akkoord:true,prijs:p,frequentie:fr,duur:du,
       dienst:k.dienst||"Glasbewassing",gepland:"",tijd:"",aanbodVanaf:aanbod,aanbieden:!(aanbod>iso(today())),opzegReden:"",log:[...(k.log||[]),{datum:iso(today()),tekst:"Offerte "+f.nummer+" online ondertekend door "+((f.getekend||{}).naam||"de klant")+" · "+eur(p)+" per beurt, elke "+fr+" weken · staat bij Te plannen vanaf "+fmtD(parse(aanbod))}]});
     const ff=state.facturen.find(x=>x.id===f.id)||f;
     await save("facturen",f.id,{...strip(ff),status:"geaccepteerd",akkoordOp:ff.akkoordOp||iso(today()),autoAkkoord:true});
