@@ -223,7 +223,7 @@ module.exports = function maakPortaal(ctx) {
     const tegoed = (k.tegoed || []).filter(t => t && Number(t.bedrag) > 0);
     let extraDiensten = [];
     try { const ud = await db.doc("instellingen/uitvoering").get(); if (ud.exists) { const u = dec(ud.data());
-      extraDiensten = [...(u.groepen || []), ...(u.eigen || [])].filter(g => g && !g.verberg && !["rolluik", "antispin", "antialg", "schoorsteen", "spoed", "hogedruk", "binnen"].includes(g.id) && !/glasbewassing binnen/i.test(String(g.naam || "")) && g.type !== "glas" && g.type !== "bijz" && String(g.naam || "").trim()).map(g => String(g.naam).trim()).slice(0, 24); } } catch (e) { console.error("diensten", e); }
+      extraDiensten = [...(u.groepen || []), ...(u.eigen || [])].filter(g => g && !g.verberg && !["rolluik", "antispin", "antialg", "schoorsteen", "spoed", "hogedruk", "binnen"].includes(g.id) && !/glasbewassing binnen/i.test(String(g.naam || "")) && g.type !== "glas" && g.type !== "bijz" && String(g.naam || "").trim()).map(g => String(g.naam).trim()).filter(n => !/zonnepan/i.test(n)).slice(0, 24); } } catch (e) { console.error("diensten", e); }
     return {
       bedrijf: { ...bedrijfInfo(b, base), extraDiensten },
       klant: { voornaam: voornaamVan(schoon(k.contact || k.naam)), naam: schoon(k.naam), contact: k.contact || "", adres: k.adres || "", postcode: k.postcode || "", plaats: k.plaats || "", pcPlaats: [k.postcode, k.plaats].filter(Boolean).join(" "), email: k.email || "", telefoon: k.telefoon || "", mobiel: k.mobiel || "", zakelijk: k.soort === "zakelijk" || k.soort === "vve",
