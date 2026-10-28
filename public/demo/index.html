@@ -8460,6 +8460,13 @@ document.addEventListener("wheel",e=>{const p=e.target.closest&&e.target.closest
   const max=p.scrollHeight-p.clientHeight;if(max<=1)return;
   if((dy<0&&p.scrollTop<=0)||(dy>0&&p.scrollTop>=max-1)){e.preventDefault();return}
   e.preventDefault();p.scrollTop=Math.max(0,Math.min(max,p.scrollTop+dy))},{passive:false});
+/* Safari met de 90%-weergave rekent 100vh anders: de lijst Te plannen werd dan hoger dan het scherm, waardoor hij niet kon scrollen
+   en de onderste afspraken buiten beeld vielen. Daarom de hoogte meten en precies op de zichtbare hoogte zetten. */
+function rpanelPas(){document.querySelectorAll(".rpanel").forEach(p=>{const oh=p.offsetHeight;if(!oh)return;const r=p.getBoundingClientRect(),k=r.height/oh||1,h=Math.round((innerHeight||document.documentElement.clientHeight)/k);
+  if(Math.abs(oh-h)>1)p.style.height=h+"px"})}
+addEventListener("resize",()=>requestAnimationFrame(rpanelPas));
+{let q=0;if(typeof MutationObserver!=="undefined")new MutationObserver(()=>{if(q)return;q=requestAnimationFrame(()=>{q=0;if(document.querySelector(".rpanel"))rpanelPas()})}).observe(document.documentElement,{childList:true,subtree:true})}
+document.addEventListener("wheel",e=>{if(e.target.closest&&e.target.closest(".rpanel"))rpanelPas()},{capture:true,passive:true});
 
 /* ---------- Zoeken in Planning: resultaten onder het zoekveld ----------
    Typ een naam of adres: je ziet direct de klant, wanneer hij gepland staat of dat hij nog ingepland moet worden.
