@@ -9150,7 +9150,7 @@ function openMailStijl(){
     else if(b.id==="msTest"){const k=tk[tab],old={...state.settings};state.settings={...state.settings,mailStijl:stijl,mailAccent:acc};const v={...sampleVars(),akkoordlink:(/^https?:/.test(location.origin)?location.origin:"https://app.mansard.nl")+"/akkoord/voorbeeld"},h=mailFor(k,v,T[k].mail),subj="Test: "+fill(T[k].onderwerp,v),txt=fill(T[k].mail,v);state.settings=old;
       const naar=(state.me&&state.me.email)||s.email||s.liveAfzender||"";
       if(!LIVE){toast("In de demo wordt geen mail verstuurd. In je eigen omgeving komt de testmail direct in je inbox.");return}
-      if(s.liveMail&&typeof fbFn==="function"&&naar){b.disabled=true;const lbl=b.innerHTML;b.innerHTML=I.send+"Versturen…";
+      if(s.liveMail&&typeof fbFn==="function"&&naar){if(!(await vraag("Testmail versturen?",`Er gaat een voorbeeldmail (${esc(subj)}) naar <b>${esc(naar)}</b>.`,"Versturen","Annuleren")))return;b.disabled=true;const lbl=b.innerHTML;b.innerHTML=I.send+"Versturen…";
         try{let bijlagen=[];if(tab==="factuur"){const doc=await pdfDoc(demoFactuur(),demoKlant);if(doc)bijlagen=[{naam:"Voorbeeldfactuur.pdf",data:String(doc.output("datauristring")).split(",")[1]}]}
           await fbFn("sendMail")({naar,naam:"",onderwerp:subj,html:h,tekst:txt,bijlagen,meta:{klantNaam:"Testmail",sjabloon:"test"}});toast("Testmail verstuurd naar "+naar)}
         catch(x){toast("Testmail lukte niet: "+String((x&&x.message)||x).replace(/^.*?:\s*/,""))}
