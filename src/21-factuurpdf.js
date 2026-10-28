@@ -89,15 +89,8 @@ function paperHtml(f,klant){
   ${f.notitie?`<div class="i5-note"><span class="i5-l">Opmerking</span>${esc(f.notitie)}</div>`:""}
   ${f.soort==="offerte"&&offTxt(f.voettekst,f)?`<div class="i5-txt">${esc(offTxt(f.voettekst,f)).replace(/\n/g,"<br>")}</div>`:""}
     ${m.vwTxt?`<p class="i5-vw">${esc(m.vwTxt)}</p>`:""}
-  <div class="i5-foot">${m.foot.map((x,i)=>i===0&&m.footLogo?`<span class="i5-ov">${esc(x.trim())}<i class="i5-ml" role="img" aria-label="Mansard"></i></span>`:`<span>${esc(x)}</span>`).join("")}</div></div>${(()=>{const fb=f.soort!=="offerte"&&typeof factFotos==="function"&&factFotos(f).length?`<div class="i5-fotos"><span class="i5-l">Bijlage · foto's</span><b class="i5-ft">Opgemerkt tijdens ons werk</b><span class="i5-fs">Tijdens de beurt${f.datum?" van "+esc(fmtL(f.datum)):""} viel ons het volgende op.</span><div class="${factFotos(f).length===1?"een":""}">${factFotos(f).map((b,i)=>`<figure><span class="i5-fi"><img src="${BLOB}${esc(b.id)}" alt="">${b.zijde?`<em>${esc(b.zijde)}</em>`:""}</span><figcaption><i>${String(i+1).padStart(2,"0")}</i><span><b>${esc(b.notitie||"Bijzonderheid")}</b><small>${esc(fmtL(b.datum||f.datum))}</small></span></figcaption></figure>`).join("")}</div></div>`:"";return fb?`<div class="inv5 i5-p2" style="--A:${m.A}">${fb}<div class="i5-foot">${m.foot.map(x=>`<span>${esc(x)}</span>`).join("")}</div></div>`:""})()}`;
+  </div>${(()=>{const fb=f.soort!=="offerte"&&typeof factFotos==="function"&&factFotos(f).length?`<div class="i5-fotos"><span class="i5-l">Bijlage · foto's</span><b class="i5-ft">Opgemerkt tijdens ons werk</b><span class="i5-fs">Tijdens de beurt${f.datum?" van "+esc(fmtL(f.datum)):""} viel ons het volgende op.</span><div class="${factFotos(f).length===1?"een":""}">${factFotos(f).map((b,i)=>`<figure><span class="i5-fi"><img src="${BLOB}${esc(b.id)}" alt="">${b.zijde?`<em>${esc(b.zijde)}</em>`:""}</span><figcaption><i>${String(i+1).padStart(2,"0")}</i><span><b>${esc(b.notitie||"Bijzonderheid")}</b><small>${esc(fmtL(b.datum||f.datum))}</small></span></figcaption></figure>`).join("")}</div></div>`:"";return fb?`<div class="inv5 i5-p2" style="--A:${m.A}">${fb}</div>`:""})()}`;
 }
-let _mLogo=null;
-async function mansardLogo(){if(_mLogo)return _mLogo;try{const r=await fetch("/mansard-logo.png");if(!r.ok)return null;const b=await r.blob();
-  const url=await new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.readAsDataURL(b)});
-  const im=await new Promise(res=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>res(null);i.src=url});if(!im)return null;
-  /* zelfde grijs als de voettekst (112,122,127) */
-  let grijs=url;try{const c=document.createElement("canvas");c.width=im.width;c.height=im.height;const g=c.getContext("2d");g.drawImage(im,0,0);g.globalCompositeOperation="source-in";g.fillStyle="rgb(112,122,127)";g.fillRect(0,0,c.width,c.height);grijs=c.toDataURL("image/png")}catch(e){}
-  _mLogo={url:grijs,r:im.width/im.height};return _mLogo}catch(e){return null}}
 async function pdfDoc(f,klant){
   const doc=newPdf();if(!doc)return null;const m=invModel(f,klant),s=m.s,L=20,R=190,W=R-L,logo=await loadLogo(),A=hexRgb(m.A);
   const C={ink:[17,24,28],mut:[112,122,127],soft:[250,251,251],line:[228,231,233]};
@@ -188,11 +181,8 @@ async function pdfDoc(f,klant){
           N();doc.setFontSize(7.4);col([43,51,55]);doc.text(notes[j],x+6,ty,{lineHeightFactor:1.4});
           doc.setFontSize(6.2);col(C.mut);doc.text(fmtL(im.p.datum||f.datum),x+6,ty+notes[j].length*3.5+.2);col(C.ink)}
         yy+=ch+gap}}}
-  const mLogo=m.footLogo?await mansardLogo():null;
-  const pages=doc.getNumberOfPages();for(let p=1;p<=pages;p++){doc.setPage(p);doc.setDrawColor(...C.line);doc.setLineWidth(.25);doc.line(L,277,R,277);N();doc.setFontSize(6.8);col(C.mut);
-    if(m.footLogo&&mLogo){const t0=m.foot[0],rest=m.foot.slice(1).join("   ·   "),lh=1.75,lw=lh*mLogo.r;doc.text(t0.trim(),L,282);let x=L+doc.getTextWidth(t0.trim())+2.2;
-      try{doc.addImage(mLogo.url,"PNG",x,282-lh+.15,lw,lh,"mansardlogo","FAST")}catch(e){}x+=lw;if(rest)doc.text("   ·   "+rest,x,282)}
-    else doc.text(m.foot.join("   ·   ").replace(/ is een onderdeel van $/,""),L,282);if(pages>1)doc.text("Pagina "+p+" / "+pages,R,282,{align:"right"});col(C.ink)}
+  /* geen voettekst meer onder de factuur; alleen paginanummers bij meer dan één pagina */
+  const pages=doc.getNumberOfPages();if(pages>1)for(let p=1;p<=pages;p++){doc.setPage(p);N();doc.setFontSize(6.8);col(C.mut);doc.text("Pagina "+p+" / "+pages,R,282,{align:"right"});col(C.ink)}
   return doc;
 }
 async function pdf(id){
