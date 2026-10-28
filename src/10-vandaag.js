@@ -102,7 +102,7 @@ function vVandaag(){
 function openJob(id,day){
   const k=state.klanten.find(x=>x.id===id);if(!k)return;day=day||iso(today());
   const b=state.beurten.find(x=>x.klantId===id&&x.datum===day),done=!!b,js=done?"afgerond":jobState(k,day),sp=STATEPILL[js],d=parse(day);
-  const tel=String(k.telefoon||"").replace(/[^\d+]/g,""),bedrag=done?Number(b.bedrag)||0:Number(k.prijs)||0,st=S();
+  const tel=String(k.telefoon||"").replace(/[^\d+]/g,""),bedrag=done?Number(b.bedrag)||0:r2((Number(k.prijs)||0)+(()=>{try{return S().glasMee===false?0:extraDue(k,day).reduce((a,o)=>a+(Number(o.prijs)||0),0)}catch(e){return 0}})()),st=S();
   const vars=klantVars(k,d),T=tpls(),aan=T.aankondiging||{};
   const mail=k.email?"mailto:"+encodeURIComponent(k.email)+"?subject="+encodeURIComponent(fill(aan.onderwerp||"Glasbewassing",vars)):"";
   const sms=tel?"sms:"+tel+"?&body="+encodeURIComponent(fill(aan.sms||"",vars)):"";

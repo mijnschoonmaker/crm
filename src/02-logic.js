@@ -15,7 +15,9 @@ const volgende=k=>{const l=parse(k.laatst);let v=l?(vasteDagen(k)?volgendeWeekda
 const planned=k=>parse(k.gepland)||volgende(k);
 const toMin=t=>{const m=String(t||"").match(/^(\d{1,2}):(\d{2})/);return m?Number(m[1])*60+Number(m[2]):null};
 const fromMin=m=>pad(Math.floor(m/60))+":"+pad(m%60);
-const duur=k=>Number(k.duur)||30;
+const duurBasis=k=>Number(k.duur)||30;
+/* tijd van de afspraak: de vaste duur plus extra opdrachten die die dag mee gaan (dakkapel, goten…) */
+const duur=k=>{let m=duurBasis(k);try{if(S().glasMee!==false&&typeof extraDue==="function"){const d=k.gepland||iso(today());extraDue(k,d).forEach(o=>{m+=Number(o.duur)||0})}}catch(e){}return m};
 const uren=m=>(Math.round(m/60*10)/10).toLocaleString("nl-NL")+"u";
 const actief=()=>state.klanten.filter(k=>k.actief!==false&&!k.prospect);
 const rondes=()=>[...new Set(state.klanten.map(k=>k.ronde).filter(Boolean))].sort();
@@ -79,7 +81,9 @@ const isBezig=k=>{if(!k||!k.bezig)return false;const d=new Date(k.bezig);return 
 const fmtTimer=ms=>{const s=Math.max(0,Math.floor(ms/1000)),h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return (h?h+":"+String(m).padStart(2,"0"):String(m))+":"+String(x).padStart(2,"0")};
 const timerHtml=k=>`<span class="tmr" data-timer="${esc(k.bezig)}">${fmtTimer(Date.now()-new Date(k.bezig))}</span>`;
 const gemTijd=k=>{const t=(k.tijden||[]).slice(-5);return t.length?Math.round(t.reduce((a,x)=>a+(Number(x.min)||0),0)/t.length):0};
-function metingPatch(k,min){const tijden=[...(k.tijden||[]),{datum:iso(today()),min}].slice(-20),t=tijden.slice(-5),gem=Math.round(t.reduce((a,x)=>a+x.min,0)/t.length);
+function metingPatch(k,min){/* gemeten tijd zonder de extra opdrachten van vandaag: de vaste duur is alleen de eigen dienst */
+  try{if(S().glasMee!==false&&typeof extraDue==="function"){const ex=extraDue(k,iso(today())).reduce((a,o)=>a+(Number(o.duur)||0),0);if(ex)min=Math.max(1,Math.round(min-ex))}}catch(e){}
+  const tijden=[...(k.tijden||[]),{datum:iso(today()),min}].slice(-20),t=tijden.slice(-5),gem=Math.round(t.reduce((a,x)=>a+x.min,0)/t.length);
   return {tijden,duur:Math.max(5,Math.ceil(gem/5)*5)}}
 /* een meting die veel korter is dan de geplande duur (bijv. per ongeluk Start en meteen Afmelden) is geen echte meting:
    die telt niet mee voor de planning en niet als facturabele tijd */
@@ -124,7 +128,8 @@ const extraOpdr=k=>{
 const extraDue=(k,day)=>{const d=day||iso(today()),out=[];extraOpdr(k).forEach(o=>{const oDue=!o.volgende||o.volgende<=d;
     if(!o.items||typeof groepCalc!=="function"){if(oDue)out.push(o);return}
     const c=groepCalc(o,it=>it.fq?(!it.vol||it.vol<=d):(!it.vol||it.vol<=d));if(!c.rows.length&&!(c.vast&&oDue))return;const st=S(),mul=st.incl?1+(Number(st.btw)||21)/100:1;
-    out.push({...o,items:c.rows.map(r=>r.it),prijs:r2(c.ex*mul),_oDue:oDue})});return out};
+    out.push({...o,items:c.rows.map(r=>r.it),prijs:r2(c.ex*mul),duur:gHasD(o.td)?Number(o.td)||0:Math.max(c.rows.length?1:0,Math.round((c.sec||0)/60)),_oDue:oDue})});return out};
+const gHasD=v=>v!==undefined&&v!==null&&v!=="";
 /* losse opdracht afgemeld: de diensten die erbij horen staan bij de hoofdklant; daar de volgende datum doorschuiven */
 async function extraNaBij(k,d,ed){try{if(!k||!k.hoofdKlantId||!(ed||[]).length)return;const h=state.klanten.find(x=>x.id===k.hoofdKlantId);if(!h)return;
   await save("klanten",h.id,{...strip(h),opdrachten:extraNa(h,d,ed)})}catch(e){console.error("extraNaBij",e)}}
