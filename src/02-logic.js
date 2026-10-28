@@ -130,7 +130,9 @@ function opdrBij(k,o){const L=(k&&k.opdrachten)||[];if(!o||o.apart)return"";
   const c=L.filter(p=>p.actief!==false&&opdrLoc(k,p)===loc&&!p.bij),r=c.find(p=>p.apart)||c.find(p=>p.ramen||/glas/i.test(p.dienst||""))||c[0];return r&&r.id!==o.id?r.id:""}
 const extraOpdr=k=>{
   if(k&&k.hoofdKlantId){const h=state.klanten.find(x=>x.id===k.hoofdKlantId);return h?(h.opdrachten||[]).filter(o=>o.actief!==false&&opdrBij(h,o)===k.opdrachtId):[]}
-  const L=(k&&k.opdrachten)||[];return L.filter(o=>o.actief!==false&&!o.apart&&!opdrBij(k,o)&&opdrLoc(k,o)===hoofdLoc(k))};/* op een ander adres nooit mee met het hoofdadres *//* apart ingeplande opdrachten gaan niet mee met de glasbewassing */
+  if(k&&k.soort==="vve")return [];/* VvE: glasbewassing, trappenhal enz. worden elk los aangeboden en ingepland */
+  const L=(k&&k.opdrachten)||[];return L.filter(o=>o.actief!==false&&!o.apart&&!opdrBij(k,o)&&opdrLoc(k,o)===hoofdLoc(k))};
+const opdrApart=(k,o)=>!!(o&&(o.apart||(k&&k.soort==="vve")));/* op een ander adres nooit mee met het hoofdadres *//* apart ingeplande opdrachten gaan niet mee met de glasbewassing */
 const extraDue=(k,day)=>{const d=day||iso(today()),out=[];extraOpdr(k).forEach(o=>{const oDue=!o.volgende||o.volgende<=d;
     if(!o.items||typeof groepCalc!=="function"){if(oDue)out.push(o);return}
     const c=groepCalc(o,it=>it.fq?(!it.vol||it.vol<=d):(!it.vol||it.vol<=d));if(!c.rows.length&&!(c.vast&&oDue))return;const st=S(),mul=st.incl?1+(Number(st.btw)||21)/100:1;

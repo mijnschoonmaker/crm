@@ -17,9 +17,9 @@ const PER_EXTRA=[["concept","Per beurt factuur klaarzetten"],["direct","Per beur
    Gaat mee met de beurt: "" = op dezelfde factuur · concept/direct = eigen factuur · geen = niet factureren.
    Apart ingepland (eigen afspraak): direct / concept / geen / periodiek, net als een hoofdopdracht. */
 const OPDR_FACT_HELP={"":"Komt op dezelfde factuur als de hoofdopdracht.",concept:"Na het afmelden staat er een eigen conceptfactuur voor deze opdracht klaar.",direct:"Na het afmelden gaat er een eigen factuur voor deze opdracht naar de klant.",geen:"Deze opdracht wordt niet gefactureerd.",periodiek:"Beurten van deze opdracht krijgen geen eigen factuur; er gaat één vaste factuur per week, maand of kwartaal."};
-const opdrFactOpt=o=>o&&o.apart?[["concept","Factuur klaarzetten"],["direct","Direct versturen"],["periodiek","Periodieke factuur"],["geen","Niet factureren"]]:[["","Op dezelfde factuur als de hoofdopdracht"],["concept","Eigen factuur klaarzetten"],["direct","Eigen factuur direct versturen"],["geen","Niet factureren"]];
+const opdrFactOpt=(o,k)=>(typeof opdrApart==="function"?opdrApart(k,o):o&&o.apart)?[["concept","Factuur klaarzetten"],["direct","Direct versturen"],["periodiek","Periodieke factuur"],["geen","Niet factureren"]]:[["","Op dezelfde factuur als de hoofdopdracht"],["concept","Eigen factuur klaarzetten"],["direct","Eigen factuur direct versturen"],["geen","Niet factureren"]];
 function opdrFactVan(k,o){if(!o)return"";if(o.facturatie!=null&&o.facturatie!=="")return o.facturatie;
-  if(o.apart){const j=typeof opdrJob==="function"?opdrJob(k,o.id):null;return j?factModus(j):"concept"}return""}
+  if(typeof opdrApart==="function"?opdrApart(k,o):o.apart){const j=typeof opdrJob==="function"?opdrJob(k,o.id):null;return j?factModus(j):"concept"}return""}
 const perExtraModus=k=>(k&&k.periodiek&&k.periodiek.extraModus)||"concept";
 const perLabel=f=>(PER_FREQ.find(x=>x[0]===f)||PER_FREQ[3])[1];
 function perVolgende(d,f){const x=parse(d);

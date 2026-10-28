@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="6fbe3c0f6941"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="490ed2330d3e"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -6891,7 +6891,9 @@ function opdrBij(k,o){const L=(k&&k.opdrachten)||[];if(!o||o.apart)return"";
   const c=L.filter(p=>p.actief!==false&&opdrLoc(k,p)===loc&&!p.bij),r=c.find(p=>p.apart)||c.find(p=>p.ramen||/glas/i.test(p.dienst||""))||c[0];return r&&r.id!==o.id?r.id:""}
 const extraOpdr=k=>{
   if(k&&k.hoofdKlantId){const h=state.klanten.find(x=>x.id===k.hoofdKlantId);return h?(h.opdrachten||[]).filter(o=>o.actief!==false&&opdrBij(h,o)===k.opdrachtId):[]}
-  const L=(k&&k.opdrachten)||[];return L.filter(o=>o.actief!==false&&!o.apart&&!opdrBij(k,o)&&opdrLoc(k,o)===hoofdLoc(k))};/* op een ander adres nooit mee met het hoofdadres *//* apart ingeplande opdrachten gaan niet mee met de glasbewassing */
+  if(k&&k.soort==="vve")return [];/* VvE: glasbewassing, trappenhal enz. worden elk los aangeboden en ingepland */
+  const L=(k&&k.opdrachten)||[];return L.filter(o=>o.actief!==false&&!o.apart&&!opdrBij(k,o)&&opdrLoc(k,o)===hoofdLoc(k))};
+const opdrApart=(k,o)=>!!(o&&(o.apart||(k&&k.soort==="vve")));/* op een ander adres nooit mee met het hoofdadres *//* apart ingeplande opdrachten gaan niet mee met de glasbewassing */
 const extraDue=(k,day)=>{const d=day||iso(today()),out=[];extraOpdr(k).forEach(o=>{const oDue=!o.volgende||o.volgende<=d;
     if(!o.items||typeof groepCalc!=="function"){if(oDue)out.push(o);return}
     const c=groepCalc(o,it=>it.fq?(!it.vol||it.vol<=d):(!it.vol||it.vol<=d));if(!c.rows.length&&!(c.vast&&oDue))return;const st=S(),mul=st.incl?1+(Number(st.btw)||21)/100:1;
@@ -13046,11 +13048,11 @@ function openOpdrachtWerk(kid,focus){
     <section class="kp"><div class="kp-h"><span class="objic">${I.euro||I.facturen}</span><b>Facturatie</b></div>
       <div class="grid2">
         <label>Betaalwijze<select id="ow-betaal"><option value="bank" ${k.incasso?"":"selected"}>Per bank</option><option value="incasso" ${k.incasso?"selected":""}>Automatische incasso</option></select></label>
-        ${soloR?(()=>{const fo=opdrFactOpt(soloR),fv=opdrFactVan(k,soloR);return `<label>Facturatie van deze opdracht<select id="ow-fact">${fo.map(([a,b])=>`<option value="${a}" ${fv===a?"selected":""}>${b}</option>`).join("")}</select><small class="help" id="owFactH">${esc(OPDR_FACT_HELP[fv]||FACT_HELP[fv]||"")}</small></label>`})()
+        ${soloR?(()=>{const fo=opdrFactOpt(soloR,k),fv=opdrFactVan(k,soloR);return `<label>Facturatie van deze opdracht<select id="ow-fact">${fo.map(([a,b])=>`<option value="${a}" ${fv===a?"selected":""}>${b}</option>`).join("")}</select><small class="help" id="owFactH">${esc(OPDR_FACT_HELP[fv]||FACT_HELP[fv]||"")}</small></label>`})()
         :`<label>Facturatie<select id="ow-fact">${FACT_OPT.map(([a,b])=>`<option value="${a}" ${factModus(k)===a?"selected":""}>${b}</option>`).join("")}</select><small class="help" id="owFactH">${esc(FACT_HELP[factModus(k)])}</small></label>`}
         ${isPeriodiek(k)&&!soloR?`<label class="full" id="owPerExL">Extra diensten (bijv. glasbewassing)<select id="ow-perex">${PER_EXTRA.map(([v,l])=>`<option value="${v}" ${perExtraModus(k)===v?"selected":""}>${l}</option>`).join("")}</select><small class="help">Staan niet op de periodieke factuur; na het afmelden krijgen ze een eigen factuur.</small></label>`:""}
       </div>
-      ${soloR?(()=>{const j=soloR.apart?opdrJob(k,soloR.id):null,pa=j&&isPeriodiek(j);return soloR.apart?`<div class="ow-per${pa?" on":""}" id="owPerSolo"${opdrFactVan(k,soloR)==="periodiek"?"":' style="display:none"'}><span class="objic">${I.receipt}</span><div><b>Periodieke factuur voor deze opdracht</b><small>${pa?esc(perLabel(j.periodiek.freq))+" · volgende "+esc(fmtL(j.periodiek.volgende))+" · "+eur((j.periodiek.regels||[]).reduce((a,r)=>a+(Number(r.aantal)||1)*(Number(r.prijs)||0),0))+" excl.":"Bijv. trappenhal elke week, één factuur per maand. Alleen voor deze opdracht."}</small></div><button type="button" class="small${pa?"":" primary"}" id="owPerJ">${pa?I.pencil+"Aanpassen":I.plus+"Aanmaken"}</button></div>`:""})():""}
+      ${soloR?(()=>{const ap=opdrApart(k,soloR),j=ap?opdrJob(k,soloR.id):null,pa=j&&isPeriodiek(j);return ap?`<div class="ow-per${pa?" on":""}" id="owPerSolo"${opdrFactVan(k,soloR)==="periodiek"?"":' style="display:none"'}><span class="objic">${I.receipt}</span><div><b>Periodieke factuur voor deze opdracht</b><small>${pa?esc(perLabel(j.periodiek.freq))+" · volgende "+esc(fmtL(j.periodiek.volgende))+" · "+eur((j.periodiek.regels||[]).reduce((a,r)=>a+(Number(r.aantal)||1)*(Number(r.prijs)||0),0))+" excl.":"Bijv. trappenhal elke week, één factuur per maand. Alleen voor deze opdracht."}</small></div><button type="button" class="small${pa?"":" primary"}" id="owPerJ">${pa?I.pencil+"Aanpassen":I.plus+"Aanmaken"}</button></div>`:""})():""}
       <div class="ow-per${isPeriodiek(k)?" on":""}"${soloR?' style="display:none"':""}><span class="objic">${I.receipt}</span><div><b>Periodieke factuur</b><small>${isPeriodiek(k)?esc(perLabel(k.periodiek.freq))+" · volgende "+esc(fmtL(k.periodiek.volgende))+" · "+eur((k.periodiek.regels||[]).reduce((a,r)=>a+(Number(r.aantal)||1)*(Number(r.prijs)||0),0))+" excl.":"Bijv. trappenhal elke week, één factuur per maand"}</small></div><button type="button" class="small${isPeriodiek(k)?"":" primary"}" id="owPer">${isPeriodiek(k)?I.pencil+"Aanpassen":I.plus+"Aanmaken"}</button></div>
       <label class="check-row"><input id="ow-verlegd" type="checkbox" ${k.btwVerlegd?"checked":""}>Btw verleggen <small class="help">factuur met 0% btw en de vermelding "Btw verlegd"</small></label>
       ${kv("Openstaande facturen",open.length?`<span class="pill late">${plural(open.length,"factuur","facturen")} · ${eur(open.reduce((a,f)=>a+totals(f).inc,0))}</span>`:"Nee")}</section>
@@ -13212,7 +13214,7 @@ function openOpdrachtWerk(kid,focus){
       ${!isMain&&r.items?itemsHtml(r,i):r.ramen?calcHtml(r,i,isMain):isGlas(r.dienst)?`<button type="button" class="small" data-calcopen="${isMain?"m":i}">${I.calculator}Ramen per verdieping invullen</button>`:""}
       ${!isMain&&!soloSet.has(i)&&(r.ramen||isGlas(r.dienst))?adresKeuze(r,i):""}
       ${isMain?"":soloSet.has(i)&&i!==soloI?`<label class="check-row"><input type="checkbox" data-i="${i}" data-k="actief" ${r.actief!==false?"checked":""}>Actief · gaat mee met de dienst ${esc(String((soloR&&soloR.dienst)||"glasbewassing").toLowerCase())} van deze opdracht wanneer die weer aan de beurt is</label>`:`<label class="check-row"><input type="checkbox" data-i="${i}" data-k="actief" ${r.actief!==false?"checked":""}>Actief${r.apart?"":" · gaat mee met de dienst glasbewassing wanneer deze weer aan de beurt is"}</label>
-      <label class="check-row"><input type="checkbox" data-i="${i}" data-k="apart" ${r.apart?"checked":""}>Apart inplannen · eigen afspraak in de agenda, met eigen tijd en factuur <small class="subt">(voor grote klussen; anders gaat hij mee met de glasbewassing)</small></label>
+      ${k.soort==="vve"?`<label class="check-row"><input type="checkbox" checked disabled>Apart inplannen · eigen afspraak in de agenda, met eigen tijd en factuur <small class="subt">(bij een VvE wordt elke dienst los aangeboden en ingepland)</small></label>`:`<label class="check-row"><input type="checkbox" data-i="${i}" data-k="apart" ${r.apart?"checked":""}>Apart inplannen · eigen afspraak in de agenda, met eigen tijd en factuur <small class="subt">(voor grote klussen; anders gaat hij mee met de glasbewassing)</small></label>`}
       ${i===soloI&&!extra.some(x=>x.bij===r.id)?(()=>{const kand=extra.filter(x=>x.id!==r.id&&!x.bij&&!x._nieuw&&x.actief!==false&&String(x.dienst||"").trim()&&opdrLoc(k,x)===opdrLoc(k,r));return kand.length?`<label>Hoort bij opdracht<select data-i="${i}" data-k="bij"><option value="">Eigen opdracht</option>${kand.map(x=>`<option value="${esc(x.id)}" ${r.bij===x.id?"selected":""}>#${esc(nr)}-${esc(x.nr||opdrNr(k,x.id))} · ${esc(x.dienst)}</option>`).join("")}</select><small class="help">Kies een opdracht op hetzelfde adres: deze dienst gaat dan mee met die afspraak.</small></label>`:""})():""}`}
       <div class="ow-lsave"><button type="button" class="small primary" data-lsave="${isMain?"m":i}">${I.check}Opslaan</button></div>
     </div>`;
@@ -14179,9 +14181,9 @@ const PER_EXTRA=[["concept","Per beurt factuur klaarzetten"],["direct","Per beur
    Gaat mee met de beurt: "" = op dezelfde factuur · concept/direct = eigen factuur · geen = niet factureren.
    Apart ingepland (eigen afspraak): direct / concept / geen / periodiek, net als een hoofdopdracht. */
 const OPDR_FACT_HELP={"":"Komt op dezelfde factuur als de hoofdopdracht.",concept:"Na het afmelden staat er een eigen conceptfactuur voor deze opdracht klaar.",direct:"Na het afmelden gaat er een eigen factuur voor deze opdracht naar de klant.",geen:"Deze opdracht wordt niet gefactureerd.",periodiek:"Beurten van deze opdracht krijgen geen eigen factuur; er gaat één vaste factuur per week, maand of kwartaal."};
-const opdrFactOpt=o=>o&&o.apart?[["concept","Factuur klaarzetten"],["direct","Direct versturen"],["periodiek","Periodieke factuur"],["geen","Niet factureren"]]:[["","Op dezelfde factuur als de hoofdopdracht"],["concept","Eigen factuur klaarzetten"],["direct","Eigen factuur direct versturen"],["geen","Niet factureren"]];
+const opdrFactOpt=(o,k)=>(typeof opdrApart==="function"?opdrApart(k,o):o&&o.apart)?[["concept","Factuur klaarzetten"],["direct","Direct versturen"],["periodiek","Periodieke factuur"],["geen","Niet factureren"]]:[["","Op dezelfde factuur als de hoofdopdracht"],["concept","Eigen factuur klaarzetten"],["direct","Eigen factuur direct versturen"],["geen","Niet factureren"]];
 function opdrFactVan(k,o){if(!o)return"";if(o.facturatie!=null&&o.facturatie!=="")return o.facturatie;
-  if(o.apart){const j=typeof opdrJob==="function"?opdrJob(k,o.id):null;return j?factModus(j):"concept"}return""}
+  if(typeof opdrApart==="function"?opdrApart(k,o):o.apart){const j=typeof opdrJob==="function"?opdrJob(k,o.id):null;return j?factModus(j):"concept"}return""}
 const perExtraModus=k=>(k&&k.periodiek&&k.periodiek.extraModus)||"concept";
 const perLabel=f=>(PER_FREQ.find(x=>x[0]===f)||PER_FREQ[3])[1];
 function perVolgende(d,f){const x=parse(d);
@@ -16948,7 +16950,7 @@ function opdrStempel(d){const m=opdrNummers(d),ops=(d.opdrachten||[]).map(o=>({.
 /* losse jobs bijwerken na het opslaan van de klant */
 const OPDR_VELDEN=["naam","contact","adres","postcode","plaats","email","fEmail","pEmail","oEmail","telefoon","mobiel","soort","klantnr","lat","lng","geo","ronde","termijn","btwVerlegd","incasso","akkoord"];
 async function opdrJobsSync(kid,d){const nu=iso(today());
-  for(const o of d.opdrachten||[]){const job=opdrJob({id:kid},o.id),aan=o.apart&&o.actief!==false;
+  for(const o of d.opdrachten||[]){const job=opdrJob({id:kid},o.id),aan=(o.apart||d.soort==="vve")&&o.actief!==false;
     if(aan){const basis={};OPDR_VELDEN.forEach(f=>{if(d[f]!==undefined)basis[f]=d[f]});
       /* eigen adres (locatie van de klant): dat adres, en opnieuw op de kaart zetten */
       const loc=o.objectId&&(d.objecten||[]).find(x=>x.id===o.objectId&&x.adres);if(loc)Object.assign(basis,{adres:loc.adres,postcode:loc.postcode||"",plaats:loc.plaats||"",lat:null,lng:null,geo:null});
@@ -16968,6 +16970,11 @@ async function opdrJobsSync(kid,d){const nu=iso(today());
 /* klantkaart van een losse job: waar hoort hij bij */
 function opdrJobBanner(k){if(!isJob(k))return"";const h=state.klanten.find(x=>x.id===k.hoofdKlantId);
   return `<div class="banner" style="margin-bottom:12px"><div><b>Losse opdracht${h&&k.opdrachtNr?" "+esc(klantNr(h))+"-"+esc(k.opdrachtNr):""}</b><br><small>Hoort bij ${h?esc(cleanName(h.naam)):"een andere klant"}. Wordt apart ingepland, met een eigen afspraak en factuur. Prijs, frequentie en duur pas je aan bij de opdracht van de klant.</small></div>${h?`<button type="button" data-act="klant" data-id="${esc(h.id)}">${I.right||""}Naar de klant</button>`:""}</div>`}
+
+/* VvE: bestaande opdrachten die nog meegingen met de hoofdopdracht krijgen eenmalig een eigen (losse) opdracht */
+if(typeof window!=="undefined"){let _vveKlaar=false;const t=setInterval(async()=>{if(!state.loaded||_vveKlaar)return;_vveKlaar=true;clearInterval(t);
+  for(const k of state.klanten.filter(x=>x.soort==="vve"&&!x.hoofdKlantId&&x.actief!==false&&(x.opdrachten||[]).some(o=>o.actief!==false&&!opdrJob(x,o.id)))){
+    try{opdrJobsSync._bezig=true;await opdrJobsSync(k.id,k)}catch(e){console.error("vve opdrachten",e)}finally{opdrJobsSync._bezig=false}}},1500)}
 
 /* ---------- Control Center · meerdere bussen ----------
    Rij met de mensen die vandaag onderweg zijn. Tik op een naam: de kaart toont waar die rijdt en zijn adressen,

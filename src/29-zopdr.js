@@ -15,7 +15,7 @@ function opdrStempel(d){const m=opdrNummers(d),ops=(d.opdrachten||[]).map(o=>({.
 /* losse jobs bijwerken na het opslaan van de klant */
 const OPDR_VELDEN=["naam","contact","adres","postcode","plaats","email","fEmail","pEmail","oEmail","telefoon","mobiel","soort","klantnr","lat","lng","geo","ronde","termijn","btwVerlegd","incasso","akkoord"];
 async function opdrJobsSync(kid,d){const nu=iso(today());
-  for(const o of d.opdrachten||[]){const job=opdrJob({id:kid},o.id),aan=o.apart&&o.actief!==false;
+  for(const o of d.opdrachten||[]){const job=opdrJob({id:kid},o.id),aan=(o.apart||d.soort==="vve")&&o.actief!==false;
     if(aan){const basis={};OPDR_VELDEN.forEach(f=>{if(d[f]!==undefined)basis[f]=d[f]});
       /* eigen adres (locatie van de klant): dat adres, en opnieuw op de kaart zetten */
       const loc=o.objectId&&(d.objecten||[]).find(x=>x.id===o.objectId&&x.adres);if(loc)Object.assign(basis,{adres:loc.adres,postcode:loc.postcode||"",plaats:loc.plaats||"",lat:null,lng:null,geo:null});
@@ -35,3 +35,8 @@ async function opdrJobsSync(kid,d){const nu=iso(today());
 /* klantkaart van een losse job: waar hoort hij bij */
 function opdrJobBanner(k){if(!isJob(k))return"";const h=state.klanten.find(x=>x.id===k.hoofdKlantId);
   return `<div class="banner" style="margin-bottom:12px"><div><b>Losse opdracht${h&&k.opdrachtNr?" "+esc(klantNr(h))+"-"+esc(k.opdrachtNr):""}</b><br><small>Hoort bij ${h?esc(cleanName(h.naam)):"een andere klant"}. Wordt apart ingepland, met een eigen afspraak en factuur. Prijs, frequentie en duur pas je aan bij de opdracht van de klant.</small></div>${h?`<button type="button" data-act="klant" data-id="${esc(h.id)}">${I.right||""}Naar de klant</button>`:""}</div>`}
+
+/* VvE: bestaande opdrachten die nog meegingen met de hoofdopdracht krijgen eenmalig een eigen (losse) opdracht */
+if(typeof window!=="undefined"){let _vveKlaar=false;const t=setInterval(async()=>{if(!state.loaded||_vveKlaar)return;_vveKlaar=true;clearInterval(t);
+  for(const k of state.klanten.filter(x=>x.soort==="vve"&&!x.hoofdKlantId&&x.actief!==false&&(x.opdrachten||[]).some(o=>o.actief!==false&&!opdrJob(x,o.id)))){
+    try{opdrJobsSync._bezig=true;await opdrJobsSync(k.id,k)}catch(e){console.error("vve opdrachten",e)}finally{opdrJobsSync._bezig=false}}},1500)}
