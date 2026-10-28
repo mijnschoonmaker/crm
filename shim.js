@@ -350,7 +350,7 @@
   }
   const naDom = f => document.body ? f() : document.addEventListener("DOMContentLoaded", f, { once: true });
   auth.onAuthStateChanged(u => naDom(() => {
-    if (!u) { if (gestart) location.reload(); else login(false); return; }
+    if (!u) { if (gestart) location.reload(); else { let nw = false; try { nw = new URLSearchParams(location.search).get("account") === "nieuw"; } catch (e) {} login(nw); } return; }
     if (!u.emailVerified) return bevestig(u);
     start(u);
   }));
