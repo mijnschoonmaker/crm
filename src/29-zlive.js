@@ -42,7 +42,7 @@ function overzichtModelKlant(k){const r=normR(k.ramenRegel),fq=(w=>fqSpec(w)?fqS
 function overzichtModelOfferte(f,k){const pct=Number(f.btw??S().btw)||21,inc=f.incl??S().incl;
   return {klant:{naam:(k&&k.naam)||f.klantNaam||"",contact:(k&&k.contact)||"",adres:(k&&k.adres)||"",pcPlaats:k?[String(k.postcode||"").toUpperCase(),k.plaats].filter(Boolean).join(" "):"",klantnummer:k?klantNr(k):""},
     groepen:(f.regels||[]).map(r=>{const pct=rBtw(f,r)||0,tot=(Number(r.aantal)||1)*(Number(r.prijs)||0),incl=inc?tot:r2(tot*(1+pct/100)),excl=inc?r2(tot/(1+pct/100)):tot;
-      const subs=(r.subs||[]).map(x=>({naam:x.naam||"",aantal:x.qty||"",freq:x.fq||""}));
+      const subs=(r.subs||[]).map(x=>({naam:x.naam||"",aantal:x.qty||"",freq:x.fq||"",...(x.tekst?{tekst:x.tekst}:{})}));
       /* frequentie per dienst: uit de regel zelf, anders gelijk aan alle onderdelen, anders de frequentie van de opdracht */
       const m=String(r.omschrijving||"").match(/\((elke [^)]+|1x per [^)]+|wekelijks|maandelijks)\)/i),fs=[...new Set(subs.map(x=>x.freq).filter(Boolean))];
       const freq=r.fq?String(r.fq):m?m[1]:fs.length===1?fs[0]:(f.opdracht&&f.opdracht.frequentie?freqLabel(f.opdracht.frequentie).toLowerCase():"");

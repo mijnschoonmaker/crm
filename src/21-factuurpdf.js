@@ -81,7 +81,7 @@ function paperHtml(f,klant){
   ${f.soort==="offerte"&&offTxt(f.tekst,f)?`<div class="i5-txt">${esc(offTxt(f.tekst,f)).replace(/\n/g,"<br>")}</div>`:""}
   ${f.soort==="offerte"&&f.letop&&offTxt(f.letopTekst,f)?`<div class="i5-letop"><b>Let op:</b><span>${esc(offTxt(f.letopTekst,f)).replace(/\n/g,"<br>")}</span></div>`:""}
   ${m.off?`<table class="i5-t i5-og"><thead><tr><th>Omschrijving</th><th class="c">Aantal</th><th class="r">Prijs excl.</th><th class="r">Btw</th><th class="r">Prijs incl.</th></tr></thead><tbody>
-    ${m.regels.map(r=>`<tr class="i5g-h${r.subs&&r.subs.length?" has":""}"><td><b>${esc(r.oms)}</b></td><td class="c">${r.subs&&r.subs.length?"":r.aantal}</td><td class="r"><b>€ ${num(r.ex)}</b></td><td class="r">${r.btw}%</td><td class="r"><b>€ ${num(r.ex*(1+r.btw/100))}</b></td></tr>${(r.subs||[]).map((x,i,a)=>`<tr class="i5g-s${i===a.length-1?" last":""}"><td>${esc(x.naam)}${x.fq?`<small>${esc(x.fq)}</small>`:""}</td><td class="c">${esc(x.qty||"")}</td><td></td><td></td><td></td></tr>`).join("")}`).join("")}</tbody></table>`
+    ${m.regels.map(r=>`<tr class="i5g-h${r.subs&&r.subs.length?" has":""}"><td><b>${esc(r.oms)}</b></td><td class="c">${r.subs&&r.subs.length?"":r.aantal}</td><td class="r"><b>€ ${num(r.ex)}</b></td><td class="r">${r.btw}%</td><td class="r"><b>€ ${num(r.ex*(1+r.btw/100))}</b></td></tr>${(r.subs||[]).map((x,i,a)=>`<tr class="i5g-s${i===a.length-1?" last":""}"><td>${esc(x.naam)}${x.fq?`<small>${esc(x.fq)}</small>`:""}${x.tekst?`<small class="i5-st">${esc(x.tekst)}</small>`:""}</td><td class="c">${esc(x.qty||"")}</td><td></td><td></td><td></td></tr>`).join("")}`).join("")}</tbody></table>`
   :`<table class="i5-t"><thead><tr><th>Omschrijving</th><th class="c">Aantal</th><th class="r">Prijs</th><th class="r">Bedrag</th></tr></thead><tbody>
     ${m.regels.map(r=>`<tr><td>${esc(r.oms)}</td><td class="c">${r.aantal}</td><td class="r">€ ${num(r.prijs)}</td><td class="r"><b>€ ${num(r.ex)}</b></td></tr>`).join("")}</tbody></table>`}
   <div class="i5-sum"><div class="i5-pay">${m.pay?`<span class="i5-l">Betaalgegevens</span><table>${m.pay.filter(x=>x[0]!=="Uiterlijk").map(([a,b])=>`<tr><th>${esc(a)}</th><td>${esc(b)}</td></tr>`).join("")}</table>`:`<span class="i5-l">${m.off?"Geldigheid":"Betaling"}</span>`}${m.off?`<b class="i5-pnr">Offerte ${esc(f.nummer)}</b>`:""}<p>${esc(m.zin)}</p></div>
@@ -117,14 +117,15 @@ async function pdfDoc(f,klant){
     const oh=()=>{doc.setFillColor(...C.soft);doc.roundedRect(L,y-5,W,9,1.5,1.5,"F");[["Omschrijving",Y.o,"left"],["Aantal",Y.a,"center"],["Prijs excl.",Y.p,"right"],["Btw",Y.b,"right"],["Prijs incl.",Y.t,"right"]].forEach(([t,x,al])=>lab(t,x,y+.6,al));y+=11};
     oh();
     m.regels.forEach((r,i)=>{const subs=r.subs||[];const ls=doc.splitTextToSize(r.oms,Y.a-Y.o-16),rh=ls.length*4+1.5;
-      const sh=subs.reduce((a,x)=>a+(x.fq?8.2:5.2),0);if(y+rh+Math.min(sh,40)>236){doc.addPage();y=20;oh()}
+      doc.setFontSize(6.8);const stl=x=>x.tekst?doc.splitTextToSize(String(x.tekst),Y.a-Y.o-14):[],shx=x=>(x.fq?8.2:5.2)+stl(x).length*2.9;const sh=subs.reduce((a,x)=>a+shx(x),0);if(y+rh+Math.min(sh,40)>236){doc.addPage();y=20;oh()}
       B();doc.setFontSize(9);col(C.ink);doc.text(ls,Y.o,y);if(!subs.length){N();doc.text(String(r.aantal),Y.a,y,{align:"center"})}
       B();doc.text(E(r.ex),Y.p,y,{align:"right"});N();doc.text(r.btw+"%",Y.b,y,{align:"right"});B();doc.text(E(r.ex*(1+r.btw/100)),Y.t,y,{align:"right"});N();
       y+=rh+1;
-      if(subs.length){const top=y-2.6;let hh=subs.reduce((a,x)=>a+(x.fq?8.2:5.2),0)+1.6;
+      if(subs.length){const top=y-2.6;let hh=subs.reduce((a,x)=>a+shx(x),0)+1.6;
         if(top+hh<=262){doc.setFillColor(252,252,253);doc.rect(L+3,top,R-L-6,hh,"F")}
         let yy=y+1.2;subs.forEach(x=>{if(yy>262){doc.addPage();yy=24}N();doc.setFontSize(8.2);col(C.ink);doc.text(doc.splitTextToSize(String(x.naam),Y.a-Y.o-20)[0],Y.o+5,yy);doc.text(String(x.qty||""),Y.a,yy,{align:"center"});
-          if(x.fq){doc.setFontSize(7);col(C.mut);doc.text(String(x.fq),Y.o+5,yy+3.4);col(C.ink)}yy+=x.fq?8.2:5.2});y=yy+1.2}
+          if(x.fq){doc.setFontSize(7);col(C.mut);doc.text(String(x.fq),Y.o+5,yy+3.4);col(C.ink)}
+          {const tl=stl(x);if(tl.length){doc.setFontSize(6.8);doc.setTextColor(160,166,172);doc.text(tl,Y.o+5,yy+(x.fq?6.6:3.4));col(C.ink)}}yy+=shx(x)});y=yy+1.2}
       y+=1.5;doc.setDrawColor(...C.line);doc.setLineWidth(.2);if(i<m.regels.length-1)doc.line(L,y-3,R,y-3);y+=2.4});
   }else{
   head();

@@ -4407,3 +4407,5 @@ html body .tjob.low .tj-bot .tj-dn{display:inline-flex}
 @media (max-width:760px){html body .tjob .tj-kop .tj-dn{display:none}}
 /* opdrachtregel met onderdelen: prijs, frequentie en aanboddatum staan per onderdeel hieronder */
 html body .ow-lg.ow-lg-weg{display:none!important}
+/* offerte: toelichting per onderdeel, klein en lichtgrijs */
+.i5-og tr.i5g-s td small.i5-st{display:block;font-size:7.6px;line-height:1.35;color:#a0a6ac;margin-top:2px;font-weight:400;max-width:96%}

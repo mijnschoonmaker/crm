@@ -4709,6 +4709,8 @@ html body .tjob.low .tj-bot .tj-dn{display:inline-flex}
 @media (max-width:760px){html body .tjob .tj-kop .tj-dn{display:none}}
 /* opdrachtregel met onderdelen: prijs, frequentie en aanboddatum staan per onderdeel hieronder */
 html body .ow-lg.ow-lg-weg{display:none!important}
+/* offerte: toelichting per onderdeel, klein en lichtgrijs */
+.i5-og tr.i5g-s td small.i5-st{display:block;font-size:7.6px;line-height:1.35;color:#a0a6ac;margin-top:2px;font-weight:400;max-width:96%}
 
 </style>
 <style id="mansardThema">
@@ -12203,7 +12205,7 @@ function paperHtml(f,klant){
   ${f.soort==="offerte"&&offTxt(f.tekst,f)?`<div class="i5-txt">${esc(offTxt(f.tekst,f)).replace(/\n/g,"<br>")}</div>`:""}
   ${f.soort==="offerte"&&f.letop&&offTxt(f.letopTekst,f)?`<div class="i5-letop"><b>Let op:</b><span>${esc(offTxt(f.letopTekst,f)).replace(/\n/g,"<br>")}</span></div>`:""}
   ${m.off?`<table class="i5-t i5-og"><thead><tr><th>Omschrijving</th><th class="c">Aantal</th><th class="r">Prijs excl.</th><th class="r">Btw</th><th class="r">Prijs incl.</th></tr></thead><tbody>
-    ${m.regels.map(r=>`<tr class="i5g-h${r.subs&&r.subs.length?" has":""}"><td><b>${esc(r.oms)}</b></td><td class="c">${r.subs&&r.subs.length?"":r.aantal}</td><td class="r"><b>€ ${num(r.ex)}</b></td><td class="r">${r.btw}%</td><td class="r"><b>€ ${num(r.ex*(1+r.btw/100))}</b></td></tr>${(r.subs||[]).map((x,i,a)=>`<tr class="i5g-s${i===a.length-1?" last":""}"><td>${esc(x.naam)}${x.fq?`<small>${esc(x.fq)}</small>`:""}</td><td class="c">${esc(x.qty||"")}</td><td></td><td></td><td></td></tr>`).join("")}`).join("")}</tbody></table>`
+    ${m.regels.map(r=>`<tr class="i5g-h${r.subs&&r.subs.length?" has":""}"><td><b>${esc(r.oms)}</b></td><td class="c">${r.subs&&r.subs.length?"":r.aantal}</td><td class="r"><b>€ ${num(r.ex)}</b></td><td class="r">${r.btw}%</td><td class="r"><b>€ ${num(r.ex*(1+r.btw/100))}</b></td></tr>${(r.subs||[]).map((x,i,a)=>`<tr class="i5g-s${i===a.length-1?" last":""}"><td>${esc(x.naam)}${x.fq?`<small>${esc(x.fq)}</small>`:""}${x.tekst?`<small class="i5-st">${esc(x.tekst)}</small>`:""}</td><td class="c">${esc(x.qty||"")}</td><td></td><td></td><td></td></tr>`).join("")}`).join("")}</tbody></table>`
   :`<table class="i5-t"><thead><tr><th>Omschrijving</th><th class="c">Aantal</th><th class="r">Prijs</th><th class="r">Bedrag</th></tr></thead><tbody>
     ${m.regels.map(r=>`<tr><td>${esc(r.oms)}</td><td class="c">${r.aantal}</td><td class="r">€ ${num(r.prijs)}</td><td class="r"><b>€ ${num(r.ex)}</b></td></tr>`).join("")}</tbody></table>`}
   <div class="i5-sum"><div class="i5-pay">${m.pay?`<span class="i5-l">Betaalgegevens</span><table>${m.pay.filter(x=>x[0]!=="Uiterlijk").map(([a,b])=>`<tr><th>${esc(a)}</th><td>${esc(b)}</td></tr>`).join("")}</table>`:`<span class="i5-l">${m.off?"Geldigheid":"Betaling"}</span>`}${m.off?`<b class="i5-pnr">Offerte ${esc(f.nummer)}</b>`:""}<p>${esc(m.zin)}</p></div>
@@ -12239,14 +12241,15 @@ async function pdfDoc(f,klant){
     const oh=()=>{doc.setFillColor(...C.soft);doc.roundedRect(L,y-5,W,9,1.5,1.5,"F");[["Omschrijving",Y.o,"left"],["Aantal",Y.a,"center"],["Prijs excl.",Y.p,"right"],["Btw",Y.b,"right"],["Prijs incl.",Y.t,"right"]].forEach(([t,x,al])=>lab(t,x,y+.6,al));y+=11};
     oh();
     m.regels.forEach((r,i)=>{const subs=r.subs||[];const ls=doc.splitTextToSize(r.oms,Y.a-Y.o-16),rh=ls.length*4+1.5;
-      const sh=subs.reduce((a,x)=>a+(x.fq?8.2:5.2),0);if(y+rh+Math.min(sh,40)>236){doc.addPage();y=20;oh()}
+      doc.setFontSize(6.8);const stl=x=>x.tekst?doc.splitTextToSize(String(x.tekst),Y.a-Y.o-14):[],shx=x=>(x.fq?8.2:5.2)+stl(x).length*2.9;const sh=subs.reduce((a,x)=>a+shx(x),0);if(y+rh+Math.min(sh,40)>236){doc.addPage();y=20;oh()}
       B();doc.setFontSize(9);col(C.ink);doc.text(ls,Y.o,y);if(!subs.length){N();doc.text(String(r.aantal),Y.a,y,{align:"center"})}
       B();doc.text(E(r.ex),Y.p,y,{align:"right"});N();doc.text(r.btw+"%",Y.b,y,{align:"right"});B();doc.text(E(r.ex*(1+r.btw/100)),Y.t,y,{align:"right"});N();
       y+=rh+1;
-      if(subs.length){const top=y-2.6;let hh=subs.reduce((a,x)=>a+(x.fq?8.2:5.2),0)+1.6;
+      if(subs.length){const top=y-2.6;let hh=subs.reduce((a,x)=>a+shx(x),0)+1.6;
         if(top+hh<=262){doc.setFillColor(252,252,253);doc.rect(L+3,top,R-L-6,hh,"F")}
         let yy=y+1.2;subs.forEach(x=>{if(yy>262){doc.addPage();yy=24}N();doc.setFontSize(8.2);col(C.ink);doc.text(doc.splitTextToSize(String(x.naam),Y.a-Y.o-20)[0],Y.o+5,yy);doc.text(String(x.qty||""),Y.a,yy,{align:"center"});
-          if(x.fq){doc.setFontSize(7);col(C.mut);doc.text(String(x.fq),Y.o+5,yy+3.4);col(C.ink)}yy+=x.fq?8.2:5.2});y=yy+1.2}
+          if(x.fq){doc.setFontSize(7);col(C.mut);doc.text(String(x.fq),Y.o+5,yy+3.4);col(C.ink)}
+          {const tl=stl(x);if(tl.length){doc.setFontSize(6.8);doc.setTextColor(160,166,172);doc.text(tl,Y.o+5,yy+(x.fq?6.6:3.4));col(C.ink)}}yy+=shx(x)});y=yy+1.2}
       y+=1.5;doc.setDrawColor(...C.line);doc.setLineWidth(.2);if(i<m.regels.length-1)doc.line(L,y-3,R,y-3);y+=2.4});
   }else{
   head();
@@ -12469,7 +12472,7 @@ function openOfferte(opts={}){
   const glasNaam=()=>{const g=diensten.find(d=>d.glas);return g&&g.naam||"Glasbewassing"};
   const glasGroep=()=>{const rr=rc?rc.regels:[];if(!rr.length)return [];if(!rr.some(r=>r.sub))return rr;
     return [{omschrijving:glasNaam(),aantal:1,prijs:r2(rr.reduce((a,r)=>a+(Number(r.prijs)||0),0)),subs:rr.filter(r=>r.sub).map(r=>({naam:r.sub,qty:r.qty||"",fq:r.fq||""}))}]};
-  const dnsGroep=()=>dns.map(d=>{const c=dnsCalc(d);return c.rows.length?{omschrijving:d.groepOms||d.naam,aantal:1,prijs:c.ex,subs:d.groepOms?[]:c.rows.map(r=>({naam:r.it.naam,qty:String(r.it.aantal).replace(".",",")+" "+eenhKort(r.it.eenheid),fq:fqTxt(Number(r.it.fq)||Number(d.frequentie)||8)}))}:null}).filter(Boolean);
+  const dnsGroep=()=>dns.map(d=>{const c=dnsCalc(d);return c.rows.length?{omschrijving:d.groepOms||d.naam,aantal:1,prijs:c.ex,subs:d.groepOms?[]:c.rows.map(r=>({naam:r.it.naam,qty:String(r.it.aantal).replace(".",",")+" "+eenhKort(r.it.eenheid),fq:fqTxt(Number(r.it.fq)||Number(d.frequentie)||8),...(String(r.it.tekst||"").trim()?{tekst:String(r.it.tekst).trim()}:{})}))}:null}).filter(Boolean);
   const allRegels=()=>[...glasGroep(),...dnsGroep(),...extra.filter(r=>r.omschrijving||Number(r.prijs))].map(r=>({omschrijving:String(r.omschrijving||""),aantal:Number(r.aantal)||0,prijs:Number(r.prijs)||0,...(r.subs&&r.subs.length?{subs:r.subs}:{})}));
   const glasFreq=()=>{try{const fl=RC.freqList().filter(f=>f.aan!==false||f.k===RC.getFreq()),cur=RC.getFreq();return `<label class="ow-gf">Frequentie glasbewassing<select id="owGF">${fl.map(f=>`<option value="${f.k}" ${f.k===cur?"selected":""}>${esc(f.l)}${f.p?` (${f.p>0?"−":"+"}${Math.abs(f.p)}%)`:""}</option>`).join("")}</select></label>`}catch(e){return ""}};
   const glasW=()=>Number($o("freq").value)||8;
@@ -13446,6 +13449,7 @@ function groepEditor(g,key,{offerte=false,freqDefault=8}={}){const c=groepCalc(g
         <label>Overschrijvende prijs<span class="ow-in"><i>€</i><input type="number" step="0.01" min="0" data-gk="${key}" data-gi="${j}" data-gf="op" value="${esc(gHas(it.op)?it.op:"")}" placeholder="${b.ex.toFixed(2)}"><em>excl.</em></span></label>
         <label>Overschrijvende tijdsduur<span class="ow-in"><input type="number" step="1" min="0" data-gk="${key}" data-gi="${j}" data-gf="od" value="${esc(gHas(it.od)?it.od:"")}" placeholder="${Math.round(b.sec/60)}"><em>min</em></span></label>
         <div class="ow-flber ge-full ge-ber"><span class="subt">${I.calculator} ${String(it.aantal).replace(".",",")} ${esc(eenhKort(it.eenheid))} × ${eur(it.prijs)} = ${(()=>{const br=r2((Number(it.aantal)||0)*(Number(it.prijs)||0)),st=r2(br-b0.ex),fq=r2(b0.ex-b.ex);return st||fq?`${eur(br)}${st>0?` − staffel ${eur(st)}`:""}${fq?` ${fq>0?"− frequentiekorting":"+ toeslag"} ${eur(Math.abs(fq))}`:""} = <b>${eur(b.ex)}</b>`:eur(b.ex)})()} · ${Math.max(1,Math.round(b.sec/60))} min${gHas(it.op)||gHas(it.od)?" · <b>eigen waarde</b>":""}</span><button type="button" class="small" data-gk="${key}" data-gber="${j}" title="Berekent alle onderdelen van deze dienst opnieuw">${I.calculator}Berekenen</button></div>
+        ${offerte?`<label class="ge-full">Toelichting op de offerte<input data-gk="${key}" data-gi="${j}" data-gf="tekst" value="${esc(it.tekst||"")}" placeholder="Bijv. alle ramen aan de binnenzijde, inclusief de serre"><small class="help">Komt klein en lichtgrijs onder “${esc(it.naam)}” op de offerte.</small></label>`:""}
         ${it.vol?`<button type="button" class="linkbtn ge-sync" data-gk="${key}" data-gsync="${j}">Aanboddatum ${esc(fmtD(it.vol))} voor alle onderdelen gebruiken</button>`:""}</div>`:""}</div>`}).join("")})()}
     <div class="ge-tot"><div class="ow-kv"><span>Tijdsduur</span><b>${Math.round(c.sec/60)} minuten${gHas(g.td)?' <small class="subt">(eigen)</small>':""}</b></div><div class="ow-kv"><span>Totaalprijs "${esc(g.naam||g.dienst||"")}"</span><b>${eur(c.ex)} excl. · ${eur(c.ex*(1+btwPct/100))} incl.${gHas(g.tp)?' <small class="subt">(eigen)</small>':""}</b></div></div>
     <div class="ge-over">
@@ -16213,7 +16217,7 @@ function overzichtModelKlant(k){const r=normR(k.ramenRegel),fq=(w=>fqSpec(w)?fqS
 function overzichtModelOfferte(f,k){const pct=Number(f.btw??S().btw)||21,inc=f.incl??S().incl;
   return {klant:{naam:(k&&k.naam)||f.klantNaam||"",contact:(k&&k.contact)||"",adres:(k&&k.adres)||"",pcPlaats:k?[String(k.postcode||"").toUpperCase(),k.plaats].filter(Boolean).join(" "):"",klantnummer:k?klantNr(k):""},
     groepen:(f.regels||[]).map(r=>{const pct=rBtw(f,r)||0,tot=(Number(r.aantal)||1)*(Number(r.prijs)||0),incl=inc?tot:r2(tot*(1+pct/100)),excl=inc?r2(tot/(1+pct/100)):tot;
-      const subs=(r.subs||[]).map(x=>({naam:x.naam||"",aantal:x.qty||"",freq:x.fq||""}));
+      const subs=(r.subs||[]).map(x=>({naam:x.naam||"",aantal:x.qty||"",freq:x.fq||"",...(x.tekst?{tekst:x.tekst}:{})}));
       /* frequentie per dienst: uit de regel zelf, anders gelijk aan alle onderdelen, anders de frequentie van de opdracht */
       const m=String(r.omschrijving||"").match(/\((elke [^)]+|1x per [^)]+|wekelijks|maandelijks)\)/i),fs=[...new Set(subs.map(x=>x.freq).filter(Boolean))];
       const freq=r.fq?String(r.fq):m?m[1]:fs.length===1?fs[0]:(f.opdracht&&f.opdracht.frequentie?freqLabel(f.opdracht.frequentie).toLowerCase():"");
