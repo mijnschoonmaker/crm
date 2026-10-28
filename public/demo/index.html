@@ -12827,7 +12827,7 @@ function openOpdrachtWerk(kid,focus){
     let c=null;try{if(r.items)c=groepCalc(r)}catch(e){}
     const regels=its.length?its.map(x=>`<dt>${esc(x.naam)}</dt><dd>${String(x.aantal).replace(".",",")} ${esc(eenhKort(x.eenheid))}${(Number(x.fq)||base)?` <i>(${esc(fqT(Number(x.fq)||base))})</i>`:""}</dd>`).join(""):`<dt>Hoe vaak</dt><dd>${base?esc(fqT(base)):"—"}</dd>`;
     const ov=r.items&&(gHas(r.tp)||its.some(x=>gHas(x.op)));
-    return `<div class="ow-line ow-dicht"><div class="ow-rk"><div class="ow-rkh"><span class="objic">${I.check}</span><b>${esc(r.dienst||"Dienst")}${r.actief===false?' <small>(niet actief)</small>':""}</b><span class="sp"></span><button type="button" class="iconbtn sm" data-lopen="${i}" aria-label="Wijzigen" title="Wijzigen">${I.pencil}</button><button type="button" class="iconbtn sm" data-rm="${i}" aria-label="Regel verwijderen" title="Verwijderen">${I.x}</button></div>
+    return `<div class="ow-line ow-dicht"><div class="ow-rk"><div class="ow-rkh"><span class="objic">${I.check}</span><b>${esc(r.dienst||"Dienst")}${r.actief===false?' <small>(niet actief)</small>':""}</b><span class="sp"></span>${r.actief===false?`<button type="button" class="small primary" data-aan="${i}">${I.check}Actief maken</button>`:""}<button type="button" class="iconbtn sm" data-lopen="${i}" aria-label="Wijzigen" title="Wijzigen">${I.pencil}</button><button type="button" class="iconbtn sm" data-rm="${i}" aria-label="Regel verwijderen" title="Verwijderen">${I.x}</button></div>
       ${r.oms?`<p class="ow-rko">${esc(r.oms)}</p>`:""}
       <dl class="ow-rkf">${regels}</dl>
       <dl class="ow-rkt">${c&&c.start?`<dt>Starttarief</dt><dd>${eur(c.start)}</dd>`:""}<dt>Tijdsduur</dt><dd>${c?Math.round(c.sec/60):Number(r.duur)||0} minuten</dd><dt>Totaal ${esc(r.dienst||"")}</dt><dd>${eur(c?(S().toonEx?c.ex:c.ex*(1+(Number(st.btw)||21)/100)):toon(r.prijs))}${ov?" <i>(overschrijvend)</i>":""}</dd></dl></div></div>`};
@@ -13023,6 +13023,7 @@ function openOpdrachtWerk(kid,focus){
   $("#owLog").onclick=async()=>{const v=$o("log").value.trim();if(!v)return;const d=collect();d.log=[...(d.log||[]),{datum:iso(today()),tekst:v}];
     try{await save("klanten",kid,d);toast("Genoteerd");setTimeout(()=>openOpdrachtWerk(kid),60)}catch(er){err(er)}};
   /* opslaan per dienst: alles bewaren en in het werkblad blijven */
+  $("#owLines").addEventListener("click",e=>{const a=e.target.closest("[data-aan]");if(!a)return;e.preventDefault();const r=extra[+a.dataset.aan];if(r){r.actief=true;draw();toast("Actief gemaakt · kies Opslaan om te bewaren")}});
   $("#owLines").addEventListener("click",e=>{const o=e.target.closest("[data-lopen]");if(!o)return;const r=extra[+o.dataset.lopen];if(r&&r.id){dicht.delete(r.id);draw()}});
   $("#owLines").addEventListener("click",async e=>{const b=e.target.closest("[data-lsave]");if(!b)return;e.preventDefault();if(await fqMelding())return;b.disabled=true;
     try{let d=collect();if(rcLive&&RC&&RC.current()){const {t}=await RC.telling();if(t)d={...d,ramenTelling:t}}await save("klanten",kid,d);

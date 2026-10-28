@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="e5db7d223197"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="f3e3e596c232"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -13190,7 +13190,7 @@ function openOpdrachtWerk(kid,focus){
     let c=null;try{if(r.items)c=groepCalc(r)}catch(e){}
     const regels=its.length?its.map(x=>`<dt>${esc(x.naam)}</dt><dd>${String(x.aantal).replace(".",",")} ${esc(eenhKort(x.eenheid))}${(Number(x.fq)||base)?` <i>(${esc(fqT(Number(x.fq)||base))})</i>`:""}</dd>`).join(""):`<dt>Hoe vaak</dt><dd>${base?esc(fqT(base)):"—"}</dd>`;
     const ov=r.items&&(gHas(r.tp)||its.some(x=>gHas(x.op)));
-    return `<div class="ow-line ow-dicht"><div class="ow-rk"><div class="ow-rkh"><span class="objic">${I.check}</span><b>${esc(r.dienst||"Dienst")}${r.actief===false?' <small>(niet actief)</small>':""}</b><span class="sp"></span><button type="button" class="iconbtn sm" data-lopen="${i}" aria-label="Wijzigen" title="Wijzigen">${I.pencil}</button><button type="button" class="iconbtn sm" data-rm="${i}" aria-label="Regel verwijderen" title="Verwijderen">${I.x}</button></div>
+    return `<div class="ow-line ow-dicht"><div class="ow-rk"><div class="ow-rkh"><span class="objic">${I.check}</span><b>${esc(r.dienst||"Dienst")}${r.actief===false?' <small>(niet actief)</small>':""}</b><span class="sp"></span>${r.actief===false?`<button type="button" class="small primary" data-aan="${i}">${I.check}Actief maken</button>`:""}<button type="button" class="iconbtn sm" data-lopen="${i}" aria-label="Wijzigen" title="Wijzigen">${I.pencil}</button><button type="button" class="iconbtn sm" data-rm="${i}" aria-label="Regel verwijderen" title="Verwijderen">${I.x}</button></div>
       ${r.oms?`<p class="ow-rko">${esc(r.oms)}</p>`:""}
       <dl class="ow-rkf">${regels}</dl>
       <dl class="ow-rkt">${c&&c.start?`<dt>Starttarief</dt><dd>${eur(c.start)}</dd>`:""}<dt>Tijdsduur</dt><dd>${c?Math.round(c.sec/60):Number(r.duur)||0} minuten</dd><dt>Totaal ${esc(r.dienst||"")}</dt><dd>${eur(c?(S().toonEx?c.ex:c.ex*(1+(Number(st.btw)||21)/100)):toon(r.prijs))}${ov?" <i>(overschrijvend)</i>":""}</dd></dl></div></div>`};
@@ -13386,6 +13386,7 @@ function openOpdrachtWerk(kid,focus){
   $("#owLog").onclick=async()=>{const v=$o("log").value.trim();if(!v)return;const d=collect();d.log=[...(d.log||[]),{datum:iso(today()),tekst:v}];
     try{await save("klanten",kid,d);toast("Genoteerd");setTimeout(()=>openOpdrachtWerk(kid),60)}catch(er){err(er)}};
   /* opslaan per dienst: alles bewaren en in het werkblad blijven */
+  $("#owLines").addEventListener("click",e=>{const a=e.target.closest("[data-aan]");if(!a)return;e.preventDefault();const r=extra[+a.dataset.aan];if(r){r.actief=true;draw();toast("Actief gemaakt · kies Opslaan om te bewaren")}});
   $("#owLines").addEventListener("click",e=>{const o=e.target.closest("[data-lopen]");if(!o)return;const r=extra[+o.dataset.lopen];if(r&&r.id){dicht.delete(r.id);draw()}});
   $("#owLines").addEventListener("click",async e=>{const b=e.target.closest("[data-lsave]");if(!b)return;e.preventDefault();if(await fqMelding())return;b.disabled=true;
     try{let d=collect();if(rcLive&&RC&&RC.current()){const {t}=await RC.telling();if(t)d={...d,ramenTelling:t}}await save("klanten",kid,d);
