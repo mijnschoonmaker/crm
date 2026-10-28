@@ -4405,3 +4405,5 @@ html body .tjob .tj-kop .tj-dc svg{stroke:#fff;width:13px;height:13px}
 html body .tjob .tj-kop .tj-dc.ex{background:rgb(120 160 255 / .28)}
 html body .tjob.low .tj-bot .tj-dn{display:inline-flex}
 @media (max-width:760px){html body .tjob .tj-kop .tj-dn{display:none}}
+/* opdrachtregel met onderdelen: prijs, frequentie en aanboddatum staan per onderdeel hieronder */
+html body .ow-lg.ow-lg-weg{display:none!important}

@@ -4707,6 +4707,8 @@ html body .tjob .tj-kop .tj-dc svg{stroke:#fff;width:13px;height:13px}
 html body .tjob .tj-kop .tj-dc.ex{background:rgb(120 160 255 / .28)}
 html body .tjob.low .tj-bot .tj-dn{display:inline-flex}
 @media (max-width:760px){html body .tjob .tj-kop .tj-dn{display:none}}
+/* opdrachtregel met onderdelen: prijs, frequentie en aanboddatum staan per onderdeel hieronder */
+html body .ow-lg.ow-lg-weg{display:none!important}
 
 </style>
 <style id="mansardThema">
@@ -12802,7 +12804,7 @@ function openOpdrachtWerk(kid,focus){
   const soloKaal=(r,i,isMain)=>!isMain&&soloI===i&&!!r.ramen&&!!String(r.dienst||"").trim();
   const lineHtml=(r,i,isMain)=>!isMain&&r.id&&dicht.has(r.id)?dichtHtml(r,i):`<div class="ow-line${isMain?" main":""}">
       ${isMain&&r.ramen||soloKaal(r,i,isMain)?"":`      <div class="ow-lh"><span class="mono">${isMain?1:i+2}</span><input data-i="${isMain?"m":i}" data-k="dienst" value="${esc(r.dienst)}" placeholder="Dienst" aria-label="Dienst">${isMain?"":`<button type="button" class="small ghost" data-rm="${i}" aria-label="Regel verwijderen">${I.x}</button>`}</div>
-      <div class="ow-lg">
+      <div class="ow-lg${!isMain&&r.items?" ow-lg-weg":""}">
         <label>Prijs per keer (€ ${btwL})<input data-i="${isMain?"m":i}" data-k="prijs" type="number" step="0.01" min="0" value="${esc(r.prijs)}">${isMain?'<small class="help ow-tsl" id="owTsl"></small>':""}</label>
         ${isMain&&r.ramen?`<label>Ritme planning<input value="${esc(freqLabel(mF))}${ritmeUitRamen()?" (kortste frequentie)":""}" disabled></label><label>Tijdsduur per beurt<input value="${mD} min${(k.tijden||[]).length?" (gemeten)":" (berekend)"}" disabled></label>`
           :isMain?`<label>Hoe vaak (ritme planning)<select id="ow-freq">${freqO(mF).map(w=>`<option value="${w}" ${w===mF&&!mW.length?"selected":""}>${esc(freqLabel(w))}</option>`).join("")}<option value="dagen" ${mW.length?"selected":""}>Vaste weekdagen (bijv. VvE)</option></select>${mW.length?`<div class="ow-dagen" role="group" aria-label="Weekdagen">${[1,2,3,4,5,6].map(d=>`<button type="button" data-wd="${d}" aria-pressed="${mW.includes(d)}">${["zo","ma","di","wo","do","vr","za"][d]}</button>`).join("")}</div><small class="help">Elke week op deze dagen; na afmelden staat de volgende dag automatisch in de planning.</small>`:""}</label><label>Tijdsduur per beurt<select id="ow-duur">${[...new Set([5,10,15,20,25,30,35,40,45,50,55,60,75,90,120,150,180,240,mD])].sort((a,b)=>a-b).map(m=>`<option value="${m}" ${m===mD?"selected":""}>${m<60?m+" min":(m/60).toLocaleString("nl-NL")+" uur"}</option>`).join("")}</select>${(k.tijden||[]).length?`<small class="help">Gemeten gemiddeld ${gemTijd(k)} min</small>`:""}</label>`
