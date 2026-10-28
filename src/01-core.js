@@ -143,7 +143,7 @@ const I={
   mark:'<svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2.5" stroke="#fff" stroke-width="1.8"/><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="1.2" opacity=".55"/><path d="M7 17L17 7" stroke="#ebbd4c" stroke-width="2.6" stroke-linecap="round"/></svg>',
 };
 
-const PAGES=[["control","Regiekamer"],["vandaag","Vandaag"],["planning","Planning"],["klanten","Klanten"],["communicatie","Communicatie"],["offertes","Offertes"],["facturen","Facturen"],["uitvoering","Uitvoering"],["inzichten","Statistieken"],["instellingen","Instellingen"],["handleiding","Handleiding"]];
+const PAGES=[["control","Overzicht"],["vandaag","Vandaag"],["planning","Planning"],["klanten","Klanten"],["communicatie","Communicatie"],["offertes","Offertes"],["facturen","Facturen"],["uitvoering","Uitvoering"],["inzichten","Statistieken"],["instellingen","Instellingen"],["handleiding","Handleiding"]];
 const DIENSTEN=["Glasbewassing","Begane grond glas","Binnen en buiten","Dakgoot reinigen","Zonnepanelen reinigen","Kozijnen reinigen","Gevelreiniging","Schoonmaak"];
 const KANAAL={whatsapp:"WhatsApp",sms:"SMS",email:"E-mail"};
 const KOSTCAT=["Materiaal","Brandstof","Auto en bus","Gereedschap","Telefoon en internet","Verzekering","Kleding","Software","Overig"];
