@@ -4339,3 +4339,13 @@ html body .leaflet-container .pl-bus img{width:52px!important;max-width:none!imp
 /* factuur: "onderdeel van" met het Mansard-logo */
 .i5-foot .i5-ov{display:inline-flex;align-items:center;gap:.45em}
 .i5-foot .i5-ml{flex:none;display:inline-block;height:6.6px;aspect-ratio:1216/149;background-color:currentColor;-webkit-mask:url(/mansard-logo.png) center/contain no-repeat;mask:url(/mansard-logo.png) center/contain no-repeat;transform:translateY(.3px)}
+
+/* tellingcontrole: foto's van de klant */
+.tc-fotos{margin:4px 0 14px;padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--surface-2,#f6f7f8)}
+.tc-fotos.leeg{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13.5px}.tc-fotos.leeg svg{width:18px;height:18px;flex:none}
+.tc-fh{display:flex;flex-direction:column;gap:2px;margin-bottom:10px}.tc-fh b{font-size:14px}.tc-fh small{color:var(--muted);font-size:12.5px}
+.tc-fg{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.tc-fg button{position:relative;display:block;padding:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;cursor:zoom-in;transition:transform .15s,box-shadow .15s}
+.tc-fg button:hover{transform:translateY(-1px);box-shadow:0 8px 18px -12px rgba(13,18,27,.45)}
+.tc-fg .fwrap{position:relative;display:block;width:100%}.tc-fg .fwrap img{width:100%;height:100%;object-fit:cover;display:block}
+.tc-fg em{position:absolute;top:6px;right:6px;font-style:normal;font-size:11px;font-weight:800;color:#fff;background:rgba(13,18,27,.7);padding:2px 7px;border-radius:99px}

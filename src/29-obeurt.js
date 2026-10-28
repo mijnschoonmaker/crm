@@ -15,12 +15,18 @@ function oBeurtBlok(k){if(!isOBeurt(k))return "";const f=tcFloors(k),sp=tcSp(k),
     <div class="obt-f">${f.map((n,i)=>n?`<span>${esc(TC_FL[i])} <b>${n}</b></span>`:"").join("")}${SPK.map(x=>sp[x]?`<span>${esc(TC_SPN[x])} <b>${sp[x]}</b></span>`:"").join("")}</div>
     ${fo.length?`<div class="obt-fo">${fo.map((x,i)=>`<button type="button" data-tcfo="${esc(k.id)}:${i}" aria-label="Foto ${i+1}"><img src="${BLOB+esc(x.id)}" alt="" loading="lazy"><em>${(x.dots||[]).length}</em></button>`).join("")}</div>`:""}
     <button type="button" class="small${g?"":" primary"}" data-tctl="${esc(k.id)}">${g?I.calculator+"Telling aanpassen":I.camera+"Telling controleren"}</button></div>`}
+function tcFotosHtml(tf){if(!tf.length)return `<div class="tc-fotos leeg">${I.camera||""}<span>De klant heeft geen foto's meegestuurd. Tel de ramen ter plekke.</span></div>`;
+  const n=tf.reduce((a,f)=>a+(f.dots||[]).length,0);
+  return `<div class="tc-fotos"><div class="tc-fh"><b>Foto's van de klant</b><small>${tf.length} ${tf.length===1?"foto":"foto's"}${n?` · ${n} ramen aangetikt`:""} · tik om groot te bekijken</small></div>
+    <div class="tc-fg" id="tcFg">${tf.map((f,i)=>`<button type="button" data-tcf="${i}" aria-label="${esc(f.naam||"Foto")} bekijken"><span class="fwrap" style="aspect-ratio:${f.w&&f.h?f.w+"/"+f.h:"4/3"}"><img src="${BLOB}${esc(f.id)}" alt="" loading="lazy">${dotsHtml(f)}</span>${(f.dots||[]).length?`<em>${(f.dots||[]).length}</em>`:""}</button>`).join("")}</div></div>`}
 function openTellingControle(kid,na){const k=state.klanten.find(x=>x.id===kid);if(!k)return;
   const gc=k.tellingGecontroleerd,voor=(gc&&gc.origF)||tcFloors(k),vsp=(gc&&gc.origSp)||tcSp(k),f=tcFloors(k).slice(),sp={...tcSp(k)};
   const p0=gc?gc.prijsVoor:Number(k.prijs)||0;let fotos=null,ai=false,spOpen=SPK.some(x=>sp[x]||vsp[x]);
+  /* foto's van de klant (uit de dienstenwebshop, met de aangetikte ramen) en eerder gemaakte controlefoto's */
+  const tf=[...(((k.ramenTelling||{}).fotos)||[]).filter(x=>x&&x.id).map((x,i)=>({...x,naam:x.zijde||("Foto "+(i+1)+" van de klant"),t:1})),...(k.fotos||[]).filter(x=>x&&x.id),...((gc&&gc.fotos)||[]).filter(x=>x&&x.id).map(x=>({...x,naam:"Controle · "+(x.zijde||"foto")}))].filter((x,i,a)=>a.findIndex(y=>y.id===x.id)===i);
   openDlg(`<div class="dlg-head"><span class="objic big">${I.calculator}</span><div style="flex:1;min-width:0"><h3>Tellingcontrole</h3><div class="subt">${esc(cleanName(k.naam))} · ${esc(fullAddr(k))}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
-    
-    <div class="tc-or"><span>of tel zelf</span></div>
+    ${tcFotosHtml(tf)}
+    <div class="tc-or"><span>${tf.length?"jouw telling":"tel zelf"}</span></div>
     <div class="tc-rows" id="tcRows"></div><div id="tcSum"></div>
     <div class="row stickyfoot"><button type="button" class="ghost" data-act="close">Annuleren</button><span class="sp"></span><button type="submit" class="primary" id="tcGo">${I.check}Telling klopt</button></div>`,{wide:false});
   const same=()=>f.every((n,i)=>n===voor[i])&&SPK.every(x=>sp[x]===vsp[x]);
@@ -33,6 +39,7 @@ function openTellingControle(kid,na){const k=state.klanten.find(x=>x.id===kid);i
       :`<div class="warnbox">${I.alert}<span>Klant telde <b>${tv}</b>, jij telt <b>${tn}</b> ramen. ${c&&c.prijs===p0?`Prijs blijft <b>${esc(eur(p0))}</b> per beurt (minimumprijs of zelfde tarief).`:`Nieuwe prijs ${c?`<b>${esc(eur(c.prijs))}</b> per beurt (was ${esc(eur(p0))}), ± ${c.duur} min`:"wordt herberekend"}.`}</span></div>`;
     $("#tcGo").innerHTML=I.check+(sm?"Telling klopt":"Telling opslaan")};
   draw();
+  {const g=$("#tcFg");if(g)g.onclick=e=>{const b=e.target.closest("[data-tcf]");if(b)openFotoViewer(tf,+b.dataset.tcf,{edit:false,titel:"Foto van de klant: controleer de aangetikte ramen"})}}
   if($("#tcAi"))$("#tcAi").onclick=()=>openFotoTelling(k,fotos,res=>{fotos=res.fotos;ai=true;f.splice(0,4,...res.f);SPK.forEach(x=>sp[x]=res.sp[x]||0);if(SPK.some(x=>sp[x]))spOpen=true;draw();
     $("#tcAi").classList.add("klaar");$("#tcAi>i").innerHTML=I.check;$("#tcAiS").textContent=`${res.fotos.length} foto's · ${totN()} ramen geteld. Tik om de foto's te bekijken of te verbeteren.`;
     $("#tcRows").animate([{opacity:.3,transform:"translateY(6px)"},{opacity:1,transform:"none"}],{duration:420,easing:"cubic-bezier(.2,.8,.2,1)"})});
