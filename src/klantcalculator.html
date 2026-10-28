@@ -975,6 +975,12 @@ html body:not(#zz) .scr-tally .st-h b,html body:not(#zz) .et-h b{font-weight:600
 html body:not(#zz) .scr-chips b,html body:not(#zz) .scr-chips span{font-weight:600!important}
 html body:not(#zz) .i2-go{height:48px;padding:0 24px!important;border-radius:6px!important;font:700 11px/1 var(--body)!important;letter-spacing:.2em!important;text-transform:uppercase;gap:10px}
 html body:not(#zz) .i2-go svg{width:17px!important;height:17px!important}
+/* bolletje-schuif in het aantik-scherm */
+.ed .dot{transform:scale(var(--ds,1))}
+.ed-sl{display:flex;align-items:center;gap:12px;padding:12px 2px 0;font:600 13px var(--f-ui);color:#6b7180}
+.ed-sl span{min-width:62px}
+.ed-sl input{flex:1;max-width:320px;accent-color:#e5484d}
+.ed-sl i{flex:none;display:block;border-radius:50%;background:#e5484d;border:1.5px solid #fff;box-shadow:0 1px 4px rgb(0 0 0 / .35)}
 </style>
 </head>
 <body>
@@ -1114,6 +1120,7 @@ html body:not(#zz) .i2-go svg{width:17px!important;height:17px!important}
   <div class="ed-tally" id="ed-tally" aria-live="polite"></div>
   <div class="ed-lab">Ik tik nu aan:</div>
   <div class="ed-types" id="ed-types" role="radiogroup" aria-label="Soort raam voor nieuwe stippen"></div>
+  <label class="ed-sl"><span>Bolletje</span><input type="range" id="ed-size" min="5" max="25" value="10" aria-label="Grootte van het volgende bolletje"><i id="ed-pv"></i></label>
   <div class="ed-bar"><button type="button" id="ed-undo">Ongedaan</button><button type="button" id="ed-clear">Alles wissen</button><button type="button" class="done" id="ed-done">Klaar</button></div>
 </div>
 
@@ -1195,7 +1202,7 @@ const FR=(()=>{if(window.parent===window||window.claude)return null;document.doc
     if(!on)setTimeout(send,30)}};
 })();
 /* ---------- foto's met stippen ---------- */
-let photos=[],edIdx=-1,curType="f0",synced={};
+let photos=[],edIdx=-1,curType="f0",synced={},edDs=1;
 function loadPhoto(file){return new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();
   im.onload=()=>{const max=1600,k=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight)),cv=document.createElement("canvas");cv.width=Math.round(im.naturalWidth*k);cv.height=Math.round(im.naturalHeight*k);
     cv.getContext("2d").drawImage(im,0,0,cv.width,cv.height);URL.revokeObjectURL(u);res({cv,url:cv.toDataURL("image/jpeg",.86),dots:[]})};
@@ -1225,7 +1232,7 @@ function renderTypes(){const p=photos[edIdx];if(!typeList().includes(curType))cu
     return t.startsWith("s-")?`<span class="ed-tw">${chip}<button type="button" class="ed-i" data-info="${t}" aria-label="Uitleg ${esc(m.n)}">i</button></span>`:chip}).join("");renderTally()}
 function renderDots(){const w=g("ed-wrap");w.querySelectorAll(".dot").forEach(n=>n.remove());const p=photos[edIdx];if(!p)return;
   p.dots.forEach((d,j)=>{const m=dt(d.t),b=document.createElement("button");b.type="button";b.className="dot";b.dataset.j=j;b.textContent=m.c;
-    b.style.background=m.col;if(m.c.length>1)b.classList.add("sm");b.style.left=(d.x*100)+"%";b.style.top=(d.y*100)+"%";b.setAttribute("aria-label",`${m.n}: stip weghalen`);w.appendChild(b)});
+    b.style.background=m.col;if(m.c.length>1)b.classList.add("sm");b.style.left=(d.x*100)+"%";b.style.top=(d.y*100)+"%";if(d.s&&d.s!==1)b.style.setProperty("--ds",d.s);b.setAttribute("aria-label",`${m.n}: stip weghalen`);w.appendChild(b)});
   renderTypes()}
 function dotSummary(dots){const cnt={};dots.forEach(d=>cnt[d.t]=(cnt[d.t]||0)+1);return typeList().filter(t=>cnt[t]).map(t=>[t,cnt[t]])}
 function renderPhsum(){const sum=dotSummary(photos.flatMap(p=>p.dots)),box=g("phsum");box.hidden=!sum.length;
@@ -1348,13 +1355,13 @@ function aanvraagData(){const R=last,v=id=>g(id).value.trim();
     soort:SOORT,klant:{bedrijf:SOORT==="zakelijk"?v("k-bedrijf"):"",naam:v("k-naam"),adres:v("k-adres"),postcode:v("k-pc"),plaats:v("k-plaats"),email:v("k-email"),telefoon:v("k-tel"),opmerking:v("k-opm")},
     telling:{floors:floors.slice(),special:{...special},freq:g("freq").value,ramen:R.count},
     prijs:{excl:Math.round(R.ex*100)/100,incl:Math.round(R.inc*100)/100},
-    fotos:photos.map((p,i)=>({naam:`woning-foto-${i+1}.jpg`,breedte:p.cv.width,hoogte:p.cv.height,dots:p.dots.map(d=>({x:Math.round(d.x*1e4)/1e4,y:Math.round(d.y*1e4)/1e4,t:d.t}))}))}}
+    fotos:photos.map((p,i)=>({naam:`woning-foto-${i+1}.jpg`,breedte:p.cv.width,hoogte:p.cv.height,dots:p.dots.map(d=>({x:Math.round(d.x*1e4)/1e4,y:Math.round(d.y*1e4)/1e4,t:d.t,...(d.s&&d.s!==1?{s:d.s}:{})}))}))}}
 function knopKlaar(b,t){b.disabled=true;b.dataset.klaar="1";b.classList.add("klaar");b.textContent=t||"Verstuurd ✓"}
 const bezig=b=>b.disabled||b.dataset.klaar==="1";
 async function naarServer(){const b=g("indienen");if(bezig(b)||!check())return;b.disabled=true;say("Bezig met versturen…");
   try{const fd=new FormData();fd.append("aanvraag",JSON.stringify(aanvraagData()));
     photos.forEach((p,i)=>fd.append("foto"+(i+1),p.blob||dataUrlBlob(p.url),`woning-foto-${i+1}.jpg`));
-    fd.append("fotometa",JSON.stringify(photos.map(p=>({w:p.cv.width,h:p.cv.height,dots:p.dots.map(d=>({x:d.x,y:d.y,t:d.t}))}))));
+    fd.append("fotometa",JSON.stringify(photos.map(p=>({w:p.cv.width,h:p.cv.height,dots:p.dots.map(d=>({x:d.x,y:d.y,t:d.t,...(d.s&&d.s!==1?{s:d.s}:{})}))}))));
     const r=await fetch(BEDRIJF.endpoint,{method:"POST",body:fd});if(!r.ok)throw new Error(r.status);
     knopKlaar(b,"Aanvraag verstuurd ✓");say("Bedankt! Uw aanvraag is verstuurd. Wij nemen zo snel mogelijk contact met u op.","ok")}
   catch(e){say("Versturen lukte niet. Probeer het via WhatsApp of e-mail.","bad");g("indienen").onclick=()=>deel("mail")}
@@ -1465,7 +1472,9 @@ g("photos").addEventListener("keydown",e=>{const ph=e.target.closest(".ph");if(p
 g("ed-wrap").addEventListener("click",e=>{const p=photos[edIdx];if(!p)return;const dot=e.target.closest(".dot");
   if(dot){p.dots.splice(+dot.dataset.j,1);renderDots();return}
   const r=g("ed-img").getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;if(x<0||x>1||y<0||y>1)return;
-  p.dots.push({x,y,t:curType});lastTap=curType;renderDots()});
+  p.dots.push(edDs!==1?{x,y,t:curType,s:edDs}:{x,y,t:curType});lastTap=curType;renderDots()});
+/* schuif: maat van het volgende bolletje; gezette stippen houden hun maat */
+{const sl=g("ed-size"),pv=g("ed-pv");if(sl){const upd=()=>{edDs=(+sl.value||10)/10;pv.style.width=pv.style.height=Math.round(10*edDs)+"px"};sl.addEventListener("input",upd);upd()}}
 g("ed-undo").onclick=()=>{const p=photos[edIdx];if(p&&p.dots.length){p.dots.pop();renderDots()}};
 g("ed-clear").onclick=()=>{const p=photos[edIdx];if(p){p.dots=[];renderDots()}};
 g("ed-done").onclick=closeEd;
@@ -1585,7 +1594,7 @@ g("k-pc").addEventListener("blur",e=>{const v=e.target.value.replace(/\s+/g,"").
 g("goStart").onclick=()=>g("ph-in").click();
 /* geopend in het crm (Calculator bekijken): aanvraag gaat rechtstreeks het crm in als klant en opdracht */
 async function naarCrm(){const b=g("indienen");if(bezig(b)||!check())return;b.disabled=true;say("Bezig met versturen…");
-  const fotos=photos.map((p,i)=>({blob:p.blob||dataUrlBlob(p.url),naam:`woning-foto-${i+1}.jpg`,w:p.cv.width,h:p.cv.height,dots:p.dots.map(d=>({x:d.x,y:d.y,t:d.t}))}));
+  const fotos=photos.map((p,i)=>({blob:p.blob||dataUrlBlob(p.url),naam:`woning-foto-${i+1}.jpg`,w:p.cv.width,h:p.cv.height,dots:p.dots.map(d=>({x:d.x,y:d.y,t:d.t,...(d.s&&d.s!==1?{s:d.s}:{})}))}));
   let klaar=false;const op=e=>{const d=e.data||{};if(d.type!=="zeem-aanvraag-ok"&&d.type!=="zeem-aanvraag-fout")return;klaar=true;window.removeEventListener("message",op);b.disabled=false;
     if(d.type==="zeem-aanvraag-ok")knopKlaar(b,"Aanvraag verstuurd ✓");if(d.type==="zeem-aanvraag-ok")say("Bedankt! Uw aanvraag is verstuurd. Wij nemen zo snel mogelijk contact met u op.","ok");else say("Versturen lukte niet: "+(d.tekst||"probeer het opnieuw."),"bad")};
   window.addEventListener("message",op);
