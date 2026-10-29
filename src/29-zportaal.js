@@ -26,16 +26,37 @@ function aanbevelingVrijgeven(id){setTimeout(async()=>{
   try{
     await save("klanten",k.id,{...strip(k),aanbevelingBeloond:true,log:[...(k.log||[]),{datum:iso(today()),tekst:"Eerste afspraak uitgevoerd: aanbevelingskorting voor "+cleanName(r.naam)+" vrijgegeven"}]});
     const r2_=state.klanten.find(x=>x.id===r.id)||r;
-    await save("klanten",r.id,{...strip(r2_),tegoed:[...(r2_.tegoed||[]),{id:newId("tg"),bedrag,reden:"Korting klantaanbeveling ("+vn+")",van:k.id,op:iso(today())}],log:[...(r2_.log||[]),{datum:iso(today()),tekst:eur(bedrag)+" aanbevelingskorting vrijgegeven ("+cleanName(k.naam)+" is klant geworden)"}]});
+    await save("klanten",r.id,{...strip(r2_),tegoed:[...(r2_.tegoed||[]),{id:newId("tg"),bedrag,reden:"Korting klantaanbeveling ("+vn+")",bron:"aanbevelen",van:k.id,op:iso(today())}],log:[...(r2_.log||[]),{datum:iso(today()),tekst:eur(bedrag)+" aanbevelingskorting vrijgegeven ("+cleanName(k.naam)+" is klant geworden)"}]});
     toast(eur(bedrag)+" korting vrijgegeven voor "+cleanName(r.naam)+" · gaat van de volgende factuur af")
   }catch(e){console.error(e)}},400)}
 const voornaam=n=>{let s=String(n||"").trim();if(s.includes(","))s=s.split(",").slice(1).join(",").trim()||s;return s.split(/\s+/)[0]||s};
 
+/* ---------- code van een buur (geef € 5, krijg € 10) ----------
+   Elke klant heeft een eigen code (refCode). Een nieuwe klant die met die code komt (website, dienstenwebshop of offerte in het CRM):
+   - krijgt de welkomstkorting als tegoed (gaat van de eerste factuur af),
+   - de aanbrenger krijgt zijn beloning zodra de eerste afspraak is uitgevoerd (aanbevelingVrijgeven). */
+const refEur=n=>{const v=Number(n)||0;return "€ "+(Number.isInteger(v)?String(v):eur(v).replace(/^€\s*/,""))};
+const refNorm=c=>String(c||"").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,12);
+function refVan(code,zelfId){const c=refNorm(code);if(c.length<3)return null;const r=state.klanten.find(k=>k.refCode===c);return r&&r.id!==zelfId?r:null}
+function refCodeNieuw(k){const n=String(k.contact||k.naam||"").trim(),s=n.includes(",")?n.split(",").slice(1).join(",").trim()+" "+n.split(",")[0].trim():n;
+  const b=(cleanName(s).split(/\s+/)[0]||"").normalize("NFD").replace(/[^A-Za-z]/g,"").toUpperCase().slice(0,6)||"VRIEND",bezet=new Set(state.klanten.map(x=>x.refCode).filter(Boolean));
+  for(let i=0;i<60;i++){const c=b+(10+Math.floor(Math.random()*90));if(!bezet.has(c))return c}return b+Math.random().toString(36).slice(2,6).toUpperCase()}
+async function refCodeZorg(id){const k=state.klanten.find(x=>x.id===id);if(!k)return"";if(k.refCode)return k.refCode;const c=refCodeNieuw(k);await save("klanten",k.id,{...strip(k),refCode:c});return c}
+const refLink=c=>(LIVE?location.origin:"https://app.mansard.nl")+"/aanbevolen/"+encodeURIComponent(c);
+/* koppelen aan een aanbrenger: alleen als deze klant nog niet aan iemand gekoppeld is; welkomstkorting maar één keer */
+function refKoppelPatch(k,r){if(!r||!refAan()||(k&&k.aanbevolenDoor))return{};
+  const w=refWelkom(),heeft=k&&[...(k.tegoed||[]),...(k.tegoedGebruikt||[])].some(t=>t&&(t.bron==="welkom"||/^Welkomstkorting/.test(String(t.reden||""))));
+  return{aanbevolenDoor:r.id,aanbevolenCode:r.refCode||"",
+    ...(w>0&&!heeft?{tegoed:[...((k&&k.tegoed)||[]),{id:newId("tg"),bedrag:w,reden:"Welkomstkorting (aanbevolen door "+voornaam(r.contact||cleanName(r.naam))+")",bron:"welkom",op:iso(today())}]}:{}),
+    log:[...((k&&k.log)||[]),{datum:iso(today()),tekst:"Aanbevolen door "+cleanName(r.naam)+" (code "+(r.refCode||"")+")"+(w>0&&!heeft?" · "+eur(w)+" welkomstkorting op de eerste factuur":"")}]}}
+
 /* aanvraag via een aanbevelingslink: koppel en geef de welkomstkorting */
 function aanbevelingBijAanvraag(D){
+  if(D&&!D.aanbevolenDoor&&D.ref){const r0=refVan(D.ref);if(r0)D={...D,aanbevolenDoor:r0.id,ref:r0.refCode}}
   if(!D||!D.aanbevolenDoor||!refAan())return{};
-  const r=state.klanten.find(x=>x.id===D.aanbevolenDoor),w=refWelkom();
-  return{aanbevolenDoor:D.aanbevolenDoor,aanbevolenCode:D.ref||"",...(w>0?{tegoed:[{id:newId("tg"),bedrag:w,reden:"Welkomstkorting"+(r?" (aanbevolen door "+voornaam(r.contact||cleanName(r.naam))+")":""),op:iso(today())}]}:{})}}
+  const r=state.klanten.find(x=>x.id===D.aanbevolenDoor),w=refWelkom();if(!r)return{};
+  {const n=x=>String(x||"").toLowerCase().replace(/[^a-z0-9]/g,""),kk=D.klant||{};if(n(r.adres)&&n(r.adres)===n(kk.adres)&&n(r.postcode)===n(kk.postcode))return{}}  // eigen code op eigen adres telt niet
+  return{aanbevolenDoor:D.aanbevolenDoor,aanbevolenCode:D.ref||"",...(w>0?{tegoed:[{id:newId("tg"),bedrag:w,reden:"Welkomstkorting"+(r?" (aanbevolen door "+voornaam(r.contact||cleanName(r.naam))+")":""),bron:"welkom",op:iso(today())}]}:{})}}
 
 /* instructies van de klant (uit het portaal) bij de afspraak */
 function toegangHtml(k){const t=k&&k.portaalToegang;if(!t||(!(t.opties||[]).length&&!t.tekst&&!t.code))return"";
@@ -50,11 +71,13 @@ function kkPortaal(k){
   return `<section class="kp"><div class="kp-h pt-h"><span class="objic" style="background:#e9a23b;color:#fff">${I.spark||I.user}</span><b>Klantportaal & aanbevelen</b><span class="sp"></span>${LIVE?`<span class="pt-acts"><button type="button" class="small" data-act="tknieuw" data-id="${esc(k.id)}">${I.ticket}Ticket</button><button type="button" class="small" data-act="ptkijk" data-id="${esc(k.id)}">${I.eye||I.globe||""}Portaal bekijken</button><button type="button" class="small" data-act="ptinvite" data-id="${esc(k.id)}">${I.send}${k.portaalLaatst||k.portaalUitgenodigd?"Opnieuw uitnodigen":"Uitnodigen"}</button></span>`:""}</div>
     <div class="pt-kk">
       <div><small>Portaal</small><b>${k.portaalLaatst?"Laatst ingelogd "+esc(fmtD(k.portaalLaatst.slice(0,10))):k.portaalUitgenodigd?"Uitgenodigd "+esc(fmtD(k.portaalUitgenodigd.slice(0,10))):"Nog niet gebruikt"}</b></div>
-      <div><small>Aanbevelingscode</small><b>${esc(k.refCode||"Wordt gemaakt bij eerste login")}</b></div>
+      <div><small>Aanbevelingscode</small><b>${k.refCode?esc(k.refCode):`<button type="button" class="linkbtn" data-act="refmaak" data-id="${esc(k.id)}">Code maken</button>`}</b></div>
       <div><small>Tegoed</small><b${som>0?' style="color:var(--ok)"':""}>${som>0?eur(som):"—"}</b></div>
       <div><small>Automatische incasso</small><b${k.incasso&&k.mollieMandateId?' style="color:var(--ok)"':""}>${k.incasso&&k.mollieMandateId?"Actief"+(k.incassoRekening?" · "+esc(k.incassoRekening):"")+(k.incassoSinds?" · sinds "+esc(fmtD(k.incassoSinds)):""):"Niet ingesteld"}</b></div>
     </div>
     ${tg.length?`<div class="kd-sub"><span class="eyebrow">Gaat van de volgende factuur af</span>${tg.map(t=>`<span class="kd-li"><i style="background:var(--ok)"></i>${esc(t.reden||"Korting")}<em>${eur(t.bedrag)}</em></span>`).join("")}</div>`:""}
+    ${refAan()&&k.refCode&&k.actief!==false&&!k.prospect?`<div class="kd-sub ref-deel"><span class="eyebrow">Geef ${refEur(refWelkom())}, krijg ${refEur(refBeloning())} · persoonlijke link</span><span class="kd-li"><i style="background:#e9a23b"></i><span class="mono" style="overflow:hidden;text-overflow:ellipsis">${esc(refLink(k.refCode).replace(/^https?:\/\//,""))}</span><em><button type="button" class="tiny ghost" data-act="refkopie" data-id="${esc(k.id)}">${I.copy||""}Kopieer</button>${k.telefoon||k.mobiel?`<button type="button" class="tiny ghost" data-act="refwa" data-id="${esc(k.id)}">WhatsApp</button>`:""}</em></span></div>`:""}
+    ${refAan()&&!door&&!(state.beurten||[]).some(b=>b.klantId===k.id)?`<div class="kd-sub"><span class="eyebrow">Aanbevolen door een klant?</span><span class="kd-li ref-in"><input class="ref-kk" data-id="${esc(k.id)}" placeholder="Code, bijv. HANS68" maxlength="12" autocomplete="off" spellcheck="false" aria-label="Code van de aanbrenger"><button type="button" class="tiny" data-act="refkoppel" data-id="${esc(k.id)}">Koppelen</button></span></div>`:""}
     ${door?`<div class="kd-sub"><span class="eyebrow">Aanbevolen door</span><span class="kd-li"><i style="background:#e9a23b"></i><button type="button" class="linkbtn" data-act="klant" data-id="${esc(door.id)}">${esc(cleanName(door.naam))}</button><em>${k.aanbevelingBeloond?"korting vrijgegeven":"korting on hold"}</em></span></div>`:""}
     ${aangebracht.length?`<div class="kd-sub"><span class="eyebrow">Heeft aangebracht (${aangebracht.length})</span>${aangebracht.map(x=>{const s=st(x);return `<span class="kd-li"><i style="background:var(--${s[0]==="ok"?"ok":s[0]==="soon"?"soon":"muted"})"></i><button type="button" class="linkbtn" data-act="klant" data-id="${esc(x.id)}">${esc(cleanName(x.naam))}</button><em>${s[1]}</em></span>`}).join("")}</div>`:""}
     ${toegangHtml(k)}
@@ -275,3 +298,19 @@ function tkNieuw(kid){if(!tkOpen)return;if(tkOpen.unsub)tkOpen.unsub();tkOpen.un
       await fsDb().doc("tickets/"+id).set({klantId:k.id,klantNaam:k.naam||"",adres:[k.adres,k.plaats].filter(Boolean).join(", "),nummer:"T-"+tel,onderwerp:ond,categorie:$("#tkNc").value,status:"behandeling",aangemaakt:op,laatst:op,laatsteTekst:tekst,laatsteVan:"team",ongelezenTeam:0,ongelezenKlant:1,gezienTeam:op,bron:"crm"});
       await fsDb().collection("ticketBerichten").doc(newId("tb")).set({ticketId:id,klantId:k.id,van:"team",tekst,foto,op,door:(state.me&&state.me.email)||"",doorNaam:tkNaam()});
       fbFn("ticketMelding")({ticketId:id,basis:location.origin}).catch(()=>{});toast("Ticket T-"+tel+" aangemaakt");setTimeout(()=>tkDetail(id),300)}catch(e){err(e);s.disabled=false}})}
+
+/* klantkaart: code maken, link delen, en achteraf een aanbrenger koppelen */
+document.addEventListener("click",async e=>{const b=e.target.closest&&e.target.closest("[data-act^='ref']");if(!b)return;const a=b.dataset.act,id=b.dataset.id;
+  if(!["refmaak","refkopie","refwa","refkoppel"].includes(a))return;e.preventDefault();e.stopPropagation();const k=state.klanten.find(x=>x.id===id);if(!k)return;
+  if(a==="refmaak"){b.disabled=true;try{const c=await refCodeZorg(id);toast("Code "+c+" gemaakt");kkHerteken(id)}catch(er){err(er);b.disabled=false}return}
+  if(a==="refkopie"){const c=await refCodeZorg(id);try{await navigator.clipboard.writeText(refLink(c));toast("Link gekopieerd")}catch(_){toast(refLink(c))}return}
+  if(a==="refwa"){const c=await refCodeZorg(id),S_=S(),tekst=`Hoi ${voornaam(k.contact||cleanName(k.naam))}, fijn dat u klant bent! Kent u iemand die ook schone ramen wil? Met uw persoonlijke link krijgt uw buur ${refEur(refWelkom())} korting op de eerste factuur en u krijgt ${refEur(refBeloning())} korting zodra wij er voor het eerst zijn geweest:\n${refLink(c)}\n\nUw code: ${c}\n\nGroet, ${S_.naam||""}`;
+    const u=waLink(k.mobiel||k.telefoon,tekst);if(u)window.open(u,"_blank","noopener");return}
+  if(a==="refkoppel"){const inp=b.parentElement.querySelector(".ref-kk"),c=refNorm(inp&&inp.value),r=refVan(c,id);
+    if(!c){toast("Vul de code van de aanbrenger in");if(inp)inp.focus();return}
+    if(!r){toast("Code "+c+" is niet bekend");if(inp)inp.focus();return}
+    if(r.aanbevolenDoor===id){toast("Deze klanten kunnen elkaar niet allebei aanbevelen");return}
+    if(!(await vraag("Aanbrenger koppelen",`${esc(cleanName(k.naam))} is aanbevolen door <b>${esc(cleanName(r.naam))}</b>.<br>${refWelkom()>0?esc(eur(refWelkom()))+" welkomstkorting gaat van de eerste factuur af. ":""}${esc(voornaam(r.contact||cleanName(r.naam)))} krijgt ${esc(eur(refBeloning()))} zodra de eerste afspraak is uitgevoerd.`,"Koppelen")))return;
+    b.disabled=true;try{const cur=state.klanten.find(x=>x.id===id)||k;await save("klanten",id,{...strip(cur),...refKoppelPatch(cur,r)});toast("Gekoppeld aan "+cleanName(r.naam));kkHerteken(id)}catch(er){err(er);b.disabled=false}}});
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.classList&&e.target.classList.contains("ref-kk")){e.preventDefault();const b=e.target.parentElement.querySelector("[data-act=refkoppel]");if(b)b.click()}});
+function kkHerteken(id){try{const p=document.querySelector("dialog[open]");if(p&&typeof openKlantView==="function"&&p.querySelector(".kp"))setTimeout(()=>openKlantView(id),60);else render()}catch(e){}}

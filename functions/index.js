@@ -482,6 +482,22 @@ function leesMultipart(req) {
   });
 }
 exports.aanvraag = onRequest({ cors: true, memory: "512MiB", timeoutSeconds: 60 }, async (req, res) => {
+  /* code van een buur controleren vanuit de dienstenwebshop / website: GET ?ref=CODE (geeft alleen de voornaam en de welkomstkorting) */
+  if (req.method === "GET" && req.query && req.query.ref != null) {
+    try {
+      const ip = String(req.headers["x-forwarded-for"] || req.ip || "").split(",")[0].trim(), uur = new Date().toISOString().slice(0, 13);
+      const rl = db.doc("limiet/r" + crypto.createHash("sha1").update(ip + uur).digest("hex"));
+      const n = await db.runTransaction(async t => { const s = await t.get(rl); const c = (s.exists ? s.data().n : 0) + 1; t.set(rl, { n: c, uur }); return c; });
+      if (n > 40) { res.status(429).json({ ok: false, fout: "Te vaak geprobeerd, probeer het later opnieuw." }); return; }
+      const b = await bedrijf();
+      if (b.refAan === false) { res.status(404).json({ ok: false }); return; }
+      const r = await P.refKlant(req.query.ref);
+      if (!r) { res.status(404).json({ ok: false }); return; }
+      res.set("cache-control", "no-store");
+      res.json({ ok: true, code: r.code, voornaam: voornaamVan(r.contact || r.naam), welkom: b.refWelkom != null && b.refWelkom !== "" ? Number(b.refWelkom) || 0 : 10 });
+    } catch (e) { console.error("refcheck", e); res.status(500).json({ ok: false }); }
+    return;
+  }
   if (req.method !== "POST") { res.status(405).send("POST"); return; }
   try {
     /* eenvoudige bescherming: max 6 aanvragen per uur per IP */

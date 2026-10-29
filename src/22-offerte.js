@@ -77,6 +77,7 @@ function openOfferte(opts={}){
     <section class="kp"><div class="kp-h"><span class="objic">${I.check}</span><b>Offerteregels</b><span class="sp"></span><button type="button" class="small" id="owAdd">${I.plus}Eigen regel</button></div>
       <div class="ow-chips">${dienstChips(diensten,"data-dn")}</div>
       <div id="owRegels"></div>
+      <div id="owRef"></div>
       <div class="totals" id="owTot" style="margin-top:10px"></div></section>
   </div></div>
   <div class="row stickyfoot kk-foot ow-foot"><div class="ow-neven">${ex?`<button type="button" class="ow-link danger" id="owDel">${I.trash||""}Verwijderen</button>`:""}<button type="button" class="ow-link" id="owSent">${I.right}Handmatig op verstuurd</button><button type="button" class="ow-link" data-act="${opts.back?"offback":"close"}" data-id="${esc(opts.back||"")}">Annuleren</button></div><div class="ow-hoofd"><button type="button" id="owSave">${I.check}Opslaan</button><button type="button" id="owView">${I.eye}Bekijk offerte</button><button type="submit" class="primary" id="owSend">${I.send||I.msg}Versturen</button></div></div>`,{xwide:true});
@@ -148,6 +149,16 @@ function openOfferte(opts={}){
     const t0=ex&&ex.rcTelling?ex.rcTelling:(legacyRc||opts.metTelling)&&k0&&k0.ramenTelling?k0.ramenTelling:null;if(t0)RC.loadObj(t0)}
   catch(er){console.error(er);const m=$("#owRc");if(m)m.innerHTML='<p class="subt">De rekentool kon hier niet worden geladen.</p>'}
   draw();
+  /* code van een buur: de klant krijgt de welkomstkorting op zijn eerste factuur, de aanbrenger zijn beloning na de eerste afspraak */
+  let owRefCode="";
+  const owRefTeken=()=>{const box=$("#owRef");if(!box)return;const cur=state.klanten.find(x=>x.id===kid);
+    if(!refAan()){box.innerHTML="";return}
+    if(cur&&cur.aanbevolenDoor){const d=state.klanten.find(x=>x.id===cur.aanbevolenDoor);box.innerHTML=`<div class="ow-ref ok">${I.spark||""}<div><b>Aanbevolen door ${esc(d?cleanName(d.naam):"een klant")}${cur.aanbevolenCode?" · "+esc(cur.aanbevolenCode):""}</b><small>${refWelkom()>0?eur(refWelkom())+" welkomstkorting gaat van de eerste factuur af. ":""}${d?esc(voornaam(d.contact||cleanName(d.naam)))+" krijgt "+eur(refBeloning())+" na de eerste afspraak.":""}</small></div></div>`;return}
+    const r=owRefCode?refVan(owRefCode,kid):null,fout=owRefCode&&!r;
+    box.innerHTML=`<div class="ow-ref${r?" ok":""}">${I.spark||""}<div><label for="owRefIn"><b>Code van een buur of kennis</b></label><small>${r?`Aanbevolen door <b>${esc(cleanName(r.naam))}</b>. ${refWelkom()>0?eur(refWelkom())+" welkomstkorting op de eerste factuur, ":""}${esc(voornaam(r.contact||cleanName(r.naam)))} krijgt ${eur(refBeloning())} na de eerste afspraak. Wordt vastgelegd bij Opslaan.`:fout?`<span style="color:var(--late)">Code ${esc(owRefCode)} is niet bekend.</span>`:"Is de klant aanbevolen? Vul de code in (staat in het klantportaal van de aanbrenger)."}</small>
+      <span class="ow-refrow"><input id="owRefIn" placeholder="Bijv. HANS68" maxlength="12" autocomplete="off" spellcheck="false" value="${esc(owRefCode)}" style="text-transform:uppercase;letter-spacing:.06em"><button type="button" class="small" id="owRefGo">${r?"Wijzigen":"Toepassen"}</button></span></div></div>`;
+    const inp=$("#owRefIn"),go=()=>{owRefCode=refNorm(inp.value);owRefTeken()};$("#owRefGo").onclick=go;inp.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();go()}};inp.onchange=go};
+  owRefTeken();
   /* klant opslaan: bestaande klant bijwerken, nieuwe klant als 'wacht op akkoord' */
   const klantVelden=()=>{const pc=$o("postcode").value.trim().toUpperCase().replace(/\s+/g,""),postcode=/^\d{4}[A-Z]{2}$/.test(pc)?pc.slice(0,4)+" "+pc.slice(4):$o("postcode").value.trim().toUpperCase();
     return {naam:$o("naam").value.trim(),adres:$o("adres").value.trim(),postcode,plaats:$o("plaats").value.trim(),email:$o("email").value.trim(),telefoon:$o("telefoon").value.trim(),soort:$o("soort").value}};
@@ -175,6 +186,8 @@ function openOfferte(opts={}){
       let tel=null,fail=0;if(rc){const r=await RC.telling();tel=r.t;fail=r.fail}
       const wasNew=!state.klanten.some(x=>x.id===kid),cur=state.klanten.find(x=>x.id===kid);
       const kPatch={...(tel?{ramenTelling:tel}:{}),...((wasNew||(cur&&cur.prospect))?{prijs:opdracht.prijs,frequentie:opdracht.frequentie,duur:opdracht.duur,incasso:$o("betaal").value==="incasso",opdrachten:[...((cur&&cur.opdrachten)||[]).filter(o=>!o.groep||!dnsExtra.some(e=>e.groep===o.groep)),...dnsExtra]}:{})};
+      {const r=owRefCode?refVan(owRefCode,kid):null;if(owRefCode&&!r){toast("Code "+owRefCode+" is niet bekend · haal hem weg of verbeter hem");const x=$("#owRefIn");if(x)x.focus();return false}
+        if(r)Object.assign(kPatch,refKoppelPatch(cur,r))}
       const klantId=await saveKlant(kPatch);const k=state.klanten.find(x=>x.id===klantId)||{...kv,id:klantId};
       if($("#ow-std").checked){const sd={...state.settings,offerteTekst:$o("tekst").value,offerteVoet:$o("voet").value,offerteLetopAan:$o("letop").checked,offerteLetop:$o("letopt").value,offerteTotaal:$o("totaal").checked};await save("instellingen","bedrijf",sd);state.settings=sd}
       const datum=$o("datum").value||iso(today()),id=ex?ex.id:newId("f");
