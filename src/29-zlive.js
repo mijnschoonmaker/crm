@@ -2,7 +2,8 @@
    Alles hieronder doet alleen iets in de echte versie (crm.mijnschoonmaker.com), waar window.ZEEM_LIVE is gezet. */
 const liveMail=()=>LIVE&&!!S().liveMail;
 const liveMollie=()=>LIVE&&!!S().liveMollie;
-const fbFn=n=>window.firebase.app().functions("europe-west4").httpsCallable(n);
+/* serverfunctie: eerst wachten tot alles wat net is opgeslagen ook echt op de server staat */
+const fbFn=n=>{const f=window.firebase.app().functions("europe-west4").httpsCallable(n);return(...a)=>opslaanKlaar().then(()=>f(...a))};
 const fsDb=()=>window.ZEEM_FS||window.firebase.firestore();
 const isEigenaar=()=>LIVE&&(String((state.me&&state.me.email)||"").toLowerCase()==="robin@mijnschoonmaker.com"||(window.ZEEM_BID!=="mijnschoonmaker"&&window.ZEEM_ROL==="eigenaar"));
 const randTok=(n=24)=>[...crypto.getRandomValues(new Uint8Array(n))].map(x=>"abcdefghjkmnpqrstuvwxyz23456789"[x%31]).join("");

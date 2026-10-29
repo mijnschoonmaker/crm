@@ -288,3 +288,10 @@ dialog::backdrop{background:rgb(6 16 19 / .5);backdrop-filter:blur(3px)}
 aside.side #sideNav button,aside.side .collapse{justify-content:flex-start;text-align:left;gap:14px;padding-left:16px}
 aside.side #sideNav button .lbl{flex:1;text-align:left}
 .app.collapsed aside.side #sideNav button,.app.collapsed aside.side .collapse{justify-content:center;padding-left:0}
+
+/* opslaan loopt nog op de achtergrond: dun balkje bovenin, zodat duidelijk is dat het nog even bezig is */
+html.ms-opslaan::after{content:"";position:fixed;left:0;right:0;top:0;height:3px;z-index:2147483000;pointer-events:none;
+  background:linear-gradient(90deg,transparent,var(--brand,#137a8a),transparent);background-size:40% 100%;background-repeat:no-repeat;animation:msOpsl 1s linear infinite}
+@keyframes msOpsl{from{background-position:-40% 0}to{background-position:140% 0}}
+/* knoppen: direct reageren op tikken (geen wachten op dubbeltik-zoom) */
+:where(button,.btn,[data-act],[role=button],a,label,summary,input[type=checkbox],input[type=radio],select){touch-action:manipulation}

@@ -592,6 +592,7 @@ const ICON={
   }
   let lastQ=null,lastText="",lastR=null;
   function calculate(scroll){
+    if(loadCfg())fillCfg();
     const R=compute(),{f,koz,fRows,sRows,all,count,normal,freqAdj,glas,glasEx,minGlas,kozEx,minKoz,kozSec,sec,ex,vat,inc,k,oRows,startEx}=R,adres=fullAdres(k);
     const out=g("out");hasResult=true;g("stale").hidden=true;
     if(!all.length&&!oRows.length){out.innerHTML='<div class="empty"><span>Vul minstens één raam of een andere dienst in.</span></div>';lastQ=null;return null}
@@ -841,7 +842,7 @@ const ICON={
   let freqTouched=false;g("freq").addEventListener("change",()=>{freqTouched=true;renderOverig();markStale()});
   g("calcBtn").onclick=()=>calculate();
   const fillFreq=()=>{refreshFreq();const gf=typeof uFreqGroep==="function"?uFreqGroep("glas"):{keuzes:null,advies:null},aan=k=>calcOn(k)&&(!gf.keuzes||gf.keuzes.includes(k)),L=FREQ_LIST.filter(([k])=>aan(k)).sort((a,b)=>(a[4]||999)-(b[4]||999)),cur=g("freq").value,def=freqTouched&&L.some(([k])=>k===cur)?cur:gf.advies&&L.some(([k])=>k===gf.advies)?gf.advies:L.some(([k])=>k===cur)?cur:L.some(([k])=>k==="m8")?"m8":(L[0]||[])[0];
-    g("freq").innerHTML=L.map(([k,l,,p])=>`<option value="${k}"${k===def?" selected":""}>${l}${p>0?` (−${p}%)`:p<0?` (+${-p}%)`:""}</option>`).join("")};fillFreq();
+    g("freq").innerHTML=L.map(([k,l,,p0])=>{const p=fpct(k,p0);return `<option value="${k}"${k===def?" selected":""}>${l}${p>0?` (−${p}%)`:p<0?` (+${-p}%)`:""}</option>`}).join("")};fillFreq();
   g("rateRows").innerHTML=TYPES.map(t=>`<tr><td>${t.l}</td><td><input id="cfg-${t.k}_s" data-k="${t.k}_s" type="number" min="0" step="1" aria-label="Seconden ${t.l}">${t.se?'<span class="flag">*</span>':""}</td><td><input id="cfg-${t.k}_p" data-k="${t.k}_p" type="number" min="0" step="0.0001" aria-label="Prijs ${t.l}">${t.pe?'<span class="flag">*</span>':""}</td></tr>`).join("");
   const cfgInputs=[...root.querySelectorAll("#rateRows input")];
   [["r-start","start"],["r-min","min"],["r-kozmin","kozMin"],["r-kozp","koz_p"],["r-kozs","koz_s"]].forEach(([id,k])=>{const el=g(id);el.dataset.k=k;cfgInputs.push(el)});
@@ -908,7 +909,8 @@ const ICON={
     freqPct(w){if(loadCfg())fillCfg();const fk=({1:"w1",2:"w2",4:"w4",6:"w6",8:"m8",12:"w12",13:"mnd3",16:"w16",24:"w24",26:"mnd6",48:"w48",52:"mnd12"})[Number(w)]||"w4",f=FREQ[fk];return fpct(fk,f?f.pct:0)},
     staffel(list){if(loadCfg())fillCfg();return staffel(list)},
     isBase:k=>FREQ_BASE.some(x=>x[0]===k),
-    freqList(){refreshFreq();const gf=typeof uFreqGroep==="function"?uFreqGroep("glas"):{keuzes:null,advies:null},mag=k=>!gf.keuzes||gf.keuzes.includes(k);return FREQ_LIST.map(([k,l,y,p,w])=>({k,l,p,w,calcAan:calcOn(k),aan:calcOn(k)&&mag(k),webAan:webOn(k)&&mag(k),adv:gf.advies===k}))},
+    /* p = de korting zoals ingesteld in Uitvoering (niet de standaardwaarde), zodat de keuzelijsten in offerte en opdracht kloppen */
+    freqList(){if(loadCfg())fillCfg();refreshFreq();const gf=typeof uFreqGroep==="function"?uFreqGroep("glas"):{keuzes:null,advies:null},mag=k=>!gf.keuzes||gf.keuzes.includes(k);return FREQ_LIST.map(([k,l,y,p0,w])=>({k,l,p:fpct(k,p0),pDef:p0,w,calcAan:calcOn(k),aan:calcOn(k)&&mag(k),webAan:webOn(k)&&mag(k),adv:gf.advies===k}))},
     refreshFreq(){refreshFreq()},
     fkVoor(w){return ({1:"w1",2:"w2",4:"w4",6:"w6",8:"m8",12:"w12",13:"mnd3",16:"w16",24:"w24",26:"mnd6",48:"w48",52:"mnd12"})[Number(w)]||"w4"},
     current(){if(!lastR||!lastQ)return null;return {regels:regelsFor(lastR),opd:opdFor(lastR,null,embed&&embed.base),extra:extrasFor(lastR),count:lastR.count}},

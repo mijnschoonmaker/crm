@@ -332,7 +332,7 @@ document.addEventListener("keydown",e=>{
     if(e.key==="Enter"){const f=document.querySelector("#ccZr .cc-zi");if(f){e.preventDefault();CC.zoek=false;ccActie(f.dataset.cc)}}}});
 
 /* live: elke paar seconden de wachtrij nalopen (geluid/melding bij iets nieuws, teller in het tabblad) */
-setInterval(()=>{try{ccLiveCheck()}catch(e){}},5000);
+setInterval(()=>{try{if(!document.hidden)ccLiveCheck()}catch(e){}},15000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&state.tab==="control")setTimeout(ccMarkeerGezien,8000)});
 
 /* ---------- snel bellen of WhatsAppen: één tik op de klant ----------

@@ -1,6 +1,6 @@
 /* ---------- RENDER ---------- */
 const VIEWS={control:vControl,vandaag:vRoute,route:vRoute,planning:vPlanning,klanten:vKlanten,communicatie:vCommunicatie,offertes:vOffertes,facturen:vFacturen,boekhouding:vBoekhouding,calculator:vRamen,uitvoering:vUitvoering,inzichten:vInzichten,instellingen:vInstellingen,handleiding:vHandleiding};
-function render(){try{warmMailLogo()}catch(e){}try{sessionStorage.setItem("ms.tab",state.tab||"control");if(state.utab)sessionStorage.setItem("ms.utab",state.utab)}catch(e){}
+function render(){tikWis();try{warmMailLogo()}catch(e){}try{sessionStorage.setItem("ms.tab",state.tab||"control");if(state.utab)sessionStorage.setItem("ms.utab",state.utab)}catch(e){}
   /* tellers in het menu: wat je in het Control Center op afgehandeld of later hebt gezet, telt niet mee */
   const af=typeof ccAf==="function"?ccAf:()=>false;
   const late=overdue().filter(k=>!(k.gepland==null||k.gepland==="")||!af(ccTlKey(k))).length,ach=facturen().filter(f=>fStatus(f)[1]==="Achterstallig"&&!af("fv:"+f.id)).length,mTodo=state.loaded?(typeof wqOpen==="function"?wqOpen():queues().reduce((a,q)=>a+q.items.length,0)):0;
@@ -31,6 +31,7 @@ function render(){try{warmMailLogo()}catch(e){}try{sessionStorage.setItem("ms.ta
   try{$("#view").innerHTML=(VIEWS[state.tab]||vVandaag)();if(state.tab==="calculator"){mountRamen();if(rcF)RC.restoreFocus(rcF)}if(state.tab==="planning")pkNaRender()}catch(e){console.error(e);$("#view").innerHTML=`<div class="notice">Deze pagina kon niet worden getoond (${esc(e.message)}). Ga naar een andere pagina of vernieuw.</div>`}
   if(fid){const el=document.getElementById(fid);if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}}
   /* zijwaarts schuivende tabbalken houden hun plek na opnieuw tekenen; de gekozen tab blijft in beeld */
+  requestAnimationFrame(pulsTemmen);
   $("#view").querySelectorAll(".tabsline").forEach((e,i)=>{if(e.scrollWidth<=e.clientWidth)return;const o=tlTab===state.tab?tlOud[i]:null;if(o)e.scrollLeft=o.x;
     const a=tlAct(e);if(!a||(o&&o.a===tlKey(a)))return;const l=a.offsetLeft-e.offsetLeft,r=l+a.offsetWidth;
     if(l<e.scrollLeft)e.scrollLeft=Math.max(0,l-16);else if(r>e.scrollLeft+e.clientWidth)e.scrollLeft=r-e.clientWidth+16});
@@ -332,3 +333,12 @@ render();init();
 
 /* knop "in te plannen" weg zodra de lijst onder de agenda in beeld is */
 addEventListener("scroll",()=>{const m=document.getElementById("mobOffer");document.body.classList.toggle("mo-zicht",!!m&&m.getBoundingClientRect().top<innerHeight-120)},{passive:true});
+/* iPhone/iPad: zonder touchstart-luisteraar toont Safari geen ingedrukte knop (:active). Dan voelt een tik alsof er niets gebeurt. */
+if(typeof document!=="undefined")document.addEventListener("touchstart",()=>{},{passive:true});
+/* zuinig: oneindige "puls"-animaties met een schaduw laten de telefoon elk beeldje opnieuw tekenen, de hele tijd.
+   Daardoor reageren knoppen trager en gaat de accu harder leeg. Ze pulsen nu een paar keer en staan daarna stil. */
+const PULS_SCHADUW=new Map();
+function pulsTemmen(){try{if(typeof document.getAnimations!=="function")return;document.getAnimations().forEach(a=>{const ef=a.effect;if(!ef||!ef.getTiming||ef.getTiming().iterations!==Infinity)return;
+  const n=a.animationName||"";let s=PULS_SCHADUW.get(n);if(s===undefined){try{s=ef.getKeyframes().some(k=>"boxShadow" in k||"width" in k||"background" in k||"backgroundColor" in k||"filter" in k)}catch(e){s=false}if(n)PULS_SCHADUW.set(n,s)}
+  if(s)ef.updateTiming({iterations:3})})}catch(e){}}
+if(typeof window!=="undefined"){window.addEventListener("load",()=>setTimeout(pulsTemmen,500));setInterval(pulsTemmen,2000)}

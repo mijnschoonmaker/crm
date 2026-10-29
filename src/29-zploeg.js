@@ -10,9 +10,10 @@ const plNm=s=>{const n=String(s||"").trim().split(/[\s@._-]/)[0];return n?n.char
 const plVers=L=>L&&L.actief&&L.datum===iso(today())&&Date.now()-Date.parse(L.ts||0)<5*60e3;
 /* demo: twee bussen, Mark en Sem, die elk een deel van de route rijden */
 const plDemo=()=>!LIVE;
+const plDoorIdx=tikMemo("pld",day=>{const m={};state.beurten.forEach(x=>{if(x.datum===day&&x.door)(m[x.klantId]=m[x.klantId]||[]).push(x)});return m});
 function plWie(k,day,i,n){day=day||iso(today());
   if(plDemo()){const R=routeStops(day),j=i!=null?i:R.findIndex(s=>s.k.id===k.id),t=n!=null?n:R.length;return j<Math.ceil(t/2)?"Mark":"Sem"}
-  const b=state.beurten.filter(x=>x.klantId===k.id&&x.datum===day&&x.door).sort((a,c)=>String(c.op||"").localeCompare(String(a.op||"")))[0];if(b)return plNm(b.door);
+  const b=(plDoorIdx(day)[k.id]||[]).slice().sort((a,c)=>String(c.op||"").localeCompare(String(a.op||"")))[0];if(b)return plNm(b.door);
   if(k.bezig&&k.bezigDoor)return plNm(k.bezigDoor);
   const w=((state.routes[day]||{}).wie||{})[k.id];return w?plNm(w):""}
 /* demo: plek van een bus = halverwege zijn laatste klare adres en zijn volgende */
@@ -20,7 +21,9 @@ function plDemoPos(nm){const R=routeStops(iso(today())).filter((s,i,a)=>plWie(s.
   const nx=R.findIndex(s=>!s.done),na=nx>=0?pkCoord(R[nx].k):null,vo=[...R.slice(0,nx<0?R.length:nx)].reverse().map(s=>pkCoord(s.k)).find(Boolean)||lo;
   if(na&&vo)return{lat:(vo[0]+na[0])/2,lng:(vo[1]+na[1])/2};const c=na||vo;return c?{lat:c[0],lng:c[1]}:null}
 /* iedereen die vandaag onderweg is, met zijn adressen */
-function plMensen(){const ti=iso(today()),R=routeStops(ti),M={};
+const PLM_M=tikMemo("plm",plMensenRuw);
+function plMensen(){return PLM_M().slice()}
+function plMensenRuw(){const ti=iso(today()),R=routeStops(ti),M={};
   const p=nm=>M[nm]||(M[nm]={naam:nm,stops:[],live:null});
   R.forEach((s,i)=>{const w=plWie(s.k,ti,i,R.length);if(w)p(w).stops.push(s)});
   Object.values(PL.live).forEach(L=>{const nm=plNm(L.naam||L.door);if(nm&&L.datum===ti)p(nm).live=L});

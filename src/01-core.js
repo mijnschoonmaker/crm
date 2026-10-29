@@ -1,4 +1,27 @@
 /* ---------- KERN ---------- */
+/* snelheid: toLocaleString/-DateString met opties maakt elke keer een nieuwe Intl-formatter (traag; het CRM doet dit
+   duizenden keren per scherm). Zelfde uitkomst, maar de formatter wordt hergebruikt. */
+(function(){try{const C=new Map(),get=(T,l,o)=>{const k=T.name+"|"+l+"|"+(o?JSON.stringify(o):"");let f=C.get(k);if(!f){f=new T(l,o);C.set(k,f)}return f};
+  const nT=Number.prototype.toLocaleString,dS=Date.prototype.toLocaleDateString,dT=Date.prototype.toLocaleTimeString,dL=Date.prototype.toLocaleString;
+  const ok=l=>typeof l==="string";
+  Number.prototype.toLocaleString=function(l,o){return ok(l)?get(Intl.NumberFormat,l,o).format(this):nT.call(this,l,o)};
+  Date.prototype.toLocaleDateString=function(l,o){if(!ok(l))return dS.call(this,l,o);if(isNaN(this))return "Invalid Date";const q=o&&(o.weekday||o.year||o.month||o.day||o.era)?o:{...(o||{}),year:"numeric",month:"numeric",day:"numeric"};return get(Intl.DateTimeFormat,l,q).format(this)};
+  Date.prototype.toLocaleTimeString=function(l,o){if(!ok(l))return dT.call(this,l,o);if(isNaN(this))return "Invalid Date";const q=o&&(o.hour||o.minute||o.second||o.dayPeriod||o.timeStyle)?o:{...(o||{}),hour:"numeric",minute:"numeric",second:"numeric"};return get(Intl.DateTimeFormat,l,q).format(this)};
+  Date.prototype.toLocaleString=function(l,o){if(!ok(l))return dL.call(this,l,o);if(isNaN(this))return "Invalid Date";const q=o&&Object.keys(o).some(k=>/^(weekday|year|month|day|hour|minute|second|era|dateStyle|timeStyle|dayPeriod)$/.test(k))?o:{...(o||{}),year:"numeric",month:"numeric",day:"numeric",hour:"numeric",minute:"numeric",second:"numeric"};return get(Intl.DateTimeFormat,l,q).format(this)};
+}catch(e){}})();
+/* schermvullende laag (foto bekijken, stippen zetten) altijd precies in beeld houden: met de desktop-zoom (html.zm)
+   rekende Safari hem groter dan het venster, waardoor de knoppen onderaan buiten beeld vielen */
+function inBeeld(el){try{if(!el||!el.isConnected)return;el.style.width=el.style.height="";el.style.inset="";el.style.top=el.style.left="";
+  const r=el.getBoundingClientRect(),W=innerWidth,H=innerHeight;if(r.bottom<=H+1&&r.right<=W+1&&r.top>=-1&&r.left>=-1)return;
+  const fx=r.width/(el.offsetWidth||r.width||1),fy=r.height/(el.offsetHeight||r.height||1);
+  el.style.inset="auto";el.style.top="0";el.style.left="0";el.style.width=(W/fx)+"px";el.style.height=(H/fy)+"px";
+  const r2=el.getBoundingClientRect();if(r2.top<-1||r2.left<-1){el.style.top=(-r2.top/fy)+"px";el.style.left=(-r2.left/fx)+"px"}}catch(e){}}
+/* rekenwerk dat binnen één scherm-opbouw vaak met dezelfde vraag wordt gedaan (route van vandaag, wie rijdt waar) één keer doen.
+   De onthouden uitkomsten vervallen zodra deze taak klaar is, en bij elke wijziging van gegevens. */
+const TIK={m:new Map(),t:0};
+function tikWis(){TIK.m.clear()}
+function tikMemo(naam,fn){return function(...a){const k=naam+"|"+a.map(x=>x==null?"":typeof x==="object"?(x.id||JSON.stringify(x)):x).join("|");
+  if(TIK.m.has(k))return TIK.m.get(k);const r=fn.apply(this,a);TIK.m.set(k,r);if(!TIK.t)TIK.t=setTimeout(()=>{TIK.t=0;tikWis()},0);return r}}
 const $=s=>document.querySelector(s);
 const DAY=864e5;
 const pad=n=>String(n).padStart(2,"0");
@@ -233,7 +256,7 @@ const RAW={};
 const COLS=["klanten","beurten","facturen","routes","instellingen","berichten","kosten","banktx"];
 const mem={};COLS.forEach(c=>mem[c]=new Map());
 function apply(col,docs){
-  RAW[col]=docs;
+  RAW[col]=docs;tikWis();
   if(col==="instellingen"){const g=id=>{const d=docs.find(x=>x.id===id);return d?strip(d):{}};state.settings=g("bedrijf");state.sjablonen=g("sjablonen");state.prijzen=g("prijzen");state.aangiftes=g("aangiftes");state.ramen=g("ramen");state.planmails=g("planmails");state.boekhouder=g("boekhouder");state.galerij=g("galerij");state.uitv=g("uitvoering");state.ccStatus=g("control");if(typeof U!=="undefined"&&!Udirty)U=null}
   if(col==="instellingen"&&!state._slotInit&&docs.length){state._slotInit=1;const b=docs.find(x=>x.id==="bedrijf");if(b){state.slot=[10,15].includes(Number(b.slotStd))?Number(b.slotStd):10;if(b.ultra)state.rowH=.7;else if(b.compact)state.rowH=.85}}
   else if(col==="routes"){state.routes={};docs.forEach(d=>state.routes[d.id]=d)}
@@ -268,11 +291,56 @@ async function nrBewaker(){if(nrBezig||!MIJN_F.size)return;nrBezig=1;
 function bcVast(data){if(!data||data.soort!=="factuur")return data;const d={...data};
   if(d.status==="concept"){delete d.beheercode;return d}
   if(d.beheercode==null){const k=(state.klanten||[]).find(x=>x.id===d.klantId);if(k&&k.beheercode)d.beheercode=String(k.beheercode)}return d}
-async function save(col,id,data){if(col==="klanten"&&typeof msKlantLimiet==="function"&&data&&data.actief!==false&&!(state.klanten||[]).some(k=>k.id===id)&&msKlantLimiet())throw {msg:"Maximum aantal klanten van Starter bereikt",stil:true};if(col==="klanten"&&typeof OW_NIEUW!=="undefined"&&OW_NIEUW&&OW_NIEUW.kid===id&&OW_NIEUW.klaar)OW_NIEUW.bewaard=true;if(col==="facturen"){data=bcVast(data);if(typeof btwVast==="function")data=btwVast(data,!(state.facturen||[]).some(f=>f.id===id))}if(col==="facturen"&&!(state.facturen||[]).some(f=>f.id===id))MIJN_F.add(id);if(state.db){await state.db.collection(col).doc(id).set(data);
-    /* meteen in beeld (zonder te vernieuwen): de opslag via de server meldt zich soms pas later terug; die melding overschrijft dit daarna gewoon */
-    try{const L=RAW[col];if(Array.isArray(L)){const d={...data,id};if(d._handmatig)delete d._handmatig;const i=L.findIndex(x=>x.id===id);apply(col,i>=0?L.map((x,j)=>j===i?d:x):[...L,d]);schedule()}}catch(e){}}
+async function save(col,id,data){tikWis();if(col==="klanten"&&typeof msKlantLimiet==="function"&&data&&data.actief!==false&&!(state.klanten||[]).some(k=>k.id===id)&&msKlantLimiet())throw {msg:"Maximum aantal klanten van Starter bereikt",stil:true};if(col==="klanten"&&typeof OW_NIEUW!=="undefined"&&OW_NIEUW&&OW_NIEUW.kid===id&&OW_NIEUW.klaar)OW_NIEUW.bewaard=true;if(col==="facturen"){data=bcVast(data);if(typeof btwVast==="function")data=btwVast(data,!(state.facturen||[]).some(f=>f.id===id))}if(col==="facturen"&&!(state.facturen||[]).some(f=>f.id===id))MIJN_F.add(id);if(state.db)return opslaanLive(col,id,data);
   else{if(data&&data._handmatig){data={...data};delete data._handmatig}mem[col].set(id,{...data,id});apply(col,[...mem[col].values()]);schedule()}}
-async function del(col,id){if(state.db){await state.db.collection(col).doc(id).delete();try{const L=RAW[col];if(Array.isArray(L)&&L.some(x=>x.id===id)){apply(col,L.filter(x=>x.id!==id));schedule()}}catch(e){}}else{mem[col].delete(id);apply(col,[...mem[col].values()]);schedule()}}
+/* ---------- snel en veilig opslaan ----------
+   Vroeger wachtte elke knop tot de server het opslaan had bevestigd (bij klanten en facturen zelfs twee keer heen en terug).
+   Op een telefoon voelde dat als "de knop doet niks". Nu:
+   1. de wijziging staat meteen in beeld (ook als er tussendoor een update van de server binnenkomt),
+   2. hij gaat ook in een kleine lokale wachtrij (ms.outbox): valt de app weg voordat de server hem heeft, dan wordt hij bij
+      het volgende openen alsnog opgeslagen (alleen als het document op de server sindsdien niet door iemand anders is gewijzigd),
+   3. pas als de server een fout geeft, wordt de wijziging teruggedraaid met een melding.
+   Serverfuncties (fbFn, /api/...) wachten eerst tot alles is opgeslagen, zodat de server nooit een oude versie leest. */
+const OPS={bezig:0,wacht:new Set(),lokaal:{}};
+const obSleutel=()=>"ms.outbox."+(window.ZEEM_BID||"x");
+function obLees(){try{return JSON.parse(localStorage.getItem(obSleutel())||"{}")||{}}catch(e){return{}}}
+function obZet(o){try{if(Object.keys(o).length)localStorage.setItem(obSleutel(),JSON.stringify(o));else localStorage.removeItem(obSleutel())}catch(e){}}
+function opsStatus(){try{document.documentElement.classList.toggle("ms-opslaan",OPS.bezig>0)}catch(e){}}
+function opsLokaal(col,id,d){const L=RAW[col];if(!Array.isArray(L))return;const i=L.findIndex(x=>x.id===id);
+  apply(col,d==null?L.filter(x=>x.id!==id):i>=0?L.map((x,j)=>j===i?d:x):[...L,d]);schedule()}
+/* binnenkomende serverupdates: wat nog onderweg is, blijft zoals de gebruiker het zag */
+function opsOverlay(col,docs){const P=OPS.lokaal[col];if(!P)return docs;const ids=Object.keys(P);if(!ids.length)return docs;
+  let out=docs.filter(x=>!(x.id in P));ids.forEach(id=>{if(!P[id].weg)out.push(P[id].d)});return out}
+function opslaanKlaar(){return OPS.wacht.size?Promise.allSettled([...OPS.wacht]).then(()=>{}):Promise.resolve()}
+function opsStart(col,id,d,write,ob){
+  const L=RAW[col],oud=Array.isArray(L)?L.find(x=>x.id===id):undefined,tok={d,weg:!d};
+  (OPS.lokaal[col]=OPS.lokaal[col]||{})[id]=tok;
+  try{opsLokaal(col,id,d||null)}catch(e){}
+  const k=col+"/"+id,ts=Date.now()+Math.random();
+  if(ob){try{const o=obLees(),j=JSON.stringify(ob);if(j.length<400000){o[k]={...ob,prev:oud?strip(oud):null,ts};obZet(o)}}catch(e){}}
+  const los=()=>{const P=OPS.lokaal[col];if(P&&P[id]===tok)delete P[id];if(ob){const o=obLees();if(o[k]&&o[k].ts===ts){delete o[k];obZet(o)}}};
+  OPS.bezig++;opsStatus();
+  const p=write().then(()=>{los()},e=>{const P=OPS.lokaal[col],nogVanMij=!!(P&&P[id]===tok);los();
+      if(nogVanMij){try{opsLokaal(col,id,oud||null)}catch(_){}}throw e})
+    .finally(()=>{OPS.bezig--;opsStatus();OPS.wacht.delete(p)});
+  OPS.wacht.add(p);
+  /* heel even wachten: een directe weigering (alleen-lezen, rechten) komt dan nog gewoon bij de knop terecht */
+  return Promise.race([p,new Promise(r=>setTimeout(()=>r("later"),120))]).then(r=>{
+    if(r==="later")p.catch(e=>{console.error("opslaan",col,id,e);toast("Opslaan lukte niet: "+(e&&(e.message||e.code)||"onbekende fout")+". De wijziging is teruggedraaid.")});})}
+function opslaanLive(col,id,data){const d={...data,id};if(d._handmatig)delete d._handmatig;
+  return opsStart(col,id,d,()=>state.db.collection(col).doc(id).set(data),{col,id,data})}
+/* bij het openen: wat de vorige keer niet meer bij de server aankwam, alsnog opslaan */
+function obHerstel(){const o=obLees(),ks=Object.keys(o);if(!ks.length||!state.db)return;let n=0;
+  const norm=x=>{if(!x)return"";const c=strip(x);delete c._handmatig;const srt=v=>Array.isArray(v)?v.map(srt):v&&typeof v==="object"?Object.keys(v).sort().reduce((a,k)=>(a[k]=srt(v[k]),a),{}):v;return JSON.stringify(srt(c))};
+  ks.forEach(k=>{const e=o[k];delete o[k];if(!e||!e.col||!e.id||Date.now()-e.ts>14*864e5||!Array.isArray(RAW[e.col]))return;
+    const cur=RAW[e.col].find(x=>x.id===e.id);if(cur&&norm(cur)===norm(e.data))return;
+    if(cur?norm(cur)===norm(e.prev):!e.prev){n++;opslaanLive(e.col,e.id,e.data).catch(err=>console.error("herstel",k,err))}});
+  obZet(o);if(n)toast(n===1?"Een wijziging die de vorige keer niet was opgeslagen, is alsnog opgeslagen":n+" wijzigingen die de vorige keer niet waren opgeslagen, zijn alsnog opgeslagen")}
+if(typeof window!=="undefined"){
+  window.addEventListener("beforeunload",e=>{if(OPS.bezig){e.preventDefault();e.returnValue=""}});
+  /* serveraanroepen pas na het opslaan */
+  try{const f0=window.fetch.bind(window);window.fetch=(u,o)=>{const s=String(u&&u.url||u||"");return /^\/api\/|^https?:\/\/[^/]*\/api\//.test(s)&&(s[0]==="/"||s.startsWith(location.origin))&&OPS.wacht.size?opslaanKlaar().then(()=>f0(u,o)):f0(u,o)}}catch(e){}}
+async function del(col,id){if(state.db)return opsStart(col,id,null,()=>state.db.collection(col).doc(id).delete(),null);mem[col].delete(id);apply(col,[...mem[col].values()]);schedule()}
 let rq=0;function schedule(){if(rq)return;rq=requestAnimationFrame(()=>{rq=0;render()})}
 async function init(){
   const use=async n=>{try{return window.claude?await window.claude.use(n):null}catch(e){return null}};
@@ -285,7 +353,7 @@ async function init(){
   setTimeout(()=>{if(state.loaded||seen.has("klanten"))return;$("#status").innerHTML=`<div class="notice" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="flex:1;min-width:200px"><b>Je gegevens laden niet.</b> De opslag van je browser lijkt vast te zitten. Herstellen haalt alles opnieuw van de server; er gaat niets verloren.</span><button type="button" class="small primary" onclick="window.ZEEM_HERSTEL?ZEEM_HERSTEL():location.reload()">Herstellen</button></div>`},12000);
   if(!LIVE)$("#status").innerHTML='<div class="notice verhuisd"><b>Deze CRM is verhuisd.</b> Gebruik voortaan <a href="https://crm.mijnschoonmaker.com" target="_blank" rel="noopener">crm.mijnschoonmaker.com</a> (of <a href="https://mijnschoonmaker-95789.web.app" target="_blank" rel="noopener">mijnschoonmaker-95789.web.app</a>). Wat je hier wijzigt, komt niet in de nieuwe CRM.</div>';
   COLS.forEach(col=>db.collection(col).onSnapshot(s=>{
-    apply(col,s.docs.map(d=>({...d.data(),id:d.id})));seen.add(col);if(seen.size===COLS.length){if(!state.loaded){setTimeout(migGeenTijd,400);setTimeout(()=>typeof migGotenBuiten==="function"&&migGotenBuiten(),900)}state.loaded=true}schedule();
+    apply(col,opsOverlay(col,s.docs.map(d=>({...d.data(),id:d.id}))));seen.add(col);if(seen.size===COLS.length){if(!state.loaded){setTimeout(obHerstel,1200);setTimeout(migGeenTijd,400);setTimeout(()=>typeof migGotenBuiten==="function"&&migGotenBuiten(),900)}state.loaded=true}schedule();
   },e=>{$("#status").innerHTML='<div class="notice">Gegevens konden niet worden geladen ('+esc(e.code)+'). Vernieuw de pagina.</div>'}));
 }
 

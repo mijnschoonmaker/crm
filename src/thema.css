@@ -1302,3 +1302,6 @@ html body:not(#zz):not(#zy) .chips.kl-chips select{border-radius:9px!important}
 html body:not(#zz):not(#zy) .chips.kl-chips .chip.chip span.n{color:#5b616c!important}
 html body:not(#zz):not(#zy) .chips.kl-chips .chip.chip[aria-pressed="true"]{box-shadow:0 1px 2px rgb(13 18 27 / .08),0 6px 14px -8px rgb(13 18 27 / .30)!important;border:0!important;outline:0}
 html body:not(#zz):not(#zy) .chips.kl-chips .chip.chip[aria-pressed="true"] span.n{background:#252c3c!important;color:#fff!important}
+
+/* stippen zetten: het scherm ligt er helemaal overheen, dus geen (dure) vervaging van wat erachter zit; dat maakte tikken traag op de iPhone */
+html body:not(#zz) dialog.rc-ed-dlg::backdrop{-webkit-backdrop-filter:none;backdrop-filter:none}

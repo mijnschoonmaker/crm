@@ -160,7 +160,10 @@ function objInfo(k,day){const o=jobObj(k)||{};const it=[];
 const huisnr=a=>{const m=String(a||"").match(/(\d+)\s*([a-z]?)\s*$/i);return m?Number(m[1]):0};
 const straat=a=>String(a||"").replace(/\s*\d+.*$/,"").toLowerCase();
 const geoCmp=(a,b)=>{const A=jobAddrObj(a),B=jobAddrObj(b);return String(A.postcode||"").slice(0,4).localeCompare(String(B.postcode||"").slice(0,4))||straat(A.adres).localeCompare(straat(B.adres))||huisnr(A.adres)-huisnr(B.adres)};
-function routeStops(day){
+/* route van een dag: binnen één scherm-opbouw maar één keer uitrekenen (wordt vaak tientallen keren gevraagd) */
+const RS_M=tikMemo("rs",routeStopsRuw);
+function routeStops(day){return RS_M(day).slice()}
+function routeStopsRuw(day){
   const isToday=day===iso(today());
   let ks=actief().filter(k=>{const p=parse(k.gepland);return p&&(k.gepland===day||(isToday&&p<today()))});
   const doneIds=state.beurten.filter(b=>b.datum===day).map(b=>b.klantId);
