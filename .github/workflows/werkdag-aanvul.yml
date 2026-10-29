@@ -1,0 +1,28 @@
+name: Werkdag aanvullen (start vergeten, pauze)
+on:
+  workflow_dispatch:
+    inputs:
+      dag: { description: "Datum JJJJ-MM-DD", required: true }
+      adres: { description: "Adres van de beurt (deel is genoeg)", required: false, default: "" }
+      minuten: { description: "Tijd bij die klant in minuten", required: false, default: "0" }
+      pauze: { description: "Pauze erbij in minuten", required: false, default: "0" }
+      proef: { description: "1 = alleen laten zien", required: false, default: "1" }
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm install --omit=dev --no-audit --no-fund
+        working-directory: functions
+      - run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > "$RUNNER_TEMP/sa.json"
+      - env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
+          P: ${{ vars.FIREBASE_PROJECT }}
+          DAG: ${{ inputs.dag }}
+          ADRES: ${{ inputs.adres }}
+          MINUTEN: ${{ inputs.minuten }}
+          PAUZE: ${{ inputs.pauze }}
+          PROEF: ${{ inputs.proef }}
+        run: node tools/werkdag-aanvul.js
