@@ -280,6 +280,23 @@ async function tkStatus(t,st){const cur=state.tickets.find(x=>x.id===t.id)||t;if
     await fsDb().collection("ticketBerichten").doc(newId("tb")).set({ticketId:t.id,klantId:t.klantId,van:"team",systeem:true,tekst:"Status: "+TK_ST[st][1],op,door:(state.me&&state.me.email)||""});
     form.querySelectorAll("[data-tks]").forEach(x=>x.setAttribute("aria-pressed",x.dataset.tks===st));toast(cur.nummer+" · "+TK_ST[st][1]);
     if(st==="opgelost"){fbFn("ticketMelding")({ticketId:t.id,basis:location.origin}).catch(()=>{});try{await creditsVoorTicket(cur)}catch(e){console.error("credits",e)}}}catch(e){err(e)}}
+/* extra dienst via een offerte: een bestaande klant (al eerder een beurt gehad) tekent online of gaat akkoord.
+   Zelfde credits als een extra dienst uit het portaal (Instellingen › crExtra). Eén keer per offerte: vaste id, dus ook
+   als twee apparaten het tegelijk doen blijft het bij één keer. Een nieuwe klant (eerste offerte) krijgt ze niet. */
+function offIsExtra(f,k){if(!f||!k||f.soort!=="offerte"||f.autoAkkoord)return false;const d=String(f.datum||"9999-12-31");
+  return (state.beurten||[]).some(b=>b.klantId===k.id&&String(b.datum||"")<d)||(!!k.laatst&&String(k.laatst)<d)}
+const _crOff=new Set();
+async function creditsVoorOfferte(f){if(!f||_crOff.has(f.id))return false;const k=state.klanten.find(x=>x.id===f.klantId);if(!k||!offIsExtra(f,k))return false;
+  const s=S(),n=s.crExtra!=null&&s.crExtra!==""?Number(s.crExtra):3;if(!(n>0))return false;
+  const tid="tg_off_"+f.id;if([...(k.tegoed||[]),...(k.tegoedGebruikt||[])].some(x=>x&&(x.id===tid||x.ref===f.id)))return false;_crOff.add(f.id);
+  const reden="Credits: extra dienst besteld (offerte "+(f.nummer||"")+")";
+  try{await save("klanten",k.id,{...strip(k),tegoed:[...(k.tegoed||[]),{id:tid,bedrag:n,reden,bron:"extra",ref:f.id,op:iso(today())}],log:[...(k.log||[]),{datum:iso(today()),tekst:reden+" · "+n+" credit"+(n===1?"":"s")+" (€ "+n+") op de volgende factuur"}]});
+    toast(cleanName(k.naam)+": "+n+" credits voor de extra dienst");return true}catch(e){_crOff.delete(f.id);console.error("credits offerte",e);return false}}
+/* ondertekende of geaccepteerde offertes van de afgelopen 60 dagen nalopen (ook die van vóór deze regeling, zoals een getekende offerte voor glasbewassing binnen) */
+function creditsOffertesCheck(){if(!state.loaded||(typeof isMw==="function"&&isMw()))return;const grens=iso(addDays(today(),-60));
+  state.facturen.filter(f=>f.soort==="offerte"&&(f.getekend||(f.status==="geaccepteerd"&&String(f.akkoordOp||"")>="2026-10-29"))&&!_crOff.has(f.id)&&String((f.getekend&&(f.getekend.datum||f.getekend.op))||f.akkoordOp||f.datum||"").slice(0,10)>=grens).forEach(f=>{creditsVoorOfferte(f)})}
+if(typeof window!=="undefined")setInterval(()=>{try{creditsOffertesCheck()}catch(e){}},15000);
+
 /* credits (portaal) toekennen als een review- of extra-dienst-ticket is opgelost; één keer per ticket */
 async function creditsVoorTicket(t){const vt=t.verzoek&&t.verzoek.type;if(vt!=="review"&&vt!=="extra")return;const k=state.klanten.find(x=>x.id===t.klantId);if(!k)return;
   const s=S(),n=vt==="review"?0:(s.crExtra!=null&&s.crExtra!==""?Number(s.crExtra):3);if(!(n>0))return;

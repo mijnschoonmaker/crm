@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="413c4d241c63"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="b91dbd8a71c2"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -664,8 +664,9 @@ aside.side #sideNav button .lbl{flex:1;text-align:left}
 .app.collapsed aside.side #sideNav button,.app.collapsed aside.side .collapse{justify-content:center;padding-left:0}
 
 /* opslaan loopt nog op de achtergrond: dun balkje bovenin, zodat duidelijk is dat het nog even bezig is */
-html.ms-opslaan::after{content:"";position:fixed;left:0;right:0;top:0;height:3px;z-index:2147483000;pointer-events:none;
-  background:linear-gradient(90deg,transparent,var(--brand,#137a8a),transparent);background-size:40% 100%;background-repeat:no-repeat;animation:msOpsl 1s linear infinite}
+html.ms-opslaan::after{content:"";position:fixed;left:0;right:0;top:0;height:3px;z-index:2147483000;pointer-events:none;opacity:0;
+  background:linear-gradient(90deg,transparent,var(--brand,#137a8a),transparent);background-size:40% 100%;background-repeat:no-repeat;animation:msOpsl 1s linear infinite,msOpslIn .2s .6s forwards}
+@keyframes msOpslIn{to{opacity:1}}
 @keyframes msOpsl{from{background-position:-40% 0}to{background-position:140% 0}}
 /* knoppen: direct reageren op tikken (geen wachten op dubbeltik-zoom) */
 :where(button,.btn,[data-act],[role=button],a,label,summary,input[type=checkbox],input[type=radio],select){touch-action:manipulation}
@@ -6759,7 +6760,15 @@ function opsStart(col,id,d,write,ob){
   /* heel even wachten: een directe weigering (alleen-lezen, rechten) komt dan nog gewoon bij de knop terecht */
   return Promise.race([p,new Promise(r=>setTimeout(()=>r("later"),120))]).then(r=>{
     if(r==="later")p.catch(e=>{console.error("opslaan",col,id,e);toast("Opslaan lukte niet: "+(e&&(e.message||e.code)||"onbekende fout")+". De wijziging is teruggedraaid.")});})}
+/* opslaan zonder wijziging overslaan: anders tekende elk "opslaan" (ook als er niets veranderde) het scherm opnieuw, wat
+   op de telefoon als trillen zichtbaar was. Gaat hetzelfde document heel vaak achter elkaar, dan bundelen we het. */
+const opsVast=v=>{try{const srt=x=>Array.isArray(x)?x.map(srt):x&&typeof x==="object"?Object.keys(x).filter(k=>x[k]!==undefined&&k!=="id"&&k!=="_handmatig").sort().reduce((a,k)=>(a[k]=srt(x[k]),a),{}):x;return JSON.stringify(srt(v))}catch(e){return Math.random()+""}};
+const OPS_TEL=new Map();
 function opslaanLive(col,id,data){const d={...data,id};if(d._handmatig)delete d._handmatig;
+  const P=OPS.lokaal[col],L=RAW[col],cur=Array.isArray(L)?L.find(x=>x.id===id):null;
+  if(cur&&!(P&&P[id])&&!data._handmatig&&opsVast(cur)===opsVast(d))return Promise.resolve();
+  const k=col+"/"+id,nu=Date.now(),t=(OPS_TEL.get(k)||[]).filter(x=>nu-x<10000);t.push(nu);OPS_TEL.set(k,t);
+  if(t.length>6){try{(window.__opsVaak=window.__opsVaak||{})[k]=(window.__opsVaak[k]||0)+1;console.warn("vaak opgeslagen",k,new Error().stack)}catch(_){}}
   return opsStart(col,id,d,()=>state.db.collection(col).doc(id).set(data),{col,id,data})}
 /* bij het openen: wat de vorige keer niet meer bij de server aankwam, alsnog opslaan */
 function obHerstel(){const o=obLees(),ks=Object.keys(o);if(!ks.length||!state.db)return;let n=0;
@@ -7889,6 +7898,7 @@ function openAkkoord(id){
       await save("klanten",k.id,{...strip(cur),...(o.extra&&o.extra.length?{opdrachten:[...(cur.opdrachten||[]).filter(x=>!x.groep||!o.extra.some(e=>e.groep===x.groep)),...o.extra]}:{}),prospect:false,opdrachtVerwijderd:false,...(f.facturatie?(typeof factModusPatchOfferte==="function"?factModusPatchOfferte:factModusPatch)(f.facturatie,cur):{}),actief:true,akkoord:$("#ak-ov").checked||!!cur.akkoord,prijs:p,frequentie:Number($("#ak-freq").value),duur:Number($("#ak-duur").value),
         dienst:$("#ak-dienst").value.trim()||"Glasbewassing",gepland:dat,tijd,aanbodVanaf:$("#ak-aanbod").value||"",aanbieden:!dat&&!($("#ak-aanbod").value>iso(today())),opzegReden:"",log:[...(cur.log||[]),{datum:iso(today()),tekst:"Akkoord op offerte "+f.nummer+" · "+eur(p)+" per beurt, elke "+$("#ak-freq").value+" weken"+(dat?" · eerste beurt "+fmtD(parse(dat)):"")+($("#ak-aanbod").value?" · aanboddatum "+fmtD(parse($("#ak-aanbod").value)):"")}]});
       await save("facturen",f.id,{...strip(f),status:"geaccepteerd",akkoordOp:iso(today())});
+      try{if(typeof creditsVoorOfferte==="function")creditsVoorOfferte({...f,status:"geaccepteerd"})}catch(_){}
       if(f.facturatie==="periodiek"&&!isPeriodiek(cur)){toast(cleanName(k.naam)+" is nu vaste klant · stel nu de periodieke factuur in");setTimeout(()=>openPeriodiek(k.id,"klant"),80);return}
       dlg.close();toast(cleanName(k.naam)+" is nu vaste klant"+(dat?" · ingepland op "+fmtD(parse(dat))+(tijd?" om "+tijd:""):" · staat bij Te plannen vanaf "+fmtD(parse($("#ak-aanbod").value||iso(today())))))}
     catch(er){b.disabled=false;err(er)}};
@@ -17523,6 +17533,23 @@ async function tkStatus(t,st){const cur=state.tickets.find(x=>x.id===t.id)||t;if
     await fsDb().collection("ticketBerichten").doc(newId("tb")).set({ticketId:t.id,klantId:t.klantId,van:"team",systeem:true,tekst:"Status: "+TK_ST[st][1],op,door:(state.me&&state.me.email)||""});
     form.querySelectorAll("[data-tks]").forEach(x=>x.setAttribute("aria-pressed",x.dataset.tks===st));toast(cur.nummer+" · "+TK_ST[st][1]);
     if(st==="opgelost"){fbFn("ticketMelding")({ticketId:t.id,basis:location.origin}).catch(()=>{});try{await creditsVoorTicket(cur)}catch(e){console.error("credits",e)}}}catch(e){err(e)}}
+/* extra dienst via een offerte: een bestaande klant (al eerder een beurt gehad) tekent online of gaat akkoord.
+   Zelfde credits als een extra dienst uit het portaal (Instellingen › crExtra). Eén keer per offerte: vaste id, dus ook
+   als twee apparaten het tegelijk doen blijft het bij één keer. Een nieuwe klant (eerste offerte) krijgt ze niet. */
+function offIsExtra(f,k){if(!f||!k||f.soort!=="offerte"||f.autoAkkoord)return false;const d=String(f.datum||"9999-12-31");
+  return (state.beurten||[]).some(b=>b.klantId===k.id&&String(b.datum||"")<d)||(!!k.laatst&&String(k.laatst)<d)}
+const _crOff=new Set();
+async function creditsVoorOfferte(f){if(!f||_crOff.has(f.id))return false;const k=state.klanten.find(x=>x.id===f.klantId);if(!k||!offIsExtra(f,k))return false;
+  const s=S(),n=s.crExtra!=null&&s.crExtra!==""?Number(s.crExtra):3;if(!(n>0))return false;
+  const tid="tg_off_"+f.id;if([...(k.tegoed||[]),...(k.tegoedGebruikt||[])].some(x=>x&&(x.id===tid||x.ref===f.id)))return false;_crOff.add(f.id);
+  const reden="Credits: extra dienst besteld (offerte "+(f.nummer||"")+")";
+  try{await save("klanten",k.id,{...strip(k),tegoed:[...(k.tegoed||[]),{id:tid,bedrag:n,reden,bron:"extra",ref:f.id,op:iso(today())}],log:[...(k.log||[]),{datum:iso(today()),tekst:reden+" · "+n+" credit"+(n===1?"":"s")+" (€ "+n+") op de volgende factuur"}]});
+    toast(cleanName(k.naam)+": "+n+" credits voor de extra dienst");return true}catch(e){_crOff.delete(f.id);console.error("credits offerte",e);return false}}
+/* ondertekende of geaccepteerde offertes van de afgelopen 60 dagen nalopen (ook die van vóór deze regeling, zoals een getekende offerte voor glasbewassing binnen) */
+function creditsOffertesCheck(){if(!state.loaded||(typeof isMw==="function"&&isMw()))return;const grens=iso(addDays(today(),-60));
+  state.facturen.filter(f=>f.soort==="offerte"&&(f.getekend||(f.status==="geaccepteerd"&&String(f.akkoordOp||"")>="2026-10-29"))&&!_crOff.has(f.id)&&String((f.getekend&&(f.getekend.datum||f.getekend.op))||f.akkoordOp||f.datum||"").slice(0,10)>=grens).forEach(f=>{creditsVoorOfferte(f)})}
+if(typeof window!=="undefined")setInterval(()=>{try{creditsOffertesCheck()}catch(e){}},15000);
+
 /* credits (portaal) toekennen als een review- of extra-dienst-ticket is opgelost; één keer per ticket */
 async function creditsVoorTicket(t){const vt=t.verzoek&&t.verzoek.type;if(vt!=="review"&&vt!=="extra")return;const k=state.klanten.find(x=>x.id===t.klantId);if(!k)return;
   const s=S(),n=vt==="review"?0:(s.crExtra!=null&&s.crExtra!==""?Number(s.crExtra):3);if(!(n>0))return;

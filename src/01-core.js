@@ -327,7 +327,15 @@ function opsStart(col,id,d,write,ob){
   /* heel even wachten: een directe weigering (alleen-lezen, rechten) komt dan nog gewoon bij de knop terecht */
   return Promise.race([p,new Promise(r=>setTimeout(()=>r("later"),120))]).then(r=>{
     if(r==="later")p.catch(e=>{console.error("opslaan",col,id,e);toast("Opslaan lukte niet: "+(e&&(e.message||e.code)||"onbekende fout")+". De wijziging is teruggedraaid.")});})}
+/* opslaan zonder wijziging overslaan: anders tekende elk "opslaan" (ook als er niets veranderde) het scherm opnieuw, wat
+   op de telefoon als trillen zichtbaar was. Gaat hetzelfde document heel vaak achter elkaar, dan bundelen we het. */
+const opsVast=v=>{try{const srt=x=>Array.isArray(x)?x.map(srt):x&&typeof x==="object"?Object.keys(x).filter(k=>x[k]!==undefined&&k!=="id"&&k!=="_handmatig").sort().reduce((a,k)=>(a[k]=srt(x[k]),a),{}):x;return JSON.stringify(srt(v))}catch(e){return Math.random()+""}};
+const OPS_TEL=new Map();
 function opslaanLive(col,id,data){const d={...data,id};if(d._handmatig)delete d._handmatig;
+  const P=OPS.lokaal[col],L=RAW[col],cur=Array.isArray(L)?L.find(x=>x.id===id):null;
+  if(cur&&!(P&&P[id])&&!data._handmatig&&opsVast(cur)===opsVast(d))return Promise.resolve();
+  const k=col+"/"+id,nu=Date.now(),t=(OPS_TEL.get(k)||[]).filter(x=>nu-x<10000);t.push(nu);OPS_TEL.set(k,t);
+  if(t.length>6){try{(window.__opsVaak=window.__opsVaak||{})[k]=(window.__opsVaak[k]||0)+1;console.warn("vaak opgeslagen",k,new Error().stack)}catch(_){}}
   return opsStart(col,id,d,()=>state.db.collection(col).doc(id).set(data),{col,id,data})}
 /* bij het openen: wat de vorige keer niet meer bij de server aankwam, alsnog opslaan */
 function obHerstel(){const o=obLees(),ks=Object.keys(o);if(!ks.length||!state.db)return;let n=0;
