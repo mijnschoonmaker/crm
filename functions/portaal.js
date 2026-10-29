@@ -171,7 +171,7 @@ module.exports = function maakPortaal(ctx) {
     /* de exacte plek van de bus alleen als u bijna aan de beurt bent: zo zien klanten niet bij wie we verder allemaal komen */
     const dichtbij = voor <= LIVE_KAART_VANAF;
     return { status: "onderweg", voor, bezigBij, eta: etaTxt, km: km != null ? Math.round(km * 10) / 10 : null, naam: L.naam || "", huis: dichtbij ? huis : null,
-      pos: dichtbij ? { lat: L.lat, lng: L.lng, koers: L.koers ?? null, ts: L.ts } : null };
+      pos: dichtbij && !(Number(L.nauw) > 150) ? { lat: L.lat, lng: L.lng, koers: L.koers ?? null, ts: L.ts, sec: Math.max(0, Math.round((Date.now() - Date.parse(L.ts)) / 1000)) } : null };
   }
 
   /* getekende offerte: online ondertekend of op akkoord gezet; datum altijd als JJJJ-MM-DD */

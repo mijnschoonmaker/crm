@@ -1719,6 +1719,7 @@ html body:not(#zz) .cr-card{width:clamp(250px,27%,300px)!important;right:clamp(2
 @media (max-width:1099px){html body:not(#zz) .cr-hero{padding-right:clamp(20px,4vw,40px)!important}html body:not(#zz) .cr-card{display:none!important}}
 .ds .ds-pr{display:flex;flex-direction:column;align-items:flex-end;gap:1px;white-space:nowrap}.ds .ds-pr b{font-weight:700}.ds .ds-pr small{font-size:11.5px;opacity:.65}
 .ds .ab-x{margin-top:14px}
+.lv-oud .lv-puls{display:none}.lv-oud .lv-auto{opacity:.75}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -2513,7 +2514,8 @@ async function bedanktNaBetalen(id){let d=null;
 /* ---------- live meekijken: waar is de glazenwasser (alleen op de dag van uw bezoek) ---------- */
 const LVK={map:null,car:null,huis:null,lijn:null,van:null,naar:null,anim:0,timer:0,zelf:false,laadt:null};
 const AUTO='<img src="/img/mansard-bus.png" alt="">';
-function lvTekst(L){const vn=L.naam||"Uw glazenwasser";
+function lvTekst(L){const vn=L.naam?L.naam.charAt(0).toUpperCase()+L.naam.slice(1):"Uw glazenwasser";
+  const oud=L.pos&&L.pos.sec>75?Math.round(L.pos.sec/60):0;if(oud&&L.voor===0)return{t:vn+" is onderweg naar u",s:"Laatste plek "+(oud<=1?"1 minuut":oud+" minuten")+" geleden"+(L.km!=null?" · nog "+String(L.km).replace(".",",")+" km":"")};
   if(L.voor===0)return{t:L.bezigBij?"U bent de volgende":vn+" is onderweg naar u",s:L.km!=null?(L.km<0.3?"Bijna bij u":"Nog "+String(L.km).replace(".",",")+" km"):"We zijn onderweg"};
   return{t:"Nog "+L.voor+" "+(L.voor===1?"adres":"adressen")+" voor u",s:L.pos?vn+" is in de buurt":"De live kaart verschijnt zodra er nog 2 adressen of minder vóór u zijn"}}
 function liveBlok(){const L=D.live;if(!L||L.status!=="onderweg")return"";const T=lvTekst(L);
@@ -2524,7 +2526,7 @@ function lvLeaflet(){if(window.L&&window.L.map)return Promise.resolve();if(LVK.l
   LVK.laadt=new Promise((res,rej)=>{const B="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/",c=document.createElement("link");c.rel="stylesheet";c.href=B+"leaflet.css";document.head.appendChild(c);
     const sc=document.createElement("script");sc.src=B+"leaflet.js";sc.onload=()=>{let i=0;const w=()=>window.L&&window.L.map?res():++i>120?rej():setTimeout(w,50);w()};sc.onerror=()=>{LVK.laadt=null;rej()};document.head.appendChild(sc)});return LVK.laadt}
 async function lvInit(){clearInterval(LVK.timer);const L=D&&D.live;if(!L||L.status!=="onderweg")return;
-  LVK.timer=setInterval(lvPeil,15000);
+  LVK.timer=setInterval(lvPeil,6000);
   const el=document.getElementById("lvMap");if(!el||!L.pos)return;
   try{await lvLeaflet()}catch(e){el.innerHTML=`<p class="lv-fout">Kaart kon niet laden</p>`;return}
   const Lf=window.L;el.innerHTML="";LVK.zelf=false;
@@ -2545,13 +2547,14 @@ async function lvInit(){clearInterval(LVK.timer);const L=D&&D.live;if(!L||L.stat
 /* de bus in het midden houden */
 function lvFit(){if(!LVK.map||LVK.zelf||!LVK.car)return;LVK.prog=1;LVK.map.setView(LVK.car.getLatLng(),LVK.map.getZoom(),{animate:false});setTimeout(()=>LVK.prog=0,50)}
 /* soepel rijden tussen twee meldingen in */
-function lvRij(n){if(!LVK.car)return;const v=LVK.car.getLatLng(),van={lat:v.lat,lng:v.lng},t0=performance.now(),dur=2200;cancelAnimationFrame(LVK.anim);
-  const st=t=>{const p=Math.min(1,(t-t0)/dur),e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2,ll=[van.lat+(n.lat-van.lat)*e,van.lng+(n.lng-van.lng)*e];LVK.car.setLatLng(ll);if(!LVK.zelf&&LVK.map){LVK.prog=1;LVK.map.setView(ll,LVK.map.getZoom(),{animate:false});LVK.prog=0}if(LVK.lijn&&D.live.huis)LVK.lijn.setLatLngs([ll,D.live.huis]);if(p<1)LVK.anim=requestAnimationFrame(st)};LVK.anim=requestAnimationFrame(st)}
+function lvRij(n){if(!LVK.car)return;const v=LVK.car.getLatLng(),van={lat:v.lat,lng:v.lng},t0=performance.now(),spr=Math.hypot(n.lat-van.lat,n.lng-van.lng)>0.01,dur=spr?600:5600;cancelAnimationFrame(LVK.anim);
+  const st=t=>{const p=Math.min(1,(t-t0)/dur),e=spr?1-Math.pow(1-p,3):p,ll=[van.lat+(n.lat-van.lat)*e,van.lng+(n.lng-van.lng)*e];LVK.car.setLatLng(ll);if(!LVK.zelf&&LVK.map){LVK.prog=1;LVK.map.setView(ll,LVK.map.getZoom(),{animate:false});LVK.prog=0}if(LVK.lijn&&D.live.huis)LVK.lijn.setLatLngs([ll,D.live.huis]);if(p<1)LVK.anim=requestAnimationFrame(st)};LVK.anim=requestAnimationFrame(st)}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&LVK.timer)lvPeil()});
 async function lvPeil(){if(document.hidden||tab!=="home")return;let r;try{r=await api("live")}catch(e){return}const L=r.live;
   const was=D.live;D.live=L;
   if(!L||L.status!=="onderweg"||!!L.pos!==!!(was&&was.pos)){teken();return}
   const T=lvTekst(L),q=id=>document.getElementById(id);if(q("lvT"))q("lvT").textContent=T.t;if(q("lvS"))q("lvS").textContent=T.s;if(q("lvE"))q("lvE").textContent="± "+L.eta;
-  if(L.pos&&LVK.car){LVK.naar={lat:L.pos.lat,lng:L.pos.lng};lvRij(LVK.naar);const r_=LVK.car.getElement()&&LVK.car.getElement().querySelector(".lv-rot");if(r_&&L.pos.koers!=null)r_.classList.toggle("links",((L.pos.koers%360)+360)%360>180);}}
+  if(L.pos&&LVK.car){LVK.naar={lat:L.pos.lat,lng:L.pos.lng};lvRij(LVK.naar);{const e_=LVK.car.getElement();if(e_)e_.classList.toggle("lv-oud",L.pos.sec>75)}const r_=LVK.car.getElement()&&LVK.car.getElement().querySelector(".lv-rot");if(r_&&L.pos.koers!=null)r_.classList.toggle("links",((L.pos.koers%360)+360)%360>180);}}
 /* ---------- start ---------- */
 (async()=>{const q=new URLSearchParams(location.search),seg=location.pathname.split("/").filter(Boolean);
   if(seg[0]==="aanbevolen"&&seg[1])return toonAanbevolen(decodeURIComponent(seg[1]).toUpperCase());

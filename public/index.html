@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="dfbbd50efcbe"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="60ebc0753e0d"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -16938,7 +16938,15 @@ if(LIVE){
 const LV={watch:null,last:0,pos:null,lock:null,fout:""};
 state.liveDelen=(()=>{try{return localStorage.getItem("ms.live")==="1"}catch(e){return false}})();
 const lvAfst=(a,b)=>{if(!a||!b)return 1e9;const R=6371e3,r=x=>x*Math.PI/180,dl=r(b.lat-a.lat),dg=r(b.lng-a.lng),h=Math.sin(dl/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(dg/2)**2;return 2*R*Math.asin(Math.sqrt(h))};
-async function lvSchrijf(extra){if(!LIVE)return;const em=String((state.me&&state.me.email)||"").toLowerCase(),d={...extra,naam:String((state.me&&state.me.name)||"").split(" ")[0]||"",door:em,datum:iso(today()),ts:new Date().toISOString()};
+/* elk apparaat een eigen id: staat live delen op twee apparaten aan (telefoon + iPad/laptop), dan wint de telefoon met echte GPS */
+const LV_DEV=(()=>{try{let d=localStorage.getItem("ms.lvdev");if(!d){d=Math.random().toString(36).slice(2,10);localStorage.setItem("ms.lvdev",d)}return d}catch(e){return Math.random().toString(36).slice(2,10)}})();
+LV.rit=null;LV.ritUnsub=null;
+function lvVolgRit(){if(LV.ritUnsub||!LIVE)return;try{LV.ritUnsub=fsDb().doc("live/rit").onSnapshot(s=>{LV.rit=s.exists?s.data():null},()=>{LV.ritUnsub=null})}catch(e){}}
+/* mag dit apparaat nu de plek van de bus doorgeven? Niet als een ander apparaat de afgelopen minuut een even goede of betere plek gaf */
+function lvMagSchrijven(nauw){const r=LV.rit;if(!r||!r.actief||!r.dev||r.dev===LV_DEV||r.datum!==iso(today()))return true;
+  const oud=Date.now()-Date.parse(r.ts||0);if(!(oud<60e3))return true;
+  const hun=Number(r.nauw)||999;return nauw+10<hun*0.6}
+async function lvSchrijf(extra){if(!LIVE)return;const em=String((state.me&&state.me.email)||"").toLowerCase(),d={...extra,naam:doorNaam()||String((state.me&&state.me.name)||"").split(" ")[0]||"",door:em,dev:LV_DEV,datum:iso(today()),ts:new Date().toISOString()};
   try{await fsDb().doc("live/rit").set(d,{merge:true})}catch(e){console.warn("live",e)}
   /* ook per medewerker, zodat het Control Center bij meerdere bussen ieder apart kan volgen */
   if(em)try{await fsDb().doc("live/mw_"+em.replace(/[^a-z0-9]/g,"_").slice(0,80)).set({...d,naam:doorNaam()||d.naam},{merge:true})}catch(e){console.warn("live mw",e)}}
@@ -16952,14 +16960,18 @@ function liveStart(stil){
     const c={lat:+p.coords.latitude.toFixed(6),lng:+p.coords.longitude.toFixed(6)},nu=Date.now();
     let koers=Number.isFinite(p.coords.heading)?Math.round(p.coords.heading):null;
     if(koers==null&&LV.pos&&lvAfst(LV.pos,c)>15){const y=Math.sin((c.lng-LV.pos.lng)*Math.PI/180)*Math.cos(c.lat*Math.PI/180),x=Math.cos(LV.pos.lat*Math.PI/180)*Math.sin(c.lat*Math.PI/180)-Math.sin(LV.pos.lat*Math.PI/180)*Math.cos(c.lat*Math.PI/180)*Math.cos((c.lng-LV.pos.lng)*Math.PI/180);koers=Math.round((Math.atan2(y,x)*180/Math.PI+360)%360)}
-    /* niet vaker dan nodig: elke 12 seconden, of eerder als je flink bent opgeschoten */
-    if(nu-LV.last<12000&&lvAfst(LV.pos,c)<40)return;
-    if(typeof kmTik==="function")kmTik(LV.pos,c,p.coords.accuracy);LV.last=nu;LV.pos=c;if(koers!=null)LV.koers=koers;LV.fout="";if(typeof rvMapLive==="function")rvMapLive();lvSchrijf({actief:true,lat:c.lat,lng:c.lng,nauw:Math.round(p.coords.accuracy||0),...(koers!=null?{koers}:{})});lvKnop()},
+    /* alleen echte GPS-plekken: een laptop of iPad zonder GPS schat de plek via wifi en zit er soms kilometers naast */
+    const nauw=Math.round(p.coords.accuracy||0);
+    if(nauw>120){LV.fout="Geen nauwkeurige plek (alleen via wifi). Deel live vanaf je telefoon.";lvKnop();return}
+    /* elke 5 seconden, of meteen als je 20 meter verder bent */
+    if(nu-LV.last<5000&&lvAfst(LV.pos,c)<20)return;
+    if(!lvMagSchrijven(nauw)){LV.last=nu;LV.pos=c;if(typeof rvMapLive==="function")rvMapLive();return}
+    if(typeof kmTik==="function")kmTik(LV.pos,c,p.coords.accuracy);LV.last=nu;LV.pos=c;if(koers!=null)LV.koers=koers;LV.fout="";if(typeof rvMapLive==="function")rvMapLive();lvSchrijf({actief:true,lat:c.lat,lng:c.lng,nauw,snelheid:Number.isFinite(p.coords.speed)?Math.round(p.coords.speed*3.6):null,...(koers!=null?{koers}:{})});lvKnop()},
     e=>{LV.fout=e.code===1?"Geen toestemming voor je locatie. iPhone/iPad: Instellingen › Privacy en beveiliging › Locatievoorzieningen › Safari-websites › Tijdens gebruik van de app.":"Je locatie is even niet beschikbaar";if(e.code===1){liveStop(true);state.liveDelen=false;try{localStorage.setItem("ms.live","0")}catch(er){}toast(LV.fout)}/* even geen signaal (binnen, computer): geen melding, de telefoon probeert het vanzelf opnieuw */lvKnop()},
-    {enableHighAccuracy:true,maximumAge:8000,timeout:30000});
+    {enableHighAccuracy:true,maximumAge:3000,timeout:30000});lvVolgRit();
   lvWakker();if(!stil)toast("Live delen staat aan · de klanten van vandaag zien waar je bent");lvKnop()}
 function liveStop(stil){if(LV.watch!=null){try{navigator.geolocation.clearWatch(LV.watch)}catch(e){}}LV.watch=null;LV.pos=null;try{LV.lock&&LV.lock.release()}catch(e){}LV.lock=null;
-  lvSchrijf({actief:false});if(!stil)toast("Live delen staat uit");lvKnop()}
+  if(!LV.rit||!LV.rit.dev||LV.rit.dev===LV_DEV)lvSchrijf({actief:false});if(!stil)toast("Live delen staat uit");lvKnop()}
 /* wisselen op wat de knop laat zien: staat hij grijs (ook als het aanzetten eerder mislukte), dan gaat hij aan */
 function liveWissel(){state.liveDelen=!(state.liveDelen&&LV.watch!=null);try{localStorage.setItem("ms.live",state.liveDelen?"1":"0")}catch(e){}state.liveDelen?liveStart():liveStop();try{const d=iso(today()),r=state.routes[d]||{};state.routes[d]={...r,werk:{...(r.werk||{}),liveUit:!state.liveDelen}};save("routes",d,{...strip(r),werk:{...(r.werk||{}),liveUit:!state.liveDelen}})}catch(e){}render()}
 /* knop in de kop van de Route-pagina */
