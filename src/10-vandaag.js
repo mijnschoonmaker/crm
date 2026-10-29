@@ -143,7 +143,7 @@ function openJob(id,day){
 }
 
 /* ---------- ruit die schoon wordt: de wisser zakt mee met de verwachte tijd ---------- */
-function tonHtml(sinds,ex,f){const p=Math.min(1,Math.max(0,f)),id="rt"+Math.random().toString(36).slice(2,7);
+function tonHtml(sinds,ex,f){const p=Math.min(1,Math.max(0,f)),id="rt"+(typeof hue==="function"?String(sinds).replace(/\D/g,"").slice(-9):Math.random().toString(36).slice(2,7));
   return `<span class="tk-ruit${f>1?" over":""}" data-ton="${esc(sinds)}" data-exp="${ex}" style="--p:${p.toFixed(3)}" aria-label="${Math.round(f*100)}% van de verwachte tijd">
     <svg viewBox="0 0 80 96" aria-hidden="true"><defs><clipPath id="${id}"><rect x="9" y="9" width="62" height="70" rx="2"/></clipPath>
       <linearGradient id="${id}g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eaf7fb"/><stop offset="1" stop-color="#bfe6f0"/></linearGradient></defs>

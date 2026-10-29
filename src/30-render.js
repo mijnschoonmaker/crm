@@ -1,5 +1,8 @@
 /* ---------- RENDER ---------- */
 const VIEWS={control:vControl,vandaag:vRoute,route:vRoute,planning:vPlanning,klanten:vKlanten,communicatie:vCommunicatie,offertes:vOffertes,facturen:vFacturen,boekhouding:vBoekhouding,calculator:vRamen,uitvoering:vUitvoering,inzichten:vInzichten,instellingen:vInstellingen,handleiding:vHandleiding};
+/* lopende tijden (balkjes, voortgang) in stijlen afronden, zodat het scherm niet elke seconde als "anders" telt */
+const rondStijl=h=>h.replace(/style="[^"]*"/g,m=>m.replace(/(\d+)\.(\d+)/g,(x,a,b)=>a==="0"?(+x).toFixed(2):String(Math.round(+x))));
+function zetHtml(el,h){if(el&&el._html!==h){el.innerHTML=h;el._html=h}}
 function render(){tikWis();try{const st=String(new Error().stack||"").split("\n").map(x=>x.trim().replace(/^at\s+/,"").split(/[\s@(]/)[0]),i=st.indexOf("render"),r=(i>=0?st[i+1]:st[2])||"?";diagTel("r:"+r)}catch(_){}diagRender();try{warmMailLogo()}catch(e){}try{sessionStorage.setItem("ms.tab",state.tab||"control");if(state.utab)sessionStorage.setItem("ms.utab",state.utab)}catch(e){}
   /* tellers in het menu: wat je in het Control Center op afgehandeld of later hebt gezet, telt niet mee */
   const af=typeof ccAf==="function"?ccAf:()=>false;
@@ -14,9 +17,9 @@ function render(){tikWis();try{const st=String(new Error().stack||"").split("\n"
   try{lvDagCheck()}catch(e){}
   $(".app").classList.toggle("collapsed",state.collapsed);
   const mw=isMw();document.body.classList.toggle("mw",mw);if(mw&&!MW_TABS.includes(state.tab))state.tab="vandaag";
-  $("#sideNav").innerHTML=PAGES.filter(([t])=>!mw||MW_TABS.includes(t)).map(([t,l])=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}" title="${l}">${I[t]}<span class="lbl">${l}</span>${badge(t)}</button>`).join("");
+  zetHtml($("#sideNav"),PAGES.filter(([t])=>!mw||MW_TABS.includes(t)).map(([t,l])=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}" title="${l}">${I[t]}<span class="lbl">${l}</span>${badge(t)}</button>`).join(""));
   const mob=mw?MW_TABS:["control","vandaag","planning","klanten"],inMeer=!mob.includes(state.tab),meerB=late*0+mTodo;
-  $("#tabNav").innerHTML=mw?mob.map(t=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}"><i>${I[t]}</i>${PAGES.find(p=>p[0]===t)[1]}</button>`).join(""):mob.map(t=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}"><i>${I[t]}</i>${t==="control"?"Overzicht":PAGES.find(p=>p[0]===t)[1]}${t==="control"?"":badge(t)}</button>`).join("")+`<button type="button" data-act="meer" aria-current="${inMeer}"><i>${I.more}</i>Meer${meerB?`<span class="badge">${meerB}</span>`:""}</button>`;
+  zetHtml($("#tabNav"),mw?mob.map(t=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}"><i>${I[t]}</i>${PAGES.find(p=>p[0]===t)[1]}</button>`).join(""):mob.map(t=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}"><i>${I[t]}</i>${t==="control"?"Overzicht":PAGES.find(p=>p[0]===t)[1]}${t==="control"?"":badge(t)}</button>`).join("")+`<button type="button" data-act="meer" aria-current="${inMeer}"><i>${I.more}</i>Meer${meerB?`<span class="badge">${meerB}</span>`:""}</button>`);
   const nm=(state.me&&state.me.name)||S().naam||"Jouw bedrijf";
   {let lg=S().logo;if(lg){try{localStorage.setItem("ms.lg",lg)}catch(e){}}else if(LIVE){try{lg=localStorage.getItem("ms.lg")||""}catch(e){}}
     const h=new Date().getHours(),fn=state.me&&state.me.name?state.me.name.trim().split(/\s+/)[0]:"",gr=(h<6?"Goedenacht":h<12?"Goedemorgen":h<18?"Goedemiddag":"Goedenavond")+(fn?", "+fn:""),key=lg+"|"+gr;
@@ -28,7 +31,10 @@ function render(){tikWis();try{const st=String(new Error().stack||"").split("\n"
   const ae=document.activeElement,fid=ae&&ae.id&&$("#view").contains(ae)?ae.id:null,pos=fid&&ae.selectionStart;
   const rcF=RC&&state.tab==="calculator"?RC.focusState():null;
   const tlAct=e=>e.querySelector('[aria-pressed="true"],[aria-current="true"],[aria-selected="true"]'),tlKey=a=>a?(a.dataset.v||a.dataset.tab||a.textContent):"",tlOud=[...$("#view").querySelectorAll(".tabsline")].map(e=>({x:e.scrollLeft,a:tlKey(tlAct(e))})),tlTab=state.tab;
-  try{$("#view").innerHTML=(VIEWS[state.tab]||vVandaag)();if(state.tab==="calculator"){mountRamen();if(rcF)RC.restoreFocus(rcF)}if(state.tab==="planning")pkNaRender()}catch(e){console.error(e);$("#view").innerHTML=`<div class="notice">Deze pagina kon niet worden getoond (${esc(e.message)}). Ga naar een andere pagina of vernieuw.</div>`}
+  /* alleen vervangen als er echt iets anders te zien is: anders bleef het scherm (met kaart en animaties) bij elke update opnieuw opbouwen, wat als trillen zichtbaar was */
+  try{const vw=$("#view"),vh=rondStijl((VIEWS[state.tab]||vVandaag)()),vk=vh.replace(/(data-timer="[^"]*">)[^<]*/g,"$1"),zelfde=vk===vw._html&&vw._tab===state.tab&&vw.firstElementChild&&vw.firstElementChild===vw._eerste&&vw.querySelectorAll("[disabled]").length===(vh.match(/\sdisabled(?=[\s>=\/])/g)||[]).length;
+    if(!zelfde){vw.innerHTML=vh;vw._html=vk;vw._tab=state.tab;vw._eerste=vw.firstElementChild}
+    if(state.tab==="calculator"){mountRamen();if(rcF)RC.restoreFocus(rcF)}if(state.tab==="planning"&&!zelfde)pkNaRender()}catch(e){console.error(e);$("#view").innerHTML=`<div class="notice">Deze pagina kon niet worden getoond (${esc(e.message)}). Ga naar een andere pagina of vernieuw.</div>`}
   if(fid){const el=document.getElementById(fid);if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}}
   /* zijwaarts schuivende tabbalken houden hun plek na opnieuw tekenen; de gekozen tab blijft in beeld */
   requestAnimationFrame(pulsTemmen);

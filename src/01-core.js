@@ -355,7 +355,10 @@ function diagTel(o){try{DIAG.o[o]=(DIAG.o[o]||0)+1;setTimeout(()=>{DIAG.o[o]--;i
 function diagRender(){try{const nu=Date.now();DIAG.t=DIAG.t.filter(x=>nu-x<10000);DIAG.t.push(nu);
   if(DIAG.t.length>=10&&nu-DIAG.laatst>30000&&document.visibilityState==="visible"){DIAG.laatst=nu;const top=Object.entries(DIAG.o).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,v])=>k+" "+v+"×").join(", ")||"onbekend";
     console.warn("scherm vaak opnieuw",DIAG.t.length,top);try{(window.__diag=window.__diag||[]).push(new Date().toISOString()+" "+DIAG.t.length+"× · "+top)}catch(_){}
-    if(LIVE)toast("Diagnose: scherm "+DIAG.t.length+"× opnieuw in 10 s · "+top)}}catch(e){}}
+}}catch(e){}}
+/* facturen, berichten en kosten veranderen soms vaak (mails, betalingen, PDF's); staan ze niet op dit scherm, dan hoogstens om de 5 s opnieuw tekenen */
+const SNAP_RUST={facturen:1,berichten:1,kosten:1,banktx:1},SNAP_TAB={facturen:1,communicatie:1,boekhouding:1,offertes:1,inzichten:1,control:1};let snapT=0;
+function snapPlan(col){if(!state.loaded||!SNAP_RUST[col]||SNAP_TAB[state.tab])return schedule();if(snapT)return;snapT=setTimeout(()=>{snapT=0;schedule()},5000)}
 let rq=0;function schedule(){if(rq)return;rq=requestAnimationFrame(()=>{rq=0;render()})}
 async function init(){
   const use=async n=>{try{return window.claude?await window.claude.use(n):null}catch(e){return null}};
@@ -371,7 +374,7 @@ async function init(){
     /* niets veranderd (alleen een bevestiging van de server): niet opnieuw tekenen */
     if(seen.has(col)&&s.wijzigingen===0)return;
     diagTel("snap:"+col);
-    apply(col,opsOverlay(col,s.docs.map(d=>{const o={...d.data(),id:d.id};SNAPW.add(o);return o})));seen.add(col);if(seen.size===COLS.length){if(!state.loaded){setTimeout(obHerstel,1200);setTimeout(migGeenTijd,400);setTimeout(()=>typeof migGotenBuiten==="function"&&migGotenBuiten(),900)}state.loaded=true}schedule();
+    apply(col,opsOverlay(col,s.docs.map(d=>{const o={...d.data(),id:d.id};SNAPW.add(o);return o})));seen.add(col);if(seen.size===COLS.length){if(!state.loaded){setTimeout(obHerstel,1200);setTimeout(migGeenTijd,400);setTimeout(()=>typeof migGotenBuiten==="function"&&migGotenBuiten(),900)}state.loaded=true}snapPlan(col);
   },e=>{$("#status").innerHTML='<div class="notice">Gegevens konden niet worden geladen ('+esc(e.code)+'). Vernieuw de pagina.</div>'}));
 }
 
