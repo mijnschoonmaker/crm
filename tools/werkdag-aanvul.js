@@ -17,6 +17,11 @@ const tijdNL = iso => new Date(iso).toLocaleTimeString("nl-NL", { timeZone: "Eur
     const bs = (await db.collection("beurten").where("datum", "==", dag).get()).docs.filter(d => kl.some(k => k.id === d.data().klantId) && !d.data().geannuleerd);
     meld("klanten met dat adres: " + kl.map(k => k.data().naam + " (" + k.data().adres + ")").join("; ") + " · beurten vandaag: " + bs.length);
     if (bs.length !== 1) throw new Error("verwacht precies 1 beurt bij " + adres + " op " + dag + ", gevonden " + bs.length);
+    { const d0 = bs[0].data(), kd = (kl.find(k => k.id === d0.klantId) || { data: () => ({}) }).data();
+      const pick = (o, ks) => JSON.stringify(Object.fromEntries(ks.filter(k => o && o[k] !== undefined).map(k => [k, o[k]])));
+      meld("BEURT " + pick(d0, ["bedrag", "dienst", "extra", "gefactureerd", "extraFacturen", "periodiek", "duur", "op", "door"]));
+      meld("KLANT " + pick(kd, ["prijs", "dienst", "soort", "facturatie", "periodiek", "duur", "frequentie"]) + " opdrachten: " + JSON.stringify((kd.opdrachten || []).map(o => ({ d: o.dienst, p: o.prijs, a: o.actief, g: o.groep }))));
+      if (process.env.ALLEEN_TONEN === "1") { meld("alleen getoond"); return; } }
     const b = bs[0], d = b.data(), op = d.op || new Date().toISOString(), start = new Date(new Date(op).getTime() - min * 6e4).toISOString();
     meld("beurt " + b.id + " (" + d.klantNaam + "): duur " + d.duur + " → " + min + " min, gemeten " + !!d.gemeten + " → true, start " + tijdNL(start) + " – afgemeld " + tijdNL(op));
     if (!proef) await b.ref.update({ duur: min, gemeten: true, startOp: d.startOp || start, achterafIngevuld: new Date().toISOString() });
