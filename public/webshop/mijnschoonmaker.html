@@ -1135,6 +1135,27 @@ html body:not(#zz) .screen .m-bar{display:flex;gap:4px;padding:2px 9px 9px}
 html body:not(#zz) .screen .m-bar span{flex:1;height:22px;border-radius:7px;border:.6px solid #e4e7ec;background:#fff;color:#0d121b;display:flex;align-items:center;justify-content:center;gap:3px;font:700 5.2px/1 var(--f-ui);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;box-shadow:0 3px 8px -6px rgb(13 18 27 / .4)}
 html body:not(#zz) .screen .m-bar span.done{flex:1.3;border:0;color:#fff;background:linear-gradient(150deg,#353f56,#252c3c 55%,#171c28)}
 html body:not(#zz) .screen .m-bar svg{width:7px;height:7px;fill:none;stroke:#7ee2a8;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+
+/* code van een buur, boven de prijs */
+.ref-slot:empty{display:none}
+html body:not(#zz) .ref-box{display:flex;gap:12px;align-items:flex-start;margin-top:12px;padding:16px;border-radius:16px;background:#fff;border:1px solid #e3e6ea;color:#0d121b;font-size:14px;line-height:1.45}
+html body:not(#zz) .ref-box>svg{flex:none;width:22px;height:22px;margin-top:1px;color:#0d121b}
+.ref-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+html body:not(#zz) .ref-t b,html body:not(#zz) .ref-l{font-weight:700;font-size:15px;color:#0d121b;letter-spacing:0;text-transform:none}
+html body:not(#zz) .ref-t>span{color:#5d6670}
+.ref-f{display:flex;gap:8px;margin-top:10px}
+html body:not(#zz) .ref-f .ref-in{flex:1;min-width:0;height:48px!important;padding:0 14px!important;border-radius:12px!important;border:1px solid #d5d9de!important;background:#fff!important;color:#0d121b!important;font:700 16px var(--body)!important;letter-spacing:.08em;text-transform:uppercase}
+html body:not(#zz) .ref-f .ref-in::placeholder{text-transform:none;letter-spacing:0;font-weight:500;color:#9aa1a9;opacity:1}
+html body:not(#zz) .ref-f .ref-in:focus{outline:none;border-color:#0d121b!important;box-shadow:0 0 0 3px rgb(13 18 27 / .12)}
+html body:not(#zz) .ref-go{flex:none;height:48px;padding:0 20px;border:0;border-radius:12px;background:#0d121b;color:#fff;font:700 12px var(--body);letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
+.ref-go:active{transform:scale(.97)}
+.ref-st{display:block;margin-top:6px;font-size:13px;color:#5d6670}
+.ref-st.fout{color:#b4231b}
+html body:not(#zz) .ref-box.ok{align-items:center;background:#ecf7f0;border-color:#b9e0c7}
+html body:not(#zz) .ref-box.ok>svg{color:#1f8a4c}
+html body:not(#zz) .ref-box.ok .ref-t>span{color:#24423a}
+html body:not(#zz) .ref-weg{flex:none;border:0;background:none;color:#0d121b;font:700 13px var(--body);text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:8px 4px;letter-spacing:0;text-transform:none}
+@media (max-width:420px){.ref-f{flex-direction:column}html body:not(#zz) .ref-f .ref-in{flex:none;width:100%}html body:not(#zz) .ref-go{width:100%}}
 </style>
 </head>
 <body>
@@ -1213,6 +1234,7 @@ html body:not(#zz) .screen .m-bar svg{width:7px;height:7px;fill:none;stroke:#7ee
       <div class="ov-photos" id="ovPhotos"></div>
       <div class="ov-list" id="ovList"></div>
       <div id="ovWarn"></div>
+      <div class="ref-slot" id="ovRef"></div>
       <div class="ov-price" id="ovPrice"></div>
     </section>
 
@@ -1293,7 +1315,7 @@ html body:not(#zz) .screen .m-bar svg{width:7px;height:7px;fill:none;stroke:#7ee
 /*CFG-START*/
 const BEDRIJF={"naam":"mijnschoonmaker.com","email":"robin@mijnschoonmaker.com","whatsapp":"31618060606","logo":"https://app.mansard.nl/_blob/c7347df47a651a9cf0934d8f7c429a10","endpoint":"https://app.mansard.nl/api/aanvraag","werkgebied":"","gebieden":[],"klantPc":"2280,9202,9204,9231,9249,9301,9304,9343,9351,9354,9355,9356,9361,9362,9363,9364,9365,9366,9367,9479,9728,9751,9752,9765,9766,9801,9821,9822,9824,9825,9843,9844,9861,9862,9863,9865,9866","voorwaarden":""};
 const VAT=0.21;
-const cfg={"g0_p":1.64,"g1_p":1.71,"g2_p":2.06,"g3_p":2.86,"tuimel_p":1.83,"lood_p":1.64,"koepel_p":2,"mini_p":0.5,"start":0,"min":56.2,"tiers":[[10,10],[20,20],[30,30],[40,40]],"tb":{"g2":[[10,10],[20,20],[30,30],[40,40]],"g1":[[10,10],[20,20],[30,30],[40,40]],"g0":[[10,10],[20,20],[30,30],[40,40]],"mini":[[10,10],[20,20],[30,30],[200,60]],"koepel":[[5,10]],"g3":[[10,10],[20,20],[30,30],[40,40]],"lood":[[10,10],[20,20],[30,30],[40,40]],"tuimel":[[2,20],[5,40],[10,50]]},"wg":{"g3":100,"mini":100,"lood":100,"g0":100,"g1":100,"tuimel":100,"koepel":100,"g2":100},"fp":{"w1":0,"w2":0,"w4":10,"mnd":0,"w6":0,"m8":5,"mnd2":0,"w12":-150,"mnd3":-150,"w16":0,"mnd4":0,"w24":0,"mnd6":0,"w48":0,"mnd12":0,"afroep":-25,"once":-25}};
+const cfg={"g0_p":1.64,"g1_p":1.71,"g2_p":2.06,"g3_p":2.86,"tuimel_p":1.83,"lood_p":1.64,"koepel_p":2,"mini_p":0.5,"start":0,"min":56.2,"tiers":[[10,10],[20,20],[30,30],[40,40]],"tb":{"koepel":[[5,10]],"g3":[[10,10],[20,20],[30,30],[40,40]],"lood":[[10,10],[20,20],[30,30],[40,40]],"mini":[[10,10],[20,20],[30,30],[200,60]],"g2":[[10,10],[20,20],[30,30],[40,40]],"g0":[[10,10],[20,20],[30,30],[40,40]],"tuimel":[[2,20],[5,40],[10,50]],"g1":[[10,10],[20,20],[30,30],[40,40]]},"wg":{"tuimel":100,"g2":100,"g0":100,"lood":100,"g3":100,"mini":100,"koepel":100,"g1":100},"fp":{"w1":0,"w2":0,"w4":10,"mnd":0,"w6":0,"m8":0,"mnd2":0,"w12":-150,"mnd3":-150,"w16":0,"mnd4":0,"w24":0,"mnd6":0,"w48":0,"mnd12":0,"afroep":-25,"once":-25}};
 const FREQ_LIST=[["m8","1x per 8 weken",6.5,5,8]];
 const FREQ_ADV="m8";
 /*CFG-END*/
@@ -1434,10 +1456,10 @@ function calculate(scroll){const R=compute(),{f,fRows,sRows,all,count,normal,fre
   const korting=avgD>0||f.pct>0;
   out.innerHTML=`<div class="rc"><div class="eyebrow">Uw prijs</div>
       <div class="ov-list">${all.map(r=>`<div class="ov-row"><span>${r.n}</span><b>${r.c}</b></div>`).join("")}<div class="ov-row tot"><span>Totaal</span><b>${count===1?"1 raam":count+" ramen"}</b></div></div>
-      <div class="ov-price"><div class="op-l"><small>Uw prijs per beurt</small><b>${eur(SOORT==="zakelijk"?ex:inc)}</b><small>Elke 8 weken · ${SOORT==="zakelijk"?"excl. btw":"incl. btw"} en kozijnen</small><small class="op-live">Met klantportaal: op de dag zelf ziet u ons live op de kaart zodra er nog 2 adressen of minder vóór u zijn.</small></div><button type="button" class="go2" id="toForm">Gegevens invullen</button></div></div>`;
+      <div class="ref-slot"></div><div class="ov-price"><div class="op-l"><small>Uw prijs per beurt</small><b>${eur(SOORT==="zakelijk"?ex:inc)}</b>${refPrijsRegel()}<small>${elkeTxt(f)} · ${SOORT==="zakelijk"?"excl. btw":"incl. btw"} en kozijnen</small><small class="op-live">Met klantportaal: op de dag zelf ziet u ons live op de kaart zodra er nog 2 adressen of minder vóór u zijn.</small></div><button type="button" class="go2" id="toForm">Gegevens invullen</button></div></div>`;
   g("toForm").onclick=()=>{openStep(5);setTimeout(()=>g("k-naam").focus({preventScroll:true}),400)};
   out.querySelectorAll("[data-adj]").forEach(b=>b.onclick=()=>{const n=+b.dataset.adj;if(n===1){openStep(1,false);g("ph-in").click()}else openStep(n)});
-  last=R;
+  last=R;refTeken();
   document.querySelector(".foot").hidden=false;
   if(typeof fotoModus==="function"&&fotoModus()&&!g("ov").hidden)setTimeout(renderOv,0);
   if(scroll!==false)g("result").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"})}
@@ -1467,7 +1489,7 @@ function renderOv(){
   ovW=controles();
   g("ovWarn").innerHTML=ovW.length?ovW.map((w,k)=>`<div class="ov-warn">${IC_W}<div>${esc(w.t)}<br><button type="button" data-ovw="${k}">${esc(w.b)}</button></div></div>`).join(""):`<div class="ov-ok">${IC_OK}<span>Alles aangetikt? Dan klopt uw prijs hieronder.</span></div>`;
   const fv=g("freq").value;
-  g("ovPrice").innerHTML=last?`<div class="op-l"><small>Uw prijs per beurt</small><b>${eur(SOORT==="zakelijk"?last.ex:last.inc)}</b><small>Elke 8 weken · ${SOORT==="zakelijk"?"excl. btw":"incl. btw"} en kozijnen</small><small class="op-live">Met klantportaal: op de dag zelf ziet u ons live op de kaart zodra er nog 2 adressen of minder vóór u zijn.</small></div><button type="button" class="go2" data-ovgo>Gegevens invullen</button>`:""}
+  g("ovPrice").innerHTML=last?`<div class="op-l"><small>Uw prijs per beurt</small><b>${eur(SOORT==="zakelijk"?last.ex:last.inc)}</b>${refPrijsRegel()}<small>${elkeTxt(last.f)} · ${SOORT==="zakelijk"?"excl. btw":"incl. btw"} en kozijnen</small><small class="op-live">Met klantportaal: op de dag zelf ziet u ons live op de kaart zodra er nog 2 adressen of minder vóór u zijn.</small></div><button type="button" class="go2" data-ovgo>Gegevens invullen</button>`:"";refTeken()}
 g("ov").addEventListener("keydown",e=>{const t=e.target.closest("[data-ovi]");if(t&&e.target===t&&(e.key==="Enter"||e.key===" ")){e.preventDefault();openEd(+t.dataset.ovi)}});
 g("ov").addEventListener("click",e=>{const rm=e.target.closest("[data-ovrm]");
   if(rm){e.stopPropagation();if(!rm.classList.contains("zeker")){g("ov").querySelectorAll(".ov-rm.zeker").forEach(x=>{x.classList.remove("zeker");x.querySelector("span").textContent="Verwijderen"});rm.classList.add("zeker");rm.querySelector("span").textContent="Zeker? Tik nogmaals";clearTimeout(rm._t);rm._t=setTimeout(()=>{rm.classList.remove("zeker");rm.querySelector("span").textContent="Verwijderen"},4000);return}
@@ -1512,9 +1534,43 @@ async function deel(kanaal){if(!check())return;const txt=tekst();
 
 /* aanvraag als gegevens (formaat zeem.aanvraag v1): straks rechtstreeks naar de server, nu als reserve in de mail */
 /* aanbevelingscode uit de link (?ref=CODE), ook als de calculator in een iframe staat */
-function refCode(){try{const q=x=>new URLSearchParams(x||"").get("ref");let r=q(location.search);try{r=r||q(parent.location.search)}catch(e){}try{r=r||localStorage.getItem("ms.ref")}catch(e){}
+var REF_KEUZE=null;
+function refCode(){if(typeof REF_KEUZE==="string")return REF_KEUZE;try{const q=x=>new URLSearchParams(x||"").get("ref");let r=q(location.search);try{r=r||q(parent.location.search)}catch(e){}try{r=r||localStorage.getItem("ms.ref")}catch(e){}
   r=String(r||"").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,12);if(r)try{localStorage.setItem("ms.ref",r)}catch(e){}return r}catch(e){return ""}}
 try{refCode()}catch(e){}
+/* ---------- code van een buur: geef € 5, krijg € 10 ----------
+   Vak boven de prijs. Komt iemand via een persoonlijke link, dan staat de code er al in.
+   De code wordt hier gecontroleerd (GET endpoint?ref=CODE) en gaat met de aanvraag mee; de server controleert hem opnieuw. */
+const REF={code:"",st:"leeg",naam:"",welkom:0};let refT=0;
+const eurK=n=>{const v=Number(n)||0;return Number.isInteger(v)?"€ "+v:eur(v)};
+const elkeTxt=f=>{const l=String((f&&f.l)||"1x per 8 weken");return /^1x per /i.test(l)?"Elke "+l.replace(/^1x per /i,""):l};
+function refZet(c){REF_KEUZE=c;try{if(c)localStorage.setItem("ms.ref",c);else localStorage.removeItem("ms.ref")}catch(e){}}
+function refCheck(c,stil){c=String(c||"").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,12);REF.code=c;REF.naam="";REF.welkom=0;const t=++refT;
+  if(!c){REF.st="leeg";refZet("");refTeken();return}
+  if(c.length<4){REF.st="fout";refZet("");refTeken();return}
+  REF.st="check";refTeken(stil);
+  const ep=BEDRIJF.endpoint;if(!ep){REF.st="later";refZet(c);refTeken();return}
+  fetch(ep+(ep.includes("?")?"&":"?")+"ref="+encodeURIComponent(c),{cache:"no-store"}).then(r=>r.status===404?{ok:false}:r.ok?r.json():Promise.reject(r.status))
+    .then(j=>{if(t!==refT)return;if(j&&j.ok){REF.st="ok";REF.naam=String(j.voornaam||"");REF.welkom=Number(j.welkom)||0;REF.code=j.code||c;refZet(REF.code)}else{REF.st="fout";refZet("")}refTeken()})
+    .catch(()=>{if(t!==refT)return;REF.st="later";refZet(c);refTeken()})}
+function refPrijsRegel(){return REF.st==="ok"&&REF.welkom>0?`<small class="op-ref">− ${eurK(REF.welkom)} welkomstkorting op uw eerste factuur</small>`:""}
+const IC_GIFT='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v9H5v-9M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg>';
+function refTeken(houdFocus){const slots=[...document.querySelectorAll(".ref-slot")];if(!slots.length)return;
+  const a=document.activeElement,hadFocus=a&&a.classList&&a.classList.contains("ref-in"),fi=hadFocus?slots.findIndex(x=>x.contains(a)):-1,waarde=hadFocus?a.value:REF.code,pos=hadFocus?a.selectionStart:null;
+  const ok=REF.st==="ok",st=REF.st==="check"?`<span class="ref-st">Code controleren…</span>`:REF.st==="fout"?`<span class="ref-st fout">Deze code kennen we niet. Kijk even of hij goed is overgenomen.</span>`:REF.st==="later"?`<span class="ref-st">Code ${esc(REF.code)} wordt bij uw aanvraag gecontroleerd.</span>`:"";
+  const html=ok?`<div class="ref-box ok">${IC_GIFT}<div class="ref-t"><b>Code ${esc(REF.code)} toegepast</b><span>${REF.welkom>0?`U krijgt ${esc(eurK(REF.welkom))} korting op uw eerste factuur`:"U bent aanbevolen"}${REF.naam?`, aanbevolen door ${esc(REF.naam)}`:""}.</span></div><button type="button" class="ref-weg" data-refweg>Wijzigen</button></div>`
+    :`<div class="ref-box">${IC_GIFT}<div class="ref-t"><label class="ref-l" for="refIn">Code van uw buur of kennis?</label><span>Bent u aanbevolen? Vul de code in en u krijgt korting op uw eerste factuur.</span>
+      <form class="ref-f" data-refform novalidate><input class="in ref-in" id="refIn" name="ref" inputmode="text" autocapitalize="characters" autocomplete="off" spellcheck="false" maxlength="12" placeholder="Bijv. HANS68" value="${esc(waarde)}" aria-describedby="refSt"><button type="submit" class="ref-go">Toepassen</button></form><div id="refSt" aria-live="polite">${st}</div></div></div>`;
+  slots.forEach((el,i)=>{el.innerHTML=html;if(i>0){const x=el.querySelector("#refIn");if(x)x.id="refIn"+i;const l=el.querySelector(".ref-l");if(l)l.setAttribute("for","refIn"+i);const s2=el.querySelector("#refSt");if(s2){s2.id="refSt"+i;if(x)x.setAttribute("aria-describedby","refSt"+i)}}});
+  if(hadFocus&&!ok&&fi>=0){const x=slots[fi].querySelector(".ref-in");if(x){x.focus({preventScroll:true});try{x.setSelectionRange(pos,pos)}catch(e){}}}
+  if(last){const p=g("ovPrice");if(p&&last&&p.querySelector(".op-l")){const o=p.querySelector(".op-ref"),n=refPrijsRegel();if(o)o.remove();if(n)p.querySelector(".op-l b").insertAdjacentHTML("afterend",n)}
+    document.querySelectorAll("#out .ov-price .op-l").forEach(l=>{const o=l.querySelector(".op-ref"),n=refPrijsRegel();if(o)o.remove();if(n)l.querySelector("b").insertAdjacentHTML("afterend",n)})}}
+document.addEventListener("submit",e=>{const f=e.target.closest&&e.target.closest("[data-refform]");if(!f)return;e.preventDefault();const x=f.querySelector(".ref-in");refCheck(x?x.value:"")});
+document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("[data-refweg]")){refT++;REF.st="leeg";refZet("");refTeken();setTimeout(()=>{const x=[...document.querySelectorAll(".ref-slot .ref-in")].find(i=>i.offsetParent!==null);if(x){x.focus();x.select()}},0)}});
+document.addEventListener("input",e=>{if(e.target.classList&&e.target.classList.contains("ref-in")){const v=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,"");if(v!==e.target.value){const p=e.target.selectionStart;e.target.value=v;try{e.target.setSelectionRange(p,p)}catch(_){}}if(REF.st==="fout"||REF.st==="later"){REF.st="leeg";const s=e.target.closest(".ref-box").querySelector("[aria-live]");if(s)s.innerHTML=""}}});
+document.addEventListener("focusout",e=>{if(e.target.classList&&e.target.classList.contains("ref-in")){const v=e.target.value.trim();if(v&&v!==REF.code&&REF.st!=="check")setTimeout(()=>{if(!document.activeElement||!document.activeElement.classList.contains("ref-go"))refCheck(v)},120)}});
+/* via een persoonlijke link: code staat er al in en wordt meteen gecontroleerd */
+try{const c0=refCode();if(c0)setTimeout(()=>refCheck(c0,true),50)}catch(e){}
 function aanvraagData(){const R=last,v=id=>g(id).value.trim();
   return {formaat:"zeem.aanvraag",versie:1,gemaakt:new Date().toISOString(),ref:refCode(),
     soort:SOORT,klant:{bedrijf:SOORT==="zakelijk"?v("k-bedrijf"):"",naam:v("k-naam"),adres:v("k-adres"),postcode:v("k-pc"),plaats:v("k-plaats"),email:v("k-email"),telefoon:v("k-tel"),opmerking:v("k-opm")},
