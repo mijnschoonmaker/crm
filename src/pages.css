@@ -4427,3 +4427,6 @@ html body .ow-lg.ow-lg-weg{display:none!important}
 .kd-li.ref-in{gap:8px}
 .kd-li.ref-in .ref-kk{flex:1;min-width:0;max-width:220px;height:32px;padding:0 10px;text-transform:uppercase;letter-spacing:.06em;font-weight:700}
 .ref-deel .kd-li em{display:flex;gap:6px}
+
+.tj-foto{display:inline-flex;align-items:center;gap:4px;flex:none;margin-left:8px;padding:3px 8px;border:0;border-radius:999px;background:rgba(255,255,255,.16);color:#fff;font:inherit;font-size:12px;cursor:pointer;min-height:0;box-shadow:none}
+.tj-foto svg{width:15px;height:15px}.tj-foto b{font-weight:700}.tj-foto:hover{background:rgba(255,255,255,.28)}
