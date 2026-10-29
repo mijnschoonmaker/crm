@@ -145,7 +145,7 @@ document.addEventListener("click",e=>{
     case"copymsg":{const r=compose&&compose.recipients[Number(t.dataset.i)];if(r)copy(fill(compose.tekst,r.vars),t);break}
     case"fhmenu":{const K=fhKlaar();if(K.herinnering.length)fbHerinner(K.herinnering,false);else if(K.wik.length)fbHerinner(K.wik,true);else if(K.likifin.length)fhLikifin(K.likifin);
       else{const ds=facturen().map(f=>fhVolgende(f)).filter(v=>v&&v.datum&&!v.klaar&&v.soort!=="bijlikifin").map(v=>v.datum).sort();toast(ds[0]?"Vandaag geen herinneringen aan de beurt · eerstvolgende "+fmtD(ds[0]):"Geen openstaande facturen die een herinnering nodig hebben")}break}
-    case"queue":{const q=queues().find(x=>x.id===t.dataset.q);if(q&&q.items.length)openCompose({title:q.titel,sjabloon:q.sjabloon||q.id,recipients:q.items,hint:q.hint?esc(q.hint):"",tekst:q.tekst,mail:q.mail,onderwerp:q.onderwerp,kanaal:q.kanaal});else toast(q?"Niets klaar om te versturen":"Zet factuurherinneringen aan bij Instellingen");break}
+    case"queue":{const q=queues().find(x=>x.id===t.dataset.q);if(q&&q.id==="factuur"&&q.items.length&&typeof fbVersturen==="function"){fbVersturen(q.items.map(it=>state.facturen.find(f=>"factuur:"+f.id===it.ref)).filter(Boolean));break}if(q&&q.items.length)openCompose({title:q.titel,sjabloon:q.sjabloon||q.id,recipients:q.items,hint:q.hint?esc(q.hint):"",tekst:q.tekst,mail:q.mail,onderwerp:q.onderwerp,kanaal:q.kanaal});else toast(q?"Niets klaar om te versturen":"Zet factuurherinneringen aan bij Instellingen");break}
     case"bulk":{const g=$("#bulkGroup"),tp=$("#bulkTpl");openBulk(g?g.value:"alle",tp?tp.value:"weer");break}
     case"bulktoday":openBulk("vandaag","afspraak");break;
     case"bulkmsg":openBulk("route","afspraak");break;

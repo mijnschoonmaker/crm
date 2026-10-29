@@ -81,6 +81,22 @@ async function fbBetaald(list,wijze){
 function fbKlaar(id){FB_SEL.delete(id);if(!FB_SEL.size)state.fbMenu=false;schedule()}
 function fbVersturen(list){
   const nl=list.filter(f=>f.status==="open"||f.status==="concept");if(!nl.length)return toast("Kies openstaande facturen om te versturen");
+  /* e-mail rechtstreeks: geen tussenscherm, alleen een bevestiging met het bedrag; daarna gaan de mails met PDF meteen weg */
+  if(typeof liveMail==="function"&&liveMail()){const met=nl.filter(f=>fbOntvanger(f).k.email),zonder=nl.filter(f=>!fbOntvanger(f).k.email);
+    if(met.length)return(async()=>{const tot=met.reduce((a,f)=>a+totals(f).inc,0),ml=typeof liveMollie==="function"&&liveMollie();
+      const een=met[0],rij=f=>`${esc(cleanName(f.klantNaam))} · ${esc(f.nummer||"concept")} · <b>${esc(eur(totals(f).inc))}</b>`;
+      const tekst=met.length===1?`Naar <b>${esc(fbOntvanger(een).k.email)}</b> · <b>${esc(eur(totals(een).inc))}</b>`
+        :met.slice(0,6).map(rij).join("<br>")+(met.length>6?`<br>en nog ${met.length-6}`:"")+`<br>Samen <b>${esc(eur(tot))}</b>`;
+      const ok=await vraag(met.length===1?"Factuur "+(een.nummer||"")+" versturen?":met.length+" facturen versturen?",
+        tekst+`<br>De mail met de PDF${ml?" en een betaallink":""} gaat meteen naar de klant.${zonder.length?`<br><small>${plural(zonder.length,"factuur zonder e-mailadres","facturen zonder e-mailadres")} kies je daarna zelf hoe je verstuurt.</small>`:""}`,"Versturen","Annuleren");
+      if(ok!==true)return;
+      for(const f of met.filter(f=>f.status==="concept"))await save("facturen",f.id,{...strip(f),status:"open"});
+      let n=0,fout=0;if(met.length>1)toast("Versturen… 0/"+met.length);
+      for(const f of met){let g=false;try{g=await sendF(f.id,{bevestigd:true,direct:true})}catch(e){console.error(e)}if(g){n++;fbKlaar(f.id)}else fout++;if(met.length>1&&n+fout<met.length)toast("Versturen… "+(n+fout)+"/"+met.length)}
+      toast(fout?`${n} verstuurd · ${fout} niet gelukt (staan nog geselecteerd)`:met.length===1?"Factuur "+(een.nummer||"")+" verstuurd":n+" facturen verstuurd");
+      if(zonder.length)fbVersturenHandmatig(zonder)})();}
+  fbVersturenHandmatig(nl)}
+function fbVersturenHandmatig(nl){
   const go=async()=>{for(const f of nl.filter(f=>f.status==="concept"))await save("facturen",f.id,{...strip(f),status:"open"});
     openCompose({title:plural(nl.length,"factuur","facturen")+" versturen",sjabloon:"factuur",hint:liveMail()?"":esc("Wil je de PDF meesturen? Download hem bij de factuur en voeg hem in je mail toe."),
       recipients:nl.map(f0=>{const f=state.facturen.find(x=>x.id===f0.id)||f0,o=fbOntvanger(f);return{k:o.k,vars:o.v,ref:"factuur:"+f.id,onSent:()=>{fbKlaar(f.id);const c=state.facturen.find(x=>x.id===f.id)||f;return save("facturen",f.id,{...strip(c),verstuurdOp:c.verstuurdOp||iso(today()),...naVerstuurd(c)})}}})})};
