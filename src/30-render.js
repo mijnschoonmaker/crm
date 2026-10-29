@@ -1,6 +1,6 @@
 /* ---------- RENDER ---------- */
 const VIEWS={control:vControl,vandaag:vRoute,route:vRoute,planning:vPlanning,klanten:vKlanten,communicatie:vCommunicatie,offertes:vOffertes,facturen:vFacturen,boekhouding:vBoekhouding,calculator:vRamen,uitvoering:vUitvoering,inzichten:vInzichten,instellingen:vInstellingen,handleiding:vHandleiding};
-function render(){tikWis();try{warmMailLogo()}catch(e){}try{sessionStorage.setItem("ms.tab",state.tab||"control");if(state.utab)sessionStorage.setItem("ms.utab",state.utab)}catch(e){}
+function render(){tikWis();try{const st=String(new Error().stack||"").split("\n").map(x=>x.trim().replace(/^at\s+/,"").split(/[\s@(]/)[0]),i=st.indexOf("render"),r=(i>=0?st[i+1]:st[2])||"?";diagTel("r:"+r)}catch(_){}diagRender();try{warmMailLogo()}catch(e){}try{sessionStorage.setItem("ms.tab",state.tab||"control");if(state.utab)sessionStorage.setItem("ms.utab",state.utab)}catch(e){}
   /* tellers in het menu: wat je in het Control Center op afgehandeld of later hebt gezet, telt niet mee */
   const af=typeof ccAf==="function"?ccAf:()=>false;
   const late=overdue().filter(k=>!(k.gepland==null||k.gepland==="")||!af(ccTlKey(k))).length,ach=facturen().filter(f=>fStatus(f)[1]==="Achterstallig"&&!af("fv:"+f.id)).length,mTodo=state.loaded?(typeof wqOpen==="function"?wqOpen():queues().reduce((a,q)=>a+q.items.length,0)):0;

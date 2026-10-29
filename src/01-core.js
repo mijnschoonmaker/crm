@@ -331,7 +331,7 @@ function opsStart(col,id,d,write,ob){
    op de telefoon als trillen zichtbaar was. Gaat hetzelfde document heel vaak achter elkaar, dan bundelen we het. */
 const opsVast=v=>{try{const srt=x=>Array.isArray(x)?x.map(srt):x&&typeof x==="object"?Object.keys(x).filter(k=>x[k]!==undefined&&k!=="id"&&k!=="_handmatig").sort().reduce((a,k)=>(a[k]=srt(x[k]),a),{}):x;return JSON.stringify(srt(v))}catch(e){return Math.random()+""}};
 const OPS_TEL=new Map();
-function opslaanLive(col,id,data){const d={...data,id};if(d._handmatig)delete d._handmatig;
+function opslaanLive(col,id,data){const d={...data,id};if(d._handmatig)delete d._handmatig;diagTel("save:"+col+"/"+String(id).slice(0,12));
   const P=OPS.lokaal[col],L=RAW[col],cur=Array.isArray(L)?L.find(x=>x.id===id):null;
   if(cur&&!(P&&P[id])&&!data._handmatig&&opsVast(cur)===opsVast(d))return Promise.resolve();
   const k=col+"/"+id,nu=Date.now(),t=(OPS_TEL.get(k)||[]).filter(x=>nu-x<10000);t.push(nu);OPS_TEL.set(k,t);
@@ -349,6 +349,13 @@ if(typeof window!=="undefined"){
   /* serveraanroepen pas na het opslaan */
   try{const f0=window.fetch.bind(window);window.fetch=(u,o)=>{const s=String(u&&u.url||u||"");return /^\/api\/|^https?:\/\/[^/]*\/api\//.test(s)&&(s[0]==="/"||s.startsWith(location.origin))&&OPS.wacht.size?opslaanKlaar().then(()=>f0(u,o)):f0(u,o)}}catch(e){}}
 async function del(col,id){if(state.db)return opsStart(col,id,null,()=>state.db.collection(col).doc(id).delete(),null);mem[col].delete(id);apply(col,[...mem[col].values()]);schedule()}
+/* diagnose: wordt het scherm heel vaak opnieuw getekend, dan een kleine melding met de oorzaak (om trillen op te sporen) */
+const DIAG={t:[],o:{},laatst:0};
+function diagTel(o){try{DIAG.o[o]=(DIAG.o[o]||0)+1;setTimeout(()=>{DIAG.o[o]--;if(DIAG.o[o]<=0)delete DIAG.o[o]},10000)}catch(e){}}
+function diagRender(){try{const nu=Date.now();DIAG.t=DIAG.t.filter(x=>nu-x<10000);DIAG.t.push(nu);
+  if(DIAG.t.length>=10&&nu-DIAG.laatst>30000&&document.visibilityState==="visible"){DIAG.laatst=nu;const top=Object.entries(DIAG.o).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,v])=>k+" "+v+"×").join(", ")||"onbekend";
+    console.warn("scherm vaak opnieuw",DIAG.t.length,top);try{(window.__diag=window.__diag||[]).push(new Date().toISOString()+" "+DIAG.t.length+"× · "+top)}catch(_){}
+    if(LIVE)toast("Diagnose: scherm "+DIAG.t.length+"× opnieuw in 10 s · "+top)}}catch(e){}}
 let rq=0;function schedule(){if(rq)return;rq=requestAnimationFrame(()=>{rq=0;render()})}
 async function init(){
   const use=async n=>{try{return window.claude?await window.claude.use(n):null}catch(e){return null}};
@@ -361,6 +368,9 @@ async function init(){
   setTimeout(()=>{if(state.loaded||seen.has("klanten"))return;$("#status").innerHTML=`<div class="notice" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="flex:1;min-width:200px"><b>Je gegevens laden niet.</b> De opslag van je browser lijkt vast te zitten. Herstellen haalt alles opnieuw van de server; er gaat niets verloren.</span><button type="button" class="small primary" onclick="window.ZEEM_HERSTEL?ZEEM_HERSTEL():location.reload()">Herstellen</button></div>`},12000);
   if(!LIVE)$("#status").innerHTML='<div class="notice verhuisd"><b>Deze CRM is verhuisd.</b> Gebruik voortaan <a href="https://crm.mijnschoonmaker.com" target="_blank" rel="noopener">crm.mijnschoonmaker.com</a> (of <a href="https://mijnschoonmaker-95789.web.app" target="_blank" rel="noopener">mijnschoonmaker-95789.web.app</a>). Wat je hier wijzigt, komt niet in de nieuwe CRM.</div>';
   COLS.forEach(col=>db.collection(col).onSnapshot(s=>{
+    /* niets veranderd (alleen een bevestiging van de server): niet opnieuw tekenen */
+    if(seen.has(col)&&s.wijzigingen===0)return;
+    diagTel("snap:"+col);
     apply(col,opsOverlay(col,s.docs.map(d=>({...d.data(),id:d.id}))));seen.add(col);if(seen.size===COLS.length){if(!state.loaded){setTimeout(obHerstel,1200);setTimeout(migGeenTijd,400);setTimeout(()=>typeof migGotenBuiten==="function"&&migGotenBuiten(),900)}state.loaded=true}schedule();
   },e=>{$("#status").innerHTML='<div class="notice">Gegevens konden niet worden geladen ('+esc(e.code)+'). Vernieuw de pagina.</div>'}));
 }

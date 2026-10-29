@@ -29,7 +29,7 @@ function liveStart(stil){
     if(koers==null&&LV.pos&&lvAfst(LV.pos,c)>15){const y=Math.sin((c.lng-LV.pos.lng)*Math.PI/180)*Math.cos(c.lat*Math.PI/180),x=Math.cos(LV.pos.lat*Math.PI/180)*Math.sin(c.lat*Math.PI/180)-Math.sin(LV.pos.lat*Math.PI/180)*Math.cos(c.lat*Math.PI/180)*Math.cos((c.lng-LV.pos.lng)*Math.PI/180);koers=Math.round((Math.atan2(y,x)*180/Math.PI+360)%360)}
     /* alleen echte GPS-plekken: een laptop of iPad zonder GPS schat de plek via wifi en zit er soms kilometers naast */
     const nauw=Math.round(p.coords.accuracy||0);
-    if(nauw>120){LV.fout="Geen nauwkeurige plek (alleen via wifi). Deel live vanaf je telefoon.";lvKnop();return}
+    if(nauw>120){if(!LV.fout){LV.fout="Geen nauwkeurige plek (alleen via wifi). Deel live vanaf je telefoon.";lvKnop()}return}
     /* elke 5 seconden, of meteen als je 20 meter verder bent */
     if(nu-LV.last<5000&&lvAfst(LV.pos,c)<20)return;
     if(!lvMagSchrijven(nauw)){LV.last=nu;LV.pos=c;if(typeof rvMapLive==="function")rvMapLive();return}
@@ -45,9 +45,9 @@ function liveWissel(){state.liveDelen=!(state.liveDelen&&LV.watch!=null);try{loc
 /* knop in de kop van de Route-pagina */
 function lvKnopHtml(){if(!LIVE)return"";const aan=state.liveDelen&&LV.watch!=null;
   return `<button type="button" class="rh-live${aan?" aan":""}" data-act="livedelen" aria-pressed="${aan}" title="Klanten van vandaag zien in hun portaal waar je bent"><i></i><span>${aan?"Live zichtbaar":"Live delen"}</span></button>`}
-function lvKnop(){const b=document.querySelector(".rh-live");if(b)b.outerHTML=lvKnopHtml();
+function lvKnop(){const b=document.querySelector(".rh-live");if(b){const h=lvKnopHtml();if(b.outerHTML!==h)b.outerHTML=h}
   /* melding in de werkdagkaart: live delen staat uit terwijl je onderweg bent */
-  const w=document.querySelector(".wd-live");if(w){const aan=state.liveDelen&&LV.watch!=null;w.hidden=aan;const f=w.querySelector("[data-lvfout]");if(f)f.textContent=LV.fout||"Klanten zien je nu niet onderweg."}}
+  const w=document.querySelector(".wd-live");if(w){const aan=state.liveDelen&&LV.watch!=null;if(w.hidden!==aan)w.hidden=aan;const f=w.querySelector("[data-lvfout]"),t=LV.fout||"Klanten zien je nu niet onderweg.";if(f&&f.textContent!==t)f.textContent=t}}
 /* automatisch: na het herladen weer aan, en uit als de dag klaar is */
 /* bij openen alleen hervatten als locatie al is toegestaan (anders zou de browser telkens om toestemming vragen) */
 /* iPhone/Safari meldt de toestemming vaak als "vragen" (prompt), ook als je eerder op Sta toe tikte. Vroeger ging live delen dan uit

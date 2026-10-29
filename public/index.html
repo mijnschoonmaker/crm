@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="b91dbd8a71c2"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="0f176b477dec"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -61,7 +61,7 @@
       doc: id => ({ set: d => window.ZEEM_MEEKIJK ? Promise.reject(new Error("Meekijken is alleen lezen: er wordt niets opgeslagen.")) : zet(c, id, d),
         delete: () => window.ZEEM_MEEKIJK ? Promise.reject(new Error("Meekijken is alleen lezen: er wordt niets verwijderd.")) : fs.collection(pf(c)).doc(id).delete() }),
       onSnapshot: (cb, er) => fs.collection(pf(c)).onSnapshot(s => {
-        try { cb({ docs: s.docs.map(d => ({ id: d.id, data: () => dec(d.data()) })) }); }
+        try { cb({ docs: s.docs.map(d => ({ id: d.id, data: () => dec(d.data()) })), wijzigingen: s.docChanges().length }); }
         catch (e) { console.error(c, e); (window.__fsErr = window.__fsErr || []).push(c + ": " + (e.message || e)); }
       }, e => { console.error(c, e); (window.__fsErr = window.__fsErr || []).push(c + " (laden): " + (e.code || e.message)); if (er) er(e); })
     })
@@ -6764,7 +6764,7 @@ function opsStart(col,id,d,write,ob){
    op de telefoon als trillen zichtbaar was. Gaat hetzelfde document heel vaak achter elkaar, dan bundelen we het. */
 const opsVast=v=>{try{const srt=x=>Array.isArray(x)?x.map(srt):x&&typeof x==="object"?Object.keys(x).filter(k=>x[k]!==undefined&&k!=="id"&&k!=="_handmatig").sort().reduce((a,k)=>(a[k]=srt(x[k]),a),{}):x;return JSON.stringify(srt(v))}catch(e){return Math.random()+""}};
 const OPS_TEL=new Map();
-function opslaanLive(col,id,data){const d={...data,id};if(d._handmatig)delete d._handmatig;
+function opslaanLive(col,id,data){const d={...data,id};if(d._handmatig)delete d._handmatig;diagTel("save:"+col+"/"+String(id).slice(0,12));
   const P=OPS.lokaal[col],L=RAW[col],cur=Array.isArray(L)?L.find(x=>x.id===id):null;
   if(cur&&!(P&&P[id])&&!data._handmatig&&opsVast(cur)===opsVast(d))return Promise.resolve();
   const k=col+"/"+id,nu=Date.now(),t=(OPS_TEL.get(k)||[]).filter(x=>nu-x<10000);t.push(nu);OPS_TEL.set(k,t);
@@ -6782,6 +6782,13 @@ if(typeof window!=="undefined"){
   /* serveraanroepen pas na het opslaan */
   try{const f0=window.fetch.bind(window);window.fetch=(u,o)=>{const s=String(u&&u.url||u||"");return /^\/api\/|^https?:\/\/[^/]*\/api\//.test(s)&&(s[0]==="/"||s.startsWith(location.origin))&&OPS.wacht.size?opslaanKlaar().then(()=>f0(u,o)):f0(u,o)}}catch(e){}}
 async function del(col,id){if(state.db)return opsStart(col,id,null,()=>state.db.collection(col).doc(id).delete(),null);mem[col].delete(id);apply(col,[...mem[col].values()]);schedule()}
+/* diagnose: wordt het scherm heel vaak opnieuw getekend, dan een kleine melding met de oorzaak (om trillen op te sporen) */
+const DIAG={t:[],o:{},laatst:0};
+function diagTel(o){try{DIAG.o[o]=(DIAG.o[o]||0)+1;setTimeout(()=>{DIAG.o[o]--;if(DIAG.o[o]<=0)delete DIAG.o[o]},10000)}catch(e){}}
+function diagRender(){try{const nu=Date.now();DIAG.t=DIAG.t.filter(x=>nu-x<10000);DIAG.t.push(nu);
+  if(DIAG.t.length>=10&&nu-DIAG.laatst>30000&&document.visibilityState==="visible"){DIAG.laatst=nu;const top=Object.entries(DIAG.o).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,v])=>k+" "+v+"×").join(", ")||"onbekend";
+    console.warn("scherm vaak opnieuw",DIAG.t.length,top);try{(window.__diag=window.__diag||[]).push(new Date().toISOString()+" "+DIAG.t.length+"× · "+top)}catch(_){}
+    if(LIVE)toast("Diagnose: scherm "+DIAG.t.length+"× opnieuw in 10 s · "+top)}}catch(e){}}
 let rq=0;function schedule(){if(rq)return;rq=requestAnimationFrame(()=>{rq=0;render()})}
 async function init(){
   const use=async n=>{try{return window.claude?await window.claude.use(n):null}catch(e){return null}};
@@ -6794,6 +6801,9 @@ async function init(){
   setTimeout(()=>{if(state.loaded||seen.has("klanten"))return;$("#status").innerHTML=`<div class="notice" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="flex:1;min-width:200px"><b>Je gegevens laden niet.</b> De opslag van je browser lijkt vast te zitten. Herstellen haalt alles opnieuw van de server; er gaat niets verloren.</span><button type="button" class="small primary" onclick="window.ZEEM_HERSTEL?ZEEM_HERSTEL():location.reload()">Herstellen</button></div>`},12000);
   if(!LIVE)$("#status").innerHTML='<div class="notice verhuisd"><b>Deze CRM is verhuisd.</b> Gebruik voortaan <a href="https://crm.mijnschoonmaker.com" target="_blank" rel="noopener">crm.mijnschoonmaker.com</a> (of <a href="https://mijnschoonmaker-95789.web.app" target="_blank" rel="noopener">mijnschoonmaker-95789.web.app</a>). Wat je hier wijzigt, komt niet in de nieuwe CRM.</div>';
   COLS.forEach(col=>db.collection(col).onSnapshot(s=>{
+    /* niets veranderd (alleen een bevestiging van de server): niet opnieuw tekenen */
+    if(seen.has(col)&&s.wijzigingen===0)return;
+    diagTel("snap:"+col);
     apply(col,opsOverlay(col,s.docs.map(d=>({...d.data(),id:d.id}))));seen.add(col);if(seen.size===COLS.length){if(!state.loaded){setTimeout(obHerstel,1200);setTimeout(migGeenTijd,400);setTimeout(()=>typeof migGotenBuiten==="function"&&migGotenBuiten(),900)}state.loaded=true}schedule();
   },e=>{$("#status").innerHTML='<div class="notice">Gegevens konden niet worden geladen ('+esc(e.code)+'). Vernieuw de pagina.</div>'}));
 }
@@ -16989,7 +16999,7 @@ function liveStart(stil){
     if(koers==null&&LV.pos&&lvAfst(LV.pos,c)>15){const y=Math.sin((c.lng-LV.pos.lng)*Math.PI/180)*Math.cos(c.lat*Math.PI/180),x=Math.cos(LV.pos.lat*Math.PI/180)*Math.sin(c.lat*Math.PI/180)-Math.sin(LV.pos.lat*Math.PI/180)*Math.cos(c.lat*Math.PI/180)*Math.cos((c.lng-LV.pos.lng)*Math.PI/180);koers=Math.round((Math.atan2(y,x)*180/Math.PI+360)%360)}
     /* alleen echte GPS-plekken: een laptop of iPad zonder GPS schat de plek via wifi en zit er soms kilometers naast */
     const nauw=Math.round(p.coords.accuracy||0);
-    if(nauw>120){LV.fout="Geen nauwkeurige plek (alleen via wifi). Deel live vanaf je telefoon.";lvKnop();return}
+    if(nauw>120){if(!LV.fout){LV.fout="Geen nauwkeurige plek (alleen via wifi). Deel live vanaf je telefoon.";lvKnop()}return}
     /* elke 5 seconden, of meteen als je 20 meter verder bent */
     if(nu-LV.last<5000&&lvAfst(LV.pos,c)<20)return;
     if(!lvMagSchrijven(nauw)){LV.last=nu;LV.pos=c;if(typeof rvMapLive==="function")rvMapLive();return}
@@ -17005,9 +17015,9 @@ function liveWissel(){state.liveDelen=!(state.liveDelen&&LV.watch!=null);try{loc
 /* knop in de kop van de Route-pagina */
 function lvKnopHtml(){if(!LIVE)return"";const aan=state.liveDelen&&LV.watch!=null;
   return `<button type="button" class="rh-live${aan?" aan":""}" data-act="livedelen" aria-pressed="${aan}" title="Klanten van vandaag zien in hun portaal waar je bent"><i></i><span>${aan?"Live zichtbaar":"Live delen"}</span></button>`}
-function lvKnop(){const b=document.querySelector(".rh-live");if(b)b.outerHTML=lvKnopHtml();
+function lvKnop(){const b=document.querySelector(".rh-live");if(b){const h=lvKnopHtml();if(b.outerHTML!==h)b.outerHTML=h}
   /* melding in de werkdagkaart: live delen staat uit terwijl je onderweg bent */
-  const w=document.querySelector(".wd-live");if(w){const aan=state.liveDelen&&LV.watch!=null;w.hidden=aan;const f=w.querySelector("[data-lvfout]");if(f)f.textContent=LV.fout||"Klanten zien je nu niet onderweg."}}
+  const w=document.querySelector(".wd-live");if(w){const aan=state.liveDelen&&LV.watch!=null;if(w.hidden!==aan)w.hidden=aan;const f=w.querySelector("[data-lvfout]"),t=LV.fout||"Klanten zien je nu niet onderweg.";if(f&&f.textContent!==t)f.textContent=t}}
 /* automatisch: na het herladen weer aan, en uit als de dag klaar is */
 /* bij openen alleen hervatten als locatie al is toegestaan (anders zou de browser telkens om toestemming vragen) */
 /* iPhone/Safari meldt de toestemming vaak als "vragen" (prompt), ook als je eerder op Sta toe tikte. Vroeger ging live delen dan uit
@@ -17761,7 +17771,7 @@ SETEXTRA.vve=(c,s)=>{const vv=vveKlanten();
 
 /* ---------- RENDER ---------- */
 const VIEWS={control:vControl,vandaag:vRoute,route:vRoute,planning:vPlanning,klanten:vKlanten,communicatie:vCommunicatie,offertes:vOffertes,facturen:vFacturen,boekhouding:vBoekhouding,calculator:vRamen,uitvoering:vUitvoering,inzichten:vInzichten,instellingen:vInstellingen,handleiding:vHandleiding};
-function render(){tikWis();try{warmMailLogo()}catch(e){}try{sessionStorage.setItem("ms.tab",state.tab||"control");if(state.utab)sessionStorage.setItem("ms.utab",state.utab)}catch(e){}
+function render(){tikWis();try{const st=String(new Error().stack||"").split("\n").map(x=>x.trim().replace(/^at\s+/,"").split(/[\s@(]/)[0]),i=st.indexOf("render"),r=(i>=0?st[i+1]:st[2])||"?";diagTel("r:"+r)}catch(_){}diagRender();try{warmMailLogo()}catch(e){}try{sessionStorage.setItem("ms.tab",state.tab||"control");if(state.utab)sessionStorage.setItem("ms.utab",state.utab)}catch(e){}
   /* tellers in het menu: wat je in het Control Center op afgehandeld of later hebt gezet, telt niet mee */
   const af=typeof ccAf==="function"?ccAf:()=>false;
   const late=overdue().filter(k=>!(k.gepland==null||k.gepland==="")||!af(ccTlKey(k))).length,ach=facturen().filter(f=>fStatus(f)[1]==="Achterstallig"&&!af("fv:"+f.id)).length,mTodo=state.loaded?(typeof wqOpen==="function"?wqOpen():queues().reduce((a,q)=>a+q.items.length,0)):0;

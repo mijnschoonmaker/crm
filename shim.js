@@ -51,7 +51,7 @@
       doc: id => ({ set: d => window.ZEEM_MEEKIJK ? Promise.reject(new Error("Meekijken is alleen lezen: er wordt niets opgeslagen.")) : zet(c, id, d),
         delete: () => window.ZEEM_MEEKIJK ? Promise.reject(new Error("Meekijken is alleen lezen: er wordt niets verwijderd.")) : fs.collection(pf(c)).doc(id).delete() }),
       onSnapshot: (cb, er) => fs.collection(pf(c)).onSnapshot(s => {
-        try { cb({ docs: s.docs.map(d => ({ id: d.id, data: () => dec(d.data()) })) }); }
+        try { cb({ docs: s.docs.map(d => ({ id: d.id, data: () => dec(d.data()) })), wijzigingen: s.docChanges().length }); }
         catch (e) { console.error(c, e); (window.__fsErr = window.__fsErr || []).push(c + ": " + (e.message || e)); }
       }, e => { console.error(c, e); (window.__fsErr = window.__fsErr || []).push(c + " (laden): " + (e.code || e.message)); if (er) er(e); })
     })
