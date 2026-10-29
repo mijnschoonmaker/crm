@@ -330,10 +330,10 @@ function opsStart(col,id,d,write,ob){
 /* opslaan zonder wijziging overslaan: anders tekende elk "opslaan" (ook als er niets veranderde) het scherm opnieuw, wat
    op de telefoon als trillen zichtbaar was. Gaat hetzelfde document heel vaak achter elkaar, dan bundelen we het. */
 const opsVast=v=>{try{const srt=x=>Array.isArray(x)?x.map(srt):x&&typeof x==="object"?Object.keys(x).filter(k=>x[k]!==undefined&&k!=="id"&&k!=="_handmatig").sort().reduce((a,k)=>(a[k]=srt(x[k]),a),{}):x;return JSON.stringify(srt(v))}catch(e){return Math.random()+""}};
-const OPS_TEL=new Map();
+const OPS_TEL=new Map(),SNAPW=new WeakSet();
 function opslaanLive(col,id,data){const d={...data,id};if(d._handmatig)delete d._handmatig;diagTel("save:"+col+"/"+String(id).slice(0,12));
   const P=OPS.lokaal[col],L=RAW[col],cur=Array.isArray(L)?L.find(x=>x.id===id):null;
-  if(cur&&!(P&&P[id])&&!data._handmatig&&opsVast(cur)===opsVast(d))return Promise.resolve();
+  /* (overslaan van 'ongewijzigd' opslaan is weer weg: code die eerst het scherm bijwerkt en dan opslaat, zoals Start, werd daardoor niet bewaard) */
   const k=col+"/"+id,nu=Date.now(),t=(OPS_TEL.get(k)||[]).filter(x=>nu-x<10000);t.push(nu);OPS_TEL.set(k,t);
   if(t.length>6){try{(window.__opsVaak=window.__opsVaak||{})[k]=(window.__opsVaak[k]||0)+1;console.warn("vaak opgeslagen",k,new Error().stack)}catch(_){}}
   return opsStart(col,id,d,()=>state.db.collection(col).doc(id).set(data),{col,id,data})}
@@ -371,7 +371,7 @@ async function init(){
     /* niets veranderd (alleen een bevestiging van de server): niet opnieuw tekenen */
     if(seen.has(col)&&s.wijzigingen===0)return;
     diagTel("snap:"+col);
-    apply(col,opsOverlay(col,s.docs.map(d=>({...d.data(),id:d.id}))));seen.add(col);if(seen.size===COLS.length){if(!state.loaded){setTimeout(obHerstel,1200);setTimeout(migGeenTijd,400);setTimeout(()=>typeof migGotenBuiten==="function"&&migGotenBuiten(),900)}state.loaded=true}schedule();
+    apply(col,opsOverlay(col,s.docs.map(d=>{const o={...d.data(),id:d.id};SNAPW.add(o);return o})));seen.add(col);if(seen.size===COLS.length){if(!state.loaded){setTimeout(obHerstel,1200);setTimeout(migGeenTijd,400);setTimeout(()=>typeof migGotenBuiten==="function"&&migGotenBuiten(),900)}state.loaded=true}schedule();
   },e=>{$("#status").innerHTML='<div class="notice">Gegevens konden niet worden geladen ('+esc(e.code)+'). Vernieuw de pagina.</div>'}));
 }
 
