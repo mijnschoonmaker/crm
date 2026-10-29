@@ -22,7 +22,8 @@ function liveStart(stil){
   if(!LIVE||!navigator.geolocation){if(!stil)toast(LIVE?"Deze telefoon kan geen locatie delen":"Live delen werkt in de live versie");return}
   if(LV.watch!=null)return;
   LV.fout="";
-  LV.watch=navigator.geolocation.watchPosition(p=>{
+  LV.fix=Date.now();
+  LV.watch=navigator.geolocation.watchPosition(p=>{LV.fix=Date.now();
     const c={lat:+p.coords.latitude.toFixed(6),lng:+p.coords.longitude.toFixed(6)},nu=Date.now();
     let koers=Number.isFinite(p.coords.heading)?Math.round(p.coords.heading):null;
     if(koers==null&&LV.pos&&lvAfst(LV.pos,c)>15){const y=Math.sin((c.lng-LV.pos.lng)*Math.PI/180)*Math.cos(c.lat*Math.PI/180),x=Math.cos(LV.pos.lat*Math.PI/180)*Math.sin(c.lat*Math.PI/180)-Math.sin(LV.pos.lat*Math.PI/180)*Math.cos(c.lat*Math.PI/180)*Math.cos((c.lng-LV.pos.lng)*Math.PI/180);koers=Math.round((Math.atan2(y,x)*180/Math.PI+360)%360)}
@@ -33,7 +34,8 @@ function liveStart(stil){
     if(nu-LV.last<5000&&lvAfst(LV.pos,c)<20)return;
     if(!lvMagSchrijven(nauw)){LV.last=nu;LV.pos=c;if(typeof rvMapLive==="function")rvMapLive();return}
     if(typeof kmTik==="function")kmTik(LV.pos,c,p.coords.accuracy);LV.last=nu;LV.pos=c;if(koers!=null)LV.koers=koers;LV.fout="";if(typeof rvMapLive==="function")rvMapLive();lvSchrijf({actief:true,lat:c.lat,lng:c.lng,nauw,snelheid:Number.isFinite(p.coords.speed)?Math.round(p.coords.speed*3.6):null,...(koers!=null?{koers}:{})});lvKnop()},
-    e=>{LV.fout=e.code===1?"Geen toestemming voor je locatie. iPhone/iPad: Instellingen › Privacy en beveiliging › Locatievoorzieningen › Safari-websites › Tijdens gebruik van de app.":"Je locatie is even niet beschikbaar";if(e.code===1){liveStop(true);state.liveDelen=false;try{localStorage.setItem("ms.live","0")}catch(er){}toast(LV.fout)}/* even geen signaal (binnen, computer): geen melding, de telefoon probeert het vanzelf opnieuw */lvKnop()},
+    e=>{LV.fout=e.code===1?"Geen toestemming voor je locatie. iPhone/iPad: Instellingen › Privacy en beveiliging › Locatievoorzieningen › Safari-websites › Tijdens gebruik van de app.":"Je locatie is even niet beschikbaar";if(e.code===1){/* iPhone geeft dit soms als de app even op de achtergrond is: dan niet uitzetten, alleen bij een echte weigering */const verborgen=document.visibilityState!=="visible";if(LV.watch!=null){try{navigator.geolocation.clearWatch(LV.watch)}catch(er){}LV.watch=null}
+      lvToestemming().then(t=>{if(t==="denied"&&!verborgen){liveStop(true);state.liveDelen=false;try{localStorage.setItem("ms.live","0")}catch(er){}toast(LV.fout)}else if(!verborgen)setTimeout(()=>{if(state.liveDelen&&LV.watch==null)liveStart(true)},3000);lvKnop()});return}/* even geen signaal (binnen, computer): geen melding, de telefoon probeert het vanzelf opnieuw */lvKnop()},
     {enableHighAccuracy:true,maximumAge:3000,timeout:30000});lvVolgRit();
   lvWakker();if(!stil)toast("Live delen staat aan · de klanten van vandaag zien waar je bent");lvKnop()}
 function liveStop(stil){if(LV.watch!=null){try{navigator.geolocation.clearWatch(LV.watch)}catch(e){}}LV.watch=null;LV.pos=null;try{LV.lock&&LV.lock.release()}catch(e){}LV.lock=null;
@@ -48,7 +50,16 @@ function lvKnop(){const b=document.querySelector(".rh-live");if(b)b.outerHTML=lv
   const w=document.querySelector(".wd-live");if(w){const aan=state.liveDelen&&LV.watch!=null;w.hidden=aan;const f=w.querySelector("[data-lvfout]");if(f)f.textContent=LV.fout||"Klanten zien je nu niet onderweg."}}
 /* automatisch: na het herladen weer aan, en uit als de dag klaar is */
 /* bij openen alleen hervatten als locatie al is toegestaan (anders zou de browser telkens om toestemming vragen) */
+/* iPhone/Safari meldt de toestemming vaak als "vragen" (prompt), ook als je eerder op Sta toe tikte. Vroeger ging live delen dan uit
+   bij elke herstart van de pagina (Safari herlaadt een tabblad op de achtergrond regelmatig). Nu: alleen bij een echte weigering niet. */
+async function lvToestemming(){try{return navigator.permissions&&navigator.permissions.query?(await navigator.permissions.query({name:"geolocation"})).state:"onbekend"}catch(e){return"onbekend"}}
 if(LIVE)setTimeout(async function w(){if(!state.loaded)return setTimeout(w,800);if(!state.liveDelen)return;
-  let ok=false;try{ok=!!navigator.permissions&&(await navigator.permissions.query({name:"geolocation"})).state==="granted"}catch(e){}
-  if(ok)liveStart(true);else{state.liveDelen=false;try{localStorage.setItem("ms.live","0")}catch(e){}render()}},1500);
+  const t=await lvToestemming();
+  if(t!=="denied")liveStart(true);else{LV.fout="Geen toestemming voor je locatie. iPhone: Instellingen › Apps › Safari › Locatie › Sta toe.";lvKnop();render()}},1500);
+/* terug in beeld (scherm weer aan, andere app dicht): live delen weer oppakken, en een vastgelopen GPS opnieuw starten */
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState!=="visible"||!LIVE||!state.loaded)return;setTimeout(()=>{if(!state.liveDelen)return;
+  if(LV.watch==null)liveStart(true);else if(Date.now()-(LV.fix||0)>30000)lvHerstart()},600)});
+function lvHerstart(){if(LV.watch!=null){try{navigator.geolocation.clearWatch(LV.watch)}catch(e){}LV.watch=null}liveStart(true)}
+/* bewaker: geeft de telefoon 45 seconden geen plek terwijl het CRM in beeld is, dan de GPS opnieuw starten */
+if(LIVE)setInterval(()=>{if(document.visibilityState==="visible"&&state.liveDelen&&LV.watch!=null&&Date.now()-(LV.fix||Date.now())>45000){LV.fix=Date.now();lvHerstart()}},15000);
 function lvDagCheck(){if(LV.watch==null)return;const s=routeStops(iso(today()));if(s.length&&s.every(x=>x.done)){state.liveDelen=false;try{localStorage.setItem("ms.live","0")}catch(e){}liveStop(true);toast("Dag klaar · live delen is gestopt")}}

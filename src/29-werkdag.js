@@ -64,7 +64,7 @@ function wdStatKaart(rg,lbl){const t=wdPeriode(rg);
 /* live locatie volgt de werkdag: aan bij vertrek uit de loods, uit bij terugkomst */
 /* automatisch live delen zonder locatievraag: alleen op een telefoon/tablet en alleen als locatie al is toegestaan.
    Is dat nog niet zo, dan geen melding; de glazenwasser zet het zelf aan met Live delen (dan vraagt de telefoon het één keer). */
-async function wdMagLocatie(){try{if(!(matchMedia("(pointer:coarse)").matches))return false;if(!navigator.permissions||!navigator.permissions.query)return false;const r=await navigator.permissions.query({name:"geolocation"});return r.state==="granted"}catch(e){return false}}
+async function wdMagLocatie(){try{if(!(matchMedia("(pointer:coarse)").matches))return false;if(!navigator.permissions||!navigator.permissions.query)return false;const r=await navigator.permissions.query({name:"geolocation"});return r.state!=="denied"}catch(e){return false}}
 async function wdLive(aan,auto){if(typeof liveStart!=="function")return;
   if(aan&&auto&&!(await wdMagLocatie()))return;
   state.liveDelen=aan;try{localStorage.setItem("ms.live",aan?"1":"0")}catch(e){}aan?liveStart(true):liveStop(true);render()}
