@@ -49,7 +49,7 @@ function stopRow(k,day,done){
 }
 function activiteit(d){
   const ev=[];
-  state.beurten.filter(b=>b.datum===d).forEach(b=>ev.push({t:b.op||d+"T12:00",ic:I.check,c:"ok",txt:"<b>"+esc(cleanName(b.klantNaam))+"</b> afgemeld · "+eur(b.bedrag)}));
+  state.beurten.filter(b=>b.datum===d).forEach(b=>ev.push({t:b.op||d+"T12:00",ic:I.check,c:"ok",txt:"<b>"+esc(cleanName(b.klantNaam))+"</b> afgemeld · "+eur(beurtBedrag(b))}));
   state.facturen.filter(f=>String(f.gemaakt||"").slice(0,10)===d).forEach(f=>ev.push({t:f.gemaakt,ic:I.facturen,c:"brand",txt:(f.soort==="offerte"?"Offerte ":f.status==="concept"?"Conceptfactuur ":"Factuur ")+"<b>"+esc(f.nummer)+"</b> · "+esc(cleanName(f.klantNaam))}));
   state.berichten.filter(m=>String(m.op).slice(0,10)===d).forEach(m=>ev.push({t:m.op,ic:I.msg,c:"plan",txt:(KANAAL[m.kanaal]||"Bericht")+" aan <b>"+esc(cleanName(m.klantNaam))+"</b>"}));
   state.kosten.filter(c=>String(c.aangemaakt||"").slice(0,10)===d).forEach(c=>ev.push({t:c.aangemaakt,ic:I.receipt,c:"soon",txt:"Bon <b>"+esc(c.leverancier||c.categorie)+"</b> · "+eur(c.bedrag)}));
@@ -66,7 +66,7 @@ function vVandaag(){
   const t=today(),d=state.vDay||iso(t),dd=parse(d),isT=d===iso(t);
   const stops=routeStops(d),todo=stops.filter(s=>!s.done);
   const doneB=state.beurten.filter(b=>b.datum===d);
-  const omzet=doneB.reduce((a,b)=>a+toon(b.bedrag),0),verwacht=omzet+todo.reduce((a,s)=>a+toon(prijsMee(s.k)),0);
+  const omzet=doneB.reduce((a,b)=>a+toon(beurtBedrag(b)),0),verwacht=omzet+todo.reduce((a,s)=>a+toon(prijsMee(s.k)),0);
   const total=todo.length+doneB.length,pct=total?Math.round(doneB.length/total*100):0;
   const due=isT?teplannen(t).filter(k=>!k.gepland):[];
   const note=(state.routes[d]||{}).notitie||"";
@@ -102,7 +102,7 @@ function vVandaag(){
 function openJob(id,day){
   const k=state.klanten.find(x=>x.id===id);if(!k)return;day=day||iso(today());
   const b=state.beurten.find(x=>x.klantId===id&&x.datum===day),done=!!b,js=done?"afgerond":jobState(k,day),sp=STATEPILL[js],d=parse(day);
-  const tel=String(k.telefoon||"").replace(/[^\d+]/g,""),bedrag=done?Number(b.bedrag)||0:prijsMee(k,day),st=S();
+  const tel=String(k.telefoon||"").replace(/[^\d+]/g,""),bedrag=done?beurtBedrag(b):prijsMee(k,day),st=S();
   const vars=klantVars(k,d),T=tpls(),aan=T.aankondiging||{};
   const mail=k.email?"mailto:"+encodeURIComponent(k.email)+"?subject="+encodeURIComponent(fill(aan.onderwerp||"Glasbewassing",vars)):"";
   const sms=tel?"sms:"+tel+"?&body="+encodeURIComponent(fill(aan.sms||"",vars)):"";

@@ -195,6 +195,8 @@ const exAmt=x=>S().incl?(Number(x)||0)/(1+Number(S().btw)/100):(Number(x)||0);
 let _BO=null;
 function boMap(){if(_BO&&_BO.b===state.beurten&&_BO.f===state.facturen)return _BO;const F={},n={};(state.facturen||[]).forEach(f=>F[f.id]=f);
   (state.beurten||[]).forEach(b=>{if(b.gefactureerd&&F[b.gefactureerd])n[b.gefactureerd]=(n[b.gefactureerd]||0)+1});return _BO={b:state.beurten,f:state.facturen,F,n}}
+/* bedrag van een afgemelde beurt om te tonen: bij een periodieke klant (vaste maandfactuur) staat er 0 op de beurt; toon dan de prijs per beurt van de klant */
+function beurtBedrag(b){if(!b)return 0;if(b.periodiek&&!Number(b.bedrag)){const k=state.klanten.find(x=>x.id===b.klantId);return k?Number(k.prijs)||0:0}return Number(b.bedrag)||0}
 function beurtOmzet(b){if(!b||b.geannuleerd||b.gefactureerd==="nvt")return 0;const M=boMap(),f=b.gefactureerd&&M.F[b.gefactureerd];
   if(f&&f.soort!=="offerte")return totals(f).ex/(M.n[f.id]||1);
   if(b.periodiek&&!Number(b.bedrag)){const k=state.klanten.find(x=>x.id===b.klantId);return k?exAmt(k.prijs):0}

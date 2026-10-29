@@ -6710,6 +6710,8 @@ const exAmt=x=>S().incl?(Number(x)||0)/(1+Number(S().btw)/100):(Number(x)||0);
 let _BO=null;
 function boMap(){if(_BO&&_BO.b===state.beurten&&_BO.f===state.facturen)return _BO;const F={},n={};(state.facturen||[]).forEach(f=>F[f.id]=f);
   (state.beurten||[]).forEach(b=>{if(b.gefactureerd&&F[b.gefactureerd])n[b.gefactureerd]=(n[b.gefactureerd]||0)+1});return _BO={b:state.beurten,f:state.facturen,F,n}}
+/* bedrag van een afgemelde beurt om te tonen: bij een periodieke klant (vaste maandfactuur) staat er 0 op de beurt; toon dan de prijs per beurt van de klant */
+function beurtBedrag(b){if(!b)return 0;if(b.periodiek&&!Number(b.bedrag)){const k=state.klanten.find(x=>x.id===b.klantId);return k?Number(k.prijs)||0:0}return Number(b.bedrag)||0}
 function beurtOmzet(b){if(!b||b.geannuleerd||b.gefactureerd==="nvt")return 0;const M=boMap(),f=b.gefactureerd&&M.F[b.gefactureerd];
   if(f&&f.soort!=="offerte")return totals(f).ex/(M.n[f.id]||1);
   if(b.periodiek&&!Number(b.bedrag)){const k=state.klanten.find(x=>x.id===b.klantId);return k?exAmt(k.prijs):0}
@@ -7700,7 +7702,7 @@ function stopRow(k,day,done){
 }
 function activiteit(d){
   const ev=[];
-  state.beurten.filter(b=>b.datum===d).forEach(b=>ev.push({t:b.op||d+"T12:00",ic:I.check,c:"ok",txt:"<b>"+esc(cleanName(b.klantNaam))+"</b> afgemeld · "+eur(b.bedrag)}));
+  state.beurten.filter(b=>b.datum===d).forEach(b=>ev.push({t:b.op||d+"T12:00",ic:I.check,c:"ok",txt:"<b>"+esc(cleanName(b.klantNaam))+"</b> afgemeld · "+eur(beurtBedrag(b))}));
   state.facturen.filter(f=>String(f.gemaakt||"").slice(0,10)===d).forEach(f=>ev.push({t:f.gemaakt,ic:I.facturen,c:"brand",txt:(f.soort==="offerte"?"Offerte ":f.status==="concept"?"Conceptfactuur ":"Factuur ")+"<b>"+esc(f.nummer)+"</b> · "+esc(cleanName(f.klantNaam))}));
   state.berichten.filter(m=>String(m.op).slice(0,10)===d).forEach(m=>ev.push({t:m.op,ic:I.msg,c:"plan",txt:(KANAAL[m.kanaal]||"Bericht")+" aan <b>"+esc(cleanName(m.klantNaam))+"</b>"}));
   state.kosten.filter(c=>String(c.aangemaakt||"").slice(0,10)===d).forEach(c=>ev.push({t:c.aangemaakt,ic:I.receipt,c:"soon",txt:"Bon <b>"+esc(c.leverancier||c.categorie)+"</b> · "+eur(c.bedrag)}));
@@ -7717,7 +7719,7 @@ function vVandaag(){
   const t=today(),d=state.vDay||iso(t),dd=parse(d),isT=d===iso(t);
   const stops=routeStops(d),todo=stops.filter(s=>!s.done);
   const doneB=state.beurten.filter(b=>b.datum===d);
-  const omzet=doneB.reduce((a,b)=>a+toon(b.bedrag),0),verwacht=omzet+todo.reduce((a,s)=>a+toon(prijsMee(s.k)),0);
+  const omzet=doneB.reduce((a,b)=>a+toon(beurtBedrag(b)),0),verwacht=omzet+todo.reduce((a,s)=>a+toon(prijsMee(s.k)),0);
   const total=todo.length+doneB.length,pct=total?Math.round(doneB.length/total*100):0;
   const due=isT?teplannen(t).filter(k=>!k.gepland):[];
   const note=(state.routes[d]||{}).notitie||"";
@@ -7753,7 +7755,7 @@ function vVandaag(){
 function openJob(id,day){
   const k=state.klanten.find(x=>x.id===id);if(!k)return;day=day||iso(today());
   const b=state.beurten.find(x=>x.klantId===id&&x.datum===day),done=!!b,js=done?"afgerond":jobState(k,day),sp=STATEPILL[js],d=parse(day);
-  const tel=String(k.telefoon||"").replace(/[^\d+]/g,""),bedrag=done?Number(b.bedrag)||0:prijsMee(k,day),st=S();
+  const tel=String(k.telefoon||"").replace(/[^\d+]/g,""),bedrag=done?beurtBedrag(b):prijsMee(k,day),st=S();
   const vars=klantVars(k,d),T=tpls(),aan=T.aankondiging||{};
   const mail=k.email?"mailto:"+encodeURIComponent(k.email)+"?subject="+encodeURIComponent(fill(aan.onderwerp||"Glasbewassing",vars)):"";
   const sms=tel?"sms:"+tel+"?&body="+encodeURIComponent(fill(aan.sms||"",vars)):"";
@@ -7832,7 +7834,7 @@ document.addEventListener("click",e=>{const t=e.target;if(!t.closest)return;
   RT_OPEN.add(row.dataset.rid);render();});
 function vRoute(){
   const day=state.routeDay||iso(today()),d=parse(day),stops=routeStops(day),todo=stops.filter(s=>!s.done);
-  const doneB=state.beurten.filter(b=>b.datum===day),verdiend=doneB.reduce((a,b)=>a+toon(b.bedrag),0),totaal=verdiend+todo.reduce((a,s)=>a+toon(s.k.prijs),0);/* zelfde incl./excl. btw als de bedragen bij de stops */
+  const doneB=state.beurten.filter(b=>b.datum===day),verdiend=doneB.reduce((a,b)=>a+toon(beurtBedrag(b)),0),totaal=verdiend+todo.reduce((a,s)=>a+toon(s.k.prijs),0);/* zelfde incl./excl. btw als de bedragen bij de stops */
   const pct=stops.length?Math.round((stops.length-todo.length)/stops.length*100):0,C=2*Math.PI*54;
   const isT=day===iso(today()),mw=isMw(),naam=esc((state.me&&state.me.name?state.me.name.split(" ")[0]:"")||"");
   const done=stops.length-todo.length,werkMin=todo.reduce((a,s)=>a+duur(s.k),0);
@@ -8204,7 +8206,7 @@ function dayItems(d){
   const proj=[];if(state.pview!=="dag"){actief().filter(k=>!(k.reeks||[]).length).forEach(k=>occurrences(k,parse(d),parse(d)).forEach(o=>{if(!o.real)proj.push({k,st:"verwacht"})}))}
   return{js:js.filter(x=>showState(x.st)),done:done.filter(x=>showState("afgerond")),proj:state.pstat==="alle"?proj:[]};
 }
-function daySum(d){const it=dayItems(d);return{n:it.js.length+it.done.length,sum:it.js.reduce((a,x)=>a+prijsMee(x.k,d),0)+it.done.reduce((a,x)=>a+(Number(x.b.bedrag)||0),0),min:it.js.reduce((a,x)=>a+duur(x.k),0)+it.done.reduce((a,x)=>a+duur(x.k),0)}}
+function daySum(d){const it=dayItems(d);return{n:it.js.length+it.done.length,sum:it.js.reduce((a,x)=>a+prijsMee(x.k,d),0)+it.done.reduce((a,x)=>a+beurtBedrag(x.b),0),min:it.js.reduce((a,x)=>a+duur(x.k),0)+it.done.reduce((a,x)=>a+duur(x.k),0)}}
 function tjob(x,top,height,left,width){
   if(x.r)return tjobReeks(x,top,height,left,width);
   const k=x.k,a=jobAddrObj(k),sp=STATEPILL[x.st]||["neutral","Verwacht"],dim=pqMatch(k)?"":" faded";
@@ -8212,7 +8214,7 @@ function tjob(x,top,height,left,width){
   const act=x.b?`data-act="beurtinfo" data-id="${esc(x.b.id)}"`:`data-act="job" data-id="${esc(k.id)}"`;
   const tijd=x.b?x.b.tijd||k.tijd||"":k.tijd||"";
   return `<div class="tjob st-${x.st}${dim}${cmp}${state.flash&&!x.b&&state.flash===k.id?" just-in":""}${state.pselMode&&!x.b&&state.psel.has(k.id)?" psel":""}${state.pselMode&&!x.b?" pselable":""}" ${act} data-d="${esc(x.b?x.b.datum:k.gepland)}" ${x.st!=="afgerond"?`data-drag="${esc(k.id)}"`:x.b?`data-drag="b:${esc(x.b.id)}"`:""} draggable="${x.st!=="afgerond"}" style="top:${top}px;height:${height}px;left:${left}%;width:${width}%;--h:${hue(k.ronde||k.naam)}" title="${esc(cleanName(k.naam))}">
-    <div class="tj-kop">${tijd?`<small>${esc(tijd)}${(()=>{const m=toMin(tijd),du=x.b?Number(x.b.duur)||duur(k):duur(k);return m!=null&&du?" – "+fromMin(m+Math.round(du)):""})()}</small>`:""}<button type="button" class="tj-nm" ${act} data-d="${esc(x.b?x.b.datum:k.gepland)}">${esc(a.adres||cleanName(k.naam))}${a.plaats?", "+esc(a.plaats):""}</button>${x.st==="bezig"?'<i class="tj-live"></i>':""}${cmp===" compact"?dienstenHtml(k,x.b?x.b.datum:k.gepland):""}<span class="tj-amt">${eur(toon(x.b?x.b.bedrag:prijsMee(k)))}</span></div>
+    <div class="tj-kop">${tijd?`<small>${esc(tijd)}${(()=>{const m=toMin(tijd),du=x.b?Number(x.b.duur)||duur(k):duur(k);return m!=null&&du?" – "+fromMin(m+Math.round(du)):""})()}</small>`:""}<button type="button" class="tj-nm" ${act} data-d="${esc(x.b?x.b.datum:k.gepland)}">${esc(a.adres||cleanName(k.naam))}${a.plaats?", "+esc(a.plaats):""}</button>${x.st==="bezig"?'<i class="tj-live"></i>':""}${cmp===" compact"?dienstenHtml(k,x.b?x.b.datum:k.gepland):""}<span class="tj-amt">${eur(toon(x.b?beurtBedrag(x.b):prijsMee(k)))}</span></div>
     <div class="tj-bot"><span class="tj-wie">${esc(cleanName(k.naam))}</span>${dienstenHtml(k,x.b?x.b.datum:k.gepland)}${x.st==="afgerond"?"":tjMailHtml(k)}${x.st==="afgerond"?`<span class="tj-ok done">${I.check}</span>`:`<button type="button" class="tj-ok" data-act="was" data-id="${esc(k.id)}" aria-label="${esc(cleanName(k.naam))} afgerond">${I.check}</button>`}</div></div>`;
 }
 function dayHead(d,showWk){
@@ -8247,7 +8249,7 @@ function weekCols(days){
   const t=iso(today());
   return `<div class="weekwrap"><div class="weekgrid">${days.map(d=>{const it=dayItems(d),s=daySum(d);return `<div class="daycol${d===t?" is-today":""}" data-drop="${d}">
     ${dayHead(d,false)}
-    ${it.done.map(x=>`<div class="job done" style="--h:${hue(x.b.klantNaam)}"><div class="jn">${I.check}<button type="button" data-act="klant" data-id="${esc(x.b.klantId)}">${esc(cleanName(x.b.klantNaam))}</button></div><div class="jf"><span class="ja">Afgerond</span><span class="amt">${eur(toon(x.b.bedrag))}</span></div></div>`).join("")}
+    ${it.done.map(x=>`<div class="job done" style="--h:${hue(x.b.klantNaam)}"><div class="jn">${I.check}<button type="button" data-act="klant" data-id="${esc(x.b.klantId)}">${esc(cleanName(x.b.klantNaam))}</button></div><div class="jf"><span class="ja">Afgerond</span><span class="amt">${eur(toon(beurtBedrag(x.b)))}</span></div></div>`).join("")}
     ${it.js.sort((a,b)=>(toMin(a.k.tijd)??9999)-(toMin(b.k.tijd)??9999)).map(x=>{const k=x.k;if(x.r)return reeksCard(x);return `<div class="job${pqMatch(k)?"":" faded"}${x.st==="bezig"?" busy":""}${state.pselMode&&state.psel.has(k.id)?" psel":""}${state.pselMode?" pselable":""}" style="--h:${hue(k.ronde||k.naam)}" draggable="true" data-drag="${esc(k.id)}">
       <div class="jn">${k.tijd?`<span class="tm">${esc(k.tijd)}</span>`:""}<button type="button" data-act="job" data-id="${esc(k.id)}" data-d="${esc(k.gepland)}">${esc(jobAddrObj(k).adres||cleanName(k.naam))}</button></div>
       <div class="ja">${esc(cleanName(k.naam))}</div><div class="ja">${dienstHtml(k)}</div>
@@ -8339,11 +8341,11 @@ function openBeurtInfo(id){
   const rij=(l,v)=>v?`<div class="bi-r"><span>${l}</span><b>${v}</b></div>`:"";
   openDlg(`<div class="jp">
     <div class="jp-kop jp-afgerond"><div class="jp-kr1"><span class="jp-st"><i></i>Afgerond</span><span class="sp"></span><button type="button" class="jp-ib" data-act="close" aria-label="Sluiten">${I.x}</button></div>
-      <div class="jp-kr2"><span class="jp-k1"><small>${["zo","ma","di","wo","do","vr","za"][d.getDay()]} ${d.getDate()} ${["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"][d.getMonth()]}</small><b>${esc(b.tijd||"–")}</b></span><span class="jp-k2"><b>${esc(nm)}</b><em>${adr?I.pin+esc(adr):"Klant staat niet meer in je bestand"}</em></span><span class="jp-k3"><small>Bedrag</small><b>${eur(toon(Number(b.bedrag)||0))}</b><em>afgerond</em></span></div></div>
+      <div class="jp-kr2"><span class="jp-k1"><small>${["zo","ma","di","wo","do","vr","za"][d.getDay()]} ${d.getDate()} ${["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"][d.getMonth()]}</small><b>${esc(b.tijd||"–")}</b></span><span class="jp-k2"><b>${esc(nm)}</b><em>${adr?I.pin+esc(adr):"Klant staat niet meer in je bestand"}</em></span><span class="jp-k3"><small>Bedrag</small><b>${eur(toon(beurtBedrag(b)))}</b><em>afgerond</em></span></div></div>
     ${k?`<div class="jp-tiles">${tel?`<a class="jp-tile" href="tel:${esc(tel)}">${I.phone}<span>Bellen</span></a>`:`<span class="jp-tile dis">${I.phone}<span>Bellen</span></span>`}${k.email?`<a class="jp-tile" href="mailto:${esc(k.email)}">${I.mail}<span>Mail</span></a>`:`<span class="jp-tile dis">${I.mail}<span>Mail</span></span>`}<a class="jp-tile" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.nav}<span>Route</span></a></div>`:""}
     <div class="jp-body"><div class="bi">
       ${rij("Dienst",esc(b.dienst||(k&&k.dienst)||"Glasbewassing"))}
-      ${rij("Bedrag",eur(toon(Number(b.bedrag)||0)))}
+      ${rij("Bedrag",eur(toon(beurtBedrag(b)))+(b.periodiek&&!Number(b.bedrag)?" · via de periodieke factuur":""))}
       ${rij("Duur",b.duur?esc(b.duur)+" min":"")}
       ${rij("Factuur",f?esc(f.nummer||"Concept")+" · "+(f.status==="betaald"||b.betaald?"betaald":f.status==="concept"?"concept":"open")+(f.periodiek?" (periodiek)":""):b.gefactureerd==="periodiek"?"Gaat mee op de periodieke factuur":b.gefactureerd==="nvt"?"Niet gefactureerd (zo ingesteld)":b.gefactureerd?"Gefactureerd":"Nog niet gefactureerd")}
       ${k?rij("Frequentie",esc(freqLabel(k.frequentie||4)).toLowerCase()):""}

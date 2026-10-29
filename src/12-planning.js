@@ -41,7 +41,7 @@ function dayItems(d){
   const proj=[];if(state.pview!=="dag"){actief().filter(k=>!(k.reeks||[]).length).forEach(k=>occurrences(k,parse(d),parse(d)).forEach(o=>{if(!o.real)proj.push({k,st:"verwacht"})}))}
   return{js:js.filter(x=>showState(x.st)),done:done.filter(x=>showState("afgerond")),proj:state.pstat==="alle"?proj:[]};
 }
-function daySum(d){const it=dayItems(d);return{n:it.js.length+it.done.length,sum:it.js.reduce((a,x)=>a+prijsMee(x.k,d),0)+it.done.reduce((a,x)=>a+(Number(x.b.bedrag)||0),0),min:it.js.reduce((a,x)=>a+duur(x.k),0)+it.done.reduce((a,x)=>a+duur(x.k),0)}}
+function daySum(d){const it=dayItems(d);return{n:it.js.length+it.done.length,sum:it.js.reduce((a,x)=>a+prijsMee(x.k,d),0)+it.done.reduce((a,x)=>a+beurtBedrag(x.b),0),min:it.js.reduce((a,x)=>a+duur(x.k),0)+it.done.reduce((a,x)=>a+duur(x.k),0)}}
 function tjob(x,top,height,left,width){
   if(x.r)return tjobReeks(x,top,height,left,width);
   const k=x.k,a=jobAddrObj(k),sp=STATEPILL[x.st]||["neutral","Verwacht"],dim=pqMatch(k)?"":" faded";
@@ -49,7 +49,7 @@ function tjob(x,top,height,left,width){
   const act=x.b?`data-act="beurtinfo" data-id="${esc(x.b.id)}"`:`data-act="job" data-id="${esc(k.id)}"`;
   const tijd=x.b?x.b.tijd||k.tijd||"":k.tijd||"";
   return `<div class="tjob st-${x.st}${dim}${cmp}${state.flash&&!x.b&&state.flash===k.id?" just-in":""}${state.pselMode&&!x.b&&state.psel.has(k.id)?" psel":""}${state.pselMode&&!x.b?" pselable":""}" ${act} data-d="${esc(x.b?x.b.datum:k.gepland)}" ${x.st!=="afgerond"?`data-drag="${esc(k.id)}"`:x.b?`data-drag="b:${esc(x.b.id)}"`:""} draggable="${x.st!=="afgerond"}" style="top:${top}px;height:${height}px;left:${left}%;width:${width}%;--h:${hue(k.ronde||k.naam)}" title="${esc(cleanName(k.naam))}">
-    <div class="tj-kop">${tijd?`<small>${esc(tijd)}${(()=>{const m=toMin(tijd),du=x.b?Number(x.b.duur)||duur(k):duur(k);return m!=null&&du?" – "+fromMin(m+Math.round(du)):""})()}</small>`:""}<button type="button" class="tj-nm" ${act} data-d="${esc(x.b?x.b.datum:k.gepland)}">${esc(a.adres||cleanName(k.naam))}${a.plaats?", "+esc(a.plaats):""}</button>${x.st==="bezig"?'<i class="tj-live"></i>':""}${cmp===" compact"?dienstenHtml(k,x.b?x.b.datum:k.gepland):""}<span class="tj-amt">${eur(toon(x.b?x.b.bedrag:prijsMee(k)))}</span></div>
+    <div class="tj-kop">${tijd?`<small>${esc(tijd)}${(()=>{const m=toMin(tijd),du=x.b?Number(x.b.duur)||duur(k):duur(k);return m!=null&&du?" – "+fromMin(m+Math.round(du)):""})()}</small>`:""}<button type="button" class="tj-nm" ${act} data-d="${esc(x.b?x.b.datum:k.gepland)}">${esc(a.adres||cleanName(k.naam))}${a.plaats?", "+esc(a.plaats):""}</button>${x.st==="bezig"?'<i class="tj-live"></i>':""}${cmp===" compact"?dienstenHtml(k,x.b?x.b.datum:k.gepland):""}<span class="tj-amt">${eur(toon(x.b?beurtBedrag(x.b):prijsMee(k)))}</span></div>
     <div class="tj-bot"><span class="tj-wie">${esc(cleanName(k.naam))}</span>${dienstenHtml(k,x.b?x.b.datum:k.gepland)}${x.st==="afgerond"?"":tjMailHtml(k)}${x.st==="afgerond"?`<span class="tj-ok done">${I.check}</span>`:`<button type="button" class="tj-ok" data-act="was" data-id="${esc(k.id)}" aria-label="${esc(cleanName(k.naam))} afgerond">${I.check}</button>`}</div></div>`;
 }
 function dayHead(d,showWk){
@@ -84,7 +84,7 @@ function weekCols(days){
   const t=iso(today());
   return `<div class="weekwrap"><div class="weekgrid">${days.map(d=>{const it=dayItems(d),s=daySum(d);return `<div class="daycol${d===t?" is-today":""}" data-drop="${d}">
     ${dayHead(d,false)}
-    ${it.done.map(x=>`<div class="job done" style="--h:${hue(x.b.klantNaam)}"><div class="jn">${I.check}<button type="button" data-act="klant" data-id="${esc(x.b.klantId)}">${esc(cleanName(x.b.klantNaam))}</button></div><div class="jf"><span class="ja">Afgerond</span><span class="amt">${eur(toon(x.b.bedrag))}</span></div></div>`).join("")}
+    ${it.done.map(x=>`<div class="job done" style="--h:${hue(x.b.klantNaam)}"><div class="jn">${I.check}<button type="button" data-act="klant" data-id="${esc(x.b.klantId)}">${esc(cleanName(x.b.klantNaam))}</button></div><div class="jf"><span class="ja">Afgerond</span><span class="amt">${eur(toon(beurtBedrag(x.b)))}</span></div></div>`).join("")}
     ${it.js.sort((a,b)=>(toMin(a.k.tijd)??9999)-(toMin(b.k.tijd)??9999)).map(x=>{const k=x.k;if(x.r)return reeksCard(x);return `<div class="job${pqMatch(k)?"":" faded"}${x.st==="bezig"?" busy":""}${state.pselMode&&state.psel.has(k.id)?" psel":""}${state.pselMode?" pselable":""}" style="--h:${hue(k.ronde||k.naam)}" draggable="true" data-drag="${esc(k.id)}">
       <div class="jn">${k.tijd?`<span class="tm">${esc(k.tijd)}</span>`:""}<button type="button" data-act="job" data-id="${esc(k.id)}" data-d="${esc(k.gepland)}">${esc(jobAddrObj(k).adres||cleanName(k.naam))}</button></div>
       <div class="ja">${esc(cleanName(k.naam))}</div><div class="ja">${dienstHtml(k)}</div>
@@ -176,11 +176,11 @@ function openBeurtInfo(id){
   const rij=(l,v)=>v?`<div class="bi-r"><span>${l}</span><b>${v}</b></div>`:"";
   openDlg(`<div class="jp">
     <div class="jp-kop jp-afgerond"><div class="jp-kr1"><span class="jp-st"><i></i>Afgerond</span><span class="sp"></span><button type="button" class="jp-ib" data-act="close" aria-label="Sluiten">${I.x}</button></div>
-      <div class="jp-kr2"><span class="jp-k1"><small>${["zo","ma","di","wo","do","vr","za"][d.getDay()]} ${d.getDate()} ${["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"][d.getMonth()]}</small><b>${esc(b.tijd||"–")}</b></span><span class="jp-k2"><b>${esc(nm)}</b><em>${adr?I.pin+esc(adr):"Klant staat niet meer in je bestand"}</em></span><span class="jp-k3"><small>Bedrag</small><b>${eur(toon(Number(b.bedrag)||0))}</b><em>afgerond</em></span></div></div>
+      <div class="jp-kr2"><span class="jp-k1"><small>${["zo","ma","di","wo","do","vr","za"][d.getDay()]} ${d.getDate()} ${["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"][d.getMonth()]}</small><b>${esc(b.tijd||"–")}</b></span><span class="jp-k2"><b>${esc(nm)}</b><em>${adr?I.pin+esc(adr):"Klant staat niet meer in je bestand"}</em></span><span class="jp-k3"><small>Bedrag</small><b>${eur(toon(beurtBedrag(b)))}</b><em>afgerond</em></span></div></div>
     ${k?`<div class="jp-tiles">${tel?`<a class="jp-tile" href="tel:${esc(tel)}">${I.phone}<span>Bellen</span></a>`:`<span class="jp-tile dis">${I.phone}<span>Bellen</span></span>`}${k.email?`<a class="jp-tile" href="mailto:${esc(k.email)}">${I.mail}<span>Mail</span></a>`:`<span class="jp-tile dis">${I.mail}<span>Mail</span></span>`}<a class="jp-tile" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.nav}<span>Route</span></a></div>`:""}
     <div class="jp-body"><div class="bi">
       ${rij("Dienst",esc(b.dienst||(k&&k.dienst)||"Glasbewassing"))}
-      ${rij("Bedrag",eur(toon(Number(b.bedrag)||0)))}
+      ${rij("Bedrag",eur(toon(beurtBedrag(b)))+(b.periodiek&&!Number(b.bedrag)?" · via de periodieke factuur":""))}
       ${rij("Duur",b.duur?esc(b.duur)+" min":"")}
       ${rij("Factuur",f?esc(f.nummer||"Concept")+" · "+(f.status==="betaald"||b.betaald?"betaald":f.status==="concept"?"concept":"open")+(f.periodiek?" (periodiek)":""):b.gefactureerd==="periodiek"?"Gaat mee op de periodieke factuur":b.gefactureerd==="nvt"?"Niet gefactureerd (zo ingesteld)":b.gefactureerd?"Gefactureerd":"Nog niet gefactureerd")}
       ${k?rij("Frequentie",esc(freqLabel(k.frequentie||4)).toLowerCase()):""}
