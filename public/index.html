@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="314e7ca6629a"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="1653da616e4f"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -2564,7 +2564,9 @@ nav.tabs .badge.nk-b{padding:0 2px;height:18px}nav.tabs .badge.nk-b em{display:n
 .ch-pop-t{flex:1;min-width:0}.ch-pop-t small{display:flex;align-items:center;gap:6px;color:var(--brand);font-weight:800;font-size:12px}.ch-pop-t small svg{width:14px;height:14px}
 .ch-pop-t b{display:block;font-size:15px;margin-top:2px}.ch-pop-t p{margin:3px 0 10px;color:var(--muted);font-size:14px;line-height:1.4;overflow-wrap:anywhere}
 .ch-pop-k{display:flex;gap:6px}.ch-pop-x{position:absolute;top:8px;right:8px;width:28px;height:28px}
-@media (max-width:600px){.ch-pops{top:calc(10px + env(safe-area-inset-top));right:12px}}
+@media (max-width:600px){.ch-pops{top:calc(10px + env(safe-area-inset-top));right:12px;left:12px;width:auto}}
+/* boven de kopbalk (die heeft z-index 1100), anders valt de melding er half achter */
+.ch-pops{z-index:1200}
 @media (prefers-reduced-motion:reduce){.ch-pop{animation:none}}
 
 /* tickets (CRM) */
