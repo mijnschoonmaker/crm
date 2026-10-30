@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="c98feb4fade5"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="1e532e6b7bb8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -76,15 +76,27 @@
   /* app op het beginscherm (iPhone/iPad): een PDF in een nieuw "tabblad" opent schermvullend zonder knoppen, en dan kom je er niet meer uit.
      Daarom daar de PDF in een eigen venster met Sluiten (rechtsboven) en Delen. */
   const standalone = () => { try { return !!navigator.standalone || matchMedia("(display-mode: standalone)").matches; } catch (e) { return false; } };
+  /* pagina's zelf tekenen (pdf.js), passend op de breedte van het scherm; een iPhone toont een PDF in een venster anders op ware grootte en valt hij rechts weg */
+  const PDFJS = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
+  let pdfjsLaad = null;
+  function pdfjsKlaar() { if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib); if (pdfjsLaad) return pdfjsLaad;
+    pdfjsLaad = new Promise((res, rej) => { const sc = document.createElement("script"); sc.src = PDFJS + "pdf.min.js"; sc.onload = () => { try { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS + "pdf.worker.min.js"; res(window.pdfjsLib); } catch (e) { rej(e); } }; sc.onerror = () => { pdfjsLaad = null; rej(new Error("pdf.js")); }; document.head.appendChild(sc); });
+    return pdfjsLaad; }
   function pdfVenster(url, naam, blob) {
     const o = document.createElement("dialog"); o.className = "pdf-ov";
-    o.innerHTML = '<div class="pdf-bar"><b></b><span style="flex:1"></span><button type="button" class="small" data-pdel>Delen</button><button type="button" class="pdf-x" aria-label="Sluiten">\u2715</button></div><iframe title="PDF"></iframe>';
-    o.querySelector("b").textContent = naam || "PDF"; o.querySelector("iframe").src = url;
-    if (!document.getElementById("pdfOvCss")) { const c = document.createElement("style"); c.id = "pdfOvCss"; c.textContent = "dialog.pdf-ov[open]{position:fixed;inset:0;width:100vw;height:100dvh;max-width:none!important;max-height:none!important;margin:0;padding:0;border:0;border-radius:0;display:flex;flex-direction:column;background:#f2f2f2;z-index:2147483000}.pdf-ov::backdrop{background:rgb(0 0 0/.4)}.pdf-bar{display:flex;align-items:center;gap:8px;padding:calc(8px + env(safe-area-inset-top)) 12px 8px;background:#fff;border-bottom:1px solid #e5e7eb;font:600 15px -apple-system,system-ui,sans-serif}.pdf-bar b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pdf-x{width:40px;height:40px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;font-size:18px;flex:none}.pdf-ov iframe{flex:1;width:100%;border:0;background:#fff}"; document.head.appendChild(c); }
+    o.innerHTML = '<div class="pdf-bar"><b></b><span style="flex:1"></span><button type="button" class="small" data-pdel>Delen</button><button type="button" class="pdf-x" aria-label="Sluiten">✕</button></div><div class="pdf-pag"><p class="pdf-ld">PDF laden…</p></div>';
+    o.querySelector("b").textContent = naam || "PDF";
+    if (!document.getElementById("pdfOvCss")) { const c = document.createElement("style"); c.id = "pdfOvCss"; c.textContent = "dialog.pdf-ov[open]{position:fixed;inset:0;width:100vw;height:100dvh;max-width:none!important;max-height:none!important;margin:0;padding:0;border:0;border-radius:0;display:flex;flex-direction:column;background:#e9eaec;z-index:2147483000}.pdf-ov::backdrop{background:rgb(0 0 0/.4)}.pdf-bar{display:flex;align-items:center;gap:8px;padding:calc(8px + env(safe-area-inset-top)) 12px 8px;background:#fff;border-bottom:1px solid #e5e7eb;font:600 15px -apple-system,system-ui,sans-serif}.pdf-bar b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pdf-x{width:40px;height:40px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;font-size:18px;flex:none}.pdf-pag{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:12px;display:flex;flex-direction:column;align-items:center;gap:12px}.pdf-pag canvas{display:block;width:100%;max-width:900px;height:auto;background:#fff;box-shadow:0 2px 10px rgb(0 0 0/.12);border-radius:4px}.pdf-pag iframe{flex:1;width:100%;min-height:80vh;border:0;background:#fff}.pdf-ld{margin:40px 0;color:#667;font:15px -apple-system,system-ui,sans-serif}"; document.head.appendChild(c); }
     document.body.appendChild(o); try { o.showModal(); } catch (e) { o.setAttribute("open", ""); }
     const weg = () => { try { o.close(); } catch (e) {} o.remove(); };
     o.addEventListener("cancel", e => { e.preventDefault(); weg(); }); o.querySelector(".pdf-x").onclick = weg;
-    o.querySelector("[data-pdel]").onclick = async () => { try { const b = blob || await (await fetch(url)).blob(); const f = new File([b], naam || "document.pdf", { type: "application/pdf" }); if (navigator.canShare && navigator.canShare({ files: [f] })) await navigator.share({ files: [f] }); } catch (e) {} };
+    const haal = async () => blob || (blob = await (await fetch(url)).blob());
+    o.querySelector("[data-pdel]").onclick = async () => { try { const b = await haal(); const f = new File([b], naam || "document.pdf", { type: "application/pdf" }); if (navigator.canShare && navigator.canShare({ files: [f] })) await navigator.share({ files: [f] }); else { const a = document.createElement("a"); a.href = url; a.download = naam || "document.pdf"; document.body.appendChild(a); a.click(); a.remove(); } } catch (e) {} };
+    const pag = o.querySelector(".pdf-pag");
+    (async () => { try { const [lib, b] = await Promise.all([pdfjsKlaar(), haal()]); const doc = await lib.getDocument({ data: new Uint8Array(await b.arrayBuffer()) }).promise; if (!o.isConnected) return; pag.innerHTML = "";
+        const breed = Math.min(pag.clientWidth - 24, 900), dpr = Math.min(3, window.devicePixelRatio || 1);
+        for (let i = 1; i <= doc.numPages; i++) { const p = await doc.getPage(i), v0 = p.getViewport({ scale: 1 }), v = p.getViewport({ scale: breed / v0.width * dpr }), cv = document.createElement("canvas"); cv.width = Math.round(v.width); cv.height = Math.round(v.height); pag.appendChild(cv); await p.render({ canvasContext: cv.getContext("2d"), viewport: v }).promise; if (!o.isConnected) return; } }
+      catch (e) { pag.innerHTML = ""; const f = document.createElement("iframe"); f.title = "PDF"; f.src = url; pag.appendChild(f); } })();
   }
   window.msPdfVenster = pdfVenster;
   /* links die een PDF in een nieuw venster openen (bijlagen, facturen): in de app op het beginscherm in het eigen venster */

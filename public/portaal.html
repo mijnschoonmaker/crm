@@ -2523,16 +2523,29 @@ async function bedanktNaBetalen(id){let d=null;
   if(sessie.get())setTimeout(()=>{try{laad(true)}catch(e){}},400)}
 
 /* PDF in een eigen venster met Sluiten en Delen */
+/* pagina's zelf tekenen (pdf.js), passend op de breedte van het scherm; een iPhone toont een PDF in een venster anders op ware grootte en valt hij rechts weg */
+const PDFJS = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
+let pdfjsLaad = null;
+function pdfjsKlaar() { if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib); if (pdfjsLaad) return pdfjsLaad;
+  pdfjsLaad = new Promise((res, rej) => { const sc = document.createElement("script"); sc.src = PDFJS + "pdf.min.js"; sc.onload = () => { try { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS + "pdf.worker.min.js"; res(window.pdfjsLib); } catch (e) { rej(e); } }; sc.onerror = () => { pdfjsLaad = null; rej(new Error("pdf.js")); }; document.head.appendChild(sc); });
+  return pdfjsLaad; }
 function pdfVenster(url, naam, blob) {
-    const o = document.createElement("dialog"); o.className = "pdf-ov";
-    o.innerHTML = '<div class="pdf-bar"><b></b><span style="flex:1"></span><button type="button" class="small" data-pdel>Delen</button><button type="button" class="pdf-x" aria-label="Sluiten">\u2715</button></div><iframe title="PDF"></iframe>';
-    o.querySelector("b").textContent = naam || "PDF"; o.querySelector("iframe").src = url;
-    if (!document.getElementById("pdfOvCss")) { const c = document.createElement("style"); c.id = "pdfOvCss"; c.textContent = "dialog.pdf-ov[open]{position:fixed;inset:0;width:100vw;height:100dvh;max-width:none!important;max-height:none!important;margin:0;padding:0;border:0;border-radius:0;display:flex;flex-direction:column;background:#f2f2f2;z-index:2147483000}.pdf-ov::backdrop{background:rgb(0 0 0/.4)}.pdf-bar{display:flex;align-items:center;gap:8px;padding:calc(8px + env(safe-area-inset-top)) 12px 8px;background:#fff;border-bottom:1px solid #e5e7eb;font:600 15px -apple-system,system-ui,sans-serif}.pdf-bar b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pdf-x{width:40px;height:40px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;font-size:18px;flex:none}.pdf-ov iframe{flex:1;width:100%;border:0;background:#fff}"; document.head.appendChild(c); }
-    document.body.appendChild(o); try { o.showModal(); } catch (e) { o.setAttribute("open", ""); }
-    const weg = () => { try { o.close(); } catch (e) {} o.remove(); };
-    o.addEventListener("cancel", e => { e.preventDefault(); weg(); }); o.querySelector(".pdf-x").onclick = weg;
-    o.querySelector("[data-pdel]").onclick = async () => { try { const b = blob || await (await fetch(url)).blob(); const f = new File([b], naam || "document.pdf", { type: "application/pdf" }); if (navigator.canShare && navigator.canShare({ files: [f] })) await navigator.share({ files: [f] }); } catch (e) {} };
-  }
+  const o = document.createElement("dialog"); o.className = "pdf-ov";
+  o.innerHTML = '<div class="pdf-bar"><b></b><span style="flex:1"></span><button type="button" class="small" data-pdel>Delen</button><button type="button" class="pdf-x" aria-label="Sluiten">✕</button></div><div class="pdf-pag"><p class="pdf-ld">PDF laden…</p></div>';
+  o.querySelector("b").textContent = naam || "PDF";
+  if (!document.getElementById("pdfOvCss")) { const c = document.createElement("style"); c.id = "pdfOvCss"; c.textContent = "dialog.pdf-ov[open]{position:fixed;inset:0;width:100vw;height:100dvh;max-width:none!important;max-height:none!important;margin:0;padding:0;border:0;border-radius:0;display:flex;flex-direction:column;background:#e9eaec;z-index:2147483000}.pdf-ov::backdrop{background:rgb(0 0 0/.4)}.pdf-bar{display:flex;align-items:center;gap:8px;padding:calc(8px + env(safe-area-inset-top)) 12px 8px;background:#fff;border-bottom:1px solid #e5e7eb;font:600 15px -apple-system,system-ui,sans-serif}.pdf-bar b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pdf-x{width:40px;height:40px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;font-size:18px;flex:none}.pdf-pag{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:12px;display:flex;flex-direction:column;align-items:center;gap:12px}.pdf-pag canvas{display:block;width:100%;max-width:900px;height:auto;background:#fff;box-shadow:0 2px 10px rgb(0 0 0/.12);border-radius:4px}.pdf-pag iframe{flex:1;width:100%;min-height:80vh;border:0;background:#fff}.pdf-ld{margin:40px 0;color:#667;font:15px -apple-system,system-ui,sans-serif}"; document.head.appendChild(c); }
+  document.body.appendChild(o); try { o.showModal(); } catch (e) { o.setAttribute("open", ""); }
+  const weg = () => { try { o.close(); } catch (e) {} o.remove(); };
+  o.addEventListener("cancel", e => { e.preventDefault(); weg(); }); o.querySelector(".pdf-x").onclick = weg;
+  const haal = async () => blob || (blob = await (await fetch(url)).blob());
+  o.querySelector("[data-pdel]").onclick = async () => { try { const b = await haal(); const f = new File([b], naam || "document.pdf", { type: "application/pdf" }); if (navigator.canShare && navigator.canShare({ files: [f] })) await navigator.share({ files: [f] }); else { const a = document.createElement("a"); a.href = url; a.download = naam || "document.pdf"; document.body.appendChild(a); a.click(); a.remove(); } } catch (e) {} };
+  const pag = o.querySelector(".pdf-pag");
+  (async () => { try { const [lib, b] = await Promise.all([pdfjsKlaar(), haal()]); const doc = await lib.getDocument({ data: new Uint8Array(await b.arrayBuffer()) }).promise; if (!o.isConnected) return; pag.innerHTML = "";
+      const breed = Math.min(pag.clientWidth - 24, 900), dpr = Math.min(3, window.devicePixelRatio || 1);
+      for (let i = 1; i <= doc.numPages; i++) { const p = await doc.getPage(i), v0 = p.getViewport({ scale: 1 }), v = p.getViewport({ scale: breed / v0.width * dpr }), cv = document.createElement("canvas"); cv.width = Math.round(v.width); cv.height = Math.round(v.height); pag.appendChild(cv); await p.render({ canvasContext: cv.getContext("2d"), viewport: v }).promise; if (!o.isConnected) return; } }
+    catch (e) { pag.innerHTML = ""; const f = document.createElement("iframe"); f.title = "PDF"; f.src = url; pag.appendChild(f); } })();
+}
+
 /* ---------- live meekijken: waar is de glazenwasser (alleen op de dag van uw bezoek) ---------- */
 const LVK={map:null,car:null,huis:null,lijn:null,van:null,naar:null,anim:0,timer:0,zelf:false,laadt:null};
 const AUTO='<img src="/img/mansard-bus.png" alt="">';
