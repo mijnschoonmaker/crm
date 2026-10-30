@@ -542,7 +542,7 @@ exports.aanvraag = onRequest({ cors: true, memory: "512MiB", timeoutSeconds: 60 
       if (g.brevoKey && (g.meldAdres || b.email)) {
         const k = D.klant, soort = D.formaat === "zeem.contact" ? "Nieuw contactverzoek" : "Nieuwe offerte-aanvraag";
         await brevoSend(g.brevoKey, {
-          sender: { name: "mijnschoonmaker CRM", email: g.afzender || b.email }, to: [{ email: g.meldAdres || b.email }],
+          sender: { name: "Mansard CRM", email: g.afzender || b.email }, to: [{ email: g.meldAdres || b.email }],
           subject: soort + ": " + k.naam,
           textContent: [soort, "", "Naam: " + k.naam, k.bedrijf ? "Bedrijf: " + k.bedrijf : "", "Adres: " + [k.adres, k.postcode, k.plaats].filter(Boolean).join(" "), "E-mail: " + (k.email || ""), "Telefoon: " + (k.telefoon || ""), k.opmerking ? "\nOpmerking: " + k.opmerking : "", "", "Open het CRM om de aanvraag te bekijken."].filter(x => x !== "").join("\n")
         });
@@ -671,7 +671,7 @@ exports.akkoordGeven = onRequest({ cors: true, memory: "512MiB", timeoutSeconds:
     /* vanaf hier is de handtekening opgeslagen: een mislukte bevestigingsmail mag de offerte niet terugzetten op open */
     if (naar) try { const r = await stuurOverzichtMail({ soort: "definitief", naar, naamKlant: a.naamKlant || (m.klant || {}).naam || "", klantId: a.klantId || "", meta: { factuurId: a.factuurId || "" }, model: { ...m, handtekening: { naam, plaats, datum, browser, systeem, png: buf } } }); nummer = r.nummer; } catch (e) { console.error("bevestiging akkoord", e); }
     /* melding naar het bedrijf */
-    try { const [g, b] = await Promise.all([geheim(), bedrijf()]); if (g.brevoKey && (g.meldAdres || b.email)) await brevoSend(g.brevoKey, { sender: { name: "mijnschoonmaker CRM", email: g.afzender || b.email }, to: [{ email: g.meldAdres || b.email }], subject: `Offerte ${a.nummer || ""} ondertekend door ${naam}`, textContent: `${naam}${plaats ? " uit " + plaats : ""} heeft offerte ${a.nummer || ""} online ondertekend op ${datum}.\nHet definitieve bestellingsoverzicht${nummer ? " (" + nummer + ")" : ""} is naar de klant gemaild.\n\nOpen het CRM om de klant in te plannen.` }); } catch (e) { console.error(e); }
+    try { const [g, b] = await Promise.all([geheim(), bedrijf()]); if (g.brevoKey && (g.meldAdres || b.email)) await brevoSend(g.brevoKey, { sender: { name: "Mansard CRM", email: g.afzender || b.email }, to: [{ email: g.meldAdres || b.email }], subject: `Offerte ${a.nummer || ""} ondertekend door ${naam}`, textContent: `${naam}${plaats ? " uit " + plaats : ""} heeft offerte ${a.nummer || ""} online ondertekend op ${datum}.\nHet definitieve bestellingsoverzicht${nummer ? " (" + nummer + ")" : ""} is naar de klant gemaild.\n\nOpen het CRM om de klant in te plannen.` }); } catch (e) { console.error(e); }
     res.json({ ok: true });
   } catch (e) { console.error(e); await ref.update({ status: "open" }).catch(() => {}); res.status(500).json({ fout: "Er ging iets mis. Probeer het opnieuw." }); }
 });

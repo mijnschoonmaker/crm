@@ -334,7 +334,7 @@ module.exports = function maakPortaal(ctx) {
     if (v.status === "nieuw" || v.ticketId) {
       try {
         const [g, b] = await Promise.all([geheim(), bedrijf()]);
-        if (g.brevoKey && (g.meldAdres || b.email)) await brevoSend(g.brevoKey, { sender: { name: "mijnschoonmaker CRM", email: g.afzender || b.email }, to: [{ email: g.meldAdres || b.email }], replyTo: k.email ? { email: k.email } : undefined,
+        if (g.brevoKey && (g.meldAdres || b.email)) await brevoSend(g.brevoKey, { sender: { name: "Mansard CRM", email: g.afzender || b.email }, to: [{ email: g.meldAdres || b.email }], replyTo: k.email ? { email: k.email } : undefined,
           subject: `Klantportaal: ${v.titel} · ${schoon(k.naam)}`, textContent: [`${schoon(k.naam)} (${v.adres}) via het klantportaal:`, "", v.titel + (v.datum ? " · " + v.datum : "") + (v.tot ? " t/m " + v.tot : "") + (v.sterren ? " · " + v.sterren + " sterren" : ""), v.voorkeur ? "Voorkeur: " + v.voorkeur : "", v.diensten && v.diensten.length ? "Diensten: " + v.diensten.join(", ") : "", v.wijziging ? "Al doorgevoerd in het CRM:\n" + Object.keys(v.wijziging).map(f => "- " + f + ": " + ((v.oud || {})[f] || "–") + " → " + (v.wijziging[f] || "–")).join("\n") : "", v.tekst ? "\n" + v.tekst : "", "", "Open het CRM om dit af te handelen."].filter(x => x !== "").join("\n") });
       } catch (e) { console.error("melding portaal", e); }
     }
