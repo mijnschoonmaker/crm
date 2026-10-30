@@ -218,3 +218,13 @@ if(typeof window!=="undefined")setTimeout(async function w(){if(!state.loaded)re
     const lf=state.facturen.filter(f=>f.soort!=="offerte"&&f.klantId===k.id&&f.status!=="concept").sort((a,b)=>String(b.datum).localeCompare(String(a.datum)))[0];
     const o=offs[0]&&offs[0].opdracht,p=o?Number(o.prijs):lf?(S().incl?totals(lf).inc:totals(lf).ex):0;if(!(p>0))continue;
     try{await save("klanten",k.id,{...strip(k),prijs:r2(p),...(o&&o.frequentie?{frequentie:Number(o.frequentie)}:{}),...(o&&o.duur?{duur:Number(o.duur)}:{}),log:[...(k.log||[]),{datum:iso(today()),tekst:"Prijs per beurt teruggezet naar "+eur(p)+" (was door een offerte voor alleen extra diensten op € 0 gezet)"}]})}catch(e){console.error("prijs terug",e)}}},5000);
+
+/* eenmalige correctie (30-10-2026): de voetnoot met de richttijd onder de aankondiging is weggehaald (de klant krijgt deze mail
+   elke 8 weken); ook uit een eigen opgeslagen aankondigingstekst. */
+if(typeof window!=="undefined")setTimeout(async function w(){if(!state.loaded)return setTimeout(w,2000);if(typeof isMw==="function"&&isMw())return;
+  const A=state.sjablonen&&state.sjablonen.aankondiging;if(!A)return;
+  const tx=t=>typeof t!=="string"?t:t.replace(/\s*\*\s*Het genoemde tijdstip is een richttijd\.[\s\S]*?ongewijzigd\.?/i,"").replace(/(uur)\s*\*(?=\s|$)/,"$1."),
+    ht=t=>typeof t!=="string"?t:t.replace(/<(p|div)[^>]*>(?:(?!<\/?(?:p|div)[\s>])[\s\S])*?Het genoemde tijdstip is een richttijd[\s\S]*?<\/\1>/i,"").replace(/\*?\s*Het genoemde tijdstip is een richttijd\.[\s\S]*?ongewijzigd\.?/i,"").replace(/(uur)\s*\*/,"$1.");
+  const n={...A};["mail","tekst","sms"].forEach(k=>{if(k in n)n[k]=tx(n[k])});if("mailHtml" in n)n.mailHtml=ht(n.mailHtml);
+  if(JSON.stringify(n)===JSON.stringify(A))return;
+  try{await save("instellingen","sjablonen",{...state.sjablonen,aankondiging:n})}catch(e){console.error("aankondiging voetnoot",e)}},6000);
