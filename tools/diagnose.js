@@ -27,3 +27,5 @@ const pick = (o, ks) => Object.fromEntries(ks.filter(k => o && o[k] !== undefine
   log("relatiecodes: " + nrs.length + " klanten met code van " + nrs.length + " · laagste " + (nrs[0] || "-") + " · hoogste " + (nrs[nrs.length - 1] || "-") + " · zonder code: " + ks.docs.filter(d => !d.data().hoofdKlantId && !/^\d+$/.test(String(d.data().klantnr || ""))).length + " · Eerstvolgend klantnummer (instelling): " + JSON.stringify(ins.bhKlantStart || ""));
   uit.forEach((t, i) => console.log("::notice title=Diagnose " + (i + 1) + "::" + t.replace(/\n/g, " ")));
 })().catch(x => { console.error(x); process.exit(1); });
+(async () => { const q = await db.collection("facturen").where("soort", "==", "offerte").get(); for (const d of q.docs) { const f = d.data(); if (!/dijk,\s*derk/i.test(String(f.klantNaam || ""))) continue;
+  console.log("::notice title=off " + d.id + "::" + JSON.stringify({ nummer: f.nummer, status: f.status, datum: f.datum, opdracht: f.opdracht && { prijs: f.opdracht.prijs, freq: f.opdracht.frequentie, extra: (f.opdracht.extra || []).map(e => e.dienst) }, autoAkkoord: f.autoAkkoord, getekend: !!f.getekend, akkoordOp: f.akkoordOp })); } })();
