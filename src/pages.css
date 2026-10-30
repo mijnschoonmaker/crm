@@ -4438,3 +4438,5 @@ html body .ow-lg.ow-lg-weg{display:none!important}
 .ow-minnote{display:flex;gap:8px;align-items:flex-start;margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--soon-bg,#fff6e6);font-size:12.5px;line-height:1.45;color:var(--ink)}.ow-minnote svg{width:15px;height:15px;flex:none;margin-top:2px}
 
 dialog.pv-ov[open]{position:fixed;inset:0;z-index:9000;background:var(--bg,#fff);display:flex;flex-direction:column;width:100vw!important;height:100dvh!important;max-width:none!important;max-height:none!important;margin:0;padding:0;border:0;border-radius:0}.pv-ov::backdrop{background:rgb(0 0 0 / .4)}.pv-bar{display:flex;align-items:center;gap:8px;padding:8px max(12px,env(safe-area-inset-left));border-bottom:1px solid var(--line,#e5e7eb);background:var(--card,#fff)}.pv-bar .sp{flex:1}.pv-ov iframe{flex:1;width:100%;border:0}
+
+dialog.nav-kies{width:min(360px,calc(100vw - 32px));border-radius:20px}.nav-k{display:flex;flex-direction:column;gap:10px;padding:20px}.nav-k b{font-size:17px}.nav-k small{color:var(--muted);margin-top:-6px}.nav-k button{justify-content:center}

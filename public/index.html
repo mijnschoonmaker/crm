@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="8ebfb1ea9257"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="db8c5936d536"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -5112,6 +5112,8 @@ html body .ow-lg.ow-lg-weg{display:none!important}
 
 dialog.pv-ov[open]{position:fixed;inset:0;z-index:9000;background:var(--bg,#fff);display:flex;flex-direction:column;width:100vw!important;height:100dvh!important;max-width:none!important;max-height:none!important;margin:0;padding:0;border:0;border-radius:0}.pv-ov::backdrop{background:rgb(0 0 0 / .4)}.pv-bar{display:flex;align-items:center;gap:8px;padding:8px max(12px,env(safe-area-inset-left));border-bottom:1px solid var(--line,#e5e7eb);background:var(--card,#fff)}.pv-bar .sp{flex:1}.pv-ov iframe{flex:1;width:100%;border:0}
 
+dialog.nav-kies{width:min(360px,calc(100vw - 32px));border-radius:20px}.nav-k{display:flex;flex-direction:column;gap:10px;padding:20px}.nav-k b{font-size:17px}.nav-k small{color:var(--muted);margin-top:-6px}.nav-k button{justify-content:center}
+
 </style>
 <style id="mansardThema">
 @import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;500;600;700&display=swap");
@@ -8238,7 +8240,7 @@ function vRoute(){
     ${stopCard(k,stops.length-todo.length,true,parse(k.gepland)<today(),day,stops.length)}`;
   }
   html+=`<div class="ns-head sm" style="margin-top:26px"><h2>Alle stops</h2><span></span></div>
-  <div class="toolbar">${routeLinks(stops).map((l,i,a)=>`<a class="btn primary" href="${esc(l)}" target="_blank" rel="noopener">${I.map}${a.length>1?"Route deel "+(i+1):"Hele route in Google Maps"}</a>`).join("")}
+  <div class="toolbar">${routeLinks(stops).map((l,i,a)=>`<a class="btn primary" href="${esc(l)}" target="_blank" rel="noopener">${I.map}${a.length>1?"Route deel "+(i+1):"Hele route in Google Maps"}</a>`).join("")}${typeof navIos==="function"&&navIos()?`<button type="button" class="btn" data-act="navwissel">${I.nav||""}Navigeer met: ${esc((NAV_APPS.find(x=>x[0]===navPref())||[0,"kiezen"])[1])}</button>`:""}
     <button type="button" data-act="optim" data-d="${day}">${I.wand}Optimaliseer route</button><button type="button" data-act="bulkmsg">${I.msg}Bericht aan deze klanten</button></div>
   ${S().startadres?"":`<p class="subt">Tip: zet je vertrekadres bij Instellingen, dan begint de route daar.</p>`}
   <div class="list rlijst" style="gap:8px">${stops.map((s,i)=>{const k=s.k,nu=!s.done&&nx&&k.id===nx.id;if(!s.done&&RT_OPEN.has(k.id))return `<div class="rt-open" data-rid="${esc(k.id)}">${stopCard(k,i,nu,parse(k.gepland)<today(),day,stops.length)}</div>`;return `<div class="card rstop${s.done?" dim af":nu?" nu":""}" data-rid="${esc(k.id)}"${s.done?"":' data-rdrag="1"'}><span class="rnum${s.done?" done":nu?" nu":""}">${s.done?I.check:i+1}</span>
@@ -17195,6 +17197,29 @@ function openKlantMw(id){const k=state.klanten.find(x=>x.id===id);if(!k)return;
     <div class="row"><span class="sp"></span><button type="button" class="primary" data-act="close">Sluiten</button></div>`);
 }
 
+/* ---------- Navigeren: direct de navigatie-app op dit apparaat openen ----------
+   Een gewone google.com/maps-link opent op een iPhone/iPad zonder Google Maps de App Store.
+   Op iPhone/iPad kies je één keer (per apparaat) welke app: Apple Kaarten, Google Maps of Waze. */
+const NAV_APPS=[["apple","Apple Kaarten"],["google","Google Maps"],["waze","Waze"]];
+const navIos=()=>/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+const navPref=()=>{try{return localStorage.getItem("ms.nav")||""}catch(e){return""}};
+function navUrl(app,adr){const q=encodeURIComponent(adr);
+  if(app==="google")return navIos()?"comgooglemaps://?daddr="+q+"&directionsmode=driving":"https://www.google.com/maps/dir/?api=1&destination="+q+"&travelmode=driving";
+  if(app==="waze")return "https://waze.com/ul?q="+q+"&navigate=yes";
+  return "https://maps.apple.com/?daddr="+q+"&dirflg=d"}
+function navKies(adr,ga){const o=document.createElement("dialog");o.className="nav-kies";const cur=navPref();
+  o.innerHTML=`<div class="nav-k"><b>Navigeren met</b><small>${esc(adr)}</small>${NAV_APPS.map(([v,l])=>`<button type="button" class="${v===cur?"primary":""}" data-nav="${v}">${esc(l)}</button>`).join("")}<label class="check-row"><input type="checkbox" id="navOnth" checked>Onthouden op dit apparaat</label><button type="button" class="ghost" data-nav="">Annuleren</button></div>`;
+  document.body.appendChild(o);try{o.showModal()}catch(_){o.setAttribute("open","")}
+  const weg=()=>{try{o.close()}catch(_){}o.remove()};o.addEventListener("cancel",e=>{e.preventDefault();weg()});
+  o.addEventListener("click",e=>{const b=e.target.closest("[data-nav]");if(!b)return;const v=b.dataset.nav;const onth=o.querySelector("#navOnth").checked;weg();if(!v)return;
+    if(onth)try{localStorage.setItem("ms.nav",v)}catch(_){}if(ga!==false)location.href=navUrl(v,adr);else toast("Navigatie-app: "+NAV_APPS.find(x=>x[0]===v)[1])})}
+/* alle "navigeer naar dit adres"-links (Google Maps zoeken) onderscheppen op iPhone/iPad */
+document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest('a[href^="https://www.google.com/maps/search/"]');if(!a||!navIos())return;
+  let adr="";try{adr=new URL(a.href).searchParams.get("query")||""}catch(_){}if(!adr)return;e.preventDefault();e.stopPropagation();
+  const p=navPref();if(p)location.href=navUrl(p,adr);else navKies(adr)},true);
+/* andere app kiezen (knop op de Route-pagina) */
+function navWissel(){navKies("Kies de app voor Navigeer",false)}
+
 /* ---------- Opdrachten: vaste nummers en "apart inplannen" ----------
    - Elke extra opdracht krijgt bij het opslaan een vast nummer (2, 3, ...). Verwijder je er een, dan houden de andere hun nummer;
      een nummer wordt nooit opnieuw gebruikt (opdrNrMax op de klant).
@@ -17928,6 +17953,7 @@ document.addEventListener("click",e=>{
     case"tknieuw":openTickets("",id);break;
     case"ptinvite":portaalUitnodigen(id);break;
     case"ptkijk":portaalBekijken(id);break;
+    case"navwissel":navWissel();break;
     case"reeksinfo":openReeksInfo(id,t.dataset.d);break;
     case"reeksnew":{const k=K(id);if(k&&k.gepland)openReeks(k,k.gepland,k.tijd||"",true).then(r=>{if(r)reeksOpslaan(k,k.gepland,k.tijd||"",r,true)})}break;
     case"beurtinfo":openBeurtInfo(id);break;

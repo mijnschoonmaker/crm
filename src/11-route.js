@@ -33,7 +33,7 @@ function vRoute(){
     ${stopCard(k,stops.length-todo.length,true,parse(k.gepland)<today(),day,stops.length)}`;
   }
   html+=`<div class="ns-head sm" style="margin-top:26px"><h2>Alle stops</h2><span></span></div>
-  <div class="toolbar">${routeLinks(stops).map((l,i,a)=>`<a class="btn primary" href="${esc(l)}" target="_blank" rel="noopener">${I.map}${a.length>1?"Route deel "+(i+1):"Hele route in Google Maps"}</a>`).join("")}
+  <div class="toolbar">${routeLinks(stops).map((l,i,a)=>`<a class="btn primary" href="${esc(l)}" target="_blank" rel="noopener">${I.map}${a.length>1?"Route deel "+(i+1):"Hele route in Google Maps"}</a>`).join("")}${typeof navIos==="function"&&navIos()?`<button type="button" class="btn" data-act="navwissel">${I.nav||""}Navigeer met: ${esc((NAV_APPS.find(x=>x[0]===navPref())||[0,"kiezen"])[1])}</button>`:""}
     <button type="button" data-act="optim" data-d="${day}">${I.wand}Optimaliseer route</button><button type="button" data-act="bulkmsg">${I.msg}Bericht aan deze klanten</button></div>
   ${S().startadres?"":`<p class="subt">Tip: zet je vertrekadres bij Instellingen, dan begint de route daar.</p>`}
   <div class="list rlijst" style="gap:8px">${stops.map((s,i)=>{const k=s.k,nu=!s.done&&nx&&k.id===nx.id;if(!s.done&&RT_OPEN.has(k.id))return `<div class="rt-open" data-rid="${esc(k.id)}">${stopCard(k,i,nu,parse(k.gepland)<today(),day,stops.length)}</div>`;return `<div class="card rstop${s.done?" dim af":nu?" nu":""}" data-rid="${esc(k.id)}"${s.done?"":' data-rdrag="1"'}><span class="rnum${s.done?" done":nu?" nu":""}">${s.done?I.check:i+1}</span>
