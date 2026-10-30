@@ -1724,7 +1724,7 @@ html body:not(#zz) .cr-card{width:clamp(250px,27%,300px)!important;right:clamp(2
 .bz-acts{display:flex!important;flex-wrap:wrap!important;max-width:560px}
 .bz-acts button{flex:1 1 auto;min-width:max-content}
 .lv-groot{margin:0 0 18px}.lv-groot .lv-map{height:min(56vh,520px)!important;min-height:300px}.lv-groot .lv-tx b{font-size:clamp(18px,2.2vw,24px)}.lv-groot .lv-eta b{font-size:clamp(24px,3vw,34px)}
-@media (max-width:600px){.lv-groot .lv-map{height:46vh!important;min-height:260px}}
+@media (max-width:600px){.lv-groot .lv-map{height:calc(100dvh - var(--lvRest,300px))!important;min-height:260px}}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -2536,6 +2536,9 @@ const lvTik=()=>{const L=D&&D.live;return L&&L.status==="onderweg"&&L.voor===0?3
 async function lvInit(){clearTimeout(LVK.timer);clearInterval(LVK.timer);LVK.gen=(LVK.gen||0)+1;const L=D&&D.live;if(!L||L.status!=="onderweg")return;
   {const g=LVK.gen=(LVK.gen||0)+1;LVK.timer=setTimeout(function t(){if(g!==LVK.gen)return;lvPeil().finally(()=>{if(g===LVK.gen)LVK.timer=setTimeout(t,lvTik())})},lvTik())}
   const el=document.getElementById("lvMap");if(!el||!L.pos)return;
+  /* telefoon: kaart + info precies passend tussen de kop en de menubalk onderin, zonder scrollen */
+  {const g=el.closest(".lv-groot");if(g&&innerWidth<=600){const info=g.querySelector(".lv-info"),nav=[...document.querySelectorAll("nav,.tabbar,.onder,.bnav")].find(n=>{const r=n.getBoundingClientRect(),c=getComputedStyle(n);return c.position==="fixed"&&r.top>innerHeight/2&&r.height<160}),top=el.getBoundingClientRect().top+scrollY;
+    g.style.setProperty("--lvRest",Math.round(top+(info?info.offsetHeight:110)+(nav?nav.getBoundingClientRect().height:0)+14)+"px")}}
   try{await lvLeaflet()}catch(e){el.innerHTML=`<p class="lv-fout">Kaart kon niet laden</p>`;return}
   const Lf=window.L;el.innerHTML="";LVK.zelf=false;
   LVK.map=Lf.map(el,{zoomControl:false,attributionControl:false,preferCanvas:true,dragging:true,scrollWheelZoom:false,tap:true});LVK.prog=1;LVK.map.setView([L.pos.lat,L.pos.lng],15);setTimeout(()=>LVK.prog=0,450);
