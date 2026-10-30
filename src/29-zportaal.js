@@ -289,7 +289,7 @@ async function tkStatus(t,st){const cur=state.tickets.find(x=>x.id===t.id)||t;if
 /* extra dienst via een offerte: een bestaande klant (al eerder een beurt gehad) tekent online of gaat akkoord.
    Zelfde credits als een extra dienst uit het portaal (Instellingen › crExtra). Eén keer per offerte: vaste id, dus ook
    als twee apparaten het tegelijk doen blijft het bij één keer. Een nieuwe klant (eerste offerte) krijgt ze niet. */
-function offIsExtra(f,k){if(!f||!k||f.soort!=="offerte"||f.autoAkkoord)return false;const d=String(f.datum||"9999-12-31");
+function offIsExtra(f,k){if(!f||!k||f.soort!=="offerte")return false;const d=String(f.datum||"9999-12-31");
   return (state.beurten||[]).some(b=>b.klantId===k.id&&String(b.datum||"")<d)||(!!k.laatst&&String(k.laatst)<d)}
 const _crOff=new Set();
 const crExtraRecent=k=>{const g=iso(addDays(today(),-60));return [...(k.tegoed||[]),...(k.tegoedGebruikt||[])].some(x=>x&&x.bron==="extra"&&String(x.op||"")>=g)};
