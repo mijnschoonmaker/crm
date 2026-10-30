@@ -63,17 +63,36 @@
     /* alleen de bestanden die in de eigen gegevens van dit bedrijf voorkomen (de opslag zelf is gedeeld) */
     list: async () => { const ids = new Set((JSON.stringify(typeof RAW !== "undefined" ? RAW : {}).match(/\b[a-f0-9]{32}\b/g) || [])); return { assets: [...ids].map(id => ({ id })) }; }
   };
+  /* app op het beginscherm (iPhone/iPad): een PDF in een nieuw "tabblad" opent schermvullend zonder knoppen, en dan kom je er niet meer uit.
+     Daarom daar de PDF in een eigen venster met Sluiten (rechtsboven) en Delen. */
+  const standalone = () => { try { return !!navigator.standalone || matchMedia("(display-mode: standalone)").matches; } catch (e) { return false; } };
+  function pdfVenster(url, naam, blob) {
+    const o = document.createElement("dialog"); o.className = "pdf-ov";
+    o.innerHTML = '<div class="pdf-bar"><b></b><span style="flex:1"></span><button type="button" class="small" data-pdel>Delen</button><button type="button" class="pdf-x" aria-label="Sluiten">\u2715</button></div><iframe title="PDF"></iframe>';
+    o.querySelector("b").textContent = naam || "PDF"; o.querySelector("iframe").src = url;
+    if (!document.getElementById("pdfOvCss")) { const c = document.createElement("style"); c.id = "pdfOvCss"; c.textContent = "dialog.pdf-ov[open]{position:fixed;inset:0;width:100vw;height:100dvh;max-width:none!important;max-height:none!important;margin:0;padding:0;border:0;border-radius:0;display:flex;flex-direction:column;background:#f2f2f2;z-index:2147483000}.pdf-ov::backdrop{background:rgb(0 0 0/.4)}.pdf-bar{display:flex;align-items:center;gap:8px;padding:calc(8px + env(safe-area-inset-top)) 12px 8px;background:#fff;border-bottom:1px solid #e5e7eb;font:600 15px -apple-system,system-ui,sans-serif}.pdf-bar b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pdf-x{width:40px;height:40px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;font-size:18px;flex:none}.pdf-ov iframe{flex:1;width:100%;border:0;background:#fff}"; document.head.appendChild(c); }
+    document.body.appendChild(o); try { o.showModal(); } catch (e) { o.setAttribute("open", ""); }
+    const weg = () => { try { o.close(); } catch (e) {} o.remove(); };
+    o.addEventListener("cancel", e => { e.preventDefault(); weg(); }); o.querySelector(".pdf-x").onclick = weg;
+    o.querySelector("[data-pdel]").onclick = async () => { try { const b = blob || await (await fetch(url)).blob(); const f = new File([b], naam || "document.pdf", { type: "application/pdf" }); if (navigator.canShare && navigator.canShare({ files: [f] })) await navigator.share({ files: [f] }); } catch (e) {} };
+  }
+  window.msPdfVenster = pdfVenster;
+  /* links die een PDF in een nieuw venster openen (bijlagen, facturen): in de app op het beginscherm in het eigen venster */
+  document.addEventListener("click", e => { if (!standalone()) return; const a = e.target.closest && e.target.closest("a[href]"); if (!a) return;
+    const h = a.getAttribute("href") || "", pdf = /^blob:/.test(h) || h.indexOf("/_blob/") === 0 || /\.pdf(\?|$)/i.test(h);
+    if (!pdf || (a.target !== "_blank" && !a.download)) return; e.preventDefault(); e.stopPropagation(); pdfVenster(a.href, a.download || a.textContent.trim().slice(0, 60) || "PDF"); }, true);
   const downloads = {
     /* op iPhone/iPad opende Safari het bestand in hetzelfde tabblad; daarna gaf "terug" een foutmelding.
        Nu: deelscherm (Bewaar in Bestanden) als dat kan, anders als download (octet-stream) in een nieuw tabblad. */
     save: async ({ filename, data }) => {
       const b = data instanceof Blob ? data : new Blob([data], { type: "application/octet-stream" });
       const ios = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-      if (ios && navigator.canShare) {
+      if (ios && navigator.canShare && !(standalone() && /\.pdf$/i.test(filename))) {
         try { const f = new File([b], filename, { type: b.type || "application/octet-stream" });
           if (navigator.canShare({ files: [f] })) { await navigator.share({ files: [f] }); return; } }
         catch (e) { if (e && e.name === "AbortError") return; }
       }
+      if (standalone() && /\.pdf$/i.test(filename)) { const pb = new Blob([b], { type: "application/pdf" }), pu = URL.createObjectURL(pb); pdfVenster(pu, filename, pb); setTimeout(() => URL.revokeObjectURL(pu), 600000); return; }
       const u = URL.createObjectURL(b), a = document.createElement("a");
       a.href = u; a.download = filename; a.rel = "noopener"; if (ios) a.target = "_blank";
       document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 60000);

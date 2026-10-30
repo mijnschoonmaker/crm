@@ -3,10 +3,11 @@
    facturen en offertes hier in het CRM, bestellingsoverzichten via de server. */
 function bijlLijst(m){if(!m)return[];if(Array.isArray(m.bijlagen)&&m.bijlagen.length)return m.bijlagen;
   return String(m.bijlage||"").split(/,\s*/).filter(Boolean).map(naam=>({naam,id:""}))}
-function bijlVenster(){let w=null;try{w=window.open("","_blank")}catch(e){}
+const bijlApp=()=>{try{return typeof window.msPdfVenster==="function"&&(!!navigator.standalone||matchMedia("(display-mode: standalone)").matches)}catch(e){return false}};
+function bijlVenster(){if(bijlApp())return null;let w=null;try{w=window.open("","_blank")}catch(e){}
   if(w){try{w.document.title="PDF laden…";w.document.body.style.cssText="margin:0;display:grid;place-items:center;height:100vh;font:15px -apple-system,system-ui,sans-serif;color:#667";w.document.body.textContent="PDF wordt geladen…"}catch(e){}}
   return w}
-function bijlToon(w,url,naam){if(w&&!w.closed){w.location.href=url;return}
+function bijlToon(w,url,naam){if(bijlApp()){window.msPdfVenster(url,naam);return}if(w&&!w.closed){w.location.href=url;return}
   const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener";if(/^blob:/.test(url))a.download=naam||"bijlage.pdf";document.body.appendChild(a);a.click();a.remove()}
 async function bijlOpen(mid,i){
   const m=state.berichten.find(x=>x.id===mid),a=bijlLijst(m)[i];if(!a)return;
