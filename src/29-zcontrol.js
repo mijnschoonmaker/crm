@@ -229,7 +229,7 @@ function ccNuDoenHtml(){const L=ccNuDoen();if(!L.length){const v=ccVolgende();re
   return `<div class="cc-nu"><span class="cc-nl"><i></i>Nu doen</span>${L.map(x=>`<div class="cc-nuit"><span>${I[x.ic]||""}</span><button type="button" data-cc="${esc(x.go)}"><b>${esc(x.t)}</b>${x.s?`<small>${esc(x.s)}</small>`:""}</button>${x.kom?`<a class="cc-ab pr" href="${esc(x.kom)}" target="_blank" rel="noopener">${I.wa||I.send}Kom eraan</a>`:""}</div>`).join("")}</div>`}
 function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActiviteit(),R=ccPrestaties(),t=today();
   /* vandaag in cijfers: verdiend (afgemelde beurten), volgende stop en verwachte eindtijd van de route */
-  const D=(()=>{const ti=iso(t),om=state.beurten.filter(b=>b.datum===ti&&(!(typeof plSel==="function"&&plSel())||P.some(x=>x.k.id===b.klantId))).reduce((a,b)=>a+(Number(b.bedrag)||0),0),open=P.filter(x=>x.st[1]!=="Afgerond");
+  const D=(()=>{const ti=iso(t),om=state.beurten.filter(b=>b.datum===ti&&(!(typeof plSel==="function"&&plSel())||P.some(x=>x.k.id===b.klantId))).reduce((a,b)=>a+toon(typeof beurtBedrag==="function"?beurtBedrag(b):(Number(b.bedrag)||0)),0),open=P.filter(x=>x.st[1]!=="Afgerond");
     const nm=new Date().getHours()*60+new Date().getMinutes(),vl=open.find(x=>toMin(x.tijd)!=null&&toMin(x.tijd)>=nm-30)||open[0];
     const laatste=[...open].reverse().find(x=>toMin(x.tijd)!=null);let eind="";if(laatste){const m=toMin(laatste.tijd)+(Number(typeof duur==="function"?duur(laatste.k):30)||30);eind=String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0")}
     return {omzet:om,volgende:vl?[vl.tijd,ccNaam(vl.k)].filter(Boolean).join(" · "):"",eind}})();

@@ -6901,7 +6901,7 @@ async function gewassen(k){
     await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:Number(k.prijs)||0,betaald:false,gefactureerd:"",dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString()});
     const _vn=volgendeNa(k),nx=_vn.gepland;
     await save("klanten",k.id,{...strip(k),laatst:d,..._vn,bezig:""});aanbevelingVrijgeven(k.id);
-    toast(cleanName(k.naam)+" afgerond · "+eur(k.prijs),async()=>{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev})});
+    toast(cleanName(k.naam)+" afgerond · "+eur(toon(k.prijs)),async()=>{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev})});
   }catch(e){err(e)}
 }
 /* extra opdrachten bij het afmelden: op de factuur van de hoofdopdracht, een eigen factuur, of niet factureren (instelling per opdracht) */
@@ -7719,7 +7719,7 @@ function stopRow(k,day,done){
 }
 function activiteit(d){
   const ev=[];
-  state.beurten.filter(b=>b.datum===d).forEach(b=>ev.push({t:b.op||d+"T12:00",ic:I.check,c:"ok",txt:"<b>"+esc(cleanName(b.klantNaam))+"</b> afgemeld · "+eur(beurtBedrag(b))}));
+  state.beurten.filter(b=>b.datum===d).forEach(b=>ev.push({t:b.op||d+"T12:00",ic:I.check,c:"ok",txt:"<b>"+esc(cleanName(b.klantNaam))+"</b> afgemeld · "+eur(toon(beurtBedrag(b)))}));
   state.facturen.filter(f=>String(f.gemaakt||"").slice(0,10)===d).forEach(f=>ev.push({t:f.gemaakt,ic:I.facturen,c:"brand",txt:(f.soort==="offerte"?"Offerte ":f.status==="concept"?"Conceptfactuur ":"Factuur ")+"<b>"+esc(f.nummer)+"</b> · "+esc(cleanName(f.klantNaam))}));
   state.berichten.filter(m=>String(m.op).slice(0,10)===d).forEach(m=>ev.push({t:m.op,ic:I.msg,c:"plan",txt:(KANAAL[m.kanaal]||"Bericht")+" aan <b>"+esc(cleanName(m.klantNaam))+"</b>"}));
   state.kosten.filter(c=>String(c.aangemaakt||"").slice(0,10)===d).forEach(c=>ev.push({t:c.aangemaakt,ic:I.receipt,c:"soon",txt:"Bon <b>"+esc(c.leverancier||c.categorie)+"</b> · "+eur(c.bedrag)}));
@@ -8993,7 +8993,7 @@ function vKlanten(){
     <div class="kx-main"><span class="nm">${esc(cleanName(k.naam))}${isZak(k)?`<em class="kx-tag">${soortLbl(k)}</em>`:""}${k.ronde?`<em class="kx-tag">${esc(k.ronde)}</em>`:""}</span>
       <div class="kx-sub"><span>${I.pin}${esc([k.adres,k.plaats].filter(Boolean).join(", ")||"Geen adres")}</span></div></div>
     <div class="kx-due">${(()=>{const gp=k.actief!==false&&!k.prospect&&parse(k.gepland);return gp?`<span class="kx-st kx-st-plan">Ingepland</span><small>${esc(gp.toLocaleDateString("nl-NL",{weekday:"short",day:"numeric",month:"short"}))}${k.tijd?" · "+esc(k.tijd):""}</small>`:`<span class="kx-st">${k.actief===false?"Inactief":k.prospect?"Wacht op akkoord":k.opdrachtVerwijderd?"Geen opdracht":esc(s.txt)}</span><small>${k.actief===false||k.prospect||k.opdrachtVerwijderd?"":esc(dag)}</small>`})()}</div>
-    <div class="kx-amt">${k.opdrachtVerwijderd&&!k.prijs?`<b>–</b><small>${esc(soortLbl(k))}</small>`:`<b>${eur(k.prijs)}</b><small>${esc(intervalTxt(k))}</small>`}</div>
+    <div class="kx-amt">${k.opdrachtVerwijderd&&!k.prijs?`<b>–</b><small>${esc(soortLbl(k))}</small>`:`<b>${eur(toon(k.prijs))}</b><small>${esc(intervalTxt(k))}</small>`}</div>
     <div class="kx-act">${tel?`<a class="kx-b" href="tel:${esc(String(tel).replace(/\s/g,""))}" title="Bellen" onclick="event.stopPropagation()">${I.phone}</a>`:""}${k.adres?`<a class="kx-b" href="${esc(mapsQ(k))}" target="_blank" rel="noopener" title="Route" onclick="event.stopPropagation()">${I.route}</a>`:""}<span class="kx-b kx-go">${I.right}</span></div></div>`}).join("")}</div>`;
   if(pages>1)html+=`<div class="pager"><button type="button" class="small" data-act="kpage" data-n="-1" ${state.kpage<=1?"disabled":""}>${I.left}</button><span class="mono">${state.kpage} / ${pages}</span><button type="button" class="small" data-act="kpage" data-n="1" ${state.kpage>=pages?"disabled":""}>${I.right}</button></div>`;
   return html;
@@ -15111,7 +15111,7 @@ function meldNieuweAanmelding(){if(!state.loaded)return;const l=nieuweAanmelding
   const nw=l.filter(k=>!_aanmGezien.has(k.id));nw.forEach(k=>_aanmGezien.add(k.id));
   if(nw.length)setTimeout(()=>toast(nw.length===1?(nw[0].aanvraagType==="contact"?`Nieuw contactverzoek van ${cleanName(nw[0].naam)}`:`Nieuwe klant aangemeld via de website: ${cleanName(nw[0].naam)}`):`${nw.length} nieuwe klanten aangemeld via de website`),50)}
 function aanmeldBanner(){if(isMw())return "";const l=nieuweAanmeldingen();if(!l.length)return "";
-  return `<div class="aanm">${l.slice(0,3).map(k=>{const t=k.ramenTelling||{};return `<div class="aanm-r"><span class="aanm-ic">${I.bell}</span><div class="aanm-t">${k.aanvraagType==="contact"?`<b>Nieuw contactverzoek van een bedrijf</b><span>${esc(cleanName(k.naam))}${k.contact?" · t.a.v. "+esc(k.contact):""} · ${esc([k.email,k.telefoon].filter(Boolean).join(" · "))} · ${esc(fmtD(k.aangemaakt))}</span>`:`<b>Nieuwe klant aangemeld via de website</b><span>${esc(cleanName(k.naam))} · ${esc([k.adres,k.plaats].filter(Boolean).join(", "))}${t.ramen?` · ${t.ramen} ramen`:""} · ${esc(eur(k.prijs))} per beurt · ${esc(fmtD(k.aangemaakt))}</span>`}</div>
+  return `<div class="aanm">${l.slice(0,3).map(k=>{const t=k.ramenTelling||{};return `<div class="aanm-r"><span class="aanm-ic">${I.bell}</span><div class="aanm-t">${k.aanvraagType==="contact"?`<b>Nieuw contactverzoek van een bedrijf</b><span>${esc(cleanName(k.naam))}${k.contact?" · t.a.v. "+esc(k.contact):""} · ${esc([k.email,k.telefoon].filter(Boolean).join(" · "))} · ${esc(fmtD(k.aangemaakt))}</span>`:`<b>Nieuwe klant aangemeld via de website</b><span>${esc(cleanName(k.naam))} · ${esc([k.adres,k.plaats].filter(Boolean).join(", "))}${t.ramen?` · ${t.ramen} ramen`:""} · ${esc(eur(toon(k.prijs)))} per beurt · ${esc(fmtD(k.aangemaakt))}</span>`}</div>
     <div class="aanm-k"><button type="button" class="small primary" data-aanm="open" data-id="${esc(k.id)}">${I.klanten}Bekijken</button>${k.aanvraagType==="contact"?`<button type="button" class="small" data-aanm="off" data-id="${esc(k.id)}">${I.offertes}Offerte maken</button>`:`<button type="button" class="small" data-aanm="plan" data-id="${esc(k.id)}">${I.planning}Inplannen</button>`}<button type="button" class="iconbtn sm" data-aanm="weg" data-id="${esc(k.id)}" aria-label="Melding sluiten" title="Gezien">${I.x}</button></div></div>`}).join("")}${l.length>3?`<small class="subt">en nog ${l.length-3} meer</small>`:""}</div>`}
 /* opvallende kaart in de zijbalk: YES, een nieuwe klant */
 function nieuwKaart(){if(isMw()){const o=document.getElementById("nieuwCard");if(o)o.remove();return}const side=document.querySelector("aside.side"),uc=document.getElementById("userCard");if(!side||!uc)return;
@@ -15996,7 +15996,7 @@ function ccNuDoenHtml(){const L=ccNuDoen();if(!L.length){const v=ccVolgende();re
   return `<div class="cc-nu"><span class="cc-nl"><i></i>Nu doen</span>${L.map(x=>`<div class="cc-nuit"><span>${I[x.ic]||""}</span><button type="button" data-cc="${esc(x.go)}"><b>${esc(x.t)}</b>${x.s?`<small>${esc(x.s)}</small>`:""}</button>${x.kom?`<a class="cc-ab pr" href="${esc(x.kom)}" target="_blank" rel="noopener">${I.wa||I.send}Kom eraan</a>`:""}</div>`).join("")}</div>`}
 function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActiviteit(),R=ccPrestaties(),t=today();
   /* vandaag in cijfers: verdiend (afgemelde beurten), volgende stop en verwachte eindtijd van de route */
-  const D=(()=>{const ti=iso(t),om=state.beurten.filter(b=>b.datum===ti&&(!(typeof plSel==="function"&&plSel())||P.some(x=>x.k.id===b.klantId))).reduce((a,b)=>a+(Number(b.bedrag)||0),0),open=P.filter(x=>x.st[1]!=="Afgerond");
+  const D=(()=>{const ti=iso(t),om=state.beurten.filter(b=>b.datum===ti&&(!(typeof plSel==="function"&&plSel())||P.some(x=>x.k.id===b.klantId))).reduce((a,b)=>a+toon(typeof beurtBedrag==="function"?beurtBedrag(b):(Number(b.bedrag)||0)),0),open=P.filter(x=>x.st[1]!=="Afgerond");
     const nm=new Date().getHours()*60+new Date().getMinutes(),vl=open.find(x=>toMin(x.tijd)!=null&&toMin(x.tijd)>=nm-30)||open[0];
     const laatste=[...open].reverse().find(x=>toMin(x.tijd)!=null);let eind="";if(laatste){const m=toMin(laatste.tijd)+(Number(typeof duur==="function"?duur(laatste.k):30)||30);eind=String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0")}
     return {omzet:om,volgende:vl?[vl.tijd,ccNaam(vl.k)].filter(Boolean).join(" · "):"",eind}})();
