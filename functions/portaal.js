@@ -169,7 +169,10 @@ module.exports = function maakPortaal(ctx) {
     const i = lijst.findIndex(x => x.id === k.id), voor = Math.max(0, i), bezigBij = lijst.slice(0, Math.max(0, i)).some(x => x.bezig);
     const huis = await klantGeo(S.kref, k);
     const km = huis ? afstand(L.lat, L.lng, huis[0], huis[1]) : null, rij = km != null ? Math.round(km * 1.35 / 38 * 60) + 2 : 12;
-    const werk = lijst.slice(0, voor).reduce((a, x) => a + (Number(x.duur) || 30), 0) + voor * 8;
+    /* adressen vóór de klant: bij het adres waar de tijd al loopt alleen de resterende tijd; reistijd tussen die adressen ~8 min (de laatste rit naar de klant zit in "rij") */
+    const werk = lijst.slice(0, voor).reduce((a, x) => { const d = Number(x.duur) || 30, st = Date.parse(x.bezig || ""); if (st) return a + Math.max(3, d - (Date.now() - st) / 60e3);
+      /* geen tijd gestart, maar de bus staat bij dit adres (binnen 150 m): hij is er al mee bezig, reken de helft */
+      const la = Number(x.lat), ln = Number(x.lng); if (la && ln && afstand(L.lat, L.lng, la, ln) < 0.15) return a + d / 2; return a + d; }, 0) + Math.max(0, voor - 1) * 8;
     const eta = new Date(Date.now() + (voor ? werk + rij : rij) * 60e3);
     const etaTxt = new Intl.DateTimeFormat("nl-NL", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" }).format(eta);
     /* de exacte plek van de bus alleen als u bijna aan de beurt bent: zo zien klanten niet bij wie we verder allemaal komen */
