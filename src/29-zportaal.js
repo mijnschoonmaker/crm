@@ -84,9 +84,13 @@ function kkPortaal(k){
   </section>`}
 
 /* het klantportaal bekijken zoals deze klant het ziet (alleen bekijken) */
-async function portaalBekijken(id){const w=window.open("about:blank","_blank");
-  try{const r=await fbFn("portaalVoorbeeld")({klantId:id,basis:location.origin});if(w)w.location.href=r.data.url;else location.href=r.data.url}
-  catch(e){if(w)w.close();toast("Openen lukte niet: "+(typeof fnFout==="function"?fnFout(e):e.message))}}
+/* in het CRM zelf (geen nieuw tabblad): zo blijft het CRM in beeld en blijft live delen je plek doorgeven terwijl je meekijkt */
+async function portaalBekijken(id){
+  try{const r=await fbFn("portaalVoorbeeld")({klantId:id,basis:location.origin});
+    const o=document.createElement("div");o.className="pv-ov";o.innerHTML=`<div class="pv-bar"><b>Klantportaal · voorbeeld</b><span class="sp"></span><button type="button" class="small" data-pvtab>Nieuw tabblad</button><button type="button" class="iconbtn" data-pvx aria-label="Sluiten">${I.x}</button></div><iframe src="${esc(r.data.url)}" title="Klantportaal" allow="geolocation"></iframe>`;
+    document.body.appendChild(o);const weg=()=>o.remove();o.querySelector("[data-pvx]").onclick=weg;o.querySelector("[data-pvtab]").onclick=()=>{window.open(r.data.url,"_blank");weg()};
+    document.addEventListener("keydown",function k(e){if(e.key==="Escape"&&document.body.contains(o)){weg();document.removeEventListener("keydown",k)}})}
+  catch(e){toast("Openen lukte niet: "+(typeof fnFout==="function"?fnFout(e):e.message))}}
 async function portaalUitnodigen(id){const k=state.klanten.find(x=>x.id===id);if(!k)return;
   if(!LIVE)return toast("Werkt in de live versie");
   if(!(k.email||k.pEmail||k.fEmail))return toast("Deze klant heeft nog geen e-mailadres");

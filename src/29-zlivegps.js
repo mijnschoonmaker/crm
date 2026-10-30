@@ -30,8 +30,8 @@ function liveStart(stil){
     /* alleen echte GPS-plekken: een laptop of iPad zonder GPS schat de plek via wifi en zit er soms kilometers naast */
     const nauw=Math.round(p.coords.accuracy||0);
     if(nauw>120){if(!LV.fout){LV.fout="Geen nauwkeurige plek (alleen via wifi). Deel live vanaf je telefoon.";lvKnop()}return}
-    /* elke 5 seconden, of meteen als je 20 meter verder bent */
-    if(nu-LV.last<5000&&lvAfst(LV.pos,c)<20)return;
+    /* elke 2 seconden, of meteen als je 8 meter verder bent: de klant ziet de bus vloeiend meerijden */
+    if(nu-LV.last<2000&&lvAfst(LV.pos,c)<8)return;
     if(!lvMagSchrijven(nauw)){LV.last=nu;LV.pos=c;if(typeof rvMapLive==="function")rvMapLive();return}
     if(typeof kmTik==="function")kmTik(LV.pos,c,p.coords.accuracy);LV.last=nu;LV.pos=c;if(koers!=null)LV.koers=koers;LV.fout="";if(typeof rvMapLive==="function")rvMapLive();lvSchrijf({actief:true,lat:c.lat,lng:c.lng,nauw,snelheid:Number.isFinite(p.coords.speed)?Math.round(p.coords.speed*3.6):null,...(koers!=null?{koers}:{})});lvKnop()},
     e=>{LV.fout=e.code===1?"Geen toestemming voor je locatie. iPhone/iPad: Instellingen › Privacy en beveiliging › Locatievoorzieningen › Safari-websites › Tijdens gebruik van de app.":"Je locatie is even niet beschikbaar";if(e.code===1){/* iPhone geeft dit soms als de app even op de achtergrond is: dan niet uitzetten, alleen bij een echte weigering */const verborgen=document.visibilityState!=="visible";if(LV.watch!=null){try{navigator.geolocation.clearWatch(LV.watch)}catch(er){}LV.watch=null}

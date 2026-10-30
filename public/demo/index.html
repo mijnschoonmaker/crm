@@ -4745,6 +4745,8 @@ html body .ow-lg.ow-lg-weg{display:none!important}
 .u-fi:has(.u-fmist){flex-wrap:wrap}
 .ow-minnote{display:flex;gap:8px;align-items:flex-start;margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--soon-bg,#fff6e6);font-size:12.5px;line-height:1.45;color:var(--ink)}.ow-minnote svg{width:15px;height:15px;flex:none;margin-top:2px}
 
+.pv-ov{position:fixed;inset:0;z-index:9000;background:var(--bg,#fff);display:flex;flex-direction:column}.pv-bar{display:flex;align-items:center;gap:8px;padding:8px max(12px,env(safe-area-inset-left));border-bottom:1px solid var(--line,#e5e7eb);background:var(--card,#fff)}.pv-bar .sp{flex:1}.pv-ov iframe{flex:1;width:100%;border:0}
+
 </style>
 <style id="mansardThema">
 @import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;500;600;700&display=swap");
@@ -16694,8 +16696,8 @@ function liveStart(stil){
     /* alleen echte GPS-plekken: een laptop of iPad zonder GPS schat de plek via wifi en zit er soms kilometers naast */
     const nauw=Math.round(p.coords.accuracy||0);
     if(nauw>120){if(!LV.fout){LV.fout="Geen nauwkeurige plek (alleen via wifi). Deel live vanaf je telefoon.";lvKnop()}return}
-    /* elke 5 seconden, of meteen als je 20 meter verder bent */
-    if(nu-LV.last<5000&&lvAfst(LV.pos,c)<20)return;
+    /* elke 2 seconden, of meteen als je 8 meter verder bent: de klant ziet de bus vloeiend meerijden */
+    if(nu-LV.last<2000&&lvAfst(LV.pos,c)<8)return;
     if(!lvMagSchrijven(nauw)){LV.last=nu;LV.pos=c;if(typeof rvMapLive==="function")rvMapLive();return}
     if(typeof kmTik==="function")kmTik(LV.pos,c,p.coords.accuracy);LV.last=nu;LV.pos=c;if(koers!=null)LV.koers=koers;LV.fout="";if(typeof rvMapLive==="function")rvMapLive();lvSchrijf({actief:true,lat:c.lat,lng:c.lng,nauw,snelheid:Number.isFinite(p.coords.speed)?Math.round(p.coords.speed*3.6):null,...(koers!=null?{koers}:{})});lvKnop()},
     e=>{LV.fout=e.code===1?"Geen toestemming voor je locatie. iPhone/iPad: Instellingen › Privacy en beveiliging › Locatievoorzieningen › Safari-websites › Tijdens gebruik van de app.":"Je locatie is even niet beschikbaar";if(e.code===1){/* iPhone geeft dit soms als de app even op de achtergrond is: dan niet uitzetten, alleen bij een echte weigering */const verborgen=document.visibilityState!=="visible";if(LV.watch!=null){try{navigator.geolocation.clearWatch(LV.watch)}catch(er){}LV.watch=null}
@@ -17041,9 +17043,13 @@ function kkPortaal(k){
   </section>`}
 
 /* het klantportaal bekijken zoals deze klant het ziet (alleen bekijken) */
-async function portaalBekijken(id){const w=window.open("about:blank","_blank");
-  try{const r=await fbFn("portaalVoorbeeld")({klantId:id,basis:location.origin});if(w)w.location.href=r.data.url;else location.href=r.data.url}
-  catch(e){if(w)w.close();toast("Openen lukte niet: "+(typeof fnFout==="function"?fnFout(e):e.message))}}
+/* in het CRM zelf (geen nieuw tabblad): zo blijft het CRM in beeld en blijft live delen je plek doorgeven terwijl je meekijkt */
+async function portaalBekijken(id){
+  try{const r=await fbFn("portaalVoorbeeld")({klantId:id,basis:location.origin});
+    const o=document.createElement("div");o.className="pv-ov";o.innerHTML=`<div class="pv-bar"><b>Klantportaal · voorbeeld</b><span class="sp"></span><button type="button" class="small" data-pvtab>Nieuw tabblad</button><button type="button" class="iconbtn" data-pvx aria-label="Sluiten">${I.x}</button></div><iframe src="${esc(r.data.url)}" title="Klantportaal" allow="geolocation"></iframe>`;
+    document.body.appendChild(o);const weg=()=>o.remove();o.querySelector("[data-pvx]").onclick=weg;o.querySelector("[data-pvtab]").onclick=()=>{window.open(r.data.url,"_blank");weg()};
+    document.addEventListener("keydown",function k(e){if(e.key==="Escape"&&document.body.contains(o)){weg();document.removeEventListener("keydown",k)}})}
+  catch(e){toast("Openen lukte niet: "+(typeof fnFout==="function"?fnFout(e):e.message))}}
 async function portaalUitnodigen(id){const k=state.klanten.find(x=>x.id===id);if(!k)return;
   if(!LIVE)return toast("Werkt in de live versie");
   if(!(k.email||k.pEmail||k.fEmail))return toast("Deze klant heeft nog geen e-mailadres");
