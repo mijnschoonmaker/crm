@@ -536,9 +536,9 @@ const ICON={
     synced={...cnt};renderPhsum()}
   const edMeet=()=>typeof Meetlint!=="undefined"&&typeof meetAan==="function"&&meetAan("rekentool")?meetSoorten():[];
   function edZetMode(m){edMode=m;const met=m==="meten";ge("ed-mode").querySelectorAll("[data-em]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.em===m));
-    ge("ed-types").hidden=met;eroot.querySelector(".ed-lab").hidden=met;ge("ed-mlb").hidden=!met;
+    ge("ed-types").hidden=met;eroot.querySelector(".ed-lab").hidden=met;ge("ed-mlb").hidden=!met;ge("ed-tally").hidden=met;
     ge("ed-msg").textContent=met?"Sleep eerst een referentie over iets waarvan u de maat kent, daarna meet u goten, windveren of beplating.":"Kies hieronder wat je aantikt en tik op elk raam. Tik op een stip om hem weg te halen.";
-    if(edMl){edMl.aan(met);if(met){const b=ge("ed-mlb");b.innerHTML=edMl.barHtml();edMl.bindBar(b)}}}
+    if(edMl){edMl.aan(met);if(met){const b=ge("ed-mlb");b.innerHTML=edMl.barHtml();edMl.bindBar(b)}}requestAnimationFrame(()=>{fitEd();if(edMl)edMl.teken()})}
   function openEd(i){ge("ed-undo").onclick=undo1;ge("ed-msg").textContent="Kies hieronder wat je aantikt en tik op elk raam. Tik op een stip om hem weg te halen.";if(!edDlg.open)edDlg.showModal();edIdx=i;ge("ed-img").src=photos[i].url;ge("ed").hidden=false;document.body.style.overflow="hidden";renderDots();requestAnimationFrame(()=>{fitEd();
       if(edMl){edMl.weg();edMl=null}const MS=edMeet();ge("ed-mode").hidden=!MS.length;ge("ed-mode").classList.toggle("licht",getComputedStyle(ge("ed")).backgroundColor.replace(/[^\d,]/g,"").split(",").slice(0,3).reduce((a,b)=>a+ +b,0)>600);
       if(MS.length||(photos[edIdx]&&photos[edIdx].meet))edMl=Meetlint.attach({licht:getComputedStyle(ge("ed")).backgroundColor.replace(/[^\d,]/g,"").split(",").slice(0,3).reduce((a,b)=>a+ +b,0)>600,wrap:ge("ed-wrap"),foto:()=>{const p=photos[edIdx];if(p&&!p.w){p.w=p.cv.width;p.h=p.cv.height}return p},soorten:MS.length?MS:meetSoorten(),host:eroot.querySelector(".ed-stage"),
