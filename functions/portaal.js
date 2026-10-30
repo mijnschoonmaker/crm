@@ -325,7 +325,8 @@ module.exports = function maakPortaal(ctx) {
     /* verzoeken die een reactie vragen, worden meteen een ticket: zo kun je antwoorden en ziet de klant het gesprek */
     if (v.status === "nieuw") { try { v.ticketId = await verzoekTicket(k, v); v.status = "ticket"; } catch (e) { console.error("verzoek→ticket", e); } }
     await db.doc("portaalVerzoeken/" + id).set(v);
-    if (v.status === "nieuw") {
+    /* ook als het verzoek meteen een ticket werd: een mail naar het bedrijf, zodat er actie op komt */
+    if (v.status === "nieuw" || v.ticketId) {
       try {
         const [g, b] = await Promise.all([geheim(), bedrijf()]);
         if (g.brevoKey && (g.meldAdres || b.email)) await brevoSend(g.brevoKey, { sender: { name: "mijnschoonmaker CRM", email: g.afzender || b.email }, to: [{ email: g.meldAdres || b.email }], replyTo: k.email ? { email: k.email } : undefined,
@@ -351,7 +352,7 @@ module.exports = function maakPortaal(ctx) {
   async function verzoekTicket(k, v) {
     const op = nu(), id = newId("tk"), nummer = await ticketNummer(), tekst = verzoekTekst(v);
     const cat = ["verzetten", "overslaan", "vakantie"].includes(v.type) ? "planning" : v.type === "beoordeling" ? "kwaliteit" : "overig";
-    await db.doc("tickets/" + id).set({ klantId: k.id, klantNaam: k.naam || "", adres: [k.adres, k.plaats].filter(Boolean).join(", "), nummer, onderwerp: TYPES[v.type] + (v.datum && v.type !== "beoordeling" ? " · " + datNL(v.datum) : ""), categorie: cat, status: "open", aangemaakt: op, laatst: op, laatsteTekst: tekst.split("\n")[0], laatsteVan: "klant", ongelezenTeam: 1, ongelezenKlant: 0, gezienKlant: op, bron: "portaal", verzoek: { type: v.type, datum: v.datum || "", tot: v.tot || "" } });
+    await db.doc("tickets/" + id).set({ klantId: k.id, klantNaam: k.naam || "", adres: [k.adres, k.plaats].filter(Boolean).join(", "), nummer, onderwerp: TYPES[v.type] + (v.datum && v.type !== "beoordeling" ? " · " + datNL(v.datum) : ""), categorie: cat, status: "open", aangemaakt: op, laatst: op, laatsteTekst: tekst.split("\n")[0], laatsteVan: "klant", ongelezenTeam: 1, ongelezenKlant: 0, gezienKlant: op, bron: "portaal", verzoek: { type: v.type, datum: v.datum || "", tot: v.tot || "", ...(v.diensten && v.diensten.length ? { diensten: v.diensten } : {}) } });
     await db.doc("ticketBerichten/" + newId("tb")).set({ ticketId: id, klantId: k.id, van: "klant", tekst, foto: "", op });
     return id;
   }

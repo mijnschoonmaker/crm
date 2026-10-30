@@ -90,7 +90,8 @@ function ccAlle(){const s=[],t=today(),ti=iso(t),morgen=ccDag(1);
     acts:[{l:"Versturen",ic:"send",cc:"stuur:"+f.id}]}));
   /* normaal: tickets en verzoeken uit het klantportaal */
   (state.tickets||[]).filter(x=>x.status!=="opgelost"&&(Number(x.ongelezenTeam)>0||x.status==="open")).forEach(x=>{const k=ccKlant(x.klantId);
-    add({key:"tk:"+x.id+":"+String(x.laatst||""),p:"normaal",ic:"ticket",t:`Ticket: ${x.onderwerp||"vraag van klant"}`,u:Number(x.ongelezenTeam)>0?plural(Number(x.ongelezenTeam),"nieuw bericht","nieuwe berichten")+" van de klant.":"Wacht op een reactie.",b:cleanName(x.klantNaam||""),leeftijd:0,nieuw:true,knop:"Beantwoorden",go:"ticket:"+x.id,acts:[bel(k)].filter(Boolean)})});
+    const ex=x.verzoek&&x.verzoek.type==="extra";
+    add({key:"tk:"+x.id+":"+String(x.laatst||""),p:"normaal",ic:"ticket",t:ex?`Extra dienst aangevraagd${(x.verzoek.diensten||[]).length?": "+x.verzoek.diensten.join(", ").toLowerCase():""}`:`Ticket: ${x.onderwerp||"vraag van klant"}`,u:Number(x.ongelezenTeam)>0?plural(Number(x.ongelezenTeam),"nieuw bericht","nieuwe berichten")+" van de klant.":"Wacht op een reactie.",b:cleanName(x.klantNaam||""),leeftijd:0,nieuw:true,knop:"Beantwoorden",go:"ticket:"+x.id,acts:[bel(k)].filter(Boolean)})});
   (state.portaalVz||[]).forEach(x=>add({key:"vz:"+x.id,p:"normaal",ic:"inbox",t:`Verzoek: ${x.typeLabel||x.type||"uit het klantportaal"}`,u:String(x.tekst||"Een klant heeft iets doorgegeven in het portaal.").slice(0,140),b:cleanName(x.klantNaam||""),leeftijd:0,nieuw:true,knop:"Afhandelen",go:"tickets"}));
   /* normaal: nieuwe aanmeldingen */
   /* offerte online ondertekend (laatste 14 dagen): de klant staat al bij Te plannen, plan de eerste beurt */

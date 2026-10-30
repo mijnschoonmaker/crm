@@ -292,9 +292,12 @@ async function tkStatus(t,st){const cur=state.tickets.find(x=>x.id===t.id)||t;if
 function offIsExtra(f,k){if(!f||!k||f.soort!=="offerte"||f.autoAkkoord)return false;const d=String(f.datum||"9999-12-31");
   return (state.beurten||[]).some(b=>b.klantId===k.id&&String(b.datum||"")<d)||(!!k.laatst&&String(k.laatst)<d)}
 const _crOff=new Set();
+const crExtraRecent=k=>{const g=iso(addDays(today(),-60));return [...(k.tegoed||[]),...(k.tegoedGebruikt||[])].some(x=>x&&x.bron==="extra"&&String(x.op||"")>=g)};
 async function creditsVoorOfferte(f){if(!f||_crOff.has(f.id))return false;const k=state.klanten.find(x=>x.id===f.klantId);if(!k||!offIsExtra(f,k))return false;
   const s=S(),n=s.crExtra!=null&&s.crExtra!==""?Number(s.crExtra):3;if(!(n>0))return false;
-  const tid="tg_off_"+f.id;if([...(k.tegoed||[]),...(k.tegoedGebruikt||[])].some(x=>x&&(x.id===tid||x.ref===f.id)))return false;_crOff.add(f.id);
+  const tid="tg_off_"+f.id;if([...(k.tegoed||[]),...(k.tegoedGebruikt||[])].some(x=>x&&(x.id===tid||x.ref===f.id)))return false;
+  /* al credits voor een extra dienst in de afgelopen 60 dagen (bijv. via het ticket "Extra dienst aanvragen"): niet dubbel */
+  if(crExtraRecent(k))return false;_crOff.add(f.id);
   const reden="Credits: extra dienst besteld (offerte "+(f.nummer||"")+")";
   try{await save("klanten",k.id,{...strip(k),tegoed:[...(k.tegoed||[]),{id:tid,bedrag:n,reden,bron:"extra",ref:f.id,op:iso(today())}],log:[...(k.log||[]),{datum:iso(today()),tekst:reden+" · "+n+" credit"+(n===1?"":"s")+" (€ "+n+") op de volgende factuur"}]});
     toast(cleanName(k.naam)+": "+n+" credits voor de extra dienst");return true}catch(e){_crOff.delete(f.id);console.error("credits offerte",e);return false}}
@@ -307,6 +310,7 @@ if(typeof window!=="undefined")setInterval(()=>{try{creditsOffertesCheck()}catch
 async function creditsVoorTicket(t){const vt=t.verzoek&&t.verzoek.type;if(vt!=="review"&&vt!=="extra")return;const k=state.klanten.find(x=>x.id===t.klantId);if(!k)return;
   const s=S(),n=vt==="review"?0:(s.crExtra!=null&&s.crExtra!==""?Number(s.crExtra):3);if(!(n>0))return;
   const al=[...(k.tegoed||[]),...(k.tegoedGebruikt||[])].some(x=>x&&x.ref===t.id);if(al)return;
+  if(vt==="extra"&&crExtraRecent(k))return;/* al credits via de getekende offerte voor deze extra dienst */
   const reden=vt==="review"?"Credits: Google-review":"Credits: extra dienst besteld";
   await save("klanten",k.id,{...strip(k),tegoed:[...(k.tegoed||[]),{id:newId("tg"),bedrag:n,reden,bron:vt,ref:t.id,op:iso(today())}],log:[...(k.log||[]),{datum:iso(today()),tekst:reden+" · "+n+" credit"+(n===1?"":"s")+" (€ "+n+") op de volgende factuur"}]});
   toast(`${n} credit${n===1?"":"s"} toegekend aan ${cleanName(k.naam)}`)}
