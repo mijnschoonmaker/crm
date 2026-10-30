@@ -16,4 +16,4 @@ jobs:
         with: { distribution: temurin, java-version: "21" }
       - run: |
           npx --yes firebase-tools@13 emulators:exec --only firestore --project demo-mansard "python3 tests/regels.py" > out.txt 2>&1 || true
-          tail -40 out.txt | while IFS= read -r l; do echo "::warning::$l"; done
+          sed -n '/Running script/,$p' out.txt | sed 's/\x1b\[[0-9;]*m//g' | tail -60 > k.txt; echo "::error::$(sed ':a;N;$!ba;s/\n/%0A/g' k.txt)"
