@@ -4741,6 +4741,8 @@ html body .ow-lg.ow-lg-weg{display:none!important}
 .tj-foto{display:inline-flex;align-items:center;gap:4px;flex:none;margin-left:8px;padding:3px 8px;border:0;border-radius:999px;background:rgba(255,255,255,.16);color:#fff;font:inherit;font-size:12px;cursor:pointer;min-height:0;box-shadow:none}
 .tj-foto svg{width:15px;height:15px}.tj-foto b{font-weight:700}.tj-foto:hover{background:rgba(255,255,255,.28)}
 #owUlocN[hidden]{display:none!important}
+.u-fmist{flex-basis:100%;text-align:left;font-size:12px;color:var(--late);padding:2px 0 0}
+.u-fi:has(.u-fmist){flex-wrap:wrap}
 
 </style>
 <style id="mansardThema">
@@ -13507,6 +13509,9 @@ function uEditHtml({g,it}){
     <div class="u-vb" id="ui-vb"><span class="eyebrow">Rekenvoorbeeld</span><div>${uVoorbeeld(it)}</div></div>
     ${canDel?`<button type="button" class="small danger" data-act="udeli" data-g="${esc(g.id)}" data-i="${i}">${I.trash}Dienst verwijderen</button>`:`<p class="help" style="margin:0">Deze dienst hoort bij de rekentool en kan niet worden verwijderd.</p>`}</div>`;
 }
+/* frequentie aangezet voor rekentool/webshop: ook kiesbaar maken bij Glasbewassing als daar een eigen keuze staat (anders zie je hem nergens) */
+function uGlasFreqBij(k){[...(U.groepen||[]),...(U.eigen||[])].filter(g=>g&&(g.type==="glas"||g.id==="glas")&&Array.isArray(g.freqs)&&g.freqs.length).forEach(g=>{if(!g.freqs.map(String).includes(String(k)))g.freqs.push(String(k))})}
+const uGlasMist=k=>[...(U.groepen||[]),...(U.eigen||[])].some(g=>g&&(g.type==="glas"||g.id==="glas")&&Array.isArray(g.freqs)&&g.freqs.length&&!g.freqs.map(String).includes(String(k)));
 function uFreqHtml(){
   const mine=U.freqs||[],has=w=>mine.some(f=>Number(f.w)===w),fl=RC?RC.freqList():[],calcKey=(l,w)=>{const f=fl.find(x=>x.l.toLowerCase()===l.toLowerCase());return f?f.k:w>0&&!fqSpec(w)?"w"+w+"_"+l.toLowerCase().replace(/[^a-z0-9]+/g,"").slice(0,12):""},
     isExtra=k=>RC&&RC.isBase?!RC.isBase(k):!fl.some(x=>x.k===k&&!(U.freqCalc&&U.freqCalc[k]&&typeof U.freqCalc[k]==="object")),calcAan=k=>isExtra(k)?!!(U.freqCalc&&U.freqCalc[k]&&typeof U.freqCalc[k]==="object"):!(U.freqCalc&&U.freqCalc[k]===false),
@@ -13516,7 +13521,7 @@ function uFreqHtml(){
     <div class="u-fl u-ffl">${FREQ_STD.map(([l,w])=>{const ck=calcKey(l,w);return `<div class="u-fi"><span>${esc(l)}</span><small>${w&&!fqSpec(w)?w+" wk":"—"}</small>
       ${w?sw("uftog",`data-w="${w}" data-l="${esc(l)}"`,has(w),"Planning"):`<span class="u-sw dis"><i></i><span>Planning</span></span>`}
       ${ck?sw("ufcalc",`data-k="${ck}" data-w="${w}" data-l="${esc(l)}" data-x="${isExtra(ck)?1:0}"`,calcAan(ck),"Rekentool"):`<span class="u-sw dis"><i></i><span>Rekentool</span></span>`}
-      ${ck?sw("ufweb",`data-k="${ck}" data-w="${w}" data-l="${esc(l)}" data-x="${isExtra(ck)?1:0}"`,webAan(ck),"Dienstenwebshop"):`<span class="u-sw dis"><i></i><span>Dienstenwebshop</span></span>`}</div>`}).join("")}</div></section>
+      ${ck?sw("ufweb",`data-k="${ck}" data-w="${w}" data-l="${esc(l)}" data-x="${isExtra(ck)?1:0}"`,webAan(ck),"Dienstenwebshop"):`<span class="u-sw dis"><i></i><span>Dienstenwebshop</span></span>`}${ck&&(calcAan(ck)||webAan(ck))&&uGlasMist(ck)?`<button type="button" class="linkbtn u-fmist" data-act="ufglas" data-k="${esc(ck)}">Staat uit bij Glasbewassing · aanzetten</button>`:""}</div>`}).join("")}</div></section>
     <section class="card u-card"><div class="u-ch"><div><b>Jouw frequenties</b><span>Deze staan in de keuzelijsten bij klanten, opdrachten en offertes. Een eigen naam is optioneel.</span></div></div>
     <div class="u-fl">${mine.map((f,i)=>`<div class="u-fi mine"><span class="u-fw">${fqSpec(f.w)?"—":f.w+" wk"}</span><input id="uf-${i}" data-u="f.${i}.l" value="${esc(f.l||"")}" placeholder="${esc(freqLabelStd(f.w))}" aria-label="Naam">
       <button type="button" class="iconbtn sm" data-act="ufmove" data-i="${i}" data-n="-1" ${i?"":"disabled"} aria-label="Omhoog">${I.up}</button><button type="button" class="iconbtn sm" data-act="ufmove" data-i="${i}" data-n="1" ${i<mine.length-1?"":"disabled"} aria-label="Omlaag">${I.down}</button><button type="button" class="iconbtn sm" data-act="ufdel" data-i="${i}" aria-label="Verwijderen">${I.x}</button></div>`).join("")||'<p class="subt">Nog geen frequenties; de standaardlijst wordt gebruikt.</p>'}</div>
@@ -13570,9 +13575,10 @@ function uAct(a,t){
     case"ufcalc":{const k=t.dataset.k;U.freqCalc=U.freqCalc||{};
       if(t.dataset.x==="1"){if(U.freqCalc[k]&&typeof U.freqCalc[k]==="object")delete U.freqCalc[k];else U.freqCalc[k]={l:t.dataset.l,w:Number(t.dataset.w)}}
       else{if(U.freqCalc[k]===false)delete U.freqCalc[k];else U.freqCalc[k]=false}
-      uDirty();render();break}
+      if(t.checked)uGlasFreqBij(k);uDirty();render();break}
     case"ufweb":{const k=t.dataset.k;U.freqWeb=U.freqWeb||{};const cur=(()=>{const v=U.freqWeb[k];if(v!==undefined)return !!v;const fc=U.freqCalc||{};return t.dataset.x==="1"?!!(fc[k]&&typeof fc[k]==="object"):fc[k]!==false})();
-      U.freqWeb[k]=cur?false:(t.dataset.x==="1"?{l:t.dataset.l,w:Number(t.dataset.w)}:true);uDirty();render();break}
+      U.freqWeb[k]=cur?false:(t.dataset.x==="1"?{l:t.dataset.l,w:Number(t.dataset.w)}:true);if(!cur)uGlasFreqBij(k);uDirty();render();break}
+    case"ufglas":{uGlasFreqBij(t.dataset.k);uDirty();render();toast("Aangezet bij Glasbewassing · kies Opslaan");break}
     case"ufadd":{const w=Number(t.dataset.w);if(!U.freqs.some(f=>Number(f.w)===w)){U.freqs.push({w,l:/maand|jaar/.test(t.dataset.l)?t.dataset.l:""});U.freqs.sort((a,b)=>a.w-b.w)}uDirty();render();break}
     case"ufnew":{const w=Math.round(Number(($("#ufNew")||{}).value)||0);if(w<1){toast("Vul een aantal weken in");break}if(!U.freqs.some(f=>Number(f.w)===w)){U.freqs.push({w,l:""});U.freqs.sort((a,b)=>a.w-b.w)}uDirty();render();break}
     case"ufmove":{const i=Number(t.dataset.i),j=i+Number(t.dataset.n);[U.freqs[i],U.freqs[j]]=[U.freqs[j],U.freqs[i]];uDirty();render();break}
