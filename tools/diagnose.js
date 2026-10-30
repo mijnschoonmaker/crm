@@ -1,31 +1,17 @@
-/* Alleen lezen: toont de staat van één factuur (op nummer) en de bijbehorende klant, om fouten te zoeken. Wijzigt niets.
-   De uitkomst staat als meldingen (annotaties) bij de run. */
+/* Alleen lezen: diensten in Uitvoering en waar 'gevelelementen' gebruikt wordt. Wijzigt niets. */
 const admin = require("../functions/node_modules/firebase-admin");
 admin.initializeApp({ projectId: process.env.P });
 const db = admin.firestore();
-const uit = [];
-const log = (...a) => { const t = a.map(x => typeof x === "string" ? x : JSON.stringify(x)).join(" "); uit.push(t); console.log(t); };
-const pick = (o, ks) => Object.fromEntries(ks.filter(k => o && o[k] !== undefined).map(k => [k, o[k]]));
+const n = (t, x) => console.log("::notice title=" + t + "::" + JSON.stringify(x).slice(0, 3000));
 (async () => {
-  const nr = String(process.env.NUMMER || "").trim();
-  const q = await db.collection("facturen").where("nummer", "==", nr).get();
-  log("facturen met nummer " + nr + ": " + q.size);
-  for (const d of q.docs) {
-    const f = d.data();
-    log("FACTUUR " + d.id, pick(f, ["soort", "status", "betaald", "betaaldOp", "betaaldTs", "betaalwijze", "mollieStatus", "mollieBetaald", "verstuurdOp", "gemaakt", "datum", "vanOfferte", "incasso", "deelBetaald"]));
-    log("laatst gewijzigd (server): " + (d.updateTime ? d.updateTime.toDate().toISOString() : "?"));
-    if (f.klantId) {
-      const k = (await db.doc("klanten/" + f.klantId).get()).data() || {};
-      log("KLANT", { ...pick(k, ["prospect", "actief", "opdrachtVerwijderd", "prijs", "frequentie", "gepland", "laatst", "aanbieden", "aanbodVanaf", "autoplan"]), tegoed: (k.tegoed || []).map(t => pick(t, ["bedrag", "bron", "ref", "op"])), tegoedGebruikt: (k.tegoedGebruikt || []).length });
-    }
-    const bs = await db.collection("beurten").where("gefactureerd", "==", d.id).get();
-    log("beurten bij factuur: " + bs.size);
+  const u = (await db.doc("instellingen/uitvoering").get()).data() || {};
+  n("groepen", (u.groepen || []).map(g => [g.id, g.naam, g.type || "", g.verberg ? "VERBORGEN" : "", (g.items || []).length]));
+  n("eigen", (u.eigen || []).map(g => [g.id, g.naam, g.type || "", g.verberg ? "VERBORGEN" : "", (g.items || []).map(i => i.naam + " " + i.prijs)]));
+  const re = /gevelelement/i; let k = 0, ex = [];
+  for (const c of ["klanten", "opdrachten", "facturen", "beurten"]) {
+    let hit = 0; const s = await db.collection(c).get().catch(() => ({ docs: [] }));
+    for (const d of s.docs) { const j = JSON.stringify(d.data()); if (re.test(j)) { hit++; if (ex.length < 12) ex.push(c + ":" + d.id + ":" + (j.match(/.{0,60}gevelelement.{0,60}/i) || [""])[0]); } }
+    n("gebruik " + c, hit);
   }
-  const ins = (await db.doc("instellingen/bedrijf").get()).data() || {};
-  log("crSnel instelling: " + JSON.stringify(ins.crSnel));
-  const ks = await db.collection("klanten").get(); const nrs = ks.docs.map(d => d.data()).filter(k => !k.hoofdKlantId).map(k => String(k.klantnr || "")).filter(x => /^\d+$/.test(x)).map(Number).sort((a, b) => a - b);
-  log("relatiecodes: " + nrs.length + " klanten met code van " + nrs.length + " · laagste " + (nrs[0] || "-") + " · hoogste " + (nrs[nrs.length - 1] || "-") + " · zonder code: " + ks.docs.filter(d => !d.data().hoofdKlantId && !/^\d+$/.test(String(d.data().klantnr || ""))).length + " · Eerstvolgend klantnummer (instelling): " + JSON.stringify(ins.bhKlantStart || ""));
-  uit.forEach((t, i) => console.log("::notice title=Diagnose " + (i + 1) + "::" + t.replace(/\n/g, " ")));
+  n("voorbeelden", ex);
 })().catch(x => { console.error(x); process.exit(1); });
-(async () => { const q = await db.collection("facturen").where("soort", "==", "offerte").get(); for (const d of q.docs) { const f = d.data(); if (!/dijk,\s*derk/i.test(String(f.klantNaam || ""))) continue;
-  console.log("::notice title=off " + d.id + "::" + JSON.stringify({ nummer: f.nummer, status: f.status, datum: f.datum, opdracht: f.opdracht && { prijs: f.opdracht.prijs, freq: f.opdracht.frequentie, extra: (f.opdracht.extra || []).map(e => e.dienst) }, autoAkkoord: f.autoAkkoord, getekend: !!f.getekend, akkoordOp: f.akkoordOp })); } })();
