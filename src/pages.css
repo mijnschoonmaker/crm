@@ -4433,3 +4433,4 @@ html body .ow-lg.ow-lg-weg{display:none!important}
 #owUlocN[hidden]{display:none!important}
 .u-fmist{flex-basis:100%;text-align:left;font-size:12px;color:var(--late);padding:2px 0 0}
 .u-fi:has(.u-fmist){flex-wrap:wrap}
+.ow-minnote{display:flex;gap:8px;align-items:flex-start;margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--soon-bg,#fff6e6);font-size:12.5px;line-height:1.45;color:var(--ink)}.ow-minnote svg{width:15px;height:15px;flex:none;margin-top:2px}

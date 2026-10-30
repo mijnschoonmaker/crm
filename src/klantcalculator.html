@@ -1444,9 +1444,12 @@ function compute(){const fk=g("freq").value,f0=FREQ[fk]||FREQ.m8,f={...f0,pct:cf
   floors.forEach((n,i)=>{if(!n)return;const k=winKey(i);fRows.push({n:floorName(i),c:n,price:n*cfg[k+"_p"]*(1-(FD[k]||0))})});
   SPECIAL.forEach(s=>{const n=special[s.k];if(n)sRows.push({n:s.n,c:n,price:n*cfg[s.k+"_p"]*(1-(SD[s.k]||0))})});
   const all=[...fRows,...sRows],count=all.reduce((a,r)=>a+r.c,0),normal=fRows.reduce((a,r)=>a+r.price,0),freqAdj=-normal*f.pct/100;
-  const glas=normal+freqAdj+sRows.reduce((a,r)=>a+r.price,0);let glasEx=glas,minGlas=false;if(glasEx<cfg.min){minGlas=true;glasEx=cfg.min}
+  /* glasbewassing en bijzondere ramen staan los van elkaar: de minimumprijs geldt voor de gewone glasbewassing (verdiepingen);
+       alleen bijzondere ramen zonder gewone ramen krijgen zelf de minimumprijs */
+    const spSom=sRows.reduce((a,r)=>a+r.price,0),glasN=normal+freqAdj,glas=glasN+spSom;let glasEx=glas,minGlas=false,minOp="";
+    if(fRows.length&&glasN<cfg.min){minGlas=true;minOp="f";glasEx=cfg.min+spSom}else if(!fRows.length&&sRows.length&&spSom<cfg.min){minGlas=true;minOp="s";glasEx=cfg.min}
   const ex=glasEx+cfg.start,vat=ex*VAT,inc=ex+vat;
-  return {f,fRows,sRows,all,count,normal,freqAdj,glas,glasEx,minGlas,ex,vat,inc,avgD}}
+  return {f,fRows,sRows,all,count,normal,freqAdj,glas,glasN,spSom,minOp,glasEx,minGlas,ex,vat,inc,avgD}}
 let last=null;
 function calculate(scroll){const R=compute(),{f,fRows,sRows,all,count,normal,freqAdj,glas,minGlas,ex,vat,inc,avgD}=R,out=g("out");shown=true;
   if(!all.length){out.innerHTML='<div class="empty"><span>Vul minstens één raam in, of tik de ramen aan op een foto.</span></div>';last=null;return}
