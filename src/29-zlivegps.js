@@ -8,9 +8,9 @@ const lvAfst=(a,b)=>{if(!a||!b)return 1e9;const R=6371e3,r=x=>x*Math.PI/180,dl=r
 const LV_DEV=(()=>{try{let d=localStorage.getItem("ms.lvdev");if(!d){d=Math.random().toString(36).slice(2,10);localStorage.setItem("ms.lvdev",d)}return d}catch(e){return Math.random().toString(36).slice(2,10)}})();
 LV.rit=null;LV.ritUnsub=null;
 function lvVolgRit(){if(LV.ritUnsub||!LIVE)return;try{LV.ritUnsub=fsDb().doc("live/rit").onSnapshot(s=>{LV.rit=s.exists?s.data():null},()=>{LV.ritUnsub=null})}catch(e){}}
-/* mag dit apparaat nu de plek van de bus doorgeven? Niet als een ander apparaat de afgelopen minuut een even goede of betere plek gaf */
+/* mag dit apparaat nu de plek van de bus doorgeven? Niet als een ander apparaat de afgelopen 20 seconden een even goede of betere plek gaf */
 function lvMagSchrijven(nauw){const r=LV.rit;if(!r||!r.actief||!r.dev||r.dev===LV_DEV||r.datum!==iso(today()))return true;
-  const oud=Date.now()-Date.parse(r.ts||0);if(!(oud<60e3))return true;
+  const oud=Date.now()-Date.parse(r.ts||0);if(!(oud<20e3))return true;/* geeft het andere apparaat 20 seconden niets door (bijv. telefoon in je zak of camera open), dan neemt dit apparaat het over */
   const hun=Number(r.nauw)||999;return nauw+10<hun*0.6}
 async function lvSchrijf(extra){if(!LIVE)return;const em=String((state.me&&state.me.email)||"").toLowerCase(),d={...extra,naam:doorNaam()||String((state.me&&state.me.name)||"").split(" ")[0]||"",door:em,dev:LV_DEV,datum:iso(today()),ts:new Date().toISOString()};
   try{await fsDb().doc("live/rit").set(d,{merge:true})}catch(e){console.warn("live",e)}
