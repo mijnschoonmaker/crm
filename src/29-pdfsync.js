@@ -3,7 +3,7 @@
    definitieve factuur de echte PDF (dezelfde als bij Downloaden) en bewaart die. Verandert de factuur,
    de status of de huisstijl, dan wordt de PDF automatisch opnieuw gemaakt. */
 const pdfHash=t=>{let h=5381;for(let i=0;i<t.length;i++)h=(h*33^t.charCodeAt(i))>>>0;return h.toString(36)+t.length.toString(36)};
-function pdfSigRuw(f){try{return pdfHash(JSON.stringify(invModel(f))+"|"+(S().logo||"")+"|"+(f.status||"")+"|opmaak6")}catch(e){return""}}
+function pdfSigRuw(f){try{return pdfHash(JSON.stringify(invModel(f))+"|"+(S().logo||"")+"|"+(f.status||"")+"|opmaak6"+(f.soort==="offerte"&&f.getekend?"|t"+(f.getekend.handtekening||f.getekend.datum||1):""))}catch(e){return""}}
 /* snelheid: de handtekening van elke factuur werd elke 20 seconden opnieuw uitgerekend (alle facturen, ~1 s rekenwerk,
    op een telefoon enkele seconden waarin de app niet reageert). Nu alleen opnieuw als de factuur, de klant,
    de bedrijfsgegevens of de datum veranderd zijn. */

@@ -12413,6 +12413,11 @@ function paperHtml(f,klant){
     ${m.vwTxt?`<p class="i5-vw">${esc(m.vwTxt)}</p>`:""}
   </div>${(()=>{const fb=f.soort!=="offerte"&&typeof factFotos==="function"&&factFotos(f).length?`<div class="i5-fotos"><span class="i5-l">Bijlage · foto's</span><b class="i5-ft">Opgemerkt tijdens ons werk</b><span class="i5-fs">Tijdens de beurt${f.datum?" van "+esc(fmtL(f.datum)):""} viel ons het volgende op.</span><div class="${factFotos(f).length===1?"een":""}">${factFotos(f).map((b,i)=>`<figure><span class="i5-fi"><img src="${BLOB}${esc(b.id)}" alt="">${b.zijde?`<em>${esc(b.zijde)}</em>`:""}</span><figcaption><i>${String(i+1).padStart(2,"0")}</i><span><b>${esc(b.notitie||"Bijzonderheid")}</b><small>${esc(fmtL(b.datum||f.datum))}</small></span></figcaption></figure>`).join("")}</div></div>`:"";return fb?`<div class="inv5 i5-p2" style="--A:${m.A}">${fb}</div>`:""})()}`;
 }
+/* handtekening (doorzichtige PNG) op wit, zodat hij in de PDF niet zwart wordt */
+async function handtekeningData(id){try{const r=await fetch(BLOB+id);if(!r||!r.ok)return null;const url=URL.createObjectURL(await r.blob());
+  const im=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=url});
+  const cv=document.createElement("canvas");cv.width=im.naturalWidth;cv.height=im.naturalHeight;const g=cv.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,cv.width,cv.height);g.drawImage(im,0,0);URL.revokeObjectURL(url);
+  return{data:cv.toDataURL("image/png"),w:cv.width,h:cv.height}}catch(e){return null}}
 async function pdfDoc(f,klant){
   const doc=newPdf();if(!doc)return null;const m=invModel(f,klant),s=m.s,L=20,R=190,W=R-L,logo=await loadLogo(),A=hexRgb(m.A);
   const C={ink:[17,24,28],mut:[112,122,127],soft:[250,251,251],line:[228,231,233]};
@@ -12476,6 +12481,18 @@ async function pdfDoc(f,klant){
   const _ul=typeof offUlocTxt==="function"?offUlocTxt(f):"",_nt=[_ul?"Uitvoerlocatie: "+_ul:"",f.notitie||""].filter(Boolean).join("\n");
   if(_nt){const nl=doc.splitTextToSize(_nt,W-10),nh=9+nl.length*4.2;if(y+nh>258){doc.addPage();y=20}doc.setDrawColor(...C.line);doc.setLineWidth(.3);doc.roundedRect(L,y,W,nh,2,2,"S");lab("Opmerking",L+5,y+5.5);N();doc.setFontSize(8);doc.text(nl,L+5,y+10.2);y+=nh+7}
   if(f.soort==="offerte"&&offTxt(f.voettekst,f)){N();doc.setFontSize(8.8);col(C.ink);const vl2=doc.splitTextToSize(offTxt(f.voettekst,f),W);if(y+vl2.length*4.6>262){doc.addPage();y=20}doc.text(vl2,L,y+2,{lineHeightFactor:1.45});y+=vl2.length*4.6+6}
+  /* ondertekende offerte: handtekening van de klant onder de offerte (ook in de PDF in het klantportaal) */
+  if(f.soort==="offerte"&&f.getekend&&(f.getekend.naam||f.getekend.handtekening)){const g=f.getekend,im=g.handtekening?await handtekeningData(g.handtekening):null,bh=34;
+    if(y+bh>262){doc.addPage();y=20}
+    doc.setDrawColor(...C.line);doc.setLineWidth(.3);doc.roundedRect(L,y,W,bh,2,2,"S");
+    lab("Akkoord · online ondertekend",L+5,y+6);
+    const rij=[["Naam",g.naam],["Plaats",g.plaats],["Datum",g.datum]].filter(x=>x[1]);let ry=y+12.5;
+    rij.forEach(([a,b])=>{N();doc.setFontSize(7.8);col(C.mut);doc.text(a,L+5,ry);B();col(C.ink);doc.text(String(b),L+22,ry);ry+=4.8});
+    if(g.browser||g.systeem){N();doc.setFontSize(6.6);col(C.mut);doc.text([g.browser,g.systeem].filter(Boolean).join(" · "),L+5,y+bh-4);col(C.ink)}
+    const SX=L+W*.52,SW=R-5-SX,SY=y+5,SH=bh-12;
+    if(im){const sc=Math.min(SW/im.w,SH/im.h),iw=im.w*sc,ih=im.h*sc;doc.addImage(im.data,"PNG",SX+(SW-iw)/2,SY+(SH-ih)/2,iw,ih)}
+    doc.setDrawColor(185,192,196);doc.setLineWidth(.25);doc.line(SX,y+bh-6,R-5,y+bh-6);N();doc.setFontSize(6.4);col(C.mut);doc.text("Handtekening",SX,y+bh-2.6);col(C.ink);
+    y+=bh+7}
   if(y>255){doc.addPage();y=20}
   
   if(m.vwTxt){const v=doc.splitTextToSize(m.vwTxt,W);N();doc.setFontSize(6.8);col(C.mut);doc.text(v,L,y,{lineHeightFactor:1.5});col(C.ink)}
@@ -15387,7 +15404,7 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-tcfo]");if
    definitieve factuur de echte PDF (dezelfde als bij Downloaden) en bewaart die. Verandert de factuur,
    de status of de huisstijl, dan wordt de PDF automatisch opnieuw gemaakt. */
 const pdfHash=t=>{let h=5381;for(let i=0;i<t.length;i++)h=(h*33^t.charCodeAt(i))>>>0;return h.toString(36)+t.length.toString(36)};
-function pdfSigRuw(f){try{return pdfHash(JSON.stringify(invModel(f))+"|"+(S().logo||"")+"|"+(f.status||"")+"|opmaak6")}catch(e){return""}}
+function pdfSigRuw(f){try{return pdfHash(JSON.stringify(invModel(f))+"|"+(S().logo||"")+"|"+(f.status||"")+"|opmaak6"+(f.soort==="offerte"&&f.getekend?"|t"+(f.getekend.handtekening||f.getekend.datum||1):""))}catch(e){return""}}
 /* snelheid: de handtekening van elke factuur werd elke 20 seconden opnieuw uitgerekend (alle facturen, ~1 s rekenwerk,
    op een telefoon enkele seconden waarin de app niet reageert). Nu alleen opnieuw als de factuur, de klant,
    de bedrijfsgegevens of de datum veranderd zijn. */

@@ -2422,7 +2422,7 @@ const FORM={
     <div class="infobox">${I.huis}<span>Gaat u verhuizen? Pas uw adres aan, dan nemen wij contact met u op over de planning op uw nieuwe adres.</span></div>
     <p class="fout" role="alert"></p><div class="acties"><button data-sluit>Annuleren</button><button class="primary" data-go>Opslaan</button></div>`,
     o=>o.querySelector("[data-go]").onclick=()=>{const g=id=>o.querySelector(id).value;verstuur(o,{type:"gegevens",naam:g("#gn"),adres:g("#ga"),postcode:g("#gp"),plaats:g("#gl"),telefoon:g("#gt"),mobiel:g("#gm"),email:g("#ge")},"Opgeslagen","Uw gegevens zijn bijgewerkt.")})},
-  extra(){const X=vveB()?["Extra glasbewassing","Dakinspectie","Goten reinigen","Gevelreiniging","Kozijnen reinigen"]:isVve()?["Extra schoonmaakbeurt","Grote schoonmaak","Ramen in het trappenhuis","Galerijen","Bergingsgang of kelder","Glasbewassing van de gevel"]:((B.extraDiensten||[]).filter(x=>!/zonnepan/i.test(String(x))).length)?B.extraDiensten.filter(x=>!/zonnepan/i.test(String(x))):["Goten","Reiniging gevelelementen","Reiniging dakkapel"];
+  extra(){const X=vveB()?["Extra glasbewassing","Dakinspectie","Goten reinigen","Gevelreiniging","Kozijnen reinigen"]:isVve()?["Extra schoonmaakbeurt","Grote schoonmaak","Ramen in het trappenhuis","Galerijen","Bergingsgang of kelder","Glasbewassing van de gevel"]:((B.extraDiensten||[]).length)?B.extraDiensten:["Goten","Reiniging gevelelementen","Reiniging dakkapel"];
     blad(`<h3>Iets extra laten doen</h3><p class="sub">Kies een extra dienst, we sturen u vooraf de prijs.</p>
     <div class="keus">${X.map(x=>`<label><input type="checkbox" value="${esc(x)}"><span>${esc(x)}</span></label>`).join("")}</div>
     <label class="veld"><span>Toelichting (niet verplicht)</span><textarea id="vt"></textarea></label>
