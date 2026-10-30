@@ -2193,12 +2193,13 @@ function aanbevelen(){const A=D.aanbevelen,R=B.refBeloning,W=B.refWelkom,C=D.cre
   const T=C.tarieven||{},cr=n=>n===0.5?"een halve credit (€ 0,50)":`${crF(n)} credit${n===1?"":"s"}`,Hf=s=>s.charAt(0).toUpperCase()+s.slice(1);
   const st={aangemeld:["soon","Aangemeld",1],akkoord:["soon","Wacht op akkoord",2],eerste:["brand","Eerste bezoek volgt",3],klant:["brand","Eerste bezoek volgt",3],beloond:["ok","Korting vrijgegeven",4],gestopt:["neutral","Niet doorgegaan",0]};
   const hold=(A.opHold||0)*R,link=String(A.link||"").replace(/^https?:\/\//,"");
-  const pr=Number(D.klant.prijs)||0,saldo=Math.round((C.saldo||0)*100)/100,doel=pr&&pr>saldo?pr:0,pct=doel?Math.min(100,Math.round(saldo/doel*100)):100;
+  /* wat kost een beurt (incl. btw)? Het bedrag van de laatste factuur; anders de prijs bij de opdracht. Onbekend = geen "gratis"-belofte */
+  const lf=(D.facturen||[]).find(f=>Number(f.bedrag)>0),pr=lf?Number(lf.bedrag):Number(D.klant.prijs)||0,saldo=Math.round((C.saldo||0)*100)/100,doel=pr>0?Math.round(pr*100)/100:0,pct=doel?Math.min(100,Math.round(saldo/doel*100)):0;
   /* credits-hero */
   const hero=`<section class="cr-hero"><div class="cr-top"><span class="cr-eb">${I.cadeau}Uw credits</span>${C.verdiend>0?`<span class="cr-pill">${I.check}in totaal ${eur0(C.verdiend)} verdiend</span>`:""}</div>
       <div class="cr-saldo"><b data-tel="${saldo}">${crF(saldo)}</b><span><em>credits</em><small>= ${eur0(saldo)} korting op uw volgende factuur</small></span></div>
-      ${doel?`<div class="cr-doel"><div class="cr-bar"><i style="width:${pct}%"></i>${[.25,.5,.75].map(q=>`<u style="left:${q*100}%"></u>`).join("")}</div><div class="cr-dl"><span>${saldo>0?`Nog ${cr(Math.max(0,Math.round((doel-saldo)*100)/100))} tot een gratis beurt`:`Spaar ${cr(Math.round(doel*100)/100)} voor een gratis beurt`}</span><span>${eur0(doel)}</span></div></div>`
-        :saldo>0?`<div class="cr-doel"><div class="cr-bar"><i style="width:100%"></i></div><div class="cr-dl"><span>Uw volgende beurt is gratis!</span><span>${eur0(saldo)}</span></div></div>`:""}
+      ${doel&&saldo<doel?`<div class="cr-doel"><div class="cr-bar"><i style="width:${pct}%"></i>${[.25,.5,.75].map(q=>`<u style="left:${q*100}%"></u>`).join("")}</div><div class="cr-dl"><span>${saldo>0?`Nog ${cr(Math.max(0,Math.round((doel-saldo)*100)/100))} tot een gratis beurt`:`Spaar ${cr(Math.round(doel*100)/100)} voor een gratis beurt`}</span><span>${eur0(doel)}</span></div></div>`
+        :doel&&saldo>=doel?`<div class="cr-doel"><div class="cr-bar"><i style="width:100%"></i></div><div class="cr-dl"><span>Uw volgende beurt is gratis!</span><span>${eur0(doel)}</span></div></div>`:""}
       <div class="cr-card" aria-hidden="true"><i class="cr-glans"></i><div class="cr-c-top"><img src="${esc(B.logo||"/logo.png")}" alt=""><span>Creditkaart</span></div><div class="cr-c-chip"></div><b class="cr-c-n" data-tel="${saldo}">${crF(saldo)}</b><small>credits · ${eur0(saldo)} korting</small><em>${esc((D.klant.voornaam||"").toUpperCase())} · 1 CREDIT = € 1</em></div><p class="cr-uitleg">1 credit = € 1. Credits gaan automatisch van uw eerstvolgende factuur af, u hoeft niets te doen.</p></section>`;
   /* manieren om credits te verdienen */
   const nB=D.aantalBezoeken||0,bq=C.beoordeeld||0;
