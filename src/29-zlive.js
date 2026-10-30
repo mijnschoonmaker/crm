@@ -228,3 +228,12 @@ if(typeof window!=="undefined")setTimeout(async function w(){if(!state.loaded)re
   const n={...A};["mail","tekst","sms"].forEach(k=>{if(k in n)n[k]=tx(n[k])});if("mailHtml" in n)n.mailHtml=ht(n.mailHtml);
   if(JSON.stringify(n)===JSON.stringify(A))return;
   try{await save("instellingen","sjablonen",{...state.sjablonen,aankondiging:n})}catch(e){console.error("aankondiging voetnoot",e)}},6000);
+
+/* eenmalige correctie (30-10-2026): ook "Met vriendelijke groet" + naam onder de aankondiging weg (elke 8 weken dezelfde mail, kort houden) */
+if(typeof window!=="undefined")setTimeout(async function w(){if(!state.loaded)return setTimeout(w,2000);if(typeof isMw==="function"&&isMw())return;
+  const A=state.sjablonen&&state.sjablonen.aankondiging;if(!A)return;
+  const tx=t=>typeof t!=="string"?t:t.replace(/\s*(met\s+)?vriendelijke groet,?[^\n]*(\n[^\n]*)?\s*$/i,""),
+    ht=t=>typeof t!=="string"?t:t.replace(/(<br\s*\/?>|\s|&nbsp;)*(<(p|div)[^>]*>)?\s*(met\s+)?vriendelijke groet,?[\s\S]*$/i,m=>/<(p|div)/i.test(m)?"":"");
+  const n={...A};["mail","tekst"].forEach(k=>{if(k in n)n[k]=tx(n[k])});if("mailHtml" in n&&/vriendelijke groet/i.test(n.mailHtml)){let h=ht(n.mailHtml);const T=document.createElement("template");T.innerHTML=h;h=T.innerHTML;n.mailHtml=h}
+  if(JSON.stringify(n)===JSON.stringify(A))return;
+  try{await save("instellingen","sjablonen",{...state.sjablonen,aankondiging:n})}catch(e){console.error("aankondiging groet",e)}},9000);
