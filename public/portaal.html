@@ -453,6 +453,17 @@ aside .help .primary{margin-top:2px;font-size:13.5px;padding:9px}aside .help .pr
 .rf-vis{height:250px}.rf-kaart{width:180px;padding:16px}.rf-kaart.k1{top:4px;right:0;z-index:1}.rf-kaart.k2{bottom:4px;left:0;z-index:2;background:#fff}
 @media (max-width:760px){.rf-tg{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.rf-tg>div{padding:10px;border-radius:14px}.rf-tg b{font-size:18px}.rf-tg small{font-size:11px;line-height:1.25;min-height:28px}.rf-tg span{display:none}.rf-stappen ol::before{bottom:46px}}
 
+/* PDF in een eigen venster met Sluiten en Delen */
+function pdfVenster(url, naam, blob) {
+    const o = document.createElement("dialog"); o.className = "pdf-ov";
+    o.innerHTML = '<div class="pdf-bar"><b></b><span style="flex:1"></span><button type="button" class="small" data-pdel>Delen</button><button type="button" class="pdf-x" aria-label="Sluiten">\u2715</button></div><iframe title="PDF"></iframe>';
+    o.querySelector("b").textContent = naam || "PDF"; o.querySelector("iframe").src = url;
+    if (!document.getElementById("pdfOvCss")) { const c = document.createElement("style"); c.id = "pdfOvCss"; c.textContent = "dialog.pdf-ov[open]{position:fixed;inset:0;width:100vw;height:100dvh;max-width:none!important;max-height:none!important;margin:0;padding:0;border:0;border-radius:0;display:flex;flex-direction:column;background:#f2f2f2;z-index:2147483000}.pdf-ov::backdrop{background:rgb(0 0 0/.4)}.pdf-bar{display:flex;align-items:center;gap:8px;padding:calc(8px + env(safe-area-inset-top)) 12px 8px;background:#fff;border-bottom:1px solid #e5e7eb;font:600 15px -apple-system,system-ui,sans-serif}.pdf-bar b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pdf-x{width:40px;height:40px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;font-size:18px;flex:none}.pdf-ov iframe{flex:1;width:100%;border:0;background:#fff}"; document.head.appendChild(c); }
+    document.body.appendChild(o); try { o.showModal(); } catch (e) { o.setAttribute("open", ""); }
+    const weg = () => { try { o.close(); } catch (e) {} o.remove(); };
+    o.addEventListener("cancel", e => { e.preventDefault(); weg(); }); o.querySelector(".pdf-x").onclick = weg;
+    o.querySelector("[data-pdel]").onclick = async () => { try { const b = blob || await (await fetch(url)).blob(); const f = new File([b], naam || "document.pdf", { type: "application/pdf" }); if (navigator.canShare && navigator.canShare({ files: [f] })) await navigator.share({ files: [f] }); } catch (e) {} };
+  }
 /* ---------- live meekijken ---------- */
 .lv{position:relative;border-radius:24px;overflow:hidden;background:var(--surface);border:1px solid var(--line);box-shadow:0 20px 44px -30px rgba(8,40,48,.55)}
 .lv-centreer{position:absolute;right:10px;bottom:38px;z-index:600;display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 13px!important;border:1px solid rgba(255,255,255,.6)!important;border-radius:8px!important;background:rgba(255,255,255,.94)!important;color:#252c3c!important;font:700 10.5px/1 Manrope,system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;box-shadow:0 2px 8px rgba(13,18,27,.18)!important;cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
@@ -2464,7 +2475,11 @@ async function openFactuur(id){let f;const sluit=blad(`<div class="laden" style=
     const pdfUrl=await factuurPdf(id);if(!o.isConnected)return;
     const slot=o.querySelector(".pdf-slot"),dl=o.querySelector("[data-down]");
     if(pdfUrl){slot.innerHTML=groot?`<div class="pdf-v"><iframe src="${pdfUrl}#toolbar=0&navpanes=0&view=FitH" title="${esc(naam)}"></iframe></div>`:`<a class="pdf-kaart" href="${pdfUrl}" download="${esc(naam)}">${I.fact}<span><b>${esc(naam)}</b><small>Tik om de ${off?"offerte":"factuur"} te openen</small></span>${I.chev}</a>`;
-      if(dl){dl.href=pdfUrl;dl.download=naam;dl.removeAttribute("aria-disabled");dl.style.cssText=""}}
+      if(dl){dl.href=pdfUrl;dl.download=naam;dl.removeAttribute("aria-disabled");dl.style.cssText=""}
+      /* telefoon/tablet: openen in een eigen venster met Sluiten rechtsboven (anders opent de PDF schermvullend zonder terugknop) */
+      if(!groot){const k=slot.querySelector(".pdf-kaart");if(k)k.onclick=e=>{e.preventDefault();pdfVenster(pdfUrl,naam)}}
+      const ios=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+      if(dl&&ios)dl.onclick=async e=>{e.preventDefault();try{const bl=await (await fetch(pdfUrl)).blob(),fl=new File([bl],naam,{type:"application/pdf"});if(navigator.canShare&&navigator.canShare({files:[fl]})){await navigator.share({files:[fl]});return}}catch(er){if(er&&er.name==="AbortError")return}pdfVenster(pdfUrl,naam)}}
     else{slot.innerHTML=`<div class="infobox">${I.klok}<span>De PDF kon nu niet worden geladen. Probeer het zo nog eens.</span></div>`;if(dl)dl.remove()}
     return}
   bladVul(o,`${kopTxt}
