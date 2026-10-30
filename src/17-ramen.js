@@ -701,8 +701,10 @@ const ICON={
   function regelsFor(R){
     const rg=[];
     if(R.all.length){const fl=R.f&&R.f.l?R.f.l:"";const gl=[...R.fRows.map(r=>({omschrijving:`Glasbewassing ${r.n.toLowerCase()}, ${r.c} ramen`,aantal:1,prijs:r2(r.price),n:r.c,sec:r.sec,sub:r.n,qty:r.c+" st",fq:fl})),...R.sRows.map(r=>({omschrijving:`${r.n}, ${r.c} st.`,aantal:1,prijs:r2(r.price),n:r.c,sec:r.sec,sub:r.n,qty:r.c+" st",fq:fl}))];
-      if(R.minGlas){/* minimumtarief naar verhouding verdelen over de regels waarvoor hij geldt (gewone glasbewassing, of alleen bijzondere ramen), zonder aparte regel */
-        const nf=R.fRows.length,doel=R.minOp==="s"||!nf?gl:gl.slice(0,nf),sum=doel.reduce((a,r)=>a+r.prijs,0)||1;let acc=0;doel.forEach((r,i)=>{if(i===doel.length-1)r.prijs=r2(cfg.min-acc);else{r.prijs=r2(r.prijs*cfg.min/sum);acc+=r.prijs}});rg.push(...gl)}
+      if(R.minGlas){/* minimumprijs: echte prijzen per regel + een aparte regel met de aanvulling, zodat alles precies optelt */
+        rg.push(...gl.slice(0,R.fRows.length));if(R.minOp!=="s"&&R.f.pct&&R.normal)rg.push({omschrijving:`${R.f.pct>0?"Frequentiekorting":"Frequentietoeslag"} ${Math.abs(R.f.pct)}% (${R.f.l.toLowerCase()})`,aantal:1,prijs:r2(R.freqAdj)});
+        const aanv=r2(cfg.min-(R.minOp==="s"?R.spSom:R.glasN)),aRg=aanv>0?{omschrijving:"Aanvulling minimumprijs "+(R.minOp==="s"?"bijzondere ramen":"glasbewassing"),aantal:1,prijs:aanv,minAanv:true}:null;
+        if(aRg&&R.minOp!=="s")rg.push(aRg);rg.push(...gl.slice(R.fRows.length));if(aRg&&R.minOp==="s")rg.push(aRg)}
       else{rg.push(...gl);if(R.f.pct&&R.normal)rg.push({omschrijving:`${R.f.pct>0?"Frequentiekorting":"Frequentietoeslag"} ${Math.abs(R.f.pct)}% (${R.f.l.toLowerCase()})`,aantal:1,prijs:r2(R.freqAdj)})}}
     if(R.koz)rg.push({omschrijving:`Kozijnreiniging, ${R.count} ramen`,aantal:1,prijs:r2(R.kozEx)});
     if(R.startEx)rg.push({omschrijving:"Starttarief",aantal:1,prijs:r2(R.startEx)});
