@@ -818,8 +818,8 @@ aside .logo{gap:16px!important}.topbar .lg-g{font-size:14px!important}
 
 
 /* knoppen in de bezoekkaart: altijd naast elkaar */
-.bz-acts{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:8px!important;flex-wrap:nowrap!important;max-width:520px}
-.bz-acts button{justify-content:center;white-space:nowrap;min-width:0}
+.bz-acts{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(min(100%,138px),1fr));gap:8px!important;flex-wrap:nowrap!important;max-width:520px}
+.bz-acts button{justify-content:center;white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis}
 @media (max-width:520px){.bz-acts button{flex-direction:column;gap:4px!important;padding:10px 4px!important;font-size:13px!important;border-radius:14px!important}.bz-acts svg{width:18px!important;height:18px!important}}
 .vv-det{margin:8px 0 0 54px;display:flex;flex-direction:column;gap:8px}
 .vv-taken{display:flex;flex-wrap:wrap;gap:6px}.vv-taken span{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;padding:4px 9px;border-radius:999px;background:color-mix(in srgb,#23845a 10%,var(--surface));color:#1b6b48}.vv-taken span svg{width:13px;height:13px;stroke:currentColor}.vv-taken span.niet{background:var(--surface-2);color:var(--muted);text-decoration:line-through}
@@ -1720,6 +1720,9 @@ html body:not(#zz) .cr-card{width:clamp(250px,27%,300px)!important;right:clamp(2
 .ds .ds-pr{display:flex;flex-direction:column;align-items:flex-end;gap:1px;white-space:nowrap}.ds .ds-pr b{font-weight:700}.ds .ds-pr small{font-size:11.5px;opacity:.65}
 .ds .ab-x{margin-top:14px}
 .lv-oud .lv-puls{display:none}.lv-oud .lv-auto{opacity:.75}
+/* knoppen in "Uw volgende bezoek": nooit over elkaar heen; passen ze niet naast elkaar, dan naar de volgende regel */
+.bz-acts{display:flex!important;flex-wrap:wrap!important;max-width:560px}
+.bz-acts button{flex:1 1 auto;min-width:max-content}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
