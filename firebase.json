@@ -91,6 +91,13 @@
           }
         },
         {
+          "source": "/api/huis3d",
+          "function": {
+            "functionId": "huis3dWeb",
+            "region": "europe-west4"
+          }
+        },
+        {
           "source": "/api/aanvraag",
           "function": {
             "functionId": "aanvraag",

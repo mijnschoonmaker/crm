@@ -65,16 +65,18 @@ function aanvraagKlant(d){const k=d.klant||{},t=d.telling||{},fl=(t.floors||[]).
   return {k,t,fl,sp,R,prijs,duur,f4,geenBijz,regels,ramen:R.count,fk,weken,fqLabel}}
 /* aanvraag → klant met opdracht (glasbewassing per verdieping); eerste beurt = O-beurt met tellingcontrole.
    fotos: [{blob,naam,w,h,dots}] als de aanvraag rechtstreeks uit de calculator in het crm komt */
+/* extra diensten die de klant in de dienstenwebshop aantikte, met maten uit het 3D-model */
+const x3Txt=D=>{const L=Array.isArray(D&&D.extra)?D.extra.filter(x=>x&&x.naam):[];return L.length?"Wil ook (maten uit het 3D-model): "+L.map(x=>String(x.naam).slice(0,60)+" "+String(Number(x.aantal)||0).replace(".",",")+" "+(x.eenheid==="m2"?"m²":"m")+(Number(x.excl)>0?" · "+eur(Number(x.excl))+" excl.":"")).join("; "):""};
 async function aanvraagToevoegen(D,fotos=[]){const a=aanvraagKlant(D),id=newId("k");
   const zak=D.soort==="zakelijk"&&a.k.bedrijf;const tf=[];
   for(const f of (fotos||[])){try{if(!state.assets||!f.blob)break;const file=new File([f.blob],f.naam||"woning-foto.jpg",{type:f.blob.type||"image/jpeg"});const r=await state.assets.upload(file);tf.push({id:r.id,naam:f.naam||"Foto",datum:iso(today()),w:f.w||0,h:f.h||0,dots:(f.dots||[]).map(d=>({x:d.x,y:d.y,t:d.t}))})}catch(er){console.error(er)}}
   const k={naam:zak?a.k.bedrijf:(a.k.naam||"Nieuwe klant"),contact:zak?a.k.naam||"":"",adres:a.k.adres||"",postcode:String(a.k.postcode||"").toUpperCase(),plaats:a.k.plaats||"",email:a.k.email||"",telefoon:a.k.telefoon||"",
-    notities:a.k.opmerking||"",dienst:"Glasbewassing",prijs:a.prijs,frequentie:a.weken,duur:a.duur,ronde:"",laatst:"",gepland:"",tijd:"",aanbieden:true,eersteKeer:true,tellingControle:true,
+    notities:[a.k.opmerking||"",x3Txt(D)].filter(Boolean).join("\n"),dienst:"Glasbewassing",prijs:a.prijs,frequentie:a.weken,duur:a.duur,ronde:"",laatst:"",gepland:"",tijd:"",aanbieden:true,eersteKeer:true,tellingControle:true,
     ramenRegel:a.geenBijz?normR({f:a.f4,fq:a.f4.map(n=>n?a.weken:"")}):null,
     ramenTelling:{floors:a.fl,special:a.sp,freq:a.fk,koz:false,ramen:a.ramen,datum:iso(today()),fotos:tf,bron:"klant"},
     bron:"website",nieuwAangemeld:true,binnen:false,soort:zak?"zakelijk":"particulier",actief:true,prospect:false,akkoord:true,opdrachtVerwijderd:false,aangemaakt:iso(today()),
     ...aanbevelingBijAanvraag(D),
-    log:[{datum:iso(today()),tekst:(D.aanbevolenDoor?"Aanbevolen via code "+(D.ref||"")+" · ":"")+"Aanvraag via de website · "+a.ramen+" ramen (telling klant) · "+eur(a.prijs)+" per beurt, "+a.fqLabel.replace(/^1x /,"")+" · eerste beurt O-beurt met tellingcontrole"}],objecten:[]};
+    log:[{datum:iso(today()),tekst:(D.aanbevolenDoor?"Aanbevolen via code "+(D.ref||"")+" · ":"")+"Aanvraag via de website · "+a.ramen+" ramen (telling klant) · "+eur(a.prijs)+" per beurt, "+a.fqLabel.replace(/^1x /,"")+" · eerste beurt O-beurt met tellingcontrole"},...(x3Txt(D)?[{datum:iso(today()),tekst:x3Txt(D)}]:[])],objecten:[]};
   await save("klanten",id,k);return {...k,id}}
 /* contactverzoek van een bedrijf / VvE: klant als prospect, nog zonder opdracht */
 async function contactToevoegen(D){const k0=D.klant||{},id=newId("k");

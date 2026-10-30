@@ -2,7 +2,7 @@
    In: het adrespunt in RD (x,y) en in WGS84 (lat,lng) van de PDOK-locatieserver.
    Uit: per rand de soort (goot, windveer, dakrand plat dak), de echte 3D-lengte en de punten in WGS84 om op de luchtfoto te tekenen.
    Randen tegen een buurpand (scheidingsmuur bij een rijwoning) tellen niet mee. Alleen lezen, niets bewaren. */
-module.exports = ({ onCall, HttpsError, checkGebruiker }) => {
+module.exports = ({ onCall, onRequest, HttpsError, checkGebruiker }) => {
   const rd2w = (x, y) => { const dX = (x - 155000) * 1e-5, dY = (y - 463000) * 1e-5;
     const N = 3235.65389 * dY - 32.58297 * dX ** 2 - 0.2475 * dY ** 2 - 0.84978 * dX ** 2 * dY - 0.0655 * dY ** 3 - 0.01709 * dX ** 2 * dY ** 2 - 0.00738 * dX + 0.0053 * dX ** 4 - 0.00039 * dX ** 2 * dY ** 3 + 0.00033 * dX ** 4 * dY - 0.00012 * dX * dY;
     const E = 5260.52916 * dX + 105.94684 * dX * dY + 2.45656 * dX * dY ** 2 - 0.81885 * dX ** 3 + 0.05594 * dX * dY ** 3 - 0.05607 * dX ** 3 * dY + 0.01199 * dY - 0.00256 * dX ** 3 * dY ** 2 + 0.00128 * dX * dY ** 4 + 0.00022 * dY ** 2 - 0.00022 * dX ** 2 + 0.00026 * dX ** 5;
@@ -10,9 +10,10 @@ module.exports = ({ onCall, HttpsError, checkGebruiker }) => {
   const pip = (p, poly) => { let c = false; for (let i = 0, k = poly.length - 1; i < poly.length; k = i++) { const a = poly[i], b = poly[k]; if (((a[1] > p[1]) !== (b[1] > p[1])) && (p[0] < (b[0] - a[0]) * (p[1] - a[1]) / (b[1] - a[1]) + a[0])) c = !c; } return c; };
   /* afstand van punt p tot lijnstuk a-b (2D) */
   const dSeg = (p, a, b) => { const vx = b[0] - a[0], vy = b[1] - a[1], L2 = vx * vx + vy * vy; let t = L2 ? ((p[0] - a[0]) * vx + (p[1] - a[1]) * vy) / L2 : 0; t = Math.max(0, Math.min(1, t)); return Math.hypot(p[0] - a[0] - t * vx, p[1] - a[1] - t * vy); };
-  const huis3d = onCall({ memory: "256MiB", timeoutSeconds: 30 }, async req => {
-    await checkGebruiker(req.auth);
-    const d = req.data || {}, x = Number(d.x), y = Number(d.y), lat = Number(d.lat), lng = Number(d.lng);
+  /* oppervlakte van een 3D-veelhoek (Newell) */
+  const opp = P => { let nx = 0, ny = 0, nz = 0; for (let i = 0; i < P.length; i++) { const a = P[i], b = P[(i + 1) % P.length]; nx += (a[1] - b[1]) * (a[2] + b[2]); ny += (a[2] - b[2]) * (a[0] + b[0]); nz += (a[0] - b[0]) * (a[1] + b[1]); } return Math.hypot(nx, ny, nz) / 2; };
+  async function bereken(d) {
+    const x = Number(d.x), y = Number(d.y), lat = Number(d.lat), lng = Number(d.lng);
     if (!(x > 0 && x < 300000 && y > 289000 && y < 630000)) throw new HttpsError("invalid-argument", "Geen geldig adrespunt.");
     const r = 15, url = `https://api.3dbag.nl/collections/pand/items?bbox=${x - r},${y - r},${x + r},${y + r}&limit=60`;
     let j; try { const res = await fetch(url, { headers: { accept: "application/json" }, signal: AbortSignal.timeout(20000) }); if (!res.ok) throw new Error("status " + res.status); j = await res.json(); }
@@ -33,7 +34,16 @@ module.exports = ({ onCall, HttpsError, checkGebruiker }) => {
     const part = (hoofd.f.CityObjects || {})[hoofd.f.id + "-0"] || {}, g = (part.geometry || []).find(x => x.lod === "2.2") || (part.geometry || []).find(x => x.lod === "1.3");
     if (!g) throw new HttpsError("not-found", "Van dit gebouw is geen dakmodel bekend.");
     const V = hoofd.V, shell = g.type === "Solid" ? g.boundaries[0] : g.boundaries, sv = g.semantics ? (g.type === "Solid" ? g.semantics.values[0] : g.semantics.values) : [], st = g.semantics ? g.semantics.surfaces : [];
-    const daken = []; shell.forEach((s, i) => { if (st[sv[i]] && st[sv[i]].type === "RoofSurface") daken.push(s[0]); });
+    const daken = []; let gevel = 0, dak = 0; const gevels = {};
+    shell.forEach((s, i) => { const t = st[sv[i]] && st[sv[i]].type, P = s[0].map(k => V[k]);
+      if (t === "RoofSurface") { daken.push(s[0]); dak += opp(P); }
+      else if (t === "WallSurface") { /* muur tegen de buren telt niet: het midden ligt op hun voetafdruk */
+        const mx = P.reduce((a, q) => a + q[0], 0) / P.length, my = P.reduce((a, q) => a + q[1], 0) / P.length;
+        if (buren.some(p => { for (let k = 0; k < p.voet.length; k++) if (dSeg([mx, my], p.voet[k], p.voet[(k + 1) % p.voet.length]) < 0.45) return true; return false; })) return;
+        const A = opp(P); gevel += A;
+        /* windrichting van de gevel (buitenkant): normaal uit de voetafdruk-rand */
+        let nx = 0, ny = 0; for (let k = 0; k < P.length; k++) { const a = P[k], b = P[(k + 1) % P.length]; nx += (a[1] - b[1]) * (a[2] + b[2]); ny += (a[2] - b[2]) * (a[0] + b[0]); }
+        const az = (Math.atan2(nx, ny) * 180 / Math.PI + 360) % 360, r = ["noord", "oost", "zuid", "west"][Math.round(az / 90) % 4]; gevels[r] = (gevels[r] || 0) + A; } });
     const key = (a, b) => a < b ? a + "_" + b : b + "_" + a, cnt = {}; daken.forEach(r => r.forEach((v, i) => { const k = key(v, r[(i + 1) % r.length]); cnt[k] = (cnt[k] || 0) + 1; }));
     let randen = [];
     daken.forEach(r => { const zs = r.map(i => V[i][2]), zmin = Math.min(...zs), zmax = Math.max(...zs), plat = zmax - zmin < 0.15;
@@ -52,8 +62,24 @@ module.exports = ({ onCall, HttpsError, checkGebruiker }) => {
       if (!ok) break; }
     randen = randen.filter(r => r.len >= 0.8).sort((p, q) => q.len - p.len);
     const a = hoofd.b.attributes || {};
-    return { pand: hoofd.f.id, bouwjaar: a.oorspronkelijkbouwjaar || null, meetjaar: a.b3_pw_datum || null, dak: a.b3_dak_type || "", nokhoogte: a.b3_h_dak_max ? Math.round(a.b3_h_dak_max * 10) / 10 : null, goothoogte: a.b3_h_dak_min ? Math.round(a.b3_h_dak_min * 10) / 10 : null,
-      randen: randen.map(r => ({ soort: r.soort, m: Math.round(r.len * 100) / 100, hoogte: r.hoogte, p: [ll(r.A), ll(r.B)] })), voet: hoofd.voet.map(ll) };
+    return { pand: hoofd.f.id, bouwjaar: a.oorspronkelijkbouwjaar || null, meetjaar: a.b3_pw_datum || null, dak: a.b3_dak_type || "", /* hoogtes boven de grond (3D BAG geeft ze t.o.v. NAP) */
+      nokhoogte: a.b3_h_dak_max ? Math.round((a.b3_h_dak_max - (a.b3_h_maaiveld || 0)) * 10) / 10 : null, goothoogte: a.b3_h_dak_min ? Math.round((a.b3_h_dak_min - (a.b3_h_maaiveld || 0)) * 10) / 10 : null,
+      randen: randen.map(r => ({ soort: r.soort, m: Math.round(r.len * 100) / 100, hoogte: Math.round((r.hoogte - (a.b3_h_maaiveld || 0)) * 10) / 10, p: [ll(r.A), ll(r.B)] })), voet: hoofd.voet.map(ll),
+      gevel: Math.round(gevel * 10) / 10, dakopp: Math.round(dak * 10) / 10, gevels: Object.fromEntries(Object.entries(gevels).map(([k, v]) => [k, Math.round(v * 10) / 10])),
+      maaiveld: a.b3_h_maaiveld != null ? Math.round(a.b3_h_maaiveld * 10) / 10 : null };
+  }
+  const huis3d = onCall({ memory: "256MiB", timeoutSeconds: 30 }, async req => { await checkGebruiker(req.auth); return bereken(req.data || {}); });
+  /* voor de dienstenwebshop op de website van een bedrijf: openbaar, alleen totalen (geen ligging), met een eenvoudige rem per bezoeker */
+  const tellers = new Map();
+  const huis3dWeb = onRequest({ cors: true, memory: "256MiB", timeoutSeconds: 30 }, async (req, res) => {
+    const ip = String(req.headers["x-forwarded-for"] || req.ip || "").split(",")[0].trim(), nu = Date.now(), t = (tellers.get(ip) || []).filter(v => nu - v < 600000);
+    if (t.length >= 30) { res.status(429).json({ fout: "Even te veel opvragingen. Probeer het over een paar minuten opnieuw." }); return; }
+    t.push(nu); tellers.set(ip, t); if (tellers.size > 5000) tellers.clear();
+    const q = req.method === "POST" ? (req.body || {}) : req.query;
+    try { const o = await bereken({ x: q.x, y: q.y, lat: q.lat, lng: q.lng });
+      const som = s => Math.round(o.randen.filter(r => r.soort === s).reduce((a, r) => a + r.m, 0) * 100) / 100;
+      res.set("Cache-Control", "public, max-age=86400").json({ goot: som("goot"), windveer: som("windveer"), plat: som("plat"), gevel: o.gevel, dakopp: o.dakopp, goothoogte: o.goothoogte, nokhoogte: o.nokhoogte, maaiveld: o.maaiveld, bouwjaar: o.bouwjaar, meetjaar: o.meetjaar, dak: o.dak }); }
+    catch (e) { res.status(e.code === "not-found" ? 404 : e.code === "invalid-argument" ? 400 : 503).json({ fout: e.message || "Niet beschikbaar" }); }
   });
-  return { huis3d };
+  return { huis3d, huis3dWeb };
 };

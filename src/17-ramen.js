@@ -218,6 +218,18 @@ details[open] summary::after{content:"−"}
 .lbtn svg{width:22px;height:22px;flex:none;color:#a67c00;background:#fff8e1;border-radius:9px;padding:7px;box-sizing:content-box}
 .lbtn span{display:flex;flex-direction:column;gap:2px;min-width:0}.lbtn b{font-size:14px}.lbtn small{font-size:12px;color:#6b7280}
 .lbtn[hidden]{display:none}
+.h3k{margin-top:10px;border:1px solid #e4e7ec;border-radius:14px;background:#fff;padding:12px 14px;box-shadow:0 6px 16px -12px rgb(13 18 27 / .45)}
+.h3k[hidden]{display:none}
+.h3k-h{display:flex;align-items:center;gap:12px}.h3k-h>svg{width:22px;height:22px;flex:none;color:#0e7490;background:#e0f2fe;border-radius:9px;padding:7px;box-sizing:content-box}
+.h3k-h span{display:flex;flex-direction:column;gap:2px;min-width:0}.h3k-h b{font-size:14px}.h3k-h small{font-size:12px;color:#6b7280}
+.h3k-f{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:6px;margin-top:10px}
+.h3k-f div{background:#f6f7f9;border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:2px}.h3k-f small{font-size:11px;color:#6b7280}.h3k-f b{font-size:14px;font-variant-numeric:tabular-nums}
+.h3k-d{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.h3k-d button{display:inline-flex;align-items:center;gap:7px;min-height:34px;padding:0 12px 0 8px;border-radius:99px;border:1px solid #d6dae1;background:#fff;color:#14181f;font:600 12.5px/1 inherit;font-family:inherit;cursor:pointer;font-variant-numeric:tabular-nums}
+.h3k-d button i{width:18px;height:18px;border-radius:50%;border:1.5px solid #c3c8d0;display:grid;place-items:center;font-style:normal;font-size:11px;color:#fff}
+.h3k-d button[aria-pressed="true"]{border-color:#0e7490;background:#ecfeff}.h3k-d button[aria-pressed="true"] i{background:#0e7490;border-color:#0e7490}
+.h3k-d button:disabled{opacity:.55;cursor:default}
+.h3k p{margin:8px 0 0;font-size:12px;color:#6b7280}
 :host([data-offerte]) .handm{display:inline-flex;align-self:flex-start;margin-top:8px;background:none;border:0;padding:0;font:inherit;font-size:13px;font-weight:600;color:#0d121b;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 :host([data-offerte][data-handmatig]) #cFloors,:host([data-offerte][data-handmatig]) #cSpecial{display:block!important}
 :host([data-offerte][data-handmatig]) #cFloors .hint,:host([data-offerte][data-handmatig]) #cSpecial .hint{display:none}
@@ -298,6 +310,7 @@ const RC_HTML=`<div class="wrap">
         <span class="phhint">Maak foto's van alle zijden. Kies per stip de verdieping of soort raam; de aantallen gaan vanzelf naar de telling. Markeer elk raam op maar één foto.</span>
         <div class="phsum" id="phsum" hidden></div>
         <button type="button" class="lbtn" id="luchtBtn" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/></svg><span><b>Meten op de luchtfoto</b><small id="luchtSub">Goten en daklijsten op de cm, zoals Perceelloep</small></span></button>
+        <div class="h3k" id="h3Kaart" hidden></div>
         <button type="button" class="handm" id="handm">Geen foto bij de hand? Vul de aantallen zelf in</button>
       </div>
       <div class="fld full keep"><label class="lab" for="k-notitie">Notitie voor op de route</label><textarea class="in" id="k-notitie" rows="2" placeholder="Bijv. sleutel onder bloempot, hond aanwezig"></textarea></div>
@@ -493,7 +506,7 @@ const ICON={
     const el=g(id);if(el){el.value=v;el.closest(".row").classList.toggle("on",v>0)}updateCount();markStale()}
 
   /* ---------- foto's met stippen ---------- */
-  let photos=[],edIdx=-1,edMode="ramen",edMl=null,edH3=null,mSynced={},lucht=[];
+  let photos=[],edIdx=-1,edMode="ramen",edMl=null,edH3=null,mSynced={},lucht=[],h3sel={},h3D=null,h3Adr="";
   function loadPhoto(file){
     return new Promise((res,rej)=>{const u=URL.createObjectURL(file);const im=new Image();
       im.onload=()=>{const max=1600,k=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight));
@@ -557,10 +570,30 @@ const ICON={
         bar:()=>{const b=ge("ed-mlb");if(b&&edMl&&!b.hidden){b.innerHTML=edMl.barHtml(Meetlint.totalen(photos.map(p=>({...p,w:p.cv.width,h:p.cv.height})),MS));edMl.bindBar(b)}}});
       edZetMode(MS.length?edMode:"ramen")})}
   /* gemeten meters en m² in de prijs: bij de diensten met dezelfde naam (Uitvoering › Diensten); zelf ingevulde aantallen blijven staan */
-  function meetTot(){const t=typeof Meetlint!=="undefined"?Meetlint.totalen(photos.map(p=>({...p,w:p.cv.width,h:p.cv.height})),[]):{},l=typeof luchtTotalen==="function"?luchtTotalen(lucht):{};
+  function meetFL(){const t=typeof Meetlint!=="undefined"?Meetlint.totalen(photos.map(p=>({...p,w:p.cv.width,h:p.cv.height})),[]):{},l=typeof luchtTotalen==="function"?luchtTotalen(lucht):{};
     Object.keys(l).forEach(k=>t[k]=Math.round(((t[k]||0)+l[k])*10)/10);return t}
+  /* foto + luchtfoto + wat uit het 3D-model is aangetikt (zelf gemeten gaat voor) */
+  function meetTot(){const t=meetFL();Object.keys(h3sel).forEach(k=>{if(!t[k]&&h3sel[k]>0)t[k]=h3sel[k]});return t}
+  /* ---- Uit het 3D-model: zodra het adres bekend is, staan de maten van de woning er (3D BAG) ---- */
+  const h3Fm=(v,d)=>(Math.round(v*Math.pow(10,d))/Math.pow(10,d)).toFixed(d).replace(".",",");
+  function h3Ververs(){const el=g("h3Kaart");if(!el)return;const k=klantForm(),adr=[k.adres,k.pc,k.plaats].filter(Boolean).join(" ").trim();
+    if(!k.adres||typeof huis3dVoor!=="function"||!edMeet().length){el.hidden=true;return}
+    if(adr!==h3Adr){const was=h3Adr;h3Adr=adr;h3D={laden:true};if(was&&Object.keys(h3sel).length){h3sel={};syncMeet();markStale()}
+      huis3dVoor(adr).then(d=>{if(h3Adr!==adr)return;h3D=d&&d.randen?d:{geen:true};h3Teken()},()=>{if(h3Adr!==adr)return;h3D={fout:true};h3Teken()})}
+    h3Teken()}
+  function h3Teken(){const el=g("h3Kaart");if(!el)return;const d=h3D;el.hidden=!d;if(!d)return;
+    const cube='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 3 8v8l9 5 9-5V8z"/><path d="m3 8 9 5 9-5M12 13v8"/></svg>';
+    if(d.laden||d.geen||d.fout){el.innerHTML=`<div class="h3k-h">${cube}<span><b>Maten uit het 3D-model</b><small>${d.laden?"Woning opzoeken in de laserscan van Nederland…":d.geen?"Dit adres staat (nog) niet in het 3D-model. Meet op de luchtfoto of een foto.":"Het 3D-model is nu niet bereikbaar. Meet op de luchtfoto of een foto."}</small></span></div>`;return}
+    const som=s=>d.randen.filter(r=>s.split("+").includes(r.soort)).reduce((a,r)=>a+r.m,0),fl=meetFL(),MS=edMeet();
+    const feit=(n,v)=>`<div><small>${n}</small><b>${v}</b></div>`;
+    const rij=MS.map(x=>{const b=typeof meetBron==="function"?meetBron(x):"";if(!b)return"";const v=Math.round(meetBronWaarde(d,b)*10)/10;if(!(v>0))return"";const eig=fl[x.id]>0,aan=!eig&&h3sel[x.id]>0;
+      return `<button type="button" data-h3="${esc(x.id)}" data-v="${v}" aria-pressed="${aan}"${eig?" disabled title='Al gemeten op een foto of de luchtfoto'":""}><i>${aan?"✓":""}</i>${esc(x.kort)} · ${h3Fm(v,1)} ${x.eenheid==="m2"?"m²":"m"}${eig?" (gemeten)":""}</button>`}).join("");
+    el.innerHTML=`<div class="h3k-h">${cube}<span><b>Maten uit het 3D-model</b><small>Laserscan${d.meetjaar?" "+esc(String(d.meetjaar).slice(0,4)):""} van Kadaster en TU Delft${d.bouwjaar?" · bouwjaar "+esc(d.bouwjaar):""}</small></span></div>
+      <div class="h3k-f">${feit("Goten",h3Fm(som("goot"),1)+" m")}${feit("Windveren",som("windveer")?h3Fm(som("windveer"),1)+" m":"geen")}${som("plat")?feit("Dakrand plat dak",h3Fm(som("plat"),1)+" m"):""}${d.gevel?feit("Gevels",h3Fm(d.gevel,0)+" m²"):""}${d.goothoogte?feit("Goothoogte",h3Fm(d.goothoogte,1)+" m"):""}${d.nokhoogte?feit("Nokhoogte",h3Fm(d.nokhoogte,1)+" m"):""}</div>
+      ${rij?`<div class="h3k-d">${rij}</div><p>Tik aan wat u meeneemt in de prijs. Muren tegen de buren tellen niet mee; een overstek staat niet in het model.</p>`:`<p>Koppel diensten aan deze maten bij Instellingen › Meetlint.</p>`}`;
+    el.querySelectorAll("[data-h3]").forEach(b=>b.onclick=()=>{const id=b.dataset.h3;if(h3sel[id]>0)delete h3sel[id];else h3sel[id]=+b.dataset.v;syncMeet();markStale();h3Teken()})}
   function luchtKnop(){const b=g("luchtBtn");if(!b)return;const MS=edMeet().filter(x=>x.eenheid==="m");b.hidden=!MS.length;const t=typeof luchtTotalen==="function"?luchtTotalen(lucht):{},nm=Object.keys(t).map(id=>{const x=MS.find(y=>y.id===id);return x?x.kort+" "+String(t[id]).replace(".",",")+" m":""}).filter(Boolean);
-    g("luchtSub").textContent=nm.length?"Gemeten: "+nm.join(" · "):"Goten en daklijsten op de cm, zoals Perceelloep"}
+    g("luchtSub").textContent=nm.length?"Gemeten: "+nm.join(" · "):"Goten en daklijsten op de cm, zoals Perceelloep";h3Ververs()}
   function syncMeet(){if(typeof Meetlint==="undefined")return;const t=meetTot();let veranderd=false;
     if(embed&&embed.onMeet){embed.onMeet(t,{...mSynced});mSynced={...t};luchtKnop();return true}
     new Set([...Object.keys(t),...Object.keys(mSynced)]).forEach(id=>{const nu=Number(ovr[id])||0,base=Math.max(0,nu-(mSynced[id]||0)),nw=Math.round((base+(t[id]||0))*10)/10;if(nw!==nu){setVal("o-"+id,nw,true);veranderd=true}});
@@ -598,7 +631,7 @@ const ICON={
     if(FREQ[t.freq])g("freq").value=t.freq;g("koz-yes").checked=!!t.koz;g("koz-no").checked=!t.koz;
     photos.forEach(p=>URL.revokeObjectURL(p.url));photos=[];
     for(const f of t.fotos||[]){try{const r=await fetch(BLOB+f.id);if(!r.ok)continue;const p=await loadPhoto(await r.blob());p.dots=(f.dots||[]).map(d=>({...d}));if(f.meet)p.meet=JSON.parse(JSON.stringify(f.meet));p.assetId=f.id;photos.push(p)}catch(e){}}
-    lucht=Array.isArray(t.lucht)?t.lucht.map(x=>({s:x.s,p:(x.p||[]).map(q=>[q[0],q[1]]),...(typeof x.m==="number"?{m:x.m,r:x.r}:{})})):[];mSynced=meetTot();luchtKnop();
+    h3sel=t.h3&&typeof t.h3==="object"?{...t.h3}:{};lucht=Array.isArray(t.lucht)?t.lucht.map(x=>({s:x.s,p:(x.p||[]).map(q=>[q[0],q[1]]),...(typeof x.m==="number"?{m:x.m,r:x.r}:{})})):[];mSynced=meetTot();luchtKnop();
     synced={};photos.forEach(p=>p.dots.forEach(d=>synced[d.t]=(synced[d.t]||0)+1));
     renderFloors();renderSpecial();renderPhotos();renderPhsum();
     const miss=(t.fotos||[]).length-photos.length;
@@ -608,7 +641,7 @@ const ICON={
   /* ---------- leegmaken na opslaan ---------- */
   let EMPTY_OUT="";
   function resetAll(){
-    photos.forEach(p=>URL.revokeObjectURL(p.url));photos=[];synced={};lucht=[];mSynced={};
+    photos.forEach(p=>URL.revokeObjectURL(p.url));photos=[];synced={};lucht=[];mSynced={};h3sel={};
     floors=[0,0,0,0];special={lood:0,mini:0,koepel:0,tuimel:0};ovr={};ovrFreq={};
     g("freq").value="m8";g("koz-no").checked=true;g("koz-yes").checked=false;
     hasResult=false;lastQ=null;lastR=null;lastText="";g("stale").hidden=true;if(embed&&embed.onCalc){const _e=embed;setTimeout(()=>{if(embed===_e&&_e.onCalc)_e.onCalc()},0)}
@@ -726,7 +759,7 @@ const ICON={
   }
   async function tellingFor(R,k){
     const up=await uploadPhotos();
-    const t={datum:iso(today()),floors:floors.slice(),special:{...special},overig:{...ovr},overigFreq:{...ovrFreq},...(lucht.length?{lucht}:{}),freq:R.fk,koz:R.koz,ramen:R.count,minuten:Math.ceil(R.sec/60),excl:r2(R.ex),incl:r2(R.inc),fotos:up.fotos};
+    const t={datum:iso(today()),floors:floors.slice(),special:{...special},overig:{...ovr},overigFreq:{...ovrFreq},...(lucht.length?{lucht}:{}),...(Object.keys(h3sel).length?{h3:{...h3sel}}:{}),freq:R.fk,koz:R.koz,ramen:R.count,minuten:Math.ceil(R.sec/60),excl:r2(R.ex),incl:r2(R.inc),fotos:up.fotos};
     return {t,fail:up.fail};
   }
   const objMet=(k,count)=>{const os=[...(k.objecten||[])];const i=os.findIndex(o=>o.id===k.objectId);const j=i>-1?i:0;
@@ -917,6 +950,7 @@ const ICON={
   root.querySelector(".form").addEventListener("input",e=>{if(e.target.id!=="ph-in"&&e.target.id!=="k-sel")markStale()});
   g("k-last").addEventListener("click",e=>{if(e.target.closest("#loadTel")){const k=state.klanten.find(x=>x.id===g("k-sel").value);if(k)loadTelling(k)}});
   /* foto's */
+  document.addEventListener("change",e=>{if(e.target&&/adres|pc|postcode|plaats|klant/i.test(e.target.id||e.target.name||""))setTimeout(h3Ververs,50)},true);
   g("luchtBtn").addEventListener("click",()=>{const k=klantForm();openLuchtMeten({adres:[k.adres,k.pc,k.plaats].filter(Boolean).join(" "),soorten:edMeet(),maten:lucht,onKlaar:m=>{lucht=m;syncMeet();markStale()}})});
   g("handm").addEventListener("click",()=>{const on=!host.hasAttribute("data-handmatig");setHandm(on);if(on){const c=g("cFloors");if(c)c.scrollIntoView({block:"start",behavior:"smooth"})}});
   g("ph-in").addEventListener("change",async e=>{const files=[...e.target.files];e.target.value="";

@@ -691,7 +691,9 @@ exports.controleNu = CONTROLE.controleNu;
 var MANSARD; MANSARD = require("./mansard")({ rawDb, T, onCall, onRequestRaw: _onRequest, HttpsError, nu, mollie, HOST, mfaOk: a => BEV.mfaBevestigd(a) });
 Object.assign(exports, MANSARD.functies);
 /* dakranden uit 3D BAG voor het meten op de luchtfoto */
-exports.huis3d = require("./huis3d")({ onCall, HttpsError, checkGebruiker }).huis3d;
+const H3D = require("./huis3d")({ onCall, onRequest, HttpsError, checkGebruiker });
+exports.huis3d = H3D.huis3d;
+exports.huis3dWeb = H3D.huis3dWeb;
 exports.ticketMelding = P.ticketMelding;
 exports.portaal = P.portaal;
 exports.portaalUitnodigen = P.portaalUitnodigen;
