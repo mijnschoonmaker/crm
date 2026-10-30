@@ -8,13 +8,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
-      - run: npm install --omit=dev --no-audit --no-fund
-        working-directory: functions
-      - run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > "$RUNNER_TEMP/sa.json"
-      - env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
-          P: ${{ vars.FIREBASE_PROJECT }}
-          NUMMER: ${{ inputs.nummer }}
-        run: node tools/diagnose.js
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "21" }
+      - run: |
+          npx --yes firebase-tools@13 emulators:exec --only firestore --project demo-mansard "python3 tests/regels.py" > out.txt 2>&1 || true
+          tail -40 out.txt | while IFS= read -r l; do echo "::warning::$l"; done
