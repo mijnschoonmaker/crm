@@ -443,9 +443,12 @@ function openFotoViewer(list,start,opt={}){
   let i=start,hist=[],mode="ramen",kleur="groen",nds=0,ty=opt.type||"f0";const canEdit=j=>typeof opt.edit==="function"?opt.edit(j):!!opt.edit;
   const TY=opt.typen===false?null:(Array.isArray(opt.typen)?opt.typen:DOT_TYPEN);
   const tellen=()=>{const c={};list.forEach(x=>(x.dots||[]).forEach(d=>{const t=d.t||"f0";c[t]=(c[t]||0)+1}));return c};
-  const ov=document.createElement("div");ov.className="fv";ov.setAttribute("role","dialog");ov.setAttribute("aria-modal","true");
-  (dlg.open?dlg:document.body).appendChild(ov);
-  const close=()=>{ov.remove();document.removeEventListener("keydown",key)};
+  /* boven een open venster (bijv. Tellingcontrole): eigen modaal venster in de bovenste laag. Als kind van het venster
+     viel hij in Safari binnen de randen van dat venster (bovenkant en knoppen weg). */
+  const opDlg=dlg.open&&typeof HTMLDialogElement!=="undefined";
+  const ov=document.createElement(opDlg?"dialog":"div");ov.className="fv"+(opDlg?" fv-dlg":"");if(!opDlg){ov.setAttribute("role","dialog");ov.setAttribute("aria-modal","true")}
+  document.body.appendChild(ov);if(opDlg){try{ov.showModal()}catch(e){}ov.addEventListener("cancel",e=>{e.preventDefault()})}
+  const close=()=>{try{if(ov.open)ov.close()}catch(e){}ov.remove();document.removeEventListener("keydown",key)};
   const key=e=>{if(e.key==="Escape"){e.preventDefault();e.stopPropagation();close()}else if(e.key==="ArrowRight")go(1);else if(e.key==="ArrowLeft")go(-1)};
   const go=d=>{if(list.length<2)return;i=(i+d+list.length)%list.length;hist=[];draw()};
   const draw=()=>{const f=list[i],ed=canEdit(i),n=(f.dots||[]).length,nm=(f.strokes||[]).length,ds=nds||Number(f.ds)||1,bw=Number(f.bw)||0.03;
