@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="db8c5936d536"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="1579af00a44a"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -17657,7 +17657,8 @@ function creditsOffertesCheck(){if(!state.loaded||(typeof isMw==="function"&&isM
 if(typeof window!=="undefined")setInterval(()=>{try{creditsOffertesCheck()}catch(e){}},15000);
 
 /* credits (portaal) toekennen als een review- of extra-dienst-ticket is opgelost; één keer per ticket */
-async function creditsVoorTicket(t){const vt=t.verzoek&&t.verzoek.type;if(vt!=="review"&&vt!=="extra")return;const k=state.klanten.find(x=>x.id===t.klantId);if(!k)return;
+/* extra dienst: géén credits bij het afsluiten van het ticket; die komen pas als de klant akkoord gaat met de offerte (creditsVoorOfferte) */
+async function creditsVoorTicket(t){const vt=t.verzoek&&t.verzoek.type;if(vt!=="review")return;const k=state.klanten.find(x=>x.id===t.klantId);if(!k)return;
   const s=S(),n=vt==="review"?0:(s.crExtra!=null&&s.crExtra!==""?Number(s.crExtra):3);if(!(n>0))return;
   const al=[...(k.tegoed||[]),...(k.tegoedGebruikt||[])].some(x=>x&&x.ref===t.id);if(al)return;
   if(vt==="extra"&&crExtraRecent(k))return;/* al credits via de getekende offerte voor deze extra dienst */
