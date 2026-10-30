@@ -342,3 +342,9 @@ document.addEventListener("click",async e=>{const b=e.target.closest&&e.target.c
     b.disabled=true;try{const cur=state.klanten.find(x=>x.id===id)||k;await save("klanten",id,{...strip(cur),...refKoppelPatch(cur,r)});toast("Gekoppeld aan "+cleanName(r.naam));kkHerteken(id)}catch(er){err(er);b.disabled=false}}});
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.classList&&e.target.classList.contains("ref-kk")){e.preventDefault();const b=e.target.parentElement.querySelector("[data-act=refkoppel]");if(b)b.click()}});
 function kkHerteken(id){try{const p=document.querySelector("dialog[open]");if(p&&typeof openKlantView==="function"&&p.querySelector(".kp"))setTimeout(()=>openKlantView(id),60);else render()}catch(e){}}
+/* eenmalige correctie (30-10-2026): credits voor een extra dienst die bij het afsluiten van het ticket werden gegeven, weer weghalen;
+   ze komen nu pas bij akkoord op de offerte. Alleen nog niet gebruikte credits van vandaag. */
+if(typeof window!=="undefined")setTimeout(async function w(){if(!state.loaded)return setTimeout(w,2000);if(typeof isMw==="function"&&isMw())return;
+  for(const k of state.klanten.filter(k=>(k.tegoed||[]).some(x=>x&&x.bron==="extra"&&/^tk/.test(String(x.ref||""))&&String(x.op||"")>="2026-10-30"))){
+    const weg=(k.tegoed||[]).filter(x=>x&&x.bron==="extra"&&/^tk/.test(String(x.ref||""))&&String(x.op||"")>="2026-10-30");
+    try{await save("klanten",k.id,{...strip(k),tegoed:(k.tegoed||[]).filter(x=>!weg.includes(x)),log:[...(k.log||[]),{datum:iso(today()),tekst:"Credits extra dienst (€ "+weg.reduce((a,x)=>a+Number(x.bedrag||0),0)+") teruggezet: die komen pas bij akkoord op de offerte"}]})}catch(e){console.error("credits terug",e)}}},4000);
