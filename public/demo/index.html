@@ -16670,6 +16670,14 @@ if(LIVE){
         R.innerHTML='<b style="color:var(--ok)">Klaar ✓</b> '+k+' onderdelen overgezet.';toast("Gegevens overgezet");controle()}
       catch(er){console.error(er);R.innerHTML='<span style="color:var(--late)">Overzetten stopte bij '+k+': '+esc(er.message||String(er))+'</span>'}}};
 }
+/* eenmalige correctie (30-10-2026): een online getekende offerte met alleen extra diensten (bijv. goten) zette de prijs van de
+   bestaande opdracht op € 0. Prijs, frequentie en duur terugzetten uit de eerdere offerte voor die opdracht. */
+if(typeof window!=="undefined")setTimeout(async function w(){if(!state.loaded)return setTimeout(w,2000);if(typeof isMw==="function"&&isMw())return;
+  for(const k of state.klanten.filter(k=>!(Number(k.prijs)>0)&&k.actief!==false&&(k.log||[]).some(l=>/online ondertekend .*€ 0,00 per beurt/.test(String(l.tekst||""))&&String(l.datum||"")>="2026-10-30"))){
+    const offs=state.facturen.filter(f=>f.soort==="offerte"&&f.klantId===k.id&&f.opdracht&&Number(f.opdracht.prijs)>0).sort((a,b)=>String(b.datum).localeCompare(String(a.datum)));
+    const lf=state.facturen.filter(f=>f.soort!=="offerte"&&f.klantId===k.id&&f.status!=="concept").sort((a,b)=>String(b.datum).localeCompare(String(a.datum)))[0];
+    const o=offs[0]&&offs[0].opdracht,p=o?Number(o.prijs):lf?(S().incl?totals(lf).inc:totals(lf).ex):0;if(!(p>0))continue;
+    try{await save("klanten",k.id,{...strip(k),prijs:r2(p),...(o&&o.frequentie?{frequentie:Number(o.frequentie)}:{}),...(o&&o.duur?{duur:Number(o.duur)}:{}),log:[...(k.log||[]),{datum:iso(today()),tekst:"Prijs per beurt teruggezet naar "+eur(p)+" (was door een offerte voor alleen extra diensten op € 0 gezet)"}]})}catch(e){console.error("prijs terug",e)}}},5000);
 
 /* ---------- Live locatie delen met de klanten van vandaag ----------
    Aan op de Route-pagina. De telefoon geeft om de paar seconden de plek door; het klantportaal laat de klanten
