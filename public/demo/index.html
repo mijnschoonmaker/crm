@@ -16921,11 +16921,11 @@ const PL_KLEUR=["#137a8a","#d9822b","#7b5cd6","#2f9e5b","#c0447a","#3b6fd8"];
 CC.mw=(()=>{try{return localStorage.getItem("ms.cc.mw")||""}catch(e){return""}})();
 const plNm=s=>{const n=String(s||"").trim().split(/[\s@._-]/)[0];return n?n.charAt(0).toUpperCase()+n.slice(1).toLowerCase():""};
 const plVers=L=>L&&L.actief&&L.datum===iso(today())&&Date.now()-Date.parse(L.ts||0)<5*60e3;
-/* demo: twee bussen, Mark en Sem, die elk een deel van de route rijden */
+/* demo: één bus (Mark) rijdt de route van vandaag */
 const plDemo=()=>!LIVE;
 const plDoorIdx=tikMemo("pld",day=>{const m={};state.beurten.forEach(x=>{if(x.datum===day&&x.door)(m[x.klantId]=m[x.klantId]||[]).push(x)});return m});
 function plWie(k,day,i,n){day=day||iso(today());
-  if(plDemo()){const R=routeStops(day),j=i!=null?i:R.findIndex(s=>s.k.id===k.id),t=n!=null?n:R.length;return j<Math.ceil(t/2)?"Mark":"Sem"}
+  if(plDemo())return "Mark";/* demo: vandaag rijdt één bus (Mark) de hele route */
   const b=(plDoorIdx(day)[k.id]||[]).slice().sort((a,c)=>String(c.op||"").localeCompare(String(a.op||"")))[0];if(b)return plNm(b.door);
   if(k.bezig&&k.bezigDoor)return plNm(k.bezigDoor);
   const w=((state.routes[day]||{}).wie||{})[k.id];return w?plNm(w):""}

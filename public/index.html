@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="e9b46e442301"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="3ebc94450e92"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -17317,11 +17317,11 @@ const PL_KLEUR=["#137a8a","#d9822b","#7b5cd6","#2f9e5b","#c0447a","#3b6fd8"];
 CC.mw=(()=>{try{return localStorage.getItem("ms.cc.mw")||""}catch(e){return""}})();
 const plNm=s=>{const n=String(s||"").trim().split(/[\s@._-]/)[0];return n?n.charAt(0).toUpperCase()+n.slice(1).toLowerCase():""};
 const plVers=L=>L&&L.actief&&L.datum===iso(today())&&Date.now()-Date.parse(L.ts||0)<5*60e3;
-/* demo: twee bussen, Mark en Sem, die elk een deel van de route rijden */
+/* demo: één bus (Mark) rijdt de route van vandaag */
 const plDemo=()=>!LIVE;
 const plDoorIdx=tikMemo("pld",day=>{const m={};state.beurten.forEach(x=>{if(x.datum===day&&x.door)(m[x.klantId]=m[x.klantId]||[]).push(x)});return m});
 function plWie(k,day,i,n){day=day||iso(today());
-  if(plDemo()){const R=routeStops(day),j=i!=null?i:R.findIndex(s=>s.k.id===k.id),t=n!=null?n:R.length;return j<Math.ceil(t/2)?"Mark":"Sem"}
+  if(plDemo())return "Mark";/* demo: vandaag rijdt één bus (Mark) de hele route */
   const b=(plDoorIdx(day)[k.id]||[]).slice().sort((a,c)=>String(c.op||"").localeCompare(String(a.op||"")))[0];if(b)return plNm(b.door);
   if(k.bezig&&k.bezigDoor)return plNm(k.bezigDoor);
   const w=((state.routes[day]||{}).wie||{})[k.id];return w?plNm(w):""}
