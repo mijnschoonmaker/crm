@@ -25,7 +25,7 @@ function openTellingControle(kid,na){const k=state.klanten.find(x=>x.id===kid);i
   /* foto's van de klant (uit de dienstenwebshop, met de aangetikte ramen) en eerder gemaakte controlefoto's */
   const tf0=[...(((k.ramenTelling||{}).fotos)||[]).filter(x=>x&&x.id).map((x,i)=>({...x,naam:x.zijde||("Foto "+(i+1)+" van de klant"),t:1})),...(k.fotos||[]).filter(x=>x&&x.id),...((gc&&gc.fotos)||[]).filter(x=>x&&x.id).map(x=>({...x,naam:"Controle · "+(x.zijde||"foto")}))].filter((x,i,a)=>a.findIndex(y=>y.id===x.id)===i);
   /* eigen kopie: stippen aanpassen raakt de klant pas bij opslaan */
-  const tf=tf0.map(x=>({...x,dots:(x.dots||[]).map(d=>({...d}))}));let stipAan=false;
+  const tf=tf0.map(x=>({...x,dots:(x.dots||[]).map(d=>({...d})),...(x.meet?{meet:JSON.parse(JSON.stringify(x.meet))}:{})}));let stipAan=false;
   openDlg(`<div class="dlg-head"><span class="objic big">${I.calculator}</span><div style="flex:1;min-width:0"><h3>Tellingcontrole</h3><div class="subt">${esc(cleanName(k.naam))} · ${esc(fullAddr(k))}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
     ${tcFotosHtml(tf)}
     <div class="tc-or"><span>${tf.length?"jouw telling":"tel zelf"}</span></div>
@@ -48,7 +48,7 @@ function openTellingControle(kid,na){const k=state.klanten.find(x=>x.id===kid);i
     f.splice(0,4,...nf);SPK.forEach(x=>sp[x]=ns[x]);if(SPK.some(x=>sp[x]))spOpen=true;stipAan=true;
     const g=$("#tcFg");if(g){const w=document.createElement("div");w.innerHTML=tcFotosHtml(tf);const ng=w.querySelector("#tcFg"),h=w.querySelector(".tc-fh small");if(ng)g.innerHTML=ng.innerHTML;const oh=document.querySelector(".tc-fh small");if(h&&oh)oh.textContent=h.textContent}
     draw()};
-  {const g=$("#tcFg");if(g)g.onclick=e=>{const b=e.target.closest("[data-tcf]");if(b)openFotoViewer(tf,+b.dataset.tcf,{edit:true,titelEdit:"Controleer de stippen · kies een soort en tik ramen aan of verbeter ze",onChange:()=>uitStippen()})}}
+  {const g=$("#tcFg");if(g)g.onclick=e=>{const b=e.target.closest("[data-tcf]");if(b)openFotoViewer(tf,+b.dataset.tcf,{edit:true,meet:typeof meetAan==="function"&&meetAan("telling")?meetSoorten():null,titelEdit:"Controleer de stippen · kies een soort en tik ramen aan of verbeter ze",onChange:()=>uitStippen()})}}
   if($("#tcAi"))$("#tcAi").onclick=()=>openFotoTelling(k,fotos,res=>{fotos=res.fotos;ai=true;f.splice(0,4,...res.f);SPK.forEach(x=>sp[x]=res.sp[x]||0);if(SPK.some(x=>sp[x]))spOpen=true;draw();
     $("#tcAi").classList.add("klaar");$("#tcAi>i").innerHTML=I.check;$("#tcAiS").textContent=`${res.fotos.length} foto's · ${totN()} ramen geteld. Tik om de foto's te bekijken of te verbeteren.`;
     $("#tcRows").animate([{opacity:.3,transform:"translateY(6px)"},{opacity:1,transform:"none"}],{duration:420,easing:"cubic-bezier(.2,.8,.2,1)"})});
@@ -60,13 +60,13 @@ function openTellingControle(kid,na){const k=state.klanten.find(x=>x.id===kid);i
     if(fotos&&fotos.length){b.innerHTML=I.camera+"Foto's bewaren…";const up=[];
       for(const p of fotos){try{const r=state.assets?await state.assets.upload(new File([p.blob],"telling-"+p.zijde.toLowerCase().replace(/\W+/g,"-")+".jpg",{type:"image/jpeg"})):null;if(r&&r.id)up.push({id:r.id,w:p.w,h:p.h,zijde:p.zijde,dots:p.dots.map(d=>({x:Math.round(d.x*1e4)/1e4,y:Math.round(d.y*1e4)/1e4,t:d.t}))})}catch(er){console.warn(er)}}
       if(up.length)fo=up}
-    const kd=x=>({id:x.id,...(x.w?{w:x.w,h:x.h}:{}),...(x.zijde?{zijde:x.zijde}:{}),dots:(x.dots||[]).map(d=>({x:d.x,y:d.y,...(d.t?{t:d.t}:{}),...(d.s&&d.s!==1?{s:d.s}:{})}))});
-    if(stipAan&&!(fotos&&fotos.length))fo=tf.filter(x=>(x.dots||[]).length).map(kd);
-    const nieuweDots=id=>{const x=tf.find(y=>y.id===id);return x?x.dots.map(d=>({...d})):null};
+    const kd=x=>({id:x.id,...(x.w?{w:x.w,h:x.h}:{}),...(x.zijde?{zijde:x.zijde}:{}),...(x.meet&&Meetlint.schoon(x.meet)?{meet:Meetlint.schoon(x.meet)}:{}),dots:(x.dots||[]).map(d=>({x:d.x,y:d.y,...(d.t?{t:d.t}:{}),...(d.s&&d.s!==1?{s:d.s}:{})}))});
+    if(stipAan&&!(fotos&&fotos.length))fo=tf.filter(x=>(x.dots||[]).length||x.meet).map(kd);
+    const nieuweDots=id=>{const x=tf.find(y=>y.id===id);return x?x.dots.map(d=>({...d})):null},nieuweMeet=id=>{const x=tf.find(y=>y.id===id);return x&&typeof Meetlint!=="undefined"?Meetlint.schoon(x.meet):null},metMeet=(x,d)=>{const m=nieuweMeet(x.id),y={...x,dots:d};if(m)y.meet=m;else delete y.meet;return y};
     const g={datum:iso(today()),voor:tv,na:tn,origF:voor,origSp:vsp,prijsVoor:p0,prijsNa:c?c.prijs:p0,...(ai||(gc&&gc.ai)?{ai:true}:{}),...(stipAan?{stippen:true}:{}),...(fo.length?{fotos:fo}:{})};
     const patch={tellingGecontroleerd:g,ramenRegel:fqVul(normR({...(cur.ramenRegel||{}),f:f.slice(),sp:{...sp}}),Number(cur.frequentie)||0),...(c?{prijs:c.prijs,...(!(cur.tijden||[]).length?{duur:c.duur}:{})}:{}),
-      ramenTelling:{...(cur.ramenTelling||{}),gecontroleerd:g,...(stipAan&&(cur.ramenTelling||{}).fotos?{fotos:cur.ramenTelling.fotos.map(x=>{const d=x&&nieuweDots(x.id);return d?{...x,dots:d}:x})}:{})},
-      ...(stipAan&&(cur.fotos||[]).length?{fotos:cur.fotos.map(x=>{const d=x&&nieuweDots(x.id);return d?{...x,dots:d}:x})}:{}),log:[...(cur.log||[]),{datum:iso(today()),tekst:(sm?`Tellingcontrole O-beurt: klopt (${tn} ramen)`:`Tellingcontrole O-beurt: ${tv} → ${tn} ramen · prijs ${eur(p0)} → ${eur(c?c.prijs:p0)}`)+(ai?" · geteld met foto's":"")+(stipAan?" · stippen op de foto's aangepast":"")}]};
+      ramenTelling:{...(cur.ramenTelling||{}),gecontroleerd:g,...(stipAan&&(cur.ramenTelling||{}).fotos?{fotos:cur.ramenTelling.fotos.map(x=>{const d=x&&nieuweDots(x.id);return d?metMeet(x,d):x})}:{})},
+      ...(stipAan&&(cur.fotos||[]).length?{fotos:cur.fotos.map(x=>{const d=x&&nieuweDots(x.id);return d?metMeet(x,d):x})}:{}),log:[...(cur.log||[]),{datum:iso(today()),tekst:(sm?`Tellingcontrole O-beurt: klopt (${tn} ramen)`:`Tellingcontrole O-beurt: ${tv} → ${tn} ramen · prijs ${eur(p0)} → ${eur(c?c.prijs:p0)}`)+(ai?" · geteld met foto's":"")+(stipAan?" · stippen op de foto's aangepast":"")}]};
     try{await save("klanten",kid,{...strip(cur),...patch});toast(sm?"Telling klopt · vastgelegd":"Telling aangepast · nieuwe prijs "+eur(c?c.prijs:p0)+" per beurt");dlg.close();render();if(typeof na==="function")na();
       if(typeof stuurDefinitief==="function"&&liveMail()&&S().ovDefinitiefAan!==false)setTimeout(async()=>{const kk=state.klanten.find(x=>x.id===kid)||cur;if(!kk.email){toast("Geen e-mailadres bij deze klant: het definitieve bestellingsoverzicht is niet verstuurd");return}
         if(await vraag("Definitief bestellingsoverzicht versturen?",`Weet je zeker dat je het definitieve bestellingsoverzicht wilt verzenden naar ${esc(kk.email)}? Daarin staan ${tn} ramen voor ${esc(eur(c?c.prijs:p0))} per beurt.`,"Ja, verzenden","Nog niet"))stuurDefinitief(kid,true);else toast("Niet verstuurd. Via Telling aanpassen bij de klant kun je het later alsnog versturen.")},400)}catch(er){b.disabled=false;err(er)}};

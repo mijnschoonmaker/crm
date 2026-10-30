@@ -1,0 +1,150 @@
+/* ---------- Meetlint: lengtes en vlakken meten op een foto ----------
+   Eerst een referentie (bijv. 4 bakstenen = 84 cm), daarna rekent Mansard elke lijn of rechthoek om naar meters.
+   Gedeeld door de rekentool, de tellingcontrole (fotoweergave) en de dienstenwebshop. Gegevens per foto:
+   foto.meet = {ref:{a:[x,y],b:[x,y],k,cm,n}, maten:[{s,a:[x,y],b:[x,y],r?:1,m?:handmatig}]}  (x,y van 0 tot 1) */
+(function(){
+  if(typeof window==="undefined"||window.Meetlint)return;
+  const REFS=[{k:"steen",n:"Baksteen",sub:"lengte",cm:21},{k:"laag",n:"Laag metselwerk",sub:"steen + voeg",cm:6.25},{k:"pan",n:"Dakpan",sub:"zichtbare breedte",cm:30},{k:"deur",n:"Voordeur",sub:"hoogte",cm:210},{k:"eigen",n:"Eigen maat",sub:"in cm",cm:100}];
+  const KLEUR=["#0090ff","#f76b15","#8e4ec6","#12a594","#e5484d","#d6409f","#3e63dd","#978365"],REFK="#ffc53d";
+  const css=`.ml-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:3}
+.ml-lab{position:absolute;z-index:4;transform:translate(-50%,-50%);display:inline-flex;align-items:center;gap:6px;padding:4px 9px 4px 6px;border-radius:99px;background:rgba(11,15,18,.82);color:#fff;font:700 11.5px/1.15 Inter,system-ui,sans-serif;white-space:nowrap;border:1px solid rgba(255,255,255,.22);box-shadow:0 4px 14px rgba(0,0,0,.35);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);cursor:pointer;font-variant-numeric:tabular-nums}
+.ml-lab i{width:9px;height:9px;border-radius:50%;background:var(--c);box-shadow:0 0 0 2px rgba(255,255,255,.85);flex:none}
+.ml-lab small{font-weight:600;color:#b9c2c9;font-size:10.5px}
+.ml-lab.ref{background:rgba(255,197,61,.95);color:#1d1a10;border-color:#fff}.ml-lab.ref small{color:#5b4d1c}.ml-lab.ref i{background:#1d1a10;box-shadow:none;width:7px;height:7px}
+.ml-on{cursor:crosshair!important;touch-action:none}
+.ml-bar{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;max-width:820px}
+.ml-bar button{display:inline-flex;align-items:center;gap:7px;min-height:34px;padding:0 12px 0 6px;border-radius:99px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#dfe4e8;font:700 12.5px/1 Inter,system-ui,sans-serif;cursor:pointer}
+.ml-bar button i{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--c);color:#fff;font-style:normal;border:2px solid #fff}
+.ml-bar button i svg{width:12px;height:12px}
+.ml-bar button b{padding:0 7px;height:20px;border-radius:99px;display:inline-grid;place-items:center;background:color-mix(in srgb,var(--c) 32%,transparent);color:#fff;font-size:11px;font-variant-numeric:tabular-nums}
+.ml-bar button[aria-checked="true"]{background:#fff;color:#0b0f12;border-color:#fff;box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 45%,transparent)}
+.ml-bar button[aria-checked="true"] b{background:var(--c)}
+.ml-bar.licht button{border-color:#dfe3e6;background:#fff;color:#14181f}.ml-bar.licht button b{color:#14181f}.ml-bar.licht button[aria-checked="true"]{background:#14181f;color:#fff;border-color:#14181f}.ml-bar.licht button[aria-checked="true"] b{color:#fff}.ml-bar.licht+.ml-tip{color:#6b7280}.ml-bar.licht+.ml-tip b{color:#a67c00}
+.ml-tip{width:100%;text-align:center;color:#9aa3ab;font:500 12px/1.45 Inter,system-ui,sans-serif}
+.ml-tip b{color:#ffc53d}
+.ml-sheet{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);z-index:30;width:min(420px,calc(100% - 24px));background:#fff;color:#14181f;border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.45);padding:16px 16px 14px;font:500 13.5px/1.4 Inter,system-ui,sans-serif;animation:mlIn .22s cubic-bezier(.2,.8,.2,1)}
+@keyframes mlIn{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+.ml-sheet h4{margin:0 0 2px;font:700 15px/1.3 Inter,system-ui,sans-serif;display:flex;align-items:center;gap:8px}
+.ml-sheet h4 i{width:10px;height:10px;border-radius:50%;background:var(--c);flex:none}
+.ml-sheet p{margin:0 0 12px;color:#6b7280;font-size:12.5px}
+.ml-refs{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:6px;margin-bottom:12px}
+.ml-refs button{display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:8px 10px;border-radius:12px;border:1.5px solid #e4e7ec;background:#fafbfc;color:#14181f;font:700 12.5px/1.2 Inter,system-ui,sans-serif;cursor:pointer;text-align:left}
+.ml-refs button small{font-weight:500;color:#6b7280;font-size:11px}
+.ml-refs button[aria-pressed="true"]{border-color:#c9a227;background:#fff8e1;box-shadow:0 0 0 3px rgba(255,197,61,.3)}
+.ml-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:12px}
+.ml-row label{flex:1;display:flex;flex-direction:column;gap:4px;font:600 11px/1 Inter,system-ui,sans-serif;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;margin:0}
+.ml-row input{width:100%;height:42px;border-radius:11px;border:1.5px solid #dfe3e6;padding:0 12px;font:700 16px Inter,system-ui,sans-serif;color:#14181f;background:#fff;box-sizing:border-box;font-variant-numeric:tabular-nums}
+.ml-row input:focus{outline:none;border-color:#14181f}
+.ml-row .x{padding-bottom:12px;color:#9aa1ad;font-weight:700}
+.ml-uit{font:700 13px Inter,system-ui,sans-serif;color:#14181f;margin:-4px 0 12px;font-variant-numeric:tabular-nums}
+.ml-uit small{font-weight:500;color:#6b7280}
+.ml-knop{display:flex;gap:8px}.ml-knop button{flex:1;height:42px;border-radius:11px;border:1px solid #dfe3e6;background:#fff;color:#14181f;font:700 13px Inter,system-ui,sans-serif;cursor:pointer}
+.ml-knop button.ok{background:#14181f;color:#fff;border-color:#14181f}.ml-knop button.weg{color:#c4323a;flex:0 0 auto;padding:0 14px}`;
+  const zetCss=root=>{root=root||document;const isDoc=root.nodeType===9;if(root.querySelector("#ml-css"))return;const d=isDoc?root:root.ownerDocument||document,st=d.createElement("style");st.id="ml-css";st.textContent=css;(isDoc?(root.head||root.documentElement):root).appendChild(st)};
+  const fmt=(v,d)=>(Math.round(v*Math.pow(10,d))/Math.pow(10,d)).toFixed(d).replace(".",",");
+  const num=t=>{const v=parseFloat(String(t||"").replace(",","."));return isFinite(v)?v:0};
+  const esc=t=>String(t==null?"":t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
+  const ICL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M3 17 17 3l4 4L7 21z"/><path d="M7 13l2 2M10 10l2 2M13 7l2 2"/></svg>';
+  /* afstand in "breedte-eenheden": x loopt 0..1 over de breedte, y 0..1 over de hoogte, dus y keer de verhouding h/w */
+  const dist=(a,b,asp)=>Math.hypot(b[0]-a[0],(b[1]-a[1])*asp);
+  const schaal=(meet,asp)=>{const r=meet&&meet.ref;if(!r||!r.a||!r.b)return 0;const d=dist(r.a,r.b,asp);return d>0.002?(num(r.cm)*Math.max(1,num(r.n)||1)/100)/d:0};
+  /* uitkomst van één meting: meters (lijn) of m² (rechthoek) */
+  function waarde(x,meet,asp){const sc=schaal(meet,asp);
+    if(x.r){const bw=x.bm!=null?num(x.bm):Math.abs(x.b[0]-x.a[0])*sc,hh=x.hm!=null?num(x.hm):Math.abs(x.b[1]-x.a[1])*asp*sc;return {bw,hh,v:bw*hh,schat:x.bm==null||x.hm==null,ok:!!(sc||(x.bm!=null&&x.hm!=null))}}
+    const v=x.m!=null?num(x.m):dist(x.a,x.b,asp)*sc;return {v,schat:x.m==null,ok:!!(sc||x.m!=null)}}
+  function totalen(fotos,soorten){const t={};(fotos||[]).forEach(f=>{const meet=f&&f.meet;if(!meet||!meet.maten)return;const asp=f.w&&f.h?f.h/f.w:0.75;
+      meet.maten.forEach(x=>{const w=waarde(x,meet,asp);if(w.ok)t[x.s]=(t[x.s]||0)+w.v})});
+    Object.keys(t).forEach(k=>t[k]=Math.round(t[k]*10)/10);return t}
+  function svgVoor(f,soorten,opt){const meet=f&&f.meet;if(!meet||(!meet.ref&&!(meet.maten||[]).length))return{svg:"",labs:""};
+    const asp=f.w&&f.h?f.h/f.w:0.75,H=Math.round(1000*asp),P=q=>[q[0]*1000,q[1]*H],klein=opt&&opt.klein,sw=klein?6:3.2;
+    const kl=s=>{const i=(soorten||[]).findIndex(x=>x.id===s);return i<0?"#9aa1ad":(soorten[i].kleur||KLEUR[i%KLEUR.length])};
+    let g="",labs="";
+    const lijn=(a,b,c,dash)=>{const [x1,y1]=P(a),[x2,y2]=P(b),L=Math.hypot(x2-x1,y2-y1)||1,nx=-(y2-y1)/L*9,ny=(x2-x1)/L*9;
+      return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="rgba(11,15,18,.55)" stroke-width="${sw+3.5}" stroke-linecap="round"/><line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="${sw}" stroke-linecap="round"${dash?` stroke-dasharray="14 9"`:""}/>`+
+        (klein?"":[[x1,y1],[x2,y2]].map(([x,y])=>`<line x1="${x-nx}" y1="${y-ny}" x2="${x+nx}" y2="${y+ny}" stroke="#fff" stroke-width="3" stroke-linecap="round"/><circle cx="${x}" cy="${y}" r="5.5" fill="${c}" stroke="#fff" stroke-width="2.5"/>`).join(""))};
+    if(meet.ref&&meet.ref.a&&meet.ref.b){g+=lijn(meet.ref.a,meet.ref.b,REFK,true);
+      if(!klein){const r=meet.ref,R=REFS.find(x=>x.k===r.k)||REFS[4],mx=(r.a[0]+r.b[0])/2,my=(r.a[1]+r.b[1])/2,tot=num(r.cm)*Math.max(1,num(r.n)||1);
+        labs+=`<span class="ml-lab ref" data-mlref style="left:${mx*100}%;top:${my*100}%"><i></i>${(num(r.n)||1)>1?esc(num(r.n)+" × "):""}${esc(R.n.toLowerCase())}<small>${tot>=100?fmt(tot/100,2)+" m":fmt(tot,tot%1?2:0)+" cm"}</small></span>`}}
+    (meet.maten||[]).forEach((x,j)=>{const c=kl(x.s),w=waarde(x,meet,asp),sn=((soorten||[]).find(s=>s.id===x.s)||{}).kort||"Meting";
+      if(x.r){const [x1,y1]=P(x.a),[x2,y2]=P(x.b);g+=`<rect x="${Math.min(x1,x2)}" y="${Math.min(y1,y2)}" width="${Math.abs(x2-x1)}" height="${Math.abs(y2-y1)}" rx="6" fill="${c}" fill-opacity=".2" stroke="${c}" stroke-width="${sw}"/>`;
+        if(!klein)labs+=`<span class="ml-lab" data-mlj="${j}" style="--c:${c};left:${(x.a[0]+x.b[0])*50}%;top:${(x.a[1]+x.b[1])*50}%"><i></i>${esc(sn)} ${w.ok?(w.schat?"≈ ":"")+fmt(w.v,1)+" m²":"?"}${w.ok?`<small>${fmt(w.bw,2)} × ${fmt(w.hh,2)} m</small>`:""}</span>`}
+      else{g+=lijn(x.a,x.b,c);if(!klein)labs+=`<span class="ml-lab" data-mlj="${j}" style="--c:${c};left:${(x.a[0]+x.b[0])/2*100}%;top:${(x.a[1]+x.b[1])/2*100}%"><i></i>${esc(sn)} ${w.ok?(w.schat?"≈ ":"")+fmt(w.v,1)+" m":"?"}</span>`}});
+    return{svg:`<svg class="ml-svg" viewBox="0 0 1000 ${H}" preserveAspectRatio="none" aria-hidden="true">${g}</svg>`,labs}}
+  /* soorten uit de diensten: alles wat per strekkende meter of per m² gaat */
+  function soortenUit(groepen){const L=[];(groepen||[]).forEach(g=>(g.items||[]).forEach(it=>{const e=String(it.eenheid||"").toLowerCase();
+      const m2=/m²|m2|vierkante/.test(e),m=!m2&&/strekkend|meter|\bm\b|per m$/.test(e);if(!m&&!m2)return;
+      const naam=String(it.naam||"").trim(),een=(g.items||[]).length===1&&g.naam&&!new RegExp(String(g.naam).split(" ")[0],"i").test(naam),kort=een?String(g.naam):(naam.split(/,|\(/)[0].replace(/\s+etc\.?$/i,"").trim()||naam);
+      L.push({id:String(it.id),naam:(g.naam&&!new RegExp(g.naam,"i").test(naam)&&(g.items||[]).length>1?g.naam+" · ":"")+naam,kort,eenheid:m2?"m2":"m",prijs:Number(it.prijs)||0})}));
+    return L.map((s,i)=>({...s,kleur:KLEUR[i%KLEUR.length]}))}
+
+  /* koppelen aan een foto-element. o = {wrap, foto:()=>foto-object, soorten, host, licht, onChange} */
+  function attach(o){zetCss(o.wrap.getRootNode?o.wrap.getRootNode():document);let aan=false,cur=o.start||"ref",drag=null,sheet=null;
+    const f=()=>o.foto(),asp=()=>{const x=f();return x&&x.w&&x.h?x.h/x.w:(o.wrap.clientHeight&&o.wrap.clientWidth?o.wrap.clientHeight/o.wrap.clientWidth:0.75)};
+    const meet=()=>{const x=f();if(!x)return null;if(!x.meet)x.meet={maten:[]};if(!x.meet.maten)x.meet.maten=[];return x.meet};
+    const so=()=>o.soorten||[];
+    const pt=e=>{const b=o.wrap.getBoundingClientRect();return[Math.round(Math.min(1,Math.max(0,(e.clientX-b.left)/b.width))*1e4)/1e4,Math.round(Math.min(1,Math.max(0,(e.clientY-b.top)/b.height))*1e4)/1e4]};
+    const wijzig=()=>{teken();if(o.onChange)o.onChange()};
+    function teken(){o.wrap.querySelectorAll(".ml-svg,.ml-lab").forEach(n=>n.remove());const x=f();if(!x)return;const fx=x.w?x:{...x,w:o.wrap.clientWidth,h:o.wrap.clientHeight};
+      const r=svgVoor(fx,so());if(r.svg)o.wrap.insertAdjacentHTML("beforeend",r.svg+r.labs);
+      o.wrap.querySelectorAll(".ml-lab").forEach(l=>{l.style.pointerEvents=aan?"auto":"none"});if(o.bar)o.bar()}
+    function sluitSheet(){if(sheet){sheet.remove();sheet=null}}
+    function maakSheet(html){sluitSheet();sheet=document.createElement("div");sheet.className="ml-sheet";sheet.innerHTML=html;(o.host||o.wrap.parentElement).appendChild(sheet);
+      sheet.addEventListener("pointerdown",e=>e.stopPropagation());sheet.addEventListener("click",e=>e.stopPropagation());
+      setTimeout(()=>{const i=sheet&&sheet.querySelector("input");if(i){i.focus();i.select&&i.select()}},60);return sheet}
+    function refSheet(nieuw){const m=meet(),r=m.ref;let k=r.k||"steen",n=num(r.n)||1,cm=num(r.cm)||21;
+      const s=maakSheet(`<h4 style="--c:${REFK}"><i></i>Referentie</h4><p>Wat heeft u opgemeten? Meet bij voorkeur over meerdere stenen of pannen, vlak bij wat u wilt meten.</p>
+        <div class="ml-refs">${REFS.map(R=>`<button type="button" data-k="${R.k}" aria-pressed="${R.k===k}">${R.n}<small>${R.sub}${R.k!=="eigen"?" · "+fmt(R.cm,R.cm%1?2:0)+" cm":""}</small></button>`).join("")}</div>
+        <div class="ml-row"><label>Aantal<input type="text" inputmode="numeric" data-n value="${n}"></label><span class="x">×</span><label>Maat (cm)<input type="text" inputmode="decimal" data-cm value="${fmt(cm,cm%1?2:0)}"></label></div>
+        <div class="ml-uit" data-uit></div><div class="ml-knop">${nieuw?"":`<button type="button" class="weg" data-weg>Wissen</button>`}<button type="button" data-af>Annuleren</button><button type="button" class="ok" data-ok>Gebruiken</button></div>`);
+      const nI=s.querySelector("[data-n]"),cI=s.querySelector("[data-cm]"),uit=()=>{const t=num(cI.value)*Math.max(1,num(nI.value)||1);s.querySelector("[data-uit]").innerHTML=`= ${t>=100?fmt(t/100,2)+" m":fmt(t,1)+" cm"} <small>· alle metingen op deze foto rekenen hiermee</small>`};uit();
+      s.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{k=b.dataset.k;s.querySelectorAll("[data-k]").forEach(x=>x.setAttribute("aria-pressed",x===b));const R=REFS.find(x=>x.k===k);if(k!=="eigen")cI.value=fmt(R.cm,R.cm%1?2:0);uit();if(k==="eigen")cI.focus()});
+      nI.oninput=cI.oninput=uit;
+      const ok=()=>{const c=num(cI.value);if(!(c>0)){cI.focus();return}const R0=REFS.find(x=>x.k===k);if(R0&&k!=="eigen"&&Math.abs(R0.cm-c)>0.001)k="eigen";m.ref={...m.ref,k,cm:c,n:Math.max(1,Math.round(num(nI.value)||1))};sluitSheet();if(cur==="ref"&&so().length)cur=so()[0].id;wijzig()};
+      s.querySelector("[data-ok]").onclick=ok;s.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();ok()}if(e.key==="Escape"){e.stopPropagation();s.querySelector("[data-af]").click()}});
+      s.querySelector("[data-af]").onclick=()=>{if(nieuw)delete m.ref;sluitSheet();teken()};
+      const w=s.querySelector("[data-weg]");if(w)w.onclick=()=>{delete m.ref;sluitSheet();cur="ref";wijzig()}}
+    function maatSheet(j,nieuw){const m=meet(),x=m.maten[j];if(!x)return;const sx=so().find(s=>s.id===x.s)||{naam:"Meting",kleur:"#9aa1ad",eenheid:x.r?"m2":"m"},w=waarde(x,m,asp()),c=sx.kleur;
+      const s=maakSheet(`<h4 style="--c:${c}"><i></i>${esc(sx.naam)}</h4><p>${w.ok?(w.schat?"Geschat met de referentie. Klopt het niet? Pas de maat aan.":"Zelf ingevulde maat."):"Nog geen referentie op deze foto: vul de maat zelf in, of teken eerst een referentie."}</p>
+        ${x.r?`<div class="ml-row"><label>Breedte (m)<input type="text" inputmode="decimal" data-bw value="${w.ok?fmt(w.bw,2):""}"></label><span class="x">×</span><label>Hoogte (m)<input type="text" inputmode="decimal" data-hh value="${w.ok?fmt(w.hh,2):""}"></label></div>`
+          :`<div class="ml-row"><label>Lengte (m)<input type="text" inputmode="decimal" data-m value="${w.ok?fmt(w.v,2):""}"></label></div>`}
+        ${so().length>1?`<div class="ml-refs">${so().filter(z=>(z.eenheid==="m2")===!!x.r).map(z=>`<button type="button" data-s="${esc(z.id)}" aria-pressed="${z.id===x.s}" style="--c:${z.kleur}">${esc(z.kort)}<small>${z.eenheid==="m2"?"per m²":"per meter"}</small></button>`).join("")}</div>`:""}
+        <div class="ml-knop"><button type="button" class="weg" data-weg>Wissen</button><button type="button" data-af>${nieuw?"Zo laten":"Annuleren"}</button><button type="button" class="ok" data-ok>Opslaan</button></div>`);
+      let ns=x.s;s.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{ns=b.dataset.s;s.querySelectorAll("[data-s]").forEach(z=>z.setAttribute("aria-pressed",z===b))});
+      const ok=()=>{const y={...x,s:ns};if(x.r){const a=s.querySelector("[data-bw]").value,b=s.querySelector("[data-hh]").value;
+          if(a!==(w.ok?fmt(w.bw,2):""))y.bm=num(a);if(b!==(w.ok?fmt(w.hh,2):""))y.hm=num(b)}
+        else{const v=s.querySelector("[data-m]").value;if(v!==(w.ok?fmt(w.v,2):""))y.m=num(v)}
+        m.maten[j]=y;sluitSheet();wijzig()};
+      s.querySelector("[data-ok]").onclick=ok;s.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();ok()}if(e.key==="Escape"){e.stopPropagation();sluitSheet()}});
+      s.querySelector("[data-af]").onclick=()=>{sluitSheet();if(nieuw)wijzig()};
+      s.querySelector("[data-weg]").onclick=()=>{m.maten.splice(j,1);sluitSheet();wijzig()}}
+    /* tekenen met slepen */
+    const down=e=>{if(!aan)return;if(e.target.closest(".ml-lab,.ml-sheet"))return;e.preventDefault();e.stopPropagation();sluitSheet();
+      try{o.wrap.setPointerCapture(e.pointerId)}catch(_){}const p=pt(e),sx=so().find(s=>s.id===cur),r=cur!=="ref"&&sx&&sx.eenheid==="m2";drag={a:p,b:p,r,ref:cur==="ref"};
+      const x=f();x.meet=x.meet||{maten:[]};const tmp=drag.ref?{...x.meet,ref:{...(x.meet.ref||{k:"steen",cm:21,n:1}),a:p,b:p}}:{...x.meet,maten:[...(x.meet.maten||[]),{s:cur,a:p,b:p,...(r?{r:1}:{})}]};drag.tmp=tmp;drag.orig=x.meet};
+    const move=e=>{if(!drag)return;e.preventDefault();drag.b=pt(e);const x=f();if(drag.ref)drag.tmp.ref.b=drag.b;else drag.tmp.maten[drag.tmp.maten.length-1].b=drag.b;x.meet=drag.tmp;teken();x.meet=drag.orig};
+    const up=e=>{if(!drag)return;const d=drag;drag=null;const x=f(),lang=dist(d.a,d.b,asp())>0.012;
+      if(!lang){teken();return}
+      x.meet=d.tmp;if(d.ref){teken();refSheet(!d.orig||!d.orig.ref)}else{const j=x.meet.maten.length-1;teken();if(o.onChange)o.onChange();if(!schaal(x.meet,asp()))maatSheet(j,true)}};
+    const klik=e=>{if(!aan)return;const l=e.target.closest(".ml-lab");e.stopPropagation();e.preventDefault();if(!l)return;if(l.hasAttribute("data-mlref"))refSheet(false);else maatSheet(+l.dataset.mlj,false)};
+    o.wrap.addEventListener("pointerdown",down,true);o.wrap.addEventListener("pointermove",move,true);o.wrap.addEventListener("pointerup",up,true);o.wrap.addEventListener("pointercancel",up,true);o.wrap.addEventListener("click",klik,true);
+    /* knoppenbalk: Referentie + soorten met totalen */
+    function barHtml(totaal){const m=f()&&f().meet,heeftRef=!!(m&&m.ref);
+      const t=totaal||totalen([f()],so());
+      return `<div class="ml-bar${o.licht?" licht":""}" role="radiogroup" aria-label="Wat meet u">
+        <button type="button" role="radio" data-mls="ref" aria-checked="${cur==="ref"}" style="--c:${REFK}"><i style="color:#1d1a10">${ICL}</i>Referentie${heeftRef?"<b style='color:#1d1a10'>✓</b>":""}</button>
+        ${so().map(s=>`<button type="button" role="radio" data-mls="${esc(s.id)}" aria-checked="${cur===s.id}" style="--c:${s.kleur}"><i></i>${esc(s.kort)}${t[s.id]?`<b>${fmt(t[s.id],1)} ${s.eenheid==="m2"?"m²":"m"}</b>`:""}</button>`).join("")}</div>
+        <div class="ml-tip">${heeftRef?(cur==="ref"?"Sleep opnieuw om de <b>referentie</b> te verplaatsen.":so().find(s=>s.id===cur&&s.eenheid==="m2")?"Trek een rechthoek over het vlak. Tik op een label om de maat aan te passen.":"Sleep van begin tot eind langs wat u meet. Tik op een label om de maat aan te passen."):"Begin met een <b>referentie</b>: sleep over iets waarvan u de maat kent, bijvoorbeeld 4 bakstenen of 3 dakpannen."}</div>`}
+    function bindBar(el){el.querySelectorAll("[data-mls]").forEach(b=>b.onclick=()=>{cur=b.dataset.mls;sluitSheet();if(o.bar)o.bar()})}
+    teken();
+    return{aan:v=>{aan=!!v;o.wrap.classList.toggle("ml-on",aan);if(aan&&cur!=="ref"&&!so().some(s=>s.id===cur))cur="ref";if(aan&&f()&&f().meet&&f().meet.ref&&cur==="ref"&&so().length)cur=so()[0].id;if(!aan)sluitSheet();teken()},
+      teken,barHtml,bindBar,sluit:sluitSheet,
+      wis:()=>{const x=f();if(x&&x.meet){delete x.meet;wijzig()}},
+      ongedaan:()=>{const m=f()&&f().meet;if(m&&m.maten&&m.maten.length){m.maten.pop();wijzig();return true}return false},
+      weg:()=>{sluitSheet();o.wrap.removeEventListener("pointerdown",down,true);o.wrap.removeEventListener("pointermove",move,true);o.wrap.removeEventListener("pointerup",up,true);o.wrap.removeEventListener("pointercancel",up,true);o.wrap.removeEventListener("click",klik,true)}}}
+  /* opslaan: alleen wat nodig is, afgerond */
+  const r4=v=>Math.round(v*1e4)/1e4;
+  function schoon(meet){if(!meet||(!meet.ref&&!(meet.maten||[]).length))return null;const o={};
+    if(meet.ref&&meet.ref.a)o.ref={a:meet.ref.a.map(r4),b:meet.ref.b.map(r4),k:meet.ref.k||"eigen",cm:num(meet.ref.cm),n:Math.max(1,num(meet.ref.n)||1)};
+    o.maten=(meet.maten||[]).filter(x=>x&&x.a&&x.b).map(x=>({s:String(x.s),a:x.a.map(r4),b:x.b.map(r4),...(x.r?{r:1}:{}),...(x.m!=null?{m:num(x.m)}:{}),...(x.bm!=null?{bm:num(x.bm)}:{}),...(x.hm!=null?{hm:num(x.hm)}:{})}));return o}
+  window.Meetlint={attach,totalen,svgVoor,soortenUit,schoon,zetCss,REFS}
+})();

@@ -4,6 +4,7 @@ OUT=sys.argv[1] if len(sys.argv)>1 else '../glazenwasser-crm.html'
 css=open('style.css').read()+"\n"+open('pages.css').read()
 thema=open('thema.css').read()
 js="\n".join(open(f).read() for f in sorted(glob.glob('[0-9][0-9]-*.js')))
+js=open(os.path.join(D,'kc','meetlint.js')).read()+"\n"+js
 import json
 js="const FRAMER_TPL="+json.dumps(open(os.path.join(D,'kc','framer_tpl.tsx')).read()).replace("</","<\\/")+";\n"+js
 js="const KC_TPL="+json.dumps(open(os.path.join(D,'klantcalculator.html')).read()).replace("</","<\\/")+";\n"+js

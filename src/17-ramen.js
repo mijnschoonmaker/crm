@@ -121,6 +121,14 @@ textarea.in{height:auto;padding:12px 14px;resize:vertical;line-height:1.45}
 .ed-types button[aria-checked="true"]{border-color:#fff;color:#0b0d0e;background:#fff}
 .ed-types button[aria-checked="true"] b{color:#0b0d0e}
 .ed-bar{display:flex;gap:8px;padding-top:12px}
+.ed-stage{position:relative}
+.ed-mode{display:flex;gap:4px;padding:4px;border-radius:13px;background:#161b1e;border:1px solid #2a3136;margin-top:12px;width:max-content;max-width:100%}
+
+.ed-mode.licht{background:#f2f4f6;border-color:#e4e7ec}.ed-mode.licht button{color:#3a4250}.ed-mode.licht button[aria-pressed="true"]{background:#14181f;color:#fff}
+.ed-mode button{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:10px;border:0;background:transparent;color:#c9d1d6;font:700 13px var(--f-ui);cursor:pointer}
+.ed-mode button[aria-pressed="true"]{background:#fff;color:#0b0d0e}
+.ed-mode i{width:14px;height:14px;border-radius:50%;background:#e5484d;display:grid;place-items:center}.ed-mode i.em-m{border-radius:4px;background:#ffc53d;color:#1d1a10}.ed-mode i svg{width:11px;height:11px}
+.ed-mlb{padding-top:12px}.ed-mlb .ml-bar{justify-content:flex-start}.ed-mlb .ml-tip{text-align:left;margin-top:8px}
 .ed-bar button{flex:1;height:48px;border-radius:14px;border:1px solid #2a3136;background:#161b1e;color:#fff;font:700 15px var(--f-ui);cursor:pointer}
 .ed-bar .done{background:#fff;color:#0b0d0e;border-color:#fff}
 .options{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:14px}
@@ -349,6 +357,8 @@ const RC_ED=`<div class="ed" id="ed" hidden role="dialog" aria-modal="true" aria
   <div class="ed-top"><div><b id="ed-title">Markeer de ramen</b><br><span id="ed-msg">Kies hieronder wat je aantikt en tik op elk raam. Tik op een stip om hem weg te halen.</span></div></div>
   <div class="ed-stage"><div class="ed-wrap" id="ed-wrap"><img id="ed-img" alt="Foto van de woning"></div></div>
   <div class="ed-tally" id="ed-tally" aria-live="polite"></div>
+  <div class="ed-mode" id="ed-mode" role="group" aria-label="Gereedschap" hidden><button type="button" data-em="ramen" aria-pressed="true"><i class="em-r"></i>Ramen</button><button type="button" data-em="meten" aria-pressed="false"><i class="em-m"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 17 17 3l4 4L7 21z"/><path d="M7 13l2 2M10 10l2 2M13 7l2 2"/></svg></i>Meetlint</button></div>
+  <div class="ed-mlb" id="ed-mlb" hidden></div>
   <div class="ed-lab">Ik tik nu aan:</div>
   <div class="ed-types" id="ed-types" role="radiogroup" aria-label="Soort raam voor nieuwe stippen"></div>
   <div class="ed-bar"><button type="button" id="ed-undo">Ongedaan</button><button type="button" id="ed-clear">Alles wissen</button><button type="button" class="done" id="ed-done">Klaar</button></div>
@@ -472,13 +482,13 @@ const ICON={
       return `<details class="ovg"${n||ovOpen.has(d.groep)?" open":""} data-g="${esc(d.groep)}"><summary>${esc(d.naam)}<em>${n?eur(c.ex)+" excl. · "+esc(freqLabel(ovrFreq[d.groep]||glasW()).toLowerCase()):""}</em></summary><div class="ovf"><label for="ovf-${esc(d.groep)}">Frequentie</label><select id="ovf-${esc(d.groep)}" data-ovf="${esc(d.groep)}">${(()=>{const cur=ovrFreq[d.groep]||(d.freqAdvies&&(!d.freqs||d.freqs.includes(d.freqAdvies))?d.freqAdvies:0)||glasW();return freqOpts(cur).filter(w=>!d.freqs||d.freqs.includes(w)||w===cur).map(w=>`<option value="${w}" ${w===cur?"selected":""}>${esc(freqLabel(w))}</option>`).join("")})()}</select></div><div class="rows">${d.items.map(it=>`<div class="row${Number(ovr[it.id])?" on":""}"><div class="pic">${OV_IC}</div><div><div class="name">${esc(it.naam)}</div><div class="sub">${eur(it.prijs)} ${esc(it.eenheid)} · ${it.sec} sec</div></div>${stepper("o-"+it.id,Number(ovr[it.id])||0,it.naam)}</div>`).join("")}</div></details>`}).join("")+(verborgen?`<button type="button" class="ovmeer" id="ovMeer">+ Meer diensten (${verborgen})</button>`:"");const mb=g("ovMeer");if(mb)mb.onclick=()=>{ovMore=true;renderOverig(true)}}
   function ovrRows(o){if(!o&&host.hasAttribute("data-offerte"))return [];const src=o||ovr,rows=[];ovrList().forEach(d=>{const items=d.items.map(it=>({...it,aantal:Number(src[it.id])||0})).filter(it=>it.aantal>0);if(!items.length)return;const c=itemsCalc(items);
       const fw=Number(ovrFreq[d.groep])||glasW(),fk=typeof dienstFreqFactor==="function"?dienstFreqFactor(d.groep,fw):1;rows.push({n:d.naam,groep:d.groep,frequentie:fw,d:items.map(it=>it.naam.toLowerCase()+" "+String(it.aantal).replace(".",",")+" "+eenhKort(it.eenheid)).join(", "),c:items.reduce((a,it)=>a+it.aantal,0),sec:c.sec,price:r2(c.ex*fk),items})});return rows}
-  function setVal(id,v){v=Math.max(0,Math.min(500,Math.round(Number(v)||0)));
+  function setVal(id,v,dec){v=Math.max(0,Math.min(500,dec?Math.round((Number(v)||0)*10)/10:Math.round(Number(v)||0)));
     if(id.startsWith("o-")){ovr[id.slice(2)]=v;const el=g(id);if(el){el.value=v;el.closest(".row").classList.toggle("on",v>0)}const dd=el&&el.closest(".ovg");if(dd){const L=ovrList().find(x=>x.groep===dd.dataset.g);if(L){const c=itemsCalc(L.items.map(it=>({...it,aantal:Number(ovr[it.id])||0})));dd.querySelector("summary em").textContent=c.ex?eur(c.ex)+" excl.":""}}markStale();return}
     if(id.startsWith("s-"))special[id.slice(2)]=v;else floors[+id.slice(1)]=v;
     const el=g(id);if(el){el.value=v;el.closest(".row").classList.toggle("on",v>0)}updateCount();markStale()}
 
   /* ---------- foto's met stippen ---------- */
-  let photos=[],edIdx=-1;
+  let photos=[],edIdx=-1,edMode="ramen",edMl=null,mSynced={};
   function loadPhoto(file){
     return new Promise((res,rej)=>{const u=URL.createObjectURL(file);const im=new Image();
       im.onload=()=>{const max=1600,k=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight));
@@ -524,8 +534,21 @@ const ICON={
     const getV=t=>t.startsWith("s-")?(special[t.slice(2)]||0):(floors[+t.slice(1)]||0);
     new Set([...Object.keys(cnt),...Object.keys(synced)]).forEach(t=>{if(g(t)){const base=Math.max(0,getV(t)-(synced[t]||0));setVal(t,base+(cnt[t]||0))}});
     synced={...cnt};renderPhsum()}
-  function openEd(i){ge("ed-undo").onclick=undo1;ge("ed-msg").textContent="Kies hieronder wat je aantikt en tik op elk raam. Tik op een stip om hem weg te halen.";if(!edDlg.open)edDlg.showModal();edIdx=i;ge("ed-img").src=photos[i].url;ge("ed").hidden=false;document.body.style.overflow="hidden";renderDots();requestAnimationFrame(fitEd)}
-  function closeEd(){ge("ed").hidden=true;if(ge("pv").hidden&&edDlg.open)edDlg.close();document.body.style.overflow="";edIdx=-1;renderPhotos();syncFromPhotos();markStale()}
+  const edMeet=()=>typeof Meetlint!=="undefined"&&typeof meetAan==="function"&&meetAan("rekentool")?meetSoorten():[];
+  function edZetMode(m){edMode=m;const met=m==="meten";ge("ed-mode").querySelectorAll("[data-em]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.em===m));
+    ge("ed-types").hidden=met;eroot.querySelector(".ed-lab").hidden=met;ge("ed-mlb").hidden=!met;
+    ge("ed-msg").textContent=met?"Sleep eerst een referentie over iets waarvan u de maat kent, daarna meet u goten, windveren of beplating.":"Kies hieronder wat je aantikt en tik op elk raam. Tik op een stip om hem weg te halen.";
+    if(edMl){edMl.aan(met);if(met){const b=ge("ed-mlb");b.innerHTML=edMl.barHtml();edMl.bindBar(b)}}}
+  function openEd(i){ge("ed-undo").onclick=undo1;ge("ed-msg").textContent="Kies hieronder wat je aantikt en tik op elk raam. Tik op een stip om hem weg te halen.";if(!edDlg.open)edDlg.showModal();edIdx=i;ge("ed-img").src=photos[i].url;ge("ed").hidden=false;document.body.style.overflow="hidden";renderDots();requestAnimationFrame(()=>{fitEd();
+      if(edMl){edMl.weg();edMl=null}const MS=edMeet();ge("ed-mode").hidden=!MS.length;ge("ed-mode").classList.toggle("licht",getComputedStyle(ge("ed")).backgroundColor.replace(/[^\d,]/g,"").split(",").slice(0,3).reduce((a,b)=>a+ +b,0)>600);
+      if(MS.length||(photos[edIdx]&&photos[edIdx].meet))edMl=Meetlint.attach({licht:getComputedStyle(ge("ed")).backgroundColor.replace(/[^\d,]/g,"").split(",").slice(0,3).reduce((a,b)=>a+ +b,0)>600,wrap:ge("ed-wrap"),foto:()=>{const p=photos[edIdx];if(p&&!p.w){p.w=p.cv.width;p.h=p.cv.height}return p},soorten:MS.length?MS:meetSoorten(),host:eroot.querySelector(".ed-stage"),
+        bar:()=>{const b=ge("ed-mlb");if(b&&edMl&&!b.hidden){b.innerHTML=edMl.barHtml(Meetlint.totalen(photos.map(p=>({...p,w:p.cv.width,h:p.cv.height})),MS));edMl.bindBar(b)}}});
+      edZetMode(MS.length?edMode:"ramen")})}
+  /* gemeten meters en m² in de prijs: bij de diensten met dezelfde naam (Uitvoering › Diensten); zelf ingevulde aantallen blijven staan */
+  function syncMeet(){if(typeof Meetlint==="undefined")return;const t=Meetlint.totalen(photos.map(p=>({...p,w:p.cv.width,h:p.cv.height})),edMeet());let veranderd=false;
+    new Set([...Object.keys(t),...Object.keys(mSynced)]).forEach(id=>{const nu=Number(ovr[id])||0,base=Math.max(0,nu-(mSynced[id]||0)),nw=Math.round((base+(t[id]||0))*10)/10;if(nw!==nu){setVal("o-"+id,nw,true);veranderd=true}});
+    mSynced={...t};return veranderd}
+  function closeEd(){if(edMl){edMl.sluit();edMl.aan(false)}syncMeet();ge("ed").hidden=true;if(ge("pv").hidden&&edDlg.open)edDlg.close();document.body.style.overflow="";edIdx=-1;renderPhotos();syncFromPhotos();markStale()}
 
   /* ---------- klant ---------- */
   const val=id=>g(id).value.trim();
@@ -557,7 +580,8 @@ const ICON={
     special={lood:0,mini:0,koepel:0,tuimel:0,...(t.special||{})};ovr={...(t.overig||{})};ovrFreq={...(t.overigFreq||{})};renderOverig(true);
     if(FREQ[t.freq])g("freq").value=t.freq;g("koz-yes").checked=!!t.koz;g("koz-no").checked=!t.koz;
     photos.forEach(p=>URL.revokeObjectURL(p.url));photos=[];
-    for(const f of t.fotos||[]){try{const r=await fetch(BLOB+f.id);if(!r.ok)continue;const p=await loadPhoto(await r.blob());p.dots=(f.dots||[]).map(d=>({...d}));p.assetId=f.id;photos.push(p)}catch(e){}}
+    for(const f of t.fotos||[]){try{const r=await fetch(BLOB+f.id);if(!r.ok)continue;const p=await loadPhoto(await r.blob());p.dots=(f.dots||[]).map(d=>({...d}));if(f.meet)p.meet=JSON.parse(JSON.stringify(f.meet));p.assetId=f.id;photos.push(p)}catch(e){}}
+    mSynced=typeof Meetlint!=="undefined"?Meetlint.totalen(photos.map(p=>({...p,w:p.cv.width,h:p.cv.height})),[]):{};
     synced={};photos.forEach(p=>p.dots.forEach(d=>synced[d.t]=(synced[d.t]||0)+1));
     renderFloors();renderSpecial();renderPhotos();renderPhsum();
     const miss=(t.fotos||[]).length-photos.length;
@@ -669,7 +693,7 @@ const ICON={
     if(state.assets)for(let i=0;i<photos.length;i++){const p=photos[i];if(p.assetId)continue;
       try{const r=await state.assets.upload(new File([p.blob],"woning-foto-"+(i+1)+".jpg",{type:"image/jpeg"}));p.assetId=r.id}catch(e){fail++}}
     else fail=photos.filter(p=>!p.assetId).length;
-    return {fotos:photos.filter(p=>p.assetId).map(p=>({id:p.assetId,w:p.cv.width,h:p.cv.height,dots:p.dots.map(d=>({x:r4(d.x),y:r4(d.y),t:d.t}))})),fail};
+    return {fotos:photos.filter(p=>p.assetId).map(p=>({id:p.assetId,w:p.cv.width,h:p.cv.height,dots:p.dots.map(d=>({x:r4(d.x),y:r4(d.y),t:d.t})),...(typeof Meetlint!=="undefined"&&Meetlint.schoon(p.meet)?{meet:Meetlint.schoon(p.meet)}:{})})),fail};
   }
   const r4=n=>Math.round(n*10000)/10000;
   async function ensureKlant(){
@@ -896,8 +920,9 @@ const ICON={
     if(dot){p.dots.splice(+dot.dataset.j,1);renderDots();return}
     const r=ge("ed-img").getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;if(x<0||x>1||y<0||y>1)return;
     p.dots.push({x,y,t:curType});lastTap=curType;renderDots()});
-  const undo1=()=>{const p=photos[edIdx];if(p&&p.dots.length){p.dots.pop();renderDots()}};ge("ed-undo").onclick=undo1;
-  ge("ed-clear").onclick=()=>{const p=photos[edIdx];if(p){p.dots=[];renderDots()}};
+  const undo1=()=>{if(edMode==="meten"&&edMl){edMl.ongedaan();return}const p=photos[edIdx];if(p&&p.dots.length){p.dots.pop();renderDots()}};ge("ed-undo").onclick=undo1;
+  ge("ed-clear").onclick=()=>{if(edMode==="meten"&&edMl){edMl.wis();return}const p=photos[edIdx];if(p){p.dots=[];renderDots()}};
+  ge("ed-mode").addEventListener("click",e=>{const b=e.target.closest("[data-em]");if(b)edZetMode(b.dataset.em)});
   ge("ed-done").onclick=closeEd;
   const closePv=()=>{ge("pv").hidden=true;if(ge("ed").hidden&&edDlg.open)edDlg.close();document.body.style.overflow=""};
   ge("pv-close").onclick=closePv;ge("pv-dl").onclick=()=>{closePv();doPdf()};
