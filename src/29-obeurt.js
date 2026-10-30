@@ -22,6 +22,7 @@ function tcFotosHtml(tf){if(!tf.length)return `<div class="tc-fotos leeg">${I.ca
 function openTellingControle(kid,na){const k=state.klanten.find(x=>x.id===kid);if(!k)return;
   const gc=k.tellingGecontroleerd,voor=(gc&&gc.origF)||tcFloors(k),vsp=(gc&&gc.origSp)||tcSp(k),f=tcFloors(k).slice(),sp={...tcSp(k)};
   const p0=gc?gc.prijsVoor:Number(k.prijs)||0;let fotos=null,ai=false,spOpen=SPK.some(x=>sp[x]||vsp[x]);
+  const tcModel=()=>typeof meet3dModel==="function"&&k.adres?klaar=>meet3dModel([k.adres,k.postcode,k.plaats].filter(Boolean).join(" "),klaar):null;
   /* foto's van de klant (uit de dienstenwebshop, met de aangetikte ramen) en eerder gemaakte controlefoto's */
   const tf0=[...(((k.ramenTelling||{}).fotos)||[]).filter(x=>x&&x.id).map((x,i)=>({...x,naam:x.zijde||("Foto "+(i+1)+" van de klant"),t:1})),...(k.fotos||[]).filter(x=>x&&x.id),...((gc&&gc.fotos)||[]).filter(x=>x&&x.id).map(x=>({...x,naam:"Controle · "+(x.zijde||"foto")}))].filter((x,i,a)=>a.findIndex(y=>y.id===x.id)===i);
   /* eigen kopie: stippen aanpassen raakt de klant pas bij opslaan */
@@ -48,7 +49,7 @@ function openTellingControle(kid,na){const k=state.klanten.find(x=>x.id===kid);i
     f.splice(0,4,...nf);SPK.forEach(x=>sp[x]=ns[x]);if(SPK.some(x=>sp[x]))spOpen=true;stipAan=true;
     const g=$("#tcFg");if(g){const w=document.createElement("div");w.innerHTML=tcFotosHtml(tf);const ng=w.querySelector("#tcFg"),h=w.querySelector(".tc-fh small");if(ng)g.innerHTML=ng.innerHTML;const oh=document.querySelector(".tc-fh small");if(h&&oh)oh.textContent=h.textContent}
     draw()};
-  {const g=$("#tcFg");if(g)g.onclick=e=>{const b=e.target.closest("[data-tcf]");if(b)openFotoViewer(tf,+b.dataset.tcf,{edit:true,meet:typeof meetAan==="function"&&meetAan("telling")?meetSoorten():null,titelEdit:"Controleer de stippen · kies een soort en tik ramen aan of verbeter ze",onChange:()=>uitStippen()})}}
+  {const g=$("#tcFg");if(g)g.onclick=e=>{const b=e.target.closest("[data-tcf]");if(b)openFotoViewer(tf,+b.dataset.tcf,{edit:true,model3d:tcModel(),meet:typeof meetAan==="function"&&meetAan("telling")?meetSoorten():null,titelEdit:"Controleer de stippen · kies een soort en tik ramen aan of verbeter ze",onChange:()=>uitStippen()})}}
   if($("#tcAi"))$("#tcAi").onclick=()=>openFotoTelling(k,fotos,res=>{fotos=res.fotos;ai=true;f.splice(0,4,...res.f);SPK.forEach(x=>sp[x]=res.sp[x]||0);if(SPK.some(x=>sp[x]))spOpen=true;draw();
     $("#tcAi").classList.add("klaar");$("#tcAi>i").innerHTML=I.check;$("#tcAiS").textContent=`${res.fotos.length} foto's · ${totN()} ramen geteld. Tik om de foto's te bekijken of te verbeteren.`;
     $("#tcRows").animate([{opacity:.3,transform:"translateY(6px)"},{opacity:1,transform:"none"}],{duration:420,easing:"cubic-bezier(.2,.8,.2,1)"})});

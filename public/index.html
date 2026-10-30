@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="a1cbf5dd863d"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="0a8bfd9362d5"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -6551,7 +6551,7 @@ const FRAMER_TPL="// Prijscalculator glasbewassing \u2014 Framer code component 
         (klein?"":[[x1,y1],[x2,y2]].map(([x,y])=>`<line x1="${x-nx}" y1="${y-ny}" x2="${x+nx}" y2="${y+ny}" stroke="#fff" stroke-width="3" stroke-linecap="round"/><circle cx="${x}" cy="${y}" r="5.5" fill="${c}" stroke="#fff" stroke-width="2.5"/>`).join(""))};
     if(meet.ref&&meet.ref.a&&meet.ref.b){g+=lijn(meet.ref.a,meet.ref.b,REFK,true);
       if(!klein){const r=meet.ref,R=REFS.find(x=>x.k===r.k)||REFS[4],mx=(r.a[0]+r.b[0])/2,my=(r.a[1]+r.b[1])/2,tot=num(r.cm)*Math.max(1,num(r.n)||1);
-        labs+=`<span class="ml-lab ref" data-mlref style="left:${mx*100}%;top:${my*100}%"><i></i>${(num(r.n)||1)>1?esc(num(r.n)+" × "):""}${esc(R.n.toLowerCase())}<small>${tot>=100?fmt(tot/100,2)+" m":fmt(tot,tot%1?2:0)+" cm"}</small></span>`}}
+        labs+=`<span class="ml-lab ref" data-mlref style="left:${mx*100}%;top:${my*100}%"><i></i>${(num(r.n)||1)>1?esc(num(r.n)+" × "):""}${r.k==="3d"?"goot · 3D-model":esc(R.n.toLowerCase())}<small>${tot>=100?fmt(tot/100,2)+" m":fmt(tot,tot%1?2:0)+" cm"}</small></span>`}}
     (meet.maten||[]).forEach((x,j)=>{const c=kl(x.s),w=waarde(x,meet,asp),sn=((soorten||[]).find(s=>s.id===x.s)||{}).kort||"Meting";
       if(x.r){const [x1,y1]=P(x.a),[x2,y2]=P(x.b);g+=`<rect x="${Math.min(x1,x2)}" y="${Math.min(y1,y2)}" width="${Math.abs(x2-x1)}" height="${Math.abs(y2-y1)}" rx="6" fill="${c}" fill-opacity=".2" stroke="${c}" stroke-width="${sw}"/>`;
         if(!klein)labs+=`<span class="ml-lab" data-mlj="${j}" style="--c:${c};left:${(x.a[0]+x.b[0])*50}%;top:${(x.a[1]+x.b[1])*50}%"><i></i>${esc(sn)} ${w.ok?(w.schat?"≈ ":"")+fmt(w.v,1)+" m²":"?"}${w.ok?`<small>${fmt(w.bw,2)} × ${fmt(w.hh,2)} m</small>`:""}</span>`}
@@ -6564,8 +6564,9 @@ const FRAMER_TPL="// Prijscalculator glasbewassing \u2014 Framer code component 
       L.push({id:String(it.id),naam:(g.naam&&!new RegExp(g.naam,"i").test(naam)&&(g.items||[]).length>1?g.naam+" · ":"")+naam,kort,eenheid:m2?"m2":"m",prijs:Number(it.prijs)||0})}));
     return L.map((s,i)=>({...s,kleur:KLEUR[i%KLEUR.length]}))}
 
-  /* koppelen aan een foto-element. o = {wrap, foto:()=>foto-object, soorten, host, licht, onChange} */
-  function attach(o){zetCss(o.wrap.getRootNode?o.wrap.getRootNode():document);let aan=false,cur=o.start||"ref",drag=null,sheet=null;
+  /* koppelen aan een foto-element. o = {wrap, foto:()=>foto-object, soorten, host, licht, onChange, model:()=>({laden}|{goten:[m]}|null)}
+     Met een 3D-model van de woning (3D BAG) is de schaal de goot: één keer langs de goot slepen en alles klopt. Geen bakstenen tellen. */
+  function attach(o){const md=()=>{try{return o.model?o.model():null}catch(e){return null}},goten=()=>{const m=md(),g=m&&m.goten||[];const u=[];g.forEach(v=>{if(v>0.5&&!u.some(x=>Math.abs(x-v)<0.06))u.push(Math.round(v*100)/100)});return u.sort((a,b)=>b-a).slice(0,4)};zetCss(o.wrap.getRootNode?o.wrap.getRootNode():document);let aan=false,cur=o.start||"ref",drag=null,sheet=null;
     const f=()=>o.foto(),asp=()=>{const x=f();return x&&x.w&&x.h?x.h/x.w:(o.wrap.clientHeight&&o.wrap.clientWidth?o.wrap.clientHeight/o.wrap.clientWidth:0.75)};
     const meet=()=>{const x=f();if(!x)return null;if(!x.meet)x.meet={maten:[]};if(!x.meet.maten)x.meet.maten=[];return x.meet};
     const so=()=>o.soorten||[];
@@ -6590,8 +6591,15 @@ const FRAMER_TPL="// Prijscalculator glasbewassing \u2014 Framer code component 
       s.querySelector("[data-ok]").onclick=ok;s.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();ok()}if(e.key==="Escape"){e.stopPropagation();s.querySelector("[data-af]").click()}});
       s.querySelector("[data-af]").onclick=()=>{if(nieuw)delete m.ref;sluitSheet();teken()};
       const w=s.querySelector("[data-weg]");if(w)w.onclick=()=>{delete m.ref;sluitSheet();cur="ref";wijzig()}}
+    function zetGoot(v){const m=meet();m.ref={...m.ref,k:"3d",cm:Math.round(v*1000)/10,n:1};sluitSheet();if(cur==="ref"&&so().length)cur=so()[0].id;wijzig()}
+    function gootSheet(G,nieuw){const m=meet();const s=maakSheet(`<h4 style="--c:${REFK}"><i></i>Welke goot staat op de foto?</h4><p>Het 3D-model van deze woning heeft goten van verschillende lengte. Kies de goot waar u langs sleepte.</p>
+        <div class="ml-refs">${G.map(v=>`<button type="button" data-g="${v}">${fmt(v,2)} m<small>goot · 3D-model</small></button>`).join("")}<button type="button" data-eigen>Andere maat<small>zelf invullen</small></button></div>
+        <div class="ml-knop"><button type="button" data-af>Annuleren</button></div>`);
+      s.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>zetGoot(+b.dataset.g));
+      s.querySelector("[data-eigen]").onclick=()=>{m.ref={...m.ref,k:"eigen",cm:Math.round(G[0]*100),n:1};refSheet(nieuw)};
+      s.querySelector("[data-af]").onclick=()=>{if(nieuw)delete m.ref;sluitSheet();teken()}}
     function maatSheet(j,nieuw){const m=meet(),x=m.maten[j];if(!x)return;const sx=so().find(s=>s.id===x.s)||{naam:"Meting",kleur:"#9aa1ad",eenheid:x.r?"m2":"m"},w=waarde(x,m,asp()),c=sx.kleur;
-      const s=maakSheet(`<h4 style="--c:${c}"><i></i>${esc(sx.naam)}</h4><p>${w.ok?(w.schat?"Geschat met de referentie. Klopt het niet? Pas de maat aan.":"Zelf ingevulde maat."):"Nog geen referentie op deze foto: vul de maat zelf in, of teken eerst een referentie."}</p>
+      const s=maakSheet(`<h4 style="--c:${c}"><i></i>${esc(sx.naam)}</h4><p>${w.ok?(w.schat?(m.ref&&m.ref.k==="3d"?"Berekend met de goot uit het 3D-model. Klopt het niet? Pas de maat aan.":"Geschat met de referentie. Klopt het niet? Pas de maat aan."):"Zelf ingevulde maat."):"Nog geen referentie op deze foto: vul de maat zelf in, of teken eerst een referentie."}</p>
         ${x.r?`<div class="ml-row"><label>Breedte (m)<input type="text" inputmode="decimal" data-bw value="${w.ok?fmt(w.bw,2):""}"></label><span class="x">×</span><label>Hoogte (m)<input type="text" inputmode="decimal" data-hh value="${w.ok?fmt(w.hh,2):""}"></label></div>`
           :`<div class="ml-row"><label>Lengte (m)<input type="text" inputmode="decimal" data-m value="${w.ok?fmt(w.v,2):""}"></label></div>`}
         ${so().length>1?`<div class="ml-refs">${so().filter(z=>(z.eenheid==="m2")===!!x.r).map(z=>`<button type="button" data-s="${esc(z.id)}" aria-pressed="${z.id===x.s}" style="--c:${z.kleur}">${esc(z.kort)}<small>${z.eenheid==="m2"?"per m²":"per meter"}</small></button>`).join("")}</div>`:""}
@@ -6620,16 +6628,18 @@ const FRAMER_TPL="// Prijscalculator glasbewassing \u2014 Framer code component 
       x.meet=drag.orig};
     const up=e=>{if(!drag)return;const d=drag;drag=null;o.wrap.classList.remove("ml-drag");wegLoep();const x=f(),lang=dist(d.a,d.b,asp())>0.012;
       if(!lang){teken();return}
-      x.meet=d.tmp;if(d.ref){teken();refSheet(!d.orig||!d.orig.ref)}else{const j=x.meet.maten.length-1;teken();if(o.onChange)o.onChange();if(!schaal(x.meet,asp()))maatSheet(j,true)}};
-    const klik=e=>{if(!aan)return;const l=e.target.closest(".ml-lab");e.stopPropagation();e.preventDefault();if(!l)return;if(l.hasAttribute("data-mlref"))refSheet(false);else maatSheet(+l.dataset.mlj,false)};
+      x.meet=d.tmp;if(d.ref){const G=goten();if(G.length===1)zetGoot(G[0]);else if(G.length){teken();gootSheet(G,!d.orig||!d.orig.ref)}else{teken();refSheet(!d.orig||!d.orig.ref)}}else{const j=x.meet.maten.length-1;teken();if(o.onChange)o.onChange();if(!schaal(x.meet,asp()))maatSheet(j,true)}};
+    const klik=e=>{if(!aan)return;const l=e.target.closest(".ml-lab");e.stopPropagation();e.preventDefault();if(!l)return;if(l.hasAttribute("data-mlref")){const G=goten();if(G.length)gootSheet(G,false);else refSheet(false)}else maatSheet(+l.dataset.mlj,false)};
     o.wrap.addEventListener("pointerdown",down,true);o.wrap.addEventListener("pointermove",move,true);o.wrap.addEventListener("pointerup",up,true);o.wrap.addEventListener("pointercancel",up,true);o.wrap.addEventListener("click",klik,true);
     /* knoppenbalk: Referentie + soorten met totalen */
-    function barHtml(totaal){const m=f()&&f().meet,heeftRef=!!(m&&m.ref);
+    function barHtml(totaal){const m=f()&&f().meet,heeftRef=!!(m&&m.ref),G=goten(),laadt=!G.length&&!!(md()&&md().laden),d3=G.length>0;
+      const fm=G.map(v=>"<b>"+fmt(v,2)+" m</b>").join(" of ");
+      const refTxt=d3?"Sleep eerst één keer langs de <b>goot</b> op de foto. Volgens het 3D-model van de woning is die "+fm+"; daarmee kloppen alle andere maten.":laadt?"3D-model van de woning laden…":"Begin met een <b>referentie</b>: sleep over iets waarvan u de maat kent, bijvoorbeeld 4 bakstenen of 3 dakpannen.";
       const t=totaal||totalen([f()],so());
       return `<div class="ml-bar${o.licht?" licht":""}" role="radiogroup" aria-label="Wat meet u">
-        <button type="button" role="radio" data-mls="ref" aria-checked="${cur==="ref"}" style="--c:${REFK}"><i style="color:#1d1a10">${ICL}</i>Referentie${heeftRef?"<b style='color:#1d1a10'>✓</b>":""}</button>
+        <button type="button" role="radio" data-mls="ref" aria-checked="${cur==="ref"}" style="--c:${REFK}"><i style="color:#1d1a10">${ICL}</i>${d3||laadt?"Schaal: goot":"Referentie"}${d3&&!heeftRef?`<b style='color:#1d1a10'>${fmt(G[0],2)} m</b>`:""}${heeftRef?"<b style='color:#1d1a10'>✓</b>":""}</button>
         ${so().map(s=>`<button type="button" role="radio" data-mls="${esc(s.id)}" aria-checked="${cur===s.id}" style="--c:${s.kleur}"><i></i>${esc(s.kort)}${t[s.id]?`<b>${fmt(t[s.id],1)} ${s.eenheid==="m2"?"m²":"m"}</b>`:""}</button>`).join("")}</div>
-        <div class="ml-tip">${heeftRef?(cur==="ref"?"Sleep opnieuw om de <b>referentie</b> te verplaatsen.":so().find(s=>s.id===cur&&s.eenheid==="m2")?"Trek een rechthoek over het vlak. Tik op een label om de maat aan te passen.":"Sleep van begin tot eind langs wat u meet. Tik op een label om de maat aan te passen."):"Begin met een <b>referentie</b>: sleep over iets waarvan u de maat kent, bijvoorbeeld 4 bakstenen of 3 dakpannen."}</div>`}
+        <div class="ml-tip">${heeftRef?(cur==="ref"?(d3?"Sleep opnieuw langs de <b>goot</b> om de schaal te verplaatsen.":"Sleep opnieuw om de <b>referentie</b> te verplaatsen."):so().find(s=>s.id===cur&&s.eenheid==="m2")?"Trek een rechthoek over het vlak. Tik op een label om de maat aan te passen.":"Sleep van begin tot eind langs wat u meet. Tik op een label om de maat aan te passen."):refTxt}</div>`}
     function bindBar(el){el.querySelectorAll("[data-mls]").forEach(b=>b.onclick=()=>{cur=b.dataset.mls;sluitSheet();if(o.bar)o.bar()})}
     teken();
     return{aan:v=>{aan=!!v;o.wrap.classList.toggle("ml-on",aan);if(aan&&cur!=="ref"&&!so().some(s=>s.id===cur))cur="ref";if(aan&&f()&&f().meet&&f().meet.ref&&cur==="ref"&&so().length)cur=so()[0].id;if(!aan)sluitSheet();teken()},
@@ -10880,7 +10890,7 @@ const ICON={
     const el=g(id);if(el){el.value=v;el.closest(".row").classList.toggle("on",v>0)}updateCount();markStale()}
 
   /* ---------- foto's met stippen ---------- */
-  let photos=[],edIdx=-1,edMode="ramen",edMl=null,mSynced={},lucht=[];
+  let photos=[],edIdx=-1,edMode="ramen",edMl=null,edH3=null,mSynced={},lucht=[];
   function loadPhoto(file){
     return new Promise((res,rej)=>{const u=URL.createObjectURL(file);const im=new Image();
       im.onload=()=>{const max=1600,k=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight));
@@ -10927,13 +10937,20 @@ const ICON={
     new Set([...Object.keys(cnt),...Object.keys(synced)]).forEach(t=>{if(g(t)){const base=Math.max(0,getV(t)-(synced[t]||0));setVal(t,base+(cnt[t]||0))}});
     synced={...cnt};renderPhsum()}
   const edMeet=()=>typeof Meetlint!=="undefined"&&typeof meetAan==="function"&&meetAan("rekentool")?meetSoorten():[];
+  const edMsg=()=>edH3&&edH3.goten&&edH3.goten.length?"Sleep één keer langs de goot (die lengte kent Mansard uit het 3D-model van de woning), daarna meet u windveren, daklijsten of beplating.":edH3&&edH3.laden?"Het 3D-model van de woning wordt geladen…":"Sleep eerst een referentie over iets waarvan u de maat kent, daarna meet u goten, windveren of beplating.";
+  /* 3D-model van de woning (3D BAG) ophalen voor de schaal op de foto */
+  function edLaad3d(){const k=klantForm(),adr=[k.adres,k.pc,k.plaats].filter(Boolean).join(" ");if(!k.adres||typeof huis3dVoor!=="function"){edH3=null;return}
+    if(edH3&&edH3.adr===adr)return;edH3={adr,laden:true};
+    huis3dVoor(adr).then(d=>{if(!edH3||edH3.adr!==adr)return;const G=d&&d.randen?d.randen.filter(r=>r.soort==="goot").map(r=>r.m):[];edH3=G.length?{adr,goten:G}:{adr};
+      if(edMl)edMl.teken();if(edMode==="meten"&&ge("ed-msg"))ge("ed-msg").textContent=edMsg()})}
   function edZetMode(m){edMode=m;const met=m==="meten";ge("ed-mode").querySelectorAll("[data-em]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.em===m));
     ge("ed-types").hidden=met;eroot.querySelector(".ed-lab").hidden=met;ge("ed-mlb").hidden=!met;ge("ed-tally").hidden=met;
-    ge("ed-msg").textContent=met?"Sleep eerst een referentie over iets waarvan u de maat kent, daarna meet u goten, windveren of beplating.":"Kies hieronder wat je aantikt en tik op elk raam. Tik op een stip om hem weg te halen.";
+    ge("ed-msg").textContent=met?edMsg():"Kies hieronder wat je aantikt en tik op elk raam. Tik op een stip om hem weg te halen.";
     if(edMl){edMl.aan(met);if(met){const b=ge("ed-mlb");b.innerHTML=edMl.barHtml();edMl.bindBar(b)}}requestAnimationFrame(()=>{fitEd();if(edMl)edMl.teken()})}
   function openEd(i){ge("ed-undo").onclick=undo1;ge("ed-msg").textContent="Kies hieronder wat je aantikt en tik op elk raam. Tik op een stip om hem weg te halen.";if(!edDlg.open)edDlg.showModal();edIdx=i;ge("ed-img").src=photos[i].url;ge("ed").hidden=false;document.body.style.overflow="hidden";renderDots();requestAnimationFrame(()=>{fitEd();
       if(edMl){edMl.weg();edMl=null}const MS=edMeet();ge("ed-mode").hidden=!MS.length;ge("ed-mode").classList.toggle("licht",getComputedStyle(ge("ed")).backgroundColor.replace(/[^\d,]/g,"").split(",").slice(0,3).reduce((a,b)=>a+ +b,0)>600);
-      if(MS.length||(photos[edIdx]&&photos[edIdx].meet))edMl=Meetlint.attach({licht:getComputedStyle(ge("ed")).backgroundColor.replace(/[^\d,]/g,"").split(",").slice(0,3).reduce((a,b)=>a+ +b,0)>600,wrap:ge("ed-wrap"),foto:()=>{const p=photos[edIdx];if(p&&!p.w){p.w=p.cv.width;p.h=p.cv.height}return p},soorten:MS.length?MS:meetSoorten(),host:eroot.querySelector(".ed-stage"),
+      if(MS.length)edLaad3d();
+      if(MS.length||(photos[edIdx]&&photos[edIdx].meet))edMl=Meetlint.attach({model:()=>edH3,licht:getComputedStyle(ge("ed")).backgroundColor.replace(/[^\d,]/g,"").split(",").slice(0,3).reduce((a,b)=>a+ +b,0)>600,wrap:ge("ed-wrap"),foto:()=>{const p=photos[edIdx];if(p&&!p.w){p.w=p.cv.width;p.h=p.cv.height}return p},soorten:MS.length?MS:meetSoorten(),host:eroot.querySelector(".ed-stage"),
         bar:()=>{const b=ge("ed-mlb");if(b&&edMl&&!b.hidden){b.innerHTML=edMl.barHtml(Meetlint.totalen(photos.map(p=>({...p,w:p.cv.width,h:p.cv.height})),MS));edMl.bindBar(b)}}});
       edZetMode(MS.length?edMode:"ramen")})}
   /* gemeten meters en m² in de prijs: bij de diensten met dezelfde naam (Uitvoering › Diensten); zelf ingevulde aantallen blijven staan */
@@ -13911,7 +13928,7 @@ function openFotoViewer(list,start,opt={}){
     const wEl=ov.querySelector(".fv-wrap"),stg=ov.querySelector(".fv-stage").getBoundingClientRect(),rt=(f.w&&f.h)?f.w/f.h:4/3,aw=stg.width-(list.length>1?120:24),ah=stg.height-8;
     const maat=()=>{const st=ov.querySelector(".fv-stage").getBoundingClientRect(),aw=st.width-(list.length>1?120:24),ah=st.height-8;let ww=aw,hh=aw/rt;if(hh>ah){hh=ah;ww=ah*rt}wEl.style.width=Math.max(50,ww)+"px";wEl.style.height=Math.max(50,hh)+"px";wEl.style.aspectRatio="auto"};maat();
     ov.querySelector(".fv-x").onclick=close;ov.querySelector(".fv-done").onclick=close;
-    if(typeof Meetlint!=="undefined"&&(MS||f.meet)){ml=Meetlint.attach({wrap:wEl,foto:()=>list[i],soorten:MS||meetSoorten(),host:ov.querySelector(".fv-stage"),
+    if(typeof Meetlint!=="undefined"&&(MS||f.meet)){ml=Meetlint.attach({model:opt.model3d?opt.model3d(()=>{if(ml)ml.teken()}):null,wrap:wEl,foto:()=>list[i],soorten:MS||meetSoorten(),host:ov.querySelector(".fv-stage"),
         onChange:()=>{if(opt.onChange)opt.onChange(i,f.dots||[],f);const u=ov.querySelector(".fv-undo"),c=ov.querySelector(".fv-clear");if(u)u.disabled=false;if(c)c.disabled=false},
         bar:()=>{const b=ov.querySelector(".fv-mlb");if(b&&ml){const h0=b.offsetHeight;b.innerHTML=ml.barHtml();ml.bindBar(b);if(b.offsetHeight!==h0)maat()}}});ml.aan(ed&&mode==="meten");if(ed&&mode==="meten"){maat();ml.teken()}}else ml=null;
     const l=ov.querySelector(".fv-nav.l"),r=ov.querySelector(".fv-nav.r");if(l)l.onclick=()=>go(-1);if(r)r.onclick=()=>go(1);
@@ -15696,6 +15713,7 @@ function tcFotosHtml(tf){if(!tf.length)return `<div class="tc-fotos leeg">${I.ca
 function openTellingControle(kid,na){const k=state.klanten.find(x=>x.id===kid);if(!k)return;
   const gc=k.tellingGecontroleerd,voor=(gc&&gc.origF)||tcFloors(k),vsp=(gc&&gc.origSp)||tcSp(k),f=tcFloors(k).slice(),sp={...tcSp(k)};
   const p0=gc?gc.prijsVoor:Number(k.prijs)||0;let fotos=null,ai=false,spOpen=SPK.some(x=>sp[x]||vsp[x]);
+  const tcModel=()=>typeof meet3dModel==="function"&&k.adres?klaar=>meet3dModel([k.adres,k.postcode,k.plaats].filter(Boolean).join(" "),klaar):null;
   /* foto's van de klant (uit de dienstenwebshop, met de aangetikte ramen) en eerder gemaakte controlefoto's */
   const tf0=[...(((k.ramenTelling||{}).fotos)||[]).filter(x=>x&&x.id).map((x,i)=>({...x,naam:x.zijde||("Foto "+(i+1)+" van de klant"),t:1})),...(k.fotos||[]).filter(x=>x&&x.id),...((gc&&gc.fotos)||[]).filter(x=>x&&x.id).map(x=>({...x,naam:"Controle · "+(x.zijde||"foto")}))].filter((x,i,a)=>a.findIndex(y=>y.id===x.id)===i);
   /* eigen kopie: stippen aanpassen raakt de klant pas bij opslaan */
@@ -15722,7 +15740,7 @@ function openTellingControle(kid,na){const k=state.klanten.find(x=>x.id===kid);i
     f.splice(0,4,...nf);SPK.forEach(x=>sp[x]=ns[x]);if(SPK.some(x=>sp[x]))spOpen=true;stipAan=true;
     const g=$("#tcFg");if(g){const w=document.createElement("div");w.innerHTML=tcFotosHtml(tf);const ng=w.querySelector("#tcFg"),h=w.querySelector(".tc-fh small");if(ng)g.innerHTML=ng.innerHTML;const oh=document.querySelector(".tc-fh small");if(h&&oh)oh.textContent=h.textContent}
     draw()};
-  {const g=$("#tcFg");if(g)g.onclick=e=>{const b=e.target.closest("[data-tcf]");if(b)openFotoViewer(tf,+b.dataset.tcf,{edit:true,meet:typeof meetAan==="function"&&meetAan("telling")?meetSoorten():null,titelEdit:"Controleer de stippen · kies een soort en tik ramen aan of verbeter ze",onChange:()=>uitStippen()})}}
+  {const g=$("#tcFg");if(g)g.onclick=e=>{const b=e.target.closest("[data-tcf]");if(b)openFotoViewer(tf,+b.dataset.tcf,{edit:true,model3d:tcModel(),meet:typeof meetAan==="function"&&meetAan("telling")?meetSoorten():null,titelEdit:"Controleer de stippen · kies een soort en tik ramen aan of verbeter ze",onChange:()=>uitStippen()})}}
   if($("#tcAi"))$("#tcAi").onclick=()=>openFotoTelling(k,fotos,res=>{fotos=res.fotos;ai=true;f.splice(0,4,...res.f);SPK.forEach(x=>sp[x]=res.sp[x]||0);if(SPK.some(x=>sp[x]))spOpen=true;draw();
     $("#tcAi").classList.add("klaar");$("#tcAi>i").innerHTML=I.check;$("#tcAiS").textContent=`${res.fotos.length} foto's · ${totN()} ramen geteld. Tik om de foto's te bekijken of te verbeteren.`;
     $("#tcRows").animate([{opacity:.3,transform:"translateY(6px)"},{opacity:1,transform:"none"}],{duration:420,easing:"cubic-bezier(.2,.8,.2,1)"})});
@@ -17520,11 +17538,19 @@ async function openLuchtMeten({adres,soorten,maten,onKlaar}){
   if(g&&g.rd)laad3d(g);
   /* dakranden uit 3D BAG; in de demo een voorbeeldwoning zodat je ziet hoe het werkt */
   async function laad3d(g){const adr=ov.querySelector("#lmAdr"),naam=g.naam;adr.textContent=naam+" · 3D-model laden…";
-    try{let d;if(typeof LIVE!=="undefined"&&LIVE&&typeof fbFn==="function")d=(await fbFn("huis3d")({x:g.rd[0],y:g.rd[1],lat:g.ll[0],lng:g.ll[1]})).data;else d=luchtDemo3d(g.ll);
+    try{const d=await huis3dVoor(adres);
       if(!ov.isConnected)return;rand3=(d&&d.randen||[]).filter(r=>LM3D[r.soort]);
       adr.textContent=naam+(rand3.length?" · "+rand3.length+" dakrand"+(rand3.length===1?"":"en")+" uit 3D-model"+(d.meetjaar?" (scan "+String(d.meetjaar).slice(0,4)+")":""):" · geen dakranden in 3D-model");teken()}
     catch(e){if(ov.isConnected)adr.textContent=naam+" · 3D-model niet beschikbaar, meet zelf"}}
   }
+/* dakranden van een woning uit 3D BAG, per adres één keer opgehaald (de luchtfoto en de meetlint op foto's gebruiken hetzelfde) */
+const H3C={};
+function huis3dVoor(adres){const k=String(adres||"").trim().toLowerCase().replace(/\s+/g," ");if(!k)return Promise.resolve(null);
+  return H3C[k]||(H3C[k]=(async()=>{const g=await luchtGeo(adres);if(!g||!g.rd)return null;let d;
+    if(typeof LIVE!=="undefined"&&LIVE&&typeof fbFn==="function")d=(await fbFn("huis3d")({x:g.rd[0],y:g.rd[1],lat:g.ll[0],lng:g.ll[1]})).data;else d=luchtDemo3d(g.ll);
+    return d?{...d,geo:g}:null})().catch(e=>{delete H3C[k];throw e}))}
+/* schaal voor de meetlint op een foto: de goten uit het 3D-model. Geeft een functie terug die de huidige stand geeft. */
+function meet3dModel(adres,klaar){let st=adres?{laden:true}:null;if(adres)huis3dVoor(adres).then(d=>{const G=d&&d.randen?d.randen.filter(r=>r.soort==="goot").map(r=>r.m):[];st=G.length?{goten:G}:null;if(klaar)klaar()},()=>{st=null;if(klaar)klaar()});return()=>st}
 /* voorbeeldwoning voor de demo: een vrijstaand huis met zadeldak rond het gezochte adres (geen echte gegevens) */
 function luchtDemo3d(ll){const dl=1/111320,dg=1/(111320*Math.cos(ll[0]*Math.PI/180)),P=(x,y)=>[Math.round((ll[0]+y*dl)*1e7)/1e7,Math.round((ll[1]+x*dg)*1e7)/1e7];
   return{meetjaar:"2023",randen:[{soort:"goot",m:9.6,p:[P(-4.8,-4.2),P(4.8,-4.2)]},{soort:"goot",m:9.6,p:[P(-4.8,4.2),P(4.8,4.2)]},{soort:"windveer",m:5.32,p:[P(-4.8,-4.2),P(-4.8,0)]},{soort:"windveer",m:5.32,p:[P(-4.8,0),P(-4.8,4.2)]},{soort:"windveer",m:5.32,p:[P(4.8,-4.2),P(4.8,0)]},{soort:"windveer",m:5.32,p:[P(4.8,0),P(4.8,4.2)]}]}}

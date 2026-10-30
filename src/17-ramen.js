@@ -493,7 +493,7 @@ const ICON={
     const el=g(id);if(el){el.value=v;el.closest(".row").classList.toggle("on",v>0)}updateCount();markStale()}
 
   /* ---------- foto's met stippen ---------- */
-  let photos=[],edIdx=-1,edMode="ramen",edMl=null,mSynced={},lucht=[];
+  let photos=[],edIdx=-1,edMode="ramen",edMl=null,edH3=null,mSynced={},lucht=[];
   function loadPhoto(file){
     return new Promise((res,rej)=>{const u=URL.createObjectURL(file);const im=new Image();
       im.onload=()=>{const max=1600,k=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight));
@@ -540,13 +540,20 @@ const ICON={
     new Set([...Object.keys(cnt),...Object.keys(synced)]).forEach(t=>{if(g(t)){const base=Math.max(0,getV(t)-(synced[t]||0));setVal(t,base+(cnt[t]||0))}});
     synced={...cnt};renderPhsum()}
   const edMeet=()=>typeof Meetlint!=="undefined"&&typeof meetAan==="function"&&meetAan("rekentool")?meetSoorten():[];
+  const edMsg=()=>edH3&&edH3.goten&&edH3.goten.length?"Sleep één keer langs de goot (die lengte kent Mansard uit het 3D-model van de woning), daarna meet u windveren, daklijsten of beplating.":edH3&&edH3.laden?"Het 3D-model van de woning wordt geladen…":"Sleep eerst een referentie over iets waarvan u de maat kent, daarna meet u goten, windveren of beplating.";
+  /* 3D-model van de woning (3D BAG) ophalen voor de schaal op de foto */
+  function edLaad3d(){const k=klantForm(),adr=[k.adres,k.pc,k.plaats].filter(Boolean).join(" ");if(!k.adres||typeof huis3dVoor!=="function"){edH3=null;return}
+    if(edH3&&edH3.adr===adr)return;edH3={adr,laden:true};
+    huis3dVoor(adr).then(d=>{if(!edH3||edH3.adr!==adr)return;const G=d&&d.randen?d.randen.filter(r=>r.soort==="goot").map(r=>r.m):[];edH3=G.length?{adr,goten:G}:{adr};
+      if(edMl)edMl.teken();if(edMode==="meten"&&ge("ed-msg"))ge("ed-msg").textContent=edMsg()})}
   function edZetMode(m){edMode=m;const met=m==="meten";ge("ed-mode").querySelectorAll("[data-em]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.em===m));
     ge("ed-types").hidden=met;eroot.querySelector(".ed-lab").hidden=met;ge("ed-mlb").hidden=!met;ge("ed-tally").hidden=met;
-    ge("ed-msg").textContent=met?"Sleep eerst een referentie over iets waarvan u de maat kent, daarna meet u goten, windveren of beplating.":"Kies hieronder wat je aantikt en tik op elk raam. Tik op een stip om hem weg te halen.";
+    ge("ed-msg").textContent=met?edMsg():"Kies hieronder wat je aantikt en tik op elk raam. Tik op een stip om hem weg te halen.";
     if(edMl){edMl.aan(met);if(met){const b=ge("ed-mlb");b.innerHTML=edMl.barHtml();edMl.bindBar(b)}}requestAnimationFrame(()=>{fitEd();if(edMl)edMl.teken()})}
   function openEd(i){ge("ed-undo").onclick=undo1;ge("ed-msg").textContent="Kies hieronder wat je aantikt en tik op elk raam. Tik op een stip om hem weg te halen.";if(!edDlg.open)edDlg.showModal();edIdx=i;ge("ed-img").src=photos[i].url;ge("ed").hidden=false;document.body.style.overflow="hidden";renderDots();requestAnimationFrame(()=>{fitEd();
       if(edMl){edMl.weg();edMl=null}const MS=edMeet();ge("ed-mode").hidden=!MS.length;ge("ed-mode").classList.toggle("licht",getComputedStyle(ge("ed")).backgroundColor.replace(/[^\d,]/g,"").split(",").slice(0,3).reduce((a,b)=>a+ +b,0)>600);
-      if(MS.length||(photos[edIdx]&&photos[edIdx].meet))edMl=Meetlint.attach({licht:getComputedStyle(ge("ed")).backgroundColor.replace(/[^\d,]/g,"").split(",").slice(0,3).reduce((a,b)=>a+ +b,0)>600,wrap:ge("ed-wrap"),foto:()=>{const p=photos[edIdx];if(p&&!p.w){p.w=p.cv.width;p.h=p.cv.height}return p},soorten:MS.length?MS:meetSoorten(),host:eroot.querySelector(".ed-stage"),
+      if(MS.length)edLaad3d();
+      if(MS.length||(photos[edIdx]&&photos[edIdx].meet))edMl=Meetlint.attach({model:()=>edH3,licht:getComputedStyle(ge("ed")).backgroundColor.replace(/[^\d,]/g,"").split(",").slice(0,3).reduce((a,b)=>a+ +b,0)>600,wrap:ge("ed-wrap"),foto:()=>{const p=photos[edIdx];if(p&&!p.w){p.w=p.cv.width;p.h=p.cv.height}return p},soorten:MS.length?MS:meetSoorten(),host:eroot.querySelector(".ed-stage"),
         bar:()=>{const b=ge("ed-mlb");if(b&&edMl&&!b.hidden){b.innerHTML=edMl.barHtml(Meetlint.totalen(photos.map(p=>({...p,w:p.cv.width,h:p.cv.height})),MS));edMl.bindBar(b)}}});
       edZetMode(MS.length?edMode:"ramen")})}
   /* gemeten meters en m² in de prijs: bij de diensten met dezelfde naam (Uitvoering › Diensten); zelf ingevulde aantallen blijven staan */

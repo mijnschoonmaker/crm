@@ -70,7 +70,7 @@
         (klein?"":[[x1,y1],[x2,y2]].map(([x,y])=>`<line x1="${x-nx}" y1="${y-ny}" x2="${x+nx}" y2="${y+ny}" stroke="#fff" stroke-width="3" stroke-linecap="round"/><circle cx="${x}" cy="${y}" r="5.5" fill="${c}" stroke="#fff" stroke-width="2.5"/>`).join(""))};
     if(meet.ref&&meet.ref.a&&meet.ref.b){g+=lijn(meet.ref.a,meet.ref.b,REFK,true);
       if(!klein){const r=meet.ref,R=REFS.find(x=>x.k===r.k)||REFS[4],mx=(r.a[0]+r.b[0])/2,my=(r.a[1]+r.b[1])/2,tot=num(r.cm)*Math.max(1,num(r.n)||1);
-        labs+=`<span class="ml-lab ref" data-mlref style="left:${mx*100}%;top:${my*100}%"><i></i>${(num(r.n)||1)>1?esc(num(r.n)+" × "):""}${esc(R.n.toLowerCase())}<small>${tot>=100?fmt(tot/100,2)+" m":fmt(tot,tot%1?2:0)+" cm"}</small></span>`}}
+        labs+=`<span class="ml-lab ref" data-mlref style="left:${mx*100}%;top:${my*100}%"><i></i>${(num(r.n)||1)>1?esc(num(r.n)+" × "):""}${r.k==="3d"?"goot · 3D-model":esc(R.n.toLowerCase())}<small>${tot>=100?fmt(tot/100,2)+" m":fmt(tot,tot%1?2:0)+" cm"}</small></span>`}}
     (meet.maten||[]).forEach((x,j)=>{const c=kl(x.s),w=waarde(x,meet,asp),sn=((soorten||[]).find(s=>s.id===x.s)||{}).kort||"Meting";
       if(x.r){const [x1,y1]=P(x.a),[x2,y2]=P(x.b);g+=`<rect x="${Math.min(x1,x2)}" y="${Math.min(y1,y2)}" width="${Math.abs(x2-x1)}" height="${Math.abs(y2-y1)}" rx="6" fill="${c}" fill-opacity=".2" stroke="${c}" stroke-width="${sw}"/>`;
         if(!klein)labs+=`<span class="ml-lab" data-mlj="${j}" style="--c:${c};left:${(x.a[0]+x.b[0])*50}%;top:${(x.a[1]+x.b[1])*50}%"><i></i>${esc(sn)} ${w.ok?(w.schat?"≈ ":"")+fmt(w.v,1)+" m²":"?"}${w.ok?`<small>${fmt(w.bw,2)} × ${fmt(w.hh,2)} m</small>`:""}</span>`}
@@ -83,8 +83,9 @@
       L.push({id:String(it.id),naam:(g.naam&&!new RegExp(g.naam,"i").test(naam)&&(g.items||[]).length>1?g.naam+" · ":"")+naam,kort,eenheid:m2?"m2":"m",prijs:Number(it.prijs)||0})}));
     return L.map((s,i)=>({...s,kleur:KLEUR[i%KLEUR.length]}))}
 
-  /* koppelen aan een foto-element. o = {wrap, foto:()=>foto-object, soorten, host, licht, onChange} */
-  function attach(o){zetCss(o.wrap.getRootNode?o.wrap.getRootNode():document);let aan=false,cur=o.start||"ref",drag=null,sheet=null;
+  /* koppelen aan een foto-element. o = {wrap, foto:()=>foto-object, soorten, host, licht, onChange, model:()=>({laden}|{goten:[m]}|null)}
+     Met een 3D-model van de woning (3D BAG) is de schaal de goot: één keer langs de goot slepen en alles klopt. Geen bakstenen tellen. */
+  function attach(o){const md=()=>{try{return o.model?o.model():null}catch(e){return null}},goten=()=>{const m=md(),g=m&&m.goten||[];const u=[];g.forEach(v=>{if(v>0.5&&!u.some(x=>Math.abs(x-v)<0.06))u.push(Math.round(v*100)/100)});return u.sort((a,b)=>b-a).slice(0,4)};zetCss(o.wrap.getRootNode?o.wrap.getRootNode():document);let aan=false,cur=o.start||"ref",drag=null,sheet=null;
     const f=()=>o.foto(),asp=()=>{const x=f();return x&&x.w&&x.h?x.h/x.w:(o.wrap.clientHeight&&o.wrap.clientWidth?o.wrap.clientHeight/o.wrap.clientWidth:0.75)};
     const meet=()=>{const x=f();if(!x)return null;if(!x.meet)x.meet={maten:[]};if(!x.meet.maten)x.meet.maten=[];return x.meet};
     const so=()=>o.soorten||[];
@@ -109,8 +110,15 @@
       s.querySelector("[data-ok]").onclick=ok;s.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();ok()}if(e.key==="Escape"){e.stopPropagation();s.querySelector("[data-af]").click()}});
       s.querySelector("[data-af]").onclick=()=>{if(nieuw)delete m.ref;sluitSheet();teken()};
       const w=s.querySelector("[data-weg]");if(w)w.onclick=()=>{delete m.ref;sluitSheet();cur="ref";wijzig()}}
+    function zetGoot(v){const m=meet();m.ref={...m.ref,k:"3d",cm:Math.round(v*1000)/10,n:1};sluitSheet();if(cur==="ref"&&so().length)cur=so()[0].id;wijzig()}
+    function gootSheet(G,nieuw){const m=meet();const s=maakSheet(`<h4 style="--c:${REFK}"><i></i>Welke goot staat op de foto?</h4><p>Het 3D-model van deze woning heeft goten van verschillende lengte. Kies de goot waar u langs sleepte.</p>
+        <div class="ml-refs">${G.map(v=>`<button type="button" data-g="${v}">${fmt(v,2)} m<small>goot · 3D-model</small></button>`).join("")}<button type="button" data-eigen>Andere maat<small>zelf invullen</small></button></div>
+        <div class="ml-knop"><button type="button" data-af>Annuleren</button></div>`);
+      s.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>zetGoot(+b.dataset.g));
+      s.querySelector("[data-eigen]").onclick=()=>{m.ref={...m.ref,k:"eigen",cm:Math.round(G[0]*100),n:1};refSheet(nieuw)};
+      s.querySelector("[data-af]").onclick=()=>{if(nieuw)delete m.ref;sluitSheet();teken()}}
     function maatSheet(j,nieuw){const m=meet(),x=m.maten[j];if(!x)return;const sx=so().find(s=>s.id===x.s)||{naam:"Meting",kleur:"#9aa1ad",eenheid:x.r?"m2":"m"},w=waarde(x,m,asp()),c=sx.kleur;
-      const s=maakSheet(`<h4 style="--c:${c}"><i></i>${esc(sx.naam)}</h4><p>${w.ok?(w.schat?"Geschat met de referentie. Klopt het niet? Pas de maat aan.":"Zelf ingevulde maat."):"Nog geen referentie op deze foto: vul de maat zelf in, of teken eerst een referentie."}</p>
+      const s=maakSheet(`<h4 style="--c:${c}"><i></i>${esc(sx.naam)}</h4><p>${w.ok?(w.schat?(m.ref&&m.ref.k==="3d"?"Berekend met de goot uit het 3D-model. Klopt het niet? Pas de maat aan.":"Geschat met de referentie. Klopt het niet? Pas de maat aan."):"Zelf ingevulde maat."):"Nog geen referentie op deze foto: vul de maat zelf in, of teken eerst een referentie."}</p>
         ${x.r?`<div class="ml-row"><label>Breedte (m)<input type="text" inputmode="decimal" data-bw value="${w.ok?fmt(w.bw,2):""}"></label><span class="x">×</span><label>Hoogte (m)<input type="text" inputmode="decimal" data-hh value="${w.ok?fmt(w.hh,2):""}"></label></div>`
           :`<div class="ml-row"><label>Lengte (m)<input type="text" inputmode="decimal" data-m value="${w.ok?fmt(w.v,2):""}"></label></div>`}
         ${so().length>1?`<div class="ml-refs">${so().filter(z=>(z.eenheid==="m2")===!!x.r).map(z=>`<button type="button" data-s="${esc(z.id)}" aria-pressed="${z.id===x.s}" style="--c:${z.kleur}">${esc(z.kort)}<small>${z.eenheid==="m2"?"per m²":"per meter"}</small></button>`).join("")}</div>`:""}
@@ -139,16 +147,18 @@
       x.meet=drag.orig};
     const up=e=>{if(!drag)return;const d=drag;drag=null;o.wrap.classList.remove("ml-drag");wegLoep();const x=f(),lang=dist(d.a,d.b,asp())>0.012;
       if(!lang){teken();return}
-      x.meet=d.tmp;if(d.ref){teken();refSheet(!d.orig||!d.orig.ref)}else{const j=x.meet.maten.length-1;teken();if(o.onChange)o.onChange();if(!schaal(x.meet,asp()))maatSheet(j,true)}};
-    const klik=e=>{if(!aan)return;const l=e.target.closest(".ml-lab");e.stopPropagation();e.preventDefault();if(!l)return;if(l.hasAttribute("data-mlref"))refSheet(false);else maatSheet(+l.dataset.mlj,false)};
+      x.meet=d.tmp;if(d.ref){const G=goten();if(G.length===1)zetGoot(G[0]);else if(G.length){teken();gootSheet(G,!d.orig||!d.orig.ref)}else{teken();refSheet(!d.orig||!d.orig.ref)}}else{const j=x.meet.maten.length-1;teken();if(o.onChange)o.onChange();if(!schaal(x.meet,asp()))maatSheet(j,true)}};
+    const klik=e=>{if(!aan)return;const l=e.target.closest(".ml-lab");e.stopPropagation();e.preventDefault();if(!l)return;if(l.hasAttribute("data-mlref")){const G=goten();if(G.length)gootSheet(G,false);else refSheet(false)}else maatSheet(+l.dataset.mlj,false)};
     o.wrap.addEventListener("pointerdown",down,true);o.wrap.addEventListener("pointermove",move,true);o.wrap.addEventListener("pointerup",up,true);o.wrap.addEventListener("pointercancel",up,true);o.wrap.addEventListener("click",klik,true);
     /* knoppenbalk: Referentie + soorten met totalen */
-    function barHtml(totaal){const m=f()&&f().meet,heeftRef=!!(m&&m.ref);
+    function barHtml(totaal){const m=f()&&f().meet,heeftRef=!!(m&&m.ref),G=goten(),laadt=!G.length&&!!(md()&&md().laden),d3=G.length>0;
+      const fm=G.map(v=>"<b>"+fmt(v,2)+" m</b>").join(" of ");
+      const refTxt=d3?"Sleep eerst één keer langs de <b>goot</b> op de foto. Volgens het 3D-model van de woning is die "+fm+"; daarmee kloppen alle andere maten.":laadt?"3D-model van de woning laden…":"Begin met een <b>referentie</b>: sleep over iets waarvan u de maat kent, bijvoorbeeld 4 bakstenen of 3 dakpannen.";
       const t=totaal||totalen([f()],so());
       return `<div class="ml-bar${o.licht?" licht":""}" role="radiogroup" aria-label="Wat meet u">
-        <button type="button" role="radio" data-mls="ref" aria-checked="${cur==="ref"}" style="--c:${REFK}"><i style="color:#1d1a10">${ICL}</i>Referentie${heeftRef?"<b style='color:#1d1a10'>✓</b>":""}</button>
+        <button type="button" role="radio" data-mls="ref" aria-checked="${cur==="ref"}" style="--c:${REFK}"><i style="color:#1d1a10">${ICL}</i>${d3||laadt?"Schaal: goot":"Referentie"}${d3&&!heeftRef?`<b style='color:#1d1a10'>${fmt(G[0],2)} m</b>`:""}${heeftRef?"<b style='color:#1d1a10'>✓</b>":""}</button>
         ${so().map(s=>`<button type="button" role="radio" data-mls="${esc(s.id)}" aria-checked="${cur===s.id}" style="--c:${s.kleur}"><i></i>${esc(s.kort)}${t[s.id]?`<b>${fmt(t[s.id],1)} ${s.eenheid==="m2"?"m²":"m"}</b>`:""}</button>`).join("")}</div>
-        <div class="ml-tip">${heeftRef?(cur==="ref"?"Sleep opnieuw om de <b>referentie</b> te verplaatsen.":so().find(s=>s.id===cur&&s.eenheid==="m2")?"Trek een rechthoek over het vlak. Tik op een label om de maat aan te passen.":"Sleep van begin tot eind langs wat u meet. Tik op een label om de maat aan te passen."):"Begin met een <b>referentie</b>: sleep over iets waarvan u de maat kent, bijvoorbeeld 4 bakstenen of 3 dakpannen."}</div>`}
+        <div class="ml-tip">${heeftRef?(cur==="ref"?(d3?"Sleep opnieuw langs de <b>goot</b> om de schaal te verplaatsen.":"Sleep opnieuw om de <b>referentie</b> te verplaatsen."):so().find(s=>s.id===cur&&s.eenheid==="m2")?"Trek een rechthoek over het vlak. Tik op een label om de maat aan te passen.":"Sleep van begin tot eind langs wat u meet. Tik op een label om de maat aan te passen."):refTxt}</div>`}
     function bindBar(el){el.querySelectorAll("[data-mls]").forEach(b=>b.onclick=()=>{cur=b.dataset.mls;sluitSheet();if(o.bar)o.bar()})}
     teken();
     return{aan:v=>{aan=!!v;o.wrap.classList.toggle("ml-on",aan);if(aan&&cur!=="ref"&&!so().some(s=>s.id===cur))cur="ref";if(aan&&f()&&f().meet&&f().meet.ref&&cur==="ref"&&so().length)cur=so()[0].id;if(!aan)sluitSheet();teken()},

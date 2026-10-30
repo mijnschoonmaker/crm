@@ -109,11 +109,19 @@ async function openLuchtMeten({adres,soorten,maten,onKlaar}){
   if(g&&g.rd)laad3d(g);
   /* dakranden uit 3D BAG; in de demo een voorbeeldwoning zodat je ziet hoe het werkt */
   async function laad3d(g){const adr=ov.querySelector("#lmAdr"),naam=g.naam;adr.textContent=naam+" · 3D-model laden…";
-    try{let d;if(typeof LIVE!=="undefined"&&LIVE&&typeof fbFn==="function")d=(await fbFn("huis3d")({x:g.rd[0],y:g.rd[1],lat:g.ll[0],lng:g.ll[1]})).data;else d=luchtDemo3d(g.ll);
+    try{const d=await huis3dVoor(adres);
       if(!ov.isConnected)return;rand3=(d&&d.randen||[]).filter(r=>LM3D[r.soort]);
       adr.textContent=naam+(rand3.length?" · "+rand3.length+" dakrand"+(rand3.length===1?"":"en")+" uit 3D-model"+(d.meetjaar?" (scan "+String(d.meetjaar).slice(0,4)+")":""):" · geen dakranden in 3D-model");teken()}
     catch(e){if(ov.isConnected)adr.textContent=naam+" · 3D-model niet beschikbaar, meet zelf"}}
   }
+/* dakranden van een woning uit 3D BAG, per adres één keer opgehaald (de luchtfoto en de meetlint op foto's gebruiken hetzelfde) */
+const H3C={};
+function huis3dVoor(adres){const k=String(adres||"").trim().toLowerCase().replace(/\s+/g," ");if(!k)return Promise.resolve(null);
+  return H3C[k]||(H3C[k]=(async()=>{const g=await luchtGeo(adres);if(!g||!g.rd)return null;let d;
+    if(typeof LIVE!=="undefined"&&LIVE&&typeof fbFn==="function")d=(await fbFn("huis3d")({x:g.rd[0],y:g.rd[1],lat:g.ll[0],lng:g.ll[1]})).data;else d=luchtDemo3d(g.ll);
+    return d?{...d,geo:g}:null})().catch(e=>{delete H3C[k];throw e}))}
+/* schaal voor de meetlint op een foto: de goten uit het 3D-model. Geeft een functie terug die de huidige stand geeft. */
+function meet3dModel(adres,klaar){let st=adres?{laden:true}:null;if(adres)huis3dVoor(adres).then(d=>{const G=d&&d.randen?d.randen.filter(r=>r.soort==="goot").map(r=>r.m):[];st=G.length?{goten:G}:null;if(klaar)klaar()},()=>{st=null;if(klaar)klaar()});return()=>st}
 /* voorbeeldwoning voor de demo: een vrijstaand huis met zadeldak rond het gezochte adres (geen echte gegevens) */
 function luchtDemo3d(ll){const dl=1/111320,dg=1/(111320*Math.cos(ll[0]*Math.PI/180)),P=(x,y)=>[Math.round((ll[0]+y*dl)*1e7)/1e7,Math.round((ll[1]+x*dg)*1e7)/1e7];
   return{meetjaar:"2023",randen:[{soort:"goot",m:9.6,p:[P(-4.8,-4.2),P(4.8,-4.2)]},{soort:"goot",m:9.6,p:[P(-4.8,4.2),P(4.8,4.2)]},{soort:"windveer",m:5.32,p:[P(-4.8,-4.2),P(-4.8,0)]},{soort:"windveer",m:5.32,p:[P(-4.8,0),P(-4.8,4.2)]},{soort:"windveer",m:5.32,p:[P(4.8,-4.2),P(4.8,0)]},{soort:"windveer",m:5.32,p:[P(4.8,0),P(4.8,4.2)]}]}}
