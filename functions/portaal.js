@@ -71,6 +71,8 @@ module.exports = function maakPortaal(ctx) {
     if (!k.exists) return null;
     const voorbeeld = !!s.data().voorbeeld;
     if (!voorbeeld && Date.now() - (s.data().gezien || 0) > DAG) ref.set({ gezien: Date.now(), exp: Date.now() + 180 * DAG }, { merge: true }).catch(() => {});
+    /* laatste keer in het portaal (ook zonder opnieuw in te loggen), hooguit elke 15 minuten bijwerken */
+    if (!voorbeeld && Date.now() - (Date.parse(k.data().portaalLaatst || 0) || 0) > 15 * 60e3) k.ref.set({ portaalLaatst: nu() }, { merge: true }).catch(() => {});
     return { ref, klant: { id: k.id, ...dec(k.data()) }, kref: k.ref, voorbeeld };
   }
   async function maakRefCode(k) {
