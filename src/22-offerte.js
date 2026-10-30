@@ -164,6 +164,11 @@ function openOfferte(opts={}){
     RC.setEmbed({klantId:kid,base:k0||{},
       form:()=>({naam:$o("naam").value.trim(),adres:$o("adres").value.trim(),pc:$o("postcode").value.trim().toUpperCase(),plaats:$o("plaats").value.trim(),tel:$o("telefoon").value.trim(),email:$o("email").value.trim(),notitie:"",zakelijk:$o("soort").value==="zakelijk"}),
       onCalc:()=>{if(!$("#owRegels"))return;const c=RC.current();if(c)rc=c;if(c){if(!touched.freq&&rc.opd.frequentie){const w=String(rc.opd.frequentie);if(![...$o("freq").options].some(o=>o.value===w))$o("freq").insertAdjacentHTML("beforeend",`<option value="${w}">Elke ${w} weken</option>`);$o("freq").value=w}if(!touched.duur&&rc.opd.duur)$o("duur").value=String(rc.opd.duur)}draw()},
+      /* meetlint en luchtfoto: gemeten meters als aantallen bij de dienst in deze offerte; zelf ingevulde aantallen blijven staan */
+      onMeet:(t,vorig)=>{let ok=false;new Set([...Object.keys(t),...Object.keys(vorig)]).forEach(id=>{const d=diensten.find(x=>x.items&&x.items.some(it=>String(it.id)===String(id)));if(!d)return;
+          let o=dns.find(x=>x.groep===d.groep);if(!o){if(!(t[id]>0))return;o={id:newId("o"),groep:d.groep,naam:d.naam,frequentie:Number($o("freq").value)||8,items:d.items.map(it=>({...it,aantal:0}))};dns.push(o)}
+          const it=o.items.find(x=>String(x.id)===String(id));if(!it)return;const nu=Number(it.aantal)||0,nw=Math.round((Math.max(0,nu-(vorig[id]||0))+(t[id]||0))*10)/10;if(nw!==nu){it.aantal=nw;ok=true}});
+        if(ok){draw();toast("Gemeten meters staan bij de diensten in de offerte")}},
       onSave:async patch=>{const id=await saveKlant(patch);return id},
       offerte:mode=>doSave(mode==="send"?"send":"view")},true);
     $("#owRc").appendChild(RC.host);RC.setOfferte(true);RC.sync();
