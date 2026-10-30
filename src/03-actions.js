@@ -649,7 +649,7 @@ function openAkkoord(id){
   let d=addDays(today(),7);for(let i=0;i<14&&!isWerkdag(d);i++)d=addDays(d,1);
   const fo=freqOpts(fr);
   const dur=[15,30,45,60,90,120,180,240];if(!dur.includes(du))dur.push(du);dur.sort((a,b)=>a-b);
-  openDlg(`<div class="dlg-head"><span class="objic big">${I.check}</span><div style="min-width:0;flex:1"><h3>Akkoord op ${esc(f.nummer)}</h3><div class="subt">${esc(cleanName(k.naam))} · ${esc(fullAddr(k))}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
+  openDlg(`<div class="dlg-head"><span class="objic big">${I.check}</span><div style="min-width:0;flex:1"><h3>Akkoord op ${esc(f.nummer)}</h3><div class="subt">${esc(cleanName(k.naam))} · ${esc(typeof offUloc==="function"&&offUloc(f)?"uitvoerlocatie "+offUlocTxt(f):fullAddr(k))}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
   <p class="subt" style="margin:0">De klant wordt een vaste klant met deze afspraken. Na elke afgemelde beurt komt de factuur bij Facturen.</p>
   <div class="grid2">
     <label>Prijs per beurt (€ ${S().incl?"incl.":"excl."} btw)<input id="ak-prijs" type="number" step="0.01" min="0" inputmode="decimal" value="${esc(prijs)}" required></label>
@@ -665,6 +665,10 @@ function openAkkoord(id){
   form.onsubmit=async e=>{e.preventDefault();const b=$("#akGo");b.disabled=true;
     const dat=$("#ak-dat").value,tijd=dat?($("#ak-tijd").value||nextFree(dat)):"",p=r2(Number($("#ak-prijs").value)||0);
     try{const cur=state.klanten.find(x=>x.id===k.id)||k;
+      {const up=typeof offUlocPatch==="function"?offUlocPatch(cur,f,{prijs:p,frequentie:Number($("#ak-freq").value),duur:Number($("#ak-duur").value),dienst:$("#ak-dienst").value.trim()||"Glasbewassing",aanbod:$("#ak-aanbod").value||""}):null;
+        if(up){await save("klanten",k.id,{...strip(cur),...up,akkoord:$("#ak-ov").checked||!!cur.akkoord});await save("facturen",f.id,{...strip(f),status:"geaccepteerd",akkoordOp:iso(today())});
+          try{if(typeof creditsVoorOfferte==="function")creditsVoorOfferte({...f,status:"geaccepteerd"})}catch(_){}
+          dlg.close();toast("Nieuwe opdracht op "+offUlocTxt(f)+" · staat bij Te plannen"+($("#ak-aanbod").value>iso(today())?" vanaf "+fmtD(parse($("#ak-aanbod").value)):""));return}}
       await save("klanten",k.id,{...strip(cur),...(o.extra&&o.extra.length?{opdrachten:[...(cur.opdrachten||[]).filter(x=>!x.groep||!o.extra.some(e=>e.groep===x.groep)),...o.extra]}:{}),prospect:false,opdrachtVerwijderd:false,...(f.facturatie?(typeof factModusPatchOfferte==="function"?factModusPatchOfferte:factModusPatch)(f.facturatie,cur):{}),actief:true,akkoord:$("#ak-ov").checked||!!cur.akkoord,prijs:p,frequentie:Number($("#ak-freq").value),duur:Number($("#ak-duur").value),
         dienst:$("#ak-dienst").value.trim()||"Glasbewassing",gepland:dat,tijd,aanbodVanaf:$("#ak-aanbod").value||"",aanbieden:!dat&&!($("#ak-aanbod").value>iso(today())),opzegReden:"",log:[...(cur.log||[]),{datum:iso(today()),tekst:"Akkoord op offerte "+f.nummer+" · "+eur(p)+" per beurt, elke "+$("#ak-freq").value+" weken"+(dat?" · eerste beurt "+fmtD(parse(dat)):"")+($("#ak-aanbod").value?" · aanboddatum "+fmtD(parse($("#ak-aanbod").value)):"")}]});
       await save("facturen",f.id,{...strip(f),status:"geaccepteerd",akkoordOp:iso(today())});

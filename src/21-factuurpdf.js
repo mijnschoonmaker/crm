@@ -86,7 +86,7 @@ function paperHtml(f,klant){
     ${m.regels.map(r=>`<tr><td>${esc(r.oms)}</td><td class="c">${r.aantal}</td><td class="r">€ ${num(r.prijs)}</td><td class="r"><b>€ ${num(r.ex)}</b></td></tr>`).join("")}</tbody></table>`}
   <div class="i5-sum"><div class="i5-pay">${m.pay?`<span class="i5-l">Betaalgegevens</span><table>${m.pay.filter(x=>x[0]!=="Uiterlijk").map(([a,b])=>`<tr><th>${esc(a)}</th><td>${esc(b)}</td></tr>`).join("")}</table>`:`<span class="i5-l">${m.off?"Geldigheid":"Betaling"}</span>`}${m.off?`<b class="i5-pnr">Offerte ${esc(f.nummer)}</b>`:""}<p>${esc(m.zin)}</p></div>
     ${m.off&&f.totaalTonen===false?"<div></div>":`<div class="i5-tot"><div><span>Subtotaal</span><span>€ ${num(m.t.ex)}</span></div>${m.t.tarieven.map(x=>`<div><span>BTW ${x.pct}%</span><span>€ ${num(x.btw)}</span></div>`).join("")}<div class="g"><span><b>${m.off?"Totaal per beurt":m.voldaan||m.st[1]==="g"?"Betaald":"Te betalen"}</b><small>${m.off?(m.t.tarieven.length>1?"incl. btw":"incl. "+m.t.tarieven[0].pct+"% btw"):m.voldaan||m.st[1]==="g"?"Hartelijk dank":"Vóór "+esc(fmtL(f.verval))}</small></span><span class="i5-amt">€ ${num(m.t.inc)}</span></div></div>`}</div>
-  ${f.notitie?`<div class="i5-note"><span class="i5-l">Opmerking</span>${esc(f.notitie)}</div>`:""}
+  ${typeof offUlocTxt==="function"&&offUlocTxt(f)?`<div class="i5-note"><span class="i5-l">Uitvoerlocatie</span>${esc(offUlocTxt(f))}</div>`:""}${f.notitie?`<div class="i5-note"><span class="i5-l">Opmerking</span>${esc(f.notitie)}</div>`:""}
   ${f.soort==="offerte"&&offTxt(f.voettekst,f)?`<div class="i5-txt">${esc(offTxt(f.voettekst,f)).replace(/\n/g,"<br>")}</div>`:""}
     ${m.vwTxt?`<p class="i5-vw">${esc(m.vwTxt)}</p>`:""}
   </div>${(()=>{const fb=f.soort!=="offerte"&&typeof factFotos==="function"&&factFotos(f).length?`<div class="i5-fotos"><span class="i5-l">Bijlage · foto's</span><b class="i5-ft">Opgemerkt tijdens ons werk</b><span class="i5-fs">Tijdens de beurt${f.datum?" van "+esc(fmtL(f.datum)):""} viel ons het volgende op.</span><div class="${factFotos(f).length===1?"een":""}">${factFotos(f).map((b,i)=>`<figure><span class="i5-fi"><img src="${BLOB}${esc(b.id)}" alt="">${b.zijde?`<em>${esc(b.zijde)}</em>`:""}</span><figcaption><i>${String(i+1).padStart(2,"0")}</i><span><b>${esc(b.notitie||"Bijzonderheid")}</b><small>${esc(fmtL(b.datum||f.datum))}</small></span></figcaption></figure>`).join("")}</div></div>`:"";return fb?`<div class="inv5 i5-p2" style="--A:${m.A}">${fb}</div>`:""})()}`;
@@ -151,7 +151,8 @@ async function pdfDoc(f,klant){
   pr.forEach(([a,b])=>{N();doc.setFontSize(8);col(C.mut);doc.text(a,L+5,by);B();col(C.ink);doc.text(String(b),L+22,by);by+=4.6});
   N();doc.setFontSize(7.6);col(C.mut);doc.text(zl,L+5,by+1,{lineHeightFactor:1.45});col(C.ink);
   y=Math.max(y+bh,tyEnd)+9;
-  if(f.notitie){const nl=doc.splitTextToSize(f.notitie,W-10),nh=9+nl.length*4.2;if(y+nh>258){doc.addPage();y=20}doc.setDrawColor(...C.line);doc.setLineWidth(.3);doc.roundedRect(L,y,W,nh,2,2,"S");lab("Opmerking",L+5,y+5.5);N();doc.setFontSize(8);doc.text(nl,L+5,y+10.2);y+=nh+7}
+  const _ul=typeof offUlocTxt==="function"?offUlocTxt(f):"",_nt=[_ul?"Uitvoerlocatie: "+_ul:"",f.notitie||""].filter(Boolean).join("\n");
+  if(_nt){const nl=doc.splitTextToSize(_nt,W-10),nh=9+nl.length*4.2;if(y+nh>258){doc.addPage();y=20}doc.setDrawColor(...C.line);doc.setLineWidth(.3);doc.roundedRect(L,y,W,nh,2,2,"S");lab("Opmerking",L+5,y+5.5);N();doc.setFontSize(8);doc.text(nl,L+5,y+10.2);y+=nh+7}
   if(f.soort==="offerte"&&offTxt(f.voettekst,f)){N();doc.setFontSize(8.8);col(C.ink);const vl2=doc.splitTextToSize(offTxt(f.voettekst,f),W);if(y+vl2.length*4.6>262){doc.addPage();y=20}doc.text(vl2,L,y+2,{lineHeightFactor:1.45});y+=vl2.length*4.6+6}
   if(y>255){doc.addPage();y=20}
   

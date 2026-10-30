@@ -4740,6 +4740,7 @@ html body .ow-lg.ow-lg-weg{display:none!important}
 
 .tj-foto{display:inline-flex;align-items:center;gap:4px;flex:none;margin-left:8px;padding:3px 8px;border:0;border-radius:999px;background:rgba(255,255,255,.16);color:#fff;font:inherit;font-size:12px;cursor:pointer;min-height:0;box-shadow:none}
 .tj-foto svg{width:15px;height:15px}.tj-foto b{font-weight:700}.tj-foto:hover{background:rgba(255,255,255,.28)}
+#owUlocN[hidden]{display:none!important}
 
 </style>
 <style id="mansardThema">
@@ -7534,7 +7535,7 @@ function openAkkoord(id){
   let d=addDays(today(),7);for(let i=0;i<14&&!isWerkdag(d);i++)d=addDays(d,1);
   const fo=freqOpts(fr);
   const dur=[15,30,45,60,90,120,180,240];if(!dur.includes(du))dur.push(du);dur.sort((a,b)=>a-b);
-  openDlg(`<div class="dlg-head"><span class="objic big">${I.check}</span><div style="min-width:0;flex:1"><h3>Akkoord op ${esc(f.nummer)}</h3><div class="subt">${esc(cleanName(k.naam))} · ${esc(fullAddr(k))}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
+  openDlg(`<div class="dlg-head"><span class="objic big">${I.check}</span><div style="min-width:0;flex:1"><h3>Akkoord op ${esc(f.nummer)}</h3><div class="subt">${esc(cleanName(k.naam))} · ${esc(typeof offUloc==="function"&&offUloc(f)?"uitvoerlocatie "+offUlocTxt(f):fullAddr(k))}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
   <p class="subt" style="margin:0">De klant wordt een vaste klant met deze afspraken. Na elke afgemelde beurt komt de factuur bij Facturen.</p>
   <div class="grid2">
     <label>Prijs per beurt (€ ${S().incl?"incl.":"excl."} btw)<input id="ak-prijs" type="number" step="0.01" min="0" inputmode="decimal" value="${esc(prijs)}" required></label>
@@ -7550,6 +7551,10 @@ function openAkkoord(id){
   form.onsubmit=async e=>{e.preventDefault();const b=$("#akGo");b.disabled=true;
     const dat=$("#ak-dat").value,tijd=dat?($("#ak-tijd").value||nextFree(dat)):"",p=r2(Number($("#ak-prijs").value)||0);
     try{const cur=state.klanten.find(x=>x.id===k.id)||k;
+      {const up=typeof offUlocPatch==="function"?offUlocPatch(cur,f,{prijs:p,frequentie:Number($("#ak-freq").value),duur:Number($("#ak-duur").value),dienst:$("#ak-dienst").value.trim()||"Glasbewassing",aanbod:$("#ak-aanbod").value||""}):null;
+        if(up){await save("klanten",k.id,{...strip(cur),...up,akkoord:$("#ak-ov").checked||!!cur.akkoord});await save("facturen",f.id,{...strip(f),status:"geaccepteerd",akkoordOp:iso(today())});
+          try{if(typeof creditsVoorOfferte==="function")creditsVoorOfferte({...f,status:"geaccepteerd"})}catch(_){}
+          dlg.close();toast("Nieuwe opdracht op "+offUlocTxt(f)+" · staat bij Te plannen"+($("#ak-aanbod").value>iso(today())?" vanaf "+fmtD(parse($("#ak-aanbod").value)):""));return}}
       await save("klanten",k.id,{...strip(cur),...(o.extra&&o.extra.length?{opdrachten:[...(cur.opdrachten||[]).filter(x=>!x.groep||!o.extra.some(e=>e.groep===x.groep)),...o.extra]}:{}),prospect:false,opdrachtVerwijderd:false,...(f.facturatie?(typeof factModusPatchOfferte==="function"?factModusPatchOfferte:factModusPatch)(f.facturatie,cur):{}),actief:true,akkoord:$("#ak-ov").checked||!!cur.akkoord,prijs:p,frequentie:Number($("#ak-freq").value),duur:Number($("#ak-duur").value),
         dienst:$("#ak-dienst").value.trim()||"Glasbewassing",gepland:dat,tijd,aanbodVanaf:$("#ak-aanbod").value||"",aanbieden:!dat&&!($("#ak-aanbod").value>iso(today())),opzegReden:"",log:[...(cur.log||[]),{datum:iso(today()),tekst:"Akkoord op offerte "+f.nummer+" · "+eur(p)+" per beurt, elke "+$("#ak-freq").value+" weken"+(dat?" · eerste beurt "+fmtD(parse(dat)):"")+($("#ak-aanbod").value?" · aanboddatum "+fmtD(parse($("#ak-aanbod").value)):"")}]});
       await save("facturen",f.id,{...strip(f),status:"geaccepteerd",akkoordOp:iso(today())});
@@ -12369,7 +12374,7 @@ function paperHtml(f,klant){
     ${m.regels.map(r=>`<tr><td>${esc(r.oms)}</td><td class="c">${r.aantal}</td><td class="r">€ ${num(r.prijs)}</td><td class="r"><b>€ ${num(r.ex)}</b></td></tr>`).join("")}</tbody></table>`}
   <div class="i5-sum"><div class="i5-pay">${m.pay?`<span class="i5-l">Betaalgegevens</span><table>${m.pay.filter(x=>x[0]!=="Uiterlijk").map(([a,b])=>`<tr><th>${esc(a)}</th><td>${esc(b)}</td></tr>`).join("")}</table>`:`<span class="i5-l">${m.off?"Geldigheid":"Betaling"}</span>`}${m.off?`<b class="i5-pnr">Offerte ${esc(f.nummer)}</b>`:""}<p>${esc(m.zin)}</p></div>
     ${m.off&&f.totaalTonen===false?"<div></div>":`<div class="i5-tot"><div><span>Subtotaal</span><span>€ ${num(m.t.ex)}</span></div>${m.t.tarieven.map(x=>`<div><span>BTW ${x.pct}%</span><span>€ ${num(x.btw)}</span></div>`).join("")}<div class="g"><span><b>${m.off?"Totaal per beurt":m.voldaan||m.st[1]==="g"?"Betaald":"Te betalen"}</b><small>${m.off?(m.t.tarieven.length>1?"incl. btw":"incl. "+m.t.tarieven[0].pct+"% btw"):m.voldaan||m.st[1]==="g"?"Hartelijk dank":"Vóór "+esc(fmtL(f.verval))}</small></span><span class="i5-amt">€ ${num(m.t.inc)}</span></div></div>`}</div>
-  ${f.notitie?`<div class="i5-note"><span class="i5-l">Opmerking</span>${esc(f.notitie)}</div>`:""}
+  ${typeof offUlocTxt==="function"&&offUlocTxt(f)?`<div class="i5-note"><span class="i5-l">Uitvoerlocatie</span>${esc(offUlocTxt(f))}</div>`:""}${f.notitie?`<div class="i5-note"><span class="i5-l">Opmerking</span>${esc(f.notitie)}</div>`:""}
   ${f.soort==="offerte"&&offTxt(f.voettekst,f)?`<div class="i5-txt">${esc(offTxt(f.voettekst,f)).replace(/\n/g,"<br>")}</div>`:""}
     ${m.vwTxt?`<p class="i5-vw">${esc(m.vwTxt)}</p>`:""}
   </div>${(()=>{const fb=f.soort!=="offerte"&&typeof factFotos==="function"&&factFotos(f).length?`<div class="i5-fotos"><span class="i5-l">Bijlage · foto's</span><b class="i5-ft">Opgemerkt tijdens ons werk</b><span class="i5-fs">Tijdens de beurt${f.datum?" van "+esc(fmtL(f.datum)):""} viel ons het volgende op.</span><div class="${factFotos(f).length===1?"een":""}">${factFotos(f).map((b,i)=>`<figure><span class="i5-fi"><img src="${BLOB}${esc(b.id)}" alt="">${b.zijde?`<em>${esc(b.zijde)}</em>`:""}</span><figcaption><i>${String(i+1).padStart(2,"0")}</i><span><b>${esc(b.notitie||"Bijzonderheid")}</b><small>${esc(fmtL(b.datum||f.datum))}</small></span></figcaption></figure>`).join("")}</div></div>`:"";return fb?`<div class="inv5 i5-p2" style="--A:${m.A}">${fb}</div>`:""})()}`;
@@ -12434,7 +12439,8 @@ async function pdfDoc(f,klant){
   pr.forEach(([a,b])=>{N();doc.setFontSize(8);col(C.mut);doc.text(a,L+5,by);B();col(C.ink);doc.text(String(b),L+22,by);by+=4.6});
   N();doc.setFontSize(7.6);col(C.mut);doc.text(zl,L+5,by+1,{lineHeightFactor:1.45});col(C.ink);
   y=Math.max(y+bh,tyEnd)+9;
-  if(f.notitie){const nl=doc.splitTextToSize(f.notitie,W-10),nh=9+nl.length*4.2;if(y+nh>258){doc.addPage();y=20}doc.setDrawColor(...C.line);doc.setLineWidth(.3);doc.roundedRect(L,y,W,nh,2,2,"S");lab("Opmerking",L+5,y+5.5);N();doc.setFontSize(8);doc.text(nl,L+5,y+10.2);y+=nh+7}
+  const _ul=typeof offUlocTxt==="function"?offUlocTxt(f):"",_nt=[_ul?"Uitvoerlocatie: "+_ul:"",f.notitie||""].filter(Boolean).join("\n");
+  if(_nt){const nl=doc.splitTextToSize(_nt,W-10),nh=9+nl.length*4.2;if(y+nh>258){doc.addPage();y=20}doc.setDrawColor(...C.line);doc.setLineWidth(.3);doc.roundedRect(L,y,W,nh,2,2,"S");lab("Opmerking",L+5,y+5.5);N();doc.setFontSize(8);doc.text(nl,L+5,y+10.2);y+=nh+7}
   if(f.soort==="offerte"&&offTxt(f.voettekst,f)){N();doc.setFontSize(8.8);col(C.ink);const vl2=doc.splitTextToSize(offTxt(f.voettekst,f),W);if(y+vl2.length*4.6>262){doc.addPage();y=20}doc.text(vl2,L,y+2,{lineHeightFactor:1.45});y+=vl2.length*4.6+6}
   if(y>255){doc.addPage();y=20}
   
@@ -12547,6 +12553,21 @@ const OFF_LETOP="Onderstaande bedragen zijn inclusief middelen, materialen en vo
 /* geen standaard voettekst onder de offerte; wie er een wil, vult hem zelf in (per offerte of bij Instellingen) */
 const OFF_VOET="";
 const BETAALW=[["bank","Per bank"],["incasso","Automatische incasso"],["contant","Contant"],["pin","PIN"]];
+/* uitvoerlocatie van een offerte: het klantadres, een bestaande locatie van de klant, of een ander adres (bijv. tweede woning) */
+const offUloc=f=>f&&f.uitvoer&&(f.uitvoer.objectId||f.uitvoer.adres)?f.uitvoer:null;
+const offUlocTxt=f=>{const u=offUloc(f);if(!u)return"";const k=state.klanten.find(x=>x.id===f.klantId),o=u.objectId&&k&&(k.objecten||[]).find(x=>x.id===u.objectId),a=o||u;return [a.naam||"",fullAddr(a)].filter(Boolean).join(" · ")};
+function offUlocOpts(k,sel){return `<option value="hoofd">Zelfde als het adres hierboven</option>${((k&&k.objecten)||[]).filter(o=>o&&o.adres).map(o=>`<option value="${esc(o.id)}" ${sel===o.id?"selected":""}>${esc((o.naam?o.naam+" · ":"")+fullAddr(o))}</option>`).join("")}<option value="nieuw" ${sel==="nieuw"?"selected":""}>Ander adres (bijv. tweede woning)…</option>`}
+/* akkoord op een offerte voor een ander adres: eigen opdracht (eigen nummer, eigen planning) op die locatie; de bestaande opdracht van de klant blijft ongemoeid */
+function offUlocPatch(cur,f,w){const u=offUloc(f);if(!u)return null;const nu=iso(today());
+  let objecten=[...(cur.objecten||[])],oid=u.objectId;
+  if(!oid||!objecten.some(x=>x.id===oid)){oid=newId("l");objecten.push({id:oid,naam:u.naam||"Uitvoerlocatie",adres:u.adres||"",postcode:u.postcode||"",plaats:u.plaats||""})}
+  const id=newId("o"),o=f.opdracht||{},fm=["concept","direct","geen","periodiek"].includes(f.facturatie)?f.facturatie:"";
+  const hoofd={id,dienst:w.dienst||"Glasbewassing",prijs:w.prijs,frequentie:w.frequentie,duur:w.duur,volgende:w.aanbod||"",actief:true,objectId:oid,apart:true,vanOfferte:f.nummer||"",
+    ...(fm?{facturatie:fm}:{}),fotos:((f.rcTelling&&f.rcTelling.fotos)||[]).map(x=>({...x}))};
+  const mee=(o.extra||[]).map(e=>({...e,id:newId("o"),objectId:oid,bij:id,apart:false}));
+  const loc=[u.naam,fullAddr(objecten.find(x=>x.id===oid))].filter(Boolean).join(" · ");
+  return{objecten,opdrachten:[...(cur.opdrachten||[]),hoofd,...mee],prospect:false,actief:true,...(cur.prospect?{opdrachtVerwijderd:true,prijs:0,aanbieden:false}:{}),
+    log:[...(cur.log||[]),{datum:nu,tekst:"Akkoord op offerte "+(f.nummer||"")+" · nieuwe opdracht op "+loc+" · "+eur(w.prijs)+" per beurt, elke "+w.frequentie+" weken"}]}}
 function openOfferte(opts={}){
   const ex=opts.id?state.facturen.find(x=>x.id===opts.id):null;
   if(opts.id&&!ex)return;
@@ -12582,6 +12603,8 @@ function openOfferte(opts={}){
         <label>E-mail <small style="font-weight:500">(offerte gaat naar)</small><input id="ow-email" type="email" value="${v(k0,"email")}"></label>
         <label>Telefoon<input id="ow-telefoon" type="tel" value="${v(k0,"telefoon")}"></label>
         <label>Soort<select id="ow-soort"><option value="particulier">Particulier</option><option value="zakelijk" ${k0&&k0.soort==="zakelijk"?"selected":""}>Zakelijk</option><option value="vve" ${k0&&k0.soort==="vve"?"selected":""}>VvE</option></select></label>
+        ${(()=>{const u=offUloc(ex),sel=u?(u.objectId||"nieuw"):"hoofd",n=u&&!u.objectId?u:{};return `<label class="full">Uitvoerlocatie <small style="font-weight:500">(waar het werk gedaan wordt)</small><select id="ow-uloc">${offUlocOpts(k0,sel)}</select></label>
+        <div class="full grid2" id="owUlocN"${sel==="nieuw"?"":" hidden"}><label class="full">Omschrijving<input id="ow-un" value="${esc(n.naam||"")}" placeholder="Bijv. Woning moeder"></label><label class="full">Adres<input id="ow-ua" value="${esc(n.adres||"")}" placeholder="Straat en huisnummer"></label><label>Postcode<input id="ow-up" value="${esc(n.postcode||"")}" placeholder="1234 AB"></label><label>Plaats<input id="ow-upl" value="${esc(n.plaats||"")}"></label><small class="help full">De offerte en facturen gaan naar de klant hierboven; het werk gebeurt op dit adres. Na akkoord komt er een eigen opdracht met eigen planning; de bestaande opdracht van de klant blijft zoals hij is.</small></div>`})()}
       </div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.facturen}</span><b>Details offerte</b></div>
       <div class="grid2">
@@ -12678,7 +12701,11 @@ function openOfferte(opts={}){
   /* naar de klantkaart van de gekozen klant (vraagt eerst of je wijzigingen wilt bewaren, zoals bij sluiten) */
   const kkB=$("#owKk");if(kkB)kkB.onclick=()=>{const id=$o("k").value;if(!id)return;sluitDlg(()=>openKlant(id))};
   $o("k").addEventListener("change",()=>{if(kkB)kkB.hidden=!$o("k").value});
-  $o("k").onchange=e=>{const k=state.klanten.find(x=>x.id===e.target.value);kid=k?k.id:"";
+  {const us=$o("uloc");if(us)us.onchange=()=>{$("#owUlocN").hidden=us.value!=="nieuw";if(us.value==="nieuw")$o("ua").focus()}}
+  const ulocVal=()=>{const us=$o("uloc");if(!us||us.value==="hoofd")return null;if(us.value!=="nieuw")return{objectId:us.value};
+    const pc=$o("up").value.trim().toUpperCase().replace(/\s+/g,""),postcode=/^\d{4}[A-Z]{2}$/.test(pc)?pc.slice(0,4)+" "+pc.slice(4):$o("up").value.trim().toUpperCase();
+    return{naam:$o("un").value.trim(),adres:$o("ua").value.trim(),postcode,plaats:$o("upl").value.trim()}};
+  $o("k").onchange=e=>{const k=state.klanten.find(x=>x.id===e.target.value);kid=k?k.id:"";{const us=$o("uloc");if(us){const v0=us.value==="nieuw"?"nieuw":"hoofd";us.innerHTML=offUlocOpts(k,v0)}}
     ["naam","adres","postcode","plaats","email","telefoon"].forEach(n=>$o(n).value=k?k[n]||"":"");$o("soort").value=k&&(k.soort==="zakelijk"||k.soort==="vve")?k.soort:"particulier";
     if(k&&!touched.freq&&!rc){$o("freq").value=String(k.frequentie||8)}sub();if(RC)RC.sync()};
   /* rekentool: ongewijzigd, alleen gekoppeld aan dit scherm */
@@ -12697,8 +12724,8 @@ function openOfferte(opts={}){
   const owRefTeken=()=>{const box=$("#owRef");if(!box)return;const cur=state.klanten.find(x=>x.id===kid);
     if(!refAan()){box.innerHTML="";return}
     if(cur&&cur.aanbevolenDoor){const d=state.klanten.find(x=>x.id===cur.aanbevolenDoor);box.innerHTML=`<div class="ow-ref ok">${I.spark||""}<div><b>Aanbevolen door ${esc(d?cleanName(d.naam):"een klant")}${cur.aanbevolenCode?" · "+esc(cur.aanbevolenCode):""}</b><small>${refWelkom()>0?eur(refWelkom())+" welkomstkorting gaat van de eerste factuur af. ":""}${d?esc(voornaam(d.contact||cleanName(d.naam)))+" krijgt "+eur(refBeloning())+" na de eerste afspraak.":""}</small></div></div>`;return}
-    const r=owRefCode?refVan(owRefCode,kid):null,fout=owRefCode&&!r;
-    box.innerHTML=`<div class="ow-ref${r?" ok":""}">${I.spark||""}<div><label for="owRefIn"><b>Code van een buur of kennis</b></label><small>${r?`Aanbevolen door <b>${esc(cleanName(r.naam))}</b>. ${refWelkom()>0?eur(refWelkom())+" welkomstkorting op de eerste factuur, ":""}${esc(voornaam(r.contact||cleanName(r.naam)))} krijgt ${eur(refBeloning())} na de eerste afspraak. Wordt vastgelegd bij Opslaan.`:fout?`<span style="color:var(--late)">Code ${esc(owRefCode)} is niet bekend.</span>`:"Is de klant aanbevolen? Vul de code in (staat in het klantportaal van de aanbrenger)."}</small>
+    const r=owRefCode?refVan(owRefCode,kid):null,fout=owRefCode&&!r,eigen=fout&&cur&&refNorm(cur.refCode)===owRefCode;
+    box.innerHTML=`<div class="ow-ref${r?" ok":""}">${I.spark||""}<div><label for="owRefIn"><b>Code van een buur of kennis</b></label><small>${r?`Aanbevolen door <b>${esc(cleanName(r.naam))}</b>. ${refWelkom()>0?eur(refWelkom())+" welkomstkorting op de eerste factuur, ":""}${esc(voornaam(r.contact||cleanName(r.naam)))} krijgt ${eur(refBeloning())} na de eerste afspraak. Wordt vastgelegd bij Opslaan.`:eigen?`<span style="color:var(--late)">Code ${esc(owRefCode)} is de eigen code van ${esc(cleanName(cur.naam))}. Een klant kan zichzelf niet aanbevelen; voor een tweede adres van dezelfde klant is geen code nodig (kies hieronder bij Uitvoerlocatie het andere adres). Is het voor iemand anders, maak dan een nieuwe klant aan en vul daar deze code in.</span>`:fout?`<span style="color:var(--late)">Code ${esc(owRefCode)} is niet bekend.</span>`:"Is de klant aanbevolen? Vul de code in (staat in het klantportaal van de aanbrenger)."}</small>
       <span class="ow-refrow"><input id="owRefIn" placeholder="Bijv. HANS68" maxlength="12" autocomplete="off" spellcheck="false" value="${esc(owRefCode)}" style="text-transform:uppercase;letter-spacing:.06em"><button type="button" class="small" id="owRefGo">${r?"Wijzigen":"Toepassen"}</button></span></div></div>`;
     const inp=$("#owRefIn"),go=()=>{owRefCode=refNorm(inp.value);owRefTeken()};$("#owRefGo").onclick=go;inp.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();go()}};inp.onchange=go};
   owRefTeken();
@@ -12708,6 +12735,8 @@ function openOfferte(opts={}){
   async function saveKlant(patch={}){
     const kv=klantVelden();if(!kv.naam||!kv.adres){$o(kv.naam?"adres":"naam").focus();throw {msg:"Vul eerst de naam en het adres van de klant in (links)."}}
     const cur=state.klanten.find(x=>x.id===kid);
+    if(cur&&ulocVal()&&!cur.prospect){/* offerte voor een ander adres: de bestaande opdracht (prijs, telling) van de klant niet overschrijven */
+      ["ramenTelling","ramenRegel","prijs","frequentie","duur","dienst","opdrachten"].forEach(f=>delete patch[f])}
     if(cur){await save("klanten",kid,{...strip(cur),...kv,...patch});return kid}
     kid=newId("k");
     await save("klanten",kid,{...kv,klantnr:"",ronde:"",frequentie:Number($o("freq").value)||8,prijs:0,laatst:"",gepland:"",tijd:"",duur:Number($o("duur").value)||30,dienst:"Glasbewassing",objectId:"",binnen:false,
@@ -12718,6 +12747,7 @@ function openOfferte(opts={}){
     if(busyNow)return;const regels=allRegels();
     const kv=klantVelden();if(!kv.naam||!kv.adres){$o(kv.naam?"adres":"naam").focus();toast("Vul de naam en het adres van de klant in");return}
     const opslaan=mode==="save"||mode==="saveclose";
+    {const u=ulocVal();if(u&&!u.objectId&&!u.adres){$("#owUlocN").hidden=false;$o("ua").focus();toast("Vul het adres van de uitvoerlocatie in");return}}
     if(!regels.length&&!opslaan){toast("Voeg minimaal één offerteregel toe, of bereken de prijs in de rekentool");return}
     if(!opslaan){const glasNu=(rc&&rc.regels&&rc.regels.length)||extra.some(r=>/glas|ramen/i.test(String(r.omschrijving||""))),k1=state.klanten.find(x=>x.id===kid);
       if(dns.length&&!glasNu&&!heeftGlas(k1)){toast(GLAS_REGEL+" Tel eerst de ramen in de rekentool, of voeg een regel glasbewassing toe.");const r=$("#owRc");if(r)r.scrollIntoView({block:"start",behavior:"smooth"});return}}
@@ -12729,7 +12759,7 @@ function openOfferte(opts={}){
       let tel=null,fail=0;if(rc){const r=await RC.telling();tel=r.t;fail=r.fail}
       const wasNew=!state.klanten.some(x=>x.id===kid),cur=state.klanten.find(x=>x.id===kid);
       const kPatch={...(tel?{ramenTelling:tel}:{}),...((wasNew||(cur&&cur.prospect))?{prijs:opdracht.prijs,frequentie:opdracht.frequentie,duur:opdracht.duur,incasso:$o("betaal").value==="incasso",opdrachten:[...((cur&&cur.opdrachten)||[]).filter(o=>!o.groep||!dnsExtra.some(e=>e.groep===o.groep)),...dnsExtra]}:{})};
-      {const r=owRefCode?refVan(owRefCode,kid):null;if(owRefCode&&!r){toast("Code "+owRefCode+" is niet bekend · haal hem weg of verbeter hem");const x=$("#owRefIn");if(x)x.focus();return false}
+      {const r=owRefCode?refVan(owRefCode,kid):null;if(owRefCode&&!r){toast(cur&&refNorm(cur.refCode)===owRefCode?"Dit is de eigen code van deze klant · haal hem weg":"Code "+owRefCode+" is niet bekend · haal hem weg of verbeter hem");const x=$("#owRefIn");if(x)x.focus();return false}
         if(r)Object.assign(kPatch,refKoppelPatch(cur,r))}
       const klantId=await saveKlant(kPatch);const k=state.klanten.find(x=>x.id===klantId)||{...kv,id:klantId};
       if($("#ow-std").checked){const sd={...state.settings,offerteTekst:$o("tekst").value,offerteVoet:$o("voet").value,offerteLetopAan:$o("letop").checked,offerteLetop:$o("letopt").value,offerteTotaal:$o("totaal").checked};await save("instellingen","bedrijf",sd);state.settings=sd}
@@ -12737,7 +12767,7 @@ function openOfferte(opts={}){
       const data={...(ex?strip(ex):{}),soort:"offerte",nummer:ex?ex.nummer:nextNr("offerte",datum),klantId,klantNaam:kv.naam,klantAdres:fullAddr(kv),klantEmail:kv.email,datum,verval:$o("verval").value||iso(addDays(parse(datum),30)),
         regels,extraRegels:extra.filter(r=>r.omschrijving||Number(r.prijs)).map(r=>({omschrijving:String(r.omschrijving||""),aantal:Number(r.aantal)||0,prijs:Number(r.prijs)||0})),rcTelling:tel||(rc&&ex?ex.rcTelling||null:null),rcRegels:rc?rc.regels.map(r=>({omschrijving:r.omschrijving,aantal:r.aantal,prijs:r.prijs})):null,
         diensten:dns,btw,incl:false,status:mode==="sent"?"verstuurd":ex?ex.status||"concept":"concept",tekst:$o("tekst").value,voettekst:$o("voet").value,notitie:$o("notitie").value.trim(),start:$o("start").value,betaalwijze:$o("betaal").value,facturatie:$o("fact").value,letop:$o("letop").checked,letopTekst:$o("letopt").value,totaalTonen:$o("totaal").checked,opdracht,
-        telling:tel?{ramen:tel.ramen,minuten:tel.minuten}:(ex&&ex.telling)||null,
+        telling:tel?{ramen:tel.ramen,minuten:tel.minuten}:(ex&&ex.telling)||null,uitvoer:ulocVal(),
         betaaldOp:"",vanOfferte:"",gemaakt:ex?ex.gemaakt||"":new Date().toISOString(),verstuurdOp:mode==="sent"?new Date().toISOString():ex?ex.verstuurdOp||"":"",herinnerdOp:ex?ex.herinnerdOp||"":"",herinneringen:ex?ex.herinneringen||0:0};
       await save("facturen",id,data);
       sig0=null;
@@ -16482,6 +16512,8 @@ async function autoAkkoordGetekend(f){
   const k=state.klanten.find(x=>x.id===f.klantId);if(!k||!k.prospect||f.autoAkkoord)return;
   const o=f.opdracht||{},t=totals(f),p=r2(Number(o.prijs??(S().incl?t.inc:t.ex))||0),fr=Number(o.frequentie||k.frequentie||4),du=Number(o.duur||k.duur||30),aanbod=f.start||iso(today());
   try{
+    {const up=typeof offUlocPatch==="function"?offUlocPatch(k,f,{prijs:p,frequentie:fr,duur:du,dienst:"Glasbewassing",aanbod}):null;
+      if(up){await save("klanten",k.id,{...strip(k),...up,akkoord:true});const ff=state.facturen.find(x=>x.id===f.id)||f;await save("facturen",f.id,{...strip(ff),status:"geaccepteerd",akkoordOp:ff.akkoordOp||iso(today()),autoAkkoord:true});return}}
     await save("klanten",k.id,{...strip(k),...(o.extra&&o.extra.length?{opdrachten:[...(k.opdrachten||[]).filter(x=>!x.groep||!o.extra.some(e=>e.groep===x.groep)),...o.extra]}:{}),prospect:false,opdrachtVerwijderd:false,...(f.facturatie&&typeof factModusPatchOfferte==="function"?factModusPatchOfferte(f.facturatie,k):{}),actief:true,akkoord:true,prijs:p,frequentie:fr,duur:du,
       dienst:k.dienst||"Glasbewassing",gepland:"",tijd:"",aanbodVanaf:aanbod,aanbieden:!(aanbod>iso(today())),opzegReden:"",log:[...(k.log||[]),{datum:iso(today()),tekst:"Offerte "+f.nummer+" online ondertekend door "+((f.getekend||{}).naam||"de klant")+" · "+eur(p)+" per beurt, elke "+fr+" weken · staat bij Te plannen vanaf "+fmtD(parse(aanbod))}]});
     const ff=state.facturen.find(x=>x.id===f.id)||f;
@@ -18059,7 +18091,7 @@ if(typeof window!=="undefined"){window.addEventListener("load",()=>setTimeout(pu
 if(!LIVE&&typeof location!=="undefined"&&/[?&]selftest\b/.test(location.search)){
   window.MSTEST={sendF:typeof sendF==="function"?sendF:null,verzondenHerstel:typeof verzondenHerstel==="function"?verzondenHerstel:null,vraagBetaaldatum:typeof vraagBetaaldatum==="function"?vraagBetaaldatum:null,betaaldTsVan:typeof betaaldTsVan==="function"?betaaldTsVan:null,state,S,save,del,totals,nextNr,nrDelen,wikKosten,fStatus,afronden,gewassen,billAll,setFStatus,iso,today,addDays,newId,strip,render,
     fin,beurtOmzet,klantFilter,extraOpdr,opdrNr:typeof opdrNr==="function"?opdrNr:null,openOpdrachtWerk:typeof openOpdrachtWerk==="function"?openOpdrachtWerk:null,teplannen,fhVolgende:typeof fhVolgende==="function"?fhVolgende:null,fhPoort:typeof fhPoort==="function"?fhPoort:null,groepEditor:typeof groepEditor==="function"?groepEditor:null,melding,stDienstSplit,klantActiefIn,openImport,relVolgende:typeof relVolgende==="function"?relVolgende:null,beurtMin,meetTeKort,wdCijfers:typeof wdCijfers==="function"?wdCijfers:null,kmFmt:typeof kmFmt==="function"?kmFmt:null,kmAfst:typeof kmAfst==="function"?kmAfst:null,saveSettings,
-    st:()=>state,inBeeld:typeof inBeeld==="function"?inBeeld:null,RC:()=>RC,pdfSig:typeof pdfSig==="function"?pdfSig:null,uitv:()=>({uitvLoad,uitvSave,U:()=>U}),openKlantView:typeof openKlantView==="function"?openKlantView:null,save:(...a)=>save(...a),afronden:typeof afronden==="function"?afronden:null,openPeriodiek:typeof openPeriodiek==="function"?openPeriodiek:null,openPeriodiekLijst:typeof openPeriodiekLijst==="function"?openPeriodiekLijst:null,duur:typeof duur==="function"?duur:null,openJob:typeof openJob==="function"?openJob:null,msAbo:typeof aboDlg==="function"?(d,f)=>{MS.doc=d;window.fbFn=f;window.ZEEM_ROL="eigenaar";return aboDlg()}:null,opdrBij:typeof opdrBij==="function"?opdrBij:null,openFotoViewer:typeof openFotoViewer==="function"?openFotoViewer:null,dotsHtml:typeof dotsHtml==="function"?dotsHtml:null,omsZonderDatum:typeof omsZonderDatum==="function"?omsZonderDatum:null,extraOpdr:typeof extraOpdr==="function"?extraOpdr:null,openOpdrachtWerk:typeof openOpdrachtWerk==="function"?openOpdrachtWerk:null,groepTarievenBij:typeof groepTarievenBij==="function"?groepTarievenBij:null,groepCalc:typeof groepCalc==="function"?groepCalc:null,wqOpen:typeof wqOpen==="function"?wqOpen:null,ccZet:typeof ccZet==="function"?ccZet:null,ccSignalen:typeof ccSignalen==="function"?ccSignalen:null,teVroeg:typeof teVroeg==="function"?teVroeg:null,mailFor:typeof mailFor==="function"?mailFor:null,volgendeNa:typeof volgendeNa==="function"?volgendeNa:null,verplaatsAllePatch:typeof verplaatsAllePatch==="function"?verplaatsAllePatch:null,heeftVervolg:typeof heeftVervolg==="function"?heeftVervolg:null,occurrences:typeof occurrences==="function"?occurrences:null,fbLees:typeof fbLees==="function"?fbLees:null,bhVerkoopboek:typeof bhVerkoopboek==="function"?bhVerkoopboek:null,invData:typeof invData==="function"?invData:null,pdfDoc:typeof pdfDoc==="function"?pdfDoc:null,paperHtml:typeof paperHtml==="function"?paperHtml:null,openTellingControle:typeof openTellingControle==="function"?openTellingControle:null,bcVast,ccKpis:typeof ccKpis==="function"?ccKpis:null,ccSignalen:typeof ccSignalen==="function"?ccSignalen:null,ccZoek:typeof ccZoek==="function"?ccZoek:null,ccAlle:typeof ccAlle==="function"?ccAlle:null,openFactuurWerk:typeof openFactuurWerk==="function"?openFactuurWerk:null,paperHtml:typeof paperHtml==="function"?paperHtml:null,btwRegel:typeof btwRegel==="function"?btwRegel:null,btwVast:typeof btwVast==="function"?btwVast:null,vveAanDeBeurt:typeof vveAanDeBeurt==="function"?vveAanDeBeurt:null,nrBewaker,msStatus:typeof msStatus==="function"?msStatus:null,MS:typeof MS!=="undefined"?MS:null,
+    st:()=>state,openOfferte:typeof openOfferte==="function"?openOfferte:null,openAkkoord:typeof openAkkoord==="function"?openAkkoord:null,inBeeld:typeof inBeeld==="function"?inBeeld:null,RC:()=>RC,pdfSig:typeof pdfSig==="function"?pdfSig:null,uitv:()=>({uitvLoad,uitvSave,U:()=>U}),openKlantView:typeof openKlantView==="function"?openKlantView:null,save:(...a)=>save(...a),afronden:typeof afronden==="function"?afronden:null,openPeriodiek:typeof openPeriodiek==="function"?openPeriodiek:null,openPeriodiekLijst:typeof openPeriodiekLijst==="function"?openPeriodiekLijst:null,duur:typeof duur==="function"?duur:null,openJob:typeof openJob==="function"?openJob:null,msAbo:typeof aboDlg==="function"?(d,f)=>{MS.doc=d;window.fbFn=f;window.ZEEM_ROL="eigenaar";return aboDlg()}:null,opdrBij:typeof opdrBij==="function"?opdrBij:null,openFotoViewer:typeof openFotoViewer==="function"?openFotoViewer:null,dotsHtml:typeof dotsHtml==="function"?dotsHtml:null,omsZonderDatum:typeof omsZonderDatum==="function"?omsZonderDatum:null,extraOpdr:typeof extraOpdr==="function"?extraOpdr:null,openOpdrachtWerk:typeof openOpdrachtWerk==="function"?openOpdrachtWerk:null,groepTarievenBij:typeof groepTarievenBij==="function"?groepTarievenBij:null,groepCalc:typeof groepCalc==="function"?groepCalc:null,wqOpen:typeof wqOpen==="function"?wqOpen:null,ccZet:typeof ccZet==="function"?ccZet:null,ccSignalen:typeof ccSignalen==="function"?ccSignalen:null,teVroeg:typeof teVroeg==="function"?teVroeg:null,mailFor:typeof mailFor==="function"?mailFor:null,volgendeNa:typeof volgendeNa==="function"?volgendeNa:null,verplaatsAllePatch:typeof verplaatsAllePatch==="function"?verplaatsAllePatch:null,heeftVervolg:typeof heeftVervolg==="function"?heeftVervolg:null,occurrences:typeof occurrences==="function"?occurrences:null,fbLees:typeof fbLees==="function"?fbLees:null,bhVerkoopboek:typeof bhVerkoopboek==="function"?bhVerkoopboek:null,invData:typeof invData==="function"?invData:null,pdfDoc:typeof pdfDoc==="function"?pdfDoc:null,paperHtml:typeof paperHtml==="function"?paperHtml:null,openTellingControle:typeof openTellingControle==="function"?openTellingControle:null,bcVast,ccKpis:typeof ccKpis==="function"?ccKpis:null,ccSignalen:typeof ccSignalen==="function"?ccSignalen:null,ccZoek:typeof ccZoek==="function"?ccZoek:null,ccAlle:typeof ccAlle==="function"?ccAlle:null,openFactuurWerk:typeof openFactuurWerk==="function"?openFactuurWerk:null,paperHtml:typeof paperHtml==="function"?paperHtml:null,btwRegel:typeof btwRegel==="function"?btwRegel:null,btwVast:typeof btwVast==="function"?btwVast:null,vveAanDeBeurt:typeof vveAanDeBeurt==="function"?vveAanDeBeurt:null,nrBewaker,msStatus:typeof msStatus==="function"?msStatus:null,MS:typeof MS!=="undefined"?MS:null,
     opdrLoc:typeof opdrLoc==="function"?opdrLoc:null,hoofdLoc:typeof hoofdLoc==="function"?hoofdLoc:null,openKlant:typeof openKlant==="function"?openKlant:null,
     views:()=>PAGES.map(p=>p[0]),ga:t=>{state.tab=t;render()}};
 }

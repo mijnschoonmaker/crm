@@ -4,6 +4,21 @@ const OFF_LETOP="Onderstaande bedragen zijn inclusief middelen, materialen en vo
 /* geen standaard voettekst onder de offerte; wie er een wil, vult hem zelf in (per offerte of bij Instellingen) */
 const OFF_VOET="";
 const BETAALW=[["bank","Per bank"],["incasso","Automatische incasso"],["contant","Contant"],["pin","PIN"]];
+/* uitvoerlocatie van een offerte: het klantadres, een bestaande locatie van de klant, of een ander adres (bijv. tweede woning) */
+const offUloc=f=>f&&f.uitvoer&&(f.uitvoer.objectId||f.uitvoer.adres)?f.uitvoer:null;
+const offUlocTxt=f=>{const u=offUloc(f);if(!u)return"";const k=state.klanten.find(x=>x.id===f.klantId),o=u.objectId&&k&&(k.objecten||[]).find(x=>x.id===u.objectId),a=o||u;return [a.naam||"",fullAddr(a)].filter(Boolean).join(" · ")};
+function offUlocOpts(k,sel){return `<option value="hoofd">Zelfde als het adres hierboven</option>${((k&&k.objecten)||[]).filter(o=>o&&o.adres).map(o=>`<option value="${esc(o.id)}" ${sel===o.id?"selected":""}>${esc((o.naam?o.naam+" · ":"")+fullAddr(o))}</option>`).join("")}<option value="nieuw" ${sel==="nieuw"?"selected":""}>Ander adres (bijv. tweede woning)…</option>`}
+/* akkoord op een offerte voor een ander adres: eigen opdracht (eigen nummer, eigen planning) op die locatie; de bestaande opdracht van de klant blijft ongemoeid */
+function offUlocPatch(cur,f,w){const u=offUloc(f);if(!u)return null;const nu=iso(today());
+  let objecten=[...(cur.objecten||[])],oid=u.objectId;
+  if(!oid||!objecten.some(x=>x.id===oid)){oid=newId("l");objecten.push({id:oid,naam:u.naam||"Uitvoerlocatie",adres:u.adres||"",postcode:u.postcode||"",plaats:u.plaats||""})}
+  const id=newId("o"),o=f.opdracht||{},fm=["concept","direct","geen","periodiek"].includes(f.facturatie)?f.facturatie:"";
+  const hoofd={id,dienst:w.dienst||"Glasbewassing",prijs:w.prijs,frequentie:w.frequentie,duur:w.duur,volgende:w.aanbod||"",actief:true,objectId:oid,apart:true,vanOfferte:f.nummer||"",
+    ...(fm?{facturatie:fm}:{}),fotos:((f.rcTelling&&f.rcTelling.fotos)||[]).map(x=>({...x}))};
+  const mee=(o.extra||[]).map(e=>({...e,id:newId("o"),objectId:oid,bij:id,apart:false}));
+  const loc=[u.naam,fullAddr(objecten.find(x=>x.id===oid))].filter(Boolean).join(" · ");
+  return{objecten,opdrachten:[...(cur.opdrachten||[]),hoofd,...mee],prospect:false,actief:true,...(cur.prospect?{opdrachtVerwijderd:true,prijs:0,aanbieden:false}:{}),
+    log:[...(cur.log||[]),{datum:nu,tekst:"Akkoord op offerte "+(f.nummer||"")+" · nieuwe opdracht op "+loc+" · "+eur(w.prijs)+" per beurt, elke "+w.frequentie+" weken"}]}}
 function openOfferte(opts={}){
   const ex=opts.id?state.facturen.find(x=>x.id===opts.id):null;
   if(opts.id&&!ex)return;
@@ -39,6 +54,8 @@ function openOfferte(opts={}){
         <label>E-mail <small style="font-weight:500">(offerte gaat naar)</small><input id="ow-email" type="email" value="${v(k0,"email")}"></label>
         <label>Telefoon<input id="ow-telefoon" type="tel" value="${v(k0,"telefoon")}"></label>
         <label>Soort<select id="ow-soort"><option value="particulier">Particulier</option><option value="zakelijk" ${k0&&k0.soort==="zakelijk"?"selected":""}>Zakelijk</option><option value="vve" ${k0&&k0.soort==="vve"?"selected":""}>VvE</option></select></label>
+        ${(()=>{const u=offUloc(ex),sel=u?(u.objectId||"nieuw"):"hoofd",n=u&&!u.objectId?u:{};return `<label class="full">Uitvoerlocatie <small style="font-weight:500">(waar het werk gedaan wordt)</small><select id="ow-uloc">${offUlocOpts(k0,sel)}</select></label>
+        <div class="full grid2" id="owUlocN"${sel==="nieuw"?"":" hidden"}><label class="full">Omschrijving<input id="ow-un" value="${esc(n.naam||"")}" placeholder="Bijv. Woning moeder"></label><label class="full">Adres<input id="ow-ua" value="${esc(n.adres||"")}" placeholder="Straat en huisnummer"></label><label>Postcode<input id="ow-up" value="${esc(n.postcode||"")}" placeholder="1234 AB"></label><label>Plaats<input id="ow-upl" value="${esc(n.plaats||"")}"></label><small class="help full">De offerte en facturen gaan naar de klant hierboven; het werk gebeurt op dit adres. Na akkoord komt er een eigen opdracht met eigen planning; de bestaande opdracht van de klant blijft zoals hij is.</small></div>`})()}
       </div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.facturen}</span><b>Details offerte</b></div>
       <div class="grid2">
@@ -135,7 +152,11 @@ function openOfferte(opts={}){
   /* naar de klantkaart van de gekozen klant (vraagt eerst of je wijzigingen wilt bewaren, zoals bij sluiten) */
   const kkB=$("#owKk");if(kkB)kkB.onclick=()=>{const id=$o("k").value;if(!id)return;sluitDlg(()=>openKlant(id))};
   $o("k").addEventListener("change",()=>{if(kkB)kkB.hidden=!$o("k").value});
-  $o("k").onchange=e=>{const k=state.klanten.find(x=>x.id===e.target.value);kid=k?k.id:"";
+  {const us=$o("uloc");if(us)us.onchange=()=>{$("#owUlocN").hidden=us.value!=="nieuw";if(us.value==="nieuw")$o("ua").focus()}}
+  const ulocVal=()=>{const us=$o("uloc");if(!us||us.value==="hoofd")return null;if(us.value!=="nieuw")return{objectId:us.value};
+    const pc=$o("up").value.trim().toUpperCase().replace(/\s+/g,""),postcode=/^\d{4}[A-Z]{2}$/.test(pc)?pc.slice(0,4)+" "+pc.slice(4):$o("up").value.trim().toUpperCase();
+    return{naam:$o("un").value.trim(),adres:$o("ua").value.trim(),postcode,plaats:$o("upl").value.trim()}};
+  $o("k").onchange=e=>{const k=state.klanten.find(x=>x.id===e.target.value);kid=k?k.id:"";{const us=$o("uloc");if(us){const v0=us.value==="nieuw"?"nieuw":"hoofd";us.innerHTML=offUlocOpts(k,v0)}}
     ["naam","adres","postcode","plaats","email","telefoon"].forEach(n=>$o(n).value=k?k[n]||"":"");$o("soort").value=k&&(k.soort==="zakelijk"||k.soort==="vve")?k.soort:"particulier";
     if(k&&!touched.freq&&!rc){$o("freq").value=String(k.frequentie||8)}sub();if(RC)RC.sync()};
   /* rekentool: ongewijzigd, alleen gekoppeld aan dit scherm */
@@ -154,8 +175,8 @@ function openOfferte(opts={}){
   const owRefTeken=()=>{const box=$("#owRef");if(!box)return;const cur=state.klanten.find(x=>x.id===kid);
     if(!refAan()){box.innerHTML="";return}
     if(cur&&cur.aanbevolenDoor){const d=state.klanten.find(x=>x.id===cur.aanbevolenDoor);box.innerHTML=`<div class="ow-ref ok">${I.spark||""}<div><b>Aanbevolen door ${esc(d?cleanName(d.naam):"een klant")}${cur.aanbevolenCode?" · "+esc(cur.aanbevolenCode):""}</b><small>${refWelkom()>0?eur(refWelkom())+" welkomstkorting gaat van de eerste factuur af. ":""}${d?esc(voornaam(d.contact||cleanName(d.naam)))+" krijgt "+eur(refBeloning())+" na de eerste afspraak.":""}</small></div></div>`;return}
-    const r=owRefCode?refVan(owRefCode,kid):null,fout=owRefCode&&!r;
-    box.innerHTML=`<div class="ow-ref${r?" ok":""}">${I.spark||""}<div><label for="owRefIn"><b>Code van een buur of kennis</b></label><small>${r?`Aanbevolen door <b>${esc(cleanName(r.naam))}</b>. ${refWelkom()>0?eur(refWelkom())+" welkomstkorting op de eerste factuur, ":""}${esc(voornaam(r.contact||cleanName(r.naam)))} krijgt ${eur(refBeloning())} na de eerste afspraak. Wordt vastgelegd bij Opslaan.`:fout?`<span style="color:var(--late)">Code ${esc(owRefCode)} is niet bekend.</span>`:"Is de klant aanbevolen? Vul de code in (staat in het klantportaal van de aanbrenger)."}</small>
+    const r=owRefCode?refVan(owRefCode,kid):null,fout=owRefCode&&!r,eigen=fout&&cur&&refNorm(cur.refCode)===owRefCode;
+    box.innerHTML=`<div class="ow-ref${r?" ok":""}">${I.spark||""}<div><label for="owRefIn"><b>Code van een buur of kennis</b></label><small>${r?`Aanbevolen door <b>${esc(cleanName(r.naam))}</b>. ${refWelkom()>0?eur(refWelkom())+" welkomstkorting op de eerste factuur, ":""}${esc(voornaam(r.contact||cleanName(r.naam)))} krijgt ${eur(refBeloning())} na de eerste afspraak. Wordt vastgelegd bij Opslaan.`:eigen?`<span style="color:var(--late)">Code ${esc(owRefCode)} is de eigen code van ${esc(cleanName(cur.naam))}. Een klant kan zichzelf niet aanbevelen; voor een tweede adres van dezelfde klant is geen code nodig (kies hieronder bij Uitvoerlocatie het andere adres). Is het voor iemand anders, maak dan een nieuwe klant aan en vul daar deze code in.</span>`:fout?`<span style="color:var(--late)">Code ${esc(owRefCode)} is niet bekend.</span>`:"Is de klant aanbevolen? Vul de code in (staat in het klantportaal van de aanbrenger)."}</small>
       <span class="ow-refrow"><input id="owRefIn" placeholder="Bijv. HANS68" maxlength="12" autocomplete="off" spellcheck="false" value="${esc(owRefCode)}" style="text-transform:uppercase;letter-spacing:.06em"><button type="button" class="small" id="owRefGo">${r?"Wijzigen":"Toepassen"}</button></span></div></div>`;
     const inp=$("#owRefIn"),go=()=>{owRefCode=refNorm(inp.value);owRefTeken()};$("#owRefGo").onclick=go;inp.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();go()}};inp.onchange=go};
   owRefTeken();
@@ -165,6 +186,8 @@ function openOfferte(opts={}){
   async function saveKlant(patch={}){
     const kv=klantVelden();if(!kv.naam||!kv.adres){$o(kv.naam?"adres":"naam").focus();throw {msg:"Vul eerst de naam en het adres van de klant in (links)."}}
     const cur=state.klanten.find(x=>x.id===kid);
+    if(cur&&ulocVal()&&!cur.prospect){/* offerte voor een ander adres: de bestaande opdracht (prijs, telling) van de klant niet overschrijven */
+      ["ramenTelling","ramenRegel","prijs","frequentie","duur","dienst","opdrachten"].forEach(f=>delete patch[f])}
     if(cur){await save("klanten",kid,{...strip(cur),...kv,...patch});return kid}
     kid=newId("k");
     await save("klanten",kid,{...kv,klantnr:"",ronde:"",frequentie:Number($o("freq").value)||8,prijs:0,laatst:"",gepland:"",tijd:"",duur:Number($o("duur").value)||30,dienst:"Glasbewassing",objectId:"",binnen:false,
@@ -175,6 +198,7 @@ function openOfferte(opts={}){
     if(busyNow)return;const regels=allRegels();
     const kv=klantVelden();if(!kv.naam||!kv.adres){$o(kv.naam?"adres":"naam").focus();toast("Vul de naam en het adres van de klant in");return}
     const opslaan=mode==="save"||mode==="saveclose";
+    {const u=ulocVal();if(u&&!u.objectId&&!u.adres){$("#owUlocN").hidden=false;$o("ua").focus();toast("Vul het adres van de uitvoerlocatie in");return}}
     if(!regels.length&&!opslaan){toast("Voeg minimaal één offerteregel toe, of bereken de prijs in de rekentool");return}
     if(!opslaan){const glasNu=(rc&&rc.regels&&rc.regels.length)||extra.some(r=>/glas|ramen/i.test(String(r.omschrijving||""))),k1=state.klanten.find(x=>x.id===kid);
       if(dns.length&&!glasNu&&!heeftGlas(k1)){toast(GLAS_REGEL+" Tel eerst de ramen in de rekentool, of voeg een regel glasbewassing toe.");const r=$("#owRc");if(r)r.scrollIntoView({block:"start",behavior:"smooth"});return}}
@@ -186,7 +210,7 @@ function openOfferte(opts={}){
       let tel=null,fail=0;if(rc){const r=await RC.telling();tel=r.t;fail=r.fail}
       const wasNew=!state.klanten.some(x=>x.id===kid),cur=state.klanten.find(x=>x.id===kid);
       const kPatch={...(tel?{ramenTelling:tel}:{}),...((wasNew||(cur&&cur.prospect))?{prijs:opdracht.prijs,frequentie:opdracht.frequentie,duur:opdracht.duur,incasso:$o("betaal").value==="incasso",opdrachten:[...((cur&&cur.opdrachten)||[]).filter(o=>!o.groep||!dnsExtra.some(e=>e.groep===o.groep)),...dnsExtra]}:{})};
-      {const r=owRefCode?refVan(owRefCode,kid):null;if(owRefCode&&!r){toast("Code "+owRefCode+" is niet bekend · haal hem weg of verbeter hem");const x=$("#owRefIn");if(x)x.focus();return false}
+      {const r=owRefCode?refVan(owRefCode,kid):null;if(owRefCode&&!r){toast(cur&&refNorm(cur.refCode)===owRefCode?"Dit is de eigen code van deze klant · haal hem weg":"Code "+owRefCode+" is niet bekend · haal hem weg of verbeter hem");const x=$("#owRefIn");if(x)x.focus();return false}
         if(r)Object.assign(kPatch,refKoppelPatch(cur,r))}
       const klantId=await saveKlant(kPatch);const k=state.klanten.find(x=>x.id===klantId)||{...kv,id:klantId};
       if($("#ow-std").checked){const sd={...state.settings,offerteTekst:$o("tekst").value,offerteVoet:$o("voet").value,offerteLetopAan:$o("letop").checked,offerteLetop:$o("letopt").value,offerteTotaal:$o("totaal").checked};await save("instellingen","bedrijf",sd);state.settings=sd}
@@ -194,7 +218,7 @@ function openOfferte(opts={}){
       const data={...(ex?strip(ex):{}),soort:"offerte",nummer:ex?ex.nummer:nextNr("offerte",datum),klantId,klantNaam:kv.naam,klantAdres:fullAddr(kv),klantEmail:kv.email,datum,verval:$o("verval").value||iso(addDays(parse(datum),30)),
         regels,extraRegels:extra.filter(r=>r.omschrijving||Number(r.prijs)).map(r=>({omschrijving:String(r.omschrijving||""),aantal:Number(r.aantal)||0,prijs:Number(r.prijs)||0})),rcTelling:tel||(rc&&ex?ex.rcTelling||null:null),rcRegels:rc?rc.regels.map(r=>({omschrijving:r.omschrijving,aantal:r.aantal,prijs:r.prijs})):null,
         diensten:dns,btw,incl:false,status:mode==="sent"?"verstuurd":ex?ex.status||"concept":"concept",tekst:$o("tekst").value,voettekst:$o("voet").value,notitie:$o("notitie").value.trim(),start:$o("start").value,betaalwijze:$o("betaal").value,facturatie:$o("fact").value,letop:$o("letop").checked,letopTekst:$o("letopt").value,totaalTonen:$o("totaal").checked,opdracht,
-        telling:tel?{ramen:tel.ramen,minuten:tel.minuten}:(ex&&ex.telling)||null,
+        telling:tel?{ramen:tel.ramen,minuten:tel.minuten}:(ex&&ex.telling)||null,uitvoer:ulocVal(),
         betaaldOp:"",vanOfferte:"",gemaakt:ex?ex.gemaakt||"":new Date().toISOString(),verstuurdOp:mode==="sent"?new Date().toISOString():ex?ex.verstuurdOp||"":"",herinnerdOp:ex?ex.herinnerdOp||"":"",herinneringen:ex?ex.herinneringen||0:0};
       await save("facturen",id,data);
       sig0=null;
