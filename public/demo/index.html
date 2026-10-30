@@ -17863,7 +17863,7 @@ setInterval(()=>{document.querySelectorAll("[data-timer]").forEach(el=>{const t=
    Verzonnen klanten, facturen en beurten om instructievideo's mee op te nemen.
    Alles blijft in deze browser bewaard; datums schuiven elke dag mee, zodat de planning altijd actueel oogt.
    Opnieuw beginnen: /demo/?opnieuw */
-const DEMO_KEY="ms.demo.v6";
+const DEMO_KEY="ms.demo.v7";
 /* Westerkwartier: plaats, postcode, lat, lng, gewicht (aantal klanten), wie rijdt er (M = Mark, S = Sem) */
 const DEMO_PLAATS=[["Zuidhorn","9801",53.2464,6.4060,22,"M"],["Noordhorn","9804",53.2620,6.3920,7,"M"],["Aduard","9831",53.2560,6.4590,8,"M"],["Den Horn","9832",53.2300,6.4430,4,"M"],["Niekerk","9822",53.2220,6.3480,4,"M"],["Oldekerk","9821",53.2230,6.3230,4,"M"],["Grijpskerk","9843",53.2630,6.3060,6,"M"],["Kommerzijl","9845",53.2840,6.3220,2,"M"],
   ["Grootegast","9861",53.2140,6.2720,10,"S"],["Lutjegast","9866",53.2350,6.2550,3,"S"],["Doezum","9863",53.2080,6.2300,2,"S"],["Sebaldeburen","9862",53.2030,6.2550,2,"S"],["Leek","9351",53.1620,6.3770,18,"S"],["Tolbert","9356",53.1640,6.3590,6,"S"],["Midwolde","9354",53.1800,6.3930,3,"S"],["Enumatil","9355",53.1810,6.3660,2,"S"],["Marum","9363",53.1440,6.2650,9,"S"],["Nuis","9364",53.1600,6.2900,2,"S"],["Niebert","9365",53.1630,6.3050,2,"S"],["Opende","9865",53.1660,6.2050,4,"S"]];
@@ -17903,7 +17903,7 @@ function demoMaak(){
   /* ---- particulieren: woningtype bepaalt prijs en duur ---- */
   /* prijzen incl. btw; gemiddeld ± € 60 excl. per woning, zo’n 8 à 10 woningen per bus per dag ≈ € 520 */
   const TYPES=[[.42,[62.5,64.5,67.5],[20,30]],[.32,[68.5,71.5,74.5],[25,35]],[.20,[78.5,82.5,86.5],[30,45]],[.06,[94.5,99.5,109.5],[45,60]]];
-  for(let i=0;i<620;i++){const a=pick(DEMO_ACHTER),v=pick(DEMO_VOOR);let r=R(),ty=TYPES[0];for(const x of TYPES){if(r<x[0]){ty=x;break}r-=x[0]}
+  for(let i=0;i<300;i++){const a=pick(DEMO_ACHTER),v=pick(DEMO_VOOR);let r=R(),ty=TYPES[0];for(const x of TYPES){if(r<x[0]){ty=x;break}r-=x[0]}
     const binnen=R()<.07,f=binnen?pick([8,12,12]):pick([4,6,6,6,8,8,8,8,8,12,12]);let prijs=pick(ty[1]);if(binnen)prijs=Math.round(prijs*1.85*2)/2;
     const k=nieuwK(a+", "+v,"particulier",prijs,f,pick(gewichten),{binnen,dienst:binnen?"Glasbewassing binnen en buiten":"Glasbewassing",duur:Math.round(ri(ty[2][0],ty[2][1])/5)*5*(binnen?2:1)});
     if(R()<.05)k.directFactureren=false;/* factuur klaarzetten */
@@ -17927,7 +17927,7 @@ function demoMaak(){
   /* ---- planning vandaag: Mark rijdt boven het kanaal, Sem rond Leek en Grootegast ---- */
   const kies=(team,n)=>{const l=actief.filter(k=>k._team===team&&k.soort==="particulier"&&!k.weekdagen&&k.frequentie<=8);const o=[];const pl=pick(l).plaats;
     l.filter(k=>k.plaats===pl).concat(l.filter(k=>k.plaats!==pl)).forEach(k=>{if(o.length<n&&!o.includes(k))o.push(k)});return o};
-  const vandaagM=isWerk(0)?kies("M",9):[],vandaagS=isWerk(0)?kies("S",8):[];
+  const vandaagM=isWerk(0)?kies("M",8):[],vandaagS=[];/* één bus per dag: 8 à 10 woningen, ± € 520 excl. */
   const zm=actief.find(k=>k.naam==="Makelaardij Zuidhorn");if(zm&&vandaagM.length)vandaagM.splice(4,0,zm);
   const vandaagAlle=[...vandaagM,...vandaagS],vandaagSet=new Set(vandaagAlle);
   /* laatste beurt van elke klant zo kiezen dat de volgende beurt in de komende weken valt */
@@ -18017,7 +18017,7 @@ function demoMaak(){
   actief.forEach(k=>{if(vandaagSet.has(k)||k._teplannen)return;
     if(k.weekdagen){let d=1;while(wd(d)!==2)d++;k.gepland=D(d);k.tijd="09:30";return}
     let d=laatsteDag[k.id]+k.frequentie*7;if(d<=0)d=1;if(d>21)return;
-    while(!isWerk(d)||(perDag[d]||0)>=19)d++;perDag[d]=(perDag[d]||0)+1;k.gepland=D(d);k.tijd=hm(8*60+(perDag[d]-1)%11*35)});
+    while(!isWerk(d)||(perDag[d]||0)>=10)d++;perDag[d]=(perDag[d]||0)+1;k.gepland=D(d);k.tijd=hm(8*60+(perDag[d]-1)%11*35)});
   /* klanten die "bevestigen" willen of liever gebeld worden */
   actief.filter(k=>k.soort==="particulier").forEach((k,i)=>{if(i%9===3)k.contactPlanning="bevestigen";else if(i%17===5)k.contactPlanning="bellen"});
 
@@ -18077,7 +18077,7 @@ function demoMaak(){
   const lo=facturen.filter(f=>f.soort==="factuur"&&f.status==="open"&&!f.incasso&&f.datum<D(-3));
   if(lo[0])banktx.push({id:"tx_demo1",datum:D(-1),bedrag:Math.max(5,totals(lo[0]).inc-2.5),naam:lo[0].klantNaam.split(",")[0].toUpperCase(),iban:"NL20INGB0001234567",omschrijving:"glazenwasser "+lo[0].nummer,status:"controleren",factuurIds:[lo[0].id],nummers:[lo[0].nummer],reden:"Bedrag wijkt af: ontvangen "+eur(Math.max(5,totals(lo[0]).inc-2.5))+", factuur "+eur(totals(lo[0]).inc),bron:"Bank Knab",op:new Date().toISOString()});
   banktx.push({id:"tx_demo2",datum:D(-2),bedrag:30,naam:"J. DE GROOT",iban:"NL55RABO0123456789",omschrijving:"ramen wassen",status:"onbekend",reden:"Geen factuur gevonden bij deze betaling",bron:"Bank Knab",op:new Date().toISOString()});
-  const inst=[{id:"bedrijf",naam:"Voorbeeld Glazenwasserij",adres:"Lindenlaan 14",postcode:"9801 AB",plaats:"Zuidhorn",startadres:"Lindenlaan 14, 9801 AB Zuidhorn",telefoon:"06 12 34 56 78",email:"info@voorbeeldglazenwasserij.nl",website:"voorbeeldglazenwasserij.nl",kvk:"12345678",btwnr:"NL001234567B01",iban:"NL00 DEMO 0123 4567 89",btw:21,incl:true,termijn:14,factNrStijl:"doorlopend",factNrStart:"7832",fhAan:true,dagAan:true,kmAan:true,
+  const inst=[{id:"bedrijf",toonEx:true,naam:"Voorbeeld Glazenwasserij",adres:"Lindenlaan 14",postcode:"9801 AB",plaats:"Zuidhorn",startadres:"Lindenlaan 14, 9801 AB Zuidhorn",telefoon:"06 12 34 56 78",email:"info@voorbeeldglazenwasserij.nl",website:"voorbeeldglazenwasserij.nl",kvk:"12345678",btwnr:"NL001234567B01",iban:"NL00 DEMO 0123 4567 89",btw:21,incl:true,termijn:14,factNrStijl:"doorlopend",factNrStart:"7832",fhAan:true,dagAan:true,kmAan:true,
       voertuigen:[{kenteken:"VZK-38-T",naam:"Transporter Mark",stand:84210},{kenteken:"VNP-71-B",naam:"Caddy Sem",stand:131560}]},
     {id:"bank",gekoppeld:true,bank:"Knab",rekeningen:[{iban:"NL91 •••• 210",naam:"Zakelijke rekening"}],geldigTot:iso(addDays(t,92))+"T10:00:00.000Z",bijgewerkt:new Date(Date.now()-35*60e3).toISOString(),saldo:14862.35,laatsteSync:{nieuw:11,betaald:9,controleren:1}}];
   klanten.forEach(k=>{delete k._team;delete k._betaal;delete k._per;delete k._teplannen});
@@ -18108,7 +18108,7 @@ function demoVandaag(c){const ti=iso(today()),nu=new Date(),nm=nu.getHours()*60+
   const tsm=m=>{const x=today();x.setHours(Math.floor(m/60),Math.round(m%60),0,0);return x.toISOString()},mn=s=>{const[a,b]=String(s||"08:00").split(":").map(Number);return a*60+(b||0)};
   let nr=Math.max(0,...c.facturen.filter(f=>/^\d{2}-\d{6}$/.test(String(f.nummer||""))).map(f=>+String(f.nummer).slice(3)));
   let eerste=null,laatste=0,alles=true;const km={Mark:0,Sem:0};
-  r.order.forEach((id,i)=>{const k=K.get(id);if(!k||k.gepland!==ti)return;const door=i<half?"Mark":"Sem",st=mn(k.tijd),dr=Number(k.duur)||30,eind=st+dr+((i*7)%5)-2;
+  r.order.forEach((id,i)=>{const k=K.get(id);if(!k||k.gepland!==ti)return;const door="Mark",/* vandaag rijdt één bus */st=mn(k.tijd),dr=Number(k.duur)||30,eind=st+dr+((i*7)%5)-2;
     if(k.demoBezig){k.bezig="";k.bezigDoor="";delete k.demoBezig}
     if(door==="Mark")eerste=eerste==null?st:Math.min(eerste,st);km[door]+=6+(i*3)%7;
     if(zelf.has(id))return;
