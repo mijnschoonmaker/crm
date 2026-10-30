@@ -690,6 +690,8 @@ exports.controleNu = CONTROLE.controleNu;
 /* Mansard: nieuwe bedrijven aanmelden en abonnementen */
 var MANSARD; MANSARD = require("./mansard")({ rawDb, T, onCall, onRequestRaw: _onRequest, HttpsError, nu, mollie, HOST, mfaOk: a => BEV.mfaBevestigd(a) });
 Object.assign(exports, MANSARD.functies);
+/* dakranden uit 3D BAG voor het meten op de luchtfoto */
+exports.huis3d = require("./huis3d")({ onCall, HttpsError, checkGebruiker }).huis3d;
 exports.ticketMelding = P.ticketMelding;
 exports.portaal = P.portaal;
 exports.portaalUitnodigen = P.portaalUitnodigen;

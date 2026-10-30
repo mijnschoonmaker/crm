@@ -591,7 +591,7 @@ const ICON={
     if(FREQ[t.freq])g("freq").value=t.freq;g("koz-yes").checked=!!t.koz;g("koz-no").checked=!t.koz;
     photos.forEach(p=>URL.revokeObjectURL(p.url));photos=[];
     for(const f of t.fotos||[]){try{const r=await fetch(BLOB+f.id);if(!r.ok)continue;const p=await loadPhoto(await r.blob());p.dots=(f.dots||[]).map(d=>({...d}));if(f.meet)p.meet=JSON.parse(JSON.stringify(f.meet));p.assetId=f.id;photos.push(p)}catch(e){}}
-    lucht=Array.isArray(t.lucht)?t.lucht.map(x=>({s:x.s,p:(x.p||[]).map(q=>[q[0],q[1]])})):[];mSynced=meetTot();luchtKnop();
+    lucht=Array.isArray(t.lucht)?t.lucht.map(x=>({s:x.s,p:(x.p||[]).map(q=>[q[0],q[1]]),...(typeof x.m==="number"?{m:x.m,r:x.r}:{})})):[];mSynced=meetTot();luchtKnop();
     synced={};photos.forEach(p=>p.dots.forEach(d=>synced[d.t]=(synced[d.t]||0)+1));
     renderFloors();renderSpecial();renderPhotos();renderPhsum();
     const miss=(t.fotos||[]).length-photos.length;
