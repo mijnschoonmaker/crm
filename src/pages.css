@@ -4135,6 +4135,10 @@ td.fb-cb:hover .fb-box{border-color:var(--brand);transform:scale(1.06)}
 .cc-tel{flex:none;width:32px;height:32px;border-radius:9px;display:grid;place-items:center;background:#252c3c;color:#fff}.cc-tel svg{width:15px;height:15px;stroke:#fff}
 .cc-bel{all:unset;position:relative;width:42px;height:42px;border-radius:12px;display:grid;place-items:center;cursor:pointer;border:1px solid var(--cc-line);background:#fff}.cc-bel svg{width:19px;height:19px;color:#252c3c}
 .cc-bel i{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#c0392b;color:#fff;font:700 11px/18px inherit;font-style:normal;text-align:center;box-sizing:border-box}
+.cc-bel i.grijs{background:#8a909c}
+/* telefoon: geluid, meldingen en tickets passen met datum en weer op één regel */
+@media(max-width:520px){.cc-tools{gap:9px}.cc-bel{width:38px;height:38px;border-radius:11px}.cc-bel svg{width:18px;height:18px}.cc-dag{margin-left:2px}.cc-wi{font-size:22px}.cc-weer{gap:6px;margin-left:auto}.cc-dl{display:none}.cc-dk{display:inline!important}}
+.cc-dk{display:none}
 .cc-dag b{display:block;font-weight:600;font-size:14px;color:var(--cc-ink)}.cc-dag small{color:var(--cc-mut);font-size:12.5px}
 .cc-weer{display:flex;align-items:center;gap:8px}.cc-weer:empty{display:none}.cc-wi{font-size:26px;line-height:1}.cc-weer b{display:block;font-weight:600;font-size:15px;color:var(--cc-ink)}.cc-weer small{color:var(--cc-mut);font-size:12.5px}
 .cc-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px;align-items:start}

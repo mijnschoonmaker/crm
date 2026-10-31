@@ -247,8 +247,8 @@ function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActivite
   return `<div class="cc">
   <div class="cc-head"><div><h1>Overzicht</h1><p>Wie waar is, wat er speelt en wat je moet doen.</p></div>
     <div class="cc-tools"><div class="cc-zoek"><span>${I.search}</span><input id="ccQ" type="search" autocomplete="off" placeholder="Zoek klant, adres, offerte, factuur…" value="${esc(CC.q)}" aria-label="Zoeken"><kbd>${/Mac|iP/.test(navigator.platform||"")?"⌘":"Ctrl"} K</kbd><div class="cc-zr" id="ccZr" hidden></div></div>
-      ${"Notification" in window&&Notification.permission==="default"?`<button type="button" class="cc-ntf" data-cc="notif">${I.bell}Meldingen aan</button>`:""}<button type="button" class="cc-bel cc-snd${S().ccGeluid===false?" uit":""}" data-cc="geluid" aria-label="${S().ccGeluid===false?"Geluid aanzetten":"Geluid uitzetten"}" title="${S().ccGeluid===false?"Geluid staat uit":"Geluid bij nieuwe meldingen"}">${S().ccGeluid===false?sv('<path d="M11 5 6 9H3v6h3l5 4z"/><path d="m22 9-6 6M16 9l6 6"/>'):sv('<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>')}</button><button type="button" class="cc-bel" data-cc="naar:ccAdv" aria-label="${plural(S_.length,"signaal","signalen")}">${I.bell}${S_.length?`<i>${S_.length}</i>`:""}</button>
-      <div class="cc-dag"><b>${esc(dag.charAt(0).toUpperCase()+dag.slice(1))}</b><small>${esc(dat)}</small></div>${ccWeerHtml()}</div></div>
+      ${"Notification" in window&&Notification.permission==="default"?`<button type="button" class="cc-ntf" data-cc="notif">${I.bell}Meldingen aan</button>`:""}<button type="button" class="cc-bel cc-snd${S().ccGeluid===false?" uit":""}" data-cc="geluid" aria-label="${S().ccGeluid===false?"Geluid aanzetten":"Geluid uitzetten"}" title="${S().ccGeluid===false?"Geluid staat uit":"Geluid bij nieuwe meldingen"}">${S().ccGeluid===false?sv('<path d="M11 5 6 9H3v6h3l5 4z"/><path d="m22 9-6 6M16 9l6 6"/>'):sv('<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>')}</button><button type="button" class="cc-bel" data-cc="naar:ccAdv" aria-label="${plural(S_.length,"signaal","signalen")}">${I.bell}${S_.length?`<i>${S_.length}</i>`:""}</button>${ccTkKnop()}
+      <div class="cc-dag"><b>${esc(dag.charAt(0).toUpperCase()+dag.slice(1))}</b><small><span class="cc-dl">${esc(dat)}</span><span class="cc-dk">${esc(t.toLocaleDateString("nl-NL",{day:"numeric",month:"short"}).replace(".",""))}</span></small></div>${ccWeerHtml()}</div></div>
   ${ccNuDoenHtml()}
   <div class="cc-ops">
     <section class="cc-card cc-live"><div class="cc-ch"><div><b>${I.map}Live · vandaag</b><small>${esc(longD(t))}</small></div><button type="button" class="cc-link" data-cc="tab:vandaag">Naar Vandaag${I.right||""}</button></div>
@@ -282,6 +282,10 @@ function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActivite
 function ccKaart(){if(state.tab!=="control"||typeof rvMapTeken!=="function")return;const w=state.rvMap,d=state.routeDay;state.rvMap=true;state.routeDay=null;try{rvMapTeken()}finally{state.rvMap=w;state.routeDay=d}}
 
 /* ---------- acties: alleen naar bestaande functies ---------- */
+/* snelknop naar de tickets: rood getal = tickets met een nieuw bericht van de klant, grijs = nog openstaande tickets */
+function ccTkKnop(){const T=state.tickets||[],n=T.filter(t=>Number(t.ongelezenTeam)>0).length,o=T.filter(t=>t.status!=="opgelost").length;
+  return `<button type="button" class="cc-bel cc-tk" id="ccTk" data-cc="tickets" aria-label="Tickets${n?", "+n+" nieuw":o?", "+o+" open":""}" title="Tickets">${I.ticket||I.bericht||""}${n?`<i>${n}</i>`:o?`<i class="grijs">${o}</i>`:""}</button>`}
+function ccTkVernieuw(){const el=document.getElementById("ccTk");if(el)el.outerHTML=ccTkKnop()}
 function ccActie(a){if(!a)return;const [k,...r]=a.split(":"),v=r.join(":");
   if(k==="tab")return go(v);
   if(k==="ff"){state.fFilter=v;return go("facturen")}

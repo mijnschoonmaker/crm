@@ -154,7 +154,7 @@ const tkOngelezen=()=>(state.tickets||[]).filter(t=>Number(t.ongelezenTeam)>0);
 function liveTickets(){if(!LIVE||tkUnsub)return;
   tkUnsub=fsDb().collection("tickets").orderBy("laatst","desc").limit(300).onSnapshot(s=>{
     state.tickets=s.docs.map(d=>({id:d.id,...d.data()}));
-    try{tkKaart()}catch(e){}if(tkOpen)try{tkLijstTeken()}catch(e){}
+    try{tkKaart()}catch(e){}try{ccTkVernieuw()}catch(e){}if(tkOpen)try{tkLijstTeken()}catch(e){}
     const nu_=Object.fromEntries(state.tickets.map(t=>[t.id,Number(t.ongelezenTeam)||0]));
     if(tkVorig===null){const l=tkOngelezen();if(l.length)tkPopup(l[0],l.length>1?l.length:0)}
     else state.tickets.filter(t=>t.laatsteVan==="klant"&&nu_[t.id]>(tkVorig[t.id]||0)&&!(tkOpen&&tkOpen.id===t.id&&document.hasFocus())).forEach(t=>tkPopup(t,0,!(t.id in tkVorig)));
