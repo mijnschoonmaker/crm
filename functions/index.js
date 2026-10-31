@@ -752,6 +752,35 @@ exports.ramenTellen = onCall({ memory: "512MiB", timeoutSeconds: 120 }, async re
   return { fotos: per, dubbel: dub, zeker: ["hoog", "middel", "laag"].includes(out.zeker) ? out.zeker : "", opmerking: String(out.opmerking || "").slice(0, 300) };
 });
 
+/* ---------- gevelhoeken zoeken op een foto: daarmee zet Mansard de foto recht met de maten uit het 3D-model ---------- */
+const GH_PROMPT = `Je krijgt een foto van een Nederlandse woning. Zoek de gevel van de woning die centraal op de foto staat en het meest naar de camera gericht is (meestal de voor- of achtergevel). Geef de vier hoeken van die gevelmuur, zo precies mogelijk op de pixel:
+- "lo": linksonder, waar de linker buitenrand van de muur de grond (stoep, tuin) raakt
+- "ro": rechtsonder, waar de rechter buitenrand van de muur de grond raakt
+- "rb": rechtsboven, waar de rechter buitenrand van de muur ophoudt en het dak begint (onder de goot of de dakrand), NIET de nok of de punt
+- "lb": linksboven, idem aan de linkerkant
+Bij een rijwoning of twee-onder-een-kap is de linker- of rechterrand de lijn waar deze woning overgaat in de buurwoning (scheidingsmuur, vaak te zien aan een regenpijp, andere kozijnen of een voeg). Bij een puntgevel nemen de bovenhoeken de plek waar de schuine dakrand begint, op muurhoogte.
+Valt een hoek buiten beeld of achter een struik of auto, schat hem dan op de plek waar hij logisch zit (mag buiten 0..1 vallen, tot -0.3 en 1.3).
+Coördinaten x en y tussen 0 en 1, relatief aan breedte en hoogte (0,0 = linksboven).
+Antwoord ALLEEN met JSON: {"lo":[x,y],"ro":[x,y],"rb":[x,y],"lb":[x,y],"zeker":"hoog|middel|laag","opmerking":"korte Nederlandse opmerking of leeg"}`;
+exports.gevelHoeken = onCall({ memory: "512MiB", timeoutSeconds: 90 }, async req => {
+  await checkGebruiker(req.auth);
+  const g = await geheim(), key = g.aiKey;
+  if (!key) throw new HttpsError("failed-precondition", "AI is nog niet ingesteld. Vul je Anthropic API-sleutel in bij Instellingen › AI ramen tellen.");
+  const f = String((req.data && req.data.foto) || ""); if (f.length < 100 || f.length > 6e6) throw new HttpsError("invalid-argument", "Geen bruikbare foto ontvangen.");
+  let r, j;
+  try {
+    r = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
+      body: JSON.stringify({ model: g.aiModel || "claude-opus-5-5", max_tokens: 800, system: GH_PROMPT, messages: [{ role: "user", content: [{ type: "image", source: { type: "base64", media_type: "image/jpeg", data: f.replace(/^data:image\/\w+;base64,/, "") } }, { type: "text", text: "Geef de vier hoeken van de gevel als JSON." }] }] }) });
+    j = await r.json();
+  } catch (e) { throw new HttpsError("unavailable", "De AI was niet bereikbaar. Zet de hoeken zelf."); }
+  if (!r.ok) { const m = (j && j.error && j.error.message) || r.status; console.error("gevelHoeken", m); throw new HttpsError(r.status === 401 ? "permission-denied" : "internal", r.status === 401 ? "De AI-sleutel klopt niet. Controleer hem bij Instellingen." : "Hoeken zoeken lukte niet: " + m); }
+  const txt = (j.content || []).filter(c => c.type === "text").map(c => c.text).join(""), a = txt.indexOf("{"), b = txt.lastIndexOf("}");
+  let o; try { o = JSON.parse(txt.slice(a, b + 1)); } catch (e) { throw new HttpsError("internal", "De AI gaf geen bruikbaar antwoord. Zet de hoeken zelf."); }
+  const pt = v => Array.isArray(v) && v.length === 2 && v.every(n => isFinite(Number(n))) ? v.map(n => Math.max(-0.3, Math.min(1.3, Math.round(Number(n) * 10000) / 10000))) : null;
+  const h = ["lo", "ro", "rb", "lb"].map(k => pt(o[k])); if (h.some(x => !x)) throw new HttpsError("internal", "De AI vond de gevel niet. Zet de hoeken zelf.");
+  return { hoeken: h, zeker: ["hoog", "middel", "laag"].includes(o.zeker) ? o.zeker : "", opmerking: String(o.opmerking || "").slice(0, 200) };
+});
+
 /* ---------- klantgegevens uit een foto/screenshot (bv. van een ander CRM) uitlezen met AI ---------- */
 const KF_PROMPT = `Je helpt een Nederlandse glazenwasser zijn klanten over te zetten naar zijn nieuwe CRM. Je krijgt één of meer foto's of screenshots van een klantkaart of klantenlijst uit een ander programma (of een papieren kaart, notitie, visitekaartje). Lees ALLE klantinformatie uit die je ziet.
 

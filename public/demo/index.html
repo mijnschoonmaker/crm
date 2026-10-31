@@ -6086,7 +6086,9 @@ const FRAMER_TPL="// Prijscalculator glasbewassing \u2014 Framer code component 
 /* ---------- Meetlint: lengtes en vlakken meten op een foto ----------
    Eerst een referentie (bijv. 4 bakstenen = 84 cm), daarna rekent Mansard elke lijn of rechthoek om naar meters.
    Gedeeld door de rekentool, de tellingcontrole (fotoweergave) en de dienstenwebshop. Gegevens per foto:
-   foto.meet = {ref:{a:[x,y],b:[x,y],k,cm,n}, maten:[{s,a:[x,y],b:[x,y],r?:1,m?:handmatig}]}  (x,y van 0 tot 1) */
+   foto.meet = {ref:{a:[x,y],b:[x,y],k,cm,n}, g:{pts:[lo,ro,rb,lb],w,hL,hR,r}, maten:[{s,a:[x,y],b:[x,y],r?:1,m?:handmatig}]}  (x,y van 0 tot 1)
+   g = gevel rechtgezet: de vier hoeken van de gevelmuur op de foto + de echte maten uit het 3D-model. Dan rekent Mansard met perspectief
+   (homografie): elke lijn en rechthoek op die gevel is gemeten, ook op een scheve foto. Gaat voor de referentie. */
 (function(){
   if(typeof window==="undefined"||window.Meetlint)return;
   const REFS=[{k:"steen",n:"Baksteen",sub:"lengte",cm:21},{k:"laag",n:"Laag metselwerk",sub:"steen + voeg",cm:6.25},{k:"pan",n:"Dakpan",sub:"zichtbare breedte",cm:30},{k:"deur",n:"Voordeur",sub:"hoogte",cm:210},{k:"eigen",n:"Eigen maat",sub:"in cm",cm:100}];
@@ -6097,6 +6099,9 @@ const FRAMER_TPL="// Prijscalculator glasbewassing \u2014 Framer code component 
 .ml-lab small{font-weight:600;color:#b9c2c9;font-size:10.5px}
 .ml-lab.ref{background:rgba(255,197,61,.95);color:#1d1a10;border-color:#fff}.ml-lab.ref small{color:#5b4d1c}.ml-lab.ref i{background:#1d1a10;box-shadow:none;width:7px;height:7px}
 .ml-on{cursor:crosshair!important;touch-action:none}
+.ml-gh{position:absolute;z-index:5;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;border:3px solid #fff;background:#14b8a6;box-shadow:0 2px 10px rgba(0,0,0,.5);pointer-events:none;display:grid;place-items:center;color:#fff;font:800 10px/1 Inter,system-ui,sans-serif}
+.ml-lab.gv{background:rgba(20,184,166,.95);color:#04201c;border-color:#fff}.ml-lab.gv small{color:#0b3d37}.ml-lab.gv i{background:#04201c;box-shadow:none;width:7px;height:7px}
+.ml-zoek{position:absolute;inset:0;z-index:7;display:grid;place-items:center;pointer-events:none}.ml-zoek span{background:rgba(11,15,18,.85);color:#fff;padding:9px 16px;border-radius:99px;font:700 12.5px Inter,system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.35)}
 .ml-drag .ml-lab{opacity:0}
 .ml-loep{position:absolute;z-index:6;width:132px;height:132px;border-radius:50%;pointer-events:none;border:3px solid #fff;box-shadow:0 10px 30px rgba(0,0,0,.45),0 0 0 1px rgba(0,0,0,.25);background-repeat:no-repeat;background-color:#111;transform:translate(-50%,calc(-100% - 26px))}
 .ml-loep::before,.ml-loep::after{content:"";position:absolute;left:50%;top:50%;background:var(--c,#ffc53d);box-shadow:0 0 0 1px rgba(0,0,0,.45)}
@@ -6138,22 +6143,38 @@ const FRAMER_TPL="// Prijscalculator glasbewassing \u2014 Framer code component 
   const ICL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M3 17 17 3l4 4L7 21z"/><path d="M7 13l2 2M10 10l2 2M13 7l2 2"/></svg>';
   /* afstand in "breedte-eenheden": x loopt 0..1 over de breedte, y 0..1 over de hoogte, dus y keer de verhouding h/w */
   const dist=(a,b,asp)=>Math.hypot(b[0]-a[0],(b[1]-a[1])*asp);
+  /* homografie: 4 punten op de foto -> 4 punten op de gevel (meters). Gauss-eliminatie op het 8x8-stelsel. */
+  function homografie(src,dst){const A=[],B=[];for(let i=0;i<4;i++){const [x,y]=src[i],[u,v]=dst[i];A.push([x,y,1,0,0,0,-u*x,-u*y]);B.push(u);A.push([0,0,0,x,y,1,-v*x,-v*y]);B.push(v)}
+    for(let c=0;c<8;c++){let p=c;for(let r=c+1;r<8;r++)if(Math.abs(A[r][c])>Math.abs(A[p][c]))p=r;if(Math.abs(A[p][c])<1e-12)return null;[A[c],A[p]]=[A[p],A[c]];[B[c],B[p]]=[B[p],B[c]];
+      for(let r=0;r<8;r++){if(r===c)continue;const f=A[r][c]/A[c][c];if(!f)continue;for(let k=c;k<8;k++)A[r][k]-=f*A[c][k];B[r]-=f*B[c]}}
+    const h=B.map((b,i)=>b/A[i][i]);return p=>{const w=h[6]*p[0]+h[7]*p[1]+1;return[(h[0]*p[0]+h[1]*p[1]+h[2])/w,(h[3]*p[0]+h[4]*p[1]+h[5])/w]}}
+  const HC={};
+  const gevelH=(meet,asp)=>{const g=meet&&meet.g;if(!g||!g.pts||g.pts.length!==4||!(g.w>0))return null;const k=JSON.stringify([g.pts,g.w,g.hL,g.hR,asp]);if(HC[k]!==undefined)return HC[k];
+    const H=homografie(g.pts.map(q=>[q[0],q[1]*asp]),[[0,0],[g.w,0],[g.w,g.hR],[0,g.hL]]);const ks=Object.keys(HC);if(ks.length>40)delete HC[ks[0]];return HC[k]=H};
+  const polyOpp=P=>{let a=0;for(let i=0;i<P.length;i++){const p=P[i],q=P[(i+1)%P.length];a+=p[0]*q[1]-q[0]*p[1]}return Math.abs(a)/2};
   const schaal=(meet,asp)=>{const r=meet&&meet.ref;if(!r||!r.a||!r.b)return 0;const d=dist(r.a,r.b,asp);return d>0.002?(num(r.cm)*Math.max(1,num(r.n)||1)/100)/d:0};
   /* uitkomst van één meting: meters (lijn) of m² (rechthoek) */
-  function waarde(x,meet,asp){const sc=schaal(meet,asp);
+  function waarde(x,meet,asp){const H=gevelH(meet,asp);
+    if(H){const P=q=>H([q[0],q[1]*asp]),d2=(a,b)=>Math.hypot(b[0]-a[0],b[1]-a[1]);
+      if(x.r){const c=[x.a,[x.b[0],x.a[1]],x.b,[x.a[0],x.b[1]]].map(P),bw=x.bm!=null?num(x.bm):(d2(c[0],c[1])+d2(c[3],c[2]))/2,hh=x.hm!=null?num(x.hm):(d2(c[0],c[3])+d2(c[1],c[2]))/2;
+        return{bw,hh,v:x.bm!=null||x.hm!=null?bw*hh:polyOpp(c),schat:false,ok:true,gevel:true}}
+      return{v:x.m!=null?num(x.m):d2(P(x.a),P(x.b)),schat:false,ok:true,gevel:true}}
+    const sc=schaal(meet,asp);
     if(x.r){const bw=x.bm!=null?num(x.bm):Math.abs(x.b[0]-x.a[0])*sc,hh=x.hm!=null?num(x.hm):Math.abs(x.b[1]-x.a[1])*asp*sc;return {bw,hh,v:bw*hh,schat:x.bm==null||x.hm==null,ok:!!(sc||(x.bm!=null&&x.hm!=null))}}
     const v=x.m!=null?num(x.m):dist(x.a,x.b,asp)*sc;return {v,schat:x.m==null,ok:!!(sc||x.m!=null)}}
   function totalen(fotos,soorten){const t={};(fotos||[]).forEach(f=>{const meet=f&&f.meet;if(!meet||!meet.maten)return;const asp=f.w&&f.h?f.h/f.w:0.75;
       meet.maten.forEach(x=>{const w=waarde(x,meet,asp);if(w.ok)t[x.s]=(t[x.s]||0)+w.v})});
     Object.keys(t).forEach(k=>t[k]=Math.round(t[k]*10)/10);return t}
-  function svgVoor(f,soorten,opt){const meet=f&&f.meet;if(!meet||(!meet.ref&&!(meet.maten||[]).length))return{svg:"",labs:""};
+  function svgVoor(f,soorten,opt){const meet=f&&f.meet;if(!meet||(!meet.ref&&!meet.g&&!(meet.maten||[]).length))return{svg:"",labs:""};
     const asp=f.w&&f.h?f.h/f.w:0.75,H=Math.round(1000*asp),P=q=>[q[0]*1000,q[1]*H],klein=opt&&opt.klein,sw=klein?6:3.2;
     const kl=s=>{const i=(soorten||[]).findIndex(x=>x.id===s);return i<0?"#9aa1ad":(soorten[i].kleur||KLEUR[i%KLEUR.length])};
     let g="",labs="";
+    if(meet.g&&meet.g.pts&&meet.g.pts.length===4){const Q=meet.g.pts.map(P);g+=`<polygon points="${Q.map(q=>q.join(",")).join(" ")}" fill="rgba(20,184,166,.10)" stroke="rgba(11,15,18,.5)" stroke-width="${sw+3}" stroke-linejoin="round"/><polygon points="${Q.map(q=>q.join(",")).join(" ")}" fill="none" stroke="#14b8a6" stroke-width="${sw}" stroke-dasharray="12 8" stroke-linejoin="round"/>`;
+      if(!klein&&(!opt||opt.gevelLab!==false)){const t=meet.g.pts,mx=(t[2][0]+t[3][0])/2,my=(t[2][1]+t[3][1])/2;labs+=`<span class="ml-lab gv" data-mlg style="left:${mx*100}%;top:${my*100}%"><i></i>${meet.g.r?esc(meet.g.r[0].toUpperCase()+meet.g.r.slice(1))+"gevel":"Gevel"}<small>${fmt(meet.g.w,2)} × ${fmt(Math.max(meet.g.hL,meet.g.hR),2)} m</small></span>`}}
     const lijn=(a,b,c,dash)=>{const [x1,y1]=P(a),[x2,y2]=P(b),L=Math.hypot(x2-x1,y2-y1)||1,nx=-(y2-y1)/L*9,ny=(x2-x1)/L*9;
       return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="rgba(11,15,18,.55)" stroke-width="${sw+3.5}" stroke-linecap="round"/><line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="${sw}" stroke-linecap="round"${dash?` stroke-dasharray="14 9"`:""}/>`+
         (klein?"":[[x1,y1],[x2,y2]].map(([x,y])=>`<line x1="${x-nx}" y1="${y-ny}" x2="${x+nx}" y2="${y+ny}" stroke="#fff" stroke-width="3" stroke-linecap="round"/><circle cx="${x}" cy="${y}" r="5.5" fill="${c}" stroke="#fff" stroke-width="2.5"/>`).join(""))};
-    if(meet.ref&&meet.ref.a&&meet.ref.b){g+=lijn(meet.ref.a,meet.ref.b,REFK,true);
+    if(meet.ref&&meet.ref.a&&meet.ref.b&&!meet.g){g+=lijn(meet.ref.a,meet.ref.b,REFK,true);
       if(!klein){const r=meet.ref,R=REFS.find(x=>x.k===r.k)||REFS[4],mx=(r.a[0]+r.b[0])/2,my=(r.a[1]+r.b[1])/2,tot=num(r.cm)*Math.max(1,num(r.n)||1);
         labs+=`<span class="ml-lab ref" data-mlref style="left:${mx*100}%;top:${my*100}%"><i></i>${(num(r.n)||1)>1?esc(num(r.n)+" × "):""}${r.k==="3d"?"goot · 3D-model":esc(R.n.toLowerCase())}<small>${tot>=100?fmt(tot/100,2)+" m":fmt(tot,tot%1?2:0)+" cm"}</small></span>`}}
     (meet.maten||[]).forEach((x,j)=>{const c=kl(x.s),w=waarde(x,meet,asp),sn=((soorten||[]).find(s=>s.id===x.s)||{}).kort||"Meting";
@@ -6170,7 +6191,8 @@ const FRAMER_TPL="// Prijscalculator glasbewassing \u2014 Framer code component 
 
   /* koppelen aan een foto-element. o = {wrap, foto:()=>foto-object, soorten, host, licht, onChange, model:()=>({laden}|{goten:[m]}|null)}
      Met een 3D-model van de woning (3D BAG) is de schaal de goot: één keer langs de goot slepen en alles klopt. Geen bakstenen tellen. */
-  function attach(o){const md=()=>{try{return o.model?o.model():null}catch(e){return null}},goten=()=>{const m=md(),g=m&&m.goten||[];const u=[];g.forEach(v=>{if(v>0.5&&!u.some(x=>Math.abs(x-v)<0.06))u.push(Math.round(v*100)/100)});return u.sort((a,b)=>b-a).slice(0,4)};zetCss(o.wrap.getRootNode?o.wrap.getRootNode():document);let aan=false,cur=o.start||"ref",drag=null,sheet=null;
+  function attach(o){const md=()=>{try{return o.model?o.model():null}catch(e){return null}},goten=()=>{const m=md(),g=m&&m.goten||[];const u=[];g.forEach(v=>{if(v>0.5&&!u.some(x=>Math.abs(x-v)<0.06))u.push(Math.round(v*100)/100)});return u.sort((a,b)=>b-a).slice(0,4)},vlakken=()=>{const m=md();return(m&&m.vlakken||[]).filter(v=>v&&v.w>0&&v.hL>0&&v.hR>0)};
+    const heeftSchaal=m=>!!(m&&(m.g&&m.g.pts||schaal(m,asp())));zetCss(o.wrap.getRootNode?o.wrap.getRootNode():document);let aan=false,cur=o.start||"ref",drag=null,sheet=null;
     const f=()=>o.foto(),asp=()=>{const x=f();return x&&x.w&&x.h?x.h/x.w:(o.wrap.clientHeight&&o.wrap.clientWidth?o.wrap.clientHeight/o.wrap.clientWidth:0.75)};
     const meet=()=>{const x=f();if(!x)return null;if(!x.meet)x.meet={maten:[]};if(!x.meet.maten)x.meet.maten=[];return x.meet};
     const so=()=>o.soorten||[];
@@ -6178,7 +6200,9 @@ const FRAMER_TPL="// Prijscalculator glasbewassing \u2014 Framer code component 
     const wijzig=()=>{teken();if(o.onChange)o.onChange()};
     function teken(){o.wrap.querySelectorAll(".ml-svg,.ml-lab").forEach(n=>n.remove());const x=f();if(!x)return;const fx=x.w?x:{...x,w:o.wrap.clientWidth,h:o.wrap.clientHeight};
       const r=svgVoor(fx,so());if(r.svg)o.wrap.insertAdjacentHTML("beforeend",r.svg+r.labs);
-      o.wrap.querySelectorAll(".ml-lab").forEach(l=>{l.style.pointerEvents=aan?"auto":"none"});if(o.bar)o.bar()}
+      o.wrap.querySelectorAll(".ml-lab").forEach(l=>{l.style.pointerEvents=aan?"auto":"none"});
+      o.wrap.querySelectorAll(".ml-gh").forEach(n=>n.remove());const gm=x.meet&&x.meet.g;if(aan&&cur==="gevel"&&gm&&gm.pts)gm.pts.forEach((q,i)=>o.wrap.insertAdjacentHTML("beforeend",`<span class="ml-gh" style="left:${q[0]*100}%;top:${q[1]*100}%">${["LO","RO","RB","LB"][i]}</span>`));
+      if(o.bar)o.bar()}
     function sluitSheet(){if(sheet){sheet.remove();sheet=null}}
     function maakSheet(html){sluitSheet();sheet=document.createElement("div");sheet.className="ml-sheet";sheet.innerHTML=html;(o.host||o.wrap.parentElement).appendChild(sheet);
       sheet.addEventListener("pointerdown",e=>e.stopPropagation());sheet.addEventListener("click",e=>e.stopPropagation());
@@ -6195,6 +6219,22 @@ const FRAMER_TPL="// Prijscalculator glasbewassing \u2014 Framer code component 
       s.querySelector("[data-ok]").onclick=ok;s.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();ok()}if(e.key==="Escape"){e.stopPropagation();s.querySelector("[data-af]").click()}});
       s.querySelector("[data-af]").onclick=()=>{if(nieuw)delete m.ref;sluitSheet();teken()};
       const w=s.querySelector("[data-weg]");if(w)w.onclick=()=>{delete m.ref;sluitSheet();cur="ref";wijzig()}}
+    /* gevel rechtzetten: kies het vlak uit het 3D-model, AI zoekt de vier hoeken, jij versleept ze als het nodig is */
+    const vlakNaam=v=>(v.r||v.richting?((v.r||v.richting)[0].toUpperCase()+(v.r||v.richting).slice(1))+"gevel":"Gevel");
+    let zoekt=false;
+    function zetVlak(v){const m=meet(),oud=m.g&&m.g.pts;m.g={pts:oud||[[.18,.86],[.82,.86],[.82,.32],[.18,.32]],w:v.w,hL:v.hL,hR:v.hR,r:v.richting||v.r||""};cur="gevel";sluitSheet();wijzig();if(!oud)zoekHoeken()}
+    function vlakSheet(nieuw){const V=vlakken();if(!V.length)return;const m=meet();
+      const s=maakSheet(`<h4 style="--c:#14b8a6"><i></i>Welke gevel staat op de foto?</h4><p>De maten komen uit het 3D-model van de woning. Mansard zet de foto daarmee recht, zodat elke maat op deze gevel klopt, ook als de foto scheef is.</p>
+        <div class="ml-refs">${V.map((v,i)=>`<button type="button" data-v="${i}" aria-pressed="${!!(m.g&&m.g.w===v.w&&m.g.r===v.richting)}">${esc(vlakNaam(v))}<small>${fmt(v.w,2)} m breed · ${fmt(Math.max(v.hL,v.hR),2)} m hoog${v.punt?" · puntgevel":""}</small></button>`).join("")}</div>
+        <div class="ml-knop">${m.g?`<button type="button" class="weg" data-weg>Wissen</button>`:""}<button type="button" data-af>Annuleren</button></div>`);
+      s.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>zetVlak(V[+b.dataset.v]));s.querySelector("[data-af]").onclick=()=>{sluitSheet();teken()};
+      const w=s.querySelector("[data-weg]");if(w)w.onclick=()=>{delete m.g;sluitSheet();wijzig()}}
+    function startGevel(){const V=vlakken();if(!V.length)return;if(V.length===1||V.every(v=>Math.abs(v.w-V[0].w)<0.05&&Math.abs(Math.max(v.hL,v.hR)-Math.max(V[0].hL,V[0].hR))<0.1))zetVlak(V[0]);else vlakSheet(true)}
+    async function zoekHoeken(){if(!o.ai||zoekt)return;const img=o.wrap.querySelector("img");if(!img)return;zoekt=true;
+      const z=document.createElement("div");z.className="ml-zoek";z.innerHTML="<span>AI zoekt de hoeken van de gevel…</span>";o.wrap.appendChild(z);
+      try{const c=document.createElement("canvas"),W=img.naturalWidth||img.width,H=img.naturalHeight||img.height,k=Math.min(1,1600/Math.max(W,H));c.width=Math.round(W*k);c.height=Math.round(H*k);c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+        const r=await o.ai(c.toDataURL("image/jpeg",.85));const m=meet();if(r&&r.hoeken&&r.hoeken.length===4&&m.g){m.g.pts=r.hoeken.map(q=>[q[0],q[1]]);m.g.ai=r.zeker||"ja";wijzig()}}
+      catch(e){if(o.fout)o.fout(e)}finally{zoekt=false;z.remove()}}
     function zetGoot(v){const m=meet();m.ref={...m.ref,k:"3d",cm:Math.round(v*1000)/10,n:1};sluitSheet();if(cur==="ref"&&so().length)cur=so()[0].id;wijzig()}
     function gootSheet(G,nieuw){const m=meet();const s=maakSheet(`<h4 style="--c:${REFK}"><i></i>Welke goot staat op de foto?</h4><p>Het 3D-model van deze woning heeft goten van verschillende lengte. Kies de goot waar u langs sleepte.</p>
         <div class="ml-refs">${G.map(v=>`<button type="button" data-g="${v}">${fmt(v,2)} m<small>goot · 3D-model</small></button>`).join("")}<button type="button" data-eigen>Andere maat<small>zelf invullen</small></button></div>
@@ -6203,7 +6243,7 @@ const FRAMER_TPL="// Prijscalculator glasbewassing \u2014 Framer code component 
       s.querySelector("[data-eigen]").onclick=()=>{m.ref={...m.ref,k:"eigen",cm:Math.round(G[0]*100),n:1};refSheet(nieuw)};
       s.querySelector("[data-af]").onclick=()=>{if(nieuw)delete m.ref;sluitSheet();teken()}}
     function maatSheet(j,nieuw){const m=meet(),x=m.maten[j];if(!x)return;const sx=so().find(s=>s.id===x.s)||{naam:"Meting",kleur:"#9aa1ad",eenheid:x.r?"m2":"m"},w=waarde(x,m,asp()),c=sx.kleur;
-      const s=maakSheet(`<h4 style="--c:${c}"><i></i>${esc(sx.naam)}</h4><p>${w.ok?(w.schat?(m.ref&&m.ref.k==="3d"?"Berekend met de goot uit het 3D-model. Klopt het niet? Pas de maat aan.":"Geschat met de referentie. Klopt het niet? Pas de maat aan."):"Zelf ingevulde maat."):"Nog geen referentie op deze foto: vul de maat zelf in, of teken eerst een referentie."}</p>
+      const s=maakSheet(`<h4 style="--c:${c}"><i></i>${esc(sx.naam)}</h4><p>${w.ok?(w.gevel?"Gemeten op de rechtgezette gevel (maten uit het 3D-model). Klopt het niet? Pas de maat aan.":w.schat?(m.ref&&m.ref.k==="3d"?"Berekend met de goot uit het 3D-model. Klopt het niet? Pas de maat aan.":"Geschat met de referentie. Klopt het niet? Pas de maat aan."):"Zelf ingevulde maat."):"Nog geen referentie op deze foto: vul de maat zelf in, of teken eerst een referentie."}</p>
         ${x.r?`<div class="ml-row"><label>Breedte (m)<input type="text" inputmode="decimal" data-bw value="${w.ok?fmt(w.bw,2):""}"></label><span class="x">×</span><label>Hoogte (m)<input type="text" inputmode="decimal" data-hh value="${w.ok?fmt(w.hh,2):""}"></label></div>`
           :`<div class="ml-row"><label>Lengte (m)<input type="text" inputmode="decimal" data-m value="${w.ok?fmt(w.v,2):""}"></label></div>`}
         ${so().length>1?`<div class="ml-refs">${so().filter(z=>(z.eenheid==="m2")===!!x.r).map(z=>`<button type="button" data-s="${esc(z.id)}" aria-pressed="${z.id===x.s}" style="--c:${z.kleur}">${esc(z.kort)}<small>${z.eenheid==="m2"?"per m²":"per meter"}</small></button>`).join("")}</div>`:""}
@@ -6218,6 +6258,8 @@ const FRAMER_TPL="// Prijscalculator glasbewassing \u2014 Framer code component 
       s.querySelector("[data-weg]").onclick=()=>{m.maten.splice(j,1);sluitSheet();wijzig()}}
     /* tekenen met slepen */
     const down=e=>{if(!aan)return;if(e.target.closest(".ml-lab,.ml-sheet"))return;e.preventDefault();e.stopPropagation();sluitSheet();
+      if(cur==="gevel"){const m=meet();if(!m.g){startGevel();return}const p=pt(e),W=o.wrap.clientWidth,H=o.wrap.clientHeight;let best=-1,bd=40;m.g.pts.forEach((q,i)=>{const d=Math.hypot((q[0]-p[0])*W,(q[1]-p[1])*H);if(d<bd){bd=d;best=i}});
+        if(best<0)return;try{o.wrap.setPointerCapture(e.pointerId)}catch(_){}drag={hoek:best,a:p,b:p};o.wrap.classList.add("ml-drag");toonLoep(m.g.pts[best],"","#14b8a6");return}
       try{o.wrap.setPointerCapture(e.pointerId)}catch(_){}const p=pt(e),sx=so().find(s=>s.id===cur),r=cur!=="ref"&&sx&&sx.eenheid==="m2";drag={a:p,b:p,r,ref:cur==="ref"};
       o.wrap.classList.add("ml-drag");toonLoep(p,"",drag.ref?REFK:(sx&&sx.kleur));const x=f();x.meet=x.meet||{maten:[]};const tmp=drag.ref?{...x.meet,ref:{...(x.meet.ref||{k:"steen",cm:21,n:1}),a:p,b:p}}:{...x.meet,maten:[...(x.meet.maten||[]),{s:cur,a:p,b:p,...(r?{r:1}:{})}]};drag.tmp=tmp;drag.orig=x.meet};
     let loep=null;
@@ -6226,35 +6268,41 @@ const FRAMER_TPL="// Prijscalculator glasbewassing \u2014 Framer code component 
       loep.style.backgroundImage=`url("${img.currentSrc||img.src}")`;loep.style.backgroundSize=`${W*Z}px ${H*Z}px`;loep.style.backgroundPosition=`${66-p[0]*W*Z}px ${66-p[1]*H*Z}px`;loep.style.setProperty("--c",c||"#ffc53d");
       loep.querySelector("b").textContent=txt||"";loep.querySelector("b").style.display=txt?"":"none"}
     function wegLoep(){if(loep){loep.remove();loep=null}}
-    const move=e=>{if(!drag)return;e.preventDefault();drag.b=pt(e);const x=f();if(drag.ref)drag.tmp.ref.b=drag.b;else drag.tmp.maten[drag.tmp.maten.length-1].b=drag.b;x.meet=drag.tmp;teken();
+    const move=e=>{if(!drag)return;e.preventDefault();drag.b=pt(e);
+      if(drag.hoek!=null){const m=meet();m.g.pts[drag.hoek]=[...drag.b];teken();toonLoep(drag.b,["Linksonder","Rechtsonder","Rechtsboven","Linksboven"][drag.hoek],"#14b8a6");return}
+      const x=f();if(drag.ref)drag.tmp.ref.b=drag.b;else drag.tmp.maten[drag.tmp.maten.length-1].b=drag.b;x.meet=drag.tmp;teken();
       {const sx=so().find(s=>s.id===cur),c=drag.ref?REFK:(sx&&sx.kleur),m=drag.tmp,j=m.maten.length-1,w=drag.ref?null:waarde(m.maten[j],m,asp());
         toonLoep(drag.b,drag.ref?"Referentie":w&&w.ok?(drag.r?fmt(w.bw,2)+" × "+fmt(w.hh,2)+" m":"≈ "+fmt(w.v,2)+" m"):"",c)}
       x.meet=drag.orig};
     const up=e=>{if(!drag)return;const d=drag;drag=null;o.wrap.classList.remove("ml-drag");wegLoep();const x=f(),lang=dist(d.a,d.b,asp())>0.012;
+      if(d.hoek!=null){teken();if(o.onChange)o.onChange();return}
       if(!lang){teken();return}
-      x.meet=d.tmp;if(d.ref){const G=goten();if(G.length===1)zetGoot(G[0]);else if(G.length){teken();gootSheet(G,!d.orig||!d.orig.ref)}else{teken();refSheet(!d.orig||!d.orig.ref)}}else{const j=x.meet.maten.length-1;teken();if(o.onChange)o.onChange();if(!schaal(x.meet,asp()))maatSheet(j,true)}};
-    const klik=e=>{if(!aan)return;const l=e.target.closest(".ml-lab");e.stopPropagation();e.preventDefault();if(!l)return;if(l.hasAttribute("data-mlref")){const G=goten();if(G.length)gootSheet(G,false);else refSheet(false)}else maatSheet(+l.dataset.mlj,false)};
+      if(d.hoek!=null){teken();if(o.onChange)o.onChange();return}
+      x.meet=d.tmp;if(d.ref){const G=goten();if(G.length===1)zetGoot(G[0]);else if(G.length){teken();gootSheet(G,!d.orig||!d.orig.ref)}else{teken();refSheet(!d.orig||!d.orig.ref)}}else{const j=x.meet.maten.length-1;teken();if(o.onChange)o.onChange();if(!heeftSchaal(x.meet))maatSheet(j,true)}};
+    const klik=e=>{if(!aan)return;const l=e.target.closest(".ml-lab");e.stopPropagation();e.preventDefault();if(!l)return;if(l.hasAttribute("data-mlg")){cur="gevel";vlakSheet(false);if(o.bar)o.bar();return}if(l.hasAttribute("data-mlref")){const G=goten();if(G.length)gootSheet(G,false);else refSheet(false)}else maatSheet(+l.dataset.mlj,false)};
     o.wrap.addEventListener("pointerdown",down,true);o.wrap.addEventListener("pointermove",move,true);o.wrap.addEventListener("pointerup",up,true);o.wrap.addEventListener("pointercancel",up,true);o.wrap.addEventListener("click",klik,true);
     /* knoppenbalk: Referentie + soorten met totalen */
-    function barHtml(totaal){const m=f()&&f().meet,heeftRef=!!(m&&m.ref),G=goten(),laadt=!G.length&&!!(md()&&md().laden),d3=G.length>0;
+    function barHtml(totaal){const m=f()&&f().meet,VL=vlakken(),gv=VL.length>0,heeftG=!!(m&&m.g&&m.g.pts),heeftRef=!!(m&&m.ref)||heeftG,G=gv?[]:goten(),laadt=!gv&&!G.length&&!!(md()&&md().laden),d3=G.length>0;
+      if(gv&&cur==="ref")cur="gevel";
       const fm=G.map(v=>"<b>"+fmt(v,2)+" m</b>").join(" of ");
-      const refTxt=d3?"Sleep eerst één keer langs de <b>goot</b> op de foto. Volgens het 3D-model van de woning is die "+fm+"; daarmee kloppen alle andere maten.":laadt?"3D-model van de woning laden…":"Begin met een <b>referentie</b>: sleep over iets waarvan u de maat kent, bijvoorbeeld 4 bakstenen of 3 dakpannen.";
+      const refTxt=gv?(heeftG?"":"Tik op <b>Gevel</b>: Mansard zoekt de vier hoeken van de gevelmuur en zet de foto recht met de maten uit het 3D-model. Daarna klopt elke maat op die gevel."):d3?"Sleep eerst één keer langs de <b>goot</b> op de foto. Volgens het 3D-model van de woning is die "+fm+"; daarmee kloppen alle andere maten.":laadt?"3D-model van de woning laden…":"Begin met een <b>referentie</b>: sleep over iets waarvan u de maat kent, bijvoorbeeld 4 bakstenen of 3 dakpannen.";
       const t=totaal||totalen([f()],so());
       return `<div class="ml-bar${o.licht?" licht":""}" role="radiogroup" aria-label="Wat meet u">
-        <button type="button" role="radio" data-mls="ref" aria-checked="${cur==="ref"}" style="--c:${REFK}"><i style="color:#1d1a10">${ICL}</i>${d3||laadt?"Schaal: goot":"Referentie"}${d3&&!heeftRef?`<b style='color:#1d1a10'>${fmt(G[0],2)} m</b>`:""}${heeftRef?"<b style='color:#1d1a10'>✓</b>":""}</button>
+        ${gv?`<button type="button" role="radio" data-mls="gevel" aria-checked="${cur==="gevel"}" style="--c:#14b8a6"><i>${ICL}</i>Gevel${heeftG?`<b>✓</b>`:""}</button>`:`<button type="button" role="radio" data-mls="ref" aria-checked="${cur==="ref"}" style="--c:${REFK}"><i style="color:#1d1a10">${ICL}</i>${d3||laadt?"Schaal: goot":"Referentie"}${d3&&!heeftRef?`<b style='color:#1d1a10'>${fmt(G[0],2)} m</b>`:""}${heeftRef?"<b style='color:#1d1a10'>✓</b>":""}</button>`}
         ${so().map(s=>`<button type="button" role="radio" data-mls="${esc(s.id)}" aria-checked="${cur===s.id}" style="--c:${s.kleur}"><i></i>${esc(s.kort)}${t[s.id]?`<b>${fmt(t[s.id],1)} ${s.eenheid==="m2"?"m²":"m"}</b>`:""}</button>`).join("")}</div>
-        <div class="ml-tip">${heeftRef?(cur==="ref"?(d3?"Sleep opnieuw langs de <b>goot</b> om de schaal te verplaatsen.":"Sleep opnieuw om de <b>referentie</b> te verplaatsen."):so().find(s=>s.id===cur&&s.eenheid==="m2")?"Trek een rechthoek over het vlak. Tik op een label om de maat aan te passen.":"Sleep van begin tot eind langs wat u meet. Tik op een label om de maat aan te passen."):refTxt}</div>`}
-    function bindBar(el){el.querySelectorAll("[data-mls]").forEach(b=>b.onclick=()=>{cur=b.dataset.mls;sluitSheet();if(o.bar)o.bar()})}
+        <div class="ml-tip">${cur==="gevel"&&heeftG?"Versleep een hoek als hij niet precies op de hoek van de muur staat. Tik op het groene label voor een andere gevel. Daarna kies je wat je meet.":heeftRef?(cur==="ref"?(d3?"Sleep opnieuw langs de <b>goot</b> om de schaal te verplaatsen.":"Sleep opnieuw om de <b>referentie</b> te verplaatsen."):so().find(s=>s.id===cur&&s.eenheid==="m2")?"Trek een rechthoek over het vlak. Tik op een label om de maat aan te passen.":"Sleep van begin tot eind langs wat u meet. Tik op een label om de maat aan te passen."):refTxt}</div>`}
+    function bindBar(el){el.querySelectorAll("[data-mls]").forEach(b=>b.onclick=()=>{cur=b.dataset.mls;sluitSheet();const m=meet();if(cur==="gevel"&&m&&!m.g)startGevel();else teken()})}
     teken();
-    return{aan:v=>{aan=!!v;o.wrap.classList.toggle("ml-on",aan);if(aan&&cur!=="ref"&&!so().some(s=>s.id===cur))cur="ref";if(aan&&f()&&f().meet&&f().meet.ref&&cur==="ref"&&so().length)cur=so()[0].id;if(!aan)sluitSheet();teken()},
+    return{aan:v=>{aan=!!v;o.wrap.classList.toggle("ml-on",aan);if(aan&&cur!=="ref"&&cur!=="gevel"&&!so().some(s=>s.id===cur))cur="ref";if(aan&&cur==="gevel"&&f()&&f().meet&&f().meet.g&&so().length)cur=so()[0].id;if(aan&&f()&&f().meet&&f().meet.ref&&cur==="ref"&&so().length)cur=so()[0].id;if(!aan)sluitSheet();teken()},
       teken,barHtml,bindBar,sluit:sluitSheet,
       wis:()=>{const x=f();if(x&&x.meet){delete x.meet;wijzig()}},
       ongedaan:()=>{const m=f()&&f().meet;if(m&&m.maten&&m.maten.length){m.maten.pop();wijzig();return true}return false},
       weg:()=>{sluitSheet();o.wrap.removeEventListener("pointerdown",down,true);o.wrap.removeEventListener("pointermove",move,true);o.wrap.removeEventListener("pointerup",up,true);o.wrap.removeEventListener("pointercancel",up,true);o.wrap.removeEventListener("click",klik,true)}}}
   /* opslaan: alleen wat nodig is, afgerond */
   const r4=v=>Math.round(v*1e4)/1e4;
-  function schoon(meet){if(!meet||(!meet.ref&&!(meet.maten||[]).length))return null;const o={};
+  function schoon(meet){if(!meet||(!meet.ref&&!meet.g&&!(meet.maten||[]).length))return null;const o={};
     if(meet.ref&&meet.ref.a)o.ref={a:meet.ref.a.map(r4),b:meet.ref.b.map(r4),k:meet.ref.k||"eigen",cm:num(meet.ref.cm),n:Math.max(1,num(meet.ref.n)||1)};
+    if(meet.g&&meet.g.pts&&meet.g.pts.length===4)o.g={pts:meet.g.pts.map(q=>q.map(r4)),w:num(meet.g.w),hL:num(meet.g.hL),hR:num(meet.g.hR),r:String(meet.g.r||"")};
     o.maten=(meet.maten||[]).filter(x=>x&&x.a&&x.b).map(x=>({s:String(x.s),a:x.a.map(r4),b:x.b.map(r4),...(x.r?{r:1}:{}),...(x.m!=null?{m:num(x.m)}:{}),...(x.bm!=null?{bm:num(x.bm)}:{}),...(x.hm!=null?{hm:num(x.hm)}:{})}));return o}
   window.Meetlint={attach,totalen,svgVoor,soortenUit,schoon,zetCss,REFS}
 })();
@@ -10556,11 +10604,11 @@ const ICON={
     new Set([...Object.keys(cnt),...Object.keys(synced)]).forEach(t=>{if(g(t)){const base=Math.max(0,getV(t)-(synced[t]||0));setVal(t,base+(cnt[t]||0))}});
     synced={...cnt};renderPhsum()}
   const edMeet=()=>typeof Meetlint!=="undefined"&&typeof meetAan==="function"&&meetAan("rekentool")?meetSoorten():[];
-  const edMsg=()=>edH3&&edH3.goten&&edH3.goten.length?"Sleep één keer langs de goot (die lengte kent Mansard uit het 3D-model van de woning), daarna meet u windveren, daklijsten of beplating.":edH3&&edH3.laden?"Het 3D-model van de woning wordt geladen…":"Sleep eerst een referentie over iets waarvan u de maat kent, daarna meet u goten, windveren of beplating.";
+  const edMsg=()=>edH3&&edH3.vlakken&&edH3.vlakken.length?"Mansard zet de gevel recht met de maten uit het 3D-model; daarna meet u windveren, daklijsten of beplating op de cm.":edH3&&edH3.goten&&edH3.goten.length?"Sleep één keer langs de goot (die lengte kent Mansard uit het 3D-model van de woning), daarna meet u windveren, daklijsten of beplating.":edH3&&edH3.laden?"Het 3D-model van de woning wordt geladen…":"Sleep eerst een referentie over iets waarvan u de maat kent, daarna meet u goten, windveren of beplating.";
   /* 3D-model van de woning (3D BAG) ophalen voor de schaal op de foto */
   function edLaad3d(){const k=klantForm(),adr=[k.adres,k.pc,k.plaats].filter(Boolean).join(" ");if(!k.adres||typeof huis3dVoor!=="function"){edH3=null;return}
     if(edH3&&edH3.adr===adr)return;edH3={adr,laden:true};
-    huis3dVoor(adr).then(d=>{if(!edH3||edH3.adr!==adr)return;const G=d&&d.randen?d.randen.filter(r=>r.soort==="goot").map(r=>r.m):[];edH3=G.length?{adr,goten:G}:{adr};
+    huis3dVoor(adr).then(d=>{if(!edH3||edH3.adr!==adr)return;const G=d&&d.randen?d.randen.filter(r=>r.soort==="goot").map(r=>r.m):[];edH3=G.length||(d&&d.vlakken||[]).length?{adr,goten:G,vlakken:d.vlakken||[]}:{adr};
       if(edMl)edMl.teken();if(edMode==="meten"&&ge("ed-msg"))ge("ed-msg").textContent=edMsg()})}
   function edZetMode(m){edMode=m;const met=m==="meten";ge("ed-mode").querySelectorAll("[data-em]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.em===m));
     ge("ed-types").hidden=met;eroot.querySelector(".ed-lab").hidden=met;ge("ed-mlb").hidden=!met;ge("ed-tally").hidden=met;
@@ -10569,7 +10617,7 @@ const ICON={
   function openEd(i){ge("ed-undo").onclick=undo1;ge("ed-msg").textContent="Kies hieronder wat je aantikt en tik op elk raam. Tik op een stip om hem weg te halen.";if(!edDlg.open)edDlg.showModal();edIdx=i;ge("ed-img").src=photos[i].url;ge("ed").hidden=false;document.body.style.overflow="hidden";renderDots();requestAnimationFrame(()=>{fitEd();
       if(edMl){edMl.weg();edMl=null}const MS=edMeet();ge("ed-mode").hidden=!MS.length;ge("ed-mode").classList.toggle("licht",getComputedStyle(ge("ed")).backgroundColor.replace(/[^\d,]/g,"").split(",").slice(0,3).reduce((a,b)=>a+ +b,0)>600);
       if(MS.length)edLaad3d();
-      if(MS.length||(photos[edIdx]&&photos[edIdx].meet))edMl=Meetlint.attach({model:()=>edH3,licht:getComputedStyle(ge("ed")).backgroundColor.replace(/[^\d,]/g,"").split(",").slice(0,3).reduce((a,b)=>a+ +b,0)>600,wrap:ge("ed-wrap"),foto:()=>{const p=photos[edIdx];if(p&&!p.w){p.w=p.cv.width;p.h=p.cv.height}return p},soorten:MS.length?MS:meetSoorten(),host:eroot.querySelector(".ed-stage"),
+      if(MS.length||(photos[edIdx]&&photos[edIdx].meet))edMl=Meetlint.attach({model:()=>edH3,ai:typeof gevelAi==="function"?gevelAi():null,fout:e=>toast(typeof fnFout==="function"?fnFout(e):"Hoeken zoeken lukte niet, zet ze zelf"),licht:getComputedStyle(ge("ed")).backgroundColor.replace(/[^\d,]/g,"").split(",").slice(0,3).reduce((a,b)=>a+ +b,0)>600,wrap:ge("ed-wrap"),foto:()=>{const p=photos[edIdx];if(p&&!p.w){p.w=p.cv.width;p.h=p.cv.height}return p},soorten:MS.length?MS:meetSoorten(),host:eroot.querySelector(".ed-stage"),
         bar:()=>{const b=ge("ed-mlb");if(b&&edMl&&!b.hidden){b.innerHTML=edMl.barHtml(Meetlint.totalen(photos.map(p=>({...p,w:p.cv.width,h:p.cv.height})),MS));edMl.bindBar(b)}}});
       edZetMode(MS.length?edMode:"ramen")})}
   /* gemeten meters en m² in de prijs: bij de diensten met dezelfde naam (Uitvoering › Diensten); zelf ingevulde aantallen blijven staan */
@@ -13569,7 +13617,7 @@ function openFotoViewer(list,start,opt={}){
     const wEl=ov.querySelector(".fv-wrap"),stg=ov.querySelector(".fv-stage").getBoundingClientRect(),rt=(f.w&&f.h)?f.w/f.h:4/3,aw=stg.width-(list.length>1?120:24),ah=stg.height-8;
     const maat=()=>{const st=ov.querySelector(".fv-stage").getBoundingClientRect(),aw=st.width-(list.length>1?120:24),ah=st.height-8;let ww=aw,hh=aw/rt;if(hh>ah){hh=ah;ww=ah*rt}wEl.style.width=Math.max(50,ww)+"px";wEl.style.height=Math.max(50,hh)+"px";wEl.style.aspectRatio="auto"};maat();
     ov.querySelector(".fv-x").onclick=close;ov.querySelector(".fv-done").onclick=close;
-    if(typeof Meetlint!=="undefined"&&(MS||f.meet)){ml=Meetlint.attach({model:opt.model3d?opt.model3d(()=>{if(ml)ml.teken()}):null,wrap:wEl,foto:()=>list[i],soorten:MS||meetSoorten(),host:ov.querySelector(".fv-stage"),
+    if(typeof Meetlint!=="undefined"&&(MS||f.meet)){ml=Meetlint.attach({model:opt.model3d?opt.model3d(()=>{if(ml)ml.teken()}):null,ai:typeof gevelAi==="function"?gevelAi():null,fout:e=>toast(typeof fnFout==="function"?fnFout(e):"Hoeken zoeken lukte niet, zet ze zelf"),wrap:wEl,foto:()=>list[i],soorten:MS||meetSoorten(),host:ov.querySelector(".fv-stage"),
         onChange:()=>{if(opt.onChange)opt.onChange(i,f.dots||[],f);const u=ov.querySelector(".fv-undo"),c=ov.querySelector(".fv-clear");if(u)u.disabled=false;if(c)c.disabled=false},
         bar:()=>{const b=ov.querySelector(".fv-mlb");if(b&&ml){const h0=b.offsetHeight;b.innerHTML=ml.barHtml();ml.bindBar(b);if(b.offsetHeight!==h0)maat()}}});ml.aan(ed&&mode==="meten");if(ed&&mode==="meten"){maat();ml.teken()}}else ml=null;
     const l=ov.querySelector(".fv-nav.l"),r=ov.querySelector(".fv-nav.r");if(l)l.onclick=()=>go(-1);if(r)r.onclick=()=>go(1);
@@ -17191,10 +17239,12 @@ function huis3dVoor(adres){const k=String(adres||"").trim().toLowerCase().replac
     if(typeof LIVE!=="undefined"&&LIVE&&typeof fbFn==="function")d=(await fbFn("huis3d")({x:g.rd[0],y:g.rd[1],lat:g.ll[0],lng:g.ll[1]})).data;else d=luchtDemo3d(g.ll);
     return d?{...d,geo:g}:null})().catch(e=>{delete H3C[k];throw e}))}
 /* schaal voor de meetlint op een foto: de goten uit het 3D-model. Geeft een functie terug die de huidige stand geeft. */
-function meet3dModel(adres,klaar){let st=adres?{laden:true}:null;if(adres)huis3dVoor(adres).then(d=>{const G=d&&d.randen?d.randen.filter(r=>r.soort==="goot").map(r=>r.m):[];st=G.length?{goten:G}:null;if(klaar)klaar()},()=>{st=null;if(klaar)klaar()});return()=>st}
+function meet3dModel(adres,klaar){let st=adres?{laden:true}:null;if(adres)huis3dVoor(adres).then(d=>{const G=d&&d.randen?d.randen.filter(r=>r.soort==="goot").map(r=>r.m):[];st=G.length||(d&&d.vlakken||[]).length?{goten:G,vlakken:d.vlakken||[]}:null;if(klaar)klaar()},()=>{st=null;if(klaar)klaar()});return()=>st}
+/* AI zoekt de vier hoeken van de gevel op een foto (alleen live; in de demo zet je ze zelf) */
+const gevelAi=()=>typeof LIVE!=="undefined"&&LIVE&&typeof fbFn==="function"?d=>fbFn("gevelHoeken")({foto:d}).then(r=>r.data):null;
 /* voorbeeldwoning voor de demo: een vrijstaand huis met zadeldak rond het gezochte adres (geen echte gegevens) */
 function luchtDemo3d(ll){const dl=1/111320,dg=1/(111320*Math.cos(ll[0]*Math.PI/180)),P=(x,y)=>[Math.round((ll[0]+y*dl)*1e7)/1e7,Math.round((ll[1]+x*dg)*1e7)/1e7];
-  return{meetjaar:"2023",bouwjaar:1978,goothoogte:5.6,nokhoogte:9.4,gevel:142,dakopp:112,randen:[{soort:"goot",m:9.6,p:[P(-4.8,-4.2),P(4.8,-4.2)]},{soort:"goot",m:9.6,p:[P(-4.8,4.2),P(4.8,4.2)]},{soort:"windveer",m:5.32,p:[P(-4.8,-4.2),P(-4.8,0)]},{soort:"windveer",m:5.32,p:[P(-4.8,0),P(-4.8,4.2)]},{soort:"windveer",m:5.32,p:[P(4.8,-4.2),P(4.8,0)]},{soort:"windveer",m:5.32,p:[P(4.8,0),P(4.8,4.2)]}]}}
+  return{meetjaar:"2023",bouwjaar:1978,vlakken:[{richting:"zuid",w:9.6,hL:5.6,hR:5.6},{richting:"noord",w:9.6,hL:5.6,hR:5.6},{richting:"oost",w:8.4,hL:5.6,hR:5.6,punt:{u:4.2,h:9.4}}],goothoogte:5.6,nokhoogte:9.4,gevel:142,dakopp:112,randen:[{soort:"goot",m:9.6,p:[P(-4.8,-4.2),P(4.8,-4.2)]},{soort:"goot",m:9.6,p:[P(-4.8,4.2),P(4.8,4.2)]},{soort:"windveer",m:5.32,p:[P(-4.8,-4.2),P(-4.8,0)]},{soort:"windveer",m:5.32,p:[P(-4.8,0),P(-4.8,4.2)]},{soort:"windveer",m:5.32,p:[P(4.8,-4.2),P(4.8,0)]},{soort:"windveer",m:5.32,p:[P(4.8,0),P(4.8,4.2)]}]}}
 
 /* ---------- Mansard: proefperiode en abonnement van een bedrijf ----------
    Alleen voor nieuwe bedrijven (niet voor het eerste bedrijf). Status komt uit bedrijven/<id>. */

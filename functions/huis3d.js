@@ -44,6 +44,24 @@ module.exports = ({ onCall, onRequest, HttpsError, checkGebruiker }) => {
         /* windrichting van de gevel (buitenkant): normaal uit de voetafdruk-rand */
         let nx = 0, ny = 0; for (let k = 0; k < P.length; k++) { const a = P[k], b = P[(k + 1) % P.length]; nx += (a[1] - b[1]) * (a[2] + b[2]); ny += (a[2] - b[2]) * (a[0] + b[0]); }
         const az = (Math.atan2(nx, ny) * 180 / Math.PI + 360) % 360, r = ["noord", "oost", "zuid", "west"][Math.round(az / 90) % 4]; gevels[r] = (gevels[r] || 0) + A; } });
+    /* gevelvlakken voor het rechtzetten van een foto: per vrije buitenmuur de breedte en de hoogte op beide hoeken (en de punt bij een puntgevel) */
+    const muren = []; shell.forEach((s, i) => { if (st[sv[i]] && st[sv[i]].type === "WallSurface") muren.push(s[0].map(k => V[k])); });
+    let fp = hoofd.voet.map(q => [q[0], q[1]]); { let A2 = 0; for (let i = 0; i < fp.length; i++) { const p = fp[i], q = fp[(i + 1) % fp.length]; A2 += p[0] * q[1] - q[0] * p[1]; } if (A2 < 0) fp = fp.reverse(); }
+    let zijden = fp.map((p, i) => [p, fp[(i + 1) % fp.length]]);
+    for (let n = 0; n < 30; n++) { let ok = false; for (let i = 0; i < zijden.length && zijden.length > 3; i++) { const [a1, b1] = zijden[i], [a2, b2] = zijden[(i + 1) % zijden.length];
+        const ux = b1[0] - a1[0], uy = b1[1] - a1[1], vx = b2[0] - a2[0], vy = b2[1] - a2[1]; if ((ux * vx + uy * vy) / (Math.hypot(ux, uy) * Math.hypot(vx, vy)) > 0.998) { zijden[i] = [a1, b2]; zijden.splice((i + 1) % zijden.length, 1); ok = true; break; } } if (!ok) break; }
+    const vlakken = [];
+    zijden.forEach(([A, B]) => { const L = Math.hypot(B[0] - A[0], B[1] - A[1]); if (L < 1.5 || tegenBuur(A, B)) return; const ex = (B[0] - A[0]) / L, ey = (B[1] - A[1]) / L;
+      /* alleen muurdelen die helemaal in dit vlak liggen (niet de muur om de hoek) */
+      const pts = muren.map(P => P.map(q => ({ u: (q[0] - A[0]) * ex + (q[1] - A[1]) * ey, d: Math.abs((q[0] - A[0]) * ey - (q[1] - A[1]) * ex), z: q[2] }))).filter(P => P.every(q => q.d < 0.4 && q.u > -0.4 && q.u < L + 0.4)).flat();
+      if (pts.length < 4) return; const z0 = Math.min(...pts.map(q => q.z)), hoog = f => { const z = pts.filter(f).map(q => q.z); return z.length ? Math.max(...z) - z0 : 0; };
+      const hL = hoog(q => q.u < 0.4), hR = hoog(q => q.u > L - 0.4), top = pts.reduce((m, q) => q.z > m.z ? q : m, pts[0]);
+      if (hL < 1.5 || hR < 1.5) return;
+      /* buitenkant: rechts van de rand bij een voetafdruk tegen de klok in */
+      const az = (Math.atan2(ey, -ex) * 180 / Math.PI + 360) % 360, r = ["noord", "oost", "zuid", "west"][Math.round(az / 90) % 4];
+      vlakken.push({ richting: r, w: Math.round(L * 100) / 100, hL: Math.round(hL * 100) / 100, hR: Math.round(hR * 100) / 100,
+        ...(top.z - z0 > Math.max(hL, hR) + 0.6 && top.u > 0.5 && top.u < L - 0.5 ? { punt: { u: Math.round(top.u * 100) / 100, h: Math.round((top.z - z0) * 100) / 100 } } : {}) }); });
+    vlakken.sort((p, q) => q.w * Math.max(q.hL, q.hR) - p.w * Math.max(p.hL, p.hR));
     const key = (a, b) => a < b ? a + "_" + b : b + "_" + a, cnt = {}; daken.forEach(r => r.forEach((v, i) => { const k = key(v, r[(i + 1) % r.length]); cnt[k] = (cnt[k] || 0) + 1; }));
     let randen = [];
     daken.forEach(r => { const zs = r.map(i => V[i][2]), zmin = Math.min(...zs), zmax = Math.max(...zs), plat = zmax - zmin < 0.15;
@@ -65,7 +83,7 @@ module.exports = ({ onCall, onRequest, HttpsError, checkGebruiker }) => {
     return { pand: hoofd.f.id, bouwjaar: a.oorspronkelijkbouwjaar || null, meetjaar: a.b3_pw_datum || null, dak: a.b3_dak_type || "", /* hoogtes boven de grond (3D BAG geeft ze t.o.v. NAP) */
       nokhoogte: a.b3_h_dak_max ? Math.round((a.b3_h_dak_max - (a.b3_h_maaiveld || 0)) * 10) / 10 : null, goothoogte: a.b3_h_dak_min ? Math.round((a.b3_h_dak_min - (a.b3_h_maaiveld || 0)) * 10) / 10 : null,
       randen: randen.map(r => ({ soort: r.soort, m: Math.round(r.len * 100) / 100, hoogte: Math.round((r.hoogte - (a.b3_h_maaiveld || 0)) * 10) / 10, p: [ll(r.A), ll(r.B)] })), voet: hoofd.voet.map(ll),
-      gevel: Math.round(gevel * 10) / 10, dakopp: Math.round(dak * 10) / 10, gevels: Object.fromEntries(Object.entries(gevels).map(([k, v]) => [k, Math.round(v * 10) / 10])),
+      vlakken, gevel: Math.round(gevel * 10) / 10, dakopp: Math.round(dak * 10) / 10, gevels: Object.fromEntries(Object.entries(gevels).map(([k, v]) => [k, Math.round(v * 10) / 10])),
       maaiveld: a.b3_h_maaiveld != null ? Math.round(a.b3_h_maaiveld * 10) / 10 : null };
   }
   const huis3d = onCall({ memory: "256MiB", timeoutSeconds: 30 }, async req => { await checkGebruiker(req.auth); return bereken(req.data || {}); });
