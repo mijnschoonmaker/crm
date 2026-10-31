@@ -588,7 +588,7 @@ const ICON={
     const feit=(n,v)=>`<div><small>${n}</small><b>${v}</b></div>`;
     const rij=MS.map(x=>{const b=typeof meetBron==="function"?meetBron(x):"";if(!b)return"";const v=Math.round(meetBronWaarde(d,b)*10)/10;if(!(v>0))return"";const eig=fl[x.id]>0,aan=!eig&&h3sel[x.id]>0;
       return `<button type="button" data-h3="${esc(x.id)}" data-v="${v}" aria-pressed="${aan}"${eig?" disabled title='Al gemeten op een foto of de luchtfoto'":""}><i>${aan?"✓":""}</i>${esc(x.kort)} · ${h3Fm(v,1)} ${x.eenheid==="m2"?"m²":"m"}${eig?" (gemeten)":""}</button>`}).join("");
-    el.innerHTML=`<div class="h3k-h">${cube}<span><b>Maten uit het 3D-model</b><small>Laserscan${d.meetjaar?" "+esc(String(d.meetjaar).slice(0,4)):""} van Kadaster en TU Delft${d.bouwjaar?" · bouwjaar "+esc(d.bouwjaar):""}</small></span></div>
+    el.innerHTML=`<div class="h3k-h">${cube}<span><b>Maten uit het 3D-model</b><small>Laserscan${d.meetjaar?" "+esc(String(d.meetjaar).slice(0,4)):""} van Kadaster en TU Delft${d.bouwjaar?" · bouwjaar "+esc(d.bouwjaar):""}${d.geleerd?" · bijgesteld met "+d.geleerd+" eigen "+(d.geleerd===1?"meting":"metingen"):""}</small></span></div>
       <div class="h3k-f">${feit("Goten",h3Fm(som("goot"),1)+" m")}${feit("Windveren",som("windveer")?h3Fm(som("windveer"),1)+" m":"geen")}${som("plat")?feit("Dakrand plat dak",h3Fm(som("plat"),1)+" m"):""}${d.gevel?feit("Gevels",h3Fm(d.gevel,0)+" m²"):""}${d.goothoogte?feit("Goothoogte",h3Fm(d.goothoogte,1)+" m"):""}${d.nokhoogte?feit("Nokhoogte",h3Fm(d.nokhoogte,1)+" m"):""}</div>
       ${rij?`<div class="h3k-d">${rij}</div><p>Tik aan wat u meeneemt in de prijs. Muren tegen de buren tellen niet mee; een overstek staat niet in het model.</p>`:`<p>Koppel diensten aan deze maten bij Instellingen › Meetlint.</p>`}`;
     el.querySelectorAll("[data-h3]").forEach(b=>b.onclick=()=>{const id=b.dataset.h3;if(h3sel[id]>0)delete h3sel[id];else h3sel[id]=+b.dataset.v;syncMeet();markStale();h3Teken()})}
@@ -987,6 +987,10 @@ const ICON={
   fillCfg();renderFloors();renderSpecial();EMPTY_OUT=g("out").innerHTML;
   return {host,
     reset:resetAll,
+    /* voor het zelflerende meten: maat uit het model (ruw), wat er gekozen is en wat er zelf gemeten is */
+    h3Info(){const d=h3D;if(!d||!d.ruw||typeof meetBron!=="function")return null;const fl=meetFL();
+      return{d:{pand:d.pand||h3Adr,bouwjaar:d.bouwjaar||0,dak:d.dak||""},items:edMeet().map(x=>{const b=meetBron(x);if(!b)return null;const m=meetBronWaarde(d.ruw,b);if(!(m>0))return null;
+        return{id:x.id,bron:b,model:Math.round(m*100)/100,gemeten:fl[x.id]>0?fl[x.id]:0,gekozen:h3sel[x.id]>0?h3sel[x.id]:0}}).filter(Boolean)}},
     /* prijs berekenen zonder het scherm te gebruiken (opdrachtregel glasbewassing) */
     prijs(p){if(loadCfg())fillCfg();return compute(p)},
     regelsVoor(p){if(loadCfg())fillCfg();return regelsFor(compute(p))},

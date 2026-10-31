@@ -119,7 +119,13 @@ const H3C={};
 function huis3dVoor(adres){const k=String(adres||"").trim().toLowerCase().replace(/\s+/g," ");if(!k)return Promise.resolve(null);
   return H3C[k]||(H3C[k]=(async()=>{const g=await luchtGeo(adres);if(!g||!g.rd)return null;let d;
     if(typeof LIVE!=="undefined"&&LIVE&&typeof fbFn==="function")d=(await fbFn("huis3d")({x:g.rd[0],y:g.rd[1],lat:g.ll[0],lng:g.ll[1]})).data;else d=luchtDemo3d(g.ll);
-    return d?{...d,geo:g}:null})().catch(e=>{delete H3C[k];throw e}))}
+    if(!d)return null;
+    /* bijstellen met wat Mansard geleerd heeft van eerdere echte maten (ruw blijft bewaard om van te leren) */
+    const ruw={randen:(d.randen||[]).map(r=>({soort:r.soort,m:r.m})),gevel:d.gevel||0,dakopp:d.dakopp||0},c=b=>typeof meetCorr==="function"?meetCorr(b,d.bouwjaar):{f:1,n:0};
+    const cs={goot:c("goot"),windveer:c("windveer"),plat:c("plat"),gevel:c("gevel"),dak:c("dak")};
+    const randen=(d.randen||[]).map(r=>cs[r.soort]&&cs[r.soort].n?{...r,m:Math.round(r.m*cs[r.soort].f*100)/100}:r);
+    const geleerd=Object.values(cs).reduce((a,x)=>Math.max(a,x.n),0);
+    return{...d,randen,gevel:d.gevel?Math.round(d.gevel*cs.gevel.f*10)/10:d.gevel,dakopp:d.dakopp?Math.round(d.dakopp*cs.dak.f*10)/10:d.dakopp,ruw,geleerd,geo:g}})().catch(e=>{delete H3C[k];throw e}))}
 /* schaal voor de meetlint op een foto: de goten uit het 3D-model. Geeft een functie terug die de huidige stand geeft. */
 function meet3dModel(adres,klaar){let st=adres?{laden:true}:null;if(adres)huis3dVoor(adres).then(d=>{const G=d&&d.randen?d.randen.filter(r=>r.soort==="goot").map(r=>r.m):[];st=G.length||(d&&d.vlakken||[]).length?{goten:G,vlakken:d.vlakken||[],model:d.model||null,ll:d.geo&&d.geo.ll}:null;if(klaar)klaar()},()=>{st=null;if(klaar)klaar()});return()=>st}
 /* AI zoekt de vier hoeken van de gevel op een foto (alleen live; in de demo zet je ze zelf) */

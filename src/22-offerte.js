@@ -226,6 +226,7 @@ function openOfferte(opts={}){
         telling:tel?{ramen:tel.ramen,minuten:tel.minuten}:(ex&&ex.telling)||null,uitvoer:ulocVal(),
         betaaldOp:"",vanOfferte:"",gemaakt:ex?ex.gemaakt||"":new Date().toISOString(),verstuurdOp:mode==="sent"?new Date().toISOString():ex?ex.verstuurdOp||"":"",herinnerdOp:ex?ex.herinnerdOp||"":"",herinneringen:ex?ex.herinneringen||0:0};
       await save("facturen",id,data);
+      if(typeof RC!=="undefined"&&RC&&RC.h3Info&&typeof meetLeerBewaar==="function"){try{await meetLeerBewaar(RC.h3Info(),dns)}catch(e){console.warn("meetleer",e)}}
       sig0=null;
       if(opslaan){toast("Offerte "+data.nummer+" opgeslagen als concept · je vindt hem bij Offertes"+(fail?" · "+plural(fail,"foto is","foto's zijn")+" niet opgeslagen":""));
         if(mode==="save"){if(RC)RC.reset();let n=0;const go=()=>{if(state.facturen.some(x=>x.id===id))openOfferte({id,back:opts.back});else if(++n<30)setTimeout(go,100)};setTimeout(go,60)}

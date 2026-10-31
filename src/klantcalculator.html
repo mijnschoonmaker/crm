@@ -1463,7 +1463,7 @@ let last=null;
 /* ---------- extra diensten met maten uit het 3D-model van de woning (laserscan van Nederland, 3D BAG) ---------- */
 let H3W=null,X3={};
 const X3_IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 3 8v8l9 5 9-5V8z"/><path d="m3 8 9 5 9-5M12 13v8"/></svg>';
-function x3Waarde(b){const d=H3W;if(!d)return 0;if(b==="gevel")return d.gevel||0;if(b==="dak")return d.dakopp||0;if(b==="rand")return(d.goot||0)+(d.plat||0);return d[b]||0}
+function x3Waarde(b){const d=H3W;if(!d)return 0;const c=BEDRIJF.h3corr||{},f=k=>Number(c[k])||1;if(b==="gevel")return(d.gevel||0)*f("gevel");if(b==="dak")return(d.dakopp||0)*f("dak");if(b==="rand")return(d.goot||0)*f("goot")+(d.plat||0)*f("plat");return(d[b]||0)*f(b)}
 function x3Lijst(){return(BEDRIJF.extra||[]).map(x=>{const v=Math.round(x3Waarde(x.bron)*10)/10;return{...x,v,ex:Math.round(v*(Number(x.prijs)||0)*100)/100}}).filter(x=>x.v>0&&x.ex>0)}
 function x3Gekozen(){return x3Lijst().filter(x=>X3[x.id])}
 function x3Laad(a){H3W=null;X3={};if(!BEDRIJF.h3||!(BEDRIJF.extra||[]).length||!a||!a.rd)return;const m=/POINT\(([-\d.]+) ([-\d.]+)\)/,rd=m.exec(a.rd),ll=m.exec(a.ll||"");if(!rd)return;
