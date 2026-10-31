@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="c5cf87dbd146"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="8c3da6cce1ce"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -6743,6 +6743,10 @@ const FRAMER_TPL="// Prijscalculator glasbewassing \u2014 Framer code component 
         <div class="ml-tel"><button type="button" class="k" data-f="-1">‹ schuif</button><button type="button" class="k" data-b="-1">strook ▲</button><button type="button" class="k" data-b="1">strook ▼</button><button type="button" class="k" data-f="1">schuif ›</button></div>
         <div class="ml-refs">${maten.map(z=>`<button type="button" data-mt="${z.cm}" aria-pressed="${z.cm===fmt0.cm}">${z.n}<small>${z.sub} · ${z.cm} cm</small></button>`).join("")}</div><div class="ml-row"><label>Eigen maat incl. voeg (cm)<input type="text" inputmode="decimal" data-eig value="${String(fmt0.cm).replace(".",",")}"></label></div>
         <div class="ml-knop"><button type="button" data-af>Annuleren</button><button type="button" class="ok" data-ok>Gebruik</button></div>`);
+      /* strook automatisch op het metselwerk (of de pannen) zetten: daar is de meeste fijne structuur, niet op de goot of de witte overstek */
+      {let best=-1;for(let b=0;b<=1.4;b+=0.05){let e=0,n0=0;for(let i=0;i<60;i++){const t=0.05+0.9*i/59;for(let r=0;r<4;r++){const d=(b+r*0.06)*(schaal||1),u=P0[0]+dir[0]*Lp*t+nrm[0]*d*kant,v=P0[1]+dir[1]*Lp*t+nrm[1]*d*kant,q=naarB(u,v),dx=dir[0]*Lp*0.004;
+          const q2=naarB(u+dx,v+dir[1]*Lp*0.004),c1=[0,0,0,0],c2=[0,0,0,0];kleur(G,q[0],q[1],c1,0);kleur(G,q2[0],q2[1],c2,0);e+=Math.abs(c1[0]-c2[0])+Math.abs(c1[1]-c2[1]);n0++}}
+        const sc=e/n0;if(sc>best){best=sc;band=b}}}
       const figs=[...s.querySelectorAll("figure")];
       function tekenLin(){const per=1/n,half=Math.min(0.5,4.5*per),centra=[Math.min(0.5,half),0.5,Math.max(0.5,1-half)];
         figs.forEach((fg,i)=>{const cv=fg.querySelector("canvas"),W=cv.width,H=cv.height,cx=cv.getContext("2d"),id=cx.createImageData(W,H),t0=centra[i]-half,t1=centra[i]+half,hb=(isPan?0.5:0.35)*(schaal||1);
