@@ -194,6 +194,8 @@ function waLink(tel,text){
 const exAmt=x=>S().incl?(Number(x)||0)/(1+Number(S().btw)/100):(Number(x)||0);
 /* bedrag van een opdracht tonen: bij "bedragen excl. tonen" met het btw-tarief dat ook op de factuur komt (bv. 9% voor VvE-schoonmaak
    of glasbewassing binnen), niet altijd het standaardtarief. Anders zie je na opslaan ineens een ander bedrag dan je invulde. */
+/* zelfde voor een klant/losse opdracht (k.prijs, eventueel met wat er mee gaat): het btw-tarief van de dienst van die opdracht */
+const toonK=(k,x)=>{if(!S().toonEx||!S().incl)return toon(x);let b=Number(S().btw)||21;try{if(k&&k.btwVerlegd)b=0;else if(typeof btwRegel==="function"){const r=btwRegel(k,(k&&k.dienst)||"");if(r!=null)b=r}}catch(e){}return r2((Number(x)||0)/(1+b/100))};
 const toonR=(k,o)=>{const x=Number(o&&o.prijs)||0;if(!S().toonEx||!S().incl)return toon(x);let b=Number(S().btw)||21;try{if(typeof groepBtwPct==="function")b=groepBtwPct(o,k)}catch(e){}return r2(x/(1+b/100))};
 /* omzet van één afgemelde beurt, ex btw, overal hetzelfde (statistieken, analyse, werkdag):
    - gefactureerd: het deel van de factuur (totaal ex btw gedeeld door het aantal beurten op die factuur), met de btw van die factuur zelf (ook verlegd)

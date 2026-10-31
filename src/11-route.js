@@ -7,7 +7,7 @@ document.addEventListener("click",e=>{const t=e.target;if(!t.closest)return;
   RT_OPEN.add(row.dataset.rid);render();});
 function vRoute(){
   const day=state.routeDay||iso(today()),d=parse(day),stops=routeStops(day),todo=stops.filter(s=>!s.done);
-  const doneB=state.beurten.filter(b=>b.datum===day),verdiend=doneB.reduce((a,b)=>a+toon(beurtBedrag(b)),0),totaal=verdiend+todo.reduce((a,s)=>a+toon(s.k.prijs),0);/* zelfde incl./excl. btw als de bedragen bij de stops */
+  const doneB=state.beurten.filter(b=>b.datum===day),verdiend=doneB.reduce((a,b)=>a+toon(beurtBedrag(b)),0),totaal=verdiend+todo.reduce((a,s)=>a+toonK(s.k,s.k.prijs),0);/* zelfde incl./excl. btw als de bedragen bij de stops */
   const pct=stops.length?Math.round((stops.length-todo.length)/stops.length*100):0,C=2*Math.PI*54;
   const isT=day===iso(today()),mw=isMw(),naam=esc((state.me&&state.me.name?state.me.name.split(" ")[0]:"")||"");
   const done=stops.length-todo.length,werkMin=todo.reduce((a,s)=>a+duur(s.k),0);
@@ -38,7 +38,7 @@ function vRoute(){
   ${S().startadres?"":`<p class="subt">Tip: zet je vertrekadres bij Instellingen, dan begint de route daar.</p>`}
   <div class="list rlijst" style="gap:8px">${stops.map((s,i)=>{const k=s.k,nu=!s.done&&nx&&k.id===nx.id;if(!s.done&&RT_OPEN.has(k.id))return `<div class="rt-open" data-rid="${esc(k.id)}">${stopCard(k,i,nu,parse(k.gepland)<today(),day,stops.length)}</div>`;return `<div class="card rstop${s.done?" dim af":nu?" nu":""}" data-rid="${esc(k.id)}"${s.done?"":' data-rdrag="1"'}><span class="rnum${s.done?" done":nu?" nu":""}">${s.done?I.check:i+1}</span>
     <button type="button" class="nm" data-act="klant" data-id="${esc(k.id)}">${esc(jobAddrObj(k).adres||k.naam)}</button>
-    <div class="meta"><span>${k.tijd?`<b class="mono">${esc(k.tijd)}</b>`:""}</span><span>${esc(cleanName(k.naam))}</span><span>${esc(jobAddrObj(k).plaats||"")}</span><span class="amt">${eur(toon(k.prijs))}</span></div>
+    <div class="meta"><span>${k.tijd?`<b class="mono">${esc(k.tijd)}</b>`:""}</span><span>${esc(cleanName(k.naam))}</span><span>${esc(jobAddrObj(k).plaats||"")}</span><span class="amt">${eur(toonK(k,k.prijs))}</span></div>
     <div class="side-col" style="flex-direction:row;align-items:center">${s.done?statusPill("ok","Afgerond"):`<span class="rd-grip" aria-hidden="true"><i></i><i></i><i></i></span><a class="btn small" href="${esc(mapsQ(k))}" target="_blank" rel="noopener" aria-label="Navigeer">${I.nav}</a>`}</div></div>`}).join("")}</div>`;
   return html;
 }

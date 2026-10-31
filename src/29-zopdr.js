@@ -18,13 +18,18 @@ async function opdrJobsSync(kid,d){const nu=iso(today());
   for(const o of d.opdrachten||[]){const job=opdrJob({id:kid},o.id),aan=(o.apart||d.soort==="vve")&&o.actief!==false;
     if(aan){const basis={};OPDR_VELDEN.forEach(f=>{if(d[f]!==undefined)basis[f]=d[f]});
       /* eigen adres (locatie van de klant): dat adres, en opnieuw op de kaart zetten */
-      const loc=o.objectId&&(d.objecten||[]).find(x=>x.id===o.objectId&&x.adres);if(loc)Object.assign(basis,{adres:loc.adres,postcode:loc.postcode||"",plaats:loc.plaats||"",lat:null,lng:null,geo:null});
+      /* zonder eigen keuze gaat de opdracht naar de plek van de hoofdopdracht (niet naar het factuuradres) */
+      const lid=typeof opdrLoc==="function"?opdrLoc(d,o):o.objectId,loc=lid&&lid!=="hoofd"&&(d.objecten||[]).find(x=>x.id===lid&&x.adres);if(loc)Object.assign(basis,{adres:loc.adres,postcode:loc.postcode||"",plaats:loc.plaats||"",lat:null,lng:null,geo:null});
+      /* eerste aanbod: de aanboddatum van de opdracht (bij onderdelen de vroegste aanboddatum), niet meteen */
+      const vanaf=o.volgende||((o.items||[]).filter(i=>Number(i.aantal)>0&&i.vol).map(i=>i.vol).sort()[0])||"";
       const v={...basis,dienst:o.dienst||"Extra opdracht",prijs:Number(o.prijs)||0,duur:Number(o.duur)||30,frequentie:Number(o.frequentie)||52,hoofdKlantId:kid,opdrachtId:o.id,opdrachtNr:o.nr||null,actief:true,prospect:false,taak:o.taak||"",fotos:Array.isArray(o.fotos)?o.fotos:[]};
       /* facturatie van deze losse opdracht (los van de hoofdopdracht) */
       const fm=o.facturatie;let fp={};if(fm==="concept"||fm==="direct"||fm==="geen"||fm==="periodiek"){fp={directFactureren:fm==="direct",nietFactureren:fm==="geen",factPer:fm==="periodiek"};if(fm!=="periodiek"&&fm!=="geen"&&job&&job.periodiek&&job.periodiek.aan)fp.periodiek={...job.periodiek,aan:false}}
       Object.assign(v,fp);
-      if(!job){await save("klanten",newId("k"),{...v,autoplan:true,gepland:"",tijd:"",aanbieden:true,aanbodVanaf:o.volgende||"",aangemaakt:nu,log:[{datum:nu,tekst:"Losse opdracht aangemaakt vanuit de klant"}],objecten:[],opdrachten:[],eersteKeer:false})}
-      else if(["dienst","prijs","duur","frequentie","naam","adres","postcode","plaats","email","actief","opdrachtNr","taak",...Object.keys(fp)].some(f=>JSON.stringify(job[f]??"")!==JSON.stringify(v[f]??""))||JSON.stringify(job.fotos||[])!==JSON.stringify(v.fotos||[]))await save("klanten",job.id,{...strip(job),...v})}
+      if(!job){await save("klanten",newId("k"),{...v,autoplan:true,gepland:"",tijd:"",aanbieden:true,aanbodVanaf:vanaf,aangemaakt:nu,log:[{datum:nu,tekst:"Losse opdracht aangemaakt vanuit de klant"}],objecten:[],opdrachten:[],eersteKeer:false})}
+      else{/* nog nooit gedaan en niet ingepland: de aanboddatum volgt de opdracht */
+        if(!job.gepland&&!job.laatst)v.aanbodVanaf=vanaf;
+        if(["dienst","prijs","duur","frequentie","naam","adres","postcode","plaats","email","actief","opdrachtNr","taak","aanbodVanaf",...Object.keys(fp)].some(f=>JSON.stringify(job[f]??"")!==JSON.stringify(v[f]??""))||JSON.stringify(job.fotos||[])!==JSON.stringify(v.fotos||[]))await save("klanten",job.id,{...strip(job),...v})}}
     else if(job&&job.actief!==false)await save("klanten",job.id,{...strip(job),actief:false,gepland:"",tijd:"",log:[...(job.log||[]),{datum:nu,tekst:"Losse opdracht gestopt (niet meer apart ingepland)"}]})}
   /* opdracht verwijderd: losse job stoppen */
   for(const job of state.klanten.filter(x=>x.hoofdKlantId===kid&&x.actief!==false))if(!(d.opdrachten||[]).some(o=>o.id===job.opdrachtId))await save("klanten",job.id,{...strip(job),actief:false,gepland:"",tijd:""})}
