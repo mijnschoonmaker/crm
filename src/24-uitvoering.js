@@ -284,7 +284,10 @@ function groepOmschrijving(g,rowsIts,verbergAantal){const its=(rowsIts||(g.items
   if(g.groepOms)return g.groepOms;const n=g.naam||g.dienst||"";return n+(!verbergAantal&&its.length?": "+groepDetail(its,g.frequentie):"")}
 function groepDetail(its,base){return its.map(x=>x.naam.toLowerCase()+" "+String(x.aantal).replace(".",",")+" "+eenhKort(x.eenheid)+(base&&x.fq&&Number(x.fq)!==Number(base)?" ("+freqLabel(Number(x.fq)).toLowerCase()+")":"")).join(", ")}
 /* editor; key = id van de kaart; offerte = toont groepsomschrijving */
-function groepEditor(g,key,{offerte=false,freqDefault=8}={}){const c=groepCalc(g),btwPct=Number(S().btw)||21;
+/* btw van een dienst: het tarief dat bij de onderdelen is ingesteld in Uitvoering › Diensten (bv. 9% voor glasbewassing binnen) */
+function groepBtwPct(g,k){if(k){if(k.btwVerlegd)return 0;const b=typeof btwRegel==="function"?btwRegel(k,g&&(g.dienst||g.naam)||""):null;return b!=null?b:(Number(S().btw)||21)}
+  /* zonder klant (bv. nieuwe offerte): het tarief van de onderdelen */const it=((g&&g.items)||[]).find(x=>Number(x.aantal)>0&&x.btw!=null&&x.btw!=="")||((g&&g.items)||[]).find(x=>x.btw!=null&&x.btw!=="");const v=it?Number(it.btw):NaN;return isFinite(v)?v:(Number(S().btw)||21)}
+function groepEditor(g,key,{offerte=false,freqDefault=8,klant=null}={}){const c=groepCalc(g),btwPct=groepBtwPct(g,klant);
   const fq=(it,j)=>`<select data-gk="${key}" data-gi="${j}" data-gf="fq"><option value="" ${it.fq===""||it.fq==null?"selected":""}>Selecteer</option><option value="0" ${String(it.fq)==="0"?"selected":""}>Zelfde als glasbewassing</option>${freqOpts(it.fq||freqDefault).map(w=>`<option value="${w}" ${String(it.fq)===String(w)?"selected":""}>${esc(freqLabel(w))}</option>`).join("")}</select>`;
   return `<div class="ge" data-ge="${key}">
     <label class="ge-full">Werkomschrijving<textarea data-gk="${key}" data-gf="oms" placeholder="Bijv. daklijsten voor- en achterzijde, inclusief klossen">${esc(g.oms||"")}</textarea></label>
@@ -317,6 +320,8 @@ function groepBind(box,getG,done){if(box._gb)return;box._gb=1;
     if(b.dataset.gst){const [j,d]=b.dataset.gst.split(":").map(Number),it=g.items[j];it.aantal=Math.max(0,r2((Number(it.aantal)||0)+d))}
     else if(b.dataset.gber!=null){/* eerst een frequentie kiezen: die vullen we niet vooraf in */
       if((g.items||[]).some(it=>Number(it.aantal)>0&&(it.fq===""||it.fq==null))){melding("Let op","Er is nog geen frequentie ingevuld.");return}
+      /* eerst de actuele tarieven uit Uitvoering › Diensten ophalen (prijs, tijd, staffel, btw), dan opnieuw rekenen */
+      try{groepTarievenBij(g)}catch(e){console.error(e)}
       (g.items||[]).forEach(it=>{it.op="";it.od=""});g.tp="";g.td=""}
     else{const v=g.items[+b.dataset.gsync].vol;g.items.forEach(it=>{if(Number(it.aantal)>0)it.vol=v})}
     done(b.dataset.gk,true)})}
