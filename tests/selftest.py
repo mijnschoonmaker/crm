@@ -178,6 +178,36 @@ def afmelden(pg):
     check(G, "Factuur bij gelijke frequentie houdt de prijs van de klant", r2["inc"] == 200, r2)
 
 
+def vve_locaties(pg):
+    G = "VvE en locaties"
+    r = pg.evaluate("""async()=>{const T=MSTEST,s=(T.state.settings=T.state.settings||{}),oud={incl:s.incl,toonEx:s.toonEx,btw:s.btw},uit={};
+      s.incl=true;s.toonEx=true;s.btw=21;
+      try{
+        uit.btw9=T.btwRegel({soort:'vve'},'VvE Schoonmaakonderhoud');
+        uit.vveEx=T.toonK({soort:'vve',dienst:'VvE Schoonmaakonderhoud'},63.22);
+        uit.glasEx=T.toonK({soort:'particulier',dienst:'Glasbewassing'},68);
+        uit.fact=T.totals({soort:'factuur',incl:true,btw:21,regels:[{omschrijving:'VvE Schoonmaakonderhoud',aantal:1,prijs:63.22,btw:9}]}).ex;
+        uit.loc1=T.hoofdLocVast({objectId:'',objecten:[]},[{id:'l1',adres:'Plein 2'}]);
+        uit.locOud=T.hoofdLocVast({objectId:'',objecten:[{id:'l0',adres:'X'}]},[{id:'l0',adres:'X'},{id:'l1',adres:'Plein 2'}]);
+        const id=T.newId('kvve');
+        await T.save('klanten',id,{naam:'Zelftest VvE',soort:'vve',adres:'Postbus 1',postcode:'1234 AB',plaats:'Rijswijk',actief:true,frequentie:13,prijs:0,dienst:'Glasbewassing',log:[],
+          objectId:'ol1',objecten:[{id:'ol1',naam:'Locatie',adres:'Plein 2',postcode:'9861 JC',plaats:'Grootegast'}],
+          opdrachten:[{id:'o1',dienst:'VvE Schoonmaakonderhoud',prijs:63.22,frequentie:13,duur:30,actief:true,items:[{naam:'Trap',aantal:1,fq:13,vol:'2099-01-21'}]}]});
+        await new Promise(r=>setTimeout(r,500));
+        const j=T.state.klanten.find(x=>x.hoofdKlantId===id)||{};uit.jobAdres=j.adres;uit.jobVanaf=j.aanbodVanaf;
+        for(const x of T.state.klanten.filter(x=>x.hoofdKlantId===id||x.id===id))await T.del('klanten',x.id);
+      }finally{Object.assign(s,oud)}
+      return uit}""")
+    check(G, "VvE-schoonmaak krijgt 9% btw", r["btw9"] == 9, r)
+    check(G, "VvE € 63,22 incl. (9%) toont € 58,00 excl.", r["vveEx"] == 58, r)
+    check(G, "Glasbewassing € 68,00 incl. (21%) toont € 56,20 excl.", r["glasEx"] == 56.2, r)
+    check(G, "Factuur VvE € 63,22 incl. 9% = € 58,00 excl.", round(r["fact"], 2) == 58, r)
+    check(G, "Eerste extra locatie verplaatst de hoofdopdracht niet", r["loc1"] == "hoofd", r)
+    check(G, "Bestaande klant met locatie als hoofdplek blijft daar", r["locOud"] == "l0", r)
+    check(G, "Losse VvE-opdracht zonder eigen locatie gaat naar de plek van de hoofdopdracht", r["jobAdres"] == "Plein 2", r)
+    check(G, "Losse opdracht wordt pas aangeboden vanaf de aanboddatum", r["jobVanaf"] == "2099-01-21", r)
+
+
 def statistieken(pg):
     """Statistieken, Analyse, werkdag en facturen rekenen met dezelfde bedragen"""
     G = "Statistieken kloppen"
@@ -537,6 +567,7 @@ def main():
             abonnement(pg)
             afmelden(pg)
             statistieken(pg)
+            vve_locaties(pg)
             frequentie(pg)
             herinneringen(pg)
             teplannen(pg)
