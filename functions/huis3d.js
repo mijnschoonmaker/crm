@@ -68,7 +68,9 @@ module.exports = ({ onCall, onRequest, HttpsError, checkGebruiker }) => {
     daken.forEach(r => { const zs = r.map(i => V[i][2]), zmin = Math.min(...zs), zmax = Math.max(...zs), plat = zmax - zmin < 0.15;
       r.forEach((v, i) => { const w = r[(i + 1) % r.length]; if (cnt[key(v, w)] > 1) return; const A = V[v], B = V[w], len = Math.hypot(B[0] - A[0], B[1] - A[1], B[2] - A[2]), dz = Math.abs(B[2] - A[2]);
         if (len < 0.4 || tegenBuur(A, B) || !opGevel(A, B)) return;
-        const soort = plat ? "plat" : dz < 0.2 && Math.abs((A[2] + B[2]) / 2 - zmin) < 0.3 ? "goot" : dz >= 0.2 ? "windveer" : null; if (!soort) return;
+        /* horizontaal = goot (ook als het model hem een paar cm scheef heeft over een lange lengte), schuin = windveer */
+        const vlak = dz < 0.2 || dz / Math.max(0.01, Math.hypot(B[0] - A[0], B[1] - A[1])) < 0.06;
+        const soort = plat ? "plat" : vlak && Math.abs((A[2] + B[2]) / 2 - zmin) < 0.35 ? "goot" : !vlak ? "windveer" : null; if (!soort) return;
         randen.push({ soort, A, B, len, hoogte: Math.round(Math.min(A[2], B[2]) * 10) / 10 }); }); });
     /* stukjes die van boven gezien in één rechte lijn liggen (het model knipt randen op, of de helling knikt) samenvoegen */
     const d3 = (p, q) => Math.hypot(p[0] - q[0], p[1] - q[1], p[2] - q[2]);
@@ -79,6 +81,21 @@ module.exports = ({ onCall, onRequest, HttpsError, checkGebruiker }) => {
         const paren = [[p.B, q.A, p.A, q.B], [p.B, q.B, p.A, q.A], [p.A, q.A, p.B, q.B], [p.A, q.B, p.B, q.A]].find(z => d3(z[0], z[1]) < 0.15); if (!paren) continue;
         randen[i] = { ...p, A: paren[2], B: paren[3], len: p.len + q.len, hoogte: Math.min(p.hoogte, q.hoogte) }; randen.splice(k, 1); ok = true; }
       if (!ok) break; }
+    /* wolfseind (klein schuin dakje boven op de puntgevel, met een eigen goot): de windveer loopt tot die goot, niet tot de nok,
+       en de schuine randjes van het wolfseind zelf zijn geen windveren. Getoetst aan Balsemien 3 Leek: windveer gemeten 3,68 m, model nu 3,70 m. */
+    const zEave = Math.min(...daken.flat().map(k => V[k][2])), d2 = (p, q) => Math.hypot(p[0] - q[0], p[1] - q[1]);
+    const hoogGoot = randen.filter(r => r.soort === "goot" && Math.min(r.A[2], r.B[2]) > zEave + 1.0);
+    randen = randen.filter(r => { if (r.soort !== "windveer") return true; const lo = r.A[2] <= r.B[2] ? r.A : r.B, hi = lo === r.A ? r.B : r.A;
+      if (lo[2] > zEave + 1.0) return false;
+      const g = hoogGoot.filter(q => Math.min(d2(hi, q.A), d2(hi, q.B)) < 2.2 && Math.min(q.A[2], q.B[2]) < hi[2]).sort((p, q) => Math.min(p.A[2], p.B[2]) - Math.min(q.A[2], q.B[2]))[0];
+      if (g) { const zg = Math.min(g.A[2], g.B[2]), t = (zg - lo[2]) / (hi[2] - lo[2]); if (t > 0.2 && t < 1) { const nh = [lo[0] + (hi[0] - lo[0]) * t, lo[1] + (hi[1] - lo[1]) * t, zg]; r.A = lo; r.B = nh; r.len *= t; } }
+      return true; });
+    /* goot tegen een windveer: de goot stopt bij de windveer, het dak (en dus de BAG-omtrek) steekt daar ±20 cm verder door.
+       Getoetst aan Balsemien 3 Leek: goot gemeten 10,26 m, dakrand 10,67 m, model nu 10,27 m. */
+    const OVERSTEK = 0.2, wvLaag = randen.filter(r => r.soort === "windveer").map(r => r.A[2] <= r.B[2] ? r.A : r.B);
+    randen.forEach(r => { if (r.soort !== "goot" || Math.min(r.A[2], r.B[2]) > zEave + 1.0) return; const L = r.len || 1, u = [(r.B[0] - r.A[0]) / L, (r.B[1] - r.A[1]) / L, (r.B[2] - r.A[2]) / L];
+      if (wvLaag.some(q => d2(q, r.A) < 0.6)) { r.A = [r.A[0] + u[0] * OVERSTEK, r.A[1] + u[1] * OVERSTEK, r.A[2] + u[2] * OVERSTEK]; r.len -= OVERSTEK; }
+      if (wvLaag.some(q => d2(q, r.B) < 0.6)) { r.B = [r.B[0] - u[0] * OVERSTEK, r.B[1] - u[1] * OVERSTEK, r.B[2] - u[2] * OVERSTEK]; r.len -= OVERSTEK; } });
     randen = randen.filter(r => r.len >= 0.8).sort((p, q) => q.len - p.len);
     const a = hoofd.b.attributes || {};
     /* het hele model in meters rond het adrespunt (x oost, y noord, z boven het maaiveld): om over een foto te leggen en op dakvlakken te meten */
