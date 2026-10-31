@@ -10,7 +10,10 @@ function openOpdrachtWerk(kid,focus){
      open staat, dan mogen de doorgeschoven datums bij Opslaan niet terug naar de oude datums */
   const OPEN0={rr:k.ramenRegel?JSON.parse(JSON.stringify(k.ramenRegel)):null,opd:JSON.parse(JSON.stringify(k.opdrachten||[])),laatst:k.laatst||""};
   /* gewijzigde tarieven (Uitvoering › Diensten) meteen in de opdracht; de nieuwe prijs wordt bewaard bij Opslaan */
-  extra.forEach(o=>{try{if(o.items&&groepTarievenBij(o)){const c=groepCalc(o),mul=incl?1+groepBtwPct(o,k)/100:1;o.prijs=r2(c.ex*mul);o.duur=Math.max(5,Math.ceil(c.sec/60/5)*5)}}catch(e){console.error(e)}});
+  /* bedrag zoals de klant het ziet, voor diensten met onderdelen: precies hetzelfde getal op de kaart en bij "Per keer" */
+  const gToon=r=>{try{const c=groepCalc(r);return S().toonEx||!incl?r2(c.ex):r2(c.ex*(1+groepBtwPct(r,k)/100))}catch(e){return toon(Number(r.prijs)||0)}};
+  /* altijd opnieuw uitrekenen (niet alleen als de tarieven veranderd zijn): zo kloppen kaart, "Per keer" en wat er wordt opgeslagen altijd met elkaar */
+  extra.forEach(o=>{try{if(o.items){groepTarievenBij(o);const c=groepCalc(o),mul=incl?1+groepBtwPct(o,k)/100:1;o.prijs=r2(c.ex*mul);o.duur=Math.max(5,Math.ceil(c.sec/60/5)*5)}}catch(e){console.error(e)}});
   if(focus==="new")extra.push({id:newId("o"),dienst:"",prijs:"",frequentie:52,duur:30,volgende:"",actief:true,objectId:"hoofd",_nieuw:true});
   /* een extra of nieuwe opdracht opent als eigen opdrachtkaart met een eigen nummer (bijv. 1002-2); de hoofdopdracht blijft ongemoeid */
   const soloId=focus&&!["main","hosp"].includes(focus)?(focus==="new"?extra[extra.length-1].id:focus):null,soloI=soloId?extra.findIndex(o=>o.id===soloId):-1;
@@ -214,7 +217,7 @@ function openOpdrachtWerk(kid,focus){
     return `<div class="ow-line ow-dicht"><div class="ow-rk"><div class="ow-rkh"><span class="objic">${I.check}</span><b>${esc(r.dienst||"Dienst")}${r.actief===false?' <small>(niet actief)</small>':""}</b><span class="sp"></span>${r.actief===false?`<button type="button" class="small primary" data-aan="${i}">${I.check}Actief maken</button>`:""}<button type="button" class="iconbtn sm" data-lopen="${i}" aria-label="Wijzigen" title="Wijzigen">${I.pencil}</button><button type="button" class="iconbtn sm" data-rm="${i}" aria-label="Regel verwijderen" title="Verwijderen">${I.x}</button></div>
       ${r.oms?`<p class="ow-rko">${esc(r.oms)}</p>`:""}
       <dl class="ow-rkf">${regels}</dl>
-      <dl class="ow-rkt">${c&&c.start?`<dt>Starttarief</dt><dd>${eur(c.start)}</dd>`:""}<dt>Tijdsduur</dt><dd>${c?Math.round(c.sec/60):Number(r.duur)||0} minuten</dd><dt>Totaal ${esc(r.dienst||"")}</dt><dd>${eur(c?(S().toonEx?c.ex:c.ex*(1+(r.items?groepBtwPct(r,k):(Number(st.btw)||21))/100)):toon(r.prijs))}${ov?" <i>(overschrijvend)</i>":""}</dd></dl></div></div>`};
+      <dl class="ow-rkt">${c&&c.start?`<dt>Starttarief</dt><dd>${eur(c.start)}</dd>`:""}<dt>Tijdsduur</dt><dd>${c?Math.round(c.sec/60):Number(r.duur)||0} minuten</dd><dt>Totaal ${esc(r.dienst||"")}</dt><dd>${eur(c&&r.items?gToon(r):toon(r.prijs))}${ov?" <i>(overschrijvend)</i>":""}</dd></dl></div></div>`};
   /* op welk adres: hoofdadres of een van de locaties van de klant; een ander adres wordt een eigen afspraak */
   const adresKeuze=(r,i)=>{const ls=(k.objecten||[]).filter(o=>o.adres);if(!ls.length)return `<small class="help">Glasbewassing op een ander adres? Voeg dat adres eerst toe bij Locaties op de klantkaart; dan kies je het hier.</small>`;
     const ctx={...k,objectId:uLoc},cur=opdrLoc(ctx,r);
@@ -248,7 +251,7 @@ function openOpdrachtWerk(kid,focus){
   const itemsRecalc=(i,struct)=>{const r=extra[i];if(!r||!r.items)return;const c=groepCalc(r),mul=incl?1+groepBtwPct(r,k)/100:1;r.prijs=r2(c.ex*mul);r.duur=Math.max(5,Math.ceil(c.sec/60/5)*5);
     const pi=$("#owLines").querySelector(`input[data-i="${i}"][data-k="prijs"]`);if(pi){pi.value=r.prijs;pi.classList.remove("flash");void pi.offsetWidth;pi.classList.add("flash")}
     if(struct)groepRedraw($("#owLines"),"x"+i,r,gOpts(r));else groepTotUpdate($("#owLines"),"x"+i,r,gOpts(r));tot()};
-  const tot=()=>{if(soloI>=0&&extra[soloI]){const L=[...soloSet].map(i=>extra[i]).filter(Boolean);$("#owTot").innerHTML=L.map(r=>`<span>Per keer (${esc(r.dienst||"deze opdracht")})</span><span>${eur(toon(Number(r.prijs)||0))}</span>`).join("");return}
+  const tot=()=>{if(soloI>=0&&extra[soloI]){const L=[...soloSet].map(i=>extra[i]).filter(Boolean);$("#owTot").innerHTML=L.map(r=>`<span>Per keer (${esc(r.dienst||"deze opdracht")})</span><span>${eur(r.items?gToon(r):toon(Number(r.prijs)||0))}</span>`).join("");return}
     const per=Number(main.prijs)||0,ex=extra.filter(o=>o.actief!==false&&o.dienst&&!o._bestaand),ts=Math.max(0,Number(($o("toeslag")||{}).value)||0)/100;
     const jaar=(per*52/(mF||4)+ex.reduce((a,o)=>a+(Number(o.prijs)||0)*52/(Number(o.frequentie)||52),0))*(1+ts);
     $("#owTot").innerHTML=`${geenGlas?"":`<span>Per beurt (${esc(main.dienst||"hoofdopdracht")})</span><span>${eur(toon(per))}</span>`}${ts?`<span>Toeslag ${r2(ts*100)}%</span><span>+ ${eur(toon(per)*ts)}</span><span class="grand">Per beurt incl. toeslag</span><span class="grand">${eur(toon(per)*(1+ts))}</span>`:""}${ex.length?`<span>Extra opdrachten, per keer${ts?" incl. toeslag":""}</span><span>${eur(ex.reduce((a,o)=>a+(Number(o.prijs)||0),0)*(1+ts))}</span>`:""}`;
