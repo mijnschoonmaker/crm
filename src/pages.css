@@ -4167,7 +4167,27 @@ td.fb-cb:hover .fb-box{border-color:var(--brand);transform:scale(1.06)}
 .cc-st{min-width:0}.cc-st b{display:block;font-weight:600;font-size:14px}.cc-st p{margin:2px 0 0;font-size:12.5px;line-height:1.4;color:rgb(255 255 255 / .75)}.cc-st small{display:block;margin-top:3px;font-size:12px;color:rgb(255 255 255 / .55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cc-sk{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:9px;background:rgb(255 255 255 / .1);border:1px solid rgb(255 255 255 / .14);font-size:12.5px;font-weight:600;white-space:nowrap}
 .cc-sk:hover{background:rgb(255 255 255 / .18)}.cc-sk svg{width:13px;height:13px;stroke:#fff}
-.cc-rust{display:flex;gap:12px;align-items:flex-start;padding:18px 2px 6px}.cc-rust>svg{width:26px;height:26px;stroke:#7fd39b;flex:none}.cc-rust b{font-weight:600}.cc-rust p{margin:2px 0 0;color:rgb(255 255 255 / .7);font-size:13px}
+/* lege wachtrij: groot rustig vinkje met zachte ringen, daaronder wat er hierna komt */
+.cc-q.leeg{display:flex;flex-direction:column;margin:0;padding:0}
+.cc-rust{display:flex;flex-direction:column;align-items:center;text-align:center;padding:34px 8px 18px;flex:1;justify-content:center;min-height:220px}
+.cc-rust b{font-weight:600;font-size:19px;letter-spacing:-.01em;margin-top:18px}.cc-rust p{margin:4px 0 0;color:rgb(255 255 255 / .62);font-size:13.5px}
+.cc-rring{position:relative;width:84px;height:84px;display:grid;place-items:center}
+.cc-rring>span{position:relative;z-index:1;width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#5fcf8a,#2e9a5c);box-shadow:0 10px 30px -6px rgb(76 196 125 / .55),inset 0 1px 0 rgb(255 255 255 / .35)}
+.cc-rring>span svg{width:26px;height:26px;stroke:#fff;stroke-width:2.4}
+.cc-rring>i{position:absolute;inset:0;border-radius:50%;border:1px solid rgb(127 211 155 / .35);animation:ccRing 3.2s ease-out infinite}
+.cc-rring>i+i{animation-delay:1.6s}
+@keyframes ccRing{0%{transform:scale(.7);opacity:.9}100%{transform:scale(1.35);opacity:0}}
+@media (prefers-reduced-motion:reduce){.cc-rring>i{animation:none;opacity:.35}}
+.cc-rts{display:flex;flex-direction:column;gap:8px;margin:6px 0 4px}
+.cc-rt{all:unset;box-sizing:border-box;width:100%;cursor:pointer;display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:12px;background:rgb(255 255 255 / .05);border:1px solid rgb(255 255 255 / .08);transition:background .15s,border-color .15s}
+.cc-rt:hover{background:rgb(255 255 255 / .09);border-color:rgb(255 255 255 / .16)}
+.cc-rt>span:nth-child(2){flex:1;min-width:0}.cc-rt small{display:block;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:rgb(255 255 255 / .5)}
+.cc-rt b{display:block;font-size:14px;font-weight:600;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cc-rt em{display:block;font-style:normal;font-size:12px;color:rgb(255 255 255 / .55)}
+.cc-rti{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:rgb(255 255 255 / .08);flex:none}.cc-rti svg{width:17px;height:17px;stroke:#fff}
+.cc-rt>svg{width:16px;height:16px;stroke:rgb(255 255 255 / .4);flex:none}
+.cc-q.leeg .cc-verb{margin-top:auto}
+.cc-rbot{margin-top:auto;padding-top:18px}.cc-q.leeg .cc-rbot~.cc-verb{margin-top:8px}
+.cc-rkop{display:block;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:rgb(255 255 255 / .45);margin:0 2px 8px}
 /* live */
 .cc-map .rv-map{height:300px!important;margin:0!important;border-radius:12px}
 .cc-leg{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:12px;color:var(--cc-mut)}.cc-leg span{display:inline-flex;align-items:center;gap:6px}

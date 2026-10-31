@@ -222,9 +222,18 @@ function ccWachtrijHtml(L){const G=ccGezien(),max=innerWidth<1100?5:40,toon=CC.a
       <div class="cc-st"><span class="cc-mh"><span class="cc-pr ${cls}">${lbl}</span>${i<9?`<kbd>${i+1}</kbd>`:""}</span><b>${esc(m.t)}</b><p>${esc(m.u)}</p>${m.b?`<small>${esc(m.b)}</small>`:""}
         <div class="cc-acts">${acts}${tijd}<button type="button" class="cc-ab" data-cc="${esc(m.go)}">${esc(m.knop)}</button><span class="sp"></span>
           <button type="button" class="cc-ab ok" data-cc="klaar:${esc(m.key)}" title="Afgehandeld (E)">${I.check}Afgehandeld</button></div></div></div>`};
-  return (L.length?toon.map(item).join(""):`<div class="cc-rust">${I.check}<div><b>Alles op orde</b><p>Niets meer in de wachtrij. Mooi zo.</p></div></div>`)
+  return (L.length?toon.map(item).join("")+(L.length<=3?`<div class="cc-rbot">${ccRustHtml(false)}</div>`:""):ccRustHtml())
     +(L.length>max?`<button type="button" class="cc-meer" data-cc="alles">${CC.alles?"Minder tonen":`Toon alle ${L.length}`}</button>`:"")
     +(verb.length?`<div class="cc-verb"><button type="button" class="cc-meer" data-cc="verborgen">${CC.toonVerborgen?"Verberg":"Toon"} ${plural(verb.length,"afgehandelde of uitgestelde melding","afgehandelde of uitgestelde meldingen")}</button>${CC.toonVerborgen?verb.map(m=>{const l=(ccStatus().later||{})[m.key];return `<div class="cc-vi"><span>${esc(m.t)}<small>${l?"Later: "+esc(new Date(l).toLocaleString("nl-NL",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})):"Afgehandeld"}</small></span><button type="button" class="cc-ab ghost" data-cc="terug:${esc(m.key)}">Terugzetten</button></div>`}).join(""):""}</div>`:"")}
+/* lege wachtrij: rustig, met echte cijfers over wat er hierna komt (geen verzonnen KPI's) */
+function ccRustHtml(leeg=true){const tk=(state.tickets||[]).filter(t=>t.status!=="opgelost").length,
+    fo=(state.facturen||[]).filter(f=>f.soort!=="offerte"&&["Openstaand","Achterstallig"].includes(fStatus(f)[1])),fs=fo.reduce((a,f)=>a+totals(f).inc,0);
+  let v="",vs="";try{const nu=iso(today()),nm=new Date().getHours()*60+new Date().getMinutes();
+    const n=(state.klanten||[]).filter(k=>k.actief!==false&&k.gepland&&(k.gepland>nu||(k.gepland===nu&&(toMin(k.tijd)??0)>nm))).sort((a,b)=>String(a.gepland+(a.tijd||"")).localeCompare(String(b.gepland+(b.tijd||""))))[0];
+    if(n){const d=parse(n.gepland);v=(n.gepland===nu?"Vandaag":d.toLocaleDateString("nl-NL",{weekday:"short",day:"numeric",month:"short"}))+(n.tijd?" · "+n.tijd:"");vs=ccNaam(n)}}catch(e){}
+  const tegel=(ic,l,w,s,act)=>`<button type="button" class="cc-rt" data-cc="${act}"><span class="cc-rti">${I[ic]||""}</span><span><small>${l}</small><b>${w}</b>${s?`<em>${s}</em>`:""}</span>${I.right||""}</button>`;
+  return (leeg?`<div class="cc-rust"><div class="cc-rring"><i></i><i></i><span>${I.check}</span></div><b>Alles op orde</b><p>Niets meer in de wachtrij. Mooi zo.</p></div>`:`<span class="cc-rkop">Hierna</span>`)+`
+    <div class="cc-rts">${tegel("planning","Volgende afspraak",v?esc(v):"Nog niets gepland",vs?esc(vs):"","tab:planning")}${tegel("ticket","Open tickets",tk?String(tk):"Geen",tk?"klik om te bekijken":"","tickets")}${tegel("euro","Openstaande facturen",fo.length?eur0(fs):"Geen",fo.length?plural(fo.length,"factuur","facturen"):"","tab:facturen")}</div>`}
 function ccNuDoenHtml(){const L=ccNuDoen();if(!L.length){const v=ccVolgende();return `<div class="cc-nu rust"><span class="cc-nd">${I.check}</span><b>Niets dringends</b>${v?`<small>Volgende afspraak: ${esc(v)}</small>`:""}</div>`}
   return `<div class="cc-nu"><span class="cc-nl"><i></i>Nu doen</span>${L.map(x=>`<div class="cc-nuit"><span>${I[x.ic]||""}</span><button type="button" data-cc="${esc(x.go)}"><b>${esc(x.t)}</b>${x.s?`<small>${esc(x.s)}</small>`:""}</button>${x.kom?`<a class="cc-ab pr" href="${esc(x.kom)}" target="_blank" rel="noopener">${I.wa||I.send}Kom eraan</a>`:""}</div>`).join("")}</div>`}
 function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActiviteit(),R=ccPrestaties(),t=today();
@@ -255,7 +264,7 @@ function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActivite
       <div class="cc-dagstat">${[[typeof plSel==="function"&&plSel()?"Adressen "+esc(plSel()):"Adressen",P.length],["Klaar",klaar],["Nog te gaan",nu],["Verdiend vandaag",eur0(D.omzet)],["Verwacht klaar",D.eind||"—"]].map(([l,v])=>`<div><small>${l}</small><b>${v}</b></div>`).join("")}</div>
       <div class="cc-map"><div class="rv-map" id="rvMap"><div class="rv-map-l">Kaart laden…</div></div></div>
       <div class="cc-leg"><span><i class="af"></i>Afgerond</span><span><i class="nu"></i>Volgende</span><span><i></i>Gepland</span><span><i class="bus"></i>Bus (live)</span>${D.volgende?`<span class="cc-vlg">Volgende: <b>${esc(D.volgende)}</b></span>`:""}</div></section>
-    <section class="cc-adv" id="ccAdv"><div class="cc-ah"><span class="cc-aic">${I.spark}</span><div><b>Meldingen · MANSARD adviseert</b><small>${S_.length?`Nog ${S_.length} open · van boven naar beneden afwerken`:"Alles is afgehandeld"}</small></div>${S_.length?`<span class="cc-cnt">${S_.length}</span>`:""}</div><div class="cc-q">${sig}</div></section>
+    <section class="cc-adv" id="ccAdv"><div class="cc-ah"><span class="cc-aic">${I.spark}</span><div><b>Meldingen · MANSARD adviseert</b><small>${S_.length?`Nog ${S_.length} open · van boven naar beneden afwerken`:"Alles is afgehandeld"}</small></div>${S_.length?`<span class="cc-cnt">${S_.length}</span>`:""}</div><div class="cc-q${S_.length>3?"":" leeg"}">${sig}</div></section>
   </div>
   ${typeof plRijHtml==="function"?plRijHtml():""}
   <div class="cc-dagrij">
