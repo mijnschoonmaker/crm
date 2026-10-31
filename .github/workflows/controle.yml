@@ -1,8 +1,10 @@
-name: Systeemcontrole nu
+name: Wekelijkse controle VvE en locaties (alleen lezen)
 on:
+  schedule:
+    - cron: "17 5 * * 1"
   workflow_dispatch:
 jobs:
-  controle:
+  run:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -14,4 +16,4 @@ jobs:
       - env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
           P: ${{ vars.FIREBASE_PROJECT }}
-        run: node tools/controle-nu.js
+        run: node tools/controle.js
