@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="849cad8a7a0c"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="e4ebb91c2f72"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -5153,6 +5153,9 @@ dialog.pv-ov[open]{position:fixed;inset:0;z-index:9000;background:var(--bg,#fff)
 
 dialog.nav-kies{width:min(360px,calc(100vw - 32px));border-radius:20px}.nav-k{display:flex;flex-direction:column;gap:10px;padding:20px}.nav-k b{font-size:17px}.nav-k small{color:var(--muted);margin-top:-6px}.nav-k button{justify-content:center}
 
+/* Facturen versturen: per factuur "Al verstuurd" */
+.q-nvt{display:flex;flex-direction:column;gap:4px;margin:2px 0 4px}.q-nvt span{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink)}.q-nvt i{font-style:normal;color:var(--muted,#6b7280);font-size:12px}.q-nvt .linkbtn{margin-left:auto;font-size:12px}
+
 </style>
 <style id="mansardThema">
 @import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;500;600;700&display=swap");
@@ -10078,7 +10081,7 @@ function vCommunicatie(){
   if(state.ctab==="klaar"){
     const groups=[["alle","Alle actieve klanten"],["vandaag","Route vandaag"],["morgen","Route morgen"],...rondes().map(r=>["r:"+r,r]),...[...new Set(actief().filter(k=>k.nieuwsbrief!==false).map(k=>k.nbGroep||"Standaard"))].sort().map(g=>["nb:"+g,"Nieuwsbrief · "+g])];
     return html+`<div class="qgrid">${qs.map(x=>`<div class="qitem panel"><div style="display:flex;align-items:center;gap:8px"><b style="flex:1">${esc(x.titel)}</b><span class="pill ${x.items.length?(x.id==="aanmaning"?"late":"soon"):"ok"}">${x.items.length||"✓"}</span></div>
-      <small>${esc(x.uitleg)}</small>${x.items.length?`<small style="color:var(--ink)">${x.items.slice(0,3).map(i=>esc(cleanName(i.k.naam))).join(", ")}${x.items.length>3?" en "+(x.items.length-3)+" meer":""}</small><button type="button" class="small primary" data-act="queue" data-q="${x.id}">Opstellen (${x.items.length})</button>`:`<small style="color:var(--ok)">Niets te doen</small>`}</div>`).join("")}</div>
+      <small>${esc(x.uitleg)}</small>${x.items.length?`${x.id==="factuur"?`<div class="q-nvt">${x.items.slice(0,8).map(i=>`<span>${esc(cleanName(i.k.naam))}${i.vars&&i.vars.factuurnummer?` <i>${esc(i.vars.factuurnummer)}</i>`:""}<button type="button" class="linkbtn" data-act="qnvt" data-ref="${esc(i.ref)}" title="Deze factuur is al verstuurd (buiten Mansard) of hoeft niet verstuurd te worden">Al verstuurd</button></span>`).join("")}${x.items.length>8?`<small>en ${x.items.length-8} meer</small>`:""}</div>`:`<small style="color:var(--ink)">${x.items.slice(0,3).map(i=>esc(cleanName(i.k.naam))).join(", ")}${x.items.length>3?" en "+(x.items.length-3)+" meer":""}</small>`}<button type="button" class="small primary" data-act="queue" data-q="${x.id}">Opstellen (${x.items.length})</button>`:`<small style="color:var(--ok)">Niets te doen</small>`}</div>`).join("")}</div>
     <div class="panel" style="margin-top:14px"><span class="eyebrow">Groepsbericht</span><p class="subt" style="margin:4px 0 10px">Bijvoorbeeld bij slecht weer: één bericht aan een ronde of de route van een dag.</p><div class="toolbar" style="margin:0"><select id="bulkGroup" style="flex:1 1 180px;width:auto">${groups.map(([v,l])=>`<option value="${esc(v)}">${esc(l)}</option>`).join("")}</select>
       <select id="bulkTpl" style="flex:1 1 160px;width:auto">${Object.keys(T).map(k=>`<option value="${esc(k)}" ${k==="weer"?"selected":""}>${esc(T[k].naam)}</option>`).join("")}</select><button type="button" data-act="bulk">Opstellen</button></div></div>`;
   }
@@ -18864,6 +18867,10 @@ document.addEventListener("click",e=>{
     case"copymsg":{const r=compose&&compose.recipients[Number(t.dataset.i)];if(r)copy(fill(compose.tekst,r.vars),t);break}
     case"fhmenu":{const K=fhKlaar();if(K.herinnering.length)fbHerinner(K.herinnering,false);else if(K.wik.length)fbHerinner(K.wik,true);else if(K.likifin.length)fhLikifin(K.likifin);
       else{const ds=facturen().map(f=>fhVolgende(f)).filter(v=>v&&v.datum&&!v.klaar&&v.soort!=="bijlikifin").map(v=>v.datum).sort();toast(ds[0]?"Vandaag geen herinneringen aan de beurt · eerstvolgende "+fmtD(ds[0]):"Geen openstaande facturen die een herinnering nodig hebben")}break}
+    case"qnvt":{/* factuur uit "Facturen versturen" halen: al verstuurd buiten Mansard of niet nodig. De factuur zelf blijft open staan. */
+      const f=state.facturen.find(x=>"factuur:"+x.id===t.dataset.ref);if(!f)break;
+      vraag("Factuur "+(f.nummer||"")+" niet meer voorstellen?","De factuur blijft gewoon openstaan. Hij verdwijnt alleen uit <b>Facturen versturen</b>, omdat hij al verstuurd is (bijvoorbeeld uit een ander programma of op papier) of niet verstuurd hoeft te worden.","Al verstuurd","Annuleren").then(async ok=>{if(ok!==true)return;
+        try{await save("facturen",f.id,{...strip(f),verstuurdOp:f.datum||iso(today()),verstuurdBuiten:true});toast("Factuur "+(f.nummer||"")+" staat niet meer bij Facturen versturen");render()}catch(e){err(e)}});break}
     case"queue":{const q=queues().find(x=>x.id===t.dataset.q);if(q&&q.id==="factuur"&&q.items.length&&typeof fbVersturen==="function"){fbVersturen(q.items.map(it=>state.facturen.find(f=>"factuur:"+f.id===it.ref)).filter(Boolean));break}if(q&&q.items.length)openCompose({title:q.titel,sjabloon:q.sjabloon||q.id,recipients:q.items,hint:q.hint?esc(q.hint):"",tekst:q.tekst,mail:q.mail,onderwerp:q.onderwerp,kanaal:q.kanaal});else toast(q?"Niets klaar om te versturen":"Zet factuurherinneringen aan bij Instellingen");break}
     case"bulk":{const g=$("#bulkGroup"),tp=$("#bulkTpl");openBulk(g?g.value:"alle",tp?tp.value:"weer");break}
     case"bulktoday":openBulk("vandaag","afspraak");break;
