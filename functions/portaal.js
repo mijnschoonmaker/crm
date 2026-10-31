@@ -214,8 +214,14 @@ module.exports = function maakPortaal(ctx) {
     const freqW = Number(k.frequentie) || 4;
     let volgende = null;
     if (k.gepland && k.gepland >= vandaag) volgende = { datum: k.gepland, tijd: k.tijd || "", bezig: !!k.bezig && k.gepland === vandaag, reeks: (k.reeks || []).filter(x => x && x.d > k.gepland).slice(0, 12).map(x => ({ datum: x.d, tijd: x.t || "" })) };
+    /* losse opdrachten (eigen klantkaart met hoofdKlantId, bv. truckwash) tellen ook mee: de vroegste geplande datum wint.
+       Zonder glasbewassing bij de hoofdklant (opdrachtVerwijderd) is de losse opdracht de dienst die de klant ziet. */
+    const jobsDec = jq.docs.map(d => ({ id: d.id, ...dec(d.data()) })).filter(j => j.actief !== false && !j.prospect);
+    const jobVolg = jobsDec.filter(j => j.gepland && j.gepland >= vandaag).sort((x, y) => String(x.gepland).localeCompare(String(y.gepland)) || String(x.tijd || "").localeCompare(String(y.tijd || "")))[0];
+    if (jobVolg && (!volgende || jobVolg.gepland < volgende.datum)) volgende = { datum: jobVolg.gepland, tijd: jobVolg.tijd || "", bezig: !!jobVolg.bezig && jobVolg.gepland === vandaag, dienst: jobVolg.dienst || "", reeks: [] };
+    const geenGlas = !!k.opdrachtVerwijderd && jobsDec.length > 0, hoofdJob = geenGlas ? (jobVolg || jobsDec[0]) : null;
     let verwacht = "";
-    if (!volgende && k.actief !== false && !k.prospect) { const l = k.laatst ? new Date(k.laatst + "T12:00:00") : null; verwacht = l ? isoNL(new Date(Math.max(Date.now(), l.getTime() + freqW * 7 * DAG))) : ""; }
+    if (!volgende && k.actief !== false && !k.prospect && !geenGlas) { const l = k.laatst ? new Date(k.laatst + "T12:00:00") : null; verwacht = l ? isoNL(new Date(Math.max(Date.now(), l.getTime() + freqW * 7 * DAG))) : ""; }
     const laatsteB = beurten[0];
     const vve = k.soort === "vve", wdg = vasteDagen(k);
     let bordToken = k.bordToken || "";
@@ -234,8 +240,8 @@ module.exports = function maakPortaal(ctx) {
     return {
       bedrijf: { ...bedrijfInfo(b, base), extraDiensten },
       klant: { voornaam: voornaamVan(schoon(k.contact || k.naam)), naam: schoon(k.naam), contact: k.contact || "", adres: k.adres || "", postcode: k.postcode || "", plaats: k.plaats || "", pcPlaats: [k.postcode, k.plaats].filter(Boolean).join(" "), email: k.email || "", telefoon: k.telefoon || "", mobiel: k.mobiel || "", zakelijk: k.soort === "zakelijk" || k.soort === "vve",
-        vve, vveSoort: vve ? vveSoortVan(k) : "", diensten: vveDiensten(k, jq.docs.map(d => ({ id: d.id, ...dec(d.data()) }))), ritme: ritmeTxt(k), weekdagen: wdg || [], taken: vveTakenVan(k, b), takenFreq: Object.fromEntries(Object.entries(k.vveFreq && typeof k.vveFreq === "object" ? k.vveFreq : {}).filter(([n, f]) => typeof f === "string" && ["week", "2week", "maand", "kwartaal", "halfjaar", "jaar"].includes(f)).slice(0, 20).map(([n, f]) => [String(n).slice(0, 60), f])),
-        klantnr: k.klantnr || "", sinds: k.aangemaakt || (beurten.length ? beurten[beurten.length - 1].datum : ""), dienst: k.dienst || "Glasbewassing", frequentie: freqW, prijs: Number(k.prijs) || 0, binnen: !!k.binnen, actief: k.actief !== false,
+        vve, vveSoort: vve ? vveSoortVan(k) : "", diensten: vveDiensten(k, jobsDec), ritme: ritmeTxt(k), weekdagen: wdg || [], taken: vveTakenVan(k, b), takenFreq: Object.fromEntries(Object.entries(k.vveFreq && typeof k.vveFreq === "object" ? k.vveFreq : {}).filter(([n, f]) => typeof f === "string" && ["week", "2week", "maand", "kwartaal", "halfjaar", "jaar"].includes(f)).slice(0, 20).map(([n, f]) => [String(n).slice(0, 60), f])),
+        klantnr: k.klantnr || "", sinds: k.aangemaakt || (beurten.length ? beurten[beurten.length - 1].datum : ""), dienst: (hoofdJob ? hoofdJob.dienst : k.dienst) || "Glasbewassing", frequentie: hoofdJob ? (Number(hoofdJob.frequentie) || freqW) : freqW, prijs: Number(k.prijs) || 0, binnen: !!k.binnen, actief: k.actief !== false,
         toegang: k.portaalToegang || { opties: [], tekst: "" }, beheercode: String(k.beheercode || ""), nieuw: !!k.eersteKeer && !beurten.length,
         incasso: { actief: !!k.incasso && !!k.mollieMandateId, sinds: String(k.incassoSinds || "").slice(0, 10), bank: k.incassoBank || "", rekening: k.incassoRekening || "", beschikbaar: !!(await geheim()).mollieKey } },
       volgende, verwacht,
