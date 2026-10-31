@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="8beea371dc19"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="c5cf87dbd146"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -6499,6 +6499,15 @@ const FRAMER_TPL="// Prijscalculator glasbewassing \u2014 Framer code component 
 .ml-lab.gv{background:rgba(20,184,166,.95);color:#04201c;border-color:#fff}.ml-lab.gv small{color:#0b3d37}.ml-lab.gv i{background:#04201c;box-shadow:none;width:7px;height:7px}
 .ml-3d{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:2;transition:opacity .2s}
 .ml-ctl{margin-left:6px;height:24px;padding:0 10px;border-radius:99px;border:0;background:#14b8a6;color:#04201c;font:700 11.5px Inter,system-ui,sans-serif;cursor:pointer}
+.ml-lin{display:flex;flex-direction:column;gap:6px;margin:0 0 10px}
+.ml-lin figure{margin:0;position:relative;border-radius:10px;overflow:hidden;background:#111;touch-action:none;cursor:ew-resize}
+.ml-lin figure canvas{display:block;width:100%;height:74px}
+.ml-lin figure svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.ml-lin figcaption{position:absolute;left:6px;top:5px;background:rgba(11,15,18,.75);color:#fff;font:700 10.5px Inter,system-ui,sans-serif;padding:2px 7px;border-radius:99px}
+.ml-tel{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.ml-tel button{width:40px;height:40px;border-radius:11px;border:1.5px solid #dfe3e6;background:#fff;font:800 18px Inter,system-ui,sans-serif;color:#14181f;cursor:pointer}
+.ml-tel button.k{width:auto;padding:0 10px;font-size:12px;font-weight:700}
+.ml-tel b{flex:1;text-align:center;font:800 17px Inter,system-ui,sans-serif;font-variant-numeric:tabular-nums}.ml-tel b small{display:block;font:600 11.5px Inter,system-ui,sans-serif;color:#6b7280}
 .ml-zoek{position:absolute;inset:0;z-index:7;display:grid;place-items:center;pointer-events:none}.ml-zoek span{background:rgba(11,15,18,.85);color:#fff;padding:9px 16px;border-radius:99px;font:700 12.5px Inter,system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.35)}
 .ml-drag .ml-lab{opacity:0}
 .ml-loep{position:absolute;z-index:6;width:132px;height:132px;border-radius:50%;pointer-events:none;border:3px solid #fff;box-shadow:0 10px 30px rgba(0,0,0,.45),0 0 0 1px rgba(0,0,0,.25);background-repeat:no-repeat;background-color:#111;transform:translate(-50%,calc(-100% - 26px))}
@@ -6577,10 +6586,17 @@ const FRAMER_TPL="// Prijscalculator glasbewassing \u2014 Framer code component 
   function snijVlak(st,P0,nrm){const den=v3.dot(nrm,st.d);if(Math.abs(den)<1e-6)return null;const k=v3.dot(nrm,v3.sub(P0,st.C))/den;return k>0.3?{k,p:v3.add(st.C,v3.sc(st.d,k))}:null}
   function inPoly(p,P,nrm){const ax=Math.abs(nrm[0])>Math.abs(nrm[1])?(Math.abs(nrm[0])>Math.abs(nrm[2])?0:2):(Math.abs(nrm[1])>Math.abs(nrm[2])?1:2),i1=(ax+1)%3,i2=(ax+2)%3;let c=false;
     for(let i=0,k=P.length-1;i<P.length;k=i++){const a=P[i],b=P[k];if(((a[i2]>p[i2])!==(b[i2]>p[i2]))&&(p[i1]<(b[i1]-a[i1])*(p[i2]-a[i2])/(b[i2]-a[i2])+a[i1]))c=!c}return c}
+  const GRIJS=new WeakMap();
+  function grijs(img){let g=GRIJS.get(img);if(g&&g.src===img.currentSrc)return g;const W0=img.naturalWidth||img.width,H0=img.naturalHeight||img.height,k=Math.min(1,2600/Math.max(W0,H0)),W=Math.round(W0*k),H=Math.round(H0*k);
+    const c=document.createElement("canvas");c.width=W;c.height=H;const cx=c.getContext("2d",{willReadFrequently:true});cx.drawImage(img,0,0,W,H);const d=cx.getImageData(0,0,W,H).data,v=new Uint8ClampedArray(W*H*3);
+    for(let i=0,j=0,o=0;i<W*H;i++,j+=4,o+=3){v[o]=d[j];v[o+1]=d[j+1];v[o+2]=d[j+2]}g={W,H,v,src:img.currentSrc};GRIJS.set(img,g);return g}
+  function kleur(G,x,y,out,o){if(x<0||y<0||x>=G.W-1||y>=G.H-1){out[o]=out[o+1]=out[o+2]=20;out[o+3]=255;return}const x0=x|0,y0=y|0,fx=x-x0,fy=y-y0,i=(y0*G.W+x0)*3,j=i+G.W*3,v=G.v;
+    for(let c=0;c<3;c++)out[o+c]=v[i+c]*(1-fx)*(1-fy)+v[i+3+c]*fx*(1-fy)+v[j+c]*(1-fx)*fy+v[j+3+c]*fx*fy;out[o+3]=255}
   const polyOpp=P=>{let a=0;for(let i=0;i<P.length;i++){const p=P[i],q=P[(i+1)%P.length];a+=p[0]*q[1]-q[0]*p[1]}return Math.abs(a)/2};
   const schaal=(meet,asp)=>{const r=meet&&meet.ref;if(!r||!r.a||!r.b)return 0;const d=dist(r.a,r.b,asp);return d>0.002?(num(r.cm)*Math.max(1,num(r.n)||1)/100)/d:0};
   /* uitkomst van één meting: meters (lijn) of m² (rechthoek) */
   function waarde(x,meet,asp){if(x.st)return{v:1,schat:false,ok:true,st:true};
+    if(!x.r&&x.m==null&&x.sl&&x.sl.L>0)return{v:x.sl.L,schat:false,ok:true,gevel:true,sl:x.sl};
     if(!x.r&&x.m==null&&typeof x.m3==="number")return{v:x.m3,schat:false,ok:true,gevel:true,d3:true};
     const H=gevelH(meet,asp);
     if(H){const P=q=>H([q[0],q[1]*asp]),d2=(a,b)=>Math.hypot(b[0]-a[0],b[1]-a[1]);
@@ -6611,7 +6627,7 @@ const FRAMER_TPL="// Prijscalculator glasbewassing \u2014 Framer code component 
         if(!klein)labs+=`<span class="ml-lab" data-mlj="${j}" style="--c:${c};left:${x.a[0]*100}%;top:${x.a[1]*100}%;margin-top:-14px"><i></i>${esc(sn)} ${nr}</span>`;return}
       if(x.r){const [x1,y1]=P(x.a),[x2,y2]=P(x.b);g+=`<rect x="${Math.min(x1,x2)}" y="${Math.min(y1,y2)}" width="${Math.abs(x2-x1)}" height="${Math.abs(y2-y1)}" rx="6" fill="${c}" fill-opacity=".2" stroke="${c}" stroke-width="${sw}"/>`;
         if(!klein)labs+=`<span class="ml-lab" data-mlj="${j}" style="--c:${c};left:${(x.a[0]+x.b[0])*50}%;top:${(x.a[1]+x.b[1])*50}%"><i></i>${esc(sn)} ${w.ok?(w.schat?"≈ ":"")+fmt(w.v,1)+" m²":"?"}${w.ok?`<small>${fmt(w.bw,2)} × ${fmt(w.hh,2)} m</small>`:""}</span>`}
-      else{g+=lijn(x.a,x.b,c);if(!klein)labs+=`<span class="ml-lab" data-mlj="${j}" style="--c:${c};left:${(x.a[0]+x.b[0])/2*100}%;top:${(x.a[1]+x.b[1])/2*100}%"><i></i>${esc(sn)} ${w.ok?(w.schat?"≈ ":"")+fmt(w.v,w.gevel?2:1)+" m":"?"}${w.d3?"<small>3D</small>":""}</span>`}});
+      else{g+=lijn(x.a,x.b,c);if(!klein)labs+=`<span class="ml-lab" data-mlj="${j}" style="--c:${c};left:${(x.a[0]+x.b[0])/2*100}%;top:${(x.a[1]+x.b[1])/2*100}%"><i></i>${esc(sn)} ${w.ok?(w.schat?"≈ ":"")+fmt(w.v,w.gevel?2:1)+" m":"?"}${w.sl?`<small>${String(x.sl.n).replace(".",",")} ${x.sl.soort==="pan"?"pannen":"stenen"}</small>`:w.d3?"<small>3D</small>":""}</span>`}});
     return{svg:`<svg class="ml-svg" viewBox="0 0 1000 ${H}" preserveAspectRatio="none" aria-hidden="true">${g}</svg>`,labs}}
   /* soorten uit de diensten: alles wat per strekkende meter of per m² gaat */
   function soortenUit(groepen){const L=[];(groepen||[]).forEach(g=>(g.items||[]).forEach(it=>{const e=String(it.eenheid||"").toLowerCase();
@@ -6707,15 +6723,57 @@ const FRAMER_TPL="// Prijscalculator glasbewassing \u2014 Framer code component 
       s.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>zetGoot(+b.dataset.g));
       s.querySelector("[data-eigen]").onclick=()=>{m.ref={...m.ref,k:"eigen",cm:Math.round(G[0]*100),n:1};refSheet(nieuw)};
       s.querySelector("[data-af]").onclick=()=>{if(nieuw)delete m.ref;sluitSheet();teken()}}
+    /* ---- Steenliniaal: jij legt de streepjes op de voegen ----
+       De strook bakstenen onder de lijn (of dakpannen naast een windveer) wordt rechtgezet en uitvergroot: begin, midden en eind.
+       Streepjes = gelijke stukken langs de lijn (met perspectief, via de rechtgezette gevel). Klopt het aantal, dan vallen ze overal
+       op de voegen. Lengte = aantal × steenmaat. Een computer haalt de voeg niet uit gekleurde stenen; een oog in een seconde. */
+    const STEEN=[{k:"waal",n:"Waalformaat",cm:22,sub:"21 cm + voeg"},{k:"lang",n:"Langformaat",cm:30,sub:"29 cm + voeg"},{k:"dik",n:"Dikformaat",cm:22,sub:"21 cm, dikker"}],PAN=[{k:"pan",n:"Dakpan",cm:33,sub:"werkende lengte"}];
+    function liniaal(j){const m=meet(),x=m.maten[j];if(!x)return;const img=o.wrap.querySelector("img");if(!img)return;let G;try{G=grijs(img)}catch(e){if(o.melding)o.melding("Deze foto kan niet worden uitvergroot");return}
+      const sx=so().find(z=>z.id===x.s)||{naam:"Meting",kleur:"#9aa1ad",kort:""},isPan=/windve/i.test(sx.naam+" "+sx.kort)||(x.sl&&x.sl.soort==="pan");
+      const A=asp(),Hi=gevelH(m,A);let naarB=null,P0,P1;
+      if(Hi){const Hm=matH([[0,0],[m.g.w,0],[m.g.w,m.g.hR],[0,m.g.hL]],m.g.pts.map(q=>[q[0],q[1]*A]));naarB=(u,v)=>{const w=Hm[6]*u+Hm[7]*v+1;return[(Hm[0]*u+Hm[1]*v+Hm[2])/w*G.W,(Hm[3]*u+Hm[4]*v+Hm[5])/w/A*G.H]};P0=Hi([x.a[0],x.a[1]*A]);P1=Hi([x.b[0],x.b[1]*A])}
+      else{naarB=(u,v)=>[u*G.W,-v/A*G.H];P0=[x.a[0],-x.a[1]*A];P1=[x.b[0],-x.b[1]*A]}
+      const Lp=Math.hypot(P1[0]-P0[0],P1[1]-P0[1]),dir=[(P1[0]-P0[0])/Lp,(P1[1]-P0[1])/Lp];let nrm=[dir[1],-dir[0]];if(nrm[1]>0)nrm=[-nrm[0],-nrm[1]];/* 'omlaag' op de gevel */
+      const w0=waarde(x,m,A),mEst=w0.ok?w0.v:0,schaal=mEst>0?Lp/mEst:1;
+      let maten=isPan?PAN:STEEN,fmt0=x.sl&&x.sl.maat?(maten.find(z=>z.cm===x.sl.maat)||{k:"eigen",cm:x.sl.maat}):maten[0],maat=fmt0.cm/100;
+      let n=x.sl&&x.sl.n?x.sl.n:Math.max(2,Math.round((mEst||5)/maat*2)/2),fase=0,kant=isPan?-1:1,band=isPan?0.05:0.04;
+      const s=maakSheet(`<h4 style="--c:${sx.kleur}"><i></i>${isPan?"Pannen tellen langs de windveer":"Stenen tellen langs de lijn"}</h4><p>Leg de gele streepjes op de ${isPan?"naden tussen de dakpannen":"voegen tussen de stenen"}: begin, midden en eind. Met − en + verander je het aantal, met ‹ › schuif je ze op. ${Hi?"":"<b>Tip:</b> stel eerst de gevel in, dan houdt de liniaal rekening met het perspectief."}</p>
+        <div class="ml-lin">${["Begin","Midden","Eind"].map((t,i)=>`<figure data-p="${i}"><canvas width="640" height="148"></canvas><svg viewBox="0 0 640 148" preserveAspectRatio="none"></svg><figcaption>${t}</figcaption></figure>`).join("")}</div>
+        <div class="ml-tel"><button type="button" data-n="-1">−</button><button type="button" class="k" data-n="-0.5">−½</button><b data-uit></b><button type="button" class="k" data-n="0.5">+½</button><button type="button" data-n="1">+</button></div>
+        <div class="ml-tel"><button type="button" class="k" data-f="-1">‹ schuif</button><button type="button" class="k" data-b="-1">strook ▲</button><button type="button" class="k" data-b="1">strook ▼</button><button type="button" class="k" data-f="1">schuif ›</button></div>
+        <div class="ml-refs">${maten.map(z=>`<button type="button" data-mt="${z.cm}" aria-pressed="${z.cm===fmt0.cm}">${z.n}<small>${z.sub} · ${z.cm} cm</small></button>`).join("")}</div><div class="ml-row"><label>Eigen maat incl. voeg (cm)<input type="text" inputmode="decimal" data-eig value="${String(fmt0.cm).replace(".",",")}"></label></div>
+        <div class="ml-knop"><button type="button" data-af>Annuleren</button><button type="button" class="ok" data-ok>Gebruik</button></div>`);
+      const figs=[...s.querySelectorAll("figure")];
+      function tekenLin(){const per=1/n,half=Math.min(0.5,4.5*per),centra=[Math.min(0.5,half),0.5,Math.max(0.5,1-half)];
+        figs.forEach((fg,i)=>{const cv=fg.querySelector("canvas"),W=cv.width,H=cv.height,cx=cv.getContext("2d"),id=cx.createImageData(W,H),t0=centra[i]-half,t1=centra[i]+half,hb=(isPan?0.5:0.35)*(schaal||1);
+          for(let py=0;py<H;py++){const d=(band*(schaal||1))+py/H*hb;for(let px=0;px<W;px++){const t=t0+(t1-t0)*px/W,u=P0[0]+dir[0]*Lp*t+nrm[0]*d*kant,v=P0[1]+dir[1]*Lp*t+nrm[1]*d*kant,q=naarB(u,v);kleur(G,q[0],q[1],id.data,(py*W+px)*4)}}
+          cx.putImageData(id,0,0);let sv="";for(let k=Math.ceil((t0-fase*per)/per);k*per+fase*per<=t1;k++){const t=k*per+fase*per,X=(t-t0)/(t1-t0)*W;sv+=`<line x1="${X}" y1="0" x2="${X}" y2="${H}" stroke="rgba(0,0,0,.55)" stroke-width="5"/><line x1="${X}" y1="0" x2="${X}" y2="${H}" stroke="#facc15" stroke-width="2.5"/>`}
+          fg.querySelector("svg").innerHTML=sv});
+        s.querySelector("[data-uit]").innerHTML=`${String(Math.round(n*2)/2).replace(".",",")} ${isPan?"pannen":"stenen"}<small>= ${fmt(n*maat,2)} m${mEst?` · was ${fmt(mEst,2)} m`:""}</small>`}
+      s.querySelectorAll("[data-n]").forEach(b=>b.onclick=()=>{n=Math.max(1,Math.round((n+Number(b.dataset.n))*2)/2);tekenLin()});
+      s.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{fase=(fase+Number(b.dataset.f)*0.125+1)%1;tekenLin()});
+      s.querySelectorAll("[data-b]").forEach(b=>b.onclick=()=>{band=Math.max(-0.2,Math.min(1.5,band+Number(b.dataset.b)*0.06));tekenLin()});
+      const eig=s.querySelector("[data-eig]");
+      s.querySelectorAll("[data-mt]").forEach(b=>b.onclick=()=>{const c=Number(b.dataset.mt);maat=c/100;fmt0={cm:c};eig.value=String(c).replace(".",",");s.querySelectorAll("[data-mt]").forEach(z=>z.setAttribute("aria-pressed",z===b));tekenLin()});
+      eig.oninput=()=>{const c=num(eig.value);if(c>3&&c<80){maat=c/100;s.querySelectorAll("[data-mt]").forEach(z=>z.setAttribute("aria-pressed",Number(z.dataset.mt)===c));tekenLin()}};
+      /* slepen in een strook = schuiven */
+      figs.forEach(fg=>{let sx0=null,f0=0;fg.addEventListener("pointerdown",e=>{sx0=e.clientX;f0=fase;try{fg.setPointerCapture(e.pointerId)}catch(_){}});
+        fg.addEventListener("pointermove",e=>{if(sx0==null)return;const w=fg.clientWidth,per=1/n,half=Math.min(0.5,4.5*per),dt=(e.clientX-sx0)/w*2*half;fase=((f0+dt/per)%1+1)%1;tekenLin()});
+        fg.addEventListener("pointerup",()=>{sx0=null})});
+      s.querySelector("[data-af]").onclick=()=>{sluitSheet();teken()};
+      s.querySelector("[data-ok]").onclick=()=>{x.sl={n:Math.round(n*2)/2,maat:Math.round(maat*1000)/10,L:Math.round(n*maat*1000)/1000,soort:isPan?"pan":"steen"};delete x.m;sluitSheet();wijzig()};
+      tekenLin()}
     function maatSheet(j,nieuw){const m=meet(),x=m.maten[j];if(!x)return;
       if(x.st){const sx=so().find(s=>s.id===x.s)||{naam:"Dakkapel",kleur:"#9aa1ad"},D=so().filter(z=>z.eenheid==="st");
         const s=maakSheet(`<h4 style="--c:${sx.kleur}"><i></i>${esc(sx.naam)}</h4><p>Elke stip telt als één dakkapel. Kies de verdieping of haal de stip weg.</p>${D.length>1?`<div class="ml-refs">${D.map(z=>`<button type="button" data-s="${esc(z.id)}" aria-pressed="${z.id===x.s}" style="--c:${z.kleur}">${esc(z.kort)}<small>per stuk</small></button>`).join("")}</div>`:""}<div class="ml-knop"><button type="button" class="weg" data-weg>Wissen</button><button type="button" data-af>Sluiten</button></div>`);
         s.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{x.s=b.dataset.s;sluitSheet();wijzig()});s.querySelector("[data-af]").onclick=sluitSheet;s.querySelector("[data-weg]").onclick=()=>{m.maten.splice(j,1);sluitSheet();wijzig()};return}const sx=so().find(s=>s.id===x.s)||{naam:"Meting",kleur:"#9aa1ad",eenheid:x.r?"m2":"m"},w=waarde(x,m,asp()),c=sx.kleur;
-      const s=maakSheet(`<h4 style="--c:${c}"><i></i>${esc(sx.naam)}</h4><p>${w.ok?(w.gevel?"Gemeten op de rechtgezette gevel (maten uit het 3D-model). Klopt het niet? Pas de maat aan.":w.schat?(m.ref&&m.ref.k==="3d"?"Berekend met de goot uit het 3D-model. Klopt het niet? Pas de maat aan.":"Geschat met de referentie. Klopt het niet? Pas de maat aan."):"Zelf ingevulde maat."):"Nog geen referentie op deze foto: vul de maat zelf in, of teken eerst een referentie."}</p>
+      const s=maakSheet(`<h4 style="--c:${c}"><i></i>${esc(sx.naam)}</h4><p>${w.ok?(w.sl?`Geteld: ${String(x.sl.n).replace(".",",")} ${x.sl.soort==="pan"?"pannen":"stenen"} × ${String(x.sl.maat).replace(".",",")} cm.`:w.gevel?"Gemeten op de rechtgezette gevel (maten uit het 3D-model). Klopt het niet? Pas de maat aan.":w.schat?(m.ref&&m.ref.k==="3d"?"Berekend met de goot uit het 3D-model. Klopt het niet? Pas de maat aan.":"Geschat met de referentie. Klopt het niet? Pas de maat aan."):"Zelf ingevulde maat."):"Nog geen referentie op deze foto: vul de maat zelf in, of teken eerst een referentie."}</p>
         ${x.r?`<div class="ml-row"><label>Breedte (m)<input type="text" inputmode="decimal" data-bw value="${w.ok?fmt(w.bw,2):""}"></label><span class="x">×</span><label>Hoogte (m)<input type="text" inputmode="decimal" data-hh value="${w.ok?fmt(w.hh,2):""}"></label></div>`
           :`<div class="ml-row"><label>Lengte (m)<input type="text" inputmode="decimal" data-m value="${w.ok?fmt(w.v,2):""}"></label></div>`}
         ${so().length>1?`<div class="ml-refs">${so().filter(z=>(z.eenheid==="m2")===!!x.r).map(z=>`<button type="button" data-s="${esc(z.id)}" aria-pressed="${z.id===x.s}" style="--c:${z.kleur}">${esc(z.kort)}<small>${z.eenheid==="m2"?"per m²":"per meter"}</small></button>`).join("")}</div>`:""}
+        ${!x.r?`<button type="button" class="ml-ctl" data-lin style="height:38px;width:100%;margin:0 0 10px;border-radius:11px;font-size:13px">${/windve/i.test(sx.naam+" "+(sx.kort||""))?"Precies meten: pannen tellen":"Precies meten: stenen tellen"}${x.sl?` · nu ${String(x.sl.n).replace(".",",")}`:""}</button>`:""}
         <div class="ml-knop"><button type="button" class="weg" data-weg>Wissen</button><button type="button" data-af>${nieuw?"Zo laten":"Annuleren"}</button><button type="button" class="ok" data-ok>Opslaan</button></div>`);
+      {const b=s.querySelector("[data-lin]");if(b)b.onclick=()=>liniaal(j)}
       let ns=x.s;s.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{ns=b.dataset.s;s.querySelectorAll("[data-s]").forEach(z=>z.setAttribute("aria-pressed",z===b))});
       const ok=()=>{const y={...x,s:ns};if(x.r){const a=s.querySelector("[data-bw]").value,b=s.querySelector("[data-hh]").value;
           if(a!==(w.ok?fmt(w.bw,2):""))y.bm=num(a);if(b!==(w.ok?fmt(w.hh,2):""))y.hm=num(b)}
@@ -6759,7 +6817,7 @@ const FRAMER_TPL="// Prijscalculator glasbewassing \u2014 Framer code component 
       return `<div class="ml-bar${o.licht?" licht":""}" role="radiogroup" aria-label="Wat meet u">
         ${gv?`<button type="button" role="radio" data-mls="gevel" aria-checked="${cur==="gevel"}" style="--c:#14b8a6"><i>${ICL}</i>Gevel${heeftG?`<b>✓</b>`:""}</button>`:`<button type="button" role="radio" data-mls="ref" aria-checked="${cur==="ref"}" style="--c:${REFK}"><i style="color:#1d1a10">${ICL}</i>${d3||laadt?"Schaal: goot":"Referentie"}${d3&&!heeftRef?`<b style='color:#1d1a10'>${fmt(G[0],2)} m</b>`:""}${heeftRef?"<b style='color:#1d1a10'>✓</b>":""}</button>`}
         ${so().map(s=>`<button type="button" role="radio" data-mls="${esc(s.id)}" aria-checked="${cur===s.id}" style="--c:${s.kleur}"><i></i>${esc(s.kort)}${t[s.id]?`<b>${s.eenheid==="st"?Math.round(t[s.id])+" st":fmt(t[s.id],1)+" "+(s.eenheid==="m2"?"m²":"m")}</b>`:""}</button>`).join("")}</div>
-        <div class="ml-tip">${cur==="gevel"&&heeftG?controleHtml(m.g):""}${so().find(s=>s.id===cur&&s.eenheid==="st")?"Tik op elke dakkapel: elke stip telt als één. Tik op een stip om de verdieping te kiezen of hem te wissen.":cur==="gevel"&&heeftG?"Versleep een hoek als hij niet precies op de hoek van de muur staat. Tik op het groene label voor een andere gevel. Daarna kies je wat je meet.":heeftRef?(cur==="ref"?(d3?"Sleep opnieuw langs de <b>goot</b> om de schaal te verplaatsen.":"Sleep opnieuw om de <b>referentie</b> te verplaatsen."):so().find(s=>s.id===cur&&s.eenheid==="st")?"Tik op elke dakkapel: elke stip telt als één. Tik op een stip om hem te wissen.":so().find(s=>s.id===cur&&s.eenheid==="m2")?"Trek een rechthoek over het vlak. Tik op een label om de maat aan te passen.":"Sleep van begin tot eind langs wat u meet. Tik op een label om de maat aan te passen."):refTxt}</div>`}
+        <div class="ml-tip">${cur==="gevel"&&heeftG?controleHtml(m.g):""}${so().find(s=>s.id===cur&&s.eenheid==="st")?"Tik op elke dakkapel: elke stip telt als één. Tik op een stip om de verdieping te kiezen of hem te wissen.":cur==="gevel"&&heeftG?"Versleep een hoek als hij niet precies op de hoek van de muur staat. Tik op het groene label voor een andere gevel. Daarna kies je wat je meet.":heeftRef?(cur==="ref"?(d3?"Sleep opnieuw langs de <b>goot</b> om de schaal te verplaatsen.":"Sleep opnieuw om de <b>referentie</b> te verplaatsen."):so().find(s=>s.id===cur&&s.eenheid==="st")?"Tik op elke dakkapel: elke stip telt als één. Tik op een stip om hem te wissen.":so().find(s=>s.id===cur&&s.eenheid==="m2")?"Trek een rechthoek over het vlak. Tik op een label om de maat aan te passen.":"Sleep van begin tot eind langs wat u meet. Tik op een label om de maat aan te passen of precies te meten door stenen te tellen."):refTxt}</div>`}
     /* controle met bakstenen (21 cm + 1 cm voeg = 22 cm per steen) en dakpannen (33 cm werkende lengte), door de AI geteld op de foto */
     function controleHtml(g){const r=[];if(g.st){const w=g.st*0.22-0.01,d=(w-g.w)/g.w;r.push(`Bakstenen: ${String(g.st).replace(".",",")} × 22 cm = <b>${fmt(w,2)} m</b> breed (model ${fmt(g.w,2)} m) ${Math.abs(d)<0.025?"✓":`<button type="button" class="ml-ctl" data-mlst>Gebruik ${fmt(w,2)} m</button>`}`)}
       if(g.pn){const H=gevelH(f().meet,asp());r.push(`Dakpannen langs de windveer: ${String(g.pn).replace(".",",")} × 33 cm = <b>${fmt(g.pn*0.33,2)} m</b>`)}
@@ -6778,7 +6836,7 @@ const FRAMER_TPL="// Prijscalculator glasbewassing \u2014 Framer code component 
     if(meet.geo&&typeof meet.geo==="object"){const z={};["lat","lng","acc","dir","pitch","f35","bron"].forEach(k=>{if(meet.geo[k]!=null)z[k]=k==="bron"?String(meet.geo[k]):Math.round(Number(meet.geo[k])*1e7)/1e7});o.geo=z}
     if(meet.ref&&meet.ref.a)o.ref={a:meet.ref.a.map(r4),b:meet.ref.b.map(r4),k:meet.ref.k||"eigen",cm:num(meet.ref.cm),n:Math.max(1,num(meet.ref.n)||1)};
     if(meet.g&&meet.g.pts&&meet.g.pts.length===4)o.g={pts:meet.g.pts.map(q=>q.map(r4)),w:num(meet.g.w),hL:num(meet.g.hL),hR:num(meet.g.hR),r:String(meet.g.r||""),...(meet.g.st?{st:num(meet.g.st)}:{}),...(meet.g.pn?{pn:num(meet.g.pn)}:{}),...(meet.g.a&&meet.g.b?{a:meet.g.a.map(num),b:meet.g.b.map(num)}:{})};
-    o.maten=(meet.maten||[]).filter(x=>x&&x.a&&x.b).map(x=>({s:String(x.s),a:x.a.map(r4),b:x.b.map(r4),...(x.r?{r:1}:{}),...(x.st?{st:1}:{}),...(typeof x.m3==="number"?{m3:Math.round(x.m3*1000)/1000}:{}),...(x.m!=null?{m:num(x.m)}:{}),...(x.bm!=null?{bm:num(x.bm)}:{}),...(x.hm!=null?{hm:num(x.hm)}:{})}));return o}
+    o.maten=(meet.maten||[]).filter(x=>x&&x.a&&x.b).map(x=>({s:String(x.s),a:x.a.map(r4),b:x.b.map(r4),...(x.r?{r:1}:{}),...(x.st?{st:1}:{}),...(typeof x.m3==="number"?{m3:Math.round(x.m3*1000)/1000}:{}),...(x.sl&&x.sl.L>0?{sl:{n:num(x.sl.n),maat:num(x.sl.maat),L:Math.round(num(x.sl.L)*1000)/1000,soort:x.sl.soort==="pan"?"pan":"steen"}}:{}),...(x.m!=null?{m:num(x.m)}:{}),...(x.bm!=null?{bm:num(x.bm)}:{}),...(x.hm!=null?{hm:num(x.hm)}:{})}));return o}
   window.Meetlint={attach,totalen,svgVoor,soortenUit,schoon,zetCss,REFS}
 })();
 
