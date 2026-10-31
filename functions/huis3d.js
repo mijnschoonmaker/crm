@@ -59,7 +59,8 @@ module.exports = ({ onCall, onRequest, HttpsError, checkGebruiker }) => {
       if (hL < 1.5 || hR < 1.5) return;
       /* buitenkant: rechts van de rand bij een voetafdruk tegen de klok in */
       const az = (Math.atan2(ey, -ex) * 180 / Math.PI + 360) % 360, r = ["noord", "oost", "zuid", "west"][Math.round(az / 90) % 4];
-      vlakken.push({ richting: r, w: Math.round(L * 100) / 100, hL: Math.round(hL * 100) / 100, hR: Math.round(hR * 100) / 100,
+      const lc = q => [Math.round((q[0] - x) * 100) / 100, Math.round((q[1] - y) * 100) / 100];
+      vlakken.push({ richting: r, a: lc(A), b: lc(B), w: Math.round(L * 100) / 100, hL: Math.round(hL * 100) / 100, hR: Math.round(hR * 100) / 100,
         ...(top.z - z0 > Math.max(hL, hR) + 0.6 && top.u > 0.5 && top.u < L - 0.5 ? { punt: { u: Math.round(top.u * 100) / 100, h: Math.round((top.z - z0) * 100) / 100 } } : {}) }); });
     vlakken.sort((p, q) => q.w * Math.max(q.hL, q.hR) - p.w * Math.max(p.hL, p.hR));
     const key = (a, b) => a < b ? a + "_" + b : b + "_" + a, cnt = {}; daken.forEach(r => r.forEach((v, i) => { const k = key(v, r[(i + 1) % r.length]); cnt[k] = (cnt[k] || 0) + 1; }));
@@ -80,7 +81,14 @@ module.exports = ({ onCall, onRequest, HttpsError, checkGebruiker }) => {
       if (!ok) break; }
     randen = randen.filter(r => r.len >= 0.8).sort((p, q) => q.len - p.len);
     const a = hoofd.b.attributes || {};
-    return { pand: hoofd.f.id, bouwjaar: a.oorspronkelijkbouwjaar || null, meetjaar: a.b3_pw_datum || null, dak: a.b3_dak_type || "", /* hoogtes boven de grond (3D BAG geeft ze t.o.v. NAP) */
+    /* het hele model in meters rond het adrespunt (x oost, y noord, z boven het maaiveld): om over een foto te leggen en op dakvlakken te meten */
+    const mv = a.b3_h_maaiveld || 0, L3 = q => [Math.round((q[0] - x) * 100) / 100, Math.round((q[1] - y) * 100) / 100, Math.round((q[2] - mv) * 100) / 100];
+    const lijnSet = new Set(), lijnen = [], vlakkenDak = [];
+    shell.forEach((s, i) => { const t = st[sv[i]] && st[sv[i]].type; if (t !== "RoofSurface" && t !== "WallSurface") return; const P = s[0].map(k => L3(V[k]));
+      if (t === "RoofSurface") vlakkenDak.push(P);
+      P.forEach((q, k) => { const w = P[(k + 1) % P.length], key = [q, w].map(z => z.join(",")).sort().join("|"); if (lijnSet.has(key)) return; lijnSet.add(key);
+        if (t === "WallSurface" && Math.abs(q[2] - w[2]) < 0.05 && q[2] < 0.3) { lijnen.push([q, w, "g"]); return; } lijnen.push([q, w, t === "RoofSurface" ? "d" : "m"]); }); });
+    return { model: { lijnen: lijnen.slice(0, 1500), daken: vlakkenDak.slice(0, 200) }, pand: hoofd.f.id, bouwjaar: a.oorspronkelijkbouwjaar || null, meetjaar: a.b3_pw_datum || null, dak: a.b3_dak_type || "", /* hoogtes boven de grond (3D BAG geeft ze t.o.v. NAP) */
       nokhoogte: a.b3_h_dak_max ? Math.round((a.b3_h_dak_max - (a.b3_h_maaiveld || 0)) * 10) / 10 : null, goothoogte: a.b3_h_dak_min ? Math.round((a.b3_h_dak_min - (a.b3_h_maaiveld || 0)) * 10) / 10 : null,
       randen: randen.map(r => ({ soort: r.soort, m: Math.round(r.len * 100) / 100, hoogte: Math.round((r.hoogte - (a.b3_h_maaiveld || 0)) * 10) / 10, p: [ll(r.A), ll(r.B)] })), voet: hoofd.voet.map(ll),
       vlakken, gevel: Math.round(gevel * 10) / 10, dakopp: Math.round(dak * 10) / 10, gevels: Object.fromEntries(Object.entries(gevels).map(([k, v]) => [k, Math.round(v * 10) / 10])),

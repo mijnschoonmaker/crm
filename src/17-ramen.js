@@ -557,7 +557,7 @@ const ICON={
   /* 3D-model van de woning (3D BAG) ophalen voor de schaal op de foto */
   function edLaad3d(){const k=klantForm(),adr=[k.adres,k.pc,k.plaats].filter(Boolean).join(" ");if(!k.adres||typeof huis3dVoor!=="function"){edH3=null;return}
     if(edH3&&edH3.adr===adr)return;edH3={adr,laden:true};
-    huis3dVoor(adr).then(d=>{if(!edH3||edH3.adr!==adr)return;const G=d&&d.randen?d.randen.filter(r=>r.soort==="goot").map(r=>r.m):[];edH3=G.length||(d&&d.vlakken||[]).length?{adr,goten:G,vlakken:d.vlakken||[]}:{adr};
+    huis3dVoor(adr).then(d=>{if(!edH3||edH3.adr!==adr)return;const G=d&&d.randen?d.randen.filter(r=>r.soort==="goot").map(r=>r.m):[];edH3=G.length||(d&&d.vlakken||[]).length?{adr,goten:G,vlakken:d.vlakken||[],model:d.model||null,ll:d.geo&&d.geo.ll}:{adr};
       if(edMl)edMl.teken();if(edMode==="meten"&&ge("ed-msg"))ge("ed-msg").textContent=edMsg()})}
   function edZetMode(m){edMode=m;const met=m==="meten";ge("ed-mode").querySelectorAll("[data-em]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.em===m));
     ge("ed-types").hidden=met;eroot.querySelector(".ed-lab").hidden=met;ge("ed-mlb").hidden=!met;ge("ed-tally").hidden=met;
@@ -566,7 +566,7 @@ const ICON={
   function openEd(i){ge("ed-undo").onclick=undo1;ge("ed-msg").textContent="Kies hieronder wat je aantikt en tik op elk raam. Tik op een stip om hem weg te halen.";if(!edDlg.open)edDlg.showModal();edIdx=i;ge("ed-img").src=photos[i].url;ge("ed").hidden=false;document.body.style.overflow="hidden";renderDots();requestAnimationFrame(()=>{fitEd();
       if(edMl){edMl.weg();edMl=null}const MS=edMeet();ge("ed-mode").hidden=!MS.length;ge("ed-mode").classList.toggle("licht",getComputedStyle(ge("ed")).backgroundColor.replace(/[^\d,]/g,"").split(",").slice(0,3).reduce((a,b)=>a+ +b,0)>600);
       if(MS.length)edLaad3d();
-      if(MS.length||(photos[edIdx]&&photos[edIdx].meet))edMl=Meetlint.attach({model:()=>edH3,ai:typeof gevelAi==="function"?gevelAi():null,fout:e=>toast(typeof fnFout==="function"?fnFout(e):"Hoeken zoeken lukte niet, zet ze zelf"),licht:getComputedStyle(ge("ed")).backgroundColor.replace(/[^\d,]/g,"").split(",").slice(0,3).reduce((a,b)=>a+ +b,0)>600,wrap:ge("ed-wrap"),foto:()=>{const p=photos[edIdx];if(p&&!p.w){p.w=p.cv.width;p.h=p.cv.height}return p},soorten:MS.length?MS:meetSoorten(),host:eroot.querySelector(".ed-stage"),
+      if(MS.length||(photos[edIdx]&&photos[edIdx].meet))edMl=Meetlint.attach({model:()=>edH3,ai:typeof gevelAi==="function"?gevelAi():null,fout:e=>toast(typeof fnFout==="function"?fnFout(e):"Hoeken zoeken lukte niet, zet ze zelf"),melding:t=>toast(t),licht:getComputedStyle(ge("ed")).backgroundColor.replace(/[^\d,]/g,"").split(",").slice(0,3).reduce((a,b)=>a+ +b,0)>600,wrap:ge("ed-wrap"),foto:()=>{const p=photos[edIdx];if(p&&!p.w){p.w=p.cv.width;p.h=p.cv.height}return p},soorten:MS.length?MS:meetSoorten(),host:eroot.querySelector(".ed-stage"),
         bar:()=>{const b=ge("ed-mlb");if(b&&edMl&&!b.hidden){b.innerHTML=edMl.barHtml(Meetlint.totalen(photos.map(p=>({...p,w:p.cv.width,h:p.cv.height})),MS));edMl.bindBar(b)}}});
       edZetMode(MS.length?edMode:"ramen")})}
   /* gemeten meters en m² in de prijs: bij de diensten met dezelfde naam (Uitvoering › Diensten); zelf ingevulde aantallen blijven staan */
@@ -953,8 +953,10 @@ const ICON={
   document.addEventListener("change",e=>{if(e.target&&/adres|pc|postcode|plaats|klant/i.test(e.target.id||e.target.name||""))setTimeout(h3Ververs,50)},true);
   g("luchtBtn").addEventListener("click",()=>{const k=klantForm();openLuchtMeten({adres:[k.adres,k.pc,k.plaats].filter(Boolean).join(" "),soorten:edMeet(),maten:lucht,onKlaar:m=>{lucht=m;syncMeet();markStale()}})});
   g("handm").addEventListener("click",()=>{const on=!host.hasAttribute("data-handmatig");setHandm(on);if(on){const c=g("cFloors");if(c)c.scrollIntoView({block:"start",behavior:"smooth"})}});
+  /* GPS en kompas van de telefoon bij een nieuwe foto: daarmee kiest de meetlint de gevel en zet hij de hoeken alvast goed */
+  {const lb=root.querySelector(".addph");if(lb)lb.addEventListener("click",()=>{if(typeof fotoSensorAan==="function"&&edMeet().length)fotoSensorAan()})}
   g("ph-in").addEventListener("change",async e=>{const files=[...e.target.files];e.target.value="";
-    for(const f of files){try{photos.push(await loadPhoto(f))}catch(_){}}renderPhotos();markStale();if(files.length===1&&photos.length)openEd(photos.length-1)});
+    for(const f of files){try{const p=await loadPhoto(f);try{const geo=typeof fotoGeo==="function"?await fotoGeo(f):null;if(geo)p.meet={...(p.meet||{maten:[]}),geo}}catch(_){}photos.push(p)}catch(_){}}renderPhotos();markStale();if(files.length===1&&photos.length)openEd(photos.length-1)});
   /* ramen tellen met AI (zelfde telling als bij de tellingcontrole): de foto's met stippen komen hier binnen en de aantallen gaan naar de telling */
   const aiBtn=g("ph-ai");if(aiBtn)aiBtn.onclick=()=>{if(typeof openFotoTelling!=="function"){toast("AI tellen is hier niet beschikbaar");return}
     const prev=photos.filter(p=>p.ai&&p.rf).map(p=>({...p.rf,dots:p.dots.map(d=>({...d}))}));
