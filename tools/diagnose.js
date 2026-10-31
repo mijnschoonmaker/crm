@@ -1,17 +1,15 @@
-/* Alleen lezen: klant(en) Powerplus, ramenRegel per verdieping en de laatste beurten. Wijzigt niets. */
+/* Alleen lezen: Powerplus, wanneer is de klant voor het laatst opgeslagen en wat staat er op de factuur van 26-10. Wijzigt niets. */
 const admin = require("../functions/node_modules/firebase-admin");
 admin.initializeApp({ projectId: process.env.P });
 const db = admin.firestore();
 const n = (t, x) => console.log("::notice title=" + t + "::" + JSON.stringify(x).slice(0, 3500));
 (async () => {
-  const ks = (await db.collection("klanten").get()).docs.filter(d => /power\s*plus/i.test(JSON.stringify([d.data().naam, d.data().contact, d.data().bedrijf])));
-  n("aantal", ks.map(d => d.id + " " + d.data().naam));
-  for (const d of ks) { const k = d.data(), r = k.ramenRegel || {};
-    n("klant " + d.id, { naam: k.naam, adres: k.adres, freq: k.frequentie, laatst: k.laatst, gepland: k.gepland, objectId: k.objectId, objecten: (k.objecten || []).map(o => [o.id, o.naam, o.adres]), aanbieden: k.aanbieden });
-    n("ramenRegel " + d.id, { f: r.f, fq: r.fq, vol: r.vol, kf: r.kf, kfq: r.kfq, kvol: r.kvol, sp: r.sp, spfq: r.spfq, spvol: r.spvol });
-    n("opdrachten " + d.id, (k.opdrachten || []).map(o => ({ id: o.id, dienst: o.dienst, fr: o.frequentie, laatst: o.laatst, volgende: o.volgende, obj: o.objectId, ramen: o.ramenRegel ? { f: o.ramenRegel.f, fq: o.ramenRegel.fq, vol: o.ramenRegel.vol } : null })));
-    n("log " + d.id, (k.log || []).slice(-6));
-    const bs = (await db.collection("beurten").where("klantId", "==", d.id).get()).docs.map(x => x.data()).sort((a, b) => String(b.op || b.datum).localeCompare(String(a.op || a.datum))).slice(0, 5);
-    n("beurten " + d.id, bs.map(b => ({ datum: b.datum, op: b.op, door: b.door, dienst: b.dienst, bedrag: b.bedrag, obj: b.objectId, extra: b.extra ? b.extra.length : 0 })));
-  }
+  const ids = ["kmvmhau25ioz3", "kmvoczqye9veq", "kmvofxf4za3d3"], uit = [];
+  for (const id of ids) { const d = await db.doc("klanten/" + id).get(), k = d.data() || {};
+    uit.push({ id, upd: d.updateTime && d.updateTime.toDate().toISOString(), naam: k.naam, adres: k.adres, hoofd: k.hoofdKlantId || "", bijOpdr: k.hoortBijOpdracht || k.opdrachtId || "", freq: k.frequentie, laatst: k.laatst, gepland: k.gepland, aanbieden: k.aanbieden, rr: k.ramenRegel ? { f: k.ramenRegel.f, fq: k.ramenRegel.fq, vol: k.ramenRegel.vol } : null, eenmalig: k.eenmalig || "", actief: k.actief }); }
+  n("klanten", uit);
+  const fs = (await db.collection("facturen").where("klantId", "in", ids).get()).docs.map(x => ({ id: x.id, ...x.data() })).filter(f => f.datum >= "2026-10-20");
+  n("facturen", fs.map(f => ({ nr: f.nummer, soort: f.soort, datum: f.datum, kid: f.klantId, status: f.status, regels: (f.regels || []).map(r => r.omschrijving + " | " + r.aantal + " x " + r.prijs), gemaakt: f.gemaakt })));
+  const bs = (await db.collection("beurten").where("klantId", "in", ids).get()).docs.map(x => x.data()).filter(b => b.datum >= "2026-10-01");
+  n("beurten", bs.map(b => ({ kid: b.klantId, datum: b.datum, op: b.op, bedrag: b.bedrag, extra: b.extra, gef: b.gefactureerd })));
 })().catch(x => { console.error(x); process.exit(1); });
