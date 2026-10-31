@@ -762,7 +762,10 @@ Bij een rijwoning of twee-onder-een-kap is de linker- of rechterrand de lijn waa
 Valt een hoek buiten beeld of achter een struik of auto, schat hem dan op de plek waar hij logisch zit (mag buiten 0..1 vallen, tot -0.3 en 1.3).
 Coördinaten x en y tussen 0 en 1, relatief aan breedte en hoogte (0,0 = linksboven).
 Tel ook de dakkapellen van deze woning die op de foto staan (een uitbouw in het dakvlak met eigen raam, wangen en dakje; geen dakraam/tuimelraam dat plat in het dak ligt). Geef per dakkapel het midden van de voorkant en de verdieping van het raam: v=1 voor een dakkapel op de eerste verdieping, v=2 op de tweede verdieping (bijv. een tweede dakkapel boven een andere, hoog in het dak).
-Antwoord ALLEEN met JSON: {"lo":[x,y],"ro":[x,y],"rb":[x,y],"lb":[x,y],"dakkapellen":[{"x":0.5,"y":0.3,"v":1}],"zeker":"hoog|middel|laag","opmerking":"korte Nederlandse opmerking of leeg"}`;
+Tel als controle op de maat (alleen als het goed te zien is, anders null):
+- "stenen": het aantal hele bakstenen (strekken) in één horizontale laag metselwerk over de volle breedte van deze gevel, van de linker- tot de rechterhoek. Tel een laag zonder ramen of deuren, bijvoorbeeld net boven de grond of net onder de goot. Halve stenen aan het eind tellen als 0.5.
+- "pannen": het aantal rijen dakpannen langs één windveer (de schuine dakrand van een puntgevel), van de goot tot boven aan de windveer. Alleen bij een puntgevel.
+Antwoord ALLEEN met JSON: {"lo":[x,y],"ro":[x,y],"rb":[x,y],"lb":[x,y],"dakkapellen":[{"x":0.5,"y":0.3,"v":1}],"stenen":46.5,"pannen":11,"zeker":"hoog|middel|laag","opmerking":"korte Nederlandse opmerking of leeg"}`;
 exports.gevelHoeken = onCall({ memory: "512MiB", timeoutSeconds: 90 }, async req => {
   await checkGebruiker(req.auth);
   const g = await geheim(), key = g.aiKey;
@@ -780,7 +783,8 @@ exports.gevelHoeken = onCall({ memory: "512MiB", timeoutSeconds: 90 }, async req
   const pt = v => Array.isArray(v) && v.length === 2 && v.every(n => isFinite(Number(n))) ? v.map(n => Math.max(-0.3, Math.min(1.3, Math.round(Number(n) * 10000) / 10000))) : null;
   const h = ["lo", "ro", "rb", "lb"].map(k => pt(o[k])); if (h.some(x => !x)) throw new HttpsError("internal", "De AI vond de gevel niet. Zet de hoeken zelf.");
   const dk = (Array.isArray(o.dakkapellen) ? o.dakkapellen : []).slice(0, 12).map(d => ({ x: Math.max(0, Math.min(1, Number(d.x) || 0)), y: Math.max(0, Math.min(1, Number(d.y) || 0)), v: [1, 2, 3].includes(Number(d.v)) ? Number(d.v) : 1 }));
-  return { hoeken: h, dakkapellen: dk, zeker: ["hoog", "middel", "laag"].includes(o.zeker) ? o.zeker : "", opmerking: String(o.opmerking || "").slice(0, 200) };
+  const tel = (v, lo, hi) => { const n = Number(v); return isFinite(n) && n >= lo && n <= hi ? Math.round(n * 2) / 2 : null; };
+  return { hoeken: h, dakkapellen: dk, stenen: tel(o.stenen, 8, 400), pannen: tel(o.pannen, 3, 60), zeker: ["hoog", "middel", "laag"].includes(o.zeker) ? o.zeker : "", opmerking: String(o.opmerking || "").slice(0, 200) };
 });
 
 /* ---------- klantgegevens uit een foto/screenshot (bv. van een ander CRM) uitlezen met AI ---------- */

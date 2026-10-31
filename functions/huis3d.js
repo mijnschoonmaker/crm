@@ -60,7 +60,9 @@ module.exports = ({ onCall, onRequest, HttpsError, checkGebruiker }) => {
       /* buitenkant: rechts van de rand bij een voetafdruk tegen de klok in */
       const az = (Math.atan2(ey, -ex) * 180 / Math.PI + 360) % 360, r = ["noord", "oost", "zuid", "west"][Math.round(az / 90) % 4];
       const lc = q => [Math.round((q[0] - x) * 100) / 100, Math.round((q[1] - y) * 100) / 100];
-      vlakken.push({ richting: r, a: lc(A), b: lc(B), w: Math.round(L * 100) / 100, hL: Math.round(hL * 100) / 100, hR: Math.round(hR * 100) / 100,
+      /* de BAG-omtrek is de dakrand (met overstek); de muur zelf is aan elke kant ±20 cm korter (zelfde maat als bij de goot) */
+      const ov = L > 3 ? 0.2 : 0, A2 = [A[0] + ex * ov, A[1] + ey * ov], B2 = [B[0] - ex * ov, B[1] - ey * ov];
+      vlakken.push({ richting: r, a: lc(A2), b: lc(B2), w: Math.round((L - 2 * ov) * 100) / 100, hL: Math.round(hL * 100) / 100, hR: Math.round(hR * 100) / 100,
         ...(top.z - z0 > Math.max(hL, hR) + 0.6 && top.u > 0.5 && top.u < L - 0.5 ? { punt: { u: Math.round(top.u * 100) / 100, h: Math.round((top.z - z0) * 100) / 100 } } : {}) }); });
     vlakken.sort((p, q) => q.w * Math.max(q.hL, q.hR) - p.w * Math.max(p.hL, p.hR));
     const key = (a, b) => a < b ? a + "_" + b : b + "_" + a, cnt = {}; daken.forEach(r => r.forEach((v, i) => { const k = key(v, r[(i + 1) % r.length]); cnt[k] = (cnt[k] || 0) + 1; }));
