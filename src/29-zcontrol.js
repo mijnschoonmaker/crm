@@ -243,7 +243,7 @@ function ccOpsHtml(leeg=true){const nu=iso(today()),mo=iso(addDays(today(),1)),T
     tg(tkN?"rood":tk.length?"let":"ok","ticket","Tickets",tk.length?tk.length+" open":"Geen",tkN?`${tkN} met nieuw bericht`:"","tickets"),
     tg(fl.length?"rood":fo.length?"let":"ok","euro","Openstaand",fo.length?eur0(fEur):"Alles betaald",fo.length?plural(fo.length,"factuur","facturen")+(fl.length?` · ${fl.length} te laat`:""):"","tab:facturen"),
     tg(qn?"let":"ok","mail","Te versturen",qn?plural(qn,"bericht","berichten"):"Niets",qn?"klaar in Communicatie":"","tab:communicatie")];
-  return (leeg?`<div class="cc-okrij"><span>${I.check}</span><div><b>Alles op orde</b><small>Geen meldingen. Hieronder de stand van vandaag.</small></div></div>`:`<span class="cc-rkop">Stand van vandaag</span>`)+`<div class="cc-ops2">${tegels.join("")}</div>`}
+  return `<span class="cc-rkop${leeg?" eerst":""}">Stand van vandaag</span>`+`<div class="cc-ops2">${tegels.join("")}</div>`}
 function ccNuDoenHtml(){const L=ccNuDoen();if(!L.length){const v=ccVolgende();return `<div class="cc-nu rust"><span class="cc-nd">${I.check}</span><b>Niets dringends</b>${v?`<small>Volgende afspraak: ${esc(v)}</small>`:""}</div>`}
   return `<div class="cc-nu"><span class="cc-nl"><i></i>Nu doen</span>${L.map(x=>`<div class="cc-nuit"><span>${I[x.ic]||""}</span><button type="button" data-cc="${esc(x.go)}"><b>${esc(x.t)}</b>${x.s?`<small>${esc(x.s)}</small>`:""}</button>${x.kom?`<a class="cc-ab pr" href="${esc(x.kom)}" target="_blank" rel="noopener">${I.wa||I.send}Kom eraan</a>`:""}</div>`).join("")}</div>`}
 function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActiviteit(),R=ccPrestaties(),t=today();
@@ -274,7 +274,7 @@ function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActivite
       <div class="cc-dagstat">${[[typeof plSel==="function"&&plSel()?"Adressen "+esc(plSel()):"Adressen",P.length],["Klaar",klaar],["Nog te gaan",nu],["Verdiend vandaag",eur0(D.omzet)],["Verwacht klaar",D.eind||"—"]].map(([l,v])=>`<div><small>${l}</small><b>${v}</b></div>`).join("")}</div>
       <div class="cc-map"><div class="rv-map" id="rvMap"><div class="rv-map-l">Kaart laden…</div></div></div>
       <div class="cc-leg"><span><i class="af"></i>Afgerond</span><span><i class="nu"></i>Volgende</span><span><i></i>Gepland</span><span><i class="bus"></i>Bus (live)</span>${D.volgende?`<span class="cc-vlg">Volgende: <b>${esc(D.volgende)}</b></span>`:""}</div></section>
-    <section class="cc-adv" id="ccAdv"><div class="cc-ah"><span class="cc-aic">${I.spark}</span><div><b>Meldingen · MANSARD adviseert</b><small>${S_.length?`Nog ${S_.length} open · van boven naar beneden afwerken`:"Alles is afgehandeld"}</small></div>${S_.length?`<span class="cc-cnt">${S_.length}</span>`:""}</div><div class="cc-q${S_.length>3?"":" leeg"}">${sig}</div></section>
+    <section class="cc-adv" id="ccAdv"><div class="cc-ah"><span class="cc-aic">${I.spark}</span><div><small>Mansard adviseert</small><b>Meldingen</b></div>${S_.length?`<span class="cc-stp ${S_.some(m=>m.p==="kritiek")?"rood":"let"}"><i></i>${S_.length} open</span>`:`<span class="cc-stp ok">${I.check}Alles afgehandeld</span>`}</div>${S_.length?`<p class="cc-ahh">Werk ze van boven naar beneden af.</p>`:""}<div class="cc-q${S_.length>3?"":" leeg"}">${sig}</div></section>
   </div>
   ${typeof plRijHtml==="function"?plRijHtml():""}
   <div class="cc-dagrij">
