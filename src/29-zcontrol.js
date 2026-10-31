@@ -303,7 +303,7 @@ function ccKaart(){if(state.tab!=="control"||typeof rvMapTeken!=="function")retu
 /* ---------- acties: alleen naar bestaande functies ---------- */
 /* snelknop naar de tickets: rood getal = tickets met een nieuw bericht van de klant, grijs = nog openstaande tickets */
 function ccTkKnop(){const T=state.tickets||[],n=T.filter(t=>Number(t.ongelezenTeam)>0).length,o=T.filter(t=>t.status!=="opgelost").length;
-  return `<button type="button" class="cc-bel cc-tk" id="ccTk" data-cc="tickets" aria-label="Tickets${n?", "+n+" nieuw":o?", "+o+" open":""}" title="Tickets">${I.ticket||I.bericht||""}${n?`<i>${n}</i>`:o?`<i class="grijs">${o}</i>`:""}</button>`}
+  return `<button type="button" class="cc-bel cc-tk${n?" nieuw":""}" id="ccTk" data-cc="tickets" aria-label="Tickets${n?", "+n+" nieuw":o?", "+o+" open":""}" title="Tickets">${I.ticket||I.bericht||""}${n?`<i>${n}</i>`:o?`<i class="grijs">${o}</i>`:""}</button>`}
 function ccTkVernieuw(){const el=document.getElementById("ccTk");if(el)el.outerHTML=ccTkKnop()}
 function ccActie(a){if(!a)return;const [k,...r]=a.split(":"),v=r.join(":");
   if(k==="tab")return go(v);

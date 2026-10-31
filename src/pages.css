@@ -4478,3 +4478,14 @@ dialog.nav-kies{width:min(360px,calc(100vw - 32px));border-radius:20px}.nav-k{di
 
 /* Facturen versturen: per factuur "Al verstuurd" */
 .q-nvt{display:flex;flex-direction:column;gap:4px;margin:2px 0 4px}.q-nvt span{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink)}.q-nvt i{font-style:normal;color:var(--muted,#6b7280);font-size:12px}.q-nvt .linkbtn{margin-left:auto;font-size:12px}
+
+/* nieuw ticket: duidelijk zichtbaar */
+.tk-pop.nieuw{border-left-color:#e5534b;box-shadow:0 24px 50px -18px rgb(15 31 38 / .45),0 0 0 3px rgb(229 83 75 / .18)}
+.tk-pop .ch-pop-t small{color:#c0392b}
+.tk-bel{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#c0392b;color:#fff;transform-origin:50% 10%;animation:tkBel 1s ease-in-out 2}
+.tk-bel svg{width:13px!important;height:13px!important;stroke:#fff}
+@keyframes tkBel{0%,100%{transform:rotate(0)}15%{transform:rotate(18deg)}30%{transform:rotate(-16deg)}45%{transform:rotate(12deg)}60%{transform:rotate(-8deg)}75%{transform:rotate(4deg)}}
+.cc-tk.nieuw{border-color:#e5534b;background:#fff5f4;animation:tkKnop 1.8s ease-out infinite}.cc-tk.nieuw svg{color:#c0392b}
+@keyframes tkKnop{0%{box-shadow:0 0 0 0 rgb(229 83 75 / .45)}70%{box-shadow:0 0 0 10px rgb(229 83 75 / 0)}100%{box-shadow:0 0 0 0 rgb(229 83 75 / 0)}}
+#tkFab{animation:tkKnop 1.8s ease-out infinite}
+@media (prefers-reduced-motion:reduce){.tk-bel,.cc-tk.nieuw,#tkFab{animation:none}}

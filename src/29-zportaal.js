@@ -170,18 +170,36 @@ function tkKaart(){if(isMw()){["tkCard","tkFab"].forEach(i=>{const o=document.ge
   if(!fb){fb=document.createElement("button");fb.type="button";fb.id="tkFab";fb.className="ch-fab";fb.dataset.act="tkopen";document.body.appendChild(fb)}
   fb.dataset.id=l[0].id;fb.setAttribute("aria-label",n+" tickets met nieuwe berichten");fb.innerHTML=`${I.ticket}<i>${n}</i>`}
 /* pop-up rechtsboven + geluidje + systeemmelding als het tabblad op de achtergrond staat */
-function tkGeluid(){try{const A=new (window.AudioContext||window.webkitAudioContext)(),t=A.currentTime;[[880,0],[1320,.12]].forEach(([f,d])=>{const o=A.createOscillator(),g=A.createGain();o.type="sine";o.frequency.value=f;g.gain.setValueAtTime(0,t+d);g.gain.linearRampToValueAtTime(.18,t+d+.02);g.gain.exponentialRampToValueAtTime(.001,t+d+.35);o.connect(g).connect(A.destination);o.start(t+d);o.stop(t+d+.4)});setTimeout(()=>A.close(),900)}catch(e){}}
+/* receptiebel ("ting!"): een metalen bel waar je met je hand op tikt. Nagebootst met een paar niet-harmonische boventonen,
+   een korte tik bij de aanslag en een lange uitklink. Eén geluidscontext die bij de eerste klik wordt vrijgegeven
+   (browsers spelen pas geluid af na een klik). Volgt de geluidsknop op het Overzicht. */
+let TKA=null;const tkCtx=()=>{try{if(!TKA){const A=window.AudioContext||window.webkitAudioContext;if(!A)return null;TKA=new A()}if(TKA.state==="suspended")TKA.resume();return TKA}catch(e){return null}};
+if(typeof document!=="undefined")document.addEventListener("pointerdown",function u(){document.removeEventListener("pointerdown",u);tkCtx()},{once:true});
+function tkBel(sterk=1){const A=tkCtx();if(!A)return;const t=A.currentTime+.01,uit=A.createGain(),f0=1580;uit.gain.value=.5*sterk;
+  /* lichte galm: korte vertraging met terugkoppeling */
+  const dl=A.createDelay(),fb=A.createGain(),nat=A.createGain();dl.delayTime.value=.07;fb.gain.value=.22;nat.gain.value=.18;
+  uit.connect(A.destination);uit.connect(dl);dl.connect(fb).connect(dl);dl.connect(nat).connect(A.destination);
+  [[1,.42,2.4],[1.0042,.3,2.4],[2.756,.2,1.1],[5.404,.09,.45],[8.933,.04,.22]].forEach(([r,a,d])=>{const o=A.createOscillator(),g=A.createGain();o.type="sine";o.frequency.value=f0*r;
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(a,t+.004);g.gain.exponentialRampToValueAtTime(.0005,t+d);o.connect(g).connect(uit);o.start(t);o.stop(t+d+.05)});
+  /* de tik van de hand op het knopje */
+  const n=A.createBufferSource(),b=A.createBuffer(1,Math.floor(A.sampleRate*.03),A.sampleRate),c=b.getChannelData(0);for(let i=0;i<c.length;i++)c[i]=(Math.random()*2-1)*Math.pow(1-i/c.length,4);
+  const hp=A.createBiquadFilter(),ng=A.createGain();hp.type="highpass";hp.frequency.value=3000;ng.gain.value=.25;n.buffer=b;n.connect(hp).connect(ng).connect(uit);n.start(t)}
+function tkGeluid(){if(S().ccGeluid===false)return;tkBel()}
+/* tabblad op de achtergrond: knipperende titel tot je terugkomt */
+let tkTitel=null;function tkTitelKnipper(tekst){if(!document.hidden||tkTitel)return;const oud=document.title;let a=false;
+  tkTitel=setInterval(()=>{a=!a;document.title=a?"🛎 "+tekst:oud},1000);
+  document.addEventListener("visibilitychange",function v(){if(document.hidden)return;document.removeEventListener("visibilitychange",v);clearInterval(tkTitel);tkTitel=null;document.title=oud})}
 function tkPopup(t,totaal,nieuw){if(isMw())return;
   let box=document.getElementById("chatPops");if(!box){box=document.createElement("div");box.id="chatPops";box.className="ch-pops";box.setAttribute("aria-live","polite");document.body.appendChild(box)}
   box.querySelectorAll(`[data-kid="${CSS.escape(t.id)}"]`).forEach(x=>x.remove());
-  const el=document.createElement("div");el.className="ch-pop";el.dataset.kid=t.id;el.setAttribute("role","alert");
-  el.innerHTML=`<span class="chx-av" style="--h:${hue(t.klantNaam||"")}">${esc(initials(cleanName(t.klantNaam||"?")))}</span><div class="ch-pop-t"><small>${I.ticket}${totaal?totaal+" tickets wachten op antwoord":nieuw||t.aangemaakt===t.laatst?"Nieuw ticket "+esc(t.nummer||""):"Nieuw bericht · "+esc(t.nummer||"")}</small><b>${esc(cleanName(t.klantNaam||"Klant"))}</b><p><strong>${esc(t.onderwerp||"")}</strong>${t.laatsteTekst&&t.laatsteTekst!==t.onderwerp?" · "+esc(String(t.laatsteTekst).slice(0,120)):""}</p>
+  const el=document.createElement("div");el.className="ch-pop tk-pop"+(nieuw||t.aangemaakt===t.laatst?" nieuw":"");el.dataset.kid=t.id;el.setAttribute("role","alert");
+  el.innerHTML=`<span class="chx-av" style="--h:${hue(t.klantNaam||"")}">${esc(initials(cleanName(t.klantNaam||"?")))}</span><div class="ch-pop-t"><small><span class="tk-bel">${I.bell}</span>${totaal?totaal+" tickets wachten op antwoord":nieuw||t.aangemaakt===t.laatst?"Nieuw ticket "+esc(t.nummer||""):"Nieuw bericht · "+esc(t.nummer||"")}</small><b>${esc(cleanName(t.klantNaam||"Klant"))}</b><p><strong>${esc(t.onderwerp||"")}</strong>${t.laatsteTekst&&t.laatsteTekst!==t.onderwerp?" · "+esc(String(t.laatsteTekst).slice(0,120)):""}</p>
     <div class="ch-pop-k"><button type="button" class="small primary" data-cp="open">${I.send}Bekijken</button><button type="button" class="small ghost" data-cp="x">Later</button></div></div><button type="button" class="iconbtn sm ghost ch-pop-x" data-cp="x" aria-label="Sluiten">${I.x}</button>`;
   const weg=()=>{el.classList.add("weg");setTimeout(()=>el.remove(),250)};
   el.addEventListener("click",e=>{const b=e.target.closest("[data-cp]");if(!b)return;weg();if(b.dataset.cp==="open"){if(tkOpen)tkDetail(t.id);else{if(dlg.open)dlg.close();openTickets(t.id)}}});
   box.prepend(el);while(box.children.length>3)box.lastElementChild.remove();
   setTimeout(()=>{if(el.isConnected&&!el.matches(":hover"))weg()},20000);
-  tkGeluid();
+  tkGeluid();tkTitelKnipper(nieuw||t.aangemaakt===t.laatst?"Nieuw ticket":"Nieuw bericht");try{ccTkVernieuw()}catch(e){}
   try{if(document.hidden&&"Notification" in window&&Notification.permission==="granted"){const n=new Notification((t.nummer||"Ticket")+": "+cleanName(t.klantNaam||"Klant"),{body:(t.onderwerp||"")+(t.laatsteTekst?"\n"+t.laatsteTekst:""),icon:"/logo.png",tag:"tk-"+t.id});n.onclick=()=>{window.focus();openTickets(t.id);n.close()}}}catch(e){}}
 if(LIVE&&"Notification" in window&&Notification.permission==="default")document.addEventListener("click",function q(){document.removeEventListener("click",q);try{Notification.requestPermission()}catch(e){}},{once:true});
 
