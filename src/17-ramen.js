@@ -954,9 +954,10 @@ const ICON={
   g("luchtBtn").addEventListener("click",()=>{const k=klantForm();openLuchtMeten({adres:[k.adres,k.pc,k.plaats].filter(Boolean).join(" "),soorten:edMeet(),maten:lucht,onKlaar:m=>{lucht=m;syncMeet();markStale()}})});
   g("handm").addEventListener("click",()=>{const on=!host.hasAttribute("data-handmatig");setHandm(on);if(on){const c=g("cFloors");if(c)c.scrollIntoView({block:"start",behavior:"smooth"})}});
   /* GPS en kompas van de telefoon bij een nieuwe foto: daarmee kiest de meetlint de gevel en zet hij de hoeken alvast goed */
-  {const lb=root.querySelector(".addph");if(lb)lb.addEventListener("click",()=>{if(typeof fotoSensorAan==="function"&&edMeet().length)fotoSensorAan()})}
   g("ph-in").addEventListener("change",async e=>{const files=[...e.target.files];e.target.value="";
-    for(const f of files){try{const p=await loadPhoto(f);try{const geo=typeof fotoGeo==="function"?await fotoGeo(f):null;if(geo)p.meet={...(p.meet||{maten:[]}),geo}}catch(_){}photos.push(p)}catch(_){}}renderPhotos();markStale();if(files.length===1&&photos.length)openEd(photos.length-1)});
+    for(const f of files){try{const p=await loadPhoto(f);photos.push(p);
+      /* GPS/kompas los van het toevoegen: nooit de foto ophouden */
+      if(typeof fotoGeo==="function"&&edMeet().length)fotoGeo(f).then(geo=>{if(geo)p.meet={...(p.meet||{maten:[]}),geo}}).catch(()=>{})}catch(_){}}renderPhotos();markStale();if(files.length===1&&photos.length)openEd(photos.length-1)});
   /* ramen tellen met AI (zelfde telling als bij de tellingcontrole): de foto's met stippen komen hier binnen en de aantallen gaan naar de telling */
   const aiBtn=g("ph-ai");if(aiBtn)aiBtn.onclick=()=>{if(typeof openFotoTelling!=="function"){toast("AI tellen is hier niet beschikbaar");return}
     const prev=photos.filter(p=>p.ai&&p.rf).map(p=>({...p.rf,dots:p.dots.map(d=>({...d}))}));

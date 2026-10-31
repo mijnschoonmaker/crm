@@ -17,16 +17,18 @@ async function exifGeo(file){try{const buf=await file.slice(0,262144).arrayBuffe
       const la=dms(g[2]),lo=dms(g[4]);if(la&&lo){r.lat=(val(g[1])==="S"?-1:1)*la;r.lng=(val(g[3])==="W"?-1:1)*lo}
       if(g[0x11]){const d=rat(g[0x11]);if(isFinite(d))r.dir=d}}
     if(r.lat==null&&r.dir==null)return r.f35?{f35:r.f35}:null;return{...r,bron:"exif"}}}
-/* sensoren: aanzetten bij een tik op "Foto toevoegen" (iOS vraagt dan om toestemming), de laatste meting bewaren */
+/* sensoren: NIET bij de tik op "Foto toevoegen" (een toestemmingsvraag op dat moment houdt op iPhone het fotokiezen tegen).
+   Pas na het toevoegen: één keer de GPS opvragen en het kompas meelezen als dat zonder vraag mag (Android, of eerder toegestaan). */
 const FS={pos:null,dir:null,pitch:null,t:0,aan:false};
 function fotoSensorAan(){FS.t=Date.now();if(FS.aan)return;FS.aan=true;
   try{if(navigator.geolocation)navigator.geolocation.watchPosition(p=>{FS.pos={lat:p.coords.latitude,lng:p.coords.longitude,acc:p.coords.accuracy,t:Date.now()}},()=>{},{enableHighAccuracy:true,maximumAge:5000,timeout:20000})}catch(e){}
   const op=e=>{let d=null;if(typeof e.webkitCompassHeading==="number")d=e.webkitCompassHeading;else if(e.absolute&&typeof e.alpha==="number")d=(360-e.alpha)%360;
     if(d!=null){FS.dir=d;FS.pitch=typeof e.beta==="number"?e.beta-90:null;FS.dt=Date.now()}};
-  try{const D=window.DeviceOrientationEvent;if(D&&typeof D.requestPermission==="function")D.requestPermission().then(s=>{if(s==="granted")addEventListener("deviceorientation",op)}).catch(()=>{});
-    else{addEventListener("deviceorientationabsolute",op);addEventListener("deviceorientation",op)}}catch(e){}}
+  try{addEventListener("deviceorientationabsolute",op);addEventListener("deviceorientation",op)}catch(e){}}
 function fotoSensorLaatst(){if(!FS.aan||Date.now()-FS.t>180000)return null;const p=FS.pos&&Date.now()-FS.pos.t<120000?FS.pos:null;if(!p&&FS.dir==null)return null;
   return{...(p?{lat:p.lat,lng:p.lng,acc:Math.round(p.acc)}:{}),...(FS.dir!=null?{dir:Math.round(FS.dir),...(FS.pitch!=null?{pitch:Math.round(FS.pitch)}:{})}:{}),bron:"telefoon"}}
-async function fotoGeo(file){const ex=await exifGeo(file),se=fotoSensorLaatst();if(!ex&&!se)return null;
+async function fotoGeo(file){const ex=await exifGeo(file);
+  if(!(ex&&ex.lat!=null)){fotoSensorAan();await new Promise(ok=>{let k=0;const t=setInterval(()=>{if(FS.pos||++k>16){clearInterval(t);ok()}},250)})}
+  const se=fotoSensorLaatst();if(!ex&&!se)return null;
   const r={...(se||{}),...(ex||{})};if(ex&&ex.lat==null&&se&&se.lat!=null){r.lat=se.lat;r.lng=se.lng;r.acc=se.acc}if(ex&&ex.dir==null&&se&&se.dir!=null){r.dir=se.dir;if(se.pitch!=null)r.pitch=se.pitch}
   r.bron=ex&&ex.lat!=null?"exif":"telefoon";return r.lat!=null||r.dir!=null?r:null}

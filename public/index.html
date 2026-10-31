@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="f9dfc8e8213c"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="9c2fc0e80532"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -11480,9 +11480,10 @@ const ICON={
   g("luchtBtn").addEventListener("click",()=>{const k=klantForm();openLuchtMeten({adres:[k.adres,k.pc,k.plaats].filter(Boolean).join(" "),soorten:edMeet(),maten:lucht,onKlaar:m=>{lucht=m;syncMeet();markStale()}})});
   g("handm").addEventListener("click",()=>{const on=!host.hasAttribute("data-handmatig");setHandm(on);if(on){const c=g("cFloors");if(c)c.scrollIntoView({block:"start",behavior:"smooth"})}});
   /* GPS en kompas van de telefoon bij een nieuwe foto: daarmee kiest de meetlint de gevel en zet hij de hoeken alvast goed */
-  {const lb=root.querySelector(".addph");if(lb)lb.addEventListener("click",()=>{if(typeof fotoSensorAan==="function"&&edMeet().length)fotoSensorAan()})}
   g("ph-in").addEventListener("change",async e=>{const files=[...e.target.files];e.target.value="";
-    for(const f of files){try{const p=await loadPhoto(f);try{const geo=typeof fotoGeo==="function"?await fotoGeo(f):null;if(geo)p.meet={...(p.meet||{maten:[]}),geo}}catch(_){}photos.push(p)}catch(_){}}renderPhotos();markStale();if(files.length===1&&photos.length)openEd(photos.length-1)});
+    for(const f of files){try{const p=await loadPhoto(f);photos.push(p);
+      /* GPS/kompas los van het toevoegen: nooit de foto ophouden */
+      if(typeof fotoGeo==="function"&&edMeet().length)fotoGeo(f).then(geo=>{if(geo)p.meet={...(p.meet||{maten:[]}),geo}}).catch(()=>{})}catch(_){}}renderPhotos();markStale();if(files.length===1&&photos.length)openEd(photos.length-1)});
   /* ramen tellen met AI (zelfde telling als bij de tellingcontrole): de foto's met stippen komen hier binnen en de aantallen gaan naar de telling */
   const aiBtn=g("ph-ai");if(aiBtn)aiBtn.onclick=()=>{if(typeof openFotoTelling!=="function"){toast("AI tellen is hier niet beschikbaar");return}
     const prev=photos.filter(p=>p.ai&&p.rf).map(p=>({...p.rf,dots:p.dots.map(d=>({...d}))}));
@@ -16976,17 +16977,19 @@ async function exifGeo(file){try{const buf=await file.slice(0,262144).arrayBuffe
       const la=dms(g[2]),lo=dms(g[4]);if(la&&lo){r.lat=(val(g[1])==="S"?-1:1)*la;r.lng=(val(g[3])==="W"?-1:1)*lo}
       if(g[0x11]){const d=rat(g[0x11]);if(isFinite(d))r.dir=d}}
     if(r.lat==null&&r.dir==null)return r.f35?{f35:r.f35}:null;return{...r,bron:"exif"}}}
-/* sensoren: aanzetten bij een tik op "Foto toevoegen" (iOS vraagt dan om toestemming), de laatste meting bewaren */
+/* sensoren: NIET bij de tik op "Foto toevoegen" (een toestemmingsvraag op dat moment houdt op iPhone het fotokiezen tegen).
+   Pas na het toevoegen: één keer de GPS opvragen en het kompas meelezen als dat zonder vraag mag (Android, of eerder toegestaan). */
 const FS={pos:null,dir:null,pitch:null,t:0,aan:false};
 function fotoSensorAan(){FS.t=Date.now();if(FS.aan)return;FS.aan=true;
   try{if(navigator.geolocation)navigator.geolocation.watchPosition(p=>{FS.pos={lat:p.coords.latitude,lng:p.coords.longitude,acc:p.coords.accuracy,t:Date.now()}},()=>{},{enableHighAccuracy:true,maximumAge:5000,timeout:20000})}catch(e){}
   const op=e=>{let d=null;if(typeof e.webkitCompassHeading==="number")d=e.webkitCompassHeading;else if(e.absolute&&typeof e.alpha==="number")d=(360-e.alpha)%360;
     if(d!=null){FS.dir=d;FS.pitch=typeof e.beta==="number"?e.beta-90:null;FS.dt=Date.now()}};
-  try{const D=window.DeviceOrientationEvent;if(D&&typeof D.requestPermission==="function")D.requestPermission().then(s=>{if(s==="granted")addEventListener("deviceorientation",op)}).catch(()=>{});
-    else{addEventListener("deviceorientationabsolute",op);addEventListener("deviceorientation",op)}}catch(e){}}
+  try{addEventListener("deviceorientationabsolute",op);addEventListener("deviceorientation",op)}catch(e){}}
 function fotoSensorLaatst(){if(!FS.aan||Date.now()-FS.t>180000)return null;const p=FS.pos&&Date.now()-FS.pos.t<120000?FS.pos:null;if(!p&&FS.dir==null)return null;
   return{...(p?{lat:p.lat,lng:p.lng,acc:Math.round(p.acc)}:{}),...(FS.dir!=null?{dir:Math.round(FS.dir),...(FS.pitch!=null?{pitch:Math.round(FS.pitch)}:{})}:{}),bron:"telefoon"}}
-async function fotoGeo(file){const ex=await exifGeo(file),se=fotoSensorLaatst();if(!ex&&!se)return null;
+async function fotoGeo(file){const ex=await exifGeo(file);
+  if(!(ex&&ex.lat!=null)){fotoSensorAan();await new Promise(ok=>{let k=0;const t=setInterval(()=>{if(FS.pos||++k>16){clearInterval(t);ok()}},250)})}
+  const se=fotoSensorLaatst();if(!ex&&!se)return null;
   const r={...(se||{}),...(ex||{})};if(ex&&ex.lat==null&&se&&se.lat!=null){r.lat=se.lat;r.lng=se.lng;r.acc=se.acc}if(ex&&ex.dir==null&&se&&se.dir!=null){r.dir=se.dir;if(se.pitch!=null)r.pitch=se.pitch}
   r.bron=ex&&ex.lat!=null?"exif":"telefoon";return r.lat!=null||r.dir!=null?r:null}
 
