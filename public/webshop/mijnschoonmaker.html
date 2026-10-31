@@ -352,6 +352,15 @@ html{overflow-x:clip}
 .ov-add svg{width:22px;height:22px}
 .ov-list{margin-top:14px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
 .ov-row{display:flex;align-items:center;gap:12px;padding:11px 14px;border-top:1px solid var(--line);font-size:15px}
+.x3{margin-top:14px;border:1px solid var(--line);border-radius:14px;padding:14px}
+.x3-h{display:flex;gap:10px;align-items:flex-start}.x3-h svg{width:20px;height:20px;flex:none;color:#0e7490;background:#e0f2fe;border-radius:8px;padding:6px;box-sizing:content-box}
+.x3-h b{display:block;font-size:15px}.x3-h small{display:block;font-size:12.5px;opacity:.7;margin-top:2px}
+.x3-l{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.x3-l label{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;cursor:pointer;font-size:14px}
+.x3-l label:has(input:checked){border-color:#0e7490;background:rgb(14 116 144 / .07)}
+.x3-l input{width:18px;height:18px;accent-color:#0e7490;flex:none}.x3-l span{flex:1;min-width:0}.x3-l em{display:block;font-style:normal;font-size:12px;opacity:.65}.x3-l b{font-variant-numeric:tabular-nums;white-space:nowrap}
+.x3-t{display:flex;justify-content:space-between;margin-top:10px;font-size:14px;font-weight:700}
+.x3 p{margin:8px 0 0;font-size:12px;opacity:.65}
 .ov-row:first-child{border-top:0}
 .ov-row .c{width:24px;height:24px;border-radius:50%;color:#fff;font:700 9.5px var(--body);display:grid;place-items:center;flex:none}
 .ov-row span{flex:1}
@@ -1315,7 +1324,7 @@ html body:not(#zz) .ref-weg{flex:none;border:0;background:none;color:#0d121b;fon
 /*CFG-START*/
 const BEDRIJF={"naam":"mijnschoonmaker.com","email":"robin@mijnschoonmaker.com","whatsapp":"31618060606","logo":"https://app.mansard.nl/_blob/c7347df47a651a9cf0934d8f7c429a10","endpoint":"https://app.mansard.nl/api/aanvraag","werkgebied":"","gebieden":[],"klantPc":"2280,9202,9204,9231,9249,9301,9304,9343,9351,9354,9355,9356,9361,9362,9363,9364,9365,9366,9367,9479,9728,9751,9752,9765,9766,9801,9821,9822,9824,9825,9843,9844,9861,9862,9863,9865,9866","voorwaarden":""};
 const VAT=0.21;
-const cfg={"g0_p":1.64,"g1_p":1.71,"g2_p":2.06,"g3_p":2.86,"tuimel_p":1.83,"lood_p":1.64,"koepel_p":2,"mini_p":0.5,"start":0,"min":56.2,"tiers":[[10,10],[20,20],[30,30],[40,40]],"tb":{"koepel":[[5,10]],"g3":[[10,10],[20,20],[30,30],[40,40]],"lood":[[10,10],[20,20],[30,30],[40,40]],"mini":[[10,10],[20,20],[30,30],[200,60]],"g2":[[10,10],[20,20],[30,30],[40,40]],"g0":[[10,10],[20,20],[30,30],[40,40]],"tuimel":[[2,20],[5,40],[10,50]],"g1":[[10,10],[20,20],[30,30],[40,40]]},"wg":{"tuimel":100,"g2":100,"g0":100,"lood":100,"g3":100,"mini":100,"koepel":100,"g1":100},"fp":{"w1":0,"w2":0,"w4":10,"mnd":0,"w6":0,"m8":0,"mnd2":0,"w12":-150,"mnd3":-150,"w16":0,"mnd4":0,"w24":0,"mnd6":0,"w48":0,"mnd12":0,"afroep":-25,"once":-25}};
+const cfg={"g0_p":1.7,"g1_p":1.73,"g2_p":2.09,"g3_p":3,"tuimel_p":1.83,"lood_p":1.64,"koepel_p":2,"mini_p":0.43,"start":0,"min":56.2,"tiers":[[10,10],[20,20],[30,30],[40,40]],"tb":{"g2":[[10,10],[20,20]],"koepel":[[5,10]],"g1":[[10,10],[20,20],[30,30]],"g0":[[10,10],[20,20],[30,30],[40,40]],"g3":[[10,10],[20,20]],"mini":[[10,10],[20,20],[30,30],[200,50],[40,40]],"tuimel":[[2,20],[5,40],[10,50]],"lood":[[10,10],[20,20],[30,30],[40,40]]},"wg":{"mini":100,"koepel":100,"g2":100,"g0":100,"lood":100,"g1":100,"g3":100,"tuimel":100},"fp":{"w1":0,"w2":0,"w4":10,"mnd":0,"w6":0,"m8":5,"mnd2":0,"w12":-150,"mnd3":-150,"w16":0,"mnd4":0,"w24":0,"mnd6":0,"w48":0,"mnd12":0,"afroep":-25,"once":-25}};
 const FREQ_LIST=[["m8","1x per 8 weken",6.5,5,8]];
 const FREQ_ADV="m8";
 /*CFG-END*/
@@ -1444,10 +1453,27 @@ function compute(){const fk=g("freq").value,f0=FREQ[fk]||FREQ.m8,f={...f0,pct:cf
   floors.forEach((n,i)=>{if(!n)return;const k=winKey(i);fRows.push({n:floorName(i),c:n,price:n*cfg[k+"_p"]*(1-(FD[k]||0))})});
   SPECIAL.forEach(s=>{const n=special[s.k];if(n)sRows.push({n:s.n,c:n,price:n*cfg[s.k+"_p"]*(1-(SD[s.k]||0))})});
   const all=[...fRows,...sRows],count=all.reduce((a,r)=>a+r.c,0),normal=fRows.reduce((a,r)=>a+r.price,0),freqAdj=-normal*f.pct/100;
-  const glas=normal+freqAdj+sRows.reduce((a,r)=>a+r.price,0);let glasEx=glas,minGlas=false;if(glasEx<cfg.min){minGlas=true;glasEx=cfg.min}
+  /* glasbewassing en bijzondere ramen staan los van elkaar: de minimumprijs geldt voor de gewone glasbewassing (verdiepingen);
+       alleen bijzondere ramen zonder gewone ramen krijgen zelf de minimumprijs */
+    const spSom=sRows.reduce((a,r)=>a+r.price,0),glasN=normal+freqAdj,glas=glasN+spSom;let glasEx=glas,minGlas=false,minOp="";
+    if(fRows.length&&glasN<cfg.min){minGlas=true;minOp="f";glasEx=cfg.min+spSom}else if(!fRows.length&&sRows.length&&spSom<cfg.min){minGlas=true;minOp="s";glasEx=cfg.min}
   const ex=glasEx+cfg.start,vat=ex*VAT,inc=ex+vat;
-  return {f,fRows,sRows,all,count,normal,freqAdj,glas,glasEx,minGlas,ex,vat,inc,avgD}}
+  return {f,fRows,sRows,all,count,normal,freqAdj,glas,glasN,spSom,minOp,glasEx,minGlas,ex,vat,inc,avgD}}
 let last=null;
+/* ---------- extra diensten met maten uit het 3D-model van de woning (laserscan van Nederland, 3D BAG) ---------- */
+let H3W=null,X3={};
+const X3_IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 3 8v8l9 5 9-5V8z"/><path d="m3 8 9 5 9-5M12 13v8"/></svg>';
+function x3Waarde(b){const d=H3W;if(!d)return 0;if(b==="gevel")return d.gevel||0;if(b==="dak")return d.dakopp||0;if(b==="rand")return(d.goot||0)+(d.plat||0);return d[b]||0}
+function x3Lijst(){return(BEDRIJF.extra||[]).map(x=>{const v=Math.round(x3Waarde(x.bron)*10)/10;return{...x,v,ex:Math.round(v*(Number(x.prijs)||0)*100)/100}}).filter(x=>x.v>0&&x.ex>0)}
+function x3Gekozen(){return x3Lijst().filter(x=>X3[x.id])}
+function x3Laad(a){H3W=null;X3={};if(!BEDRIJF.h3||!(BEDRIJF.extra||[]).length||!a||!a.rd)return;const m=/POINT\(([-\d.]+) ([-\d.]+)\)/,rd=m.exec(a.rd),ll=m.exec(a.ll||"");if(!rd)return;
+  fetch(BEDRIJF.h3+(BEDRIJF.h3.includes("?")?"&":"?")+"x="+rd[1]+"&y="+rd[2]+(ll?"&lng="+ll[1]+"&lat="+ll[2]:"")).then(r=>r.ok?r.json():null).then(d=>{H3W=d&&!d.fout?d:null;if(shown)calculate(false)}).catch(()=>{})}
+function x3Html(){const L=x3Lijst();if(!L.length)return"";const zak=SOORT==="zakelijk",pr=v=>eur(zak?v:v*(1+VAT)),G=x3Gekozen(),som=G.reduce((a,x)=>a+x.ex,0);
+  return `<div class="x3"><div class="x3-h">${X3_IC}<div><b>Ook laten doen?</b><small>Gemeten met het 3D-model van uw woning${H3W&&H3W.meetjaar?" (laserscan "+esc(String(H3W.meetjaar).slice(0,4))+")":""}. U hoeft niets op te meten.</small></div></div>
+    <div class="x3-l">${L.map(x=>`<label><input type="checkbox" data-x3="${esc(x.id)}"${X3[x.id]?" checked":""}><span>${esc(x.naam)}<em>${String(x.v).replace(".",",")} ${x.eenheid==="m2"?"m²":"m"} · ${pr(x.prijs)} per ${x.eenheid==="m2"?"m²":"meter"}</em></span><b>${pr(x.ex)}</b></label>`).join("")}</div>
+    ${G.length?`<div class="x3-t"><span>Extra, los van de glasbewassing</span><span>${pr(som)} ${zak?"excl.":"incl."} btw</span></div>`:""}
+    <p>Prijsindicatie per keer. Wij controleren de maten bij de eerste beurt.</p></div>`}
+document.addEventListener("change",e=>{const c=e.target.closest&&e.target.closest("[data-x3]");if(!c)return;if(c.checked)X3[c.dataset.x3]=1;else delete X3[c.dataset.x3];calculate(false)});
 function calculate(scroll){const R=compute(),{f,fRows,sRows,all,count,normal,freqAdj,glas,minGlas,ex,vat,inc,avgD}=R,out=g("out");shown=true;
   if(!all.length){out.innerHTML='<div class="empty"><span>Vul minstens één raam in, of tik de ramen aan op een foto.</span></div>';last=null;return}
   const x=v=>v*(1+VAT);
@@ -1456,7 +1482,7 @@ function calculate(scroll){const R=compute(),{f,fRows,sRows,all,count,normal,fre
   const korting=avgD>0||f.pct>0;
   out.innerHTML=`<div class="rc"><div class="eyebrow">Uw prijs</div>
       <div class="ov-list">${all.map(r=>`<div class="ov-row"><span>${r.n}</span><b>${r.c}</b></div>`).join("")}<div class="ov-row tot"><span>Totaal</span><b>${count===1?"1 raam":count+" ramen"}</b></div></div>
-      <div class="ref-slot"></div><div class="ov-price"><div class="op-l"><small>Uw prijs per beurt</small><b>${eur(SOORT==="zakelijk"?ex:inc)}</b>${refPrijsRegel()}<small>${elkeTxt(f)} · ${SOORT==="zakelijk"?"excl. btw":"incl. btw"} en kozijnen</small><small class="op-live">Met klantportaal: op de dag zelf ziet u ons live op de kaart zodra er nog 2 adressen of minder vóór u zijn.</small></div><button type="button" class="go2" id="toForm">Gegevens invullen</button></div></div>`;
+      ${x3Html()}<div class="ref-slot"></div><div class="ov-price"><div class="op-l"><small>Uw prijs per beurt</small><b>${eur(SOORT==="zakelijk"?ex:inc)}</b>${refPrijsRegel()}<small>${elkeTxt(f)} · ${SOORT==="zakelijk"?"excl. btw":"incl. btw"} en kozijnen</small><small class="op-live">Met klantportaal: op de dag zelf ziet u ons live op de kaart zodra er nog 2 adressen of minder vóór u zijn.</small></div><button type="button" class="go2" id="toForm">Gegevens invullen</button></div></div>`;
   g("toForm").onclick=()=>{openStep(5);setTimeout(()=>g("k-naam").focus({preventScroll:true}),400)};
   out.querySelectorAll("[data-adj]").forEach(b=>b.onclick=()=>{const n=+b.dataset.adj;if(n===1){openStep(1,false);g("ph-in").click()}else openStep(n)});
   last=R;refTeken();
@@ -1519,7 +1545,7 @@ function check(){if(!last){say("Tel eerst de ramen en bereken uw prijs.","bad");
 function tekst(){const R=last,v=id=>g(id).value.trim(),pl=[v("k-pc"),v("k-plaats")].filter(Boolean).join(" ");
   return ["Offerte-aanvraag glasbewassing","",SOORT==="zakelijk"?`Bedrijf / VvE: ${v("k-bedrijf")}`:"",`Naam: ${v("k-naam")}`,`Adres: ${v("k-adres")}${pl?", "+pl:""}`,v("k-email")?`E-mail: ${v("k-email")}`:"",v("k-tel")?`Telefoon: ${v("k-tel")}`:"","",
     `Frequentie: ${R.f.l}`,...R.all.map(r=>`${r.n}: ${r.c}`),`Totaal: ${R.count} ramen`,photos.length?`Foto’s: ${photos.length} (met aangetikte ramen)`:"","",
-    `Prijsindicatie per beurt: ${eur(R.inc)} incl. btw (${eur(R.ex)} excl.)`,v("k-opm")?"\nOpmerking: "+v("k-opm"):"","","Aanvraagcode voor "+BEDRIJF.naam+" (niet wijzigen):","ZEEM1:"+aanvraagCode()].filter((l,i,a)=>l!==""||(i>0&&a[i-1]!=="")).join("\n").trim()}
+    `Prijsindicatie per beurt: ${eur(R.inc)} incl. btw (${eur(R.ex)} excl.)`,...(x3Gekozen().length?["","Ook graag (maten uit het 3D-model):",...x3Gekozen().map(x=>`- ${x.naam}: ${String(x.v).replace(".",",")} ${x.eenheid==="m2"?"m²":"m"} · ${eur(x.ex*(1+VAT))} incl. btw`)]:[]),v("k-opm")?"\nOpmerking: "+v("k-opm"):"","","Aanvraagcode voor "+BEDRIJF.naam+" (niet wijzigen):","ZEEM1:"+aanvraagCode()].filter((l,i,a)=>l!==""||(i>0&&a[i-1]!=="")).join("\n").trim()}
 function fotoFiles(){return Promise.all(photos.map((p,i)=>new Promise(res=>{const c=document.createElement("canvas");c.width=p.cv.width;c.height=p.cv.height;const x=c.getContext("2d");x.drawImage(p.cv,0,0);const R=Math.max(7,Math.round(c.width/140));
   p.dots.forEach(d=>{const m=dt(d.t);x.beginPath();x.arc(d.x*c.width,d.y*c.height,R,0,7);x.fillStyle=m.col;x.fill();x.lineWidth=R/4;x.strokeStyle="#fff";x.stroke();x.fillStyle="#fff";x.font=`800 ${Math.round(R*.85)}px Manrope,system-ui`;x.textAlign="center";x.textBaseline="middle";x.fillText(m.c,d.x*c.width,d.y*c.height+1)});
   c.toBlob(b=>res(new File([b],`woning-foto-${i+1}.jpg`,{type:"image/jpeg"})),"image/jpeg",.85)})))}
@@ -1576,6 +1602,7 @@ function aanvraagData(){const R=last,v=id=>g(id).value.trim();
     soort:SOORT,klant:{bedrijf:SOORT==="zakelijk"?v("k-bedrijf"):"",naam:v("k-naam"),adres:v("k-adres"),postcode:v("k-pc"),plaats:v("k-plaats"),email:v("k-email"),telefoon:v("k-tel"),opmerking:v("k-opm")},
     telling:{floors:floors.slice(),special:{...special},freq:g("freq").value,ramen:R.count},
     prijs:{excl:Math.round(R.ex*100)/100,incl:Math.round(R.inc*100)/100},
+    ...(x3Gekozen().length?{extra:x3Gekozen().map(x=>({id:x.id,naam:x.naam,aantal:x.v,eenheid:x.eenheid,excl:x.ex,bron:"3d"}))}:{}),
     fotos:photos.map((p,i)=>({naam:`woning-foto-${i+1}.jpg`,breedte:p.cv.width,hoogte:p.cv.height,dots:p.dots.map(d=>({x:Math.round(d.x*1e4)/1e4,y:Math.round(d.y*1e4)/1e4,t:d.t,...(d.s&&d.s!==1?{s:d.s}:{})}))}))}}
 function knopKlaar(b,t){b.disabled=true;b.dataset.klaar="1";b.classList.add("klaar");b.textContent=t||"Verstuurd ✓"}
 const bezig=b=>b.disabled||b.dataset.klaar==="1";
@@ -1646,13 +1673,13 @@ async function zoekAdres(q){const n=++sugN;
   catch(e){if(n!==sugN)return;handAdres=true;sugList=[];toonSug();
     msg("info",IC_PIN,"Adres zoeken lukt nu niet. Typ uw postcode en huisnummer, bijvoorbeeld <b>9861 AB 10</b>, en druk op Enter.")}}
 function msg(c,ic,html){g("adrMsg").innerHTML=c?`<div class="wz-msg ${c}">${ic}<span>${html}</span></div>`:""}
-function zetAdres(a){ADR=a;const ok=inWerkgebied(a.postcode,a.ll);g("goStart").hidden=!ok;
+function zetAdres(a){ADR=a;const ok=inWerkgebied(a.postcode,a.ll);if(ok)x3Laad(a);g("goStart").hidden=!ok;
   ["k-adres","k-pc","k-plaats"].forEach((id,i)=>{const el=g(id);if(el)el.value=[a.adres,a.postcode,a.plaats][i]||""});
   if(ok)msg("ok",IC_OK2,`<b>${esc(a.adres)}${a.plaats?", "+esc(a.plaats):""}</b> ligt binnen ons werkgebied.`);
   else msg("no",IC_NO,`Helaas, <b>${esc(a.postcode)}${a.plaats?" "+esc(a.plaats):""}</b> ligt buiten ons werkgebied.${BEDRIJF.email?` Twijfelt u? <a href="mailto:${esc(BEDRIJF.email)}">Mail ons</a>.`:""}`)}
 async function kiesSug(i){const d=sugList[i];if(!d)return;g("adrQ").value=d.weergavenaam;sugList=[];toonSug();
   try{const r=await fetch(PDOK+"lookup?id="+encodeURIComponent(d.id));const j=await r.json();const x=j.response.docs[0];
-    zetAdres({adres:[x.straatnaam,[x.huis_nlt||x.huisnummer,x.huisletter&&!x.huis_nlt?x.huisletter:""].join("")].filter(Boolean).join(" ").trim(),postcode:x.postcode?x.postcode.slice(0,4)+" "+x.postcode.slice(4):"",plaats:x.woonplaatsnaam||"",ll:x.centroide_ll||""})}
+    zetAdres({adres:[x.straatnaam,[x.huis_nlt||x.huisnummer,x.huisletter&&!x.huis_nlt?x.huisletter:""].join("")].filter(Boolean).join(" ").trim(),postcode:x.postcode?x.postcode.slice(0,4)+" "+x.postcode.slice(4):"",plaats:x.woonplaatsnaam||"",ll:x.centroide_ll||"",rd:x.centroide_rd||""})}
   catch(e){const pc=(d.weergavenaam.match(/\b(\d{4}\s?[A-Z]{2})\b/)||[])[1]||"";zetAdres({adres:d.weergavenaam.split(",")[0],postcode:pc,plaats:(d.weergavenaam.split(",")[1]||"").replace(/\d{4}\s?[A-Z]{2}/,"").trim()})}}
 g("adrQ").addEventListener("input",e=>{const q=e.target.value.trim();g("goStart").hidden=true;ADR=null;msg();clearTimeout(sugT);
   if(handAdres||q.length<3){sugList=[];toonSug();return}sugT=setTimeout(()=>zoekAdres(q),220)});
