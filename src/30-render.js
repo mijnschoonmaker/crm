@@ -281,7 +281,7 @@ function startDg(x,y){if(!dg)return;dg.on=true;const r=vpR(dg.j),inf=dgInfo(dg.i
   const tile=dg.j.querySelector(".kc-tile");
   const g=document.createElement("div");g.className="dg-ghost dg-card";
   let tl=I.cal2;if(tile){const m=tile.querySelector(".kc-m"),bb=tile.querySelector("b"),KL={ok:"#3c9a6a",attn:"#c2a227",warn:"#e28c1c",soon:"#e28c1c",crit:"#e2571f",late:"#cc2f2f",nieuw:"#137a8a",plan:"#2e9a6b",gemist:"#cc2f2f"},kc=[...dg.j.classList].map(c=>c.replace(/^kx-/,"")).find(c=>KL[c]);tl=`<span class="dg-t"><i style="background:${KL[kc]||"var(--brand)"}">${esc(m?m.textContent:"")}</i><b>${bb?bb.innerHTML:""}</b></span>`}
-  g.innerHTML=`<span class="dg-tile${tile?" t":""}">${tl}</span><span class="dg-tx"><b>${esc(inf.adr||"Afspraak")}</b><small>${inf.plaats?esc(inf.plaats)+" · ":""}${inf.du} min${inf.prijs?" · "+eur0(toon(inf.prijs)):""}</small></span>`;
+  g.innerHTML=`<span class="dg-tile${tile?" t":""}">${tl}</span><span class="dg-tx"><b>${esc(inf.adr||"Afspraak")}</b><small>${inf.plaats?esc(inf.plaats)+" · ":""}${inf.du} min${inf.prijs?" · "+eur0(toonK(inf.k,inf.prijs)):""}</small></span>`;
   document.body.appendChild(g);
   dg.dx=Math.min(x-r.left,40);dg.dy=Math.min(y-r.top,28);dg.g=g;dg.cx=r.left;dg.cy=r.top;dg.tx=x-dg.dx;dg.ty=y-dg.dy;dg.vx=0;
   g.style.transform=`translate3d(${r.left}px,${r.top}px,0) scale(.96)`;requestAnimationFrame(()=>g.classList.add("op"));

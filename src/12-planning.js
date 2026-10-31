@@ -41,7 +41,7 @@ function dayItems(d){
   const proj=[];if(state.pview!=="dag"){actief().filter(k=>!(k.reeks||[]).length).forEach(k=>occurrences(k,parse(d),parse(d)).forEach(o=>{if(!o.real)proj.push({k,st:"verwacht"})}))}
   return{js:js.filter(x=>showState(x.st)),done:done.filter(x=>showState("afgerond")),proj:state.pstat==="alle"?proj:[]};
 }
-function daySum(d){const it=dayItems(d);return{n:it.js.length+it.done.length,sum:it.js.reduce((a,x)=>a+prijsMee(x.k,d),0)+it.done.reduce((a,x)=>a+beurtBedrag(x.b),0),min:it.js.reduce((a,x)=>a+duur(x.k),0)+it.done.reduce((a,x)=>a+duur(x.k),0)}}
+function daySum(d){const it=dayItems(d);return{n:it.js.length+it.done.length,sum:it.js.reduce((a,x)=>a+prijsMee(x.k,d),0)+it.done.reduce((a,x)=>a+beurtBedrag(x.b),0),tsum:it.js.reduce((a,x)=>a+toonK(x.k,prijsMee(x.k,d)),0)+it.done.reduce((a,x)=>a+toonB(x.b),0),min:it.js.reduce((a,x)=>a+duur(x.k),0)+it.done.reduce((a,x)=>a+duur(x.k),0)}}
 function tjob(x,top,height,left,width){
   if(x.r)return tjobReeks(x,top,height,left,width);
   const k=x.k,a=jobAddrObj(k),sp=STATEPILL[x.st]||["neutral","Verwacht"],dim=pqMatch(k)?"":" faded";
@@ -49,7 +49,7 @@ function tjob(x,top,height,left,width){
   const act=x.b?`data-act="beurtinfo" data-id="${esc(x.b.id)}"`:`data-act="job" data-id="${esc(k.id)}"`;
   const tijd=x.b?x.b.tijd||k.tijd||"":k.tijd||"";
   return `<div class="tjob st-${x.st}${dim}${cmp}${state.flash&&!x.b&&state.flash===k.id?" just-in":""}${state.pselMode&&!x.b&&state.psel.has(k.id)?" psel":""}${state.pselMode&&!x.b?" pselable":""}" ${act} data-d="${esc(x.b?x.b.datum:k.gepland)}" ${x.st!=="afgerond"?`data-drag="${esc(k.id)}"`:x.b?`data-drag="b:${esc(x.b.id)}"`:""} draggable="${x.st!=="afgerond"}" style="top:${top}px;height:${height}px;left:${left}%;width:${width}%;--h:${hue(k.ronde||k.naam)}" title="${esc(cleanName(k.naam))}">
-    <div class="tj-kop">${tijd?`<small>${esc(tijd)}${(()=>{const m=toMin(tijd),du=x.b?Number(x.b.duur)||duur(k):duur(k);return m!=null&&du?" – "+fromMin(m+Math.round(du)):""})()}</small>`:""}<button type="button" class="tj-nm" ${act} data-d="${esc(x.b?x.b.datum:k.gepland)}">${esc(a.adres||cleanName(k.naam))}${a.plaats?", "+esc(a.plaats):""}</button>${(()=>{const n=typeof jobFotos==="function"?jobFotos(k).length:0;return n?`<button type="button" class="tj-foto" data-tjf="${esc(k.id)}" title="${n} foto${n>1?"'s":""} bij deze opdracht" aria-label="Foto's bekijken">${I.camera}<b>${n}</b></button>`:""})()}${x.st==="bezig"?'<i class="tj-live"></i>':""}${cmp===" compact"?dienstenHtml(k,x.b?x.b.datum:k.gepland):""}<span class="tj-amt">${eur(toon(x.b?beurtBedrag(x.b):prijsMee(k)))}</span></div>
+    <div class="tj-kop">${tijd?`<small>${esc(tijd)}${(()=>{const m=toMin(tijd),du=x.b?Number(x.b.duur)||duur(k):duur(k);return m!=null&&du?" – "+fromMin(m+Math.round(du)):""})()}</small>`:""}<button type="button" class="tj-nm" ${act} data-d="${esc(x.b?x.b.datum:k.gepland)}">${esc(a.adres||cleanName(k.naam))}${a.plaats?", "+esc(a.plaats):""}</button>${(()=>{const n=typeof jobFotos==="function"?jobFotos(k).length:0;return n?`<button type="button" class="tj-foto" data-tjf="${esc(k.id)}" title="${n} foto${n>1?"'s":""} bij deze opdracht" aria-label="Foto's bekijken">${I.camera}<b>${n}</b></button>`:""})()}${x.st==="bezig"?'<i class="tj-live"></i>':""}${cmp===" compact"?dienstenHtml(k,x.b?x.b.datum:k.gepland):""}<span class="tj-amt">${eur((x.b?toonB(x.b):toonK(k,prijsMee(k))))}</span></div>
     <div class="tj-bot"><span class="tj-wie">${esc(cleanName(k.naam))}</span>${dienstenHtml(k,x.b?x.b.datum:k.gepland)}${x.st==="afgerond"?"":tjMailHtml(k)}${x.st==="afgerond"?`<span class="tj-ok done">${I.check}</span>`:`<button type="button" class="tj-ok" data-act="was" data-id="${esc(k.id)}" aria-label="${esc(cleanName(k.naam))} afgerond">${I.check}</button>`}</div></div>`;
 }
 function dayHead(d,showWk){
@@ -58,7 +58,7 @@ function dayHead(d,showWk){
   return `<button type="button" class="tg-dh${isT?" today":""}${off?" off":""}${showWk?" solo":""}" title="${esc(fd||(off?"Geen werkdag":""))}" data-act="pickday" data-d="${d}">
     <span class="dh-w">${isT?"Vandaag · ":""}${dd.toLocaleDateString("nl-NL",{weekday:showWk?"long":"short"}).replace(".","")}</span>
     <span class="dh-d"><b>${dd.getDate()}</b><small>${dd.toLocaleDateString("nl-NL",{month:"short"}).replace(".","")}</small></span>
-    <span class="dh-s">${fd?esc(fd):off&&!s.n?"Vrije dag":s.n?`${plural(s.n,"job","jobs")}${u?" · "+u:""}<em>${eur0(toon(s.sum))}</em>`:"Nog niets gepland"}${te?` <b class="dh-warn" title="Meer dan ${S().maxJobs} jobs">!</b>`:""}</span></button>`;
+    <span class="dh-s">${fd?esc(fd):off&&!s.n?"Vrije dag":s.n?`${plural(s.n,"job","jobs")}${u?" · "+u:""}<em>${eur0(s.tsum)}</em>`:"Nog niets gepland"}${te?` <b class="dh-warn" title="Meer dan ${S().maxJobs} jobs">!</b>`:""}</span></button>`;
 }
 function timeGrid(days){
   if(![10,15,30].includes(state.slot))state.slot=30;
@@ -84,17 +84,17 @@ function weekCols(days){
   const t=iso(today());
   return `<div class="weekwrap"><div class="weekgrid">${days.map(d=>{const it=dayItems(d),s=daySum(d);return `<div class="daycol${d===t?" is-today":""}" data-drop="${d}">
     ${dayHead(d,false)}
-    ${it.done.map(x=>`<div class="job done" style="--h:${hue(x.b.klantNaam)}"><div class="jn">${I.check}<button type="button" data-act="klant" data-id="${esc(x.b.klantId)}">${esc(cleanName(x.b.klantNaam))}</button></div><div class="jf"><span class="ja">Afgerond</span><span class="amt">${eur(toon(beurtBedrag(x.b)))}</span></div></div>`).join("")}
+    ${it.done.map(x=>`<div class="job done" style="--h:${hue(x.b.klantNaam)}"><div class="jn">${I.check}<button type="button" data-act="klant" data-id="${esc(x.b.klantId)}">${esc(cleanName(x.b.klantNaam))}</button></div><div class="jf"><span class="ja">Afgerond</span><span class="amt">${eur(toonB(x.b))}</span></div></div>`).join("")}
     ${it.js.sort((a,b)=>(toMin(a.k.tijd)??9999)-(toMin(b.k.tijd)??9999)).map(x=>{const k=x.k;if(x.r)return reeksCard(x);return `<div class="job${pqMatch(k)?"":" faded"}${x.st==="bezig"?" busy":""}${state.pselMode&&state.psel.has(k.id)?" psel":""}${state.pselMode?" pselable":""}" style="--h:${hue(k.ronde||k.naam)}" draggable="true" data-drag="${esc(k.id)}">
       <div class="jn">${k.tijd?`<span class="tm">${esc(k.tijd)}</span>`:""}<button type="button" data-act="job" data-id="${esc(k.id)}" data-d="${esc(k.gepland)}">${esc(jobAddrObj(k).adres||cleanName(k.naam))}</button></div>
       <div class="ja">${esc(cleanName(k.naam))}</div><div class="ja">${dienstHtml(k)}</div>
       <div class="jf"><span class="amt">${eur(toonK(k,prijsMee(k)))}</span><span style="display:flex;gap:4px"><button type="button" class="tiny ghost" data-act="afsprdel" data-id="${esc(k.id)}" title="Afspraak verwijderen" aria-label="Afspraak verwijderen">${I.trash}</button><button type="button" class="check sm" data-act="was" data-id="${esc(k.id)}" aria-label="Afgerond">${I.check}</button></span></div></div>`}).join("")}
-    ${it.proj.map(x=>`<div class="job proj" style="--h:${hue(x.k.ronde||x.k.naam)}"><div class="jn"><button type="button" data-act="klant" data-id="${esc(x.k.id)}">${esc(cleanName(x.k.naam))}</button></div><div class="jf"><span class="amt">${eur(toon(x.k.prijs))}</span><span class="pill neutral">verwacht</span></div></div>`).join("")}
+    ${it.proj.map(x=>`<div class="job proj" style="--h:${hue(x.k.ronde||x.k.naam)}"><div class="jn"><button type="button" data-act="klant" data-id="${esc(x.k.id)}">${esc(cleanName(x.k.naam))}</button></div><div class="jf"><span class="amt">${eur(toonK(x.k,x.k.prijs))}</span><span class="pill neutral">verwacht</span></div></div>`).join("")}
   </div>`}).join("")}</div></div>`;
 }
 function monthGrid(days){
   const first=parse(days[0]),lead=(first.getDay()+6)%7,t=iso(today());
-  const cells=[...Array(lead)].map(()=>`<div class="mcell blank"></div>`).concat(days.map(d=>{const s=daySum(d),it=dayItems(d);return `<button type="button" class="mcell${d===t?" today":""}${isWerkdag(parse(d))?"":" off"}" data-act="pickday" data-d="${d}"><span class="md">${parse(d).getDate()}</span>${s.n?`<span class="mn">${plural(s.n,"job","jobs")}</span><span class="amt">${eur0(toon(s.sum))}</span>`:it.proj.length?`<span class="mn faded">${it.proj.length} verwacht</span>`:""}</button>`}));
+  const cells=[...Array(lead)].map(()=>`<div class="mcell blank"></div>`).concat(days.map(d=>{const s=daySum(d),it=dayItems(d);return `<button type="button" class="mcell${d===t?" today":""}${isWerkdag(parse(d))?"":" off"}" data-act="pickday" data-d="${d}"><span class="md">${parse(d).getDate()}</span>${s.n?`<span class="mn">${plural(s.n,"job","jobs")}</span><span class="amt">${eur0(s.tsum)}</span>`:it.proj.length?`<span class="mn faded">${it.proj.length} verwacht</span>`:""}</button>`}));
   return `<div class="mgrid">${["ma","di","wo","do","vr","za","zo"].map(x=>`<span class="mh">${x}</span>`).join("")}${cells.join("")}</div>`;
 }
 state.planMode=false;
@@ -104,7 +104,7 @@ function vPlanning(){
   let offer=teplannen(offerUpTo(addDays(last<t?t:last,zichtbaarDagen())));if(state.achter)offer=offer.filter(k=>dueOf(k)<t);offer=offerFilter(offer);offer=offerZoek(offer);
   const offerAll=offer;if(state.pkaart&&state.ksel.size){[...state.ksel].forEach(id=>{if(!offerAll.some(k=>k.id===id))state.ksel.delete(id)});if(state.ksel.size)offer=offer.filter(k=>state.ksel.has(k.id))}
   const offerSum=offer.reduce((a,k)=>a+prijsMee(k),0);
-  const tot=days.reduce((a,d)=>{const s=daySum(d);a.n+=s.n;a.sum+=s.sum;return a},{n:0,sum:0});
+  const tot=days.reduce((a,d)=>{const s=daySum(d);a.n+=s.n;a.sum+=s.sum;a.tsum+=s.tsum;return a},{n:0,sum:0,tsum:0});
   const title=v==="dag"?longD(first):v==="week"?"Week "+weekNr(first):v==="multi"?plural(days.length,"dag","dagen"):first.toLocaleDateString("nl-NL",{month:"long",year:"numeric"});
   const sub=v==="dag"?"Dagplanning · wk "+weekNr(first):v==="week"?fmtD(first)+" – "+fmtD(last):v==="multi"?"Geselecteerde dagen · wk "+weekNr(first):"Maandoverzicht";
   const d0=curDay();
@@ -115,7 +115,7 @@ function vPlanning(){
   const mt=(act,ic,lbl,on)=>`<button type="button" class="pl-mi tg" data-act="${act}" aria-pressed="${!!on}">${ic}<span><b>${lbl}</b></span><i class="pl-sw"></i></button>`;
   let html=`<div class="pl-head">
     <div class="pl-tt"><p class="kicker">Planning${v==="dag"?" · wk "+weekNr(first):""}</p><h1 class="xl">${esc(title)}</h1>
-      <p class="pl-sum">${v==="dag"?"":esc(sub)+" · "}<b>${plural(tot.n,"job","jobs")}</b>${totMin?` · ${Math.floor(totMin/60)}u${pad(totMin%60)}`:""} · <b>${eur0(toon(tot.sum))}</b> <small>${btwLbl()}</small>${offer.length?` · <button type="button" class="linkbtn" data-act="${big()?"pscrolloffer":"offersheet"}">${offer.length} te plannen</button>`:""}</p></div>
+      <p class="pl-sum">${v==="dag"?"":esc(sub)+" · "}<b>${plural(tot.n,"job","jobs")}</b>${totMin?` · ${Math.floor(totMin/60)}u${pad(totMin%60)}`:""} · <b>${eur0(tot.tsum)}</b> <small>${btwLbl()}</small>${offer.length?` · <button type="button" class="linkbtn" data-act="${big()?"pscrolloffer":"offersheet"}">${offer.length} te plannen</button>`:""}</p></div>
     <div class="pl-nav">
       <div class="pl-dnav" role="group" aria-label="Datum"><button type="button" data-act="pnav" data-n="-1" aria-label="Vorige">${I.left}</button><button type="button" class="pl-today${isT?" is-nu":""}" data-act="pnav" data-n="0">${navTxt}</button><button type="button" data-act="pnav" data-n="1" aria-label="Volgende">${I.right}</button></div>
       <div class="seg pl-view" role="group" aria-label="Weergave">${[["dag","Dag"],["week","Week"],["multi","Multi"],["maand","Maand"]].map(([x,l])=>`<button type="button" data-act="pview" data-v="${x}" aria-pressed="${v===x}">${l}</button>`).join("")}</div>
@@ -154,7 +154,7 @@ function vPlanning(){
   if(!state.klanten.length)return html+empty("Nog geen klanten","Voeg je eerste klant toe of importeer je klantenbestand.",`<button type="button" class="primary" data-act="klant">${I.plus}Nieuwe klant</button>`);
   if(!big()&&v==="dag"){const wk=[...Array(7)].map((_,i)=>iso(addDays(startOfWeek(first),i)));html+=`<div class="daypick">${wk.map(d=>`<button type="button" data-act="pickday" data-d="${d}" aria-pressed="${d===d0}"${d===iso(t)?' class="is-today"':""}><span>${wd(parse(d))}</span><b>${parse(d).getDate()}</b><i>${daySum(d).n}</i></button>`).join("")}</div>`}
   html+=v==="week"?timeGrid((()=>{const w=S().werkdagen||[1,2,3,4,5],wd=days.filter(d=>w.includes(parse(d).getDay())||dayItems(d).js.length);return wd.length?wd:days})()):v==="maand"?monthGrid(days):timeGrid(days);
-  const offerCol=`<aside class="rpanel offercol" data-drop=""><div class="rp-h2"><span class="eyebrow rp-h">${I.inbox}Te plannen</span><span class="mono">${offer.length} · ${eur0(toon(offerSum))} <small>${btwLbl()}</small></span></div>
+  const offerCol=`<aside class="rpanel offercol" data-drop=""><div class="rp-h2"><span class="eyebrow rp-h">${I.inbox}Te plannen</span><span class="mono">${offer.length} · ${eur0(offer.reduce((a,k)=>a+toonK(k,prijsMee(k)),0))} <small>${btwLbl()}</small></span></div>
     ${state.pkaart&&state.ksel.size?`<div class="pk-selbar">${I.map}<span><b>${plural(offer.length,"adres","adressen")}</b> geselecteerd op de kaart</span><button type="button" class="tiny ghost" data-act="pkwis">Alles tonen</button></div>`:""}
     ${advHtml(offer,d0)}
     ${offer.length>1&&!state.planMode&&!ADV.zoek?`<div class="wp-2k"><button type="button" class="small primary" data-act="weekplan" data-d="${iso(state.week)}">${I.wand}Plan de week</button><button type="button" class="small" data-act="planall">Alles op aanboddatum</button></div>`:""}
@@ -162,7 +162,7 @@ function vPlanning(){
   if(big())return `<div class="withside pl-wide">`+`<div class="mainc">${html}</div>${offerCol}</div>`;
   /* telefoon: te plannen opdrachten onder de agenda; lang indrukken en in de agenda slepen (zoals in DienstenCRM) */
   if(v==="maand")return html+(offer.length?`<button type="button" class="fab-plan" data-act="offersheet">${I.inbox}${offer.length} in te plannen</button>`:"");
-  return html+`<section class="mob-offer" id="mobOffer"><div class="mo-h"><span class="objic">${I.inbox}</span><div><b>In te plannen</b><small>${offer.length?`${plural(offer.length,"opdracht","opdrachten")} · houd vast en sleep naar de agenda`:"Alles ingepland"}</small></div><span class="sp"></span>${offer.length?`<span class="mono">${eur0(toon(offerSum))}</span>`:""}</div>
+  return html+`<section class="mob-offer" id="mobOffer"><div class="mo-h"><span class="objic">${I.inbox}</span><div><b>In te plannen</b><small>${offer.length?`${plural(offer.length,"opdracht","opdrachten")} · houd vast en sleep naar de agenda`:"Alles ingepland"}</small></div><span class="sp"></span>${offer.length?`<span class="mono">${eur0(offer.reduce((a,k)=>a+toonK(k,prijsMee(k)),0))}</span>`:""}</div>
     ${offer.length||ADV.zoek?`<div class="sheet-adv">${advHtml(offer,d0)}</div>${offer.length>1&&!state.planMode&&!ADV.zoek?`<button type="button" class="small" style="width:100%;margin:2px 0 10px" data-act="planall">Alles inplannen op aanboddatum</button>`:""}<div class="list" style="gap:8px">${offer.length?offerCards(offer,v==="dag"&&parse(d0)>=t?d0:""):`<p class="subt" style="text-align:center;font-style:italic;margin:20px 0">Niets gevonden voor “${esc(ADV.zoek)}”</p>`}</div>`:""}</section>`
     +(offer.length?`<button type="button" class="fab-plan mo-fab" data-act="naarofferlijst">${I.inbox}${offer.length} in te plannen</button>`:"");
 }
@@ -176,11 +176,11 @@ function openBeurtInfo(id){
   const rij=(l,v)=>v?`<div class="bi-r"><span>${l}</span><b>${v}</b></div>`:"";
   openDlg(`<div class="jp">
     <div class="jp-kop jp-afgerond"><div class="jp-kr1"><span class="jp-st"><i></i>Afgerond</span><span class="sp"></span><button type="button" class="jp-ib" data-act="close" aria-label="Sluiten">${I.x}</button></div>
-      <div class="jp-kr2"><span class="jp-k1"><small>${["zo","ma","di","wo","do","vr","za"][d.getDay()]} ${d.getDate()} ${["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"][d.getMonth()]}</small><b>${esc(b.tijd||"–")}</b></span><span class="jp-k2"><b>${esc(nm)}</b><em>${adr?I.pin+esc(adr):"Klant staat niet meer in je bestand"}</em></span><span class="jp-k3"><small>Bedrag</small><b>${eur(toon(beurtBedrag(b)))}</b><em>afgerond</em></span></div></div>
+      <div class="jp-kr2"><span class="jp-k1"><small>${["zo","ma","di","wo","do","vr","za"][d.getDay()]} ${d.getDate()} ${["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"][d.getMonth()]}</small><b>${esc(b.tijd||"–")}</b></span><span class="jp-k2"><b>${esc(nm)}</b><em>${adr?I.pin+esc(adr):"Klant staat niet meer in je bestand"}</em></span><span class="jp-k3"><small>Bedrag</small><b>${eur(toonB(b))}</b><em>afgerond</em></span></div></div>
     ${k?`<div class="jp-tiles">${tel?`<a class="jp-tile" href="tel:${esc(tel)}">${I.phone}<span>Bellen</span></a>`:`<span class="jp-tile dis">${I.phone}<span>Bellen</span></span>`}${k.email?`<a class="jp-tile" href="mailto:${esc(k.email)}">${I.mail}<span>Mail</span></a>`:`<span class="jp-tile dis">${I.mail}<span>Mail</span></span>`}<a class="jp-tile" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.nav}<span>Route</span></a></div>`:""}
     <div class="jp-body"><div class="bi">
       ${rij("Dienst",esc(b.dienst||(k&&k.dienst)||"Glasbewassing"))}
-      ${rij("Bedrag",eur(toon(beurtBedrag(b)))+(b.periodiek&&!Number(b.bedrag)?" · via de periodieke factuur":""))}
+      ${rij("Bedrag",eur(toonB(b))+(b.periodiek&&!Number(b.bedrag)?" · via de periodieke factuur":""))}
       ${rij("Duur",b.duur?esc(b.duur)+" min":"")}
       ${rij("Factuur",f?esc(f.nummer||"Concept")+" · "+(f.status==="betaald"||b.betaald?"betaald":f.status==="concept"?"concept":"open")+(f.periodiek?" (periodiek)":""):b.gefactureerd==="periodiek"?"Gaat mee op de periodieke factuur":b.gefactureerd==="nvt"?"Niet gefactureerd (zo ingesteld)":b.gefactureerd?"Gefactureerd":"Nog niet gefactureerd")}
       ${k?rij("Frequentie",esc(freqLabel(k.frequentie||4)).toLowerCase()):""}
@@ -320,7 +320,7 @@ function offerCards(o,dayIso,timed){
   const card=k=>ADV.meer?`<div class="msel-w${mSel.has(k.id)?" chk":""}"><button type="button" class="msel-c" data-act="msel" data-id="${esc(k.id)}" aria-pressed="${mSel.has(k.id)}" aria-label="Selecteer ${esc(cleanName(k.naam))}">${I.check}</button>${offerHtml(k,dayIso,timed)}</div>`:offerHtml(k,dayIso,timed);
   if(!ADV.groepen)return o.map(card).join("");
   const g={};o.forEach(k=>{const n=k.ronde||"Zonder groep";(g[n]=g[n]||[]).push(k)});
-  return Object.keys(g).sort((a,b)=>(a==="Zonder groep")-(b==="Zonder groep")||a.localeCompare(b,"nl")).map(n=>`<div class="og-h"><span class="og-dot" style="--h:${hue(n)}"></span><b>${esc(n)}</b><span>${g[n].length} · ${eur0(toon(g[n].reduce((a,k)=>a+prijsMee(k),0)))}</span>${ADV.meer?`<button type="button" class="linkbtn" data-act="mselgrp" data-g="${esc(n)}">Selecteer</button>`:""}</div>`+g[n].map(card).join("")).join("");
+  return Object.keys(g).sort((a,b)=>(a==="Zonder groep")-(b==="Zonder groep")||a.localeCompare(b,"nl")).map(n=>`<div class="og-h"><span class="og-dot" style="--h:${hue(n)}"></span><b>${esc(n)}</b><span>${g[n].length} · ${eur0(g[n].reduce((a,k)=>a+toonK(k,prijsMee(k)),0))}</span>${ADV.meer?`<button type="button" class="linkbtn" data-act="mselgrp" data-g="${esc(n)}">Selecteer</button>`:""}</div>`+g[n].map(card).join("")).join("");
 }
 function advHtml(o,d0){
   const cb=(k,l,sub)=>`<label class="pm-cb adv-cb"><input type="checkbox" data-adv="${k}" ${ADV[k]?"checked":""}><span>${l}${sub?`<small>${sub}</small>`:""}</span></label>`;

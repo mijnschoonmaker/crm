@@ -94,7 +94,7 @@ function wpReken(){const s=WP.st;if(!s)return;s.v=wpVoorstel(s.ws,s.o);wpTeken()
 function wpTeken(){const s=WP.st;if(!s||!WP.ov)return;const v=s.v,o=s.o,ws=s.ws,we=addDays(ws,6),mnd=["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"];
   const dtx=d=>{const x=parse(d);return wd(x)+" "+x.getDate()+" "+mnd[x.getMonth()]};
   const kand=wpKandidaten(ws,o),laat=kand.filter(k=>wpPrio(k)<0).length,vastN=actief().filter(k=>k.gepland&&k.gepland>=iso(ws)&&k.gepland<=iso(we)).length;
-  const nieuw=v?v.dagen.reduce((a,d)=>a+d.items.filter(x=>!x.vast).length,0):0,totMin=v?v.dagen.reduce((a,d)=>a+d.min+d.reis,0):0,omzet=v?v.dagen.reduce((a,d)=>a+d.items.filter(x=>!x.vast).reduce((b,x)=>b+(Number(x.k.prijs)||0),0),0):0;
+  const nieuw=v?v.dagen.reduce((a,d)=>a+d.items.filter(x=>!x.vast).length,0):0,totMin=v?v.dagen.reduce((a,d)=>a+d.min+d.reis,0):0,omzet=v?v.dagen.reduce((a,d)=>a+d.items.filter(x=>!x.vast).reduce((b,x)=>b+toonK(x.k,Number(x.k.prijs)||0),0),0):0;
   const rij=(x,day)=>{const k=x.k,a=jobAddrObj(k),p=wpPrio(k);
     const badge=x.vast?`<span class="wp-b vast">vast</span>`:p<0?`<span class="wp-b laat">+${-p}</span>`:x.vroeg?`<span class="wp-b vroeg">vroeg</span>`:"";
     const dg=wpDagen(k);
@@ -117,7 +117,7 @@ function wpTeken(){const s=WP.st;if(!s||!WP.ov)return;const v=s.v,o=s.o,ws=s.ws,
     <div class="wp-dagen">${v.dagen.map(dagKaart).join("")}</div>
     ${v.waarsch.length?`<div class="wp-w">${v.waarsch.map(w=>`<span>${I.alert}<b>${esc(cleanName(w.k.naam))}</b> · ${esc(w.t)}</span>`).join("")}</div>`:""}
     ${v.rest.length?`<p class="wp-leeg">${plural(v.rest.length,"klant schuift","klanten schuiven")} door naar een volgende week: ${v.rest.slice(0,6).map(k=>esc(cleanName(k.naam))).join(", ")}${v.rest.length>6?" …":""}</p>`:""}
-    <div class="rk-f"><small>${nieuw?`${plural(nieuw,"nieuwe afspraak","nieuwe afspraken")} · ${wpU(totMin)} werk · ${eur0(toon(omzet))}`:"Niets nieuws in te plannen"}</small><span class="sp"></span><button type="button" class="ghost" data-wpx>Annuleren</button><button type="button" class="primary" data-wpzet ${nieuw?"":"disabled"}>${I.check}Zet in agenda</button></div>`}
+    <div class="rk-f"><small>${nieuw?`${plural(nieuw,"nieuwe afspraak","nieuwe afspraken")} · ${wpU(totMin)} werk · ${eur0(omzet)}`:"Niets nieuws in te plannen"}</small><span class="sp"></span><button type="button" class="ghost" data-wpx>Annuleren</button><button type="button" class="primary" data-wpzet ${nieuw?"":"disabled"}>${I.check}Zet in agenda</button></div>`}
   </div>`;
   const ov=WP.ov;
   ov.querySelectorAll("[data-wpx]").forEach(b=>b.onclick=wpSluit);
