@@ -13308,6 +13308,9 @@ function openOpdrachtWerk(kid,focus){
   const st=S(),incl=!!st.incl,btwL=incl?"incl.":"excl.";
   /* bestaande extra opdrachten (eigen nummer, bijv. 1002-2) horen niet in het werkblad van de hoofdopdracht; ze blijven wel bewaard */
   let extra=(k.opdrachten||[]).map(o=>({...o,_bestaand:true}));
+  /* hoe de opdracht er bij het openen uitzag: wordt er intussen ergens anders afgemeld (bijv. op de telefoon) terwijl dit werkblad
+     open staat, dan mogen de doorgeschoven datums bij Opslaan niet terug naar de oude datums */
+  const OPEN0={rr:k.ramenRegel?JSON.parse(JSON.stringify(k.ramenRegel)):null,opd:JSON.parse(JSON.stringify(k.opdrachten||[])),laatst:k.laatst||""};
   /* gewijzigde tarieven (Uitvoering › Diensten) meteen in de opdracht; de nieuwe prijs wordt bewaard bij Opslaan */
   extra.forEach(o=>{try{if(o.items&&groepTarievenBij(o)){const c=groepCalc(o),mul=incl?1+(Number(st.btw)||21)/100:1;o.prijs=r2(c.ex*mul);o.duur=Math.max(5,Math.ceil(c.sec/60/5)*5)}}catch(e){console.error(e)}});
   if(focus==="new")extra.push({id:newId("o"),dienst:"",prijs:"",frequentie:52,duur:30,volgende:"",actief:true,objectId:"hoofd",_nieuw:true});
@@ -13697,10 +13700,22 @@ function openOpdrachtWerk(kid,focus){
     /* taakomschrijving hoort bij deze opdracht: bij een losse opdracht (eigen nummer) in die opdracht, niet bij de klant */
     if(soloR){soloR.facturatie=$o("fact").value;}
     if(soloR){soloR.objectId=uLoc;soloR.taak=$o("taak").value.trim();soloR.fotos=fotos.map(f=>({...f}));soloSet.forEach(i=>{const o=extra[i];if(o&&o!==soloR&&(o._solo||o.bij===soloR.id)){o.objectId=soloR.objectId||"";o.apart=false;o.bij=soloR.id}})}
-    return {...strip(cur),dienst:String(main.dienst||"").trim()||"Glasbewassing",prijs:r2(Number(main.prijs)||0),ramenRegel:main.ramen||null,frequentie:mW.length?1:(mF||4),weekdagen:mW.length?mW:[],...(mW.length?{autoplan:true}:{}),duur:mD||30,ronde:$o("ronde").value.trim(),contactPlanning:$o("contact").value,eersteKeer:$o("eerste").value==="ja",toeslag:Number($o("toeslag").value)||0,toeslagReden:$o("toeslagr").value.trim(),verbergAantal:$o("verbA").checked,verbergFreq:$o("verbF").checked,afmeldMail:$o("afmail").checked,
+    return verseDatums({...strip(cur),dienst:String(main.dienst||"").trim()||"Glasbewassing",prijs:r2(Number(main.prijs)||0),ramenRegel:main.ramen||null,frequentie:mW.length?1:(mF||4),weekdagen:mW.length?mW:[],...(mW.length?{autoplan:true}:{}),duur:mD||30,ronde:$o("ronde").value.trim(),contactPlanning:$o("contact").value,eersteKeer:$o("eerste").value==="ja",toeslag:Number($o("toeslag").value)||0,toeslagReden:$o("toeslagr").value.trim(),verbergAantal:$o("verbA").checked,verbergFreq:$o("verbF").checked,afmeldMail:$o("afmail").checked,
       binnen:false,actief,...(actief?{}:{gepland:"",tijd:""}),akkoord:$o("akkoord").checked,incasso:$o("betaal").value==="incasso",...(soloR?{}:factModusPatch($o("fact").value,k)),...(!soloR&&isPeriodiek(k)&&$o("fact").value==="periodiek"&&$("#ow-perex")?{periodiek:{...k.periodiek,extraModus:$("#ow-perex").value}}:{}),
       taak:soloR?(cur.taak||""):$o("taak").value.trim(),...($o("vvetaken")?vveEdLees($o("vvetaken")):{}),hosp:hosp.map(x=>({c:x.c||"voorkeur",t:String(x.t||"").trim(),...(x.af?{af:x.af}:{}),...(x.c==="verteld"&&x.vanaf?{vanaf:x.vanaf}:{})})).filter(x=>x.t),bellen:$o("bellen").checked,startdatum:$o("start").value,einddatum:$o("eind").value,btwVerlegd:$o("verlegd").checked,aanbieden:cur.gepland?!!cur.aanbieden:aanb.aanbieden,uitstelTot:aanb.uitstelTot,artikelen:arts.filter(a=>String(a.naam||"").trim()).map(a=>({naam:String(a.naam).trim(),aantal:Number(a.aantal)||1,prijs:r2(Number(a.prijs)||0)})),middelen:mids,objectId:soloR||uLoc===uLoc0?(cur.objectId||""):uLoc,fotos:soloR?(cur.fotos||[]):fotos,
-      opdrachten:extra.filter(o=>String(o.dienst||"").trim()).map(({_nieuw,_toon,_bestaand,_solo,...o})=>({...o,dienst:String(o.dienst).trim(),prijs:r2(Number(o.prijs)||0),duur:Number(o.duur)||30,frequentie:o.items?itemsRitme(o):Number(o.frequentie)||52,...(o.ramen?ramenRitmeDatum(o):{}),...(opdrLoc(ctxL,o)!==hoofdLoc(ctxL)&&!o.bij&&!o.apart&&!opdrBij(ctxL,o)?{apart:true}:{})}))}};
+      opdrachten:extra.filter(o=>String(o.dienst||"").trim()).map(({_nieuw,_toon,_bestaand,_solo,...o})=>({...o,dienst:String(o.dienst).trim(),prijs:r2(Number(o.prijs)||0),duur:Number(o.duur)||30,frequentie:o.items?itemsRitme(o):Number(o.frequentie)||52,...(o.ramen?ramenRitmeDatum(o):{}),...(opdrLoc(ctxL,o)!==hoofdLoc(ctxL)&&!o.bij&&!o.apart&&!opdrBij(ctxL,o)?{apart:true}:{})}))},cur)};
+  function verseDatums(d,cur){try{if((cur.laatst||"")===OPEN0.laatst&&JSON.stringify(cur.ramenRegel||null)===JSON.stringify(OPEN0.rr)&&JSON.stringify(cur.opdrachten||[])===JSON.stringify(OPEN0.opd))return d;
+      /* datum die je in dit werkblad niet hebt aangepast, maar die intussen elders is veranderd (afmelden) → de nieuwe nemen */
+      const neem=(ed,oud,nu)=>ed===oud&&nu!==undefined&&nu!==oud?nu:ed;
+      const rr=(ed,oud,nu)=>{if(!ed||!oud||!nu)return ed;const r=JSON.parse(JSON.stringify(ed));
+        ["vol","kvol"].forEach(x=>{if(Array.isArray(r[x]))r[x]=r[x].map((v,i)=>neem(v,(oud[x]||[])[i],(nu[x]||[])[i]))});
+        ["spvol","spkvol"].forEach(x=>{if(r[x]&&typeof r[x]==="object")Object.keys(r[x]).forEach(s=>{r[x][s]=neem(r[x][s],(oud[x]||{})[s],(nu[x]||{})[s])})});return r};
+      let n=0;const was=JSON.stringify(d.ramenRegel);d.ramenRegel=rr(d.ramenRegel,OPEN0.rr,cur.ramenRegel);if(JSON.stringify(d.ramenRegel)!==was)n++;
+      d.opdrachten=(d.opdrachten||[]).map(o=>{const a=OPEN0.opd.find(x=>x.id===o.id),c=(cur.opdrachten||[]).find(x=>x.id===o.id);if(!o.id||!a||!c)return o;const w=JSON.stringify(o);
+        const u={...o,laatst:neem(o.laatst,a.laatst,c.laatst),volgende:neem(o.volgende,a.volgende,c.volgende)};
+        if(Array.isArray(u.items)&&Array.isArray(a.items)&&Array.isArray(c.items))u.items=u.items.map(it=>{const ia=a.items.find(x=>x.id===it.id),ic=c.items.find(x=>x.id===it.id);return ia&&ic?{...it,vol:neem(it.vol,ia.vol,ic.vol)}:it});
+        if(u.ramen)u.ramen=rr(u.ramen,a.ramen,c.ramen);if(u.laatst===undefined)delete u.laatst;if(u.volgende===undefined)delete u.volgende;if(JSON.stringify(u)!==w)n++;return u});
+      if(n)toast("Deze opdracht is intussen afgemeld · de doorgeschoven datums zijn bewaard");return d}catch(e){console.warn("verseDatums",e);return d}}
   $("#owLog").onclick=async()=>{const v=$o("log").value.trim();if(!v)return;const d=collect();d.log=[...(d.log||[]),{datum:iso(today()),tekst:v}];
     try{await save("klanten",kid,d);toast("Genoteerd");setTimeout(()=>openOpdrachtWerk(kid),60)}catch(er){err(er)}};
   /* opslaan per dienst: alles bewaren en in het werkblad blijven */
