@@ -64,6 +64,8 @@ function toegangHtml(k){const t=k&&k.portaalToegang;if(!t||(!(t.opties||[]).leng
 
 /* klantkaart: portaal + aanbevelingen */
 function kkPortaal(k){
+  /* losse opdracht (apart ingepland): het portaal, de tickets, de aanbevelingscode en het tegoed horen bij de hoofdklant */
+  if(k&&k.hoofdKlantId){const h=state.klanten.find(x=>x.id===k.hoofdKlantId);if(h)k=h}
   const tg=(k.tegoed||[]).filter(t=>Number(t.bedrag)>0),som=tg.reduce((a,t)=>a+Number(t.bedrag),0);
   const door=k.aanbevolenDoor&&state.klanten.find(x=>x.id===k.aanbevolenDoor);
   const aangebracht=state.klanten.filter(x=>x.aanbevolenDoor===k.id);
