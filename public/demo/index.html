@@ -7014,6 +7014,9 @@ const jobAddr=k=>fullAddr(jobAddrObj(k));
    hoofdLoc = locatie van de hoofdopdracht; opdrLoc = locatie van een extra opdracht (leeg = oude opdracht zonder keuze: zelfde plek als de hoofdopdracht) */
 const hoofdLoc=k=>{if(!k||k.objectId==="hoofd")return"hoofd";const o=jobObj(k);return o&&o.adres?o.id:"hoofd"};
 const opdrLoc=(k,o)=>{const id=o&&o.objectId;return id?id:hoofdLoc(k)};
+/* bij het toevoegen/wijzigen/verwijderen van locaties: de hoofdopdracht blijft waar hij was. Zonder vaste keuze (objectId leeg)
+   zou de eerste nieuwe locatie anders ongemerkt de plek van de hoofdopdracht worden. */
+const hoofdLocVast=(cur,list)=>{const was=hoofdLoc(cur);return was==="hoofd"?"hoofd":(list||[]).some(x=>x.id===was&&x.adres)?was:((list||[])[0]?list[0].id:"hoofd")};
 const locAdr=(k,id)=>{const o=id&&id!=="hoofd"&&((k&&k.objecten)||[]).find(x=>x.id===id&&x.adres);return o?fullAddr(o):fullAddr(k||{})};
 const locNaam=(k,id)=>{const o=id&&id!=="hoofd"&&((k&&k.objecten)||[]).find(x=>x.id===id&&x.adres);return o?(o.naam||""):(k&&k.locOms)||"Hoofdadres"};
 const mapsQ=k=>"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(jobAddr(k));
@@ -7517,7 +7520,7 @@ function openObject(kid,oid){
   <div class="row">${isNew?"":`<button type="button" class="ghost danger" id="delO">Verwijderen</button>`}<span class="sp"></span><button type="button" id="oBack">Annuleren</button><button type="submit" class="primary" id="oSave">Opslaan</button></div>`);
   $("#oShow").onclick=()=>{const i=$("#o-alarmcode");i.type=i.type==="password"?"text":"password";$("#oShow").textContent=i.type==="password"?"Toon":"Verberg"};
   $("#oBack").onclick=$("#oX").onclick=()=>openKlant(k.id,{keepCalc:true});
-  const write=async list=>{const objectId=k.objectId==="hoofd"||list.some(x=>x.id===k.objectId)?k.objectId:(list[0]?list[0].id:"");await save("klanten",k.id,{...strip(k),objecten:list,objectId})};
+  const write=async list=>{const objectId=hoofdLocVast(k,list);await save("klanten",k.id,{...strip(k),objecten:list,objectId})};
   form.onsubmit=async e=>{e.preventDefault();const g=n=>$("#o-"+n).value.trim();
     const data={id:o.id||newId("o"),naam:g("naam")||"Object",adres:g("adres"),postcode:g("postcode").toUpperCase(),plaats:g("plaats"),ramen:g("ramen"),m2:g("m2"),toegang:g("toegang"),alarmcode:g("alarmcode"),parkeren:g("parkeren"),materialen:g("materialen"),notities:g("notities")};
     const list=isNew?[...os,data]:os.map(x=>x.id===o.id?data:x);
@@ -13330,7 +13333,7 @@ function openOpdrachtWerk(kid,focus){
   const soloR=soloI>=0?extra[soloI]:null;
   /* uitvoerlocatie van deze opdracht (los van het factuuradres): hoofdopdracht = k.objectId, losse opdracht = eigen objectId */
   const uLocs=[{id:"hoofd",adr:fullAddr(k),naam:k.locOms||"Hoofdadres"},...(k.objecten||[]).filter(o=>o&&o.adres).map(o=>({id:o.id,adr:fullAddr(o),naam:o.naam||""}))];
-  let uLoc=soloR?opdrLoc(k,soloR):hoofdLoc(k);const uLoc0=uLoc;
+  let uLoc=soloR?opdrLoc(k,soloR):hoofdLoc(k);const uLoc0=uLoc;const hoofdLoc0=hoofdLoc(k);/* plek van de hoofdopdracht bij openen: wordt vast bewaard */
   const uLocTxt=id=>{const l=uLocs.find(x=>x.id===id)||uLocs[0];return l.adr+(l.naam?" · "+l.naam:"")};
   /* foto's horen bij de opdracht: een losse opdracht (eigen nummer) heeft eigen foto's, los van de hoofdopdracht */
   let fotos=[...((soloR?soloR.fotos:k.fotos)||[])];
@@ -13714,13 +13717,13 @@ function openOpdrachtWerk(kid,focus){
     const ds=idx.map(i=>(q.vol||[])[i]).filter(Boolean);if(ds.length===idx.length)uit.volgende=ds.sort()[0];return uit};
   const collect=()=>{syncRitme();const cur=state.klanten.find(x=>x.id===kid)||k,actief=$o("actief").checked;
     /* opdracht op een ander adres dan de hoofdopdracht: altijd een eigen afspraak (gaat niet mee met de beurt op het andere adres) */
-    const ctxL={...cur,objectId:soloR||uLoc===uLoc0?(cur.objectId||""):uLoc,opdrachten:extra};
+    const ctxL={...cur,objectId:soloR||uLoc===uLoc0?(cur.objectId||hoofdLoc0):uLoc,opdrachten:extra};
     /* taakomschrijving hoort bij deze opdracht: bij een losse opdracht (eigen nummer) in die opdracht, niet bij de klant */
     if(soloR){soloR.facturatie=$o("fact").value;}
     if(soloR){soloR.objectId=uLoc;soloR.taak=$o("taak").value.trim();soloR.fotos=fotos.map(f=>({...f}));soloSet.forEach(i=>{const o=extra[i];if(o&&o!==soloR&&(o._solo||o.bij===soloR.id)){o.objectId=soloR.objectId||"";o.apart=false;o.bij=soloR.id}})}
     return verseDatums({...strip(cur),dienst:String(main.dienst||"").trim()||"Glasbewassing",prijs:r2(Number(main.prijs)||0),ramenRegel:main.ramen||null,frequentie:mW.length?1:(mF||4),weekdagen:mW.length?mW:[],...(mW.length?{autoplan:true}:{}),duur:mD||30,ronde:$o("ronde").value.trim(),contactPlanning:$o("contact").value,eersteKeer:$o("eerste").value==="ja",toeslag:Number($o("toeslag").value)||0,toeslagReden:$o("toeslagr").value.trim(),verbergAantal:$o("verbA").checked,verbergFreq:$o("verbF").checked,afmeldMail:$o("afmail").checked,
       binnen:false,actief,...(actief?{}:{gepland:"",tijd:""}),akkoord:$o("akkoord").checked,incasso:$o("betaal").value==="incasso",...(soloR?{}:factModusPatch($o("fact").value,k)),...(!soloR&&isPeriodiek(k)&&$o("fact").value==="periodiek"&&$("#ow-perex")?{periodiek:{...k.periodiek,extraModus:$("#ow-perex").value}}:{}),
-      taak:soloR?(cur.taak||""):$o("taak").value.trim(),...($o("vvetaken")?vveEdLees($o("vvetaken")):{}),hosp:hosp.map(x=>({c:x.c||"voorkeur",t:String(x.t||"").trim(),...(x.af?{af:x.af}:{}),...(x.c==="verteld"&&x.vanaf?{vanaf:x.vanaf}:{})})).filter(x=>x.t),bellen:$o("bellen").checked,startdatum:$o("start").value,einddatum:$o("eind").value,btwVerlegd:$o("verlegd").checked,aanbieden:cur.gepland?!!cur.aanbieden:aanb.aanbieden,uitstelTot:aanb.uitstelTot,artikelen:arts.filter(a=>String(a.naam||"").trim()).map(a=>({naam:String(a.naam).trim(),aantal:Number(a.aantal)||1,prijs:r2(Number(a.prijs)||0)})),middelen:mids,objectId:soloR||uLoc===uLoc0?(cur.objectId||""):uLoc,fotos:soloR?(cur.fotos||[]):fotos,
+      taak:soloR?(cur.taak||""):$o("taak").value.trim(),...($o("vvetaken")?vveEdLees($o("vvetaken")):{}),hosp:hosp.map(x=>({c:x.c||"voorkeur",t:String(x.t||"").trim(),...(x.af?{af:x.af}:{}),...(x.c==="verteld"&&x.vanaf?{vanaf:x.vanaf}:{})})).filter(x=>x.t),bellen:$o("bellen").checked,startdatum:$o("start").value,einddatum:$o("eind").value,btwVerlegd:$o("verlegd").checked,aanbieden:cur.gepland?!!cur.aanbieden:aanb.aanbieden,uitstelTot:aanb.uitstelTot,artikelen:arts.filter(a=>String(a.naam||"").trim()).map(a=>({naam:String(a.naam).trim(),aantal:Number(a.aantal)||1,prijs:r2(Number(a.prijs)||0)})),middelen:mids,objectId:soloR||uLoc===uLoc0?(cur.objectId||hoofdLoc0):uLoc,fotos:soloR?(cur.fotos||[]):fotos,
       ...(geenGlas?{opdrachtVerwijderd:true,prijs:0,ramenRegel:null,aanbieden:false,gepland:"",tijd:"",reeks:[]}:soloI<0&&cur.opdrachtVerwijderd&&!cur.prospect?{opdrachtVerwijderd:false}:{}),
       opdrachten:extra.filter(o=>String(o.dienst||"").trim()).map(({_nieuw,_toon,_bestaand,_solo,...o})=>({...o,...(geenGlas&&!_bestaand?{apart:true}:{}),dienst:String(o.dienst).trim(),prijs:r2(Number(o.prijs)||0),duur:Number(o.duur)||30,frequentie:o.items?itemsRitme(o):Number(o.frequentie)||52,...(o.ramen?ramenRitmeDatum(o):{}),...(opdrLoc(ctxL,o)!==hoofdLoc(ctxL)&&!o.bij&&!o.apart&&!opdrBij(ctxL,o)?{apart:true}:{})}))},cur)};
   function verseDatums(d,cur){try{if((cur.laatst||"")===OPEN0.laatst&&JSON.stringify(cur.ramenRegel||null)===JSON.stringify(OPEN0.rr)&&JSON.stringify(cur.opdrachten||[])===JSON.stringify(OPEN0.opd))return d;
@@ -14994,7 +14997,7 @@ function kkLocatie(kid,oid){const k=state.klanten.find(x=>x.id===kid);if(!k)retu
     else{const data={...(o0||{}),id:o0?o0.id:newId("o"),naam:v("naam")||"Locatie",adres,straat,huisnr,toev,postcode:adres?postcode:"",plaats:adres?plaats:"",land:$l("land").value,contact,
         ramen:v("ramen"),m2:v("m2"),toegang:v("toegang"),alarmcode:$l("alarm").value.trim(),parkeren:v("park"),materialen:v("mat"),notities:v("not")};
       const list=isNew?[...(cur.objecten||[]),data]:(cur.objecten||[]).map(x=>x.id===data.id?data:x);
-      nw={...strip(cur),objecten:list,objectId:cur.objectId==="hoofd"||list.some(x=>x.id===cur.objectId)?cur.objectId:(list[0]?list[0].id:"")}}
+      nw={...strip(cur),objecten:list,objectId:hoofdLocVast(cur,list)}}
     $("#lcSave").disabled=true;
     try{await save("klanten",kid,nw);const n=await adresDoorvoeren({...cur},{...nw,id:kid});
       const gewijzigd=fullAddr(cur)!==fullAddr({...nw})||jobAddr(cur)!==jobAddr({...nw,id:kid});
@@ -15003,7 +15006,7 @@ function kkLocatie(kid,oid){const k=state.klanten.find(x=>x.id===kid);if(!k)retu
     catch(er){$("#lcSave").disabled=false;err(er)}};
   const d=$("#lcDel");if(d){let armed=false;d.onclick=async()=>{if(!armed){armed=true;d.innerHTML=I.trash+"Zeker weten? Tik nogmaals";return}
     const cur=state.klanten.find(x=>x.id===kid)||k,list=(cur.objecten||[]).filter(x=>x.id!==oid);
-    try{await save("klanten",kid,{...strip(cur),objecten:list,objectId:cur.objectId==="hoofd"||list.some(x=>x.id===cur.objectId)?cur.objectId:(list[0]?list[0].id:"")});toast("Locatie verwijderd");setTimeout(()=>openKlantView(kid),60)}catch(er){err(er)}}}
+    try{await save("klanten",kid,{...strip(cur),objecten:list,objectId:hoofdLocVast(cur,list)});toast("Locatie verwijderd");setTimeout(()=>openKlantView(kid),60)}catch(er){err(er)}}}
 }
 
 /* adres snel zoeken (PDOK) voor een set velden met hetzelfde voorvoegsel: q, straat, huisnr, toev, postcode, plaats */

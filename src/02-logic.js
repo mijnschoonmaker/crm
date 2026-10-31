@@ -115,6 +115,9 @@ const jobAddr=k=>fullAddr(jobAddrObj(k));
    hoofdLoc = locatie van de hoofdopdracht; opdrLoc = locatie van een extra opdracht (leeg = oude opdracht zonder keuze: zelfde plek als de hoofdopdracht) */
 const hoofdLoc=k=>{if(!k||k.objectId==="hoofd")return"hoofd";const o=jobObj(k);return o&&o.adres?o.id:"hoofd"};
 const opdrLoc=(k,o)=>{const id=o&&o.objectId;return id?id:hoofdLoc(k)};
+/* bij het toevoegen/wijzigen/verwijderen van locaties: de hoofdopdracht blijft waar hij was. Zonder vaste keuze (objectId leeg)
+   zou de eerste nieuwe locatie anders ongemerkt de plek van de hoofdopdracht worden. */
+const hoofdLocVast=(cur,list)=>{const was=hoofdLoc(cur);return was==="hoofd"?"hoofd":(list||[]).some(x=>x.id===was&&x.adres)?was:((list||[])[0]?list[0].id:"hoofd")};
 const locAdr=(k,id)=>{const o=id&&id!=="hoofd"&&((k&&k.objecten)||[]).find(x=>x.id===id&&x.adres);return o?fullAddr(o):fullAddr(k||{})};
 const locNaam=(k,id)=>{const o=id&&id!=="hoofd"&&((k&&k.objecten)||[]).find(x=>x.id===id&&x.adres);return o?(o.naam||""):(k&&k.locOms)||"Hoofdadres"};
 const mapsQ=k=>"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(jobAddr(k));
