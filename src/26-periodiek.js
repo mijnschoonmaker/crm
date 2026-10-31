@@ -108,7 +108,8 @@ function openPeriodiek(kid,back){
   let lastIn=null;draw();
 }
 function openPeriodiekLijst(){
-  const ks=state.klanten.filter(k=>k.periodiek).sort((a,b)=>String(a.periodiek.volgende||"").localeCompare(String(b.periodiek.volgende||"")));
+  /* een uitgezette periodieke factuur van een hoofdopdracht zonder eigen dienst (alleen losse opdrachten, bv. VvE) niet tonen: die doet niets */
+  const ks=state.klanten.filter(k=>k.periodiek&&!(!isPeriodiek(k)&&k.opdrachtVerwijderd)).sort((a,b)=>String(a.periodiek.volgende||"").localeCompare(String(b.periodiek.volgende||"")));
   const due=ks.filter(k=>isPeriodiek(k)&&k.periodiek.volgende<=iso(today())).length;
   openDlg(`<div class="dlg-head"><span class="objic big">${I.receipt}</span><div style="min-width:0;flex:1"><h3>Periodieke facturen</h3><div class="subt">${plural(ks.filter(isPeriodiek).length,"actieve opdracht","actieve opdrachten")}${ks.some(k=>!isPeriodiek(k))?" · "+plural(ks.filter(k=>!isPeriodiek(k)).length,"staat","staan")+" uit":""}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
     ${due?`<div class="infobox">${I.bell}<span style="flex:1">${plural(due,"factuur is","facturen zijn")} aan de beurt.</span><button type="button" class="small primary" id="plRun">Nu maken</button></div>`:""}

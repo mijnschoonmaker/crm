@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="aa7f860750b2"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="dcbf892195ad"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -15048,7 +15048,8 @@ function openPeriodiek(kid,back){
   let lastIn=null;draw();
 }
 function openPeriodiekLijst(){
-  const ks=state.klanten.filter(k=>k.periodiek).sort((a,b)=>String(a.periodiek.volgende||"").localeCompare(String(b.periodiek.volgende||"")));
+  /* een uitgezette periodieke factuur van een hoofdopdracht zonder eigen dienst (alleen losse opdrachten, bv. VvE) niet tonen: die doet niets */
+  const ks=state.klanten.filter(k=>k.periodiek&&!(!isPeriodiek(k)&&k.opdrachtVerwijderd)).sort((a,b)=>String(a.periodiek.volgende||"").localeCompare(String(b.periodiek.volgende||"")));
   const due=ks.filter(k=>isPeriodiek(k)&&k.periodiek.volgende<=iso(today())).length;
   openDlg(`<div class="dlg-head"><span class="objic big">${I.receipt}</span><div style="min-width:0;flex:1"><h3>Periodieke facturen</h3><div class="subt">${plural(ks.filter(isPeriodiek).length,"actieve opdracht","actieve opdrachten")}${ks.some(k=>!isPeriodiek(k))?" · "+plural(ks.filter(k=>!isPeriodiek(k)).length,"staat","staan")+" uit":""}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
     ${due?`<div class="infobox">${I.bell}<span style="flex:1">${plural(due,"factuur is","facturen zijn")} aan de beurt.</span><button type="button" class="small primary" id="plRun">Nu maken</button></div>`:""}
