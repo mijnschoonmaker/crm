@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="8c3da6cce1ce"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="4522184cc18c"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -17929,7 +17929,8 @@ async function meetLeerBewaar(info,dns){if(!info||!info.d||!info.items||!info.it
   if(!n)return;const items=L.slice(-600);await save("instellingen","meetleer",{items});state.meetleer={items}}
 const meetLeerTekst=()=>{const L=((state.meetleer||{}).items)||[];if(!L.length)return"Nog geen metingen om van te leren. Zodra je een maat uit het 3D-model aanpast of zelf meet op een foto of de luchtfoto, leert Mansard daarvan.";
   return "Geleerd van "+L.length+" "+(L.length===1?"meting":"metingen")+": "+["goot","windveer","plat","gevel","dak"].map(b=>{const c=meetCorr(b);return c.n?(MEET_BRON[b]||b).replace(/ \(.*\)/,"").toLowerCase()+" "+(c.f>=1?"+":"−")+Math.abs(Math.round((c.f-1)*1000)/10).toString().replace(".",",")+" %":""}).filter(Boolean).join(", ")+"."};
-const meetAan=w=>{const s=S();if(w==="webshop")return s.meetWebshop===true;if(w==="telling")return s.meetTelling!==false;return s.meetRekentool!==false};
+/* standaard uit: glasbewassing blijft tellen, extra diensten vul je zelf in (gemeten met de Meten-app). Aanzetten kan bij Instellingen › Meetlint. */
+const meetAan=w=>{const s=S();if(w==="webshop")return s.meetWebshop===true;if(w==="telling")return s.meetTelling===true;return s.meetRekentool===true};
 SETCARDS.push({id:"meetlint",t:"Meetlint",sub:"Goten, windveren en beplating opmeten op een foto",ic:"ruler",bg:"#c9a227",
   st:s=>[meetAan("rekentool"),meetAan("telling"),meetAan("webshop")].some(Boolean)?["ok","Aan"]:["soon","Staat uit"],
   rows:s=>[["Rekentool",meetAan("rekentool")?"Aan":"Uit"],["Tellingcontrole",meetAan("telling")?"Aan":"Uit"],["Dienstenwebshop",meetAan("webshop")?"Aan":"Uit"]]});
