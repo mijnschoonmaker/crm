@@ -1,17 +1,15 @@
-/* Alleen lezen: klant Bennemaheerd 34 Oldekerk, waarom het portaal geen datum toont. Wijzigt niets. */
+/* Alleen lezen: Beerlings, open facturen en Mollie-velden. Wijzigt niets. */
 const admin = require("../functions/node_modules/firebase-admin");
 admin.initializeApp({ projectId: process.env.P });
 const db = admin.firestore();
 const n = (t, x) => console.log("::notice title=" + t + "::" + JSON.stringify(x).slice(0, 3500));
 (async () => {
-  const alle = (await db.collection("klanten").get()).docs;
-  const ks = alle.filter(d => /bennemaheerd/i.test(JSON.stringify(d.data())));
+  const ks = (await db.collection("klanten").get()).docs.filter(d => /beerling/i.test(JSON.stringify(d.data())));
   for (const d of ks) { const k = d.data();
-    n("klant " + d.id, { upd: d.updateTime.toDate().toISOString(), keys: Object.keys(k).sort(), gepland: k.gepland, tijd: k.tijd, reeks: k.reeks, nieuw: k.nieuw, actief: k.actief, prospect: k.prospect, hoofd: k.hoofdKlantId || "", verw: k.opdrachtVerwijderd || false, aanbodVanaf: k.aanbodVanaf, laatst: k.laatst, freq: k.frequentie, bevestigd: k.bevestigd || k.geplandBevestigd || k.planMail || "" });
-    const sub = alle.filter(x => x.data().hoofdKlantId === d.id).map(x => ({ id: x.id, dienst: x.data().dienst, gepland: x.data().gepland, actief: x.data().actief }));
-    if (sub.length) n("jobs " + d.id, sub);
-    const vk = Object.fromEntries(Object.entries(k).filter(([a, v]) => /plan|gepl|datum|route|dag|mail/i.test(a)).map(([a, v]) => [a, typeof v === "object" ? JSON.stringify(v).slice(0, 200) : v]));
-    n("planvelden " + d.id, vk);
+    n("klant " + d.id, { naam: k.naam, hoofd: k.hoofdKlantId || "", incasso: k.incasso || false, mandaat: !!k.mollieMandateId });
+    const fs = (await db.collection("facturen").where("klantId", "==", d.id).get()).docs;
+    n("facturen " + d.id, fs.map(x => { const f = x.data(); return { id: x.id, nr: f.nummer, soort: f.soort, status: f.status, datum: f.datum, upd: x.updateTime.toDate().toISOString(), mollieId: f.mollieId || "", mollieStatus: f.mollieStatus || "", mollieBedrag: f.mollieBedrag, link: String(f.betaallink || "").slice(0, 60), mlink: String(f.mollieLink || "").slice(0, 60), deel: f.deelBetaald || 0, keys: Object.keys(f).filter(a => /mollie|betaal|link/i.test(a)) }; }));
   }
-  if (!ks.length) n("niets", alle.length);
+  const tk = (await db.collection("tickets").get()).docs.map(x => ({ id: x.id, ...x.data() })).filter(t => t.nummer == 1003 || /T-1003/.test(t.nummer));
+  n("ticket", tk.map(t => ({ id: t.id, klant: t.klantId, onderwerp: t.onderwerp, factuur: t.factuurId || t.ref || "" })));
 })().catch(x => { console.error(x); process.exit(1); });
