@@ -6348,7 +6348,7 @@ const FRAMER_TPL="// Prijscalculator glasbewassing \u2014 Framer code component 
         toonLoep(drag.b,drag.ref?"Referentie":w&&w.ok?(drag.r?fmt(w.bw,2)+" × "+fmt(w.hh,2)+" m":"≈ "+fmt(w.v,2)+" m"):"",c)}
       x.meet=drag.orig};
     const up=e=>{if(!drag)return;const d=drag;drag=null;o.wrap.classList.remove("ml-drag");wegLoep();const x=f(),lang=dist(d.a,d.b,asp())>0.012;
-      if(d.hoek!=null){teken();if(o.onChange)o.onChange();return}
+      if(d.hoek!=null){wijzig();return}
       if(!lang){teken();return}
       if(d.hoek!=null){wijzig();return}
       x.meet=d.tmp;if(d.ref){const G=goten();if(G.length===1)zetGoot(G[0]);else if(G.length){teken();gootSheet(G,!d.orig||!d.orig.ref)}else{teken();refSheet(!d.orig||!d.orig.ref)}}else{const j=x.meet.maten.length-1;teken();if(o.onChange)o.onChange();if(!heeftSchaal(x.meet))maatSheet(j,true)}};
