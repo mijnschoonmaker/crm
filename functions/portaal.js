@@ -368,6 +368,33 @@ module.exports = function maakPortaal(ctx) {
     return id;
   }
 
+  /* een werkende betaallink voor een open factuur: een lopende Mollie-betaling hergebruiken, een verlopen of afgebroken nooit.
+     Gebruikt door de knop in het portaal en door de vaste betaallink in de factuurmail (/b/<token>). */
+  async function betaalLinkVoor(f, req) {
+        const id = f.id;
+        const albetaald = { betaald: true, melding: "Deze factuur is al betaald. Dank u wel! U hoeft niets meer te doen." };
+        if (f.data().status === "betaald") { return albetaald; }
+        const x = dec(f.data()), b = await bedrijf(), g = await geheim();
+        /* nooit dubbel laten betalen: is de vorige Mollie-betaling al gelukt (maar nog niet verwerkt), dan nu verwerken en melden */
+        /* is de vorige betaling verlopen of afgebroken (Mollie laat een betaling zonder keuze na korte tijd verlopen), dan nooit die oude link
+           teruggeven: die opent even en stuurt de klant meteen terug naar het portaal. Dan een nieuwe betaling maken. */
+        let oudBruikbaar = true;
+        if (x.mollieId && g.mollieKey && typeof verwerkFactuurBetaling === "function") { try { const p0 = await mollie(g.mollieKey, "payments/" + x.mollieId);
+          if (p0 && p0.status !== "open" && p0.status !== "pending") oudBruikbaar = false;
+          if (p0 && p0.status === "paid" && p0.metadata && p0.metadata.factuurId === id) { const vol = await verwerkFactuurBetaling(p0); if (vol) { return albetaald; } }
+          if (p0 && p0.status === "open" && p0._links && p0._links.checkout && Math.abs(Number((p0.amount || {}).value) - (Math.round((totals(x, b).inc - (Number(x.deelBetaald) || 0)) * 100) / 100)) < 0.01) { return { link: p0._links.checkout.href }; } } catch (e) { console.error("mollie check", e); } }
+        /* openstaand bedrag (min een eventuele deelbetaling); een oude link alleen als het bedrag nog klopt */
+        const rest = Math.round((totals(x, b).inc - (Number(x.deelBetaald) || 0)) * 100) / 100;
+        if (!(rest > 0)) { return { ...{ fout: "Deze factuur staat niet meer open." }, code: 409 }; }
+        if (oudBruikbaar && x.betaallink && x.mollieStatus === "open" && (x.mollieBedrag == null || Math.abs(Number(x.mollieBedrag) - rest) < 0.01)) { return { link: x.betaallink }; }
+        if (!g.mollieKey) { return { ...{ fout: "Online betalen is nog niet beschikbaar. U kunt het bedrag overmaken." }, code: 409 }; }
+        const base = basisUrl(req);
+        const p = await mollie(g.mollieKey, "payments", { method: "POST", body: JSON.stringify({ amount: { currency: "EUR", value: rest.toFixed(2) }, description: ("Factuur " + (x.nummer || id)).slice(0, 255), redirectUrl: base + "/portaal?betaald=" + encodeURIComponent(id), webhookUrl: base + "/api/mollie" + T.hookQs(), metadata: { factuurId: id } }) });
+        const link = p._links && p._links.checkout && p._links.checkout.href;
+        await f.ref.set({ mollieId: p.id, mollieLink: link || "", betaallink: link || "", mollieStatus: p.status, mollieBedrag: rest }, { merge: true });
+        return { link };
+  }
+
   const portaal = onRequest({ memory: "256MiB", timeoutSeconds: 30 }, async (req, res) => {
     res.set("cache-control", "no-store");
     const pad = String(req.path || "").replace(/^\/api\/portaal/, "").replace(/\/+$/, "") || "/";
@@ -401,6 +428,16 @@ module.exports = function maakPortaal(ctx) {
         res.set("cache-control", "public, max-age=300"); res.json({ naam: b.naam || "", logo: id ? basisUrl(req) + "/_blob/" + id : "" }); return;
       }
       /* na het betalen via Mollie: korte bedankpagina, ook zonder in te loggen (het factuurnummer-id is niet te raden) */
+      /* vaste betaallink uit de factuurmail: maakt bij elke klik zo nodig een verse Mollie-betaling (oude verlopen na korte tijd) */
+      if (pad.startsWith("/b/") && req.method === "GET") {
+        const t = pad.slice(3), terug = basisUrl(req) + "/portaal";
+        if (!/^(?:b[a-z0-9]{7}_)?[a-f0-9]{24,64}$/.test(t)) { res.redirect(302, terug); return; }
+        const q = await db.collection("facturen").where("betaalToken", "==", t).limit(1).get();
+        const f = q.empty ? null : q.docs[0];
+        if (!f || f.data().soort === "offerte" || f.data().status === "concept") { res.redirect(302, terug); return; }
+        const r = await betaalLinkVoor(f, req);
+        res.redirect(302, r.link ? r.link : r.betaald ? terug + "?betaald=" + encodeURIComponent(f.id) : terug); return;
+      }
       if (pad === "/bedankt" && req.method === "GET") {
         const id = String(req.query.id || "");
         if (!/^[\w-]{1,60}$/.test(id)) { res.status(404).json({}); return; }
@@ -473,23 +510,9 @@ module.exports = function maakPortaal(ctx) {
       if (pad === "/betaal" && req.method === "POST") {
         const id = String(body(req).id || ""), f = await db.doc("facturen/" + id).get();
         if (!f.exists || !(await vanKlant(S, f.data().klantId)) || f.data().soort === "offerte" || f.data().status === "concept") { res.status(404).json({ fout: "niet gevonden" }); return; }
-        const albetaald = { betaald: true, melding: "Deze factuur is al betaald. Dank u wel! U hoeft niets meer te doen." };
-        if (f.data().status === "betaald") { res.json(albetaald); return; }
-        const x = dec(f.data()), b = await bedrijf(), g = await geheim();
-        /* nooit dubbel laten betalen: is de vorige Mollie-betaling al gelukt (maar nog niet verwerkt), dan nu verwerken en melden */
-        if (x.mollieId && g.mollieKey && typeof verwerkFactuurBetaling === "function") { try { const p0 = await mollie(g.mollieKey, "payments/" + x.mollieId);
-          if (p0 && p0.status === "paid" && p0.metadata && p0.metadata.factuurId === id) { const vol = await verwerkFactuurBetaling(p0); if (vol) { res.json(albetaald); return; } }
-          if (p0 && p0.status === "open" && p0._links && p0._links.checkout && Math.abs(Number((p0.amount || {}).value) - (Math.round((totals(x, b).inc - (Number(x.deelBetaald) || 0)) * 100) / 100)) < 0.01) { res.json({ link: p0._links.checkout.href }); return; } } catch (e) { console.error("mollie check", e); } }
-        /* openstaand bedrag (min een eventuele deelbetaling); een oude link alleen als het bedrag nog klopt */
-        const rest = Math.round((totals(x, b).inc - (Number(x.deelBetaald) || 0)) * 100) / 100;
-        if (!(rest > 0)) { res.status(409).json({ fout: "Deze factuur staat niet meer open." }); return; }
-        if (x.betaallink && x.mollieStatus === "open" && (x.mollieBedrag == null || Math.abs(Number(x.mollieBedrag) - rest) < 0.01)) { res.json({ link: x.betaallink }); return; }
-        if (!g.mollieKey) { res.status(409).json({ fout: "Online betalen is nog niet beschikbaar. U kunt het bedrag overmaken." }); return; }
-        const base = basisUrl(req);
-        const p = await mollie(g.mollieKey, "payments", { method: "POST", body: JSON.stringify({ amount: { currency: "EUR", value: rest.toFixed(2) }, description: ("Factuur " + (x.nummer || id)).slice(0, 255), redirectUrl: base + "/portaal?betaald=" + encodeURIComponent(id), webhookUrl: base + "/api/mollie" + T.hookQs(), metadata: { factuurId: id } }) });
-        const link = p._links && p._links.checkout && p._links.checkout.href;
-        await f.ref.set({ mollieId: p.id, mollieLink: link || "", betaallink: link || "", mollieStatus: p.status, mollieBedrag: rest }, { merge: true });
-        res.json({ link }); return;
+        const r = await betaalLinkVoor(f, req);
+        if (r.code) { res.status(r.code).json({ fout: r.fout }); return; }
+        res.json(r); return;
       }
       /* automatische incasso: machtiging via een eerste iDEAL-betaling van € 0,01, daarna schrijft het CRM facturen automatisch af */
       if (pad === "/incasso" && req.method === "POST") {

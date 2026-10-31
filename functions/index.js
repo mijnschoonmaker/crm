@@ -323,8 +323,10 @@ exports.mollieLink = onCall(async req => {
     })
   });
   const link = p._links && p._links.checkout && p._links.checkout.href;
-  await f.ref.set({ mollieId: p.id, mollieLink: link || "", betaallink: link || "", mollieStatus: p.status, mollieBedrag: val }, { merge: true });
-  return { link, id: p.id };
+  /* in de mail een vaste link via het portaal: een Mollie-betaling verloopt al na korte tijd, deze link maakt dan een nieuwe */
+  const betaalToken = /^(?:b[a-z0-9]{7}_)?[a-f0-9]{24,64}$/.test(String(f.data().betaalToken || "")) ? f.data().betaalToken : T.tok(16);
+  await f.ref.set({ mollieId: p.id, mollieLink: link || "", betaallink: link || "", mollieStatus: p.status, mollieBedrag: val, betaalToken }, { merge: true });
+  return { link: site && link ? site + "/api/portaal/b/" + betaalToken : link, id: p.id };
 });
 /* factuur automatisch afschrijven bij een klant met een incasso-machtiging (sequenceType recurring) */
 exports.mollieIncasso = onCall(async req => {
