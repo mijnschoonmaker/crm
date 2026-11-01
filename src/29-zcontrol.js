@@ -285,16 +285,7 @@ function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActivite
       <section class="cc-card"><div class="cc-ch"><div><b>${I.bell}Recente activiteiten</b><small>Afgelopen 30 dagen</small></div></div>${act}</section>
     </div>
   </div>
-  <h2 class="cc-sec">${I.trend}Bedrijfscijfers</h2>
-  <div class="cc-kpis">
-        ${kpi("euro","k1","Omzet "+esc(K.maand.split(" ")[0]),eur0(K.omzet),K.pct==null?"excl. btw":(K.pct>=0?"▲ ":"▼ ")+Math.abs(K.pct)+"% t.o.v. vorige maand",K.pct==null?"":K.pct>=0?"up":"down","tab:inzichten")}
-        ${kpi("facturen","k2","Openstaande facturen",eur0(K.open),K.nAch?plural(K.nAch,"vervallen","vervallen"):plural(K.nOpen,"factuur","facturen")+" open",K.nAch?"down":"","ff:"+(K.nAch?"achterstallig":"openstaand"))}
-        ${kpi("checksq","k3","Actieve opdrachten",K.opdr,K.dezeWeek+" deze week aan de beurt","","tab:planning")}
-        ${kpi("inbox","k4","Nieuwe aanvragen",K.aanvr,K.aanvrWeek?"▲ "+K.aanvrWeek+" deze week":"afgelopen 30 dagen",K.aanvrWeek?"up":"","tab:klanten")}
-      </div>
-  <section class="cc-card"><div class="cc-ch"><div><b>${I.trend}Bedrijfsprestaties</b><small>Laatste 90 dagen, uit je facturen, offertes en klanten</small></div></div>
-          <div class="cc-pfs">${prf("Conversie offertes",R.conv==null?null:R.conv+"%",R.conv==null?"te weinig offertes":R.ja+" van "+R.afgesl+" afgerond")}${prf("Klantbehoud",R.behoud==null?null:R.behoud+"%",R.behoud==null?"nog geen jaar historie":"klanten van >1 jaar actief")}${prf("Gem. betaaltijd",R.betaal==null?null:String(R.betaal).replace(".",",")+" d",R.betaal==null?"te weinig betalingen":"factuur → betaald")}</div>
-          <div class="cc-charts"><div><h4>Omzet per week (excl. btw)</h4>${heeftOmzet?ccSpark(R.weken):`<p class="cc-leeg">Nog geen gefactureerde omzet in de laatste 8 weken.</p>`}</div><div><h4>Verdeling opdrachten</h4>${R.verd.length?ccDonut(R.verd):`<p class="cc-leeg">Nog geen actieve opdrachten.</p>`}</div></div></section>
+
 </div>`}
 
 /* kaart: de bestaande dagkaart van Vandaag (zelfde stops, busje en live GPS), altijd voor vandaag */
