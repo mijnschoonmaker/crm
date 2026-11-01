@@ -311,7 +311,7 @@ function ccBetKnop(){const z=ccZien("bet");if(z)try{if((localStorage.getItem("ms
   return `<button type="button" class="cc-bel cc-bet${n?" nieuw":""}" id="ccBet" data-cc="betalingen" aria-label="Betalingen${n?", "+n+" nieuw":""}" title="Binnengekomen betalingen">${I.euro||"€"}${n?`<i class="groen">${n}</i>`:""}</button>`}
 /* wie was er in het klantportaal: laatste bezoek bovenaan */
 const portLaatst=k=>{const t=Date.parse(k.portaalLaatst||"");return isNaN(t)?0:t};
-function ccPortKnop(){const z=Date.parse(ccZien("port")||"")||0,d=Math.max(Date.now()-864e5,z),eig=typeof betEigen==="function"?betEigen():new Set(),n=(state.klanten||[]).filter(k=>!k.hoofdKlantId&&!eig.has(k.id)&&portLaatst(k)>d).length;
+function ccPortKnop(){if(!LIVE)return"";const z=Date.parse(ccZien("port")||"")||0,d=Math.max(Date.now()-864e5,z),eig=typeof betEigen==="function"?betEigen():new Set(),n=(state.klanten||[]).filter(k=>!k.hoofdKlantId&&!eig.has(k.id)&&portLaatst(k)>d).length;
   return `<button type="button" class="cc-bel cc-port" id="ccPort" data-cc="portaalbezoek" aria-label="Klantportaal: laatst ingelogd${n?", "+n+" nieuw":""}" title="Wie was er in het klantportaal">${I.user||I.klanten}${n?`<i class="blauw">${n}</i>`:""}</button>`}
 function openPortaalBezoek(){const nu=Date.now(),eig=typeof betEigen==="function"?betEigen():new Set();
   const L=(state.klanten||[]).filter(k=>!k.hoofdKlantId&&!eig.has(k.id)&&portLaatst(k)>0).sort((a,b)=>portLaatst(b)-portLaatst(a));
@@ -333,6 +333,7 @@ function ccActie(a){if(!a)return;const [k,...r]=a.split(":"),v=r.join(":");
   if(k==="klant")return ccKlant(v)?openKlant(v):go("klanten");
   if(k==="f"){const f=state.facturen.find(x=>x.id===v);if(!f)return;return f.soort==="offerte"?openOfferte({id:v}):openFactuur(v)}
   if(k==="tickets"){ccZienZet("tk",new Date().toISOString());return typeof openTickets==="function"?openTickets():go("communicatie")}
+  if(k==="portaalbezoek"&&!LIVE)return;
   if(k==="portaalbezoek"){ccZienZet("port",new Date().toISOString());return openPortaalBezoek()}
   if(k==="naar"&&v==="ccAdv")ccZienZet("bel",ccSignalen().map(m=>m.key));
   if(k==="betalingen"){const z=new Date().toISOString();if(typeof openBetalingen==="function")openBetalingen();else go("facturen");ccZienZet("bet",z);return}
