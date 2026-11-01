@@ -1,6 +1,6 @@
 /* Mansard als platform: een nieuw bedrijf aanmelden (eerste maand € 1), de status van het abonnement lezen.
    Een bedrijf = bedrijven/<id> (naam, eigenaar, status, proefTot, plan) met daaronder al zijn gegevens. */
-module.exports = ({ rawDb, T, onCall, onRequestRaw, HttpsError, nu, mollie, HOST, mfaOk }) => {
+module.exports = ({ abofactuur, rawDb, T, onCall, onRequestRaw, HttpsError, nu, mollie, HOST, mfaOk }) => {
   /* pakketten (bedragen excl. btw; Mollie schrijft incl. 21% btw af). De eerste maand (proef) kost € 1. */
   const BTW = 21, STARTPRIJS = 1;   // eerste maand, excl. btw (Mollie rekent incl.: € 1,21)
   const PLANS = {
@@ -113,6 +113,8 @@ module.exports = ({ rawDb, T, onCall, onRequestRaw, HttpsError, nu, mollie, HOST
         await ref.set({ achterstand: true, laatsteFout: p.status, foutOp: b.achterstand && b.foutOp ? b.foutOp : nu() }, { merge: true });
       }
       await herbereken(bid);
+      /* btw-factuur bij elke geslaagde betaling (eerste maand en elke maand daarna) */
+      if (p.status === "paid" && abofactuur) { try { await abofactuur.maakVoorBetaling(bid, p, (await ref.get()).data() || b); } catch (e) { console.error("abofactuur", bid, e.message); } }
       res.send("ok");
     } catch (e) { console.error("mansardHook", e); res.status(500).send("fout"); }
   });
@@ -232,5 +234,13 @@ module.exports = ({ rawDb, T, onCall, onRequestRaw, HttpsError, nu, mollie, HOST
     return { mollie: p.mansardMollieKey ? (String(p.mansardMollieKey).startsWith("test_") ? "test" : "live") : "", afzender: p.platformAfzender || "", afzenderNaam: p.platformAfzenderNaam || "", brevo: !!p.platformBrevoKey, bijgewerkt: p.bijgewerkt || "" };
   });
 
-  return { functies: { platformSleutels, bedrijfAanmaken, abonnement, abonnementStart, abonnementBijwerken, abonnementPlan, abonnementStoppen, mansardHook, beheer }, PLAN, magGebruiken, herbereken, openVoor };
+  /* facturen van het abonnement terugzien en downloaden (eigenaar van het bedrijf) */
+  const aboFacturen = onCall(async req => {
+    await eigenaarVan(req.auth); const bid = T.bid(), d = req.data || {};
+    if (!abofactuur) return { facturen: [] };
+    if (d.id) { const f = await abofactuur.pdfVan(bid, String(d.id)); if (!f) throw new HttpsError("not-found", "Factuur niet gevonden."); return f; }
+    return { facturen: (await abofactuur.lijst(bid)).map(x => ({ id: x.id, nummer: x.nummer, datum: x.datum, incl: x.incl, oms: x.oms, periode: x.periode })) };
+  });
+
+  return { functies: { aboFacturen, platformSleutels, bedrijfAanmaken, abonnement, abonnementStart, abonnementBijwerken, abonnementPlan, abonnementStoppen, mansardHook, beheer }, PLAN, magGebruiken, herbereken, openVoor };
 };
