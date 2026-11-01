@@ -134,7 +134,7 @@ module.exports = function maakPortaal(ctx) {
   const fStatus = f => f.status === "betaald" ? "betaald" : f.status === "oninbaar" ? "gesloten" : f.verval && f.verval < isoNL() ? "verlopen" : "open";
   const bedrijfInfo = (b, base) => ({ naam: b.naam || "mijnschoonmaker.com", logo: (b.logoMail || b.logo) ? base + "/_blob/" + (b.logoMail || b.logo) : "", telefoon: b.telefoon || "", mobiel: b.mobiel || b.telefoon || "", email: b.email || "", website: b.website || "", iban: b.iban || "", reviewLink: b.reviewLink || "", kleur: b.mailAccent || b.hoofdkleur || "#137a8a",
     voorwaarden: b.voorwaardenPdf ? base + "/_blob/" + b.voorwaardenPdf : "", tijdWeergave: b.portaalTijd || "venster", refAan: b.refAan !== false, refBeloning: b.refBeloning != null && b.refBeloning !== "" ? Number(b.refBeloning) : 20, refWelkom: b.refWelkom != null && b.refWelkom !== "" ? Number(b.refWelkom) : 10, werkStart: b.werkStart || "08:00",
-    credits: { review: 0, beurt: 0, extra: numOf(b.crExtra, 3), aanbevelen: numOf(b.refBeloning, 20), snel: numOf(b.crSnel, 0.5), maandTop: numOf(b.crMaandTop, 5), jaar: 0 } });
+    credits: { review: 0, beurt: 0, extra: numOf(b.crExtra, 3), aanbevelen: numOf(b.refBeloning, 20), snel: numOf(b.crSnel, 0.5), maandTop: numOf(b.crMaandTop, 5), maandTop2: numOf(b.crMaandTop2, 2.5), maandTop3: numOf(b.crMaandTop3, 1), jaar: 0 } });
   const numOf = (v, d) => v != null && v !== "" && !isNaN(Number(v)) ? Number(v) : d;
 
   /* ---------- live meekijken: waar rijdt de glazenwasser (alleen voor klanten van vandaag) ---------- */
@@ -758,21 +758,51 @@ module.exports = function maakPortaal(ctx) {
     } }
     console.log("credits automatisch", [...nieuw.values()].reduce((a, l) => a + l.length, 0));
   }) : null;
-  /* ---------- snelste betaler van de maand ----------
-     Elke ochtend: is de vorige maand nog niet vastgelegd, dan de top 3 vastleggen (zo ziet iedereen hem in het portaal)
-     en nummer 1 krijgt de maandprijs in credits. Vaste bron+ref (maandtop + maand), dus nooit dubbel. */
-  const maandWinnaar = onSchedule ? onSchedule({ schedule: "5 8 * * *", timeZone: "Europe/Amsterdam", timeoutSeconds: 120, memory: "512MiB" }, async () => {
+  /* ---------- snelste betalers van de maand ----------
+     Elke ochtend: is de vorige maand nog niet vastgelegd, dan de top 3 vastleggen (zo ziet iedereen hem in het portaal).
+     Plek 1, 2 en 3 krijgen extra credits (vaste bron+ref: maandtop + maand, dus nooit dubbel) en een felicitatiemail. */
+  const MAANDEN = ["januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"];
+  const duurNL = sec => { sec = Math.max(0, Math.round(sec)); const d = Math.floor(sec / 86400), u = Math.floor(sec % 86400 / 3600), m = Math.floor(sec % 3600 / 60), x = sec % 60, p = []; if (d) p.push(d + (d === 1 ? " dag" : " dagen")); if (u) p.push(u + " uur"); if (m) p.push(m + " min"); if (x || !p.length) p.push(x + " sec"); return p.slice(0, 2).join(" "); };
+  const crTxt = n => (Number.isInteger(n) ? String(n) : String(n).replace(".", ",")) + (n === 1 ? " credit" : " credits");
+  const eurNL = n => "€ " + Number(n).toFixed(2).replace(".", ",");
+  function winnaarMail(plek, x, mn, prijs, b) {
+    const vn = x.vn || "klant", naam = b.naam || "", cup = ["🏆", "🥈", "🥉"][plek - 1], kleur = ["#c8962e", "#8a929c", "#b06d3f"][plek - 1], bg = ["#fbf1dc", "#eef0f3", "#f7e6d9"][plek - 1];
+    const titel = plek === 1 ? "U bent de snelste betaler van " + mn + "!" : "U staat op de " + plek + "e plek van " + mn + "!";
+    const onderwerp = cup + " " + (plek === 1 ? "Snelste betaler van " + mn : plek + "e plek snelste betalers van " + mn) + " · " + naam;
+    const tekst = `Beste ${vn},\n\n${plek === 1 ? `Gefeliciteerd! In ${mn} was u de **snelste betaler** van al onze klanten.` : `Gefeliciteerd! In ${mn} stond u op de **${plek}e plek** van onze snelste betalers.`} U betaalde uw factuur in ${duurNL(x.sec)}. Hartelijk dank voor uw snelle betaling, daar zijn wij erg blij mee.`;
+    const na = `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:4px 0 20px"><tr><td align="center" style="background:${bg};border-radius:18px;padding:22px 18px;border:1px solid ${kleur}33">
+      <div style="font-size:44px;line-height:1">${cup}</div>
+      <div style="font-size:12px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:${kleur};margin:10px 0 4px">${plek}e plek &middot; ${mn}</div>
+      <div style="font-size:20px;font-weight:700;color:#0f1f26;letter-spacing:-.3px">${titel.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</div>
+      ${prijs > 0 ? `<div style="display:inline-block;margin-top:14px;padding:8px 16px;border-radius:999px;background:#ffffff;font-size:15px;font-weight:700;color:#1f7a4d;border:1px solid #1f7a4d33">+ ${crTxt(prijs)} &middot; ${eurNL(prijs)} korting</div>` : ""}
+    </td></tr></table>`;
+    const onder = `${prijs > 0 ? `De **${crTxt(prijs)} (${eurNL(prijs)})** zijn al bijgeschreven en gaan automatisch van uw eerstvolgende factuur af. U hoeft daar niets voor te doen.\n\n` : ""}In uw klantportaal ziet u uw credits en de top 3 van de maand. Elke maand maakt u weer kans.\n\nMet vriendelijke groet,\n${naam}`;
+    return { onderwerp, tekst, na, onder };
+  }
+  const maandWinnaar = onSchedule ? onSchedule({ schedule: "5 8 * * *", timeZone: "Europe/Amsterdam", timeoutSeconds: 300, memory: "512MiB" }, async () => {
     const vm = vorigeMaand(), ref = db.doc("ranglijst/" + vm);
     if ((await ref.get()).exists) return;
-    _rl = null; const top = await maandTop(vm), b = await bedrijf(), prijs = bedrijfInfo(b, "").credits.maandTop;
-    await ref.set({ maand: vm, top, prijs, op: nu() });
-    const w = top[0]; if (!w || !(prijs > 0)) return;
-    const kref = db.doc("klanten/" + w.klantId);
-    await db.runTransaction(async t => { const ks = await t.get(kref); if (!ks.exists) return; const k = dec(ks.data());
-      if ([...(k.tegoed || []), ...(k.tegoedGebruikt || [])].some(x => x && x.bron === "maandtop" && String(x.ref || "") === vm)) return;
-      const mn = ["januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"][Number(vm.slice(5)) - 1];
-      t.set(kref, { tegoed: [...(Array.isArray(k.tegoed) ? k.tegoed : []), { id: newId("tg"), bedrag: prijs, reden: "Credits: snelste betaler van " + mn, bron: "maandtop", ref: vm, op: isoNL() }] }, { merge: true }); });
-    console.log("maandwinnaar", vm, w.klantId);
+    _rl = null; const top = await maandTop(vm), b = await bedrijf(), cr = bedrijfInfo(b, "").credits, prijzen = [cr.maandTop, cr.maandTop2, cr.maandTop3];
+    await ref.set({ maand: vm, top, prijzen, op: nu() });
+    const mn = MAANDEN[Number(vm.slice(5)) - 1], g = await geheim();
+    for (let i = 0; i < top.length; i++) {
+      const x = top[i], plek = i + 1, prijs = Number(prijzen[i]) || 0, kref = db.doc("klanten/" + x.klantId);
+      let k = null, nieuw = false;
+      try {
+        await db.runTransaction(async t => { const ks = await t.get(kref); if (!ks.exists) return; k = dec(ks.data());
+          if (!(prijs > 0) || [...(k.tegoed || []), ...(k.tegoedGebruikt || [])].some(y => y && y.bron === "maandtop" && String(y.ref || "") === vm)) return;
+          nieuw = true;
+          t.set(kref, { tegoed: [...(Array.isArray(k.tegoed) ? k.tegoed : []), { id: newId("tg"), bedrag: prijs, reden: "Credits: " + (plek === 1 ? "snelste betaler" : plek + "e plek snelste betalers") + " van " + mn, bron: "maandtop", ref: vm, op: isoNL() }] }, { merge: true }); });
+      } catch (e) { console.error("maandtop credits", x.klantId, e.message); continue; }
+      const email = String((k && k.email) || "").trim();
+      if (!k || !g.brevoKey || !/@/.test(email) || (prijs > 0 && !nieuw)) continue;
+      try {
+        const m = winnaarMail(plek, x, mn, prijs, b), afz = g.afzender || b.email || "info@mijnschoonmaker.com";
+        await brevoSend(g.brevoKey, { sender: { name: b.naam || "", email: afz }, replyTo: { email: b.email || afz }, to: [{ email, name: schoon(k.naam) || undefined }], subject: m.onderwerp, htmlContent: mailHtml(m.tekst, b, { na: m.na, onder: m.onder, portaal: await portaalUrl(k.id, email) }) });
+        await db.doc("berichten/" + newId("m")).set({ klantId: k.id, klantNaam: k.naam || "", naar: email, kanaal: "email", sjabloon: "maandtop", onderwerp: m.onderwerp, tekst: m.tekst + "\n\n" + m.onder, status: "verstuurd", verstuurdOp: nu(), op: nu(), door: "automatisch" });
+      } catch (e) { console.error("maandtop mail", x.klantId, e.message); }
+    }
+    console.log("maandwinnaars", vm, top.map(x => x.klantId));
   }) : null;
-  return { portaal, portaalUitnodigen, portaalVoorbeeld, ticketMelding, refKlant, creditsAuto, maandWinnaar };
+  return { portaal, portaalUitnodigen, portaalVoorbeeld, ticketMelding, refKlant, creditsAuto, maandWinnaar, winnaarMail };
 };
