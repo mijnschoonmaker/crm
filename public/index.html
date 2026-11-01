@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="37fa4a5ea449"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="26ae835dc91c"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -5358,6 +5358,11 @@ html body .sc3-zoek{flex-direction:row!important}html body .sc3-zoek svg{width:1
 .bet-cup{font-style:normal;display:inline-block;margin-right:1px}
 .bet-rk.zilver .bet-cup{filter:grayscale(1) brightness(.95) contrast(1.3)}
 .bet-rk.brons .bet-cup{filter:sepia(1) saturate(2.2) hue-rotate(-18deg) brightness(.85)}
+.bet-mt{margin:0 0 14px;padding:14px 16px;border-radius:16px;background:linear-gradient(135deg,#fbf6ea,#ffffff);border:1px solid #ecdcb5}
+.bet-mth b{display:block;font-size:15px;font-weight:700}.bet-mth small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.bet-mtl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+.bet-mtp{display:flex;align-items:center;gap:9px;min-width:0}.bet-mtp>span:last-child{min-width:0}.bet-mtp b{display:block;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bet-mtp small{display:block;color:var(--muted);font-size:12px}
+@media (max-width:620px){.bet-mtl{grid-template-columns:1fr}}
 
 </style>
 <style id="mansardThema">
@@ -16197,7 +16202,8 @@ function betaalCheck(){if(!state.loaded||isMw())return;const nu={};state.facture
   betaalVorig=nu;try{if(typeof ccBetVernieuw==="function")ccBetVernieuw()}catch(e){}}
 /* binnengekomen betalingen: automatisch verwerkt (iDEAL via Mollie, bankkoppeling of incasso), niet wat je zelf op betaald zet */
 const betAuto=f=>!!f&&f.status==="betaald"&&(f.betaalwijze==="mollie"||!!f.bankTx||(f.betaalwijze==="incasso"&&f.mollieStatus==="paid"));
-const betVia=f=>f.betaalwijze==="mollie"?"iDEAL":f.betaalwijze==="incasso"?"Incasso":f.bankTx?"Bank":f.betaalwijze==="contant"?"Contant":f.betaalwijze==="pin"?"Pin":"Overgemaakt";
+const MOLLIE_M={ideal:"iDEAL",creditcard:"Creditcard",bancontact:"Bancontact",paypal:"PayPal",applepay:"Apple Pay",banktransfer:"Overboeking via Mollie",kbc:"KBC",belfius:"Belfius",in3:"in3",klarna:"Klarna"};
+const betVia=f=>f.betaalwijze==="mollie"?(f.mollieMethode?MOLLIE_M[f.mollieMethode]||f.mollieMethode:"iDEAL"):f.betaalwijze==="incasso"?"Incasso":f.bankTx?"Bank":f.betaalwijze==="contant"?"Contant":f.betaalwijze==="pin"?"Pin":"Overgemaakt";
 const betTs=f=>String(f.betaaldTs||(f.betaaldOp?f.betaaldOp+"T12:00:00":"")||"");
 const betZienLees=()=>{try{return localStorage.getItem("ms.betZien")||""}catch(e){return""}};
 function betNieuw(){const z=betZienLees()||iso(today())+"T00:00:00";return (state.facturen||[]).filter(f=>f.soort!=="offerte"&&betAuto(f)&&betTs(f)>z)}
@@ -16208,6 +16214,16 @@ const betDuur=sec=>{if(sec==null)return"";const d=Math.floor(sec/86400),u=Math.f
 /* ranglijst nu: klanten op gemiddelde betaalsnelheid (betaalde facturen van de laatste 12 maanden), zelfde regels als het portaal */
 /* je eigen klantkaart (zelfde e-mail als je bedrijf) doet niet mee, net als in het portaal */
 const betEigen=()=>{const m=String(S().email||"").trim().toLowerCase(),o=new Set();if(m)(state.klanten||[]).forEach(k=>{if(String(k.email||"").trim().toLowerCase()===m||k.nietInRanglijst===true)o.add(k.id)});return o};
+/* snelste betalers van de maand, zelfde regels als het portaal: vanaf november 2026 alleen via de iDEAL-knop (Mollie, iDEAL, geen incasso) */
+const BET_IDEAL_VANAF="2026-11";
+const betIdeal=f=>f.betaalwijze==="mollie"&&!f.incasso&&(f.mollieMethode==="ideal"||(!f.mollieMethode&&String(f.betaaldTs||"")<"2026-11-01T15:00"));
+const betMaand=f=>String(f.betaaldTs?iso(new Date(f.betaaldTs)):f.betaaldOp||"").slice(0,7);
+function betMaandTop(m){const eig=betEigen(),best={};(state.facturen||[]).forEach(f=>{if(f.soort==="offerte"||f.status!=="betaald"||!f.klantId||eig.has(f.klantId)||betMaand(f)!==m)return;if(f.incasso||f.betaalwijze==="incasso")return;if(m>=BET_IDEAL_VANAF&&!betIdeal(f))return;const s=betSec(f);if(s==null)return;if(!best[f.klantId]||s<best[f.klantId].s)best[f.klantId]={f,s}});
+  return Object.values(best).sort((a,b)=>a.s-b.s).slice(0,3)}
+function betMaandHtml(){const m=iso(today()).slice(0,7),T=betMaandTop(m),st=S(),pr=[["crMaandTop",5],["crMaandTop2",2.5],["crMaandTop3",1]].map(([k,d])=>st[k]!=null&&st[k]!==""?Number(st[k]):d),kl=["top","zilver","brons"];
+  const mn=MAANDEN[Number(m.slice(5))-1];
+  return `<div class="bet-mt"><div class="bet-mth"><b>Snelste betalers ${esc(mn)}</b><small>Telt mee: alleen betalen met de iDEAL-knop. Op de 1e van de maand krijgt de top 3 de credits en een mail.</small></div>
+    ${T.length?`<div class="bet-mtl">${T.map((x,i)=>`<span class="bet-mtp"><span class="bet-rk ${kl[i]}"><i class="bet-cup">🏆</i><b>${i+1}</b></span><span><b>${esc(cleanName(x.f.klantNaam||"Klant"))}</b><small>${esc(betDuur(x.s))}${pr[i]>0?" · +"+String(pr[i]).replace(".",",")+" credits":""}</small></span></span>`).join("")}</div>`:`<p class="subt" style="margin:0">Nog niemand deze maand.</p>`}</div>`}
 function betRanglijst(){const sinds=iso(addDays(today(),-365)),per={},eig=betEigen();(state.facturen||[]).forEach(f=>{if(f.soort==="offerte"||f.status!=="betaald"||!f.klantId||eig.has(f.klantId)||String(f.datum||"")<sinds)return;const s=betSec(f);if(s==null)return;(per[f.klantId]=per[f.klantId]||[]).push(s)});
   const l=Object.entries(per).map(([id,a])=>({id,s:a.reduce((x,y)=>x+y,0)/a.length})).sort((a,b)=>a.s-b.s),r={};l.forEach((x,i)=>r[x.id]=i+1);return{r,n:l.length}}
 /* lijst met betalingen van de laatste 14 dagen (alle manieren), nieuwste bovenaan */
@@ -16215,7 +16231,7 @@ function openBetalingen(){const van=iso(addDays(today(),-14)),z=betZienLees()||i
   const L=(state.facturen||[]).filter(f=>f.soort!=="offerte"&&f.status==="betaald"&&String(f.betaaldOp||"")>=van).sort((a,b)=>betTs(b).localeCompare(betTs(a))),RG=betRanglijst();
   const som=L.reduce((a,f)=>a+totals(f).inc,0),vd=iso(today()),somVd=L.filter(f=>String(f.betaaldOp||"").slice(0,10)===vd).reduce((a,f)=>a+totals(f).inc,0);
   openDlg(`<div class="dlg-head"><span class="objic big bet-ic">${I.euro}</span><div style="min-width:0;flex:1"><h3>Betalingen</h3><div class="subt">Ontvangen in de laatste 14 dagen · vandaag ${eur(somVd)} · # = plek in de ranglijst snelste betalers, nu</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
-    ${L.length?`<div class="bet-tot"><span>Totaal 14 dagen</span><b>${eur(som)}</b><small>${plural(L.length,"betaling","betalingen")}</small></div><div class="bet-l">${L.map(f=>{const nw=betAuto(f)&&betTs(f)>z,d=String(f.betaaldOp||"").slice(0,10);
+    ${betMaandHtml()}${L.length?`<div class="bet-tot"><span>Totaal 14 dagen</span><b>${eur(som)}</b><small>${plural(L.length,"betaling","betalingen")}</small></div><div class="bet-l">${L.map(f=>{const nw=betAuto(f)&&betTs(f)>z,d=String(f.betaaldOp||"").slice(0,10);
       const sec=betSec(f),tijd=f.betaaldTs?new Date(f.betaaldTs).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"}):"",rg=RG.r[f.klantId];
       return `<button type="button" class="bet-r${nw?" nieuw":""}" data-betf="${esc(f.id)}"><span class="bet-av" style="--h:${hue(f.klantNaam||"")}">${esc(initials(cleanName(f.klantNaam||"?")))}</span><span class="bet-t"><b>${esc(cleanName(f.klantNaam||"Klant"))}</b><small>${d===vd?"Vandaag":esc(fmtD(d))}${tijd?" om "+esc(tijd):""} · ${esc(betVia(f))} · ${esc(f.nummer||"")}</small>${sec!=null?`<em class="bet-snel${sec<86400?" vlot":""}">${I.clock||""}betaald in ${esc(betDuur(sec))}${f.betaaldTs?"":" (ongeveer)"}</em>`:""}</span>${nw?'<i class="bet-nw">Nieuw</i>':""}<span class="bet-b">${eur(totals(f).inc)}</span><span class="bet-rk${rg===1?" top":rg===2?" zilver":rg===3?" brons":""}" title="Plek in de ranglijst snelste betalers (nu, ${RG.n} klanten)">${rg?(rg<=3?'<i class="bet-cup">🏆</i>':"#")+"<b>"+rg+"</b>":"–"}</span></button>`}).join("")}</div>`
       :`<p class="subt" style="margin:8px 0">Nog geen betalingen in de laatste 14 dagen.</p>`}`);

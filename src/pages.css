@@ -4652,3 +4652,8 @@ html body .sc3-zoek{flex-direction:row!important}html body .sc3-zoek svg{width:1
 .bet-cup{font-style:normal;display:inline-block;margin-right:1px}
 .bet-rk.zilver .bet-cup{filter:grayscale(1) brightness(.95) contrast(1.3)}
 .bet-rk.brons .bet-cup{filter:sepia(1) saturate(2.2) hue-rotate(-18deg) brightness(.85)}
+.bet-mt{margin:0 0 14px;padding:14px 16px;border-radius:16px;background:linear-gradient(135deg,#fbf6ea,#ffffff);border:1px solid #ecdcb5}
+.bet-mth b{display:block;font-size:15px;font-weight:700}.bet-mth small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.bet-mtl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+.bet-mtp{display:flex;align-items:center;gap:9px;min-width:0}.bet-mtp>span:last-child{min-width:0}.bet-mtp b{display:block;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bet-mtp small{display:block;color:var(--muted);font-size:12px}
+@media (max-width:620px){.bet-mtl{grid-template-columns:1fr}}

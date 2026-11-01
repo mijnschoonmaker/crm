@@ -106,9 +106,13 @@ module.exports = function maakPortaal(ctx) {
     kq.docs.forEach(d => { const k = dec(d.data()); K.set(d.id, { vn: voornaamVan(schoon(k.contact || k.naam)), eigen: !!eigenMail && String(k.email || "").trim().toLowerCase() === eigenMail, uit: k.nietInRanglijst === true }); });
     const F = [];
     fq.docs.forEach(d => { const f = d.data(); if (!f.klantId || f.soort === "offerte") return; const kk = K.get(f.klantId); if (!kk || kk.eigen || kk.uit) return; const sec = betaalSec(f); if (sec == null) return;
-      F.push({ klantId: f.klantId, datum: f.datum || "", maand: String(f.betaaldTs ? isoNL(new Date(f.betaaldTs)) : f.betaaldOp || "").slice(0, 7), sec, precies: betaalPrecies(f), incasso: !!(f.incasso || f.betaalwijze === "incasso") }); });
+      F.push({ klantId: f.klantId, datum: f.datum || "", maand: String(f.betaaldTs ? isoNL(new Date(f.betaaldTs)) : f.betaaldOp || "").slice(0, 7), sec, precies: betaalPrecies(f), incasso: !!(f.incasso || f.betaalwijze === "incasso"), ideal: viaIdeal(f) }); });
     return (_rl = { t: Date.now(), F, K });
   }
+  /* telt mee voor de snelste betalers van de maand: vanaf november 2026 alleen via de iDEAL-knop (Mollie, methode iDEAL; geen incasso).
+     Betalingen van vóór het bewaren van de methode (1 nov 2026) met Mollie gelden als iDEAL. */
+  const IDEAL_VANAF = "2026-11";
+  const viaIdeal = f => f.betaalwijze === "mollie" && !f.incasso && (f.mollieMethode === "ideal" || (!f.mollieMethode && String(f.betaaldTs || "") < "2026-11-01T15:00"));
   async function betaalRang(klantId) {
     const { F } = await rangData(), sinds = new Date(Date.now() - 365 * DAG).toISOString().slice(0, 10), per = {};
     F.forEach(x => { if (x.datum < sinds) return; (per[x.klantId] = per[x.klantId] || []).push(x); });
@@ -119,7 +123,7 @@ module.exports = function maakPortaal(ctx) {
   /* top 3 van een maand: per klant de snelst betaalde factuur die maand (automatische incasso telt niet mee). Alleen voornamen. */
   async function maandTop(maand) {
     const { F, K } = await rangData(), best = {};
-    F.forEach(x => { if (x.maand !== maand || x.incasso) return; if (!best[x.klantId] || x.sec < best[x.klantId].sec) best[x.klantId] = x; });
+    F.forEach(x => { if (x.maand !== maand || x.incasso || (maand >= IDEAL_VANAF && !x.ideal)) return; if (!best[x.klantId] || x.sec < best[x.klantId].sec) best[x.klantId] = x; });
     return Object.values(best).sort((a, c) => a.sec - c.sec).slice(0, 3).map(x => ({ klantId: x.klantId, vn: (K.get(x.klantId) || {}).vn || "Klant", sec: x.sec }));
   }
   const vorigeMaand = () => { const d = new Date(isoNL() + "T12:00:00Z"); d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth() - 1); return d.toISOString().slice(0, 7); };
@@ -776,7 +780,7 @@ module.exports = function maakPortaal(ctx) {
       <div style="font-size:20px;font-weight:700;color:#0f1f26;letter-spacing:-.3px">${titel.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</div>
       ${prijs > 0 ? `<div style="display:inline-block;margin-top:14px;padding:8px 16px;border-radius:999px;background:#ffffff;font-size:15px;font-weight:700;color:#1f7a4d;border:1px solid #1f7a4d33">+ ${crTxt(prijs)} &middot; ${eurNL(prijs)} korting</div>` : ""}
     </td></tr></table>`;
-    const onder = `${prijs > 0 ? `De **${crTxt(prijs)} (${eurNL(prijs)})** zijn al bijgeschreven en gaan automatisch van uw eerstvolgende factuur af. U hoeft daar niets voor te doen.\n\n` : ""}In uw klantportaal ziet u uw credits en de top 3 van de maand. Elke maand maakt u weer kans.\n\nMet vriendelijke groet,\n${naam}`;
+    const onder = `${prijs > 0 ? `De **${crTxt(prijs)} (${eurNL(prijs)})** zijn al bijgeschreven en gaan automatisch van uw eerstvolgende factuur af. U hoeft daar niets voor te doen.\n\n` : ""}In uw klantportaal ziet u uw credits en de top 3 van de maand. Elke maand maakt u weer kans: betaal uw factuur direct met de **iDEAL-knop** in de mail of in uw klantportaal.\n\nMet vriendelijke groet,\n${naam}`;
     return { onderwerp, tekst, na, onder };
   }
   const maandWinnaar = onSchedule ? onSchedule({ schedule: "5 8 * * *", timeZone: "Europe/Amsterdam", timeoutSeconds: 300, memory: "512MiB" }, async () => {

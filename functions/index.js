@@ -441,7 +441,7 @@ async function verwerkFactuurBetaling(p) {
           if (gehad.includes(p.id)) return x.status === "betaald";
           const bedrag = Number((p.amount || {}).value) || 0, al = Number(x.deelBetaald) || 0, rest = Math.round((BANK.totals(x, b0) - al) * 100) / 100;
           upd.mollieBetaald = [...gehad, p.id].slice(-20);
-          if (bedrag + 0.01 >= rest) { vol = true; Object.assign(upd, { status: "betaald", betaald: true, betaaldOp: dagNL(p.paidAt || Date.now()), betaaldTs: p.paidAt || nu(), betaalwijze: "mollie" }); }
+          if (bedrag + 0.01 >= rest) { vol = true; Object.assign(upd, { status: "betaald", betaald: true, betaaldOp: dagNL(p.paidAt || Date.now()), betaaldTs: p.paidAt || nu(), betaalwijze: "mollie", mollieMethode: String(p.method || "") }); }
           else Object.assign(upd, { deelBetaald: Math.round((al + bedrag) * 100) / 100, deelBetaaldOp: dagNL(p.paidAt || Date.now()), betaallink: "", mollieLink: "",
             deelBetalingen: [...(Array.isArray(x.deelBetalingen) ? x.deelBetalingen : []), { op: dagNL(p.paidAt || Date.now()), bedrag, id: p.id }] });
         }
