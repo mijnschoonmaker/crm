@@ -2643,7 +2643,7 @@ function pdfVenster(url, naam, blob) {
 /* ---------- live meekijken: waar is de glazenwasser (alleen op de dag van uw bezoek) ---------- */
 const LVK={map:null,car:null,huis:null,lijn:null,van:null,naar:null,anim:0,timer:0,zelf:false,laadt:null};
 /* de bus van het bedrijf (eigen bus als die er is, anders de Mansard-bus) */
-const AUTO={toString(){return `<img src="${(B&&B.bus&&B.bus.rechts)||"/img/mansard-bus.png"}" alt="">`}};
+const AUTO={toString(){return `<img src="${(B&&B.bus&&B.bus.rechts)||(B&&B.bus===null?"/img/mansard-bus.png":"/img/bus.png")}" alt="">`}};
 function lvTekst(L){const vn=L.naam?L.naam.charAt(0).toUpperCase()+L.naam.slice(1):PGLAS()?"Uw glazenwasser":"Onze medewerker";
   const oud=L.pos&&L.pos.sec>75?Math.round(L.pos.sec/60):0;if(oud&&L.voor===0)return{t:vn+" is onderweg naar u",s:"Laatste plek "+(oud<=1?"1 minuut":oud+" minuten")+" geleden"+(L.km!=null?" · nog "+String(L.km).replace(".",",")+" km":"")};
   if(L.voor===0)return{t:L.bezigBij?"U bent de volgende":vn+" is onderweg naar u",s:L.km!=null?(L.km<0.3?"Bijna bij u":"Nog "+String(L.km).replace(".",",")+" km"):"We zijn onderweg"};

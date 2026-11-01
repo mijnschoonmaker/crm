@@ -5,7 +5,8 @@
 const busLegacy=()=>typeof LIVE!=="undefined"&&LIVE&&(!window.ZEEM_BID||window.ZEEM_BID==="mijnschoonmaker");
 function busEigen(){try{if(busLegacy())return null;const s=S(),b=s.busBeeld;return s.busAan!==false&&b&&b.rechts?b:null}catch(e){return null}}
 /* rechts = de bus rijdt naar rechts (voorkant rechts); links = de andere kant van de bus */
-function busSrc(links){const b=busEigen();if(!b)return"/img/mansard-bus.png";return"/_blob/"+(links&&b.links?b.links:b.rechts)}
+/* zonder eigen bus: mijnschoonmaker.com de eigen bus met de Brian James boxvan, andere bedrijven alleen de bus */
+function busSrc(links){const b=busEigen();if(!b)return busLegacy()?"/img/mansard-bus.png":"/img/bus.png";return"/_blob/"+(links&&b.links?b.links:b.rechts)}
 const BUS_ZIJDEN=[["rechts","Rechterkant","Voorkant van de bus rechts in beeld"],["links","Linkerkant","Voorkant van de bus links in beeld"],["voor","Voorkant",""],["achter","Achterkant",""]];
 try{const g=SET_GROEP.find(x=>x[0]==="werk");if(g&&!g[3].includes("bus"))g[3].push("bus")}catch(e){}
 SETCARDS.push({id:"bus",t:"Eigen bus op de kaart",sub:"Je eigen bus rijdt mee in het CRM en het klantportaal",ic:"auto",bg:"#252c3c",weg:busLegacy,

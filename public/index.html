@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="09f5f40f63d4"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="8b2c1f68c980"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -10343,7 +10343,7 @@ function emailHtmlRuw({stijl,accent,kicker,titel,tekst,rich,meta,regels,totaal,t
   ${kop?`<div style="padding:16px 34px 2px">${kop}</div>`:""}
   <div style="padding:16px 34px 10px;color:#2b3a40">${tb}</div>
 </div>
-${scene?`<div style="background:#fbfcfc;line-height:0;font-size:0;padding-top:4px"><img src="${e((LIVE&&/^https?:/.test(location.origin)?location.origin:"https://app.mansard.nl")+"/mail/"+scene+".gif")}" width="720" alt="${scene==="weg"?BW("uwWerk"):"Wij zijn onderweg naar u"}" style="display:block;width:100%;max-width:720px;height:auto;border:0"></div>`:`<div style="background:#fbfcfc;height:14px;line-height:14px;font-size:0">&nbsp;</div>`}
+${scene?`<div style="background:#fbfcfc;line-height:0;font-size:0;padding-top:4px"><img src="${e((LIVE&&/^https?:/.test(location.origin)?location.origin:"https://app.mansard.nl")+"/mail/"+scene+(typeof busLegacy==="function"&&!busLegacy()?"-bus":"")+".gif")}" width="720" alt="${scene==="weg"?BW("uwWerk"):"Wij zijn onderweg naar u"}" style="display:block;width:100%;max-width:720px;height:auto;border:0"></div>`:`<div style="background:#fbfcfc;height:14px;line-height:14px;font-size:0">&nbsp;</div>`}
 <div style="background:${BL};background-image:repeating-linear-gradient(115deg,rgba(255,255,255,.035) 0 2px,transparent 2px 22px),linear-gradient(135deg,${BL2},${BL} 60%,${_mx(BL,"#ffffff",.12)});border-radius:0 0 22px 22px;color:#ffffff;padding:18px 30px 20px">${portaal?`<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td class="ms-kol" valign="top" style="vertical-align:top">${strook}</td><td class="ms-kol ms-kr" align="right" valign="middle" style="vertical-align:middle;text-align:right;padding-left:16px">${pkKnop("#ffffff",INK)}</td></tr></table>`:strook}</div>
 </div></div>`;
 }
@@ -17234,7 +17234,8 @@ document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest
 const busLegacy=()=>typeof LIVE!=="undefined"&&LIVE&&(!window.ZEEM_BID||window.ZEEM_BID==="mijnschoonmaker");
 function busEigen(){try{if(busLegacy())return null;const s=S(),b=s.busBeeld;return s.busAan!==false&&b&&b.rechts?b:null}catch(e){return null}}
 /* rechts = de bus rijdt naar rechts (voorkant rechts); links = de andere kant van de bus */
-function busSrc(links){const b=busEigen();if(!b)return"/img/mansard-bus.png";return"/_blob/"+(links&&b.links?b.links:b.rechts)}
+/* zonder eigen bus: mijnschoonmaker.com de eigen bus met de Brian James boxvan, andere bedrijven alleen de bus */
+function busSrc(links){const b=busEigen();if(!b)return busLegacy()?"/img/mansard-bus.png":"/img/bus.png";return"/_blob/"+(links&&b.links?b.links:b.rechts)}
 const BUS_ZIJDEN=[["rechts","Rechterkant","Voorkant van de bus rechts in beeld"],["links","Linkerkant","Voorkant van de bus links in beeld"],["voor","Voorkant",""],["achter","Achterkant",""]];
 try{const g=SET_GROEP.find(x=>x[0]==="werk");if(g&&!g[3].includes("bus"))g[3].push("bus")}catch(e){}
 SETCARDS.push({id:"bus",t:"Eigen bus op de kaart",sub:"Je eigen bus rijdt mee in het CRM en het klantportaal",ic:"auto",bg:"#252c3c",weg:busLegacy,

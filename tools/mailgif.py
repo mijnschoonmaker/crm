@@ -2,6 +2,7 @@
 """Maakt de bewegende plaatjes voor de mails in public/mail/.
 
   python3 tools/mailgif.py           -> onderweg.gif en weg.gif (witte bus met gesloten aanhanger)
+  python3 tools/mailgif.py --bus     -> onderweg-bus.gif en weg-bus.gif (alleen de bus, voor andere bedrijven)
   python3 tools/mailgif.py --kaart   -> live-kaart.gif op een echte luchtfoto (PDOK) met een route over de weg (OSRM)
 
 De kaart heeft internet nodig (PDOK en OSRM); dat draait in GitHub Actions bij het online zetten.
@@ -12,6 +13,9 @@ from PIL import Image, ImageDraw, ImageFilter
 
 UIT = os.path.join(os.path.dirname(__file__), "..", "public", "mail")
 BUS = os.path.join(os.path.dirname(__file__), "..", "public", "img", "mansard-bus.png")  # dezelfde bus + Brian James boxvan als op Vandaag
+# --bus: alleen de bus (zonder aanhanger) voor andere bedrijven -> onderweg-bus.gif en weg-bus.gif
+SUF = "-bus" if "--bus" in sys.argv else ""
+if SUF: BUS = os.path.join(os.path.dirname(__file__), "..", "public", "img", "bus.png")
 _BUSIM = None
 
 
@@ -175,7 +179,7 @@ def scene(naam, richting):
         hold = [1400] + [55] * (n - 2) + [600]
     pal = frames[-1 if richting == "aan" else 0].quantize(colors=96, method=Image.Quantize.MEDIANCUT)
     q = [fr.quantize(palette=pal, dither=Image.Dither.NONE) for fr in frames]
-    q[0].save(os.path.join(UIT, naam + ".gif"), save_all=True, append_images=q[1:], duration=hold, loop=0, optimize=True, disposal=1)
+    q[0].save(os.path.join(UIT, naam + SUF + ".gif"), save_all=True, append_images=q[1:], duration=hold, loop=0, optimize=True, disposal=1)
     print("geschreven", naam, os.path.getsize(os.path.join(UIT, naam + ".gif")))
 
 
