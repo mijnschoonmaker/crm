@@ -18,9 +18,13 @@ async function saveSettings(patch,msg="Instellingen opgeslagen"){const data={...
   try{await save("instellingen","bedrijf",data);state.settings=data;toast(msg);return true}catch(e){err(e);return false}}
 function bindSave(extra){form.onsubmit=async e=>{e.preventDefault();const b=$("#setSave");if(b)b.disabled=true;const p={...readFields(),...(extra?extra():{})};if(await saveSettings(p)){dlg.close();schedule()}else if(b)b.disabled=false}}
 const testRow=(id,ph,help)=>`${sec("Testbericht")}<div class="testrow"><input id="${id}" placeholder="${esc(ph)}"><button type="button" class="small" data-test="${id}">${I.send}Test</button></div><small class="help">${esc(help)}</small>`;
-function bindTest(id,textFn,subjFn){const b=form.querySelector(`[data-test="${id}"]`);if(!b)return;b.onclick=()=>{const v=$("#"+id).value.trim();if(!v){$("#"+id).focus();return}
+function bindTest(id,textFn,subjFn,sjabloon){const b=form.querySelector(`[data-test="${id}"]`);if(!b)return;b.onclick=async()=>{const v=$("#"+id).value.trim();if(!v){$("#"+id).focus();return}
   const k={id:"",naam:"Test",email:v.includes("@")?v:"",telefoon:v.includes("@")?"":v};const ex={...klantVars({naam:"Fam. Voorbeeld",adres:"Dorpsstraat 1",plaats:"Voorbeeld",tijd:"09:00",duur:30,dienst:"Glasbewassing",prijs:35,frequentie:4},addDays(today(),1)),factuurnummer:today().getFullYear()+"-0001",bedrag:"€ 35,00",vervaldatum:fmtL(addDays(today(),-5)),factuurdatum:fmtL(addDays(today(),-19)),dagen_te_laat:5};
-  const kan=v.includes("@")?"email":"sms",txt=fill(textFn(kan),ex),h=sendHref(kan,k,txt,fill(subjFn?subjFn():"Test",ex));if(h){const a=document.createElement("a");a.href=h;a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();a.remove();toast("Test geopend in je "+(kan==="email"?"mailprogramma":"berichten-app"))}}}
+  const kan=v.includes("@")?"email":"sms",txt=fill(textFn(kan),ex);
+  /* e-mail met E-mail versturen (Brevo) aan: de echte opgemaakte mail, precies zoals de klant hem krijgt */
+  if(kan==="email"&&LIVE&&S().liveMail&&typeof fbFn==="function"){const subj=fill(subjFn?subjFn():"Test",ex),html=mailFor(sjabloon||"herinnering",ex,textFn(kan));
+    b.disabled=true;try{await fbFn("sendMail")({naar:v,naam:"",onderwerp:"Test: "+subj,html,tekst:txt,meta:{klantNaam:"Testmail",sjabloon:"test"}});toast("Opgemaakte testmail verstuurd naar "+v)}catch(e){toast("Testmail lukte niet: "+String((e&&e.message)||e).replace(/^.*?:\s*/,""))}finally{b.disabled=false}return}
+  const h=sendHref(kan,k,txt,fill(subjFn?subjFn():"Test",ex));if(h){const a=document.createElement("a");a.href=h;a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();a.remove();toast("Test geopend in je "+(kan==="email"?"mailprogramma":"berichten-app"))}}}
 
 /* foto's op de instellingenkaarten: centraal door Mansard (Robin) geplaatst, per branche voor alle bedrijven */
 const KF={data:null,laden:false};
@@ -138,7 +142,7 @@ function openSetEdit(id){
       <label>Antwoorden komen binnen op<input value="${esc(s.email||"—")}" readonly><small class="help">Je e-mailadres, aanpassen bij Bedrijf &amp; Branding</small></label>
       <label>Verzendadres<input value="${esc(s.email||"Het adres van je mailprogramma")}" readonly><small class="help">Het account waarmee je mailprogramma verstuurt</small></label>
       ${testRow("tmail","jouw@email.nl","Opent een testmail in je mailprogramma, zo zie je precies wat je klant krijgt.")}`,{wide:false,foot:`<span class="sp"></span><button type="button" class="primary" data-act="close">Sluiten</button>`});
-    bindTest("tmail",()=>s.dagMail,()=>s.dagOnderwerp);},
+    bindTest("tmail",()=>s.dagMail,()=>s.dagOnderwerp,"herinnering");},
   tracking(){const key=s.trackKey||[...crypto.getRandomValues(new Uint8Array(18))].map(x=>"abcdefghjkmnpqrstuvwxyz23456789"[x%31]).join("");
     setDlg(c,`${info("Elke opgemaakte mail krijgt een onzichtbaar pixeltje en gevolgde links. Opent de klant de mail of klikt hij op een link (bijv. de betaallink), dan zie je dat bij <b>Communicatie</b> en op de klantkaart, met datum en tijd.")}
       ${tgl("trackAan","Mail-tracking aan","Alleen voor opgemaakte e-mails, niet voor sms of WhatsApp",s.trackAan!==false)}
@@ -184,9 +188,9 @@ function openSetEdit(id){
       ${sec("Berichttekst")}${inp("dagOnderwerp","E-mail onderwerp",s.dagOnderwerp,{cls:"full"})}${ta("dagMail","E-mail bericht",s.dagMail,{rows:8})}${ta("dagSms","SMS- en WhatsApp-tekst",s.dagSms,{rows:3,count:true,help:"Houd het kort: één sms is 160 tekens."})}
       <small class="help">Beschikbaar: ${ph} · {afzender}</small>
       ${sec("Controleren")}<button type="button" class="small" id="whoNow">${I.search}Wie krijgt hem nu?</button><div id="whoList"></div>
-      ${testRow("tdag","jij@bedrijf.nl of +31612345678","E-mailadres of telefoonnummer: opent één bericht met jouw tekst.")}`);
+      ${testRow("tdag","jij@bedrijf.nl of +31612345678",LIVE&&s.liveMail?"E-mailadres: je krijgt de opgemaakte mail, precies zoals de klant hem ziet. Telefoonnummer: opent een sms met jouw tekst.":"E-mailadres of telefoonnummer: opent één bericht met jouw tekst.")}`);
     $("#whoNow").onclick=()=>{const q=queues().filter(x=>x.id==="herinnering"||x.id==="uur");const it=q.flatMap(x=>x.items);$("#whoList").innerHTML=it.length?`<table class="minitable">${it.map(i=>`<tr><td><b>${esc(cleanName(i.k.naam))}</b></td><td>${esc(i.vars.datum)}</td><td>${esc(i.vars.tijdvak)}</td></tr>`).join("")}</table>`:`<p class="subt">Nu niemand${s.dagAan?"":" (de herinnering staat uit)"}. Alleen klanten die ingepland staan krijgen hem.</p>`};
-    bindTest("tdag",kan=>kan==="email"?form.querySelector('[data-k="dagMail"]').value:form.querySelector('[data-k="dagSms"]').value,()=>form.querySelector('[data-k="dagOnderwerp"]').value);bindSave();},
+    bindTest("tdag",kan=>kan==="email"?form.querySelector('[data-k="dagMail"]').value:form.querySelector('[data-k="dagSms"]').value,()=>form.querySelector('[data-k="dagOnderwerp"]').value,"herinnering");bindSave();},
   fh(){const M=fhMomenten();
     setDlg({...c,sub:"Herinneren na de vervaldatum"},`${tgl("fhAan","Herinneringen klaarzetten","Zet een herinnering klaar zodra een factuur te laat is. Betaalde facturen vallen af.",s.fhAan)}
       <div class="grid2">${inp("fhTijd","Tijdstip",s.fhTijd,{type:"time"})}${sel("fhSkip","Zelf net gestuurd? Overslaan",s.fhSkip,[[0,"Niet overslaan"],[1,"1 dag"],[3,"3 dagen"],[7,"7 dagen"]],{t:"num"})}</div>

@@ -326,7 +326,7 @@ function queues(){
     if(st.dagVast!==false){const d=addDays(t,Number(st.dagDagen)||1),items=dagGroepen(iso(d),"herinnering");
       out.push({id:"herinnering",titel:"Herinnering "+(Number(st.dagDagen)===1||!st.dagDagen?"voor morgen":"voor "+longD(d)),uitleg:"Klanten die "+longD(d)+" op de route staan"+(now.getHours()*60+now.getMinutes()<toMin(st.dagTijd)?" · verstuurtijd "+st.dagTijd:""),items,kanaal:st.dagKanaal,tekst:st.dagSms,mail:st.dagMail,onderwerp:st.dagOnderwerp});}
     if(st.dagUurAan){const nm=now.getHours()*60+now.getMinutes(),items=dagGroepen(iso(t),"uur").filter(x=>{const m=toMin(x.k.tijd);return m!=null&&nm>=m-(Number(st.dagUren)||2)*60&&nm<m});
-      out.push({id:"uur",titel:"Komt er zo aan",uitleg:(Number(st.dagUren)||2)+" uur voor de klus van vandaag",items,kanaal:st.dagKanaal,tekst:st.dagSms,mail:st.dagMail,onderwerp:st.dagOnderwerp});}
+      out.push({id:"uur",sjabloon:"herinnering",titel:"Komt er zo aan",uitleg:(Number(st.dagUren)||2)+" uur voor de klus van vandaag",items,kanaal:st.dagKanaal,tekst:st.dagSms,mail:st.dagMail,onderwerp:st.dagOnderwerp});}
   }
   {const T=tpls(),ti=iso(t);
     /* afspraak laten bevestigen: klanten met die contactmethode krijgen een bevestigingsverzoek voor hun geplande afspraak */
