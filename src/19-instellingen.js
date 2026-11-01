@@ -58,16 +58,42 @@ const SETCARDS=[
 const dienstLijstOud=()=>S().diensten&&S().diensten.length?S().diensten:[{naam:"Glasbewassing",prijs:25,duur:30}];
 /* diensten komen live uit Uitvoering › Diensten (ook als je daar nog niets hebt opgeslagen: dan de standaarddiensten) */
 const dienstLijst=()=>{try{return uDienstLijst()}catch(e){return dienstLijstOud()}};
-const QUICK=[["bijschr","Bijschrijvingen","bank"],["diensten","Diensten","wrench"],["meldingen","Meldingen","bell"],["gebruikers","Gebruikers","klanten"],["planning","Planning","planning"],["bulkprijs","Bulk prijzen","trend"],["bulkduur","Bulk duur","clock"],["wachtwoord","Wachtwoord","shield"],["pwa","PWA & App","phone"],["webview","Dienstenwebshop","globe"],["abonnement","Abonnement","card"]];
+const QUICK=[["bijschr","Bijschrijvingen","bank"],["diensten","Diensten","wrench"],["meldingen","Meldingen","bell"],["gebruikers","Gebruikers","klanten"],["planning","Planning","planning"],["bulkprijs","Bulk prijzen","trend"],["bulkduur","Bulk duur","clock"],["wachtwoord","Wachtwoord","shield"],["pwa","PWA & App","phone"],["webview","Dienstenwebshop","globe"],["abonnement","Abonnement","card"],...(typeof LIVE!=="undefined"&&LIVE?[["liveImport","Overzetten","inbox"]]:[])];
 const dagenTxt=w=>{w=w||[1,2,3,4,5];const n=["zo","ma","di","wo","do","vr","za"];if(w.length===5&&[1,2,3,4,5].every(x=>w.includes(x)))return"Ma t/m Vr (standaard)";return[1,2,3,4,5,6,0].filter(x=>w.includes(x)).map(x=>n[x]).join(", ")||"geen"};
 function volgendeFeestdag(){const t=today(),s=S();const all={...feestdagen(t.getFullYear(),s.land),...feestdagen(t.getFullYear()+1,s.land)};const k=Object.keys(all).sort().find(d=>parse(d)>=t);return k?all[k]+" "+fmtD(k):"—"}
+/* ---------- instellingen als platina kaarten, per onderwerp ---------- */
+const SET_GROEP=[["bedrijf","Je bedrijf","Gegevens, land en btw, wie er mag inloggen en beveiliging",["bedrijf","land","peppol","liveUsers","veilig"]],
+  ["klant","Klanten & berichten","Hoe je klanten bereikt, herinnert en wat ze in hun portaal zien",["liveMail","email","tracking","sms","dag","welkom","review","livePortaal","vve"]],
+  ["geld","Facturen & betalen","Online betalen, herinneringen, bijschrijvingen en bestellingsoverzicht",["liveMollie","fh","bijschr","liveOverzicht"]],
+  ["werk","Werk & planning","Werkdagen, afmelden, kilometers en opmeten",["doorplannen","afmelden","km","meetlint"]],
+  ["web","Website","Je dienstenwebshop en foto's van je werk",["website","galerij"]],
+  ["data","Gegevens & systeem","Importeren, slimme hulp en de nachtelijke controle",["data","liveAI","systeem","liveImport"]]];
+/* overbodig: met E-mail versturen (Brevo) aan zijn de losse afzender- en mail-trackingkaart dubbel; overzetten uit de oude versie is eenmalig (staat bij Sneltoegang) */
+const setVerborgen=(c,s)=>(c.id==="email"&&s.liveMail)||(c.id==="tracking"&&s.liveMail)||c.id==="liveImport";
+/* stand van een kaart: aan (gloeit), let op (oranje) of uit (grijs) */
+function setStand(c,s){const[cl,lb]=c.st(s);if(cl==="ok")return{k:"aan",lb};return{k:/uit\b|niet ingesteld|nog niet|geen e-mail/i.test(lb)?"uit":"let",lb}}
+function setKaartHtml(c,s){const st=setStand(c,s),w=c.warn&&c.warn(s);
+  return `<article class="sc3 sc3-${st.k}" title="${esc(st.lb)}" data-zoek="${esc((c.t+" "+(c.sub||"")).toLowerCase())}"><div class="sc3-plaat"><span class="sc3-glans"></span><span class="sc3-disk"><i class="sc3-halo"></i>${I[c.ic]||""}</span>
+    <span class="sc3-st"><i></i>${st.k==="aan"?"Actief":st.k==="uit"?"Uit":"Actie nodig"}</span></div>
+    <div class="sc3-body"><h3>${esc(c.t)}</h3>${c.sub?`<p class="sc3-sub">${esc(c.sub)}</p>`:""}
+      <dl>${c.rows(s).map(([a,b])=>`<dt>${esc(a)}</dt><dd title="${esc(b??"")}">${esc(b??"—")||"—"}</dd>`).join("")}</dl>
+      ${w?`<div class="warnbox">${I.alert}<span>${esc(w)}</span></div>`:""}
+      <button type="button" class="setbtn sc3-btn" data-act="setedit" data-v="${c.id}">${c.v?I.search:I.note}<span>${esc(c.v||(st.k==="uit"?"Instellen":"Bewerken"))}</span>${I.right}</button>${c.extra||""}</div></article>`}
+function setGroepenHtml(s){const zicht=SETCARDS.filter(c=>!setVerborgen(c,s)),gehad=new Set();
+  const blok=(id,t,u,ids)=>{const L=ids.map(x=>zicht.find(c=>c.id===x)).filter(Boolean);L.forEach(c=>gehad.add(c.id));if(!L.length)return"";
+    const n=L.filter(c=>setStand(c,s).k==="aan").length;
+    return `<section class="sc3-groep" data-groep="${id}"><div class="sc3-gk"><div><h2>${esc(t)}</h2><p>${esc(u)}</p></div><span class="sc3-gn">${n}/${L.length} aan</span></div><div class="sc3-grid">${L.map(c=>setKaartHtml(c,s)).join("")}</div></section>`};
+  let h=SET_GROEP.map(g=>blok(...g)).join("");const rest=zicht.filter(c=>!gehad.has(c.id)).map(c=>c.id);if(rest.length)h+=blok("overig","Overig","Overige instellingen",rest);return h}
+function setKopHtml(s){const zicht=SETCARDS.filter(c=>!setVerborgen(c,s)),st=zicht.map(c=>setStand(c,s).k),n=k=>st.filter(x=>x===k).length;
+  return `<div class="sc3-kop"><div class="sc3-tel"><span class="aan"><i></i><b>${n("aan")}</b> aan</span>${n("let")?`<span class="let"><i></i><b>${n("let")}</b> vraagt aandacht</span>`:""}<span class="uit"><i></i><b>${n("uit")}</b> uit</span></div>
+    <label class="sc3-zoek">${I.search}<input type="search" id="setZoek" placeholder="Zoek een instelling…" autocomplete="off"></label></div>`}
+function setZoeken(q){q=String(q||"").trim().toLowerCase();document.querySelectorAll(".sc3").forEach(el=>{el.hidden=!!q&&!el.dataset.zoek.includes(q)});
+  document.querySelectorAll(".sc3-groep").forEach(g=>{g.hidden=![...g.querySelectorAll(".sc3")].some(x=>!x.hidden)})}
+document.addEventListener("input",e=>{if(e.target&&e.target.id==="setZoek")setZoeken(e.target.value)});
 function vInstellingen(){
   const s=S();kfLaad();
-  return `<div class="pagehead"><div><p class="kicker">${I.instellingen}Configuratie</p><h1 class="xl">Instellingen</h1><p class="lead" style="margin:0">Beheer je bedrijfsprofiel, integraties en automatisering</p></div></div>
-  <div class="setgrid">${SETCARDS.map(c=>{const[cl,lb]=c.st(s),w=c.warn&&c.warn(s);const kf="",mag=false;/* overal iconen op platina, geen kaartfoto's meer */return `<div class="setcard sc2 sc2-${cl}${kf?" heeft-foto":""}"><${mag?"label":"div"} class="sc2-foto${kf?" vol":""}"${mag?' title="Foto kiezen (alleen Mansard)"':""}>${kf?`<img src="${BLOB}${esc(kf)}" alt="" loading="lazy">`:`<span class="sc2-fi">${I[c.ic]}</span>`}${mag?`<input type="file" accept="image/jpeg,image/png,image/webp" hidden data-kaartfoto="${c.id}"><span class="sc2-cam" aria-hidden="true">${I.upload||"+"}</span>`:""}</${mag?"label":"div"}><div class="sc2-kop jp-kop"><div class="jp-kr1"><span class="jp-st"><i></i>${esc(lb)}</span><span class="sp"></span></div><div class="sc2-t"><span class="ic">${I[c.ic]}</span><div><h3>${esc(c.t)}</h3>${c.sub?`<small>${esc(c.sub)}</small>`:""}</div></div></div>
-    <div class="sc2-body"><dl>${c.rows(s).map(([a,b])=>`<dt>${esc(a)}</dt><dd title="${esc(b??"")}">${esc(b??"—")||"—"}</dd>`).join("")}</dl>
-    ${w?`<div class="warnbox">${I.alert}<span>${esc(w)}</span></div>`:""}
-    <button type="button" class="setbtn" data-act="setedit" data-v="${c.id}">${c.v?I.search:I.note} ${c.v||"Bewerken"}<span style="flex:1"></span>${I.right}</button>${c.extra||""}</div></div>`}).join("")}</div>
+  return `<div class="pagehead"><div><p class="kicker">${I.instellingen}Configuratie</p><h1 class="xl">Instellingen</h1><p class="lead" style="margin:0">Beheer je bedrijfsprofiel, integraties en automatisering</p></div></div>${setKopHtml(s)}
+  ${setGroepenHtml(s)}
   <div class="panel quickp"><div class="qhead"><span class="eyebrow">Sneltoegang</span><span style="flex:1"></span><span class="eyebrow" style="display:flex;align-items:center;gap:6px">${I.euro}Bedragen</span>
     <div class="seg"><button type="button" data-act="toonex" data-v="1" aria-pressed="${!!s.toonEx}">Ex BTW</button><button type="button" data-act="toonex" data-v="0" aria-pressed="${!s.toonEx}">Incl BTW</button></div></div>
     <div class="quick">${QUICK.map(([id,l,ic])=>`<button type="button" data-act="setedit" data-v="${id}"><span>${I[ic]}</span>${esc(l)}</button>`).join("")}</div></div>
