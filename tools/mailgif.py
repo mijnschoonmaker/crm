@@ -333,7 +333,7 @@ def kaart():
         hd.ellipse([p[0] * SS - 26 * SS, p[1] * SS - 26 * SS, p[0] * SS + 26 * SS, p[1] * SS + 26 * SS], fill=(255, 255, 255, 70))
         # bus en aanhanger volgen de weg: voorkant op de route, achterkant een buslengte terug op de route
         Ltot = sum(math.dist(pts[k], pts[k + 1]) for k in range(len(pts) - 1)) or 1
-        BL = 96  # lengte van bus + boxvan in pixels
+        BL = 54 if SUF else 96  # lengte van bus + boxvan in pixels (alleen de bus: korter)
         voor, _, _ = langs(pts, t)
         achter, _, _ = langs(pts, max(0, t - BL / Ltot))
         mid = ((voor[0] + achter[0]) / 2, (voor[1] + achter[1]) / 2)
@@ -350,7 +350,7 @@ def kaart():
         frames.append(im.convert("RGB").resize((KW, KH), Image.LANCZOS))
     pal = frames[0].quantize(colors=200, method=Image.Quantize.MEDIANCUT)
     q = [fr.quantize(palette=pal, dither=Image.Dither.NONE) for fr in frames]
-    q[0].save(os.path.join(UIT, "live-kaart.gif"), save_all=True, append_images=q[1:], duration=[700] + [55] * (n - 2) + [1400], loop=0, optimize=True, disposal=1)
+    q[0].save(os.path.join(UIT, "live-kaart" + SUF + ".gif"), save_all=True, append_images=q[1:], duration=[700] + [55] * (n - 2) + [1400], loop=0, optimize=True, disposal=1)
     print("geschreven live-kaart", os.path.getsize(os.path.join(UIT, "live-kaart.gif")))
 
 
@@ -416,6 +416,7 @@ if __name__ == "__main__":
         overzicht(52.0230, 5.1680)
     elif "--kaart" in sys.argv:
         kaart()
+        if SUF: sys.exit(0)  # alleen de bus: geen nieuwe hero-kaart
         try:
             hero()
         except Exception as e:
