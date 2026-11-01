@@ -242,5 +242,14 @@ module.exports = ({ abofactuur, rawDb, T, onCall, onRequestRaw, HttpsError, nu, 
     return { facturen: (await abofactuur.lijst(bid)).map(x => ({ id: x.id, nummer: x.nummer, datum: x.datum, incl: x.incl, oms: x.oms, periode: x.periode })) };
   });
 
-  return { functies: { aboFacturen, platformSleutels, bedrijfAanmaken, abonnement, abonnementStart, abonnementBijwerken, abonnementPlan, abonnementStoppen, mansardHook, beheer }, PLAN, magGebruiken, herbereken, openVoor };
+  /* Mansard-facturen voor de eigen boekhouding (alleen de eigenaar van Mansard) */
+  const platformFacturen = onCall(async req => {
+    const e = emailVan(req.auth); if (!PLATFORM_MAILS.includes(e)) throw new HttpsError("permission-denied", "Alleen voor de eigenaar van Mansard.");
+    if (mfaOk && !(await mfaOk(req.auth))) throw new HttpsError("permission-denied", "Bevestig eerst je inlogcode (tweestapsverificatie).");
+    const d = req.data || {}; if (!abofactuur) return { facturen: [] };
+    if (d.bid && d.id) { if (!T.BID_RE.test(String(d.bid))) throw new HttpsError("invalid-argument", "Onbekend bedrijf."); const f = await abofactuur.pdfVan(String(d.bid), String(d.id)); if (!f) throw new HttpsError("not-found", "Factuur niet gevonden."); return f; }
+    return { facturen: await abofactuur.alle() };
+  });
+
+  return { functies: { platformFacturen, aboFacturen, platformSleutels, bedrijfAanmaken, abonnement, abonnementStart, abonnementBijwerken, abonnementPlan, abonnementStoppen, mansardHook, beheer }, PLAN, magGebruiken, herbereken, openVoor };
 };

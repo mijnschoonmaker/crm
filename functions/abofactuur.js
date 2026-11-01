@@ -78,7 +78,7 @@ module.exports = ({ rawDb, bucket, brevoSend, mailHtml, nu }) => {
     const pdf = await maakPdf({ nummer, datum, betaaldOp: betaald, betaalwijze: methode, klant, regels, excl, btw, incl });
     const pad = "abofacturen/" + bid + "/" + nummer + ".pdf";
     await bucket().file(pad).save(pdf, { contentType: "application/pdf", resumable: false });
-    const rec = { nummer, datum, betaaldOp: betaald, excl, btw, incl, oms: regels[0].oms, periode: regels[0].sub || "", methode, pad, mollieId: p.id, op: nu(), gemaild: false };
+    const rec = { klantNaam: klant.naam || "", klantEmail: klant.email || "", nummer, datum, betaaldOp: betaald, excl, btw, incl, oms: regels[0].oms, periode: regels[0].sub || "", methode, pad, mollieId: p.id, op: nu(), gemaild: false };
     await ref.set(rec);
     /* mail naar de eigenaar, vanaf de afzender van Mansard */
     try {
@@ -95,5 +95,14 @@ module.exports = ({ rawDb, bucket, brevoSend, mailHtml, nu }) => {
   }
   async function lijst(bid) { const q = await rawDb.collection("bedrijven/" + bid + "/abonnementFacturen").get(); return q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, c) => String(c.nummer).localeCompare(String(a.nummer))); }
   async function pdfVan(bid, id) { const d = (await rawDb.doc("bedrijven/" + bid + "/abonnementFacturen/" + id).get()).data(); if (!d || !d.pad) return null; const [buf] = await bucket().file(d.pad).download(); return { naam: "Factuur " + d.nummer + ".pdf", data: buf.toString("base64") }; }
-  return { maakVoorBetaling, lijst, pdfVan, maakPdf };
+  /* alle Mansard-facturen (voor de eigen boekhouding van Mansard) */
+  async function alle() {
+    const q = await rawDb.collectionGroup("abonnementFacturen").get(), namen = {};
+    const L = [];
+    for (const d of q.docs) { const bid = d.ref.parent.parent ? d.ref.parent.parent.id : ""; if (!bid) continue; const x = d.data();
+      if (!x.klantNaam && !(bid in namen)) namen[bid] = ((await rawDb.doc("bedrijven/" + bid).get()).data() || {}).naam || bid;
+      L.push({ bid, id: d.id, nummer: x.nummer, datum: x.datum, klant: x.klantNaam || namen[bid] || bid, excl: x.excl, btw: x.btw, incl: x.incl, methode: x.methode || "", mollieId: x.mollieId || d.id, oms: x.oms || "", periode: x.periode || "" }); }
+    return L.sort((a, c) => String(c.nummer).localeCompare(String(a.nummer)));
+  }
+  return { maakVoorBetaling, lijst, pdfVan, maakPdf, alle };
 };
