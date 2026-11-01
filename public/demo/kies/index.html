@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<title>Demo kiezen · Mansard</title>
+<meta name="description" content="Kies uw vak en bekijk de demo van Mansard, het CRM voor bedrijven met een buitendienst.">
+<meta name="theme-color" content="#f7f7f6">
+<link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="apple-touch-icon" href="/mansard-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:opsz,wght@6..12,400;6..12,500;6..12,600;6..12,700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0d121b;--sub:#5d6470;--line:#e3e5e8;--bg:#f7f7f6;--accent:#9c8a6c}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Nunito Sans",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+body{min-height:100vh;background:radial-gradient(70% 55% at 85% 0%,rgba(156,138,108,.14) 0%,rgba(247,247,246,0) 60%),var(--bg)}
+a{color:inherit}
+.top{display:flex;align-items:center;justify-content:space-between;max-width:1120px;margin:0 auto;padding:22px 24px}
+.top img{height:17px;display:block}
+.top a.terug{font-size:14px;font-weight:600;text-decoration:none;color:var(--sub)}
+.top a.terug:hover{color:var(--ink)}
+main{max-width:1120px;margin:0 auto;padding:48px 24px 96px}
+.kop{text-align:center;max-width:640px;margin:0 auto 48px}
+.label{font-size:12.5px;font-weight:500;letter-spacing:.32em;text-transform:uppercase;color:#6e7480;margin:0 0 18px}
+h1{font-size:clamp(32px,5vw,46px);line-height:1.08;letter-spacing:-.02em;font-weight:700;margin:0 0 16px;text-wrap:balance}
+.kop p{font-size:18px;line-height:1.55;color:var(--sub);margin:0;text-wrap:balance}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.kaart{display:flex;flex-direction:column;gap:14px;padding:28px;background:#fff;border:1px solid var(--line);border-radius:18px;text-decoration:none;box-shadow:0 1px 2px rgba(13,18,27,.04),0 14px 30px -22px rgba(13,18,27,.25);transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s,border-color .25s}
+.kaart:hover{transform:translateY(-3px);border-color:#cfd3d8;box-shadow:0 1px 2px rgba(13,18,27,.05),0 22px 40px -24px rgba(13,18,27,.35)}
+.kaart:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.ic{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(150deg,#353f56 0%,#252c3c 55%,#171c28 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.1)}
+.ic svg{width:21px;height:21px}
+.kaart h2{font-size:20px;font-weight:700;letter-spacing:-.01em;margin:6px 0 0}
+.kaart p{font-size:15px;line-height:1.55;color:var(--sub);margin:6px 0 0;flex:1}
+.ga{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);margin-top:6px}
+.ga svg{width:14px;height:14px;transition:transform .25s}
+.kaart:hover .ga svg{transform:translateX(3px)}
+.voet{text-align:center;margin-top:40px;font-size:14.5px;color:var(--sub)}
+.voet a{font-weight:600;color:var(--ink)}
+@media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.top{padding:18px 16px}main{padding:28px 16px 72px}.kop{margin-bottom:32px}.kop p{font-size:16px}.grid{grid-template-columns:1fr;gap:12px}.kaart{padding:22px;flex-direction:row;align-items:center;gap:16px}.kaart>div{flex:1}.kaart h2{margin:0;font-size:18px}.kaart p{font-size:14px;margin-top:4px}.kaart .ga{display:none}}
+</style></head>
+<body>
+<header class="top"><a href="https://www.mansard.nl" aria-label="Mansard"><img src="/mansard-logo.png" alt="Mansard"></a><a class="terug" href="https://www.mansard.nl">Terug naar de website</a></header>
+<main>
+  <div class="kop">
+    <p class="label">Demo</p>
+    <h1>Welk vak heeft u?</h1>
+    <p>Kies uw vak en bekijk Mansard zoals het voor u werkt: met uw diensten, uw woorden en voorbeeldklanten. Zonder account, er wordt niets bewaard.</p>
+  </div>
+  <div class="grid" id="grid"></div>
+  <p class="voet">Staat uw vak er niet tussen? Kies het vak dat er het meest op lijkt, of <a href="https://www.mansard.nl">neem contact met ons op</a>.</p>
+</main>
+<script>
+const P='fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"';
+const V=[
+ ["glazenwasser","Glazenwassers","Vaste rondes, ramen per verdieping en klanten die online hun prijs berekenen.",'<path d="M12 3.5c-3 4-5 6.6-5 9.3a5 5 0 0 0 10 0c0-2.7-2-5.3-5-9.3z"/>'],
+ ["schoorsteenveger","Schoorsteenvegers","Jaarlijkse rondes, vaste klanten en een seintje zodra iemand weer aan de beurt is.",'<path d="M12 21a6 6 0 0 0 6-6c0-3.5-2.5-6-4-8-.4 2-1.4 3.2-2.6 3.9C11 8.6 10 6 10 3c-3 2.5-4 6-4 12a6 6 0 0 0 6 6z"/>'],
+ ["schilder","Schilders","Offertes per klus, planning per ploeg en onderhoudsschilderwerk dat vanzelf terugkomt.",'<rect x="4" y="3.5" width="14" height="5" rx="1.2"/><path d="M18 6h2v5h-8v3"/><rect x="10.5" y="14" width="3" height="7" rx="1"/>'],
+ ["hovenier","Hoveniers","Onderhoud per seizoen, terugkerende klussen en een vaste route langs al uw klanten.",'<path d="M12 21v-5M7 16h10l-5-12z"/>'],
+ ["timmerman","Timmerlieden","Kozijnen, deuren en houtrot, plus jaarlijkse inspecties die vanzelf terugkomen.",'<path d="M14 4l6 6-2.5 2.5-6-6zM11.5 6.5l-8 8 3 3 8-8"/>'],
+ ["betonboorder","Betonboorders","Kernboringen en zaagwerk per klus, met offerte, planning en factuur in één keer.",'<rect x="3.5" y="7" width="11" height="7" rx="1.5"/><path d="M14.5 10.5H21M6 14v5h4v-5"/>']];
+const pijl='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+document.getElementById("grid").innerHTML=V.map(([id,n,t,ic])=>`<a class="kaart" href="/demo/?branche=${id}"><span class="ic"><svg viewBox="0 0 24 24" ${P}>${ic}</svg></span><div><h2>${n}</h2><p>${t}</p></div><span class="ga">Bekijk de demo ${pijl}</span></a>`).join("");
+</script>
+</body></html>
