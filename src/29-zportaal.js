@@ -175,7 +175,7 @@ function tkKaart(){if(isMw()){["tkCard","tkFab"].forEach(i=>{const o=document.ge
    (browsers spelen pas geluid af na een klik). Volgt de geluidsknop op het Overzicht. */
 let TKA=null;const tkCtx=()=>{try{if(!TKA){const A=window.AudioContext||window.webkitAudioContext;if(!A)return null;TKA=new A()}if(TKA.state==="suspended")TKA.resume();return TKA}catch(e){return null}};
 if(typeof document!=="undefined")document.addEventListener("pointerdown",function u(){document.removeEventListener("pointerdown",u);tkCtx()},{once:true});
-function tkBel(sterk=1){const A=tkCtx();if(!A)return;const t=A.currentTime+.01,uit=A.createGain(),f0=1580;uit.gain.value=.5*sterk;
+function tkBel(sterk=1,na=0){const A=tkCtx();if(!A)return;const t=A.currentTime+.01+na,uit=A.createGain(),f0=1580;uit.gain.value=.5*sterk;
   /* lichte galm: korte vertraging met terugkoppeling */
   const dl=A.createDelay(),fb=A.createGain(),nat=A.createGain();dl.delayTime.value=.07;fb.gain.value=.22;nat.gain.value=.18;
   uit.connect(A.destination);uit.connect(dl);dl.connect(fb).connect(dl);dl.connect(nat).connect(A.destination);
@@ -184,7 +184,8 @@ function tkBel(sterk=1){const A=tkCtx();if(!A)return;const t=A.currentTime+.01,u
   /* de tik van de hand op het knopje */
   const n=A.createBufferSource(),b=A.createBuffer(1,Math.floor(A.sampleRate*.03),A.sampleRate),c=b.getChannelData(0);for(let i=0;i<c.length;i++)c[i]=(Math.random()*2-1)*Math.pow(1-i/c.length,4);
   const hp=A.createBiquadFilter(),ng=A.createGain();hp.type="highpass";hp.frequency.value=3000;ng.gain.value=.25;n.buffer=b;n.connect(hp).connect(ng).connect(uit);n.start(t)}
-function tkGeluid(){if(S().ccGeluid===false)return;tkBel()}
+/* twee keer snel op de bel tikken: "ting-ting" (de tweede iets zachter, de klank van de eerste loopt nog door) */
+function tkGeluid(){if(S().ccGeluid===false)return;tkBel(1,0);tkBel(.8,.19)}
 /* tabblad op de achtergrond: knipperende titel tot je terugkomt */
 let tkTitel=null;function tkTitelKnipper(tekst){if(!document.hidden||tkTitel)return;const oud=document.title;let a=false;
   tkTitel=setInterval(()=>{a=!a;document.title=a?"🛎 "+tekst:oud},1000);
