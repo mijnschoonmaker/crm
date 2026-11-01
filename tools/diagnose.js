@@ -1,15 +1,13 @@
-/* Eenmalige herstelactie op verzoek van Robin: prijs glasbewassing van Hans Miedema machine service (382309) terug van € 0 naar € 82,47 incl.
-   (de prijs van zijn laatste beurt/factuur; overschrijvende prijs 68,16 ex btw). Wijzigt alleen als de prijs nog 0 is. */
+/* Alleen lezen: ticket T-1001. Wijzigt niets. */
 const admin = require("../functions/node_modules/firebase-admin");
 admin.initializeApp({ projectId: process.env.P });
 const db = admin.firestore();
 const n = (t, x) => console.log("::notice title=" + t + "::" + JSON.stringify(x).slice(0, 3800));
 (async () => {
-  const q = (await db.collection("klanten").get()).docs.filter(d => String(d.data().klantnr) === "382309" && !d.data().hoofdKlantId);
-  if (q.length !== 1) { n("gestopt", q.length + " klanten gevonden"); return; }
-  const d = q[0], k = d.data();
-  if (Number(k.prijs) > 0) { n("niets gedaan", "prijs is al " + k.prijs); return; }
-  const vd = new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Amsterdam" }).format(new Date());
-  await d.ref.set({ prijs: 82.47, log: [...(Array.isArray(k.log) ? k.log : []), { datum: vd, tekst: "Prijs glasbewassing hersteld naar € 82,47 per beurt (stond door het ondertekenen van offerte OFF-2026-002 voor glasbewassing binnen ten onrechte op € 0)" }] }, { merge: true });
-  n("hersteld", { naam: k.naam, prijs: 82.47 });
+  const ts = (await db.collection("tickets").get()).docs.map(d => ({ id: d.id, ...d.data() }));
+  n("alle", ts.map(t => ({ nr: t.nummer, st: t.status, ong: t.ongelezenTeam, laatst: t.laatst, van: t.laatsteVan, gezien: t.gezienTeam, upd: "" })));
+  const t = ts.find(x => x.nummer === "T-1001");
+  if (t) { const d = await db.doc("tickets/" + t.id).get(); n("upd", d.updateTime.toDate().toISOString());
+    const b = (await db.collection("ticketBerichten").where("ticketId", "==", t.id).get()).docs.map(x => ({ van: x.data().van, op: x.data().op, tekst: String(x.data().tekst || "").slice(0, 50) }));
+    n("berichten", b.sort((a, c) => String(a.op).localeCompare(String(c.op)))); }
 })().catch(x => { console.error(x); process.exit(1); });
