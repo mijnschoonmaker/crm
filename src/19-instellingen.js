@@ -69,7 +69,8 @@ const SET_GROEP=[["bedrijf","Je bedrijf","Gegevens, land en btw, wie er mag inlo
   ["web","Website","Je dienstenwebshop en foto's van je werk",["website","galerij"]],
   ["data","Gegevens & systeem","Importeren, slimme hulp en de nachtelijke controle",["data","liveAI","systeem","liveImport"]]];
 /* overbodig: met E-mail versturen (Brevo) aan zijn de losse afzender- en mail-trackingkaart dubbel; overzetten uit de oude versie is eenmalig (staat bij Sneltoegang) */
-const setVerborgen=(c,s)=>(c.id==="email"&&s.liveMail)||(c.id==="tracking"&&s.liveMail)||c.id==="liveImport";
+/* AI klanten uit foto: niet in gebruik, kaart weg (zolang er geen sleutel is ingesteld) */
+const setVerborgen=(c,s)=>(c.id==="email"&&s.liveMail)||(c.id==="tracking"&&s.liveMail)||c.id==="liveImport"||(c.id==="liveAI"&&!s.liveAI);
 /* stand van een kaart: aan (gloeit), let op (oranje) of uit (grijs) */
 function setStand(c,s){const[cl,lb]=c.st(s);if(cl==="ok")return{k:"aan",lb};return{k:/uit\b|niet ingesteld|nog niet|geen e-mail/i.test(lb)?"uit":"let",lb}}
 function setKaartHtml(c,s){const st=setStand(c,s),w=c.warn&&c.warn(s);

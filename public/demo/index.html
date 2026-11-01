@@ -9516,7 +9516,7 @@ function vKlanten(){
     <button type="button" class="${selm?"on":""}" data-act="selmode">${I.checksq}${selm?"Klaar met selecteren":"Selecteer"}</button>
     <button type="button" data-act="postcodes">${I.pin}Postcodes</button>
     ${LIVE?"":`<button type="button" data-act="welkom">${I.mail}Welkomstberichten</button>`}
-    <div class="drop"><button type="button" data-act="kmenu">${I.more}Meer</button>${state.kmenu?`<div class="menu"><button type="button" data-act="kfoto">${I.camera}Klanten uit foto (AI)</button><button type="button" data-act="webaanvraag">${I.globe}Aanvraag van de website</button><button type="button" data-act="import">${I.upload}Importeren uit Excel/CSV</button>${state.dl&&all.length?`<button type="button" data-act="export">${I.dl}Exporteren als CSV</button>`:""}</div>`:""}</div>
+    <div class="drop"><button type="button" data-act="kmenu">${I.more}Meer</button>${state.kmenu?`<div class="menu">${S().liveAI||!LIVE?`<button type="button" data-act="kfoto">${I.camera}Klanten uit foto (AI)</button>`:""}<button type="button" data-act="webaanvraag">${I.globe}Aanvraag van de website</button><button type="button" data-act="import">${I.upload}Importeren uit Excel/CSV</button>${state.dl&&all.length?`<button type="button" data-act="export">${I.dl}Exporteren als CSV</button>`:""}</div>`:""}</div>
     <button type="button" class="primary" data-act="klant">${I.plus}Nieuwe klant</button></div>
   ${all.length?kRitmeKaart():""}
   <div class="kl-bar"><div class="toolbar"><div class="search">${I.search}<input id="q" type="search" placeholder="Zoek op naam, adres, e-mail…" value="${esc(state.q)}"></div></div>
@@ -11767,7 +11767,8 @@ const SET_GROEP=[["bedrijf","Je bedrijf","Gegevens, land en btw, wie er mag inlo
   ["web","Website","Je dienstenwebshop en foto's van je werk",["website","galerij"]],
   ["data","Gegevens & systeem","Importeren, slimme hulp en de nachtelijke controle",["data","liveAI","systeem","liveImport"]]];
 /* overbodig: met E-mail versturen (Brevo) aan zijn de losse afzender- en mail-trackingkaart dubbel; overzetten uit de oude versie is eenmalig (staat bij Sneltoegang) */
-const setVerborgen=(c,s)=>(c.id==="email"&&s.liveMail)||(c.id==="tracking"&&s.liveMail)||c.id==="liveImport";
+/* AI klanten uit foto: niet in gebruik, kaart weg (zolang er geen sleutel is ingesteld) */
+const setVerborgen=(c,s)=>(c.id==="email"&&s.liveMail)||(c.id==="tracking"&&s.liveMail)||c.id==="liveImport"||(c.id==="liveAI"&&!s.liveAI);
 /* stand van een kaart: aan (gloeit), let op (oranje) of uit (grijs) */
 function setStand(c,s){const[cl,lb]=c.st(s);if(cl==="ok")return{k:"aan",lb};return{k:/uit\b|niet ingesteld|nog niet|geen e-mail/i.test(lb)?"uit":"let",lb}}
 function setKaartHtml(c,s){const st=setStand(c,s),w=c.warn&&c.warn(s);
