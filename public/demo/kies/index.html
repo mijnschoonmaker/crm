@@ -5,49 +5,95 @@
 <meta name="theme-color" content="#f7f7f6">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="apple-touch-icon" href="/mansard-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:opsz,wght@6..12,400;6..12,500;6..12,600;6..12,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:opsz,wght@6..12,400;6..12,500;6..12,600;6..12,700;6..12,800&display=swap" rel="stylesheet">
 <style>
-:root{--ink:#0d121b;--sub:#5d6470;--line:#e3e5e8;--bg:#f7f7f6;--accent:#9c8a6c}
+:root{--ink:#0d121b;--sub:#5d6470;--mute:#6e7480;--line:#e3e5e8;--bg:#f7f7f6;--beige:#9c8a6c;--navy:linear-gradient(150deg,#353f56 0%,#252c3c 55%,#171c28 100%)}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Nunito Sans",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
-body{min-height:100vh;background:radial-gradient(70% 55% at 85% 0%,rgba(156,138,108,.14) 0%,rgba(247,247,246,0) 60%),var(--bg)}
-a{color:inherit}
-.top{display:flex;align-items:center;justify-content:space-between;max-width:1120px;margin:0 auto;padding:22px 24px}
-.top img{height:17px;display:block}
-.top a.terug{font-size:14px;font-weight:600;text-decoration:none;color:var(--sub)}
-.top a.terug:hover{color:var(--ink)}
-main{max-width:1120px;margin:0 auto;padding:48px 24px 96px}
-.kop{text-align:center;max-width:640px;margin:0 auto 48px}
-.label{font-size:12.5px;font-weight:500;letter-spacing:.32em;text-transform:uppercase;color:#6e7480;margin:0 0 18px}
-h1{font-size:clamp(32px,5vw,46px);line-height:1.08;letter-spacing:-.02em;font-weight:700;margin:0 0 16px;text-wrap:balance}
-.kop p{font-size:18px;line-height:1.55;color:var(--sub);margin:0;text-wrap:balance}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-.kaart{display:flex;flex-direction:column;gap:14px;padding:28px;background:#fff;border:1px solid var(--line);border-radius:18px;text-decoration:none;box-shadow:0 1px 2px rgba(13,18,27,.04),0 14px 30px -22px rgba(13,18,27,.25);transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s,border-color .25s}
-.kaart:hover{transform:translateY(-3px);border-color:#cfd3d8;box-shadow:0 1px 2px rgba(13,18,27,.05),0 22px 40px -24px rgba(13,18,27,.35)}
+body{min-height:100vh;display:flex;flex-direction:column;background:radial-gradient(90% 60% at 85% 0%,rgba(156,138,108,.16) 0%,rgba(247,247,246,0) 60%),var(--bg)}
+a{color:inherit;text-decoration:none}
+
+/* navigatie, zoals op mansard.nl */
+.nav{position:sticky;top:0;z-index:5;background:rgba(247,247,246,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(13,18,27,.07)}
+.nav-in{max-width:1120px;margin:0 auto;height:76px;padding:0 24px;display:flex;align-items:center;justify-content:space-between}
+.nav img{height:17px;display:block}
+.nav-r{display:flex;align-items:center;gap:22px}
+.nav-r .lnk{font-size:15px;font-weight:600;color:var(--ink)}
+.knop{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:10px;background:var(--navy);color:#fff;font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;box-shadow:0 1px 2px rgba(13,18,27,.18),0 6px 14px -8px rgba(13,18,27,.45),inset 0 1px 0 rgba(255,255,255,.1);transition:transform .25s}
+.knop:hover{transform:translateY(-1px)}
+.knop svg{width:14px;height:14px}
+
+/* kop */
+main{flex:1;width:100%;max-width:1120px;margin:0 auto;padding:88px 24px 112px}
+.kop{text-align:center;max-width:680px;margin:0 auto 64px}
+.merk{display:block;height:46px;width:auto;margin:0 auto 18px}
+.tag{font-size:12px;font-weight:500;letter-spacing:.32em;text-transform:uppercase;color:var(--mute);margin:0 0 44px;text-wrap:balance}
+.label{display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--beige);margin:0 0 16px}
+.label:before{content:"";width:18px;height:1px;background:var(--beige)}
+h1{font-size:clamp(32px,4.6vw,48px);line-height:1.08;letter-spacing:-.025em;font-weight:700;margin:0 0 18px;text-wrap:balance}
+.kop p.int{font-size:18px;line-height:1.6;color:var(--sub);margin:0;text-wrap:balance}
+
+/* vakken */
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.kaart{position:relative;display:flex;flex-direction:column;padding:28px 28px 0;background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;
+  box-shadow:0 1px 2px rgba(13,18,27,.04),0 18px 40px -30px rgba(13,18,27,.35);transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s,border-color .35s}
+.kaart:hover{transform:translateY(-4px);border-color:#d3d6db;box-shadow:0 1px 2px rgba(13,18,27,.05),0 30px 50px -30px rgba(13,18,27,.45)}
 .kaart:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
-.ic{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(150deg,#353f56 0%,#252c3c 55%,#171c28 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.1)}
+.kaart>div{flex:1;display:flex;flex-direction:column}
+.ic{width:48px;height:48px;border-radius:13px;display:grid;place-items:center;background:var(--navy);box-shadow:0 8px 18px -10px rgba(13,18,27,.6),inset 0 1px 0 rgba(255,255,255,.1)}
 .ic svg{width:21px;height:21px}
-.kaart h2{font-size:20px;font-weight:700;letter-spacing:-.01em;margin:6px 0 0}
-.kaart p{font-size:15px;line-height:1.55;color:var(--sub);margin:6px 0 0;flex:1}
-.ga{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);margin-top:6px}
-.ga svg{width:14px;height:14px;transition:transform .25s}
-.kaart:hover .ga svg{transform:translateX(3px)}
-.voet{text-align:center;margin-top:40px;font-size:14.5px;color:var(--sub)}
-.voet a{font-weight:600;color:var(--ink)}
-@media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
-@media (max-width:560px){.top{padding:18px 16px}main{padding:28px 16px 72px}.kop{margin-bottom:32px}.kop p{font-size:16px}.grid{grid-template-columns:1fr;gap:12px}.kaart{padding:22px;flex-direction:row;align-items:center;gap:16px}.kaart>div{flex:1}.kaart h2{margin:0;font-size:18px}.kaart p{font-size:14px;margin-top:4px}.kaart .ga{display:none}}
+.nr{position:absolute;top:30px;right:28px;font-size:12px;font-weight:600;letter-spacing:.18em;color:#b9bcc2;font-variant-numeric:tabular-nums}
+.kaart h2{font-size:21px;font-weight:700;letter-spacing:-.015em;margin:22px 0 8px}
+.kaart p{font-size:15px;line-height:1.6;color:var(--sub);margin:0 0 26px;flex:1}
+.voet-k{display:flex;align-items:center;justify-content:space-between;margin:0 -28px;padding:16px 28px;border-top:1px solid #eef0f2;background:#fbfbfa;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;transition:background .35s,color .35s}
+.pijl{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line);background:#fff;color:var(--ink);transition:transform .35s,border-color .35s}
+.pijl svg{width:14px;height:14px}
+.kaart:hover .voet-k{background:#171c28;color:#fff}
+.kaart:hover .pijl{border-color:#fff;transform:translateX(3px)}
+
+.zeker{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 26px;margin:44px 0 0;padding:0;list-style:none;font-size:14px;color:var(--sub)}
+.zeker li{display:inline-flex;align-items:center;gap:8px}
+.zeker svg{width:15px;height:15px;color:var(--beige)}
+.onder{margin:18px 0 0;font-size:15px;color:var(--sub);text-align:center}
+.onder a{font-weight:600;color:var(--ink);border-bottom:1px solid rgba(13,18,27,.25)}
+
+footer{background:#0d121b;color:rgba(255,255,255,.6);font-size:13px}
+.ft{max-width:1120px;margin:0 auto;padding:28px 24px;display:flex;justify-content:space-between;align-items:center;gap:16px}
+.ft img{height:13px;filter:brightness(0) invert(1);opacity:.9}
+
+@media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}main{padding-top:64px}}
+@media (max-width:560px){
+  .nav-in{height:64px;padding:0 16px}.nav img{height:14px}.nav-r .lnk{display:none}.knop{padding:9px 12px;font-size:11px}
+  main{padding:44px 16px 72px}.kop{margin-bottom:32px}.merk{height:32px;margin-bottom:12px}.tag{font-size:10.5px;letter-spacing:.24em;margin-bottom:32px}.kop p.int{font-size:16px}
+  .grid{grid-template-columns:1fr;gap:12px}
+  .kaart{flex-direction:row;align-items:center;gap:16px;padding:18px;border-radius:16px}
+  .kaart>div{min-width:0}.kaart h2{margin:0 0 3px;font-size:17px}.kaart p{font-size:13.5px;margin:0;line-height:1.5}
+  .nr,.voet-k{display:none}.ic{width:44px;height:44px;flex:none}
+  .kaart:after{content:"";width:8px;height:8px;border-top:2px solid #9aa0a8;border-right:2px solid #9aa0a8;transform:rotate(45deg);flex:none;margin-right:4px}
+  .ft{flex-direction:column;padding:24px 16px}}
 </style></head>
 <body>
-<header class="top"><a href="https://www.mansard.nl" aria-label="Mansard"><img src="/mansard-logo.png" alt="Mansard"></a><a class="terug" href="https://www.mansard.nl">Terug naar de website</a></header>
+<header class="nav"><div class="nav-in">
+  <a href="https://www.mansard.nl" aria-label="Mansard, naar de website"><img src="/mansard-logo.png" alt="Mansard"></a>
+  <div class="nav-r"><a class="lnk" href="https://www.mansard.nl">Terug naar de website</a><a class="knop" href="https://app.mansard.nl/">Account aanmaken<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+</div></header>
 <main>
   <div class="kop">
+    <img class="merk" src="/mansard-logo.png" alt="Mansard">
+    <p class="tag">Het CRM voor bedrijven met een buitendienst</p>
     <p class="label">Demo</p>
     <h1>Welk vak heeft u?</h1>
-    <p>Kies uw vak en bekijk Mansard zoals het voor u werkt: met uw diensten, uw woorden en voorbeeldklanten. Zonder account, er wordt niets bewaard.</p>
+    <p class="int">Kies uw vak en bekijk Mansard zoals het voor u werkt: met uw diensten, uw woorden en voorbeeldklanten.</p>
   </div>
   <div class="grid" id="grid"></div>
-  <p class="voet">Staat uw vak er niet tussen? Kies het vak dat er het meest op lijkt, of <a href="https://www.mansard.nl">neem contact met ons op</a>.</p>
+  <ul class="zeker">
+    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Zonder account</li>
+    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Er wordt niets bewaard</li>
+    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Op telefoon en computer</li>
+  </ul>
+  <p class="onder">Staat uw vak er niet tussen? Kies het vak dat er het meest op lijkt, of <a href="https://www.mansard.nl">neem contact met ons op</a>.</p>
 </main>
+<footer><div class="ft"><img src="/mansard-logo.png" alt="Mansard"><span>© 2026 Mansard · Gemaakt in Nederland</span></div></footer>
 <script>
 const P='fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"';
 const V=[
@@ -58,6 +104,6 @@ const V=[
  ["timmerman","Timmerlieden","Kozijnen, deuren en houtrot, plus jaarlijkse inspecties die vanzelf terugkomen.",'<path d="M14 4l6 6-2.5 2.5-6-6zM11.5 6.5l-8 8 3 3 8-8"/>'],
  ["betonboorder","Betonboorders","Kernboringen en zaagwerk per klus, met offerte, planning en factuur in één keer.",'<rect x="3.5" y="7" width="11" height="7" rx="1.5"/><path d="M14.5 10.5H21M6 14v5h4v-5"/>']];
 const pijl='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
-document.getElementById("grid").innerHTML=V.map(([id,n,t,ic])=>`<a class="kaart" href="/demo/?branche=${id}"><span class="ic"><svg viewBox="0 0 24 24" ${P}>${ic}</svg></span><div><h2>${n}</h2><p>${t}</p></div><span class="ga">Bekijk de demo ${pijl}</span></a>`).join("");
+document.getElementById("grid").innerHTML=V.map(([id,n,t,ic],i)=>`<a class="kaart" href="/demo/?branche=${id}"><span class="ic"><svg viewBox="0 0 24 24" ${P}>${ic}</svg></span><span class="nr">0${i+1}</span><div><h2>${n}</h2><p>${t}</p></div><span class="voet-k">Bekijk de demo<span class="pijl">${pijl}</span></span></a>`).join("");
 </script>
 </body></html>
