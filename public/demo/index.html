@@ -4866,6 +4866,10 @@ html body .fw-reg td:first-child{min-width:220px!important}
 /* telefoon: vier knoppen (geluid, meldingen, tickets, betalingen) + datum + weer op één regel */
 @media(max-width:520px){.cc-tools{gap:7px}.cc-bel{width:35px;height:35px;border-radius:10px}.cc-bel svg{width:17px;height:17px}.cc-wi{font-size:19px}.cc-weer{gap:5px}.cc-weer b{font-size:14px}.cc-dag b{font-size:13.5px}}
 
+.bet-snel{display:inline-flex;align-items:center;gap:4px;font-style:normal;font-size:11.5px;color:#6b7280;margin-top:2px}.bet-snel svg{width:12px;height:12px}.bet-snel.vlot{color:#2e7a52;font-weight:600}
+.bet-rk{flex:none;min-width:44px;height:30px;padding:0 8px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;gap:1px;background:#f1f2f4;color:#3a4250;font-size:12px;font-variant-numeric:tabular-nums}.bet-rk b{font-size:14px}
+.bet-rk.pod{background:#eef3fb;color:#2c4a7a}.bet-rk.top{background:linear-gradient(135deg,#f3e2bd,#e2c084);color:#6b4f22}
+
 </style>
 <style id="mansardThema">
 @import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;500;600;700&display=swap");
@@ -15639,13 +15643,21 @@ const betVia=f=>f.betaalwijze==="mollie"?"iDEAL":f.betaalwijze==="incasso"?"Inca
 const betTs=f=>String(f.betaaldTs||(f.betaaldOp?f.betaaldOp+"T12:00:00":"")||"");
 const betZienLees=()=>{try{return localStorage.getItem("ms.betZien")||""}catch(e){return""}};
 function betNieuw(){const z=betZienLees()||iso(today())+"T00:00:00";return (state.facturen||[]).filter(f=>f.soort!=="offerte"&&betAuto(f)&&betTs(f)>z)}
+/* betaalsnelheid zoals in het klantportaal: van versturen tot betaald, op de seconde */
+const betVan=f=>{if(f.verstuurdTs)return f.verstuurdTs;const v=String(f.verstuurdOp||"");if(/T\d/.test(v))return v;if(/^\d{4}-\d{2}-\d{2}$/.test(v)){const g=String(f.gemaakt||"");return g&&g.slice(0,10)===v?g:v+"T00:00:00"}return f.gemaakt||(f.datum?f.datum+"T09:00:00":"")};
+const betSec=f=>{if(f.status!=="betaald")return null;const bo=String(f.betaaldOp||"").slice(0,10),ts=f.betaaldTs||(/^\d{4}-\d{2}-\d{2}$/.test(bo)?bo+"T12:00:00":"");if(!ts)return null;const v=Date.parse(betVan(f)),t=Date.parse(ts);return v>0&&t>0?Math.max(0,Math.round((t-v)/1000)):null};
+const betDuur=sec=>{if(sec==null)return"";const d=Math.floor(sec/86400),u=Math.floor(sec%86400/3600),m=Math.floor(sec%3600/60),x=sec%60,p=[];if(d)p.push(d+(d===1?" dag":" dagen"));if(u)p.push(u+" uur");if(m)p.push(m+" min");if(x||!p.length)p.push(x+" sec");return p.join(" ")};
+/* ranglijst nu: klanten op gemiddelde betaalsnelheid (betaalde facturen van de laatste 12 maanden), zelfde regels als het portaal */
+function betRanglijst(){const sinds=iso(addDays(today(),-365)),per={};(state.facturen||[]).forEach(f=>{if(f.soort==="offerte"||f.status!=="betaald"||!f.klantId||String(f.datum||"")<sinds)return;const s=betSec(f);if(s==null)return;(per[f.klantId]=per[f.klantId]||[]).push(s)});
+  const l=Object.entries(per).map(([id,a])=>({id,s:a.reduce((x,y)=>x+y,0)/a.length})).sort((a,b)=>a.s-b.s),r={};l.forEach((x,i)=>r[x.id]=i+1);return{r,n:l.length}}
 /* lijst met betalingen van de laatste 14 dagen (alle manieren), nieuwste bovenaan */
 function openBetalingen(){const van=iso(addDays(today(),-14)),z=betZienLees()||iso(today())+"T00:00:00";
-  const L=(state.facturen||[]).filter(f=>f.soort!=="offerte"&&f.status==="betaald"&&String(f.betaaldOp||"")>=van).sort((a,b)=>betTs(b).localeCompare(betTs(a)));
+  const L=(state.facturen||[]).filter(f=>f.soort!=="offerte"&&f.status==="betaald"&&String(f.betaaldOp||"")>=van).sort((a,b)=>betTs(b).localeCompare(betTs(a))),RG=betRanglijst();
   const som=L.reduce((a,f)=>a+totals(f).inc,0),vd=iso(today()),somVd=L.filter(f=>String(f.betaaldOp||"").slice(0,10)===vd).reduce((a,f)=>a+totals(f).inc,0);
-  openDlg(`<div class="dlg-head"><span class="objic big bet-ic">${I.euro}</span><div style="min-width:0;flex:1"><h3>Betalingen</h3><div class="subt">Ontvangen in de laatste 14 dagen · vandaag ${eur(somVd)}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
+  openDlg(`<div class="dlg-head"><span class="objic big bet-ic">${I.euro}</span><div style="min-width:0;flex:1"><h3>Betalingen</h3><div class="subt">Ontvangen in de laatste 14 dagen · vandaag ${eur(somVd)} · # = plek in de ranglijst snelste betalers, nu</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
     ${L.length?`<div class="bet-tot"><span>Totaal 14 dagen</span><b>${eur(som)}</b><small>${plural(L.length,"betaling","betalingen")}</small></div><div class="bet-l">${L.map(f=>{const nw=betAuto(f)&&betTs(f)>z,d=String(f.betaaldOp||"").slice(0,10);
-      return `<button type="button" class="bet-r${nw?" nieuw":""}" data-betf="${esc(f.id)}"><span class="bet-av" style="--h:${hue(f.klantNaam||"")}">${esc(initials(cleanName(f.klantNaam||"?")))}</span><span class="bet-t"><b>${esc(cleanName(f.klantNaam||"Klant"))}</b><small>${d===vd?"Vandaag":esc(fmtD(d))} · ${esc(betVia(f))} · ${esc(f.nummer||"")}</small></span>${nw?'<i class="bet-nw">Nieuw</i>':""}<span class="bet-b">${eur(totals(f).inc)}</span></button>`}).join("")}</div>`
+      const sec=betSec(f),tijd=f.betaaldTs?new Date(f.betaaldTs).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"}):"",rg=RG.r[f.klantId];
+      return `<button type="button" class="bet-r${nw?" nieuw":""}" data-betf="${esc(f.id)}"><span class="bet-av" style="--h:${hue(f.klantNaam||"")}">${esc(initials(cleanName(f.klantNaam||"?")))}</span><span class="bet-t"><b>${esc(cleanName(f.klantNaam||"Klant"))}</b><small>${d===vd?"Vandaag":esc(fmtD(d))}${tijd?" om "+esc(tijd):""} · ${esc(betVia(f))} · ${esc(f.nummer||"")}</small>${sec!=null?`<em class="bet-snel${sec<86400?" vlot":""}">${I.clock||""}betaald in ${esc(betDuur(sec))}${f.betaaldTs?"":" (ongeveer)"}</em>`:""}</span>${nw?'<i class="bet-nw">Nieuw</i>':""}<span class="bet-b">${eur(totals(f).inc)}</span><span class="bet-rk${rg===1?" top":rg&&rg<=3?" pod":""}" title="Plek in de ranglijst snelste betalers (nu, ${RG.n} klanten)">${rg?(rg===1?"🏆":"#")+"<b>"+rg+"</b>":"–"}</span></button>`}).join("")}</div>`
       :`<p class="subt" style="margin:8px 0">Nog geen betalingen in de laatste 14 dagen.</p>`}`);
   try{localStorage.setItem("ms.betZien",new Date().toISOString())}catch(e){}try{ccBetVernieuw()}catch(e){}
   dlg.querySelectorAll("[data-betf]").forEach(b=>b.onclick=()=>{const id=b.dataset.betf;dlg.close();openFactuur(id)})}
