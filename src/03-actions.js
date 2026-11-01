@@ -655,7 +655,7 @@ function openAkkoord(id){
     <label>Prijs per beurt (€ ${S().incl?"incl.":"excl."} btw)<input id="ak-prijs" type="number" step="0.01" min="0" inputmode="decimal" value="${esc(prijs)}" required></label>
     <label>Frequentie<select id="ak-freq">${fo.map(w=>`<option value="${w}" ${w===fr?"selected":""}>${esc(freqLabel(w))}</option>`).join("")}</select></label>
     <label>Duur<select id="ak-duur">${dur.map(m=>`<option value="${m}" ${m===du?"selected":""}>${m<60?m+" min":(m/60).toLocaleString("nl-NL")+" uur"}</option>`).join("")}</select></label>
-    <label>Dienst<input id="ak-dienst" value="${esc(k.dienst||HD())}"></label>
+    <label>Dienst<input id="ak-dienst" value="${esc((!GLAS()&&o.dienst)||k.dienst||HD())}"></label>
     <label>Aanboddatum<input id="ak-aanbod" type="date" value="${esc(f.start||iso(today()))}"><small class="help">Vanaf deze datum staat de klant bij Te plannen</small></label>
     <label>Eerste beurt <small style="font-weight:500">(leeg = via Te plannen)</small><input id="ak-dat" type="date" value="${k.gepland&&!k.prospect?esc(k.gepland):""}"></label>
     <label>Tijd <small style="font-weight:500">(leeg = eerste vrije tijd)</small><input id="ak-tijd" type="time" value="${esc(k.prospect?"":k.tijd||"")}"></label>

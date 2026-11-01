@@ -15,7 +15,7 @@ function offUlocPatch(cur,f,w){const u=offUloc(f);if(!u)return null;const nu=iso
   const id=newId("o"),o=f.opdracht||{},fm=["concept","direct","geen","periodiek"].includes(f.facturatie)?f.facturatie:"";
   const hoofd={id,dienst:w.dienst||HD(),prijs:w.prijs,frequentie:w.frequentie,duur:w.duur,volgende:w.aanbod||"",actief:true,objectId:oid,apart:true,vanOfferte:f.nummer||"",
     ...(fm?{facturatie:fm}:{}),fotos:[...((f.rcTelling&&f.rcTelling.fotos)||[]),...(Array.isArray(f.fotosIntern)?f.fotosIntern:[])].map(x=>({...x}))};
-  const mee=(o.extra||[]).map(e=>({...e,id:newId("o"),objectId:oid,bij:id,apart:false}));
+  const mee=(o.extra||[]).map(e=>GLAS()?({...e,id:newId("o"),objectId:oid,bij:id,apart:false}):({...e,id:newId("o"),objectId:oid,apart:true}));
   const loc=[u.naam,fullAddr(objecten.find(x=>x.id===oid))].filter(Boolean).join(" · ");
   return{objecten,opdrachten:[...(cur.opdrachten||[]),hoofd,...mee],prospect:false,actief:true,...(cur.prospect?{opdrachtVerwijderd:true,prijs:0,aanbieden:false}:{}),
     log:[...(cur.log||[]),{datum:nu,tekst:"Akkoord op offerte "+(f.nummer||"")+" · nieuwe opdracht op "+loc+" · "+eur(w.prijs)+" per beurt, elke "+w.frequentie+" weken"}]}}
@@ -216,17 +216,19 @@ function openOfferte(opts={}){
     const kv=klantVelden();if(!kv.naam||!kv.adres){$o(kv.naam?"adres":"naam").focus();toast("Vul de naam en het adres van de klant in");return}
     const opslaan=mode==="save"||mode==="saveclose";
     {const u=ulocVal();if(u&&!u.objectId&&!u.adres){$("#owUlocN").hidden=false;$o("ua").focus();toast("Vul het adres van de uitvoerlocatie in");return}}
-    if(!regels.length&&!opslaan){toast("Voeg minimaal één offerteregel toe, of bereken de prijs in de rekentool");return}
+    if(!regels.length&&!opslaan){toast(GLAS()?"Voeg minimaal één offerteregel toe, of bereken de prijs in de rekentool":"Voeg minimaal één offerteregel toe");return}
     if(!opslaan){const glasNu=(rc&&rc.regels&&rc.regels.length)||extra.some(r=>/glas|ramen/i.test(String(r.omschrijving||""))),k1=state.klanten.find(x=>x.id===kid);
-      if(dns.length&&!glasNu&&!heeftGlas(k1)){toast(GLAS_REGEL+" Tel eerst de ramen in de rekentool, of voeg een regel glasbewassing toe.");const r=$("#owRc");if(r)r.scrollIntoView({block:"start",behavior:"smooth"});return}}
+      if(GLAS()&&dns.length&&!glasNu&&!heeftGlas(k1)){toast(GLAS_REGEL+" Tel eerst de ramen in de rekentool, of voeg een regel glasbewassing toe.");const r=$("#owRc");if(r)r.scrollIntoView({block:"start",behavior:"smooth"});return}}
     busyNow=true;const btns=form.querySelectorAll(".kk-foot button");btns.forEach(b=>b.disabled=true);
     try{
       const btw=Number($o("btw").value),hoofd=[...(rc?rc.regels:[]),...extra.filter(r=>r.omschrijving||Number(r.prijs))],t=totals({regels:hoofd,btw,incl:false});
       const dnsExtra=dns.map(d=>{const c=dnsCalc(d);return c.ex?{id:d.id||newId("o"),dienst:d.naam,groep:d.groep,items:d.items.map(x=>({...x})),oms:d.oms||"",start:d.start??"",tp:d.tp??"",td:d.td??"",groepOms:d.groepOms||"",prijs:r2(st.incl?c.ex*(1+btw/100):c.ex),frequentie:Number(d.frequentie)||8,duur:Math.max(5,Math.ceil(c.sec/60/5)*5),volgende:"",actief:true}:null}).filter(Boolean);
       const opdracht={prijs:r2(st.incl?t.inc:t.ex),frequentie:Number($o("freq").value)||8,duur:Number($o("duur").value)||30,extra:dnsExtra};
+      /* ander vak: de eerste dienst is de vaste opdracht, elke andere dienst wordt los ingepland */
+      if(!GLAS()&&dnsExtra.length){const h=dnsExtra.shift();Object.assign(opdracht,{prijs:h.prijs,frequentie:h.frequentie,duur:h.duur,dienst:h.dienst});dnsExtra.forEach(e=>e.apart=true)}
       let tel=null,fail=0;if(rc){const r=await RC.telling();tel=r.t;fail=r.fail}
       const wasNew=!state.klanten.some(x=>x.id===kid),cur=state.klanten.find(x=>x.id===kid);
-      const kPatch={...(tel?{ramenTelling:tel}:{}),...((wasNew||(cur&&cur.prospect))?{prijs:opdracht.prijs,frequentie:opdracht.frequentie,duur:opdracht.duur,incasso:$o("betaal").value==="incasso",opdrachten:[...((cur&&cur.opdrachten)||[]).filter(o=>!o.groep||!dnsExtra.some(e=>e.groep===o.groep)),...dnsExtra]}:{})};
+      const kPatch={...(tel?{ramenTelling:tel}:{}),...((wasNew||(cur&&cur.prospect))?{...(opdracht.dienst?{dienst:opdracht.dienst}:{}),prijs:opdracht.prijs,frequentie:opdracht.frequentie,duur:opdracht.duur,incasso:$o("betaal").value==="incasso",opdrachten:[...((cur&&cur.opdrachten)||[]).filter(o=>!o.groep||!dnsExtra.some(e=>e.groep===o.groep)),...dnsExtra]}:{})};
       {const r=owRefCode?refVan(owRefCode,kid):null;if(owRefCode&&!r){toast(cur&&refNorm(cur.refCode)===owRefCode?"Dit is de eigen code van deze klant · haal hem weg":"Code "+owRefCode+" is niet bekend · haal hem weg of verbeter hem");const x=$("#owRefIn");if(x)x.focus();return false}
         if(r)Object.assign(kPatch,refKoppelPatch(cur,r))}
       const klantId=await saveKlant(kPatch);const k=state.klanten.find(x=>x.id===klantId)||{...kv,id:klantId};

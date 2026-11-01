@@ -75,10 +75,10 @@ async function autoAkkoordGetekend(f){
   /* offerte met alleen extra diensten (bijv. goten) bij een klant die al een opdracht heeft: prijs, frequentie en duur van die opdracht niet op 0 zetten */
   const alleenExtra=!(p>0)&&(o.extra||[]).length>0&&Number(k.prijs)>0;
   try{
-    {const up=typeof offUlocPatch==="function"?offUlocPatch(k,f,{prijs:p,frequentie:fr,duur:du,dienst:"Glasbewassing",aanbod}):null;
+    {const up=typeof offUlocPatch==="function"?offUlocPatch(k,f,{prijs:p,frequentie:fr,duur:du,dienst:(f.opdracht&&f.opdracht.dienst)||HD(),aanbod}):null;
       if(up){await save("klanten",k.id,{...strip(k),...up,akkoord:true});const ff=state.facturen.find(x=>x.id===f.id)||f;await save("facturen",f.id,{...strip(ff),status:"geaccepteerd",akkoordOp:ff.akkoordOp||iso(today()),autoAkkoord:true});return}}
-    await save("klanten",k.id,{...strip(k),...(o.extra&&o.extra.length?{opdrachten:[...(k.opdrachten||[]).filter(x=>!x.groep||!o.extra.some(e=>e.groep===x.groep)),...o.extra]}:{}),prospect:false,opdrachtVerwijderd:false,...(f.facturatie&&typeof factModusPatchOfferte==="function"?factModusPatchOfferte(f.facturatie,k):{}),actief:true,akkoord:true,...(alleenExtra?{}:{prijs:p,frequentie:fr,duur:du}),
-      dienst:k.dienst||HD(),gepland:"",tijd:"",aanbodVanaf:aanbod,aanbieden:!(aanbod>iso(today())),opzegReden:"",log:[...(k.log||[]),{datum:iso(today()),tekst:"Offerte "+f.nummer+" online ondertekend door "+((f.getekend||{}).naam||"de klant")+(alleenExtra?" · extra: "+(o.extra||[]).map(e=>e.dienst).join(", "):" · "+eur(p)+" per beurt, elke "+fr+" weken · staat bij Te plannen vanaf "+fmtD(parse(aanbod)))}]});
+    await save("klanten",k.id,{...strip(k),...(o.extra&&o.extra.length?{opdrachten:[...(k.opdrachten||[]).filter(x=>!x.groep||!o.extra.some(e=>e.groep===x.groep)),...o.extra]}:{}),...(o.dienst&&p>0?{dienst:o.dienst}:{}),prospect:false,opdrachtVerwijderd:false,...(f.facturatie&&typeof factModusPatchOfferte==="function"?factModusPatchOfferte(f.facturatie,k):{}),actief:true,akkoord:true,...(alleenExtra?{}:{prijs:p,frequentie:fr,duur:du}),
+      dienst:(o.dienst&&p>0)?o.dienst:(k.dienst||HD()),gepland:"",tijd:"",aanbodVanaf:aanbod,aanbieden:!(aanbod>iso(today())),opzegReden:"",log:[...(k.log||[]),{datum:iso(today()),tekst:"Offerte "+f.nummer+" online ondertekend door "+((f.getekend||{}).naam||"de klant")+(alleenExtra?" · extra: "+(o.extra||[]).map(e=>e.dienst).join(", "):" · "+eur(p)+" per beurt, elke "+fr+" weken · staat bij Te plannen vanaf "+fmtD(parse(aanbod)))}]});
     const ff=state.facturen.find(x=>x.id===f.id)||f;
     await save("facturen",f.id,{...strip(ff),status:"geaccepteerd",akkoordOp:ff.akkoordOp||iso(today()),autoAkkoord:true});
     toast(cleanName(k.naam)+" heeft getekend en staat nu bij Te plannen");

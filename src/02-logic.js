@@ -379,5 +379,5 @@ function queues(){
 }
 
 /* andere diensten alleen samen met glasbewassing */
-const heeftGlas=k=>!!k&&!k.opdrachtVerwijderd&&!k.prospect&&k.actief!==false&&/glas|ramen/i.test(String(k.dienst||HD()));
+const heeftGlas=k=>!!k&&!k.opdrachtVerwijderd&&!k.prospect&&k.actief!==false&&(!GLAS()||/glas|ramen/i.test(String(k.dienst||HD())));/* ander vak: elke dienst kan los, er is geen glasbewassing nodig */
 const GLAS_REGEL="Andere diensten kunnen alleen samen met glasbewassing worden uitgevoerd.";
