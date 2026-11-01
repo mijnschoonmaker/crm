@@ -4509,3 +4509,9 @@ html body:not(#zz) .st-bars .st-col.hi:has(.st-gh) .st-tr i em{bottom:auto;top:-
 html body:not(#zz) .st-bars .st-avg span{display:none!important}
 .st-tile b{font-size:24px}
 html body:not(#zz) .st-meer{display:block;margin:12px auto 0;font-size:13px;font-weight:600;color:#252c3c!important;background:none!important;text-decoration:underline;text-underline-offset:3px}
+
+.ajr-bars rect.top{fill:url(#anbt)!important}
+.st-plus{color:#2e7a52;font-weight:700}.st-min{color:#a4544a;font-weight:700}
+/* smalle kaarten in Analyse: alleen het bedrag van deze maand en de beste maand, de rest bij aanwijzen */
+html body:not(#zz) .ajr-card .st-bars .st-col:not(.hi):not(.top) .st-tr em{opacity:0!important}
+html body:not(#zz) .ajr-card .st-bars .st-col:hover .st-tr em{opacity:1!important}
