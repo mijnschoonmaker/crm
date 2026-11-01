@@ -10228,8 +10228,15 @@ function bhVerkoopboek(van,tot){
       rows.push([db,code,dat,omzetGb,bhN(0),bhN(x.ex),nr,rel,nr]);
       if(x.btw>0)rows.push([db,code,dat,btwGb,bhN(0),bhN(x.btw),nr,rel,nr])});
   });
+  /* Mansard-abonnementen (alleen bij de eigenaar van Mansard): zelfde verkoopboek, eigen omzetrekening, boekingcodes vanaf 9000001 */
+  const mf=bhMansardIn(van,tot);
+  mf.forEach(f=>{const db=bhS("bhMansardDagboek")||bhS("bhVerkoopboek"),nr=String(f.nummer),code=String(9000000+(Number((nr.match(/(\d+)\s*$/)||[])[1])||0)),dat=bhD(f.datum),rel=f.relatiecode||"",gbO=bhS("bhMansardOmzet")||bhGb("zakelijk","omzet21"),gbB=bhGb("zakelijk","btw21");
+    if(!rel)fout.push(nr+": nog geen relatiecode (Mansard)");
+    rows.push([db,code,dat,bhS("bhDebiteuren"),bhN(f.incl),bhN(0),nr,rel,nr]);
+    rows.push([db,code,dat,gbO,bhN(0),bhN(f.excl),nr,rel,nr]);
+    if(Number(f.btw)>0)rows.push([db,code,dat,gbB,bhN(0),bhN(f.btw),nr,rel,nr])});
   const csv=[kop,...rows].map(r=>r.map(x=>String(x??"").replace(/[;\r\n]/g," ")).join(";")).join("\r\n")+"\r\n";
-  return{fs,rows,csv,fout,omzet:fs.reduce((a,f)=>a+totals(f).inc,0)};
+  return{fs,mf,rows,csv,fout,omzet:fs.reduce((a,f)=>a+totals(f).inc,0)+mf.reduce((a,f)=>a+(Number(f.incl)||0),0)};
 }
 /* relaties: alle actieve klanten, zodat de relatiecodes in SnelStart kloppen */
 function bhRelaties(){
@@ -10237,8 +10244,12 @@ function bhRelaties(){
   const ks=actief().slice().sort((a,b)=>Number(klantNr(a))-Number(klantNr(b)));
   const rows=ks.map(k=>{const a=k.fAdres?{adres:k.fAdres,postcode:k.fPostcode,plaats:k.fPlaats}:k;const naam=k.soort==="zakelijk"||k.soort==="vve"?(k.bedrijfsnaam||cleanName(k.naam)):cleanName(k.naam);
     return[klantNr(k),naam,k.contact||cleanName(k.naam),a.adres||"",String(a.postcode||"").replace(/\s/g,"").toUpperCase(),a.plaats||"",k.telefoon||"","",(typeof mailK==="function"?(mailK(k,"factuur").email||""):k.email||"")]});
+  const gezien=new Set();(state.bhMF||[]).forEach(f=>{if(!f.relatiecode||gezien.has(f.relatiecode))return;gezien.add(f.relatiecode);rows.push([f.relatiecode,f.klant||"",f.contact||"",f.adres||"",String(f.postcode||"").replace(/\s/g,"").toUpperCase(),f.plaats||"",f.telefoon||"","",f.email||""])});
   return{rows,csv:[kop,...rows].map(r=>r.map(bhQ).join(";")).join("\r\n")+"\r\n"};
 }
+/* Mansard-facturen ophalen (alleen de eigenaar van Mansard); daarna nog één keer tekenen */
+function bhMansardIn(van,tot){if(!(typeof platformEigenaar==="function"&&platformEigenaar()))return[];if(!state.bhMF&&!state.bhMFbezig){state.bhMFbezig=1;fbFn("platformFacturen")({}).then(r=>{state.bhMF=((r.data||{}).facturen)||[];state.bhMFbezig=0;if(state.tab==="boekhouding"||state.tab==="boekhouder")render()}).catch(()=>{state.bhMF=[];state.bhMFbezig=0})}
+  return(state.bhMF||[]).filter(f=>f.datum>=van&&f.datum<=tot).sort((a,b)=>String(a.nummer).localeCompare(String(b.nummer)))}
 /* uren: werkdagen (vertrek loods tot terug) met pauze, bij klanten en reistijd */
 function bhUren(van,tot){
   const dagen=Object.keys(state.routes||{}).filter(d=>d>=van&&d<=tot&&(state.routes[d]||{}).werk&&state.routes[d].werk.start).sort();
@@ -10282,6 +10293,10 @@ function vBoekhouder(){bhInit();
         ${inpS("bhKlantStart","Eerstvolgend klantnummer","1001")}
         <small class="help">Nieuwe klanten krijgen een nummer vanaf hier (of hoger, als er al hogere nummers zijn). Kom je van DienstenCRM of een ander pakket? Zet dit dan boven het hoogste relatienummer dat al in SnelStart staat, zodat een nieuwe klant nooit op een bestaande relatie wordt geboekt. Volgende nummer nu: <b>${esc(relVolgende())}</b>.</small>
       </section>
+      ${typeof platformEigenaar==="function"&&platformEigenaar()?`<section class="panel bh-p"><h3>${I.shield||I.boekhouding}Mansard (software)</h3>
+        ${inpS("bhMansardOmzet","Grootboekrekening omzet Mansard 21%",bhGb("zakelijk","omzet21"))}${inpS("bhMansardDagboek","Verkoopboek Mansard (dagboekcode)",bhS("bhVerkoopboek"))}
+        <small class="help">De abonnementsfacturen van Mansard (MAN-…) gaan mee in dezelfde SnelStart-export, op deze omzetrekening. Btw gaat op de rekening btw 21% (zakelijk). Leeg = dezelfde als zakelijk 21% en je gewone verkoopboek. Boekingcodes vanaf 9000001 en relatiecodes vanaf 9000001, zodat ze nooit botsen met het CRM.</small>
+      </section>`:""}
       <section class="panel bh-p"><h3>${I.bank||I.boekhouding}BTW-codes</h3>
         ${inpS("bhBtw0","BTW-code 0%")}${inpS("bhBtwLaag","BTW-code laag")}${inpS("bhBtwHoog","BTW-code hoog")}${inpS("bhBtwVerlegd","BTW-code verlegd")}
       </section></div></div>
@@ -10295,10 +10310,10 @@ function vBoekhouder(){bhInit();
   ${bhLaatst()?`<p class="subt bh-laatst">${I.check}Laatst verstuurde omzet t/m <b>${esc(bhD(bhLaatst()))}</b> · periode begint daarna</p>`:""}
   <div class="bh-grid3">
     <section class="panel bh-p"><h3>${I.euro||I.bank}Omzetperiode</h3>${per(van,tot)}
-      <div class="bh-sum"><span><b>${vb.fs.length}</b> facturen</span><span><b>${eur(vb.omzet)}</b> incl. btw</span><span><b>${vb.rows.length}</b> boekingsregels</span><span><b>${actief().length}</b> relaties</span></div>
+      <div class="bh-sum"><span><b>${vb.fs.length}</b> facturen${vb.mf.length?` + <b>${vb.mf.length}</b> Mansard`:""}</span><span><b>${eur(vb.omzet)}</b> incl. btw</span><span><b>${vb.rows.length}</b> boekingsregels</span><span><b>${actief().length}</b> relaties</span></div>
       ${vb.fout.length?`<div class="notice" style="margin:0">${vb.fout.slice(0,4).map(esc).join("<br>")}${vb.fout.length>4?"<br>…":""}<br><button type="button" class="linkbtn" data-act="bhtab" data-v="instellingen">Grootboekrekeningen instellen</button></div>`:""}
       <label>E-mailadres<input type="email" id="bhMail1" value="${esc(bhS("bhMailOmzet"))}" placeholder="boekhouder@kantoor.nl"></label>
-      <div class="row"><button type="button" class="primary" data-act="bhmailomzet" ${vb.fs.length?"":"disabled"}>${I.mail}E-mail naar boekhouder</button><button type="button" data-act="bhdlomzet" ${vb.fs.length?"":"disabled"}>${I.dl}Download CSV</button></div>
+      <div class="row"><button type="button" class="primary" data-act="bhmailomzet" ${vb.fs.length||vb.mf.length?"":"disabled"}>${I.mail}E-mail naar boekhouder</button><button type="button" data-act="bhdlomzet" ${vb.fs.length||vb.mf.length?"":"disabled"}>${I.dl}Download CSV</button></div>
       <small class="help">Twee bestanden, precies zoals DienstenCRM: revenue (verkoopboek: per factuur hoofdboeking, omzet en btw) en customers_active (relaties met relatiecode).</small>
     </section>
     <section class="panel bh-p"><h3>${I.clock}Urenperiode</h3>${per(van,tot)}

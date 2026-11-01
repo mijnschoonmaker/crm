@@ -60,6 +60,12 @@ module.exports = ({ rawDb, bucket, brevoSend, mailHtml, nu }) => {
     const jaar = dagNL().slice(0, 4), ref = rawDb.doc("platform/aboTeller");
     return rawDb.runTransaction(async tr => { const s = await tr.get(ref), d = s.exists ? s.data() : {}; const n = (d.jaar === jaar ? Number(d.n) || 0 : 0) + 1; tr.set(ref, { jaar, n }, { merge: true }); return "MAN-" + jaar + "-" + String(n).padStart(4, "0"); });
   }
+  /* vaste relatiecode per bedrijf voor SnelStart: 9000001, 9000002, … (ver boven de klantnummers van mijnschoonmaker) */
+  async function relatiecode(bid) {
+    const bref = rawDb.doc("bedrijven/" + bid), tref = rawDb.doc("platform/aboTeller");
+    return rawDb.runTransaction(async tr => { const b = (await tr.get(bref)).data() || {}; if (b.relatiecode) return String(b.relatiecode);
+      const t = (await tr.get(tref)).data() || {}, n = (Number(t.rel) || 9000000) + 1; tr.set(tref, { rel: n }, { merge: true }); tr.set(bref, { relatiecode: String(n) }, { merge: true }); return String(n); });
+  }
   /* p = Mollie-betaling (status paid), b = bedrijven/<bid> */
   async function maakVoorBetaling(bid, p, b) {
     if (!p || p.status !== "paid") return null;
@@ -78,7 +84,8 @@ module.exports = ({ rawDb, bucket, brevoSend, mailHtml, nu }) => {
     const pdf = await maakPdf({ nummer, datum, betaaldOp: betaald, betaalwijze: methode, klant, regels, excl, btw, incl });
     const pad = "abofacturen/" + bid + "/" + nummer + ".pdf";
     await bucket().file(pad).save(pdf, { contentType: "application/pdf", resumable: false });
-    const rec = { klantNaam: klant.naam || "", klantEmail: klant.email || "", nummer, datum, betaaldOp: betaald, excl, btw, incl, oms: regels[0].oms, periode: regels[0].sub || "", methode, pad, mollieId: p.id, op: nu(), gemaild: false };
+    const rel = await relatiecode(bid).catch(() => "");
+    const rec = { relatiecode: rel, klantNaam: klant.naam || "", klantEmail: klant.email || "", klantAdres: klant.adres || "", klantPostcode: ins.postcode || "", klantPlaats: ins.plaats || "", klantTelefoon: ins.telefoon || "", klantContact: ins.contact || "", nummer, datum, betaaldOp: betaald, excl, btw, incl, oms: regels[0].oms, periode: regels[0].sub || "", methode, pad, mollieId: p.id, op: nu(), gemaild: false };
     await ref.set(rec);
     /* mail naar de eigenaar, vanaf de afzender van Mansard */
     try {
@@ -101,7 +108,7 @@ module.exports = ({ rawDb, bucket, brevoSend, mailHtml, nu }) => {
     const L = [];
     for (const d of q.docs) { const bid = d.ref.parent.parent ? d.ref.parent.parent.id : ""; if (!bid) continue; const x = d.data();
       if (!x.klantNaam && !(bid in namen)) namen[bid] = ((await rawDb.doc("bedrijven/" + bid).get()).data() || {}).naam || bid;
-      L.push({ bid, id: d.id, nummer: x.nummer, datum: x.datum, klant: x.klantNaam || namen[bid] || bid, excl: x.excl, btw: x.btw, incl: x.incl, methode: x.methode || "", mollieId: x.mollieId || d.id, oms: x.oms || "", periode: x.periode || "" }); }
+      L.push({ relatiecode: x.relatiecode || "", adres: x.klantAdres || "", postcode: x.klantPostcode || "", plaats: x.klantPlaats || "", telefoon: x.klantTelefoon || "", email: x.klantEmail || "", contact: x.klantContact || "", bid, id: d.id, nummer: x.nummer, datum: x.datum, klant: x.klantNaam || namen[bid] || bid, excl: x.excl, btw: x.btw, incl: x.incl, methode: x.methode || "", mollieId: x.mollieId || d.id, oms: x.oms || "", periode: x.periode || "" }); }
     return L.sort((a, c) => String(c.nummer).localeCompare(String(a.nummer)));
   }
   return { maakVoorBetaling, lijst, pdfVan, maakPdf, alle };
