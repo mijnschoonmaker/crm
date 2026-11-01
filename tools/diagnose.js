@@ -1,12 +1,17 @@
-/* Alleen lezen: facturen van Swart. Wijzigt niets. */
+/* Alleen lezen: klanten met prijs 0 terwijl ze glasbewassing hebben. Wijzigt niets. */
 const admin = require("../functions/node_modules/firebase-admin");
 admin.initializeApp({ projectId: process.env.P });
 const db = admin.firestore();
 const n = (t, x) => console.log("::notice title=" + t + "::" + JSON.stringify(x).slice(0, 3800));
 (async () => {
-  const ks = (await db.collection("klanten").get()).docs.filter(d => /swart/i.test(String(d.data().naam || "")));
-  for (const d of ks) { const k = d.data();
-    const fs = (await db.collection("facturen").where("klantId", "==", d.id).get()).docs.map(x => { const f = x.data(); return { id: x.id, nr: f.nummer, soort: f.soort, status: f.status, datum: f.datum, verstuurdOp: f.verstuurdOp || "", verstuurdTs: f.verstuurdTs || "", incasso: !!f.incasso, mollieStatus: f.mollieStatus || "", periodiek: !!f.periodiek, keys: Object.keys(f).filter(a => /verstu|mail|send|incasso|bron|via/i.test(a)) }; });
-    const ms = (await db.collection("berichten").where("klantId", "==", d.id).get().catch(() => ({ docs: [] }))).docs.map(x => ({ op: x.data().op || x.data().datum, ref: x.data().ref, onderwerp: x.data().onderwerp, status: x.data().status }));
-    n("klant " + d.id, { naam: k.naam, email: k.email, fEmail: k.fEmail, incasso: k.incasso, fact: fs, berichten: ms.slice(-8) }); }
+  const all = (await db.collection("klanten").get()).docs.map(d => ({ id: d.id, ...d.data() }));
+  const nul = all.filter(k => k.actief !== false && !k.prospect && !k.hoofdKlantId && !k.opdrachtVerwijderd && !(Number(k.prijs) > 0));
+  n("aantal actief", all.filter(k => k.actief !== false && !k.hoofdKlantId).length);
+  n("prijs 0", nul.length);
+  const h = all.find(k => /miedema/i.test(k.naam || "") && String(k.klantnr) === "382309");
+  if (h) n("miedema", { prijs: h.prijs, dienst: h.dienst, freq: h.frequentie, rr: h.ramenRegel ? { keys: Object.keys(h.ramenRegel), prijs: h.ramenRegel.prijs, tot: h.ramenRegel.totaal, p: h.ramenRegel.p, f: h.ramenRegel.f, fq: h.ramenRegel.fq } : null, tp: h.tp, periodiek: !!h.periodiek, keys: Object.keys(h).filter(x => /prijs|bedrag|tarief/i.test(x)) });
+  n("voorbeelden", nul.slice(0, 25).map(k => ({ nr: k.klantnr, naam: k.naam, dienst: k.dienst, rr: !!k.ramenRegel, rrP: k.ramenRegel && (k.ramenRegel.prijs ?? k.ramenRegel.totaal), soort: k.soort })));
+  const fs = (await db.collection("facturen").get()).docs.map(d => d.data()).filter(f => f.soort !== "offerte");
+  const laatst = {}; fs.forEach(f => { if (!laatst[f.klantId] || String(f.datum) > String(laatst[f.klantId].datum)) laatst[f.klantId] = f; });
+  n("met factuur", nul.filter(k => laatst[k.id]).length);
 })().catch(x => { console.error(x); process.exit(1); });
