@@ -92,7 +92,7 @@ async function kfOpslaan(){const b=$("#kfSave");b.disabled=true;const R=KFO.res,
           notities:[cur.notities,k.notities].filter(x=>String(x||"").trim()).join("\n"),opdrachten:[...(cur.opdrachten||[]),...nieuw],log:[...(cur.log||[]),log]});laatste=cur.id}
       else{const id=newId("k");
         await save("klanten",id,{klantnr:k.klantnr||"",naam:k.naam||k.adres,contact:k.contact||"",adres:k.adres||"",postcode:String(k.postcode||"").toUpperCase(),plaats:k.plaats||"",telefoon:k.telefoon||"",email:k.email||"",soort:["zakelijk","vve"].includes(k.soort)?k.soort:"particulier",
-          dienst:String(h.dienst||"Glasbewassing").trim(),frequentie:Number(h.frequentie)||4,prijs:Number(h.prijs)||0,duur:30,laatst:h.laatst||"",gepland:h.volgende&&h.volgende>=t?h.volgende:"",tijd:"",notities:k.notities||"",opdrachten:opd,
+          dienst:String(h.dienst||HD()).trim(),frequentie:Number(h.frequentie)||4,prijs:Number(h.prijs)||0,duur:30,laatst:h.laatst||"",gepland:h.volgende&&h.volgende>=t?h.volgende:"",tijd:"",notities:k.notities||"",opdrachten:opd,
           binnen:false,actief:true,aangemaakt:t,log:[log],objecten:[]});laatste=id}
       n++}
     dlg.close();toast(n===1?"Klant staat in Mansard":n+" klanten staan in Mansard");KFO.res=null;KFO.fotos=[];

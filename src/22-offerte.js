@@ -13,7 +13,7 @@ function offUlocPatch(cur,f,w){const u=offUloc(f);if(!u)return null;const nu=iso
   let objecten=[...(cur.objecten||[])],oid=u.objectId;
   if(!oid||!objecten.some(x=>x.id===oid)){oid=newId("l");objecten.push({id:oid,naam:u.naam||"Uitvoerlocatie",adres:u.adres||"",postcode:u.postcode||"",plaats:u.plaats||""})}
   const id=newId("o"),o=f.opdracht||{},fm=["concept","direct","geen","periodiek"].includes(f.facturatie)?f.facturatie:"";
-  const hoofd={id,dienst:w.dienst||"Glasbewassing",prijs:w.prijs,frequentie:w.frequentie,duur:w.duur,volgende:w.aanbod||"",actief:true,objectId:oid,apart:true,vanOfferte:f.nummer||"",
+  const hoofd={id,dienst:w.dienst||HD(),prijs:w.prijs,frequentie:w.frequentie,duur:w.duur,volgende:w.aanbod||"",actief:true,objectId:oid,apart:true,vanOfferte:f.nummer||"",
     ...(fm?{facturatie:fm}:{}),fotos:((f.rcTelling&&f.rcTelling.fotos)||[]).map(x=>({...x}))};
   const mee=(o.extra||[]).map(e=>({...e,id:newId("o"),objectId:oid,bij:id,apart:false}));
   const loc=[u.naam,fullAddr(objecten.find(x=>x.id===oid))].filter(Boolean).join(" · ");
@@ -103,7 +103,7 @@ function openOfferte(opts={}){
   const dnsCalc=d=>groepCalc(d);
   const dnsRegels=()=>dns.map(d=>{const c=dnsCalc(d);return c.rows.length?{omschrijving:d.groepOms?d.groepOms:d.naam+" ("+freqLabel(d.frequentie).toLowerCase()+"): "+groepDetail(c.rows.map(r=>r.it),d.frequentie),aantal:1,prijs:c.ex,sec:c.sec}:null}).filter(Boolean);
   /* offerteregels gegroepeerd zoals op de offerte: per dienst één regel met de onderdelen eronder */
-  const glasNaam=()=>{const g=diensten.find(d=>d.glas);return g&&g.naam||"Glasbewassing"};
+  const glasNaam=()=>{const g=diensten.find(d=>d.glas);return g&&g.naam||HD()};
   const glasGroep=()=>{const rr=rc?rc.regels:[];if(!rr.length)return [];if(!rr.some(r=>r.sub))return rr;
     return [{omschrijving:glasNaam(),aantal:1,prijs:r2(rr.reduce((a,r)=>a+(Number(r.prijs)||0),0)),subs:rr.filter(r=>r.sub).map(r=>({naam:r.sub,qty:r.qty||"",fq:r.fq||""}))}]};
   const dnsGroep=()=>dns.map(d=>{const c=dnsCalc(d);return c.rows.length?{omschrijving:d.groepOms||d.naam,aantal:1,prijs:c.ex,subs:d.groepOms?[]:c.rows.map(r=>({naam:r.it.naam,qty:String(r.it.aantal).replace(".",",")+" "+eenhKort(r.it.eenheid),fq:fqTxt(Number(r.it.fq)||Number(d.frequentie)||8),...(String(r.it.tekst||"").trim()?{tekst:String(r.it.tekst).trim()}:{})}))}:null}).filter(Boolean);
@@ -195,7 +195,7 @@ function openOfferte(opts={}){
       ["ramenTelling","ramenRegel","prijs","frequentie","duur","dienst","opdrachten"].forEach(f=>delete patch[f])}
     if(cur){await save("klanten",kid,{...strip(cur),...kv,...patch});return kid}
     kid=newId("k");
-    await save("klanten",kid,{...kv,klantnr:"",ronde:"",frequentie:Number($o("freq").value)||8,prijs:0,laatst:"",gepland:"",tijd:"",duur:Number($o("duur").value)||30,dienst:"Glasbewassing",objectId:"",binnen:false,
+    await save("klanten",kid,{...kv,klantnr:"",ronde:"",frequentie:Number($o("freq").value)||8,prijs:0,laatst:"",gepland:"",tijd:"",duur:Number($o("duur").value)||30,dienst:HD(),objectId:"",binnen:false,
       actief:true,prospect:true,incasso:$o("betaal").value==="incasso",akkoord:false,geenReview:false,opzegReden:"",notities:"",aangemaakt:iso(today()),log:[],objecten:[],...patch});
     return kid}
   let busyNow=false;

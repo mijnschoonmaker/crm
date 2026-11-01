@@ -23,7 +23,7 @@ const meetLeerTekst=()=>{const L=((state.meetleer||{}).items)||[];if(!L.length)r
   return "Geleerd van "+L.length+" "+(L.length===1?"meting":"metingen")+": "+["goot","windveer","plat","gevel","dak"].map(b=>{const c=meetCorr(b);return c.n?(MEET_BRON[b]||b).replace(/ \(.*\)/,"").toLowerCase()+" "+(c.f>=1?"+":"−")+Math.abs(Math.round((c.f-1)*1000)/10).toString().replace(".",",")+" %":""}).filter(Boolean).join(", ")+"."};
 /* standaard uit: glasbewassing blijft tellen, extra diensten vul je zelf in (gemeten met de Meten-app). Aanzetten kan bij Instellingen › Meetlint. */
 const meetAan=w=>{const s=S();if(w==="webshop")return s.meetWebshop===true;if(w==="telling")return s.meetTelling===true;return s.meetRekentool===true};
-SETCARDS.push({id:"meetlint",t:"Meetlint",sub:"Goten, windveren en beplating opmeten op een foto",ic:"ruler",bg:"#c9a227",
+SETCARDS.push({id:"meetlint",glas:true,t:"Meetlint",sub:"Goten, windveren en beplating opmeten op een foto",ic:"ruler",bg:"#c9a227",
   st:s=>[meetAan("rekentool"),meetAan("telling"),meetAan("webshop")].some(Boolean)?["ok","Aan"]:["soon","Staat uit"],
   rows:s=>[["Rekentool",meetAan("rekentool")?"Aan":"Uit"],["Tellingcontrole",meetAan("telling")?"Aan":"Uit"],["Dienstenwebshop",meetAan("webshop")?"Aan":"Uit"]]});
 SETEXTRA.meetlint=(c,s)=>{const L=meetSoorten();

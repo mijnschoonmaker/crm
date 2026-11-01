@@ -14,17 +14,18 @@ module.exports = ({ abofactuur, rawDb, T, onCall, onRequestRaw, HttpsError, nu, 
   const bedrijfAanmaken = onCall(async req => {
     const e = emailVan(req.auth), d = req.data || {};
     const naam = String(d.naam || "").trim().slice(0, 80), tel = String(d.telefoon || "").trim().slice(0, 30), plaats = String(d.plaats || "").trim().slice(0, 60);
+    const branche = ["glazenwasser", "schoorsteenveger", "schilder", "hovenier", "timmerman", "betonboorder"].includes(d.branche) ? d.branche : "glazenwasser";
     if (naam.length < 2) throw new HttpsError("invalid-argument", "Vul de naam van je bedrijf in.");
     const g = await rawDb.doc("gebruikers/" + e).get();
     if (g.exists) throw new HttpsError("already-exists", "Dit e-mailadres hoort al bij een bedrijf. Log opnieuw in.");
     let bid = T.nieuwBid(); for (let i = 0; i < 5 && (await rawDb.doc("bedrijven/" + bid).get()).exists; i++) bid = T.nieuwBid();
     const proefTot = new Date(Date.now() + PLAN.proefDagen * 864e5).toISOString().slice(0, 10);
     const b = rawDb.batch();
-    b.set(rawDb.doc("bedrijven/" + bid), { naam, eigenaar: e, telefoon: tel, plaats, status: "proef", proefTot, proefDemo: true, plan: PLAN, gebruikers: 1, aangemaakt: nu() });
+    b.set(rawDb.doc("bedrijven/" + bid), { naam, branche, eigenaar: e, telefoon: tel, plaats, status: "proef", proefTot, proefDemo: true, plan: PLAN, gebruikers: 1, aangemaakt: nu() });
     b.set(rawDb.doc("gebruikers/" + e), { bedrijf: bid, rol: "eigenaar", naam: String((req.auth.token && req.auth.token.name) || ""), toegevoegd: nu() });
-    b.set(rawDb.doc("bedrijven/" + bid + "/instellingen/bedrijf"), { naam, email: e, telefoon: tel, plaats, btw: 21, incl: true, termijn: 14, liveMail: true, portaalKnop: true, crSnel: 0, crMaandTop: 0, crMaandTop2: 0, crMaandTop3: 0, aangemaakt: nu() }); /* credits-acties zet een nieuw bedrijf zelf aan */
+    b.set(rawDb.doc("bedrijven/" + bid + "/instellingen/bedrijf"), { naam, branche, email: e, telefoon: tel, plaats, btw: 21, incl: true, termijn: 14, liveMail: true, portaalKnop: true, crSnel: 0, crMaandTop: 0, crMaandTop2: 0, crMaandTop3: 0, aangemaakt: nu() }); /* credits-acties zet een nieuw bedrijf zelf aan */
     await b.commit();
-    try { await rawDb.collection("aanmeldingen").add({ bid, naam, email: e, telefoon: tel, plaats, op: nu() }); } catch (x) {}
+    try { await rawDb.collection("aanmeldingen").add({ bid, naam, branche, email: e, telefoon: tel, plaats, op: nu() }); } catch (x) {}
     return { bid, proefTot };
   });
 

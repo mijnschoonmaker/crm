@@ -2,12 +2,12 @@
 const HUIS='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 10.4 12 4.2l7.5 6.2v8.4a1.4 1.4 0 0 1-1.4 1.4h-3.4v-5a1 1 0 0 0-1-1h-3.4a1 1 0 0 0-1 1v5H5.9a1.4 1.4 0 0 1-1.4-1.4z" stroke-linejoin="round"/></svg>';
 function motTekst(done,total){const todo=total-done;
   if(!total)return"";if(!done)return"Klaar voor de start? Het eerste adres wacht.";
-  if(!todo)return total>1?`Dag klaar! ${total} woningen gedaan, top gewerkt`:"Klaar! Top gewerkt";
+  if(!todo)return total>1?`Dag klaar! ${total} ${BW("woningen")} gedaan, top gewerkt`:"Klaar! Top gewerkt";
   if(todo===1)return"Nog één adres, bijna klaar!";
   if(done/total>=.5)return`Over de helft, goed bezig! Nog ${todo} te gaan`;
-  return`Lekker op gang · ${done} ${done===1?"woning":"woningen"} gedaan`}
+  return`Lekker op gang · ${done} ${done===1?BW("woning"):BW("woningen")} gedaan`}
 function huisjes(done,total,nieuw){if(!total)return"";const max=16,n=Math.min(total,max),d=Math.round(done/total*n);
-  return `<div class="huisjes" role="img" aria-label="${done} van ${total} woningen gedaan">${Array.from({length:n},(_,i)=>`<i class="${i<d?"af":""}${nieuw&&i===d-1?" pop":""}">${HUIS}</i>`).join("")}${total>max?`<small>+${total-max}</small>`:""}</div>`}
+  return `<div class="huisjes" role="img" aria-label="${done} van ${total} ${BW("woningen")} gedaan">${Array.from({length:n},(_,i)=>`<i class="${i<d?"af":""}${nieuw&&i===d-1?" pop":""}">${HUIS}</i>`).join("")}${total>max?`<small>+${total-max}</small>`:""}</div>`}
 function motBlok(done,total){if(!total)return"";return `<div class="motb">${huisjes(done,total)}<p>${esc(motTekst(done,total))}</p></div>`}
 const FEEST_WOORD=["Yes!","Top!","Lekker!","Mooi werk!","Strak!","Netjes!"];
 /* echte confetti: papiertjes met zwaartekracht, luchtweerstand, dwarrelen en kantelen (canvas, achter de kaart) */
@@ -45,9 +45,9 @@ function feest(k){try{
   const tijd=new Date().toTimeString().slice(0,5),woord=klaar?"Dag klaar!":FEEST_WOORD[Math.floor(Math.random()*FEEST_WOORD.length)];
   el.innerHTML=`<div class="ft${klaar?" klaar":""}">
     <div class="ft-kop"><div><small>Stop</small><b>${done}<em>/${total}</em></b></div><div class="ft-vl"><i></i>${typeof RV_BUS!=="undefined"?`<span>${RV_BUS}</span>`:""}<i></i></div><div style="text-align:right"><small>Afgemeld</small><b>${tijd}</b></div></div>
-    <div class="ft-body"><b class="ft-w">${esc(woord)}</b><span class="ft-a">${klaar?(total>1?`Alle ${total} woningen gedaan. Rust lekker uit.`:"Top gewerkt vandaag."):esc(a.adres||cleanName(k.naam))+" is klaar"}</span>
+    <div class="ft-body"><b class="ft-w">${esc(woord)}</b><span class="ft-a">${klaar?(total>1?`Alle ${total} ${BW("woningen")} gedaan. Rust lekker uit.`:"Top gewerkt vandaag."):esc(a.adres||cleanName(k.naam))+" is klaar"}</span>
       ${huisjes(done,total,true)}${klaar?"":`<span class="ft-nog">Nog ${todo} ${todo===1?"adres":"adressen"} te gaan</span>`}</div>
-    <div class="ft-stub"><div class="ft-perf"><i class="ft-rits"></i></div><div class="ft-st"><span class="ft-stempel">${'<svg viewBox="0 0 24 24"><path d="M5.5 12.8l4.2 4.2L18.5 7.6"/></svg>'}<i>Gewassen</i></span><code>${esc((a.adres||"").toUpperCase().slice(0,22))}</code></div></div></div>`;
+    <div class="ft-stub"><div class="ft-perf"><i class="ft-rits"></i></div><div class="ft-st"><span class="ft-stempel">${'<svg viewBox="0 0 24 24"><path d="M5.5 12.8l4.2 4.2L18.5 7.6"/></svg>'}<i>${BW("gewassen")}</i></span><code>${esc((a.adres||"").toUpperCase().slice(0,22))}</code></div></div></div>`;
   document.body.appendChild(el);try{navigator.vibrate&&navigator.vibrate(klaar?[40,60,40,60,80]:[30,40,30])}catch(e){}
   /* stuk afscheuren, met confetti vanaf de scheurlijn */
   setTimeout(()=>{const st=el.querySelector(".ft-stub");if(!st)return;const r=(typeof vpR==="function"?vpR(st):st.getBoundingClientRect());el.querySelector(".ft").classList.add("scheur");

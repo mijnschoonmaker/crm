@@ -58,17 +58,17 @@ function vInzichten(){
     const wdc=[0,0,0,0,0,0,0];bs.forEach(b=>{wdc[(parse(b.datum).getDay()+6)%7]+=1});const top=wdc.indexOf(Math.max(...wdc));
     const dag={};state.beurten.forEach(b=>{if(b.geannuleerd)return;dag[b.datum]=(dag[b.datum]||0)+beurtOmzet(b)});const best=Object.entries(dag).sort((a,b)=>b[1]-a[1])[0];
     const ach=overdue().length,gem=bs.length?om/bs.length:0;
-    const mot=bvt>0&&bs.length>=bvt?`${bs.length-bvt?bs.length-bvt+" woningen meer dan":"Even veel woningen als"} op hetzelfde moment in ${esc(V.lbl)}. Lekker bezig!`
-      :bvt>0?`${bvt-bs.length} woningen achter op hetzelfde moment in ${esc(V.lbl)}. Elke beurt telt!`
-      :!bs.length?`Nieuwe ${perW}, nieuwe kansen.${bv.length?` ${esc(V.lbl)} telde ${bv.length} woningen: dat is het doel.`:""}`:"Mooi begin, ga zo door!";
+    const mot=bvt>0&&bs.length>=bvt?`${bs.length-bvt?bs.length-bvt+" "+BW("woningen")+" meer dan":"Even veel "+BW("woningen")+" als"} op hetzelfde moment in ${esc(V.lbl)}. Lekker bezig!`
+      :bvt>0?`${bvt-bs.length} ${BW("woningen")} achter op hetzelfde moment in ${esc(V.lbl)}. Elke beurt telt!`
+      :!bs.length?`Nieuwe ${perW}, nieuwe kansen.${bv.length?` ${esc(V.lbl)} telde ${bv.length} ${BW("woningen")}: dat is het doel.`:""}`:"Mooi begin, ga zo door!";
     html+=`<section class="st-hero"><div class="st-hm"><span class="st-k">Woningen gedaan · ${esc(P.lbl)}</span>
         <div class="st-big"><b>${bs.length}</b>${bvt>0&&stDagen(P)>=3?stDelta(bs.length,bvt,"vs zelfde moment "+V.lbl):""}</div>
         <p class="st-mot">${mot}</p>
         ${(()=>{if(!bv.length&&!bs.length)return"";const doel=Math.max(bv.length,1),pc=Math.min(100,Math.round(bs.length/doel*100)),rec=bs.length>=bv.length&&bv.length>0;
           const dagen=new Set(bs.map(b=>b.datum)).size,pd=dagen?bs.length/dagen:0,rest=Math.max(0,bv.length-bs.length),nd=pd?Math.ceil(rest/pd):0;
           return `<div class="st-goal st-rol"><div class="fg-weg" style="--p:${pc/100}"><div class="fg-baan"><i></i></div><span class="fg-munt st-hmunt">${typeof HUIS!=="undefined"?HUIS:""}</span><span class="st-vlag">🏁</span></div>
-            <div class="st-gl"><span><b>${bs.length} van ${bv.length||"–"}</b> woningen van ${esc(V.lbl)}</span><span class="st-ing">${rec?"Record-tempo 🎉":rest?`nog ${rest}${nd?` · ±${plural(nd,"werkdag","werkdagen")}`:""}`:""}</span></div></div>
-            ${pd?`<div class="st-wk"><span><b>${pd.toLocaleString("nl-NL",{maximumFractionDigits:1})}</b> woningen per werkdag</span><span><b>${dagen}</b> ${dagen===1?"dag":"dagen"} gewerkt</span>${gem?`<span><b>${stE(gem*pd)}</b> per werkdag</span>`:""}</div>`:""}`})()}</div>
+            <div class="st-gl"><span><b>${bs.length} van ${bv.length||"–"}</b> ${BW("woningen")} van ${esc(V.lbl)}</span><span class="st-ing">${rec?"Record-tempo 🎉":rest?`nog ${rest}${nd?` · ±${plural(nd,"werkdag","werkdagen")}`:""}`:""}</span></div></div>
+            ${pd?`<div class="st-wk"><span><b>${pd.toLocaleString("nl-NL",{maximumFractionDigits:1})}</b> ${BW("woningen")} per werkdag</span><span><b>${dagen}</b> ${dagen===1?"dag":"dagen"} gewerkt</span>${gem?`<span><b>${stE(gem*pd)}</b> per werkdag</span>`:""}</div>`:""}`})()}</div>
       <div class="st-hs">${(()=>{const t=typeof wdPeriode==="function"?wdPeriode(P.rg):{dagen:0};return t.dagen&&t.perUur?stTile(I.euro,"Echt per uur",t.perUur?eur(t.perUur):"–","per gewerkt uur, loods tot loods zonder pauze","ok"):stTile(I.euro,"Per klantuur",mins?eur(om/(mins/60)):"–","omzet ex btw per uur bij klanten","ok")})()}${stTile(I.receipt,"Per beurt",gem?eur(gem):"–","gemiddeld ex btw")}</div></section>
     <div class="st-tiles">${stTile(I.timer,"Uren bij klanten",uren(mins),"gemeten of gepland")}
       ${stTile(I.euro,"Omzet uit werk",eur(om),"afgemelde beurten ex btw")}
@@ -81,7 +81,7 @@ function vInzichten(){
       const nog=actief().filter(k=>k.gepland&&k.gepland>=ti&&k.gepland<=we&&!state.beurten.some(b=>b.klantId===k.id&&b.datum===ti)).length;
       const gem=af.filter(x=>x>0),gm=gem.length?Math.round(gem.reduce((a,v)=>a+v,0)/gem.length):0,nu=wk[11].n;
       const tekst=nu+nog>=gm&&gm?`Deze week op koers: ${nu} gedaan${nog?` + ${nog} ingepland`:""}, gemiddeld ${gm} per week.`:gm?`Deze week ${nu} gedaan${nog?` + ${nog} ingepland`:""}. Gemiddeld ${gm} per week.`:"";
-      return `<section class="st-card"><div class="st-ch"><div><h3>Woningen per week</h3><p>Laatste 12 weken · 🏆 beste week${nog?" · lichte balk = met wat deze week nog ingepland staat":""}${tekst?" · "+tekst:""}</p></div></div>${stBars(wk.map(x=>x.n),wk.map(x=>x.l.replace("wk ","")),{hi:11,top:tp,fmt:v=>String(Math.round(v)),h:200,gem:false,ghost:nog?{i:11,v:nu+nog}:null})}</section>`})()}
+      return `<section class="st-card"><div class="st-ch"><div><h3>${BW("Woningen")} per week</h3><p>Laatste 12 weken · 🏆 beste week${nog?" · lichte balk = met wat deze week nog ingepland staat":""}${tekst?" · "+tekst:""}</p></div></div>${stBars(wk.map(x=>x.n),wk.map(x=>x.l.replace("wk ","")),{hi:11,top:tp,fmt:v=>String(Math.round(v)),h:200,gem:false,ghost:nog?{i:11,v:nu+nog}:null})}</section>`})()}
     <div class="st-two"><section class="st-card"><div class="st-ch"><div><h3>Drukste dagen</h3><p>Afgemelde beurten per weekdag${wdc[top]?" · meestal op "+["maandag","dinsdag","woensdag","donderdag","vrijdag","zaterdag","zondag"][top]:""}</p></div></div>
         ${bs.length?stBars(wdc,["ma","di","wo","do","vr","za","zo"],{hi:wdc[top]?top:-1,fmt:v=>String(Math.round(v)),h:200,gem:false}):'<p class="st-leeg">Nog geen afgemelde beurten in deze periode. Na de eerste beurt zie je hier je drukste dagen.</p>'}</section>
       <section class="st-card"><div class="st-ch"><div><h3>Omzet per dienst</h3><p>Aandeel in de omzet uit werk</p></div></div>
@@ -117,7 +117,7 @@ function vInzichten(){
 
 /* woningen gedaan: straatje met huisjes (vinkje) en het busje aan het eind */
 function stStraat(n){const max=12,m=Math.min(n,max),H=typeof HUIS!=="undefined"?HUIS:"";
-  return `<div class="st-straat" role="img" aria-label="${n} woningen gedaan"><div class="st-sh">${Array.from({length:m},(_,i)=>`<span class="st-hu" style="--i:${i}">${H}<i>${I.check}</i></span>`).join("")}${n>max?`<span class="st-meer">+${n-max}</span>`:""}</div><div class="st-weg"><i></i><span class="st-bus">${typeof RV_BUS!=="undefined"?RV_BUS:""}</span></div></div>`}
+  return `<div class="st-straat" role="img" aria-label="${n} ${BW("woningen")} gedaan"><div class="st-sh">${Array.from({length:m},(_,i)=>`<span class="st-hu" style="--i:${i}">${H}<i>${I.check}</i></span>`).join("")}${n>max?`<span class="st-meer">+${n-max}</span>`:""}</div><div class="st-weg"><i></i><span class="st-bus">${typeof RV_BUS!=="undefined"?RV_BUS:""}</span></div></div>`}
 /* omzet per dienst: ring met het aandeel en per dienst een kaartje met balk */
 /* omzet per dienst uit de factuurregels van de beurten: kozijnen horen bij glasbewassing, extra opdrachten (zoals Reiniging gevelelementen) apart, met per onderdeel het bedrag */
 function stGroepen(){try{if(!RC)RC=buildRamen();const src=state.uitv&&state.uitv.groepen?state.uitv:null;return src?[...(src.groepen||[]),...(src.eigen||[])]:uitvDefault().groepen}catch(e){return[]}}

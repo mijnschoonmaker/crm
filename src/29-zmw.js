@@ -22,6 +22,6 @@ function openKlantMw(id){const k=state.klanten.find(x=>x.id===id);if(!k)return;
     ${toegangHtml(k)}
     
     ${typeof hospRoute==="function"?hospRoute(k):""}
-    <div class="kv-mw"><div><small>Dienst</small><b>${esc(k.dienst||"Glasbewassing")}</b></div><div><small>Duur</small><b>${duur(k)} min</b></div><div><small>Binnen</small><b>${k.binnen?"Ja":"Nee"}</b></div></div>
+    <div class="kv-mw"><div><small>Dienst</small><b>${esc(k.dienst||HD())}</b></div><div><small>Duur</small><b>${duur(k)} min</b></div><div><small>Binnen</small><b>${k.binnen?"Ja":"Nee"}</b></div></div>
     <div class="row"><span class="sp"></span><button type="button" class="primary" data-act="close">Sluiten</button></div>`);
 }

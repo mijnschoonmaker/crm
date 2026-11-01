@@ -793,9 +793,9 @@ const ICON={
     await busy(g(send?"sendOff":"mkOff"),async()=>{
       let kid,k,isNew,fail,opd;
       if(embed){const {t,fail:f2}=await tellingFor(R,{});fail=f2;const base=state.klanten.find(x=>x.id===embed.klantId)||embed.base||{};
-        isNew=!embed.klantId||!!base.prospect;opd=opdFor(R,t,base);kid=await embed.onSave({ramenTelling:t,...objMet(base,R.count),...(isNew?{...opd,extra:undefined,opdrachten:mergeExtra(base.opdrachten,R),dienst:base.dienst||"Glasbewassing",prospect:true,actief:true}:{})},{stay:true});const f=embed.form();k={naam:f.naam,adres:f.adres,postcode:f.pc,plaats:f.plaats,email:f.email}}
+        isNew=!embed.klantId||!!base.prospect;opd=opdFor(R,t,base);kid=await embed.onSave({ramenTelling:t,...objMet(base,R.count),...(isNew?{...opd,extra:undefined,opdrachten:mergeExtra(base.opdrachten,R),dienst:base.dienst||HD(),prospect:true,actief:true}:{})},{stay:true});const f=embed.form();k={naam:f.naam,adres:f.adres,postcode:f.pc,plaats:f.plaats,email:f.email}}
       else{k=await ensureKlant();const ex=state.klanten.find(x=>x.id===k.id);isNew=!ex||!!ex.prospect;const r=await tellingFor(R,k);fail=r.fail;opd=opdFor(R,r.t,k);
-        kid=await writeKlant(ex?{...strip(ex),...k}:k,{ramenTelling:r.t,...objMet(k,R.count),...(isNew?{...opd,extra:undefined,opdrachten:mergeExtra(ex&&ex.opdrachten,R),dienst:k.dienst||"Glasbewassing",prospect:true,actief:true,akkoord:false}:{})})}
+        kid=await writeKlant(ex?{...strip(ex),...k}:k,{ramenTelling:r.t,...objMet(k,R.count),...(isNew?{...opd,extra:undefined,opdrachten:mergeExtra(ex&&ex.opdrachten,R),dienst:k.dienst||HD(),prospect:true,actief:true,akkoord:false}:{})})}
       const datum=iso(today()),id=newId("f");
       const data={soort:"offerte",nummer:nextNr("offerte",datum),klantId:kid,klantNaam:k.naam,klantAdres:fullAddr(k),klantEmail:k.email||"",datum,verval:iso(addDays(today(),30)),
         regels:regelsFor(R),btw:21,incl:false,status:"concept",
@@ -823,7 +823,7 @@ const ICON={
       const k=await ensureKlant(),isNew=!state.klanten.some(x=>x.id===k.id);
       const {t,fail}=await tellingFor(R,k);
       const op=opdFor(R,t,k),prijs=op.prijs,duur=op.duur,exK=state.klanten.find(x=>x.id===k.id);
-      const kid=await writeKlant(k,{prijs,dienst:k.dienst||"Glasbewassing",frequentie:R.f.w||Number(k.frequentie)||4,duur,ramenTelling:t,opdrachten:mergeExtra(exK&&exK.opdrachten,R),...objMet(k,R.count)});
+      const kid=await writeKlant(k,{prijs,dienst:k.dienst||HD(),frequentie:R.f.w||Number(k.frequentie)||4,duur,ramenTelling:t,opdrachten:mergeExtra(exK&&exK.opdrachten,R),...objMet(k,R.count)});
       selectKid(kid,cleanName(k.naam));
       say(`${isNew?"Nieuwe klant":"Klant"} ${cleanName(k.naam)} opgeslagen · ${eur(prijs)} ${S().incl?"incl.":"excl."} btw per beurt, ${R.f.w?"elke "+R.f.w+" weken":R.f.l.toLowerCase()}`+(fail?" · "+plural(fail,"foto is","foto's zijn")+" niet opgeslagen":""),"ok");
       const cb=onSaved;resetAll();

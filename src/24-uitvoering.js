@@ -14,6 +14,7 @@ const uid=p=>p+Math.random().toString(36).slice(2,9);
 const itm=(naam,eenheid,prijs,sec,extra)=>({id:uid("d"),naam,artikel:"",extern:"",eenheid,prijs,btw:21,sec,weging:100,tiers:[],factAantal:true,...(extra||{})});
 const UITV_WEG=["rolluik","antispin","antialg","schoorsteen","spoed","hogedruk"];
 function uitvDefault(){
+  if(!GLAS())return {groepen:brDiensten(),eigen:[],middelen:[],freqs:FREQ_DEF.map(w=>({w,l:""}))};/* ander vak: eigen standaarddiensten, geen glas */
   if(!RC)RC=buildRamen();const c=RC.cfgAll();
   const k=(key,naam)=>itm(naam,"per raam",c[key+"_p"],c[key+"_s"],{key});
   const G=[
@@ -30,7 +31,7 @@ function uitvDefault(){
 /* werkkopie: opgeslagen document + actuele tarieven uit de rekentool */
 let U=null,Udirty=false;
 function uitvLoad(force){
-  if(U&&!force)return U;
+  if(U&&!force&&U._br===BR())return U;
   const base=uitvDefault(),sv=state.uitv&&state.uitv.groepen?JSON.parse(JSON.stringify(state.uitv)):null;
   const u=sv?{...base,...sv}:base;
   /* vroegere standaarddiensten die niet meer standaard zijn: weg, tenzij een klant ze gebruikt (wie ze nodig heeft, maakt ze zelf aan) */
@@ -47,7 +48,7 @@ function uitvLoad(force){
   u.groepen.forEach(g=>{(g.items||[]).forEach(it=>{if(!it.key)return;it.prijs=c[it.key+"_p"];it.sec=c[it.key+"_s"];
       it.tiers=JSON.parse(JSON.stringify(c.tb&&Array.isArray(c.tb[it.key])?c.tb[it.key]:(/^g\d$/.test(it.key)?c.tiers:[])));it.weging=c.wg&&c.wg[it.key]!=null?c.wg[it.key]:100});
     if(g.type==="glas"){g.start=c.start||0;g.min=c.min;const fl=RC.freqList();g.fp={};fl.forEach(f=>{g.fp[f.k]=c.fp&&c.fp[f.k]!=null&&c.fp[f.k]!==""?Number(c.fp[f.k]):f.p})}});
-  U=u;Udirty=false;return U}
+  u._br=BR();U=u;Udirty=false;return U}
 const uGroups=()=>[...U.groepen.map(g=>({...g,_e:false})),...U.eigen.map(g=>({...g,_e:true}))];
 const uGroup=id=>U.groepen.find(g=>g.id===id)||U.eigen.find(g=>g.id===id);
 function uSel(){const s=state.uSel;if(!s)return null;const g=uGroup(s.g);if(!g)return null;return {g,it:s.i!=null?g.items[s.i]:null}}
@@ -63,7 +64,7 @@ async function uitvSave(){
     if(glas){patch.start=Math.max(0,Number(glas.start)||0);patch.min=Math.max(0,Number(glas.min)||0);patch.fp={};Object.keys(glas.fp||{}).forEach(k=>patch.fp[k]=Number(glas.fp[k])||0);
       const g0=glas.items.find(x=>x.key==="g0");if(g0)patch.tiers=patch.tb.g0}
     /* chips bij opdracht en offerte */
-    const dl=[{naam:"Glasbewassing",prijs:Number(S().diensten&&(S().diensten.find(d=>/^glasbewassing$/i.test(d.naam))||{}).prijs)||25,duur:30}];
+    const dl=!GLAS()?[]:[{naam:"Glasbewassing",prijs:Number(S().diensten&&(S().diensten.find(d=>/^glasbewassing$/i.test(d.naam))||{}).prijs)||25,duur:30}];
     uGroups().filter(g=>!g.verberg&&g.type!=="glas"&&g.type!=="bijz").forEach(g=>(g.items||[]).forEach(it=>{dl.push({naam:g.items.length>1?g.naam+" · "+it.naam:g.naam,prijs:r2(Number(it.prijs)||0),duur:Math.max(5,Math.round((Number(it.sec)||0)/60/5)*5)||30,eenheid:it.eenheid})}));
     const freqs=(U.freqs||[]).filter(f=>Number(f.w)>0).map(f=>({w:Number(f.w),l:String(f.l||"").trim()}));
     const freqCalc=U.freqCalc||{},freqWeb=U.freqWeb||{};const doc=JSON.parse(JSON.stringify({groepen:U.groepen,eigen:U.eigen,middelen:U.middelen,freqs,freqCalc,freqWeb}));
@@ -82,10 +83,10 @@ const fmtSec=s=>{s=Math.round(Number(s)||0);if(s<60)return s+" sec";const m=Math
 
 function vUitvoering(){
   uitvLoad();const t=state.utab||"diensten";
-  const head=`<div class="pagehead"><div><p class="kicker">Uitvoering</p><h1 class="xl">${t==="diensten"?"Diensten":t==="frequenties"?"Frequenties":"Bedrijfsmiddelen"}</h1><p class="lead" style="margin:0">${t==="diensten"?"Tarieven, tijden en kortingen. De rekentool, opdrachten, offertes en de dienstenwebshop rekenen hiermee.":t==="frequenties"?"Kies welke frequenties je aanbiedt. Die staan in alle keuzelijsten.":"Je materiaal en gereedschap op één plek."}</p></div>
+  const head=`<div class="pagehead"><div><p class="kicker">Uitvoering</p><h1 class="xl">${t==="diensten"?"Diensten":t==="frequenties"?"Frequenties":"Bedrijfsmiddelen"}</h1><p class="lead" style="margin:0">${t==="diensten"?(GLAS()?"Tarieven, tijden en kortingen. De rekentool, opdrachten, offertes en de dienstenwebshop rekenen hiermee.":"Tarieven, tijden en kortingen. Opdrachten, offertes en de dienstenwebshop rekenen hiermee."):t==="frequenties"?"Kies welke frequenties je aanbiedt. Die staan in alle keuzelijsten.":"Je materiaal en gereedschap op één plek."}</p></div>
     <div class="acts"><button type="button" id="uReset" data-act="ureset" ${Udirty?"":"disabled"}>${I.refresh}Herstellen</button><button type="button" class="primary${Udirty?" pulse":""}" id="uSave" data-act="usave" ${Udirty?"":"disabled"}>${I.check}Opslaan</button></div></div>
     <div class="toolbar u-tb" style="margin-bottom:18px"><div class="seg" role="group" aria-label="Onderdeel">${[["diensten","Diensten"],["frequenties","Frequenties"],["middelen","Bedrijfsmiddelen"]].map(([x,l])=>`<button type="button" data-act="utab" data-v="${x}" aria-pressed="${t===x}">${l}</button>`).join("")}</div>
-      <button type="button" class="small" data-act="uwebview" title="Bekijk de dienstenwebshop (prijscalculator) zoals klanten hem op je website zien${Udirty?" (sla eerst op)":""}">${I.globe||I.eye||""}Dienstenwebshop bekijken</button></div>`;
+      ${GLAS()?`<button type="button" class="small" data-act="uwebview" title="Bekijk de dienstenwebshop (prijscalculator) zoals klanten hem op je website zien${Udirty?" (sla eerst op)":""}">${I.globe||I.eye||""}Dienstenwebshop bekijken</button>`:""}</div>`;
   if(t==="frequenties")return head+uFreqHtml();
   if(t==="middelen")return head+uMiddelHtml();
   const sel=uSel();
@@ -242,7 +243,7 @@ function uDienstLijst(){
   const out=[];
   groepen.forEach(g=>{if(g.verberg)return;
     const items=(g.items||[]).map(it=>({id:it.id,naam:it.naam,eenheid:it.eenheid||"per stuk",prijs:Number(it.key?c[it.key+"_p"]:it.prijs)||0,sec:Number(it.key?c[it.key+"_s"]:it.sec)||0,tiers:it.key?((c.tb&&c.tb[it.key])||[]):(it.tiers||[]),weging:it.key?(c.wg&&c.wg[it.key]!=null&&c.wg[it.key]!==""?Number(c.wg[it.key]):100):(it.weging??100),btw:it.btw??21}));
-    if(g.type==="glas"){out.push({naam:g.naam||"Glasbewassing",glas:true,prijs:0,duur:30,groep:g.id});return}
+    if(g.type==="glas"){out.push({naam:g.naam||HD(),glas:true,prijs:0,duur:30,groep:g.id});return}
     const sec=items.reduce((a,x)=>a+x.sec,0);
     const fq=uFreqGroep(g.id);out.push({naam:g.naam,groep:g.id,eigen:!!g._eigen,inCalc:g.inCalc!==false,freqs:fq.keuzes?fq.keuzes.map(Number).filter(Boolean):null,freqAdvies:fq.advies?Number(fq.advies)||0:0,items,prijs:items.length===1?items[0].prijs:0,duur:Math.max(5,Math.round(sec/60/5)*5)||30,eenheid:items.length===1?items[0].eenheid:""})});
   return out}

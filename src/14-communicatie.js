@@ -37,10 +37,11 @@ const tplVars=t=>[...new Set(((t.onderwerp||"")+(t.mail||"")+(t.sms||"")).match(
 const VARLIST=["klant","voornaam","datum","tijd","tijdvak","adres","straat","plaats","diensten","dienst","prijs","interval","bedrijf","telefoon","iban","factuurnummer","bedrag","vervaldatum","factuurdatum","dagen_te_laat","betaallink","reviewlink"];
 const MAILKIND={factuur:["Factuur","[nr.invoice]"],aanmaning:["Betalingsherinnering","Factuur [nr.invoice]"],wik:["Laatste aanmaning","Factuur [nr.invoice]"],offerte:["Offerte","[nr.invoice]"],review:["Review",""],welkom:["Welkom","Welkom bij [name.company]"]};
 function sampleVars(){
-  const k={naam:"Fam. de Vries",voornaam:"Anna",adres:"Lindelaan 12",postcode:"3581 AB",plaats:"Utrecht",tijd:"09:00",duur:240,dienst:"Glasbewassing",prijs:80,frequentie:4};
+  const k={naam:"Fam. de Vries",voornaam:"Anna",adres:"Lindelaan 12",postcode:"3581 AB",plaats:"Utrecht",tijd:"09:00",duur:240,dienst:HD(),prijs:80,frequentie:4};
   return{...klantVars(k,addDays(today(),5)),tijdvak:"tussen 08:00 en 12:00",factuurnummer:today().getFullYear()+"-0042",bedrag:"€ 96,80",factuurdatum:fmtL(today()),vervaldatum:fmtL(addDays(today(),14)),dagen_te_laat:5,reviewlink:S().reviewLink||"https://g.page/r/…/review","place.ranking":"1e plek","month.ranking":"oktober","time.ranking":"2 min 59 sec","credits.ranking":"5 credits","amount.ranking":"€ 5,00","cup.ranking":"🏆","plek.ranking":1};
 }
-const sampleRegels=[{omschrijving:"Glasbewassing",aantal:1,prijs:65},{omschrijving:"Bijzondere ramen",aantal:1,prijs:15}];
+const sampleRegelsGlas=[{omschrijving:"Glasbewassing",aantal:1,prijs:65},{omschrijving:"Bijzondere ramen",aantal:1,prijs:15}];
+const sampleRegelsVan=()=>GLAS()?sampleRegelsGlas:[{omschrijving:HD(),aantal:1,prijs:65},{omschrijving:"Voorrijkosten",aantal:1,prijs:15}];
 /* knop in een opgemaakt (rich) sjabloon: vóór "Met vriendelijke groet" */
 function richMetKnop(rich,block){const wrap=x=>`<div style="margin:0 0 18px;line-height:1.65;font-size:15px;color:#222">${x}</div>`;if(!block)return wrap(rich);
   try{const T=document.createElement("template");T.innerHTML=rich;const w=document.createTreeWalker(T.content,NodeFilter.SHOW_TEXT);let n,hit=null,at=0;
@@ -152,7 +153,7 @@ function emailHtmlRuw({stijl,accent,kicker,titel,tekst,rich,meta,regels,totaal,t
   ${kop?`<div style="padding:16px 34px 2px">${kop}</div>`:""}
   <div style="padding:16px 34px 10px;color:#2b3a40">${tb}</div>
 </div>
-${scene?`<div style="background:#fbfcfc;line-height:0;font-size:0;padding-top:4px"><img src="${e((LIVE&&/^https?:/.test(location.origin)?location.origin:"https://app.mansard.nl")+"/mail/"+scene+".gif")}" width="720" alt="${scene==="weg"?"Uw ramen zijn gewassen":"Wij zijn onderweg naar u"}" style="display:block;width:100%;max-width:720px;height:auto;border:0"></div>`:`<div style="background:#fbfcfc;height:14px;line-height:14px;font-size:0">&nbsp;</div>`}
+${scene?`<div style="background:#fbfcfc;line-height:0;font-size:0;padding-top:4px"><img src="${e((LIVE&&/^https?:/.test(location.origin)?location.origin:"https://app.mansard.nl")+"/mail/"+scene+".gif")}" width="720" alt="${scene==="weg"?BW("uwWerk"):"Wij zijn onderweg naar u"}" style="display:block;width:100%;max-width:720px;height:auto;border:0"></div>`:`<div style="background:#fbfcfc;height:14px;line-height:14px;font-size:0">&nbsp;</div>`}
 <div style="background:${BL};background-image:repeating-linear-gradient(115deg,rgba(255,255,255,.035) 0 2px,transparent 2px 22px),linear-gradient(135deg,${BL2},${BL} 60%,${_mx(BL,"#ffffff",.12)});border-radius:0 0 22px 22px;color:#ffffff;padding:18px 30px 20px">${portaal?`<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td class="ms-kol" valign="top" style="vertical-align:top">${strook}</td><td class="ms-kol ms-kr" align="right" valign="middle" style="vertical-align:middle;text-align:right;padding-left:16px">${pkKnop("#ffffff",INK)}</td></tr></table>`:strook}</div>
 </div></div>`;
 }
@@ -162,7 +163,7 @@ function mailFor(sjabloon,vars,tekst,{f,stap,preview}={}){
   const s=S(),kind=stap?(stap.wik?"wik":"aanmaning"):sjabloon,K=MAILKIND[kind]||[ (tpls()[sjabloon]||{}).naam||"Bericht",""];
   const o={stijl:s.mailStijl==="klassiek"?"klassiek":"modern",accent:s.mailAccent||s.hoofdkleur||"#111111",kicker:K[0],titel:fill(K[1].replace("{onderwerp}",s.reviewOnderwerp||"Tevreden over ons werk?"),vars),tekst:fill(tekst,vars),rich:_rich,logo:s.logoMail||s.logo,preview};
   if(["factuur","offerte"].includes(kind)){const t=f?totals(f):{ex:80,btw:16.8,inc:96.8,tarieven:[{pct:21,ex:80,btw:16.8,inc:96.8}]};o.tot={...t,incl:f?!!(f.incl??S().incl):false};o.meta=[[kind==="offerte"?"Offertenummer":"Factuurnummer",vars.factuurnummer],[kind==="offerte"?"Datum":"Factuurdatum",f?fmtNum(f.datum):fmtNum(today())],[kind==="offerte"?"Geldig tot":"Vervaldatum",f?fmtNum(f.verval):fmtNum(addDays(today(),14))],...(kind==="offerte"&&f&&f.totaalTonen===false?[]:[["Totaal incl. BTW",eur(t.inc)]])];
-    o.regels=f?f.regels.map(r=>({...r,omschrijving:omsZonderDatum(r.omschrijving)})).map(r=>Array.isArray(r.subs)&&r.subs.length?{...r,omschrijving:r.omschrijving+": "+r.subs.map(x=>String(x.naam).toLowerCase()+" "+(x.qty||"")).join(", ").trim()}:r):sampleRegels;if(!(kind==="offerte"&&f&&f.totaalTonen===false))o.totaal=eur(t.inc)}
+    o.regels=f?f.regels.map(r=>({...r,omschrijving:omsZonderDatum(r.omschrijving)})).map(r=>Array.isArray(r.subs)&&r.subs.length?{...r,omschrijving:r.omschrijving+": "+r.subs.map(x=>String(x.naam).toLowerCase()+" "+(x.qty||"")).join(", ").trim()}:r):sampleRegelsVan();if(!(kind==="offerte"&&f&&f.totaalTonen===false))o.totaal=eur(t.inc)}
   const _inc=(kind==="factuur"||kind==="afkondiging")&&f&&f.incasso&&f.status!=="betaald"&&!f.incassoMislukt;
   const _afF=kind==="afkondiging"&&((f&&f.soort!=="offerte"&&f.status!=="betaald")||preview);
   if(_inc)o.incasso="Dit bedrag wordt binnen 14 dagen automatisch van uw rekening afgeschreven via uw machtiging, nu de beurt is uitgevoerd. U hoeft niets te doen.";

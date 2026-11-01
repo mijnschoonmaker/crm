@@ -159,7 +159,7 @@ function ccPlanning(){const ti=iso(today()),hm=x=>{const d=new Date(x);return is
     else if(i<laatst){st=["open","Niet afgemeld"];info="Overgeslagen of nog niet afgemeld"}
     else if(!volgendeGezet){volgendeGezet=true;st=["next","Volgende"];info=k.gepland&&k.gepland<ti?"Doorgeschoven van "+fmtD(k.gepland):"Hierna aan de beurt"}
     else{st=["neutral","Gepland"];info=k.gepland&&k.gepland<ti?"Doorgeschoven van "+fmtD(k.gepland):""}
-    return {k,i,tijd:k.tijd||"",st,info,dienst:k.dienst||"Glasbewassing"}})}
+    return {k,i,tijd:k.tijd||"",st,info,dienst:k.dienst||HD()}})}
 
 /* ---------- recente activiteiten, samengesteld uit bestaande gegevens (niets wordt extra geregistreerd) ---------- */
 function ccActiviteit(){const ev=[],grens=iso(addDays(today(),-30)),d10=s=>String(s||"").slice(0,10),tijd=(s,fb)=>{const m=String(s||"").match(/T(\d{2}:\d{2})/);return m?m[1]:fb||""};
@@ -186,7 +186,7 @@ function ccPrestaties(){const t=today(),ti=iso(t),d90=iso(addDays(t,-90));
   /* omzet per week, laatste 8 weken (factuurdatum, excl. btw) */
   const ma=addDays(t,-((t.getDay()+6)%7)),weken=[];for(let i=7;i>=0;i--){const a=addDays(ma,-7*i),b=addDays(a,6);weken.push({a,b,v:fin([a,b]).omzet})}
   /* verdeling: actieve opdrachten per dienst (hoofdopdracht + extra diensten) */
-  const v={};ccMetOpdracht().forEach(k=>{const d=String(k.dienst||"Glasbewassing").replace(/\s*\(.*$/,"");v[d]=(v[d]||0)+1;(k.opdrachten||[]).filter(o=>o.actief!==false).forEach(o=>{const n=String(o.dienst||"Overig").replace(/\s*\(.*$/,"");v[n]=(v[n]||0)+1})});
+  const v={};ccMetOpdracht().forEach(k=>{const d=String(k.dienst||HD()).replace(/\s*\(.*$/,"");v[d]=(v[d]||0)+1;(k.opdrachten||[]).filter(o=>o.actief!==false).forEach(o=>{const n=String(o.dienst||"Overig").replace(/\s*\(.*$/,"");v[n]=(v[n]||0)+1})});
   const verd=Object.entries(v).sort((a,b)=>b[1]-a[1]);
   return {conv,ja,afgesl,behoud,nBasis:basis.length,betaal,nBet:bet.length,weken,verd}}
 

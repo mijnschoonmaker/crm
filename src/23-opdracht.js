@@ -38,7 +38,7 @@ function openOpdrachtWerk(kid,focus){
   const diensten=dienstLijst();
   const nr=klantNr(k);
   openDlg(`<div class="ow-kop jp-kop ow-${status[0]}"><div class="jp-kr1"><span class="jp-st"><i></i>${status[1]}</span><span class="sp"></span><button type="button" class="jp-ib" id="owX" aria-label="Terug naar klantkaart">${I.x}</button></div>
-    <div class="jp-kr2"><span class="jp-k1"><small>${soloI>=0&&extra[soloI]._nieuw?"Nieuwe opdracht":"Opdracht"}</small><b>${esc(nr)}-${soloNr}</b></span><span class="jp-k2"><b>${esc(cleanName(k.naam))}</b><em id="owKopAdr">${I.pin}${esc(uLocTxt(uLoc))}</em></span>${soloI>=0?`<span class="jp-k3"><small>${esc(extra[soloI].dienst||"Kies een dienst")}</small><b>${extra[soloI].prijs!==""&&extra[soloI].prijs!=null?eur(toonR(k,extra[soloI])):"—"}</b><em>${esc(freqLabel(Number(extra[soloI].frequentie)||52))}</em></span>`:`<span class="jp-k3"><small>${esc(k.dienst||"Glasbewassing")}</small><b>${eur(toonK(k,k.prijs))}</b><em>${esc(ritmeTxt(k))} · ${duur(k)} min</em></span>`}</div></div>
+    <div class="jp-kr2"><span class="jp-k1"><small>${soloI>=0&&extra[soloI]._nieuw?"Nieuwe opdracht":"Opdracht"}</small><b>${esc(nr)}-${soloNr}</b></span><span class="jp-k2"><b>${esc(cleanName(k.naam))}</b><em id="owKopAdr">${I.pin}${esc(uLocTxt(uLoc))}</em></span>${soloI>=0?`<span class="jp-k3"><small>${esc(extra[soloI].dienst||"Kies een dienst")}</small><b>${extra[soloI].prijs!==""&&extra[soloI].prijs!=null?eur(toonR(k,extra[soloI])):"—"}</b><em>${esc(freqLabel(Number(extra[soloI].frequentie)||52))}</em></span>`:`<span class="jp-k3"><small>${esc(k.dienst||HD())}</small><b>${eur(toonK(k,k.prijs))}</b><em>${esc(ritmeTxt(k))} · ${duur(k)} min</em></span>`}</div></div>
   <div class="hosp-top" id="owHospTop">${hospBlok(k,{leegKnop:false})}</div>
   <div class="kk-grid ow-grid"><div class="kk-left">
     <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klantgegevens</b><span class="sp"></span><button type="button" class="small" id="owKk">${I.right}Klantkaart</button></div>
@@ -80,7 +80,7 @@ function openOpdrachtWerk(kid,focus){
       ${kv("Openstaande facturen",open.length?`<span class="pill late">${plural(open.length,"factuur","facturen")} · ${eur(open.reduce((a,f)=>a+totals(f).inc,0))}</span>`:"Nee")}</section>
   </div><div class="kk-side">
     <section class="kp"><div class="kp-h"><span class="objic">${I.pencil}</span><b>Taakomschrijving</b></div>
-      <textarea id="ow-taak" style="min-height:70px" placeholder="Bijv. wassen ramen incl. kozijnen, achterom via de poort">${esc(soloR?(soloR.taak||""):(k.taak||""))}</textarea>
+      <textarea id="ow-taak" style="min-height:70px" placeholder="${GLAS()?"Bijv. wassen ramen incl. kozijnen, achterom via de poort":"Bijv. wat er moet gebeuren, achterom via de poort"}">${esc(soloR?(soloR.taak||""):(k.taak||""))}</textarea>
 </section>
     ${k.soort==="vve"?`<section class="kp"><div class="kp-h"><span class="objic">${I.checksq||I.check}</span><b>Checklist VvE</b></div>
       <p class="subt" style="margin:0 0 8px">Per ruimte of taak hoe vaak. Bij het afmelden ziet je medewerker alleen wat die dag aan de beurt is; het bestuur ziet het in het portaal.</p>
@@ -96,7 +96,7 @@ function openOpdrachtWerk(kid,focus){
     <section class="kp" id="owRegelsK"><div class="kp-h"><span class="objic">${I.check}</span><b>Opdrachtregels</b></div><div id="owLines"></div><div class="totals" id="owTot"></div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.receipt}</span><div style="min-width:0"><b>Artikelen</b><small>Gaan eenmalig mee op de volgende factuur</small></div><span class="sp"></span><button type="button" class="iconbtn sm primary" id="owArtAdd" aria-label="Artikel toevoegen">${I.plus}</button></div><div id="owArt"></div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.wrench}</span><div style="min-width:0"><b>Bedrijfsmiddelen</b><small>Staan bij de klus op de route</small></div></div><div id="owMid"></div></section>
-    <section class="kp"><div class="kp-h"><span class="objic">${I.camera||I.upload}</span><b>Foto's</b><span class="sp"></span><label class="iconbtn sm primary" role="button" tabindex="0" aria-label="Foto's van de woning toevoegen" title="Foto's van de woning toevoegen" style="cursor:pointer">${I.plus}<input type="file" accept="image/*" multiple hidden id="owFoto"></label></div><div class="ow-fotos" id="owFotos"></div></section>
+    <section class="kp"><div class="kp-h"><span class="objic">${I.camera||I.upload}</span><b>Foto's</b><span class="sp"></span><label class="iconbtn sm primary" role="button" tabindex="0" aria-label="${GLAS()?"Foto's van de woning toevoegen":"Foto's toevoegen"}" title="${GLAS()?"Foto's van de woning toevoegen":"Foto's toevoegen"}" style="cursor:pointer">${I.plus}<input type="file" accept="image/*" multiple hidden id="owFoto"></label></div><div class="ow-fotos" id="owFotos"></div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.chat}</span><b>Logboek</b></div>
       <div class="log">${[...(k.log||[]).map(l=>({d:l.datum,t:l.tekst,s:"Notitie"})),...state.berichten.filter(m=>m.klantId===k.id).map(m=>({d:String(m.op).slice(0,10),t:m.tekst,s:KANAAL[m.kanaal]||m.kanaal}))].sort((a,b)=>String(b.d).localeCompare(String(a.d))).slice(0,15).map(l=>`<div><span>${fmtD(l.d)} · ${esc(l.s)}</span>${esc(l.t)}</div>`).join("")||'<div style="color:var(--muted)">Er zijn nog geen logboekregels.</div>'}</div>
       <div class="log-in"><input id="ow-log" placeholder="Notitie toevoegen…" aria-label="Notitie voor het logboek"><button type="button" class="small primary" id="owLog">${I.plus}Noteer</button></div></section>
@@ -125,7 +125,7 @@ function openOpdrachtWerk(kid,focus){
   /* aantallen uit de telling (offerte/rekentool) overnemen als de opdracht nog geen eigen aantallen heeft */
   const uitTelling=()=>{const t=k.ramenTelling;if(!t||!Array.isArray(t.floors))return null;const f=[0,1,2,3].map(i=>Number(t.floors[i])||0);return f.some(n=>n)?normR({f}):null};
   const heeftAantallen=q=>q&&(q.f||[]).some(n=>Number(n)>0);
-  let main={dienst:k.dienst||"Glasbewassing",prijs:k.prijs??"",ramen:fqVul(heeftAantallen(k.ramenRegel)?normR(JSON.parse(JSON.stringify(k.ramenRegel))):(/glas|ramen/i.test(k.dienst||"Glasbewassing")?uitTelling():null),Number(k.frequentie)||0)};
+  let main={dienst:k.dienst||HD(),prijs:k.prijs??"",ramen:fqVul(heeftAantallen(k.ramenRegel)?normR(JSON.parse(JSON.stringify(k.ramenRegel))):(/glas|ramen/i.test(k.dienst||HD())?uitTelling():null),Number(k.frequentie)||0)};
   /* opdracht zonder glasbewassing (bijv. alleen een truckwash): de andere diensten worden elk apart ingepland, met eigen afspraak en factuur */
   let geenGlas=soloI<0&&!!k.opdrachtVerwijderd&&!k.prospect;
   /* glasbewassing per verdieping: prijs en tijd volgens de tarieven van de rekentool */
@@ -171,7 +171,7 @@ function openOpdrachtWerk(kid,focus){
         </div>${q.tp!==""||q.td!==""||q.start!==""?`<button type="button" class="linkbtn" data-ovclr="${di}">Overschrijvingen wissen</button>`:""}</div></div>`};
   /* overzicht van de ramen per verdieping (zoals na opslaan), met potlood om te wijzigen */
   /* opdrachtregel als overzichtelijke kaart: omschrijving, minimumprijs, aantallen per verdieping en totaal */
-  const regelKaart=(r,q,c,di,isMain)=>{const base=isMain?mF:Number(r.frequentie)||null,naam=r.dienst||"Glasbewassing",min=Number(c.c&&c.c.min)||0,kmin=Number(c.c&&c.c.kozMin)||0;
+  const regelKaart=(r,q,c,di,isMain)=>{const base=isMain?mF:Number(r.frequentie)||null,naam=r.dienst||HD(),min=Number(c.c&&c.c.min)||0,kmin=Number(c.c&&c.c.kozMin)||0;
     const fqT=w=>{const t=String(freqLabel(w)||"");return /^elke\s/i.test(t)?"1x per "+t.replace(/^elke\s+/i,""):t.toLowerCase()};
     const fr=(w)=>w?` <i>(${esc(fqT(w))})</i>`:"";
     const heeftSp=SPK.some(x=>Number(q.sp[x]));
@@ -260,7 +260,7 @@ function openOpdrachtWerk(kid,focus){
   const draw=()=>{syncRitme();{const sk=$("#owRegelsK");if(sk)sk.style.display=soloLeeg()?"none":""}$("#owLines").innerHTML=soloI>=0&&extra[soloI]?[...soloSet].filter(i=>extra[i]).map(i=>lineHtml(extra[i],i,false)).join(""):lineHtml(main,0,true)+extra.map((r,i)=>r._bestaand?"":lineHtml(r,i,false)).join("");tot()};
   const allFotos=()=>[...tFotos.map(f=>({...f,naam:"Uit de telling",t:1})),...fotos];
   const drawFotos=()=>{const all=allFotos();
-    $("#owFotos").innerHTML=all.length?all.map((f,i)=>fotoCard(f,i,!f.t)).join(""):'<p class="subt ow-fempty">Nog geen foto\'s. Klik op + om foto\'s van de woning toe te voegen en tik de ramen aan die gewassen moeten worden. Foto\'s uit de rekentool verschijnen hier vanzelf.</p>'};
+    $("#owFotos").innerHTML=all.length?all.map((f,i)=>fotoCard(f,i,!f.t)).join(""):'<p class="subt ow-fempty">Nog geen foto\'s. '+(GLAS()?'Klik op + om foto\'s van de woning toe te voegen en tik de ramen aan die gewassen moeten worden. Foto\'s uit de rekentool verschijnen hier vanzelf.':'Klik op + om foto\'s van de klus toe te voegen.')+'</p>'};
   draw();drawFotos();
   /* aanbieden / uitstellen, artikelen, bedrijfsmiddelen */
   let aanb={aanbieden:!!k.aanbieden,uitstelTot:k.uitstelTot||""},arts=(k.artikelen||[]).map(a=>({...a})),mids=[...(k.middelen||[])];
@@ -284,7 +284,7 @@ function openOpdrachtWerk(kid,focus){
   {const sel=$o("uloc"),H=$("#owULocH"),kop=$("#owKopAdr");
     const upd=()=>{if(kop)kop.innerHTML=I.pin+esc(uLocTxt(uLoc));if(!H)return;const ml=soloR?hoofdLoc(k):uLoc;
       H.textContent=soloR?(uLoc===ml?"Zelfde adres als de hoofdopdracht: gaat mee met die beurt.":"Eigen adres: wordt apart ingepland, met een eigen afspraak en factuur. De factuur gaat naar het factuuradres."):
-        (uLoc==="hoofd"?"De ramen worden gewassen op het hoofdadres.":"De ramen worden gewassen op deze locatie. De factuur gaat naar het factuuradres.")};
+        (uLoc==="hoofd"?(GLAS()?"De ramen worden gewassen op het hoofdadres.":"Het werk wordt uitgevoerd op het hoofdadres."):(GLAS()?"De ramen worden gewassen op deze locatie. De factuur gaat naar het factuuradres.":"Het werk wordt uitgevoerd op deze locatie. De factuur gaat naar het factuuradres."))};
     if(sel)sel.onchange=()=>{uLoc=sel.value||"hoofd";if(soloR){soloR.objectId=uLoc;soloSet.forEach(i=>{const o=extra[i];if(o&&o!==soloR)o.objectId=uLoc})}upd();if(typeof draw==="function")draw()};upd()}
   /* adres en ontvangers wijzigen in de kaart zelf (zoals in DienstenCRM): kies uit de locaties en contactpersonen van de klant */
   {const E=$("#owAdrE"),V=$("#owAdrV"),F=$("#owAdrF"),KN=$("#owAdrKn"),KE=$("#owAdrKe");
@@ -411,7 +411,7 @@ function openOpdrachtWerk(kid,focus){
     /* taakomschrijving hoort bij deze opdracht: bij een losse opdracht (eigen nummer) in die opdracht, niet bij de klant */
     if(soloR){soloR.facturatie=$o("fact").value;}
     if(soloR){soloR.objectId=uLoc;soloR.taak=$o("taak").value.trim();soloR.fotos=fotos.map(f=>({...f}));soloSet.forEach(i=>{const o=extra[i];if(o&&o!==soloR&&(o._solo||o.bij===soloR.id)){o.objectId=soloR.objectId||"";o.apart=false;o.bij=soloR.id}})}
-    return verseDatums({...strip(cur),dienst:String(main.dienst||"").trim()||"Glasbewassing",prijs:r2(Number(main.prijs)||0),ramenRegel:main.ramen||null,frequentie:mW.length?1:(mF||4),weekdagen:mW.length?mW:[],...(mW.length?{autoplan:true}:{}),duur:mD||30,ronde:$o("ronde").value.trim(),contactPlanning:$o("contact").value,eersteKeer:$o("eerste").value==="ja",toeslag:Number($o("toeslag").value)||0,toeslagReden:$o("toeslagr").value.trim(),verbergAantal:$o("verbA").checked,verbergFreq:$o("verbF").checked,
+    return verseDatums({...strip(cur),dienst:String(main.dienst||"").trim()||HD(),prijs:r2(Number(main.prijs)||0),ramenRegel:main.ramen||null,frequentie:mW.length?1:(mF||4),weekdagen:mW.length?mW:[],...(mW.length?{autoplan:true}:{}),duur:mD||30,ronde:$o("ronde").value.trim(),contactPlanning:$o("contact").value,eersteKeer:$o("eerste").value==="ja",toeslag:Number($o("toeslag").value)||0,toeslagReden:$o("toeslagr").value.trim(),verbergAantal:$o("verbA").checked,verbergFreq:$o("verbF").checked,
       binnen:false,actief,...(actief?{}:{gepland:"",tijd:""}),akkoord:$o("akkoord").checked,incasso:$o("betaal").value==="incasso",...(soloR?{}:factModusPatch($o("fact").value,k)),...(!soloR&&isPeriodiek(k)&&$o("fact").value==="periodiek"&&$("#ow-perex")?{periodiek:{...k.periodiek,extraModus:$("#ow-perex").value}}:{}),
       taak:soloR?(cur.taak||""):$o("taak").value.trim(),...($o("vvetaken")?vveEdLees($o("vvetaken")):{}),hosp:hosp.map(x=>({c:x.c||"voorkeur",t:String(x.t||"").trim(),...(x.af?{af:x.af}:{}),...(x.c==="verteld"&&x.vanaf?{vanaf:x.vanaf}:{})})).filter(x=>x.t),bellen:$o("bellen").checked,startdatum:$o("start").value,einddatum:$o("eind").value,btwVerlegd:$o("verlegd").checked,aanbieden:cur.gepland?!!cur.aanbieden:aanb.aanbieden,uitstelTot:aanb.uitstelTot,artikelen:arts.filter(a=>String(a.naam||"").trim()).map(a=>({naam:String(a.naam).trim(),aantal:Number(a.aantal)||1,prijs:r2(Number(a.prijs)||0)})),middelen:mids,objectId:soloR||uLoc===uLoc0?(cur.objectId||hoofdLoc0):uLoc,fotos:soloR?(cur.fotos||[]):fotos,
       ...(geenGlas?{opdrachtVerwijderd:true,prijs:0,ramenRegel:null,aanbieden:false,gepland:"",tijd:"",reeks:[]}:soloI<0&&cur.opdrachtVerwijderd&&!cur.prospect?{opdrachtVerwijderd:false}:{}),
@@ -435,7 +435,7 @@ function openOpdrachtWerk(kid,focus){
   $("#owLines").addEventListener("click",e=>{const o=e.target.closest("[data-lopen]");if(!o)return;const r=extra[+o.dataset.lopen];if(r&&r.id){dicht.delete(r.id);draw()}});
   $("#owLines").addEventListener("click",async e=>{const b=e.target.closest("[data-lsave]");if(!b)return;e.preventDefault();if(await fqMelding())return;b.disabled=true;
     try{let d=collect();if(rcLive&&RC&&RC.current()){const {t}=await RC.telling();if(t)d={...d,ramenTelling:t}}await save("klanten",kid,d);
-      const di=b.dataset.lsave,r=di==="m"?main:extra[+di];toast("“"+((r&&r.dienst)||"Glasbewassing")+"” opgeslagen");if(editR.has(di))editR.delete(di);if(di!=="m"&&r&&r.id)dicht.add(r.id);draw()}
+      const di=b.dataset.lsave,r=di==="m"?main:extra[+di];toast("“"+((r&&r.dienst)||HD())+"” opgeslagen");if(editR.has(di))editR.delete(di);if(di!=="m"&&r&&r.id)dicht.add(r.id);draw()}
     catch(er){err(er)}finally{b.disabled=false}});
   /* zoals in DienstenCRM: bij elke verdieping en elk bijzonder raam met een aantal moet de gebruiker zelf een frequentie kiezen */
   const fqOntbreekt=()=>{const L=soloI>=0?[...soloSet].map(i=>[String(i),extra[i]]):[...(geenGlas?[]:[["m",main]]),...extra.map((r,i)=>[String(i),r]).filter(x=>!x[1]._bestaand)];

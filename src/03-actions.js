@@ -3,7 +3,7 @@ async function gewassen(k){
   const _lm=lopendeMin(k),_mp=_lm&&_lm>=1&&!meetTeKort(_lm,duur(k))?metingPatch(k,_lm):null,_last=(k.tijden||[]).slice(-1)[0],_dur=_mp?_lm:_last&&_last.datum===iso(today())?_last.min:duur(k);if(_mp)k={...k,..._mp};
   const prev={laatst:k.laatst||"",gepland:k.gepland||"",bezig:k.bezig||"",tijd:k.tijd||"",reeks:k.reeks||[],eenmalig:k.eenmalig||""},bId=newId("b"),d=iso(today());
   try{
-    await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:Number(k.prijs)||0,betaald:false,gefactureerd:"",dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString()});
+    await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:Number(k.prijs)||0,betaald:false,gefactureerd:"",dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString()});
     const _vn=volgendeNa(k),nx=_vn.gepland;
     await save("klanten",k.id,{...strip(k),laatst:d,..._vn,bezig:""});aanbevelingVrijgeven(k.id);
     toast(cleanName(k.naam)+" afgerond · "+eur(toonK(k,k.prijs)),async()=>{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev})});
@@ -32,11 +32,11 @@ async function afronden(k,mode,el){
   const _hs=perKeuze(k)?"periodiek":k.nietFactureren?"geen":(mode==="open"&&!_mw?"open":"concept");
   const d=iso(today()),st=S(),bId=newId("b"),fId=newId("f"),prev={laatst:k.laatst||"",gepland:k.gepland||"",bezig:k.bezig||"",tijd:k.tijd||"",reeks:k.reeks||[],eenmalig:k.eenmalig||""};
   let _rr=null;try{if(k.ramenRegel&&ramenVariabel(normR(k.ramenRegel))){const {q,due}=ramenDue(k,d),b=ramenBerekening(q,Number(k.frequentie)||4,due),mul=st.incl?1+(Number(st.btw)||21)/100:1;
-    _rr={q,due,bedrag:r2(b.ex*mul),regels:[...(b.rows.length?[{omschrijving:(k.dienst||"Glasbewassing")+" "+b.rows.map(r=>r.naam.toLowerCase()).join(", ")+(k.verbergAantal?"":", "+b.count+" ramen")+regelExtra(k),aantal:1,prijs:r2((b.glas+b.start)*mul)}]:[]),...(b.kozP?[{omschrijving:"Kozijnreiniging "+b.krows.map(r=>r.naam.toLowerCase()).join(", "),aantal:1,prijs:r2(b.kozP*mul)}]:[])]}}
+    _rr={q,due,bedrag:r2(b.ex*mul),regels:[...(b.rows.length?[{omschrijving:(k.dienst||HD())+" "+b.rows.map(r=>r.naam.toLowerCase()).join(", ")+(k.verbergAantal?"":", "+b.count+" ramen")+regelExtra(k),aantal:1,prijs:r2((b.glas+b.start)*mul)}]:[]),...(b.kozP?[{omschrijving:"Kozijnreiniging "+b.krows.map(r=>r.naam.toLowerCase()).join(", "),aantal:1,prijs:r2(b.kozP*mul)}]:[])]}}
     /* zelfde frequentie op alle verdiepingen: prijs blijft gelijk, maar de aanboddatum per verdieping schuift wel door */
     else if(k.ramenRegel){const {q,due}=ramenDue(k,d);_rr={q,due,regels:[]}}}catch(e){console.error(e);_rr=null}
   const f={soort:"factuur",nummer:nextNr("factuur",d),klantId:k.id,...(k.beheercode?{beheercode:k.beheercode}:{}),klantNaam:k.naam,klantAdres:factAddr(k),klantEmail:mailK(k,"factuur").email||"",...(k.hoofdKlantId&&k.adres?{locatie:fullAddr(k)}:{}),datum:d,
-    verval:iso(addDays(today(),Number(k.termijn)||Number(st.termijn)||14)),regels:[...(_rr&&_rr.regels.length?_rr.regels:[{omschrijving:(k.dienst||"Glasbewassing")+regelExtra(k),aantal:1,prijs:Number(k.prijs)||0}]),...extraDue(k,d).filter(o=>exMee(o,_hs)).map(o=>exRegel(k,o))],
+    verval:iso(addDays(today(),Number(k.termijn)||Number(st.termijn)||14)),regels:[...(_rr&&_rr.regels.length?_rr.regels:[{omschrijving:(k.dienst||HD())+regelExtra(k),aantal:1,prijs:Number(k.prijs)||0}]),...extraDue(k,d).filter(o=>exMee(o,_hs)).map(o=>exRegel(k,o))],
     btw:Number(st.btw),incl:!!st.incl,status:mode==="open"?"open":"concept",notitie:k.factuurInstructie||"",gemaakt:new Date().toISOString(),betaalwijze:st.betaalwijze||"overmaken"};
   if(mode==="open"&&["contant","pin"].includes(st.betaalwijze)){f.status="betaald";f.betaaldOp=d;f.betaaldTs=new Date().toISOString()}
   if(Number(k.toeslag)>0){const sub=f.regels.reduce((a,r)=>a+(Number(r.aantal)||0)*(Number(r.prijs)||0),0);f.regels.push({omschrijving:"Toeslag "+Number(k.toeslag)+"%"+(k.toeslagReden?" ("+k.toeslagReden+")":""),aantal:1,prijs:r2(sub*Number(k.toeslag)/100)})}
@@ -46,7 +46,7 @@ async function afronden(k,mode,el){
   if((k.bevindingen||[]).length)f.bijlagen=k.bevindingen.map(b=>({...b,soort:"foto"}));
   if(k.nietFactureren&&!perKeuze(k)){/* niet factureren: beurt afmelden zonder factuur */
     try{const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed),_los=await losseExtraFacturen(k,d,_ed,f,_mw,_hs);
-      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),betaald:false,gefactureerd:"nvt",...(_los.length?{extraFacturen:_los}:{}),dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString(),...(_vve||{})});
+      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),betaald:false,gefactureerd:"nvt",...(_los.length?{extraFacturen:_los}:{}),dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString(),...(_vve||{})});
       const _vn=volgendeNa(k),nx=_vn.gepland;
       await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",bevindingen:[],opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,bezig:""});aanbevelingVrijgeven(k.id);await extraNaBij(k,d,_ed);
       const undo=async()=>{try{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
@@ -57,7 +57,7 @@ async function afronden(k,mode,el){
     try{const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed);
       /* extra opdrachten (bijv. glasbewassing) staan niet op de periodieke factuur: eigen factuur, per opdracht ingesteld */
       const _los=await losseExtraFacturen(k,d,_ed,f,_mw,_hs);
-      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),...(_los.length?{extraFacturen:_los}:{}),betaald:false,gefactureerd:"periodiek",periodiek:true,dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString(),...(_vve||{})});
+      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),...(_los.length?{extraFacturen:_los}:{}),betaald:false,gefactureerd:"periodiek",periodiek:true,dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString(),...(_vve||{})});
       const _vn=volgendeNa(k),nx=_vn.gepland;
       await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,bezig:""});aanbevelingVrijgeven(k.id);await extraNaBij(k,d,_ed);
       const undo=async()=>{try{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
@@ -74,7 +74,7 @@ async function afronden(k,mode,el){
   try{
     await save("facturen",fId,f);
     const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed),_los=await losseExtraFacturen(k,d,_ed.filter(o=>!exMee(o,_hs)),f,_mw,_hs);
-    await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:r2(f.regels.reduce((a,r)=>a+(Number(r.aantal)||0)*(Number(r.prijs)||0),0)),extra:_ed.map(o=>o.dienst),betaald:f.status==="betaald",gefactureerd:fId,dienst:k.dienst||"Glasbewassing",tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString(),...(_vve||{})});
+    await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:r2(f.regels.reduce((a,r)=>a+(Number(r.aantal)||0)*(Number(r.prijs)||0),0)),extra:_ed.map(o=>o.dienst),betaald:f.status==="betaald",gefactureerd:fId,dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString(),...(_vve||{})});
     const _vn=volgendeNa(k),nx=_vn.gepland;
     await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",artikelen:[],bevindingen:[],...(k.opdrachtVerwijderd?{actief:false}:{}),opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,...(_tg||{}),bezig:""});aanbevelingVrijgeven(k.id);await extraNaBij(k,d,_ed);
     const undo=async()=>{try{await del("facturen",fId);await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
@@ -108,7 +108,7 @@ async function moveTo(id,date,tijd,force){
     Object.assign(prev,{reeks:k.reeks||[],weekdagen:k.weekdagen||[],eenmalig:k.eenmalig||""});
     if(wat==="alle")Object.assign(nw,verplaatsAllePatch(k,date,nw.tijd));
     else{const em=k.eenmalig&&k.eenmalig.van?k.eenmalig:{van:k.gepland,tijd:k.tijd||""};nw.eenmalig=em.van===date&&String(em.tijd||"")===nw.tijd?"":em}}
-  let mee="";try{if(date&&typeof glasMeeDag==="function"&&glasMeeDag(k,date)){const ed=extraDue(k,date).map(o=>o.dienst||o.naam).filter(Boolean);if(ed.length)mee=" · "+(k.dienst||"Glasbewassing")+" gaat mee met "+ed.join(" en ").toLowerCase()}}catch(e){}
+  let mee="";try{if(date&&typeof glasMeeDag==="function"&&glasMeeDag(k,date)){const ed=extraDue(k,date).map(o=>o.dienst||o.naam).filter(Boolean);if(ed.length)mee=" · "+(k.dienst||HD())+" gaat mee met "+ed.join(" en ").toLowerCase()}}catch(e){}
   try{await save("klanten",k.id,{...strip(k),...nw});toast(cleanName(k.naam)+(date?(wat==="alle"?" en alle afspraken daarna verplaatst · nu ":wat==="deze"?" alleen deze afspraak verplaatst naar ":" ingepland op ")+fmtD(date)+(nw.tijd?" om "+nw.tijd:""):" terug naar te plannen")+mee,()=>save("klanten",k.id,{...strip(k),...prev}))}catch(e){err(e)}
 }
 async function optimize(day){
@@ -140,7 +140,7 @@ async function billAll(btn,ids){
   const first=nextNr("factuur",d),{pre,n:base,pad:nrPad}=nrDelen(first);
   try{for(const kid of Object.keys(groups)){
     const k=state.klanten.find(x=>x.id===kid)||{naam:groups[kid][0].klantNaam};
-    const id=newId("f"),regels=groups[kid].sort((a,b)=>String(a.datum).localeCompare(String(b.datum))).map(b=>({omschrijving:(b.dienst||k.dienst||"Glasbewassing")+" "+fmtL(b.datum),aantal:1,prijs:Number(b.bedrag)||0}));
+    const id=newId("f"),regels=groups[kid].sort((a,b)=>String(a.datum).localeCompare(String(b.datum))).map(b=>({omschrijving:(b.dienst||k.dienst||HD())+" "+fmtL(b.datum),aantal:1,prijs:Number(b.bedrag)||0}));
     await save("facturen",id,{soort:"factuur",nummer:pre+String(base+i).padStart(nrPad,"0"),klantId:kid,...(k.beheercode?{beheercode:k.beheercode}:{}),klantNaam:k.naam,klantAdres:k.adres?factAddr(k):"",klantEmail:mailK(k,"factuur").email||"",datum:d,verval:iso(addDays(today(),Number(k.termijn)||Number(st.termijn)||14)),regels,btw:Number(st.btw),incl:!!st.incl,status:"open",notitie:"",gemaakt:new Date().toISOString()});
     for(const b of groups[kid])await save("beurten",b.id,{...strip(b),gefactureerd:id});
     laatsteId=id;i++}
@@ -153,7 +153,7 @@ async function billAll(btn,ids){
 function openKlant(id,opt={}){if(id&&state.klanten.some(x=>x.id===id)&&!opt.rc&&!opt.edit)return openKlantView(id,opt);return openKlantEdit(id,opt)}
 function openKlantEdit(id,opt={}){
   if(!id&&!opt.rc&&typeof openNieuweKlant==="function")return openNieuweKlant();
-  const k=state.klanten.find(x=>x.id===id)||{naam:"",adres:"",postcode:"",plaats:"",telefoon:"",email:"",ronde:"",frequentie:4,prijs:"",binnen:false,laatst:"",gepland:"",tijd:"",duur:30,dienst:"Glasbewassing",notities:"",actief:true,soort:"particulier",log:[],objecten:[]};
+  const k=state.klanten.find(x=>x.id===id)||{naam:"",adres:"",postcode:"",plaats:"",telefoon:"",email:"",ronde:"",frequentie:4,prijs:"",binnen:false,laatst:"",gepland:"",tijd:"",duur:30,dienst:HD(),notities:"",actief:true,soort:"particulier",log:[],objecten:[]};
   const isNew=!k.id;
   const hist=isNew?[]:state.beurten.filter(b=>b.klantId===k.id).sort((a,b)=>String(b.datum).localeCompare(String(a.datum)));
   const fs=isNew?[]:state.facturen.filter(f=>f.klantId===k.id).sort((a,b)=>String(b.datum).localeCompare(String(a.datum))),offs=fs.filter(f=>f.soort==="offerte"),facs=fs.filter(f=>f.soort!=="offerte");
@@ -177,11 +177,11 @@ function openKlantEdit(id,opt={}){
     <label>Vaste weekdagen<div class="ow-dagen" id="f-wdagen">${[1,2,3,4,5,6].map(d=>`<button type="button" data-fwd="${d}" aria-pressed="${(vasteDagen(k)||[]).includes(d)}">${["zo","ma","di","wo","do","vr","za"][d]}</button>`).join("")}</div><small class="help">Bijv. di en vr: elke week op die dagen in de planning, na afmelden staat de volgende dag klaar. Geen dag gekozen = gewone frequentie.</small></label>
     <label>Checklist per ruimte (één per regel)<textarea id="f-vvetaken" style="min-height:90px">${esc((Array.isArray(k.vveTaken)&&k.vveTaken.length?k.vveTaken:vveStd()).join("\n"))}</textarea><small class="help">Vink je af bij het afmelden, met een opleverfoto. Het bestuur ziet dit in het portaal en op het bewonersbord.</small></label></div>
   <div><span class="eyebrow">Dienst en planning</span><div class="grid2" style="margin-top:8px">
-    <label>Dienst<input id="f-dienst" list="dienstlijst" value="${esc(k.dienst||"Glasbewassing")}"><datalist id="dienstlijst">${[...dienstLijst().map(d=>d.naam),...DIENSTEN].filter((v,i,a)=>a.indexOf(v)===i).map(d=>`<option value="${esc(d)}">`).join("")}</datalist></label>
+    <label>Dienst<input id="f-dienst" list="dienstlijst" value="${esc(k.dienst||HD())}"><datalist id="dienstlijst">${[...dienstLijst().map(d=>d.naam),...(GLAS()?DIENSTEN:BR_DIENSTNAMEN())].filter((v,i,a)=>a.indexOf(v)===i).map(d=>`<option value="${esc(d)}">`).join("")}</datalist></label>
     <label>Prijs per beurt (€ ${S().incl?"incl.":"excl."} btw)<input id="f-prijs" type="number" step="0.5" min="0" inputmode="decimal" required value="${esc(k.prijs)}"></label>
     <label>Frequentie<select id="f-frequentie">${freqOpts(k.frequentie||4).map(w=>`<option value="${w}" ${Number(k.frequentie||4)===w?"selected":""}>${esc(freqLabel(w))}</option>`).join("")}</select></label>
     <label>Duur<select id="f-duur">${[...new Set([15,30,45,60,90,120,180,240,Number(k.duur||30)])].sort((a,b)=>a-b).map(m=>`<option value="${m}" ${Number(k.duur||30)===m?"selected":""}>${m<60?m+" min":(m/60).toLocaleString("nl-NL")+" uur"}</option>`).join("")}</select>${(k.tijden||[]).length?`<small class="help">Gemeten: gemiddeld ${gemTijd(k)} min over ${plural(Math.min(5,k.tijden.length),"beurt","beurten")} · laatst ${k.tijden.slice(-1)[0].min} min</small>`:'<small class="help">Wordt automatisch bijgesteld met Start en Stop op Route</small>'}</label>
-    <label>Laatst gewassen<input id="f-laatst" type="date" value="${esc(k.laatst)}"></label>
+    <label>${BW("laatst")}<input id="f-laatst" type="date" value="${esc(k.laatst)}"></label>
     <label>Ingepland op <small style="font-weight:500">(leeg = te plannen)</small><input id="f-gepland" type="date" value="${esc(k.gepland)}"></label>
     <label>Tijd<input id="f-tijd" type="time" step="900" value="${esc(k.tijd)}"></label>
     ${(k.objecten||[]).length?`<label>Object<select id="f-object">${k.objecten.map(o=>`<option value="${esc(o.id)}" ${jobObj(k)&&jobObj(k).id===o.id?"selected":""}>${esc(o.naam||"Object")}</option>`).join("")}</select></label>`:"<span></span>"}
@@ -204,7 +204,7 @@ function openKlantEdit(id,opt={}){
     return {...strip(cur),naam:g("naam").value.trim(),adres:g("adres").value.trim(),postcode:g("postcode").value.trim().toUpperCase(),plaats:g("plaats").value.trim(),
       telefoon:g("telefoon").value.trim(),klantnr:g("klantnr").value.trim(),email:g("email").value.trim(),ronde:g("ronde").value.trim(),soort:g("soort").value,
       frequentie:Number(g("frequentie").value),...(g("soort").value==="vve"?(()=>{const wd=[...form.querySelectorAll('[data-fwd][aria-pressed="true"]')].map(b=>Number(b.dataset.fwd));return{weekdagen:wd,...(wd.length?{frequentie:1,autoplan:true}:{}),vveTaken:$("#f-vvetaken").value.split(/\n/).map(x=>x.trim()).filter(Boolean).slice(0,20)}})():{weekdagen:[]}),prijs:Number(g("prijs").value)||0,laatst:g("laatst").value,gepland:g("gepland").value,tijd:g("gepland").value?g("tijd").value:"",
-      duur:Number(g("duur").value)||30,dienst:g("dienst").value.trim()||"Glasbewassing",objectId:g("object")?g("object").value:"",binnen:false,
+      duur:Number(g("duur").value)||30,dienst:g("dienst").value.trim()||HD(),objectId:g("object")?g("object").value:"",binnen:false,
       actief:isNew?true:g("actief").checked,incasso:g("incasso").checked,directFactureren:g("direct").checked,akkoord:g("akkoord").checked,geenReview:g("geenreview").checked,opzegReden:g("reden")?g("reden").value:"",aangemaakt:cur.aangemaakt||iso(today()),log:cur.log||[],objecten:cur.objecten||[]}};
   let newKid=k.id||"";
   const saveK=async(patch={})=>{const base=collect();if(!base)throw{msg:"Vul eerst de naam en het adres van de klant in (links)."};{const dub=relBezet(base.klantnr,newKid||k.id);if(dub){g("klantnr").focus();throw{msg:"Klantnummer "+base.klantnr+" hoort al bij "+cleanName(dub.naam)+". Een relatiecode mag in SnelStart maar bij één klant horen."}}}if(!newKid)newKid=newId("k");await save("klanten",newKid,{...base,...patch});return newKid};
@@ -263,7 +263,7 @@ function openObject(kid,oid){
 /* ---------- IMPORT / EXPORT ---------- */
 const FIELDS=[["klantnr","Klantnummer / relatiecode",/(relatiecode|klantnummer|klantnr|debiteur)/],["naam","Naam",/^(naam|klant|klantnaam|name|bedrijf|bedrijfsnaam|achternaam)/],["contact","Contactpersoon",/(contactpers|^contact|t\.?a\.?v)/],["adres","Adres / straat",/^(adres|straat|address|street|bezoekadres)/],["huisnr","Huisnummer",/(huisn|huisnummer|^nr$|^nummer$|number)/],
   ["postcode","Postcode",/(postcode|zip|postal)/],["plaats","Plaats",/(plaats|woonplaats|stad|city|gemeente)/],["telefoon","Telefoon",/(tel|mobiel|gsm|phone)/],["email","E-mail",/(mail)/],["soort","Soort (particulier/zakelijk/VvE)",/^(soort|type|klanttype|relatiesoort)/],
-  ["prijs","Prijs",/(prijs|bedrag|tarief|price)/],["frequentie","Frequentie (weken)",/(freq|interval|weken|cyclus)/],["ronde","Ronde",/(ronde|wijk|route|gebied)/],["dienst","Dienst",/(dienst|service)/],["laatst","Laatst gewassen",/(laatst|vorige|last)/],["notities","Notities",/(notitie|opmerking|note|info)/]];
+  ["prijs","Prijs",/(prijs|bedrag|tarief|price)/],["frequentie","Frequentie (weken)",/(freq|interval|weken|cyclus)/],["ronde","Ronde",/(ronde|wijk|route|gebied)/],["dienst","Dienst",/(dienst|service)/],["laatst",BW("laatst"),/(laatst|vorige|last)/],["notities","Notities",/(notitie|opmerking|note|info)/]];
 /* kopregel zoeken: exports hebben soms eerst een titel ("customers_active_23-10-2026 tm 23-10-2026") */
 function impKop(rows){for(let i=0;i<Math.min(10,rows.length);i++){const n=rows[i].filter(h=>FIELDS.some(([,,re])=>re.test(String(h).trim().toLowerCase()))).length;if(n>=2)return rows.slice(i)}return rows}
 function leesHtmlTabel(t){const d=new DOMParser().parseFromString(t,"text/html");return [...d.querySelectorAll("tr")].map(tr=>[...tr.querySelectorAll("th,td")].map(c=>c.textContent.replace(/\s+/g," ").trim())).filter(r=>r.some(Boolean))}
@@ -337,7 +337,7 @@ function rowToKlant(r){
   const naam=g("naam"),so=g("soort").toLowerCase(),geenOpdr=imp.map.prijs==null&&imp.map.frequentie==null;
   const soort=/vve|eigenaar/.test(so)||/\bv\.?v\.?e\b|vereniging van eigenaars|eigenaarsvereniging|\bcoöp|\bcoop\b/i.test(naam)?"vve":/zak|bedrijf|organisatie/.test(so)||/\b(b\.?v\.?|n\.?v\.?|v\.?o\.?f\.?|holding|stichting|gemeente|kerk|school|vereniging|praktijk|kantoor|hotel|restaurant|cafe|café|bakkerij|garage|makelaar|tandarts|huisarts|apotheek|kinderopvang|woningcorporatie|beheer|groep|group|services?|bedrijf)\b/i.test(naam)?"zakelijk":"particulier";
   return{klantnr:g("klantnr"),naam,contact:g("contact").toLowerCase()===naam.toLowerCase()?"":g("contact"),adres:[g("adres"),g("huisnr")].filter(Boolean).join(" "),postcode:typeof normPc==="function"?normPc(g("postcode")):g("postcode").toUpperCase(),plaats:g("plaats"),telefoon:g("telefoon"),email:g("email"),
-    prijs:parseNum(g("prijs")),frequentie:Math.max(1,Math.round(parseNum(g("frequentie")))||4),ronde:g("ronde"),dienst:g("dienst")||"Glasbewassing",duur:30,laatst:parseDate(g("laatst")),gepland:"",tijd:"",notities:g("notities"),
+    prijs:parseNum(g("prijs")),frequentie:Math.max(1,Math.round(parseNum(g("frequentie")))||4),ronde:g("ronde"),dienst:g("dienst")||HD(),duur:30,laatst:parseDate(g("laatst")),gepland:"",tijd:"",notities:g("notities"),
     binnen:false,soort,actief:true,aangemaakt:iso(today()),log:[],objecten:[],bron:"import",...(geenOpdr?{opdrachtVerwijderd:true,prospect:false}:{})};
 }
 async function runImport(){
@@ -388,7 +388,7 @@ function openFactuurForm(opts={}){
   const ex=opts.id?state.facturen.find(x=>x.id===opts.id):null;
   const soort=ex?ex.soort:opts.soort||"factuur",st=S(),d=ex?ex.datum:iso(today());
   const k0=ex?state.klanten.find(x=>x.id===ex.klantId):opts.klantId?state.klanten.find(x=>x.id===opts.klantId):null;
-  const lines=ex?ex.regels.map(r=>({...r})):opts.regels||[{omschrijving:soort==="offerte"?((k0&&k0.dienst)||"Glasbewassing")+", per beurt":((k0&&k0.dienst)||"Glasbewassing"),aantal:1,prijs:k0?Number(k0.prijs)||0:""}];
+  const lines=ex?ex.regels.map(r=>({...r})):opts.regels||[{omschrijving:soort==="offerte"?((k0&&k0.dienst)||HD())+", per beurt":((k0&&k0.dienst)||HD()),aantal:1,prijs:k0?Number(k0.prijs)||0:""}];
   const ks=[...state.klanten].sort((a,b)=>cleanName(a.naam).localeCompare(cleanName(b.naam)));
   const totHtml=()=>{const kk=state.klanten.find(x=>x.id===($("#ff-klant")||{}).value),t=totals({regels:kk&&(!ex||ex.status==="concept")?btwRegels(kk,lines):lines,btw:Number($("#ff-btw").value),incl:$("#ff-incl").checked});
     return `<span>Subtotaal excl. btw</span><span>${eur(t.ex)}</span>${t.tarieven.map(x=>`<span>Btw ${x.pct}%</span><span>${eur(x.btw)}</span>`).join("")}<span class="grand">Totaal</span><span class="grand">${eur(t.inc)}</span>`};
@@ -490,7 +490,7 @@ function openKost(id){
 function sendHref(kanaal,k,text,onderwerp){
   if(kanaal==="whatsapp")return waLink(k.telefoon,text);
   if(kanaal==="sms"){const d=String(k.telefoon||"").replace(/[^\d+]/g,"");return d?"sms:"+d+"?&body="+encodeURIComponent(text):""}
-  if(kanaal==="email")return k.email?"mailto:"+encodeURIComponent(k.email)+"?subject="+encodeURIComponent(onderwerp||"Glasbewassing")+"&body="+encodeURIComponent(text):"";
+  if(kanaal==="email")return k.email?"mailto:"+encodeURIComponent(k.email)+"?subject="+encodeURIComponent(onderwerp||HD())+"&body="+encodeURIComponent(text):"";
   return"";
 }
 let compose=null;
@@ -618,12 +618,12 @@ function openNewJob(d){
   openDlg(`<div class="dlg-head"><span class="objic big">${I.plus}</span><div style="flex:1"><h3>Nieuwe job</h3><div class="subt">Plan een klant in op een dag en tijd</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
   <div class="grid2"><label class="full">Klant<select id="nj-k" required><option value="">Kies een klant…</option>${ks.map(k=>`<option value="${esc(k.id)}">${esc(cleanName(k.naam))} — ${esc(k.adres)}</option>`).join("")}</select></label>
   <label>Datum<input type="date" id="nj-d" value="${d}"></label><label>Tijd<input type="time" step="900" id="nj-t" value="${nextFree(d)}"></label>
-  <label>Dienst<input id="nj-s" list="dienstlijst2" value="Glasbewassing"><datalist id="dienstlijst2">${[...dienstLijst().map(d=>d.naam),...DIENSTEN].filter((v,i,a)=>a.indexOf(v)===i).map(x=>`<option value="${esc(x)}">`).join("")}</datalist></label><label>Prijs (€)<input id="nj-p" type="number" step="0.5"></label></div>
+  <label>Dienst<input id="nj-s" list="dienstlijst2" value="${esc(HD())}"><datalist id="dienstlijst2">${[...dienstLijst().map(d=>d.naam),...(GLAS()?DIENSTEN:BR_DIENSTNAMEN())].filter((v,i,a)=>a.indexOf(v)===i).map(x=>`<option value="${esc(x)}">`).join("")}</datalist></label><label>Prijs (€)<input id="nj-p" type="number" step="0.5"></label></div>
   <p class="subt" style="margin:0">Nieuwe klant? <button type="button" class="small ghost" data-act="klant" style="padding:0;color:var(--brand)">Maak eerst een klant aan</button></p>
   <div class="row"><span class="sp"></span><button type="button" data-act="close">Annuleren</button><button type="submit" class="primary" id="njGo">Inplannen</button></div>`);
-  $("#nj-k").onchange=e=>{const k=state.klanten.find(x=>x.id===e.target.value);if(k){$("#nj-s").value=k.dienst||"Glasbewassing";$("#nj-p").value=k.prijs||""}};
+  $("#nj-k").onchange=e=>{const k=state.klanten.find(x=>x.id===e.target.value);if(k){$("#nj-s").value=k.dienst||HD();$("#nj-p").value=k.prijs||""}};
   form.onsubmit=async e=>{e.preventDefault();const k=state.klanten.find(x=>x.id===$("#nj-k").value);if(!k){$("#nj-k").focus();return}$("#njGo").disabled=true;
-    try{await save("klanten",k.id,{...strip(k),gepland:$("#nj-d").value,tijd:$("#nj-t").value,dienst:$("#nj-s").value.trim()||k.dienst||"Glasbewassing",prijs:$("#nj-p").value===""?k.prijs:Number($("#nj-p").value)});dlg.close();toast(cleanName(k.naam)+" ingepland")}catch(er){$("#njGo").disabled=false;err(er)}};
+    try{await save("klanten",k.id,{...strip(k),gepland:$("#nj-d").value,tijd:$("#nj-t").value,dienst:$("#nj-s").value.trim()||k.dienst||HD(),prijs:$("#nj-p").value===""?k.prijs:Number($("#nj-p").value)});dlg.close();toast(cleanName(k.naam)+" ingepland")}catch(er){$("#njGo").disabled=false;err(er)}};
 }
 function openOfferSheet(){
   const day=curDay();let offer=teplannen(offerUpTo(parse(day)>addDays(state.week,6)?parse(day):addDays(state.week,6)));if(state.achter)offer=offer.filter(k=>dueOf(k)<today());offer=offerFilter(offer);offer=offerZoek(offer);const y=dlg.open?dlg.scrollTop:0;
@@ -655,7 +655,7 @@ function openAkkoord(id){
     <label>Prijs per beurt (€ ${S().incl?"incl.":"excl."} btw)<input id="ak-prijs" type="number" step="0.01" min="0" inputmode="decimal" value="${esc(prijs)}" required></label>
     <label>Frequentie<select id="ak-freq">${fo.map(w=>`<option value="${w}" ${w===fr?"selected":""}>${esc(freqLabel(w))}</option>`).join("")}</select></label>
     <label>Duur<select id="ak-duur">${dur.map(m=>`<option value="${m}" ${m===du?"selected":""}>${m<60?m+" min":(m/60).toLocaleString("nl-NL")+" uur"}</option>`).join("")}</select></label>
-    <label>Dienst<input id="ak-dienst" value="${esc(k.dienst||"Glasbewassing")}"></label>
+    <label>Dienst<input id="ak-dienst" value="${esc(k.dienst||HD())}"></label>
     <label>Aanboddatum<input id="ak-aanbod" type="date" value="${esc(f.start||iso(today()))}"><small class="help">Vanaf deze datum staat de klant bij Te plannen</small></label>
     <label>Eerste beurt <small style="font-weight:500">(leeg = via Te plannen)</small><input id="ak-dat" type="date" value="${k.gepland&&!k.prospect?esc(k.gepland):""}"></label>
     <label>Tijd <small style="font-weight:500">(leeg = eerste vrije tijd)</small><input id="ak-tijd" type="time" value="${esc(k.prospect?"":k.tijd||"")}"></label>
@@ -665,12 +665,12 @@ function openAkkoord(id){
   form.onsubmit=async e=>{e.preventDefault();const b=$("#akGo");b.disabled=true;
     const dat=$("#ak-dat").value,tijd=dat?($("#ak-tijd").value||nextFree(dat)):"",p=r2(Number($("#ak-prijs").value)||0);
     try{const cur=state.klanten.find(x=>x.id===k.id)||k;
-      {const up=typeof offUlocPatch==="function"?offUlocPatch(cur,f,{prijs:p,frequentie:Number($("#ak-freq").value),duur:Number($("#ak-duur").value),dienst:$("#ak-dienst").value.trim()||"Glasbewassing",aanbod:$("#ak-aanbod").value||""}):null;
+      {const up=typeof offUlocPatch==="function"?offUlocPatch(cur,f,{prijs:p,frequentie:Number($("#ak-freq").value),duur:Number($("#ak-duur").value),dienst:$("#ak-dienst").value.trim()||HD(),aanbod:$("#ak-aanbod").value||""}):null;
         if(up){await save("klanten",k.id,{...strip(cur),...up,akkoord:$("#ak-ov").checked||!!cur.akkoord});await save("facturen",f.id,{...strip(f),status:"geaccepteerd",akkoordOp:iso(today())});
           try{if(typeof creditsVoorOfferte==="function")creditsVoorOfferte({...f,status:"geaccepteerd"})}catch(_){}
           dlg.close();toast("Nieuwe opdracht op "+offUlocTxt(f)+" · staat bij Te plannen"+($("#ak-aanbod").value>iso(today())?" vanaf "+fmtD(parse($("#ak-aanbod").value)):""));return}}
       await save("klanten",k.id,{...strip(cur),...(o.extra&&o.extra.length?{opdrachten:[...(cur.opdrachten||[]).filter(x=>!x.groep||!o.extra.some(e=>e.groep===x.groep)),...o.extra]}:{}),prospect:false,opdrachtVerwijderd:false,...(f.facturatie?(typeof factModusPatchOfferte==="function"?factModusPatchOfferte:factModusPatch)(f.facturatie,cur):{}),actief:true,akkoord:$("#ak-ov").checked||!!cur.akkoord,prijs:p,frequentie:Number($("#ak-freq").value),duur:Number($("#ak-duur").value),
-        dienst:$("#ak-dienst").value.trim()||"Glasbewassing",gepland:dat,tijd,aanbodVanaf:$("#ak-aanbod").value||"",aanbieden:!dat&&!($("#ak-aanbod").value>iso(today())),opzegReden:"",log:[...(cur.log||[]),{datum:iso(today()),tekst:"Akkoord op offerte "+f.nummer+" · "+eur(p)+" per beurt, elke "+$("#ak-freq").value+" weken"+(dat?" · eerste beurt "+fmtD(parse(dat)):"")+($("#ak-aanbod").value?" · aanboddatum "+fmtD(parse($("#ak-aanbod").value)):"")}]});
+        dienst:$("#ak-dienst").value.trim()||HD(),gepland:dat,tijd,aanbodVanaf:$("#ak-aanbod").value||"",aanbieden:!dat&&!($("#ak-aanbod").value>iso(today())),opzegReden:"",log:[...(cur.log||[]),{datum:iso(today()),tekst:"Akkoord op offerte "+f.nummer+" · "+eur(p)+" per beurt, elke "+$("#ak-freq").value+" weken"+(dat?" · eerste beurt "+fmtD(parse(dat)):"")+($("#ak-aanbod").value?" · aanboddatum "+fmtD(parse($("#ak-aanbod").value)):"")}]});
       await save("facturen",f.id,{...strip(f),status:"geaccepteerd",akkoordOp:iso(today())});
       try{if(typeof creditsVoorOfferte==="function")creditsVoorOfferte({...f,status:"geaccepteerd"})}catch(_){}
       if(f.facturatie==="periodiek"&&!isPeriodiek(cur)){toast(cleanName(k.naam)+" is nu vaste klant · stel nu de periodieke factuur in");setTimeout(()=>openPeriodiek(k.id,"klant"),80);return}
@@ -689,7 +689,7 @@ function openAfspraak(id,day){
   <div class="grid2">
     <label>Datum<input id="af-d" type="date" value="${esc(d0)}" required></label>
     <label>Tijd <small style="font-weight:500">(leeg = eerste vrije tijd)</small><input id="af-t" type="time" step="900" value="${esc(isPlanned?k.tijd||"":k.tijd||"")}"></label>
-    <label>Dienst<input id="af-dienst" value="${esc(k.dienst||"Glasbewassing")}"></label>
+    <label>Dienst<input id="af-dienst" value="${esc(k.dienst||HD())}"></label>
     <label>Prijs per beurt (€ ${S().incl?"incl.":"excl."} btw)<input id="af-prijs" type="number" step="0.01" min="0" inputmode="decimal" value="${esc(k.prijs)}"></label>
     <label>Duur<select id="af-duur">${durO.map(m=>`<option value="${m}" ${m===du?"selected":""}>${m<60?m+" min":(m/60).toLocaleString("nl-NL")+" uur"}</option>`).join("")}</select></label>
     <label>Frequentie<select id="af-freq">${freqO.map(w=>`<option value="${w}" ${w===fr?"selected":""}>${esc(freqLabel(w))}</option>`).join("")}</select></label>
@@ -701,7 +701,7 @@ function openAfspraak(id,day){
   const jb=$("#afJob");if(jb)jb.onclick=()=>openJob(k.id,k.gepland);
   form.onsubmit=async e=>{e.preventDefault();const d=$("#af-d").value;if(!d){$("#af-d").focus();return}$("#afGo").disabled=true;
     const nd=parse(d),warn=!isWerkdag(nd)?" · let op: geen werkdag":"";
-    try{await save("klanten",k.id,{...strip(k),gepland:d,tijd:$("#af-t").value||nextFree(d),aanbieden:false,dienst:$("#af-dienst").value.trim()||"Glasbewassing",prijs:r2(Number($("#af-prijs").value)||0),duur:Number($("#af-duur").value)||30,frequentie:Number($("#af-freq").value)||4});
+    try{await save("klanten",k.id,{...strip(k),gepland:d,tijd:$("#af-t").value||nextFree(d),aanbieden:false,dienst:$("#af-dienst").value.trim()||HD(),prijs:r2(Number($("#af-prijs").value)||0),duur:Number($("#af-duur").value)||30,frequentie:Number($("#af-freq").value)||4});
       toast(cleanName(k.naam)+" ingepland op "+fmtD(d)+($("#af-t").value?" om "+$("#af-t").value:"")+warn);back()}
     catch(er){$("#afGo").disabled=false;err(er)}};
 }
@@ -709,13 +709,13 @@ function openAfspraak(id,day){
 /* opdracht toevoegen of wijzigen vanuit de klantkaart */
 function openOpdracht(kid,oid){
   const k=state.klanten.find(x=>x.id===kid);if(!k)return;
-  const main=oid==="main",isNew=oid==="new",o=main?{dienst:k.dienst||"Glasbewassing",prijs:k.prijs,frequentie:k.frequentie||4,duur:k.duur||30}:(k.opdrachten||[]).find(x=>x.id===oid)||{dienst:"",prijs:"",frequentie:52,duur:30,volgende:"",actief:true};
+  const main=oid==="main",isNew=oid==="new",o=main?{dienst:k.dienst||HD(),prijs:k.prijs,frequentie:k.frequentie||4,duur:k.duur||30}:(k.opdrachten||[]).find(x=>x.id===oid)||{dienst:"",prijs:"",frequentie:52,duur:30,volgende:"",actief:true};
   const freqO=freqOpts(Number(o.frequentie)||4),durO=[...new Set([15,30,45,60,90,120,180,240,Number(o.duur)||30])].sort((a,b)=>a-b);
   const fl=freqLabel;
   const back=()=>setTimeout(()=>openKlant(kid),60);
   openDlg(`<div class="dlg-head"><span class="objic big">${I.checksq||I.check}</span><div style="min-width:0;flex:1"><h3>${isNew?"Nieuwe opdracht":main?"Hoofdopdracht":"Opdracht wijzigen"}</h3><div class="subt">${esc(cleanName(k.naam))} · ${esc(jobAddr(k))}</div></div><button type="button" class="iconbtn" id="opX" aria-label="Terug">${I.x}</button></div>
   <div class="grid2">
-    <label class="full">Dienst<input id="op-dienst" list="op-dl" value="${esc(o.dienst)}" required placeholder="Bijv. Dakgoten reinigen"><datalist id="op-dl">${[...dienstLijst().map(d=>d.naam),...DIENSTEN].filter((v,i,a)=>a.indexOf(v)===i).map(d=>`<option value="${esc(d)}">`).join("")}</datalist></label>
+    <label class="full">Dienst<input id="op-dienst" list="op-dl" value="${esc(o.dienst)}" required placeholder="Bijv. Dakgoten reinigen"><datalist id="op-dl">${[...dienstLijst().map(d=>d.naam),...(GLAS()?DIENSTEN:BR_DIENSTNAMEN())].filter((v,i,a)=>a.indexOf(v)===i).map(d=>`<option value="${esc(d)}">`).join("")}</datalist></label>
     <label>Prijs per keer (€ ${S().incl?"incl.":"excl."} btw)<input id="op-prijs" type="number" step="0.01" min="0" inputmode="decimal" value="${esc(o.prijs)}" required></label>
     <label>Frequentie<select id="op-freq">${freqO.map(w=>`<option value="${w}" ${w===Number(o.frequentie)?"selected":""}>${fl(w)}</option>`).join("")}</select></label>
     <label>Duur<select id="op-duur">${durO.map(m=>`<option value="${m}" ${m===Number(o.duur||30)?"selected":""}>${m<60?m+" min":(m/60).toLocaleString("nl-NL")+" uur"}</option>`).join("")}</select></label>

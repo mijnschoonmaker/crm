@@ -2,7 +2,9 @@
    Verzonnen klanten, facturen en beurten om instructievideo's mee op te nemen.
    Alles blijft in deze browser bewaard; datums schuiven elke dag mee, zodat de planning altijd actueel oogt.
    Opnieuw beginnen: /demo/?opnieuw */
-const DEMO_KEY="ms.demo.v7";
+/* vak van de demo: alleen via de link (?branche=…); het klantportaal in de demo volgt het laatst geopende vak */
+const DEMO_BR=(()=>{const b=brUitUrl()||"glazenwasser";try{if(b==="glazenwasser")localStorage.removeItem("ms.demo.branche");else localStorage.setItem("ms.demo.branche",b)}catch(e){}return b})();
+const DEMO_KEY="ms.demo.v7"+(DEMO_BR==="glazenwasser"?"":"."+DEMO_BR);
 /* Westerkwartier: plaats, postcode, lat, lng, gewicht (aantal klanten), wie rijdt er (M = Mark, S = Sem) */
 const DEMO_PLAATS=[["Zuidhorn","9801",53.2464,6.4060,22,"M"],["Noordhorn","9804",53.2620,6.3920,7,"M"],["Aduard","9831",53.2560,6.4590,8,"M"],["Den Horn","9832",53.2300,6.4430,4,"M"],["Niekerk","9822",53.2220,6.3480,4,"M"],["Oldekerk","9821",53.2230,6.3230,4,"M"],["Grijpskerk","9843",53.2630,6.3060,6,"M"],["Kommerzijl","9845",53.2840,6.3220,2,"M"],
   ["Grootegast","9861",53.2140,6.2720,10,"S"],["Lutjegast","9866",53.2350,6.2550,3,"S"],["Doezum","9863",53.2080,6.2300,2,"S"],["Sebaldeburen","9862",53.2030,6.2550,2,"S"],["Leek","9351",53.1620,6.3770,18,"S"],["Tolbert","9356",53.1640,6.3590,6,"S"],["Midwolde","9354",53.1800,6.3930,3,"S"],["Enumatil","9355",53.1810,6.3660,2,"S"],["Marum","9363",53.1440,6.2650,9,"S"],["Nuis","9364",53.1600,6.2900,2,"S"],["Niebert","9365",53.1630,6.3050,2,"S"],["Opende","9865",53.1660,6.2050,4,"S"]];
@@ -261,14 +263,28 @@ function demoVandaag(c){const ti=iso(today()),nu=new Date(),nm=nu.getHours()*60+
   r.werk={start,...(stop?{stop}:{}),pauzes:nm>=12*60+45?[{van:tsm(12*60+15),tot:tsm(12*60+45)}]:nm>=12*60+15?[{van:tsm(12*60+15)}]:[],door:"mark@voorbeeldglazenwasserij.nl"};
   const stand=a=>{let m=0;(c.routes||[]).forEach(x=>(x.ritten||[]).forEach(t=>{if(x.id!==ti&&t.auto===a&&Number(t.eind)>m)m=Number(t.eind)}));return m};
   r.ritten=[["VZK-38-T","Mark"],["VNP-71-B","Sem"]].map(([a,w])=>{const b=stand(a);return{id:"r"+w+ti,nr:0,auto:a,begin:b,eind:stop?b+km[w]+14:"",startTs:start,stopTs:stop,van:"Lindenlaan 14, Zuidhorn",naar:"Lindenlaan 14, Zuidhorn",route:"Loods – klanten – loods",type:"zakelijk",door:w.toLowerCase()+"@voorbeeldglazenwasserij.nl",bron:"werkdag"}})}
+
+/* demo voor een ander vak: dezelfde klanten en route, met de diensten en woorden van dat vak (glazenwassers: niets aan veranderd) */
+const DEMO_BRNAAM={schoorsteenveger:["Voorbeeld Schoorsteenvegerij","voorbeeldschoorsteenvegerij.nl"],schilder:["Voorbeeld Schildersbedrijf","voorbeeldschildersbedrijf.nl"],hovenier:["Voorbeeld Hoveniers","voorbeeldhoveniers.nl"],timmerman:["Voorbeeld Timmerwerken","voorbeeldtimmerwerken.nl"],betonboorder:["Voorbeeld Betonboringen","voorbeeldbetonboringen.nl"]};
+function demoBranche(d,br){if(!br||br==="glazenwasser")return d;const c=d.cols||d;
+  const G=brDiensten(br).map(g=>g.naam),H=G[0],[bnaam,dom]=DEMO_BRNAAM[br];
+  const jaar=br!=="hovenier",rnd=demoRnd(4242),pick=a=>a[Math.floor(rnd()*a.length)];
+  const vervang=v=>typeof v!=="string"?v:v.replace(/Glasbewassing binnen en buiten|Glasbewassing binnen|Glasbewassing( (etalage|showroom|kantoor|school|hotel|gevel|buitenzijde|trappenhal)[^,·\d(]*)?|Glasbewassing/g,(m)=>/binnen/i.test(m)&&G[1]?G[1]:H)
+    .replace(/Voorbeeld Glazenwasserij/g,bnaam).replace(/voorbeeldglazenwasserij\.nl/g,dom).replace(/glazenwasser/gi,brInfo(br).enk.toLowerCase()).replace(/ramen wassen/gi,"onderhoud")
+    .replace(/\d+ ramen \(telling klant\)/g,H.toLowerCase()).replace(/(Dakgoten|Zonnepanelen|Kozijnen) reinigen/g,()=>G[1+Math.floor(rnd()*(G.length-1))]);
+  const loop=x=>{if(Array.isArray(x))return x.map(loop);if(x&&typeof x==="object"){for(const k of Object.keys(x)){if(k==="id"||k==="klantId")continue;x[k]=loop(x[k])}return x}return vervang(x)};
+  Object.keys(c).forEach(k=>loop(c[k]));
+  (c.klanten||[]).forEach(k=>{delete k.ramenRegel;delete k.ramenTelling;delete k.tellingControle;k.binnen=false;if(!G.includes(k.dienst))k.dienst=H;if(jaar&&k.soort!=="vve")k.frequentie=52;(k.opdrachten||[]).forEach(o=>{if(!G.includes(o.dienst))o.dienst=pick(G.slice(1))})});
+  const b=(c.instellingen||[]).find(x=>x.id==="bedrijf");if(b){b.branche=br;b.naam=bnaam}
+  return d}
 async function demoStart(){
   if(!state.assets)state.assets=demoAssets;
   let d=null;const opnieuw=/[?&]opnieuw/.test(location.search);
   if(!opnieuw)d=await demoLees();try{localStorage.removeItem("ms.demo.v4")}catch(e){}
-  if(opnieuw)try{history.replaceState(null,"",location.pathname)}catch(_){}
-  if(!d){d=demoMaak();try{const G=JSON.parse(localStorage.getItem("ms.geo")||"{}");localStorage.setItem("ms.geo",JSON.stringify({...G,...d.geo}))}catch(e){}}
+  if(opnieuw)try{history.replaceState(null,"",location.pathname+(DEMO_BR!=="glazenwasser"?"?branche="+DEMO_BR:""))}catch(_){}
+  if(!d){d=demoBranche(demoMaak(),DEMO_BR);try{const G=JSON.parse(localStorage.getItem("ms.geo")||"{}");localStorage.setItem("ms.geo",JSON.stringify({...G,...d.geo}))}catch(e){}}
   /* een nieuwe dag: de demo opnieuw opbouwen (zelfde klanten, datums rond vandaag), zodat werkdagen op werkdagen blijven vallen */
-  else if(d.gemaakt!==iso(today())){d=demoMaak()}
+  else if(d.gemaakt!==iso(today())){d=demoBranche(demoMaak(),DEMO_BR)}
   demoVandaag(d.cols);
   /* bestaande demo's: voorbeeld-taakomschrijvingen bij de adressen van vandaag (eenmalig) */
   try{const kl=d.cols.klanten||[];if(!kl.some(k=>k.taak)){const TK=["Ramen buiten en kozijnen. Achterom via de poort aan de zijkant; graag de plantenbakken op de vensterbank laten staan.","Ook het glas van de voordeur en de serre. Ladder niet tegen de dakgoot zetten.","Alleen buitenkant. Sleutel van de poort hangt in het kastje naast de voordeur."];
@@ -277,7 +293,7 @@ async function demoStart(){
   demoBewaar();
   const _s=save,_d=del;let tm=0;const later=()=>{clearTimeout(tm);tm=setTimeout(demoBewaar,300)};
   save=async(c,id,x)=>{await _s(c,id,x);later()};del=async(c,id)=>{await _d(c,id);later()};
-  state.me={name:"Mark",email:"mark@voorbeeldglazenwasserij.nl"};
+  state.me={name:"Mark",email:"mark@"+(DEMO_BR==="glazenwasser"?"voorbeeldglazenwasserij.nl":DEMO_BRNAAM[DEMO_BR][1])};
   const DL={save:async({filename,data})=>{const b=data instanceof Blob?data:new Blob([data]),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=filename;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000)}};
   state.dl=DL;render();await init();
   state.dl=DL;if(!state.assets)state.assets=demoAssets;$("#status").innerHTML="";state.loaded=true;render();

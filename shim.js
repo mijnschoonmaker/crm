@@ -136,9 +136,17 @@ async function authMail(soort, email) {
   .lg-c input{font:inherit;font-size:15px;font-weight:500;padding:12px 14px;border:1px solid #d6d9dd;border-radius:6px;background:#fff;outline:none;color:#0d121b;text-transform:none;letter-spacing:0}.lg-c input:focus{border-color:#0d121b;box-shadow:0 0 0 1px #0d121b}
   .lg-b{width:100%;font:inherit;font-weight:600;font-size:12px;letter-spacing:.22em;text-transform:uppercase;padding:15px;border:0;border-radius:6px;color:#fff;background:radial-gradient(130% 180% at 100% 0%,#3e4860 0%,transparent 60%),linear-gradient(135deg,#1c2231,#2a3245 60%,#1f2534);cursor:pointer;margin-top:6px}.lg-b:hover{background:#1b2130}.lg-b:disabled{opacity:.6}
   .lg-l{background:none;border:0;font:inherit;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#0d121b;cursor:pointer;padding:0;border:0;box-shadow:none;-webkit-appearance:none;appearance:none}.lg-row{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-top:18px}.lg-row .lg-l{text-align:left;line-height:1.5}.lg-row .lg-l:last-child{text-align:right;flex:none}.lg-row .lg-l:first-child:not(:last-child){flex:1 1 auto}
-  .lg-m{font-size:13.5px;min-height:20px;margin-top:12px;color:#c0392b;font-weight:600}.lg-m.ok{color:#2f6b4f}.lg-m{color:#a23a30}`;
+  .lg-m{font-size:13.5px;min-height:20px;margin-top:12px;color:#c0392b;font-weight:600}.lg-m.ok{color:#2f6b4f}.lg-m{color:#a23a30}
+  .lg-br{display:grid;gap:8px;margin:0 0 18px}.lg-br button{display:flex;align-items:center;gap:12px;width:100%;font:inherit;font-size:14.5px;font-weight:600;color:#0d121b;text-align:left;padding:10px 12px;border:1px solid #d6d9dd;border-radius:8px;background:#fff;cursor:pointer}.lg-br button:hover{border-color:#9aa1ab}.lg-br button[aria-pressed=true]{border-color:#0d121b;box-shadow:0 0 0 1px #0d121b;background:#f7f7f6}.lg-br i{width:32px;height:32px;flex:none;border-radius:8px;display:grid;place-items:center;background:linear-gradient(150deg,#353f56,#252c3c 55%,#171c28)}.lg-br svg{width:16px;height:16px}.lg-kop{font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#5d6168;margin:0 0 8px}`;
   const mark = '<svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2.5" stroke="#fff" stroke-width="1.8"/><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="1.2" opacity=".55"/><path d="M7 17L17 7" stroke="#ebbd4c" stroke-width="2.6" stroke-linecap="round"/></svg>';
   let ov = null;
+  const BRK = [["glazenwasser", "Glazenwassers", "Glazenwasserij De Vries", '<path d="M12 3.5c-3 4-5 6.6-5 9.3a5 5 0 0 0 10 0c0-2.7-2-5.3-5-9.3z"/>'],
+    ["schoorsteenveger", "Schoorsteenvegers", "Schoorsteenvegerij De Vries", '<path d="M12 21a6 6 0 0 0 6-6c0-3.5-2.5-6-4-8-.4 2-1.4 3.2-2.6 3.9C11 8.6 10 6 10 3c-3 2.5-4 6-4 12a6 6 0 0 0 6 6z"/>'],
+    ["schilder", "Schilders", "Schildersbedrijf De Vries", '<rect x="4" y="3.5" width="14" height="5" rx="1.2"/><path d="M18 6h2v5h-8v3"/><rect x="10.5" y="14" width="3" height="7" rx="1"/>'],
+    ["hovenier", "Hoveniers", "Hoveniersbedrijf De Vries", '<path d="M12 21v-5M7 16h10l-5-12z"/>'],
+    ["timmerman", "Timmerlieden", "Timmerbedrijf De Vries", '<path d="M14 4l6 6-2.5 2.5-6-6zM11.5 6.5l-8 8 3 3 8-8"/>'],
+    ["betonboorder", "Betonboorders", "Betonboringen De Vries", '<rect x="3.5" y="7" width="11" height="7" rx="1.5"/><path d="M14.5 10.5H21M6 14v5h4v-5"/>']];
+  try { const q = new URLSearchParams(location.search).get("branche"); if (BRK.some(b => b[0] === q)) localStorage.setItem("ms.branche", q); } catch (e) {}
   const toon = html => {
     if (!ov) { const s = document.createElement("style"); s.textContent = css; document.head.appendChild(s); ov = document.createElement("div"); ov.className = "lg-ov"; document.body.appendChild(ov); }
     ov.style.display = "grid"; ov.innerHTML = `<div class="lg-c"><div class="lg-logo"><img src="/mansard-logo.png" alt="Mansard" onerror="this.remove()"></div>${html}</div>`;
@@ -182,6 +190,7 @@ async function authMail(soort, email) {
   /* nog bij geen enkel bedrijf: zelf een bedrijf starten (30 dagen gratis) of wachten op een uitnodiging */
   function nieuwBedrijf(u) {
     toon(`<h1>Welkom bij Mansard</h1><p>Start je eigen omgeving en kijk rustig rond. De eerste maand kost <b>€ 1</b> (excl. btw); een pakket kies je later.</p>
+      <div class="lg-kop">Wat voor bedrijf heb je?</div><div class="lg-br">${BRK.map(([id, n, , ic]) => `<button type="button" data-br="${id}" aria-pressed="false"><i><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ic}</svg></i>${n}</button>`).join("")}</div>
       <form id="lgF"><label>Naam van je bedrijf<input id="lgN" required maxlength="80" placeholder="Bijv. Glazenwasserij De Vries"></label>
       <label>Plaats<input id="lgPl" maxlength="60" placeholder="Bijv. Groningen"></label>
       <label>Telefoonnummer<input id="lgT" type="tel" maxlength="30" placeholder="06 12 34 56 78"></label>
@@ -189,9 +198,12 @@ async function authMail(soort, email) {
       <p style="font-size:12.5px;color:#5d6f76;margin:14px 0 0">Daarna € 99 per maand inclusief 3 gebruikers, elke extra gebruiker € 19,95. Maandelijks opzegbaar. Werk je bij een bedrijf dat Mansard al gebruikt? Vraag dan de eigenaar om je toe te voegen; je hoeft hier niets in te vullen.</p>
       <div class="lg-row"><span></span><button class="lg-l" id="lgOut">Uitloggen</button></div>`);
     $("#lgOut").onclick = () => auth.signOut();
+    let br = ""; try { br = localStorage.getItem("ms.branche") || ""; } catch (e) {}
+    const kies = id => { br = id; ov.querySelectorAll("[data-br]").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.br === id))); const k = BRK.find(x => x[0] === id); if (k) $("#lgN").placeholder = "Bijv. " + k[2]; };
+    ov.querySelectorAll("[data-br]").forEach(x => x.onclick = () => kies(x.dataset.br)); if (br) kies(br);
     $("#lgF").onsubmit = async ev => {
-      ev.preventDefault(); const b = $("#lgGo"); b.disabled = true; msg("");
-      try { await firebase.app().functions("europe-west4").httpsCallable("bedrijfAanmaken")({ naam: $("#lgN").value, plaats: $("#lgPl").value, telefoon: $("#lgT").value });
+      ev.preventDefault(); if (!br) { msg("Kies eerst wat voor bedrijf je hebt."); return; } const b = $("#lgGo"); b.disabled = true; msg("");
+      try { await firebase.app().functions("europe-west4").httpsCallable("bedrijfAanmaken")({ naam: $("#lgN").value, plaats: $("#lgPl").value, telefoon: $("#lgT").value, branche: br });
         msg("Je omgeving staat klaar. Even geduld…", true); setTimeout(() => location.reload(), 800); }
       catch (er) { msg((er && er.message) || "Aanmaken lukte niet."); b.disabled = false; }
     };

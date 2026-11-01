@@ -409,7 +409,7 @@ function websiteBody(o){const e=esc,IC={
   const H='<svg viewBox="0 0 24 24"><path d="M4.5 10.4 12 4.2l7.5 6.2v8.4a1.4 1.4 0 0 1-1.4 1.4h-3.4v-5a1 1 0 0 0-1-1h-3.4a1 1 0 0 0-1 1v5H5.9a1.4 1.4 0 0 1-1.4-1.4z"/></svg>';
   const bus=String(o.bus||"").replace(/id="rv/g,'id="ms').replace(/url\(#rv/g,"url(#ms");
   const wg=(d,st)=>`<div class="weg" aria-hidden="true" style="--d:${d}s;${st||""}">${[[4,40],[13,32],[22,46],[34,36],[46,42],[58,34],[69,44],[81,36],[92,40]].map(([x,w])=>`<span class="h" style="left:${x}%;width:${w}px">${H}</span>`).join("")}<i class="r"></i><span class="bus">${bus}</span></div>`,weg=wg(0);
-  const naam=e(o.naam||"Glasbewassing"),regio=o.plaats?` in ${e(o.plaats)} en omgeving`:"",tel=String(o.telefoon||"").trim(),telH=tel.replace(/[^\d+]/g,"");
+  const naam=e(o.naam||HD()),regio=o.plaats?` in ${e(o.plaats)} en omgeving`:"",tel=String(o.telefoon||"").trim(),telH=tel.replace(/[^\d+]/g,"");
   const wa=o.whatsapp?`https://wa.me/${e(o.whatsapp)}?text=${encodeURIComponent("Hallo, ik heb een vraag over glasbewassing.")}`:"";
   const logo=o.logo?`<img src="${o.logo}" alt="${naam}">`:`<span>${naam}</span>`;
   const portaal=o.portaal||"";
@@ -620,7 +620,7 @@ root.querySelectorAll("[data-werk]").forEach(function(sec){if(sec._ms)return;sec
   function esc(t){return String(t||"").replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
   var sl={i:0,L:[],t:null};
   function teken(){var L=cur?items.filter(function(x){return x.cat===cur}):items;sl.L=L;sl.i=0;if(!L.length){grid.innerHTML="";return}
-    grid.innerHTML=L.map(function(x,k){return '<div class="wk-sld'+(k===0?' aan':'')+'"><img class="wk-bg" src="'+esc(x.thumb||x.url)+'" alt="" loading="'+(k<2?"eager":"lazy")+'"><img class="wk-big" src="'+esc(x.url||x.thumb)+'" alt="'+esc(x.titel||"Glasbewassing")+'" loading="'+(k<2?"eager":"lazy")+'" decoding="async"></div>'}).join("")+'<div class="wk-scrim"></div><button type="button" class="wk-open" aria-label="Foto groot bekijken"></button><div class="wk-cap"></div><span class="wk-nr"></span>'
+    grid.innerHTML=L.map(function(x,k){return '<div class="wk-sld'+(k===0?' aan':'')+'"><img class="wk-bg" src="'+esc(x.thumb||x.url)+'" alt="" loading="'+(k<2?"eager":"lazy")+'"><img class="wk-big" src="'+esc(x.url||x.thumb)+'" alt="'+esc(x.titel||HD())+'" loading="'+(k<2?"eager":"lazy")+'" decoding="async"></div>'}).join("")+'<div class="wk-scrim"></div><button type="button" class="wk-open" aria-label="Foto groot bekijken"></button><div class="wk-cap"></div><span class="wk-nr"></span>'
       +'<button type="button" class="wk-pijl l" aria-label="Vorige foto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg></button><button type="button" class="wk-pijl r" aria-label="Volgende foto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></button>'
       +'<div class="wk-dui" role="tablist">'+L.map(function(x,k){return '<button type="button" role="tab" data-k="'+k+'" aria-label="Foto '+(k+1)+'"'+(k===0?' class="aan"':'')+'><img src="'+esc(x.thumb||x.url)+'" alt="" loading="lazy"></button>'}).join("")+'</div>';
     toon(0)}
@@ -643,7 +643,7 @@ root.querySelectorAll("[data-werk]").forEach(function(sec){if(sec._ms)return;sec
 const WEB_FONTS='<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">';
 /* losse pagina: voor de voorbeeldweergave en voor wie geen Framer gebruikt */
 function websiteHtml(p,crm){const calc=crm?p.calc.replace(/<head([^>]*)>/i,m=>m+"<script>window.ZEEM_CRM=1<\/script>"):p.calc;
-  return `<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(p.o.naam||"Glasbewassing")} · Glasbewassing</title>
+  return `<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(p.o.naam||HD())} · Glasbewassing</title>
 <meta name="description" content="Glasbewassing${p.o.plaats?" in "+esc(p.o.plaats)+" en omgeving":""}. Bereken direct uw prijs met een foto van uw woning.">${WEB_FONTS}<style>html,body{margin:0;background:#f3f6f7;scroll-behavior:smooth;overflow-x:hidden;max-width:100%}${WEB_CSS}</style></head>
 <body><div class="ms">${p.body}</div><script>(function(root){${WEB_JS}})(document)<\/script><script>/* interne links: zelf scrollen (in een voorbeeldvenster zou de browser anders naar het CRM gaan) */
 document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a[href^='#']");if(!a)return;e.preventDefault();var id=a.getAttribute("href").slice(1),d=id==="top"?document.body:document.getElementById(id);var m=document.getElementById("msm");if(m)m.checked=false;if(d)d.scrollIntoView({behavior:"smooth",block:"start"})});
@@ -651,7 +651,7 @@ document.addEventListener("click",function(e){var a=e.target.closest&&e.target.c
 window.addEventListener("message",function(e){if(e.source!==f.contentWindow||!e.data)return;if(e.data.type==="zeem-calc-height")f.style.height=e.data.h+"px";if(e.data.type==="zeem-calc-full"){var on=!!e.data.on;f.style.cssText=on?"position:fixed;inset:0;width:100vw;height:100dvh;z-index:2147483647;border:0;background:#fff":"display:block;width:1px;min-width:100%;border:0;height:"+f.style.height;document.documentElement.style.overflow=on?"hidden":""}});
 if(window.parent!==window){window.addEventListener("message",function(e){if(!e.data||!/^zeem-aanvraag/.test(e.data.type||""))return;if(e.source===f.contentWindow)parent.postMessage(e.data,"*");else if(e.source===parent)f.contentWindow.postMessage(e.data,"*")});var post=function(){parent.postMessage({type:"zeem-calc-height",h:document.documentElement.scrollHeight},"*")};new ResizeObserver(post).observe(document.body)}})()<\/script></body></html>`}
 /* Framer: één code component met alles erin */
-function websiteFramer(p){return `// Website ${String(p.o.naam||"Glasbewassing").replace(/\n/g," ")} — Framer code component (gemaakt in het CRM)
+function websiteFramer(p){return `// Website ${String(p.o.naam||HD()).replace(/\n/g," ")} — Framer code component (gemaakt in het CRM)
 // Zo zet u hem online (ongeveer 20 minuten):
 // 1. Maak een gratis account op framer.com en kies "New project" › "Blank".
 // 2. Links bij Assets › Code: klik op + › "New code file" (component). Noem hem Website.
