@@ -254,17 +254,17 @@ def herinneringen(pg):
       const basis={soort:'factuur',status:'open',verstuurdOp:d(-40),regels:[{aantal:1,prijs:50}]};
       const a=T.fhVolgende({...basis,verval:d(-1)});                                   // net te laat: herinnering nog niet
       const b=T.fhVolgende({...basis,verval:d(-30)});                                  // ruim te laat: herinnering klaar
-      const c=T.fhVolgende({...basis,verval:d(-30),herinneringen:1,herinnerdOp:d(0)}); // net herinnerd: WIK pas over 7 dagen
+      const c=T.fhVolgende({...basis,verval:d(-30),herinneringen:3,herinnerdOp:d(0)}); // net aangemaand: WIK pas over 7 dagen
       const e=T.fhVolgende({...basis,verval:d(-60),herinneringen:2,herinnerdOp:d(-16),wikOp:d(-16)}); // WIK 16 dagen geleden: Likifin
       const f=T.fhVolgende({...basis,verval:d(-60),herinneringen:2,herinnerdOp:d(-5),wikOp:d(-5)});   // WIK 5 dagen geleden: nog niet
       const g=T.fhVolgende({...basis,verval:d(-30),verstuurdOp:''});                   // niet verstuurd: geen herinnering
       const p=T.fhPoort({...basis,verval:d(-30)},true);                                // WIK terwijl eerst herinnering moet
-      return {a:[a&&a.soort,a&&a.klaar,a&&a.datum,d(2)],b:[b.soort,b.klaar],c:[c.soort,c.klaar,c.datum,d(7)],e:[e.soort,e.klaar],f:[f.soort,f.klaar],g,p}}""")
+      return {a:[a&&a.soort,a&&a.klaar,a&&a.datum,d(6)],b:[b.soort,b.klaar],c:[c.soort,c.klaar,c.datum,d(7)],e:[e.soort,e.klaar],f:[f.soort,f.klaar],g,p}}""")
     if r is None:
         return check(G, "Regels aanwezig", False, "fhVolgende niet gevonden")
-    check(G, "Herinnering niet eerder dan de ingestelde dagen", r["a"][0] == "herinnering" and r["a"][1] is False and r["a"][2] == r["a"][3], r["a"])
+    check(G, "1e herinnering pas 7 dagen na de vervaldatum", r["a"][0] == "herinnering" and r["a"][1] is False and r["a"][2] == r["a"][3], r["a"])
     check(G, "Herinnering klaar als het zover is", r["b"] == ["herinnering", True], r["b"])
-    check(G, "WIK-brief pas na de herinnering, met dagen ertussen", r["c"][0] == "wik" and r["c"][1] is False and r["c"][2] == r["c"][3], r["c"])
+    check(G, "WIK-brief pas na de aanmaning, met minstens 7 dagen ertussen", r["c"][0] == "wik" and r["c"][1] is False and r["c"][2] == r["c"][3], r["c"])
     check(G, "15 dagen na de WIK-brief klaar voor Likifin", r["e"] == ["likifin", True], r["e"])
     check(G, "Niet eerder naar Likifin", r["f"] == ["likifin", False], r["f"])
     check(G, "Geen herinnering voor een niet-verstuurde factuur", r["g"] is None, r["g"])

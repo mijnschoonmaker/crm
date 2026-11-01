@@ -49,3 +49,10 @@ document.head.insertAdjacentHTML("beforeend",`<style id="fhStijl">
 .fh-strook{display:flex;align-items:center;gap:14px;flex-wrap:wrap}.fh-strook>div:first-child{flex:1;min-width:220px}.fh-k{display:flex;gap:8px;flex-wrap:wrap}
 .fb-q[disabled]{opacity:.35;cursor:not-allowed}
 </style>`);
+
+/* eenmalig: wie nog de oude momenten (3/10/21/21 dagen, aanmaning en WIK-brief op dezelfde dag) had, krijgt de wettelijke standaard */
+if(typeof window!=="undefined"&&LIVE)setTimeout(function w(){if(typeof state==="undefined"||!state.loaded)return setTimeout(w,900);
+  try{const s=S();if(s.fhWetV>=2||(typeof isMw==="function"&&isMw()))return;const m=Array.isArray(s.fhM)?s.fhM:[];
+    const oud=!m.length||(m.length===4&&m.map(x=>Number(x.dagen)).join(",")==="3,10,21,21");
+    if(oud)saveSettings({fhM:FHM.map(x=>({...x})),termijn:Number(s.termijn)||14,fhWetV:2},"Herinneringen staan nu volgens de wet (7 · 14 · 21 · 28 dagen)").catch(()=>{});
+    else save("instellingen","bedrijf",{...state.settings,fhWetV:2}).then(()=>{state.settings={...state.settings,fhWetV:2}}).catch(()=>{})}catch(e){console.error(e)}},2500);
