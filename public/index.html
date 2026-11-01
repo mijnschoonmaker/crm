@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="51e610b2e17b"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="38af72914af8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -7786,7 +7786,7 @@ function queues(){
   const t=today(),refs=sentRefs(),out=[],st=S(),now=new Date();
   if(st.dagAan){
     if(st.dagVast!==false){const d=addDays(t,Number(st.dagDagen)||1),items=dagGroepen(iso(d),"herinnering");
-      out.push({id:"herinnering",titel:"Herinnering "+(Number(st.dagDagen)===1||!st.dagDagen?"voor morgen":"voor "+longD(d)),uitleg:"Klanten die "+longD(d)+" op de route staan"+(now.getHours()*60+now.getMinutes()<toMin(st.dagTijd)?" · verstuurtijd "+st.dagTijd:""),items,kanaal:st.dagKanaal,tekst:st.dagSms,mail:st.dagMail,onderwerp:st.dagOnderwerp});}
+      out.push({id:"herinnering",titel:"Herinnering "+(Number(st.dagDagen)===1||!st.dagDagen?"voor morgen":"voor "+longD(d)),uitleg:"Klanten die "+longD(d)+" op de route staan"+(now.getHours()*60+now.getMinutes()<toMin(st.dagTijd)?" · verstuurtijd "+st.dagTijd:""),items,kanaal:st.dagKanaal});}
     if(st.dagUurAan){const nm=now.getHours()*60+now.getMinutes(),items=dagGroepen(iso(t),"uur").filter(x=>{const m=toMin(x.k.tijd);return m!=null&&nm>=m-(Number(st.dagUren)||2)*60&&nm<m});
       out.push({id:"uur",sjabloon:"herinnering",titel:"Komt er zo aan",uitleg:(Number(st.dagUren)||2)+" uur voor de klus van vandaag",items,kanaal:st.dagKanaal,tekst:st.dagSms,mail:st.dagMail,onderwerp:st.dagOnderwerp});}
   }
@@ -12238,7 +12238,7 @@ function openSetEdit(id){
       <label>Antwoorden komen binnen op<input value="${esc(s.email||"—")}" readonly><small class="help">Je e-mailadres, aanpassen bij Bedrijf &amp; Branding</small></label>
       <label>Verzendadres<input value="${esc(s.email||"Het adres van je mailprogramma")}" readonly><small class="help">Het account waarmee je mailprogramma verstuurt</small></label>
       ${testRow("tmail","jouw@email.nl","Opent een testmail in je mailprogramma, zo zie je precies wat je klant krijgt.")}`,{wide:false,foot:`<span class="sp"></span><button type="button" class="primary" data-act="close">Sluiten</button>`});
-    bindTest("tmail",()=>s.dagMail,()=>s.dagOnderwerp,"herinnering");},
+    bindTest("tmail",()=>(tpls().herinnering||{}).mail,()=>(tpls().herinnering||{}).onderwerp,"herinnering");},
   tracking(){const key=s.trackKey||[...crypto.getRandomValues(new Uint8Array(18))].map(x=>"abcdefghjkmnpqrstuvwxyz23456789"[x%31]).join("");
     setDlg(c,`${info("Elke opgemaakte mail krijgt een onzichtbaar pixeltje en gevolgde links. Opent de klant de mail of klikt hij op een link (bijv. de betaallink), dan zie je dat bij <b>Communicatie</b> en op de klantkaart, met datum en tijd.")}
       ${tgl("trackAan","Mail-tracking aan","Alleen voor opgemaakte e-mails, niet voor sms of WhatsApp",s.trackAan!==false)}
@@ -12281,12 +12281,12 @@ function openSetEdit(id){
       ${tgl("dagUurAan","Zoveel uur voor de klus zelf","Kijkt naar de starttijd van elke klus apart.",s.dagUurAan)}
       ${sel("dagUren","Uur voor de klus",s.dagUren,[[1,"1 uur"],[2,"2 uur"],[3,"3 uur"],[4,"4 uur"]],{t:"num"})}
       <p class="subt" style="margin:0">Staan beide aan, dan krijgt de klant twee berichten. Meerdere klussen op hetzelfde adres op dezelfde dag worden één bericht met alle diensten en tijden erin.</p>
-      ${sec("Berichttekst")}${inp("dagOnderwerp","E-mail onderwerp",s.dagOnderwerp,{cls:"full"})}${ta("dagMail","E-mail bericht",s.dagMail,{rows:8})}${ta("dagSms","SMS- en WhatsApp-tekst",s.dagSms,{rows:3,count:true,help:"Houd het kort: één sms is 160 tekens."})}
-      <small class="help">Beschikbaar: ${ph} · {afzender}</small>
+      ${sec("Berichttekst")}${(()=>{const t=tpls().herinnering||{};return `<div class="box" style="display:grid;gap:6px"><div class="subt" style="margin:0">De tekst komt uit Communicatie › Sjablonen › <b>Herinnering afspraak</b>. Eén tekst, op één plek.</div><div><b>${esc(t.onderwerp||"")}</b></div><div class="subt" style="margin:0;white-space:pre-line;max-height:7.5em;overflow:hidden">${esc(t.mail||"")}</div><div class="row" style="margin-top:4px"><button type="button" class="small" id="dagTpl">${I.pencil}Tekst aanpassen</button></div></div>`})()}
       ${sec("Controleren")}<button type="button" class="small" id="whoNow">${I.search}Wie krijgt hem nu?</button><div id="whoList"></div>
       ${testRow("tdag","jij@bedrijf.nl of +31612345678",LIVE&&s.liveMail?"E-mailadres: je krijgt de opgemaakte mail, precies zoals de klant hem ziet. Telefoonnummer: opent een sms met jouw tekst.":"E-mailadres of telefoonnummer: opent één bericht met jouw tekst.")}`);
     $("#whoNow").onclick=()=>{const q=queues().filter(x=>x.id==="herinnering"||x.id==="uur");const it=q.flatMap(x=>x.items);$("#whoList").innerHTML=it.length?`<table class="minitable">${it.map(i=>`<tr><td><b>${esc(cleanName(i.k.naam))}</b></td><td>${esc(i.vars.datum)}</td><td>${esc(i.vars.tijdvak)}</td></tr>`).join("")}</table>`:`<p class="subt">Nu niemand${s.dagAan?"":" (de herinnering staat uit)"}. Alleen klanten die ingepland staan krijgen hem.</p>`};
-    bindTest("tdag",kan=>kan==="email"?form.querySelector('[data-k="dagMail"]').value:form.querySelector('[data-k="dagSms"]').value,()=>form.querySelector('[data-k="dagOnderwerp"]').value,"herinnering");bindSave();},
+    bindTest("tdag",kan=>{const t=tpls().herinnering||{};return kan==="email"?t.mail:t.sms},()=>(tpls().herinnering||{}).onderwerp,"herinnering");
+    $("#dagTpl").onclick=async()=>{if(await saveSettings(readFields()))openTplEdit("herinnering")};bindSave();},
   fh(){const M=fhMomenten();
     setDlg({...c,sub:"Herinneren na de vervaldatum"},`${tgl("fhAan","Herinneringen klaarzetten","Zet een herinnering klaar zodra een factuur te laat is. Betaalde facturen vallen af.",s.fhAan)}
       <div class="grid2">${inp("fhTijd","Tijdstip",s.fhTijd,{type:"time"})}${sel("fhSkip","Zelf net gestuurd? Overslaan",s.fhSkip,[[0,"Niet overslaan"],[1,"1 dag"],[3,"3 dagen"],[7,"7 dagen"]],{t:"num"})}</div>
