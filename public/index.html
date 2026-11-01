@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="a450e35cb8f8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="1d18536b27e6"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -7119,26 +7119,38 @@ const BW=k=>{const w=BR_W[k];return w?(GLAS()?w[0]:w[1]):k};
 /* standaarddiensten per vak (Uitvoering); glazenwassers houden uitvDefault() zoals hij was */
 function brDiensten(b=BR()){const I_=(naam,eenheid,prijs,min)=>itm(naam,eenheid,prijs,min*60);
   const D={
-    schoorsteenveger:[["veeg","Schoorsteen vegen",[I_("Rookkanaal vegen","per stuk",65,40),I_("Extra rookkanaal","per stuk",35,20)]],
-      ["cv","Cv-afvoer vegen",[I_("Rookgasafvoer cv-ketel","per stuk",55,30)]],
-      ["insp","Inspectie",[I_("Camera-inspectie met rapport","per keer",85,30)]],
-      ["kap","Kap en vonkenvanger",[I_("Schoorsteenkap plaatsen","per stuk",145,45)]]],
-    schilder:[["buiten","Buitenschilderwerk",[I_("Kozijnen en deuren","per m²",38,30),I_("Boeidelen en windveren","per strekkende meter",22,15)]],
-      ["binnen","Binnenschilderwerk",[I_("Muren en plafonds","per m²",14,10)]],
-      ["onderh","Onderhoudsinspectie",[I_("Jaarlijkse inspectie","per keer",75,45)]],
-      ["hout","Houtrotherstel",[I_("Herstel","per uur",55,60)]]],
-    hovenier:[["tuin","Tuinonderhoud",[I_("Onderhoud","per uur",45,60)]],
-      ["heg","Heg snoeien",[I_("Heg snoeien","per strekkende meter",4.5,2)]],
-      ["gazon","Gazon",[I_("Maaien en kanten steken","per m²",0.25,1)]],
-      ["blad","Blad ruimen",[I_("Blad ruimen","per uur",45,60)]]],
+    schoorsteenveger:[["veeg","Schoorsteen vegen",[I_("Rookkanaal open haard","per stuk",65,40),I_("Rookkanaal houtkachel of inzethaard","per stuk",65,40),I_("Extra rookkanaal op hetzelfde adres","per stuk",35,20)]],
+      ["cv","Cv- en gasafvoer",[I_("Rookgasafvoer cv-ketel","per stuk",55,30),I_("Gaskachel of geiser","per stuk",55,30)]],
+      ["insp","Inspectie",[I_("Visuele inspectie","per keer",45,20),I_("Camera-inspectie met rapport","per keer",95,45),I_("Rookproef","per keer",65,30)]],
+      ["kap","Kap en vonkenvanger",[I_("Schoorsteenkap plaatsen","per stuk",145,45),I_("Vonkenvanger plaatsen","per stuk",95,30)]],
+      ["nest","Nest verwijderen",[I_("Vogelnest verwijderen","per stuk",75,40)]],
+      ["voorrij","Voorrijkosten",[I_("Voorrijden","per keer",25,0)]]],
+    schilder:[["buiten","Buitenschilderwerk",[I_("Kozijnen","per strekkende meter",24,15),I_("Ramen en deuren","per stuk",95,90),I_("Boeidelen en windveren","per strekkende meter",22,15),I_("Gevel of muurwerk","per m²",18,10),I_("Dakkapel","per stuk",450,360)]],
+      ["binnen","Binnenschilderwerk",[I_("Muren","per m²",12,8),I_("Plafonds","per m²",14,10),I_("Deuren","per stuk",85,75),I_("Kozijnen binnen","per stuk",65,45),I_("Trap","per stuk",450,480)]],
+      ["hout","Houtrotherstel",[I_("Houtrot repareren, per plek","per stuk",65,45),I_("Arbeid","per uur",55,60)]],
+      ["kit","Kit- en glaswerk",[I_("Kitwerk","per strekkende meter",9,6),I_("Glas vervangen","per m²",180,60)]],
+      ["onderh","Onderhoudsinspectie",[I_("Jaarlijkse inspectie met advies","per keer",75,45)]],
+      ["toeslag","Toeslagen",[I_("Steiger of hoogwerker, per dag","per keer",185,0),I_("Voorrijkosten","per keer",25,0)]]],
+    hovenier:[["tuin","Tuinonderhoud",[I_("Onderhoud","per uur",45,60),I_("Onkruid wieden","per m²",1.5,2)]],
+      ["heg","Heg snoeien",[I_("Heg tot 2 meter","per strekkende meter",4.5,2),I_("Heg boven 2 meter","per strekkende meter",7.5,4)]],
+      ["gazon","Gazon",[I_("Maaien en kanten steken","per m²",0.25,1),I_("Verticuteren","per m²",0.6,1),I_("Bemesten","per m²",0.2,1)]],
+      ["boom","Bomen en struiken",[I_("Boom snoeien","per stuk",85,60),I_("Struiken snoeien","per uur",45,60)]],
+      ["blad","Blad ruimen",[I_("Blad ruimen","per uur",45,60)]],
+      ["bestr","Bestrating reinigen",[I_("Bestrating reinigen","per m²",3.5,3),I_("Voegen invegen","per m²",2.5,2)]],
+      ["afval","Groenafval afvoeren",[I_("Afvoeren","per keer",45,15)]]],
     timmerman:[["timmer","Timmerwerk",[I_("Arbeid","per uur",52,60)]],
-      ["kozijn","Kozijnen en deuren",[I_("Deur afhangen","per stuk",95,90),I_("Kozijn vervangen","per stuk",650,240)]],
-      ["hout","Houtrotherstel",[I_("Herstel","per uur",52,60)]],
-      ["onderh","Onderhoudsinspectie",[I_("Jaarlijkse inspectie","per keer",75,45)]]],
-    betonboorder:[["boren","Kernboren",[I_("Boring tot Ø 100 mm","per stuk",85,30),I_("Boring Ø 100 tot 200 mm","per stuk",145,45)]],
-      ["zagen","Betonzagen",[I_("Wandzagen","per strekkende meter",95,30),I_("Vloerzagen","per strekkende meter",65,20)]],
-      ["sparing","Sparingen",[I_("Sparing maken","per stuk",195,90)]],
-      ["voorrij","Voorrijkosten",[I_("Voorrijden","per keer",45,0)]]]}[b]||[];
+      ["kozijn","Kozijnen en deuren",[I_("Deur afhangen","per stuk",95,90),I_("Binnendeur plaatsen","per stuk",185,150),I_("Kozijn vervangen","per stuk",650,240),I_("Hang- en sluitwerk","per stuk",45,30)]],
+      ["dak","Dak en gevel",[I_("Boeiboorden vervangen","per strekkende meter",65,45),I_("Dakkapel herstellen","per uur",52,60)]],
+      ["vloer","Vloeren en trappen",[I_("Vloer leggen","per m²",28,20),I_("Plinten","per strekkende meter",9,6)]],
+      ["tuinhout","Schutting en overkapping",[I_("Schutting plaatsen","per strekkende meter",85,60),I_("Overkapping","per uur",52,60)]],
+      ["hout","Houtrotherstel",[I_("Houtrot repareren, per plek","per stuk",65,45)]],
+      ["onderh","Onderhoudsinspectie",[I_("Jaarlijkse inspectie","per keer",75,45)]],
+      ["voorrij","Voorrijkosten",[I_("Voorrijden","per keer",35,0)]]],
+    betonboorder:[["boren","Kernboren",[I_("Boring tot Ø 100 mm","per stuk",85,30),I_("Boring Ø 100 tot 200 mm","per stuk",145,45),I_("Boring Ø 200 tot 300 mm","per stuk",225,60),I_("Extra boordiepte, per 10 cm","per stuk",15,5)]],
+      ["zagen","Betonzagen",[I_("Wandzagen","per strekkende meter",95,30),I_("Vloerzagen","per strekkende meter",65,20),I_("Sparing zagen","per stuk",195,90)]],
+      ["sloop","Sloopwerk",[I_("Breekwerk","per uur",65,60)]],
+      ["afval","Puin afvoeren",[I_("Afvoeren","per keer",75,20)]],
+      ["toeslag","Toeslagen",[I_("Stofvrij werken met afzuiging","per keer",45,0),I_("Werken boven 3 meter","per keer",65,0),I_("Voorrijkosten","per keer",45,0)]]]}[b]||[];
   const G=D.map(([id,naam,items])=>({id,std:true,naam,items}));
   G.forEach(g=>g.items.forEach((it,i)=>{it.id=g.id+"_"+i}));return G}
 /* wisselen in de demo (?branche=...) */
@@ -13926,7 +13938,7 @@ function openOfferte(opts={}){
   let rc=ex&&(ex.rcRegels||legacyRc)?{regels:(ex.rcRegels||ex.regels).map(r=>({...r,omschrijving:String(r.omschrijving||"").replace(/ ?\(minimumtarief\)/gi,"")})),count:(ex.telling&&ex.telling.ramen)||0,opd:{}}:null,touched={freq:!!opd0.frequentie,duur:!!opd0.duur};
   const ks=[...state.klanten].sort((a,b)=>cleanName(a.naam).localeCompare(cleanName(b.naam)));
   const v=(k,n)=>esc(k?k[n]||"":"");
-  const freqO=freqOpts(),durO=[15,30,45,60,90,120,180,240];
+  const freqO=GLAS()?freqOpts():[...freqOpts().filter(w=>!fqSpec(w)),FQ_AFROEP,FQ_EENMALIG],durO=[15,30,45,60,90,120,180,240];
   const fr0=Number(opd0.frequentie||(k0&&k0.frequentie)||8),du0=Number(opd0.duur||(k0&&k0.duur)||30);
   if(!freqO.includes(fr0))freqO.push(fr0);if(!durO.includes(du0))durO.push(du0);freqO.sort((a,b)=>a-b);durO.sort((a,b)=>a-b);
   const stPill=ex?fStatus(ex):["neutral","Concept"];
@@ -13982,7 +13994,7 @@ function openOfferte(opts={}){
         <label class="check-row"><input type="checkbox" id="ow-std">Bewaar deze teksten en instellingen als standaard voor nieuwe offertes</label>
         <button type="button" class="small" id="owTxtK" style="align-self:flex-start">${I.check}Klaar</button>
       </div></section>
-    <section class="kp kp-rc"><div class="kp-h"><span class="objic">${I.calculator}</span><div><b>Rekentool</b><small>Maak foto's en tik de ramen aan. Aantallen, tijden en prijzen komen vanzelf bij de offerteregels.</small></div></div><div id="owRc"></div></section>
+    <section class="kp kp-rc"${GLAS()?"":' style="display:none"'}><div class="kp-h"><span class="objic">${I.calculator}</span><div><b>Rekentool</b><small>Maak foto's en tik de ramen aan. Aantallen, tijden en prijzen komen vanzelf bij de offerteregels.</small></div></div><div id="owRc"></div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.check}</span><b>Offerteregels</b><span class="sp"></span><button type="button" class="small" id="owAdd">${I.plus}Eigen regel</button></div>
       <div class="ow-chips">${dienstChips(diensten,"data-dn")}</div>
       <div id="owRegels"></div>
@@ -14000,13 +14012,13 @@ function openOfferte(opts={}){
     return [{omschrijving:glasNaam(),aantal:1,prijs:r2(rr.reduce((a,r)=>a+(Number(r.prijs)||0),0)),subs:rr.filter(r=>r.sub).map(r=>({naam:r.sub,qty:r.qty||"",fq:r.fq||""}))}]};
   const dnsGroep=()=>dns.map(d=>{const c=dnsCalc(d);return c.rows.length?{omschrijving:d.groepOms||d.naam,aantal:1,prijs:c.ex,subs:d.groepOms?[]:c.rows.map(r=>({naam:r.it.naam,qty:String(r.it.aantal).replace(".",",")+" "+eenhKort(r.it.eenheid),fq:fqTxt(Number(r.it.fq)||Number(d.frequentie)||8),...(String(r.it.tekst||"").trim()?{tekst:String(r.it.tekst).trim()}:{})}))}:null}).filter(Boolean);
   const allRegels=()=>[...glasGroep(),...dnsGroep(),...extra.filter(r=>r.omschrijving||Number(r.prijs))].map(r=>({omschrijving:String(r.omschrijving||""),aantal:Number(r.aantal)||0,prijs:Number(r.prijs)||0,...(r.subs&&r.subs.length?{subs:r.subs}:{})}));
-  const glasFreq=()=>{try{const fl=RC.freqList().filter(f=>f.aan!==false||f.k===RC.getFreq()),cur=RC.getFreq();return `<label class="ow-gf">Frequentie glasbewassing<select id="owGF">${fl.map(f=>`<option value="${f.k}" ${f.k===cur?"selected":""}>${esc(f.l)}${f.p?` (${f.p>0?"−":"+"}${Math.abs(f.p)}%)`:""}</option>`).join("")}</select></label>`}catch(e){return ""}};
+  const glasFreq=()=>{if(!GLAS())return"";try{const fl=RC.freqList().filter(f=>f.aan!==false||f.k===RC.getFreq()),cur=RC.getFreq();return `<label class="ow-gf">Frequentie glasbewassing<select id="owGF">${fl.map(f=>`<option value="${f.k}" ${f.k===cur?"selected":""}>${esc(f.l)}${f.p?` (${f.p>0?"−":"+"}${Math.abs(f.p)}%)`:""}</option>`).join("")}</select></label>`}catch(e){return ""}};
   const glasW=()=>Number($o("freq").value)||8;
   const dnsHtml=()=>dns.map((d,i)=>{d.frequentie=glasW();const c=dnsCalc(d);return `<div class="ow-dn"><div class="ow-dnh"><b>${esc(d.naam)}</b><span class="sp"></span><span class="mono">${c.ex?eur(c.ex):""}</span><button type="button" class="iconbtn sm" data-dnrm="${i}" aria-label="Dienst weghalen">${I.x}</button></div>
       ${groepEditor(d,"d"+i,{offerte:true,freqDefault:glasW()})}</div>`}).join("");
   const draw=()=>{
     const rr=rc?rc.regels:[];
-    $("#owRegels").innerHTML=`<div class="ow-glas">${glasFreq()}</div>${rr.length?`<div class="ow-rc"><div class="ow-rch"><span class="eyebrow">Glasbewassing uit de rekentool${rc.count?" · "+rc.count+" ramen":""}</span><button type="button" class="small ghost" id="owRcX" aria-label="Regels uit de rekentool weghalen" title="Weghalen">${I.x}</button></div>${rr.map(r=>`<div class="ow-row"><span>${esc(String(r.omschrijving).replace(/ ?\(minimumtarief\)/gi,""))}${r.sec?`<small class="ow-rsec">${(Math.round(r.sec/6)/10).toLocaleString("nl-NL")} min werktijd · alleen voor jou</small>`:""}</span><span class="mono">${eur(r.prijs)}</span></div>`).join("")}${rr.some(r=>r.sec)?`<div class="ow-row ow-rtot"><span>Werktijd totaal ${Math.round(rr.reduce((a,r)=>a+(r.sec||0),0)/60)} min</span><span class="mono">${eur(rr.reduce((a,r)=>a+r.prijs,0))}</span></div>`:""}${rc.minGlas?`<div class="ow-minnote">${I.info||""}<span><b>Minimumprijs ${eur(rc.min)} excl. btw</b> · berekend ${eur(rc.berekend)}, aangevuld met ${eur(Math.max(0,rc.min-rc.berekend))} tot het minimum. Bijzondere ramen (dakramen, lichtkoepels enz.) komen er los bij.</span></div>`:""}</div>`:`<p class="subt" style="margin:6px 0 10px">Nog niets uit de rekentool. Tik in de rekentool de ramen aan op de foto's, of voeg hieronder een dienst toe.</p>`}
+    $("#owRegels").innerHTML=`<div class="ow-glas">${glasFreq()}</div>${rr.length?`<div class="ow-rc"><div class="ow-rch"><span class="eyebrow">Glasbewassing uit de rekentool${rc.count?" · "+rc.count+" ramen":""}</span><button type="button" class="small ghost" id="owRcX" aria-label="Regels uit de rekentool weghalen" title="Weghalen">${I.x}</button></div>${rr.map(r=>`<div class="ow-row"><span>${esc(String(r.omschrijving).replace(/ ?\(minimumtarief\)/gi,""))}${r.sec?`<small class="ow-rsec">${(Math.round(r.sec/6)/10).toLocaleString("nl-NL")} min werktijd · alleen voor jou</small>`:""}</span><span class="mono">${eur(r.prijs)}</span></div>`).join("")}${rr.some(r=>r.sec)?`<div class="ow-row ow-rtot"><span>Werktijd totaal ${Math.round(rr.reduce((a,r)=>a+(r.sec||0),0)/60)} min</span><span class="mono">${eur(rr.reduce((a,r)=>a+r.prijs,0))}</span></div>`:""}${rc.minGlas?`<div class="ow-minnote">${I.info||""}<span><b>Minimumprijs ${eur(rc.min)} excl. btw</b> · berekend ${eur(rc.berekend)}, aangevuld met ${eur(Math.max(0,rc.min-rc.berekend))} tot het minimum. Bijzondere ramen (dakramen, lichtkoepels enz.) komen er los bij.</span></div>`:""}</div>`:`<p class="subt" style="margin:6px 0 10px">${GLAS()?"Nog niets uit de rekentool. Tik in de rekentool de ramen aan op de foto's, of voeg hieronder een dienst toe.":"Voeg hieronder een dienst toe, of een losse regel."}</p>`}
       ${dns.length?`<div class="ow-dns">${dnsHtml()}</div>`:""}
       <div class="lines">${extra.map((r,i)=>`<div class="line"><input data-l="${i}" data-k="omschrijving" value="${esc(r.omschrijving)}" placeholder="Omschrijving" aria-label="Omschrijving"><input data-l="${i}" data-k="aantal" type="number" min="0" step="1" value="${esc(r.aantal)}" aria-label="Aantal"><input data-l="${i}" data-k="prijs" type="number" step="0.01" value="${esc(r.prijs)}" placeholder="Prijs excl." aria-label="Prijs excl. btw"><button type="button" class="small ghost" data-rm="${i}" aria-label="Regel verwijderen">${I.x}</button></div>`).join("")}</div>`;
     tot()};
@@ -15040,7 +15052,7 @@ function groepDetail(its,base){return its.map(x=>x.naam.toLowerCase()+" "+String
 function groepBtwPct(g,k){if(k){if(k.btwVerlegd)return 0;const b=typeof btwRegel==="function"?btwRegel(k,g&&(g.dienst||g.naam)||""):null;return b!=null?b:(Number(S().btw)||21)}
   /* zonder klant (bv. nieuwe offerte): het tarief van de onderdelen */const it=((g&&g.items)||[]).find(x=>Number(x.aantal)>0&&x.btw!=null&&x.btw!=="")||((g&&g.items)||[]).find(x=>x.btw!=null&&x.btw!=="");const v=it?Number(it.btw):NaN;return isFinite(v)?v:(Number(S().btw)||21)}
 function groepEditor(g,key,{offerte=false,freqDefault=8,klant=null}={}){const c=groepCalc(g),btwPct=groepBtwPct(g,klant);
-  const fq=(it,j)=>`<select data-gk="${key}" data-gi="${j}" data-gf="fq"><option value="" ${it.fq===""||it.fq==null?"selected":""}>Selecteer</option><option value="0" ${String(it.fq)==="0"?"selected":""}>Zelfde als glasbewassing</option>${freqOpts(it.fq||freqDefault).map(w=>`<option value="${w}" ${String(it.fq)===String(w)?"selected":""}>${esc(freqLabel(w))}</option>`).join("")}</select>`;
+  const fq=(it,j)=>`<select data-gk="${key}" data-gi="${j}" data-gf="fq"><option value="" ${it.fq===""||it.fq==null?"selected":""}>Selecteer</option><option value="0" ${String(it.fq)==="0"?"selected":""}>${GLAS()?"Zelfde als glasbewassing":"Zelfde als de opdracht"}</option>${(GLAS()?freqOpts(it.fq||freqDefault):[...freqOpts(it.fq||freqDefault).filter(w=>!fqSpec(w)),FQ_AFROEP,FQ_EENMALIG]).map(w=>`<option value="${w}" ${String(it.fq)===String(w)?"selected":""}>${esc(freqLabel(w))}</option>`).join("")}</select>`;
   return `<div class="ge" data-ge="${key}">
     <label class="ge-full">Werkomschrijving<textarea data-gk="${key}" data-gf="oms" placeholder="Bijv. daklijsten voor- en achterzijde, inclusief klossen">${esc(g.oms||"")}</textarea></label>
     <p class="help ge-note">Let op: afspraken die al ingepland zijn veranderen niet als je hieronder iets aanpast.</p>
