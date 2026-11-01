@@ -266,7 +266,7 @@ function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActivite
   return `<div class="cc">
   <div class="cc-head"><div><h1>Overzicht</h1><p>Wie waar is, wat er speelt en wat je moet doen.</p></div>
     <div class="cc-tools"><div class="cc-zoek"><span>${I.search}</span><input id="ccQ" type="search" autocomplete="off" placeholder="Zoek klant, adres, offerte, factuur…" value="${esc(CC.q)}" aria-label="Zoeken"><kbd>${/Mac|iP/.test(navigator.platform||"")?"⌘":"Ctrl"} K</kbd><div class="cc-zr" id="ccZr" hidden></div></div>
-      ${"Notification" in window&&Notification.permission==="default"?`<button type="button" class="cc-ntf" data-cc="notif">${I.bell}Meldingen aan</button>`:""}<button type="button" class="cc-bel cc-snd${S().ccGeluid===false?" uit":""}" data-cc="geluid" aria-label="${S().ccGeluid===false?"Geluid aanzetten":"Geluid uitzetten"}" title="${S().ccGeluid===false?"Geluid staat uit":"Geluid bij nieuwe meldingen"}">${S().ccGeluid===false?sv('<path d="M11 5 6 9H3v6h3l5 4z"/><path d="m22 9-6 6M16 9l6 6"/>'):sv('<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>')}</button><button type="button" class="cc-bel" data-cc="naar:ccAdv" aria-label="${plural(S_.length,"signaal","signalen")}">${I.bell}${S_.length?`<i>${S_.length}</i>`:""}</button>${ccTkKnop()}${ccBetKnop()}
+      ${"Notification" in window&&Notification.permission==="default"?`<button type="button" class="cc-ntf" data-cc="notif">${I.bell}Meldingen aan</button>`:""}<button type="button" class="cc-bel cc-snd${S().ccGeluid===false?" uit":""}" data-cc="geluid" aria-label="${S().ccGeluid===false?"Geluid aanzetten":"Geluid uitzetten"}" title="${S().ccGeluid===false?"Geluid staat uit":"Geluid bij nieuwe meldingen"}">${S().ccGeluid===false?sv('<path d="M11 5 6 9H3v6h3l5 4z"/><path d="m22 9-6 6M16 9l6 6"/>'):sv('<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>')}</button><button type="button" class="cc-bel" data-cc="naar:ccAdv" aria-label="${plural(S_.length,"signaal","signalen")}">${I.bell}${S_.length?`<i>${S_.length}</i>`:""}</button>${ccTkKnop()}${ccBetKnop()}${ccPortKnop()}
       <div class="cc-dag"><b>${esc(dag.charAt(0).toUpperCase()+dag.slice(1))}</b><small><span class="cc-dl">${esc(dat)}</span><span class="cc-dk">${esc(t.toLocaleDateString("nl-NL",{day:"numeric",month:"short"}).replace(".",""))}</span></small></div>${ccWeerHtml()}</div></div>
   ${ccNuDoenHtml()}
   <div class="cc-ops">
@@ -298,6 +298,21 @@ function ccTkKnop(){const T=state.tickets||[],n=T.filter(t=>Number(t.ongelezenTe
 /* snelknop naar binnengekomen betalingen: groen getal = nieuw sinds je de lijst voor het laatst opende */
 function ccBetKnop(){const n=typeof betNieuw==="function"?betNieuw().length:0;
   return `<button type="button" class="cc-bel cc-bet${n?" nieuw":""}" id="ccBet" data-cc="betalingen" aria-label="Betalingen${n?", "+n+" nieuw":""}" title="Binnengekomen betalingen">${I.euro||"€"}${n?`<i class="groen">${n}</i>`:""}</button>`}
+/* wie was er in het klantportaal: laatste bezoek bovenaan */
+const portLaatst=k=>{const t=Date.parse(k.portaalLaatst||"");return isNaN(t)?0:t};
+function ccPortKnop(){const d=Date.now()-864e5,n=(state.klanten||[]).filter(k=>!k.hoofdKlantId&&portLaatst(k)>d).length;
+  return `<button type="button" class="cc-bel cc-port" id="ccPort" data-cc="portaalbezoek" aria-label="Klantportaal: laatst ingelogd${n?", "+n+" vandaag":""}" title="Wie was er in het klantportaal">${I.user||I.klanten}${n?`<i class="blauw">${n}</i>`:""}</button>`}
+function openPortaalBezoek(){const nu=Date.now(),eig=typeof betEigen==="function"?betEigen():new Set();
+  const L=(state.klanten||[]).filter(k=>!k.hoofdKlantId&&!eig.has(k.id)&&portLaatst(k)>0).sort((a,b)=>portLaatst(b)-portLaatst(a));
+  const tot=(state.klanten||[]).filter(k=>!k.hoofdKlantId&&k.actief!==false&&!k.prospect).length,dag=L.filter(k=>nu-portLaatst(k)<864e5).length,wk=L.filter(k=>nu-portLaatst(k)<7*864e5).length;
+  const rel=t=>{const m=Math.round((nu-t)/6e4);if(m<1)return"zojuist";if(m<60)return m+" min geleden";const u=Math.round(m/60);if(u<24)return u+" uur geleden";const d=Math.round(u/24);return d===1?"gisteren":d+" dagen geleden"};
+  const groep=t=>{const d=new Date(t),v=today(),dd=Math.round((v-new Date(d.getFullYear(),d.getMonth(),d.getDate()))/864e5);return dd<=0?"Vandaag":dd===1?"Gisteren":dd<7?"Deze week":dd<31?"Deze maand":"Eerder"};
+  let g0="";const rij=(k,i)=>{const t=portLaatst(k),g=groep(t),kop=g!==g0?`<div class="pb-g">${g}</div>`:"";g0=g;const d=new Date(t);
+    return kop+`<button type="button" class="bet-r pb-r" data-pbk="${esc(k.id)}"><span class="pb-nr">${i+1}</span><span class="bet-av" style="--h:${hue(k.naam||"")}">${esc(initials(cleanName(k.naam||"?")))}</span><span class="bet-t"><b>${esc(cleanName(k.naam||"Klant"))}</b><small>${esc(fmtD(iso(d)))} om ${d.toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"})}${k.plaats?" · "+esc(k.plaats):""}</small></span><span class="pb-rel${nu-t<36e5?" vers":""}">${esc(rel(t))}</span></button>`};
+  openDlg(`<div class="dlg-head"><span class="objic big pb-ic">${I.user||I.klanten}</span><div style="min-width:0;flex:1"><h3>Klantportaal</h3><div class="subt">Wie het laatst in het portaal was staat bovenaan</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
+    <div class="pb-tot"><div><b>${dag}</b><small>vandaag</small></div><div><b>${wk}</b><small>deze week</small></div><div><b>${L.length}</b><small>ooit ingelogd${tot?" · "+Math.round(L.length/tot*100)+"% van je klanten":""}</small></div></div>
+    ${L.length?`<div class="bet-l pb-l">${L.map(rij).join("")}</div>`:`<p class="subt" style="margin:8px 0">Nog geen klanten in het portaal geweest.</p>`}`);
+  dlg.querySelectorAll("[data-pbk]").forEach(b=>b.onclick=()=>{const id=b.dataset.pbk;dlg.close();openKlant(id)})}
 function ccBetVernieuw(){const el=document.getElementById("ccBet");if(el)el.outerHTML=ccBetKnop()}
 function ccTkVernieuw(){const el=document.getElementById("ccTk");if(el)el.outerHTML=ccTkKnop()}
 function ccActie(a){if(!a)return;const [k,...r]=a.split(":"),v=r.join(":");
@@ -307,6 +322,7 @@ function ccActie(a){if(!a)return;const [k,...r]=a.split(":"),v=r.join(":");
   if(k==="klant")return ccKlant(v)?openKlant(v):go("klanten");
   if(k==="f"){const f=state.facturen.find(x=>x.id===v);if(!f)return;return f.soort==="offerte"?openOfferte({id:v}):openFactuur(v)}
   if(k==="tickets")return typeof openTickets==="function"?openTickets():go("communicatie");
+  if(k==="portaalbezoek")return openPortaalBezoek();
   if(k==="betalingen")return typeof openBetalingen==="function"?openBetalingen():go("facturen");
   if(k==="nieuw"){if(v==="klant")return openNieuweKlant();if(v==="offerte")return openOfferte();if(v==="factuur")return openFactuurForm()}
   if(k==="kies")return ccKies(v);
