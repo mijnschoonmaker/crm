@@ -11,9 +11,10 @@ const db = admin.firestore();
   const locAdr = (k, id) => { const o = id !== "hoofd" && (k.objecten || []).find(x => x.id === id); return o ? o.adres : k.adres; };
   const nr = (k, o) => (k.klantnr || "?") + "-" + (o.nr || "?"), naam = k => String(k.naam || "").replace(/\s+/g, " ").trim();
   const F = { "Hoofdopdracht zonder vaste plek (klant heeft meerdere locaties)": [], "Losse opdracht met een ander adres dan de uitvoerlocatie": [],
-    "Losse opdracht wordt eerder aangeboden dan de aanboddatum": [], "Losse opdracht met een andere prijs dan in de opdracht": [], "Losse opdracht staat aan, maar de opdracht bestaat niet meer": [] };
+    "Losse opdracht wordt eerder aangeboden dan de aanboddatum": [], "Losse opdracht met een andere prijs dan in de opdracht": [], "Losse opdracht staat aan, maar de opdracht bestaat niet meer": [], "Actieve klant met glasbewassing voor € 0 per beurt": [] };
   for (const k of all) {
     if (k.hoofdKlantId || k.actief === false) continue;
+    if (!k.prospect && !k.opdrachtVerwijderd && !(Number(k.prijs) > 0) && !k.periodiek) F["Actieve klant met glasbewassing voor € 0 per beurt"].push(`${naam(k)} (${k.klantnr || "?"})`);
     const os = (k.objecten || []).filter(o => o && o.adres);
     if (os.length && !k.objectId) F["Hoofdopdracht zonder vaste plek (klant heeft meerdere locaties)"].push(`${naam(k)} (${k.klantnr || "?"}): staat nu op ${os[0].adres}`);
     for (const o of k.opdrachten || []) {

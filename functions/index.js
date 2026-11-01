@@ -637,9 +637,12 @@ async function inplannenNaAkkoord(fd, klantId) {
   if (k.actief !== false && !k.prospect && !k.opdrachtVerwijderd && (k.gepland || k.aanbieden)) return null;
   const o = fd.opdracht || {}, start = /^\d{4}-\d{2}-\d{2}$/.test(String(fd.start || "")) ? fd.start : vandaag;
   const fm = fd.facturatie, fact = fm === "periodiek" ? { directFactureren: false, nietFactureren: false } : fm ? { directFactureren: fm === "direct", nietFactureren: fm === "geen" } : {};
-  const prijs = o.prijs != null && o.prijs !== "" ? Number(o.prijs) : Number(k.prijs) || 0, freq = Number(o.frequentie || k.frequentie || 4), duur = Number(o.duur || k.duur || 30);
+  /* alleen een glasbewassingsprijs uit de offerte overnemen als die er echt in staat (> 0). Een offerte met alleen een extra dienst
+     (bv. glasbewassing binnen) zette anders de prijs van de vaste glasbewassing op € 0. */
+  const hoofdUitOfferte = Number(o.prijs) > 0, alleenExtra = !hoofdUitOfferte && Array.isArray(o.extra) && o.extra.length > 0 && Number(k.prijs) > 0;
+  const prijs = hoofdUitOfferte ? Number(o.prijs) : Number(k.prijs) || 0, freq = Number((hoofdUitOfferte && o.frequentie) || k.frequentie || o.frequentie || 4), duur = Number((hoofdUitOfferte && o.duur) || k.duur || o.duur || 30);
   const eu = n => "€ " + (Math.round(n * 100) / 100).toFixed(2).replace(".", ",");
-  const log = [...(Array.isArray(k.log) ? k.log : []), { datum: vandaag, tekst: `Offerte ${fd.nummer || ""} online ondertekend · ${eu(prijs)} per beurt, elke ${freq} weken · staat bij Te plannen${start > vandaag ? " vanaf " + start.split("-").reverse().join("-") : ""}` }];
+  const log = [...(Array.isArray(k.log) ? k.log : []), { datum: vandaag, tekst: `Offerte ${fd.nummer || ""} online ondertekend · ${alleenExtra ? "extra dienst" + (o.extra.length > 1 ? "en" : "") + " toegevoegd; glasbewassing blijft " + eu(prijs) + " per beurt" : eu(prijs) + " per beurt, elke " + freq + " weken"} · staat bij Te plannen${start > vandaag ? " vanaf " + start.split("-").reverse().join("-") : ""}` }];
   const patch = { prospect: false, opdrachtVerwijderd: false, actief: true, akkoord: true, prijs, frequentie: freq, duur, aanbodVanaf: start, aanbieden: !(start > vandaag), opzegReden: "", log, ...fact };
   if (k.prospect || k.actief === false) { patch.gepland = ""; patch.tijd = ""; }
   if (Array.isArray(o.extra) && o.extra.length) patch.opdrachten = [...(Array.isArray(k.opdrachten) ? k.opdrachten : []).filter(x => !x || !x.groep || !o.extra.some(e => e.groep === x.groep)), ...o.extra];
