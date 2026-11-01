@@ -98,8 +98,10 @@ module.exports = function maakPortaal(ctx) {
   const betaalPrecies = f => !!f.betaaldTs;
   /* ranglijst: wie betaalt gemiddeld het snelst (alle klanten, betaalde facturen van de laatste 12 maanden, op de seconde).
      Je eigen klantkaart (zelfde e-mail als het bedrijf) telt niet mee. Eén keer per 5 minuten opgehaald. */
-  let _rl = null;
+  /* per bedrijf bewaard: nooit gegevens van het ene bedrijf in het portaal van het andere */
+  const _rlMap = new Map(), rlSleutel = () => (T && typeof T.bid === "function" ? T.bid() : "x");
   async function rangData() {
+    const sl = rlSleutel(), _rl = _rlMap.get(sl);
     if (_rl && Date.now() - _rl.t < 5 * 60e3) return _rl;
     const [b, fq, kq] = await Promise.all([bedrijf(), db.collection("facturen").where("status", "==", "betaald").get(), db.collection("klanten").get()]);
     const eigenMail = String(b.email || "").trim().toLowerCase(), K = new Map();
@@ -107,7 +109,7 @@ module.exports = function maakPortaal(ctx) {
     const F = [];
     fq.docs.forEach(d => { const f = d.data(); if (!f.klantId || f.soort === "offerte") return; const kk = K.get(f.klantId); if (!kk || kk.eigen || kk.uit) return; const sec = betaalSec(f); if (sec == null) return;
       F.push({ klantId: f.klantId, datum: f.datum || "", maand: String(f.betaaldTs ? isoNL(new Date(f.betaaldTs)) : f.betaaldOp || "").slice(0, 7), sec, precies: betaalPrecies(f), incasso: !!(f.incasso || f.betaalwijze === "incasso"), ideal: viaIdeal(f) }); });
-    return (_rl = { t: Date.now(), F, K });
+    const uit = { t: Date.now(), F, K }; _rlMap.set(sl, uit); return uit;
   }
   /* telt mee voor de snelste betalers van de maand: vanaf november 2026 alleen via de iDEAL-knop (Mollie, methode iDEAL; geen incasso).
      Betalingen van vóór het bewaren van de methode (1 nov 2026) met Mollie gelden als iDEAL. */
@@ -794,7 +796,7 @@ module.exports = function maakPortaal(ctx) {
   const maandWinnaar = onSchedule ? onSchedule({ schedule: "5 8 * * *", timeZone: "Europe/Amsterdam", timeoutSeconds: 300, memory: "512MiB" }, async () => {
     const vm = vorigeMaand(), ref = db.doc("ranglijst/" + vm);
     if ((await ref.get()).exists) return;
-    _rl = null; const top = await maandTop(vm), b = await bedrijf(), cr = bedrijfInfo(b, "").credits, prijzen = [cr.maandTop, cr.maandTop2, cr.maandTop3];
+    _rlMap.delete(rlSleutel()); const top = await maandTop(vm), b = await bedrijf(), cr = bedrijfInfo(b, "").credits, prijzen = [cr.maandTop, cr.maandTop2, cr.maandTop3];
     await ref.set({ maand: vm, top, prijzen, op: nu() });
     const mn = MAANDEN[Number(vm.slice(5)) - 1], g = await geheim();
     for (let i = 0; i < top.length; i++) {
