@@ -150,13 +150,15 @@ state.tickets=state.tickets||[];let tkUnsub=null,tkOpen=null,tkVorig=null;
 const TK_CAT={planning:"Planning of afspraak",factuur:"Factuur of betaling",kwaliteit:"Kwaliteit of klacht",toegang:"Toegang",overig:"Overig"};
 const TK_ST={open:["late","Open"],behandeling:["soon","In behandeling"],opgelost:["ok","Opgelost"]};
 const tkNaam=()=>{const n=String((state.me&&(state.me.name||state.me.email))||"").split("@")[0].split(/[.\s_-]/)[0];return n?n[0].toUpperCase()+n.slice(1):""};
-const tkOngelezen=()=>(state.tickets||[]).filter(t=>Number(t.ongelezenTeam)>0);
+const tkOngelezen=()=>(state.tickets||[]).filter(t=>Number(t.ongelezenTeam)>0&&t.status!=="opgelost");
 function liveTickets(){if(!LIVE||tkUnsub)return;
   tkUnsub=fsDb().collection("tickets").orderBy("laatst","desc").limit(300).onSnapshot(s=>{
     state.tickets=s.docs.map(d=>({id:d.id,...d.data()}));
     try{tkKaart()}catch(e){}try{ccTkVernieuw()}catch(e){}if(tkOpen)try{tkLijstTeken()}catch(e){}
+    /* eerst komt vaak een oude kopie uit het geheugen van dit apparaat (bijv. iPad die een paar dagen dicht was): daar geen pop-ups van */
+    if(s.metadata&&s.metadata.fromCache)return;
     const nu_=Object.fromEntries(state.tickets.map(t=>[t.id,Number(t.ongelezenTeam)||0]));
-    if(tkVorig===null){const l=tkOngelezen();if(l.length)tkPopup(l[0],l.length>1?l.length:0)}
+    if(tkVorig===null){const grens=new Date(Date.now()-2*864e5).toISOString(),l=tkOngelezen().filter(t=>t.status!=="opgelost"&&String(t.laatst||"")>grens);if(l.length)tkPopup(l[0],l.length>1?l.length:0)}
     else state.tickets.filter(t=>t.laatsteVan==="klant"&&nu_[t.id]>(tkVorig[t.id]||0)&&!(tkOpen&&tkOpen.id===t.id&&document.hasFocus())).forEach(t=>tkPopup(t,0,!(t.id in tkVorig)));
     tkVorig=nu_},e=>console.error("tickets",e))}
 if(LIVE)setTimeout(function w(){state.loaded?liveTickets():setTimeout(w,700)},900);

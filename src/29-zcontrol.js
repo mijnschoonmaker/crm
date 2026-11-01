@@ -266,7 +266,7 @@ function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActivite
   return `<div class="cc">
   <div class="cc-head"><div><h1>Overzicht</h1><p>Wie waar is, wat er speelt en wat je moet doen.</p></div>
     <div class="cc-tools"><div class="cc-zoek"><span>${I.search}</span><input id="ccQ" type="search" autocomplete="off" placeholder="Zoek klant, adres, offerte, factuur…" value="${esc(CC.q)}" aria-label="Zoeken"><kbd>${/Mac|iP/.test(navigator.platform||"")?"⌘":"Ctrl"} K</kbd><div class="cc-zr" id="ccZr" hidden></div></div>
-      ${"Notification" in window&&Notification.permission==="default"?`<button type="button" class="cc-ntf" data-cc="notif">${I.bell}Meldingen aan</button>`:""}<button type="button" class="cc-bel cc-snd${S().ccGeluid===false?" uit":""}" data-cc="geluid" aria-label="${S().ccGeluid===false?"Geluid aanzetten":"Geluid uitzetten"}" title="${S().ccGeluid===false?"Geluid staat uit":"Geluid bij nieuwe meldingen"}">${S().ccGeluid===false?sv('<path d="M11 5 6 9H3v6h3l5 4z"/><path d="m22 9-6 6M16 9l6 6"/>'):sv('<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>')}</button><button type="button" class="cc-bel" data-cc="naar:ccAdv" aria-label="${plural(S_.length,"signaal","signalen")}">${I.bell}${S_.length?`<i>${S_.length}</i>`:""}</button>${ccTkKnop()}
+      ${"Notification" in window&&Notification.permission==="default"?`<button type="button" class="cc-ntf" data-cc="notif">${I.bell}Meldingen aan</button>`:""}<button type="button" class="cc-bel cc-snd${S().ccGeluid===false?" uit":""}" data-cc="geluid" aria-label="${S().ccGeluid===false?"Geluid aanzetten":"Geluid uitzetten"}" title="${S().ccGeluid===false?"Geluid staat uit":"Geluid bij nieuwe meldingen"}">${S().ccGeluid===false?sv('<path d="M11 5 6 9H3v6h3l5 4z"/><path d="m22 9-6 6M16 9l6 6"/>'):sv('<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>')}</button><button type="button" class="cc-bel" data-cc="naar:ccAdv" aria-label="${plural(S_.length,"signaal","signalen")}">${I.bell}${S_.length?`<i>${S_.length}</i>`:""}</button>${ccTkKnop()}${ccBetKnop()}
       <div class="cc-dag"><b>${esc(dag.charAt(0).toUpperCase()+dag.slice(1))}</b><small><span class="cc-dl">${esc(dat)}</span><span class="cc-dk">${esc(t.toLocaleDateString("nl-NL",{day:"numeric",month:"short"}).replace(".",""))}</span></small></div>${ccWeerHtml()}</div></div>
   ${ccNuDoenHtml()}
   <div class="cc-ops">
@@ -304,6 +304,10 @@ function ccKaart(){if(state.tab!=="control"||typeof rvMapTeken!=="function")retu
 /* snelknop naar de tickets: rood getal = tickets met een nieuw bericht van de klant, grijs = nog openstaande tickets */
 function ccTkKnop(){const T=state.tickets||[],n=T.filter(t=>Number(t.ongelezenTeam)>0).length,o=T.filter(t=>t.status!=="opgelost").length;
   return `<button type="button" class="cc-bel cc-tk${n?" nieuw":""}" id="ccTk" data-cc="tickets" aria-label="Tickets${n?", "+n+" nieuw":o?", "+o+" open":""}" title="Tickets">${I.ticket||I.bericht||""}${n?`<i>${n}</i>`:o?`<i class="grijs">${o}</i>`:""}</button>`}
+/* snelknop naar binnengekomen betalingen: groen getal = nieuw sinds je de lijst voor het laatst opende */
+function ccBetKnop(){const n=typeof betNieuw==="function"?betNieuw().length:0;
+  return `<button type="button" class="cc-bel cc-bet${n?" nieuw":""}" id="ccBet" data-cc="betalingen" aria-label="Betalingen${n?", "+n+" nieuw":""}" title="Binnengekomen betalingen">${I.euro||"€"}${n?`<i class="groen">${n}</i>`:""}</button>`}
+function ccBetVernieuw(){const el=document.getElementById("ccBet");if(el)el.outerHTML=ccBetKnop()}
 function ccTkVernieuw(){const el=document.getElementById("ccTk");if(el)el.outerHTML=ccTkKnop()}
 function ccActie(a){if(!a)return;const [k,...r]=a.split(":"),v=r.join(":");
   if(k==="tab")return go(v);
@@ -312,6 +316,7 @@ function ccActie(a){if(!a)return;const [k,...r]=a.split(":"),v=r.join(":");
   if(k==="klant")return ccKlant(v)?openKlant(v):go("klanten");
   if(k==="f"){const f=state.facturen.find(x=>x.id===v);if(!f)return;return f.soort==="offerte"?openOfferte({id:v}):openFactuur(v)}
   if(k==="tickets")return typeof openTickets==="function"?openTickets():go("communicatie");
+  if(k==="betalingen")return typeof openBetalingen==="function"?openBetalingen():go("facturen");
   if(k==="nieuw"){if(v==="klant")return openNieuweKlant();if(v==="offerte")return openOfferte();if(v==="factuur")return openFactuurForm()}
   if(k==="kies")return ccKies(v);
   if(k==="bellen"){const q=document.getElementById("ccQ");if(q){q.focus();q.placeholder="Typ de naam van de klant om te bellen…"}return}

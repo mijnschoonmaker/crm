@@ -4849,6 +4849,23 @@ html body:not(#zz) .ajr-card .st-bars .st-col:hover .st-tr em{opacity:1!importan
 html body .fw-reg th{white-space:nowrap!important}
 html body .fw-reg td:first-child{min-width:220px!important}
 
+/* betalingen: snelknop en lijst */
+.cc-bel i.groen{background:#2e9a5c}
+.cc-bet.nieuw{border-color:#3fb06e;background:#f1fbf5;animation:betKnop 1.8s ease-out infinite}.cc-bet.nieuw svg{color:#2e7a52}
+@keyframes betKnop{0%{box-shadow:0 0 0 0 rgb(63 176 110 / .45)}70%{box-shadow:0 0 0 10px rgb(63 176 110 / 0)}100%{box-shadow:0 0 0 0 rgb(63 176 110 / 0)}}
+@media (prefers-reduced-motion:reduce){.cc-bet.nieuw{animation:none}}
+.bet-ic{background:#e8f5ee!important;color:#2e7a52}
+.bet-tot{display:flex;align-items:baseline;gap:10px;padding:14px 16px;border-radius:14px;background:#f1fbf5;border:1px solid #cfe9d9;margin:4px 0 12px}.bet-tot span{color:var(--muted);font-size:13px}.bet-tot b{font-size:22px;font-weight:650;color:#1f6b45;font-variant-numeric:tabular-nums}.bet-tot small{margin-left:auto;color:var(--muted)}
+.bet-l{display:flex;flex-direction:column;gap:6px;max-height:60vh;overflow:auto}
+.bet-r{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface)}.bet-r:hover{border-color:#cfe9d9;background:#f7fcf9}
+.bet-r.nieuw{border-color:#9fd8b5;background:#f1fbf5}
+.bet-av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;color:#fff;background:hsl(var(--h) 30% 45%);flex:none}
+.bet-t{flex:1;min-width:0}.bet-t b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bet-t small{display:block;font-size:12px;color:var(--muted)}
+.bet-nw{font-style:normal;font-size:11px;font-weight:700;color:#fff;background:#2e9a5c;border-radius:999px;padding:2px 8px}
+.bet-b{font-weight:650;font-variant-numeric:tabular-nums;color:#1f6b45;white-space:nowrap}
+/* telefoon: vier knoppen (geluid, meldingen, tickets, betalingen) + datum + weer op één regel */
+@media(max-width:520px){.cc-tools{gap:7px}.cc-bel{width:35px;height:35px;border-radius:10px}.cc-bel svg{width:17px;height:17px}.cc-wi{font-size:19px}.cc-weer{gap:5px}.cc-weer b{font-size:14px}.cc-dag b{font-size:13.5px}}
+
 </style>
 <style id="mansardThema">
 @import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;500;600;700&display=swap");
@@ -15593,7 +15610,7 @@ function feest(k){try{
 
 /* ---------- Betaald via Mollie: geld-melding met confetti en kassageluid ---------- */
 let betaalVorig=null;
-function kassa(){try{const A=new (window.AudioContext||window.webkitAudioContext)(),t=A.currentTime,o=A.createGain();o.gain.value=.22;o.connect(A.destination);
+function kassa(){if(S().ccGeluid===false)return;try{const A=new (window.AudioContext||window.webkitAudioContext)(),t=A.currentTime,o=A.createGain();o.gain.value=.22;o.connect(A.destination);
   /* "ka": korte tik, "ching": heldere belletjes met nagalm */
   const n=A.createBufferSource(),b=A.createBuffer(1,A.sampleRate*.05,A.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,3);n.buffer=b;const ng=A.createGain();ng.gain.value=.5;n.connect(ng).connect(o);n.start(t);
   [[2093,.07],[2637,.1],[3136,.13],[4186,.16],[2637,.3],[3520,.34]].forEach(([f,dl])=>{const os=A.createOscillator(),g=A.createGain();os.type="triangle";os.frequency.value=f;g.gain.setValueAtTime(0,t+dl);g.gain.linearRampToValueAtTime(.5,t+dl+.005);g.gain.exponentialRampToValueAtTime(.001,t+dl+.7);os.connect(g).connect(o);os.start(t+dl);os.stop(t+dl+.75)});
@@ -15604,7 +15621,7 @@ function geldFeest(f){try{
   const bedrag=totals(f).inc,el=document.createElement("div");el.id="geldPop";el.className="geldpop";el.setAttribute("role","status");
   el.innerHTML=`<div class="gp-k">
     <div class="gp-top"><svg class="gp-ic" viewBox="0 0 24 24"><path d="M16.5 7.2A5.8 5.8 0 1 0 16.5 16.8"/><path d="M5.5 10.5h7.5M5.5 13.5h7.5"/></svg><span class="gp-l"><svg viewBox="0 0 24 24">${VINK}</svg>Betaling ontvangen</span><button type="button" class="gp-x" aria-label="Sluiten">${I.x}</button></div>
-    <div class="gp-body"><b class="gp-b" id="geldB">${gpBedrag(0)}</b><span class="gp-w">${esc(cleanName(f.klantNaam||""))}</span><span class="gp-m">Factuur ${esc(f.nummer||"")} · iDEAL · zojuist</span>
+    <div class="gp-body"><b class="gp-b" id="geldB">${gpBedrag(0)}</b><span class="gp-w">${esc(cleanName(f.klantNaam||""))}</span><span class="gp-m">Factuur ${esc(f.nummer||"")} · ${esc(betVia(f))} · zojuist</span>
       <button type="button" class="primary gp-btn" data-geldf="${esc(f.id)}">Bekijk factuur</button></div></div>`;
   document.body.appendChild(el);kassa();
   requestAnimationFrame(()=>{const r=vpR(el);confetti(document.body,{n:70,bron:{x:r.left+r.width/2,y:r.top+40}})});
@@ -15614,8 +15631,24 @@ function geldFeest(f){try{
   let tm=setTimeout(weg,9000);el.addEventListener("mouseenter",()=>clearTimeout(tm));el.addEventListener("mouseleave",()=>{tm=setTimeout(weg,4000)})}catch(e){console.error(e)}}
 function betaalCheck(){if(!state.loaded||isMw())return;const nu={};state.facturen.forEach(f=>{if(f.soort!=="offerte")nu[f.id]=f.status});
   if(betaalVorig){
-    state.facturen.filter(f=>f.status==="betaald"&&betaalVorig[f.id]&&betaalVorig[f.id]!=="betaald"&&f.betaalwijze==="mollie"&&String(f.betaaldOp||"").slice(0,10)>=iso(addDays(today(),-1))).slice(0,1).forEach(geldFeest)}
-  betaalVorig=nu}
+    state.facturen.filter(f=>f.status==="betaald"&&betaalVorig[f.id]&&betaalVorig[f.id]!=="betaald"&&betAuto(f)&&String(f.betaaldOp||"").slice(0,10)>=iso(addDays(today(),-1))).slice(0,1).forEach(geldFeest)}
+  betaalVorig=nu;try{if(typeof ccBetVernieuw==="function")ccBetVernieuw()}catch(e){}}
+/* binnengekomen betalingen: automatisch verwerkt (iDEAL via Mollie, bankkoppeling of incasso), niet wat je zelf op betaald zet */
+const betAuto=f=>!!f&&f.status==="betaald"&&(f.betaalwijze==="mollie"||!!f.bankTx||(f.betaalwijze==="incasso"&&f.mollieStatus==="paid"));
+const betVia=f=>f.betaalwijze==="mollie"?"iDEAL":f.betaalwijze==="incasso"?"Incasso":f.bankTx?"Bank":f.betaalwijze==="contant"?"Contant":f.betaalwijze==="pin"?"Pin":"Overgemaakt";
+const betTs=f=>String(f.betaaldTs||(f.betaaldOp?f.betaaldOp+"T12:00:00":"")||"");
+const betZienLees=()=>{try{return localStorage.getItem("ms.betZien")||""}catch(e){return""}};
+function betNieuw(){const z=betZienLees()||iso(today())+"T00:00:00";return (state.facturen||[]).filter(f=>f.soort!=="offerte"&&betAuto(f)&&betTs(f)>z)}
+/* lijst met betalingen van de laatste 14 dagen (alle manieren), nieuwste bovenaan */
+function openBetalingen(){const van=iso(addDays(today(),-14)),z=betZienLees()||iso(today())+"T00:00:00";
+  const L=(state.facturen||[]).filter(f=>f.soort!=="offerte"&&f.status==="betaald"&&String(f.betaaldOp||"")>=van).sort((a,b)=>betTs(b).localeCompare(betTs(a)));
+  const som=L.reduce((a,f)=>a+totals(f).inc,0),vd=iso(today()),somVd=L.filter(f=>String(f.betaaldOp||"").slice(0,10)===vd).reduce((a,f)=>a+totals(f).inc,0);
+  openDlg(`<div class="dlg-head"><span class="objic big bet-ic">${I.euro}</span><div style="min-width:0;flex:1"><h3>Betalingen</h3><div class="subt">Ontvangen in de laatste 14 dagen · vandaag ${eur(somVd)}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
+    ${L.length?`<div class="bet-tot"><span>Totaal 14 dagen</span><b>${eur(som)}</b><small>${plural(L.length,"betaling","betalingen")}</small></div><div class="bet-l">${L.map(f=>{const nw=betAuto(f)&&betTs(f)>z,d=String(f.betaaldOp||"").slice(0,10);
+      return `<button type="button" class="bet-r${nw?" nieuw":""}" data-betf="${esc(f.id)}"><span class="bet-av" style="--h:${hue(f.klantNaam||"")}">${esc(initials(cleanName(f.klantNaam||"?")))}</span><span class="bet-t"><b>${esc(cleanName(f.klantNaam||"Klant"))}</b><small>${d===vd?"Vandaag":esc(fmtD(d))} · ${esc(betVia(f))} · ${esc(f.nummer||"")}</small></span>${nw?'<i class="bet-nw">Nieuw</i>':""}<span class="bet-b">${eur(totals(f).inc)}</span></button>`}).join("")}</div>`
+      :`<p class="subt" style="margin:8px 0">Nog geen betalingen in de laatste 14 dagen.</p>`}`);
+  try{localStorage.setItem("ms.betZien",new Date().toISOString())}catch(e){}try{ccBetVernieuw()}catch(e){}
+  dlg.querySelectorAll("[data-betf]").forEach(b=>b.onclick=()=>{const id=b.dataset.betf;dlg.close();openFactuur(id)})}
 
 /* ---------- HOSPITALITY: wat je over deze klant moet weten (zoals een sterrenrestaurant zijn gasten kent) ---------- */
 I.heart=sv('<path d="M12 20s-7.5-4.6-7.5-10.2A4.2 4.2 0 0 1 12 7.3a4.2 4.2 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/>');
@@ -16701,7 +16734,7 @@ function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActivite
   return `<div class="cc">
   <div class="cc-head"><div><h1>Overzicht</h1><p>Wie waar is, wat er speelt en wat je moet doen.</p></div>
     <div class="cc-tools"><div class="cc-zoek"><span>${I.search}</span><input id="ccQ" type="search" autocomplete="off" placeholder="Zoek klant, adres, offerte, factuur…" value="${esc(CC.q)}" aria-label="Zoeken"><kbd>${/Mac|iP/.test(navigator.platform||"")?"⌘":"Ctrl"} K</kbd><div class="cc-zr" id="ccZr" hidden></div></div>
-      ${"Notification" in window&&Notification.permission==="default"?`<button type="button" class="cc-ntf" data-cc="notif">${I.bell}Meldingen aan</button>`:""}<button type="button" class="cc-bel cc-snd${S().ccGeluid===false?" uit":""}" data-cc="geluid" aria-label="${S().ccGeluid===false?"Geluid aanzetten":"Geluid uitzetten"}" title="${S().ccGeluid===false?"Geluid staat uit":"Geluid bij nieuwe meldingen"}">${S().ccGeluid===false?sv('<path d="M11 5 6 9H3v6h3l5 4z"/><path d="m22 9-6 6M16 9l6 6"/>'):sv('<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>')}</button><button type="button" class="cc-bel" data-cc="naar:ccAdv" aria-label="${plural(S_.length,"signaal","signalen")}">${I.bell}${S_.length?`<i>${S_.length}</i>`:""}</button>${ccTkKnop()}
+      ${"Notification" in window&&Notification.permission==="default"?`<button type="button" class="cc-ntf" data-cc="notif">${I.bell}Meldingen aan</button>`:""}<button type="button" class="cc-bel cc-snd${S().ccGeluid===false?" uit":""}" data-cc="geluid" aria-label="${S().ccGeluid===false?"Geluid aanzetten":"Geluid uitzetten"}" title="${S().ccGeluid===false?"Geluid staat uit":"Geluid bij nieuwe meldingen"}">${S().ccGeluid===false?sv('<path d="M11 5 6 9H3v6h3l5 4z"/><path d="m22 9-6 6M16 9l6 6"/>'):sv('<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>')}</button><button type="button" class="cc-bel" data-cc="naar:ccAdv" aria-label="${plural(S_.length,"signaal","signalen")}">${I.bell}${S_.length?`<i>${S_.length}</i>`:""}</button>${ccTkKnop()}${ccBetKnop()}
       <div class="cc-dag"><b>${esc(dag.charAt(0).toUpperCase()+dag.slice(1))}</b><small><span class="cc-dl">${esc(dat)}</span><span class="cc-dk">${esc(t.toLocaleDateString("nl-NL",{day:"numeric",month:"short"}).replace(".",""))}</span></small></div>${ccWeerHtml()}</div></div>
   ${ccNuDoenHtml()}
   <div class="cc-ops">
@@ -16739,6 +16772,10 @@ function ccKaart(){if(state.tab!=="control"||typeof rvMapTeken!=="function")retu
 /* snelknop naar de tickets: rood getal = tickets met een nieuw bericht van de klant, grijs = nog openstaande tickets */
 function ccTkKnop(){const T=state.tickets||[],n=T.filter(t=>Number(t.ongelezenTeam)>0).length,o=T.filter(t=>t.status!=="opgelost").length;
   return `<button type="button" class="cc-bel cc-tk${n?" nieuw":""}" id="ccTk" data-cc="tickets" aria-label="Tickets${n?", "+n+" nieuw":o?", "+o+" open":""}" title="Tickets">${I.ticket||I.bericht||""}${n?`<i>${n}</i>`:o?`<i class="grijs">${o}</i>`:""}</button>`}
+/* snelknop naar binnengekomen betalingen: groen getal = nieuw sinds je de lijst voor het laatst opende */
+function ccBetKnop(){const n=typeof betNieuw==="function"?betNieuw().length:0;
+  return `<button type="button" class="cc-bel cc-bet${n?" nieuw":""}" id="ccBet" data-cc="betalingen" aria-label="Betalingen${n?", "+n+" nieuw":""}" title="Binnengekomen betalingen">${I.euro||"€"}${n?`<i class="groen">${n}</i>`:""}</button>`}
+function ccBetVernieuw(){const el=document.getElementById("ccBet");if(el)el.outerHTML=ccBetKnop()}
 function ccTkVernieuw(){const el=document.getElementById("ccTk");if(el)el.outerHTML=ccTkKnop()}
 function ccActie(a){if(!a)return;const [k,...r]=a.split(":"),v=r.join(":");
   if(k==="tab")return go(v);
@@ -16747,6 +16784,7 @@ function ccActie(a){if(!a)return;const [k,...r]=a.split(":"),v=r.join(":");
   if(k==="klant")return ccKlant(v)?openKlant(v):go("klanten");
   if(k==="f"){const f=state.facturen.find(x=>x.id===v);if(!f)return;return f.soort==="offerte"?openOfferte({id:v}):openFactuur(v)}
   if(k==="tickets")return typeof openTickets==="function"?openTickets():go("communicatie");
+  if(k==="betalingen")return typeof openBetalingen==="function"?openBetalingen():go("facturen");
   if(k==="nieuw"){if(v==="klant")return openNieuweKlant();if(v==="offerte")return openOfferte();if(v==="factuur")return openFactuurForm()}
   if(k==="kies")return ccKies(v);
   if(k==="bellen"){const q=document.getElementById("ccQ");if(q){q.focus();q.placeholder="Typ de naam van de klant om te bellen…"}return}
@@ -18076,13 +18114,15 @@ state.tickets=state.tickets||[];let tkUnsub=null,tkOpen=null,tkVorig=null;
 const TK_CAT={planning:"Planning of afspraak",factuur:"Factuur of betaling",kwaliteit:"Kwaliteit of klacht",toegang:"Toegang",overig:"Overig"};
 const TK_ST={open:["late","Open"],behandeling:["soon","In behandeling"],opgelost:["ok","Opgelost"]};
 const tkNaam=()=>{const n=String((state.me&&(state.me.name||state.me.email))||"").split("@")[0].split(/[.\s_-]/)[0];return n?n[0].toUpperCase()+n.slice(1):""};
-const tkOngelezen=()=>(state.tickets||[]).filter(t=>Number(t.ongelezenTeam)>0);
+const tkOngelezen=()=>(state.tickets||[]).filter(t=>Number(t.ongelezenTeam)>0&&t.status!=="opgelost");
 function liveTickets(){if(!LIVE||tkUnsub)return;
   tkUnsub=fsDb().collection("tickets").orderBy("laatst","desc").limit(300).onSnapshot(s=>{
     state.tickets=s.docs.map(d=>({id:d.id,...d.data()}));
     try{tkKaart()}catch(e){}try{ccTkVernieuw()}catch(e){}if(tkOpen)try{tkLijstTeken()}catch(e){}
+    /* eerst komt vaak een oude kopie uit het geheugen van dit apparaat (bijv. iPad die een paar dagen dicht was): daar geen pop-ups van */
+    if(s.metadata&&s.metadata.fromCache)return;
     const nu_=Object.fromEntries(state.tickets.map(t=>[t.id,Number(t.ongelezenTeam)||0]));
-    if(tkVorig===null){const l=tkOngelezen();if(l.length)tkPopup(l[0],l.length>1?l.length:0)}
+    if(tkVorig===null){const grens=new Date(Date.now()-2*864e5).toISOString(),l=tkOngelezen().filter(t=>t.status!=="opgelost"&&String(t.laatst||"")>grens);if(l.length)tkPopup(l[0],l.length>1?l.length:0)}
     else state.tickets.filter(t=>t.laatsteVan==="klant"&&nu_[t.id]>(tkVorig[t.id]||0)&&!(tkOpen&&tkOpen.id===t.id&&document.hasFocus())).forEach(t=>tkPopup(t,0,!(t.id in tkVorig)));
     tkVorig=nu_},e=>console.error("tickets",e))}
 if(LIVE)setTimeout(function w(){state.loaded?liveTickets():setTimeout(w,700)},900);

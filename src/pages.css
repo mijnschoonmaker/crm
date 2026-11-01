@@ -4538,3 +4538,20 @@ html body:not(#zz) .ajr-card .st-bars .st-col:hover .st-tr em{opacity:1!importan
 /* factuurregels-tabel: koppen nooit per letter afbreken, omschrijving krijgt de ruimte */
 html body .fw-reg th{white-space:nowrap!important}
 html body .fw-reg td:first-child{min-width:220px!important}
+
+/* betalingen: snelknop en lijst */
+.cc-bel i.groen{background:#2e9a5c}
+.cc-bet.nieuw{border-color:#3fb06e;background:#f1fbf5;animation:betKnop 1.8s ease-out infinite}.cc-bet.nieuw svg{color:#2e7a52}
+@keyframes betKnop{0%{box-shadow:0 0 0 0 rgb(63 176 110 / .45)}70%{box-shadow:0 0 0 10px rgb(63 176 110 / 0)}100%{box-shadow:0 0 0 0 rgb(63 176 110 / 0)}}
+@media (prefers-reduced-motion:reduce){.cc-bet.nieuw{animation:none}}
+.bet-ic{background:#e8f5ee!important;color:#2e7a52}
+.bet-tot{display:flex;align-items:baseline;gap:10px;padding:14px 16px;border-radius:14px;background:#f1fbf5;border:1px solid #cfe9d9;margin:4px 0 12px}.bet-tot span{color:var(--muted);font-size:13px}.bet-tot b{font-size:22px;font-weight:650;color:#1f6b45;font-variant-numeric:tabular-nums}.bet-tot small{margin-left:auto;color:var(--muted)}
+.bet-l{display:flex;flex-direction:column;gap:6px;max-height:60vh;overflow:auto}
+.bet-r{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface)}.bet-r:hover{border-color:#cfe9d9;background:#f7fcf9}
+.bet-r.nieuw{border-color:#9fd8b5;background:#f1fbf5}
+.bet-av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;color:#fff;background:hsl(var(--h) 30% 45%);flex:none}
+.bet-t{flex:1;min-width:0}.bet-t b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bet-t small{display:block;font-size:12px;color:var(--muted)}
+.bet-nw{font-style:normal;font-size:11px;font-weight:700;color:#fff;background:#2e9a5c;border-radius:999px;padding:2px 8px}
+.bet-b{font-weight:650;font-variant-numeric:tabular-nums;color:#1f6b45;white-space:nowrap}
+/* telefoon: vier knoppen (geluid, meldingen, tickets, betalingen) + datum + weer op één regel */
+@media(max-width:520px){.cc-tools{gap:7px}.cc-bel{width:35px;height:35px;border-radius:10px}.cc-bel svg{width:17px;height:17px}.cc-wi{font-size:19px}.cc-weer{gap:5px}.cc-weer b{font-size:14px}.cc-dag b{font-size:13.5px}}

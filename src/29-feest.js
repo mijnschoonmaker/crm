@@ -56,7 +56,7 @@ function feest(k){try{
 
 /* ---------- Betaald via Mollie: geld-melding met confetti en kassageluid ---------- */
 let betaalVorig=null;
-function kassa(){try{const A=new (window.AudioContext||window.webkitAudioContext)(),t=A.currentTime,o=A.createGain();o.gain.value=.22;o.connect(A.destination);
+function kassa(){if(S().ccGeluid===false)return;try{const A=new (window.AudioContext||window.webkitAudioContext)(),t=A.currentTime,o=A.createGain();o.gain.value=.22;o.connect(A.destination);
   /* "ka": korte tik, "ching": heldere belletjes met nagalm */
   const n=A.createBufferSource(),b=A.createBuffer(1,A.sampleRate*.05,A.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,3);n.buffer=b;const ng=A.createGain();ng.gain.value=.5;n.connect(ng).connect(o);n.start(t);
   [[2093,.07],[2637,.1],[3136,.13],[4186,.16],[2637,.3],[3520,.34]].forEach(([f,dl])=>{const os=A.createOscillator(),g=A.createGain();os.type="triangle";os.frequency.value=f;g.gain.setValueAtTime(0,t+dl);g.gain.linearRampToValueAtTime(.5,t+dl+.005);g.gain.exponentialRampToValueAtTime(.001,t+dl+.7);os.connect(g).connect(o);os.start(t+dl);os.stop(t+dl+.75)});
@@ -67,7 +67,7 @@ function geldFeest(f){try{
   const bedrag=totals(f).inc,el=document.createElement("div");el.id="geldPop";el.className="geldpop";el.setAttribute("role","status");
   el.innerHTML=`<div class="gp-k">
     <div class="gp-top"><svg class="gp-ic" viewBox="0 0 24 24"><path d="M16.5 7.2A5.8 5.8 0 1 0 16.5 16.8"/><path d="M5.5 10.5h7.5M5.5 13.5h7.5"/></svg><span class="gp-l"><svg viewBox="0 0 24 24">${VINK}</svg>Betaling ontvangen</span><button type="button" class="gp-x" aria-label="Sluiten">${I.x}</button></div>
-    <div class="gp-body"><b class="gp-b" id="geldB">${gpBedrag(0)}</b><span class="gp-w">${esc(cleanName(f.klantNaam||""))}</span><span class="gp-m">Factuur ${esc(f.nummer||"")} · iDEAL · zojuist</span>
+    <div class="gp-body"><b class="gp-b" id="geldB">${gpBedrag(0)}</b><span class="gp-w">${esc(cleanName(f.klantNaam||""))}</span><span class="gp-m">Factuur ${esc(f.nummer||"")} · ${esc(betVia(f))} · zojuist</span>
       <button type="button" class="primary gp-btn" data-geldf="${esc(f.id)}">Bekijk factuur</button></div></div>`;
   document.body.appendChild(el);kassa();
   requestAnimationFrame(()=>{const r=vpR(el);confetti(document.body,{n:70,bron:{x:r.left+r.width/2,y:r.top+40}})});
@@ -77,5 +77,21 @@ function geldFeest(f){try{
   let tm=setTimeout(weg,9000);el.addEventListener("mouseenter",()=>clearTimeout(tm));el.addEventListener("mouseleave",()=>{tm=setTimeout(weg,4000)})}catch(e){console.error(e)}}
 function betaalCheck(){if(!state.loaded||isMw())return;const nu={};state.facturen.forEach(f=>{if(f.soort!=="offerte")nu[f.id]=f.status});
   if(betaalVorig){
-    state.facturen.filter(f=>f.status==="betaald"&&betaalVorig[f.id]&&betaalVorig[f.id]!=="betaald"&&f.betaalwijze==="mollie"&&String(f.betaaldOp||"").slice(0,10)>=iso(addDays(today(),-1))).slice(0,1).forEach(geldFeest)}
-  betaalVorig=nu}
+    state.facturen.filter(f=>f.status==="betaald"&&betaalVorig[f.id]&&betaalVorig[f.id]!=="betaald"&&betAuto(f)&&String(f.betaaldOp||"").slice(0,10)>=iso(addDays(today(),-1))).slice(0,1).forEach(geldFeest)}
+  betaalVorig=nu;try{if(typeof ccBetVernieuw==="function")ccBetVernieuw()}catch(e){}}
+/* binnengekomen betalingen: automatisch verwerkt (iDEAL via Mollie, bankkoppeling of incasso), niet wat je zelf op betaald zet */
+const betAuto=f=>!!f&&f.status==="betaald"&&(f.betaalwijze==="mollie"||!!f.bankTx||(f.betaalwijze==="incasso"&&f.mollieStatus==="paid"));
+const betVia=f=>f.betaalwijze==="mollie"?"iDEAL":f.betaalwijze==="incasso"?"Incasso":f.bankTx?"Bank":f.betaalwijze==="contant"?"Contant":f.betaalwijze==="pin"?"Pin":"Overgemaakt";
+const betTs=f=>String(f.betaaldTs||(f.betaaldOp?f.betaaldOp+"T12:00:00":"")||"");
+const betZienLees=()=>{try{return localStorage.getItem("ms.betZien")||""}catch(e){return""}};
+function betNieuw(){const z=betZienLees()||iso(today())+"T00:00:00";return (state.facturen||[]).filter(f=>f.soort!=="offerte"&&betAuto(f)&&betTs(f)>z)}
+/* lijst met betalingen van de laatste 14 dagen (alle manieren), nieuwste bovenaan */
+function openBetalingen(){const van=iso(addDays(today(),-14)),z=betZienLees()||iso(today())+"T00:00:00";
+  const L=(state.facturen||[]).filter(f=>f.soort!=="offerte"&&f.status==="betaald"&&String(f.betaaldOp||"")>=van).sort((a,b)=>betTs(b).localeCompare(betTs(a)));
+  const som=L.reduce((a,f)=>a+totals(f).inc,0),vd=iso(today()),somVd=L.filter(f=>String(f.betaaldOp||"").slice(0,10)===vd).reduce((a,f)=>a+totals(f).inc,0);
+  openDlg(`<div class="dlg-head"><span class="objic big bet-ic">${I.euro}</span><div style="min-width:0;flex:1"><h3>Betalingen</h3><div class="subt">Ontvangen in de laatste 14 dagen · vandaag ${eur(somVd)}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
+    ${L.length?`<div class="bet-tot"><span>Totaal 14 dagen</span><b>${eur(som)}</b><small>${plural(L.length,"betaling","betalingen")}</small></div><div class="bet-l">${L.map(f=>{const nw=betAuto(f)&&betTs(f)>z,d=String(f.betaaldOp||"").slice(0,10);
+      return `<button type="button" class="bet-r${nw?" nieuw":""}" data-betf="${esc(f.id)}"><span class="bet-av" style="--h:${hue(f.klantNaam||"")}">${esc(initials(cleanName(f.klantNaam||"?")))}</span><span class="bet-t"><b>${esc(cleanName(f.klantNaam||"Klant"))}</b><small>${d===vd?"Vandaag":esc(fmtD(d))} · ${esc(betVia(f))} · ${esc(f.nummer||"")}</small></span>${nw?'<i class="bet-nw">Nieuw</i>':""}<span class="bet-b">${eur(totals(f).inc)}</span></button>`}).join("")}</div>`
+      :`<p class="subt" style="margin:8px 0">Nog geen betalingen in de laatste 14 dagen.</p>`}`);
+  try{localStorage.setItem("ms.betZien",new Date().toISOString())}catch(e){}try{ccBetVernieuw()}catch(e){}
+  dlg.querySelectorAll("[data-betf]").forEach(b=>b.onclick=()=>{const id=b.dataset.betf;dlg.close();openFactuur(id)})}
