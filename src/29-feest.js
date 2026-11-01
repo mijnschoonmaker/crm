@@ -90,7 +90,9 @@ const betVan=f=>{if(f.verstuurdTs)return f.verstuurdTs;const v=String(f.verstuur
 const betSec=f=>{if(f.status!=="betaald")return null;const bo=String(f.betaaldOp||"").slice(0,10),ts=f.betaaldTs||(/^\d{4}-\d{2}-\d{2}$/.test(bo)?bo+"T12:00:00":"");if(!ts)return null;const v=Date.parse(betVan(f)),t=Date.parse(ts);return v>0&&t>0?Math.max(0,Math.round((t-v)/1000)):null};
 const betDuur=sec=>{if(sec==null)return"";const d=Math.floor(sec/86400),u=Math.floor(sec%86400/3600),m=Math.floor(sec%3600/60),x=sec%60,p=[];if(d)p.push(d+(d===1?" dag":" dagen"));if(u)p.push(u+" uur");if(m)p.push(m+" min");if(x||!p.length)p.push(x+" sec");return p.join(" ")};
 /* ranglijst nu: klanten op gemiddelde betaalsnelheid (betaalde facturen van de laatste 12 maanden), zelfde regels als het portaal */
-function betRanglijst(){const sinds=iso(addDays(today(),-365)),per={};(state.facturen||[]).forEach(f=>{if(f.soort==="offerte"||f.status!=="betaald"||!f.klantId||String(f.datum||"")<sinds)return;const s=betSec(f);if(s==null)return;(per[f.klantId]=per[f.klantId]||[]).push(s)});
+/* je eigen klantkaart (zelfde e-mail als je bedrijf) doet niet mee, net als in het portaal */
+const betEigen=()=>{const m=String(S().email||"").trim().toLowerCase(),o=new Set();if(m)(state.klanten||[]).forEach(k=>{if(String(k.email||"").trim().toLowerCase()===m||k.nietInRanglijst===true)o.add(k.id)});return o};
+function betRanglijst(){const sinds=iso(addDays(today(),-365)),per={},eig=betEigen();(state.facturen||[]).forEach(f=>{if(f.soort==="offerte"||f.status!=="betaald"||!f.klantId||eig.has(f.klantId)||String(f.datum||"")<sinds)return;const s=betSec(f);if(s==null)return;(per[f.klantId]=per[f.klantId]||[]).push(s)});
   const l=Object.entries(per).map(([id,a])=>({id,s:a.reduce((x,y)=>x+y,0)/a.length})).sort((a,b)=>a.s-b.s),r={};l.forEach((x,i)=>r[x.id]=i+1);return{r,n:l.length}}
 /* lijst met betalingen van de laatste 14 dagen (alle manieren), nieuwste bovenaan */
 function openBetalingen(){const van=iso(addDays(today(),-14)),z=betZienLees()||iso(today())+"T00:00:00";

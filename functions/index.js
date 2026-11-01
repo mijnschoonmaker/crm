@@ -708,6 +708,7 @@ exports.portaal = P.portaal;
 exports.portaalUitnodigen = P.portaalUitnodigen;
 exports.portaalVoorbeeld = P.portaalVoorbeeld;
 exports.creditsAuto = P.creditsAuto;
+exports.maandWinnaar = P.maandWinnaar;
 
 /* ---------- ramen tellen met AI: foto's per zijde van de woning, terug: stippen per raam met soort ---------- */
 const RT_PROMPT = `Je helpt een Nederlandse glazenwasser het aantal ramen van een woning te tellen. Je krijgt foto's van de zijden van één woning (voorzijde, zijkanten, achterzijde, eventueel extra). Zoek op elke foto ieder raam dat een glazenwasser aan de buitenkant wast, en geef per raam een stip in het midden van het glas.

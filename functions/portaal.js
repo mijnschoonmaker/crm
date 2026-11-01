@@ -96,22 +96,45 @@ module.exports = function maakPortaal(ctx) {
   const betaalSec = f => { if (f.status !== "betaald") return null; const bo = String(f.betaaldOp || f.betaald || "").slice(0, 10), ts = f.betaaldTs || (/^\d{4}-\d{2}-\d{2}$/.test(bo) ? bo + "T12:00:00" : ""); if (!ts) return null;
     const van = Date.parse(vanTs(f) || (f.datum ? f.datum + "T09:00:00" : "")), tot = Date.parse(ts); if (!(van > 0)) return null; return Math.max(0, Math.round((tot - van) / 1000)); };
   const betaalPrecies = f => !!f.betaaldTs;
-  /* ranglijst: wie betaalt gemiddeld het snelst (alle klanten, betaalde facturen van de laatste 12 maanden, op de seconde) */
+  /* ranglijst: wie betaalt gemiddeld het snelst (alle klanten, betaalde facturen van de laatste 12 maanden, op de seconde).
+     Je eigen klantkaart (zelfde e-mail als het bedrijf) telt niet mee. Eén keer per 5 minuten opgehaald. */
+  let _rl = null;
+  async function rangData() {
+    if (_rl && Date.now() - _rl.t < 5 * 60e3) return _rl;
+    const [b, fq, kq] = await Promise.all([bedrijf(), db.collection("facturen").where("status", "==", "betaald").get(), db.collection("klanten").get()]);
+    const eigenMail = String(b.email || "").trim().toLowerCase(), K = new Map();
+    kq.docs.forEach(d => { const k = dec(d.data()); K.set(d.id, { vn: voornaamVan(schoon(k.contact || k.naam)), eigen: !!eigenMail && String(k.email || "").trim().toLowerCase() === eigenMail, uit: k.nietInRanglijst === true }); });
+    const F = [];
+    fq.docs.forEach(d => { const f = d.data(); if (!f.klantId || f.soort === "offerte") return; const kk = K.get(f.klantId); if (!kk || kk.eigen || kk.uit) return; const sec = betaalSec(f); if (sec == null) return;
+      F.push({ klantId: f.klantId, datum: f.datum || "", maand: String(f.betaaldTs ? isoNL(new Date(f.betaaldTs)) : f.betaaldOp || "").slice(0, 7), sec, precies: betaalPrecies(f), incasso: !!(f.incasso || f.betaalwijze === "incasso") }); });
+    return (_rl = { t: Date.now(), F, K });
+  }
   async function betaalRang(klantId) {
-    const sinds = new Date(Date.now() - 365 * DAG).toISOString().slice(0, 10);
-    const q = await db.collection("facturen").where("status", "==", "betaald").get();
-    const per = {};
-    q.docs.forEach(d => { const f = d.data(); if (!f.klantId || f.soort === "offerte" || (f.datum || "") < sinds) return; const sec = betaalSec(f); if (sec == null) return; (per[f.klantId] = per[f.klantId] || []).push({ sec, precies: betaalPrecies(f) }); });
+    const { F } = await rangData(), sinds = new Date(Date.now() - 365 * DAG).toISOString().slice(0, 10), per = {};
+    F.forEach(x => { if (x.datum < sinds) return; (per[x.klantId] = per[x.klantId] || []).push(x); });
     const lijst = Object.entries(per).map(([id, a]) => ({ id, sec: a.reduce((x, y) => x + y.sec, 0) / a.length, n: a.length, precies: a.every(y => y.precies) })).sort((a, b2) => a.sec - b2.sec);
     const i = lijst.findIndex(x => x.id === klantId);
     return { positie: i < 0 ? null : i + 1, sec: i < 0 ? null : Math.round(lijst[i].sec), beste: lijst.length ? Math.round(lijst[0].sec) : null, n: i < 0 ? 0 : lijst[i].n, precies: i < 0 ? false : lijst[i].precies };
+  }
+  /* top 3 van een maand: per klant de snelst betaalde factuur die maand (automatische incasso telt niet mee). Alleen voornamen. */
+  async function maandTop(maand) {
+    const { F, K } = await rangData(), best = {};
+    F.forEach(x => { if (x.maand !== maand || x.incasso) return; if (!best[x.klantId] || x.sec < best[x.klantId].sec) best[x.klantId] = x; });
+    return Object.values(best).sort((a, c) => a.sec - c.sec).slice(0, 3).map(x => ({ klantId: x.klantId, vn: (K.get(x.klantId) || {}).vn || "Klant", sec: x.sec }));
+  }
+  const vorigeMaand = () => { const d = new Date(isoNL() + "T12:00:00Z"); d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth() - 1); return d.toISOString().slice(0, 7); };
+  async function maandTopVoorPortaal(klantId) {
+    const vm = vorigeMaand(), dm = isoNL().slice(0, 7), vast = await db.doc("ranglijst/" + vm).get();
+    const vorige = vast.exists ? (vast.data().top || []) : await maandTop(vm), deze = await maandTop(dm);
+    const zonder = l => l.map((x, i) => ({ plek: i + 1, vn: x.vn, sec: x.sec, jij: x.klantId === klantId }));
+    return { vorige: { maand: vm, top: zonder(vorige) }, deze: { maand: dm, top: zonder(deze) } };
   }
   const snelUren = f => { if (f.status !== "betaald" || !f.betaaldTs) return null; const van = Date.parse(vanTs(f)), tot = Date.parse(f.betaaldTs); if (!(van > 0 && tot >= van)) return null; return Math.round((tot - van) / 36e5 * 10) / 10; };
   const zelfdeDag = f => !!(f.betaaldTs && (f.verstuurdOp || f.gemaakt) && isoNL(new Date(f.betaaldTs)) === isoNL(new Date(vanTs(f))));
   const fStatus = f => f.status === "betaald" ? "betaald" : f.status === "oninbaar" ? "gesloten" : f.verval && f.verval < isoNL() ? "verlopen" : "open";
   const bedrijfInfo = (b, base) => ({ naam: b.naam || "mijnschoonmaker.com", logo: (b.logoMail || b.logo) ? base + "/_blob/" + (b.logoMail || b.logo) : "", telefoon: b.telefoon || "", mobiel: b.mobiel || b.telefoon || "", email: b.email || "", website: b.website || "", iban: b.iban || "", reviewLink: b.reviewLink || "", kleur: b.mailAccent || b.hoofdkleur || "#137a8a",
     voorwaarden: b.voorwaardenPdf ? base + "/_blob/" + b.voorwaardenPdf : "", tijdWeergave: b.portaalTijd || "venster", refAan: b.refAan !== false, refBeloning: b.refBeloning != null && b.refBeloning !== "" ? Number(b.refBeloning) : 20, refWelkom: b.refWelkom != null && b.refWelkom !== "" ? Number(b.refWelkom) : 10, werkStart: b.werkStart || "08:00",
-    credits: { review: 0, beurt: 0, extra: numOf(b.crExtra, 3), aanbevelen: numOf(b.refBeloning, 20), snel: numOf(b.crSnel, 0.5), jaar: 0 } });
+    credits: { review: 0, beurt: 0, extra: numOf(b.crExtra, 3), aanbevelen: numOf(b.refBeloning, 20), snel: numOf(b.crSnel, 0.5), maandTop: numOf(b.crMaandTop, 5), jaar: 0 } });
   const numOf = (v, d) => v != null && v !== "" && !isNaN(Number(v)) ? Number(v) : d;
 
   /* ---------- live meekijken: waar rijdt de glazenwasser (alleen voor klanten van vandaag) ---------- */
@@ -253,6 +276,7 @@ module.exports = function maakPortaal(ctx) {
       documenten: (Array.isArray(k.documenten) ? k.documenten : []).filter(d => d && d.id && d.portaal === true).map(d => ({ naam: String(d.naam || "").slice(0, 120), soort: d.soort || "overig", datum: String(d.datum || "").slice(0, 10), url: fotoUrl(d.id) })).filter(d => d.url),
       facturen, offertes,
       rang: await betaalRang(k.id).catch(e => { console.error("rang", e); return null; }),
+      maandTop: await maandTopVoorPortaal(k.id).catch(e => { console.error("maandtop", e); return null; }),
       live: await liveInfo(S).catch(e => { console.error("live", e); return null; }),
       tickets: { open: tks.filter(t => t.status !== "opgelost").length, ongelezen: tks.reduce((a, t) => a + (Number(t.ongelezenKlant) || 0), 0) },
       verzoeken: vz.docs.map(d => ({ id: d.id, ...d.data() })).filter(v => v.type !== "beoordeling" && v.type !== "toegang" && !v.ticketId).sort((a, b2) => String(b2.op).localeCompare(String(a.op))).slice(0, 8)
@@ -734,5 +758,21 @@ module.exports = function maakPortaal(ctx) {
     } }
     console.log("credits automatisch", [...nieuw.values()].reduce((a, l) => a + l.length, 0));
   }) : null;
-  return { portaal, portaalUitnodigen, portaalVoorbeeld, ticketMelding, refKlant, creditsAuto };
+  /* ---------- snelste betaler van de maand ----------
+     Elke ochtend: is de vorige maand nog niet vastgelegd, dan de top 3 vastleggen (zo ziet iedereen hem in het portaal)
+     en nummer 1 krijgt de maandprijs in credits. Vaste bron+ref (maandtop + maand), dus nooit dubbel. */
+  const maandWinnaar = onSchedule ? onSchedule({ schedule: "5 8 * * *", timeZone: "Europe/Amsterdam", timeoutSeconds: 120, memory: "512MiB" }, async () => {
+    const vm = vorigeMaand(), ref = db.doc("ranglijst/" + vm);
+    if ((await ref.get()).exists) return;
+    _rl = null; const top = await maandTop(vm), b = await bedrijf(), prijs = bedrijfInfo(b, "").credits.maandTop;
+    await ref.set({ maand: vm, top, prijs, op: nu() });
+    const w = top[0]; if (!w || !(prijs > 0)) return;
+    const kref = db.doc("klanten/" + w.klantId);
+    await db.runTransaction(async t => { const ks = await t.get(kref); if (!ks.exists) return; const k = dec(ks.data());
+      if ([...(k.tegoed || []), ...(k.tegoedGebruikt || [])].some(x => x && x.bron === "maandtop" && String(x.ref || "") === vm)) return;
+      const mn = ["januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"][Number(vm.slice(5)) - 1];
+      t.set(kref, { tegoed: [...(Array.isArray(k.tegoed) ? k.tegoed : []), { id: newId("tg"), bedrag: prijs, reden: "Credits: snelste betaler van " + mn, bron: "maandtop", ref: vm, op: isoNL() }] }, { merge: true }); });
+    console.log("maandwinnaar", vm, w.klantId);
+  }) : null;
+  return { portaal, portaalUitnodigen, portaalVoorbeeld, ticketMelding, refKlant, creditsAuto, maandWinnaar };
 };
