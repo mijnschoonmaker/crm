@@ -789,7 +789,7 @@ module.exports = function maakPortaal(ctx) {
       const x = top[i], plek = i + 1, prijs = Number(prijzen[i]) || 0, kref = db.doc("klanten/" + x.klantId);
       let k = null, nieuw = false;
       try {
-        await db.runTransaction(async t => { const ks = await t.get(kref); if (!ks.exists) return; k = dec(ks.data());
+        await db.runTransaction(async t => { const ks = await t.get(kref); if (!ks.exists) return; k = { id: ks.id, ...dec(ks.data()) };
           if (!(prijs > 0) || [...(k.tegoed || []), ...(k.tegoedGebruikt || [])].some(y => y && y.bron === "maandtop" && String(y.ref || "") === vm)) return;
           nieuw = true;
           t.set(kref, { tegoed: [...(Array.isArray(k.tegoed) ? k.tegoed : []), { id: newId("tg"), bedrag: prijs, reden: "Credits: " + (plek === 1 ? "snelste betaler" : plek + "e plek snelste betalers") + " van " + mn, bron: "maandtop", ref: vm, op: isoNL() }] }, { merge: true }); });
