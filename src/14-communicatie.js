@@ -230,16 +230,19 @@ function vCommunicatie(){
       <div class="seg">${[["alle","Alle"],["email","Email"],["sms","SMS"]].map(([v,l])=>`<button type="button" data-act="tf" data-v="${v}" aria-pressed="${F===v}">${l}</button>`).join("")}</div></div>
     <div class="panels" style="margin-bottom:16px"><button type="button" class="featc fx" data-act="mailstijl"><span class="fx-ic">${I.mail}</span><span class="fx-t"><em>Opmaak</em><b>E-mail opmaak</b><small>Klassiek, Modern of Luxe, met je eigen accentkleur</small></span><span class="fx-pil">${esc(stl)}</span>${I.right}</button>
       <button type="button" class="featc fx" data-act="setedit" data-v="review"><span class="fx-ic">${I.spark}</span><span class="fx-t"><em>Automatisch</em><b>Reviewverzoek</b><small>Tekst, wachttijd en reviewlink, verstuurd na een factuur</small></span><span class="fx-pil">${S().reviewLink?"Aan":"Instellen"}</span>${I.right}</button></div>
-    <div class="splitrow" style="margin-bottom:14px"><p class="subt" style="margin:0;flex:1 1 300px">Eén kaart per doel. Schakel binnen de kaart tussen <b>E-mail</b> en <b>SMS</b>. Woorden zoals <code>[name.customer]</code> worden per klant ingevuld.</p>
+    <div class="splitrow" style="margin-bottom:14px"><p class="subt" style="margin:0;flex:1 1 300px">Dit zijn de teksten die je klanten krijgen, geordend op moment. <b>Automatisch</b> betekent dat Mansard de tekst zelf gebruikt; de rest verstuur je zelf. Woorden tussen haken, zoals <code>[name.customer]</code>, vult Mansard per klant in.</p>
       <span class="tpl-kn" style="display:flex;gap:8px;flex-wrap:wrap;max-width:100%;min-width:0"><button type="button" data-act="tplstd">${I.copy}Standaard laden</button><button type="button" class="primary" data-act="tplnew">${I.plus}Nieuwe template</button></span></div>`;
     if(!keys.length)return html+empty("Geen templates gevonden","Probeer een andere zoekterm.");
-    return html+`<div class="tplgrid">${keys.map(k=>{const t=T[k],v=state.tplSide[k]||(t.mail?"email":"sms"),sv=state.sjablonen[k]&&TPL[k];
-      const isS=v!=="email",vc=[...new Set(((isS?t.sms||"":(t.onderwerp||"")+(t.mail||""))).match(/\[[a-z0-9_]+\.[a-z_]+\]|\{\w+\}/g)||[])].length,cat=t.cat||TPLGUESS[k]||"Algemeen",cg=CATGRAD[cat]||CATGRAD.Algemeen;
-      return `<div class="tplc"><div class="tplh"><span class="objic gl" style="--g:${cg}">${isS?I.chat:I.mail}</span><div style="flex:1;min-width:0"><b>${esc(t.naam)}</b><small>${[t.mail&&"1 e-mail",t.sms&&"1 sms"].filter(Boolean).join(" · ")||"leeg"}</small></div>
-        ${t.mail&&t.sms?`<div class="seg mini"><button type="button" data-act="tplsw" data-k="${esc(k)}" data-v="email" aria-pressed="${v==="email"}">E-mail</button><button type="button" data-act="tplsw" data-k="${esc(k)}" data-v="sms" aria-pressed="${v==="sms"}">SMS</button></div>`:""}</div>
-        <div class="tplm"><b>${esc(t.doel||t.naam)}</b>${t.actief===false?`<span class="pill late">Inactief</span>`:""}<span class="pill ${t.eigen?"plan":sv?"soon":"brand"}">${t.eigen?"Eigen":sv?"Aangepast":"Standaard"}</span></div>
-        ${v==="email"?`<div class="tpls">${esc(t.onderwerp)}</div>`:""}<p class="tplb">${esc((v==="email"?t.mail:t.sms).replace(/\s+/g," ").slice(0,150))}${(v==="email"?t.mail:t.sms).length>150?"…":""}</p>
-        <div class="tplf"><span>${I.spark}${plural(vc,"variabele","variabelen")}</span><span style="flex:1"></span><button type="button" class="tiny ghost" data-act="tplview" data-k="${esc(k)}">${I.eye}Bekijken</button><button type="button" class="tiny ghost" data-act="tpledit" data-k="${esc(k)}" style="color:var(--brand)">${I.pencil}Aanpassen</button></div></div>`}).join("")}</div>`;
+    const kaart=k=>{const t=T[k],v=state.tplSide[k]||(t.mail?"email":"sms"),sv=state.sjablonen[k]&&TPL[k],w=tplWanneer(k,t);
+      const isS=v!=="email",vc=[...new Set(((isS?t.sms||"":(t.onderwerp||"")+(t.mail||""))).match(/\[[a-z0-9_]+\.[a-z_]+\]|\{\w+\}/g)||[])].length,body=(v==="email"?t.mail:t.sms)||"";
+      return `<div class="tplc tpl2${t.actief===false?" uit":""}"><div class="tplh"><span class="tpl-ic">${isS?I.chat:I.mail}</span><div style="flex:1;min-width:0"><b>${esc(t.naam)}</b><small>${esc(t.doel||"")}</small></div>
+        ${t.mail&&t.sms?`<div class="seg mini"><button type="button" data-act="tplsw" data-k="${esc(k)}" data-v="email" aria-pressed="${v==="email"}">E-mail</button><button type="button" data-act="tplsw" data-k="${esc(k)}" data-v="sms" aria-pressed="${v==="sms"}">SMS</button></div>`:`<span class="tpl-kan">${t.mail?"Alleen e-mail":"Alleen sms"}</span>`}</div>
+        <div class="tpl-when ${w[0]?"auto":"hand"}">${w[0]?I.bell:I.send}<span><b>${w[0]?"Automatisch":"Zelf versturen"}</b> · ${esc(w[1])}</span></div>
+        <div class="tpl-prev">${v==="email"?`<div class="tpls">${esc(t.onderwerp)}</div>`:""}<p class="tplb">${esc(body.replace(/\s+/g," ").slice(0,170))}${body.length>170?"…":""}</p></div>
+        <div class="tplf"><span class="pill ${t.eigen?"plan":sv?"soon":""}">${t.eigen?"Eigen":sv?"Aangepast":"Standaard"}</span>${t.actief===false?`<span class="pill late">Inactief</span>`:""}<span class="tpl-vc">${plural(vc,"variabele","variabelen")}</span><span style="flex:1"></span><button type="button" class="tiny ghost" data-act="tplview" data-k="${esc(k)}">${I.eye}Bekijken</button><button type="button" class="tiny tpl-aan" data-act="tpledit" data-k="${esc(k)}">${I.pencil}Aanpassen</button></div></div>`};
+    const gebruikt=new Set();
+    return html+TPL_SECTIES.map(([id,titel,uitleg,ic,lijst])=>{const ks=(id==="eigen"?keys.filter(k=>!gebruikt.has(k)):keys.filter(k=>lijst.includes(k))).sort((a,b)=>lijst.indexOf(a)-lijst.indexOf(b));ks.forEach(k=>gebruikt.add(k));if(!ks.length)return"";
+      return `<section class="tpl-sec"><div class="tpl-sech"><span class="tpl-secic">${I[ic]||I.mail}</span><div><h3>${esc(titel)}</h3><p>${esc(uitleg)}</p></div><span class="tpl-secn">${ks.length}</span></div><div class="tplgrid">${ks.map(kaart).join("")}</div></section>`}).join("");
   }
   const q=state.mq.toLowerCase(),pp=state.mpp||25;
   const log=[...bs].sort((a,b)=>String(b.op).localeCompare(String(a.op))).filter(m=>(state.mch==="alle"||m.kanaal===state.mch)&&(state.mst==="alle"||ms(m)===state.mst)&&(!q||[m.klantNaam,m.tekst,m.naar,m.onderwerp].join(" ").toLowerCase().includes(q)));
@@ -307,6 +310,34 @@ function openTplView(k){
   $("#tvMode").onclick=()=>{mode=mode==="code"?"prev":"code";draw()};
   $("#tvB").addEventListener("click",e=>{const b=e.target.closest("[data-copy]");if(b)copy(b.dataset.copy==="mail"?t.mail:t.sms,b)});
 }
+const TPL_SECTIES=[
+  ["nieuw","Nieuwe klant","Van offerte tot bevestigde bestelling","offerte",["offerte","voorlopig","definitief","welkom"]],
+  ["afspraak","Afspraken","Aankondigen, herinneren en wijzigen","cal2",["aankondiging","herinnering","afspraak","onderweg","wijzigen","weer","annuleren","uitloop"]],
+  ["geld","Facturen & betalen","Factuur en herinneringen bij openstaande bedragen","euro",["factuur","aanmaning","wik","afkondiging"]],
+  ["relatie","Na het werk","Review en persoonlijke aandacht","spark",["review","verjaardag"]],
+  ["groep","Groepsberichten","Eén bericht aan meerdere klanten tegelijk","megaphone",["nieuwsbrief","update","prijs","kerst","zomer","vrij"]],
+  ["eigen","Eigen templates","Templates die je zelf hebt gemaakt","pencil",[]]];
+function tplWanneer(k,t){const s=S();const M={
+  offerte:[0,"Vanuit Offertes, met de offerte als bijlage"],
+  voorlopig:[1,"Na een aanmelding via je website"],
+  definitief:[0,"Na de tellingcontrole of een getekende offerte"],
+  welkom:[0,"Voor nieuwe klanten"],
+  aankondiging:[0,"Met de planningsmail vanuit Planning"],
+  herinnering:[s.dagAan!==false,s.dagAan!==false?(Number(s.dagDagen)||1)+" dag vooraf om "+(s.dagTijd||"18:00")+", staat klaar in Communicatie":"Dagherinnering staat uit"],
+  afspraak:[1,"Voor klanten die hun afspraak eerst bevestigen"],
+  onderweg:[0,"Vanaf Vandaag, als je onderweg bent"],
+  wijzigen:[0,"Vanuit Planning als een tijd of dienst verandert"],
+  weer:[0,"Vanuit Planning, bv. bij slecht weer"],
+  annuleren:[0,"Vanuit Planning als je een afspraak afzegt"],
+  uitloop:[0,"Groepsbericht als je planning uitloopt"],
+  factuur:[1,"Bij elke factuur die je verstuurt"],
+  aanmaning:[1,"Na de vervaldatum, volgens je factuurherinneringen"],
+  wik:[1,"Laatste stap van je factuurherinneringen"],
+  afkondiging:[0,"Na de beurt"],
+  review:[1,"Na een factuur, als het reviewverzoek aan staat"],
+  verjaardag:[1,"Staat klaar op de verjaardag van de klant"],
+  vrij:[0,"Leeg begin voor een los bericht"]};
+  return M[k]||(TPL_SECTIES[4][4].includes(k)?[0,"Via Nieuwsbrief of Verstuur bericht"]:[0,"Via Verstuur bericht"])}
 const TPLGUESS={aankondiging:"Aankondiging",afkondiging:"Afkondiging",weer:"Afspraak",wijzigen:"Afspraak",afspraak:"Afspraak",annuleren:"Afspraak",factuur:"Factuur",aanmaning:"Herinnering",herinnering:"Herinnering",offerte:"Offerte",review:"Review",welkom:"Welkom",voltooid:"Afkondiging",nieuwsbrief:"Algemeen",vrij:"Algemeen"};
 const TPLCAT=["Aankondiging","Afkondiging","Afspraak","Factuur","Herinnering","Offerte","Review","Welkom","Algemeen"];
 function openTplEdit(k){

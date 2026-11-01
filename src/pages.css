@@ -4609,3 +4609,41 @@ html body .sc3-zoek{flex-direction:row!important}html body .sc3-zoek svg{width:1
 @media (max-width:600px){.sc3-grid{grid-template-columns:1fr}.sc3-plaat{height:100px}.sc3-zoek{margin-left:0;width:100%}.sc3-gk h2{font-size:18px}}
 /* telefoon/tablet: Mansard-logo in het midden van de bovenbalk, de knop rechts blijft staan */
 @media (max-width:1023px){.topbar{position:sticky}.topbar>.logo{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);margin:0!important;z-index:1}}
+/* templates: per moment gegroepeerd */
+.tpl-sec{margin:26px 0 8px}
+.tpl-sec:first-of-type{margin-top:8px}
+.tpl-sech{display:flex;align-items:center;gap:14px;margin:0 2px 14px}
+.tpl-sech h3{margin:0;font-size:19px;font-weight:700;letter-spacing:-.01em}
+.tpl-sech p{margin:2px 0 0;color:var(--muted);font-size:13.5px}
+.tpl-sech>div{flex:1;min-width:0}
+.tpl-secic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none;background:linear-gradient(145deg,#2b3242,#141923);color:#fff;box-shadow:0 6px 14px -8px rgb(20 25 35 / .55),inset 0 1px 0 rgb(255 255 255 / .12)}
+.tpl-secic svg{width:19px;height:19px}
+.tpl-secn{font-size:12px;font-weight:700;color:var(--muted);background:var(--surface-2);border-radius:999px;padding:4px 10px}
+.tplc.tpl2{gap:12px;padding:18px 18px 14px;border-radius:20px}
+.tpl2 .tplh{align-items:flex-start}
+.tpl2 .tplh b{font-size:17.5px}
+.tpl2 .tplh small{display:block;margin-top:2px;font-size:13px;line-height:1.35}
+.tpl-ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none;background:var(--surface-2);color:var(--ink,#1c2230)}
+.tpl-ic svg{width:19px;height:19px}
+.tpl-kan{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:6px 4px;white-space:nowrap}
+.tpl-when{display:flex;align-items:flex-start;gap:8px;font-size:13px;line-height:1.4;padding:9px 12px;border-radius:12px;background:var(--surface-2);color:var(--ink,#1c2230)}
+.tpl-when svg{width:15px;height:15px;flex:none;margin-top:1px;color:var(--muted)}
+.tpl-when.auto{background:color-mix(in srgb,#2f9a63 9%,var(--surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,#2f9a63 22%,transparent)}
+.tpl-when.auto svg,.tpl-when.auto b{color:#23794c}
+.tpl-prev{border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;background:var(--surface)}
+.tpl-prev .tpls{border-left:0;padding-left:0;font-size:13.5px}
+.tpl-prev .tplb{font-size:13.5px}
+.tpl2 .tplf{gap:8px;flex-wrap:wrap}
+.tpl2 .tplf .pill{font-size:11px;padding:3px 9px;border-radius:999px;background:var(--surface-2);color:var(--muted);font-weight:700}
+.tpl2 .tplf .pill.soon{background:var(--brand-soft);color:var(--brand)}
+.tpl2 .tplf .pill.late{background:var(--late-bg);color:var(--late)}
+.tpl-vc{font-size:12.5px;color:var(--muted)}
+.tpl2 .tpl-aan{background:var(--ink,#1c2230);color:#fff;border-color:transparent}
+.tpl2 .tpl-aan svg{color:#fff}
+.tpl2.uit{opacity:.7}
+.tpl2 .tpl-aan,.tpl2 .tplf .ghost{text-transform:uppercase;letter-spacing:.08em;font-size:11px;font-weight:700}
+@media (max-width:520px){.tpl2 .tplh{flex-wrap:wrap}.tpl2 .tplh .seg.mini{width:100%}.tpl2 .tplh .seg.mini button{flex:1}.tpl2 .tpl-kan{display:none}
+.tpl2 .tplh b{word-break:normal;overflow-wrap:anywhere;hyphens:auto}
+.tpl2 .tplf>span[style*="flex:1"]{flex-basis:100%!important;height:0}.tpl2 .tplf .tiny{flex:1;justify-content:center}
+.tpl-kn{width:100%}.tpl-kn>button{flex:1;min-width:0;padding-left:10px;padding-right:10px;letter-spacing:.05em}
+.tpl-sech h3{font-size:17px}}
