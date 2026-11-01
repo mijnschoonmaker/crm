@@ -56,3 +56,8 @@ if(typeof window!=="undefined"&&LIVE)setTimeout(function w(){if(typeof state==="
     const dg=m.map(x=>Number(x.dagen)).join(","),oud=!m.length||(m.length===4&&(dg==="3,10,21,21"||dg==="7,14,21,28"));
     if(oud)saveSettings({fhM:FHM.map(x=>({...x})),termijn:Number(s.termijn)||14,fhWetV:3},"Herinneringen: dag 15, 22, 29 en 36 na de factuur").catch(()=>{});
     else save("instellingen","bedrijf",{...state.settings,fhWetV:3}).then(()=>{state.settings={...state.settings,fhWetV:3}}).catch(()=>{})}catch(e){console.error(e)}},2500);
+
+/* eenmalig (op verzoek van Robin): nieuwe standaardtekst voor de WIK-brief overnemen in de instellingen */
+if(typeof window!=="undefined"&&LIVE)setTimeout(function w(){if(typeof state==="undefined"||!state.loaded||!(S().fhWetV>=3))return setTimeout(w,1200);
+  try{const s=S();if(s.fhWetV>=4||(typeof isMw==="function"&&isMw()))return;const m=(Array.isArray(s.fhM)&&s.fhM.length?s.fhM:FHM).map(x=>({...x})),i=m.findIndex(x=>x.wik),d=FHM.find(x=>x.wik);
+    if(i>=0&&d)m[i]={...m[i],mail:d.mail};saveSettings({fhM:m,fhWetV:4},"Nieuwe tekst WIK-brief staat erin").catch(()=>{})}catch(e){console.error(e)}},4000);
