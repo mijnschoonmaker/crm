@@ -21,6 +21,8 @@ service cloud.firestore {
     function eersteBedrijf() { return gebruiker() && !beheerMail() && mijnBedrijf() == "mijnschoonmaker"; }
     function vanBedrijf(b) { return gebruiker() && !eigenaar() && !beheerMail() && mijnBedrijf() == b; }
     function bedrijfsEigenaar(b) { return vanBedrijf(b) && mijnDoc().get("rol", "") == "eigenaar"; }
+    // proef voorbij of abonnement verlopen: de server zet "dicht" op het bedrijf; dan kan er niets meer worden gewijzigd (inzien blijft kan)
+    function bedrijfOpen(b) { return get(/databases/$(database)/documents/bedrijven/$(b)).data.get("dicht", false) != true; }
 
     // Mansard-platform: foto's op de instellingenkaarten (per branche). Iedereen met een account leest, alleen Robin plaatst.
     match /platform/kaartfotos {
@@ -64,7 +66,8 @@ service cloud.firestore {
         allow write: if bedrijfsEigenaar(b);
       }
       match /{col}/{id} {
-        allow read, write: if vanBedrijf(b) && col in ["klanten","beurten","facturen","routes","instellingen","berichten","kosten","aanvragen","geplandeMails","akkoord","portaalVerzoeken","tickets","ticketBerichten","tellers","live","banktx"];
+        allow read: if vanBedrijf(b) && col in ["klanten","beurten","facturen","routes","instellingen","berichten","kosten","aanvragen","geplandeMails","akkoord","portaalVerzoeken","tickets","ticketBerichten","tellers","live","banktx"];
+        allow write: if vanBedrijf(b) && bedrijfOpen(b) && col in ["klanten","beurten","facturen","routes","instellingen","berichten","kosten","aanvragen","geplandeMails","akkoord","portaalVerzoeken","tickets","ticketBerichten","tellers","live","banktx"];
         allow read: if beheer() && col in ["klanten","beurten","facturen","routes","instellingen","berichten","kosten","aanvragen","geplandeMails","akkoord","portaalVerzoeken","tickets","ticketBerichten","tellers","live","banktx"];
       }
     }

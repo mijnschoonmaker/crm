@@ -22,7 +22,7 @@ module.exports = ({ rawDb, T, onCall, onRequestRaw, HttpsError, nu, mollie, HOST
     const b = rawDb.batch();
     b.set(rawDb.doc("bedrijven/" + bid), { naam, eigenaar: e, telefoon: tel, plaats, status: "proef", proefTot, proefDemo: true, plan: PLAN, gebruikers: 1, aangemaakt: nu() });
     b.set(rawDb.doc("gebruikers/" + e), { bedrijf: bid, rol: "eigenaar", naam: String((req.auth.token && req.auth.token.name) || ""), toegevoegd: nu() });
-    b.set(rawDb.doc("bedrijven/" + bid + "/instellingen/bedrijf"), { naam, email: e, telefoon: tel, plaats, btw: 21, incl: true, termijn: 14, liveMail: true, portaalKnop: true, aangemaakt: nu() });
+    b.set(rawDb.doc("bedrijven/" + bid + "/instellingen/bedrijf"), { naam, email: e, telefoon: tel, plaats, btw: 21, incl: true, termijn: 14, liveMail: true, portaalKnop: true, crSnel: 0, crMaandTop: 0, crMaandTop2: 0, crMaandTop3: 0, aangemaakt: nu() }); /* credits-acties zet een nieuw bedrijf zelf aan */
     await b.commit();
     try { await rawDb.collection("aanmeldingen").add({ bid, naam, email: e, telefoon: tel, plaats, op: nu() }); } catch (x) {}
     return { bid, proefTot };
@@ -42,7 +42,7 @@ module.exports = ({ rawDb, T, onCall, onRequestRaw, HttpsError, nu, mollie, HOST
   /* na een mislukte betaling nog 14 dagen gewoon doorwerken; daarna dicht tot er (via "Nu betalen") betaald is */
   const RESPIJT = 14, respijtTot = b => { const x = new Date(String(b.foutOp || nu()).slice(0, 10) + "T12:00:00Z"); x.setUTCDate(x.getUTCDate() + RESPIJT); return x.toISOString().slice(0, 10); };
   const plusMaand = d => { const x = new Date(d + "T12:00:00Z"); x.setUTCMonth(x.getUTCMonth() + 1); return x.toISOString().slice(0, 10); };
-  async function sleutel() { const pl = (await rawDb.doc("platform/geheim").get()).data() || {}, g = (await rawDb.doc("geheim/config").get()).data() || {}; const k = pl.mansardMollieKey || g.mansardMollieKey || g.mollieKey; if (!k) throw new HttpsError("failed-precondition", "Betalen is nog niet ingesteld bij Mansard."); return k; }
+  async function sleutel() { const pl = (await rawDb.doc("platform/geheim").get()).data() || {}, g = (await rawDb.doc("geheim/config").get()).data() || {}; const k = pl.mansardMollieKey || g.mansardMollieKey; /* nooit de Mollie van mijnschoonmaker: abonnementsgeld hoort op de rekening van Mansard */ if (!k) throw new HttpsError("failed-precondition", "Betalen is nog niet ingesteld bij Mansard."); return k; }
   async function aantalGebruikers(bid) { return (await rawDb.collection("gebruikers").where("bedrijf", "==", bid).get()).size; }
   const exclVoor = (n, plan = PLAN) => r2(plan.prijs + Math.max(0, n - plan.inbegrepen) * (plan.extraPrijs || 0));
   /* wat Mollie afschrijft: incl. btw */
@@ -112,6 +112,7 @@ module.exports = ({ rawDb, T, onCall, onRequestRaw, HttpsError, nu, mollie, HOST
       } else if (p.subscriptionId && ["failed", "expired", "canceled"].includes(p.status)) {
         await ref.set({ achterstand: true, laatsteFout: p.status, foutOp: b.achterstand && b.foutOp ? b.foutOp : nu() }, { merge: true });
       }
+      await herbereken(bid);
       res.send("ok");
     } catch (e) { console.error("mansardHook", e); res.status(500).send("fout"); }
   });
@@ -141,17 +142,22 @@ module.exports = ({ rawDb, T, onCall, onRequestRaw, HttpsError, nu, mollie, HOST
     await eigenaarVan(req.auth); const bid = T.bid(), ref = rawDb.doc("bedrijven/" + bid), b = (await ref.get()).data() || {};
     if (b.mollieSub && b.mollieCustomer) { const key = await sleutel(); try { await mollie(key, "customers/" + b.mollieCustomer + "/subscriptions/" + b.mollieSub, { method: "DELETE" }); } catch (e) { console.error(e); } }
     await ref.set({ status: "opgezegd", opgezegdOp: nu(), mollieSub: "" }, { merge: true });
+    await herbereken(bid);
     return { tot: b.betaaldTot || b.proefTot || "" };
   });
 
   /* mag dit bedrijf het CRM gebruiken? (proef nog niet voorbij, of een actief/opgezegd-maar-betaald abonnement) */
-  async function magGebruiken() {
-    if (T.isLegacy()) return true;
-    const b = (await rawDb.doc("bedrijven/" + T.bid()).get()).data() || {}, d = vandaag();
+  const openVoor = b => { const d = vandaag(); b = b || {};
     if (b.status === "actief") return !b.achterstand || respijtTot(b) >= d;
     if (b.status === "proef") return String(b.proefTot || "") >= d;
     if (b.status === "opgezegd") return String(b.betaaldTot || b.proefTot || "") >= d;
-    return false;
+    return false; };
+  /* zet "dicht" op het bedrijf (de database-regels laten dan niets meer wijzigen); alleen schrijven als het verandert */
+  async function herbereken(bid) { if (!T.BID_RE.test(String(bid || ""))) return; const ref = rawDb.doc("bedrijven/" + bid), s = await ref.get(); if (!s.exists) return;
+    const b = s.data() || {}, dicht = !openVoor(b); if ((b.dicht === true) !== dicht) await ref.set({ dicht, dichtSinds: dicht ? nu() : "" }, { merge: true }); return dicht; }
+  async function magGebruiken() {
+    if (T.isLegacy()) return true;
+    return openVoor((await rawDb.doc("bedrijven/" + T.bid()).get()).data() || {});
   }
 
   /* ---------- Mansard-beheer (alleen robin@mansard.nl, met bevestigde tweestapsverificatie als die aan staat) ----------
@@ -178,10 +184,10 @@ module.exports = ({ rawDb, T, onCall, onRequestRaw, HttpsError, nu, mollie, HOST
     }
     if (actie === "proefVerlengen") {
       const n = Math.max(1, Math.min(180, Math.round(Number(d.dagen) || 0))), basis = String(b.proefTot || "") > vandaag() ? b.proefTot : vandaag(), tot = plusDagen(basis, n);
-      await ref.set({ proefTot: tot, ...(b.status === "actief" ? {} : { status: "proef" }) }, { merge: true }); await log(bid, "Proefperiode verlengd met " + n + " dagen, tot " + tot); return { proefTot: tot };
+      await ref.set({ proefTot: tot, ...(b.status === "actief" ? {} : { status: "proef" }) }, { merge: true }); await herbereken(bid); await log(bid, "Proefperiode verlengd met " + n + " dagen, tot " + tot); return { proefTot: tot };
     }
-    if (actie === "blokkeren") { if (b.status === "geblokkeerd") return { ok: true }; await ref.set({ status: "geblokkeerd", vorigeStatus: b.status || "proef", geblokkeerdOp: nu(), blokReden: String(d.reden || "").slice(0, 200) }, { merge: true }); await log(bid, "Toegang geblokkeerd" + (d.reden ? ": " + String(d.reden).slice(0, 200) : "")); return { ok: true }; }
-    if (actie === "deblokkeren") { const st = b.vorigeStatus && b.vorigeStatus !== "geblokkeerd" ? b.vorigeStatus : "proef"; await ref.set({ status: st, vorigeStatus: "", blokReden: "" }, { merge: true }); await log(bid, "Toegang weer open (" + st + ")"); return { status: st }; }
+    if (actie === "blokkeren") { if (b.status === "geblokkeerd") return { ok: true }; await ref.set({ status: "geblokkeerd", vorigeStatus: b.status || "proef", geblokkeerdOp: nu(), blokReden: String(d.reden || "").slice(0, 200) }, { merge: true }); await herbereken(bid); await log(bid, "Toegang geblokkeerd" + (d.reden ? ": " + String(d.reden).slice(0, 200) : "")); return { ok: true }; }
+    if (actie === "deblokkeren") { const st = b.vorigeStatus && b.vorigeStatus !== "geblokkeerd" ? b.vorigeStatus : "proef"; await ref.set({ status: st, vorigeStatus: "", blokReden: "" }, { merge: true }); await herbereken(bid); await log(bid, "Toegang weer open (" + st + ")"); return { status: st }; }
     if (actie === "notitie") { const t = String(d.tekst || "").slice(0, 2000); await ref.set({ beheerNotitie: t }, { merge: true }); await log(bid, "Notitie bijgewerkt"); return { ok: true }; }
     if (actie === "gebruikerVerwijderen") {
       const m = String(d.email || "").toLowerCase(), g = await rawDb.doc("gebruikers/" + m).get();
@@ -205,5 +211,26 @@ module.exports = ({ rawDb, T, onCall, onRequestRaw, HttpsError, nu, mollie, HOST
     throw new HttpsError("invalid-argument", "Onbekende actie.");
   });
 
-  return { functies: { bedrijfAanmaken, abonnement, abonnementStart, abonnementBijwerken, abonnementPlan, abonnementStoppen, mansardHook, beheer }, PLAN, magGebruiken };
+  /* ---------- sleutels van het Mansard-platform (Mollie voor abonnementen, afzender voor mails van nieuwe bedrijven) ----------
+     Alleen voor de eigenaar van Mansard, met tweestapsverificatie. Sleutels worden nooit teruggestuurd, alleen of ze er zijn. */
+  const PLATFORM_MAILS = ["robin@mansard.nl", "robin@mijnschoonmaker.com"];
+  const platformSleutels = onCall(async req => {
+    const e = emailVan(req.auth); if (!PLATFORM_MAILS.includes(e)) throw new HttpsError("permission-denied", "Alleen voor de eigenaar van Mansard.");
+    if (mfaOk && !(await mfaOk(req.auth))) throw new HttpsError("permission-denied", "Bevestig eerst je inlogcode (tweestapsverificatie).");
+    const ref = rawDb.doc("platform/geheim"), d = req.data || {};
+    if (d.actie === "zet") {
+      const upd = {};
+      if (d.mansardMollieKey != null && String(d.mansardMollieKey).trim()) { const k = String(d.mansardMollieKey).trim(); if (!/^(live|test)_[A-Za-z0-9]{20,}$/.test(k)) throw new HttpsError("invalid-argument", "Dit lijkt geen Mollie API-sleutel (begint met live_ of test_)."); upd.mansardMollieKey = k; }
+      if (d.platformAfzender != null) { const a = String(d.platformAfzender).trim().toLowerCase(); if (a && !/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/.test(a)) throw new HttpsError("invalid-argument", "Vul een geldig e-mailadres in."); if (/mijnschoonmaker/.test(a)) throw new HttpsError("invalid-argument", "Gebruik een adres van Mansard, niet van mijnschoonmaker."); upd.platformAfzender = a; }
+      if (d.platformAfzenderNaam != null) upd.platformAfzenderNaam = String(d.platformAfzenderNaam).trim().slice(0, 60);
+      if (d.platformBrevoKey != null && String(d.platformBrevoKey).trim()) { const k = String(d.platformBrevoKey).trim(); if (!/^xkeysib-/.test(k)) throw new HttpsError("invalid-argument", "Dit lijkt geen Brevo API-sleutel (begint met xkeysib-)."); upd.platformBrevoKey = k; }
+      upd.bijgewerkt = nu(); upd.door = e;
+      await ref.set(upd, { merge: true });
+      try { await rawDb.collection("beheerLog").add({ bid: "", tekst: "Platform-sleutels bijgewerkt: " + Object.keys(upd).filter(k => !["bijgewerkt", "door"].includes(k)).join(", "), door: e, op: nu() }); } catch (x) {}
+    }
+    const p = (await ref.get()).data() || {};
+    return { mollie: p.mansardMollieKey ? (String(p.mansardMollieKey).startsWith("test_") ? "test" : "live") : "", afzender: p.platformAfzender || "", afzenderNaam: p.platformAfzenderNaam || "", brevo: !!p.platformBrevoKey, bijgewerkt: p.bijgewerkt || "" };
+  });
+
+  return { functies: { platformSleutels, bedrijfAanmaken, abonnement, abonnementStart, abonnementBijwerken, abonnementPlan, abonnementStoppen, mansardHook, beheer }, PLAN, magGebruiken, herbereken, openVoor };
 };

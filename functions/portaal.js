@@ -57,10 +57,10 @@ module.exports = function maakPortaal(ctx) {
     const t = tok();
     await db.doc("portaalLogin/" + sha(t)).set({ klantId: k.id, email: lc(email), exp: Date.now() + dagen * DAG, op: nu() });
     const url = basisUrl(req) + "/portaal?l=" + t, vn = voornaamVan(schoon(k.contact || k.naam));
-    const tekst = `Beste ${vn},\n\nMet de knop hieronder opent u uw persoonlijke klantomgeving van ${b.naam || "mijnschoonmaker.com"}. Daar ziet u wanneer wij weer langskomen, uw facturen en bezoeken, en kunt u ons eenvoudig iets laten weten.\n\nDe knop werkt ${dagen > 1 ? dagen + " dagen" : "een uur"} en is alleen voor u bedoeld. U hoeft geen wachtwoord te onthouden.\n\nMet vriendelijke groet,\n${b.naam || "mijnschoonmaker.com"}`;
-    const afz = g.afzender || b.email || "info@mijnschoonmaker.com";
-    await brevoSend(g.brevoKey, { sender: { name: b.naam || "mijnschoonmaker", email: afz }, replyTo: { email: b.email || afz }, to: [{ email, name: schoon(k.naam) || undefined }],
-      subject: (dagen > 1 ? "Uw persoonlijke klantomgeving" : "Uw inloglink") + " · " + (b.naam || "mijnschoonmaker.com"), htmlContent: mailHtml(tekst, b, { knop: { url, tekst: "Open mijn klantomgeving" } }), textContent: tekst + "\n\n" + url, tags: ["portaal"] });
+    const tekst = `Beste ${vn},\n\nMet de knop hieronder opent u uw persoonlijke klantomgeving van ${b.naam || "Mansard"}. Daar ziet u wanneer wij weer langskomen, uw facturen en bezoeken, en kunt u ons eenvoudig iets laten weten.\n\nDe knop werkt ${dagen > 1 ? dagen + " dagen" : "een uur"} en is alleen voor u bedoeld. U hoeft geen wachtwoord te onthouden.\n\nMet vriendelijke groet,\n${b.naam || "Mansard"}`;
+    const afz = g.afzender || b.email;
+    await brevoSend(g.brevoKey, { sender: { name: b.naam || "Mansard", email: afz }, replyTo: { email: b.email || afz }, to: [{ email, name: schoon(k.naam) || undefined }],
+      subject: (dagen > 1 ? "Uw persoonlijke klantomgeving" : "Uw inloglink") + " · " + (b.naam || "Mansard"), htmlContent: mailHtml(tekst, b, { knop: { url, tekst: "Open mijn klantomgeving" } }), textContent: tekst + "\n\n" + url, tags: ["portaal"] });
   }
   async function sessie(req) {
     const m = /^Bearer ((?:b[a-z0-9]{7}_)?[a-f0-9]{64})$/.exec(String(req.headers.authorization || ""));
@@ -138,7 +138,7 @@ module.exports = function maakPortaal(ctx) {
   const snelUren = f => { if (f.status !== "betaald" || !f.betaaldTs) return null; const van = Date.parse(vanTs(f)), tot = Date.parse(f.betaaldTs); if (!(van > 0 && tot >= van)) return null; return Math.round((tot - van) / 36e5 * 10) / 10; };
   const zelfdeDag = f => !!(f.betaaldTs && (f.verstuurdOp || f.gemaakt) && isoNL(new Date(f.betaaldTs)) === isoNL(new Date(vanTs(f))));
   const fStatus = f => f.status === "betaald" ? "betaald" : f.status === "oninbaar" ? "gesloten" : f.verval && f.verval < isoNL() ? "verlopen" : "open";
-  const bedrijfInfo = (b, base) => ({ naam: b.naam || "mijnschoonmaker.com", logo: (b.logoMail || b.logo) ? base + "/_blob/" + (b.logoMail || b.logo) : "", telefoon: b.telefoon || "", mobiel: b.mobiel || b.telefoon || "", email: b.email || "", website: b.website || "", iban: b.iban || "", reviewLink: b.reviewLink || "", kleur: b.mailAccent || b.hoofdkleur || "#137a8a",
+  const bedrijfInfo = (b, base) => ({ naam: b.naam || "Mansard", logo: (b.logoMail || b.logo) ? base + "/_blob/" + (b.logoMail || b.logo) : "", telefoon: b.telefoon || "", mobiel: b.mobiel || b.telefoon || "", email: b.email || "", website: b.website || "", iban: b.iban || "", reviewLink: b.reviewLink || "", kleur: b.mailAccent || b.hoofdkleur || "#137a8a",
     voorwaarden: b.voorwaardenPdf ? base + "/_blob/" + b.voorwaardenPdf : "", tijdWeergave: b.portaalTijd || "venster", refAan: b.refAan !== false, refBeloning: b.refBeloning != null && b.refBeloning !== "" ? Number(b.refBeloning) : 20, refWelkom: b.refWelkom != null && b.refWelkom !== "" ? Number(b.refWelkom) : 10, werkStart: b.werkStart || "08:00",
     credits: { review: 0, beurt: 0, extra: numOf(b.crExtra, 3), aanbevelen: numOf(b.refBeloning, 20), snel: numOf(b.crSnel, 0.5), maandTop: numOf(b.crMaandTop, 5), maandTop2: numOf(b.crMaandTop2, 2.5), maandTop3: numOf(b.crMaandTop3, 1), jaar: 0 } });
   const numOf = (v, d) => v != null && v !== "" && !isNaN(Number(v)) ? Number(v) : d;
@@ -292,7 +292,7 @@ module.exports = function maakPortaal(ctx) {
         const rv = vz.docs.map(d => d.data()).filter(x => x.type === "review"); const rvDone = alle.some(t => t.bron === "review");
         return { saldo: r2(tegoed.reduce((a, t) => a + Number(t.bedrag), 0)), verdiend: r2(alle.reduce((a, t) => a + t.bedrag, 0)), regels: alle.slice(0, 30), tarieven: bedrijfInfo(b, base).credits,
           review: rvDone ? "toegekend" : rv.length ? "aangevraagd" : "open", beoordeeld: beurten.filter(x => x.beoordeling).length }; })(),
-      aanbevelen: { code: k.refCode, link: base + "/aanbevolen/" + k.refCode, lijst: aanbevolen, tegoed: r2(tegoed.reduce((a, t) => a + Number(t.bedrag), 0)), opHold: aanbevolen.filter(x => ["aangemeld", "akkoord", "eerste"].includes(x.status)).length, tegoedRegels: tegoed.map(t => ({ bedrag: Number(t.bedrag), reden: t.reden || "" })), verdiend: r2((k.tegoedGebruikt || []).reduce((a, t) => a + (Number(t.bedrag) || 0), 0)) }
+      aanbevelen: { code: k.refCode, link: base + "/aanbevolen/" + k.refCode + (T.isLegacy() ? "" : "?b=" + T.bid()), lijst: aanbevolen, tegoed: r2(tegoed.reduce((a, t) => a + Number(t.bedrag), 0)), opHold: aanbevolen.filter(x => ["aangemeld", "akkoord", "eerste"].includes(x.status)).length, tegoedRegels: tegoed.map(t => ({ bedrag: Number(t.bedrag), reden: t.reden || "" })), verdiend: r2((k.tegoedGebruikt || []).reduce((a, t) => a + (Number(t.bedrag) || 0), 0)) }
     };
   }
 
@@ -461,7 +461,7 @@ module.exports = function maakPortaal(ctx) {
       /* na het betalen via Mollie: korte bedankpagina, ook zonder in te loggen (het factuurnummer-id is niet te raden) */
       /* vaste betaallink uit de factuurmail: maakt bij elke klik zo nodig een verse Mollie-betaling (oude verlopen na korte tijd) */
       if (pad.startsWith("/b/") && req.method === "GET") {
-        const t = pad.slice(3), terug = basisUrl(req) + "/portaal";
+        const t = pad.slice(3), terug = basisUrl(req) + "/portaal" + (T.isLegacy() ? "" : "?b=" + T.bid());
         if (!/^(?:b[a-z0-9]{7}_)?[a-f0-9]{24,64}$/.test(t)) { res.redirect(302, terug); return; }
         const q = await db.collection("facturen").where("betaalToken", "==", t).limit(1).get();
         const f = q.empty ? null : q.docs[0];
@@ -651,11 +651,11 @@ module.exports = function maakPortaal(ctx) {
     const opg = t.status === "opgelost";
     const st = opg ? "Goed nieuws: wij hebben uw ticket opgelost. Is er toch nog iets niet goed? Reageer dan gewoon in het ticket." : "Er is een nieuw antwoord op uw ticket:";
     const aanhef = `Beste ${voornaamVan(schoon(k.contact || k.naam))},\n\n${st}`;
-    const groet = `Met vriendelijke groet,\n${b.naam || "mijnschoonmaker.com"}`;
+    const groet = `Met vriendelijke groet,\n${b.naam || "Mansard"}`;
     const tekst = `${aanhef}\n\n**${t.nummer} · ${t.onderwerp}**\n${String(t.laatsteTekst || "").slice(0, 400)}\n\nMet de knop hieronder opent u het ticket direct.\n\n${groet}`;
     const tm = ticketMailBlok(t, opg, b);
-    const afz = g.afzender || b.email || "info@mijnschoonmaker.com";
-    await brevoSend(g.brevoKey, { sender: { name: b.naam || "mijnschoonmaker", email: afz }, replyTo: { email: b.email || afz }, to: [{ email, name: schoon(k.naam) || undefined }], subject: `${t.nummer}: ${t.status === "opgelost" ? "opgelost" : "nieuw antwoord"} · ${b.naam || "mijnschoonmaker.com"}`, htmlContent: mailHtml(aanhef, b, { knop: { url, tekst: opg ? "Ticket bekijken" : "Antwoord lezen" }, na: tm.na, style: tm.css, ticket: tm.ticket, onder: groet }), textContent: tekst.replace(/\*\*/g, "") + "\n\n" + url, tags: ["portaal", "ticket"] });
+    const afz = g.afzender || b.email;
+    await brevoSend(g.brevoKey, { sender: { name: b.naam || "Mansard", email: afz }, replyTo: { email: b.email || afz }, to: [{ email, name: schoon(k.naam) || undefined }], subject: `${t.nummer}: ${t.status === "opgelost" ? "opgelost" : "nieuw antwoord"} · ${b.naam || "Mansard"}`, htmlContent: mailHtml(aanhef, b, { knop: { url, tekst: opg ? "Ticket bekijken" : "Antwoord lezen" }, na: tm.na, style: tm.css, ticket: tm.ticket, onder: groet }), textContent: tekst.replace(/\*\*/g, "") + "\n\n" + url, tags: ["portaal", "ticket"] });
     await ts.ref.set({ laatsteMailKlant: nu() }, { merge: true });
     return { ok: true };
   });
@@ -754,10 +754,10 @@ module.exports = function maakPortaal(ctx) {
     if (jubileum.length) { const g = await geheim(); if (g.brevoKey) for (const [k, n] of jubileum) {
       const email = String(k.email || "").trim(); if (!/@/.test(email)) continue;
       try {
-        const vn = voornaamVan(schoon(k.contact || k.naam)), naam = b.naam || "mijnschoonmaker.com";
+        const vn = voornaamVan(schoon(k.contact || k.naam)), naam = b.naam || "Mansard";
         const onderwerp = `${n} jaar klant: dank u wel! · ${naam}`;
         const tekst = `Beste ${vn},\n\nVandaag bent u precies ${n === 1 ? "één jaar" : n + " jaar"} klant bij ons. Dank u wel voor uw vertrouwen!\n\nAls bedankje hebben wij **${cr.jaar} credits (€ ${cr.jaar})** voor u klaargezet. Die gaan automatisch van uw volgende factuur af; u hoeft niets te doen. In uw klantportaal ziet u uw credits altijd terug.\n\nMet vriendelijke groet,\n${naam}`;
-        const afz = g.afzender || b.email || "info@mijnschoonmaker.com";
+        const afz = g.afzender || b.email;
         await brevoSend(g.brevoKey, { sender: { name: naam, email: afz }, replyTo: { email: b.email || afz }, to: [{ email, name: schoon(k.naam) || undefined }], subject: onderwerp, htmlContent: mailHtml(tekst, b, { portaal: await portaalUrl(k.id, email) }) });
         await db.doc("berichten/" + newId("m")).set({ klantId: k.id, klantNaam: k.naam || "", naar: email, kanaal: "email", sjabloon: "jubileum", onderwerp, tekst, status: "verstuurd", verstuurdOp: nu(), op: nu(), door: "automatisch" });
       } catch (e) { console.error("jubileummail", k.id, e.message); }
@@ -811,7 +811,7 @@ module.exports = function maakPortaal(ctx) {
       const email = String((k && k.email) || "").trim();
       if (!k || !g.brevoKey || !/@/.test(email) || (prijs > 0 && !nieuw)) continue;
       try {
-        const m = await winnaarMail(plek, x, mn, prijs, b), afz = g.afzender || b.email || "info@mijnschoonmaker.com";
+        const m = await winnaarMail(plek, x, mn, prijs, b), afz = g.afzender || b.email;
         await brevoSend(g.brevoKey, { sender: { name: b.naam || "", email: afz }, replyTo: { email: b.email || afz }, to: [{ email, name: schoon(k.naam) || undefined }], subject: m.onderwerp, htmlContent: mailHtml(m.tekst, b, { na: m.na, onder: m.onder, portaal: await portaalUrl(k.id, email) }) });
         await db.doc("berichten/" + newId("m")).set({ klantId: k.id, klantNaam: k.naam || "", naar: email, kanaal: "email", sjabloon: "maandtop", onderwerp: m.onderwerp, tekst: m.tekst + "\n\n" + m.onder, status: "verstuurd", verstuurdOp: nu(), op: nu(), door: "automatisch" });
       } catch (e) { console.error("maandtop mail", x.klantId, e.message); }

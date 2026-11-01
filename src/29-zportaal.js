@@ -42,7 +42,7 @@ function refCodeNieuw(k){const n=String(k.contact||k.naam||"").trim(),s=n.includ
   const b=(cleanName(s).split(/\s+/)[0]||"").normalize("NFD").replace(/[^A-Za-z]/g,"").toUpperCase().slice(0,6)||"VRIEND",bezet=new Set(state.klanten.map(x=>x.refCode).filter(Boolean));
   for(let i=0;i<60;i++){const c=b+(10+Math.floor(Math.random()*90));if(!bezet.has(c))return c}return b+Math.random().toString(36).slice(2,6).toUpperCase()}
 async function refCodeZorg(id){const k=state.klanten.find(x=>x.id===id);if(!k)return"";if(k.refCode)return k.refCode;const c=refCodeNieuw(k);await save("klanten",k.id,{...strip(k),refCode:c});return c}
-const refLink=c=>(LIVE?location.origin:"https://app.mansard.nl")+"/aanbevolen/"+encodeURIComponent(c);
+const refLink=c=>(LIVE?location.origin:"https://app.mansard.nl")+"/aanbevolen/"+encodeURIComponent(c)+(LIVE&&window.ZEEM_BID&&window.ZEEM_BID!=="mijnschoonmaker"?"?b="+window.ZEEM_BID:"");
 /* koppelen aan een aanbrenger: alleen als deze klant nog niet aan iemand gekoppeld is; welkomstkorting maar één keer */
 function refKoppelPatch(k,r){if(!r||!refAan()||(k&&k.aanbevolenDoor))return{};
   const w=refWelkom(),heeft=k&&[...(k.tegoed||[]),...(k.tegoedGebruikt||[])].some(t=>t&&(t.bron==="welkom"||/^Welkomstkorting/.test(String(t.reden||""))));

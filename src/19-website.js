@@ -409,7 +409,7 @@ function websiteBody(o){const e=esc,IC={
   const H='<svg viewBox="0 0 24 24"><path d="M4.5 10.4 12 4.2l7.5 6.2v8.4a1.4 1.4 0 0 1-1.4 1.4h-3.4v-5a1 1 0 0 0-1-1h-3.4a1 1 0 0 0-1 1v5H5.9a1.4 1.4 0 0 1-1.4-1.4z"/></svg>';
   const bus=String(o.bus||"").replace(/id="rv/g,'id="ms').replace(/url\(#rv/g,"url(#ms");
   const wg=(d,st)=>`<div class="weg" aria-hidden="true" style="--d:${d}s;${st||""}">${[[4,40],[13,32],[22,46],[34,36],[46,42],[58,34],[69,44],[81,36],[92,40]].map(([x,w])=>`<span class="h" style="left:${x}%;width:${w}px">${H}</span>`).join("")}<i class="r"></i><span class="bus">${bus}</span></div>`,weg=wg(0);
-  const naam=e(o.naam||"mijnschoonmaker"),regio=o.plaats?` in ${e(o.plaats)} en omgeving`:"",tel=String(o.telefoon||"").trim(),telH=tel.replace(/[^\d+]/g,"");
+  const naam=e(o.naam||"Glasbewassing"),regio=o.plaats?` in ${e(o.plaats)} en omgeving`:"",tel=String(o.telefoon||"").trim(),telH=tel.replace(/[^\d+]/g,"");
   const wa=o.whatsapp?`https://wa.me/${e(o.whatsapp)}?text=${encodeURIComponent("Hallo, ik heb een vraag over glasbewassing.")}`:"";
   const logo=o.logo?`<img src="${o.logo}" alt="${naam}">`:`<span>${naam}</span>`;
   const portaal=o.portaal||"";
@@ -437,7 +437,7 @@ function websiteBody(o){const e=esc,IC={
         <div class="pp-ring"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" class="t"/><circle cx="50" cy="50" r="44" class="v"/></svg><span><b>0</b><small>dagen</small></span></div></div>
         <p class="pp-s" data-pp-sub>Rond 11:10 · we zijn onderweg</p></div>
       <div class="pp-lv"><div class="pp-map" data-pp-map>${PP_KAART}<div class="pp-ov"><span class="pp-lijn" data-pp-lijn></span><span class="pp-huis" style="left:73.3%;top:80%"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg></span><span class="pp-auto" data-pp-bus><span class="pp-pl"></span><span class="pp-rot" data-pp-rot>${PP_BUS}</span></span></div></div>
-        <div class="pp-info"><span class="pp-car">${PP_AUTO}</span><div class="pp-tx"><small class="pp-st"><i></i>Live</small><b data-pp-t>Nog 2 adressen voor u</b><span data-pp-s2>Robin is in de buurt</span></div><div class="pp-eta"><small>Verwacht</small><b data-pp-eta>± 11:10</b></div></div></div>
+        <div class="pp-info"><span class="pp-car">${PP_AUTO}</span><div class="pp-tx"><small class="pp-st"><i></i>Live</small><b data-pp-t>Nog 2 adressen voor u</b><span data-pp-s2>We zijn in de buurt</span></div><div class="pp-eta"><small>Verwacht</small><b data-pp-eta>± 11:10</b></div></div></div>
     </div>
   </div>
   <div class="zweef" aria-hidden="true"><span class="p-ic zw-live"><i></i></span><div><b>Wij zijn onderweg</b><small>Live te volgen in uw klantportaal</small></div></div></div>
@@ -550,7 +550,7 @@ function websiteBody(o){const e=esc,IC={
 
 async function websiteDelen(){const fv=k=>{const el=typeof form!=="undefined"&&form&&form.querySelector(`[data-k="${k}"]`);return el?el.value:null};const s=S(),lg=await loadLogo();const wa=String(s.webWa||waNr(s.telefoon)||"").replace(/\D/g,"");
   const o={naam:s.naam,telefoon:s.telefoon,email:s.email,adres:s.adres,postcode:s.postcode,plaats:s.plaats,kvk:s.kvk,whatsapp:wa,logo:lg?await kleinLogo(lg.url):"",
-    portaal:LIVE?location.origin+"/portaal":"",werkApi:LIVE?location.origin+"/api/portaal/werk"+(window.ZEEM_BID&&window.ZEEM_BID!=="mijnschoonmaker"?"?b="+window.ZEEM_BID:""):"",score:String(fv("webScore")??s.webScore??"4,8").trim(),reviewUrl:String(fv("webReviewUrl")||s.webReviewUrl||"https://www.google.com/search?q=mijnschoonmaker.com+Reviews").trim(),refBeloning:s.refBeloning!=null&&s.refBeloning!==""?Number(s.refBeloning):20,refWelkom:s.refWelkom!=null&&s.refWelkom!==""?Number(s.refWelkom):10,crExtra:s.crExtra??3,voorwaarden:s.webVoorwaarden||s.voorwaarden||"",siteBase:LIVE?location.origin:"https://crm.mijnschoonmaker.com",mollie:!!s.liveMollie,bus:typeof RV_BUS!=="undefined"?RV_BUS:""};
+    portaal:LIVE?location.origin+"/portaal"+(window.ZEEM_BID&&window.ZEEM_BID!=="mijnschoonmaker"?"?b="+window.ZEEM_BID:""):"",werkApi:LIVE?location.origin+"/api/portaal/werk"+(window.ZEEM_BID&&window.ZEEM_BID!=="mijnschoonmaker"?"?b="+window.ZEEM_BID:""):"",score:String(fv("webScore")??s.webScore??"4,8").trim(),reviewUrl:String(fv("webReviewUrl")||s.webReviewUrl||"https://www.google.com/search?q="+encodeURIComponent((s.naam||"")+" reviews")).trim(),refBeloning:s.refBeloning!=null&&s.refBeloning!==""?Number(s.refBeloning):20,refWelkom:s.refWelkom!=null&&s.refWelkom!==""?Number(s.refWelkom):10,crExtra:s.crExtra??3,voorwaarden:s.webVoorwaarden||s.voorwaarden||"",siteBase:LIVE?location.origin:"https://crm.mijnschoonmaker.com",mollie:!!s.liveMollie,bus:typeof RV_BUS!=="undefined"?RV_BUS:""};
   return {body:websiteBody(o),calc:await klantCalcHtml(wa),o}}
 /* bonnetje: echt afscheuren langs de perforatie, met rafelrand en papiersnippers */
 const WEB_JS=`root.querySelectorAll("[data-pp]").forEach(function(pp){if(pp._ms)return;pp._ms=1;
@@ -569,8 +569,8 @@ const WEB_JS=`root.querySelectorAll("[data-pp]").forEach(function(pp){if(pp._ms)
     lijn.style.left=x1+"px";lijn.style.top=y1+"px";lijn.style.width=Math.max(0,L-26)+"px";lijn.style.transform="rotate("+Math.atan2(dy,dx)+"rad)";lijn.style.opacity=L>44?1:0;
     var voor=l<72.5?2:l<192.5?1:0,klaar=l>=LT-3,km=Math.max(.1,(LT-l)/LT*1.4),k=voor+"|"+klaar+"|"+(voor===0&&!klaar?km.toFixed(1):"");
     if(k!==laatst){laatst=k;
-      tE.textContent=klaar?"We zijn bij u":voor===0?"Robin is onderweg naar u":"Nog "+voor+" "+(voor===1?"adres":"adressen")+" voor u";
-      sE.textContent=klaar?"Uw ramen worden nu gewassen":voor===0?(km<.3?"Bijna bij u":"Nog "+km.toFixed(1).replace(".",",")+" km"):"Robin is in de buurt";
+      tE.textContent=klaar?"We zijn bij u":voor===0?"We zijn onderweg naar u":"Nog "+voor+" "+(voor===1?"adres":"adressen")+" voor u";
+      sE.textContent=klaar?"Uw ramen worden nu gewassen":voor===0?(km<.3?"Bijna bij u":"Nog "+km.toFixed(1).replace(".",",")+" km"):"We zijn in de buurt";
       eE.textContent=klaar?"nu":voor===2?"± 11:10":voor===1?"± 11:06":"± 11:0"+Math.min(9,Math.max(2,Math.round(2+km*5)));
       hE.textContent=klaar?"We zijn bij u aan het werk":voor===0?"U bent de volgende":"Rond 11:10 · we zijn onderweg"}
     if(pp.isConnected)requestAnimationFrame(tik)}
@@ -643,7 +643,7 @@ root.querySelectorAll("[data-werk]").forEach(function(sec){if(sec._ms)return;sec
 const WEB_FONTS='<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">';
 /* losse pagina: voor de voorbeeldweergave en voor wie geen Framer gebruikt */
 function websiteHtml(p,crm){const calc=crm?p.calc.replace(/<head([^>]*)>/i,m=>m+"<script>window.ZEEM_CRM=1<\/script>"):p.calc;
-  return `<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(p.o.naam||"mijnschoonmaker")} · Glasbewassing</title>
+  return `<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(p.o.naam||"Glasbewassing")} · Glasbewassing</title>
 <meta name="description" content="Glasbewassing${p.o.plaats?" in "+esc(p.o.plaats)+" en omgeving":""}. Bereken direct uw prijs met een foto van uw woning.">${WEB_FONTS}<style>html,body{margin:0;background:#f3f6f7;scroll-behavior:smooth;overflow-x:hidden;max-width:100%}${WEB_CSS}</style></head>
 <body><div class="ms">${p.body}</div><script>(function(root){${WEB_JS}})(document)<\/script><script>/* interne links: zelf scrollen (in een voorbeeldvenster zou de browser anders naar het CRM gaan) */
 document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a[href^='#']");if(!a)return;e.preventDefault();var id=a.getAttribute("href").slice(1),d=id==="top"?document.body:document.getElementById(id);var m=document.getElementById("msm");if(m)m.checked=false;if(d)d.scrollIntoView({behavior:"smooth",block:"start"})});
@@ -651,7 +651,7 @@ document.addEventListener("click",function(e){var a=e.target.closest&&e.target.c
 window.addEventListener("message",function(e){if(e.source!==f.contentWindow||!e.data)return;if(e.data.type==="zeem-calc-height")f.style.height=e.data.h+"px";if(e.data.type==="zeem-calc-full"){var on=!!e.data.on;f.style.cssText=on?"position:fixed;inset:0;width:100vw;height:100dvh;z-index:2147483647;border:0;background:#fff":"display:block;width:1px;min-width:100%;border:0;height:"+f.style.height;document.documentElement.style.overflow=on?"hidden":""}});
 if(window.parent!==window){window.addEventListener("message",function(e){if(!e.data||!/^zeem-aanvraag/.test(e.data.type||""))return;if(e.source===f.contentWindow)parent.postMessage(e.data,"*");else if(e.source===parent)f.contentWindow.postMessage(e.data,"*")});var post=function(){parent.postMessage({type:"zeem-calc-height",h:document.documentElement.scrollHeight},"*")};new ResizeObserver(post).observe(document.body)}})()<\/script></body></html>`}
 /* Framer: één code component met alles erin */
-function websiteFramer(p){return `// Website ${String(p.o.naam||"mijnschoonmaker").replace(/\n/g," ")} — Framer code component (gemaakt in het CRM)
+function websiteFramer(p){return `// Website ${String(p.o.naam||"Glasbewassing").replace(/\n/g," ")} — Framer code component (gemaakt in het CRM)
 // Zo zet u hem online (ongeveer 20 minuten):
 // 1. Maak een gratis account op framer.com en kies "New project" › "Blank".
 // 2. Links bij Assets › Code: klik op + › "New code file" (component). Noem hem Website.

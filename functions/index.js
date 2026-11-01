@@ -35,8 +35,9 @@ const onCall = (o, f) => { if (typeof o === "function") { f = o; o = {}; }
 const onRequest = (o, f) => { if (typeof o === "function") { f = o; o = {}; }
   return _onRequest(o, async (req, res) => { const b = T.bidUitReq(req); if (b !== T.LEGACY && !(await bestaat(b))) { res.status(404).send("Onbekend bedrijf"); return; } return T.metBedrijf(b, () => f(req, res)); }); };
 /* geplande taken draaien voor elk bedrijf apart */
+/* bedrijven waarvan de proef of het abonnement is verlopen ("dicht") slaan we over: geen mails of credits meer voor een CRM dat niet betaald wordt */
 const onSchedule = (o, f) => _onSchedule(o, async ev => {
-  let lijst = [T.LEGACY]; try { lijst = lijst.concat((await rawDb.collection("bedrijven").get()).docs.filter(d => !["gestopt", "verwijderd"].includes(d.data().status)).map(d => d.id)); } catch (e) { console.error("bedrijven", e); }
+  let lijst = [T.LEGACY]; try { lijst = lijst.concat((await rawDb.collection("bedrijven").get()).docs.filter(d => !["gestopt", "verwijderd"].includes(d.data().status) && d.data().dicht !== true).map(d => d.id)); } catch (e) { console.error("bedrijven", e); }
   for (const b of lijst) { try { await T.metBedrijf(b, () => f(ev)); } catch (e) { console.error("taak", b, e); } }
 });
 const bucket = () => admin.storage().bucket();
@@ -48,8 +49,10 @@ const newId = p => p + Date.now().toString(36) + crypto.randomBytes(3).toString(
 const BEV = require("./beveiliging")({ admin, db, bucket, onCall, onSchedule, HttpsError, crypto, EIGENAAR, BEHEER });
 const geheim = async () => { const t = (await db.doc("geheim/config").get()).data() || {}; if (T.isLegacy()) return t;
   /* nieuwe bedrijven: de mail- en AI-sleutels van het platform, hun eigen Mollie- en banksleutels */
-  const p = (await rawDb.doc("geheim/config").get()).data() || {};
-  return { brevoKey: p.brevoKey, aiKey: p.aiKey, afzender: p.platformAfzender || p.afzender, hookToken: p.hookToken, ...t }; };
+  /* mail via het platform alleen met een eigen Mansard-afzender (instellen bij Instellingen › Mansard-platform); nooit als mijnschoonmaker */
+  const p = (await rawDb.doc("geheim/config").get()).data() || {}, pl = (await rawDb.doc("platform/geheim").get()).data() || {};
+  const pAfz = pl.platformAfzender || p.platformAfzender || "", pKey = pAfz ? (pl.platformBrevoKey || p.brevoKey) : undefined;
+  return { brevoKey: pKey, aiKey: p.aiKey, afzender: pAfz || undefined, afzenderNaam: pl.platformAfzenderNaam || undefined, hookToken: p.hookToken, ...(t.brevoKey ? t : Object.fromEntries(Object.entries(t).filter(([k]) => k !== "afzender"))) }; };
 /* logo voor in mails: als ingesloten afbeelding (zoals bij facturen en offertes), zodat mailprogramma's hem niet blokkeren als "externe afbeelding" */
 const MAILLOGO = { id: "", url: "", ratio: 0 };
 /* breedte/hoogte uit een PNG- of JPEG-bestand lezen (voor een logo met vaste maten in mails) */
@@ -78,14 +81,19 @@ const nlDatum = (d = new Date()) => new Intl.DateTimeFormat("nl-NL", { timeZone:
 const nlTijd = (d = new Date()) => new Intl.DateTimeFormat("nl-NL", { timeZone: "Europe/Amsterdam", hour: "2-digit", minute: "2-digit" }).format(d);
 async function leesAsset(id) { if (!id) return null; try { const f = bucket().file("assets/" + id); const [[m], [buf]] = await Promise.all([f.getMetadata(), f.download()]); return { bytes: buf, type: m.contentType || "" }; } catch (e) { return null; } }
 async function volgNummer() { const ref = db.doc("tellers/overzicht"); const n = await db.runTransaction(async t => { const s = await t.get(ref); const v = (s.exists ? s.data().n : 1800) + 1; t.set(ref, { n: v }); return v; }); return dagNL().slice(2, 4) + "-" + String(n).padStart(6, "0"); }
-function bedrijfModel(b, logo) { return { naam: b.naam || "mijnschoonmaker.com", adres: b.adres || "", pcPlaats: [b.postcode, b.plaats].filter(Boolean).join(" "), telefoon: b.telefoon || "", email: b.email || "", kvk: b.kvk || "", btwnr: b.btwnr || "", iban: b.iban || "", bic: b.bic || "", logo }; }
+function bedrijfModel(b, logo) { return { naam: b.naam || "Mansard", adres: b.adres || "", pcPlaats: [b.postcode, b.plaats].filter(Boolean).join(" "), telefoon: b.telefoon || "", email: b.email || "", kvk: b.kvk || "", btwnr: b.btwnr || "", iban: b.iban || "", bic: b.bic || "", logo }; }
 const voornaamVan = naam => { const n = String(naam || "").replace(/[\[\]()*<>"`]/g, "").trim(); if (n.includes(",")) return n.split(",").slice(1).join(",").trim() || n; return n.split(/\s+/)[0] || n; };
 const TPL_STD = {
+  maandtop: { onderwerp: "[cup.ranking] [place.ranking] snelste betalers van [month.ranking] · [name.company]", mail: "Beste [firstname.customer],\n\nGefeliciteerd! In [month.ranking] stond u op de [place.ranking] van onze snelste betalers. U betaalde uw factuur in [time.ranking]. Hartelijk dank voor uw snelle betaling, daar zijn wij erg blij mee.\n\n[block.ranking]\n\nWij hebben [credits.ranking] ([amount.ranking]) extra voor u bijgeschreven. Die gaan automatisch van uw eerstvolgende factuur af; u hoeft daar niets voor te doen.\n\nIn uw klantportaal ziet u uw credits en de top 3 van de maand. Elke maand maakt u weer kans: betaal uw factuur direct met de iDEAL-knop in de mail of in uw klantportaal.\n\nMet vriendelijke groet,\n[name.company]" },
+  voorlopig: { onderwerp: "[name.company] - Voorlopig bestellingsoverzicht [nr.invoice]", mail: "Beste [firstname.customer],\n\nBedankt voor uw bestelling bij [name.company].\nIn de bijlage vindt u uw voorlopige bestellingsoverzicht en onze algemene voorwaarden.\n\nUw eerste bezoek\nTijdens uw eerste bezoek voeren we de door u bestelde diensten uit. Dit eerste bezoek noemen we de 0-beurt. We controleren daarbij ook of de opgegeven aantallen overeenkomen met de situatie ter plaatse. Mocht hierin een verschil zitten, dan kan dit gevolgen hebben voor de prijs. Meer informatie hierover vindt u in onze algemene voorwaarden.\nDe planning\nWe plannen uw woning in op een passende route, waarbij we afspraken zoveel mogelijk per omgeving combineren. Hierdoor kan het eerste bezoek iets langer op zich laten wachten. Houd rekening met een wachttijd van ongeveer 2 tot 8 weken.\n\nNa uw eerste bezoek komen we iedere 8 weken bij u langs. Twee dagen voor iedere afspraak ontvangt u een e-mail met de datum en het tijdstip.\nZodra uw eerste bezoek is ingepland, ontvangt u hiervan bericht.\n\nMet vriendelijke groet,\n[name.company]\n[phone.company]" },
+  definitief: { onderwerp: "[name.company] - Definitief bestellingsoverzicht [nr.invoice]", mail: "Beste [firstname.customer],\n\nHartelijk dank voor uw vertrouwen in [name.company].\nBijgaand ontvangt u het definitieve bestellingsoverzicht van de door u gekozen diensten.\n\nUw overeenkomst heeft een standaardlooptijd van één jaar.\nNa deze periode zetten wij de dienstverlening voort volgens de afgesproken frequentie, totdat de overeenkomst wordt beëindigd conform onze algemene voorwaarden.\nOp deze overeenkomst zijn onze algemene voorwaarden van toepassing.\n\nMet vriendelijke groet,\n[name.company]" }
+};
+const TPL_STD_EIGEN = { /* teksten van het eerste bedrijf (mijnschoonmaker) */
   maandtop: { onderwerp: "[cup.ranking] [place.ranking] snelste betalers van [month.ranking] · [name.company]", mail: "Beste [firstname.customer],\n\nGefeliciteerd! In [month.ranking] stond u op de [place.ranking] van onze snelste betalers. U betaalde uw factuur in [time.ranking]. Hartelijk dank voor uw snelle betaling, daar zijn wij erg blij mee.\n\n[block.ranking]\n\nWij hebben [credits.ranking] ([amount.ranking]) extra voor u bijgeschreven. Die gaan automatisch van uw eerstvolgende factuur af; u hoeft daar niets voor te doen.\n\nIn uw klantportaal ziet u uw credits en de top 3 van de maand. Elke maand maakt u weer kans: betaal uw factuur direct met de iDEAL-knop in de mail of in uw klantportaal.\n\nMet vriendelijke groet,\n[name.company]" },
   voorlopig: { onderwerp: "[name.company] - Voorlopig bestellingsoverzicht [nr.invoice]", mail: "Beste [firstname.customer],\n\nBedankt voor uw bestelling via mijnschoonmaker.com.\nIn de bijlage vindt u uw voorlopige bestellingsoverzicht en onze algemene voorwaarden.\n\nUw eerste bezoek\nTijdens uw eerste bezoek voeren we de door u bestelde diensten uit. Dit eerste bezoek noemen we de 0-beurt. We controleren daarbij ook of de opgegeven aantallen overeenkomen met de situatie ter plaatse. Mocht hierin een verschil zitten, dan kan dit gevolgen hebben voor de prijs. Meer informatie hierover vindt u in onze algemene voorwaarden.\nDe planning\nWe plannen uw woning in op een passende route, waarbij we afspraken zoveel mogelijk per omgeving combineren. Hierdoor kan het eerste bezoek iets langer op zich laten wachten. Houd rekening met een wachttijd van ongeveer 2 tot 8 weken.\n\nNa uw eerste bezoek komen we iedere 8 weken bij u langs. Twee dagen voor iedere afspraak ontvangt u een e-mail met de datum en het tijdstip.\nZodra uw eerste bezoek is ingepland, ontvangt u hiervan bericht.\n\nMet vriendelijke groet,\nmijnschoonmaker.com\nWhatsapp: [06 18 06 06 06](https://wa.me/message/GPFV7VR2JSCHC1) | ma - vrij 10:00 uur - 17:30 uur" },
   definitief: { onderwerp: "[name.company] - Definitief bestellingsoverzicht [nr.invoice]", mail: "Beste [firstname.customer],\n\nHartelijk dank voor uw vertrouwen in mijnschoonmaker.com.\nBijgaand ontvangt u het definitieve bestellingsoverzicht van de door u gekozen diensten.\n\nUw overeenkomst heeft een standaardlooptijd van één jaar.\nNa deze periode zetten wij de dienstverlening voort volgens de afgesproken frequentie, totdat de overeenkomst wordt beëindigd conform onze algemene voorwaarden.\nOp deze overeenkomst zijn onze algemene voorwaarden van toepassing.\n\nMet vriendelijke groet,\nmijnschoonmaker.com" }
 };
-async function sjabloon(sleutel) { try { const d = (await db.doc("instellingen/sjablonen").get()).data() || {}; const t = d[sleutel]; if (t && t.mail) return { onderwerp: t.onderwerp || TPL_STD[sleutel].onderwerp, mail: t.mail }; } catch (e) {} return TPL_STD[sleutel]; }
+async function sjabloon(sleutel) { const STD = T.isLegacy() && TPL_STD_EIGEN[sleutel] ? TPL_STD_EIGEN : TPL_STD; try { const d = (await db.doc("instellingen/sjablonen").get()).data() || {}; const t = d[sleutel]; if (t && t.mail) return { onderwerp: t.onderwerp || STD[sleutel].onderwerp, mail: t.mail }; } catch (e) {} return STD[sleutel]; }
 function vulIn(tekst, v) { return String(tekst || "").replace(/\[([a-z0-9_]+)\.([a-z_]+)\]/g, (m, a, b) => { const k = a + "." + b; return v[k] != null ? String(v[k]) : m; }); }
 const htmlEsc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 /* alle mails als realistisch ticket: papier met zachte schaduw, blauwe kopband, perforatie met ronde inkepingen en een blauwe strook onderaan */
@@ -145,8 +153,8 @@ async function stuurOverzichtMail({ soort, model, naar, naamKlant, klantId, meta
   const bijlagen = [{ name: `${nummer}_${vl ? "v" : "d"}.pdf`, content: Buffer.from(pdf).toString("base64") }];
   if (vw) bijlagen.push({ name: b.voorwaardenNaam || "Algemene voorwaarden.pdf", content: Buffer.from(vw.bytes).toString("base64") });
   if (hf) bijlagen.push({ name: b.herroepingNaam || "Herroepingsformulier.pdf", content: Buffer.from(hf.bytes).toString("base64") });
-  const afz = g.afzender || b.email || "info@mijnschoonmaker.com";
-  const brevoId = await brevoSend(g.brevoKey, { sender: { name: b.naam || "mijnschoonmaker", email: afz }, replyTo: { email: b.email || afz }, to: [{ email: naar, name: naamKlant || undefined }], subject: onderwerp, htmlContent: mailHtml(tekst, b, { portaal: await portaalUrl(klantId, naar) }), textContent: tekst.replace(/\*\*/g, "").replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, "$1 ($2)"), attachment: bijlagen, tags: ["crm", soort] });
+  const afz = g.afzender || b.email;
+  const brevoId = await brevoSend(g.brevoKey, { sender: { name: b.naam || "Mansard", email: afz }, replyTo: { email: b.email || afz }, to: [{ email: naar, name: naamKlant || undefined }], subject: onderwerp, htmlContent: mailHtml(tekst, b, { portaal: await portaalUrl(klantId, naar) }), textContent: tekst.replace(/\*\*/g, "").replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, "$1 ($2)"), attachment: bijlagen, tags: ["crm", soort] });
   const id = newId("m");
   let pdfId = ""; try { pdfId = await bewaarPdf(pdf); } catch (e) { console.error("pdf bewaren", e); }
   const bl = [{ naam: bijlagen[0].name, id: pdfId }]; if (vw) bl.push({ naam: bijlagen[1].name, id: b.voorwaardenPdf || "" }); if (hf) bl.push({ naam: bijlagen[bijlagen.length - 1].name, id: b.herroepingPdf || "" });
@@ -190,10 +198,10 @@ async function brevoSend(key, mail) {
 }
 async function maakMail({ naar, naam, onderwerp, html, tekst, bijlagen }) {
   const [g, b] = await Promise.all([geheim(), bedrijf()]);
-  if (!g.brevoKey) throw new HttpsError("failed-precondition", "Er is nog geen Brevo-sleutel ingesteld (Instellingen › E-mail versturen).");
-  const afz = g.afzender || b.email || "info@mijnschoonmaker.com";
+  if (!g.brevoKey) throw new HttpsError("failed-precondition", T.isLegacy() ? "Er is nog geen Brevo-sleutel ingesteld (Instellingen › E-mail versturen)." : "Mailen via Mansard is nog niet beschikbaar. Probeer het later opnieuw of stel je eigen Brevo-sleutel in (Instellingen › E-mail versturen).");
+  const afz = g.afzender || b.email;
   const mail = {
-    sender: { name: b.naam || "mijnschoonmaker", email: afz },
+    sender: { name: b.naam || "Mansard", email: afz },
     replyTo: { email: b.email || afz, name: b.naam || undefined },
     to: [{ email: naar, name: naam || undefined }],
     subject: onderwerp || "Bericht",
@@ -210,15 +218,15 @@ async function portaalUrl(klantId, email) {
   if (!klantId || !/@/.test(String(email || ""))) return "";
   try { const t = T.tok(32), h = crypto.createHash("sha256").update(t).digest("hex");
     await db.doc("portaalLogin/" + h).set({ klantId: String(klantId), email: String(email).trim().toLowerCase(), exp: Date.now() + 70 * 864e5, herbruik: true, op: nu(), bron: "mail" });
-    return HOST() + "/portaal?l=" + t; } catch (e) { console.error("portaalUrl", e); return HOST() + "/portaal"; }
+    return HOST() + "/portaal?l=" + t; } catch (e) { console.error("portaalUrl", e); return HOST() + "/portaal" + (T.isLegacy() ? "" : "?b=" + T.bid()); }
 }
 /* knop "Naar uw klantportaal": persoonlijke inloglink, 70 dagen geldig (langer dan een ritme van 8 weken) en vaker te gebruiken, zodat de klant direct binnen is */
 async function portaalLinkVullen(d) {
   if (d.meta && d.meta.klantId && /__PORTAAL_LINK__/.test(String(d.html || ""))) {
     try { const t = T.tok(32), h = crypto.createHash("sha256").update(t).digest("hex");
       await db.doc("portaalLogin/" + h).set({ klantId: String(d.meta.klantId), email: String(d.naar).trim().toLowerCase(), exp: Date.now() + 70 * 864e5, herbruik: true, op: nu(), bron: "mail" });
-      d.html = String(d.html).replace(/__PORTAAL_LINK__/g, "l=" + t); } catch (e) { console.error("portaallink", e); d.html = String(d.html).replace(/[?&]?__PORTAAL_LINK__/g, ""); } }
-  else if (/__PORTAAL_LINK__/.test(String(d.html || ""))) d.html = String(d.html).replace(/[?&]?__PORTAAL_LINK__/g, "");
+      d.html = String(d.html).replace(/__PORTAAL_LINK__/g, "l=" + t); } catch (e) { console.error("portaallink", e); d.html = T.isLegacy() ? String(d.html).replace(/[?&]?__PORTAAL_LINK__/g, "") : String(d.html).replace(/__PORTAAL_LINK__/g, "b=" + T.bid()); } }
+  else if (/__PORTAAL_LINK__/.test(String(d.html || ""))) d.html = T.isLegacy() ? String(d.html).replace(/[?&]?__PORTAAL_LINK__/g, "") : String(d.html).replace(/__PORTAAL_LINK__/g, "b=" + T.bid());
 }
 exports.sendMail = onCall({ memory: "512MiB", timeoutSeconds: 60 }, async req => {
   const wie = await checkGebruiker(req.auth);
@@ -318,7 +326,7 @@ exports.mollieLink = onCall(async req => {
     body: JSON.stringify({
       amount: { currency: "EUR", value: val.toFixed(2) },
       description: String(omschrijving || "Factuur " + (f.data().nummer || factuurId)).slice(0, 255),
-      redirectUrl: site ? site + "/portaal?betaald=" + encodeURIComponent(factuurId) : (b.website || "https://mijnschoonmaker.com"),
+      redirectUrl: site ? site + "/portaal?betaald=" + encodeURIComponent(factuurId) : (b.website || HOST()),
       webhookUrl: site + "/api/mollie" + T.hookQs(),
       metadata: { factuurId }
     })
@@ -700,6 +708,11 @@ exports.controleNu = CONTROLE.controleNu;
 /* Mansard: nieuwe bedrijven aanmelden en abonnementen */
 var MANSARD; MANSARD = require("./mansard")({ rawDb, T, onCall, onRequestRaw: _onRequest, HttpsError, nu, mollie, HOST, mfaOk: a => BEV.mfaBevestigd(a) });
 Object.assign(exports, MANSARD.functies);
+/* elk uur: welke bedrijven zijn (nog) open? (proef voorbij, abonnement verlopen of achterstand na de respijttermijn) */
+exports.bedrijvenDicht = _onSchedule({ schedule: "3 * * * *", timeZone: "Europe/Amsterdam", timeoutSeconds: 120 }, async () => {
+  const q = await rawDb.collection("bedrijven").get();
+  for (const d of q.docs) { try { await MANSARD.herbereken(d.id); } catch (e) { console.error("dicht", d.id, e.message); } }
+});
 /* dakranden uit 3D BAG voor het meten op de luchtfoto */
 const H3D = require("./huis3d")({ onCall, onRequest, HttpsError, checkGebruiker });
 exports.huis3d = H3D.huis3d;

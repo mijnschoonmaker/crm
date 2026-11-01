@@ -1855,6 +1855,15 @@ function extraTxt(of){const l=((typeof B!=="undefined"&&B&&B.extraDiensten)||[])
 function voorbeeldBalk(){if(document.getElementById("vbBalk"))return;const n=(D&&D.klant&&(D.klant.contact||D.klant.naam))||"deze klant";
   document.body.insertAdjacentHTML("afterbegin",`<div id="vbBalk" style="position:sticky;top:0;z-index:9999;display:flex;align-items:center;justify-content:center;gap:10px;padding:9px max(16px,env(safe-area-inset-left,0px));background:linear-gradient(150deg,#323b50,#252c3c 55%,#1c2231);color:#fff;font:600 12px/1.3 'Avenir Next',Avenir,'Nunito Sans',sans-serif;letter-spacing:.04em;text-align:center"><span style="font-size:10px;letter-spacing:.22em;text-transform:uppercase;border:1px solid rgb(255 255 255 / .35);border-radius:99px;padding:3px 9px">Voorbeeld</span><span>Je bekijkt het portaal als ${String(n).replace(/[<>&]/g,"")} · alleen bekijken, er wordt niets opgeslagen</span></div>`);
   const vb=document.getElementById("vbBalk"),zet=()=>document.documentElement.style.setProperty("--vbh",vb.offsetHeight+"px");zet();try{new ResizeObserver(zet).observe(vb)}catch(e){addEventListener("resize",zet)}}
+/* bij welk bedrijf hoort dit portaal: uit ?b=, uit een inlogcode met voorvoegsel (b1234567_…) of eerder onthouden.
+   Zo komt een klant van een nieuw bedrijf ook zonder link bij zijn eigen bedrijf uit (inloggen, merk, aanbevelen). */
+const PB=(()=>{const re=/^(b[a-z0-9]{7})_/,ok=x=>/^b[a-z0-9]{7}$/.test(x||"");let b=null;try{const q=new URLSearchParams(location.search);
+  /* sterkste bron eerst: ?b=, dan een code in de link, dan de bewaarde sessie; een code zonder voorvoegsel = het eerste bedrijf */
+  if(ok(q.get("b")))b=q.get("b");
+  if(b===null)for(const k of ["l","t","s","tok"]){const v=q.get(k);if(v){const m=re.exec(v);b=m?m[1]:"";break}}
+  if(b===null){const m=/\/aanbevolen\/([^/?#]+)/.exec(location.pathname);if(m){const m2=re.exec(decodeURIComponent(m[1]));if(m2)b=m2[1]}}
+  if(b===null){const v=localStorage.getItem("ms.portaal.s")||"";if(v){const m=re.exec(v);b=m?m[1]:""}}
+  if(b===null)b=localStorage.getItem("ms.portaal.b")||"";else if(b)localStorage.setItem("ms.portaal.b",b);else localStorage.removeItem("ms.portaal.b")}catch(e){b=""}return ok(b)?b:""})();
 const sessie={get(){if(window.__s)return window.__s;try{return localStorage.getItem(SK)||""}catch(e){return ""}},set(v){window.__s=v;try{v?localStorage.setItem(SK,v):localStorage.removeItem(SK)}catch(e){}}};
 
 /* ---------- demo: ?demo in de link toont een voorbeeldklant, zonder server ---------- */
@@ -1895,7 +1904,7 @@ async function demoApi(pad,opt){await new Promise(r=>setTimeout(r,250));
   return {}}
 async function api(pad,opt={}){
   if(DEMO)return demoApi(pad,opt);
-  const r=await fetch("/api/portaal/"+pad,{method:opt.body?"POST":"GET",headers:{...(opt.body?{"content-type":"application/json"}:{}),...(sessie.get()?{authorization:"Bearer "+sessie.get()}:{})},body:opt.body?JSON.stringify(opt.body):undefined});
+  const r=await fetch("/api/portaal/"+pad,{method:opt.body?"POST":"GET",headers:{...(opt.body?{"content-type":"application/json"}:{}),...(sessie.get()?{authorization:"Bearer "+sessie.get()}:{}),...(PB?{"x-bedrijf":PB}:{})},body:opt.body?JSON.stringify(opt.body):undefined});
   let j={};try{j=await r.json()}catch(e){}
   if(r.status===401&&!opt.open){sessie.set("");toonLogin();throw new Error("uit")}
   if(!r.ok)throw new Error(j.fout||"Er ging iets mis. Probeer het zo opnieuw.");
@@ -1935,7 +1944,7 @@ async function toonLogin(melding){
 /* ---------- aanbevelingslink (openbaar) ---------- */
 async function toonAanbevolen(code){
   let d;try{d=await api("ref?c="+encodeURIComponent(code),{open:true})}catch(e){d=null}
-  const site=(d&&d.bedrijf.website)||"https://mijnschoonmaker.com",url=(/^https?:/.test(site)?site:"https://"+site).replace(/\/+$/,"")+(site.includes("?")?"&":"?")+"ref="+encodeURIComponent(code);
+  const site=(d&&d.bedrijf.website)||(PB?"":"https://mijnschoonmaker.com"),url=site?(/^https?:/.test(site)?site:"https://"+site).replace(/\/+$/,"")+(site.includes("?")?"&":"?")+"ref="+encodeURIComponent(code):"",tel=(d&&d.bedrijf.telefoon)||"";
   try{localStorage.setItem("ms.ref",code)}catch(e){}
   document.title=d?d.voornaam+" raadt "+d.bedrijf.naam+" aan":"Aanbeveling";
   $("#app").innerHTML=`<main class="welkom"><div class="wk-kaart wk-c">${wkLogo((d&&d.bedrijf.logo)||await merkLogo())}
@@ -1943,7 +1952,7 @@ async function toonAanbevolen(code){
     <h1>${d?esc(d.voornaam)+" raadt ons aan":"U bent aanbevolen"}</h1>
     <p>Wij wassen uw ramen in een vast ritme en u ziet alles terug in uw eigen klantomgeving.</p>
     ${d&&d.welkom>0?`<div class="melding goud" style="margin-bottom:18px;box-shadow:none"><span class="objic goud">${I.cadeau}</span><div class="tx"><b>${eur0(d.welkom)} welkomstkorting</b><small>Op uw eerste factuur, omdat ${esc(d.voornaam)} u heeft aanbevolen.</small></div></div>`:""}
-    <a class="btn primary full big" href="${esc(url)}">${I.euro}Bereken direct uw prijs</a>
+    ${url?`<a class="btn primary full big" href="${esc(url)}">${I.euro}Bereken direct uw prijs</a>`:tel?`<a class="btn primary full big" href="tel:${esc(tel.replace(/\s+/g,""))}">Bel ${esc((d&&d.bedrijf.naam)||"ons")} · ${esc(tel)}</a>`:""}
     <p class="subt klein">Uw code <b style="letter-spacing:.06em;color:var(--ink)">${esc(code)}</b> gaat automatisch mee met uw aanvraag.</p></div></main>`}
 
 /* ---------- de app ---------- */
