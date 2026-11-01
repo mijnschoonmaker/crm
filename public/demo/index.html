@@ -3092,6 +3092,26 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}.inv5,.inv5 *{-webkit-t
   .fw-tot span{color:var(--muted)}.fw-tot b{text-align:right;font-weight:600}
   .fw-tot .g{font-size:15.5px;font-weight:700;color:var(--ink);padding-top:6px;border-top:1px solid var(--line)}
 }
+/* factuurregels: als het blok zelf smal is (bijv. iPad met twee kolommen), ook als kaartjes in plaats van een geplette tabel */
+.kp:has(>.fw-tw),.kp:has(.fw-tw){container-type:inline-size}
+@container (max-width:720px){
+  .fw-tw{display:none}
+  .fw-rks{display:flex;flex-direction:column;gap:8px}
+  .fw-rk{border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;background:var(--surface)}
+  .fw-rk-k{display:flex;align-items:flex-start;gap:10px}
+  .fw-rk-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+  .fw-rk-t b{font-size:14.5px;font-weight:650;line-height:1.35;overflow-wrap:anywhere}
+  .fw-rk-t small{font-size:12px;color:var(--muted)}
+  .fw-rk-a{display:flex;gap:4px;flex:none;margin:-4px -6px 0 0}
+  .fw-rk-a .iconbtn.sm{width:30px;height:30px}
+  .fw-rk-b{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding-top:10px;border-top:1px dashed var(--line)}
+  .fw-rk-b span{display:flex;flex-direction:column;gap:2px;font-size:13.5px;color:var(--ink);font-variant-numeric:tabular-nums}
+  .fw-rk-b span small{font-size:12px;color:var(--muted)}
+  .fw-rk-b>b{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .fw-tot{display:grid;grid-template-columns:1fr auto;gap:6px 12px;padding:12px 14px;border-radius:14px;background:var(--surface-2);font-size:13.5px;font-variant-numeric:tabular-nums}
+  .fw-tot span{color:var(--muted)}.fw-tot b{text-align:right;font-weight:600}
+  .fw-tot .g{font-size:15.5px;font-weight:700;color:var(--ink);padding-top:6px;border-top:1px solid var(--line)}
+}
 /* facturen: acties als tegels, zoeken en aantal per pagina op één rij */
 .kd-ftools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .kd-ftools.een{grid-template-columns:1fr}
@@ -4825,6 +4845,9 @@ html body:not(#zz) .st-meer{display:block;margin:12px auto 0;font-size:13px;font
 /* smalle kaarten in Analyse: alleen het bedrag van deze maand en de beste maand, de rest bij aanwijzen */
 html body:not(#zz) .ajr-card .st-bars .st-col:not(.hi):not(.top) .st-tr em{opacity:0!important}
 html body:not(#zz) .ajr-card .st-bars .st-col:hover .st-tr em{opacity:1!important}
+/* factuurregels-tabel: koppen nooit per letter afbreken, omschrijving krijgt de ruimte */
+html body .fw-reg th{white-space:nowrap!important}
+html body .fw-reg td:first-child{min-width:220px!important}
 
 </style>
 <style id="mansardThema">
