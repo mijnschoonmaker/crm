@@ -60,7 +60,6 @@ function openOpdrachtWerk(kid,focus){
         <label>Reden toeslag<input id="ow-toeslagr" value="${esc(k.toeslagReden||"")}" placeholder="Bijv. hoogwerker nodig"></label>
         <label class="check-row"><input id="ow-verbA" type="checkbox" ${k.verbergAantal?"checked":""}>Aantallen verbergen op factuur</label>
         <label class="check-row"><input id="ow-verbF" type="checkbox" ${k.verbergFreq?"checked":""}>Frequenties verbergen op factuur</label>
-        <label class="full check-row"><input id="ow-afmail" type="checkbox" ${k.afmeldMail?"checked":""}>Afmeldbericht klaarzetten na elke beurt</label>
         <label class="full check-row"><input id="ow-bellen" type="checkbox" ${k.bellen?"checked":""}>Medewerker moet onderweg bellen <small class="help">staat bij de klus op de route</small></label>
         <label class="full check-row"><input id="ow-actief" type="checkbox" ${k.actief!==false?"checked":""}>Opdracht loopt (uitzetten = klant inactief, alle toekomstige afspraken vervallen)</label>
         ${k.gepland?`<button type="button" class="small ghost danger" id="owWis" style="grid-column:1/-1;justify-self:start;white-space:nowrap">Alle toekomstige afspraken verwijderen</button>`:""}
@@ -110,7 +109,7 @@ function openOpdrachtWerk(kid,focus){
     const rij=(a,b)=>`<div class="ow-kv"><span>${a}</span><b>${b}</b></div>`;
     v.innerHTML=rij("Ronde",esc((g("ronde")&&g("ronde").value.trim())||"—"))+rij("Volgende beurt",k.gepland?esc(fmtL(k.gepland))+(k.tijd?" "+esc(k.tijd):""):"Te plannen")+rij("Eerste keer",esc(sel("eerste")))+rij("Contactmethode planning",esc(sel("contact")))
       +rij("Medewerker moet onderweg bellen",ja(g("bellen")))+rij("Aantallen verbergen voor de klant",ja(g("verbA")))+rij("Frequenties verbergen voor de klant",ja(g("verbF")))
-      +rij("Toeslag hanteren",ts?ts+"%":"Nee")+rij("Toeslag reden",esc(tr||"—"))+rij("Afmeldbericht actief",ja(g("afmail")))+rij("Opdracht loopt",ja(g("actief")))
+      +rij("Toeslag hanteren",ts?ts+"%":"Nee")+rij("Toeslag reden",esc(tr||"—"))+rij("Opdracht loopt",ja(g("actief")))
       +(k.gepland?rij("Alle toekomstige afspraken",`<button type="button" class="linkbtn" id="owWisV">Verwijderen</button>`):"");
     const w=$("#owWisV");if(w)w.onclick=()=>{const b=$("#owWis");if(b)b.click()}};
   drawOpdV();
@@ -412,7 +411,7 @@ function openOpdrachtWerk(kid,focus){
     /* taakomschrijving hoort bij deze opdracht: bij een losse opdracht (eigen nummer) in die opdracht, niet bij de klant */
     if(soloR){soloR.facturatie=$o("fact").value;}
     if(soloR){soloR.objectId=uLoc;soloR.taak=$o("taak").value.trim();soloR.fotos=fotos.map(f=>({...f}));soloSet.forEach(i=>{const o=extra[i];if(o&&o!==soloR&&(o._solo||o.bij===soloR.id)){o.objectId=soloR.objectId||"";o.apart=false;o.bij=soloR.id}})}
-    return verseDatums({...strip(cur),dienst:String(main.dienst||"").trim()||"Glasbewassing",prijs:r2(Number(main.prijs)||0),ramenRegel:main.ramen||null,frequentie:mW.length?1:(mF||4),weekdagen:mW.length?mW:[],...(mW.length?{autoplan:true}:{}),duur:mD||30,ronde:$o("ronde").value.trim(),contactPlanning:$o("contact").value,eersteKeer:$o("eerste").value==="ja",toeslag:Number($o("toeslag").value)||0,toeslagReden:$o("toeslagr").value.trim(),verbergAantal:$o("verbA").checked,verbergFreq:$o("verbF").checked,afmeldMail:$o("afmail").checked,
+    return verseDatums({...strip(cur),dienst:String(main.dienst||"").trim()||"Glasbewassing",prijs:r2(Number(main.prijs)||0),ramenRegel:main.ramen||null,frequentie:mW.length?1:(mF||4),weekdagen:mW.length?mW:[],...(mW.length?{autoplan:true}:{}),duur:mD||30,ronde:$o("ronde").value.trim(),contactPlanning:$o("contact").value,eersteKeer:$o("eerste").value==="ja",toeslag:Number($o("toeslag").value)||0,toeslagReden:$o("toeslagr").value.trim(),verbergAantal:$o("verbA").checked,verbergFreq:$o("verbF").checked,
       binnen:false,actief,...(actief?{}:{gepland:"",tijd:""}),akkoord:$o("akkoord").checked,incasso:$o("betaal").value==="incasso",...(soloR?{}:factModusPatch($o("fact").value,k)),...(!soloR&&isPeriodiek(k)&&$o("fact").value==="periodiek"&&$("#ow-perex")?{periodiek:{...k.periodiek,extraModus:$("#ow-perex").value}}:{}),
       taak:soloR?(cur.taak||""):$o("taak").value.trim(),...($o("vvetaken")?vveEdLees($o("vvetaken")):{}),hosp:hosp.map(x=>({c:x.c||"voorkeur",t:String(x.t||"").trim(),...(x.af?{af:x.af}:{}),...(x.c==="verteld"&&x.vanaf?{vanaf:x.vanaf}:{})})).filter(x=>x.t),bellen:$o("bellen").checked,startdatum:$o("start").value,einddatum:$o("eind").value,btwVerlegd:$o("verlegd").checked,aanbieden:cur.gepland?!!cur.aanbieden:aanb.aanbieden,uitstelTot:aanb.uitstelTot,artikelen:arts.filter(a=>String(a.naam||"").trim()).map(a=>({naam:String(a.naam).trim(),aantal:Number(a.aantal)||1,prijs:r2(Number(a.prijs)||0)})),middelen:mids,objectId:soloR||uLoc===uLoc0?(cur.objectId||hoofdLoc0):uLoc,fotos:soloR?(cur.fotos||[]):fotos,
       ...(geenGlas?{opdrachtVerwijderd:true,prijs:0,ramenRegel:null,aanbieden:false,gepland:"",tijd:"",reeks:[]}:soloI<0&&cur.opdrachtVerwijderd&&!cur.prospect?{opdrachtVerwijderd:false}:{}),

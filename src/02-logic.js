@@ -289,7 +289,9 @@ function aangifteStatus(){
 function normTpl(d,sv){sv=sv||{};const r={...d,...sv,eigen:!d.naam};r.mail=sv.mail??sv.tekst??d.mail??"";r.sms=sv.sms??(sv.mail==null&&sv.tekst!=null&&!d.naam?sv.tekst:d.sms)??"";r.onderwerp=sv.onderwerp??d.onderwerp??"Bericht van [name.company]";if(isRich(r.mail)){r.mailHtml=r.mail;r.mail=richText(r.mail)}r.tekst=r.sms||r.mail;return r}
 /* sjablonen die niet meer bestaan (ook niet als er ooit een aangepaste versie van is opgeslagen) */
 const TPL_WEG=["voltooid"];
-const tpls=()=>{const o={};Object.keys(TPL).forEach(k=>o[k]=normTpl(TPL[k],state.sjablonen[k]));Object.keys(state.sjablonen).forEach(k=>{if(!o[k]&&state.sjablonen[k]&&!TPL_WEG.includes(k))o[k]=normTpl({},state.sjablonen[k])});return o};
+/* verborgen: niet meer in de lijst; de opgeslagen tekst blijft bewaard (terugzetten = hier weghalen) */
+const TPL_VERBORGEN=["afkondiging"];
+const tpls=()=>{const o={};Object.keys(TPL).filter(k=>!TPL_VERBORGEN.includes(k)).forEach(k=>o[k]=normTpl(TPL[k],state.sjablonen[k]));Object.keys(state.sjablonen).forEach(k=>{if(!o[k]&&state.sjablonen[k]&&!TPL_WEG.includes(k)&&!TPL_VERBORGEN.includes(k))o[k]=normTpl({},state.sjablonen[k])});return o};
 function klantVars(k,datum){
   const st=S(),tm=toMin(k.tijd),tv=tm!=null?"tussen "+k.tijd+" en "+fromMin(tm+duur(k)):"in de loop van de dag";
   const _ach=k.achternaam||String(k.naam||"").split(",")[0].trim();
@@ -333,7 +335,7 @@ function queues(){
     const bv=actief().filter(k=>k.contactPlanning==="bevestigen"&&k.gepland&&k.gepland>=ti&&!refs.has("bevestig:"+k.gepland+":"+k.id)).sort((a,b)=>a.gepland.localeCompare(b.gepland));
     if(bv.length){const A=T.afspraak||{};out.push({id:"bevestig",titel:"Afspraak laten bevestigen",uitleg:"Klanten die hun afspraak eerst willen bevestigen",items:bv.map(k=>({k,vars:klantVars(k,parse(k.gepland)),ref:"bevestig:"+k.gepland+":"+k.id})),tekst:A.sms||A.mail||"",mail:A.mail||"",onderwerp:A.onderwerp||"Bevestiging afspraak – [name.company]",sjabloon:"afspraak"})}
     /* afmeldbericht na de beurt */
-    const ab=state.beurten.filter(b=>b.datum&&(t-parse(b.datum))/DAY<=7&&!refs.has("afkondiging:"+b.id)).map(b=>({b,k:state.klanten.find(x=>x.id===b.klantId)})).filter(x=>x.k&&x.k.afmeldMail);
+    const ab=state.beurten.filter(b=>b.datum&&(t-parse(b.datum))/DAY<=7&&!refs.has("afkondiging:"+b.id)).map(b=>({b,k:state.klanten.find(x=>x.id===b.klantId)})).filter(x=>x.k&&x.k.afmeldMail&&!TPL_VERBORGEN.includes("afkondiging"));
     if(ab.length){const A=T.afkondiging||{};out.push({id:"afkondiging",titel:"Afmeldberichten",uitleg:"Klanten die na de beurt een bericht willen dat het werk klaar is",items:ab.map(x=>{const fa=x.b.gefactureerd&&state.facturen.find(f=>f.id===x.b.gefactureerd);return {k:x.k,vars:fa?{...factVars(fa),...klantVars(x.k,parse(x.b.datum))  ,factuurnummer:fa.nummer,bedrag:eur(totals(fa).inc),betaallink:fa.betaallink||S().betaallink||""}:klantVars(x.k,parse(x.b.datum)),ref:"afkondiging:"+x.b.id}}),tekst:A.sms||A.mail||"",mail:A.mail||"",onderwerp:A.onderwerp||"Glasbewassing afgerond – [name.company]",sjabloon:"afkondiging"})}}
   if(typeof pmDue==="function"){const pd=pmDue();if(pd.length){const g0=pd[0].g;out.push({id:"planmail",titel:"Geplande planningsmails",uitleg:"Klaargezet vanuit de planning",
     items:pd.map(({g,k})=>{const v=klantVars(k,parse(g.datum));if(g.mode==="tijdvakken")v.tijdvak=pmVak(k);return{k:mailK(k,"planning"),vars:v,ref:"planmail:"+g.datum+":"+k.id,stap:{naam:"Afspraak "+fmtD(g.datum),mail:g.mail?g.body:g.smsBody,sms:g.sms?g.smsBody:g.body,onderwerp:g.onderwerp}}}),
