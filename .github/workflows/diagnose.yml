@@ -13,14 +13,12 @@ jobs:
       - run: npm install --omit=dev --no-audit --no-fund
         working-directory: functions
       - run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > "$RUNNER_TEMP/sa.json"
-      - if: ${{ inputs.nummer == 'maandtop' }}
+      - if: ${{ inputs.nummer == 'logs' }}
         env:
           P: ${{ vars.FIREBASE_PROJECT }}
         run: |
           gcloud auth activate-service-account --key-file="$RUNNER_TEMP/sa.json" --quiet
-          gcloud scheduler jobs list --project "$P" --location europe-west4 --format="value(name)" | grep -i maand || true
-          gcloud scheduler jobs run firebase-schedule-maandWinnaar-europe-west4 --project "$P" --location europe-west4
-          sleep 60
+          gcloud logging read 'resource.labels.service_name="maandwinnaar" AND timestamp>="2026-11-01T12:50:00Z"' --project "$P" --limit 40 --format="value(severity,textPayload)" | sed 's/^/LOG /' 
       - env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
           P: ${{ vars.FIREBASE_PROJECT }}
