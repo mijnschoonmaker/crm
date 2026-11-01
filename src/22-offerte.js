@@ -14,7 +14,7 @@ function offUlocPatch(cur,f,w){const u=offUloc(f);if(!u)return null;const nu=iso
   if(!oid||!objecten.some(x=>x.id===oid)){oid=newId("l");objecten.push({id:oid,naam:u.naam||"Uitvoerlocatie",adres:u.adres||"",postcode:u.postcode||"",plaats:u.plaats||""})}
   const id=newId("o"),o=f.opdracht||{},fm=["concept","direct","geen","periodiek"].includes(f.facturatie)?f.facturatie:"";
   const hoofd={id,dienst:w.dienst||HD(),prijs:w.prijs,frequentie:w.frequentie,duur:w.duur,volgende:w.aanbod||"",actief:true,objectId:oid,apart:true,vanOfferte:f.nummer||"",
-    ...(fm?{facturatie:fm}:{}),fotos:((f.rcTelling&&f.rcTelling.fotos)||[]).map(x=>({...x}))};
+    ...(fm?{facturatie:fm}:{}),fotos:[...((f.rcTelling&&f.rcTelling.fotos)||[]),...(Array.isArray(f.fotosIntern)?f.fotosIntern:[])].map(x=>({...x}))};
   const mee=(o.extra||[]).map(e=>({...e,id:newId("o"),objectId:oid,bij:id,apart:false}));
   const loc=[u.naam,fullAddr(objecten.find(x=>x.id===oid))].filter(Boolean).join(" · ");
   return{objecten,opdrachten:[...(cur.opdrachten||[]),hoofd,...mee],prospect:false,actief:true,...(cur.prospect?{opdrachtVerwijderd:true,prijs:0,aanbieden:false}:{}),
@@ -30,6 +30,7 @@ function openOfferte(opts={}){
   /* regels die je zelf toevoegt; de regels uit de rekentool komen er live bij */
   /* rekentool-regels en eigen regels apart houden, zodat het minimumtarief nooit dubbel in de offerte komt */
   const legacyRc=ex&&!ex.rcRegels&&!ex.rcTelling&&ex.telling;
+  let bijF=ex&&Array.isArray(ex.fotosIntern)?ex.fotosIntern.map(x=>({...x})):[];
   let extra=ex?(Array.isArray(ex.extraRegels)?ex.extraRegels:ex.rcRegels||ex.rcTelling?[]:legacyRc?[]:(ex.regels||[])).filter(r=>!r.subs).map(r=>({...r})):[];
   let rc=ex&&(ex.rcRegels||legacyRc)?{regels:(ex.rcRegels||ex.regels).map(r=>({...r,omschrijving:String(r.omschrijving||"").replace(/ ?\(minimumtarief\)/gi,"")})),count:(ex.telling&&ex.telling.ramen)||0,opd:{}}:null,touched={freq:!!opd0.frequentie,duur:!!opd0.duur};
   const ks=[...state.klanten].sort((a,b)=>cleanName(a.naam).localeCompare(cleanName(b.naam)));
@@ -91,6 +92,7 @@ function openOfferte(opts={}){
         <button type="button" class="small" id="owTxtK" style="align-self:flex-start">${I.check}Klaar</button>
       </div></section>
     <section class="kp kp-rc"${GLAS()?"":' style="display:none"'}><div class="kp-h"><span class="objic">${I.calculator}</span><div><b>Rekentool</b><small>Maak foto's en tik de ramen aan. Aantallen, tijden en prijzen komen vanzelf bij de offerteregels.</small></div></div><div id="owRc"></div></section>
+    ${GLAS()?"":`<section class="kp"><div class="kp-h"><span class="objic">${I.camera||I.upload}</span><div style="min-width:0"><b>Foto's bijvoegen</b><small>Zodat je weet waar het over gaat. Alleen voor jou en je medewerkers, ze gaan niet mee naar de klant.</small></div><span class="sp"></span><label class="iconbtn sm primary" role="button" tabindex="0" aria-label="Foto's bijvoegen" style="cursor:pointer">${I.plus}<input type="file" accept="image/*" multiple hidden id="owBij"></label></div><div class="ow-fotos" id="owBijF"></div></section>`}
     <section class="kp"><div class="kp-h"><span class="objic">${I.check}</span><b>Offerteregels</b><span class="sp"></span><button type="button" class="small" id="owAdd">${I.plus}Eigen regel</button></div>
       <div class="ow-chips">${dienstChips(diensten,"data-dn")}</div>
       <div id="owRegels"></div>
@@ -128,6 +130,16 @@ function openOfferte(opts={}){
 });
   $("#owRegels").addEventListener("click",e=>{const dr=e.target.closest("[data-dnrm]");if(dr){dns.splice(+dr.dataset.dnrm,1);draw();return}
     if(e.target.closest("#owRcX")){rc=null;draw();return}const b=e.target.closest("[data-rm]");if(b){extra.splice(Number(b.dataset.rm),1);draw()}});
+  /* ander vak: foto's bijvoegen (intern, gaan niet mee naar de klant) */
+  const bijDraw=()=>{const el=$("#owBijF");if(el)el.innerHTML=bijF.length?bijF.map((f,i)=>fotoCard(f,i,true)).join(""):'<p class="subt ow-fempty">Nog geen foto\'s.</p>'};
+  const bijIn=$("#owBij");
+  if(bijIn){bijDraw();
+    bijIn.onchange=async e=>{const files=[...e.target.files];e.target.value="";
+      for(const file of files){try{const sz=await imgSize(file);let r=null;if(state.assets)r=await state.assets.upload(file);else if(window.ZEEM_PUT){const id=[...crypto.getRandomValues(new Uint8Array(16))].map(x=>x.toString(16).padStart(2,"0")).join("");await window.ZEEM_PUT(id,file,file.type||"image/jpeg");r={id}}
+        if(!r)throw new Error("Uploaden kan hier niet");bijF.push({id:r.id,naam:file.name,datum:iso(today()),w:sz.w,h:sz.h})}catch(er){console.error("foto bijvoegen",er);toast("Foto "+file.name+" kon niet worden geüpload")}}
+      bijDraw()};
+    $("#owBijF").addEventListener("click",e=>{const b=e.target.closest("[data-frm]");if(b){e.preventDefault();e.stopPropagation();bijF.splice(+b.dataset.frm,1);bijDraw();return}
+      const c=e.target.closest("[data-fi]");if(c){e.preventDefault();openFotoViewer(bijF,+c.dataset.fi,{edit:false,titel:"Foto's"})}})}
   $("#owAdd").onclick=()=>{extra.push({omschrijving:"",aantal:1,prijs:""});draw();const l=$("#owRegels").querySelectorAll(".line input[data-k=omschrijving]");if(l.length)l[l.length-1].focus()};
   form.querySelectorAll("[data-dn]").forEach(b=>b.onclick=()=>{const d=diensten[+b.dataset.dn];
     if(d.glas){/* voorkeur: foto's aantikken; de aantallen kunnen ook met de hand */try{RC.handmatig(true)}catch(e){}const r=$("#owRc");if(r)r.scrollIntoView({block:"start",behavior:"smooth"});toast("Tik bij voorkeur de ramen aan op foto's. Geen foto? Vul de aantallen per verdieping zelf in.");return}
@@ -223,7 +235,7 @@ function openOfferte(opts={}){
       const data={...(ex?strip(ex):{}),soort:"offerte",nummer:ex?ex.nummer:nextNr("offerte",datum),klantId,klantNaam:kv.naam,klantAdres:fullAddr(kv),klantEmail:kv.email,datum,verval:$o("verval").value||iso(addDays(parse(datum),30)),
         regels,extraRegels:extra.filter(r=>r.omschrijving||Number(r.prijs)).map(r=>({omschrijving:String(r.omschrijving||""),aantal:Number(r.aantal)||0,prijs:Number(r.prijs)||0})),rcTelling:tel||(rc&&ex?ex.rcTelling||null:null),rcRegels:rc?rc.regels.map(r=>({omschrijving:r.omschrijving,aantal:r.aantal,prijs:r.prijs})):null,
         diensten:dns,btw,incl:false,status:mode==="sent"?"verstuurd":ex?ex.status||"concept":"concept",tekst:$o("tekst").value,voettekst:$o("voet").value,notitie:$o("notitie").value.trim(),start:$o("start").value,betaalwijze:$o("betaal").value,facturatie:$o("fact").value,letop:$o("letop").checked,letopTekst:$o("letopt").value,totaalTonen:$o("totaal").checked,opdracht,
-        telling:tel?{ramen:tel.ramen,minuten:tel.minuten}:(ex&&ex.telling)||null,uitvoer:ulocVal(),
+        telling:tel?{ramen:tel.ramen,minuten:tel.minuten}:(ex&&ex.telling)||null,uitvoer:ulocVal(),...(GLAS()?{}:{fotosIntern:bijF.map(x=>({...x}))}),
         betaaldOp:"",vanOfferte:"",gemaakt:ex?ex.gemaakt||"":new Date().toISOString(),verstuurdOp:mode==="sent"?new Date().toISOString():ex?ex.verstuurdOp||"":"",herinnerdOp:ex?ex.herinnerdOp||"":"",herinneringen:ex?ex.herinneringen||0:0};
       await save("facturen",id,data);
       if(typeof RC!=="undefined"&&RC&&RC.h3Info&&typeof meetLeerBewaar==="function"){try{await meetLeerBewaar(RC.h3Info(),dns)}catch(e){console.warn("meetleer",e)}}
