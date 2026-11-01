@@ -1,3 +1,11 @@
+/* inlogmails via Mansard (eigen huisstijl, links op app.mansard.nl); lukt dat niet, dan de standaardmail van Firebase */
+async function authMail(soort, email) {
+  try { await firebase.app().functions("europe-west4").httpsCallable("authMail")(soort === "reset" ? { soort, email } : { soort }); return; }
+  catch (er) { if (er && er.code && /resource-exhausted|invalid-argument/.test(er.code)) throw er; }
+  const auth = firebase.auth();
+  if (soort === "reset") return auth.sendPasswordResetEmail(email);
+  if (auth.currentUser) return auth.currentUser.sendEmailVerification();
+}
 /* Mansard CRM — koppeling met Firebase (login, database, opslag, downloads).
    Biedt hetzelfde window.claude.use(...) als de oude versie, zodat de CRM-code gelijk blijft. */
 (function () {
@@ -146,12 +154,12 @@
       <button class="lg-b" id="lgGo">${nieuw ? "Account maken" : "Inloggen"}</button></form><div class="lg-m"></div>
       <div class="lg-row">${nieuw ? '<button class="lg-l" id="lgSw">Ik heb al een account</button><span></span>' : '<button class="lg-l" id="lgVg">Wachtwoord vergeten?</button><button class="lg-l" id="lgSw">Account maken</button>'}</div>`);
     $("#lgSw").onclick = () => login(!nieuw);
-    const vg = $("#lgVg"); if (vg) vg.onclick = async () => { const e = $("#lgE").value.trim(); if (!e) return msg("Vul eerst je e-mailadres in."); try { await auth.sendPasswordResetEmail(e); msg("Je krijgt een mail om een nieuw wachtwoord te kiezen.", true); } catch (er) { fout(er); } };
+    const vg = $("#lgVg"); if (vg) vg.onclick = async () => { const e = $("#lgE").value.trim(); if (!e) return msg("Vul eerst je e-mailadres in."); try { await authMail("reset", e); msg("Je krijgt een mail om een nieuw wachtwoord te kiezen.", true); } catch (er) { fout(er); } };
     $("#lgF").onsubmit = async ev => {
       ev.preventDefault(); const b = $("#lgGo"); b.disabled = true; msg("");
       try {
         await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-        if (nieuw) { const r = await auth.createUserWithEmailAndPassword($("#lgE").value.trim(), $("#lgP").value); await r.user.sendEmailVerification(); }
+        if (nieuw) { const r = await auth.createUserWithEmailAndPassword($("#lgE").value.trim(), $("#lgP").value); await authMail("verificatie"); }
         else await auth.signInWithEmailAndPassword($("#lgE").value.trim(), $("#lgP").value);
       } catch (er) { fout(er); b.disabled = false; }
     };
@@ -162,7 +170,7 @@
       <button class="lg-b" id="lgOk">Ik heb het bevestigd</button><div class="lg-m"></div>
       <div class="lg-row"><button class="lg-l" id="lgRe">Mail opnieuw sturen</button><button class="lg-l" id="lgOut">Uitloggen</button></div>`);
     $("#lgOk").onclick = async () => { await u.reload(); if (auth.currentUser.emailVerified) { await u.getIdToken(true); start(auth.currentUser); } else msg("Nog niet bevestigd. Kijk ook in je spam."); };
-    $("#lgRe").onclick = async () => { try { await u.sendEmailVerification(); msg("Mail opnieuw verstuurd.", true); } catch (er) { fout(er); } };
+    $("#lgRe").onclick = async () => { try { await authMail("verificatie"); msg("Mail opnieuw verstuurd.", true); } catch (er) { fout(er); } };
     $("#lgOut").onclick = () => auth.signOut();
   }
   function geenToegang(u) {

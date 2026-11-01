@@ -706,6 +706,7 @@ const CONTROLE = require("./controle")({ db, onCall, onSchedule, geheim, bedrijf
 exports.systeemControle = CONTROLE.systeemControle;
 exports.controleNu = CONTROLE.controleNu;
 /* Mansard: nieuwe bedrijven aanmelden en abonnementen */
+Object.assign(exports, require("./authmail")({ admin, rawDb, onCall, HttpsError, brevoSend, mailHtml, nu }));
 const ABOF = require("./abofactuur")({ rawDb, bucket, brevoSend, mailHtml, nu });
 var MANSARD; MANSARD = require("./mansard")({ abofactuur: ABOF, rawDb, T, onCall, onRequestRaw: _onRequest, HttpsError, nu, mollie, HOST, mfaOk: a => BEV.mfaBevestigd(a) });
 Object.assign(exports, MANSARD.functies);
