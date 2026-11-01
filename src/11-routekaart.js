@@ -32,12 +32,12 @@ async function rvMapTeken(){const el=document.getElementById("rvMap");if(!el||!s
 const RVB={anim:0,route:{},laatst:0,doel:null,r:0,f:1};
 function rvBusB(z){return Math.round(Math.max(18,Math.min(110,44*Math.pow(1.45,z-16))))}
 function rvBusSchaal(el){if(el&&el._map)el.style.setProperty("--busw",rvBusB(el._map.getZoom())+"px")}
-function rvBusIcon(){return window.L.divIcon({className:"rvm-bus",html:`<span class="rvb"><i class="rvb-puls"></i><img src="/img/mansard-bus.png" alt=""></span>`,iconSize:[0,0],iconAnchor:[0,0]})}
+function rvBusIcon(){return window.L.divIcon({className:"rvm-bus",html:`<span class="rvb"><i class="rvb-puls"></i><img src="${typeof busSrc==="function"?busSrc():"/img/mansard-bus.png"}" alt=""></span>`,iconSize:[0,0],iconAnchor:[0,0]})}
 /* richting op het scherm: rechts = 0°, omlaag = 90°. Zijaanzicht: naar rechts gewoon, naar links gespiegeld, kantelen tot ±80° */
 function rvBusRicht(el,a,b,direct){if(!el._bus||!el._map)return;const m=el._map,p=m.latLngToLayerPoint(a),q=m.latLngToLayerPoint(b),dx=q.x-p.x,dy=q.y-p.y;if(Math.hypot(dx,dy)<.5)return;
   let h=Math.atan2(dy,dx)*180/Math.PI,f=1,r=h;if(dx<0){f=-1;r=h>0?h-180:h+180}r=Math.max(-80,Math.min(80,r));
   if(f!==RVB.f){RVB.f=f;RVB.r=r}else RVB.r=direct?r:RVB.r+(r-RVB.r)*.18;
-  const sp=el._bus.getElement&&el._bus.getElement();const b2=sp&&sp.querySelector(".rvb");if(b2){b2.style.setProperty("--r",RVB.r.toFixed(1)+"deg");b2.style.setProperty("--f",f)}}
+  const sp=el._bus.getElement&&el._bus.getElement();const b2=sp&&sp.querySelector(".rvb");if(b2){let ff=f;/* eigen bus met een foto van de andere kant: die tonen in plaats van spiegelen */const be=typeof busEigen==="function"?busEigen():null;if(be&&be.links){const im=b2.querySelector("img"),w=busSrc(f<0);if(im&&im.getAttribute("src")!==w)im.setAttribute("src",w);ff=1}b2.style.setProperty("--r",RVB.r.toFixed(1)+"deg");b2.style.setProperty("--f",ff)}}
 function rvAfstM(a,b){const R=6371000,t=Math.PI/180,x=(b[1]-a[1])*t*Math.cos((a[0]+b[0])*t/2),y=(b[0]-a[0])*t;return Math.hypot(x,y)*R}
 async function rvWeg(a,b){const k=a.map(v=>v.toFixed(5))+">"+b.map(v=>v.toFixed(5));if(RVB.route[k])return RVB.route[k];
   try{const c=new AbortController(),t=setTimeout(()=>c.abort(),5000);

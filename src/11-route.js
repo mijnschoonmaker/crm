@@ -49,7 +49,8 @@ async function routeMove(id,n){
 }
 
 /* ---------- Voortgangskaart: een weg met huisjes en ons busje dat meerijdt ---------- */
-const RV_BUS='<img class="mbus" src="/img/mansard-bus.png" alt="" draggable="false">';
+/* de bus als tekst in de html; met een eigen bus (Instellingen › Eigen bus op de kaart) die, anders de Mansard-bus */
+const RV_BUS={toString(){return `<img class="mbus" src="${typeof busSrc==="function"?busSrc():"/img/mansard-bus.png"}" alt="" draggable="false">`}};
 const RV_VLAG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/><path d="M5 4h13l-2.6 4L18 12H5z" fill="currentColor"/></svg>';
 function rvKaart(o){const{stops,done,todo,nx,klaar,mw,verdiend,totaal,restMin,klaarOm,uM,day,werkMin,reisMin,rt,isT,laat}=o,n=stops.length,pct=Math.round(done/n*100);
   /* waar staat het busje: bij het volgende adres onderweg (halverwege), aan het eind als alles klaar is */

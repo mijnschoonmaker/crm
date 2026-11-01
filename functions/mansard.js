@@ -1,6 +1,6 @@
 /* Mansard als platform: een nieuw bedrijf aanmelden (eerste maand € 1), de status van het abonnement lezen.
    Een bedrijf = bedrijven/<id> (naam, eigenaar, status, proefTot, plan) met daaronder al zijn gegevens. */
-module.exports = ({ abofactuur, rawDb, T, onCall, onRequestRaw, HttpsError, nu, mollie, HOST, mfaOk }) => {
+module.exports = ({ abofactuur, brevoSend, rawDb, T, onCall, onRequestRaw, HttpsError, nu, mollie, HOST, mfaOk }) => {
   /* pakketten (bedragen excl. btw; Mollie schrijft incl. 21% btw af). De eerste maand (proef) kost € 1. */
   const BTW = 21, STARTPRIJS = 1;   // eerste maand, excl. btw (Mollie rekent incl.: € 1,21)
   const PLANS = {
@@ -217,6 +217,40 @@ module.exports = ({ abofactuur, rawDb, T, onCall, onRequestRaw, HttpsError, nu, 
   /* ---------- sleutels van het Mansard-platform (Mollie voor abonnementen, afzender voor mails van nieuwe bedrijven) ----------
      Alleen voor de eigenaar van Mansard, met tweestapsverificatie. Sleutels worden nooit teruggestuurd, alleen of ze er zijn. */
   const PLATFORM_MAILS = ["robin@mansard.nl", "robin@mijnschoonmaker.com"];
+  /* ---------- eigen bus op de kaart: het bedrijf stuurt foto's, Mansard knipt de bus uit en zet hem erbij ---------- */
+  const BUSZ = ["rechts", "links", "voor", "achter"], idOk = v => /^[a-f0-9]{32}$/.test(String(v || ""));
+  const htmlE = s => String(s || "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const busAanvraag = onCall(async req => {
+    const e = emailVan(req.auth); if (T.isLegacy()) throw new HttpsError("failed-precondition", "Niet beschikbaar voor dit bedrijf.");
+    const bid = T.bid(), g = (await rawDb.doc("gebruikers/" + e).get()).data() || {};
+    if (g.bedrijf !== bid) throw new HttpsError("permission-denied", "Geen toegang tot dit bedrijf.");
+    const f = (req.data || {}).fotos || {}, fotos = {}; BUSZ.forEach(z => { if (idOk(f[z])) fotos[z] = f[z]; });
+    if (!fotos.rechts && !fotos.links) throw new HttpsError("invalid-argument", "Voeg in elk geval een foto van de zijkant van je bus toe.");
+    const b = (await rawDb.doc("bedrijven/" + bid).get()).data() || {};
+    await rawDb.doc("platformBus/" + bid).set({ bid, naam: b.naam || "", door: e, fotos, status: "aangevraagd", op: nu() });
+    await rawDb.doc("bedrijven/" + bid + "/instellingen/bedrijf").set({ busFotos: fotos, busStatus: "aangevraagd", busOp: nu() }, { merge: true });
+    try {
+      const pl = (await rawDb.doc("platform/geheim").get()).data() || {}, cf = (await rawDb.doc("geheim/config").get()).data() || {}, key = pl.platformBrevoKey || cf.brevoKey, afz = pl.platformAfzender;
+      if (key && afz && brevoSend) await brevoSend(key, { sender: { name: "Mansard", email: afz }, to: [{ email: BEHEER_MAIL }], subject: "Busfoto's van " + (b.naam || bid),
+        htmlContent: `<p><b>${htmlE(b.naam || bid)}</b> heeft ${Object.keys(fotos).length} foto's van de bus gestuurd (${htmlE(e)}).</p><p>Knip de bus uit en zet hem erbij in het CRM: Instellingen › Mansard-platform › Eigen bussen.</p>` });
+    } catch (x) { console.error("busmail", x); }
+    return { ok: true };
+  });
+  const platformBus = onCall(async req => {
+    const e = emailVan(req.auth); if (!PLATFORM_MAILS.includes(e)) throw new HttpsError("permission-denied", "Alleen voor de eigenaar van Mansard.");
+    if (mfaOk && !(await mfaOk(req.auth))) throw new HttpsError("permission-denied", "Bevestig eerst je inlogcode (tweestapsverificatie).");
+    const d = req.data || {};
+    if (d.actie === "plaats") {
+      const bid = String(d.bid || ""); if (!/^[\w-]{3,40}$/.test(bid) || !idOk(d.rechts)) throw new HttpsError("invalid-argument", "Kies minstens de uitgeknipte bus voor de rechterkant.");
+      if (!(await rawDb.doc("bedrijven/" + bid).get()).exists) throw new HttpsError("not-found", "Bedrijf niet gevonden.");
+      const busBeeld = { rechts: d.rechts, ...(idOk(d.links) ? { links: d.links } : {}) };
+      await rawDb.doc("bedrijven/" + bid + "/instellingen/bedrijf").set({ busBeeld, busStatus: "klaar", busAan: true }, { merge: true });
+      await rawDb.doc("platformBus/" + bid).set({ status: "klaar", busBeeld, klaarOp: nu() }, { merge: true });
+      return { ok: true };
+    }
+    const s = await rawDb.collection("platformBus").orderBy("op", "desc").limit(50).get();
+    return { aanvragen: s.docs.map(x => { const v = x.data(); return { bid: x.id, naam: v.naam || "", door: v.door || "", op: v.op || "", status: v.status || "", fotos: v.fotos || {}, busBeeld: v.busBeeld || null }; }) };
+  });
   const platformSleutels = onCall(async req => {
     const e = emailVan(req.auth); if (!PLATFORM_MAILS.includes(e)) throw new HttpsError("permission-denied", "Alleen voor de eigenaar van Mansard.");
     if (mfaOk && !(await mfaOk(req.auth))) throw new HttpsError("permission-denied", "Bevestig eerst je inlogcode (tweestapsverificatie).");
@@ -252,5 +286,5 @@ module.exports = ({ abofactuur, rawDb, T, onCall, onRequestRaw, HttpsError, nu, 
     return { facturen: await abofactuur.alle() };
   });
 
-  return { functies: { platformFacturen, aboFacturen, platformSleutels, bedrijfAanmaken, abonnement, abonnementStart, abonnementBijwerken, abonnementPlan, abonnementStoppen, mansardHook, beheer }, PLAN, magGebruiken, herbereken, openVoor };
+  return { functies: { busAanvraag, platformBus, platformFacturen, aboFacturen, platformSleutels, bedrijfAanmaken, abonnement, abonnementStart, abonnementBijwerken, abonnementPlan, abonnementStoppen, mansardHook, beheer }, PLAN, magGebruiken, herbereken, openVoor };
 };

@@ -62,7 +62,7 @@ function plBusPos(){if(state.tab!=="control"||!plMeer())return undefined;const s
 /* iedereen: alle bussen tegelijk, met naam. true = de kaart hoeft zelf geen bus te tekenen */
 function rvPloeg(el,pts){if(state.tab!=="control"||!plMeer()||plSel())return false;const L=window.L;
   plMensen().forEach(m=>{const v=m.live;if(!v||!(v.demo||plVers(v)))return;const c=[v.lat,v.lng];pts.push(c);
-    L.marker(c,{icon:L.divIcon({className:"pl-bus",html:`<span style="--pk:${m.kleur}"><img src="/img/mansard-bus.png" alt=""><b>${esc(m.naam)}</b></span>`,iconSize:[0,0],iconAnchor:[0,0]}),zIndexOffset:900})
+    L.marker(c,{icon:L.divIcon({className:"pl-bus",html:`<span style="--pk:${m.kleur}"><img src="${typeof busSrc==="function"?busSrc():"/img/mansard-bus.png"}" alt=""><b>${esc(m.naam)}</b></span>`,iconSize:[0,0],iconAnchor:[0,0]}),zIndexOffset:900})
       .on("click",()=>plKies(m.naam)).addTo(el._laag)});
   return true}
 

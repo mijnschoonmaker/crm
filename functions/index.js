@@ -708,7 +708,7 @@ exports.controleNu = CONTROLE.controleNu;
 /* Mansard: nieuwe bedrijven aanmelden en abonnementen */
 Object.assign(exports, require("./authmail")({ admin, rawDb, onCall, HttpsError, brevoSend, mailHtml, nu }));
 const ABOF = require("./abofactuur")({ rawDb, bucket, brevoSend, mailHtml, nu });
-var MANSARD; MANSARD = require("./mansard")({ abofactuur: ABOF, rawDb, T, onCall, onRequestRaw: _onRequest, HttpsError, nu, mollie, HOST, mfaOk: a => BEV.mfaBevestigd(a) });
+var MANSARD; MANSARD = require("./mansard")({ abofactuur: ABOF, brevoSend, rawDb, T, onCall, onRequestRaw: _onRequest, HttpsError, nu, mollie, HOST, mfaOk: a => BEV.mfaBevestigd(a) });
 Object.assign(exports, MANSARD.functies);
 /* elk uur: welke bedrijven zijn (nog) open? (proef voorbij, abonnement verlopen of achterstand na de respijttermijn) */
 exports.bedrijvenDicht = _onSchedule({ schedule: "3 * * * *", timeZone: "Europe/Amsterdam", timeoutSeconds: 120 }, async () => {

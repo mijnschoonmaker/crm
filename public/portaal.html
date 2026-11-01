@@ -2642,7 +2642,8 @@ function pdfVenster(url, naam, blob) {
 
 /* ---------- live meekijken: waar is de glazenwasser (alleen op de dag van uw bezoek) ---------- */
 const LVK={map:null,car:null,huis:null,lijn:null,van:null,naar:null,anim:0,timer:0,zelf:false,laadt:null};
-const AUTO='<img src="/img/mansard-bus.png" alt="">';
+/* de bus van het bedrijf (eigen bus als die er is, anders de Mansard-bus) */
+const AUTO={toString(){return `<img src="${(B&&B.bus&&B.bus.rechts)||"/img/mansard-bus.png"}" alt="">`}};
 function lvTekst(L){const vn=L.naam?L.naam.charAt(0).toUpperCase()+L.naam.slice(1):PGLAS()?"Uw glazenwasser":"Onze medewerker";
   const oud=L.pos&&L.pos.sec>75?Math.round(L.pos.sec/60):0;if(oud&&L.voor===0)return{t:vn+" is onderweg naar u",s:"Laatste plek "+(oud<=1?"1 minuut":oud+" minuten")+" geleden"+(L.km!=null?" · nog "+String(L.km).replace(".",",")+" km":"")};
   if(L.voor===0)return{t:L.bezigBij?"U bent de volgende":vn+" is onderweg naar u",s:L.km!=null?(L.km<0.3?"Bijna bij u":"Nog "+String(L.km).replace(".",",")+" km"):"We zijn onderweg"};
@@ -2688,7 +2689,7 @@ async function lvPeil(){if(document.hidden||tab!=="home")return;let r;try{r=awai
   const was=D.live;D.live=L;
   if(!L||L.status!=="onderweg"||!!L.pos!==!!(was&&was.pos)){teken();return}
   const T=lvTekst(L),q=id=>document.getElementById(id);if(q("lvT"))q("lvT").textContent=T.t;if(q("lvS"))q("lvS").textContent=T.s;if(q("lvE"))q("lvE").textContent="± "+L.eta;
-  if(L.pos&&LVK.car){LVK.naar={lat:L.pos.lat,lng:L.pos.lng};lvRij(LVK.naar);{const e_=LVK.car.getElement();if(e_)e_.classList.toggle("lv-oud",L.pos.sec>75)}const r_=LVK.car.getElement()&&LVK.car.getElement().querySelector(".lv-rot");if(r_&&L.pos.koers!=null)r_.classList.toggle("links",((L.pos.koers%360)+360)%360>180);}}
+  if(L.pos&&LVK.car){LVK.naar={lat:L.pos.lat,lng:L.pos.lng};lvRij(LVK.naar);{const e_=LVK.car.getElement();if(e_)e_.classList.toggle("lv-oud",L.pos.sec>75)}const r_=LVK.car.getElement()&&LVK.car.getElement().querySelector(".lv-rot");if(r_&&L.pos.koers!=null){const lk_=((L.pos.koers%360)+360)%360>180;if(B&&B.bus&&B.bus.links){const im_=r_.querySelector("img");if(im_)im_.src=lk_?B.bus.links:B.bus.rechts;r_.classList.remove("links")}else r_.classList.toggle("links",lk_)}}}
 /* ---------- start ---------- */
 (async()=>{const q=new URLSearchParams(location.search),seg=location.pathname.split("/").filter(Boolean);
   if(seg[0]==="aanbevolen"&&seg[1])return toonAanbevolen(decodeURIComponent(seg[1]).toUpperCase());
