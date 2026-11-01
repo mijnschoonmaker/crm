@@ -5,9 +5,15 @@ function curPeriod(per,offset=0){
   if(per==="kwartaal"){const q=Math.floor(t.getMonth()/3)+offset,y=t.getFullYear()+Math.floor(q/4),qq=((q%4)+4)%4;return{rg:[new Date(y,qq*3,1),new Date(y,qq*3+3,0)],lbl:"Q"+(qq+1)+" "+y}}
   const y=t.getFullYear()+offset;return{rg:[new Date(y,0,1),new Date(y,11,31)],lbl:String(y)};
 }
+/* hele euro's: rustiger te lezen in de statistieken */
+const stE=n=>"€ "+Math.round(Number(n)||0).toLocaleString("nl-NL");
+/* zelfde moment in de vorige periode: van het begin tot evenver als vandaag (eerlijk vergelijken, ook op de 1e van de maand) */
+function stTotNu(P,V){const t=today(),dag=Math.max(0,Math.round((Math.min(t,P.rg[1])-P.rg[0])/DAY)),e=addDays(V.rg[0],dag);return[V.rg[0],e>V.rg[1]?V.rg[1]:e]}
+/* hoeveel dagen van de periode zijn voorbij (in de eerste dagen geen hard rood procent: dat zegt nog niets) */
+const stDagen=P=>Math.round((Math.min(today(),P.rg[1])-P.rg[0])/DAY)+1;
 /* ---------- grafiekjes in eigen stijl ---------- */
-function stBars(vals,labels,{hi=-1,fmt=v=>eur0(v),h=200,gem=true}={}){const mx=Math.max(1,...vals)*1.1,pos=vals.filter(v=>v>0),avg=pos.length?pos.reduce((a,v)=>a+v,0)/pos.length:0;
-  return `<div class="st-bars" style="--bh:${h}px">${gem&&avg>0?`<div class="st-avg" style="bottom:calc(26px + (var(--bh) - 26px) * ${avg/mx})"><span>gem. ${esc(fmt(avg))}</span></div>`:""}${vals.map((v,i)=>`<div class="st-col${i===hi?" hi":""}" title="${esc(labels[i])}: ${esc(fmt(v))}"><div class="st-tr"><i style="height:${v>0?Math.max(2,v/mx*100):0}%"><em>${v>0?esc(fmt(v)):""}</em></i></div><span>${esc(labels[i])}</span></div>`).join("")}</div>`}
+function stBars(vals,labels,{hi=-1,fmt=v=>stE(v),h=200,gem=true,top=-1,ghost=null}={}){const mx=Math.max(1,...vals,ghost?ghost.v:0)*1.1,pos=vals.filter(v=>v>0),avg=pos.length?pos.reduce((a,v)=>a+v,0)/pos.length:0;
+  return `<div class="st-bars" style="--bh:${h}px">${gem&&avg>0?`<div class="st-avg" style="bottom:calc(26px + (var(--bh) - 26px) * ${avg/mx})"><span>gem. ${esc(fmt(avg))}</span></div>`:""}${vals.map((v,i)=>{const g=ghost&&ghost.i===i&&ghost.v>v?ghost.v:0;return `<div class="st-col${i===hi?" hi":""}${i===top&&v>0?" top":""}" title="${esc(labels[i])}: ${esc(fmt(v))}${g?" · met ingepland "+esc(fmt(g)):""}"><div class="st-tr">${g?`<b class="st-gh" style="height:${g/mx*100}%"><em>${esc(fmt(g))}</em></b>`:""}<i style="height:${v>0?Math.max(2,v/mx*100):0}%">${i===top&&v>0?'<u class="st-kr">🏆</u>':""}<em>${v>0?esc(fmt(v)):""}</em></i></div><span>${esc(labels[i])}</span></div>`}).join("")}</div>`}
 const stDelta=(a,b,suf)=>{if(!b)return"";const d=Math.round((a-b)/Math.abs(b)*100);return `<span class="st-pill ${d>=0?"up":"down"}">${d>=0?"▲":"▼"} ${Math.abs(d)}%${suf?" "+suf:""}</span>`};
 const stTile=(ic,lbl,val,sub,cls="",act="")=>`<div class="st-tile ${cls}"${act}><span class="st-ic">${ic}</span><span class="st-l">${lbl}</span><b>${val}</b><small>${sub}</small></div>`;
 function vInzichten(){
@@ -25,38 +31,44 @@ function vInzichten(){
     const months=[...Array(12)].map((_,i)=>{const d=new Date(t.getFullYear(),t.getMonth()-11+i,1);return{l:d.toLocaleDateString("nl-NL",{month:"short"}).replace(".",""),...fin([d,new Date(d.getFullYear(),d.getMonth()+1,0)])}});
     /* nog te verdienen: ingeplande beurten in de rest van deze periode */
     const ti=iso(t),eind=iso(P.rg[1]),ingepland=actief().filter(k=>k.gepland&&k.gepland>=ti&&k.gepland<=eind).reduce((a,k)=>a+exAmt(k.prijs),0);
-    const vorige=Fv.omzet,record=per==="maand"&&F.omzet>0&&F.omzet>=Math.max(...months.slice(0,11).map(m=>m.omzet));
+    const vorige=Fv.omzet,vt=fin(stTotNu(P,V)).omzet,record=per==="maand"&&F.omzet>0&&F.omzet>=Math.max(...months.slice(0,11).map(m=>m.omzet));
     /* doel van de race: de vorige periode; is die er niet, dan wat er in deze periode al vaststaat (gefactureerd + ingepland) */
     const doelV=vorige>0?vorige:r2(F.omzet+ingepland),doel=Math.max(doelV,1),pct=Math.min(100,Math.round(F.omzet/doel*100)),pctP=Math.min(100,Math.round((F.omzet+ingepland)/doel*100));
-    const doelLbl=vorige>0?`van ${esc(V.lbl)} (${eur0(vorige)})`:`van wat vaststaat voor ${esc(P.lbl)} (${eur0(doelV)})`;
-    const mot=record?"Beste maand van het afgelopen jaar. Top gedaan!":F.omzet>=vorige&&vorige>0?`Je zit al boven ${esc(V.lbl)}. Alles wat erbij komt is winst.`:vorige>0?`Nog ${eur0(vorige-F.omzet)} om ${esc(V.lbl)} te evenaren${ingepland?" · met wat ingepland staat haal je "+pctP+"%":""}.`:F.omzet>0?"Een mooie start. Elke factuur telt.":"Nog geen omzet in deze periode. De eerste factuur is de mooiste.";
+    const doelLbl=vorige>0?`van ${esc(V.lbl)} (${stE(vorige)})`:`van wat vaststaat voor ${esc(P.lbl)} (${stE(doelV)})`;
+    const mot=record?"Beste maand van het afgelopen jaar. Top gedaan!"
+      :vt>0&&F.omzet>=vt?`Je loopt voor: ${stE(F.omzet-vt)} meer dan op hetzelfde moment in ${esc(V.lbl)}.${vorige>F.omzet?` Nog ${stE(vorige-F.omzet)} om heel ${esc(V.lbl)} te evenaren.`:""}`
+      :vt>0?`${stE(vt-F.omzet)} achter op hetzelfde moment in ${esc(V.lbl)}.${ingepland?` Met wat ingepland staat kom je op ${pctP}% van heel ${esc(V.lbl)}.`:""}`
+      :vorige>0?`Je bent net begonnen aan ${esc(P.lbl)}.${ingepland?` Er staat al ${stE(ingepland)} ingepland: samen ${pctP}% van ${esc(V.lbl)}.`:""}`
+      :F.omzet>0?"Een mooie start. Elke factuur telt.":"Nog geen omzet in deze periode. De eerste factuur is de mooiste.";
     html+=`<section class="st-hero"><div class="st-hm"><span class="st-k">Omzet · ${esc(P.lbl)} · ex btw</span>
-        <div class="st-big"><b>${eur0(F.omzet)}</b>${stDelta(F.omzet,vorige,"vs "+V.lbl)}</div>
+        <div class="st-big"><b>${stE(F.omzet)}</b>${vt>0&&stDagen(P)>=3?stDelta(F.omzet,vt,"vs zelfde moment "+V.lbl):""}</div>
         <p class="st-mot">${record?I.spark:""}${mot}</p>
-        ${doelV>0?`<div class="st-goal st-rol"><div class="fg-weg" style="--p:${pct/100}"><div class="fg-baan"><i></i></div><span class="fg-munt">${FG_MUNT}</span><span class="st-vlag">🏁</span></div><div class="st-gl"><span><b>${pct}%</b> ${doelLbl}</span>${ingepland?`<span class="st-ing"><i></i>${eur0(ingepland)} ingepland</span>`:""}</div></div>`:""}</div>
-      <div class="st-hs">${stTile(I.receipt,"Facturen",F.fs.length,"in "+esc(P.lbl))}${stTile(I.check,"Betaald",eur0(betaaldP),"incl btw","ok")}</div></section>
-    <div class="st-tiles">${stTile(I.clock,"Openstaand",eur0(open.reduce((a,f)=>a+totals(f).inc,0)),plural(open.length,"factuur","facturen")+" · incl btw","",` data-act="tab" data-tab="facturen" role="button"`)}
-      ${stTile(I.alert,"Te laat",eur0(late.reduce((a,f)=>a+totals(f).inc,0)),late.length?plural(late.length,"factuur","facturen")+" over tijd":"alles op tijd",late.length?"late":"ok")}
+        ${doelV>0?`<div class="st-goal st-rol"><div class="fg-weg" style="--p:${pct/100}"><div class="fg-baan"><i></i></div><span class="fg-munt">${FG_MUNT}</span><span class="st-vlag">🏁</span></div><div class="st-gl"><span><b>${pct}%</b> ${doelLbl}</span>${ingepland?`<span class="st-ing"><i></i>${stE(ingepland)} ingepland</span>`:""}</div></div>`:""}</div>
+      <div class="st-hs">${stTile(I.receipt,"Facturen",F.fs.length,"in "+esc(P.lbl))}${stTile(I.check,"Betaald",stE(betaaldP),"incl btw","ok")}</div></section>
+    <div class="st-tiles">${stTile(I.clock,"Openstaand",stE(open.reduce((a,f)=>a+totals(f).inc,0)),plural(open.length,"factuur","facturen")+" · incl btw","",` data-act="tab" data-tab="facturen" role="button"`)}
+      ${stTile(I.alert,"Te laat",stE(late.reduce((a,f)=>a+totals(f).inc,0)),late.length?plural(late.length,"factuur","facturen")+" over tijd":"alles op tijd",late.length?"late":"ok")}
       ${stTile(I.timer,"Betaaltermijn",term==null?"–":term+" dagen","gemiddeld tot betaling",term!=null&&term<=7?"ok":"")}
-      ${stTile(I.euro,"Omzet "+t.getFullYear(),eur0(Y.omzet),Yv.omzet?(Y.omzet>=Yv.omzet?"▲ ":"▼ ")+Math.abs(Math.round((Y.omzet-Yv.omzet)/Yv.omzet*100))+"% vs vorig jaar":"ex btw, tot vandaag")}</div>
-    <section class="st-card"><div class="st-ch"><div><h3>Omzet per maand</h3><p>Laatste 12 maanden · ex btw · stippellijn = gemiddelde</p></div>${state.dl?`<button type="button" class="small" data-act="rapport">${I.dl}Rapport (PDF)</button>`:""}</div>
-      ${stBars(months.map(m=>m.omzet),months.map(m=>m.l),{hi:11,h:230})}</section>`;
+      ${stTile(I.euro,"Omzet "+t.getFullYear(),stE(Y.omzet),Yv.omzet?(Y.omzet>=Yv.omzet?"▲ ":"▼ ")+Math.abs(Math.round((Y.omzet-Yv.omzet)/Yv.omzet*100))+"% vs vorig jaar":"ex btw, tot vandaag")}</div>
+    <section class="st-card"><div class="st-ch"><div><h3>Omzet per maand</h3><p>Laatste 12 maanden · ex btw · 🏆 beste maand · gestippeld = gemiddeld ${(()=>{const p=months.slice(0,11).map(m=>m.omzet).filter(v=>v>0);return p.length?stE(p.reduce((a,v)=>a+v,0)/p.length):""})()}${per==="maand"?" · lichte balk = met wat ingepland staat":""}</p></div>${state.dl?`<button type="button" class="small" data-act="rapport">${I.dl}Rapport (PDF)</button>`:""}</div>
+      ${(()=>{const v=months.map(m=>m.omzet),af=v.slice(0,11),tp=af.some(x=>x>0)?af.indexOf(Math.max(...af)):-1;return stBars(v,months.map(m=>m.l),{hi:11,h:240,top:tp,ghost:per==="maand"&&ingepland?{i:11,v:v[11]+ingepland}:null})})()}</section>`;
   }else if(state.itab==="werk"){
-    const bs=state.beurten.filter(b=>!b.geannuleerd&&inRange(b.datum,P.rg)),bv=state.beurten.filter(b=>!b.geannuleerd&&inRange(b.datum,V.rg));
+    const bs=state.beurten.filter(b=>!b.geannuleerd&&inRange(b.datum,P.rg)),bv=state.beurten.filter(b=>!b.geannuleerd&&inRange(b.datum,V.rg));const VT=stTotNu(P,V),bvt=state.beurten.filter(b=>!b.geannuleerd&&inRange(b.datum,VT)).length;
     const mins=bs.reduce((a,b)=>a+beurtMin(b),0),om=bs.reduce((a,b)=>a+beurtOmzet(b),0);
     const {per:per_d,sub:sub_d}=stDienstSplit(bs);const dk=Object.keys(per_d).sort((a,b)=>per_d[b]-per_d[a]),dtot=dk.reduce((a,k)=>a+per_d[k],0)||1;
     const wdc=[0,0,0,0,0,0,0];bs.forEach(b=>{wdc[(parse(b.datum).getDay()+6)%7]+=1});const top=wdc.indexOf(Math.max(...wdc));
     const dag={};state.beurten.forEach(b=>{if(b.geannuleerd)return;dag[b.datum]=(dag[b.datum]||0)+beurtOmzet(b)});const best=Object.entries(dag).sort((a,b)=>b[1]-a[1])[0];
     const ach=overdue().length,gem=bs.length?om/bs.length:0;
-    const mot=!bs.length?"Nog geen beurten afgemeld in deze periode. Op naar de eerste!":bs.length>bv.length?`${bs.length-bv.length} beurten meer dan ${esc(V.lbl)}. Lekker bezig!`:bs.length===bv.length?`Net zoveel beurten als ${esc(V.lbl)}. Stabiel!`:`${esc(V.lbl)} telde er ${bv.length}. Nog ${bv.length-bs.length} te gaan om gelijk te komen.`;
+    const mot=bvt>0&&bs.length>=bvt?`${bs.length-bvt?bs.length-bvt+" woningen meer dan":"Even veel woningen als"} op hetzelfde moment in ${esc(V.lbl)}. Lekker bezig!`
+      :bvt>0?`${bvt-bs.length} woningen achter op hetzelfde moment in ${esc(V.lbl)}. Elke beurt telt!`
+      :!bs.length?`Nieuwe ${perW}, nieuwe kansen.${bv.length?` ${esc(V.lbl)} telde ${bv.length} woningen: dat is het doel.`:""}`:"Mooi begin, ga zo door!";
     html+=`<section class="st-hero"><div class="st-hm"><span class="st-k">Woningen gedaan · ${esc(P.lbl)}</span>
-        <div class="st-big"><b>${bs.length}</b>${stDelta(bs.length,bv.length,"vs "+V.lbl)}</div>
+        <div class="st-big"><b>${bs.length}</b>${bvt>0&&stDagen(P)>=3?stDelta(bs.length,bvt,"vs zelfde moment "+V.lbl):""}</div>
         <p class="st-mot">${mot}</p>
         ${(()=>{if(!bv.length&&!bs.length)return"";const doel=Math.max(bv.length,1),pc=Math.min(100,Math.round(bs.length/doel*100)),rec=bs.length>=bv.length&&bv.length>0;
           const dagen=new Set(bs.map(b=>b.datum)).size,pd=dagen?bs.length/dagen:0,rest=Math.max(0,bv.length-bs.length),nd=pd?Math.ceil(rest/pd):0;
           return `<div class="st-goal st-rol"><div class="fg-weg" style="--p:${pc/100}"><div class="fg-baan"><i></i></div><span class="fg-munt st-hmunt">${typeof HUIS!=="undefined"?HUIS:""}</span><span class="st-vlag">🏁</span></div>
             <div class="st-gl"><span><b>${bs.length} van ${bv.length||"–"}</b> woningen van ${esc(V.lbl)}</span><span class="st-ing">${rec?"Record-tempo 🎉":rest?`nog ${rest}${nd?` · ±${plural(nd,"werkdag","werkdagen")}`:""}`:""}</span></div></div>
-            ${pd?`<div class="st-wk"><span><b>${pd.toLocaleString("nl-NL",{maximumFractionDigits:1})}</b> woningen per werkdag</span><span><b>${dagen}</b> ${dagen===1?"dag":"dagen"} gewerkt</span>${gem?`<span><b>${eur0(gem*pd)}</b> per werkdag</span>`:""}</div>`:""}`})()}</div>
+            ${pd?`<div class="st-wk"><span><b>${pd.toLocaleString("nl-NL",{maximumFractionDigits:1})}</b> woningen per werkdag</span><span><b>${dagen}</b> ${dagen===1?"dag":"dagen"} gewerkt</span>${gem?`<span><b>${stE(gem*pd)}</b> per werkdag</span>`:""}</div>`:""}`})()}</div>
       <div class="st-hs">${(()=>{const t=typeof wdPeriode==="function"?wdPeriode(P.rg):{dagen:0};return t.dagen&&t.perUur?stTile(I.euro,"Echt per uur",t.perUur?eur(t.perUur):"–","per gewerkt uur, loods tot loods zonder pauze","ok"):stTile(I.euro,"Per klantuur",mins?eur(om/(mins/60)):"–","omzet ex btw per uur bij klanten","ok")})()}${stTile(I.receipt,"Per beurt",gem?eur(gem):"–","gemiddeld ex btw")}</div></section>
     <div class="st-tiles">${stTile(I.timer,"Uren bij klanten",uren(mins),"gemeten of gepland")}
       ${stTile(I.euro,"Omzet uit werk",eur(om),"afgemelde beurten ex btw")}
@@ -74,20 +86,20 @@ function vInzichten(){
     const zak=ak.filter(k=>k.soort==="zakelijk").length,vve=ak.filter(k=>k.soort==="vve").length,prt=ak.length-zak-vve;
     const laatstB={};state.beurten.forEach(b=>{if(!b.geannuleerd&&b.datum&&(!laatstB[b.klantId]||b.datum>laatstB[b.klantId]))laatstB[b.klantId]=b.datum});
     const groei=[...Array(12)].map((_,i)=>{const d=new Date(t.getFullYear(),t.getMonth()-11+i+1,0);const di=iso(d),ds=iso(new Date(d.getFullYear(),d.getMonth(),1));return{l:new Date(d.getFullYear(),d.getMonth(),1).toLocaleDateString("nl-NL",{month:"short"}).replace(".",""),n:i===11?ak.length:state.klanten.filter(k=>klantActiefIn(k,ds,di,laatstB)).length}});
-    const mot=nieuw.length?`${plural(nieuw.length,"nieuwe klant","nieuwe klanten")} in ${esc(P.lbl)}. Samen goed voor ${eur0(nieuw.filter(k=>k.actief!==false).reduce((a,k)=>a+exAmt(k.prijs)*365/freqDays(k),0))} per jaar.`:`Nog geen nieuwe klanten in ${esc(P.lbl)}. Een aanbeveling via het klantportaal helpt!`;
+    const mot=nieuw.length?`${plural(nieuw.length,"nieuwe klant","nieuwe klanten")} in ${esc(P.lbl)}. Samen goed voor ${stE(nieuw.filter(k=>k.actief!==false).reduce((a,k)=>a+exAmt(k.prijs)*365/freqDays(k),0))} per jaar.`:`Nog geen nieuwe klanten in ${esc(P.lbl)}. Een aanbeveling via het klantportaal helpt!`;
     html+=`<section class="st-hero"><div class="st-hm"><span class="st-k">Actieve klanten</span>
         <div class="st-big"><b>${ak.length}</b>${nieuw.length?`<span class="st-pill up">+${nieuw.length} in ${esc(P.lbl)}</span>`:""}</div>
         <p class="st-mot">${mot}</p>
         <div class="st-wijk" aria-hidden="true">${ak.slice(0,60).map(k=>`<i class="${nieuw.includes(k)?"nw":""}${isZak(k)?" zk":""}" title="${esc(cleanName(k.naam))}">${HUIS}</i>`).join("")}${ak.length>60?`<small>+${ak.length-60}</small>`:""}</div>
         <div class="st-goal"><div class="st-share sm"><i style="width:${ak.length?prt/ak.length*100:0}%;--h:190"></i><i style="width:${ak.length?zak/ak.length*100:0}%;--h:30"></i>${vve?`<i style="width:${vve/ak.length*100}%;--h:260"></i>`:""}</div><div class="st-gl"><span><span class="st-dot" style="--h:190"></span>${prt} particulier</span><span><span class="st-dot" style="--h:30"></span>${zak} zakelijk</span>${vve?`<span><span class="st-dot" style="--h:260"></span>${vve} VvE</span>`:""}</div></div></div>
-      <div class="st-hs">${stTile(I.euro,"Verwacht per jaar",eur0(jaar),"uit vaste klanten, ex btw","ok")}${stTile(I.klanten,"Per klant",perK?eur0(perK):"–","gemiddeld per jaar")}</div></section>
+      <div class="st-hs">${stTile(I.euro,"Verwacht per jaar",stE(jaar),"uit vaste klanten, ex btw","ok")}${stTile(I.klanten,"Per klant",perK?stE(perK):"–","gemiddeld per jaar")}</div></section>
     <div class="st-tiles">${stTile(I.plus,"Nieuw",nieuw.length,nieuwV.length?nieuwV.length+" in "+esc(V.lbl):"in "+esc(P.lbl),nieuw.length?"ok":"")}
       ${stTile(I.klanten,"Actief",ak.length,`${prt} particulier · ${zak} zakelijk${vve?" · "+vve+" VvE":""}`)}
       ${stTile(I.timer,"Inactief",inact.length,"gepauzeerd of opgezegd",inact.length?"":"ok")}
-      ${stTile(I.spark,"Beste klant",top[0]?eur0(top[0].s):"–",top[0]?esc(cleanName(top[0].k.naam)):"nog geen facturen")}</div>
+      ${stTile(I.spark,"Beste klant",top[0]?stE(top[0].s):"–",top[0]?esc(cleanName(top[0].k.naam)):"nog geen facturen")}</div>
     <section class="st-card"><div class="st-ch"><div><h3>Klantengroei</h3><p>Actieve klanten aan het eind van elke maand</p></div></div>${stBars(groei.map(g=>g.n),groei.map(g=>g.l),{hi:11,fmt:v=>String(Math.round(v)),h:200,gem:false})}</section>
-    <div class="st-two"><section class="st-card"><div class="st-ch"><div><h3>Jaaromzet per ronde</h3><p>Verwacht, ex btw</p></div></div>${rk.length?`<div class="st-rows">${rk.map(r=>`<div class="st-row bar"><span class="st-rn">${esc(r)}</span><span class="st-rb"><i style="width:${rd[r]/rmx*100}%;--h:${hue(r)}"></i></span><b>${eur0(rd[r])}</b></div>`).join("")}</div>`:'<p class="st-leeg">Nog geen klanten.</p>'}</section>
-      <section class="st-card"><div class="st-ch"><div><h3>Beste klanten</h3><p>Gefactureerd ex btw, alle tijd</p></div></div>${top.length?`<div class="st-rows">${top.map((x,i)=>`<div class="st-row bar click" data-act="klant" data-id="${esc(x.k.id)}" role="button"><span class="st-av" style="--h:${hue(x.k.ronde||x.k.naam)}">${i+1}</span><span class="st-rn">${esc(cleanName(x.k.naam))}</span><span class="st-rb"><i style="width:${x.s/tmx*100}%;--h:190"></i></span><b>${eur0(x.s)}</b></div>`).join("")}</div>`:'<p class="st-leeg">Nog geen facturen.</p>'}</section></div>`;
+    <div class="st-two"><section class="st-card"><div class="st-ch"><div><h3>Jaaromzet per ronde</h3><p>Verwacht, ex btw</p></div></div>${rk.length?`<div class="st-rows">${rk.slice(0,state.stAlleRondes?99:8).map(r=>`<div class="st-row bar"><span class="st-rn">${esc(r)}</span><span class="st-rb"><i style="width:${rd[r]/rmx*100}%;--h:${hue(r)}"></i></span><b>${stE(rd[r])}</b></div>`).join("")}</div>${rk.length>8?`<button type="button" class="linkbtn st-meer" data-act="stRondes">${state.stAlleRondes?"Minder tonen":`Toon alle ${rk.length} rondes`}</button>`:""}`:'<p class="st-leeg">Nog geen klanten.</p>'}</section>
+      <section class="st-card"><div class="st-ch"><div><h3>Beste klanten</h3><p>Gefactureerd ex btw, alle tijd</p></div></div>${top.length?`<div class="st-rows">${top.map((x,i)=>`<div class="st-row bar click" data-act="klant" data-id="${esc(x.k.id)}" role="button"><span class="st-av" style="--h:${hue(x.k.ronde||x.k.naam)}">${i+1}</span><span class="st-rn">${esc(cleanName(x.k.naam))}</span><span class="st-rb"><i style="width:${x.s/tmx*100}%;--h:190"></i></span><b>${stE(x.s)}</b></div>`).join("")}</div>`:'<p class="st-leeg">Nog geen facturen.</p>'}</section></div>`;
   }
   return html;
 }
@@ -117,7 +129,7 @@ function stDienstSplit(bs){const G=stGroepen().filter(g=>g.type!=="glas"&&g.naam
   return{per,sub}}
 function stDiensten(dk,per,tot,sub){const KL=["#2a3245","#c9a46a","#5d6780","#9aa3b5","#8a6d43","#3e4a64"],R=56,C=2*Math.PI*R,gap=dk.length>1?4:0;let acc=0;
   const ring=dk.map((k,i)=>{const f=per[k]/tot,len=Math.max(0,f*C-gap),seg=`<circle class="st-seg" cx="70" cy="70" r="${R}" fill="none" stroke="${i===0?"url(#stg0)":KL[i%KL.length]}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${len} ${C}" stroke-dashoffset="${-acc*C}" style="--len:${len};--c:${C}"/>`;acc+=f;return seg}).join("");
-  return `<div class="st-dv"><div class="st-ring"><svg viewBox="0 0 140 140"><defs><linearGradient id="stg0" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5d6a88"/><stop offset=".55" stop-color="#2f3850"/><stop offset="1" stop-color="#1b2130"/></linearGradient></defs><circle cx="70" cy="70" r="${R}" fill="none" stroke="#eef0f3" stroke-width="12"/><circle cx="70" cy="70" r="${R-13}" fill="none" stroke="#f4f5f7" stroke-width="1"/><g transform="rotate(-90 70 70)">${ring}</g></svg><div><small class="st-rk">Omzet</small><b>${eur0(tot)}</b><small>${plural(dk.length,"dienst","diensten")}</small></div></div>
+  return `<div class="st-dv"><div class="st-ring"><svg viewBox="0 0 140 140"><defs><linearGradient id="stg0" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5d6a88"/><stop offset=".55" stop-color="#2f3850"/><stop offset="1" stop-color="#1b2130"/></linearGradient></defs><circle cx="70" cy="70" r="${R}" fill="none" stroke="#eef0f3" stroke-width="12"/><circle cx="70" cy="70" r="${R-13}" fill="none" stroke="#f4f5f7" stroke-width="1"/><g transform="rotate(-90 70 70)">${ring}</g></svg><div><small class="st-rk">Omzet</small><b>${stE(tot)}</b><small>${plural(dk.length,"dienst","diensten")}</small></div></div>
     <div class="st-dl">${dk.map((k,i)=>{const p=Math.round(per[k]/tot*100);return `<div class="st-di${sub&&sub[k]&&Object.keys(sub[k]).length?" kan":""}" style="--c:${KL[i%KL.length]}" ${sub&&sub[k]&&Object.keys(sub[k]).length?`role="button" tabindex="0"`:""}><span class="st-dic">${I.spark}</span><div class="st-dim"><div class="st-dit"><b>${esc(k)}</b><span class="mono">${eur(per[k])}</span></div><div class="st-dib"><i style="width:${p}%"></i></div><small><b>${p}%</b> van de omzet${sub&&sub[k]&&Object.keys(sub[k]).length?` · <span class="st-dmeer">onderdelen bekijken</span>`:""}</small>${sub&&sub[k]&&Object.keys(sub[k]).length?`<div class="st-dsub" hidden>${Object.entries(sub[k]).sort((a,b)=>b[1]-a[1]).map(([n,v])=>`<div><span>${esc(n)}</span><b>${eur(v)}</b></div>`).join("")}</div>`:""}</div></div>`}).join("")}</div></div>`}
 
 document.addEventListener("click",e=>{const d=e.target.closest(".st-di.kan");if(!d)return;const x=d.querySelector(".st-dsub");if(x){x.hidden=!x.hidden;d.classList.toggle("open",!x.hidden)}});

@@ -4495,3 +4495,17 @@ dialog.nav-kies{width:min(360px,calc(100vw - 32px));border-radius:20px}.nav-k{di
 .tk-push>svg{width:20px;height:20px;flex:none;color:#b7791f}.tk-push>span{flex:1;min-width:0}.tk-push b{display:block;font-size:14px}.tk-push small{display:block;color:var(--muted,#6b7280);font-size:12.5px;margin-top:1px}
 .tk-push.aan{background:#eef8f2;border-color:#cfe9d9}.tk-push.aan>svg{color:#2e7a52}
 @media(max-width:600px){.tk-push{flex-wrap:wrap}.tk-push>span{flex-basis:calc(100% - 34px)}}
+
+/* ---------- Statistieken: beste maand (goud + beker), prognose-balk, hele euro's ---------- */
+html body:not(#zz) .st-bars{padding-top:28px}
+html body:not(#zz) .st-bars .st-col.top .st-tr i{background:linear-gradient(180deg,#e2c084,#b8904f)!important;box-shadow:0 10px 20px -12px rgb(138 109 67 / .8)}
+html body:not(#zz) .st-bars .st-col.top .st-tr em{color:#8a6d43!important;font-weight:700!important}
+html body:not(#zz) .st-bars .st-col.top>span{color:#8a6d43!important;font-weight:700!important}
+.st-kr{position:absolute;left:50%;top:6px;transform:translateX(-50%);font-size:13px;text-decoration:none;line-height:1}
+.st-gh{position:absolute;left:0;right:0;bottom:0;z-index:0;border-radius:8px;background:repeating-linear-gradient(135deg,rgb(28 34 49 / .10) 0 6px,rgb(28 34 49 / .03) 6px 12px);border:1.5px dashed rgb(28 34 49 / .3)}
+.st-gh em{position:absolute;left:50%;bottom:calc(100% + 4px);transform:translateX(-50%);font-style:normal;font-size:11px;font-weight:600;color:#7a7e84;white-space:nowrap}
+html body:not(#zz) .st-bars .st-tr i{z-index:1}
+html body:not(#zz) .st-bars .st-col.hi:has(.st-gh) .st-tr i em{bottom:auto;top:-22px;opacity:0!important}
+html body:not(#zz) .st-bars .st-avg span{display:none!important}
+.st-tile b{font-size:24px}
+html body:not(#zz) .st-meer{display:block;margin:12px auto 0;font-size:13px;font-weight:600;color:#252c3c!important;background:none!important;text-decoration:underline;text-underline-offset:3px}
