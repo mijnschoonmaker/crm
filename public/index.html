@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="9b534374babe"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="99749132e9dd"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -7752,7 +7752,7 @@ function normTpl(d,sv){sv=sv||{};const r={...d,...sv,eigen:!d.naam};r.mail=sv.ma
 /* sjablonen die niet meer bestaan (ook niet als er ooit een aangepaste versie van is opgeslagen) */
 const TPL_WEG=["voltooid"];
 /* verborgen: niet meer in de lijst; de opgeslagen tekst blijft bewaard (terugzetten = hier weghalen) */
-const TPL_VERBORGEN=["afkondiging"];
+const TPL_VERBORGEN=["afkondiging",...(LIVE?["welkom"]:[])];
 const tpls=()=>{const o={};Object.keys(TPL).filter(k=>!TPL_VERBORGEN.includes(k)).forEach(k=>o[k]=normTpl(TPL[k],state.sjablonen[k]));Object.keys(state.sjablonen).forEach(k=>{if(!o[k]&&state.sjablonen[k]&&!TPL_WEG.includes(k)&&!TPL_VERBORGEN.includes(k))o[k]=normTpl({},state.sjablonen[k])});return o};
 function klantVars(k,datum){
   const st=S(),tm=toMin(k.tijd),tv=tm!=null?"tussen "+k.tijd+" en "+fromMin(tm+duur(k)):"in de loop van de dag";

@@ -7356,7 +7356,7 @@ function normTpl(d,sv){sv=sv||{};const r={...d,...sv,eigen:!d.naam};r.mail=sv.ma
 /* sjablonen die niet meer bestaan (ook niet als er ooit een aangepaste versie van is opgeslagen) */
 const TPL_WEG=["voltooid"];
 /* verborgen: niet meer in de lijst; de opgeslagen tekst blijft bewaard (terugzetten = hier weghalen) */
-const TPL_VERBORGEN=["afkondiging"];
+const TPL_VERBORGEN=["afkondiging",...(LIVE?["welkom"]:[])];
 const tpls=()=>{const o={};Object.keys(TPL).filter(k=>!TPL_VERBORGEN.includes(k)).forEach(k=>o[k]=normTpl(TPL[k],state.sjablonen[k]));Object.keys(state.sjablonen).forEach(k=>{if(!o[k]&&state.sjablonen[k]&&!TPL_WEG.includes(k)&&!TPL_VERBORGEN.includes(k))o[k]=normTpl({},state.sjablonen[k])});return o};
 function klantVars(k,datum){
   const st=S(),tm=toMin(k.tijd),tv=tm!=null?"tussen "+k.tijd+" en "+fromMin(tm+duur(k)):"in de loop van de dag";
