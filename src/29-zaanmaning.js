@@ -9,6 +9,13 @@ function fhVolgende(f){
   if(!f||f.soort==="offerte"||f.status!=="open"||!f.verval||!f.verstuurdOp)return null;
   const st=S(),k=state.klanten.find(x=>x.id===f.klantId),vd=iso(today());
   if((st.fhIncasso&&k&&k.incasso)||(f.incasso&&!f.incassoMislukt))return null;
+  /* veiligheid: nooit herinneren als de betaling al binnen is of nog verwerkt wordt */
+  if(f.betaaldOp||f.betaald===true||f.mollieStatus==="paid"||f.mollieStatus==="pending"||f.mollieStatus==="authorized")return null;
+  const rest=Math.round((totals(f).inc-(Number(f.deelBetaald)||0))*100)/100;if(!(rest>0.009))return null;
+  /* een bijschrijving die nog gecontroleerd moet worden en precies dit bedrag is: eerst kijken, niet herinneren */
+  if((state.banktx||[]).some(t=>(t.status==="controleren"||t.status==="onbekend")&&Math.abs(Math.abs(Number(t.bedrag)||0)-rest)<0.01))return{soort:"wacht",lbl:"Eerst bijschrijving controleren",datum:vd,klaar:false};
+  /* bankkoppeling niet bijgewerkt (fout of langer dan 30 uur geleden): misschien is er al betaald, dus wachten */
+  try{const bk=typeof fbBankInfo==="function"?fbBankInfo():{};if(bk.gekoppeld&&(bk.fout||bk.verlopen||!bk.bijgewerkt||Date.now()-new Date(bk.bijgewerkt).getTime()>30*36e5))return{soort:"wacht",lbl:"Bank niet bijgewerkt",datum:vd,klaar:false}}catch(e){}
   if(f.likifinOp)return{soort:"bijlikifin",lbl:"Bij Likifin",datum:f.likifinOp,klaar:false};
   if(f.wikOp){const d=iso(addDays(parse(f.wikOp),FH_LIKIFIN_DAGEN));return{soort:"likifin",lbl:"Overdragen aan Likifin",datum:d,klaar:vd>=d}}
   const M=fhMomenten(),n=Number(f.herinneringen)||0;let j=n;while(M[j]&&!M[j].aan)j++;const m=M[j];if(!m)return null;
@@ -18,6 +25,7 @@ function fhVolgende(f){
 /* mag deze stap nu? anders een melding met de datum */
 function fhPoort(f,wik){const v=fhVolgende(f);
   if(!v){toast(f.status==="open"&&!f.verstuurdOp?"Verstuur eerst de factuur":"Voor deze factuur is geen herinnering nodig");return false}
+  if(v.soort==="wacht"){toast(v.lbl==="Bank niet bijgewerkt"?"De bankgegevens zijn niet bijgewerkt. Werk eerst de bank bij, misschien is er al betaald":"Er staat een bijschrijving met dit bedrag klaar om te controleren. Kijk die eerst na");return false}
   if(v.soort==="likifin"||v.soort==="bijlikifin"){toast(v.soort==="bijlikifin"?"Deze factuur ligt al bij Likifin":"De WIK-brief is al verstuurd. Vanaf "+fmtD(v.datum)+" draag je hem over aan Likifin");return false}
   if(wik&&v.soort!=="wik"){toast("Eerst de "+v.lbl.toLowerCase()+(v.klaar?"":" (vanaf "+fmtD(v.datum)+")")+", daarna pas de WIK-brief");return false}
   if(!wik&&v.soort==="wik"){if(v.klaar)return true;toast("De volgende stap is de WIK-brief, vanaf "+fmtD(v.datum));return false}
@@ -25,6 +33,7 @@ function fhPoort(f,wik){const v=fhVolgende(f);
   return true}
 /* regel in de factuurlijst */
 function fhRegel(f){const v=fhVolgende(f);if(!v)return"";
+  if(v.soort==="wacht")return `<small class="fh-v fh-lk">${esc(v.lbl)}</small>`;
   if(v.soort==="bijlikifin")return `<small class="fh-v fh-lk">Bij Likifin sinds ${esc(fbKort(v.datum))}</small>`;
   return v.klaar?`<small class="fh-v fh-klaar">${esc(v.soort==="likifin"?"Klaar voor Likifin":v.lbl+" klaar")}</small>`:`<small class="fh-v">Volgende: ${esc(v.soort==="likifin"?"Likifin":v.lbl.toLowerCase())} · ${esc(fbKort(v.datum))}</small>`}
 function fhKlaar(){const o={herinnering:[],wik:[],likifin:[]};facturen().forEach(f=>{const v=fhVolgende(f);if(v&&v.klaar&&o[v.soort])o[v.soort].push(f)});return o}

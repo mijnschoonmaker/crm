@@ -196,7 +196,7 @@ def vve_locaties(pg):
         await new Promise(r=>setTimeout(r,500));
         const j=T.state.klanten.find(x=>x.hoofdKlantId===id)||{};uit.jobAdres=j.adres;uit.jobVanaf=j.aanbodVanaf;
         for(const x of T.state.klanten.filter(x=>x.hoofdKlantId===id||x.id===id))await T.del('klanten',x.id);
-      }finally{Object.assign(s,oud)}
+      }finally{for(const k of Object.keys(oud)){if(oud[k]===undefined)delete s[k];else s[k]=oud[k]}}
       return uit}""")
     check(G, "VvE-schoonmaak krijgt 9% btw", r["btw9"] == 9, r)
     check(G, "VvE € 63,22 incl. (9%) toont € 58,00 excl.", r["vveEx"] == 58, r)
@@ -269,6 +269,52 @@ def herinneringen(pg):
     check(G, "Niet eerder naar Likifin", r["f"] == ["likifin", False], r["f"])
     check(G, "Geen herinnering voor een niet-verstuurde factuur", r["g"] is None, r["g"])
     check(G, "WIK-brief kan niet vóór de herinnering", r["p"] is False, r["p"])
+
+
+def herinneringen_veilig(pg):
+    G = "Herinneringen veilig"
+    r = pg.evaluate("""()=>{const T=MSTEST,st=T.state,d=n=>T.iso(T.addDays(T.today(),n)),oudS={...(st.settings||{})},oudB=st.banktx,oudK=st.klanten,oudF=st.facturen;
+      const uit={};try{
+      st.settings={...(st.settings||{}),fhAan:true,fhWerkdagen:false,fhIncasso:true,fhM:undefined,termijn:14};
+      const kA={id:'kA',naam:'Jansen, Piet',email:'piet@voorbeeld.nl',actief:true},kB={id:'kB',naam:'de Vries, Sanne',email:'sanne@voorbeeld.nl',actief:true},kI={id:'kI',naam:'Incasso, Ina',email:'ina@voorbeeld.nl',actief:true,incasso:true};
+      const F=(id,kid,x)=>({id,soort:'factuur',klantId:kid,klantNaam:'x',nummer:id,datum:d(-40),verstuurdOp:d(-40),status:'open',incl:true,btw:21,regels:[{omschrijving:'Glasbewassing',aantal:1,prijs:68}],...x});
+      st.klanten=[...oudK.filter(k=>!['kA','kB','kI'].includes(k.id)),kA,kB,kI];st.banktx=[];
+      const V=f=>T.fhVolgende(f);
+      uit.betaald=V(F('f1','kA',{verval:d(-30),status:'betaald',betaaldOp:d(-2)}));
+      uit.betaaldOpMaarOpen=V(F('f2','kA',{verval:d(-30),betaaldOp:d(-1)}));
+      uit.molliePaid=V(F('f3','kA',{verval:d(-30),mollieStatus:'paid'}));
+      uit.deelVol=V(F('f4','kA',{verval:d(-30),deelBetaald:68}));
+      uit.creditnota=V(F('f5','kA',{verval:d(-30),regels:[{omschrijving:'Credit',aantal:1,prijs:-68}]}));
+      uit.offerte=V(F('f6','kA',{verval:d(-30),soort:'offerte'}));
+      uit.concept=V(F('f7','kA',{verval:d(-30),status:'concept'}));
+      uit.nietVerstuurd=V(F('f8','kA',{verval:d(-30),verstuurdOp:''}));
+      uit.incasso=V(F('f9','kI',{verval:d(-30)}));
+      const v0=V(F('g0','kA',{verval:d(0)}));uit.vervalVandaag=[v0&&v0.soort,v0&&v0.klaar,v0&&v0.datum,d(1)];
+      const v1=V(F('g1','kA',{verval:d(-1)}));uit.dag1=[v1&&v1.soort,v1&&v1.klaar,v1&&v1.stap&&v1.stap.naam];
+      const v2=V(F('g2','kA',{verval:d(-30),herinneringen:1,herinnerdOp:d(0)}));uit.tweedeNietMeteen=[v2&&v2.stap&&v2.stap.naam,v2&&v2.klaar,v2&&v2.datum,d(3)];
+      const v3=V(F('g3','kA',{verval:d(-5),herinneringen:1,herinnerdOp:d(-4)}));uit.tweedeTeVroeg=[v3&&v3.klaar,v3&&v3.datum,d(3)];
+      st.banktx=[{id:'t1',status:'controleren',bedrag:68}];const vb=V(F('g4','kA',{verval:d(-30)}));uit.bijschrijving=[vb&&vb.soort,vb&&vb.klaar];st.banktx=[];
+      const fh=F('g5','kA',{verval:d(-30),deelBetaald:30});uit.deelBedrag=T.factVars?T.factVars(fh).bedrag:null;
+      /* wachtrij: alleen de te late factuur, bij de juiste klant en het juiste e-mailadres */
+      st.facturen=[...oudF,F('q1','kA',{verval:d(-2)}),F('q2','kB',{verval:d(5)}),F('q3','kB',{verval:d(-20),status:'betaald',betaaldOp:d(-1)})];
+      const q=(T.queues?T.queues():[]).find(x=>x.id==='aanmaning');uit.wachtrij=q?q.items.map(i=>[i.ref,i.k.id,i.k.email,i.stap&&i.stap.naam]):null;
+      }finally{st.settings=oudS;st.banktx=oudB;st.klanten=oudK;st.facturen=oudF}return uit}""")
+    eq = lambda a, b: a == b
+    check(G, "Betaalde factuur: geen herinnering", r["betaald"] is None, r)
+    check(G, "Betaaldatum gezet maar nog open: geen herinnering", r["betaaldOpMaarOpen"] is None, r)
+    check(G, "iDEAL betaald maar nog niet verwerkt: geen herinnering", r["molliePaid"] is None, r)
+    check(G, "Volledig betaald via deelbetalingen: geen herinnering", r["deelVol"] is None, r)
+    check(G, "Creditnota: geen herinnering", r["creditnota"] is None, r)
+    check(G, "Offerte en concept: geen herinnering", r["offerte"] is None and r["concept"] is None, r)
+    check(G, "Niet verstuurde factuur: geen herinnering", r["nietVerstuurd"] is None, r)
+    check(G, "Klant met automatische incasso: geen herinnering", r["incasso"] is None, r)
+    check(G, "Op de vervaldatum zelf nog niets, pas de dag erna", r["vervalVandaag"][1] is False and r["vervalVandaag"][2] == r["vervalVandaag"][3], r["vervalVandaag"])
+    check(G, "Dag na de vervaldatum: 1e herinnering klaar", r["dag1"] == ["herinnering", True, "1e herinnering"], r["dag1"])
+    check(G, "Na een herinnering niet meteen de volgende", r["tweedeNietMeteen"][0] == "2e herinnering" and r["tweedeNietMeteen"][1] is False and r["tweedeNietMeteen"][2] == r["tweedeNietMeteen"][3], r["tweedeNietMeteen"])
+    check(G, "2e herinnering niet vóór 8 dagen na de vervaldatum", r["tweedeTeVroeg"][0] is False and r["tweedeTeVroeg"][1] == r["tweedeTeVroeg"][2], r["tweedeTeVroeg"])
+    check(G, "Bijschrijving met hetzelfde bedrag te controleren: eerst wachten", r["bijschrijving"] == ["wacht", False], r["bijschrijving"])
+    check(G, "Na een deelbetaling noemt de herinnering het openstaande bedrag", r["deelBedrag"] is not None and "38" in r["deelBedrag"], r["deelBedrag"])
+    check(G, "Wachtrij: alleen de te late factuur, bij de juiste klant en e-mail", r["wachtrij"] == [["aanmaning:q1:1", "kA", "piet@voorbeeld.nl", "1e herinnering"]], r["wachtrij"])
 
 
 def freqkorting(pg):
@@ -570,6 +616,7 @@ def main():
             vve_locaties(pg)
             frequentie(pg)
             herinneringen(pg)
+            herinneringen_veilig(pg)
             teplannen(pg)
             freqkorting(pg)
             bijopdracht(pg)
