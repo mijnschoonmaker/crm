@@ -16731,13 +16731,22 @@ const CC_PRIO={kritiek:[0,"Kritiek","late"],hoog:[1,"Hoog","warn"],normaal:[2,"G
    Terugkerende zaken (vervallen factuur, wachtende offerte, te late klant) komen na 7 dagen terug als ze nog steeds spelen. */
 const CC_TERUG=["fv","im","ow","tl","hh"];
 function ccStatus(){return state.ccStatus||{}}
+/* "gezien" per CRM-gebruiker en op elk apparaat gelijk: getallen op de snelknoppen tellen alleen wat nieuw is sinds je de lijst opende */
+const ccIk=()=>String((state.me&&(state.me.email||state.me.uid))||"ik").toLowerCase().replace(/[^a-z0-9]/g,"_");
+const ccZien=soort=>((ccStatus().zien||{})[ccIk()]||{})[soort];
+async function ccZienZet(soort,waarde){const st=ccStatus(),z={...(st.zien||{})},mij={...(z[ccIk()]||{}),[soort]:waarde};z[ccIk()]=mij;const d={...st,zien:z};state.ccStatus=d;
+  try{if(soort==="bet")localStorage.setItem("ms.betZien",waarde)}catch(e){}
+  ccKnoppenVernieuw();try{await save("instellingen","control",d)}catch(e){console.error(e)}}
+function ccKnoppenVernieuw(){[["ccPort",()=>ccPortKnop()],["ccBet",()=>ccBetKnop()],["ccTk",()=>ccTkKnop()],["ccBel",()=>ccBelKnop()]].forEach(([id,f])=>{const el=document.getElementById(id);if(el)try{el.outerHTML=f()}catch(e){}})}
+function ccBelKnop(){const S_=ccSignalen(),zien=new Set(ccZien("bel")||[]),n=S_.filter(m=>!zien.has(m.key)).length;
+  return `<button type="button" class="cc-bel" id="ccBel" data-cc="naar:ccAdv" aria-label="${plural(S_.length,"melding","meldingen")}${n?", "+n+" nieuw":""}">${I.bell}${n?`<i>${n}</i>`:""}</button>`}
 function ccVerborgen(key){const st=ccStatus(),nu=new Date(),a=(st.afgehandeld||{})[key],l=(st.later||{})[key];
   if(l&&new Date(l)>nu)return "later";
   if(a){if(CC_TERUG.includes(key.split(":")[0]))return (nu-new Date(a))/864e5<7?"klaar":false;return "klaar"}return false}
 async function ccZet(key,soort,tot){const st=ccStatus(),af={...(st.afgehandeld||{})},la={...(st.later||{})},grens=Date.now()-60*864e5;
   if(soort==="klaar"){af[key]=new Date().toISOString();delete la[key]}else if(soort==="later"){la[key]=tot;delete af[key]}else{delete af[key];delete la[key]}
   Object.keys(af).forEach(k=>{if(new Date(af[k]).getTime()<grens)delete af[k]});Object.keys(la).forEach(k=>{if(new Date(la[k]).getTime()<Date.now())delete la[k]});
-  const d={afgehandeld:af,later:la};
+  const d={afgehandeld:af,later:la,...(st.zien?{zien:st.zien}:{})};
   /* berichten in de wachtrij: onthoud welke er stonden toen je het afhandelde, dan telt het menu alleen nieuwe */
   {const ti=iso(today()),oud=st.wqDag===ti?(st.wqRefs||[]):[];if(key.startsWith("wq:")&&soort){d.wqDag=ti;d.wqRefs=[...new Set([...oud,...wqAlleRefs()])]}else if(oud.length){d.wqDag=ti;d.wqRefs=oud}}
   state.ccStatus=d;render();try{await save("instellingen","control",d)}catch(e){err(e)}}
@@ -16967,7 +16976,7 @@ function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActivite
   return `<div class="cc">
   <div class="cc-head"><div><h1>Overzicht</h1><p>Wie waar is, wat er speelt en wat je moet doen.</p></div>
     <div class="cc-tools"><div class="cc-zoek"><span>${I.search}</span><input id="ccQ" type="search" autocomplete="off" placeholder="Zoek klant, adres, offerte, factuur…" value="${esc(CC.q)}" aria-label="Zoeken"><kbd>${/Mac|iP/.test(navigator.platform||"")?"⌘":"Ctrl"} K</kbd><div class="cc-zr" id="ccZr" hidden></div></div>
-      ${"Notification" in window&&Notification.permission==="default"?`<button type="button" class="cc-ntf" data-cc="notif">${I.bell}Meldingen aan</button>`:""}<button type="button" class="cc-bel cc-snd${S().ccGeluid===false?" uit":""}" data-cc="geluid" aria-label="${S().ccGeluid===false?"Geluid aanzetten":"Geluid uitzetten"}" title="${S().ccGeluid===false?"Geluid staat uit":"Geluid bij nieuwe meldingen"}">${S().ccGeluid===false?sv('<path d="M11 5 6 9H3v6h3l5 4z"/><path d="m22 9-6 6M16 9l6 6"/>'):sv('<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>')}</button><button type="button" class="cc-bel" data-cc="naar:ccAdv" aria-label="${plural(S_.length,"signaal","signalen")}">${I.bell}${S_.length?`<i>${S_.length}</i>`:""}</button>${ccTkKnop()}${ccBetKnop()}${ccPortKnop()}
+      ${"Notification" in window&&Notification.permission==="default"?`<button type="button" class="cc-ntf" data-cc="notif">${I.bell}Meldingen aan</button>`:""}<button type="button" class="cc-bel cc-snd${S().ccGeluid===false?" uit":""}" data-cc="geluid" aria-label="${S().ccGeluid===false?"Geluid aanzetten":"Geluid uitzetten"}" title="${S().ccGeluid===false?"Geluid staat uit":"Geluid bij nieuwe meldingen"}">${S().ccGeluid===false?sv('<path d="M11 5 6 9H3v6h3l5 4z"/><path d="m22 9-6 6M16 9l6 6"/>'):sv('<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>')}</button>${ccBelKnop()}${ccTkKnop()}${ccBetKnop()}${ccPortKnop()}
       <div class="cc-dag"><b>${esc(dag.charAt(0).toUpperCase()+dag.slice(1))}</b><small><span class="cc-dl">${esc(dat)}</span><span class="cc-dk">${esc(t.toLocaleDateString("nl-NL",{day:"numeric",month:"short"}).replace(".",""))}</span></small></div>${ccWeerHtml()}</div></div>
   ${ccNuDoenHtml()}
   <div class="cc-ops">
@@ -16994,15 +17003,15 @@ function ccKaart(){if(state.tab!=="control"||typeof rvMapTeken!=="function")retu
 
 /* ---------- acties: alleen naar bestaande functies ---------- */
 /* snelknop naar de tickets: rood getal = tickets met een nieuw bericht van de klant, grijs = nog openstaande tickets */
-function ccTkKnop(){const T=state.tickets||[],n=T.filter(t=>Number(t.ongelezenTeam)>0).length,o=T.filter(t=>t.status!=="opgelost").length;
+function ccTkKnop(){const T=state.tickets||[],z=ccZien("tk")||"",na=t=>!z||String(t.laatst||t.op||"")>z,n=T.filter(t=>Number(t.ongelezenTeam)>0&&na(t)).length,o=T.filter(t=>t.status!=="opgelost"&&na(t)).length;
   return `<button type="button" class="cc-bel cc-tk${n?" nieuw":""}" id="ccTk" data-cc="tickets" aria-label="Tickets${n?", "+n+" nieuw":o?", "+o+" open":""}" title="Tickets">${I.ticket||I.bericht||""}${n?`<i>${n}</i>`:o?`<i class="grijs">${o}</i>`:""}</button>`}
 /* snelknop naar binnengekomen betalingen: groen getal = nieuw sinds je de lijst voor het laatst opende */
-function ccBetKnop(){const n=typeof betNieuw==="function"?betNieuw().length:0;
+function ccBetKnop(){const z=ccZien("bet");if(z)try{if((localStorage.getItem("ms.betZien")||"")<z)localStorage.setItem("ms.betZien",z)}catch(e){}const n=typeof betNieuw==="function"?betNieuw().length:0;
   return `<button type="button" class="cc-bel cc-bet${n?" nieuw":""}" id="ccBet" data-cc="betalingen" aria-label="Betalingen${n?", "+n+" nieuw":""}" title="Binnengekomen betalingen">${I.euro||"€"}${n?`<i class="groen">${n}</i>`:""}</button>`}
 /* wie was er in het klantportaal: laatste bezoek bovenaan */
 const portLaatst=k=>{const t=Date.parse(k.portaalLaatst||"");return isNaN(t)?0:t};
-function ccPortKnop(){const d=Date.now()-864e5,n=(state.klanten||[]).filter(k=>!k.hoofdKlantId&&portLaatst(k)>d).length;
-  return `<button type="button" class="cc-bel cc-port" id="ccPort" data-cc="portaalbezoek" aria-label="Klantportaal: laatst ingelogd${n?", "+n+" vandaag":""}" title="Wie was er in het klantportaal">${I.user||I.klanten}${n?`<i class="blauw">${n}</i>`:""}</button>`}
+function ccPortKnop(){const z=Date.parse(ccZien("port")||"")||0,d=Math.max(Date.now()-864e5,z),eig=typeof betEigen==="function"?betEigen():new Set(),n=(state.klanten||[]).filter(k=>!k.hoofdKlantId&&!eig.has(k.id)&&portLaatst(k)>d).length;
+  return `<button type="button" class="cc-bel cc-port" id="ccPort" data-cc="portaalbezoek" aria-label="Klantportaal: laatst ingelogd${n?", "+n+" nieuw":""}" title="Wie was er in het klantportaal">${I.user||I.klanten}${n?`<i class="blauw">${n}</i>`:""}</button>`}
 function openPortaalBezoek(){const nu=Date.now(),eig=typeof betEigen==="function"?betEigen():new Set();
   const L=(state.klanten||[]).filter(k=>!k.hoofdKlantId&&!eig.has(k.id)&&portLaatst(k)>0).sort((a,b)=>portLaatst(b)-portLaatst(a));
   const tot=(state.klanten||[]).filter(k=>!k.hoofdKlantId&&k.actief!==false&&!k.prospect).length,dag=L.filter(k=>nu-portLaatst(k)<864e5).length,wk=L.filter(k=>nu-portLaatst(k)<7*864e5).length;
@@ -17022,9 +17031,10 @@ function ccActie(a){if(!a)return;const [k,...r]=a.split(":"),v=r.join(":");
   if(k==="of"){state.oFilter=v;return go("offertes")}
   if(k==="klant")return ccKlant(v)?openKlant(v):go("klanten");
   if(k==="f"){const f=state.facturen.find(x=>x.id===v);if(!f)return;return f.soort==="offerte"?openOfferte({id:v}):openFactuur(v)}
-  if(k==="tickets")return typeof openTickets==="function"?openTickets():go("communicatie");
-  if(k==="portaalbezoek")return openPortaalBezoek();
-  if(k==="betalingen")return typeof openBetalingen==="function"?openBetalingen():go("facturen");
+  if(k==="tickets"){ccZienZet("tk",new Date().toISOString());return typeof openTickets==="function"?openTickets():go("communicatie")}
+  if(k==="portaalbezoek"){ccZienZet("port",new Date().toISOString());return openPortaalBezoek()}
+  if(k==="naar"&&v==="ccAdv")ccZienZet("bel",ccSignalen().map(m=>m.key));
+  if(k==="betalingen"){const z=new Date().toISOString();if(typeof openBetalingen==="function")openBetalingen();else go("facturen");ccZienZet("bet",z);return}
   if(k==="nieuw"){if(v==="klant")return openNieuweKlant();if(v==="offerte")return openOfferte();if(v==="factuur")return openFactuurForm()}
   if(k==="kies")return ccKies(v);
   if(k==="bellen"){const q=document.getElementById("ccQ");if(q){q.focus();q.placeholder="Typ de naam van de klant om te bellen…"}return}
