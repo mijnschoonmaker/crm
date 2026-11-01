@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="6e9337d19c58"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="e586cc16c961"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -5313,6 +5313,8 @@ html body .sc3-zoek{flex-direction:row!important}html body .sc3-zoek svg{width:1
 .sc3-uit .sc3-btn{background:#1c2231!important;color:#fff!important;border-color:#1c2231!important}.sc3-uit .sc3-btn svg{color:#fff!important}
 @media (prefers-reduced-motion:reduce){.sc3-glans,.sc3-halo,.sc3-st i,.sc3-tel i{animation:none!important}}
 @media (max-width:600px){.sc3-grid{grid-template-columns:1fr}.sc3-plaat{height:100px}.sc3-zoek{margin-left:0;width:100%}.sc3-gk h2{font-size:18px}}
+/* telefoon/tablet: Mansard-logo in het midden van de bovenbalk, de knop rechts blijft staan */
+@media (max-width:1023px){.topbar{position:sticky}.topbar>.logo{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);margin:0!important;z-index:1}}
 
 </style>
 <style id="mansardThema">

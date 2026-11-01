@@ -4607,3 +4607,5 @@ html body .sc3-zoek{flex-direction:row!important}html body .sc3-zoek svg{width:1
 .sc3-uit .sc3-btn{background:#1c2231!important;color:#fff!important;border-color:#1c2231!important}.sc3-uit .sc3-btn svg{color:#fff!important}
 @media (prefers-reduced-motion:reduce){.sc3-glans,.sc3-halo,.sc3-st i,.sc3-tel i{animation:none!important}}
 @media (max-width:600px){.sc3-grid{grid-template-columns:1fr}.sc3-plaat{height:100px}.sc3-zoek{margin-left:0;width:100%}.sc3-gk h2{font-size:18px}}
+/* telefoon/tablet: Mansard-logo in het midden van de bovenbalk, de knop rechts blijft staan */
+@media (max-width:1023px){.topbar{position:sticky}.topbar>.logo{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);margin:0!important;z-index:1}}
