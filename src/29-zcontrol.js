@@ -315,7 +315,7 @@ function ccActie(a){if(!a)return;const [k,...r]=a.split(":"),v=r.join(":");
   if(k==="nieuw"){if(v==="klant")return openNieuweKlant();if(v==="offerte")return openOfferte();if(v==="factuur")return openFactuurForm()}
   if(k==="kies")return ccKies(v);
   if(k==="bellen"){const q=document.getElementById("ccQ");if(q){q.focus();q.placeholder="Typ de naam van de klant om te bellen…"}return}
-  if(k==="notif"){try{Notification.requestPermission().then(()=>render())}catch(e){}return}
+  if(k==="notif"){if(typeof pushAan==="function"&&LIVE){pushAan().then(()=>render());return}try{Notification.requestPermission().then(()=>render())}catch(e){}return}
   if(k==="geluid"){const aan=S().ccGeluid===false;saveSettings({ccGeluid:aan},aan?"Geluid staat aan":"Geluid staat uit").then(()=>{if(aan)ccPiep();render()});return}
   if(k==="herinner")return sendF(v,{herinnering:true});
   if(k==="stuur")return sendF(v);

@@ -679,7 +679,11 @@ exports.akkoordGeven = onRequest({ cors: true, memory: "512MiB", timeoutSeconds:
 });
 
 /* ---------- klantportaal ---------- */
-const P = require("./portaal")({ snelBetaald, db, T, onRequest, onCall, onSchedule, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket, portaalUrl, verwerkFactuurBetaling });
+const PU = require("./push")({ db, onCall, checkGebruiker, HttpsError, nu });
+exports.pushSleutel = PU.pushSleutel;
+exports.pushAbo = PU.pushAbo;
+exports.pushTest = PU.pushTest;
+const P = require("./portaal")({ pushStuur: PU.stuur, snelBetaald, db, T, onRequest, onCall, onSchedule, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket, portaalUrl, verwerkFactuurBetaling });
 /* tweestapsverificatie voor het CRM en dagelijkse back-ups */
 Object.assign(exports, BEV.functies);
 /* bank: betalingen automatisch koppelen aan facturen (bankbestand of koppeling via Enable Banking) */

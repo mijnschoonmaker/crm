@@ -4489,3 +4489,9 @@ dialog.nav-kies{width:min(360px,calc(100vw - 32px));border-radius:20px}.nav-k{di
 @keyframes tkKnop{0%{box-shadow:0 0 0 0 rgb(229 83 75 / .45)}70%{box-shadow:0 0 0 10px rgb(229 83 75 / 0)}100%{box-shadow:0 0 0 0 rgb(229 83 75 / 0)}}
 #tkFab{animation:tkKnop 1.8s ease-out infinite}
 @media (prefers-reduced-motion:reduce){.tk-bel,.cc-tk.nieuw,#tkFab{animation:none}}
+
+/* ticketvenster: meldingen op dit apparaat */
+.tk-push{display:flex;align-items:center;gap:12px;padding:12px 14px;margin:0 0 12px;border-radius:14px;background:#fff7ec;border:1px solid #f3d9b0}
+.tk-push>svg{width:20px;height:20px;flex:none;color:#b7791f}.tk-push>span{flex:1;min-width:0}.tk-push b{display:block;font-size:14px}.tk-push small{display:block;color:var(--muted,#6b7280);font-size:12.5px;margin-top:1px}
+.tk-push.aan{background:#eef8f2;border-color:#cfe9d9}.tk-push.aan>svg{color:#2e7a52}
+@media(max-width:600px){.tk-push{flex-wrap:wrap}.tk-push>span{flex-basis:calc(100% - 34px)}}

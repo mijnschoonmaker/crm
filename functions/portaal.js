@@ -18,7 +18,7 @@ const crypto = require("crypto");
 const LIVE_KAART_VANAF = 2;
 
 module.exports = function maakPortaal(ctx) {
-  const { db, T, onRequest, onCall, onSchedule, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket, portaalUrl, verwerkFactuurBetaling, snelBetaald } = ctx;
+  const { pushStuur, db, T, onRequest, onCall, onSchedule, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket, portaalUrl, verwerkFactuurBetaling, snelBetaald } = ctx;
   /* moment van versturen: het precieze tijdstip als dat er is; het CRM bewaart soms alleen de datum, dan het aanmaakmoment van die dag */
   const vanTs = f => { if (!f) return ""; if (f.verstuurdTs) return f.verstuurdTs; const v = String(f.verstuurdOp || ""); if (/T\d/.test(v)) return v;
     if (/^\d{4}-\d{2}-\d{2}$/.test(v)) { const g = String(f.gemaakt || ""); return g && g.slice(0, 10) === v ? g : v + "T00:00:00"; } return f.gemaakt || ""; };
@@ -365,6 +365,7 @@ module.exports = function maakPortaal(ctx) {
     const cat = ["verzetten", "overslaan", "vakantie"].includes(v.type) ? "planning" : v.type === "beoordeling" ? "kwaliteit" : "overig";
     await db.doc("tickets/" + id).set({ klantId: k.id, klantNaam: k.naam || "", adres: [k.adres, k.plaats].filter(Boolean).join(", "), nummer, onderwerp: TYPES[v.type] + (v.datum && v.type !== "beoordeling" ? " · " + datNL(v.datum) : ""), categorie: cat, status: "open", aangemaakt: op, laatst: op, laatsteTekst: tekst.split("\n")[0], laatsteVan: "klant", ongelezenTeam: 1, ongelezenKlant: 0, gezienKlant: op, bron: "portaal", verzoek: { type: v.type, datum: v.datum || "", tot: v.tot || "", ...(v.diensten && v.diensten.length ? { diensten: v.diensten } : {}) } });
     await db.doc("ticketBerichten/" + newId("tb")).set({ ticketId: id, klantId: k.id, van: "klant", tekst, foto: "", op });
+    await tkPush(id, nummer, k, "Nieuw verzoek", TYPES[v.type] || "", tekst.split("\n")[0]);
     return id;
   }
 
@@ -570,6 +571,12 @@ module.exports = function maakPortaal(ctx) {
     if (!S.voorbeeld) await ref.set({ ongelezenKlant: 0, gezienKlant: nu() }, { merge: true });
     return { ticket: tKort({ id: s.id, ...s.data() }), berichten, gezienTeam: s.data().gezienTeam || "" };
   }
+  /* pushmelding naar het team (telefoon in je zak): wacht kort, een trage melding houdt de klant niet op */
+  async function tkPush(id, nummer, k, soort, onderwerp, tekst) {
+    if (typeof pushStuur !== "function") return;
+    const naam = schoon(k.contact || k.naam || "Klant");
+    await Promise.race([pushStuur({ titel: soort + " · " + (nummer || "ticket") + " · " + naam, tekst: (onderwerp && onderwerp !== tekst ? onderwerp + ": " : "") + String(tekst || "").replace(/\s+/g, " "), url: "/?ticket=" + encodeURIComponent(id), tag: "tk-" + id }), new Promise(r => setTimeout(r, 4000))]).catch(() => {});
+  }
   async function ticketNieuw(S, d) {
     const k = S.klant, onderwerp = String(d.onderwerp || "").trim().slice(0, 120), tekst = String(d.tekst || "").trim().slice(0, 3000), categorie = T_CAT[d.categorie] ? d.categorie : "overig";
     if (!tekst && !d.foto) throw new Error("Beschrijf kort waar het om gaat.");
@@ -578,6 +585,7 @@ module.exports = function maakPortaal(ctx) {
     const titel = onderwerp || tekst.split(/\n/)[0].slice(0, 70) || T_CAT[categorie];
     await db.doc("tickets/" + id).set({ klantId: k.id, klantNaam: k.naam || "", adres: [k.adres, k.plaats].filter(Boolean).join(", "), nummer, onderwerp: titel, categorie, status: "open", aangemaakt: op, laatst: op, laatsteTekst: tekst || "Foto", laatsteVan: "klant", ongelezenTeam: 1, ongelezenKlant: 0, gezienKlant: op, bron: "portaal" });
     await db.doc("ticketBerichten/" + newId("tb")).set({ ticketId: id, klantId: k.id, van: "klant", tekst, foto, op });
+    await tkPush(id, nummer, k, "Nieuw ticket", titel, tekst || "Foto");
     return { ok: true, id, nummer };
   }
   async function ticketAntwoord(S, d) {
@@ -589,6 +597,7 @@ module.exports = function maakPortaal(ctx) {
     const foto = await bewaarFoto(d.foto), op = nu(), t = s.data();
     await db.doc("ticketBerichten/" + newId("tb")).set({ ticketId: s.id, klantId: k.id, van: "klant", tekst, foto, op });
     await ref.set({ laatst: op, laatsteTekst: tekst || "Foto", laatsteVan: "klant", ongelezenTeam: (Number(t.ongelezenTeam) || 0) + 1, gezienKlant: op, ...(t.status === "opgelost" ? { status: "open", heropend: op } : {}) }, { merge: true });
+    await tkPush(s.id, t.nummer, k, "Nieuw bericht", t.onderwerp || "", tekst || "Foto");
     return { ok: true, bericht: { id: "n" + Date.now(), van: "klant", tekst, foto, op } };
   }
   /* CRM: klant per mail laten weten dat er een antwoord op zijn ticket is (niet als hij net zelf keek) */

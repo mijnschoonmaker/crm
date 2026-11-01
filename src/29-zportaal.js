@@ -210,7 +210,7 @@ function openTickets(id,nieuwVoor,verzoeken){
   if(verzoeken===undefined)verzoeken=!id&&!nieuwVoor&&!tkOngelezen().length&&(state.portaalVz||[]).length>0;
   tkOpen={id:id||"",filter:verzoeken?"verzoeken":"actief",unsub:null,berichten:[],foto:null,nieuwVoor:nieuwVoor||""};
   openDlg(`<div class="dlg-head"><span class="objic big tk-ic">${I.ticket}</span><div style="min-width:0;flex:1"><h3>Tickets</h3><div class="subt">Tickets en verzoeken van klanten via het klantportaal</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
-    <div class="chx"><div class="chx-l"><div class="seg tk-seg" role="group" id="tkSeg"></div><label class="chx-z">${I.search}<input type="search" id="chxZ" placeholder="Zoek ticket of klant…" autocomplete="off"></label><div id="chxL"></div></div><div class="chx-r" id="chxR"></div></div>`,{xwide:true});
+    <div id="tkPush">${typeof pushBalkHtml==="function"?pushBalkHtml():""}</div><div class="chx"><div class="chx-l"><div class="seg tk-seg" role="group" id="tkSeg"></div><label class="chx-z">${I.search}<input type="search" id="chxZ" placeholder="Zoek ticket of klant…" autocomplete="off"></label><div id="chxL"></div></div><div class="chx-r" id="chxR"></div></div>`,{xwide:true});
   dlg.addEventListener("close",()=>{if(tkOpen&&tkOpen.unsub)tkOpen.unsub();tkOpen=null},{once:true});
   tkSegTeken();
   $("#chxZ").oninput=tkLijstTeken;tkLijstTeken();
