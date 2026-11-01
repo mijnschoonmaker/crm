@@ -4957,6 +4957,11 @@ html body .sc3-zoek{flex-direction:row!important}html body .sc3-zoek svg{width:1
 .tpl2 .tplf>span[style*="flex:1"]{flex-basis:100%!important;height:0}.tpl2 .tplf .tiny{flex:1;justify-content:center}
 .tpl-kn{width:100%}.tpl-kn>button{flex:1;min-width:0;padding-left:10px;padding-right:10px;letter-spacing:.05em}
 .tpl-sech h3{font-size:17px}}
+.bet-rk.zilver{background:linear-gradient(135deg,#f4f5f7,#d3d7de);color:#454c58}
+.bet-rk.brons{background:linear-gradient(135deg,#f3dccb,#d9a37f);color:#6a3c1e}
+.bet-cup{font-style:normal;display:inline-block;margin-right:1px}
+.bet-rk.zilver .bet-cup{filter:grayscale(1) brightness(.95) contrast(1.3)}
+.bet-rk.brons .bet-cup{filter:sepia(1) saturate(2.2) hue-rotate(-18deg) brightness(.85)}
 
 </style>
 <style id="mansardThema">
@@ -15814,7 +15819,7 @@ function openBetalingen(){const van=iso(addDays(today(),-14)),z=betZienLees()||i
   openDlg(`<div class="dlg-head"><span class="objic big bet-ic">${I.euro}</span><div style="min-width:0;flex:1"><h3>Betalingen</h3><div class="subt">Ontvangen in de laatste 14 dagen · vandaag ${eur(somVd)} · # = plek in de ranglijst snelste betalers, nu</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
     ${L.length?`<div class="bet-tot"><span>Totaal 14 dagen</span><b>${eur(som)}</b><small>${plural(L.length,"betaling","betalingen")}</small></div><div class="bet-l">${L.map(f=>{const nw=betAuto(f)&&betTs(f)>z,d=String(f.betaaldOp||"").slice(0,10);
       const sec=betSec(f),tijd=f.betaaldTs?new Date(f.betaaldTs).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"}):"",rg=RG.r[f.klantId];
-      return `<button type="button" class="bet-r${nw?" nieuw":""}" data-betf="${esc(f.id)}"><span class="bet-av" style="--h:${hue(f.klantNaam||"")}">${esc(initials(cleanName(f.klantNaam||"?")))}</span><span class="bet-t"><b>${esc(cleanName(f.klantNaam||"Klant"))}</b><small>${d===vd?"Vandaag":esc(fmtD(d))}${tijd?" om "+esc(tijd):""} · ${esc(betVia(f))} · ${esc(f.nummer||"")}</small>${sec!=null?`<em class="bet-snel${sec<86400?" vlot":""}">${I.clock||""}betaald in ${esc(betDuur(sec))}${f.betaaldTs?"":" (ongeveer)"}</em>`:""}</span>${nw?'<i class="bet-nw">Nieuw</i>':""}<span class="bet-b">${eur(totals(f).inc)}</span><span class="bet-rk${rg===1?" top":rg&&rg<=3?" pod":""}" title="Plek in de ranglijst snelste betalers (nu, ${RG.n} klanten)">${rg?(rg===1?"🏆":"#")+"<b>"+rg+"</b>":"–"}</span></button>`}).join("")}</div>`
+      return `<button type="button" class="bet-r${nw?" nieuw":""}" data-betf="${esc(f.id)}"><span class="bet-av" style="--h:${hue(f.klantNaam||"")}">${esc(initials(cleanName(f.klantNaam||"?")))}</span><span class="bet-t"><b>${esc(cleanName(f.klantNaam||"Klant"))}</b><small>${d===vd?"Vandaag":esc(fmtD(d))}${tijd?" om "+esc(tijd):""} · ${esc(betVia(f))} · ${esc(f.nummer||"")}</small>${sec!=null?`<em class="bet-snel${sec<86400?" vlot":""}">${I.clock||""}betaald in ${esc(betDuur(sec))}${f.betaaldTs?"":" (ongeveer)"}</em>`:""}</span>${nw?'<i class="bet-nw">Nieuw</i>':""}<span class="bet-b">${eur(totals(f).inc)}</span><span class="bet-rk${rg===1?" top":rg===2?" zilver":rg===3?" brons":""}" title="Plek in de ranglijst snelste betalers (nu, ${RG.n} klanten)">${rg?(rg<=3?'<i class="bet-cup">🏆</i>':"#")+"<b>"+rg+"</b>":"–"}</span></button>`}).join("")}</div>`
       :`<p class="subt" style="margin:8px 0">Nog geen betalingen in de laatste 14 dagen.</p>`}`);
   try{localStorage.setItem("ms.betZien",new Date().toISOString())}catch(e){}try{ccBetVernieuw()}catch(e){}
   dlg.querySelectorAll("[data-betf]").forEach(b=>b.onclick=()=>{const id=b.dataset.betf;dlg.close();openFactuur(id)})}

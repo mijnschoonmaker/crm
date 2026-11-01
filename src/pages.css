@@ -4647,3 +4647,8 @@ html body .sc3-zoek{flex-direction:row!important}html body .sc3-zoek svg{width:1
 .tpl2 .tplf>span[style*="flex:1"]{flex-basis:100%!important;height:0}.tpl2 .tplf .tiny{flex:1;justify-content:center}
 .tpl-kn{width:100%}.tpl-kn>button{flex:1;min-width:0;padding-left:10px;padding-right:10px;letter-spacing:.05em}
 .tpl-sech h3{font-size:17px}}
+.bet-rk.zilver{background:linear-gradient(135deg,#f4f5f7,#d3d7de);color:#454c58}
+.bet-rk.brons{background:linear-gradient(135deg,#f3dccb,#d9a37f);color:#6a3c1e}
+.bet-cup{font-style:normal;display:inline-block;margin-right:1px}
+.bet-rk.zilver .bet-cup{filter:grayscale(1) brightness(.95) contrast(1.3)}
+.bet-rk.brons .bet-cup{filter:sepia(1) saturate(2.2) hue-rotate(-18deg) brightness(.85)}
