@@ -18,7 +18,7 @@ const crypto = require("crypto");
 const LIVE_KAART_VANAF = 2;
 
 module.exports = function maakPortaal(ctx) {
-  const { pushStuur, db, T, onRequest, onCall, onSchedule, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket, portaalUrl, verwerkFactuurBetaling, snelBetaald } = ctx;
+  const { sjabloon, vulIn, pushStuur, db, T, onRequest, onCall, onSchedule, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket, portaalUrl, verwerkFactuurBetaling, snelBetaald } = ctx;
   /* moment van versturen: het precieze tijdstip als dat er is; het CRM bewaart soms alleen de datum, dan het aanmaakmoment van die dag */
   const vanTs = f => { if (!f) return ""; if (f.verstuurdTs) return f.verstuurdTs; const v = String(f.verstuurdOp || ""); if (/T\d/.test(v)) return v;
     if (/^\d{4}-\d{2}-\d{2}$/.test(v)) { const g = String(f.gemaakt || ""); return g && g.slice(0, 10) === v ? g : v + "T00:00:00"; } return f.gemaakt || ""; };
@@ -769,19 +769,27 @@ module.exports = function maakPortaal(ctx) {
   const duurNL = sec => { sec = Math.max(0, Math.round(sec)); const d = Math.floor(sec / 86400), u = Math.floor(sec % 86400 / 3600), m = Math.floor(sec % 3600 / 60), x = sec % 60, p = []; if (d) p.push(d + (d === 1 ? " dag" : " dagen")); if (u) p.push(u + " uur"); if (m) p.push(m + " min"); if (x || !p.length) p.push(x + " sec"); return p.slice(0, 2).join(" "); };
   const crTxt = n => (Number.isInteger(n) ? String(n) : String(n).replace(".", ",")) + (n === 1 ? " credit" : " credits");
   const eurNL = n => "€ " + Number(n).toFixed(2).replace(".", ",");
-  function winnaarMail(plek, x, mn, prijs, b) {
-    const vn = x.vn || "klant", naam = b.naam || "", cup = ["🏆", "🥈", "🥉"][plek - 1], kleur = ["#c8962e", "#8a929c", "#b06d3f"][plek - 1], bg = ["#fbf1dc", "#eef0f3", "#f7e6d9"][plek - 1];
+  /* felicitatiemail: tekst uit het sjabloon "Snelste betalers van de maand" (Communicatie), met het beker-blok op de plek van [block.ranking] */
+  const maandBlok = (plek, mn, prijs) => { const cup = ["🏆", "🥈", "🥉"][plek - 1], kleur = ["#c8962e", "#8a929c", "#b06d3f"][plek - 1], bg = ["#fbf1dc", "#eef0f3", "#f7e6d9"][plek - 1];
     const titel = plek === 1 ? "U bent de snelste betaler van " + mn + "!" : "U staat op de " + plek + "e plek van " + mn + "!";
-    const onderwerp = cup + " " + (plek === 1 ? "Snelste betaler van " + mn : plek + "e plek snelste betalers van " + mn) + " · " + naam;
-    const tekst = `Beste ${vn},\n\n${plek === 1 ? `Gefeliciteerd! In ${mn} was u de **snelste betaler** van al onze klanten.` : `Gefeliciteerd! In ${mn} stond u op de **${plek}e plek** van onze snelste betalers.`} U betaalde uw factuur in ${duurNL(x.sec)}. Hartelijk dank voor uw snelle betaling, daar zijn wij erg blij mee.`;
-    const na = `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:4px 0 20px"><tr><td align="center" style="background:${bg};border-radius:18px;padding:22px 18px;border:1px solid ${kleur}33">
+    return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:4px 0 20px"><tr><td align="center" style="background:${bg};border-radius:18px;padding:22px 18px;border:1px solid ${kleur}33">
       <div style="font-size:44px;line-height:1">${cup}</div>
       <div style="font-size:12px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:${kleur};margin:10px 0 4px">${plek}e plek &middot; ${mn}</div>
-      <div style="font-size:20px;font-weight:700;color:#0f1f26;letter-spacing:-.3px">${titel.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</div>
+      <div style="font-size:20px;font-weight:700;color:#0f1f26;letter-spacing:-.3px">${titel}</div>
       ${prijs > 0 ? `<div style="display:inline-block;margin-top:14px;padding:8px 16px;border-radius:999px;background:#ffffff;font-size:15px;font-weight:700;color:#1f7a4d;border:1px solid #1f7a4d33">+ ${crTxt(prijs)} &middot; ${eurNL(prijs)} korting</div>` : ""}
-    </td></tr></table>`;
-    const onder = `${prijs > 0 ? `De **${crTxt(prijs)} (${eurNL(prijs)})** zijn al bijgeschreven en gaan automatisch van uw eerstvolgende factuur af. U hoeft daar niets voor te doen.\n\n` : ""}In uw klantportaal ziet u uw credits en de top 3 van de maand. Elke maand maakt u weer kans: betaal uw factuur direct met de **iDEAL-knop** in de mail of in uw klantportaal.\n\nMet vriendelijke groet,\n${naam}`;
-    return { onderwerp, tekst, na, onder };
+    </td></tr></table>`; };
+  const STD_MAANDTOP = { onderwerp: "[cup.ranking] [place.ranking] snelste betalers van [month.ranking] · [name.company]", mail: "Beste [firstname.customer],\n\nGefeliciteerd! In [month.ranking] stond u op de [place.ranking] van onze snelste betalers. U betaalde uw factuur in [time.ranking]. Hartelijk dank voor uw snelle betaling, daar zijn wij erg blij mee.\n\n[block.ranking]\n\nWij hebben [credits.ranking] ([amount.ranking]) extra voor u bijgeschreven. Die gaan automatisch van uw eerstvolgende factuur af; u hoeft daar niets voor te doen.\n\nIn uw klantportaal ziet u uw credits en de top 3 van de maand. Elke maand maakt u weer kans: betaal uw factuur direct met de iDEAL-knop in de mail of in uw klantportaal.\n\nMet vriendelijke groet,\n[name.company]" };
+  const alsTekst = h => String(h || "").includes("<") ? String(h).replace(/<br\s*\/?>/gi, "\n").replace(/<\/(p|div|li|h\d)>/gi, "\n\n").replace(/<li[^>]*>/gi, "• ").replace(/<(b|strong)>(.*?)<\/\1>/gi, "**$2**").replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/\n{3,}/g, "\n\n").trim() : String(h || "");
+  async function winnaarMail(plek, x, mn, prijs, b, tpl) {
+    const t = tpl || (sjabloon ? await sjabloon("maandtop").catch(() => null) : null) || STD_MAANDTOP;
+    const vn = x.vn || "klant";
+    const v = { "firstname.customer": vn, "name.customer": vn, "name.company": b.naam || "", "phone.company": b.telefoon || "", "email.company": b.email || "", "place.ranking": plek + "e plek", "month.ranking": mn, "time.ranking": duurNL(x.sec), "credits.ranking": crTxt(prijs), "amount.ranking": eurNL(prijs), "cup.ranking": ["🏆", "🥈", "🥉"][plek - 1] };
+    const vul = z => (vulIn ? vulIn(z, v) : String(z).replace(/\[([a-z0-9_]+\.[a-z_]+)\]/g, (m, k) => v[k] != null ? String(v[k]) : m));
+    let body = vul(alsTekst(t.mail || STD_MAANDTOP.mail));
+    if (!(prijs > 0)) body = body.split(/\n\s*\n/).filter(p => !/credits?\b.*bijgeschreven|\(€ 0,00\)/i.test(p)).join("\n\n");
+    const [voor, ...rest] = body.split(/\[block\.ranking\]/);
+    const heeftBlok = rest.length > 0;
+    return { onderwerp: vul(t.onderwerp || STD_MAANDTOP.onderwerp).replace(/\s+/g, " ").trim(), tekst: voor.trim(), na: maandBlok(plek, mn, prijs), onder: heeftBlok ? rest.join("").trim() : "", blokAchteraan: !heeftBlok };
   }
   const maandWinnaar = onSchedule ? onSchedule({ schedule: "5 8 * * *", timeZone: "Europe/Amsterdam", timeoutSeconds: 300, memory: "512MiB" }, async () => {
     const vm = vorigeMaand(), ref = db.doc("ranglijst/" + vm);
@@ -801,7 +809,7 @@ module.exports = function maakPortaal(ctx) {
       const email = String((k && k.email) || "").trim();
       if (!k || !g.brevoKey || !/@/.test(email) || (prijs > 0 && !nieuw)) continue;
       try {
-        const m = winnaarMail(plek, x, mn, prijs, b), afz = g.afzender || b.email || "info@mijnschoonmaker.com";
+        const m = await winnaarMail(plek, x, mn, prijs, b), afz = g.afzender || b.email || "info@mijnschoonmaker.com";
         await brevoSend(g.brevoKey, { sender: { name: b.naam || "", email: afz }, replyTo: { email: b.email || afz }, to: [{ email, name: schoon(k.naam) || undefined }], subject: m.onderwerp, htmlContent: mailHtml(m.tekst, b, { na: m.na, onder: m.onder, portaal: await portaalUrl(k.id, email) }) });
         await db.doc("berichten/" + newId("m")).set({ klantId: k.id, klantNaam: k.naam || "", naar: email, kanaal: "email", sjabloon: "maandtop", onderwerp: m.onderwerp, tekst: m.tekst + "\n\n" + m.onder, status: "verstuurd", verstuurdOp: nu(), op: nu(), door: "automatisch" });
       } catch (e) { console.error("maandtop mail", x.klantId, e.message); }

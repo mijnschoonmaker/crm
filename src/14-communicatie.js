@@ -38,7 +38,7 @@ const VARLIST=["klant","voornaam","datum","tijd","tijdvak","adres","straat","pla
 const MAILKIND={factuur:["Factuur","[nr.invoice]"],aanmaning:["Betalingsherinnering","Factuur [nr.invoice]"],wik:["Laatste aanmaning","Factuur [nr.invoice]"],offerte:["Offerte","[nr.invoice]"],review:["Review",""],welkom:["Welkom","Welkom bij [name.company]"]};
 function sampleVars(){
   const k={naam:"Fam. de Vries",voornaam:"Anna",adres:"Lindelaan 12",postcode:"3581 AB",plaats:"Utrecht",tijd:"09:00",duur:240,dienst:"Glasbewassing",prijs:80,frequentie:4};
-  return{...klantVars(k,addDays(today(),5)),tijdvak:"tussen 08:00 en 12:00",factuurnummer:today().getFullYear()+"-0042",bedrag:"€ 96,80",factuurdatum:fmtL(today()),vervaldatum:fmtL(addDays(today(),14)),dagen_te_laat:5,reviewlink:S().reviewLink||"https://g.page/r/…/review"};
+  return{...klantVars(k,addDays(today(),5)),tijdvak:"tussen 08:00 en 12:00",factuurnummer:today().getFullYear()+"-0042",bedrag:"€ 96,80",factuurdatum:fmtL(today()),vervaldatum:fmtL(addDays(today(),14)),dagen_te_laat:5,reviewlink:S().reviewLink||"https://g.page/r/…/review","place.ranking":"1e plek","month.ranking":"oktober","time.ranking":"2 min 59 sec","credits.ranking":"5 credits","amount.ranking":"€ 5,00","cup.ranking":"🏆","plek.ranking":1};
 }
 const sampleRegels=[{omschrijving:"Glasbewassing",aantal:1,prijs:65},{omschrijving:"Bijzondere ramen",aantal:1,prijs:15}];
 /* knop in een opgemaakt (rich) sjabloon: vóór "Met vriendelijke groet" */
@@ -175,8 +175,15 @@ function mailFor(sjabloon,vars,tekst,{f,stap,preview}={}){
   /* busje op de lijn: onderweg naar de woning (aankondiging) of weggereden met vinkje (afkondiging) */
   if(kind==="aankondiging")o.scene="onderweg";else if(kind==="afkondiging")o.scene="weg";
   if(kind==="review"&&s.reviewLink)o.knop={tekst:s.reviewKnop||"Review achterlaten",url:s.reviewLink};
-  return emailHtml(o);
+  const _h=emailHtml(o);
+  if(sjabloon!=="maandtop"&&!/\[block\.ranking\]/.test(String(tekst||"")))return _h;
+  const B=maandBlok(Number(vars["plek.ranking"])||(/^(\d)/.exec(vars["place.ranking"]||"")||[])[1]||1,vars);
+  return _h.replace(/<p[^>]*>\s*\[block\.ranking\]\s*<\/p>/g,B).replace(/\[block\.ranking\]/g,B);
 }
+/* beker-blok in de mail aan de snelste betalers (zelfde als de server) */
+function maandBlok(plek,v){plek=Math.min(3,Math.max(1,Number(plek)||1));const cup=["🏆","🥈","🥉"][plek-1],kl=["#c8962e","#8a929c","#b06d3f"][plek-1],bg=["#fbf1dc","#eef0f3","#f7e6d9"][plek-1],mn=v["month.ranking"]||"",cr=v["credits.ranking"]||"",bd=v["amount.ranking"]||"";
+  const titel=plek===1?"U bent de snelste betaler van "+mn+"!":"U staat op de "+plek+"e plek van "+mn+"!";
+  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:4px 0 20px"><tr><td align="center" style="background:${bg};border-radius:18px;padding:22px 18px;border:1px solid ${kl}33"><div style="font-size:44px;line-height:1">${cup}</div><div style="font-size:12px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:${kl};margin:10px 0 4px">${plek}e plek &middot; ${esc(mn)}</div><div style="font-size:20px;font-weight:700;color:#0f1f26;letter-spacing:-.3px">${esc(titel)}</div>${cr?`<div style="display:inline-block;margin-top:14px;padding:8px 16px;border-radius:999px;background:#ffffff;font-size:15px;font-weight:700;color:#1f7a4d;border:1px solid #1f7a4d33">+ ${esc(cr)} &middot; ${esc(bd)} korting</div>`:""}</td></tr></table>`}
 async function copyHtml(html,plain){
   try{if(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write){await navigator.clipboard.write([new ClipboardItem({"text/html":new Blob([html],{type:"text/html"}),"text/plain":new Blob([plain],{type:"text/plain"})})]);return true}}catch(e){}
   const d=document.createElement("div");d.contentEditable="true";d.style.cssText="position:fixed;left:-9999px;top:0";d.innerHTML=html;(dlg.open?dlg:document.body).appendChild(d);
@@ -313,7 +320,7 @@ function openTplView(k){
 const TPL_SECTIES=[
   ["nieuw","Nieuwe klant","Van offerte tot bevestigde bestelling","offerte",["offerte","voorlopig","definitief","welkom"]],
   ["afspraak","Afspraken","Aankondigen, herinneren en wijzigen","cal2",["aankondiging","herinnering","afspraak","onderweg","wijzigen","weer","annuleren","uitloop"]],
-  ["geld","Facturen & betalen","Factuur en herinneringen bij openstaande bedragen","euro",["factuur","aanmaning","wik","afkondiging"]],
+  ["geld","Facturen & betalen","Factuur, herinneringen en de snelste betalers","euro",["factuur","aanmaning","wik","maandtop","afkondiging"]],
   ["relatie","Na het werk","Review en persoonlijke aandacht","spark",["review","verjaardag"]],
   ["groep","Groepsberichten","Eén bericht aan meerdere klanten tegelijk","megaphone",["nieuwsbrief","update","prijs","kerst","zomer","vrij"]],
   ["eigen","Eigen templates","Templates die je zelf hebt gemaakt","pencil",[]]];
@@ -335,6 +342,7 @@ function tplWanneer(k,t){const s=S();const M={
   wik:[1,"Laatste stap van je factuurherinneringen"],
   afkondiging:[0,"Na de beurt"],
   review:[1,"Na een factuur, als het reviewverzoek aan staat"],
+  maandtop:[1,"Op de 1e van de maand naar de top 3 van de vorige maand (alleen iDEAL-knop)"],
   verjaardag:[1,"Staat klaar op de verjaardag van de klant"],
   vrij:[0,"Leeg begin voor een los bericht"]};
   return M[k]||(TPL_SECTIES[4][4].includes(k)?[0,"Via Nieuwsbrief of Verstuur bericht"]:[0,"Via Verstuur bericht"])}
