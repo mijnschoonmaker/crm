@@ -90,7 +90,10 @@ function vInzichten(){
     const ak=actief().filter(k=>!k.hoofdKlantId),nieuw=state.klanten.filter(k=>!k.prospect&&!k.hoofdKlantId&&inRange(k.aangemaakt,P.rg)),nieuwV=state.klanten.filter(k=>!k.prospect&&inRange(k.aangemaakt,V.rg)),inact=state.klanten.filter(k=>k.actief===false&&!k.prospect);
     const jaar=ak.reduce((a,k)=>a+exAmt(k.prijs)*365/freqDays(k),0),perK=ak.length?jaar/ak.length:0;
     const rd={};ak.forEach(k=>{const r=k.ronde||"Zonder ronde";rd[r]=(rd[r]||0)+exAmt(k.prijs)*365/freqDays(k)});const rk=Object.keys(rd).sort((a,b)=>rd[b]-rd[a]),rmx=Math.max(1,...rk.map(r=>rd[r]));
-    const top=state.klanten.map(k=>({k,s:echteFacturen().filter(f=>f.klantId===k.id).reduce((a,f)=>a+totals(f).ex,0)})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,6),tmx=Math.max(1,...top.map(x=>x.s));
+    /* losse opdrachten (eigen klantregel met hoofdKlantId) tellen mee bij hun klant: één klant = één regel */
+    const hk=id=>{const k=state.klanten.find(x=>x.id===id);return k&&k.hoofdKlantId&&state.klanten.some(x=>x.id===k.hoofdKlantId)?k.hoofdKlantId:id},somK={};
+    echteFacturen().forEach(f=>{const id=hk(f.klantId);somK[id]=(somK[id]||0)+totals(f).ex});
+    const top=state.klanten.filter(k=>!k.hoofdKlantId).map(k=>({k,s:somK[k.id]||0})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,6),tmx=Math.max(1,...top.map(x=>x.s));
     const zak=ak.filter(k=>k.soort==="zakelijk").length,vve=ak.filter(k=>k.soort==="vve").length,prt=ak.length-zak-vve;
     const laatstB={};state.beurten.forEach(b=>{if(!b.geannuleerd&&b.datum&&(!laatstB[b.klantId]||b.datum>laatstB[b.klantId]))laatstB[b.klantId]=b.datum});
     const groei=[...Array(12)].map((_,i)=>{const d=new Date(t.getFullYear(),t.getMonth()-11+i+1,0);const di=iso(d),ds=iso(new Date(d.getFullYear(),d.getMonth(),1));return{l:new Date(d.getFullYear(),d.getMonth(),1).toLocaleDateString("nl-NL",{month:"short"}).replace(".",""),n:i===11?ak.length:state.klanten.filter(k=>klantActiefIn(k,ds,di,laatstB)).length}});

@@ -111,7 +111,8 @@ function vAnalyse(){
   /* top-10's */
   const groep=(fnKey)=>{const m={};P.forEach(p=>{fnKey(p).forEach(([key,n,id,om,a])=>{const x=m[key]||(m[key]={n,id,a:0,om:0});x.a+=a??1;x.om+=om})});return Object.values(m).sort((a,b)=>b.om-a.om||b.a-a.a)};
   const kNaam=p=>{const k=KM[p.k];return k?cleanName(k.naam):cleanName((p.f||p.b||{}).klantNaam||"Onbekend")};
-  const tk=groep(p=>[[p.k||kNaam(p),kNaam(p),KM[p.k]?p.k:"",p.om]]);
+  const hoofdId=id=>{const k=KM[id];return k&&k.hoofdKlantId&&KM[k.hoofdKlantId]?k.hoofdKlantId:id};
+  const tk=groep(p=>{const id=hoofdId(p.k);return[[id||kNaam(p),KM[id]?cleanName(KM[id].naam):kNaam(p),KM[id]?id:"",p.om]]});
   const tpl=groep(p=>{const k=KM[p.k];let pl=k&&k.plaats;if(!pl&&p.f){const m=String(p.f.klantAdres||"").match(/\d{4}\s?[A-Z]{2}\s+(.+)$/);pl=m&&m[1]}return[[String(pl||"Onbekend").trim(),String(pl||"Onbekend").trim(),"",p.om]]});
   const td=groep(p=>{if(p.b){const k=KM[p.b.klantId]||{},r=[[stDienstNorm(p.b.dienst||k.dienst),stDienstNorm(p.b.dienst||k.dienst),"",p.om]];(p.b.extra||[]).forEach(e=>r.push([stDienstNorm(e),stDienstNorm(e),"",0]));return r}
     const k=KM[p.k]||{},rs=(p.f.regels||[]).filter(r=>(Number(r.aantal)||0)*(Number(r.prijs)||0));const som=rs.reduce((a,r)=>a+(Number(r.aantal)||0)*(Number(r.prijs)||0),0)||1;
