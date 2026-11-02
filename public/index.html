@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="c8e83368a229"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="6405a2b5ca46"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -7828,7 +7828,9 @@ const exAmt=x=>S().incl?(Number(x)||0)/(1+Number(S().btw)/100):(Number(x)||0);
 /* zelfde voor een klant/losse opdracht (k.prijs, eventueel met wat er mee gaat): het btw-tarief van de dienst van die opdracht */
 const toonK=(k,x)=>{if(!S().toonEx||!S().incl)return toon(x);let b=Number(S().btw)||21;try{if(k&&k.btwVerlegd)b=0;else if(typeof btwRegel==="function"){const r=btwRegel(k,(k&&k.dienst)||"");if(r!=null)b=r}}catch(e){}return r2((Number(x)||0)/(1+b/100))};
 /* afgemelde beurt: het bedrag met het btw-tarief van de dienst van die klant/opdracht */
-const toonB=b=>{const k=b&&(state.klanten||[]).find(x=>x.id===b.klantId);return k?toonK({...k,dienst:b.dienst||k.dienst},beurtBedrag(b)):toonB(b)};
+const toonB=b=>{const k=b&&(state.klanten||[]).find(x=>x.id===b.klantId);return k?toonK({...k,dienst:b.dienst||k.dienst},beurtBedrag(b)):toon(beurtBedrag(b))};
+/* bedrag van een beurt excl. btw met het btw-tarief van die dienst (zelfde rekenregel als "Verdiend" op Vandaag) */
+const beurtEx=b=>{const x=beurtBedrag(b);if(!S().incl)return x;const k=b&&(state.klanten||[]).find(y=>y.id===b.klantId);let p=Number(S().btw)||21;try{if(k){if(k.btwVerlegd)p=0;else{const r=btwRegel(k,b.dienst||k.dienst||"");if(r!=null)p=r}}}catch(e){}return r2(x/(1+p/100))};
 const toonR=(k,o)=>{const x=Number(o&&o.prijs)||0;if(!S().toonEx||!S().incl)return toon(x);let b=Number(S().btw)||21;try{if(typeof groepBtwPct==="function")b=groepBtwPct(o,k)}catch(e){}return r2(x/(1+b/100))};
 /* omzet van één afgemelde beurt, ex btw, overal hetzelfde (statistieken, analyse, werkdag):
    - gefactureerd: het deel van de factuur (totaal ex btw gedeeld door het aantal beurten op die factuur), met de btw van die factuur zelf (ook verlegd)
@@ -16923,7 +16925,8 @@ function wdCijfers(d){const w=wdGet(d)||{},nu=wdNu(),eind=w.stop||(w.start&&d===
   const geschat=bs.filter(beurtTeKort).length;
   const fact=bs.reduce((a,b)=>a+beurtMin(b),0),gemeten=bs.filter(b=>b.gemeten||b.startOp).length;
   const totaal=wdMin(w.start,eind),netto=Math.max(0,totaal-pauze),reis=Math.max(0,netto-fact);
-  const omzet=bs.reduce((a,b)=>a+beurtOmzet(b),0);
+  /* omzet van het werk van deze dag (zelfde als "Verdiend" op Vandaag); niet de factuurtotalen, want daar kan ook iets van een andere dag op staan */
+  const omzet=bs.reduce((a,b)=>a+beurtEx(b),0);
   return {w,totaal,pauze,netto,fact,reis,omzet,n:bs.length,buiten,gemeten,geschat,perUur:netto>0?omzet/(netto/60):0,perFact:fact>0?omzet/(fact/60):0}}
 const wdU=m=>{m=Math.round(m||0);const h=Math.floor(m/60),mm=m%60;return h?`${h}u${String(mm).padStart(2,"0")}`:`${mm} min`};
 const wdT=ts=>ts?new Date(ts).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"}):"";

@@ -197,7 +197,9 @@ const exAmt=x=>S().incl?(Number(x)||0)/(1+Number(S().btw)/100):(Number(x)||0);
 /* zelfde voor een klant/losse opdracht (k.prijs, eventueel met wat er mee gaat): het btw-tarief van de dienst van die opdracht */
 const toonK=(k,x)=>{if(!S().toonEx||!S().incl)return toon(x);let b=Number(S().btw)||21;try{if(k&&k.btwVerlegd)b=0;else if(typeof btwRegel==="function"){const r=btwRegel(k,(k&&k.dienst)||"");if(r!=null)b=r}}catch(e){}return r2((Number(x)||0)/(1+b/100))};
 /* afgemelde beurt: het bedrag met het btw-tarief van de dienst van die klant/opdracht */
-const toonB=b=>{const k=b&&(state.klanten||[]).find(x=>x.id===b.klantId);return k?toonK({...k,dienst:b.dienst||k.dienst},beurtBedrag(b)):toonB(b)};
+const toonB=b=>{const k=b&&(state.klanten||[]).find(x=>x.id===b.klantId);return k?toonK({...k,dienst:b.dienst||k.dienst},beurtBedrag(b)):toon(beurtBedrag(b))};
+/* bedrag van een beurt excl. btw met het btw-tarief van die dienst (zelfde rekenregel als "Verdiend" op Vandaag) */
+const beurtEx=b=>{const x=beurtBedrag(b);if(!S().incl)return x;const k=b&&(state.klanten||[]).find(y=>y.id===b.klantId);let p=Number(S().btw)||21;try{if(k){if(k.btwVerlegd)p=0;else{const r=btwRegel(k,b.dienst||k.dienst||"");if(r!=null)p=r}}}catch(e){}return r2(x/(1+p/100))};
 const toonR=(k,o)=>{const x=Number(o&&o.prijs)||0;if(!S().toonEx||!S().incl)return toon(x);let b=Number(S().btw)||21;try{if(typeof groepBtwPct==="function")b=groepBtwPct(o,k)}catch(e){}return r2(x/(1+b/100))};
 /* omzet van één afgemelde beurt, ex btw, overal hetzelfde (statistieken, analyse, werkdag):
    - gefactureerd: het deel van de factuur (totaal ex btw gedeeld door het aantal beurten op die factuur), met de btw van die factuur zelf (ook verlegd)
