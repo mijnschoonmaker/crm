@@ -98,7 +98,7 @@ module.exports = function maakPortaal(ctx) {
   /* seconden tussen versturen en betalen; zonder exact tijdstip (oudere, handmatig afgeboekte facturen) rekenen we met de dag van betaling om 12:00 */
   const betaalSec = f => { if (f.status !== "betaald") return null; const bo = String(f.betaaldOp || f.betaald || "").slice(0, 10), ts = f.betaaldTs || (/^\d{4}-\d{2}-\d{2}$/.test(bo) ? bo + "T12:00:00" : ""); if (!ts) return null;
     const van = Date.parse(vanTs(f) || (f.datum ? f.datum + "T09:00:00" : "")), tot = Date.parse(ts); if (!(van > 0)) return null; return Math.max(0, Math.round((tot - van) / 1000)); };
-  const betaalPrecies = f => !!f.betaaldTs;
+  const betaalPrecies = f => !!f.betaaldTs && !f.bankTx && f.betaalwijze !== "overmaken" && f.betaalwijze !== "incasso"; /* bank: alleen de dag bekend */
   /* ranglijst: wie betaalt gemiddeld het snelst (alle klanten, betaalde facturen van de laatste 12 maanden, op de seconde).
      Je eigen klantkaart (zelfde e-mail als het bedrijf) telt niet mee. Eén keer per 5 minuten opgehaald. */
   /* per bedrijf bewaard: nooit gegevens van het ene bedrijf in het portaal van het andere */
