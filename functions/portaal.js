@@ -228,6 +228,7 @@ module.exports = function maakPortaal(ctx) {
       if (typeof v === "number") return new Date(v).toISOString().slice(0, 10); if (v && typeof v.toDate === "function") return v.toDate().toISOString().slice(0, 10);
       const t = String(v); if (/^\d{4}-\d{2}-\d{2}/.test(t)) return t.slice(0, 10); const m = t.match(/^(\d{1,2})-(\d{1,2})-(\d{4})/); if (m) return m[3] + "-" + m[2].padStart(2, "0") + "-" + m[1].padStart(2, "0");
       const d = new Date(t); if (!isNaN(d)) return d.toISOString().slice(0, 10); } return ""; };
+  const geenGlasVroeg = (k, jobs) => !!k.opdrachtVerwijderd && jobs.length > 0;
   async function data(req, S) {
     const k = S.klant, b = await bedrijf(), base = basisUrl(req), vandaag = isoNL();
     if (!k.refCode) { k.refCode = await maakRefCode(k); await S.kref.set({ refCode: k.refCode }, { merge: true }); }
@@ -259,8 +260,11 @@ module.exports = function maakPortaal(ctx) {
        Zonder glasbewassing bij de hoofdklant (opdrachtVerwijderd) is de losse opdracht de dienst die de klant ziet. */
     const jobsDec = jq.docs.map(d => ({ id: d.id, ...dec(d.data()) })).filter(j => j.actief !== false && !j.prospect);
     const jobVolg = jobsDec.filter(j => j.gepland && j.gepland >= vandaag).sort((x, y) => String(x.gepland).localeCompare(String(y.gepland)) || String(x.tijd || "").localeCompare(String(y.tijd || "")))[0];
-    if (jobVolg && (!volgende || jobVolg.gepland < volgende.datum)) volgende = { datum: jobVolg.gepland, tijd: jobVolg.tijd || "", bezig: !!jobVolg.bezig && jobVolg.gepland === vandaag, dienst: jobVolg.dienst || "", reeks: [] };
-    const geenGlas = !!k.opdrachtVerwijderd && jobsDec.length > 0, hoofdJob = geenGlas ? (jobVolg || jobsDec[0]) : null;
+    if (jobVolg && (!volgende || jobVolg.gepland < volgende.datum)) volgende = { datum: jobVolg.gepland, tijd: jobVolg.tijd || "", bezig: !!jobVolg.bezig && jobVolg.gepland === vandaag, dienst: jobVolg.dienst || "", reeks: [], viaJob: true };
+    /* uitvoerlocatie van het (volgende) bezoek: zelfde regel als het CRM (jobAddrObj): gekozen locatie, anders de eerste locatie, anders het hoofdadres */
+    const uitvAdr = x => { if (!x) return null; const os = Array.isArray(x.objecten) ? x.objecten : []; const o = x.objectId === "hoofd" ? null : (os.find(y => y && y.id === x.objectId) || os[0] || null); const a = o && o.adres ? o : x; return { adres: a.adres || "", pcPlaats: [a.postcode, a.plaats].filter(Boolean).join(" ") }; };
+    const uitvoer = volgende && volgende.viaJob ? uitvAdr(jobVolg) : (geenGlasVroeg(k, jobsDec) ? uitvAdr(jobVolg || jobsDec[0]) : uitvAdr(k));
+    const geenGlas = geenGlasVroeg(k, jobsDec), hoofdJob = geenGlas ? (jobVolg || jobsDec[0]) : null;
     let verwacht = "";
     if (!volgende && k.actief !== false && !k.prospect && !geenGlas) { const l = k.laatst ? new Date(k.laatst + "T12:00:00") : null; verwacht = l ? isoNL(new Date(Math.max(Date.now(), l.getTime() + freqW * 7 * DAG))) : ""; }
     const laatsteB = beurten[0];
@@ -280,7 +284,7 @@ module.exports = function maakPortaal(ctx) {
       extraDiensten = [...(u.groepen || []), ...(u.eigen || [])].filter(g => g && !g.verberg && !["rolluik", "antispin", "antialg", "schoorsteen", "spoed", "hogedruk", "binnen"].includes(g.id) && !/glasbewassing binnen/i.test(String(g.naam || "")) && g.type !== "glas" && g.type !== "bijz" && String(g.naam || "").trim()).map(g => String(g.naam).trim()).filter((n, i, l) => { const k = x => x.toLowerCase().replace(/\breinigen\b/g, "reiniging").replace(/[^a-z]/g, ""); return l.findIndex(m => k(m) === k(n)) === i; }).slice(0, 24); } } catch (e) { console.error("diensten", e); }
     return {
       bedrijf: { ...bedrijfInfo(b, base), extraDiensten },
-      klant: { voornaam: voornaamVan(schoon(k.contact || k.naam)), naam: schoon(k.naam), contact: k.contact || "", adres: k.adres || "", postcode: k.postcode || "", plaats: k.plaats || "", pcPlaats: [k.postcode, k.plaats].filter(Boolean).join(" "), email: k.email || "", telefoon: k.telefoon || "", mobiel: k.mobiel || "", zakelijk: k.soort === "zakelijk" || k.soort === "vve",
+      klant: { voornaam: voornaamVan(schoon(k.contact || k.naam)), naam: schoon(k.naam), contact: k.contact || "", adres: k.adres || "", postcode: k.postcode || "", plaats: k.plaats || "", pcPlaats: [k.postcode, k.plaats].filter(Boolean).join(" "), uitvoer, email: k.email || "", telefoon: k.telefoon || "", mobiel: k.mobiel || "", zakelijk: k.soort === "zakelijk" || k.soort === "vve",
         vve, vveSoort: vve ? vveSoortVan(k) : "", diensten: vveDiensten(k, jobsDec), ritme: ritmeTxt(k), weekdagen: wdg || [], taken: vveTakenVan(k, b), takenFreq: Object.fromEntries(Object.entries(k.vveFreq && typeof k.vveFreq === "object" ? k.vveFreq : {}).filter(([n, f]) => typeof f === "string" && ["week", "2week", "maand", "kwartaal", "halfjaar", "jaar"].includes(f)).slice(0, 20).map(([n, f]) => [String(n).slice(0, 60), f])),
         klantnr: k.klantnr || "", sinds: k.aangemaakt || (beurten.length ? beurten[beurten.length - 1].datum : ""), dienst: (hoofdJob ? hoofdJob.dienst : k.dienst) || "Glasbewassing", frequentie: hoofdJob ? (Number(hoofdJob.frequentie) || freqW) : freqW, prijs: hoofdJob ? (Number(hoofdJob.prijs) || 0) : (Number(k.prijs) || 0), binnen: !!k.binnen, actief: k.actief !== false,
         toegang: k.portaalToegang || { opties: [], tekst: "" }, beheercode: String(k.beheercode || ""), nieuw: !!k.eersteKeer && !beurten.length,
