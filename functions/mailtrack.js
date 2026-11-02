@@ -32,8 +32,9 @@ module.exports = ({ db, T, onRequest, onCall, HttpsError, checkGebruiker, nu, HO
   function voorbereiden(html, berichtId) {
     html = String(html || ""); if (!html || !berichtId) return { html, trk: null };
     const tok = T.tok(12);
-    const m = /(https?:\/\/[a-z0-9.-]+)\/portaal\b/i.exec(html) || /(https?:\/\/(?:app\.mansard\.nl|crm\.mijnschoonmaker\.com|[a-z0-9-]+\.web\.app))\//i.exec(html);
-    const base = (m ? m[1] : HOST()).replace(/\/+$/, "");
+    const m = /(https?:\/\/[a-z0-9.-]+)\/portaal\b/i.exec(html) || /(https?:\/\/(?:app\.mansard\.nl|[a-z0-9-]+\.web\.app))\//i.exec(html);
+    /* crm.mijnschoonmaker.com heeft geen geldig certificaat meer: dan via app.mansard.nl (zelfde site) */
+    const base = (m ? m[1] : HOST()).replace(/\/+$/, "").replace(/^https?:\/\/crm\.mijnschoonmaker\.com$/i, "https://app.mansard.nl");
     const links = [];
     html = html.replace(/<a\b([^>]*?)href="(https?:\/\/[^"]+)"([^>]*)>([\s\S]*?)<\/a>/gi, (all, a, href, b, inner) => {
       const u = href.replace(/&amp;/g, "&");
