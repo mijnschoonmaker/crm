@@ -1,0 +1,18 @@
+name: Functielogs lezen (alleen lezen)
+on:
+  workflow_dispatch:
+    inputs:
+      fn: { description: "Functienaam", required: true }
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > "$RUNNER_TEMP/sa.json"
+      - uses: google-github-actions/setup-gcloud@v2
+      - env:
+          P: ${{ vars.FIREBASE_PROJECT }}
+          FN: ${{ inputs.fn }}
+        run: |
+          gcloud auth activate-service-account --key-file="$RUNNER_TEMP/sa.json" >/dev/null 2>&1
+          n=$(echo "$FN" | tr 'A-Z' 'a-z')
+          gcloud logging read "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"$n\" AND severity>=WARNING AND timestamp>=\"$(date -u -d '-2 hours' +%Y-%m-%dT%H:%M:%SZ)\"" --project "$P" --limit 15 --format="value(timestamp,textPayload,jsonPayload.message)" 2>&1 | sed 's/-----BEGIN[^-]*-----.*-----END[^-]*-----/[sleutel verborgen]/g' | cut -c1-600 | while IFS= read -r l; do echo "::notice title=log::$l"; done
