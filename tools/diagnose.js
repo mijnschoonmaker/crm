@@ -12,7 +12,7 @@ const pick = (o, ks) => Object.fromEntries(ks.filter(k => o && o[k] !== undefine
   log("facturen met nummer " + nr + ": " + q.size);
   for (const d of q.docs) {
     const f = d.data();
-    log("FACTUUR " + d.id, pick(f, ["soort", "status", "betaald", "betaaldOp", "betaaldTs", "betaalwijze", "mollieStatus", "mollieBetaald", "verstuurdOp", "gemaakt", "datum", "vanOfferte", "incasso", "deelBetaald"]));
+    log("FACTUUR " + d.id, pick(f, ["soort", "status", "betaald", "betaaldOp", "betaaldTs", "betaalwijze", "mollieMethode", "betaaldTs", "verstuurdOp", "incasso", "mollieStatus", "mollieBetaald", "verstuurdOp", "gemaakt", "datum", "vanOfferte", "incasso", "deelBetaald"]));
     log("laatst gewijzigd (server): " + (d.updateTime ? d.updateTime.toDate().toISOString() : "?"));
     if (f.klantId) {
       const k = (await db.doc("klanten/" + f.klantId).get()).data() || {};
