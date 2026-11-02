@@ -15346,7 +15346,7 @@ function openFactuurWerk(id){
     definitief:()=>put({status:"open"},"Factuur is definitief"),
     contant:async()=>{await beurtenBetaald(true);put({status:"betaald",betaalwijze:"contant",betaaldOp:iso(today()),betaaldTs:new Date().toISOString()},"Contant betaald")},
     pin:async()=>{await beurtenBetaald(true);put({status:"betaald",betaalwijze:"pin",betaaldOp:iso(today()),betaaldTs:new Date().toISOString()},"Per pin betaald")},
-    bank:async()=>{const inc=cur().betaalwijze==="incasso",d=inc?iso(today()):await vraagBetaaldatum("Per bank betaald","Wanneer stond het geld op je rekening? Betaald op de dag van versturen of de dag erna levert de klant snelbetaal-credits op.");if(!d)return;await beurtenBetaald(true);put({status:"betaald",betaalwijze:inc?"incasso":"overmaken",betaaldOp:d,betaaldTs:betaaldTsVan(d)},"Per bank betaald")},
+    bank:async()=>{const inc=cur().betaalwijze==="incasso",d=inc?iso(today()):await vraagBetaaldatum("Per bank betaald","Wanneer stond het geld op je rekening? Betaald op de dag van versturen of de dag erna levert de klant snelbetaal-credits op.");if(!d)return;await beurtenBetaald(true);put({status:"betaald",betaalwijze:inc?"incasso":"overmaken",betaaldOp:d,betaaldTs:betaaldTsVan(d)},"Per bank betaald");if(!inc)setTimeout(()=>{try{if(typeof LIVE!=="undefined"&&LIVE)fbFn("snelCreditNu")({ids:[cur().id]}).catch(()=>{})}catch(e){}},400)},
     open:async()=>{await beurtenBetaald(false);put({status:"open",betaaldOp:"",betaaldTs:"",oninbaarOp:""},"Factuur staat weer open")},
     oninbaar:()=>put({status:"oninbaar",oninbaarOp:iso(today())},"Op oninbaar gezet; er gaan geen herinneringen meer uit"),
     send:()=>sendF(id,{direct:true,btn:form.querySelector('[data-fw="send"]')}),
@@ -15925,6 +15925,7 @@ async function fbKoppel(t,fid){
   for(const b of state.beurten.filter(b=>b.gefactureerd===f.id))await save("beurten",b.id,{...strip(b),betaald:true});
   const k=fbK(f),ib=String(t.iban||"").replace(/\s/g,"").toUpperCase();
   if(k&&ib&&!(k.bankIbans||[]).includes(ib))await save("klanten",k.id,{...strip(k),bankIbans:[...(k.bankIbans||[]),ib].slice(-4)});
+  try{if(typeof LIVE!=="undefined"&&LIVE)fbFn("snelCreditNu")({ids:[f.id]}).catch(()=>{})}catch(e){}
   await save("banktx",t.id,{...strip(t),status:"gekoppeld",factuurIds:[f.id],nummers:[f.nummer],reden:"Door jou gekoppeld"+(Math.abs(tot-t.bedrag)>.01?` (factuur ${eur(tot)})`:""),voorstel:""});
   toast("Factuur "+f.nummer+" staat op betaald")}
 async function fbOntkoppel(t){

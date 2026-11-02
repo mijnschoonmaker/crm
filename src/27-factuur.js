@@ -71,7 +71,7 @@ function openFactuurWerk(id){
     definitief:()=>put({status:"open"},"Factuur is definitief"),
     contant:async()=>{await beurtenBetaald(true);put({status:"betaald",betaalwijze:"contant",betaaldOp:iso(today()),betaaldTs:new Date().toISOString()},"Contant betaald")},
     pin:async()=>{await beurtenBetaald(true);put({status:"betaald",betaalwijze:"pin",betaaldOp:iso(today()),betaaldTs:new Date().toISOString()},"Per pin betaald")},
-    bank:async()=>{const inc=cur().betaalwijze==="incasso",d=inc?iso(today()):await vraagBetaaldatum("Per bank betaald","Wanneer stond het geld op je rekening? Betaald op de dag van versturen of de dag erna levert de klant snelbetaal-credits op.");if(!d)return;await beurtenBetaald(true);put({status:"betaald",betaalwijze:inc?"incasso":"overmaken",betaaldOp:d,betaaldTs:betaaldTsVan(d)},"Per bank betaald")},
+    bank:async()=>{const inc=cur().betaalwijze==="incasso",d=inc?iso(today()):await vraagBetaaldatum("Per bank betaald","Wanneer stond het geld op je rekening? Betaald op de dag van versturen of de dag erna levert de klant snelbetaal-credits op.");if(!d)return;await beurtenBetaald(true);put({status:"betaald",betaalwijze:inc?"incasso":"overmaken",betaaldOp:d,betaaldTs:betaaldTsVan(d)},"Per bank betaald");if(!inc)setTimeout(()=>{try{if(typeof LIVE!=="undefined"&&LIVE)fbFn("snelCreditNu")({ids:[cur().id]}).catch(()=>{})}catch(e){}},400)},
     open:async()=>{await beurtenBetaald(false);put({status:"open",betaaldOp:"",betaaldTs:"",oninbaarOp:""},"Factuur staat weer open")},
     oninbaar:()=>put({status:"oninbaar",oninbaarOp:iso(today())},"Op oninbaar gezet; er gaan geen herinneringen meer uit"),
     send:()=>sendF(id,{direct:true,btn:form.querySelector('[data-fw="send"]')}),

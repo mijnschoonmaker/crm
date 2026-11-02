@@ -277,6 +277,7 @@ async function fbKoppel(t,fid){
   for(const b of state.beurten.filter(b=>b.gefactureerd===f.id))await save("beurten",b.id,{...strip(b),betaald:true});
   const k=fbK(f),ib=String(t.iban||"").replace(/\s/g,"").toUpperCase();
   if(k&&ib&&!(k.bankIbans||[]).includes(ib))await save("klanten",k.id,{...strip(k),bankIbans:[...(k.bankIbans||[]),ib].slice(-4)});
+  try{if(typeof LIVE!=="undefined"&&LIVE)fbFn("snelCreditNu")({ids:[f.id]}).catch(()=>{})}catch(e){}
   await save("banktx",t.id,{...strip(t),status:"gekoppeld",factuurIds:[f.id],nummers:[f.nummer],reden:"Door jou gekoppeld"+(Math.abs(tot-t.bedrag)>.01?` (factuur ${eur(tot)})`:""),voorstel:""});
   toast("Factuur "+f.nummer+" staat op betaald")}
 async function fbOntkoppel(t){

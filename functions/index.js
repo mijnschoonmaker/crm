@@ -409,6 +409,13 @@ async function snelCredit(fid) {
         log: [...(Array.isArray(k.log) ? k.log : []), { datum: dagNL(), tekst: reden + " · " + String(n).replace(".", ",") + " credit (€ " + n.toFixed(2).replace(".", ",") + ") op de volgende factuur" }] }), { merge: true }); });
   } catch (e) { console.error("snelCredit", e); }
 }
+/* na handmatig koppelen of "per bank betaald" in het CRM: de snelbetaal-credits meteen toekennen (zelfde regels, nooit dubbel) */
+exports.snelCreditNu = onCall(async req => {
+  await checkGebruiker(req.auth);
+  const ids = (Array.isArray(req.data && req.data.ids) ? req.data.ids : []).map(String).filter(x => /^[\w-]{2,80}$/.test(x)).slice(0, 50);
+  for (const id of ids) await snelCredit(id);
+  return { ok: true };
+});
 exports.mollieHook = onRequest(async (req, res) => {
   const id = (req.body && req.body.id) || "";
   if (!/^tr_\w+$/.test(id)) { res.status(400).send("geen id"); return; }
