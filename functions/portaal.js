@@ -256,6 +256,10 @@ module.exports = function maakPortaal(ctx) {
     }
     const facturen = fs.docs.map(d => ({ id: d.id, ...dec(d.data()) })).filter(f => f.soort !== "offerte" && f.status !== "concept").sort((a, b2) => String(b2.datum).localeCompare(String(a.datum)))
       .map(f => ({ id: f.id, nummer: f.nummer || "", datum: f.datum || "", verval: f.verval || "", bedrag: totals(f, b).inc, status: fStatus(f), betaaldOp: f.status === "betaald" ? String(f.betaaldOp || f.betaald || "").slice(0, 10) : "", snelUren: snelUren(f), sec: betaalSec(f), incasso: !!f.incasso, incassoStatus: f.incasso ? (f.mollieStatus || "") : "", herinnerd: Number(f.herinneringen) || 0, betaallink: f.status !== "betaald" ? (f.betaallink || f.mollieLink || "") : "" }));
+    /* bedrag per bezoek: is het bezoek gefactureerd, dan het factuurbedrag (incl. btw, verdeeld over de bezoeken op die factuur), zodat het altijd klopt met de factuur */
+    const fRaw = new Map(fs.docs.map(d => [d.id, { id: d.id, ...dec(d.data()) }])), perF = {};
+    beurten.forEach(x => { if (x.gefactureerd) perF[x.gefactureerd] = (perF[x.gefactureerd] || 0) + 1; });
+    const bezBedrag = x => { const f = x.gefactureerd && fRaw.get(x.gefactureerd); if (f && f.soort !== "offerte" && f.status !== "concept" && !x.geannuleerd) return r2(totals(f, b).inc / (perF[f.id] || 1)); return Number(x.bedrag) || 0; };
     const freqW = Number(k.frequentie) || 4;
     let volgende = null;
     if (k.gepland && k.gepland >= vandaag) volgende = { datum: k.gepland, tijd: k.tijd || "", bezig: !!k.bezig && k.gepland === vandaag, reeks: (k.reeks || []).filter(x => x && x.d > k.gepland).slice(0, 12).map(x => ({ datum: x.d, tijd: x.t || "" })) };
@@ -293,7 +297,7 @@ module.exports = function maakPortaal(ctx) {
         toegang: k.portaalToegang || { opties: [], tekst: "" }, beheercode: String(k.beheercode || ""), nieuw: !!k.eersteKeer && !beurten.length,
         incasso: { actief: !!k.incasso && !!k.mollieMandateId, sinds: String(k.incassoSinds || "").slice(0, 10), bank: k.incassoBank || "", rekening: k.incassoRekening || "", beschikbaar: !!(await geheim()).mollieKey } },
       volgende, verwacht,
-      bezoeken: beurten.slice(0, 30).map(x => ({ id: x.id, datum: x.datum, tijd: tijdVan(x), door: vve && b.vveDoor === false ? "" : voornaamVan(String(x.door || "")), dienst: x.dienst || k.dienst || "Glasbewassing", extra: x.extra || [], bedrag: Number(x.bedrag) || 0, beoordeling: x.beoordeling ? { sterren: x.beoordeling.sterren } : null,
+      bezoeken: beurten.slice(0, 30).map(x => ({ id: x.id, datum: x.datum, tijd: tijdVan(x), door: vve && b.vveDoor === false ? "" : voornaamVan(String(x.door || "")), dienst: x.dienst || k.dienst || "Glasbewassing", extra: x.extra || [], bedrag: bezBedrag(x), beoordeling: x.beoordeling ? { sterren: x.beoordeling.sterren } : null,
         ...(vve ? { /* alleen wat er gedaan is: niet-gedane taken ziet de klant niet */ taken: Array.isArray(x.taken) ? x.taken.filter(t => t && t.ok).map(t => ({ naam: String(t.naam || ""), ok: true })) : [], fotos: (x.fotos || []).map(f => fotoUrl(f.id)).filter(Boolean), notitie: String(x.notitie || "").slice(0, 400) } : {}) })),
       ...(vve ? { bord: { url: base + "/bord/" + bordToken }, meldingen: meldingenVan(beurten, k).filter(m => m.categorie !== "vuil") } : {}),
       teBeoordelen: laatsteB && !laatsteB.beoordeling && (Date.now() - new Date(laatsteB.datum + "T12:00:00").getTime()) < 21 * DAG ? { id: laatsteB.id, datum: laatsteB.datum } : null,
