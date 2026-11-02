@@ -12105,6 +12105,7 @@ function openSetEdit(id){
       ${sel("dagKanaal","Via welk kanaal",s.dagKanaal,[["whatsapp","WhatsApp"],["sms","SMS"],["email","Alleen e-mail"]],{help:"Dit kanaal staat bovenaan en gemarkeerd bij het versturen."})}
       ${sec("Wanneer klaarzetten")}${tgl("dagVast","Op een vast tijdstip vooraf","Bijv. elke dag om 18:00 voor alle klussen van morgen.",s.dagVast!==false)}
       <div class="grid2">${sel("dagDagen","Hoeveel dagen vooraf",s.dagDagen,[[1,"1 dag vooraf"],[2,"2 dagen vooraf"],[3,"3 dagen vooraf"]],{t:"num"})}${inp("dagTijd","Om welk tijdstip",s.dagTijd,{type:"time"})}</div>
+      ${tgl("dagAutoMail","E-mail automatisch versturen","Klanten met een e-mailadres krijgen de herinnering vanzelf op het tijdstip hierboven, zonder aantikken. Wat vlak ervoor nog verschuift of afvalt, wordt niet verstuurd. Klanten zonder e-mailadres blijven in Communicatie staan. Mansard moet die dag vóór dat tijdstip één keer open zijn geweest.",s.dagAutoMail===true)}
       ${tgl("dagUurAan","Zoveel uur voor de klus zelf","Kijkt naar de starttijd van elke klus apart.",s.dagUurAan)}
       ${sel("dagUren","Uur voor de klus",s.dagUren,[[1,"1 uur"],[2,"2 uur"],[3,"3 uur"],[4,"4 uur"]],{t:"num"})}
       <p class="subt" style="margin:0">Staan beide aan, dan krijgt de klant twee berichten. Meerdere klussen op hetzelfde adres op dezelfde dag worden één bericht met alle diensten en tijden erin.</p>
@@ -17276,6 +17277,33 @@ function ccKies(modus){const wa=modus==="wa",ti=iso(today());
   inp.addEventListener("input",()=>{L.innerHTML=lijst(inp.value)});
   inp.addEventListener("keydown",e=>{if(e.key==="Enter"){const a=L.querySelector(".cc-kr");if(a){e.preventDefault();a.click()}}});
   L.addEventListener("click",e=>{if(e.target.closest("[data-kies]"))setTimeout(()=>{try{dlg.close()}catch(_){}},150)})}
+
+/* ---------- DAGHERINNERING AUTOMATISCH PER E-MAIL ----------
+   Instellingen › Dagherinnering › "E-mail automatisch versturen" (standaard uit).
+   Zolang het CRM open is zet het de herinneringsmails voor de klussen van over [dagDagen] dag(en) klaar als ingeplande mail
+   (geplandeMails) met verstuurtijd [dagTijd] (standaard 18:00). De server verstuurt ze op dat tijdstip en kijkt vlak ervoor
+   nog of de klus nog op die dag staat, of de klant nog actief is en of de herinnering niet al met de hand is verstuurd.
+   Alleen klanten met een e-mailadres; de rest blijft gewoon in de wachtrij in Communicatie (WhatsApp/sms). */
+const DAGMAIL={bezig:false,laatst:0};
+function dagMailAan(){const s=S();return LIVE&&!!s.liveMail&&s.dagAan!==false&&s.dagAutoMail===true&&s.dagVast!==false}
+async function dagMailKlaarzetten(){
+  if(DAGMAIL.bezig||!dagMailAan()||!state.loaded||!state.db)return;
+  const s=S(),nu=new Date(),tm=toMin(s.dagTijd||"18:00");if(tm==null)return;
+  /* alleen vóór het verstuurtijdstip: daarna is de server aan zet en blijft alles van de server */
+  const send=new Date(nu.getFullYear(),nu.getMonth(),nu.getDate(),Math.floor(tm/60),tm%60,0);if(nu>=send)return;
+  const q=queues().find(x=>x.id==="herinnering");if(!q||!q.items.length)return;
+  DAGMAIL.bezig=true;
+  try{const T=tpls(),TT=T.herinnering||{},tekst=TT.mail||TT.sms||TT.tekst||"",datum=String(q.items[0].ref).split(":")[1];
+    for(const it of q.items){const k=it.k,kid=String(it.ref).split(":")[2];if(!k||!k.email||!kid)continue;
+      const id="dag_"+datum+"_"+kid,ref=state.db.collection("geplandeMails").doc(id);
+      try{const cur=await ref.get();if(cur.exists&&cur.data().status!=="gepland")continue;
+        const html=mailFor("herinnering",it.vars,tekst);
+        await ref.set({status:"gepland",sendAt:send.toISOString(),naar:k.email,naam:cleanName(k.naam),onderwerp:fill(TT.onderwerp||"Herinnering: morgen komen wij langs",it.vars),html,tekst:fill(tekst,it.vars),
+          meta:{klantId:k.id||kid,klantNaam:k.naam||"",sjabloon:"herinnering",ref:it.ref},dagCheck:{datum,klantId:kid},gemaakt:new Date().toISOString(),door:"dagherinnering"})}
+      catch(e){console.error("dagmail",kid,e)}}
+    DAGMAIL.laatst=Date.now()}
+  finally{DAGMAIL.bezig=false}}
+if(typeof window!=="undefined"&&LIVE)setInterval(()=>{try{if(Date.now()-DAGMAIL.laatst>5*60e3)dagMailKlaarzetten()}catch(e){}},60e3);
 
 /* ---------- Waar stond de fotograaf? GPS en kompas van de telefoon bij een foto ----------
    1. Uit de foto zelf (EXIF): GPS-positie, kijkrichting (GPSImgDirection) en brandpuntsafstand.

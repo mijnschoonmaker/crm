@@ -182,6 +182,7 @@ function openSetEdit(id){
       ${sel("dagKanaal","Via welk kanaal",s.dagKanaal,[["whatsapp","WhatsApp"],["sms","SMS"],["email","Alleen e-mail"]],{help:"Dit kanaal staat bovenaan en gemarkeerd bij het versturen."})}
       ${sec("Wanneer klaarzetten")}${tgl("dagVast","Op een vast tijdstip vooraf","Bijv. elke dag om 18:00 voor alle klussen van morgen.",s.dagVast!==false)}
       <div class="grid2">${sel("dagDagen","Hoeveel dagen vooraf",s.dagDagen,[[1,"1 dag vooraf"],[2,"2 dagen vooraf"],[3,"3 dagen vooraf"]],{t:"num"})}${inp("dagTijd","Om welk tijdstip",s.dagTijd,{type:"time"})}</div>
+      ${tgl("dagAutoMail","E-mail automatisch versturen","Klanten met een e-mailadres krijgen de herinnering vanzelf op het tijdstip hierboven, zonder aantikken. Wat vlak ervoor nog verschuift of afvalt, wordt niet verstuurd. Klanten zonder e-mailadres blijven in Communicatie staan. Mansard moet die dag vóór dat tijdstip één keer open zijn geweest.",s.dagAutoMail===true)}
       ${tgl("dagUurAan","Zoveel uur voor de klus zelf","Kijkt naar de starttijd van elke klus apart.",s.dagUurAan)}
       ${sel("dagUren","Uur voor de klus",s.dagUren,[[1,"1 uur"],[2,"2 uur"],[3,"3 uur"],[4,"4 uur"]],{t:"num"})}
       <p class="subt" style="margin:0">Staan beide aan, dan krijgt de klant twee berichten. Meerdere klussen op hetzelfde adres op dezelfde dag worden één bericht met alle diensten en tijden erin.</p>

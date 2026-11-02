@@ -291,6 +291,13 @@ exports.geplandVerzenden = onSchedule({ schedule: "every 10 minutes", timeZone: 
   for (const doc of q.docs) {
     const d = doc.data();
     try {
+      /* automatische dagherinnering: vlak voor het versturen nog controleren of hij nog klopt */
+      if (d.dagCheck) {
+        const b = await bedrijf(), kd = await db.doc("klanten/" + String(d.dagCheck.klantId || "x")).get(), k = kd.exists ? kd.data() : null;
+        const al = d.meta && d.meta.ref ? !(await db.collection("berichten").where("ref", "==", String(d.meta.ref)).limit(1).get()).empty : false;
+        const reden = b.dagAan === false || b.dagAutoMail !== true ? "dagherinnering automatisch staat uit" : !k || k.actief === false ? "klant niet meer actief" : k.gepland !== d.dagCheck.datum ? "klus staat niet meer op " + d.dagCheck.datum : al ? "al verstuurd" : "";
+        if (reden) { await doc.ref.set({ status: "vervallen", reden }, { merge: true }); continue; }
+      }
       await portaalLinkVullen(d);
       const { key, mail } = await maakMail(d);
       const brevoId = await brevoSend(key, mail);
