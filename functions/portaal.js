@@ -179,8 +179,11 @@ module.exports = function maakPortaal(ctx) {
   const vveTakenVan = (k, b) => Array.isArray(k.vveTaken) && k.vveTaken.length ? k.vveTaken.map(String).slice(0, 20) : b && Array.isArray(b.vveTakenStd) && b.vveTakenStd.length ? b.vveTakenStd.map(String).slice(0, 20) : ["Entree en deuren", "Trappenhuis", "Lift", "Bergingsgang"];
   const tijdVan = x => { if (x.startOp) { try { return new Intl.DateTimeFormat("nl-NL", { timeZone: "Europe/Amsterdam", hour: "2-digit", minute: "2-digit" }).format(new Date(x.startOp)); } catch (e) {} } return x.tijd || ""; };
   async function liveInfo(S) {
-    const k = S.klant, dag = isoNL();
-    if (!(k.gepland === dag || (Array.isArray(k.reeks) && k.reeks.some(r => r && r.d === dag)))) return null;
+    const dag = isoNL(), vandaagIs = x => x && (x.gepland === dag || (Array.isArray(x.reeks) && x.reeks.some(r => r && r.d === dag)));
+    let k = S.klant;
+    /* staat het bezoek van vandaag op een losse opdracht (eigen klantkaart met hoofdKlantId), dan volgen we die */
+    if (!vandaagIs(k) && k.id) { try { const jq = await db.collection("klanten").where("hoofdKlantId", "==", k.id).get(); const j = jq.docs.map(d => ({ id: d.id, ...dec(d.data()) })).find(x => x.actief !== false && vandaagIs(x)); if (j) { k = j; S = { ...S, klant: j, kref: db.doc("klanten/" + j.id) }; } } catch (e) {} }
+    if (!vandaagIs(k)) return null;
     const [ls, ks, bs] = await Promise.all([db.doc("live/rit").get(), db.collection("klanten").where("gepland", "==", dag).get(), db.collection("beurten").where("datum", "==", dag).get()]);
     const klaar = new Set(bs.docs.map(d => d.data().klantId));
     if (klaar.has(k.id)) return { status: "klaar" };
@@ -279,7 +282,7 @@ module.exports = function maakPortaal(ctx) {
       bedrijf: { ...bedrijfInfo(b, base), extraDiensten },
       klant: { voornaam: voornaamVan(schoon(k.contact || k.naam)), naam: schoon(k.naam), contact: k.contact || "", adres: k.adres || "", postcode: k.postcode || "", plaats: k.plaats || "", pcPlaats: [k.postcode, k.plaats].filter(Boolean).join(" "), email: k.email || "", telefoon: k.telefoon || "", mobiel: k.mobiel || "", zakelijk: k.soort === "zakelijk" || k.soort === "vve",
         vve, vveSoort: vve ? vveSoortVan(k) : "", diensten: vveDiensten(k, jobsDec), ritme: ritmeTxt(k), weekdagen: wdg || [], taken: vveTakenVan(k, b), takenFreq: Object.fromEntries(Object.entries(k.vveFreq && typeof k.vveFreq === "object" ? k.vveFreq : {}).filter(([n, f]) => typeof f === "string" && ["week", "2week", "maand", "kwartaal", "halfjaar", "jaar"].includes(f)).slice(0, 20).map(([n, f]) => [String(n).slice(0, 60), f])),
-        klantnr: k.klantnr || "", sinds: k.aangemaakt || (beurten.length ? beurten[beurten.length - 1].datum : ""), dienst: (hoofdJob ? hoofdJob.dienst : k.dienst) || "Glasbewassing", frequentie: hoofdJob ? (Number(hoofdJob.frequentie) || freqW) : freqW, prijs: Number(k.prijs) || 0, binnen: !!k.binnen, actief: k.actief !== false,
+        klantnr: k.klantnr || "", sinds: k.aangemaakt || (beurten.length ? beurten[beurten.length - 1].datum : ""), dienst: (hoofdJob ? hoofdJob.dienst : k.dienst) || "Glasbewassing", frequentie: hoofdJob ? (Number(hoofdJob.frequentie) || freqW) : freqW, prijs: hoofdJob ? (Number(hoofdJob.prijs) || 0) : (Number(k.prijs) || 0), binnen: !!k.binnen, actief: k.actief !== false,
         toegang: k.portaalToegang || { opties: [], tekst: "" }, beheercode: String(k.beheercode || ""), nieuw: !!k.eersteKeer && !beurten.length,
         incasso: { actief: !!k.incasso && !!k.mollieMandateId, sinds: String(k.incassoSinds || "").slice(0, 10), bank: k.incassoBank || "", rekening: k.incassoRekening || "", beschikbaar: !!(await geheim()).mollieKey } },
       volgende, verwacht,
