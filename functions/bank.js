@@ -130,7 +130,11 @@ module.exports = ({ db, T, onCall, onRequest, onSchedule, HttpsError, geheim, ch
     if (!a) throw new HttpsError("not-found", naam + " staat niet in de lijst met banken.");
     const sec = Math.min(Number(a.maximum_consent_validity) || 90 * 86400, 180 * 86400), tot = new Date(Date.now() + sec * 1000 - 3600e3).toISOString();
     const state = T.tok(18), type = (a.psu_types || []).includes("business") && d.zakelijk !== false ? "business" : "personal";
-    const r = await eb(g, "/auth", { method: "POST", body: JSON.stringify({ access: { valid_until: tot }, aspsp: { name: a.name, country: "NL" }, state, redirect_url: basis + "/api/bank/terug", psu_type: type }) });
+    let r;
+    try { r = await eb(g, "/auth", { method: "POST", body: JSON.stringify({ access: { valid_until: tot }, aspsp: { name: a.name, country: "NL" }, state, redirect_url: basis + "/api/bank/terug", psu_type: type }) }); }
+    catch (e) { /* duidelijke melding in plaats van INTERNAL */
+      if (/redirect uri not allowed/i.test(e.message)) throw new HttpsError("failed-precondition", "Enable Banking kent het terugkeeradres niet. Zet bij je applicatie op enablebanking.com bij Allowed redirect URLs: " + basis + "/api/bank/terug");
+      throw new HttpsError("failed-precondition", String(e.message || e).replace(/^Bank: /, "Enable Banking: ")); }
     await db.doc("geheim/bankstart").set({ state, bank: a.name, basis, op: nu() });
     return { url: r.url };
   });
