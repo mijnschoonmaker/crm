@@ -4976,6 +4976,14 @@ html body .sc3-zoek{flex-direction:row!important}html body .sc3-zoek svg{width:1
 .pb-rel{flex:none;font-size:12.5px;font-weight:600;color:var(--muted);white-space:nowrap}.pb-rel.vers{color:#2f5fb8}
 @media (max-width:520px){.pb-tot b{font-size:19px}.pb-nr{display:none}}
 
+/* kaartplannen: volledig scherm */
+.pk-map .rv-laag:not(.pk-vol-k):not(.rv-centreer){right:auto!important;left:10px!important}
+html body .pk-map .rv-laag.pk-vol-k{right:10px;left:auto;width:36px;height:36px;padding:0;display:grid;place-items:center}
+html body:not(#zz) .pk-map .rv-laag.pk-vol-k svg,html body:not(#zz) .pk-map .rv-laag.pk-vol-k svg *{color:#252c3c!important;stroke:#252c3c!important}
+.pk-map.pk-vol{position:fixed!important;inset:0!important;z-index:9000!important;width:100vw;height:100dvh;border-radius:0}
+.pk-map.pk-vol:fullscreen{width:100%;height:100%}
+html.pk-vol-open,html.pk-vol-open body{overflow:hidden}
+
 </style>
 <style id="mansardThema">
 @import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;500;600;700&display=swap");
@@ -8834,12 +8842,12 @@ function pkStatus(){const s=$("#pkStat");if(s)s.innerHTML=pkStatTxt()}
 function pkNaRender(){
   if(state.tab!=="planning"||!state.pkaart)return;const slot=$("#pkSlot");if(!slot)return;
   if(!PK.el){PK.el=document.createElement("div");PK.el.className="pk-map";PK.el.innerHTML=`<div class="pk-laad">${I.map}<span>Kaart laden…</span></div>`}
-  slot.appendChild(PK.el);
+  if(!PK.vol)slot.appendChild(PK.el);
   pkLaadLeaflet().then(()=>{
     if(!PK.map){PK.el.innerHTML="";const L=window.L;
       PK.map=L.map(PK.el,{zoomControl:false,attributionControl:true,scrollWheelZoom:true,zoomSnap:.5}).setView([53.2,6.3],11);PK.map.attributionControl.setPrefix(false);
       L.control.zoom({position:"bottomright"}).addTo(PK.map);
-      PK.map.attributionControl.addAttribution("© PDOK / Kadaster");rvOndergrond(PK.el,PK.map);rvLaagKnop(PK.el,PK.map);
+      PK.map.attributionControl.addAttribution("© PDOK / Kadaster");rvOndergrond(PK.el,PK.map);rvLaagKnop(PK.el,PK.map);pkVolKnop();
       PK.laag=L.layerGroup().addTo(PK.map);PK.sig="";
       PK.map.on("dragstart",()=>{PK.zelf=true});PK.el.addEventListener("wheel",()=>{PK.zelf=true},{passive:true})}
     PK.map.invalidateSize();PK.fout="";pkTeken();pkStatus();
@@ -8870,6 +8878,23 @@ function pkInBeeld(){if(!PK.map||!PK.data)return;const b=PK.map.getBounds();let 
 document.addEventListener("mouseover",e=>{if(!PK.map)return;const c=e.target.closest&&e.target.closest(".offercol [data-drag]"),id=c&&c.dataset.drag;
   if(id===PK.hl)return;if(PK.hl&&PK.mk[PK.hl]){const el=PK.mk[PK.hl].getElement();if(el)el.classList.remove("pk-hl")}PK.hl=id||"";
   if(id&&PK.mk[id]){const el=PK.mk[id].getElement();if(el)el.classList.add("pk-hl")}});
+/* ---- volledig scherm (zoals Google Maps): de kaart over het hele scherm, Esc of de knop zet hem terug ---- */
+const PK_VOL_IN=`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>`;
+const PK_VOL_UIT=`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>`;
+function pkVolKnop(){const b=document.createElement("button");b.type="button";b.className="rv-laag pk-vol-k";PK.volK=b;pkVolZet();
+  b.addEventListener("click",e=>{e.stopPropagation();pkVol(!PK.vol)});
+  ["mousedown","touchstart","dblclick","wheel"].forEach(t=>b.addEventListener(t,ev=>ev.stopPropagation(),{passive:true}));PK.el.appendChild(b)}
+function pkVolZet(){const b=PK.volK;if(!b)return;b.innerHTML=PK.vol?PK_VOL_UIT:PK_VOL_IN;const t=PK.vol?"Volledig scherm sluiten":"Volledig scherm";b.title=t;b.setAttribute("aria-label",t)}
+function pkVol(aan){if(!PK.el||!!PK.vol===!!aan)return;PK.vol=!!aan;
+  if(aan){document.body.appendChild(PK.el);PK.el.classList.add("pk-vol");document.documentElement.classList.add("pk-vol-open");
+    try{const r=PK.el.requestFullscreen||PK.el.webkitRequestFullscreen;if(r){const p=r.call(PK.el);if(p&&p.catch)p.catch(()=>{})}}catch(e){}}
+  else{PK.el.classList.remove("pk-vol");document.documentElement.classList.remove("pk-vol-open");
+    try{const d=document,f=d.fullscreenElement||d.webkitFullscreenElement;if(f===PK.el){const x=d.exitFullscreen||d.webkitExitFullscreen;if(x){const p=x.call(d);if(p&&p.catch)p.catch(()=>{})}}}catch(e){}
+    const slot=$("#pkSlot");if(slot)slot.appendChild(PK.el);else PK.el.remove()}
+  pkVolZet();if(PK.map)setTimeout(()=>PK.map.invalidateSize(),60)}
+/* Esc of de browser verlaat het volledige scherm: de kaart terug in de pagina */
+["fullscreenchange","webkitfullscreenchange"].forEach(t=>document.addEventListener(t,()=>{const f=document.fullscreenElement||document.webkitFullscreenElement;if(!f&&PK.vol)pkVol(false);else if(PK.map)setTimeout(()=>PK.map.invalidateSize(),60)}));
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&PK.vol)pkVol(false)});
 
 /* ---------- PLANNING ---------- */
 function curDay(){return state.planDay||iso(today())}

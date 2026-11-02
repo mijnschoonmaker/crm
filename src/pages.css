@@ -4665,3 +4665,11 @@ html body .sc3-zoek{flex-direction:row!important}html body .sc3-zoek svg{width:1
 .pb-nr{flex:none;width:22px;text-align:right;font-size:12px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
 .pb-rel{flex:none;font-size:12.5px;font-weight:600;color:var(--muted);white-space:nowrap}.pb-rel.vers{color:#2f5fb8}
 @media (max-width:520px){.pb-tot b{font-size:19px}.pb-nr{display:none}}
+
+/* kaartplannen: volledig scherm */
+.pk-map .rv-laag:not(.pk-vol-k):not(.rv-centreer){right:auto!important;left:10px!important}
+html body .pk-map .rv-laag.pk-vol-k{right:10px;left:auto;width:36px;height:36px;padding:0;display:grid;place-items:center}
+html body:not(#zz) .pk-map .rv-laag.pk-vol-k svg,html body:not(#zz) .pk-map .rv-laag.pk-vol-k svg *{color:#252c3c!important;stroke:#252c3c!important}
+.pk-map.pk-vol{position:fixed!important;inset:0!important;z-index:9000!important;width:100vw;height:100dvh;border-radius:0}
+.pk-map.pk-vol:fullscreen{width:100%;height:100%}
+html.pk-vol-open,html.pk-vol-open body{overflow:hidden}
