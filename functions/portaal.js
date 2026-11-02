@@ -18,7 +18,7 @@ const crypto = require("crypto");
 const LIVE_KAART_VANAF = 2;
 
 module.exports = function maakPortaal(ctx) {
-  const { sjabloon, vulIn, pushStuur, db, T, onRequest, onCall, onSchedule, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket, portaalUrl, verwerkFactuurBetaling, snelBetaald } = ctx;
+  const { act = async () => {}, sjabloon, vulIn, pushStuur, db, T, onRequest, onCall, onSchedule, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket, portaalUrl, verwerkFactuurBetaling, snelBetaald } = ctx;
   /* moment van versturen: het precieze tijdstip als dat er is; het CRM bewaart soms alleen de datum, dan het aanmaakmoment van die dag */
   const vanTs = f => { if (!f) return ""; if (f.verstuurdTs) return f.verstuurdTs; const v = String(f.verstuurdOp || ""); if (/T\d/.test(v)) return v;
     if (/^\d{4}-\d{2}-\d{2}$/.test(v)) { const g = String(f.gemaakt || ""); return g && g.slice(0, 10) === v ? g : v + "T00:00:00"; } return f.gemaakt || ""; };
@@ -75,6 +75,9 @@ module.exports = function maakPortaal(ctx) {
     if (!voorbeeld && Date.now() - (Date.parse(k.data().portaalLaatst || 0) || 0) > 15 * 60e3) k.ref.set({ portaalLaatst: nu() }, { merge: true }).catch(() => {});
     return { ref, klant: { id: k.id, ...dec(k.data()) }, kref: k.ref, voorbeeld };
   }
+  /* zelfde handeling niet elke keer opnieuw: hooguit eens per [min] minuten per klant (en per tabblad of factuur) */
+  const _actT = new Map();
+  function actEens(klantId, soort, min, info) { const k = klantId + "|" + soort + "|" + JSON.stringify(info || {}), t = _actT.get(k) || 0; if (Date.now() - t < min * 60e3) return; _actT.set(k, Date.now()); if (_actT.size > 5000) _actT.clear(); act(klantId, soort, info).catch(() => {}); }
   async function maakRefCode(k) {
     const basis = schoon(k.contact || k.naam).split(/\s+/)[0].normalize("NFD").replace(/[^A-Za-z]/g, "").toUpperCase().slice(0, 6) || "VRIEND";
     for (let i = 0; i < 8; i++) {
@@ -483,6 +486,7 @@ module.exports = function maakPortaal(ctx) {
         const f = q.empty ? null : q.docs[0];
         if (!f || f.data().soort === "offerte" || f.data().status === "concept") { res.redirect(302, terug); return; }
         const r = await betaalLinkVoor(f, req);
+        if (r.link && f.data().klantId) act(f.data().klantId, "betalen-start", { nummer: f.data().nummer || "", via: "betaallink" }).catch(() => {});
         res.redirect(302, r.link ? r.link : r.betaald ? terug + "?betaald=" + encodeURIComponent(f.id) : terug); return;
       }
       if (pad === "/bedankt" && req.method === "GET") {
@@ -535,13 +539,16 @@ module.exports = function maakPortaal(ctx) {
       const S = await sessie(req);
       if (!S) { res.status(401).json({ fout: "Log opnieuw in." }); return; }
       if (S.voorbeeld && req.method !== "GET" && pad !== "/uit") { res.status(403).json({ fout: "Dit is een voorbeeld vanuit het CRM: hier kun je alleen kijken." }); return; }
-      if (pad === "/data" && req.method === "GET") { const d = await data(req, S); if (S.voorbeeld) d.voorbeeld = true; res.json(d); return; }
+      if (pad === "/data" && req.method === "GET") { const d = await data(req, S); if (S.voorbeeld) d.voorbeeld = true; else actEens(S.klant.id, "portaal", 10, {}); res.json(d); return; }
+      /* klantactiviteit vanuit het portaal (welk onderdeel bekeken); niet bij de voorbeeldweergave in het CRM */
+      if (pad === "/act" && req.method === "POST") { const x = body(req), tab = String(x.tab || ""); if (!S.voorbeeld && /^(home|bezoeken|diensten|tickets|offertes|facturen|credits|aanbevelen|ik|contact)$/.test(tab)) actEens(S.klant.id, "tab", 3, { tab }); res.json({ ok: true }); return; }
       if (pad === "/live" && req.method === "GET") { res.json({ live: await liveInfo(S) }); return; }
       if (pad === "/uit" && req.method === "POST") { await S.ref.delete(); res.json({ ok: true }); return; }
       if (pad === "/factuur" && req.method === "GET") {
         const f = await db.doc("facturen/" + String(req.query.id || "")).get();
         if (!f.exists || !(await vanKlant(S, f.data().klantId)) || (f.data().soort === "offerte" && !offGetekend(f.data())) || f.data().status === "concept") { res.status(404).json({ fout: "niet gevonden" }); return; }
         const x = dec(f.data()), b = await bedrijf();
+        if (!S.voorbeeld) actEens(S.klant.id, x.soort === "offerte" ? "offerte-geopend" : "factuur-geopend", 5, { nummer: x.nummer || "" });
         res.json({ soort: x.soort === "offerte" ? "offerte" : "factuur", getekend: x.soort === "offerte" ? { naam: (x.getekend || {}).naam || "", datum: offDatum(x) } : null, pdf: !!x.pdfId, incasso: !!x.incasso && x.status !== "betaald" && !x.incassoMislukt, nummer: x.nummer, datum: x.datum, verval: x.verval, klantNaam: schoon(x.klantNaam), klantAdres: x.klantAdres || "", regels: (x.regels || []).map(r => ({ omschrijving: r.omschrijving, aantal: Number(r.aantal) || 0, prijs: Number(r.prijs) || 0 })), incl: x.incl ?? b.incl ?? true, btwPct: Number(x.btw ?? b.btw ?? 21), ...totals(x, b), status: fStatus(x), betaaldOp: x.betaaldOp || "", betaallink: x.status !== "betaald" ? (x.betaallink || x.mollieLink || "") : "", notitie: x.notitie || "",
           bedrijf: { ...bedrijfInfo(b, basisUrl(req)), adres: b.adres || "", pcPlaats: [b.postcode, b.plaats].filter(Boolean).join(" "), kvk: b.kvk || "", btwnr: b.btwnr || "", bic: b.bic || "" } }); return;
       }
@@ -550,6 +557,7 @@ module.exports = function maakPortaal(ctx) {
         const f = await db.doc("facturen/" + String(req.query.id || "")).get();
         if (!f.exists || !(await vanKlant(S, f.data().klantId)) || (f.data().soort === "offerte" && !offGetekend(f.data())) || f.data().status === "concept" || !f.data().pdfId) { res.status(404).json({ fout: "niet gevonden" }); return; }
         const x = f.data(), file = bucket().file("assets/" + String(x.pdfId));
+        if (!S.voorbeeld) actEens(S.klant.id, "pdf", 5, { nummer: x.nummer || "", doc: x.soort === "offerte" ? "offerte" : "factuur" });
         try { const [buf] = await file.download(); res.set("content-type", "application/pdf"); res.set("content-disposition", `inline; filename="${x.soort === "offerte" ? "Offerte" : "Factuur"} ${String(x.nummer || "").replace(/[^\w.-]/g, "")}.pdf"`); res.send(buf); }
         catch (e) { res.status(404).json({ fout: "niet gevonden" }); }
         return;
@@ -559,6 +567,7 @@ module.exports = function maakPortaal(ctx) {
         if (!f.exists || !(await vanKlant(S, f.data().klantId)) || f.data().soort === "offerte" || f.data().status === "concept") { res.status(404).json({ fout: "niet gevonden" }); return; }
         const r = await betaalLinkVoor(f, req);
         if (r.code) { res.status(r.code).json({ fout: r.fout }); return; }
+        if (!S.voorbeeld && r.link) act(S.klant.id, "betalen-start", { nummer: f.data().nummer || "", via: "portaal" }).catch(() => {});
         res.json(r); return;
       }
       /* automatische incasso: machtiging via een eerste iDEAL-betaling van € 0,01, daarna schrijft het CRM facturen automatisch af */

@@ -149,9 +149,10 @@ function kkContact(kid,i){const k=state.klanten.find(x=>x.id===kid);if(!k)return
   const d=$("#kcDel");if(d)d.onclick=async()=>{const l=[...(k.contacten||[])];l.splice(i,1);try{await save("klanten",kid,{...strip(k),contacten:l});toast("Contactpersoon verwijderd");openKlantView(kid)}catch(er){err(er)}}}
 function kkBerichten(kid){const k=state.klanten.find(x=>x.id===kid);if(!k)return;const ids=kkIds(k),ms=state.berichten.filter(m=>ids.includes(m.klantId)).sort((a,b)=>String(b.op).localeCompare(String(a.op)));
   openDlg(`<div class="dlg-head"><span class="objic big">${I.send}</span><div style="min-width:0;flex:1"><h3>Verzonden berichten</h3><div class="subt">${esc(cleanName(k.naam))} · ${plural(ms.length,"bericht","berichten")}</div></div><button type="button" class="iconbtn" id="kbX" aria-label="Terug">${I.x}</button></div>
+    ${typeof trkTijdlijnHtml==="function"?trkTijdlijnHtml():""}
     <div class="kd-msgs">${ms.map(m=>`<details class="kd-msg"><summary class="km"><div class="km-kop"><span class="pill neutral">${esc(KANAAL[m.kanaal]||m.kanaal||"")}</span><span class="km-t">${esc(fmtTS(m.op))}</span>${(st=>statusPill(st[0]==="ok2"?"ok":st[0],st[1]))(MSTAT[mStat(m)]||MSTAT.geopend)}</div><b class="km-ow">${esc(m.onderwerp||String(m.tekst||"").slice(0,70))}</b>${m.naar?`<small class="km-naar">Aan ${esc(m.naar)}</small>`:""}${mailTrk(m)}</summary><p>${esc(m.tekst||"").replace(/\n/g,"<br>")}</p></details>`).join("")||'<p class="subt">Nog geen berichten.</p>'}</div>
     <div class="row"><span class="sp"></span><button type="button" id="kbB">Terug naar klant</button></div>`,{wide:true});
-  $("#kbX").onclick=$("#kbB").onclick=()=>openKlantView(kid)}
+  $("#kbX").onclick=$("#kbB").onclick=()=>openKlantView(kid);if(typeof trkTijdlijnLaad==="function")trkTijdlijnLaad(ids,ms)}
 function kkOpenOverzicht(kid){const k=state.klanten.find(x=>x.id===kid);if(!k)return;
   const open=state.facturen.filter(f=>f.klantId===kid&&f.soort!=="offerte"&&["Openstaand","Achterstallig"].includes(fStatus(f)[1])).sort((a,b)=>String(a.datum).localeCompare(String(b.datum)));
   const tot=open.reduce((a,f)=>a+totals(f).inc,0),st=S(),kf=mailK(k,"factuur"),v=klantVars(kf);if(tavK(k,"factuur"))v.klant=tavK(k,"factuur");

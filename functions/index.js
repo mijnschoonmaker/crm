@@ -234,6 +234,8 @@ exports.sendMail = onCall({ memory: "512MiB", timeoutSeconds: 60 }, async req =>
   if (!/^\S+@\S+\.\S+$/.test(String(d.naar || ""))) throw new HttpsError("invalid-argument", "Ongeldig e-mailadres.");
   const id = /^[\w-]{4,40}$/.test(d.berichtId || "") ? d.berichtId : newId("m");
   await portaalLinkVullen(d);
+  /* eigen leesbevestiging en kliklinks; vóór het versturen vastleggen zodat een snelle open al gevonden wordt */
+  try { const tr = MT.voorbereiden(d.html, id); if (tr.trk) { d.html = tr.html; await db.doc("berichten/" + id).set({ trkTok: tr.trk.tok, trk: tr.trk }, { merge: true }); } } catch (e) { console.error("tracking", e.message); }
   const { key, mail } = await maakMail(d);
   let brevoId = "";
   try { brevoId = await brevoSend(key, mail); }
@@ -299,9 +301,10 @@ exports.geplandVerzenden = onSchedule({ schedule: "every 10 minutes", timeZone: 
         if (reden) { await doc.ref.set({ status: "vervallen", reden }, { merge: true }); continue; }
       }
       await portaalLinkVullen(d);
+      const id = d.berichtId || newId("m");
+      try { const tr = MT.voorbereiden(d.html, id); if (tr.trk) { d.html = tr.html; await db.doc("berichten/" + id).set({ trkTok: tr.trk.tok, trk: tr.trk }, { merge: true }); } } catch (e) { console.error("tracking", e.message); }
       const { key, mail } = await maakMail(d);
       const brevoId = await brevoSend(key, mail);
-      const id = d.berichtId || newId("m");
       await db.doc("berichten/" + id).set({ ...(d.meta || {}), naar: d.naar, kanaal: "email", onderwerp: d.onderwerp || "", tekst: d.tekst || "", status: "verstuurd", brevoId, verstuurdOp: nu(), op: nu(), gepland: true }, { merge: true });
       await doc.ref.set({ status: "verstuurd", brevoId, verstuurdOp: nu() }, { merge: true });
     } catch (e) {
@@ -427,6 +430,9 @@ exports.mollieHook = onRequest(async (req, res) => {
       res.send("ok"); return;
     }
     await verwerkFactuurBetaling(p);
+    /* klantactiviteit: betaald of afgebroken (eenmalige betalingen, geen incasso) */
+    try { const fid = p.metadata && p.metadata.factuurId; if (fid && p.sequenceType !== "recurring" && ["paid", "canceled", "expired", "failed"].includes(p.status)) { const f = await db.doc("facturen/" + fid).get();
+      if (f.exists && f.data().klantId) await MT.act(f.data().klantId, p.status === "paid" ? "betaald" : "betalen-afgebroken", { nummer: f.data().nummer || "", methode: p.method || "", status: p.status, bedrag: Number((p.amount || {}).value) || 0 }); } } catch (e) { console.error("act mollie", e.message); }
     res.send("ok");
   } catch (e) { console.error(e); res.status(500).send("fout"); }
 });
@@ -629,6 +635,7 @@ exports.akkoordInfo = onRequest({ cors: true }, async (req, res) => {
   const s = await db.doc("akkoord/" + tok).get();
   if (!s.exists) { res.status(404).json({ fout: "niet gevonden" }); return; }
   const a = s.data(), b = await bedrijf();
+  if (a.klantId && String(req.query.v || "") !== "1") MT.act(a.klantId, a.status === "open" ? "offerte-bekeken" : "offerte-teruggezien", { nummer: a.nummer || "" }).catch(() => {});
   res.json({ status: a.status, nummer: a.nummer, geldigTot: a.geldigTot || "", klant: (a.model || {}).klant || {}, groepen: (a.model || {}).groepen || [],
     bedrijf: { naam: b.naam || "", logo: (b.logoMail || b.logo) ? HOST() + "/_blob/" + (b.logoMail || b.logo) : "", telefoon: b.telefoon || "", email: b.email || "" },
     voorwaarden: b.voorwaardenPdf ? HOST() + "/_blob/" + b.voorwaardenPdf : (b.voorwaarden && /^https?:/.test(b.voorwaarden) ? b.voorwaarden : ""), getekend: a.getekend ? { naam: a.getekend.naam, datum: a.getekend.datum } : null });
@@ -672,6 +679,7 @@ exports.akkoordGeven = onRequest({ cors: true, memory: "512MiB", timeoutSeconds:
     await bucket().file("assets/" + hid).save(buf, { contentType: "image/png", resumable: false });
     const datum = nlDatum() + " - " + nlTijd(), getekend = { naam, plaats, datum, browser, systeem, handtekening: hid, op: nu() };
     await ref.update({ status: "getekend", getekend });
+    if (a.klantId) MT.act(a.klantId, "offerte-getekend", { nummer: a.nummer || "", apparaat: systeem }).catch(() => {});
     const f = a.factuurId ? await db.doc("facturen/" + a.factuurId).get() : null;
     if (f && f.exists) await f.ref.set({ status: "geaccepteerd", akkoordOp: dagNL(), getekend, getekendNieuw: true }, { merge: true });
     /* ondertekend = vaste klant: meteen bij Te plannen (zoals Akkoord en inplannen in het CRM) */
@@ -691,7 +699,10 @@ const PU = require("./push")({ db, onCall, checkGebruiker, HttpsError, nu });
 exports.pushSleutel = PU.pushSleutel;
 exports.pushAbo = PU.pushAbo;
 exports.pushTest = PU.pushTest;
-const P = require("./portaal")({ sjabloon, vulIn, pushStuur: PU.stuur, snelBetaald, db, T, onRequest, onCall, onSchedule, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket, portaalUrl, verwerkFactuurBetaling });
+/* eigen mailtracking (leesbevestiging, kliks) en klantactiviteit */
+const MT = require("./mailtrack")({ db, T, onRequest, onCall, HttpsError, checkGebruiker, nu, HOST });
+Object.assign(exports, MT.functies);
+const P = require("./portaal")({ act: MT.act, sjabloon, vulIn, pushStuur: PU.stuur, snelBetaald, db, T, onRequest, onCall, onSchedule, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket, portaalUrl, verwerkFactuurBetaling });
 /* tweestapsverificatie voor het CRM en dagelijkse back-ups */
 Object.assign(exports, BEV.functies);
 /* bank: betalingen automatisch koppelen aan facturen (bankbestand of koppeling via Enable Banking) */

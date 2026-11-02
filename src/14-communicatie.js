@@ -1,11 +1,12 @@
 /* ---------- COMMUNICATIE ---------- */
 const CATGRAD={Aankondiging:"#4a78b8",Afkondiging:"#3f8a66",Afspraak:"#6a63b0",Herinnering:"#b07a3a",Factuur:"#2f7f88",Offerte:"#4f86a8",Review:"#a68a3a",Welkom:"#a2607a",Algemeen:"#6b7a80"};
 const MSTAT={geopend:["brand","Klaargezet"],gepland:["soon","Gepland"],gekopieerd:["plan","Verstuurd"],bezorgd:["ok","Bezorgd"],gelezen:["ok","Geopend"],geklikt:["ok2","Geklikt in de mail"],bounce:["late","Niet afgeleverd"],spam:["late","Als spam gemarkeerd"],uit:["neutral","Uitgeschreven"],mislukt:["late","Mislukt"]};
-const mStat=m=>m.spamOp?"spam":(m.bouncedOp||m.geblokkeerdOp)?"bounce":m.status==="mislukt"?"mislukt":m.uitgeschrevenOp?"uit":m.geklikOp?"geklikt":m.gelezenOp?"gelezen":m.bezorgdOp?"bezorgd":m.status==="gepland"?"gepland":(m.status==="verstuurd"||m.status==="gekopieerd")?"gekopieerd":m.status||"geopend";
+const mStat=m=>m.spamOp?"spam":(m.bouncedOp||m.geblokkeerdOp)?"bounce":m.status==="mislukt"?"mislukt":m.uitgeschrevenOp?"uit":(m.trk?m.trkKlikOp:m.geklikOp)?"geklikt":(m.trk?m.trkOpenOp:m.gelezenOp)?"gelezen":m.bezorgdOp?"bezorgd":m.status==="gepland"?"gepland":(m.status==="verstuurd"||m.status==="gekopieerd")?"gekopieerd":m.status||"geopend";
 const fmtTS=x=>{if(!x)return"";const d=new Date(x);return fmtD(iso(d))+" "+pad(d.getHours())+":"+pad(d.getMinutes())};
 /* korte trackingregel onder een bericht */
 function mailTrk(m){if(m.kanaal!=="email")return"";const st=mStat(m),b=[];
-  if(st==="geklikt"||st==="gelezen"){b.push(`<span class="trk-ok">${I.eye}Geopend ${esc(fmtTS(m.gelezenOp))}${(m.opens||0)>1?` · ${m.opens}×`:""}</span>`);if(m.geklikOp)b.push(`<span class="trk-ok">${I.right}Link aangeklikt ${esc(fmtTS(m.geklikOp))}</span>`)}
+  if(m.trk&&typeof trkRegels==="function"&&!["bounce","spam","mislukt"].includes(st))b.push(...trkRegels(m));
+  else if(st==="geklikt"||st==="gelezen"){b.push(`<span class="trk-ok">${I.eye}Geopend ${esc(fmtTS(m.gelezenOp))}${(m.opens||0)>1?` · ${m.opens}×`:""}</span>`);if(m.geklikOp)b.push(`<span class="trk-ok">${I.right}Link aangeklikt ${esc(fmtTS(m.geklikOp))}</span>`)}
   else if(m.bezorgdOp)b.push(`<span class="trk-ok">${I.check}Bezorgd ${esc(fmtTS(m.bezorgdOp))}</span>`);
   else if(m.track||m.brevoId)b.push(`<span>${I.clock}Nog niet geopend</span>`);
   if(st==="bounce"||st==="spam"||st==="mislukt")b.unshift(`<span style="color:var(--late);font-weight:600">${I.alert}${esc(MSTAT[st][1])}${m.bounceReden||m.fout?" · "+esc(String(m.bounceReden||m.fout).slice(0,80)):""}</span>`);

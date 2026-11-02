@@ -4687,3 +4687,13 @@ html.pk-vol-open,html.pk-vol-open body{overflow:hidden}
 .st-tab td{padding:9px 8px;border-bottom:1px solid var(--line);white-space:nowrap}.st-tab tr:last-child td{border-bottom:0}
 .st-tab .r{text-align:right}.st-tab td small{display:block;font-size:11px;color:var(--muted)}.st-tab td small.st-plus{color:#23845a}.st-tab td small.st-min{color:#b3412c}
 html body:not(#zz) .st-meer-r .st-rb i{background:linear-gradient(90deg,#3e4a64,#252c3c)!important}html body:not(#zz) .st-meer-r.st-oud .st-rb i{background:linear-gradient(90deg,#c9653f,#b3412c)!important}
+
+/* wat heeft de klant gedaan (eigen mailtracking en klantactiviteit) */
+.trk-tl{border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin:0 0 14px;background:var(--surface)}
+.trk-tlh{display:flex;flex-direction:column;gap:2px;margin-bottom:10px}.trk-tlh b{display:flex;align-items:center;gap:8px;font-size:15px}.trk-tlh b svg{width:16px;height:16px}.trk-tlh small{color:var(--muted);font-size:12.5px}
+.trk-ev{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.trk-ev li{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:start;padding:8px 0;border-top:1px solid var(--line)}.trk-ev li:first-child{border-top:0}
+.trk-ev .trk-ei{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);color:var(--ink)}.trk-ev .trk-ei svg{width:14px;height:14px}
+.trk-ev b{font-weight:600;font-size:13.5px;line-height:1.35}.trk-ev small{display:block;color:var(--muted);font-size:12px;margin-top:1px}.trk-ev time{font-size:12px;color:var(--muted);white-space:nowrap;padding-top:2px}
+.trk-ev li.mut b{font-weight:500;color:var(--muted)}.trk-ev li.sterk .trk-ei{background:#252c3c;color:#fff}.trk-ev li.groen .trk-ei{background:#23845a;color:#fff}.trk-ev li.rood .trk-ei{background:#b3412c;color:#fff}
+.msg-trk .trk-klik b{font-weight:700}.msg-trk .trk-scan{color:var(--muted)}
