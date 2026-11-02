@@ -4697,3 +4697,12 @@ html body:not(#zz) .st-meer-r .st-rb i{background:linear-gradient(90deg,#3e4a64,
 .trk-ev b{font-weight:600;font-size:13.5px;line-height:1.35}.trk-ev small{display:block;color:var(--muted);font-size:12px;margin-top:1px}.trk-ev time{font-size:12px;color:var(--muted);white-space:nowrap;padding-top:2px}
 .trk-ev li.mut b{font-weight:500;color:var(--muted)}.trk-ev li.sterk .trk-ei{background:#252c3c;color:#fff}.trk-ev li.groen .trk-ei{background:#23845a;color:#fff}.trk-ev li.rood .trk-ei{background:#b3412c;color:#fff}
 .msg-trk .trk-klik b{font-weight:700}.msg-trk .trk-scan{color:var(--muted)}
+
+/* betalingen per maand gegroepeerd */
+.bet-mk{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:10px 12px;margin:10px 0 2px;border-radius:12px;background:#f4f5f7;border:1px solid #e3e6ea}
+.bet-mk:first-child{margin-top:0}.bet-mk.nu{background:#fbf6ea;border-color:#ecdcb4}
+.bet-mkh{display:flex;align-items:baseline;gap:8px}.bet-mkh b{font-size:15px;font-weight:700}.bet-mkh small{color:var(--muted);font-size:12px}
+.bet-mkt{display:flex;flex-wrap:wrap;gap:6px 12px;margin-left:auto}.bet-mkp{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600}
+.bet-mkp .bet-rk{min-width:36px;height:24px;padding:0 6px}.bet-mkp .bet-rk b{font-size:12px}.bet-mk0{margin-left:auto;color:var(--muted)}
+.bet-r .bet-rk{flex-wrap:wrap;height:auto;min-height:30px;padding:3px 8px;line-height:1.15;align-content:center}
+.bet-rk .bet-rkm{flex-basis:100%;text-align:center;font-size:10px;opacity:.75;font-weight:500}
