@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="bf15fc1b6876"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="5bcd88b24793"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -155,7 +155,7 @@ async function authMail(soort, email) {
     ["schilder", "Schilders", "Schildersbedrijf De Vries", '<rect x="4" y="3.5" width="14" height="5" rx="1.2"/><path d="M18 6h2v5h-8v3"/><rect x="10.5" y="14" width="3" height="7" rx="1"/>'],
     ["hovenier", "Hoveniers", "Hoveniersbedrijf De Vries", '<path d="M12 21v-5M7 16h10l-5-12z"/>'],
     ["timmerman", "Timmerlieden", "Timmerbedrijf De Vries", '<path d="M14 4l6 6-2.5 2.5-6-6zM11.5 6.5l-8 8 3 3 8-8"/>'],
-    ["betonboorder", "Betonboorders", "Betonboringen De Vries", '<rect x="3.5" y="7" width="11" height="7" rx="1.5"/><path d="M14.5 10.5H21M6 14v5h4v-5"/>']];
+    ["stucadoor", "Stucadoors", "Stucadoorsbedrijf De Vries", '<path d="M3 15.5h14l-1.5 3.5H3z"/><path d="M10 15.5V11h6V5"/>']];
   try { const q = new URLSearchParams(location.search).get("branche"); if (BRK.some(b => b[0] === q)) localStorage.setItem("ms.branche", q); } catch (e) {}
   const toon = html => {
     if (!ov) { const s = document.createElement("style"); s.textContent = css; document.head.appendChild(s); ov = document.createElement("div"); ov.className = "lg-ov"; document.body.appendChild(ov); }
@@ -7142,13 +7142,13 @@ const BRANCHES=[
   {id:"schilder",naam:"Schilders",enk:"Schilder",ic:"roller"},
   {id:"hovenier",naam:"Hoveniers",enk:"Hovenier",ic:"boom"},
   {id:"timmerman",naam:"Timmerlieden",enk:"Timmerman",ic:"hamer"},
-  {id:"betonboorder",naam:"Betonboorders",enk:"Betonboorder",ic:"boor"}];
+  {id:"stucadoor",naam:"Stucadoors",enk:"Stucadoor",ic:"spaan"}];
 const brGeldig=b=>BRANCHES.some(x=>x.id===b);
-function BR(){try{/* mijnschoonmaker.com (het eigen glazenwassersbedrijf) is altijd glazenwasser */if(typeof LIVE!=="undefined"&&LIVE&&(!window.ZEEM_BID||window.ZEEM_BID==="mijnschoonmaker"))return"glazenwasser";const b=String((typeof state!=="undefined"&&state.settings&&state.settings.branche)||"");return brGeldig(b)?b:"glazenwasser"}catch(e){return"glazenwasser"}}
+function BR(){try{/* mijnschoonmaker.com (het eigen glazenwassersbedrijf) is altijd glazenwasser */if(typeof LIVE!=="undefined"&&LIVE&&(!window.ZEEM_BID||window.ZEEM_BID==="mijnschoonmaker"))return"glazenwasser";let b=String((typeof state!=="undefined"&&state.settings&&state.settings.branche)||"");if(b==="betonboorder")b="stucadoor";return brGeldig(b)?b:"glazenwasser"}catch(e){return"glazenwasser"}}
 const GLAS=()=>BR()==="glazenwasser";
 const brInfo=(b=BR())=>BRANCHES.find(x=>x.id===b)||BRANCHES[0];
 /* hoofddienst: valt terug als een klant (nog) geen dienst heeft */
-const BR_HOOFD={glazenwasser:"Glasbewassing",schoorsteenveger:"Schoorsteen vegen",schilder:"Schilderwerk",hovenier:"Tuinonderhoud",timmerman:"Timmerwerk",betonboorder:"Kernboren"};
+const BR_HOOFD={glazenwasser:"Glasbewassing",schoorsteenveger:"Schoorsteen vegen",schilder:"Schilderwerk",hovenier:"Tuinonderhoud",timmerman:"Timmerwerk",stucadoor:"Stucwerk"};
 const HD=()=>BR_HOOFD[BR()]||"Glasbewassing";
 /* woorden die per vak verschillen; [glazenwasser, ander vak] */
 const BR_W={
@@ -7190,15 +7190,15 @@ function brDiensten(b=BR()){const I_=(naam,eenheid,prijs,min)=>itm(naam,eenheid,
       ["hout","Houtrotherstel",[I_("Houtrot repareren, per plek","per stuk",65,45)]],
       ["onderh","Onderhoudsinspectie",[I_("Jaarlijkse inspectie","per keer",75,45)]],
       ["voorrij","Voorrijkosten",[I_("Voorrijden","per keer",35,0)]]],
-    betonboorder:[["boren","Kernboren",[I_("Boring tot Ø 100 mm","per stuk",85,30),I_("Boring Ø 100 tot 200 mm","per stuk",145,45),I_("Boring Ø 200 tot 300 mm","per stuk",225,60),I_("Extra boordiepte, per 10 cm","per stuk",15,5)]],
-      ["zagen","Betonzagen",[I_("Wandzagen","per strekkende meter",95,30),I_("Vloerzagen","per strekkende meter",65,20),I_("Sparing zagen","per stuk",195,90)]],
-      ["sloop","Sloopwerk",[I_("Breekwerk","per uur",65,60)]],
-      ["afval","Puin afvoeren",[I_("Afvoeren","per keer",75,20)]],
-      ["toeslag","Toeslagen",[I_("Stofvrij werken met afzuiging","per keer",45,0),I_("Werken boven 3 meter","per keer",65,0),I_("Voorrijkosten","per keer",45,0)]]]}[b]||[];
+    stucadoor:[["stuc","Stucwerk",[I_("Wanden stucen","per m²",18,12),I_("Behangklaar stucen","per m²",14,10),I_("Hoekprofielen plaatsen","per strekkende meter",9,5)]],
+      ["plafond","Plafonds",[I_("Plafond stucen","per m²",22,15),I_("Spuitwerk plafond","per m²",12,6)]],
+      ["sier","Sierpleister",[I_("Spachtelputz","per m²",32,20),I_("Sierpleister buitengevel","per m²",45,25)]],
+      ["herstel","Herstelwerk",[I_("Scheuren en gaten herstellen","per uur",55,60)]],
+      ["toeslag","Toeslagen",[I_("Afdekken en stofvrij werken","per keer",45,0),I_("Voorrijkosten","per keer",45,0)]]]}[b]||[];
   const G=D.map(([id,naam,items])=>({id,std:true,naam,items}));
   G.forEach(g=>g.items.forEach((it,i)=>{it.id=g.id+"_"+i}));return G}
 /* wisselen in de demo (?branche=...) */
-function brUitUrl(){try{const b=new URLSearchParams(location.search).get("branche");return brGeldig(b)?b:""}catch(e){return""}}
+function brUitUrl(){try{let b=new URLSearchParams(location.search).get("branche");if(b==="betonboorder")b="stucadoor";return brGeldig(b)?b:""}catch(e){return""}}
 const BR_DIENSTNAMEN=()=>{try{return brDiensten().map(g=>g.naam)}catch(e){return[]}};
 /* standaardsjablonen voor een ander vak: dezelfde opbouw, zonder ramen en glasbewassing (eigen aanpassingen van het bedrijf gaan altijd voor) */
 function brTpl(t){if(GLAS()||!t)return t;const f=x=>typeof x!=="string"?x:x

@@ -1914,7 +1914,7 @@ function toast(t){const o=document.createElement("div");o.className="toast";o.se
 /* ---------- inloggen ---------- */
 /* demo voor een ander vak (?branche=… of gekozen in de CRM-demo); glazenwassers: ongewijzigd */
 function demoBrP(d){let b="";try{b=new URLSearchParams(location.search).get("branche")||localStorage.getItem("ms.demo.branche")||""}catch(e){}
-  const H={schoorsteenveger:["Schoorsteen vegen","Cv-afvoer vegen","Voorbeeld Schoorsteenvegerij"],schilder:["Buitenschilderwerk","Binnenschilderwerk","Voorbeeld Schildersbedrijf"],hovenier:["Tuinonderhoud","Heg snoeien","Voorbeeld Hoveniers"],timmerman:["Timmerwerk","Houtrotherstel","Voorbeeld Timmerwerken"],betonboorder:["Kernboren","Betonzagen","Voorbeeld Betonboringen"]}[b];
+  const H={schoorsteenveger:["Schoorsteen vegen","Cv-afvoer vegen","Voorbeeld Schoorsteenvegerij"],schilder:["Buitenschilderwerk","Binnenschilderwerk","Voorbeeld Schildersbedrijf"],hovenier:["Tuinonderhoud","Heg snoeien","Voorbeeld Hoveniers"],timmerman:["Timmerwerk","Houtrotherstel","Voorbeeld Timmerwerken"],stucadoor:["Wanden stucen","Plafond stucen","Voorbeeld Stucadoors"]}[b];
   if(!H)return d;
   let j=JSON.stringify(d).replace(/Voorbeeld Glazenwasserij/g,H[2]).replace(/Glasbewassing binnen( en buiten)?/g,H[1]).replace(/Glasbewassing( \+ zonnepanelen)?/g,H[0]).replace(/glasbewassing/g,H[0].toLowerCase())
     .replace(/(Reiniging dakkapel|Reiniging gevelelementen|Goten reinigen|Zonnepanelen reinigen|Dakgoten reinigen)/g,H[1])
@@ -1923,7 +1923,7 @@ function demoBrP(d){let b="";try{b=new URLSearchParams(location.search).get("bra
 let B={naam:"",logo:"/logo.png"};
 /* vak van het bedrijf: glazenwassers (standaard) zien alles zoals het altijd was */
 const PGLAS=()=>!B||!B.branche||B.branche==="glazenwasser";
-const PHD=()=>({schoorsteenveger:"Schoorsteen vegen",schilder:"Schilderwerk",hovenier:"Tuinonderhoud",timmerman:"Timmerwerk",betonboorder:"Kernboren"})[B&&B.branche]||"Glasbewassing";
+const PHD=()=>({schoorsteenveger:"Schoorsteen vegen",schilder:"Schilderwerk",hovenier:"Tuinonderhoud",timmerman:"Timmerwerk",stucadoor:"Stucwerk"})[B&&B.branche]||"Glasbewassing";
 const logoHtml=(naam,logo)=>`<span class="logo"><span class="mk">${logo?`<img src="${esc(logo)}" alt="${esc(naam||"Logo")}" onerror="this.parentNode.classList.add('gr');this.replaceWith(document.createRange().createContextualFragment(I.ruit))">`:""}</span></span>`;
 let MERK=null;const merkLogo=async()=>{if(!MERK){try{MERK=await api("merk",{open:true})}catch(e){MERK={}}}return MERK.logo||"/logo.png"};
 const wkLogo=src=>`<img class="wk-logo" src="${esc(src)}" alt="${esc((MERK&&MERK.naam)||"Logo")}" onerror="if(!this.dataset.f){this.dataset.f=1;this.src='/logo.png'}else this.remove()">`;

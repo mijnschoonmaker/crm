@@ -145,7 +145,7 @@ async function authMail(soort, email) {
     ["schilder", "Schilders", "Schildersbedrijf De Vries", '<rect x="4" y="3.5" width="14" height="5" rx="1.2"/><path d="M18 6h2v5h-8v3"/><rect x="10.5" y="14" width="3" height="7" rx="1"/>'],
     ["hovenier", "Hoveniers", "Hoveniersbedrijf De Vries", '<path d="M12 21v-5M7 16h10l-5-12z"/>'],
     ["timmerman", "Timmerlieden", "Timmerbedrijf De Vries", '<path d="M14 4l6 6-2.5 2.5-6-6zM11.5 6.5l-8 8 3 3 8-8"/>'],
-    ["betonboorder", "Betonboorders", "Betonboringen De Vries", '<rect x="3.5" y="7" width="11" height="7" rx="1.5"/><path d="M14.5 10.5H21M6 14v5h4v-5"/>']];
+    ["stucadoor", "Stucadoors", "Stucadoorsbedrijf De Vries", '<path d="M3 15.5h14l-1.5 3.5H3z"/><path d="M10 15.5V11h6V5"/>']];
   try { const q = new URLSearchParams(location.search).get("branche"); if (BRK.some(b => b[0] === q)) localStorage.setItem("ms.branche", q); } catch (e) {}
   const toon = html => {
     if (!ov) { const s = document.createElement("style"); s.textContent = css; document.head.appendChild(s); ov = document.createElement("div"); ov.className = "lg-ov"; document.body.appendChild(ov); }

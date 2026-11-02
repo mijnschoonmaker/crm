@@ -9,13 +9,13 @@ const BRANCHES=[
   {id:"schilder",naam:"Schilders",enk:"Schilder",ic:"roller"},
   {id:"hovenier",naam:"Hoveniers",enk:"Hovenier",ic:"boom"},
   {id:"timmerman",naam:"Timmerlieden",enk:"Timmerman",ic:"hamer"},
-  {id:"betonboorder",naam:"Betonboorders",enk:"Betonboorder",ic:"boor"}];
+  {id:"stucadoor",naam:"Stucadoors",enk:"Stucadoor",ic:"spaan"}];
 const brGeldig=b=>BRANCHES.some(x=>x.id===b);
-function BR(){try{/* mijnschoonmaker.com (het eigen glazenwassersbedrijf) is altijd glazenwasser */if(typeof LIVE!=="undefined"&&LIVE&&(!window.ZEEM_BID||window.ZEEM_BID==="mijnschoonmaker"))return"glazenwasser";const b=String((typeof state!=="undefined"&&state.settings&&state.settings.branche)||"");return brGeldig(b)?b:"glazenwasser"}catch(e){return"glazenwasser"}}
+function BR(){try{/* mijnschoonmaker.com (het eigen glazenwassersbedrijf) is altijd glazenwasser */if(typeof LIVE!=="undefined"&&LIVE&&(!window.ZEEM_BID||window.ZEEM_BID==="mijnschoonmaker"))return"glazenwasser";let b=String((typeof state!=="undefined"&&state.settings&&state.settings.branche)||"");if(b==="betonboorder")b="stucadoor";return brGeldig(b)?b:"glazenwasser"}catch(e){return"glazenwasser"}}
 const GLAS=()=>BR()==="glazenwasser";
 const brInfo=(b=BR())=>BRANCHES.find(x=>x.id===b)||BRANCHES[0];
 /* hoofddienst: valt terug als een klant (nog) geen dienst heeft */
-const BR_HOOFD={glazenwasser:"Glasbewassing",schoorsteenveger:"Schoorsteen vegen",schilder:"Schilderwerk",hovenier:"Tuinonderhoud",timmerman:"Timmerwerk",betonboorder:"Kernboren"};
+const BR_HOOFD={glazenwasser:"Glasbewassing",schoorsteenveger:"Schoorsteen vegen",schilder:"Schilderwerk",hovenier:"Tuinonderhoud",timmerman:"Timmerwerk",stucadoor:"Stucwerk"};
 const HD=()=>BR_HOOFD[BR()]||"Glasbewassing";
 /* woorden die per vak verschillen; [glazenwasser, ander vak] */
 const BR_W={
@@ -57,15 +57,15 @@ function brDiensten(b=BR()){const I_=(naam,eenheid,prijs,min)=>itm(naam,eenheid,
       ["hout","Houtrotherstel",[I_("Houtrot repareren, per plek","per stuk",65,45)]],
       ["onderh","Onderhoudsinspectie",[I_("Jaarlijkse inspectie","per keer",75,45)]],
       ["voorrij","Voorrijkosten",[I_("Voorrijden","per keer",35,0)]]],
-    betonboorder:[["boren","Kernboren",[I_("Boring tot Ø 100 mm","per stuk",85,30),I_("Boring Ø 100 tot 200 mm","per stuk",145,45),I_("Boring Ø 200 tot 300 mm","per stuk",225,60),I_("Extra boordiepte, per 10 cm","per stuk",15,5)]],
-      ["zagen","Betonzagen",[I_("Wandzagen","per strekkende meter",95,30),I_("Vloerzagen","per strekkende meter",65,20),I_("Sparing zagen","per stuk",195,90)]],
-      ["sloop","Sloopwerk",[I_("Breekwerk","per uur",65,60)]],
-      ["afval","Puin afvoeren",[I_("Afvoeren","per keer",75,20)]],
-      ["toeslag","Toeslagen",[I_("Stofvrij werken met afzuiging","per keer",45,0),I_("Werken boven 3 meter","per keer",65,0),I_("Voorrijkosten","per keer",45,0)]]]}[b]||[];
+    stucadoor:[["stuc","Stucwerk",[I_("Wanden stucen","per m²",18,12),I_("Behangklaar stucen","per m²",14,10),I_("Hoekprofielen plaatsen","per strekkende meter",9,5)]],
+      ["plafond","Plafonds",[I_("Plafond stucen","per m²",22,15),I_("Spuitwerk plafond","per m²",12,6)]],
+      ["sier","Sierpleister",[I_("Spachtelputz","per m²",32,20),I_("Sierpleister buitengevel","per m²",45,25)]],
+      ["herstel","Herstelwerk",[I_("Scheuren en gaten herstellen","per uur",55,60)]],
+      ["toeslag","Toeslagen",[I_("Afdekken en stofvrij werken","per keer",45,0),I_("Voorrijkosten","per keer",45,0)]]]}[b]||[];
   const G=D.map(([id,naam,items])=>({id,std:true,naam,items}));
   G.forEach(g=>g.items.forEach((it,i)=>{it.id=g.id+"_"+i}));return G}
 /* wisselen in de demo (?branche=...) */
-function brUitUrl(){try{const b=new URLSearchParams(location.search).get("branche");return brGeldig(b)?b:""}catch(e){return""}}
+function brUitUrl(){try{let b=new URLSearchParams(location.search).get("branche");if(b==="betonboorder")b="stucadoor";return brGeldig(b)?b:""}catch(e){return""}}
 const BR_DIENSTNAMEN=()=>{try{return brDiensten().map(g=>g.naam)}catch(e){return[]}};
 /* standaardsjablonen voor een ander vak: dezelfde opbouw, zonder ramen en glasbewassing (eigen aanpassingen van het bedrijf gaan altijd voor) */
 function brTpl(t){if(GLAS()||!t)return t;const f=x=>typeof x!=="string"?x:x

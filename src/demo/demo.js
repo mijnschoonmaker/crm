@@ -265,7 +265,7 @@ function demoVandaag(c){const ti=iso(today()),nu=new Date(),nm=nu.getHours()*60+
   r.ritten=[["VZK-38-T","Mark"],["VNP-71-B","Sem"]].map(([a,w])=>{const b=stand(a);return{id:"r"+w+ti,nr:0,auto:a,begin:b,eind:stop?b+km[w]+14:"",startTs:start,stopTs:stop,van:"Lindenlaan 14, Zuidhorn",naar:"Lindenlaan 14, Zuidhorn",route:"Loods – klanten – loods",type:"zakelijk",door:w.toLowerCase()+"@voorbeeldglazenwasserij.nl",bron:"werkdag"}})}
 
 /* demo voor een ander vak: dezelfde klanten en route, met de diensten en woorden van dat vak (glazenwassers: niets aan veranderd) */
-const DEMO_BRNAAM={schoorsteenveger:["Voorbeeld Schoorsteenvegerij","voorbeeldschoorsteenvegerij.nl"],schilder:["Voorbeeld Schildersbedrijf","voorbeeldschildersbedrijf.nl"],hovenier:["Voorbeeld Hoveniers","voorbeeldhoveniers.nl"],timmerman:["Voorbeeld Timmerwerken","voorbeeldtimmerwerken.nl"],betonboorder:["Voorbeeld Betonboringen","voorbeeldbetonboringen.nl"]};
+const DEMO_BRNAAM={schoorsteenveger:["Voorbeeld Schoorsteenvegerij","voorbeeldschoorsteenvegerij.nl"],schilder:["Voorbeeld Schildersbedrijf","voorbeeldschildersbedrijf.nl"],hovenier:["Voorbeeld Hoveniers","voorbeeldhoveniers.nl"],timmerman:["Voorbeeld Timmerwerken","voorbeeldtimmerwerken.nl"],stucadoor:["Voorbeeld Stucadoors","voorbeeldstucadoors.nl"]};
 function demoBranche(d,br){if(!br||br==="glazenwasser")return d;const c=d.cols||d;
   const G=brDiensten(br).map(g=>g.naam),H=G[0],[bnaam,dom]=DEMO_BRNAAM[br];
   const jaar=br!=="hovenier",rnd=demoRnd(4242),pick=a=>a[Math.floor(rnd()*a.length)];
