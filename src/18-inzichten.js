@@ -50,7 +50,7 @@ function vInzichten(){
       ${stTile(I.timer,"Betaaltermijn",term==null?"–":term+" dagen","gemiddeld tot betaling",term!=null&&term<=7?"ok":"")}
       ${stTile(I.euro,"Omzet "+t.getFullYear(),stE(Y.omzet),Yv.omzet?(Y.omzet>=Yv.omzet?"▲ ":"▼ ")+Math.abs(Math.round((Y.omzet-Yv.omzet)/Yv.omzet*100))+"% vs vorig jaar":"ex btw, tot vandaag")}</div>
     <section class="st-card"><div class="st-ch"><div><h3>Omzet per maand</h3><p>Laatste 12 maanden · ex btw · 🏆 beste maand · gestippeld = gemiddeld ${(()=>{const p=months.slice(0,11).map(m=>m.omzet).filter(v=>v>0);return p.length?stE(p.reduce((a,v)=>a+v,0)/p.length):""})()}${per==="maand"?" · lichte balk = met wat ingepland staat":""}</p></div>${state.dl?`<button type="button" class="small" data-act="rapport">${I.dl}Rapport (PDF)</button>`:""}</div>
-      ${(()=>{const v=months.map(m=>m.omzet),af=v.slice(0,11),tp=af.some(x=>x>0)?af.indexOf(Math.max(...af)):-1;return stBars(v,months.map(m=>m.l),{hi:11,h:240,top:tp,ghost:per==="maand"&&ingepland?{i:11,v:v[11]+ingepland}:null})})()}</section>`;
+      ${(()=>{const v=months.map(m=>m.omzet),af=v.slice(0,11),tp=af.some(x=>x>0)?af.indexOf(Math.max(...af)):-1;return stBars(v,months.map(m=>m.l),{hi:11,h:240,top:tp,ghost:per==="maand"&&ingepland?{i:11,v:v[11]+ingepland}:null})})()}</section>`+(typeof stMeerGeld==="function"?stMeerGeld(P,F):"");
   }else if(state.itab==="werk"){
     const bs=state.beurten.filter(b=>!b.geannuleerd&&inRange(b.datum,P.rg)),bv=state.beurten.filter(b=>!b.geannuleerd&&inRange(b.datum,V.rg));const VT=stTotNu(P,V),bvt=state.beurten.filter(b=>!b.geannuleerd&&inRange(b.datum,VT)).length;
     const mins=bs.reduce((a,b)=>a+beurtMin(b),0),om=bs.reduce((a,b)=>a+beurtOmzet(b),0);
@@ -85,7 +85,7 @@ function vInzichten(){
     <div class="st-two"><section class="st-card"><div class="st-ch"><div><h3>Drukste dagen</h3><p>Afgemelde beurten per weekdag${wdc[top]?" · meestal op "+["maandag","dinsdag","woensdag","donderdag","vrijdag","zaterdag","zondag"][top]:""}</p></div></div>
         ${bs.length?stBars(wdc,["ma","di","wo","do","vr","za","zo"],{hi:wdc[top]?top:-1,fmt:v=>String(Math.round(v)),h:200,gem:false}):'<p class="st-leeg">Nog geen afgemelde beurten in deze periode. Na de eerste beurt zie je hier je drukste dagen.</p>'}</section>
       <section class="st-card"><div class="st-ch"><div><h3>Omzet per dienst</h3><p>Aandeel in de omzet uit werk</p></div></div>
-        ${dk.length?stDiensten(dk,per_d,dtot,sub_d):'<p class="st-leeg">Nog geen afgemelde beurten in deze periode.</p>'}</section></div>`+(typeof wdStatKaart==="function"?wdStatKaart(P.rg,P.lbl):"");
+        ${dk.length?stDiensten(dk,per_d,dtot,sub_d):'<p class="st-leeg">Nog geen afgemelde beurten in deze periode.</p>'}</section></div>`+(typeof wdStatKaart==="function"?wdStatKaart(P.rg,P.lbl):"")+(typeof stMeerWerk==="function"?stMeerWerk(P):"");
   }else{
     const ak=actief().filter(k=>!k.hoofdKlantId),nieuw=state.klanten.filter(k=>!k.prospect&&!k.hoofdKlantId&&inRange(k.aangemaakt,P.rg)),nieuwV=state.klanten.filter(k=>!k.prospect&&inRange(k.aangemaakt,V.rg)),inact=state.klanten.filter(k=>k.actief===false&&!k.prospect);
     const jaar=ak.reduce((a,k)=>a+exAmt(k.prijs)*365/freqDays(k),0),perK=ak.length?jaar/ak.length:0;

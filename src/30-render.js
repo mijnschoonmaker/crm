@@ -157,6 +157,8 @@ document.addEventListener("click",e=>{
       vraag("Factuur "+(f.nummer||"")+" niet meer voorstellen?","De factuur blijft gewoon openstaan. Hij verdwijnt alleen uit <b>Facturen versturen</b>, omdat hij al verstuurd is (bijvoorbeeld uit een ander programma of op papier) of niet verstuurd hoeft te worden.","Al verstuurd","Annuleren").then(async ok=>{if(ok!==true)return;
         try{await save("facturen",f.id,{...strip(f),verstuurdOp:f.datum||iso(today()),verstuurdBuiten:true});toast("Factuur "+(f.nummer||"")+" staat niet meer bij Facturen versturen");render()}catch(e){err(e)}});break}
     case"stRondes":state.stAlleRondes=!state.stAlleRondes;render();break;
+    case"stAlleKl":state.stAlleKl=!state.stAlleKl;render();break;
+    case"stAllePl":state.stAllePl=!state.stAllePl;render();break;
     case"queue":{const q=queues().find(x=>x.id===t.dataset.q);if(q&&q.id==="factuur"&&q.items.length&&typeof fbVersturen==="function"){fbVersturen(q.items.map(it=>state.facturen.find(f=>"factuur:"+f.id===it.ref)).filter(Boolean));break}if(q&&q.items.length)openCompose({title:q.titel,sjabloon:q.sjabloon||q.id,recipients:q.items,hint:q.hint?esc(q.hint):"",tekst:q.tekst,mail:q.mail,onderwerp:q.onderwerp,kanaal:q.kanaal});else toast(q?"Niets klaar om te versturen":"Zet factuurherinneringen aan bij Instellingen");break}
     case"bulk":{const g=$("#bulkGroup"),tp=$("#bulkTpl");openBulk(g?g.value:"alle",tp?tp.value:"weer");break}
     case"bulktoday":openBulk("vandaag","afspraak");break;
