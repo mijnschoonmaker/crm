@@ -90,7 +90,7 @@ function rvEigenStart(){if(!LIVE||RVP.watch!=null||!navigator.geolocation)return
     if(!document.getElementById("rvMap")){navigator.geolocation.clearWatch(RVP.watch);RVP.watch=null;return}
     const eerst=!RVP.pos;RVP.pos={lat:p.coords.latitude,lng:p.coords.longitude};rvMapLive();
     if(eerst){const el=document.getElementById("rvMap");try{el._map.setView([RVP.pos.lat,RVP.pos.lng],16)}catch(e){}}},
-    ()=>{},{enableHighAccuracy:true,maximumAge:5000,timeout:30000})}
+    ()=>{},/* zonder live delen alleen je eigen stip op de kaart: zuinige locatie (geen GPS op hoogste stand) */state.liveDelen?{enableHighAccuracy:true,maximumAge:5000,timeout:30000}:{enableHighAccuracy:false,maximumAge:60000,timeout:60000})}
 /* ondergrond: luchtfoto (PDOK, haarscherp voor heel Nederland) met PDOK-straatnamen erover, of de PDOK-stratenkaart. Geen API-sleutel nodig. */
 state.rvSat=(()=>{try{return localStorage.getItem("ms.rvsat2")!=="0"}catch(e){return true}})();
 function rvOndergrond(el,mp){const L=window.L,m=mp||el._map;(el._tegels||[]).forEach(t=>m.removeLayer(t));

@@ -191,11 +191,20 @@ module.exports = function maakPortaal(ctx) {
     try { const rd = await db.doc("routes/" + dag).get(); if (rd.exists) { const r = rd.data() || {}; wie = r.wie || {}; order = Array.isArray(r.order) ? r.order : []; } } catch (e) {}
     const mijn = nmW(wie[k.id]);
     if (mijn) { try { const lq = await db.collection("live").where("datum", "==", dag).get(); const m = lq.docs.filter(d => d.id.startsWith("mw_")).map(d => d.data()).find(x => nmW(x.naam) === mijn); if (m) L = m; } catch (e) {} }
-    if (!L || !L.actief || L.datum !== dag || !(Date.now() - Date.parse(L.ts) < 5 * 60e3)) return { status: "uit" };
+    /* live delen staat aan als er de laatste 5 minuten een plek is binnengekomen; anders tellen we de adressen op basis van de afmeldingen van vandaag */
+    const liveAan = !!(L && L.actief && L.datum === dag && Date.now() - Date.parse(L.ts) < 5 * 60e3);
     const lijst = ks.docs.map(d => ({ id: d.id, ...dec(d.data()) })).filter(x => x.actief !== false && !klaar.has(x.id) && (!mijn || nmW(wie[x.id]) === mijn))
       /* zelfde volgorde als de dagroute in het CRM (Vandaag); alleen zonder vaste volgorde op tijd */
       .sort((a, b) => { const ia = order.indexOf(a.id), ib = order.indexOf(b.id); if (ia > -1 || ib > -1) return (ia < 0 ? 999 : ia) - (ib < 0 ? 999 : ib); return tMin(a.tijd) - tMin(b.tijd); });
     const i = lijst.findIndex(x => x.id === k.id), voor = Math.max(0, i), bezigBij = lijst.slice(0, Math.max(0, i)).some(x => x.bezig);
+    if (!liveAan) {
+      /* zonder live delen: alleen zodra de dag echt begonnen is (iets afgemeld of een tijd loopt), geen plek en geen kaart, wel hoeveel adressen nog en een schatting */
+      const begonnen = bs.docs.some(d => !mijn || nmW(wie[d.data().klantId]) === mijn) || lijst.some(x => x.bezig);
+      if (!begonnen) return { status: "uit" };
+      const werk0 = lijst.slice(0, voor).reduce((a, x) => { const d = Number(x.duur) || 30, st = Date.parse(x.bezig || ""); return a + (st ? Math.max(3, d - (Date.now() - st) / 60e3) : d); }, 0) + voor * 8;
+      const eta0 = new Intl.DateTimeFormat("nl-NL", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" }).format(new Date(Date.now() + (werk0 + 10) * 60e3));
+      return { status: "onderweg", zonderGps: true, voor, bezigBij, eta: eta0, km: null, naam: (L && L.naam) || "", huis: null, pos: null };
+    }
     const huis = await klantGeo(S.kref, k);
     const km = huis ? afstand(L.lat, L.lng, huis[0], huis[1]) : null, rij = km != null ? Math.round(km * 1.35 / 38 * 60) + 2 : 12;
     /* adressen vóór de klant: bij het adres waar de tijd al loopt alleen de resterende tijd; reistijd tussen die adressen ~8 min (de laatste rit naar de klant zit in "rij") */

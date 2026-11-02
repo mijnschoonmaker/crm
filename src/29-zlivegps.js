@@ -31,14 +31,14 @@ function liveStart(stil){
     const nauw=Math.round(p.coords.accuracy||0);
     if(nauw>120){if(!LV.fout){LV.fout="Geen nauwkeurige plek (alleen via wifi). Deel live vanaf je telefoon.";lvKnop()}return}
     /* elke 2 seconden, of meteen als je 8 meter verder bent: de klant ziet de bus vloeiend meerijden */
-    if(nu-LV.last<2000&&lvAfst(LV.pos,c)<8)return;
+    /* stroom sparen: stilstaan (bij een klant) hooguit elke 20 seconden, rijden elke 3 seconden */{const gb=LV.pos?lvAfst(LV.pos,c):99;if(nu-LV.last<(gb<8?20000:3000))return}
     if(!lvMagSchrijven(nauw)){LV.last=nu;LV.pos=c;if(typeof rvMapLive==="function")rvMapLive();return}
     if(typeof kmTik==="function")kmTik(LV.pos,c,p.coords.accuracy);LV.last=nu;LV.pos=c;if(koers!=null)LV.koers=koers;LV.fout="";if(typeof rvMapLive==="function")rvMapLive();lvSchrijf({actief:true,lat:c.lat,lng:c.lng,nauw,snelheid:Number.isFinite(p.coords.speed)?Math.round(p.coords.speed*3.6):null,...(koers!=null?{koers}:{})});lvKnop()},
     e=>{LV.fout=e.code===1?"Geen toestemming voor je locatie. iPhone/iPad: Instellingen › Privacy en beveiliging › Locatievoorzieningen › Safari-websites › Tijdens gebruik van de app.":"Je locatie is even niet beschikbaar";if(e.code===1){/* iPhone geeft dit soms als de app even op de achtergrond is: dan niet uitzetten, alleen bij een echte weigering */const verborgen=document.visibilityState!=="visible";if(LV.watch!=null){try{navigator.geolocation.clearWatch(LV.watch)}catch(er){}LV.watch=null}
       lvToestemming().then(t=>{if(t==="denied"&&!verborgen){liveStop(true);state.liveDelen=false;try{localStorage.setItem("ms.live","0")}catch(er){}toast(LV.fout)}else if(!verborgen)setTimeout(()=>{if(state.liveDelen&&LV.watch==null)liveStart(true)},3000);lvKnop()});return}/* even geen signaal (binnen, computer): geen melding, de telefoon probeert het vanzelf opnieuw */lvKnop()},
     {enableHighAccuracy:true,maximumAge:3000,timeout:30000});lvVolgRit();
   lvWakker();if(!stil)toast("Live delen staat aan · de klanten van vandaag zien waar je bent");lvKnop()}
-function liveStop(stil){if(LV.watch!=null){try{navigator.geolocation.clearWatch(LV.watch)}catch(e){}}LV.watch=null;LV.pos=null;try{LV.lock&&LV.lock.release()}catch(e){}LV.lock=null;
+function liveStop(stil){/* eigen stip op de kaart opnieuw starten in de zuinige stand */try{if(typeof RVP!=="undefined"&&RVP.watch!=null){navigator.geolocation.clearWatch(RVP.watch);RVP.watch=null;setTimeout(()=>{if(typeof rvEigenStart==="function"&&document.getElementById("rvMap"))rvEigenStart()},500)}}catch(e){}if(LV.watch!=null){try{navigator.geolocation.clearWatch(LV.watch)}catch(e){}}LV.watch=null;LV.pos=null;try{LV.lock&&LV.lock.release()}catch(e){}LV.lock=null;
   if(!LV.rit||!LV.rit.dev||LV.rit.dev===LV_DEV)lvSchrijf({actief:false});if(!stil)toast("Live delen staat uit");lvKnop()}
 /* wisselen op wat de knop laat zien: staat hij grijs (ook als het aanzetten eerder mislukte), dan gaat hij aan */
 function liveWissel(){state.liveDelen=!(state.liveDelen&&LV.watch!=null);try{localStorage.setItem("ms.live",state.liveDelen?"1":"0")}catch(e){}state.liveDelen?liveStart():liveStop();try{const d=iso(today()),r=state.routes[d]||{};state.routes[d]={...r,werk:{...(r.werk||{}),liveUit:!state.liveDelen}};save("routes",d,{...strip(r),werk:{...(r.werk||{}),liveUit:!state.liveDelen}})}catch(e){}render()}
