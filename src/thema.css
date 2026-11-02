@@ -1305,3 +1305,6 @@ html body:not(#zz):not(#zy) .chips.kl-chips .chip.chip[aria-pressed="true"] span
 
 /* stippen zetten: het scherm ligt er helemaal overheen, dus geen (dure) vervaging van wat erachter zit; dat maakte tikken traag op de iPhone */
 html body:not(#zz) dialog.rc-ed-dlg::backdrop{-webkit-backdrop-filter:none;backdrop-filter:none}
+
+/* Vandaag: tegellabels zoals geschreven (Nog te gaan, Nog werk, Klaar rond) */
+html body:not(#zz) .rv .rv-rechts .rv-chips>span,html body:not(#zz) .rv .rv-rechts .rv-chips>span.rv-klaar{text-transform:none!important}

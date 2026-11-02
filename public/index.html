@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="5b3a1e2f5358"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="5443e88da1ae"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -6710,6 +6710,9 @@ html body:not(#zz):not(#zy) .chips.kl-chips .chip.chip[aria-pressed="true"] span
 /* stippen zetten: het scherm ligt er helemaal overheen, dus geen (dure) vervaging van wat erachter zit; dat maakte tikken traag op de iPhone */
 html body:not(#zz) dialog.rc-ed-dlg::backdrop{-webkit-backdrop-filter:none;backdrop-filter:none}
 
+/* Vandaag: tegellabels zoals geschreven (Nog te gaan, Nog werk, Klaar rond) */
+html body:not(#zz) .rv .rv-rechts .rv-chips>span,html body:not(#zz) .rv .rv-rechts .rv-chips>span.rv-klaar{text-transform:none!important}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -9028,7 +9031,7 @@ function rvKaart(o){const{stops,done,todo,nx,klaar,mw,verdiend,totaal,restMin,kl
   if(vooruit||meer)setTimeout(rvAnim,60);if(state.rvMap)setTimeout(rvMapTeken,40);
   return `<section class="rv${klaar?" klaar":""}${vooruit?" rijdt":""}">
     <div class="rv-top"><div class="rv-tx"><span class="rv-fase">${klaar?RV_VLAG:'<i></i>'}${fase}<b>${done}/${n}</b></span>
-      ${(()=>{const m=String(kop).match(/^(.*?[?!])\s+(.+)$/)||String(kop).match(/^(.*?)\s·\s(.+)$/);return m?`<h2>${esc(m[1])}</h2><p class="rv-sub">${esc(m[2].charAt(0).toUpperCase()+m[2].slice(1))}</p>`:`<h2>${esc(kop)}</h2>`})()}${klaar?`<p>${esc(sub)}</p>`:""}</div><div class="rv-rechts">${klaar?"":`<div class="rv-chips"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/></svg><b>${todo.length}</b> ${todo.length===1?"adres":"adressen"}</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><b>${uM(werkMin)}</b> werk</span>${reisMin?`<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.6"/><circle cx="17" cy="17.5" r="1.6"/></svg><b>${rt.schat?"± ":""}${uM(reisMin)}</b> rijden</span>`:""}${klaarOm?`<span class="rv-klaar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>klaar <b>${klaarOm}</b></span>`:""}</div>`}${geld}</div></div>
+      ${(()=>{const m=String(kop).match(/^(.*?[?!])\s+(.+)$/)||String(kop).match(/^(.*?)\s·\s(.+)$/);return m?`<h2>${esc(m[1])}</h2><p class="rv-sub">${esc(m[2].charAt(0).toUpperCase()+m[2].slice(1))}</p>`:`<h2>${esc(kop)}</h2>`})()}${klaar?`<p>${esc(sub)}</p>`:""}</div><div class="rv-rechts">${klaar?"":`<div class="rv-chips"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/></svg><b>${todo.length}</b> Nog te gaan</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><b>${uM(werkMin)}</b> Nog werk</span>${reisMin?`<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.6"/><circle cx="17" cy="17.5" r="1.6"/></svg><b>${rt.schat?"± ":""}${uM(reisMin)}</b> Nog rijden</span>`:""}${klaarOm?`<span class="rv-klaar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>Klaar rond <b>${klaarOm}</b></span>`:""}</div>`}${geld}</div></div>
     <div class="rv-weg${n>10?" veel":""}${state.rvMap?" open":""}" style="--p:${pos};--v:${vooruit?v0:pos}" data-act="rvmap" role="button" tabindex="0" aria-expanded="${!!state.rvMap}" title="${state.rvMap?"Kaart verbergen":"Stops op de kaart"}">
       <div class="rv-asfalt"><span class="rv-af"></span></div>
       <ol>${nodes}</ol>
