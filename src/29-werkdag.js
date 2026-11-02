@@ -16,8 +16,8 @@ function wdCijfers(d){const w=wdGet(d)||{},nu=wdNu(),eind=w.stop||(w.start&&d===
   const geschat=bs.filter(beurtTeKort).length;
   const fact=bs.reduce((a,b)=>a+beurtMin(b),0),gemeten=bs.filter(b=>b.gemeten||b.startOp).length;
   const totaal=wdMin(w.start,eind),netto=Math.max(0,totaal-pauze),reis=Math.max(0,netto-fact);
-  /* omzet van het werk van deze dag (zelfde als "Verdiend" op Vandaag); niet de factuurtotalen, want daar kan ook iets van een andere dag op staan */
-  const omzet=bs.reduce((a,b)=>a+beurtEx(b),0);
+  /* omzet volgens de factuur (met extra regels zoals extra werk); zelfde rekenregel als "Verdiend" op Vandaag (beurtVerdiend) */
+  const omzet=bs.reduce((a,b)=>a+beurtOmzet(b),0);
   return {w,totaal,pauze,netto,fact,reis,omzet,n:bs.length,buiten,gemeten,geschat,perUur:netto>0?omzet/(netto/60):0,perFact:fact>0?omzet/(fact/60):0}}
 const wdU=m=>{m=Math.round(m||0);const h=Math.floor(m/60),mm=m%60;return h?`${h}u${String(mm).padStart(2,"0")}`:`${mm} min`};
 const wdT=ts=>ts?new Date(ts).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"}):"";
