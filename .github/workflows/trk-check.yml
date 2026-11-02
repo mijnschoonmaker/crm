@@ -1,0 +1,12 @@
+name: Mailtracking bereikbaar (alleen lezen)
+on: workflow_dispatch
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          for h in crm.mijnschoonmaker.com app.mansard.nl; do
+            o=$(curl -s -o /dev/null -w "%{http_code} %{content_type}" "https://$h/api/t/o/0123456789abcdef01234567")
+            k=$(curl -s -o /dev/null -w "%{http_code} %{redirect_url}" "https://$h/api/t/k/0123456789abcdef01234567/0")
+            echo "::notice title=$h::open: $o · klik: $k"
+          done
