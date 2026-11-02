@@ -12,5 +12,8 @@ const db = admin.firestore();
       (f.log || []).slice(-5).forEach(l => console.log("      log", l.datum, String(l.tekst || "").slice(0, 90))); }
   }
   const fs = await db.collection("facturen").where("betaaldOp", ">=", sinds).get();
-  fs.docs.map(x => x.data()).forEach(f => console.log("BETAALD", f.nummer, f.betaaldOp, f.betaaldTs, f.betaalwijze, "verstuurd", f.verstuurdTs || f.verstuurdOp, "naam~", String(f.klantNaam || "").slice(0, 14)));
+  for (const x of fs.docs) { const f = x.data(); const k = f.klantId ? ((await db.doc("klanten/" + f.klantId).get()).data() || {}) : {};
+    const arr = v => Array.isArray(v) ? v : v && v.__arr ? v.__arr : [];
+    const cr = [...arr(k.tegoed), ...arr(k.tegoedGebruikt)].filter(t => t && t.bron === "snel" && String(t.ref) === x.id).map(t => t.bedrag + " op " + t.op);
+    console.log("BETAALD", f.nummer, f.betaaldOp, f.betaaldTs, f.betaalwijze, "verstuurd", f.verstuurdTs || f.verstuurdOp, "naam~", String(f.klantNaam || "").slice(0, 14), "snelcredit:", cr.join(" | ") || "GEEN"); }
 })().catch(x => { console.error(x); process.exit(1); });
