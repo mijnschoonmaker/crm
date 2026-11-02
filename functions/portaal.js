@@ -828,8 +828,9 @@ module.exports = function maakPortaal(ctx) {
       if (!k || !g.brevoKey || !/@/.test(email) || (prijs > 0 && !nieuw)) continue;
       try {
         const m = await winnaarMail(plek, x, mn, prijs, b), afz = g.afzender || b.email;
-        await brevoSend(g.brevoKey, { sender: { name: b.naam || "", email: afz }, replyTo: { email: b.email || afz }, to: [{ email, name: schoon(k.naam) || undefined }], subject: m.onderwerp, htmlContent: mailHtml(m.tekst, b, { na: m.na, onder: m.onder, portaal: await portaalUrl(k.id, email) }) });
-        await db.doc("berichten/" + newId("m")).set({ klantId: k.id, klantNaam: k.naam || "", naar: email, kanaal: "email", sjabloon: "maandtop", onderwerp: m.onderwerp, tekst: m.tekst + "\n\n" + m.onder, status: "verstuurd", verstuurdOp: nu(), op: nu(), door: "automatisch" });
+        /* brevoId bewaren: dan komen bezorgd/geopend van Brevo ook bij deze mail binnen */
+        const brevoId = await brevoSend(g.brevoKey, { sender: { name: b.naam || "", email: afz }, replyTo: { email: b.email || afz }, to: [{ email, name: schoon(k.naam) || undefined }], subject: m.onderwerp, htmlContent: mailHtml(m.tekst, b, { na: m.na, onder: m.onder, portaal: await portaalUrl(k.id, email) }), tags: ["crm", ...(T.isLegacy() ? [] : ["b:" + T.bid()])] });
+        await db.doc("berichten/" + newId("m")).set({ brevoId: brevoId || "", klantId: k.id, klantNaam: k.naam || "", naar: email, kanaal: "email", sjabloon: "maandtop", onderwerp: m.onderwerp, tekst: m.tekst + "\n\n" + m.onder, status: "verstuurd", verstuurdOp: nu(), op: nu(), door: "automatisch" });
       } catch (e) { console.error("maandtop mail", x.klantId, e.message); }
     }
     console.log("maandwinnaars", vm, top.map(x => x.klantId));
