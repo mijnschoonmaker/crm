@@ -152,6 +152,7 @@ document.addEventListener("click",e=>{
     case"copymsg":{const r=compose&&compose.recipients[Number(t.dataset.i)];if(r)copy(fill(compose.tekst,r.vars),t);break}
     case"fhmenu":{const K=fhKlaar();if(K.herinnering.length)fbHerinner(K.herinnering,false);else if(K.wik.length)fbHerinner(K.wik,true);else if(K.likifin.length)fhLikifin(K.likifin);
       else{const ds=facturen().map(f=>fhVolgende(f)).filter(v=>v&&v.datum&&!v.klaar&&v.soort!=="bijlikifin").map(v=>v.datum).sort();toast(ds[0]?"Vandaag geen herinneringen aan de beurt · eerstvolgende "+fmtD(ds[0]):"Geen openstaande facturen die een herinnering nodig hebben")}break}
+    case"dagautoaan":{saveSettings({dagAutoMail:true},"Dagherinnering gaat nu automatisch per e-mail").then(()=>{try{DAGMAIL.laatst=0;dagMailKlaarzetten()}catch(e){}render()}).catch(err);break}
     case"qnvt":{/* factuur uit "Facturen versturen" halen: al verstuurd buiten Mansard of niet nodig. De factuur zelf blijft open staan. */
       const f=state.facturen.find(x=>"factuur:"+x.id===t.dataset.ref);if(!f)break;
       vraag("Factuur "+(f.nummer||"")+" niet meer voorstellen?","De factuur blijft gewoon openstaan. Hij verdwijnt alleen uit <b>Facturen versturen</b>, omdat hij al verstuurd is (bijvoorbeeld uit een ander programma of op papier) of niet verstuurd hoeft te worden.","Al verstuurd","Annuleren").then(async ok=>{if(ok!==true)return;

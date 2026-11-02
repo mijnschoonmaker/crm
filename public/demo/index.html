@@ -5017,6 +5017,11 @@ html body:not(#zz) .st-meer-r .st-rb i{background:linear-gradient(90deg,#3e4a64,
 .bet-r .bet-rk{flex-wrap:wrap;height:auto;min-height:30px;padding:3px 8px;line-height:1.15;align-content:center}
 .bet-rk .bet-rkm{flex-basis:100%;text-align:center;font-size:10px;opacity:.75;font-weight:500}
 
+.dag-auto{display:flex;flex-direction:column;gap:4px;margin:10px 0 8px;padding:10px 12px;border-radius:12px;border:1px solid var(--line)}
+.dag-auto.aan{background:#f1fbf5;border-color:#cfe9d9}.dag-auto.aan b{color:#1f6b45;font-size:14px}
+.dag-auto.uit{background:#fbf6ea;border-color:#ecdcb4;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between}.dag-auto.uit span{font-size:13px}
+.dag-auto small{color:var(--muted)}.dag-auto .dag-zonder{color:#8a5a12}.dag-auto .dag-let{font-size:11.5px}
+
 </style>
 <style id="mansardThema">
 @import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;500;600;700&display=swap");
@@ -10064,7 +10069,7 @@ function vCommunicatie(){
   if(state.ctab==="klaar"){
     const groups=[["alle","Alle actieve klanten"],["vandaag","Route vandaag"],["morgen","Route morgen"],...rondes().map(r=>["r:"+r,r]),...[...new Set(actief().filter(k=>k.nieuwsbrief!==false).map(k=>k.nbGroep||"Standaard"))].sort().map(g=>["nb:"+g,"Nieuwsbrief · "+g])];
     return html+`<div class="qgrid">${qs.map(x=>`<div class="qitem panel"><div style="display:flex;align-items:center;gap:8px"><b style="flex:1">${esc(x.titel)}</b><span class="pill ${x.items.length?(x.id==="aanmaning"?"late":"soon"):"ok"}">${x.items.length||"✓"}</span></div>
-      <small>${esc(x.uitleg)}</small>${x.items.length?`${x.id==="factuur"?`<div class="q-nvt">${x.items.slice(0,8).map(i=>`<span>${esc(cleanName(i.k.naam))}${i.vars&&i.vars.factuurnummer?` <i>${esc(i.vars.factuurnummer)}</i>`:""}<button type="button" class="linkbtn" data-act="qnvt" data-ref="${esc(i.ref)}" title="Deze factuur is al verstuurd (buiten Mansard) of hoeft niet verstuurd te worden">Al verstuurd</button></span>`).join("")}${x.items.length>8?`<small>en ${x.items.length-8} meer</small>`:""}</div>`:`<small style="color:var(--ink)">${x.items.slice(0,3).map(i=>esc(cleanName(i.k.naam))).join(", ")}${x.items.length>3?" en "+(x.items.length-3)+" meer":""}</small>`}<button type="button" class="small primary" data-act="queue" data-q="${x.id}">Opstellen (${x.items.length})</button>`:`<small style="color:var(--ok)">Niets te doen</small>`}</div>`).join("")}</div>
+      <small>${esc(x.uitleg)}</small>${x.items.length?`${x.id==="factuur"?`<div class="q-nvt">${x.items.slice(0,8).map(i=>`<span>${esc(cleanName(i.k.naam))}${i.vars&&i.vars.factuurnummer?` <i>${esc(i.vars.factuurnummer)}</i>`:""}<button type="button" class="linkbtn" data-act="qnvt" data-ref="${esc(i.ref)}" title="Deze factuur is al verstuurd (buiten Mansard) of hoeft niet verstuurd te worden">Al verstuurd</button></span>`).join("")}${x.items.length>8?`<small>en ${x.items.length-8} meer</small>`:""}</div>`:`<small style="color:var(--ink)">${x.items.slice(0,3).map(i=>esc(cleanName(i.k.naam))).join(", ")}${x.items.length>3?" en "+(x.items.length-3)+" meer":""}</small>`}${x.id==="herinnering"?dagMailKaart(x):""}<button type="button" class="small ${x.id==="herinnering"&&typeof dagMailAan==="function"&&dagMailAan()?"":"primary"}" data-act="queue" data-q="${x.id}">${x.id==="herinnering"&&typeof dagMailAan==="function"&&dagMailAan()?"Toch nu zelf versturen":"Opstellen"} (${x.items.length})</button>`:`<small style="color:var(--ok)">Niets te doen</small>`}</div>`).join("")}</div>
     <div class="panel" style="margin-top:14px"><span class="eyebrow">Groepsbericht</span><p class="subt" style="margin:4px 0 10px">Bijvoorbeeld bij slecht weer: één bericht aan een ronde of de route van een dag.</p><div class="toolbar" style="margin:0"><select id="bulkGroup" style="flex:1 1 180px;width:auto">${groups.map(([v,l])=>`<option value="${esc(v)}">${esc(l)}</option>`).join("")}</select>
       <select id="bulkTpl" style="flex:1 1 160px;width:auto">${Object.keys(T).map(k=>`<option value="${esc(k)}" ${k==="weer"?"selected":""}>${esc(T[k].naam)}</option>`).join("")}</select><button type="button" data-act="bulk">Opstellen</button></div></div>`;
   }
@@ -17412,6 +17417,12 @@ async function dagMailKlaarzetten(){
   finally{DAGMAIL.bezig=false}}
 if(typeof window!=="undefined"&&LIVE)setInterval(()=>{try{if(Date.now()-DAGMAIL.laatst>5*60e3)dagMailKlaarzetten()}catch(e){}},60e3);
 
+/* status op de kaart "Herinnering voor morgen" in Communicatie › Klaar om te versturen */
+function dagMailKaart(x){const s=S(),tijd=s.dagTijd||"18:00",met=x.items.filter(i=>i.k&&i.k.email),zonder=x.items.filter(i=>!(i.k&&i.k.email)),nm=l=>l.slice(0,4).map(i=>esc(cleanName(i.k.naam))).join(", ")+(l.length>4?" en "+(l.length-4)+" meer":"");
+  if(!LIVE||!s.liveMail)return"";
+  if(!dagMailAan())return `<div class="dag-auto uit"><span>Nu moet je dit elke dag zelf versturen.</span><button type="button" class="small primary" data-act="dagautoaan">Automatisch om ${esc(tijd)} versturen</button></div>`;
+  return `<div class="dag-auto aan"><b>✓ Gaat vanzelf om ${esc(tijd)} per e-mail</b>${met.length?`<small>${nm(met)}</small>`:""}${zonder.length?`<small class="dag-zonder">Geen e-mailadres, dus zelf versturen: ${nm(zonder)}</small>`:""}<small class="dag-let">Het CRM moet vandaag vóór ${esc(tijd)} één keer open zijn geweest (telefoon of computer).</small></div>`}
+
 /* ---------- Waar stond de fotograaf? GPS en kompas van de telefoon bij een foto ----------
    1. Uit de foto zelf (EXIF): GPS-positie, kijkrichting (GPSImgDirection) en brandpuntsafstand.
    2. Zit dat er niet in (veel browsers halen de locatie eruit), dan de sensoren van de telefoon op het moment dat de foto
@@ -19388,6 +19399,7 @@ document.addEventListener("click",e=>{
     case"copymsg":{const r=compose&&compose.recipients[Number(t.dataset.i)];if(r)copy(fill(compose.tekst,r.vars),t);break}
     case"fhmenu":{const K=fhKlaar();if(K.herinnering.length)fbHerinner(K.herinnering,false);else if(K.wik.length)fbHerinner(K.wik,true);else if(K.likifin.length)fhLikifin(K.likifin);
       else{const ds=facturen().map(f=>fhVolgende(f)).filter(v=>v&&v.datum&&!v.klaar&&v.soort!=="bijlikifin").map(v=>v.datum).sort();toast(ds[0]?"Vandaag geen herinneringen aan de beurt · eerstvolgende "+fmtD(ds[0]):"Geen openstaande facturen die een herinnering nodig hebben")}break}
+    case"dagautoaan":{saveSettings({dagAutoMail:true},"Dagherinnering gaat nu automatisch per e-mail").then(()=>{try{DAGMAIL.laatst=0;dagMailKlaarzetten()}catch(e){}render()}).catch(err);break}
     case"qnvt":{/* factuur uit "Facturen versturen" halen: al verstuurd buiten Mansard of niet nodig. De factuur zelf blijft open staan. */
       const f=state.facturen.find(x=>"factuur:"+x.id===t.dataset.ref);if(!f)break;
       vraag("Factuur "+(f.nummer||"")+" niet meer voorstellen?","De factuur blijft gewoon openstaan. Hij verdwijnt alleen uit <b>Facturen versturen</b>, omdat hij al verstuurd is (bijvoorbeeld uit een ander programma of op papier) of niet verstuurd hoeft te worden.","Al verstuurd","Annuleren").then(async ok=>{if(ok!==true)return;

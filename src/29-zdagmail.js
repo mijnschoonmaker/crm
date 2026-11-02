@@ -24,3 +24,9 @@ async function dagMailKlaarzetten(){
     DAGMAIL.laatst=Date.now()}
   finally{DAGMAIL.bezig=false}}
 if(typeof window!=="undefined"&&LIVE)setInterval(()=>{try{if(Date.now()-DAGMAIL.laatst>5*60e3)dagMailKlaarzetten()}catch(e){}},60e3);
+
+/* status op de kaart "Herinnering voor morgen" in Communicatie › Klaar om te versturen */
+function dagMailKaart(x){const s=S(),tijd=s.dagTijd||"18:00",met=x.items.filter(i=>i.k&&i.k.email),zonder=x.items.filter(i=>!(i.k&&i.k.email)),nm=l=>l.slice(0,4).map(i=>esc(cleanName(i.k.naam))).join(", ")+(l.length>4?" en "+(l.length-4)+" meer":"");
+  if(!LIVE||!s.liveMail)return"";
+  if(!dagMailAan())return `<div class="dag-auto uit"><span>Nu moet je dit elke dag zelf versturen.</span><button type="button" class="small primary" data-act="dagautoaan">Automatisch om ${esc(tijd)} versturen</button></div>`;
+  return `<div class="dag-auto aan"><b>✓ Gaat vanzelf om ${esc(tijd)} per e-mail</b>${met.length?`<small>${nm(met)}</small>`:""}${zonder.length?`<small class="dag-zonder">Geen e-mailadres, dus zelf versturen: ${nm(zonder)}</small>`:""}<small class="dag-let">Het CRM moet vandaag vóór ${esc(tijd)} één keer open zijn geweest (telefoon of computer).</small></div>`}
