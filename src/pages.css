@@ -4673,3 +4673,6 @@ html body:not(#zz) .pk-map .rv-laag.pk-vol-k svg,html body:not(#zz) .pk-map .rv-
 .pk-map.pk-vol{position:fixed!important;inset:0!important;z-index:9000!important;width:100vw;height:100dvh;border-radius:0}
 .pk-map.pk-vol:fullscreen{width:100%;height:100%}
 html.pk-vol-open,html.pk-vol-open body{overflow:hidden}
+
+/* factuurregels zoals DienstenCRM (aantal, omschrijving, datum, excl., btw, incl.) in de Mansard-stijl */
+.i5-fr th.c,.i5-fr td.c{width:72px;padding-right:12px;text-align:left}.i5-fr td.i5-dt,.i5-fr th:nth-child(3){white-space:nowrap;width:86px}.i5-fr td.i5-dt{color:#4c565b}

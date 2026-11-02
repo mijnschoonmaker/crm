@@ -10,7 +10,7 @@ function invKlant(f){const ks=state.klanten||[];return ks.find(x=>x.id===f.klant
 function invData(f,klant){
   const s=S(),off=f.soort==="offerte",t=totals(f),btw=Number(f.btw??s.btw),incl=f.incl??s.incl;
   const k=klant||invKlant(f)||{};
-  const regels=(f.regels||[]).map(r=>{const rb=rBtw(f,r),p=Number(r.prijs)||0,ex=incl?p/(1+rb/100):p,a=Number(r.aantal)||0;return{oms:omsZonderDatum(String(r.omschrijving||"").replace(/ ?\(minimumtarief\)/gi,"")),aantal:a,prijs:r2(ex),btw:rb,tot:r2(ex*a),subs:Array.isArray(r.subs)?r.subs:null}});
+  const regels=(f.regels||[]).map(r=>{const rb=rBtw(f,r),p=Number(r.prijs)||0,ex=incl?p/(1+rb/100):p,a=Number(r.aantal)||0;const _m=String(r.omschrijving||"").match(/(\d{1,2}) (januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december) (\d{4})\s*$/i),_dt=r.datum||(_m?_m[3]+"-"+String(["januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"].indexOf(_m[2].toLowerCase())+1).padStart(2,"0")+"-"+_m[1].padStart(2,"0"):"");return{oms:omsZonderDatum(String(r.omschrijving||"").replace(/ ?\(minimumtarief\)/gi,"")),dat:_dt,aantal:a,prijs:r2(ex),btw:rb,tot:r2(ex*a),subs:Array.isArray(r.subs)?r.subs:null}});
   const st=off?{concept:["CONCEPT","n"],verstuurd:["VERSTUURD","b"],geaccepteerd:["GEACCEPTEERD","g"],afgewezen:["AFGEWEZEN","r"]}[f.status||"concept"]:f.status==="betaald"?["BETAALD","g"]:f.status==="concept"?["CONCEPT","n"]:fStatus(f)[1]==="Achterstallig"?["VERVALLEN","r"]:["TE BETALEN","b"];
   /* volledige naam/adres: adres van de factuur, aangevuld met het (factuur)adres van de klant als daar iets ontbreekt */
   const kAdr=k&&(k.adres||k.fAdres)?(typeof factAddr==="function"&&!off&&(k.fAdres||k.hoofdKlantId)?factAddr(k):fullAddr(k)):"";
@@ -32,7 +32,7 @@ function invRows(f,klant){
   const nr=k.id||k.klantnr?klantNr(k):"1026";
   const info=[["Adres",[s.adres,[s.postcode,s.plaats].filter(Boolean).join(" ")].filter(Boolean)],["",[]],["Telefoon",[s.telefoon]],["E-mailadres",[s.email]],["",[]],["KVK-nummer",[s.kvk]],["BTW",[s.btwnr]],["IBAN",[String(s.iban||"").replace(/\s/g,"")]],["BIC",[s.bic]],["Klantnummer",[String(nr)]],[d.off?"Offertenummer":"Factuurnummer",[f.nummer]],[d.off?"Offertedatum":"Factuurdatum",[fmtNum(f.datum).replace(/ /g,"")]],...(d.off?[["Geldig tot",[fmtNum(f.verval).replace(/ /g,"")]]]:[])]
     .filter(([l,v],i,arr)=>l?v.some(Boolean):(arr[i-1]&&arr[i-1][1].some(Boolean)));
-  const regels=d.regels.map(r=>({...r,datum:fmtNum(f.datum).replace(/ /g,""),ex:r.tot,inc:r2(r.tot*(1+r.btw/100))}));
+  const regels=d.regels.map(r=>({...r,datum:fmtNum(r.dat||f.datum).replace(/ /g,""),ex:r.tot,inc:r2(r.tot*(1+r.btw/100))}));
   const iban=String(s.iban||"").replace(/\s/g,""),vw=s.voorwaarden&&/^https?:/.test(s.voorwaarden)?s.voorwaarden.replace(/^https?:\/\//,""):s.voorwaardenPdf?"onze website":"";
   const betaal=d.off?`Deze offerte is geldig tot ${fmtNum(f.verval).replace(/ /g,"")}. Gaat u akkoord? Laat het ons weten, dan plannen wij u in.`
     :d.voldaan?`${d.voldaan}. Hartelijk dank voor uw betaling.`
@@ -82,10 +82,10 @@ function paperHtml(f,klant){
   ${f.soort==="offerte"&&f.letop&&offTxt(f.letopTekst,f)?`<div class="i5-letop"><b>Let op:</b><span>${esc(offTxt(f.letopTekst,f)).replace(/\n/g,"<br>")}</span></div>`:""}
   ${m.off?`<table class="i5-t i5-og"><thead><tr><th>Omschrijving</th><th class="c">Aantal</th><th class="r">Prijs excl.</th><th class="r">Btw</th><th class="r">Prijs incl.</th></tr></thead><tbody>
     ${m.regels.map(r=>`<tr class="i5g-h${r.subs&&r.subs.length?" has":""}"><td><b>${esc(r.oms)}</b></td><td class="c">${r.subs&&r.subs.length?"":r.aantal}</td><td class="r"><b>€ ${num(r.ex)}</b></td><td class="r">${r.btw}%</td><td class="r"><b>€ ${num(r.ex*(1+r.btw/100))}</b></td></tr>${(r.subs||[]).map((x,i,a)=>`<tr class="i5g-s${i===a.length-1?" last":""}"><td>${esc(x.naam)}${x.fq?`<small>${esc(x.fq)}</small>`:""}${x.tekst?`<small class="i5-st">${esc(x.tekst)}</small>`:""}</td><td class="c">${esc(x.qty||"")}</td><td></td><td></td><td></td></tr>`).join("")}`).join("")}</tbody></table>`
-  :`<table class="i5-t"><thead><tr><th>Omschrijving</th><th class="c">Aantal</th><th class="r">Prijs</th><th class="r">Btw</th><th class="r">Bedrag</th></tr></thead><tbody>
-    ${m.regels.map(r=>`<tr><td>${esc(r.oms)}</td><td class="c">${r.aantal}</td><td class="r">€ ${num(r.prijs)}</td><td class="r">${r.btw}%</td><td class="r"><b>€ ${num(r.ex)}</b></td></tr>`).join("")}</tbody></table>`}
+  :`<table class="i5-t i5-fr"><thead><tr><th class="c">Aantal</th><th>Omschrijving</th><th>Datum</th><th class="r">Prijs excl.</th><th class="r">Btw</th><th class="r">Prijs incl.</th></tr></thead><tbody>
+    ${m.regels.map(r=>`<tr><td class="c">${r.aantal}x</td><td>${esc(r.oms)}</td><td class="i5-dt">${esc(r.datum)}</td><td class="r">€ ${num(r.ex)}</td><td class="r">${r.btw}%</td><td class="r"><b>€ ${num(r.inc)}</b></td></tr>`).join("")}</tbody></table>`}
   <div class="i5-sum"><div class="i5-pay">${m.pay?`<span class="i5-l">Betaalgegevens</span><table>${m.pay.filter(x=>x[0]!=="Uiterlijk").map(([a,b])=>`<tr><th>${esc(a)}</th><td>${esc(b)}</td></tr>`).join("")}</table>`:`<span class="i5-l">${m.off?"Geldigheid":"Betaling"}</span>`}${m.off?`<b class="i5-pnr">Offerte ${esc(f.nummer)}</b>`:""}<p>${esc(m.zin)}</p></div>
-    ${m.off&&f.totaalTonen===false?"<div></div>":`<div class="i5-tot"><div><span>Subtotaal</span><span>€ ${num(m.t.ex)}</span></div>${m.t.tarieven.map(x=>`<div><span>BTW ${x.pct}%</span><span>€ ${num(x.btw)}</span></div>`).join("")}<div class="g"><span><b>${m.off?"Totaal per beurt":m.voldaan||m.st[1]==="g"?"Betaald":"Te betalen"}</b><small>${m.off?(m.t.tarieven.length>1?"incl. btw":"incl. "+m.t.tarieven[0].pct+"% btw"):m.voldaan||m.st[1]==="g"?"Hartelijk dank":"Vóór "+esc(fmtL(f.verval))}</small></span><span class="i5-amt">€ ${num(m.t.inc)}</span></div></div>`}</div>
+    ${m.off&&f.totaalTonen===false?"<div></div>":`<div class="i5-tot"><div><span>${m.off?"Subtotaal":"Subtotaal excl. btw"}</span><span>€ ${num(m.t.ex)}</span></div>${m.t.tarieven.map(x=>`<div><span>BTW ${x.pct}%</span><span>€ ${num(x.btw)}</span></div>`).join("")}<div class="g"><span><b>${m.off?"Totaal per beurt":m.voldaan||m.st[1]==="g"?"Betaald":"Te betalen"}</b><small>${m.off?(m.t.tarieven.length>1?"incl. btw":"incl. "+m.t.tarieven[0].pct+"% btw"):m.voldaan||m.st[1]==="g"?"Incl. btw · hartelijk dank":"Incl. btw · vóór "+esc(fmtL(f.verval))}</small></span><span class="i5-amt">€ ${num(m.t.inc)}</span></div></div>`}</div>
   ${typeof offUlocTxt==="function"&&offUlocTxt(f)?`<div class="i5-note"><span class="i5-l">Uitvoerlocatie</span>${esc(offUlocTxt(f))}</div>`:""}${f.notitie?`<div class="i5-note"><span class="i5-l">Opmerking</span>${esc(f.notitie)}</div>`:""}
   ${f.soort==="offerte"&&offTxt(f.voettekst,f)?`<div class="i5-txt">${esc(offTxt(f.voettekst,f)).replace(/\n/g,"<br>")}</div>`:""}
     ${m.vwTxt?`<p class="i5-vw">${esc(m.vwTxt)}</p>`:""}
@@ -115,8 +115,8 @@ async function pdfDoc(f,klant){
   if(f.soort==="offerte"&&offTxt(f.tekst,f)){N();doc.setFontSize(8.8);col(C.ink);const tl=doc.splitTextToSize(offTxt(f.tekst,f),W);doc.text(tl,L,y,{lineHeightFactor:1.45});y+=tl.length*4.6+8}
   if(f.soort==="offerte"&&f.letop&&offTxt(f.letopTekst,f)){B();doc.setFontSize(8.8);col(C.ink);doc.text("Let op:",L,y);N();const ll=doc.splitTextToSize(offTxt(f.letopTekst,f),W);doc.text(ll,L,y+4.8,{lineHeightFactor:1.45});y+=4.8+ll.length*4.6+6}
   // tabel
-  const X={o:L+4,a:122,p:148,b:166,t:R-4};
-  const head=()=>{doc.setFillColor(...C.soft);doc.roundedRect(L,y-5,W,9,1.5,1.5,"F");[["Omschrijving",X.o,"left"],["Aantal",X.a,"center"],["Prijs",X.p,"right"],["Btw",X.b,"right"],["Bedrag",X.t,"right"]].forEach(([t,x,al])=>lab(t,x,y+.6,al));y+=11};
+  const X={a:L+4,o:L+20,d:104,p:140,b:154,t:R-4};
+  const head=()=>{doc.setFillColor(...C.soft);doc.roundedRect(L,y-5,W,9,1.5,1.5,"F");[["Aantal",X.a,"left"],["Omschrijving",X.o,"left"],["Datum",X.d,"left"],["Prijs excl.",X.p,"right"],["Btw",X.b,"right"],["Prijs incl.",X.t,"right"]].forEach(([t,x,al])=>lab(t,x,y+.6,al));y+=11};
   if(m.off){/* offerte: per dienst een kopregel met prijzen, de onderdelen eronder */
     const Y={o:L+4,a:110,p:141,b:157,t:R-4};
     const oh=()=>{doc.setFillColor(...C.soft);doc.roundedRect(L,y-5,W,9,1.5,1.5,"F");[["Omschrijving",Y.o,"left"],["Aantal",Y.a,"center"],["Prijs excl.",Y.p,"right"],["Btw",Y.b,"right"],["Prijs incl.",Y.t,"right"]].forEach(([t,x,al])=>lab(t,x,y+.6,al));y+=11};
@@ -134,20 +134,20 @@ async function pdfDoc(f,klant){
       y+=1.5;doc.setDrawColor(...C.line);doc.setLineWidth(.2);if(i<m.regels.length-1)doc.line(L,y-3,R,y-3);y+=2.4});
   }else{
   head();
-  m.regels.forEach((r,i)=>{const ls=doc.splitTextToSize(r.oms,X.a-X.o-14),rh=ls.length*4+1.5;if(y+rh>236){doc.addPage();y=20;head()}
+  m.regels.forEach((r,i)=>{N();doc.setFontSize(8.8);const ls=doc.splitTextToSize(r.oms,X.d-X.o-5),rh=ls.length*4+1.5;if(y+rh>236){doc.addPage();y=20;head()}
     N();doc.setFontSize(8.8);col(C.ink);doc.text(ls,X.o,y);
-    doc.text(String(r.aantal),X.a,y,{align:"center"});doc.text(E(r.prijs),X.p,y,{align:"right"});doc.text(r.btw+"%",X.b,y,{align:"right"});B();doc.text(E(r.ex),X.t,y,{align:"right"});N();
+    doc.text(String(r.aantal)+"x",X.a,y);doc.text(String(r.datum||""),X.d,y);doc.text(E(r.ex),X.p,y,{align:"right"});doc.text(r.btw+"%",X.b,y,{align:"right"});B();doc.text(E(r.inc),X.t,y,{align:"right"});N();
     y+=rh+1.5;doc.setDrawColor(...C.line);doc.setLineWidth(.2);if(i<m.regels.length-1)doc.line(L,y-3,R,y-3);y+=2.4});}
   doc.setDrawColor(185,192,196);doc.setLineWidth(.25);doc.line(L,y-3,R,y-3);
   y+=5;if(y>205){doc.addPage();y=20}
   // totalen
   const TX=126,ty0=y;let tyEnd=y;
   if(!(m.off&&f.totaalTonen===false)){doc.setFontSize(8.2);
-  [["Subtotaal",m.t.ex],...m.t.tarieven.map(x=>["BTW "+x.pct+"%",x.btw])].forEach(([a,b])=>{N();col(C.mut);doc.text(a,TX,y+4);col(C.ink);doc.text(E(b),R,y+4,{align:"right"});y+=6});
+  [[m.off?"Subtotaal":"Subtotaal excl. btw",m.t.ex],...m.t.tarieven.map(x=>["BTW "+x.pct+"%",x.btw])].forEach(([a,b])=>{N();col(C.mut);doc.text(a,TX,y+4);col(C.ink);doc.text(E(b),R,y+4,{align:"right"});y+=6});
   y+=1;const paid=m.voldaan||m.st[1]==="g",tint=A.map(v=>Math.round(v*.08+255*.92)),edge=A.map(v=>Math.round(v*.3+255*.7));
   doc.setFillColor(...C.soft);doc.roundedRect(TX-4,y,R-TX+4,13.5,2,2,"F");
   B();doc.setFontSize(8.8);col(C.ink);doc.text(m.off?"Totaal per beurt":paid?"Betaald":"Te betalen",TX,y+6);
-  N();doc.setFontSize(6.8);col(C.mut);doc.text(m.off?(m.t.tarieven.length>1?"incl. btw":"incl. "+m.t.tarieven[0].pct+"% btw"):paid?"Hartelijk dank":"Vóór "+fmtL(f.verval),TX,y+9.8);
+  N();doc.setFontSize(6.8);col(C.mut);doc.text(m.off?(m.t.tarieven.length>1?"incl. btw":"incl. "+m.t.tarieven[0].pct+"% btw"):paid?"Incl. btw · hartelijk dank":"Incl. btw · vóór "+fmtL(f.verval),TX,y+9.8);
   B();doc.setFontSize(11);col(A);doc.text(E(m.t.inc),R-4,y+8.3,{align:"right"});col(C.ink);tyEnd=y+13.5;}
   // betaalgegevens
   y=ty0;const PW=TX-L-12,pr=m.pay?m.pay.filter(x=>x[0]!=="Uiterlijk"):[],zl=(N(),doc.setFontSize(7.6),doc.splitTextToSize(m.zin,PW-10)),bh=10+pr.length*4.6+zl.length*3.8+3+(m.off?5.4:0);
