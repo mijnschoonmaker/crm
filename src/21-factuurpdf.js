@@ -82,8 +82,8 @@ function paperHtml(f,klant){
   ${f.soort==="offerte"&&f.letop&&offTxt(f.letopTekst,f)?`<div class="i5-letop"><b>Let op:</b><span>${esc(offTxt(f.letopTekst,f)).replace(/\n/g,"<br>")}</span></div>`:""}
   ${m.off?`<table class="i5-t i5-og"><thead><tr><th>Omschrijving</th><th class="c">Aantal</th><th class="r">Prijs excl.</th><th class="r">Btw</th><th class="r">Prijs incl.</th></tr></thead><tbody>
     ${m.regels.map(r=>`<tr class="i5g-h${r.subs&&r.subs.length?" has":""}"><td><b>${esc(r.oms)}</b></td><td class="c">${r.subs&&r.subs.length?"":r.aantal}</td><td class="r"><b>€ ${num(r.ex)}</b></td><td class="r">${r.btw}%</td><td class="r"><b>€ ${num(r.ex*(1+r.btw/100))}</b></td></tr>${(r.subs||[]).map((x,i,a)=>`<tr class="i5g-s${i===a.length-1?" last":""}"><td>${esc(x.naam)}${x.fq?`<small>${esc(x.fq)}</small>`:""}${x.tekst?`<small class="i5-st">${esc(x.tekst)}</small>`:""}</td><td class="c">${esc(x.qty||"")}</td><td></td><td></td><td></td></tr>`).join("")}`).join("")}</tbody></table>`
-  :`<table class="i5-t i5-fr"><thead><tr><th class="c">Aantal</th><th>Omschrijving</th><th>Datum</th><th class="r">Prijs excl.</th><th class="r">Btw</th><th class="r">Prijs incl.</th></tr></thead><tbody>
-    ${m.regels.map(r=>`<tr><td class="c">${r.aantal}x</td><td>${esc(r.oms)}</td><td class="i5-dt">${esc(r.datum)}</td><td class="r">€ ${num(r.ex)}</td><td class="r">${r.btw}%</td><td class="r"><b>€ ${num(r.inc)}</b></td></tr>`).join("")}</tbody></table>`}
+  :`<table class="i5-t i5-fr"><thead><tr><th class="c">Aantal</th><th>Omschrijving</th><th class="r">Prijs excl.</th><th class="r">Btw</th><th class="r">Prijs incl.</th></tr></thead><tbody>
+    ${m.regels.map(r=>`<tr><td class="c">${r.aantal}x</td><td>${esc(r.oms)}</td><td class="r">€ ${num(r.ex)}</td><td class="r">${r.btw}%</td><td class="r"><b>€ ${num(r.inc)}</b></td></tr>`).join("")}</tbody></table>`}
   <div class="i5-sum"><div class="i5-pay">${m.pay?`<span class="i5-l">Betaalgegevens</span><table>${m.pay.filter(x=>x[0]!=="Uiterlijk").map(([a,b])=>`<tr><th>${esc(a)}</th><td>${esc(b)}</td></tr>`).join("")}</table>`:`<span class="i5-l">${m.off?"Geldigheid":"Betaling"}</span>`}${m.off?`<b class="i5-pnr">Offerte ${esc(f.nummer)}</b>`:""}<p>${esc(m.zin)}</p></div>
     ${m.off&&f.totaalTonen===false?"<div></div>":`<div class="i5-tot"><div><span>${m.off?"Subtotaal":"Subtotaal excl. btw"}</span><span>€ ${num(m.t.ex)}</span></div>${m.t.tarieven.map(x=>`<div><span>BTW ${x.pct}%</span><span>€ ${num(x.btw)}</span></div>`).join("")}<div class="g"><span><b>${m.off?"Totaal per beurt":m.voldaan||m.st[1]==="g"?"Betaald":"Te betalen"}</b><small>${m.off?(m.t.tarieven.length>1?"incl. btw":"incl. "+m.t.tarieven[0].pct+"% btw"):m.voldaan||m.st[1]==="g"?"Incl. btw · hartelijk dank":"Incl. btw · vóór "+esc(fmtL(f.verval))}</small></span><span class="i5-amt">€ ${num(m.t.inc)}</span></div></div>`}</div>
   ${typeof offUlocTxt==="function"&&offUlocTxt(f)?`<div class="i5-note"><span class="i5-l">Uitvoerlocatie</span>${esc(offUlocTxt(f))}</div>`:""}${f.notitie?`<div class="i5-note"><span class="i5-l">Opmerking</span>${esc(f.notitie)}</div>`:""}
@@ -116,7 +116,7 @@ async function pdfDoc(f,klant){
   if(f.soort==="offerte"&&f.letop&&offTxt(f.letopTekst,f)){B();doc.setFontSize(8.8);col(C.ink);doc.text("Let op:",L,y);N();const ll=doc.splitTextToSize(offTxt(f.letopTekst,f),W);doc.text(ll,L,y+4.8,{lineHeightFactor:1.45});y+=4.8+ll.length*4.6+6}
   // tabel
   const X={a:L+4,o:L+20,d:104,p:140,b:154,t:R-4};
-  const head=()=>{doc.setFillColor(...C.soft);doc.roundedRect(L,y-5,W,9,1.5,1.5,"F");[["Aantal",X.a,"left"],["Omschrijving",X.o,"left"],["Datum",X.d,"left"],["Prijs excl.",X.p,"right"],["Btw",X.b,"right"],["Prijs incl.",X.t,"right"]].forEach(([t,x,al])=>lab(t,x,y+.6,al));y+=11};
+  const head=()=>{doc.setFillColor(...C.soft);doc.roundedRect(L,y-5,W,9,1.5,1.5,"F");[["Aantal",X.a,"left"],["Omschrijving",X.o,"left"],["Prijs excl.",X.p,"right"],["Btw",X.b,"right"],["Prijs incl.",X.t,"right"]].forEach(([t,x,al])=>lab(t,x,y+.6,al));y+=11};
   if(m.off){/* offerte: per dienst een kopregel met prijzen, de onderdelen eronder */
     const Y={o:L+4,a:110,p:141,b:157,t:R-4};
     const oh=()=>{doc.setFillColor(...C.soft);doc.roundedRect(L,y-5,W,9,1.5,1.5,"F");[["Omschrijving",Y.o,"left"],["Aantal",Y.a,"center"],["Prijs excl.",Y.p,"right"],["Btw",Y.b,"right"],["Prijs incl.",Y.t,"right"]].forEach(([t,x,al])=>lab(t,x,y+.6,al));y+=11};
@@ -134,9 +134,9 @@ async function pdfDoc(f,klant){
       y+=1.5;doc.setDrawColor(...C.line);doc.setLineWidth(.2);if(i<m.regels.length-1)doc.line(L,y-3,R,y-3);y+=2.4});
   }else{
   head();
-  m.regels.forEach((r,i)=>{N();doc.setFontSize(8.8);const ls=doc.splitTextToSize(r.oms,X.d-X.o-5),rh=ls.length*4+1.5;if(y+rh>236){doc.addPage();y=20;head()}
+  m.regels.forEach((r,i)=>{N();doc.setFontSize(8.8);const ls=doc.splitTextToSize(r.oms,X.p-X.o-26),rh=ls.length*4+1.5;if(y+rh>236){doc.addPage();y=20;head()}
     N();doc.setFontSize(8.8);col(C.ink);doc.text(ls,X.o,y);
-    doc.text(String(r.aantal)+"x",X.a,y);doc.text(String(r.datum||""),X.d,y);doc.text(E(r.ex),X.p,y,{align:"right"});doc.text(r.btw+"%",X.b,y,{align:"right"});B();doc.text(E(r.inc),X.t,y,{align:"right"});N();
+    doc.text(String(r.aantal)+"x",X.a,y);doc.text(E(r.ex),X.p,y,{align:"right"});doc.text(r.btw+"%",X.b,y,{align:"right"});B();doc.text(E(r.inc),X.t,y,{align:"right"});N();
     y+=rh+1.5;doc.setDrawColor(...C.line);doc.setLineWidth(.2);if(i<m.regels.length-1)doc.line(L,y-3,R,y-3);y+=2.4});}
   doc.setDrawColor(185,192,196);doc.setLineWidth(.25);doc.line(L,y-3,R,y-3);
   y+=5;if(y>205){doc.addPage();y=20}
