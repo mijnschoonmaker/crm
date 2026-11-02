@@ -5,8 +5,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          for h in crm.mijnschoonmaker.com app.mansard.nl; do
-            o=$(curl -s -o /dev/null -w "%{http_code} %{content_type}" "https://$h/api/t/o/0123456789abcdef01234567")
-            k=$(curl -s -o /dev/null -w "%{http_code} %{redirect_url}" "https://$h/api/t/k/0123456789abcdef01234567/0")
+          set +e
+          for h in crm.mijnschoonmaker.com app.mansard.nl mijnschoonmaker-95789.web.app; do
+            o=$(curl -sS -o /dev/null -w "%{http_code} %{content_type}" "https://$h/api/t/o/0123456789abcdef01234567" 2>&1)
+            k=$(curl -sS -o /dev/null -w "%{http_code} %{redirect_url}" "https://$h/api/t/k/0123456789abcdef01234567/0" 2>&1)
             echo "::notice title=$h::open: $o · klik: $k"
           done
