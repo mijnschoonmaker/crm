@@ -326,23 +326,12 @@ exports.mollieLink = onCall(async req => {
   if (!f.exists) throw new HttpsError("not-found", "Factuur niet gevonden.");
   const val = Number(bedrag);
   if (!(val > 0)) throw new HttpsError("invalid-argument", "Ongeldig bedrag.");
-  const b = await bedrijf();
-  const site = String(basis || "").replace(/\/+$/, "");
-  const p = await mollie(g.mollieKey, "payments", {
-    method: "POST",
-    body: JSON.stringify({
-      amount: { currency: "EUR", value: val.toFixed(2) },
-      description: String(omschrijving || "Factuur " + (f.data().nummer || factuurId)).slice(0, 255),
-      redirectUrl: site ? site + "/portaal?betaald=" + encodeURIComponent(factuurId) : (b.website || HOST()),
-      webhookUrl: site + "/api/mollie" + T.hookQs(),
-      metadata: { factuurId }
-    })
-  });
-  const link = p._links && p._links.checkout && p._links.checkout.href;
-  /* in de mail een vaste link via het portaal: een Mollie-betaling verloopt al na korte tijd, deze link maakt dan een nieuwe */
+  const site = String(basis || "").replace(/\/+$/, "") || HOST();
+  /* geen Mollie-betaling meer bij het versturen: die verloopt in Mollie na korte tijd als de klant hem niet opent.
+     De mail krijgt een vaste link via het portaal; pas als de klant daarop klikt maakt het portaal de Mollie-betaling aan (betaalLinkVoor). */
   const betaalToken = /^(?:b[a-z0-9]{7}_)?[a-f0-9]{24,64}$/.test(String(f.data().betaalToken || "")) ? f.data().betaalToken : T.tok(16);
-  await f.ref.set({ mollieId: p.id, mollieLink: link || "", betaallink: link || "", mollieStatus: p.status, mollieBedrag: val, betaalToken }, { merge: true });
-  return { link: site && link ? site + "/api/portaal/b/" + betaalToken : link, id: p.id };
+  if (betaalToken !== f.data().betaalToken) await f.ref.set({ betaalToken }, { merge: true });
+  return { link: site + "/api/portaal/b/" + betaalToken, id: f.data().mollieId || "" };
 });
 /* factuur automatisch afschrijven bij een klant met een incasso-machtiging (sequenceType recurring) */
 exports.mollieIncasso = onCall(async req => {

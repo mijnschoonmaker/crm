@@ -12,7 +12,7 @@ const fnFout=e=>String((e&&e.message)||e||"onbekende fout").replace(/^.*?:\s*(?=
 async function mollieLinkVoor(f){
   /* openstaand bedrag (min een eventuele deelbetaling); een oude link alleen hergebruiken als het bedrag nog klopt */
   const bedrag=Math.round((totals(f).inc-(Number(f.deelBetaald)||0))*100)/100;
-  if(f.betaallink&&f.mollieId&&f.mollieStatus==="open"&&(f.mollieBedrag==null||Math.abs(Number(f.mollieBedrag)-bedrag)<0.01))return f.betaallink;
+  /* altijd de vaste link via het portaal: die maakt pas bij het klikken een (nieuwe) Mollie-betaling, nooit een verlopen link in de mail */
   const r=await fbFn("mollieLink")({factuurId:f.id,bedrag,omschrijving:"Factuur "+f.nummer,basis:location.origin});
   return r.data.link}
 
