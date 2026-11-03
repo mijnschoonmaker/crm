@@ -90,12 +90,20 @@ function docKaart({stijl,meta,regels,totaal,tot,sans,e}){
 function emailHtmlRuw({stijl,accent,kicker,titel,tekst,rich,meta,regels,totaal,tot,knop,teken,bank,betaal,logo,preview,portaal,portaalLive,scene,incasso}){
   const s=S(),A=accent||"#111111",PA=/^#[0-9a-f]{6}$/i.test(String(s.mailAccent||""))?s.mailAccent:"#137a8a",PI=(h=>{const n=parseInt(h.slice(1),16),r=n>>16&255,g=n>>8&255,b=n&255;return (r*299+g*587+b*114)/1000>165?"#1c2231":"#ffffff"})(PA),serif="Georgia,'Times New Roman',serif",sans="'Avenir Next',Avenir,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif";
   const e=x=>esc(x);
+  /* opgemaakte sjabloontekst zonder links/plaatjes maar met een blok "Datum: … / Tijd: …": als tekst verwerken, zodat het blok als kaart getoond kan worden */
+  if(rich&&!/<(a|img|table|h[1-6]|blockquote)\b/i.test(rich)&&typeof richText==="function"){const rt=richText(rich);if(/(^|\n)\s*[A-Za-z\u00C0-\u00FF][A-Za-z\u00C0-\u00FF .\/]{1,18}?\s*:\s*\S[^\n]*\n\s*[A-Za-z\u00C0-\u00FF][A-Za-z\u00C0-\u00FF .\/]{1,18}?\s*:\s*\S/.test(rt)){tekst=rt;rich=null}}
   let paras=String(tekst||"").split(/\n\s*\n/).map(p=>p.trim()).filter(Boolean);
   let sig=paras.findIndex(p=>/^(met vriendelijke groet|groet|vriendelijke groet)/i.test(p));if(sig<0)sig=paras.length;
   /* diensten ("• Glasbewassing"): een klein ticket-icoontje in plaats van het bolletje */
-  const ICD=(/^https?:/.test(location.origin)?location.origin:"https://app.mansard.nl")+"/mail/ic-dienst.png",dIc=`<img src="${ICD}" width="16" height="16" alt="" style="display:inline-block;vertical-align:-3px;width:16px;height:16px;border:0;margin-right:8px">`;
+  const MAILB0=(/^https?:/.test(location.origin)?location.origin:"https://app.mansard.nl")+"/mail/",ICD=MAILB0+"ic-dienst.png",dIc=`<img src="${ICD}" width="16" height="16" alt="" style="display:inline-block;vertical-align:-3px;width:16px;height:16px;border:0;margin-right:8px">`;
   const bol=h=>String(h).replace(/(^|<br\s*\/?>|<p[^>]*>|<div[^>]*>|<li[^>]*>|\n)\s*(?:•|&bull;|&#8226;)\s*/g,"$1"+dIc);
-  const P=p=>`<p style="margin:0 0 18px;line-height:1.65;font-size:15px;color:#222">${bol(e(p).replace(/\n/g,"<br>"))}</p>`;
+  /* "Datum: … / Tijd: … / Adres: … / Dienst: …" (2 of meer regels): als rustige kaart met icoontjes */
+  const GR=/^\s*([A-Za-z\u00C0-\u00FF][A-Za-z\u00C0-\u00FF .\/]{1,18}?)\s*:\s*(\S.*)$/;
+  const gIc=l=>{l=l.toLowerCase();return /datum|dag|wanneer/.test(l)?"ic-datum.png":/tijd|uur/.test(l)?"ic-tijd.png":/adres|locatie|waar/.test(l)?"ic-adres.png":/dienst|werk|wat/.test(l)?"ic-dienst.png":""};
+  const gKaart=ls=>`<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;margin:2px 0 20px;border-collapse:separate;background:#f7f8f9;border:1px solid #eceef1;border-radius:14px">${ls.map((l,i)=>{const[,lab,val]=l.match(GR),ic=gIc(lab);
+    return `<tr><td width="30" valign="middle" style="padding:${i?"11px":"14px"} 0 ${i===ls.length-1?"14px":"11px"} 16px;${i?"border-top:1px solid #eceef1;":""}line-height:0;font-size:0">${ic?`<img src="${MAILB0+ic}" width="16" height="16" alt="" style="display:block;width:16px;height:16px;border:0">`:""}</td><td width="78" valign="middle" style="padding:${i?"11px":"14px"} 8px ${i===ls.length-1?"14px":"11px"} 10px;${i?"border-top:1px solid #eceef1;":""}font-family:${sans};font-size:10.5px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;color:#7a808c;white-space:nowrap">${e(lab.trim())}</td><td valign="middle" style="padding:${i?"11px":"14px"} 16px ${i===ls.length-1?"14px":"11px"} 0;${i?"border-top:1px solid #eceef1;":""}font-family:${sans};font-size:14.5px;font-weight:600;color:#14181f;line-height:1.4">${e(val.trim().replace(/^\w/,c=>c.toUpperCase()))}</td></tr>`}).join("")}</table>`;
+  const P=p=>{const ls=String(p).split("\n").filter(x=>x.trim());if(ls.length>=2&&ls.length<=8&&ls.every(x=>GR.test(x)&&!/^\s*(https?|mailto)\b/i.test(x)))return gKaart(ls);
+    return `<p style="margin:0 0 18px;line-height:1.65;font-size:15px;color:#222">${bol(e(p).replace(/\n/g,"<br>"))}</p>`};
   const sigP=p=>{const[a,...b]=p.split("\n");return `<p style="margin:0;line-height:1.5;font-size:15px;color:#222">${e(a)}${b.length?`<br><b>${e(b.join(" "))}</b>`:""}</p>`};
   const richBlock=rich?`<div style="margin:0 0 18px;line-height:1.65;font-size:15px;color:#222">${rich}</div>`:"";
   let block="";
@@ -181,9 +189,9 @@ function mailFor(sjabloon,vars,tekst,{f,stap,preview}={}){
   if(kind==="offerte"&&(vars.akkoordlink||preview))o.teken=vars.akkoordlink||"#";
   const _em=vars["email.customer"]||"",_pu=(LIVE&&/^https?:/.test(location.origin)?location.origin:"https://app.mansard.nl")+"/portaal"+(preview?(_em?"?e="+encodeURIComponent(_em):""):"?__PORTAAL_LINK__");
   /* elke mail aan een klant: kaartje met directe link naar het klantportaal (zonder inloggen); bij de aankondiging met live volgen */
-  if(s.portaalKnop!==false&&kind!=="offerte"){o.portaal=_pu;if(kind==="aankondiging")o.portaalLive=true}
+  if(s.portaalKnop!==false&&kind!=="offerte"){o.portaal=_pu;if(kind==="aankondiging"||kind==="herinnering")o.portaalLive=true}
   /* busje op de lijn: onderweg naar de woning (aankondiging) of weggereden met vinkje (afkondiging) */
-  if(kind==="aankondiging")o.scene="onderweg";else if(kind==="afkondiging")o.scene="weg";
+  if(kind==="aankondiging"||kind==="herinnering")o.scene="onderweg";else if(kind==="afkondiging")o.scene="weg";
   if(kind==="review"&&s.reviewLink)o.knop={tekst:s.reviewKnop||"Review achterlaten",url:s.reviewLink};
   const _h=emailHtml(o);
   if(sjabloon!=="maandtop"&&!/\[block\.ranking\]/.test(String(tekst||"")))return _h;
