@@ -2,7 +2,7 @@ name: Akkoord nakijken (alleen lezen)
 on:
   workflow_dispatch:
     inputs:
-      nr: { description: "Offertenummer", required: true }
+      nr: { description: "Offertenummer", required: false, default: "" }
 jobs:
   run:
     runs-on: ubuntu-latest

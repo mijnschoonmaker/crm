@@ -4,6 +4,11 @@ admin.initializeApp({ projectId: process.env.P });
 const db = admin.firestore(), NR = String(process.env.NR || "");
 const n = (...a) => console.log("::notice title=Akkoord::" + a.join(" "));
 (async () => {
+  if (!NR) { const z = await db.collection("akkoord").where("status", "==", "getekend").get();
+    for (const d of z.docs) { const a = d.data(), op = (a.getekend || {}).op || ""; if (op < "2026-11-01T20:00") continue;
+      const b = await db.collection("berichten").where("factuurId", "==", a.factuurId || "x").get();
+      n("getekend", a.nummer, "op", op, "· definitief verstuurd:", b.docs.some(x => x.data().sjabloon === "definitief") ? "ja" : "NEE"); }
+    return; }
   const q = await db.collection("akkoord").where("nummer", "==", NR).get();
   n("akkoord-docs:", q.size);
   for (const d of q.docs) { const a = d.data();
