@@ -1,4 +1,4 @@
-name: Eenmalig: 3 klanten terug naar Te plannen
+name: "Eenmalig - 3 klanten terug naar Te plannen"
 on:
   workflow_dispatch:
 jobs:
