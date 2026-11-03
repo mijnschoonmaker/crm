@@ -17,6 +17,8 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
           P: ${{ vars.FIREBASE_PROJECT }}
           GCLOUD_PROJECT: ${{ vars.FIREBASE_PROJECT }}
-          FIREBASE_CONFIG: '{"projectId":"${{ vars.FIREBASE_PROJECT }}","storageBucket":"${{ vars.FIREBASE_BUCKET || format('{0}.firebasestorage.app', vars.FIREBASE_PROJECT) }}"}'
+          BUCKET: ${{ vars.FIREBASE_BUCKET }}
           NR: ${{ inputs.nr }}
-        run: node tools/akkoord-opnieuw.js
+        run: |
+          export FIREBASE_CONFIG="{\"projectId\":\"$P\",\"storageBucket\":\"${BUCKET:-$P.firebasestorage.app}\"}"
+          node tools/akkoord-opnieuw.js
