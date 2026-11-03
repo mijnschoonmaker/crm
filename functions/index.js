@@ -289,9 +289,12 @@ exports.brevoHook = onRequest(async (req, res) => {
 
 /* ---------- ingeplande mails (aangemaakt door het CRM in /geplandeMails) ---------- */
 exports.geplandVerzenden = onSchedule({ schedule: "every 10 minutes", timeZone: "Europe/Amsterdam", memory: "512MiB" }, async () => {
-  const q = await db.collection("geplandeMails").where("status", "==", "gepland").where("sendAt", "<=", nu()).limit(40).get();
-  for (const doc of q.docs) {
+  /* één veld in de zoekvraag (geen samengestelde index nodig); de verstuurtijd controleren we hieronder */
+  const q = await db.collection("geplandeMails").where("status", "==", "gepland").limit(200).get(), t0 = nu();
+  for (const doc of q.docs.filter(x => String(x.data().sendAt || "") <= t0).slice(0, 40)) {
     const d = doc.data();
+    /* dagherinnering die te laat zou gaan (meer dan 45 min na de verstuurtijd): niet meer vanzelf versturen, dan zelf versturen in Communicatie */
+    if (d.dagCheck && Date.parse(t0) - Date.parse(d.sendAt) > 45 * 60e3) { await doc.ref.set({ status: "vervallen", reden: "te laat voor automatisch versturen" }, { merge: true }); continue; }
     try {
       /* automatische dagherinnering: vlak voor het versturen nog controleren of hij nog klopt */
       if (d.dagCheck) {
