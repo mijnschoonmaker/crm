@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="57a875cebdd7"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="5ae49fa54b23"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -5454,6 +5454,8 @@ aside .nk-btn,aside .nk-more{background:none!important;box-shadow:none!important
 aside .nk-btn svg{stroke:#252c3c!important;width:14px!important;height:14px!important}
 aside .nk-btn:hover,aside .nk-more:hover{background:none!important;color:#0d121b!important;text-decoration:underline;text-underline-offset:3px}
 @media (prefers-reduced-motion:reduce){aside .nk-ic::after{animation:none}}
+/* e-mail opmaak: tabs op één regel, breedte naar tekst */
+.ms-tabs{flex-wrap:nowrap;overflow-x:auto}.ms-tabs button{white-space:nowrap;flex:1 1 auto;letter-spacing:.08em!important;padding-left:10px!important;padding-right:10px!important}
 
 </style>
 <style id="mansardThema">
@@ -10562,13 +10564,13 @@ function vCommunicatie(){
 function openMailStijl(){
   const s=S();let stijl=s.mailStijl==="klassiek"?"klassiek":"modern",acc=s.mailAccent||"#137a8a",tab="factuur";
   const SW=[["#252c3c","Gelders blauw"],["#137a8a","Mansard petrol"],["#2b3cb0","Blauw"],["#2f7a6e","Groen"],["#b3263c","Rood"],["#121826","Zwart"],["#d9d9d6","SV satijngrijs"],["#f8f9f9","Zilverwit"],["#56616a","Leisteengrijs"]],ST=[["klassiek","Klassiek","Zakelijk en vertrouwd: wit, serif koptekst, logo links en dunne lijnen in uw accentkleur."],["modern","Modern","Strakke witte kaart met afgeronde hoeken, gecentreerd logo en een accentstreep bovenaan."]];
-  const T=tpls(),tk={factuur:"factuur",offerte:"offerte",aankondiging:"aankondiging",herinnering:"aanmaning",review:"review"};
+  const T=tpls(),tk={factuur:"factuur",offerte:"offerte",aankondiging:"aankondiging",herinnering:"aanmaning",afspraak:"herinnering"};
   const prev=()=>{const k=tk[tab],v=sampleVars(),vv={...v,klant:tab==="factuur"||tab==="offerte"?"mevrouw De Vries":"klant"};const old={...state.settings};state.settings={...state.settings,mailStijl:stijl,mailAccent:acc};
     const h=mailFor(k,vv,T[k].mail,{preview:true});state.settings=old;return h};
   const draw=()=>{$("#msB").innerHTML=`<div class="stgrid st2">${ST.map(([k,l,d])=>`<button type="button" class="stc${stijl===k?" on":""}" data-st="${k}"><span class="stv ${k}"><i></i><i></i><i></i></span><b>${l}${stijl===k?I.check:""}</b><small>${d}</small></button>`).join("")}</div>
     <div class="secl" style="color:var(--ink);font-size:14px;letter-spacing:0;text-transform:none">Accentkleur</div><div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">${SW.map(([c,n])=>`<button type="button" class="swatch${acc.toLowerCase()===c?" on":""}" data-sw="${c}" style="background:${c}!important" title="${n}" aria-label="${n}"></button>`).join("")}<span class="subt">Eigen kleur</span><input type="color" id="msC" value="${esc(acc)}" style="width:52px;height:44px;padding:3px"></div>
     <div class="splitrow"><b style="display:flex;gap:8px;align-items:center">${I.search}Voorbeeld</b><button type="button" class="small" id="msTest">${I.send}Testmail naar mij</button></div>
-    <div class="seg ms-tabs">${[["factuur","Factuur"],["offerte","Offerte"],["aankondiging","Aankondiging"],["herinnering","Herinnering"],["review","Review"]].map(([k,l])=>`<button type="button" data-tb="${k}" aria-pressed="${tab===k}">${l}</button>`).join("")}</div>
+    <div class="seg ms-tabs">${[["factuur","Factuur"],["offerte","Offerte"],["aankondiging","Aankondiging"],["herinnering","Betaalherinnering"],["afspraak","Herinnering afspraak"]].map(([k,l])=>`<button type="button" data-tb="${k}" aria-pressed="${tab===k}">${l}</button>`).join("")}</div>
     <div class="mailprev">${prev()}</div><small class="help">Deze stijl geldt voor de knop <b>Opgemaakt</b> bij facturen, herinneringen, offertes, reviewverzoeken en aankondigingen. Logo en bedrijfsgegevens komen uit Instellingen › Bedrijf &amp; Branding. Je logo staat in de voorbeelden; in een geplakte mail verschijnt je bedrijfsnaam, want het logo staat in je privé-pagina.</small>`};
   openDlg(`<div class="dlg-head"><span class="objic big" style="background:linear-gradient(135deg,#f0a33c,#e0822c)">${I.spark}</span><div style="flex:1"><h3>E-mail opmaak</h3><div class="subt">Kies hoe je opgemaakte mails eruitzien</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
   <div id="msB" class="setbody"></div><div class="row stickyfoot"><button type="button" class="ghost" data-act="close">Annuleren</button><span class="sp"></span><button type="submit" class="primary" id="msSave">Opmaak opslaan</button></div>`,{wide:true});

@@ -4728,3 +4728,5 @@ aside .nk-btn,aside .nk-more{background:none!important;box-shadow:none!important
 aside .nk-btn svg{stroke:#252c3c!important;width:14px!important;height:14px!important}
 aside .nk-btn:hover,aside .nk-more:hover{background:none!important;color:#0d121b!important;text-decoration:underline;text-underline-offset:3px}
 @media (prefers-reduced-motion:reduce){aside .nk-ic::after{animation:none}}
+/* e-mail opmaak: tabs op één regel, breedte naar tekst */
+.ms-tabs{flex-wrap:nowrap;overflow-x:auto}.ms-tabs button{white-space:nowrap;flex:1 1 auto;letter-spacing:.08em!important;padding-left:10px!important;padding-right:10px!important}
