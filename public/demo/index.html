@@ -10044,7 +10044,7 @@ function mailFor(sjabloon,vars,tekst,{f,stap,preview}={}){
   const _afF=kind==="afkondiging"&&((f&&f.soort!=="offerte"&&f.status!=="betaald")||preview);
   if(_inc)o.incasso="Dit bedrag wordt binnen 14 dagen automatisch van uw rekening afgeschreven via uw machtiging, nu de beurt is uitgevoerd. U hoeft niets te doen.";
   else if((["factuur","aanmaning","wik"].includes(kind)||_afF)&&(vars.betaallink||s.betaallink||preview)){const bl=vars.betaallink||s.betaallink||"#";if(!_inc&&s.iban)o.betaal=bl;else if(bl!=="#")o.knop={tekst:"Direct betalen",url:bl}}
-  if(!_inc&&(["factuur","aanmaning","wik"].includes(kind)||_afF)&&s.iban)o.bank=[["IBAN",s.iban],["T.n.v.",s.naam||"—"],["Kenmerk",vars.factuurnummer||(f&&f.nummer)||"2026-0042"]];
+  if(!_inc&&(["factuur","aanmaning","wik"].includes(kind)||_afF)&&s.iban)o.bank=[...((()=>{const bd=String(vars.bedrag||(f?eur(totals(f).inc):"")).trim();return bd?[["Bedrag",bd+" incl. btw"]]:[]})()),["IBAN",s.iban],["T.n.v.",s.naam||"—"],["Kenmerk",vars.factuurnummer||(f&&f.nummer)||"2026-0042"]];
   if(kind==="offerte"&&(vars.akkoordlink||preview))o.teken=vars.akkoordlink||"#";
   const _em=vars["email.customer"]||"",_pu=(LIVE&&/^https?:/.test(location.origin)?location.origin:"https://app.mansard.nl")+"/portaal"+(preview?(_em?"?e="+encodeURIComponent(_em):""):"?__PORTAAL_LINK__");
   /* elke mail aan een klant: kaartje met directe link naar het klantportaal (zonder inloggen); bij de aankondiging met live volgen */
