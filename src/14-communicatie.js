@@ -92,7 +92,10 @@ function emailHtmlRuw({stijl,accent,kicker,titel,tekst,rich,meta,regels,totaal,t
   const e=x=>esc(x);
   let paras=String(tekst||"").split(/\n\s*\n/).map(p=>p.trim()).filter(Boolean);
   let sig=paras.findIndex(p=>/^(met vriendelijke groet|groet|vriendelijke groet)/i.test(p));if(sig<0)sig=paras.length;
-  const P=p=>`<p style="margin:0 0 18px;line-height:1.65;font-size:15px;color:#222">${e(p).replace(/\n/g,"<br>")}</p>`;
+  /* diensten ("• Glasbewassing"): een klein ticket-icoontje in plaats van het bolletje */
+  const ICD=(/^https?:/.test(location.origin)?location.origin:"https://app.mansard.nl")+"/mail/ic-dienst.png",dIc=`<img src="${ICD}" width="16" height="16" alt="" style="display:inline-block;vertical-align:-3px;width:16px;height:16px;border:0;margin-right:8px">`;
+  const bol=h=>String(h).replace(/(^|<br\s*\/?>|<p[^>]*>|<div[^>]*>|<li[^>]*>|\n)\s*(?:•|&bull;|&#8226;)\s*/g,"$1"+dIc);
+  const P=p=>`<p style="margin:0 0 18px;line-height:1.65;font-size:15px;color:#222">${bol(e(p).replace(/\n/g,"<br>"))}</p>`;
   const sigP=p=>{const[a,...b]=p.split("\n");return `<p style="margin:0;line-height:1.5;font-size:15px;color:#222">${e(a)}${b.length?`<br><b>${e(b.join(" "))}</b>`:""}</p>`};
   const richBlock=rich?`<div style="margin:0 0 18px;line-height:1.65;font-size:15px;color:#222">${rich}</div>`:"";
   let block="";
@@ -132,7 +135,7 @@ function emailHtmlRuw({stijl,accent,kicker,titel,tekst,rich,meta,regels,totaal,t
       <td valign="middle" style="padding:12px 8px 12px 6px;font-family:${sans}"><div style="font-family:${sans};font-size:14.5px;font-weight:600;color:#14181f;line-height:1.35">Volg ons op de kaart&nbsp; <span style="display:inline-block;vertical-align:2px;background:#e8f2ec;border-radius:999px;padding:2px 8px 2px 4px;font-size:9px;font-weight:600;letter-spacing:1.6px;color:#2e7a52;line-height:14px;white-space:nowrap"><img src="${e(MB+"live-stip.gif")}" width="12" height="12" alt="" style="display:inline-block;vertical-align:-2px;width:12px;height:12px;border:0">&nbsp;LIVE</span></div><div style="font-size:12.5px;color:${MU};line-height:1.4;margin-top:3px">Op de dag zelf ziet u in uw klantportaal hoe laat wij bij u zijn.</div></td>
       <td width="34" valign="middle" align="right" style="padding:12px 16px 12px 0;font-family:${sans};font-size:24px;line-height:1;color:#6b7280">&rsaquo;</td></tr></table></a>`}
   else if(portaal)block+=`<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:2px 0 22px;border-collapse:separate;background:${_mx(PA,"#ffffff",.93)};border:1px solid ${_mx(PA,"#ffffff",.9)};border-radius:14px"><tr><td style="padding:14px 14px 6px;font-family:${sans}">${rij(portaal,"ic-portaal.png","Uw klantportaal","Facturen, bezoeken en vragen. Direct ingelogd.")}</td></tr><tr><td style="padding:8px 16px 8px;font-family:${sans}">${pinfo}</td></tr></table>`;
-  const body=rich?richMetKnop(rich,block):paras.slice(0,sig).map(P).join("")+block+paras.slice(sig).map(sigP).join("");
+  const body=rich?richMetKnop(bol(rich),block):paras.slice(0,sig).map(P).join("")+block+paras.slice(sig).map(sigP).join("");
   const naam=s.naam||"Je bedrijf",lgSrc=logo?(preview?BLOB+logo:(LIVE?location.origin+BLOB+logo:(state.mailLogo&&state.mailLogo.id===logo?state.mailLogo.url:""))):"",lg=lgSrc?mailLogoImg(e(lgSrc),Math.min(80,Number(s.logoGrootte)||64),180,state.mailLogo&&state.mailLogo.id===logo?state.mailLogo.ratio:0):"";
   /* knop "Mijn klantportaal" onderaan elke klantmail (niet bij offertes): de server maakt er een persoonlijke inloglink van */
   const pkKnop=(bg,fg)=>portaal?`<a href="${e(portaal)}" style="display:inline-block;background:${bg};color:${fg};text-decoration:none;font-weight:600;font-size:14px;line-height:18px;padding:12px 20px;border-radius:999px;white-space:nowrap;font-family:${sans}">Mijn klantportaal&nbsp;&rarr;</a>`:"";
