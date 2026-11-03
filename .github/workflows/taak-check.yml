@@ -1,0 +1,24 @@
+name: Geplande taak nakijken (alleen lezen)
+on:
+  workflow_dispatch:
+    inputs:
+      fn: { description: "Functienaam", required: true, default: "geplandVerzenden" }
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > "$RUNNER_TEMP/sa.json"
+      - uses: google-github-actions/setup-gcloud@v2
+      - env:
+          P: ${{ vars.FIREBASE_PROJECT }}
+          FN: ${{ inputs.fn }}
+        run: |
+          gcloud auth activate-service-account --key-file="$RUNNER_TEMP/sa.json" >/dev/null 2>&1
+          n=$(echo "$FN" | tr 'A-Z' 'a-z')
+          echo "== scheduler jobs =="
+          gcloud scheduler jobs list --project "$P" --location europe-west4 --format="value(name,state,schedule,lastAttemptTime,status.code)" 2>&1 | grep -i "$n" | sed 's/^/JOB /'
+          gcloud scheduler jobs list --project "$P" --location europe-west1 --format="value(name,state,schedule,lastAttemptTime)" 2>&1 | grep -i "$n" | sed 's/^/JOB1 /'
+          echo "== logs (alles, 3 uur) =="
+          gcloud logging read "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"$n\" AND timestamp>=\"$(date -u -d '-3 hours' +%Y-%m-%dT%H:%M:%SZ)\"" --project "$P" --limit 30 --format="value(timestamp,severity,httpRequest.status,textPayload,jsonPayload.message)" 2>&1 | sed 's/^/LOG /' | cut -c1-400
+          echo "== functie =="
+          gcloud functions describe "$FN" --gen2 --region europe-west4 --project "$P" --format="value(state,updateTime)" 2>&1 | sed 's/^/FN /'
