@@ -1,6 +1,8 @@
 name: Dagherinnering nakijken (alleen lezen)
 on:
   workflow_dispatch:
+    inputs:
+      zoek: { description: "Adres", required: false, default: "" }
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -14,4 +16,5 @@ jobs:
       - env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
           P: ${{ vars.FIREBASE_PROJECT }}
+          ZOEK: ${{ inputs.zoek }}
         run: node tools/dag-check.js
