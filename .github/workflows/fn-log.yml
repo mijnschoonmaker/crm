@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       fn: { description: "Functienaam", required: true }
+      sev: { description: "Minimale ernst", required: false, default: "WARNING" }
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -12,7 +13,8 @@ jobs:
       - env:
           P: ${{ vars.FIREBASE_PROJECT }}
           FN: ${{ inputs.fn }}
+          SEV: ${{ inputs.sev }}
         run: |
           gcloud auth activate-service-account --key-file="$RUNNER_TEMP/sa.json" >/dev/null 2>&1
           n=$(echo "$FN" | tr 'A-Z' 'a-z')
-          gcloud logging read "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"$n\" AND severity>=WARNING AND timestamp>=\"$(date -u -d '-2 hours' +%Y-%m-%dT%H:%M:%SZ)\"" --project "$P" --limit 15 --format="value(timestamp,textPayload,jsonPayload.message)" 2>&1 | sed 's/-----BEGIN[^-]*-----.*-----END[^-]*-----/[sleutel verborgen]/g' | cut -c1-600 | while IFS= read -r l; do echo "::notice title=log::$l"; done
+          gcloud logging read "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"$n\" AND severity>=${SEV:-WARNING} AND timestamp>=\"$(date -u -d '-2 hours' +%Y-%m-%dT%H:%M:%SZ)\"" --project "$P" --limit 40 --format="value(timestamp,textPayload,jsonPayload.message)" 2>&1 | sed 's/-----BEGIN[^-]*-----.*-----END[^-]*-----/[sleutel verborgen]/g' | cut -c1-600 | while IFS= read -r l; do echo "::notice title=log::$l"; done
