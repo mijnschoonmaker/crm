@@ -3,7 +3,10 @@
    (rood = nu doen, oranje = vandaag, grijs = ter info), één tik om af te handelen of weg te zetten. Alleen echte gegevens. */
 const MK={weg:null,gehoord:null};
 const mkSet=(n,k)=>{if(MK[n])return MK[n];try{MK[n]=new Set(JSON.parse(localStorage.getItem(k)||"[]"))}catch(e){MK[n]=new Set()}return MK[n]};
-const mkWeg=()=>mkSet("weg","ms.mk.weg"),mkGehoord=()=>mkSet("gehoord","ms.mk.gehoord");
+/* "Gezien" geldt voor alle apparaten: bewaard in instellingen/meldkamer (MacBook, iPad en telefoon gelijk) */
+const mkWegSync=()=>{const w=[...MK.weg].slice(-600);state.meldkamer={...(state.meldkamer||{}),weg:w};try{const r=save("instellingen","meldkamer",{weg:w});if(r&&r.catch)r.catch(()=>{})}catch(e){}};
+const mkWeg=()=>{const s=mkSet("weg","ms.mk.weg");if(state.meldkamer){const srv=Array.isArray(state.meldkamer.weg)?state.meldkamer.weg:[],H=new Set(srv);srv.forEach(k=>s.add(k));
+    if(!MK.opgestuurd){MK.opgestuurd=1;if([...s].some(k=>!H.has(k)))setTimeout(mkWegSync,1500)}}return s},mkGehoord=()=>mkSet("gehoord","ms.mk.gehoord");
 const mkBewaar=(n,k)=>{try{localStorage.setItem(k,JSON.stringify([...MK[n]].slice(-600)))}catch(e){}};
 function mkStroom(){const L=[],grens=Date.now()-36*36e5,ts=x=>{const t=Date.parse(x||"");return t>0?t:0},nm=x=>cleanName(x||"")||"Klant";
   const add=(key,t,code,ic,titel,sub,act,knop)=>{const dag=/^\d{4}-\d{2}-\d{2}$/.test(String(t||"")),n=ts(dag?t+"T12:00:00":t);if(!n||n<grens)return;L.push({key,n,t,code,ic,titel,sub,act,knop,dag})};
@@ -34,7 +37,7 @@ function mkStroomHtml(){const L=mkStroom(),n={rood:0,oranje:0,grijs:0};L.forEach
       ${L.length>toon.length||MK.alles?`<button type="button" class="cc-link mk-meer" data-mkalles="1">${MK.alles?"Minder tonen":"Alle "+L.length+" tonen"}</button>`:""}`
       :`<p class="cc-leeg">Rustig. Er is de afgelopen 36 uur niets binnengekomen.</p>`}</section>`}
 document.addEventListener("click",e=>{const w=e.target.closest("[data-mkweg]"),a=e.target.closest("[data-mkalles]");if(!w&&!a)return;e.preventDefault();e.stopPropagation();
-  if(w){mkWeg().add(w.dataset.mkweg);mkBewaar("weg","ms.mk.weg");const li=w.closest(".mk-i");if(li){li.classList.add("weg");setTimeout(()=>render(),220)}else render()}
+  if(w){mkWeg().add(w.dataset.mkweg);mkBewaar("weg","ms.mk.weg");mkWegSync();const li=w.closest(".mk-i");if(li){li.classList.add("weg");setTimeout(()=>render(),220)}else render()}
   else{MK.alles=!MK.alles;render()}},true);
 
 /* status van de bus (kleur zoals op de meldkamer) en uitloop t.o.v. de planning */

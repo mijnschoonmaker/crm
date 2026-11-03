@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="0558fb882dd9"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="195bfa619f44"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -5466,7 +5466,7 @@ aside .nk-btn:hover,aside .nk-more:hover{background:none!important;color:#0d121b
 .utv-h{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}.utv-h svg{width:14px;height:14px}
 .utv ul{margin:6px 0 0;padding:0 0 0 18px}.utv li{font-size:14px;line-height:1.5;color:var(--ink,#14181f)}
 /* scherpe kaarttegels (retina): halve tegels overlappen een fractie, anders zie je witte naden */
-.rt-hd .leaflet-tile{width:128.6px!important;height:128.6px!important;outline:0}
+/* tegels 1px laten overlappen (gewoon over elkaar, niet optellen): geen lichte naden, ook niet bij 90% zoom of op de iPad */.leaflet-container img.leaflet-tile{width:257px!important;height:257px!important;outline:0;max-width:none!important;mix-blend-mode:normal!important}.leaflet-container.sat,.sat .leaflet-container{background:#34402f!important}
 /* ---------- meldkamer: live binnenkomend ---------- */
 .mk .cc-ch{align-items:center}.mk-tel{display:flex;gap:6px}
 .mk-c{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px;background:#f4f5f6;color:#3a4250;font-variant-numeric:tabular-nums}
@@ -7538,7 +7538,7 @@ const COLS=["klanten","beurten","facturen","routes","instellingen","berichten","
 const mem={};COLS.forEach(c=>mem[c]=new Map());
 function apply(col,docs){
   RAW[col]=docs;tikWis();
-  if(col==="instellingen"){const g=id=>{const d=docs.find(x=>x.id===id);return d?strip(d):{}};state.settings=g("bedrijf");state.sjablonen=g("sjablonen");state.prijzen=g("prijzen");state.aangiftes=g("aangiftes");state.ramen=g("ramen");state.planmails=g("planmails");state.boekhouder=g("boekhouder");state.galerij=g("galerij");state.uitv=g("uitvoering");state.meetleer=g("meetleer");state.ccStatus=g("control");if(typeof U!=="undefined"&&!Udirty)U=null}
+  if(col==="instellingen"){const g=id=>{const d=docs.find(x=>x.id===id);return d?strip(d):{}};state.settings=g("bedrijf");state.sjablonen=g("sjablonen");state.prijzen=g("prijzen");state.aangiftes=g("aangiftes");state.ramen=g("ramen");state.planmails=g("planmails");state.meldkamer=g("meldkamer");state.boekhouder=g("boekhouder");state.galerij=g("galerij");state.uitv=g("uitvoering");state.meetleer=g("meetleer");state.ccStatus=g("control");if(typeof U!=="undefined"&&!Udirty)U=null}
   if(col==="instellingen"&&!state._slotInit&&docs.length){state._slotInit=1;const b=docs.find(x=>x.id==="bedrijf");if(b){state.slot=[10,15].includes(Number(b.slotStd))?Number(b.slotStd):10;if(b.ultra)state.rowH=.7;else if(b.compact)state.rowH=.85}}
   else if(col==="routes"){state.routes={};docs.forEach(d=>state.routes[d.id]=d)}
   else state[col]=docs;
@@ -18918,7 +18918,10 @@ SETEXTRA.meetlint=(c,s)=>{const L=meetSoorten();
    (rood = nu doen, oranje = vandaag, grijs = ter info), één tik om af te handelen of weg te zetten. Alleen echte gegevens. */
 const MK={weg:null,gehoord:null};
 const mkSet=(n,k)=>{if(MK[n])return MK[n];try{MK[n]=new Set(JSON.parse(localStorage.getItem(k)||"[]"))}catch(e){MK[n]=new Set()}return MK[n]};
-const mkWeg=()=>mkSet("weg","ms.mk.weg"),mkGehoord=()=>mkSet("gehoord","ms.mk.gehoord");
+/* "Gezien" geldt voor alle apparaten: bewaard in instellingen/meldkamer (MacBook, iPad en telefoon gelijk) */
+const mkWegSync=()=>{const w=[...MK.weg].slice(-600);state.meldkamer={...(state.meldkamer||{}),weg:w};try{const r=save("instellingen","meldkamer",{weg:w});if(r&&r.catch)r.catch(()=>{})}catch(e){}};
+const mkWeg=()=>{const s=mkSet("weg","ms.mk.weg");if(state.meldkamer){const srv=Array.isArray(state.meldkamer.weg)?state.meldkamer.weg:[],H=new Set(srv);srv.forEach(k=>s.add(k));
+    if(!MK.opgestuurd){MK.opgestuurd=1;if([...s].some(k=>!H.has(k)))setTimeout(mkWegSync,1500)}}return s},mkGehoord=()=>mkSet("gehoord","ms.mk.gehoord");
 const mkBewaar=(n,k)=>{try{localStorage.setItem(k,JSON.stringify([...MK[n]].slice(-600)))}catch(e){}};
 function mkStroom(){const L=[],grens=Date.now()-36*36e5,ts=x=>{const t=Date.parse(x||"");return t>0?t:0},nm=x=>cleanName(x||"")||"Klant";
   const add=(key,t,code,ic,titel,sub,act,knop)=>{const dag=/^\d{4}-\d{2}-\d{2}$/.test(String(t||"")),n=ts(dag?t+"T12:00:00":t);if(!n||n<grens)return;L.push({key,n,t,code,ic,titel,sub,act,knop,dag})};
@@ -18949,7 +18952,7 @@ function mkStroomHtml(){const L=mkStroom(),n={rood:0,oranje:0,grijs:0};L.forEach
       ${L.length>toon.length||MK.alles?`<button type="button" class="cc-link mk-meer" data-mkalles="1">${MK.alles?"Minder tonen":"Alle "+L.length+" tonen"}</button>`:""}`
       :`<p class="cc-leeg">Rustig. Er is de afgelopen 36 uur niets binnengekomen.</p>`}</section>`}
 document.addEventListener("click",e=>{const w=e.target.closest("[data-mkweg]"),a=e.target.closest("[data-mkalles]");if(!w&&!a)return;e.preventDefault();e.stopPropagation();
-  if(w){mkWeg().add(w.dataset.mkweg);mkBewaar("weg","ms.mk.weg");const li=w.closest(".mk-i");if(li){li.classList.add("weg");setTimeout(()=>render(),220)}else render()}
+  if(w){mkWeg().add(w.dataset.mkweg);mkBewaar("weg","ms.mk.weg");mkWegSync();const li=w.closest(".mk-i");if(li){li.classList.add("weg");setTimeout(()=>render(),220)}else render()}
   else{MK.alles=!MK.alles;render()}},true);
 
 /* status van de bus (kleur zoals op de meldkamer) en uitloop t.o.v. de planning */
