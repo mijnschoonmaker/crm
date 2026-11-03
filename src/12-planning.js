@@ -126,7 +126,6 @@ function vPlanning(){
     ${state.pstat&&state.pstat!=="alle"?`<button type="button" class="pl-chip" data-act="pstat" data-v="alle"><span class="sdot ${({gepland:"plan",bezig:"busy",afgerond:"ok"})[state.pstat]}"></span>Alleen ${({gepland:"gepland",bezig:"bezig",afgerond:"afgerond"})[state.pstat]}${I.x}</button>`:""}
     ${tglChip(state.achter,"achter","Alleen achterstallig",I.alert)}${tglChip(state.pselMode,"pselmode","Selecteren",I.checksq||I.check)}
     <button type="button" class="pl-kaart" data-act="pkaart" aria-pressed="${!!state.pkaart}" title="Kaartplannen">${I.map}<span>Kaartplannen</span></button>
-    <button type="button" class="pl-opt pl-wp" data-act="weekplan" data-d="${iso(state.week)}" title="Hele week in één keer plannen">${I.wand}<span>Plan de week</span></button>
     <button type="button" class="primary pl-opt" data-act="planmail" data-d="${d0}" title="Klanten laten weten wanneer je komt">${I.send}<span>Planningsmail</span></button>
     <div class="pl-meer${state.pmeer?" open":""}"><button type="button" class="iconbtn pl-mb" data-act="pmeer" aria-expanded="${!!state.pmeer}" aria-label="Meer acties" title="Meer">${I.dots||"⋯"}</button>
       <div class="pl-menu" role="menu">
