@@ -4730,3 +4730,7 @@ aside .nk-btn:hover,aside .nk-more:hover{background:none!important;color:#0d121b
 @media (prefers-reduced-motion:reduce){aside .nk-ic::after{animation:none}}
 /* e-mail opmaak: tabs op één regel, breedte naar tekst */
 .ms-tabs{flex-wrap:nowrap;overflow-x:auto}.ms-tabs button{white-space:nowrap;flex:1 1 auto;letter-spacing:.08em!important;padding-left:10px!important;padding-right:10px!important}
+/* trek om te verversen */
+#ptrIc{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:50%;z-index:2147483000;width:40px;height:40px;border-radius:50%;background:#fff;color:#252c3c;display:grid;place-items:center;box-shadow:0 6px 18px -6px rgb(13 18 27 / .35),0 0 0 1px rgb(13 18 27 / .06);opacity:0;transform:translate(-50%,-56px);pointer-events:none}
+#ptrIc svg{width:20px;height:20px}#ptrIc.klaar{background:#252c3c;color:#fff}
+#ptrIc.draait svg{animation:ptrDraai .8s linear infinite}@keyframes ptrDraai{to{transform:rotate(360deg)}}
