@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="e0f71b58908c"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="8fe68b06d443"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -5437,6 +5437,22 @@ html body:not(#zz) .st-meer-r .st-rb i{background:linear-gradient(90deg,#3e4a64,
 .dag-auto.aan{background:#f1fbf5;border-color:#cfe9d9}.dag-auto.aan b{color:#1f6b45;font-size:14px}
 .dag-auto.uit{background:#fbf6ea;border-color:#ecdcb4;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between}.dag-auto.uit span{font-size:13px}
 .dag-auto small{color:var(--muted)}.dag-auto .dag-zonder{color:#8a5a12}.dag-auto .dag-let{font-size:11.5px}
+
+/* nieuwe-aanmelding kaart in de zijbalk: Mansard-navy met goud (zelfde stijl als de website) */
+aside .nk-card{background:radial-gradient(120% 90% at 100% 0%,rgb(201 184 150 / .28) 0%,rgb(201 184 150 / 0) 55%),linear-gradient(155deg,#2b3550 0%,#1a2133 55%,#0f141f 100%)!important;
+  border:1px solid rgb(255 255 255 / .08);box-shadow:0 18px 34px -18px rgb(13 18 27 / .85),0 1px 0 rgb(255 255 255 / .10) inset!important;padding:15px 15px 13px!important}
+aside .nk-card::after{background:linear-gradient(90deg,transparent,rgb(255 255 255 / .12),transparent)!important}
+aside .nk-ic{background:linear-gradient(150deg,#d6b77a,#9c8a6c)!important;box-shadow:0 4px 10px -4px rgb(201 184 150 / .7)!important;position:relative}
+aside .nk-ic::after{content:"";position:absolute;top:-3px;right:-3px;width:9px;height:9px;border-radius:50%;background:#34d399;box-shadow:0 0 0 2px #1d2436;animation:nkStip 1.8s ease-out infinite}
+@keyframes nkStip{0%{box-shadow:0 0 0 2px #1d2436,0 0 0 2px rgb(52 211 153 / .6)}100%{box-shadow:0 0 0 2px #1d2436,0 0 0 9px rgb(52 211 153 / 0)}}
+aside .nk-kick{color:#c9b896!important;letter-spacing:.09em!important;font-size:10.5px!important}
+aside .nk-naam{color:#fff!important;font-size:17px!important;margin-top:11px!important}
+aside .nk-card .nk-sub{color:rgb(255 255 255 / .62)!important;font-size:12.5px!important;margin-top:3px!important}
+aside .nk-btn{background:linear-gradient(180deg,#fff 0%,#ece6da 100%)!important;color:#0d121b!important;box-shadow:0 6px 16px -8px rgb(201 184 150 / .8)!important}
+aside .nk-btn svg{stroke:#0d121b!important}
+aside .nk-more{background:rgb(255 255 255 / .07)!important;color:#fff!important;box-shadow:0 0 0 1px rgb(255 255 255 / .16) inset}
+aside .nk-more:hover{background:rgb(255 255 255 / .13)!important}
+@media (prefers-reduced-motion:reduce){aside .nk-ic::after{animation:none}}
 
 </style>
 <style id="mansardThema">
