@@ -9953,7 +9953,7 @@ function emailHtmlRuw({stijl,accent,kicker,titel,tekst,rich,meta,regels,totaal,t
   let sig=paras.findIndex(p=>/^(met vriendelijke groet|groet|vriendelijke groet)/i.test(p));if(sig<0)sig=paras.length;
   /* diensten ("• Glasbewassing"): een klein ticket-icoontje in plaats van het bolletje */
   const MAILB0=(/^https?:/.test(location.origin)?location.origin:"https://app.mansard.nl")+"/mail/",ICD=MAILB0+"ic-dienst.png",dIc=`<img src="${ICD}" width="16" height="16" alt="" style="display:inline-block;vertical-align:-3px;width:16px;height:16px;border:0;margin-right:8px">`;
-  const bol=h=>String(h).replace(/(^|<br\s*\/?>|<p[^>]*>|<div[^>]*>|<li[^>]*>|\n)((?:\s|&nbsp;|&#160;|<(?:span|b|strong|em|i|u|font)\b[^>]*>)*)(?:\u2022|&bull;|&#8226;|&#x2022;)(?:\s|&nbsp;|&#160;)*/gi,"$1$2"+dIc);
+  const bol=h=>String(h).replace(/(^|<br\s*\/?>|<p[^>]*>|<div[^>]*>|<li[^>]*>|\n)((?:\s|&nbsp;|&#160;|<\/?(?:span|b|strong|em|i|u|font)\b[^>]*>)*)(?:\u2022|&bull;|&#8226;|&#x2022;)(?:\s|&nbsp;|&#160;)*/gi,"$1$2"+dIc);
   /* "Datum: … / Tijd: … / Adres: … / Dienst: …" (2 of meer regels): als rustige kaart met icoontjes */
   const GR=/^\s*([A-Za-z\u00C0-\u00FF][A-Za-z\u00C0-\u00FF .\/]{1,18}?)\s*:\s*(\S.*)$/;
   const gIc=l=>{l=l.toLowerCase();return /datum|dag|wanneer/.test(l)?"ic-datum.png":/tijd|uur/.test(l)?"ic-tijd.png":/adres|locatie|waar/.test(l)?"ic-adres.png":/dienst|werk|wat/.test(l)?"ic-dienst.png":""};
