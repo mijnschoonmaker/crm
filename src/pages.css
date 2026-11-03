@@ -4738,3 +4738,5 @@ aside .nk-btn:hover,aside .nk-more:hover{background:none!important;color:#0d121b
 .utv{margin:8px 0 2px;padding:10px 12px;border-radius:12px;background:var(--surface-2,#f6f7f8);border:1px solid var(--line)}
 .utv-h{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}.utv-h svg{width:14px;height:14px}
 .utv ul{margin:6px 0 0;padding:0 0 0 18px}.utv li{font-size:14px;line-height:1.5;color:var(--ink,#14181f)}
+/* scherpe kaarttegels (retina): halve tegels overlappen een fractie, anders zie je witte naden */
+.rt-hd .leaflet-tile{width:128.6px!important;height:128.6px!important;outline:0}

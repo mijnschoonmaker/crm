@@ -96,7 +96,7 @@ state.rvSat=(()=>{try{return localStorage.getItem("ms.rvsat2")!=="0"}catch(e){re
 function rvOndergrond(el,mp){const L=window.L,m=mp||el._map;(el._tegels||[]).forEach(t=>m.removeLayer(t));
   const pd="https://service.pdok.nl/",o={maxZoom:20,maxNativeZoom:19},
     /* scherp op telefoon/iPad (retina): tegels van één zoomniveau dieper, dus woningen haarscherp */
-    hr=(window.devicePixelRatio||1)>1.4?{detectRetina:true}:{};
+    hr=(window.devicePixelRatio||1)>1.4?{detectRetina:true,className:"rt-hd"}:{};
   el._tegels=state.rvSat?[
     L.tileLayer(pd+"hwh/luchtfotorgb/wmts/v1_0/Actueel_orthoHR/EPSG:3857/{z}/{x}/{y}.jpeg",{...o,...hr}),
     L.tileLayer(pd+"bzk/luchtfotolabels/wmts/v1_0/lufolabels/EPSG:3857/{z}/{x}/{y}.png",o)

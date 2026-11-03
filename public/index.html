@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="bab1052b0834"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="10941eb1b095"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -5465,6 +5465,8 @@ aside .nk-btn:hover,aside .nk-more:hover{background:none!important;color:#0d121b
 .utv{margin:8px 0 2px;padding:10px 12px;border-radius:12px;background:var(--surface-2,#f6f7f8);border:1px solid var(--line)}
 .utv-h{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}.utv-h svg{width:14px;height:14px}
 .utv ul{margin:6px 0 0;padding:0 0 0 18px}.utv li{font-size:14px;line-height:1.5;color:var(--ink,#14181f)}
+/* scherpe kaarttegels (retina): halve tegels overlappen een fractie, anders zie je witte naden */
+.rt-hd .leaflet-tile{width:128.6px!important;height:128.6px!important;outline:0}
 
 </style>
 <style id="mansardThema">
@@ -9257,7 +9259,7 @@ state.rvSat=(()=>{try{return localStorage.getItem("ms.rvsat2")!=="0"}catch(e){re
 function rvOndergrond(el,mp){const L=window.L,m=mp||el._map;(el._tegels||[]).forEach(t=>m.removeLayer(t));
   const pd="https://service.pdok.nl/",o={maxZoom:20,maxNativeZoom:19},
     /* scherp op telefoon/iPad (retina): tegels van één zoomniveau dieper, dus woningen haarscherp */
-    hr=(window.devicePixelRatio||1)>1.4?{detectRetina:true}:{};
+    hr=(window.devicePixelRatio||1)>1.4?{detectRetina:true,className:"rt-hd"}:{};
   el._tegels=state.rvSat?[
     L.tileLayer(pd+"hwh/luchtfotorgb/wmts/v1_0/Actueel_orthoHR/EPSG:3857/{z}/{x}/{y}.jpeg",{...o,...hr}),
     L.tileLayer(pd+"bzk/luchtfotolabels/wmts/v1_0/lufolabels/EPSG:3857/{z}/{x}/{y}.png",o)
@@ -19608,7 +19610,7 @@ function uitTeVoeren(k,day){const d=day||iso(today()),L=[],nm=k.dienst||HD();
     (typeof extraDue==="function"?extraDue(k,d):[]).filter(o=>o.actief!==false).forEach(o=>{const its=(o.items||[]).filter(x=>Number(x.aantal)>0);
       if(its.length)its.forEach(x=>L.push((o.dienst||"Dienst")+" - "+x.naam+" ("+x.aantal+" "+(typeof eenhKort==="function"?eenhKort(x.eenheid):"st")+")"));else L.push(o.dienst||"Dienst")})}catch(e){console.error("uitTeVoeren",e)}
   return L}
-function uitTeVoerenHtml(k,day){const L=uitTeVoeren(k,day);if(!L.length)return"";
+function uitTeVoerenHtml(k,day){if(typeof GLAS==="function"&&!GLAS())return"";const L=uitTeVoeren(k,day);if(!L.length)return"";
   return `<div class="utv"><span class="utv-h">${I.ticket||""}Uit te voeren</span><ul>${L.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`}
 
 /* ---------- Beveiliging & back-ups (alleen online CRM) ----------

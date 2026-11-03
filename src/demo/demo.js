@@ -4,7 +4,7 @@
    Opnieuw beginnen: /demo/?opnieuw */
 /* vak van de demo: alleen via de link (?branche=…); het klantportaal in de demo volgt het laatst geopende vak */
 const DEMO_BR=(()=>{const b=brUitUrl()||"glazenwasser";try{if(b==="glazenwasser")localStorage.removeItem("ms.demo.branche");else localStorage.setItem("ms.demo.branche",b)}catch(e){}return b})();
-const DEMO_KEY="ms.demo.v7"+(DEMO_BR==="glazenwasser"?"":"."+DEMO_BR);
+const DEMO_KEY="ms.demo.v8"+(DEMO_BR==="glazenwasser"?"":"."+DEMO_BR);
 /* Westerkwartier: plaats, postcode, lat, lng, gewicht (aantal klanten), wie rijdt er (M = Mark, S = Sem) */
 const DEMO_PLAATS=[["Zuidhorn","9801",53.2464,6.4060,22,"M"],["Noordhorn","9804",53.2620,6.3920,7,"M"],["Aduard","9831",53.2560,6.4590,8,"M"],["Den Horn","9832",53.2300,6.4430,4,"M"],["Niekerk","9822",53.2220,6.3480,4,"M"],["Oldekerk","9821",53.2230,6.3230,4,"M"],["Grijpskerk","9843",53.2630,6.3060,6,"M"],["Kommerzijl","9845",53.2840,6.3220,2,"M"],
   ["Grootegast","9861",53.2140,6.2720,10,"S"],["Lutjegast","9866",53.2350,6.2550,3,"S"],["Doezum","9863",53.2080,6.2300,2,"S"],["Sebaldeburen","9862",53.2030,6.2550,2,"S"],["Leek","9351",53.1620,6.3770,18,"S"],["Tolbert","9356",53.1640,6.3590,6,"S"],["Midwolde","9354",53.1800,6.3930,3,"S"],["Enumatil","9355",53.1810,6.3660,2,"S"],["Marum","9363",53.1440,6.2650,9,"S"],["Nuis","9364",53.1600,6.2900,2,"S"],["Niebert","9365",53.1630,6.3050,2,"S"],["Opende","9865",53.1660,6.2050,4,"S"]];
@@ -266,7 +266,10 @@ function demoVandaag(c){const ti=iso(today()),nu=new Date(),nm=nu.getHours()*60+
 
 /* demo voor een ander vak: dezelfde klanten en route, met de diensten en woorden van dat vak (glazenwassers: niets aan veranderd) */
 const DEMO_BRNAAM={schoorsteenveger:["Voorbeeld Schoorsteenvegerij","voorbeeldschoorsteenvegerij.nl"],schilder:["Voorbeeld Schildersbedrijf","voorbeeldschildersbedrijf.nl"],hovenier:["Voorbeeld Hoveniers","voorbeeldhoveniers.nl"],timmerman:["Voorbeeld Timmerwerken","voorbeeldtimmerwerken.nl"],stucadoor:["Voorbeeld Stucadoors","voorbeeldstucadoors.nl"]};
-function demoBranche(d,br){if(!br||br==="glazenwasser")return d;const c=d.cols||d;
+/* glazenwassers-demo: woningen krijgen aantallen per verdieping, zodat "Uit te voeren" op de stopkaart te zien is */
+function demoRamen(d){const c=d.cols||d;(c.klanten||[]).forEach((k,i)=>{if(k.ramenRegel||k.soort==="vve")return;const h=[...String(k.id)].reduce((a,ch)=>a+ch.charCodeAt(0),0)+i;
+  k.ramenRegel={f:[8+h%14,h%3?3+h%6:0,0,0],sp:h%4===0?{tuimel:1+h%4}:{}}})}
+function demoBranche(d,br){if(!br||br==="glazenwasser"){demoRamen(d);return d}const c=d.cols||d;
   const G=brDiensten(br).map(g=>g.naam),H=G[0],[bnaam,dom]=DEMO_BRNAAM[br];
   const jaar=br!=="hovenier",rnd=demoRnd(4242),pick=a=>a[Math.floor(rnd()*a.length)];
   const vervang=v=>typeof v!=="string"?v:v.replace(/Glasbewassing binnen en buiten|Glasbewassing binnen|Glasbewassing( (etalage|showroom|kantoor|school|hotel|gevel|buitenzijde|trappenhal)[^,·\d(]*)?|Glasbewassing/g,(m)=>/binnen/i.test(m)&&G[1]?G[1]:H)

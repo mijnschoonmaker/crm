@@ -9,5 +9,5 @@ function uitTeVoeren(k,day){const d=day||iso(today()),L=[],nm=k.dienst||HD();
     (typeof extraDue==="function"?extraDue(k,d):[]).filter(o=>o.actief!==false).forEach(o=>{const its=(o.items||[]).filter(x=>Number(x.aantal)>0);
       if(its.length)its.forEach(x=>L.push((o.dienst||"Dienst")+" - "+x.naam+" ("+x.aantal+" "+(typeof eenhKort==="function"?eenhKort(x.eenheid):"st")+")"));else L.push(o.dienst||"Dienst")})}catch(e){console.error("uitTeVoeren",e)}
   return L}
-function uitTeVoerenHtml(k,day){const L=uitTeVoeren(k,day);if(!L.length)return"";
+function uitTeVoerenHtml(k,day){if(typeof GLAS==="function"&&!GLAS())return"";const L=uitTeVoeren(k,day);if(!L.length)return"";
   return `<div class="utv"><span class="utv-h">${I.ticket||""}Uit te voeren</span><ul>${L.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`}
