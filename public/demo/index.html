@@ -5050,6 +5050,36 @@ aside .nk-btn:hover,aside .nk-more:hover{background:none!important;color:#0d121b
 .utv ul{margin:6px 0 0;padding:0 0 0 18px}.utv li{font-size:14px;line-height:1.5;color:var(--ink,#14181f)}
 /* scherpe kaarttegels (retina): halve tegels overlappen een fractie, anders zie je witte naden */
 .rt-hd .leaflet-tile{width:128.6px!important;height:128.6px!important;outline:0}
+/* ---------- meldkamer: live binnenkomend ---------- */
+.mk .cc-ch{align-items:center}.mk-tel{display:flex;gap:6px}
+.mk-c{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px;background:#f4f5f6;color:#3a4250;font-variant-numeric:tabular-nums}
+.mk-c i{width:8px;height:8px;border-radius:50%}.mk-c.rood i,.mk-code{background:#d6453d}.mk-c.oranje i,.mk-i.oranje .mk-code{background:#e2932b}.mk-c.grijs i{background:#9aa1ad}
+.mk-l{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.mk-i{position:relative;display:grid;grid-template-columns:34px minmax(0,1fr) auto;align-items:center;gap:10px;padding:9px 10px 9px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);transition:opacity .2s,transform .2s;overflow:hidden}
+.mk-i::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#c9ced6}
+.mk-i.rood{border-color:#f1c9c6;background:#fff7f6}.mk-i.rood::before{background:#d6453d}.mk-i.oranje{border-color:#f0dcb8;background:#fffaf1}.mk-i.oranje::before{background:#e2932b}
+.mk-i.weg{opacity:0;transform:translateX(20px)}
+.mk-i.flits{animation:mkFlits 1.2s ease-in-out 3}@keyframes mkFlits{50%{box-shadow:0 0 0 4px rgb(214 69 61 / .25)}}
+.mk-ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:#f1f2f4}.mk-ic svg{width:17px;height:17px}
+.mk-t{all:unset;cursor:pointer;min-width:0;display:block}
+.mk-r1{display:flex;align-items:center;gap:6px;min-width:0}.mk-r1 b{font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:0 1 auto;min-width:0}
+.mk-r1 time{margin-left:auto;padding-left:6px;font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.mk-code{flex:none;font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#fff;padding:2px 6px;border-radius:5px;white-space:nowrap}
+.mk-t small{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.mk-k{display:flex;gap:6px;align-items:center}
+.mk-b{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:6px 10px;border-radius:9px;background:#252c3c;color:#fff;white-space:nowrap}.mk-b svg{width:13px;height:13px}
+.mk-x{all:unset;cursor:pointer;width:28px;height:28px;border-radius:8px;display:grid;place-items:center;border:1px solid var(--line);color:var(--muted);background:#fff}.mk-x svg{width:13px;height:13px}.mk-x:hover{color:#1f6b45;border-color:#cfe9d9}
+.mk-meer{margin-top:8px}
+/* status bus + uitloop boven de kaart */
+.mk-bus{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:10px 0 8px;font-size:13.5px}
+.mk-bd{width:14px;height:14px;border-radius:50%;display:grid;place-items:center}.mk-bd i{width:10px;height:10px;border-radius:50%}
+.mk-bus.groen .mk-bd i{background:#22a06b}.mk-bus.blauw .mk-bd i{background:#2f6fe0;animation:mkPuls 1.6s ease-out infinite}.mk-bus.rood .mk-bd i{background:#d6453d;animation:mkPuls 1.6s ease-out infinite}
+@keyframes mkPuls{0%{box-shadow:0 0 0 0 rgb(47 111 224 / .45)}100%{box-shadow:0 0 0 8px rgb(47 111 224 / 0)}}
+.mk-leg{margin-left:auto;display:flex;gap:10px;font-size:11.5px;color:var(--muted)}.mk-leg i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}.mk-leg i.groen{background:#22a06b}.mk-leg i.blauw{background:#2f6fe0}.mk-leg i.rood{background:#d6453d}
+.mk-laat{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:0 0 10px;padding:9px 12px;border-radius:12px;background:#fff4e5;border:1px solid #f0dcb8;font-size:13.5px}.mk-laat>svg{width:16px;height:16px;color:#b8701a}.mk-laat .mk-b{margin-left:auto}
+.leaflet-marker-icon.mk-groen{outline:none}.leaflet-marker-icon.mk-groen::after,.leaflet-marker-icon.mk-blauw::after,.leaflet-marker-icon.mk-rood::after{content:"";position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;border:3px solid;pointer-events:none}
+.leaflet-marker-icon.mk-groen::after{border-color:#22a06b}.leaflet-marker-icon.mk-blauw::after{border-color:#2f6fe0}.leaflet-marker-icon.mk-rood::after{border-color:#d6453d}
+.mk-r1 b{flex:1 1 auto}@media(max-width:560px){.mk-code{display:none}.mk-b{padding:6px 9px}}
 
 </style>
 <style id="mansardThema">
@@ -17309,7 +17339,7 @@ function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActivite
     :`<p class="cc-leeg">Nog geen activiteit in de afgelopen 30 dagen.</p>`;
   const prf=(l,v,sub)=>`<div class="cc-pf"><small>${l}</small><b>${v==null?"—":v}</b><em>${sub}</em></div>`;
   const heeftOmzet=R.weken.some(w=>w.v>0);
-  setTimeout(()=>{ccKaart();ccWeerLaad();ccZoekTeken();ccLiveCheck()},30);clearTimeout(CC.gzT);CC.gzT=setTimeout(()=>{ccMarkeerGezien();document.querySelectorAll('.cc-mi.nw').forEach(e=>e.classList.add('gz'))},8000);
+  setTimeout(()=>{ccKaart();setTimeout(mkBusKleur,400);ccWeerLaad();ccZoekTeken();ccLiveCheck()},30);clearTimeout(CC.gzT);CC.gzT=setTimeout(()=>{ccMarkeerGezien();document.querySelectorAll('.cc-mi.nw').forEach(e=>e.classList.add('gz'))},8000);
   return `<div class="cc">
   <div class="cc-head"><div><h1>Overzicht</h1><p>Wie waar is, wat er speelt en wat je moet doen.</p></div>
     <div class="cc-tools"><div class="cc-zoek"><span>${I.search}</span><input id="ccQ" type="search" autocomplete="off" placeholder="Zoek klant, adres, offerte, factuur…" value="${esc(CC.q)}" aria-label="Zoeken"><kbd>${/Mac|iP/.test(navigator.platform||"")?"⌘":"Ctrl"} K</kbd><div class="cc-zr" id="ccZr" hidden></div></div>
@@ -17319,7 +17349,7 @@ function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActivite
   <div class="cc-ops">
     <section class="cc-card cc-live"><div class="cc-ch"><div><b>${I.map}Live · vandaag</b><small>${esc(longD(t))}</small></div><button type="button" class="cc-link" data-cc="tab:vandaag">Naar Vandaag${I.right||""}</button></div>
       <div class="cc-dagstat">${[[typeof plSel==="function"&&plSel()?"Adressen "+esc(plSel()):"Adressen",P.length],["Klaar",klaar],["Nog te gaan",nu],["Verdiend vandaag",eur0(D.omzet)],["Verwacht klaar",D.eind||"—"]].map(([l,v])=>`<div><small>${l}</small><b>${v}</b></div>`).join("")}</div>
-      <div class="cc-map"><div class="rv-map" id="rvMap"><div class="rv-map-l">Kaart laden…</div></div></div>
+      ${mkStatusHtml()}<div class="cc-map"><div class="rv-map" id="rvMap"><div class="rv-map-l">Kaart laden…</div></div></div>
       <div class="cc-leg"><span><i class="af"></i>Afgerond</span><span><i class="nu"></i>Volgende</span><span><i></i>Gepland</span><span><i class="bus"></i>Bus (live)</span>${D.volgende?`<span class="cc-vlg">Volgende: <b>${esc(D.volgende)}</b></span>`:""}</div></section>
     <section class="cc-adv" id="ccAdv"><div class="cc-ah"><span class="cc-aic">${I.bell}${S_.length?"<i></i>":""}</span><div><small>Mansard adviseert</small><b>Meldingen</b></div>${S_.length?`<span class="cc-stp ${S_.some(m=>m.p==="kritiek")?"rood":"let"}"><i></i>${S_.length} open</span>`:`<span class="cc-stp ok">${I.check}Alles afgehandeld</span>`}</div>${S_.length?`<p class="cc-ahh">Werk ze van boven naar beneden af.</p>`:""}<div class="cc-q${S_.length>3?"":" leeg"}">${sig}</div></section>
   </div>
@@ -17329,7 +17359,7 @@ function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActivite
     <div class="cc-side">
       <section class="cc-card"><div class="cc-ch"><div><b>${I.spark}Snelle acties</b></div></div>
         <div class="cc-qa">${[["klanten","Nieuwe klant","nieuw:klant","N"],["offertes","Offerte maken","nieuw:offerte","O"],["facturen","Factuur maken","nieuw:factuur","F"],["phone","Klant bellen","kies:bel","B"],["wa","WhatsApp","kies:wa","W"],["planning","Planning openen","tab:planning","P"]].map(([ic,l,a,kb])=>`<button type="button" data-cc="${a}">${I[ic]}<span>${l}</span><kbd>${kb}</kbd></button>`).join("")}</div></section>
-      <section class="cc-card"><div class="cc-ch"><div><b>${I.bell}Recente activiteiten</b><small>Afgelopen 30 dagen</small></div></div>${act}</section>
+      ${mkStroomHtml()}
     </div>
   </div>
 
@@ -18465,6 +18495,63 @@ SETEXTRA.meetlint=(c,s)=>{const L=meetSoorten();
       ${L.filter(x=>x.eenheid!=="st").map(x=>{const b=meetBron(x),opts=Object.entries(MEET_BRON).filter(([k])=>(x.eenheid==="m2")===(k==="gevel"||k==="dak"));return `<label class="fld"><span class="lab">${esc(x.kort)} <small>(${x.eenheid==="m2"?"m²":"m"})</small></span><select class="in" data-mbron="${esc(x.id)}"><option value=""${b?"":" selected"}>Niet uit het 3D-model</option>${opts.map(([k,t])=>`<option value="${k}"${b===k?" selected":""}>${esc(t)}</option>`).join("")}</select></label>`}).join("")}`:""}
     <small class="help">${L.length?"Te meten: "+L.map(x=>esc(x.kort)+" ("+(x.eenheid==="m2"?"m²":x.eenheid==="st"?"per stuk":"m")+")").join(", ")+". Dit volgt uit Uitvoering › Diensten: alles met de eenheid per strekkende meter of per m², en dakkapellen per stuk.":"Nog geen diensten per strekkende meter of per m². Zet de eenheid bij Uitvoering › Diensten."}</small>`,{wide:false});
   bindSave(()=>{const m={...(S().meetBron||{})};form.querySelectorAll("[data-mbron]").forEach(el=>m[el.dataset.mbron]=el.value);return{meetBron:m}})};
+
+/* ---------- MELDKAMER: live binnenkomend + status van de bus + uitloop ----------
+   Net als op een 112-meldkamer: één stroom van wat er nu binnenkomt, met een urgentiecode
+   (rood = nu doen, oranje = vandaag, grijs = ter info), één tik om af te handelen of weg te zetten. Alleen echte gegevens. */
+const MK={weg:null,gehoord:null};
+const mkSet=(n,k)=>{if(MK[n])return MK[n];try{MK[n]=new Set(JSON.parse(localStorage.getItem(k)||"[]"))}catch(e){MK[n]=new Set()}return MK[n]};
+const mkWeg=()=>mkSet("weg","ms.mk.weg"),mkGehoord=()=>mkSet("gehoord","ms.mk.gehoord");
+const mkBewaar=(n,k)=>{try{localStorage.setItem(k,JSON.stringify([...MK[n]].slice(-600)))}catch(e){}};
+function mkStroom(){const L=[],grens=Date.now()-36*36e5,ts=x=>{const t=Date.parse(x||"");return t>0?t:0},nm=x=>cleanName(x||"")||"Klant";
+  const add=(key,t,code,ic,titel,sub,act,knop)=>{const dag=/^\d{4}-\d{2}-\d{2}$/.test(String(t||"")),n=ts(dag?t+"T12:00:00":t);if(!n||n<grens)return;L.push({key,n,t,code,ic,titel,sub,act,knop,dag})};
+  /* rood: klant wacht op ons */
+  (state.tickets||[]).forEach(x=>{if(x.status!=="opgelost"&&Number(x.ongelezenTeam)>0)add("tk:"+x.id+":"+(x.laatst||""),x.laatst||x.aangemaakt,"rood","ticket","Klant wacht op antwoord",[nm(x.klantNaam),x.onderwerp].filter(Boolean).join(" · "),"tickets","Antwoorden")});
+  (state.berichten||[]).forEach(m=>{const k=m.bouncedOp||m.geblokkeerdOp;if(k&&m.kanaal==="email")add("bo:"+m.id,k,"rood","alert","Mail kwam niet aan",[nm(m.klantNaam||m.naam),m.onderwerp].filter(Boolean).join(" · "),m.klantId?"klant:"+m.klantId:"tab:communicatie","Bekijken")});
+  /* oranje: vandaag oppakken */
+  state.klanten.forEach(k=>{if(k.nieuwAangemeld&&k.actief!==false)add("nk:"+k.id,k.aangemaakt||new Date().toISOString(),"oranje","klanten",k.aanvraagType==="contact"?"Contactverzoek":"Nieuwe aanvraag",[ccNaam(k),k.plaats].filter(Boolean).join(" · "),"klant:"+k.id,"Inplannen")});
+  (state.portaalVz||[]).forEach(x=>add("vz:"+x.id,x.op||x.aangemaakt,"oranje","inbox","Verzoek uit het klantportaal",[nm(x.klantNaam),x.typeLabel||x.type].filter(Boolean).join(" · "),"tickets","Bekijken"));
+  state.facturen.forEach(f=>{const off=f.soort==="offerte",n=nm(f.klantNaam);
+    if(off&&f.akkoordOp)add("ak:"+f.id,f.akkoordOp,"oranje","check","Offerte getekend",n+" · "+eur(totals(f).inc),"f:"+f.id,"Inplannen");
+    if(!off&&f.status==="betaald"&&(f.betaaldTs||f.betaaldOp))add("bt:"+f.id,f.betaaldTs||f.betaaldOp+"T12:00:00","grijs","euro","Betaald"+(f.betaalwijze==="mollie"?" via iDEAL":""),n+" · "+eur(totals(f).inc),"f:"+f.id)});
+  /* grijs: ter info */
+  state.beurten.forEach(b=>{if(b.op)add("bu:"+b.id,b.op,"grijs","check","Afgemeld"+(b.door?" door "+String(b.door).split(" ")[0]:""),[nm(b.klantNaam),b.dienst].filter(Boolean).join(" · "),"klant:"+b.klantId)});
+  (state.berichten||[]).forEach(m=>{if(m.kanaal==="email"&&(m.trkOpenOp||m.gelezenOp))add("op:"+m.id,m.trkOpenOp||m.gelezenOp,"grijs","mail","Mail geopend",[nm(m.klantNaam||m.naam),m.onderwerp].filter(Boolean).join(" · "),m.klantId?"klant:"+m.klantId:"tab:communicatie")});
+  const W=mkWeg(),R={rood:0,oranje:1,grijs:2};
+  return L.filter(x=>!W.has(x.key)).sort((a,b)=>R[a.code]-R[b.code]||b.n-a.n)}
+function mkTijd(n){const d=new Date(n),v=iso(d)===iso(today());return (v?"":(iso(d)===iso(addDays(today(),-1))?"gisteren ":fmtD(iso(d))+" "))+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")}
+function mkStroomHtml(){const L=mkStroom(),n={rood:0,oranje:0,grijs:0};L.forEach(x=>n[x.code]++);
+  const toon=MK.alles?L:L.slice(0,innerWidth<700?6:10),lbl={rood:"Nu doen",oranje:"Vandaag",grijs:"Info"};
+  /* geluid: alleen bij een nieuwe rode melding */
+  try{const G=mkGehoord(),nieuw=L.filter(x=>x.code==="rood"&&!G.has(x.key));if(nieuw.length){const eerst=!localStorage.getItem("ms.mk.gehoord");nieuw.forEach(x=>G.add(x.key));mkBewaar("gehoord","ms.mk.gehoord");if(!eerst&&S().ccGeluid!==false&&typeof ccPiep==="function")ccPiep();MK.flits=new Set(nieuw.map(x=>x.key))}}catch(e){}
+  return `<section class="cc-card mk"><div class="cc-ch"><div><b>${I.bell}Live binnenkomend</b><small>Laatste 36 uur · nieuwste en belangrijkste bovenaan</small></div>
+    <div class="mk-tel">${["rood","oranje","grijs"].map(c=>`<span class="mk-c ${c}" title="${lbl[c]}"><i></i>${n[c]}</span>`).join("")}</div></div>
+    ${L.length?`<ul class="mk-l">${toon.map(x=>`<li class="mk-i ${x.code}${MK.flits&&MK.flits.has(x.key)?" flits":""}"><span class="mk-ic">${I[x.ic]||I.bell}</span>
+      <button type="button" class="mk-t" data-cc="${esc(x.act)}"><span class="mk-r1">${x.code!=="grijs"?`<span class="mk-code">${lbl[x.code]}</span>`:""}<b>${esc(x.titel)}</b><time>${esc(x.dag?(iso(new Date(x.n))===iso(today())?"vandaag":fmtD(iso(new Date(x.n)))):mkTijd(x.n))}</time></span><small>${esc(x.sub)}</small></button>
+      <span class="mk-k">${x.knop?`<button type="button" class="mk-b" data-cc="${esc(x.act)}">${esc(x.knop)}</button>`:""}<button type="button" class="mk-x" data-mkweg="${esc(x.key)}" aria-label="Gezien" title="Gezien">${I.check}</button></span></li>`).join("")}</ul>
+      ${L.length>toon.length||MK.alles?`<button type="button" class="cc-link mk-meer" data-mkalles="1">${MK.alles?"Minder tonen":"Alle "+L.length+" tonen"}</button>`:""}`
+      :`<p class="cc-leeg">Rustig. Er is de afgelopen 36 uur niets binnengekomen.</p>`}</section>`}
+document.addEventListener("click",e=>{const w=e.target.closest("[data-mkweg]"),a=e.target.closest("[data-mkalles]");if(!w&&!a)return;e.preventDefault();e.stopPropagation();
+  if(w){mkWeg().add(w.dataset.mkweg);mkBewaar("weg","ms.mk.weg");const li=w.closest(".mk-i");if(li){li.classList.add("weg");setTimeout(()=>render(),220)}else render()}
+  else{MK.alles=!MK.alles;render()}},true);
+
+/* status van de bus (kleur zoals op de meldkamer) en uitloop t.o.v. de planning */
+function mkBusStatus(){const ti=iso(today()),st=routeStops(ti),open=st.filter(x=>!x.done),bz=open.find(x=>x.k.bezig&&String(x.k.bezig).slice(0,10)===ti);
+  const r=(state.routes||{})[ti]||{},w=r.werk||{};
+  if(!st.length)return{c:"groen",t:"Geen route vandaag"};
+  if(bz)return{c:"rood",t:"Bezig bij "+(jobAddrObj(bz.k).adres||ccNaam(bz.k))};
+  if(!open.length)return{c:"groen",t:w.stop||w.eind?"Terug bij de loods":"Alles afgerond"};
+  if(st.some(x=>x.done)||w.start)return{c:"blauw",t:"Onderweg naar "+(jobAddrObj(open[0].k).adres||ccNaam(open[0].k))};
+  return{c:"groen",t:"Nog niet vertrokken"}}
+function mkUitloop(){const ti=iso(today()),open=routeStops(ti).filter(x=>!x.done);if(!open.length)return null;
+  const nu=new Date(),nm=nu.getHours()*60+nu.getMinutes(),k=open[0].k,tp=toMin(k.tijd);if(tp==null)return null;
+  let laat=0;if(k.bezig){const sb=new Date(k.bezig),gestart=sb.getHours()*60+sb.getMinutes(),d=Number(typeof duur==="function"?duur(k):30)||30;laat=Math.max(gestart-tp,nm-(tp+d))}else laat=nm-tp;
+  return laat>=15?{min:Math.round(laat),n:open.length}:null}
+function mkStatusHtml(){const s=mkBusStatus(),u=mkUitloop();
+  return `<div class="mk-bus ${s.c}"><span class="mk-bd"><i></i></span><b>${esc(s.t)}</b><span class="mk-leg"><span><i class="groen"></i>Loods / klaar</span><span><i class="blauw"></i>Onderweg</span><span><i class="rood"></i>Bij klant</span></span></div>
+  ${u?`<div class="mk-laat">${I.alert}<span><b>Loopt ${u.min} min achter</b> · nog ${plural(u.n,"adres","adressen")}</span><button type="button" class="mk-b" data-act="bulkmsg">${I.msg||""}Klanten laten weten</button></div>`:""}`}
+/* busje op de kaart: ring in de kleur van de status */
+function mkBusKleur(){try{const el=document.getElementById("rvMap"),b=el&&el._bus&&el._bus.getElement&&el._bus.getElement();if(!b)return;const c=mkBusStatus().c;b.classList.remove("mk-groen","mk-blauw","mk-rood");b.classList.add("mk-"+c)}catch(e){}}
 
 /* ---------- Rollen: eigenaar / beheerder / medewerker ----------
    Een medewerker (glazenwasser) ziet alleen wat hij nodig heeft om het werk te doen:
