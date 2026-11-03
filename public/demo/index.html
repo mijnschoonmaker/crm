@@ -7476,7 +7476,7 @@ const toonK=(k,x)=>{if(!S().toonEx||!S().incl)return toon(x);let b=Number(S().bt
 /* afgemelde beurt: het bedrag met het btw-tarief van de dienst van die klant/opdracht */
 const toonB=b=>{const k=b&&(state.klanten||[]).find(x=>x.id===b.klantId);return k?toonK({...k,dienst:b.dienst||k.dienst},beurtBedrag(b)):toon(beurtBedrag(b))};
 /* verdiend met een beurt: staat hij op een factuur, dan het factuurbedrag (met extra regels zoals extra werk), anders het bedrag van de beurt; excl. of incl. zoals de rest */
-const beurtVerdiend=b=>{const M=boMap(),f=b&&b.gefactureerd&&M.F[b.gefactureerd];if(f&&f.soort!=="offerte"&&!b.geannuleerd){const t=totals(f),n=M.n[f.id]||1;return (S().toonEx||!S().incl?t.ex:t.inc)/n}return toonB(b)};
+const beurtVerdiend=b=>{if(S().toonEx||!S().incl)return beurtOmzet(b);const M=boMap(),f=b&&b.gefactureerd&&M.F[b.gefactureerd];if(f&&f.soort!=="offerte"&&!b.geannuleerd){const t=totals(f),n=M.n[f.id]||1;return (S().toonEx||!S().incl?t.ex:t.inc)/n}return toonB(b)};
 const toonR=(k,o)=>{const x=Number(o&&o.prijs)||0;if(!S().toonEx||!S().incl)return toon(x);let b=Number(S().btw)||21;try{if(typeof groepBtwPct==="function")b=groepBtwPct(o,k)}catch(e){}return r2(x/(1+b/100))};
 /* omzet van één afgemelde beurt, ex btw, overal hetzelfde (statistieken, analyse, werkdag):
    - gefactureerd: het deel van de factuur (totaal ex btw gedeeld door het aantal beurten op die factuur), met de btw van die factuur zelf (ook verlegd)
@@ -7488,8 +7488,10 @@ function boMap(){if(_BO&&_BO.b===state.beurten&&_BO.f===state.facturen)return _B
 function beurtBedrag(b){if(!b)return 0;if(b.periodiek&&!Number(b.bedrag)){const k=state.klanten.find(x=>x.id===b.klantId);return k?Number(k.prijs)||0:0}return Number(b.bedrag)||0}
 function beurtOmzet(b){if(!b||b.geannuleerd||b.gefactureerd==="nvt")return 0;const M=boMap(),f=b.gefactureerd&&M.F[b.gefactureerd];
   if(f&&f.soort!=="offerte")return totals(f).ex/(M.n[f.id]||1);
-  if(b.periodiek&&!Number(b.bedrag)){const k=state.klanten.find(x=>x.id===b.klantId);return k?exAmt(k.prijs):0}
-  return exAmt(b.bedrag)}
+  /* nog niet gefactureerd: ex btw met het btw-tarief van deze klant en dienst (bv. 9% VvE/woning), net als Vandaag */
+  const k=state.klanten.find(x=>x.id===b.klantId),bd=beurtBedrag(b);if(!S().incl)return Number(bd)||0;
+  let pct=Number(S().btw)||21;try{if(k&&k.btwVerlegd)pct=0;else if(k&&typeof btwRegel==="function"){const r=btwRegel({...k,dienst:b.dienst||k.dienst},b.dienst||k.dienst||"");if(r!=null)pct=r}}catch(e){}
+  return (Number(bd)||0)/(1+pct/100)}
 /* was een klant actief in (een deel van) de periode s..e (iso)? Zelfde regel voor Statistieken › Klanten en Analyse */
 function klantActiefIn(k,s,e,laatstB){if(k.prospect||k.hoofdKlantId)return false;const a=String(k.aangemaakt||"").slice(0,10);if(a&&a>e)return false;if(k.actief!==false)return true;
   const stop=String(k.inactiefOp||k.gepauzeerdOp||(laatstB&&laatstB[k.id])||"").slice(0,10);return !!stop&&stop>=s}
