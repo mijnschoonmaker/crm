@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="6037361aceb6"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="794e2dc7a2e3"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -10410,7 +10410,7 @@ function emailHtmlRuw({stijl,accent,kicker,titel,tekst,rich,meta,regels,totaal,t
   const naam=s.naam||"Je bedrijf",lgSrc=logo?(preview?BLOB+logo:(LIVE?location.origin+BLOB+logo:(state.mailLogo&&state.mailLogo.id===logo?state.mailLogo.url:""))):"",lg=lgSrc?mailLogoImg(e(lgSrc),Math.min(80,Number(s.logoGrootte)||64),180,state.mailLogo&&state.mailLogo.id===logo?state.mailLogo.ratio:0):"";
   /* knop "Mijn klantportaal" onderaan elke klantmail (niet bij offertes): de server maakt er een persoonlijke inloglink van */
   const pkKnop=(bg,fg)=>portaal?`<a href="${e(portaal)}" style="display:inline-block;background:${bg};color:${fg};text-decoration:none;font-weight:600;font-size:14px;line-height:18px;padding:12px 20px;border-radius:999px;white-space:nowrap;font-family:${sans}">Mijn klantportaal&nbsp;&rarr;</a>`:"";
-  const foot=`${portaal?`<p style="text-align:center;margin:22px 0 0">${pkKnop(A,"#ffffff")}</p>`:""}<p style="text-align:center;font-size:12px;color:#8a979c;margin:18px 0 0;line-height:1.7">${[naam,s.telefoon,s.email].filter(Boolean).map(e).join(" &nbsp;·&nbsp; ")}${s.iban?`<br>IBAN: ${e(s.iban)}`:""}</p>`;
+  const foot=`<p style="text-align:center;font-size:12px;color:#8a979c;margin:18px 0 0;line-height:1.7">${[naam,s.telefoon,s.email].filter(Boolean).map(e).join(" &nbsp;·&nbsp; ")}${s.iban?`<br>IBAN: ${e(s.iban)}`:""}</p>`;
   if(stijl==="klassiek")return `<div style="font-family:${sans};background:#f3f4f5;padding:24px 12px"><div style="max-width:720px;margin:0 auto;background:#fff;border:1px solid #eef0f2;padding:30px 34px">
     <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;border-bottom:2px solid ${A};margin-bottom:24px"><tr><td style="padding-bottom:16px;vertical-align:middle">${lg||`<b style="font-size:18px">${e(naam)}</b>`}</td><td style="padding-bottom:16px;text-align:right;vertical-align:middle;font-family:${serif};font-size:13px;color:#5d6f76">${e(kicker||"")}</td></tr></table>
     ${titel?`<h1 style="font-family:${serif};font-weight:400;font-size:26px;margin:0 0 22px;color:#111">${e(titel)}</h1>`:""}${body}<div style="border-top:1px solid ${A};margin-top:26px"></div>${foot}</div></div>`;
@@ -10434,7 +10434,7 @@ function emailHtmlRuw({stijl,accent,kicker,titel,tekst,rich,meta,regels,totaal,t
   <div style="padding:16px 34px 10px;color:#2b3a40">${tb}</div>
 </div>
 ${scene?`<div style="background:#fbfcfc;line-height:0;font-size:0;padding-top:4px"><img src="${e((LIVE&&/^https?:/.test(location.origin)?location.origin:"https://app.mansard.nl")+"/mail/"+scene+(typeof busLegacy==="function"&&!busLegacy()?"-bus":"")+".gif")}" width="720" alt="${scene==="weg"?BW("uwWerk"):"Wij zijn onderweg naar u"}" style="display:block;width:100%;max-width:720px;height:auto;border:0"></div>`:`<div style="background:#fbfcfc;height:14px;line-height:14px;font-size:0">&nbsp;</div>`}
-<div style="background:${BL};background-image:repeating-linear-gradient(115deg,rgba(255,255,255,.035) 0 2px,transparent 2px 22px),linear-gradient(135deg,${BL2},${BL} 60%,${_mx(BL,"#ffffff",.12)});border-radius:0 0 22px 22px;color:#ffffff;padding:18px 30px 20px">${portaal?`<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td class="ms-kol" valign="top" style="vertical-align:top">${strook}</td><td class="ms-kol ms-kr" align="right" valign="middle" style="vertical-align:middle;text-align:right;padding-left:16px">${pkKnop("#ffffff",INK)}</td></tr></table>`:strook}</div>
+<div style="background:${BL};background-image:repeating-linear-gradient(115deg,rgba(255,255,255,.035) 0 2px,transparent 2px 22px),linear-gradient(135deg,${BL2},${BL} 60%,${_mx(BL,"#ffffff",.12)});border-radius:0 0 22px 22px;color:#ffffff;padding:18px 30px 20px">${strook}</div>
 </div></div>`;
 }
 function mailFor(sjabloon,vars,tekst,{f,stap,preview}={}){
