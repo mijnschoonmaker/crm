@@ -8,6 +8,7 @@
    3. activiteit (onCall): de tijdlijn per klant voor het CRM. Alleen voor ingelogde gebruikers van hetzelfde bedrijf.
    Er wordt geen IP-adres of locatie bewaard. */
 module.exports = ({ db, T, onRequest, onCall, HttpsError, checkGebruiker, nu, HOST }) => {
+  const KLIKTRACK = false; /* 3-11-2026: uit, klant dacht dat de aankondiging spam was */
   const GIF = Buffer.from("R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7", "base64");
   const BOT = /bot|spider|crawl|preview|scan|barracuda|mimecast|proofpoint|symantec|trend ?micro|forcepoint|python|curl|wget|go-http|java\/|okhttp|axios|headless|phantom|slurp|facebookexternalhit|linkedin|whatsapp|skypeuri|bingpreview|microsoft office protocol discovery|safelinks|urldefense|cloudmark|sophos|fortinet|cisco/i;
   const bron = (ua) => {
@@ -38,7 +39,8 @@ module.exports = ({ db, T, onRequest, onCall, HttpsError, checkGebruiker, nu, HO
     const links = [];
     html = html.replace(/<a\b([^>]*?)href="(https?:\/\/[^"]+)"([^>]*)>([\s\S]*?)<\/a>/gi, (all, a, href, b, inner) => {
       const u = href.replace(/&amp;/g, "&");
-      if (links.length >= 30 || /\/api\/t\/k\//.test(u) || /unsubscribe|uitschrijven/i.test(u)) return all;
+      /* links blijven rechtstreeks: een tussenlink via een ander domein dan de afzender maakt een mail verdacht (spamfilters en klanten) */
+      if (!KLIKTRACK || links.length >= 30 || /\/api\/t\/k\//.test(u) || /unsubscribe|uitschrijven/i.test(u)) return all;
       const i = links.length; links.push({ u: u.slice(0, 1500), l: LABEL(u) || tekstVan(inner) || "Link" });
       return `<a${a}href="${base}/api/t/k/${tok}/${i}"${b}>${inner}</a>`; });
     const px = `<img src="${base}/api/t/o/${tok}" width="1" height="1" alt="" style="display:block;width:1px;height:1px;border:0;margin:0;padding:0;opacity:0">`;
