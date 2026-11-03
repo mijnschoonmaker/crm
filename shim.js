@@ -56,7 +56,8 @@ async function authMail(soort, email) {
       .catch(e => { if (e && /permission/i.test(String(e.code || e.message))) throw e; const o = { ...d }; delete o._handmatig; return ref.set(enc(o)); }); };
   const db = {
     collection: c => ({
-      doc: id => ({ set: d => window.ZEEM_MEEKIJK ? Promise.reject(new Error("Meekijken is alleen lezen: er wordt niets opgeslagen.")) : zet(c, id, d),
+      doc: id => ({ get: () => fs.collection(pf(c)).doc(id).get().then(x => ({ exists: x.exists, data: () => dec(x.data() || {}) })),
+        set: d => window.ZEEM_MEEKIJK ? Promise.reject(new Error("Meekijken is alleen lezen: er wordt niets opgeslagen.")) : zet(c, id, d),
         delete: () => window.ZEEM_MEEKIJK ? Promise.reject(new Error("Meekijken is alleen lezen: er wordt niets verwijderd.")) : fs.collection(pf(c)).doc(id).delete() }),
       onSnapshot: (cb, er) => fs.collection(pf(c)).onSnapshot(s => {
         try { cb({ docs: s.docs.map(d => ({ id: d.id, data: () => dec(d.data()) })), wijzigingen: s.docChanges().length }); }
