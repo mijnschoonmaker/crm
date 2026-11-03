@@ -8,7 +8,7 @@
    3. activiteit (onCall): de tijdlijn per klant voor het CRM. Alleen voor ingelogde gebruikers van hetzelfde bedrijf.
    Er wordt geen IP-adres of locatie bewaard. */
 module.exports = ({ db, T, onRequest, onCall, HttpsError, checkGebruiker, nu, HOST }) => {
-  const KLIKTRACK = false; /* 3-11-2026: uit, klant dacht dat de aankondiging spam was */
+  const KLIKTRACK = true; /* klik-tracking aan (Robin, 3-11-2026); uitzetten = rechtstreekse links */
   const GIF = Buffer.from("R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7", "base64");
   const BOT = /bot|spider|crawl|preview|scan|barracuda|mimecast|proofpoint|symantec|trend ?micro|forcepoint|python|curl|wget|go-http|java\/|okhttp|axios|headless|phantom|slurp|facebookexternalhit|linkedin|whatsapp|skypeuri|bingpreview|microsoft office protocol discovery|safelinks|urldefense|cloudmark|sophos|fortinet|cisco/i;
   const bron = (ua) => {
