@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="6e148bdc9846"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="55853ebcae03"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -10366,7 +10366,7 @@ function emailHtmlRuw({stijl,accent,kicker,titel,tekst,rich,meta,regels,totaal,t
   const s=S(),A=accent||"#111111",PA=/^#[0-9a-f]{6}$/i.test(String(s.mailAccent||""))?s.mailAccent:"#137a8a",PI=(h=>{const n=parseInt(h.slice(1),16),r=n>>16&255,g=n>>8&255,b=n&255;return (r*299+g*587+b*114)/1000>165?"#1c2231":"#ffffff"})(PA),serif="Georgia,'Times New Roman',serif",sans="'Avenir Next',Avenir,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif";
   const e=x=>esc(x);
   /* opgemaakte sjabloontekst zonder links/plaatjes maar met een blok "Datum: … / Tijd: …": als tekst verwerken, zodat het blok als kaart getoond kan worden */
-  if(rich&&!/<(a|img|table|h[1-6]|blockquote)\b/i.test(rich)&&typeof richText==="function"){const rt=richText(rich);if(/(^|\n)\s*[A-Za-z\u00C0-\u00FF][A-Za-z\u00C0-\u00FF .\/]{1,18}?\s*:\s*\S[^\n]*\n\s*[A-Za-z\u00C0-\u00FF][A-Za-z\u00C0-\u00FF .\/]{1,18}?\s*:\s*\S/.test(rt)){tekst=rt;rich=null}}
+  if(rich&&!/<(a|img|table|h[1-6]|blockquote)\b/i.test(rich)&&typeof richText==="function"){const rt=richText(String(rich).replace(/<(div|p)\b[^>]*>/gi,"\n$&"));if(/(^|\n)\s*[A-Za-z\u00C0-\u00FF][A-Za-z\u00C0-\u00FF .\/]{1,18}?\s*:\s*\S[^\n]*\n\s*[A-Za-z\u00C0-\u00FF][A-Za-z\u00C0-\u00FF .\/]{1,18}?\s*:\s*\S/.test(rt)){tekst=rt;rich=null}}
   let paras=String(tekst||"").split(/\n\s*\n/).map(p=>p.trim()).filter(Boolean);
   let sig=paras.findIndex(p=>/^(met vriendelijke groet|groet|vriendelijke groet)/i.test(p));if(sig<0)sig=paras.length;
   /* diensten ("• Glasbewassing"): een klein ticket-icoontje in plaats van het bolletje */

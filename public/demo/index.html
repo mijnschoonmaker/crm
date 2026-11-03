@@ -9950,7 +9950,7 @@ function emailHtmlRuw({stijl,accent,kicker,titel,tekst,rich,meta,regels,totaal,t
   const s=S(),A=accent||"#111111",PA=/^#[0-9a-f]{6}$/i.test(String(s.mailAccent||""))?s.mailAccent:"#137a8a",PI=(h=>{const n=parseInt(h.slice(1),16),r=n>>16&255,g=n>>8&255,b=n&255;return (r*299+g*587+b*114)/1000>165?"#1c2231":"#ffffff"})(PA),serif="Georgia,'Times New Roman',serif",sans="'Avenir Next',Avenir,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif";
   const e=x=>esc(x);
   /* opgemaakte sjabloontekst zonder links/plaatjes maar met een blok "Datum: … / Tijd: …": als tekst verwerken, zodat het blok als kaart getoond kan worden */
-  if(rich&&!/<(a|img|table|h[1-6]|blockquote)\b/i.test(rich)&&typeof richText==="function"){const rt=richText(rich);if(/(^|\n)\s*[A-Za-z\u00C0-\u00FF][A-Za-z\u00C0-\u00FF .\/]{1,18}?\s*:\s*\S[^\n]*\n\s*[A-Za-z\u00C0-\u00FF][A-Za-z\u00C0-\u00FF .\/]{1,18}?\s*:\s*\S/.test(rt)){tekst=rt;rich=null}}
+  if(rich&&!/<(a|img|table|h[1-6]|blockquote)\b/i.test(rich)&&typeof richText==="function"){const rt=richText(String(rich).replace(/<(div|p)\b[^>]*>/gi,"\n$&"));if(/(^|\n)\s*[A-Za-z\u00C0-\u00FF][A-Za-z\u00C0-\u00FF .\/]{1,18}?\s*:\s*\S[^\n]*\n\s*[A-Za-z\u00C0-\u00FF][A-Za-z\u00C0-\u00FF .\/]{1,18}?\s*:\s*\S/.test(rt)){tekst=rt;rich=null}}
   let paras=String(tekst||"").split(/\n\s*\n/).map(p=>p.trim()).filter(Boolean);
   let sig=paras.findIndex(p=>/^(met vriendelijke groet|groet|vriendelijke groet)/i.test(p));if(sig<0)sig=paras.length;
   /* diensten ("• Glasbewassing"): een klein ticket-icoontje in plaats van het bolletje */
