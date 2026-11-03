@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="55853ebcae03"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="d000271b3033"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -7858,7 +7858,11 @@ function routeStopsRuw(day){
   ks=[...ks,...state.klanten.filter(k=>doneIds.includes(k.id)&&!ks.includes(k))];
   const order=state.routes[day]?.order||[];
   ks.sort((a,b)=>{const ia=order.indexOf(a.id),ib=order.indexOf(b.id);if(ia>-1||ib>-1)return(ia<0?999:ia)-(ib<0?999:ib);const ta=toMin(a.tijd)??9999,tb=toMin(b.tijd)??9999;if(ta!==tb)return ta-tb;return geoCmp(a,b)});
-  return ks.map(k=>({k,done:doneIds.includes(k.id)}));
+  /* afgeronde stops bovenaan, in de volgorde waarin ze echt zijn afgemeld; daarna de rest in de geplande volgorde */
+  const opVan={};state.beurten.forEach(b=>{if(b.datum===day&&!b.geannuleerd){const t=String(b.op||b.startOp||"");if(!opVan[b.klantId]||t<opVan[b.klantId])opVan[b.klantId]=t}});
+  const L=ks.map((k,i)=>({k,done:doneIds.includes(k.id),i}));
+  L.sort((a,b)=>a.done!==b.done?(a.done?-1:1):a.done?(String(opVan[a.k.id]||"").localeCompare(String(opVan[b.k.id]||""))||a.i-b.i):a.i-b.i);
+  return L.map(({k,done})=>({k,done}));
 }
 function routeLinks(stops){
   const addrs=stops.filter(s=>!s.done).map(s=>jobAddr(s.k)).filter(Boolean);

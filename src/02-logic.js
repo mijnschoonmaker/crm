@@ -173,7 +173,11 @@ function routeStopsRuw(day){
   ks=[...ks,...state.klanten.filter(k=>doneIds.includes(k.id)&&!ks.includes(k))];
   const order=state.routes[day]?.order||[];
   ks.sort((a,b)=>{const ia=order.indexOf(a.id),ib=order.indexOf(b.id);if(ia>-1||ib>-1)return(ia<0?999:ia)-(ib<0?999:ib);const ta=toMin(a.tijd)??9999,tb=toMin(b.tijd)??9999;if(ta!==tb)return ta-tb;return geoCmp(a,b)});
-  return ks.map(k=>({k,done:doneIds.includes(k.id)}));
+  /* afgeronde stops bovenaan, in de volgorde waarin ze echt zijn afgemeld; daarna de rest in de geplande volgorde */
+  const opVan={};state.beurten.forEach(b=>{if(b.datum===day&&!b.geannuleerd){const t=String(b.op||b.startOp||"");if(!opVan[b.klantId]||t<opVan[b.klantId])opVan[b.klantId]=t}});
+  const L=ks.map((k,i)=>({k,done:doneIds.includes(k.id),i}));
+  L.sort((a,b)=>a.done!==b.done?(a.done?-1:1):a.done?(String(opVan[a.k.id]||"").localeCompare(String(opVan[b.k.id]||""))||a.i-b.i):a.i-b.i);
+  return L.map(({k,done})=>({k,done}));
 }
 function routeLinks(stops){
   const addrs=stops.filter(s=>!s.done).map(s=>jobAddr(s.k)).filter(Boolean);
