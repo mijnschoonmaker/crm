@@ -9,7 +9,10 @@ async function adresDoorvoeren(kOud,kNieuw){let n=0;
   for(const f of state.facturen.filter(x=>x.klantId===kNieuw.id)){let nw=null;
     if(f.soort==="offerte"){if(["concept","verstuurd"].includes(f.status||"concept")){if(f.klantAdres===jOud&&jOud!==jNw)nw=jNw;else if(f.klantAdres===hOud&&hOud!==hNw)nw=hNw}}
     else if(f.status==="concept"&&f.klantAdres===fOud&&fOud!==fNw)nw=fNw;
-    if(nw!=null){await save("facturen",f.id,{...strip(f),klantAdres:nw});n++}}
+    /* naam: conceptfacturen en openstaande offertes volgen de nieuwe naam (ook "Bedrijf, Voornaam" dat nu "Bedrijf" is) */
+    let nm=null;const nO=String(kOud.naam||""),nN=String(kNieuw.naam||""),fn=String(f.klantNaam||"");
+    if(nN&&nN!==fn&&(f.soort==="offerte"?["concept","verstuurd"].includes(f.status||"concept"):f.status==="concept")&&(fn===nO||fn.startsWith(nN+",")))nm=nN;
+    if(nw!=null||nm!=null){await save("facturen",f.id,{...strip(f),...(nw!=null?{klantAdres:nw}:{}),...(nm!=null?{klantNaam:nm}:{})});n++}}
   return n}
 
 function kkLocatie(kid,oid){const k=state.klanten.find(x=>x.id===kid);if(!k)return;

@@ -130,7 +130,7 @@ function kkSmall(kid,title,ic,body,read){
     ${body(k)}<div class="row"><span class="sp"></span><button type="button" id="kkBack">Annuleren</button><button type="submit" class="primary" id="kkSave">${I.check}Opslaan</button></div>`,{wide:true});
   $("#kkX").onclick=$("#kkBack").onclick=()=>openKlantView(kid);
   form.onsubmit=async e=>{e.preventDefault();const p=read();if(!p)return;$("#kkSave").disabled=true;
-    try{const cur=state.klanten.find(x=>x.id===kid)||k;await save("klanten",kid,{...strip(cur),...p});toast("Opgeslagen");openKlantView(kid)}catch(er){$("#kkSave").disabled=false;err(er)}};
+    try{const cur=state.klanten.find(x=>x.id===kid)||k;await save("klanten",kid,{...strip(cur),...p});let n=0;try{n=await adresDoorvoeren({...cur},{...cur,...p,id:kid})}catch(e2){console.error(e2)}toast("Opgeslagen"+(n?" · ook bijgewerkt in "+plural(n,"conceptfactuur/offerte","conceptfacturen/offertes"):""));openKlantView(kid)}catch(er){$("#kkSave").disabled=false;err(er)}};
 }
 function kkAdres(kid){const v=id=>$("#"+id).value.trim();
   kkSmall(kid,"Adresgegevens",I.pin,k=>`<p class="subt" style="margin:0">Leeg laten betekent: het hoofdadres en het gewone e-mailadres (${esc(k.email||"nog niet ingevuld")}).</p>
