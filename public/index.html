@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="cea57cf18551"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="f5416a7a31a2"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -14526,6 +14526,8 @@ function openOpdrachtWerk(kid,focus){
   let main={dienst:k.dienst||HD(),prijs:k.prijs??"",ramen:fqVul(heeftAantallen(k.ramenRegel)?normR(JSON.parse(JSON.stringify(k.ramenRegel))):(/glas|ramen/i.test(k.dienst||HD())?uitTelling():null),Number(k.frequentie)||0)};
   /* opdracht zonder glasbewassing (bijv. alleen een truckwash): de andere diensten worden elk apart ingepland, met eigen afspraak en factuur */
   let geenGlas=soloI<0&&!!k.opdrachtVerwijderd&&!k.prospect;
+  /* nieuwe opdracht zonder dienst (glazenwassers): nog geen regel tonen; pas na een klik op een dienst hierboven verschijnt die */
+  let mainLeeg=GLAS()&&soloI<0&&!geenGlas&&!(Number(k.prijs)>0)&&!main.ramen&&!(k.opdrachten||[]).length;
   /* glasbewassing per verdieping: prijs en tijd volgens de tarieven van de rekentool */
   const FL=["Begane grond","1e verdieping","2e verdieping","3e verdieping"];
   const calcR=(r,isMain)=>{const q=r.ramen;if(!q)return null;try{const w=isMain?mF:Number(r.frequentie)||52,b=ramenBerekening(normR(q),w,null);
@@ -14651,11 +14653,11 @@ function openOpdrachtWerk(kid,focus){
   const tot=()=>{if(soloI>=0&&extra[soloI]){const L=[...soloSet].map(i=>extra[i]).filter(Boolean);$("#owTot").innerHTML=L.map(r=>`<span>Per keer (${esc(r.dienst||"deze opdracht")})</span><span>${eur(r.items?gToon(r):toonR(k,r))}</span>`).join("");return}
     const per=Number(main.prijs)||0,ex=extra.filter(o=>o.actief!==false&&o.dienst&&!o._bestaand),ts=Math.max(0,Number(($o("toeslag")||{}).value)||0)/100;
     const jaar=(per*52/(mF||4)+ex.reduce((a,o)=>a+(Number(o.prijs)||0)*52/(Number(o.frequentie)||52),0))*(1+ts);
-    $("#owTot").innerHTML=`${geenGlas?"":`<span>Per beurt (${esc(main.dienst||"hoofdopdracht")})</span><span>${eur(toon(per))}</span>`}${ts?`<span>Toeslag ${r2(ts*100)}%</span><span>+ ${eur(toon(per)*ts)}</span><span class="grand">Per beurt incl. toeslag</span><span class="grand">${eur(toon(per)*(1+ts))}</span>`:""}${ex.length?`<span>Extra opdrachten, per keer${ts?" incl. toeslag":""}</span><span>${eur(ex.reduce((a,o)=>a+(Number(o.items?gToon(o):toonR(k,o))||0),0)*(1+ts))}</span>`:""}`;
+    $("#owTot").innerHTML=`${geenGlas||mainLeeg?"":`<span>Per beurt (${esc(main.dienst||"hoofdopdracht")})</span><span>${eur(toon(per))}</span>`}${ts?`<span>Toeslag ${r2(ts*100)}%</span><span>+ ${eur(toon(per)*ts)}</span><span class="grand">Per beurt incl. toeslag</span><span class="grand">${eur(toon(per)*(1+ts))}</span>`:""}${ex.length?`<span>Extra opdrachten, per keer${ts?" incl. toeslag":""}</span><span>${eur(ex.reduce((a,o)=>a+(Number(o.items?gToon(o):toonR(k,o))||0),0)*(1+ts))}</span>`:""}`;
     const h=$("#owTsl");if(h)h.textContent=ts?`+ ${r2(ts*100)}% toeslag = ${eur(toon(per)*(1+ts))} per keer`:""};
   /* nieuwe opdracht: de opdrachtregels verschijnen pas als je een dienst kiest (zoals in DienstenCRM) */
   const soloLeeg=()=>{const r=soloI>=0&&extra[soloI];return !!r&&!String(r.dienst||"").trim()&&!r.ramen&&!r.items&&!r._toon};
-  const draw=()=>{syncRitme();{const sk=$("#owRegelsK");if(sk)sk.style.display=soloLeeg()?"none":""}$("#owLines").innerHTML=soloI>=0&&extra[soloI]?[...soloSet].filter(i=>extra[i]).map(i=>lineHtml(extra[i],i,false)).join(""):lineHtml(main,0,true)+extra.map((r,i)=>r._bestaand?"":lineHtml(r,i,false)).join("");tot()};
+  const draw=()=>{syncRitme();{const sk=$("#owRegelsK");if(sk)sk.style.display=soloLeeg()||(mainLeeg&&!extra.some(r=>!r._bestaand))?"none":""}$("#owLines").innerHTML=soloI>=0&&extra[soloI]?[...soloSet].filter(i=>extra[i]).map(i=>lineHtml(extra[i],i,false)).join(""):(mainLeeg?"":lineHtml(main,0,true))+extra.map((r,i)=>r._bestaand?"":lineHtml(r,i,false)).join("");tot()};
   const allFotos=()=>[...tFotos.map(f=>({...f,naam:"Uit de telling",t:1})),...fotos];
   const drawFotos=()=>{const all=allFotos();
     $("#owFotos").innerHTML=all.length?all.map((f,i)=>fotoCard(f,i,!f.t)).join(""):'<p class="subt ow-fempty">Nog geen foto\'s. '+(GLAS()?'Klik op + om foto\'s van de woning toe te voegen en tik de ramen aan die gewassen moeten worden. Foto\'s uit de rekentool verschijnen hier vanzelf.':'Klik op + om foto\'s van de klus toe te voegen.')+'</p>'};
@@ -14755,6 +14757,9 @@ function openOpdrachtWerk(kid,focus){
   form.querySelectorAll("[data-dn]").forEach(b=>b.onclick=()=>{const d=diensten[+b.dataset.dn];if(GLAS()&&!d.glas&&!(heeftGlas(k)||isGlas(main.dienst))){toast(GLAS_REGEL+" Maak eerst een offerte met glasbewassing.");return}
     /* nieuwe (losse) opdracht: de gekozen dienst vult deze opdracht zelf; glasbewassing opnieuw berekenen (ander adres = andere aantallen) */
     const soloGevuld=soloI>=0&&extra[soloI]&&(String(extra[soloI].dienst||"").trim()||extra[soloI].items||extra[soloI].ramen);
+    if(mainLeeg){mainLeeg=false;if(d.glas||isGlas(d.naam)){main.dienst=d.naam;main.ramen=leegR();editR.add("m");draw();const c=$("#owLines").querySelector('[data-calc="m"]')||$("#owLines").querySelector(".ow-line");if(c)c.scrollIntoView({block:"start",behavior:"smooth"});return}
+      /* eerst een andere dienst gekozen: opdracht zonder glasbewassing (die kan er later bij) */
+      geenGlas=true}
     if(soloGevuld){/* deze opdracht heeft al een dienst: de nieuwe dienst komt erbij als eigen opdracht, de eerste blijft staan */
       const o={id:newId("o"),dienst:d.naam,prijs:"",frequentie:mF||8,duur:30,volgende:"",actief:true,_nieuw:true,_solo:true,bij:soloId};
       if(d.items&&d.items.length)Object.assign(o,{groep:d.groep,items:d.items.map(it=>({...it,aantal:0})),prijs:0,frequentie:"",duur:d.duur||30});
