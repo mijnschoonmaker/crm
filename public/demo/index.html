@@ -18503,8 +18503,9 @@ const MK={weg:null,gehoord:null};
 const mkSet=(n,k)=>{if(MK[n])return MK[n];try{MK[n]=new Set(JSON.parse(localStorage.getItem(k)||"[]"))}catch(e){MK[n]=new Set()}return MK[n]};
 /* "Gezien" geldt voor alle apparaten: bewaard in instellingen/meldkamer (MacBook, iPad en telefoon gelijk) */
 const mkWegSync=()=>{const w=[...MK.weg].slice(-600);state.meldkamer={...(state.meldkamer||{}),weg:w};try{const r=save("instellingen","meldkamer",{weg:w});if(r&&r.catch)r.catch(()=>{})}catch(e){}};
-const mkWeg=()=>{const s=mkSet("weg","ms.mk.weg");if(state.meldkamer){const srv=Array.isArray(state.meldkamer.weg)?state.meldkamer.weg:[],H=new Set(srv);srv.forEach(k=>s.add(k));
-    if(!MK.opgestuurd){MK.opgestuurd=1;if([...s].some(k=>!H.has(k)))setTimeout(mkWegSync,1500)}}return s},mkGehoord=()=>mkSet("gehoord","ms.mk.gehoord");
+const mkWeg=()=>{const s=mkSet("weg","ms.mk.weg");if(state.meldkamer){const srv=Array.isArray(state.meldkamer.weg)?state.meldkamer.weg:[],H=new Set(srv);srv.forEach(k=>s.add(k));if(s.size>600){const t=[...s].slice(-600);s.clear();t.forEach(k=>s.add(k))}
+    /* staat hier iets als gezien dat de server (nog) niet heeft, bv. omdat twee apparaten tegelijk opsloegen: aanvullen tot alles gelijk is */
+    if(!MK.syncT&&[...s].some(k=>!H.has(k)))MK.syncT=setTimeout(()=>{MK.syncT=0;mkWegSync()},1200)}return s},mkGehoord=()=>mkSet("gehoord","ms.mk.gehoord");
 const mkBewaar=(n,k)=>{try{localStorage.setItem(k,JSON.stringify([...MK[n]].slice(-600)))}catch(e){}};
 function mkStroom(){const L=[],grens=Date.now()-36*36e5,ts=x=>{const t=Date.parse(x||"");return t>0?t:0},nm=x=>cleanName(x||"")||"Klant";
   const add=(key,t,code,ic,titel,sub,act,knop)=>{const dag=/^\d{4}-\d{2}-\d{2}$/.test(String(t||"")),n=ts(dag?t+"T12:00:00":t);if(!n||n<grens)return;L.push({key,n,t,code,ic,titel,sub,act,knop,dag})};
