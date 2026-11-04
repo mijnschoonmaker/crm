@@ -68,5 +68,5 @@ function mkStatusHtml(){const s=mkBusStatus(),u=mkUitloop();
 function mkBusKleur(){try{const el=document.getElementById("rvMap"),b=el&&el._bus&&el._bus.getElement&&el._bus.getElement();if(!b)return;const c=mkBusStatus().c;b.classList.remove("mk-groen","mk-blauw","mk-rood");b.classList.add("mk-"+c)}catch(e){}}
 /* status en kleur van de bus meelopen met de live GPS, zonder het hele scherm opnieuw te tekenen */
 function mkStatusVernieuw(){try{if(state.tab!=="control")return;const el=document.querySelector(".mk-bus");if(!el)return;const s=mkBusStatus();
-  el.classList.remove("groen","blauw","rood");el.classList.add(s.c);const b=el.querySelector("b");if(b&&b.textContent!==s.t)b.textContent=s.t;mkBusKleur()}catch(e){}}
+  el.classList.remove("groen","blauw","rood");el.classList.add(s.c);const b=el.querySelector("b");if(b&&b.textContent!==s.t)b.textContent=s.t;mkBusKleur();if(typeof rgLaag==="function")rgLaag()}catch(e){}}
 if(typeof window!=="undefined")setInterval(mkStatusVernieuw,10000);
