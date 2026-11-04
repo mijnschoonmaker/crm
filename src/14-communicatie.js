@@ -99,6 +99,14 @@ function emailHtmlRuw({stijl,accent,kicker,titel,tekst,rich,meta,regels,totaal,t
   const bol=h=>String(h).replace(/(^|<br\s*\/?>|<p[^>]*>|<div[^>]*>|<li[^>]*>|\n)((?:\s|&nbsp;|&#160;|<\/?(?:span|b|strong|em|i|u|font)\b[^>]*>)*)(?:\u2022|&bull;|&#8226;|&#x2022;)(?:\s|&nbsp;|&#160;)*/gi,"$1$2"+dIc);
   /* "Datum: … / Tijd: … / Adres: … / Dienst: …" (2 of meer regels): als rustige kaart met icoontjes */
   const GR=/^\s*([A-Za-z\u00C0-\u00FF][A-Za-z\u00C0-\u00FF .\/]{1,18}?)\s*:\s*(\S.*)$/;
+  /* veldenblok (Datum/Tijd/Adres/Dienst) ook herkennen als het over twee alinea's verdeeld staat of direct onder een zin begint */
+  {const isF=x=>GR.test(x)&&!/^\s*(https?|mailto)\b/i.test(x),R=[];
+    paras.slice(0,sig).forEach(p=>{const ls=p.split("\n").filter(x=>x.trim());let i=ls.length;while(i>0&&isF(ls[i-1]))i--;
+      const t=ls.slice(0,i),v=ls.slice(i);if(v.length&&t.length&&v.length<2&&!(R.length===0)){R.push({t:ls.join("\n"),f:false});return}
+      if(t.length)R.push({t:t.join("\n"),f:false});if(v.length){const l=R[R.length-1];if(l&&l.f)l.t+="\n"+v.join("\n");else R.push({t:v.join("\n"),f:true})}});
+    /* een losse veldregel (bv. Datum) direct gevolgd door een veldenblok: samenvoegen */
+    for(let i=R.length-2;i>=0;i--){const a=R[i],b=R[i+1];if(b.f&&!a.f){const ls=a.t.split("\n");if(ls.length>1&&isF(ls[ls.length-1])){b.t=ls.pop()+"\n"+b.t;a.t=ls.join("\n")}}}
+    const nw=R.map(x=>x.t).filter(x=>x.trim());paras=[...nw,...paras.slice(sig)];sig=nw.length}
   const gIc=l=>{l=l.toLowerCase();return /datum|dag|wanneer/.test(l)?"ic-datum.png":/tijd|uur/.test(l)?"ic-tijd.png":/adres|locatie|waar/.test(l)?"ic-adres.png":/dienst|werk|wat/.test(l)?"ic-dienst.png":""};
   const gKaart=ls=>`<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;margin:2px 0 20px;border-collapse:separate;background:#f7f8f9;border:1px solid #eceef1;border-radius:14px">${ls.map((l,i)=>{const[,lab,val]=l.match(GR),ic=gIc(lab);
     return `<tr><td width="30" valign="middle" style="padding:${i?"11px":"14px"} 0 ${i===ls.length-1?"14px":"11px"} 16px;${i?"border-top:1px solid #eceef1;":""}line-height:0;font-size:0">${ic?`<img src="${MAILB0+ic}" width="16" height="16" alt="" style="display:block;width:16px;height:16px;border:0">`:""}</td><td width="78" valign="middle" style="padding:${i?"11px":"14px"} 8px ${i===ls.length-1?"14px":"11px"} 10px;${i?"border-top:1px solid #eceef1;":""}font-family:${sans};font-size:10.5px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;color:#7a808c;white-space:nowrap">${e(lab.trim())}</td><td valign="middle" style="padding:${i?"11px":"14px"} 16px ${i===ls.length-1?"14px":"11px"} 0;${i?"border-top:1px solid #eceef1;":""}font-family:${sans};font-size:14.5px;font-weight:600;color:#14181f;line-height:1.4">${e(val.trim().replace(/^\w/,c=>c.toUpperCase()))}</td></tr>`}).join("")}</table>`;
