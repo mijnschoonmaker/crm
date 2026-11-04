@@ -9,7 +9,9 @@ function vFacturen(){
   const open=[...by("Openstaand"),...by("Achterstallig")],ub=unbilled(),ubK=new Set(ub.map(b=>b.klantId));
   const q=state.fq.toLowerCase();let F=state.fFilter;
   const cash=f=>["contant","pin"].includes(f.betaalwijze);
-  const lists={openstaand:open.sort((a,b)=>String(a.verval).localeCompare(String(b.verval))),achterstallig:by("Achterstallig").sort((a,b)=>String(a.verval).localeCompare(String(b.verval))),concept:by("Concept"),bank:by("Betaald").filter(f=>!cash(f)),contant:by("Betaald").filter(cash),oninbaar:by("Oninbaar"),betaald:by("Betaald"),alle:all};
+  /* openstaand en te laat: op factuurnummer, oudste bovenaan (zoals in DienstenCRM) */
+  const opNr=(a,b)=>String(a.nummer||"").localeCompare(String(b.nummer||""),"nl",{numeric:true})||String(a.datum).localeCompare(String(b.datum));
+  const lists={openstaand:open.sort(opNr),achterstallig:by("Achterstallig").sort(opNr),concept:by("Concept"),bank:by("Betaald").filter(f=>!cash(f)),contant:by("Betaald").filter(cash),oninbaar:by("Oninbaar"),betaald:by("Betaald"),alle:all};
   if(!lists[F])F="openstaand";
   const shown=lists[F].filter(f=>!q||[f.nummer,f.klantNaam,f.klantAdres,eur(totals(f).inc)].join(" ").toLowerCase().includes(q));
   fbSelOpschonen(new Set(all.map(f=>f.id)));
