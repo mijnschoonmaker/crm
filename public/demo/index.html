@@ -7659,6 +7659,27 @@ const TPL_EIGEN={
   definitief:{naam:"Definitief bestellingsoverzicht",doel:"Na de tellingcontrole of een ondertekende offerte",cat:"Welkom",onderwerp:"[name.company] - Definitief bestellingsoverzicht [nr.invoice]",mail:"Beste [firstname.customer],\n\nHartelijk dank voor uw vertrouwen in voorbeeldglazenwasserij.nl.\nBijgaand ontvangt u het definitieve bestellingsoverzicht van de door u gekozen diensten.\n\nUw overeenkomst heeft een standaardlooptijd van één jaar.\nNa deze periode zetten wij de dienstverlening voort volgens de afgesproken frequentie, totdat de overeenkomst wordt beëindigd conform onze algemene voorwaarden.\nOp deze overeenkomst zijn onze algemene voorwaarden van toepassing.\n\nMet vriendelijke groet,\nvoorbeeldglazenwasserij.nl",sms:""}};
 const tplEigen=()=>typeof window!=="undefined"&&LIVE&&window.ZEEM_BID==="het CRM";
 const tpls=()=>{const o={};Object.keys(TPL).filter(k=>!TPL_VERBORGEN.includes(k)).forEach(k=>o[k]=normTpl(tplEigen()&&TPL_EIGEN[k]?TPL_EIGEN[k]:brTpl(TPL[k]),state.sjablonen[k]));Object.keys(state.sjablonen).forEach(k=>{if(!o[k]&&state.sjablonen[k]&&!TPL_WEG.includes(k)&&!TPL_VERBORGEN.includes(k))o[k]=normTpl({},state.sjablonen[k])});return o};
+/* echte voornaam van een klant: voornaam, contactpersoon, "Achternaam, Voornaam" of uit het e-mailadres; leeg als die er niet is */
+const kVoornaam=(()=>{
+  /* geen echte voornaam: voorletters, titels en tussenvoegsels */
+  const GEEN=/^(fam|familie|fa|firma|dhr|mevr|mw|mr|mrs|hr|de|der|den|van|het|ten|ter|bv|nv|vof|vve|stichting|vereniging|heer|mevrouw|n\.?v\.?t\.?)$/i;
+  const ok=w=>{w=String(w||"").replace(/[^A-Za-z\u00C0-\u017F'-]/g,"");return w.length>=2&&!/^[A-Z]$/i.test(w)&&!GEEN.test(w)&&!/^[A-Z]{2,3}$/.test(w)?w:""};
+  const hoofd=w=>w?w.charAt(0).toUpperCase()+w.slice(1):"";
+  /* uit een e-mailadres als peterfolkersma@ of peter.folkersma@: wat er voor de achternaam staat */
+  const uitMail=(naam,mail)=>{const lp=String(mail||"").toLowerCase().split("@")[0].replace(/[0-9_+-]/g,"");if(!lp)return"";
+    const ws=String(naam||"").toLowerCase().split(/[^a-z\u00C0-\u017F]+/).filter(w=>w.length>=4&&!GEEN.test(w));
+    for(const w of ws){const p=lp.replace(/\./g,"");let x="";
+      if(lp.includes(".")){const d=lp.split(".");if(d.length===2&&d[1]===w)x=d[0];else if(d.length===2&&d[0]===w)x=d[1]}
+      if(!x&&p.endsWith(w)&&p.length>w.length)x=p.slice(0,p.length-w.length);
+      if(x&&/^[a-z]{3,12}$/.test(x)&&!GEEN.test(x)&&!/^(info|mail|post|admin|contact|kantoor|sales|team|werk|fam|familie|the|mr|mrs)$/.test(x))return hoofd(x)}
+    return""};
+  return function(o){o=o||{};
+    if(o.voornaam&&ok(String(o.voornaam).trim().split(/\s+/)[0]))return String(o.voornaam).trim();
+    if(o.contact){const w=String(o.contact).trim().split(/[\s,]+/).map(ok).find(Boolean);if(w)return w}
+    const n=String(o.naam||"").replace(/^Voorbeeld:\s*/,"").trim();
+    if(n.includes(",")){const w=n.split(",").slice(1).join(" ").trim().split(/\s+/).map(ok).find(Boolean);if(w)return w}
+    const m=uitMail(n,o.email);if(m)return m;
+    return""}})();
 function klantVars(k,datum){
   const st=S(),tm=toMin(k.tijd),tv=tm!=null?"tussen "+k.tijd+" en "+fromMin(tm+duur(k)):"in de loop van de dag";
   const _ach=k.achternaam||String(k.naam||"").split(",")[0].trim();
@@ -7670,7 +7691,7 @@ function klantVars(k,datum){
   const _tags={"number.customer":k.klantnr||"","lastname.customer":_ach,"sex.customer":k.geslacht||"","company.customer":k.bedrijfsnaam||(isZak(k)?cleanName(k.naam):""),"street.customer":_ps,"housenumber.customer":_ph,"postal.customer":k.postcode||"","city.customer":k.plaats||"","email.customer":k.email||"","phone.customer":k.mobiel||k.telefoon||"",
     "daypart.appointment":_tm==null?"":_tm<720?"ochtend":_tm<1080?"middag":"avond","weeknumber.appointment":String(_wk),"subservices.appointment":_sub.map(x=>"• "+x).join("\n"),"articles.appointment":(k.artikelen||[]).map(a=>"• "+(a.aantal||1)+"× "+(a.naam||a.omschrijving||"")).join("\n"),
     "address.appointment":_us,"housenumber.appointment":_uh,"postal.appointment":_ao.postcode||k.postcode||"","location.appointment":(typeof jobObj==="function"&&jobObj(k)&&jobObj(k).naam)||"","confirm_link.appointment":""};
-  return{..._tags,diensten:_dl.map(x=>"• "+x).join("\n"),straat:_ao.adres||"",plaats:_ao.plaats||"",aanhef:k.geslacht==="man"?"heer "+_ach:k.geslacht==="vrouw"?"mevrouw "+_ach:isZak(k)?"heer/mevrouw":"heer/mevrouw "+_ach,voornaam:k.voornaam||cleanName(k.naam),naam:_nat,klant:_nat,adres:k.adres?jobAddr(k):"",datum:longD(datum||planned(k)),tijd:k.tijd||"",tijdvak:tv,dienst:(k.dienst||"glasbewassing").toLowerCase(),
+  return{..._tags,diensten:_dl.map(x=>"• "+x).join("\n"),straat:_ao.adres||"",plaats:_ao.plaats||"",aanhef:k.geslacht==="man"?"heer "+_ach:k.geslacht==="vrouw"?"mevrouw "+_ach:isZak(k)?"heer/mevrouw":"heer/mevrouw "+_ach,voornaam:kVoornaam(k)||(isZak(k)?cleanName(k.naam):(k.geslacht==="man"?"heer ":k.geslacht==="vrouw"?"mevrouw ":"heer/mevrouw ")+_ach),naam:_nat,klant:_nat,adres:k.adres?jobAddr(k):"",datum:longD(datum||planned(k)),tijd:k.tijd||"",tijdvak:tv,dienst:(k.dienst||"glasbewassing").toLowerCase(),
     bedrijf:st.naam||"je glazenwasser",iban:st.iban||"",telefoon:st.telefoon||"",telefoonbedrijf:st.telefoon||"",prijs:eur(k.prijs),interval:k.frequentie?intervalTxt(k):"",
     betaallink:st.betaallink||"",betaalregel:st.betaallink?"U kunt direct betalen via: "+st.betaallink+"\n":"",reviewlink:st.reviewLink||"",voorwaarden:st.voorwaarden||"",opzegtermijn:st.opzegtermijn||""};
 }
@@ -13528,7 +13549,7 @@ function invModel(f,klant){
   const vervalRij=d.off?null:["Vervaldatum",[fmtNum(f.verval).replace(/ /g,"")]];if(vervalRij)coInfo.push(vervalRij);const di=coInfo.findIndex(([l])=>/datum|Geldig/i.test(l));if(di>0&&coInfo[di-1][0])coInfo.splice(di,0,["",[]]);
   return{...d,pill,A,meta,coLines,pay,foot,footLogo,zin,coInfo,betreft:(d.off?"Offerte ":"Factuur ")+f.nummer,titel:d.off?"Offerte":"Factuur",stLabel:{b:"Openstaand",g:d.off?"Geaccepteerd":"Betaald",r:d.off?"Afgewezen":"Vervallen",n:d.st[0]==="VERSTUURD"?"Verstuurd":"Concept"}[d.st[1]]||d.st[0]};
 }
-const offTxt=(t,f)=>{const k=typeof invKlant==="function"?invKlant(f):null,vn=k&&k.voornaam?k.voornaam:String(cleanName(f.klantNaam||"")).split(",").slice(-1)[0].trim();let v={};try{v=k&&k.id&&typeof klantVars==="function"?klantVars(k):{}}catch(e){}return fill(t,{...v,klant:cleanName(f.klantNaam||""),naam:cleanName(f.klantNaam||""),voornaam:vn,bedrijf:S().naam||"",factuurnummer:f.nummer||"",vervaldatum:f.verval?fmtL(f.verval):""}).trim()};
+const offTxt=(t,f)=>{const k=typeof invKlant==="function"?invKlant(f):null,vn=(k&&kVoornaam(k))||kVoornaam({naam:f.klantNaam,email:f.klantEmail})||String(cleanName(f.klantNaam||"")).split(",").slice(-1)[0].trim();let v={};try{v=k&&k.id&&typeof klantVars==="function"?klantVars(k):{}}catch(e){}return fill(t,{...v,klant:cleanName(f.klantNaam||""),naam:cleanName(f.klantNaam||""),voornaam:vn,bedrijf:S().naam||"",factuurnummer:f.nummer||"",vervaldatum:f.verval?fmtL(f.verval):""}).trim()};
 /* factuurvoorbeeld passend maken: hele A4 in de breedte van het scherm (verkleind), nooit half afgesneden */
 function paperFit(){document.querySelectorAll(".paperwrap").forEach(w=>{const ps=[...w.querySelectorAll(".inv5")];if(!ps.length)return;
   ps.forEach(p=>{p.style.transform=p.style.transformOrigin=p.style.margin=p.style.zoom=""});

@@ -82,7 +82,29 @@ const nlTijd = (d = new Date()) => new Intl.DateTimeFormat("nl-NL", { timeZone: 
 async function leesAsset(id) { if (!id) return null; try { const f = bucket().file("assets/" + id); const [[m], [buf]] = await Promise.all([f.getMetadata(), f.download()]); return { bytes: buf, type: m.contentType || "" }; } catch (e) { return null; } }
 async function volgNummer() { const ref = db.doc("tellers/overzicht"); const n = await db.runTransaction(async t => { const s = await t.get(ref); const v = (s.exists ? s.data().n : 1800) + 1; t.set(ref, { n: v }); return v; }); return dagNL().slice(2, 4) + "-" + String(n).padStart(6, "0"); }
 function bedrijfModel(b, logo) { return { naam: b.naam || "Mansard", adres: b.adres || "", pcPlaats: [b.postcode, b.plaats].filter(Boolean).join(" "), telefoon: b.telefoon || "", email: b.email || "", kvk: b.kvk || "", btwnr: b.btwnr || "", iban: b.iban || "", bic: b.bic || "", logo }; }
-const voornaamVan = naam => { const n = String(naam || "").replace(/[\[\]()*<>"`]/g, "").trim(); if (n.includes(",")) return n.split(",").slice(1).join(",").trim() || n; return n.split(/\s+/)[0] || n; };
+/* echte voornaam: voornaam, contactpersoon, "Achternaam, Voornaam" of uit het e-mailadres (peterfolkersma@ bij Folkersma) */
+const voornaamK = (function(){
+  /* geen echte voornaam: voorletters, titels en tussenvoegsels */
+  const GEEN=/^(fam|familie|fa|firma|dhr|mevr|mw|mr|mrs|hr|de|der|den|van|het|ten|ter|bv|nv|vof|vve|stichting|vereniging|heer|mevrouw|n\.?v\.?t\.?)$/i;
+  const ok=w=>{w=String(w||"").replace(/[^A-Za-z\u00C0-\u017F'-]/g,"");return w.length>=2&&!/^[A-Z]$/i.test(w)&&!GEEN.test(w)&&!/^[A-Z]{2,3}$/.test(w)?w:""};
+  const hoofd=w=>w?w.charAt(0).toUpperCase()+w.slice(1):"";
+  /* uit een e-mailadres als peterfolkersma@ of peter.folkersma@: wat er voor de achternaam staat */
+  const uitMail=(naam,mail)=>{const lp=String(mail||"").toLowerCase().split("@")[0].replace(/[0-9_+-]/g,"");if(!lp)return"";
+    const ws=String(naam||"").toLowerCase().split(/[^a-z\u00C0-\u017F]+/).filter(w=>w.length>=4&&!GEEN.test(w));
+    for(const w of ws){const p=lp.replace(/\./g,"");let x="";
+      if(lp.includes(".")){const d=lp.split(".");if(d.length===2&&d[1]===w)x=d[0];else if(d.length===2&&d[0]===w)x=d[1]}
+      if(!x&&p.endsWith(w)&&p.length>w.length)x=p.slice(0,p.length-w.length);
+      if(x&&/^[a-z]{3,12}$/.test(x)&&!GEEN.test(x)&&!/^(info|mail|post|admin|contact|kantoor|sales|team|werk|fam|familie|the|mr|mrs)$/.test(x))return hoofd(x)}
+    return""};
+  return function(o){o=o||{};
+    if(o.voornaam&&ok(String(o.voornaam).trim().split(/\s+/)[0]))return String(o.voornaam).trim();
+    if(o.contact){const w=String(o.contact).trim().split(/[\s,]+/).map(ok).find(Boolean);if(w)return w}
+    const n=String(o.naam||"").replace(/^Voorbeeld:\s*/,"").trim();
+    if(n.includes(",")){const w=n.split(",").slice(1).join(" ").trim().split(/\s+/).map(ok).find(Boolean);if(w)return w}
+    const m=uitMail(n,o.email);if(m)return m;
+    return""}})();
+const voornaamVan = (naam, email) => { if (naam && typeof naam === "object") { const k = naam; return voornaamK({ voornaam: k.voornaam, contact: k.contact, naam: k.naam, email: k.email }) || String(k.contact || k.naam || "").replace(/[\[\]()*<>"`]/g, "").trim(); }
+  const n = String(naam || "").replace(/[\[\]()*<>"`]/g, "").trim(); const v = voornaamK({ naam: n, email }); if (v) return v; if (n.includes(",")) return n.split(",").slice(1).join(",").trim() || n; return n.split(/\s+/)[0] || n; };
 const TPL_STD = {
   maandtop: { onderwerp: "[cup.ranking] [place.ranking] snelste betalers van [month.ranking] · [name.company]", mail: "Beste [firstname.customer],\n\nGefeliciteerd! In [month.ranking] stond u op de [place.ranking] van onze snelste betalers. U betaalde uw factuur in [time.ranking]. Hartelijk dank voor uw snelle betaling, daar zijn wij erg blij mee.\n\n[block.ranking]\n\nWij hebben [credits.ranking] ([amount.ranking]) extra voor u bijgeschreven. Die gaan automatisch van uw eerstvolgende factuur af; u hoeft daar niets voor te doen.\n\nIn uw klantportaal ziet u uw credits en de top 3 van de maand. Elke maand maakt u weer kans: betaal uw factuur direct met de iDEAL-knop in de mail of in uw klantportaal.\n\nMet vriendelijke groet,\n[name.company]" },
   voorlopig: { onderwerp: "[name.company] - Voorlopig bestellingsoverzicht [nr.invoice]", mail: "Beste [firstname.customer],\n\nBedankt voor uw bestelling bij [name.company].\nIn de bijlage vindt u uw voorlopige bestellingsoverzicht en onze algemene voorwaarden.\n\nUw eerste bezoek\nTijdens uw eerste bezoek voeren we de door u bestelde diensten uit. Dit eerste bezoek noemen we de 0-beurt. We controleren daarbij ook of de opgegeven aantallen overeenkomen met de situatie ter plaatse. Mocht hierin een verschil zitten, dan kan dit gevolgen hebben voor de prijs. Meer informatie hierover vindt u in onze algemene voorwaarden.\nDe planning\nWe plannen uw woning in op een passende route, waarbij we afspraken zoveel mogelijk per omgeving combineren. Hierdoor kan het eerste bezoek iets langer op zich laten wachten. Houd rekening met een wachttijd van ongeveer 2 tot 8 weken.\n\nNa uw eerste bezoek komen we iedere 8 weken bij u langs. Twee dagen voor iedere afspraak ontvangt u een e-mail met de datum en het tijdstip.\nZodra uw eerste bezoek is ingepland, ontvangt u hiervan bericht.\n\nMet vriendelijke groet,\n[name.company]\n[phone.company]" },
@@ -148,7 +170,7 @@ async function stuurOverzichtMail({ soort, model, naar, naamKlant, klantId, meta
   const nummer = model.nummer || await volgNummer();
   const titel = soort === "definitief" ? "Definitief bestellingsoverzicht" : "Voorlopig bestellingsoverzicht";
   const pdf = await maakOverzichtPdf({ contractduur: "1 jaar", datum: nlDatum(), ...model, titel, nummer, bedrijf: bedrijfModel(b, logo) });
-  const tpl = await sjabloon(soort), v = { "firstname.customer": voornaamVan(naamKlant), "name.customer": naamKlant, "name.company": b.naam || "", "phone.company": b.telefoon || "", "email.company": b.email || "", "nr.invoice": nummer, "date.invoice": nlDatum() };
+  const tpl = await sjabloon(soort), v = { "firstname.customer": voornaamVan(naamKlant, naar), "name.customer": naamKlant, "name.company": b.naam || "", "phone.company": b.telefoon || "", "email.company": b.email || "", "nr.invoice": nummer, "date.invoice": nlDatum() };
   const tekst = vulIn(tpl.mail, v), onderwerp = vulIn(tpl.onderwerp, v);
   const bijlagen = [{ name: `${nummer}_${vl ? "v" : "d"}.pdf`, content: Buffer.from(pdf).toString("base64") }];
   if (vw) bijlagen.push({ name: b.voorwaardenNaam || "Algemene voorwaarden.pdf", content: Buffer.from(vw.bytes).toString("base64") });

@@ -56,7 +56,7 @@ module.exports = function maakPortaal(ctx) {
     if (!g.brevoKey) throw new Error("geen Brevo-sleutel");
     const t = tok();
     await db.doc("portaalLogin/" + sha(t)).set({ klantId: k.id, email: lc(email), exp: Date.now() + dagen * DAG, op: nu() });
-    const url = basisUrl(req) + "/portaal?l=" + t, vn = voornaamVan(schoon(k.contact || k.naam));
+    const url = basisUrl(req) + "/portaal?l=" + t, vn = voornaamVan({ ...k, naam: schoon(k.naam), contact: k.contact ? schoon(k.contact) : "" });
     const tekst = `Beste ${vn},\n\nMet de knop hieronder opent u uw persoonlijke klantomgeving van ${b.naam || "Mansard"}. Daar ziet u wanneer wij weer langskomen, uw facturen en bezoeken, en kunt u ons eenvoudig iets laten weten.\n\nDe knop werkt ${dagen > 1 ? dagen + " dagen" : "een uur"} en is alleen voor u bedoeld. U hoeft geen wachtwoord te onthouden.\n\nMet vriendelijke groet,\n${b.naam || "Mansard"}`;
     const afz = g.afzender || b.email;
     await brevoSend(g.brevoKey, { sender: { name: b.naam || "Mansard", email: afz }, replyTo: { email: b.email || afz }, to: [{ email, name: schoon(k.naam) || undefined }],
@@ -108,7 +108,7 @@ module.exports = function maakPortaal(ctx) {
     if (_rl && Date.now() - _rl.t < 5 * 60e3) return _rl;
     const [b, fq, kq] = await Promise.all([bedrijf(), db.collection("facturen").where("status", "==", "betaald").get(), db.collection("klanten").get()]);
     const eigenMail = String(b.email || "").trim().toLowerCase(), K = new Map();
-    kq.docs.forEach(d => { const k = dec(d.data()); K.set(d.id, { vn: voornaamVan(schoon(k.contact || k.naam)), eigen: !!eigenMail && String(k.email || "").trim().toLowerCase() === eigenMail, uit: k.nietInRanglijst === true }); });
+    kq.docs.forEach(d => { const k = dec(d.data()); K.set(d.id, { vn: voornaamVan({ ...k, naam: schoon(k.naam), contact: k.contact ? schoon(k.contact) : "" }), eigen: !!eigenMail && String(k.email || "").trim().toLowerCase() === eigenMail, uit: k.nietInRanglijst === true }); });
     const F = [];
     fq.docs.forEach(d => { const f = d.data(); if (!f.klantId || f.soort === "offerte") return; const kk = K.get(f.klantId); if (!kk || kk.eigen || kk.uit) return; const sec = betaalSec(f); if (sec == null) return;
       F.push({ klantId: f.klantId, datum: f.datum || "", maand: String(f.betaaldTs ? isoNL(new Date(f.betaaldTs)) : f.betaaldOp || "").slice(0, 7), sec, precies: betaalPrecies(f), incasso: !!(f.incasso || f.betaalwijze === "incasso"), ideal: viaIdeal(f) }); });
@@ -283,7 +283,7 @@ module.exports = function maakPortaal(ctx) {
       .filter(m => m && m.id).map(m => ({ datum: m.datum, categorie: m.categorie || "", tekst: String(m.notitie || "").slice(0, 400), foto: fotoUrl(m.id) })).sort((a, b2) => String(b2.datum).localeCompare(String(a.datum))).slice(0, 20);
     const aanbevolen = [
       ...ra.docs.map(d => d.data()).filter(a => a.status === "nieuw" || a.status === "bezig").map(a => ({ naam: voornaamVan(((a.aanvraag || {}).klant || {}).naam || ""), datum: String(a.ontvangen || "").slice(0, 10), status: "aangemeld" })),
-      ...rk.docs.map(d => dec(d.data())).map(x => ({ naam: voornaamVan(schoon(x.contact || x.naam)), datum: x.aangemaakt || "", status: x.aanbevelingBeloond ? "beloond" : x.actief === false ? "gestopt" : x.akkoord === false || x.prospect ? "akkoord" : "eerste" }))
+      ...rk.docs.map(d => dec(d.data())).map(x => ({ naam: voornaamVan({ ...x, naam: schoon(x.naam), contact: x.contact ? schoon(x.contact) : "" }), datum: x.aangemaakt || "", status: x.aanbevelingBeloond ? "beloond" : x.actief === false ? "gestopt" : x.akkoord === false || x.prospect ? "akkoord" : "eerste" }))
     ].sort((a, b2) => String(b2.datum).localeCompare(String(a.datum)));
     const tegoed = (k.tegoed || []).filter(t => t && Number(t.bedrag) > 0);
     let extraDiensten = [];
@@ -291,7 +291,7 @@ module.exports = function maakPortaal(ctx) {
       extraDiensten = [...(u.groepen || []), ...(u.eigen || [])].filter(g => g && !g.verberg && !["rolluik", "antispin", "antialg", "schoorsteen", "spoed", "hogedruk", "binnen"].includes(g.id) && !/glasbewassing binnen/i.test(String(g.naam || "")) && g.type !== "glas" && g.type !== "bijz" && String(g.naam || "").trim()).map(g => String(g.naam).trim()).filter((n, i, l) => { const k = x => x.toLowerCase().replace(/\breinigen\b/g, "reiniging").replace(/[^a-z]/g, ""); return l.findIndex(m => k(m) === k(n)) === i; }).slice(0, 24); } } catch (e) { console.error("diensten", e); }
     return {
       bedrijf: { ...bedrijfInfo(b, base), extraDiensten },
-      klant: { voornaam: voornaamVan(schoon(k.contact || k.naam)), naam: schoon(k.naam), contact: k.contact || "", adres: k.adres || "", postcode: k.postcode || "", plaats: k.plaats || "", pcPlaats: [k.postcode, k.plaats].filter(Boolean).join(" "), uitvoer, email: k.email || "", telefoon: k.telefoon || "", mobiel: k.mobiel || "", zakelijk: k.soort === "zakelijk" || k.soort === "vve",
+      klant: { voornaam: voornaamVan({ ...k, naam: schoon(k.naam), contact: k.contact ? schoon(k.contact) : "" }), naam: schoon(k.naam), contact: k.contact || "", adres: k.adres || "", postcode: k.postcode || "", plaats: k.plaats || "", pcPlaats: [k.postcode, k.plaats].filter(Boolean).join(" "), uitvoer, email: k.email || "", telefoon: k.telefoon || "", mobiel: k.mobiel || "", zakelijk: k.soort === "zakelijk" || k.soort === "vve",
         vve, vveSoort: vve ? vveSoortVan(k) : "", diensten: vveDiensten(k, jobsDec), ritme: ritmeTxt(k), weekdagen: wdg || [], taken: vveTakenVan(k, b), takenFreq: Object.fromEntries(Object.entries(k.vveFreq && typeof k.vveFreq === "object" ? k.vveFreq : {}).filter(([n, f]) => typeof f === "string" && ["week", "2week", "maand", "kwartaal", "halfjaar", "jaar"].includes(f)).slice(0, 20).map(([n, f]) => [String(n).slice(0, 60), f])),
         klantnr: k.klantnr || "", sinds: k.aangemaakt || (beurten.length ? beurten[beurten.length - 1].datum : ""), dienst: (hoofdJob ? hoofdJob.dienst : k.dienst) || "Glasbewassing", frequentie: hoofdJob ? (Number(hoofdJob.frequentie) || freqW) : freqW, prijs: hoofdJob ? (Number(hoofdJob.prijs) || 0) : (Number(k.prijs) || 0), binnen: !!k.binnen, actief: k.actief !== false,
         toegang: k.portaalToegang || { opties: [], tekst: "" }, beheercode: String(k.beheercode || ""), nieuw: !!k.eersteKeer && !beurten.length,
@@ -499,7 +499,7 @@ module.exports = function maakPortaal(ctx) {
         const fs_ = await db.doc("facturen/" + id).get();
         if (!fs_.exists || fs_.data().soort === "offerte") { res.status(404).json({}); return; }
         const f = dec(fs_.data()); let voornaam = "";
-        try { const kd = await db.doc("klanten/" + f.klantId).get(); if (kd.exists) { const k = dec(kd.data()); voornaam = voornaamVan(schoon(k.contact || k.naam)); } } catch (e) {}
+        try { const kd = await db.doc("klanten/" + f.klantId).get(); if (kd.exists) { const k = dec(kd.data()); voornaam = voornaamVan({ ...k, naam: schoon(k.naam), contact: k.contact ? schoon(k.contact) : "" }); } } catch (e) {}
         res.json({ betaald: f.status === "betaald", nummer: f.nummer || "", uren: snelUren(f), zelfdeDag: zelfdeDag(f), voornaam }); return;
       }
       /* ons werk: openbare fotogalerij voor de website (beheer in het CRM, Instellingen › Ons werk) */
@@ -538,7 +538,7 @@ module.exports = function maakPortaal(ctx) {
         const q = await db.collection("klanten").where("refCode", "==", c).limit(1).get(), b = await bedrijf();
         if (q.empty) { res.status(404).json({}); return; }
         const k = q.docs[0].data(), bi = bedrijfInfo(b, basisUrl(req));
-        res.json({ voornaam: voornaamVan(schoon(k.contact || k.naam)), plaats: k.plaats || "", welkom: bi.refAan ? bi.refWelkom : 0, bedrijf: { naam: bi.naam, logo: bi.logo, website: bi.website, telefoon: bi.telefoon, kleur: bi.kleur }, code: c }); return;
+        res.json({ voornaam: voornaamVan({ ...k, naam: schoon(k.naam), contact: k.contact ? schoon(k.contact) : "" }), plaats: k.plaats || "", welkom: bi.refAan ? bi.refWelkom : 0, bedrijf: { naam: bi.naam, logo: bi.logo, website: bi.website, telefoon: bi.telefoon, kleur: bi.kleur }, code: c }); return;
       }
       const S = await sessie(req);
       if (!S) { res.status(401).json({ fout: "Log opnieuw in." }); return; }
@@ -679,7 +679,7 @@ module.exports = function maakPortaal(ctx) {
     const url = basisUrl({ headers: { "x-forwarded-host": host } }) + "/portaal?l=" + tk + "#ticket-" + ts.id;
     const opg = t.status === "opgelost";
     const st = opg ? "Goed nieuws: wij hebben uw ticket opgelost. Is er toch nog iets niet goed? Reageer dan gewoon in het ticket." : "Er is een nieuw antwoord op uw ticket:";
-    const aanhef = `Beste ${voornaamVan(schoon(k.contact || k.naam))},\n\n${st}`;
+    const aanhef = `Beste ${voornaamVan({ ...k, naam: schoon(k.naam), contact: k.contact ? schoon(k.contact) : "" })},\n\n${st}`;
     const groet = `Met vriendelijke groet,\n${b.naam || "Mansard"}`;
     const tekst = `${aanhef}\n\n**${t.nummer} · ${t.onderwerp}**\n${String(t.laatsteTekst || "").slice(0, 400)}\n\nMet de knop hieronder opent u het ticket direct.\n\n${groet}`;
     const tm = ticketMailBlok(t, opg, b);
@@ -783,7 +783,7 @@ module.exports = function maakPortaal(ctx) {
     if (jubileum.length) { const g = await geheim(); if (g.brevoKey) for (const [k, n] of jubileum) {
       const email = String(k.email || "").trim(); if (!/@/.test(email)) continue;
       try {
-        const vn = voornaamVan(schoon(k.contact || k.naam)), naam = b.naam || "Mansard";
+        const vn = voornaamVan({ ...k, naam: schoon(k.naam), contact: k.contact ? schoon(k.contact) : "" }), naam = b.naam || "Mansard";
         const onderwerp = `${n} jaar klant: dank u wel! · ${naam}`;
         const tekst = `Beste ${vn},\n\nVandaag bent u precies ${n === 1 ? "één jaar" : n + " jaar"} klant bij ons. Dank u wel voor uw vertrouwen!\n\nAls bedankje hebben wij **${cr.jaar} credits (€ ${cr.jaar})** voor u klaargezet. Die gaan automatisch van uw volgende factuur af; u hoeft niets te doen. In uw klantportaal ziet u uw credits altijd terug.\n\nMet vriendelijke groet,\n${naam}`;
         const afz = g.afzender || b.email;
