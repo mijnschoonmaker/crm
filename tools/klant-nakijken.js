@@ -3,7 +3,7 @@ const admin = require("../functions/node_modules/firebase-admin");
 admin.initializeApp({ projectId: process.env.P });
 const db = admin.firestore();
 const pick = (o, ks) => Object.fromEntries(ks.filter(k => o && o[k] !== undefined).map(k => [k, o[k]]));
-const K = ["naam", "klantnr", "adres", "plaats", "dienst", "prijs", "btw", "btwPct", "incl", "duur", "frequentie", "gepland", "hoofdKlantId", "opdrachtId", "opdrachtNr", "actief", "prijsIncl", "prijsEx", "toeslag", "objectId", "vve", "type"];
+const K = ["naam", "soort", "bedrijfsnaam", "contact", "voornaam", "achternaam", "klantnr", "adres", "plaats", "dienst", "prijs", "btw", "btwPct", "incl", "duur", "frequentie", "gepland", "hoofdKlantId", "opdrachtId", "opdrachtNr", "actief", "prijsIncl", "prijsEx", "toeslag", "objectId", "vve", "type"];
 (async () => {
   const z = String(process.env.ZOEK || "").toLowerCase().trim();
   const ins = (await db.doc("instellingen/bedrijf").get()).data() || {};
