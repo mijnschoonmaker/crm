@@ -543,6 +543,9 @@ function sendF(id,o={}){
   if((o.herinnering||o.wik)&&typeof fhPoort==="function"&&!fhPoort(f,!!o.wik))return;
   const off=f.soort==="offerte",late=!off&&(o.herinnering||o.wik||fStatus(f)[1]==="Achterstallig");
   const _k=state.klanten.find(x=>x.id===f.klantId),_mail=_k?mailK(_k,off?"offerte":"factuur").email:f.klantEmail;
+  /* demo: een geveegde factuur gaat net als in het echte CRM direct "de deur uit" (er wordt niets verstuurd), zonder mailscherm ertussen */
+  if(typeof DEMO_KEY!=="undefined"&&o.direct&&o.bevestigd&&!o.handmatig&&!o.herinnering&&!o.wik&&!off&&_mail){const g=f;
+    save("facturen",f.id,{...strip(g),verstuurdOp:g.verstuurdOp||iso(today()),verstuurdTs:g.verstuurdTs||new Date().toISOString(),...(typeof naVerstuurd==="function"?naVerstuurd(g):{})});return}
   /* met e-mail versturen aan en een e-mailadres: geen tussenscherm meer, alleen een korte bevestiging en dan direct de opgemaakte mail met PDF */
   if(!o.handmatig&&typeof liveMail==="function"&&liveMail()&&_mail){
     if(!o.bevestigd){const wat=o.wik?"WIK-brief":late?"Herinnering":off?"Offerte":"Factuur",ml=!off&&!f.betaald&&f.status!=="betaald"&&typeof liveMollie==="function"&&liveMollie();

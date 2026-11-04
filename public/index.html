@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="6381c0a2256f"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="c40d131303fa"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -8682,6 +8682,9 @@ function sendF(id,o={}){
   if((o.herinnering||o.wik)&&typeof fhPoort==="function"&&!fhPoort(f,!!o.wik))return;
   const off=f.soort==="offerte",late=!off&&(o.herinnering||o.wik||fStatus(f)[1]==="Achterstallig");
   const _k=state.klanten.find(x=>x.id===f.klantId),_mail=_k?mailK(_k,off?"offerte":"factuur").email:f.klantEmail;
+  /* demo: een geveegde factuur gaat net als in het echte CRM direct "de deur uit" (er wordt niets verstuurd), zonder mailscherm ertussen */
+  if(typeof DEMO_KEY!=="undefined"&&o.direct&&o.bevestigd&&!o.handmatig&&!o.herinnering&&!o.wik&&!off&&_mail){const g=f;
+    save("facturen",f.id,{...strip(g),verstuurdOp:g.verstuurdOp||iso(today()),verstuurdTs:g.verstuurdTs||new Date().toISOString(),...(typeof naVerstuurd==="function"?naVerstuurd(g):{})});return}
   /* met e-mail versturen aan en een e-mailadres: geen tussenscherm meer, alleen een korte bevestiging en dan direct de opgemaakte mail met PDF */
   if(!o.handmatig&&typeof liveMail==="function"&&liveMail()&&_mail){
     if(!o.bevestigd){const wat=o.wik?"WIK-brief":late?"Herinnering":off?"Offerte":"Factuur",ml=!off&&!f.betaald&&f.status!=="betaald"&&typeof liveMollie==="function"&&liveMollie();
