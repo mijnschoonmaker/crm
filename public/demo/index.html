@@ -19379,7 +19379,9 @@ function rgLaag(){const el=document.getElementById("rvMap"),m=el&&el._map,L=wind
   el._rg=L.tileLayer(url,{pane:"rgPane",opacity:.62,maxNativeZoom:7,maxZoom:22,tileSize:256,className:"rg-tegel"}).addTo(m);el._rgUrl=url;rgKnop(el)}
 function rgKnop(el){if(!el)return;let b=el.querySelector(".rg-knop");if(!b){b=document.createElement("button");b.type="button";b.className="rg-knop";b.dataset.rg="1";el.appendChild(b)}
   const t=RG.tijd?new Date(RG.tijd).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"}):"";
-  b.setAttribute("aria-pressed",RG.aan);b.innerHTML=`<span class="rg-dr"></span>Regen${RG.aan&&t?` <small>${t}</small>`:""}`}
+  const v=RG.voor,droog=v&&!v.leeg&&!v.eerste;
+  b.setAttribute("aria-pressed",RG.aan);b.title=RG.aan?"Buienradar staat aan"+(t?" (beeld van "+t+")":"")+" · tik om uit te zetten":"Buienradar aanzetten";
+  b.innerHTML=`<span class="rg-dr"></span>Buienradar${RG.aan?(droog?" <small>· geen buien</small>":t?` <small>· ${t}</small>`:""):" <small>· uit</small>"}`}
 document.addEventListener("click",e=>{const b=e.target.closest("[data-rg]");if(!b)return;e.preventDefault();e.stopPropagation();RG.aan=!RG.aan;try{localStorage.setItem("ms.rg",RG.aan?"1":"0")}catch(_){}rgLaag()},true);
 /* regen per volgend adres, per kwartier, komende 2 uur */
 async function rgVoorspel(){if(RG.bezig||Date.now()-RG.voorT<10*60e3)return;const ti=iso(today()),open=routeStops(ti).filter(x=>!x.done).slice(0,12);
@@ -19391,7 +19393,7 @@ async function rgVoorspel(){if(RG.bezig||Date.now()-RG.voorT<10*60e3)return;cons
     A.forEach((r,i)=>{const m=r&&r.minutely_15;if(!m)return;m.time.forEach((t,ix)=>{const ts=Date.parse(t+":00"),mm=Number(m.precipitation[ix])||0;if(ts<nu-15*60e3||mm<0.2)return;
       if(!raak.some(z=>z.i===i))raak.push({i,ts,mm});if(!eerste||ts<eerste.ts)eerste={i,ts,mm}})});
     RG.voor={P,eerste,raak,max:Math.max(0,...raak.map(z=>z.mm))}}
-  catch(e){RG.voor=null}finally{RG.bezig=false;rgRegelZet()}}
+  catch(e){RG.voor=null}finally{RG.bezig=false;rgRegelZet();rgKnop(document.getElementById("rvMap"))}}
 function rgRegelHtml(){const v=RG.voor;if(!v||v.leeg)return"";
   if(!v.eerste)return `<div class="rg-regel droog"><span class="rg-ic">${I.sun||"☀"}</span><span><b>Komende 2 uur droog</b> op de volgende adressen</span></div>`;
   const t=new Date(v.eerste.ts),hm=t.toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"}),min=Math.round((v.eerste.ts-Date.now())/6e4),k=v.P[v.eerste.i].k,adr=jobAddrObj(k).adres||ccNaam(k),n=v.raak.length-1;
