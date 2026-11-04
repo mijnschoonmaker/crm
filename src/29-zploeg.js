@@ -77,7 +77,7 @@ function plWieHtml(k,i,n){if(!plMeer()||plSel())return"";const w=plWie(k,null,i,
 
 /* ---------- live posities van alle medewerkers (alleen eigenaar en beheerder) ---------- */
 function plLuister(){if(!LIVE||PL.unsub||!state.loaded||isMw())return;
-  try{PL.unsub=fsDb().collection("live").onSnapshot(q=>{const n={};q.docs.forEach(d=>{if(d.id.startsWith("mw_"))n[d.id]=d.data()});PL.live=n;plVernieuw()},()=>{PL.unsub=null})}catch(e){}}
+  try{PL.unsub=fsDb().collection("live").onSnapshot(q=>{const n={};q.docs.forEach(d=>{if(d.id.startsWith("mw_"))n[d.id]=d.data()});PL.live=n;plVernieuw();if(typeof mkStatusVernieuw==="function")mkStatusVernieuw()},()=>{PL.unsub=null})}catch(e){}}
 function plVernieuw(){if(state.tab!=="control")return;const r=document.getElementById("ccPloeg"),h=plRijHtml();
   if(!!r!==!!h)return render();if(r)r.outerHTML=h;
   const el=document.getElementById("rvMap");if(!el||!el._map)return;if(plSel())rvMapLive();else ccKaart()}

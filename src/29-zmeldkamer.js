@@ -42,10 +42,18 @@ document.addEventListener("click",e=>{const w=e.target.closest("[data-mkweg]"),a
   else{MK.alles=!MK.alles;render()}},true);
 
 /* status van de bus (kleur zoals op de meldkamer) en uitloop t.o.v. de planning */
+/* rijdt de bus nu? Op basis van de live GPS (snelheid, of ver van het adres van de klus) */
+function mkLivePos(){const L=Object.values((typeof PL!=="undefined"&&PL.live)||{}).filter(x=>typeof plVers==="function"&&plVers(x)&&x.lat&&x.lng).sort((a,b)=>String(b.ts).localeCompare(String(a.ts)))[0];
+  if(L)return{lat:+L.lat,lng:+L.lng,v:L.snelheid==null?null:Number(L.snelheid)};const o=typeof LV!=="undefined"&&LV.pos;return o?{lat:o.lat,lng:o.lng,v:null}:null}
+function mkRijdt(k){const p=mkLivePos();if(!p)return false;if(p.v!=null&&p.v>=8)return true;
+  const c=typeof pkCoord==="function"?pkCoord(k):null;if(!c||typeof lvAfst!=="function")return false;return lvAfst({lat:c[0],lng:c[1]},p)>200}
 function mkBusStatus(){const ti=iso(today()),st=routeStops(ti),open=st.filter(x=>!x.done),bz=open.find(x=>x.k.bezig&&String(x.k.bezig).slice(0,10)===ti);
   const r=(state.routes||{})[ti]||{},w=r.werk||{};
   if(!st.length)return{c:"groen",t:"Geen route vandaag"};
-  if(bz)return{c:"rood",t:"Bezig bij "+(jobAddrObj(bz.k).adres||ccNaam(bz.k))};
+  if(bz){const adr=jobAddrObj(bz.k).adres||ccNaam(bz.k);
+    /* de klus staat nog open, maar de bus rijdt (GPS): dan is hij onderweg, niet bij de klant */
+    if(mkRijdt(bz.k))return{c:"blauw",t:"Onderweg · "+adr+" nog niet afgemeld"};
+    return{c:"rood",t:"Bezig bij "+adr}}
   if(!open.length)return{c:"groen",t:w.stop||w.eind?"Terug bij de loods":"Alles afgerond"};
   if(st.some(x=>x.done)||w.start)return{c:"blauw",t:"Onderweg naar "+(jobAddrObj(open[0].k).adres||ccNaam(open[0].k))};
   return{c:"groen",t:"Nog niet vertrokken"}}
@@ -58,3 +66,7 @@ function mkStatusHtml(){const s=mkBusStatus(),u=mkUitloop();
   ${u?`<div class="mk-laat">${I.alert}<span><b>Loopt ${u.min} min achter</b> · nog ${plural(u.n,"adres","adressen")}</span><button type="button" class="mk-b" data-act="bulkmsg">${I.msg||""}Klanten laten weten</button></div>`:""}`}
 /* busje op de kaart: ring in de kleur van de status */
 function mkBusKleur(){try{const el=document.getElementById("rvMap"),b=el&&el._bus&&el._bus.getElement&&el._bus.getElement();if(!b)return;const c=mkBusStatus().c;b.classList.remove("mk-groen","mk-blauw","mk-rood");b.classList.add("mk-"+c)}catch(e){}}
+/* status en kleur van de bus meelopen met de live GPS, zonder het hele scherm opnieuw te tekenen */
+function mkStatusVernieuw(){try{if(state.tab!=="control")return;const el=document.querySelector(".mk-bus");if(!el)return;const s=mkBusStatus();
+  el.classList.remove("groen","blauw","rood");el.classList.add(s.c);const b=el.querySelector("b");if(b&&b.textContent!==s.t)b.textContent=s.t;mkBusKleur()}catch(e){}}
+if(typeof window!=="undefined")setInterval(mkStatusVernieuw,10000);
