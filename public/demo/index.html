@@ -9428,10 +9428,11 @@ document.addEventListener("click",e=>{if(!state.pmeer)return;const m=e.target.cl
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&state.pmeer){state.pmeer=false;document.querySelectorAll(".pl-meer.open").forEach(x=>x.classList.remove("open"))}});
 
 /* ---------- envelop bij een ingeplande afspraak: is de mail over deze afspraak geopend of aangeklikt? ----------
-   Grijs = verstuurd, nog niet geopend · groen = geopend of op een link geklikt · gestippeld = nog geen mail over deze afspraak. */
+   Alleen planningsmail/aankondiging. Grijs = verstuurd, nog niet geopend · groen = geopend of op een link geklikt · gestippeld = nog geen mail over deze afspraak. */
 function tjMail(k){if(!k||!k.gepland)return null;const d=k.gepland,van=iso(addDays(parse(d),-60));
   const L=(state.berichten||[]).filter(m=>m.klantId===k.id&&m.kanaal!=="sms"&&m.kanaal!=="whatsapp"&&String(m.op||"").slice(0,10)<=d&&String(m.op||"").slice(0,10)>=van&&
-    (String(m.ref||"").includes(d)||/aankondiging|planning|afspraak|herinnering|bevestig|uur/i.test(String(m.sjabloon||"")+" "+String(m.ref||""))));
+    /* alleen de planningsmail / aankondiging over déze afspraak; offertes, facturen en andere mails tellen niet mee */
+    (String(m.ref||"")==="planmail:"+d+":"+k.id||(String(m.sjabloon||"")==="aankondiging"&&(!m.ref||String(m.ref).includes(d)))));
   if(!L.length)return null;const m=L.sort((a,b)=>String(b.op).localeCompare(String(a.op)))[0];
   const st=m.geklikOp?"geklikt":m.gelezenOp?"geopend":"verstuurd";return {m,st}}
 function tjMailHtml(k){const r=tjMail(k);
