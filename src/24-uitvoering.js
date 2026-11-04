@@ -295,7 +295,7 @@ function groepEditor(g,key,{offerte=false,freqDefault=8,klant=null}={}){const c=
     <p class="help ge-note">Let op: afspraken die al ingepland zijn veranderen niet als je hieronder iets aanpast.</p>
     ${(()=>{const Wg=itemsWeight(g.items||[]);return (g.items||[]).map((it,j)=>{const on=Number(it.aantal)>0,b0=itemsCalc([it],Wg),b={...b0,ex:r2(b0.ex*dienstFreqFactor(g.groep,Number(it.fq)||Number(g.frequentie)||freqDefault))};return `<div class="ge-it${on?" aan":""}">
       <div class="ge-row"><div class="ge-nm"><b>${esc(it.naam)}</b><small>${eur(it.prijs)} ${esc(it.eenheid)} excl. · ${it.sec} sec</small></div>
-        <div class="ow-step"><button type="button" data-gk="${key}" data-gst="${j}:-1" aria-label="Min">−</button><input data-gk="${key}" data-gi="${j}" data-gf="aantal" type="number" min="0" step="any" inputmode="decimal" value="${esc(it.aantal||0)}" aria-label="Aantal ${esc(it.naam)}"><span>${esc(eenhKort(it.eenheid))}</span><button type="button" data-gk="${key}" data-gst="${j}:1" aria-label="Plus">+</button></div></div>
+        ${typeof mktKnop==="function"?mktKnop(key,j,it,klant):""}<div class="ow-step"><button type="button" data-gk="${key}" data-gst="${j}:-1" aria-label="Min">−</button><input data-gk="${key}" data-gi="${j}" data-gf="aantal" type="number" min="0" step="any" inputmode="decimal" value="${esc(it.aantal||0)}" aria-label="Aantal ${esc(it.naam)}"><span>${esc(eenhKort(it.eenheid))}</span><button type="button" data-gk="${key}" data-gst="${j}:1" aria-label="Plus">+</button></div></div>
       ${on?`<div class="ge-sub">
         <label>Frequentie${fq(it,j)}</label>
         <label>Aanboddatum<input type="date" data-gk="${key}" data-gi="${j}" data-gf="vol" value="${esc(it.vol||"")}" title="Leeg = bij de volgende beurt"></label>

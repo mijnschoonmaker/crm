@@ -4770,3 +4770,24 @@ aside .nk-btn:hover,aside .nk-more:hover{background:none!important;color:#0d121b
 .leaflet-marker-icon.mk-groen{outline:none}.leaflet-marker-icon.mk-groen::after,.leaflet-marker-icon.mk-blauw::after,.leaflet-marker-icon.mk-rood::after{content:"";position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;border:3px solid;pointer-events:none}
 .leaflet-marker-icon.mk-groen::after{border-color:#22a06b}.leaflet-marker-icon.mk-blauw::after{border-color:#2f6fe0}.leaflet-marker-icon.mk-rood::after{border-color:#d6453d}
 .mk-r1 b{flex:1 1 auto}@media(max-width:560px){.mk-code{display:none}.mk-b{padding:6px 9px}}
+/* ---------- meten op de luchtfoto ---------- */
+.ge-meet{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 12px;margin-left:auto;border:1px solid var(--line);border-radius:999px;background:var(--card,#fff);color:var(--ink);font:600 12.5px/1 inherit;cursor:pointer}
+.ge-meet svg{width:15px;height:15px}.ge-meet:hover{border-color:var(--ink)}
+.ge-row .ge-meet+.ow-step{margin-left:0}
+dialog.mkt{width:min(1100px,96vw);height:min(820px,92dvh);max-width:none;max-height:none;padding:0;border:0;border-radius:18px;overflow:hidden;display:flex;flex-direction:column;background:#111}
+dialog.mkt:not([open]){display:none}
+dialog.mkt::backdrop{background:rgb(13 18 27 / .55)}
+.mkt-kop{display:flex;align-items:center;gap:12px;padding:12px 14px;background:#fff;flex-wrap:wrap}
+.mkt-kop>div{display:flex;flex-direction:column;min-width:0;flex:1}.mkt-kop small{color:var(--muted);font-size:12.5px}
+.mkt-zoek{display:flex;gap:6px;flex:1;min-width:220px;max-width:420px}.mkt-zoek input{flex:1;min-width:0;height:36px}
+.mkt-x{width:36px;height:36px;padding:0;display:grid;place-items:center}
+.mkt-map{flex:1;min-height:0;cursor:crosshair;background:#2b3328}
+.mkt-map .leaflet-container,.mkt-map.leaflet-container{cursor:crosshair}
+.mkt-balk{display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap;padding:10px 14px;background:#fff}
+.mkt-tot{font:700 22px/1 inherit;color:var(--ink);white-space:nowrap}.mkt-tot span{font-variant-numeric:tabular-nums}
+.mkt-kn{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.mkt-pl{display:inline-flex;align-items:center;height:32px;padding:0 10px;color:var(--muted);text-decoration:underline}
+.mkt-lab{background:#fffdf6;color:#0f1f26;border-radius:8px;padding:3px 7px;font:700 12px/1.2 system-ui,sans-serif;white-space:nowrap;box-shadow:0 2px 8px rgb(0 0 0 / .35);transform:translate(-50%,-140%)}
+.mkt-lab.groot{font-size:14px;transform:translate(-50%,-50%)}
+.mkt-lab.tel{width:22px;height:22px;padding:0;border-radius:50%;display:grid;place-items:center;background:#ff2bd6;color:#fff;transform:translate(-50%,-50%)}
+@media (max-width:640px){dialog.mkt{width:100vw;height:100dvh;border-radius:0}.mkt-tot{font-size:19px}.mkt-balk{padding-bottom:max(10px,env(safe-area-inset-bottom))}}
