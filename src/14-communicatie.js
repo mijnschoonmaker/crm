@@ -418,6 +418,8 @@ function openTplEdit(k){
   const d=$("#teDel");if(d){let armed=false;d.onclick=async()=>{if(!armed){armed=true;d.textContent="Zeker weten? Tik nogmaals";return}const o=all();delete o[k];try{await save("instellingen","sjablonen",o);dlg.close();toast("Template verwijderd")}catch(e){err(e)}}}
   form.onsubmit=async e=>{e.preventDefault();const n=$("#te-n").value.trim();if(!n){$("#te-n").focus();return}
     const o=all(),key=k||"eigen"+Date.now().toString(36);o[key]={...(state.sjablonen[key]||{}),naam:n,doel:$("#te-d").value.trim(),cat:$("#te-cat").value,actief:$("#te-a").checked,onderwerp:$("#te-o").value.trim(),mail:(()=>{const h=richSafe(ed.innerHTML).trim(),pl=richText(h);return pl?h:""})(),sms:$("#te-s").value,...(t.eigen?{eigen:true}:{})};
+    {const t=o[key],fout=[t.mail,t.sms,t.onderwerp].some(x=>{AANHEF_USER.lastIndex=0;return AANHEF_USER.test(String(x||""))});AANHEF_USER.lastIndex=0;
+      if(fout&&await vraag("Jouw eigen naam in de aanhef?","In de aanhef staat <b>[firstname.user]</b>: dat is jouw voornaam als afzender. Klanten zouden dan \"Beste "+esc((S().voornaam||"")||"jouw naam")+"\" lezen.<br>Vervangen door de voornaam van de klant?","Vervangen","Laten staan")===true)["mail","sms","onderwerp"].forEach(f=>{if(t[f])t[f]=String(t[f]).replace(AANHEF_USER,"$1[firstname.customer]")})}
     $("#teSave").disabled=true;try{await save("instellingen","sjablonen",o);dlg.close();toast(isNew?"Template toegevoegd":"Template opgeslagen")}catch(er){$("#teSave").disabled=false;err(er)}};
 }
 
