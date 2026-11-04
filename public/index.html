@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="ea72572258b4"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="332a2ab16839"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -7584,8 +7584,12 @@ const SETEXTRA={};
 const RAW={};
 const COLS=["klanten","beurten","facturen","routes","instellingen","berichten","kosten","banktx"];
 const mem={};COLS.forEach(c=>mem[c]=new Map());
+/* "geenemail@..." (zoals in DienstenCRM) = klant zonder e-mail: overal als "geen e-mailadres" behandelen; de factuur komt bij Printen */
+const geenMail=e=>/^\s*geen[-_.]?e?-?mail@/i.test(String(e||""));
+function geenMailNorm(col,docs){try{if(col==="klanten")docs.forEach(k=>{let g=false;["email","fEmail","oEmail","pEmail"].forEach(f=>{if(geenMail(k[f])){k[f]="";g=true}});if(g)k.geenEmail=true});
+  else if(col==="facturen")docs.forEach(f=>{if(geenMail(f.klantEmail)){f.klantEmail="";f.geenEmail=true}})}catch(e){}}
 function apply(col,docs){
-  RAW[col]=docs;tikWis();
+  geenMailNorm(col,docs);RAW[col]=docs;tikWis();
   if(col==="instellingen"){const g=id=>{const d=docs.find(x=>x.id===id);return d?strip(d):{}};state.settings=g("bedrijf");state.sjablonen=g("sjablonen");state.prijzen=g("prijzen");state.aangiftes=g("aangiftes");state.ramen=g("ramen");state.planmails=g("planmails");state.meldkamer=g("meldkamer");state.boekhouder=g("boekhouder");state.galerij=g("galerij");state.uitv=g("uitvoering");state.meetleer=g("meetleer");state.ccStatus=g("control");if(typeof U!=="undefined"&&!Udirty)U=null}
   if(col==="instellingen"&&!state._slotInit&&docs.length){state._slotInit=1;const b=docs.find(x=>x.id==="bedrijf");if(b){state.slot=[10,15].includes(Number(b.slotStd))?Number(b.slotStd):10;if(b.ultra)state.rowH=.7;else if(b.compact)state.rowH=.85}}
   else if(col==="routes"){state.routes={};docs.forEach(d=>state.routes[d.id]=d)}
@@ -8256,7 +8260,7 @@ async function afronden(k,mode,el){
   if(direct){/* veeg factureren: eerst bevestigen, want de factuur gaat meteen naar de klant */
     const _t=totals(f),_em=mailK(k,"factuur").email||f.klantEmail||"";
     const _rx=regelExtra(k),_rg=f.regels.map(r=>`${esc(_rx?String(r.omschrijving).split(_rx).join(""):r.omschrijving)}${(Number(r.aantal)||1)!==1?" × "+r.aantal:""} · <b>${eur((Number(r.aantal)||0)*(Number(r.prijs)||0))}</b>`).join("<br>");
-    const ok=await vraag("Factuur direct versturen?",`${_rg}<br><br>Totaal <b>${eur(_t.inc)}</b> incl. btw${f.status==="betaald"?" · al betaald ("+esc(st.betaalwijze)+")":""}<br>${_em?`Gaat meteen naar <b>${esc(_em)}</b>.`:"Deze klant heeft geen e-mailadres; je kiest daarna hoe je hem verstuurt."} Kloppen de bedragen?`,"Versturen","Annuleren");
+    const ok=await vraag("Factuur direct versturen?",`${_rg}<br><br>Totaal <b>${eur(_t.inc)}</b> incl. btw${f.status==="betaald"?" · al betaald ("+esc(st.betaalwijze)+")":""}<br>${_em?`Gaat meteen naar <b>${esc(_em)}</b>.`:"Deze klant heeft geen e-mailadres: de factuur komt bij <b>Facturen › Printen</b>."} Kloppen de bedragen?`,"Versturen","Annuleren");
     if(ok!==true){if(el){const c=el.querySelector(".swipe-card");if(c)c.style.transform="";el.classList.remove("armed")}render();return}}
   try{
     await save("facturen",fId,f);
@@ -8269,7 +8273,7 @@ async function afronden(k,mode,el){
     if(_mw){toast(cleanName(k.naam)+" afgemeld",[{label:"Ongedaan",fn:undo}]);return}
     toast(mode==="open"?cleanName(k.naam)+(f.status==="betaald"?" afgerekend ("+st.betaalwijze+") · ":" gefactureerd en verstuurd · ")+f.nummer:cleanName(k.naam)+" afgemeld · conceptfactuur klaar",
       [{label:"Ongedaan",fn:direct?async()=>{const v=state.facturen.find(x=>x.id===fId);if(v&&v.verstuurdOp&&(await vraag("Factuur is al verstuurd","De klant heeft factuur "+esc(f.nummer)+" al per mail ontvangen. Toch terugzetten? De factuur wordt dan verwijderd en de klus staat weer open.","Toch terugzetten","Annuleren"))!==true)return;undo()}:undo},...(mode==="open"&&!direct?[{label:"Versturen",fn:()=>sendF(fId)}]:[])]);
-    if(direct){let n=0;const go=()=>{if(state.facturen.some(x=>x.id===fId))sendF(fId,{direct:true,bevestigd:true});else if(++n<30)setTimeout(go,100)};setTimeout(go,300)}
+    if(direct&&!(mailK(k,"factuur")||{}).email&&!f.klantEmail){setTimeout(()=>toast(cleanName(k.naam)+": geen e-mailadres · de factuur staat bij Facturen › Printen"),2600)}else if(direct){let n=0;const go=()=>{if(state.facturen.some(x=>x.id===fId))sendF(fId,{direct:true,bevestigd:true});else if(++n<30)setTimeout(go,100)};setTimeout(go,300)}
   }catch(e){if(el){const c=el.querySelector(".swipe-card");if(c)c.style.transform="";el.classList.remove("armed")}err(e)}
 }
 async function startJob(k){
@@ -10844,6 +10848,9 @@ function cmVlucht(bs,stc,n,todo){const ms=mStat,tot=bs.length;
 function factTable(list,off){
   return `<div class="tablewrap"><table class="t"><thead><tr><th>Nummer</th><th>Klant</th><th>Datum</th><th>${off?"Geldig tot":"Vervalt"}</th><th>Status</th><th class="r">Bedrag</th></tr></thead><tbody>${list.map(f=>{const st=fStatus(f);return `<tr class="click" data-act="${off?"offedit":"factuur"}" data-id="${esc(f.id)}" title="${off?"Offerte openen":"Factuur openen"}"><td class="mono">${esc(f.nummer)}</td><td><b>${esc(cleanName(f.klantNaam))}</b><br><small class="subt">${esc(f.klantAdres||"")}</small></td><td>${fmtD(f.datum)}</td><td>${fmtD(f.verval)}</td><td>${statusPill(st[0],st[1])}${!off&&f.verstuurdOp&&st[1]==="Openstaand"?' <span class="pill neutral">verstuurd</span>':""}${!off&&f.incasso&&f.status!=="betaald"?` <span class="pill ${f.incassoMislukt?"late":"brand"}" title="${f.incassoMislukt?"Incasso mislukt: "+esc(f.incassoFout||""):"Wordt automatisch afgeschreven"}">${f.incassoMislukt?"incasso mislukt":"incasso"}</span>`:""}</td><td class="r amt">${eur(totals(f).inc)}</td></tr>`}).join("")}</tbody></table></div>`;
 }
+/* printen: definitieve facturen van klanten zonder e-mailadres (of geenemail@), nog niet geprint, van de afgelopen 45 dagen */
+function printNodig(f){if(f.soort==="offerte"||["concept","oninbaar"].includes(f.status)||f.geprintOp||String(f.datum||"")<iso(addDays(today(),-45)))return false;
+  const k=state.klanten.find(x=>x.id===f.klantId);const m=k?(mailK(k,"factuur")||{}).email:f.klantEmail;return !m}
 function vFacturen(){
   const all=facturen().sort((a,b)=>String(b.datum).localeCompare(String(a.datum))||String(b.nummer).localeCompare(String(a.nummer)));
   const by=s=>all.filter(f=>fStatus(f)[1]===s);
@@ -10853,7 +10860,7 @@ function vFacturen(){
   const cash=f=>["contant","pin"].includes(f.betaalwijze);
   /* openstaand en te laat: op factuurnummer, oudste bovenaan (zoals in DienstenCRM) */
   const opNr=(a,b)=>String(a.nummer||"").localeCompare(String(b.nummer||""),"nl",{numeric:true})||String(a.datum).localeCompare(String(b.datum));
-  const lists={openstaand:open.sort(opNr),achterstallig:by("Achterstallig").sort(opNr),concept:by("Concept"),bank:by("Betaald").filter(f=>!cash(f)),contant:by("Betaald").filter(cash),oninbaar:by("Oninbaar"),betaald:by("Betaald"),alle:all};
+  const lists={openstaand:open.sort(opNr),achterstallig:by("Achterstallig").sort(opNr),concept:by("Concept"),bank:by("Betaald").filter(f=>!cash(f)),contant:by("Betaald").filter(cash),oninbaar:by("Oninbaar"),betaald:by("Betaald"),alle:all,printen:all.filter(printNodig)};
   if(!lists[F])F="openstaand";
   const shown=lists[F].filter(f=>!q||[f.nummer,f.klantNaam,f.klantAdres,eur(totals(f).inc)].join(" ").toLowerCase().includes(q));
   fbSelOpschonen(new Set(all.map(f=>f.id)));
@@ -10874,7 +10881,7 @@ function vFacturen(){
   ${by("Concept").length?`<div class="banner" style="background:var(--surface-2)"><div><b>${plural(by("Concept").length,"conceptfactuur","conceptfacturen")} klaar</b><br><small>Van afgemelde opdrachten · ${eur(sum(by("Concept")))}</small></div><button type="button" data-act="ff" data-v="concept">Bekijken</button><button type="button" class="primary" data-act="finalizeall">Alles definitief maken</button></div>`:""}
   ${!S().iban||!S().naam?`<div class="notice">Vul je bedrijfsnaam en IBAN in bij <button type="button" class="tiny ghost" data-act="tab" data-tab="instellingen" style="color:inherit;text-decoration:underline">Instellingen</button>, dan staan ze op elke factuur.</div>`:""}
   <div class="toolbar fb-tools"><div class="search">${I.search}<input id="fq" type="search" placeholder="Zoek op factuurnummer, klant, adres of bedrag…" value="${esc(state.fq)}"></div><button type="button" class="fb-up" data-act="fbupload" title="CAMT.053, MT940 of CSV van je bank">${I.upload}<span>Bankbestand uploaden</span></button></div>
-  <div class="tabsline fb-tabs">${[["openstaand","Openstaand"],["achterstallig","Te laat"],["concept","Concept"],["bank","Per bank betaald"],["contant","Contant betaald"],["oninbaar","Oninbaar"],["alle","Alle"]].map(([v,l])=>`<button type="button" data-act="ff" data-v="${v}" aria-pressed="${F===v||(F==="betaald"&&(v==="bank"||v==="contant"))}">${l}<span class="n">${lists[v].length}</span></button>`).join("")}</div>`;
+  <div class="tabsline fb-tabs">${[["openstaand","Openstaand"],["achterstallig","Te laat"],["concept","Concept"],["bank","Per bank betaald"],["contant","Contant betaald"],["oninbaar","Oninbaar"],["printen","Printen"],["alle","Alle"]].map(([v,l])=>`<button type="button" data-act="ff" data-v="${v}" aria-pressed="${F===v||(F==="betaald"&&(v==="bank"||v==="contant"))}">${l}<span class="n">${lists[v].length}</span></button>`).join("")}</div>`+(F==="printen"?`<div class="banner pr-ban"><div><b>${lists.printen.length?plural(lists.printen.length,"factuur","facturen")+" om te printen":"Niets om te printen"}</b><br><small>Klanten zonder e-mailadres (geenemail@). Print ze en zet ze daarna op geprint.</small></div>${lists.printen.length?`<button type="button" data-act="fbprintpdf">${I.dl}PDF van alles</button><button type="button" class="primary" data-act="fbgeprint">${I.check}Alles geprint</button>`:""}</div>`:"");
   if(!shown.length)return html+(all.length?empty("Geen facturen in deze lijst",q?"Zoek op iets anders.":F==="openstaand"?"Alles is betaald. Mooi zo!":"Kies een ander tabblad."):empty("Nog geen facturen","Maak je eerste factuur via Klanten of Planning, of meld een opdracht af op Vandaag.",`<button type="button" class="primary" data-act="newfactuur">${I.facturen}Nieuwe factuur</button>`))+fbBar(all);
   return html+fbTabel(shown,F)+fbBar(all);
 }
@@ -16288,7 +16295,7 @@ function fbBar(all){
     <div class="fb-mw"><button type="button" class="fb-bk" data-act="fbmenu" aria-expanded="${!!m}">${I.more}<span>Meer</span></button>${m?`<div class="menu fb-menu">
       <button type="button" data-act="fbcontant">${I.euro}Contant betaald</button><button type="button" data-act="fbpin">${I.card}Per pin betaald</button>
       <button type="button" data-act="fbinc">${I.bank}Incasso klaarzetten (Mollie SEPA)</button><button type="button" data-act="fbincweg">${I.x}Incasso intrekken</button>
-      <button type="button" data-act="fbpdf">${I.dl}PDF's downloaden om te printen</button><button type="button" data-act="fbcsv">${I.dl}Exporteer selectie (CSV)</button>
+      <button type="button" data-act="fbpdf">${I.dl}PDF's downloaden om te printen</button><button type="button" data-act="fbgeprint">${I.check}Als geprint markeren</button><button type="button" data-act="fbcsv">${I.dl}Exporteer selectie (CSV)</button>
       <button type="button" data-act="fbliki">${I.send}Overgedragen aan Likifin</button><button type="button" data-act="fbheropen">${I.refresh}Weer op openstaand</button><button type="button" data-act="fboninb" class="danger">${I.x}Oninbaar</button></div>`:""}</div>
     <button type="button" class="iconbtn fb-x" data-act="fbclr" aria-label="Selectie wissen" title="Selectie wissen">${I.x}</button></div>`}
 
@@ -16394,6 +16401,9 @@ function fbAct(a,t,e){
     case"fbincweg":fbIncasso(fbGekozen(),true);break;
     case"fbpdf":fbPdf(fbGekozen());break;
     case"fbcsv":fbCsv(fbGekozen());break;
+    case"fbprintpdf":fbPdf(facturen().filter(printNodig));break;
+    case"fbgeprint":{const sel=fbGekozen(),L=(sel.length?sel:facturen().filter(printNodig)).filter(f=>!f.geprintOp);state.fbMenu=false;if(!L.length){toast("Niets om te markeren");break}
+      (async()=>{try{for(const f of L)await save("facturen",f.id,{...strip(f),geprintOp:iso(today())});FB_SEL.clear();toast(plural(L.length,"factuur","facturen")+" op geprint gezet")}catch(e){err(e)}render()})();break}
     case"fboninb":fbStatus(fbGekozen(),"oninbaar");break;
     case"fbheropen":fbStatus(fbGekozen(),"open");break;
     case"fbqsend":if(e)e.stopPropagation();sendF(id,{direct:true,btn:t});break;

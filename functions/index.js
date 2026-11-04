@@ -207,7 +207,11 @@ async function checkGebruiker(auth) {
 }
 
 /* ---------- Brevo ---------- */
+/* "geenemail@..." (uit DienstenCRM) betekent: deze klant heeft geen e-mail, de factuur wordt geprint. Daar nooit naartoe mailen. */
+const geenMail = e => /^\s*geen[-_.]?e?-?mail@/i.test(String(e || ""));
 async function brevoSend(key, mail) {
+  for (const f of ["to", "cc", "bcc"]) if (Array.isArray(mail[f])) { mail[f] = mail[f].filter(x => x && x.email && !geenMail(x.email)); if (!mail[f].length) delete mail[f]; }
+  if (!mail.to || !mail.to.length) throw new Error("Deze klant heeft geen e-mailadres (de factuur wordt geprint)");
   const r = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
     headers: { "api-key": key, "content-type": "application/json", accept: "application/json" },

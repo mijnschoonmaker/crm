@@ -264,8 +264,12 @@ const SETEXTRA={};
 const RAW={};
 const COLS=["klanten","beurten","facturen","routes","instellingen","berichten","kosten","banktx"];
 const mem={};COLS.forEach(c=>mem[c]=new Map());
+/* "geenemail@..." (zoals in DienstenCRM) = klant zonder e-mail: overal als "geen e-mailadres" behandelen; de factuur komt bij Printen */
+const geenMail=e=>/^\s*geen[-_.]?e?-?mail@/i.test(String(e||""));
+function geenMailNorm(col,docs){try{if(col==="klanten")docs.forEach(k=>{let g=false;["email","fEmail","oEmail","pEmail"].forEach(f=>{if(geenMail(k[f])){k[f]="";g=true}});if(g)k.geenEmail=true});
+  else if(col==="facturen")docs.forEach(f=>{if(geenMail(f.klantEmail)){f.klantEmail="";f.geenEmail=true}})}catch(e){}}
 function apply(col,docs){
-  RAW[col]=docs;tikWis();
+  geenMailNorm(col,docs);RAW[col]=docs;tikWis();
   if(col==="instellingen"){const g=id=>{const d=docs.find(x=>x.id===id);return d?strip(d):{}};state.settings=g("bedrijf");state.sjablonen=g("sjablonen");state.prijzen=g("prijzen");state.aangiftes=g("aangiftes");state.ramen=g("ramen");state.planmails=g("planmails");state.meldkamer=g("meldkamer");state.boekhouder=g("boekhouder");state.galerij=g("galerij");state.uitv=g("uitvoering");state.meetleer=g("meetleer");state.ccStatus=g("control");if(typeof U!=="undefined"&&!Udirty)U=null}
   if(col==="instellingen"&&!state._slotInit&&docs.length){state._slotInit=1;const b=docs.find(x=>x.id==="bedrijf");if(b){state.slot=[10,15].includes(Number(b.slotStd))?Number(b.slotStd):10;if(b.ultra)state.rowH=.7;else if(b.compact)state.rowH=.85}}
   else if(col==="routes"){state.routes={};docs.forEach(d=>state.routes[d.id]=d)}

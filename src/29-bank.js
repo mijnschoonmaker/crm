@@ -52,7 +52,7 @@ function fbBar(all){
     <div class="fb-mw"><button type="button" class="fb-bk" data-act="fbmenu" aria-expanded="${!!m}">${I.more}<span>Meer</span></button>${m?`<div class="menu fb-menu">
       <button type="button" data-act="fbcontant">${I.euro}Contant betaald</button><button type="button" data-act="fbpin">${I.card}Per pin betaald</button>
       <button type="button" data-act="fbinc">${I.bank}Incasso klaarzetten (Mollie SEPA)</button><button type="button" data-act="fbincweg">${I.x}Incasso intrekken</button>
-      <button type="button" data-act="fbpdf">${I.dl}PDF's downloaden om te printen</button><button type="button" data-act="fbcsv">${I.dl}Exporteer selectie (CSV)</button>
+      <button type="button" data-act="fbpdf">${I.dl}PDF's downloaden om te printen</button><button type="button" data-act="fbgeprint">${I.check}Als geprint markeren</button><button type="button" data-act="fbcsv">${I.dl}Exporteer selectie (CSV)</button>
       <button type="button" data-act="fbliki">${I.send}Overgedragen aan Likifin</button><button type="button" data-act="fbheropen">${I.refresh}Weer op openstaand</button><button type="button" data-act="fboninb" class="danger">${I.x}Oninbaar</button></div>`:""}</div>
     <button type="button" class="iconbtn fb-x" data-act="fbclr" aria-label="Selectie wissen" title="Selectie wissen">${I.x}</button></div>`}
 
@@ -158,6 +158,9 @@ function fbAct(a,t,e){
     case"fbincweg":fbIncasso(fbGekozen(),true);break;
     case"fbpdf":fbPdf(fbGekozen());break;
     case"fbcsv":fbCsv(fbGekozen());break;
+    case"fbprintpdf":fbPdf(facturen().filter(printNodig));break;
+    case"fbgeprint":{const sel=fbGekozen(),L=(sel.length?sel:facturen().filter(printNodig)).filter(f=>!f.geprintOp);state.fbMenu=false;if(!L.length){toast("Niets om te markeren");break}
+      (async()=>{try{for(const f of L)await save("facturen",f.id,{...strip(f),geprintOp:iso(today())});FB_SEL.clear();toast(plural(L.length,"factuur","facturen")+" op geprint gezet")}catch(e){err(e)}render()})();break}
     case"fboninb":fbStatus(fbGekozen(),"oninbaar");break;
     case"fbheropen":fbStatus(fbGekozen(),"open");break;
     case"fbqsend":if(e)e.stopPropagation();sendF(id,{direct:true,btn:t});break;

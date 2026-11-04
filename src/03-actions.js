@@ -69,7 +69,7 @@ async function afronden(k,mode,el){
   if(direct){/* veeg factureren: eerst bevestigen, want de factuur gaat meteen naar de klant */
     const _t=totals(f),_em=mailK(k,"factuur").email||f.klantEmail||"";
     const _rx=regelExtra(k),_rg=f.regels.map(r=>`${esc(_rx?String(r.omschrijving).split(_rx).join(""):r.omschrijving)}${(Number(r.aantal)||1)!==1?" × "+r.aantal:""} · <b>${eur((Number(r.aantal)||0)*(Number(r.prijs)||0))}</b>`).join("<br>");
-    const ok=await vraag("Factuur direct versturen?",`${_rg}<br><br>Totaal <b>${eur(_t.inc)}</b> incl. btw${f.status==="betaald"?" · al betaald ("+esc(st.betaalwijze)+")":""}<br>${_em?`Gaat meteen naar <b>${esc(_em)}</b>.`:"Deze klant heeft geen e-mailadres; je kiest daarna hoe je hem verstuurt."} Kloppen de bedragen?`,"Versturen","Annuleren");
+    const ok=await vraag("Factuur direct versturen?",`${_rg}<br><br>Totaal <b>${eur(_t.inc)}</b> incl. btw${f.status==="betaald"?" · al betaald ("+esc(st.betaalwijze)+")":""}<br>${_em?`Gaat meteen naar <b>${esc(_em)}</b>.`:"Deze klant heeft geen e-mailadres: de factuur komt bij <b>Facturen › Printen</b>."} Kloppen de bedragen?`,"Versturen","Annuleren");
     if(ok!==true){if(el){const c=el.querySelector(".swipe-card");if(c)c.style.transform="";el.classList.remove("armed")}render();return}}
   try{
     await save("facturen",fId,f);
@@ -82,7 +82,7 @@ async function afronden(k,mode,el){
     if(_mw){toast(cleanName(k.naam)+" afgemeld",[{label:"Ongedaan",fn:undo}]);return}
     toast(mode==="open"?cleanName(k.naam)+(f.status==="betaald"?" afgerekend ("+st.betaalwijze+") · ":" gefactureerd en verstuurd · ")+f.nummer:cleanName(k.naam)+" afgemeld · conceptfactuur klaar",
       [{label:"Ongedaan",fn:direct?async()=>{const v=state.facturen.find(x=>x.id===fId);if(v&&v.verstuurdOp&&(await vraag("Factuur is al verstuurd","De klant heeft factuur "+esc(f.nummer)+" al per mail ontvangen. Toch terugzetten? De factuur wordt dan verwijderd en de klus staat weer open.","Toch terugzetten","Annuleren"))!==true)return;undo()}:undo},...(mode==="open"&&!direct?[{label:"Versturen",fn:()=>sendF(fId)}]:[])]);
-    if(direct){let n=0;const go=()=>{if(state.facturen.some(x=>x.id===fId))sendF(fId,{direct:true,bevestigd:true});else if(++n<30)setTimeout(go,100)};setTimeout(go,300)}
+    if(direct&&!(mailK(k,"factuur")||{}).email&&!f.klantEmail){setTimeout(()=>toast(cleanName(k.naam)+": geen e-mailadres · de factuur staat bij Facturen › Printen"),2600)}else if(direct){let n=0;const go=()=>{if(state.facturen.some(x=>x.id===fId))sendF(fId,{direct:true,bevestigd:true});else if(++n<30)setTimeout(go,100)};setTimeout(go,300)}
   }catch(e){if(el){const c=el.querySelector(".swipe-card");if(c)c.style.transform="";el.classList.remove("armed")}err(e)}
 }
 async function startJob(k){
