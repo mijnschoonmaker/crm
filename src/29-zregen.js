@@ -48,10 +48,14 @@ function dsData(d){const w=wdGet(d)||{},nu=new Date(),isT=d===iso(today()),ms=x=
   const start=w.start?mn(ms(w.start)):null,eind=w.stop?mn(ms(w.stop)):(isT&&w.start?mn(nu.getTime()):null);
   return{gepland,klant:klant.sort((a,b)=>a.van-b.van),pauze,start,eind,nu:isT?mn(nu.getTime()):null}}
 function dsHtml(){try{const d=iso(today()),D=dsData(d);if(!D.gepland.length&&!D.klant.length)return"";
-  const alle=[...D.gepland.flatMap(x=>[x.van,x.tot]),...D.klant.flatMap(x=>[x.van,x.tot]),D.start,D.eind,D.nu].filter(x=>x!=null&&isFinite(x));
+  const basis=[...D.gepland.flatMap(x=>[x.van,x.tot]),...D.klant.flatMap(x=>[x.van,x.tot]),D.start,D.eind].filter(x=>x!=null&&isFinite(x));
+  /* is de dag al klaar, dan de strook niet tot "nu" (bijv. 22:00) uitrekken */
+  const nuIn=D.nu!=null&&(!basis.length||D.nu<=Math.max(...basis)+45);if(!nuIn)D.nu=null;
+  const alle=[...basis,D.nu].filter(x=>x!=null&&isFinite(x));
   const lo=Math.floor((Math.min(...alle)-20)/60)*60,hi=Math.ceil((Math.max(...alle)+20)/60)*60,span=Math.max(60,hi-lo),pc=m=>((Math.max(lo,Math.min(hi,m))-lo)/span*100).toFixed(2)+"%",br=(a,b)=>((Math.max(0,Math.min(hi,b)-Math.max(lo,a)))/span*100).toFixed(2)+"%";
   const hm=m=>String(Math.floor(m/60)).padStart(2,"0")+":"+String(Math.round(m%60)).padStart(2,"0");
-  const uren=[];for(let h=lo;h<=hi;h+=60)uren.push(`<span style="left:${pc(h)}">${hm(h)}</span>`);
+  /* niet meer dan ~7 tijden onder de strook, zodat ze op de telefoon niet over elkaar vallen */
+  const nU=span/60,stap=nU<=6?60:nU<=12?120:180,uren=[];for(let h=lo;h<=hi;h+=stap)uren.push(`<span style="left:${pc(h)}">${String(Math.floor(h/60))}:00</span>`);
   /* rijden = binnen de werkdag, niet bij een klant en geen pauze */
   const rij=[];if(D.start!=null&&D.eind!=null){const bezet=[...D.klant,...D.pauze].map(x=>[x.van,x.tot]).sort((a,b)=>a[0]-b[0]);let t=D.start;bezet.forEach(([a,b])=>{if(a>t+1)rij.push({van:t,tot:Math.min(a,D.eind)});t=Math.max(t,b)});if(D.eind>t+1)rij.push({van:t,tot:D.eind})}
   const som=l=>l.reduce((a,x)=>a+Math.max(0,x.tot-x.van),0),kl=som(D.klant),rj=som(rij.filter(x=>x.tot>x.van)),pz=som(D.pauze);

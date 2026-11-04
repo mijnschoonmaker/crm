@@ -4812,6 +4812,6 @@ dialog.mkt::backdrop{background:rgb(13 18 27 / .55)}
 .ds-b.kl,.ds-som i.kl{background:#d9534f}.ds-b.kl.gs{opacity:.55}.ds-b.kl.bz{background:repeating-linear-gradient(45deg,#d9534f 0 6px,#e57773 6px 12px)}
 .ds-b.rj,.ds-som i.rj{background:#3b6fd8}.ds-b.pz,.ds-som i.pz{background:#9aa3ad}
 .ds-nu{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:#0d121b}
-.ds-uren{position:relative;height:16px;margin-left:80px;font-size:11px;color:var(--muted)}.ds-uren span{position:absolute;transform:translateX(-50%)}
+.ds-uren{position:relative;height:16px;margin-left:80px;margin-right:6px;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}.ds-uren span{position:absolute;transform:translateX(-50%);white-space:nowrap}.ds-uren span:first-child{transform:none}.ds-uren span:last-child{transform:translateX(-100%)}
 .ds-tip{margin:6px 0 0;font-size:12.5px;color:var(--muted)}
 @media (max-width:640px){.ds-rij{grid-template-columns:56px minmax(0,1fr)}.ds-uren{margin-left:64px}.ds-som{margin-left:0}}
