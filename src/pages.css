@@ -4889,3 +4889,8 @@ dialog.iz-dlg::backdrop{background:rgb(13 18 27/.6)}
 .iz-plan .iz-pi{width:32px;height:32px;border-radius:9px;background:#e19422;display:grid;place-items:center;flex:none}.iz-plan .iz-pi svg{width:16px;height:16px;stroke:#fff}
 .iz-plan button{all:unset;cursor:pointer;font-size:13px;font-weight:700;padding:8px 12px;border-radius:9px;background:#fff;color:#14181f}
 .iz-plan .iz-px{background:transparent;color:#fff;padding:6px}.iz-plan .iz-px svg{width:16px;height:16px;stroke:#fff}
+.iz-aan{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 14px}
+.iz-bus{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:10px;min-width:150px;padding:9px 14px 9px 9px;border-radius:12px;border:1px solid #e3e5e8;background:#fff}
+.iz-bus b{display:block;font-size:14px}.iz-bus small{display:block;font-size:12px;color:var(--muted)}
+.iz-bi{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;color:#fff;font-weight:700;flex:none}.iz-bi svg{width:16px;height:16px;stroke:#fff}
+.iz-bus[aria-pressed="true"]{border-color:#14181f;box-shadow:inset 0 0 0 1px #14181f;background:#f7f8f9}

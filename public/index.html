@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="c8e2521e85cc"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="eacc40066a20"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -5616,6 +5616,11 @@ dialog.iz-dlg::backdrop{background:rgb(13 18 27/.6)}
 .iz-plan .iz-pi{width:32px;height:32px;border-radius:9px;background:#e19422;display:grid;place-items:center;flex:none}.iz-plan .iz-pi svg{width:16px;height:16px;stroke:#fff}
 .iz-plan button{all:unset;cursor:pointer;font-size:13px;font-weight:700;padding:8px 12px;border-radius:9px;background:#fff;color:#14181f}
 .iz-plan .iz-px{background:transparent;color:#fff;padding:6px}.iz-plan .iz-px svg{width:16px;height:16px;stroke:#fff}
+.iz-aan{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 14px}
+.iz-bus{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:10px;min-width:150px;padding:9px 14px 9px 9px;border-radius:12px;border:1px solid #e3e5e8;background:#fff}
+.iz-bus b{display:block;font-size:14px}.iz-bus small{display:block;font-size:12px;color:var(--muted)}
+.iz-bi{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;color:#fff;font-weight:700;flex:none}.iz-bi svg{width:16px;height:16px;stroke:#fff}
+.iz-bus[aria-pressed="true"]{border-color:#14181f;box-shadow:inset 0 0 0 1px #14181f;background:#f7f8f9}
 
 </style>
 <style id="mansardThema">
@@ -18195,7 +18200,8 @@ function ticketGaten(root){(root||document).querySelectorAll(".swipe-card.tk,.ft
 const IZ={lijst:[],unsub:null,weg:new Set(),open:null,lokaal:0,sig:null,sigT:0,demo:[]};
 const IZ_PRIO={1:["Spoed","rood"],2:["Vandaag","oranje"],3:["Info","grijs"]};
 const izMijnKey=()=>String((state.me&&state.me.email)||"ik").toLowerCase().replace(/[^a-z0-9]/g,"_");
-const izVoorMij=x=>!x.aan||String(x.aan).toLowerCase()===String(doorNaam()||"").toLowerCase()||String(x.aan).toLowerCase()===String((state.me&&state.me.email)||"").toLowerCase();
+const izAan=x=>(Array.isArray(x.aan)?x.aan:x.aan?[x.aan]:[]).map(v=>String(v).toLowerCase());
+const izVoorMij=x=>{const A=izAan(x);if(!A.length)return true;const ik=[String(doorNaam()||"").toLowerCase(),String((state.me&&state.me.email)||"").toLowerCase()];return A.some(v=>ik.includes(v))};
 const izLijst=()=>(LIVE?IZ.lijst:IZ.demo).filter(x=>x.datum===iso(today())).sort((a,b)=>String(b.op).localeCompare(String(a.op)));
 function izLuister(){if(!LIVE||IZ.unsub||!state.loaded)return;
   try{IZ.unsub=fsDb().collection("live").where("soort","==","inzet").onSnapshot(q=>{IZ.lijst=q.docs.map(d=>({id:d.id,...d.data()}));izVerwerk()},()=>{IZ.unsub=null})}catch(e){}}
@@ -18222,32 +18228,38 @@ document.addEventListener("click",async e=>{const ok=e.target.closest("[data-izo
   if(d){try{d.close()}catch(_){}d.remove()}IZ.open=null;if(kl&&typeof openKlantView==="function")openKlantView(kl.dataset.izk);izVerwerk()},true);
 
 /* ---- kantoor: melding maken ---- */
+const izBusChip=(v,l,on,kl,sub)=>`<button type="button" class="iz-bus" data-izb="${esc(v)}" aria-pressed="${on}"><span class="iz-bi" style="background:${esc(kl)}">${v?esc(String(l).charAt(0).toUpperCase()):(I.klanten||"")}</span><span><b>${esc(l)}</b>${sub?`<small>${esc(sub)}</small>`:""}</span></button>`;
 function izNieuw(){const ti=iso(today()),stops=routeStops(ti).filter(x=>!x.done),mens=(typeof plKandidaten==="function"?plKandidaten():[]).filter(Boolean);
   const snel=["Klant belde: poort staat open","Klant is niet thuis, sleutel ligt bij de buren","Extra adres erbij vandaag","Bel even naar kantoor","Klant wil vandaag afzeggen"];
   openDlg(`<div class="dlg-head"><span class="objic big">${I.send}</span><div style="min-width:0;flex:1"><h3>Melding naar de bus</h3><div class="subt">Verschijnt direct op de telefoon of iPad onderweg</div></div><button type="button" class="iconbtn" id="izX" aria-label="Sluiten">${I.x}</button></div>
     <label>Urgentie</label><div class="iz-prio" role="radiogroup">${[1,2,3].map(p=>`<button type="button" class="iz-pk ${IZ_PRIO[p][1]}" data-izp="${p}" aria-pressed="${p===2}"><i></i>${IZ_PRIO[p][0]}</button>`).join("")}</div>
-    ${mens.length>1?`<label>Aan<select id="izAan"><option value="">Iedereen onderweg</option>${mens.map(m=>`<option>${esc(m)}</option>`).join("")}</select></label>`:""}
+    <label>Aan</label><div class="iz-aan" role="group">${izBusChip("","Iedereen",true,"#252c3c",mens.length?plural(mens.length,"bus","bussen"):"alle apparaten")}${mens.map(m=>{const pm=(typeof plMensen==="function"?plMensen():[]).find(x=>x.naam===m),on=pm&&pm.live&&typeof plVers==="function"&&plVers(pm.live);
+      return izBusChip(m,m,false,(pm&&pm.kleur)||"#5d6675",on?"live onderweg":pm&&pm.stops.length?plural(pm.stops.length,"adres","adressen")+" vandaag":"")}).join("")}</div>
+    ${mens.length?"":`<p class="subt" style="margin:-4px 0 12px">Rijden er vandaag meer bussen, dan kies je hier per bus.</p>`}
     <label>Bericht<textarea id="izT" rows="3" maxlength="400" placeholder="Bijv. klant belde: poort staat open, achterom via het steegje"></textarea></label>
     <div class="iz-snel">${snel.map(t=>`<button type="button" class="chip" data-izs="${esc(t)}">${esc(t)}</button>`).join("")}</div>
     <label>Adres (komt als pin op de kaart)<select id="izK"><option value="">Geen adres</option>${stops.map(x=>`<option value="${esc(x.k.id)}">${esc((x.k.tijd?x.k.tijd+" · ":"")+cleanName(x.k.naam)+" · "+(jobAddrObj(x.k).adres||""))}</option>`).join("")}</select></label>
     <div class="row"><span class="sp"></span><button type="button" id="izAnn">Annuleren</button><button type="submit" class="primary" id="izGo">${I.send}Versturen</button></div>`,{wide:true});
   $("#izX").onclick=$("#izAnn").onclick=()=>dlg.close();
   form.querySelectorAll("[data-izp]").forEach(b=>b.onclick=()=>form.querySelectorAll("[data-izp]").forEach(x=>x.setAttribute("aria-pressed",x===b)));
+  /* Iedereen of één/meer bussen aanklikken */
+  form.querySelectorAll("[data-izb]").forEach(b=>b.onclick=()=>{const alle=b.dataset.izb==="";const L=[...form.querySelectorAll("[data-izb]")];
+    if(alle)L.forEach(x=>x.setAttribute("aria-pressed",x===b));else{b.setAttribute("aria-pressed",b.getAttribute("aria-pressed")!=="true");const iets=L.some(x=>x.dataset.izb&&x.getAttribute("aria-pressed")==="true");L.find(x=>x.dataset.izb==="").setAttribute("aria-pressed",!iets)}});
   form.querySelectorAll("[data-izs]").forEach(b=>b.onclick=()=>{const t=$("#izT");t.value=b.dataset.izs;t.focus()});
   form.onsubmit=async e=>{e.preventDefault();const tekst=$("#izT").value.trim();if(!tekst){$("#izT").focus();return}
     const prio=Number((form.querySelector('[data-izp][aria-pressed="true"]')||{}).dataset?.izp||2),kid=$("#izK").value,k=kid&&state.klanten.find(x=>x.id===kid),c=k&&typeof pkCoord==="function"?pkCoord(k):null;
     const id="inzet_"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-    const x={soort:"inzet",datum:iso(today()),op:new Date().toISOString(),tekst,prio,aan:($("#izAan")||{}).value||"",klantId:kid||"",adres:k?[jobAddrObj(k).adres,jobAddrObj(k).plaats].filter(Boolean).join(", "):"",
+    const x={soort:"inzet",datum:iso(today()),op:new Date().toISOString(),tekst,prio,aan:[...form.querySelectorAll('[data-izb][aria-pressed="true"]')].map(x=>x.dataset.izb).filter(Boolean),klantId:kid||"",adres:k?[jobAddrObj(k).adres,jobAddrObj(k).plaats].filter(Boolean).join(", "):"",
       ...(c?{lat:c[0],lng:c[1]}:{}),door:String((state.me&&state.me.email)||""),doorNaam:doorNaam()||"Kantoor",dev:LV_DEV,gelezen:{}};
     $("#izGo").disabled=true;
     try{if(LIVE){await fsDb().doc("live/"+id).set(x);try{await fbFn("inzetPush")({id})}catch(er){console.warn("push",er)}}else IZ.demo.push({id,...x});
-      dlg.close();toast("Melding verstuurd"+(x.aan?" naar "+x.aan:" naar iedereen onderweg"));izVerwerk()}catch(er){$("#izGo").disabled=false;err(er)}}}
+      dlg.close();toast("Melding verstuurd "+(x.aan.length?"naar "+x.aan.join(", "):"naar iedereen onderweg"));izVerwerk()}catch(er){$("#izGo").disabled=false;err(er)}}}
 document.addEventListener("click",e=>{if(e.target.closest("[data-iznieuw]")){e.preventDefault();izNieuw()}});
 
 /* ---- kantoor: overzicht van verstuurde meldingen met leesstatus ---- */
 function izKantoorHtml(){const L=izLijst();
   return `<div class="iz-kant"><div class="iz-kh"><b>${I.send}Meldingen naar de bus</b><button type="button" class="mk-b" data-iznieuw="1">${I.plus||"+"}Nieuwe melding</button></div>${L.length?`<ul>${L.slice(0,6).map(x=>{const g=Object.values(x.gelezen||{}),[pl,pc]=IZ_PRIO[x.prio]||IZ_PRIO[3],t=new Date(x.op).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"});
-    return `<li class="${pc}"><span class="iz-pp"><i></i>${pl}</span><span class="iz-lt"><b>${esc(x.tekst)}</b><small>${t}${x.aan?" · aan "+esc(x.aan):""}${x.adres?" · "+esc(x.adres):""}</small></span><span class="iz-st ${g.length?"ok":""}">${g.length?`${I.check}Gelezen door ${esc(g.map(y=>y.naam||"bus").join(", "))} · ${new Date(g[0].t).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"})}`:"Verstuurd · nog niet gelezen"}</span></li>`}).join("")}</ul>`:`<p class="iz-leeg">Nog geen meldingen vandaag. Zet hier iets klaar voor de bus, bijvoorbeeld als een klant belt.</p>`}</div>`}
+    return `<li class="${pc}"><span class="iz-pp"><i></i>${pl}</span><span class="iz-lt"><b>${esc(x.tekst)}</b><small>${t} · ${izAan(x).length?"aan "+esc((Array.isArray(x.aan)?x.aan:[x.aan]).join(", ")):"aan iedereen"}${x.adres?" · "+esc(x.adres):""}</small></span><span class="iz-st ${g.length?"ok":""}">${g.length?`${I.check}Gelezen door ${esc(g.map(y=>y.naam||"bus").join(", "))} · ${new Date(g[0].t).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"})}`:"Verstuurd · nog niet gelezen"}</span></li>`}).join("")}</ul>`:`<p class="iz-leeg">Nog geen meldingen vandaag. Zet hier iets klaar voor de bus, bijvoorbeeld als een klant belt.</p>`}</div>`}
 function izKantoorZet(){if(state.tab!=="control")return;const el=document.querySelector(".iz-kant");if(!el)return;const t=document.createElement("div");t.innerHTML=izKantoorHtml();el.replaceWith(t.firstElementChild)}
 /* ---- rode pin op de live kaart (zoals de melder bij 112) ---- */
 function izPins(){const el=document.getElementById("rvMap"),m=el&&el._map,L=window.L;if(!m||!L)return;
