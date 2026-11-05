@@ -5,8 +5,8 @@ admin.initializeApp({ credential: admin.credential.applicationDefault(), project
 const db = admin.firestore(), Q = String(process.env.KLANT || "").toLowerCase(), VAN = process.env.VAN, NAAR = process.env.NAAR, DOE = process.env.UITVOEREN === "ja";
 const n = (...a) => console.log("::notice title=Hernoemen::" + a.join(" "));
 (async () => {
-  const ks = (await db.collection("klanten").get()).docs.filter(d => String(d.data().naam || "").toLowerCase().includes(Q));
-  if (ks.length !== 1) { n("niet precies 1 klant:", ks.map(d => d.data().naam).join(", ") || "geen"); return }
+  const ks = (await db.collection("klanten").get()).docs.filter(d => JSON.stringify([d.data().naam, d.data().contact, d.data().bedrijfsnaam, d.data().achternaam, d.data().adres]).toLowerCase().includes(Q));
+  if (ks.length !== 1) { const v = (await db.collection("klanten").get()).docs.filter(d => d.data().soort === "vve" || Array.isArray(d.data().vveTaken)).map(d => d.data().naam); n("niet precies 1 klant:", ks.map(d => d.data().naam).join(", ") || "geen", "· VvE-klanten:", v.join(" | ")); return }
   const kd = ks[0], k = kd.data(), st = ((await db.doc("instellingen/bedrijf").get()).data() || {});
   const lijst = Array.isArray(k.vveTaken) && k.vveTaken.length ? k.vveTaken : Array.isArray(st.vveTakenStd) && st.vveTakenStd.length ? st.vveTakenStd : ["Entree en deuren", "Trappenhuis", "Lift", "Bergingsgang"];
   n(k.naam, "· checklist:", lijst.join(", "), Array.isArray(k.vveTaken) && k.vveTaken.length ? "(eigen)" : "(standaard)", "· freq:", JSON.stringify(k.vveFreq || {}));
