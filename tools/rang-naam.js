@@ -10,6 +10,6 @@ eval(schoonSrc + "\n" + p.slice(p.indexOf("  const rangEen"), p.indexOf("  /* to
 (async () => {
   const ks = (await db.collection("klanten").get()).docs.filter(d => Z.some(z => z && String(d.data().naam || "").toLowerCase().includes(z)));
   ks.forEach(d => { const k = d.data(); const kk = { ...k, naam: schoon(k.naam), contact: k.contact ? schoon(k.contact) : "" };
-    console.log("NAAM", JSON.stringify({ naam: k.naam, voornaam: k.voornaam, achternaam: k.achternaam, contact: k.contact }), "voornaamVan:", voornaamVan(kk), "ranglijst:", rangVn(kk)) });
+    console.log("NAAM", JSON.stringify({ naam: k.naam, voornaam: k.voornaam, achternaam: k.achternaam, contact: k.contact }), "voornaamVan:", voornaamVan(kk), "ranglijst:", rangVn(k)) });
   process.exit(0);
 })().catch(x => { console.error(x); process.exit(1) });
