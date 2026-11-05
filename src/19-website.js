@@ -437,7 +437,7 @@ function websiteBody(o){const e=esc,IC={
         <div class="pp-ring"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" class="t"/><circle cx="50" cy="50" r="44" class="v"/></svg><span><b>0</b><small>dagen</small></span></div></div>
         <p class="pp-s" data-pp-sub>Rond 11:10 · we zijn onderweg</p></div>
       <div class="pp-lv"><div class="pp-map" data-pp-map>${PP_KAART}<div class="pp-ov"><span class="pp-lijn" data-pp-lijn></span><span class="pp-huis" style="left:73.3%;top:80%"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg></span><span class="pp-auto" data-pp-bus><span class="pp-pl"></span><span class="pp-rot" data-pp-rot>${PP_BUS}</span></span></div></div>
-        <div class="pp-info"><span class="pp-car">${PP_AUTO}</span><div class="pp-tx"><small class="pp-st"><i></i>Live</small><b data-pp-t>Nog 2 adressen voor u</b><span data-pp-s2>We zijn in de buurt</span></div><div class="pp-eta"><small>Verwacht</small><b data-pp-eta>± 11:10</b></div></div></div>
+        <div class="pp-info"><span class="pp-car">${PP_AUTO}</span><div class="pp-tx"><small class="pp-st"><i></i>Live</small><b data-pp-t>Nog 1 adres voor u</b><span data-pp-s2>We zijn in de buurt</span></div><div class="pp-eta"><small>Verwacht</small><b data-pp-eta>± 11:10</b></div></div></div>
     </div>
   </div>
   <div class="zweef" aria-hidden="true"><span class="p-ic zw-live"><i></i></span><div><b>Wij zijn onderweg</b><small>Live te volgen in uw klantportaal</small></div></div></div>
@@ -459,7 +459,7 @@ function websiteBody(o){const e=esc,IC={
   ${wg(-7,"opacity:.6")}<div style="height:40px"></div></div></div></section>
 <section id="portaal"><div class="in duo"><div><span class="oog">${IC.user}Uw klantportaal</span><h2 class="kop">Altijd weten <em>waar u aan toe bent</em></h2><p class="lead">Na uw aanmelding krijgt u een eigen portaal. Zonder wachtwoord, gewoon met uw e-mailadres.</p>
   <ul class="lijst"><li><i>${IC.ok}</i><div><b>Wanneer komen jullie?</b><span>Uw volgende beurt, met aftellen tot de dag.</span></div></li>
-    <li><i>${IC.ok}</i><div><b>Live meekijken</b><span>Op de dag zelf ziet u hoe laat we er zijn en hoeveel woningen er nog voor u zijn. Vanaf 2 adressen vóór u volgt u het busje live op de kaart.</span></div></li>
+    <li><i>${IC.ok}</i><div><b>Live meekijken</b><span>Op de dag zelf ziet u hoe laat we er zijn en hoeveel woningen er nog voor u zijn. Is er nog 1 adres vóór u, dan volgt u het busje live op de kaart.</span></div></li>
     <li><i>${IC.ok}</i><div><b>Wat is er gedaan?</b><span>Alle eerdere beurten op een rij.</span></div></li>
     <li><i>${IC.ok}</i><div><b>Facturen en betalen</b><span>Al uw facturen bij elkaar${o.mollie?", direct te betalen":""}.</span></div></li></ul>
   ${portaal?`<div style="margin-top:24px"><a class="knop k-teal" href="${e(portaal)}">${IC.user}Naar mijn portaal</a></div>`:""}</div>
@@ -476,7 +476,7 @@ function websiteBody(o){const e=esc,IC={
   <div class="reis"><ol class="reis-l">
     <li><span class="n">${IC.ok}</span><small>Direct na aanmelding</small><b>Bevestiging met bestellingsoverzicht</b><p>U krijgt meteen een mail met uw diensten, de prijs per beurt en de voorwaarden. Daarna plannen wij u in op een route bij u in de buurt.</p></li>
     <li class="act"><span class="n">${IC.bel}</span><small>2 dagen vooraf</small><b>Aankondiging van de beurt</b><p>De dag en richttijd, wat wij komen doen en waar u even aan moet denken (horren weg, poort open). Past het niet? Verzetten kan met één tik.</p></li>
-    <li><span class="n">${IC.rt}</span><small>Op de dag zelf</small><b>Live meekijken</b><p>In uw portaal ziet u hoeveel adressen er nog voor u zijn en de verwachte aankomsttijd. Vanaf 2 adressen vóór u ziet u het busje live op de kaart.</p></li>
+    <li><span class="n">${IC.rt}</span><small>Op de dag zelf</small><b>Live meekijken</b><p>In uw portaal ziet u hoeveel adressen er nog voor u zijn en de verwachte aankomsttijd. Vanaf 1 adres vóór u ziet u het busje live op de kaart.</p></li>
     <li><span class="n">${IC.euro}</span><small>Na de beurt</small><b>Factuur ${o.mollie?"met betaalknop":"per e-mail"}</b><p>Direct na de beurt in uw mailbox${o.mollie?", te betalen met iDEAL in één minuut":""}. Credits gaan er automatisch af. En u kunt de beurt beoordelen.</p></li>
     <li><span class="n">${IC.gift}</span><small>Na betaling</small><b>Bevestiging en credits</b><p>Uw betaling staat meteen in het portaal, en uw volgende beurt is dan alweer gepland.</p></li></ol>
   <div class="mail" role="img" aria-label="Voorbeeld van de aankondigingsmail die u twee dagen vooraf krijgt"><div class="mail-h"><span class="av">${IC.raam}</span><div><b>${naam}</b>aan Sanne</div><span class="tijd">zondag 26 okt.</span></div>
@@ -493,7 +493,7 @@ function websiteBody(o){const e=esc,IC={
         <a class="pw-cta" href="#prijs">Meld u aan en krijg direct uw portaal ›</a></div></li>
     <li class="pw-r"><figure class="ph"><img src="${o.siteBase}/site/portaal-live.jpg" alt="Live volgen in het klantportaal: busje op de kaart, aantal adressen voor u en verwachte aankomsttijd" loading="lazy" width="390" height="844"></figure>
       <div class="pw-t"><small>2 · Op de dag zelf</small><h3>Live volgen waar het busje is</h3><p>Op de dag van uw beurt verandert het overzicht: u ziet hoeveel adressen er nog vóór u zijn en hoe laat we verwacht worden. Zijn er nog 2 adressen of minder vóór u, dan ziet u het busje live op de kaart. Zo hoeft u niet thuis te wachten.</p>
-        <ul><li>${IC.ok}<span>Verwachte tijd wordt live bijgesteld op basis van de route.</span></li><li>${IC.ok}<span>Het busje op de kaart ziet u zodra er nog 2 adressen of minder vóór u zijn; zo blijven andere adressen privé.</span></li></ul></div></li>
+        <ul><li>${IC.ok}<span>Verwachte tijd wordt live bijgesteld op basis van de route.</span></li><li>${IC.ok}<span>Het busje op de kaart ziet u zodra er nog 1 adres vóór u is; zo blijven andere adressen privé.</span></li></ul></div></li>
     <li class="pw-r"><figure class="ph"><img src="${o.siteBase}/site/portaal-bezoeken.jpg" alt="Bezoeken in het klantportaal: volgende bezoek, aantal keer gewassen, ritme en eerdere beurten" loading="lazy" width="390" height="844"></figure>
       <div class="pw-t"><small>3 · Bezoeken</small><h3>Elke beurt terug te zien</h3><p>Hoe vaak we zijn geweest, wat er is gedaan en welke extra's erbij zaten. Na elke beurt kunt u sterren geven; zo houdt u ons scherp.</p>
         <ul><li>${IC.ok}<span>Uw ritme (bijvoorbeeld elke 8 weken) en hoeveel weken daarvan voorbij zijn.</span></li><li>${IC.ok}<span>Extra's zoals kozijnen of zonnepanelen staan bij de beurt vermeld.</span></li></ul></div></li>

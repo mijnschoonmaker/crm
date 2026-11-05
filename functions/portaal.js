@@ -15,7 +15,7 @@
 const crypto = require("crypto");
 
 /* live kaart: het busje is zichtbaar zodra er nog zoveel adressen (of minder) vóór de klant zijn; zo blijven andere adressen privé */
-const LIVE_KAART_VANAF = 2;
+const LIVE_KAART_VANAF = 1;
 
 module.exports = function maakPortaal(ctx) {
   const { act = async () => {}, sjabloon, vulIn, pushStuur, db, T, onRequest, onCall, onSchedule, HttpsError, geheim, bedrijf, brevoSend, mailHtml, HOST, nu, newId, checkGebruiker, mollie, voornaamVan, bucket, portaalUrl, verwerkFactuurBetaling, snelBetaald } = ctx;
