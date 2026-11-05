@@ -61,7 +61,7 @@ async function openLuchtMeten({adres,soorten,maten,onKlaar}){
       <div class="lm-knop"><button type="button" id="lmUndo">Punt terug</button><button type="button" id="lmEind">Lijn klaar</button><button type="button" id="lmWis">Alles wissen</button><button type="button" class="ok" id="lmOk">Klaar</button></div></div>`;
   try{ov.showModal()}catch(e){ov.setAttribute("open","")}ov.addEventListener("cancel",e=>{e.preventDefault();if(actief)eind();else sluit(false)});
   const map=L.map(ov.querySelector("#lmMap"),{zoomControl:true,attributionControl:true,zoomSnap:.25,maxZoom:22,doubleClickZoom:false,center:[52.2,5.3],zoom:8});
-  const pd="https://service.pdok.nl/",tl=L.tileLayer(pd+"hwh/luchtfotorgb/wmts/v1_0/Actueel_orthoHR/EPSG:3857/{z}/{x}/{y}.jpeg",{maxZoom:22,maxNativeZoom:19,attribution:"Luchtfoto PDOK"}).addTo(map);
+  const pd="https://service.pdok.nl/",tl=L.tileLayer(pd+"hwh/luchtfotorgb/wmts/v1_0/Actueel_orthoHR/EPSG:3857/{z}/{x}/{y}.jpeg",{maxZoom:22,maxNativeZoom:21,attribution:"Luchtfoto PDOK"}).addTo(map);
   let kad=null;const kadLaag=()=>kad||(kad=L.tileLayer.wms(pd+"kadaster/kadastralekaart/wms/v5_0",{layers:"Perceel",format:"image/png",transparent:true,maxZoom:22,attribution:"Kadaster"}));
   const kl=s=>(soorten.find(x=>x.id===s)||{}).kleur||"#ffc53d",nm=s=>(soorten.find(x=>x.id===s)||{}).kort||"Meting";
   const laag=L.layerGroup().addTo(map);let live=null,liveTip=null;

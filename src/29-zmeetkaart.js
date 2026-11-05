@@ -31,7 +31,7 @@ function mktOpen(btn){
   pkLaadLeaflet().then(async()=>{const L=window.L,el=d.querySelector(".mkt-map");
     const map=L.map(el,{zoomControl:true,attributionControl:false,maxZoom:22,doubleClickZoom:false});
     const pd="https://service.pdok.nl/";
-    L.tileLayer(pd+"hwh/luchtfotorgb/wmts/v1_0/Actueel_orthoHR/EPSG:3857/{z}/{x}/{y}.jpeg",{maxZoom:22,maxNativeZoom:19}).addTo(map);
+    L.tileLayer(pd+"hwh/luchtfotorgb/wmts/v1_0/Actueel_orthoHR/EPSG:3857/{z}/{x}/{y}.jpeg",{maxZoom:22,maxNativeZoom:21}).addTo(map);
     L.tileLayer.wms(pd+"kadaster/kadastralekaart/wms/v5_0",{layers:"Kadastralekaart",format:"image/png",transparent:true,maxZoom:22,minZoom:16,opacity:.9}).addTo(map);
     const gaNaar=(p,z)=>{map.setView([p.lat,p.lng],z||20)};
     const ll=btn.dataset.mktl?btn.dataset.mktl.split(",").map(Number):null;

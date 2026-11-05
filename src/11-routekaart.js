@@ -98,8 +98,9 @@ function rvOndergrond(el,mp){const L=window.L,m=mp||el._map;(el._tegels||[]).for
     /* scherp op telefoon/iPad (retina): tegels van één zoomniveau dieper, dus woningen haarscherp */
     hr={};/* geen halve tegels meer: die gaven witte lijnen op de kaart */
   el._tegels=state.rvSat?[
-    L.tileLayer(pd+"hwh/luchtfotorgb/wmts/v1_0/Actueel_orthoHR/EPSG:3857/{z}/{x}/{y}.jpeg",{...o,...hr}),
-    L.tileLayer(pd+"bzk/luchtfotolabels/wmts/v1_0/lufolabels/EPSG:3857/{z}/{x}/{y}.png",o)
+    /* PDOK levert de luchtfoto (8 cm) tot zoomniveau 21: woningen haarscherp, ook ver ingezoomd */
+    L.tileLayer(pd+"hwh/luchtfotorgb/wmts/v1_0/Actueel_orthoHR/EPSG:3857/{z}/{x}/{y}.jpeg",{...o,...hr,maxZoom:22,maxNativeZoom:21}),
+    L.tileLayer(pd+"bzk/luchtfotolabels/wmts/v1_0/lufolabels/EPSG:3857/{z}/{x}/{y}.png",{...o,maxZoom:22})
   ]:[L.tileLayer(pd+"brt/achtergrondkaart/wmts/v2_0/standaard/EPSG:3857/{z}/{x}/{y}.png",{...o,...hr})];
   /* valt een PDOK-laag weg, dan terug naar OpenStreetMap zodat de kaart nooit leeg is */
   el._tegels.forEach((t,i)=>{let fout=0;t.on("tileerror",()=>{if(++fout===6&&m.hasLayer(t)){m.removeLayer(t);if(i===0)el._tegels.push(L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19}).addTo(m).bringToBack())}})});
