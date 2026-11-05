@@ -8,7 +8,7 @@ function openFactuurWerk(id){
   const dt=x=>x?esc(fmtL(String(x).slice(0,10)))+(String(x).length>10&&String(x).includes("T")?" · "+new Date(x).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"}):""):"—";
   const bg=k?betaalgedrag(state.facturen.filter(x=>x.klantId===k.id)):null;
   const credit=f.creditVan?state.facturen.find(x=>x.id===f.creditVan):null,creditN=state.facturen.find(x=>x.creditVan===f.id);
-  const W={contant:"Contant",pin:"Pin",overmaken:"Per bank",incasso:"Automatische incasso",mollie:"Mollie"};
+  const W={contant:"Contant",pin:"Pin",overmaken:"Per bank",incasso:"Automatische incasso",mollie:"Mollie",verrekend:"Verrekend met creditfactuur"};
   const opt=(ic,lbl,act,date,cls="")=>`<tr><td>${act?`<button type="button" class="linkbtn fw-opt ${cls}" data-fw="${act}">${ic}${lbl}</button>`:`<span class="fw-opt plain">${ic}${lbl}</span>`}</td><td class="r">${date||"—"}</td></tr>`;
   const betaaldMet=w=>f.status==="betaald"&&(f.betaalwijze||"overmaken")===w?dt(f.betaaldOp):"";
   const rv=invRows(f,k);
@@ -80,7 +80,10 @@ function openFactuurWerk(id){
     dupl:async()=>{const n=cur(),d=iso(today()),nid=newId("f");const nf={...strip(n),nummer:nextNr("factuur",d),datum:d,verval:iso(addDays(today(),Math.max(1,Math.round((parse(n.verval)-parse(n.datum))/DAY))||14)),status:"concept",betaaldOp:"",verstuurdOp:"",herinnerdOp:"",herinneringen:0,oninbaarOp:"",gemaakt:new Date().toISOString(),log:[],creditVan:"",periodiek:false};
       try{await save("facturen",nid,nf);toast("Kopie gemaakt · "+nf.nummer);setTimeout(()=>openFactuurWerk(nid),60)}catch(er){err(er)}},
     credit:async()=>{const n=cur(),d=iso(today()),nid=newId("f");const nf={...strip(n),nummer:nextNr("factuur",d),datum:d,verval:d,regels:(n.regels||[]).map(r=>({...r,prijs:-(Number(r.prijs)||0)})),status:"open",betaaldOp:"",verstuurdOp:"",herinnerdOp:"",herinneringen:0,oninbaarOp:"",gemaakt:new Date().toISOString(),log:[],creditVan:n.id,periodiek:false,notitie:"Creditfactuur voor factuur "+n.nummer};
-      try{await save("facturen",nid,nf);toast("Creditfactuur "+nf.nummer+" gemaakt");setTimeout(()=>openFactuurWerk(nid),60)}catch(er){err(er)}},
+      /* staat de factuur nog helemaal open: tegen elkaar wegstrepen, dan gaan er geen herinneringen meer en staat er niets open */
+      const verr=n.status==="open"&&!n.betaaldOp&&!(Number(n.deelBetaald)>0);
+      if(verr){Object.assign(nf,{status:"betaald",betaaldOp:d,betaalwijze:"verrekend"});["mollieId","mollieLink","mollieStatus","mollieMethode","incasso"].forEach(x=>delete nf[x])}
+      try{await save("facturen",nid,nf);if(verr)await save("facturen",n.id,{...strip(n),status:"betaald",betaaldOp:d,betaalwijze:"verrekend"});toast("Creditfactuur "+nf.nummer+" gemaakt");setTimeout(()=>openFactuurWerk(nid),60)}catch(er){err(er)}},
     adres:()=>fwSmall(id,"Adres op de factuur",I.pin,`<label>Factuuradres<input id="fa-a" value="${esc(cur().klantAdres||"")}"><small class="help">Zoals het op deze factuur komt, bijv. "Kamperfoelie 3, 9351XT Leek"</small></label><div class="grid2"><label>Facturen gaan naar<input id="fa-e" type="email" value="${esc(cur().klantEmail||"")}"></label><label>Ter attentie van<input id="fa-t" value="${esc(cur().tav||(k&&tavK(k,"factuur"))||"")}"></label></div>`,()=>({klantAdres:$("#fa-a").value.trim(),klantEmail:$("#fa-e").value.trim(),tav:$("#fa-t").value.trim()})),
     notitie:()=>fwSmall(id,"Notitie",I.note,`<label>Notitie <small class="help">komt als opmerking op de factuur</small><textarea id="fn-n" style="min-height:120px">${esc(cur().notitie||"")}</textarea></label>`,()=>({notitie:$("#fn-n").value.trim()})),
     details:()=>{const n=cur();fwSmall(id,"Factuurdetails",I.facturen,`<div class="grid2"><label>Factuurnummer<input id="fd-nr" value="${esc(n.nummer)}"></label><label>Betaalwijze<select id="fd-bw">${Object.entries(W).map(([v,l])=>`<option value="${v}" ${(n.betaalwijze||"overmaken")===v?"selected":""}>${l}</option>`).join("")}</select></label>

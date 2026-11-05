@@ -1,0 +1,26 @@
+name: Factuur crediteren (eenmalig)
+on:
+  workflow_dispatch:
+    inputs:
+      nr: { description: "Factuurnummer", required: true }
+      uitvoeren: { description: "ja = uitvoeren", required: false, default: "nee" }
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm install --omit=dev --no-audit --no-fund
+        working-directory: functions
+      - run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > "$RUNNER_TEMP/sa.json"
+      - env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
+          P: ${{ vars.FIREBASE_PROJECT }}
+          GCLOUD_PROJECT: ${{ vars.FIREBASE_PROJECT }}
+          BUCKET: ${{ vars.FIREBASE_BUCKET }}
+          NR: ${{ inputs.nr }}
+          UITVOEREN: ${{ inputs.uitvoeren }}
+        run: |
+          export FIREBASE_CONFIG="{\"projectId\":\"$P\",\"storageBucket\":\"${BUCKET:-$P.firebasestorage.app}\"}"
+          node tools/factuur-crediteer.js

@@ -36,7 +36,7 @@ function stPerDagWeek(rg){
       <div class="st-tabw"><table class="st-tab"><thead><tr><th></th><th class="r">Dagen</th><th class="r">Omzet ex btw</th><th class="r">Stops</th><th class="r">Gewerkt</th><th class="r">Reistijd</th><th class="r">Pauze</th><th class="r">Per uur</th></tr></thead><tbody>${wk.slice().reverse().map(w=>`<tr><td><b>Week ${w.nr}</b></td><td class="r">${w.dagen}</td><td class="r">${eur(w.omzet)}</td><td class="r">${w.n}</td><td class="r">${wdU(w.netto)}</td><td class="r">${wdU(w.reis)} <small>${stPct(w.reis,w.netto+w.pauze)}%</small></td><td class="r">${wdU(w.pauze)}</td><td class="r"><b>${w.netto>0?eur(w.omzet/(w.netto/60)):"–"}</b></td></tr>`).join("")}</tbody></table></div></section>`:""}`}
 function stMeerWerk(P){const bs=state.beurten.filter(b=>!b.geannuleerd&&inRange(b.datum,P.rg));return stPerDagWeek(P.rg)+stPerKlantPlaats(bs)}
 /* ---- geld binnen ---- */
-const stBetaalWijze=f=>f.incasso||f.betaalwijze==="incasso"?"Automatische incasso":f.betaalwijze==="mollie"?(f.mollieMethode&&f.mollieMethode!=="ideal"?"Online ("+f.mollieMethode+")":"iDEAL-knop"):["contant","pin"].includes(f.betaalwijze)?"Contant of pin":"Overgemaakt";
+const stBetaalWijze=f=>f.betaalwijze==="verrekend"?"Verrekend":f.incasso||f.betaalwijze==="incasso"?"Automatische incasso":f.betaalwijze==="mollie"?(f.mollieMethode&&f.mollieMethode!=="ideal"?"Online ("+f.mollieMethode+")":"iDEAL-knop"):["contant","pin"].includes(f.betaalwijze)?"Contant of pin":"Overgemaakt";
 function stMeerGeld(P,F){
   const fs=F.fs||[];if(!fs.length)return"";
   const tot=fs.reduce((a,f)=>a+totals(f).inc,0),bet=fs.filter(f=>f.status==="betaald"),betS=bet.reduce((a,f)=>a+totals(f).inc,0);
