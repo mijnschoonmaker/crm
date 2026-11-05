@@ -4972,3 +4972,5 @@ html body dialog .skz-k button{padding:0 12px!important;min-width:0!important;wh
 .ds-uitleg{margin:10px 0 0;font-size:12px;color:var(--muted);line-height:1.45}
 .ds .ds-uren span,.ds .ds-uren span:first-child,.ds .ds-uren span:last-child{transform:translateX(-50%)}
 @media (max-width:640px){.ds .ds-rij{grid-template-columns:60px minmax(0,1fr)}.ds-gr{left:68px}.ds .ds-uren{margin-left:68px!important}.ds-tg{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+#rvMap .sg-knop{top:12px}

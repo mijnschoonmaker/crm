@@ -5283,6 +5283,8 @@ html body dialog .skz-k button{padding:0 12px!important;min-width:0!important;wh
 .ds .ds-uren span,.ds .ds-uren span:first-child,.ds .ds-uren span:last-child{transform:translateX(-50%)}
 @media (max-width:640px){.ds .ds-rij{grid-template-columns:60px minmax(0,1fr)}.ds-gr{left:68px}.ds .ds-uren{margin-left:68px!important}.ds-tg{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
+#rvMap .sg-knop{top:12px}
+
 </style>
 <style id="mansardThema">
 @import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;500;600;700&display=swap");
@@ -19810,17 +19812,20 @@ if(typeof window!=="undefined")setTimeout(function w(){if(typeof state!=="undefi
    1. Regenradar: de buienradar (RainViewer) over de live kaart, en per volgend adres of het daar de komende 2 uur gaat regenen (Open-Meteo, per kwartier).
    2. Dagstrook: per dag (of per bus) gepland tegenover werkelijk: bij de klant, rijden en pauze. Alleen echte gegevens. */
 const RG={pad:"",host:"",tijd:0,laag:null,aan:(()=>{try{return localStorage.getItem("ms.rg")!=="0"}catch(e){return true}})(),haal:0,voor:null,voorT:0,bezig:false};
-async function rgRadar(){if(Date.now()-RG.haal<5*60e3)return;RG.haal=Date.now();
+const RG_UIT=true;
+async function rgRadar(){if(RG_UIT)return;if(Date.now()-RG.haal<5*60e3)return;RG.haal=Date.now();
   try{const j=await (await fetch("https://api.rainviewer.com/public/weather-maps.json")).json(),L=(j.radar&&j.radar.past)||[],f=L[L.length-1];
     if(f){RG.host=j.host||"https://tilecache.rainviewer.com";RG.pad=f.path;RG.tijd=f.time*1000;rgLaag()}}catch(e){}}
 function rgLaag(){const el=document.getElementById("rvMap"),m=el&&el._map,L=window.L;if(!m||!L)return;
+  /* buienradar op de kaart staat uit (op verzoek van Robin): laag en knop weg */
+  if(RG_UIT){if(el._rg){m.removeLayer(el._rg);el._rg=null}const kb=el.querySelector(".rg-knop");if(kb)kb.remove();return}
   if(!RG.aan||!RG.pad){if(el._rg){m.removeLayer(el._rg);el._rg=null}rgKnop(el);return}
   const url=RG.host+RG.pad+"/256/{z}/{x}/{y}/2/1_1.png";
   if(el._rg&&el._rgUrl===url&&m.hasLayer(el._rg)){rgKnop(el);return}
   if(el._rg)m.removeLayer(el._rg);
   if(!m.getPane("rgPane")){m.createPane("rgPane").style.zIndex=390;m.getPane("rgPane").style.pointerEvents="none"}
   el._rg=L.tileLayer(url,{pane:"rgPane",opacity:.62,maxNativeZoom:7,maxZoom:22,tileSize:256,className:"rg-tegel"}).addTo(m);el._rgUrl=url;rgKnop(el)}
-function rgKnop(el){if(!el)return;let b=el.querySelector(".rg-knop");if(!b){b=document.createElement("button");b.type="button";b.className="rg-knop";b.dataset.rg="1";el.appendChild(b)}
+function rgKnop(el){if(!el)return;if(RG_UIT){const kb=el.querySelector(".rg-knop");if(kb)kb.remove();return}let b=el.querySelector(".rg-knop");if(!b){b=document.createElement("button");b.type="button";b.className="rg-knop";b.dataset.rg="1";el.appendChild(b)}
   const t=RG.tijd?new Date(RG.tijd).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"}):"";
   const v=RG.voor,droog=v&&!v.leeg&&!v.eerste;
   b.setAttribute("aria-pressed",RG.aan);b.title=RG.aan?"Buienradar staat aan"+(t?" (beeld van "+t+")":"")+" · tik om uit te zetten":"Buienradar aanzetten";
