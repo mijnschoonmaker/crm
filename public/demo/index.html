@@ -20445,7 +20445,8 @@ setInterval(()=>{document.querySelectorAll("[data-timer]").forEach(el=>{const t=
    Opnieuw beginnen: /demo/?opnieuw */
 /* vak van de demo: alleen via de link (?branche=…); het klantportaal in de demo volgt het laatst geopende vak */
 const DEMO_BR=(()=>{const b=brUitUrl()||"glazenwasser";try{if(b==="glazenwasser")localStorage.removeItem("ms.demo.branche");else localStorage.setItem("ms.demo.branche",b)}catch(e){}return b})();
-const DEMO_KEY="ms.demo.v8"+(DEMO_BR==="glazenwasser"?"":"."+DEMO_BR);
+/* andere vakken: v9 (eigen voorbeeldteksten per vak), zodat een al geopende demo meteen opnieuw wordt opgebouwd */
+const DEMO_KEY=DEMO_BR==="glazenwasser"?"ms.demo.v8":"ms.demo.v9."+DEMO_BR;
 /* Westerkwartier: plaats, postcode, lat, lng, gewicht (aantal klanten), wie rijdt er (M = Mark, S = Sem) */
 const DEMO_PLAATS=[["Zuidhorn","9801",53.2464,6.4060,22,"M"],["Noordhorn","9804",53.2620,6.3920,7,"M"],["Aduard","9831",53.2560,6.4590,8,"M"],["Den Horn","9832",53.2300,6.4430,4,"M"],["Niekerk","9822",53.2220,6.3480,4,"M"],["Oldekerk","9821",53.2230,6.3230,4,"M"],["Grijpskerk","9843",53.2630,6.3060,6,"M"],["Kommerzijl","9845",53.2840,6.3220,2,"M"],
   ["Grootegast","9861",53.2140,6.2720,10,"S"],["Lutjegast","9866",53.2350,6.2550,3,"S"],["Doezum","9863",53.2080,6.2300,2,"S"],["Sebaldeburen","9862",53.2030,6.2550,2,"S"],["Leek","9351",53.1620,6.3770,18,"S"],["Tolbert","9356",53.1640,6.3590,6,"S"],["Midwolde","9354",53.1800,6.3930,3,"S"],["Enumatil","9355",53.1810,6.3660,2,"S"],["Marum","9363",53.1440,6.2650,9,"S"],["Nuis","9364",53.1600,6.2900,2,"S"],["Niebert","9365",53.1630,6.3050,2,"S"],["Opende","9865",53.1660,6.2050,4,"S"]];
@@ -20707,18 +20708,49 @@ function demoVandaag(c){const ti=iso(today()),nu=new Date(),nm=nu.getHours()*60+
 
 /* demo voor een ander vak: dezelfde klanten en route, met de diensten en woorden van dat vak (glazenwassers: niets aan veranderd) */
 const DEMO_BRNAAM={schoorsteenveger:["Voorbeeld Schoorsteenvegerij","voorbeeldschoorsteenvegerij.nl"],schilder:["Voorbeeld Schildersbedrijf","voorbeeldschildersbedrijf.nl"],hovenier:["Voorbeeld Hoveniers","voorbeeldhoveniers.nl"],timmerman:["Voorbeeld Timmerwerken","voorbeeldtimmerwerken.nl"],stucadoor:["Voorbeeld Stucadoors","voorbeeldstucadoors.nl"]};
+const DEMO_BRC={
+  schoorsteenveger:{vve:"Onderhoudscontract rookgasafvoeren",vveDienst:"Controle rookgasafvoeren",credit:"kachel bleef roken, nogmaals langs geweest, afgesproken met klant",eenmalig:"Eenmalig vogelnest verwijderen",project:"Rookgasafvoeren controleren, 6 nieuwbouwwoningen",lev:"Schoorsteentechniek Noord",
+    taak:["Kachel staat in de woonkamer: schoenhoezen aan en afdekkleed meenemen.","Toegang tot het dak via het dakluik op zolder. Hond is binnen, aanbellen en even wachten.","Open haard en houtkachel: beide kanalen vegen. Klant wil het veegcertificaat per mail voor de verzekering."],
+    vveTaak:["24 appartementen met cv-ketels op zolder. Per woning de rookgasafvoer controleren; sleutel technische ruimte bij de beheerder.","Gezamenlijke schoorsteen op het dak; dakluik via de bergingsgang."],
+    kosten:["Veegborstels en stangen","Stofzuigerfilters en afdekkleden","Onderhoud camera-inspectieset","Valbeveiliging dakwerk"]},
+  schilder:{vve:"Onderhoudscontract schilderwerk",vveDienst:"Schilderwerk gemeenschappelijke ruimten",credit:"verfspetters op de bestrating, afgesproken met klant",eenmalig:"Eenmalig houtrot herstellen voordeur",project:"Opleverschilderwerk, 6 nieuwbouwwoningen",lev:"Verfgroothandel Noord",
+    taak:["Kozijnen voorzijde eerst schuren; de verf staat klaar in de schuur.","Klant is overdag niet thuis, sleutel ligt bij de buren (nr. 12). Tegelvloer afplakken.","Kozijnen in RAL 9010, voordeur in de huidige groene kleur."],
+    vveTaak:["24 appartementen. Galerijhekken en voordeuren bijwerken; steiger alleen na afstemming met de beheerder.","Trappenhuis: muren en plafonds sauzen, leuningen lakken. Sleutel technische ruimte bij de beheerder."],
+    kosten:["Verf en grondverf","Afplaktape, folie en kwasten","Schuurpapier en plamuur","Steigerhuur"]},
+  hovenier:{vve:"Groenonderhoud",vveDienst:"Groenonderhoud gemeenschappelijke tuin",credit:"gazon te kort gemaaid, afgesproken met klant",eenmalig:"Eenmalig boom snoeien",project:"Aanleg groenstroken, 6 nieuwbouwwoningen",lev:"Tuinmachines Noord",
+    taak:["Achterom via de poort; groenafval in de container naast de schuur.","Kinderen spelen op het gazon: maaisel goed opruimen.","Heg aan de straatkant op 1,80 m houden."],
+    vveTaak:["24 appartementen. Binnentuin en entreeborders bijhouden, blad van de paden blazen.","Heg langs de parkeerplaats knippen; groenafval in de container bij de bergingen."],
+    kosten:["Brandstof en olie voor de machines","Snoeischaren en messen slijpen","Stortkosten groenafval","Bemesting en graszaad"]},
+  timmerman:{vve:"Onderhoudscontract timmerwerk",vveDienst:"Timmerwerk gemeenschappelijke ruimten",credit:"deur moest opnieuw worden afgehangen, afgesproken met klant",eenmalig:"Eenmalig binnendeur plaatsen",project:"Binnendeuren plaatsen, 6 nieuwbouwwoningen",lev:"Houthandel Noord",
+    taak:["Achterdeur klemt; ook het hang- en sluitwerk nalopen.","Materiaal wordt donderdag bezorgd; klant is vanaf 8 uur thuis.","Schutting achter de garage; oude schuttingdelen meenemen."],
+    vveTaak:["24 appartementen. Bergingsdeuren nalopen en sluitwerk afstellen; sleutel bij de beheerder.","Trapleuning en traptreden in het trappenhuis controleren en herstellen."],
+    kosten:["Schroeven, pluggen en bevestigingsmateriaal","Zaagbladen en boren","Hout en plaatmateriaal","Kit en lijm"]},
+  stucadoor:{vve:"Onderhoudscontract stucwerk",vveDienst:"Stucwerk gemeenschappelijke ruimten",credit:"naad zichtbaar na het drogen, afgesproken met klant",eenmalig:"Eenmalig scheuren herstellen",project:"Wanden en plafonds stucen, 6 nieuwbouwwoningen",lev:"Bouwmaterialen Noord",
+    taak:["Woonkamer is leeg; vloer afdekken, de nieuwe vloer ligt er al.","Klant wil behangklaar; stopcontacten zijn al afgeplakt.","Badkamerplafond spuiten; ventilatie aan laten tijdens het drogen."],
+    vveTaak:["24 appartementen. Scheuren in het trappenhuis herstellen; sleutel bij de beheerder.","Plafond entreehal opnieuw spuiten, in overleg met de beheerder."],
+    kosten:["Gips en stucmortel","Hoekprofielen en gaas","Afdekfolie en tape","Onderhoud spuitapparatuur"]}};
 /* glazenwassers-demo: woningen krijgen aantallen per verdieping, zodat "Uit te voeren" op de stopkaart te zien is */
 function demoRamen(d){const c=d.cols||d;(c.klanten||[]).forEach((k,i)=>{if(k.ramenRegel||k.soort==="vve")return;const h=[...String(k.id)].reduce((a,ch)=>a+ch.charCodeAt(0),0)+i;
   k.ramenRegel={f:[8+h%14,h%3?3+h%6:0,0,0],sp:h%4===0?{tuimel:1+h%4}:{}}})}
 function demoBranche(d,br){if(!br||br==="glazenwasser"){demoRamen(d);return d}const c=d.cols||d;
   const G=brDiensten(br).map(g=>g.naam),H=G[0],[bnaam,dom]=DEMO_BRNAAM[br];
   const jaar=br!=="hovenier",rnd=demoRnd(4242),pick=a=>a[Math.floor(rnd()*a.length)];
-  const vervang=v=>typeof v!=="string"?v:v.replace(/Glasbewassing binnen en buiten|Glasbewassing binnen|Glasbewassing( (etalage|showroom|kantoor|school|hotel|gevel|buitenzijde|trappenhal)[^,·\d(]*)?|Glasbewassing/g,(m)=>/binnen/i.test(m)&&G[1]?G[1]:H)
+  const vervang=v=>typeof v!=="string"?v:v.replace(/Glasbewassing binnen en buiten|Glasbewassing binnenzijde|Glasbewassing buitenzijde|Glasbewassing binnen|Glasbewassing( (etalage|showroom|kantoor|school|hotel|gevel|buitenzijde|trappenhal)[^,·\d(]*)?|Glasbewassing/g,(m)=>/binnen/i.test(m)&&G[1]?G[1]:H)
     .replace(/Voorbeeld Glazenwasserij/g,bnaam).replace(/voorbeeldglazenwasserij\.nl/g,dom).replace(/glazenwasser/gi,brInfo(br).enk.toLowerCase()).replace(/ramen wassen/gi,"onderhoud")
     .replace(/\d+ ramen \(telling klant\)/g,H.toLowerCase()).replace(/(Dakgoten|Zonnepanelen|Kozijnen) reinigen/g,()=>G[1+Math.floor(rnd()*(G.length-1))]);
   const loop=x=>{if(Array.isArray(x))return x.map(loop);if(x&&typeof x==="object"){for(const k of Object.keys(x)){if(k==="id"||k==="klantId")continue;x[k]=loop(x[k])}return x}return vervang(x)};
   Object.keys(c).forEach(k=>loop(c[k]));
   (c.klanten||[]).forEach(k=>{delete k.ramenRegel;delete k.ramenTelling;delete k.tellingControle;k.binnen=false;if(!G.includes(k.dienst))k.dienst=H;if(jaar&&k.soort!=="vve")k.frequentie=52;(k.opdrachten||[]).forEach(o=>{if(!G.includes(o.dienst))o.dienst=pick(G.slice(1))})});
+  /* teksten die nog van glazenwassers zijn (taken, VvE-contract, creditering, projectregels, kosten): per vak eigen, passende voorbeelden */
+  const C=DEMO_BRC[br];if(C){const G1=(G[1]||H).toLowerCase();
+    const tekst=v=>typeof v!=="string"?v:v.replace(/Schoonmaak trappenhal en entree/g,C.vve).replace(/^Schoonmaak trappenhal$/,C.vveDienst).replace(/ \+ kozijnen/g," + "+G1)
+      .replace(/Creditering 50% [^\d]*?(\d{2}-\d{2}-\d{4}) \([^)]*\)/g,(m,dt)=>`Creditering 50% ${H.toLowerCase()} ${dt} (${C.credit})`)
+      .replace(/Eenmalig kozijnen reinigen/g,C.eenmalig).replace(/Opleveringsschoonmaak glas, 6 woningen/g,C.project).replace(/ \(\d+ panelen\)/g,"")
+      .replace(/Osmose Service Nederland/g,C.lev);
+    const loop2=x=>{if(Array.isArray(x))return x.map(loop2);if(x&&typeof x==="object"){for(const k of Object.keys(x)){if(k==="id"||k==="klantId")continue;x[k]=loop2(x[k])}return x}return tekst(x)};
+    Object.keys(c).forEach(k=>loop2(c[k]));
+    let ti=0,tv=0;(c.klanten||[]).forEach(k=>{if(!k.taak)return;k.taak=k.soort==="vve"?C.vveTaak[tv++%C.vveTaak.length]:C.taak[ti++%C.taak.length]});
+    const KG=/glas|osmose|zeem|ladder|rubbers/i;let ki=0;(c.kosten||[]).forEach(x=>{if(KG.test(String(x.omschrijving||"")))x.omschrijving=C.kosten[ki++%C.kosten.length]})}
   const b=(c.instellingen||[]).find(x=>x.id==="bedrijf");if(b){b.branche=br;b.naam=bnaam}
   return d}
 async function demoStart(){
