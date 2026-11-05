@@ -87,14 +87,23 @@ async function afronden(k,mode,el){
 }
 /* keuze: nu begonnen, op de geplande tijd, of een eigen tijd */
 function startKeuze(k,tp){return new Promise(res=>{const d=document.createElement("dialog");d.className="vraag-dlg";const pl=fromMin(tp),nu=new Date(),hh=String(nu.getHours()).padStart(2,"0")+":"+String(nu.getMinutes()).padStart(2,"0");
-  d.innerHTML=`<div class="vraag-ov"><div class="vraag st-k" role="alertdialog" aria-modal="true"><span class="objic">${I.clock}</span><div><b>Hoe laat ben je begonnen?</b><p>Bij ${esc(cleanName(k.naam))}. Zo klopt de gemeten tijd, ook als je vergat op Start te tikken.</p>
-    <div class="st-opt"><button type="button" class="primary" data-st="nu">Nu (${hh})</button><button type="button" data-st="plan">Om ${esc(pl)} (gepland)</button><label class="st-eig">Andere tijd<input type="time" id="stT" value="${esc(pl)}"><button type="button" data-st="eigen">Gebruik</button></label></div></div>
-    <div class="vraag-k"><button type="button" data-st="x">Annuleren</button></div></div></div>`;
-  document.body.appendChild(d);d.showModal();const klaar=v=>{try{d.close()}catch(_){}d.remove();res(v)};
+  const nm=nu.getHours()*60+nu.getMinutes(),laat=nm-tp,duur=m=>m<60?m+" min":Math.floor(m/60)+" uur"+(m%60?" "+(m%60)+" min":"");
+  const kaart=(w,tijd,t,s,sel)=>`<button type="button" class="skz-o${sel?" aan":""}" data-sk="${w}" aria-pressed="${sel?"true":"false"}"><span class="skz-r"></span><span class="skz-t"><b>${t}</b><small>${s}</small></span><span class="skz-u">${tijd}</span></button>`;
+  d.innerHTML=`<div class="vraag-ov"><div class="skz" role="alertdialog" aria-modal="true" aria-labelledby="skzT">
+    <div class="skz-kop"><span class="skz-ic">${I.clock}</span><div><h3 id="skzT">Hoe laat ben je begonnen?</h3><p>${esc(cleanName(k.naam))} · gepland om ${esc(pl)}</p></div></div>
+    <div class="skz-uitleg">De afspraak is al ${duur(laat)} bezig volgens de planning. Vergeten op Start te tikken? Kies wanneer je echt begon, dan klopt je gewerkte tijd.</div>
+    <div class="skz-l">${kaart("plan",esc(pl),"Op de geplande tijd","Ik ben op tijd begonnen",true)}${kaart("nu",hh,"Nu","Ik begin nu pas",false)}
+      <label class="skz-o skz-eig" data-sk="eigen"><span class="skz-r"></span><span class="skz-t"><b>Andere tijd</b><small>Zelf invullen</small></span><input type="time" id="stT" value="${esc(pl)}" max="${hh}" aria-label="Begintijd"></label></div>
+    <div class="skz-k"><button type="button" class="ghost" data-st="x">Annuleren</button><button type="button" class="primary" data-st="ok">${I.play||""}<span>Start vanaf <b id="skzV">${esc(pl)}</b></span></button></div></div></div>`;
+  document.body.appendChild(d);d.showModal();let keuze="plan";const klaar=v=>{try{d.close()}catch(_){}d.remove();res(v)};
   const opT=t=>{const m=/^(\d{1,2}):(\d{2})$/.exec(t||"");if(!m)return null;const x=new Date();x.setHours(+m[1],+m[2],0,0);return x>new Date()?null:x.toISOString()};
+  const tijd=()=>keuze==="nu"?hh:keuze==="plan"?pl:d.querySelector("#stT").value||"";
+  const kies=w=>{keuze=w;d.querySelectorAll(".skz-o").forEach(o=>{const a=o.dataset.sk===w;o.classList.toggle("aan",a);o.setAttribute("aria-pressed",a)});d.querySelector("#skzV").textContent=tijd()};
   d.addEventListener("cancel",e=>{e.preventDefault();klaar(null)});
-  d.addEventListener("click",e=>{const b=e.target.closest("[data-st]");if(!b)return;const w=b.dataset.st;if(w==="x")return klaar(null);if(w==="nu")return klaar(new Date().toISOString());
-    const t=w==="plan"?opT(pl):opT(d.querySelector("#stT").value);if(!t){toast("Kies een tijd die al geweest is");return}klaar(t)})})}
+  d.querySelector("#stT").addEventListener("input",()=>kies("eigen"));d.querySelector("#stT").addEventListener("focus",()=>kies("eigen"));
+  d.addEventListener("click",e=>{const o=e.target.closest("[data-sk]");if(o){kies(o.dataset.sk);if(o.dataset.sk==="eigen"&&e.target.tagName!=="INPUT")d.querySelector("#stT").focus();return}
+    const b=e.target.closest("[data-st]");if(!b)return;if(b.dataset.st==="x")return klaar(null);
+    if(keuze==="nu")return klaar(new Date().toISOString());const t=opT(tijd());if(!t){toast("Kies een tijd die al geweest is");return}klaar(t)})})}
 async function startJob(k){
   const on=!isBezig(k);
   /* direct zichtbaar maken, ook als het opslaan even duurt */

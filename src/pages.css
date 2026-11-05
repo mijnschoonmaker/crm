@@ -4921,5 +4921,23 @@ dialog.iz-dlg::backdrop{background:rgb(13 18 27/.6)}
 .pk-map .sg-knop,#pkMap .sg-knop{top:60px}
 .wg-adr{margin:10px 0 0;padding:10px 12px;border-radius:12px;font-size:13px}.wg-adr b{display:flex;align-items:center;gap:6px}.wg-adr b svg{width:14px;height:14px}.wg-adr small{display:block;margin-top:2px;color:var(--muted)}
 .wg-adr.ok{background:#eef7f1;color:#23804a}.wg-adr.nat{background:#fdf3e3;color:#8a5208}
-.st-k .st-opt{display:flex;flex-direction:column;gap:8px;margin-top:12px}.st-k .st-opt>button{width:100%;justify-content:center}
-.st-eig{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}.st-eig input{flex:1;height:38px}
+
+/* start vergeten: hoe laat ben je begonnen? */
+.skz{box-sizing:border-box;max-width:min(420px,calc(100vw - 32px))!important;background:var(--surface);border:1px solid var(--line);border-radius:22px;box-shadow:0 30px 70px rgb(0 0 0/.28);padding:20px;max-width:420px;width:100%;display:flex;flex-direction:column;gap:14px;text-transform:none;letter-spacing:normal;font-size:15px;color:var(--ink)}
+.skz-kop{display:flex;gap:12px;align-items:center}
+.skz-ic{flex:none;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:color-mix(in srgb,#2a8bd1 14%,var(--surface));color:#2a8bd1}.skz-ic svg{width:22px;height:22px}
+.skz-kop h3{margin:0;font-size:19px;font-weight:750;letter-spacing:-.02em}.skz-kop p{margin:2px 0 0;color:var(--muted);font-size:14px}
+.skz-uitleg{font-size:13.5px;line-height:1.45;color:var(--muted);background:var(--bg,#f4f5f7);border-radius:12px;padding:10px 12px}
+.skz-l{display:flex;flex-direction:column;gap:8px}
+.skz-o{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;width:100%;min-height:60px;padding:10px 14px;border:1.5px solid var(--line);border-radius:14px;background:var(--surface);transition:border-color .15s,background .15s}
+.skz-o.aan{border-color:#2a8bd1;background:color-mix(in srgb,#2a8bd1 7%,var(--surface))}
+.skz-r{flex:none;width:20px;height:20px;border-radius:50%;border:2px solid var(--line);box-sizing:border-box;transition:border .15s}
+.skz-o.aan .skz-r{border:6px solid #2a8bd1}
+.skz-t{flex:1;display:flex;flex-direction:column;min-width:0}.skz-t b{font-size:15px;font-weight:650}.skz-t small{font-size:12.5px;color:var(--muted)}
+.skz-u{font-size:22px;font-weight:750;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.skz-eig input{width:auto;min-width:96px;height:40px;font-size:18px;font-weight:650;text-align:center;border-radius:10px;font-variant-numeric:tabular-nums}
+.skz-k{display:flex;gap:8px;margin-top:2px}.skz-k button{flex:1;justify-content:center;min-height:48px}.skz-k .primary{flex:2;gap:6px}.skz-k .primary b{font-weight:800}
+.skz-k svg{width:16px;height:16px}
+.skz h3,.skz .skz-o b,.skz small,.skz p{text-transform:none!important;letter-spacing:normal!important}.skz-kop h3{letter-spacing:-.02em!important}
+html body dialog .skz-k button{padding:0 12px!important;min-width:0!important;white-space:nowrap}html body dialog .skz-k .primary b{letter-spacing:.06em!important;font-size:14px}
+@media (max-width:420px){.skz{padding:16px}.skz-u{font-size:20px}.skz-eig input{min-width:84px;font-size:16px}}
