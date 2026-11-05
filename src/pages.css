@@ -4921,3 +4921,5 @@ dialog.iz-dlg::backdrop{background:rgb(13 18 27/.6)}
 .pk-map .sg-knop,#pkMap .sg-knop{top:60px}
 .wg-adr{margin:10px 0 0;padding:10px 12px;border-radius:12px;font-size:13px}.wg-adr b{display:flex;align-items:center;gap:6px}.wg-adr b svg{width:14px;height:14px}.wg-adr small{display:block;margin-top:2px;color:var(--muted)}
 .wg-adr.ok{background:#eef7f1;color:#23804a}.wg-adr.nat{background:#fdf3e3;color:#8a5208}
+.st-k .st-opt{display:flex;flex-direction:column;gap:8px;margin-top:12px}.st-k .st-opt>button{width:100%;justify-content:center}
+.st-eig{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}.st-eig input{flex:1;height:38px}

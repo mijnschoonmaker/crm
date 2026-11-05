@@ -85,13 +85,25 @@ async function afronden(k,mode,el){
     if(direct&&!(mailK(k,"factuur")||{}).email&&!f.klantEmail){setTimeout(()=>toast(cleanName(k.naam)+": geen e-mailadres · de factuur staat bij Facturen › Printen"),2600)}else if(direct){let n=0;const go=()=>{if(state.facturen.some(x=>x.id===fId))sendF(fId,{direct:true,bevestigd:true});else if(++n<30)setTimeout(go,100)};setTimeout(go,300)}
   }catch(e){if(el){const c=el.querySelector(".swipe-card");if(c)c.style.transform="";el.classList.remove("armed")}err(e)}
 }
+/* keuze: nu begonnen, op de geplande tijd, of een eigen tijd */
+function startKeuze(k,tp){return new Promise(res=>{const d=document.createElement("dialog");d.className="vraag-dlg";const pl=fromMin(tp),nu=new Date(),hh=String(nu.getHours()).padStart(2,"0")+":"+String(nu.getMinutes()).padStart(2,"0");
+  d.innerHTML=`<div class="vraag-ov"><div class="vraag st-k" role="alertdialog" aria-modal="true"><span class="objic">${I.clock}</span><div><b>Hoe laat ben je begonnen?</b><p>Bij ${esc(cleanName(k.naam))}. Zo klopt de gemeten tijd, ook als je vergat op Start te tikken.</p>
+    <div class="st-opt"><button type="button" class="primary" data-st="nu">Nu (${hh})</button><button type="button" data-st="plan">Om ${esc(pl)} (gepland)</button><label class="st-eig">Andere tijd<input type="time" id="stT" value="${esc(pl)}"><button type="button" data-st="eigen">Gebruik</button></label></div></div>
+    <div class="vraag-k"><button type="button" data-st="x">Annuleren</button></div></div></div>`;
+  document.body.appendChild(d);d.showModal();const klaar=v=>{try{d.close()}catch(_){}d.remove();res(v)};
+  const opT=t=>{const m=/^(\d{1,2}):(\d{2})$/.exec(t||"");if(!m)return null;const x=new Date();x.setHours(+m[1],+m[2],0,0);return x>new Date()?null:x.toISOString()};
+  d.addEventListener("cancel",e=>{e.preventDefault();klaar(null)});
+  d.addEventListener("click",e=>{const b=e.target.closest("[data-st]");if(!b)return;const w=b.dataset.st;if(w==="x")return klaar(null);if(w==="nu")return klaar(new Date().toISOString());
+    const t=w==="plan"?opT(pl):opT(d.querySelector("#stT").value);if(!t){toast("Kies een tijd die al geweest is");return}klaar(t)})})}
 async function startJob(k){
   const on=!isBezig(k);
   /* direct zichtbaar maken, ook als het opslaan even duurt */
   const lokaal=patch=>{const i=state.klanten.findIndex(x=>x.id===k.id);if(i>=0){state.klanten[i]={...state.klanten[i],...patch};schedule()}};
   /* de dag is begonnen: live delen gaat vanzelf aan, zodat de klant van vandaag kan zien dat je eraan komt (één keer vraagt de telefoon om je locatie) */
   if(on&&typeof LIVE!=="undefined"&&LIVE&&typeof wdLive==="function"&&!(state.liveDelen&&typeof LV!=="undefined"&&LV.watch!=null)&&!(wdGet(iso(today()))||{}).liveUit)try{wdLive(true)}catch(e){}
-  try{if(on){const ts=new Date().toISOString();lokaal({bezig:ts,bezigDoor:doorNaam()});setTimeout(()=>{const b=document.querySelector(".bs-timer");if(b){b.classList.remove("bt-flash");void b.offsetWidth;b.classList.add("bt-flash")}},80);toast("Tijd loopt bij "+cleanName(k.naam));await save("klanten",k.id,{...strip(k),bezig:ts,bezigDoor:doorNaam()});return}
+  /* start vergeten? Is de geplande tijd al ruim voorbij, dan kies je hoe laat je echt begon (de gemeten tijd klopt dan weer) */
+  let tsKeuze=null;if(on){const tp=toMin(k.tijd),nm=new Date().getHours()*60+new Date().getMinutes();if(k.gepland===iso(today())&&tp!=null&&nm-tp>=15){tsKeuze=await startKeuze(k,tp);if(tsKeuze===null)return}}
+  try{if(on){const ts=tsKeuze||new Date().toISOString();lokaal({bezig:ts,bezigDoor:doorNaam()});setTimeout(()=>{const b=document.querySelector(".bs-timer");if(b){b.classList.remove("bt-flash");void b.offsetWidth;b.classList.add("bt-flash")}},80);toast("Tijd loopt bij "+cleanName(k.naam));await save("klanten",k.id,{...strip(k),bezig:ts,bezigDoor:doorNaam()});return}
     /* stoppen = klaar: tijd vastleggen en meteen afmelden (conceptfactuur, of zoals bij de opdracht ingesteld) */
     await afronden(k,"concept");}catch(e){err(e)}
 }
