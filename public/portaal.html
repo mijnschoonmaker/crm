@@ -2646,10 +2646,12 @@ const LVK={map:null,car:null,huis:null,lijn:null,van:null,naar:null,anim:0,timer
 const AUTO={toString(){return `<img src="${(B&&B.bus&&B.bus.rechts)||(B&&B.bus===null?"/img/mansard-bus.png":"/img/bus.png")}" alt="">`}};
 function lvTekst(L){const vn=L.naam?L.naam.charAt(0).toUpperCase()+L.naam.slice(1):PGLAS()?"Uw glazenwasser":"Onze medewerker";
   /* live delen staat uit: geteld op basis van de afmeldingen van vandaag, zonder plek */
+  /* pauze of net klaar bij de vorige klant: nog niet onderweg */
+  if(L.afronden)return{t:"We ronden af bij de vorige klant",s:"Daarna komen we naar u toe"};
   if(L.zonderGps){if(L.voor===0)return{t:"U bent de volgende",s:"Wij komen nu naar u toe"};return{t:"Nog "+L.voor+" "+(L.voor===1?"adres":"adressen")+" voor u",s:"Een schatting op basis van onze planning van vandaag"}}
   const oud=L.pos&&L.pos.sec>75?Math.round(L.pos.sec/60):0;if(oud&&L.voor===0)return{t:vn+" is onderweg naar u",s:"Laatste plek "+(oud<=1?"1 minuut":oud+" minuten")+" geleden"+(L.km!=null?" · nog "+String(L.km).replace(".",",")+" km":"")};
   if(L.voor===0)return{t:L.bezigBij?"U bent de volgende":vn+" is onderweg naar u",s:L.km!=null?(L.km<0.3?"Bijna bij u":"Nog "+String(L.km).replace(".",",")+" km"):"We zijn onderweg"};
-  return{t:"Nog "+L.voor+" "+(L.voor===1?"adres":"adressen")+" voor u",s:L.pos?vn+" is in de buurt":"De live kaart verschijnt zodra er nog 1 adres of minder vóór u zijn"}}
+  return{t:"Nog "+L.voor+" "+(L.voor===1?"adres":"adressen")+" voor u",s:L.pos?vn+" is in de buurt":"De live kaart verschijnt zodra er nog 1 adres vóór u is"}}
 function liveBlok(){const L=D.live;if(!L||L.status!=="onderweg")return"";const T=lvTekst(L);
   return `<section class="lv" id="lvKaart">${L.pos?`<div class="lv-map" id="lvMap"><div class="lv-laad"></div></div>`:`<div class="lv-wacht">${I.huis}<span></span><span></span><span></span>${AUTO}</div>`}
     <div class="lv-info"><span class="lv-car">${AUTO}</span><div class="lv-tx"><small class="lv-st"><i></i>${L.zonderGps?"Vandaag":"Live"}</small><b id="lvT">${esc(T.t)}</b><span id="lvS">${esc(T.s)}</span></div>

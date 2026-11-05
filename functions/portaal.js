@@ -193,8 +193,8 @@ module.exports = function maakPortaal(ctx) {
     if (k.bezig && k.gepland === dag) return { status: "bezig" };
     /* meerdere bussen: als dit adres in de dagroute aan iemand is toegewezen, volgen we die bus en tellen we alleen zijn adressen */
     const nmW = x => String(x || "").trim().split(/[\s@._-]/)[0].toLowerCase();
-    let wie = {}, order = [], L = ls.exists ? ls.data() : null;
-    try { const rd = await db.doc("routes/" + dag).get(); if (rd.exists) { const r = rd.data() || {}; wie = r.wie || {}; order = Array.isArray(r.order) ? r.order : []; } } catch (e) {}
+    let wie = {}, order = [], L = ls.exists ? ls.data() : null, werkR = {};
+    try { const rd = await db.doc("routes/" + dag).get(); if (rd.exists) { const r = rd.data() || {}; wie = r.wie || {}; order = Array.isArray(r.order) ? r.order : []; werkR = r.werk || {}; } } catch (e) {}
     const mijn = nmW(wie[k.id]);
     if (mijn) { try { const lq = await db.collection("live").where("datum", "==", dag).get(); const m = lq.docs.filter(d => d.id.startsWith("mw_")).map(d => d.data()).find(x => nmW(x.naam) === mijn); if (m) L = m; } catch (e) {} }
     /* live delen staat aan als er de laatste 5 minuten een plek is binnengekomen; anders tellen we de adressen op basis van de afmeldingen van vandaag */
@@ -203,13 +203,17 @@ module.exports = function maakPortaal(ctx) {
       /* zelfde volgorde als de dagroute in het CRM (Vandaag); alleen zonder vaste volgorde op tijd */
       .sort((a, b) => { const ia = order.indexOf(a.id), ib = order.indexOf(b.id); if (ia > -1 || ib > -1) return (ia < 0 ? 999 : ia) - (ib < 0 ? 999 : ib); return tMin(a.tijd) - tMin(b.tijd); });
     const i = lijst.findIndex(x => x.id === k.id), voor = Math.max(0, i), bezigBij = lijst.slice(0, Math.max(0, i)).some(x => x.bezig);
+    /* pauze: de klant ziet dan geen live plek en geen "onderweg naar u" */
+    const pauze = (Array.isArray(werkR.pauzes) ? werkR.pauzes : []).some(p => p && p.van && !p.tot);
+    /* net afgemeld bij de vorige klant en de bus staat nog stil: nog aan het afronden (opruimen, ladders inladen) */
+    const laatsteOp = bs.docs.map(d => d.data()).filter(x => !mijn || nmW(wie[x.klantId]) === mijn).map(x => Date.parse(x.op || "")).filter(Boolean).sort((a, b) => b - a)[0] || 0;
     if (!liveAan) {
       /* zonder live delen: alleen zodra de dag echt begonnen is (iets afgemeld of een tijd loopt), geen plek en geen kaart, wel hoeveel adressen nog en een schatting */
       const begonnen = bs.docs.some(d => !mijn || nmW(wie[d.data().klantId]) === mijn) || lijst.some(x => x.bezig);
       if (!begonnen) return { status: "uit" };
       const werk0 = lijst.slice(0, voor).reduce((a, x) => { const d = Number(x.duur) || 30, st = Date.parse(x.bezig || ""); return a + (st ? Math.max(3, d - (Date.now() - st) / 60e3) : d); }, 0) + voor * 8;
       const eta0 = new Intl.DateTimeFormat("nl-NL", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" }).format(new Date(Date.now() + (werk0 + 10) * 60e3));
-      return { status: "onderweg", zonderGps: true, voor, bezigBij, eta: eta0, km: null, naam: (L && L.naam) || "", huis: null, pos: null };
+      return { status: "onderweg", zonderGps: true, afronden: pauze && voor === 0, voor, bezigBij, eta: eta0, km: null, naam: (L && L.naam) || "", huis: null, pos: null };
     }
     const huis = await klantGeo(S.kref, k);
     const km = huis ? afstand(L.lat, L.lng, huis[0], huis[1]) : null, rij = km != null ? Math.round(km * 1.35 / 38 * 60) + 2 : 12;
@@ -220,8 +224,9 @@ module.exports = function maakPortaal(ctx) {
     const eta = new Date(Date.now() + (voor ? werk + rij : rij) * 60e3);
     const etaTxt = new Intl.DateTimeFormat("nl-NL", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" }).format(eta);
     /* de exacte plek van de bus alleen als u bijna aan de beurt bent: zo zien klanten niet bij wie we verder allemaal komen */
-    const dichtbij = voor <= LIVE_KAART_VANAF;
-    return { status: "onderweg", voor, bezigBij, eta: etaTxt, km: km != null ? Math.round(km * 10) / 10 : null, naam: L.naam || "", huis: dichtbij ? huis : null,
+    const stil = L.snelheid == null || Number(L.snelheid) < 6, afronden = pauze || (voor === 0 && laatsteOp && Date.now() - laatsteOp < 20 * 60e3 && stil && !(km != null && km < 0.15));
+    const dichtbij = voor <= LIVE_KAART_VANAF && !pauze && !afronden;
+    return { status: "onderweg", afronden: afronden && voor === 0, voor, bezigBij, eta: etaTxt, km: km != null ? Math.round(km * 10) / 10 : null, naam: L.naam || "", huis: dichtbij ? huis : null,
       pos: dichtbij && !(Number(L.nauw) > 150) ? { lat: L.lat, lng: L.lng, koers: L.koers ?? null, ts: L.ts, sec: Math.max(0, Math.round((Date.now() - Date.parse(L.ts)) / 1000)) } : null };
   }
 
