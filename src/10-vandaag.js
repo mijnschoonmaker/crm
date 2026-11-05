@@ -27,7 +27,7 @@ function stopCard(k,i,isNext,late,day,totaal){
       <div class="tk-perf" aria-hidden="true"></div>
       <div class="tk-body">
         <div class="tk-tags">${tags}${isNext?'<span class="pill nextp">Volgende</span>':""}</div>
-        <button type="button" class="tk-adres" data-act="klant" data-id="${esc(k.id)}"><span class="av" style="--h:${h}">${esc(initials(k.naam))}</span><span><b>${esc(a.adres||cleanName(k.naam))}</b><small>${esc([a.postcode,a.plaats].filter(Boolean).join(" "))}${a.plaats?" · ":""}${esc(cleanName(k.naam))}${o&&o.naam?" · "+esc(o.naam):""}</small></span>${I.right.replace("<svg",'<svg class="chev"')}</button>
+        <button type="button" class="tk-adres" data-act="klant" data-id="${esc(k.id)}">${sgAv(k,"",h,initials(k.naam))}<span><b>${esc(a.adres||cleanName(k.naam))}</b><small>${esc([a.postcode,a.plaats].filter(Boolean).join(" "))}${a.plaats?" · ":""}${esc(cleanName(k.naam))}${o&&o.naam?" · "+esc(o.naam):""}</small></span>${I.right.replace("<svg",'<svg class="chev"')}</button>
         <div class="tk-feit"><span><b>${dienstHtml(k)}</b>${k.binnen?" + binnen":""}</span><span>${I.clock}<b>${duur(k)} min</b></span>${mw?"":`<span>${I.euro||""}<b>${eur(toonK(k,prijsMee(k)))}</b></span>`}</div>
         ${bz?(()=>{const ex=(k.tijden||[]).length&&typeof gemTijd==="function"?gemTijd(k):duur(k),f=(Date.now()-new Date(k.bezig))/60000/ex;const mn=Math.floor((Date.now()-new Date(k.bezig))/60000);return `<div class="tk-tm"><div class="tk-tmh"><span class="tk-tml"><i></i>Bezig <b data-tmin="${esc(k.bezig)}">${mn} min</b> van ${ex}</span></div>${tonHtml(k.bezig,ex,f)}<div class="bt-bar"><i data-tbar="${esc(k.bezig)}" data-exp="${ex}" class="${f>1?"over":""}" style="width:${Math.min(100,f*100)}%"></i></div><small>${(k.tijden||[]).length?"Gemiddeld "+ex+" min bij deze klant":"Verwacht "+ex+" min"}</small></div>`})():""}
         ${uitTeVoerenHtml(k,day)}<div class="tk-info">${oBeurtBlok(k)}${hospRoute(k)}${toegangHtml(k)}${ookDezeBeurt(k,day)}${objInfo(k)}${jobExtra(k)}</div>
@@ -42,7 +42,7 @@ function stopRow(k,day,done){
   return `<div class="swipe" data-id="${esc(k.id)}"${done?' data-done="1"':""}>
     <div class="sbg sbg-r"><span>${I.check} Afmelden</span></div><div class="sbg sbg-l"><span>Factureren</span></div>
     <div class="swipe-card srow${done?" done":""}" data-act="job" data-id="${esc(k.id)}" data-d="${esc(day)}">
-      <span class="sr-t">${esc(k.tijd||"—")}</span><span class="av sm" style="--h:${hue(k.ronde||k.naam)}">${esc(initials(k.naam))}</span>
+      <span class="sr-t">${esc(k.tijd||"—")}</span>${sgAv(k,"sm",hue(k.ronde||k.naam),initials(k.naam))}
       <span class="sr-a"><b>${esc(a.adres||cleanName(k.naam))}</b><small>${esc(a.plaats||"")}${a.plaats?" · ":""}${esc(cleanName(k.naam))}</small></span>
       ${info?`<span class="sr-i" title="Objectinfo">i</span>`:""}<span class="amt">${eur(toonK(k,prijsMee(k)))}</span>${statusPill(sp[0],sp[1])}${I.right.replace("<svg",'<svg class="chev"')}
     </div></div>`;

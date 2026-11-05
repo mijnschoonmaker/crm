@@ -228,7 +228,7 @@ document.addEventListener("click",e=>{
     case"mselplan":{const d=t.dataset.d;if(dlg.open)dlg.close();planMulti(d,nextFree(d));break}
     case"mselclr":mSel.clear();reOffer();break;
     case"mselall":document.querySelectorAll(dlg.open&&form.dataset.sheet==="offer"?"#dlgForm [data-act=msel]":".offercol [data-act=msel]").forEach(b=>mSel.add(b.dataset.id));reOffer();break;
-    case"mselgrp":{const g=t.dataset.g;state.klanten.filter(k=>(k.ronde||"Zonder groep")===g).forEach(k=>{if(document.querySelector('[data-act=msel][data-id="'+CSS.escape(k.id)+'"]'))mSel.add(k.id)});reOffer();break}
+    case"mselgrp":{const g=t.dataset.g;state.klanten.filter(k=>ADV.sub&&typeof sgCodeVan==="function"?(sgCodeVan(k)||"Zonder subgebied")===g:(k.ronde||"Zonder groep")===g).forEach(k=>{if(document.querySelector('[data-act=msel][data-id="'+CSS.escape(k.id)+'"]'))mSel.add(k.id)});reOffer();break}
     /* boekhouding, calculator, inzichten, instellingen, help */
     case"bhtab":case"bhper":case"bhsave":case"bhdlomzet":case"bhdluren":case"bhmailomzet":case"bhmailuren":case"bhmailfile":bhActie(a,t);break;
     case"btab":state.btab=t.dataset.v;if(state.tab!=="boekhouding")state.tab="boekhouding";render();break;

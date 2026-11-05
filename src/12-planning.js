@@ -27,7 +27,7 @@ function offerHtml(k,dayIso,timed){
   const st=extra?extra.charAt(0).toUpperCase()+extra.slice(1):band==="te laat"?"Te laat":band==="vandaag"?"Vandaag":band==="dag"||band==="dagen"?"Over "+big+" "+band:"Aanbod";
   return `<div class="job offer of kx-${cls}${picked?" picked":""}" style="--h:${h}" draggable="true" data-drag="${esc(k.id)}"${state.planMode?` data-act="pmpick" data-id="${esc(k.id)}"`:""}>
     <div class="of-kop"><span class="of-k1"><small>${esc(band)}</small><b>${big}</b></span><span class="of-k2"><small>Aanbod</small><b>${esc(adTxt)}</b>${extra||cls==="late"||cls==="crit"?`<em>${esc(st)}</em>`:""}</span><span class="of-k3"><small>Prijs</small><b>${eur(toonK(k,r2((Number(k.prijs)||0)+exP)))}</b><em>${duurBasis(k)+exM} min</em></span></div>
-    <div class="of-body"><button type="button" class="of-adr" data-act="opdracht" data-id="${esc(k.id)}" title="Opdracht openen"><span class="av of-av2">${esc((cleanName(k.naam)||"?").slice(0,1).toUpperCase())}</span><span><b>${esc(ao.adres||cleanName(k.naam))}</b><small>${esc(cleanName(k.naam))}${ao.plaats?" · "+esc(ao.plaats):""}</small></span>${I.right}</button>
+    <div class="of-body"><button type="button" class="of-adr" data-act="opdracht" data-id="${esc(k.id)}" title="Opdracht openen">${sgAv(k,"of-av2",null,(cleanName(k.naam)||"?").slice(0,1).toUpperCase())}<span><b>${esc(ao.adres||cleanName(k.naam))}</b><small>${esc(cleanName(k.naam))}${ao.plaats?" · "+esc(ao.plaats):""}</small></span>${I.right}</button>
       <div class="of-chips"><span>${I.wrench}${esc(k.dienst||HD())}</span>${ex.map(o=>`<span class="of-ex">${I.plus}${esc(exLbl(o))}</span>`).join("")}<span>${I.refresh||I.clock}${esc(ritmeTxt(k))}</span>${k.ronde?`<span class="of-r"><i style="background:hsl(${h} 65% 52%)"></i>${esc(k.ronde)}</span>`:""}</div>
       ${state.planMode?`<div class="of-pm${picked?" on":""}">${picked?"Gekozen · tik een tijdslot":"Tik om te kiezen"}</div>`:""}</div>
   </div>`;
@@ -132,6 +132,7 @@ function vPlanning(){
         <p class="pl-ml">Acties</p>
         ${mi("weekplan",I.wand,"Plan de week","Wie aan de beurt is per buurt over de dagen verdelen",` data-d="${iso(state.week)}"`)}
         ${v==="dag"||v==="multi"?mi("optim",I.route||I.wand,"Optimaliseer route","Jobs van deze dag in de kortste volgorde",` data-d="${d0}"`):""}
+        ${GLAS()?mi("districten",I.map,"Subgebieden","Per postcode in stukken van max. 10 woningen",""):""}
         ${mi("daynote",I.note,"Notitie bij deze dag","",` data-d="${d0}"`)}
         ${mi("bulkday",I.cal2,"Bulk dag","Hele dag in één keer verzetten of afmelden",` data-d="${d0}"`)}
         ${mi("refresh",I.refresh,"Verversen","")}
@@ -295,7 +296,7 @@ function sendGeplande(){
 }
 
 /* ---------- Geavanceerd plannen (zijpaneel Te plannen) ---------- */
-const ADV=(()=>{let o={};try{o=JSON.parse(localStorage.getItem("ms.adv")||"{}")||{}}catch(e){}return{open:!!o.open,groepen:!!o.groepen,meer:!!o.meer,reeks:!!o.reeks,fase:!!o.fase,verberg:!!o.verberg,dubbel:!!o.dubbel,sort:o.sort||"datum",datum:""}})();
+const ADV=(()=>{let o={};try{o=JSON.parse(localStorage.getItem("ms.adv")||"{}")||{}}catch(e){}return{open:!!o.open,groepen:!!o.groepen,sub:!!o.sub,meer:!!o.meer,reeks:!!o.reeks,fase:!!o.fase,verberg:!!o.verberg,dubbel:!!o.dubbel,sort:o.sort||"datum",datum:""}})();
 const advSave=()=>{try{localStorage.setItem("ms.adv",JSON.stringify({...ADV,datum:undefined}))}catch(e){}};
 const mSel=new Set();
 function offerFilter(list){
@@ -316,6 +317,8 @@ function offerZoek(o){const q=zkNorm(ADV.zoek).trim();if(!q)return o;const w=q.s
 function offerUpTo(def){return ADV.datum?parse(ADV.datum):def}
 function offerCards(o,dayIso,timed){
   const card=k=>ADV.meer?`<div class="msel-w${mSel.has(k.id)?" chk":""}"><button type="button" class="msel-c" data-act="msel" data-id="${esc(k.id)}" aria-pressed="${mSel.has(k.id)}" aria-label="Selecteer ${esc(cleanName(k.naam))}">${I.check}</button>${offerHtml(k,dayIso,timed)}</div>`:offerHtml(k,dayIso,timed);
+  if(ADV.sub&&typeof sgCodeVan==="function"){try{if(typeof sgData==="function")sgData()}catch(e){}const g={};o.forEach(k=>{const n=sgCodeVan(k)||"Zonder subgebied";(g[n]=g[n]||[]).push(k)});
+    return Object.keys(g).sort((a,b)=>(a==="Zonder subgebied")-(b==="Zonder subgebied")||a.localeCompare(b,"nl",{numeric:true})).map(n=>`<div class="og-h"><span class="og-dot" style="--h:${hue(n.split("-")[0])}"></span><b>${esc(n)}</b><span>${g[n].length} · ${eur0(g[n].reduce((a,k)=>a+toonK(k,prijsMee(k)),0))}</span>${ADV.meer?`<button type="button" class="linkbtn" data-act="mselgrp" data-g="${esc(n)}">Selecteer</button>`:""}</div>`+g[n].map(card).join("")).join("")}
   if(!ADV.groepen)return o.map(card).join("");
   const g={};o.forEach(k=>{const n=k.ronde||"Zonder groep";(g[n]=g[n]||[]).push(k)});
   return Object.keys(g).sort((a,b)=>(a==="Zonder groep")-(b==="Zonder groep")||a.localeCompare(b,"nl")).map(n=>`<div class="og-h"><span class="og-dot" style="--h:${hue(n)}"></span><b>${esc(n)}</b><span>${g[n].length} · ${eur0(g[n].reduce((a,k)=>a+toonK(k,prijsMee(k)),0))}</span>${ADV.meer?`<button type="button" class="linkbtn" data-act="mselgrp" data-g="${esc(n)}">Selecteer</button>`:""}</div>`+g[n].map(card).join("")).join("");
@@ -334,6 +337,7 @@ function advHtml(o,d0){
     </div>
     <div class="adv-opts">
       ${cb("groepen","Opdrachtgroepen","Per ronde gegroepeerd")}
+      ${GLAS()?cb("sub","Per subgebied","Per postcode in stukken van max. 10 woningen"):""}
       ${cb("reeks","Meervoudig inplannen","Bij inplannen kiezen: vast aantal, tot een datum of doorlopend")}
       ${cb("meer","Meerdere klanten tegelijk","Meerdere kiezen, één tijdslot")}
       ${ADV.meer?cb("fase","Gefaseerd inplannen","Loopt door naar de volgende werkdag als de dag vol is"):""}

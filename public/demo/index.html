@@ -5204,6 +5204,31 @@ dialog.iz-dlg::backdrop{background:rgb(13 18 27/.6)}
 .iz-bus b{display:block;font-size:14px}.iz-bus small{display:block;font-size:12px;color:var(--muted)}
 .iz-bi{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;color:#fff;font-weight:700;flex:none}.iz-bi svg{width:16px;height:16px;stroke:#fff}
 .iz-bus[aria-pressed="true"]{border-color:#14181f;box-shadow:inset 0 0 0 1px #14181f;background:#f7f8f9}
+/* ---------- districten ---------- */
+.ds2-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:4px 0 12px}.ds2-bar label{display:flex;align-items:center;gap:10px;margin:0;font-weight:600}
+.ds2-cap{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:10px;overflow:hidden}.ds2-cap button{all:unset;cursor:pointer;width:34px;height:34px;text-align:center;font-size:18px}.ds2-cap b{min-width:30px;text-align:center}
+.ds2-vast{display:inline-flex;align-items:center;gap:5px;color:#23804a;font-weight:600;font-size:13px;margin-right:8px}.ds2-vast svg{width:14px;height:14px}
+.ds2-grid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(260px,1fr);gap:14px}
+.ds2-map{height:min(66vh,620px);border-radius:14px;overflow:hidden;background:#eef0f2}
+.ds2-lijst{max-height:min(66vh,620px);overflow:auto;display:flex;flex-direction:column;gap:6px;padding-right:2px}
+.ds2-it{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:12px;border:1px solid var(--line);background:#fff}
+.ds2-it:hover,.ds2-it.sel{background:#f6f7f9;border-color:#cfd3d9}
+.ds2-code{min-width:38px;height:30px;border-radius:8px;display:grid;place-items:center;font-weight:800;font-size:13px;color:#14181f}
+.ds2-t{flex:1;min-width:0}.ds2-t b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ds2-t small{display:block;font-size:12px;color:var(--muted)}
+.ds2-b{min-width:24px;height:24px;border-radius:12px;background:#fdf3e3;color:#a7650c;display:grid;place-items:center;font-size:12px;font-weight:700}
+.ds2-kl{display:flex;flex-direction:column;gap:2px;padding:4px 10px 8px 58px}.ds2-kl span{font-size:13px}.ds2-kl span small{display:block;color:var(--muted);font-size:11.5px}.ds2-kl .nw::after{content:" · nieuw";color:#2f5aa8;font-size:11px}
+.ds2-lab span{display:inline-block;white-space:nowrap;transform:translate(-50%,-50%);background:#fff;border:2px solid;border-radius:7px;padding:2px 6px;font:800 12px/1 system-ui;color:#14181f;box-shadow:0 2px 6px rgb(0 0 0/.2)}
+@media (max-width:760px){.ds2-grid{grid-template-columns:minmax(0,1fr)}.ds2-map{height:46vh}.ds2-lijst{max-height:none}}
+.ds2-pc{display:flex;align-items:baseline;gap:8px;margin:8px 2px 2px}.ds2-pc b{font-size:15px}.ds2-pc span{font-size:12px;color:var(--muted)}
+/* postcode + subgebied in het vakje van de klantkaart */
+.av.sgav{display:inline-flex!important;flex-direction:column;align-items:center;justify-content:center;gap:0;line-height:1;padding:0;min-width:44px;font-variant-numeric:tabular-nums}
+.av.sgav small{font-size:9.5px;font-weight:600;letter-spacing:.02em;opacity:.75;margin-bottom:2px}
+.av.sgav b{font-size:15px;font-weight:800}
+.av.sgav.sm{min-width:38px}.av.sgav.sm small{font-size:8.5px}.av.sgav.sm b{font-size:13px}
+.av.sgav.of-av2{min-width:44px}
+.sg-knop{position:absolute;top:56px;left:12px;z-index:800;display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border:0;border-radius:10px;background:#fff;color:var(--ink);font:700 12px/1 inherit;letter-spacing:.06em;text-transform:uppercase;box-shadow:0 4px 14px rgb(0 0 0/.18);cursor:pointer}
+.sg-knop .sg-dr{width:10px;height:10px;border-radius:3px;border:2px dashed #8a929e}.sg-knop[aria-pressed="true"] .sg-dr{border-color:#d8c24a;background:rgb(216 194 74/.35)}
+.pk-map .sg-knop,#pkMap .sg-knop{top:60px}
 
 </style>
 <style id="mansardThema">
@@ -7252,7 +7277,7 @@ function geenMailNorm(col,docs){try{if(col==="klanten")docs.forEach(k=>{let g=fa
   else if(col==="facturen")docs.forEach(f=>{if(geenMail(f.klantEmail)){f.klantEmail="";f.geenEmail=true}})}catch(e){}}
 function apply(col,docs){
   geenMailNorm(col,docs);RAW[col]=docs;tikWis();
-  if(col==="instellingen"){const g=id=>{const d=docs.find(x=>x.id===id);return d?strip(d):{}};state.settings=g("bedrijf");state.sjablonen=g("sjablonen");state.prijzen=g("prijzen");state.aangiftes=g("aangiftes");state.ramen=g("ramen");state.planmails=g("planmails");state.meldkamer=g("meldkamer");state.boekhouder=g("boekhouder");state.galerij=g("galerij");state.uitv=g("uitvoering");state.meetleer=g("meetleer");state.ccStatus=g("control");if(typeof U!=="undefined"&&!Udirty)U=null}
+  if(col==="instellingen"){const g=id=>{const d=docs.find(x=>x.id===id);return d?strip(d):{}};state.settings=g("bedrijf");state.sjablonen=g("sjablonen");state.prijzen=g("prijzen");state.aangiftes=g("aangiftes");state.ramen=g("ramen");state.planmails=g("planmails");state.meldkamer=g("meldkamer");state.districten=g("districten");state.boekhouder=g("boekhouder");state.galerij=g("galerij");state.uitv=g("uitvoering");state.meetleer=g("meetleer");state.ccStatus=g("control");if(typeof U!=="undefined"&&!Udirty)U=null}
   if(col==="instellingen"&&!state._slotInit&&docs.length){state._slotInit=1;const b=docs.find(x=>x.id==="bedrijf");if(b){state.slot=[10,15].includes(Number(b.slotStd))?Number(b.slotStd):10;if(b.ultra)state.rowH=.7;else if(b.compact)state.rowH=.85}}
   else if(col==="routes"){state.routes={};docs.forEach(d=>state.routes[d.id]=d)}
   else state[col]=docs;
@@ -8658,7 +8683,7 @@ function stopCard(k,i,isNext,late,day,totaal){
       <div class="tk-perf" aria-hidden="true"></div>
       <div class="tk-body">
         <div class="tk-tags">${tags}${isNext?'<span class="pill nextp">Volgende</span>':""}</div>
-        <button type="button" class="tk-adres" data-act="klant" data-id="${esc(k.id)}"><span class="av" style="--h:${h}">${esc(initials(k.naam))}</span><span><b>${esc(a.adres||cleanName(k.naam))}</b><small>${esc([a.postcode,a.plaats].filter(Boolean).join(" "))}${a.plaats?" · ":""}${esc(cleanName(k.naam))}${o&&o.naam?" · "+esc(o.naam):""}</small></span>${I.right.replace("<svg",'<svg class="chev"')}</button>
+        <button type="button" class="tk-adres" data-act="klant" data-id="${esc(k.id)}">${sgAv(k,"",h,initials(k.naam))}<span><b>${esc(a.adres||cleanName(k.naam))}</b><small>${esc([a.postcode,a.plaats].filter(Boolean).join(" "))}${a.plaats?" · ":""}${esc(cleanName(k.naam))}${o&&o.naam?" · "+esc(o.naam):""}</small></span>${I.right.replace("<svg",'<svg class="chev"')}</button>
         <div class="tk-feit"><span><b>${dienstHtml(k)}</b>${k.binnen?" + binnen":""}</span><span>${I.clock}<b>${duur(k)} min</b></span>${mw?"":`<span>${I.euro||""}<b>${eur(toonK(k,prijsMee(k)))}</b></span>`}</div>
         ${bz?(()=>{const ex=(k.tijden||[]).length&&typeof gemTijd==="function"?gemTijd(k):duur(k),f=(Date.now()-new Date(k.bezig))/60000/ex;const mn=Math.floor((Date.now()-new Date(k.bezig))/60000);return `<div class="tk-tm"><div class="tk-tmh"><span class="tk-tml"><i></i>Bezig <b data-tmin="${esc(k.bezig)}">${mn} min</b> van ${ex}</span></div>${tonHtml(k.bezig,ex,f)}<div class="bt-bar"><i data-tbar="${esc(k.bezig)}" data-exp="${ex}" class="${f>1?"over":""}" style="width:${Math.min(100,f*100)}%"></i></div><small>${(k.tijden||[]).length?"Gemiddeld "+ex+" min bij deze klant":"Verwacht "+ex+" min"}</small></div>`})():""}
         ${uitTeVoerenHtml(k,day)}<div class="tk-info">${oBeurtBlok(k)}${hospRoute(k)}${toegangHtml(k)}${ookDezeBeurt(k,day)}${objInfo(k)}${jobExtra(k)}</div>
@@ -8673,7 +8698,7 @@ function stopRow(k,day,done){
   return `<div class="swipe" data-id="${esc(k.id)}"${done?' data-done="1"':""}>
     <div class="sbg sbg-r"><span>${I.check} Afmelden</span></div><div class="sbg sbg-l"><span>Factureren</span></div>
     <div class="swipe-card srow${done?" done":""}" data-act="job" data-id="${esc(k.id)}" data-d="${esc(day)}">
-      <span class="sr-t">${esc(k.tijd||"—")}</span><span class="av sm" style="--h:${hue(k.ronde||k.naam)}">${esc(initials(k.naam))}</span>
+      <span class="sr-t">${esc(k.tijd||"—")}</span>${sgAv(k,"sm",hue(k.ronde||k.naam),initials(k.naam))}
       <span class="sr-a"><b>${esc(a.adres||cleanName(k.naam))}</b><small>${esc(a.plaats||"")}${a.plaats?" · ":""}${esc(cleanName(k.naam))}</small></span>
       ${info?`<span class="sr-i" title="Objectinfo">i</span>`:""}<span class="amt">${eur(toonK(k,prijsMee(k)))}</span>${statusPill(sp[0],sp[1])}${I.right.replace("<svg",'<svg class="chev"')}
     </div></div>`;
@@ -9190,7 +9215,7 @@ function offerHtml(k,dayIso,timed){
   const st=extra?extra.charAt(0).toUpperCase()+extra.slice(1):band==="te laat"?"Te laat":band==="vandaag"?"Vandaag":band==="dag"||band==="dagen"?"Over "+big+" "+band:"Aanbod";
   return `<div class="job offer of kx-${cls}${picked?" picked":""}" style="--h:${h}" draggable="true" data-drag="${esc(k.id)}"${state.planMode?` data-act="pmpick" data-id="${esc(k.id)}"`:""}>
     <div class="of-kop"><span class="of-k1"><small>${esc(band)}</small><b>${big}</b></span><span class="of-k2"><small>Aanbod</small><b>${esc(adTxt)}</b>${extra||cls==="late"||cls==="crit"?`<em>${esc(st)}</em>`:""}</span><span class="of-k3"><small>Prijs</small><b>${eur(toonK(k,r2((Number(k.prijs)||0)+exP)))}</b><em>${duurBasis(k)+exM} min</em></span></div>
-    <div class="of-body"><button type="button" class="of-adr" data-act="opdracht" data-id="${esc(k.id)}" title="Opdracht openen"><span class="av of-av2">${esc((cleanName(k.naam)||"?").slice(0,1).toUpperCase())}</span><span><b>${esc(ao.adres||cleanName(k.naam))}</b><small>${esc(cleanName(k.naam))}${ao.plaats?" · "+esc(ao.plaats):""}</small></span>${I.right}</button>
+    <div class="of-body"><button type="button" class="of-adr" data-act="opdracht" data-id="${esc(k.id)}" title="Opdracht openen">${sgAv(k,"of-av2",null,(cleanName(k.naam)||"?").slice(0,1).toUpperCase())}<span><b>${esc(ao.adres||cleanName(k.naam))}</b><small>${esc(cleanName(k.naam))}${ao.plaats?" · "+esc(ao.plaats):""}</small></span>${I.right}</button>
       <div class="of-chips"><span>${I.wrench}${esc(k.dienst||HD())}</span>${ex.map(o=>`<span class="of-ex">${I.plus}${esc(exLbl(o))}</span>`).join("")}<span>${I.refresh||I.clock}${esc(ritmeTxt(k))}</span>${k.ronde?`<span class="of-r"><i style="background:hsl(${h} 65% 52%)"></i>${esc(k.ronde)}</span>`:""}</div>
       ${state.planMode?`<div class="of-pm${picked?" on":""}">${picked?"Gekozen · tik een tijdslot":"Tik om te kiezen"}</div>`:""}</div>
   </div>`;
@@ -9295,6 +9320,7 @@ function vPlanning(){
         <p class="pl-ml">Acties</p>
         ${mi("weekplan",I.wand,"Plan de week","Wie aan de beurt is per buurt over de dagen verdelen",` data-d="${iso(state.week)}"`)}
         ${v==="dag"||v==="multi"?mi("optim",I.route||I.wand,"Optimaliseer route","Jobs van deze dag in de kortste volgorde",` data-d="${d0}"`):""}
+        ${GLAS()?mi("districten",I.map,"Subgebieden","Per postcode in stukken van max. 10 woningen",""):""}
         ${mi("daynote",I.note,"Notitie bij deze dag","",` data-d="${d0}"`)}
         ${mi("bulkday",I.cal2,"Bulk dag","Hele dag in één keer verzetten of afmelden",` data-d="${d0}"`)}
         ${mi("refresh",I.refresh,"Verversen","")}
@@ -9458,7 +9484,7 @@ function sendGeplande(){
 }
 
 /* ---------- Geavanceerd plannen (zijpaneel Te plannen) ---------- */
-const ADV=(()=>{let o={};try{o=JSON.parse(localStorage.getItem("ms.adv")||"{}")||{}}catch(e){}return{open:!!o.open,groepen:!!o.groepen,meer:!!o.meer,reeks:!!o.reeks,fase:!!o.fase,verberg:!!o.verberg,dubbel:!!o.dubbel,sort:o.sort||"datum",datum:""}})();
+const ADV=(()=>{let o={};try{o=JSON.parse(localStorage.getItem("ms.adv")||"{}")||{}}catch(e){}return{open:!!o.open,groepen:!!o.groepen,sub:!!o.sub,meer:!!o.meer,reeks:!!o.reeks,fase:!!o.fase,verberg:!!o.verberg,dubbel:!!o.dubbel,sort:o.sort||"datum",datum:""}})();
 const advSave=()=>{try{localStorage.setItem("ms.adv",JSON.stringify({...ADV,datum:undefined}))}catch(e){}};
 const mSel=new Set();
 function offerFilter(list){
@@ -9479,6 +9505,8 @@ function offerZoek(o){const q=zkNorm(ADV.zoek).trim();if(!q)return o;const w=q.s
 function offerUpTo(def){return ADV.datum?parse(ADV.datum):def}
 function offerCards(o,dayIso,timed){
   const card=k=>ADV.meer?`<div class="msel-w${mSel.has(k.id)?" chk":""}"><button type="button" class="msel-c" data-act="msel" data-id="${esc(k.id)}" aria-pressed="${mSel.has(k.id)}" aria-label="Selecteer ${esc(cleanName(k.naam))}">${I.check}</button>${offerHtml(k,dayIso,timed)}</div>`:offerHtml(k,dayIso,timed);
+  if(ADV.sub&&typeof sgCodeVan==="function"){try{if(typeof sgData==="function")sgData()}catch(e){}const g={};o.forEach(k=>{const n=sgCodeVan(k)||"Zonder subgebied";(g[n]=g[n]||[]).push(k)});
+    return Object.keys(g).sort((a,b)=>(a==="Zonder subgebied")-(b==="Zonder subgebied")||a.localeCompare(b,"nl",{numeric:true})).map(n=>`<div class="og-h"><span class="og-dot" style="--h:${hue(n.split("-")[0])}"></span><b>${esc(n)}</b><span>${g[n].length} · ${eur0(g[n].reduce((a,k)=>a+toonK(k,prijsMee(k)),0))}</span>${ADV.meer?`<button type="button" class="linkbtn" data-act="mselgrp" data-g="${esc(n)}">Selecteer</button>`:""}</div>`+g[n].map(card).join("")).join("")}
   if(!ADV.groepen)return o.map(card).join("");
   const g={};o.forEach(k=>{const n=k.ronde||"Zonder groep";(g[n]=g[n]||[]).push(k)});
   return Object.keys(g).sort((a,b)=>(a==="Zonder groep")-(b==="Zonder groep")||a.localeCompare(b,"nl")).map(n=>`<div class="og-h"><span class="og-dot" style="--h:${hue(n)}"></span><b>${esc(n)}</b><span>${g[n].length} · ${eur0(g[n].reduce((a,k)=>a+toonK(k,prijsMee(k)),0))}</span>${ADV.meer?`<button type="button" class="linkbtn" data-act="mselgrp" data-g="${esc(n)}">Selecteer</button>`:""}</div>`+g[n].map(card).join("")).join("");
@@ -9497,6 +9525,7 @@ function advHtml(o,d0){
     </div>
     <div class="adv-opts">
       ${cb("groepen","Opdrachtgroepen","Per ronde gegroepeerd")}
+      ${GLAS()?cb("sub","Per subgebied","Per postcode in stukken van max. 10 woningen"):""}
       ${cb("reeks","Meervoudig inplannen","Bij inplannen kiezen: vast aantal, tot een datum of doorlopend")}
       ${cb("meer","Meerdere klanten tegelijk","Meerdere kiezen, één tijdslot")}
       ${ADV.meer?cb("fase","Gefaseerd inplannen","Loopt door naar de volgende werkdag als de dag vol is"):""}
@@ -15150,7 +15179,7 @@ function openKlantView(id,opt={}){
       info:o.actief===false?["neutral","Niet actief · open om aan te zetten"]:opdrApart(k,o)?(j&&j.gepland?["ok","Apart ingepland "+fmtD(j.gepland)]:["late","Apart · te plannen"]):ul!==hoofdLoc(k)?["late","Eigen adres · open en sla op om in te plannen"]:["neutral",o.volgende?"Volgende "+fmtD(o.volgende):"Bij volgende beurt"]}})];
   const locs=[{naam:k.locOms||"Hoofdadres",adres:k.adres,postcode:k.postcode,plaats:k.plaats,o:"main"},...(k.objecten||[]).map(o=>({naam:o.naam||"Object",adres:o.adres||k.adres,postcode:o.adres?o.postcode||"":k.postcode,plaats:o.adres?o.plaats||"":k.plaats,o:o.id}))];
   openDlg(`<div class="ow-kop jp-kop kk-kop ow-${k.prospect?"soon":k.actief===false?"neutral":"ok"}"><div class="jp-kr1"><span class="jp-st"><i></i>${k.prospect?"Prospect":k.actief===false?"Inactief":"Actief"}</span>${k.nieuweKlant?`<span class="jp-st">Nieuwe klant</span>`:""}<span class="sp"></span><button type="button" class="jp-ib" data-act="close" aria-label="Sluiten">${I.x}</button></div>
-    <div class="jp-kr2"><span class="jp-k1 kk-av"><span class="av" style="--h:${hue(k.ronde||k.naam)}">${esc(initials(k.naam))}</span></span><span class="jp-k2"><b>${esc(cleanName(k.naam))}</b><em>${I.pin}${esc(fullAddr(k))}</em></span><span class="jp-k3"><small>Klant ${esc(nr)}</small><b>${eur(toonK(k,k.prijs))}</b><em>${esc(k.dienst||HD())} · ${esc(ritmeTxt(k))}</em></span></div></div>
+    <div class="jp-kr2"><span class="jp-k1 kk-av">${sgAv(k,"",hue(k.ronde||k.naam),initials(k.naam))}</span><span class="jp-k2"><b>${esc(cleanName(k.naam))}</b><em>${I.pin}${esc(fullAddr(k))}</em></span><span class="jp-k3"><small>Klant ${esc(nr)}</small><b>${eur(toonK(k,k.prijs))}</b><em>${esc(k.dienst||HD())} · ${esc(ritmeTxt(k))}</em></span></div></div>
   ${typeof opdrJobBanner==="function"?opdrJobBanner(k):""}${isOBeurt(k)?`<div class="hosp-top">${oBeurtBlok(k)}</div>`:""}<div class="hosp-top">${hospBlok(k)}</div>
   ${k.prospect?(()=>{const of=offs.find(f=>f.status!=="afgewezen"&&f.status!=="geaccepteerd");return of||offs.length?`<div class="banner"><div><b>Offerte${of?" "+esc(of.nummer):""} wacht op akkoord</b><br><small>Deze klant staat nog niet in de planning.</small></div>${of?`<button type="button" class="primary small" data-act="akkoord" data-id="${esc(of.id)}">Akkoord en inplannen</button>`:""}</div>`:`<div class="banner"><div><b>Nieuwe klant · nog geen offerte</b><br><small>Volgende stap: offerte maken. Na akkoord komt de klant in de planning.</small></div><button type="button" class="primary small" data-act="newofferte" data-id="${esc(k.id)}">${I.offertes}Offerte maken</button></div>`})():""}
   <div class="kk-grid kd"><div class="kk-left">
@@ -17686,6 +17715,108 @@ function dagMailKaart(x){const s=S(),tijd=s.dagTijd||"18:00",met=x.items.filter(
   if(!dagMailAan())return `<div class="dag-auto uit"><span>Nu moet je dit elke dag zelf versturen.</span><button type="button" class="small primary" data-act="dagautoaan">Automatisch om ${esc(tijd)} versturen</button></div>`;
   return `<div class="dag-auto aan"><b>✓ Gaat vanzelf om ${esc(tijd)} per e-mail</b>${met.length?`<small>${nm(met)}</small>`:""}${zonder.length?`<small class="dag-zonder">Geen e-mailadres, dus zelf versturen: ${nm(zonder)}</small>`:""}<small class="dag-let">Het CRM moet vandaag vóór ${esc(tijd)} één keer open zijn geweest (telefoon of computer).</small></div>`}
 
+/* ---------- SUBGEBIEDEN PER POSTCODE (zoals de basisteams bij 112) ----------
+   Elke postcode (4 cijfers) wordt opgedeeld in subgebieden van maximaal 10 woningen (glasbewassing) die dicht bij elkaar liggen:
+   9861-A, 9861-B… Komt er een klant bij, dan gaat hij naar het dichtstbijzijnde subgebied in zijn postcode met nog plek;
+   zit alles vol, dan maakt Mansard een nieuw subgebied. Bestaande indelingen blijven staan (instellingen/districten), zodat je
+   er vast op kunt plannen: één subgebied is ongeveer één werkdag voor één bus. */
+const SG={cap:null,sel:"",map:null,laag:null,bewaarT:0};
+const SG_KL=["#d8c24a","#5fc4c4","#e07b6a","#a96fd0","#77c46c","#6c8fe0","#e0a35a","#5aa88f","#c46c9a","#8a9a4a"];
+const sgCap=()=>{if(SG.cap==null){try{SG.cap=Number(localStorage.getItem("ms.dscap"))||Number((state.districten||{}).cap)||10}catch(e){SG.cap=10}}return Math.max(3,Math.min(30,Number(SG.cap)||10))};
+const sgKlanten=()=>actief().filter(k=>!k.opdrachtVerwijderd&&(Number(k.prijs)>0||k.gepland||k.ramenRegel)&&(!GLAS()||/glas|ramen/i.test(String(k.dienst||HD()))));
+const sgPc=k=>{const m=String(jobAddrObj(k).postcode||k.postcode||"").match(/^\s*(\d{4})/);return m?m[1]:""};
+const sgAfst=(a,b)=>{const dy=(a[0]-b[0])*111.3,dx=(a[1]-b[1])*111.3*Math.cos(a[0]*Math.PI/180);return Math.sqrt(dx*dx+dy*dy)};
+const sgMid=pts=>[pts.reduce((s,p)=>s+p[0],0)/pts.length,pts.reduce((s,p)=>s+p[1],0)/pts.length];
+const sgLetter=i=>{let s="";i++;while(i>0){const r=(i-1)%26;s=String.fromCharCode(65+r)+s;i=Math.floor((i-1)/26)}return s};
+/* groepjes van max cap die dicht bij elkaar liggen (capaciteit-k-means) */
+function sgCluster(P,cap){const n=P.length;if(!n)return[];const K=Math.ceil(n/cap);if(K===1)return[P];
+  const mid=sgMid(P.map(x=>x.c)),ang=x=>Math.atan2(x.c[0]-mid[0],x.c[1]-mid[1]),srt=[...P].sort((a,b)=>ang(a)-ang(b));
+  let C=[];for(let i=0;i<K;i++){const g=srt.slice(Math.floor(i*n/K),Math.floor((i+1)*n/K));C.push(sgMid(g.map(x=>x.c)))}let toe=[];
+  for(let it=0;it<12;it++){const pr=[];P.forEach((p,i)=>C.forEach((c,j)=>pr.push([sgAfst(p.c,c),i,j])));pr.sort((a,b)=>a[0]-b[0]);
+    const tel=new Array(K).fill(0),ok=new Array(n).fill(false);toe=new Array(n).fill(-1);for(const [,i,j] of pr){if(ok[i]||tel[j]>=cap)continue;toe[i]=j;tel[j]++;ok[i]=true}
+    const nC=C.map((c,j)=>{const g=P.filter((_,i)=>toe[i]===j).map(x=>x.c);return g.length?sgMid(g):c});const stil=nC.every((c,j)=>sgAfst(c,C[j])<0.005);C=nC;if(stil)break}
+  return C.map((_,j)=>P.filter((_,i)=>toe[i]===j)).filter(g=>g.length)}
+/* indeling: bestaande codes blijven, nieuwe klanten naar het dichtstbijzijnde subgebied met plek, anders een nieuw subgebied */
+function sgToewijzen(){const cap=sgCap(),oud=((state.districten||{}).map)||{},map={},per={};
+  sgKlanten().forEach(k=>{const c=pkCoord(k),pc=sgPc(k);if(!c||!pc)return;(per[pc]=per[pc]||[]).push({k,c})});
+  Object.entries(per).forEach(([pc,L])=>{const G={},nieuw=[];
+    L.forEach(x=>{const o=oud[x.k.id];if(o&&String(o).startsWith(pc+"-"))(G[o]=G[o]||[]).push(x);else nieuw.push(x)});
+    Object.keys(G).forEach(code=>{while(G[code].length>cap){nieuw.push(G[code].pop())}});
+    const rest=[];nieuw.forEach(x=>{const vrij=Object.entries(G).filter(([,g])=>g.length<cap).map(([code,g])=>[code,sgAfst(x.c,sgMid(g.map(y=>y.c)))]).filter(([,d])=>d<1.5).sort((a,b)=>a[1]-b[1])[0];
+      if(vrij)G[vrij[0]].push(x);else rest.push(x)});
+    let i=0;const vrijeCode=()=>{while(G[pc+"-"+sgLetter(i)])i++;return pc+"-"+sgLetter(i)};
+    sgCluster(rest,cap).forEach(g=>{G[vrijeCode()]=g});
+    Object.entries(G).forEach(([code,g])=>g.forEach(x=>map[x.k.id]=code))});
+  return map}
+const sgCodeVan=k=>{if(!k)return"";const m=(state.districten||{}).map||{};return m[k.id]||m[k.hoofdKlantId]||""};
+/* het vakje links op een klantkaart: postcode + letter van het subgebied (anders de initialen) */
+function sgAv(k,cls,h,fb){const c=typeof GLAS==="function"&&GLAS()?sgCodeVan(k):"";
+  if(!c)return `<span class="av${cls?" "+cls:""}"${h!=null?` style="--h:${h}"`:""}>${esc(fb)}</span>`;const [pc,l]=c.split("-");
+  return `<span class="av sgav${cls?" "+cls:""}" style="--h:${hue(pc)}" title="Postcode ${esc(pc)} · subgebied ${esc(l)}"><small>${esc(pc)}</small><b>${esc(l)}</b></span>`}
+/* op de achtergrond bijhouden: na het laden en als er klanten bijkomen (niet vaker dan elke 20 s) */
+let sgT=0;function sgAchtergrond(){if(typeof GLAS!=="function"||!GLAS()||!state.loaded)return;clearTimeout(sgT);sgT=setTimeout(()=>{try{const v=JSON.stringify(((state.districten||{}).map)||{});sgData();if(JSON.stringify(((state.districten||{}).map)||{})!==v)schedule()}catch(e){console.error("subgebieden",e)}},4000)}
+if(typeof window!=="undefined")setInterval(sgAchtergrond,60000),setTimeout(function w(){if(!state.loaded)return setTimeout(w,1500);sgAchtergrond()},3000);
+/* indeling bewaren als er iets veranderd is (nieuwe klanten, verhuisd), zodat de codes vast blijven */
+function sgBewaar(map){if(typeof isMw==="function"&&isMw()){state.districten={...(state.districten||{}),map};return}const oud=((state.districten||{}).map)||{};const a=Object.keys(map),b=Object.keys(oud);if(a.length===b.length&&a.every(k=>oud[k]===map[k]))return;
+  state.districten={...(state.districten||{}),map,cap:sgCap()};clearTimeout(SG.bewaarT);SG.bewaarT=setTimeout(()=>{try{save("instellingen","districten",{map,cap:sgCap(),op:new Date().toISOString()}).catch(()=>{})}catch(e){}},1500)}
+function sgData(){const map=sgToewijzen();sgBewaar(map);const G={};
+  sgKlanten().forEach(k=>{const code=map[k.id],c=pkCoord(k);if(!code||!c)return;(G[code]=G[code]||{code,pc:code.split("-")[0],leden:[]}).leden.push({k,c})});
+  const pcs=[...new Set(Object.values(G).map(d=>d.pc))].sort();
+  const D=Object.values(G).map(d=>({...d,mid:sgMid(d.leden.map(x=>x.c)),kleur:SG_KL[pcs.indexOf(d.pc)%SG_KL.length]})).sort((a,b)=>a.code.localeCompare(b.code,"nl",{numeric:true}));
+  return{D,vast:true}}
+function sgStat(d){const ks=d.leden.map(x=>x.k),min=ks.reduce((a,k)=>a+(Number(duur(k))||30),0),eur=ks.reduce((a,k)=>a+(Number(k.prijs)||0),0),grens=addDays(today(),14),beurt=ks.filter(k=>{const p=planned(k);return p&&p<=grens}).length;
+  const pl={};ks.forEach(k=>{const p=jobAddrObj(k).plaats||k.plaats||"";if(p)pl[p]=(pl[p]||0)+1});const plaats=Object.entries(pl).sort((a,b)=>b[1]-a[1]).map(x=>x[0]).slice(0,2).join(" / ");
+  return{n:ks.length,min,eur,beurt,plaats}}
+const sgHull=pts=>{const P=[...pts].sort((a,b)=>a[1]-b[1]||a[0]-b[0]);if(P.length<3)return P;const cr=(o,a,b)=>(a[1]-o[1])*(b[0]-o[0])-(a[0]-o[0])*(b[1]-o[1]);const lo=[],up=[];
+  for(const p of P){while(lo.length>=2&&cr(lo[lo.length-2],lo[lo.length-1],p)<=0)lo.pop();lo.push(p)}for(const p of [...P].reverse()){while(up.length>=2&&cr(up[up.length-2],up[up.length-1],p)<=0)up.pop();up.push(p)}return lo.slice(0,-1).concat(up.slice(0,-1))};
+function sgOpen(){const lijst=sgKlanten(),zonder=lijst.filter(k=>!pkCoord(k)).length;
+  openDlg(`<div class="dlg-head"><span class="objic big">${I.map}</span><div style="min-width:0;flex:1"><h3>Subgebieden per postcode</h3><div class="subt">Elke postcode opgedeeld in stukken van maximaal 10 woningen die dicht bij elkaar liggen</div></div><button type="button" class="iconbtn" id="sgX" aria-label="Sluiten">${I.x}</button></div>
+    <div class="ds2-bar"><label>Max. woningen per subgebied<span class="ds2-cap"><button type="button" data-dscap="-1">−</button><b id="sgCapV">${sgCap()}</b><button type="button" data-dscap="1">+</button></span></label><span id="sgInfo" class="subt"></span><span class="sp"></span><span id="sgKnop"></span></div>
+    <div class="ds2-grid"><div class="ds2-map" id="sgMap"></div><div class="ds2-lijst" id="sgLijst"></div></div>
+    ${zonder?`<p class="subt" id="sgGeo" style="margin:8px 0 0">${zonder} adressen worden nog op de kaart gezet…</p>`:""}`,{xwide:true});
+  $("#sgX").onclick=()=>dlg.close();
+  form.querySelectorAll("[data-dscap]").forEach(b=>b.onclick=()=>{SG.cap=sgCap()+Number(b.dataset.dscap);$("#sgCapV").textContent=sgCap();try{localStorage.setItem("ms.dscap",String(sgCap()))}catch(e){}sgTeken()});
+  pkLaadLeaflet().then(()=>{const L=window.L;SG.map=L.map($("#sgMap"),{zoomControl:true,attributionControl:false});
+    L.tileLayer("https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0/grijs/EPSG:3857/{z}/{x}/{y}.png",{maxZoom:19}).addTo(SG.map);SG.laag=L.layerGroup().addTo(SG.map);SG.fit=true;sgTeken();
+    if(zonder&&typeof pkGeocode==="function")(async()=>{await pkGeocode(lijst);const t=setInterval(()=>{if(!PK.busy){clearInterval(t);const g=$("#sgGeo");if(g)g.remove();SG.fit=true;sgTeken()}},800)})()}).catch(()=>{$("#sgMap").innerHTML='<p class="subt" style="padding:20px">De kaart kon niet laden.</p>';sgTeken()})}
+function sgTeken(){const {D,vast}=sgData(),L=window.L,tot=D.reduce((a,d)=>a+d.leden.length,0);
+  const info=$("#sgInfo");if(info)info.textContent=`${plural(tot,"woning","woningen")} · ${plural(D.length,"subgebied","subgebieden")} in ${plural(new Set(D.map(d=>d.pc)).size,"postcode","postcodes")}`;
+  const kn=$("#sgKnop");if(kn)kn.innerHTML=`<span class="ds2-vast">${I.check}Codes blijven vast</span><button type="button" class="small" data-dsweer="1">Opnieuw indelen</button>`;
+  const lj=$("#sgLijst");if(lj)lj.innerHTML=D.length?D.map((d,i)=>{const kop=i===0||D[i-1].pc!==d.pc?`<div class="ds2-pc"><b>${esc(d.pc)}</b><span>${esc((d.leden[0]&&(jobAddrObj(d.leden[0].k).plaats||d.leden[0].k.plaats))||"")} · ${plural(D.filter(x=>x.pc===d.pc).length,"subgebied","subgebieden")}</span></div>`:"";return kop+(()=>{const s=sgStat(d);return `<button type="button" class="ds2-it${SG.sel===d.code?" sel":""}" data-dssel="${esc(d.code)}"><span class="ds2-code" style="background:${d.kleur}">${esc(d.code.split("-")[1])}</span><span class="ds2-t"><b>Subgebied ${esc(d.code.split("-")[1])}</b><small>${plural(s.n,"woning","woningen")} · ${wdU(s.min)} werk · ${eur0(s.eur)}</small></span>${s.beurt?`<span class="ds2-b" title="Binnen 14 dagen aan de beurt">${s.beurt}</span>`:""}</button>
+      ${SG.sel===d.code?`<div class="ds2-kl">${d.leden.map(x=>`<span${x.nieuw?' class="nw"':""}>${esc(cleanName(x.k.naam))}<small>${esc(jobAddrObj(x.k).adres||"")}</small></span>`).join("")}</div>`:""}`})()}).join(""):`<p class="subt">Nog geen klanten met een adres op de kaart.</p>`;
+  if(!SG.map||!L)return;SG.laag.clearLayers();const alle=[];
+  D.forEach(d=>{const pts=d.leden.map(x=>x.c);alle.push(...pts);const on=!SG.sel||SG.sel===d.code;
+    const h=sgHull(pts);if(h.length>=3)L.polygon(h,{color:d.kleur,weight:on?2.5:1,fillColor:d.kleur,fillOpacity:on?.28:.08,opacity:on?1:.4}).on("click",()=>{SG.sel=SG.sel===d.code?"":d.code;sgTeken()}).addTo(SG.laag);
+    pts.forEach(c=>L.circleMarker(c,{radius:on?5:3,color:"#fff",weight:1.5,fillColor:d.kleur,fillOpacity:on?1:.5}).addTo(SG.laag));
+    L.marker(sgMid(pts),{interactive:false,icon:L.divIcon({className:"ds2-lab",html:`<span style="border-color:${d.kleur}">${esc(d.code)}</span>`,iconSize:null})}).addTo(SG.laag)});
+  if(SG.fit&&alle.length){SG.map.fitBounds(alle,{padding:[30,30]});SG.fit=false}
+  if(SG.sel){const d=D.find(x=>x.code===SG.sel);if(d)SG.map.fitBounds(d.leden.map(x=>x.c),{padding:[60,60],maxZoom:15})}
+  setTimeout(()=>{try{SG.map.invalidateSize()}catch(e){}},100)}
+document.addEventListener("click",async e=>{const t=e.target.closest("[data-act='districten'],[data-dssel],[data-dsvast],[data-dsweer]");if(!t)return;
+  if(t.dataset.act==="districten"){e.preventDefault();e.stopPropagation();state.pmeer=false;sgOpen();return}
+  e.preventDefault();
+  if(t.dataset.dssel!=null){SG.sel=SG.sel===t.dataset.dssel?"":t.dataset.dssel;if(!SG.sel)SG.fit=true;sgTeken();return}
+  if(t.dataset.dsweer){if(await vraag("Opnieuw indelen?","Mansard deelt alle klanten per postcode opnieuw in op ligging. De letters van de subgebieden kunnen dan veranderen.","Opnieuw indelen")!==true)return;
+    try{await save("instellingen","districten",{map:{},cap:sgCap(),op:new Date().toISOString()});state.districten={map:{}};SG.fit=true;sgTeken()}catch(er){err(er)}}},true);
+/* ---------- overlay op de kaarten: postcodegebieden (stippellijn) en subgebieden (gekleurd met code) ---------- */
+SG.ov=(()=>{try{return localStorage.getItem("ms.sgov")==="1"}catch(e){return false}})();
+async function sgOverlay(el,m){const L=window.L;if(!el||!m||!L)return;if(el._sg){m.removeLayer(el._sg);el._sg=null}sgKnopZet(el);if(!SG.ov)return;
+  const {D}=sgData(),g=L.layerGroup().addTo(m);el._sg=g;
+  if(!m.getPane("sgPane")){m.createPane("sgPane").style.zIndex=380}
+  D.forEach(d=>{const pts=d.leden.map(x=>x.c),h=sgHull(pts);
+    if(h.length>=3)L.polygon(h,{pane:"sgPane",color:d.kleur,weight:2,fillColor:d.kleur,fillOpacity:.22,interactive:false}).addTo(g);
+    else pts.forEach(c=>L.circle(c,{pane:"sgPane",radius:60,color:d.kleur,weight:2,fillOpacity:.22,interactive:false}).addTo(g));
+    L.marker(sgMid(pts),{interactive:false,icon:L.divIcon({className:"ds2-lab",html:`<span style="border-color:${d.kleur}">${esc(d.code)}</span>`,iconSize:null})}).addTo(g)});
+  if(typeof wgPcVlak==="function")for(const pc of [...new Set(D.map(d=>d.pc))]){try{const f=await wgPcVlak(pc);if(f&&el._sg===g)L.geoJSON(f,{pane:"sgPane",style:{color:"#14181f",weight:1.5,dashArray:"6 5",fill:false,opacity:.7},interactive:false}).addTo(g)}catch(e){}}}
+function sgKnopZet(el){let b=el.querySelector(".sg-knop");if(!b){b=document.createElement("button");b.type="button";b.className="sg-knop";b.dataset.sgov="1";el.appendChild(b)}
+  b.setAttribute("aria-pressed",SG.ov);b.innerHTML=`<span class="sg-dr"></span>Postcodes`;b.title=SG.ov?"Postcodes en subgebieden verbergen":"Postcodes en subgebieden op de kaart tonen"}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-sgov]");if(!b)return;e.preventDefault();e.stopPropagation();SG.ov=!SG.ov;try{localStorage.setItem("ms.sgov",SG.ov?"1":"0")}catch(_){}sgKaarten(true)},true);
+/* knop op elke kaart met klanten (live kaart en kaartplannen) */
+function sgKaarten(opnieuw){if(typeof GLAS!=="function"||!GLAS())return;
+  [[document.getElementById("rvMap"),m=>m&&m._map],[typeof PK!=="undefined"&&PK.el,()=>typeof PK!=="undefined"&&PK.map]].forEach(([el,fm])=>{if(!el)return;const m=fm(el);if(!m)return;
+    if(opnieuw||!el.querySelector(".sg-knop")||(SG.ov&&!el._sg))sgOverlay(el,m)})}
+if(typeof window!=="undefined")setInterval(()=>{try{sgKaarten(false)}catch(e){}},2000);
+
 /* ---------- Waar stond de fotograaf? GPS en kompas van de telefoon bij een foto ----------
    1. Uit de foto zelf (EXIF): GPS-positie, kijkrichting (GPSImgDirection) en brandpuntsafstand.
    2. Zit dat er niet in (veel browsers halen de locatie eruit), dan de sensoren van de telefoon op het moment dat de foto
@@ -20078,7 +20209,7 @@ document.addEventListener("click",e=>{
     case"mselplan":{const d=t.dataset.d;if(dlg.open)dlg.close();planMulti(d,nextFree(d));break}
     case"mselclr":mSel.clear();reOffer();break;
     case"mselall":document.querySelectorAll(dlg.open&&form.dataset.sheet==="offer"?"#dlgForm [data-act=msel]":".offercol [data-act=msel]").forEach(b=>mSel.add(b.dataset.id));reOffer();break;
-    case"mselgrp":{const g=t.dataset.g;state.klanten.filter(k=>(k.ronde||"Zonder groep")===g).forEach(k=>{if(document.querySelector('[data-act=msel][data-id="'+CSS.escape(k.id)+'"]'))mSel.add(k.id)});reOffer();break}
+    case"mselgrp":{const g=t.dataset.g;state.klanten.filter(k=>ADV.sub&&typeof sgCodeVan==="function"?(sgCodeVan(k)||"Zonder subgebied")===g:(k.ronde||"Zonder groep")===g).forEach(k=>{if(document.querySelector('[data-act=msel][data-id="'+CSS.escape(k.id)+'"]'))mSel.add(k.id)});reOffer();break}
     /* boekhouding, calculator, inzichten, instellingen, help */
     case"bhtab":case"bhper":case"bhsave":case"bhdlomzet":case"bhdluren":case"bhmailomzet":case"bhmailuren":case"bhmailfile":bhActie(a,t);break;
     case"btab":state.btab=t.dataset.v;if(state.tab!=="boekhouding")state.tab="boekhouding";render();break;
