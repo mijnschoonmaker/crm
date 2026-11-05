@@ -423,26 +423,29 @@ def teplannen(pg):
       const som=Math.round(open.reduce((a,f)=>a+Math.max(0,T.totals(f).inc-(Number(f.deelBetaald)||0)),0)*100)/100;
       const ach=open.filter(f=>T.fStatus(f)[1]==='Achterstallig').length,sig=S.find(s=>/vervallen/.test(s.t));
       T.state.klanten.push({id:'cczoek1',naam:'Zoektest, Anna',adres:'Kerkstraat 1',postcode:'9801 AB',plaats:'Zuidhorn'});const z=T.ccZoek('zoektest').concat(T.ccZoek('9801ab'));T.state.klanten.pop();
-      return {kOpen:K.open,som,kAch:K.nAch,ach,sigOk:ach?!!sig&&sig.p==='kritiek':!sig,zoek:z.length,allesGeldig:S.every(s=>s.t&&s.u&&s.go&&s.knop)}}""")
+      return {kOpen:K.open,som,kAch:K.nAch,ach,sigOk:!sig,zoek:z.length,allesGeldig:S.every(s=>s.t&&s.u&&s.go&&s.knop)}}""")
     if r is not None:
         G3 = "Control Center"
         check(G3, "Openstaand bedrag gelijk aan Facturen", abs(r["kOpen"] - r["som"]) < 0.01, r)
         check(G3, "Aantal vervallen facturen klopt", r["kAch"] == r["ach"], r)
-        check(G3, "Signaal vervallen facturen alleen als ze er zijn (kritiek)", r["sigOk"], r)
+        check(G3, "Geen factuurmeldingen in Mansard adviseert (staan in Facturen)", r["sigOk"], r)
         check(G3, "Elke melding heeft uitleg en een knop", r["allesGeldig"], r)
         check(G3, "Zoeken vindt klanten (naam en postcode)", r["zoek"] >= 2, r)
     r = pg.evaluate("""()=>{const T=MSTEST;if(!T.ccAlle)return null;const S=T.state,id='cctl1',kid='cck1';const oud=S.ccStatus;
-      S.klanten.push({id:kid,naam:'Wachtrij, Test'});S.facturen.push({id,soort:'factuur',nummer:'T-9',klantId:kid,klantNaam:'Wachtrij, Test',status:'open',datum:'2026-01-01',verval:'2026-01-15',regels:[{omschrijving:'x',aantal:1,prijs:10}],btw:21,incl:true});
-      const key='fv:'+id,in0=T.ccSignalen().some(m=>m.key===key);
+      S.klanten.push({id:kid,naam:'Wachtrij, Test'});S.facturen.push({id,soort:'offerte',nummer:'OFF-T-9',klantId:kid,klantNaam:'Wachtrij, Test',status:'verstuurd',datum:'2026-01-01',verstuurdOp:'2026-01-01',regels:[{omschrijving:'x',aantal:1,prijs:10}],btw:21,incl:true});
+      S.facturen.push({id:id+'f',soort:'factuur',nummer:'T-9',klantId:kid,klantNaam:'Wachtrij, Test',status:'open',datum:'2026-01-01',verval:'2026-01-15',regels:[{omschrijving:'x',aantal:1,prijs:10}],btw:21,incl:true});
+      const geenF=!T.ccSignalen().some(m=>/^(fv|cf|im):/.test(m.key));
+      const key='ow:'+id,in0=T.ccSignalen().some(m=>m.key===key);
       S.ccStatus={later:{[key]:new Date(Date.now()+3600e3).toISOString()}};const inLater=T.ccSignalen().some(m=>m.key===key);
       S.ccStatus={afgehandeld:{[key]:new Date().toISOString()}};const inKlaar=T.ccSignalen().some(m=>m.key===key);
       S.ccStatus={afgehandeld:{[key]:new Date(Date.now()-8*864e5).toISOString()}};const terug=T.ccSignalen().some(m=>m.key===key);
-      S.ccStatus=oud;S.facturen.pop();S.klanten.pop();return {in0,inLater,inKlaar,terug}}""")
+      S.ccStatus=oud;S.facturen.pop();S.facturen.pop();S.klanten.pop();return {in0,inLater,inKlaar,terug,geenF}}""")
     if r is not None:
-        check(G3, "Wachtrij: vervallen factuur staat erin", r["in0"], r)
+        check(G3, "Wachtrij: offerte zonder reactie staat erin", r["in0"], r)
+        check(G3, "Wachtrij: vervallen factuur staat er niet in (zit in Facturen)", r["geenF"], r)
         check(G3, "Wachtrij: 'later' haalt hem tijdelijk weg", not r["inLater"], r)
         check(G3, "Wachtrij: afgehandeld haalt hem weg", not r["inKlaar"], r)
-        check(G3, "Wachtrij: na 7 dagen komt een nog vervallen factuur terug", r["terug"], r)
+        check(G3, "Wachtrij: na 7 dagen komt een offerte zonder reactie terug", r["terug"], r)
 
     r = pg.evaluate("""()=>{const T=MSTEST;if(!T.volgendeNa)return null;const d=n=>T.iso(T.addDays(T.today(),n));
       const k={id:'vp1',naam:'Verplaats, Test',gepland:d(3),tijd:'09:00',frequentie:4,autoplan:true,reeks:[{d:d(31),t:'09:00'},{d:d(59),t:'09:00'}]};
