@@ -137,7 +137,7 @@ if(LIVE){const at=SETCARDS.findIndex(x=>x.id==="liveOverzicht")+1;
       <small class="help">Instellingen voor VvE's (het portaal van het bestuur en het bewonersbord met QR-code) staan bij <b>Klantportaal VvE</b>.</small>
       ${sec("Credits")}
       <small class="help" style="margin-top:-4px">Klanten sparen in het portaal <b>credits</b> (1 credit = € 1 korting) die automatisch van de volgende factuur afgaan. Zet een veld op 0 om die manier uit te zetten.</small>
-      <div class="grid3">${inp("crExtra","Extra dienst besteld",s.crExtra!=null&&s.crExtra!==""?s.crExtra:3,{type:"number",t:"num",attrs:'min="0" step="1"',help:"Als je het ticket oplost"})}</div>
+      
       <div class="grid3">${inp("crSnel","Factuur binnen 24 uur betaald",s.crSnel!=null&&s.crSnel!==""?s.crSnel:0.5,{type:"number",t:"num",attrs:'min="0" step="0.5"',help:"Per factuur · 0,5 = een halve credit (€ 0,50)"})}</div>
       <div class="grid3">${inp("crMaandTop","Snelste betaler: 1e plek",s.crMaandTop!=null&&s.crMaandTop!==""?s.crMaandTop:5,{type:"number",t:"num",attrs:'min="0" step="0.5"'})}${inp("crMaandTop2","2e plek",s.crMaandTop2!=null&&s.crMaandTop2!==""?s.crMaandTop2:2.5,{type:"number",t:"num",attrs:'min="0" step="0.5"'})}${inp("crMaandTop3","3e plek",s.crMaandTop3!=null&&s.crMaandTop3!==""?s.crMaandTop3:1,{type:"number",t:"num",attrs:'min="0" step="0.5"'})}</div>
       <small class="help">Elke 1e van de maand: de top 3 van de vorige maand staat in ieders portaal (alleen voornamen), krijgt de credits en een felicitatiemail. Je eigen klantkaart doet niet mee.</small>
@@ -319,7 +319,8 @@ function offIsExtra(f,k){if(!f||!k||f.soort!=="offerte")return false;const d=Str
 const _crOff=new Set();
 const crExtraRecent=k=>{const g=iso(addDays(today(),-60));return [...(k.tegoed||[]),...(k.tegoedGebruikt||[])].some(x=>x&&x.bron==="extra"&&String(x.op||"")>=g)};
 async function creditsVoorOfferte(f){if(!f||_crOff.has(f.id))return false;const k=state.klanten.find(x=>x.id===f.klantId);if(!k||!offIsExtra(f,k))return false;
-  const s=S(),n=s.crExtra!=null&&s.crExtra!==""?Number(s.crExtra):3;if(!(n>0))return false;
+  /* geen credits meer voor extra diensten; al gekregen credits blijven staan */
+  const n=0;if(!(n>0))return false;
   const tid="tg_off_"+f.id;if([...(k.tegoed||[]),...(k.tegoedGebruikt||[])].some(x=>x&&(x.id===tid||x.ref===f.id)))return false;
   /* al credits voor een extra dienst in de afgelopen 60 dagen (bijv. via het ticket "Extra dienst aanvragen"): niet dubbel */
   if(crExtraRecent(k))return false;_crOff.add(f.id);

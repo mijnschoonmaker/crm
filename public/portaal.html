@@ -2015,7 +2015,7 @@ function abonnementKp(){const k=D.klant,rt=k.vve&&k.vveSoort!=="buiten"?hoofd(k.
   return `<section class="kp ab-kp"><div class="ab-top"><div class="ab-k"><span class="ab-ic">${I.ruit}</span><span class="ab-eb">Uw abonnement</span></div>
     <div class="ab-d"><b>${esc(k.dienst)}${k.binnen?" binnen en buiten":""}</b><div class="ab-pr"><em>${eur0(k.prijs)}</em><small>per beurt</small></div></div>
     <div class="ab-ch"><span>${I.verzet||I.kal}${esc(rt)}</span>${sd?`<span>${I.hart}Klant sinds ${sd}</span>`:""}</div></div>
-    <button class="ab-x" data-act="extra"><span class="ab-xi">${I.plus}</span><span class="ab-xt"><b>Iets extra laten doen</b><small>${vveB()?"Extra beurt, goten of dakinspectie":isVve()?"Extra beurt, ramen, galerij of grote schoonmaak":extraTxt()}</small></span><span class="ab-xc">${I.chev}</span></button></section>`}
+    </section>`}
 /* snelste betalers van de maand: alleen voornamen */
 function maandTopKp(){const M=D.maandTop;if(!M||D.klant.vve)return"";const V=M.vorige||{},Z=M.deze||{},vt=V.top||[],zt=Z.top||[];if(!vt.length&&!zt.length)return"";
   const T={...(B.credits||{}),...((D.credits||{}).tarieven||{})},pr=[T.maandTop,T.maandTop2,T.maandTop3].map(x=>Number(x)||0),prijs=pr[0],mn=m=>MND[Number(String(m).slice(5,7))-1]||"";
@@ -2071,7 +2071,7 @@ function diensten(){const k=D.klant;let L=(k.diensten||[]).slice();
   const rij=x=>lr(I.dienst,esc(x.naam),[x.detail?esc(x.detail):"",x.ritme?esc(hoofd(x.ritme)):"volgens afspraak",esc(wanneer(x)),x.mee?"gaat mee met de "+esc(String(k.dienst||PHD().toLowerCase()).toLowerCase()):""].filter(Boolean).join(" · "),x.prijs?`<span class="ds-pr"><b>${eur(x.prijs)}</b><small>per beurt</small></span>`:"");
   return kop("Diensten","Alle diensten die wij voor u uitvoeren, hoe vaak en wanneer we weer komen.")+`<div class="pg ds">
     ${L.length?kp(I.dienst,"Uw diensten",`<div class="lijst">${L.map(rij).join("")}</div>`,{sub:plural(L.length,"dienst","diensten")}):`<div class="leeg">Er staan nog geen diensten op uw klantkaart.</div>`}
-    <button class="ab-x" data-act="extra"><span class="ab-xi">${I.plus}</span><span class="ab-xt"><b>Iets extra laten doen</b><small>Kies een extra dienst, wij sturen u eerst de prijs</small></span><span class="ab-xc">${I.chev||""}</span></button></div>`}
+    </div>`}
 function bezoeken(){const v=D.volgende,b=D.bezoeken||[],k=D.klant,fq=Number(k.frequentie)||8,nu=vandaag(),hero=bzHero();
   const st=n=>`<span class="mini-st" aria-label="${n} sterren">${I.ster.repeat(n)}</span>`;
   const gem=(()=>{const r=b.filter(x=>x.beoordeling&&x.beoordeling.sterren);return r.length?(r.reduce((a,x)=>a+x.beoordeling.sterren,0)/r.length):0})();
@@ -2298,7 +2298,7 @@ function aanbevelen(){const A=D.aanbevelen,R=B.refBeloning,W=B.refWelkom,C=D.cre
   const rv=C.review,rvLink=B.reviewLink||"";
   const manieren=`<section class="cr-ways"><div class="cr-wk"><b>Zo verdient u credits</b><small>Elke manier levert direct korting op</small></div><div class="cw-grid">
     ${B.refAan?kaart(I.hart,"a",R,"Beveel een buur aan",`${W>0?`Uw buur krijgt ${eur0(W)} welkomstkorting, u krijgt ${cr(R)}`:`${cr(R)} per nieuwe klant`} zodra het eerste bezoek is gedaan.`,`<span class="cw-st">${A.lijst.filter(x=>x.status!=="gestopt").length?plural(A.lijst.filter(x=>x.status!=="gestopt").length,"buur","buren")+" via u":"Nog geen aanbevelingen"}</span>`,`<button class="cw-btn" data-deel>${I.deel}Link delen</button>`):""}
-    ${T.extra>0?kaart(I.plus,"d",T.extra,"Bestel iets extra's",`${extraTxt(true)}: ${cr(T.extra)} per extra dienst.`,`<span class="cw-st">Wij sturen eerst de prijs</span>`,`<button class="cw-btn" data-act="extra">${I.plus}Bestellen</button>`):""}
+    ${/* bestel iets extra's: weg (geen credits meer voor extra diensten) */false?kaart(I.plus,"d",T.extra,"Bestel iets extra's",`${extraTxt(true)}: ${cr(T.extra)} per extra dienst.`,`<span class="cw-st">Wij sturen eerst de prijs</span>`,`<button class="cw-btn" data-act="extra">${I.plus}Bestellen</button>`):""}
     ${T.snel>0?kaart(I.klok,"f",T.snel,"Betaal binnen 24 uur",`${Hf(cr(T.snel))} voor elke factuur die u binnen 24 uur na ontvangst betaalt.`,(()=>{const n=(C.regels||[]).filter(t=>t.bron==="snel").length;return `<span class="cw-st${n?" ok":""}">${n?(n===1?"1 keer":n+" keer")+" snel betaald":"Nog niet verdiend"}</span>`})(),(D.facturen||[]).some(f=>f.status==="open"||f.status==="verlopen")?`<button class="cw-btn" data-tab="facturen">${I.fact}Nu betalen</button>`:""):""}
     ${T.maandTop>0?kaart(I.beker,"g",T.maandTop,"Snelste betaler van de maand",`Betaal met de iDEAL-knop: elke maand krijgen de 3 snelste betalers extra credits, ${cr(T.maandTop)} voor de 1e plek${Number(T.maandTop2)>0?", "+cr(Number(T.maandTop2))+" voor de 2e":""}${Number(T.maandTop3)>0?" en "+cr(Number(T.maandTop3))+" voor de 3e":""}.`,(()=>{const n=(C.regels||[]).filter(t=>t.bron==="maandtop").length;return `<span class="cw-st${n?" ok":""}">${n?(n===1?"1 keer":n+" keer")+" gewonnen":"Elke maand nieuwe kans"}</span>`})()):""}
   </div></section>`;
