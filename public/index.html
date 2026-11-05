@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="a77c49740fcd"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="f528cc841342"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -5668,6 +5668,37 @@ dialog.iz-dlg::backdrop{background:rgb(13 18 27/.6)}
 .skz h3,.skz .skz-o b,.skz small,.skz p{text-transform:none!important;letter-spacing:normal!important}.skz-kop h3{letter-spacing:-.02em!important}
 html body dialog .skz-k button{padding:0 12px!important;min-width:0!important;white-space:nowrap}html body dialog .skz-k .primary b{letter-spacing:.06em!important;font-size:14px}
 @media (max-width:420px){.skz{padding:16px}.skz-u{font-size:20px}.skz-eig input{min-width:84px;font-size:16px}}
+
+/* dagstrook: overzichtelijker */
+.ds{margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
+.ds .ds-k{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.ds .ds-k>div{display:flex;flex-direction:column;gap:2px}.ds .ds-k b{font-size:17px;letter-spacing:-.01em}.ds .ds-k small{color:var(--muted);font-size:13px}
+.ds-oo{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;font-size:13.5px;font-weight:700}.ds-oo svg{width:15px;height:15px}
+.ds-oo.laat{background:#fdecea;color:#b4472f}.ds-oo.vroeg,.ds-oo.ok{background:#e8f5ec;color:#23804a}
+.ds-tg{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:8px}
+.ds-t{position:relative;padding:10px 12px 10px 16px;border-radius:12px;background:var(--bg2,#f5f6f8);display:flex;flex-direction:column;gap:1px;overflow:hidden}
+.ds-t::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:4px;border-radius:0 4px 4px 0;background:#c7ccd3}
+.ds-t.t-kl::before{background:#d9534f}.ds-t.t-rj::before{background:#3b6fd8}.ds-t.t-pz::before{background:#9aa3ad}.ds-t.t-wd::before{background:#0d121b}
+.ds-t span{font-size:12px;color:var(--muted);font-weight:600}.ds-t b{font-size:18px;font-weight:750;letter-spacing:-.01em;font-variant-numeric:tabular-nums}.ds-t small{font-size:11.5px;color:var(--muted)}
+.ds-mix{display:flex;height:6px;border-radius:6px;overflow:hidden;gap:2px;margin:0 0 26px}.ds-mix i{display:block;min-width:2px}.ds-mix .kl{background:#d9534f}.ds-mix .rj{background:#3b6fd8}.ds-mix .pz{background:#9aa3ad}
+.ds-tl{position:relative}
+.ds-gr{position:absolute;top:0;bottom:22px;left:80px;right:0;pointer-events:none;z-index:2}
+.ds-gl{position:absolute;top:0;bottom:0;width:1px;background:rgb(13 18 27/.05)}.ds-gl.vol{background:rgb(13 18 27/.11)}
+.ds .ds-nu{position:absolute;top:-4px;bottom:0;width:2px;margin-left:-1px;background:#0d121b;border-radius:2px}
+.ds .ds-nu span{position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:800;color:#0d121b;text-transform:uppercase;letter-spacing:.05em}
+.ds .ds-rij{display:grid;grid-template-columns:72px minmax(0,1fr);align-items:center;gap:8px;margin-bottom:8px}
+.ds .ds-rij small{color:var(--ink,#0d121b);font-size:12.5px;font-weight:650}
+.ds .ds-baan{position:relative;height:30px;border-radius:9px;background:var(--bg2,#f3f4f6);overflow:hidden}
+.ds .ds-b{position:absolute;top:3px;bottom:3px;border-radius:6px;min-width:3px;display:grid;place-items:center;box-shadow:inset 0 0 0 1px rgb(255 255 255/.55)}
+.ds .ds-b em{font-style:normal;font-size:11px;font-weight:800;line-height:1;color:#fff}
+.ds .ds-b.gp{background:#fff;box-shadow:inset 0 0 0 1.5px #c9ced6}.ds .ds-b.gp em{color:#5b6472}
+.ds .ds-b.gp.af{background:#eef5f0;box-shadow:inset 0 0 0 1.5px #a9c9b4}.ds .ds-b.gp.af em{color:#2f6b45}
+.ds .ds-b.kl{background:#d9534f}.ds .ds-b.kl.gs{opacity:.6}.ds .ds-b.kl.bz{background:repeating-linear-gradient(45deg,#d9534f 0 6px,#e57773 6px 12px)}
+.ds .ds-b.rj{background:#3b6fd8;top:9px;bottom:9px;box-shadow:none}.ds .ds-b.pz{background:#9aa3ad;top:7px;bottom:7px}
+.ds .ds-uren{position:relative;height:16px;margin:2px 0 0 80px!important;margin-right:0!important;font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ds-uitleg{margin:10px 0 0;font-size:12px;color:var(--muted);line-height:1.45}
+.ds .ds-uren span,.ds .ds-uren span:first-child,.ds .ds-uren span:last-child{transform:translateX(-50%)}
+@media (max-width:640px){.ds .ds-rij{grid-template-columns:60px minmax(0,1fr)}.ds-gr{left:68px}.ds .ds-uren{margin-left:68px!important}.ds-tg{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 </style>
 <style id="mansardThema">
@@ -20255,11 +20286,22 @@ function dsHtml(){try{const d=iso(today()),D=dsData(d);if(!D.gepland.length&&!D.
   /* uitloop: werkelijk klaar bij de laatst afgemelde stop tegenover de planning van die stop */
   const gp=D.gepland.filter(x=>x.done),laatst=D.klant.filter(x=>!x.bezig).slice(-1)[0];let uit=null;
   if(laatst&&gp.length){const g=D.gepland.find(x=>cleanName(x.k.naam)===laatst.naam);if(g)uit=Math.round(laatst.tot-g.tot)}
-  const blok=(x,c,t)=>`<i class="ds-b ${c}" style="left:${pc(x.van)};width:${br(x.van,x.tot)}" title="${esc(t)}"></i>`;
-  return `<div class="ds"><div class="ds-k"><b>Dagstrook</b><small>gepland tegenover werkelijk</small><span class="ds-som"><span><i class="kl"></i>Bij klanten ${wdU(kl)}</span><span><i class="rj"></i>Rijden ${wdU(rj)}</span>${pz?`<span><i class="pz"></i>Pauze ${wdU(pz)}</span>`:""}${uit!=null?`<span class="${uit>10?"laat":uit<-10?"vroeg":""}">${uit>0?"+":""}${uit} min t.o.v. planning</span>`:""}</span></div>
-    <div class="ds-rij"><small>Gepland</small><div class="ds-baan">${D.gepland.map(x=>blok(x,"gp"+(x.done?" af":""),`${hm(x.van)}–${hm(x.tot)} · ${cleanName(x.k.naam)}`)).join("")}${D.nu!=null?`<i class="ds-nu" style="left:${pc(D.nu)}"></i>`:""}</div></div>
-    <div class="ds-rij"><small>Werkelijk</small><div class="ds-baan">${rij.map(x=>blok(x,"rj",`${hm(x.van)}–${hm(x.tot)} · rijden`)).join("")}${D.pauze.map(x=>blok(x,"pz",`${hm(x.van)}–${hm(x.tot)} · pauze`)).join("")}${D.klant.map(x=>blok(x,"kl"+(x.bezig?" bz":"")+(x.gemeten?"":" gs"),`${hm(x.van)}–${hm(x.tot)} · ${x.naam}${x.bezig?" (nu bezig)":x.gemeten?"":" (geschat)"}`)).join("")}${D.nu!=null?`<i class="ds-nu" style="left:${pc(D.nu)}"></i>`:""}</div></div>
-    <div class="ds-uren">${uren.join("")}</div>
+  /* zelfde nummer in Gepland en Werkelijk, zodat je ziet welke klant welke is */
+  const nrVan=n=>{const i=D.gepland.findIndex(x=>cleanName(x.k.naam)===n);return i<0?"":String(i+1)};
+  const blok=(x,c,t,nr)=>{const w=(Math.max(0,Math.min(hi,x.tot)-Math.max(lo,x.van)))/span*100;return `<i class="ds-b ${c}" style="left:${pc(x.van)};width:${w.toFixed(2)}%" title="${esc(t)}">${nr&&w>2.2?`<em>${nr}</em>`:""}</i>`};
+  const lijnen=[];for(let h=lo;h<=hi;h+=60)lijnen.push(`<i class="ds-gl${(h-lo)%stap?"":" vol"}" style="left:${pc(h)}"></i>`);
+  const tot=kl+rj+pz,pr=v=>tot?Math.round(v/tot*100):0;
+  const oordeel=uit==null?"":uit>10?`<span class="ds-oo laat">${I.clock||""}${uit} min later klaar dan gepland</span>`:uit<-10?`<span class="ds-oo vroeg">${I.check||""}${-uit} min eerder klaar dan gepland</span>`:`<span class="ds-oo ok">${I.check||""}Precies volgens planning</span>`;
+  const tegel=(c,l,v,sub)=>`<div class="ds-t ${c}"><span>${l}</span><b>${v}</b>${sub?`<small>${sub}</small>`:""}</div>`;
+  const wd=D.start!=null?tegel("t-wd","Werkdag",hm(D.start)+" – "+(D.eind!=null&&!(D.nu!=null&&Math.abs(D.eind-D.nu)<2)?hm(D.eind):"nu"),D.eind!=null?wdU(D.eind-D.start)+" in totaal":""):"";
+  return `<div class="ds"><div class="ds-k"><div><b>Dagstrook</b><small>Hoe liep je dag tegenover de planning?</small></div>${oordeel}</div>
+    <div class="ds-tg">${wd}${tegel("t-kl","Bij klanten",wdU(kl),tot?pr(kl)+"% van de dag":"")}${tegel("t-rj","Rijden",wdU(rj),tot?pr(rj)+"% van de dag":"")}${pz?tegel("t-pz","Pauze",wdU(pz),""):""}</div>
+    ${tot?`<div class="ds-mix" aria-hidden="true"><i class="kl" style="flex:${kl}"></i><i class="rj" style="flex:${rj}"></i>${pz?`<i class="pz" style="flex:${pz}"></i>`:""}</div>`:""}
+    <div class="ds-tl"><div class="ds-gr">${lijnen.join("")}${D.nu!=null?`<i class="ds-nu" style="left:${pc(D.nu)}"><span>nu</span></i>`:""}</div>
+    <div class="ds-rij"><small>Gepland</small><div class="ds-baan">${D.gepland.map((x,i)=>blok(x,"gp"+(x.done?" af":""),`${i+1}. ${cleanName(x.k.naam)} · gepland ${hm(x.van)}–${hm(x.tot)}`,String(i+1))).join("")}</div></div>
+    <div class="ds-rij"><small>Werkelijk</small><div class="ds-baan">${rij.map(x=>blok(x,"rj",`Rijden · ${hm(x.van)}–${hm(x.tot)}`)).join("")}${D.pauze.map(x=>blok(x,"pz",`Pauze · ${hm(x.van)}–${hm(x.tot)}`)).join("")}${D.klant.map(x=>{const nr=nrVan(x.naam);return blok(x,"kl"+(x.bezig?" bz":"")+(x.gemeten?"":" gs"),`${nr?nr+". ":""}${x.naam} · ${hm(x.van)}–${hm(x.tot)}${x.bezig?" (nu bezig)":x.gemeten?"":" (geschat)"}`,nr)}).join("")}</div></div>
+    <div class="ds-uren">${uren.join("")}</div></div>
+    <p class="ds-uitleg">De nummers zijn je klanten in volgorde van de planning. Grijs is wat gepland stond; daaronder wat er echt gebeurde. Tik of wijs een blok aan voor de klant en de tijden.</p>
     ${D.start==null?`<p class="ds-tip">Tik op de telefoon bij vertrek op <b>Start werkdag</b>, dan zie je hier ook hoe lang er gereden wordt.</p>`:""}</div>`}catch(e){console.error("dagstrook",e);return""}}
 /* elke minuut bijwerken (nu-lijn, bezig-blok) zonder het scherm opnieuw te tekenen */
 if(typeof window!=="undefined")setInterval(()=>{try{if(state.tab!=="control")return;const el=document.querySelector(".ds");if(el){const t=document.createElement("div");t.innerHTML=dsHtml();if(t.firstElementChild)el.replaceWith(t.firstElementChild)}rgRadar();rgVoorspel()}catch(e){}},60000);
