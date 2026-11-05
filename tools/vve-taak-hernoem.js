@@ -18,7 +18,7 @@ const n = (...a) => console.log("::notice title=Hernoemen::" + a.join(" "));
     tel++;
     const upd = { vveTaken: lijst.map(t => t === VAN ? NAAR : t) };
     if (k.vveFreq && typeof k.vveFreq === "object" && VAN in k.vveFreq) { const f = { ...k.vveFreq }; f[NAAR] = f[VAN]; delete f[VAN]; upd.vveFreq = f }
-    if (eigen || k.soort === "vve") b.set(kd.ref, upd, { merge: true });
+    if (eigen && lijst.includes(VAN)) b.set(kd.ref, upd, { merge: true });
     bs.forEach(d => b.set(d.ref, { taken: d.data().taken.map(t => t && t.naam === VAN ? { ...t, naam: NAAR } : t) }, { merge: true }));
   }
   if (!DOE) { n("aan te passen:", tel, "klant(en) (alleen gekeken)"); return }
