@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="121ede308c21"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="e6fe1343b019"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -8513,7 +8513,7 @@ function openKlantEdit(id,opt={}){
   </div>
   <div id="f-vve" class="f-vve" ${k.soort==="vve"?"":"hidden"}><div class="kp-h" style="margin-bottom:8px"><span class="objic">${I.checksq||I.check}</span><b>VvE-instellingen</b></div>
     <label>Vaste weekdagen<div class="ow-dagen" id="f-wdagen">${[1,2,3,4,5,6].map(d=>`<button type="button" data-fwd="${d}" aria-pressed="${(vasteDagen(k)||[]).includes(d)}">${["zo","ma","di","wo","do","vr","za"][d]}</button>`).join("")}</div><small class="help">Bijv. di en vr: elke week op die dagen in de planning, na afmelden staat de volgende dag klaar. Geen dag gekozen = gewone frequentie.</small></label>
-    <label>Checklist per ruimte (één per regel)<textarea id="f-vvetaken" style="min-height:90px">${esc((Array.isArray(k.vveTaken)&&k.vveTaken.length?k.vveTaken:vveStd()).join("\n"))}</textarea><small class="help">Vink je af bij het afmelden, met een opleverfoto. Het bestuur ziet dit in het portaal en op het bewonersbord.</small></label></div>
+    <label>Checklist per ruimte (één per regel)<textarea id="f-vvetaken" style="min-height:90px">${esc(vveTaken(k).join("\n"))}</textarea><small class="help">Vink je af bij het afmelden, met een opleverfoto. Het bestuur ziet dit in het portaal en op het bewonersbord.</small></label></div>
   <div><span class="eyebrow">Dienst en planning</span><div class="grid2" style="margin-top:8px">
     <label>Dienst<input id="f-dienst" list="dienstlijst" value="${esc(k.dienst||HD())}"><datalist id="dienstlijst">${[...dienstLijst().map(d=>d.naam),...(GLAS()?DIENSTEN:BR_DIENSTNAMEN())].filter((v,i,a)=>a.indexOf(v)===i).map(d=>`<option value="${esc(d)}">`).join("")}</datalist></label>
     <label>Prijs per beurt (€ ${S().incl?"incl.":"excl."} btw)<input id="f-prijs" type="number" step="0.5" min="0" inputmode="decimal" required value="${esc(k.prijs)}"></label>
@@ -14705,7 +14705,7 @@ function openOpdrachtWerk(kid,focus){
 </section>
     ${k.soort==="vve"?`<section class="kp"><div class="kp-h"><span class="objic">${I.checksq||I.check}</span><b>Checklist VvE</b></div>
       <p class="subt" style="margin:0 0 8px">Per ruimte of taak hoe vaak. Bij het afmelden ziet je medewerker alleen wat die dag aan de beurt is; het bestuur ziet het in het portaal.</p>
-      <div id="ow-vvetaken" class="vve-ed">${vveTaken(k).map(t=>vveEdRij(t,vveFreq(k,t))).join("")}</div>
+      ${vveTaken(k).length?"":`<p class="help" id="owVveLeeg" style="margin:0 0 6px">Geen checklist: bij het afmelden komt er geen opleverlijst. Doe je hier ook schoonmaakwerk (trappenhal, lift)? Voeg dan een ruimte toe.</p>`}<div id="ow-vvetaken" class="vve-ed">${vveTaken(k).map(t=>vveEdRij(t,vveFreq(k,t))).join("")}</div>
       <button type="button" class="small" id="owVveTk" style="margin-top:8px">${I.plus}Ruimte of taak toevoegen</button></section>`:""}
     <section class="kp" id="owULocK"><div class="kp-h"><span class="objic">${I.pin}</span><b>Uitvoerlocatie</b></div>
       <label>Waar wordt deze opdracht uitgevoerd?<select id="ow-uloc">${uLocs.map(l=>`<option value="${esc(l.id)}" ${l.id===uLoc?"selected":""}>${esc(l.adr)}${l.id==="hoofd"?" (hoofdadres)":l.naam?" · "+esc(l.naam):""}</option>`).join("")}</select></label>
@@ -15230,7 +15230,7 @@ function berekendeMin(k,day){if(!k)return null;let m=null;
 function vveEdRij(t,f){return `<div class="vve-er"><input data-vtn value="${esc(t)}" placeholder="Bijv. hekwerk" maxlength="60"><select data-vtf>${VVE_FREQ.map(([c,l])=>`<option value="${c}"${c===f?" selected":""}>${esc(l)}</option>`).join("")}</select><button type="button" class="iconbtn sm" data-vtx aria-label="Weghalen">${I.x}</button></div>`}
 function vveEdLees(el){const vveTaken=[],vveFreq={};el.querySelectorAll(".vve-er").forEach(r=>{const n=r.querySelector("[data-vtn]").value.trim(),f=r.querySelector("[data-vtf]").value;if(n&&!vveTaken.includes(n)&&vveTaken.length<20){vveTaken.push(n);if(f!=="beurt")vveFreq[n]=f}});return{vveTaken,vveFreq}}
 document.addEventListener("click",e=>{const x=e.target.closest&&e.target.closest("[data-vtx]");if(x){x.closest(".vve-er").remove();return}
-  const p=e.target.closest&&e.target.closest("#owVveTk");if(p){const el=document.getElementById("ow-vvetaken");if(el){el.insertAdjacentHTML("beforeend",vveEdRij("","beurt"));el.lastElementChild.querySelector("input").focus()}}});
+  const p=e.target.closest&&e.target.closest("#owVveTk");if(p){const el=document.getElementById("ow-vvetaken");if(el){const lg=document.getElementById("owVveLeeg");if(lg)lg.remove();el.insertAdjacentHTML("beforeend",vveEdRij("","beurt"));el.lastElementChild.querySelector("input").focus()}}});
 
 /* ---------- UITVOERING: diensten, frequenties en bedrijfsmiddelen ----------
    Eén document instellingen/uitvoering. Bij opslaan worden de afgeleide instellingen bijgewerkt:
@@ -16378,7 +16378,7 @@ function openNieuweKlant(){const st=S();
       <p class="help" id="nk-msg" style="margin:0"></p></section>
     <section class="kp f-vve" id="nk-vve" hidden><div class="kp-h"><span class="objic">${I.checksq||I.check}</span><b>VvE-instellingen</b></div>
       <label>Vaste weekdagen<div class="ow-dagen" id="nk-wdagen">${[1,2,3,4,5,6].map(d=>`<button type="button" data-fwd="${d}" aria-pressed="false">${["zo","ma","di","wo","do","vr","za"][d]}</button>`).join("")}</div><small class="help">Bijv. di en vr: elke week op die dagen in de planning; na afmelden staat de volgende dag klaar.</small></label>
-      <label>Checklist per ruimte (één per regel)<textarea id="nk-vvetaken" style="min-height:90px">${esc(vveStd().join("\n"))}</textarea><small class="help">Vink je af bij het afmelden, met een opleverfoto. Het bestuur ziet dit in het portaal en op het bewonersbord.</small></label></section>
+      <label>Checklist per ruimte (één per regel)<textarea id="nk-vvetaken" style="min-height:90px" placeholder="Leeg laten bij alleen glasbewassing">${""}</textarea><small class="help">Vink je af bij het afmelden, met een opleverfoto. Het bestuur ziet dit in het portaal en op het bewonersbord.</small></label></section>
   </div><aside class="lc-side">
     <section class="kp"><div class="kp-h"><span class="objic">${I.note}</span><b>Klantnotities</b><small class="subt">alleen voor jezelf</small></div>
       <textarea id="nk-notitie" style="min-height:110px" placeholder="Bijv. via via aangemeld, wil graag in het voorjaar starten"></textarea></section>
@@ -17321,7 +17321,10 @@ if(LIVE)setInterval(()=>{try{pdfSync()}catch(e){}},20000),setTimeout(function w(
 const VVE_STD=["Entree en deuren","Trappenhuis","Lift","Bergingsgang"];
 /* standaard checklist voor nieuwe VvE's: in te stellen bij Instellingen › Klantportaal VvE */
 const vveStd=()=>{const t=state.settings&&state.settings.vveTakenStd;return Array.isArray(t)&&t.length?t:VVE_STD};
-const vveTaken=k=>Array.isArray(k.vveTaken)&&k.vveTaken.length?k.vveTaken:vveStd();
+/* checklist alleen als hij bij de opdracht is ingevuld; zonder eigen lijst krijgt alleen schoonmaakwerk de standaardlijst,
+   glasbewassing en ander buitenwerk bij een VvE geen checklist */
+const vveGlasD=d=>/glas|ramen|goten|gevel|zonnepan|dakkapel|kozijn/i.test(String(d||""));
+const vveTaken=k=>Array.isArray(k.vveTaken)&&k.vveTaken.length?k.vveTaken:vveGlasD(k.dienst)?[]:vveStd();
 /* hoe vaak een taak: elke beurt (standaard) of periodiek, bijv. 2x per week trappenhuis maar 1x per kwartaal het hekwerk */
 const VVE_FREQ=[["beurt","Elke beurt",0],["week","Elke week",7],["2week","Elke 2 weken",14],["maand","Elke maand",30],["kwartaal","Elk kwartaal",91],["halfjaar","Elk half jaar",182],["jaar","Elk jaar",365]];
 const vveFreq=(k,t)=>{const f=(k&&k.vveFreq||{})[t];return VVE_FREQ.some(x=>x[0]===f)?f:"beurt"};
@@ -17333,6 +17336,8 @@ function vveAanDeBeurt(k,t,datum){const f=vveFreq(k,t),dg=(VVE_FREQ.find(x=>x[0]
 const VVE_CAT=[["technisch","Technisch",I.wrench],["vandalisme","Vandalisme",I.alert],["overig","Overig",I.note]];
 function vveOplevering(k){return new Promise(res=>{
   const dag=iso(today()),taken=vveTaken(k).filter(t=>vveAanDeBeurt(k,t,dag)),fotos=[];let bezig=false;
+  /* geen checklist (bijv. alleen glasbewassing): gewoon afmelden zonder opleverscherm */
+  if(!vveTaken(k).length)return res({taken:[],fotos:[],notitie:"",meldingen:(k.bevindingen||[]).map(b=>({id:b.id,notitie:b.notitie||"",zijde:b.zijde||"",categorie:b.categorie||"",datum:b.datum||iso(today())}))});
   const o=document.createElement("div");o.className="vraag-ov";const dg=document.createElement("dialog");dg.className="vraag-dlg";dg.appendChild(o);const weg=v=>{try{dg.close()}catch(_){}dg.remove();res(v)};dg.addEventListener("cancel",e=>{e.preventDefault();weg(null)});
   const teken=()=>{o.innerHTML=`<div class="rk vve-op" role="dialog" aria-modal="true" aria-label="Oplevering">
     <div class="rk-h"><span class="objic">${I.check}</span><div><b>Oplevering ${esc(cleanName(k.naam))}</b><small>Wat is er gedaan? Dit ziet het bestuur in het portaal en op het bewonersbord.</small></div><button type="button" class="iconbtn sm" data-vx aria-label="Sluiten">${I.x}</button></div>

@@ -4,7 +4,10 @@
 const VVE_STD=["Entree en deuren","Trappenhuis","Lift","Bergingsgang"];
 /* standaard checklist voor nieuwe VvE's: in te stellen bij Instellingen › Klantportaal VvE */
 const vveStd=()=>{const t=state.settings&&state.settings.vveTakenStd;return Array.isArray(t)&&t.length?t:VVE_STD};
-const vveTaken=k=>Array.isArray(k.vveTaken)&&k.vveTaken.length?k.vveTaken:vveStd();
+/* checklist alleen als hij bij de opdracht is ingevuld; zonder eigen lijst krijgt alleen schoonmaakwerk de standaardlijst,
+   glasbewassing en ander buitenwerk bij een VvE geen checklist */
+const vveGlasD=d=>/glas|ramen|goten|gevel|zonnepan|dakkapel|kozijn/i.test(String(d||""));
+const vveTaken=k=>Array.isArray(k.vveTaken)&&k.vveTaken.length?k.vveTaken:vveGlasD(k.dienst)?[]:vveStd();
 /* hoe vaak een taak: elke beurt (standaard) of periodiek, bijv. 2x per week trappenhuis maar 1x per kwartaal het hekwerk */
 const VVE_FREQ=[["beurt","Elke beurt",0],["week","Elke week",7],["2week","Elke 2 weken",14],["maand","Elke maand",30],["kwartaal","Elk kwartaal",91],["halfjaar","Elk half jaar",182],["jaar","Elk jaar",365]];
 const vveFreq=(k,t)=>{const f=(k&&k.vveFreq||{})[t];return VVE_FREQ.some(x=>x[0]===f)?f:"beurt"};
@@ -16,6 +19,8 @@ function vveAanDeBeurt(k,t,datum){const f=vveFreq(k,t),dg=(VVE_FREQ.find(x=>x[0]
 const VVE_CAT=[["technisch","Technisch",I.wrench],["vandalisme","Vandalisme",I.alert],["overig","Overig",I.note]];
 function vveOplevering(k){return new Promise(res=>{
   const dag=iso(today()),taken=vveTaken(k).filter(t=>vveAanDeBeurt(k,t,dag)),fotos=[];let bezig=false;
+  /* geen checklist (bijv. alleen glasbewassing): gewoon afmelden zonder opleverscherm */
+  if(!vveTaken(k).length)return res({taken:[],fotos:[],notitie:"",meldingen:(k.bevindingen||[]).map(b=>({id:b.id,notitie:b.notitie||"",zijde:b.zijde||"",categorie:b.categorie||"",datum:b.datum||iso(today())}))});
   const o=document.createElement("div");o.className="vraag-ov";const dg=document.createElement("dialog");dg.className="vraag-dlg";dg.appendChild(o);const weg=v=>{try{dg.close()}catch(_){}dg.remove();res(v)};dg.addEventListener("cancel",e=>{e.preventDefault();weg(null)});
   const teken=()=>{o.innerHTML=`<div class="rk vve-op" role="dialog" aria-modal="true" aria-label="Oplevering">
     <div class="rk-h"><span class="objic">${I.check}</span><div><b>Oplevering ${esc(cleanName(k.naam))}</b><small>Wat is er gedaan? Dit ziet het bestuur in het portaal en op het bewonersbord.</small></div><button type="button" class="iconbtn sm" data-vx aria-label="Sluiten">${I.x}</button></div>

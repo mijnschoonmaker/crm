@@ -179,7 +179,7 @@ module.exports = function maakPortaal(ctx) {
     const gezien = new Set(); return uit.filter(x => { const key = x.naam.toLowerCase() + "|" + x.ritme; if (gezien.has(key)) return false; gezien.add(key); return true; }).slice(0, 12);
   }
   const ritmeTxt = k => { const dg = vasteDagen(k); if (dg) return dg.length === 7 ? "elke dag" : "elke " + dg.map(d => DAGL[d]).join(" en "); const f = Number(k.frequentie) || 4; return f === 1 ? "elke week" : "elke " + f + " weken"; };
-  const vveTakenVan = (k, b) => Array.isArray(k.vveTaken) && k.vveTaken.length ? k.vveTaken.map(String).slice(0, 20) : b && Array.isArray(b.vveTakenStd) && b.vveTakenStd.length ? b.vveTakenStd.map(String).slice(0, 20) : ["Entree en deuren", "Trappenhuis", "Lift", "Bergingsgang"];
+  const vveTakenVan = (k, b) => Array.isArray(k.vveTaken) && k.vveTaken.length ? k.vveTaken.map(String).slice(0, 20) : /glas|ramen|goten|gevel|zonnepan|dakkapel|kozijn/i.test(String(k.dienst || "")) ? [] : b && Array.isArray(b.vveTakenStd) && b.vveTakenStd.length ? b.vveTakenStd.map(String).slice(0, 20) : ["Entree en deuren", "Trappenhuis", "Lift", "Bergingsgang"];
   const tijdVan = x => { if (x.startOp) { try { return new Intl.DateTimeFormat("nl-NL", { timeZone: "Europe/Amsterdam", hour: "2-digit", minute: "2-digit" }).format(new Date(x.startOp)); } catch (e) {} } return x.tijd || ""; };
   async function liveInfo(S) {
     const dag = isoNL(), vandaagIs = x => x && (x.gepland === dag || (Array.isArray(x.reeks) && x.reeks.some(r => r && r.d === dag)));

@@ -84,7 +84,7 @@ function openOpdrachtWerk(kid,focus){
 </section>
     ${k.soort==="vve"?`<section class="kp"><div class="kp-h"><span class="objic">${I.checksq||I.check}</span><b>Checklist VvE</b></div>
       <p class="subt" style="margin:0 0 8px">Per ruimte of taak hoe vaak. Bij het afmelden ziet je medewerker alleen wat die dag aan de beurt is; het bestuur ziet het in het portaal.</p>
-      <div id="ow-vvetaken" class="vve-ed">${vveTaken(k).map(t=>vveEdRij(t,vveFreq(k,t))).join("")}</div>
+      ${vveTaken(k).length?"":`<p class="help" id="owVveLeeg" style="margin:0 0 6px">Geen checklist: bij het afmelden komt er geen opleverlijst. Doe je hier ook schoonmaakwerk (trappenhal, lift)? Voeg dan een ruimte toe.</p>`}<div id="ow-vvetaken" class="vve-ed">${vveTaken(k).map(t=>vveEdRij(t,vveFreq(k,t))).join("")}</div>
       <button type="button" class="small" id="owVveTk" style="margin-top:8px">${I.plus}Ruimte of taak toevoegen</button></section>`:""}
     <section class="kp" id="owULocK"><div class="kp-h"><span class="objic">${I.pin}</span><b>Uitvoerlocatie</b></div>
       <label>Waar wordt deze opdracht uitgevoerd?<select id="ow-uloc">${uLocs.map(l=>`<option value="${esc(l.id)}" ${l.id===uLoc?"selected":""}>${esc(l.adr)}${l.id==="hoofd"?" (hoofdadres)":l.naam?" · "+esc(l.naam):""}</option>`).join("")}</select></label>
@@ -609,4 +609,4 @@ function berekendeMin(k,day){if(!k)return null;let m=null;
 function vveEdRij(t,f){return `<div class="vve-er"><input data-vtn value="${esc(t)}" placeholder="Bijv. hekwerk" maxlength="60"><select data-vtf>${VVE_FREQ.map(([c,l])=>`<option value="${c}"${c===f?" selected":""}>${esc(l)}</option>`).join("")}</select><button type="button" class="iconbtn sm" data-vtx aria-label="Weghalen">${I.x}</button></div>`}
 function vveEdLees(el){const vveTaken=[],vveFreq={};el.querySelectorAll(".vve-er").forEach(r=>{const n=r.querySelector("[data-vtn]").value.trim(),f=r.querySelector("[data-vtf]").value;if(n&&!vveTaken.includes(n)&&vveTaken.length<20){vveTaken.push(n);if(f!=="beurt")vveFreq[n]=f}});return{vveTaken,vveFreq}}
 document.addEventListener("click",e=>{const x=e.target.closest&&e.target.closest("[data-vtx]");if(x){x.closest(".vve-er").remove();return}
-  const p=e.target.closest&&e.target.closest("#owVveTk");if(p){const el=document.getElementById("ow-vvetaken");if(el){el.insertAdjacentHTML("beforeend",vveEdRij("","beurt"));el.lastElementChild.querySelector("input").focus()}}});
+  const p=e.target.closest&&e.target.closest("#owVveTk");if(p){const el=document.getElementById("ow-vvetaken");if(el){const lg=document.getElementById("owVveLeeg");if(lg)lg.remove();el.insertAdjacentHTML("beforeend",vveEdRij("","beurt"));el.lastElementChild.querySelector("input").focus()}}});
