@@ -275,7 +275,7 @@ function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActivite
     :`<p class="cc-leeg">Nog geen activiteit in de afgelopen 30 dagen.</p>`;
   const prf=(l,v,sub)=>`<div class="cc-pf"><small>${l}</small><b>${v==null?"—":v}</b><em>${sub}</em></div>`;
   const heeftOmzet=R.weken.some(w=>w.v>0);
-  setTimeout(()=>{ccKaart();setTimeout(mkBusKleur,400);setTimeout(()=>{if(typeof rgStart==="function")rgStart()},600);ccWeerLaad();ccZoekTeken();ccLiveCheck()},30);clearTimeout(CC.gzT);CC.gzT=setTimeout(()=>{ccMarkeerGezien();document.querySelectorAll('.cc-mi.nw').forEach(e=>e.classList.add('gz'))},8000);
+  setTimeout(()=>{ccKaart();setTimeout(mkBusKleur,400);setTimeout(()=>{if(typeof rgStart==="function")rgStart()},600);setTimeout(()=>{if(typeof izPins==="function")izPins()},800);ccWeerLaad();ccZoekTeken();ccLiveCheck()},30);clearTimeout(CC.gzT);CC.gzT=setTimeout(()=>{ccMarkeerGezien();document.querySelectorAll('.cc-mi.nw').forEach(e=>e.classList.add('gz'))},8000);
   return `<div class="cc">
   <div class="cc-head"><div><h1>Overzicht</h1><p>Wie waar is, wat er speelt en wat je moet doen.</p></div>
     <div class="cc-tools"><div class="cc-zoek"><span>${I.search}</span><input id="ccQ" type="search" autocomplete="off" placeholder="Zoek klant, adres, offerte, factuur…" value="${esc(CC.q)}" aria-label="Zoeken"><kbd>${/Mac|iP/.test(navigator.platform||"")?"⌘":"Ctrl"} K</kbd><div class="cc-zr" id="ccZr" hidden></div></div>
@@ -286,7 +286,7 @@ function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActivite
     <section class="cc-card cc-live"><div class="cc-ch"><div><b>${I.map}Live · vandaag</b><small>${esc(longD(t))}</small></div><button type="button" class="cc-link" data-cc="tab:vandaag">Naar Vandaag${I.right||""}</button></div>
       <div class="cc-dagstat">${[[typeof plSel==="function"&&plSel()?"Adressen "+esc(plSel()):"Adressen",P.length],["Klaar",klaar],["Nog te gaan",nu],["Verdiend vandaag",eur0(D.omzet)],["Verwacht klaar",D.eind||"—"]].map(([l,v])=>`<div><small>${l}</small><b>${v}</b></div>`).join("")}</div>
       ${mkStatusHtml()}<div id="rgRegel">${typeof rgRegelHtml==="function"?rgRegelHtml():""}</div><div class="cc-map"><div class="rv-map" id="rvMap"><div class="rv-map-l">Kaart laden…</div></div></div>
-      <div class="cc-leg"><span><i class="af"></i>Afgerond</span><span><i class="nu"></i>Volgende</span><span><i></i>Gepland</span><span><i class="bus"></i>Bus (live)</span>${D.volgende?`<span class="cc-vlg">Volgende: <b>${esc(D.volgende)}</b></span>`:""}</div>${typeof dsHtml==="function"?dsHtml():""}</section>
+      <div class="cc-leg"><span><i class="af"></i>Afgerond</span><span><i class="nu"></i>Volgende</span><span><i></i>Gepland</span><span><i class="bus"></i>Bus (live)</span>${D.volgende?`<span class="cc-vlg">Volgende: <b>${esc(D.volgende)}</b></span>`:""}</div>${typeof dsHtml==="function"?dsHtml():""}${typeof izKantoorHtml==="function"?izKantoorHtml():""}</section>
     <section class="cc-adv" id="ccAdv"><div class="cc-ah"><span class="cc-aic">${I.bell}${S_.length?"<i></i>":""}</span><div><small>Mansard adviseert</small><b>Meldingen</b></div>${S_.length?`<span class="cc-stp ${S_.some(m=>m.p==="kritiek")?"rood":"let"}"><i></i>${S_.length} open</span>`:`<span class="cc-stp ok">${I.check}Alles afgehandeld</span>`}</div>${S_.length?`<p class="cc-ahh">Werk ze van boven naar beneden af.</p>`:""}<div class="cc-q${S_.length>3?"":" leeg"}">${sig}</div></section>
   </div>
   ${typeof plRijHtml==="function"?plRijHtml():""}

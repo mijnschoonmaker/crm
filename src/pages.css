@@ -4852,3 +4852,40 @@ dialog.mkt::backdrop{background:rgb(13 18 27 / .55)}
 .cc-adv .cc-opt em{color:var(--cc-mut)}
 .cc-adv .cc-op.rood em{color:#c23b32}
 @media (max-width:560px){.cc-adv .cc-ops2{grid-template-columns:minmax(0,1fr)}}
+/* ---------- melding van kantoor naar de bus (112-stijl) ---------- */
+dialog.iz-dlg{width:min(520px,94vw);padding:0;border:0;border-radius:18px;overflow:hidden;box-shadow:0 30px 80px -20px rgb(0 0 0/.5)}
+dialog.iz-dlg::backdrop{background:rgb(13 18 27/.6)}
+.iz-k{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;color:#fff;font-size:13px;font-weight:600}
+.iz-k.rood{background:#c8372f}.iz-k.oranje{background:#c77b14}.iz-k.grijs{background:#3b4456}
+.iz-p{display:inline-flex;align-items:center;gap:7px;text-transform:uppercase;letter-spacing:.12em;font-size:12px}
+.iz-p i{width:9px;height:9px;border-radius:50%;background:#fff;animation:izPuls 1s infinite}
+@keyframes izPuls{50%{opacity:.25}}
+.iz-b{padding:18px 18px 6px}.iz-t{margin:0 0 14px;font-size:19px;line-height:1.4;font-weight:600;color:#14181f}
+.iz-a{display:flex;gap:10px;align-items:center;padding:11px 12px;border-radius:12px;background:#f5f6f8}.iz-a svg{width:18px;height:18px;flex:none}.iz-a b{display:block;font-size:14px}.iz-a span{font-size:13px;color:#5d6470}
+.iz-f{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;padding:14px 18px 18px}
+.iz-f .iz-nav{display:inline-flex;align-items:center;gap:6px;height:42px;padding:0 14px;border-radius:10px;border:1px solid #e3e5e8;color:#14181f;font-weight:600;text-decoration:none}
+.iz-f .iz-nav svg{width:16px;height:16px}.iz-f .iz-ok{height:42px;padding:0 18px}
+.iz-prio{display:flex;gap:8px;margin:2px 0 12px}
+.iz-pk{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 14px;border-radius:999px;border:1px solid #e3e5e8;background:#fff;font-weight:600;cursor:pointer}
+.iz-pk i,.iz-pp i{width:9px;height:9px;border-radius:50%}
+.iz-pk.rood i,.iz-kant li.rood .iz-pp i{background:#d9443b}.iz-pk.oranje i,.iz-kant li.oranje .iz-pp i{background:#e19422}.iz-pk.grijs i,.iz-kant li.grijs .iz-pp i{background:#8a929e}
+.iz-pk[aria-pressed="true"]{border-color:#14181f;box-shadow:inset 0 0 0 1px #14181f}
+.iz-snel{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 12px}.iz-snel .chip{font-size:12px}
+.iz-kant{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.iz-kh{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}.iz-kh b{display:inline-flex;align-items:center;gap:7px}.iz-kh b svg{width:16px;height:16px}
+.iz-kant ul{list-style:none;margin:0;padding:0}
+.iz-kant li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.iz-pp{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.iz-lt b{display:block;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.iz-lt small{color:var(--muted);font-size:12px}
+.iz-st{font-size:12px;color:var(--muted);white-space:nowrap}.iz-st.ok{color:#23804a;font-weight:600;display:inline-flex;align-items:center;gap:4px}.iz-st svg{width:13px;height:13px}
+.iz-leeg{margin:0;font-size:13px;color:var(--muted)}
+@media (max-width:640px){.iz-kant li{grid-template-columns:minmax(0,1fr)}.iz-st{white-space:normal}}
+.iz-pin{position:relative}.iz-pin .iz-pb{position:absolute;left:0;top:0;width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#d9443b;box-shadow:0 4px 12px rgb(0 0 0/.35);border:2px solid #fff;display:grid;place-items:center;color:#fff;font:800 15px/1 system-ui}
+.iz-pin.oranje .iz-pb{background:#e19422}.iz-pin.grijs .iz-pb{background:#5d6675}
+.iz-pin .iz-pl{position:absolute;left:50%;top:34px;transform:translateX(-50%);background:#d9443b;color:#fff;font:700 10px/1 system-ui;text-transform:uppercase;letter-spacing:.08em;padding:3px 6px;border-radius:4px;white-space:nowrap}
+.iz-pin.oranje .iz-pl{background:#e19422}.iz-pin.grijs .iz-pl{background:#5d6675}
+.iz-plan{position:fixed;left:50%;top:max(12px,env(safe-area-inset-top));transform:translateX(-50%);z-index:2147483000;display:flex;align-items:center;gap:12px;width:min(560px,calc(100vw - 24px));padding:12px 12px 12px 14px;border-radius:14px;background:#14181f;color:#fff;box-shadow:0 18px 40px -12px rgb(0 0 0/.5)}
+.iz-plan>div{flex:1;min-width:0}.iz-plan b{display:block;font-size:14px}.iz-plan small{display:block;font-size:12.5px;color:rgb(255 255 255/.75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.iz-plan .iz-pi{width:32px;height:32px;border-radius:9px;background:#e19422;display:grid;place-items:center;flex:none}.iz-plan .iz-pi svg{width:16px;height:16px;stroke:#fff}
+.iz-plan button{all:unset;cursor:pointer;font-size:13px;font-weight:700;padding:8px 12px;border-radius:9px;background:#fff;color:#14181f}
+.iz-plan .iz-px{background:transparent;color:#fff;padding:6px}.iz-plan .iz-px svg{width:16px;height:16px;stroke:#fff}

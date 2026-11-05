@@ -304,7 +304,7 @@ async function nrBewaker(){if(nrBezig||!MIJN_F.size)return;nrBezig=1;
 function bcVast(data){if(!data||data.soort!=="factuur")return data;const d={...data};
   if(d.status==="concept"){delete d.beheercode;return d}
   if(d.beheercode==null){const k=(state.klanten||[]).find(x=>x.id===d.klantId);if(k&&k.beheercode)d.beheercode=String(k.beheercode)}return d}
-async function save(col,id,data){tikWis();if(col==="klanten"&&typeof msKlantLimiet==="function"&&data&&data.actief!==false&&!(state.klanten||[]).some(k=>k.id===id)&&msKlantLimiet())throw {msg:"Maximum aantal klanten van Starter bereikt",stil:true};if(col==="klanten"&&typeof OW_NIEUW!=="undefined"&&OW_NIEUW&&OW_NIEUW.kid===id&&OW_NIEUW.klaar)OW_NIEUW.bewaard=true;if(col==="facturen"){data=bcVast(data);if(typeof btwVast==="function")data=btwVast(data,!(state.facturen||[]).some(f=>f.id===id))}if(col==="facturen"&&!(state.facturen||[]).some(f=>f.id===id))MIJN_F.add(id);if(state.db)return opslaanLive(col,id,data);
+async function save(col,id,data){tikWis();try{IZ.lokaal=Date.now()}catch(_){}if(col==="klanten"&&typeof msKlantLimiet==="function"&&data&&data.actief!==false&&!(state.klanten||[]).some(k=>k.id===id)&&msKlantLimiet())throw {msg:"Maximum aantal klanten van Starter bereikt",stil:true};if(col==="klanten"&&typeof OW_NIEUW!=="undefined"&&OW_NIEUW&&OW_NIEUW.kid===id&&OW_NIEUW.klaar)OW_NIEUW.bewaard=true;if(col==="facturen"){data=bcVast(data);if(typeof btwVast==="function")data=btwVast(data,!(state.facturen||[]).some(f=>f.id===id))}if(col==="facturen"&&!(state.facturen||[]).some(f=>f.id===id))MIJN_F.add(id);if(state.db)return opslaanLive(col,id,data);
   else{if(data&&data._handmatig){data={...data};delete data._handmatig}mem[col].set(id,{...data,id});apply(col,[...mem[col].values()]);schedule()}}
 /* ---------- snel en veilig opslaan ----------
    Vroeger wachtte elke knop tot de server het opslaan had bevestigd (bij klanten en facturen zelfs twee keer heen en terug).
@@ -387,7 +387,7 @@ async function init(){
     /* niets veranderd (alleen een bevestiging van de server): niet opnieuw tekenen */
     if(seen.has(col)&&s.wijzigingen===0)return;
     diagTel("snap:"+col);
-    apply(col,opsOverlay(col,s.docs.map(d=>{const o={...d.data(),id:d.id};SNAPW.add(o);return o})));seen.add(col);if(seen.size===COLS.length){if(!state.loaded){setTimeout(obHerstel,1200);setTimeout(migGeenTijd,400);setTimeout(()=>typeof migGotenBuiten==="function"&&migGotenBuiten(),900)}state.loaded=true}snapPlan(col);
+    apply(col,opsOverlay(col,s.docs.map(d=>{const o={...d.data(),id:d.id};SNAPW.add(o);return o})));seen.add(col);if((col==="klanten"||col==="beurten")&&typeof izPlanSig==="function")setTimeout(()=>izPlanSig(),50);if(seen.size===COLS.length){if(!state.loaded){setTimeout(obHerstel,1200);setTimeout(migGeenTijd,400);setTimeout(()=>typeof migGotenBuiten==="function"&&migGotenBuiten(),900)}state.loaded=true}snapPlan(col);
   },e=>{$("#status").innerHTML='<div class="notice">Gegevens konden niet worden geladen ('+esc(e.code)+'). Vernieuw de pagina.</div>'}));
 }
 

@@ -735,6 +735,15 @@ const PU = require("./push")({ db, onCall, checkGebruiker, HttpsError, nu });
 exports.pushSleutel = PU.pushSleutel;
 exports.pushAbo = PU.pushAbo;
 exports.pushTest = PU.pushTest;
+/* melding van kantoor naar de bus: pushmelding naar de aangemelde telefoons/iPads */
+exports.inzetPush = onCall(async req => {
+  await checkGebruiker(req.auth);
+  const id = String((req.data || {}).id || ""); if (!/^inzet_[a-z0-9]{4,30}$/.test(id)) throw new HttpsError("invalid-argument", "Onbekende melding.");
+  const s = await db.doc("live/" + id).get(); if (!s.exists) throw new HttpsError("not-found", "Melding niet gevonden.");
+  const x = s.data(), pr = { 1: "SPOED", 2: "Vandaag", 3: "Info" }[x.prio] || "Info";
+  const n = await PU.stuur({ titel: (x.prio === 1 ? "🚨 " : "") + pr + " · melding van " + (x.doorNaam || "kantoor"), tekst: String(x.tekst || "") + (x.adres ? " · " + x.adres : ""), url: "/?inzet=" + id, tag: id });
+  return { verstuurd: n };
+});
 /* eigen mailtracking (leesbevestiging, kliks) en klantactiviteit */
 const MT = require("./mailtrack")({ db, T, onRequest, onCall, HttpsError, checkGebruiker, nu, HOST });
 Object.assign(exports, MT.functies);

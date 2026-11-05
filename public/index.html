@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="046c5b828957"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="c8e2521e85cc"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -5579,6 +5579,43 @@ dialog.mkt::backdrop{background:rgb(13 18 27 / .55)}
 .cc-adv .cc-opt em{color:var(--cc-mut)}
 .cc-adv .cc-op.rood em{color:#c23b32}
 @media (max-width:560px){.cc-adv .cc-ops2{grid-template-columns:minmax(0,1fr)}}
+/* ---------- melding van kantoor naar de bus (112-stijl) ---------- */
+dialog.iz-dlg{width:min(520px,94vw);padding:0;border:0;border-radius:18px;overflow:hidden;box-shadow:0 30px 80px -20px rgb(0 0 0/.5)}
+dialog.iz-dlg::backdrop{background:rgb(13 18 27/.6)}
+.iz-k{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;color:#fff;font-size:13px;font-weight:600}
+.iz-k.rood{background:#c8372f}.iz-k.oranje{background:#c77b14}.iz-k.grijs{background:#3b4456}
+.iz-p{display:inline-flex;align-items:center;gap:7px;text-transform:uppercase;letter-spacing:.12em;font-size:12px}
+.iz-p i{width:9px;height:9px;border-radius:50%;background:#fff;animation:izPuls 1s infinite}
+@keyframes izPuls{50%{opacity:.25}}
+.iz-b{padding:18px 18px 6px}.iz-t{margin:0 0 14px;font-size:19px;line-height:1.4;font-weight:600;color:#14181f}
+.iz-a{display:flex;gap:10px;align-items:center;padding:11px 12px;border-radius:12px;background:#f5f6f8}.iz-a svg{width:18px;height:18px;flex:none}.iz-a b{display:block;font-size:14px}.iz-a span{font-size:13px;color:#5d6470}
+.iz-f{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;padding:14px 18px 18px}
+.iz-f .iz-nav{display:inline-flex;align-items:center;gap:6px;height:42px;padding:0 14px;border-radius:10px;border:1px solid #e3e5e8;color:#14181f;font-weight:600;text-decoration:none}
+.iz-f .iz-nav svg{width:16px;height:16px}.iz-f .iz-ok{height:42px;padding:0 18px}
+.iz-prio{display:flex;gap:8px;margin:2px 0 12px}
+.iz-pk{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 14px;border-radius:999px;border:1px solid #e3e5e8;background:#fff;font-weight:600;cursor:pointer}
+.iz-pk i,.iz-pp i{width:9px;height:9px;border-radius:50%}
+.iz-pk.rood i,.iz-kant li.rood .iz-pp i{background:#d9443b}.iz-pk.oranje i,.iz-kant li.oranje .iz-pp i{background:#e19422}.iz-pk.grijs i,.iz-kant li.grijs .iz-pp i{background:#8a929e}
+.iz-pk[aria-pressed="true"]{border-color:#14181f;box-shadow:inset 0 0 0 1px #14181f}
+.iz-snel{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 12px}.iz-snel .chip{font-size:12px}
+.iz-kant{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.iz-kh{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}.iz-kh b{display:inline-flex;align-items:center;gap:7px}.iz-kh b svg{width:16px;height:16px}
+.iz-kant ul{list-style:none;margin:0;padding:0}
+.iz-kant li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.iz-pp{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.iz-lt b{display:block;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.iz-lt small{color:var(--muted);font-size:12px}
+.iz-st{font-size:12px;color:var(--muted);white-space:nowrap}.iz-st.ok{color:#23804a;font-weight:600;display:inline-flex;align-items:center;gap:4px}.iz-st svg{width:13px;height:13px}
+.iz-leeg{margin:0;font-size:13px;color:var(--muted)}
+@media (max-width:640px){.iz-kant li{grid-template-columns:minmax(0,1fr)}.iz-st{white-space:normal}}
+.iz-pin{position:relative}.iz-pin .iz-pb{position:absolute;left:0;top:0;width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#d9443b;box-shadow:0 4px 12px rgb(0 0 0/.35);border:2px solid #fff;display:grid;place-items:center;color:#fff;font:800 15px/1 system-ui}
+.iz-pin.oranje .iz-pb{background:#e19422}.iz-pin.grijs .iz-pb{background:#5d6675}
+.iz-pin .iz-pl{position:absolute;left:50%;top:34px;transform:translateX(-50%);background:#d9443b;color:#fff;font:700 10px/1 system-ui;text-transform:uppercase;letter-spacing:.08em;padding:3px 6px;border-radius:4px;white-space:nowrap}
+.iz-pin.oranje .iz-pl{background:#e19422}.iz-pin.grijs .iz-pl{background:#5d6675}
+.iz-plan{position:fixed;left:50%;top:max(12px,env(safe-area-inset-top));transform:translateX(-50%);z-index:2147483000;display:flex;align-items:center;gap:12px;width:min(560px,calc(100vw - 24px));padding:12px 12px 12px 14px;border-radius:14px;background:#14181f;color:#fff;box-shadow:0 18px 40px -12px rgb(0 0 0/.5)}
+.iz-plan>div{flex:1;min-width:0}.iz-plan b{display:block;font-size:14px}.iz-plan small{display:block;font-size:12.5px;color:rgb(255 255 255/.75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.iz-plan .iz-pi{width:32px;height:32px;border-radius:9px;background:#e19422;display:grid;place-items:center;flex:none}.iz-plan .iz-pi svg{width:16px;height:16px;stroke:#fff}
+.iz-plan button{all:unset;cursor:pointer;font-size:13px;font-weight:700;padding:8px 12px;border-radius:9px;background:#fff;color:#14181f}
+.iz-plan .iz-px{background:transparent;color:#fff;padding:6px}.iz-plan .iz-px svg{width:16px;height:16px;stroke:#fff}
 
 </style>
 <style id="mansardThema">
@@ -7661,7 +7698,7 @@ async function nrBewaker(){if(nrBezig||!MIJN_F.size)return;nrBezig=1;
 function bcVast(data){if(!data||data.soort!=="factuur")return data;const d={...data};
   if(d.status==="concept"){delete d.beheercode;return d}
   if(d.beheercode==null){const k=(state.klanten||[]).find(x=>x.id===d.klantId);if(k&&k.beheercode)d.beheercode=String(k.beheercode)}return d}
-async function save(col,id,data){tikWis();if(col==="klanten"&&typeof msKlantLimiet==="function"&&data&&data.actief!==false&&!(state.klanten||[]).some(k=>k.id===id)&&msKlantLimiet())throw {msg:"Maximum aantal klanten van Starter bereikt",stil:true};if(col==="klanten"&&typeof OW_NIEUW!=="undefined"&&OW_NIEUW&&OW_NIEUW.kid===id&&OW_NIEUW.klaar)OW_NIEUW.bewaard=true;if(col==="facturen"){data=bcVast(data);if(typeof btwVast==="function")data=btwVast(data,!(state.facturen||[]).some(f=>f.id===id))}if(col==="facturen"&&!(state.facturen||[]).some(f=>f.id===id))MIJN_F.add(id);if(state.db)return opslaanLive(col,id,data);
+async function save(col,id,data){tikWis();try{IZ.lokaal=Date.now()}catch(_){}if(col==="klanten"&&typeof msKlantLimiet==="function"&&data&&data.actief!==false&&!(state.klanten||[]).some(k=>k.id===id)&&msKlantLimiet())throw {msg:"Maximum aantal klanten van Starter bereikt",stil:true};if(col==="klanten"&&typeof OW_NIEUW!=="undefined"&&OW_NIEUW&&OW_NIEUW.kid===id&&OW_NIEUW.klaar)OW_NIEUW.bewaard=true;if(col==="facturen"){data=bcVast(data);if(typeof btwVast==="function")data=btwVast(data,!(state.facturen||[]).some(f=>f.id===id))}if(col==="facturen"&&!(state.facturen||[]).some(f=>f.id===id))MIJN_F.add(id);if(state.db)return opslaanLive(col,id,data);
   else{if(data&&data._handmatig){data={...data};delete data._handmatig}mem[col].set(id,{...data,id});apply(col,[...mem[col].values()]);schedule()}}
 /* ---------- snel en veilig opslaan ----------
    Vroeger wachtte elke knop tot de server het opslaan had bevestigd (bij klanten en facturen zelfs twee keer heen en terug).
@@ -7744,7 +7781,7 @@ async function init(){
     /* niets veranderd (alleen een bevestiging van de server): niet opnieuw tekenen */
     if(seen.has(col)&&s.wijzigingen===0)return;
     diagTel("snap:"+col);
-    apply(col,opsOverlay(col,s.docs.map(d=>{const o={...d.data(),id:d.id};SNAPW.add(o);return o})));seen.add(col);if(seen.size===COLS.length){if(!state.loaded){setTimeout(obHerstel,1200);setTimeout(migGeenTijd,400);setTimeout(()=>typeof migGotenBuiten==="function"&&migGotenBuiten(),900)}state.loaded=true}snapPlan(col);
+    apply(col,opsOverlay(col,s.docs.map(d=>{const o={...d.data(),id:d.id};SNAPW.add(o);return o})));seen.add(col);if((col==="klanten"||col==="beurten")&&typeof izPlanSig==="function")setTimeout(()=>izPlanSig(),50);if(seen.size===COLS.length){if(!state.loaded){setTimeout(obHerstel,1200);setTimeout(migGeenTijd,400);setTimeout(()=>typeof migGotenBuiten==="function"&&migGotenBuiten(),900)}state.loaded=true}snapPlan(col);
   },e=>{$("#status").innerHTML='<div class="notice">Gegevens konden niet worden geladen ('+esc(e.code)+'). Vernieuw de pagina.</div>'}));
 }
 
@@ -17896,7 +17933,7 @@ function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActivite
     :`<p class="cc-leeg">Nog geen activiteit in de afgelopen 30 dagen.</p>`;
   const prf=(l,v,sub)=>`<div class="cc-pf"><small>${l}</small><b>${v==null?"—":v}</b><em>${sub}</em></div>`;
   const heeftOmzet=R.weken.some(w=>w.v>0);
-  setTimeout(()=>{ccKaart();setTimeout(mkBusKleur,400);setTimeout(()=>{if(typeof rgStart==="function")rgStart()},600);ccWeerLaad();ccZoekTeken();ccLiveCheck()},30);clearTimeout(CC.gzT);CC.gzT=setTimeout(()=>{ccMarkeerGezien();document.querySelectorAll('.cc-mi.nw').forEach(e=>e.classList.add('gz'))},8000);
+  setTimeout(()=>{ccKaart();setTimeout(mkBusKleur,400);setTimeout(()=>{if(typeof rgStart==="function")rgStart()},600);setTimeout(()=>{if(typeof izPins==="function")izPins()},800);ccWeerLaad();ccZoekTeken();ccLiveCheck()},30);clearTimeout(CC.gzT);CC.gzT=setTimeout(()=>{ccMarkeerGezien();document.querySelectorAll('.cc-mi.nw').forEach(e=>e.classList.add('gz'))},8000);
   return `<div class="cc">
   <div class="cc-head"><div><h1>Overzicht</h1><p>Wie waar is, wat er speelt en wat je moet doen.</p></div>
     <div class="cc-tools"><div class="cc-zoek"><span>${I.search}</span><input id="ccQ" type="search" autocomplete="off" placeholder="Zoek klant, adres, offerte, factuur…" value="${esc(CC.q)}" aria-label="Zoeken"><kbd>${/Mac|iP/.test(navigator.platform||"")?"⌘":"Ctrl"} K</kbd><div class="cc-zr" id="ccZr" hidden></div></div>
@@ -17907,7 +17944,7 @@ function vControl(){const K=ccKpis(),S_=ccSignalen(),P=ccPlanning(),A=ccActivite
     <section class="cc-card cc-live"><div class="cc-ch"><div><b>${I.map}Live · vandaag</b><small>${esc(longD(t))}</small></div><button type="button" class="cc-link" data-cc="tab:vandaag">Naar Vandaag${I.right||""}</button></div>
       <div class="cc-dagstat">${[[typeof plSel==="function"&&plSel()?"Adressen "+esc(plSel()):"Adressen",P.length],["Klaar",klaar],["Nog te gaan",nu],["Verdiend vandaag",eur0(D.omzet)],["Verwacht klaar",D.eind||"—"]].map(([l,v])=>`<div><small>${l}</small><b>${v}</b></div>`).join("")}</div>
       ${mkStatusHtml()}<div id="rgRegel">${typeof rgRegelHtml==="function"?rgRegelHtml():""}</div><div class="cc-map"><div class="rv-map" id="rvMap"><div class="rv-map-l">Kaart laden…</div></div></div>
-      <div class="cc-leg"><span><i class="af"></i>Afgerond</span><span><i class="nu"></i>Volgende</span><span><i></i>Gepland</span><span><i class="bus"></i>Bus (live)</span>${D.volgende?`<span class="cc-vlg">Volgende: <b>${esc(D.volgende)}</b></span>`:""}</div>${typeof dsHtml==="function"?dsHtml():""}</section>
+      <div class="cc-leg"><span><i class="af"></i>Afgerond</span><span><i class="nu"></i>Volgende</span><span><i></i>Gepland</span><span><i class="bus"></i>Bus (live)</span>${D.volgende?`<span class="cc-vlg">Volgende: <b>${esc(D.volgende)}</b></span>`:""}</div>${typeof dsHtml==="function"?dsHtml():""}${typeof izKantoorHtml==="function"?izKantoorHtml():""}</section>
     <section class="cc-adv" id="ccAdv"><div class="cc-ah"><span class="cc-aic">${I.bell}${S_.length?"<i></i>":""}</span><div><small>Mansard adviseert</small><b>Meldingen</b></div>${S_.length?`<span class="cc-stp ${S_.some(m=>m.p==="kritiek")?"rood":"let"}"><i></i>${S_.length} open</span>`:`<span class="cc-stp ok">${I.check}Alles afgehandeld</span>`}</div>${S_.length?`<p class="cc-ahh">Werk ze van boven naar beneden af.</p>`:""}<div class="cc-q${S_.length>3?"":" leeg"}">${sig}</div></section>
   </div>
   ${typeof plRijHtml==="function"?plRijHtml():""}
@@ -18149,6 +18186,87 @@ function ticketGaten(root){(root||document).querySelectorAll(".swipe-card.tk,.ft
       const v=h.venster;if(v&&typeof REG[v.f]==="function"){try{({openKlantView,kkBerichten,kkOpenOverzicht,openJob,openFactuur,openOpdracht,openOpdrachtWerk,openAfspraak,openBeurtInfo,openReeksInfo,openPeriodiek,openRamenKlant,openAkkoord,openAangifte,openTplView})[v.f](...v.a);if(h.vy)requestAnimationFrame(()=>{try{dlg.scrollTop=h.vy}catch(_){}})}catch(e){console.error("herstel venster",e)}}
     },60)})();
 })();
+
+/* ---------- MELDKAMER → BUS (zoals 112): berichten van kantoor die direct op de telefoon/iPad onderweg verschijnen ----------
+   Kantoor maakt op het Overzicht een melding (urgentie, tekst, eventueel een adres). Die staat meteen als rode pin op de live kaart
+   en springt op elk ander apparaat open, met trilling, geluid en pushmelding. De bus tikt op "Begrepen": kantoor ziet wie hem
+   wanneer gelezen heeft. Daarnaast: verandert de planning van vandaag op een ander apparaat, dan krijgt de bus daar direct een melding van.
+   Opslag: live/inzet_<id> (zelfde rechten als de live-locatie), alleen van vandaag. */
+const IZ={lijst:[],unsub:null,weg:new Set(),open:null,lokaal:0,sig:null,sigT:0,demo:[]};
+const IZ_PRIO={1:["Spoed","rood"],2:["Vandaag","oranje"],3:["Info","grijs"]};
+const izMijnKey=()=>String((state.me&&state.me.email)||"ik").toLowerCase().replace(/[^a-z0-9]/g,"_");
+const izVoorMij=x=>!x.aan||String(x.aan).toLowerCase()===String(doorNaam()||"").toLowerCase()||String(x.aan).toLowerCase()===String((state.me&&state.me.email)||"").toLowerCase();
+const izLijst=()=>(LIVE?IZ.lijst:IZ.demo).filter(x=>x.datum===iso(today())).sort((a,b)=>String(b.op).localeCompare(String(a.op)));
+function izLuister(){if(!LIVE||IZ.unsub||!state.loaded)return;
+  try{IZ.unsub=fsDb().collection("live").where("soort","==","inzet").onSnapshot(q=>{IZ.lijst=q.docs.map(d=>({id:d.id,...d.data()}));izVerwerk()},()=>{IZ.unsub=null})}catch(e){}}
+if(typeof window!=="undefined")setTimeout(function w(){if(!state.loaded)return setTimeout(w,1000);izLuister();izPlanSig(true)},2500);
+/* nieuwe melding voor dit apparaat? Dan openklappen (niet op het apparaat dat hem verstuurde) */
+function izVerwerk(){izKantoorZet();izPins();
+  const k=izMijnKey(),nieuw=izLijst().filter(x=>x.dev!==LV_DEV&&izVoorMij(x)&&!(x.gelezen||{})[k]&&!IZ.weg.has(x.id)).sort((a,b)=>(a.prio||3)-(b.prio||3)||String(a.op).localeCompare(String(b.op)))[0];
+  if(nieuw&&(!IZ.open||IZ.open!==nieuw.id))izToon(nieuw)}
+function izToon(x){IZ.open=x.id;let d=document.getElementById("izDlg");if(d)d.remove();d=document.createElement("dialog");d.id="izDlg";d.className="iz-dlg";
+  const [pl,pc]=IZ_PRIO[x.prio]||IZ_PRIO[3],k=x.klantId&&state.klanten.find(y=>y.id===x.klantId),tijd=new Date(x.op).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"});
+  const nav=x.lat&&x.lng?`https://www.google.com/maps/dir/?api=1&destination=${x.lat},${x.lng}`:x.adres?`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(x.adres)}`:"";
+  d.innerHTML=`<div class="iz-k ${pc}"><span class="iz-p"><i></i>${esc(pl)}</span><span>Melding van ${esc(x.doorNaam||"kantoor")} · ${tijd}</span></div>
+    <div class="iz-b"><p class="iz-t">${esc(x.tekst||"")}</p>${x.adres||k?`<div class="iz-a">${I.map||""}<div><b>${esc(k?cleanName(k.naam):"")}</b><span>${esc(x.adres||"")}</span></div></div>`:""}</div>
+    <div class="iz-f">${nav?`<a class="iz-nav" href="${esc(nav)}" target="_blank" rel="noopener">${I.route||""}Navigeer</a>`:""}${k?`<button type="button" class="iz-kl" data-izk="${esc(k.id)}">Open klant</button>`:""}<button type="button" class="primary iz-ok" data-izok="${esc(x.id)}">${I.check}Begrepen</button></div>`;
+  document.body.appendChild(d);try{d.showModal()}catch(e){d.setAttribute("open","")}
+  try{navigator.vibrate&&navigator.vibrate(x.prio===1?[300,120,300,120,300]:[200,100,200])}catch(e){}
+  try{const a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.type="sine";o.frequency.value=x.prio===1?1046:880;g.gain.value=.08;o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+.35)}catch(e){}
+  d.addEventListener("cancel",e=>e.preventDefault())}
+document.addEventListener("click",async e=>{const ok=e.target.closest("[data-izok]"),kl=e.target.closest("[data-izk]");if(!ok&&!kl)return;e.preventDefault();
+  const d=document.getElementById("izDlg"),id=(ok&&ok.dataset.izok)||IZ.open;
+  if(id){IZ.weg.add(id);const k=izMijnKey(),nu=new Date().toISOString();
+    if(LIVE)try{await fsDb().doc("live/"+id).set({gelezen:{[k]:{t:nu,naam:doorNaam()||""}}},{merge:true})}catch(er){console.warn(er)}
+    else{const x=IZ.demo.find(y=>y.id===id);if(x)x.gelezen={...(x.gelezen||{}),[k]:{t:nu,naam:doorNaam()||""}}}}
+  if(d){try{d.close()}catch(_){}d.remove()}IZ.open=null;if(kl&&typeof openKlantView==="function")openKlantView(kl.dataset.izk);izVerwerk()},true);
+
+/* ---- kantoor: melding maken ---- */
+function izNieuw(){const ti=iso(today()),stops=routeStops(ti).filter(x=>!x.done),mens=(typeof plKandidaten==="function"?plKandidaten():[]).filter(Boolean);
+  const snel=["Klant belde: poort staat open","Klant is niet thuis, sleutel ligt bij de buren","Extra adres erbij vandaag","Bel even naar kantoor","Klant wil vandaag afzeggen"];
+  openDlg(`<div class="dlg-head"><span class="objic big">${I.send}</span><div style="min-width:0;flex:1"><h3>Melding naar de bus</h3><div class="subt">Verschijnt direct op de telefoon of iPad onderweg</div></div><button type="button" class="iconbtn" id="izX" aria-label="Sluiten">${I.x}</button></div>
+    <label>Urgentie</label><div class="iz-prio" role="radiogroup">${[1,2,3].map(p=>`<button type="button" class="iz-pk ${IZ_PRIO[p][1]}" data-izp="${p}" aria-pressed="${p===2}"><i></i>${IZ_PRIO[p][0]}</button>`).join("")}</div>
+    ${mens.length>1?`<label>Aan<select id="izAan"><option value="">Iedereen onderweg</option>${mens.map(m=>`<option>${esc(m)}</option>`).join("")}</select></label>`:""}
+    <label>Bericht<textarea id="izT" rows="3" maxlength="400" placeholder="Bijv. klant belde: poort staat open, achterom via het steegje"></textarea></label>
+    <div class="iz-snel">${snel.map(t=>`<button type="button" class="chip" data-izs="${esc(t)}">${esc(t)}</button>`).join("")}</div>
+    <label>Adres (komt als pin op de kaart)<select id="izK"><option value="">Geen adres</option>${stops.map(x=>`<option value="${esc(x.k.id)}">${esc((x.k.tijd?x.k.tijd+" · ":"")+cleanName(x.k.naam)+" · "+(jobAddrObj(x.k).adres||""))}</option>`).join("")}</select></label>
+    <div class="row"><span class="sp"></span><button type="button" id="izAnn">Annuleren</button><button type="submit" class="primary" id="izGo">${I.send}Versturen</button></div>`,{wide:true});
+  $("#izX").onclick=$("#izAnn").onclick=()=>dlg.close();
+  form.querySelectorAll("[data-izp]").forEach(b=>b.onclick=()=>form.querySelectorAll("[data-izp]").forEach(x=>x.setAttribute("aria-pressed",x===b)));
+  form.querySelectorAll("[data-izs]").forEach(b=>b.onclick=()=>{const t=$("#izT");t.value=b.dataset.izs;t.focus()});
+  form.onsubmit=async e=>{e.preventDefault();const tekst=$("#izT").value.trim();if(!tekst){$("#izT").focus();return}
+    const prio=Number((form.querySelector('[data-izp][aria-pressed="true"]')||{}).dataset?.izp||2),kid=$("#izK").value,k=kid&&state.klanten.find(x=>x.id===kid),c=k&&typeof pkCoord==="function"?pkCoord(k):null;
+    const id="inzet_"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+    const x={soort:"inzet",datum:iso(today()),op:new Date().toISOString(),tekst,prio,aan:($("#izAan")||{}).value||"",klantId:kid||"",adres:k?[jobAddrObj(k).adres,jobAddrObj(k).plaats].filter(Boolean).join(", "):"",
+      ...(c?{lat:c[0],lng:c[1]}:{}),door:String((state.me&&state.me.email)||""),doorNaam:doorNaam()||"Kantoor",dev:LV_DEV,gelezen:{}};
+    $("#izGo").disabled=true;
+    try{if(LIVE){await fsDb().doc("live/"+id).set(x);try{await fbFn("inzetPush")({id})}catch(er){console.warn("push",er)}}else IZ.demo.push({id,...x});
+      dlg.close();toast("Melding verstuurd"+(x.aan?" naar "+x.aan:" naar iedereen onderweg"));izVerwerk()}catch(er){$("#izGo").disabled=false;err(er)}}}
+document.addEventListener("click",e=>{if(e.target.closest("[data-iznieuw]")){e.preventDefault();izNieuw()}});
+
+/* ---- kantoor: overzicht van verstuurde meldingen met leesstatus ---- */
+function izKantoorHtml(){const L=izLijst();
+  return `<div class="iz-kant"><div class="iz-kh"><b>${I.send}Meldingen naar de bus</b><button type="button" class="mk-b" data-iznieuw="1">${I.plus||"+"}Nieuwe melding</button></div>${L.length?`<ul>${L.slice(0,6).map(x=>{const g=Object.values(x.gelezen||{}),[pl,pc]=IZ_PRIO[x.prio]||IZ_PRIO[3],t=new Date(x.op).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"});
+    return `<li class="${pc}"><span class="iz-pp"><i></i>${pl}</span><span class="iz-lt"><b>${esc(x.tekst)}</b><small>${t}${x.aan?" · aan "+esc(x.aan):""}${x.adres?" · "+esc(x.adres):""}</small></span><span class="iz-st ${g.length?"ok":""}">${g.length?`${I.check}Gelezen door ${esc(g.map(y=>y.naam||"bus").join(", "))} · ${new Date(g[0].t).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"})}`:"Verstuurd · nog niet gelezen"}</span></li>`}).join("")}</ul>`:`<p class="iz-leeg">Nog geen meldingen vandaag. Zet hier iets klaar voor de bus, bijvoorbeeld als een klant belt.</p>`}</div>`}
+function izKantoorZet(){if(state.tab!=="control")return;const el=document.querySelector(".iz-kant");if(!el)return;const t=document.createElement("div");t.innerHTML=izKantoorHtml();el.replaceWith(t.firstElementChild)}
+/* ---- rode pin op de live kaart (zoals de melder bij 112) ---- */
+function izPins(){const el=document.getElementById("rvMap"),m=el&&el._map,L=window.L;if(!m||!L)return;
+  if(el._iz)m.removeLayer(el._iz);el._iz=L.layerGroup().addTo(m);const k=izMijnKey();
+  izLijst().filter(x=>x.lat&&x.lng&&!Object.keys(x.gelezen||{}).length).forEach(x=>{const [pl,pc]=IZ_PRIO[x.prio]||IZ_PRIO[3];
+    L.marker([x.lat,x.lng],{zIndexOffset:2000,icon:L.divIcon({className:"iz-pin "+pc,html:`<span class="iz-pb">!</span><span class="iz-pl">${esc(pl)}</span>`,iconSize:[30,44],iconAnchor:[15,40]})}).bindTooltip(esc(x.tekst),{direction:"top",offset:[0,-34]}).addTo(el._iz)})}
+if(typeof window!=="undefined")setInterval(()=>{try{izPins()}catch(e){}},15000);
+
+/* ---- planning van vandaag gewijzigd op een ander apparaat: melding op dit apparaat ---- */
+function izPlanSig(stil){try{const ti=iso(today()),S2={};routeStops(ti).filter(x=>!x.done).forEach(x=>S2[x.k.id]={n:cleanName(x.k.naam),t:x.k.tijd||""});
+  const oud=IZ.sig;IZ.sig=S2;if(stil||!oud||Date.now()-IZ.lokaal<6000)return;
+  const bij=Object.keys(S2).filter(i=>!oud[i]),af=Object.keys(oud).filter(i=>!S2[i]&&!state.beurten.some(b=>b.klantId===i&&b.datum===ti)),tijd=Object.keys(S2).filter(i=>oud[i]&&oud[i].t!==S2[i].t);
+  if(!bij.length&&!af.length&&!tijd.length)return;
+  const r=[...bij.map(i=>"+ "+S2[i].n+(S2[i].t?" om "+S2[i].t:"")),...af.map(i=>"− "+oud[i].n+" vervalt"),...tijd.map(i=>S2[i].n+": "+(oud[i].t||"?")+" → "+(S2[i].t||"?"))];
+  izPlanBalk(r)}catch(e){}}
+function izPlanBalk(r){let b=document.getElementById("izPlan");if(b)b.remove();b=document.createElement("div");b.id="izPlan";b.className="iz-plan";b.setAttribute("role","alert");
+  b.innerHTML=`<span class="iz-pi">${I.planning||""}</span><div><b>Planning van vandaag gewijzigd</b><small>${r.slice(0,3).map(esc).join(" · ")}${r.length>3?" · …":""}</small></div><button type="button" data-izpv="1">Bekijk</button><button type="button" class="iz-px" data-izpx="1" aria-label="Sluiten">${I.x}</button>`;
+  document.body.appendChild(b);try{navigator.vibrate&&navigator.vibrate([150,80,150])}catch(e){}clearTimeout(IZ.pt);IZ.pt=setTimeout(()=>{const x=document.getElementById("izPlan");if(x)x.remove()},45000)}
+document.addEventListener("click",e=>{const v=e.target.closest("[data-izpv]"),x=e.target.closest("[data-izpx]");if(!v&&!x)return;e.preventDefault();const b=document.getElementById("izPlan");if(b)b.remove();if(v){state.tab="vandaag";render()}});
 
 /* ---------- Klanten uit foto (AI) ----------
    Maak een foto of screenshot van een klantkaart of klantenlijst in een ander CRM (of van een papieren kaart).
@@ -20502,9 +20620,9 @@ if(typeof window!=="undefined"){window.addEventListener("load",()=>setTimeout(pu
 if(!LIVE&&typeof location!=="undefined"&&/[?&]selftest\b/.test(location.search)){
   window.MSTEST={sendF:typeof sendF==="function"?sendF:null,verzondenHerstel:typeof verzondenHerstel==="function"?verzondenHerstel:null,vraagBetaaldatum:typeof vraagBetaaldatum==="function"?vraagBetaaldatum:null,betaaldTsVan:typeof betaaldTsVan==="function"?betaaldTsVan:null,state,S,save,del,totals,nextNr,nrDelen,wikKosten,fStatus,afronden,gewassen,billAll,setFStatus,iso,today,addDays,newId,strip,render,
     fin,beurtOmzet,klantFilter,extraOpdr,opdrNr:typeof opdrNr==="function"?opdrNr:null,openOpdrachtWerk:typeof openOpdrachtWerk==="function"?openOpdrachtWerk:null,teplannen,fhVolgende:typeof fhVolgende==="function"?fhVolgende:null,fhPoort:typeof fhPoort==="function"?fhPoort:null,groepEditor:typeof groepEditor==="function"?groepEditor:null,melding,stDienstSplit,klantActiefIn,openImport,relVolgende:typeof relVolgende==="function"?relVolgende:null,beurtMin,meetTeKort,wdCijfers:typeof wdCijfers==="function"?wdCijfers:null,kmFmt:typeof kmFmt==="function"?kmFmt:null,kmAfst:typeof kmAfst==="function"?kmAfst:null,saveSettings,
-    st:()=>state,portaalOverlay:typeof portaalOverlay==="function"?portaalOverlay:null,rc:()=>{if(!RC)RC=buildRamen();return RC},openOfferte:typeof openOfferte==="function"?openOfferte:null,openAkkoord:typeof openAkkoord==="function"?openAkkoord:null,inBeeld:typeof inBeeld==="function"?inBeeld:null,RC:()=>RC,pdfSig:typeof pdfSig==="function"?pdfSig:null,uitv:()=>({uitvLoad,uitvSave,U:()=>U}),openKlantView:typeof openKlantView==="function"?openKlantView:null,save:(...a)=>save(...a),afronden:typeof afronden==="function"?afronden:null,openPeriodiek:typeof openPeriodiek==="function"?openPeriodiek:null,openPeriodiekLijst:typeof openPeriodiekLijst==="function"?openPeriodiekLijst:null,duur:typeof duur==="function"?duur:null,openJob:typeof openJob==="function"?openJob:null,msAbo:typeof aboDlg==="function"?(d,f)=>{MS.doc=d;window.fbFn=f;window.ZEEM_ROL="eigenaar";return aboDlg()}:null,opdrBij:typeof opdrBij==="function"?opdrBij:null,openFotoViewer:typeof openFotoViewer==="function"?openFotoViewer:null,dotsHtml:typeof dotsHtml==="function"?dotsHtml:null,omsZonderDatum:typeof omsZonderDatum==="function"?omsZonderDatum:null,extraOpdr:typeof extraOpdr==="function"?extraOpdr:null,openOpdrachtWerk:typeof openOpdrachtWerk==="function"?openOpdrachtWerk:null,groepTarievenBij:typeof groepTarievenBij==="function"?groepTarievenBij:null,groepCalc:typeof groepCalc==="function"?groepCalc:null,wqOpen:typeof wqOpen==="function"?wqOpen:null,ccZet:typeof ccZet==="function"?ccZet:null,ccSignalen:typeof ccSignalen==="function"?ccSignalen:null,teVroeg:typeof teVroeg==="function"?teVroeg:null,mailFor:typeof mailFor==="function"?mailFor:null,emailHtmlRuw:typeof emailHtmlRuw==="function"?emailHtmlRuw:null,volgendeNa:typeof volgendeNa==="function"?volgendeNa:null,verplaatsAllePatch:typeof verplaatsAllePatch==="function"?verplaatsAllePatch:null,heeftVervolg:typeof heeftVervolg==="function"?heeftVervolg:null,occurrences:typeof occurrences==="function"?occurrences:null,fbLees:typeof fbLees==="function"?fbLees:null,bhVerkoopboek:typeof bhVerkoopboek==="function"?bhVerkoopboek:null,invData:typeof invData==="function"?invData:null,pdfDoc:typeof pdfDoc==="function"?pdfDoc:null,paperHtml:typeof paperHtml==="function"?paperHtml:null,openTellingControle:typeof openTellingControle==="function"?openTellingControle:null,bcVast,ccKpis:typeof ccKpis==="function"?ccKpis:null,ccSignalen:typeof ccSignalen==="function"?ccSignalen:null,ccZoek:typeof ccZoek==="function"?ccZoek:null,ccAlle:typeof ccAlle==="function"?ccAlle:null,openFactuurWerk:typeof openFactuurWerk==="function"?openFactuurWerk:null,paperHtml:typeof paperHtml==="function"?paperHtml:null,btwRegel:typeof btwRegel==="function"?btwRegel:null,btwVast:typeof btwVast==="function"?btwVast:null,vveAanDeBeurt:typeof vveAanDeBeurt==="function"?vveAanDeBeurt:null,nrBewaker,msStatus:typeof msStatus==="function"?msStatus:null,MS:typeof MS!=="undefined"?MS:null,
+    st:()=>state,portaalOverlay:typeof portaalOverlay==="function"?portaalOverlay:null,rc:()=>{if(!RC)RC=buildRamen();return RC},openOfferte:typeof openOfferte==="function"?openOfferte:null,openAkkoord:typeof openAkkoord==="function"?openAkkoord:null,inBeeld:typeof inBeeld==="function"?inBeeld:null,RC:()=>RC,pdfSig:typeof pdfSig==="function"?pdfSig:null,uitv:()=>({uitvLoad,uitvSave,U:()=>U}),openKlantView:typeof openKlantView==="function"?openKlantView:null,save:(...a)=>save(...a),afronden:typeof afronden==="function"?afronden:null,openPeriodiek:typeof openPeriodiek==="function"?openPeriodiek:null,openPeriodiekLijst:typeof openPeriodiekLijst==="function"?openPeriodiekLijst:null,duur:typeof duur==="function"?duur:null,openJob:typeof openJob==="function"?openJob:null,msAbo:typeof aboDlg==="function"?(d,f)=>{MS.doc=d;window.fbFn=f;window.ZEEM_ROL="eigenaar";return aboDlg()}:null,opdrBij:typeof opdrBij==="function"?opdrBij:null,openFotoViewer:typeof openFotoViewer==="function"?openFotoViewer:null,dotsHtml:typeof dotsHtml==="function"?dotsHtml:null,omsZonderDatum:typeof omsZonderDatum==="function"?omsZonderDatum:null,extraOpdr:typeof extraOpdr==="function"?extraOpdr:null,openOpdrachtWerk:typeof openOpdrachtWerk==="function"?openOpdrachtWerk:null,groepTarievenBij:typeof groepTarievenBij==="function"?groepTarievenBij:null,groepCalc:typeof groepCalc==="function"?groepCalc:null,wqOpen:typeof wqOpen==="function"?wqOpen:null,ccZet:typeof ccZet==="function"?ccZet:null,ccSignalen:typeof ccSignalen==="function"?ccSignalen:null,teVroeg:typeof teVroeg==="function"?teVroeg:null,mailFor:typeof mailFor==="function"?mailFor:null,emailHtmlRuw:typeof emailHtmlRuw==="function"?emailHtmlRuw:null,iz:typeof IZ!=="undefined"?IZ:null,izVerwerk:typeof izVerwerk==="function"?izVerwerk:null,izPlanSig:typeof izPlanSig==="function"?izPlanSig:null,volgendeNa:typeof volgendeNa==="function"?volgendeNa:null,verplaatsAllePatch:typeof verplaatsAllePatch==="function"?verplaatsAllePatch:null,heeftVervolg:typeof heeftVervolg==="function"?heeftVervolg:null,occurrences:typeof occurrences==="function"?occurrences:null,fbLees:typeof fbLees==="function"?fbLees:null,bhVerkoopboek:typeof bhVerkoopboek==="function"?bhVerkoopboek:null,invData:typeof invData==="function"?invData:null,pdfDoc:typeof pdfDoc==="function"?pdfDoc:null,paperHtml:typeof paperHtml==="function"?paperHtml:null,openTellingControle:typeof openTellingControle==="function"?openTellingControle:null,bcVast,ccKpis:typeof ccKpis==="function"?ccKpis:null,ccSignalen:typeof ccSignalen==="function"?ccSignalen:null,ccZoek:typeof ccZoek==="function"?ccZoek:null,ccAlle:typeof ccAlle==="function"?ccAlle:null,openFactuurWerk:typeof openFactuurWerk==="function"?openFactuurWerk:null,paperHtml:typeof paperHtml==="function"?paperHtml:null,btwRegel:typeof btwRegel==="function"?btwRegel:null,btwVast:typeof btwVast==="function"?btwVast:null,vveAanDeBeurt:typeof vveAanDeBeurt==="function"?vveAanDeBeurt:null,nrBewaker,msStatus:typeof msStatus==="function"?msStatus:null,MS:typeof MS!=="undefined"?MS:null,
     opdrLoc:typeof opdrLoc==="function"?opdrLoc:null,hoofdLoc:typeof hoofdLoc==="function"?hoofdLoc:null,openKlant:typeof openKlant==="function"?openKlant:null,
-    br:()=>BR(),uitvDefault:typeof uitvDefault==="function"?uitvDefault:null,queues:typeof queues==="function"?queues:null,mailFor:typeof mailFor==="function"?mailFor:null,emailHtmlRuw:typeof emailHtmlRuw==="function"?emailHtmlRuw:null,sampleVars:typeof sampleVars==="function"?sampleVars:null,factVars:typeof factVars==="function"?factVars:null,toonK:typeof toonK==="function"?toonK:null,hoofdLocVast:typeof hoofdLocVast==="function"?hoofdLocVast:null,btwRegel:typeof btwRegel==="function"?btwRegel:null,groepTarievenBij:typeof groepTarievenBij==="function"?groepTarievenBij:null,views:()=>PAGES.map(p=>p[0]),ga:t=>{state.tab=t;render()}};
+    br:()=>BR(),uitvDefault:typeof uitvDefault==="function"?uitvDefault:null,queues:typeof queues==="function"?queues:null,mailFor:typeof mailFor==="function"?mailFor:null,emailHtmlRuw:typeof emailHtmlRuw==="function"?emailHtmlRuw:null,iz:typeof IZ!=="undefined"?IZ:null,izVerwerk:typeof izVerwerk==="function"?izVerwerk:null,izPlanSig:typeof izPlanSig==="function"?izPlanSig:null,sampleVars:typeof sampleVars==="function"?sampleVars:null,factVars:typeof factVars==="function"?factVars:null,toonK:typeof toonK==="function"?toonK:null,hoofdLocVast:typeof hoofdLocVast==="function"?hoofdLocVast:null,btwRegel:typeof btwRegel==="function"?btwRegel:null,groepTarievenBij:typeof groepTarievenBij==="function"?groepTarievenBij:null,views:()=>PAGES.map(p=>p[0]),ga:t=>{state.tab=t;render()}};
 }
 
 })();
