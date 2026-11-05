@@ -4919,3 +4919,5 @@ dialog.iz-dlg::backdrop{background:rgb(13 18 27/.6)}
 .sg-knop{position:absolute;top:56px;left:12px;z-index:800;display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border:0;border-radius:10px;background:#fff;color:var(--ink);font:700 12px/1 inherit;letter-spacing:.06em;text-transform:uppercase;box-shadow:0 4px 14px rgb(0 0 0/.18);cursor:pointer}
 .sg-knop .sg-dr{width:10px;height:10px;border-radius:3px;border:2px dashed #8a929e}.sg-knop[aria-pressed="true"] .sg-dr{border-color:#d8c24a;background:rgb(216 194 74/.35)}
 .pk-map .sg-knop,#pkMap .sg-knop{top:60px}
+.wg-adr{margin:10px 0 0;padding:10px 12px;border-radius:12px;font-size:13px}.wg-adr b{display:flex;align-items:center;gap:6px}.wg-adr b svg{width:14px;height:14px}.wg-adr small{display:block;margin-top:2px;color:var(--muted)}
+.wg-adr.ok{background:#eef7f1;color:#23804a}.wg-adr.nat{background:#fdf3e3;color:#8a5208}

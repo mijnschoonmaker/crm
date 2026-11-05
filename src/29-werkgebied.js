@@ -2,6 +2,8 @@
 const WG_SOORT={beide:"Particulier en zakelijk",particulier:"Alleen particulier",zakelijk:"Alleen zakelijk"};
 function wgInPoly(lat,lng,pts){let binnen=false;for(let i=0,j=pts.length-1;i<pts.length;j=i++){const yi=pts[i][0],xi=pts[i][1],yj=pts[j][0],xj=pts[j][1];
   if(((yi>lat)!==(yj>lat))&&(lng<(xj-xi)*(lat-yi)/(yj-yi)+xi))binnen=!binnen}return binnen}
+function wgInGeo(lat,lng,g){if(!g)return false;const P=g.type==="Polygon"?[g.coordinates]:g.type==="MultiPolygon"?g.coordinates:[];
+  return P.some(p=>wgInPoly(lat,lng,p[0].map(q=>[q[1],q[0]]))&&!p.slice(1).some(h=>wgInPoly(lat,lng,h.map(q=>[q[1],q[0]]))))}
 function wgActief(){return (S().webGebieden||[]).filter(g=>g&&g.aan!==false&&Array.isArray(g.pts)&&g.pts.length>=3)}
 /* postcodes (4 cijfers) van klanten die al in het crm staan: daar werk je dus al */
 function wgKlantPc(){const z=new Set();(state.klanten||[]).forEach(k=>{[k.postcode,(jobAddrObj(k)||{}).postcode].forEach(p=>{const m=String(p||"").match(/^\s*(\d{4})/);if(m)z.add(m[1])})});return [...z].sort()}
@@ -23,7 +25,7 @@ async function werkgebiedEditor(onKlaar){
   const o=document.createElement("dialog");o.className="wcv-ov wg-ov";
   o.innerHTML=`<div class="wcv wg"><div class="wcv-h"><span class="objic">${I.map||I.pin}</span><div style="min-width:0;flex:1"><b>Werkgebieden</b><small>De postcodes van je klanten tellen automatisch mee. Teken daarnaast zelf gebieden erbij. Alleen adressen hierbinnen kunnen op je website een prijs berekenen en aanvragen.</small></div><button type="button" class="iconbtn" data-wgx aria-label="Sluiten">${I.x}</button></div>
     <div class="wg-b"><div class="wg-kaart"><div id="wgMap"></div><div class="wg-band" id="wgBand" hidden></div></div>
-      <aside class="wg-side"><div class="wg-kp" id="wgKp"></div><span class="eyebrow wg-eb">Zelf getekend</span><div class="wg-lijst" id="wgLijst"></div>
+      <aside class="wg-side"><div class="wg-kp" id="wgKp"></div><div id="wgAdr"></div><span class="eyebrow wg-eb">Zelf getekend</span><div class="wg-lijst" id="wgLijst"></div>
         <button type="button" class="wg-nieuw" id="wgNieuw">${I.plus}Nieuw gebied tekenen</button>
         <div class="wg-test"><span class="eyebrow">Test een adres</span><div class="wg-tr"><input id="wgQ" placeholder="Postcode en huisnummer, bijv. 9861 AB 10" autocomplete="off"><button type="button" class="small" id="wgT">Testen</button></div><div id="wgTr" class="wg-res"></div></div>
         <small class="help">Tik op een gebied om het te bewerken. Sleep de punten om de rand te verschuiven, tik op de kaart om een punt toe te voegen en tik op een punt om het weg te halen. Een adres mag een prijs berekenen als het binnen een getekend gebied ligt, de postcode al bij een klant in je CRM staat, of in je postcodelijst staat.</small></aside></div>
@@ -95,12 +97,23 @@ async function werkgebiedEditor(onKlaar){
   const alle=G.flatMap(g=>g.pts);if(alle.length)map.fitBounds(alle,{padding:[30,30]});
   else{const kl=state.klanten.map(k=>k.lat&&k.lng?[+k.lat,+k.lng]:null).filter(Boolean);if(kl.length>1)map.fitBounds(kl,{padding:[40,40],maxZoom:12})}
   map.createPane("wgpc").style.zIndex=350;setTimeout(()=>map.invalidateSize(),120);teken_();pcLaag();
+  /* adresnauwkeurig: elk klantadres als stip; ligt een adres buiten het postcodevlak, dan breidt het gebied daar uit (cirkel van 120 m) */
+  let adrG=null;
+  async function wgAdresCheck(){if(!map||!o.isConnected)return;const L=window.L,ks=state.klanten.filter(k=>k.actief!==false&&!k.prospect);
+    if(typeof pkGeocode==="function"&&typeof pkOpen==="function"&&pkOpen(ks).length){const b=$o("#wgAdr");if(b)b.innerHTML=`<small class="help">Adressen worden op de kaart gezet…</small>`;await pkGeocode(ks);while(typeof PK!=="undefined"&&PK.busy)await new Promise(r=>setTimeout(r,500))}
+    if(!o.isConnected)return;if(adrG)adrG.remove();adrG=L.layerGroup().addTo(map);const buiten=[];
+    ks.forEach(k=>{const c=typeof pkCoord==="function"?pkCoord(k):null;if(!c)return;const pc=(String((jobAddrObj(k)||{}).postcode||k.postcode||"").match(/^\s*(\d{4})/)||[])[1],f=pc&&WG_PC[pc];
+      const binnen=!f||wgInGeo(c[0],c[1],f.geometry)||wgActief().some(g=>wgInPoly(c[0],c[1],g.pts));
+      if(!binnen){buiten.push({k,pc});L.circle(c,{radius:120,pane:"wgpc",color:"#0f5f6e",weight:1.5,dashArray:"4 4",fillColor:"#7fd3de",fillOpacity:.3,interactive:false}).addTo(adrG)}
+      L.circleMarker(c,{radius:3.5,color:"#fff",weight:1,fillColor:binnen?"#0f5f6e":"#d9443b",fillOpacity:1,pane:"wgpc"}).bindTooltip(esc(cleanName(k.naam))+" · "+esc((jobAddrObj(k)||{}).adres||"")+(binnen?"":" · lag buiten postcode "+pc+", gebied uitgebreid"),{direction:"top"}).addTo(adrG)});
+    const b=$o("#wgAdr");if(b)b.innerHTML=buiten.length?`<div class="wg-adr nat"><b>${plural(buiten.length,"adres lag","adressen lagen")} buiten het postcodevlak</b><small>Daar is het gebied uitgebreid (rode stip, 120 m eromheen): ${buiten.slice(0,6).map(x=>esc(cleanName(x.k.naam))+" ("+esc(x.pc||"?")+")").join(", ")}${buiten.length>6?" …":""}</small></div>`:`<div class="wg-adr ok"><b>${I.check}Alle klantadressen liggen binnen een gebied</b><small>Elke stip is een klant; nagekeken op het exacte adres.</small></div>`}
   /* postcodegebieden van je klanten tonen */
   (async()=>{let n=0;const rij=[...KP];const werk=async()=>{while(rij.length){const pc=rij.shift();try{const f=await wgPcVlak(pc);if(!f||!o.isConnected)continue;
       pcL[pc]=window.L.geoJSON(f,{interactive:true,pane:"wgpc",bubblingMouseEvents:false,style:{color:"#0f5f6e",weight:1.5,dashArray:"4 4",fillColor:"#7fd3de",fillOpacity:.22}}).bindTooltip("Postcode "+pc+" · klant in je CRM",{sticky:true});
       pcL[pc].on("click",e=>{if(teken){teken.pts.push([e.latlng.lat,e.latlng.lng]);band();teken_();return}const g=huidig();if(g&&g.pts.length>=3){voegIn(g,e.latlng);gewijzigd=true;teken_();lijst()}});
       if(pcG)pcL[pc].addTo(pcG);pcL[pc].bringToBack&&pcL[pc].bringToBack();n++}catch(_){}}};
     await Promise.all([werk(),werk(),werk()]);
+    try{await wgAdresCheck()}catch(e){console.error("adrescheck",e)}
     if(n&&!alle.length){try{map.fitBounds(window.L.featureGroup(Object.values(pcL)).getBounds(),{padding:[30,30]})}catch(_){}}})()}
 
 /* kaartje in Instellingen › Website-calculator */
