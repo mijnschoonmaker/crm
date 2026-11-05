@@ -9494,7 +9494,8 @@ function offerFilter(list){
   if(ADV.verberg)o=o.filter(k=>!k.ronde);
   if(ADV.dubbel){const t=iso(today()),bezet=new Set(actief().filter(k=>k.gepland&&k.gepland>=t).map(k=>jobAddr(k).toLowerCase()));o=o.filter(k=>!bezet.has(jobAddr(k).toLowerCase()))}
   const pc=k=>String(jobAddrObj(k).postcode||k.postcode||"").replace(/\s/g,"").toUpperCase()||"~",pl=k=>String(jobAddrObj(k).plaats||k.plaats||"").toLowerCase()||"~";
-  if(ADV.sort==="postcode")o.sort((a,b)=>pc(a).localeCompare(pc(b))||jobAddr(a).localeCompare(jobAddr(b),"nl",{numeric:true}));
+  /* postcode: eerst op postcode + subgebied (9363-A, 9363-B…), dan op adres */
+  if(ADV.sort==="postcode"){const sg=k=>typeof sgCodeVan==="function"&&GLAS()?(sgCodeVan(k)||pc(k).slice(0,4)+"-~"):pc(k);o.sort((a,b)=>sg(a).localeCompare(sg(b),"nl",{numeric:true})||pc(a).localeCompare(pc(b))||jobAddr(a).localeCompare(jobAddr(b),"nl",{numeric:true}))}
   else if(ADV.sort==="plaats")o.sort((a,b)=>pl(a).localeCompare(pl(b))||jobAddr(a).localeCompare(jobAddr(b),"nl",{numeric:true}));
   else o.sort((a,b)=>dueOf(a)-dueOf(b));
   [...mSel].forEach(id=>{if(!o.some(k=>k.id===id))mSel.delete(id)});

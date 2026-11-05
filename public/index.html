@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="c095eaf5d514"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="13c6d13999e2"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -9911,7 +9911,8 @@ function offerFilter(list){
   if(ADV.verberg)o=o.filter(k=>!k.ronde);
   if(ADV.dubbel){const t=iso(today()),bezet=new Set(actief().filter(k=>k.gepland&&k.gepland>=t).map(k=>jobAddr(k).toLowerCase()));o=o.filter(k=>!bezet.has(jobAddr(k).toLowerCase()))}
   const pc=k=>String(jobAddrObj(k).postcode||k.postcode||"").replace(/\s/g,"").toUpperCase()||"~",pl=k=>String(jobAddrObj(k).plaats||k.plaats||"").toLowerCase()||"~";
-  if(ADV.sort==="postcode")o.sort((a,b)=>pc(a).localeCompare(pc(b))||jobAddr(a).localeCompare(jobAddr(b),"nl",{numeric:true}));
+  /* postcode: eerst op postcode + subgebied (9363-A, 9363-B…), dan op adres */
+  if(ADV.sort==="postcode"){const sg=k=>typeof sgCodeVan==="function"&&GLAS()?(sgCodeVan(k)||pc(k).slice(0,4)+"-~"):pc(k);o.sort((a,b)=>sg(a).localeCompare(sg(b),"nl",{numeric:true})||pc(a).localeCompare(pc(b))||jobAddr(a).localeCompare(jobAddr(b),"nl",{numeric:true}))}
   else if(ADV.sort==="plaats")o.sort((a,b)=>pl(a).localeCompare(pl(b))||jobAddr(a).localeCompare(jobAddr(b),"nl",{numeric:true}));
   else o.sort((a,b)=>dueOf(a)-dueOf(b));
   [...mSel].forEach(id=>{if(!o.some(k=>k.id===id))mSel.delete(id)});
