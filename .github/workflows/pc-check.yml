@@ -1,0 +1,17 @@
+name: Postcodevlak nakijken (alleen lezen)
+on:
+  workflow_dispatch:
+    inputs:
+      pc: { description: "Postcode (4 cijfers)", required: true }
+      q: { description: "Adres", required: true }
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - env:
+          PC: ${{ inputs.pc }}
+          Q: ${{ inputs.q }}
+        run: node tools/pc-check.js
