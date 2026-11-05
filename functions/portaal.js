@@ -108,7 +108,7 @@ module.exports = function maakPortaal(ctx) {
     if (_rl && Date.now() - _rl.t < 5 * 60e3) return _rl;
     const [b, fq, kq] = await Promise.all([bedrijf(), db.collection("facturen").where("status", "==", "betaald").get(), db.collection("klanten").get()]);
     const eigenMail = String(b.email || "").trim().toLowerCase(), K = new Map();
-    kq.docs.forEach(d => { const k = dec(d.data()); K.set(d.id, { vn: voornaamVan({ ...k, naam: schoon(k.naam), contact: k.contact ? schoon(k.contact) : "" }), eigen: !!eigenMail && String(k.email || "").trim().toLowerCase() === eigenMail, uit: k.nietInRanglijst === true }); });
+    kq.docs.forEach(d => { const k = dec(d.data()); K.set(d.id, { vn: rangVn({ ...k, naam: schoon(k.naam), contact: k.contact ? schoon(k.contact) : "" }), eigen: !!eigenMail && String(k.email || "").trim().toLowerCase() === eigenMail, uit: k.nietInRanglijst === true }); });
     const F = [];
     fq.docs.forEach(d => { const f = d.data(); if (!f.klantId || f.soort === "offerte") return; const kk = K.get(f.klantId); if (!kk || kk.eigen || kk.uit) return; const sec = betaalSec(f); if (sec == null) return;
       F.push({ klantId: f.klantId, datum: f.datum || "", maand: String(f.betaaldTs ? isoNL(new Date(f.betaaldTs)) : f.betaaldOp || "").slice(0, 7), sec, precies: betaalPrecies(f), incasso: !!(f.incasso || f.betaalwijze === "incasso"), ideal: viaIdeal(f) }); });
@@ -125,6 +125,11 @@ module.exports = function maakPortaal(ctx) {
     const i = lijst.findIndex(x => x.id === klantId);
     return { positie: i < 0 ? null : i + 1, sec: i < 0 ? null : Math.round(lijst[i].sec), beste: lijst.length ? Math.round(lijst[0].sec) : null, n: i < 0 ? 0 : lijst[i].n, precies: i < 0 ? false : lijst[i].precies };
   }
+  /* privacy: in de ranglijst alleen één voornaam, nooit een achternaam of volledige naam; geen voornaam bekend: "Een klant" */
+  const rangEen = v => { const w = String(v || "").trim().split(/[\s,]+/)[0] || ""; return /^[A-Za-z\u00C0-\u017F'-]{2,20}$/.test(w) ? w.charAt(0).toUpperCase() + w.slice(1) : ""; };
+  const rangVn = k => { const v = String(voornaamVan(k) || "").trim(), terug = String(k.contact || k.naam || "").replace(/[\[\]()*<>"`]/g, "").trim();
+    /* voornaamVan valt terug op de hele naam als er geen voornaam te vinden is: dan niets tonen */
+    return v && v !== terug ? rangEen(v) || "Een klant" : rangEen(k.voornaam) || "Een klant"; };
   /* top 3 van een maand: per klant de snelst betaalde factuur die maand (automatische incasso telt niet mee). Alleen voornamen. */
   async function maandTop(maand) {
     const { F, K } = await rangData(), best = {};
@@ -135,7 +140,7 @@ module.exports = function maakPortaal(ctx) {
   async function maandTopVoorPortaal(klantId) {
     const vm = vorigeMaand(), dm = isoNL().slice(0, 7), vast = await db.doc("ranglijst/" + vm).get();
     const vorige = vast.exists ? (vast.data().top || []) : await maandTop(vm), deze = await maandTop(dm);
-    const zonder = l => l.map((x, i) => ({ plek: i + 1, vn: x.vn, sec: x.sec, jij: x.klantId === klantId }));
+    const zonder = l => l.map((x, i) => ({ plek: i + 1, vn: rangEen(x.vn) || "Een klant", sec: x.sec, jij: x.klantId === klantId }));
     return { vorige: { maand: vm, top: zonder(vorige) }, deze: { maand: dm, top: zonder(deze) } };
   }
   const snelUren = f => { if (f.status !== "betaald" || !f.betaaldTs) return null; const van = Date.parse(vanTs(f)), tot = Date.parse(f.betaaldTs); if (!(van > 0 && tot >= van)) return null; return Math.round((tot - van) / 36e5 * 10) / 10; };
