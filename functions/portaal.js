@@ -121,27 +121,32 @@ module.exports = function maakPortaal(ctx) {
      Betalingen van vóór het bewaren van de methode (1 nov 2026) met Mollie gelden als iDEAL. */
   const IDEAL_VANAF = "2026-11";
   const viaIdeal = f => f.betaalwijze === "mollie" && !f.incasso && (f.mollieMethode === "ideal" || (!f.mollieMethode && String(f.betaaldTs || "") < "2026-11-01T15:00"));
+  /* plek bovenaan het portaal: precies dezelfde stand als "Stand <maand> tot nu toe" (snelste iDEAL-betaling deze maand),
+     zodat boven en beneden altijd hetzelfde nummer staat. Nog niet betaald deze maand: geen plek. */
   async function betaalRang(klantId) {
-    const { F } = await rangData(), sinds = new Date(Date.now() - 365 * DAG).toISOString().slice(0, 10), per = {};
-    F.forEach(x => { if (x.datum < sinds) return; (per[x.klantId] = per[x.klantId] || []).push(x); });
-    const lijst = Object.entries(per).map(([id, a]) => ({ id, sec: a.reduce((x, y) => x + y.sec, 0) / a.length, n: a.length, precies: a.every(y => y.precies) })).sort((a, b2) => a.sec - b2.sec);
-    const i = lijst.findIndex(x => x.id === klantId);
-    return { positie: i < 0 ? null : i + 1, sec: i < 0 ? null : Math.round(lijst[i].sec), beste: lijst.length ? Math.round(lijst[0].sec) : null, n: i < 0 ? 0 : lijst[i].n, precies: i < 0 ? false : lijst[i].precies };
+    const dm = isoNL().slice(0, 7), lijst = await maandLijst(dm), i = lijst.findIndex(x => x.klantId === klantId);
+    return { positie: i < 0 ? null : i + 1, sec: i < 0 ? null : Math.round(lijst[i].sec), beste: lijst.length ? Math.round(lijst[0].sec) : null, n: i < 0 ? 0 : 1, precies: true, maand: dm };
   }
-  /* privacy: in de ranglijst alleen één voornaam, nooit een achternaam of volledige naam; geen voornaam bekend: "Een klant" */
+
+  /* privacy: in de ranglijst alleen de voornaam; geen voornaam bekend: alleen de achternaam. Nooit voor- en achternaam samen. */
   const rangEen = v => { const w = String(v || "").trim().split(/[\s,]+/)[0] || ""; return /^[A-Za-z\u00C0-\u017F'-]{2,20}$/.test(w) ? w.charAt(0).toUpperCase() + w.slice(1) : ""; };
+  const TUSSEN = /^(van|de|der|den|het|ten|ter|te|op|in|'t|v\.?d\.?)$/i, GEENW = /^(fam\.?|familie|fa\.?|dhr\.?|mevr\.?|mw\.?|mr\.?|mrs\.?|hr\.?|heer|mevrouw|de heer)$/i;
+  const rangAch = k => { const naam = String(k.naam || "").replace(/\s+/g, " ").trim();
+    if (k.soort === "zakelijk" || k.soort === "vve") return String(k.bedrijfsnaam || naam).slice(0, 30);
+    let a = String(k.achternaam || "").trim() || (naam.includes(",") ? naam.split(",")[0].trim() : "");
+    if (!a) { const ws = naam.split(" ").filter(w => !GEENW.test(w)); if (ws.length <= 1) a = ws[0] || ""; else { let i = ws.length - 1; while (i > 0 && TUSSEN.test(ws[i - 1])) i--; a = ws.slice(i).join(" "); } }
+    a = a.split(" ").filter(w => !GEENW.test(w)).join(" ").trim(); return a ? a.charAt(0).toUpperCase() + a.slice(1) : ""; };
   const rangVn = k => { const naam = String(k.naam || "").trim(), terug = String(k.contact || naam).replace(/[\[\]()*<>"`]/g, "").trim();
-    /* met de originele naam ("Achternaam, Voornaam"), zodat de voornaam goed wordt herkend */
-    const v = rangEen(String(voornaamVan({ voornaam: k.voornaam, contact: k.contact, naam, email: k.email }) || "").trim() === terug ? "" : voornaamVan({ voornaam: k.voornaam, contact: k.contact, naam, email: k.email }));
-    /* nooit (een deel van) de achternaam */
+    const r = String(voornaamVan({ voornaam: k.voornaam, contact: k.contact, naam, email: k.email }) || "").trim(), v = r && r !== terug ? rangEen(r) : rangEen(k.voornaam);
     const ach = [k.achternaam, naam.includes(",") ? naam.split(",")[0] : ""].join(" ").toLowerCase().split(/[\s-]+/).filter(w => w.length > 1);
-    return v && !ach.includes(v.toLowerCase()) ? v : "Een klant"; };
+    return v && !ach.includes(v.toLowerCase()) ? v : rangAch(k) || "Klant"; };
   /* top 3 van een maand: per klant de snelst betaalde factuur die maand (automatische incasso telt niet mee). Alleen voornamen. */
-  async function maandTop(maand) {
+  async function maandLijst(maand) {
     const { F, K } = await rangData(), best = {};
     F.forEach(x => { if (x.maand !== maand || x.incasso || (maand >= IDEAL_VANAF && !x.ideal)) return; if (!best[x.klantId] || x.sec < best[x.klantId].sec) best[x.klantId] = x; });
-    return Object.values(best).sort((a, c) => a.sec - c.sec).slice(0, 3).map(x => ({ klantId: x.klantId, vn: (K.get(x.klantId) || {}).vn || "Klant", sec: x.sec }));
+    return Object.values(best).sort((a, c) => a.sec - c.sec).map(x => ({ klantId: x.klantId, vn: (K.get(x.klantId) || {}).vn || "Klant", sec: x.sec }));
   }
+  const maandTop = async maand => (await maandLijst(maand)).slice(0, 3);
   const vorigeMaand = () => { const d = new Date(isoNL() + "T12:00:00Z"); d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth() - 1); return d.toISOString().slice(0, 7); };
   async function maandTopVoorPortaal(klantId) {
     const vm = vorigeMaand(), dm = isoNL().slice(0, 7), vast = await db.doc("ranglijst/" + vm).get();
