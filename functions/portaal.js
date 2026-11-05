@@ -250,7 +250,7 @@ module.exports = function maakPortaal(ctx) {
       db.collection("klanten").where("aanbevolenDoor", "==", k.id).get(),
       db.collection("aanvragen").where("aanbevolenDoor", "==", k.id).get()
     ]);
-    const beurten = bs.docs.map(d => ({ id: d.id, ...dec(d.data()) })).filter(x => x.datum).sort((a, b2) => b2.datum.localeCompare(a.datum));
+    const beurten = bs.docs.map(d => ({ id: d.id, ...dec(d.data()) })).filter(x => x.datum && !x.portaalVerborgen).sort((a, b2) => b2.datum.localeCompare(a.datum));
     /* getekende offertes: de klant kan ze terugzien (de ondertekende versie op /akkoord/<token>) */
     const offRuw = fs.docs.map(d => ({ id: d.id, ...dec(d.data()) })).filter(f => f.soort === "offerte" && (f.getekend || f.status === "geaccepteerd"));
     const offertes = [];
@@ -523,7 +523,7 @@ module.exports = function maakPortaal(ctx) {
         if (q.empty) { res.status(404).json({}); return; }
         const k = dec(q.docs[0].data()), kid = q.docs[0].id, b = await bedrijf(), bi = bedrijfInfo(b, basisUrl(req)), base = basisUrl(req);
         if (k.soort !== "vve" || k.actief === false) { res.status(404).json({}); return; }
-        const bs = (await db.collection("beurten").where("klantId", "==", kid).get()).docs.map(d => ({ id: d.id, ...dec(d.data()) })).filter(x => x.datum).sort((a, b2) => b2.datum.localeCompare(a.datum));
+        const bs = (await db.collection("beurten").where("klantId", "==", kid).get()).docs.map(d => ({ id: d.id, ...dec(d.data()) })).filter(x => x.datum && !x.portaalVerborgen).sort((a, b2) => b2.datum.localeCompare(a.datum));
         const fotoUrl = id => /^[\w-]{6,64}$/.test(String(id || "")) ? base + "/_blob/" + id : "";
         const vandaag = isoNL(), wdg = vasteDagen(k);
         let volgende = k.gepland && k.gepland >= vandaag ? { datum: k.gepland, tijd: k.tijd || "" } : null;
