@@ -426,7 +426,7 @@ function tjMail(k){if(!k||!k.gepland)return null;const d=k.gepland,van=iso(addDa
     /* alleen de planningsmail / aankondiging over déze afspraak; offertes, facturen en andere mails tellen niet mee */
     (String(m.ref||"")==="planmail:"+d+":"+k.id||(String(m.sjabloon||"")==="aankondiging"&&(!m.ref||String(m.ref).includes(d)))));
   if(!L.length)return null;const m=L.sort((a,b)=>String(b.op).localeCompare(String(a.op)))[0];
-  const st=m.geklikOp?"geklikt":m.gelezenOp?"geopend":"verstuurd";return {m,st}}
+  const st=(m.trk?m.trkKlikOp:m.geklikOp)?"geklikt":(m.trk?m.trkOpenOp:m.gelezenOp)?"geopend":"verstuurd";return {m,st}}
 function tjMailHtml(k){const r=tjMail(k);
   if(!r)return `<span class="tj-mail none" title="Nog geen mail over deze afspraak verstuurd">${I.mail}</span>`;
   const t=r.st==="geklikt"?"Klant heeft op een link in de mail geklikt":r.st==="geopend"?"Klant heeft de mail geopend":"Mail verstuurd, nog niet geopend";
