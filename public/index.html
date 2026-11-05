@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="e6fe1343b019"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="a77c49740fcd"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -16107,7 +16107,7 @@ function openFactuurWerk(id){
     wikbrief:()=>sendF(id,{wik:true}),
     dupl:async()=>{const n=cur(),d=iso(today()),nid=newId("f");const nf={...strip(n),nummer:nextNr("factuur",d),datum:d,verval:iso(addDays(today(),Math.max(1,Math.round((parse(n.verval)-parse(n.datum))/DAY))||14)),status:"concept",betaaldOp:"",verstuurdOp:"",herinnerdOp:"",herinneringen:0,oninbaarOp:"",gemaakt:new Date().toISOString(),log:[],creditVan:"",periodiek:false};
       try{await save("facturen",nid,nf);toast("Kopie gemaakt · "+nf.nummer);setTimeout(()=>openFactuurWerk(nid),60)}catch(er){err(er)}},
-    credit:async()=>{const n=cur(),d=iso(today()),nid=newId("f");const nf={...strip(n),nummer:nextNr("factuur",d),datum:d,verval:d,regels:(n.regels||[]).map(r=>({...r,prijs:-(Number(r.prijs)||0)})),status:"open",betaaldOp:"",verstuurdOp:"",herinnerdOp:"",herinneringen:0,oninbaarOp:"",gemaakt:new Date().toISOString(),log:[],creditVan:n.id,periodiek:false,notitie:"Creditfactuur voor factuur "+n.nummer};
+    credit:async()=>{const n=cur(),d=iso(today()),nid=newId("f");const nf={...strip(n),nummer:nextNr("factuur",d),datum:d,verval:d,regels:(n.regels||[]).map(r=>({...r,prijs:-(Number(r.prijs)||0)})),status:"open",betaaldOp:"",betaaldTs:"",verstuurdOp:"",verstuurdTs:"",herinnerdOp:"",herinneringen:0,oninbaarOp:"",gemaakt:new Date().toISOString(),log:[],creditVan:n.id,periodiek:false,notitie:"Creditfactuur voor factuur "+n.nummer};
       /* staat de factuur nog helemaal open: tegen elkaar wegstrepen, dan gaan er geen herinneringen meer en staat er niets open */
       const verr=n.status==="open"&&!n.betaaldOp&&!(Number(n.deelBetaald)>0);
       if(verr){Object.assign(nf,{status:"betaald",betaaldOp:d,betaalwijze:"verrekend"});["mollieId","mollieLink","mollieStatus","mollieMethode","incasso"].forEach(x=>delete nf[x])}
