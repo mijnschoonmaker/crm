@@ -2242,6 +2242,26 @@ html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-stage .cfg-onder .cfg-tik span{fle
 @media (max-width:599px){html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-uitleg{display:none!important}html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-uitleg .st{display:none!important}html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-uitleg{border:0!important;padding:0!important;background:none!important;box-shadow:none!important;margin-top:4px!important}}
 html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .wz-door{gap:6px!important}html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .wz-door small{font-size:6.5px!important;letter-spacing:.18em!important}html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .wz-door img{height:7.5px!important}
 html body.cfg:not(#zz):not(#zy):not(#zx) .wz-door a.cfg-door{display:flex;flex-direction:column;align-items:inherit;gap:inherit;color:inherit;text-decoration:none;cursor:pointer}html body.cfg:not(#zz):not(#zy):not(#zx) .wz-door a.cfg-door:hover{opacity:.75}
+/* foto's van alle kanten */
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-fotos{display:none;margin-top:18px;padding:18px;border:1px solid #d6d9dd;border-radius:6px;background:#fff}
+html body.cfg:not(#zz):not(#zy):not(#zx)[data-cfgst="foto"] .cfg-fotos{display:block}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-fotos h3{margin:0 0 4px;font:400 14.5px/1.3 system-ui,-apple-system,"Segoe UI",sans-serif;color:#0e1117}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-fotos p{margin:0 0 14px;font:400 13px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;color:#4a4f57}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-vakken{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-vakken .vak{position:relative;box-sizing:border-box;aspect-ratio:3/4;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font:500 11px/1.2 system-ui,-apple-system,sans-serif;color:#5b6068;text-align:center;padding:4px}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-vakken button.vak{appearance:none;-webkit-appearance:none;margin:0;border:1.5px dashed #c3c7cd;background:#f6f7f8;cursor:pointer}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-vakken button.vak svg{width:22px;height:22px}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-vakken button.vak.volgende{border:2px solid #0e1117;background:#fff;color:#0e1117;animation:cfgPuls 1.8s ease-in-out infinite}
+@keyframes cfgPuls{0%,100%{box-shadow:0 0 0 0 rgba(14,17,23,.18)}50%{box-shadow:0 0 0 6px rgba(14,17,23,0)}}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-vakken .vak.vol img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-vakken .vak.vol span{position:absolute;left:0;right:0;bottom:0;padding:16px 3px 6px;background:linear-gradient(transparent,rgba(0,0,0,.65));color:#fff}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-vakken .vak .ok{position:absolute;top:6px;left:6px;width:20px;height:20px;border-radius:50%;background:#2f7d4f;display:grid;place-items:center}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-vakken .vak .ok svg{width:12px;height:12px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-vakken .vak .weg{appearance:none;-webkit-appearance:none;position:absolute;top:5px;right:5px;width:24px;height:24px;margin:0;padding:0;border:0;border-radius:50%;background:rgba(14,17,23,.72);color:#fff;font:400 16px/24px system-ui;cursor:pointer}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-bar .cfg-knop2{display:none}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-bar.cfg-ff .cfg-knop2{appearance:none;-webkit-appearance:none;display:flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 18px;margin:0;border:1.5px solid #0e1117;border-radius:4px;background:#fff;color:#0e1117;font:600 10.5px/1 system-ui,-apple-system,sans-serif;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;cursor:pointer}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-bar.cfg-ff .cfg-knop2 svg{width:16px;height:16px}
+@media (max-width:999px){html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-bar.cfg-ff .cfg-knop2,html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-bar.cfg-ff .knop{flex:1 1 0!important;height:46px!important;padding:0 8px!important;letter-spacing:.1em!important}html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-bar.cfg-ff .cfg-hint,html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-bar.cfg-ff .ruimte{display:none!important}html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-bar.cfg-ff{gap:10px!important}}
 @keyframes cfgIn{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
 html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-wrap.cfg-in{animation:cfgIn .35s ease both}
 html body.cfg:not(#zz):not(#zy):not(#zx) #ed #ed-done.cfg-verder svg{order:2}
@@ -2425,7 +2445,7 @@ html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-pick{padding:2px 2px 0
   nog.onclick=()=>{const i=document.getElementById("ph-in");if(i)i.click()};onder.append(tik,nog);stage.append(onder);
   /* eerst alle foto's maken: na een foto niet meteen het tikscherm openen */
   let geenAuto=false;document.addEventListener("change",e=>{const t=e.target;if(t&&t.id==="ph-in"&&t.files&&t.files.length)geenAuto=true},true);
-  if(typeof openEd==="function"){const edOrig=openEd;window.openEd=function(i){if(geenAuto){geenAuto=false;fi=Math.max(0,photos.length-1);setTimeout(toon,0);return}return edOrig.apply(this,arguments)}}
+  if(typeof openEd==="function"){const edOrig=openEd;window.openEd=function(i){if(geenAuto){geenAuto=false;fi=Math.max(0,photos.length-1);setTimeout(toon,0);return}try{fotosKlaar=true}catch(e){}return edOrig.apply(this,arguments)}}
   document.addEventListener("focusin",e=>{if(e.target.matches&&e.target.matches("input:not([type=range]):not([type=file]):not([type=checkbox]),textarea,select")&&!matchMedia("(min-width:1000px)").matches)document.body.classList.add("cfg-typen")});
   document.addEventListener("focusout",()=>setTimeout(()=>{const a=document.activeElement;if(!a||!a.matches||!a.matches("input:not([type=range]):not([type=file]):not([type=checkbox]),textarea,select"))document.body.classList.remove("cfg-typen")},120));
   /* natuurtinten voor bolletjes en kleurstalen (alleen deze webshop) */
@@ -2512,13 +2532,31 @@ html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-pick{padding:2px 2px 0
     else if(st==="adres"){h=["Stap 1 van 4","Vul uw postcode in"];tab=0}
     else if(st==="zak"){h=["Zakelijk","Vul het formulier in"]}
     else if(st==="foto"&&!f){h=["Stap 2 van 4","Maak een foto van uw huis"];tab=1}
+    else if(fase()){h=null;tab=1}
     else if(st==="foto"&&!klaar){const nog=photos.filter(p=>!gedaan(p)).length;h=["Stap 3 van 4",nog>1?`Tik de ramen aan (${nog} foto’s)`:"Tik de ramen aan"];tab=2}
     else if(st==="foto"){h=[open?"Laatste stap":"Stap 4 van 4",open?"Vul uw gegevens in":"Bekijk uw prijs"];tab=open?5:2}
-    hint.querySelector("small").textContent=h?h[0]:"";hint.querySelector("b").textContent=h?h[1]:"";bar.classList.toggle("cfg-mh",!!h);
+    hint.querySelector("small").textContent=h?h[0]:"";hint.querySelector("b").textContent=h?h[1]:"";bar.classList.toggle("cfg-mh",!!h);bar.classList.toggle("cfg-ff",fase());if(mid.dataset.st==="foto")fotoKaart();
     if(tab!=null&&!huidig()){tabs.querySelectorAll("button").forEach(b=>{const k=+b.dataset.n;b.classList.toggle("cfg-aan",k===tab);b.classList.toggle("cfg-ok",k<tab&&(k<3||tab===5))});
       const a=tabs.querySelector(".cfg-aan");if(a&&tabs.dataset.a!==String(tab)){tabs.dataset.a=tab;tabs.scrollTo({left:Math.max(0,a.offsetLeft-(tabs.clientWidth-a.offsetWidth)/2),behavior:"smooth"})}}
     /* status op de foto */
     const sp=tik.querySelector("span");if(sp){const s=!f?"Tik op de foto om ramen aan te tikken":klaar?"Ramen geteld. Tik om aan te passen":f===1?"1 foto. Ook de achterkant?":`${f} foto’s. Alle kanten gehad?`;if(sp.textContent!==s){sp.textContent=s;const ic=tik.querySelector("svg");if(ic){if(!tik.dataset.hand)tik.dataset.hand=ic.innerHTML;ic.innerHTML=f?'<circle cx="12" cy="12" r="8.5"/><path d="m8.2 12.3 2.6 2.6 5-5.4"/>':tik.dataset.hand}}}}
+  /* eerst foto's van alle kanten, daarna pas aantikken */
+  let fotosKlaar=false;const KANT=["Voorkant","Achterkant","Linkerkant","Rechterkant"],CAM='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.6-2.4h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.6"/></svg>';
+  const neem=()=>{const i=document.getElementById("ph-in");if(i)i.click()};
+  const fk=el("div","cfg-fotos");leg.before(fk);
+  const fase=()=>mid.dataset.st==="foto"&&fotos().length>0&&!fotosKlaar&&!photos.some(p=>p.dots.length);
+  function fotoKaart(){const f=fotos(),sig=f.join("|").length+":"+f.length;if(fk.dataset.sig===sig)return;fk.dataset.sig=sig;
+    const n=f.length,vak=[];const tot=Math.max(4,n+1);
+    for(let i=0;i<tot;i++){const lab=i<4?KANT[i]:"Extra foto";
+      if(i<n)vak.push(`<div class="vak vol"><img src="${f[i]}" alt=""><i class="ok"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></i><button type="button" class="weg" data-weg="${i}" aria-label="Foto verwijderen">×</button><span>${lab}</span></div>`);
+      else vak.push(`<button type="button" class="vak${i===n?" volgende":""}" data-neem>${CAM}<span>${i===n&&i<4?lab:i<4?lab:"+ Extra"}</span></button>`)}
+    fk.innerHTML=`<h3>Foto’s van alle kanten</h3><p>${!n?"Begin met de voorkant. Daarna de achterkant en de zijkanten.":n<4?`Nu de ${KANT[n].toLowerCase()}. Kunt u er niet bij? Tik dan onderin op Ramen aantikken.`:"Alle kanten gehad? Tik onderin op Ramen aantikken."}</p><div class="cfg-vakken">${vak.join("")}</div>`;
+    fk.querySelectorAll("[data-neem]").forEach(b=>b.onclick=neem);
+    fk.querySelectorAll("[data-weg]").forEach(b=>b.onclick=e=>{e.stopPropagation();const r=document.querySelector(`#photos [data-rm="${b.dataset.weg}"]`);if(r)r.click()})}
+  const knop2=el("button","cfg-knop2",`${CAM}<span>Nog een foto</span>`);knop2.type="button";knop2.onclick=neem;bar.insertBefore(knop2,$("#cfgKnop"));
+  $("#cfgKnop").addEventListener("click",()=>{if(fase())fotosKlaar=true},true);
+  /* na een nieuwe foto op de telefoon: de fotovakken in beeld */
+  document.addEventListener("change",e=>{const t=e.target;if(t&&t.id==="ph-in"&&t.files&&t.files.length&&!matchMedia("(min-width:1000px)").matches)setTimeout(()=>{fk.dataset.sig="";fotoKaart();const y=fk.getBoundingClientRect().top+scrollY-110;scrollTo({top:Math.max(0,y),behavior:"smooth"})},1200)},true);
   /* "mogelijk gemaakt door Mansard" linkt naar mansard.nl */
   document.querySelectorAll(".wz-door").forEach(d=>{if(d.querySelector("a.cfg-door"))return;const a=el("a","cfg-door");a.href="https://www.mansard.nl";a.target="_blank";a.rel="noopener";a.setAttribute("aria-label","Mansard – naar www.mansard.nl");while(d.firstChild)a.append(d.firstChild);d.append(a)});
   bij();stap();setInterval(()=>{bij();stap()},500);
