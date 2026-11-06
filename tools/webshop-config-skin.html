@@ -298,6 +298,14 @@ html body.cfg:not(#zz) .cfg-logo .rk{position:absolute;right:20px;top:50%;transf
 .cfg-logo .rk a{display:flex;align-items:center;gap:10px;height:38px;padding:0 18px;border:1px solid #c9ccd1;border-radius:4px;font:600 10.5px/1 system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#0e1117;text-decoration:none;background:#fff}
 .cfg-logo .rk a:hover{border-color:#0e1117}
 .cfg-logo .rk svg{width:17px;height:17px}
+
+/* label "tik op de foto": nette pil */
+html body.cfg .cfg-stage:not(.veel) .cfg-nav{display:none!important}
+html body.cfg:not(#zz) .cfg-stage .cfg-tik{top:auto;bottom:16px;left:16px;height:40px;padding:0 16px 0 12px;gap:9px;border-radius:999px;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 8px 24px -14px rgba(14,17,23,.45);font:400 13.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:0;text-transform:none;color:#0e1117;white-space:nowrap}
+.cfg-tik svg{width:18px;height:18px;flex:none}
+.cfg-acties a,.cfg-acties button{border-radius:999px!important;box-shadow:0 8px 24px -14px rgba(14,17,23,.45)}
+.cfg-nav{border-radius:999px!important;box-shadow:0 8px 24px -14px rgba(14,17,23,.45)}
+html body.cfg:not(#zz) .cfg-stage.foto .cfg-nav{left:auto;right:16px;transform:none}
 }
 </style>
 
@@ -305,6 +313,8 @@ html body.cfg:not(#zz) .cfg-logo .rk{position:absolute;right:20px;top:50%;transf
 html body.cfg #ed[hidden]{display:none!important}
 /* ===== tablet en telefoon: alles onder elkaar ===== */
 @media (max-width:999px){
+html body.cfg:not(#zz) .cfg-stage .cfg-tik{bottom:12px;left:12px;height:36px;font-size:12.5px;padding:0 14px 0 10px;max-width:calc(100% - 24px)}
+html body.cfg:not(#zz) .cfg-stage.foto .cfg-nav{bottom:58px;right:12px;height:38px}
 html body.cfg:not(#zz){overflow:auto!important}
 html body.cfg:not(#zz) .cfg-logo{height:56px;position:sticky;top:0}
 html body.cfg:not(#zz) .cfg-logo img{height:36px}
@@ -394,7 +404,7 @@ html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-side{max-height:50vh}
   const leg=el("div","cfg-leg");{const w2=document.getElementById("wz2");if(w2)w2.append(leg)}
   let legKey="";function legenda(){try{const T=typeList(),k=T.join();if(k===legKey)return;legKey=k;
     leg.innerHTML=`<h3>Zo telt u uw ramen</h3><p>Maak in het midden foto’s van uw woning. Daarna tikt u op elke foto de ramen aan met een bolletje:</p><ul>${T.map(t=>`<li><i style="background:${dt(t).col}"></i>${esc(chipName(t))}</li>`).join("")}</ul>`}catch(e){}}
-  const tik=el("div","cfg-tik","Tik op de foto om ramen aan te tikken");stage.append(tik);
+  const tik=el("div","cfg-tik",`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10"/><path d="M12 9.5a1.5 1.5 0 0 1 3 0V11"/><path d="M15 10.5a1.5 1.5 0 0 1 3 0v3.5a6 6 0 0 1-6 6h-.6a5 5 0 0 1-4-2L5 15.2a1.5 1.5 0 0 1 2.3-1.9L9 15"/></svg><span>Tik op de foto om ramen aan te tikken</span>`);stage.append(tik);
   const openFoto=()=>{if(typeof openEd==="function"&&fotos().length)openEd(fi)};foto.onclick=openFoto;tik.onclick=openFoto;
   const acties=el("div","cfg-acties",`${B.whatsapp?`<a href="https://wa.me/${esc(B.whatsapp)}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4.1A8 8 0 1 1 20 11.5Z"/></svg>Hulp via WhatsApp</a>`:""}<button type="button" class="vk" aria-label="Volledig scherm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>`);stage.append(acties);
   acties.querySelector(".vk").onclick=()=>{try{document.fullscreenElement?document.exitFullscreen():stage.requestFullscreen()}catch(e){}};
@@ -419,7 +429,7 @@ html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-side{max-height:50vh}
   /* foto's in het grote beeld */
   let fi=0;nav.addEventListener("click",e=>{const b=e.target.closest("[data-d]");if(!b)return;fi+=+b.dataset.d;toon()});
   function fotos(){return [...document.querySelectorAll("#photos .ph img")].map(i=>i.src).filter(Boolean)}
-  function toon(){const f=fotos(),n=Math.max(1,f.length);stage.classList.toggle("foto",f.length>0);nav.querySelectorAll("button").forEach(b=>b.disabled=f.length<2);fi=(fi%n+n)%n;if(f.length&&foto.src!==f[fi])foto.src=f[fi];nav.querySelector(".i").textContent=(fi+1)+" / "+n}
+  function toon(){const f=fotos(),n=Math.max(1,f.length);stage.classList.toggle("foto",f.length>0);stage.classList.toggle("veel",f.length>1);nav.querySelectorAll("button").forEach(b=>b.disabled=f.length<2);fi=(fi%n+n)%n;if(f.length&&foto.src!==f[fi])foto.src=f[fi];nav.querySelector(".i").textContent=(fi+1)+" / "+n}
   /* samenvatting en actieve stap bijwerken */
   const txt=s=>{const e=$(s);return e?e.textContent.trim():""};
   function bij(){const n=huidig();{const zv=id=>{const e=document.getElementById(id);return !!e&&!e.hidden};const gs=document.getElementById("goStart");
