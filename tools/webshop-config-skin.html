@@ -639,7 +639,7 @@ html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-pick{padding:2px 2px 0
     if(st==="kies"){h=["Stap 1 van 4","Particulier of zakelijk?"];tab=0}
     else if(st==="adres"){h=["Stap 1 van 4","Vul uw postcode in"];tab=0}
     else if(st==="zak"){h=["Zakelijk","Vul het formulier in"]}
-    else if(st==="foto"&&!f){h=["Stap 2 van 4","Maak een foto van uw huis"];tab=1}
+    else if(st==="foto"&&!f){h=["Stap 2 van 4","Maak foto’s van uw huis"];tab=1}
     else if(fase()){h=null;tab=1}
     else if(st==="foto"&&!klaar){const nog=photos.filter(p=>!gedaan(p)).length;h=["Stap 3 van 4",nog>1?`Tik de ramen aan (${nog} foto’s)`:"Tik de ramen aan"];tab=2}
     else if(st==="foto"){h=[open?"Laatste stap":"Stap 4 van 4",open?"Vul uw gegevens in":"Bekijk uw prijs"];tab=open?5:2}
