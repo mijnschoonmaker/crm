@@ -292,6 +292,12 @@ html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #aanvraag textarea.in{height:a
 html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #aanvraag .in:focus{outline:0;border-color:#0e1117!important;box-shadow:inset 0 0 0 .6px #0e1117!important}
 html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #aanvraag .send{margin-top:18px!important}
 html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #aanvraag #indienen{width:100%!important;height:50px!important;border:0!important;border-radius:4px!important;background:#0e1117!important;background-image:none!important;color:#fff!important;box-shadow:none!important;font:600 11px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:.2em!important;text-transform:uppercase!important}
+
+/* klantportaal rechtsboven in de logorij */
+html body.cfg:not(#zz) .cfg-logo .rk{position:absolute;right:20px;top:50%;transform:translateY(-50%);display:flex;align-items:center}
+.cfg-logo .rk a{display:flex;align-items:center;gap:10px;height:38px;padding:0 18px;border:1px solid #c9ccd1;border-radius:4px;font:600 10.5px/1 system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#0e1117;text-decoration:none;background:#fff}
+.cfg-logo .rk a:hover{border-color:#0e1117}
+.cfg-logo .rk svg{width:17px;height:17px}
 }
 </style>
 <script>
@@ -339,9 +345,9 @@ html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #aanvraag #indienen{width:100%
   main.append(stage,col);
   /* onderbalk */
   const bar=el("div","cfg-bar",`<div class="blok"><b id="cfgB1">Uw woning</b><small><span id="cfgS1">Vul uw adres in</span><i>|</i><span id="cfgB3">–</span></small></div><div class="blok lk"><b id="cfgB2">0 ramen</b><small>Geteld op uw foto’s</small></div><div class="ruimte"></div><div class="prijs"><b id="cfgP">€ –</b><small id="cfgPs">per beurt</small></div><button type="button" class="knop" id="cfgKnop">Volgende</button>`);
-  page.prepend(lg,top,main);document.body.append(bar);
+  lg.append(top.querySelector(".rk"));page.prepend(lg,top,main);document.body.append(bar);
   /* ingebed op de homepage: de website heeft zelf al een menubalk */
-  if(/[?&]embed=1/.test(location.search)){top.querySelector(".rk").style.display="none"}
+  if(/[?&]embed=1/.test(location.search)){lg.querySelector(".rk").style.display="none"}
   /* navigeren */
   const huidig=()=>{const o=document.querySelector(".acc.open:not([hidden])");if(!o)return 0;return +o.dataset.step};
   function naar(n){if(n===0){col.scrollTo({top:0,behavior:"smooth"});return}
