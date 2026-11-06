@@ -1974,12 +1974,13 @@ html body.cfg:not(#zz) .cfg-bar{display:flex;align-items:center;gap:50px;positio
 
 /* lege stand: knop "Foto's maken" */
 .cfg-stage .i2-vis{display:none!important}
-.cfg-start{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:26px;width:min(500px,80%);height:108px;padding:0 18px 0 20px;border-radius:20px;background:#f2f3f3;box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 18px 40px -28px rgba(14,17,23,.35);transition:transform .15s,box-shadow .15s}
-.cfg-start:hover{transform:translateY(-1px);box-shadow:0 22px 44px -26px rgba(14,17,23,.4)}
-.cfg-start svg.huis{flex:none;width:150px;height:86px;margin-top:6px}
-.cfg-start b{flex:1;font:400 19px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;color:#0e1117;letter-spacing:-.005em}
-.cfg-start i{flex:none;display:grid;place-items:center;width:66px;height:66px;border-radius:14px;background:#fff}
-.cfg-start i svg{width:22px;height:22px}
+.cfg-start{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:16px;width:360px;height:70px;padding:0 10px 0 14px;border-radius:14px;background:rgba(242,243,243,.92);backdrop-filter:blur(8px);box-shadow:0 1px 0 rgba(255,255,255,.8) inset,0 12px 30px -22px rgba(14,17,23,.45);transition:transform .2s,box-shadow .2s,background .2s}
+.cfg-start:hover{background:#f4f5f5;transform:translateY(-1px);box-shadow:0 1px 0 rgba(255,255,255,.8) inset,0 16px 34px -20px rgba(14,17,23,.45)}
+.cfg-start svg.huis{flex:none;width:84px;height:48px;margin-top:4px}
+.cfg-start b{flex:1;font:400 15px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;color:#0e1117;letter-spacing:0}
+.cfg-start i{flex:none;display:grid;place-items:center;width:50px;height:50px;border-radius:10px;background:#fff;transition:transform .2s}
+.cfg-start:hover i{transform:translateX(2px)}
+.cfg-start i svg{width:16px;height:16px}
 .cfg-stage.foto .cfg-start{display:none}
 .cfg-stage:not(.foto) .cfg-nav{display:none}
 .cfg-stage.foto .cfg-foto{cursor:pointer;object-fit:contain;padding:28px;box-sizing:border-box}
@@ -2083,7 +2084,7 @@ html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #ov .ref-go,html body.cfg:not(
   /* hoofddeel */
   const main=el("div","cfg-main"),stage=el("div","cfg-stage"),col=el("div","cfg-col");
   const foto=el("img","cfg-foto");foto.alt="Foto van uw woning";stage.append(foto);if(vis)vis.remove();
-  const start=el("button","cfg-start",`<svg class="huis" viewBox="0 0 150 86" fill="none" aria-hidden="true"><ellipse cx="76" cy="80" rx="66" ry="5" fill="#0e1117" opacity=".14"/><path d="M20 44 46 22l26 22v34H20z" fill="#1d2129"/><path d="M72 44h58v34H72z" fill="#14171d"/><path d="M14 47 46 19l32 28-4 3-28-24-28 24z" fill="#0b0d11"/><path d="M46 19h70l22 26H78z" fill="#262a33"/><path d="M78 45h60l-3 3H74z" fill="#0b0d11"/><rect x="30" y="52" width="10" height="12" rx="1" fill="#5b6472"/><rect x="52" y="52" width="10" height="12" rx="1" fill="#5b6472"/><rect x="40" y="34" width="12" height="9" rx="1" fill="#5b6472"/><rect x="82" y="53" width="16" height="13" rx="1" fill="#4a5361"/><rect x="104" y="53" width="16" height="13" rx="1" fill="#4a5361"/><rect x="40" y="66" width="10" height="12" fill="#3a414c"/><path d="M90 30h10v15H90z" fill="#1d2129"/></svg><b>Foto’s maken</b><i><svg viewBox="0 0 24 24" fill="none" stroke="#0e1117" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></i>`);start.type="button";
+  const start=el("button","cfg-start",`<svg class="huis" viewBox="0 0 84 48" fill="none" aria-hidden="true"><defs><linearGradient id="hzA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b3039"/><stop offset="1" stop-color="#15181e"/></linearGradient><linearGradient id="hzB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b1f26"/><stop offset="1" stop-color="#0c0e12"/></linearGradient><linearGradient id="hzR" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3a404b"/><stop offset="1" stop-color="#22262e"/></linearGradient><radialGradient id="hzS" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#0e1117" stop-opacity=".28"/><stop offset="1" stop-color="#0e1117" stop-opacity="0"/></radialGradient></defs><ellipse cx="44" cy="44.5" rx="40" ry="3.6" fill="url(#hzS)"/><path d="M8 24 23 12l15 12v20H8z" fill="url(#hzA)"/><path d="M38 24h38v20H38z" fill="url(#hzB)"/><path d="M5 26 23 10.5 41 26l-2 1.6L23 14 7 27.6z" fill="#0b0d11"/><path d="M23 10.5h39L79 25H41z" fill="url(#hzR)"/><path d="M41 25h38l-1.6 1.8H39.4z" fill="#0b0d11"/><rect x="13" y="29" width="5.5" height="7" rx=".6" fill="#8b95a3"/><rect x="27.5" y="29" width="5.5" height="7" rx=".6" fill="#8b95a3"/><rect x="20" y="18" width="6" height="5" rx=".6" fill="#8b95a3" opacity=".85"/><rect x="45" y="30" width="10" height="7.5" rx=".6" fill="#6f7987"/><rect x="60" y="30" width="10" height="7.5" rx=".6" fill="#6f7987"/><rect x="20" y="37" width="5.5" height="7" fill="#4a515d"/><path d="M52 15h5v10h-5z" fill="#1b1f26"/></svg><b>Foto’s maken</b><i><svg viewBox="0 0 24 24" fill="none" stroke="#0e1117" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></i>`);start.type="button";
   start.onclick=()=>{const i=document.getElementById("ph-in");if(i)i.click()};stage.append(start);
   const tik=el("div","cfg-tik","Tik op de foto om ramen aan te tikken");stage.append(tik);
   const openFoto=()=>{if(typeof openEd==="function"&&fotos().length)openEd(fi)};foto.onclick=openFoto;tik.onclick=openFoto;
