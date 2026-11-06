@@ -1977,6 +1977,8 @@ body.cfg .cfg-bar{display:flex;align-items:center;gap:44px;position:fixed;left:0
   /* onderbalk */
   const bar=el("div","cfg-bar",`<div class="blok"><b id="cfgB1">Uw woning</b><small id="cfgS1">Vul uw adres in</small></div><div class="blok"><b id="cfgB2">0 ramen</b><small>geteld op uw foto’s</small></div><div class="blok"><b id="cfgB3">–</b><small>hoe vaak</small></div><div class="ruimte"></div><div class="prijs"><b id="cfgP">€ –</b><small id="cfgPs">per beurt</small></div><button type="button" class="knop" id="cfgKnop">Volgende</button>`);
   page.prepend(top,tabs,main);document.body.append(bar);
+  /* ingebed op de homepage: de website heeft zelf al een menubalk */
+  if(/[?&]embed=1/.test(location.search)){top.style.display="none";tabs.style.top="0px";main.style.height="calc(100vh - 52px - 88px)"}
   /* navigeren */
   const huidig=()=>{const o=document.querySelector(".acc.open");if(!o)return 0;return +o.dataset.step};
   function naar(n){if(n===0){col.scrollTo({top:0,behavior:"smooth"});return}
