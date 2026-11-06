@@ -2207,6 +2207,10 @@ html body.cfg:not(#zz) .cfg-stage .cfg-onder .cfg-nog{all:unset;box-sizing:borde
 .cfg-nog svg{width:18px;height:18px}
 .cfg-leg .tip-w{margin:0 0 16px;padding:12px 14px;border-radius:6px;background:#f1f2f3;font:400 13px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;color:#4a4f57}
 .cfg-leg .tip-w b{display:block;font:500 13px/1.3 system-ui,-apple-system,"Segoe UI",sans-serif;color:#0e1117;margin-bottom:3px}
+
+/* achtergrondfoto in het beeldvlak zolang er nog geen eigen foto is */
+html body.cfg .cfg-stage:not(.foto){background:linear-gradient(180deg,rgba(14,17,23,.08) 0%,rgba(14,17,23,0) 40%,rgba(14,17,23,.18) 100%),url("https://framerusercontent.com/images/K8nkUppjZOygChAwh7YImakvS8.jpg?scale-down-to=2048") center/cover no-repeat,#e9e6e1}
+html body.cfg .cfg-stage:not(.foto) .cfg-mid .m-info{background:rgba(255,255,255,.94)}
 }
 </style>
 
@@ -2214,6 +2218,14 @@ html body.cfg:not(#zz) .cfg-stage .cfg-onder .cfg-nog{all:unset;box-sizing:borde
 html body.cfg #ed[hidden]{display:none!important}
 /* ===== tablet en telefoon: alles onder elkaar ===== */
 @media (max-width:999px){
+
+/* telefoon: balk weg tijdens typen, geen lege prijs, tikscherm compact */
+body.cfg-typen .cfg-bar{display:none!important}
+body[data-cfgst="zak"] .cfg-bar{display:none!important}
+html body.cfg:not(#zz) .cfg-main{padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))!important}
+html body.cfg:not(#zz) .cfg-bar{padding-bottom:env(safe-area-inset-bottom,0px)!important;height:calc(72px + env(safe-area-inset-bottom,0px))!important;box-shadow:0 -8px 24px -18px rgba(14,17,23,.35)}
+.cfg-bar.np .prijs{display:none}
+.cfg-bar.np .knop{flex:1;width:auto!important}
 html body.cfg:not(#zz) .cfg-onder{left:12px;bottom:12px;flex-direction:column}
 html body.cfg:not(#zz) .cfg-stage .cfg-onder .cfg-tik{height:36px}
 html body.cfg:not(#zz) .cfg-stage .cfg-tik{bottom:12px;left:12px;height:36px;font-size:12.5px;padding:0 14px 0 10px;max-width:calc(100% - 24px)}
@@ -2233,6 +2245,7 @@ html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col h1.ml-title{font-size:27px!imp
 html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .wrap::before{font-size:27px}
 .cfg-start{width:min(400px,calc(100% - 32px))!important}
 .cfg-mid .m-twee .cfg-start{width:min(400px,calc(100vw - 56px))!important}
+.cfg-mid .m-info svg{transform:rotate(90deg)}
 .cfg-mid .m-info{max-width:calc(100vw - 56px);font-size:13.5px!important;text-align:center}
 html body.cfg:not(#zz) .cfg-bar{height:72px;padding:0 16px!important;gap:14px}
 .cfg-bar .blok{display:none!important}
@@ -2262,6 +2275,29 @@ html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-bar{position:static!important}
 html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-bar button{height:46px!important}
 }
 @media (max-width:599px){
+.cfg-bar .knop{white-space:nowrap;padding:0 18px!important;letter-spacing:.14em!important;font-size:10.5px!important}
+
+/* tikscherm telefoon: alles in één scherm, zonder scrollen */
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sub,html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-step,html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-tally,html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-lab{display:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-top b#ed-title{font-size:19px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-side{max-height:none!important;overflow:visible!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-side>.ed-pick{order:1!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-side>.ed-sl{order:2!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-pick{border:0!important;padding:0!important;margin:0 0 8px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types{flex-wrap:wrap!important;overflow:visible!important;gap:6px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types button[data-t]{height:36px!important;font-size:13px!important;padding:0 10px 0 8px!important;gap:8px!important;border-radius:999px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types button[data-t] i{width:14px!important;height:14px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types button[data-t] b{padding:5px 8px!important;font-size:11px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types .ed-i{display:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types .ed-tw>button[data-t]{border-radius:999px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sl{display:flex!important;align-items:center;gap:12px;border:0!important;padding:4px 2px!important;margin:0 0 8px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sl-h{margin:0!important;flex:none}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sl-h b{font-size:12.5px!important;color:#4a4f57!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sl-r{flex:1}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-bar{display:grid!important;grid-template-columns:1fr 1fr 2fr;gap:6px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-bar button{height:46px!important;font-size:9.5px!important;letter-spacing:.1em!important;padding:0 6px!important;flex:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-bar .done{order:3!important;font-size:11px!important;letter-spacing:.16em!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed.ed:not([hidden]){padding:calc(env(safe-area-inset-top,0px) + 10px) 10px calc(env(safe-area-inset-bottom,0px) + 10px)!important;gap:8px!important}
 html body.cfg:not(#zz) .cfg-logo .rk a{font-size:0!important;letter-spacing:0!important;gap:0!important;width:40px;padding:0!important;justify-content:center}
 html body.cfg:not(#zz) .cfg-stage{height:52vh;min-height:320px}
 .cfg-acties a{font-size:0!important;letter-spacing:0!important;gap:0!important;width:42px;padding:0!important;justify-content:center}
@@ -2314,6 +2350,8 @@ html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-side{max-height:50vh}
   /* eerst alle foto's maken: na een foto niet meteen het tikscherm openen */
   let geenAuto=false;document.addEventListener("change",e=>{const t=e.target;if(t&&t.id==="ph-in"&&t.files&&t.files.length)geenAuto=true},true);
   if(typeof openEd==="function"){const edOrig=openEd;window.openEd=function(i){if(geenAuto){geenAuto=false;fi=Math.max(0,photos.length-1);setTimeout(toon,0);return}return edOrig.apply(this,arguments)}}
+  document.addEventListener("focusin",e=>{if(e.target.matches&&e.target.matches("input:not([type=range]):not([type=file]):not([type=checkbox]),textarea,select")&&!matchMedia("(min-width:1000px)").matches)document.body.classList.add("cfg-typen")});
+  document.addEventListener("focusout",()=>setTimeout(()=>{const a=document.activeElement;if(!a||!a.matches||!a.matches("input:not([type=range]):not([type=file]):not([type=checkbox]),textarea,select"))document.body.classList.remove("cfg-typen")},120));
   /* bewaren op dit apparaat: verder waar u gebleven was (bijv. binnen, als het buiten koud is) */
   const IDB=(m,k,v)=>new Promise(res=>{try{const r=indexedDB.open("ms-webshop",1);r.onupgradeneeded=()=>r.result.createObjectStore("kv");r.onerror=()=>res(null);
     r.onsuccess=()=>{try{const tx=r.result.transaction("kv",m==="get"?"readonly":"readwrite"),st=tx.objectStore("kv");const q=m==="get"?st.get(k):m==="put"?st.put(v,k):st.delete(k);q.onsuccess=()=>res(q.result);q.onerror=()=>res(null)}catch(e){res(null)}}}catch(e){res(null)}});
@@ -2341,7 +2379,7 @@ html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-side{max-height:50vh}
   const huidig=()=>{const o=document.querySelector(".acc.open:not([hidden])");if(!o)return 0;return +o.dataset.step};
   function naar(n){if(n===0){col.scrollTo({top:0,behavior:"smooth"});return}
     if(typeof openStep==="function")openStep(n);const c=document.querySelector(`.acc[data-step="${n}"]`);if(c)setTimeout(()=>c.scrollIntoView({behavior:"smooth",block:"start"}),60)}
-  $("#cfgKnop").onclick=()=>{{const st=mid.dataset.st;if(st==="kies"){mid.classList.add("open");return}if(st==="zak"){const z=document.getElementById("zkSend");if(z)z.click();return}if(st==="adres"){const q=document.getElementById("adrQ");if(q)q.focus();return}if(st==="foto"&&!fotos().length){const i=document.getElementById("ph-in");if(i)i.click();return}if(st==="foto"&&!photos.some(p=>p.dots.length)){const j=Math.max(0,photos.findIndex(p=>!p.dots.length));openEd(j);return}}const n=huidig(),start=$("#goStart");
+  $("#cfgKnop").onclick=()=>{{const st=mid.dataset.st;if(st==="foto"&&photos.some(p=>p.dots.length)){const av=document.getElementById("aanvraag"),open=!!(av&&av.offsetParent&&av.classList.contains("open")),og=document.querySelector("#ov [data-ovgo]");if(open){const ind=document.getElementById("indienen");if(ind){ind.scrollIntoView({behavior:"smooth",block:"center"});ind.click()}return}if(og&&og.offsetParent){og.click();setTimeout(()=>{const a=document.getElementById("aanvraag");if(a)a.scrollIntoView({behavior:"smooth",block:"start"})},350);return}}if(st==="kies"){mid.classList.add("open");return}if(st==="zak"){const z=document.getElementById("zkSend");if(z)z.click();return}if(st==="adres"){const q=document.getElementById("adrQ");if(q)q.focus();return}if(st==="foto"&&!fotos().length){const i=document.getElementById("ph-in");if(i)i.click();return}if(st==="foto"&&!photos.some(p=>p.dots.length)){const j=Math.max(0,photos.findIndex(p=>!p.dots.length));openEd(j);return}}const n=huidig(),start=$("#goStart");
     if(!document.querySelector(".acc.open:not([hidden])")||(start&&!start.hidden&&col.scrollTop<200)){if(start&&!start.hidden){start.click();return}naar(1);return}
     if(n<4){naar(n+1);return}
     if(n===4){const tf=$("#toForm");if(tf)tf.click();else{const c=$("#calcBtn");if(c)c.click()}return}
@@ -2353,9 +2391,9 @@ html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-side{max-height:50vh}
   /* samenvatting en actieve stap bijwerken */
   const txt=s=>{const e=$(s);return e?e.textContent.trim():""};
   function bij(){const n=huidig();bewaar();{const zv=id=>{const e=document.getElementById(id);return !!e&&!e.hidden};const gs=document.getElementById("goStart");
-    const st=zv("wz3")?"zak":zv("wz2")?(gs&&!gs.hidden?"foto":"adres"):"kies";if(st!=="kies")mid.classList.remove("open");if(st==="foto"&&mid.dataset.st!=="foto"&&!matchMedia("(min-width:1000px)").matches)setTimeout(()=>stage.scrollIntoView({behavior:"smooth",block:"center"}),350);mid.dataset.st=st;document.body.dataset.cfgst=st;
+    const st=zv("wz3")?"zak":zv("wz2")?(gs&&!gs.hidden?"foto":"adres"):"kies";if(st!=="kies")mid.classList.remove("open");if(st!==mid.dataset.st&&mid.dataset.st){const ae=document.activeElement;if(ae&&ae.id==="adrQ")ae.blur();document.body.classList.remove("cfg-typen")}if(st==="foto"&&mid.dataset.st!=="foto"&&!matchMedia("(min-width:1000px)").matches)setTimeout(()=>stage.scrollIntoView({behavior:"smooth",block:"center"}),350);mid.dataset.st=st;document.body.dataset.cfgst=st;
     const say=document.getElementById("zkSay"),ok=say&&/\bok\b/.test(say.className);
-    mid.querySelector(".m-info .t").textContent=st==="zak"?(ok?"Bedankt, wij nemen snel contact met u op":"Vul rechts het contactformulier in"):"Vul rechts uw postcode en huisnummer in";
+    {const w=matchMedia("(min-width:1000px)").matches?"rechts":"hieronder";mid.querySelector(".m-info .t").textContent=st==="zak"?(ok?"Bedankt, wij nemen snel contact met u op":"Vul "+w+" het contactformulier in"):"Vul "+w+" uw postcode en huisnummer in";}
     if(st==="foto")legenda()}
     document.querySelectorAll(".cfg-col .ov-price").forEach(op=>{if(op.querySelector(".tk-kop"))return;const k=el("div","tk-kop");k.append(B.logo?Object.assign(el("img"),{src:B.logo,alt:""}):el("span","",esc(B.naam||"")));op.prepend(k)});if(wrap)wrap.classList.toggle("cfg-leeg",!document.querySelector(".acc:not([hidden])"));
     tabs.querySelectorAll("button").forEach(b=>{const k=+b.dataset.n;b.classList.toggle("cfg-aan",k===n||(k===0&&!document.querySelector(".acc.open:not([hidden])")));const s=k?txt("#sum"+k):"";b.classList.toggle("cfg-ok",!!s&&k!==n)});
@@ -2364,7 +2402,8 @@ html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-side{max-height:50vh}
     const fr=$("#freq");$("#cfgB3").textContent=fr&&fr.selectedOptions[0]?fr.selectedOptions[0].textContent:"–";
     const p=document.querySelector("#out .op-l b");$("#cfgP").textContent=p?p.textContent:"€ –";$("#cfgPs").textContent=p?"per beurt, "+(document.querySelector("#out .op-l small:nth-of-type(2)")||{textContent:"incl. btw"}).textContent.replace(/^.*·\s*/,""):"per beurt, na het tellen";
     $("#cfgKnop").textContent=n===5?"Indienen":n===4?(p?"Gegevens invullen":"Bereken prijs"):"Volgende";
-    {const st=mid.dataset.st,b1=$("#cfgB1"),k=$("#cfgKnop");if(st==="kies"){b1.textContent="Uw woning";k.textContent="Volgende"}else if(st==="zak"){b1.textContent="Bedrijf / VvE";$("#cfgS1").textContent="Contactformulier";k.textContent="Versturen"}else if(st==="adres")k.textContent="Volgende";else if(st==="foto"&&!fotos().length)k.textContent="Foto’s maken";else if(st==="foto"&&!photos.some(p=>p.dots.length))k.textContent="Ramen aantikken"}
+    {const st=mid.dataset.st,b1=$("#cfgB1"),k=$("#cfgKnop");if(st==="kies"){b1.textContent="Uw woning";k.textContent="Beginnen"}else if(st==="zak"){b1.textContent="Bedrijf / VvE";$("#cfgS1").textContent="Contactformulier";k.textContent="Versturen"}else if(st==="adres")k.textContent="Volgende";else if(st==="foto"&&!fotos().length)k.textContent="Foto’s maken";else if(st==="foto"&&!photos.some(p=>p.dots.length))k.textContent="Ramen aantikken";else if(st==="foto"){const av=document.getElementById("aanvraag"),open=!!(av&&av.offsetParent&&av.classList.contains("open"));if(document.querySelector("#ov [data-ovgo]")&&document.querySelector("#ov [data-ovgo]").offsetParent||open)k.textContent=open?"Indienen":"Gegevens invullen"}}
+    {const pr=$("#cfgP");document.querySelector(".cfg-bar").classList.toggle("np",!pr||/–|-\s*$/.test(pr.textContent)||["kies","adres"].includes(mid.dataset.st))}
     toon()}
   bij();setInterval(bij,500);
 })();
