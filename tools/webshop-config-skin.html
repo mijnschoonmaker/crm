@@ -2,7 +2,7 @@
     Zelfde rekenwerk en aanmelden als de gewone webshop; alleen de indeling op grote schermen is anders:
     stappen bovenaan, groot beeld links, keuzes rechts, samenvatting met prijs onderaan. Op de telefoon blijft alles zoals het was. -->
 <style>
-@media (min-width:1000px){
+@media all{
 html body.cfg:not(#zz){background:#fff!important;margin:0;padding:0!important;overflow:hidden}
 html body.cfg:not(#zz) .page{display:block!important;min-height:0!important;max-width:none!important;width:100%!important;margin:0!important;padding:0!important}
 html body.cfg:not(#zz) .i2-weg,html body.cfg:not(#zz) .ml-steps,html body.cfg:not(#zz) .i2-kick,html body.cfg:not(#zz) .ml-sub{display:none!important}
@@ -300,9 +300,68 @@ html body.cfg:not(#zz) .cfg-logo .rk{position:absolute;right:20px;top:50%;transf
 .cfg-logo .rk svg{width:17px;height:17px}
 }
 </style>
+
+<style>
+html body.cfg #ed[hidden]{display:none!important}
+/* ===== tablet en telefoon: alles onder elkaar ===== */
+@media (max-width:999px){
+html body.cfg:not(#zz){overflow:auto!important}
+html body.cfg:not(#zz) .cfg-logo{height:56px;position:sticky;top:0}
+html body.cfg:not(#zz) .cfg-logo img{height:36px}
+html body.cfg:not(#zz) .cfg-logo .rk{right:12px}
+html body.cfg:not(#zz) .cfg-top{position:sticky;top:56px;z-index:4;background:#fff;height:48px;padding:0 16px!important;justify-content:flex-start!important}
+html body.cfg:not(#zz) .cfg-tabs{gap:22px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+html body.cfg:not(#zz) .cfg-tabs::-webkit-scrollbar{display:none}
+html body.cfg:not(#zz) .cfg-tabs button{flex:none;white-space:nowrap}
+html body.cfg:not(#zz) .cfg-main{display:block!important;height:auto!important;padding:0 12px 110px!important}
+html body.cfg:not(#zz) .cfg-stage{height:min(56vh,560px);min-height:340px;margin:0 0 24px}
+html body.cfg:not(#zz) .cfg-col{overflow:visible!important;padding:0 4px!important;max-width:680px;margin:0 auto}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col h1.ml-title{font-size:27px!important;margin:4px 0 16px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .wrap::before{font-size:27px}
+.cfg-start{width:min(400px,calc(100% - 32px))!important}
+.cfg-mid .m-twee .cfg-start{width:min(400px,calc(100vw - 56px))!important}
+.cfg-mid .m-info{max-width:calc(100vw - 56px);font-size:13.5px!important;text-align:center}
+html body.cfg:not(#zz) .cfg-bar{height:72px;padding:0 16px!important;gap:14px}
+.cfg-bar .blok{display:none!important}
+.cfg-bar .prijs b{font-size:20px}
+.cfg-bar .knop{width:auto!important;padding:0 24px;height:46px}
+/* aantikken op telefoon/tablet: volledig scherm */
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed.ed:not([hidden]){position:fixed!important;inset:0!important;z-index:60;display:flex!important;flex-direction:column!important;padding:calc(env(safe-area-inset-top,0px) + 12px) 12px calc(env(safe-area-inset-bottom,0px) + 12px)!important;gap:10px!important;background:#fff!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-top{padding:0!important;gap:4px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-top b#ed-title{font-size:22px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sub{font-size:13px!important;margin-top:4px}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-step{margin-bottom:6px}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-stage{flex:1 1 auto!important;min-height:0!important;border-radius:8px;overflow:hidden!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-wrap{position:relative}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-cnt,html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-now{position:absolute!important;height:34px;font-size:12.5px!important;padding:0 13px 0 11px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-cnt{top:10px!important;left:10px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-now{bottom:10px!important;left:10px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-side{flex:none!important;max-height:46vh;overflow-y:auto!important;padding:0!important;gap:0}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-tally,html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-pick,html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sl{padding:12px 14px!important;margin:0 0 10px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-lab{padding:0 0 10px!important;font-size:13.5px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types{flex-direction:row!important;flex-wrap:nowrap!important;overflow-x:auto!important;scrollbar-width:none;-webkit-mask-image:none!important;mask-image:none!important;padding:0 0 2px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types::-webkit-scrollbar{display:none}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types>button[data-t],html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types .ed-tw{width:auto!important;flex:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types button[data-t]{height:40px!important;font-size:13.5px!important;padding:0 12px 0 10px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types .ed-i{height:40px!important;width:34px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sl-h{margin:0 0 10px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-bar{position:static!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-bar button{height:46px!important}
+}
+@media (max-width:599px){
+html body.cfg:not(#zz) .cfg-logo .rk a{font-size:0!important;letter-spacing:0!important;gap:0!important;width:40px;padding:0!important;justify-content:center}
+html body.cfg:not(#zz) .cfg-stage{height:52vh;min-height:320px}
+.cfg-acties a{font-size:0!important;letter-spacing:0!important;gap:0!important;width:42px;padding:0!important;justify-content:center}
+.cfg-start{height:64px!important;gap:12px!important}
+.cfg-start svg.huis{width:70px!important;height:40px!important}
+.cfg-start b{font-size:14px!important}
+.cfg-start i{width:44px!important;height:44px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .zk-g,html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #aanvraag .form{grid-template-columns:1fr!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-side{max-height:50vh}
+}
+</style>
 <script>
 (function(){
-  if(!matchMedia("(min-width:1000px)").matches)return;
   const $=s=>document.querySelector(s),el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e};
   const B=typeof BEDRIJF==="object"?BEDRIJF:{};
   const esc=s=>String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -311,7 +370,7 @@ html body.cfg:not(#zz) .cfg-logo .rk{position:absolute;right:20px;top:50%;transf
   const m=document.createElement("meta");m.name="robots";m.content="noindex";document.head.append(m);
   const page=$(".page"),intro=$(".intro2"),wrap=$(".wrap"),foot=$(".foot"),vis=$(".i2-vis");
   /* aantikken: foto vult het hele vlak (bijsnijden i.p.v. passend maken) */
-  if(typeof fitEd==="function"){window.fitEd=function(){try{const p=photos[edIdx];if(!p)return;const st=document.getElementById("ed-stage").getBoundingClientRect();const k=Math.max(st.width/p.cv.width,st.height/p.cv.height);const w=document.getElementById("ed-wrap");w.style.width=Math.ceil(p.cv.width*k)+"px";w.style.height=Math.ceil(p.cv.height*k)+"px"}catch(e){}}}
+  if(typeof fitEd==="function"){const fitOrig=fitEd;window.fitEd=function(){if(!matchMedia("(min-width:1000px)").matches)return fitOrig();try{const p=photos[edIdx];if(!p)return;const st=document.getElementById("ed-stage").getBoundingClientRect();const k=Math.max(st.width/p.cv.width,st.height/p.cv.height);const w=document.getElementById("ed-wrap");w.style.width=Math.ceil(p.cv.width*k)+"px";w.style.height=Math.ceil(p.cv.height*k)+"px"}catch(e){}}}
   /* keuzekaarten rechts: korte uitleg onder de titel */
   const UITLEG={particulier:["Vaste prijs per beurt",["Foto maken","Ramen aantikken","Direct uw prijs"]],zakelijk:["Prijs op maat",["Kantoor","Winkel","VvE"]]};
   document.querySelectorAll(".wz-opt[data-soort]").forEach(b=>{const u=UITLEG[b.dataset.soort];if(!u||b.querySelector("small"))return;b.insertAdjacentHTML("beforeend",`<small>${u[0]}</small><span class="info">i</span><span class="cfg-chips">${u[1].map(t=>`<span>${t}</span>`).join("")}</span>`)});
@@ -364,7 +423,7 @@ html body.cfg:not(#zz) .cfg-logo .rk{position:absolute;right:20px;top:50%;transf
   /* samenvatting en actieve stap bijwerken */
   const txt=s=>{const e=$(s);return e?e.textContent.trim():""};
   function bij(){const n=huidig();{const zv=id=>{const e=document.getElementById(id);return !!e&&!e.hidden};const gs=document.getElementById("goStart");
-    const st=zv("wz3")?"zak":zv("wz2")?(gs&&!gs.hidden?"foto":"adres"):"kies";if(st!=="kies")mid.classList.remove("open");mid.dataset.st=st;document.body.dataset.cfgst=st;
+    const st=zv("wz3")?"zak":zv("wz2")?(gs&&!gs.hidden?"foto":"adres"):"kies";if(st!=="kies")mid.classList.remove("open");if(st==="foto"&&mid.dataset.st!=="foto"&&!matchMedia("(min-width:1000px)").matches)setTimeout(()=>stage.scrollIntoView({behavior:"smooth",block:"center"}),350);mid.dataset.st=st;document.body.dataset.cfgst=st;
     const say=document.getElementById("zkSay"),ok=say&&/\bok\b/.test(say.className);
     mid.querySelector(".m-info .t").textContent=st==="zak"?(ok?"Bedankt, wij nemen snel contact met u op":"Vul rechts het contactformulier in"):"Vul rechts uw postcode en huisnummer in";
     if(st==="foto")legenda()}
