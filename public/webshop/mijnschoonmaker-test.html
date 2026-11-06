@@ -2107,11 +2107,13 @@ html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .zk-f :is(input,select,textare
 html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .zk-go{width:100%;height:48px;margin-top:16px!important;border-radius:4px!important;background:#0e1117!important;color:#fff!important;box-shadow:none!important;font:600 11px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:.2em!important;text-transform:uppercase!important}
 html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .zk-msg{font:400 13px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif!important;margin-top:10px}
 
-/* bovenbalk: alleen het beeldmerk in het midden */
-html body.cfg:not(#zz) .cfg-top{justify-content:center!important;align-items:center!important;padding:0!important}
-.cfg-top .cfg-tabs,.cfg-top .rk{display:none!important}
-.cfg-top .logo{display:block;height:34px;width:auto;max-width:160px;object-fit:contain}
-.cfg-top .logo-t{font:400 13px/1 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.38em;text-transform:uppercase;color:#0e1117}
+/* bovenin: rij met beeldmerk, daaronder stappen + klantportaal */
+.cfg-logo{display:none}
+html body.cfg:not(#zz) .cfg-logo{display:flex;align-items:center;justify-content:center;height:58px;background:#fff}
+.cfg-logo img{display:block;height:34px;width:auto;max-width:160px;object-fit:contain}
+.cfg-logo span{font:400 13px/1 system-ui,sans-serif;letter-spacing:.38em;text-transform:uppercase;color:#0e1117}
+html body.cfg:not(#zz) .cfg-main{height:calc(100vh - 58px - 54px - 80px)!important}
+html body.cfg:not(#zz) #ed.ed{inset:112px 0 80px 0!important}
 /* foto vult het hele vlak */
 .cfg-stage.foto .cfg-foto{object-fit:cover!important;padding:0!important}
 html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-stage{padding:0!important;overflow:hidden!important;display:flex!important;align-items:center!important;justify-content:center!important;position:relative}
@@ -2121,7 +2123,7 @@ html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-wrap::before,html body.cfg:not(
 /* labels op de foto */
 html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-cnt,html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-now{position:fixed!important;z-index:3;display:flex!important;align-items:center;gap:10px;height:40px;padding:0 16px 0 14px!important;border-radius:999px!important;background:rgba(255,255,255,.92)!important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 8px 24px -14px rgba(14,17,23,.45)!important;border:0!important;font:400 13.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:0!important;text-transform:none!important;color:#0e1117!important;transform:none!important}
 html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-now{left:34px!important;right:auto!important;bottom:100px!important;top:auto!important}
-html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-cnt{left:34px!important;right:auto!important;top:74px!important;bottom:auto!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-cnt{left:34px!important;right:auto!important;top:132px!important;bottom:auto!important}
 html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-cnt.nul{display:none!important}
 html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-now i{flex:none;width:12px!important;height:12px!important;min-width:0!important;border-radius:50%!important;font-size:0!important;border:0!important;box-shadow:0 0 0 3px rgba(255,255,255,.9),0 0 0 4px rgba(14,17,23,.08)!important;padding:0!important;margin:0!important}
 html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-now b,html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-cnt b{font-weight:500!important;color:#0e1117!important}
@@ -2146,7 +2148,7 @@ html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-now b,html body.cfg:not(#zz):no
   const top=el("div","cfg-top");
   const STAPPEN=[[0,"Adres"],[1,"Foto’s"],[2,"Ramen"],[3,"Bijzonder"],[4,"Frequentie"],[5,"Gegevens"]];
   const tabs=el("nav","cfg-tabs");STAPPEN.forEach(([n,t])=>{const b=el("button","",t);b.type="button";b.dataset.n=n;b.onclick=()=>naar(n);tabs.appendChild(b)});
-  top.append(B.logo?Object.assign(el("img","logo"),{src:B.logo,alt:B.naam||""}):el("span","logo-t",esc(B.naam||"")));top.append(tabs,el("div","rk",`<a href="https://app.mansard.nl/portaal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></svg>Klantportaal</a>`));
+  const lg=el("div","cfg-logo");lg.append(B.logo?Object.assign(el("img"),{src:B.logo,alt:B.naam||""}):el("span","",esc(B.naam||"")));top.append(tabs,el("div","rk",`<a href="https://app.mansard.nl/portaal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></svg>Klantportaal</a>`));
   /* hoofddeel */
   const main=el("div","cfg-main"),stage=el("div","cfg-stage"),col=el("div","cfg-col");
   const foto=el("img","cfg-foto");foto.alt="Foto van uw woning";stage.append(foto);if(vis)vis.remove();
@@ -2164,7 +2166,7 @@ html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-now b,html body.cfg:not(#zz):no
     leg.innerHTML=`<h3>Zo telt u uw ramen</h3><p>Maak in het midden foto’s van uw woning. Daarna tikt u op elke foto de ramen aan met een bolletje:</p><ul>${T.map(t=>`<li><i style="background:${dt(t).col}"></i>${esc(chipName(t))}</li>`).join("")}</ul>`}catch(e){}}
   const tik=el("div","cfg-tik","Tik op de foto om ramen aan te tikken");stage.append(tik);
   const openFoto=()=>{if(typeof openEd==="function"&&fotos().length)openEd(fi)};foto.onclick=openFoto;tik.onclick=openFoto;
-  const acties=el("div","cfg-acties",`<a href="https://app.mansard.nl/portaal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></svg>Klantportaal</a>${B.whatsapp?`<a href="https://wa.me/${esc(B.whatsapp)}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4.1A8 8 0 1 1 20 11.5Z"/></svg>Hulp via WhatsApp</a>`:""}<button type="button" class="vk" aria-label="Volledig scherm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>`);stage.append(acties);
+  const acties=el("div","cfg-acties",`${B.whatsapp?`<a href="https://wa.me/${esc(B.whatsapp)}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4.1A8 8 0 1 1 20 11.5Z"/></svg>Hulp via WhatsApp</a>`:""}<button type="button" class="vk" aria-label="Volledig scherm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>`);stage.append(acties);
   acties.querySelector(".vk").onclick=()=>{try{document.fullscreenElement?document.exitFullscreen():stage.requestFullscreen()}catch(e){}};
   const PIJL=d=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
   const nav=el("div","cfg-nav",`<button type="button" data-d="-1" aria-label="Vorige foto">${PIJL("M15 5l-7 7 7 7")}</button><span class="i">1 / 1</span><button type="button" data-d="1" aria-label="Volgende foto">${PIJL("M9 5l7 7-7 7")}</button>`);stage.append(nav);
@@ -2172,7 +2174,7 @@ html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-now b,html body.cfg:not(#zz):no
   main.append(stage,col);
   /* onderbalk */
   const bar=el("div","cfg-bar",`<div class="blok"><b id="cfgB1">Uw woning</b><small><span id="cfgS1">Vul uw adres in</span><i>|</i><span id="cfgB3">–</span></small></div><div class="blok lk"><b id="cfgB2">0 ramen</b><small>Geteld op uw foto’s</small></div><div class="ruimte"></div><div class="prijs"><b id="cfgP">€ –</b><small id="cfgPs">per beurt</small></div><button type="button" class="knop" id="cfgKnop">Volgende</button>`);
-  page.prepend(top,main);document.body.append(bar);
+  page.prepend(lg,top,main);document.body.append(bar);
   /* ingebed op de homepage: de website heeft zelf al een menubalk */
   if(/[?&]embed=1/.test(location.search)){top.querySelector(".rk").style.display="none"}
   /* navigeren */
