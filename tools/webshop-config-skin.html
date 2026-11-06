@@ -349,6 +349,7 @@ html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-stage .cfg-onder .cfg-tik{width:ma
 html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-stage .cfg-onder .cfg-tik span{flex:none}
 @media (max-width:599px){html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-uitleg{display:none!important}html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-uitleg .st{display:none!important}html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-uitleg{border:0!important;padding:0!important;background:none!important;box-shadow:none!important;margin-top:4px!important}}
 html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .wz-door{gap:6px!important}html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .wz-door small{font-size:6.5px!important;letter-spacing:.18em!important}html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .wz-door img{height:7.5px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .wz-door a.cfg-door{display:flex;flex-direction:column;align-items:inherit;gap:inherit;color:inherit;text-decoration:none;cursor:pointer}html body.cfg:not(#zz):not(#zy):not(#zx) .wz-door a.cfg-door:hover{opacity:.75}
 @keyframes cfgIn{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
 html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-wrap.cfg-in{animation:cfgIn .35s ease both}
 html body.cfg:not(#zz):not(#zy):not(#zx) #ed #ed-done.cfg-verder svg{order:2}
@@ -625,6 +626,8 @@ html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-pick{padding:2px 2px 0
       const a=tabs.querySelector(".cfg-aan");if(a&&tabs.dataset.a!==String(tab)){tabs.dataset.a=tab;tabs.scrollTo({left:Math.max(0,a.offsetLeft-(tabs.clientWidth-a.offsetWidth)/2),behavior:"smooth"})}}
     /* status op de foto */
     const sp=tik.querySelector("span");if(sp){const s=!f?"Tik op de foto om ramen aan te tikken":klaar?"Ramen geteld. Tik om aan te passen":f===1?"1 foto. Ook de achterkant?":`${f} foto’s. Alle kanten gehad?`;if(sp.textContent!==s){sp.textContent=s;const ic=tik.querySelector("svg");if(ic){if(!tik.dataset.hand)tik.dataset.hand=ic.innerHTML;ic.innerHTML=f?'<circle cx="12" cy="12" r="8.5"/><path d="m8.2 12.3 2.6 2.6 5-5.4"/>':tik.dataset.hand}}}}
+  /* "mogelijk gemaakt door Mansard" linkt naar mansard.nl */
+  document.querySelectorAll(".wz-door").forEach(d=>{if(d.querySelector("a.cfg-door"))return;const a=el("a","cfg-door");a.href="https://www.mansard.nl";a.target="_blank";a.rel="noopener";a.setAttribute("aria-label","Mansard – naar www.mansard.nl");while(d.firstChild)a.append(d.firstChild);d.append(a)});
   bij();stap();setInterval(()=>{bij();stap()},500);
 })();
 </script>
