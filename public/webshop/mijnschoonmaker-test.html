@@ -2554,7 +2554,7 @@ html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-pick{padding:2px 2px 0
     for(let i=0;i<tot;i++){const lab="Foto "+(i+1);
       if(i<n)vak.push(`<div class="vak vol"><img src="${f[i]}" alt=""><i class="ok"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></i><button type="button" class="weg" data-weg="${i}" aria-label="Foto verwijderen">×</button><span>${lab}</span></div>`);
       else vak.push(`<button type="button" class="vak${i===n?" volgende":""}" data-neem>${CAM}<span>${lab}</span></button>`)}
-    fk.innerHTML=`<h3>Foto’s van alle kanten</h3><p>Zorg dat alle te wassen ramen op de foto’s staan. Maak de foto’s van een afstand en tel dezelfde ramen niet dubbel.</p><div class="cfg-vakken">${vak.join("")}</div><button type="button" class="cfg-meer${n>=4?" volgende":""}" data-neem><b>+</b><span>Meer foto’s maken<small>Grote woning of veel ramen? Maak gerust extra foto’s.</small></span></button>`;
+    fk.innerHTML=`<h3>Foto’s van alle kanten</h3><p>Zorg dat alle te wassen ramen op de foto’s staan. Maak de foto’s van een afstand.</p><div class="cfg-vakken">${vak.join("")}</div><button type="button" class="cfg-meer${n>=4?" volgende":""}" data-neem><b>+</b><span>Meer foto’s maken<small>Grote woning of veel ramen? Maak gerust extra foto’s.</small></span></button>`;
     fk.querySelectorAll("[data-neem]").forEach(b=>b.onclick=neem);
     fk.querySelectorAll("[data-weg]").forEach(b=>b.onclick=e=>{e.stopPropagation();const r=document.querySelector(`#photos [data-rm="${b.dataset.weg}"]`);if(r)r.click()})}
   const knop2=el("button","cfg-knop2",`${CAM}<span>Nog een foto</span>`);knop2.type="button";knop2.onclick=neem;bar.insertBefore(knop2,$("#cfgKnop"));
