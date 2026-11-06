@@ -34,5 +34,8 @@ const waNr = t => { let d = String(t || "").replace(/\D/g, ""); if (d.startsWith
   const html = T.slice(0, T.indexOf("/*CFG-START*/")) + conf + T.slice(T.indexOf("/*CFG-END*/")).split('${k==="m8"?" selected":""}').join('${k===FREQ_ADV?" selected":""}').split('g("freq").value==="m8"').join('g("freq").value===FREQ_ADV');
   const uit = path.join(__dirname, "..", "public", "webshop"); fs.mkdirSync(uit, { recursive: true });
   fs.writeFileSync(path.join(uit, "mijnschoonmaker.html"), html);
+  /* testversie in configurator-opbouw (zelfde rekenwerk), alleen via de directe link */
+  const skin = fs.readFileSync(path.join(__dirname, "webshop-config-skin.html"), "utf8"), bi = html.lastIndexOf("</body>");
+  fs.writeFileSync(path.join(uit, "mijnschoonmaker-test.html"), html.slice(0, bi) + skin + html.slice(bi));
   console.log("::notice title=Webshop::gemaakt · " + fla.length + " frequenties (advies " + fadv + ") · minimum " + cfg.min + " · " + gebieden.length + " werkgebieden · " + (klantPc ? klantPc.split(",").length : 0) + " klantpostcodes · logo " + (logoId ? "ja" : "nee"));
 })().catch(x => { console.error(x); process.exit(1); });
