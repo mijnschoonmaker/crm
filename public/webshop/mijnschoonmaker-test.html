@@ -1963,7 +1963,7 @@ body.cfg .cfg-bar{display:flex;align-items:center;gap:44px;position:fixed;left:0
   const m=document.createElement("meta");m.name="robots";m.content="noindex";document.head.append(m);
   const page=$(".page"),intro=$(".intro2"),wrap=$(".wrap"),foot=$(".foot"),vis=$(".i2-vis");
   /* topbalk */
-  const top=el("div","cfg-top",`<div class="l"><a href="https://www.mijnschoonmaker.com/">&larr; Terug naar de website</a></div><div class="m">${B.logo?`<img src="${esc(B.logo)}" alt="">`:""}<b>${esc(B.naam||"")}</b></div><div class="r">${B.whatsapp?`<a href="https://wa.me/${esc(B.whatsapp)}" target="_blank" rel="noopener">Hulp via WhatsApp</a>`:""}${B.email?`<a href="mailto:${esc(B.email)}">Contact</a>`:""}</div>`);
+  const top=el("div","cfg-top",`<div class="l"><a href="https://app.mansard.nl/portaal">Klantportaal</a></div><div class="m">${B.logo?`<img src="${esc(B.logo)}" alt="">`:""}<b>${esc(B.naam||"")}</b></div><div class="r">${B.whatsapp?`<a href="https://wa.me/${esc(B.whatsapp)}" target="_blank" rel="noopener">Hulp via WhatsApp</a>`:""}${B.email?`<a href="mailto:${esc(B.email)}">Contact</a>`:""}</div>`);
   /* stappen */
   const STAPPEN=[[0,"Adres"],[1,"Foto’s"],[2,"Ramen"],[3,"Bijzonder"],[4,"Frequentie"],[5,"Gegevens"]];
   const tabs=el("nav","cfg-tabs");STAPPEN.forEach(([n,t])=>{const b=el("button","",t);b.type="button";b.dataset.n=n;b.onclick=()=>naar(n);tabs.appendChild(b)});
