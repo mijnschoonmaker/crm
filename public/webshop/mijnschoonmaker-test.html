@@ -2228,6 +2228,28 @@ body.cfg-heeftfoto .cfg-col .cfg-mid{display:none}
   background:linear-gradient(180deg,color-mix(in srgb,var(--tc) 38%,#fff) 0%,color-mix(in srgb,var(--tc) 72%,#fff) 47%,var(--tc) 51%,color-mix(in srgb,var(--tc) 78%,#000) 100%);box-shadow:inset 0 0 0 1px rgba(14,17,23,.08),0 1px 2px rgba(14,17,23,.12);transition:transform .15s,box-shadow .15s}
 .cfg-stalen button:hover i{transform:translateY(-1px);box-shadow:0 0 0 2px #fff,0 0 0 4px #0e1117}
 .cfg-stalen span{font:400 11px/1.25 system-ui,-apple-system,"Segoe UI",sans-serif;color:#4a4f57;text-align:center;max-width:100%;white-space:normal;min-height:2.5em}
+/* één foto tegelijk + volgende stap */
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .cfg-fnr{display:block;font:600 10.5px/1 system-ui,-apple-system,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#6b7079;margin:0 0 7px}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .cfg-fdots{display:flex;gap:6px;margin:10px 0 2px}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .cfg-fdots:empty{display:none}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .cfg-fdots i{display:block;width:26px;height:4px;border-radius:2px;background:#e1e4e8;transition:background .25s}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .cfg-fdots i.ok{background:#7f918e}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .cfg-fdots i.nu{background:#0e1117}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .cfg-toast{position:fixed;left:50%;top:88px;transform:translate(-50%,-8px);width:max-content;max-width:min(340px,calc(100vw - 32px));box-sizing:border-box;background:#0e1117;color:#fff;font:500 13.5px/1.4 system-ui,-apple-system,sans-serif;padding:12px 16px;border-radius:12px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:200;text-align:center;box-shadow:0 14px 30px -12px rgba(0,0,0,.55)}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .cfg-toast.aan{opacity:1;transform:translate(-50%,0)}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-stage .cfg-onder .cfg-tik{width:max-content!important;max-width:min(560px,calc(100vw - 56px))!important;flex:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-stage .cfg-onder .cfg-tik span{flex:none}
+@keyframes cfgIn{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-wrap.cfg-in{animation:cfgIn .35s ease both}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed #ed-done.cfg-verder svg{order:2}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-hint{display:none}
+@media (max-width:999px){
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-bar.np.cfg-mh .cfg-hint{display:flex;flex-direction:column;justify-content:center;gap:5px;min-width:0;flex:1 1 auto}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-bar .cfg-hint small{font:600 9.5px/1 system-ui,-apple-system,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#6b7079}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-bar .cfg-hint b{font:500 14px/1.2 system-ui,-apple-system,sans-serif;color:#0e1117;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-bar.np.cfg-mh .knop{flex:0 0 auto!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-bar.np.cfg-mh .ruimte{display:none}
+}
 }
 </style>
 
@@ -2364,6 +2386,7 @@ html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-pick{padding:2px 2px 0
   const B=typeof BEDRIJF==="object"?BEDRIJF:{};
   const esc=s=>String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   document.body.classList.add("cfg");
+  const gedaan=p=>!!(p&&(p.dots.length||p.cfgLeeg));
   const h1=document.querySelector("h1.ml-title");if(h1){h1.style.setProperty("letter-spacing","-0.01em","important");h1.style.setProperty("text-transform","none","important")}
   const m=document.createElement("meta");m.name="robots";m.content="noindex";document.head.append(m);
   const page=$(".page"),intro=$(".intro2"),wrap=$(".wrap"),foot=$(".foot"),vis=$(".i2-vis");
@@ -2391,7 +2414,7 @@ html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-pick{padding:2px 2px 0
   /* rechts bij particulier na de postcode: de bolletjes */
   const leg=el("div","cfg-leg");{const w2=document.getElementById("wz2");if(w2)w2.append(leg)}
   let legKey="";function legenda(){try{const T=typeList(),k=T.join();if(k===legKey)return;legKey=k;
-    leg.innerHTML=`<h3>Zo telt u uw ramen</h3><p>Kies een kleur en tik op de foto elk raam aan.</p><div class="cfg-stalen">${T.map(t=>`<button type="button" data-st="${t}" style="--tc:${dt(t).col}"><i>${esc(dt(t).c)}</i><span>${esc(chipName(t))}</span></button>`).join("")}</div><div class="tip-w onder"><b>Tip voor buiten</b>Maak eerst al uw foto’s. Binnen tikt u daarna rustig de ramen aan en vult u uw gegevens in. Uw foto’s blijven bewaard op dit apparaat.</div>`;leg.querySelectorAll("[data-st]").forEach(b=>b.onclick=()=>{if(!photos.length){const i=document.getElementById("ph-in");if(i)i.click();return}const j=Math.max(0,photos.findIndex(p=>!p.dots.length));openEd(j);setTimeout(()=>{const k=document.querySelector(`#ed-types [data-t="${b.dataset.st}"]`);if(k)k.click()},60)})}catch(e){}}
+    leg.innerHTML=`<h3>Zo telt u uw ramen</h3><p>Kies een kleur en tik op de foto elk raam aan.</p><div class="cfg-stalen">${T.map(t=>`<button type="button" data-st="${t}" style="--tc:${dt(t).col}"><i>${esc(dt(t).c)}</i><span>${esc(chipName(t))}</span></button>`).join("")}</div><div class="tip-w onder"><b>Tip voor buiten</b>Maak eerst al uw foto’s. Binnen tikt u daarna rustig de ramen aan en vult u uw gegevens in. Uw foto’s blijven bewaard op dit apparaat.</div>`;leg.querySelectorAll("[data-st]").forEach(b=>b.onclick=()=>{if(!photos.length){const i=document.getElementById("ph-in");if(i)i.click();return}const j=Math.max(0,photos.findIndex(p=>!gedaan(p)));openEd(j);setTimeout(()=>{const k=document.querySelector(`#ed-types [data-t="${b.dataset.st}"]`);if(k)k.click()},60)})}catch(e){}}
   const tik=el("div","cfg-tik",`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10"/><path d="M12 9.5a1.5 1.5 0 0 1 3 0V11"/><path d="M15 10.5a1.5 1.5 0 0 1 3 0v3.5a6 6 0 0 1-6 6h-.6a5 5 0 0 1-4-2L5 15.2a1.5 1.5 0 0 1 2.3-1.9L9 15"/></svg><span>Tik op de foto om ramen aan te tikken</span>`);stage.append(tik);
   const openFoto=()=>{if(typeof openEd==="function"&&fotos().length)openEd(fi)};foto.onclick=openFoto;tik.onclick=openFoto;
   const onder=el("div","cfg-onder");const nog=el("button","cfg-tik cfg-nog",`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.6-2.4h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.6"/></svg><span>Nog een foto</span>`);nog.type="button";
@@ -2437,7 +2460,7 @@ html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-pick{padding:2px 2px 0
   const huidig=()=>{const o=document.querySelector(".acc.open:not([hidden])");if(!o)return 0;return +o.dataset.step};
   function naar(n){if(n===0){col.scrollTo({top:0,behavior:"smooth"});return}
     if(typeof openStep==="function")openStep(n);const c=document.querySelector(`.acc[data-step="${n}"]`);if(c)setTimeout(()=>c.scrollIntoView({behavior:"smooth",block:"start"}),60)}
-  $("#cfgKnop").onclick=()=>{{const st=mid.dataset.st;if(st==="foto"&&photos.some(p=>p.dots.length)){const av=document.getElementById("aanvraag"),open=!!(av&&av.offsetParent&&av.classList.contains("open")),og=document.querySelector("#ov [data-ovgo]");if(open){const ind=document.getElementById("indienen");if(ind){ind.scrollIntoView({behavior:"smooth",block:"center"});ind.click()}return}if(og&&og.offsetParent){og.click();setTimeout(()=>{const a=document.getElementById("aanvraag");if(a)a.scrollIntoView({behavior:"smooth",block:"start"})},350);return}}if(st==="kies"){mid.classList.add("open");mid.scrollIntoView({behavior:"smooth",block:"center"});return}if(st==="zak"){const z=document.getElementById("zkSend");if(z)z.click();return}if(st==="adres"){const q=document.getElementById("adrQ");if(q)q.focus();return}if(st==="foto"&&!fotos().length){const i=document.getElementById("ph-in");if(i)i.click();return}if(st==="foto"&&!photos.some(p=>p.dots.length)){const j=Math.max(0,photos.findIndex(p=>!p.dots.length));openEd(j);return}}const n=huidig(),start=$("#goStart");
+  $("#cfgKnop").onclick=()=>{{const st=mid.dataset.st;if(st==="foto"&&(photos.length&&photos.every(gedaan))){const av=document.getElementById("aanvraag"),open=!!(av&&av.offsetParent&&av.classList.contains("open")),og=document.querySelector("#ov [data-ovgo]");if(open){const ind=document.getElementById("indienen");if(ind){ind.scrollIntoView({behavior:"smooth",block:"center"});ind.click()}return}if(og&&og.offsetParent){og.click();setTimeout(()=>{const a=document.getElementById("aanvraag");if(a)a.scrollIntoView({behavior:"smooth",block:"start"})},350);return}}if(st==="kies"){mid.classList.add("open");mid.scrollIntoView({behavior:"smooth",block:"center"});return}if(st==="zak"){const z=document.getElementById("zkSend");if(z)z.click();return}if(st==="adres"){const q=document.getElementById("adrQ");if(q)q.focus();return}if(st==="foto"&&!fotos().length){const i=document.getElementById("ph-in");if(i)i.click();return}if(st==="foto"&&!(photos.length&&photos.every(gedaan))){const j=Math.max(0,photos.findIndex(p=>!gedaan(p)));openEd(j);return}}const n=huidig(),start=$("#goStart");
     if(!document.querySelector(".acc.open:not([hidden])")||(start&&!start.hidden&&col.scrollTop<200)){if(start&&!start.hidden){start.click();return}naar(1);return}
     if(n<4){naar(n+1);return}
     if(n===4){const tf=$("#toForm");if(tf)tf.click();else{const c=$("#calcBtn");if(c)c.click()}return}
@@ -2460,10 +2483,39 @@ html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-pick{padding:2px 2px 0
     const fr=$("#freq");$("#cfgB3").textContent=fr&&fr.selectedOptions[0]?fr.selectedOptions[0].textContent:"–";
     const p=document.querySelector("#out .op-l b");$("#cfgP").textContent=p?p.textContent:"€ –";$("#cfgPs").textContent=p?"per beurt, "+(document.querySelector("#out .op-l small:nth-of-type(2)")||{textContent:"incl. btw"}).textContent.replace(/^.*·\s*/,""):"per beurt, na het tellen";
     $("#cfgKnop").textContent=n===5?"Indienen":n===4?(p?"Gegevens invullen":"Bereken prijs"):"Volgende";
-    {const st=mid.dataset.st,b1=$("#cfgB1"),k=$("#cfgKnop");if(st==="kies"){b1.textContent="Uw woning";k.textContent="Beginnen"}else if(st==="zak"){b1.textContent="Bedrijf / VvE";$("#cfgS1").textContent="Contactformulier";k.textContent="Versturen"}else if(st==="adres")k.textContent="Volgende";else if(st==="foto"&&!fotos().length)k.textContent="Foto’s maken";else if(st==="foto"&&!photos.some(p=>p.dots.length))k.textContent="Ramen aantikken";else if(st==="foto"){const av=document.getElementById("aanvraag"),open=!!(av&&av.offsetParent&&av.classList.contains("open"));if(document.querySelector("#ov [data-ovgo]")&&document.querySelector("#ov [data-ovgo]").offsetParent||open)k.textContent=open?"Indienen":"Gegevens invullen"}}
+    {const st=mid.dataset.st,b1=$("#cfgB1"),k=$("#cfgKnop");if(st==="kies"){b1.textContent="Uw woning";k.textContent="Beginnen"}else if(st==="zak"){b1.textContent="Bedrijf / VvE";$("#cfgS1").textContent="Contactformulier";k.textContent="Versturen"}else if(st==="adres")k.textContent="Volgende";else if(st==="foto"&&!fotos().length)k.textContent="Foto’s maken";else if(st==="foto"&&!(photos.length&&photos.every(gedaan)))k.textContent="Ramen aantikken";else if(st==="foto"){const av=document.getElementById("aanvraag"),open=!!(av&&av.offsetParent&&av.classList.contains("open"));if(document.querySelector("#ov [data-ovgo]")&&document.querySelector("#ov [data-ovgo]").offsetParent||open)k.textContent=open?"Indienen":"Gegevens invullen"}}
     {const pr=$("#cfgP");document.querySelector(".cfg-bar").classList.toggle("np",!pr||/–|-\s*$/.test(pr.textContent)||["kies","adres"].includes(mid.dataset.st))}
     toon()}
-  bij();setInterval(bij,500);
+  /* één foto tegelijk: na een foto direct de volgende, met voortgang */
+  const VINK=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>`,VERDER=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>`;
+  const edDone=document.getElementById("ed-done");let leegTik=-1;
+  function volg(){const n=photos.length;for(let k=1;k<n;k++){const j=(edIdx+k)%n;if(!gedaan(photos[j]))return j}return -1}
+  function toast(t){const ed=document.getElementById("ed");if(!ed)return;let e=ed.querySelector(".cfg-toast");if(!e){e=el("div","cfg-toast");ed.append(e)}e.textContent=t;e.classList.add("aan");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("aan"),3800)}
+  function edBij(){try{const ed=document.getElementById("ed");if(!ed||ed.hidden||edIdx<0||!photos[edIdx])return;const n=photos.length,v=volg();
+    const t=document.getElementById("ed-title");if(t){const h=`<span class="cfg-fnr">Foto ${edIdx+1} van ${n}</span>Tik op elk raam`;if(t.innerHTML!==h)t.innerHTML=h}
+    let fd=ed.querySelector(".cfg-fdots");if(!fd&&t){fd=el("div","cfg-fdots");t.after(fd)}
+    if(fd){const h=n>1?photos.map((p,i)=>`<i class="${i===edIdx?"nu":p.dots.length?"ok":""}"></i>`).join(""):"";if(fd.innerHTML!==h)fd.innerHTML=h}
+    const lbl=v>=0?`Volgende foto${VERDER}`:`${VINK}Klaar`;if(edDone&&edDone.dataset.l!==lbl){edDone.dataset.l=lbl;edDone.innerHTML=lbl;edDone.classList.toggle("cfg-verder",v>=0)}}catch(e){}}
+  if(edDone)edDone.onclick=()=>{const p=photos[edIdx];if(p&&!p.dots.length&&leegTik!==edIdx){leegTik=edIdx;toast("Tik eerst op elk raam op deze foto. Staan er geen ramen op? Tik dan nog een keer.");return}
+    if(p&&!p.dots.length)p.cfgLeeg=true;leegTik=-1;const v=volg();if(v>=0){const w=document.getElementById("ed-wrap");openEd(v);if(w){w.classList.remove("cfg-in");void w.offsetWidth;w.classList.add("cfg-in")}toast(`Top! Nu foto ${v+1} van ${photos.length}.`);edBij();return}
+    closeEd();if(!matchMedia("(min-width:1000px)").matches)setTimeout(()=>{const o=document.querySelector(".cfg-col .ov-price")||document.getElementById("ov");if(o)o.scrollIntoView({behavior:"smooth",block:"center"})},400)};
+  document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("#ed"))setTimeout(edBij,0)},true);setInterval(edBij,300);
+  /* wat is de volgende stap: aanwijzing in de onderbalk en de juiste tab */
+  const hint=el("div","cfg-hint","<small></small><b></b>");bar.insertBefore(hint,bar.querySelector(".ruimte"));
+  function stap(){const st=mid.dataset.st,f=fotos().length,klaar=photos.length&&photos.every(gedaan),av=document.getElementById("aanvraag"),open=!!(av&&av.offsetParent&&av.classList.contains("open"));
+    let h=null,tab=null;
+    if(st==="kies"){h=["Stap 1 van 4","Particulier of zakelijk?"];tab=0}
+    else if(st==="adres"){h=["Stap 1 van 4","Vul uw postcode in"];tab=0}
+    else if(st==="zak"){h=["Zakelijk","Vul het formulier in"]}
+    else if(st==="foto"&&!f){h=["Stap 2 van 4","Maak een foto van uw huis"];tab=1}
+    else if(st==="foto"&&!klaar){const nog=photos.filter(p=>!gedaan(p)).length;h=["Stap 3 van 4",nog>1?`Tik de ramen aan (${nog} foto’s)`:"Tik de ramen aan"];tab=2}
+    else if(st==="foto"){h=[open?"Laatste stap":"Stap 4 van 4",open?"Vul uw gegevens in":"Bekijk uw prijs"];tab=open?5:2}
+    hint.querySelector("small").textContent=h?h[0]:"";hint.querySelector("b").textContent=h?h[1]:"";bar.classList.toggle("cfg-mh",!!h);
+    if(tab!=null&&!huidig()){tabs.querySelectorAll("button").forEach(b=>{const k=+b.dataset.n;b.classList.toggle("cfg-aan",k===tab);b.classList.toggle("cfg-ok",k<tab&&(k<3||tab===5))});
+      const a=tabs.querySelector(".cfg-aan");if(a&&tabs.dataset.a!==String(tab)){tabs.dataset.a=tab;tabs.scrollTo({left:Math.max(0,a.offsetLeft-(tabs.clientWidth-a.offsetWidth)/2),behavior:"smooth"})}}
+    /* status op de foto */
+    const sp=tik.querySelector("span");if(sp){const s=!f?"Tik op de foto om ramen aan te tikken":klaar?"Ramen geteld. Tik om aan te passen":f===1?"1 foto. Ook de achterkant?":`${f} foto’s. Alle kanten gehad?`;if(sp.textContent!==s){sp.textContent=s;const ic=tik.querySelector("svg");if(ic){if(!tik.dataset.hand)tik.dataset.hand=ic.innerHTML;ic.innerHTML=f?'<circle cx="12" cy="12" r="8.5"/><path d="m8.2 12.3 2.6 2.6 5-5.4"/>':tik.dataset.hand}}}}
+  bij();stap();setInterval(()=>{bij();stap()},500);
 })();
 </script>
 </body>
