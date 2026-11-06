@@ -2475,7 +2475,7 @@ html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-pick{padding:2px 2px 0
   /* samenvatting en actieve stap bijwerken */
   const txt=s=>{const e=$(s);return e?e.textContent.trim():""};
   function bij(){const n=huidig();bewaar();{const zv=id=>{const e=document.getElementById(id);return !!e&&!e.hidden};const gs=document.getElementById("goStart");
-    const st=zv("wz3")?"zak":zv("wz2")?(gs&&!gs.hidden?"foto":"adres"):"kies";if(st!=="kies")mid.classList.remove("open");if(st!==mid.dataset.st&&mid.dataset.st){const ae=document.activeElement;if(ae&&ae.id==="adrQ")ae.blur();document.body.classList.remove("cfg-typen")}if(st==="foto"&&mid.dataset.st!=="foto"&&!matchMedia("(min-width:1000px)").matches)setTimeout(()=>stage.scrollIntoView({behavior:"smooth",block:"center"}),350);mid.dataset.st=st;document.body.dataset.cfgst=st;
+    const st=zv("wz3")?"zak":zv("wz2")?(gs&&!gs.hidden?"foto":"adres"):"kies";if(st!=="kies")mid.classList.remove("open");if(st!==mid.dataset.st&&mid.dataset.st){const ae=document.activeElement;if(ae&&ae.id==="adrQ")ae.blur();document.body.classList.remove("cfg-typen")}if(st==="foto"&&mid.dataset.st==="adres"&&!matchMedia("(min-width:1000px)").matches)setTimeout(()=>{legenda();leg.style.scrollMarginTop="150px";leg.scrollIntoView({behavior:"smooth",block:"start"})},450);mid.dataset.st=st;document.body.dataset.cfgst=st;
     const say=document.getElementById("zkSay"),ok=say&&/\bok\b/.test(say.className);
     {const w=matchMedia("(min-width:1000px)").matches?"rechts":"hieronder";mid.querySelector(".m-info .t").textContent=st==="zak"?(ok?"Bedankt, wij nemen snel contact met u op":"Vul "+w+" het contactformulier in"):"Vul "+w+" uw postcode en huisnummer in";}
     if(st==="foto")legenda()}
