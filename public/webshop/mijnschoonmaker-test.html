@@ -2309,6 +2309,36 @@ html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .zk-g,html body.cfg:not(#zz):n
 html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-side{max-height:50vh}
 }
 </style>
+
+<style>
+/* verdiepingen en raamsoorten als kleurstalen */
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-lab{display:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-pick{display:block!important;overflow:visible!important}
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-side{overflow-x:visible!important}
+.cfg-tlab{display:flex;align-items:baseline;gap:8px;margin:0 0 14px;font:400 14.5px/1.3 system-ui,-apple-system,"Segoe UI",sans-serif;color:#0e1117}
+.cfg-tlab span{color:#5b6068;font-size:13px}
+.cfg-tlab b{font-weight:500}
+.cfg-tlab button{all:unset;cursor:pointer;display:none;place-items:center;width:20px;height:20px;border-radius:50%;background:#f1f2f3;font:700 11px/1 Georgia,serif;color:#0e1117;margin-left:2px;align-self:center}
+.cfg-tlab.info button{display:grid}
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-types{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:12px!important;flex-direction:unset!important;flex-wrap:unset!important;overflow:visible!important;padding:8px 8px 4px 4px!important;margin:0 -8px 0 -4px!important;-webkit-mask-image:none!important;mask-image:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-types .ed-tw{display:contents!important}
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-types .ed-i{display:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-types button[data-t]{position:relative!important;display:block!important;width:100%!important;height:auto!important;aspect-ratio:1/1;min-width:0!important;padding:0!important;margin:0!important;border:0!important;border-radius:12px!important;font-size:0!important;color:transparent!important;cursor:pointer;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--tc) 38%,#fff) 0%,color-mix(in srgb,var(--tc) 72%,#fff) 47%,var(--tc) 51%,color-mix(in srgb,var(--tc) 78%,#000) 100%)!important;
+  box-shadow:inset 0 0 0 1px rgba(14,17,23,.08),0 1px 2px rgba(14,17,23,.12)!important;transition:box-shadow .15s,transform .15s!important;transform:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-types button[data-t]:hover{transform:translateY(-1px)!important}
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-types button[data-t] i{position:absolute!important;inset:0!important;display:grid!important;place-items:center!important;width:auto!important;height:auto!important;background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;font:600 13px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:.02em!important;color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.35)!important}
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-types button[data-t] b{position:absolute!important;top:3px!important;right:3px!important;min-width:17px!important;height:17px!important;padding:0 5px!important;margin:0!important;box-sizing:border-box;display:grid!important;place-items:center!important;border-radius:999px!important;background:#0e1117!important;color:#fff!important;font:600 10px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;box-shadow:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-types button[data-t][aria-checked="true"]{box-shadow:0 0 0 2px #fff,0 0 0 4px #0e1117,0 6px 14px -6px rgba(14,17,23,.4)!important}
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-types button[data-t][aria-checked="true"] b{background:#fff!important;color:#0e1117!important;box-shadow:0 0 0 2px #0e1117!important}
+@media (max-width:999px){
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-types{grid-template-columns:repeat(auto-fill,minmax(40px,1fr))!important;gap:10px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-types button[data-t]{height:auto!important;border-radius:11px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-types button[data-t] i{font-size:12px!important;width:auto!important;height:auto!important}
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-pick{padding:2px 2px 0!important}
+.cfg-tlab{margin:0 0 10px;font-size:14px}
+}
+</style>
 <script>
 (function(){
   const $=s=>document.querySelector(s),el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e};
@@ -2352,6 +2382,12 @@ html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-side{max-height:50vh}
   if(typeof openEd==="function"){const edOrig=openEd;window.openEd=function(i){if(geenAuto){geenAuto=false;fi=Math.max(0,photos.length-1);setTimeout(toon,0);return}return edOrig.apply(this,arguments)}}
   document.addEventListener("focusin",e=>{if(e.target.matches&&e.target.matches("input:not([type=range]):not([type=file]):not([type=checkbox]),textarea,select")&&!matchMedia("(min-width:1000px)").matches)document.body.classList.add("cfg-typen")});
   document.addEventListener("focusout",()=>setTimeout(()=>{const a=document.activeElement;if(!a||!a.matches||!a.matches("input:not([type=range]):not([type=file]):not([type=checkbox]),textarea,select"))document.body.classList.remove("cfg-typen")},120));
+  /* naam van het gekozen kleurstaal boven de stalen */
+  function tlab(){const box=document.getElementById("ed-types");if(!box)return;let l=document.querySelector(".cfg-tlab");
+    if(!l){l=el("div","cfg-tlab",`<span>Ik tik nu aan:</span><b></b><button type="button" aria-label="Uitleg">i</button>`);box.before(l);l.querySelector("button").onclick=()=>{const t=l.dataset.t,i=document.querySelector(`.ed-i[data-info="${t}"]`);if(i)i.click()}}
+    const c=box.querySelector('[aria-checked="true"]');if(!c)return;const nm=[...c.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent).join("").trim(),b=c.querySelector("b"),n=b?parseInt(b.textContent)||0:0;
+    l.querySelector("b").textContent=nm+(n?` · ${n} ${n===1?"raam":"ramen"}`:"");l.dataset.t=c.dataset.t;l.classList.toggle("info",!!document.querySelector(`.ed-i[data-info="${c.dataset.t}"]`))}
+  document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("#ed"))setTimeout(tlab,0)},true);setInterval(tlab,400);
   /* bewaren op dit apparaat: verder waar u gebleven was (bijv. binnen, als het buiten koud is) */
   const IDB=(m,k,v)=>new Promise(res=>{try{const r=indexedDB.open("ms-webshop",1);r.onupgradeneeded=()=>r.result.createObjectStore("kv");r.onerror=()=>res(null);
     r.onsuccess=()=>{try{const tx=r.result.transaction("kv",m==="get"?"readonly":"readwrite"),st=tx.objectStore("kv");const q=m==="get"?st.get(k):m==="put"?st.put(v,k):st.delete(k);q.onsuccess=()=>res(q.result);q.onerror=()=>res(null)}catch(e){res(null)}}}catch(e){res(null)}});
