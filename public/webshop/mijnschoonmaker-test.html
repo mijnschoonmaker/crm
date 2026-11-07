@@ -2266,6 +2266,18 @@ html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-fotos .cfg-meer{appearance:none;-w
 html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-fotos .cfg-meer b{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#0e1117;color:#fff;font:400 20px/1 system-ui}
 html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-fotos .cfg-meer small{display:block;margin-top:3px;font:400 12px/1.35 system-ui,-apple-system,sans-serif;color:#5b6068}
 html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-fotos .cfg-meer.volgende{border:2px solid #0e1117;background:#fff;animation:cfgPuls 1.8s ease-in-out infinite}
+/* desktop/tablet: kaarten direct zichtbaar, vergrendeld tot postcode en foto's */
+@media (min-width:600px){
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-uitleg{display:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-voor .cfg-fotos,html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-voor .cfg-leg{display:block!important;position:relative}
+html body.cfg:not(#zz):not(#zy):not(#zx)[data-cfgst="zak"] .cfg-voor{display:none}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-voor [data-lock] > *{opacity:.38;pointer-events:none;filter:grayscale(.35);transition:opacity .3s}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-voor [data-lock] .volgende{animation:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-voor [data-lock]::before{content:attr(data-lock);display:inline-flex;margin:0 0 12px;align-items:center;gap:6px;padding:6px 10px 6px 26px;border-radius:999px;background:#0e1117 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='11' width='14' height='9' rx='2'/%3E%3Cpath d='M8 11V8a4 4 0 0 1 8 0v3'/%3E%3C/svg%3E") no-repeat 9px center/12px;color:#fff;font:500 10.5px/1 system-ui,-apple-system,sans-serif;letter-spacing:.02em}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-voor .cfg-fotos{margin-top:14px}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-voor .cfg-vakken .vak{aspect-ratio:1}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-voor .cfg-vakken .vak.vol{aspect-ratio:1}
+}
 @keyframes cfgIn{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
 html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-wrap.cfg-in{animation:cfgIn .35s ease both}
 html body.cfg:not(#zz):not(#zy):not(#zx) #ed #ed-done.cfg-verder svg{order:2}
@@ -2503,7 +2515,7 @@ html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-pick{padding:2px 2px 0
     const st=zv("wz3")?"zak":zv("wz2")?(gs&&!gs.hidden?"foto":"adres"):"kies";if(st!=="kies")mid.classList.remove("open");if(st!==mid.dataset.st&&mid.dataset.st){const ae=document.activeElement;if(ae&&ae.id==="adrQ")ae.blur();document.body.classList.remove("cfg-typen")}{const ak=st==="foto"&&typeof ADR!=="undefined"&&ADR?JSON.stringify(ADR):"";if(ak&&ak!==adrKey&&adrGetypt&&!matchMedia("(min-width:1000px)").matches){adrGetypt=false;const ae=document.activeElement;if(ae&&ae.blur)ae.blur();const ga=sm=>{legenda();const y=leg.getBoundingClientRect().top+scrollY-228;scrollTo({top:Math.max(0,y),behavior:sm?"smooth":"auto"})};setTimeout(()=>ga(true),350);setTimeout(()=>ga(false),1100)}if(ak)adrKey=ak}mid.dataset.st=st;document.body.dataset.cfgst=st;
     const say=document.getElementById("zkSay"),ok=say&&/\bok\b/.test(say.className);
     {const w=matchMedia("(min-width:1000px)").matches?"rechts":"hieronder";mid.querySelector(".m-info .t").textContent=st==="zak"?(ok?"Bedankt, wij nemen snel contact met u op":"Vul "+w+" het contactformulier in"):"Vul "+w+" uw postcode en huisnummer in";}
-    if(st==="foto")legenda()}
+    legenda()}
     document.querySelectorAll(".cfg-col .ov-price").forEach(op=>{if(op.querySelector(".tk-kop"))return;const k=el("div","tk-kop");k.append(B.logo?Object.assign(el("img"),{src:B.logo,alt:""}):el("span","",esc(B.naam||"")));op.prepend(k)});if(wrap)wrap.classList.toggle("cfg-leeg",!document.querySelector(".acc:not([hidden])"));
     tabs.querySelectorAll("button").forEach(b=>{const k=+b.dataset.n;b.classList.toggle("cfg-aan",k===n||(k===0&&!document.querySelector(".acc.open:not([hidden])")));const s=k?txt("#sum"+k):"";b.classList.toggle("cfg-ok",!!s&&k!==n)});
     const adr=$("#adrQ");$("#cfgB1").textContent=txt("#wzSoort")||"Uw woning";$("#cfgS1").textContent=adr&&adr.value?adr.value:"Vul uw adres in";
@@ -2539,7 +2551,7 @@ html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-pick{padding:2px 2px 0
     else if(fase()){h=null;tab=1}
     else if(st==="foto"&&!klaar){const nog=photos.filter(p=>!gedaan(p)).length;h=["Stap 3 van 4",nog>1?`Tik de ramen aan (${nog} foto’s)`:"Tik de ramen aan"];tab=2}
     else if(st==="foto"){h=[open?"Laatste stap":"Stap 4 van 4",open?"Vul uw gegevens in":"Bekijk uw prijs"];tab=open?5:2}
-    hint.querySelector("small").textContent=h?h[0]:"";hint.querySelector("b").textContent=h?h[1]:"";bar.classList.toggle("cfg-mh",!!h);bar.classList.toggle("cfg-ff",fase());if(mid.dataset.st==="foto")fotoKaart();
+    hint.querySelector("small").textContent=h?h[0]:"";hint.querySelector("b").textContent=h?h[1]:"";bar.classList.toggle("cfg-mh",!!h);bar.classList.toggle("cfg-ff",fase());fotoKaart();voorBij();
     if(tab!=null&&!huidig()){tabs.querySelectorAll("button").forEach(b=>{const k=+b.dataset.n;b.classList.toggle("cfg-aan",k===tab);b.classList.toggle("cfg-ok",k<tab&&(k<3||tab===5))});
       const a=tabs.querySelector(".cfg-aan");if(a&&tabs.dataset.a!==String(tab)){tabs.dataset.a=tab;tabs.scrollTo({left:Math.max(0,a.offsetLeft-(tabs.clientWidth-a.offsetWidth)/2),behavior:"smooth"})}}
     /* status op de foto */
@@ -2561,6 +2573,14 @@ html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-pick{padding:2px 2px 0
   $("#cfgKnop").addEventListener("click",()=>{if(fase())fotosKlaar=true},true);
   /* na een nieuwe foto op de telefoon: de fotovakken in beeld */
   document.addEventListener("change",e=>{const t=e.target;if(t&&t.id==="ph-in"&&t.files&&t.files.length&&!matchMedia("(min-width:1000px)").matches)setTimeout(()=>{fk.dataset.sig="";fotoKaart();const y=fk.getBoundingClientRect().top+scrollY-110;scrollTo({top:Math.max(0,y),behavior:"smooth"})},1200)},true);
+  /* desktop en tablet: fotovakken en kleurtegels direct zichtbaar, pas bruikbaar na postcode en foto's */
+  const voor=el("div","cfg-voor");{const wz=document.querySelector(".i2-txt > .wz");if(wz)wz.after(voor);else uitleg.after(voor)}
+  const groot=matchMedia("(min-width:600px)");
+  function plaats(){if(groot.matches){if(fk.parentElement!==voor)voor.append(fk,leg)}else{const w2=document.getElementById("wz2");if(w2&&fk.parentElement!==w2)w2.append(fk,leg)}}
+  plaats();{const dr=document.querySelector(".wz-door");if(dr)voor.after(dr)}try{groot.addEventListener("change",plaats)}catch(e){groot.addListener(plaats)}
+  function voorBij(){const st=mid.dataset.st,f=fotos().length;
+    if(st!=="foto"){fk.dataset.lock="Eerst uw postcode invullen";leg.dataset.lock="Eerst foto’s maken"}
+    else{delete fk.dataset.lock;if(!f)leg.dataset.lock="Eerst foto’s maken";else delete leg.dataset.lock}}
   /* "mogelijk gemaakt door Mansard" linkt naar mansard.nl */
   document.querySelectorAll(".wz-door").forEach(d=>{if(d.querySelector("a.cfg-door"))return;const a=el("a","cfg-door");a.href="https://www.mansard.nl";a.target="_blank";a.rel="noopener";a.setAttribute("aria-label","Mansard – naar www.mansard.nl");while(d.firstChild)a.append(d.firstChild);d.append(a)});
   bij();stap();setInterval(()=>{bij();stap()},500);
