@@ -19,6 +19,10 @@ const waNr = t => { let d = String(t || "").replace(/\D/g, ""); if (d.startsWith
   const fc = s.freqCalc || {}, fw = s.freqWeb || {}, list = FREQ_BASE.slice();
   [...Object.entries(fc), ...Object.entries(fw)].forEach(([k, v]) => { if (v && typeof v === "object" && Number(v.w) > 0 && !list.some(x => x[0] === k)) list.push([k, String(v.l || "1x per " + v.w + " weken"), 52 / Number(v.w), 0, Number(v.w)]); });
   const g = [...(u.groepen || []), ...(u.eigen || [])].find(x => x && (x.id === "glas" || x.type === "glas"));
+  /* per-dienst frequentiekorting voor bijzondere ramen (zoals de rekentool in het CRM) */
+  const gb = [...(u.groepen || []), ...(u.eigen || [])].find(x => x && (x.id === "bijz" || x.type === "bijz"));
+  cfg.fpB = gb && gb.fpw && typeof gb.fpw === "object" ? Object.fromEntries(Object.entries(gb.fpw).filter(([, v]) => v !== "" && v != null).map(([w, v]) => [w, Math.max(-500, Math.min(100, Number(v) || 0))])) : {};
+  console.log("::notice title=Prijzen::glas fp " + JSON.stringify(cfg.fp) + " · bijz fpw " + JSON.stringify(cfg.fpB) + " · min " + cfg.min + " · start " + cfg.start + " · koz " + JSON.stringify({ koz_p: r.koz_p, kozMin: r.kozMin }) + " · glas fpw " + JSON.stringify(g && g.fpw || {}));
   const keuzes = g && Array.isArray(g.freqs) && g.freqs.length ? g.freqs.map(String) : null, advies = g && g.freqAdvies != null && g.freqAdvies !== "" ? String(g.freqAdvies) : null;
   const fla = list.map(([k, l, y, p, w]) => ({ k, l, p, w, aan: (fw[k] === undefined ? (FREQ_BASE.some(x => x[0] === k) ? fc[k] !== false : !!(fc[k] && typeof fc[k] === "object")) : !!fw[k]) && (!keuzes || keuzes.includes(k)), adv: advies === k })).filter(f => f.aan);
   const fadv = (fla.find(f => f.adv) || fla.find(f => f.k === "m8") || fla[0] || {}).k || "m8";
