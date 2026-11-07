@@ -412,7 +412,7 @@ function buildRamen(){
     {k:"tuimel",l:"Dak- / tuimelraam",s:53,p:1.61},{k:"lood",l:"Glas-in-lood",s:75,p:1.90,se:true,pe:true},
     {k:"koepel",l:"Lichtkoepel",s:60,p:2.20,se:true,pe:true},{k:"mini",l:"Miniraampje",s:13,p:0.40,pe:true}];
   const SPECIAL=[{k:"lood",n:"Glas-in-lood",d:"Bovenlichten met lood"},{k:"mini",n:"Miniraampjes",d:"Tel elk ruitje"},{k:"koepel",n:"Lichtkoepels",d:"Op een plat dak"},{k:"tuimel",n:"Dak- / tuimelramen",d:"Schuin in het dak"}];
-  const DEFAULTS={start:0,min:56.20,kozMin:40.63,koz_p:0.65,koz_s:30,tiers:[[10,10],[20,20],[30,30],[40,40]],tb:{},wg:{},fp:{}};
+  const DEFAULTS={start:0,min:56.20,minAlles:false,kozMin:40.63,koz_p:0.65,koz_s:30,tiers:[[10,10],[20,20],[30,30],[40,40]],tb:{},wg:{},fp:{}};
   /* frequentie: [sleutel, label, beurten per jaar, korting %, weken in Mansard] — negatief = toeslag */
   const FREQ_LIST=[["w1","1x per week",52,0,1],["w2","1x per 2 weken",26,0,2],["w4","1x per 4 weken",13,0,4],["mnd","1x per maand",12,0,4],
     ["w6","1x per 6 weken",52/6,0,6],["m8","1x per 8 weken",6.5,5,8],["mnd2","1x per 2 maanden",6,0,8],["w12","1x per 12 weken",52/12,0,12],
@@ -661,7 +661,9 @@ const ICON={
     /* glasbewassing en bijzondere ramen staan los van elkaar: de minimumprijs geldt voor de gewone glasbewassing (verdiepingen);
        alleen bijzondere ramen zonder gewone ramen krijgen zelf de minimumprijs */
     const spSom=sRows.reduce((a,r)=>a+r.price,0),glasN=normal+freqAdj,glas=glasN+spSom;let glasEx=glas,minGlas=false,minOp="";
-    if(fRows.length&&glasN<cfg.min){minGlas=true;minOp="f";glasEx=cfg.min+spSom}else if(!fRows.length&&sRows.length&&spSom<cfg.min){minGlas=true;minOp="s";glasEx=cfg.min}
+    /* instelling minAlles: de minimumprijs geldt voor gewone en bijzondere ramen samen */
+    if(cfg.minAlles){if(all.length&&glas<cfg.min){minGlas=true;minOp="a";glasEx=cfg.min}}
+    else if(fRows.length&&glasN<cfg.min){minGlas=true;minOp="f";glasEx=cfg.min+spSom}else if(!fRows.length&&sRows.length&&spSom<cfg.min){minGlas=true;minOp="s";glasEx=cfg.min}
     const oRows=ovrRows(p?p.ovr||{}:null),oEx=r2(oRows.reduce((a,r)=>a+r.price,0)),oSec=oRows.reduce((a,r)=>a+r.sec,0),startEx=all.length?cfg.start:0;
     let kozEx=0,minKoz=false,kozSec=0;if(koz){kozEx=count*cfg.koz_p;kozSec=count*cfg.koz_s;if(kozEx<cfg.kozMin){minKoz=true;kozEx=cfg.kozMin}}
     const gSec=all.reduce((a,r)=>a+r.sec,0)+kozSec,sec=gSec+oSec,exG=glasEx+kozEx+startEx,ex=exG+oEx,vat=ex*VAT,inc=ex+vat;
@@ -698,7 +700,7 @@ const ICON={
         <tr class="sub"><td colspan="3">Btw 21%</td><td>${eur(vat)}</td></tr>
         <tr class="tot"><td colspan="3">Totaal incl. btw<small>${count} ramen · ${dur(sec)} werktijd</small></td><td>${eur(inc)}</td></tr>
       </tbody></table></div>
-      <p class="note">Gewone glasbewassing heeft een minimumprijs van ${eur(cfg.min)} excl. btw; bijzondere ramen komen daar los bij${koz?`, kozijnreiniging ${eur(cfg.kozMin)} excl. btw`:""}. Tijden zijn per regel naar boven afgerond op hele minuten.</p>
+      <p class="note">${cfg.minAlles?`Glasbewassing heeft een minimumprijs van ${eur(cfg.min)} excl. btw, bijzondere ramen inbegrepen`:`Gewone glasbewassing heeft een minimumprijs van ${eur(cfg.min)} excl. btw; bijzondere ramen komen daar los bij`}${koz?`, kozijnreiniging ${eur(cfg.kozMin)} excl. btw`:""}. Tijden zijn per regel naar boven afgerond op hele minuten.</p>
       <div class="acts">
         <button class="btn2 pri" type="button" id="sendOff">${RC_SVG.arrow}Offerte versturen</button>
         <button class="btn2" type="button" id="viewPdf">${RC_SVG.doc}PDF bekijken</button>
@@ -777,7 +779,7 @@ const ICON={
     if(R.all.length){const fl=R.f&&R.f.l?R.f.l:"";const gl=[...R.fRows.map(r=>({omschrijving:`Glasbewassing ${r.n.toLowerCase()}, ${r.c} ramen`,aantal:1,prijs:r2(r.price),n:r.c,sec:r.sec,sub:r.n,qty:r.c+" st",fq:fl})),...R.sRows.map(r=>({omschrijving:`${r.n}, ${r.c} st.`,aantal:1,prijs:r2(r.price),n:r.c,sec:r.sec,sub:r.n,qty:r.c+" st",fq:fl}))];
       if(R.minGlas){/* minimumprijs: echte prijzen per regel + een aparte regel met de aanvulling, zodat alles precies optelt */
         rg.push(...gl.slice(0,R.fRows.length));if(R.minOp!=="s"&&R.f.pct&&R.normal)rg.push({omschrijving:`${R.f.pct>0?"Frequentiekorting":"Frequentietoeslag"} ${Math.abs(R.f.pct)}% (${R.f.l.toLowerCase()})`,aantal:1,prijs:r2(R.freqAdj)});
-        const aanv=r2(cfg.min-(R.minOp==="s"?R.spSom:R.glasN)),aRg=aanv>0?{omschrijving:"Aanvulling minimumprijs "+(R.minOp==="s"?"bijzondere ramen":"glasbewassing"),aantal:1,prijs:aanv,minAanv:true}:null;
+        const aanv=r2(cfg.min-(R.minOp==="s"?R.spSom:R.minOp==="a"?R.glasN+R.spSom:R.glasN)),aRg=aanv>0?{omschrijving:"Aanvulling minimumprijs "+(R.minOp==="s"?"bijzondere ramen":"glasbewassing"),aantal:1,prijs:aanv,minAanv:true}:null;
         if(aRg&&R.minOp!=="s")rg.push(aRg);rg.push(...gl.slice(R.fRows.length));if(aRg&&R.minOp==="s")rg.push(aRg)}
       else{rg.push(...gl);if(R.f.pct&&R.normal)rg.push({omschrijving:`${R.f.pct>0?"Frequentiekorting":"Frequentietoeslag"} ${Math.abs(R.f.pct)}% (${R.f.l.toLowerCase()})`,aantal:1,prijs:r2(R.freqAdj)})}}
     if(R.koz)rg.push({omschrijving:`Kozijnreiniging, ${R.count} ramen`,aantal:1,prijs:r2(R.kozEx)});
@@ -1004,7 +1006,7 @@ const ICON={
     freqList(){if(loadCfg())fillCfg();refreshFreq();const gf=typeof uFreqGroep==="function"?uFreqGroep("glas"):{keuzes:null,advies:null},mag=k=>!gf.keuzes||gf.keuzes.includes(k);return FREQ_LIST.map(([k,l,y,p0,w])=>({k,l,p:fpct(k,p0),pDef:p0,w,calcAan:calcOn(k),aan:calcOn(k)&&mag(k),webAan:webOn(k)&&mag(k),adv:gf.advies===k}))},
     refreshFreq(){refreshFreq()},
     fkVoor(w){return ({1:"w1",2:"w2",4:"w4",6:"w6",8:"m8",12:"w12",13:"mnd3",16:"w16",24:"w24",26:"mnd6",48:"w48",52:"mnd12"})[Number(w)]||"w4"},
-    current(){if(!lastR||!lastQ)return null;return {regels:regelsFor(lastR),opd:opdFor(lastR,null,embed&&embed.base),extra:extrasFor(lastR),count:lastR.count,minGlas:!!lastR.minGlas,berekend:r2(lastR.minOp==="s"?lastR.spSom:lastR.glasN??lastR.glas??0),min:cfg.min}},
+    current(){if(!lastR||!lastQ)return null;return {regels:regelsFor(lastR),opd:opdFor(lastR,null,embed&&embed.base),extra:extrasFor(lastR),count:lastR.count,minGlas:!!lastR.minGlas,berekend:r2(lastR.minOp==="s"?lastR.spSom:lastR.minOp==="a"?(lastR.glasN||0)+(lastR.spSom||0):lastR.glasN??lastR.glas??0),min:cfg.min}},
     refreshOverig(){renderOverig()},
     async telling(){if(!lastR)return {t:null,fail:0};return tellingFor(lastR,{})},
     loadObj(t){if(t)return loadTelling({ramenTelling:t},true)},

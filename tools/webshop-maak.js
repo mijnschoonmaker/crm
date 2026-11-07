@@ -21,6 +21,7 @@ const waNr = t => { let d = String(t || "").replace(/\D/g, ""); if (d.startsWith
   const g = [...(u.groepen || []), ...(u.eigen || [])].find(x => x && (x.id === "glas" || x.type === "glas"));
   /* per-dienst frequentiekorting voor bijzondere ramen (zoals de rekentool in het CRM) */
   const gb = [...(u.groepen || []), ...(u.eigen || [])].find(x => x && (x.id === "bijz" || x.type === "bijz"));
+  cfg.minAlles = !!r.minAlles;
   cfg.fpB = gb && gb.fpw && typeof gb.fpw === "object" ? Object.fromEntries(Object.entries(gb.fpw).filter(([, v]) => v !== "" && v != null).map(([w, v]) => [w, Math.max(-500, Math.min(100, Number(v) || 0))])) : {};
   console.log("::notice title=Prijzen::glas fp " + JSON.stringify(cfg.fp) + " · bijz fpw " + JSON.stringify(cfg.fpB) + " · min " + cfg.min + " · start " + cfg.start + " · koz " + JSON.stringify({ koz_p: r.koz_p, kozMin: r.kozMin }) + " · glas fpw " + JSON.stringify(g && g.fpw || {}));
   const keuzes = g && Array.isArray(g.freqs) && g.freqs.length ? g.freqs.map(String) : null, advies = g && g.freqAdvies != null && g.freqAdvies !== "" ? String(g.freqAdvies) : null;
