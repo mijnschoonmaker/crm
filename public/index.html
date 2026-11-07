@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="d1939a67bd81"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="2b5166aa3268"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -9548,7 +9548,7 @@ function rvEigenStart(){if(!LIVE||RVP.watch!=null||!navigator.geolocation)return
     ()=>{},/* zonder live delen alleen je eigen stip op de kaart: zuinige locatie (geen GPS op hoogste stand) */state.liveDelen?{enableHighAccuracy:true,maximumAge:5000,timeout:30000}:{enableHighAccuracy:false,maximumAge:60000,timeout:60000})}
 /* ondergrond: luchtfoto (PDOK, haarscherp voor heel Nederland) met PDOK-straatnamen erover, of de PDOK-stratenkaart. Geen API-sleutel nodig. */
 state.rvSat=(()=>{try{return localStorage.getItem("ms.rvsat2")!=="0"}catch(e){return true}})();
-function rvOndergrond(el,mp){const L=window.L,m=mp||el._map;(el._tegels||[]).forEach(t=>m.removeLayer(t));
+function rvOndergrond(el,mp){const L=window.L,m=mp||el._map;try{if(typeof oblKoppel==="function")oblKoppel(el,m)}catch(e){}(el._tegels||[]).forEach(t=>m.removeLayer(t));
   const pd="https://service.pdok.nl/",o={maxZoom:20,maxNativeZoom:19},
     /* scherp op telefoon/iPad (retina): tegels van één zoomniveau dieper, dus woningen haarscherp */
     hr={};/* geen halve tegels meer: die gaven witte lijnen op de kaart */
@@ -11738,6 +11738,7 @@ const RC_HTML=`<div class="wrap">
         <span class="phhint">Maak foto's van alle zijden. Kies per stip de verdieping of soort raam; de aantallen gaan vanzelf naar de telling. Markeer elk raam op maar één foto.</span>
         <div class="phsum" id="phsum" hidden></div>
         <button type="button" class="lbtn" id="luchtBtn" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/></svg><span><b>Meten op de luchtfoto</b><small id="luchtSub">Goten en daklijsten op de cm, zoals Perceelloep</small></span></button>
+        <button type="button" class="lbtn" id="kavelBtn" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17 9 7l4 6 3-4 5 8z"/><path d="M3 21h18"/></svg><span><b>Meten met Kavel 10</b><small id="kavelSub">Obliek luchtfoto onder 45°: goten, zonnepanelen en gevels</small></span></button>
         <div class="h3k" id="h3Kaart" hidden></div>
         <button type="button" class="handm" id="handm">Geen foto bij de hand? Vul de aantallen zelf in</button>
       </div>
@@ -11934,7 +11935,7 @@ const ICON={
     const el=g(id);if(el){el.value=v;el.closest(".row").classList.toggle("on",v>0)}updateCount();markStale()}
 
   /* ---------- foto's met stippen ---------- */
-  let photos=[],edIdx=-1,edMode="ramen",edMl=null,edH3=null,mSynced={},lucht=[],h3sel={},h3D=null,h3Adr="";
+  let photos=[],edIdx=-1,edMode="ramen",edMl=null,edH3=null,mSynced={},lucht=[],kavel10=[],h3sel={},h3D=null,h3Adr="";
   function loadPhoto(file){
     return new Promise((res,rej)=>{const u=URL.createObjectURL(file);const im=new Image();
       im.onload=()=>{const max=1600,k=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight));
@@ -11999,7 +12000,7 @@ const ICON={
       edZetMode(MS.length?edMode:"ramen")})}
   /* gemeten meters en m² in de prijs: bij de diensten met dezelfde naam (Uitvoering › Diensten); zelf ingevulde aantallen blijven staan */
   function meetFL(){const t=typeof Meetlint!=="undefined"?Meetlint.totalen(photos.map(p=>({...p,w:p.cv.width,h:p.cv.height})),[]):{},l=typeof luchtTotalen==="function"?luchtTotalen(lucht):{};
-    Object.keys(l).forEach(k=>t[k]=Math.round(((t[k]||0)+l[k])*10)/10);return t}
+    Object.keys(l).forEach(k=>t[k]=Math.round(((t[k]||0)+l[k])*10)/10);kavel10.forEach(x=>{if(x&&x.s&&x.v>0)t[x.s]=Math.round(((t[x.s]||0)+x.v)*10)/10});return t}
   /* foto + luchtfoto + wat uit het 3D-model is aangetikt (zelf gemeten gaat voor) */
   function meetTot(){const t=meetFL();Object.keys(h3sel).forEach(k=>{if(!t[k]&&h3sel[k]>0)t[k]=h3sel[k]});return t}
   /* ---- Uit het 3D-model: zodra het adres bekend is, staan de maten van de woning er (3D BAG) ---- */
@@ -12021,7 +12022,8 @@ const ICON={
       ${rij?`<div class="h3k-d">${rij}</div><p>Tik aan wat u meeneemt in de prijs. Muren tegen de buren tellen niet mee; een overstek staat niet in het model.</p>`:`<p>Koppel diensten aan deze maten bij Instellingen › Meetlint.</p>`}`;
     el.querySelectorAll("[data-h3]").forEach(b=>b.onclick=()=>{const id=b.dataset.h3;if(h3sel[id]>0)delete h3sel[id];else h3sel[id]=+b.dataset.v;syncMeet();markStale();h3Teken()})}
   function luchtKnop(){const b=g("luchtBtn");if(!b)return;const MS=edMeet().filter(x=>x.eenheid==="m");b.hidden=!MS.length;const t=typeof luchtTotalen==="function"?luchtTotalen(lucht):{},nm=Object.keys(t).map(id=>{const x=MS.find(y=>y.id===id);return x?x.kort+" "+String(t[id]).replace(".",",")+" m":""}).filter(Boolean);
-    g("luchtSub").textContent=nm.length?"Gemeten: "+nm.join(" · "):"Goten en daklijsten op de cm, zoals Perceelloep";h3Ververs()}
+    g("luchtSub").textContent=nm.length?"Gemeten: "+nm.join(" · "):"Goten en daklijsten op de cm, zoals Perceelloep";kavelKnop();h3Ververs()}
+  function kavelKnop(){const b=g("kavelBtn");if(!b)return;const MS=edMeet().filter(x=>x.eenheid==="m"||x.eenheid==="m2");b.hidden=!(typeof kavelAan==="function"&&kavelAan()&&MS.length);if(b.hidden)return;const t={};kavel10.forEach(x=>{t[x.s]=(t[x.s]||0)+x.v});const nm=Object.keys(t).map(id=>{const x=MS.find(y=>y.id===id);return x?x.kort+" "+String(Math.round(t[id]*10)/10).replace(".",",")+(x.eenheid==="m2"?" m²":" m"):""}).filter(Boolean);g("kavelSub").textContent=nm.length?"Gemeten: "+nm.join(" · "):"Obliek luchtfoto onder 45°: goten, zonnepanelen en gevels"}
   function syncMeet(){if(typeof Meetlint==="undefined")return;const t=meetTot();let veranderd=false;
     if(embed&&embed.onMeet){embed.onMeet(t,{...mSynced});mSynced={...t};luchtKnop();return true}
     new Set([...Object.keys(t),...Object.keys(mSynced)]).forEach(id=>{const nu=Number(ovr[id])||0,base=Math.max(0,nu-(mSynced[id]||0)),nw=Math.round((base+(t[id]||0))*10)/10;if(nw!==nu){setVal("o-"+id,nw,true);veranderd=true}});
@@ -12059,7 +12061,7 @@ const ICON={
     if(FREQ[t.freq])g("freq").value=t.freq;g("koz-yes").checked=!!t.koz;g("koz-no").checked=!t.koz;
     photos.forEach(p=>URL.revokeObjectURL(p.url));photos=[];
     for(const f of t.fotos||[]){try{const r=await fetch(BLOB+f.id);if(!r.ok)continue;const p=await loadPhoto(await r.blob());p.dots=(f.dots||[]).map(d=>({...d}));if(f.meet)p.meet=JSON.parse(JSON.stringify(f.meet));p.assetId=f.id;photos.push(p)}catch(e){}}
-    h3sel=t.h3&&typeof t.h3==="object"?{...t.h3}:{};lucht=Array.isArray(t.lucht)?t.lucht.map(x=>({s:x.s,p:(x.p||[]).map(q=>[q[0],q[1]]),...(typeof x.m==="number"?{m:x.m,r:x.r}:{})})):[];mSynced=meetTot();luchtKnop();
+    h3sel=t.h3&&typeof t.h3==="object"?{...t.h3}:{};lucht=Array.isArray(t.lucht)?t.lucht.map(x=>({s:x.s,p:(x.p||[]).map(q=>[q[0],q[1]]),...(typeof x.m==="number"?{m:x.m,r:x.r}:{})})):[];kavel10=Array.isArray(t.kavel10)?t.kavel10.filter(x=>x&&x.s&&x.v>0).map(x=>({s:String(x.s),v:Number(x.v)})):[];mSynced=meetTot();luchtKnop();
     synced={};photos.forEach(p=>p.dots.forEach(d=>synced[d.t]=(synced[d.t]||0)+1));
     renderFloors();renderSpecial();renderPhotos();renderPhsum();
     const miss=(t.fotos||[]).length-photos.length;
@@ -12069,7 +12071,7 @@ const ICON={
   /* ---------- leegmaken na opslaan ---------- */
   let EMPTY_OUT="";
   function resetAll(){
-    photos.forEach(p=>URL.revokeObjectURL(p.url));photos=[];synced={};lucht=[];mSynced={};h3sel={};
+    photos.forEach(p=>URL.revokeObjectURL(p.url));photos=[];synced={};lucht=[];kavel10=[];mSynced={};h3sel={};
     floors=[0,0,0,0];special={lood:0,mini:0,koepel:0,tuimel:0};ovr={};ovrFreq={};
     g("freq").value="m8";g("koz-no").checked=true;g("koz-yes").checked=false;
     hasResult=false;lastQ=null;lastR=null;lastText="";g("stale").hidden=true;if(embed&&embed.onCalc){const _e=embed;setTimeout(()=>{if(embed===_e&&_e.onCalc)_e.onCalc()},0)}
@@ -12189,7 +12191,7 @@ const ICON={
   }
   async function tellingFor(R,k){
     const up=await uploadPhotos();
-    const t={datum:iso(today()),floors:floors.slice(),special:{...special},overig:{...ovr},overigFreq:{...ovrFreq},...(lucht.length?{lucht}:{}),...(Object.keys(h3sel).length?{h3:{...h3sel}}:{}),freq:R.fk,koz:R.koz,ramen:R.count,minuten:Math.ceil(R.sec/60),excl:r2(R.ex),incl:r2(R.inc),fotos:up.fotos};
+    const t={datum:iso(today()),floors:floors.slice(),special:{...special},overig:{...ovr},overigFreq:{...ovrFreq},...(lucht.length?{lucht}:{}),...(kavel10.length?{kavel10:kavel10.map(x=>({s:x.s,v:x.v}))}:{}),...(Object.keys(h3sel).length?{h3:{...h3sel}}:{}),freq:R.fk,koz:R.koz,ramen:R.count,minuten:Math.ceil(R.sec/60),excl:r2(R.ex),incl:r2(R.inc),fotos:up.fotos};
     return {t,fail:up.fail};
   }
   const objMet=(k,count)=>{const os=[...(k.objecten||[])];const i=os.findIndex(o=>o.id===k.objectId);const j=i>-1?i:0;
@@ -12381,6 +12383,7 @@ const ICON={
   g("k-last").addEventListener("click",e=>{if(e.target.closest("#loadTel")){const k=state.klanten.find(x=>x.id===g("k-sel").value);if(k)loadTelling(k)}});
   /* foto's */
   document.addEventListener("change",e=>{if(e.target&&/adres|pc|postcode|plaats|klant/i.test(e.target.id||e.target.name||""))setTimeout(h3Ververs,50)},true);
+  g("kavelBtn").addEventListener("click",()=>{const k=klantForm();kavelOpen({adres:[k.adres,k.pc,k.plaats].filter(Boolean).join(" "),soorten:edMeet(),onOvernemen:r=>{const ids=new Set(r.map(x=>x.s));kavel10=kavel10.filter(x=>!ids.has(x.s));r.forEach(x=>kavel10.push({s:x.s,v:x.v}));syncMeet();markStale()}})});
   g("luchtBtn").addEventListener("click",()=>{const k=klantForm();openLuchtMeten({adres:[k.adres,k.pc,k.plaats].filter(Boolean).join(" "),soorten:edMeet(),maten:lucht,onKlaar:m=>{lucht=m;syncMeet();markStale()}})});
   g("handm").addEventListener("click",()=>{const on=!host.hasAttribute("data-handmatig");setHandm(on);if(on){const c=g("cFloors");if(c)c.scrollIntoView({block:"start",behavior:"smooth"})}});
   /* GPS en kompas van de telefoon bij een nieuwe foto: daarmee kiest de meetlint de gevel en zet hij de hoeken alvast goed */
@@ -12928,7 +12931,7 @@ function openSetEdit(id){
       <div class="box">${sec("Logo in e-mails")}<div class="logorow"><div class="logobox" id="lg2">${lgImg(logoMail||logo)}</div><div><p class="subt" style="margin:0 0 8px">Standaard je bedrijfslogo. Wil je in e-mails een ander (bijvoorbeeld liggend) logo? Upload het hier.</p>
       ${state.assets?`<label class="btn small">${I.upload}Vervang<input type="file" accept="image/png,image/jpeg" hidden id="lgf2"></label> <button type="button" class="small ghost" id="lgx2">${I.x}Gebruik bedrijfslogo</button>`:""}</div></div>
       <div class="grid2" style="margin-top:12px">${sel("logoGrootte","Grootte",s.logoGrootte,[[48,"Klein (48 px)"],[60,"Middel (60 px)"],[72,"Groot (72 px)"],[96,"Extra groot (96 px)"]],{t:"num"})}${sel("logoUitlijning","Uitlijning",s.logoUitlijning,[["links","Links"],["midden","Midden"],["rechts","Rechts"]])}</div></div>
-      <div class="box">${sec("Bedrijfsgegevens")}<div class="grid2">${inp("naam","Bedrijfsnaam",s.naam,{cls:"full"})}${inp("adres","Adres",s.adres,{cls:"full"})}${inp("postcode","Postcode",s.postcode)}${inp("plaats","Plaats",s.plaats)}${inp("telefoon","Telefoon",s.telefoon,{type:"tel"})}${inp("email","E-mail",s.email,{type:"email"})}${inp("kvk","KvK-nummer",s.kvk)}${inp("btwnr","Btw-nummer",s.btwnr,{ph:"NL001234567B01"})}${inp("iban","IBAN",s.iban,{ph:"NL00 BANK 0123 4567 89"})}${inp("bic","BIC",s.bic,{ph:"KNABNL2H"})}${inp("peppolId","Peppol ID",s.peppolId,{cls:"full",ph:"0106:12345678",help:"KvK-schema 0106 gevolgd door je KvK-nummer"})}</div></div>`);
+      <div class="box">${sec("Bedrijfsgegevens")}<div class="grid2">${inp("naam","Bedrijfsnaam",s.naam,{cls:"full"})}${inp("adres","Adres",s.adres,{cls:"full"})}${inp("postcode","Postcode",s.postcode)}${inp("plaats","Plaats",s.plaats)}${inp("telefoon","Telefoon",s.telefoon,{type:"tel"})}${inp("email","E-mail",s.email,{type:"email"})}${inp("kvk","KvK-nummer",s.kvk)}${inp("btwnr","Btw-nummer",s.btwnr,{ph:"NL001234567B01"})}${inp("iban","IBAN",s.iban,{ph:"NL00 BANK 0123 4567 89"})}${inp("bic","BIC",s.bic,{ph:"KNABNL2H"})}${inp("peppolId","Peppol ID",s.peppolId,{cls:"full",ph:"0106:12345678",help:"KvK-schema 0106 gevolgd door je KvK-nummer"})}</div></div>${typeof busLegacy==="function"&&busLegacy()?`<div class="box">${sec("Kavel 10 · obliek luchtfoto's en meten")}<div class="grid2">${inp("kavel10Key","API-sleutel van Kavel 10",s.kavel10Key,{cls:"full",type:"password",ph:"Plak hier de sleutel die je van Kavel 10 kreeg",attrs:'autocomplete="off" spellcheck="false"',help:"Daarmee open je bij een woning de 45°-luchtfoto's van Kavel 10 en meet je goten, zonnepanelen en gevels direct in de prijs. Leeg laten als je geen licentie hebt."})}</div></div>`:""}`);
     const sync=(a,b)=>{$(a).oninput=e=>$(b).value=e.target.value;$(b).oninput=e=>{if(/^#[0-9a-f]{6}$/i.test(e.target.value))$(a).value=e.target.value}};sync("#hk","#hkt");sync("#ak","#akt");
     const up=(fid,boxid,set)=>{const f=$(fid);if(f)f.onchange=async e=>{const file=e.target.files[0];if(!file)return;if(file.size>2*1024*1024){toast("Het logo is groter dan 2 MB");return}try{const r=await state.assets.upload(file);set(r.id);$(boxid).innerHTML=`<img src="${esc(r.url)}" alt="Logo">`}catch(er){toast("Uploaden lukte niet ("+(er.code||"fout")+")")}}};
     up("#lgf1","#lg1",v=>logo=v);up("#lgf2","#lg2",v=>logoMail=v);
@@ -18527,6 +18530,95 @@ function izPlanBalk(r){let b=document.getElementById("izPlan");if(b)b.remove();b
   document.body.appendChild(b);try{navigator.vibrate&&navigator.vibrate([150,80,150])}catch(e){}clearTimeout(IZ.pt);IZ.pt=setTimeout(()=>{const x=document.getElementById("izPlan");if(x)x.remove()},45000)}
 document.addEventListener("click",e=>{const v=e.target.closest("[data-izpv]"),x=e.target.closest("[data-izpx]");if(!v&&!x)return;e.preventDefault();const b=document.getElementById("izPlan");if(b)b.remove();if(v){state.tab="vandaag";render()}});
 
+/* ---------- Kavel 10 (Vision 10): obliek luchtfoto's onder 45°, 2D en 3D, met meten ----------
+   Werkt met de API-sleutel van Kavel 10 (Instellingen › Bedrijf). Zonder sleutel blijft alles zoals het was.
+   De viewer is de PlexMap-viewer van Kavel 10 (dezelfde als in hun ArcGIS-widget): plexmap-api.js + PlexMap.Viewer.
+   Metingen komen als GeoJSON in RD (EPSG:28992), dus lengtes en oppervlaktes rekenen we in meters uit. */
+const KV_API="https://ndp.vision10.nl/static/api/plexmap-api.js",KV_VIEW="https://ndp.vision10.nl/viewer/view/NDP/";
+const kavelKey=()=>{try{return String((S()||{}).kavel10Key||"").trim()}catch(e){return""}};
+const kavelAan=()=>!!kavelKey();
+let KV_LAADT=null;
+function kavelLaad(){if(window.PlexMap)return Promise.resolve();if(!KV_LAADT)KV_LAADT=new Promise((ok,nee)=>{const s=document.createElement("script");s.src=KV_API;s.async=true;s.onload=()=>ok();s.onerror=()=>{KV_LAADT=null;nee(new Error("Kavel 10 laadt niet"))};document.head.appendChild(s)});return KV_LAADT}
+/* RD (EPSG:28992) naar WGS84, benadering van Schreutelkamp & Strang van Hees (op ~1 m nauwkeurig) */
+function rdNaarLL(x,y){const dX=(x-155000)*1e-5,dY=(y-463000)*1e-5;
+  const K=[[0,1,3235.65389],[2,0,-32.58297],[0,2,-0.2475],[2,1,-0.84978],[0,3,-0.0655],[2,2,-0.01709],[1,0,-0.00738],[4,0,0.0053],[2,3,-0.00039],[4,1,0.00033],[1,1,-0.00012]];
+  const L=[[1,0,5260.52916],[1,1,105.94684],[1,2,2.45656],[3,0,-0.81885],[1,3,0.05594],[3,1,-0.05607],[0,1,0.01199],[3,2,-0.00256],[1,4,0.00128],[0,2,0.00022],[2,0,-0.00022],[5,0,0.00026]];
+  let la=0,lo=0;K.forEach(([p,q,k])=>la+=k*Math.pow(dX,p)*Math.pow(dY,q));L.forEach(([p,q,l])=>lo+=l*Math.pow(dX,p)*Math.pow(dY,q));
+  return [Math.round((52.15517440+la/3600)*1e7)/1e7,Math.round((5.38720621+lo/3600)*1e7)/1e7]}
+const kvD=(a,b)=>Math.hypot(b[0]-a[0],b[1]-a[1],(b[2]!=null&&a[2]!=null)?b[2]-a[2]:0);
+const kvLengte=c=>{let t=0;for(let i=1;i<c.length;i++)t+=kvD(c[i-1],c[i]);return t};
+const kvOpp=r=>{let a=0;for(let i=0,j=r.length-1;i<r.length;j=i++)a+=(r[j][0]+r[i][0])*(r[j][1]-r[i][1]);return Math.abs(a/2)};
+/* metingen van de viewer omzetten naar {soort:"m"|"m2", waarde, p:[[lat,lng],...]} */
+function kavelMetingen(gj){const out=[];((gj&&gj.features)||[]).forEach((f,i)=>{const g=f&&f.geometry;if(!g||!g.coordinates)return;const pr=f.properties||{};
+  const getal=k=>{const v=Number(pr[k]);return isFinite(v)&&v>0?v:null};
+  if(g.type==="LineString"){const v=getal("length")||getal("lengte")||kvLengte(g.coordinates);if(v>0)out.push({i,soort:"m",waarde:Math.round(v*100)/100,p:g.coordinates.map(c=>rdNaarLL(c[0],c[1]))})}
+  else if(g.type==="Polygon"&&g.coordinates[0]){const ring=g.coordinates[0],v=getal("area")||getal("oppervlakte")||kvOpp(ring);if(v>0)out.push({i,soort:"m2",waarde:Math.round(v*100)/100,omtrek:Math.round(kvLengte(ring)*100)/100,p:ring.map(c=>rdNaarLL(c[0],c[1]))})}});return out}
+const KV_CSS=`dialog.kv{position:fixed!important;inset:0!important;width:auto;height:auto;max-width:none!important;max-height:none!important;margin:0!important;padding:0;border:0;border-radius:0!important;transform:none!important;animation:none!important;background:#0b0f12;color:#fff;display:flex;flex-direction:column;font-family:var(--f-ui,Inter,system-ui,sans-serif);z-index:1400}
+dialog.kv::backdrop{background:#0b0f12}
+.kv-top{display:flex;align-items:center;gap:12px;padding:calc(10px + env(safe-area-inset-top)) 14px 10px}
+.kv-top div{flex:1;min-width:0}.kv-top b{display:block;font-size:15px}.kv-top span{font-size:12.5px;color:#aab2b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.kv-x{all:unset;width:40px;height:40px;border-radius:50%;background:rgb(255 255 255 / .1);display:grid;place-items:center;cursor:pointer}
+.kv-main{flex:1;display:flex;min-height:0}
+.kv-view{flex:1;position:relative;min-width:0;background:#15191d}
+.kv-view>div:first-child{position:absolute;inset:0}
+.kv-knop{position:absolute;z-index:5;display:flex;gap:6px}
+.kv-knop button{all:unset;cursor:pointer;height:36px;min-width:36px;padding:0 12px;box-sizing:border-box;border-radius:999px;background:rgb(255 255 255 / .94);color:#0e1117;font:600 12px/36px system-ui,sans-serif;text-align:center;box-shadow:0 6px 18px -10px rgb(0 0 0 / .6)}
+.kv-knop button[aria-pressed=true]{background:#0e1117;color:#fff}
+.kv-st{top:12px;left:12px}.kv-rt{bottom:14px;left:12px}.kv-mt{top:12px;right:12px}
+.kv-p{width:340px;flex:none;background:#fff;color:#0e1117;display:flex;flex-direction:column;min-height:0}
+.kv-p h3{margin:0;padding:16px 18px 6px;font-size:13px;letter-spacing:.12em;text-transform:uppercase}
+.kv-p p{margin:0;padding:0 18px 10px;font-size:13px;color:#5b6370;line-height:1.5}
+.kv-l{flex:1;overflow:auto;padding:0 12px}
+.kv-r{border:1px solid #e6e8eb;border-radius:12px;padding:10px 12px;margin:0 0 8px;display:grid;gap:8px}
+.kv-r b{font-size:15px}.kv-r small{color:#5b6370}
+.kv-r select{width:100%;height:38px;border:1px solid #d5d9de;border-radius:8px;padding:0 8px;font:inherit;background:#fff}
+.kv-o{padding:12px 18px calc(12px + env(safe-area-inset-bottom));border-top:1px solid #eef0f2;display:flex;gap:8px}
+.kv-o button{flex:1;height:44px;border-radius:10px;border:1px solid #d5d9de;background:#fff;font:600 13px system-ui,sans-serif;cursor:pointer}
+.kv-o button.primary{background:#0e1117;color:#fff;border-color:#0e1117}
+.kv-o button:disabled{opacity:.45;cursor:default}
+.kv-fout{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;color:#cfd5da;font-size:14px;line-height:1.6}
+@media (max-width:820px){.kv-main{flex-direction:column}.kv-p{width:auto;max-height:42vh}}`;
+/* opent Kavel 10 op een adres of punt. soorten (optioneel): diensten waar gemeten maten in de prijs komen; onOvernemen(rijen) */
+async function kavelOpen({adres="",ll=null,soorten=[],onOvernemen=null}={}){
+  const key=kavelKey();if(!key){toast("Zet eerst je Kavel 10 API-sleutel bij Instellingen › Bedrijf");return}
+  if(!document.getElementById("kv-css")){const s=document.createElement("style");s.id="kv-css";s.textContent=KV_CSS;document.head.appendChild(s)}
+  const MS=(soorten||[]).filter(s=>s.eenheid==="m"||s.eenheid==="m2"),metPaneel=!!(onOvernemen&&MS.length);
+  const ov=document.createElement("dialog");ov.className="kv";const vid="kvv"+Date.now();
+  ov.innerHTML=`<div class="kv-top"><div><b>Kavel 10 · obliek luchtfoto</b><span id="kvAdr">${esc(adres||"Locatie opzoeken…")}</span></div><button type="button" class="kv-x" aria-label="Sluiten">${I.x}</button></div>
+    <div class="kv-main"><div class="kv-view"><div id="${vid}"></div>
+      <div class="kv-knop kv-st" role="group" aria-label="Weergave"><button type="button" data-st="oblique" aria-pressed="true">45°</button><button type="button" data-st="map" aria-pressed="false">2D</button><button type="button" data-st="cesium" aria-pressed="false">3D</button></div>
+      <div class="kv-knop kv-rt"><button type="button" data-rot="-90" aria-label="Draai naar links">↺</button><button type="button" data-rot="90" aria-label="Draai naar rechts">↻</button></div>
+      <div class="kv-knop kv-mt"><button type="button" data-meet="1">Meten</button></div></div>
+    ${metPaneel?`<aside class="kv-p"><h3>Maten</h3><p>Klik op <b>Meten</b>, meet de goot, het zonnepaneelveld of de gevel en kies hieronder voor welke dienst de maat is.</p><div class="kv-l" id="kvL"><p>Nog niets gemeten.</p></div>
+      <div class="kv-o"><button type="button" data-ver="1">Vernieuwen</button><button type="button" class="primary" data-neem="1" disabled>In de prijs</button></div></aside>`:""}</div>`;
+  document.body.appendChild(ov);ov.showModal();let V=null,dicht=false,poll=null,rijen=[],keuze={};
+  const sluit=()=>{dicht=true;clearTimeout(poll);try{V&&V.destroy&&V.destroy()}catch(e){}ov.close();ov.remove()};
+  ov.querySelector(".kv-x").onclick=sluit;ov.addEventListener("cancel",e=>{e.preventDefault();sluit()});
+  const fout=t=>{const el=ov.querySelector(".kv-view");el.insertAdjacentHTML("beforeend",`<div class="kv-fout">${t}</div>`)};
+  if(!ll&&adres&&typeof luchtGeo==="function"){const r=await luchtGeo(adres);if(r){ll=r.ll;const a=ov.querySelector("#kvAdr");if(a&&r.naam)a.textContent=r.naam}}
+  if(!ll){fout("Dit adres is niet gevonden. Controleer het adres van de klant.");return}
+  try{await kavelLaad()}catch(e){fout("Kavel 10 is nu niet bereikbaar. Probeer het straks opnieuw.");return}
+  if(dicht)return;
+  try{V=new window.PlexMap.Viewer({viewSrc:KV_VIEW,targetElemId:vid,layout:"minimal",state:"oblique",apiKey:key});
+    try{await V.setCoordinateSystem("EPSG:4326")}catch(e){}
+    try{await V.jumpTo({lat:ll[0],lon:ll[1],elevation:100,yaw:0})}catch(e){}
+    try{await V.setViewerState("oblique")}catch(e){}
+  }catch(e){fout("Kavel 10 kon niet openen. Klopt de API-sleutel bij Instellingen › Bedrijf, en is je licentie actief?");return}
+  ov.querySelectorAll("[data-st]").forEach(b=>b.onclick=async()=>{try{await V.setViewerState(b.dataset.st);ov.querySelectorAll("[data-st]").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"))}catch(e){toast("Deze weergave is hier niet beschikbaar")}});
+  ov.querySelectorAll("[data-rot]").forEach(b=>b.onclick=async()=>{try{const h=Number(await V.getHeading())||0;await V.setHeading(((h+Number(b.dataset.rot))%360+360)%360)}catch(e){}});
+  const naam=s=>s.kort||s.naam||s.id,eh=r=>r.soort==="m2"?"m²":"m",fm=v=>String(v).replace(".",",");
+  const teken=()=>{const L=ov.querySelector("#kvL");if(!L)return;const neem=ov.querySelector("[data-neem]");
+    if(!rijen.length){L.innerHTML="<p>Nog niets gemeten.</p>";neem.disabled=true;return}
+    L.innerHTML=rijen.map((r,n)=>{const opt=MS.filter(s=>s.eenheid===r.soort);return `<div class="kv-r"><div><b>${fm(r.waarde)} ${eh(r)}</b> <small>${r.soort==="m2"?"oppervlakte"+(r.omtrek?" · omtrek "+fm(r.omtrek)+" m":""):"lengte"}</small></div>
+      ${opt.length?`<select data-r="${n}" aria-label="Voor welke dienst"><option value="">Niet meenemen</option>${opt.map(s=>`<option value="${esc(s.id)}"${keuze[n]===s.id?" selected":""}>${esc(naam(s))}</option>`).join("")}</select>`:`<small>Geen dienst per ${eh(r)} in Uitvoering › Diensten</small>`}</div>`}).join("");
+    L.querySelectorAll("select").forEach(s=>s.onchange=()=>{keuze[s.dataset.r]=s.value;neem.disabled=!Object.values(keuze).some(Boolean)});neem.disabled=!Object.values(keuze).some(Boolean)};
+  const lees=async()=>{if(!V||!V.getMeasurements)return;try{try{await V.setCoordinateSystem("EPSG:28992")}catch(e){}const gj=await V.getMeasurements();const nw=kavelMetingen(gj);
+      if(JSON.stringify(nw.map(r=>[r.soort,r.waarde]))!==JSON.stringify(rijen.map(r=>[r.soort,r.waarde]))){rijen=nw;keuze={};rijen.forEach((r,n)=>{const opt=MS.filter(s=>s.eenheid===r.soort);if(opt.length===1)keuze[n]=opt[0].id});teken()}}catch(e){}};
+  const meet=ov.querySelector("[data-meet]");meet.onclick=async()=>{try{if(V.toolbox&&V.toolbox.openTool)await V.toolbox.openTool("measure");else if(V.openTool)await V.openTool("measure");else{toast("Meten is in deze viewer niet beschikbaar");return}
+      meet.setAttribute("aria-pressed","true");if(metPaneel){const loop=async()=>{if(dicht)return;await lees();poll=setTimeout(loop,1000)};clearTimeout(poll);loop()}}catch(e){toast("Meten starten lukte niet")}};
+  if(metPaneel){ov.querySelector("[data-ver]").onclick=lees;
+    ov.querySelector("[data-neem]").onclick=()=>{const uit=rijen.map((r,n)=>keuze[n]?{s:keuze[n],soort:r.soort,v:r.waarde,p:r.p}:null).filter(Boolean);if(!uit.length)return;try{onOvernemen(uit)}catch(e){}toast("Maten van Kavel 10 staan in de prijs");sluit()}}}
+
 /* ---------- Klanten uit foto (AI) ----------
    Maak een foto of screenshot van een klantkaart of klantenlijst in een ander CRM (of van een papieren kaart).
    De AI leest naam, adres, contact, diensten met frequentie en prijs, datums en notities uit.
@@ -19621,6 +19713,42 @@ document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest
   const p=navPref();if(p)location.href=navUrl(p,adr);else navKies(adr)},true);
 /* andere app kiezen (knop op de Route-pagina) */
 function navWissel(){navKies("Kies de app voor Navigeer",false)}
+
+/* ---------- Kaart: rechtsklik (of lang vasthouden op telefoon/tablet) op een woning ----------
+   Menu zoals in een meldkamerkaart: schuine (obliek) luchtfoto onder 45 graden, Street View en het coördinaat kopiëren.
+   De schuine luchtfoto opent in Google Maps (3D-weergave, schuin van boven) op precies dat punt. */
+const OBL_CSS=`.obl-m{position:absolute;z-index:1200;min-width:220px;background:#2b2f36;color:#fff;border-radius:10px;box-shadow:0 14px 34px -12px rgb(0 0 0 / .55);padding:6px;font:500 13px/1.3 var(--f-ui,Inter,system-ui,sans-serif)}
+.obl-m small{display:block;padding:6px 10px 8px;color:#aab2b8;font-size:11.5px;font-variant-numeric:tabular-nums;border-bottom:1px solid rgb(255 255 255 / .1);margin-bottom:4px}
+.obl-m a,.obl-m button{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:10px;width:100%;padding:10px;border-radius:7px;cursor:pointer;color:#fff}
+.obl-m a:hover,.obl-m button:hover,.obl-m a:focus-visible,.obl-m button:focus-visible{background:rgb(255 255 255 / .1)}
+.obl-m svg{width:16px;height:16px;flex:none;opacity:.85}`;
+const oblUrl=(la,ln)=>`https://www.google.com/maps/@${la},${ln},90a,35y,0h,60t/data=!3m1!1e3`;
+const oblSv=(la,ln)=>`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${la},${ln}`;
+function oblDicht(){document.querySelectorAll(".obl-m").forEach(x=>x.remove())}
+function oblToon(el,m,ll,pt){oblDicht();if(!document.getElementById("obl-css")){const s=document.createElement("style");s.id="obl-css";s.textContent=OBL_CSS;document.head.appendChild(s)}
+  const la=ll.lat.toFixed(6),ln=ll.lng.toFixed(6),d=document.createElement("div");d.className="obl-m";d.setAttribute("role","menu");
+  const ic=p=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+  d.innerHTML=`<small>GPS ${la}, ${ln}</small>
+    ${typeof kavelAan==="function"&&kavelAan()?`<button type="button" role="menuitem" data-kv="1">${ic('<path d="M3 17l6-10 4 6 3-4 5 8z"/><path d="M3 21h18"/>')}Toon obliek luchtfoto (Kavel 10)</button>`:""}
+    <a role="menuitem" href="${oblUrl(la,ln)}" target="_blank" rel="noopener">${ic('<path d="M3 17l6-10 4 6 3-4 5 8z"/><path d="M3 21h18"/>')}${typeof kavelAan==="function"&&kavelAan()?"Google 3D":"Toon obliek luchtfoto"}</a>
+    <a role="menuitem" href="${oblSv(la,ln)}" target="_blank" rel="noopener">${ic('<circle cx="12" cy="6" r="3"/><path d="M8 21v-6l-2-2 2-4h8l2 4-2 2v6"/>')}Street View</a>
+    <button type="button" role="menuitem" data-k="1">${ic('<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>')}Kopieer coördinaat</button>`;
+  {const kv=d.querySelector("[data-kv]");if(kv)kv.onclick=()=>{oblDicht();kavelOpen({ll:[+la,+ln]})}}
+  d.querySelector("[data-k]").onclick=async()=>{try{await navigator.clipboard.writeText(la+","+ln);if(typeof toast==="function")toast("Coördinaat gekopieerd")}catch(e){}oblDicht()};
+  d.querySelectorAll("a").forEach(a=>a.addEventListener("click",()=>setTimeout(oblDicht,50)));
+  ["mousedown","touchstart","dblclick","wheel","click","contextmenu"].forEach(t=>d.addEventListener(t,ev=>ev.stopPropagation()));
+  if(getComputedStyle(el).position==="static")el.style.position="relative";el.appendChild(d);
+  const W=el.clientWidth,H=el.clientHeight,w=d.offsetWidth,h=d.offsetHeight;d.style.left=Math.max(6,Math.min(pt.x,W-w-6))+"px";d.style.top=Math.max(6,Math.min(pt.y,H-h-6))+"px"}
+function oblKoppel(el,m){if(!el||!m||el._obliek)return;el._obliek=1;
+  const opPunt=(cx,cy)=>{const r=el.getBoundingClientRect(),pt={x:cx-r.left,y:cy-r.top};oblToon(el,m,m.containerPointToLatLng([pt.x,pt.y]),pt)};
+  el.addEventListener("contextmenu",ev=>{if(ev.target.closest&&ev.target.closest(".obl-m"))return;ev.preventDefault();opPunt(ev.clientX,ev.clientY)});
+  /* lang vasthouden op een aanraakscherm */
+  let t=null,sx=0,sy=0;const stop=()=>{clearTimeout(t);t=null};
+  el.addEventListener("touchstart",ev=>{if(ev.touches.length!==1)return stop();const p=ev.touches[0];sx=p.clientX;sy=p.clientY;stop();t=setTimeout(()=>{t=null;opPunt(sx,sy)},600)},{passive:true});
+  el.addEventListener("touchmove",ev=>{const p=ev.touches[0];if(p&&Math.hypot(p.clientX-sx,p.clientY-sy)>10)stop()},{passive:true});
+  el.addEventListener("touchend",stop,{passive:true});el.addEventListener("touchcancel",stop,{passive:true});
+  m.on("movestart zoomstart",oblDicht);m.on("click",oblDicht);
+  document.addEventListener("keydown",e=>{if(e.key==="Escape")oblDicht()})}
 
 /* ---------- Opdrachten: vaste nummers en "apart inplannen" ----------
    - Elke extra opdracht krijgt bij het opslaan een vast nummer (2, 3, ...). Verwijder je er een, dan houden de andere hun nummer;

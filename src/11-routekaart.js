@@ -93,7 +93,7 @@ function rvEigenStart(){if(!LIVE||RVP.watch!=null||!navigator.geolocation)return
     ()=>{},/* zonder live delen alleen je eigen stip op de kaart: zuinige locatie (geen GPS op hoogste stand) */state.liveDelen?{enableHighAccuracy:true,maximumAge:5000,timeout:30000}:{enableHighAccuracy:false,maximumAge:60000,timeout:60000})}
 /* ondergrond: luchtfoto (PDOK, haarscherp voor heel Nederland) met PDOK-straatnamen erover, of de PDOK-stratenkaart. Geen API-sleutel nodig. */
 state.rvSat=(()=>{try{return localStorage.getItem("ms.rvsat2")!=="0"}catch(e){return true}})();
-function rvOndergrond(el,mp){const L=window.L,m=mp||el._map;(el._tegels||[]).forEach(t=>m.removeLayer(t));
+function rvOndergrond(el,mp){const L=window.L,m=mp||el._map;try{if(typeof oblKoppel==="function")oblKoppel(el,m)}catch(e){}(el._tegels||[]).forEach(t=>m.removeLayer(t));
   const pd="https://service.pdok.nl/",o={maxZoom:20,maxNativeZoom:19},
     /* scherp op telefoon/iPad (retina): tegels van één zoomniveau dieper, dus woningen haarscherp */
     hr={};/* geen halve tegels meer: die gaven witte lijnen op de kaart */
