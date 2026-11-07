@@ -204,7 +204,7 @@ function aanvraagModel(D, b0) {
             groepen: [{ omschrijving: "Glasbewassing", excl, btwPct: pct, btw: Math.round((incl - excl) * 100) / 100, incl, subs }],
             voetnoot: T.isLegacy()
               ? "Dit overzicht is voorlopig. Wij controleren de aantallen direct aan de hand van uw foto's en sturen u daarna het definitieve bestellingsoverzicht. Bij een verschil kan de prijs wijzigen."
-              : "Dit overzicht is voorlopig. Tijdens het eerste bezoek (0-beurt) controleren wij de aantallen. Bij een verschil kan de prijs wijzigen." };
+              : "" };
 }
 
 async function checkGebruiker(auth) {
