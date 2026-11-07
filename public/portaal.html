@@ -2068,7 +2068,7 @@ function bzHero(){const v=D.volgende,b=D.bezoeken||[],k=D.klant,fq=Number(k.freq
 function diensten(){const k=D.klant;let L=(k.diensten||[]).slice();
   if(!L.length&&k.actief!==false)L=[{naam:k.dienst||PHD(),ritme:k.frequentie?(k.frequentie===1?"elke week":"elke "+k.frequentie+" weken"):"",volgende:(D.volgende||{}).datum||"",ingepland:!!D.volgende,prijs:Number(k.prijs)||null,detail:k.binnen?"binnen en buiten":"",hoofd:true}];
   const wanneer=x=>x.volgende?(x.ingepland?"gepland op ":"volgende keer rond ")+kort(x.volgende):"";
-  const rij=x=>lr(I.dienst,esc(x.naam),[x.detail?esc(x.detail):"",x.ritme?esc(hoofd(x.ritme)):"volgens afspraak",esc(wanneer(x)),x.mee?"gaat mee met de "+esc(String(k.dienst||PHD().toLowerCase()).toLowerCase()):""].filter(Boolean).join(" · "),x.prijs?`<span class="ds-pr"><b>${eur(x.prijs)}</b><small>per beurt</small></span>`:"");
+  const rij=x=>lr(I.dienst,esc(x.naam),[x.detail?esc(x.detail):"",x.ritme?esc(hoofd(x.ritme)):"volgens afspraak",esc(wanneer(x))].filter(Boolean).join(" · "),x.prijs?`<span class="ds-pr"><b>${eur(x.prijs)}</b><small>per beurt</small></span>`:"");
   return kop("Diensten","Alle diensten die wij voor u uitvoeren, hoe vaak en wanneer we weer komen.")+`<div class="pg ds">
     ${L.length?kp(I.dienst,"Uw diensten",`<div class="lijst">${L.map(rij).join("")}</div>`,{sub:plural(L.length,"dienst","diensten")}):`<div class="leeg">Er staan nog geen diensten op uw klantkaart.</div>`}
     </div>`}
