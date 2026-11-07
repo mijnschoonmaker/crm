@@ -39,6 +39,9 @@ dhead = '''<!doctype html>
 <html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex,nofollow">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="apple-touch-icon" href="/mansard-180.png">
+<script>/* schermafbeeldingen voor de website: ?klok=2026-11-04T10:28 zet de demo op een vaste dag en tijd (de klok loopt daarna gewoon door), ?scherm=facturen opent die pagina */
+(()=>{try{const q=new URLSearchParams(location.search),k=q.get("klok"),sc=q.get("scherm");if(sc&&/^[a-z]+$/.test(sc))sessionStorage.setItem("ms.tab",sc);
+if(k&&/^\d{4}-\d\d-\d\dT\d\d:\d\d$/.test(k)){const O=Date,d=new O(k).getTime()-O.now();class D extends O{constructor(...a){a.length?super(...a):super(O.now()+d)}static now(){return O.now()+d}}window.Date=D}}catch(e){}})()</script>
 '''
 _acc = os.path.join(R, "src", "demo", "accent.css")
 if os.path.exists(_acc):

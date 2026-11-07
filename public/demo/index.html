@@ -3,6 +3,9 @@
 <html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex,nofollow">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="apple-touch-icon" href="/mansard-180.png">
+<script>/* schermafbeeldingen voor de website: ?klok=2026-11-04T10:28 zet de demo op een vaste dag en tijd (de klok loopt daarna gewoon door), ?scherm=facturen opent die pagina */
+(()=>{try{const q=new URLSearchParams(location.search),k=q.get("klok"),sc=q.get("scherm");if(sc&&/^[a-z]+$/.test(sc))sessionStorage.setItem("ms.tab",sc);
+if(k&&/^\d{4}-\d\d-\d\dT\d\d:\d\d$/.test(k)){const O=Date,d=new O(k).getTime()-O.now();class D extends O{constructor(...a){a.length?super(...a):super(O.now()+d)}static now(){return O.now()+d}}window.Date=D}}catch(e){}})()</script>
 <title>Mansard (demo)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -20485,8 +20488,8 @@ function demoMaak(){
     klanten.push({id,...k});return klanten[klanten.length-1]};
 
   /* ---- particulieren: woningtype bepaalt prijs en duur ---- */
-  /* prijzen incl. btw; gemiddeld ± € 60 excl. per woning, zo’n 8 à 10 woningen per bus per dag ≈ € 520 */
-  const TYPES=[[.42,[62.5,64.5,67.5],[20,30]],[.32,[68.5,71.5,74.5],[25,35]],[.20,[78.5,82.5,86.5],[30,45]],[.06,[94.5,99.5,109.5],[45,60]]];
+  /* prijzen incl. btw, nooit onder de minimumprijs van de webshop (€ 56,86 excl. = € 68,80 incl.); gemiddeld ± € 63 excl. per woning, zo’n 8 à 10 woningen per bus per dag ≈ € 520 */
+  const TYPES=[[.42,[68.8,69.5,71.5],[20,30]],[.32,[72.5,74.97,77.5],[25,35]],[.20,[81.5,84.5,88.5],[30,45]],[.06,[94.5,99.5,109.5],[45,60]]];
   for(let i=0;i<300;i++){const a=pick(DEMO_ACHTER),v=pick(DEMO_VOOR);let r=R(),ty=TYPES[0];for(const x of TYPES){if(r<x[0]){ty=x;break}r-=x[0]}
     const binnen=R()<.07,f=binnen?pick([8,12,12]):pick([4,6,6,6,8,8,8,8,8,12,12]);let prijs=pick(ty[1]);if(binnen)prijs=Math.round(prijs*1.85*2)/2;
     const k=nieuwK(a+", "+v,"particulier",prijs,f,pick(gewichten),{binnen,dienst:binnen?"Glasbewassing binnen en buiten":"Glasbewassing",duur:Math.round(ri(ty[2][0],ty[2][1])/5)*5*(binnen?2:1)});
@@ -20606,16 +20609,16 @@ function demoMaak(){
   actief.filter(k=>k.soort==="particulier").forEach((k,i)=>{if(i%9===3)k.contactPlanning="bevestigen";else if(i%17===5)k.contactPlanning="bellen"});
 
   /* ---- nieuwe aanmeldingen via de website ---- */
-  {const k=nieuwK("Zijlstra, Marloes","particulier",68,8,8,{adres:"Fazantenlaan 62"});const P=(x,y,t)=>({x,y,t});
+  {const k=nieuwK("Zijlstra, Marloes","particulier",74.97,8,8,{adres:"Fazantenlaan 62"});const P=(x,y,t)=>({x,y,t});
     Object.assign(k,{gepland:"",tijd:"",laatst:"",aangemaakt:D(0),nieuwAangemeld:true,eersteKeer:true,tellingControle:true,aanbieden:true,duur:35,bron:"website",
-      ramenRegel:{f:[5,3,0,0],sp:{tuimel:3}},log:[{datum:D(0),tekst:"Aanvraag via de website · 11 ramen (telling klant) · € 68,00 per beurt, elke 8 weken"}],
+      ramenRegel:{f:[5,3,0,0],sp:{tuimel:3}},log:[{datum:D(0),tekst:"Aanvraag via de website · 11 ramen (telling klant) · € 74,97 per beurt, elke 8 weken"}],
       ramenTelling:{ramen:11,floors:[5,3],special:{tuimel:3},fotos:[{id:"demo-huis",w:642,h:530,zijde:"Voorkant",dots:[P(.127,.67,"f0"),P(.383,.70,"f0"),P(.458,.70,"f0"),P(.66,.67,"f0"),P(.693,.72,"f0"),P(.726,.42,"f1"),P(.762,.42,"f1"),P(.796,.42,"f1"),P(.16,.48,"s-tuimel"),P(.273,.47,"s-tuimel"),P(.39,.44,"s-tuimel")]}]}})
-    const k2=nieuwK("Hamstra, Jelle","particulier",26.5,6,12,{});Object.assign(k2,{aangemaakt:D(-2),nieuwAangemeld:true,eersteKeer:true,aanbieden:true,bron:"website",log:[{datum:D(-2),tekst:"Aanvraag via de website · twee-onder-een-kap · € 26,50 per beurt, elke 6 weken"}]})}
+    const k2=nieuwK("Hamstra, Jelle","particulier",68.8,6,12,{});Object.assign(k2,{aangemaakt:D(-2),nieuwAangemeld:true,eersteKeer:true,aanbieden:true,bron:"website",log:[{datum:D(-2),tekst:"Aanvraag via de website · twee-onder-een-kap · € 68,80 per beurt, elke 6 weken"}]})}
 
   /* ---- offertes ---- */
   let on=0;const off=(naam,adres,st,regels,dd,extra)=>{on++;facturen.push({id:"odemo"+on,soort:"offerte",nummer:"OFF-"+D(dd).slice(0,4)+"-"+String(100+on).padStart(3,"0"),klantId:"",klantNaam:naam,klantAdres:adres,klantEmail:"",datum:D(dd),verval:D(dd+30),status:st,regels,btw:21,incl:true,gemaakt:TS(dd,"16:40"),...(st!=="concept"?{verstuurdOp:D(dd)}:{}),...(extra||{})})};
   off("Gemeente Westerkwartier, locatie Zuidhorn","Hooghuis 1, 9801 AB Zuidhorn","verstuurd",[{omschrijving:"Glasbewassing gemeentehuis buitenzijde, elke 8 weken",aantal:1,prijs:485},{omschrijving:"Glasbewassing binnenzijde, 2x per jaar",aantal:1,prijs:620}],-6);
-  off("Familie Wijnstra","Molenweg 7, 9363 AB Marum","verstuurd",[{omschrijving:"Glasbewassing, elke 6 weken",aantal:1,prijs:64.5},{omschrijving:"Eenmalig kozijnen reinigen",aantal:1,prijs:85}],-3);
+  off("Familie Wijnstra","Molenweg 7, 9363 AB Marum","verstuurd",[{omschrijving:"Glasbewassing, elke 6 weken",aantal:1,prijs:69.5},{omschrijving:"Eenmalig kozijnen reinigen",aantal:1,prijs:85}],-3);
   off("Huisartsenpraktijk Aduard","Eikenlaan 2, 9831 AC Aduard","geaccepteerd",[{omschrijving:"Glasbewassing binnen en buiten, elke 4 weken",aantal:1,prijs:110}],-12,{akkoordOp:D(-9)});
   off("Camping De Watermolen","Kanaalweg 40, 9843 TE Grijpskerk","geaccepteerd",[{omschrijving:"Glasbewassing receptie en sanitairgebouwen, april t/m september elke 2 weken",aantal:1,prijs:138}],-44,{akkoordOp:D(-40)});
   off("Kuiper, Henk","Hoofdstraat 88, 9351 AG Leek","geaccepteerd",[{omschrijving:"Glasbewassing, elke 8 weken",aantal:1,prijs:69.5},{omschrijving:"Zonnepanelen reinigen (18 panelen), 1x per jaar",aantal:1,prijs:81}],-27,{akkoordOp:D(-26)});
@@ -20623,7 +20626,7 @@ function demoMaak(){
   off("Doornbos, Gea","Wilhelminastraat 12, 9861 BH Grootegast","afgewezen",[{omschrijving:"Glasbewassing binnen en buiten, elke 8 weken",aantal:1,prijs:119.5}],-35);
   off("Bouwbedrijf Nijdam","Industrieweg 9, 9351 PK Leek","verstuurd",[{omschrijving:"Opleveringsschoonmaak glas, 6 woningen",aantal:6,prijs:95}],-41);
   off("VvE De Vaart","Reitdiep 2-40, 9801 ZZ Zuidhorn","concept",[{omschrijving:"Glasbewassing buitenzijde 38 appartementen, elke 8 weken",aantal:1,prijs:425}],-1);
-  off("De Wit, Marco","Kievitstraat 21, 9351 KD Leek","concept",[{omschrijving:"Glasbewassing",aantal:1,prijs:62.5}],0);
+  off("De Wit, Marco","Kievitstraat 21, 9351 KD Leek","concept",[{omschrijving:"Glasbewassing",aantal:1,prijs:68.8}],0);
 
   /* ---- kosten: brandstof, bus, verzekering, materiaal ---- */
   const kost=(d,bedrag,leverancier,categorie,omschrijving,btw=21)=>kosten.push({id:"cdemo"+kosten.length,datum:D(d),bedrag:+bedrag.toFixed(2),leverancier,btw,categorie,omschrijving,bon:"",aangemaakt:TS(d,"18:10")});
