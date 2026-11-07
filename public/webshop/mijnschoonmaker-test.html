@@ -2546,6 +2546,7 @@ html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-pick{padding:2px 2px 0
     const p=document.querySelector("#out .op-l b");$("#cfgP").textContent=p?p.textContent:"€ –";$("#cfgPs").textContent=p?"per beurt, "+(document.querySelector("#out .op-l small:nth-of-type(2)")||{textContent:"incl. btw"}).textContent.replace(/^.*·\s*/,""):"per beurt, na het tellen";
     $("#cfgKnop").textContent=n===5?"Indienen":n===4?(p?"Gegevens invullen":"Bereken prijs"):"Volgende";
     {const st=mid.dataset.st,b1=$("#cfgB1"),k=$("#cfgKnop");if(st==="kies"){b1.textContent="Uw woning";k.textContent="Beginnen"}else if(st==="zak"){b1.textContent="Bedrijf / VvE";$("#cfgS1").textContent="Contactformulier";k.textContent="Versturen"}else if(st==="adres")k.textContent="Volgende";else if(st==="foto"&&!fotos().length)k.textContent="Foto’s maken";else if(st==="foto"&&!(photos.length&&photos.every(gedaan)))k.textContent="Ramen aantikken";else if(st==="foto"){const av=document.getElementById("aanvraag"),open=!!(av&&av.offsetParent&&av.classList.contains("open"));if(document.querySelector("#ov [data-ovgo]")&&document.querySelector("#ov [data-ovgo]").offsetParent||open)k.textContent=open?"Indienen":"Gegevens invullen"}}
+    liveBar();
     {const pr=$("#cfgP");document.querySelector(".cfg-bar").classList.toggle("np",!pr||/–|-\s*$/.test(pr.textContent)||["kies","adres"].includes(mid.dataset.st))}
     toon()}
   /* één foto tegelijk: na een foto direct de volgende, met voortgang */
@@ -2607,6 +2608,15 @@ html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-pick{padding:2px 2px 0
   try{const C0=compute;compute=function(){const R=C0.apply(this,arguments);try{const w=(FREQ_LIST.find(x=>x[0]===g("freq").value)||[])[4],v=cfg.fpB&&cfg.fpB[String(w)];const fk=v==null||v===""?1:1-Number(v)/100;if(fk===1&&!cfg.minAlles)return R;R.sRows.forEach(r=>r.price*=fk);
     const spSom=R.sRows.reduce((a,r)=>a+r.price,0),glasN=R.normal+R.freqAdj;let glasEx=glasN+spSom,minGlas=false,minOp="";if(cfg.minAlles){if(R.all.length&&glasN+spSom<cfg.min){minGlas=true;minOp="a";glasEx=cfg.min}}else if(R.fRows.length&&glasN<cfg.min){minGlas=true;minOp="f";glasEx=cfg.min+spSom}else if(!R.fRows.length&&spSom<cfg.min){minGlas=true;minOp="s";glasEx=cfg.min}
     const ex=glasEx+(cfg.start||0);return {...R,spSom,glasN,glas:glasN+spSom,glasEx,minGlas,minOp,ex,vat:ex*VAT,inc:ex*(1+VAT)}}catch(e){return R}}}catch(e){}
+  /* aantal ramen en prijs onderin lopen direct mee met elk bolletje (ook tijdens het aantikken) */
+  function liveR(){const cnt={};photos.forEach(p=>p.dots.forEach(d=>cnt[d.t]=(cnt[d.t]||0)+1));let hi=3;Object.keys(cnt).forEach(t=>{if(t[0]==="f")hi=Math.max(hi,+t.slice(1))});
+    const f0=floors,s0=special;floors=Array.from({length:hi+1},(_,i)=>cnt["f"+i]||0);special={lood:cnt["s-lood"]||0,mini:cnt["s-mini"]||0,koepel:cnt["s-koepel"]||0,tuimel:cnt["s-tuimel"]||0};
+    try{const R=compute();R._n=Object.values(cnt).reduce((a,b)=>a+b,0);return R}finally{floors=f0;special=s0}}
+  function liveBar(){try{if(!photos.some(p=>p.dots.length))return;const R=liveR(),n=R._n;
+      $("#cfgB2").textContent=n+(n===1?" raam":" ramen");
+      $("#cfgP").textContent=n?eur(SOORT==="zakelijk"?R.ex:R.inc):"€ –";
+      if(n)$("#cfgPs").textContent="per beurt, "+(SOORT==="zakelijk"?"excl. btw":"incl. btw")+" en kozijnen"}catch(e){}}
+  {const w=document.getElementById("ed-wrap");if(w)new MutationObserver(()=>{liveBar();const pr=$("#cfgP");document.querySelector(".cfg-bar").classList.toggle("np",!pr||/–|-\s*$/.test(pr.textContent))}).observe(w,{childList:true})}
   /* "mogelijk gemaakt door Mansard" linkt naar mansard.nl */
   document.querySelectorAll(".wz-door").forEach(d=>{if(d.querySelector("a.cfg-door"))return;const a=el("a","cfg-door");a.href="https://www.mansard.nl";a.target="_blank";a.rel="noopener";a.setAttribute("aria-label","Mansard – naar www.mansard.nl");while(d.firstChild)a.append(d.firstChild);d.append(a)});
   bij();stap();setInterval(()=>{bij();stap()},500);
