@@ -740,6 +740,10 @@ html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-pick{padding:2px 2px 0
       $("#cfgP").textContent=n?eur(SOORT==="zakelijk"?R.ex:R.inc):"€ –";
       if(n)$("#cfgPs").textContent="per beurt, "+(SOORT==="zakelijk"?"excl. btw":"incl. btw")+" en kozijnen"}catch(e){}}
   {const w=document.getElementById("ed-wrap");if(w)new MutationObserver(()=>{liveBar();const pr=$("#cfgP");document.querySelector(".cfg-bar").classList.toggle("np",!pr||/–|-\s*$/.test(pr.textContent))}).observe(w,{childList:true})}
+  /* voetnoot: wij controleren de telling direct na ontvangst aan de hand van de foto's (niet pas bij het eerste bezoek) */
+  try{const f=document.querySelector("p.foot");if(f){const t=[...f.childNodes].find(x=>x.nodeType===3&&/eerste bezoek/.test(x.nodeValue));if(t)t.nodeValue=t.nodeValue.replace(/Bij ons eerste bezoek controleren wij de telling ter plekke\./,"Direct na ontvangst controleren wij de telling aan de hand van uw foto’s.")}}catch(e){}
+  /* na versturen: knop in de balk wordt "Verstuurd ✓" zodat niemand dubbel indient */
+  try{const sb=document.querySelector(".send.one"),k=$("#cfgKnop");if(sb&&k){const zet=()=>{if(/verstuurd/i.test(sb.textContent||"")){if(k.textContent!=="Verstuurd ✓")k.textContent="Verstuurd ✓";k.disabled=true;k.style.pointerEvents="none";k.style.opacity=".75"}};new MutationObserver(zet).observe(sb,{childList:true,subtree:true,characterData:true,attributes:true});new MutationObserver(zet).observe(k,{childList:true,characterData:true,subtree:true})}}catch(e){}
   /* "mogelijk gemaakt door Mansard" linkt naar mansard.nl */
   document.querySelectorAll(".wz-door").forEach(d=>{if(d.querySelector("a.cfg-door"))return;const a=el("a","cfg-door");a.href="https://www.mansard.nl";a.target="_blank";a.rel="noopener";a.setAttribute("aria-label","Mansard – naar www.mansard.nl");while(d.firstChild)a.append(d.firstChild);d.append(a)});
   bij();stap();setInterval(()=>{bij();stap()},500);
