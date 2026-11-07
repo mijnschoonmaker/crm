@@ -1979,7 +1979,7 @@ const lr=(ic,titel,sub,rt="",o={})=>{const tag=o.href?"a":o.attr?"button":"div";
 function teken(){
   const openF=D.facturen.filter(f=>f.status==="open"||f.status==="verlopen"),k=D.klant;
   document.title=B.naam+" · Mijn klantomgeving";
-  TABS=isVve()?TABS_VVE:TABS_STD;if(tab==="aanbevelen"&&isVve())tab="home";
+  TABS=isVve()?TABS_VVE.filter(x=>!(x[0]==="docs"&&B.geenDocs)):TABS_STD;if(tab==="aanbevelen"&&isVve())tab="home";if(tab==="docs"&&B.geenDocs)tab="home";
   const nav=(mob)=>TABS.filter(x=>(!mob||x[0]!=="ik")&&!(mob&&x[0]==="offertes"&&!(D.offertes||[]).length)).map(([t,l,ic])=>`<button data-tab="${t}"${tab===t?' aria-current="true"':""}>${mob?`<i>${ic}</i>`:ic}<span>${l}</span>${t==="facturen"&&openF.length?`<em class="badge">${openF.length}</em>`:""}${t==="tickets"&&D.tickets&&D.tickets.ongelezen?`<em class="badge">${D.tickets.ongelezen}</em>`:""}</button>`).join("");
   const tel=(B.mobiel||B.telefoon||"").replace(/[^\d+]/g,""),wa=tel.replace(/^\+/,"").replace(/^0/,"31");
   $("#app").innerHTML=`<div class="app">
