@@ -82,7 +82,7 @@ function openOpdrachtWerk(kid,focus){
     <section class="kp"><div class="kp-h"><span class="objic">${I.pencil}</span><b>Taakomschrijving</b></div>
       <textarea id="ow-taak" style="min-height:70px" placeholder="${GLAS()?"Bijv. wassen ramen incl. kozijnen, achterom via de poort":"Bijv. wat er moet gebeuren, achterom via de poort"}">${esc(soloR?(soloR.taak||""):(k.taak||""))}</textarea>
 </section>
-    ${k.soort==="vve"?`<section class="kp"><div class="kp-h"><span class="objic">${I.checksq||I.check}</span><b>Checklist VvE</b></div>
+    ${k.soort==="vve"&&!(typeof busLegacy==="function"&&busLegacy())?`<section class="kp"><div class="kp-h"><span class="objic">${I.checksq||I.check}</span><b>Checklist VvE</b></div>
       <p class="subt" style="margin:0 0 8px">Per ruimte of taak hoe vaak. Bij het afmelden ziet je medewerker alleen wat die dag aan de beurt is; het bestuur ziet het in het portaal.</p>
       ${vveTaken(k).length?"":`<p class="help" id="owVveLeeg" style="margin:0 0 6px">Geen checklist: bij het afmelden komt er geen opleverlijst. Doe je hier ook schoonmaakwerk (trappenhal, lift)? Voeg dan een ruimte toe.</p>`}<div id="ow-vvetaken" class="vve-ed">${vveTaken(k).map(t=>vveEdRij(t,vveFreq(k,t))).join("")}</div>
       <button type="button" class="small" id="owVveTk" style="margin-top:8px">${I.plus}Ruimte of taak toevoegen</button></section>`:""}
