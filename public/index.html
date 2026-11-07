@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="e40b2fd54668"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="34958609e1f3"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -5701,6 +5701,12 @@ html body dialog .skz-k button{padding:0 12px!important;min-width:0!important;wh
 @media (max-width:640px){.ds .ds-rij{grid-template-columns:60px minmax(0,1fr)}.ds-gr{left:68px}.ds .ds-uren{margin-left:68px!important}.ds-tg{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 #rvMap .sg-knop{top:12px}
+
+/* opslaanbalk in het bewerkvenster op de telefoon (Uitvoering › Diensten) */
+dialog.drawer form.dlg:has(.u-edsave){overflow:visible!important}
+.u-edsave{position:sticky;bottom:0;z-index:2;display:flex;align-items:center;gap:12px;margin:6px -20px -20px;padding:12px 20px calc(12px + env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--line)}
+.u-edsave span{flex:1;font-size:13px;color:var(--muted)}
+.u-edsave button{flex:none;min-width:140px}
 
 </style>
 <style id="mansardThema">
@@ -15321,7 +15327,7 @@ const uGroup=id=>U.groepen.find(g=>g.id===id)||U.eigen.find(g=>g.id===id);
 function uSel(){const s=state.uSel;if(!s)return null;const g=uGroup(s.g);if(!g)return null;return {g,it:s.i!=null?g.items[s.i]:null}}
 
 async function uitvSave(){
-  const b=$("#uSave");if(b)b.disabled=true;
+  const b=$("#uSave");if(b)b.disabled=true;const bm=$("#uSaveM");if(bm)bm.disabled=true;
   try{
     const glas=U.groepen.find(g=>g.type==="glas"),c=RC.cfgAll(),patch={...(state.ramen||{})};
     Object.keys(c).forEach(k=>{if(!(k in patch))patch[k]=c[k]});
@@ -15338,10 +15344,12 @@ async function uitvSave(){
     await save("instellingen","uitvoering",doc);state.uitv=doc;
     await save("instellingen","ramen",patch);state.ramen=patch;
     await saveSettings({diensten:dl,freqs,freqCalc,freqWeb},"Uitvoering opgeslagen");if(RC&&RC.refreshFreq)RC.refreshFreq();
-    Udirty=false;uitvLoad(true);render()}
-  catch(e){err(e);if(b)b.disabled=false}
+    Udirty=false;uitvLoad(true);uRedraw()}
+  catch(e){err(e);if(b)b.disabled=false;if(bm)bm.disabled=false}
 }
-function uDirty(){Udirty=true;const b=$("#uSave");if(b){b.disabled=false;b.classList.add("pulse")}const r=$("#uReset");if(r)r.disabled=false}
+function uDirty(){Udirty=true;const b=$("#uSave");if(b){b.disabled=false;b.classList.add("pulse")}const r=$("#uReset");if(r)r.disabled=false;const m=$("#uSaveM");if(m){m.disabled=false;m.classList.add("pulse")}const t=$("#uSaveT");if(t)t.textContent="Nog niet opgeslagen"}
+/* op de telefoon opent een dienst in een venster; de opslaanknop bovenaan de pagina zit daar achter, dus het venster krijgt een eigen balk */
+const uSaveBar=()=>big()?"":`<div class="u-edsave"><span id="uSaveT">${Udirty?"Nog niet opgeslagen":"Alles opgeslagen"}</span><button type="button" class="primary${Udirty?" pulse":""}" id="uSaveM" data-act="usave" ${Udirty?"":"disabled"}>${I.check}Opslaan</button></div>`;
 
 /* rekenvoorbeeld voor één dienst (alleen eigen staffel) */
 function uVoorbeeld(it){const tU=(t,n)=>{t=(t||[]).filter(x=>Number(x[0])>0).map(x=>[Number(x[0]),Number(x[1])||0]).sort((a,b)=>a[0]-b[0]);let o=0;for(let i=1;i<=n;i++){let d=0;for(const [f,p] of t)if(i>=f)d=p;o+=d/100}return o};
@@ -15391,7 +15399,7 @@ function uEditHtml({g,it}){
         <div class="u-fp">${fl.map(f=>`<div class="u-fpr"><span>${esc(f.l)}</span>${uIn("ufp-"+f.k,"g.fp."+f.k,(g.fp||{})[f.k]??f.p,{step:"1",post:"%"})}</div>`).join("")}</div>`
         :`<div class="u-sec"><b>Frequentie</b><span>Korting (%) per frequentie — een negatief getal is een toeslag (bijv. −50 bij op afroep)</span></div>
         <div class="u-fp">${dienstFreqKeuzes().map(w=>`<div class="u-fpr"><span>${esc(fqSpec(w)?fqSpecTxt(w):fqTxt(w)||freqLabel(w))}</span>${uIn("ufw-"+w,"g.fpw."+w,(g.fpw||{})[w]??0,{step:"1",post:"%"})}</div>`).join("")}</div>`}
-      ${del?`<button type="button" class="small danger" data-act="udelg" data-g="${esc(g.id)}">${I.trash}Categorie verwijderen</button>`:""}</div>`}
+      ${del?`<button type="button" class="small danger" data-act="udelg" data-g="${esc(g.id)}">${I.trash}Categorie verwijderen</button>`:""}${uSaveBar()}</div>`}
   const i=g.items.indexOf(it),canDel=!it.key;
   return `<div class="card u-ed"><div class="u-edh"><span class="objic">${I.wrench}</span><div><span class="eyebrow">${esc(g.naam)}</span><h3>${esc(it.naam||"Naamloos")}</h3></div>${!big()?`<button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button>`:""}</div>
     <label>Naam dienst${uIn("ui-naam","i.naam",it.naam,{type:"text",ro:!!it.key})}</label>
@@ -15407,7 +15415,7 @@ function uEditHtml({g,it}){
     <div class="u-tiers">${(it.tiers||[]).map((t,j)=>`<div class="u-tr">${uIn("ut-"+j+"a","i.tiers."+j+".0",t[0],{step:"1",pre:"Vanaf"})}${uIn("ut-"+j+"b","i.tiers."+j+".1",t[1],{step:"1",post:"%"})}<button type="button" class="iconbtn sm" data-act="udeltier" data-j="${j}" aria-label="Verwijderen">${I.x}</button></div>`).join("")||'<p class="subt" style="margin:0">Geen staffelkorting.</p>'}</div>
     <button type="button" class="small" data-act="uaddtier">${I.plus}Korting toevoegen</button>
     <div class="u-vb" id="ui-vb"><span class="eyebrow">Rekenvoorbeeld</span><div>${uVoorbeeld(it)}</div></div>
-    ${canDel?`<button type="button" class="small danger" data-act="udeli" data-g="${esc(g.id)}" data-i="${i}">${I.trash}Dienst verwijderen</button>`:`<p class="help" style="margin:0">Deze dienst hoort bij de rekentool en kan niet worden verwijderd.</p>`}</div>`;
+    ${canDel?`<button type="button" class="small danger" data-act="udeli" data-g="${esc(g.id)}" data-i="${i}">${I.trash}Dienst verwijderen</button>`:`<p class="help" style="margin:0">Deze dienst hoort bij de rekentool en kan niet worden verwijderd.</p>`}${uSaveBar()}</div>`;
 }
 /* frequentie aangezet voor rekentool/webshop: ook kiesbaar maken bij Glasbewassing als daar een eigen keuze staat (anders zie je hem nergens) */
 function uGlasFreqBij(k){[...(U.groepen||[]),...(U.eigen||[])].filter(g=>g&&(g.type==="glas"||g.id==="glas")&&Array.isArray(g.freqs)&&g.freqs.length).forEach(g=>{if(!g.freqs.map(String).includes(String(k)))g.freqs.push(String(k))})}

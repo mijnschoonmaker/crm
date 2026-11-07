@@ -4974,3 +4974,9 @@ html body dialog .skz-k button{padding:0 12px!important;min-width:0!important;wh
 @media (max-width:640px){.ds .ds-rij{grid-template-columns:60px minmax(0,1fr)}.ds-gr{left:68px}.ds .ds-uren{margin-left:68px!important}.ds-tg{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 #rvMap .sg-knop{top:12px}
+
+/* opslaanbalk in het bewerkvenster op de telefoon (Uitvoering › Diensten) */
+dialog.drawer form.dlg:has(.u-edsave){overflow:visible!important}
+.u-edsave{position:sticky;bottom:0;z-index:2;display:flex;align-items:center;gap:12px;margin:6px -20px -20px;padding:12px 20px calc(12px + env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--line)}
+.u-edsave span{flex:1;font-size:13px;color:var(--muted)}
+.u-edsave button{flex:none;min-width:140px}
