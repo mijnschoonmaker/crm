@@ -1731,6 +1731,7 @@ html body:not(#zz) .pg.met-paneel.lijn .paneel>.melding.goud{align-items:center;
 html body:not(#zz) .pg.met-paneel.lijn section.kp.ab-kp{height:auto!important;max-height:none!important;align-self:stretch!important}
 html body:not(#zz) .pg.met-paneel.lijn .ab-top{flex:1 1 auto}
 html body:not(#zz) .pg.met-paneel.lijn .bz-hero{align-self:stretch}
+html body:not(#zz) .pg.met-paneel.lijn .lijn-st{align-self:start}
 }
 html body:not(#zz) .pg.met-paneel .paneel>.melding.goud .objic{background:#f1f2f5!important;color:#0d121b!important}
 html body:not(#zz) .pg.met-paneel .paneel>.melding.goud .tx b{font-size:15px!important}
@@ -1777,6 +1778,7 @@ html body:not(#zz) .cr-card{width:clamp(250px,27%,300px)!important;right:clamp(2
 .lv-groot{margin:0 0 18px}.lv-groot .lv-map{height:min(56vh,520px)!important;min-height:300px}.lv-groot .lv-tx b{font-size:clamp(18px,2.2vw,24px)}.lv-groot .lv-eta b{font-size:clamp(24px,3vw,34px)}
 @media (max-width:600px){.lv-groot .lv-map{height:calc(100dvh - var(--lvRest,300px))!important;min-height:260px}}
 .cr-let{margin:-4px 2px 10px;font-size:13px;line-height:1.45;color:var(--ink2)}
+.lijn-st{display:flex;flex-direction:column;gap:20px;min-width:0}.lijn-st>.hm-mid:not(:has(*)){display:none}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -2124,7 +2126,7 @@ function vveKpis(){const k=D.klant,nu=vandaag(),m=nu.toISOString?(nu.getFullYear
   const d30=(D.bezoeken||[]).filter(b=>b.datum&&(nu-p(b.datum))/864e5<=30),af=vveAfrond(d30),openF=D.facturen.filter(f=>f.status==="open"||f.status==="verlopen"),som=openF.reduce((a,f)=>a+f.bedrag,0);
   const tk=(D.tickets&&D.tickets.open)||0,meld=(D.meldingen||[]).filter(x=>(nu-p(x.datum))/864e5<=30).length;
   const tile=(ic,l,w,s,cls="")=>`<div class="vk ${cls}"><span class="vk-ic">${ic}</span><small>${l}</small><b>${w}</b><em>${s}</em></div>`;
-  return `<div class="vk-rij">${tile(I.check,"Deze maand",plural(bs.length,"beurt","beurten"),esc(MND[nu.getMonth()]))}${(()=>{const v=(D.klant.diensten||[]).filter(x=>x.volgende).sort((a,b)=>a.volgende.localeCompare(b.volgende))[0];return tile(I.kal,"Volgende bezoek",v?esc(kort(v.volgende)):"–",v?esc(v.naam):"wordt ingepland")})()}${tile(I.euro,"Openstaand",eur0(som),openF.length?plural(openF.length,"factuur","facturen"):"alles betaald",som>0?"rood":"")}</div>`}
+  return `<div class="vk-rij">${tile(I.check,"Deze maand",plural(bs.length,"beurt","beurten"),esc(MND[nu.getMonth()]))}${(()=>{const v=(D.klant.diensten||[]).filter(x=>x.volgende).sort((a,b)=>a.volgende.localeCompare(b.volgende))[0];const vd=(D.volgende&&D.volgende.datum)||(v&&v.volgende)||"";return tile(I.kal,"Volgende bezoek",vd?esc(kort(vd)):"–",D.volgende&&D.volgende.datum?(D.volgende.tijd?"rond "+esc(D.volgende.tijd):"gepland"):v?esc(v.naam):"wordt ingepland")})()}${tile(I.euro,"Openstaand",eur0(som),openF.length?plural(openF.length,"factuur","facturen"):"alles betaald",som>0?"rood":"")}</div>`}
 /* ---------- printbare documenten (openen in een nieuw tabblad; Afdrukken of Bewaar als PDF) ---------- */
 function vveDocHtml(titel,inhoud){const k=D.klant,logo=B.logo||"";
   return `<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(titel)} · ${esc(k.naam)}</title><style>
@@ -2726,6 +2728,10 @@ function lijnUit(){const pg=document.querySelector(".pg.met-paneel");if(!pg||pg.
   lk.forEach((e,i)=>{e.style.gridColumn="1";e.style.gridRow=String(i+1)});
   ab.style.gridColumn="2";ab.style.gridRow=String(h+1);
   if(tv){tv.style.gridColumn="2";tv.style.gridRow=String((st>=0?st:h+1)+1)}
+  /* VvE: rechts staan meer kaarten; links en rechts elk als eigen stapel onder de grote kaart, zodat er geen gaten vallen */
+  if(isVve()&&rest.length){const a=document.createElement("div"),b=document.createElement("div");a.className=b.className="lijn-st";
+    lk.slice(h+1).forEach(e=>{e.style.gridColumn="";e.style.gridRow="";a.appendChild(e)});rest.forEach(e=>{e.style.gridColumn="";e.style.gridRow="";b.appendChild(e)});
+    a.style.gridColumn="1";b.style.gridColumn="2";a.style.gridRow=b.style.gridRow=String(h+2);L.appendChild(a);R.appendChild(b);pg.classList.add("lijn");return}
   let r=h+2;rest.forEach(e=>{e.style.gridColumn="2";if(tv&&st>=0&&r===st+1)r++;e.style.gridRow=String(r++)});
   pg.classList.add("lijn")}
 new MutationObserver(()=>{try{lijnUit()}catch(e){}}).observe(document.documentElement,{childList:true,subtree:true});
