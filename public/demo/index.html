@@ -10077,7 +10077,7 @@ function vKlanten(){
   if(!all.length)return html+empty("Nog geen klanten","Voeg je eerste klant toe, of importeer je bestaande lijst uit Excel.",`<div style="display:flex;gap:8px"><button type="button" class="primary" data-act="klant">${I.plus}Nieuwe klant</button><button type="button" data-act="import">${I.upload}Importeren</button></div>`);
   html+=`<div class="countline"><span class="eyebrow">${plural(ks.length,"resultaat","resultaten")}</span><label style="flex-direction:row;align-items:center;gap:8px">Per pagina<select id="kpp">${[25,50,100].map(n=>`<option ${n===pp?"selected":""}>${n}</option>`).join("")}</select></label></div>`;
   if(!ks.length)return html+empty("Geen klanten gevonden","Probeer een andere zoekterm of filter.");
-  html+=`<div class="list klx">${shown.map(k=>{const s=status(k),sel=selm&&state.sel.has(k.id),C=2*Math.PI*27,_t=today(),_due=s.v,_st=parse(k.laatst)||(_due?addDays(_due,-freqDays(k)):_t),_span=Math.max(1,(_due-_st)/DAY),pct=k.actief===false||(!k.laatst&&!k.gepland)?0:Math.round(Math.max(0,Math.min(1,(_t-_st)/DAY/_span))*100),
+  html+=`<div class="list klx">${shown.map(k0=>{const k=klLijstView(k0),s=status(k),sel=selm&&state.sel.has(k.id),C=2*Math.PI*27,_t=today(),_due=s.v,_st=parse(k.laatst)||(_due?addDays(_due,-freqDays(k)):_t),_span=Math.max(1,(_due-_st)/DAY),pct=k.actief===false||(!k.laatst&&!k.gepland)?0:Math.round(Math.max(0,Math.min(1,(_t-_st)/DAY/_span))*100),
       _nw=s.diff===-999,_gp=k.actief!==false&&!k.prospect&&!!parse(k.gepland),rc=k.actief===false?"neutral":k.prospect?"soon":k.opdrachtVerwijderd&&!_gp?"neutral":_nw?"nieuw":_gp?"plan":s.diff<0?"late":s.diff<7?"crit":s.diff<=10?"warn":s.diff<=14?"attn":"ok",_ang=pct/100*2*Math.PI-Math.PI/2,_kx=(30+27*Math.cos(_ang)).toFixed(1),_ky=(30+27*Math.sin(_ang)).toFixed(1);
     const dag=s.v?s.v.toLocaleDateString("nl-NL",{day:"numeric",month:"short"}):"",tel=k.mobiel||k.telefoon;
     return `<div class="card click kx kx-${rc}${k.actief===false?" dim":""}${sel?" sel":""}${selm?" kx-selm":""}" data-act="${selm?"selk":"klant"}" data-id="${esc(k.id)}" style="--h:${hue(k.ronde||k.naam)}">
@@ -10094,6 +10094,12 @@ function vKlanten(){
   if(pages>1)html+=`<div class="pager"><button type="button" class="small" data-act="kpage" data-n="-1" ${state.kpage<=1?"disabled":""}>${I.left}</button><span class="mono">${state.kpage} / ${pages}</span><button type="button" class="small" data-act="kpage" data-n="1" ${state.kpage>=pages?"disabled":""}>${I.right}</button></div>`;
   return html;
 }
+/* klantenlijst: hoofdopdracht verwijderd maar er is nog een (apart ingeplande) opdracht → toon die i.p.v. "Geen opdracht" */
+function klLijstView(k){try{if(!k||!k.opdrachtVerwijderd||k.actief===false||k.prospect)return k;
+  const L=(k.opdrachten||[]).filter(o=>o.actief!==false&&String(o.dienst||"").trim()&&!opdrBij(k,o));if(!L.length)return k;
+  const js=L.map(o=>({o,j:typeof opdrJob==="function"&&opdrApart(k,o)?opdrJob(k,o.id):null}));
+  const pl=js.filter(x=>x.j&&x.j.gepland&&x.j.actief!==false).sort((a,b)=>String(a.j.gepland).localeCompare(String(b.j.gepland)))[0]||js[0];
+  const o=pl.o,j=pl.j;return {...k,opdrachtVerwijderd:false,dienst:o.dienst,prijs:Number(o.prijs)||0,toeslag:0,frequentie:o.frequentie||(j&&j.frequentie)||k.frequentie,gepland:j&&j.gepland||"",tijd:j&&j.gepland?j.tijd||"":"",laatst:j&&j.laatst||k.laatst}}catch(e){return k}}
 function openPostcodes(){
   const g={};actief().forEach(k=>{const pc=String(k.postcode||"").replace(/\s/g,"").slice(0,4)||"Onbekend";(g[pc]=g[pc]||[]).push(k)});
   const keys=Object.keys(g).sort();
