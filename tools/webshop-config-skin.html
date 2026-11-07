@@ -407,6 +407,11 @@ html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-acties a,html body.cfg:not(#zz):no
 html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-acties button.vk{width:34px!important;padding:0!important}
 html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-acties svg{width:14px;height:14px}
 @media (max-width:599px){html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-logo img{height:42px!important}html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-acties a{width:34px!important;padding:0!important;font-size:0!important;gap:0!important}}
+html body.cfg:not(#zz):not(#zy):not(#zx).cfg-vol{overflow:hidden!important}
+html body.cfg:not(#zz):not(#zy):not(#zx).cfg-vol .cfg-stage{position:fixed!important;top:0!important;left:0!important;right:0!important;bottom:0!important;width:100%!important;height:100%!important;max-height:none!important;min-height:0!important;margin:0!important;border-radius:0!important;z-index:9990!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-acties a{width:auto!important;white-space:nowrap;flex:none}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-acties button.vk{flex:none}
+@media (max-width:599px){html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-acties a{width:34px!important}}
 @keyframes cfgIn{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
 html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-wrap.cfg-in{animation:cfgIn .35s ease both}
 html body.cfg:not(#zz):not(#zy):not(#zx) #ed #ed-done.cfg-verder svg{order:2}
@@ -622,7 +627,11 @@ html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-pick{padding:2px 2px 0
       for(let i=0;i<(d.fotos||[]).length;i++){try{const p=await loadPhoto(dataUrlBlob(d.fotos[i]));p.dots=(d.dots&&d.dots[i])||[];photos.push(p)}catch(e){}}
       if(photos.length){renderPhotos();if(fotoModus())modus(false);else syncFromPhotos();fi=0}}}catch(e){}hersteld=true})();
   const acties=el("div","cfg-acties",`${B.whatsapp?`<a href="https://wa.me/${esc(B.whatsapp)}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4.1A8 8 0 1 1 20 11.5Z"/></svg>Hulp via WhatsApp</a>`:""}<button type="button" class="vk" aria-label="Volledig scherm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>`);stage.append(acties);
-  acties.querySelector(".vk").onclick=()=>{try{document.fullscreenElement?document.exitFullscreen():stage.requestFullscreen()}catch(e){}};
+  {const vk=acties.querySelector(".vk"),D=document,fsEl=()=>D.fullscreenElement||D.webkitFullscreenElement,
+    nep=a=>{document.body.classList.toggle("cfg-vol",a);vk.setAttribute("aria-pressed",a?"true":"false")},
+    echt=()=>{const f=stage.requestFullscreen||stage.webkitRequestFullscreen;if(!f||!(D.fullscreenEnabled||D.webkitFullscreenEnabled))return false;try{const r=f.call(stage);if(r&&r.catch)r.catch(()=>nep(true));return true}catch(e){return false}};
+   vk.onclick=()=>{if(fsEl()){(D.exitFullscreen||D.webkitExitFullscreen).call(D);return}if(document.body.classList.contains("cfg-vol")){nep(false);return}if(!echt())nep(true)};
+   D.addEventListener("keydown",e=>{if(e.key==="Escape"&&document.body.classList.contains("cfg-vol"))nep(false)})}
   const PIJL=d=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
   const nav=el("div","cfg-nav",`<button type="button" data-d="-1" aria-label="Vorige foto">${PIJL("M15 5l-7 7 7 7")}</button><span class="i">1 / 1</span><button type="button" data-d="1" aria-label="Volgende foto">${PIJL("M9 5l7 7-7 7")}</button>`);stage.append(nav);
   if(intro)col.append(intro);if(wrap)col.append(wrap);if(foot)col.append(foot);
