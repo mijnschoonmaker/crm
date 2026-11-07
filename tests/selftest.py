@@ -500,16 +500,15 @@ def nieuweOpdracht(pg):
       await T.save('beurten',bid,{klantId:id,datum:d(-20),taken:[{naam:'Hekwerk',ok:true},{naam:'Trappenhuis',ok:true}]});
       const na={hek:T.vveAanDeBeurt(k,'Hekwerk',d(0)),hekLater:T.vveAanDeBeurt(k,'Hekwerk',d(75))};
       T.openOpdrachtWerk(id,'main');await new Promise(r=>setTimeout(r,300));
-      const rijen=[...document.querySelectorAll('#ow-vvetaken .vve-er')].map(r=>r.querySelector('[data-vtn]').value+'='+r.querySelector('[data-vtf]').value);
-      document.getElementById('owVveTk').click();const nr=document.querySelector('#ow-vvetaken .vve-er:last-child');nr.querySelector('[data-vtn]').value='Ramen';nr.querySelector('[data-vtf]').value='jaar';
+      const blok=!!document.getElementById('ow-vvetaken');
       document.getElementById('owSave').click();await new Promise(r=>setTimeout(r,500));const k2=T.state.klanten.find(x=>x.id===id)||{};
       document.querySelectorAll('dialog[open]').forEach(x=>x.close());await T.del('beurten',bid);await T.del('klanten',id);
-      return {eerst,na,rijen,taken:k2.vveTaken,freq:k2.vveFreq}}""")
+      return {eerst,na,blok,taken:k2.vveTaken,freq:k2.vveFreq}}""")
     if r is not None:
         check(G, "VvE: nieuwe periodieke taak is meteen aan de beurt", r["eerst"]["hek"] is True and r["eerst"]["trap"] is True, r)
         check(G, "VvE: kwartaaltaak niet opnieuw na 20 dagen, wel na 95", r["na"]["hek"] is False and r["na"]["hekLater"] is True, r)
-        check(G, "VvE: frequentie per taak in de opdracht", r["rijen"] == ["Trappenhuis=beurt", "Hekwerk=kwartaal"], r)
-        check(G, "VvE: taak met frequentie opslaan", r["taken"] == ["Trappenhuis", "Hekwerk", "Ramen"] and r["freq"] == {"Hekwerk": "kwartaal", "Ramen": "jaar"}, r)
+        check(G, "VvE: blok Checklist VvE staat niet meer in de opdracht", r["blok"] is False, r)
+        check(G, "VvE: opslaan laat bestaande taken en frequenties staan", r["taken"] == ["Trappenhuis", "Hekwerk"] and r["freq"] == {"Hekwerk": "kwartaal"}, r)
 
 
 def opdrachtNummers(pg):
