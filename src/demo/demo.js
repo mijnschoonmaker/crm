@@ -164,9 +164,9 @@ function demoMaak(){
   actief.filter(k=>k.soort==="particulier").forEach((k,i)=>{if(i%9===3)k.contactPlanning="bevestigen";else if(i%17===5)k.contactPlanning="bellen"});
 
   /* ---- nieuwe aanmeldingen via de website ---- */
-  {const k=nieuwK("Zijlstra, Marloes","particulier",74.97,8,8,{adres:"Fazantenlaan 62"});const P=(x,y,t)=>({x,y,t});
+  {const k=nieuwK("Zijlstra, Marloes","particulier",68.8,8,8,{adres:"Fazantenlaan 62"});const P=(x,y,t)=>({x,y,t});
     Object.assign(k,{gepland:"",tijd:"",laatst:"",aangemaakt:D(0),nieuwAangemeld:true,eersteKeer:true,tellingControle:true,aanbieden:true,duur:35,bron:"website",
-      ramenRegel:{f:[5,3,0,0],sp:{tuimel:3}},log:[{datum:D(0),tekst:"Aanvraag via de website · 11 ramen (telling klant) · € 74,97 per beurt, elke 8 weken"}],
+      ramenRegel:{f:[5,3,0,0],sp:{tuimel:3}},log:[{datum:D(0),tekst:"Aanvraag via de website · 11 ramen (telling klant) · € 68,80 per beurt, elke 8 weken"}],
       ramenTelling:{ramen:11,floors:[5,3],special:{tuimel:3},fotos:[{id:"demo-huis",w:642,h:530,zijde:"Voorkant",dots:[P(.127,.67,"f0"),P(.383,.70,"f0"),P(.458,.70,"f0"),P(.66,.67,"f0"),P(.693,.72,"f0"),P(.726,.42,"f1"),P(.762,.42,"f1"),P(.796,.42,"f1"),P(.16,.48,"s-tuimel"),P(.273,.47,"s-tuimel"),P(.39,.44,"s-tuimel")]}]}})
     const k2=nieuwK("Hamstra, Jelle","particulier",68.8,6,12,{});Object.assign(k2,{aangemaakt:D(-2),nieuwAangemeld:true,eersteKeer:true,aanbieden:true,bron:"website",log:[{datum:D(-2),tekst:"Aanvraag via de website · twee-onder-een-kap · € 68,80 per beurt, elke 6 weken"}]})}
 
