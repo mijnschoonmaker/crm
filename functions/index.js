@@ -522,7 +522,7 @@ function leesMultipart(req) {
   const Busboy = require("busboy");
   return new Promise((ok, fout) => {
     const velden = {}, bestanden = [];
-    const bb = Busboy({ headers: req.headers, limits: { fileSize: 8 * 1024 * 1024, files: 12, fields: 10, fieldSize: 200 * 1024 } });
+    const bb = Busboy({ headers: req.headers, limits: { fileSize: 8 * 1024 * 1024, files: 30, fields: 10, fieldSize: 200 * 1024 } });
     bb.on("field", (n, v) => { velden[n] = v; });
     bb.on("file", (n, s, info) => { const c = []; s.on("data", d => c.push(d)); s.on("end", () => bestanden.push({ veld: n, naam: info.filename, type: info.mimeType, buf: Buffer.concat(c) })); });
     bb.on("finish", () => ok({ velden, bestanden }));

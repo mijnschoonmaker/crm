@@ -2278,6 +2278,7 @@ html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-voor .cfg-fotos{margin-top:14px}
 html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-voor .cfg-vakken .vak{aspect-ratio:1}
 html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-voor .cfg-vakken .vak.vol{aspect-ratio:1}
 }
+html body.cfg:not(#zz):not(#zy):not(#zx).cfg-fotovol .cfg-meer,html body.cfg:not(#zz):not(#zy):not(#zx).cfg-fotovol .cfg-knop2{display:none!important}
 @keyframes cfgIn{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
 html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-wrap.cfg-in{animation:cfgIn .35s ease both}
 html body.cfg:not(#zz):not(#zy):not(#zx) #ed #ed-done.cfg-verder svg{order:2}
@@ -2578,7 +2579,7 @@ html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-pick{padding:2px 2px 0
   const groot=matchMedia("(min-width:600px)");
   function plaats(){if(groot.matches){if(fk.parentElement!==voor)voor.append(fk,leg)}else{const w2=document.getElementById("wz2");if(w2&&fk.parentElement!==w2)w2.append(fk,leg)}}
   plaats();{const dr=document.querySelector(".wz-door");if(dr)voor.after(dr)}try{groot.addEventListener("change",plaats)}catch(e){groot.addListener(plaats)}
-  function voorBij(){const st=mid.dataset.st,f=fotos().length;
+  function voorBij(){const st=mid.dataset.st,f=fotos().length;{const vol=f>=30;document.body.classList.toggle("cfg-fotovol",vol);const pi=document.getElementById("ph-in");if(pi)pi.disabled=vol}
     if(st!=="foto"){fk.dataset.lock="Eerst uw postcode invullen";leg.dataset.lock="Eerst foto’s maken"}
     else{delete fk.dataset.lock;if(!f)leg.dataset.lock="Eerst foto’s maken";else delete leg.dataset.lock}}
   /* "mogelijk gemaakt door Mansard" linkt naar mansard.nl */
