@@ -202,7 +202,9 @@ function aanvraagModel(D, b0) {
   const zak = D.soort === "zakelijk" && D.klant.bedrijf, naamK = zak ? D.klant.bedrijf : D.klant.naam;
   return { klant: { naam: naamK, contact: zak ? D.klant.naam : "", adres: D.klant.adres || "", pcPlaats: [String(D.klant.postcode || "").toUpperCase(), D.klant.plaats].filter(Boolean).join(" ") },
             groepen: [{ omschrijving: "Glasbewassing", excl, btwPct: pct, btw: Math.round((incl - excl) * 100) / 100, incl, subs }],
-            voetnoot: "Dit overzicht is voorlopig. Tijdens het eerste bezoek (0-beurt) controleren wij de aantallen. Bij een verschil kan de prijs wijzigen." };
+            voetnoot: T.isLegacy()
+              ? "Dit overzicht is voorlopig. Wij controleren de aantallen direct aan de hand van uw foto's en sturen u daarna het definitieve bestellingsoverzicht. Bij een verschil kan de prijs wijzigen."
+              : "Dit overzicht is voorlopig. Tijdens het eerste bezoek (0-beurt) controleren wij de aantallen. Bij een verschil kan de prijs wijzigen." };
 }
 
 async function checkGebruiker(auth) {
