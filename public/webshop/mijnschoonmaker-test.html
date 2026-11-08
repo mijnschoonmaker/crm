@@ -2304,6 +2304,14 @@ html body.cfg:not(#zz):not(#zy):not(#zx).cfg-vol .cfg-stage{position:fixed!impor
 html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-acties a{width:auto!important;white-space:nowrap;flex:none}
 html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-acties button.vk{flex:none}
 @media (max-width:599px){html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-acties a{width:34px!important}}
+/* iPad/tablet (aanraakscherm): kop, fotonavigatie en huisje iets kleiner */
+@media (min-width:600px) and (max-width:1400px) and (pointer:coarse){
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-kop{font-size:clamp(26px,3.2vw,42px)!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-shownav{height:34px!important;bottom:14px!important;padding:0 2px!important;font-size:13px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-shownav button{width:30px!important;height:32px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-shownav button svg{width:13px!important;height:13px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-start svg.huis{width:62px!important;height:36px!important}
+}
 @keyframes cfgIn{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
 html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-wrap.cfg-in{animation:cfgIn .35s ease both}
 html body.cfg:not(#zz):not(#zy):not(#zx) #ed #ed-done.cfg-verder svg{order:2}
