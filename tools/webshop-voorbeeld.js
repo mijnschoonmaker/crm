@@ -21,6 +21,17 @@ try{localStorage.removeItem("ms.ref")}catch(e){}
 function vbKnop(){const fk=document.querySelector(".cfg-fotos");if(!fk||fk.querySelector(".vb-foto"))return;const b=document.createElement("button");b.type="button";b.className="vb-foto";b.innerHTML="<b>Gebruik een voorbeeldfoto</b><span>Geen foto bij de hand? Probeer het met dit huis.</span>";
  b.onclick=async function(){if(b.disabled)return;b.disabled=true;try{const r=await fetch("/site/huis.jpg",{cache:"force-cache"});const bl=await r.blob();const f=new File([bl],"voorbeeldhuis.jpg",{type:bl.type||"image/jpeg"});const inp=document.getElementById("ph-in");const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;inp.dispatchEvent(new Event("change",{bubbles:true}))}catch(e){}setTimeout(function(){b.disabled=false},800)};
  const h=fk.querySelector("h3");if(h&&h.nextSibling)fk.insertBefore(b,h.nextSibling.nextSibling||null);else fk.prepend(b)}
+/* in een iframe op mansard.nl: nooit de pagina eromheen laten meescrollen */
+Element.prototype.scrollIntoView=function(o){try{const r=this.getBoundingClientRect(),c=(o&&o.block==="center")?(innerHeight-r.height)/2:(o&&o.block==="end")?innerHeight-r.height:0;window.scrollTo({top:Math.max(0,r.top+scrollY-c),behavior:(o&&o.behavior)||"auto"})}catch(e){}};
+{const fo=HTMLElement.prototype.focus;HTMLElement.prototype.focus=function(o){return fo.call(this,Object.assign({},o||{},{preventScroll:true}))}}
+/* direct beginnen bij de bolletjes: particulier, voorbeeldfoto en de editor open */
+async function vbStart(){try{const wacht=t=>new Promise(r=>setTimeout(r,t));
+ for(let i=0;i<40&&!document.querySelector(".cfg-start");i++)await wacht(100);
+ const st=document.querySelector(".cfg-start");if(st)st.click();await wacht(300);const k=document.querySelector(".k-part");if(k)k.click();await wacht(300);
+ const r=await fetch("/site/huis.jpg",{cache:"force-cache"});const bl=await r.blob();const f=new File([bl],"voorbeeldhuis.jpg",{type:bl.type||"image/jpeg"});
+ const inp=document.getElementById("ph-in");const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;inp.dispatchEvent(new Event("change",{bubbles:true}));
+ for(let i=0;i<40&&!(window.photos&&photos.length);i++)await wacht(100);await wacht(400);if(typeof openEd==="function")openEd(0);window.scrollTo(0,0)}catch(e){}}
+if(!/[?&]start=0/.test(location.search))window.addEventListener("load",function(){setTimeout(vbStart,300)});
 new MutationObserver(vbKnop).observe(document.documentElement,{childList:true,subtree:true});document.addEventListener("DOMContentLoaded",vbKnop);
 })();</script>
 <style>.vb-klaar{position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:99999;max-width:min(92vw,520px);background:#0e1117;color:#fff;font:500 14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;padding:12px 16px;border-radius:12px;box-shadow:0 14px 34px -14px rgba(0,0,0,.55);text-align:center}
