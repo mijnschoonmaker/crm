@@ -9516,7 +9516,7 @@ function drawPlanMail(){
   form.querySelectorAll("[data-pmk]").forEach(c=>c.onchange=()=>{c.checked?pm.sel.add(c.dataset.pmk):pm.sel.delete(c.dataset.pmk);re()});
   on("pmMail","onchange",e=>{pm.mail=e.target.checked;re()});
   on("pmSms","onchange",e=>{pm.sms=e.target.checked;re()});
-  on("pmTpl","onchange",e=>{pm.tpl=e.target.value;const X=T[pm.tpl];if(X){pm.onderwerp=X.onderwerp||"";pm.body=X.mail||"";pm.smsBody=X.sms||""}else{pm.onderwerp="Bericht van [name.company]";pm.body="Beste [name.customer],\n\n\n\nMet vriendelijke groet,\n[name.company]";pm.smsBody=""}re()});
+  on("pmTpl","onchange",e=>{pm.tpl=e.target.value;const X=T[pm.tpl];if(X){pm.onderwerp=X.onderwerp||"";pm.body=X.mail||"";pm.smsBody=X.sms||""}else{pm.onderwerp="Bericht van [name.company]";pm.body="Beste [name.customer],\n\n\n\nMet vriendelijke groet,\n[name.company]";pm.smsBody=""}const y=dlg.scrollTop;drawPlanMail();dlg.scrollTop=y});/* niet keep(): die zou de oude tekst uit de velden terugzetten */
   const pv=()=>{const p=form.querySelector(".pm-prev");if(p&&vv){p.querySelector("b").textContent=fill(pm.onderwerp,vv);p.querySelector("p").innerHTML=esc(fill(pm.body,vv)).replace(/\n/g,"<br>")}};
   on("pmSubj","oninput",e=>{pm.onderwerp=e.target.value;pv()});on("pmBody","oninput",e=>{pm.body=e.target.value;pv()});on("pmSmsB","oninput",e=>{pm.smsBody=e.target.value});
   on("pmOp","onchange",e=>{pm.op=e.target.value;re()});on("pmOpT","onchange",e=>{pm.opT=e.target.value;re()});

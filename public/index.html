@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="2b5166aa3268"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="2d7f7591c8c8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -9930,7 +9930,7 @@ function drawPlanMail(){
   form.querySelectorAll("[data-pmk]").forEach(c=>c.onchange=()=>{c.checked?pm.sel.add(c.dataset.pmk):pm.sel.delete(c.dataset.pmk);re()});
   on("pmMail","onchange",e=>{pm.mail=e.target.checked;re()});
   on("pmSms","onchange",e=>{pm.sms=e.target.checked;re()});
-  on("pmTpl","onchange",e=>{pm.tpl=e.target.value;const X=T[pm.tpl];if(X){pm.onderwerp=X.onderwerp||"";pm.body=X.mail||"";pm.smsBody=X.sms||""}else{pm.onderwerp="Bericht van [name.company]";pm.body="Beste [name.customer],\n\n\n\nMet vriendelijke groet,\n[name.company]";pm.smsBody=""}re()});
+  on("pmTpl","onchange",e=>{pm.tpl=e.target.value;const X=T[pm.tpl];if(X){pm.onderwerp=X.onderwerp||"";pm.body=X.mail||"";pm.smsBody=X.sms||""}else{pm.onderwerp="Bericht van [name.company]";pm.body="Beste [name.customer],\n\n\n\nMet vriendelijke groet,\n[name.company]";pm.smsBody=""}const y=dlg.scrollTop;drawPlanMail();dlg.scrollTop=y});/* niet keep(): die zou de oude tekst uit de velden terugzetten */
   const pv=()=>{const p=form.querySelector(".pm-prev");if(p&&vv){p.querySelector("b").textContent=fill(pm.onderwerp,vv);p.querySelector("p").innerHTML=esc(fill(pm.body,vv)).replace(/\n/g,"<br>")}};
   on("pmSubj","oninput",e=>{pm.onderwerp=e.target.value;pv()});on("pmBody","oninput",e=>{pm.body=e.target.value;pv()});on("pmSmsB","oninput",e=>{pm.smsBody=e.target.value});
   on("pmOp","onchange",e=>{pm.op=e.target.value;re()});on("pmOpT","onchange",e=>{pm.opT=e.target.value;re()});
