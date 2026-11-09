@@ -38,7 +38,7 @@ function openFactuurWerk(id){
         ${opt(I.euro,"Openstaand","open",f.status==="open"&&st[1]!=="Achterstallig"?"nu":"")}
         ${opt(I.mail,"Verstuur factuur","send",dt(f.verstuurdOp)==="—"?"":dt(f.verstuurdOp))}
         ${opt(I.mail,"Verstuur herinnering","herinner",f.herinnerdOp?dt(f.herinnerdOp):"")}
-        ${f.soort!=="offerte"&&f.status!=="betaald"?opt(I.alert||I.mail,"WIK-brief versturen (laatste aanmaning)","wikbrief",f.wikOp?dt(f.wikOp):"Incassokosten "+eur(wikKosten(totals(f).inc))):""}
+        ${f.soort!=="offerte"&&f.status!=="betaald"?opt(I.alert||I.mail,"WIK-brief versturen (laatste aanmaning)","wikbrief",f.wikOp?dt(f.wikOp):"Pas na 14 dagen + "+eur(wikKosten(totals(f).inc))):""}
         ${opt(I.x,"Op oninbaar zetten","oninbaar",f.status==="oninbaar"?dt(f.oninbaarOp):"","danger")}
       </table></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.facturen}</span><b>Factuurdetails</b><span class="sp"></span><button type="button" class="iconbtn sm" data-fw="bekijk" aria-label="Bekijken" title="Bekijken">${I.eye}</button><button type="button" class="iconbtn sm" data-fw="details" aria-label="Details aanpassen">${I.pencil}</button></div>
