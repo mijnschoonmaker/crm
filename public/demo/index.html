@@ -20102,7 +20102,9 @@ function dsData(d){const w=wdGet(d)||{},nu=new Date(),isT=d===iso(today()),ms=x=
   const pauze=(w.pauzes||[]).map(p=>({van:mn(ms(p.van)),tot:mn(p.tot?ms(p.tot):(w.stop?ms(w.stop):nu.getTime()))}));
   const start=w.start?mn(ms(w.start)):null,eind=w.stop?mn(ms(w.stop)):(isT&&w.start?mn(nu.getTime()):null);
   return{gepland,klant:klant.sort((a,b)=>a.van-b.van),pauze,start,eind,nu:isT?mn(nu.getTime()):null}}
-function dsHtml(){try{const d=iso(today()),D=dsData(d);if(!D.gepland.length&&!D.klant.length)return"";
+/* dagstrook staat uit (op verzoek van Robin) */
+const DS_UIT=true;
+function dsHtml(){if(DS_UIT)return"";try{const d=iso(today()),D=dsData(d);if(!D.gepland.length&&!D.klant.length)return"";
   const basis=[...D.gepland.flatMap(x=>[x.van,x.tot]),...D.klant.flatMap(x=>[x.van,x.tot]),D.start,D.eind].filter(x=>x!=null&&isFinite(x));
   /* is de dag al klaar, dan de strook niet tot "nu" (bijv. 22:00) uitrekken */
   const nuEcht=D.nu,nuIn=D.nu!=null&&(!basis.length||(D.nu<=Math.max(...basis)+45&&D.nu>=Math.min(...basis)-60));if(!nuIn)D.nu=null;

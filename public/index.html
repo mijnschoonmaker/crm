@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="ea98d0c905d0"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="5d93a299c843"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -20516,7 +20516,9 @@ function dsData(d){const w=wdGet(d)||{},nu=new Date(),isT=d===iso(today()),ms=x=
   const pauze=(w.pauzes||[]).map(p=>({van:mn(ms(p.van)),tot:mn(p.tot?ms(p.tot):(w.stop?ms(w.stop):nu.getTime()))}));
   const start=w.start?mn(ms(w.start)):null,eind=w.stop?mn(ms(w.stop)):(isT&&w.start?mn(nu.getTime()):null);
   return{gepland,klant:klant.sort((a,b)=>a.van-b.van),pauze,start,eind,nu:isT?mn(nu.getTime()):null}}
-function dsHtml(){try{const d=iso(today()),D=dsData(d);if(!D.gepland.length&&!D.klant.length)return"";
+/* dagstrook staat uit (op verzoek van Robin) */
+const DS_UIT=true;
+function dsHtml(){if(DS_UIT)return"";try{const d=iso(today()),D=dsData(d);if(!D.gepland.length&&!D.klant.length)return"";
   const basis=[...D.gepland.flatMap(x=>[x.van,x.tot]),...D.klant.flatMap(x=>[x.van,x.tot]),D.start,D.eind].filter(x=>x!=null&&isFinite(x));
   /* is de dag al klaar, dan de strook niet tot "nu" (bijv. 22:00) uitrekken */
   const nuEcht=D.nu,nuIn=D.nu!=null&&(!basis.length||(D.nu<=Math.max(...basis)+45&&D.nu>=Math.min(...basis)-60));if(!nuIn)D.nu=null;
