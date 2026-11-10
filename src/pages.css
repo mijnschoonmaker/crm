@@ -5018,10 +5018,10 @@ dialog.drawer form.dlg:has(.u-edsave){overflow:visible!important}
 .ds{margin-top:12px;padding-top:12px}
 .ds .ds-k{margin-bottom:8px}.ds .ds-k b{font-size:15.5px}.ds .ds-k small{font-size:12px}
 .ds .ds-oo{padding:4px 10px;font-size:12px}.ds .ds-oo svg{width:13px;height:13px}
-.ds .ds-tg{display:flex;flex-wrap:wrap;gap:4px 20px;margin:0 0 12px}
-.ds .ds-t{padding:0 0 0 10px;background:none;border-radius:0;flex-direction:row;align-items:baseline;gap:6px}
-.ds .ds-t::before{top:2px;bottom:2px;width:3px;border-radius:2px}
-.ds .ds-t span{font-size:12px;font-weight:500}.ds .ds-t b{font-size:14px;font-weight:700}.ds .ds-t small{display:none}
+.ds .ds-tg{gap:6px;margin:0 0 14px}
+.ds .ds-t{padding:7px 10px 7px 14px;border-radius:10px}
+.ds .ds-t::before{top:8px;bottom:8px}
+.ds .ds-t span{font-size:11.5px}.ds .ds-t b{font-size:16px}.ds .ds-t small{font-size:11px}
 .ds .ds-mix{height:4px;margin:0 0 20px}
 .ds .ds-tl{padding-top:4px}
 .ds .ds-rij{margin-bottom:5px;grid-template-columns:64px minmax(0,1fr)}.ds .ds-rij small{font-size:11.5px}
@@ -5035,4 +5035,4 @@ dialog.drawer form.dlg:has(.u-edsave){overflow:visible!important}
 .ds-leg{margin-top:8px;gap:4px 14px;font-size:11px}.ds-leg i{width:12px;height:8px}
 .ds-lijst{margin-top:8px;padding-top:8px;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:3px 16px}
 .ds-lijst li{font-size:12px;gap:6px}.ds-lijst li em{width:16px;height:16px;font-size:9.5px}.ds-lijst li em svg{width:10px;height:10px}
-@media (max-width:640px){.ds .ds-rij{grid-template-columns:56px minmax(0,1fr)}.ds-gr{left:64px}.ds .ds-uren{margin-left:64px!important}.ds .ds-tg{gap:4px 14px}.ds-lijst{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.ds .ds-rij{grid-template-columns:56px minmax(0,1fr)}.ds-gr{left:64px}.ds .ds-uren{margin-left:64px!important}.ds-lijst{grid-template-columns:repeat(2,minmax(0,1fr))}}
