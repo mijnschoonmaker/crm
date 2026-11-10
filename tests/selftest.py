@@ -482,6 +482,15 @@ def nieuweOpdracht(pg):
     check(G, "Nieuwe opdracht krijgt een eigen nummer (…-2)", r["kop"].endswith("-2"), r)
     check(G, "Nieuwe opdracht toont alleen zijn eigen regel", r["lijnen"] == 1, r)
     check(G, "Hoofdopdracht blijft …-1", r["kop2"].endswith("-1"), r)
+    # bijzondere ramen horen bij de glasbewassing: één opdracht met twee regels (zoals DienstenCRM), nooit een losse opdracht
+    r = pg.evaluate("""async()=>{const T=MSTEST,W=ms=>new Promise(r=>setTimeout(r,ms));const id=T.newId('kb');const out={};
+      await T.save('klanten',id,{naam:'Bijz, Test',klantnr:'1095',prijs:82,frequentie:8,actief:true,dienst:'Glasbewassing',ramenRegel:{f:[76,0,0,0],fq:[8,'','','']},log:[],objecten:[],
+        opdrachten:[{id:'ob1',nr:7,dienst:'Glasbewassing bijzondere ramen',groep:'bijz',items:[{naam:'Miniraampjes',aantal:25,prijs:0.4}],prijs:10,frequentie:8,actief:true}]});
+      T.openOpdrachtWerk(id,'main');await W(300);out.kaarten=document.querySelectorAll('#owLines .ow-rkh').length;
+      const chip=[...document.querySelectorAll('#owChips [data-dn]')].find(b=>/bijzondere/i.test(b.textContent));if(chip){chip.click();await W(200)}
+      document.querySelector('#owSave').click();await W(700);const k=T.state.klanten.find(x=>x.id===id)||{};out.opd=(k.opdrachten||[]).length;out.mini=((k.ramenRegel||{}).sp||{}).mini;
+      document.querySelectorAll('dialog[open]').forEach(d=>d.close());await T.del('klanten',id);return out}""")
+    check(G, "Bijzondere ramen: één opdracht met twee regels", r["kaarten"] == 2 and r["opd"] == 0 and r["mini"] == 25, r)
     # foto's horen bij de opdracht: de hoofdopdracht en een losse opdracht hebben elk hun eigen foto's
     r = pg.evaluate("""async()=>{const T=MSTEST;const id=T.newId('kf');
       await T.save('klanten',id,{naam:'Foto, Test',klantnr:'1097',prijs:40,frequentie:8,actief:true,dienst:'Glasbewassing',log:[],objecten:[],fotos:[{id:'fotoglas',w:4,h:3,dots:[]}],
