@@ -5037,3 +5037,17 @@ dialog.drawer form.dlg:has(.u-edsave){overflow:visible!important}
 .ds-lijst li{font-size:12px;gap:6px}.ds-lijst li em{width:16px;height:16px;font-size:9.5px}.ds-lijst li em svg{width:10px;height:10px}
 @media (max-width:640px){.ds .ds-rij{grid-template-columns:56px minmax(0,1fr)}.ds-gr{left:64px}.ds .ds-uren{margin-left:64px!important}.ds-lijst{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
+/* dagstrook v4: klanten als tegels */
+.ds-kl{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+.ds .ds-kt{min-width:0}
+.ds .ds-kt span{display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums}
+.ds .ds-kt span em{flex:none;display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#c7ccd3;color:#fff;font-style:normal;font-size:10px;font-weight:800}
+.ds .ds-kt span em svg{width:11px;height:11px}
+.ds .ds-kt b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.ds .ds-kt small{display:block;font-variant-numeric:tabular-nums}.ds .ds-kt small.laat{color:#b4472f;font-weight:600}
+.ds .ds-kt.vg::before{background:#0d121b}.ds .ds-kt.vg span em{background:#0d121b}.ds .ds-kt.vg{background:#eef0f3}
+.ds .ds-kt.bz::before{background:#d9534f}.ds .ds-kt.bz span em{background:#d9534f}.ds .ds-kt.bz span{color:#b4472f}
+.ds .ds-kt.af::before{background:#2f8a52}.ds .ds-kt.af span em{background:#2f8a52}.ds .ds-kt.af b{color:#5b6472}
+@media (max-width:640px){.ds-kl{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.ds .ds-kt b{font-size:14px}}
+.ds .ds-kt span i.lb{font-style:normal}
+@media (max-width:640px){.ds .ds-kt span i.lb{display:none}}
