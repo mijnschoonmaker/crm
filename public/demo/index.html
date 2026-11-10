@@ -5350,6 +5350,7 @@ dialog.drawer form.dlg:has(.u-edsave){overflow:visible!important}
 .ds-lijst li{font-size:12px;gap:6px}.ds-lijst li em{width:16px;height:16px;font-size:9.5px}.ds-lijst li em svg{width:10px;height:10px}
 @media (max-width:640px){.ds .ds-rij{grid-template-columns:56px minmax(0,1fr)}.ds-gr{left:64px}.ds .ds-uren{margin-left:64px!important}.ds-lijst{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
+
 </style>
 <style id="mansardThema">
 @import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;500;600;700&display=swap");
@@ -5417,6 +5418,11 @@ nav#sideNav button[aria-current="true"] svg{color:#0d121b!important}
 .fb-box.on{background:#252c3c!important;border-color:#252c3c!important}
 .fb-rv{background:#fff!important;border-color:#0d121b!important}.fb-rv>b{background:#252c3c!important}
 .tj-ok{background:#3d6e58!important}
+/* afmeldknop in de planning: lege groene ring = nog af te melden, vol groen = afgemeld */
+.tj-ok:not(.done){background:transparent!important;color:#3d6e58;box-shadow:inset 0 0 0 1.5px #3d6e58}
+.tj-ok:not(.done) svg{opacity:.55}
+.tj-ok:not(.done):hover{background:#3d6e58!important;color:#fff}
+.tj-ok:not(.done):hover svg{opacity:1}
 .tk .pill.brand,.tk .pill.next,.tk .pill.dotp.brand{background:#252c3c!important;color:#fff!important}
 .kx-st.kx-st-plan{color:#3d6e58!important}.kx-st.kx-st-plan::before{background:#3d6e58!important;box-shadow:0 0 0 3px rgb(61 110 88 / .12)!important}
 .kx-plan .kx-ring{background:conic-gradient(#c3d5cb 0,#3d6e58 100%)!important}
@@ -9380,7 +9386,7 @@ function tjob(x,top,height,left,width){
   const tijd=x.b?x.b.tijd||k.tijd||"":k.tijd||"";
   return `<div class="tjob st-${x.st}${dim}${cmp}${state.flash&&!x.b&&state.flash===k.id?" just-in":""}${state.pselMode&&!x.b&&state.psel.has(k.id)?" psel":""}${state.pselMode&&!x.b?" pselable":""}" ${act} data-d="${esc(x.b?x.b.datum:k.gepland)}" ${x.st!=="afgerond"?`data-drag="${esc(k.id)}"`:x.b?`data-drag="b:${esc(x.b.id)}"`:""} draggable="${x.st!=="afgerond"}" style="top:${top}px;height:${height}px;left:${left}%;width:${width}%;--h:${hue(k.ronde||k.naam)}" title="${esc(cleanName(k.naam))}">
     <div class="tj-kop">${tijd?`<small>${esc(tijd)}${(()=>{const m=toMin(tijd),du=x.b?Number(x.b.duur)||duur(k):duur(k);return m!=null&&du?" – "+fromMin(m+Math.round(du)):""})()}</small>`:""}<button type="button" class="tj-nm" ${act} data-d="${esc(x.b?x.b.datum:k.gepland)}">${esc(a.adres||cleanName(k.naam))}${a.plaats?", "+esc(a.plaats):""}</button>${(()=>{const n=typeof jobFotos==="function"?jobFotos(k).length:0;return n?`<button type="button" class="tj-foto" data-tjf="${esc(k.id)}" title="${n} foto${n>1?"'s":""} bij deze opdracht" aria-label="Foto's bekijken">${I.camera}<b>${n}</b></button>`:""})()}${x.st==="bezig"?'<i class="tj-live"></i>':""}${cmp===" compact"?dienstenHtml(k,x.b?x.b.datum:k.gepland):""}<span class="tj-amt">${eur((x.b?beurtVerdiend(x.b):toonK(k,prijsMee(k))))}</span></div>
-    <div class="tj-bot"><span class="tj-wie">${esc(cleanName(k.naam))}</span>${dienstenHtml(k,x.b?x.b.datum:k.gepland)}${x.st==="afgerond"?"":tjMailHtml(k)}${x.st==="afgerond"?`<span class="tj-ok done">${I.check}</span>`:`<button type="button" class="tj-ok" data-act="was" data-id="${esc(k.id)}" aria-label="${esc(cleanName(k.naam))} afgerond">${I.check}</button>`}</div></div>`;
+    <div class="tj-bot"><span class="tj-wie">${esc(cleanName(k.naam))}</span>${dienstenHtml(k,x.b?x.b.datum:k.gepland)}${x.st==="afgerond"?"":tjMailHtml(k)}${x.st==="afgerond"?`<span class="tj-ok done" title="Afgemeld">${I.check}</span>`:`<button type="button" class="tj-ok" data-act="was" data-id="${esc(k.id)}" title="Afmelden als uitgevoerd" aria-label="${esc(cleanName(k.naam))} afmelden als uitgevoerd">${I.check}</button>`}</div></div>`;
 }
 function dayHead(d,showWk){
   const dd=parse(d),s=daySum(d),isT=d===iso(today()),fd=feestdag(dd),off=!isWerkdag(dd),te=S().maxJobs&&s.n>S().maxJobs;
@@ -20424,7 +20430,7 @@ document.addEventListener("click",e=>{
     case"offdel":kkDelOfferte(id);break;
     case"opdrdel":kkDelOpdracht(id,t.dataset.o);break;
     case"autoplan":{const k=K(id);if(k){const on=!k.autoplan;save("klanten",k.id,{...strip(k),autoplan:on}).then(()=>{toast(on?"Doorplannen aan":"Doorplannen uit");const d=$("#jobPanel");if(d)openJob(k.id,d.dataset.d)}).catch(err)}break}
-    case"was":{const k=K(id);if(k){t.disabled=true;if(dlg.open)dlg.close();afronden(k,"concept")}break}
+    case"was":{const k=K(id);if(k){/* eerst vragen: een tik op het vinkje rondt de beurt af en maakt de factuur */t.disabled=true;vraag("Weet je het zeker?",`${esc(cleanName(k.naam))} afmelden als uitgevoerd? Daarna wordt de beurt afgerond en komt de factuur klaar.`,"Ja, afmelden","Annuleren").then(ok=>{if(!ok){t.disabled=false;return}if(dlg.open)dlg.close();afronden(k,"concept")})}break}
     case"afmelden":case"factureren":{const k=K(id);if(k){t.disabled=true;if(dlg.open)dlg.close();afronden(k,a==="factureren"?"open":"concept",t.closest(".swipe"))}break}
     case"start":{const k=K(id);if(k){const jp=$("#jobPanel");if(isBezig(k)&&dlg.open)dlg.close();startJob(k).then(()=>{if(jp&&dlg.open)setTimeout(()=>openJob(id,jp.dataset.d),80)})}break}
     case"obj":kkLocatie(id,t.dataset.o||"");break;

@@ -100,7 +100,7 @@ document.addEventListener("click",e=>{
     case"offdel":kkDelOfferte(id);break;
     case"opdrdel":kkDelOpdracht(id,t.dataset.o);break;
     case"autoplan":{const k=K(id);if(k){const on=!k.autoplan;save("klanten",k.id,{...strip(k),autoplan:on}).then(()=>{toast(on?"Doorplannen aan":"Doorplannen uit");const d=$("#jobPanel");if(d)openJob(k.id,d.dataset.d)}).catch(err)}break}
-    case"was":{const k=K(id);if(k){t.disabled=true;if(dlg.open)dlg.close();afronden(k,"concept")}break}
+    case"was":{const k=K(id);if(k){/* eerst vragen: een tik op het vinkje rondt de beurt af en maakt de factuur */t.disabled=true;vraag("Weet je het zeker?",`${esc(cleanName(k.naam))} afmelden als uitgevoerd? Daarna wordt de beurt afgerond en komt de factuur klaar.`,"Ja, afmelden","Annuleren").then(ok=>{if(!ok){t.disabled=false;return}if(dlg.open)dlg.close();afronden(k,"concept")})}break}
     case"afmelden":case"factureren":{const k=K(id);if(k){t.disabled=true;if(dlg.open)dlg.close();afronden(k,a==="factureren"?"open":"concept",t.closest(".swipe"))}break}
     case"start":{const k=K(id);if(k){const jp=$("#jobPanel");if(isBezig(k)&&dlg.open)dlg.close();startJob(k).then(()=>{if(jp&&dlg.open)setTimeout(()=>openJob(id,jp.dataset.d),80)})}break}
     case"obj":kkLocatie(id,t.dataset.o||"");break;

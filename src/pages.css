@@ -5036,3 +5036,4 @@ dialog.drawer form.dlg:has(.u-edsave){overflow:visible!important}
 .ds-lijst{margin-top:8px;padding-top:8px;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:3px 16px}
 .ds-lijst li{font-size:12px;gap:6px}.ds-lijst li em{width:16px;height:16px;font-size:9.5px}.ds-lijst li em svg{width:10px;height:10px}
 @media (max-width:640px){.ds .ds-rij{grid-template-columns:56px minmax(0,1fr)}.ds-gr{left:64px}.ds .ds-uren{margin-left:64px!important}.ds-lijst{grid-template-columns:repeat(2,minmax(0,1fr))}}
+

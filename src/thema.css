@@ -63,6 +63,11 @@ nav#sideNav button[aria-current="true"] svg{color:#0d121b!important}
 .fb-box.on{background:#252c3c!important;border-color:#252c3c!important}
 .fb-rv{background:#fff!important;border-color:#0d121b!important}.fb-rv>b{background:#252c3c!important}
 .tj-ok{background:#3d6e58!important}
+/* afmeldknop in de planning: lege groene ring = nog af te melden, vol groen = afgemeld */
+.tj-ok:not(.done){background:transparent!important;color:#3d6e58;box-shadow:inset 0 0 0 1.5px #3d6e58}
+.tj-ok:not(.done) svg{opacity:.55}
+.tj-ok:not(.done):hover{background:#3d6e58!important;color:#fff}
+.tj-ok:not(.done):hover svg{opacity:1}
 .tk .pill.brand,.tk .pill.next,.tk .pill.dotp.brand{background:#252c3c!important;color:#fff!important}
 .kx-st.kx-st-plan{color:#3d6e58!important}.kx-st.kx-st-plan::before{background:#3d6e58!important;box-shadow:0 0 0 3px rgb(61 110 88 / .12)!important}
 .kx-plan .kx-ring{background:conic-gradient(#c3d5cb 0,#3d6e58 100%)!important}
