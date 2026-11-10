@@ -22,7 +22,7 @@ function mkStroom(){const L=[],grens=Date.now()-36*36e5,ts=x=>{const t=Date.pars
     if(!off&&f.status==="betaald"&&(f.betaaldTs||f.betaaldOp))add("bt:"+f.id,f.betaaldTs||f.betaaldOp+"T12:00:00","grijs","euro","Betaald"+(f.betaalwijze==="mollie"?" via iDEAL":""),n+" · "+eur(totals(f).inc),"f:"+f.id)});
   /* grijs: ter info */
   state.beurten.forEach(b=>{if(b.op)add("bu:"+b.id,b.op,"grijs","check","Afgemeld"+(b.door?" door "+String(b.door).split(" ")[0]:""),[nm(b.klantNaam),b.dienst].filter(Boolean).join(" · "),"klant:"+b.klantId)});
-  (state.berichten||[]).forEach(m=>{const og=m.trk?m.trkOpenOp:m.gelezenOp;/* zelfde regel als bij Verzonden berichten: met eigen tracking alleen echte opens (geen virusscanner of Apple-voorladen) */if(m.kanaal==="email"&&og)add("op:"+m.id,og,"grijs","mail","Mail geopend",[nm(m.klantNaam||m.naam),m.onderwerp].filter(Boolean).join(" · "),m.klantId?"klant:"+m.klantId:"tab:communicatie")});
+  (state.berichten||[]).forEach(m=>{const og=m.trkOpenOp||m.gelezenOp;/* zelfde regel als bij Verzonden berichten: met eigen tracking alleen echte opens (geen virusscanner of Apple-voorladen) */if(m.kanaal==="email"&&og)add("op:"+m.id,og,"grijs","mail","Mail geopend",[nm(m.klantNaam||m.naam),m.onderwerp].filter(Boolean).join(" · "),m.klantId?"klant:"+m.klantId:"tab:communicatie")});
   const W=mkWeg(),R={rood:0,oranje:1,grijs:2};
   return L.filter(x=>!W.has(x.key)).sort((a,b)=>R[a.code]-R[b.code]||b.n-a.n)}
 function mkTijd(n){const d=new Date(n),v=iso(d)===iso(today());return (v?"":(iso(d)===iso(addDays(today(),-1))?"gisteren ":fmtD(iso(d))+" "))+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")}

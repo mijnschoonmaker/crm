@@ -69,7 +69,7 @@ module.exports = ({ db, T, onRequest, onCall, HttpsError, checkGebruiker, nu, HO
     if (soort === "o") {
       res.set("cache-control", "no-store, no-cache, must-revalidate, max-age=0"); res.set("content-type", "image/gif"); res.set("pragma", "no-cache");
       try { const d = await zoek(tok); if (d) { const m = d.data() || {}, sec = m.verstuurdOp ? (Date.parse(t) - Date.parse(m.verstuurdOp)) / 1000 : null, b = bron(ua);
-          await vastleggen(d.ref, "trkOpens", { t, s: soortOpen(ua, sec), d: b.dev, p: b.prog }); } } catch (e) { console.error("trk open", e.message); }
+          const s = soortOpen(ua, sec); await vastleggen(d.ref, "trkOpens", { t, s, d: b.dev, p: b.prog, ...(s !== "echt" ? { u: ua.slice(0, 160) } : {}) }); /* bij niet-echte opens de user-agent bewaren, om de herkenning te kunnen nakijken */ } } catch (e) { console.error("trk open", e.message); }
       res.send(GIF); return; }
     if (soort === "k") {
       let doel = HOST();

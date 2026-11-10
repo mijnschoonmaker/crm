@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="209cb1c44689"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="725934fcf6b7"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -10175,7 +10175,8 @@ function tjMail(k){if(!k||!k.gepland)return null;const d=k.gepland,van=iso(addDa
     /* alleen de planningsmail / aankondiging over déze afspraak; offertes, facturen en andere mails tellen niet mee */
     (String(m.ref||"")==="planmail:"+d+":"+k.id||(String(m.sjabloon||"")==="aankondiging"&&(!m.ref||String(m.ref).includes(d)))));
   if(!L.length)return null;const m=L.sort((a,b)=>String(b.op).localeCompare(String(a.op)))[0];
-  const st=(m.trk?m.trkKlikOp:m.geklikOp)?"geklikt":(m.trk?m.trkOpenOp:m.gelezenOp)?"geopend":"verstuurd";return {m,st}}
+  /* eigen tracking telt echte opens; ziet die (nog) niets terwijl Brevo wel een open meldt, dan telt Brevo (de eigen meting zag echte klanten als scanner) */
+  const st=(m.trkKlikOp||(!m.trk&&m.geklikOp))?"geklikt":(m.trkOpenOp||m.gelezenOp)?"geopend":"verstuurd";return {m,st}}
 function tjMailHtml(k){const r=tjMail(k);
   if(!r)return `<span class="tj-mail none" title="Nog geen mail over deze afspraak verstuurd">${I.mail}</span>`;
   const t=r.st==="geklikt"?"Klant heeft op een link in de mail geklikt":r.st==="geopend"?"Klant heeft de mail geopend":"Mail verstuurd, nog niet geopend";
@@ -19430,6 +19431,7 @@ function trkRegels(m){const out=[],O=Array.isArray(m.trkOpens)?m.trkOpens:[],K=A
   if(m.bezorgdOp)out.push(`<span class="trk-ok">${I.check}Bezorgd ${esc(trkTijd(m.bezorgdOp))}</span>`);
   if(E.length){const bron=trkUniek(E.map(trkBron)).slice(0,3).join(", ");
     out.push(`<span class="trk-ok">${I.eye}Geopend ${esc(trkTijd(E[0].t))}${E.length>1?` · ${E.length}× (laatst ${esc(trkTijd(E[E.length-1].t))})`:""}${bron?` · ${esc(bron)}`:""}</span>`)}
+  else if(m.gelezenOp)out.push(`<span class="trk-ok">${I.eye}Geopend ${esc(trkTijd(m.gelezenOp))}</span>`);
   else if(V.length)out.push(`<span title="Apple Mail laadt mails vooraf in. Dat betekent niet dat de klant hem gelezen heeft.">${I.clock}Voorgeladen door Apple Mail · nog niet zeker gelezen</span>`);
   else if(m.bezorgdOp||m.verstuurdOp)out.push(`<span>${I.clock}Nog niet geopend</span>`);
   KE.slice(-4).forEach(k=>out.push(`<span class="trk-ok trk-klik">${I.right}Klik op <b>${esc(k.l||"link")}</b> ${esc(trkTijd(k.t))}${trkBron(k)?` · ${esc(trkBron(k))}`:""}</span>`));
@@ -19686,7 +19688,7 @@ function mkStroom(){const L=[],grens=Date.now()-36*36e5,ts=x=>{const t=Date.pars
     if(!off&&f.status==="betaald"&&(f.betaaldTs||f.betaaldOp))add("bt:"+f.id,f.betaaldTs||f.betaaldOp+"T12:00:00","grijs","euro","Betaald"+(f.betaalwijze==="mollie"?" via iDEAL":""),n+" · "+eur(totals(f).inc),"f:"+f.id)});
   /* grijs: ter info */
   state.beurten.forEach(b=>{if(b.op)add("bu:"+b.id,b.op,"grijs","check","Afgemeld"+(b.door?" door "+String(b.door).split(" ")[0]:""),[nm(b.klantNaam),b.dienst].filter(Boolean).join(" · "),"klant:"+b.klantId)});
-  (state.berichten||[]).forEach(m=>{const og=m.trk?m.trkOpenOp:m.gelezenOp;/* zelfde regel als bij Verzonden berichten: met eigen tracking alleen echte opens (geen virusscanner of Apple-voorladen) */if(m.kanaal==="email"&&og)add("op:"+m.id,og,"grijs","mail","Mail geopend",[nm(m.klantNaam||m.naam),m.onderwerp].filter(Boolean).join(" · "),m.klantId?"klant:"+m.klantId:"tab:communicatie")});
+  (state.berichten||[]).forEach(m=>{const og=m.trkOpenOp||m.gelezenOp;/* zelfde regel als bij Verzonden berichten: met eigen tracking alleen echte opens (geen virusscanner of Apple-voorladen) */if(m.kanaal==="email"&&og)add("op:"+m.id,og,"grijs","mail","Mail geopend",[nm(m.klantNaam||m.naam),m.onderwerp].filter(Boolean).join(" · "),m.klantId?"klant:"+m.klantId:"tab:communicatie")});
   const W=mkWeg(),R={rood:0,oranje:1,grijs:2};
   return L.filter(x=>!W.has(x.key)).sort((a,b)=>R[a.code]-R[b.code]||b.n-a.n)}
 function mkTijd(n){const d=new Date(n),v=iso(d)===iso(today());return (v?"":(iso(d)===iso(addDays(today(),-1))?"gisteren ":fmtD(iso(d))+" "))+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")}

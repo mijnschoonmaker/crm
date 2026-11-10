@@ -11,6 +11,7 @@ function trkRegels(m){const out=[],O=Array.isArray(m.trkOpens)?m.trkOpens:[],K=A
   if(m.bezorgdOp)out.push(`<span class="trk-ok">${I.check}Bezorgd ${esc(trkTijd(m.bezorgdOp))}</span>`);
   if(E.length){const bron=trkUniek(E.map(trkBron)).slice(0,3).join(", ");
     out.push(`<span class="trk-ok">${I.eye}Geopend ${esc(trkTijd(E[0].t))}${E.length>1?` · ${E.length}× (laatst ${esc(trkTijd(E[E.length-1].t))})`:""}${bron?` · ${esc(bron)}`:""}</span>`)}
+  else if(m.gelezenOp)out.push(`<span class="trk-ok">${I.eye}Geopend ${esc(trkTijd(m.gelezenOp))}</span>`);
   else if(V.length)out.push(`<span title="Apple Mail laadt mails vooraf in. Dat betekent niet dat de klant hem gelezen heeft.">${I.clock}Voorgeladen door Apple Mail · nog niet zeker gelezen</span>`);
   else if(m.bezorgdOp||m.verstuurdOp)out.push(`<span>${I.clock}Nog niet geopend</span>`);
   KE.slice(-4).forEach(k=>out.push(`<span class="trk-ok trk-klik">${I.right}Klik op <b>${esc(k.l||"link")}</b> ${esc(trkTijd(k.t))}${trkBron(k)?` · ${esc(trkBron(k))}`:""}</span>`));
