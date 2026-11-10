@@ -8024,7 +8024,7 @@ async function gewassen(k){
     await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:Number(k.prijs)||0,betaald:false,gefactureerd:"",dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString()});
     const _vn=volgendeNa(k),nx=_vn.gepland;
     await save("klanten",k.id,{...strip(k),laatst:d,..._vn,bezig:""});aanbevelingVrijgeven(k.id);
-    toast(cleanName(k.naam)+" afgerond · "+eur(toonK(k,k.prijs)),async()=>{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev})});
+    toast(cleanName(k.naam)+" afgerond · "+eur(toonK(k,prijsMee(k))),async()=>{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev})});
   }catch(e){err(e)}
 }
 /* extra opdrachten bij het afmelden: op de factuur van de hoofdopdracht, een eigen factuur, of niet factureren (instelling per opdracht) */
@@ -9029,7 +9029,7 @@ function vRoute(){
   ${S().startadres?"":`<p class="subt">Tip: zet je vertrekadres bij Instellingen, dan begint de route daar.</p>`}
   <div class="list rlijst" style="gap:8px">${stops.map((s,i)=>{const k=s.k,nu=!s.done&&nx&&k.id===nx.id;if(!s.done&&RT_OPEN.has(k.id))return `<div class="rt-open" data-rid="${esc(k.id)}">${stopCard(k,i,nu,parse(k.gepland)<today(),day,stops.length)}</div>`;return `<div class="card rstop${s.done?" dim af":nu?" nu":""}" data-rid="${esc(k.id)}"${s.done?"":' data-rdrag="1"'}><span class="rnum${s.done?" done":nu?" nu":""}">${s.done?I.check:i+1}</span>
     <button type="button" class="nm" data-act="klant" data-id="${esc(k.id)}">${esc(jobAddrObj(k).adres||k.naam)}</button>
-    <div class="meta"><span>${k.tijd?`<b class="mono">${esc(k.tijd)}</b>`:""}</span><span>${esc(cleanName(k.naam))}</span><span>${esc(jobAddrObj(k).plaats||"")}</span><span class="amt">${eur(toonK(k,k.prijs))}</span></div>
+    <div class="meta"><span>${k.tijd?`<b class="mono">${esc(k.tijd)}</b>`:""}</span><span>${esc(cleanName(k.naam))}</span><span>${esc(jobAddrObj(k).plaats||"")}</span><span class="amt">${eur(toonK(k,prijsMee(k)))}</span></div>
     <div class="side-col" style="flex-direction:row;align-items:center">${s.done?statusPill("ok","Afgerond"):`<span class="rd-grip" aria-hidden="true"><i></i><i></i><i></i></span><a class="btn small" href="${esc(mapsQ(k))}" target="_blank" rel="noopener" aria-label="Navigeer">${I.nav}</a>`}</div></div>`}).join("")}</div>`;
   return html;
 }
@@ -9439,7 +9439,7 @@ function weekCols(days){
       <div class="jn">${k.tijd?`<span class="tm">${esc(k.tijd)}</span>`:""}<button type="button" data-act="job" data-id="${esc(k.id)}" data-d="${esc(k.gepland)}">${esc(jobAddrObj(k).adres||cleanName(k.naam))}</button></div>
       <div class="ja">${esc(cleanName(k.naam))}</div><div class="ja">${dienstHtml(k)}</div>
       <div class="jf"><span class="amt">${eur(toonK(k,prijsMee(k)))}</span><span style="display:flex;gap:4px"><button type="button" class="tiny ghost" data-act="afsprdel" data-id="${esc(k.id)}" title="Afspraak verwijderen" aria-label="Afspraak verwijderen">${I.trash}</button><button type="button" class="check sm" data-act="was" data-id="${esc(k.id)}" aria-label="Afgerond">${I.check}</button></span></div></div>`}).join("")}
-    ${it.proj.map(x=>`<div class="job proj" style="--h:${hue(x.k.ronde||x.k.naam)}"><div class="jn"><button type="button" data-act="klant" data-id="${esc(x.k.id)}">${esc(cleanName(x.k.naam))}</button></div><div class="jf"><span class="amt">${eur(toonK(x.k,x.k.prijs))}</span><span class="pill neutral">verwacht</span></div></div>`).join("")}
+    ${it.proj.map(x=>`<div class="job proj" style="--h:${hue(x.k.ronde||x.k.naam)}"><div class="jn"><button type="button" data-act="klant" data-id="${esc(x.k.id)}">${esc(cleanName(x.k.naam))}</button></div><div class="jf"><span class="amt">${eur(toonK(x.k,prijsMee(x.k)))}</span><span class="pill neutral">verwacht</span></div></div>`).join("")}
   </div>`}).join("")}</div></div>`;
 }
 function monthGrid(days){

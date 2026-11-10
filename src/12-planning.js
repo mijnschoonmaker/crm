@@ -89,7 +89,7 @@ function weekCols(days){
       <div class="jn">${k.tijd?`<span class="tm">${esc(k.tijd)}</span>`:""}<button type="button" data-act="job" data-id="${esc(k.id)}" data-d="${esc(k.gepland)}">${esc(jobAddrObj(k).adres||cleanName(k.naam))}</button></div>
       <div class="ja">${esc(cleanName(k.naam))}</div><div class="ja">${dienstHtml(k)}</div>
       <div class="jf"><span class="amt">${eur(toonK(k,prijsMee(k)))}</span><span style="display:flex;gap:4px"><button type="button" class="tiny ghost" data-act="afsprdel" data-id="${esc(k.id)}" title="Afspraak verwijderen" aria-label="Afspraak verwijderen">${I.trash}</button><button type="button" class="check sm" data-act="was" data-id="${esc(k.id)}" aria-label="Afgerond">${I.check}</button></span></div></div>`}).join("")}
-    ${it.proj.map(x=>`<div class="job proj" style="--h:${hue(x.k.ronde||x.k.naam)}"><div class="jn"><button type="button" data-act="klant" data-id="${esc(x.k.id)}">${esc(cleanName(x.k.naam))}</button></div><div class="jf"><span class="amt">${eur(toonK(x.k,x.k.prijs))}</span><span class="pill neutral">verwacht</span></div></div>`).join("")}
+    ${it.proj.map(x=>`<div class="job proj" style="--h:${hue(x.k.ronde||x.k.naam)}"><div class="jn"><button type="button" data-act="klant" data-id="${esc(x.k.id)}">${esc(cleanName(x.k.naam))}</button></div><div class="jf"><span class="amt">${eur(toonK(x.k,prijsMee(x.k)))}</span><span class="pill neutral">verwacht</span></div></div>`).join("")}
   </div>`}).join("")}</div></div>`;
 }
 function monthGrid(days){
