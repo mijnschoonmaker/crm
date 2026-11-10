@@ -331,13 +331,36 @@ exports.geplandVerzenden = onSchedule({ schedule: "every 10 minutes", timeZone: 
   for (const doc of q.docs.filter(x => String(x.data().sendAt || "") <= t0).slice(0, 40)) {
     const d = doc.data();
     /* dagherinnering die te laat zou gaan (meer dan 45 min na de verstuurtijd): niet meer vanzelf versturen, dan zelf versturen in Communicatie */
-    if (d.dagCheck && Date.parse(t0) - Date.parse(d.sendAt) > 45 * 60e3) { await doc.ref.set({ status: "vervallen", reden: "te laat voor automatisch versturen" }, { merge: true }); continue; }
+    if ((d.dagCheck || d.fhCheck) && Date.parse(t0) - Date.parse(d.sendAt) > 45 * 60e3) { await doc.ref.set({ status: "vervallen", reden: "te laat voor automatisch versturen" }, { merge: true }); continue; }
     try {
       /* automatische dagherinnering: vlak voor het versturen nog controleren of hij nog klopt */
       if (d.dagCheck) {
         const b = await bedrijf(), kd = await db.doc("klanten/" + String(d.dagCheck.klantId || "x")).get(), k = kd.exists ? kd.data() : null;
         const al = d.meta && d.meta.ref ? !(await db.collection("berichten").where("ref", "==", String(d.meta.ref)).limit(1).get()).empty : false;
         const reden = b.dagAan === false || b.dagAutoMail !== true ? "dagherinnering automatisch staat uit" : !k || k.actief === false ? "klant niet meer actief" : k.gepland !== d.dagCheck.datum ? "klus staat niet meer op " + d.dagCheck.datum : al ? "al verstuurd" : "";
+        if (reden) { await doc.ref.set({ status: "vervallen", reden }, { merge: true }); continue; }
+      }
+      /* automatische factuurherinnering: vlak voor het versturen controleren of hij nog nodig is (nooit herinneren als er al betaald is) */
+      let fhRef = null, fhStap = 0;
+      if (d.fhCheck) {
+        const b = await bedrijf(), fid = String(d.fhCheck.factuurId || "x"); fhStap = Number(d.fhCheck.stap) || 0;
+        fhRef = db.doc("facturen/" + fid);
+        const fd = await fhRef.get(), f = fd.exists ? fd.data() : null;
+        const al = d.meta && d.meta.ref ? !(await db.collection("berichten").where("ref", "==", String(d.meta.ref)).limit(1).get()).empty : false;
+        const bk = (await db.doc("instellingen/bank").get()).data() || {};
+        const bankOud = bk.gekoppeld && (bk.fout || bk.verlopen || !bk.bijgewerkt || Date.now() - Date.parse(bk.bijgewerkt) > 30 * 36e5);
+        let txWacht = false;
+        if (f) { const tq = await db.collection("banktx").where("status", "in", ["controleren", "onbekend"]).limit(300).get();
+          txWacht = tq.docs.some(x => Math.abs(Math.abs(Number(x.data().bedrag) || 0) - (Number(d.fhCheck.rest) || 0)) < 0.01); }
+        const reden = b.fhAan === false || !b.fhAan || b.fhAutoMail !== true ? "automatisch herinneren staat uit"
+          : !f ? "factuur bestaat niet meer"
+          : f.status !== "open" || f.betaaldOp || f.betaald === true ? "factuur is betaald of niet meer open"
+          : ["paid", "pending", "authorized"].includes(f.mollieStatus) ? "betaling via Mollie loopt of is binnen"
+          : (f.incasso && !f.incassoMislukt) ? "factuur loopt via incasso"
+          : f.wikOp || f.likifinOp ? "WIK-brief al verstuurd"
+          : (Number(f.herinneringen) || 0) !== fhStap - 1 ? "herinnering al met de hand verstuurd"
+          : (Number(f.deelBetaald) || 0) !== (Number(d.fhCheck.deel) || 0) ? "intussen deels betaald"
+          : al ? "al verstuurd" : bankOud ? "bank niet bijgewerkt" : txWacht ? "bijschrijving met dit bedrag moet nog gecontroleerd worden" : "";
         if (reden) { await doc.ref.set({ status: "vervallen", reden }, { merge: true }); continue; }
       }
       await portaalLinkVullen(d);
@@ -347,6 +370,8 @@ exports.geplandVerzenden = onSchedule({ schedule: "every 10 minutes", timeZone: 
       const brevoId = await brevoSend(key, mail);
       await db.doc("berichten/" + id).set({ ...(d.meta || {}), naar: d.naar, kanaal: "email", onderwerp: d.onderwerp || "", tekst: d.tekst || "", status: "verstuurd", brevoId, verstuurdOp: nu(), op: nu(), gepland: true }, { merge: true });
       await doc.ref.set({ status: "verstuurd", brevoId, verstuurdOp: nu() }, { merge: true });
+      if (fhRef) { const vd = new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Amsterdam" });
+        await fhRef.set({ herinnerdOp: vd, herinneringen: fhStap }, { merge: true }); }
     } catch (e) {
       await doc.ref.set({ status: "mislukt", fout: String(e.message || e).slice(0, 300) }, { merge: true });
     }
