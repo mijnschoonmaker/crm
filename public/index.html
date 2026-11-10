@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="b35a6ceba195"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="5a5d2d46d286"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -5707,6 +5707,40 @@ dialog.drawer form.dlg:has(.u-edsave){overflow:visible!important}
 .u-edsave{position:sticky;bottom:0;z-index:2;display:flex;align-items:center;gap:12px;margin:6px -20px -20px;padding:12px 20px calc(12px + env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--line)}
 .u-edsave span{flex:1;font-size:13px;color:var(--muted)}
 .u-edsave button{flex:none;min-width:140px}
+/* dagstrook v2: duidelijker en rustiger */
+.ds .ds-oo.wacht{background:#f1f3f6;color:#3d4552}
+.ds .ds-t.t-gp::before{background:#c9ced6}
+.ds .ds-mix{margin-bottom:30px}
+.ds .ds-tg{margin-bottom:22px}
+.ds .ds-tl{padding-top:6px}
+.ds .ds-baan{height:34px;border-radius:10px;background:#f4f5f7}
+.ds .ds-b{top:4px;bottom:4px;border-radius:7px;display:flex;align-items:center;gap:6px;padding:0 6px;justify-content:flex-start;overflow:hidden}
+.ds .ds-b.sm{justify-content:center;padding:0}
+.ds .ds-b em{flex:none;display:grid;place-items:center;min-width:18px;height:18px;padding:0 4px;border-radius:999px;font-size:10.5px;font-weight:800;background:rgb(255 255 255/.25)}
+.ds .ds-b span{font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.ds .ds-b.gp{background:#e9edf3;box-shadow:inset 0 0 0 1px #d3d9e2}
+.ds .ds-b.gp em{background:#1f2632;color:#fff}.ds .ds-b.gp span{color:#3d4552}
+.ds .ds-b.gp.af{background:#e3f1e8;box-shadow:inset 0 0 0 1px #b6d6c1}.ds .ds-b.gp.af em{background:#2f8a52;color:#fff}
+.ds .ds-b.sm em{min-width:14px;height:14px;font-size:9px;padding:0 2px}
+.ds .ds-b.kl span{color:#fff}
+.ds .ds-baan.leeg{display:flex;align-items:center;justify-content:center;background:repeating-linear-gradient(135deg,#f4f5f7 0 8px,#eef0f3 8px 16px)}
+.ds .ds-lg{font-size:12px;color:var(--muted);font-weight:500;position:relative;z-index:3;background:#f4f5f7;padding:2px 10px;border-radius:999px}
+.ds .ds-nu{background:#d9534f;width:2px;top:-6px}
+.ds .ds-nu::before{content:"";position:absolute;top:-1px;left:50%;width:8px;height:8px;margin-left:-4px;border-radius:50%;background:#d9534f}
+.ds .ds-nu span{top:-22px;background:#d9534f;color:#fff;font-size:10.5px;font-weight:700;letter-spacing:0;text-transform:none;padding:2px 6px;border-radius:6px;font-variant-numeric:tabular-nums}
+.ds .ds-gr{top:6px}
+.ds-leg{display:flex;flex-wrap:wrap;gap:6px 16px;margin:14px 0 0;font-size:12px;color:var(--muted)}
+.ds-leg span{display:inline-flex;align-items:center;gap:6px}
+.ds-leg i{display:inline-block;width:14px;height:10px;border-radius:3px}
+.ds-leg i.gp{background:#e9edf3;box-shadow:inset 0 0 0 1px #c9d0db}.ds-leg i.kl{background:#d9534f}.ds-leg i.rj{background:#3b6fd8}.ds-leg i.pz{background:#9aa3ad}.ds-leg i.nu{width:2px;height:12px;background:#d9534f;border-radius:1px}
+.ds-lijst{list-style:none;margin:14px 0 0;padding:14px 0 0;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:6px 18px}
+.ds-lijst li{display:flex;align-items:center;gap:8px;font-size:13px;min-width:0}
+.ds-lijst li em{flex:none;display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#1f2632;color:#fff;font-style:normal;font-size:10.5px;font-weight:800}
+.ds-lijst li em svg{width:12px;height:12px}
+.ds-lijst li.af em{background:#2f8a52}.ds-lijst li.af span{color:var(--muted);text-decoration:line-through}
+.ds-lijst li span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:550}
+.ds-lijst li small{color:var(--muted);font-variant-numeric:tabular-nums}
+@media (max-width:640px){.ds .ds-b span{display:none}.ds .ds-b{justify-content:center;padding:0}.ds-lijst{grid-template-columns:1fr}}
 
 </style>
 <style id="mansardThema">
@@ -20428,7 +20462,7 @@ function dsData(d){const w=wdGet(d)||{},nu=new Date(),isT=d===iso(today()),ms=x=
 function dsHtml(){try{const d=iso(today()),D=dsData(d);if(!D.gepland.length&&!D.klant.length)return"";
   const basis=[...D.gepland.flatMap(x=>[x.van,x.tot]),...D.klant.flatMap(x=>[x.van,x.tot]),D.start,D.eind].filter(x=>x!=null&&isFinite(x));
   /* is de dag al klaar, dan de strook niet tot "nu" (bijv. 22:00) uitrekken */
-  const nuIn=D.nu!=null&&(!basis.length||D.nu<=Math.max(...basis)+45);if(!nuIn)D.nu=null;
+  const nuEcht=D.nu,nuIn=D.nu!=null&&(!basis.length||(D.nu<=Math.max(...basis)+45&&D.nu>=Math.min(...basis)-60));if(!nuIn)D.nu=null;
   const alle=[...basis,D.nu].filter(x=>x!=null&&isFinite(x));
   const lo=Math.floor((Math.min(...alle)-20)/60)*60,hi=Math.ceil((Math.max(...alle)+20)/60)*60,span=Math.max(60,hi-lo),pc=m=>((Math.max(lo,Math.min(hi,m))-lo)/span*100).toFixed(2)+"%",br=(a,b)=>((Math.max(0,Math.min(hi,b)-Math.max(lo,a)))/span*100).toFixed(2)+"%";
   const hm=m=>String(Math.floor(m/60)).padStart(2,"0")+":"+String(Math.round(m%60)).padStart(2,"0");
@@ -20442,21 +20476,28 @@ function dsHtml(){try{const d=iso(today()),D=dsData(d);if(!D.gepland.length&&!D.
   if(laatst&&gp.length){const g=D.gepland.find(x=>cleanName(x.k.naam)===laatst.naam);if(g)uit=Math.round(laatst.tot-g.tot)}
   /* zelfde nummer in Gepland en Werkelijk, zodat je ziet welke klant welke is */
   const nrVan=n=>{const i=D.gepland.findIndex(x=>cleanName(x.k.naam)===n);return i<0?"":String(i+1)};
-  const blok=(x,c,t,nr)=>{const w=(Math.max(0,Math.min(hi,x.tot)-Math.max(lo,x.van)))/span*100;return `<i class="ds-b ${c}" style="left:${pc(x.van)};width:${w.toFixed(2)}%" title="${esc(t)}">${nr&&w>2.2?`<em>${nr}</em>`:""}</i>`};
+  const blok=(x,c,t,nr)=>{const w=(Math.max(0,Math.min(hi,x.tot)-Math.max(lo,x.van)))/span*100;return `<i class="ds-b ${c}${w<3.2?" sm":""}" style="left:${pc(x.van)};width:${w.toFixed(2)}%" title="${esc(t)}">${nr?`<em>${nr}</em>`:""}${nr&&w>11&&x.k?`<span>${esc(cleanName(x.k.naam))}</span>`:""}</i>`};
   const lijnen=[];for(let h=lo;h<=hi;h+=60)lijnen.push(`<i class="ds-gl${(h-lo)%stap?"":" vol"}" style="left:${pc(h)}"></i>`);
   const tot=kl+rj+pz,pr=v=>tot?Math.round(v/tot*100):0;
   const oordeel=uit==null?"":uit>10?`<span class="ds-oo laat">${I.clock||""}${uit} min later klaar dan gepland</span>`:uit<-10?`<span class="ds-oo vroeg">${I.check||""}${-uit} min eerder klaar dan gepland</span>`:`<span class="ds-oo ok">${I.check||""}Precies volgens planning</span>`;
   const tegel=(c,l,v,sub)=>`<div class="ds-t ${c}"><span>${l}</span><b>${v}</b>${sub?`<small>${sub}</small>`:""}</div>`;
   const wd=D.start!=null?tegel("t-wd","Werkdag",hm(D.start)+" – "+(D.eind!=null&&!(D.nu!=null&&Math.abs(D.eind-D.nu)<2)?hm(D.eind):"nu"),D.eind!=null?wdU(D.eind-D.start)+" in totaal":""):"";
-  return `<div class="ds"><div class="ds-k"><div><b>Dagstrook</b><small>Hoe liep je dag tegenover de planning?</small></div>${oordeel}</div>
-    <div class="ds-tg">${wd}${tegel("t-kl","Bij klanten",wdU(kl),tot?pr(kl)+"% van de dag":"")}${tegel("t-rj","Rijden",wdU(rj),tot?pr(rj)+"% van de dag":"")}${pz?tegel("t-pz","Pauze",wdU(pz),""):""}</div>
+  const leeg=!tot&&D.start==null,gpS=D.gepland.slice().sort((a,b)=>a.van-b.van),gpMin=som(D.gepland);
+  const tegels=leeg&&gpS.length?tegel("t-wd","Gepland vandaag",plural(gpS.length,"klant","klanten"),"")+tegel("t-gp","Eerste klant",hm(gpS[0].van),"")+tegel("t-gp","Laatste klaar",hm(Math.max(...gpS.map(x=>x.tot))),"")+tegel("t-kl","Bij klanten",wdU(gpMin),"volgens planning")
+    :`${wd}${tegel("t-kl","Bij klanten",wdU(kl),tot?pr(kl)+"% van de dag":"")}${tegel("t-rj","Rijden",wdU(rj),tot?pr(rj)+"% van de dag":"")}${pz?tegel("t-pz","Pauze",wdU(pz),""):""}`;
+  const oordeel2=oordeel||(leeg&&gpS.length&&nuEcht!=null&&nuEcht<gpS[0].van?`<span class="ds-oo wacht">${I.clock||""}Nog niet begonnen · eerste klant om ${hm(gpS[0].van)}</span>`:"");
+  const lijst=D.gepland.map((x,i)=>`<li class="${x.done?"af":""}"><em>${x.done?(I.check||"✓"):i+1}</em><span>${esc(cleanName(x.k.naam))}</span><small>${hm(x.van)}</small></li>`).join("");
+  const werkLeeg=!D.klant.length&&!rij.length&&!D.pauze.length;
+  const legenda=`<div class="ds-leg"><span><i class="gp"></i>Gepland</span><span><i class="kl"></i>Bij de klant</span><span><i class="rj"></i>Rijden</span>${pz?`<span><i class="pz"></i>Pauze</span>`:""}${D.nu!=null?`<span><i class="nu"></i>Nu</span>`:""}</div>`;
+  return `<div class="ds"><div class="ds-k"><div><b>Dagstrook</b><small>Hoe liep je dag tegenover de planning?</small></div>${oordeel2}</div>
+    <div class="ds-tg">${tegels}</div>
     ${tot?`<div class="ds-mix" aria-hidden="true"><i class="kl" style="flex:${kl}"></i><i class="rj" style="flex:${rj}"></i>${pz?`<i class="pz" style="flex:${pz}"></i>`:""}</div>`:""}
-    <div class="ds-tl"><div class="ds-gr">${lijnen.join("")}${D.nu!=null?`<i class="ds-nu" style="left:${pc(D.nu)}"><span>nu</span></i>`:""}</div>
+    <div class="ds-tl"><div class="ds-gr">${lijnen.join("")}${D.nu!=null?`<i class="ds-nu" style="left:${pc(D.nu)}"><span>${hm(D.nu)}</span></i>`:""}</div>
     <div class="ds-rij"><small>Gepland</small><div class="ds-baan">${D.gepland.map((x,i)=>blok(x,"gp"+(x.done?" af":""),`${i+1}. ${cleanName(x.k.naam)} · gepland ${hm(x.van)}–${hm(x.tot)}`,String(i+1))).join("")}</div></div>
-    <div class="ds-rij"><small>Werkelijk</small><div class="ds-baan">${rij.map(x=>blok(x,"rj",`Rijden · ${hm(x.van)}–${hm(x.tot)}`)).join("")}${D.pauze.map(x=>blok(x,"pz",`Pauze · ${hm(x.van)}–${hm(x.tot)}`)).join("")}${D.klant.map(x=>{const nr=nrVan(x.naam);return blok(x,"kl"+(x.bezig?" bz":"")+(x.gemeten?"":" gs"),`${nr?nr+". ":""}${x.naam} · ${hm(x.van)}–${hm(x.tot)}${x.bezig?" (nu bezig)":x.gemeten?"":" (geschat)"}`,nr)}).join("")}</div></div>
+    <div class="ds-rij"><small>Werkelijk</small><div class="ds-baan${werkLeeg?" leeg":""}">${werkLeeg?`<span class="ds-lg">${D.start==null?"Nog niets gebeurd · start de werkdag op de telefoon":"Onderweg naar de eerste klant"}</span>`:""}${rij.map(x=>blok(x,"rj",`Rijden · ${hm(x.van)}–${hm(x.tot)}`)).join("")}${D.pauze.map(x=>blok(x,"pz",`Pauze · ${hm(x.van)}–${hm(x.tot)}`)).join("")}${D.klant.map(x=>{const nr=nrVan(x.naam);return blok(x,"kl"+(x.bezig?" bz":"")+(x.gemeten?"":" gs"),`${nr?nr+". ":""}${x.naam} · ${hm(x.van)}–${hm(x.tot)}${x.bezig?" (nu bezig)":x.gemeten?"":" (geschat)"}`,nr)}).join("")}</div></div>
     <div class="ds-uren">${uren.join("")}</div></div>
-    <p class="ds-uitleg">De nummers zijn je klanten in volgorde van de planning. Grijs is wat gepland stond; daaronder wat er echt gebeurde. Tik of wijs een blok aan voor de klant en de tijden.</p>
-    ${D.start==null?`<p class="ds-tip">Tik op de telefoon bij vertrek op <b>Start werkdag</b>, dan zie je hier ook hoe lang er gereden wordt.</p>`:""}</div>`}catch(e){console.error("dagstrook",e);return""}}
+    ${legenda}
+    ${lijst?`<ol class="ds-lijst">${lijst}</ol>`:""}</div>`}catch(e){console.error("dagstrook",e);return""}}
 /* elke minuut bijwerken (nu-lijn, bezig-blok) zonder het scherm opnieuw te tekenen */
 if(typeof window!=="undefined")setInterval(()=>{try{if(state.tab!=="control")return;const el=document.querySelector(".ds");if(el){const t=document.createElement("div");t.innerHTML=dsHtml();if(t.firstElementChild)el.replaceWith(t.firstElementChild)}rgRadar();rgVoorspel()}catch(e){}},60000);
 function rgStart(){rgRadar();rgLaag();rgVoorspel();rgRegelZet()}

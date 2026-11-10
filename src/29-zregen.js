@@ -53,7 +53,7 @@ function dsData(d){const w=wdGet(d)||{},nu=new Date(),isT=d===iso(today()),ms=x=
 function dsHtml(){try{const d=iso(today()),D=dsData(d);if(!D.gepland.length&&!D.klant.length)return"";
   const basis=[...D.gepland.flatMap(x=>[x.van,x.tot]),...D.klant.flatMap(x=>[x.van,x.tot]),D.start,D.eind].filter(x=>x!=null&&isFinite(x));
   /* is de dag al klaar, dan de strook niet tot "nu" (bijv. 22:00) uitrekken */
-  const nuIn=D.nu!=null&&(!basis.length||D.nu<=Math.max(...basis)+45);if(!nuIn)D.nu=null;
+  const nuEcht=D.nu,nuIn=D.nu!=null&&(!basis.length||(D.nu<=Math.max(...basis)+45&&D.nu>=Math.min(...basis)-60));if(!nuIn)D.nu=null;
   const alle=[...basis,D.nu].filter(x=>x!=null&&isFinite(x));
   const lo=Math.floor((Math.min(...alle)-20)/60)*60,hi=Math.ceil((Math.max(...alle)+20)/60)*60,span=Math.max(60,hi-lo),pc=m=>((Math.max(lo,Math.min(hi,m))-lo)/span*100).toFixed(2)+"%",br=(a,b)=>((Math.max(0,Math.min(hi,b)-Math.max(lo,a)))/span*100).toFixed(2)+"%";
   const hm=m=>String(Math.floor(m/60)).padStart(2,"0")+":"+String(Math.round(m%60)).padStart(2,"0");
@@ -67,21 +67,28 @@ function dsHtml(){try{const d=iso(today()),D=dsData(d);if(!D.gepland.length&&!D.
   if(laatst&&gp.length){const g=D.gepland.find(x=>cleanName(x.k.naam)===laatst.naam);if(g)uit=Math.round(laatst.tot-g.tot)}
   /* zelfde nummer in Gepland en Werkelijk, zodat je ziet welke klant welke is */
   const nrVan=n=>{const i=D.gepland.findIndex(x=>cleanName(x.k.naam)===n);return i<0?"":String(i+1)};
-  const blok=(x,c,t,nr)=>{const w=(Math.max(0,Math.min(hi,x.tot)-Math.max(lo,x.van)))/span*100;return `<i class="ds-b ${c}" style="left:${pc(x.van)};width:${w.toFixed(2)}%" title="${esc(t)}">${nr&&w>2.2?`<em>${nr}</em>`:""}</i>`};
+  const blok=(x,c,t,nr)=>{const w=(Math.max(0,Math.min(hi,x.tot)-Math.max(lo,x.van)))/span*100;return `<i class="ds-b ${c}${w<3.2?" sm":""}" style="left:${pc(x.van)};width:${w.toFixed(2)}%" title="${esc(t)}">${nr?`<em>${nr}</em>`:""}${nr&&w>11&&x.k?`<span>${esc(cleanName(x.k.naam))}</span>`:""}</i>`};
   const lijnen=[];for(let h=lo;h<=hi;h+=60)lijnen.push(`<i class="ds-gl${(h-lo)%stap?"":" vol"}" style="left:${pc(h)}"></i>`);
   const tot=kl+rj+pz,pr=v=>tot?Math.round(v/tot*100):0;
   const oordeel=uit==null?"":uit>10?`<span class="ds-oo laat">${I.clock||""}${uit} min later klaar dan gepland</span>`:uit<-10?`<span class="ds-oo vroeg">${I.check||""}${-uit} min eerder klaar dan gepland</span>`:`<span class="ds-oo ok">${I.check||""}Precies volgens planning</span>`;
   const tegel=(c,l,v,sub)=>`<div class="ds-t ${c}"><span>${l}</span><b>${v}</b>${sub?`<small>${sub}</small>`:""}</div>`;
   const wd=D.start!=null?tegel("t-wd","Werkdag",hm(D.start)+" – "+(D.eind!=null&&!(D.nu!=null&&Math.abs(D.eind-D.nu)<2)?hm(D.eind):"nu"),D.eind!=null?wdU(D.eind-D.start)+" in totaal":""):"";
-  return `<div class="ds"><div class="ds-k"><div><b>Dagstrook</b><small>Hoe liep je dag tegenover de planning?</small></div>${oordeel}</div>
-    <div class="ds-tg">${wd}${tegel("t-kl","Bij klanten",wdU(kl),tot?pr(kl)+"% van de dag":"")}${tegel("t-rj","Rijden",wdU(rj),tot?pr(rj)+"% van de dag":"")}${pz?tegel("t-pz","Pauze",wdU(pz),""):""}</div>
+  const leeg=!tot&&D.start==null,gpS=D.gepland.slice().sort((a,b)=>a.van-b.van),gpMin=som(D.gepland);
+  const tegels=leeg&&gpS.length?tegel("t-wd","Gepland vandaag",plural(gpS.length,"klant","klanten"),"")+tegel("t-gp","Eerste klant",hm(gpS[0].van),"")+tegel("t-gp","Laatste klaar",hm(Math.max(...gpS.map(x=>x.tot))),"")+tegel("t-kl","Bij klanten",wdU(gpMin),"volgens planning")
+    :`${wd}${tegel("t-kl","Bij klanten",wdU(kl),tot?pr(kl)+"% van de dag":"")}${tegel("t-rj","Rijden",wdU(rj),tot?pr(rj)+"% van de dag":"")}${pz?tegel("t-pz","Pauze",wdU(pz),""):""}`;
+  const oordeel2=oordeel||(leeg&&gpS.length&&nuEcht!=null&&nuEcht<gpS[0].van?`<span class="ds-oo wacht">${I.clock||""}Nog niet begonnen · eerste klant om ${hm(gpS[0].van)}</span>`:"");
+  const lijst=D.gepland.map((x,i)=>`<li class="${x.done?"af":""}"><em>${x.done?(I.check||"✓"):i+1}</em><span>${esc(cleanName(x.k.naam))}</span><small>${hm(x.van)}</small></li>`).join("");
+  const werkLeeg=!D.klant.length&&!rij.length&&!D.pauze.length;
+  const legenda=`<div class="ds-leg"><span><i class="gp"></i>Gepland</span><span><i class="kl"></i>Bij de klant</span><span><i class="rj"></i>Rijden</span>${pz?`<span><i class="pz"></i>Pauze</span>`:""}${D.nu!=null?`<span><i class="nu"></i>Nu</span>`:""}</div>`;
+  return `<div class="ds"><div class="ds-k"><div><b>Dagstrook</b><small>Hoe liep je dag tegenover de planning?</small></div>${oordeel2}</div>
+    <div class="ds-tg">${tegels}</div>
     ${tot?`<div class="ds-mix" aria-hidden="true"><i class="kl" style="flex:${kl}"></i><i class="rj" style="flex:${rj}"></i>${pz?`<i class="pz" style="flex:${pz}"></i>`:""}</div>`:""}
-    <div class="ds-tl"><div class="ds-gr">${lijnen.join("")}${D.nu!=null?`<i class="ds-nu" style="left:${pc(D.nu)}"><span>nu</span></i>`:""}</div>
+    <div class="ds-tl"><div class="ds-gr">${lijnen.join("")}${D.nu!=null?`<i class="ds-nu" style="left:${pc(D.nu)}"><span>${hm(D.nu)}</span></i>`:""}</div>
     <div class="ds-rij"><small>Gepland</small><div class="ds-baan">${D.gepland.map((x,i)=>blok(x,"gp"+(x.done?" af":""),`${i+1}. ${cleanName(x.k.naam)} · gepland ${hm(x.van)}–${hm(x.tot)}`,String(i+1))).join("")}</div></div>
-    <div class="ds-rij"><small>Werkelijk</small><div class="ds-baan">${rij.map(x=>blok(x,"rj",`Rijden · ${hm(x.van)}–${hm(x.tot)}`)).join("")}${D.pauze.map(x=>blok(x,"pz",`Pauze · ${hm(x.van)}–${hm(x.tot)}`)).join("")}${D.klant.map(x=>{const nr=nrVan(x.naam);return blok(x,"kl"+(x.bezig?" bz":"")+(x.gemeten?"":" gs"),`${nr?nr+". ":""}${x.naam} · ${hm(x.van)}–${hm(x.tot)}${x.bezig?" (nu bezig)":x.gemeten?"":" (geschat)"}`,nr)}).join("")}</div></div>
+    <div class="ds-rij"><small>Werkelijk</small><div class="ds-baan${werkLeeg?" leeg":""}">${werkLeeg?`<span class="ds-lg">${D.start==null?"Nog niets gebeurd · start de werkdag op de telefoon":"Onderweg naar de eerste klant"}</span>`:""}${rij.map(x=>blok(x,"rj",`Rijden · ${hm(x.van)}–${hm(x.tot)}`)).join("")}${D.pauze.map(x=>blok(x,"pz",`Pauze · ${hm(x.van)}–${hm(x.tot)}`)).join("")}${D.klant.map(x=>{const nr=nrVan(x.naam);return blok(x,"kl"+(x.bezig?" bz":"")+(x.gemeten?"":" gs"),`${nr?nr+". ":""}${x.naam} · ${hm(x.van)}–${hm(x.tot)}${x.bezig?" (nu bezig)":x.gemeten?"":" (geschat)"}`,nr)}).join("")}</div></div>
     <div class="ds-uren">${uren.join("")}</div></div>
-    <p class="ds-uitleg">De nummers zijn je klanten in volgorde van de planning. Grijs is wat gepland stond; daaronder wat er echt gebeurde. Tik of wijs een blok aan voor de klant en de tijden.</p>
-    ${D.start==null?`<p class="ds-tip">Tik op de telefoon bij vertrek op <b>Start werkdag</b>, dan zie je hier ook hoe lang er gereden wordt.</p>`:""}</div>`}catch(e){console.error("dagstrook",e);return""}}
+    ${legenda}
+    ${lijst?`<ol class="ds-lijst">${lijst}</ol>`:""}</div>`}catch(e){console.error("dagstrook",e);return""}}
 /* elke minuut bijwerken (nu-lijn, bezig-blok) zonder het scherm opnieuw te tekenen */
 if(typeof window!=="undefined")setInterval(()=>{try{if(state.tab!=="control")return;const el=document.querySelector(".ds");if(el){const t=document.createElement("div");t.innerHTML=dsHtml();if(t.firstElementChild)el.replaceWith(t.firstElementChild)}rgRadar();rgVoorspel()}catch(e){}},60000);
 function rgStart(){rgRadar();rgLaag();rgVoorspel();rgRegelZet()}
