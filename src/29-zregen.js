@@ -74,7 +74,7 @@ function dsHtml(){try{const d=iso(today()),D=dsData(d);if(!D.gepland.length&&!D.
   const tegel=(c,l,v,sub)=>`<div class="ds-t ${c}"><span>${l}</span><b>${v}</b>${sub?`<small>${sub}</small>`:""}</div>`;
   const wd=D.start!=null?tegel("t-wd","Werkdag",hm(D.start)+" – "+(D.eind!=null&&!(D.nu!=null&&Math.abs(D.eind-D.nu)<2)?hm(D.eind):"nu"),D.eind!=null?wdU(D.eind-D.start)+" in totaal":""):"";
   const leeg=!tot&&D.start==null,gpS=D.gepland.slice().sort((a,b)=>a.van-b.van),gpMin=som(D.gepland);
-  const tegels=leeg&&gpS.length?tegel("t-wd","Gepland vandaag",plural(gpS.length,"klant","klanten"),"")+tegel("t-gp","Eerste klant",hm(gpS[0].van),"")+tegel("t-gp","Laatste klaar",hm(Math.max(...gpS.map(x=>x.tot))),"")+tegel("t-kl","Bij klanten",wdU(gpMin),"volgens planning")
+  const tegels=leeg&&gpS.length?tegel("t-wd","Gepland",plural(gpS.length,"klant","klanten"),"")+tegel("t-gp","Eerste klant",hm(gpS[0].van),"")+tegel("t-gp","Laatste klaar",hm(Math.max(...gpS.map(x=>x.tot))),"")+tegel("t-kl","Bij klanten",wdU(gpMin),"volgens planning")
     :`${wd}${tegel("t-kl","Bij klanten",wdU(kl),tot?pr(kl)+"% van de dag":"")}${tegel("t-rj","Rijden",wdU(rj),tot?pr(rj)+"% van de dag":"")}${pz?tegel("t-pz","Pauze",wdU(pz),""):""}`;
   const oordeel2=oordeel||(leeg&&gpS.length&&nuEcht!=null&&nuEcht<gpS[0].van?`<span class="ds-oo wacht">${I.clock||""}Nog niet begonnen · eerste klant om ${hm(gpS[0].van)}</span>`:"");
   const lijst=D.gepland.map((x,i)=>`<li class="${x.done?"af":""}"><em>${x.done?(I.check||"✓"):i+1}</em><span>${esc(cleanName(x.k.naam))}</span><small>${hm(x.van)}</small></li>`).join("");
