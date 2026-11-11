@@ -5051,3 +5051,8 @@ dialog.drawer form.dlg:has(.u-edsave){overflow:visible!important}
 @media (max-width:640px){.ds-kl{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.ds .ds-kt b{font-size:14px}}
 .ds .ds-kt span i.lb{font-style:normal}
 @media (max-width:640px){.ds .ds-kt span i.lb{display:none}}
+/* Alle stops: knoppen niet afknippen */
+.toolbar.rt-acts{flex-wrap:wrap;gap:8px}
+.toolbar.rt-acts>a,.toolbar.rt-acts>button{flex:0 0 auto;width:auto;max-width:100%;min-width:0;overflow:visible;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 16px;text-overflow:clip}
+.toolbar.rt-acts>a svg,.toolbar.rt-acts>button svg{flex:none;width:15px;height:15px;margin:0}
+@media (max-width:640px){.toolbar.rt-acts>a,.toolbar.rt-acts>button{flex:1 1 100%}}
