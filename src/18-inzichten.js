@@ -5,6 +5,11 @@ function curPeriod(per,offset=0){
   if(per==="kwartaal"){const q=Math.floor(t.getMonth()/3)+offset,y=t.getFullYear()+Math.floor(q/4),qq=((q%4)+4)%4;return{rg:[new Date(y,qq*3,1),new Date(y,qq*3+3,0)],lbl:"Q"+(qq+1)+" "+y}}
   const y=t.getFullYear()+offset;return{rg:[new Date(y,0,1),new Date(y,11,31)],lbl:String(y)};
 }
+/* openstaand bedrag van een factuur: min een deelbetaling */
+const stRest=f=>Math.max(0,totals(f).inc-(Number(f.deelBetaald)||0));
+/* verwachte jaaromzet van een klant ex btw: hoofdopdracht + alle lopende extra opdrachten (gevelelementen, bijzondere ramen, apart ingeplande enz.) met hun eigen ritme */
+function stJaarK(k){let j=exAmt(k.prijs)*365/freqDays(k);
+  (k.opdrachten||[]).forEach(o=>{if(o.actief===false)return;const p=Number(o.prijs)||0,w=Number(o.frequentie)||0;if(p>0&&w>0)j+=exAmt(p)*365/(w*7)});return j}
 /* hele euro's: rustiger te lezen in de statistieken */
 const stE=n=>"€ "+Math.round(Number(n)||0).toLocaleString("nl-NL");
 /* zelfde moment in de vorige periode: van het begin tot evenver als vandaag (eerlijk vergelijken, ook op de 1e van de maand) */
@@ -30,7 +35,7 @@ function vInzichten(){
     const betaaldP=F.fs.filter(f=>f.status==="betaald").reduce((a,f)=>a+totals(f).inc,0);
     const months=[...Array(12)].map((_,i)=>{const d=new Date(t.getFullYear(),t.getMonth()-11+i,1);return{l:d.toLocaleDateString("nl-NL",{month:"short"}).replace(".",""),...fin([d,new Date(d.getFullYear(),d.getMonth()+1,0)])}});
     /* nog te verdienen: ingeplande beurten in de rest van deze periode */
-    const ti=iso(t),eind=iso(P.rg[1]),ingepland=actief().filter(k=>k.gepland&&k.gepland>=ti&&k.gepland<=eind).reduce((a,k)=>a+exAmt(k.prijs),0);
+    const ti=iso(t),eind=iso(P.rg[1]),ingepland=actief().filter(k=>k.gepland&&k.gepland>=ti&&k.gepland<=eind).reduce((a,k)=>a+exAmt(prijsMee(k,k.gepland)),0);
     const vorige=Fv.omzet,vt=fin(stTotNu(P,V)).omzet,record=per==="maand"&&F.omzet>0&&F.omzet>=Math.max(...months.slice(0,11).map(m=>m.omzet));
     /* doel van de race: de vorige periode; is die er niet, dan wat er in deze periode al vaststaat (gefactureerd + ingepland) */
     const doelV=vorige>0?vorige:r2(F.omzet+ingepland),doel=Math.max(doelV,1),pct=Math.min(100,Math.round(F.omzet/doel*100)),pctP=Math.min(100,Math.round((F.omzet+ingepland)/doel*100));
@@ -45,8 +50,8 @@ function vInzichten(){
         <p class="st-mot">${record?I.spark:""}${mot}</p>
         ${doelV>0?`<div class="st-goal st-rol"><div class="fg-weg" style="--p:${pct/100}"><div class="fg-baan"><i></i></div><span class="fg-munt">${FG_MUNT}</span><span class="st-vlag">🏁</span></div><div class="st-gl"><span><b>${pct}%</b> ${doelLbl}</span>${ingepland?`<span class="st-ing"><i></i>${stE(ingepland)} ingepland</span>`:""}</div></div>`:""}</div>
       <div class="st-hs">${stTile(I.receipt,"Facturen",F.fs.length,"in "+esc(P.lbl))}${stTile(I.check,"Betaald",stE(betaaldP),"incl btw","ok")}</div></section>
-    <div class="st-tiles">${stTile(I.clock,"Openstaand",stE(open.reduce((a,f)=>a+totals(f).inc,0)),plural(open.length,"factuur","facturen")+" · incl btw","",` data-act="tab" data-tab="facturen" role="button"`)}
-      ${stTile(I.alert,"Te laat",stE(late.reduce((a,f)=>a+totals(f).inc,0)),late.length?plural(late.length,"factuur","facturen")+" over tijd":"alles op tijd",late.length?"late":"ok")}
+    <div class="st-tiles">${stTile(I.clock,"Openstaand",stE(open.reduce((a,f)=>a+stRest(f),0)),plural(open.length,"factuur","facturen")+" · incl btw","",` data-act="tab" data-tab="facturen" role="button"`)}
+      ${stTile(I.alert,"Te laat",stE(late.reduce((a,f)=>a+stRest(f),0)),late.length?plural(late.length,"factuur","facturen")+" over tijd":"alles op tijd",late.length?"late":"ok")}
       ${stTile(I.timer,"Betaaltermijn",term==null?"–":term+" dagen","gemiddeld tot betaling",term!=null&&term<=7?"ok":"")}
       ${stTile(I.euro,"Omzet "+t.getFullYear(),stE(Y.omzet),Yv.omzet?(Y.omzet>=Yv.omzet?"▲ ":"▼ ")+Math.abs(Math.round((Y.omzet-Yv.omzet)/Yv.omzet*100))+"% vs vorig jaar":"ex btw, tot vandaag")}</div>
     <section class="st-card"><div class="st-ch"><div><h3>Omzet per maand</h3><p>Laatste 12 maanden · ex btw · 🏆 beste maand · gestippeld = gemiddeld ${(()=>{const p=months.slice(0,11).map(m=>m.omzet).filter(v=>v>0);return p.length?stE(p.reduce((a,v)=>a+v,0)/p.length):""})()}${per==="maand"?" · lichte balk = met wat ingepland staat":""}</p></div>${state.dl?`<button type="button" class="small" data-act="rapport">${I.dl}Rapport (PDF)</button>`:""}</div>
@@ -87,9 +92,9 @@ function vInzichten(){
       <section class="st-card"><div class="st-ch"><div><h3>Omzet per dienst</h3><p>Aandeel in de omzet uit werk</p></div></div>
         ${dk.length?stDiensten(dk,per_d,dtot,sub_d):'<p class="st-leeg">Nog geen afgemelde beurten in deze periode.</p>'}</section></div>`+(typeof wdStatKaart==="function"?wdStatKaart(P.rg,P.lbl):"")+(typeof stMeerWerk==="function"?stMeerWerk(P):"");
   }else{
-    const ak=actief().filter(k=>!k.hoofdKlantId),nieuw=state.klanten.filter(k=>!k.prospect&&!k.hoofdKlantId&&inRange(k.aangemaakt,P.rg)),nieuwV=state.klanten.filter(k=>!k.prospect&&inRange(k.aangemaakt,V.rg)),inact=state.klanten.filter(k=>k.actief===false&&!k.prospect);
-    const jaar=ak.reduce((a,k)=>a+exAmt(k.prijs)*365/freqDays(k),0),perK=ak.length?jaar/ak.length:0;
-    const rd={};ak.forEach(k=>{const r=k.ronde||"Zonder ronde";rd[r]=(rd[r]||0)+exAmt(k.prijs)*365/freqDays(k)});const rk=Object.keys(rd).sort((a,b)=>rd[b]-rd[a]),rmx=Math.max(1,...rk.map(r=>rd[r]));
+    const ak=actief().filter(k=>!k.hoofdKlantId),nieuw=state.klanten.filter(k=>!k.prospect&&!k.hoofdKlantId&&inRange(k.aangemaakt,P.rg)),nieuwV=state.klanten.filter(k=>!k.prospect&&!k.hoofdKlantId&&inRange(k.aangemaakt,V.rg)),inact=state.klanten.filter(k=>k.actief===false&&!k.prospect);
+    const jaar=ak.reduce((a,k)=>a+stJaarK(k),0),perK=ak.length?jaar/ak.length:0;
+    const rd={};ak.forEach(k=>{const r=k.ronde||"Zonder ronde";rd[r]=(rd[r]||0)+stJaarK(k)});const rk=Object.keys(rd).sort((a,b)=>rd[b]-rd[a]),rmx=Math.max(1,...rk.map(r=>rd[r]));
     /* losse opdrachten (eigen klantregel met hoofdKlantId) tellen mee bij hun klant: één klant = één regel */
     const hk=id=>{const k=state.klanten.find(x=>x.id===id);return k&&k.hoofdKlantId&&state.klanten.some(x=>x.id===k.hoofdKlantId)?k.hoofdKlantId:id},somK={};
     echteFacturen().forEach(f=>{const id=hk(f.klantId);somK[id]=(somK[id]||0)+totals(f).ex});
@@ -97,7 +102,7 @@ function vInzichten(){
     const zak=ak.filter(k=>k.soort==="zakelijk").length,vve=ak.filter(k=>k.soort==="vve").length,prt=ak.length-zak-vve;
     const laatstB={};state.beurten.forEach(b=>{if(!b.geannuleerd&&b.datum&&(!laatstB[b.klantId]||b.datum>laatstB[b.klantId]))laatstB[b.klantId]=b.datum});
     const groei=[...Array(12)].map((_,i)=>{const d=new Date(t.getFullYear(),t.getMonth()-11+i+1,0);const di=iso(d),ds=iso(new Date(d.getFullYear(),d.getMonth(),1));return{l:new Date(d.getFullYear(),d.getMonth(),1).toLocaleDateString("nl-NL",{month:"short"}).replace(".",""),n:i===11?ak.length:state.klanten.filter(k=>klantActiefIn(k,ds,di,laatstB)).length}});
-    const mot=nieuw.length?`${plural(nieuw.length,"nieuwe klant","nieuwe klanten")} in ${esc(P.lbl)}. Samen goed voor ${stE(nieuw.filter(k=>k.actief!==false).reduce((a,k)=>a+exAmt(k.prijs)*365/freqDays(k),0))} per jaar.`:`Nog geen nieuwe klanten in ${esc(P.lbl)}. Een aanbeveling via het klantportaal helpt!`;
+    const mot=nieuw.length?`${plural(nieuw.length,"nieuwe klant","nieuwe klanten")} in ${esc(P.lbl)}. Samen goed voor ${stE(nieuw.filter(k=>k.actief!==false).reduce((a,k)=>a+stJaarK(k),0))} per jaar.`:`Nog geen nieuwe klanten in ${esc(P.lbl)}. Een aanbeveling via het klantportaal helpt!`;
     html+=`<section class="st-hero"><div class="st-hm"><span class="st-k">Actieve klanten</span>
         <div class="st-big"><b>${ak.length}</b>${nieuw.length?`<span class="st-pill up">+${nieuw.length} in ${esc(P.lbl)}</span>`:""}</div>
         <p class="st-mot">${mot}</p>
