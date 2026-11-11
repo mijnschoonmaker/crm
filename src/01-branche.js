@@ -5,7 +5,10 @@
    en zien de ramen-onderdelen (tellen per verdieping, ramen aantikken, tellingcontrole) niet. */
 const BRANCHES=[
   {id:"glazenwasser",naam:"Glazenwassers",enk:"Glazenwasser",ic:"druppel"},
+  {id:"schoonmaak",naam:"Schoonmakers",enk:"Schoonmaker",ic:"emmer"},
   {id:"schoorsteenveger",naam:"Schoorsteenvegers",enk:"Schoorsteenveger",ic:"vlam"},
+  {id:"rietdekker",naam:"Rietdekkers",enk:"Rietdekker",ic:"dak"},
+  /* niet meer te kiezen bij het aanmelden; bestaande accounts met dit vak blijven gewoon werken */
   {id:"schilder",naam:"Schilders",enk:"Schilder",ic:"roller"},
   {id:"hovenier",naam:"Hoveniers",enk:"Hovenier",ic:"boom"},
   {id:"timmerman",naam:"Timmerlieden",enk:"Timmerman",ic:"hamer"},
@@ -15,7 +18,7 @@ function BR(){try{/* mijnschoonmaker.com (het eigen glazenwassersbedrijf) is alt
 const GLAS=()=>BR()==="glazenwasser";
 const brInfo=(b=BR())=>BRANCHES.find(x=>x.id===b)||BRANCHES[0];
 /* hoofddienst: valt terug als een klant (nog) geen dienst heeft */
-const BR_HOOFD={glazenwasser:"Glasbewassing",schoorsteenveger:"Schoorsteen vegen",schilder:"Schilderwerk",hovenier:"Tuinonderhoud",timmerman:"Timmerwerk",stucadoor:"Stucwerk"};
+const BR_HOOFD={glazenwasser:"Glasbewassing",schoonmaak:"Schoonmaak",rietdekker:"Rieten dak onderhoud",schoorsteenveger:"Schoorsteen vegen",schilder:"Schilderwerk",hovenier:"Tuinonderhoud",timmerman:"Timmerwerk",stucadoor:"Stucwerk"};
 const HD=()=>BR_HOOFD[BR()]||"Glasbewassing";
 /* woorden die per vak verschillen; [glazenwasser, ander vak] */
 const BR_W={
@@ -30,6 +33,19 @@ const BW=k=>{const w=BR_W[k];return w?(GLAS()?w[0]:w[1]):k};
 /* standaarddiensten per vak (Uitvoering); glazenwassers houden uitvDefault() zoals hij was */
 function brDiensten(b=BR()){const I_=(naam,eenheid,prijs,min)=>itm(naam,eenheid,prijs,min*60);
   const D={
+    schoonmaak:[["kantoor","Kantoorschoonmaak",[I_("Kantoorschoonmaak","per uur",32,60),I_("Sanitair reinigen","per ruimte",12,10),I_("Pantry en keuken","per keer",15,15)]],
+      ["trap","Trappenhuisschoonmaak",[I_("Trappenhuis, per verdieping","per stuk",18,12),I_("Entree en lift","per keer",25,15),I_("Bergingsgang","per keer",20,15)]],
+      ["woning","Woningschoonmaak",[I_("Huishoudelijke schoonmaak","per uur",30,60),I_("Opleverschoonmaak","per m²",3.5,3)]],
+      ["diep","Dieptereiniging",[I_("Vloer machinaal reinigen","per m²",2.5,2),I_("Tapijt reinigen","per m²",4,3),I_("Vloer in de was zetten","per m²",3,2)]],
+      ["bouw","Bouwschoonmaak",[I_("Bouwschoonmaak","per m²",4.5,4)]],
+      ["toeslag","Toeslagen",[I_("Voorrijkosten","per keer",15,0),I_("Schoonmaakmiddelen","per keer",7.5,0)]]],
+    rietdekker:[["onderhoud","Rieten dak onderhoud",[I_("Dak bijwerken","per uur",55,60),I_("Riet bijsteken","per m²",35,20)]],
+      ["nok","Nokvorst",[I_("Nok vervangen","per strekkende meter",95,45),I_("Nok herstellen","per strekkende meter",55,25)]],
+      ["mos","Mos en algen",[I_("Mos verwijderen en behandelen","per m²",6,4)]],
+      ["nieuw","Nieuw riet dekken",[I_("Riet dekken","per m²",95,60),I_("Oud riet verwijderen en afvoeren","per m²",18,10)]],
+      ["brand","Brandveiligheid",[I_("Brandvertragend behandelen","per m²",18,8),I_("Brandscherm aanbrengen","per m²",28,15)]],
+      ["insp","Inspectie",[I_("Jaarlijkse inspectie met rapport","per keer",95,45)]],
+      ["toeslag","Toeslagen",[I_("Steiger of hoogwerker, per dag","per keer",185,0),I_("Voorrijkosten","per keer",35,0)]]],
     schoorsteenveger:[["veeg","Schoorsteen vegen",[I_("Rookkanaal open haard","per stuk",65,40),I_("Rookkanaal houtkachel of inzethaard","per stuk",65,40),I_("Extra rookkanaal op hetzelfde adres","per stuk",35,20)]],
       ["cv","Cv- en gasafvoer",[I_("Rookgasafvoer cv-ketel","per stuk",55,30),I_("Gaskachel of geiser","per stuk",55,30)]],
       ["insp","Inspectie",[I_("Visuele inspectie","per keer",45,20),I_("Camera-inspectie met rapport","per keer",95,45),I_("Rookproef","per keer",65,30)]],

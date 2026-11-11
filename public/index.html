@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="699a3fc90bcc"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="45c06893afbb"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -152,11 +152,9 @@ async function authMail(soort, email) {
   const mark = '<svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2.5" stroke="#fff" stroke-width="1.8"/><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="1.2" opacity=".55"/><path d="M7 17L17 7" stroke="#ebbd4c" stroke-width="2.6" stroke-linecap="round"/></svg>';
   let ov = null;
   const BRK = [["glazenwasser", "Glazenwassers", "Glazenwasserij De Vries", '<path d="M12 3.5c-3 4-5 6.6-5 9.3a5 5 0 0 0 10 0c0-2.7-2-5.3-5-9.3z"/>'],
+    ["schoonmaak", "Schoonmakers", "Schoonmaakbedrijf De Vries", '<path d="M5.5 8h13l-1.4 12.5H6.9z"/><path d="M8.5 8a3.5 3.5 0 0 1 7 0"/><path d="M9 12.5h6"/>'],
     ["schoorsteenveger", "Schoorsteenvegers", "Schoorsteenvegerij De Vries", '<path d="M12 21a6 6 0 0 0 6-6c0-3.5-2.5-6-4-8-.4 2-1.4 3.2-2.6 3.9C11 8.6 10 6 10 3c-3 2.5-4 6-4 12a6 6 0 0 0 6 6z"/>'],
-    ["schilder", "Schilders", "Schildersbedrijf De Vries", '<rect x="4" y="3.5" width="14" height="5" rx="1.2"/><path d="M18 6h2v5h-8v3"/><rect x="10.5" y="14" width="3" height="7" rx="1"/>'],
-    ["hovenier", "Hoveniers", "Hoveniersbedrijf De Vries", '<path d="M12 21v-5M7 16h10l-5-12z"/>'],
-    ["timmerman", "Timmerlieden", "Timmerbedrijf De Vries", '<path d="M14 4l6 6-2.5 2.5-6-6zM11.5 6.5l-8 8 3 3 8-8"/>'],
-    ["stucadoor", "Stucadoors", "Stucadoorsbedrijf De Vries", '<path d="M3 15.5h14l-1.5 3.5H3z"/><path d="M10 15.5V11h6V5"/>']];
+    ["rietdekker", "Rietdekkers", "Rietdekkersbedrijf De Vries", '<path d="M2.5 13.5L12 4.5l9.5 9"/><path d="M5.5 11v9h13v-9"/><path d="M9 15l-1 3M12 14v4M15 15l1 3"/>']];
   try { const q = new URLSearchParams(location.search).get("branche"); if (BRK.some(b => b[0] === q)) localStorage.setItem("ms.branche", q); } catch (e) {}
   const toon = html => {
     if (!ov) { const s = document.createElement("style"); s.textContent = css; document.head.appendChild(s); ov = document.createElement("div"); ov.className = "lg-ov"; document.body.appendChild(ov); }
@@ -7494,7 +7492,10 @@ const FRAMER_TPL="// Prijscalculator glasbewassing \u2014 Framer code component 
    en zien de ramen-onderdelen (tellen per verdieping, ramen aantikken, tellingcontrole) niet. */
 const BRANCHES=[
   {id:"glazenwasser",naam:"Glazenwassers",enk:"Glazenwasser",ic:"druppel"},
+  {id:"schoonmaak",naam:"Schoonmakers",enk:"Schoonmaker",ic:"emmer"},
   {id:"schoorsteenveger",naam:"Schoorsteenvegers",enk:"Schoorsteenveger",ic:"vlam"},
+  {id:"rietdekker",naam:"Rietdekkers",enk:"Rietdekker",ic:"dak"},
+  /* niet meer te kiezen bij het aanmelden; bestaande accounts met dit vak blijven gewoon werken */
   {id:"schilder",naam:"Schilders",enk:"Schilder",ic:"roller"},
   {id:"hovenier",naam:"Hoveniers",enk:"Hovenier",ic:"boom"},
   {id:"timmerman",naam:"Timmerlieden",enk:"Timmerman",ic:"hamer"},
@@ -7504,7 +7505,7 @@ function BR(){try{/* mijnschoonmaker.com (het eigen glazenwassersbedrijf) is alt
 const GLAS=()=>BR()==="glazenwasser";
 const brInfo=(b=BR())=>BRANCHES.find(x=>x.id===b)||BRANCHES[0];
 /* hoofddienst: valt terug als een klant (nog) geen dienst heeft */
-const BR_HOOFD={glazenwasser:"Glasbewassing",schoorsteenveger:"Schoorsteen vegen",schilder:"Schilderwerk",hovenier:"Tuinonderhoud",timmerman:"Timmerwerk",stucadoor:"Stucwerk"};
+const BR_HOOFD={glazenwasser:"Glasbewassing",schoonmaak:"Schoonmaak",rietdekker:"Rieten dak onderhoud",schoorsteenveger:"Schoorsteen vegen",schilder:"Schilderwerk",hovenier:"Tuinonderhoud",timmerman:"Timmerwerk",stucadoor:"Stucwerk"};
 const HD=()=>BR_HOOFD[BR()]||"Glasbewassing";
 /* woorden die per vak verschillen; [glazenwasser, ander vak] */
 const BR_W={
@@ -7519,6 +7520,19 @@ const BW=k=>{const w=BR_W[k];return w?(GLAS()?w[0]:w[1]):k};
 /* standaarddiensten per vak (Uitvoering); glazenwassers houden uitvDefault() zoals hij was */
 function brDiensten(b=BR()){const I_=(naam,eenheid,prijs,min)=>itm(naam,eenheid,prijs,min*60);
   const D={
+    schoonmaak:[["kantoor","Kantoorschoonmaak",[I_("Kantoorschoonmaak","per uur",32,60),I_("Sanitair reinigen","per ruimte",12,10),I_("Pantry en keuken","per keer",15,15)]],
+      ["trap","Trappenhuisschoonmaak",[I_("Trappenhuis, per verdieping","per stuk",18,12),I_("Entree en lift","per keer",25,15),I_("Bergingsgang","per keer",20,15)]],
+      ["woning","Woningschoonmaak",[I_("Huishoudelijke schoonmaak","per uur",30,60),I_("Opleverschoonmaak","per m²",3.5,3)]],
+      ["diep","Dieptereiniging",[I_("Vloer machinaal reinigen","per m²",2.5,2),I_("Tapijt reinigen","per m²",4,3),I_("Vloer in de was zetten","per m²",3,2)]],
+      ["bouw","Bouwschoonmaak",[I_("Bouwschoonmaak","per m²",4.5,4)]],
+      ["toeslag","Toeslagen",[I_("Voorrijkosten","per keer",15,0),I_("Schoonmaakmiddelen","per keer",7.5,0)]]],
+    rietdekker:[["onderhoud","Rieten dak onderhoud",[I_("Dak bijwerken","per uur",55,60),I_("Riet bijsteken","per m²",35,20)]],
+      ["nok","Nokvorst",[I_("Nok vervangen","per strekkende meter",95,45),I_("Nok herstellen","per strekkende meter",55,25)]],
+      ["mos","Mos en algen",[I_("Mos verwijderen en behandelen","per m²",6,4)]],
+      ["nieuw","Nieuw riet dekken",[I_("Riet dekken","per m²",95,60),I_("Oud riet verwijderen en afvoeren","per m²",18,10)]],
+      ["brand","Brandveiligheid",[I_("Brandvertragend behandelen","per m²",18,8),I_("Brandscherm aanbrengen","per m²",28,15)]],
+      ["insp","Inspectie",[I_("Jaarlijkse inspectie met rapport","per keer",95,45)]],
+      ["toeslag","Toeslagen",[I_("Steiger of hoogwerker, per dag","per keer",185,0),I_("Voorrijkosten","per keer",35,0)]]],
     schoorsteenveger:[["veeg","Schoorsteen vegen",[I_("Rookkanaal open haard","per stuk",65,40),I_("Rookkanaal houtkachel of inzethaard","per stuk",65,40),I_("Extra rookkanaal op hetzelfde adres","per stuk",35,20)]],
       ["cv","Cv- en gasafvoer",[I_("Rookgasafvoer cv-ketel","per stuk",55,30),I_("Gaskachel of geiser","per stuk",55,30)]],
       ["insp","Inspectie",[I_("Visuele inspectie","per keer",45,20),I_("Camera-inspectie met rapport","per keer",95,45),I_("Rookproef","per keer",65,30)]],

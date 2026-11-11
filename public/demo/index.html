@@ -7080,7 +7080,10 @@ const FRAMER_TPL="// Prijscalculator glasbewassing \u2014 Framer code component 
    en zien de ramen-onderdelen (tellen per verdieping, ramen aantikken, tellingcontrole) niet. */
 const BRANCHES=[
   {id:"glazenwasser",naam:"Glazenwassers",enk:"Glazenwasser",ic:"druppel"},
+  {id:"schoonmaak",naam:"Schoonmakers",enk:"Schoonmaker",ic:"emmer"},
   {id:"schoorsteenveger",naam:"Schoorsteenvegers",enk:"Schoorsteenveger",ic:"vlam"},
+  {id:"rietdekker",naam:"Rietdekkers",enk:"Rietdekker",ic:"dak"},
+  /* niet meer te kiezen bij het aanmelden; bestaande accounts met dit vak blijven gewoon werken */
   {id:"schilder",naam:"Schilders",enk:"Schilder",ic:"roller"},
   {id:"hovenier",naam:"Hoveniers",enk:"Hovenier",ic:"boom"},
   {id:"timmerman",naam:"Timmerlieden",enk:"Timmerman",ic:"hamer"},
@@ -7090,7 +7093,7 @@ function BR(){try{/* voorbeeldglazenwasserij.nl (het eigen glazenwassersbedrijf)
 const GLAS=()=>BR()==="glazenwasser";
 const brInfo=(b=BR())=>BRANCHES.find(x=>x.id===b)||BRANCHES[0];
 /* hoofddienst: valt terug als een klant (nog) geen dienst heeft */
-const BR_HOOFD={glazenwasser:"Glasbewassing",schoorsteenveger:"Schoorsteen vegen",schilder:"Schilderwerk",hovenier:"Tuinonderhoud",timmerman:"Timmerwerk",stucadoor:"Stucwerk"};
+const BR_HOOFD={glazenwasser:"Glasbewassing",schoonmaak:"Schoonmaak",rietdekker:"Rieten dak onderhoud",schoorsteenveger:"Schoorsteen vegen",schilder:"Schilderwerk",hovenier:"Tuinonderhoud",timmerman:"Timmerwerk",stucadoor:"Stucwerk"};
 const HD=()=>BR_HOOFD[BR()]||"Glasbewassing";
 /* woorden die per vak verschillen; [glazenwasser, ander vak] */
 const BR_W={
@@ -7105,6 +7108,19 @@ const BW=k=>{const w=BR_W[k];return w?(GLAS()?w[0]:w[1]):k};
 /* standaarddiensten per vak (Uitvoering); glazenwassers houden uitvDefault() zoals hij was */
 function brDiensten(b=BR()){const I_=(naam,eenheid,prijs,min)=>itm(naam,eenheid,prijs,min*60);
   const D={
+    schoonmaak:[["kantoor","Kantoorschoonmaak",[I_("Kantoorschoonmaak","per uur",32,60),I_("Sanitair reinigen","per ruimte",12,10),I_("Pantry en keuken","per keer",15,15)]],
+      ["trap","Trappenhuisschoonmaak",[I_("Trappenhuis, per verdieping","per stuk",18,12),I_("Entree en lift","per keer",25,15),I_("Bergingsgang","per keer",20,15)]],
+      ["woning","Woningschoonmaak",[I_("Huishoudelijke schoonmaak","per uur",30,60),I_("Opleverschoonmaak","per m²",3.5,3)]],
+      ["diep","Dieptereiniging",[I_("Vloer machinaal reinigen","per m²",2.5,2),I_("Tapijt reinigen","per m²",4,3),I_("Vloer in de was zetten","per m²",3,2)]],
+      ["bouw","Bouwschoonmaak",[I_("Bouwschoonmaak","per m²",4.5,4)]],
+      ["toeslag","Toeslagen",[I_("Voorrijkosten","per keer",15,0),I_("Schoonmaakmiddelen","per keer",7.5,0)]]],
+    rietdekker:[["onderhoud","Rieten dak onderhoud",[I_("Dak bijwerken","per uur",55,60),I_("Riet bijsteken","per m²",35,20)]],
+      ["nok","Nokvorst",[I_("Nok vervangen","per strekkende meter",95,45),I_("Nok herstellen","per strekkende meter",55,25)]],
+      ["mos","Mos en algen",[I_("Mos verwijderen en behandelen","per m²",6,4)]],
+      ["nieuw","Nieuw riet dekken",[I_("Riet dekken","per m²",95,60),I_("Oud riet verwijderen en afvoeren","per m²",18,10)]],
+      ["brand","Brandveiligheid",[I_("Brandvertragend behandelen","per m²",18,8),I_("Brandscherm aanbrengen","per m²",28,15)]],
+      ["insp","Inspectie",[I_("Jaarlijkse inspectie met rapport","per keer",95,45)]],
+      ["toeslag","Toeslagen",[I_("Steiger of hoogwerker, per dag","per keer",185,0),I_("Voorrijkosten","per keer",35,0)]]],
     schoorsteenveger:[["veeg","Schoorsteen vegen",[I_("Rookkanaal open haard","per stuk",65,40),I_("Rookkanaal houtkachel of inzethaard","per stuk",65,40),I_("Extra rookkanaal op hetzelfde adres","per stuk",35,20)]],
       ["cv","Cv- en gasafvoer",[I_("Rookgasafvoer cv-ketel","per stuk",55,30),I_("Gaskachel of geiser","per stuk",55,30)]],
       ["insp","Inspectie",[I_("Visuele inspectie","per keer",45,20),I_("Camera-inspectie met rapport","per keer",95,45),I_("Rookproef","per keer",65,30)]],
@@ -21015,8 +21031,16 @@ function demoVandaag(c){const ti=iso(today()),nu=new Date(),nm=nu.getHours()*60+
   r.ritten=[["VZK-38-T","Mark"],["VNP-71-B","Sem"]].map(([a,w])=>{const b=stand(a);return{id:"r"+w+ti,nr:0,auto:a,begin:b,eind:stop?b+km[w]+14:"",startTs:start,stopTs:stop,van:"Lindenlaan 14, Zuidhorn",naar:"Lindenlaan 14, Zuidhorn",route:"Loods – klanten – loods",type:"zakelijk",door:w.toLowerCase()+"@voorbeeldglazenwasserij.nl",bron:"werkdag"}})}
 
 /* demo voor een ander vak: dezelfde klanten en route, met de diensten en woorden van dat vak (glazenwassers: niets aan veranderd) */
-const DEMO_BRNAAM={schoorsteenveger:["Voorbeeld Schoorsteenvegerij","voorbeeldschoorsteenvegerij.nl"],schilder:["Voorbeeld Schildersbedrijf","voorbeeldschildersbedrijf.nl"],hovenier:["Voorbeeld Hoveniers","voorbeeldhoveniers.nl"],timmerman:["Voorbeeld Timmerwerken","voorbeeldtimmerwerken.nl"],stucadoor:["Voorbeeld Stucadoors","voorbeeldstucadoors.nl"]};
+const DEMO_BRNAAM={schoonmaak:["Voorbeeld Schoonmaakbedrijf","voorbeeldschoonmaakbedrijf.nl"],rietdekker:["Voorbeeld Rietdekkers","voorbeeldrietdekkers.nl"],schoorsteenveger:["Voorbeeld Schoorsteenvegerij","voorbeeldschoorsteenvegerij.nl"],schilder:["Voorbeeld Schildersbedrijf","voorbeeldschildersbedrijf.nl"],hovenier:["Voorbeeld Hoveniers","voorbeeldhoveniers.nl"],timmerman:["Voorbeeld Timmerwerken","voorbeeldtimmerwerken.nl"],stucadoor:["Voorbeeld Stucadoors","voorbeeldstucadoors.nl"]};
 const DEMO_BRC={
+  schoonmaak:{vve:"Schoonmaakcontract trappenhuizen",vveDienst:"Trappenhuisschoonmaak",credit:"sanitair niet goed gedaan, opnieuw langs geweest, afgesproken met klant",eenmalig:"Eenmalig opleverschoonmaak",project:"Bouwschoonmaak, 6 nieuwbouwwoningen",lev:"Schoonmaakgroothandel Noord",
+    taak:["Sleutel en alarmcode bij de receptie; alarm binnen 30 seconden uitzetten.","Vergaderzaal na 17:00, eerst de pantry en het sanitair.","Vloer in de hal machinaal; de machine staat in de werkkast op de begane grond."],
+    vveTaak:["24 appartementen. Trappenhuis en galerijen vegen en dweilen, liftvloer en spiegels reinigen; sleutel bij de beheerder.","Entree: deurmat uitkloppen, glas van de voordeur en brievenbussen afnemen."],
+    kosten:["Schoonmaakmiddelen en microvezeldoeken","Afvalzakken en handdoekrollen","Onderhoud schrobzuigmachine","Werkkleding"]},
+  rietdekker:{vve:"Onderhoudscontract rieten daken",vveDienst:"Inspectie rieten daken",credit:"nok niet helemaal netjes afgewerkt, afgesproken met klant",eenmalig:"Eenmalig nok herstellen",project:"Nieuw riet dekken, 6 recreatiewoningen",lev:"Riethandel Noord",
+    taak:["Achterzijde ligt op het noorden: daar zit het meeste mos.","Ladder via de achtertuin, de poort is open. Hond is binnen.","Nok aan de voorkant vervangen; foto's maken voor het rapport."],
+    vveTaak:["12 woningen met rieten kap. Per woning het dak inspecteren en een kort rapport met foto's maken.","Gezamenlijk schuurdak: mos verwijderen en het riet bijsteken."],
+    kosten:["Riet en bindmateriaal","Nokmateriaal","Steigerhuur","Valbeveiliging dakwerk"]},
   schoorsteenveger:{vve:"Onderhoudscontract rookgasafvoeren",vveDienst:"Controle rookgasafvoeren",credit:"kachel bleef roken, nogmaals langs geweest, afgesproken met klant",eenmalig:"Eenmalig vogelnest verwijderen",project:"Rookgasafvoeren controleren, 6 nieuwbouwwoningen",lev:"Schoorsteentechniek Noord",
     taak:["Kachel staat in de woonkamer: schoenhoezen aan en afdekkleed meenemen.","Toegang tot het dak via het dakluik op zolder. Hond is binnen, aanbellen en even wachten.","Open haard en houtkachel: beide kanalen vegen. Klant wil het veegcertificaat per mail voor de verzekering."],
     vveTaak:["24 appartementen met cv-ketels op zolder. Per woning de rookgasafvoer controleren; sleutel technische ruimte bij de beheerder.","Gezamenlijke schoorsteen op het dak; dakluik via de bergingsgang."],
@@ -21042,7 +21066,7 @@ function demoRamen(d){const c=d.cols||d;(c.klanten||[]).forEach((k,i)=>{if(k.ram
   k.ramenRegel={f:[8+h%14,h%3?3+h%6:0,0,0],sp:h%4===0?{tuimel:1+h%4}:{}}})}
 function demoBranche(d,br){if(!br||br==="glazenwasser"){demoRamen(d);return d}const c=d.cols||d;
   const G=brDiensten(br).map(g=>g.naam),H=G[0],[bnaam,dom]=DEMO_BRNAAM[br];
-  const jaar=br!=="hovenier",rnd=demoRnd(4242),pick=a=>a[Math.floor(rnd()*a.length)];
+  const jaar=!["hovenier","schoonmaak"].includes(br),rnd=demoRnd(4242),pick=a=>a[Math.floor(rnd()*a.length)];
   const vervang=v=>typeof v!=="string"?v:v.replace(/Glasbewassing binnen en buiten|Glasbewassing binnenzijde|Glasbewassing buitenzijde|Glasbewassing binnen|Glasbewassing( (etalage|showroom|kantoor|school|hotel|gevel|buitenzijde|trappenhal)[^,·\d(]*)?|Glasbewassing/g,(m)=>/binnen/i.test(m)&&G[1]?G[1]:H)
     .replace(/Voorbeeld Glazenwasserij/g,bnaam).replace(/voorbeeldglazenwasserij\.nl/g,dom).replace(/glazenwasser/gi,brInfo(br).enk.toLowerCase()).replace(/ramen wassen/gi,"onderhoud")
     .replace(/\d+ ramen \(telling klant\)/g,H.toLowerCase()).replace(/(Dakgoten|Zonnepanelen|Kozijnen) reinigen/g,()=>G[1+Math.floor(rnd()*(G.length-1))]);

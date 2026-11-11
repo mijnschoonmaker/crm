@@ -14,7 +14,7 @@ module.exports = ({ abofactuur, brevoSend, rawDb, T, onCall, onRequestRaw, Https
   const bedrijfAanmaken = onCall(async req => {
     const e = emailVan(req.auth), d = req.data || {};
     const naam = String(d.naam || "").trim().slice(0, 80), tel = String(d.telefoon || "").trim().slice(0, 30), plaats = String(d.plaats || "").trim().slice(0, 60);
-    const branche = ["glazenwasser", "schoorsteenveger", "schilder", "hovenier", "timmerman", "stucadoor"].includes(d.branche === "betonboorder" ? "stucadoor" : d.branche) ? (d.branche === "betonboorder" ? "stucadoor" : d.branche) : "glazenwasser";
+    const branche = ["glazenwasser", "schoonmaak", "rietdekker", "schoorsteenveger", "schilder", "hovenier", "timmerman", "stucadoor"].includes(d.branche === "betonboorder" ? "stucadoor" : d.branche) ? (d.branche === "betonboorder" ? "stucadoor" : d.branche) : "glazenwasser";
     if (naam.length < 2) throw new HttpsError("invalid-argument", "Vul de naam van je bedrijf in.");
     const g = await rawDb.doc("gebruikers/" + e).get();
     if (g.exists) throw new HttpsError("already-exists", "Dit e-mailadres hoort al bij een bedrijf. Log opnieuw in.");
