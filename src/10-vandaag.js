@@ -28,7 +28,7 @@ function stopCard(k,i,isNext,late,day,totaal){
       <div class="tk-body">
         <div class="tk-tags">${tags}${isNext?'<span class="pill nextp">Volgende</span>':""}</div>
         <button type="button" class="tk-adres" data-act="klant" data-id="${esc(k.id)}">${sgAv(k,"",h,initials(k.naam))}<span><b>${esc(a.adres||cleanName(k.naam))}</b><small>${esc([a.postcode,a.plaats].filter(Boolean).join(" "))}${a.plaats?" · ":""}${esc(cleanName(k.naam))}${o&&o.naam?" · "+esc(o.naam):""}</small></span>${I.right.replace("<svg",'<svg class="chev"')}</button>
-        <div class="tk-feit"><span><b>${dienstHtml(k)}</b>${k.binnen?" + binnen":""}</span><span>${I.clock}<b>${duur(k)} min</b></span>${mw?"":`<span>${I.euro||""}<b>${eur(toonK(k,prijsMee(k)))}</b></span>`}</div>
+        <div class="tk-feit"><span><b>${dienstHtml(k)}</b>${k.binnen?" + binnen":""}</span><span>${I.clock}<b>${duur(k)} min</b></span>${mw?"":`<span>${I.euro||""}<b>${eur(stopBedrag(k))}</b></span>`}</div>
         ${bz?(()=>{const ex=(k.tijden||[]).length&&typeof gemTijd==="function"?gemTijd(k):duur(k),f=(Date.now()-new Date(k.bezig))/60000/ex;const mn=Math.floor((Date.now()-new Date(k.bezig))/60000);return `<div class="tk-tm"><div class="tk-tmh"><span class="tk-tml"><i></i>Bezig <b data-tmin="${esc(k.bezig)}">${mn} min</b> van ${ex}</span></div>${tonHtml(k.bezig,ex,f)}<div class="bt-bar"><i data-tbar="${esc(k.bezig)}" data-exp="${ex}" class="${f>1?"over":""}" style="width:${Math.min(100,f*100)}%"></i></div><small>${(k.tijden||[]).length?"Gemiddeld "+ex+" min bij deze klant":"Verwacht "+ex+" min"}</small></div>`})():""}
         ${uitTeVoerenHtml(k,day)}<div class="tk-info">${oBeurtBlok(k)}${hospRoute(k)}${toegangHtml(k)}${ookDezeBeurt(k,day)}${objInfo(k)}${jobExtra(k)}</div>
         <div class="tk-acts"><a class="tk-a" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.nav}<span>Navigeer</span></a>${tel?`<a class="tk-a" href="tel:${esc(tel)}">${I.phone}<span>Bellen</span></a>`:""}${wa&&!bz?`<a class="tk-a" href="${esc(wa)}" target="_blank" rel="noopener">${I.wa}<span>Ik kom eraan</span></a>`:""}<button type="button" class="tk-a" data-act="skip" data-id="${esc(k.id)}">${I.right}<span>Overslaan</span></button></div>
@@ -44,7 +44,7 @@ function stopRow(k,day,done){
     <div class="swipe-card srow${done?" done":""}" data-act="job" data-id="${esc(k.id)}" data-d="${esc(day)}">
       <span class="sr-t">${esc(k.tijd||"—")}</span>${sgAv(k,"sm",hue(k.ronde||k.naam),initials(k.naam))}
       <span class="sr-a"><b>${esc(a.adres||cleanName(k.naam))}</b><small>${esc(a.plaats||"")}${a.plaats?" · ":""}${esc(cleanName(k.naam))}</small></span>
-      ${info?`<span class="sr-i" title="Objectinfo">i</span>`:""}<span class="amt">${eur(toonK(k,prijsMee(k)))}</span>${statusPill(sp[0],sp[1])}${I.right.replace("<svg",'<svg class="chev"')}
+      ${info?`<span class="sr-i" title="Objectinfo">i</span>`:""}<span class="amt">${eur(stopBedrag(k))}</span>${statusPill(sp[0],sp[1])}${I.right.replace("<svg",'<svg class="chev"')}
     </div></div>`;
 }
 function activiteit(d){
@@ -66,7 +66,7 @@ function vVandaag(){
   const t=today(),d=state.vDay||iso(t),dd=parse(d),isT=d===iso(t);
   const stops=routeStops(d),todo=stops.filter(s=>!s.done);
   const doneB=state.beurten.filter(b=>b.datum===d);
-  const omzet=doneB.reduce((a,b)=>a+beurtVerdiend(b),0),verwacht=omzet+todo.reduce((a,s)=>a+toonK(s.k,prijsMee(s.k)),0);
+  const omzet=doneB.reduce((a,b)=>a+beurtVerdiend(b),0),verwacht=omzet+todo.reduce((a,s)=>a+stopBedrag(s.k),0);
   const total=todo.length+doneB.length,pct=total?Math.round(doneB.length/total*100):0;
   const due=isT?teplannen(t).filter(k=>!k.gepland):[];
   const note=(state.routes[d]||{}).notitie||"";
