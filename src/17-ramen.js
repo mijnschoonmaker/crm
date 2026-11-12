@@ -337,10 +337,10 @@ const RC_HTML=`<div class="wrap">
     <div id="overig"></div>
   </section>
   <section class="card" id="cFreq">
-    <div class="head"><span class="num">4</span><div><div class="eyebrow">Afspraken</div><h2>Frequentie glasbewassing en kozijnen</h2></div></div>
+    <div class="head"><span class="num">4</span><div><div class="eyebrow">Afspraken</div><h2>Frequentie glasbewassing</h2></div></div>
     <div class="options">
       <div class="field"><label for="freq">Frequentie</label><select id="freq"></select></div>
-      <div class="field kozf"><span class="flabel" id="l-koz">Kozijnreiniging</span>
+      <div class="field kozf" hidden style="display:none"><span class="flabel" id="l-koz">Kozijnreiniging</span>
         <div class="seg" role="radiogroup" aria-labelledby="l-koz"><input type="radio" name="koz" id="koz-no" value="no" checked><label for="koz-no">Nee</label><input type="radio" name="koz" id="koz-yes" value="yes"><label for="koz-yes">Ja, elke keer</label></div></div>
     </div>
     <div class="desk-calc"><div class="cnt"><b id="barCount">0</b><small>ramen geteld</small></div><button class="calc" type="button" id="calcBtn">Berekenen ${RC_SVG.arrow}</button></div>
@@ -356,9 +356,9 @@ const RC_HTML=`<div class="wrap">
       <div class="extra">
         <div class="field"><label for="r-start">Starttarief (€)</label><input id="r-start" type="number" step="0.5" min="0"></div>
         <div class="field"><label for="r-min">Minimum glas excl. (€)</label><input id="r-min" type="number" step="0.01" min="0"></div>
-        <div class="field"><label for="r-kozmin">Minimum kozijn excl. (€)</label><input id="r-kozmin" type="number" step="0.01" min="0"></div>
-        <div class="field"><label for="r-kozp">Kozijn per raam (€)<span class="flag">*</span></label><input id="r-kozp" type="number" step="0.01" min="0"></div>
-        <div class="field"><label for="r-kozs">Kozijn sec per raam<span class="flag">*</span></label><input id="r-kozs" type="number" step="1" min="0"></div>
+        <div class="field" hidden style="display:none"><label for="r-kozmin">Minimum kozijn excl. (€)</label><input id="r-kozmin" type="number" step="0.01" min="0"></div>
+        <div class="field" hidden style="display:none"><label for="r-kozp">Kozijn per raam (€)<span class="flag">*</span></label><input id="r-kozp" type="number" step="0.01" min="0"></div>
+        <div class="field" hidden style="display:none"><label for="r-kozs">Kozijn sec per raam<span class="flag">*</span></label><input id="r-kozs" type="number" step="1" min="0"></div>
       </div>
       <div class="field" style="margin-top:16px"><span class="flabel">Staffelkorting normale ramen</span></div>
       <div class="extra" id="tiers"></div>
@@ -653,7 +653,7 @@ const ICON={
   /* ---------- rekenen ---------- */
   const FLO=()=>floors,SPE=()=>special;
   function compute(p){
-    const koz=p?!!p.koz:g("koz-yes").checked,fk=p?(p.fk||"w4"):g("freq").value,f0=FREQ[fk]||FREQ.w4,floors=p?(p.floors||[]).map(n=>Number(n)||0):FLO(),special=p?{lood:0,mini:0,koepel:0,tuimel:0,...(p.special||{})}:SPE();
+    const koz=false,fk=p?(p.fk||"w4"):g("freq").value,f0=FREQ[fk]||FREQ.w4,floors=p?(p.floors||[]).map(n=>Number(n)||0):FLO(),special=p?{lood:0,mini:0,koepel:0,tuimel:0,...(p.special||{})}:SPE();
     const fRows=[],sRows=[],FD=staffel(floors.map((n,i)=>({k:winKey(i),n})).filter(x=>x.n)),SD=staffel(SPECIAL.map(x=>({k:x.k,n:special[x.k]||0})).filter(x=>x.n));
     const f={...f0,pct:fpct(fk,f0.pct)};
     floors.forEach((n,i)=>{if(!n)return;const k=winKey(i),avgD=FD[k]||0;
