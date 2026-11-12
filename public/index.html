@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="12fc488b2aae"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="e0e98079950d"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -7313,6 +7313,47 @@ html body:not(#zz) dialog .kk-hero .kkh-av{width:52px!important;height:52px!impo
 html body:not(#zz) dialog .kk-hero .kkh-av svg{stroke:#fff}
 html body:not(#zz) dialog .kk-hero .kkh-ib{border-radius:12px!important;background:rgb(255 255 255 / .1)!important;border:0!important}
 @media (max-width:560px){html body:not(#zz) dialog .kk-hero{margin:-22px -22px 14px!important;padding:18px!important}}
+/* geen witte rand langs de donkere kop (afronding bij halve pixels in Safari): kop iets breder, dialoog knipt het af */
+html body:not(#zz) dialog:has(.kk-hero),html body:not(#zz) dialog:has(.fw-head){overflow-x:hidden!important}
+html body:not(#zz) dialog .kk-hero,html body:not(#zz) dialog .fw-head{margin-top:-23px!important;margin-left:-24px!important;margin-right:-24px!important;padding-left:24px!important;padding-right:24px!important}
+/* overzicht klantkaart: rustiger kopjes en kaarten (zelfde gevoel als Facturen) */
+html body:not(#zz) .kko h3{font-family:inherit!important;text-transform:none!important;letter-spacing:-.01em!important;font-size:19px!important;font-weight:500!important}
+html body:not(#zz) .kko-h{margin-bottom:2px}
+html body:not(#zz) .kko-k{height:34px!important;padding:0 12px!important;border-radius:999px!important;border:0!important;background:#f2f3f5!important;font-size:12px!important;font-weight:500!important;letter-spacing:0!important;text-transform:none!important;color:#252c3c!important}
+html body:not(#zz) .kko-k:hover{background:#e7e9ec!important}
+/* dienstkaart: liggend, prijs rechts */
+html body:not(#zz) .kko-dg{grid-template-columns:repeat(auto-fill,minmax(330px,1fr))!important}
+html body:not(#zz) .kko-d{display:grid!important;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"dh dp" "dr dp" "bar bar" "dn dn";column-gap:16px;row-gap:8px;padding:18px 20px!important;background:#fff!important;border:1px solid #eceef1;border-radius:18px!important;box-shadow:0 1px 2px rgba(14,17,23,.03)}
+html body:not(#zz) .kko-d:hover{border-color:#d5d9df;box-shadow:0 8px 22px rgba(14,17,23,.07)}
+.kko-d .kko-dh{grid-area:dh}.kko-d .kko-dr{grid-area:dr;font-size:12.5px!important;color:#6b7280!important;padding-left:52px}
+.kko-d .kko-bar{grid-area:bar;height:4px!important;margin-top:6px;background:#eef0f3!important}
+.kko-d .kko-dn{grid-area:dn;margin:0!important;font-size:12px!important;color:#6b7280!important}
+html body:not(#zz) .kko-d .kko-dp{grid-area:dp;border:0!important;padding:0!important;margin:0!important;flex-direction:column;align-items:flex-end;justify-content:center;gap:2px}
+html body:not(#zz) .kko-d .kko-dp b{font-family:inherit!important;font-size:22px!important;font-weight:500!important;letter-spacing:-.01em}
+.kko-d .kko-dp small{font-size:11.5px!important;order:2}
+html body:not(#zz) .kko-d .kko-dh i{width:40px!important;height:40px!important;border-radius:12px!important;background:#f2f3f5!important;color:#252c3c!important}
+html body:not(#zz) .kko-d .kko-dh b{font-size:15.5px!important;font-weight:500!important}
+html body:not(#zz) .kko-d .kko-dh small{font-size:12.5px!important}
+/* tijdlijn: lichter en compacter */
+html body:not(#zz) .kko-tr{grid-template-columns:52px 28px minmax(0,1fr) auto!important;column-gap:14px!important;padding:10px 0!important;align-items:center!important;border-bottom:1px solid #f2f3f5}
+html body:not(#zz) .kko-tr:last-child{border-bottom:0}
+html body:not(#zz) .kko-tr::after{display:none!important}
+html body:not(#zz) .kko-td{display:flex;flex-direction:column;align-items:center;justify-content:center;background:#f5f6f7;border-radius:10px;padding:5px 0!important;text-align:center!important}
+html body:not(#zz) .kko-td b{font-size:15px!important;font-weight:500!important;line-height:1.1}
+html body:not(#zz) .kko-td small{font-size:9.5px!important;letter-spacing:.08em!important}
+html body:not(#zz) .kko-ti{width:28px!important;height:28px!important}
+html body:not(#zz) .kko-ti svg{width:13px!important;height:13px!important}
+html body:not(#zz) .kko-ti.klaar{background:#e9ecf2!important;color:#252c3c!important}
+html body:not(#zz) .kko-ti.plan{border-width:1.5px!important}
+html body:not(#zz) .kko-tt{padding-top:0!important}
+html body:not(#zz) .kko-tt b{font-size:14px!important;font-weight:500!important}
+html body:not(#zz) .kko-tt small{font-size:12.5px!important;color:#6b7280!important}
+html body:not(#zz) .kko-tb{font-family:inherit!important;font-size:15px!important;font-weight:500!important;padding-top:0!important}
+html body:not(#zz) .kko-meer{text-decoration:none!important;text-transform:none!important;letter-spacing:0!important;font-weight:500!important;font-size:13px!important;padding:8px 14px!important;border-radius:999px!important;background:#f2f3f5!important;margin-top:4px}
+html body:not(#zz) .kko-meer:hover{background:#e7e9ec!important}
+@media (max-width:640px){html body:not(#zz) .kko-dg{grid-template-columns:minmax(0,1fr)!important}html body:not(#zz) .kko-tr{grid-template-columns:44px 26px minmax(0,1fr) auto!important;column-gap:10px!important}.kko-d .kko-dr{padding-left:0}}
+html body:not(#zz) .kko-d .kko-dh b{white-space:normal!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.25}
+html body:not(#zz) .kko h4{text-transform:none!important;letter-spacing:0!important;font-size:13px!important;font-weight:500!important;color:#6b7280!important}
 
 </style>
 <div class="app">
