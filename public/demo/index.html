@@ -6989,6 +6989,51 @@ html body:not(#zz) #kkBody.kk-v2 .kp-h>b,html body:not(#zz) #kkBody.kk-v2 .kp-h>
 }
 /* Wat doen we en hoe vaak / Tijdlijn: zelfde kop als HOSPITALITY AANDACHTSPUNTEN */
 html body:not(#zz) .kko h3,html body:not(#zz) dialog .kko h3{font-family:"Avenir Next",Avenir,"Nunito Sans","Helvetica Neue",Arial,sans-serif!important;font-size:12px!important;font-weight:600!important;letter-spacing:.14em!important;text-transform:uppercase!important;color:#0d121b!important;line-height:1.4!important}
+/* betaalgedrag: eigen opbouw (score, verdeelbalk, tellers) */
+html body:not(#zz) .pay.pb2{display:flex;flex-direction:column;gap:16px;padding:20px 22px;border:1px solid #e6e8ec;border-radius:18px;background:#fff;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.pb2 .pb-h{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+html body:not(#zz) .pb2 .pb-h>b{font-family:"Avenir Next",Avenir,"Nunito Sans","Helvetica Neue",Arial,sans-serif;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#0d121b}
+.pb2 .pb-v{font-size:12px;font-weight:600;padding:5px 11px;border-radius:99px;background:#eef0f4;color:#252c3c;white-space:nowrap}
+.pb2 .pb-v.ok{background:#e7f4ec;color:#1f7a4c}.pb2 .pb-v.soon{background:#fbf1de;color:#8a5a12}.pb2 .pb-v.late{background:#fbe7e5;color:#a8352e}
+.pb2 .pb-top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px}
+.pb2 .pb-score{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.pb2 .pb-big{font-size:38px;font-weight:600;letter-spacing:-.03em;line-height:1;color:#252c3c;font-variant-numeric:tabular-nums}
+.pb2 .pb-big small{font-size:20px;font-weight:600;margin-left:2px;color:#5b6270}
+.pb2 .pb-big.pb-dim{color:#c3c8d1}
+.pb2 .pb-sub{font-size:14px;color:#5b6270}
+.pb2 .pb-gem{display:flex;flex-direction:column;align-items:flex-end;gap:2px;text-align:right}
+.pb2 .pb-gem span{font-size:12px;color:#5b6270}.pb2 .pb-gem b{font-size:17px;font-weight:600;color:#14171c;font-variant-numeric:tabular-nums}
+.pb2 .pb-bar{display:flex;gap:3px;height:10px;border-radius:99px;overflow:hidden;background:#eef0f4}
+.pb2 .pb-s{display:block;height:100%;border-radius:99px}
+.pb2 .pb-optijd{--c:#3f9d6f}.pb2 .pb-herinnering{--c:#d79a33}.pb2 .pb-aanmaning{--c:#c9534b}.pb2 .pb-open{--c:#252c3c}
+.pb2 .pb-s{background:var(--c)}.pb2 .pb-s.pb-open{background:repeating-linear-gradient(135deg,#252c3c 0 6px,#3a4359 6px 12px)}.pb2 .pb-s.pb-leeg{background:#eef0f4}
+.pb2 .pb-t{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.pb2 .pb-c{position:relative;display:flex;flex-direction:column;gap:3px;padding:12px 12px 11px 14px;border-radius:12px;background:#f6f7f9;overflow:hidden}
+.pb2 .pb-c::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--c)}
+.pb2 .pb-c b{font-size:20px;font-weight:600;line-height:1.1;color:#14171c;font-variant-numeric:tabular-nums}
+.pb2 .pb-c span{font-size:12px;color:#5b6270;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pb2 .pb-c.nul b{color:#b3b9c3}.pb2 .pb-c.nul::before{opacity:.35}
+@media (max-width:640px){.pb2 .pb-t{grid-template-columns:repeat(2,minmax(0,1fr))}.pb2 .pb-big{font-size:32px}html body:not(#zz) .pay.pb2{padding:16px}}
+/* klantkop overzichtelijker: naam + status op één regel, rustige metaregel, kerncijfers in één paneel met scheidingslijnen */
+html body:not(#zz) .kk-hero .kkh-tl{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+html body:not(#zz) .kk-hero .kkh-tl h2{margin:0!important}
+html body:not(#zz) .kk-hero .kkh-tl .kkh-st{font-size:11.5px!important;padding:4px 10px!important}
+html body:not(#zz) .kk-hero .kkh-adr{margin-top:6px!important}
+html body:not(#zz) .kk-hero .kkh-meta{display:flex;flex-wrap:wrap;align-items:center;margin-top:8px;font-size:13px;color:rgb(255 255 255 / .55)}
+html body:not(#zz) .kk-hero .kkh-meta span+span::before{content:"";display:inline-block;width:3px;height:3px;border-radius:50%;background:rgb(255 255 255 / .35);margin:0 10px;vertical-align:middle}
+html body:not(#zz) .kk-hero .kkh-tg{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:0!important;background:rgb(255 255 255 / .05)!important;border:1px solid rgb(255 255 255 / .09)!important;border-radius:16px!important;overflow:hidden}
+html body:not(#zz) dialog .kk-hero .kkh-tg .kkh-t{background:transparent!important;border:0!important;border-radius:0!important;padding:14px 20px!important;min-width:0}
+html body:not(#zz) dialog .kk-hero .kkh-tg .kkh-t+.kkh-t{border-left:1px solid rgb(255 255 255 / .09)!important}
+html body:not(#zz) .kk-hero .kkh-t span{font-size:11px!important;font-weight:600!important;letter-spacing:.1em!important;text-transform:uppercase!important;color:rgb(255 255 255 / .5)!important}
+html body:not(#zz) .kk-hero .kkh-t b{font-size:22px!important;margin-top:4px;display:block}
+html body:not(#zz) .kk-hero .kkh-t small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:640px){
+  html body:not(#zz) .kk-hero .kkh-tg{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  html body:not(#zz) dialog .kk-hero .kkh-tg .kkh-t{padding:12px 14px!important}
+  html body:not(#zz) dialog .kk-hero .kkh-tg .kkh-t:nth-child(3){border-left:0!important}
+  html body:not(#zz) dialog .kk-hero .kkh-tg .kkh-t:nth-child(n+3){border-top:1px solid rgb(255 255 255 / .09)!important}
+  html body:not(#zz) .kk-hero .kkh-meta{font-size:12px}
+}
 
 </style>
 <div class="app">
@@ -15712,14 +15757,14 @@ function betaalgedrag(fs){
 const PAYK={aanmaning:["#d9534f","Aanmaning"],herinnering:["#e0a030","Herinnering"],optijd:["#2bb673","Op tijd betaald"],open:["#5aa9c2","Openstaand"]};
 function payBlok(bg){const c=bg.c,afg=c.optijd+c.herinnering+c.aanmaning,pct=afg?Math.round(c.optijd/afg*100):null,tot=afg+c.open;
   const [vk,vt]=c.aanmaning?["late","Aanmaning nodig geweest"]:c.herinnering?["soon","Soms een herinnering"]:afg?["ok","Betaalt netjes op tijd"]:c.open?["plan","Nog geen betalingen"]:["plan","Nog geen facturen"];
-  /* ring toont alleen het aandeel op tijd betaald; kleur volgt het oordeel */
-  const R=42,C=2*Math.PI*R,lv=pct==null?"plan":pct>=90?"ok":pct>=60?"soon":"late",gid="pg"+Math.random().toString(36).slice(2,8);
-  const GR={ok:["#3ccf91","#139b68"],soon:["#f3be5a","#d08a2e"],late:["#f27a72","#c94040"],plan:["#7cc0d4","#3f8fa8"]}[lv];
-  const boog=pct?`<circle class="pay-arc" cx="50" cy="50" r="${R}" fill="none" stroke="url(#${gid})" stroke-width="9" stroke-linecap="${pct>=100?"butt":"round"}" stroke-dasharray="${C}" style="--c:${C};--o:${C*(1-pct/100)}" transform="rotate(-90 50 50)"/>`:"";
-  return `<div class="pay"><div class="pay-h"><b>Betaalgedrag</b><span class="pay-v ${vk}">${vt}</span></div>
-    <div class="pay-b"><div class="pay-r pay-${lv}"><svg viewBox="0 0 100 100"><defs><linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${GR[0]}"/><stop offset="1" stop-color="${GR[1]}"/></linearGradient></defs><circle cx="50" cy="50" r="${R}" fill="none" class="pay-track" stroke-width="9"/><circle cx="50" cy="50" r="33" class="pay-disc"/>${boog}</svg><span class="${pct==null?"leeg":""}">${pct==null?"—":`<b class="pay-n">${pct}<sup>%</sup></b>`}<small>${pct==null?"nog niets betaald":"op tijd"}</small></span></div>
-      <ul class="pay-l">${["optijd","herinnering","aanmaning","open"].map(k=>`<li class="${c[k]?"":"nul"}" style="--c:${PAYK[k][0]}"><i></i><span>${PAYK[k][1]}</span><b>${c[k]}</b></li>`).join("")}</ul></div>
-    ${bg.gem!=null?`<p class="pay-f">${I.clock}<span>Gemiddeld betaald binnen <b>${bg.gem} ${bg.gem===1?"dag":"dagen"}</b></span></p>`:""}</div>`}
+  /* rustige kaart: grote score, één verdeelbalk en vier tellers naast elkaar */
+  const K=["optijd","herinnering","aanmaning","open"],KL={optijd:"Op tijd",herinnering:"Herinnering",aanmaning:"Aanmaning",open:"Openstaand"};
+  const balk=tot?K.filter(k=>c[k]).map(k=>`<i class="pb-s pb-${k}" style="flex:${c[k]}" title="${KL[k]}: ${c[k]}"></i>`).join(""):`<i class="pb-s pb-leeg" style="flex:1"></i>`;
+  const kop=pct==null?`<b class="pb-big pb-dim">—</b><span class="pb-sub">${c.open?"Nog niets betaald":"Nog geen facturen"}</span>`:`<b class="pb-big">${pct}<small>%</small></b><span class="pb-sub">op tijd betaald</span>`;
+  return `<div class="pay pb2"><div class="pb-h"><b>Betaalgedrag</b><span class="pb-v ${vk}">${vt}</span></div>
+    <div class="pb-top"><div class="pb-score">${kop}</div>${bg.gem!=null?`<div class="pb-gem"><span>Gemiddeld betaald</span><b>${bg.gem} ${bg.gem===1?"dag":"dagen"}</b></div>`:`<div class="pb-gem"><span>Facturen</span><b>${bg.n||tot}</b></div>`}</div>
+    <div class="pb-bar">${balk}</div>
+    <div class="pb-t">${K.map(k=>`<div class="pb-c pb-${k}${c[k]?"":" nul"}"><b>${c[k]}</b><span>${KL[k]}</span></div>`).join("")}</div></div>`}
 function donut(c){const parts=[["late",c.aanmaning],["soon",c.herinnering],["ok",c.optijd],["plan",c.open]],tot=parts.reduce((a,p)=>a+p[1],0);
   if(!tot)return `<svg viewBox="0 0 42 42" class="kd-donut"><circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--surface-3)" stroke-width="6"/></svg>`;
   let off=25;return `<svg viewBox="0 0 42 42" class="kd-donut">${parts.filter(p=>p[1]).map(([cl,n])=>{const L=n/tot*100,s=`<circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--${cl})" stroke-width="6" stroke-dasharray="${L} ${100-L}" stroke-dashoffset="${off}"/>`;off-=L;return s}).join("")}</svg>`}
@@ -15750,7 +15795,7 @@ function openKlantView(id,opt={}){
   const telNr=String(k.telefoon||k.mobiel||"").replace(/[^\d+]/g,"");
   const kt=(l,v,s,c)=>`<div class="kkh-t"><span>${l}</span><b>${v}</b>${s?`<small class="${c||""}">${s}</small>`:""}</div>`;
   openDlg(`<div class="kk-hero kk-${stH[0]}"><div class="kkh-r1"><span class="kkh-bc">Klanten<i>/</i><b>${esc(cleanName(k.naam))}</b></span><span class="sp"></span><button type="button" class="kkh-ib" data-kk="edit" aria-label="Klantgegevens aanpassen" title="Klantgegevens aanpassen">${I.pencil}</button><button type="button" class="kkh-ib" data-act="close" aria-label="Sluiten">${I.x}</button></div>
-    <div class="kkh-r2"><div class="kkh-wie"><span class="kkh-av">${esc(initials(k.naam))}</span><div class="kkh-nm"><div class="kkh-chips"><span class="kkh-st ${stH[0]}"><i></i>${stH[1]}</span><span class="kkh-c">${esc(soortLbl(k))}</span>${k.nieuweKlant?`<span class="kkh-c">Nieuwe klant</span>`:""}${k.aangemaakt?`<span class="kkh-c">Klant sinds ${esc(parse(String(k.aangemaakt).slice(0,10)).toLocaleDateString("nl-NL",{month:"long",year:"numeric"}))}</span>`:""}<span class="kkh-c">Nr. ${esc(nr)}</span></div><h2>${esc(cleanName(k.naam))}</h2><a class="kkh-adr" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.pin}${esc(fullAddr(k))}</a></div></div>
+    <div class="kkh-r2"><div class="kkh-wie"><span class="kkh-av">${esc(initials(k.naam))}</span><div class="kkh-nm"><div class="kkh-tl"><h2>${esc(cleanName(k.naam))}</h2><span class="kkh-st ${stH[0]}"><i></i>${stH[1]}</span></div><a class="kkh-adr" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.pin}${esc(fullAddr(k))}</a><div class="kkh-meta"><span>${esc(soortLbl(k))}</span>${k.nieuweKlant?`<span>Nieuwe klant</span>`:""}${k.aangemaakt?`<span>Klant sinds ${esc(parse(String(k.aangemaakt).slice(0,10)).toLocaleDateString("nl-NL",{month:"long",year:"numeric"}))}</span>`:""}<span>Nr. ${esc(nr)}</span></div></div></div>
       </div>
     <div class="kkh-tg">${kt("Volgende beurt",esc(gpTxt),gpK?(k.tijd?esc(k.tijd)+" · ":"")+(gpK<today()?"niet gedaan":"ingepland"):(k.prospect?"wacht op akkoord":"nog geen datum"),gpK&&gpK>=today()?"ok":"")}${kt("Per beurt",eur(perB),opdr[0]?esc(opdr[0].dienst||"")+" · "+esc(freqLabel(Number(opdr[0].frequentie)||52).toLowerCase()):"")}${kt("Verwacht per jaar",jaarK?eur(Math.round(jaarK)):"—","ex btw · "+plural(opdr.length,"dienst","diensten"))}${kt("Openstaand",eur(openS),openF.length?plural(openF.length,"factuur","facturen")+" open":bg.gem!=null?"betaalt gemiddeld in "+bg.gem+" "+(bg.gem===1?"dag":"dagen"):"",openF.length?"late":"ok")}</div></div>
   ${typeof opdrJobBanner==="function"?opdrJobBanner(k):""}${isOBeurt(k)?`<div class="hosp-top">${oBeurtBlok(k)}</div>`:""}<div class="hosp-top">${hospBlok(k)}</div>
