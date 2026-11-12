@@ -1,0 +1,16 @@
+/* tijdelijk: de demo is alleen te openen met een toegangscode (gewone drempel, geen echte beveiliging). Weghalen = dit script en de <script>-regels verwijderen. */
+(function(){var H="4a8eec4925826f4b60526d7ac3c0a9b61ef54ac19233bafce2f4a13eb49395d2",K="mansardDemoToegang";
+function ok(){try{return localStorage.getItem(K)===H}catch(e){return false}}
+async function hash(t){var b=new TextEncoder().encode(String(t).trim().toUpperCase());var d=await crypto.subtle.digest("SHA-256",b);return Array.from(new Uint8Array(d)).map(function(x){return x.toString(16).padStart(2,"0")}).join("")}
+function open_(){try{localStorage.setItem(K,H)}catch(e){}document.documentElement.classList.remove("dslot");var o=document.getElementById("dslot");if(o)o.remove()}
+async function urlCode(){var c=new URLSearchParams(location.search).get("code");if(c&&await hash(c)===H){open_();return true}return false}
+if(ok())return;
+document.documentElement.classList.add("dslot");
+var st=document.createElement("style");st.textContent="html.dslot body>*:not(#dslot){display:none!important}#dslot{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;padding:20px;background:#f6f6f4;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:#14171c}#dslot .k{width:100%;max-width:380px;background:#fff;border:1px solid #e3e5e8;border-radius:18px;padding:30px 26px;box-shadow:0 10px 30px rgba(14,17,23,.08);text-align:center}#dslot img{height:18px;margin-bottom:22px}#dslot h1{font-size:22px;margin:0 0 8px;letter-spacing:-.01em}#dslot p{font-size:14.5px;line-height:1.5;color:#59606b;margin:0 0 18px}#dslot input{width:100%;box-sizing:border-box;font:inherit;font-size:20px;letter-spacing:.2em;text-align:center;padding:12px;border:1px solid #cfd3d8;border-radius:12px;outline:none}#dslot input:focus{border-color:#1f2632;box-shadow:0 0 0 3px rgba(31,38,50,.12)}#dslot button{margin-top:12px;width:100%;font:inherit;font-weight:700;font-size:13px;letter-spacing:.12em;text-transform:uppercase;padding:14px;border:0;border-radius:12px;background:#1f2632;color:#fff;cursor:pointer}#dslot .f{color:#b4472f;font-size:13px;min-height:18px;margin-top:10px}#dslot small{display:block;margin-top:16px;font-size:13px;color:#7a818c}#dslot small a{color:#14171c}";
+document.head.appendChild(st);
+function toon(){if(document.getElementById("dslot"))return;var d=document.createElement("div");d.id="dslot";
+d.innerHTML='<form class="k"><img src="/mansard-logo.png" alt="Mansard"><h1>Demo met toegangscode</h1><p>De demo is tijdelijk alleen te bekijken met een code. Vul hieronder uw code in.</p><input inputmode="text" autocomplete="off" autocapitalize="characters" placeholder="Code" aria-label="Toegangscode"><button type="submit">Bekijk de demo</button><div class="f" role="alert"></div><small>Nog geen code? <a href="https://www.mansard.nl">Neem contact op</a>.</small></form>';
+document.body.appendChild(d);var f=d.querySelector("form"),i=d.querySelector("input"),m=d.querySelector(".f");setTimeout(function(){i.focus()},50);
+f.onsubmit=async function(e){e.preventDefault();if(await hash(i.value)===H)open_();else{m.textContent="Deze code klopt niet.";i.select()}}}
+urlCode().then(function(g){if(g)return;if(document.body)toon();else document.addEventListener("DOMContentLoaded",toon)});
+})();

@@ -35,6 +35,7 @@ assert demo.count("render();init();") == 1
 demo = demo.replace("render();init();", open(os.path.join(R, "src", "demo", "demo.js")).read() + "\ndemoStart();", 1)
 demo = demo.replace("<title>Mansard</title>", "<title>Mansard (demo)</title>", 1)
 dhead = '''<!doctype html>
+<script src="/demo/slot.js"></script>
 <script>if(location.hostname!=='app.mansard.nl'&&/^crm\./.test(location.hostname))location.replace('https://app.mansard.nl/demo/'+location.search+location.hash)</script>
 <html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex,nofollow">
