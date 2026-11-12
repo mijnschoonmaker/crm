@@ -1554,3 +1554,5 @@ html body:not(#zz) .kk-tabs button.on{background:#fff!important;color:#252c3c!im
   html body:not(#zz) dialog .kk-tabs{margin-left:-22px!important;margin-right:-22px!important}
   html body:not(#zz) .kk-tabs button{padding:10px 4px 9px!important;border-radius:12px!important}
 }
+/* sectiekoppen (Taakomschrijving, Uitvoerlocatie, Dienst toevoegen …): zelfde letter als HOSPITALITY AANDACHTSPUNTEN */
+html body:not(#zz) #kkBody.kk-v2 .kp-h>b,html body:not(#zz) #kkBody.kk-v2 .kp-h>div>b,html body:not(#zz) .ow-v2>.kk-side .kp-h>b,html body:not(#zz) .ow-v2>.kk-side .kp-h>div>b,html body:not(#zz) .ow-v2[data-tab]>.kk-left .kp-h>b,html body:not(#zz) .ow-v2 .kp-h>b,html body:not(#zz) .ow-v2 .kp-h>div>b,html body:not(#zz) .fw-v2 .kp-h>b,html body:not(#zz) .fw-v2 .kp-h>div>b{font-family:"Avenir Next",Avenir,"Nunito Sans","Helvetica Neue",Arial,sans-serif!important;font-size:12px!important;font-weight:600!important;letter-spacing:.14em!important;text-transform:uppercase!important;color:#0d121b!important;line-height:1.4!important}
