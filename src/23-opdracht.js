@@ -37,10 +37,22 @@ function openOpdrachtWerk(kid,focus){
   const kv=(a,b)=>`<div class="ow-kv"><span>${a}</span><b>${b}</b></div>`;
   const diensten=dienstLijst();
   const nr=klantNr(k);
-  openDlg(`<div class="ow-kop jp-kop ow-${status[0]}"><div class="jp-kr1"><span class="jp-st"><i></i>${status[1]}</span><span class="sp"></span><button type="button" class="jp-ib" id="owX" aria-label="Terug naar klantkaart">${I.x}</button></div>
-    <div class="jp-kr2"><span class="jp-k1"><small>${soloI>=0&&extra[soloI]._nieuw?"Nieuwe opdracht":"Opdracht"}</small><b>${esc(nr)}-${soloNr}</b></span><span class="jp-k2"><b>${esc(cleanName(k.naam))}</b><em id="owKopAdr">${I.pin}${esc(uLocTxt(uLoc))}</em></span>${soloI>=0?`<span class="jp-k3"><small>${esc(extra[soloI].dienst||"Kies een dienst")}</small><b>${extra[soloI].prijs!==""&&extra[soloI].prijs!=null?eur(toonR(k,extra[soloI])):"—"}</b><em>${esc(freqLabel(Number(extra[soloI].frequentie)||52))}</em></span>`:`<span class="jp-k3"><small>${esc(k.dienst||HD())}</small><b>${eur(toonK(k,k.prijs))}</b><em>${esc(ritmeTxt(k))} · ${duur(k)} min</em></span>`}</div></div>
+  try{if(!document.getElementById("kkFont")){const l=document.createElement("link");l.id="kkFont";l.rel="stylesheet";l.href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600&display=swap";document.head.appendChild(l)}}catch(e){}
+  /* kop in de stijl van de nieuwe klantkaart: donker blok met wat, voor wie, en vier tegels */
+  const sR=soloI>=0?extra[soloI]:null;
+  const kTit=sR?(sR.dienst||"Nieuwe opdracht"):(k.dienst||HD());
+  const kPrijs=sR?(sR.prijs!==""&&sR.prijs!=null?eur(toonR(k,sR)):"—"):eur(toonK(k,k.prijs));
+  const kFreq=sR?freqLabel(Number(sR.frequentie)||52):ritmeTxt(k);
+  const kDuur=sR?(Number(sR.duur)||30):duur(k);
+  const kd=d=>{const x=parse(d);return wd(x).slice(0,2)+" "+x.getDate()+" "+x.toLocaleDateString("nl-NL",{month:"short"}).replace(".","")};const kVolg=sR?(sR.volgende?kd(sR.volgende):"Te plannen"):(k.gepland?kd(k.gepland):"Te plannen");
+  const kVolgS=sR?(sR.volgende?"ingepland":"nog geen datum"):(k.gepland?((k.tijd?k.tijd+" · ":"")+"ingepland"):"nog geen datum");
+  const kIngepland=sR?!!sR.volgende:!!k.gepland;
+  openDlg(`<div class="kk-hero ow-hero kk-${status[0]}"><div class="kkh-r1"><span class="kkh-bc">${esc(cleanName(k.naam))}<i>/</i><b>${sR&&sR._nieuw?"Nieuwe opdracht":"Opdracht"} ${esc(nr)}-${soloNr}</b></span><span class="sp"></span><button type="button" class="kkh-ib" id="owX" aria-label="Terug naar klantkaart" title="Terug naar klantkaart">${I.x}</button></div>
+    <div class="kkh-r2"><div class="kkh-wie"><span class="kkh-av ow-av">${I.checksq||I.check}</span><div class="kkh-nm"><div class="kkh-chips"><span class="kkh-st ${status[0]}"><i></i>${status[1]}</span><span class="kkh-c">Nr. ${esc(nr)}-${soloNr}</span>${isEersteKeer(k)&&!sR?'<span class="kkh-c">Eerste keer</span>':""}</div><h2>${esc(kTit)}</h2><span class="kkh-adr ow-for"><b>${esc(cleanName(k.naam))}</b><em id="owKopAdr">${I.pin}${esc(uLocTxt(uLoc))}</em></span></div></div>
+      <div class="kkh-acts"><button type="button" class="kkh-b" id="owKkH">${I.user}Klantkaart</button></div></div>
+    <div class="kkh-tg"><div class="kkh-t"><span>Per keer</span><b>${kPrijs}</b><small>${esc(st.toonEx||!incl?"excl. btw":"incl. btw")}</small></div><div class="kkh-t"><span>Hoe vaak</span><b>${esc(kFreq)}</b><small>${kDuur} min per keer</small></div><div class="kkh-t"><span>Volgende beurt</span><b>${esc(kVolg)}</b><small class="${kIngepland?"ok":""}">${esc(kVolgS)}</small></div><div class="kkh-t"><span>Openstaand</span><b>${open.length?eur(open.reduce((a,f)=>a+totals(f).inc,0)):"€ 0,00"}</b><small class="${open.length?"late":""}">${open.length?plural(open.length,"factuur","facturen")+" open":"alles betaald"}</small></div></div></div>
   <div class="hosp-top" id="owHospTop">${hospBlok(k,{leegKnop:false})}</div>
-  <div class="kk-grid ow-grid"><div class="kk-left">
+  <div class="kk-grid ow-grid kk-v2 ow-v2"><div class="kk-left">
     <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klantgegevens</b><span class="sp"></span><button type="button" class="small" id="owKk">${I.right}Klantkaart</button></div>
       ${kv("Klantnummer",esc(nr))}${kv("Naam",esc(cleanName(k.naam)))}${kv("E-mail",k.email?`<a href="mailto:${esc(k.email)}">${esc(k.email)}</a>`:"—")}${kv("Telefoon",k.telefoon?`<a href="tel:${esc(String(k.telefoon).replace(/[^\d+]/g,""))}">${esc(k.telefoon)}</a>`:"—")}${kv("Soort",soortLbl(k))}</section>
     <section class="kp" id="owAdrK"><div class="kp-h"><span class="objic">${I.pin}</span><b>Factuuradres en ontvangers</b><span class="sp"></span>
@@ -417,7 +429,7 @@ function openOpdrachtWerk(kid,focus){
       box.hidden=false;box.appendChild(RC.host);RC.sync();if(k.ramenTelling)RC.loadFor(k.id);const b=$("#owRcT");if(b)b.hidden=true}
     catch(er){console.error(er);box.hidden=false;box.innerHTML='<p class="subt">De rekentool kon hier niet worden geladen.</p>'}};
   if($("#owOff"))$("#owOff").onclick=async()=>{if(typeof owNieuwTerug==="function")await owNieuwTerug(kid);openOfferte({klantId:kid,metTelling:true})};
-  const back=async()=>{if(typeof owNieuwTerug==="function")await owNieuwTerug(kid);openKlant(kid)};$("#owX").onclick=$("#owBack").onclick=back;$("#owKk").onclick=back;
+  const back=async()=>{if(typeof owNieuwTerug==="function")await owNieuwTerug(kid);openKlant(kid)};$("#owX").onclick=$("#owBack").onclick=back;$("#owKk").onclick=back;{const h=$("#owKkH");if(h)h.onclick=back}
   /* ramen per verdieping: ritme = kortste frequentie, volgende keer = vroegste aanboddatum (alleen als elke verdieping er een heeft) */
   /* ook bijzondere ramen (dak-/tuimelramen, miniraampjes enz.) tellen mee, anders bleef het oude ritme staan */
   const ramenRitmeDatum=o=>{const q=o.ramen,uit={};if(!q||!Array.isArray(q.f))return uit;const idx=q.f.map((n,i)=>Number(n)>0?i:-1).filter(i=>i>=0),sps=Object.keys(q.sp||{}).filter(x=>Number(q.sp[x])>0);if(!idx.length&&!sps.length)return uit;

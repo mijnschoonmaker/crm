@@ -1371,3 +1371,29 @@ html body:not(#zz) .kko-ib{width:40px;height:40px;border-radius:12px;border:1px 
 html body:not(#zz) #kkBody [hidden],html body:not(#zz) #kkBody>[hidden]{display:none!important}
 html body:not(#zz) #kkBody.kk-v2:not([data-tab="overzicht"]){grid-template-columns:minmax(0,1fr)!important}
 html body:not(#zz) #kkBody.kk-v2:not([data-tab="overzicht"])>*{grid-column:1/-1!important;width:auto!important;max-width:none!important}
+/* opdrachtkaart v2: zelfde stijl als de nieuwe klantkaart */
+html body:not(#zz) .ow-hero{margin:0 0 16px!important}
+.ow-av{color:#1a202c}.ow-av svg{width:28px;height:28px}
+html body:not(#zz) .ow-for{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;color:#c3c9d3}
+html body:not(#zz) .ow-for b{color:#fff;font-weight:600;font-size:14.5px}
+html body:not(#zz) .ow-for em{display:inline-flex;align-items:center;gap:6px;font-style:normal;font-size:14px;color:#c3c9d3}
+.ow-for em svg{width:14px;height:14px}
+html body:not(#zz) .ow-v2 .kp-h{align-items:center}
+html body:not(#zz) .ow-v2>.kk-side .kp-h>b{font-family:Barlow,var(--f-title)!important;font-size:18px!important;font-weight:600!important;letter-spacing:.06em!important;color:#14171c!important}
+html body:not(#zz) .ow-v2 .kp-h small{letter-spacing:0!important;text-transform:none!important;font-size:12.5px!important;color:#5b6270!important;font-family:inherit!important}
+html body:not(#zz) .ow-v2 .ow-kv{border-bottom:1px solid #f0f1f3!important;padding:9px 0!important}
+html body:not(#zz) .ow-v2 .ow-kv:last-child{border-bottom:0!important}
+html body:not(#zz) .ow-v2 .ow-kv>span{color:#5b6270!important}
+html body:not(#zz) .ow-v2 .ow-chips .chip{background:#f7f7f5!important;border:0!important;box-shadow:none!important;border-radius:12px!important;min-height:40px!important}
+html body:not(#zz) .ow-v2 .ow-chips .chip:hover{background:#eef0f2!important}
+html body:not(#zz) .ow-v2 .ow-chips .chip svg{background:#fff!important}
+html body:not(#zz) .ow-v2 .ow-chips .chip.chip-eigen{background:#252c3c!important;color:#fff!important;border:0!important}
+html body:not(#zz) .ow-v2 .ow-chips .chip.chip-eigen svg{background:rgba(255,255,255,.14)!important;color:#fff!important;stroke:#fff!important}
+html body:not(#zz) .ow-v2 .ow-chips .chip.chip-eigen *{color:#fff!important}
+html body:not(#zz) .ow-v2 textarea,html body:not(#zz) .ow-v2 select,html body:not(#zz) .ow-v2 input:not([type=checkbox]):not([type=radio]){background:#f7f7f5!important;border-color:transparent!important;border-radius:12px!important}
+html body:not(#zz) .ow-v2 textarea:focus,html body:not(#zz) .ow-v2 select:focus,html body:not(#zz) .ow-v2 input:focus{background:#fff!important;border-color:#252c3c!important}
+html body:not(#zz) .ow-v2 #owLines>*{border-radius:16px!important}
+html body:not(#zz) .ow-v2 .ow-per{border-radius:16px!important;background:#f7f7f5!important;border:0!important}
+@media (max-width:820px){.ow-hero .kkh-acts{display:flex!important;width:auto}.ow-hero .kkh-b{flex-direction:row;height:40px;padding:0 14px;font-size:11.5px}}
+html body:not(#zz) .ow-v2>.kk-side .kp-h>div>b{font-family:Barlow,var(--f-title)!important;font-size:18px!important;font-weight:600!important;letter-spacing:.06em!important;text-transform:uppercase!important;color:#14171c!important;display:block}
+html body:not(#zz) .ow-v2>.kk-left .kp-h>div>b{font-size:11.5px!important;letter-spacing:.16em!important;color:#5b6270!important;font-weight:800!important;text-transform:uppercase!important;display:block}
