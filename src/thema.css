@@ -1570,3 +1570,5 @@ html body:not(#zz) #kkBody.kk-v2 .kp-h>b,html body:not(#zz) #kkBody.kk-v2 .kp-h>
   html body:not(#zz) .kk-tabs,html body:not(#zz) dialog .kk-tabs{padding:4px!important;gap:1px!important;margin:-6px 0 18px!important}
   html body:not(#zz) .kk-tabs:not(.ow-tabs) button{font-size:9.75px!important;letter-spacing:-.01em!important;padding:8px 1px 7px!important}
 }
+/* Wat doen we en hoe vaak / Tijdlijn: zelfde kop als HOSPITALITY AANDACHTSPUNTEN */
+html body:not(#zz) .kko h3,html body:not(#zz) dialog .kko h3{font-family:"Avenir Next",Avenir,"Nunito Sans","Helvetica Neue",Arial,sans-serif!important;font-size:12px!important;font-weight:600!important;letter-spacing:.14em!important;text-transform:uppercase!important;color:#0d121b!important;line-height:1.4!important}
