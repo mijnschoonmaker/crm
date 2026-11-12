@@ -61,8 +61,9 @@ function openKlantView(id,opt={}){
       <div class="kkh-acts">${telNr?`<a class="kkh-b" href="tel:${esc(telNr)}">${I.phone}Bellen</a>`:""}<a class="kkh-b" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.nav}Route</a><button type="button" class="kkh-b" data-kk="kkplan">${I.planning}Inplannen</button><button type="button" class="kkh-b wit" data-act="newfactuur" data-id="${esc(k.id)}">${I.facturen}Factuur</button></div></div>
     <div class="kkh-tg">${kt("Volgende beurt",esc(gpTxt),gpK?(k.tijd?esc(k.tijd)+" · ":"")+(gpK<today()?"niet gedaan":"ingepland"):(k.prospect?"wacht op akkoord":"nog geen datum"),gpK&&gpK>=today()?"ok":"")}${kt("Per beurt",eur(perB),opdr[0]?esc(opdr[0].dienst||"")+" · "+esc(freqLabel(Number(opdr[0].frequentie)||52).toLowerCase()):"")}${kt("Verwacht per jaar",jaarK?eur(Math.round(jaarK)):"—","ex btw · "+plural(opdr.length,"dienst","diensten"))}${kt("Openstaand",eur(openS),openF.length?plural(openF.length,"factuur","facturen")+" open":bg.gem!=null?"betaalt gemiddeld in "+bg.gem+" "+(bg.gem===1?"dag":"dagen"):"",openF.length?"late":"ok")}</div></div>
   ${typeof opdrJobBanner==="function"?opdrJobBanner(k):""}${isOBeurt(k)?`<div class="hosp-top">${oBeurtBlok(k)}</div>`:""}<div class="hosp-top">${hospBlok(k)}</div>
+  ${kkOvTabs()}${kkOverzicht(k,{opdr,hist,facs,msgs,openF,bg})}
   ${k.prospect?(()=>{const of=offs.find(f=>f.status!=="afgewezen"&&f.status!=="geaccepteerd");return of||offs.length?`<div class="banner"><div><b>Offerte${of?" "+esc(of.nummer):""} wacht op akkoord</b><br><small>Deze klant staat nog niet in de planning.</small></div>${of?`<button type="button" class="primary small" data-act="akkoord" data-id="${esc(of.id)}">Akkoord en inplannen</button>`:""}</div>`:`<div class="banner"><div><b>Nieuwe klant · nog geen offerte</b><br><small>Volgende stap: offerte maken. Na akkoord komt de klant in de planning.</small></div><button type="button" class="primary small" data-act="newofferte" data-id="${esc(k.id)}">${I.offertes}Offerte maken</button></div>`})():""}
-  <div class="kk-grid kd kk-v2"><div class="kk-left">
+  <div class="kk-grid kd kk-v2" id="kkBody"><div class="kk-left">
     <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klantgegevens</b><span class="sp"></span>${pen("edit","Klantgegevens aanpassen")}</div>
       <a class="kd-map" href="${esc(mapsQ(k))}" target="_blank" rel="noopener" aria-label="Open in kaarten"><span class="kd-pin">${I.pin}</span><span><b>${esc(k.adres||"")}</b><small>${esc([k.postcode,k.plaats].filter(Boolean).join(" "))}</small></span><em>${I.nav}Route</em></a>
       ${kv("Klantnummer",esc(nr))}${kv("Type klant",soortLbl(k))}${kv("Naam",esc(cleanName(k.naam)))}${k.contact?kv("Contactpersoon",esc(k.contact)):""}${k.geboortedatum?kv("Geboortedatum",esc(fmtL(k.geboortedatum))):""}
@@ -111,6 +112,7 @@ function openKlantView(id,opt={}){
       <div class="log-in"><input id="kd-log" placeholder="Notitie toevoegen…" aria-label="Notitie voor het logboek"><button type="button" class="small primary" id="kdLog">${I.plus}Noteer</button></div></section>
   </div></div>`,{xwide:true});
   form.dataset.kk=k.id;
+  kkTabsInit(form);
   const re=()=>{const y=dlg.scrollTop;openKlantView(k.id);dlg.scrollTop=y};
   const cur=()=>state.klanten.find(x=>x.id===k.id)||k;
   const put=async patch=>{await save("klanten",k.id,{...strip(cur()),...patch})};
@@ -274,3 +276,58 @@ function kkDelOfferte(fid){const f=state.facturen.find(x=>x.id===fid);if(!f)retu
   $("#dfX").onclick=$("#dfC").onclick=back;
   form.onsubmit=async e=>{e.preventDefault();$("#dfS").disabled=true;try{await del("facturen",fid);toast("Offerte "+f.nummer+" verwijderd");back()}catch(er){$("#dfS").disabled=false;err(er)}};
 }
+
+/* ---------- klantkaart: tabbladen en overzicht (nov 2026) ---------- */
+const KK_TABS=[["overzicht","Overzicht"],["diensten","Diensten"],["bezoeken","Bezoeken"],["facturen","Facturen"],["berichten","Berichten"],["gegevens","Gegevens"]];
+const KK_TABMAP=[[/^locaties|^opdrachten/i,"diensten"],[/ingeplande afspraken|^bezoeken/i,"bezoeken"],[/^offertes|facturen/i,"facturen"],[/^logboek|berichten/i,"berichten"]];
+function kkOvTabs(){const t=state.kkTab||"overzicht";return `<nav class="kk-tabs" aria-label="Onderdelen van de klantkaart">${KK_TABS.map(([id,l])=>`<button type="button" class="${t===id?"on":""}" data-kktab="${id}">${l}</button>`).join("")}</nav>`}
+function kkTabsInit(form){const body=form.querySelector("#kkBody"),ov=form.querySelector("#kkOv");if(!body)return;
+  body.querySelectorAll("section.kp").forEach(sec=>{const h=sec.querySelector(".kp-h>b,.kp-h b,h3,h4");const tt=(h&&h.textContent||"").trim();let tab="gegevens";for(const [re,t] of KK_TABMAP)if(re.test(tt)){tab=t;break}sec.dataset.kkt=tab});
+  const zet=t=>{state.kkTab=t;form.querySelectorAll("[data-kktab]").forEach(b=>b.classList.toggle("on",b.dataset.kktab===t));
+    if(ov)ov.hidden=t!=="overzicht";body.hidden=t==="overzicht";body.dataset.tab=t;
+    body.querySelectorAll("section.kp").forEach(sec=>{sec.hidden=t!=="overzicht"&&sec.dataset.kkt!==t});
+    [...body.children].forEach(col=>{col.hidden=![...col.querySelectorAll("section.kp")].some(x=>!x.hidden)})};
+  form.querySelectorAll("[data-kktab]").forEach(b=>b.onclick=e=>{e.preventDefault();zet(b.dataset.kktab)});
+  zet(state.kkTab&&KK_TABS.some(x=>x[0]===state.kkTab)?state.kkTab:"overzicht")}
+function kkOverzicht(k,c){
+  const T=iso(today()),dag=d=>{const x=parse(d);return {n:x.getDate(),m:x.toLocaleDateString("nl-NL",{month:"short"}).replace(".","")}};
+  const ic=I.checksq||I.check;
+  /* diensten als kaarten, met een balk tot de volgende keer */
+  const kaart=(o,i)=>{const w=Number(o.frequentie)||52,dagen=w*7;let volg="",pct=0,txt=o.info?o.info[1]:"";
+    const vd=i===0&&!k.opdrachtVerwijderd?k.gepland:(k.opdrachten||[]).find(x=>x.id===o.id)?.volgende;
+    if(vd){const dd=Math.round((parse(vd)-today())/DAY);pct=Math.max(4,Math.min(100,100-dd/dagen*100));txt=dd<0?"Te laat, gepland "+fmtD(vd):dd===0?"Vandaag":dd<60?"Nog "+dd+" "+(dd===1?"dag":"dagen"):"Volgende keer "+fmtD(vd)}
+    let regels="";if(i===0&&!k.opdrachtVerwijderd&&k.ramen&&typeof normR==="function"){try{const q=normR(k.ramen);regels=q.f.map((n,j)=>Number(n)?`${esc(FLN[j]||"")} · ${n} ramen`:"").filter(Boolean).slice(0,3).join("<br>")}catch(e){}}
+    if(!regels)regels=esc(o.adr||jobAddr(k))+(o.locn?"<br>"+esc(o.locn):"");
+    const eigen=o.info&&/apart|eigen adres/i.test(o.info[1]||"");
+    return `<button type="button" class="kko-d${eigen?" eigen":""}" data-act="opdracht" data-id="${esc(k.id)}" data-o="${esc(o.id)}"><span class="kko-dh"><i>${ic}</i><span><b>${esc(o.dienst||"")}</b><small>${esc(freqLabel(w))}</small></span></span><span class="kko-dr">${regels}</span><span class="kko-bar"><i style="width:${pct.toFixed(0)}%"></i></span><small class="kko-dn">${esc(txt||"")}</small><span class="kko-dp"><small>Per keer</small><b>${eur(toonR(k,o))}</b></span></button>`};
+  /* tijdlijn: gepland, bezoeken, facturen, berichten en notities door elkaar op datum */
+  const L=[];
+  if(k.gepland&&k.gepland>=T)L.push({d:k.gepland,s:"plan",t:"Bezoek gepland"+(k.tijd?" · "+k.tijd:""),o:(k.dienst||HD())});
+  c.hist.slice(0,8).forEach(b=>L.push({d:b.datum,s:"klaar",t:"Bezoek klaar"+(b.tijd?" · "+b.tijd:""),o:[b.dienst||HD(),b.door||b.medewerker||""].filter(Boolean).join(" · "),r:b.bedrag?eur(b.bedrag):""}));
+  c.facs.slice(0,8).forEach(f=>{const st=fStatus(f)[1];L.push({d:st==="Betaald"&&f.betaaldOp?String(f.betaaldOp).slice(0,10):String(f.datum).slice(0,10),s:st==="Betaald"?"geld":"fact",t:"Factuur "+f.nummer+(st==="Betaald"?" betaald":" · "+st.toLowerCase()),o:"",r:eur(totals(f).inc)})});
+  c.msgs.slice(0,8).forEach(m=>L.push({d:String(m.op).slice(0,10),s:"mail",t:m.onderwerp||"Bericht verstuurd",o:KANAAL[m.kanaal]||m.kanaal||""}));
+  (k.log||[]).slice(-8).forEach(l=>L.push({d:l.datum,s:"note",t:"Notitie",o:String(l.tekst||"").split(/\n/)[0].slice(0,140)}));
+  const TI={plan:I.planning,klaar:I.check,geld:I.euro||I.check,fact:I.facturen,mail:I.mail,note:I.note};
+  const tl=L.filter(x=>x.d).sort((a,b)=>String(b.d).localeCompare(String(a.d))).slice(0,6);
+  const tijdlijn=tl.length?`<div class="kko-tl">${tl.map(x=>{const dd=dag(x.d);return `<div class="kko-tr"><span class="kko-td"><b>${dd.n}</b><small>${esc(dd.m)}</small></span><span class="kko-ti ${x.s}">${TI[x.s]||I.dot||""}</span><span class="kko-tt"><b>${esc(x.t)}</b>${x.o?`<small>${esc(x.o)}</small>`:""}</span>${x.r?`<b class="kko-tb">${x.r}</b>`:""}</div>`}).join("")}</div>`:'<p class="subt" style="margin:0">Nog niets gebeurd bij deze klant.</p>';
+  /* rechterkolom */
+  const telNr=k.telefoon||k.mobiel,tl2=t=>String(t||"").replace(/[^\d+]/g,"");
+  const CM={kennisgeving:"Krijgt een kennisgeving",bevestigen:"Krijgt een afspraakvoorstel",bellen:"Wil gebeld worden"};
+  const afs=[k.bellen?["Belt onderweg vooraf",1]:null,CM[k.contactPlanning]&&k.contactPlanning!=="kennisgeving"?[CM[k.contactPlanning]]:null,[k.incasso?"Automatische incasso":"Betaalt per bank"],k.einddatum?["Contract tot "+fmtD(k.einddatum)]:null,k.ronde?["Ronde "+k.ronde]:null,k.termijn?["Betaaltermijn "+k.termijn+" dagen"]:null].filter(Boolean);
+  const voork=[Number(k.toeslag)?"Toeslag "+k.toeslag+"%":"Geen toeslag",k.btwVerlegd?"btw verlegd":"btw normaal",k.verbergAantal?"aantallen verborgen":"",k.verbergFreq?"ritme verborgen":""].filter(Boolean).join(" · ");
+  const addBtn=!heeftGlas(k)?`data-kk="opdrfirst"`:`data-act="opdracht" data-id="${esc(k.id)}" data-o="new"`;
+  return `<div class="kko" id="kkOv"><div class="kko-main">
+    <section class="kko-s"><div class="kko-h"><h3>Wat doen we en hoe vaak</h3><button type="button" class="kko-k" ${addBtn}>${I.plus}Dienst</button></div>
+      ${c.opdr.length?`<div class="kko-dg">${c.opdr.map(kaart).join("")}</div>`:'<p class="subt" style="margin:0">Nog geen lopende diensten.</p>'}</section>
+    <section class="kko-s"><div class="kko-h"><h3>Tijdlijn</h3><button type="button" class="kko-k" data-kktab="berichten">${I.plus}Notitie</button></div>${tijdlijn}
+      <button type="button" class="kko-meer" data-kktab="berichten">Alles tonen</button></section></div>
+    <aside class="kko-side">
+      <section class="kko-s"><h4>Contact</h4>
+        ${telNr?`<a class="kko-c" href="tel:${esc(tl2(telNr))}"><i>${I.phone}</i><span><b>${esc(telNr)}</b><small>${k.mobiel&&telNr===k.mobiel?"Mobiel":"Telefoon"}</small></span></a>`:""}
+        ${k.email?`<a class="kko-c" href="mailto:${esc(k.email)}"><i>${I.mail}</i><span><b>${esc(k.email)}</b><small>Berichten en facturen</small></span></a>`:""}
+        ${!telNr&&!k.email?'<p class="subt" style="margin:0">Nog geen telefoon of e-mail.</p>':""}</section>
+      <section class="kko-s"><h4>Afspraken</h4><div class="kko-chips">${afs.map(a=>`<span class="${a[1]?"aan":""}">${esc(a[0])}</span>`).join("")}</div></section>
+      <section class="kko-s kko-zie"><div class="kko-h2"><h4>Wat ziet de klant</h4><button type="button" class="kko-l" data-kktab="gegevens">Portaal ›</button></div>
+        <div class="kko-chips"><span>${k.verbergAantal?"Aantallen verborgen":"Aantallen zichtbaar"}</span><span>${k.verbergFreq?"Ritme verborgen":"Hoe vaak zichtbaar"}</span></div></section>
+      <section class="kko-s kko-vk"><div><h4>Voorkeuren</h4><small>${esc(voork)}</small></div><button type="button" class="kko-ib" data-act="opdracht" data-id="${esc(k.id)}" data-o="main" aria-label="Voorkeuren aanpassen">${I.pencil}</button></section>
+    </aside></div>`}

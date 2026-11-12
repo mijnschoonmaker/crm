@@ -1321,3 +1321,53 @@ html body:not(#zz) .kk-v2 .kp{border:0!important;border-radius:22px!important;bo
 html body:not(#zz) .kk-v2>.kk-left .kp-h>b{font-size:11.5px!important;letter-spacing:.18em!important;color:#5b6270!important;font-weight:800!important}
 html body:not(#zz) .kk-hero .kkh-t small{color:#c3c9d3!important}html body:not(#zz) .kk-hero .kkh-t small.ok{color:#8ee0ad!important}html body:not(#zz) .kk-hero .kkh-t small.late{color:#f6a39d!important}
 html body:not(#zz) .kk-hero .kkh-t b{color:#fff!important}
+/* klantkaart v2: tabbladen en overzicht */
+html body:not(#zz) .kk-tabs{display:inline-flex;flex-wrap:wrap;gap:4px;background:#fff;border:1px solid #e3e5e8;border-radius:16px;padding:5px;margin:0 0 18px}
+html body:not(#zz) .kk-tabs button{border:0;background:transparent;padding:10px 16px;border-radius:11px;font:inherit;font-size:12.5px!important;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#3d4552;cursor:pointer;min-height:0;box-shadow:none}
+html body:not(#zz) .kk-tabs button.on{background:#252c3c!important;color:#fff!important}
+html body:not(#zz) .kk-tabs button:not(.on):hover{background:#f1f2f4}
+.kko{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(280px,1fr);gap:20px;align-items:start}
+.kko[hidden],#kkBody[hidden]{display:none!important}
+.kko-main,.kko-side{display:flex;flex-direction:column;gap:20px;min-width:0}
+html body:not(#zz) .kko-s{background:#fff;border-radius:22px;padding:22px 24px;box-shadow:0 1px 2px rgba(14,17,23,.05),0 6px 20px rgba(14,17,23,.06);display:flex;flex-direction:column;gap:14px;min-width:0}
+.kko-h,.kko-h2{display:flex;justify-content:space-between;align-items:center;gap:12px}
+html body:not(#zz) .kko h3{margin:0!important;font-family:Barlow,var(--f-title)!important;font-size:21px!important;font-weight:600!important;letter-spacing:.04em!important;text-transform:uppercase!important;color:#14171c!important}
+html body:not(#zz) .kko h4{margin:0!important;font-size:11.5px!important;letter-spacing:.18em!important;text-transform:uppercase!important;color:#5b6270!important;font-weight:800!important}
+html body:not(#zz) .kko-k{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 14px;border-radius:11px;border:1px solid #dfe2e6;background:#fff;font:inherit;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#14171c;cursor:pointer}
+.kko-k svg{width:14px;height:14px}
+.kko-dg{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+html body:not(#zz) .kko-d{all:unset;box-sizing:border-box;cursor:pointer;border-radius:18px;background:#f7f7f5;padding:16px 18px;display:flex;flex-direction:column;gap:12px;min-width:0;transition:background .15s}
+.kko-d:hover{background:#f0f1f2}.kko-d.eigen{background:#eef0f3}
+.kko-dh{display:flex;align-items:center;gap:12px;min-width:0}
+.kko-dh i{width:40px;height:40px;border-radius:12px;flex:none;display:grid;place-items:center;background:linear-gradient(150deg,#353f56,#171c28);color:#fff}
+.kko-d.eigen .kko-dh i{background:linear-gradient(150deg,#5a6478,#353f56)}
+.kko-dh i svg{width:18px;height:18px}
+.kko-dh>span{display:flex;flex-direction:column;min-width:0}.kko-dh b{font-size:15.5px;font-weight:700;color:#14171c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.kko-dh small{font-size:12.5px;color:#5b6270}
+.kko-dr{font-size:13px;color:#3d4552;line-height:1.55}
+.kko-bar{height:6px;border-radius:99px;background:#e4e6e9;overflow:hidden;display:block}.kko-bar i{display:block;height:100%;border-radius:99px;background:#252c3c}
+.kko-d.eigen .kko-bar i{background:#5a6478}
+.kko-dn{font-size:12px;color:#5b6270;margin-top:-6px}
+.kko-dp{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid #e7e9ec;padding-top:12px;margin-top:auto}.kko-dp small{font-size:12.5px;color:#5b6270}.kko-dp b{font-family:Barlow,var(--f-title);font-size:20px;font-weight:600;color:#14171c}
+.kko-tl{display:flex;flex-direction:column}
+.kko-tr{display:grid;grid-template-columns:44px 36px minmax(0,1fr) auto;column-gap:14px;align-items:start;position:relative;padding-bottom:18px}
+.kko-tr:not(:last-child)::after{content:"";position:absolute;left:calc(44px + 14px + 17px);top:38px;bottom:2px;width:2px;background:#e9ebee}
+.kko-td{text-align:right;padding-top:6px;line-height:1.1}.kko-td b{display:block;font-size:15px;color:#14171c}.kko-td small{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#5b6270}
+.kko-ti{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:#f1f2f4;color:#3d4552}.kko-ti svg{width:15px;height:15px}
+.kko-ti.plan{background:#fff;border:2px dashed #9aa3ad}.kko-ti.klaar{background:#252c3c;color:#fff}.kko-ti.geld{background:#e5f2ea;color:#1f6b3e}.kko-ti.mail{background:#e8effc;color:#2c5cc2}.kko-ti.fact{background:#f1f2f4;color:#3d4552}.kko-ti.note{background:#eef0f3;color:#4a5263}
+.kko-tt{display:flex;flex-direction:column;gap:2px;padding-top:4px;min-width:0}.kko-tt b{font-size:14.5px;color:#14171c}.kko-tt small{font-size:13px;color:#5b6270;overflow:hidden;text-overflow:ellipsis}
+.kko-tb{font-family:Barlow,var(--f-title);font-size:17px;font-weight:600;padding-top:4px;white-space:nowrap}
+html body:not(#zz) .kko-meer{all:unset;cursor:pointer;align-self:flex-start;font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-decoration:underline;color:#14171c}
+.kko-c{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;background:#f7f7f5;text-decoration:none;min-width:0}.kko-c:hover{background:#f0f1f2}
+.kko-c i{width:36px;height:36px;border-radius:11px;background:#fff;display:grid;place-items:center;box-shadow:0 1px 2px rgba(14,17,23,.08);color:#14171c;flex:none}.kko-c i svg{width:15px;height:15px}
+.kko-c span{display:flex;flex-direction:column;min-width:0}.kko-c b{font-size:14.5px;color:#14171c;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.kko-c small{font-size:12.5px;color:#5b6270}
+.kko-chips{display:flex;flex-wrap:wrap;gap:8px}.kko-chips span{font-size:13px;font-weight:600;padding:8px 12px;border-radius:11px;background:#f1f2f4;color:#14171c}.kko-chips span.aan{background:#252c3c;color:#fff;font-weight:700}
+html body:not(#zz) .kko-l{all:unset;cursor:pointer;font-size:12.5px;font-weight:700;color:#14171c}
+.kko-zie .kko-chips span{background:#fff;border:1px solid #e3e5e8}html body:not(#zz) .kko-zie{background:linear-gradient(160deg,#fff,#f6f7f9);border:1px solid #e6e8eb}
+.kko-vk{flex-direction:row!important;justify-content:space-between;align-items:center}.kko-vk>div{display:flex;flex-direction:column;gap:4px}.kko-vk small{font-size:13px;color:#3d4552}
+html body:not(#zz) .kko-ib{width:40px;height:40px;border-radius:12px;border:1px solid #e1e3e6;background:#fff;display:grid;place-items:center;padding:0;cursor:pointer;flex:none}.kko-ib svg{width:15px;height:15px}
+@media (max-width:1020px){.kko{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:640px){html body:not(#zz) .kk-tabs{display:flex;flex-wrap:nowrap;overflow-x:auto;width:100%;box-sizing:border-box}html body:not(#zz) .kk-tabs button{padding:9px 12px;font-size:11px!important;white-space:nowrap}
+  html body:not(#zz) .kko-s{padding:18px}.kko-dg{grid-template-columns:minmax(0,1fr)}.kko-tr{grid-template-columns:36px 32px minmax(0,1fr) auto;column-gap:10px}.kko-tr:not(:last-child)::after{left:calc(36px + 10px + 15px)}.kko-ti{width:32px;height:32px}}
+html body:not(#zz) #kkBody [hidden],html body:not(#zz) #kkBody>[hidden]{display:none!important}
+html body:not(#zz) #kkBody.kk-v2:not([data-tab="overzicht"]){grid-template-columns:minmax(0,1fr)!important}
+html body:not(#zz) #kkBody.kk-v2:not([data-tab="overzicht"])>*{grid-column:1/-1!important;width:auto!important;max-width:none!important}
