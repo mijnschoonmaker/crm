@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="1bc7bf27885e"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="bc85ac1aae46"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -7283,6 +7283,8 @@ html body:not(#zz) .dkt-grid{grid-template-columns:repeat(auto-fill,minmax(250px
 html body:not(#zz) label.ow-zk{display:flex!important;flex-direction:row!important;align-items:center!important;gap:8px!important;height:40px!important;margin:0!important;padding:0 12px!important;font-weight:400!important}
 html body:not(#zz) label.ow-zk input{border:0!important;background:transparent!important;box-shadow:none!important;height:auto!important;padding:0!important;margin:0!important;min-height:0!important;font-size:13.5px!important;width:100%!important}
 html body:not(#zz) .dkt-t b{white-space:normal!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.25}
+html body:not(#zz) .ow-rkl.ow-afs{background:#eef3fb!important;border-color:#cfdcf0!important;color:#1f3a63!important}
+html body:not(#zz) .ow-rkt dd.ow-muted{color:#8a9099!important}
 
 </style>
 <div class="app">
@@ -15145,11 +15147,13 @@ function openOpdrachtWerk(kid,focus){
     const fqT=w=>{const t=String(freqLabel(w)||"");return /^elke\s/i.test(t)?"1x per "+t.replace(/^elke\s+/i,""):t.toLowerCase()};
     const fr=(w)=>w?` <i>(${esc(fqT(w))})</i>`:"";
     const heeftSp=SPK.some(x=>Number(q.sp[x]));
-    const let_=min>0||kmin>0?`<div class="ow-rkl"><b>Let op:</b> ${esc(naam)}${heeftSp?" en Glasbewassing bijzondere ramen hebben een gezamenlijke":" heeft een"} minimumprijs van${min>0?`<br>– ${eur(min)} (excl. btw) voor ${esc(naam)}`:""}${kmin>0?`<br>– ${eur(kmin)} (excl. btw) voor Kozijnreiniging`:""}${c.aanvul>0?`<br><span class="ow-rkls">Nu ${eur(c.glas-c.aanvul)}; het verschil van ${eur(c.aanvul)} wordt automatisch aangevuld.</span>`:""}</div>`:"";
+    /* afgesproken prijs (opgeslagen bij de klant) wijkt af van de huidige tarieven: de klant houdt de afgesproken prijs, dat is ook wat op de factuur komt */
+    const afs=isMain&&!editR.has(di)?Number(r.prijs)||0:0,afsT=toon(afs),calT=c&&c.prijs!=null?toon(Number(c.prijs)):0,afw=afs>0&&c&&c.prijs!=null&&Math.abs(afsT-calT)>0.009&&!ramenVariabel(q);
+    const let_=afw?`<div class="ow-rkl ow-afs"><b>Afgesproken prijs:</b> ${eur(afsT)} per beurt. Deze klant houdt deze prijs, ook op de factuur.${min>0?`<br><span class="ow-rkls">Met je huidige tarieven (minimum ${eur(min)} excl. btw) zou het ${eur(calT)} zijn. Pas je de ramen of het ritme aan, dan geldt de nieuwe prijs.</span>`:""}</div>`:min>0||kmin>0?`<div class="ow-rkl"><b>Let op:</b> ${esc(naam)}${heeftSp?" en Glasbewassing bijzondere ramen hebben een gezamenlijke":" heeft een"} minimumprijs van${min>0?`<br>– ${eur(min)} (excl. btw) voor ${esc(naam)}`:""}${kmin>0?`<br>– ${eur(kmin)} (excl. btw) voor Kozijnreiniging`:""}${c.aanvul>0?`<br><span class="ow-rkls">Nu ${eur(c.glas-c.aanvul)}; het verschil van ${eur(c.aanvul)} wordt automatisch aangevuld.</span>`:""}</div>`:"";
     let eerste=true;const kaart=(titel,regels,kozR,totG,ovG,extraTot)=>{const lt=eerste?let_:"";eerste=false;return `<div class="ow-rk" data-calc="${di}"><div class="ow-rkh"><span class="objic">${I.check}</span><b>${esc(titel)}</b><span class="sp"></span><button type="button" class="iconbtn sm" data-redit="${di}" aria-label="Wijzigen" title="Wijzigen">${I.pencil}</button></div>
       ${q.oms?`<p class="ow-rko">${esc(q.oms)}</p>`:""}${lt}
       <dl class="ow-rkf">${regels}${kozR}</dl>
-      <dl class="ow-rkt">${extraTot||""}<dt>Totaal ${esc(titel)}</dt><dd>${eur(totG)}${ovG?" <i>(overschrijvend)</i>":""}</dd>${(()=>{const kt=c.krows.filter(x=>titel===naam?!x.sp:x.sp).reduce((a,x)=>a+x.p,0);return kt>0?`<dt>Totaal kozijnen</dt><dd>${eur(kt)}</dd>`:""})()}</dl></div>`};
+      <dl class="ow-rkt">${extraTot||""}<dt>Totaal ${esc(titel)}${afw&&lt?" <i>(volgens tarieven)</i>":""}</dt><dd${afw&&lt?' class="ow-muted"':""}>${eur(totG)}${ovG?" <i>(overschrijvend)</i>":""}</dd>${afw&&lt?`<dt>Afgesproken per beurt</dt><dd>${eur(afsT)}</dd>`:""}${(()=>{const kt=c.krows.filter(x=>titel===naam?!x.sp:x.sp).reduce((a,x)=>a+x.p,0);return kt>0?`<dt>Totaal kozijnen</dt><dd>${eur(kt)}</dd>`:""})()}</dl></div>`};
     const gr=c.rows.filter(x=>!x.sp),sr=c.rows.filter(x=>x.sp);
     const fl=q.f.map((n,j)=>n?`<dt>${FLN[j]}</dt><dd>${n} st${fr(Number(q.fq[j])||base)}</dd>`:"").join("");
     const fk=c.krows.filter(x=>!x.sp).map(x=>`<dt>Kozijnen ${esc(x.naam.toLowerCase())}</dt><dd>${x.n} st${fr(Number(q.kfq[x.i])||Number(q.fq[x.i])||base)}</dd>`).join("");

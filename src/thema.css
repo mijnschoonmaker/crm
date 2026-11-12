@@ -1455,3 +1455,5 @@ html body:not(#zz) .dkt-grid{grid-template-columns:repeat(auto-fill,minmax(250px
 html body:not(#zz) label.ow-zk{display:flex!important;flex-direction:row!important;align-items:center!important;gap:8px!important;height:40px!important;margin:0!important;padding:0 12px!important;font-weight:400!important}
 html body:not(#zz) label.ow-zk input{border:0!important;background:transparent!important;box-shadow:none!important;height:auto!important;padding:0!important;margin:0!important;min-height:0!important;font-size:13.5px!important;width:100%!important}
 html body:not(#zz) .dkt-t b{white-space:normal!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.25}
+html body:not(#zz) .ow-rkl.ow-afs{background:#eef3fb!important;border-color:#cfdcf0!important;color:#1f3a63!important}
+html body:not(#zz) .ow-rkt dd.ow-muted{color:#8a9099!important}
