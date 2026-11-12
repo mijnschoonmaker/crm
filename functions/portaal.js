@@ -273,7 +273,10 @@ module.exports = function maakPortaal(ctx) {
     for (const f of offRuw.sort((a, b2) => String(b2.datum).localeCompare(String(a.datum))).slice(0, 20)) {
       let link = ""; try { const q = await db.collection("akkoord").where("factuurId", "==", f.id).limit(1).get(); if (!q.empty) link = base + "/akkoord/" + q.docs[0].id; } catch (x) {}
       const g = f.getekend || {};
-      offertes.push({ id: f.id, nummer: String(f.nummer || "").replace(/^OFF-/, ""), datum: f.datum || "", bedrag: totals(f, b).inc, getekendOp: offDatum(f), getekendDoor: g.naam || "", link });
+      const o = { id: f.id, nummer: String(f.nummer || "").replace(/^OFF-/, ""), datum: f.datum || "", bedrag: totals(f, b).inc, getekendOp: offDatum(f), getekendDoor: g.naam || "", link };
+      /* dezelfde offerte (zelfde nummer) maar één keer tonen, ook als er per ongeluk twee exemplaren bestaan; die met de ondertekende link wint */
+      const dub = o.nummer ? offertes.findIndex(x => x.nummer === o.nummer) : -1;
+      if (dub < 0) offertes.push(o); else if (!offertes[dub].link && o.link) offertes[dub] = o;
     }
     const facturen = fs.docs.map(d => ({ id: d.id, ...dec(d.data()) })).filter(f => f.soort !== "offerte" && f.status !== "concept").sort((a, b2) => String(b2.datum).localeCompare(String(a.datum)))
       .map(f => ({ id: f.id, nummer: f.nummer || "", datum: f.datum || "", verval: f.verval || "", bedrag: totals(f, b).inc, status: fStatus(f), credit: !!f.creditVan, gecrediteerd: f.betaalwijze === "verrekend" && !f.creditVan, betaaldOp: f.status === "betaald" ? String(f.betaaldOp || f.betaald || "").slice(0, 10) : "", snelUren: snelUren(f), sec: betaalSec(f), incasso: !!f.incasso, incassoStatus: f.incasso ? (f.mollieStatus || "") : "", herinnerd: Number(f.herinneringen) || 0, betaallink: f.status !== "betaald" ? (f.betaallink || f.mollieLink || "") : "" }));
