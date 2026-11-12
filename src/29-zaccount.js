@@ -32,7 +32,7 @@ function openAccount(){
     <section class="acc-k"><div class="acc-kh"><span class="objic">${I.spark}</span><b>Gebruik en koppelingen</b></div>
       <div class="acc-stats"><div><b>${act}</b><small>actieve klanten</small></div><div><b>${fm}</b><small>facturen deze maand</small></div><div><b id="accN2">${a.n||1}</b><small>${(a.n||1)===1?"gebruiker":"gebruikers"}</small></div></div>
       ${rij("E-mail versturen",pill(!!s.liveMail,s.liveMail?"Actief":"Niet ingesteld"))}${rij("Online betalen",pill(!!s.liveMollie,s.liveMollie?"Mollie actief":"Niet ingesteld"))}
-      ${rij("Bank",pill(!!bk.gekoppeld,bk.gekoppeld?(bk.bank||"Gekoppeld"):"Niet gekoppeld"))}${rij("AI",pill(!!s.liveAI,s.liveAI?"Claude AI aan":"Uit"))}</section>
+      ${rij("Bank",pill(!!bk.gekoppeld,bk.gekoppeld?(bk.bank||"Gekoppeld"):"Niet gekoppeld"))}</section>
   </div>
   <div class="row acc-foot"><button type="button" class="ghost" id="accSet">${I.instellingen}Instellingen</button><button type="button" class="ghost" id="accHulp">${I.handleiding}Handleiding</button><span class="sp"></span>${LIVE?`<button type="button" data-act="msuit">Uitloggen</button>`:""}<button type="button" class="primary" data-act="close">Sluiten</button></div>`,{wide:true});
   const g=id=>document.getElementById(id);

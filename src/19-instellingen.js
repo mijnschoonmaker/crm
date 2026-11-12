@@ -71,7 +71,7 @@ const SET_GROEP=[["bedrijf","Je bedrijf","Gegevens, land en btw, wie er mag inlo
   ["geld","Facturen & betalen","Online betalen, herinneringen, bijschrijvingen en bestellingsoverzicht",["liveMollie","fh","bijschr","liveOverzicht"]],
   ["werk","Werk & planning","Werkdagen, afmelden, kilometers en opmeten",["doorplannen","afmelden","km","meetlint"]],
   ["web","Website","Je dienstenwebshop en foto's van je werk",["website","galerij"]],
-  ["data","Gegevens & systeem","Importeren, slimme hulp en de nachtelijke controle",["data","liveAI","systeem","liveImport","platform"]]];
+  ["data","Gegevens & systeem","Importeren, slimme hulp en de nachtelijke controle",["data","systeem","liveImport","platform"]]];
 /* overbodig: met E-mail versturen (Brevo) aan zijn de losse afzender- en mail-trackingkaart dubbel; overzetten uit de oude versie is eenmalig (staat bij Sneltoegang) */
 /* AI klanten uit foto: niet in gebruik, kaart weg (zolang er geen sleutel is ingesteld) */
 const setVerborgen=(c,s)=>(c.id==="platform"&&!(typeof platformEigenaar==="function"&&platformEigenaar()))||(c.id==="email"&&s.liveMail)||(c.id==="tracking"&&s.liveMail)||c.id==="liveImport"||(c.id==="liveAI"&&!s.liveAI)||(c.glas&&!GLAS())||(typeof c.weg==="function"&&c.weg());

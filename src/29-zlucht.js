@@ -129,7 +129,8 @@ function huis3dVoor(adres){const k=String(adres||"").trim().toLowerCase().replac
 /* schaal voor de meetlint op een foto: de goten uit het 3D-model. Geeft een functie terug die de huidige stand geeft. */
 function meet3dModel(adres,klaar){let st=adres?{laden:true}:null;if(adres)huis3dVoor(adres).then(d=>{const G=d&&d.randen?d.randen.filter(r=>r.soort==="goot").map(r=>r.m):[];st=G.length||(d&&d.vlakken||[]).length?{goten:G,vlakken:d.vlakken||[],model:d.model||null,ll:d.geo&&d.geo.ll}:null;if(klaar)klaar()},()=>{st=null;if(klaar)klaar()});return()=>st}
 /* AI zoekt de vier hoeken van de gevel op een foto (alleen live; in de demo zet je ze zelf) */
-const gevelAi=()=>typeof LIVE!=="undefined"&&LIVE&&typeof fbFn==="function"?d=>fbFn("gevelHoeken")({foto:d}).then(r=>r.data):null;
+/* AI-hoeken zoeken staat uit (op verzoek van Robin, nov 2026): hoeken zet je zelf */
+const gevelAi=()=>null;
 /* voorbeeldwoning voor de demo: een vrijstaand huis met zadeldak rond het gezochte adres (geen echte gegevens) */
 function luchtDemo3d(ll){const dl=1/111320,dg=1/(111320*Math.cos(ll[0]*Math.PI/180)),P=(x,y)=>[Math.round((ll[0]+y*dl)*1e7)/1e7,Math.round((ll[1]+x*dg)*1e7)/1e7];
   return{meetjaar:"2023",bouwjaar:1978,vlakken:[{richting:"zuid",a:[-4.8,-4.2],b:[4.8,-4.2],w:9.6,hL:5.6,hR:5.6},{richting:"noord",a:[4.8,4.2],b:[-4.8,4.2],w:9.6,hL:5.6,hR:5.6},{richting:"oost",a:[4.8,-4.2],b:[4.8,4.2],w:8.4,hL:5.6,hR:5.6,punt:{u:4.2,h:9.4}},{richting:"west",a:[-4.8,4.2],b:[-4.8,-4.2],w:8.4,hL:5.6,hR:5.6,punt:{u:4.2,h:9.4}}],
