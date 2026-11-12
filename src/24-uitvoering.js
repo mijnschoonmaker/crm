@@ -259,9 +259,13 @@ function itemsWeight(items){return Math.round((items||[]).reduce((a,it)=>{const 
 const eenhKort=e=>({"per strekkende meter":"m","per meter":"m","per m²":"m²","per uur":"uur","per paneel":"panelen","per raam":"ramen","per keer":"×"})[e]||"st";
 
 /* knoppen voor diensten: de gewone direct, de rest onder "+ Meer diensten" */
-function dienstChips(list,attr){const chip=(d,i)=>`<button type="button" class="chip${d.eigen?" chip-eigen":""}" ${attr}="${i}"${d.eigen?' title="Eigen dienst (Uitvoering › Diensten)"':""}>${I.plus}${esc(d.naam)}${d.eigen?'<small class="chip-eg">eigen</small>':""}</button>`;
+function dienstChips(list,attr){
+  /* diensten als tegels: pictogram, naam en wat het kost; eigen diensten donker */
+  const ic=d=>{const n=String(d.naam||"").toLowerCase();return d.glas||/glas|ramen/.test(n)?(I.drop||I.sun):/goot|goten|dakgoot/.test(n)?(I.drop||I.wrench):/zonnepan/.test(n)?I.sun:/voertuig|truck|auto/.test(n)?(I.auto||I.route):/schoonma|vve|trap/.test(n)?I.spark:/gevel|dakkapel|rolluik|schoorsteen|kozijn/.test(n)?I.building:I.wrench};
+  const sub=d=>d.glas?"Ramen per verdieping":d.items&&d.items.length>1?d.items.length+" onderdelen":Number(d.prijs)>0?eur(d.prijs)+" "+String(d.eenheid||"").replace(/^per /,"per "):d.eigen?"Eigen dienst":"Prijs zelf invullen";
+  const chip=(d,i)=>`<button type="button" class="dkt${d.eigen?" eigen":""}" ${attr}="${i}"${d.eigen?' title="Eigen dienst (Uitvoering › Diensten)"':""}><i class="dkt-ic">${ic(d)}</i><span class="dkt-t"><b>${esc(d.naam)}</b><small>${esc(sub(d))}</small></span><em class="dkt-add">${I.plus}</em></button>`;
   const hoofd=[],meer=[];list.forEach((d,i)=>(d.inCalc===false?meer:hoofd).push(chip(d,i)));
-  return hoofd.join("")+(meer.length?`<button type="button" class="chip chip-meer" data-meer>${I.plus}Meer diensten (${meer.length})</button><span class="chips-meer" hidden>${meer.join("")}</span>`:"")}
+  return hoofd.join("")+(meer.length?`<button type="button" class="dkt dkt-meer" data-meer><i class="dkt-ic">${I.plus}</i><span class="dkt-t"><b>Meer diensten</b><small>${meer.length} verborgen</small></span></button><span class="chips-meer" hidden>${meer.join("")}</span>`:"")}
 document.addEventListener("click",e=>{const b=e.target.closest("[data-meer]");if(!b)return;const s=b.nextElementSibling;if(s){s.hidden=false;b.hidden=true}});
 
 /* ---------- regel met onderdelen (zoals Reiniging gevelelementen): per onderdeel frequentie, aanboddatum en eigen prijs/tijd ---------- */

@@ -94,7 +94,7 @@ function openOfferte(opts={}){
     <section class="kp kp-rc"${GLAS()?"":' style="display:none"'}><div class="kp-h"><span class="objic">${I.calculator}</span><div><b>Rekentool</b><small>Maak foto's en tik de ramen aan. Aantallen, tijden en prijzen komen vanzelf bij de offerteregels.</small></div></div><div id="owRc"></div></section>
     ${GLAS()?"":`<section class="kp"><div class="kp-h"><span class="objic">${I.camera||I.upload}</span><div style="min-width:0"><b>Foto's bijvoegen</b><small>Zodat je weet waar het over gaat. Alleen voor jou en je medewerkers, ze gaan niet mee naar de klant.</small></div><span class="sp"></span><label class="iconbtn sm primary" role="button" tabindex="0" aria-label="Foto's bijvoegen" style="cursor:pointer">${I.plus}<input type="file" accept="image/*" multiple hidden id="owBij"></label></div><div class="ow-fotos" id="owBijF"></div></section>`}
     <section class="kp"><div class="kp-h"><span class="objic">${I.check}</span><b>Offerteregels</b><span class="sp"></span><button type="button" class="small" id="owAdd">${I.plus}Eigen regel</button></div>
-      <div class="ow-chips">${dienstChips(diensten,"data-dn")}</div>
+      <div class="ow-chips dkt-grid">${dienstChips(diensten,"data-dn")}</div>
       <div id="owRegels"></div>
       <div id="owRef"></div>
       <div class="totals" id="owTot" style="margin-top:10px"></div></section>
