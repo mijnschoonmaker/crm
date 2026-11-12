@@ -16055,7 +16055,7 @@ function kkOverzicht(k,c){
   const voork=[Number(k.toeslag)?"Toeslag "+k.toeslag+"%":"Geen toeslag",k.btwVerlegd?"btw verlegd":"btw normaal",k.verbergAantal?"aantallen verborgen":"",k.verbergFreq?"ritme verborgen":""].filter(Boolean).join(" · ");
   const addBtn=!heeftGlas(k)?`data-kk="opdrfirst"`:`data-act="opdracht" data-id="${esc(k.id)}" data-o="new"`;
   return `<div class="kko" id="kkOv"><div class="kko-main">
-    <section class="kko-s"><div class="kko-h"><h3>Diensten</h3><button type="button" class="kko-k" ${addBtn}>${I.plus}Dienst</button></div>
+    <section class="kko-s"><div class="kko-h"><h3>Opdrachten</h3><button type="button" class="kko-k" ${addBtn}>${I.plus}Dienst</button></div>
       ${c.opdr.length?`<div class="kko-dg">${c.opdr.map(kaart).join("")}</div>`:'<p class="subt" style="margin:0">Nog geen lopende diensten.</p>'}</section>
     <section class="kko-s"><div class="kko-h"><h3>Tijdlijn</h3><button type="button" class="kko-k" data-kktab="berichten">${I.plus}Notitie</button></div>${tijdlijn}
       <button type="button" class="kko-meer" data-kktab="berichten">Alles tonen</button></section></div>
