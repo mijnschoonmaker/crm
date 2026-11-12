@@ -151,7 +151,7 @@ const WEB_CSS=`
 /* credits */
 .ms .cr4{grid-template-columns:repeat(4,1fr)}
 .ms .tg{position:relative}.ms .cr-n{position:absolute;top:18px;right:18px;font-style:normal;font-weight:800;font-size:14px;padding:5px 10px;border-radius:999px;background:#fff;color:var(--b2)}.ms .cr-n::after{content:" cr";font-size:11px;opacity:.7}
-/* dienstenwebshop-kop */
+/* prijscalculator-kop */
 .ms .ws-kop{margin-bottom:22px}
 /* vve */
 .ms .vve{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:center;background:#fff;border-radius:28px;padding:34px 38px;margin-top:16px;box-shadow:0 14px 34px -26px rgb(15 50 60 / .5)}
@@ -528,7 +528,7 @@ function websiteBody(o){const e=esc,IC={
     <div class="tg"><span class="ic">${IC.user}</span><em class="cr-n">+${e(String(o.refBeloning||20))}</em><h3>Beveel een buur aan</h3><p>Uw buur krijgt ${e(String(o.refWelkom||10))} euro welkomstkorting, u krijgt ${e(String(o.refBeloning||20))} credits na de eerste beurt.</p></div>
 </div>
   ${wg(-7,"opacity:.6")}<div style="height:40px"></div></div></div></section>
-<section id="prijs"><div class="in"><div class="ws-kop"><span class="oog">${IC.cam}Dienstenwebshop</span><h2 class="kop">Bereken uw prijs en <em>meld u direct aan</em></h2><p class="lead">Geen offertebezoek nodig. Maak een foto van uw woning, tik de ramen aan en u ziet direct uw vaste prijs per beurt. Aanmelden kan meteen, u krijgt binnen een minuut een bevestiging.</p></div><div id="ms-calc"></div></div></section>
+<section id="prijs"><div class="in"><div class="ws-kop"><span class="oog">${IC.cam}Prijscalculator</span><h2 class="kop">Bereken uw prijs en <em>meld u direct aan</em></h2><p class="lead">Geen offertebezoek nodig. Maak een foto van uw woning, tik de ramen aan en u ziet direct uw vaste prijs per beurt. Aanmelden kan meteen, u krijgt binnen een minuut een bevestiging.</p></div><div id="ms-calc"></div></div></section>
 <section id="werk" data-werk="${e(o.werkApi||"")}" ${o.werkApi?"":"hidden"}><div class="in"><span class="oog">${IC.foto}Ons werk</span><h2 class="kop">Zo ziet <em>schoon</em> eruit</h2><p class="lead">Echte foto's van ons werk bij klanten in de buurt. Geen stockfoto's.</p>
   <div class="wk-filter" data-werk-filter hidden></div><div class="wk-sl" data-werk-grid></div></div></section>
 <section id="zakelijk"><div class="in"><div class="zak"><div><span class="oog">${IC.gebouw}Zakelijk</span><h2 class="kop">Ook voor <em>bedrijven en VvE's</em></h2><p class="lead">Kantoor, winkel, school of appartementencomplex: wij maken een prijs op maat en plannen het werk in wanneer het u uitkomt.</p>

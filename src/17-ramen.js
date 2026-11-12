@@ -425,7 +425,7 @@ function buildRamen(){
     [...Object.entries(fc),...Object.entries(fw)].forEach(([k,v])=>{if(v&&typeof v==="object"&&Number(v.w)>0&&!FREQ_LIST.some(x=>x[0]===k))FREQ_LIST.push([k,String(v.l||"1x per "+v.w+" weken"),52/Number(v.w),0,Number(v.w)])});
     Object.keys(FREQ).forEach(k=>delete FREQ[k]);FREQ_LIST.forEach(([k,l,y,p,w])=>FREQ[k]={l,y,pct:p,w})};
   refreshFreq();
-  /* rekentool: standaardfrequentie aan tenzij uitgezet; extra frequentie alleen als hij voor de rekentool is aangezet. Dienstenwebshop: eigen keuze, anders gelijk aan de rekentool */
+  /* rekentool: standaardfrequentie aan tenzij uitgezet; extra frequentie alleen als hij voor de rekentool is aangezet. Prijscalculator: eigen keuze, anders gelijk aan de rekentool */
   const calcOn=k=>{const fc=(typeof S==="function"&&S().freqCalc)||{};return FREQ_BASE.some(x=>x[0]===k)?fc[k]!==false:!!(fc[k]&&typeof fc[k]==="object")};
   const webOn=k=>{const fw=(typeof S==="function"&&S().freqWeb)||{},v=fw[k];return v===undefined?calcOn(k):!!v};
   const VAT=.21;
@@ -453,7 +453,7 @@ function buildRamen(){
   const SH='stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" fill="none" opacity=".9"';
   const pane=(x,y,w,h)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="1" fill="var(--glass)" ${LN}/><path d="M${(x+w*.25).toFixed(1)} ${(y+h*.7).toFixed(1)}L${(x+w*.7).toFixed(1)} ${(y+h*.25).toFixed(1)}" ${SH}/>`;
   const SV=b=>`<svg viewBox="0 0 48 48" aria-hidden="true">${b}</svg>`;
-/* ---- iconen rekentool/dienstenwebshop: één stijl met het CRM (teal, rustig, met diepte) ---- */
+/* ---- iconen rekentool/prijscalculator: één stijl met het CRM (teal, rustig, met diepte) ---- */
 const IK={roof:"#163e4a",roof2:"#1d5a74",ridge:"#0f2f38",wall:"#f6f1e8",wall2:"#e8e0d3",line:"#0f1f26",frame:"#ffffff",glass:"#cfe9ee",glass2:"#8fcfdb",on:"#2aa3b3",onG:"#dff6f9",door:"#137a8a",ground:"#c9d3d6",sky:"#eef6f8"};
 const IV=b=>`<svg viewBox="0 0 64 60" aria-hidden="true"><defs><linearGradient id="kGl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eaf7fa"/><stop offset="1" stop-color="${IK.glass2}"/></linearGradient><linearGradient id="kGlOn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#7fd4e6"/></linearGradient><linearGradient id="kRoof" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${IK.roof2}"/><stop offset="1" stop-color="${IK.roof}"/></linearGradient><linearGradient id="kWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${IK.wall}"/><stop offset="1" stop-color="${IK.wall2}"/></linearGradient></defs>${b}</svg>`;
 const kRaam=(x,y,w,h,on)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="1.4" fill="${IK.frame}" stroke="${on?IK.on:"#b9c6ca"}" stroke-width="${on?1.6:1}"/><rect x="${x+1.6}" y="${y+1.6}" width="${w-3.2}" height="${h-3.2}" rx=".8" fill="url(#${on?"kGlOn":"kGl"})"/><path d="M${x+2.2} ${y+h-3}L${x+w-4} ${y+3}" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".85"/><rect x="${x+w/2-.5}" y="${y+1.6}" width="1" height="${h-3.2}" fill="${IK.frame}"/>${on?`<rect x="${x-2}" y="${y-2}" width="${w+4}" height="${h+4}" rx="2.4" fill="none" stroke="${IK.on}" stroke-width="1.2" opacity=".35"/>`:""}`;

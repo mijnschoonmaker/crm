@@ -32,7 +32,7 @@ function aanbevelingVrijgeven(id){setTimeout(async()=>{
 const voornaam=n=>{let s=String(n||"").trim();if(s.includes(","))s=s.split(",").slice(1).join(",").trim()||s;return s.split(/\s+/)[0]||s};
 
 /* ---------- code van een buur (geef € 5, krijg € 10) ----------
-   Elke klant heeft een eigen code (refCode). Een nieuwe klant die met die code komt (website, dienstenwebshop of offerte in het CRM):
+   Elke klant heeft een eigen code (refCode). Een nieuwe klant die met die code komt (website, prijscalculator of offerte in het CRM):
    - krijgt de welkomstkorting als tegoed (gaat van de eerste factuur af),
    - de aanbrenger krijgt zijn beloning zodra de eerste afspraak is uitgevoerd (aanbevelingVrijgeven). */
 const refEur=n=>{const v=Number(n)||0;return "€ "+(Number.isInteger(v)?String(v):eur(v).replace(/^€\s*/,""))};

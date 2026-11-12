@@ -71,7 +71,7 @@ function aanvraagKlant(d){const k=d.klant||{},t=d.telling||{},fl=(t.floors||[]).
   return {k,t,fl,sp,R,prijs,duur,f4,geenBijz,regels,ramen:R.count,fk,weken,fqLabel}}
 /* aanvraag → klant met opdracht (glasbewassing per verdieping); eerste beurt = O-beurt met tellingcontrole.
    fotos: [{blob,naam,w,h,dots}] als de aanvraag rechtstreeks uit de calculator in het crm komt */
-/* extra diensten die de klant in de dienstenwebshop aantikte, met maten uit het 3D-model */
+/* extra diensten die de klant in de prijscalculator aantikte, met maten uit het 3D-model */
 const x3Txt=D=>{const L=Array.isArray(D&&D.extra)?D.extra.filter(x=>x&&x.naam):[];return L.length?"Wil ook (maten uit het 3D-model): "+L.map(x=>String(x.naam).slice(0,60)+" "+String(Number(x.aantal)||0).replace(".",",")+" "+(x.eenheid==="m2"?"m²":"m")+(Number(x.excl)>0?" · "+eur(Number(x.excl))+" excl.":"")).join("; "):""};
 async function aanvraagToevoegen(D,fotos=[]){const a=aanvraagKlant(D),id=newId("k");
   const zak=D.soort==="zakelijk"&&a.k.bedrijf;const tf=[];

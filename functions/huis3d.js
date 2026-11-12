@@ -114,7 +114,7 @@ module.exports = ({ onCall, onRequest, HttpsError, checkGebruiker }) => {
       maaiveld: a.b3_h_maaiveld != null ? Math.round(a.b3_h_maaiveld * 10) / 10 : null };
   }
   const huis3d = onCall({ memory: "256MiB", timeoutSeconds: 30 }, async req => { await checkGebruiker(req.auth); return bereken(req.data || {}); });
-  /* voor de dienstenwebshop op de website van een bedrijf: openbaar, alleen totalen (geen ligging), met een eenvoudige rem per bezoeker */
+  /* voor de prijscalculator op de website van een bedrijf: openbaar, alleen totalen (geen ligging), met een eenvoudige rem per bezoeker */
   const tellers = new Map();
   const huis3dWeb = onRequest({ cors: true, memory: "256MiB", timeoutSeconds: 30 }, async (req, res) => {
     const ip = String(req.headers["x-forwarded-for"] || req.ip || "").split(",")[0].trim(), nu = Date.now(), t = (tellers.get(ip) || []).filter(v => nu - v < 600000);

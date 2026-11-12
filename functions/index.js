@@ -567,7 +567,7 @@ function leesMultipart(req) {
   });
 }
 exports.aanvraag = onRequest({ cors: true, memory: "512MiB", timeoutSeconds: 60 }, async (req, res) => {
-  /* code van een buur controleren vanuit de dienstenwebshop / website: GET ?ref=CODE (geeft alleen de voornaam en de welkomstkorting) */
+  /* code van een buur controleren vanuit de prijscalculator / website: GET ?ref=CODE (geeft alleen de voornaam en de welkomstkorting) */
   if (req.method === "GET" && req.query && req.query.ref != null) {
     try {
       const ip = String(req.headers["x-forwarded-for"] || req.ip || "").split(",")[0].trim(), uur = new Date().toISOString().slice(0, 13);

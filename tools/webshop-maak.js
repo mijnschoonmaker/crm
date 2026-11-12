@@ -1,4 +1,4 @@
-/* Maakt de dienstenwebshop van mijnschoonmaker.com als vaste pagina (public/webshop/mijnschoonmaker.html),
+/* Maakt de prijscalculator van mijnschoonmaker.com als vaste pagina (public/webshop/mijnschoonmaker.html),
    met dezelfde tarieven, frequenties, werkgebied, logo en WhatsApp als het CRM (zelfde opbouw als "Website-calculator downloaden").
    Leest alleen uit de database; schrijft alleen dit bestand. */
 const fs = require("fs"), path = require("path");

@@ -23,7 +23,7 @@ function openTellingControle(kid,na){const k=state.klanten.find(x=>x.id===kid);i
   const gc=k.tellingGecontroleerd,voor=(gc&&gc.origF)||tcFloors(k),vsp=(gc&&gc.origSp)||tcSp(k),f=tcFloors(k).slice(),sp={...tcSp(k)};
   const p0=gc?gc.prijsVoor:Number(k.prijs)||0;let fotos=null,ai=false,spOpen=SPK.some(x=>sp[x]||vsp[x]);
   const tcModel=()=>typeof meet3dModel==="function"&&k.adres?klaar=>meet3dModel([k.adres,k.postcode,k.plaats].filter(Boolean).join(" "),klaar):null;
-  /* foto's van de klant (uit de dienstenwebshop, met de aangetikte ramen) en eerder gemaakte controlefoto's */
+  /* foto's van de klant (uit de prijscalculator, met de aangetikte ramen) en eerder gemaakte controlefoto's */
   const tf0=[...(((k.ramenTelling||{}).fotos)||[]).filter(x=>x&&x.id).map((x,i)=>({...x,naam:x.zijde||("Foto "+(i+1)+" van de klant"),t:1})),...(k.fotos||[]).filter(x=>x&&x.id),...((gc&&gc.fotos)||[]).filter(x=>x&&x.id).map(x=>({...x,naam:"Controle · "+(x.zijde||"foto")}))].filter((x,i,a)=>a.findIndex(y=>y.id===x.id)===i);
   /* eigen kopie: stippen aanpassen raakt de klant pas bij opslaan */
   const tf=tf0.map(x=>({...x,dots:(x.dots||[]).map(d=>({...d})),...(x.meet?{meet:JSON.parse(JSON.stringify(x.meet))}:{})}));let stipAan=false;

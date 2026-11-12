@@ -4418,7 +4418,7 @@ html body .leaflet-container .pl-bus img{width:52px!important;max-width:none!imp
 @media (max-width:560px){.ms-plans{grid-template-columns:1fr}}
 html body .ms-plan,html body .ms-plan.on,html body .ms-plan:hover{background:var(--surface)!important;color:var(--ink)!important;text-transform:none;letter-spacing:normal;height:auto;min-height:0;justify-content:flex-start;align-items:stretch;text-align:left;font-weight:400}
 html body .ms-plan.on{border-color:#252c3c!important;box-shadow:0 0 0 3px rgba(37,44,60,.14)!important}
-/* fotoviewer: soort raam kiezen (gelijk aan de dienstenwebshop) */
+/* fotoviewer: soort raam kiezen (gelijk aan de prijscalculator) */
 .fdot.lb{color:#fff;font:800 9px/1 var(--f-ui,system-ui);letter-spacing:0}
 .fdot.big.lb{width:calc(20px * var(--ds,1))!important;height:calc(20px * var(--ds,1))!important;font-size:calc(9px * var(--ds,1))}
 .fdot.big.lb.sm{font-size:calc(7.5px * var(--ds,1))}

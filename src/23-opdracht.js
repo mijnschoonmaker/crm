@@ -492,7 +492,7 @@ const FMARK={groen:"#30a46c",geel:"#ffc53d",blauw:"#0090ff",oranje:"#f76b15"};
 /* markeringen (dakgoot, beplating, windveer…): halfdoorzichtige penseelstreken over de foto, coördinaten 0–1 */
 const strokesSvg=f=>{const S=(f.strokes||[]).filter(x=>x&&Array.isArray(x.p)&&x.p.length);if(!S.length)return"";const H=f.w&&f.h?Math.round(1000*f.h/f.w):750;
   return `<svg class="fmark" viewBox="0 0 1000 ${H}" preserveAspectRatio="none" aria-hidden="true">${S.map(x=>`<g opacity=".45"><polyline points="${x.p.map(q=>Math.round(q[0]*1000)+","+Math.round(q[1]*H)).join(" ")}" fill="none" stroke="${FMARK[x.c]||x.c||FMARK.groen}" stroke-width="${Math.round((Number(x.w)||0.03)*1000)}" stroke-linecap="round" stroke-linejoin="round"/></g>`).join("")}</svg>`};
-/* soorten stippen, gelijk aan de dienstenwebshop: BG, 1, 2, 3 per verdieping en T/K/L/M voor bijzondere ramen */
+/* soorten stippen, gelijk aan de prijscalculator: BG, 1, 2, 3 per verdieping en T/K/L/M voor bijzondere ramen */
 const DOT_TYPEN=["f0","f1","f2","f3","s-tuimel","s-koepel","s-lood","s-mini"];
 const DOTLBL=t=>({"s-tuimel":"T","s-koepel":"K","s-lood":"L","s-mini":"M"})[t]||(+String(t||"f0").slice(1)?String(+String(t).slice(1)):"BG");
 const DOTNM=t=>({"s-tuimel":"Dak- / tuimelraam","s-koepel":"Lichtkoepel","s-lood":"Glas-in-lood","s-mini":"Miniraampje"})[t]||(+String(t||"f0").slice(1)?String(t).slice(1)+"e verdieping":"Begane grond");
@@ -572,7 +572,7 @@ const has0=v=>v!==""&&v!=null;
 const isBijzD=d=>!!d&&(d.groep==="bijz"||/bijzondere\s+ramen/i.test(String(d.naam||"")));
 const bijzKey=n=>{n=String(n||"").toLowerCase();return /lood/.test(n)?"lood":/mini/.test(n)?"mini":/koepel/.test(n)?"koepel":/tuimel|dak/.test(n)?"tuimel":null};
 const SPK=["tuimel","koepel","lood","mini"],SPN={tuimel:"Dak- / tuimelramen",koepel:"Lichtkoepels",lood:"Glas-in-lood",mini:"Miniraampjes"};
-/* frequentie per onderdeel leeg (bv. aanmelding via de dienstenwebshop): vul de frequentie van de opdracht in */
+/* frequentie per onderdeel leeg (bv. aanmelding via de prijscalculator): vul de frequentie van de opdracht in */
 const fqVul=(q,w)=>{if(!q||!w)return q;const r={...q,fq:[0,1,2,3].map(i=>(q.fq&&q.fq[i])||(q.f&&Number(q.f[i])?w:"")),spfq:{...(q.spfq||{})}};SPK.forEach(x=>{if(q.sp&&Number(q.sp[x])&&!r.spfq[x])r.spfq[x]=w});return r};
 const normR=q=>{q=q||{};const a=(x,d)=>[0,1,2,3].map(i=>x&&x[i]!=null?x[i]:d);
   const r={f:a(q.f,0).map(n=>Number(n)||0),fq:a(q.fq,""),vol:a(q.vol,""),op:a(q.op,""),od:a(q.od,""),kf:a(q.kf,false).map(Boolean),kfq:a(q.kfq,""),kvol:a(q.kvol,""),kop:a(q.kop,""),kod:a(q.kod,""),start:q.start??"",tp:q.tp??"",td:q.td??"",oms:q.oms||"",sp:SPK.reduce((o,k)=>(o[k]=Math.max(0,Math.round(Number(q.sp&&q.sp[k])||0)),o),{})};

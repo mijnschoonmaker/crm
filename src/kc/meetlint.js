@@ -1,6 +1,6 @@
 /* ---------- Meetlint: lengtes en vlakken meten op een foto ----------
    Eerst een referentie (bijv. 4 bakstenen = 84 cm), daarna rekent Mansard elke lijn of rechthoek om naar meters.
-   Gedeeld door de rekentool, de tellingcontrole (fotoweergave) en de dienstenwebshop. Gegevens per foto:
+   Gedeeld door de rekentool, de tellingcontrole (fotoweergave) en de prijscalculator. Gegevens per foto:
    foto.meet = {ref:{a:[x,y],b:[x,y],k,cm,n}, g:{pts:[lo,ro,rb,lb],w,hL,hR,r}, maten:[{s,a:[x,y],b:[x,y],r?:1,m?:handmatig}]}  (x,y van 0 tot 1)
    g = gevel rechtgezet: de vier hoeken van de gevelmuur op de foto + de echte maten uit het 3D-model. Dan rekent Mansard met perspectief
    (homografie): elke lijn en rechthoek op die gevel is gemeten, ook op een scheve foto. Gaat voor de referentie. */

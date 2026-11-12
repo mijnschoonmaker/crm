@@ -25,13 +25,13 @@ const meetLeerTekst=()=>{const L=((state.meetleer||{}).items)||[];if(!L.length)r
 const meetAan=w=>{const s=S();if(w==="webshop")return s.meetWebshop===true;if(w==="telling")return s.meetTelling===true;return s.meetRekentool===true};
 SETCARDS.push({id:"meetlint",glas:true,t:"Meetlint",sub:"Goten, windveren en beplating opmeten op een foto",ic:"ruler",bg:"#c9a227",
   st:s=>[meetAan("rekentool"),meetAan("telling"),meetAan("webshop")].some(Boolean)?["ok","Aan"]:["soon","Staat uit"],
-  rows:s=>[["Rekentool",meetAan("rekentool")?"Aan":"Uit"],["Tellingcontrole",meetAan("telling")?"Aan":"Uit"],["Dienstenwebshop",meetAan("webshop")?"Aan":"Uit"]]});
+  rows:s=>[["Rekentool",meetAan("rekentool")?"Aan":"Uit"],["Tellingcontrole",meetAan("telling")?"Aan":"Uit"],["Prijscalculator",meetAan("webshop")?"Aan":"Uit"]]});
 SETEXTRA.meetlint=(c,s)=>{const L=meetSoorten();
   setDlg(c,`${info("Met de meetlint meet je op een foto hoeveel meter goot, daklijst of windveer er is, of hoeveel m² beplating. Eerst sleep je een <b>referentie</b> over iets waarvan je de maat kent (bijvoorbeeld 4 bakstenen), daarna rekent Mansard elke lijn om. De meters gaan met je eigen tarief mee in de prijs.")}
     <small class="help" style="display:block;margin:4px 0 10px"><b>Zelflerend.</b> ${esc(meetLeerTekst())}</small>
     ${tgl("meetRekentool","Rekentool","Meten bij het tellen van de ramen in de rekentool en offertes",meetAan("rekentool"))}
     ${tgl("meetTelling","Tellingcontrole","Meten op de foto's bij de O-beurt",meetAan("telling"))}
-    ${tgl("meetWebshop","Dienstenwebshop","Klanten zien op je website wat goten, windveren en dergelijke kosten, gemeten met het 3D-model van hun woning",meetAan("webshop"))}
+    ${tgl("meetWebshop","Prijscalculator","Klanten zien op je website wat goten, windveren en dergelijke kosten, gemeten met het 3D-model van hun woning",meetAan("webshop"))}
     ${L.length?`${sec("Maten uit het 3D-model")}<small class="help" style="display:block;margin-bottom:8px">Zodra er een adres is, haalt Mansard de woning op uit de laserscan van Nederland (3D BAG). Kies per dienst welke maat erbij hoort; die kun je in de rekentool met één tik in de prijs zetten.</small>
       ${L.filter(x=>x.eenheid!=="st").map(x=>{const b=meetBron(x),opts=Object.entries(MEET_BRON).filter(([k])=>(x.eenheid==="m2")===(k==="gevel"||k==="dak"));return `<label class="fld"><span class="lab">${esc(x.kort)} <small>(${x.eenheid==="m2"?"m²":"m"})</small></span><select class="in" data-mbron="${esc(x.id)}"><option value=""${b?"":" selected"}>Niet uit het 3D-model</option>${opts.map(([k,t])=>`<option value="${k}"${b===k?" selected":""}>${esc(t)}</option>`).join("")}</select></label>`}).join("")}`:""}
     <small class="help">${L.length?"Te meten: "+L.map(x=>esc(x.kort)+" ("+(x.eenheid==="m2"?"m²":x.eenheid==="st"?"per stuk":"m")+")").join(", ")+". Dit volgt uit Uitvoering › Diensten: alles met de eenheid per strekkende meter of per m², en dakkapellen per stuk.":"Nog geen diensten per strekkende meter of per m². Zet de eenheid bij Uitvoering › Diensten."}</small>`,{wide:false});

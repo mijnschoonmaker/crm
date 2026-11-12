@@ -1,4 +1,4 @@
-/* Maakt public/webshop/voorbeeld.html: de echte dienstenwebshop (zelfde opmaak en tarieven als de test-webshop)
+/* Maakt public/webshop/voorbeeld.html: de echte prijscalculator (zelfde opmaak en tarieven als de test-webshop)
    als voorbeeld voor www.mansard.nl. Neutraal bedrijf ("Voorbeeld Glazenwasserij"), elk adres ligt in het werkgebied
    en er wordt niets verstuurd: aanvragen, aanbevelingscodes en WhatsApp/mail gaan nergens heen.
    Gebruik: node tools/webshop-voorbeeld.js  (leest public/webshop/mijnschoonmaker-test.html) */
@@ -40,7 +40,7 @@ a[href*="app.mansard.nl/portaal"]{pointer-events:none;opacity:.55}
 .vb-foto b{font-weight:600;font-size:14px}.vb-foto span{color:#5b6370}.vb-foto:disabled{opacity:.6}
 body[data-lock] .vb-foto,.cfg-fotos[data-lock] .vb-foto{pointer-events:auto}</style>`;
   h = h.replace("<head>", "<head>\n" + kop);
-  h = h.replace(/<title>[^<]*<\/title>/, "<title>Voorbeeld dienstenwebshop · Mansard</title>");
+  h = h.replace(/<title>[^<]*<\/title>/, "<title>Voorbeeld prijscalculator · Mansard</title>");
   h = h.replace("<head>", '<head>\n<meta name="robots" content="noindex">');
   return h;
 }

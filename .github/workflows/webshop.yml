@@ -1,4 +1,4 @@
-name: Dienstenwebshop bijwerken
+name: Prijscalculator bijwerken
 # vaste pagina app.mansard.nl/webshop/mijnschoonmaker.html met de tarieven uit het CRM; elke nacht en op verzoek
 on:
   workflow_dispatch:
@@ -30,6 +30,6 @@ jobs:
         run: |
           if [ -n "$(git status --porcelain public/webshop)" ]; then
             git config user.name "mansard-bot"; git config user.email "bot@mansard.nl"
-            git add public/webshop && git commit -qm "Dienstenwebshop bijgewerkt" && git pull -q --rebase && git push -q
+            git add public/webshop && git commit -qm "Prijscalculator bijgewerkt" && git pull -q --rebase && git push -q
             gh workflow run deploy.yml --ref main
           fi

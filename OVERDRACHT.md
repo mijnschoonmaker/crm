@@ -132,7 +132,7 @@ Google Cloud-console › Cloud Storage › bucket › Protection dat "soft delet
 | `14-communicatie.js` | mails en sjablonen (opmaak in `emailHtmlRuw`) |
 | `15-facturen.js`, `21-factuurpdf.js`, `27-factuur.js` | facturen en PDF |
 | `16-boekhoud*.js` | boekhouding en export |
-| `17-calculator.js`, `17-ramen.js` | calculator en ramen tellen (ook de dienstenwebshop) |
+| `17-calculator.js`, `17-ramen.js` | calculator en ramen tellen (ook de prijscalculator) |
 | `18-inzichten.js` | statistieken |
 | `19-instellingen.js` | instellingen (`SETCARDS`, `openSetEdit`) |
 | `19-website.js`, `19-werk.js` | website voor Framer en de fotogalerij "Ons werk" |

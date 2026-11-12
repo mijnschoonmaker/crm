@@ -1172,7 +1172,7 @@ html body:not(#zz) .ref-weg{flex:none;border:0;background:none;color:#0d121b;fon
   <header class="intro2">
     <div class="i2-txt">
       
-      <p class="i2-kick">Dienstenwebshop</p>
+      <p class="i2-kick">Prijscalculator</p>
       <h1 class="ml-title">Bereken uw prijs</h1>
       <p class="ml-sub">Nu op basis van uw eigen foto.</p>
       <ol class="ml-steps">
@@ -1347,7 +1347,7 @@ const winKey=i=>i===0?"g0":i===1?"g1":i===2?"g2":"g3";
   const SH='stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" fill="none" opacity=".9"';
   const pane=(x,y,w,h)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="1" fill="var(--glass)" ${LN}/><path d="M${(x+w*.25).toFixed(1)} ${(y+h*.7).toFixed(1)}L${(x+w*.7).toFixed(1)} ${(y+h*.25).toFixed(1)}" ${SH}/>`;
   const SV=b=>`<svg viewBox="0 0 48 48" aria-hidden="true">${b}</svg>`;
-/* ---- iconen rekentool/dienstenwebshop: één stijl met het CRM (teal, rustig, met diepte) ---- */
+/* ---- iconen rekentool/prijscalculator: één stijl met het CRM (teal, rustig, met diepte) ---- */
 const IK={roof:"#163e4a",roof2:"#1d5a74",ridge:"#0f2f38",wall:"#f6f1e8",wall2:"#e8e0d3",line:"#0d121b",frame:"#ffffff",glass:"#cfe9ee",glass2:"#8fcfdb",on:"#3a4560",onG:"#dff6f9",door:"#252c3c",ground:"#c9d3d6",sky:"#eef6f8"};
 const IV=b=>`<svg viewBox="0 0 64 60" aria-hidden="true"><defs><linearGradient id="kGl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eaf7fa"/><stop offset="1" stop-color="${IK.glass2}"/></linearGradient><linearGradient id="kGlOn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#7fd4e6"/></linearGradient><linearGradient id="kRoof" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${IK.roof2}"/><stop offset="1" stop-color="${IK.roof}"/></linearGradient><linearGradient id="kWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${IK.wall}"/><stop offset="1" stop-color="${IK.wall2}"/></linearGradient></defs>${b}</svg>`;
 const kRaam=(x,y,w,h,on)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="1.4" fill="${IK.frame}" stroke="${on?IK.on:"#b9c6ca"}" stroke-width="${on?1.6:1}"/><rect x="${x+1.6}" y="${y+1.6}" width="${w-3.2}" height="${h-3.2}" rx=".8" fill="url(#${on?"kGlOn":"kGl"})"/><path d="M${x+2.2} ${y+h-3}L${x+w-4} ${y+3}" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".85"/><rect x="${x+w/2-.5}" y="${y+1.6}" width="1" height="${h-3.2}" fill="${IK.frame}"/>${on?`<rect x="${x-2}" y="${y-2}" width="${w+4}" height="${h+4}" rx="2.4" fill="none" stroke="${IK.on}" stroke-width="1.2" opacity=".35"/>`:""}`;
@@ -1885,12 +1885,12 @@ g("calc3").onclick=()=>{doneStep(2);g("result").hidden=false;openStep(0,false);c
   if(matchMedia("(prefers-reduced-motion:reduce)").matches){dots.forEach(d=>{const c=col(d);n[c]=(n[c]||0)+1});set("",true);return}
   let last=0;dots.forEach(d=>{const c=col(d),t=af(d)+120;last=Math.max(last,t);setTimeout(()=>{n[c]=(n[c]||0)+1;set(c,false)},t)});
   setTimeout(()=>{const ks=chips.map(x=>x.dataset.st);set(ks[ks.length-1],false)},last+50)})();
-/* alleen vanuit het CRM (Uitvoering › Diensten › Dienstenwebshop bekijken): meteen naar het tellen, zonder soort en postcode */
+/* alleen vanuit het CRM (Uitvoering › Diensten › Prijscalculator bekijken): meteen naar het tellen, zonder soort en postcode */
 if(window.ZEEM_DIRECT){try{kiesSoort("particulier");document.body.classList.add("zeem-direct");
   [".wz-adr","#adrMsg","#wzBack"].forEach(q=>{const el=document.querySelector(q);if(el)el.hidden=true});
   const gs=g("goStart");if(gs){gs.hidden=false;setTimeout(()=>gs.focus(),50)}}catch(e){console.error(e)}}
 </script>
-<!--CFG-SKIN: configurator-opbouw voor de dienstenwebshop (alleen testpagina mijnschoonmaker-test.html).
+<!--CFG-SKIN: configurator-opbouw voor de prijscalculator (alleen testpagina mijnschoonmaker-test.html).
     Zelfde rekenwerk en aanmelden als de gewone webshop; alleen de indeling op grote schermen is anders:
     stappen bovenaan, groot beeld links, keuzes rechts, samenvatting met prijs onderaan. Op de telefoon blijft alles zoals het was. -->
 <style>
