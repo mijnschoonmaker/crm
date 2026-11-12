@@ -35,7 +35,7 @@ function openKlantView(id,opt={}){
   try{if(!document.getElementById("kkFont")){const l=document.createElement("link");l.id="kkFont";l.rel="stylesheet";l.href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600&display=swap";document.head.appendChild(l)}}catch(e){}
   if(state._kkLast!==id){state._kkLast=id;state.kkFQ="";state.kkFP=0}
   const k=state.klanten.find(x=>x.id===id);if(!k)return openKlantEdit(null);
-  const kIds=kkIds(k),nr=klantNr(k),fs=state.facturen.filter(f=>kIds.includes(f.klantId)).sort((a,b)=>String(b.datum).localeCompare(String(a.datum))),offs=fs.filter(f=>f.soort==="offerte"),facs=fs.filter(f=>f.soort!=="offerte");
+  const kIds=kkIds(k),nr=klantNr(k),fs=state.facturen.filter(f=>kIds.includes(f.klantId)).sort((a,b)=>String(b.datum).localeCompare(String(a.datum))),offs=(()=>{const z=new Set();return fs.filter(f=>f.soort==="offerte").filter(f=>{const key=f.id+"|"+(f.nummer||f.id);if(z.has(f.id)||(f.nummer&&z.has("n:"+f.nummer)))return false;z.add(f.id);if(f.nummer)z.add("n:"+f.nummer);return true})})(),facs=fs.filter(f=>f.soort!=="offerte");
   const hist=state.beurten.filter(b=>kIds.includes(b.klantId)).sort((a,b)=>String(b.datum).localeCompare(String(a.datum)));
   const bg=betaalgedrag(fs),msgs=state.berichten.filter(m=>kIds.includes(m.klantId)).sort((a,b)=>String(b.op).localeCompare(String(a.op)));
   const kv=(a,b)=>`<div class="ow-kv"><span>${a}</span><b>${b||"—"}</b></div>`;

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="558384d081c1"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="674b1b2c67fe"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -14930,7 +14930,9 @@ function openOfferte(opts={}){
   const ks=[...state.klanten].sort((a,b)=>cleanName(a.naam).localeCompare(cleanName(b.naam)));
   const v=(k,n)=>esc(k?k[n]||"":"");
   const freqO=GLAS()?freqOpts():[...freqOpts().filter(w=>!fqSpec(w)),FQ_AFROEP,FQ_EENMALIG],durO=[15,30,45,60,90,120,180,240];
-  const fr0=Number(opd0.frequentie||(k0&&k0.frequentie)||8),du0=Number(opd0.duur||(k0&&k0.duur)||30);
+  /* staan alle onderdelen op afroep (of eenmalig), dan is de opdracht dat ook, niet de standaard 8 weken */
+  const fqAlle=(()=>{try{const ss=[...((rc&&rc.regels)||[]),...extra].flatMap(r=>Array.isArray(r.subs)?r.subs:[]).map(x=>String(x.fq||"").trim()).filter(Boolean);if(!ss.length)return 0;if(ss.every(t=>t===fqSpecTxt(FQ_AFROEP)))return FQ_AFROEP;if(ss.every(t=>t===fqSpecTxt(FQ_EENMALIG)))return FQ_EENMALIG;return 0}catch(e){return 0}})();
+  const fr0=fqAlle||Number(opd0.frequentie||(k0&&k0.frequentie)||8),du0=Number(opd0.duur||(k0&&k0.duur)||30);
   if(!freqO.includes(fr0))freqO.push(fr0);if(!durO.includes(du0))durO.push(du0);freqO.sort((a,b)=>a-b);durO.sort((a,b)=>a-b);
   const stPill=ex?fStatus(ex):["neutral","Concept"];
   const diensten=dienstLijst().filter(d=>d.groep!=="bijz");
@@ -16225,7 +16227,7 @@ function openKlantView(id,opt={}){
   try{if(!document.getElementById("kkFont")){const l=document.createElement("link");l.id="kkFont";l.rel="stylesheet";l.href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600&display=swap";document.head.appendChild(l)}}catch(e){}
   if(state._kkLast!==id){state._kkLast=id;state.kkFQ="";state.kkFP=0}
   const k=state.klanten.find(x=>x.id===id);if(!k)return openKlantEdit(null);
-  const kIds=kkIds(k),nr=klantNr(k),fs=state.facturen.filter(f=>kIds.includes(f.klantId)).sort((a,b)=>String(b.datum).localeCompare(String(a.datum))),offs=fs.filter(f=>f.soort==="offerte"),facs=fs.filter(f=>f.soort!=="offerte");
+  const kIds=kkIds(k),nr=klantNr(k),fs=state.facturen.filter(f=>kIds.includes(f.klantId)).sort((a,b)=>String(b.datum).localeCompare(String(a.datum))),offs=(()=>{const z=new Set();return fs.filter(f=>f.soort==="offerte").filter(f=>{const key=f.id+"|"+(f.nummer||f.id);if(z.has(f.id)||(f.nummer&&z.has("n:"+f.nummer)))return false;z.add(f.id);if(f.nummer)z.add("n:"+f.nummer);return true})})(),facs=fs.filter(f=>f.soort!=="offerte");
   const hist=state.beurten.filter(b=>kIds.includes(b.klantId)).sort((a,b)=>String(b.datum).localeCompare(String(a.datum)));
   const bg=betaalgedrag(fs),msgs=state.berichten.filter(m=>kIds.includes(m.klantId)).sort((a,b)=>String(b.op).localeCompare(String(a.op)));
   const kv=(a,b)=>`<div class="ow-kv"><span>${a}</span><b>${b||"—"}</b></div>`;

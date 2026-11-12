@@ -36,7 +36,9 @@ function openOfferte(opts={}){
   const ks=[...state.klanten].sort((a,b)=>cleanName(a.naam).localeCompare(cleanName(b.naam)));
   const v=(k,n)=>esc(k?k[n]||"":"");
   const freqO=GLAS()?freqOpts():[...freqOpts().filter(w=>!fqSpec(w)),FQ_AFROEP,FQ_EENMALIG],durO=[15,30,45,60,90,120,180,240];
-  const fr0=Number(opd0.frequentie||(k0&&k0.frequentie)||8),du0=Number(opd0.duur||(k0&&k0.duur)||30);
+  /* staan alle onderdelen op afroep (of eenmalig), dan is de opdracht dat ook, niet de standaard 8 weken */
+  const fqAlle=(()=>{try{const ss=[...((rc&&rc.regels)||[]),...extra].flatMap(r=>Array.isArray(r.subs)?r.subs:[]).map(x=>String(x.fq||"").trim()).filter(Boolean);if(!ss.length)return 0;if(ss.every(t=>t===fqSpecTxt(FQ_AFROEP)))return FQ_AFROEP;if(ss.every(t=>t===fqSpecTxt(FQ_EENMALIG)))return FQ_EENMALIG;return 0}catch(e){return 0}})();
+  const fr0=fqAlle||Number(opd0.frequentie||(k0&&k0.frequentie)||8),du0=Number(opd0.duur||(k0&&k0.duur)||30);
   if(!freqO.includes(fr0))freqO.push(fr0);if(!durO.includes(du0))durO.push(du0);freqO.sort((a,b)=>a-b);durO.sort((a,b)=>a-b);
   const stPill=ex?fStatus(ex):["neutral","Concept"];
   const diensten=dienstLijst().filter(d=>d.groep!=="bijz");
