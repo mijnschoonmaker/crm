@@ -649,7 +649,7 @@ function vveEdLees(el){const vveTaken=[],vveFreq={};el.querySelectorAll(".vve-er
 document.addEventListener("click",e=>{const x=e.target.closest&&e.target.closest("[data-vtx]");if(x){x.closest(".vve-er").remove();return}
   const p=e.target.closest&&e.target.closest("#owVveTk");if(p){const el=document.getElementById("ow-vvetaken");if(el){const lg=document.getElementById("owVveLeeg");if(lg)lg.remove();el.insertAdjacentHTML("beforeend",vveEdRij("","beurt"));el.lastElementChild.querySelector("input").focus()}}});
 /* opdrachtkaart in drie tabbladen: Werk, Planning en afspraken, Facturatie. Alles blijft in het formulier en wordt in één keer opgeslagen */
-const OW_TABS=[["werk","Werk"],["planning","Planning en afspraken"],["factuur","Facturatie"]];
+const OW_TABS=[["werk","Werk"],["planning","Planning"],["factuur","Facturatie"]];
 const OW_TABMAP=[[/^opdracht$|details contract/i,"planning"],[/^facturatie|factuuradres/i,"factuur"],[/^klantgegevens|^logboek/i,"weg"]];
 function owTabsInit(){const grid=document.querySelector("dialog[open] .ow-v2");if(!grid||grid.dataset.tabs)return;grid.dataset.tabs="1";
   const bar=document.createElement("div");bar.className="kk-tabs ow-tabs";bar.setAttribute("role","tablist");
