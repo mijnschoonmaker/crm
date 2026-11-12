@@ -430,6 +430,7 @@ function openOpdrachtWerk(kid,focus){
     catch(er){console.error(er);box.hidden=false;box.innerHTML='<p class="subt">De rekentool kon hier niet worden geladen.</p>'}};
   if($("#owOff"))$("#owOff").onclick=async()=>{if(typeof owNieuwTerug==="function")await owNieuwTerug(kid);openOfferte({klantId:kid,metTelling:true})};
   const back=async()=>{if(typeof owNieuwTerug==="function")await owNieuwTerug(kid);openKlant(kid)};$("#owX").onclick=$("#owBack").onclick=back;$("#owKk").onclick=back;{const h=$("#owKkH");if(h)h.onclick=back}
+  owTabsInit();
   /* ramen per verdieping: ritme = kortste frequentie, volgende keer = vroegste aanboddatum (alleen als elke verdieping er een heeft) */
   /* ook bijzondere ramen (dak-/tuimelramen, miniraampjes enz.) tellen mee, anders bleef het oude ritme staan */
   const ramenRitmeDatum=o=>{const q=o.ramen,uit={};if(!q||!Array.isArray(q.f))return uit;const idx=q.f.map((n,i)=>Number(n)>0?i:-1).filter(i=>i>=0),sps=Object.keys(q.sp||{}).filter(x=>Number(q.sp[x])>0);if(!idx.length&&!sps.length)return uit;
@@ -638,3 +639,18 @@ function vveEdRij(t,f){return `<div class="vve-er"><input data-vtn value="${esc(
 function vveEdLees(el){const vveTaken=[],vveFreq={};el.querySelectorAll(".vve-er").forEach(r=>{const n=r.querySelector("[data-vtn]").value.trim(),f=r.querySelector("[data-vtf]").value;if(n&&!vveTaken.includes(n)&&vveTaken.length<20){vveTaken.push(n);if(f!=="beurt")vveFreq[n]=f}});return{vveTaken,vveFreq}}
 document.addEventListener("click",e=>{const x=e.target.closest&&e.target.closest("[data-vtx]");if(x){x.closest(".vve-er").remove();return}
   const p=e.target.closest&&e.target.closest("#owVveTk");if(p){const el=document.getElementById("ow-vvetaken");if(el){const lg=document.getElementById("owVveLeeg");if(lg)lg.remove();el.insertAdjacentHTML("beforeend",vveEdRij("","beurt"));el.lastElementChild.querySelector("input").focus()}}});
+/* opdrachtkaart in drie tabbladen: Werk, Planning en afspraken, Facturatie. Alles blijft in het formulier en wordt in één keer opgeslagen */
+const OW_TABS=[["werk","Werk"],["planning","Planning en afspraken"],["factuur","Facturatie"]];
+const OW_TABMAP=[[/^opdracht$|details contract/i,"planning"],[/^facturatie|factuuradres/i,"factuur"],[/^klantgegevens|^logboek/i,"weg"]];
+function owTabsInit(){const grid=document.querySelector("dialog[open] .ow-v2");if(!grid||grid.dataset.tabs)return;grid.dataset.tabs="1";
+  const bar=document.createElement("div");bar.className="kk-tabs ow-tabs";bar.setAttribute("role","tablist");
+  bar.innerHTML=OW_TABS.map(([v,l])=>`<button type="button" role="tab" data-owtab="${v}">${l}</button>`).join("");
+  grid.parentNode.insertBefore(bar,grid);
+  grid.querySelectorAll("section.kp").forEach(sec=>{const h=sec.querySelector(".kp-h b");const t=(h&&h.textContent||"").trim();let tab="werk";for(const [re,v] of OW_TABMAP)if(re.test(t)){tab=v;break}sec.dataset.owt=tab});
+  const zet=t=>{state.owTab=t;bar.querySelectorAll("[data-owtab]").forEach(b=>{const on=b.dataset.owtab===t;b.classList.toggle("on",on);b.setAttribute("aria-selected",on?"true":"false")});
+    grid.dataset.tab=t;grid.querySelectorAll("section.kp").forEach(sec=>{sec.hidden=sec.dataset.owt!==t});
+    [...grid.children].forEach(col=>{col.hidden=![...col.querySelectorAll("section.kp")].some(x=>!x.hidden)})};
+  bar.querySelectorAll("[data-owtab]").forEach(b=>b.onclick=e=>{e.preventDefault();zet(b.dataset.owtab)});
+  /* een veld dat niet goed is ingevuld in een ander tabblad: daar meteen naartoe */
+  const form=grid.closest("form");if(form)form.addEventListener("invalid",e=>{const s=e.target.closest&&e.target.closest("section.kp");if(s&&s.hidden&&s.dataset.owt&&s.dataset.owt!=="weg")zet(s.dataset.owt)},true);
+  zet("werk")}
