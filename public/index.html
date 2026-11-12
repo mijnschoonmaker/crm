@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="5fcd9aaa2631"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="558384d081c1"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -7479,6 +7479,12 @@ html body:not(#zz) .kk-tabs button.on{background:#fff!important;color:#252c3c!im
 }
 html body:not(#zz) .kd-tool-t b,html body:not(#zz) .kd-tool-t small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;word-break:normal;overflow-wrap:normal}
 @media (max-width:640px){html body:not(#zz) .kd-tool-c{display:block!important}html body:not(#zz) .kd-tool-i{width:34px!important;height:34px!important}}
+/* klantportaal-knoppen op de telefoon: onder elkaar over de volle breedte, tekst past altijd */
+@media (max-width:640px){
+  html body:not(#zz) .pt-acts{grid-template-columns:1fr!important}
+  html body:not(#zz) .pt-acts>button{letter-spacing:.06em!important;overflow:hidden;text-overflow:ellipsis}
+}
+html body:not(#zz) .ow-v2 section.kp.ow-kern{order:-10!important;grid-row:auto!important}
 
 </style>
 <div class="app">
@@ -15203,9 +15209,10 @@ function openOpdrachtWerk(kid,focus){
   openDlg(`<div class="kk-hero ow-hero kk-${status[0]}"><div class="kkh-r1"><span class="kkh-bc">${esc(cleanName(k.naam))}<i>/</i><b>${sR&&sR._nieuw?"Nieuwe opdracht":"Opdracht"} ${esc(nr)}-${soloNr}</b></span><span class="sp"></span><button type="button" class="kkh-ib" id="owX" aria-label="Terug naar klantkaart" title="Terug naar klantkaart">${I.x}</button></div>
     <div class="kkh-r2"><div class="kkh-wie"><span class="kkh-av ow-av">${I.checksq||I.check}</span><div class="kkh-nm"><div class="kkh-chips"><span class="kkh-st ${status[0]}"><i></i>${status[1]}</span><span class="kkh-c" data-opnr>Nr. <b>${esc(nr)}-${soloNr}</b></span>${isEersteKeer(k)&&!sR?'<span class="kkh-c">Eerste keer</span>':""}</div><h2>${esc(kTit)}</h2><span class="kkh-adr ow-for"><b>${esc(cleanName(k.naam))}</b><em id="owKopAdr">${I.pin}${esc(uLocTxt(uLoc))}</em></span></div></div>
       <div class="kkh-acts"><button type="button" class="kkh-b" id="owKkH">${I.user}Klantkaart</button></div></div>
-    <div class="kkh-tg"><div class="kkh-t"><span>Per keer</span><b>${kPrijs}</b><small>${esc(st.toonEx||!incl?"excl. btw":"incl. btw")}</small></div><div class="kkh-t"><span>Hoe vaak</span><b>${esc(kFreq)}</b><small>${kDuur} min per keer</small></div><div class="kkh-t"><span>Volgende beurt</span><b>${esc(kVolg)}</b><small class="${kIngepland?"ok":""}">${esc(kVolgS)}</small></div><div class="kkh-t"><span>Openstaand</span><b>${open.length?eur(open.reduce((a,f)=>a+totals(f).inc,0)):"€ 0,00"}</b><small class="${open.length?"late":""}">${open.length?plural(open.length,"factuur","facturen")+" open":"alles betaald"}</small></div></div></div>
+</div>
   <div class="hosp-top" id="owHospTop">${hospBlok(k,{leegKnop:false})}</div>
   <div class="kk-grid ow-grid kk-v2 ow-v2"><div class="kk-left">
+    <section class="kp ow-kern"><div class="kp-h"><b>In het kort</b></div><div class="kkh-tg kk-kern"><div class="kkh-t"><span>Per keer</span><b>${kPrijs}</b><small>${esc(st.toonEx||!incl?"excl. btw":"incl. btw")}</small></div><div class="kkh-t"><span>Hoe vaak</span><b>${esc(kFreq)}</b><small>${kDuur} min per keer</small></div><div class="kkh-t"><span>Volgende beurt</span><b>${esc(kVolg)}</b><small class="${kIngepland?"ok":""}">${esc(kVolgS)}</small></div><div class="kkh-t"><span>Openstaand</span><b>${open.length?eur(open.reduce((a,f)=>a+totals(f).inc,0)):"€ 0,00"}</b><small class="${open.length?"late":""}">${open.length?plural(open.length,"factuur","facturen")+" open":"alles betaald"}</small></div></div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klantgegevens</b><span class="sp"></span><button type="button" class="small" id="owKk">${I.right}Klantkaart</button></div>
       ${kv("Klantnummer",esc(nr))}${kv("Naam",esc(cleanName(k.naam)))}${kv("E-mail",k.email?`<a href="mailto:${esc(k.email)}">${esc(k.email)}</a>`:"—")}${kv("Telefoon",k.telefoon?`<a href="tel:${esc(String(k.telefoon).replace(/[^\d+]/g,""))}">${esc(k.telefoon)}</a>`:"—")}${kv("Soort",soortLbl(k))}</section>
     <section class="kp" id="owAdrK"><div class="kp-h"><span class="objic">${I.pin}</span><b>Factuuradres en ontvangers</b><span class="sp"></span>
@@ -15804,7 +15811,7 @@ document.addEventListener("click",e=>{const x=e.target.closest&&e.target.closest
 /* opdrachtkaart in drie tabbladen: Werk, Planning en afspraken, Facturatie. Alles blijft in het formulier en wordt in één keer opgeslagen */
 const OW_TABS=[["werk","Werk"],["planning","Planning"],["factuur","Facturatie"]];
 const OW_TABMAP=[[/^opdracht$|details contract/i,"planning"],[/^facturatie|factuuradres/i,"factuur"],[/^klantgegevens|^logboek/i,"weg"]];
-function owTabsInit(){const grid=document.querySelector("dialog[open] .ow-v2");if(!grid||grid.dataset.tabs)return;grid.dataset.tabs="1";
+function owTabsInit(){const grid=document.querySelector("dialog[open] .ow-v2");if(!grid||grid.dataset.tabs)return;grid.dataset.tabs="1";try{const kern=grid.querySelector(".ow-kern"),eerste=grid.querySelector(".kk-side section.kp")||[...grid.querySelectorAll("section.kp")].find(x=>x!==kern);if(kern&&eerste&&eerste.parentElement)eerste.parentElement.insertBefore(kern,eerste)}catch(e){}
   const bar=document.createElement("div");bar.className="kk-tabs ow-tabs";bar.setAttribute("role","tablist");
   bar.innerHTML=OW_TABS.map(([v,l])=>`<button type="button" role="tab" data-owtab="${v}">${({werk:I.wrench,planning:I.planning,factuur:I.facturen})[v]||""}<span>${l}</span></button>`).join("");
   grid.parentNode.insertBefore(bar,grid);

@@ -1651,3 +1651,9 @@ html body:not(#zz) .kk-tabs button.on{background:#fff!important;color:#252c3c!im
 }
 html body:not(#zz) .kd-tool-t b,html body:not(#zz) .kd-tool-t small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;word-break:normal;overflow-wrap:normal}
 @media (max-width:640px){html body:not(#zz) .kd-tool-c{display:block!important}html body:not(#zz) .kd-tool-i{width:34px!important;height:34px!important}}
+/* klantportaal-knoppen op de telefoon: onder elkaar over de volle breedte, tekst past altijd */
+@media (max-width:640px){
+  html body:not(#zz) .pt-acts{grid-template-columns:1fr!important}
+  html body:not(#zz) .pt-acts>button{letter-spacing:.06em!important;overflow:hidden;text-overflow:ellipsis}
+}
+html body:not(#zz) .ow-v2 section.kp.ow-kern{order:-10!important;grid-row:auto!important}
