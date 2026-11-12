@@ -16064,7 +16064,7 @@ function kkOverzicht(k,c){
         ${telNr?`<a class="kko-c" href="tel:${esc(tl2(telNr))}"><i>${I.phone}</i><span><b>${esc(telNr)}</b><small>${k.mobiel&&telNr===k.mobiel?"Mobiel":"Telefoon"}</small></span></a>`:""}
         ${k.email?`<a class="kko-c" href="mailto:${esc(k.email)}"><i>${I.mail}</i><span><b>${esc(k.email)}</b><small>Berichten en facturen</small></span></a>`:""}
         ${!telNr&&!k.email?'<p class="subt" style="margin:0">Nog geen telefoon of e-mail.</p>':""}</section>
-      <section class="kko-s"><h4>Afspraken</h4><div class="kko-chips">${afs.map(a=>`<span class="${a[1]?"aan":""}">${esc(a[0])}</span>`).join("")}</div></section>
+      <section class="kko-s"><h4>Afspraken met de klant</h4><div class="kko-chips">${afs.map(a=>`<span class="${a[1]?"aan":""}">${esc(a[0])}</span>`).join("")}</div></section>
       <section class="kko-s kko-zie"><div class="kko-h2"><h4>Wat ziet de klant</h4><button type="button" class="kko-l" data-kktab="gegevens">Portaal ›</button></div>
         <div class="kko-chips"><span>${k.verbergAantal?"Aantallen verborgen":"Aantallen zichtbaar"}</span><span>${k.verbergFreq?"Ritme verborgen":"Hoe vaak zichtbaar"}</span></div></section>
       <section class="kko-s kko-vk"><div><h4>Voorkeuren</h4><small>${esc(voork)}</small></div><button type="button" class="kko-ib" data-act="opdracht" data-id="${esc(k.id)}" data-o="main" aria-label="Voorkeuren aanpassen">${I.pencil}</button></section>
