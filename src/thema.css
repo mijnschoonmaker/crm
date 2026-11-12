@@ -1313,3 +1313,11 @@ html body:not(#zz) dialog.rc-ed-dlg::backdrop{-webkit-backdrop-filter:none;backd
 
 /* Vandaag: tegellabels zoals geschreven (Nog te gaan, Nog werk, Klaar rond) */
 html body:not(#zz) .rv .rv-rechts .rv-chips>span,html body:not(#zz) .rv .rv-rechts .rv-chips>span.rv-klaar{text-transform:none!important}
+/* klantkaart v2: kop en blokken (moet na de themaregels komen) */
+html body:not(#zz) dialog .kk-hero h2{font-family:Barlow,var(--f-title)!important;font-size:30px!important;font-weight:500!important;letter-spacing:.1em!important;line-height:1.05!important;color:#fff!important;text-transform:uppercase!important;margin:0!important}
+@media (max-width:820px){html body:not(#zz) dialog .kk-hero h2{font-size:22px!important;letter-spacing:.09em!important}}
+html body:not(#zz) .kk-v2 .kp-h .objic{display:none!important}
+html body:not(#zz) .kk-v2 .kp{border:0!important;border-radius:22px!important;box-shadow:0 1px 2px rgba(14,17,23,.05),0 6px 20px rgba(14,17,23,.06)!important}
+html body:not(#zz) .kk-v2>.kk-left .kp-h>b{font-size:11.5px!important;letter-spacing:.18em!important;color:#5b6270!important;font-weight:800!important}
+html body:not(#zz) .kk-hero .kkh-t small{color:#c3c9d3!important}html body:not(#zz) .kk-hero .kkh-t small.ok{color:#8ee0ad!important}html body:not(#zz) .kk-hero .kkh-t small.late{color:#f6a39d!important}
+html body:not(#zz) .kk-hero .kkh-t b{color:#fff!important}
