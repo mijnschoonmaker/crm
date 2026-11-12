@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="48855c64ea8f"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="da840512576c"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -7372,6 +7372,15 @@ html body:not(#zz) .kk-tabs button.on svg{opacity:1}
   html body:not(#zz) .kk-tabs{padding:6px!important;gap:6px!important;margin:6px 0 24px!important}
   html body:not(#zz) .kk-tabs button{flex-direction:column!important;gap:5px!important;padding:10px 4px 9px!important;font-size:12.5px!important}
   html body:not(#zz) .kk-tabs button svg{width:19px;height:19px}
+}
+/* tabbalk klant/opdracht: Gelders blauw, tabs over de volle breedte; op de telefoon van rand tot rand */
+html body:not(#zz) .kk-tabs{display:flex!important;width:100%!important;box-sizing:border-box!important;background:linear-gradient(180deg,#2d3548,#252c3c)!important;box-shadow:0 1px 0 rgb(255 255 255 / .06) inset,0 8px 22px -10px rgba(37,44,60,.55)!important;padding:6px!important;gap:4px!important;border-radius:18px!important}
+html body:not(#zz) .kk-tabs button{flex:1 1 0!important;justify-content:center!important;min-width:0!important;color:rgb(255 255 255 / .7)!important;transition:background .15s,color .15s}
+html body:not(#zz) .kk-tabs button.on{background:#fff!important;color:#252c3c!important;box-shadow:0 2px 10px rgba(0,0,0,.22)!important;font-weight:600!important}
+@media (max-width:640px){
+  html body:not(#zz) .kk-tabs{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;width:auto!important;margin:2px -16px 22px!important;border-radius:0!important;padding:8px 10px!important;gap:6px!important;box-shadow:0 6px 16px -10px rgba(37,44,60,.6)!important}
+  html body:not(#zz) dialog .kk-tabs{margin-left:-22px!important;margin-right:-22px!important}
+  html body:not(#zz) .kk-tabs button{padding:10px 4px 9px!important;border-radius:12px!important}
 }
 
 </style>
