@@ -460,16 +460,12 @@ function openSkip(id){
   <div class="sk-sec"><span class="eyebrow">${I.alert}Reden</span><div class="sk-redenen">${R.map((r,i)=>`<label class="sk-reden"><input type="radio" name="skr" value="${esc(r)}" ${i===0?"checked":""}><span>${IC[r]||I.note}<b>${esc(r==="Ziekte/personeelsuitval"?"Ziekte of uitval":r)}</b></span></label>`).join("")}</div></div>
   <div class="sk-sec"><span class="eyebrow">${I.planning}Wanneer weer aanbieden?</span><div class="sk-wanneer" role="group">${[["0","Morgen al",""],["1","Over 1 week",""],["int","Volgend interval","over "+intervalTxt(k)+" · aanbevolen"]].map(([v,l,s],i)=>`<label class="sk-w"><input type="radio" name="skW" value="${v}" ${v==="int"?"checked":""}><span><b>${l}</b>${s?`<small>${esc(s)}</small>`:""}</span></label>`).join("")}</div></div>
   <label>Notitie (optioneel)<input id="skN" placeholder="Bijv. hond los in de tuin"></label>
-  <label class="check-row sk-mld"><input type="checkbox" id="skMld" ${k.email||k.telefoon||k.mobiel?"checked":"disabled"}><span><b>Laat het de klant netjes weten</b><small>${k.email||k.telefoon||k.mobiel?"Een kort, vriendelijk bericht met de reden en wanneer we terugkomen. Je ziet het eerst voordat het weggaat.":"Geen e-mail of telefoonnummer bekend"}</small></span></label>
   <div class="row stickyfoot"><button type="button" class="ghost" data-act="close">Annuleren</button><span class="sp"></span><button type="submit" class="primary" id="skGo">${I.right}Overslaan</button></div>`);
-  /* klant belde zelf af of stelde uit: dan hoeft er geen bericht */
-  {const m=$("#skMld"),upd=()=>{const r=(form.querySelector('input[name="skr"]:checked')||{}).value||"";if(m&&!m.disabled)m.checked=!/uitgesteld|belde af|afgezegd/i.test(r)};form.querySelectorAll('input[name="skr"]').forEach(x=>x.addEventListener("change",upd));upd()}
   form.onsubmit=async e=>{e.preventDefault();const r=(form.querySelector('input[name="skr"]:checked')||{}).value||"Overgeslagen",w=(form.querySelector('input[name="skW"]:checked')||{}).value||"int",n=$("#skN").value.trim();
-    const meld=!!($("#skMld")&&$("#skMld").checked);const tot=w==="0"?addDays(today(),1):w==="1"?addDays(today(),7):addDays(today(),freqDays(k));
+    const tot=w==="0"?addDays(today(),1):w==="1"?addDays(today(),7):addDays(today(),freqDays(k));
     const prev={gepland:k.gepland||"",tijd:k.tijd||"",skipTot:k.skipTot||"",log:k.log||[]};
     try{await save("klanten",k.id,{...strip(k),gepland:"",tijd:"",bezig:"",skipTot:iso(tot),log:[...(k.log||[]),{datum:iso(today()),tekst:"Overgeslagen: "+r+(n?" · "+n:"")}]});dlg.close();
-      toast(cleanName(k.naam)+" overgeslagen, weer aangeboden vanaf "+fmtD(tot),()=>save("klanten",k.id,{...strip(k),...prev}));
-      if(meld)skipBericht(k,r,tot)}catch(er){err(er)}};
+      toast(cleanName(k.naam)+" overgeslagen, weer aangeboden vanaf "+fmtD(tot),()=>save("klanten",k.id,{...strip(k),...prev}))}catch(er){err(er)}};
 }
 
 
@@ -523,9 +519,3 @@ function webCalcVoorbeeld(html,titel,opt){webCalcVoorbeeld._recent=webCalcVoorbe
   if(!schrijf())f.srcdoc=bron}
 
 const websiteVoorbeeld=html=>webCalcVoorbeeld(html,"Website");
-
-/* overgeslagen beurt: de klant netjes laten weten waarom, en wanneer we terugkomen (zoals een kaartje onder de deur) */
-const SKIP_ZIN={"klant niet thuis":"We konden er zonder u niet goed bij, en we forceren liever niets.","niet thuis":"We konden er zonder u niet goed bij, en we forceren liever niets.","slecht weer":"Het weer liet niet toe om het netjes te doen, en dan wachten we liever even.","ziekte/personeelsuitval":"Door ziekte in ons team lukte het vandaag niet. Excuses daarvoor.","ziek":"Door ziekte in ons team lukte het vandaag niet. Excuses daarvoor.","defecte apparatuur":"Door een probleem met ons materiaal lukte het vandaag niet zoals we het willen doen.","geen toegang":"We konden vandaag niet goed bij uw ramen komen."};
-function skipBericht(k,reden,tot){try{const cur=state.klanten.find(x=>x.id===k.id)||k,zin=SKIP_ZIN[String(reden||"").toLowerCase()]||"Het lukte vandaag niet om het werk goed te doen.";
-  const vars={...klantVars(cur,tot),"reason.skip":zin};
-  setTimeout(()=>openCompose({title:"Beurt overgeslagen · "+cleanName(cur.naam),sjabloon:"gemist",kanaal:cur.email?"email":"whatsapp",recipients:[{k:cur,vars,ref:"gemist:"+cur.id+":"+iso(today())}]}),250)}catch(e){console.error(e)}}
