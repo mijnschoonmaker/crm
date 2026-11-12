@@ -7049,6 +7049,11 @@ html body:not(#zz) dialog .kk-kern .kkh-t span{letter-spacing:.06em!important;wh
 @media (max-width:640px){html body:not(#zz) dialog .kk-kern .kkh-t:nth-child(3){border-left:0!important}html body:not(#zz) dialog .kk-kern .kkh-t:nth-child(n+3){border-top:1px solid #e6e8ec!important}}
 html body:not(#zz) dialog .kk-kern{gap:0!important}
 @media (max-width:640px){html body:not(#zz) dialog .kk-kern .kkh-t span{font-size:10px!important;letter-spacing:.03em!important}}
+/* telefoon: klantkaart/opdracht altijd op dezelfde hoogte bovenaan, ook als er weinig op de pagina staat */
+@media (max-width:640px){
+  html body:not(#zz) dialog[open]:has(.kk-hero){height:calc(100dvh - 40px)!important}
+  html.zm body:not(#zz) dialog[open]:has(.kk-hero){height:calc(100dvh / .9 - 40px)!important}
+}
 
 </style>
 <div class="app">
