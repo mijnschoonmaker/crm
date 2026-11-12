@@ -1533,3 +1533,15 @@ html body:not(#zz) .kk-tabs button{text-transform:none!important;letter-spacing:
   html body:not(#zz) .kk-tabs.ow-tabs{grid-template-columns:repeat(3,minmax(0,1fr))!important}
   html body:not(#zz) .kk-tabs button{padding:10px 4px!important;font-size:13px!important;white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis;text-align:center;justify-content:center;border-radius:12px!important}
 }
+/* tabbladen als duidelijke navigatie: donkere balk zoals de kop, actief = wit */
+html body:not(#zz) .kk-tabs{background:#1f2533!important;border:0!important;box-shadow:0 6px 18px rgba(14,17,23,.14)!important;padding:5px!important;border-radius:16px!important;gap:4px!important;margin:4px 0 26px!important}
+html body:not(#zz) .kk-tabs button{color:rgb(255 255 255 / .72)!important;background:transparent!important;display:inline-flex!important;align-items:center!important;gap:8px!important;border-radius:12px!important}
+html body:not(#zz) .kk-tabs button svg{width:16px;height:16px;flex:none;opacity:.85}
+html body:not(#zz) .kk-tabs button:not(.on):hover{background:rgb(255 255 255 / .08)!important;color:#fff!important}
+html body:not(#zz) .kk-tabs button.on{background:#fff!important;color:#14171c!important;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+html body:not(#zz) .kk-tabs button.on svg{opacity:1}
+@media (max-width:640px){
+  html body:not(#zz) .kk-tabs{padding:6px!important;gap:6px!important;margin:6px 0 24px!important}
+  html body:not(#zz) .kk-tabs button{flex-direction:column!important;gap:5px!important;padding:10px 4px 9px!important;font-size:12.5px!important}
+  html body:not(#zz) .kk-tabs button svg{width:19px;height:19px}
+}

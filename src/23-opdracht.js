@@ -653,7 +653,7 @@ const OW_TABS=[["werk","Werk"],["planning","Planning"],["factuur","Facturatie"]]
 const OW_TABMAP=[[/^opdracht$|details contract/i,"planning"],[/^facturatie|factuuradres/i,"factuur"],[/^klantgegevens|^logboek/i,"weg"]];
 function owTabsInit(){const grid=document.querySelector("dialog[open] .ow-v2");if(!grid||grid.dataset.tabs)return;grid.dataset.tabs="1";
   const bar=document.createElement("div");bar.className="kk-tabs ow-tabs";bar.setAttribute("role","tablist");
-  bar.innerHTML=OW_TABS.map(([v,l])=>`<button type="button" role="tab" data-owtab="${v}">${l}</button>`).join("");
+  bar.innerHTML=OW_TABS.map(([v,l])=>`<button type="button" role="tab" data-owtab="${v}">${({werk:I.wrench,planning:I.planning,factuur:I.facturen})[v]||""}<span>${l}</span></button>`).join("");
   grid.parentNode.insertBefore(bar,grid);
   grid.querySelectorAll("section.kp").forEach(sec=>{const h=sec.querySelector(".kp-h b");const t=(h&&h.textContent||"").trim();let tab="werk";for(const [re,v] of OW_TABMAP)if(re.test(t)){tab=v;break}sec.dataset.owt=tab});
   const zet=t=>{state.owTab=t;bar.querySelectorAll("[data-owtab]").forEach(b=>{const on=b.dataset.owtab===t;b.classList.toggle("on",on);b.setAttribute("aria-selected",on?"true":"false")});

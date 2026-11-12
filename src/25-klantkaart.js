@@ -280,7 +280,7 @@ function kkDelOfferte(fid){const f=state.facturen.find(x=>x.id===fid);if(!f)retu
 /* ---------- klantkaart: tabbladen en overzicht (nov 2026) ---------- */
 const KK_TABS=[["overzicht","Overzicht"],["diensten","Diensten"],["bezoeken","Bezoeken"],["facturen","Facturen"],["berichten","Berichten"],["gegevens","Gegevens"]];
 const KK_TABMAP=[[/^locaties|^opdrachten/i,"diensten"],[/ingeplande afspraken|^bezoeken/i,"bezoeken"],[/^offertes|facturen/i,"facturen"],[/^logboek|berichten/i,"berichten"]];
-function kkOvTabs(){const t=state.kkTab||"overzicht";return `<nav class="kk-tabs" aria-label="Onderdelen van de klantkaart">${KK_TABS.map(([id,l])=>`<button type="button" class="${t===id?"on":""}" data-kktab="${id}">${l}</button>`).join("")}</nav>`}
+function kkOvTabs(){const t=state.kkTab||"overzicht";return `<nav class="kk-tabs" aria-label="Onderdelen van de klantkaart">${KK_TABS.map(([id,l])=>`<button type="button" class="${t===id?"on":""}" data-kktab="${id}">${({overzicht:I.trend||I.eye,diensten:I.checksq||I.check,bezoeken:I.planning,facturen:I.facturen,berichten:I.chat||I.mail,gegevens:I.user})[id]||""}<span>${l}</span></button>`).join("")}</nav>`}
 function kkTabsInit(form){const body=form.querySelector("#kkBody"),ov=form.querySelector("#kkOv");if(!body)return;
   body.querySelectorAll("section.kp").forEach(sec=>{const h=sec.querySelector(".kp-h>b,.kp-h b,h3,h4");const tt=(h&&h.textContent||"").trim();let tab="gegevens";for(const [re,t] of KK_TABMAP)if(re.test(tt)){tab=t;break}sec.dataset.kkt=tab});
   const zet=t=>{state.kkTab=t;form.querySelectorAll("[data-kktab]").forEach(b=>b.classList.toggle("on",b.dataset.kktab===t));

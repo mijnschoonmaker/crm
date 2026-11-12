@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="36e5eeadbaab"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="91661e0173a9"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -7360,6 +7360,18 @@ html body:not(#zz) .kk-tabs button{text-transform:none!important;letter-spacing:
   html body:not(#zz) .kk-tabs{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:4px!important;overflow:visible!important;width:100%!important;padding:4px!important;border-radius:16px!important}
   html body:not(#zz) .kk-tabs.ow-tabs{grid-template-columns:repeat(3,minmax(0,1fr))!important}
   html body:not(#zz) .kk-tabs button{padding:10px 4px!important;font-size:13px!important;white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis;text-align:center;justify-content:center;border-radius:12px!important}
+}
+/* tabbladen als duidelijke navigatie: donkere balk zoals de kop, actief = wit */
+html body:not(#zz) .kk-tabs{background:#1f2533!important;border:0!important;box-shadow:0 6px 18px rgba(14,17,23,.14)!important;padding:5px!important;border-radius:16px!important;gap:4px!important;margin:4px 0 26px!important}
+html body:not(#zz) .kk-tabs button{color:rgb(255 255 255 / .72)!important;background:transparent!important;display:inline-flex!important;align-items:center!important;gap:8px!important;border-radius:12px!important}
+html body:not(#zz) .kk-tabs button svg{width:16px;height:16px;flex:none;opacity:.85}
+html body:not(#zz) .kk-tabs button:not(.on):hover{background:rgb(255 255 255 / .08)!important;color:#fff!important}
+html body:not(#zz) .kk-tabs button.on{background:#fff!important;color:#14171c!important;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+html body:not(#zz) .kk-tabs button.on svg{opacity:1}
+@media (max-width:640px){
+  html body:not(#zz) .kk-tabs{padding:6px!important;gap:6px!important;margin:6px 0 24px!important}
+  html body:not(#zz) .kk-tabs button{flex-direction:column!important;gap:5px!important;padding:10px 4px 9px!important;font-size:12.5px!important}
+  html body:not(#zz) .kk-tabs button svg{width:19px;height:19px}
 }
 
 </style>
@@ -15688,7 +15700,7 @@ const OW_TABS=[["werk","Werk"],["planning","Planning"],["factuur","Facturatie"]]
 const OW_TABMAP=[[/^opdracht$|details contract/i,"planning"],[/^facturatie|factuuradres/i,"factuur"],[/^klantgegevens|^logboek/i,"weg"]];
 function owTabsInit(){const grid=document.querySelector("dialog[open] .ow-v2");if(!grid||grid.dataset.tabs)return;grid.dataset.tabs="1";
   const bar=document.createElement("div");bar.className="kk-tabs ow-tabs";bar.setAttribute("role","tablist");
-  bar.innerHTML=OW_TABS.map(([v,l])=>`<button type="button" role="tab" data-owtab="${v}">${l}</button>`).join("");
+  bar.innerHTML=OW_TABS.map(([v,l])=>`<button type="button" role="tab" data-owtab="${v}">${({werk:I.wrench,planning:I.planning,factuur:I.facturen})[v]||""}<span>${l}</span></button>`).join("");
   grid.parentNode.insertBefore(bar,grid);
   grid.querySelectorAll("section.kp").forEach(sec=>{const h=sec.querySelector(".kp-h b");const t=(h&&h.textContent||"").trim();let tab="werk";for(const [re,v] of OW_TABMAP)if(re.test(t)){tab=v;break}sec.dataset.owt=tab});
   const zet=t=>{state.owTab=t;bar.querySelectorAll("[data-owtab]").forEach(b=>{const on=b.dataset.owtab===t;b.classList.toggle("on",on);b.setAttribute("aria-selected",on?"true":"false")});
@@ -16345,7 +16357,7 @@ function kkDelOfferte(fid){const f=state.facturen.find(x=>x.id===fid);if(!f)retu
 /* ---------- klantkaart: tabbladen en overzicht (nov 2026) ---------- */
 const KK_TABS=[["overzicht","Overzicht"],["diensten","Diensten"],["bezoeken","Bezoeken"],["facturen","Facturen"],["berichten","Berichten"],["gegevens","Gegevens"]];
 const KK_TABMAP=[[/^locaties|^opdrachten/i,"diensten"],[/ingeplande afspraken|^bezoeken/i,"bezoeken"],[/^offertes|facturen/i,"facturen"],[/^logboek|berichten/i,"berichten"]];
-function kkOvTabs(){const t=state.kkTab||"overzicht";return `<nav class="kk-tabs" aria-label="Onderdelen van de klantkaart">${KK_TABS.map(([id,l])=>`<button type="button" class="${t===id?"on":""}" data-kktab="${id}">${l}</button>`).join("")}</nav>`}
+function kkOvTabs(){const t=state.kkTab||"overzicht";return `<nav class="kk-tabs" aria-label="Onderdelen van de klantkaart">${KK_TABS.map(([id,l])=>`<button type="button" class="${t===id?"on":""}" data-kktab="${id}">${({overzicht:I.trend||I.eye,diensten:I.checksq||I.check,bezoeken:I.planning,facturen:I.facturen,berichten:I.chat||I.mail,gegevens:I.user})[id]||""}<span>${l}</span></button>`).join("")}</nav>`}
 function kkTabsInit(form){const body=form.querySelector("#kkBody"),ov=form.querySelector("#kkOv");if(!body)return;
   body.querySelectorAll("section.kp").forEach(sec=>{const h=sec.querySelector(".kp-h>b,.kp-h b,h3,h4");const tt=(h&&h.textContent||"").trim();let tab="gegevens";for(const [re,t] of KK_TABMAP)if(re.test(tt)){tab=t;break}sec.dataset.kkt=tab});
   const zet=t=>{state.kkTab=t;form.querySelectorAll("[data-kktab]").forEach(b=>b.classList.toggle("on",b.dataset.kktab===t));
