@@ -6814,6 +6814,7 @@ html body:not(#zz) .ow-v2 .ow-per{border-radius:16px!important;background:#f7f7f
 @media (max-width:820px){.ow-hero .kkh-acts{display:flex!important;width:auto}.ow-hero .kkh-b{flex-direction:row;height:40px;padding:0 14px;font-size:11.5px}}
 html body:not(#zz) .ow-v2>.kk-side .kp-h>div>b{font-family:Barlow,var(--f-title)!important;font-size:18px!important;font-weight:600!important;letter-spacing:.06em!important;text-transform:uppercase!important;color:#14171c!important;display:block}
 html body:not(#zz) .ow-v2>.kk-left .kp-h>div>b{font-size:11.5px!important;letter-spacing:.16em!important;color:#5b6270!important;font-weight:800!important;text-transform:uppercase!important;display:block}
+html body:not(#zz) .ow-hero [data-opnr] b{font-weight:600!important;color:inherit!important;font-size:inherit!important}
 
 </style>
 <div class="app">
@@ -14536,7 +14537,7 @@ function openOpdrachtWerk(kid,focus){
   const kVolgS=sR?(sR.volgende?"ingepland":"nog geen datum"):(k.gepland?((k.tijd?k.tijd+" · ":"")+"ingepland"):"nog geen datum");
   const kIngepland=sR?!!sR.volgende:!!k.gepland;
   openDlg(`<div class="kk-hero ow-hero kk-${status[0]}"><div class="kkh-r1"><span class="kkh-bc">${esc(cleanName(k.naam))}<i>/</i><b>${sR&&sR._nieuw?"Nieuwe opdracht":"Opdracht"} ${esc(nr)}-${soloNr}</b></span><span class="sp"></span><button type="button" class="kkh-ib" id="owX" aria-label="Terug naar klantkaart" title="Terug naar klantkaart">${I.x}</button></div>
-    <div class="kkh-r2"><div class="kkh-wie"><span class="kkh-av ow-av">${I.checksq||I.check}</span><div class="kkh-nm"><div class="kkh-chips"><span class="kkh-st ${status[0]}"><i></i>${status[1]}</span><span class="kkh-c">Nr. ${esc(nr)}-${soloNr}</span>${isEersteKeer(k)&&!sR?'<span class="kkh-c">Eerste keer</span>':""}</div><h2>${esc(kTit)}</h2><span class="kkh-adr ow-for"><b>${esc(cleanName(k.naam))}</b><em id="owKopAdr">${I.pin}${esc(uLocTxt(uLoc))}</em></span></div></div>
+    <div class="kkh-r2"><div class="kkh-wie"><span class="kkh-av ow-av">${I.checksq||I.check}</span><div class="kkh-nm"><div class="kkh-chips"><span class="kkh-st ${status[0]}"><i></i>${status[1]}</span><span class="kkh-c" data-opnr>Nr. <b>${esc(nr)}-${soloNr}</b></span>${isEersteKeer(k)&&!sR?'<span class="kkh-c">Eerste keer</span>':""}</div><h2>${esc(kTit)}</h2><span class="kkh-adr ow-for"><b>${esc(cleanName(k.naam))}</b><em id="owKopAdr">${I.pin}${esc(uLocTxt(uLoc))}</em></span></div></div>
       <div class="kkh-acts"><button type="button" class="kkh-b" id="owKkH">${I.user}Klantkaart</button></div></div>
     <div class="kkh-tg"><div class="kkh-t"><span>Per keer</span><b>${kPrijs}</b><small>${esc(st.toonEx||!incl?"excl. btw":"incl. btw")}</small></div><div class="kkh-t"><span>Hoe vaak</span><b>${esc(kFreq)}</b><small>${kDuur} min per keer</small></div><div class="kkh-t"><span>Volgende beurt</span><b>${esc(kVolg)}</b><small class="${kIngepland?"ok":""}">${esc(kVolgS)}</small></div><div class="kkh-t"><span>Openstaand</span><b>${open.length?eur(open.reduce((a,f)=>a+totals(f).inc,0)):"€ 0,00"}</b><small class="${open.length?"late":""}">${open.length?plural(open.length,"factuur","facturen")+" open":"alles betaald"}</small></div></div></div>
   <div class="hosp-top" id="owHospTop">${hospBlok(k,{leegKnop:false})}</div>

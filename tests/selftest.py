@@ -474,8 +474,8 @@ def nieuweOpdracht(pg):
     G = "Opdrachten"
     r = pg.evaluate("""async()=>{const T=MSTEST;if(!T.openOpdrachtWerk)return null;const id=T.newId('ko');
       await T.save('klanten',id,{naam:'Opdracht, Test',klantnr:'1099',prijs:40,frequentie:8,actief:true,dienst:'Glasbewassing',log:[],objecten:[]});
-      T.openOpdrachtWerk(id,'new');await new Promise(r=>setTimeout(r,300));const kop=(document.querySelector('.jp-k1 b')||{}).textContent||'',lijnen=document.querySelectorAll('#owLines .ow-line').length;
-      document.querySelectorAll('dialog[open]').forEach(d=>d.close());T.openOpdrachtWerk(id,'main');await new Promise(r=>setTimeout(r,300));const kop2=(document.querySelector('.jp-k1 b')||{}).textContent||'';
+      T.openOpdrachtWerk(id,'new');await new Promise(r=>setTimeout(r,300));const kop=(document.querySelector('.jp-k1 b,[data-opnr] b')||{}).textContent||'',lijnen=document.querySelectorAll('#owLines .ow-line').length;
+      document.querySelectorAll('dialog[open]').forEach(d=>d.close());T.openOpdrachtWerk(id,'main');await new Promise(r=>setTimeout(r,300));const kop2=(document.querySelector('.jp-k1 b,[data-opnr] b')||{}).textContent||'';
       document.querySelectorAll('dialog[open]').forEach(d=>d.close());await T.del('klanten',id);return {kop,lijnen,kop2}}""")
     if r is None:
         return check(G, "Nieuwe opdracht", False, "openOpdrachtWerk niet gevonden")
