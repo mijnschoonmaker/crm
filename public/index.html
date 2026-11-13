@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="bf57e59dc82b"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="3351117f218e"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -16944,7 +16944,7 @@ function kkTabsInit(form){const body=form.querySelector("#kkBody"),ov=form.query
   const all=[...body.querySelectorAll("section.kp")],naarL=/^(klantgegevens|contactpersonen|adresgegevens|opmerkingen|klantportaal|klantdocumenten|gastvrijheid)/,naarS=/^(opdrachten|overzicht ingeplande|historie bezoeken|alle facturen|offertes|locaties|logboek)/;
   all.forEach(x=>{const t=titel(x);if(naarL.test(t)&&x.parentElement!==L)L.appendChild(x);else if(naarS.test(t)&&x.parentElement!==S)S.appendChild(x)});
   zet(L,[/^gastvrijheid/,/^klantgegevens/,/^contactpersonen/,/^adresgegevens/,/^opmerkingen/,/^klantportaal/,/^klantdocumenten/]);
-  zet(S,[/^opdrachten/,/^overzicht ingeplande/,/^historie bezoeken/,/^alle facturen/,/^offertes/,/^locaties/,/^logboek/]);[...body.children].forEach(c=>c.hidden=false);form.dataset.kktab="overzicht";state.kkTab="overzicht";
+  zet(S,[/^locaties/,/^opdrachten/,/^overzicht ingeplande/,/^historie bezoeken/,/^alle facturen/,/^offertes/,/^logboek/]);[...body.children].forEach(c=>c.hidden=false);form.dataset.kktab="overzicht";state.kkTab="overzicht";
   const doel={werk:/historie bezoeken|ingeplande afspraken|opdrachten/i,geld:/alle facturen|facturen|offertes/i,klant:/logboek|klantgegevens/i};
   form.querySelectorAll("[data-kktab]").forEach(b=>b.onclick=e=>{e.preventDefault();const t=KK_ALIAS[b.dataset.kktab]||b.dataset.kktab,re=doel[t];if(!re)return;
     const sec=[...body.querySelectorAll("section.kp")].find(x=>re.test((x.querySelector(".kp-h b")||{}).textContent||""));if(sec){sec.scrollIntoView({behavior:"smooth",block:"start"});sec.classList.add("kk-flits");setTimeout(()=>sec.classList.remove("kk-flits"),1400)}})}
