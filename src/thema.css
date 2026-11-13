@@ -1804,3 +1804,55 @@ html body:not(#zz):not(#zy) .kko-s>.kko-h :is(.kko-k,button):hover svg,html body
 /* koppen: licht staalblauw, niet richting paars */
 html body:not(#zz):not(#zy) :is(.kko-s>.kko-h,.kk-v2 .kp>.kp-h,.ow-v2 .kp>.kp-h,.cc .cc-card>.cc-ch,.cc .cc-adv>.cc-ah){background:repeating-linear-gradient(115deg,rgb(30 58 82 / .022) 0 1px,transparent 1px 22px),linear-gradient(180deg,#eef2f5 0%,#e3e9ee 100%)!important;border-bottom:1px solid #d6dee5!important}
 html body:not(#zz):not(#zy) :is(.kko-s>.kko-h,.kk-v2 .kp>.kp-h,.ow-v2 .kp>.kp-h) .objic,html body:not(#zz):not(#zy) .cc .cc-adv>.cc-ah .cc-aic,html body:not(#zz):not(#zy) .cc .cc-card>.cc-ch b>svg,html body:not(#zz):not(#zy) .kko-s>.kko-h :is(.kko-k,button),html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h :is(button,.btn,a.btn,label.iconbtn),html body:not(#zz):not(#zy) .cc .cc-card>.cc-ch :is(.cc-link,button){border-color:#d3dce3!important}
+
+/* ====================================================================
+   Klantkaart nieuwe indeling (nov 2026): hospitality in de kop, aanklikbare
+   kerncijfers, aandachtsbalk, vier tabbladen, knoppenbalk op de telefoon
+   ==================================================================== */
+html body:not(#zz) .kkh-hosp{display:flex;align-items:center;gap:8px;margin-top:10px;padding:6px 12px 6px 10px;width:max-content;max-width:100%;border-radius:99px;background:rgb(255 255 255 / .08);border:1px solid rgb(255 255 255 / .16);color:rgb(255 255 255 / .9);font-size:13px}
+html body:not(#zz) .kkh-hosp svg{flex:none;color:#e8b9b4}
+html body:not(#zz) .kkh-hosp span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* kerncijfers aanklikbaar */
+html body:not(#zz):not(#zy) dialog .kk-kern .kkh-t.kkh-go{cursor:pointer;transition:background .2s}
+html body:not(#zz):not(#zy) dialog .kk-kern .kkh-t.kkh-go:hover{background:rgb(255 255 255 / .45)!important}
+html body:not(#zz):not(#zy) dialog .kk-kern .kkh-t.kkh-go::after{content:"›";position:absolute;right:16px;top:22px;font-size:18px;color:#9aa1ad;transition:transform .2s}
+html body:not(#zz):not(#zy) dialog .kk-kern .kkh-t.kkh-go:hover::after{transform:translateX(3px);color:#252c3c}
+html body:not(#zz):not(#zy) dialog .kk-kern .kkh-ic:has(.kkh-dot){display:grid;place-items:center}
+html body:not(#zz) .kkh-dot{width:12px;height:12px;border-radius:50%;background:#b5bac3;box-shadow:0 0 0 4px rgb(181 186 195 / .18)}
+html body:not(#zz) .kkh-dot.ok{background:#2f9e63;box-shadow:0 0 0 4px rgb(47 158 99 / .16)}
+html body:not(#zz) .kkh-dot.let{background:#d9922b;box-shadow:0 0 0 4px rgb(217 146 43 / .18)}
+html body:not(#zz) .kkh-dot.late{background:#c9473b;box-shadow:0 0 0 4px rgb(201 71 59 / .16)}
+html body:not(#zz):not(#zy) dialog .kk-kern .kkh-t small.let{color:#a8661a!important}
+/* aandachtsbalk */
+html body:not(#zz) .kk-let{display:flex;flex-direction:column;gap:8px;margin-top:-2px}
+html body:not(#zz) .kk-li{position:relative;display:flex;align-items:center;gap:14px;padding:12px 14px 12px 18px;background:#fff;border:1px solid #e2e5ea;border-radius:16px;overflow:hidden;box-shadow:0 1px 2px rgb(26 32 48 / .04)}
+html body:not(#zz) .kk-li::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:4px;border-radius:0 4px 4px 0;background:#d9922b}
+html body:not(#zz) .kk-li.late::before{background:#c9473b}
+html body:not(#zz) .kk-lic{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#fcf1df;color:#a8661a}
+html body:not(#zz) .kk-li.late .kk-lic{background:#fbe6e3;color:#b03a32}
+html body:not(#zz) .kk-lic svg{width:16px;height:16px}
+html body:not(#zz) .kk-lt{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+html body:not(#zz) .kk-lt b{font-size:14.5px;font-weight:600;color:#14181f}
+html body:not(#zz) .kk-lt small{font-size:12.5px;color:#646b7a}
+html body:not(#zz) .kk-lb{flex:none;height:34px;padding:0 14px;border-radius:9px;background:#252c3c;color:#fff;border:0;font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
+html body:not(#zz) .kk-lb:hover{background:#1c2231}
+/* knoppenbalk op de telefoon */
+html body:not(#zz) .kk-actbar{display:none}
+@media (max-width:640px){
+  html body:not(#zz) .kk-actbar{position:sticky;bottom:0;z-index:20;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:6px;margin:16px -16px calc(-1*env(safe-area-inset-bottom,0px));padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));background:rgb(255 255 255 / .92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid #e2e5ea}
+  html body:not(#zz) .kk-actbar :is(a,button){display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px;border-radius:12px;background:none;border:0;color:#252c3c;font-size:11px;font-weight:600;text-decoration:none;min-height:0}
+  html body:not(#zz) .kk-actbar :is(a,button):active{background:#eef2f5}
+  html body:not(#zz) .kk-actbar svg{width:20px;height:20px}
+  html body:not(#zz) .kk-li{padding:10px 10px 10px 16px;gap:10px}
+  html body:not(#zz) .kk-lb{padding:0 10px;font-size:10px;letter-spacing:.1em}
+  html body:not(#zz) .kkh-hosp{font-size:12px;width:auto}
+}
+html body:not(#zz):not(#zy) dialog .kk-kern .kkh-t span{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;padding-right:14px}
+html body:not(#zz) #kkBody[data-tab="werk"]>.kk-side{order:-1}
+html body:not(#zz) #kkBody[data-tab="klant"]>.kk-left{order:-1}
+html body:not(#zz) .kk-tabs:not(.ow-tabs){--kkn:4}
+@media (max-width:640px){
+  html body:not(#zz) .kk-actbar{position:fixed!important;left:0;right:0;bottom:0;margin:0!important}
+  html body:not(#zz) dialog[open]:has(.kk-actbar) form.dlg{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
+}
+@media (max-width:640px){html body:not(#zz) .kk-actbar :is(a,button){background:none!important;box-shadow:none!important;border:0!important}html body:not(#zz):not(#zy) dialog .kk-kern .kkh-t.kkh-go::after{display:none}}

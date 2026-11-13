@@ -57,14 +57,23 @@ function openKlantView(id,opt={}){
   const perB=k.opdrachtVerwijderd?(opdr[0]?toonK(k,opdr[0].prijs):0):(typeof stopBedrag==="function"?stopBedrag(k):toonK(k,k.prijs));
   const jaarK=typeof stJaarK==="function"?stJaarK(k):0,openS=openF.reduce((a,f)=>a+Math.max(0,totals(f).inc-(Number(f.deelBetaald)||0)),0);
   const telNr=String(k.telefoon||k.mobiel||"").replace(/[^\d+]/g,"");
-  const kt=(l,v,s,c,ic)=>`<div class="kkh-t">${ic?`<i class="kkh-ic">${ic}</i>`:""}<span>${l}</span><b>${v}</b>${s?`<small class="${c||""}">${s}</small>`:""}</div>`;
-  const kern=`<section class="kko-s kko-kern"><div class="kko-h"><h3>In het kort</h3></div><div class="kkh-tg kk-kern">${kt("Volgende beurt",esc(gpTxt),gpK?(k.tijd?esc(k.tijd)+" · ":"")+(gpK<today()?"niet gedaan":"ingepland"):(k.prospect?"wacht op akkoord":"nog geen datum"),gpK&&gpK>=today()?"ok":"",I.cal2||I.planning)}${kt("Per beurt",eur(perB),opdr[0]?esc(opdr[0].dienst||"")+" · "+esc(freqLabel(Number(opdr[0].frequentie)||52).toLowerCase()):"","",I.euro)}${kt("Verwacht per jaar",jaarK?eur(Math.round(jaarK)):"—","ex btw · "+plural(opdr.length,"dienst","diensten"),"",I.trend)}${kt("Openstaand",eur(openS),openF.length?plural(openF.length,"factuur","facturen")+" open":bg.gem!=null?"betaalt gemiddeld in "+bg.gem+" "+(bg.gem===1?"dag":"dagen"):"",openF.length?"late":"ok",I.facturen)}</div></section>`;
+  const kt=(l,v,s,c,ic,at)=>`<div class="kkh-t${at?" kkh-go":""}"${at?" "+at+' tabindex="0" role="button"':""}>${ic?`<i class="kkh-ic">${ic}</i>`:""}<span>${l}</span><b>${v}</b>${s?`<small class="${c||""}">${s}</small>`:""}</div>`;
+  const bgAfg=bg.c.optijd+bg.c.herinnering+bg.c.aanmaning,bgPct=bgAfg?Math.round(bg.c.optijd/bgAfg*100):null,bgK=bgPct==null?"":bgPct>=90?"ok":bgPct>=70?"let":"late";
+  const opA=`data-act="opdracht" data-id="${esc(k.id)}" data-o="main"`;
+  const kern=`<section class="kko-s kko-kern"><div class="kko-h"><h3>In het kort</h3></div><div class="kkh-tg kk-kern">${kt("Volgende beurt",esc(gpTxt),gpK?(k.tijd?esc(k.tijd)+" · ":"")+(gpK<today()?"niet gedaan":"ingepland"):(k.prospect?"wacht op akkoord":"nog geen datum"),gpK&&gpK>=today()?"ok":gpK?"late":"",I.cal2||I.planning,opA)}${kt("Per beurt",eur(perB),jaarK?eur(Math.round(jaarK))+" per jaar":opdr[0]?esc(freqLabel(Number(opdr[0].frequentie)||52)):"","",I.euro,opA)}${kt("Openstaand",eur(openS),openF.length?plural(openF.length,"factuur","facturen")+" open":"niets open",openF.length?"late":"ok",I.facturen,'data-kktab="geld"')}${kt("Betaalgedrag",bgPct==null?"—":bgPct+"% op tijd",bg.gem!=null?"gemiddeld "+bg.gem+" "+(bg.gem===1?"dag":"dagen"):"nog geen betalingen",bgK,`<span class="kkh-dot ${bgK||"leeg"}"></span>`,'data-kktab="geld"')}</div></section>`;
+  /* aandacht: alleen als er echt iets moet gebeuren, met de knop erbij */
+  const fLaat=openF.filter(f=>fStatus(f)[1]==="Achterstallig"),offOpen=(offs||[]).filter(f=>f.status==="verstuurd"&&f.datum&&(today()-parse(String(f.datum).slice(0,10)))/DAY>=14);
+  const let_=[fLaat.length?["late",I.facturen,plural(fLaat.length,"factuur","facturen")+" over de betaaltermijn",eur(fLaat.reduce((a,f)=>a+Math.max(0,totals(f).inc-(Number(f.deelBetaald)||0)),0))+" open","Bekijken",'data-kktab="geld"']:null,
+    !k.prospect&&k.actief!==false&&!k.opdrachtVerwijderd&&!gpK&&Number(k.frequentie)!==FQ_AFROEP?["let",I.planning,"Nog niet ingepland","De volgende beurt heeft nog geen datum","Inplannen",opA]:null,
+    gpK&&gpK<today()?["let",I.planning,"Beurt van "+esc(fmtD(k.gepland))+" niet afgemeld","Afmelden of opnieuw inplannen","Openen",opA]:null,
+    !k.prospect&&offOpen.length?["let",I.offertes,"Offerte "+esc(offOpen[0].nummer||"")+" wacht op reactie",Math.round((today()-parse(String(offOpen[0].datum).slice(0,10)))/DAY)+" dagen geleden verstuurd","Bekijken",'data-kktab="geld"']:null].filter(Boolean);
+  const aandacht=let_.length?`<div class="kk-let">${let_.map(([c,ic,t,sub,kn,at])=>`<div class="kk-li ${c}"><span class="kk-lic">${ic}</span><span class="kk-lt"><b>${t}</b><small>${sub}</small></span><button type="button" class="kk-lb" ${at}>${kn}</button></div>`).join("")}</div>`:"";
   openDlg(`<div class="kk-hero kk-${stH[0]}"><div class="kkh-r1"><span class="kkh-bc">Klanten<i>/</i><b>${esc(cleanName(k.naam))}</b></span><span class="sp"></span><button type="button" class="kkh-ib" data-kk="edit" aria-label="Klantgegevens aanpassen" title="Klantgegevens aanpassen">${I.pencil}</button><button type="button" class="kkh-ib" data-act="close" aria-label="Sluiten">${I.x}</button></div>
-    <div class="kkh-r2"><div class="kkh-wie"><span class="kkh-av">${esc(initials(k.naam))}</span><div class="kkh-nm"><div class="kkh-tl"><h2>${esc(cleanName(k.naam))}</h2><span class="kkh-st ${stH[0]}"><i></i>${stH[1]}</span></div><a class="kkh-adr" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.pin}${esc(fullAddr(k))}</a><div class="kkh-meta"><span>${esc(soortLbl(k))}</span>${k.nieuweKlant?`<span>Nieuwe klant</span>`:""}${k.aangemaakt?`<span>Klant sinds ${esc(parse(String(k.aangemaakt).slice(0,10)).toLocaleDateString("nl-NL",{month:"long",year:"numeric"}))}</span>`:""}<span>Nr. ${esc(nr)}</span></div></div></div>
+    <div class="kkh-r2"><div class="kkh-wie"><span class="kkh-av">${esc(initials(k.naam))}</span><div class="kkh-nm"><div class="kkh-tl"><h2>${esc(cleanName(k.naam))}</h2><span class="kkh-st ${stH[0]}"><i></i>${stH[1]}</span></div><a class="kkh-adr" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.pin}${esc(fullAddr(k))}</a><div class="kkh-meta"><span>${esc(soortLbl(k))}</span>${k.nieuweKlant?`<span>Nieuwe klant</span>`:""}${k.aangemaakt?`<span>Klant sinds ${esc(parse(String(k.aangemaakt).slice(0,10)).toLocaleDateString("nl-NL",{month:"long",year:"numeric"}))}</span>`:""}<span>Nr. ${esc(nr)}</span></div>${(()=>{const h=typeof hospList==="function"?hospList(k).slice(0,3):[];return h.length?`<div class="kkh-hosp"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.8 4.5c2.1 0 3.6 1.1 4.4 2.5.8-1.4 2.3-2.5 4.4-2.5 3.8 0 5.9 3.9 4.4 7.3C19.5 16.4 12 21 12 21z"/></svg><span>${h.map(x=>esc(String(x.t).trim())).join(" · ")}</span></div>`:""})()}</div></div>
       </div>
 </div>
   ${typeof opdrJobBanner==="function"?opdrJobBanner(k):""}${isOBeurt(k)?`<div class="hosp-top">${oBeurtBlok(k)}</div>`:""}<div class="hosp-top">${hospBlok(k)}</div>
-  ${kkOvTabs()}${kkOverzicht(k,{opdr,hist,facs,msgs,openF,bg,kern})}
+  ${kkOvTabs()}${kkOverzicht(k,{opdr,hist,facs,msgs,openF,bg,kern:kern+aandacht})}
   ${k.prospect?(()=>{const of=offs.find(f=>f.status!=="afgewezen"&&f.status!=="geaccepteerd");return of||offs.length?`<div class="banner"><div><b>Offerte${of?" "+esc(of.nummer):""} wacht op akkoord</b><br><small>Deze klant staat nog niet in de planning.</small></div>${of?`<button type="button" class="primary small" data-act="akkoord" data-id="${esc(of.id)}">Akkoord en inplannen</button>`:""}</div>`:`<div class="banner"><div><b>Nieuwe klant · nog geen offerte</b><br><small>Volgende stap: offerte maken. Na akkoord komt de klant in de planning.</small></div><button type="button" class="primary small" data-act="newofferte" data-id="${esc(k.id)}">${I.offertes}Offerte maken</button></div>`})():""}
   <div class="kk-grid kd kk-v2" id="kkBody"><div class="kk-left">
     <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klantgegevens</b><span class="sp"></span>${pen("edit","Klantgegevens aanpassen")}</div>
@@ -115,7 +124,9 @@ function openKlantView(id,opt={}){
         return `<div class="lgb">${L.slice(0,N).map(l=>{const sum=l.o||kort(l.t),meer=String(l.t||"").trim()&&String(l.t).trim()!==sum;return `<details class="lgb-r"><summary><span class="lgb-d">${esc(fmtD(l.d))}${l.u?`<i>${esc(l.u)}</i>`:""}</span><span class="lgb-s ${l.s==="Notitie"?"n":""}">${esc(l.s)}</span><span class="lgb-t">${esc(sum)}</span>${meer?`<span class="lgb-oog" aria-label="Volledig bekijken">${I.eye}</span>`:""}</summary>${meer?`<div class="lgb-x">${esc(l.t)}</div>`:""}</details>`}).join("")}</div>
           ${L.length>N?`<button type="button" class="small ghost" data-act="kklogmeer" style="align-self:flex-start">Meer tonen (${L.length-N})</button>`:N>5?`<button type="button" class="small ghost" data-act="kklogmin" style="align-self:flex-start">Minder tonen</button>`:""}`})()}
       <div class="log-in"><input id="kd-log" placeholder="Notitie toevoegen…" aria-label="Notitie voor het logboek"><button type="button" class="small primary" id="kdLog">${I.plus}Noteer</button></div></section>
-  </div></div>`,{xwide:true});
+  </div></div>
+  ${(()=>{const t=String(k.mobiel||k.telefoon||"").replace(/[^\d+]/g,""),wa=t?t.replace(/^\+/,"").replace(/^00/,"").replace(/^0/,"31"):"";
+    return `<nav class="kk-actbar" aria-label="Snelle acties">${t?`<a href="tel:${esc(t)}">${I.phone}<span>Bellen</span></a><a href="https://wa.me/${esc(wa)}" target="_blank" rel="noopener">${I.wa||I.chat}<span>WhatsApp</span></a>`:""}<button type="button" ${opA}>${I.planning}<span>Inplannen</span></button><button type="button" data-act="newfactuur" data-id="${esc(k.id)}">${I.facturen}<span>Factuur</span></button></nav>`})()}`,{xwide:true});
   form.dataset.kk=k.id;
   kkTabsInit(form);
   const re=()=>{const y=dlg.scrollTop;openKlantView(k.id);dlg.scrollTop=y};
@@ -283,17 +294,18 @@ function kkDelOfferte(fid){const f=state.facturen.find(x=>x.id===fid);if(!f)retu
 }
 
 /* ---------- klantkaart: tabbladen en overzicht (nov 2026) ---------- */
-const KK_TABS=[["overzicht","Overzicht"],["gegevens","Gegevens"],["diensten","Diensten"],["bezoeken","Bezoeken"],["facturen","Facturen"],["berichten","Berichten"]];
-const KK_TABMAP=[[/^locaties|^opdrachten/i,"diensten"],[/ingeplande afspraken|^bezoeken|^historie bezoeken/i,"bezoeken"],[/^offertes|facturen/i,"facturen"],[/^logboek|berichten/i,"berichten"]];
-function kkOvTabs(){const t=state.kkTab||"overzicht";return `<nav class="kk-tabs" aria-label="Onderdelen van de klantkaart">${KK_TABS.map(([id,l])=>`<button type="button" class="${t===id?"on":""}" data-kktab="${id}">${({overzicht:I.trend||I.eye,diensten:I.checksq||I.check,bezoeken:I.planning,facturen:I.facturen,berichten:I.chat||I.mail,gegevens:I.user})[id]||""}<span>${l}</span></button>`).join("")}</nav>`}
+const KK_TABS=[["overzicht","Overzicht"],["werk","Werk"],["geld","Financieel"],["klant","Klant"]];
+const KK_ALIAS={diensten:"werk",bezoeken:"werk",facturen:"geld",berichten:"klant",gegevens:"klant"};
+const KK_TABMAP=[[/^locaties|^opdrachten|ingeplande afspraken|^bezoeken|^historie bezoeken/i,"werk"],[/^offertes|facturen/i,"geld"]];
+function kkOvTabs(){const t=state.kkTab||"overzicht";return `<nav class="kk-tabs" aria-label="Onderdelen van de klantkaart">${KK_TABS.map(([id,l])=>`<button type="button" class="${t===id?"on":""}" data-kktab="${id}">${({overzicht:I.trend||I.eye,werk:I.checksq||I.check,geld:I.euro||I.facturen,klant:I.user})[id]||""}<span>${l}</span></button>`).join("")}</nav>`}
 function kkTabsInit(form){const body=form.querySelector("#kkBody"),ov=form.querySelector("#kkOv");if(!body)return;
-  body.querySelectorAll("section.kp").forEach(sec=>{const h=sec.querySelector(".kp-h>b,.kp-h b,h3,h4");const tt=(h&&h.textContent||"").trim();let tab="gegevens";for(const [re,t] of KK_TABMAP)if(re.test(tt)){tab=t;break}sec.dataset.kkt=tab});
-  const zet=t=>{state.kkTab=t;form.querySelectorAll("[data-kktab]").forEach(b=>b.classList.toggle("on",b.dataset.kktab===t));
+  body.querySelectorAll("section.kp").forEach(sec=>{const h=sec.querySelector(".kp-h>b,.kp-h b,h3,h4");const tt=(h&&h.textContent||"").trim();let tab="klant";for(const [re,t] of KK_TABMAP)if(re.test(tt)){tab=t;break}sec.dataset.kkt=tab});
+  const zet=t=>{t=KK_ALIAS[t]||t;if(!KK_TABS.some(x=>x[0]===t))t="overzicht";state.kkTab=t;form.querySelectorAll("[data-kktab]").forEach(b=>b.classList.toggle("on",b.dataset.kktab===t));
     if(ov)ov.hidden=t!=="overzicht";body.hidden=t==="overzicht";body.dataset.tab=t;
     body.querySelectorAll("section.kp").forEach(sec=>{sec.hidden=t!=="overzicht"&&sec.dataset.kkt!==t});
     [...body.children].forEach(col=>{col.hidden=![...col.querySelectorAll("section.kp")].some(x=>!x.hidden)})};
   form.querySelectorAll("[data-kktab]").forEach(b=>b.onclick=e=>{e.preventDefault();zet(b.dataset.kktab)});
-  zet(state.kkTab&&KK_TABS.some(x=>x[0]===state.kkTab)?state.kkTab:"overzicht")}
+  zet(state.kkTab||"overzicht")}
 function kkOverzicht(k,c){
   const T=iso(today()),dag=d=>{const x=parse(d);return {n:x.getDate(),m:x.toLocaleDateString("nl-NL",{month:"short"}).replace(".","")}};
   const ic=I.checksq||I.check;
