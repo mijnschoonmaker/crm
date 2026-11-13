@@ -1731,3 +1731,7 @@ html body:not(#zz):not(#zy) .kko-s>.kko-h :is(.kko-k,button) svg{width:13px;heig
 html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h :is(button,.btn,a.btn,label.iconbtn){background:rgb(255 255 255 / .07)!important;border-color:rgb(255 255 255 / .18)!important}
 html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h .iconbtn{width:30px!important;height:30px!important;min-height:0!important;border-radius:8px!important}
 @media (max-width:640px){html body:not(#zz):not(#zy) .kko-s>.kko-h,html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h{min-height:50px!important;padding:10px 16px!important}}
+/* Bezoeken: ingeplande afspraken links, historie rechts */
+html body:not(#zz) #kkBody[data-tab="bezoeken"]>.kk-side{order:-1}
+html body:not(#zz) .kk-hist .kd-or-r{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+html body:not(#zz) .kk-hist .kd-or-r b{font-variant-numeric:tabular-nums}
