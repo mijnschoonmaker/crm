@@ -7516,6 +7516,13 @@ html body:not(#zz):not(#zy):not(#zx) dialog .kko-v4 .kk-kern .kkh-t small{color:
 html body:not(#zz):not(#zy):not(#zx) dialog .kko-v4 .kk-kern .kkh-t small.late{color:#b03a32!important}
 html body:not(#zz):not(#zy):not(#zx) dialog .kko-v4 .kk-kern .kkh-t.kkh-go:hover{background:rgb(255 255 255 / .4)!important}
 @media (max-width:640px){html body:not(#zz):not(#zy):not(#zx) dialog .kko-v4 .kk-kern .kkh-t b{font-size:21px!important}}
+/* hospitality bovenaan in het parelgrijze paneel (op de plek van de kerncijfers) */
+html body:not(#zz):not(#zy):not(#zx) .kko-v4 .kko-s.kko-gast-top{background:var(--pk-parel)!important;border:1px solid #d8d8d4!important;box-shadow:inset 0 1px 0 #fff,inset 0 -1px 0 rgb(0 0 0 / .04),0 24px 44px -34px rgb(26 32 48 / .55),0 2px 6px -4px rgb(26 32 48 / .2)!important;--px:28px;--py:22px}
+html body:not(#zz):not(#zy):not(#zx) .kko-v4 .kko-gast-top>.kko-h{background:transparent!important}
+html body:not(#zz):not(#zy):not(#zx) .kko-v4 .kko-gast-top .kko-h h3{color:#3a4150!important}
+html body:not(#zz):not(#zy):not(#zx) .kko-v4 .kko-gast-top .hosp-l{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;column-gap:40px!important}
+html body:not(#zz):not(#zy):not(#zx) .kko-v4 .kko-gast-top .hosp-leeg small{color:#5f6572}
+@media (max-width:900px){html body:not(#zz):not(#zy):not(#zx) .kko-v4 .kko-gast-top .hosp-l{grid-template-columns:minmax(0,1fr)!important}}
 
 </style>
 <div class="app">
@@ -16296,7 +16303,7 @@ function openKlantView(id,opt={}){
       </div>
 </div>
   ${typeof opdrJobBanner==="function"?opdrJobBanner(k):""}${isOBeurt(k)?`<div class="hosp-top">${oBeurtBlok(k)}</div>`:""}<div class="hosp-top kk-hospboven">${hospBlok(k)}</div>
-  ${kkOverzicht(k,{opdr,hist,facs,msgs,openF,bg,kern:kern+aandacht})}
+  ${kkOverzicht(k,{opdr,hist,facs,msgs,openF,bg,kern:""})}
   ${k.prospect?(()=>{const of=offs.find(f=>f.status!=="afgewezen"&&f.status!=="geaccepteerd");return of||offs.length?`<div class="banner"><div><b>Offerte${of?" "+esc(of.nummer):""} wacht op akkoord</b><br><small>Deze klant staat nog niet in de planning.</small></div>${of?`<button type="button" class="primary small" data-act="akkoord" data-id="${esc(of.id)}">Akkoord en inplannen</button>`:""}</div>`:`<div class="banner"><div><b>Nieuwe klant · nog geen offerte</b><br><small>Volgende stap: offerte maken. Na akkoord komt de klant in de planning.</small></div><button type="button" class="primary small" data-act="newofferte" data-id="${esc(k.id)}">${I.offertes}Offerte maken</button></div>`})():""}
   <div class="kk-grid kd kk-v2" id="kkBody"><div class="kk-left">
     <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klantgegevens</b><span class="sp"></span>${pen("edit","Klantgegevens aanpassen")}</div>
@@ -16586,7 +16593,7 @@ function kkOverzicht(k,c){
       ${praat.length?`<div class="kb-praat"><span>${I.chat}</span><div><small>Ter sprake brengen</small><b>${praat.map(x=>esc(x.t)).join(" · ")}</b></div></div>`:""}
       ${brief||(!praat.length?`<p class="kb-leeg">Nog geen bijzonderheden voor bij de deur. Noteer bij Gastvrijheid hoe de klant het graag heeft: toegang, huisdieren, voorkeuren.</p>`:"")}
       ${c.hist[0]?`<div class="kb-vor"><small>Vorige keer</small><span>${esc(fmtD(c.hist[0].datum))}${c.hist[0].door||c.hist[0].medewerker?" · "+esc(c.hist[0].door||c.hist[0].medewerker):""}${c.hist.length>1?` · ${c.hist.length} bezoeken in totaal`:""}</span>${meer("werk","Alle bezoeken")}</div>`:""}</section>`;
-  return `<div class="kko kko-v3 kko-v4 kko-v5" id="kkOv"><div class="kko-top">${c.kern||""}</div><template id="kkGast">    <section class="kko-s kko-gast"><div class="kko-h"><span class="objic">${I.heart||I.note}</span><div class="kko-ht"><h3>Gastvrijheid</h3><small>Wat we over deze klant weten</small></div><button type="button" class="kko-k" data-act="hospedit" data-id="${esc(k.id)}">${I.pencil}Aanpassen</button></div>${typeof hospBlok==="function"?hospBlok(k,{leegKnop:true}):""}</section></template></div>`}
+  return `<div class="kko kko-v3 kko-v4 kko-v5" id="kkOv"><div class="kko-top">    <section class="kko-s kko-gast kko-gast-top"><div class="kko-h"><span class="objic">${I.heart||I.note}</span><div class="kko-ht"><h3>Hospitality aandachtspunten</h3><small>Wat we over deze klant weten</small></div><button type="button" class="kko-k" data-act="hospedit" data-id="${esc(k.id)}">${I.pencil}Aanpassen</button></div>${typeof hospBlok==="function"?hospBlok(k,{leegKnop:true}):""}</section></div></div>`}
 
 /* ---------- PERIODIEKE FACTUREN ----------
    Per opdracht: vaste factuurregels die elke week/maand/kwartaal/... op een vaste datum worden gefactureerd.
