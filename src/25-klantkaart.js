@@ -30,8 +30,8 @@ function payBlok(bg,los){const c=bg.c,afg=c.optijd+c.herinnering+c.aanmaning,pct
   const kop=pct==null?`<b class="pb-big pb-dim">—</b><span class="pb-sub">${c.open?"Nog niets betaald":"Nog geen facturen"}</span>`:`<b class="pb-big">${pct}<small>%</small></b><span class="pb-sub">op tijd betaald</span>`;
   if(los==="pil")return `<span class="pb-v ${vk}">${vt}</span>`;
   return `<div class="pay pb2">${los?"":`<div class="pb-h"><b>Betaalgedrag</b><span class="pb-v ${vk}">${vt}</span></div>`}
-    <div class="pb-top"><div class="pb-score">${kop}</div>${bg.gem!=null?`<div class="pb-gem"><span>Gemiddeld betaald na</span><b>${bg.gemMs!=null?duurTxt(bg.gemMs):bg.gem+" "+(bg.gem===1?"dag":"dagen")}</b></div>`:`<div class="pb-gem"><span>Facturen</span><b>${bg.n||tot}</b></div>`}</div>
-    <div class="pb-bar">${balk}</div>
+    <div class="pb-hero"><div class="pb-top"><div class="pb-score">${kop}</div>${bg.gem!=null?`<div class="pb-gem"><span>Gemiddeld betaald na</span><b>${bg.gemMs!=null?duurTxt(bg.gemMs):bg.gem+" "+(bg.gem===1?"dag":"dagen")}</b></div>`:`<div class="pb-gem"><span>Facturen</span><b>${bg.n||tot}</b></div>`}</div>
+    <div class="pb-bar">${balk}</div></div>
     <div class="pb-t">${K.map(k=>`<div class="pb-c pb-${k}${c[k]?"":" nul"}"><b>${c[k]}</b><span>${KL[k]}</span></div>`).join("")}</div></div>`}
 function donut(c){const parts=[["late",c.aanmaning],["soon",c.herinnering],["ok",c.optijd],["plan",c.open]],tot=parts.reduce((a,p)=>a+p[1],0);
   if(!tot)return `<svg viewBox="0 0 42 42" class="kd-donut"><circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--surface-3)" stroke-width="6"/></svg>`;
