@@ -1779,6 +1779,57 @@ html body:not(#zz) .cr-card{width:clamp(250px,27%,300px)!important;right:clamp(2
 @media (max-width:600px){.lv-groot .lv-map{height:calc(100dvh - var(--lvRest,300px))!important;min-height:260px}}
 .cr-let{margin:-4px 2px 10px;font-size:13px;line-height:1.45;color:var(--ink2)}
 .lijn-st{display:flex;flex-direction:column;gap:20px;min-width:0}.lijn-st>.hm-mid:not(:has(*)){display:none}
+
+/* nov 2026: alles subtieler, lager en kleiner (zoals de klantkaart in het CRM) */
+html body:not(#zz):not(#zy) .kp>.kp-h{min-height:0!important;padding:11px 18px!important;gap:12px!important;background:repeating-linear-gradient(115deg,rgb(255 255 255 / .02) 0 1px,transparent 1px 24px),linear-gradient(150deg,#2f374b 0%,#252c3c 55%,#1f2533 100%)!important}
+html body:not(#zz):not(#zy) .kp>.kp-h b{font-size:11px!important;letter-spacing:.16em!important;font-weight:600!important;color:rgb(255 255 255 / .92)!important}
+html body:not(#zz):not(#zy) .kp>.kp-h small{font-size:12px!important}
+html body:not(#zz):not(#zy) .kp>.kp-h .objic{width:32px!important;height:32px!important;border-radius:10px!important;background:rgb(255 255 255 / .07)!important;border:1px solid rgb(255 255 255 / .14)!important}
+html body:not(#zz):not(#zy) .kp>.kp-h .objic svg{width:15px!important;height:15px!important}
+html body:not(#zz):not(#zy) .kp>.kp-h :is(button,.btn,a.btn){min-height:30px!important;height:30px;padding:0 12px!important;font-size:10px!important;border-radius:8px!important;background:rgb(255 255 255 / .07)!important;border-color:rgb(255 255 255 / .18)!important}
+html body:not(#zz):not(#zy) :is(main>h1,main .ph h1,.pg-h h1,.kop h1,.pagehead h1){font-size:clamp(17px,2vw,21px)!important;letter-spacing:.14em!important}
+/* meldingen */
+html body:not(#zz):not(#zy) .melding{padding:12px 14px!important;gap:12px!important;border-radius:16px!important}
+html body:not(#zz):not(#zy) .melding .objic,html body:not(#zz):not(#zy) .melding .ti{width:36px!important;height:36px!important;border-radius:10px!important}
+html body:not(#zz):not(#zy) .melding .objic svg{width:17px!important;height:17px!important}
+html body:not(#zz):not(#zy) .melding .tx b{font-size:14.5px!important}
+html body:not(#zz):not(#zy) .melding .tx small{font-size:12.5px!important}
+html body:not(#zz):not(#zy) .melding :is(button,.btn){min-height:34px!important;padding:0 14px!important;font-size:10.5px!important;box-shadow:none!important}
+/* sterren */
+html body:not(#zz):not(#zy) .sterren [data-ster]{width:42px!important;height:42px!important;min-height:0!important;padding:0!important;border-radius:10px!important}
+html body:not(#zz):not(#zy) .sterren [data-ster] svg{width:17px!important;height:17px!important}
+/* cijfertegels (parel) */
+html body:not(#zz):not(#zy) .stats .stat,html body:not(#zz):not(#zy) .bz-tiles>.bz-tile{padding:14px 16px!important}
+html body:not(#zz):not(#zy) :is(.stats .st-ic,.bz-tile .bz-ti){width:30px!important;height:30px!important}
+html body:not(#zz):not(#zy) :is(.stats .st-ic,.bz-tile .bz-ti) svg{width:14px!important;height:14px!important}
+html body:not(#zz):not(#zy) .bz-tile small{left:58px!important;top:14px!important;height:30px!important;font-size:9.5px!important;letter-spacing:.18em!important}
+html body:not(#zz):not(#zy) :is(.stats .stat b,.bz-tile b){font-size:20px!important;margin:10px 0 2px!important}
+html body:not(#zz):not(#zy) :is(.stats .stat small,.bz-tile small){font-size:9.5px!important;letter-spacing:.16em!important}
+html body:not(#zz):not(#zy) :is(.stats .stat em,.bz-tile em){font-size:12px!important}
+/* abonnement */
+html body:not(#zz):not(#zy) .ab-top{padding:16px 18px 14px!important}
+html body:not(#zz):not(#zy) .ab-ic{width:30px!important;height:30px!important}
+html body:not(#zz):not(#zy) .ab-ic svg{width:14px!important;height:14px!important}
+html body:not(#zz):not(#zy) .ab-eb{font-size:9px!important;letter-spacing:.22em!important}
+html body:not(#zz):not(#zy) .ab-d{margin-top:14px!important}
+html body:not(#zz):not(#zy) .ab-d>b{font-size:10.5px!important;letter-spacing:.16em!important}
+html body:not(#zz):not(#zy) .ab-pr{margin-top:4px!important}
+html body:not(#zz):not(#zy) .ab-pr em{font-size:30px!important}
+html body:not(#zz):not(#zy) .ab-pr small{font-size:9.5px!important}
+html body:not(#zz):not(#zy) .ab-ch{margin-top:10px!important}
+html body:not(#zz):not(#zy) .ab-ch span{height:26px!important;font-size:12px!important;padding:0 10px!important}
+html body:not(#zz):not(#zy) .ab-kp .ab-x{min-height:0!important;padding:12px 18px 14px!important}
+/* lijstregels */
+html body:not(#zz):not(#zy) .lr{padding:11px 18px!important;font-size:14px!important}
+html body:not(#zz):not(#zy) .lr .ti{width:34px!important;height:34px!important;border-radius:10px!important}
+html body:not(#zz):not(#zy) .lr .tx b{font-size:14px!important}
+html body:not(#zz):not(#zy) .lr .tx :is(small,span){font-size:12.5px!important}
+/* voorbeeldbalk en knoppen */
+html body:not(#zz):not(#zy) :is(.bz-hero h1,.bz-hero h2,.bz h2,.bz-dag){font-size:clamp(17px,4.6vw,21px)!important;letter-spacing:.1em!important}
+html body:not(#zz):not(#zy) .cw-n{font-size:34px!important}
+#vbBalk{font-size:12px!important;padding-top:6px!important;padding-bottom:6px!important}
+html body:not(#zz):not(#zy) .primary{box-shadow:none!important}
+@media (max-width:640px){html body:not(#zz):not(#zy) .kp>.kp-h{padding:10px 14px!important}html body:not(#zz):not(#zy) :is(.stats .stat b,.bz-tile b){font-size:18px!important}html body:not(#zz):not(#zy) .bz-tile small{left:52px!important}}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
