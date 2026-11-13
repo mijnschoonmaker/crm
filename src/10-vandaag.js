@@ -115,28 +115,34 @@ function openJob(id,day){
       <span class="jp-k2"><b>${esc(cleanName(k.naam))}</b><em>${I.pin}${esc(jobAddr(k))}</em></span>
       <span class="jp-k3"><small>Bedrag</small><b>${eur(done?beurtVerdiend(b):toonK(k,bedrag))}</b><em>${done?"afgerond":"na afmelden"} · ${esc(ritmeTxt(k))}</em></span></div></div>
   ${state.tab==="planning"?"":`<div class="jp-tiles">${tile(tel?waLink(tel,""):"",I.chat,"WhatsApp",!tel)}${tile("tel:"+tel,I.phone,"Bellen",!tel)}${tile(mail,I.mail,"Mail",!mail)}${tile(mapsQ(k),I.nav,"Route")}</div>`}
-  <div class="jp-body">
+  <div class="jp-body jpk">
+    ${(()=>{const h=hospRoute(k);return h?`<section class="jpk-s jpk-gast"><div class="jpk-h"><b>Hospitality aandachtspunten</b><small>Wat we over deze klant weten</small></div>${h}</section>`:""})()}
     ${done?(()=>{const f=b.gefactureerd&&!["nvt","periodiek"].includes(b.gefactureerd)?state.facturen.find(x=>x.id===b.gefactureerd):null,fs=f?fStatus(f):null,
         om=b.op?new Date(b.op).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"}):"",du=Number(b.duur)||0;
-      return `<div class="jp-af"><div class="jp-af-t"><span class="eyebrow">Bedrag</span><b>${eur(done?beurtVerdiend(b):toonK(k,bedrag))}</b></div>
-        <dl class="jp-af-dl">${om?`<div><dt>Afgemeld</dt><dd>${esc(om)}</dd></div>`:""}${du?`<div><dt>Bij de klant</dt><dd>${du>=60?Math.floor(du/60)+"u"+String(Math.round(du%60)).padStart(2,"0"):Math.round(du)+" min"}${b.gemeten?"":" <small>geschat</small>"}</dd></div>`:""}
-        <div><dt>Factuur</dt><dd>${f?`<button type="button" class="linkbtn" data-act="factuur" data-id="${esc(f.id)}">${esc(f.nummer)}</button> ${statusPill(fs[0],fs[1])}`:b.gefactureerd==="nvt"?"Niet nodig":b.gefactureerd==="periodiek"?"Periodieke factuur":"Nog niet gefactureerd"}</dd></div></dl></div>`})()
+      return `<section class="jpk-s"><div class="jpk-h"><b>Bezoek</b><span class="sp"></span>${f?statusPill(fs[0],fs[1]):""}</div>
+        <div class="jpk-hero"><b>${eur(beurtVerdiend(b))}</b><em>${esc(fmtL(day))}</em></div>
+        <div class="jpk-kv">${om?`<div><span>Afgemeld</span><b>${esc(om)}</b></div>`:""}${du?`<div><span>Bij de klant</span><b>${du>=60?Math.floor(du/60)+"u"+String(Math.round(du%60)).padStart(2,"0"):Math.round(du)+" min"}${b.gemeten?"":" <small>geschat</small>"}</b></div>`:""}
+        <div><span>Factuur</span><b>${f?`<button type="button" class="linkbtn" data-act="factuur" data-id="${esc(f.id)}">${esc(f.nummer)}</button>`:b.gefactureerd==="nvt"?"Niet nodig":b.gefactureerd==="periodiek"?"Periodieke factuur":"Nog niet gefactureerd"}</b></div></div></section>`})()
       :""}
-    <div><span class="eyebrow">${I.user}Opdracht</span><div class="jp-af jp-geg"><dl class="jp-af-dl">
-      <div><dt>Omschrijving</dt><dd>${esc(k.omschrijving||k.ronde||(k.dienst||HD()))}</dd></div>
-      <div><dt>Klantnummer</dt><dd>${esc(klantNr(k))}</dd></div>
-      <div><dt>Naam</dt><dd><button type="button" class="linkbtn" data-act="klant" data-id="${esc(k.id)}">${esc(cleanName(k.naam))}</button></dd></div>
-      <div><dt>Adres</dt><dd class="jp-adr">${esc(jobAddrObj(k).adres||"")}<small>${esc([jobAddrObj(k).postcode,jobAddrObj(k).plaats].filter(Boolean).join(" "))}</small></dd></div>
-      ${tel?`<div><dt>Telefoon</dt><dd><a href="tel:${esc(tel)}">${esc(k.telefoon)}</a></dd></div>`:""}
-      ${k.email?`<div><dt>E-mail</dt><dd><a href="mailto:${esc(k.email)}">${esc(k.email)}</a></dd></div>`:""}
-      <div><dt>Medewerker</dt><dd>${esc((state.me&&state.me.name)||st.naam||"")}</dd></div>
-      <div><dt>Tijdsduur</dt><dd>${duur(k)} min${gemTijd(k)?` <small>gemeten ${gemTijd(k)} min</small>`:""} <button type="button" class="iconbtn sm" data-act="opdracht" data-id="${esc(k.id)}" aria-label="Opdracht aanpassen" title="Opdracht aanpassen">${I.edit||I.note}</button></dd></div>
-      <div class="jp-uit"><dt>Uit te voeren</dt><dd>${esc(k.dienst||HD())}${k.binnen?" (buiten en binnen)":""}${extraDue(k,day).length?` · ${extraDue(k,day).map(o=>esc(o.naam||o.dienst||"extra")+(o.taak?` <small>(${esc(o.taak)})</small>`:"")).join(" · ")}`:""}${k.taak?`<small>${esc(k.taak)}</small>`:""}</dd></div>
-    </dl></div></div>
-    <div><span class="eyebrow">Diensten</span><div class="jp-svc">${diensten.map(([n,p])=>`<div><span class="jp-ic">${I.wrench}</span><b>${esc(n)}${k.binnen?" (buiten en binnen)":""}</b><span>${eur(toon(p))}</span></div>`).join("")}</div></div>
-    ${oBeurtBlok(k)}${hospRoute(k)}${toegangHtml(k)}${ookDezeBeurt(k,typeof day!=="undefined"?day:undefined)}${objInfo(k)}${jobExtra(k)}
-    ${(()=>{const fl=jobFotos(k);return fl.length?`<div><span class="eyebrow">Foto's · ${fl.reduce((a,f)=>a+(f.dots||[]).length,0)} ramen aangetikt</span><div class="jp-fotos" style="margin-top:6px">${fl.map((f,j)=>fotoCard(f,j,false).replace('data-fi=','data-jfi=')).join("")}</div></div>`:""})()}
-    ${done?`<div class="jp-vb"><span class="jp-ic">${I.planning}</span><div><small>Volgende beurt</small><b>${k.gepland&&k.gepland>day?esc(fmtL(k.gepland))+(k.tijd?" · "+esc(k.tijd):""):"Nog niet ingepland"}</b></div>${k.gepland&&k.gepland>day?"":`<button type="button" class="small" data-act="afspraak" data-id="${esc(k.id)}">${I.planning}Inplannen</button>`}</div>`:""}
+    <section class="jpk-s"><div class="jpk-h"><b>Opdracht</b><span class="sp"></span><button type="button" class="iconbtn sm" data-act="opdracht" data-id="${esc(k.id)}" aria-label="Opdracht aanpassen" title="Opdracht aanpassen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button></div>
+      <div class="jpk-kv">
+      <div><span>Omschrijving</span><b>${esc(k.omschrijving||k.ronde||(k.dienst||HD()))}</b></div>
+      <div><span>Uit te voeren</span><b>${esc(k.dienst||HD())}${k.binnen?" (buiten en binnen)":""}${extraDue(k,day).length?` · ${extraDue(k,day).map(o=>esc(o.naam||o.dienst||"extra")+(o.taak?` <small>(${esc(o.taak)})</small>`:"")).join(" · ")}`:""}${k.taak?`<small class="jpk-sub">${esc(k.taak)}</small>`:""}</b></div>
+      <div><span>Tijdsduur</span><b>${duur(k)} min${gemTijd(k)?` <small>gemeten ${gemTijd(k)} min</small>`:""}</b></div>
+      <div><span>Medewerker</span><b>${esc((state.me&&state.me.name)||st.naam||"")}</b></div>
+      </div></section>
+    <section class="jpk-s"><div class="jpk-h"><b>Klant</b><span class="sp"></span><button type="button" class="jpk-lnk" data-act="klant" data-id="${esc(k.id)}">Klantkaart${I.right}</button></div>
+      <a class="jpk-map" href="${esc(mapsQ(k))}" target="_blank" rel="noopener"><span class="jpk-pin">${I.pin}</span><span><b>${esc(jobAddrObj(k).adres||"")}</b><small>${esc([jobAddrObj(k).postcode,jobAddrObj(k).plaats].filter(Boolean).join(" "))}</small></span><em>${I.nav}Route</em></a>
+      <div class="jpk-kv">
+      <div><span>Naam</span><b>${esc(cleanName(k.naam))}</b></div>
+      <div><span>Klantnummer</span><b>${esc(klantNr(k))}</b></div>
+      ${tel?`<div><span>Telefoon</span><b><a href="tel:${esc(tel)}">${esc(k.telefoon)}</a></b></div>`:""}
+      ${k.email?`<div><span>E-mail</span><b><a href="mailto:${esc(k.email)}">${esc(k.email)}</a></b></div>`:""}
+      </div></section>
+    <section class="jpk-s"><div class="jpk-h"><b>Diensten</b></div><div class="jpk-svc">${diensten.map(([n,p])=>`<div><b>${esc(n)}${k.binnen?" (buiten en binnen)":""}</b><span>${eur(toon(p))}</span></div>`).join("")}</div></section>
+    ${oBeurtBlok(k)}${toegangHtml(k)}${ookDezeBeurt(k,typeof day!=="undefined"?day:undefined)}${objInfo(k)}${jobExtra(k)}
+    ${(()=>{const fl=jobFotos(k);return fl.length?`<section class="jpk-s"><div class="jpk-h"><b>Foto's</b><small>${fl.reduce((a,f)=>a+(f.dots||[]).length,0)} ramen aangetikt</small></div><div class="jp-fotos">${fl.map((f,j)=>fotoCard(f,j,false).replace('data-fi=','data-jfi=')).join("")}</div></section>`:""})()}
+    ${done?`<section class="jpk-s jpk-vb"><div class="jpk-h"><b>Volgende bezoek</b><span class="sp"></span>${k.gepland&&k.gepland>day?"":`<button type="button" class="small" data-act="afspraak" data-id="${esc(k.id)}">${I.planning}Inplannen</button>`}</div><p>${k.gepland&&k.gepland>day?esc(fmtL(k.gepland))+(k.tijd?" · "+esc(k.tijd):""):"Nog niet ingepland"}</p></section>`:""}
   </div>
   <div class="jp-foot">${done?`${!b.gefactureerd||b.gefactureerd==="nvt"?`<button type="button" class="ghost" data-act="afterug" data-id="${esc(b.id)}">${I.refresh}Afmelding terugdraaien</button>`:""}${b.gefactureerd&&!["nvt","periodiek"].includes(b.gefactureerd)&&state.facturen.some(x=>x.id===b.gefactureerd)?`<button type="button" class="primary" data-act="factuur" data-id="${esc(b.gefactureerd)}">${I.facturen}Factuur bekijken</button>`:!b.gefactureerd&&!isMw()?`<button type="button" class="primary" data-act="beurtfact" data-id="${esc(b.id)}">${I.facturen}Factuur maken</button>`:""}`:`${day===iso(today())?`<button type="button" data-act="start" data-id="${esc(k.id)}">${isBezig(k)?I.check+"Stop &amp; afmelden "+timerHtml(k):I.play+"Start"}</button>`:""}${isMw()?"":`<button type="button" class="ghost" data-act="factureren" data-id="${esc(k.id)}">${I.facturen}Direct factureren</button>`}<button type="button" class="primary" data-act="afmelden" data-id="${esc(k.id)}">${I.check}Afmelden</button>`}</div>
   </div>`,{drawer:true});

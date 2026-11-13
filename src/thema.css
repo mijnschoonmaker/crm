@@ -2230,3 +2230,59 @@ html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu):not(#zt) dialog 
 html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-leeg>.objic{display:none!important}
 html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-leeg::before,html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-leeg::after{display:none!important;content:none!important}
 html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-leeg{overflow:visible!important;padding-left:2px!important}
+/* ===== Opdrachtkaart (jobpaneel) in klantkaart-stijl ===== */
+html body:not(#zz):not(#zy):not(#zx) #jobPanel{background:#f5f5f3}
+html body:not(#zz):not(#zy):not(#zx) #jobPanel .jp-kop .jp-k2>b{text-transform:none!important;letter-spacing:-.01em!important;font-size:22px!important;font-weight:500!important;line-height:1.2}
+html body:not(#zz):not(#zy):not(#zx) #jobPanel .jp-kop .jp-k2>em{font-size:13px;opacity:.8}
+html body:not(#zz):not(#zy):not(#zx) #jobPanel .jp-kop .jp-k1>b,html body:not(#zz):not(#zy):not(#zx) #jobPanel .jp-kop .jp-k3>b{font-weight:500!important}
+html body:not(#zz):not(#zy):not(#zx) #jobPanel .jp-tiles{background:transparent!important;border:0!important;box-shadow:none!important;padding:16px 18px 2px!important;gap:10px!important}
+html body:not(#zz):not(#zy):not(#zx) #jobPanel .jp-tile{background:#fff!important;border:1px solid #eceef1!important;border-radius:16px!important;box-shadow:0 1px 2px rgb(20 23 28/.03),0 18px 40px -32px rgb(20 23 28/.22)!important;padding:12px 6px!important;min-height:0!important;gap:6px!important;color:#14171c!important}
+html body:not(#zz):not(#zy):not(#zx) #jobPanel .jp-tile span{font-size:12.5px!important;font-weight:500!important;letter-spacing:0!important}
+html body:not(#zz):not(#zy):not(#zx) #jobPanel .jp-tile svg{width:18px!important;height:18px!important}
+html body:not(#zz):not(#zy):not(#zx) #jobPanel .jp-body.jpk{background:#f5f5f3!important;padding:16px 18px 24px!important;display:flex!important;flex-direction:column!important;gap:16px!important}
+#jobPanel .jpk-s{background:#fff;border:1px solid #eceef1;border-radius:20px;box-shadow:0 1px 2px rgb(20 23 28/.03),0 18px 40px -32px rgb(20 23 28/.22);padding:20px 22px 16px}
+#jobPanel .jpk-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;min-height:28px}
+#jobPanel .jpk-h>b{font-size:12px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:#14171c}
+#jobPanel .jpk-h>small{flex-basis:100%;margin-top:-6px;font-size:12.5px;color:#8a8f98}
+#jobPanel .jpk-h .sp{flex:1}
+#jobPanel .jpk-kv>div{display:grid;grid-template-columns:120px minmax(0,1fr);gap:12px;padding:7px 0;align-items:baseline}
+#jobPanel .jpk-kv>div>span{font-size:13px;color:#5b6270}
+#jobPanel .jpk-kv>div>b{font-size:13.5px;font-weight:600;color:#14171c;overflow-wrap:anywhere}
+#jobPanel .jpk-kv>div>b small{font-weight:400;color:#8a8f98}
+#jobPanel .jpk-kv .jpk-sub{display:block;margin-top:2px}
+#jobPanel .jpk-kv a,#jobPanel .jpk-kv .linkbtn{color:#14171c;font-weight:600;text-decoration:none;padding:0;background:none;border:0;font-size:inherit;min-height:0}
+#jobPanel .jpk-hero{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;background:linear-gradient(135deg,#252c3c,#1a2030);color:#fff;border-radius:16px;padding:16px 20px;margin-bottom:10px}
+#jobPanel .jpk-hero small{font-size:12.5px;color:rgb(255 255 255/.65)}
+#jobPanel .jpk-hero b{font-size:28px;font-weight:500;letter-spacing:-.01em;order:-1}
+#jobPanel .jpk-hero em{margin-left:auto;font-style:normal;font-size:12.5px;color:rgb(255 255 255/.7)}
+#jobPanel .jpk-map{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid #e6e8ec;background:#f5f6f8;border-radius:14px;color:#14171c;text-decoration:none;margin-bottom:8px}
+#jobPanel .jpk-map .jpk-pin svg{width:22px;height:22px}
+#jobPanel .jpk-map>span:nth-child(2){display:flex;flex-direction:column;flex:1;min-width:0}
+#jobPanel .jpk-map b{font-size:13.5px;font-weight:600}
+#jobPanel .jpk-map small{font-size:12.5px;color:#5b6270}
+#jobPanel .jpk-map em{display:inline-flex;align-items:center;gap:5px;font-style:normal;font-size:12px;font-weight:600;background:#fff;border:1px solid #e6e8ec;border-radius:10px;padding:6px 10px}
+#jobPanel .jpk-map em svg{width:13px;height:13px}
+#jobPanel .jpk-lnk{display:inline-flex;align-items:center;gap:4px;background:none;border:0;padding:0;min-height:0;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#14171c;cursor:pointer}
+#jobPanel .jpk-lnk svg{width:13px;height:13px}
+#jobPanel .jpk-svc>div{display:flex;justify-content:space-between;gap:12px;align-items:center;background:#f5f6f8;border-radius:14px;padding:12px 14px}
+#jobPanel .jpk-svc>div+div{margin-top:8px}
+#jobPanel .jpk-svc b{font-size:13.5px;font-weight:600}
+#jobPanel .jpk-svc span{font-size:13.5px;font-weight:600;font-variant-numeric:tabular-nums}
+#jobPanel .jpk-vb p{margin:0;font-size:14px;font-weight:600;color:#14171c}
+#jobPanel .jpk-gast{background:radial-gradient(120% 140% at 0% 0%,#fbfbfa 0%,transparent 55%),linear-gradient(180deg,#f4f4f2,#e6e6e2);border-color:#d8d8d4;box-shadow:inset 0 1px 0 #fff,0 24px 44px -34px rgb(26 32 48/.55),0 2px 6px -4px rgb(26 32 48/.2)}
+#jobPanel .jpk-gast .jpk-h>b{color:#3a4150}
+#jobPanel .jpk-gast .hosp-rt{background:none!important;border:0!important;padding:0!important;box-shadow:none!important;margin:0!important}
+#jobPanel .jpk-gast .hosp-rt>.eyebrow{display:none!important}
+html body:not(#zz):not(#zy):not(#zx) #jobPanel .jp-body.jpk>div:not(.jpk-s),html body:not(#zz):not(#zy):not(#zx) #jobPanel .jp-body.jpk>section:not(.jpk-s){background:#fff;border:1px solid #eceef1!important;border-radius:20px!important;box-shadow:0 1px 2px rgb(20 23 28/.03),0 18px 40px -32px rgb(20 23 28/.22)!important;padding:18px 22px!important;margin:0!important}
+html body:not(#zz):not(#zy):not(#zx) #jobPanel .jp-foot{background:#f5f5f3!important;border-top:1px solid #eceef1!important}
+@media (max-width:560px){#jobPanel .jpk-s{padding:18px 16px 12px}#jobPanel .jpk-kv>div{grid-template-columns:110px minmax(0,1fr)}html body:not(#zz):not(#zy):not(#zx) #jobPanel .jp-body.jpk{padding:14px 12px 20px!important}html body:not(#zz):not(#zy):not(#zx) #jobPanel .jp-tiles{padding:14px 12px 2px!important}}
+/* ===== Opdrachtkaart op één pagina (zoals klantkaart) ===== */
+html body:not(#zz):not(#zy):not(#zx) dialog .ow-kko{margin:0 0 20px!important}
+html body:not(#zz):not(#zy):not(#zx) dialog .ow-kko .hosp-top{margin:0!important;padding:0!important;background:none!important;border:0!important;box-shadow:none!important}
+html body:not(#zz):not(#zy):not(#zx) dialog .ow-kko .kko-h>.objic{display:none!important}
+html body:not(#zz):not(#zy):not(#zx) dialog .ow-kern{margin:0 0 20px!important}
+html body:not(#zz):not(#zy):not(#zx) dialog .ow-v2.ow-1p{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:20px!important;align-items:start!important}
+html body:not(#zz):not(#zy):not(#zx) dialog .ow-v2.ow-1p>.kk-left,html body:not(#zz):not(#zy):not(#zx) dialog .ow-v2.ow-1p>.kk-side{display:flex!important;flex-direction:column!important;gap:20px!important;grid-column:auto!important;width:auto!important;max-width:none!important;min-width:0}
+html body:not(#zz):not(#zy):not(#zx) dialog .ow-v2.ow-1p>[hidden],html body:not(#zz):not(#zy):not(#zx) dialog .ow-v2.ow-1p section.kp[hidden]{display:none!important}
+html body:not(#zz):not(#zy):not(#zx) dialog .ow-v2.ow-1p section.kp{margin:0!important}
+@media (max-width:900px){html body:not(#zz):not(#zy):not(#zx) dialog .ow-v2.ow-1p{grid-template-columns:minmax(0,1fr)!important}}

@@ -51,7 +51,7 @@ function openOpdrachtWerk(kid,focus){
     <div class="kkh-r2"><div class="kkh-wie"><span class="kkh-av ow-av">${I.checksq||I.check}</span><div class="kkh-nm"><div class="kkh-chips"><span class="kkh-st ${status[0]}"><i></i>${status[1]}</span><span class="kkh-c" data-opnr>Nr. <b>${esc(nr)}-${soloNr}</b></span>${isEersteKeer(k)&&!sR?'<span class="kkh-c">Eerste keer</span>':""}</div><h2>${esc(kTit)}</h2><span class="kkh-adr ow-for"><b>${esc(cleanName(k.naam))}</b><em id="owKopAdr">${I.pin}${esc(uLocTxt(uLoc))}</em></span></div></div>
       <div class="kkh-acts"><button type="button" class="kkh-b" id="owKkH">${I.user}Klantkaart</button></div></div>
 </div>
-  <div class="hosp-top" id="owHospTop">${hospBlok(k,{leegKnop:false})}</div>
+  <div class="kko kko-v3 kko-v4 kko-v5 ow-kko"><div class="kko-top"><section class="kko-s kko-gast kko-gast-top"><div class="kko-h"><span class="objic">${I.heart||I.note}</span><div class="kko-ht"><h3>Hospitality aandachtspunten</h3><small>Wat we over deze klant weten</small></div></div><div class="hosp-top" id="owHospTop">${hospBlok(k,{leegKnop:false})}</div></section></div></div>
   <div class="kk-grid ow-grid kk-v2 ow-v2"><div class="kk-left">
     ${sR&&sR._nieuw?"":`<section class="kp ow-kern"><div class="kp-h"><b>In het kort</b></div><div class="kkh-tg kk-kern"><div class="kkh-t"><span>Per keer</span><b>${kPrijs}</b><small>${esc(st.toonEx||!incl?"excl. btw":"incl. btw")}</small></div><div class="kkh-t"><span>Hoe vaak</span><b>${esc(kFreq)}</b><small>${kDuur} min per keer</small></div><div class="kkh-t"><span>Volgende beurt</span><b>${esc(kVolg)}</b><small class="${kIngepland?"ok":""}">${esc(kVolgS)}</small></div><div class="kkh-t"><span>Openstaand</span><b>${open.length?eur(open.reduce((a,f)=>a+totals(f).inc,0)):"€ 0,00"}</b><small class="${open.length?"late":""}">${open.length?plural(open.length,"factuur","facturen")+" open":"alles betaald"}</small></div></div></section>`}
     <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klantgegevens</b><span class="sp"></span><button type="button" class="small" id="owKk">${I.right}Klantkaart</button></div>
@@ -652,15 +652,11 @@ document.addEventListener("click",e=>{const x=e.target.closest&&e.target.closest
 /* opdrachtkaart in drie tabbladen: Werk, Planning en afspraken, Facturatie. Alles blijft in het formulier en wordt in één keer opgeslagen */
 const OW_TABS=[["werk","Werk"],["planning","Planning"],["factuur","Facturatie"]];
 const OW_TABMAP=[[/^opdracht$|details contract/i,"planning"],[/^facturatie|factuuradres/i,"factuur"],[/^klantgegevens|^logboek/i,"weg"]];
-function owTabsInit(){const grid=document.querySelector("dialog[open] .ow-v2");if(!grid||grid.dataset.tabs)return;grid.dataset.tabs="1";try{const kern=grid.querySelector(".ow-kern"),eerste=grid.querySelector(".kk-side section.kp")||[...grid.querySelectorAll("section.kp")].find(x=>x!==kern);if(kern&&eerste&&eerste.parentElement)eerste.parentElement.insertBefore(kern,eerste)}catch(e){}
-  const bar=document.createElement("div");bar.className="kk-tabs ow-tabs";bar.setAttribute("role","tablist");
-  bar.innerHTML=OW_TABS.map(([v,l])=>`<button type="button" role="tab" data-owtab="${v}">${({werk:I.wrench,planning:I.planning,factuur:I.facturen})[v]||""}<span>${l}</span></button>`).join("");
-  grid.parentNode.insertBefore(bar,grid);
-  grid.querySelectorAll("section.kp").forEach(sec=>{const h=sec.querySelector(".kp-h b");const t=(h&&h.textContent||"").trim();let tab="werk";for(const [re,v] of OW_TABMAP)if(re.test(t)){tab=v;break}sec.dataset.owt=tab});
-  const zet=t=>{state.owTab=t;bar.querySelectorAll("[data-owtab]").forEach(b=>{const on=b.dataset.owtab===t;b.classList.toggle("on",on);b.setAttribute("aria-selected",on?"true":"false")});
-    grid.dataset.tab=t;grid.querySelectorAll("section.kp").forEach(sec=>{sec.hidden=sec.dataset.owt!==t});
-    [...grid.children].forEach(col=>{col.hidden=![...col.querySelectorAll("section.kp")].some(x=>!x.hidden)})};
-  bar.querySelectorAll("[data-owtab]").forEach(b=>b.onclick=e=>{e.preventDefault();zet(b.dataset.owtab)});
-  /* een veld dat niet goed is ingevuld in een ander tabblad: daar meteen naartoe */
-  const form=grid.closest("form");if(form)form.addEventListener("invalid",e=>{const s=e.target.closest&&e.target.closest("section.kp");if(s&&s.hidden&&s.dataset.owt&&s.dataset.owt!=="weg")zet(s.dataset.owt)},true);
-  zet("werk")}
+function owTabsInit(){const grid=document.querySelector("dialog[open] .ow-v2");if(!grid||grid.dataset.tabs)return;grid.dataset.tabs="1";
+  /* nov 2026: opdrachtkaart op één pagina, zoals de klantkaart: links het werk, rechts planning en facturatie */
+  try{const kern=grid.querySelector(".ow-kern");if(kern)grid.parentNode.insertBefore(kern,grid)}catch(e){}
+  const L=grid.querySelector(".kk-left"),R=grid.querySelector(".kk-side");
+  const secs=[...grid.querySelectorAll("section.kp")];
+  secs.forEach(sec=>{const h=sec.querySelector(".kp-h b");const t=(h&&h.textContent||"").trim();let tab="werk";for(const [re,v] of OW_TABMAP)if(re.test(t)){tab=v;break}sec.dataset.owt=tab;sec.hidden=tab==="weg"});
+  if(L&&R){secs.filter(x=>x.dataset.owt==="werk").forEach(x=>L.appendChild(x));secs.filter(x=>x.dataset.owt==="planning").forEach(x=>R.appendChild(x));secs.filter(x=>x.dataset.owt==="factuur").forEach(x=>R.appendChild(x));secs.filter(x=>x.dataset.owt==="weg").forEach(x=>L.appendChild(x))}
+  grid.classList.add("ow-1p");[...grid.children].forEach(col=>{col.hidden=![...col.querySelectorAll("section.kp")].some(x=>!x.hidden)})}
