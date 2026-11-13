@@ -32,6 +32,8 @@ function donut(c){const parts=[["late",c.aanmaning],["soon",c.herinnering],["ok"
   let off=25;return `<svg viewBox="0 0 42 42" class="kd-donut">${parts.filter(p=>p[1]).map(([cl,n])=>{const L=n/tot*100,s=`<circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--${cl})" stroke-width="6" stroke-dasharray="${L} ${100-L}" stroke-dashoffset="${off}"/>`;off-=L;return s}).join("")}</svg>`}
 
 function openKlantView(id,opt={}){
+  /* nieuw geopende klantkaart begint altijd op Overzicht; alleen bij opnieuw tekenen van dezelfde open kaart blijft het tabblad staan */
+  if(!(state.kkOpenId===id&&document.querySelector("dialog[open] #kkBody"))){state.kkTab="overzicht";state.kkArch=false}state.kkOpenId=id;
   try{if(!document.getElementById("kkFont")){const l=document.createElement("link");l.id="kkFont";l.rel="stylesheet";l.href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600&display=swap";document.head.appendChild(l)}}catch(e){}
   if(state._kkLast!==id){state._kkLast=id;state.kkFQ="";state.kkFP=0}
   const k=state.klanten.find(x=>x.id===id);if(!k)return openKlantEdit(null);

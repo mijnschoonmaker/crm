@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="c21990877877"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="3dc7b33bb9a8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -16304,6 +16304,8 @@ function donut(c){const parts=[["late",c.aanmaning],["soon",c.herinnering],["ok"
   let off=25;return `<svg viewBox="0 0 42 42" class="kd-donut">${parts.filter(p=>p[1]).map(([cl,n])=>{const L=n/tot*100,s=`<circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--${cl})" stroke-width="6" stroke-dasharray="${L} ${100-L}" stroke-dashoffset="${off}"/>`;off-=L;return s}).join("")}</svg>`}
 
 function openKlantView(id,opt={}){
+  /* nieuw geopende klantkaart begint altijd op Overzicht; alleen bij opnieuw tekenen van dezelfde open kaart blijft het tabblad staan */
+  if(!(state.kkOpenId===id&&document.querySelector("dialog[open] #kkBody"))){state.kkTab="overzicht";state.kkArch=false}state.kkOpenId=id;
   try{if(!document.getElementById("kkFont")){const l=document.createElement("link");l.id="kkFont";l.rel="stylesheet";l.href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600&display=swap";document.head.appendChild(l)}}catch(e){}
   if(state._kkLast!==id){state._kkLast=id;state.kkFQ="";state.kkFP=0}
   const k=state.klanten.find(x=>x.id===id);if(!k)return openKlantEdit(null);
