@@ -7155,6 +7155,65 @@ html body:not(#zz) #kkBody[data-tab="bezoeken"]>.kk-side{order:-1}
 html body:not(#zz) .kk-hist .kd-or-r{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
 html body:not(#zz) .kk-hist .kd-or-r b{font-variant-numeric:tabular-nums}
 
+/* ====================================================================
+   Overzicht (dashboard) in de stijl van het klantportaal en de klantkaart
+   ==================================================================== */
+html body:not(#zz):not(#zy) .cc-head h1{text-transform:uppercase;letter-spacing:.14em!important;font-size:clamp(19px,2.2vw,23px)!important;font-weight:600!important;color:#0d121b}
+html body:not(#zz):not(#zy) .cc-head p{font-size:14px;color:#646b7a}
+/* kaarten met donkere kop */
+html body:not(#zz):not(#zy) .cc :is(.cc-card,.cc-adv){--px:18px;--py:16px;padding:var(--py) var(--px)!important;border:1px solid #e2e5ea!important;border-radius:20px!important;box-shadow:0 1px 2px rgb(26 32 48 / .04)!important;overflow:hidden;background:#fff!important}
+html body:not(#zz):not(#zy) .cc :is(.cc-card>.cc-ch,.cc-adv>.cc-ah){position:relative;display:flex;align-items:center;gap:12px;margin:calc(-1*var(--py)) calc(-1*var(--px)) 14px!important;padding:11px var(--px)!important;min-height:54px;background:var(--pk-kop)!important;border:0!important;color:#fff}
+html body:not(#zz):not(#zy) .cc .cc-card>.cc-ch>div{flex:1;min-width:0}
+html body:not(#zz):not(#zy) .cc .cc-card>.cc-ch b{display:flex;align-items:center;gap:12px;color:rgb(255 255 255 / .92)!important;font-size:11px!important;font-weight:600!important;letter-spacing:.16em!important;text-transform:uppercase}
+html body:not(#zz):not(#zy) .cc .cc-card>.cc-ch b>svg{flex:none;box-sizing:content-box;width:15px!important;height:15px!important;padding:8px;border-radius:10px;background:rgb(255 255 255 / .07);border:1px solid rgb(255 255 255 / .14);color:#fff!important;stroke:#fff}
+html body:not(#zz):not(#zy) .cc .cc-card>.cc-ch small{display:block;margin:2px 0 0 46px;color:rgb(255 255 255 / .68)!important;font-size:12px}
+html body:not(#zz):not(#zy) .cc .cc-card>.cc-ch :is(.cc-link,button){flex:none;display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:8px;background:rgb(255 255 255 / .07)!important;border:1px solid rgb(255 255 255 / .18)!important;color:#fff!important;font-size:10px!important;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+html body:not(#zz):not(#zy) .cc .cc-card>.cc-ch :is(.cc-link,button) svg{width:12px;height:12px;color:#fff;stroke:#fff}
+html body:not(#zz):not(#zy) .cc .cc-adv>.cc-ah .cc-aic{flex:none;width:32px!important;height:32px!important;border-radius:10px!important;background:rgb(255 255 255 / .07)!important;border:1px solid rgb(255 255 255 / .14)!important;color:#fff!important;display:grid;place-items:center}
+html body:not(#zz):not(#zy) .cc .cc-adv>.cc-ah .cc-aic svg{width:15px!important;height:15px!important;color:#fff!important;stroke:#fff}
+html body:not(#zz):not(#zy) .cc .cc-adv>.cc-ah>div{flex:1;min-width:0}
+html body:not(#zz):not(#zy) .cc .cc-adv>.cc-ah small{display:block;color:rgb(255 255 255 / .6)!important;font-size:9.5px!important;letter-spacing:.2em!important;font-weight:700}
+html body:not(#zz):not(#zy) .cc .cc-adv>.cc-ah b{display:block;color:rgb(255 255 255 / .92)!important;font-size:11px!important;font-weight:600!important;letter-spacing:.16em!important;text-transform:uppercase;margin-top:2px}
+html body:not(#zz):not(#zy) .cc .cc-adv>.cc-ah .cc-stp{background:rgb(255 255 255 / .1)!important;border:1px solid rgb(255 255 255 / .2)!important;color:#fff!important;font-size:11px!important;height:26px;padding:0 10px}
+html body:not(#zz):not(#zy) .cc .cc-adv .cc-ahh{font-size:13px;color:#646b7a;margin-top:0}
+/* niets dringends: rustig */
+html body:not(#zz):not(#zy) .cc .cc-nu.rust{background:#fff!important;border:1px solid #e2e5ea!important;border-radius:20px!important;padding:12px 16px!important;box-shadow:0 1px 2px rgb(26 32 48 / .04)!important}
+html body:not(#zz):not(#zy) .cc .cc-nu.rust b{font-size:14px!important;color:#2f7a55!important}
+html body:not(#zz):not(#zy) .cc .cc-nu.rust .cc-nd{width:28px!important;height:28px!important}
+/* cijfers als parelgrijs paneel */
+html body:not(#zz):not(#zy) .cc :is(.cc-dagstat,.cc-ops2){position:relative;display:grid;gap:0!important;background:var(--pk-parel)!important;border:1px solid #d8d8d4!important;border-radius:18px!important;box-shadow:inset 0 1px 0 #fff,0 18px 34px -30px rgb(26 32 48 / .5)!important;overflow:hidden}
+html body:not(#zz):not(#zy) .cc .cc-dagstat{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+html body:not(#zz):not(#zy) .cc .cc-dagstat>div{background:none!important;border-radius:0!important;padding:12px 14px!important;border-left:1px solid rgb(28 34 49 / .08);border-top:1px solid rgb(28 34 49 / .08)}
+html body:not(#zz):not(#zy) .cc .cc-dagstat>div:nth-child(3n+1){border-left:0}
+html body:not(#zz):not(#zy) .cc .cc-dagstat>div:nth-child(-n+3){border-top:0}
+html body:not(#zz):not(#zy) .cc .cc-dagstat small{font-size:9.5px!important;font-weight:700!important;letter-spacing:.16em!important;text-transform:uppercase;color:#3a4150!important}
+html body:not(#zz):not(#zy) .cc .cc-dagstat b{font-size:19px!important;font-weight:500!important;color:#14181f!important}
+html body:not(#zz):not(#zy) .cc .cc-ops2{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+html body:not(#zz):not(#zy) .cc .cc-ops2>.cc-op{display:grid!important;grid-template-columns:auto minmax(0,1fr);align-items:start;column-gap:10px;padding:14px 16px!important;background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;border-left:1px solid rgb(28 34 49 / .08)!important;border-top:1px solid rgb(28 34 49 / .08)!important;text-align:left}
+html body:not(#zz):not(#zy) .cc .cc-ops2>.cc-op::before{display:none!important}
+html body:not(#zz):not(#zy) .cc .cc-ops2>.cc-op:hover{background:rgb(255 255 255 / .4)!important}
+html body:not(#zz):not(#zy) .cc .cc-ops2>.cc-op:nth-child(3n+1){border-left:0!important}
+html body:not(#zz):not(#zy) .cc .cc-ops2>.cc-op:nth-child(-n+3){border-top:0!important}
+html body:not(#zz):not(#zy) .cc .cc-ops2 .cc-opi{width:32px!important;height:32px!important;border-radius:50%!important;background:linear-gradient(180deg,#fff,#ececea)!important;border:1px solid #c9c9c4;box-shadow:inset 0 1px 0 #fff,0 1px 2px rgb(0 0 0 / .1),0 6px 12px -8px rgb(0 0 0 / .3)}
+html body:not(#zz):not(#zy) .cc .cc-ops2 .cc-opi svg{stroke:#252c3c!important;width:14px!important;height:14px!important}
+html body:not(#zz):not(#zy) .cc .cc-ops2 .cc-op.let .cc-opi svg{stroke:#b06d10!important}
+html body:not(#zz):not(#zy) .cc .cc-ops2 .cc-op.rood .cc-opi svg{stroke:#c23b32!important}
+html body:not(#zz):not(#zy) .cc .cc-ops2 .cc-opt small{font-size:9.5px!important;font-weight:700;letter-spacing:.16em!important;text-transform:uppercase;color:#3a4150!important}
+html body:not(#zz):not(#zy) .cc .cc-ops2 .cc-opt b{font-size:16px!important;font-weight:500!important;color:#14181f!important}
+html body:not(#zz):not(#zy) .cc .cc-ops2 .cc-opt em{font-size:12px;color:#5f6572}
+html body:not(#zz):not(#zy) .cc .cc-rkop{font-size:10.5px!important;letter-spacing:.2em!important;color:#3a4150!important}
+@media (max-width:640px){
+ html body:not(#zz):not(#zy) .cc :is(.cc-card,.cc-adv){--px:16px;--py:14px}
+ html body:not(#zz):not(#zy) .cc .cc-ops2{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ html body:not(#zz):not(#zy) .cc .cc-ops2>.cc-op:nth-child(3n+1){border-left:1px solid rgb(28 34 49 / .08)!important}
+ html body:not(#zz):not(#zy) .cc .cc-ops2>.cc-op:nth-child(2n+1){border-left:0!important}
+ html body:not(#zz):not(#zy) .cc .cc-ops2>.cc-op:nth-child(3){border-top:1px solid rgb(28 34 49 / .08)!important}
+ html body:not(#zz):not(#zy) .cc .cc-ops2>.cc-op{padding:12px!important;column-gap:8px}
+ html body:not(#zz):not(#zy) .cc .cc-ops2 .cc-opi{width:28px!important;height:28px!important}}
+html body:not(#zz):not(#zy) .cc :is(.cc-card>.cc-ch,.cc-adv>.cc-ah){width:auto!important;max-width:none!important;align-self:stretch!important;box-sizing:border-box}
+html body:not(#zz):not(#zy) .cc .cc-dagstat b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:640px){html body:not(#zz):not(#zy) .cc .cc-dagstat>div{padding:10px 12px!important}html body:not(#zz):not(#zy) .cc .cc-dagstat b{font-size:16px!important;text-overflow:clip}html body:not(#zz):not(#zy) .cc .cc-dagstat small{letter-spacing:.1em!important}}
+
 </style>
 <div class="app">
   <aside class="side">
