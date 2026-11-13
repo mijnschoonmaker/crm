@@ -7506,6 +7506,16 @@ html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i span:not(.hosp-af){font-si
 html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i :is(button,.hosp-af){font-size:11px!important;align-self:baseline}
 @media (max-width:640px){html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i,html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i.hosp-prio{grid-template-columns:minmax(0,1fr) auto!important;row-gap:2px}html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i small{grid-column:1/-1}}
 html body:not(#zz):not(#zy) .kko-v4 .kko-gast :is(.hosp,.hosp-l,.hx){margin-left:0!important;padding-left:0!important}
+/* kerncijfers in de klantkaart weer als parelgrijs paneel, zoals in de opdracht */
+html body:not(#zz):not(#zy):not(#zx) dialog .kko-v4 .kk-kern{background:var(--pk-parel)!important;border:1px solid #d8d8d4!important;box-shadow:inset 0 1px 0 #fff,inset 0 -1px 0 rgb(0 0 0 / .04),0 24px 44px -34px rgb(26 32 48 / .55),0 2px 6px -4px rgb(26 32 48 / .2)!important}
+html body:not(#zz):not(#zy):not(#zx) dialog .kko-v4 .kk-kern::after{display:block!important}
+html body:not(#zz):not(#zy):not(#zx) dialog .kko-v4 .kk-kern .kkh-t+.kkh-t::before{width:2px!important;background:linear-gradient(90deg,rgb(28 34 49 / .1) 0 1px,#fff 1px 2px)!important}
+html body:not(#zz):not(#zy):not(#zx) dialog .kko-v4 .kk-kern .kkh-t span{color:#3a4150!important;font-weight:700!important;letter-spacing:.2em!important;font-size:10.5px!important}
+html body:not(#zz):not(#zy):not(#zx) dialog .kko-v4 .kk-kern .kkh-t b{font-weight:500!important;font-size:28px!important;color:#14181f!important;letter-spacing:-.005em!important}
+html body:not(#zz):not(#zy):not(#zx) dialog .kko-v4 .kk-kern .kkh-t small{color:#5f6572!important;font-size:13px!important}
+html body:not(#zz):not(#zy):not(#zx) dialog .kko-v4 .kk-kern .kkh-t small.late{color:#b03a32!important}
+html body:not(#zz):not(#zy):not(#zx) dialog .kko-v4 .kk-kern .kkh-t.kkh-go:hover{background:rgb(255 255 255 / .4)!important}
+@media (max-width:640px){html body:not(#zz):not(#zy):not(#zx) dialog .kko-v4 .kk-kern .kkh-t b{font-size:21px!important}}
 
 </style>
 <div class="app">
