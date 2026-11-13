@@ -2158,3 +2158,12 @@ html body:not(#zz):not(#zy) .kk-pay .pb-bar .pb-optijd::before{content:"";positi
 @keyframes pbStraal{0%{background-position:-60% 0}60%,100%{background-position:160% 0}}
 @keyframes pbIn{from{transform:scaleX(0);transform-origin:left}to{transform:scaleX(1);transform-origin:left}}
 @media (prefers-reduced-motion:reduce){html body:not(#zz):not(#zy) .kk-pay .pb-bar .pb-s,html body:not(#zz):not(#zy) .kk-pay .pb-bar .pb-optijd::before{animation:none}}
+/* klantnotities in het hospitality-paneel */
+html body:not(#zz) .kk-notitie{display:grid;grid-template-columns:104px minmax(0,1fr) auto;column-gap:16px;align-items:baseline;margin-top:12px;padding-top:14px;border-top:1px solid rgb(28 34 49 / .08)}
+html body:not(#zz) .kk-notitie .kk-nl,html body:not(#zz) .kk-finst span{font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#8a8f98;white-space:nowrap}
+html body:not(#zz) .kk-notitie p{margin:0;font-size:14.5px;line-height:1.5;color:#14171c}
+html body:not(#zz) .kk-notitie p.leeg{color:#8a8f98}
+html body:not(#zz) .kk-nb{border:0!important;background:none!important;box-shadow:none!important;padding:0!important;min-height:0!important;font-size:11px!important;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#14171c!important;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+html body:not(#zz) .kk-finst{display:grid;grid-template-columns:130px minmax(0,1fr) auto;column-gap:16px;align-items:baseline;margin:16px 22px 0!important;padding:12px 14px;border-radius:12px;background:#f7f7f6}
+html body:not(#zz) .kk-finst p{margin:0;font-size:14px;color:#14171c}
+@media (max-width:640px){html body:not(#zz) .kk-notitie,html body:not(#zz) .kk-finst{grid-template-columns:minmax(0,1fr) auto;row-gap:4px}html body:not(#zz) .kk-notitie .kk-nl,html body:not(#zz) .kk-finst span{grid-column:1/-1}}
