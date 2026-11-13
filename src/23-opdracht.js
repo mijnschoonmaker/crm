@@ -77,9 +77,10 @@ function openOpdrachtWerk(kid,focus){
         <label class="full check-row"><input id="ow-actief" type="checkbox" ${k.actief!==false?"checked":""}>Opdracht loopt (uitzetten = klant inactief, alle toekomstige afspraken vervallen)</label>
         ${k.gepland?`<button type="button" class="small ghost danger" id="owWis" style="grid-column:1/-1;justify-self:start;white-space:nowrap">Alle toekomstige afspraken verwijderen</button>`:""}
       </div></section>
-    <section class="kp"><div class="kp-h"><span class="objic">${I.facturen}</span><b>Details contract</b></div>
-      ${kv("Status",status[1])}<div class="grid2"><label>Startdatum contract<input id="ow-start" type="date" value="${esc(k.startdatum||String((off&&off.akkoordOp)||k.aangemaakt||iso(today())).slice(0,10))}"></label><label>Einddatum contract<input id="ow-eind" type="date" value="${esc(k.einddatum||"")}"><small class="help">Na deze datum niet meer aanbieden</small></label></div>${kv("Offerte",off?`<button type="button" class="linkbtn" data-act="factuur" data-id="${esc(off.id)}">${esc(off.nummer)} · geaccepteerd</button>`:"—")}
-      <label class="check-row"><input id="ow-akkoord" type="checkbox" ${k.akkoord?"checked":""}>Akkoord op overeenkomst en algemene voorwaarden</label></section>
+    <section class="kp" data-owcontract><div class="kp-h"><span class="objic">${I.facturen}</span><b>Details contract</b></div>
+      <div class="owv-g owv-con"><small>Contract</small><div class="owv-r"><span>Status</span><b>${status[1]}</b></div><div class="owv-r"><span>Offerte</span><b>${off?`<button type="button" class="linkbtn" data-act="factuur" data-id="${esc(off.id)}">${esc(off.nummer)} · geaccepteerd</button>`:"—"}</b></div>
+      <div class="grid2 owv-dat"><label>Startdatum contract<input id="ow-start" type="date" value="${esc(k.startdatum||String((off&&off.akkoordOp)||k.aangemaakt||iso(today())).slice(0,10))}"></label><label>Einddatum contract<input id="ow-eind" type="date" value="${esc(k.einddatum||"")}"><small class="help">Na deze datum niet meer aanbieden</small></label></div>
+      <label class="check-row"><input id="ow-akkoord" type="checkbox" ${k.akkoord?"checked":""}>Akkoord op overeenkomst en algemene voorwaarden</label></div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.euro||I.facturen}</span><b>Facturatie</b></div>
       <div class="grid2">
         <label>Betaalwijze<select id="ow-betaal"><option value="bank" ${k.incasso?"":"selected"}>Per bank</option><option value="incasso" ${k.incasso?"selected":""}>Automatische incasso</option></select></label>
@@ -660,6 +661,8 @@ document.addEventListener("click",e=>{const x=e.target.closest&&e.target.closest
 const OW_TABS=[["werk","Werk"],["planning","Planning"],["factuur","Facturatie"]];
 const OW_TABMAP=[[/^opdracht$|details contract/i,"planning"],[/^facturatie|factuuradres/i,"factuur"],[/^klantgegevens|^logboek/i,"weg"]];
 function owTabsInit(){const grid=document.querySelector("dialog[open] .ow-v2");if(!grid||grid.dataset.tabs)return;grid.dataset.tabs="1";
+  /* contract hoort bij de opdracht: samen in één blok */
+  try{const cs=grid.querySelector("[data-owcontract]"),ov=document.getElementById("owOpdV"),os=ov&&ov.closest("section");if(cs&&os&&cs!==os){const c=cs.querySelector(".owv-con");if(c){os.appendChild(c);cs.remove()}}}catch(e){}
   /* nov 2026: opdrachtkaart op één pagina, zoals de klantkaart: links het werk, rechts planning en facturatie */
   try{const kern=grid.querySelector(".ow-kern");if(kern)grid.parentNode.insertBefore(kern,grid)}catch(e){}
   const L=grid.querySelector(".kk-left"),R=grid.querySelector(".kk-side");

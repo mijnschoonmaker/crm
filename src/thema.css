@@ -2333,3 +2333,7 @@ html body:not(#zz):not(#zy) .dkt-grid{gap:8px!important}
 .owv-jn::before{content:"";width:6px;height:6px;border-radius:50%;background:#c9cdd3}
 .owv-jn.ja{color:#14171c;font-weight:600}
 .owv-jn.ja::before{background:#1f9d55}
+.owv-con{margin-top:18px}
+.owv-con .owv-dat{margin:8px 0 4px!important;gap:10px!important}
+.owv-con .owv-dat label{font-size:12.5px!important;color:#5b6270!important;font-weight:500!important}
+.owv-con .check-row{margin-top:10px!important}
