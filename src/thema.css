@@ -2185,3 +2185,7 @@ html body:not(#zz):not(#zy):not(#zx) .kk-pay .pb-hero .pb-bar .pb-open{backgroun
 html body:not(#zz):not(#zy):not(#zx) .kk-pay .pb-hero .pb-bar .pb-leeg{background:repeating-linear-gradient(115deg,rgb(255 255 255 / .14) 0 6px,rgb(255 255 255 / .05) 6px 12px)!important}
 html body:not(#zz):not(#zy):not(#zx) .kk-pay .pb-hero .pb-bar .pb-herinnering{background:linear-gradient(90deg,#f0c97f,#e0a845)!important}
 html body:not(#zz):not(#zy):not(#zx) .kk-pay .pb-hero .pb-bar .pb-aanmaning{background:linear-gradient(90deg,#f0a39b,#e06a5f)!important}
+/* bolletje pulseert zacht, zoals bij de credits in het klantportaal */
+@keyframes pbPuls{0%{box-shadow:0 0 0 0 rgb(255 255 255 / .55),0 0 18px rgb(255 255 255 / .5),0 2px 6px rgb(0 0 0 / .3)}70%{box-shadow:0 0 0 12px rgb(255 255 255 / 0),0 0 18px rgb(255 255 255 / .5),0 2px 6px rgb(0 0 0 / .3)}100%{box-shadow:0 0 0 0 rgb(255 255 255 / 0),0 0 18px rgb(255 255 255 / .5),0 2px 6px rgb(0 0 0 / .3)}}
+html body:not(#zz):not(#zy):not(#zx) .kk-pay .pb-hero .pb-bar .pb-optijd::after{animation:pbPuls 2s infinite}
+@media (prefers-reduced-motion:reduce){html body:not(#zz):not(#zy):not(#zx) .kk-pay .pb-hero .pb-bar .pb-optijd::after{animation:none}}
