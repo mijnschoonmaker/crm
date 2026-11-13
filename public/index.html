@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="239676439f27"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="c6a89548822f"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -8019,6 +8019,11 @@ html body:not(#zz):not(#zy):not(#zx) .kk-pay .pb-hero .pb-bar .pb-aanmaning{back
 @keyframes pbPuls{0%{box-shadow:0 0 0 0 rgb(255 255 255 / .55),0 0 18px rgb(255 255 255 / .5),0 2px 6px rgb(0 0 0 / .3)}70%{box-shadow:0 0 0 12px rgb(255 255 255 / 0),0 0 18px rgb(255 255 255 / .5),0 2px 6px rgb(0 0 0 / .3)}100%{box-shadow:0 0 0 0 rgb(255 255 255 / 0),0 0 18px rgb(255 255 255 / .5),0 2px 6px rgb(0 0 0 / .3)}}
 html body:not(#zz):not(#zy):not(#zx) .kk-pay .pb-hero .pb-bar .pb-optijd::after{animation:pbPuls 2s infinite}
 @media (prefers-reduced-motion:reduce){html body:not(#zz):not(#zy):not(#zx) .kk-pay .pb-hero .pb-bar .pb-optijd::after{animation:none}}
+/* straal en puls altijd zichtbaar (ook met 'beperk beweging' aan, zoals bij de credits in het portaal) */
+html body:not(#zz):not(#zy):not(#zx) .kk-pay .pb-hero .pb-bar .pb-optijd{background:linear-gradient(90deg,rgb(255 255 255 / .28),rgb(255 255 255 / .82))!important;overflow:visible}
+html body:not(#zz):not(#zy):not(#zx) .kk-pay .pb-hero .pb-bar .pb-optijd::before{content:""!important;position:absolute;top:-3px;bottom:-3px;left:0;width:22%;border-radius:99px;background:radial-gradient(closest-side,#fff,rgb(255 255 255 / .6) 45%,transparent)!important;filter:blur(1px);mix-blend-mode:normal!important;animation:pbStraal2 3.2s cubic-bezier(.45,0,.25,1) infinite!important}
+@keyframes pbStraal2{0%{transform:translateX(-30%);opacity:0}15%{opacity:1}80%{opacity:1}100%{transform:translateX(420%);opacity:0}}
+html body:not(#zz):not(#zy):not(#zx) .kk-pay .pb-hero .pb-bar .pb-optijd::after{animation:pbPuls 2s infinite!important}
 
 </style>
 <div class="app">

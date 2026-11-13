@@ -2189,3 +2189,8 @@ html body:not(#zz):not(#zy):not(#zx) .kk-pay .pb-hero .pb-bar .pb-aanmaning{back
 @keyframes pbPuls{0%{box-shadow:0 0 0 0 rgb(255 255 255 / .55),0 0 18px rgb(255 255 255 / .5),0 2px 6px rgb(0 0 0 / .3)}70%{box-shadow:0 0 0 12px rgb(255 255 255 / 0),0 0 18px rgb(255 255 255 / .5),0 2px 6px rgb(0 0 0 / .3)}100%{box-shadow:0 0 0 0 rgb(255 255 255 / 0),0 0 18px rgb(255 255 255 / .5),0 2px 6px rgb(0 0 0 / .3)}}
 html body:not(#zz):not(#zy):not(#zx) .kk-pay .pb-hero .pb-bar .pb-optijd::after{animation:pbPuls 2s infinite}
 @media (prefers-reduced-motion:reduce){html body:not(#zz):not(#zy):not(#zx) .kk-pay .pb-hero .pb-bar .pb-optijd::after{animation:none}}
+/* straal en puls altijd zichtbaar (ook met 'beperk beweging' aan, zoals bij de credits in het portaal) */
+html body:not(#zz):not(#zy):not(#zx) .kk-pay .pb-hero .pb-bar .pb-optijd{background:linear-gradient(90deg,rgb(255 255 255 / .28),rgb(255 255 255 / .82))!important;overflow:visible}
+html body:not(#zz):not(#zy):not(#zx) .kk-pay .pb-hero .pb-bar .pb-optijd::before{content:""!important;position:absolute;top:-3px;bottom:-3px;left:0;width:22%;border-radius:99px;background:radial-gradient(closest-side,#fff,rgb(255 255 255 / .6) 45%,transparent)!important;filter:blur(1px);mix-blend-mode:normal!important;animation:pbStraal2 3.2s cubic-bezier(.45,0,.25,1) infinite!important}
+@keyframes pbStraal2{0%{transform:translateX(-30%);opacity:0}15%{opacity:1}80%{opacity:1}100%{transform:translateX(420%);opacity:0}}
+html body:not(#zz):not(#zy):not(#zx) .kk-pay .pb-hero .pb-bar .pb-optijd::after{animation:pbPuls 2s infinite!important}
