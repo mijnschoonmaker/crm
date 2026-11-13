@@ -279,7 +279,7 @@ function kkDelOfferte(fid){const f=state.facturen.find(x=>x.id===fid);if(!f)retu
 }
 
 /* ---------- klantkaart: tabbladen en overzicht (nov 2026) ---------- */
-const KK_TABS=[["overzicht","Overzicht"],["diensten","Diensten"],["bezoeken","Bezoeken"],["facturen","Facturen"],["berichten","Berichten"],["gegevens","Gegevens"]];
+const KK_TABS=[["overzicht","Overzicht"],["gegevens","Gegevens"],["diensten","Diensten"],["bezoeken","Bezoeken"],["facturen","Facturen"],["berichten","Berichten"]];
 const KK_TABMAP=[[/^locaties|^opdrachten/i,"diensten"],[/ingeplande afspraken|^bezoeken/i,"bezoeken"],[/^offertes|facturen/i,"facturen"],[/^logboek|berichten/i,"berichten"]];
 function kkOvTabs(){const t=state.kkTab||"overzicht";return `<nav class="kk-tabs" aria-label="Onderdelen van de klantkaart">${KK_TABS.map(([id,l])=>`<button type="button" class="${t===id?"on":""}" data-kktab="${id}">${({overzicht:I.trend||I.eye,diensten:I.checksq||I.check,bezoeken:I.planning,facturen:I.facturen,berichten:I.chat||I.mail,gegevens:I.user})[id]||""}<span>${l}</span></button>`).join("")}</nav>`}
 function kkTabsInit(form){const body=form.querySelector("#kkBody"),ov=form.querySelector("#kkOv");if(!body)return;

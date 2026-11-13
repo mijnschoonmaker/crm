@@ -1717,3 +1717,5 @@ html body:not(#zz):not(#zy) .kko-s.kko-vk>.kko-h{flex-direction:row!important;al
 html body:not(#zz):not(#zy) .ow-v2 .kp.ow-kern{background:none!important;border:0!important;box-shadow:none!important;overflow:visible!important}
 html body:not(#zz):not(#zy) .ow-v2 .kp.ow-kern>.kp-h{display:none!important}
 html body:not(#zz):not(#zy) .ow-v2 .kp.ow-kern>:not(.kp-h){margin:0!important}
+html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h :is(button,.btn,a,label) svg,html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h :is(button,.btn,a,label) svg *{color:#fff!important;stroke:#fff!important}
+html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h :is(button,.btn,a,label) svg [fill]:not([fill="none"]){fill:#fff!important}

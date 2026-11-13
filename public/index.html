@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="61876e0643d8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="4a92b032f674"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -7545,6 +7545,8 @@ html body:not(#zz):not(#zy) .kko-s.kko-vk>.kko-h{flex-direction:row!important;al
 html body:not(#zz):not(#zy) .ow-v2 .kp.ow-kern{background:none!important;border:0!important;box-shadow:none!important;overflow:visible!important}
 html body:not(#zz):not(#zy) .ow-v2 .kp.ow-kern>.kp-h{display:none!important}
 html body:not(#zz):not(#zy) .ow-v2 .kp.ow-kern>:not(.kp-h){margin:0!important}
+html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h :is(button,.btn,a,label) svg,html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h :is(button,.btn,a,label) svg *{color:#fff!important;stroke:#fff!important}
+html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h :is(button,.btn,a,label) svg [fill]:not([fill="none"]){fill:#fff!important}
 
 </style>
 <div class="app">
@@ -16531,7 +16533,7 @@ function kkDelOfferte(fid){const f=state.facturen.find(x=>x.id===fid);if(!f)retu
 }
 
 /* ---------- klantkaart: tabbladen en overzicht (nov 2026) ---------- */
-const KK_TABS=[["overzicht","Overzicht"],["diensten","Diensten"],["bezoeken","Bezoeken"],["facturen","Facturen"],["berichten","Berichten"],["gegevens","Gegevens"]];
+const KK_TABS=[["overzicht","Overzicht"],["gegevens","Gegevens"],["diensten","Diensten"],["bezoeken","Bezoeken"],["facturen","Facturen"],["berichten","Berichten"]];
 const KK_TABMAP=[[/^locaties|^opdrachten/i,"diensten"],[/ingeplande afspraken|^bezoeken/i,"bezoeken"],[/^offertes|facturen/i,"facturen"],[/^logboek|berichten/i,"berichten"]];
 function kkOvTabs(){const t=state.kkTab||"overzicht";return `<nav class="kk-tabs" aria-label="Onderdelen van de klantkaart">${KK_TABS.map(([id,l])=>`<button type="button" class="${t===id?"on":""}" data-kktab="${id}">${({overzicht:I.trend||I.eye,diensten:I.checksq||I.check,bezoeken:I.planning,facturen:I.facturen,berichten:I.chat||I.mail,gegevens:I.user})[id]||""}<span>${l}</span></button>`).join("")}</nav>`}
 function kkTabsInit(form){const body=form.querySelector("#kkBody"),ov=form.querySelector("#kkOv");if(!body)return;
