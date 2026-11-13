@@ -1791,3 +1791,6 @@ html body:not(#zz):not(#zy) .kko-s>.kko-h :is(.kko-k,button),html body:not(#zz):
 html body:not(#zz):not(#zy) .kko-s>.kko-h :is(.kko-k,button) svg,html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h :is(button,.btn,a,label) svg,html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h :is(button,.btn,a,label) svg *,html body:not(#zz):not(#zy) .cc .cc-card>.cc-ch :is(.cc-link,button) svg{color:#0d121b!important;stroke:#0d121b!important}
 html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h :is(button,.btn,a,label) svg [fill]:not([fill="none"]){fill:#0d121b!important}
 html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h .pill,html body:not(#zz):not(#zy) .cc .cc-adv>.cc-ah .cc-stp{background:#fff!important;border:1px solid #dfe2e7!important;color:#0d121b!important}
+/* klantkaart en opdracht: paginakleur zoals Berichten (#f7f7f6) */
+html body:not(#zz):not(#zy) dialog[open]:is(:has(.kk-hero),:has(.ow-v2),:has(.kk-tabs)){background:#f7f7f6!important}
+html body:not(#zz):not(#zy) dialog[open]:is(:has(.kk-hero),:has(.ow-v2)) :is(form,.dlg-body,.kk-body){background:transparent!important}
