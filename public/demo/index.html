@@ -7548,6 +7548,11 @@ html body:not(#zz) .hz-plus:hover{border-color:#252c3c;border-style:solid}
 html body:not(#zz) .hz-chip{height:32px;padding:0 12px;border-radius:99px;border:1px solid #eceef1;background:#f6f7f8;color:#3a4150;font-size:12.5px;font-weight:500;letter-spacing:0;text-transform:none;cursor:pointer}
 html body:not(#zz) .hz-chip:hover{background:#252c3c;border-color:#252c3c;color:#fff}
 @media (max-width:760px){html body:not(#zz) .hosp-ed.hz{grid-template-columns:minmax(0,1fr)}}
+/* logboek: berichtregels openen het berichtenscherm */
+html body:not(#zz) .lgb-r.lgb-knop{display:flex!important;align-items:center;gap:10px;width:100%;padding:9px 12px!important;margin:0!important;background:none!important;border:0!important;border-top:1px solid var(--line)!important;border-radius:0!important;box-shadow:none!important;font:inherit;font-size:13.5px!important;letter-spacing:0!important;text-transform:none!important;text-align:left;cursor:pointer;min-height:0!important;color:inherit;font-weight:400!important}
+html body:not(#zz) .lgb .lgb-r.lgb-knop:first-child{border-top:0!important}
+html body:not(#zz) .lgb-r.lgb-knop:hover{background:var(--surface-2)!important}
+html body:not(#zz) .lgb-r.lgb-knop .lgb-t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 </style>
 <div class="app">
@@ -16375,7 +16380,7 @@ function openKlantView(id,opt={}){
         const L=[...(k.log||[]).map(l=>({d:l.datum,u:"",t:l.tekst,s:"Notitie"})),...msgs.map(m=>({d:String(m.op).slice(0,10),u:String(m.op).slice(11,16),o:m.onderwerp||"",t:m.tekst||m.onderwerp||"",s:KANAAL[m.kanaal]||m.kanaal}))].sort((a,b)=>String(b.d+b.u).localeCompare(String(a.d+a.u)));
         if(!L.length)return '<p class="subt" style="margin:0">Er zijn geen logboekregels.</p>';
         const N=state.kkLogN||5;
-        return `<div class="lgb">${L.slice(0,N).map(l=>{const sum=l.o||kort(l.t),meer=String(l.t||"").trim()&&String(l.t).trim()!==sum;return `<details class="lgb-r"><summary><span class="lgb-d">${esc(fmtD(l.d))}${l.u?`<i>${esc(l.u)}</i>`:""}</span><span class="lgb-s ${l.s==="Notitie"?"n":""}">${esc(l.s)}</span><span class="lgb-t">${esc(sum)}</span>${meer?`<span class="lgb-oog" aria-label="Volledig bekijken">${I.eye}</span>`:""}</summary>${meer?`<div class="lgb-x">${esc(l.t)}</div>`:""}</details>`}).join("")}</div>
+        return `<div class="lgb">${L.slice(0,N).map(l=>{const sum=l.o||kort(l.t),meer=String(l.t||"").trim()&&String(l.t).trim()!==sum;if(l.s!=="Notitie")return `<button type="button" class="lgb-r lgb-knop" data-kk="berichten"><span class="lgb-d">${esc(fmtD(l.d))}${l.u?`<i>${esc(l.u)}</i>`:""}</span><span class="lgb-s">${esc(l.s)}</span><span class="lgb-t">${esc(sum)}</span><span class="lgb-oog" aria-label="Bekijken">${I.eye}</span></button>`;return `<details class="lgb-r"><summary><span class="lgb-d">${esc(fmtD(l.d))}${l.u?`<i>${esc(l.u)}</i>`:""}</span><span class="lgb-s ${l.s==="Notitie"?"n":""}">${esc(l.s)}</span><span class="lgb-t">${esc(sum)}</span>${meer?`<span class="lgb-oog" aria-label="Volledig bekijken">${I.eye}</span>`:""}</summary>${meer?`<div class="lgb-x">${esc(l.t)}</div>`:""}</details>`}).join("")}</div>
           ${L.length>N?`<button type="button" class="small ghost" data-act="kklogmeer" style="align-self:flex-start">Meer tonen (${L.length-N})</button>`:N>5?`<button type="button" class="small ghost" data-act="kklogmin" style="align-self:flex-start">Minder tonen</button>`:""}`})()}
       <div class="log-in"><input id="kd-log" placeholder="Notitie toevoegen…" aria-label="Notitie voor het logboek"><button type="button" class="small primary" id="kdLog">${I.plus}Noteer</button></div></section>
   </div></div>
