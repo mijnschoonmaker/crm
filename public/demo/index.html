@@ -16280,9 +16280,14 @@ function betaalgedrag(fs){
   const c={aanmaning:0,herinnering:0,optijd:0,open:0};
   f.forEach(x=>{const h=Number(x.herinneringen)||0,st=fStatus(x)[1];if(st==="Openstaand"||st==="Achterstallig"){c.open++;return}if(h>=2)c.aanmaning++;else if(h===1)c.herinnering++;else c.optijd++});
   const paid=f.filter(x=>x.status==="betaald"&&x.betaaldOp),gem=paid.length?Math.round(paid.reduce((a,x)=>a+Math.max(0,(parse(x.betaaldOp)-parse(x.datum))/DAY),0)/paid.length):null;
-  return {c,gem,n:f.length,laatste:f.slice().sort((a,b)=>String(b.datum).localeCompare(String(a.datum))).slice(0,3)}}
+  /* nauwkeurig: van het moment van versturen tot het moment van betalen (zelfde regel als bij de snelbetaal-credits) */
+  const vanTs=x=>{if(x.verstuurdTs)return x.verstuurdTs;const v=String(x.verstuurdOp||"");if(/T\d/.test(v))return v;if(/^\d{4}-\d{2}-\d{2}$/.test(v)){const g=String(x.gemaakt||"");return g&&g.slice(0,10)===v?g:v+"T08:00:00"}return x.gemaakt||(x.datum?x.datum+"T08:00:00":"")};
+  const totTs=x=>x.betaaldTs||(x.betaaldOp?String(x.betaaldOp).slice(0,10)+"T12:00:00":"");
+  const duren=paid.map(x=>Date.parse(totTs(x))-Date.parse(vanTs(x))).filter(d=>d>=0&&isFinite(d)),gemMs=duren.length?duren.reduce((a,b)=>a+b,0)/duren.length:null;
+  return {c,gem,gemMs,n:f.length,laatste:f.slice().sort((a,b)=>String(b.datum).localeCompare(String(a.datum))).slice(0,3)}}
 /* betaalgedrag als nette kaart: ring met % op tijd, oordeel en vier tellers */
 const PAYK={aanmaning:["#d9534f","Aanmaning"],herinnering:["#e0a030","Herinnering"],optijd:["#2bb673","Op tijd betaald"],open:["#5aa9c2","Openstaand"]};
+function duurTxt(ms){const m=Math.max(0,Math.round(ms/6e4)),d=Math.floor(m/1440),u=Math.floor(m%1440/60),mi=m%60;return [d?d+" "+(d===1?"dag":"dagen"):"",u?u+" uur":"",mi||(!d&&!u)?mi+" min":""].filter(Boolean).join(" ")}
 function payBlok(bg,los){const c=bg.c,afg=c.optijd+c.herinnering+c.aanmaning,pct=afg?Math.round(c.optijd/afg*100):null,tot=afg+c.open;
   const [vk,vt]=c.aanmaning?["late","Aanmaning nodig geweest"]:c.herinnering?["soon","Soms een herinnering"]:afg?["ok","Betaalt netjes op tijd"]:c.open?["plan","Nog geen betalingen"]:["plan","Nog geen facturen"];
   /* rustige kaart: grote score, één verdeelbalk en vier tellers naast elkaar */
@@ -16291,7 +16296,7 @@ function payBlok(bg,los){const c=bg.c,afg=c.optijd+c.herinnering+c.aanmaning,pct
   const kop=pct==null?`<b class="pb-big pb-dim">—</b><span class="pb-sub">${c.open?"Nog niets betaald":"Nog geen facturen"}</span>`:`<b class="pb-big">${pct}<small>%</small></b><span class="pb-sub">op tijd betaald</span>`;
   if(los==="pil")return `<span class="pb-v ${vk}">${vt}</span>`;
   return `<div class="pay pb2">${los?"":`<div class="pb-h"><b>Betaalgedrag</b><span class="pb-v ${vk}">${vt}</span></div>`}
-    <div class="pb-top"><div class="pb-score">${kop}</div>${bg.gem!=null?`<div class="pb-gem"><span>Gemiddeld betaald</span><b>${bg.gem} ${bg.gem===1?"dag":"dagen"}</b></div>`:`<div class="pb-gem"><span>Facturen</span><b>${bg.n||tot}</b></div>`}</div>
+    <div class="pb-top"><div class="pb-score">${kop}</div>${bg.gem!=null?`<div class="pb-gem"><span>Gemiddeld betaald na</span><b>${bg.gemMs!=null?duurTxt(bg.gemMs):bg.gem+" "+(bg.gem===1?"dag":"dagen")}</b></div>`:`<div class="pb-gem"><span>Facturen</span><b>${bg.n||tot}</b></div>`}</div>
     <div class="pb-bar">${balk}</div>
     <div class="pb-t">${K.map(k=>`<div class="pb-c pb-${k}${c[k]?"":" nul"}"><b>${c[k]}</b><span>${KL[k]}</span></div>`).join("")}</div></div>`}
 function donut(c){const parts=[["late",c.aanmaning],["soon",c.herinnering],["ok",c.optijd],["plan",c.open]],tot=parts.reduce((a,p)=>a+p[1],0);
