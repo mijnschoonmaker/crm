@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="083e822c7efb"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="0347a70f1535"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -7934,6 +7934,31 @@ html body:not(#zz):not(#zy):not(#zx) .kko-v4 .kko-gast-top .kko-h h3{color:#3a41
 html body:not(#zz):not(#zy):not(#zx) .kko-v4 .kko-gast-top .hosp-l{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;column-gap:40px!important}
 html body:not(#zz):not(#zy):not(#zx) .kko-v4 .kko-gast-top .hosp-leeg small{color:#5f6572}
 @media (max-width:900px){html body:not(#zz):not(#zy):not(#zx) .kko-v4 .kko-gast-top .hosp-l{grid-template-columns:minmax(0,1fr)!important}}
+/* hospitality invoeren: per soort een rustig blok */
+html body:not(#zz) .hosp-ed.hz{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:6px}
+html body:not(#zz) .hz-b{display:flex;flex-direction:column;gap:10px;padding:18px 20px;border:1px solid #eceef1;border-radius:18px;background:#fff}
+html body:not(#zz) .hz-h{display:flex;align-items:center;gap:12px}
+html body:not(#zz) .hz-ic{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#f4f5f7;color:#252c3c}
+html body:not(#zz) .hz-ic svg{width:16px;height:16px}
+html body:not(#zz) .hz-h b{display:block;font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#14171c}
+html body:not(#zz) .hz-h small{display:block;font-size:12.5px;color:#7a808b;margin-top:2px}
+html body:not(#zz) .hz-r{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+html body:not(#zz) .hz-in{flex:1;min-width:0;height:42px;padding:0 14px;border:1px solid #e3e5e8;border-radius:11px;background:#fafbfc;font:inherit;font-size:14.5px;color:#14171c;box-shadow:none}
+html body:not(#zz) .hz-in:focus{outline:0;border-color:#252c3c;background:#fff;box-shadow:0 0 0 3px rgb(37 44 60 / .08)}
+html body:not(#zz) .hz-x{flex:none;display:grid;place-items:center;width:34px;height:34px;padding:0;border:0;border-radius:9px;background:none;color:#9aa0a8;cursor:pointer}
+html body:not(#zz) .hz-x:hover{background:#f4f5f7;color:#b03a32}
+html body:not(#zz) .hz-x svg{width:14px;height:14px}
+html body:not(#zz) .hz-van{display:flex;align-items:center;gap:8px;width:100%;font-size:12.5px;color:#5b6270}
+html body:not(#zz) .hz-van input{height:34px;border:1px solid #e3e5e8;border-radius:9px;padding:0 10px;font:inherit;font-size:13px}
+html body:not(#zz) .hz-van small{color:#9aa0a8}
+html body:not(#zz) .hz-her{border:0;background:none;color:#5b6270;font-size:12px;text-decoration:underline;cursor:pointer}
+html body:not(#zz) .hz-add{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+html body:not(#zz) .hz-plus{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:9px;border:1px dashed #cfd3d9;background:none;color:#252c3c;font-size:12.5px;font-weight:600;letter-spacing:0;text-transform:none;cursor:pointer}
+html body:not(#zz) .hz-plus svg{width:12px;height:12px}
+html body:not(#zz) .hz-plus:hover{border-color:#252c3c;border-style:solid}
+html body:not(#zz) .hz-chip{height:32px;padding:0 12px;border-radius:99px;border:1px solid #eceef1;background:#f6f7f8;color:#3a4150;font-size:12.5px;font-weight:500;letter-spacing:0;text-transform:none;cursor:pointer}
+html body:not(#zz) .hz-chip:hover{background:#252c3c;border-color:#252c3c;color:#fff}
+@media (max-width:760px){html body:not(#zz) .hosp-ed.hz{grid-template-columns:minmax(0,1fr)}}
 
 </style>
 <div class="app">
@@ -18056,10 +18081,18 @@ function hospMoment(l){const t=today();let best=null;
     const dagen=Math.round((d-t)/864e5);if(!best||dagen<best.dagen){const jarig=/verjaardag|jarig/i.test(x.t);best={dagen,ic:jarig?"🎂":"🎉",label:jarig?"Verjaardag":"Bijzonder moment",tekst:dagen===0?(jarig?"Vandaag jarig! Feliciteer even":"Vandaag!"):dagen===1?"Morgen":dagen<=30?"Over "+dagen+" dagen · "+d.getDate()+" "+HMND[mi]:d.getDate()+" "+HMND[mi]}}});
   return best}
 /* invoer in de opdracht bij Taakomschrijving */
-function hospEditHtml(l){return `<div class="hosp-ed"><div class="hosp-edh"><span class="hosp-ic hc-voorkeur">${I.heart}</span><div><b>Hospitality aandachtspunten</b><small>Komt bovenaan de klantkaart, de opdracht en bij de klus op de route te staan</small></div></div>
-  <div class="hosp-rows">${l.map((x,i)=>`<div class="hosp-row"><select data-hi="${i}" data-hf="c" aria-label="Soort">${HOSP_CAT.map(c=>`<option value="${c[0]}" ${x.c===c[0]?"selected":""}>${esc(c[1])}</option>`).join("")}</select><textarea data-hi="${i}" data-hf="t" rows="1" class="hosp-ta" placeholder="Bijv. drinkt koffie zwart, zoon heet Daan">${esc(x.t||"")}</textarea><button type="button" class="iconbtn sm" data-hrm="${i}" aria-label="Weghalen">${I.x}</button>${x.c==="verteld"&&!x.af?`<label class="hosp-van">${I.cal2}Ter sprake brengen vanaf<input type="date" data-hi="${i}" data-hf="vanaf" value="${esc(x.vanaf||"")}"><small>leeg = meteen · bijv. pas ná de vakantie</small></label>`:""}${x.c==="verteld"&&x.af?`<div class="hosp-done">${I.check}Besproken op ${esc(fmtD(x.af))} · staat niet meer bovenaan <button type="button" class="linkbtn" data-hreopen="${i}">Weer tonen</button></div>`:""}</div>`).join("")}</div>
-  <div class="hosp-add"><button type="button" class="small" data-hadd>${I.plus}Aandachtspunt</button></div>
-  <div class="hosp-tips"><span class="eyebrow">Snel toevoegen</span><div>${HOSP_TIPS.map(([c,t],i)=>`<button type="button" class="chip" data-htip="${i}">${I.plus}${esc(t.replace(/: $/,""))}</button>`).join("")}</div></div></div>`}
+function hospEditHtml(l){
+  /* per soort een eigen blok: titel, korte uitleg, de punten als nette regels en suggesties om met één tik toe te voegen */
+  const UITLEG={persoon:"Hoe spreek je de klant aan, wie woont er",voorkeur:"Hoe heeft de klant het graag",letop:"Waar moet je voorzichtig mee zijn",dier:"Huisdieren in en om het huis",aankomst:"Hoe kom je binnen en waar parkeer je",moment:"Verjaardag of een ander bijzonder moment",verteld:"Iets om de volgende keer op terug te komen"};
+  const PH={persoon:"Bijv. meneer De Vries, liever met u",voorkeur:"Bijv. liever een appje dan bellen",letop:"Bijv. orchideeën in de vensterbank",dier:"Bijv. kat Sjors, deur dicht houden",aankomst:"Bijv. sleutel ligt achterom in de brievenbus",moment:"Bijv. verjaardag 3 december",verteld:"Bijv. dochter gaat in december trouwen"};
+  const VOLG=["aankomst","persoon","dier","letop","voorkeur","moment","verteld"];
+  const blok=c=>{const cat=hospCat(c),rij=l.map((x,i)=>({x,i})).filter(o=>(o.x.c||"voorkeur")===c);
+    const al=rij.map(o=>String(o.x.t||"").toLowerCase());
+    const tips=HOSP_TIPS.map((t,i)=>({t,i})).filter(o=>o.t[0]===c&&!al.includes(o.t[1].toLowerCase()));
+    return `<section class="hz-b"><div class="hz-h"><span class="hz-ic">${I[cat[2]]||I.note}</span><div><b>${esc(cat[1])}</b><small>${UITLEG[c]||""}</small></div></div>
+      ${rij.map(({x,i})=>`<div class="hz-r"><input data-hi="${i}" data-hf="t" class="hz-in" value="${esc(x.t||"")}" placeholder="${esc(PH[c]||"")}"><button type="button" class="hz-x" data-hrm="${i}" aria-label="Weghalen">${I.x}</button>${c==="verteld"&&!x.af?`<label class="hz-van">Bespreken vanaf<input type="date" data-hi="${i}" data-hf="vanaf" value="${esc(x.vanaf||"")}"><small>leeg = meteen</small></label>`:""}${x.af?`<button type="button" class="hz-her" data-hreopen="${i}">Besproken · opnieuw</button>`:""}</div>`).join("")}
+      <div class="hz-add"><button type="button" class="hz-plus" data-hadd="${c}">${I.plus}${rij.length?"Nog een":"Toevoegen"}</button>${tips.map(o=>`<button type="button" class="hz-chip" data-htip="${o.i}">${esc(o.t[1].replace(/: $/,""))}</button>`).join("")}</div></section>`};
+  return `<div class="hosp-ed hz">${VOLG.map(blok).join("")}</div>`}
 function hospBind(box,get,onChange){
   const grow=t=>{t.style.height="auto";t.style.height=Math.max(46,t.scrollHeight+2)+"px"};
   const draw=()=>{box.innerHTML=hospEditHtml(get());box.querySelectorAll(".hosp-ta").forEach(grow);onChange&&onChange()};
@@ -18069,8 +18102,8 @@ function hospBind(box,get,onChange){
   box.addEventListener("click",e=>{const a=e.target.closest("[data-hadd],[data-hrm],[data-htip],[data-hreopen]");if(!a)return;const l=get();
     if(a.dataset.hreopen!=null){delete l[+a.dataset.hreopen].af;draw();return}
     if(a.dataset.hrm!=null){l.splice(+a.dataset.hrm,1);draw();return}
-    const tip=a.dataset.htip!=null?HOSP_TIPS[+a.dataset.htip]:null;l.push({c:tip?tip[0]:"voorkeur",t:tip?tip[1]:""});draw();
-    const ins=box.querySelectorAll('[data-hf="t"]'),last=ins[ins.length-1];if(last){last.focus();const v=last.value;last.setSelectionRange(v.length,v.length)}});
+    const tip=a.dataset.htip!=null?HOSP_TIPS[+a.dataset.htip]:null;l.push({c:tip?tip[0]:(a.dataset.hadd||"voorkeur"),t:tip?tip[1]:""});draw();
+    const ins=box.querySelectorAll('[data-hf="t"]'),last=ins[ins.length-1];if(last){last.focus();if(tip&&/: $/.test(tip[1])===false&&last.value){last.blur();return}const v=last.value;last.setSelectionRange(v.length,v.length)}});
   draw();return draw}
 /* compact voor onderweg (vandaag en route) */
 function hospRoute(k){const l=hospList(k).filter(x=>hospNu(x));if(!l.length)return "";
@@ -18083,12 +18116,12 @@ document.addEventListener("click",async e=>{const b=e.target.closest("[data-hosp
 
 /* invoeren en aanpassen: alleen vanuit de klantkaart */
 function kkHosp(kid){const k=state.klanten.find(x=>x.id===kid);if(!k)return;
-  let hosp=(k.hosp||[]).map(x=>({...x}));if(!hosp.length||String(hosp[hosp.length-1].t||"").trim())hosp.push({c:"voorkeur",t:""});
+  let hosp=(k.hosp||[]).map(x=>({...x}));
   openDlg(`<div class="dlg-head"><span class="objic big hosp-dic">${I.heart}</span><div style="min-width:0;flex:1"><h3>Hospitality aandachtspunten</h3><div class="subt">${esc(cleanName(k.naam))}</div></div><button type="button" class="iconbtn" id="khX" aria-label="Terug">${I.x}</button></div>
     <div id="khBox"></div>
     <div class="row stickyfoot"><span class="sp"></span><button type="button" id="khBack">Annuleren</button><button type="submit" class="primary" id="khSave">${I.check}Opslaan</button></div>`,{wide:true});
   hospBind($("#khBox"),()=>hosp);
-  setTimeout(()=>{const ins=$("#khBox").querySelectorAll('[data-hf="t"]');if(ins.length)ins[ins.length-1].focus()},60);
+  
   $("#khX").onclick=$("#khBack").onclick=()=>openKlantView(kid);
   form.onsubmit=async e=>{e.preventDefault();$("#khSave").disabled=true;
     try{const cur=state.klanten.find(x=>x.id===kid)||k;await save("klanten",kid,{...strip(cur),hosp:hosp.map(x=>({c:x.c||"voorkeur",t:String(x.t||"").trim(),...(x.af?{af:x.af}:{}),...(x.c==="verteld"&&x.vanaf?{vanaf:x.vanaf}:{})})).filter(x=>x.t)});toast("Aandachtspunten opgeslagen");openKlantView(kid)}
