@@ -1,0 +1,136 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:N;src:url("NunitoSans[YTLC,opsz,wdth,wght].ttf");font-weight:200 1000}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#e9e6e1;font-family:N,sans-serif;color:#0d121b}
+#st{position:absolute;inset:0;overflow:hidden;perspective:1600px}
+.full{position:absolute;inset:0;background-size:cover;background-position:center;will-change:transform,opacity}
+#bg{background:
+ radial-gradient(60% 50% at var(--ax) var(--ay),rgba(255,255,255,.95),rgba(255,255,255,0) 70%),
+ radial-gradient(55% 45% at var(--bx) var(--by),rgba(214,210,203,.9),rgba(214,210,203,0) 70%),
+ radial-gradient(70% 60% at var(--cx) var(--cy),rgba(198,204,214,.7),rgba(198,204,214,0) 70%),
+ linear-gradient(180deg,#f1efeb,#e4e1db)}
+.glow{position:absolute;inset:0;background:radial-gradient(80% 70% at 70% 20%,rgba(255,244,225,.35),rgba(255,255,255,0) 60%);mix-blend-mode:screen}
+.layer{position:absolute;left:50%;top:50%;transform-style:preserve-3d;will-change:transform,opacity,filter}
+.card{background:#fff;border-radius:calc(var(--u)*22px);box-shadow:0 calc(var(--u)*50px) calc(var(--u)*90px) calc(var(--u)*-30px) rgba(14,17,23,.35),0 calc(var(--u)*2px) calc(var(--u)*8px) rgba(14,17,23,.06);overflow:hidden}
+/* tik */
+#tik{width:calc(var(--u)*900px)}
+#tik .top{display:flex;align-items:center;gap:calc(var(--u)*16px);padding:calc(var(--u)*20px) calc(var(--u)*26px)}
+#tik .ok{width:calc(var(--u)*40px);height:calc(var(--u)*40px);border-radius:50%;background:#141a28;display:grid;place-items:center}
+#tik .ok svg{width:55%;stroke:#fff;fill:none;stroke-width:2.4}
+.small{font-size:calc(var(--u)*14px);color:#6b7078;font-weight:500}
+.big{font-size:calc(var(--u)*34px);font-weight:800;letter-spacing:-.01em}
+#tik .foto{position:relative;margin:0 calc(var(--u)*14px) calc(var(--u)*14px);border-radius:calc(var(--u)*14px);overflow:hidden;aspect-ratio:3/2;background:url(huis-2.jpg) center/cover}
+.dot{position:absolute;width:calc(var(--u)*34px);height:calc(var(--u)*34px);margin:calc(var(--u)*-17px) 0 0 calc(var(--u)*-17px);border-radius:50%;border:calc(var(--u)*3px) solid #fff;background:#141a28;box-shadow:0 calc(var(--u)*4px) calc(var(--u)*14px) rgba(0,0,0,.45);display:grid;place-items:center}
+.dot::after{content:"";width:28%;height:28%;border-radius:50%;background:#fff}
+.dot.t{background:#3d5a80}
+.ripple{position:absolute;width:calc(var(--u)*30px);height:calc(var(--u)*30px);margin:calc(var(--u)*-15px) 0 0 calc(var(--u)*-15px);border-radius:50%;border:calc(var(--u)*2px) solid #fff}
+.pill{position:absolute;left:calc(var(--u)*14px);top:calc(var(--u)*14px);background:rgba(20,26,40,.82);color:#fff;font-size:calc(var(--u)*15px);font-weight:600;padding:calc(var(--u)*7px) calc(var(--u)*14px);border-radius:99px}
+#vinger{position:absolute;width:calc(var(--u)*54px);height:calc(var(--u)*54px);margin:calc(var(--u)*-27px) 0 0 calc(var(--u)*-27px);border-radius:50%;background:rgba(255,255,255,.35);border:calc(var(--u)*2px) solid rgba(255,255,255,.9);box-shadow:0 0 calc(var(--u)*20px) rgba(0,0,0,.2)}
+/* telefoon */
+#tel{width:calc(var(--u)*380px);height:calc(var(--u)*800px);border-radius:calc(var(--u)*56px);background:#0d121b;padding:calc(var(--u)*12px);box-shadow:0 calc(var(--u)*60px) calc(var(--u)*100px) calc(var(--u)*-30px) rgba(14,17,23,.5)}
+#tel .scr{width:100%;height:100%;border-radius:calc(var(--u)*45px);overflow:hidden;background:#fff url(portaal-home.jpg) top/100% auto no-repeat;position:relative}
+#melding{width:calc(var(--u)*470px);padding:calc(var(--u)*20px) calc(var(--u)*22px);display:flex;gap:calc(var(--u)*16px);align-items:center;border-radius:calc(var(--u)*22px);background:rgba(255,255,255,.92);backdrop-filter:blur(12px);box-shadow:0 calc(var(--u)*30px) calc(var(--u)*60px) calc(var(--u)*-20px) rgba(14,17,23,.35)}
+#melding .ic{flex:none;width:calc(var(--u)*50px);height:calc(var(--u)*50px);border-radius:calc(var(--u)*14px);background:#141a28;display:grid;place-items:center}
+#melding .ic img{width:70%}
+.mt{font-size:calc(var(--u)*13px);letter-spacing:.16em;text-transform:uppercase;color:#6b7078;font-weight:700}
+.mb{font-size:calc(var(--u)*19px);font-weight:700;margin-top:calc(var(--u)*3px)}
+.ms{font-size:calc(var(--u)*15px);color:#5d6168;margin-top:calc(var(--u)*2px)}
+/* offerte */
+#off{width:calc(var(--u)*520px)}
+#off .kop{background:linear-gradient(160deg,#2b3550,#141a28);height:calc(var(--u)*90px);display:grid;place-items:center}
+#off .kop img{height:calc(var(--u)*18px)}
+#off .in{padding:calc(var(--u)*26px)}
+.naam{font-size:calc(var(--u)*20px);font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+.regel{display:flex;justify-content:space-between;align-items:flex-start;padding:calc(var(--u)*18px) 0;border-top:1px dashed #d5d9de;margin-top:calc(var(--u)*18px)}
+.regel b{font-size:calc(var(--u)*18px)}
+.regel span{font-size:calc(var(--u)*14px);color:#6b7078}
+.pr{font-size:calc(var(--u)*18px);font-weight:800}
+.sig{position:relative;height:calc(var(--u)*150px);border-radius:calc(var(--u)*14px);border:1.5px dashed #c9ced4;background:#f4f5f7;margin-top:calc(var(--u)*6px)}
+.sig .ph{position:absolute;inset:0;display:grid;place-items:center;font-size:calc(var(--u)*12px);letter-spacing:.22em;color:#9aa0a8;text-transform:uppercase}
+.sig svg{position:absolute;inset:0;width:100%;height:100%}
+.knop{margin-top:calc(var(--u)*18px);height:calc(var(--u)*56px);border-radius:calc(var(--u)*12px);display:grid;place-items:center;color:#fff;font-size:calc(var(--u)*14px);font-weight:700;letter-spacing:.2em;text-transform:uppercase;background:#9ea3ab}
+/* eind */
+#eind{width:calc(var(--u)*900px);text-align:center}
+#eind img{width:100%}
+#vignet{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 40%,rgba(0,0,0,0) 55%,rgba(14,17,23,.18) 100%);pointer-events:none}
+</style></head><body>
+<div id="st">
+  <div id="bg" class="full"></div><div class="glow"></div>
+  <div id="fA" class="full" style="background-image:url(huis-5.jpg)"></div>
+  <div id="fB" class="full" style="background-image:url(huis-1.jpg)"></div>
+
+  <div id="tikL" class="layer"><div id="tik" class="card">
+    <div class="top"><div class="ok"><svg viewBox="0 0 24 24"><path d="m6 12.5 4 4 8-9"/></svg></div>
+      <div><div class="small">Uw prijs per beurt</div><div class="big" id="prijs">€ –</div></div>
+      <div style="margin-left:auto;text-align:right"><div class="small">Getelde ramen</div><div class="big" id="aantal" style="font-size:calc(var(--u)*26px)">0</div></div></div>
+    <div class="foto" id="foto"><div class="pill" id="pill">Tik op elk raam</div><div id="vinger"></div></div>
+  </div></div>
+
+  <div id="telL" class="layer"><div id="tel"><div class="scr"></div></div></div>
+  <div id="melL" class="layer"><div id="melding"><div class="ic"><svg viewBox="0 0 24 24" width="55%" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></div>
+    <div><div class="mt">Morgen · rond 11:00</div><div class="mb">Wij komen uw ramen wassen</div><div class="ms">Mark belt niet aan, de sleutel ligt klaar.</div></div></div></div>
+
+  <div id="offL" class="layer"><div id="off" class="card">
+    <div class="kop"><img src="logo-wit.png"></div>
+    <div class="in"><div class="naam">Uw offerte</div><div class="small" style="margin-top:4px">Glasbewassing · elke 8 weken</div>
+      <div class="regel"><div><b>Glasbewassing</b><br><span>11 ramen · binnen en buiten</span></div><div class="pr">€ 68,80</div></div>
+      <div class="sig"><div class="ph" id="sigph">Teken hier uw handtekening</div>
+        <svg viewBox="0 0 468 150"><path id="pen" d="M40 105 C 60 40, 80 40, 82 95 S 110 120, 120 70 S 150 30, 150 95 C 152 120, 175 60, 190 80 S 215 110, 230 70 C 240 45, 255 50, 252 92 S 290 100, 300 72 S 330 60, 345 85 C 360 108, 390 70, 430 64" fill="none" stroke="#0d121b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="knop" id="akk">Akkoord geven</div></div>
+  </div></div>
+
+  <div id="veil" class="full" style="background:rgba(246,244,240,.72);opacity:0"></div>
+  <div id="eindL" class="layer"><div id="eind"><img src="logo-zwart.png"></div></div>
+  <div id="vignet"></div>
+</div>
+<script>
+const W=innerWidth,H=innerHeight,staand=H>W;
+const u=staand?W/1080*1.08:Math.min(W/1920,H/1080)*1.22;document.documentElement.style.setProperty("--u",u);
+const $=id=>document.getElementById(id);
+const cl=(x,a=0,b=1)=>Math.max(a,Math.min(b,x)),ease=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2,eo=x=>1-Math.pow(1-x,3);
+const win=(t,a,b,fi=.8,fo=.8)=>cl(Math.min((t-a)/fi,(b-t)/fo));
+const DOTS=[[5,36,"g"],[13,36,"g"],[5,53,"g"],[13,53,"g"],[45,32,"t"],[50,31,"t"],[55,32,"t"],[87,36,"g"],[95,36,"g"],[87,53,"g"],[95,53,"g"]];
+const foto=$("foto");const dotEls=DOTS.map(([x,y,k])=>{const r=document.createElement("div");r.className="ripple";r.style.left=x+"%";r.style.top=y+"%";foto.append(r);const d=document.createElement("div");d.className="dot "+k;d.style.left=x+"%";d.style.top=y+"%";foto.append(d);return [d,r]});
+const pen=$("pen"),L=pen.getTotalLength();pen.style.strokeDasharray=L;
+// small square logo for notification: use top letters? use wordmark white scaled
+function lay(el,{x=0,y=0,z=0,rx=0,ry=0,rz=0,s=1,o=1,b=0}){el.style.transform=`translate(-50%,-50%) translate3d(${x*u}px,${y*u}px,${z*u}px) rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg) scale(${s})`;el.style.opacity=o;el.style.filter=b>0.05?`blur(${b*u}px)`:"none"}
+function render(t){
+  const T=24;
+  // achtergrond drijft
+  const r=document.documentElement.style;
+  r.setProperty("--ax",(30+10*Math.sin(t/4))+"%");r.setProperty("--ay",(30+8*Math.cos(t/5))+"%");
+  r.setProperty("--bx",(70+12*Math.cos(t/6))+"%");r.setProperty("--by",(70+10*Math.sin(t/4.5))+"%");
+  r.setProperty("--cx",(50+15*Math.sin(t/7))+"%");r.setProperty("--cy",(55+12*Math.cos(t/6))+"%");
+  // A: villa 0-5 en terug in de laatste seconde (naadloze lus)
+  let oA=t<4.2?1:t<5.2?1-ease((t-4.2)/1):0, sA=1.10-0.07*(t/5.2);
+  if(t>23){const k=ease((t-23)/1);oA=k;sA=1.10}
+  $("fA").style.opacity=oA;$("fA").style.transform=`scale(${sA}) translateY(${-(t<6?t:0)*2*u}px)`;
+  // tik 4.4-10.8
+  const pT=(t-4.4)/6.4;{const o=win(t,4.4,10.8,1,.9);
+    lay($("tikL"),{x:staand?0:150-40*pT,y:staand?-330:-30,z:-80+120*ease(cl(pT*1.6)),rx:12-6*pT,ry:staand?-6+6*pT:-16+10*pT,rz:-1.5+1.5*pT,o,b:(1-o)*14})
+    const tt=t-5.6,n=cl(Math.floor(tt/0.33)+1,0,11);
+    dotEls.forEach(([d,rp],i)=>{const k=cl((tt-i*0.33)/0.25);d.style.transform=`scale(${k<1?eo(k)*1.25-(k>.7?(k-.7)*.8:0):1})`;d.style.opacity=k>0?1:0;const q=cl((tt-i*0.33)/0.6);rp.style.opacity=q>0&&q<1?1-q:0;rp.style.transform=`scale(${1+q*2.2})`});
+    const nn=tt<0?0:n;$("aantal").textContent=nn;$("prijs").textContent=nn?"€ "+(nn<11?(32.5+nn*3.3):68.8).toFixed(2).replace(".",","):"€ –";
+    $("pill").textContent=nn>=11?"11 ramen geteld":"Tik op elk raam";
+    // vinger beweegt naar het volgende raam
+    const i=cl(Math.floor(tt/0.33),0,10),f=cl((tt-i*0.33)/0.33),a=DOTS[i],b=DOTS[Math.min(10,i+1)];const v=$("vinger");
+    if(tt<0||tt>3.9){v.style.opacity=0}else{v.style.opacity=.95;const p=ease(f);v.style.left=(a[0]+(b[0]-a[0])*p)+"%";v.style.top=(a[1]+(b[1]-a[1])*p+3*Math.sin(p*Math.PI))+"%";v.style.transform=`scale(${f<.15?.85:1})`}}
+  // telefoon + melding 10.2-15.8
+  {const p=(t-10.2)/5.6,o=win(t,10.2,15.8,1,.9);
+    lay($("telL"),{x:staand?60:300-30*p,y:(staand?-160:40)+60*(1-eo(cl(p*2))),z:-60+80*p,rx:8,ry:staand?10:18-8*p,rz:3-2*p,o,b:(1-o)*14});
+    $("telL").querySelector(".scr").style.backgroundPosition=`0 ${-cl((t-12.2)/2.5)*180*u}px`;
+    const o2=win(t,11.4,15.6,.7,.8);lay($("melL"),{x:staand?-80:-120+20*p,y:staand?-600:-170+10*p,z:140,rx:6,ry:staand?6:14,o:o2,s:.92+.08*eo(cl((t-11.4)/.7)),b:(1-o2)*10})}
+  // offerte 15.4-20.8
+  {const p=(t-15.4)/5.4,o=win(t,15.4,20.8,1,.9);
+    lay($("offL"),{x:staand?0:200+40*p,y:staand?-260:-20,z:-40+80*p,rx:10-4*p,ry:staand?-8+6*p:-14+8*p,rz:-1+1*p,o,b:(1-o)*14});
+    const s=cl((t-16.6)/2.2);pen.style.strokeDashoffset=L*(1-ease(s));$("sigph").style.opacity=s>0?0:1;
+    const k=t>19.1;$("akk").style.background=k?"#141a28":"#9ea3ab";$("akk").textContent=k?"✓  Akkoord gegeven":"Akkoord geven"}
+  // B: interieur door de deur 20.4-23.4
+  {const o=t<20.4?0:t<21.4?ease(t-20.4):1;$("fB").style.opacity=t>23?o*(1-ease((t-23)/1))+0:o;$("fB").style.transform=`scale(${1.14-0.08*cl((t-20.4)/3.6)})`}
+  // logo over het interieur 21.4-23.2
+  {const o=win(t,21.3,23.3,.8,.6);lay($("eindL"),{y:staand?-300:-40,s:(staand?.92:.62)+.04*cl((t-21.3)/2),o,b:(1-o)*8});$("veil").style.opacity=win(t,21.1,23.4,.9,.7)}
+}
+window.render=render;render(0);
+</script></body></html>
