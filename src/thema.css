@@ -1719,3 +1719,15 @@ html body:not(#zz):not(#zy) .ow-v2 .kp.ow-kern>.kp-h{display:none!important}
 html body:not(#zz):not(#zy) .ow-v2 .kp.ow-kern>:not(.kp-h){margin:0!important}
 html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h :is(button,.btn,a,label) svg,html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h :is(button,.btn,a,label) svg *{color:#fff!important;stroke:#fff!important}
 html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h :is(button,.btn,a,label) svg [fill]:not([fill="none"]){fill:#fff!important}
+/* koppen subtieler: lager, kleinere iconen en titels */
+:root{--pk-kop:repeating-linear-gradient(115deg,rgb(255 255 255 / .02) 0 1px,transparent 1px 24px),linear-gradient(150deg,#2f374b 0%,#252c3c 55%,#1f2533 100%)}
+html body:not(#zz):not(#zy) .kko-s>.kko-h{min-height:54px!important;padding:11px var(--px)!important;gap:12px;margin-bottom:4px!important}
+html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h{min-height:54px!important;padding:11px 22px!important;gap:12px}
+html body:not(#zz):not(#zy) :is(.kko-s>.kko-h,.kk-v2 .kp>.kp-h,.ow-v2 .kp>.kp-h) .objic{width:32px!important;height:32px!important;border-radius:10px!important;background:rgb(255 255 255 / .07)!important;border-color:rgb(255 255 255 / .14)!important}
+html body:not(#zz):not(#zy) :is(.kko-s>.kko-h,.kk-v2 .kp>.kp-h,.ow-v2 .kp>.kp-h) .objic svg{width:15px!important;height:15px!important}
+html body:not(#zz):not(#zy) .kko-s>.kko-h h3,html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h :is(b,div>b){font-size:11px!important;font-weight:600!important;letter-spacing:.16em!important;color:rgb(255 255 255 / .92)!important}
+html body:not(#zz):not(#zy) .kko-s>.kko-h :is(.kko-k,button){height:30px;padding:0 12px!important;border-radius:8px!important;font-size:10px!important;letter-spacing:.14em!important;background:rgb(255 255 255 / .07)!important;border-color:rgb(255 255 255 / .18)!important}
+html body:not(#zz):not(#zy) .kko-s>.kko-h :is(.kko-k,button) svg{width:13px;height:13px}
+html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h :is(button,.btn,a.btn,label.iconbtn){background:rgb(255 255 255 / .07)!important;border-color:rgb(255 255 255 / .18)!important}
+html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h .iconbtn{width:30px!important;height:30px!important;min-height:0!important;border-radius:8px!important}
+@media (max-width:640px){html body:not(#zz):not(#zy) .kko-s>.kko-h,html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h{min-height:50px!important;padding:10px 16px!important}}
