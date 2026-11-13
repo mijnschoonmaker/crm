@@ -5098,3 +5098,5 @@ dialog.drawer form.dlg:has(.u-edsave){overflow:visible!important}
 .kk-v2 .kd-or:hover{background:#f0f1f2}
 .kk-v2 .kd-dt{background:#fff;border-radius:12px}
 @media (max-width:1020px){.kk-grid.kk-v2{grid-template-columns:minmax(0,1fr)}}
+
+html.zm dialog.pv-ov{zoom:1.1111}
