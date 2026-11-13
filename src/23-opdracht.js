@@ -118,11 +118,16 @@ function openOpdrachtWerk(kid,focus){
   /* Opdracht: rustig overzicht (zoals het vorige CRM); potlood = wijzigen */
   const drawOpdV=()=>{const v=$("#owOpdV");if(!v)return;const g=n=>$o(n),ja=c=>c&&c.checked?"Ja":"Nee",sel=n=>{const e=g(n);return e&&e.selectedIndex>=0?e.options[e.selectedIndex].text:"—"};
     const ts=Number(g("toeslag")&&g("toeslag").value)||0,tr=(g("toeslagr")&&g("toeslagr").value.trim())||"";
-    const rij=(a,b)=>`<div class="ow-kv"><span>${a}</span><b>${b}</b></div>`;
-    v.innerHTML=rij("Ronde",esc((g("ronde")&&g("ronde").value.trim())||"—"))+rij("Volgende beurt",k.gepland?esc(fmtL(k.gepland))+(k.tijd?" "+esc(k.tijd):""):"Te plannen")+rij("Eerste keer",esc(sel("eerste")))+rij("Contactmethode planning",esc(sel("contact")))
-      +rij("Medewerker moet onderweg bellen",ja(g("bellen")))+rij("Aantallen verbergen voor de klant",ja(g("verbA")))+rij("Frequenties verbergen voor de klant",ja(g("verbF")))
-      +rij("Toeslag hanteren",ts?ts+"%":"Nee")+rij("Toeslag reden",esc(tr||"—"))+rij("Opdracht loopt",ja(g("actief")))
-      +(k.gepland?rij("Alle toekomstige afspraken",`<button type="button" class="linkbtn" id="owWisV">Verwijderen</button>`):"");
+    const rij=(a,b)=>`<div class="owv-r"><span>${a}</span><b>${b}</b></div>`;
+    const jn=on=>`<i class="owv-jn${on?" ja":""}">${on?"Ja":"Nee"}</i>`,jc=c=>jn(!!(c&&c.checked));
+    const groep=(t,h)=>`<div class="owv-g"><small>${t}</small>${h}</div>`;
+    v.innerHTML=`<div class="owv">`
+      +`<div class="owv-top"><div><span>Volgende beurt</span><b>${k.gepland?esc(fmtL(k.gepland))+(k.tijd?" · "+esc(k.tijd):""):"Te plannen"}</b></div><div><span>Ronde</span><b>${esc((g("ronde")&&g("ronde").value.trim())||"—")}</b></div></div>`
+      +groep("Planning",rij("Contactmethode",esc(sel("contact")))+rij("Eerste keer",esc(sel("eerste")))+rij("Medewerker belt onderweg",jc(g("bellen"))))
+      +groep("Wat de klant ziet",rij("Aantallen verbergen",jc(g("verbA")))+rij("Frequenties verbergen",jc(g("verbF"))))
+      +groep("Prijs en status",rij("Toeslag",ts?`${ts}%${tr?` <small>${esc(tr)}</small>`:""}`:jn(false))+rij("Opdracht loopt",jc(g("actief")))
+        +(k.gepland?rij("Toekomstige afspraken",`<button type="button" class="linkbtn" id="owWisV">Alle verwijderen</button>`):""))
+      +`</div>`;
     const w=$("#owWisV");if(w)w.onclick=()=>{const b=$("#owWis");if(b)b.click()}};
   drawOpdV();
   {const e=$("#owOpdE"),f=$("#owOpdF"),v=$("#owOpdV");if(e&&f&&v)e.onclick=()=>{const open=f.hidden;f.hidden=!open;v.hidden=open;e.classList.toggle("on",open);e.innerHTML=open?I.check:I.pencil;e.title=open?"Klaar":"Wijzigen";if(!open)drawOpdV()}}
