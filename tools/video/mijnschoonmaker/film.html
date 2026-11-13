@@ -53,7 +53,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#e9e6e1;font-family:
 .knop{margin-top:calc(var(--u)*18px);height:calc(var(--u)*56px);border-radius:calc(var(--u)*12px);display:grid;place-items:center;color:#fff;font-size:calc(var(--u)*14px);font-weight:700;letter-spacing:.2em;text-transform:uppercase;background:#9ea3ab}
 /* eind */
 #eind{width:calc(var(--u)*900px);text-align:center}
-#eind img{width:100%}
+#eind .kl{font-weight:600;font-size:calc(var(--u)*64px);letter-spacing:.12em;line-height:1.25;text-transform:uppercase;color:#fff;text-shadow:0 2px 24px rgba(0,0,0,.25)}
+#eind .lijn{width:calc(var(--u)*40px);height:2px;background:#fff;opacity:.7;margin:0 auto calc(var(--u)*26px)}
 #vignet{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 40%,rgba(0,0,0,0) 55%,rgba(14,17,23,.18) 100%);pointer-events:none}
 </style></head><body>
 <div id="st">
@@ -81,8 +82,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#e9e6e1;font-family:
       <div class="knop" id="akk">Akkoord geven</div></div>
   </div></div>
 
-  <div id="veil" class="full" style="background:rgba(246,244,240,.72);opacity:0"></div>
-  <div id="eindL" class="layer"><div id="eind"><img src="logo-zwart.png"></div></div>
+  <div id="veil" class="full" style="background:linear-gradient(180deg,rgba(14,17,23,.18),rgba(14,17,23,.42));opacity:0"></div>
+  <div id="eindL" class="layer"><div id="eind"><div class="lijn"></div><div class="kl">Klaar voor<br>helder zicht?</div></div></div>
   <div id="vignet"></div>
 </div>
 <script>
@@ -130,7 +131,7 @@ function render(t){
   // B: interieur door de deur 20.4-23.4
   {const o=t<20.4?0:t<21.4?ease(t-20.4):1;$("fB").style.opacity=t>23?o*(1-ease((t-23)/1))+0:o;$("fB").style.transform=`scale(${1.14-0.08*cl((t-20.4)/3.6)})`}
   // logo over het interieur 21.4-23.2
-  {const o=win(t,21.3,23.3,.8,.6);lay($("eindL"),{y:staand?-300:-40,s:(staand?.92:.62)+.04*cl((t-21.3)/2),o,b:(1-o)*8});$("veil").style.opacity=win(t,21.1,23.4,.9,.7)}
+  {const o=win(t,21.2,23.4,.9,.6);lay($("eindL"),{y:staand?-300:-30,s:(staand?.9:.8)+.04*cl((t-21.2)/2.2),o,b:(1-o)*8});$("veil").style.opacity=win(t,21.1,23.4,.9,.7)}
 }
 window.render=render;render(0);
 </script></body></html>
