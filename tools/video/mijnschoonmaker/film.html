@@ -24,7 +24,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#e9e6e1;font-family:
 #tik .foto{position:relative;margin:0 calc(var(--u)*14px) calc(var(--u)*14px);border-radius:calc(var(--u)*14px);overflow:hidden;aspect-ratio:3/2;background:url(huis-2.jpg) center/cover}
 .dot{position:absolute;width:calc(var(--u)*34px);height:calc(var(--u)*34px);margin:calc(var(--u)*-17px) 0 0 calc(var(--u)*-17px);border-radius:50%;border:calc(var(--u)*3px) solid #fff;background:#141a28;box-shadow:0 calc(var(--u)*4px) calc(var(--u)*14px) rgba(0,0,0,.45);display:grid;place-items:center}
 .dot::after{content:"";width:28%;height:28%;border-radius:50%;background:#fff}
-.dot.t{background:#3d5a80}
+.dot.t{background:#3d5a80;width:calc(var(--u)*24px);height:calc(var(--u)*24px);margin:calc(var(--u)*-12px) 0 0 calc(var(--u)*-12px);border-width:calc(var(--u)*2px)}
 .ripple{position:absolute;width:calc(var(--u)*30px);height:calc(var(--u)*30px);margin:calc(var(--u)*-15px) 0 0 calc(var(--u)*-15px);border-radius:50%;border:calc(var(--u)*2px) solid #fff}
 .pill{position:absolute;left:calc(var(--u)*14px);top:calc(var(--u)*14px);background:rgba(20,26,40,.82);color:#fff;font-size:calc(var(--u)*15px);font-weight:600;padding:calc(var(--u)*7px) calc(var(--u)*14px);border-radius:99px}
 #vinger{position:absolute;width:calc(var(--u)*54px);height:calc(var(--u)*54px);margin:calc(var(--u)*-27px) 0 0 calc(var(--u)*-27px);border-radius:50%;background:rgba(255,255,255,.35);border:calc(var(--u)*2px) solid rgba(255,255,255,.9);box-shadow:0 0 calc(var(--u)*20px) rgba(0,0,0,.2)}
@@ -75,7 +75,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#e9e6e1;font-family:
   <div id="offL" class="layer"><div id="off" class="card">
     <div class="kop"><img src="logo-wit.png"></div>
     <div class="in"><div class="naam">Uw offerte</div><div class="small" style="margin-top:4px">Glasbewassing · elke 8 weken</div>
-      <div class="regel"><div><b>Glasbewassing</b><br><span>11 ramen · binnen en buiten</span></div><div class="pr">€ 68,80</div></div>
+      <div class="regel"><div><b>Glasbewassing</b><br><span>18 ramen · binnen en buiten</span></div><div class="pr">€ 68,80</div></div>
       <div class="sig"><div class="ph" id="sigph">Teken hier uw handtekening</div>
         <svg viewBox="0 0 468 150"><path id="pen" d="M40 105 C 60 40, 80 40, 82 95 S 110 120, 120 70 S 150 30, 150 95 C 152 120, 175 60, 190 80 S 215 110, 230 70 C 240 45, 255 50, 252 92 S 290 100, 300 72 S 330 60, 345 85 C 360 108, 390 70, 430 64" fill="none" stroke="#0d121b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <div class="knop" id="akk">Akkoord geven</div></div>
@@ -91,7 +91,7 @@ const u=staand?W/1080*1.08:Math.min(W/1920,H/1080)*1.22;document.documentElement
 const $=id=>document.getElementById(id);
 const cl=(x,a=0,b=1)=>Math.max(a,Math.min(b,x)),ease=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2,eo=x=>1-Math.pow(1-x,3);
 const win=(t,a,b,fi=.8,fo=.8)=>cl(Math.min((t-a)/fi,(b-t)/fo));
-const DOTS=[[5,36,"g"],[13,36,"g"],[5,53,"g"],[13,53,"g"],[45,32,"t"],[50,31,"t"],[55,32,"t"],[87,36,"g"],[95,36,"g"],[87,53,"g"],[95,53,"g"]];
+const DOTS=[[6, 34, "g"], [13.5, 34, "g"], [6, 46, "g"], [13.5, 46, "g"], [6, 57.5, "g"], [13.5, 57.5, "g"], [43.4, 32.6, "t"], [46.3, 31.4, "t"], [49.1, 30.9, "t"], [51.9, 30.9, "t"], [54.7, 31.4, "t"], [57.4, 32.6, "t"], [88.6, 34, "g"], [96.2, 34, "g"], [88.6, 46, "g"], [96.2, 46, "g"], [88.6, 57.5, "g"], [96.2, 57.5, "g"]];const ST=0.21,ND=DOTS.length;
 const foto=$("foto");const dotEls=DOTS.map(([x,y,k])=>{const r=document.createElement("div");r.className="ripple";r.style.left=x+"%";r.style.top=y+"%";foto.append(r);const d=document.createElement("div");d.className="dot "+k;d.style.left=x+"%";d.style.top=y+"%";foto.append(d);return [d,r]});
 const pen=$("pen"),L=pen.getTotalLength();pen.style.strokeDasharray=L;
 // small square logo for notification: use top letters? use wordmark white scaled
@@ -110,13 +110,13 @@ function render(t){
   // tik 4.4-10.8
   const pT=(t-4.4)/6.4;{const o=win(t,4.4,10.8,1,.9);
     lay($("tikL"),{x:staand?0:150-40*pT,y:staand?-330:-30,z:-80+120*ease(cl(pT*1.6)),rx:12-6*pT,ry:staand?-6+6*pT:-16+10*pT,rz:-1.5+1.5*pT,o,b:(1-o)*14})
-    const tt=t-5.6,n=cl(Math.floor(tt/0.33)+1,0,11);
-    dotEls.forEach(([d,rp],i)=>{const k=cl((tt-i*0.33)/0.25);d.style.transform=`scale(${k<1?eo(k)*1.25-(k>.7?(k-.7)*.8:0):1})`;d.style.opacity=k>0?1:0;const q=cl((tt-i*0.33)/0.6);rp.style.opacity=q>0&&q<1?1-q:0;rp.style.transform=`scale(${1+q*2.2})`});
-    const nn=tt<0?0:n;$("aantal").textContent=nn;$("prijs").textContent=nn?"€ "+(nn<11?(32.5+nn*3.3):68.8).toFixed(2).replace(".",","):"€ –";
-    $("pill").textContent=nn>=11?"11 ramen geteld":"Tik op elk raam";
+    const tt=t-5.6,n=cl(Math.floor(tt/ST)+1,0,ND);
+    dotEls.forEach(([d,rp],i)=>{const k=cl((tt-i*ST)/0.22);d.style.transform=`scale(${k<1?eo(k)*1.25-(k>.7?(k-.7)*.8:0):1})`;d.style.opacity=k>0?1:0;const q=cl((tt-i*ST)/0.6);rp.style.opacity=q>0&&q<1?1-q:0;rp.style.transform=`scale(${1+q*2.2})`});
+    const nn=tt<0?0:n;$("aantal").textContent=nn;$("prijs").textContent=nn>=ND?"€ 68,80":"€ –";
+    $("pill").textContent=nn>=ND?ND+" ramen geteld":"Tik op elk raam";
     // vinger beweegt naar het volgende raam
-    const i=cl(Math.floor(tt/0.33),0,10),f=cl((tt-i*0.33)/0.33),a=DOTS[i],b=DOTS[Math.min(10,i+1)];const v=$("vinger");
-    if(tt<0||tt>3.9){v.style.opacity=0}else{v.style.opacity=.95;const p=ease(f);v.style.left=(a[0]+(b[0]-a[0])*p)+"%";v.style.top=(a[1]+(b[1]-a[1])*p+3*Math.sin(p*Math.PI))+"%";v.style.transform=`scale(${f<.15?.85:1})`}}
+    const i=cl(Math.floor(tt/ST),0,ND-1),f=cl((tt-i*ST)/ST),a=DOTS[i],b=DOTS[Math.min(ND-1,i+1)];const v=$("vinger");
+    if(tt<0||tt>ND*ST+0.2){v.style.opacity=0}else{v.style.opacity=.95;const p=ease(f);v.style.left=(a[0]+(b[0]-a[0])*p)+"%";v.style.top=(a[1]+(b[1]-a[1])*p+3*Math.sin(p*Math.PI))+"%";v.style.transform=`scale(${f<.15?.85:1})`}}
   // telefoon + melding 10.2-15.8
   {const p=(t-10.2)/5.6,o=win(t,10.2,15.8,1,.9);
     lay($("telL"),{x:staand?60:300-30*p,y:(staand?-160:40)+60*(1-eo(cl(p*2))),z:-60+80*p,rx:8,ry:staand?10:18-8*p,rz:3-2*p,o,b:(1-o)*14});
