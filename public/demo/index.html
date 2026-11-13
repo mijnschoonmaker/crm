@@ -7281,6 +7281,232 @@ html body:not(#zz):not(#zy) :is(.kko-s>.kko-h,.kk-v2 .kp>.kp-h,.ow-v2 .kp>.kp-h)
 html body:not(#zz):not(#zy) .kko-s>.kko-h :is(.kko-k,button),html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h :is(button,.btn,a.btn,label.iconbtn),html body:not(#zz):not(#zy) .cc .cc-card>.cc-ch :is(.cc-link,button){background:#fff!important;border-color:#e3e8ed!important;box-shadow:0 1px 2px rgb(30 45 60 / .05)!important}
 html body:not(#zz):not(#zy) .kko-s>.kko-h h3,html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h :is(b,div>b),html body:not(#zz):not(#zy) .cc .cc-card>.cc-ch b,html body:not(#zz):not(#zy) .cc .cc-adv>.cc-ah b{color:#2a3242!important;letter-spacing:.18em!important}
 
+/* ====================================================================
+   Klantkaart overzicht als compact dossier (middenweg)
+   ==================================================================== */
+html body:not(#zz) .kko-v3{display:grid!important;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr)!important;gap:18px!important;align-items:start}
+html body:not(#zz) .kko-v3>.kko-top{grid-column:1/-1;display:flex;flex-direction:column;gap:12px}
+html body:not(#zz) .kko-v3>:is(.kko-main,.kko-side){display:flex;flex-direction:column;gap:18px;min-width:0}
+html body:not(#zz):not(#zy) .kko-v3 .kko-s{gap:6px!important}
+html body:not(#zz) .kko-v3 .kko-tl{display:flex;flex-direction:column;margin:0 calc(-1*var(--px,24px))}
+html body:not(#zz) .kko-v3 .kko-rij{grid-template-columns:44px minmax(0,1fr) auto!important;column-gap:14px!important;padding:11px var(--px,24px)!important;border-bottom:1px solid #f0f2f4;align-items:center!important}
+html body:not(#zz) .kko-v3 .kko-rij::after{display:none!important}
+html body:not(#zz) .kko-v3 .kko-rij:last-child{border-bottom:0}
+html body:not(#zz) .kko-v3 .kko-rij[role=button]{cursor:pointer;transition:background .15s}
+html body:not(#zz) .kko-v3 .kko-rij[role=button]:hover{background:#f8f9fb}
+html body:not(#zz) .kko-v3 .kko-rij .kko-td{display:grid;place-items:center;align-content:center;width:44px;height:44px;padding:0!important;border-radius:11px;background:#f4f5f7;text-align:center}
+html body:not(#zz) .kko-v3 .kko-rij .kko-td b{font-size:15px;line-height:1}
+html body:not(#zz) .kko-v3 .kko-rij .kko-td small{font-size:9.5px;letter-spacing:.1em;margin-top:2px}
+html body:not(#zz) .kko-v3 .kko-ic{display:grid;place-items:center;width:44px;height:44px;border-radius:11px;background:#f4f5f7;color:#252c3c}
+html body:not(#zz) .kko-v3 .kko-ic svg{width:17px;height:17px}
+html body:not(#zz) .kko-v3 .kko-tt{padding-top:0!important}
+html body:not(#zz) .kko-v3 .kko-tt b{font-size:14.5px;font-weight:600!important;color:#14181f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body:not(#zz) .kko-v3 .kko-tt small{white-space:nowrap}
+html body:not(#zz) .kko-v3 .kko-tt small .pill{display:inline-flex}
+html body:not(#zz) .kko-v3 .kko-tb{padding:0!important;font-size:15px!important;font-weight:600!important;color:#14181f;text-align:right}
+html body:not(#zz) .kko-v3 .kko-tb .pill{font-size:11.5px}
+html body:not(#zz) .kko-v3 .kko-meer{align-self:flex-start;margin-top:6px;padding:0;background:none;border:0;color:#252c3c;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
+html body:not(#zz) .kko-v3 .kko-meer::after{content:" ›"}
+html body:not(#zz) .kko-v3 .kko-meer:hover{text-decoration:underline;text-underline-offset:4px}
+html body:not(#zz) .kko-v3 .kko-voet{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px calc(-1*var(--px,24px)) calc(-1*var(--py,22px));padding:12px var(--px,24px);background:#fafbfc;border-top:1px solid #eef0f3;font-size:13px;color:#5b6270}
+html body:not(#zz) .kko-v3 .kko-voet .kko-meer{margin:0}
+html body:not(#zz) .kko-v3 .kko-voet b.late{color:#b03a32;font-weight:700}
+html body:not(#zz) .kko-v3 .kko-kvs{display:flex;flex-direction:column;margin:0 calc(-1*var(--px,24px))}
+html body:not(#zz) .kko-v3 .kko-kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:12px;padding:9px var(--px,24px);border-bottom:1px solid #f0f2f4;font-size:13.5px}
+html body:not(#zz) .kko-v3 .kko-kv:last-child{border-bottom:0}
+html body:not(#zz) .kko-v3 .kko-kv span{color:#6b7280}
+html body:not(#zz) .kko-v3 .kko-kv b{font-weight:600;color:#14181f;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html body:not(#zz) .kko-v3 .kko-kv a{color:inherit;text-decoration:none}
+html body:not(#zz) .kko-v3 .kko-kv a:hover{text-decoration:underline}
+html body:not(#zz) .kko-v3 .kko-vt{margin:6px 0 0;font-size:13px;color:#646b7a}
+@media (max-width:900px){html body:not(#zz) .kko-v3{grid-template-columns:minmax(0,1fr)!important}}
+@media (max-width:640px){html body:not(#zz) .kko-v3 .kko-rij{grid-template-columns:40px minmax(0,1fr) auto!important;column-gap:10px!important}html body:not(#zz) .kko-v3 :is(.kko-ic,.kko-rij .kko-td){width:40px;height:40px}html body:not(#zz) .kko-v3 .kko-kv{grid-template-columns:104px minmax(0,1fr)}}
+html body:not(#zz) .kko-v3 .kko-voet .kko-meer{white-space:nowrap;flex:none}
+/* gastvrijheid centraal in het overzicht (v4) */
+html body:not(#zz) form[data-kktab="overzicht"] .kk-hospboven{display:none!important}
+html body:not(#zz) .kko-v4 .kko-gast .hosp{border:0!important;box-shadow:none!important;padding:0!important;margin:0!important;background:none!important}
+html body:not(#zz) .kko-v4 .kko-gast .hosp>.objic,html body:not(#zz) .kko-v4 .kko-gast .hosp-leeg>div>b,html body:not(#zz) .kko-v4 .kko-gast .hosp-leeg>button,html body:not(#zz) .kko-v4 .kko-gast .hx-h{display:none!important}
+html body:not(#zz) .kko-v4 .kko-gast .hosp-leeg{display:block!important}
+html body:not(#zz) .kko-v4 .kko-gast .hosp-leeg small{display:block;font-size:13.5px;color:#5b6270;margin-bottom:10px}
+html body:not(#zz) .kko-v4 .kko-gast .hx-snel{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}
+html body:not(#zz) .kko-v4 .kko-gast .hx-snel>small{width:100%;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#8a909a}
+html body:not(#zz) .kko-v4 .kko-gast .hx-chip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:99px;background:#fff;border:1px solid #e3e8ed;color:#252c3c;font-size:12.5px;cursor:pointer}
+html body:not(#zz) .kko-v4 .kko-gast .hx-chip:hover{background:#252c3c;color:#fff;border-color:#252c3c}
+html body:not(#zz) .kko-v4 .kko-gast .hx-chip svg{width:12px;height:12px}
+html body:not(#zz) .hosp-snel0{grid-column:1/-1}
+/* briefing */
+html body:not(#zz) .kko-v4 .kb-dag{margin-left:auto;font-size:12.5px;font-weight:600;color:#252c3c;padding:5px 10px;border-radius:99px;background:#fff;border:1px solid #e3e8ed;white-space:nowrap}
+html body:not(#zz) .kko-v4 .kb-praat{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:14px;background:#fff8ec;border:1px solid #f2e2c4}
+html body:not(#zz) .kko-v4 .kb-praat>span{flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:#fff;color:#a8661a}
+html body:not(#zz) .kko-v4 .kb-praat svg{width:15px;height:15px}
+html body:not(#zz) .kko-v4 :is(.kb-praat,.kb-t) small{display:block;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#8a909a}
+html body:not(#zz) .kko-v4 .kb-praat small{color:#a8661a}
+html body:not(#zz) .kko-v4 :is(.kb-praat,.kb-t) b{display:block;font-size:14px;font-weight:600;color:#14181f;margin-top:2px;line-height:1.4}
+html body:not(#zz) .kko-v4 .kb-r{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #f0f2f4}
+html body:not(#zz) .kko-v4 .kb-r:last-of-type{border-bottom:0}
+html body:not(#zz) .kko-v4 .kb-ic{flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:#f4f5f7;color:#252c3c}
+html body:not(#zz) .kko-v4 .kb-ic svg{width:15px;height:15px}
+html body:not(#zz) .kko-v4 .kb-leeg{margin:0;font-size:13.5px;color:#5b6270;line-height:1.5}
+html body:not(#zz) .kko-v4 .kb-vor{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px calc(-1*var(--px,24px)) calc(-1*var(--py,22px));padding:12px var(--px,24px);background:#fafbfc;border-top:1px solid #eef0f3;font-size:13px;color:#5b6270}
+html body:not(#zz) .kko-v4 .kb-vor small{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#8a909a}
+html body:not(#zz) .kko-v4 .kb-vor .kko-meer{margin:0 0 0 auto}
+html body:not(#zz) .kko-v4 .kko-s>.kko-chips{margin-top:10px}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp.hx{border:0!important;outline:0!important;box-shadow:none!important;padding:0!important;background:none!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp{border:0!important;outline:0!important;box-shadow:none!important;padding:0!important;background:none!important;text-align:left!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp::before,html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp::after{display:none!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hx-snel{display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;justify-content:flex-start!important;align-items:center!important;gap:6px!important}
+/* koppen weer wit en luchtig, titels in hoofdletters met ruime letterafstand (zoals eerder) */
+html body:not(#zz):not(#zy) :is(.kko-s>.kko-h,.kk-v2 .kp>.kp-h,.ow-v2 .kp>.kp-h,.cc .cc-card>.cc-ch,.cc .cc-adv>.cc-ah){background:#fff!important;border-bottom:0!important;box-shadow:none!important;min-height:0!important;padding-top:18px!important;padding-bottom:4px!important}
+html body:not(#zz):not(#zy) .kko-s>.kko-h h3,html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h :is(b,div>b),html body:not(#zz):not(#zy) .cc .cc-card>.cc-ch b,html body:not(#zz):not(#zy) .cc .cc-adv>.cc-ah b{font-size:13px!important;font-weight:600!important;letter-spacing:.2em!important;text-transform:uppercase!important;color:#14171c!important}
+html body:not(#zz):not(#zy) :is(.kko-s>.kko-h,.kk-v2 .kp>.kp-h,.ow-v2 .kp>.kp-h) .objic,html body:not(#zz):not(#zy) .cc .cc-adv>.cc-ah .cc-aic,html body:not(#zz):not(#zy) .cc .cc-card>.cc-ch b>svg{background:#f4f5f7!important;border:0!important;box-shadow:none!important;width:40px!important;height:40px!important;border-radius:11px!important}
+html body:not(#zz):not(#zy) :is(.kko-s>.kko-h,.kk-v2 .kp>.kp-h,.ow-v2 .kp>.kp-h) .objic svg{width:18px!important;height:18px!important}
+html body:not(#zz):not(#zy) .cc .cc-card>.cc-ch b>svg{width:16px!important;height:16px!important;padding:12px!important}
+html body:not(#zz):not(#zy) .kko-s>.kko-h :is(.kko-k,button),html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h :is(button,.btn,a.btn,label.iconbtn),html body:not(#zz):not(#zy) .cc .cc-card>.cc-ch :is(.cc-link,button){background:#fff!important;border:1px solid #e3e5e8!important;box-shadow:none!important}
+html body:not(#zz):not(#zy) .kko-s>.kko-h{margin-bottom:8px!important}
+/* premium en duidelijk: rustige witte kaarten, ruimte, minder kaders */
+html body:not(#zz):not(#zy) .kko-v4{gap:22px!important}
+html body:not(#zz):not(#zy) .kko-v4>:is(.kko-main,.kko-side){gap:22px!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-s{--px:28px;--py:24px;border:1px solid #eceef1!important;border-radius:20px!important;box-shadow:0 1px 2px rgb(20 23 28 / .03),0 18px 40px -32px rgb(20 23 28 / .22)!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-s>.kko-h{padding-top:22px!important;margin-bottom:12px!important}
+/* kerncijfers: wit met dunne scheidingen */
+html body:not(#zz):not(#zy) .kko-v4 dialog .kk-kern,html body:not(#zz):not(#zy) dialog .kko-v4 .kk-kern{background:#fff!important;border:1px solid #eceef1!important;box-shadow:0 1px 2px rgb(20 23 28 / .03),0 18px 40px -32px rgb(20 23 28 / .22)!important}
+html body:not(#zz):not(#zy) dialog .kko-v4 .kk-kern::after{display:none}
+html body:not(#zz):not(#zy) dialog .kko-v4 .kk-kern .kkh-ic{background:#f4f5f7!important;border:0!important;box-shadow:none!important}
+html body:not(#zz):not(#zy) dialog .kko-v4 .kk-kern .kkh-t+.kkh-t::before{background:#eceef1!important;width:1px!important}
+html body:not(#zz):not(#zy) dialog .kko-v4 .kk-kern .kkh-t b{font-size:28px!important;font-weight:400!important;letter-spacing:-.01em!important}
+html body:not(#zz):not(#zy) dialog .kko-v4 .kk-kern .kkh-t span{color:#6b7280!important}
+/* gastvrijheid: rustige lijst in twee kolommen, geen kaders */
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hx-tips{display:flex!important;gap:28px!important;flex-wrap:wrap;padding:0 0 14px!important;margin:0 0 6px!important;border-bottom:1px solid #f0f2f4}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hx-tip{background:none!important;border:0!important;padding:0!important;box-shadow:none!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-l{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:0 28px!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i{background:none!important;border:0!important;border-bottom:1px solid #f0f2f4!important;border-radius:0!important;box-shadow:none!important;padding:14px 0!important;min-height:0!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i .hosp-ic{background:#f6f4f0!important;border:0!important;color:#7a5c3e!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i small{letter-spacing:.16em!important;font-size:10px!important;color:#8a909a!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i span:not(.hosp-ic):not(.hosp-af){font-size:14.5px!important;color:#14181f!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i.hosp-prio{background:linear-gradient(90deg,#fffaf1,transparent)!important;padding-left:12px!important;border-left:2px solid #c9953f!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i.hosp-prio small,html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-tag{color:#a8661a!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hx-snel{border-top:0;margin-top:14px!important}
+/* briefing */
+html body:not(#zz):not(#zy) .kko-v4 .kb-praat{background:linear-gradient(90deg,#fffaf1,#fff)!important;border:0!important;border-left:2px solid #c9953f!important;border-radius:0 12px 12px 0!important}
+html body:not(#zz):not(#zy) .kko-v4 .kb-ic{background:#f6f4f0!important;color:#7a5c3e!important}
+html body:not(#zz):not(#zy) .kko-v4 .kb-dag{border-color:#eceef1!important;font-weight:600}
+html body:not(#zz):not(#zy) .kko-v4 :is(.kko-voet,.kb-vor){background:#fbfbfc!important;border-top-color:#f0f2f4!important}
+/* lijsten: meer lucht */
+html body:not(#zz):not(#zy) .kko-v4 .kko-rij{padding:13px var(--px)!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-kv{padding:11px var(--px)!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-rij .kko-td,html body:not(#zz):not(#zy) .kko-v4 .kko-ic{background:#f6f7f8!important}
+@media (max-width:640px){html body:not(#zz):not(#zy) .kko-v4 .kko-s{--px:18px;--py:18px}html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-l{grid-template-columns:minmax(0,1fr)!important}html body:not(#zz):not(#zy) dialog .kko-v4 .kk-kern .kkh-t b{font-size:21px!important}}
+@media (max-width:640px){html body:not(#zz):not(#zy) .kko-s>.kko-h :is(.kko-k,button){font-size:0!important;letter-spacing:0!important;width:36px;height:36px!important;padding:0!important;justify-content:center;gap:0}html body:not(#zz):not(#zy) .kko-s>.kko-h :is(.kko-k,button) svg{width:15px!important;height:15px!important}html body:not(#zz):not(#zy) .kko-s>.kko-h h3{letter-spacing:.14em!important}}
+/* geen lijnen meer in de blokken; elk blok een korte uitleg onder de titel */
+html body:not(#zz):not(#zy) .kko-v4 :is(.kko-rij,.kko-kv,.kb-r,.kko-gast .hosp-i){border-bottom:0!important;border-top:0!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hx-tips{border-bottom:0!important;padding-bottom:4px!important}
+html body:not(#zz):not(#zy) .kko-v4 :is(.kko-voet,.kb-vor){border-top:0!important;background:none!important;margin-top:4px!important}
+html body:not(#zz) .kko-ht{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+html body:not(#zz) .kko-ht small{font-size:12.5px;color:#7a808b;letter-spacing:0;text-transform:none;font-weight:400}
+html body:not(#zz):not(#zy) .kko-v4 .kko-s>.kko-h{align-items:center!important}
+/* lijsten als rustige regels met ruimte in plaats van lijnen */
+html body:not(#zz):not(#zy) .kko-v4 .kko-tl{gap:4px}
+html body:not(#zz):not(#zy) .kko-v4 .kko-rij{padding:10px var(--px)!important;border-radius:0}
+html body:not(#zz):not(#zy) .kko-v4 .kko-rij[role=button]:hover{background:#f8f9fa!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-kvs{gap:2px}
+html body:not(#zz):not(#zy) .kko-v4 .kko-kvi{grid-template-columns:32px 100px minmax(0,1fr)!important;align-items:center;padding:8px var(--px)!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-kvi i{display:grid;place-items:center;width:32px;height:32px;border-radius:9px;background:#f6f7f8;color:#4a5160;font-style:normal}
+html body:not(#zz):not(#zy) .kko-v4 .kko-kvi i svg{width:14px;height:14px}
+html body:not(#zz) .kko-portaal{display:flex;align-items:center;gap:8px;margin:10px 0 0;font-size:13px;color:#5b6270}
+html body:not(#zz) .kko-portaal svg{width:15px;height:15px;color:#8a909a}
+html body:not(#zz):not(#zy) .kko-v4 .kko-meer{background:none!important;padding:0!important;height:auto!important;margin-top:10px!important;font-size:11px!important;font-weight:700!important;letter-spacing:.14em!important;text-transform:uppercase!important;color:#252c3c!important;border:0!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-l{gap:6px 28px!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i{padding:10px 0!important}
+html body:not(#zz):not(#zy) .kko-v4 .kb-r{padding:8px 0!important}
+@media (max-width:640px){html body:not(#zz):not(#zy) .kko-v4 .kko-kvi{grid-template-columns:32px 86px minmax(0,1fr)!important}html body:not(#zz) .kko-ht small{font-size:12px}}
+/* één pagina: overzicht bovenaan, alle blokken eronder */
+html body:not(#zz) .kko-v5{margin-bottom:22px}
+html body:not(#zz) .kko-v5>.kko-main,html body:not(#zz) .kko-v5>.kko-side{gap:22px}
+html body:not(#zz) .kko-v5{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)!important}
+html body:not(#zz) form[data-kktab="overzicht"] #kkBody{display:grid!important}
+html body:not(#zz) .kk-v2 .kp.kk-flits{box-shadow:0 0 0 3px rgb(37 44 60 / .18)!important;transition:box-shadow .3s}
+/* blokken eronder in dezelfde rustige stijl als het overzicht */
+html body:not(#zz):not(#zy) .kk-v2 .kp{border:1px solid #eceef1!important;border-radius:20px!important;box-shadow:0 1px 2px rgb(20 23 28 / .03),0 18px 40px -32px rgb(20 23 28 / .22)!important}
+html body:not(#zz):not(#zy) .kk-v2 .kp :is(.lr,.kd-or,tr,td){border-color:transparent!important}
+html body:not(#zz):not(#zy) .kk-v2 .ow-kv{border:0!important}
+html body:not(#zz):not(#zy) .kk-v2{gap:22px!important}
+html body:not(#zz):not(#zy) .kk-v2>:is(.kk-left,.kk-side){gap:22px!important}
+/* ====================================================================
+   Klantkaart ingetogen (vijfsterren): geen icoonvakjes, geen gekleurde labels,
+   typografie en ruimte doen het werk
+   ==================================================================== */
+html body:not(#zz):not(#zy) dialog:has(.kk-hero) :is(.kko-s>.kko-h,.kk-v2 .kp>.kp-h) .objic{display:none!important}
+html body:not(#zz):not(#zy) dialog:has(.kk-hero) .kko-s>.kko-h{padding-top:26px!important;margin-bottom:14px!important}
+html body:not(#zz):not(#zy) dialog:has(.kk-hero) .kk-v2 .kp>.kp-h{padding-top:24px!important}
+html body:not(#zz):not(#zy) dialog:has(.kk-hero) :is(.kko-s>.kko-h h3,.kk-v2 .kp>.kp-h b){font-size:12px!important;letter-spacing:.24em!important;font-weight:600!important;color:#14171c!important}
+html body:not(#zz) dialog:has(.kk-hero) .kko-ht small{font-size:12.5px;color:#8a8f98}
+html body:not(#zz):not(#zy) dialog:has(.kk-hero) .kko-s>.kko-h :is(.kko-k,button),html body:not(#zz):not(#zy) dialog:has(.kk-hero) .kk-v2 .kp>.kp-h :is(button,.btn,label.iconbtn){border:0!important;background:none!important;color:#14171c!important;font-size:10.5px!important;letter-spacing:.18em!important;padding:0 4px!important;text-decoration:underline;text-underline-offset:5px;text-decoration-color:#c9ccd1}
+html body:not(#zz):not(#zy) dialog:has(.kk-hero) .kko-s>.kko-h :is(.kko-k,button) svg{display:none!important}
+html body:not(#zz):not(#zy) dialog:has(.kk-hero) .kk-v2 .kp>.kp-h :is(.iconbtn,label.iconbtn){text-decoration:none;width:30px;border:1px solid #e3e5e8!important;border-radius:8px!important}
+/* kerncijfers: alleen tekst */
+html body:not(#zz):not(#zy) dialog .kko-v4 .kk-kern .kkh-ic{display:none!important}
+html body:not(#zz):not(#zy) dialog .kko-v4 .kk-kern .kkh-t{grid-template-columns:1fr!important;grid-template-areas:"lb" "wd" "sb"!important;padding:26px 28px!important}
+html body:not(#zz):not(#zy) dialog .kko-v4 .kk-kern .kkh-t::after{display:none!important}
+html body:not(#zz):not(#zy) dialog .kko-v4 .kk-kern .kkh-t span{font-size:10.5px!important;letter-spacing:.22em!important;color:#8a8f98!important;font-weight:600!important;padding:0!important}
+html body:not(#zz):not(#zy) dialog .kko-v4 .kk-kern .kkh-t b{margin:12px 0 4px!important;font-size:30px!important;font-weight:300!important;color:#14171c!important}
+html body:not(#zz):not(#zy) dialog .kko-v4 .kk-kern .kkh-t small{font-size:12.5px!important;color:#6b7280!important}
+html body:not(#zz):not(#zy) dialog .kko-v4 .kk-kern .kkh-t small.late{color:#a33a30!important}
+html body:not(#zz):not(#zy) dialog .kko-v4 .kk-kern .kkh-t small.ok{color:#6b7280!important}
+/* gastvrijheid en briefing: rustige lijst, label links, tekst rechts */
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast :is(.hosp-ic,.hx-tip>span,.hx-snel){display:none!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hx-tips{gap:40px!important;padding:0 0 18px!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hx-tip small{font-size:10px!important;letter-spacing:.2em!important;text-transform:uppercase;color:#8a8f98!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hx-tip b{font-weight:500!important;font-size:15px!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-l{grid-template-columns:minmax(0,1fr)!important;gap:0!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i{display:grid!important;grid-template-columns:150px minmax(0,1fr) auto!important;align-items:baseline;gap:16px!important;padding:11px 0!important;background:none!important;border:0!important;border-left:0!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i>div{display:contents!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i small,html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i .hosp-tag{font-size:10px!important;letter-spacing:.2em!important;text-transform:uppercase;color:#8a8f98!important;font-weight:600!important;font-style:normal;background:none!important;padding:0!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i.hosp-prio small,html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i.hosp-prio .hosp-tag{color:#14171c!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i span:not(.hosp-af){font-size:15px!important;color:#14171c!important;font-weight:400!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i.hosp-prio span:not(.hosp-af){font-weight:500!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i :is(button,.hosp-af){background:none!important;border:0!important;box-shadow:none!important;padding:0!important;font-size:11px!important;color:#6b7280!important;text-decoration:underline;text-underline-offset:4px;white-space:nowrap}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i :is(button,.hosp-af) svg{display:none}
+html body:not(#zz):not(#zy) .kko-v4 :is(.kb-ic,.kb-praat>span){display:none!important}
+html body:not(#zz):not(#zy) .kko-v4 .kb-praat{background:none!important;border:0!important;border-left:1px solid #14171c!important;border-radius:0!important;padding:2px 0 2px 16px!important;margin-bottom:8px}
+html body:not(#zz):not(#zy) .kko-v4 .kb-praat small{color:#14171c!important}
+html body:not(#zz):not(#zy) .kko-v4 .kb-r{display:grid!important;grid-template-columns:150px minmax(0,1fr);gap:16px;align-items:baseline;padding:10px 0!important}
+html body:not(#zz):not(#zy) .kko-v4 .kb-r .kb-t{display:contents}
+html body:not(#zz):not(#zy) .kko-v4 :is(.kb-t,.kb-praat) small{font-size:10px!important;letter-spacing:.2em!important;color:#8a8f98!important}
+html body:not(#zz):not(#zy) .kko-v4 :is(.kb-t,.kb-praat) b{font-size:15px!important;font-weight:400!important;color:#14171c!important}
+html body:not(#zz):not(#zy) .kko-v4 .kb-dag{background:none!important;border:0!important;padding:0!important;font-size:13px!important;font-weight:500!important;color:#14171c!important}
+/* kop: hospitality-regel zonder pil */
+html body:not(#zz) .kkh-hosp{background:none!important;border:0!important;padding:0!important;color:rgb(255 255 255 / .75)!important;font-size:13px}
+html body:not(#zz) .kkh-hosp svg{color:rgb(255 255 255 / .55)!important}
+/* statuslabels als tekst */
+html body:not(#zz):not(#zy) dialog:has(.kk-hero) .kk-v2 .kp .pill{background:none!important;border:0!important;padding:0!important;font-size:11px!important;letter-spacing:.14em;text-transform:uppercase;font-weight:600!important;color:#6b7280!important}
+html body:not(#zz):not(#zy) dialog:has(.kk-hero) .kk-v2 .kp .pill.ok{color:#2f6b4c!important}
+html body:not(#zz):not(#zy) dialog:has(.kk-hero) .kk-v2 .kp .pill:is(.late,.rood){color:#a33a30!important}
+html body:not(#zz):not(#zy) dialog:has(.kk-hero) .kk-v2 .kp .pill::before{display:none!important}
+@media (max-width:640px){html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i,html body:not(#zz):not(#zy) .kko-v4 .kb-r{grid-template-columns:1fr!important;gap:2px!important}html body:not(#zz):not(#zy) dialog .kko-v4 .kk-kern .kkh-t{padding:18px!important}html body:not(#zz):not(#zy) dialog .kko-v4 .kk-kern .kkh-t b{font-size:22px!important}}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i.hosp-prio{background:none!important;border-left:1px solid #14171c!important;padding-left:16px!important;margin-left:0!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hx-tip{padding-left:0!important;margin-left:0!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hx-tip>div{padding-left:0!important}
+html body:not(#zz):not(#zy) .kko-v5{grid-template-columns:minmax(0,830fr) minmax(0,519fr)!important;column-gap:22px!important}
+/* één pagina, vaste volgorde: twee gelijke kolommen, links de klant, rechts het werk */
+html body:not(#zz):not(#zy) #kkBody.kk-1p{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:22px!important;align-items:start}
+html body:not(#zz):not(#zy) #kkBody.kk-1p>.kk-left{order:1!important}
+html body:not(#zz):not(#zy) #kkBody.kk-1p>.kk-side{order:2!important}
+html body:not(#zz):not(#zy) #kkBody.kk-1p>:is(.kk-left,.kk-side){display:flex;flex-direction:column;gap:22px!important}
+html body:not(#zz):not(#zy) .kko-v5{display:block!important;margin-bottom:22px}
+html body:not(#zz):not(#zy) #kkBody.kk-1p .kko-gast{--px:24px;--py:22px}
+@media (max-width:900px){html body:not(#zz):not(#zy) #kkBody.kk-1p{grid-template-columns:minmax(0,1fr)!important}}
+/* gastvrijheid: één strakke lijst, alles op dezelfde lijn */
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hx-tips{display:none!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-l{display:flex!important;flex-direction:column!important;gap:0!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i,html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i.hosp-prio{display:grid!important;grid-template-columns:104px minmax(0,1fr) auto!important;align-items:baseline!important;column-gap:16px!important;padding:9px 0!important;margin:0!important;border:0!important;background:none!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i small,html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i .hosp-tag{white-space:nowrap;font-size:10px!important;letter-spacing:.16em!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i.hosp-prio .hosp-tag{color:#14171c!important;font-weight:700!important}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i.hosp-prio .hosp-tag::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:#14171c;margin:0 8px 1px 0;vertical-align:middle}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i span:not(.hosp-af){font-size:14.5px!important;line-height:1.45}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i :is(button,.hosp-af){font-size:11px!important;align-self:baseline}
+@media (max-width:640px){html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i,html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i.hosp-prio{grid-template-columns:minmax(0,1fr) auto!important;row-gap:2px}html body:not(#zz):not(#zy) .kko-v4 .kko-gast .hosp-i small{grid-column:1/-1}}
+html body:not(#zz):not(#zy) .kko-v4 .kko-gast :is(.hosp,.hosp-l,.hx){margin-left:0!important;padding-left:0!important}
+
 </style>
 <div class="app">
   <aside class="side">
@@ -16059,8 +16285,8 @@ function openKlantView(id,opt={}){
     <div class="kkh-r2"><div class="kkh-wie"><span class="kkh-av">${esc(initials(k.naam))}</span><div class="kkh-nm"><div class="kkh-tl"><h2>${esc(cleanName(k.naam))}</h2><span class="kkh-st ${stH[0]}"><i></i>${stH[1]}</span></div><a class="kkh-adr" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.pin}${esc(fullAddr(k))}</a><div class="kkh-meta"><span>${esc(soortLbl(k))}</span>${k.nieuweKlant?`<span>Nieuwe klant</span>`:""}${k.aangemaakt?`<span>Klant sinds ${esc(parse(String(k.aangemaakt).slice(0,10)).toLocaleDateString("nl-NL",{month:"long",year:"numeric"}))}</span>`:""}<span>Nr. ${esc(nr)}</span></div>${(()=>{const h=typeof hospList==="function"?hospList(k).slice(0,3):[];return h.length?`<div class="kkh-hosp"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.8 4.5c2.1 0 3.6 1.1 4.4 2.5.8-1.4 2.3-2.5 4.4-2.5 3.8 0 5.9 3.9 4.4 7.3C19.5 16.4 12 21 12 21z"/></svg><span>${h.map(x=>esc(String(x.t).trim())).join(" · ")}</span></div>`:""})()}</div></div>
       </div>
 </div>
-  ${typeof opdrJobBanner==="function"?opdrJobBanner(k):""}${isOBeurt(k)?`<div class="hosp-top">${oBeurtBlok(k)}</div>`:""}<div class="hosp-top">${hospBlok(k)}</div>
-  ${kkOvTabs()}${kkOverzicht(k,{opdr,hist,facs,msgs,openF,bg,kern:kern+aandacht})}
+  ${typeof opdrJobBanner==="function"?opdrJobBanner(k):""}${isOBeurt(k)?`<div class="hosp-top">${oBeurtBlok(k)}</div>`:""}<div class="hosp-top kk-hospboven">${hospBlok(k)}</div>
+  ${kkOverzicht(k,{opdr,hist,facs,msgs,openF,bg,kern:kern+aandacht})}
   ${k.prospect?(()=>{const of=offs.find(f=>f.status!=="afgewezen"&&f.status!=="geaccepteerd");return of||offs.length?`<div class="banner"><div><b>Offerte${of?" "+esc(of.nummer):""} wacht op akkoord</b><br><small>Deze klant staat nog niet in de planning.</small></div>${of?`<button type="button" class="primary small" data-act="akkoord" data-id="${esc(of.id)}">Akkoord en inplannen</button>`:""}</div>`:`<div class="banner"><div><b>Nieuwe klant · nog geen offerte</b><br><small>Volgende stap: offerte maken. Na akkoord komt de klant in de planning.</small></div><button type="button" class="primary small" data-act="newofferte" data-id="${esc(k.id)}">${I.offertes}Offerte maken</button></div>`})():""}
   <div class="kk-grid kd kk-v2" id="kkBody"><div class="kk-left">
     <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klantgegevens</b><span class="sp"></span>${pen("edit","Klantgegevens aanpassen")}</div>
@@ -16286,13 +16512,21 @@ const KK_ALIAS={diensten:"werk",bezoeken:"werk",facturen:"geld",berichten:"klant
 const KK_TABMAP=[[/^locaties|^opdrachten|ingeplande afspraken|^bezoeken|^historie bezoeken/i,"werk"],[/^offertes|facturen/i,"geld"]];
 function kkOvTabs(){const t=state.kkTab||"overzicht";return `<nav class="kk-tabs" aria-label="Onderdelen van de klantkaart">${KK_TABS.map(([id,l])=>`<button type="button" class="${t===id?"on":""}" data-kktab="${id}">${({overzicht:I.trend||I.eye,werk:I.checksq||I.check,geld:I.euro||I.facturen,klant:I.user})[id]||""}<span>${l}</span></button>`).join("")}</nav>`}
 function kkTabsInit(form){const body=form.querySelector("#kkBody"),ov=form.querySelector("#kkOv");if(!body)return;
-  body.querySelectorAll("section.kp").forEach(sec=>{const h=sec.querySelector(".kp-h>b,.kp-h b,h3,h4");const tt=(h&&h.textContent||"").trim();let tab="klant";for(const [re,t] of KK_TABMAP)if(re.test(tt)){tab=t;break}sec.dataset.kkt=tab});
-  const zet=t=>{t=KK_ALIAS[t]||t;if(!KK_TABS.some(x=>x[0]===t))t="overzicht";state.kkTab=t;form.querySelectorAll("[data-kktab]").forEach(b=>b.classList.toggle("on",b.dataset.kktab===t));
-    if(ov)ov.hidden=t!=="overzicht";body.hidden=t==="overzicht";body.dataset.tab=t;
-    body.querySelectorAll("section.kp").forEach(sec=>{sec.hidden=t!=="overzicht"&&sec.dataset.kkt!==t});
-    [...body.children].forEach(col=>{col.hidden=![...col.querySelectorAll("section.kp")].some(x=>!x.hidden)})};
-  form.querySelectorAll("[data-kktab]").forEach(b=>b.onclick=e=>{e.preventDefault();zet(b.dataset.kktab)});
-  zet(state.kkTab||"overzicht")}
+  /* nov 2026: klantkaart weer op één pagina; alle blokken zichtbaar, knoppen als "Alle facturen" scrollen naar het blok */
+  body.querySelectorAll("section.kp").forEach(sec=>{const h=sec.querySelector(".kp-h>b,.kp-h b,h3,h4");const tt=(h&&h.textContent||"").trim();let tab="klant";for(const [re,t] of KK_TABMAP)if(re.test(tt)){tab=t;break}sec.dataset.kkt=tab;sec.hidden=false});
+  if(ov)ov.hidden=false;body.hidden=false;body.dataset.tab="overzicht";body.classList.add("kko-v4","kk-1p");
+  const L=body.querySelector(".kk-left"),S=body.querySelector(".kk-side"),tpl=form.querySelector("#kkGast");
+  const titel=x=>((x.querySelector(".kp-h b,.kko-h h3")||{}).textContent||"").trim().toLowerCase();
+  if(tpl&&L&&!L.querySelector(".kko-gast")){L.appendChild(tpl.content.firstElementChild)}
+  const zet=(col,volg)=>{if(!col)return;const secs=[...col.querySelectorAll(":scope>section")];secs.sort((a,b)=>{const ia=volg.findIndex(r=>r.test(titel(a))),ib=volg.findIndex(r=>r.test(titel(b)));return (ia<0?99:ia)-(ib<0?99:ib)}).forEach(x=>col.appendChild(x))};
+  /* alles wat over de klant gaat links, alles wat over het werk en geld gaat rechts */
+  const all=[...body.querySelectorAll("section.kp")],naarL=/^(klantgegevens|contactpersonen|adresgegevens|opmerkingen|klantportaal|klantdocumenten|gastvrijheid)/,naarS=/^(opdrachten|overzicht ingeplande|historie bezoeken|alle facturen|offertes|locaties|logboek)/;
+  all.forEach(x=>{const t=titel(x);if(naarL.test(t)&&x.parentElement!==L)L.appendChild(x);else if(naarS.test(t)&&x.parentElement!==S)S.appendChild(x)});
+  zet(L,[/^gastvrijheid/,/^klantgegevens/,/^contactpersonen/,/^adresgegevens/,/^opmerkingen/,/^klantportaal/,/^klantdocumenten/]);
+  zet(S,[/^opdrachten/,/^overzicht ingeplande/,/^historie bezoeken/,/^alle facturen/,/^offertes/,/^locaties/,/^logboek/]);[...body.children].forEach(c=>c.hidden=false);form.dataset.kktab="overzicht";state.kkTab="overzicht";
+  const doel={werk:/historie bezoeken|ingeplande afspraken|opdrachten/i,geld:/alle facturen|facturen|offertes/i,klant:/logboek|klantgegevens/i};
+  form.querySelectorAll("[data-kktab]").forEach(b=>b.onclick=e=>{e.preventDefault();const t=KK_ALIAS[b.dataset.kktab]||b.dataset.kktab,re=doel[t];if(!re)return;
+    const sec=[...body.querySelectorAll("section.kp")].find(x=>re.test((x.querySelector(".kp-h b")||{}).textContent||""));if(sec){sec.scrollIntoView({behavior:"smooth",block:"start"});sec.classList.add("kk-flits");setTimeout(()=>sec.classList.remove("kk-flits"),1400)}})}
 function kkOverzicht(k,c){
   const T=iso(today()),dag=d=>{const x=parse(d);return {n:x.getDate(),m:x.toLocaleDateString("nl-NL",{month:"short"}).replace(".","")}};
   const ic=I.checksq||I.check;
@@ -16320,21 +16554,29 @@ function kkOverzicht(k,c){
   const afs=[k.bellen?["Belt onderweg vooraf",1]:null,CM[k.contactPlanning]&&k.contactPlanning!=="kennisgeving"?[CM[k.contactPlanning]]:null,[k.incasso?"Automatische incasso":"Betaalt per bank"],k.einddatum?["Contract tot "+fmtD(k.einddatum)]:null,k.ronde?["Ronde "+k.ronde]:null,k.termijn?["Betaaltermijn "+k.termijn+" dagen"]:null].filter(Boolean);
   const voork=[Number(k.toeslag)?"Toeslag "+k.toeslag+"%":"Geen toeslag",k.btwVerlegd?"btw verlegd":"btw normaal",k.verbergAantal?"aantallen verborgen":"",k.verbergFreq?"ritme verborgen":""].filter(Boolean).join(" · ");
   const addBtn=!heeftGlas(k)?`data-kk="opdrfirst"`:`data-act="opdracht" data-id="${esc(k.id)}" data-o="new"`;
-  return `<div class="kko" id="kkOv"><div class="kko-main">${c.kern||""}
-    <section class="kko-s"><div class="kko-h"><span class="objic">${I.checksq||I.check}</span><h3>Opdrachten</h3><button type="button" class="kko-k" ${addBtn}>${I.plus}Dienst</button></div>
-      ${c.opdr.length?`<div class="kko-dg">${c.opdr.map(kaart).join("")}</div>`:'<p class="subt" style="margin:0">Nog geen lopende diensten.</p>'}</section>
-    <section class="kko-s"><div class="kko-h"><span class="objic">${I.clock}</span><h3>Tijdlijn</h3><button type="button" class="kko-k" data-kktab="berichten">${I.plus}Notitie</button></div>${tijdlijn}
-      <button type="button" class="kko-meer" data-kktab="berichten">Alles tonen</button></section></div>
-    <aside class="kko-side">
-      <section class="kko-s"><div class="kko-h"><span class="objic">${I.phone}</span><h3>Contact</h3></div>
-        ${telNr?`<a class="kko-c" href="tel:${esc(tl2(telNr))}"><i>${I.phone}</i><span><b>${esc(telNr)}</b><small>${k.mobiel&&telNr===k.mobiel?"Mobiel":"Telefoon"}</small></span></a>`:""}
-        ${k.email?`<a class="kko-c" href="mailto:${esc(k.email)}"><i>${I.mail}</i><span><b>${esc(k.email)}</b><small>Berichten en facturen</small></span></a>`:""}
-        ${!telNr&&!k.email?'<p class="subt" style="margin:0">Nog geen telefoon of e-mail.</p>':""}</section>
-      <section class="kko-s"><div class="kko-h"><span class="objic">${I.note}</span><h3>Afspraken met de klant</h3></div><div class="kko-chips">${afs.map(a=>`<span class="${a[1]?"aan":""}">${esc(a[0])}</span>`).join("")}</div></section>
-      <section class="kko-s kko-zie"><div class="kko-h"><span class="objic">${I.eye}</span><h3>Wat ziet de klant</h3><button type="button" class="kko-k" data-kktab="gegevens">Portaal</button></div>
-        <div class="kko-chips"><span>${k.verbergAantal?"Aantallen verborgen":"Aantallen zichtbaar"}</span><span>${k.verbergFreq?"Ritme verborgen":"Hoe vaak zichtbaar"}</span></div></section>
-      <section class="kko-s kko-vk"><div class="kko-h"><span class="objic">${I.wrench}</span><h3>Voorkeuren</h3><button type="button" class="kko-k" data-act="opdracht" data-id="${esc(k.id)}" data-o="main" aria-label="Voorkeuren aanpassen">${I.pencil}Wijzigen</button></div><p class="kko-vt">${esc(voork)}</p></section>
-    </aside></div>`}
+  /* compact dossier (nov 2026): alles wat je dagelijks zoekt zonder te klikken, in twee kolommen */
+  const rij=(at,links,titel,sub,rechts,extra="")=>`<div class="kko-tr kko-rij"${at?" "+at+' tabindex="0" role="button"':""}>${links}<span class="kko-tt"><b>${titel}</b>${sub?`<small>${sub}</small>`:""}</span>${rechts?`<span class="kko-tb">${rechts}</span>`:"<span></span>"}${extra}</div>`;
+  const dt=d=>{const x=dag(d);return `<span class="kko-td"><b>${x.n}</b><small>${esc(x.m)}</small></span>`};
+  const meer=(tab,t)=>`<button type="button" class="kko-meer" data-kktab="${tab}">${t}</button>`;
+  const opRows=c.opdr.map((o,i)=>{const vd=i===0&&!k.opdrachtVerwijderd?k.gepland:(k.opdrachten||[]).find(x=>x.id===o.id)?.volgende;
+    return rij(`data-act="opdracht" data-id="${esc(k.id)}" data-o="${esc(o.id)}"`,`<span class="kko-ic">${ic}</span>`,esc(o.dienst||""),esc(freqLabel(Number(o.frequentie)||52))+(vd?" · volgende "+esc(fmtD(vd)):o.info?" · "+esc(o.info[1]):""),eur(toonR(k,o)))}).join("");
+  const pil=(k_,t)=>`<span class="pill ${k_}">${t}</span>`;
+  const bzRows=[k.gepland?rij(`data-act="opdracht" data-id="${esc(k.id)}" data-o="main"`,dt(k.gepland),esc(k.dienst||HD()),esc(wd(parse(k.gepland)))+(k.tijd?" · "+esc(k.tijd):""),pil(parse(k.gepland)<today()?"late":"plan",parse(k.gepland)<today()?"Niet gedaan":"Gepland")):"",
+    ...c.hist.slice(0,3).map(b=>rij(`data-act="beurtinfo" data-id="${esc(b.id)}"`,dt(b.datum),esc(b.dienst||HD()),[b.tijd,b.door||b.medewerker].filter(Boolean).map(esc).join(" · ")||"Gedaan",Number(b.bedrag)?eur(b.bedrag):""))].join("");
+  const fRows=c.facs.slice(0,3).map(f=>{const st=fStatus(f);return rij(`data-act="factuur" data-id="${esc(f.id)}"`,dt(f.datum),"Factuur "+esc(f.nummer||""),pil(st[0],esc(st[1])),eur(totals(f).inc))}).join("");
+  const openS=c.openF.reduce((a,f)=>a+Math.max(0,totals(f).inc-(Number(f.deelBetaald)||0)),0);
+  const kv=(l,v)=>v?`<div class="kko-kv"><span>${l}</span><b>${v}</b></div>`:"",kvi=(ic,l,v)=>v?`<div class="kko-kv kko-kvi"><i>${ic}</i><span>${l}</span><b>${v}</b></div>`:"";
+  const tl5=tl.slice(0,5);
+  /* briefing voor het volgende bezoek: wat moet de glazenwasser weten als hij aanbelt */
+  const hl=typeof hospList==="function"?hospList(k):[],hc=c_=>hl.filter(x=>x.c===c_);
+  const brief=[["aankomst","Aankomst en toegang",I.lock],["dier","Huisdieren",I.paw||I.alert],["letop","Let op",I.alert],["voorkeur","Voorkeur",I.heart||I.note]].map(([c_,l,ic])=>hc(c_).length?`<div class="kb-r"><span class="kb-ic">${ic}</span><span class="kb-t"><small>${l}</small><b>${hc(c_).map(x=>esc(x.t)).join(" · ")}</b></span></div>`:"").join("");
+  const praat=hl.filter(x=>x.c==="verteld"&&(typeof hospNu!=="function"||hospNu(x)));
+  const gp=k.gepland?parse(k.gepland):null;
+  const briefing=`<section class="kko-s kko-brief"><div class="kko-h"><span class="objic">${I.planning}</span><div class="kko-ht"><h3>${gp?"Volgende bezoek":"Bezoek"}</h3><small>Briefing voor bij de deur</small></div>${gp?`<span class="kb-dag">${esc(wd(gp))} ${gp.getDate()} ${esc(gp.toLocaleDateString("nl-NL",{month:"long"}))}${k.tijd?" · "+esc(k.tijd):""}</span>`:`<button type="button" class="kko-k" data-act="opdracht" data-id="${esc(k.id)}" data-o="main">${I.plus}Inplannen</button>`}</div>
+      ${praat.length?`<div class="kb-praat"><span>${I.chat}</span><div><small>Ter sprake brengen</small><b>${praat.map(x=>esc(x.t)).join(" · ")}</b></div></div>`:""}
+      ${brief||(!praat.length?`<p class="kb-leeg">Nog geen bijzonderheden voor bij de deur. Noteer bij Gastvrijheid hoe de klant het graag heeft: toegang, huisdieren, voorkeuren.</p>`:"")}
+      ${c.hist[0]?`<div class="kb-vor"><small>Vorige keer</small><span>${esc(fmtD(c.hist[0].datum))}${c.hist[0].door||c.hist[0].medewerker?" · "+esc(c.hist[0].door||c.hist[0].medewerker):""}${c.hist.length>1?` · ${c.hist.length} bezoeken in totaal`:""}</span>${meer("werk","Alle bezoeken")}</div>`:""}</section>`;
+  return `<div class="kko kko-v3 kko-v4 kko-v5" id="kkOv"><div class="kko-top">${c.kern||""}</div><template id="kkGast">    <section class="kko-s kko-gast"><div class="kko-h"><span class="objic">${I.heart||I.note}</span><div class="kko-ht"><h3>Gastvrijheid</h3><small>Wat we over deze klant weten</small></div><button type="button" class="kko-k" data-act="hospedit" data-id="${esc(k.id)}">${I.pencil}Aanpassen</button></div>${typeof hospBlok==="function"?hospBlok(k,{leegKnop:true}):""}</section></template></div>`}
 
 /* ---------- PERIODIEKE FACTUREN ----------
    Per opdracht: vaste factuurregels die elke week/maand/kwartaal/... op een vaste datum worden gefactureerd.
@@ -17351,7 +17593,7 @@ function openBetalingen(){const van=iso(addDays(today(),-14)),z=betZienLees()||i
 /* ---------- HOSPITALITY: wat je over deze klant moet weten (zoals een sterrenrestaurant zijn gasten kent) ---------- */
 I.heart=sv('<path d="M12 20s-7.5-4.6-7.5-10.2A4.2 4.2 0 0 1 12 7.3a4.2 4.2 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/>');
 I.paw=sv('<circle cx="7" cy="9" r="1.7"/><circle cx="11" cy="6.5" r="1.7"/><circle cx="15.5" cy="7" r="1.7"/><circle cx="18" cy="11" r="1.6"/><path d="M8 16.5c0-2.6 2-5 4.5-5s4.5 2.4 4.5 5c0 1.8-1.4 2.5-3 2.1-1-.3-2-.3-3 0-1.6.4-3-.3-3-2.1z"/>');
-const HOSP_CAT=[["persoon","Persoonlijk","user"],["voorkeur","Voorkeur","heart"],["letop","Let op","alert"],["dier","Huisdieren","paw"],["aankomst","Aankomst & toegang","lock"],["moment","Bijzonder moment","cal2"],["verteld","Klant vertelde","chat"]];
+const HOSP_CAT=[["persoon","Persoonlijk","user"],["voorkeur","Voorkeur","heart"],["letop","Let op","alert"],["dier","Huisdieren","paw"],["aankomst","Toegang","lock"],["moment","Moment","cal2"],["verteld","Klant vertelde","chat"]];
 const hospCat=c=>HOSP_CAT.find(x=>x[0]===c)||HOSP_CAT[1];
 const HOSP_TIPS=[["persoon","Spreek aan met u / meneer, mevrouw"],["persoon","Mag met voornaam aangesproken worden"],["voorkeur","Liever een appje dan bellen"],["voorkeur","Komt het liefst 's ochtends uit"],["voorkeur","Waardeert een praatje"],["voorkeur","Graag rustig en stil werken (thuiswerker)"],
   ["letop","Planten in de vensterbank voorzichtig"],["letop","Geen water op de houten kozijnen"],["letop","Schoenen uit als je binnen komt"],["dier","Hond, vriendelijk"],["dier","Kat mag niet naar buiten"],["aankomst","Even aanbellen bij aankomst"],["aankomst","Parkeren op de oprit mag"],["moment","Verjaardag: "],["verteld","Klant vertelde dat "]];
@@ -17359,11 +17601,12 @@ const hospItems=k=>(k&&Array.isArray(k.hosp)?k.hosp:[]).map((x,i)=>({...x,_i:i})
 const hospNu=(x,day)=>x.c!=="verteld"||!x.vanaf||x.vanaf<=(day||iso(today()));
 /* open punten; "klant vertelde" (en dus ter sprake brengen) eerst */
 const hospList=k=>{const l=hospItems(k).filter(x=>!(x.c==="verteld"&&x.af)),d=iso(today()),r=x=>x.c==="verteld"?(hospNu(x,d)?0:2):1;return l.sort((a,b)=>r(a)-r(b)||a._i-b._i)};
-const hospItem=(k,x,cls)=>{const c=hospCat(x.c),v=x.c==="verteld",nu=hospNu(x),prio=v&&nu,later=v&&!nu;return `<div class="${cls} hc-${c[0]}${prio?" hosp-prio":""}${later?" hosp-later":""}"><span class="hosp-ic">${I[c[2]]||I.note}</span><div><small>${prio?`<em class="hosp-tag">Ter sprake brengen</em>`:esc(c[1])}</small><span>${esc(x.t)}</span></div>${later?`<span class="hosp-af hosp-wacht" title="Pas ter sprake brengen vanaf ${esc(fmtL(x.vanaf))}">${I.clock}Nog niet bespreken · vanaf ${esc(fmtD(x.vanaf))}</span>`:""}${prio?`<button type="button" class="hosp-af" data-hosp-af="${esc(k.id)}:${x._i}" title="Vink af als je het met de klant hebt besproken; dan komt het niet meer bovenaan">${I.check}Heb je het besproken?</button>`:""}</div>`};
+const hospItem=(k,x,cls)=>{const c=hospCat(x.c),v=x.c==="verteld",nu=hospNu(x),prio=v&&nu,later=v&&!nu;return `<div class="${cls} hc-${c[0]}${prio?" hosp-prio":""}${later?" hosp-later":""}"><span class="hosp-ic">${I[c[2]]||I.note}</span><div><small>${prio?`<em class="hosp-tag">Bespreken</em>`:esc(c[1])}</small><span>${esc(x.t)}</span></div>${later?`<span class="hosp-af hosp-wacht" title="Pas ter sprake brengen vanaf ${esc(fmtL(x.vanaf))}">${I.clock}Nog niet bespreken · vanaf ${esc(fmtD(x.vanaf))}</span>`:""}${prio?`<button type="button" class="hosp-af" data-hosp-af="${esc(k.id)}:${x._i}" title="Vink af als je het met de klant hebt besproken; dan komt het niet meer bovenaan">${I.check}Heb je het besproken?</button>`:""}</div>`};
 /* blok met aandachtspunten: in de klantkaart en boven in de opdracht */
 function hospBlok(k,{leegKnop=true}={}){const l=hospList(k),alle=hospItems(k);
   if(!l.length&&alle.length)return `<div class="hosp hosp-leeg"><span class="objic">${I.heart}</span><div><b>Hospitality aandachtspunten</b><small>Alles wat de klant vertelde is besproken.</small></div>${leegKnop?`<button type="button" class="small" data-act="hospedit" data-id="${esc(k.id)}">${I.plus}Noteren</button>`:""}</div>`;
-  if(!l.length)return `<div class="hosp hosp-leeg"><span class="objic">${I.heart}</span><div><b>Hospitality aandachtspunten</b><small>Nog niets genoteerd. Wat moet iedereen weten om deze klant écht goed van dienst te zijn?</small></div>${leegKnop?`<button type="button" class="small" data-act="hospedit" data-id="${esc(k.id)}">${I.plus}Noteren</button>`:""}</div>`;
+  if(!l.length){const sug=HOSP_TIPS.map((t,i)=>({t,i})).filter(x=>!/: $/.test(x.t[1])).filter((x,i,arr)=>arr.findIndex(y=>y.t[0]===x.t[0])===i).slice(0,5);
+    return `<div class="hosp hosp-leeg"><span class="objic">${I.heart}</span><div><b>Hospitality aandachtspunten</b><small>Nog niets genoteerd. Wat moet iedereen weten om deze klant écht goed van dienst te zijn?</small></div>${leegKnop?`<button type="button" class="small" data-act="hospedit" data-id="${esc(k.id)}">${I.plus}Noteren</button>`:""}${leegKnop&&sug.length?`<div class="hx-snel hosp-snel0"><small>Snel toevoegen</small>${sug.map(x=>`<button type="button" class="hx-chip" data-hq="${esc(k.id)}:${x.i}">${I.plus}${esc(x.t[1])}</button>`).join("")}</div>`:""}</div>`}
   const g=hospGroet(k,l),m=hospMoment(l),n=l.length,niv=n>=5?"Vaste gast":n>=3?"Goede bekende":"Nieuwe kennis";
   const tl=l.map(x=>String(x.t).toLowerCase()).join("|"),sug=HOSP_TIPS.map((t,i)=>({t,i})).filter(x=>!/: $/.test(x.t[1])&&!tl.includes(x.t[1].toLowerCase())&&!(x.t[0]==="persoon"&&l.some(y=>y.c==="persoon"))).slice(0,4);
   return `<div class="hosp hx"><div class="hx-h"><span class="hx-ic">${I.heart}</span><div class="hx-t"><b>Hospitality</b><small>${esc(niv)} · ${plural(n,"aandachtspunt","aandachtspunten")}</small></div><div class="hx-m" title="Hoe goed ken je deze klant">${[1,2,3,4,5].map(i=>`<i class="${i<=Math.min(5,n)?"on":""}"></i>`).join("")}</div>${leegKnop?`<button type="button" class="iconbtn sm" data-act="hospedit" data-id="${esc(k.id)}" aria-label="Aandachtspunten aanpassen" title="Aanpassen">${I.pencil}</button>`:""}</div>

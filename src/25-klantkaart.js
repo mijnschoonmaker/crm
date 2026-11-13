@@ -72,8 +72,8 @@ function openKlantView(id,opt={}){
     <div class="kkh-r2"><div class="kkh-wie"><span class="kkh-av">${esc(initials(k.naam))}</span><div class="kkh-nm"><div class="kkh-tl"><h2>${esc(cleanName(k.naam))}</h2><span class="kkh-st ${stH[0]}"><i></i>${stH[1]}</span></div><a class="kkh-adr" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.pin}${esc(fullAddr(k))}</a><div class="kkh-meta"><span>${esc(soortLbl(k))}</span>${k.nieuweKlant?`<span>Nieuwe klant</span>`:""}${k.aangemaakt?`<span>Klant sinds ${esc(parse(String(k.aangemaakt).slice(0,10)).toLocaleDateString("nl-NL",{month:"long",year:"numeric"}))}</span>`:""}<span>Nr. ${esc(nr)}</span></div>${(()=>{const h=typeof hospList==="function"?hospList(k).slice(0,3):[];return h.length?`<div class="kkh-hosp"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.8 4.5c2.1 0 3.6 1.1 4.4 2.5.8-1.4 2.3-2.5 4.4-2.5 3.8 0 5.9 3.9 4.4 7.3C19.5 16.4 12 21 12 21z"/></svg><span>${h.map(x=>esc(String(x.t).trim())).join(" · ")}</span></div>`:""})()}</div></div>
       </div>
 </div>
-  ${typeof opdrJobBanner==="function"?opdrJobBanner(k):""}${isOBeurt(k)?`<div class="hosp-top">${oBeurtBlok(k)}</div>`:""}<div class="hosp-top">${hospBlok(k)}</div>
-  ${kkOvTabs()}${kkOverzicht(k,{opdr,hist,facs,msgs,openF,bg,kern:kern+aandacht})}
+  ${typeof opdrJobBanner==="function"?opdrJobBanner(k):""}${isOBeurt(k)?`<div class="hosp-top">${oBeurtBlok(k)}</div>`:""}<div class="hosp-top kk-hospboven">${hospBlok(k)}</div>
+  ${kkOverzicht(k,{opdr,hist,facs,msgs,openF,bg,kern:kern+aandacht})}
   ${k.prospect?(()=>{const of=offs.find(f=>f.status!=="afgewezen"&&f.status!=="geaccepteerd");return of||offs.length?`<div class="banner"><div><b>Offerte${of?" "+esc(of.nummer):""} wacht op akkoord</b><br><small>Deze klant staat nog niet in de planning.</small></div>${of?`<button type="button" class="primary small" data-act="akkoord" data-id="${esc(of.id)}">Akkoord en inplannen</button>`:""}</div>`:`<div class="banner"><div><b>Nieuwe klant · nog geen offerte</b><br><small>Volgende stap: offerte maken. Na akkoord komt de klant in de planning.</small></div><button type="button" class="primary small" data-act="newofferte" data-id="${esc(k.id)}">${I.offertes}Offerte maken</button></div>`})():""}
   <div class="kk-grid kd kk-v2" id="kkBody"><div class="kk-left">
     <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klantgegevens</b><span class="sp"></span>${pen("edit","Klantgegevens aanpassen")}</div>
@@ -299,13 +299,21 @@ const KK_ALIAS={diensten:"werk",bezoeken:"werk",facturen:"geld",berichten:"klant
 const KK_TABMAP=[[/^locaties|^opdrachten|ingeplande afspraken|^bezoeken|^historie bezoeken/i,"werk"],[/^offertes|facturen/i,"geld"]];
 function kkOvTabs(){const t=state.kkTab||"overzicht";return `<nav class="kk-tabs" aria-label="Onderdelen van de klantkaart">${KK_TABS.map(([id,l])=>`<button type="button" class="${t===id?"on":""}" data-kktab="${id}">${({overzicht:I.trend||I.eye,werk:I.checksq||I.check,geld:I.euro||I.facturen,klant:I.user})[id]||""}<span>${l}</span></button>`).join("")}</nav>`}
 function kkTabsInit(form){const body=form.querySelector("#kkBody"),ov=form.querySelector("#kkOv");if(!body)return;
-  body.querySelectorAll("section.kp").forEach(sec=>{const h=sec.querySelector(".kp-h>b,.kp-h b,h3,h4");const tt=(h&&h.textContent||"").trim();let tab="klant";for(const [re,t] of KK_TABMAP)if(re.test(tt)){tab=t;break}sec.dataset.kkt=tab});
-  const zet=t=>{t=KK_ALIAS[t]||t;if(!KK_TABS.some(x=>x[0]===t))t="overzicht";state.kkTab=t;form.querySelectorAll("[data-kktab]").forEach(b=>b.classList.toggle("on",b.dataset.kktab===t));
-    if(ov)ov.hidden=t!=="overzicht";body.hidden=t==="overzicht";body.dataset.tab=t;
-    body.querySelectorAll("section.kp").forEach(sec=>{sec.hidden=t!=="overzicht"&&sec.dataset.kkt!==t});
-    [...body.children].forEach(col=>{col.hidden=![...col.querySelectorAll("section.kp")].some(x=>!x.hidden)})};
-  form.querySelectorAll("[data-kktab]").forEach(b=>b.onclick=e=>{e.preventDefault();zet(b.dataset.kktab)});
-  zet(state.kkTab||"overzicht")}
+  /* nov 2026: klantkaart weer op één pagina; alle blokken zichtbaar, knoppen als "Alle facturen" scrollen naar het blok */
+  body.querySelectorAll("section.kp").forEach(sec=>{const h=sec.querySelector(".kp-h>b,.kp-h b,h3,h4");const tt=(h&&h.textContent||"").trim();let tab="klant";for(const [re,t] of KK_TABMAP)if(re.test(tt)){tab=t;break}sec.dataset.kkt=tab;sec.hidden=false});
+  if(ov)ov.hidden=false;body.hidden=false;body.dataset.tab="overzicht";body.classList.add("kko-v4","kk-1p");
+  const L=body.querySelector(".kk-left"),S=body.querySelector(".kk-side"),tpl=form.querySelector("#kkGast");
+  const titel=x=>((x.querySelector(".kp-h b,.kko-h h3")||{}).textContent||"").trim().toLowerCase();
+  if(tpl&&L&&!L.querySelector(".kko-gast")){L.appendChild(tpl.content.firstElementChild)}
+  const zet=(col,volg)=>{if(!col)return;const secs=[...col.querySelectorAll(":scope>section")];secs.sort((a,b)=>{const ia=volg.findIndex(r=>r.test(titel(a))),ib=volg.findIndex(r=>r.test(titel(b)));return (ia<0?99:ia)-(ib<0?99:ib)}).forEach(x=>col.appendChild(x))};
+  /* alles wat over de klant gaat links, alles wat over het werk en geld gaat rechts */
+  const all=[...body.querySelectorAll("section.kp")],naarL=/^(klantgegevens|contactpersonen|adresgegevens|opmerkingen|klantportaal|klantdocumenten|gastvrijheid)/,naarS=/^(opdrachten|overzicht ingeplande|historie bezoeken|alle facturen|offertes|locaties|logboek)/;
+  all.forEach(x=>{const t=titel(x);if(naarL.test(t)&&x.parentElement!==L)L.appendChild(x);else if(naarS.test(t)&&x.parentElement!==S)S.appendChild(x)});
+  zet(L,[/^gastvrijheid/,/^klantgegevens/,/^contactpersonen/,/^adresgegevens/,/^opmerkingen/,/^klantportaal/,/^klantdocumenten/]);
+  zet(S,[/^opdrachten/,/^overzicht ingeplande/,/^historie bezoeken/,/^alle facturen/,/^offertes/,/^locaties/,/^logboek/]);[...body.children].forEach(c=>c.hidden=false);form.dataset.kktab="overzicht";state.kkTab="overzicht";
+  const doel={werk:/historie bezoeken|ingeplande afspraken|opdrachten/i,geld:/alle facturen|facturen|offertes/i,klant:/logboek|klantgegevens/i};
+  form.querySelectorAll("[data-kktab]").forEach(b=>b.onclick=e=>{e.preventDefault();const t=KK_ALIAS[b.dataset.kktab]||b.dataset.kktab,re=doel[t];if(!re)return;
+    const sec=[...body.querySelectorAll("section.kp")].find(x=>re.test((x.querySelector(".kp-h b")||{}).textContent||""));if(sec){sec.scrollIntoView({behavior:"smooth",block:"start"});sec.classList.add("kk-flits");setTimeout(()=>sec.classList.remove("kk-flits"),1400)}})}
 function kkOverzicht(k,c){
   const T=iso(today()),dag=d=>{const x=parse(d);return {n:x.getDate(),m:x.toLocaleDateString("nl-NL",{month:"short"}).replace(".","")}};
   const ic=I.checksq||I.check;
@@ -333,18 +341,26 @@ function kkOverzicht(k,c){
   const afs=[k.bellen?["Belt onderweg vooraf",1]:null,CM[k.contactPlanning]&&k.contactPlanning!=="kennisgeving"?[CM[k.contactPlanning]]:null,[k.incasso?"Automatische incasso":"Betaalt per bank"],k.einddatum?["Contract tot "+fmtD(k.einddatum)]:null,k.ronde?["Ronde "+k.ronde]:null,k.termijn?["Betaaltermijn "+k.termijn+" dagen"]:null].filter(Boolean);
   const voork=[Number(k.toeslag)?"Toeslag "+k.toeslag+"%":"Geen toeslag",k.btwVerlegd?"btw verlegd":"btw normaal",k.verbergAantal?"aantallen verborgen":"",k.verbergFreq?"ritme verborgen":""].filter(Boolean).join(" · ");
   const addBtn=!heeftGlas(k)?`data-kk="opdrfirst"`:`data-act="opdracht" data-id="${esc(k.id)}" data-o="new"`;
-  return `<div class="kko" id="kkOv"><div class="kko-main">${c.kern||""}
-    <section class="kko-s"><div class="kko-h"><span class="objic">${I.checksq||I.check}</span><h3>Opdrachten</h3><button type="button" class="kko-k" ${addBtn}>${I.plus}Dienst</button></div>
-      ${c.opdr.length?`<div class="kko-dg">${c.opdr.map(kaart).join("")}</div>`:'<p class="subt" style="margin:0">Nog geen lopende diensten.</p>'}</section>
-    <section class="kko-s"><div class="kko-h"><span class="objic">${I.clock}</span><h3>Tijdlijn</h3><button type="button" class="kko-k" data-kktab="berichten">${I.plus}Notitie</button></div>${tijdlijn}
-      <button type="button" class="kko-meer" data-kktab="berichten">Alles tonen</button></section></div>
-    <aside class="kko-side">
-      <section class="kko-s"><div class="kko-h"><span class="objic">${I.phone}</span><h3>Contact</h3></div>
-        ${telNr?`<a class="kko-c" href="tel:${esc(tl2(telNr))}"><i>${I.phone}</i><span><b>${esc(telNr)}</b><small>${k.mobiel&&telNr===k.mobiel?"Mobiel":"Telefoon"}</small></span></a>`:""}
-        ${k.email?`<a class="kko-c" href="mailto:${esc(k.email)}"><i>${I.mail}</i><span><b>${esc(k.email)}</b><small>Berichten en facturen</small></span></a>`:""}
-        ${!telNr&&!k.email?'<p class="subt" style="margin:0">Nog geen telefoon of e-mail.</p>':""}</section>
-      <section class="kko-s"><div class="kko-h"><span class="objic">${I.note}</span><h3>Afspraken met de klant</h3></div><div class="kko-chips">${afs.map(a=>`<span class="${a[1]?"aan":""}">${esc(a[0])}</span>`).join("")}</div></section>
-      <section class="kko-s kko-zie"><div class="kko-h"><span class="objic">${I.eye}</span><h3>Wat ziet de klant</h3><button type="button" class="kko-k" data-kktab="gegevens">Portaal</button></div>
-        <div class="kko-chips"><span>${k.verbergAantal?"Aantallen verborgen":"Aantallen zichtbaar"}</span><span>${k.verbergFreq?"Ritme verborgen":"Hoe vaak zichtbaar"}</span></div></section>
-      <section class="kko-s kko-vk"><div class="kko-h"><span class="objic">${I.wrench}</span><h3>Voorkeuren</h3><button type="button" class="kko-k" data-act="opdracht" data-id="${esc(k.id)}" data-o="main" aria-label="Voorkeuren aanpassen">${I.pencil}Wijzigen</button></div><p class="kko-vt">${esc(voork)}</p></section>
-    </aside></div>`}
+  /* compact dossier (nov 2026): alles wat je dagelijks zoekt zonder te klikken, in twee kolommen */
+  const rij=(at,links,titel,sub,rechts,extra="")=>`<div class="kko-tr kko-rij"${at?" "+at+' tabindex="0" role="button"':""}>${links}<span class="kko-tt"><b>${titel}</b>${sub?`<small>${sub}</small>`:""}</span>${rechts?`<span class="kko-tb">${rechts}</span>`:"<span></span>"}${extra}</div>`;
+  const dt=d=>{const x=dag(d);return `<span class="kko-td"><b>${x.n}</b><small>${esc(x.m)}</small></span>`};
+  const meer=(tab,t)=>`<button type="button" class="kko-meer" data-kktab="${tab}">${t}</button>`;
+  const opRows=c.opdr.map((o,i)=>{const vd=i===0&&!k.opdrachtVerwijderd?k.gepland:(k.opdrachten||[]).find(x=>x.id===o.id)?.volgende;
+    return rij(`data-act="opdracht" data-id="${esc(k.id)}" data-o="${esc(o.id)}"`,`<span class="kko-ic">${ic}</span>`,esc(o.dienst||""),esc(freqLabel(Number(o.frequentie)||52))+(vd?" · volgende "+esc(fmtD(vd)):o.info?" · "+esc(o.info[1]):""),eur(toonR(k,o)))}).join("");
+  const pil=(k_,t)=>`<span class="pill ${k_}">${t}</span>`;
+  const bzRows=[k.gepland?rij(`data-act="opdracht" data-id="${esc(k.id)}" data-o="main"`,dt(k.gepland),esc(k.dienst||HD()),esc(wd(parse(k.gepland)))+(k.tijd?" · "+esc(k.tijd):""),pil(parse(k.gepland)<today()?"late":"plan",parse(k.gepland)<today()?"Niet gedaan":"Gepland")):"",
+    ...c.hist.slice(0,3).map(b=>rij(`data-act="beurtinfo" data-id="${esc(b.id)}"`,dt(b.datum),esc(b.dienst||HD()),[b.tijd,b.door||b.medewerker].filter(Boolean).map(esc).join(" · ")||"Gedaan",Number(b.bedrag)?eur(b.bedrag):""))].join("");
+  const fRows=c.facs.slice(0,3).map(f=>{const st=fStatus(f);return rij(`data-act="factuur" data-id="${esc(f.id)}"`,dt(f.datum),"Factuur "+esc(f.nummer||""),pil(st[0],esc(st[1])),eur(totals(f).inc))}).join("");
+  const openS=c.openF.reduce((a,f)=>a+Math.max(0,totals(f).inc-(Number(f.deelBetaald)||0)),0);
+  const kv=(l,v)=>v?`<div class="kko-kv"><span>${l}</span><b>${v}</b></div>`:"",kvi=(ic,l,v)=>v?`<div class="kko-kv kko-kvi"><i>${ic}</i><span>${l}</span><b>${v}</b></div>`:"";
+  const tl5=tl.slice(0,5);
+  /* briefing voor het volgende bezoek: wat moet de glazenwasser weten als hij aanbelt */
+  const hl=typeof hospList==="function"?hospList(k):[],hc=c_=>hl.filter(x=>x.c===c_);
+  const brief=[["aankomst","Aankomst en toegang",I.lock],["dier","Huisdieren",I.paw||I.alert],["letop","Let op",I.alert],["voorkeur","Voorkeur",I.heart||I.note]].map(([c_,l,ic])=>hc(c_).length?`<div class="kb-r"><span class="kb-ic">${ic}</span><span class="kb-t"><small>${l}</small><b>${hc(c_).map(x=>esc(x.t)).join(" · ")}</b></span></div>`:"").join("");
+  const praat=hl.filter(x=>x.c==="verteld"&&(typeof hospNu!=="function"||hospNu(x)));
+  const gp=k.gepland?parse(k.gepland):null;
+  const briefing=`<section class="kko-s kko-brief"><div class="kko-h"><span class="objic">${I.planning}</span><div class="kko-ht"><h3>${gp?"Volgende bezoek":"Bezoek"}</h3><small>Briefing voor bij de deur</small></div>${gp?`<span class="kb-dag">${esc(wd(gp))} ${gp.getDate()} ${esc(gp.toLocaleDateString("nl-NL",{month:"long"}))}${k.tijd?" · "+esc(k.tijd):""}</span>`:`<button type="button" class="kko-k" data-act="opdracht" data-id="${esc(k.id)}" data-o="main">${I.plus}Inplannen</button>`}</div>
+      ${praat.length?`<div class="kb-praat"><span>${I.chat}</span><div><small>Ter sprake brengen</small><b>${praat.map(x=>esc(x.t)).join(" · ")}</b></div></div>`:""}
+      ${brief||(!praat.length?`<p class="kb-leeg">Nog geen bijzonderheden voor bij de deur. Noteer bij Gastvrijheid hoe de klant het graag heeft: toegang, huisdieren, voorkeuren.</p>`:"")}
+      ${c.hist[0]?`<div class="kb-vor"><small>Vorige keer</small><span>${esc(fmtD(c.hist[0].datum))}${c.hist[0].door||c.hist[0].medewerker?" · "+esc(c.hist[0].door||c.hist[0].medewerker):""}${c.hist.length>1?` · ${c.hist.length} bezoeken in totaal`:""}</span>${meer("werk","Alle bezoeken")}</div>`:""}</section>`;
+  return `<div class="kko kko-v3 kko-v4 kko-v5" id="kkOv"><div class="kko-top">${c.kern||""}</div><template id="kkGast">    <section class="kko-s kko-gast"><div class="kko-h"><span class="objic">${I.heart||I.note}</span><div class="kko-ht"><h3>Gastvrijheid</h3><small>Wat we over deze klant weten</small></div><button type="button" class="kko-k" data-act="hospedit" data-id="${esc(k.id)}">${I.pencil}Aanpassen</button></div>${typeof hospBlok==="function"?hospBlok(k,{leegKnop:true}):""}</section></template></div>`}
