@@ -1657,3 +1657,63 @@ html body:not(#zz) .kd-tool-t b,html body:not(#zz) .kd-tool-t small{white-space:
   html body:not(#zz) .pt-acts>button{letter-spacing:.06em!important;overflow:hidden;text-overflow:ellipsis}
 }
 html body:not(#zz) .ow-v2 section.kp.ow-kern{order:-10!important;grid-row:auto!important}
+
+/* ====================================================================
+   Klantkaart en opdracht in de stijl van het klantportaal (nov 2026):
+   donkere kop met fijne streepjes, icoon in afgerond vak, witte kaart,
+   parelgrijze samenvatting
+   ==================================================================== */
+:root{--pk-kop:repeating-linear-gradient(115deg,rgb(255 255 255 / .03) 0 1px,transparent 1px 24px),linear-gradient(150deg,#323b50 0%,#252c3c 55%,#1c2231 100%);
+  --pk-parel:radial-gradient(120% 140% at 0% 0%,#fbfbfa 0%,transparent 55%),linear-gradient(180deg,#f4f4f2 0%,#ebebe8 55%,#e1e1de 100%)}
+/* kaarten met kop (overzicht) */
+html body:not(#zz):not(#zy) .kko-s{--px:24px;--py:22px;padding:var(--py) var(--px)!important;overflow:hidden;border:1px solid #e2e5ea!important;border-radius:22px!important;box-shadow:0 1px 2px rgb(26 32 48 / .04)!important;gap:14px}
+html body:not(#zz):not(#zy) .kko-s>.kko-h{position:relative;margin:calc(-1*var(--py)) calc(-1*var(--px)) 6px!important;padding:18px var(--px)!important;min-height:78px;background:var(--pk-kop)!important;color:#fff;justify-content:flex-start;gap:14px}
+html body:not(#zz):not(#zy) .kko-s>.kko-h h3{flex:1;min-width:0;margin:0!important;color:#fff!important;font-size:12.5px!important;font-weight:600!important;letter-spacing:.2em!important;text-transform:uppercase!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body:not(#zz):not(#zy) :is(.kko-s>.kko-h,.kk-v2 .kp>.kp-h,.ow-v2 .kp>.kp-h) .objic{display:grid!important;place-items:center;flex:none;width:42px!important;height:42px!important;border-radius:13px!important;background:rgb(255 255 255 / .1)!important;background-image:none!important;border:1px solid rgb(255 255 255 / .2)!important;color:#fff!important;box-shadow:none!important}
+html body:not(#zz):not(#zy) :is(.kko-s>.kko-h,.kk-v2 .kp>.kp-h,.ow-v2 .kp>.kp-h) .objic svg{width:20px!important;height:20px!important;color:#fff!important;stroke:currentColor}
+html body:not(#zz):not(#zy) .kko-s>.kko-h :is(.kko-k,button){display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 16px!important;border-radius:10px!important;background:rgb(255 255 255 / .1)!important;border:1px solid rgb(255 255 255 / .25)!important;color:#fff!important;font-size:11px!important;font-weight:700!important;letter-spacing:.16em!important;text-transform:uppercase!important;box-shadow:none!important}
+html body:not(#zz):not(#zy) .kko-s>.kko-h :is(.kko-k,button) svg{width:15px;height:15px;color:#fff!important}
+html body:not(#zz):not(#zy) .kko-vt{margin:0;font-size:14px;color:#5b6270}
+/* contactregels zoals in het portaal: icoon in grijs vak, hairlines */
+html body:not(#zz):not(#zy) .kko-c{background:#fff!important;border-radius:0!important;margin:0 calc(-1*var(--px))!important;padding:14px var(--px)!important;border-top:1px solid #e2e5ea}
+html body:not(#zz):not(#zy) .kko-s>.kko-h+.kko-c{border-top:0;margin-top:-20px!important}
+html body:not(#zz):not(#zy) .kko-c i{background:#f1f2f5!important;border-radius:12px!important;color:#0d121b!important}
+/* parelgrijze samenvatting (In het kort) */
+html body:not(#zz):not(#zy) .kko-s.kko-kern{padding:0!important;background:none!important;border:0!important;box-shadow:none!important;overflow:visible}
+html body:not(#zz):not(#zy) .kko-s.kko-kern>.kko-h{display:none!important}
+html body:not(#zz):not(#zy) dialog .kk-kern{position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0!important;padding:0!important;background:var(--pk-parel)!important;border:1px solid #d8d8d4!important;border-radius:22px!important;box-shadow:inset 0 1px 0 #fff,inset 0 -1px 0 rgb(0 0 0 / .04),0 24px 44px -34px rgb(26 32 48 / .55),0 2px 6px -4px rgb(26 32 48 / .2)!important;overflow:hidden}
+html body:not(#zz):not(#zy) dialog .kk-kern::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgb(255 255 255 / .18) 0 1px,transparent 1px 3px);pointer-events:none;opacity:.5}
+html body:not(#zz):not(#zy) dialog .kk-kern .kkh-t{position:relative;z-index:1;display:grid!important;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"ic lb" "wd wd" "sb sb";align-items:center;column-gap:14px;padding:24px 26px 22px!important;background:transparent!important;border:0!important}
+html body:not(#zz):not(#zy) dialog .kk-kern .kkh-t+.kkh-t{border-left:0!important}
+html body:not(#zz):not(#zy) dialog .kk-kern .kkh-t+.kkh-t::before{content:"";position:absolute;left:0;top:22px;bottom:22px;width:2px;background:linear-gradient(90deg,rgb(28 34 49 / .1) 0 1px,#fff 1px 2px)}
+html body:not(#zz):not(#zy) dialog .kk-kern .kkh-ic{grid-area:ic;display:grid;place-items:center;width:42px;height:42px;border-radius:50%;background:linear-gradient(180deg,#fff,#ececea);border:1px solid #c9c9c4;box-shadow:inset 0 1px 0 #fff,inset 0 -2px 3px rgb(0 0 0 / .05),0 1px 2px rgb(0 0 0 / .1),0 8px 16px -10px rgb(0 0 0 / .35);color:#252c3c;font-style:normal}
+html body:not(#zz):not(#zy) dialog .kk-kern .kkh-ic svg{width:18px;height:18px;stroke-width:1.9px}
+html body:not(#zz):not(#zy) dialog .kk-kern .kkh-t span{grid-area:lb;font-size:10.5px!important;font-weight:700!important;letter-spacing:.2em!important;text-transform:uppercase;color:#3a4150!important;white-space:normal!important;line-height:1.3}
+html body:not(#zz):not(#zy) dialog .kk-kern .kkh-t b{grid-area:wd;margin:20px 0 4px;font-size:26px!important;font-weight:500!important;letter-spacing:-.005em;color:#14181f!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body:not(#zz):not(#zy) dialog .kk-kern .kkh-t small{grid-area:sb;font-size:13px!important;font-weight:500;color:#5f6572}
+html body:not(#zz):not(#zy) dialog .kk-kern .kkh-t small.ok{color:#2f7a55!important}html body:not(#zz):not(#zy) dialog .kk-kern .kkh-t small.late{color:#b03a32!important}
+@media (max-width:900px){html body:not(#zz):not(#zy) dialog .kk-kern{grid-template-columns:repeat(2,minmax(0,1fr))}html body:not(#zz):not(#zy) dialog .kk-kern .kkh-t:nth-child(3)::before{display:none}html body:not(#zz):not(#zy) dialog .kk-kern .kkh-t:nth-child(n+3){border-top:1px solid rgb(28 34 49 / .08)!important}}
+@media (max-width:640px){html body:not(#zz):not(#zy) .kko-s{--px:18px;--py:16px}html body:not(#zz):not(#zy) .kko-s>.kko-h{min-height:68px}html body:not(#zz):not(#zy) dialog .kk-kern .kkh-t{padding:16px!important;column-gap:10px}html body:not(#zz):not(#zy) dialog .kk-kern .kkh-ic{width:34px;height:34px}html body:not(#zz):not(#zy) dialog .kk-kern .kkh-t b{font-size:20px!important;margin-top:12px}html body:not(#zz):not(#zy) dialog .kk-kern .kkh-t span{font-size:9.5px!important;letter-spacing:.14em!important}}
+/* kaarten in de andere tabbladen van de klantkaart en in het opdrachtvenster */
+html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp{overflow:hidden;border:1px solid #e2e5ea!important;border-radius:22px!important;box-shadow:0 1px 2px rgb(26 32 48 / .04)!important}
+html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h{position:relative;min-height:78px;padding:18px 24px!important;gap:14px;background:var(--pk-kop)!important;border-bottom:0!important;color:#fff!important}
+html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h::before,html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h::after{display:none!important}
+html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h :is(b,div>b){color:#fff!important;font-family:inherit!important;font-size:12.5px!important;font-weight:600!important;letter-spacing:.2em!important;text-transform:uppercase!important}
+html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h small{color:rgb(255 255 255 / .68)!important}
+html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h :is(button,.btn,a.btn,label.iconbtn){background:rgb(255 255 255 / .1)!important;border:1px solid rgb(255 255 255 / .25)!important;color:#fff!important;box-shadow:none!important}
+html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h :is(button,.btn,label.iconbtn) svg{color:#fff!important}
+html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h .pill{background:rgb(255 255 255 / .14)!important;color:#fff!important}
+@media (max-width:640px){html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h{min-height:68px;padding:14px 18px!important}}
+html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp{padding:0!important;gap:0!important}
+html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h{margin:0!important;border-radius:0!important}
+html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>:not(.kp-h){margin:16px 22px 0!important}
+html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>:not(.kp-h):last-child{margin-bottom:20px!important}
+html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>.kp-h+*{margin-top:20px!important}
+@media (max-width:640px){html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>:not(.kp-h){margin:14px 16px 0!important}html body:not(#zz):not(#zy) :is(.kk-v2,.ow-v2) .kp>:not(.kp-h):last-child{margin-bottom:16px!important}}
+html body:not(#zz):not(#zy) .kko-s.kko-vk{flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important}
+html body:not(#zz):not(#zy) .kko-s.kko-zie{background:#fff!important}
+html body:not(#zz):not(#zy) dialog .kk-kern .kkh-t span{letter-spacing:.16em!important}
+html body:not(#zz):not(#zy) .kko-s.kko-vk>.kko-h{flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;text-align:left}
+html body:not(#zz):not(#zy) .ow-v2 .kp.ow-kern{background:none!important;border:0!important;box-shadow:none!important;overflow:visible!important}
+html body:not(#zz):not(#zy) .ow-v2 .kp.ow-kern>.kp-h{display:none!important}
+html body:not(#zz):not(#zy) .ow-v2 .kp.ow-kern>:not(.kp-h){margin:0!important}
