@@ -2530,9 +2530,10 @@ html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-pick{padding:2px 2px 0
     if(!photos.length&&!ADR)return;const q=document.getElementById("adrQ");
     const sig=JSON.stringify([photos.length,photos.map(p=>p.dots),SOORT,ADR&&ADR.postcode]);if(sig===bewaarSig)return;bewaarSig=sig;
     IDB("put","staat",{t:Date.now(),soort:SOORT,adr:ADR,adrQ:q?q.value:"",fotos:photos.map(p=>p.url),dots:photos.map(p=>p.dots)})}catch(e){}}
-  (async()=>{try{const d=await IDB("get","staat");if(d&&Date.now()-d.t<21*864e5&&d.soort!=="zakelijk"){
+  (async()=>{try{const d=await IDB("get","staat");if(d&&!d.adr){IDB("del","staat")}else if(d&&Date.now()-d.t<21*864e5&&d.soort!=="zakelijk"){
       if(d.adr&&typeof kiesSoort==="function"){kiesSoort("particulier");const q=document.getElementById("adrQ");if(q)q.value=d.adrQ||"";zetAdres(d.adr)}
-      for(let i=0;i<(d.fotos||[]).length;i++){try{const p=await loadPhoto(dataUrlBlob(d.fotos[i]));p.dots=(d.dots&&d.dots[i])||[];photos.push(p)}catch(e){}}
+      /* alleen foto's terugzetten bij een bewaard adres; dubbele foto's overslaan en nooit meer dan 30 */
+      const gezien=new Set();if(d.adr)for(let i=0;i<(d.fotos||[]).length&&photos.length<30;i++){const u=d.fotos[i];if(!u||gezien.has(u))continue;gezien.add(u);try{const p=await loadPhoto(dataUrlBlob(u));p.dots=(d.dots&&d.dots[i])||[];photos.push(p)}catch(e){}}
       if(photos.length){renderPhotos();if(fotoModus())modus(false);else syncFromPhotos();fi=0}}}catch(e){}hersteld=true})();
   const acties=el("div","cfg-acties",`${B.whatsapp?`<a href="https://wa.me/${esc(B.whatsapp)}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4.1A8 8 0 1 1 20 11.5Z"/></svg>Hulp via WhatsApp</a>`:""}<button type="button" class="vk" aria-label="Volledig scherm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>`);stage.append(acties);
   {const vk=acties.querySelector(".vk"),D=document,fsEl=()=>D.fullscreenElement||D.webkitFullscreenElement,
