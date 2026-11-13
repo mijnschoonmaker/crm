@@ -2201,3 +2201,6 @@ html body:not(#zz):not(#zy) .kk-v2 .ref-deel .kd-li{padding:10px 12px 10px 14px;
 html body:not(#zz):not(#zy) .kk-v2 .ref-deel .kd-li .mono{flex:1;min-width:0;font-family:inherit!important;font-size:13.5px;color:#3a4150;white-space:nowrap}
 html body:not(#zz):not(#zy) .kk-v2 .ref-deel .kd-li em button{height:30px;padding:0 12px!important;border-radius:8px!important;border:1px solid #e3e5e8!important;background:#fff!important;font-size:10.5px!important;font-weight:600!important;letter-spacing:.14em!important;color:#14171c!important;box-shadow:none!important}
 html body:not(#zz):not(#zy) .kk-v2 .ref-deel .kd-li em button svg{width:13px;height:13px}
+html body:not(#zz):not(#zy):not(#zx) dialog .kko-s>.kko-h .kk-vulpen{display:grid!important;place-items:center;width:36px!important;height:36px!important;padding:0!important;border:1px solid rgb(28 34 49 / .14)!important;border-radius:10px!important;background:rgb(255 255 255 / .7)!important;text-decoration:none!important;color:#14171c!important;font-size:0!important}
+html body:not(#zz):not(#zy):not(#zx) dialog .kko-s>.kko-h .kk-vulpen svg{display:block!important;width:17px!important;height:17px!important}
+html body:not(#zz):not(#zy):not(#zx) dialog .kko-s>.kko-h .kk-vulpen:hover{background:#252c3c!important;color:#fff!important;border-color:#252c3c!important}

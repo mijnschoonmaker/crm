@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="2fe9fe40b11c"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="78b126947823"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -8031,6 +8031,9 @@ html body:not(#zz):not(#zy) .kk-v2 .ref-deel .kd-li{padding:10px 12px 10px 14px;
 html body:not(#zz):not(#zy) .kk-v2 .ref-deel .kd-li .mono{flex:1;min-width:0;font-family:inherit!important;font-size:13.5px;color:#3a4150;white-space:nowrap}
 html body:not(#zz):not(#zy) .kk-v2 .ref-deel .kd-li em button{height:30px;padding:0 12px!important;border-radius:8px!important;border:1px solid #e3e5e8!important;background:#fff!important;font-size:10.5px!important;font-weight:600!important;letter-spacing:.14em!important;color:#14171c!important;box-shadow:none!important}
 html body:not(#zz):not(#zy) .kk-v2 .ref-deel .kd-li em button svg{width:13px;height:13px}
+html body:not(#zz):not(#zy):not(#zx) dialog .kko-s>.kko-h .kk-vulpen{display:grid!important;place-items:center;width:36px!important;height:36px!important;padding:0!important;border:1px solid rgb(28 34 49 / .14)!important;border-radius:10px!important;background:rgb(255 255 255 / .7)!important;text-decoration:none!important;color:#14171c!important;font-size:0!important}
+html body:not(#zz):not(#zy):not(#zx) dialog .kko-s>.kko-h .kk-vulpen svg{display:block!important;width:17px!important;height:17px!important}
+html body:not(#zz):not(#zy):not(#zx) dialog .kko-s>.kko-h .kk-vulpen:hover{background:#252c3c!important;color:#fff!important;border-color:#252c3c!important}
 
 </style>
 <div class="app">
@@ -17108,7 +17111,7 @@ function kkOverzicht(k,c){
       ${praat.length?`<div class="kb-praat"><span>${I.chat}</span><div><small>Ter sprake brengen</small><b>${praat.map(x=>esc(x.t)).join(" · ")}</b></div></div>`:""}
       ${brief||(!praat.length?`<p class="kb-leeg">Nog geen bijzonderheden voor bij de deur. Noteer bij Gastvrijheid hoe de klant het graag heeft: toegang, huisdieren, voorkeuren.</p>`:"")}
       ${c.hist[0]?`<div class="kb-vor"><small>Vorige keer</small><span>${esc(fmtD(c.hist[0].datum))}${c.hist[0].door||c.hist[0].medewerker?" · "+esc(c.hist[0].door||c.hist[0].medewerker):""}${c.hist.length>1?` · ${c.hist.length} bezoeken in totaal`:""}</span>${meer("werk","Alle bezoeken")}</div>`:""}</section>`;
-  return `<div class="kko kko-v3 kko-v4 kko-v5" id="kkOv"><div class="kko-top">    <section class="kko-s kko-gast kko-gast-top"><div class="kko-h"><span class="objic">${I.heart||I.note}</span><div class="kko-ht"><h3>Hospitality aandachtspunten</h3><small>Wat we over deze klant weten</small></div><button type="button" class="kko-k" data-act="hospedit" data-id="${esc(k.id)}">${I.pencil}Aanpassen</button></div>${typeof hospBlok==="function"?hospBlok(k,{leegKnop:true}):""}</section></div></div>`}
+  return `<div class="kko kko-v3 kko-v4 kko-v5" id="kkOv"><div class="kko-top">    <section class="kko-s kko-gast kko-gast-top"><div class="kko-h"><span class="objic">${I.heart||I.note}</span><div class="kko-ht"><h3>Hospitality aandachtspunten</h3><small>Wat we over deze klant weten</small></div><button type="button" class="kko-k kk-vulpen" data-act="hospedit" data-id="${esc(k.id)}" aria-label="Aandachtspunten aanpassen" title="Aanpassen"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg></button></div>${typeof hospBlok==="function"?hospBlok(k,{leegKnop:true}):""}</section></div></div>`}
 
 /* ---------- PERIODIEKE FACTUREN ----------
    Per opdracht: vaste factuurregels die elke week/maand/kwartaal/... op een vaste datum worden gefactureerd.
