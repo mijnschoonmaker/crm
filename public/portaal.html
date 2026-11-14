@@ -2096,8 +2096,8 @@ function home(){const k=D.klant,openF=D.facturen.filter(f=>f.status==="open"||f.
     <div class="hm-mid">${openF.length?`<div class="melding rood"><span class="objic rood">${I.fact}</span><div class="tx"><b>${openF.length===1?"Er staat een factuur open":openF.length+" facturen staan open"}</b><small>${eur(som)}${openF.some(f=>f.status==="verlopen")?" · betaaltermijn verstreken":""}</small></div><button class="primary" data-fact="${esc(openF[0].id)}">Bekijken</button></div>`:""}${A.tegoed>0?homeCredits():""}</div>
     ${D.teBeoordelen?kp(I.ster,"Hoe was ons bezoek?",`<div class="sterren" id="beoor" role="group" aria-label="Geef een beoordeling">${[1,2,3,4,5].map(n=>`<button data-ster="${n}" aria-label="${n} ${n===1?"ster":"sterren"}">${I.ster}</button>`).join("")}</div>`,{kl:"goud",sub:"Bezoek van "+esc(lang(D.teBeoordelen.datum))}):""}
     ${lopend.length?kp(I.bericht,"Wat u ons heeft laten weten",`<div class="lijst">${lopend.map(verzoekRij).join("")}</div>`,{sub:"We komen er zo snel mogelijk op terug"}):""}
-    ${k.vve?vveKpis():""}    ${k.vve?"":`<div class="stats st3"><div class="stat"><span class="st-ic">${I.check}</span><div><small>Bezoeken</small><b>${D.aantalBezoeken}</b><em>${k.sinds?"sinds "+esc(MK[p(k.sinds).getMonth()]+" "+p(k.sinds).getFullYear()):"&nbsp;"}</em></div></div><div class="stat"><span class="st-ic">${I.kal}</span><div><small>Ritme</small><b>${k.vve?esc(ritmeKort(k)):k.frequentie+" wk"}</b><em>${esc(k.dienst||"")}</em></div></div><div class="stat${som>0?" rood":""}"><span class="st-ic">${I.euro}</span><div><small>Open</small><b${som>0?' style="color:var(--late)"':""}>${eur0(som)}</b><em>${openF.length?plural(openF.length,"factuur","facturen"):"alles betaald"}</em></div></div></div>`}`;
-  const rechts=`${abonnementKp()}${maandTopKp()}${vveB()?vveDienstenKp():""}${k.vve?vveHomeKp():""}
+    ${k.vve?vveKpis():""}`;
+  const rechts=`${abonnementKp()}${vveB()?vveDienstenKp():""}${k.vve?vveHomeKp():""}
     ${B.refAan&&!k.vve?`<button class="melding goud" data-tab="aanbevelen"><span class="objic goud">${I.hart}</span><div class="tx"><b>Tevreden? Vertel het door</b><small>${eur0(B.refBeloning)} korting op uw volgende factuur voor elke nieuwe klant.</small></div>${I.chev}</button>`:""}`;
   /* bijna aan de beurt (nog 1 adres of minder): de live kaart groot, over de volle breedte bovenaan */
   return (D.live&&D.live.status==="onderweg"&&D.live.pos?`<div class="lv-groot">${liveBlok()}</div>`:"")+
@@ -2125,9 +2125,20 @@ function diensten(){const k=D.klant;let L=(k.diensten||[]).slice();
   if(!L.length&&k.actief!==false)L=[{naam:k.dienst||PHD(),ritme:k.frequentie?(k.frequentie===1?"elke week":"elke "+k.frequentie+" weken"):"",volgende:(D.volgende||{}).datum||"",ingepland:!!D.volgende,prijs:Number(k.prijs)||null,detail:k.binnen?"binnen en buiten":"",hoofd:true}];
   const wanneer=x=>x.volgende?(x.ingepland?"gepland op ":"volgende keer rond ")+kort(x.volgende):"";
   const rij=x=>lr(I.dienst,esc(x.naam),[x.detail?esc(x.detail):"",x.ritme?esc(hoofd(x.ritme)):"volgens afspraak",esc(wanneer(x))].filter(Boolean).join(" · "),x.prijs?`<span class="ds-pr"><b>${eur(x.prijs)}</b><small>per beurt</small></span>`:"");
-  return kop("Diensten","Alle diensten die wij voor u uitvoeren, hoe vaak en wanneer we weer komen.")+`<div class="pg ds">
+  return kop("Diensten","Alle diensten die wij voor u uitvoeren, hoe vaak en wanneer we weer komen.")+`<div class="pg ds">${k.vve?"":abonnementKp()}
     ${L.length?kp(I.dienst,"Uw diensten",`<div class="lijst">${L.map(rij).join("")}</div>`,{sub:plural(L.length,"dienst","diensten")}):`<div class="leeg">Er staan nog geen diensten op uw klantkaart.</div>`}
     </div>`}
+let BZ_ALLES=false;
+document.addEventListener("click",e=>{if(e.target.closest("[data-bzalles]")){BZ_ALLES=!BZ_ALLES;teken();return}const h=e.target.closest("[data-bzh]");if(h)bezoekBlad(h.dataset.bzh)});
+document.addEventListener("keydown",e=>{if(e.key!=="Enter")return;const h=e.target.closest&&e.target.closest("[data-bzh]");if(h)bezoekBlad(h.dataset.bzh)});
+/* historiekaart: één gedaan bezoek in een venster */
+function bezoekBlad(id){const x=(D.bezoeken||[]).find(y=>y.id===id);if(!x)return;const d=p(x.datum),f=x.factuurId?(D.facturen||[]).find(y=>y.id===x.factuurId):null;
+  const r=(a,b)=>`<div class="hk-r"><span>${a}</span><b>${b}</b></div>`,m=x.duur?(x.duur>=60?Math.floor(x.duur/60)+" u "+String(Math.round(x.duur%60)).padStart(2,"0")+" min":Math.round(x.duur)+" min"):"";
+  blad(`<div class="hk"><small class="hk-k">Bezoek</small><h3>${esc(hoofd(dagNaam(d)))} ${d.getDate()} ${esc(MND[d.getMonth()])} ${d.getFullYear()}</h3>
+    <div class="hk-g"><small>Wat we gedaan hebben</small>${r(esc(x.dienst||PHD()),x.bedrag?eur(x.bedrag):"")}${(x.extra||[]).map(e=>r(esc(e),"")).join("")}</div>
+    <div class="hk-g"><small>Bezoek</small>${x.tijd?r("Tijd",esc(x.tijd)):""}${x.door?r("Door",esc(x.door)):""}${m?r("Bij u",esc(m)):""}${x.beoordeling?r("Uw beoordeling",`<span class="mini-st">${I.ster.repeat(x.beoordeling.sterren)}</span>`):""}</div>
+    ${f?`<div class="hk-g"><small>Factuur</small>${r("Nummer",esc(f.nummer||""))}${r("Status",f.status==="betaald"?"Betaald":"Open")}<button class="primary hk-f" data-fact="${esc(f.id)}">${I.fact}Factuur bekijken</button></div>`:""}
+    <button class="ghost hk-s" data-sluit>Sluiten</button></div>`,(o,sluit)=>{const b=o.querySelector("[data-fact]");if(b)b.onclick=()=>{sluit();setTimeout(()=>openFactuur(b.dataset.fact),150)}});}
 function bezoeken(){const v=D.volgende,b=D.bezoeken||[],k=D.klant,fq=Number(k.frequentie)||8,nu=vandaag(),hero=bzHero();
   const st=n=>`<span class="mini-st" aria-label="${n} sterren">${I.ster.repeat(n)}</span>`;
   const gem=(()=>{const r=b.filter(x=>x.beoordeling&&x.beoordeling.sterren);return r.length?(r.reduce((a,x)=>a+x.beoordeling.sterren,0)/r.length):0})();
@@ -2140,12 +2151,12 @@ function bezoeken(){const v=D.volgende,b=D.bezoeken||[],k=D.klant,fq=Number(k.fr
   const toek=v?[{datum:v.datum,tijd:v.tijd,soort:"gepland"},...v.reeks.map(x=>({...x,soort:"gepland"}))]:(D.verwacht&&k.actief?[{datum:D.verwacht,soort:"verwacht"}]:[]);
   let jr="",mn="";const VM=isVve()?Object.fromEntries(vveMaanden()):{};const item=(x,past)=>{const d=p(x.datum),y=d.getFullYear();let kopJ=y!==jr?`<li class="bz-jr">${y}</li>`:"";jr=y;
     if(false&&past&&isVve()){const m=x.datum.slice(0,7);if(m!==mn){mn=m;const bs=VM[m]||[],af=vveAfrond(bs);kopJ=`<li class="bz-mnd"><div><b>${esc(hoofd(vveMaand(m)))}</b><small>${plural(bs.length,"beurt","beurten")}${af!=null?" · "+af+"% afgerond":""}</small></div><button class="btn sm" data-vrap="${m}">${I.fact}Maandrapport</button></li>`}}
-    return kopJ+`<li class="bz-it ${past?"af":x.soort}"><span class="bz-dot">${past?I.check:""}</span><div class="bz-card"><div class="bz-dt"><b>${x.soort==="verwacht"?"wk":d.getDate()}</b><small>${x.soort==="verwacht"?weekNr(d):MK[d.getMonth()]}</small></div>
+    return kopJ+`<li class="bz-it ${past?"af":x.soort}"${past&&!isVve()&&x.id?` data-bzh="${esc(x.id)}" role="button" tabindex="0" title="Bekijk dit bezoek"`:""}><span class="bz-dot">${past?I.check:""}</span><div class="bz-card"><div class="bz-dt"><b>${x.soort==="verwacht"?"wk":d.getDate()}</b><small>${x.soort==="verwacht"?weekNr(d):MK[d.getMonth()]}</small></div>
       <div class="bz-tx"><b>${past?esc(x.dienst||PHD())+(x.extra&&x.extra.length?" + "+esc(x.extra.join(", ").toLowerCase()):""):x.soort==="verwacht"?"Verwacht bezoek":"Gepland bezoek"}</b><small><span style="text-transform:capitalize">${x.soort==="verwacht"?"rond week "+weekNr(d):esc(dagNaam(d))}</span>${x.tijd?" · "+esc(x.tijd):""}${past&&x.door?" · "+(isVve()?"door ":"")+esc(x.door):""}${!past&&x.soort!=="verwacht"?" · "+esc(overTxt(dagenTot(x.datum)).toLowerCase()):""}</small>${past&&x.beoordeling?st(x.beoordeling.sterren):""}</div>
       <div class="bz-rt">${past?(x.bedrag&&!isVve()?`<b>${eur0(x.bedrag)}</b>`:"")+`<span class="bz-stempel">${I.check}<i>${isVve()||!PGLAS()?"Gedaan":"Gewassen"}</i></span>`:`<span class="pill ${x.soort==="verwacht"?"":"brand"}"><i></i>${x.soort==="verwacht"?"Verwacht":"Gepland"}</span>`}</div></div>${past&&isVve()?vveBeurtDetail(x):""}</li>`};
   const fut=toek.slice().reverse();jr=nu.getFullYear();const lijn=fut.map(x=>item(x,false));jr=nu.getFullYear();
   const tl=`<section class="bz-tl"><div class="bz-tlh"><b>Tijdlijn</b><small>${plural(b.length,"bezoek","bezoeken")} gedaan${toek.length?" · "+plural(toek.length,"gepland","gepland").replace(/^(\d+) gepland$/,"$1 in het vooruitzicht"):""}</small></div>
-    <ol class="bz-ol">${lijn.join("")}${toek.length?`<li class="bz-nu"><span>Vandaag</span></li>`:""}${b.map(x=>item(x,true)).join("")}</ol>
+    <ol class="bz-ol">${lijn.join("")}${toek.length?`<li class="bz-nu"><span>Vandaag</span></li>`:""}${(BZ_ALLES?b:b.slice(0,5)).map(x=>item(x,true)).join("")}</ol>${b.length>5?`<button class="bz-meer" data-bzalles>${BZ_ALLES?"Minder tonen":"Alles tonen ("+b.length+")"}</button>`:""}
     ${!b.length&&!toek.length?`<div class="bz-leeg"><span class="bz-li">${I.kal}</span><b>Uw tijdlijn begint bij ons eerste bezoek</b><small>Daarna ziet u hier elk bezoek terug: wanneer we er waren, wie er kwam en wat er is gedaan.</small><div class="bz-lv" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div></div>`:""}${!b.length&&toek.length?`<p class="bz-tip">Na ons eerste bezoek verschijnt het hier, met de datum en wat we gedaan hebben.</p>`:""}</section>`;
   return kop(isVve()?"Logboek":"Bezoeken",isVve()?"Per beurt: wanneer, wat er is gedaan en de opleverfoto.":"Wanneer we komen en wanneer we geweest zijn.")+`<div class="pg">${hero}${tiles}${tl}</div>`}
 /* ---------- VvE ---------- */
@@ -2319,7 +2330,6 @@ function facturen(){const F=D.facturen,open=F.filter(f=>f.status!=="betaald"&&f.
       <div class="bp-m">${betaalMeter(P.score,P.niv.k)}<div class="bp-mt"><b>${P.score==null?"–":P.score}</b><small>van 100</small></div></div>
       <div class="bp-tx"><h3>${esc(P.niv.t)}</h3><div class="bp-dots" aria-hidden="true">${[1,2,3,4,5].map(i=>`<i class="${i<=P.niv.n?"on":""}"></i>`).join("")}</div><p>${msg}</p></div></div>${rang}
     ${betaalGrafiek(P,open)}</section>`;
-  const mtop=maandTopKp();
   const alarm=oudste?`<button class="melding rood" data-fact="${esc(oudste.id)}"><span class="objic rood">${I.euro}</span><div class="tx"><b>${eur(oudste.bedrag)} · ${-dagenTot(oudste.verval)} ${dagenTot(oudste.verval)===-1?"dag":"dagen"} te laat</b><small>Factuur ${esc(oudste.nummer)} · vervallen op ${esc(kort(oudste.verval))}${oudste.herinnerd?" · "+plural(oudste.herinnerd,"herinnering","herinneringen")+" verstuurd":""}</small></div><span class="btn-p">Nu betalen</span></button>`:"";
   const IC=D.klant.incasso||{};
   const incassoKp=!IC.actief?"":IC.actief
@@ -2329,11 +2339,12 @@ function facturen(){const F=D.facturen,open=F.filter(f=>f.status!=="betaald"&&f.
       <div class="ic-body"><ul class="stappen"><li><span>U geeft eenmalig een machtiging via iDEAL (€ 0,01, ter controle van uw rekening).</span></li><li><span>Er wordt nooit vooraf afgeschreven. Pas nadat een beurt is uitgevoerd en afgemeld, krijgt u de factuur; binnen 14 dagen daarna wordt het bedrag automatisch afgeschreven.</span></li><li><span>U houdt alles in de hand: de factuur komt nog steeds per e-mail, en stopzetten kan hier altijd.</span></li></ul>
       <button class="primary" data-act="incasso">${I.check}Automatisch betalen instellen</button></div></section>`;
   return kop("Facturen",open.length?`Er ${open.length===1?"staat één factuur":"staan "+open.length+" facturen"} open.`:"Alles is betaald. Dank u wel.")+`<div class="pg">
-    ${alarm}${incassoKp}
-    ${F.length?hero:""}${mtop}
-    <div class="stats st3"><div class="stat${som>0?" rood":""}"><span class="st-ic">${I.euro}</span><div><small>Openstaand</small><b${som>0?' style="color:var(--late)"':""}>${eur0(som)}</b><em>${open.length?plural(open.length,"factuur","facturen"):"niets open"}</em></div></div><div class="stat"><span class="st-ic">${I.check}</span><div><small>Betaald</small><b>${eur0(betaald)}</b><em>${plural(F.filter(f=>f.status==="betaald").length,"factuur","facturen")}</em></div></div><div class="stat goud"><span class="st-ic">${I.cadeau}</span><div><small>Tegoed</small><b>${eur0(D.aanbevelen.tegoed)}</b><em>${D.aanbevelen.tegoed>0?"op uw volgende factuur":"via aanbevelen"}</em></div></div></div>
+    ${alarm}
     ${open.length?kp(I.euro,"Te betalen",`<div class="lijst">${open.map(rij).join("")}</div>`,{kl:"rood",sub:"Betaal online met iDEAL of maak het bedrag over"}):""}
-    ${kp(I.fact,"Alle facturen",F.filter(f=>!open.includes(f)).length?`<div class="lijst">${F.filter(f=>!open.includes(f)).map(rij).join("")}</div>`:`<p class="leeg">Hier verschijnen uw facturen na een bezoek.</p>`,{sub:plural(F.length,"factuur","facturen")})}</div>`}
+    ${incassoKp}
+    ${kp(I.fact,"Alle facturen",F.filter(f=>!open.includes(f)).length?`<div class="lijst">${F.filter(f=>!open.includes(f)).map(rij).join("")}</div>`:`<p class="leeg">Hier verschijnen uw facturen na een bezoek.</p>`,{sub:plural(F.length,"factuur","facturen")})}
+    <div class="stats st3"><div class="stat${som>0?" rood":""}"><span class="st-ic">${I.euro}</span><div><small>Openstaand</small><b${som>0?' style="color:var(--late)"':""}>${eur0(som)}</b><em>${open.length?plural(open.length,"factuur","facturen"):"niets open"}</em></div></div><div class="stat"><span class="st-ic">${I.check}</span><div><small>Betaald</small><b>${eur0(betaald)}</b><em>${plural(F.filter(f=>f.status==="betaald").length,"factuur","facturen")}</em></div></div><div class="stat goud"><span class="st-ic">${I.cadeau}</span><div><small>Tegoed</small><b>${eur0(D.aanbevelen.tegoed)}</b><em>${D.aanbevelen.tegoed>0?"op uw volgende factuur":"via aanbevelen"}</em></div></div></div>
+    ${F.length?hero:""}</div>`}
 
 function aanbevelen(){const A=D.aanbevelen,R=B.refBeloning,W=B.refWelkom,C=D.credits||{saldo:A.tegoed,verdiend:A.verdiend+A.tegoed,regels:[],tarieven:{review:5,beurt:0,extra:3,aanbevelen:R},review:"open",beoordeeld:0};
   const T=C.tarieven||{},cr=n=>n===0.5?"een halve credit (€ 0,50)":`${crF(n)} credit${n===1?"":"s"}`,Hf=s=>s.charAt(0).toUpperCase()+s.slice(1);
@@ -2397,7 +2408,7 @@ function aanbevelen(){const A=D.aanbevelen,R=B.refBeloning,W=B.refWelkom,C=D.cre
   const ledger=regels.length?`<section class="kp"><div class="kp-h"><span class="objic goud">${I.cadeau}</span><div><b>Uw credits</b><small>${cr(saldo)} beschikbaar · ${eur0(C.verdiend)} in totaal verdiend</small></div></div>
       <div class="lijst">${regels.map(t=>{const b=BRON[t.bron]||BRON.overig;return `<div class="lr cl ${b[1]}"><span class="ti">${b[0]}</span><span class="tx"><b>${esc(t.bron==="snel"&&!/factuur/i.test(t.reden||"")?"Factuur binnen 24 uur betaald":crLabel(t.reden))}</b><small>${t.op?esc(kort(t.op)):""}</small></span><span class="rt"><b class="cl-n">+${crF(t.bedrag)}</b><span class="pill ${t.open?"ok":"neutral"}"><i></i>${t.open?"Staat klaar":"Verrekend"}</span></span></div>`}).join("")}</div></section>`
     :`<section class="kp"><div class="kp-h"><span class="objic goud">${I.cadeau}</span><div><b>Uw credits</b><small>Nog geen credits</small></div></div><p class="leeg">Uw eerste credits verdient u door een bezoek te beoordelen of een buur aan te bevelen.</p></section>`;
-  return kop("Credits & aanbevelen","Spaar korting op uw volgende factuur.")+`<div class="pg rf">${hero}${manieren}${ref}${ledger}</div>`}
+  return kop("Credits & aanbevelen","Spaar korting op uw volgende factuur.")+`<div class="pg rf">${hero}${maandTopKp()}${manieren}${ref}${ledger}</div>`}
 const crLabel=r=>{let x=String(r||"").replace(/^Credits:\s*/i,"").replace(/^Korting\s+/i,"").replace(/(\d{4}-\d{2}-\d{2})/g,m=>kort(m));return x.charAt(0).toUpperCase()+x.slice(1)};
 function deelTekst(){return `${PGLAS()?"Ik laat mijn ramen wassen door":"Ik ben klant bij"} ${B.naam} en ben er heel tevreden over.${B.refWelkom>0?` Met mijn link krijg je ${eur0(B.refWelkom)} korting op je eerste factuur:`:" Bereken je prijs via mijn link:"} ${D.aanbevelen.link}`}
 
@@ -2410,7 +2421,7 @@ function ik(){const k=D.klant,t=k.toegang||{};
       ${lr(I.tel,"Telefoon en e-mail",esc([k.telefoon||k.mobiel,k.email].filter(Boolean).join(" · ")||"Nog niet bekend"),"",{attr:'data-act="gegevens"'})}
       ${k.klantnr?lr(I.doc,"Klantnummer",esc(k.klantnr)):""}${lr(I.fact,"Beheercode op de factuur",k.beheercode?esc(k.beheercode):"Bijvoorbeeld van uw beheerder of VvE. Komt op elke factuur.","",{attr:'data-act="beheercode"'})}${B.voorwaarden?lr(I.doc,"Algemene voorwaarden","PDF","",{href:B.voorwaarden}):""}
       ${lr(I.uit,"Uitloggen","Op dit apparaat","",{attr:"data-uit"})}</div>`,{kl:"zacht",act:`<button class="primary" data-act="gegevens">${I.pen}Wijzigen</button>`})}
-    ${abonnementKp()}</div></div>`}
+    </div></div>`}
 
 
 /* ---------- tickets ---------- */
@@ -2804,5 +2815,22 @@ html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) section.kp .lijst>.lr{bac
 html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) section.kp .lijst>.lr:hover{background:#eff1f4!important}
 html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) section.kp .lijst>.lr .ti{background:#fff!important;border:1px solid #e6e8ec!important;box-shadow:none!important;color:#14171c!important}
 html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) .stat,html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) .bz-card,html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) button.melding,html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) div.melding{border-color:#eceef1!important}
+
+.bz-it[data-bzh] .bz-card{cursor:pointer;transition:transform .15s ease,box-shadow .15s ease}
+.bz-it[data-bzh] .bz-card:hover{transform:translateY(-1px);box-shadow:0 14px 28px -22px rgb(20 23 28/.35)}
+.bz-meer{display:block;margin:6px 22px 20px;padding:10px 16px;border:1px solid #e6e8ec;border-radius:12px;background:#fff;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#14171c;cursor:pointer}
+.hk{display:flex;flex-direction:column;gap:14px;text-align:left}
+.hk .hk-k{font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#8a8f98}
+.hk h3{margin:-8px 0 0;font-size:22px;font-weight:500}
+.hk-g{background:#f6f7f9;border-radius:16px;padding:12px 16px}
+.hk-g>small{display:block;font-size:10.5px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#14171c;margin-bottom:4px}
+.hk-r{display:flex;justify-content:space-between;gap:12px;padding:5px 0;font-size:14px}
+.hk-r span{color:#5b6270}.hk-r b{font-weight:600;color:#14171c;text-align:right}
+.hk .hk-f{margin-top:10px;width:100%}
+.hk .hk-s{align-self:stretch}
+
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) .pg.met-paneel{align-items:start!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) .pg.met-paneel>.col{align-content:start!important;justify-content:flex-start!important;align-self:start!important;height:auto!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) .pg.met-paneel>.col>*{flex:none!important;height:auto!important;min-height:0!important}
 </style>
 </body></html>
