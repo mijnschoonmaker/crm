@@ -388,7 +388,7 @@ function openFactuur(id){const f=state.facturen.find(x=>x.id===id);if(!f)return;
 function openFactuurOud(id,fromWerk){
   const f=state.facturen.find(x=>x.id===id);if(!f)return;
   const st=fStatus(f),off=f.soort==="offerte";if(off&&f.getekendNieuw&&typeof getekendGezien==="function")getekendGezien(f);
-  openDlg(`<div class="dlg-head fw-head"><div class="fw-h1"><span class="objic big">${off?I.offertes:I.facturen}</span><div class="fw-ht"><small>${off?"Offerte":"Factuur"}</small><h3>${esc(f.nummer)}</h3></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
+  openDlg(`<div class="dlg-head fw-head"><div class="fw-h1"><span class="objic big">${off?I.offertes:I.facturen}</span><div class="fw-ht"><small>${off?"Offerte":f.creditVan||totals(f).inc<0?"Creditfactuur":"Factuur"}</small><h3>${esc(f.nummer)}</h3></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
     <div class="fw-h2"><div class="fw-hk"><b>${esc(cleanName(f.klantNaam))}</b><small>${esc(fmtL(String(f.datum||"").slice(0,10)))}</small></div><div class="fw-hb"><b>${eur(totals(f).inc)}</b>${statusPill(st[0],st[1])}</div></div></div>
   ${off&&f.getekend&&typeof getekendBox==="function"?getekendBox(f):""}<div class="row fw-acts" style="justify-content:flex-start;padding:0">
     ${off?`${f.status!=="geaccepteerd"||(k=>k.prospect||k.opdrachtVerwijderd||k.actief===false)(state.klanten.find(x=>x.id===f.klantId)||{})?`<button type="button" class="small primary" data-act="akkoord" data-id="${esc(f.id)}">${I.check}Akkoord en inplannen</button>`:""}`

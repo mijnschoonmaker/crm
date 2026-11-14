@@ -20,7 +20,10 @@ function invData(f,klant){
   if(isZak(k)&&k.contact&&!tav)naar.unshift("T.a.v. "+k.contact);
   /* beheercode/kenmerk van de klant (VvE, beheerder): op elke factuur, ook de periodieke */
   {const bc=String((f.status==="concept"?k.beheercode:f.beheercode)||"").trim();if(bc&&!off)naar.push("Beheercode: "+bc)}
-  return{s,off,t,btw,regels,st,titel:off?"OFFERTE":"FACTUUR",
+  /* creditfactuur: gemaakt via Creditfactuur aanmaken (creditVan) of een factuur met een negatief totaal */
+  const credit=!off&&(!!f.creditVan||t.inc<0),orig=f.creditVan?(state.facturen||[]).find(x=>x.id===f.creditVan):null;
+  const creditNr=credit?(orig&&orig.nummer)||(String(f.notitie||"").match(/factuur\s+([\w-]+)/i)||[])[1]||"":"";
+  return{s,off,t,btw,regels,st,credit,creditNr,creditDatum:orig&&orig.datum?fmtL(orig.datum):"",titel:off?"OFFERTE":credit?"CREDITFACTUUR":"FACTUUR",
     van:[s.adres,[s.postcode,s.plaats].filter(Boolean).join(" "),(LANDEN[s.land]||LANDEN.NL).n,s.btwnr&&"BTW "+s.btwnr,s.kvk&&"KvK "+s.kvk].filter(Boolean),
     klantNaam:cleanName(f.klantNaam||k.naam||""),naar,klantContact:[k.email||f.klantEmail,k.telefoon].filter(Boolean).join(" · "),
     meta:[[off?"Offertedatum":"Factuurdatum",fmtL(f.datum)],[off?"Geldig tot":"Vervalt op",fmtL(f.verval)],[off?"Offertenummer":"Factuurnummer",f.nummer]],
@@ -30,15 +33,15 @@ function invData(f,klant){
 function invRows(f,klant){
   const d=invData(f,klant),s=d.s,k=klant||invKlant(f)||{};
   const nr=k.id||k.klantnr?klantNr(k):"1026";
-  const info=[["Adres",[s.adres,[s.postcode,s.plaats].filter(Boolean).join(" ")].filter(Boolean)],["",[]],["Telefoon",[s.telefoon]],["E-mailadres",[s.email]],["",[]],["KVK-nummer",[s.kvk]],["BTW",[s.btwnr]],["IBAN",[String(s.iban||"").replace(/\s/g,"")]],["BIC",[s.bic]],["Klantnummer",[String(nr)]],[d.off?"Offertenummer":"Factuurnummer",[f.nummer]],[d.off?"Offertedatum":"Factuurdatum",[fmtNum(f.datum).replace(/ /g,"")]],...(d.off?[["Geldig tot",[fmtNum(f.verval).replace(/ /g,"")]]]:[])]
+  const info=[["Adres",[s.adres,[s.postcode,s.plaats].filter(Boolean).join(" ")].filter(Boolean)],["",[]],["Telefoon",[s.telefoon]],["E-mailadres",[s.email]],["",[]],["KVK-nummer",[s.kvk]],["BTW",[s.btwnr]],["IBAN",[String(s.iban||"").replace(/\s/g,"")]],["BIC",[s.bic]],["Klantnummer",[String(nr)]],[d.off?"Offertenummer":d.credit?"Creditfactuurnr.":"Factuurnummer",[f.nummer]],...(d.credit&&d.creditNr?[["Credit op factuur",[d.creditNr]]]:[]),[d.off?"Offertedatum":"Factuurdatum",[fmtNum(f.datum).replace(/ /g,"")]],...(d.off?[["Geldig tot",[fmtNum(f.verval).replace(/ /g,"")]]]:[])]
     .filter(([l,v],i,arr)=>l?v.some(Boolean):(arr[i-1]&&arr[i-1][1].some(Boolean)));
   const regels=d.regels.map(r=>({...r,datum:fmtNum(r.dat||f.datum).replace(/ /g,""),ex:r.tot,inc:r2(r.tot*(1+r.btw/100))}));
   const iban=String(s.iban||"").replace(/\s/g,""),vw=s.voorwaarden&&/^https?:/.test(s.voorwaarden)?s.voorwaarden.replace(/^https?:\/\//,""):s.voorwaardenPdf?"onze website":"";
-  const betaal=d.off?`Deze offerte is geldig tot ${fmtNum(f.verval).replace(/ /g,"")}. Gaat u akkoord? Laat het ons weten, dan plannen wij u in.`
+  const betaal=d.credit?`Deze creditfactuur crediteert ${d.creditNr?"factuur "+d.creditNr:"een eerdere factuur"}. Het bedrag van ${eur(Math.abs(d.t.inc))} wordt met u verrekend; u hoeft niets te betalen.`:d.off?`Deze offerte is geldig tot ${fmtNum(f.verval).replace(/ /g,"")}. Gaat u akkoord? Laat het ons weten, dan plannen wij u in.`
     :d.voldaan?`${d.voldaan}. Hartelijk dank voor uw betaling.`
     :f.incasso?`Het bedrag van ${eur(d.t.inc)} wordt binnen 14 dagen na de uitgevoerde beurt automatisch van uw rekening afgeschreven via uw machtiging (${s.naam||""}, factuurnummer ${f.nummer}). U hoeft niets te doen.`
     :`We verzoeken u vriendelijk het bovenstaande bedrag van ${eur(d.t.inc)} voor ${fmtNum(f.verval).replace(/ /g,"")} te voldoen op onze bankrekening: ${iban||"(IBAN)"} tnv: ${s.naam||""} onder vermelding van het factuurnummer: ${f.nummer}.${s.betaallink?" Direct betalen kan via: "+s.betaallink:""}`;
-  const vwTxt=vw?`Op deze ${d.off?"offerte":"factuur"} zijn onze algemene voorwaarden van toepassing, te vinden op ${vw}.${d.off?"":" Bij niet-tijdige betaling zijn wij gerechtigd de vordering uit handen te geven en wettelijke rente en incassokosten in rekening te brengen."}`:"";
+  const vwTxt=vw?`Op deze ${d.off?"offerte":"factuur"} zijn onze algemene voorwaarden van toepassing, te vinden op ${vw}.${d.off||d.credit?"":" Bij niet-tijdige betaling zijn wij gerechtigd de vordering uit handen te geven en wettelijke rente en incassokosten in rekening te brengen."}`:"";
   return{...d,info,regels,betaal,vwTxt,naamKlant:d.klantNaam};
 }
 function invModel(f,klant){
@@ -46,20 +49,20 @@ function invModel(f,klant){
   const hex=x=>/^#[0-9a-f]{6}$/i.test(x||"")?x:null,lum=h=>{const n=parseInt(h.slice(1),16);return(0.299*(n>>16&255)+0.587*(n>>8&255)+0.114*(n&255))/255};
   let A=hex(s.hoofdkleur)||"#11181c";if(lum(A)>.75)A="#11181c";
   const kn=(d.info.find(x=>x[0]==="Klantnummer")||[,[""]])[1][0];
-  const meta=[[d.off?"Offertenummer":"Factuurnummer",f.nummer],[d.off?"Offertedatum":"Factuurdatum",fmtL(f.datum)],[d.off?"Geldig tot":"Vervaldatum",fmtL(f.verval)],["Klantnummer",kn]];
+  const meta=[[d.off?"Offertenummer":d.credit?"Creditfactuurnr.":"Factuurnummer",f.nummer],[d.off?"Offertedatum":"Factuurdatum",fmtL(f.datum)],[d.off?"Geldig tot":"Vervaldatum",fmtL(f.verval)],["Klantnummer",kn]];
   const coLines=[s.adres,[s.postcode,s.plaats].filter(Boolean).join(" "),s.telefoon,s.email].filter(Boolean);
-  const pay=d.off?null:d.voldaan?null:f.incasso?[["Betaling","Automatische incasso"],["Afschrijving",fmtL(f.verval)],["Factuurnr.",f.nummer]]:[["IBAN",String(s.iban||"—")],["T.n.v.",s.naam||"—"],["Factuurnr.",f.nummer],["Uiterlijk",fmtL(f.verval)]];
+  const pay=d.off||d.credit?null:d.voldaan?null:f.incasso?[["Betaling","Automatische incasso"],["Afschrijving",fmtL(f.verval)],["Factuurnr.",f.nummer]]:[["IBAN",String(s.iban||"—")],["T.n.v.",s.naam||"—"],["Factuurnr.",f.nummer],["Uiterlijk",fmtL(f.verval)]];
   /* moederbedrijf Mansard: als logo in plaats van tekst, alleen bij mijnschoonmaker (niet bij andere CRM-gebruikers of in de demo) */
   const isMs=typeof LIVE!=="undefined"&&LIVE&&(!window.ZEEM_BID||window.ZEEM_BID==="mijnschoonmaker"),isMansard=/mansard/i.test(String(s.onderdeelVan||""));
   const footLogo=!!(isMs&&s.naam&&isMansard);
   /* andere CRM-gebruikers zijn geen onderdeel van Mansard: dan niets vermelden */
   const ov=s.onderdeelVan&&!(isMansard&&!isMs)?s.onderdeelVan:"";
   const foot=[s.naam&&ov?s.naam+" is een onderdeel van "+(footLogo?"":ov):s.naam,s.kvk&&"KvK "+s.kvk,s.btwnr&&"BTW-id "+s.btwnr,s.website].filter(Boolean);
-  const zin=d.off?`Deze offerte is geldig tot ${fmtL(f.verval)}.`:d.voldaan?`${d.voldaan}. Hartelijk dank voor uw betaling.`:f.incasso?`Wordt binnen 14 dagen na de uitgevoerde beurt automatisch van uw rekening afgeschreven. U hoeft niets te doen.`:`Graag vóór ${fmtL(f.verval)} overmaken onder vermelding van het factuurnummer.${s.betaallink?" Direct betalen kan via "+s.betaallink+".":""}`;
+  const zin=d.credit?`Dit bedrag wordt verrekend met ${d.creditNr?"factuur "+d.creditNr:"uw eerdere factuur"}. U hoeft niets te betalen.`:d.off?`Deze offerte is geldig tot ${fmtL(f.verval)}.`:d.voldaan?`${d.voldaan}. Hartelijk dank voor uw betaling.`:f.incasso?`Wordt binnen 14 dagen na de uitgevoerde beurt automatisch van uw rekening afgeschreven. U hoeft niets te doen.`:`Graag vóór ${fmtL(f.verval)} overmaken onder vermelding van het factuurnummer.${s.betaallink?" Direct betalen kan via "+s.betaallink+".":""}`;
   const pill=!d.off&&(d.st[1]==="g"||d.st[1]==="r");
-  const coInfo=d.info.filter(([l])=>l!=="Offertenummer"&&l!=="Factuurnummer").map(([l,v])=>[l,v.filter(Boolean)]);
-  const vervalRij=d.off?null:["Vervaldatum",[fmtNum(f.verval).replace(/ /g,"")]];if(vervalRij)coInfo.push(vervalRij);const di=coInfo.findIndex(([l])=>/datum|Geldig/i.test(l));if(di>0&&coInfo[di-1][0])coInfo.splice(di,0,["",[]]);
-  return{...d,pill,A,meta,coLines,pay,foot,footLogo,zin,coInfo,betreft:(d.off?"Offerte ":"Factuur ")+f.nummer,titel:d.off?"Offerte":"Factuur",stLabel:{b:"Openstaand",g:d.off?"Geaccepteerd":"Betaald",r:d.off?"Afgewezen":"Vervallen",n:d.st[0]==="VERSTUURD"?"Verstuurd":"Concept"}[d.st[1]]||d.st[0]};
+  const coInfo=d.info.filter(([l])=>l!=="Offertenummer"&&l!=="Factuurnummer"&&l!=="Creditfactuurnr.").map(([l,v])=>[l,v.filter(Boolean)]);
+  const vervalRij=d.off||d.credit?null:["Vervaldatum",[fmtNum(f.verval).replace(/ /g,"")]];if(vervalRij)coInfo.push(vervalRij);const di=coInfo.findIndex(([l])=>/datum|Geldig/i.test(l));if(di>0&&coInfo[di-1][0])coInfo.splice(di,0,["",[]]);
+  return{...d,pill,A,meta,coLines,pay,foot,footLogo,zin,coInfo,betreft:(d.off?"Offerte ":d.credit?"Creditfactuur ":"Factuur ")+f.nummer,titel:d.off?"Offerte":d.credit?"Creditfactuur":"Factuur",stLabel:{b:"Openstaand",g:d.off?"Geaccepteerd":"Betaald",r:d.off?"Afgewezen":"Vervallen",n:d.st[0]==="VERSTUURD"?"Verstuurd":"Concept"}[d.st[1]]||d.st[0]};
 }
 const offTxt=(t,f)=>{const k=typeof invKlant==="function"?invKlant(f):null,vn=(k&&kVoornaam(k))||kVoornaam({naam:f.klantNaam,email:f.klantEmail})||String(cleanName(f.klantNaam||"")).split(",").slice(-1)[0].trim();let v={};try{v=k&&k.id&&typeof klantVars==="function"?klantVars(k):{}}catch(e){}return fill(t,{...v,klant:cleanName(f.klantNaam||""),naam:cleanName(f.klantNaam||""),voornaam:vn,bedrijf:S().naam||"",factuurnummer:f.nummer||"",vervaldatum:f.verval?fmtL(f.verval):""}).trim()};
 /* factuurvoorbeeld passend maken: hele A4 in de breedte van het scherm (verkleind), nooit half afgesneden */
@@ -80,12 +83,13 @@ function paperHtml(f,klant){
     <div class="i5-co"><table><tr class="i5-nm"><th></th><td><b>${esc(s.naam||"Je bedrijfsnaam")}</b></td></tr>${m.coInfo.map(([l,v])=>l?`<tr><th>${esc(l)}</th><td>${v.map(esc).join("<br>")}</td></tr>`:`<tr class="gap"><td colspan="2"></td></tr>`).join("")}</table></div></div>
   ${f.soort==="offerte"&&offTxt(f.tekst,f)?`<div class="i5-txt">${esc(offTxt(f.tekst,f)).replace(/\n/g,"<br>")}</div>`:""}
   ${f.soort==="offerte"&&f.letop&&offTxt(f.letopTekst,f)?`<div class="i5-letop"><b>Let op:</b><span>${esc(offTxt(f.letopTekst,f)).replace(/\n/g,"<br>")}</span></div>`:""}
+  ${m.credit?`<div class="i5-credit"><b>Creditfactuur</b><span>${m.creditNr?`Creditering van factuur <b>${esc(m.creditNr)}</b>${m.creditDatum?" van "+esc(m.creditDatum):""}`:"Creditering van een eerdere factuur"}</span></div>`:""}
   ${m.off?`<table class="i5-t i5-og"><thead><tr><th>Omschrijving</th><th class="c">Aantal</th><th class="r">Prijs excl.</th><th class="r">Btw</th><th class="r">Prijs incl.</th></tr></thead><tbody>
     ${m.regels.map(r=>`<tr class="i5g-h${r.subs&&r.subs.length?" has":""}"><td><b>${esc(r.oms)}</b></td><td class="c">${r.subs&&r.subs.length?"":r.aantal}</td><td class="r"><b>€ ${num(r.ex)}</b></td><td class="r">${r.btw}%</td><td class="r"><b>€ ${num(r.ex*(1+r.btw/100))}</b></td></tr>${(r.subs||[]).map((x,i,a)=>`<tr class="i5g-s${i===a.length-1?" last":""}"><td>${esc(x.naam)}${x.fq?`<small>${esc(x.fq)}</small>`:""}${x.tekst?`<small class="i5-st">${esc(x.tekst)}</small>`:""}</td><td class="c">${esc(x.qty||"")}</td><td></td><td></td><td></td></tr>`).join("")}`).join("")}</tbody></table>`
   :`<table class="i5-t i5-fr"><thead><tr><th class="c">Aantal</th><th>Omschrijving</th><th class="r">Prijs excl.</th><th class="r">Btw</th><th class="r">Prijs incl.</th></tr></thead><tbody>
     ${m.regels.map(r=>`<tr><td class="c">${r.aantal}x</td><td>${esc(r.oms)}</td><td class="r">€ ${num(r.ex)}</td><td class="r">${r.btw}%</td><td class="r"><b>€ ${num(r.inc)}</b></td></tr>`).join("")}</tbody></table>`}
-  <div class="i5-sum"><div class="i5-pay">${m.pay?`<span class="i5-l">Betaalgegevens</span><table>${m.pay.filter(x=>x[0]!=="Uiterlijk").map(([a,b])=>`<tr><th>${esc(a)}</th><td>${esc(b)}</td></tr>`).join("")}</table>`:`<span class="i5-l">${m.off?"Geldigheid":"Betaling"}</span>`}${m.off?`<b class="i5-pnr">Offerte ${esc(f.nummer)}</b>`:""}<p>${esc(m.zin)}</p></div>
-    ${m.off&&f.totaalTonen===false?"<div></div>":`<div class="i5-tot"><div><span>${m.off?"Subtotaal":"Subtotaal excl. btw"}</span><span>€ ${num(m.t.ex)}</span></div>${m.t.tarieven.map(x=>`<div><span>BTW ${x.pct}%</span><span>€ ${num(x.btw)}</span></div>`).join("")}<div class="g"><span><b>${m.off?"Totaal per beurt":m.voldaan||m.st[1]==="g"?"Betaald":"Te betalen"}</b><small>${m.off?(m.t.tarieven.length>1?"incl. btw":"incl. "+m.t.tarieven[0].pct+"% btw"):m.voldaan||m.st[1]==="g"?"Incl. btw · hartelijk dank":"Incl. btw · vóór "+esc(fmtL(f.verval))}</small></span><span class="i5-amt">€ ${num(m.t.inc)}</span></div></div>`}</div>
+  <div class="i5-sum"><div class="i5-pay">${m.pay?`<span class="i5-l">Betaalgegevens</span><table>${m.pay.filter(x=>x[0]!=="Uiterlijk").map(([a,b])=>`<tr><th>${esc(a)}</th><td>${esc(b)}</td></tr>`).join("")}</table>`:`<span class="i5-l">${m.off?"Geldigheid":m.credit?"Creditering":"Betaling"}</span>`}${m.off?`<b class="i5-pnr">Offerte ${esc(f.nummer)}</b>`:""}<p>${esc(m.zin)}</p></div>
+    ${m.off&&f.totaalTonen===false?"<div></div>":`<div class="i5-tot"><div><span>${m.off?"Subtotaal":"Subtotaal excl. btw"}</span><span>€ ${num(m.t.ex)}</span></div>${m.t.tarieven.map(x=>`<div><span>BTW ${x.pct}%</span><span>€ ${num(x.btw)}</span></div>`).join("")}<div class="g"><span><b>${m.off?"Totaal per beurt":m.credit?"Totaal credit":m.voldaan||m.st[1]==="g"?"Betaald":"Te betalen"}</b><small>${m.credit?"Incl. btw · wordt verrekend":m.off?(m.t.tarieven.length>1?"incl. btw":"incl. "+m.t.tarieven[0].pct+"% btw"):m.voldaan||m.st[1]==="g"?"Incl. btw · hartelijk dank":"Incl. btw · vóór "+esc(fmtL(f.verval))}</small></span><span class="i5-amt">€ ${num(m.t.inc)}</span></div></div>`}</div>
   ${typeof offUlocTxt==="function"&&offUlocTxt(f)?`<div class="i5-note"><span class="i5-l">Uitvoerlocatie</span>${esc(offUlocTxt(f))}</div>`:""}${f.notitie?`<div class="i5-note"><span class="i5-l">Opmerking</span>${esc(f.notitie)}</div>`:""}
   ${f.soort==="offerte"&&offTxt(f.voettekst,f)?`<div class="i5-txt">${esc(offTxt(f.voettekst,f)).replace(/\n/g,"<br>")}</div>`:""}
     ${m.vwTxt?`<p class="i5-vw">${esc(m.vwTxt)}</p>`:""}
@@ -114,6 +118,9 @@ async function pdfDoc(f,klant){
   doc.setDrawColor(...C.line);doc.setLineWidth(.25);doc.line(L,y-3,R,y-3);y+=6;
   if(f.soort==="offerte"&&offTxt(f.tekst,f)){N();doc.setFontSize(8.8);col(C.ink);const tl=doc.splitTextToSize(offTxt(f.tekst,f),W);doc.text(tl,L,y,{lineHeightFactor:1.45});y+=tl.length*4.6+8}
   if(f.soort==="offerte"&&f.letop&&offTxt(f.letopTekst,f)){B();doc.setFontSize(8.8);col(C.ink);doc.text("Let op:",L,y);N();const ll=doc.splitTextToSize(offTxt(f.letopTekst,f),W);doc.text(ll,L,y+4.8,{lineHeightFactor:1.45});y+=4.8+ll.length*4.6+6}
+  if(m.credit){const t2=m.creditNr?"Creditering van factuur "+m.creditNr+(m.creditDatum?" van "+m.creditDatum:""):"Creditering van een eerdere factuur";
+    doc.setFillColor(...A.map(v=>Math.round(v*.08+255*.92)));doc.roundedRect(L,y-5,W,11,1.5,1.5,"F");
+    B();doc.setFontSize(10.5);col(A);doc.text("CREDITFACTUUR",L+4,y+2.2,{charSpace:.6});N();doc.setFontSize(8.4);col(C.ink);doc.text(t2,R-4,y+2.2,{align:"right"});y+=14}
   // tabel
   const X={a:L+4,o:L+20,d:104,p:140,b:154,t:R-4};
   const head=()=>{doc.setFillColor(...C.soft);doc.roundedRect(L,y-5,W,9,1.5,1.5,"F");[["Aantal",X.a,"left"],["Omschrijving",X.o,"left"],["Prijs excl.",X.p,"right"],["Btw",X.b,"right"],["Prijs incl.",X.t,"right"]].forEach(([t,x,al])=>lab(t,x,y+.6,al));y+=11};
@@ -146,13 +153,13 @@ async function pdfDoc(f,klant){
   [[m.off?"Subtotaal":"Subtotaal excl. btw",m.t.ex],...m.t.tarieven.map(x=>["BTW "+x.pct+"%",x.btw])].forEach(([a,b])=>{N();col(C.mut);doc.text(a,TX,y+4);col(C.ink);doc.text(E(b),R,y+4,{align:"right"});y+=6});
   y+=1;const paid=m.voldaan||m.st[1]==="g",tint=A.map(v=>Math.round(v*.08+255*.92)),edge=A.map(v=>Math.round(v*.3+255*.7));
   doc.setFillColor(...C.soft);doc.roundedRect(TX-4,y,R-TX+4,13.5,2,2,"F");
-  B();doc.setFontSize(8.8);col(C.ink);doc.text(m.off?"Totaal per beurt":paid?"Betaald":"Te betalen",TX,y+6);
-  N();doc.setFontSize(6.8);col(C.mut);doc.text(m.off?(m.t.tarieven.length>1?"incl. btw":"incl. "+m.t.tarieven[0].pct+"% btw"):paid?"Incl. btw · hartelijk dank":"Incl. btw · vóór "+fmtL(f.verval),TX,y+9.8);
+  B();doc.setFontSize(8.8);col(C.ink);doc.text(m.off?"Totaal per beurt":m.credit?"Totaal credit":paid?"Betaald":"Te betalen",TX,y+6);
+  N();doc.setFontSize(6.8);col(C.mut);doc.text(m.credit?"Incl. btw · wordt verrekend":m.off?(m.t.tarieven.length>1?"incl. btw":"incl. "+m.t.tarieven[0].pct+"% btw"):paid?"Incl. btw · hartelijk dank":"Incl. btw · vóór "+fmtL(f.verval),TX,y+9.8);
   B();doc.setFontSize(11);col(A);doc.text(E(m.t.inc),R-4,y+8.3,{align:"right"});col(C.ink);tyEnd=y+13.5;}
   // betaalgegevens
   y=ty0;const PW=TX-L-12,pr=m.pay?m.pay.filter(x=>x[0]!=="Uiterlijk"):[],zl=(N(),doc.setFontSize(7.6),doc.splitTextToSize(m.zin,PW-10)),bh=10+pr.length*4.6+zl.length*3.8+3+(m.off?5.4:0);
   doc.setFillColor(...C.soft);doc.roundedRect(L,y,PW,bh,2,2,"F");
-  lab(m.pay?"Betaalgegevens":m.off?"Geldigheid":"Betaling",L+5,y+6);let by=y+11.5;if(m.off){B();doc.setFontSize(8.6);col([58,68,74]);doc.text("Offerte "+f.nummer,L+5,by);col(C.ink);by+=5}
+  lab(m.pay?"Betaalgegevens":m.off?"Geldigheid":m.credit?"Creditering":"Betaling",L+5,y+6);let by=y+11.5;if(m.off){B();doc.setFontSize(8.6);col([58,68,74]);doc.text("Offerte "+f.nummer,L+5,by);col(C.ink);by+=5}
   pr.forEach(([a,b])=>{N();doc.setFontSize(8);col(C.mut);doc.text(a,L+5,by);B();col(C.ink);doc.text(String(b),L+22,by);by+=4.6});
   N();doc.setFontSize(7.6);col(C.mut);doc.text(zl,L+5,by+1,{lineHeightFactor:1.45});col(C.ink);
   y=Math.max(y+bh,tyEnd)+9;
