@@ -2136,7 +2136,7 @@ function bezoekBlad(id){const x=(D.bezoeken||[]).find(y=>y.id===id);if(!x)return
   const r=(a,b)=>`<div class="hk-r"><span>${a}</span><b>${b}</b></div>`,m=x.duur?(x.duur>=60?Math.floor(x.duur/60)+" u "+String(Math.round(x.duur%60)).padStart(2,"0")+" min":Math.round(x.duur)+" min"):"";
   blad(`<div class="hk"><small class="hk-k">Bezoek</small><h3>${esc(hoofd(dagNaam(d)))} ${d.getDate()} ${esc(MND[d.getMonth()])} ${d.getFullYear()}</h3>
     <div class="hk-g"><small>Wat we gedaan hebben</small>${r(esc(x.dienst||PHD()),x.bedrag?eur(x.bedrag):"")}${(x.extra||[]).map(e=>r(esc(e),"")).join("")}</div>
-    <div class="hk-g"><small>Bezoek</small>${x.tijd?r("Tijd",esc(x.tijd)):""}${x.door?r("Door",esc(x.door)):""}${m?r("Bij u",esc(m)):""}${x.beoordeling?r("Uw beoordeling",`<span class="mini-st">${I.ster.repeat(x.beoordeling.sterren)}</span>`):""}</div>
+    <div class="hk-g"><small>Bezoek</small>${x.tijd?r("Tijd",esc(x.tijd)):""}${x.door?r("Door",esc(x.door)):""}${x.beoordeling?r("Uw beoordeling",`<span class="mini-st">${I.ster.repeat(x.beoordeling.sterren)}</span>`):""}</div>
     ${f?`<div class="hk-g"><small>Factuur</small>${r("Nummer",esc(f.nummer||""))}${r("Status",f.status==="betaald"?"Betaald":"Open")}<button class="primary hk-f" data-fact="${esc(f.id)}">${I.fact}Factuur bekijken</button></div>`:""}
     <button class="ghost hk-s" data-sluit>Sluiten</button></div>`,(o,sluit)=>{const b=o.querySelector("[data-fact]");if(b)b.onclick=()=>{sluit();setTimeout(()=>openFactuur(b.dataset.fact),150)}});}
 function bezoeken(){const v=D.volgende,b=D.bezoeken||[],k=D.klant,fq=Number(k.frequentie)||8,nu=vandaag(),hero=bzHero();
