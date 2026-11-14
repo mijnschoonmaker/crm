@@ -2360,3 +2360,17 @@ html body:not(#zz):not(#zy) .kkg .ow-kv{padding:6px 0!important;border:0!importa
 html body:not(#zz):not(#zy) .kk-pay .kk-paykv{margin-top:16px}
 .owv-r[hidden],.owv-conf[hidden],.owv-conv[hidden]{display:none!important}
 .owv-r>b small{display:block;font-weight:400;font-size:12px;color:#8a8f98}
+/* kern-rij: Wat we doen */
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) dialog .ow-kern .kk-kern .kk-wwd .wwd-l{display:flex;flex-direction:column;gap:2px;margin-top:2px}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) dialog .ow-kern .kk-kern .kk-wwd .wwd-l>div{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;line-height:1.35}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) dialog .ow-kern .kk-kern .kk-wwd .wwd-l b{font-weight:600;color:#14171c;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) dialog .ow-kern .kk-kern .kk-wwd .wwd-l em{font-style:normal;color:#14171c;white-space:nowrap}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) dialog .ow-kern .kk-kern .kk-wwd .wwd-l em i{color:#8a8f98;font-size:11.5px}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) dialog .ow-kern .kk-kern .kk-wwd .wwd-l small{font-size:12px;color:#8a8f98}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) dialog .ow-kern .kk-kern .kkh-t.kk-wwd{grid-template-columns:minmax(0,1fr)!important;grid-template-areas:"lb" "wd"!important;align-content:start}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) dialog .ow-kern .kk-kern .kk-wwd .wwd-l{grid-area:wd;min-width:0;margin-top:4px}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) dialog .ow-kern .kk-kern .kk-wwd .wwd-l *{grid-area:auto!important;margin:0!important;letter-spacing:0!important;text-transform:none!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) dialog .ow-kern .kk-kern .kk-wwd .wwd-l b{font-size:13px!important;font-weight:600!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) dialog .ow-kern .kk-kern .kk-wwd .wwd-l em{font-size:13px!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) dialog .ow-kern .kk-kern .kk-wwd .wwd-l em i{font-size:11.5px!important;color:#8a8f98!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) dialog .ow-kern .kk-kern .kk-wwd .wwd-l small{font-size:12px!important}
