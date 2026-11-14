@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="d573ed5202e0"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="33fb5887c55e"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -15523,7 +15523,7 @@ function invRows(f,klant){
     :d.voldaan?`${d.voldaan}. Hartelijk dank voor uw betaling.`
     :f.incasso?`Het bedrag van ${eur(d.t.inc)} wordt binnen 14 dagen na de uitgevoerde beurt automatisch van uw rekening afgeschreven via uw machtiging (${s.naam||""}, factuurnummer ${f.nummer}). U hoeft niets te doen.`
     :`We verzoeken u vriendelijk het bovenstaande bedrag van ${eur(d.t.inc)} voor ${fmtNum(f.verval).replace(/ /g,"")} te voldoen op onze bankrekening: ${iban||"(IBAN)"} tnv: ${s.naam||""} onder vermelding van het factuurnummer: ${f.nummer}.${s.betaallink?" Direct betalen kan via: "+s.betaallink:""}`;
-  const vwTxt=vw?`Op deze ${d.off?"offerte":"factuur"} zijn onze algemene voorwaarden van toepassing, te vinden op ${vw}.${d.off||d.credit?"":" Bij niet-tijdige betaling zijn wij gerechtigd de vordering uit handen te geven en wettelijke rente en incassokosten in rekening te brengen."}`:"";
+  const vwTxt=vw?`Op deze ${d.off?"offerte":"factuur"} zijn onze algemene voorwaarden van toepassing, te vinden op ${vw}.`:"";
   return{...d,info,regels,betaal,vwTxt,naamKlant:d.klantNaam};
 }
 function invModel(f,klant){

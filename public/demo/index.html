@@ -15112,7 +15112,7 @@ function invRows(f,klant){
     :d.voldaan?`${d.voldaan}. Hartelijk dank voor uw betaling.`
     :f.incasso?`Het bedrag van ${eur(d.t.inc)} wordt binnen 14 dagen na de uitgevoerde beurt automatisch van uw rekening afgeschreven via uw machtiging (${s.naam||""}, factuurnummer ${f.nummer}). U hoeft niets te doen.`
     :`We verzoeken u vriendelijk het bovenstaande bedrag van ${eur(d.t.inc)} voor ${fmtNum(f.verval).replace(/ /g,"")} te voldoen op onze bankrekening: ${iban||"(IBAN)"} tnv: ${s.naam||""} onder vermelding van het factuurnummer: ${f.nummer}.${s.betaallink?" Direct betalen kan via: "+s.betaallink:""}`;
-  const vwTxt=vw?`Op deze ${d.off?"offerte":"factuur"} zijn onze algemene voorwaarden van toepassing, te vinden op ${vw}.${d.off||d.credit?"":" Bij niet-tijdige betaling zijn wij gerechtigd de vordering uit handen te geven en wettelijke rente en incassokosten in rekening te brengen."}`:"";
+  const vwTxt=vw?`Op deze ${d.off?"offerte":"factuur"} zijn onze algemene voorwaarden van toepassing, te vinden op ${vw}.`:"";
   return{...d,info,regels,betaal,vwTxt,naamKlant:d.klantNaam};
 }
 function invModel(f,klant){
