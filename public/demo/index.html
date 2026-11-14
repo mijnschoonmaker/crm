@@ -8991,6 +8991,8 @@ function opdrBij(k,o){const L=(k&&k.opdrachten)||[];if(!o||o.apart)return"";
   const loc=opdrLoc(k,o);if(loc===hoofdLoc(k))return"";
   /* hoofdopdracht van die locatie: de apart ingeplande, anders de glasbewassing, anders de eerste */
   const c=L.filter(p=>p.actief!==false&&opdrLoc(k,p)===loc&&!p.bij),r=c.find(p=>p.apart)||c.find(p=>p.ramen||/glas/i.test(p.dienst||""))||c[0];return r&&r.id!==o.id?r.id:""}
+/* frequentie die je ziet: staan alle gekozen onderdelen op dezelfde frequentie (bijv. op afroep), dan is dat de frequentie van de opdracht */
+const opdrFq=o=>{const fs=((o&&o.items)||[]).filter(x=>Number(x.aantal)>0).map(x=>Number(x.fq)||0);return fs.length&&fs.every(v=>v&&v===fs[0])?fs[0]:Number(o&&o.frequentie)||0};
 const extraOpdr=k=>{
   if(k&&k.hoofdKlantId){const h=state.klanten.find(x=>x.id===k.hoofdKlantId);return h?(h.opdrachten||[]).filter(o=>o.actief!==false&&opdrBij(h,o)===k.opdrachtId):[]}
   if(k&&k.soort==="vve")return [];/* VvE: glasbewassing, trappenhal enz. worden elk los aangeboden en ingepland */
@@ -15658,7 +15660,7 @@ function openOpdrachtWerk(kid,focus){
   const sR=soloI>=0?extra[soloI]:null;
   const kTit=sR?(sR.dienst||"Nieuwe opdracht"):(k.dienst||HD());
   const kPrijs=sR?(sR.prijs!==""&&sR.prijs!=null?eur(toonR(k,sR)):"—"):eur(toonK(k,k.prijs));
-  const kFreq=sR?freqLabel(Number(sR.frequentie)||52):ritmeTxt(k);
+  const kFreq=sR?freqLabel(opdrFq(sR)||52):ritmeTxt(k);
   const kDuur=sR?(Number(sR.duur)||30):duur(k);
   const kd=d=>{const x=parse(d);return wd(x).slice(0,2)+" "+x.getDate()+" "+x.toLocaleDateString("nl-NL",{month:"short"}).replace(".","")};const kVolg=sR?(sR.volgende?kd(sR.volgende):"Te plannen"):(k.gepland?kd(k.gepland):"Te plannen");
   const kVolgS=sR?(sR.volgende?"ingepland":"nog geen datum"):(k.gepland?((k.tijd?k.tijd+" · ":"")+"ingepland"):"nog geen datum");
@@ -16719,7 +16721,7 @@ function openKlantView(id,opt={}){
   const openF=facs.filter(f=>["Openstaand","Achterstallig"].includes(fStatus(f)[1]));
   const showArch=!!state.kkArch;
   const opdr=[...(k.opdrachtVerwijderd?[]:[{id:"main",nr:(()=>{const h=k.hoofdKlantId&&k.opdrachtNr&&state.klanten.find(x=>x.id===k.hoofdKlantId);return h?klantNr(h)+"-"+k.opdrachtNr:nr+"-1"})(),dienst:(k.dienst||HD()),prijs:r2((Number(k.prijs)||0)*(1+(Number(k.toeslag)||0)/100)),adr:jobAddr(k),locn:hoofdLoc(k)==="hoofd"?"":locNaam(k,hoofdLoc(k)),frequentie:k.frequentie||4,info:k.prospect?["soon","Wacht op akkoord"]:k.actief===false?["neutral","Gestopt"]:k.gepland?["ok","Ingepland "+fmtD(k.gepland)]:["late","Te plannen"],per:isPeriodiek(k)}]),
-    ...(k.opdrachten||[]).filter(o=>(o.actief!==false||(k.soort==="vve"&&String(o.dienst||"").trim()))&&!opdrBij(k,o)).map(o=>{const kids=(k.opdrachten||[]).filter(x=>x.actief!==false&&x.id!==o.id&&opdrBij(k,x)===o.id);const j=opdrApart(k,o)&&opdrJob(k,o.id),ul=opdrLoc(k,o);return{id:o.id,adr:locAdr(k,ul),locn:ul==="hoofd"?"":locNaam(k,ul),nr:nr+"-"+(o.nr||opdrNr(k,o.id)),dienst:[o.dienst,...kids.map(x=>x.dienst)].join(" + "),prijs:r2((Number(o.prijs)||0)+kids.reduce((a,x)=>a+(Number(x.prijs)||0),0)),frequentie:o.frequentie,
+    ...(k.opdrachten||[]).filter(o=>(o.actief!==false||(k.soort==="vve"&&String(o.dienst||"").trim()))&&!opdrBij(k,o)).map(o=>{const kids=(k.opdrachten||[]).filter(x=>x.actief!==false&&x.id!==o.id&&opdrBij(k,x)===o.id);const j=opdrApart(k,o)&&opdrJob(k,o.id),ul=opdrLoc(k,o);return{id:o.id,adr:locAdr(k,ul),locn:ul==="hoofd"?"":locNaam(k,ul),nr:nr+"-"+(o.nr||opdrNr(k,o.id)),dienst:[o.dienst,...kids.map(x=>x.dienst)].join(" + "),prijs:r2((Number(o.prijs)||0)+kids.reduce((a,x)=>a+(Number(x.prijs)||0),0)),frequentie:opdrFq(o)||o.frequentie,
       info:o.actief===false?["neutral","Niet actief · open om aan te zetten"]:opdrApart(k,o)?(j&&j.gepland?["ok","Apart ingepland "+fmtD(j.gepland)]:["late","Apart · te plannen"]):ul!==hoofdLoc(k)?["late","Eigen adres · open en sla op om in te plannen"]:["neutral",o.volgende?"Volgende "+fmtD(o.volgende):"Bij volgende beurt"]}})];
   const cNaam=c=>c?[c.voornaam,c.achternaam].filter(Boolean).join(" ")||c.naam||"":"";
   /* contactpersoon per locatie; bij het hoofdadres valt hij terug op de oude contactpersonen of de contactpersoon van de klant */
@@ -17026,7 +17028,7 @@ function kkOverzicht(k,c){
   const dt=d=>{const x=dag(d);return `<span class="kko-td"><b>${x.n}</b><small>${esc(x.m)}</small></span>`};
   const meer=(tab,t)=>`<button type="button" class="kko-meer" data-kktab="${tab}">${t}</button>`;
   const opRows=c.opdr.map((o,i)=>{const vd=i===0&&!k.opdrachtVerwijderd?k.gepland:(k.opdrachten||[]).find(x=>x.id===o.id)?.volgende;
-    return rij(`data-act="opdracht" data-id="${esc(k.id)}" data-o="${esc(o.id)}"`,`<span class="kko-ic">${ic}</span>`,esc(o.dienst||""),esc(freqLabel(Number(o.frequentie)||52))+(vd?" · volgende "+esc(fmtD(vd)):o.info?" · "+esc(o.info[1]):""),eur(toonR(k,o)))}).join("");
+    return rij(`data-act="opdracht" data-id="${esc(k.id)}" data-o="${esc(o.id)}"`,`<span class="kko-ic">${ic}</span>`,esc(o.dienst||""),esc(freqLabel(opdrFq(o)||52))+(vd?" · volgende "+esc(fmtD(vd)):o.info?" · "+esc(o.info[1]):""),eur(toonR(k,o)))}).join("");
   const pil=(k_,t)=>`<span class="pill ${k_}">${t}</span>`;
   const bzRows=[k.gepland?rij(`data-act="opdracht" data-id="${esc(k.id)}" data-o="main"`,dt(k.gepland),esc(k.dienst||HD()),esc(wd(parse(k.gepland)))+(k.tijd?" · "+esc(k.tijd):""),pil(parse(k.gepland)<today()?"late":"plan",parse(k.gepland)<today()?"Niet gedaan":"Gepland")):"",
     ...c.hist.slice(0,3).map(b=>rij(`data-act="beurtinfo" data-id="${esc(b.id)}"`,dt(b.datum),esc(b.dienst||HD()),[b.tijd,b.door||b.medewerker].filter(Boolean).map(esc).join(" · ")||"Gedaan",Number(b.bedrag)?eur(b.bedrag):""))].join("");

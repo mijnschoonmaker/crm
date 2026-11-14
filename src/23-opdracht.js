@@ -42,7 +42,7 @@ function openOpdrachtWerk(kid,focus){
   const sR=soloI>=0?extra[soloI]:null;
   const kTit=sR?(sR.dienst||"Nieuwe opdracht"):(k.dienst||HD());
   const kPrijs=sR?(sR.prijs!==""&&sR.prijs!=null?eur(toonR(k,sR)):"—"):eur(toonK(k,k.prijs));
-  const kFreq=sR?freqLabel(Number(sR.frequentie)||52):ritmeTxt(k);
+  const kFreq=sR?freqLabel(opdrFq(sR)||52):ritmeTxt(k);
   const kDuur=sR?(Number(sR.duur)||30):duur(k);
   const kd=d=>{const x=parse(d);return wd(x).slice(0,2)+" "+x.getDate()+" "+x.toLocaleDateString("nl-NL",{month:"short"}).replace(".","")};const kVolg=sR?(sR.volgende?kd(sR.volgende):"Te plannen"):(k.gepland?kd(k.gepland):"Te plannen");
   const kVolgS=sR?(sR.volgende?"ingepland":"nog geen datum"):(k.gepland?((k.tijd?k.tijd+" · ":"")+"ingepland"):"nog geen datum");

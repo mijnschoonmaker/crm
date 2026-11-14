@@ -133,6 +133,8 @@ function opdrBij(k,o){const L=(k&&k.opdrachten)||[];if(!o||o.apart)return"";
   const loc=opdrLoc(k,o);if(loc===hoofdLoc(k))return"";
   /* hoofdopdracht van die locatie: de apart ingeplande, anders de glasbewassing, anders de eerste */
   const c=L.filter(p=>p.actief!==false&&opdrLoc(k,p)===loc&&!p.bij),r=c.find(p=>p.apart)||c.find(p=>p.ramen||/glas/i.test(p.dienst||""))||c[0];return r&&r.id!==o.id?r.id:""}
+/* frequentie die je ziet: staan alle gekozen onderdelen op dezelfde frequentie (bijv. op afroep), dan is dat de frequentie van de opdracht */
+const opdrFq=o=>{const fs=((o&&o.items)||[]).filter(x=>Number(x.aantal)>0).map(x=>Number(x.fq)||0);return fs.length&&fs.every(v=>v&&v===fs[0])?fs[0]:Number(o&&o.frequentie)||0};
 const extraOpdr=k=>{
   if(k&&k.hoofdKlantId){const h=state.klanten.find(x=>x.id===k.hoofdKlantId);return h?(h.opdrachten||[]).filter(o=>o.actief!==false&&opdrBij(h,o)===k.opdrachtId):[]}
   if(k&&k.soort==="vve")return [];/* VvE: glasbewassing, trappenhal enz. worden elk los aangeboden en ingepland */
