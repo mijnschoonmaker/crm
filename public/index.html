@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="86989a3d8127"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="d5ee5a474d29"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -8182,6 +8182,7 @@ html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) dialog .ow-kern .kk-kern 
 html body:not(#zz):not(#zy):not(#zx) .owv-con .owv-dat input{background:#fff!important;border:1px solid #e6e8ec!important}
 html body:not(#zz):not(#zy):not(#zx) .owv-con .check-row{background:#fff!important;border:1px solid #e6e8ec!important;margin:10px 0 8px!important}
 .owv-top>div{background:#fff;border:1px solid #e6e8ec}
+.kk-pay .kk-paykv{margin-top:14px}
 
 </style>
 <div class="app">
@@ -16989,9 +16990,9 @@ function openKlantView(id,opt={}){
     <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klantgegevens</b><span class="sp"></span>${pen("edit","Klantgegevens aanpassen")}</div>
       <a class="kd-map" href="${esc(mapsQ(k))}" target="_blank" rel="noopener" aria-label="Open in kaarten"><span class="kd-pin">${I.pin}</span><span><b>${esc(k.adres||"")}</b><small>${esc([k.postcode,k.plaats].filter(Boolean).join(" "))}</small></span><em>${I.nav}Route</em></a>
       ${kv("Klantnummer",esc(nr))}${kv("Type klant",soortLbl(k))}${kv("Naam",esc(cleanName(k.naam)))}${k.contact?kv("Contactpersoon",esc(k.contact)):""}${k.geboortedatum?kv("Geboortedatum",esc(fmtL(k.geboortedatum))):""}
-      ${kv("E-mailadres",mail(k.email))}${kv("Telefoon",tel(k.telefoon))}${k.mobiel?kv("Mobiel",tel(k.mobiel)):""}${k.website?kv("Website",`<a href="${esc(/^https?:/.test(k.website)?k.website:"https://"+k.website)}" target="_blank" rel="noopener">${esc(k.website)}</a>`):""}${k.iban?kv("IBAN",esc(k.iban)+(k.rekeninghouder?`<br><small class="subt">${esc(k.rekeninghouder)}</small>`:"")):""}${k.termijn?kv("Betalingstermijn",esc(k.termijn)+" dagen"):""}${kv("Klant sinds",k.aangemaakt?esc(fmtL(k.aangemaakt)):"")}${kv("Betaalwijze",k.incasso?"Automatische incasso":"Per bank")}${k.ronde?kv("Ronde",esc(k.ronde)):""}
+      ${kv("E-mailadres",mail(k.email))}${kv("Telefoon",tel(k.telefoon))}${k.mobiel?kv("Mobiel",tel(k.mobiel)):""}${k.website?kv("Website",`<a href="${esc(/^https?:/.test(k.website)?k.website:"https://"+k.website)}" target="_blank" rel="noopener">${esc(k.website)}</a>`):""}${k.iban?kv("IBAN",esc(k.iban)+(k.rekeninghouder?`<br><small class="subt">${esc(k.rekeninghouder)}</small>`:"")):""}${kv("Klant sinds",k.aangemaakt?esc(fmtL(k.aangemaakt)):"")}${k.ronde?kv("Ronde",esc(k.ronde)):""}
       </section>
-    <section class="kp kk-pay"><div class="kp-h"><span class="objic">${I.euro}</span><b>Betaalgedrag</b><span class="sp"></span>${payBlok(bg,"pil")}</div>${payBlok(bg,true)}
+    <section class="kp kk-pay"><div class="kp-h"><span class="objic">${I.euro}</span><b>Betaalgedrag</b><span class="sp"></span>${payBlok(bg,"pil")}</div>${payBlok(bg,true)}<div class="kk-paykv">${kv("Betaalwijze",k.incasso?"Automatische incasso":"Per bank")}${k.termijn?kv("Betalingstermijn",esc(k.termijn)+" dagen"):""}</div>
       </section>
     ${kkPortaal(k)}
     <section class="kp"><div class="kp-h"><span class="objic">${I.pin}</span><b>Adresgegevens</b><span class="sp"></span>${pen("adres","Adresgegevens aanpassen")}</div>
