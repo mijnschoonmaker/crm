@@ -2789,4 +2789,20 @@ function lijnUit(){const pg=document.querySelector(".pg.met-paneel");if(!pg||pg.
   let r=h+2;rest.forEach(e=>{e.style.gridColumn="2";if(tv&&st>=0&&r===st+1)r++;e.style.gridRow=String(r++)});
   pg.classList.add("lijn")}
 new MutationObserver(()=>{try{lijnUit()}catch(e){}}).observe(document.documentElement,{childList:true,subtree:true});
-</script></body></html>
+</script><style id="kk-stijl">
+/* nov 2026: klantportaal in dezelfde stijl als klantkaart en opdrachtkaart (alleen vormgeving; inhoud en knoppen ongewijzigd) */
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv){background:#f5f5f3!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) section.kp:not(.ab-kp):not(.hm-cr){background:#fff!important;border:1px solid #eceef1!important;border-radius:20px!important;box-shadow:0 1px 2px rgb(20 23 28/.03),0 18px 40px -32px rgb(20 23 28/.22)!important;overflow:hidden}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) section.kp>.kp-h,html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) .bz-tl>.bz-tlh{background:none!important;background-image:none!important;border:0!important;box-shadow:none!important;color:#14171c!important;padding:20px 22px 12px!important;min-height:0!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) section.kp>.kp-h::before,html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) .kp>.kp-h::before,html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) section.kp>.kp-h::after,html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) .bz-tl>.bz-tlh::before,html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) .bz-tl>.bz-tlh::after{display:none!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) section.kp>.kp-h>.objic{display:none!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) section.kp>.kp-h b,html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) .bz-tl>.bz-tlh>b{font-size:12px!important;font-weight:600!important;letter-spacing:.24em!important;text-transform:uppercase!important;color:#14171c!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) section.kp>.kp-h small,html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) .bz-tl>.bz-tlh>small{color:#8a8f98!important;font-size:12.5px!important;font-weight:400!important;letter-spacing:0!important;text-transform:none!important;margin-top:3px}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) section.kp>.kp-h .sp~*{color:#14171c}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) section.kp .lijst{padding:0 14px 14px!important;gap:8px!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) section.kp .lijst>.lr{background:#f6f7f9!important;border:0!important;border-radius:14px!important;padding:12px 16px!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) section.kp .lijst>.lr:hover{background:#eff1f4!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) section.kp .lijst>.lr .ti{background:#fff!important;border:1px solid #e6e8ec!important;box-shadow:none!important;color:#14171c!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) .stat,html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) .bz-card,html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) button.melding,html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) div.melding{border-color:#eceef1!important}
+</style>
+</body></html>
