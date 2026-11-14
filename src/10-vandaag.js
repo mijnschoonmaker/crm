@@ -120,9 +120,8 @@ function openJob(id,day){
     ${done?(()=>{const f=b.gefactureerd&&!["nvt","periodiek"].includes(b.gefactureerd)?state.facturen.find(x=>x.id===b.gefactureerd):null,fs=f?fStatus(f):null,
         om=b.op?new Date(b.op).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"}):"",du=Number(b.duur)||0;
       return `<section class="jpk-s"><div class="jpk-h"><b>Bezoek</b><span class="sp"></span>${f?statusPill(fs[0],fs[1]):""}</div>
-        <div class="jpk-hero"><b>${eur(beurtVerdiend(b))}</b><em>${esc(fmtL(day))}</em></div>
-        <div class="jpk-kv">${om?`<div><span>Afgemeld</span><b>${esc(om)}</b></div>`:""}${du?`<div><span>Bij de klant</span><b>${du>=60?Math.floor(du/60)+"u"+String(Math.round(du%60)).padStart(2,"0"):Math.round(du)+" min"}${b.gemeten?"":" <small>geschat</small>"}</b></div>`:""}
-        <div><span>Factuur</span><b>${f?`<button type="button" class="linkbtn" data-act="factuur" data-id="${esc(f.id)}">${esc(f.nummer)}</button>`:b.gefactureerd==="nvt"?"Niet nodig":b.gefactureerd==="periodiek"?"Periodieke factuur":"Nog niet gefactureerd"}</b></div></div></section>`})()
+        <div class="jpk-pearl"><div><span>Bedrag</span><b>${eur(beurtVerdiend(b))}</b><small>${esc(fmtL(day))}</small></div><div><span>Afgemeld</span><b>${om?esc(om):"—"}</b><small>${esc(b.door||b.medewerker||"")}</small></div><div><span>Bij de klant</span><b>${du?(du>=60?Math.floor(du/60)+"u"+String(Math.round(du%60)).padStart(2,"0"):Math.round(du)+" min"):"—"}</b><small>${du?(b.gemeten?"gemeten":"geschat"):""}</small></div></div>
+        <div class="jpk-kv"><div><span>Factuur</span><b>${f?`<button type="button" class="linkbtn" data-act="factuur" data-id="${esc(f.id)}">${esc(f.nummer)}</button>`:b.gefactureerd==="nvt"?"Niet nodig":b.gefactureerd==="periodiek"?"Periodieke factuur":"Nog niet gefactureerd"}</b></div></div></section>`})()
       :""}
     <section class="jpk-s"><div class="jpk-h"><b>Opdracht</b><span class="sp"></span><button type="button" class="iconbtn sm" data-act="opdracht" data-id="${esc(k.id)}" aria-label="Opdracht aanpassen" title="Opdracht aanpassen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button></div>
       <div class="jpk-kv">
