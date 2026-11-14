@@ -2435,3 +2435,12 @@ html body:not(#zz):not(#zy):not(#zx) #jobPanel.jp-groot .jp-body.jpk{display:blo
 html body:not(#zz):not(#zy):not(#zx) #jobPanel.jp-groot .jp-body.jpk>*{break-inside:avoid;margin:0 0 20px!important;display:block}
 html body:not(#zz):not(#zy):not(#zx) #jobPanel.jp-groot .jp-tiles{padding:20px 24px 4px!important;max-width:640px}
 @media (max-width:900px){html body:not(#zz):not(#zy):not(#zx) #jobPanel.jp-groot .jp-body.jpk{columns:1}}
+/* bezoek groot: knoppen als actieknoppen (zoals factuur), parel-rij bovenaan */
+html body:not(#zz):not(#zy):not(#zx):not(#zw) #jobPanel.jp-groot .jp-tiles{display:flex!important;flex-wrap:wrap;gap:8px!important;max-width:none;padding:18px 24px 0!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) #jobPanel.jp-groot .jp-tile{flex-direction:row!important;gap:8px!important;padding:9px 14px!important;border-radius:12px!important;width:auto!important;flex:none!important;box-shadow:none!important;border:1px solid #e6e8ec!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) #jobPanel.jp-groot .jp-tile span{font-size:11px!important;font-weight:600!important;letter-spacing:.14em!important;text-transform:uppercase}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) #jobPanel.jp-groot .jp-tile svg{width:15px!important;height:15px!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) #jobPanel.jp-groot .jpk-pearl-top{margin:18px 24px 0!important;grid-template-columns:repeat(3,minmax(0,1fr))}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) #jobPanel.jp-groot .jpk-pearl-top>div{padding:16px 24px}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) #jobPanel.jp-groot .jpk-pearl-top b{font-size:22px}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) #jobPanel.jp-groot .jp-body.jpk>*{margin:0 0 20px!important}

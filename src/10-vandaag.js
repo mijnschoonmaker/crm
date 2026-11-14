@@ -145,6 +145,8 @@ function openJob(id,day,o={}){
   </div>
   <div class="jp-foot">${done?`${!b.gefactureerd||b.gefactureerd==="nvt"?`<button type="button" class="ghost" data-act="afterug" data-id="${esc(b.id)}">${I.refresh}Afmelding terugdraaien</button>`:""}${b.gefactureerd&&!["nvt","periodiek"].includes(b.gefactureerd)&&state.facturen.some(x=>x.id===b.gefactureerd)?`<button type="button" class="primary" data-act="factuur" data-id="${esc(b.gefactureerd)}">${I.facturen}Factuur bekijken</button>`:!b.gefactureerd&&!isMw()?`<button type="button" class="primary" data-act="beurtfact" data-id="${esc(b.id)}">${I.facturen}Factuur maken</button>`:""}`:`${day===iso(today())?`<button type="button" data-act="start" data-id="${esc(k.id)}">${isBezig(k)?I.check+"Stop &amp; afmelden "+timerHtml(k):I.play+"Start"}</button>`:""}${isMw()?"":`<button type="button" class="ghost" data-act="factureren" data-id="${esc(k.id)}">${I.facturen}Direct factureren</button>`}<button type="button" class="primary" data-act="afmelden" data-id="${esc(k.id)}">${I.check}Afmelden</button>`}</div>
   </div>`,o.groot?{xwide:true}:{drawer:true});
+  /* groot (vanuit klantkaart): parel-rij over de volle breedte bovenaan, zoals opdracht- en factuurkaart */
+  if(o.groot){try{const jp=document.getElementById("jobPanel"),pr=jp&&jp.querySelector(".jpk-pearl"),bd=jp&&jp.querySelector(".jp-body");if(pr&&bd){pr.classList.add("jpk-pearl-top");bd.parentNode.insertBefore(pr,bd)}}catch(e){}}
 }
 
 /* ---------- ruit die schoon wordt: de wisser zakt mee met de verwachte tijd ---------- */
