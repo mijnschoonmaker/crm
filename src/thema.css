@@ -2447,3 +2447,15 @@ html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) #jobPanel.jp-groot .jp-bo
 .kd-or-r .kd-ex{display:block;font-size:11px;color:#8a8f98;font-weight:400;text-align:right}
 #jobPanel .jpk-pearl small{white-space:normal;line-height:1.35}
 .kd-or-r .kd-ex{margin:-2px 0 2px!important;line-height:1.2}
+/* bezoek groot: kop over de volle breedte, parel-rij zoals opdracht, twee echte kolommen */
+html body:not(#zz):not(#zy):not(#zx) dialog.xwide form.dlg:has(#jobPanel.jp-groot){padding:0!important}
+html body:not(#zz):not(#zy):not(#zx) #jobPanel.jp-groot{border-radius:inherit;overflow:hidden}
+html body:not(#zz):not(#zy):not(#zx) #jobPanel.jp-groot .jp-kop{padding:22px 28px 22px!important;border-radius:0!important;margin:0!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #jobPanel.jp-groot .jp-body.jpk.jpk-2k{display:grid!important;columns:auto!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #jobPanel.jp-groot .jp-body.jpk.jpk-2k>.jpk-col{display:flex!important;flex-direction:column;gap:20px;margin:0!important;min-width:0;background:none!important;border:0!important;box-shadow:none!important;padding:0!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #jobPanel.jp-groot .jpk-col>*{margin:0!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) #jobPanel .jpk-pearl.ow-kern{margin:0 0 12px!important;background:none!important;border:0!important;box-shadow:none!important;padding:0!important;display:block!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) #jobPanel .jpk-pearl.ow-kern.jpk-pearl-top{margin:20px 24px 0!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) #jobPanel .jpk-pearl .kk-kern{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+@media (max-width:900px){html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #jobPanel.jp-groot .jp-body.jpk.jpk-2k{grid-template-columns:minmax(0,1fr)}}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu):not(#zt) #jobPanel .jp-body.jpk :is(.jpk-col,.jp-body)>:not(.jpk-s):not(.jpk-gast):not(.jpk-col){background:#fff!important;border:1px solid #eceef1!important;border-style:solid!important;border-radius:20px!important;padding:20px 22px!important}
