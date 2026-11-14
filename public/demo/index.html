@@ -7844,6 +7844,11 @@ html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu):not(#zt) dialog 
 html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu):not(#zt) dialog .fw-v2 .fw-rks{gap:0!important}
 html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu):not(#zt) dialog .fw-v2 .fw-rk{background:#fff!important;border-radius:0!important;padding:14px 16px!important;border-bottom:1px solid #eceef1!important}
 html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu):not(#zt) dialog .fw-v2 .fw-tot{padding:12px 16px 0!important}
+/* factuurkaart: klant, betaalgedrag, acties links (zoals klantkaart), factuurinhoud rechts; gelijke kolommen */
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) dialog .kk-grid.fw-v2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) dialog .kk-grid.fw-v2>.kk-left{order:0!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) dialog .kk-grid.fw-v2>.kk-side{order:1!important}
+@media (max-width:900px){html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) dialog .kk-grid.fw-v2{grid-template-columns:minmax(0,1fr)!important}html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) dialog .kk-grid.fw-v2>.kk-side{order:-1!important}}
 
 </style>
 <div class="app">
