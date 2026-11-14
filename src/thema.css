@@ -2374,3 +2374,4 @@ html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) dialog .ow-kern 
 html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) dialog .ow-kern .kk-kern .kk-wwd .wwd-l em{font-size:13px!important}
 html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) dialog .ow-kern .kk-kern .kk-wwd .wwd-l em i{font-size:11.5px!important;color:#8a8f98!important}
 html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) dialog .ow-kern .kk-kern .kk-wwd .wwd-l small{font-size:12px!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) dialog .ow-v2 section.kp>:is(textarea,input,select){width:calc(100% - 44px)!important;max-width:calc(100% - 44px)!important;box-sizing:border-box!important}
