@@ -123,8 +123,7 @@ function openOpdrachtWerk(kid,focus){
     const jn=on=>`<i class="owv-jn${on?" ja":""}">${on?"Ja":"Nee"}</i>`,jc=c=>jn(!!(c&&c.checked));
     const groep=(t,h)=>`<div class="owv-g"><small>${t}</small>${h}</div>`;
     v.innerHTML=`<div class="owv">`
-      +`<div class="owv-top"><div><span>Volgende beurt</span><b>${k.gepland?esc(fmtL(k.gepland))+(k.tijd?" · "+esc(k.tijd):""):"Te plannen"}</b></div><div><span>Ronde</span><b>${esc((g("ronde")&&g("ronde").value.trim())||"—")}</b></div></div>`
-      +groep("Planning",rij("Contactmethode",esc(sel("contact")))+rij("Eerste keer",esc(sel("eerste")))+rij("Medewerker belt onderweg",jc(g("bellen"))))
+      +groep("Planning",rij("Ronde",esc((g("ronde")&&g("ronde").value.trim())||"—"))+rij("Contactmethode",esc(sel("contact")))+rij("Eerste keer",esc(sel("eerste")))+rij("Medewerker belt onderweg",jc(g("bellen"))))
       +groep("Wat de klant ziet",rij("Aantallen verbergen",jc(g("verbA")))+rij("Frequenties verbergen",jc(g("verbF"))))
       +groep("Prijs en status",rij("Toeslag",ts?`${ts}%${tr?` <small>${esc(tr)}</small>`:""}`:jn(false))+rij("Opdracht loopt",jc(g("actief")))
         +(k.gepland?rij("Toekomstige afspraken",`<button type="button" class="linkbtn" id="owWisV">Alle verwijderen</button>`):""))

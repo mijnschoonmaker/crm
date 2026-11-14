@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="f2e51df13ae2"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="46ca4dac6d53"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -15993,8 +15993,7 @@ function openOpdrachtWerk(kid,focus){
     const jn=on=>`<i class="owv-jn${on?" ja":""}">${on?"Ja":"Nee"}</i>`,jc=c=>jn(!!(c&&c.checked));
     const groep=(t,h)=>`<div class="owv-g"><small>${t}</small>${h}</div>`;
     v.innerHTML=`<div class="owv">`
-      +`<div class="owv-top"><div><span>Volgende beurt</span><b>${k.gepland?esc(fmtL(k.gepland))+(k.tijd?" · "+esc(k.tijd):""):"Te plannen"}</b></div><div><span>Ronde</span><b>${esc((g("ronde")&&g("ronde").value.trim())||"—")}</b></div></div>`
-      +groep("Planning",rij("Contactmethode",esc(sel("contact")))+rij("Eerste keer",esc(sel("eerste")))+rij("Medewerker belt onderweg",jc(g("bellen"))))
+      +groep("Planning",rij("Ronde",esc((g("ronde")&&g("ronde").value.trim())||"—"))+rij("Contactmethode",esc(sel("contact")))+rij("Eerste keer",esc(sel("eerste")))+rij("Medewerker belt onderweg",jc(g("bellen"))))
       +groep("Wat de klant ziet",rij("Aantallen verbergen",jc(g("verbA")))+rij("Frequenties verbergen",jc(g("verbF"))))
       +groep("Prijs en status",rij("Toeslag",ts?`${ts}%${tr?` <small>${esc(tr)}</small>`:""}`:jn(false))+rij("Opdracht loopt",jc(g("actief")))
         +(k.gepland?rij("Toekomstige afspraken",`<button type="button" class="linkbtn" id="owWisV">Alle verwijderen</button>`):""))
