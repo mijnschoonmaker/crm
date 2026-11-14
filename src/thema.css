@@ -2387,3 +2387,13 @@ html body:not(#zz):not(#zy):not(#zx):not(#zw) dialog .ow-v2 section.kp>:is(texta
 #jobPanel .jpk-kv>div>b{text-align:right}
 #jobPanel .jpk-map{background:#fff!important}
 @media (max-width:560px){#jobPanel .jpk-pearl>div{padding:12px 12px}#jobPanel .jpk-pearl b{font-size:17px}}
+/* ===== Factuurkaart in klantkaart-stijl ===== */
+html body:not(#zz):not(#zy):not(#zx):not(#zw) dialog .fw-v2 section.kp>.kp-h>.objic{display:none!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) dialog .fw-v2 section.kp>.kp-h>b{font-size:12px!important;font-weight:600!important;letter-spacing:.24em!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) dialog .fw-v2 .fw-kvg .ow-kv{padding:6px 0!important;border:0!important;min-height:0!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) dialog .fw-v2 .fw-kvg{margin:0 0 12px}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) dialog .fw-v2 table.fw-opts{width:100%!important;table-layout:fixed;border-collapse:collapse}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) dialog .fw-v2 table.fw-opts th{font-size:10.5px!important;letter-spacing:.2em!important;color:#8a8f98!important;font-weight:600!important;padding:0 0 8px!important;border-bottom:1px solid #eceef1!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) dialog .fw-v2 table.fw-opts td{padding:9px 0!important;border:0!important;font-size:13.5px}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) dialog .fw-v2 table.fw-opts td.r,html body:not(#zz):not(#zy):not(#zx):not(#zw) dialog .fw-v2 table.fw-opts th.r{text-align:right!important;width:42%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#8a8f98;font-size:12.5px}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) dialog .fw-v2 section.kp>table.fw-opts{width:calc(100% - 44px)!important;max-width:calc(100% - 44px)!important}

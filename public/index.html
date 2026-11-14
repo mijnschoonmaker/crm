@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="08e0a2eee795"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="821951d44976"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -8217,6 +8217,16 @@ html body:not(#zz):not(#zy):not(#zx):not(#zw) dialog .ow-v2 section.kp>:is(texta
 #jobPanel .jpk-kv>div>b{text-align:right}
 #jobPanel .jpk-map{background:#fff!important}
 @media (max-width:560px){#jobPanel .jpk-pearl>div{padding:12px 12px}#jobPanel .jpk-pearl b{font-size:17px}}
+/* ===== Factuurkaart in klantkaart-stijl ===== */
+html body:not(#zz):not(#zy):not(#zx):not(#zw) dialog .fw-v2 section.kp>.kp-h>.objic{display:none!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) dialog .fw-v2 section.kp>.kp-h>b{font-size:12px!important;font-weight:600!important;letter-spacing:.24em!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) dialog .fw-v2 .fw-kvg .ow-kv{padding:6px 0!important;border:0!important;min-height:0!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) dialog .fw-v2 .fw-kvg{margin:0 0 12px}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) dialog .fw-v2 table.fw-opts{width:100%!important;table-layout:fixed;border-collapse:collapse}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) dialog .fw-v2 table.fw-opts th{font-size:10.5px!important;letter-spacing:.2em!important;color:#8a8f98!important;font-weight:600!important;padding:0 0 8px!important;border-bottom:1px solid #eceef1!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) dialog .fw-v2 table.fw-opts td{padding:9px 0!important;border:0!important;font-size:13.5px}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) dialog .fw-v2 table.fw-opts td.r,html body:not(#zz):not(#zy):not(#zx):not(#zw) dialog .fw-v2 table.fw-opts th.r{text-align:right!important;width:42%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#8a8f98;font-size:12.5px}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) dialog .fw-v2 section.kp>table.fw-opts{width:calc(100% - 44px)!important;max-width:calc(100% - 44px)!important}
 
 </style>
 <div class="app">
@@ -17506,7 +17516,7 @@ function openFactuurWerk(id){
   const bg=k?betaalgedrag(state.facturen.filter(x=>x.klantId===k.id)):null;
   const credit=f.creditVan?state.facturen.find(x=>x.id===f.creditVan):null,creditN=state.facturen.find(x=>x.creditVan===f.id);
   const W={contant:"Contant",pin:"Pin",overmaken:"Per bank",incasso:"Automatische incasso",mollie:"Mollie",verrekend:"Verrekend met creditfactuur"};
-  const opt=(ic,lbl,act,date,cls="")=>`<tr><td>${act?`<button type="button" class="linkbtn fw-opt ${cls}" data-fw="${act}">${ic}${lbl}</button>`:`<span class="fw-opt plain">${ic}${lbl}</span>`}</td><td class="r">${date||"—"}</td></tr>`;
+  const opt=(ic,lbl,act,date,cls="")=>`<tr><td>${act?`<button type="button" class="linkbtn fw-opt ${cls}" data-fw="${act}">${ic}${lbl}</button>`:`<span class="fw-opt plain">${ic}${lbl}</span>`}</td><td class="r">${date||""}</td></tr>`;
   const betaaldMet=w=>f.status==="betaald"&&(f.betaalwijze||"overmaken")===w?dt(f.betaaldOp):"";
   const rv=invRows(f,k);
   const regRows=(f.regels||[]).map((r,i)=>{const btw=rBtw(f,r),p=Number(r.prijs)||0,a=Number(r.aantal)||0,ex=(incl?p/(1+btw/100):p),exT=ex*a;return `<tr><td>${esc(omsZonderDatum(r.omschrijving))}<br><small class="subt">Datum: ${esc(fmtNum(f.datum).replace(/ /g,""))} · btw ${btw}%</small></td><td class="r">${a.toLocaleString("nl-NL")}</td><td class="r">${eur(ex)}</td><td class="r">${eur(exT)}</td><td class="r">${eur(exT*btw/100)}</td><td class="r">${eur(exT*(1+btw/100))}</td><td class="r fw-ro"><button type="button" class="iconbtn sm" data-fwr="${i}" aria-label="Regel aanpassen">${I.pencil}</button><button type="button" class="iconbtn sm" data-fwd="${i}" aria-label="Regel verwijderen">${I.x}</button></td></tr>`}).join("");
@@ -17519,7 +17529,7 @@ function openFactuurWerk(id){
   <div class="kk-acts">${f.status==="concept"?`<button type="button" class="small primary" data-fw="definitief">${I.check}Maak definitief</button>`:""}${st[1]!=="Betaald"&&f.status!=="concept"?`<button type="button" class="small good" data-fw="bank">${I.check}Betaald</button>`:""}<button type="button" class="small yellow" data-fw="send">${I.send}${st[1]==="Achterstallig"?"Stuur herinnering":"Versturen"}</button>${state.dl?`<button type="button" class="small" data-act="pdf" data-id="${esc(f.id)}">${I.dl}PDF downloaden</button>`:""}<button type="button" class="small" data-fw="bekijk">${I.eye}Bekijk factuur</button>${k?`<button type="button" class="small" data-fw="klant">${I.user}Klantkaart</button>`:""}</div>
   <div class="kk-grid kd kk-v2 fw-v2"><div class="kk-left">
     <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klant</b><span class="sp"></span>${k?`<button type="button" class="iconbtn sm" data-fw="klant" aria-label="Naar klantkaart" title="Klantkaart">${I.right}</button>`:""}</div>
-      ${k?`${isZak(k)?kv(k.soort==="vve"?"Naam VvE":"Bedrijfsnaam",esc(cleanName(k.naam))):""}${kv("Voornaam",esc(k.voornaam||""))}${kv("Achternaam",esc(k.achternaam||(isZak(k)?"":cleanName(k.naam))))}${kv("E-mailadres",mail(k.email))}${kv("Telefoon",tel(k.telefoon))}${kv("Mobiel",tel(k.mobiel))}
+      ${k?`${isZak(k)?kv(k.soort==="vve"?"Naam VvE":"Bedrijfsnaam",esc(cleanName(k.naam))):""}${isZak(k)?(k.contact?kv("Contactpersoon",esc(k.contact)):""):kv("Naam",esc(cleanName(k.naam)))}${kv("E-mailadres",mail(k.email))}${kv("Telefoon",tel(k.telefoon))}${kv("Mobiel",tel(k.mobiel))}
       ${payBlok(bg)}`:kv("Klant",esc(cleanName(f.klantNaam))+' <small class="subt">(niet meer in je klantenbestand)</small>')}</section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.pin}</span><b>Adres en ontvanger</b><span class="sp"></span><button type="button" class="iconbtn sm" data-fw="adres" aria-label="Adres op factuur aanpassen">${I.pencil}</button></div>
       ${k?kv("Werklocatie",esc(jobAddr(k))):""}${kv("Factuuradres",esc(f.klantAdres||""))}${kv("Facturen gaan naar",mail(f.klantEmail)+(f.tav||(k&&tavK(k,"factuur"))?`<br><small class="subt">t.a.v. ${esc(f.tav||tavK(k,"factuur"))}</small>`:""))}</section>
@@ -17597,6 +17607,8 @@ function openFactuurWerk(id){
   form.querySelectorAll("[data-fwft]").forEach(b=>b.onclick=()=>{const l=[...(cur().bijlagen||[])],i=+b.dataset.fwft;l[i]={...l[i],opFactuur:l[i].opFactuur===false};put({bijlagen:l},l[i].opFactuur===false?"Foto staat niet op de factuur":"Foto staat op de factuur")});
   form.querySelectorAll("[data-fwb]").forEach(b=>b.onclick=()=>{const l=[...(cur().bijlagen||[])];l.splice(+b.dataset.fwb,1);put({bijlagen:l},"Bestand verwijderd")});
   const bj=$("#fwBij");if(bj)bj.onchange=async e=>{const files=[...e.target.files];e.target.value="";const l=[...(cur().bijlagen||[])];for(const x of files){try{const r=await state.assets.upload(x);l.push({id:r.id,naam:x.name})}catch(er){toast(x.name+" kon niet worden toegevoegd")}}put({bijlagen:l},plural(files.length,"bestand","bestanden")+" toegevoegd")};
+  /* gegevensregels per blok in één rustig grijs vlak, zoals op de klantkaart */
+  try{document.querySelectorAll("dialog[open] .fw-v2 section.kp").forEach(sec=>{let grp=null;[...sec.children].forEach(el=>{if(el.classList&&el.classList.contains("ow-kv")){if(!grp){grp=document.createElement("div");grp.className="owv-g kkg fw-kvg";sec.insertBefore(grp,el)}grp.appendChild(el)}else grp=null})})}catch(e){}
   $("#fwLog").onclick=()=>{const v=$("#fw-log").value.trim();if(!v)return;put({log:[...(cur().log||[]),{datum:new Date().toISOString(),tekst:v}]})};
   const d=$("#delF");let armed=false;d.onclick=async()=>{if(!armed){armed=true;d.textContent="Zeker weten? Tik nogmaals";return}
     try{for(const b of state.beurten.filter(b=>b.gefactureerd===f.id))await save("beurten",b.id,{...strip(b),gefactureerd:""});await del("facturen",f.id);dlg.close();toast(f.nummer+" verwijderd")}catch(er){err(er)}};
