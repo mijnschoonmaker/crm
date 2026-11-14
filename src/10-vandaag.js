@@ -108,7 +108,7 @@ function openJob(id,day,o={}){
   const sms=tel?"sms:"+tel+"?&body="+encodeURIComponent(fill(aan.sms||"",vars)):"";
   const tile=(href,ic,l,dis)=>dis?"":`<a class="jp-tile" href="${esc(href)}" ${/^https?:/.test(href)?'target="_blank" rel="noopener"':""}>${ic}<span>${l}</span></a>`;
   const nxt=ritmeVolgende(k,done?d:(d<today()?today():d));
-  const diensten=[[k.dienst||HD(),done?bedrag:Number(k.prijs)||0]].concat(k.binnen?[]:[]);
+  const diensten=[[k.dienst||HD(),done?beurtVerdiend(b):toonK(k,Number(k.prijs)||0)]];
   openDlg(`<div id="jobPanel" data-d="${esc(day)}" data-k="${esc(k.id)}" class="jp${done?" jp-isaf":""}${o.groot?" jp-groot":""}">
   <div class="jp-kop jp-${js}"><div class="jp-kr1"><span class="jp-st"><i></i>${esc(sp[1])}</span><button type="button" class="jp-st jp-kk" data-act="klant" data-id="${esc(k.id)}">${I.user}Klantkaart${I.right}</button><span class="sp"></span>${!done&&k.gepland===day?`<button type="button" class="jp-ib" data-act="afsprdel" data-id="${esc(k.id)}" title="Afspraak verwijderen" aria-label="Afspraak verwijderen">${I.trash}</button>`:""}<button type="button" class="jp-ib" data-act="close" aria-label="Sluiten">${I.x}</button></div>
     <div class="jp-kr2"><span class="jp-k1"><small>${["zo","ma","di","wo","do","vr","za"][d.getDay()]} ${d.getDate()} ${["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"][d.getMonth()]}</small><b>${esc(k.tijd||"–")}</b></span>
@@ -138,7 +138,7 @@ function openJob(id,day,o={}){
       ${tel?`<div><span>Telefoon</span><b><a href="tel:${esc(tel)}">${esc(k.telefoon)}</a></b></div>`:""}
       ${k.email?`<div><span>E-mail</span><b><a href="mailto:${esc(k.email)}">${esc(k.email)}</a></b></div>`:""}
       </div></section>
-    <section class="jpk-s"><div class="jpk-h"><b>Diensten</b></div><div class="jpk-svc">${diensten.map(([n,p])=>`<div><b>${esc(n)}${k.binnen?" (buiten en binnen)":""}</b><span>${eur(toon(p))}</span></div>`).join("")}</div></section>
+    <section class="jpk-s"><div class="jpk-h"><b>Diensten</b></div><div class="jpk-svc">${diensten.map(([n,p])=>`<div><b>${esc(n)}${k.binnen?" (buiten en binnen)":""}</b><span>${eur(p)}</span></div>`).join("")}</div></section>
     ${oBeurtBlok(k)}${toegangHtml(k)}${ookDezeBeurt(k,typeof day!=="undefined"?day:undefined)}${objInfo(k)}${jobExtra(k)}
     ${(()=>{const fl=jobFotos(k);return fl.length?`<section class="jpk-s"><div class="jpk-h"><b>Foto's</b><small>${fl.reduce((a,f)=>a+(f.dots||[]).length,0)} ramen aangetikt</small></div><div class="jp-fotos">${fl.map((f,j)=>fotoCard(f,j,false).replace('data-fi=','data-jfi=')).join("")}</div></section>`:""})()}
     ${done?`<section class="jpk-s jpk-vb"><div class="jpk-h"><b>Volgende bezoek</b><span class="sp"></span>${k.gepland&&k.gepland>day?"":`<button type="button" class="small" data-act="afspraak" data-id="${esc(k.id)}">${I.planning}Inplannen</button>`}</div><p>${k.gepland&&k.gepland>day?esc(fmtL(k.gepland))+(k.tijd?" · "+esc(k.tijd):""):"Nog niet ingepland"}</p></section>`:""}

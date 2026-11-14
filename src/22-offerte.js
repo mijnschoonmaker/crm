@@ -224,7 +224,7 @@ function openOfferte(opts={}){
     busyNow=true;const btns=form.querySelectorAll(".kk-foot button");btns.forEach(b=>b.disabled=true);
     try{
       const btw=Number($o("btw").value),hoofd=[...(rc?rc.regels:[]),...extra.filter(r=>r.omschrijving||Number(r.prijs))],t=totals({regels:hoofd,btw,incl:false});
-      const dnsExtra=dns.map(d=>{const c=dnsCalc(d);return c.ex?{id:d.id||newId("o"),dienst:d.naam,groep:d.groep,items:d.items.map(x=>({...x})),oms:d.oms||"",start:d.start??"",tp:d.tp??"",td:d.td??"",groepOms:d.groepOms||"",prijs:r2(st.incl?c.ex*(1+btw/100):c.ex),frequentie:Number(d.frequentie)||8,duur:Math.max(5,Math.ceil(c.sec/60/5)*5),volgende:"",actief:true}:null}).filter(Boolean);
+      const dnsExtra=dns.map(d=>{const c=dnsCalc(d);return c.ex?{id:d.id||newId("o"),dienst:d.naam,groep:d.groep,items:d.items.map(x=>({...x})),oms:d.oms||"",start:d.start??"",tp:d.tp??"",td:d.td??"",groepOms:d.groepOms||"",prijs:r2(st.incl?c.ex*(1+btw/100):c.ex),frequentie:(()=>{/* staan alle gekozen onderdelen op dezelfde frequentie (bijv. op afroep), dan is de opdracht dat ook */const fs=(d.items||[]).filter(x=>Number(x.aantal)>0).map(x=>Number(x.fq)||0);return fs.length&&fs.every(v=>v&&v===fs[0])?fs[0]:Number(d.frequentie)||8})(),duur:Math.max(5,Math.ceil(c.sec/60/5)*5),volgende:"",actief:true}:null}).filter(Boolean);
       const opdracht={prijs:r2(st.incl?t.inc:t.ex),frequentie:Number($o("freq").value)||8,duur:Number($o("duur").value)||30,extra:dnsExtra};
       /* ander vak: de eerste dienst is de vaste opdracht, elke andere dienst wordt los ingepland */
       if(!GLAS()&&dnsExtra.length){const h=dnsExtra.shift();Object.assign(opdracht,{prijs:h.prijs,frequentie:h.frequentie,duur:h.duur,dienst:h.dienst});dnsExtra.forEach(e=>e.apart=true)}
