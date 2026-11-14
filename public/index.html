@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="5d32de8d32ed"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="d573ed5202e0"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -9404,12 +9404,17 @@ function opdrBij(k,o){const L=(k&&k.opdrachten)||[];if(!o||o.apart)return"";
   const c=L.filter(p=>p.actief!==false&&opdrLoc(k,p)===loc&&!p.bij),r=c.find(p=>p.apart)||c.find(p=>p.ramen||/glas/i.test(p.dienst||""))||c[0];return r&&r.id!==o.id?r.id:""}
 /* frequentie die je ziet: staan alle gekozen onderdelen op dezelfde frequentie (bijv. op afroep), dan is dat de frequentie van de opdracht */
 const opdrFq=o=>{const fs=((o&&o.items)||[]).filter(x=>Number(x.aantal)>0).map(x=>Number(x.fq)||0);return fs.length&&fs.every(v=>v&&v===fs[0])?fs[0]:Number(o&&o.frequentie)||0};
+/* afgesproken prijs blijft staan: heeft een opdracht met onderdelen een opgeslagen prijs (bijv. uit een ondertekende offerte)
+   die afwijkt van wat de prijsberekening nu geeft, dan is de opgeslagen prijs de overschreven prijs. Zo veranderen prijzen van
+   bestaande klanten niet als tarieven in Uitvoering wijzigen. Geeft een kopie terug; de opgeslagen gegevens blijven ongemoeid. */
+const prijsVast=(o,k)=>{try{if(!o||!o.items||typeof groepCalc!=="function")return o;if(o.tp!==undefined&&o.tp!==null&&o.tp!=="")return o;const p=Number(o.prijs);if(!(p>0))return o;
+  const btw=typeof groepBtwPct==="function"?groepBtwPct(o,k):(Number(S().btw)||21),ex=S().incl?p/(1+btw/100):p,c=groepCalc(o);if(!c.rows.length||Math.abs(c.ex-ex)<0.01)return o;return {...o,tp:r2(ex)}}catch(e){return o}};
 const extraOpdr=k=>{
   if(k&&k.hoofdKlantId){const h=state.klanten.find(x=>x.id===k.hoofdKlantId);return h?(h.opdrachten||[]).filter(o=>o.actief!==false&&opdrBij(h,o)===k.opdrachtId):[]}
   if(k&&k.soort==="vve")return [];/* VvE: glasbewassing, trappenhal enz. worden elk los aangeboden en ingepland */
   const L=(k&&k.opdrachten)||[];return L.filter(o=>o.actief!==false&&!o.apart&&!opdrBij(k,o)&&opdrLoc(k,o)===hoofdLoc(k))};
 const opdrApart=(k,o)=>!!(o&&(o.apart||(k&&k.soort==="vve")));/* op een ander adres nooit mee met het hoofdadres *//* apart ingeplande opdrachten gaan niet mee met de glasbewassing */
-const extraDue=(k,day)=>{const d=day||iso(today()),out=[];extraOpdr(k).forEach(o=>{const oDue=!o.volgende||o.volgende<=d;
+const extraDue=(k,day)=>{const d=day||iso(today()),out=[];extraOpdr(k).map(o=>prijsVast(o,k)).forEach(o=>{const oDue=!o.volgende||o.volgende<=d;
     if(!o.items||typeof groepCalc!=="function"){if(oDue)out.push(o);return}
     const c=groepCalc(o,it=>it.fq?(!it.vol||it.vol<=d):(!it.vol||it.vol<=d));if(!c.rows.length&&!(c.vast&&oDue))return;const st=S(),mul=st.incl?1+(Number(st.btw)||21)/100:1;
     out.push({...o,items:c.rows.map(r=>r.it),prijs:r2(c.ex*mul),duur:gHasD(o.td)?Number(o.td)||0:Math.max(c.rows.length?1:0,Math.round((c.sec||0)/60)),_oDue:oDue})});return out};
@@ -16042,7 +16047,7 @@ function openOpdrachtWerk(kid,focus){
   /* bedrag zoals de klant het ziet, voor diensten met onderdelen: precies hetzelfde getal op de kaart en bij "Per keer" */
   const gToon=r=>{try{const c=groepCalc(r);return S().toonEx||!incl?r2(c.ex):r2(c.ex*(1+groepBtwPct(r,k)/100))}catch(e){return toon(Number(r.prijs)||0)}};
   /* altijd opnieuw uitrekenen (niet alleen als de tarieven veranderd zijn): zo kloppen kaart, "Per keer" en wat er wordt opgeslagen altijd met elkaar */
-  extra.forEach(o=>{try{if(o.items){groepTarievenBij(o);const c=groepCalc(o),mul=incl?1+groepBtwPct(o,k)/100:1;o.prijs=r2(c.ex*mul);o.duur=Math.max(5,Math.ceil(c.sec/60/5)*5)}}catch(e){console.error(e)}});
+  extra.forEach((o,i)=>{try{if(o.items){groepTarievenBij(o);{const v=prijsVast(o,k);if(v!==o){o.tp=v.tp}}const c=groepCalc(o),mul=incl?1+groepBtwPct(o,k)/100:1;o.prijs=r2(c.ex*mul);o.duur=Math.max(5,Math.ceil(c.sec/60/5)*5)}}catch(e){console.error(e)}});
   if(focus==="new")extra.push({id:newId("o"),dienst:"",prijs:"",frequentie:52,duur:30,volgende:"",actief:true,objectId:"hoofd",_nieuw:true});
   /* een extra of nieuwe opdracht opent als eigen opdrachtkaart met een eigen nummer (bijv. 1002-2); de hoofdopdracht blijft ongemoeid */
   const soloId=focus&&!["main","hosp"].includes(focus)?(focus==="new"?extra[extra.length-1].id:focus):null,soloI=soloId?extra.findIndex(o=>o.id===soloId):-1;

@@ -13,7 +13,7 @@ function openOpdrachtWerk(kid,focus){
   /* bedrag zoals de klant het ziet, voor diensten met onderdelen: precies hetzelfde getal op de kaart en bij "Per keer" */
   const gToon=r=>{try{const c=groepCalc(r);return S().toonEx||!incl?r2(c.ex):r2(c.ex*(1+groepBtwPct(r,k)/100))}catch(e){return toon(Number(r.prijs)||0)}};
   /* altijd opnieuw uitrekenen (niet alleen als de tarieven veranderd zijn): zo kloppen kaart, "Per keer" en wat er wordt opgeslagen altijd met elkaar */
-  extra.forEach(o=>{try{if(o.items){groepTarievenBij(o);const c=groepCalc(o),mul=incl?1+groepBtwPct(o,k)/100:1;o.prijs=r2(c.ex*mul);o.duur=Math.max(5,Math.ceil(c.sec/60/5)*5)}}catch(e){console.error(e)}});
+  extra.forEach((o,i)=>{try{if(o.items){groepTarievenBij(o);{const v=prijsVast(o,k);if(v!==o){o.tp=v.tp}}const c=groepCalc(o),mul=incl?1+groepBtwPct(o,k)/100:1;o.prijs=r2(c.ex*mul);o.duur=Math.max(5,Math.ceil(c.sec/60/5)*5)}}catch(e){console.error(e)}});
   if(focus==="new")extra.push({id:newId("o"),dienst:"",prijs:"",frequentie:52,duur:30,volgende:"",actief:true,objectId:"hoofd",_nieuw:true});
   /* een extra of nieuwe opdracht opent als eigen opdrachtkaart met een eigen nummer (bijv. 1002-2); de hoofdopdracht blijft ongemoeid */
   const soloId=focus&&!["main","hosp"].includes(focus)?(focus==="new"?extra[extra.length-1].id:focus):null,soloI=soloId?extra.findIndex(o=>o.id===soloId):-1;

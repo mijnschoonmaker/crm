@@ -135,12 +135,17 @@ function opdrBij(k,o){const L=(k&&k.opdrachten)||[];if(!o||o.apart)return"";
   const c=L.filter(p=>p.actief!==false&&opdrLoc(k,p)===loc&&!p.bij),r=c.find(p=>p.apart)||c.find(p=>p.ramen||/glas/i.test(p.dienst||""))||c[0];return r&&r.id!==o.id?r.id:""}
 /* frequentie die je ziet: staan alle gekozen onderdelen op dezelfde frequentie (bijv. op afroep), dan is dat de frequentie van de opdracht */
 const opdrFq=o=>{const fs=((o&&o.items)||[]).filter(x=>Number(x.aantal)>0).map(x=>Number(x.fq)||0);return fs.length&&fs.every(v=>v&&v===fs[0])?fs[0]:Number(o&&o.frequentie)||0};
+/* afgesproken prijs blijft staan: heeft een opdracht met onderdelen een opgeslagen prijs (bijv. uit een ondertekende offerte)
+   die afwijkt van wat de prijsberekening nu geeft, dan is de opgeslagen prijs de overschreven prijs. Zo veranderen prijzen van
+   bestaande klanten niet als tarieven in Uitvoering wijzigen. Geeft een kopie terug; de opgeslagen gegevens blijven ongemoeid. */
+const prijsVast=(o,k)=>{try{if(!o||!o.items||typeof groepCalc!=="function")return o;if(o.tp!==undefined&&o.tp!==null&&o.tp!=="")return o;const p=Number(o.prijs);if(!(p>0))return o;
+  const btw=typeof groepBtwPct==="function"?groepBtwPct(o,k):(Number(S().btw)||21),ex=S().incl?p/(1+btw/100):p,c=groepCalc(o);if(!c.rows.length||Math.abs(c.ex-ex)<0.01)return o;return {...o,tp:r2(ex)}}catch(e){return o}};
 const extraOpdr=k=>{
   if(k&&k.hoofdKlantId){const h=state.klanten.find(x=>x.id===k.hoofdKlantId);return h?(h.opdrachten||[]).filter(o=>o.actief!==false&&opdrBij(h,o)===k.opdrachtId):[]}
   if(k&&k.soort==="vve")return [];/* VvE: glasbewassing, trappenhal enz. worden elk los aangeboden en ingepland */
   const L=(k&&k.opdrachten)||[];return L.filter(o=>o.actief!==false&&!o.apart&&!opdrBij(k,o)&&opdrLoc(k,o)===hoofdLoc(k))};
 const opdrApart=(k,o)=>!!(o&&(o.apart||(k&&k.soort==="vve")));/* op een ander adres nooit mee met het hoofdadres *//* apart ingeplande opdrachten gaan niet mee met de glasbewassing */
-const extraDue=(k,day)=>{const d=day||iso(today()),out=[];extraOpdr(k).forEach(o=>{const oDue=!o.volgende||o.volgende<=d;
+const extraDue=(k,day)=>{const d=day||iso(today()),out=[];extraOpdr(k).map(o=>prijsVast(o,k)).forEach(o=>{const oDue=!o.volgende||o.volgende<=d;
     if(!o.items||typeof groepCalc!=="function"){if(oDue)out.push(o);return}
     const c=groepCalc(o,it=>it.fq?(!it.vol||it.vol<=d):(!it.vol||it.vol<=d));if(!c.rows.length&&!(c.vast&&oDue))return;const st=S(),mul=st.incl?1+(Number(st.btw)||21)/100:1;
     out.push({...o,items:c.rows.map(r=>r.it),prijs:r2(c.ex*mul),duur:gHasD(o.td)?Number(o.td)||0:Math.max(c.rows.length?1:0,Math.round((c.sec||0)/60)),_oDue:oDue})});return out};
