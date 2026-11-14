@@ -455,3 +455,5 @@ async function migGeenTijd(){try{if((state.settings||{}).migGeenTijd)return;
     d._viaPop=1;const c=new Event("cancel",{cancelable:true});d.dispatchEvent(c);
     setTimeout(()=>{if(!d.open)return;if(c.defaultPrevented){d._viaPop=0;try{history.pushState({msDlg:1},"")}catch(e){}}else d.close()},0)});
   try{if(!history.state||!history.state.msTab){history.replaceState({msRoot:1},"");history.pushState({msTab:state.tab},"")}}catch(e){}})();
+/* onderdeel met standaardnaam "Nieuwe dienst" (of leeg): toon de naam van de dienst zelf */
+function itNm(x,d){const n=String(x&&x.naam||"").trim();return !n||/^nieuwe dienst$/i.test(n)?(d||n||"Dienst"):n}

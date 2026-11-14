@@ -8742,6 +8742,8 @@ async function migGeenTijd(){try{if((state.settings||{}).migGeenTijd)return;
     d._viaPop=1;const c=new Event("cancel",{cancelable:true});d.dispatchEvent(c);
     setTimeout(()=>{if(!d.open)return;if(c.defaultPrevented){d._viaPop=0;try{history.pushState({msDlg:1},"")}catch(e){}}else d.close()},0)});
   try{if(!history.state||!history.state.msTab){history.replaceState({msRoot:1},"");history.pushState({msTab:state.tab},"")}}catch(e){}})();
+/* onderdeel met standaardnaam "Nieuwe dienst" (of leeg): toon de naam van de dienst zelf */
+function itNm(x,d){const n=String(x&&x.naam||"").trim();return !n||/^nieuwe dienst$/i.test(n)?(d||n||"Dienst"):n}
 
 /* ---------- LOGICA ---------- */
 /* vaste weekdagen (bijv. VvE-trappenhuis elke di en vr): k.weekdagen = [2,5]; anders een interval in weken */
@@ -12736,7 +12738,7 @@ const ICON={
     g("overig").innerHTML=L.filter(zichtbaar).map(d=>{const n=d.items.filter(it=>Number(ovr[it.id])>0).length,c0=itemsCalc(d.items.map(it=>({...it,aantal:Number(ovr[it.id])||0}))),c={...c0,ex:r2(c0.ex*(typeof dienstFreqFactor==="function"?dienstFreqFactor(d.groep,Number(ovrFreq[d.groep])||glasW()):1))};
       return `<details class="ovg"${n||ovOpen.has(d.groep)?" open":""} data-g="${esc(d.groep)}"><summary>${esc(d.naam)}<em>${n?eur(c.ex)+" excl. · "+esc(freqLabel(ovrFreq[d.groep]||glasW()).toLowerCase()):""}</em></summary><div class="ovf"><label for="ovf-${esc(d.groep)}">Frequentie</label><select id="ovf-${esc(d.groep)}" data-ovf="${esc(d.groep)}">${(()=>{const cur=ovrFreq[d.groep]||(d.freqAdvies&&(!d.freqs||d.freqs.includes(d.freqAdvies))?d.freqAdvies:0)||glasW();return freqOpts(cur).filter(w=>!d.freqs||d.freqs.includes(w)||w===cur).map(w=>`<option value="${w}" ${w===cur?"selected":""}>${esc(freqLabel(w))}</option>`).join("")})()}</select></div><div class="rows">${d.items.map(it=>`<div class="row${Number(ovr[it.id])?" on":""}"><div class="pic">${OV_IC}</div><div><div class="name">${esc(it.naam)}</div><div class="sub">${eur(it.prijs)} ${esc(it.eenheid)} · ${it.sec} sec</div></div>${stepper("o-"+it.id,Number(ovr[it.id])||0,it.naam)}</div>`).join("")}</div></details>`}).join("")+(verborgen?`<button type="button" class="ovmeer" id="ovMeer">+ Meer diensten (${verborgen})</button>`:"");const mb=g("ovMeer");if(mb)mb.onclick=()=>{ovMore=true;renderOverig(true)}}
   function ovrRows(o){if(!o&&host.hasAttribute("data-offerte"))return [];const src=o||ovr,rows=[];ovrList().forEach(d=>{const items=d.items.map(it=>({...it,aantal:Number(src[it.id])||0})).filter(it=>it.aantal>0);if(!items.length)return;const c=itemsCalc(items);
-      const fw=Number(ovrFreq[d.groep])||glasW(),fk=typeof dienstFreqFactor==="function"?dienstFreqFactor(d.groep,fw):1;rows.push({n:d.naam,groep:d.groep,frequentie:fw,d:items.map(it=>it.naam.toLowerCase()+" "+String(it.aantal).replace(".",",")+" "+eenhKort(it.eenheid)).join(", "),c:items.reduce((a,it)=>a+it.aantal,0),sec:c.sec,price:r2(c.ex*fk),items})});return rows}
+      const fw=Number(ovrFreq[d.groep])||glasW(),fk=typeof dienstFreqFactor==="function"?dienstFreqFactor(d.groep,fw):1;rows.push({n:d.naam,groep:d.groep,frequentie:fw,d:items.map(it=>itNm(it,d.naam).toLowerCase()+" "+String(it.aantal).replace(".",",")+" "+eenhKort(it.eenheid)).join(", "),c:items.reduce((a,it)=>a+it.aantal,0),sec:c.sec,price:r2(c.ex*fk),items})});return rows}
   function setVal(id,v,dec){v=Math.max(0,Math.min(500,dec?Math.round((Number(v)||0)*10)/10:Math.round(Number(v)||0)));
     if(id.startsWith("o-")){ovr[id.slice(2)]=v;const el=g(id);if(el){el.value=v;el.closest(".row").classList.toggle("on",v>0)}const dd=el&&el.closest(".ovg");if(dd){const L=ovrList().find(x=>x.groep===dd.dataset.g);if(L){const c=itemsCalc(L.items.map(it=>({...it,aantal:Number(ovr[it.id])||0})));dd.querySelector("summary em").textContent=c.ex?eur(c.ex)+" excl.":""}}markStale();return}
     if(id.startsWith("s-"))special[id.slice(2)]=v;else floors[+id.slice(1)]=v;
@@ -15330,7 +15332,7 @@ function openOfferte(opts={}){
   const glasNaam=()=>{const g=diensten.find(d=>d.glas);return g&&g.naam||HD()};
   const glasGroep=()=>{const rr=rc?rc.regels:[];if(!rr.length)return [];if(!rr.some(r=>r.sub))return rr;
     return [{omschrijving:glasNaam(),aantal:1,prijs:r2(rr.reduce((a,r)=>a+(Number(r.prijs)||0),0)),subs:rr.filter(r=>r.sub).map(r=>({naam:r.sub,qty:r.qty||"",fq:r.fq||""}))}]};
-  const dnsGroep=()=>dns.map(d=>{const c=dnsCalc(d);return c.rows.length?{omschrijving:d.groepOms||d.naam,aantal:1,prijs:c.ex,subs:d.groepOms?[]:c.rows.map(r=>({naam:r.it.naam,qty:String(r.it.aantal).replace(".",",")+" "+eenhKort(r.it.eenheid),fq:fqTxt(Number(r.it.fq)||Number(d.frequentie)||8),...(String(r.it.tekst||"").trim()?{tekst:String(r.it.tekst).trim()}:{})}))}:null}).filter(Boolean);
+  const dnsGroep=()=>dns.map(d=>{const c=dnsCalc(d);return c.rows.length?{omschrijving:d.groepOms||d.naam,aantal:1,prijs:c.ex,subs:d.groepOms?[]:c.rows.map(r=>({naam:itNm(r.it,d.naam),qty:String(r.it.aantal).replace(".",",")+" "+eenhKort(r.it.eenheid),fq:fqTxt(Number(r.it.fq)||Number(d.frequentie)||8),...(String(r.it.tekst||"").trim()?{tekst:String(r.it.tekst).trim()}:{})}))}:null}).filter(Boolean);
   const allRegels=()=>[...glasGroep(),...dnsGroep(),...extra.filter(r=>r.omschrijving||Number(r.prijs))].map(r=>({omschrijving:String(r.omschrijving||""),aantal:Number(r.aantal)||0,prijs:Number(r.prijs)||0,...(r.subs&&r.subs.length?{subs:r.subs}:{})}));
   const glasFreq=()=>{if(!GLAS())return"";try{const fl=RC.freqList().filter(f=>f.aan!==false||f.k===RC.getFreq()),cur=RC.getFreq();return `<label class="ow-gf">Frequentie glasbewassing<select id="owGF">${fl.map(f=>`<option value="${f.k}" ${f.k===cur?"selected":""}>${esc(f.l)}${f.p?` (${f.p>0?"−":"+"}${Math.abs(f.p)}%)`:""}</option>`).join("")}</select></label>`}catch(e){return ""}};
   const glasW=()=>Number($o("freq").value)||8;
@@ -15732,7 +15734,7 @@ function openOpdrachtWerk(kid,focus){
     let c=null;try{if(r.items)c=groepCalc(r)}catch(e){}
     const rq=!its.length&&r.ramen?normR(r.ramen):null,rb=rq?(()=>{const w=[...rq.f.map((n,j)=>Number(n)?Number(rq.fq[j]):0),...SPK.map(x=>Number(rq.sp[x])?Number(rq.spfq[x]):0)].filter(Boolean);return w.length?Math.min(...w):base})():base;
     const rRegels=rq?[...rq.f.map((n,j)=>Number(n)?`<dt>${FLN[j]}</dt><dd>${n} st <i>(${esc(fqT(Number(rq.fq[j])||rb))})</i></dd>`:""),...SPK.map(x=>Number(rq.sp[x])?`<dt>${esc(SPN[x])}</dt><dd>${rq.sp[x]} st <i>(${esc(fqT(Number(rq.spfq[x])||rb))})</i></dd>`:"")].join(""):"";
-    const regels=rRegels?rRegels:its.length?its.map(x=>`<dt>${esc(x.naam)}</dt><dd>${String(x.aantal).replace(".",",")} ${esc(eenhKort(x.eenheid))}${(Number(x.fq)||base)?` <i>(${esc(fqT(Number(x.fq)||base))})</i>`:""}</dd>`).join(""):`<dt>Hoe vaak</dt><dd>${base?esc(fqT(base)):"—"}</dd>`;
+    const regels=rRegels?rRegels:its.length?its.map(x=>`<dt>${esc(itNm(x,r.dienst))}</dt><dd>${String(x.aantal).replace(".",",")} ${esc(eenhKort(x.eenheid))}${(Number(x.fq)||base)?` <i>(${esc(fqT(Number(x.fq)||base))})</i>`:""}</dd>`).join(""):`<dt>Hoe vaak</dt><dd>${base?esc(fqT(base)):"—"}</dd>`;
     const ov=r.items&&(gHas(r.tp)||its.some(x=>gHas(x.op)));
     return `<div class="ow-line ow-dicht"><div class="ow-rk"><div class="ow-rkh"><span class="objic">${I.check}</span><b>${esc(rq&&!rq.f.some(n=>Number(n))&&/^glasbewassing$/i.test(String(r.dienst||"").trim())?"Glasbewassing bijzondere ramen":(r.dienst||"Dienst"))}${r.actief===false?' <small>(niet actief)</small>':""}</b><span class="sp"></span>${r.actief===false?`<button type="button" class="small primary" data-aan="${i}">${I.check}Actief maken</button>`:""}<button type="button" class="iconbtn sm" data-lopen="${i}" aria-label="Wijzigen" title="Wijzigen">${I.pencil}</button><button type="button" class="iconbtn sm" data-rm="${i}" aria-label="Regel verwijderen" title="Verwijderen">${I.x}</button></div>
       ${r.oms?`<p class="ow-rko">${esc(r.oms)}</p>`:""}
@@ -16411,7 +16413,7 @@ function uDienstLijst(){
   const groepen=src?[...(src.groepen||[]),...(src.eigen||[]).map(g=>({...g,_eigen:true}))]:uitvDefault().groepen;
   const out=[];
   groepen.forEach(g=>{if(g.verberg)return;
-    const items=(g.items||[]).map(it=>({id:it.id,naam:it.naam,eenheid:it.eenheid||"per stuk",prijs:Number(it.key?c[it.key+"_p"]:it.prijs)||0,sec:Number(it.key?c[it.key+"_s"]:it.sec)||0,tiers:it.key?((c.tb&&c.tb[it.key])||[]):(it.tiers||[]),weging:it.key?(c.wg&&c.wg[it.key]!=null&&c.wg[it.key]!==""?Number(c.wg[it.key]):100):(it.weging??100),btw:it.btw??21}));
+    const items=(g.items||[]).map(it=>({id:it.id,naam:(g.items||[]).length===1&&(!String(it.naam||"").trim()||/^nieuwe dienst$/i.test(String(it.naam).trim()))?g.naam:it.naam,eenheid:it.eenheid||"per stuk",prijs:Number(it.key?c[it.key+"_p"]:it.prijs)||0,sec:Number(it.key?c[it.key+"_s"]:it.sec)||0,tiers:it.key?((c.tb&&c.tb[it.key])||[]):(it.tiers||[]),weging:it.key?(c.wg&&c.wg[it.key]!=null&&c.wg[it.key]!==""?Number(c.wg[it.key]):100):(it.weging??100),btw:it.btw??21}));
     if(g.type==="glas"){out.push({naam:g.naam||HD(),glas:true,prijs:0,duur:30,groep:g.id});return}
     const sec=items.reduce((a,x)=>a+x.sec,0);
     const fq=uFreqGroep(g.id);out.push({naam:g.naam,groep:g.id,eigen:!!g._eigen,inCalc:g.inCalc!==false,freqs:fq.keuzes?fq.keuzes.map(Number).filter(Boolean):null,freqAdvies:fq.advies?Number(fq.advies)||0:0,items,prijs:items.length===1?items[0].prijs:0,duur:Math.max(5,Math.round(sec/60/5)*5)||30,eenheid:items.length===1?items[0].eenheid:""})});
@@ -18007,7 +18009,7 @@ function kkHosp(kid){const k=state.klanten.find(x=>x.id===kid);if(!k)return;
     catch(er){$("#khSave").disabled=false;err(er)}}}
 /* andere diensten gaan mee met de glasbewassing: laat zien wat deze beurt extra gedaan moet worden */
 function ookDezeBeurt(k,day){let l=[];try{l=extraDue(k,day||iso(today()))}catch(e){}if(!l.length)return "";
-  return `<div class="ook-beurt"><span class="eyebrow">${I.plus}Deze beurt ook uitvoeren</span>${l.map(o=>{const its=(o.items||[]).filter(x=>Number(x.aantal)>0);return `<div class="ob-r"><b>${esc(o.dienst||"Dienst")}</b>${its.length?`<small>${esc(its.map(x=>x.naam+" "+String(x.aantal).replace(".",",")+" "+eenhKort(x.eenheid)).join(" · "))}</small>`:""}<span class="mono">${eur(toonR(k,o))}</span></div>`}).join("")}</div>`}
+  return `<div class="ook-beurt"><span class="eyebrow">${I.plus}Deze beurt ook uitvoeren</span>${l.map(o=>{const its=(o.items||[]).filter(x=>Number(x.aantal)>0);return `<div class="ob-r"><b>${esc(o.dienst||"Dienst")}</b>${its.length?`<small>${esc(its.map(x=>itNm(x,o.dienst)+" "+String(x.aantal).replace(".",",")+" "+eenhKort(x.eenheid)).join(" · "))}</small>`:""}<span class="mono">${eur(toonR(k,o))}</span></div>`}).join("")}</div>`}
 
 /* ---------- O-beurt: eerste wasbeurt na een aanvraag via de website, met tellingcontrole op locatie ---------- */
 const isOBeurt=k=>!!(k&&k.tellingControle&&isEersteKeer(k));
@@ -21578,9 +21580,9 @@ function uitTeVoeren(k,day){const d=day||iso(today()),L=[],nm=k.dienst||HD();
       q.f.forEach((n,i)=>{if(n&&due.f[i])L.push(nm+" - "+FLN[i]+" ("+n+" st)")});
       SPK.forEach(s=>{const n=q.sp[s];if(n&&due.sp[s])L.push("Glasbewassing bijzondere ramen - "+SPN[s].replace(" / ","/")+" ("+n+" st)")});
       const kz=q.f.map((n,i)=>n&&due.k[i]?n:0).reduce((a,b)=>a+b,0)+SPK.reduce((a,s)=>a+(q.sp[s]&&due.sk[s]?q.sp[s]:0),0);if(kz)L.push("Kozijnreiniging ("+kz+" ramen)")}
-    else if(Array.isArray(k.items)&&k.items.length)k.items.filter(x=>Number(x.aantal)>0).forEach(x=>L.push(nm+" - "+x.naam+" ("+x.aantal+" "+(typeof eenhKort==="function"?eenhKort(x.eenheid):"st")+")"));
+    else if(Array.isArray(k.items)&&k.items.length)k.items.filter(x=>Number(x.aantal)>0).forEach(x=>L.push(nm+" - "+itNm(x,nm)+" ("+x.aantal+" "+(typeof eenhKort==="function"?eenhKort(x.eenheid):"st")+")"));
     (typeof extraDue==="function"?extraDue(k,d):[]).filter(o=>o.actief!==false).forEach(o=>{const its=(o.items||[]).filter(x=>Number(x.aantal)>0);
-      if(its.length)its.forEach(x=>L.push((o.dienst||"Dienst")+" - "+x.naam+" ("+x.aantal+" "+(typeof eenhKort==="function"?eenhKort(x.eenheid):"st")+")"));else L.push(o.dienst||"Dienst")})}catch(e){console.error("uitTeVoeren",e)}
+      if(its.length)its.forEach(x=>L.push((o.dienst||"Dienst")+" - "+itNm(x,o.dienst)+" ("+x.aantal+" "+(typeof eenhKort==="function"?eenhKort(x.eenheid):"st")+")"));else L.push(o.dienst||"Dienst")})}catch(e){console.error("uitTeVoeren",e)}
   return L}
 function uitTeVoerenHtml(k,day){if(typeof GLAS==="function"&&!GLAS())return"";const L=uitTeVoeren(k,day);if(!L.length)return"";
   return `<div class="utv"><span class="utv-h">${I.ticket||""}Uit te voeren</span><ul>${L.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`}

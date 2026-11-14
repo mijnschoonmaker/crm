@@ -244,7 +244,7 @@ function uDienstLijst(){
   const groepen=src?[...(src.groepen||[]),...(src.eigen||[]).map(g=>({...g,_eigen:true}))]:uitvDefault().groepen;
   const out=[];
   groepen.forEach(g=>{if(g.verberg)return;
-    const items=(g.items||[]).map(it=>({id:it.id,naam:it.naam,eenheid:it.eenheid||"per stuk",prijs:Number(it.key?c[it.key+"_p"]:it.prijs)||0,sec:Number(it.key?c[it.key+"_s"]:it.sec)||0,tiers:it.key?((c.tb&&c.tb[it.key])||[]):(it.tiers||[]),weging:it.key?(c.wg&&c.wg[it.key]!=null&&c.wg[it.key]!==""?Number(c.wg[it.key]):100):(it.weging??100),btw:it.btw??21}));
+    const items=(g.items||[]).map(it=>({id:it.id,naam:(g.items||[]).length===1&&(!String(it.naam||"").trim()||/^nieuwe dienst$/i.test(String(it.naam).trim()))?g.naam:it.naam,eenheid:it.eenheid||"per stuk",prijs:Number(it.key?c[it.key+"_p"]:it.prijs)||0,sec:Number(it.key?c[it.key+"_s"]:it.sec)||0,tiers:it.key?((c.tb&&c.tb[it.key])||[]):(it.tiers||[]),weging:it.key?(c.wg&&c.wg[it.key]!=null&&c.wg[it.key]!==""?Number(c.wg[it.key]):100):(it.weging??100),btw:it.btw??21}));
     if(g.type==="glas"){out.push({naam:g.naam||HD(),glas:true,prijs:0,duur:30,groep:g.id});return}
     const sec=items.reduce((a,x)=>a+x.sec,0);
     const fq=uFreqGroep(g.id);out.push({naam:g.naam,groep:g.id,eigen:!!g._eigen,inCalc:g.inCalc!==false,freqs:fq.keuzes?fq.keuzes.map(Number).filter(Boolean):null,freqAdvies:fq.advies?Number(fq.advies)||0:0,items,prijs:items.length===1?items[0].prijs:0,duur:Math.max(5,Math.round(sec/60/5)*5)||30,eenheid:items.length===1?items[0].eenheid:""})});
