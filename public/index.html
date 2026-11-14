@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="46ca4dac6d53"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="61f814ef5b97"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -8188,6 +8188,8 @@ html body:not(#zz):not(#zy):not(#zx) .owv-con .check-row{background:#fff!importa
 html body:not(#zz):not(#zy) .kkg .ow-kv{padding:6px 0!important;border:0!important}
 .kkg .subt{color:#8a8f98;font-weight:400}
 html body:not(#zz):not(#zy) .kk-pay .kk-paykv{margin-top:16px}
+.owv-r[hidden],.owv-conf[hidden],.owv-conv[hidden]{display:none!important}
+.owv-r>b small{display:block;font-weight:400;font-size:12px;color:#8a8f98}
 
 </style>
 <div class="app">
@@ -15948,9 +15950,9 @@ function openOpdrachtWerk(kid,focus){
         ${k.gepland?`<button type="button" class="small ghost danger" id="owWis" style="grid-column:1/-1;justify-self:start;white-space:nowrap">Alle toekomstige afspraken verwijderen</button>`:""}
       </div></section>
     <section class="kp" data-owcontract><div class="kp-h"><span class="objic">${I.facturen}</span><b>Details contract</b></div>
-      <div class="owv-g owv-con"><small>Contract</small><div class="owv-r"><span>Status</span><b>${status[1]}</b></div><div class="owv-r"><span>Offerte</span><b>${off?`<button type="button" class="linkbtn" data-act="factuur" data-id="${esc(off.id)}">${esc(off.nummer)} · geaccepteerd</button>`:"—"}</b></div>
-      <div class="grid2 owv-dat"><label>Startdatum contract<input id="ow-start" type="date" value="${esc(k.startdatum||String((off&&off.akkoordOp)||k.aangemaakt||iso(today())).slice(0,10))}"></label><label>Einddatum contract<input id="ow-eind" type="date" value="${esc(k.einddatum||"")}"><small class="help">Na deze datum niet meer aanbieden</small></label></div>
-      <label class="check-row"><input id="ow-akkoord" type="checkbox" ${k.akkoord?"checked":""}>Akkoord op overeenkomst en algemene voorwaarden</label></div></section>
+      <div class="owv-g owv-con"><small>Contract</small><div class="owv-r"><span>Status</span><b>${status[1]}</b></div><div class="owv-r" ${off?"":"hidden"}><span>Offerte</span><b>${off?`<button type="button" class="linkbtn" data-act="factuur" data-id="${esc(off.id)}">${esc(off.nummer)} · geaccepteerd</button>`:"—"}</b></div>
+      <div class="owv-conv" id="owConV"></div><div class="owv-conf" id="owConF" hidden><div class="grid2 owv-dat"><label>Startdatum contract<input id="ow-start" type="date" value="${esc(k.startdatum||String((off&&off.akkoordOp)||k.aangemaakt||iso(today())).slice(0,10))}"></label><label>Einddatum contract<input id="ow-eind" type="date" value="${esc(k.einddatum||"")}"><small class="help">Na deze datum niet meer aanbieden</small></label></div>
+      <label class="check-row"><input id="ow-akkoord" type="checkbox" ${k.akkoord?"checked":""}>Akkoord op overeenkomst en algemene voorwaarden</label></div></div></section>
     <section class="kp"><div class="kp-h"><span class="objic">${I.euro||I.facturen}</span><b>Facturatie</b></div>
       <div class="grid2">
         <label>Betaalwijze<select id="ow-betaal"><option value="bank" ${k.incasso?"":"selected"}>Per bank</option><option value="incasso" ${k.incasso?"selected":""}>Automatische incasso</option></select></label>
@@ -15993,14 +15995,17 @@ function openOpdrachtWerk(kid,focus){
     const jn=on=>`<i class="owv-jn${on?" ja":""}">${on?"Ja":"Nee"}</i>`,jc=c=>jn(!!(c&&c.checked));
     const groep=(t,h)=>`<div class="owv-g"><small>${t}</small>${h}</div>`;
     v.innerHTML=`<div class="owv">`
-      +groep("Planning",rij("Ronde",esc((g("ronde")&&g("ronde").value.trim())||"—"))+rij("Contactmethode",esc(sel("contact")))+rij("Eerste keer",esc(sel("eerste")))+rij("Medewerker belt onderweg",jc(g("bellen"))))
-      +groep("Wat de klant ziet",rij("Aantallen verbergen",jc(g("verbA")))+rij("Frequenties verbergen",jc(g("verbF"))))
-      +groep("Prijs en status",rij("Toeslag",ts?`${ts}%${tr?` <small>${esc(tr)}</small>`:""}`:jn(false))+rij("Opdracht loopt",jc(g("actief")))
-        +(k.gepland?rij("Toekomstige afspraken",`<button type="button" class="linkbtn" id="owWisV">Alle verwijderen</button>`):""))
+      +groep("Planning",rij("Ronde",esc((g("ronde")&&g("ronde").value.trim())||"—"))+rij("Contactmethode",esc(sel("contact")))+rij("Eerste keer",jn(g("eerste")&&g("eerste").value==="ja"))+rij("Medewerker belt onderweg",jc(g("bellen"))))
+      +groep("Op de factuur",rij("Aantallen tonen",jn(!(g("verbA")&&g("verbA").checked)))+rij("Frequenties tonen",jn(!(g("verbF")&&g("verbF").checked))))
+      +groep("Prijs",rij("Toeslag",ts?`${ts}%${tr?` <small>${esc(tr)}</small>`:""}`:"Geen"))
       +`</div>`;
     const w=$("#owWisV");if(w)w.onclick=()=>{const b=$("#owWis");if(b)b.click()}};
   drawOpdV();
-  {const e=$("#owOpdE"),f=$("#owOpdF"),v=$("#owOpdV");if(e&&f&&v)e.onclick=()=>{const open=f.hidden;f.hidden=!open;v.hidden=open;e.classList.toggle("on",open);e.innerHTML=open?I.check:I.pencil;e.title=open?"Klaar":"Wijzigen";if(!open)drawOpdV()}}
+  const drawCon=()=>{const v=$("#owConV");if(!v)return;const st=$o("start")&&$o("start").value,en=$o("eind")&&$o("eind").value,ak=$o("akkoord")&&$o("akkoord").checked;
+    const r=(a,b)=>`<div class="owv-r"><span>${a}</span><b>${b}</b></div>`;
+    v.innerHTML=r("Looptijd",(st?"Sinds "+esc(fmtL(st)):"Geen startdatum")+`<small>${en?"Niet meer aanbieden na "+esc(fmtL(en)):"Geen einddatum"}</small>`)+r("Akkoord voorwaarden",`<i class="owv-jn${ak?" ja":""}">${ak?"Ja":"Nee"}</i>`)};
+  drawCon();
+  {const e=$("#owOpdE"),f=$("#owOpdF"),v=$("#owOpdV");if(e&&f&&v)e.onclick=()=>{const open=f.hidden;f.hidden=!open;v.hidden=open;{const cf=$("#owConF"),cv=$("#owConV");if(cf&&cv){cf.hidden=!open;cv.hidden=open;if(!open)drawCon()}}e.classList.toggle("on",open);e.innerHTML=open?I.check:I.pencil;e.title=open?"Klaar":"Wijzigen";if(!open)drawOpdV()}}
   const editR=new Set();
   /* extra diensten ingeklapt tonen; open bij nieuw toevoegen of na "Wijzigen" */
   const dicht=new Set((k.opdrachten||[]).map(o=>o.id));

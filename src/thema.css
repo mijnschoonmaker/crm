@@ -2358,3 +2358,5 @@ html body:not(#zz):not(#zy):not(#zx) .owv-con .check-row{background:#fff!importa
 html body:not(#zz):not(#zy) .kkg .ow-kv{padding:6px 0!important;border:0!important}
 .kkg .subt{color:#8a8f98;font-weight:400}
 html body:not(#zz):not(#zy) .kk-pay .kk-paykv{margin-top:16px}
+.owv-r[hidden],.owv-conf[hidden],.owv-conv[hidden]{display:none!important}
+.owv-r>b small{display:block;font-weight:400;font-size:12px;color:#8a8f98}
