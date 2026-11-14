@@ -169,7 +169,7 @@ function vPlanning(){
 /* beknopte info bij een afgeronde afspraak */
 function openBeurtInfo(id){
   const b=state.beurten.find(x=>x.id===id);if(!b)return;const k=state.klanten.find(x=>x.id===b.klantId),d=parse(b.datum);
-  if(k){openJob(k.id,b.datum);return}/* zelfde paneel als een geplande opdracht, met afgerond-kop en factuurgegevens */
+  if(k){openJob(k.id,b.datum,{bid:b.id,groot:!!(dlg.open&&document.getElementById("kkBody"))});return}/* zelfde paneel als een geplande opdracht, met afgerond-kop en factuurgegevens */
   const f=b.gefactureerd?state.facturen.find(x=>x.id===b.gefactureerd):null;
   const nm=cleanName(k?k.naam:b.klantNaam),adr=k?jobAddr(k):"",tel=k?String(k.telefoon||"").replace(/[^\d+]/g,""):"";
   const rij=(l,v)=>v?`<div class="bi-r"><span>${l}</span><b>${v}</b></div>`:"";

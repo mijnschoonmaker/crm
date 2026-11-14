@@ -2430,3 +2430,8 @@ html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) dialog .kk-grid.
 html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) dialog .kk-grid.fw-v2>.kk-left{order:0!important}
 html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) dialog .kk-grid.fw-v2>.kk-side{order:1!important}
 @media (max-width:900px){html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) dialog .kk-grid.fw-v2{grid-template-columns:minmax(0,1fr)!important}html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) dialog .kk-grid.fw-v2>.kk-side{order:-1!important}}
+/* bezoek groot geopend (vanuit klantkaart): twee kolommen zoals opdracht/factuur */
+html body:not(#zz):not(#zy):not(#zx) #jobPanel.jp-groot .jp-body.jpk{display:block!important;columns:2;column-gap:20px;padding:20px 24px 28px!important}
+html body:not(#zz):not(#zy):not(#zx) #jobPanel.jp-groot .jp-body.jpk>*{break-inside:avoid;margin:0 0 20px!important;display:block}
+html body:not(#zz):not(#zy):not(#zx) #jobPanel.jp-groot .jp-tiles{padding:20px 24px 4px!important;max-width:640px}
+@media (max-width:900px){html body:not(#zz):not(#zy):not(#zx) #jobPanel.jp-groot .jp-body.jpk{columns:1}}

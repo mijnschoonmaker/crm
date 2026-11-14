@@ -99,9 +99,9 @@ function vVandaag(){
 }
 
 /* ---------- JOB-PANEEL (klik op een stop) ---------- */
-function openJob(id,day){
+function openJob(id,day,o={}){
   const k=state.klanten.find(x=>x.id===id);if(!k)return;day=day||iso(today());
-  const b=state.beurten.find(x=>x.klantId===id&&x.datum===day),done=!!b,js=done?"afgerond":jobState(k,day),sp=STATEPILL[js],d=parse(day);
+  const b=(o.bid&&state.beurten.find(x=>x.id===o.bid&&x.klantId===id))||state.beurten.find(x=>x.klantId===id&&x.datum===day),done=!!b,js=done?"afgerond":jobState(k,day),sp=STATEPILL[js],d=parse(day);
   const tel=String(k.telefoon||"").replace(/[^\d+]/g,""),bedrag=done?beurtBedrag(b):prijsMee(k,day),st=S();
   const vars=klantVars(k,d),T=tpls(),aan=T.aankondiging||{};
   const mail=k.email?"mailto:"+encodeURIComponent(k.email)+"?subject="+encodeURIComponent(fill(aan.onderwerp||HD(),vars)):"";
@@ -109,7 +109,7 @@ function openJob(id,day){
   const tile=(href,ic,l,dis)=>dis?"":`<a class="jp-tile" href="${esc(href)}" ${/^https?:/.test(href)?'target="_blank" rel="noopener"':""}>${ic}<span>${l}</span></a>`;
   const nxt=ritmeVolgende(k,done?d:(d<today()?today():d));
   const diensten=[[k.dienst||HD(),done?bedrag:Number(k.prijs)||0]].concat(k.binnen?[]:[]);
-  openDlg(`<div id="jobPanel" data-d="${esc(day)}" data-k="${esc(k.id)}" class="jp${done?" jp-isaf":""}">
+  openDlg(`<div id="jobPanel" data-d="${esc(day)}" data-k="${esc(k.id)}" class="jp${done?" jp-isaf":""}${o.groot?" jp-groot":""}">
   <div class="jp-kop jp-${js}"><div class="jp-kr1"><span class="jp-st"><i></i>${esc(sp[1])}</span><button type="button" class="jp-st jp-kk" data-act="klant" data-id="${esc(k.id)}">${I.user}Klantkaart${I.right}</button><span class="sp"></span>${!done&&k.gepland===day?`<button type="button" class="jp-ib" data-act="afsprdel" data-id="${esc(k.id)}" title="Afspraak verwijderen" aria-label="Afspraak verwijderen">${I.trash}</button>`:""}<button type="button" class="jp-ib" data-act="close" aria-label="Sluiten">${I.x}</button></div>
     <div class="jp-kr2"><span class="jp-k1"><small>${["zo","ma","di","wo","do","vr","za"][d.getDay()]} ${d.getDate()} ${["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"][d.getMonth()]}</small><b>${esc(k.tijd||"–")}</b></span>
       <span class="jp-k2"><b>${esc(cleanName(k.naam))}</b><em>${I.pin}${esc(jobAddr(k))}</em></span>
@@ -144,7 +144,7 @@ function openJob(id,day){
     ${done?`<section class="jpk-s jpk-vb"><div class="jpk-h"><b>Volgende bezoek</b><span class="sp"></span>${k.gepland&&k.gepland>day?"":`<button type="button" class="small" data-act="afspraak" data-id="${esc(k.id)}">${I.planning}Inplannen</button>`}</div><p>${k.gepland&&k.gepland>day?esc(fmtL(k.gepland))+(k.tijd?" · "+esc(k.tijd):""):"Nog niet ingepland"}</p></section>`:""}
   </div>
   <div class="jp-foot">${done?`${!b.gefactureerd||b.gefactureerd==="nvt"?`<button type="button" class="ghost" data-act="afterug" data-id="${esc(b.id)}">${I.refresh}Afmelding terugdraaien</button>`:""}${b.gefactureerd&&!["nvt","periodiek"].includes(b.gefactureerd)&&state.facturen.some(x=>x.id===b.gefactureerd)?`<button type="button" class="primary" data-act="factuur" data-id="${esc(b.gefactureerd)}">${I.facturen}Factuur bekijken</button>`:!b.gefactureerd&&!isMw()?`<button type="button" class="primary" data-act="beurtfact" data-id="${esc(b.id)}">${I.facturen}Factuur maken</button>`:""}`:`${day===iso(today())?`<button type="button" data-act="start" data-id="${esc(k.id)}">${isBezig(k)?I.check+"Stop &amp; afmelden "+timerHtml(k):I.play+"Start"}</button>`:""}${isMw()?"":`<button type="button" class="ghost" data-act="factureren" data-id="${esc(k.id)}">${I.facturen}Direct factureren</button>`}<button type="button" class="primary" data-act="afmelden" data-id="${esc(k.id)}">${I.check}Afmelden</button>`}</div>
-  </div>`,{drawer:true});
+  </div>`,o.groot?{xwide:true}:{drawer:true});
 }
 
 /* ---------- ruit die schoon wordt: de wisser zakt mee met de verwachte tijd ---------- */
