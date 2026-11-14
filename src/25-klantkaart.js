@@ -94,7 +94,7 @@ function openKlantView(id,opt={}){
         +G("Contact",kv("Naam",esc(cleanName(k.naam)))+(k.contact?kv("Contactpersoon",esc(k.contact)):"")+(k.functie?kv("Functie",esc(k.functie)):"")+kv("E-mailadres",mail(k.email))+kv("Telefoon",tel(k.telefoon))+kv("Mobiel",k.mobiel?tel(k.mobiel):"")+kv("Website",k.website?`<a href="${esc(/^https?:/.test(k.website)?k.website:"https://"+k.website)}" target="_blank" rel="noopener">${esc(k.website)}</a>`:""))
         +G("Klant",kv("Klantnummer",esc(nr))+kv("Type klant",soortLbl(k))+(isZak(k)||k.kvk?kv("KVK-nummer",esc(k.kvk||"")):"")+(isZak(k)||k.btwnr?kv("BTW-nummer",esc(k.btwnr||"")):"")+kv("Klant sinds",k.aangemaakt?esc(fmtL(k.aangemaakt)):"")+(k.ronde?kv("Ronde",esc(k.ronde)):"")+kv("Status",k.actief===false?`Inactief${k.opzegReden?` <small class="subt">${esc(k.opzegReden)}</small>`:""}`:"Actief")+kv("Nieuwe klant",jn(!!k.nieuweKlant)))
         +G("Persoonlijk",kv("Geboortedatum",k.geboortedatum?esc(fmtL(k.geboortedatum)):"")+kv("Geslacht",esc(gesl))+kv("Verjaardagsmail",vt?esc(vt):"Geen"))
-        +G("Berichten",kv("Nieuwsbrief",k.nieuwsbrief===false?jn(false):`${jn(true)} <small class="subt">${esc(k.nbGroep||"Standaard")}</small>`)+kv("Reviewverzoeken",jn(!k.geenReview)))
+        +G("Berichten",kv("Nieuwsbrief",k.nieuwsbrief===false?jn(false):`${jn(true)} <small class="subt">· groep ${esc(k.nbGroep||"Standaard")}</small>`)+kv("Reviewverzoeken",jn(!k.geenReview)))
         +G("Bank",kv("IBAN",k.iban?esc(k.iban)+(k.rekeninghouder?`<br><small class="subt">${esc(k.rekeninghouder)}</small>`:""):"")+kv("Niet meer aanbieden",Number(k.maxOpen)>0?`Vanaf ${Number(k.maxOpen)} openstaande factu${Number(k.maxOpen)>1?"ren":"ur"}`:"Standaard"))
         +`</div>`})()}
       </section>
