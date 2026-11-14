@@ -2353,3 +2353,7 @@ html body:not(#zz):not(#zy):not(#zx) .owv-con .owv-dat input{background:#fff!imp
 html body:not(#zz):not(#zy):not(#zx) .owv-con .check-row{background:#fff!important;border:1px solid #e6e8ec!important;margin:10px 0 8px!important}
 .owv-top>div{background:#fff;border:1px solid #e6e8ec}
 .kk-pay .kk-paykv{margin-top:14px}
+/* klantkaart: klantgegevens gegroepeerd */
+.kkgv{margin-top:14px}
+html body:not(#zz):not(#zy) .kkg .ow-kv{padding:6px 0!important;border:0!important}
+.kkg .subt{color:#8a8f98;font-weight:400}

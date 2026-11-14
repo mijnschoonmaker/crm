@@ -87,8 +87,16 @@ function openKlantView(id,opt={}){
   <div class="kk-grid kd kk-v2" id="kkBody"><div class="kk-left">
     <section class="kp"><div class="kp-h"><span class="objic">${I.user}</span><b>Klantgegevens</b><span class="sp"></span>${pen("edit","Klantgegevens aanpassen")}</div>
       <a class="kd-map" href="${esc(mapsQ(k))}" target="_blank" rel="noopener" aria-label="Open in kaarten"><span class="kd-pin">${I.pin}</span><span><b>${esc(k.adres||"")}</b><small>${esc([k.postcode,k.plaats].filter(Boolean).join(" "))}</small></span><em>${I.nav}Route</em></a>
-      ${kv("Klantnummer",esc(nr))}${kv("Type klant",soortLbl(k))}${kv("Naam",esc(cleanName(k.naam)))}${k.contact?kv("Contactpersoon",esc(k.contact)):""}${k.geboortedatum?kv("Geboortedatum",esc(fmtL(k.geboortedatum))):""}
-      ${kv("E-mailadres",mail(k.email))}${kv("Telefoon",tel(k.telefoon))}${k.mobiel?kv("Mobiel",tel(k.mobiel)):""}${k.website?kv("Website",`<a href="${esc(/^https?:/.test(k.website)?k.website:"https://"+k.website)}" target="_blank" rel="noopener">${esc(k.website)}</a>`):""}${k.iban?kv("IBAN",esc(k.iban)+(k.rekeninghouder?`<br><small class="subt">${esc(k.rekeninghouder)}</small>`:"")):""}${kv("Klant sinds",k.aangemaakt?esc(fmtL(k.aangemaakt)):"")}${k.ronde?kv("Ronde",esc(k.ronde)):""}
+      ${(()=>{const G=(t,h)=>`<div class="owv-g kkg"><small>${t}</small>${h}</div>`,jn=on=>`<i class="owv-jn${on?" ja":""}">${on?"Ja":"Nee"}</i>`;
+        let vt="";try{const T=tpls();vt=k.verjaardagTpl&&T[k.verjaardagTpl]?T[k.verjaardagTpl].naam:""}catch(e){}
+        const gesl={man:"Man",vrouw:"Vrouw"}[k.geslacht]||"Onbekend";
+        return `<div class="owv kkgv">`
+        +G("Contact",kv("Naam",esc(cleanName(k.naam)))+(k.contact?kv("Contactpersoon",esc(k.contact)):"")+(k.functie?kv("Functie",esc(k.functie)):"")+kv("E-mailadres",mail(k.email))+kv("Telefoon",tel(k.telefoon))+kv("Mobiel",k.mobiel?tel(k.mobiel):"")+kv("Website",k.website?`<a href="${esc(/^https?:/.test(k.website)?k.website:"https://"+k.website)}" target="_blank" rel="noopener">${esc(k.website)}</a>`:""))
+        +G("Klant",kv("Klantnummer",esc(nr))+kv("Type klant",soortLbl(k))+(isZak(k)||k.kvk?kv("KVK-nummer",esc(k.kvk||"")):"")+(isZak(k)||k.btwnr?kv("BTW-nummer",esc(k.btwnr||"")):"")+kv("Klant sinds",k.aangemaakt?esc(fmtL(k.aangemaakt)):"")+(k.ronde?kv("Ronde",esc(k.ronde)):"")+kv("Status",k.actief===false?`Inactief${k.opzegReden?` <small class="subt">${esc(k.opzegReden)}</small>`:""}`:"Actief")+kv("Nieuwe klant",jn(!!k.nieuweKlant)))
+        +G("Persoonlijk",kv("Geboortedatum",k.geboortedatum?esc(fmtL(k.geboortedatum)):"")+kv("Geslacht",esc(gesl))+kv("Verjaardagsmail",vt?esc(vt):"Geen"))
+        +G("Berichten",kv("Nieuwsbrief",k.nieuwsbrief===false?jn(false):`${jn(true)} <small class="subt">${esc(k.nbGroep||"Standaard")}</small>`)+kv("Reviewverzoeken",jn(!k.geenReview)))
+        +G("Bank",kv("IBAN",k.iban?esc(k.iban)+(k.rekeninghouder?`<br><small class="subt">${esc(k.rekeninghouder)}</small>`:""):"")+kv("Niet meer aanbieden",Number(k.maxOpen)>0?`Vanaf ${Number(k.maxOpen)} openstaande factu${Number(k.maxOpen)>1?"ren":"ur"}`:"Standaard"))
+        +`</div>`})()}
       </section>
     <section class="kp kk-pay"><div class="kp-h"><span class="objic">${I.euro}</span><b>Betaalgedrag</b><span class="sp"></span>${payBlok(bg,"pil")}</div>${payBlok(bg,true)}<div class="kk-paykv">${kv("Betaalwijze",k.incasso?"Automatische incasso":"Per bank")}${k.termijn?kv("Betalingstermijn",esc(k.termijn)+" dagen"):""}</div>
       </section>
