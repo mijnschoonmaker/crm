@@ -2417,3 +2417,11 @@ html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) dialog .fw-v2 .fw-tot b{f
 html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) dialog .fw-v2 .fw-tot .g{font-size:16px!important;font-weight:600!important;color:#14171c!important;padding-top:8px;border-top:1px solid rgb(26 32 48/.1)}
 html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) dialog .fw-v2 .fw-tot span.g{font-size:11px!important;letter-spacing:.22em;text-transform:uppercase;align-self:end}
 html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) dialog .fw-v2 .fw-tot{column-gap:0!important}html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) dialog .fw-v2 .fw-tot b{padding-left:16px}
+/* totaal: geen parelvlak (alleen bovenaan), gewoon rustige regels */
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu):not(#zt) dialog .fw-v2 .fw-tot{background:none!important;border:0!important;box-shadow:none!important;padding:4px 16px 0!important;gap:4px 0!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu):not(#zt) dialog .fw-v2 .fw-tot .g{border-top:0!important;padding-top:6px!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu):not(#zt) dialog .fw-v2 .fw-rk-b>span{flex-direction:row!important;align-items:baseline;gap:6px!important}
+/* regels gewoon wit, zoals op de factuur */
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu):not(#zt) dialog .fw-v2 .fw-rks{gap:0!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu):not(#zt) dialog .fw-v2 .fw-rk{background:#fff!important;border-radius:0!important;padding:14px 16px!important;border-bottom:1px solid #eceef1!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu):not(#zt) dialog .fw-v2 .fw-tot{padding:12px 16px 0!important}
