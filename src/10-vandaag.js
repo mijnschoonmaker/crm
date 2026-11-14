@@ -148,8 +148,8 @@ function openJob(id,day,o={}){
   /* groot (vanuit klantkaart): parel-rij over de volle breedte bovenaan, zoals opdracht- en factuurkaart */
   if(o.groot){try{const jp=document.getElementById("jobPanel"),pr=jp&&jp.querySelector(".jpk-pearl"),bd=jp&&jp.querySelector(".jp-body");if(pr&&bd){pr.classList.add("jpk-pearl-top");bd.parentNode.insertBefore(pr,bd)}
     if(bd){const secs=[...bd.children],L=document.createElement("div"),R=document.createElement("div");L.className="jpk-col";R.className="jpk-col";
-      const isL=el=>el.classList.contains("jpk-gast")||/^(bezoek|opdracht)$/i.test(((el.querySelector(".jpk-h>b")||{}).textContent||"").trim());
-      secs.forEach(el=>(isL(el)?L:R).appendChild(el));bd.appendChild(L);bd.appendChild(R);bd.classList.add("jpk-2k")}}catch(e){}}
+      const tt=el=>((el.querySelector(".jpk-h>b")||{}).textContent||"").trim().toLowerCase(),volg=["klant","diensten"],rang=el=>el.classList.contains("jpk-gast")?-1:volg.indexOf(tt(el));
+      secs.filter(el=>rang(el)!==-1||el.classList.contains("jpk-gast")).sort((a,b)=>rang(a)-rang(b)).forEach(el=>L.appendChild(el));{const rv=["bezoek","opdracht"],rr=el=>{const i=rv.indexOf(tt(el));return i<0?9:i};secs.filter(el=>!L.contains(el)).sort((a,b)=>rr(a)-rr(b)).forEach(el=>R.appendChild(el))}bd.appendChild(L);bd.appendChild(R);bd.classList.add("jpk-2k")}}catch(e){}}
 }
 
 /* ---------- ruit die schoon wordt: de wisser zakt mee met de verwachte tijd ---------- */

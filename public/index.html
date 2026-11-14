@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="91e1fd9f3948"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="a8f4669ba970"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -10611,8 +10611,8 @@ function openJob(id,day,o={}){
   /* groot (vanuit klantkaart): parel-rij over de volle breedte bovenaan, zoals opdracht- en factuurkaart */
   if(o.groot){try{const jp=document.getElementById("jobPanel"),pr=jp&&jp.querySelector(".jpk-pearl"),bd=jp&&jp.querySelector(".jp-body");if(pr&&bd){pr.classList.add("jpk-pearl-top");bd.parentNode.insertBefore(pr,bd)}
     if(bd){const secs=[...bd.children],L=document.createElement("div"),R=document.createElement("div");L.className="jpk-col";R.className="jpk-col";
-      const isL=el=>el.classList.contains("jpk-gast")||/^(bezoek|opdracht)$/i.test(((el.querySelector(".jpk-h>b")||{}).textContent||"").trim());
-      secs.forEach(el=>(isL(el)?L:R).appendChild(el));bd.appendChild(L);bd.appendChild(R);bd.classList.add("jpk-2k")}}catch(e){}}
+      const tt=el=>((el.querySelector(".jpk-h>b")||{}).textContent||"").trim().toLowerCase(),volg=["klant","diensten"],rang=el=>el.classList.contains("jpk-gast")?-1:volg.indexOf(tt(el));
+      secs.filter(el=>rang(el)!==-1||el.classList.contains("jpk-gast")).sort((a,b)=>rang(a)-rang(b)).forEach(el=>L.appendChild(el));{const rv=["bezoek","opdracht"],rr=el=>{const i=rv.indexOf(tt(el));return i<0?9:i};secs.filter(el=>!L.contains(el)).sort((a,b)=>rr(a)-rr(b)).forEach(el=>R.appendChild(el))}bd.appendChild(L);bd.appendChild(R);bd.classList.add("jpk-2k")}}catch(e){}}
 }
 
 /* ---------- ruit die schoon wordt: de wisser zakt mee met de verwachte tijd ---------- */
