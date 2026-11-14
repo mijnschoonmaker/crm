@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="986bf7a15983"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="f45630f3e318"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -8301,6 +8301,29 @@ html body:not(#zz) dialog:has(.kk-hero) .kk-v2 .pt-acts .pt-opn{display:none}
 .pt-opk{display:none}
 @media (max-width:640px){html body:not(#zz) dialog:has(.kk-hero) .kk-v2 .pt-acts .pt-opk{display:inline}}
 html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu):not(#zt) #jobPanel.jp-groot .jpk-vb{display:none!important}
+/* ===== Historiekaart ===== */
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) #jobPanel.jp-hist .jpk-pearl .kk-kern{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+#jobPanel.jp-hist .jh-nav{display:inline-flex;align-items:center;gap:6px;margin-right:8px}
+#jobPanel.jp-hist .jh-nav small{font-size:12px;color:rgb(255 255 255/.7);min-width:58px;text-align:center}
+#jobPanel.jp-hist .jh-nav .jp-ib[disabled]{opacity:.3;cursor:default}
+#jobPanel.jp-hist .jh-gedaan>div>span small{color:#8a8f98;font-weight:400}
+#jobPanel.jp-hist .jh-tot{display:flex;justify-content:space-between;align-items:baseline;padding:12px 16px 0;font-size:13px;color:#5b6270}
+#jobPanel.jp-hist .jh-tot b{font-size:16px;font-weight:600;color:#14171c}
+#jobPanel.jp-hist .jh-fbtn{display:flex;align-items:center;gap:8px;width:100%;margin-top:10px;padding:11px 14px;border:1px solid #e6e8ec;border-radius:12px;background:#fff;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#14171c;cursor:pointer;min-height:0}
+#jobPanel.jp-hist .jh-fbtn svg{width:15px;height:15px}
+#jobPanel.jp-hist .jh-fbtn svg:last-child{margin-left:auto}
+#jobPanel.jp-hist .jh-leeg{margin:0;font-size:13px;color:#8a8f98}
+#jobPanel.jp-hist .jh-ber{display:flex;flex-direction:column;gap:6px}
+#jobPanel.jp-hist .jh-ber>div{display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:10px;align-items:baseline;background:#f6f7f9;border-radius:12px;padding:9px 14px;font-size:13px}
+#jobPanel.jp-hist .jh-ber span{font-size:12px;color:#8a8f98;white-space:nowrap}
+#jobPanel.jp-hist .jh-ber b{font-weight:600;color:#14171c;white-space:nowrap}
+#jobPanel.jp-hist .jh-ber em{font-style:normal;color:#5b6270;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#jobPanel.jp-hist .jh-fotos{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}
+#jobPanel.jp-hist .jh-foto{display:flex;flex-direction:column;gap:4px;padding:0;border:0;background:none;cursor:zoom-in;text-align:left;min-height:0}
+#jobPanel.jp-hist .jh-foto img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px}
+#jobPanel.jp-hist .jh-foto small{font-size:11.5px;color:#5b6270}
+html body:not(#zz):not(#zy):not(#zx) #jobPanel.jp-hist .jp-foot{display:flex;justify-content:flex-end}
+@media (max-width:700px){html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) #jobPanel.jp-hist .jpk-pearl .kk-kern{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 
 </style>
 <div class="app">
@@ -11174,7 +11197,7 @@ function vPlanning(){
 /* beknopte info bij een afgeronde afspraak */
 function openBeurtInfo(id){
   const b=state.beurten.find(x=>x.id===id);if(!b)return;const k=state.klanten.find(x=>x.id===b.klantId),d=parse(b.datum);
-  if(k){openJob(k.id,b.datum,{bid:b.id,groot:!!(dlg.open&&document.getElementById("kkBody"))});return}/* zelfde paneel als een geplande opdracht, met afgerond-kop en factuurgegevens */
+  if(k){if(dlg.open&&(document.getElementById("kkBody")||document.querySelector("#jobPanel.jp-hist"))&&typeof openBezoekHist==="function"){openBezoekHist(b.id);return}openJob(k.id,b.datum,{bid:b.id});return}/* zelfde paneel als een geplande opdracht, met afgerond-kop en factuurgegevens */
   const f=b.gefactureerd?state.facturen.find(x=>x.id===b.gefactureerd):null;
   const nm=cleanName(k?k.naam:b.klantNaam),adr=k?jobAddr(k):"",tel=k?String(k.telefoon||"").replace(/[^\d+]/g,""):"";
   const rij=(l,v)=>v?`<div class="bi-r"><span>${l}</span><b>${v}</b></div>`:"";
@@ -20017,6 +20040,69 @@ function ticketGaten(root){(root||document).querySelectorAll(".swipe-card.tk,.ft
       const v=h.venster;if(v&&typeof REG[v.f]==="function"){try{({openKlantView,kkBerichten,kkOpenOverzicht,openJob,openFactuur,openOpdracht,openOpdrachtWerk,openAfspraak,openBeurtInfo,openReeksInfo,openPeriodiek,openRamenKlant,openAkkoord,openAangifte,openTplView})[v.f](...v.a);if(h.vy)requestAnimationFrame(()=>{try{dlg.scrollTop=h.vy}catch(_){}})}catch(e){console.error("herstel venster",e)}}
     },60)})();
 })();
+
+/* ---------- Historiekaart: verslag van één gedaan bezoek (geopend vanuit Historie bezoeken op de klantkaart) ----------
+   Alles op deze kaart gaat over dát bezoek: wat er gedaan is, tegen welke prijs, hoe lang, de factuur en de berichten eromheen.
+   Geen actieknoppen of huidige opdrachtinstellingen; met ‹ › blader je door de bezoeken van deze klant. */
+function openBezoekHist(bid){
+  const b=state.beurten.find(x=>x.id===bid);if(!b)return;
+  const k=state.klanten.find(x=>x.id===b.klantId);if(!k){openBeurtInfo(bid);return}
+  const d=parse(b.datum);
+  const lijst=state.beurten.filter(x=>x.klantId===b.klantId).sort((x,y)=>String(x.datum+(x.tijd||"")).localeCompare(String(y.datum+(y.tijd||""))));
+  const ix=lijst.findIndex(x=>x.id===b.id),vorig=ix>0?lijst[ix-1]:null,volg=ix>=0&&ix<lijst.length-1?lijst[ix+1]:null;
+  const f=b.gefactureerd&&!["nvt","periodiek"].includes(b.gefactureerd)?state.facturen.find(x=>x.id===b.gefactureerd):null;
+  const fs=f?fStatus(f):null,ex=S().toonEx||!S().incl;
+  const om=b.op?new Date(b.op).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"}):"";
+  const mm=m=>{m=Math.round(Number(m)||0);return m>=60?Math.floor(m/60)+"u"+String(m%60).padStart(2,"0"):m+" min"};
+  const gepland=Number(b.geplandDuur)||duur(k),gemeten=Number(b.duur)||0;
+  const op=beurtOpbouw(b);
+  const tile=(t,v,s)=>`<div class="kkh-t"><span>${t}</span><b>${v}</b><small>${s||""}</small></div>`;
+  const dagKort=["zo","ma","di","wo","do","vr","za"][d.getDay()]+" "+d.getDate()+" "+["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"][d.getMonth()];
+  /* wat er gedaan is: de regels van de factuur (prijzen van toen), anders de dienst en extra's van het bezoek */
+  let gedaan="";
+  if(f&&(f.regels||[]).length){const inc=f.incl??S().incl;
+    gedaan=f.regels.map(r=>{const p=Number(r.prijs)||0,a=Number(r.aantal)||0,bt=rBtw(f,r),e=(inc?p/(1+bt/100):p)*a,v=ex?e:e*(1+bt/100);
+      return `<div><span>${esc(omsZonderDatum?omsZonderDatum(r.omschrijving||""):r.omschrijving||"")}${a&&a!==1?` <small>${a.toLocaleString("nl-NL")} ×</small>`:""}</span><b>${eur(v)}</b></div>`}).join("");
+  }else{gedaan=`<div><span>${esc(b.dienst||HD())}</span><b>${eur(beurtVerdiend(b))}</b></div>`+(b.extra||[]).map(x=>`<div><span>${esc(x)}</span><b><small>extra</small></b></div>`).join("")}
+  /* foto's die bij dit bezoek gemaakt zijn, gingen mee met de factuur */
+  const fotos=f?(f.bijlagen||[]).map((x,i)=>({x,i})).filter(o=>o.x.soort==="foto"):[];
+  /* berichten rond dit bezoek: van een week ervoor tot drie weken erna */
+  const van=iso(addDays(d,-7)),tot=iso(addDays(d,21));
+  const ber=state.berichten.filter(m=>m.klantId===b.klantId&&String(m.op).slice(0,10)>=van&&String(m.op).slice(0,10)<=tot).sort((x,y)=>String(x.op).localeCompare(String(y.op)));
+  const kan=m=>(typeof KANAAL!=="undefined"&&KANAAL[m.kanaal])||m.kanaal||"Bericht";
+  openDlg(`<div id="jobPanel" data-d="${esc(b.datum)}" data-k="${esc(k.id)}" class="jp jp-isaf jp-groot jp-hist">
+  <div class="jp-kop jp-afgerond"><div class="jp-kr1"><span class="jp-st"><i></i>Afgerond</span><button type="button" class="jp-st jp-kk" data-act="klant" data-id="${esc(k.id)}">${I.user}Klantkaart${I.right}</button><span class="sp"></span>
+    <span class="jh-nav"><button type="button" class="jp-ib" data-hist="${esc(vorig?vorig.id:"")}" ${vorig?"":"disabled"} title="Vorig bezoek" aria-label="Vorig bezoek">${I.left}</button><small>${ix+1} van ${lijst.length}</small><button type="button" class="jp-ib" data-hist="${esc(volg?volg.id:"")}" ${volg?"":"disabled"} title="Volgend bezoek" aria-label="Volgend bezoek">${I.right}</button></span>
+    <button type="button" class="jp-ib" data-act="close" aria-label="Sluiten">${I.x}</button></div>
+    <div class="jp-kr2"><span class="jp-k1"><small>${esc(dagKort)}</small><b>${esc(b.tijd||om||"–")}</b></span>
+      <span class="jp-k2"><b>${esc(cleanName(k.naam))}</b><em>${I.pin}${esc(jobAddr(k))}</em></span>
+      <span class="jp-k3"><small>Bedrag</small><b>${eur(beurtVerdiend(b))}</b><em>${esc(bedragLbl())}${fs?" · "+esc(fs[1].toLowerCase()):""}</em></span></div></div>
+  <section class="kp ow-kern jpk-pearl jpk-pearl-top"><div class="kkh-tg kk-kern">
+    ${tile("Bedrag",eur(beurtVerdiend(b)),op.length?op.map((x,i)=>(i?"+ ":"")+eur(x.bedrag)+" "+esc(i===0?"bezoek":(x.oms.replace(/^extra[: ]*/i,"").slice(0,24)||"extra"))).join(" "):esc(bedragLbl()))}
+    ${tile("Tijdsduur",esc(mm(gepland)),gemeten?`gemeten ${esc(mm(gemeten))}${b.gemeten?"":" (geschat)"}`:"niet gemeten")}
+    ${tile("Afgemeld",esc(om||"—"),esc(b.door||b.medewerker||""))}
+    ${tile("Betaling",fs?esc(fs[1]):b.gefactureerd==="periodiek"?"Periodiek":b.gefactureerd==="nvt"?"Niet nodig":"Nog niet",fs&&fs[1]==="Betaald"&&f.betaaldOp?"op "+esc(fmtL(String(f.betaaldOp).slice(0,10))):f&&f.verval&&fs&&fs[1]!=="Betaald"?"voor "+esc(fmtL(f.verval)):"")}
+  </div></section>
+  <div class="jp-body jpk jpk-2k">
+    <div class="jpk-col">
+      <section class="jpk-s"><div class="jpk-h"><b>Wat we gedaan hebben</b><small>${esc(fmtL(b.datum))}${b.door||b.medewerker?" · "+esc(b.door||b.medewerker):""}</small></div>
+        <div class="jpk-kv jh-gedaan">${gedaan}</div>
+        ${f?`<div class="jh-tot"><span>Totaal ${esc(bedragLbl())}</span><b>${eur(ex?totals(f).ex:totals(f).inc)}</b></div>`:""}</section>
+      ${fotos.length?`<section class="jpk-s"><div class="jpk-h"><b>Foto's en bijzonderheden</b></div><div class="jh-fotos">${fotos.map(o=>`<button type="button" class="jh-foto" data-act="fotokijk" data-bron="factuur" data-id="${esc(f.id)}" data-i="${o.i}" aria-label="Foto bekijken"><img src="${BLOB}${esc(o.x.id)}" alt="" loading="lazy">${o.x.notitie?`<small>${esc(o.x.notitie)}</small>`:""}</button>`).join("")}</div></section>`:""}
+    </div>
+    <div class="jpk-col">
+      <section class="jpk-s"><div class="jpk-h"><b>Factuur</b><span class="sp"></span>${fs?statusPill(fs[0],fs[1]):""}</div>
+        ${f?`<div class="jpk-kv"><div><span>Factuurnummer</span><b>${esc(f.nummer)}</b></div><div><span>Factuurdatum</span><b>${esc(fmtL(String(f.datum||"").slice(0,10)))}</b></div><div><span>Bedrag</span><b>${eur(totals(f).inc)} <small>incl. btw</small></b></div>${f.betaaldOp?`<div><span>Betaald op</span><b>${esc(fmtL(String(f.betaaldOp).slice(0,10)))}</b></div>`:f.verval?`<div><span>Betalen voor</span><b>${esc(fmtL(f.verval))}</b></div>`:""}</div>
+          <button type="button" class="jh-fbtn" data-act="factuur" data-id="${esc(f.id)}">${I.facturen}Factuur bekijken${I.right}</button>`
+          :`<p class="jh-leeg">${b.gefactureerd==="periodiek"?"Dit bezoek gaat mee op de periodieke factuur.":b.gefactureerd==="nvt"?"Voor dit bezoek was geen factuur nodig.":"Voor dit bezoek is nog geen factuur gemaakt."}</p>`}</section>
+      <section class="jpk-s"><div class="jpk-h"><b>Berichten rond dit bezoek</b></div>
+        ${ber.length?`<div class="jh-ber">${ber.map(m=>`<div><span>${esc(fmtD(String(m.op).slice(0,10)))}${String(m.op).slice(11,16)?" · "+esc(String(m.op).slice(11,16)):""}</span><b>${esc(kan(m))}</b><em>${esc(m.onderwerp||String(m.tekst||"").split(/\n/)[0]||"")}</em></div>`).join("")}</div>`:`<p class="jh-leeg">Geen berichten in de weken rond dit bezoek.</p>`}</section>
+    </div>
+  </div>
+  <div class="jp-foot"><button type="button" data-act="close">Sluiten</button></div>
+  </div>`,{xwide:true});
+}
+document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest("[data-hist]");if(!t||!t.closest("#jobPanel.jp-hist"))return;e.preventDefault();const id=t.dataset.hist;if(id)openBezoekHist(id)});
 
 /* ---------- MELDKAMER → BUS (zoals 112): berichten van kantoor die direct op de telefoon/iPad onderweg verschijnen ----------
    Kantoor maakt op het Overzicht een melding (urgentie, tekst, eventueel een adres). Die staat meteen als rode pin op de live kaart
