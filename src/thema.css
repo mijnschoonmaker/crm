@@ -2444,3 +2444,6 @@ html body:not(#zz):not(#zy):not(#zx):not(#zw) #jobPanel.jp-groot .jpk-pearl-top{
 html body:not(#zz):not(#zy):not(#zx):not(#zw) #jobPanel.jp-groot .jpk-pearl-top>div{padding:16px 24px}
 html body:not(#zz):not(#zy):not(#zx):not(#zw) #jobPanel.jp-groot .jpk-pearl-top b{font-size:22px}
 html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) #jobPanel.jp-groot .jp-body.jpk>*{margin:0 0 20px!important}
+.kd-or-r .kd-ex{display:block;font-size:11px;color:#8a8f98;font-weight:400;text-align:right}
+#jobPanel .jpk-pearl small{white-space:normal;line-height:1.35}
+.kd-or-r .kd-ex{margin:-2px 0 2px!important;line-height:1.2}

@@ -412,3 +412,7 @@ function queues(){
 /* andere diensten alleen samen met glasbewassing */
 const heeftGlas=k=>!!k&&!k.opdrachtVerwijderd&&!k.prospect&&k.actief!==false&&(!GLAS()||/glas|ramen/i.test(String(k.dienst||HD())));/* ander vak: elke dienst kan los, er is geen glasbewassing nodig */
 const GLAS_REGEL="Andere diensten kunnen alleen samen met glasbewassing worden uitgevoerd.";
+/* opbouw van het bedrag van een bezoek: de regels van de factuur, in dezelfde weergave als de rest van het CRM (excl. of incl. btw) */
+function beurtOpbouw(b){try{const f=b&&b.gefactureerd&&state.facturen.find(x=>x.id===b.gefactureerd);if(!f||f.soort==="offerte"||!(f.regels||[]).length||f.regels.length<2)return [];const inc=f.incl??S().incl,ex=S().toonEx||!S().incl;
+  return f.regels.map(r=>{const p=Number(r.prijs)||0,a=Number(r.aantal)||0,bt=rBtw(f,r),e=(inc?p/(1+bt/100):p)*a;return {oms:String(r.omschrijving||""),bedrag:ex?e:e*(1+bt/100)}}).filter(x=>Math.abs(x.bedrag)>0.004)}catch(e){return []}}
+const bedragLbl=()=>S().toonEx||!S().incl?"excl. btw":"incl. btw";
