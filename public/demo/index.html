@@ -7776,6 +7776,7 @@ html body:not(#zz):not(#zy):not(#zx) .owv-con .check-row{background:#fff!importa
 .kkgv{margin-top:14px}
 html body:not(#zz):not(#zy) .kkg .ow-kv{padding:6px 0!important;border:0!important}
 .kkg .subt{color:#8a8f98;font-weight:400}
+html body:not(#zz):not(#zy) .kk-pay .kk-paykv{margin-top:16px}
 
 </style>
 <div class="app">
@@ -16590,10 +16591,9 @@ function openKlantView(id,opt={}){
         +G("Klant",kv("Klantnummer",esc(nr))+kv("Type klant",soortLbl(k))+(isZak(k)||k.kvk?kv("KVK-nummer",esc(k.kvk||"")):"")+(isZak(k)||k.btwnr?kv("BTW-nummer",esc(k.btwnr||"")):"")+kv("Klant sinds",k.aangemaakt?esc(fmtL(k.aangemaakt)):"")+(k.ronde?kv("Ronde",esc(k.ronde)):"")+kv("Status",k.actief===false?`Inactief${k.opzegReden?` <small class="subt">${esc(k.opzegReden)}</small>`:""}`:"Actief")+kv("Nieuwe klant",jn(!!k.nieuweKlant)))
         +G("Persoonlijk",kv("Geboortedatum",k.geboortedatum?esc(fmtL(k.geboortedatum)):"")+kv("Geslacht",esc(gesl))+kv("Verjaardagsmail",vt?esc(vt):"Geen"))
         +G("Berichten",kv("Nieuwsbrief",k.nieuwsbrief===false?jn(false):`${jn(true)} <small class="subt">· groep ${esc(k.nbGroep||"Standaard")}</small>`)+kv("Reviewverzoeken",jn(!k.geenReview)))
-        +G("Bank",kv("IBAN",k.iban?esc(k.iban)+(k.rekeninghouder?`<br><small class="subt">${esc(k.rekeninghouder)}</small>`:""):"")+kv("Niet meer aanbieden",Number(k.maxOpen)>0?`Vanaf ${Number(k.maxOpen)} openstaande factu${Number(k.maxOpen)>1?"ren":"ur"}`:"Standaard"))
         +`</div>`})()}
       </section>
-    <section class="kp kk-pay"><div class="kp-h"><span class="objic">${I.euro}</span><b>Betaalgedrag</b><span class="sp"></span>${payBlok(bg,"pil")}</div>${payBlok(bg,true)}<div class="kk-paykv">${kv("Betaalwijze",k.incasso?"Automatische incasso":"Per bank")}${k.termijn?kv("Betalingstermijn",esc(k.termijn)+" dagen"):""}</div>
+    <section class="kp kk-pay"><div class="kp-h"><span class="objic">${I.euro}</span><b>Betalingen</b><span class="sp"></span>${payBlok(bg,"pil")}</div>${payBlok(bg,true)}<div class="owv-g kkg kk-paykv"><small>Betaalgegevens</small>${kv("Betaalwijze",k.incasso?"Automatische incasso":"Per bank")}${kv("Betalingstermijn",k.termijn?esc(k.termijn)+" dagen":"Standaard")}${kv("IBAN",k.iban?esc(k.iban)+(k.rekeninghouder?`<br><small class="subt">${esc(k.rekeninghouder)}</small>`:""):"")+kv("Niet meer aanbieden",Number(k.maxOpen)>0?`Vanaf ${Number(k.maxOpen)} openstaande factu${Number(k.maxOpen)>1?"ren":"ur"}`:"Standaard")}</div>
       </section>
     ${kkPortaal(k)}
     <section class="kp"><div class="kp-h"><span class="objic">${I.pin}</span><b>Adresgegevens</b><span class="sp"></span>${pen("adres","Adresgegevens aanpassen")}</div>
@@ -16817,9 +16817,9 @@ function kkTabsInit(form){const body=form.querySelector("#kkBody"),ov=form.query
   if(tpl&&L&&!L.querySelector(".kko-gast")){L.appendChild(tpl.content.firstElementChild)}
   const zet=(col,volg)=>{if(!col)return;const secs=[...col.querySelectorAll(":scope>section")];secs.sort((a,b)=>{const ia=volg.findIndex(r=>r.test(titel(a))),ib=volg.findIndex(r=>r.test(titel(b)));return (ia<0?99:ia)-(ib<0?99:ib)}).forEach(x=>col.appendChild(x))};
   /* alles wat over de klant gaat links, alles wat over het werk en geld gaat rechts */
-  const all=[...body.querySelectorAll("section.kp")],naarL=/^(betaalgedrag|verzonden berichten|klantgegevens|contactpersonen|adresgegevens|opmerkingen|klantportaal|klantdocumenten|gastvrijheid)/,naarS=/^(opdrachten|overzicht ingeplande|ingeplande bezoeken|historie bezoeken|alle facturen|offertes|locaties|logboek)/;
+  const all=[...body.querySelectorAll("section.kp")],naarL=/^(betaalgedrag|betalingen|verzonden berichten|klantgegevens|contactpersonen|adresgegevens|opmerkingen|klantportaal|klantdocumenten|gastvrijheid)/,naarS=/^(opdrachten|overzicht ingeplande|ingeplande bezoeken|historie bezoeken|alle facturen|offertes|locaties|logboek)/;
   all.forEach(x=>{const t=titel(x);if(naarL.test(t)&&x.parentElement!==L)L.appendChild(x);else if(naarS.test(t)&&x.parentElement!==S)S.appendChild(x)});
-  zet(L,[/^gastvrijheid/,/^klantgegevens/,/^betaalgedrag/,/^verzonden berichten/,/^contactpersonen/,/^adresgegevens/,/^opmerkingen/,/^klantportaal/,/^klantdocumenten/]);
+  zet(L,[/^gastvrijheid/,/^klantgegevens/,/^(betaalgedrag|betalingen)/,/^verzonden berichten/,/^contactpersonen/,/^adresgegevens/,/^opmerkingen/,/^klantportaal/,/^klantdocumenten/]);
   zet(S,[/^locaties/,/^opdrachten/,/^(overzicht ingeplande|ingeplande bezoeken)/,/^historie bezoeken/,/^offertes/,/^alle facturen/,/^logboek/]);[...body.children].forEach(c=>c.hidden=false);form.dataset.kktab="overzicht";state.kkTab="overzicht";
   const doel={werk:/historie bezoeken|ingeplande afspraken|ingeplande bezoeken|opdrachten/i,geld:/alle facturen|facturen|offertes/i,klant:/logboek|klantgegevens/i};
   form.querySelectorAll("[data-kktab]").forEach(b=>b.onclick=e=>{e.preventDefault();const t=KK_ALIAS[b.dataset.kktab]||b.dataset.kktab,re=doel[t];if(!re)return;
