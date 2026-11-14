@@ -417,7 +417,7 @@ const empty=(t,s,btn="")=>`<div class="empty"><div class="ill">${EMPTY_ILL}</div
 const dlg=$("#dlg"),form=$("#dlgForm");
 let dlgGuard=null;
 async function sluitDlg(then){if(dlgGuard){let ok=false;try{ok=await dlgGuard()}catch(e){console.error(e)}if(!ok)return}dlgGuard=null;if(then)then();else dlg.close()}
-function openDlg(html,{wide=false,drawer=false,xwide=false}={}){dlgGuard=null;dlg.className=drawer?"drawer":xwide?"xwide":wide?"wide":"";form.dataset.sheet="";form.innerHTML=html;form.onsubmit=e=>e.preventDefault();form.oninput=null;form.onchange=null;if(!dlg.open)dlg.showModal();else if(typeof dlgPas==="function")requestAnimationFrame(()=>dlgPas(dlg));dlg.scrollTop=0}
+function openDlg(html,{wide=false,drawer=false,xwide=false}={}){dlgGuard=null;try{if(dlg.open&&form.querySelector("#kkBody")&&state.kkOpenId){state.kkTerug=state.kkOpenId;state.kkTerugY=dlg.scrollTop||0}}catch(e){}dlg.className=drawer?"drawer":xwide?"xwide":wide?"wide":"";form.dataset.sheet="";form.innerHTML=html;form.onsubmit=e=>e.preventDefault();form.oninput=null;form.onchange=null;if(!dlg.open)dlg.showModal();else if(typeof dlgPas==="function")requestAnimationFrame(()=>dlgPas(dlg));dlg.scrollTop=0}
 /* klik buiten het venster sluit alleen als je ook buiten bent begonnen (niet bij tekst selecteren en naar buiten slepen),
    en nooit bij een venster waarin je tekst aan het bewerken bent: dat sluit alleen via Annuleren of Opslaan */
 let dlgDownBuiten=false;
@@ -426,6 +426,10 @@ dlg.addEventListener("click",e=>{const buiten=e.target===dlg&&dlgDownBuiten;dlgD
   if(form.querySelector('[contenteditable="true"],textarea'))return;sluitDlg()});
 dlg.addEventListener("cancel",e=>{if(form.querySelector('[contenteditable="true"],textarea')){e.preventDefault();return}if(dlgGuard){e.preventDefault();sluitDlg()}});
 dlg.addEventListener("close",()=>{dlgGuard=null});
+/* venster geopend vanuit een klantkaart (factuur, bezoek, opdracht...): na sluiten terug naar die klantkaart */
+dlg.addEventListener("close",()=>{try{if(form.querySelector("#kkBody")){state.kkTerug=null;return}const id=state.kkTerug;if(!id)return;state.kkTerug=null;
+  if(typeof OW_NIEUW!=="undefined"&&OW_NIEUW)return;
+  setTimeout(()=>{if(!dlg.open&&state.klanten.some(x=>x.id===id)&&typeof openKlantView==="function"){state.kkOpenId=null;openKlantView(id);const y=state.kkTerugY||0;requestAnimationFrame(()=>{dlg.scrollTop=y})}},0)}catch(e){}});
 const statusPill=(cls,txt)=>`<span class="pill ${cls} dotp">${esc(txt)}</span>`;
 async function runSeq(list,fn,done){try{for(const x of list)await fn(x);if(done)toast(done)}catch(e){err(e)}}
 
