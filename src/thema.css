@@ -2562,3 +2562,4 @@ html body:not(#zz):not(#zy):not(#zx):not(#zw) .ov2 .ow-kern{margin:0!important}
 .ov2-a .ov2-aa{grid-column:2;justify-content:flex-start!important;margin-top:4px}
 .ov2-aa:empty{display:none}
 .ov2-dag .ov2-zin{display:block;line-height:1.5}.ov2-dag .ov2-zin .ov2-stip{display:inline-block;margin-right:10px;vertical-align:1px}
+.ov2-top .ov2-tools{flex-wrap:wrap;justify-content:flex-end}
