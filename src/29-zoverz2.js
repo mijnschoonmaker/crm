@@ -46,8 +46,11 @@ function vOverzicht2(){const t=today(),ti=iso(t),P=ccPlanning(),S_=ccSignalen().
   act.forEach(k=>{const j=ov2Jarig(k,t,7);if(j)mom.push({d:j.d,ic:"cadeau",t:`${ccNaam(k)} is ${iso(j.d)===ti?"vandaag":"op "+fmtD(iso(j.d))} jarig`,s:j.leeftijd>0&&j.leeftijd<110?"wordt "+j.leeftijd:"Stuur een felicitatie",k});
     const ju=ov2Jubileum(k,t,7);if(ju)mom.push({d:ju.d,ic:"hart",t:`${ccNaam(k)}: ${plural(ju.jaar,"jaar","jaar")} klant`,s:(iso(ju.d)===ti?"vandaag":"op "+fmtD(iso(ju.d)))+" · een kaartje of attentie",k})});
   const g14=iso(addDays(t,-14));state.beurten.filter(b=>b.datum>=g14&&ov2Sterren(b)===5).slice(0,6).forEach(b=>{const k=ccKlant(b.klantId);if(k)mom.push({d:parse(b.datum),ic:"ster",t:`${ccNaam(k)} gaf 5 sterren`,s:"Bedank voor het bezoek van "+fmtD(b.datum),k})});
+  /* weggeklikte momenten blijven weg (op dit apparaat) */
+  const momWeg=(()=>{try{return new Set(JSON.parse(localStorage.getItem("ms.ov2.weg")||"[]"))}catch(e){return new Set()}})();
+  mom.forEach(m=>{m.key=m.ic+":"+m.k.id+":"+iso(m.d)});for(let i=mom.length-1;i>=0;i--)if(momWeg.has(mom[i].key))mom.splice(i,1);
   mom.sort((a,b)=>a.d-b.d);
-  const momenten=mom.length?`<div class="ov2-ml">${mom.slice(0,OV2.alleM?40:5).map(m=>`<button type="button" class="ov2-m" data-cc="klant:${esc(m.k.id)}"><span class="ov2-mi">${OV2I[m.ic]||OV2I.hart}</span><span><b>${esc(m.t)}</b><small>${esc(m.s)}</small></span></button>`).join("")}</div>${mom.length>5?`<button type="button" class="ov2-meer" data-ov2="alleM">${OV2.alleM?"Minder tonen":"Alle "+mom.length+" tonen"}</button>`:""}`
+  const momenten=mom.length?`<div class="ov2-ml">${mom.slice(0,OV2.alleM?40:5).map(m=>`<div class="ov2-mw"><button type="button" class="ov2-m" data-cc="klant:${esc(m.k.id)}"><span class="ov2-mi">${OV2I[m.ic]||OV2I.hart}</span><span><b>${esc(m.t)}</b><small>${esc(m.s)}</small></span></button><button type="button" class="ov2-mx" data-ov2="weg:${esc(m.key)}" aria-label="Weghalen" title="Weghalen">${I.x}</button></div>`).join("")}</div>${mom.length>5?`<button type="button" class="ov2-meer" data-ov2="alleM">${OV2.alleM?"Minder tonen":"Alle "+mom.length+" tonen"}</button>`:""}`
     :`<p class="ov2-leeg">Deze week geen verjaardagen, jubilea of nieuwe 5-sterrenbeoordelingen.</p>`;
   /* service */
   const per=(a,b)=>state.beurten.filter(x=>x.datum>=a&&x.datum<b&&ov2Sterren(x)),gem=L=>L.length?Math.round(L.reduce((s,x)=>s+ov2Sterren(x),0)/L.length*10)/10:null;
@@ -75,4 +78,4 @@ function vOverzicht2(){const t=today(),ti=iso(t),P=ccPlanning(),S_=ccSignalen().
   <section class="kp ow-kern ov2-service">${kop("Hoe gaat het met de service?","")}${svc}</section>
   </div>`}
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-ov2]");if(!b)return;e.preventDefault();const v=b.dataset.ov2;
-  if(v==="oud"){OV2.oud=!OV2.oud;try{localStorage.setItem("ms.ov2.oud",OV2.oud?"1":"0")}catch(e){}}else if(v==="alleS")OV2.alleS=!OV2.alleS;else if(v==="alleM")OV2.alleM=!OV2.alleM;if(typeof render==="function")render()});
+  if(v==="oud"){OV2.oud=!OV2.oud;try{localStorage.setItem("ms.ov2.oud",OV2.oud?"1":"0")}catch(e){}}else if(v==="alleS")OV2.alleS=!OV2.alleS;else if(v==="alleM")OV2.alleM=!OV2.alleM;else if(v.startsWith("weg:")){try{const L=JSON.parse(localStorage.getItem("ms.ov2.weg")||"[]");L.push(v.slice(4));localStorage.setItem("ms.ov2.weg",JSON.stringify(L.slice(-300)))}catch(e){}}if(typeof render==="function")render()});

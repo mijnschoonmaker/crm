@@ -2967,3 +2967,9 @@ html body:not(#zz):not(#zy):not(#zx):not(#zw) .tg-dh .dh-d small{font-size:10.5p
 html body:not(#zz):not(#zy):not(#zx):not(#zw) .tg-dh .dh-s{font-weight:400;color:#6b7079}
 html body:not(#zz):not(#zy):not(#zx):not(#zw) .tg-dh .dh-s em{font-weight:500;color:#14171c;letter-spacing:-.01em}
 html body:not(#zz):not(#zy):not(#zx):not(#zw) .tg-dh.solo .dh-s em{font-size:15px}
+/* momenten: wegklikken */
+.ov2-mw{position:relative}
+.ov2-mw>.ov2-m{width:100%;padding-right:48px}
+html body .ov2-mw>.ov2-mx{all:unset;position:absolute;top:50%;right:10px;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#8a8f98;cursor:pointer;transition:background .15s,color .15s}
+html body .ov2-mw>.ov2-mx:hover,html body .ov2-mw>.ov2-mx:focus-visible{background:#eceef1;color:#14171c}
+html body .ov2-mw>.ov2-mx svg{width:14px;height:14px}
