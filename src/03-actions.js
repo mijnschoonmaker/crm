@@ -758,7 +758,7 @@ function openOpdracht(kid,oid){
   openDlg(`<div class="dlg-head"><span class="objic big">${I.checksq||I.check}</span><div style="min-width:0;flex:1"><h3>${isNew?"Nieuwe opdracht":main?"Hoofdopdracht":"Opdracht wijzigen"}</h3><div class="subt">${esc(cleanName(k.naam))} · ${esc(jobAddr(k))}</div></div><button type="button" class="iconbtn" id="opX" aria-label="Terug">${I.x}</button></div>
   <div class="grid2">
     <label class="full">Dienst<input id="op-dienst" list="op-dl" value="${esc(o.dienst)}" required placeholder="Bijv. Dakgoten reinigen"><datalist id="op-dl">${[...dienstLijst().map(d=>d.naam),...(GLAS()?DIENSTEN:BR_DIENSTNAMEN())].filter((v,i,a)=>a.indexOf(v)===i).map(d=>`<option value="${esc(d)}">`).join("")}</datalist></label>
-    <label>Prijs per keer (€ ${S().incl?"incl.":"excl."} btw)<input id="op-prijs" type="number" step="0.01" min="0" inputmode="decimal" value="${esc(o.prijs)}" required></label>
+    <label>Prijs per keer (€ excl. btw)<input id="op-prijs" type="number" step="0.01" min="0" inputmode="decimal" value="${esc(o.prijs===""||o.prijs==null?"":(S().incl?r2(Number(o.prijs)/(1+(typeof btwRegel==="function"&&btwRegel(k,o.dienst||"")!=null?btwRegel(k,o.dienst||""):(Number(S().btw)||21))/100)):o.prijs))}" required></label>
     <label>Frequentie<select id="op-freq">${freqO.map(w=>`<option value="${w}" ${w===Number(o.frequentie)?"selected":""}>${fl(w)}</option>`).join("")}</select></label>
     <label>Duur<select id="op-duur">${durO.map(m=>`<option value="${m}" ${m===Number(o.duur||30)?"selected":""}>${m<60?m+" min":(m/60).toLocaleString("nl-NL")+" uur"}</option>`).join("")}</select></label>
     ${main?`<label>Volgende beurt<input value="${k.gepland?esc(fmtL(k.gepland)):"Te plannen"}" disabled></label>`:`<label>Volgende keer <small style="font-weight:500">(leeg = bij de volgende beurt)</small><input id="op-volg" type="date" value="${esc(o.volgende||"")}"></label>`}
@@ -769,7 +769,7 @@ function openOpdracht(kid,oid){
   $("#opX").onclick=$("#opBack").onclick=()=>openKlant(kid);
   const d=$("#opDel");if(d)d.onclick=async()=>{d.disabled=true;try{await save("klanten",k.id,{...strip(k),opdrachten:(k.opdrachten||[]).filter(x=>x.id!==oid)});toast("Opdracht verwijderd");back()}catch(e){d.disabled=false;err(e)}};
   form.onsubmit=async e=>{e.preventDefault();const dienst=$("#op-dienst").value.trim();if(!dienst){$("#op-dienst").focus();return}$("#opGo").disabled=true;
-    const v={dienst,prijs:r2(Number($("#op-prijs").value)||0),frequentie:Number($("#op-freq").value)||4,duur:Number($("#op-duur").value)||30};
+    const _pm=S().incl?1+(typeof btwRegel==="function"&&btwRegel(k,dienst)!=null?btwRegel(k,dienst):(Number(S().btw)||21))/100:1;const v={dienst,prijs:r2((Number($("#op-prijs").value)||0)*_pm),frequentie:Number($("#op-freq").value)||4,duur:Number($("#op-duur").value)||30};
     try{if(main)await save("klanten",k.id,{...strip(k),...v});
       else{const nw={...o,...v,id:o.id||newId("o"),volgende:$("#op-volg").value,actief:$("#op-actief")?$("#op-actief").checked:true};
         const list=isNew?[...(k.opdrachten||[]),nw]:(k.opdrachten||[]).map(x=>x.id===oid?nw:x);await save("klanten",k.id,{...strip(k),opdrachten:list})}
