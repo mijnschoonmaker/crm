@@ -3,9 +3,9 @@
    waar is het team, welke momenten kunnen we gebruiken om te verrassen en hoe gaat het met de service.
    Leest alleen bestaande gegevens (planning, hospitality, meldingen, ploeg, beurten, tickets) en slaat niets op.
    Live blijft het huidige overzicht staan tot dit is goedgekeurd. Met de knop "Klassiek overzicht" zie je het oude. */
-const OV2={oud:false};
+const OV2={oud:(()=>{try{return localStorage.getItem("ms.ov2.oud")==="1"}catch(e){return false}})()};
 const OV2I={cadeau:sv('<rect x="3.5" y="8" width="17" height="12.5" rx="1.8"/><path d="M12 8v12.5M3.5 12.5h17M12 8c-1.5-3.5-5.5-3.5-5.5-1S10 8 12 8zm0 0c1.5-3.5 5.5-3.5 5.5-1S14 8 12 8z"/>'),hart:sv('<path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/>'),ster:sv('<path d="m12 3.6 2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/>')};
-function ov2Aan(){return !LIVE&&!OV2.oud}
+function ov2Aan(){return !OV2.oud}
 function ov2Hosp(k){const L=(k.hosp||[]).map(x=>String(x&&x.t||"").trim()).filter(Boolean);return L.slice(0,3).join(" · ")}
 function ov2Jarig(k,van,dagen){const g=String(k.geboortedatum||"");if(!/^\d{4}-\d{2}-\d{2}/.test(g))return null;
   for(let i=0;i<dagen;i++){const d=addDays(van,i);if(iso(d).slice(5)===g.slice(5,10))return {d,leeftijd:d.getFullYear()-Number(g.slice(0,4))}}return null}
@@ -74,4 +74,4 @@ function vOverzicht2(){const t=today(),ti=iso(t),P=ccPlanning(),S_=ccSignalen().
   <section class="kp ow-kern ov2-service">${kop("Hoe gaat het met de service?","")}${svc}</section>
   </div>`}
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-ov2]");if(!b)return;e.preventDefault();const v=b.dataset.ov2;
-  if(v==="oud")OV2.oud=!OV2.oud;else if(v==="alleS")OV2.alleS=!OV2.alleS;else if(v==="alleM")OV2.alleM=!OV2.alleM;if(typeof render==="function")render()});
+  if(v==="oud"){OV2.oud=!OV2.oud;try{localStorage.setItem("ms.ov2.oud",OV2.oud?"1":"0")}catch(e){}}else if(v==="alleS")OV2.alleS=!OV2.alleS;else if(v==="alleM")OV2.alleM=!OV2.alleM;if(typeof render==="function")render()});
