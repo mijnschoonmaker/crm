@@ -153,6 +153,14 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties>a[href
 .fo-ov .fo-in button{all:unset;cursor:pointer;flex:0 0 auto;height:46px;padding:0 18px;border-radius:12px;background:#0e1117;color:#fff;font:600 11px/1 system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;display:flex;align-items:center}
 .fo-ov .fo-in button[disabled]{opacity:.5}
 .fo-ov .fo-link{all:unset;cursor:pointer;font-size:12.5px;color:#6b717c;text-decoration:underline;margin-top:10px;display:inline-block}
+
+/* het gesprek als echt ticketscherm: groot, chat vult de ruimte */
+.fo-ov.fo-groot .fo-doos{width:min(880px,100%);height:min(86vh,820px);display:flex;flex-direction:column;padding:34px 38px 26px}
+.fo-ov.fo-groot .fo-chat{flex:1 1 auto;max-height:none;min-height:0;padding:20px;gap:12px}
+.fo-ov.fo-groot .fo-m{max-width:68%;font-size:15px;padding:12px 16px}
+.fo-ov.fo-groot .fo-in textarea{min-height:52px;font-size:15px}
+.fo-ov.fo-groot .fo-in button{height:52px;padding:0 24px}
+@media (max-width:599px){.fo-ov.fo-groot{padding:0}.fo-ov.fo-groot .fo-doos{width:100%;height:100%;max-height:none;border-radius:0;padding:24px 18px 18px}.fo-ov.fo-groot .fo-m{max-width:85%}}
 /* stappen in het intro (telefoon) */
 .fo-lijst{list-style:none;margin:0;padding:0}
 /* fotostap: minimaal 2 foto's, daarna door naar de gegevens */
@@ -309,7 +317,7 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties>a[href
   const vUrl=q=>VEP+(VEP.includes("?")?"&":"?")+q;
   const VK="ms.vraag."+String(B.naam||"").toLowerCase().replace(/[^a-z0-9]+/g,"");
   const vLees=()=>{try{return JSON.parse(localStorage.getItem(VK)||"null")}catch(e){return null}},vZet=x=>{try{x?localStorage.setItem(VK,JSON.stringify(x)):localStorage.removeItem(VK)}catch(e){}};
-  function venster(html){const o=document.createElement("div");o.className="fo-ov";o.setAttribute("role","dialog");o.setAttribute("aria-modal","true");
+  function venster(html,kl){const o=document.createElement("div");o.className="fo-ov"+(kl?" "+kl:"");o.setAttribute("role","dialog");o.setAttribute("aria-modal","true");
     o.innerHTML=`<div class="fo-doos"><button type="button" class="fo-dicht" aria-label="Sluiten"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>${html}</div>`;
     const weg=()=>{clearInterval(o._poll);o.remove();document.removeEventListener("keydown",esk)},esk=e=>{if(e.key==="Escape")weg()};o._weg=weg;
     o.addEventListener("click",e=>{if(e.target===o||e.target.closest(".fo-dicht"))weg()});document.addEventListener("keydown",esk);document.body.append(o);return o}
@@ -338,7 +346,7 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties>a[href
   function chat(net){const x=vLees();if(!x)return ticket();
     const o=venster(`<h2>Uw vraag</h2><p class="fo-sub">${net?"Verstuurd. ":""}Wij antwoorden hier en ${x.email?"per e-mail":"zo snel mogelijk"}.</p><div class="fo-chat" id="fvC"><p class="fo-wacht">Laden…</p></div>
       <div class="fo-in"><textarea id="fvI" rows="1" placeholder="Typ een bericht…"></textarea><button type="button" id="fvZ">Stuur</button></div>
-      <button type="button" class="fo-link" id="fvX">Nieuwe vraag stellen</button>`);
+      <button type="button" class="fo-link" id="fvX">Nieuwe vraag stellen</button>,"fo-groot");
     let n=-1;const teken=(L,st)=>{const c=G("fvC");if(!c)return;if(L.length===n)return;n=L.length;
       c.innerHTML=L.map(m=>`<div class="fo-m ${m.van==="team"?"team":"bez"}">${esc(m.tekst)}<small>${m.van==="team"?esc(m.naam||B.naam||"")+" · ":""}${new Date(m.op).toLocaleString("nl-NL",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}</small></div>`).join("")
         +(!L.length||L[L.length-1].van!=="team"?`<p class="fo-wacht">Wij hebben uw bericht ontvangen en reageren zo snel mogelijk.</p>`:"")+(st==="opgelost"?`<p class="fo-wacht">Deze vraag is afgesloten. Stuurt u een bericht, dan openen wij hem weer.</p>`:"");c.scrollTop=c.scrollHeight};
