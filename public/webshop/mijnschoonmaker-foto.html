@@ -2718,13 +2718,18 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo::before{content:"";posit
   background:radial-gradient(circle,rgba(255,255,255,.22) 0%,rgba(201,211,230,.12) 30%,rgba(159,178,214,.05) 52%,transparent 70%);animation:foGloed 6s ease-in-out infinite!important}
 html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo::after{content:"";position:absolute;top:0;bottom:0;left:0;width:9%;pointer-events:none;
   background:linear-gradient(90deg,transparent,rgba(255,255,255,.055) 50%,transparent);animation:foStraal 11s ease-in-out infinite!important}
-html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo img{position:relative;z-index:1;filter:drop-shadow(0 0 6px rgba(255,255,255,.22)) drop-shadow(0 0 16px rgba(201,211,230,.16))}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo img{position:relative;z-index:1;filter:brightness(1.25) contrast(2.2) drop-shadow(0 0 6px rgba(255,255,255,.22)) drop-shadow(0 0 16px rgba(201,211,230,.16))}
 html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo>span{position:relative;z-index:1;color:#fff!important;text-shadow:0 0 14px rgba(255,255,255,.5)}
 html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo .rk{z-index:2}
 html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo .rk a{background:#fff!important;border:1px solid #fff!important;color:#0e1117!important;border-radius:10px!important;box-shadow:0 6px 16px -10px rgba(0,0,0,.5)!important}
 html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo .rk a:hover{background:#f4f5f7!important}
 html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo .rk a{height:32px!important;padding:0 14px!important;gap:8px!important;font-size:9.5px!important;letter-spacing:.16em!important}
 html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo .rk svg{width:14px!important;height:14px!important}
+
+/* onderbalk: alleen "Binnen 24 uur" en de knop, recht onder de kolom rechts */
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-bar>.blok,html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-bar .fo-stap,html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-bar .fo-foto{display:none!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-bar .fo-knop{height:44px!important;min-width:0!important;padding:0 20px!important;font-size:11px!important;border-radius:4px!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-bar .fo-24{flex:1 1 auto}
 /* stappen in het intro (telefoon) */
 .fo-lijst{list-style:none;margin:0;padding:0}
 /* fotostap: minimaal 2 foto's, daarna door naar de gegevens */
@@ -2843,7 +2848,16 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo .rk svg{width:14px!impor
     fotoEl.querySelector("b").textContent=n+(n===1?" foto":" foto’s");
     /* tabbladen: Gegevens actief als het formulier open is */
     $$(".cfg-tabs button").forEach(b=>{const k=+b.dataset.n;if(k===5&&gegOpen())b.classList.add("cfg-aan");else if(k===1&&gegOpen())b.classList.remove("cfg-aan")})}
-  bij();setInterval(bij,400);
+  /* uitlijnen: tekst begint waar de kolom rechts begint, knop eindigt waar die kolom eindigt */
+  function lijn(){const bar=$(".cfg-bar"),bel=bar&&bar.querySelector(".fo-24"),col=$(".cfg-col");if(!bar||!bel||!knop||!col)return;
+    if(!matchMedia("(min-width:1000px)").matches){bar.style.paddingRight="";bel.style.marginLeft="";knop.style.width="";return}
+    const ref=col.querySelector("h1.ml-title")||col,r=ref.getBoundingClientRect(),cr=col.getBoundingClientRect(),cs=getComputedStyle(col),rechts=cr.right-parseFloat(cs.paddingRight||0),
+      br=bar.getBoundingClientRect(),pr=Math.max(0,br.right-rechts),links=r.left-br.left;
+    bar.style.paddingRight=pr+"px";const r0=bar.querySelector(".ruimte");if(r0)r0.style.display="none";
+    bel.style.position="absolute";bel.style.left=links+"px";bel.style.top="50%";bel.style.transform="translateY(-50%)";bar.style.position=bar.style.position||"";
+    knop.style.marginLeft="auto";const kw=Math.round(Math.min(220,Math.max(160,(rechts-r.left)*.42)));knop.style.width=kw+"px"}
+  addEventListener("resize",lijn);
+  bij();setInterval(()=>{bij();lijn()},400);
   document.addEventListener("change",e=>{if(e.target&&e.target.id==="ph-in")setTimeout(bij,600)},true);
 })();
 </script>
