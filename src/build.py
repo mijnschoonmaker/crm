@@ -7,6 +7,7 @@ js="\n".join(open(f).read() for f in sorted(glob.glob('[0-9][0-9]-*.js')))
 js=open(os.path.join(D,'kc','meetlint.js')).read()+"\n"+js
 import json
 js="const FRAMER_TPL="+json.dumps(open(os.path.join(D,'kc','framer_tpl.tsx')).read()).replace("</","<\\/")+";\n"+js
+js="const KC_SKIN="+json.dumps(open(os.path.join(D,'..','tools','webshop-config-skin.html')).read()).replace("</","<\\/")+";\n"+js
 js="const KC_TPL="+json.dumps(open(os.path.join(D,'klantcalculator.html')).read()).replace("</","<\\/")+";\n"+js
 mark='<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2.5" stroke="#fff" stroke-width="1.8"/><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="1.2" opacity=".55"/><path d="M7 17L17 7" stroke="#ebbd4c" stroke-width="2.6" stroke-linecap="round"/></svg>'
 gear='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>'

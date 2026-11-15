@@ -376,7 +376,7 @@ function openSetEdit(id){
     const drawCode=()=>{$("#webCode").textContent=code()};drawCode();form.querySelector('[data-k="webUrl"]').addEventListener("input",drawCode);
     $("#webCopy").onclick=()=>copy(code(),$("#webCopy"));
     {const wb=()=>{const k=$("#webGebKaart");if(k){k.innerHTML=wgKaartje();const b=k.querySelector("[data-wgopen]");if(b)b.onclick=()=>werkgebiedEditor(wb)}};wb()}
-    $("#webView").onclick=async()=>{const b=$("#webView");b.disabled=true;try{const wa=String(form.querySelector('[data-k="webWa"]').value||"").replace(/\D/g,"");webCalcVoorbeeld(await klantCalcHtml(wa))}catch(e){err(e)}finally{b.disabled=false}};
+    $("#webView").onclick=async()=>{const b=$("#webView");b.disabled=true;try{const wa=String(form.querySelector('[data-k="webWa"]').value||"").replace(/\D/g,"");webCalcVoorbeeld(await klantCalcHtml(wa,true))}catch(e){err(e)}finally{b.disabled=false}};
     $("#webDl").onclick=async()=>{const b=$("#webDl");b.disabled=true;try{const wa=String(form.querySelector('[data-k="webWa"]').value||"").replace(/\D/g,"");await saveFile("prijscalculator.html",await klantCalcHtml(wa),"Calculator gedownload")}finally{b.disabled=false}};
     const siteBtn=(id,f)=>{$(id).onclick=async()=>{const b=$(id);b.disabled=true;try{await f(await websiteDelen())}catch(e){err(e)}finally{b.disabled=false}}};
     siteBtn("#siteView",p=>websiteVoorbeeld(websiteHtml(p,true)));
@@ -384,7 +384,7 @@ function openSetEdit(id){
     siteBtn("#siteDl",p=>saveFile("website.html",websiteHtml(p,false),"Website gedownload"));
     $("#webFr").onclick=async()=>{const b=$("#webFr");b.disabled=true;try{const wa=String(form.querySelector('[data-k="webWa"]').value||"").replace(/\D/g,"");const h=await klantCalcHtml(wa);await saveFile("PrijsCalculator-framer.txt",FRAMER_TPL.replace("__HTML__",()=>JSON.stringify(h)),"Framer-component gedownload")}finally{b.disabled=false}};
     bindSave();},
-  async webview(){try{const wa=String(s.webWa||waNr(s.telefoon)||"").replace(/\D/g,"");webCalcVoorbeeld(await klantCalcHtml(wa))}catch(e){err(e)}},
+  async webview(){try{const wa=String(s.webWa||waNr(s.telefoon)||"").replace(/\D/g,"");webCalcVoorbeeld(await klantCalcHtml(wa,true))}catch(e){err(e)}},
   bulkprijs(){openBulkPrijs()},
   bulkduur(){openBulkDuur()},
   };
@@ -471,13 +471,15 @@ function openSkip(id){
 
 /* website-calculator: zelfde rekentool voor klanten, met logo, gegevens en tarieven uit Mansard */
 const waNr=t=>{let d=String(t||"").replace(/\D/g,"");if(d.startsWith("00"))d=d.slice(2);else if(d.startsWith("0"))d="31"+d.slice(1);return d};
-async function klantCalcHtml(wa){const s=S();if(!RC)RC=buildRamen();const c=RC.cfgAll(),lg=await loadLogo();
+async function klantCalcHtml(wa,metSkin){const s=S();if(!RC)RC=buildRamen();const c=RC.cfgAll(),lg=await loadLogo();
   const cfg={g0_p:c.g0_p,g1_p:c.g1_p,g2_p:c.g2_p,g3_p:c.g3_p,tuimel_p:c.tuimel_p,lood_p:c.lood_p,koepel_p:c.koepel_p,mini_p:c.mini_p,start:c.start||0,min:c.min,tiers:c.tiers,tb:c.tb||{},wg:c.wg||{},fp:c.fp||{}};
   const B={naam:s.naam||HD(),email:s.email||"",whatsapp:wa||waNr(s.telefoon),logo:lg?await kleinLogo(lg.url):"",endpoint:LIVE?location.origin+"/api/aanvraag"+(window.ZEEM_BID&&window.ZEEM_BID!=="mijnschoonmaker"?"?b="+window.ZEEM_BID:""):"",werkgebied:String((form&&form.querySelector('[data-k="webPostcodes"]')||{}).value??s.webPostcodes??"").trim(),gebieden:wgVoorCalc(),klantPc:wgKlantPcAan()?wgKlantPc().join(","):"",voorwaarden:String((form&&form.querySelector('[data-k="webVoorwaarden"]')||{}).value??s.webVoorwaarden??"").trim()};
   if(typeof meetAan==="function"&&meetAan("webshop")){B.extra=meetSoorten().map(x=>({id:x.id,naam:x.kort,eenheid:x.eenheid,prijs:x.prijs,bron:meetBron(x)})).filter(x=>x.bron&&x.prijs>0);B.h3=LIVE?location.origin+"/api/huis3d":"";B.h3corr={goot:meetCorr("goot").f,windveer:meetCorr("windveer").f,plat:meetCorr("plat").f,gevel:meetCorr("gevel").f,dak:meetCorr("dak").f}}
   const fla=RC.freqList().filter(f=>f.webAan!==undefined?f.webAan:f.aan!==false),fadv=(fla.find(f=>f.adv)||fla.find(f=>f.k==="m8")||fla[0]||{}).k||"m8";const fl="const FREQ_LIST="+JSON.stringify(fla.map(f=>[f.k,f.l,f.w?52/f.w:1,Number(f.p)||0,f.w||0]))+";\nconst FREQ_ADV="+JSON.stringify(fadv)+";\n";
   const conf=`/*CFG-START*/\nconst BEDRIJF=${JSON.stringify(B)};\nconst VAT=${(Number(s.btw)||21)/100};\nconst cfg=${JSON.stringify(cfg)};\n${fl}`;
-  return KC_TPL.slice(0,KC_TPL.indexOf("/*CFG-START*/"))+conf+KC_TPL.slice(KC_TPL.indexOf("/*CFG-END*/")).split('${k==="m8"?" selected":""}').join('${k===FREQ_ADV?" selected":""}').split('g("freq").value==="m8"').join('g("freq").value===FREQ_ADV')}
+  const html=KC_TPL.slice(0,KC_TPL.indexOf("/*CFG-START*/"))+conf+KC_TPL.slice(KC_TPL.indexOf("/*CFG-END*/")).split('${k==="m8"?" selected":""}').join('${k===FREQ_ADV?" selected":""}').split('g("freq").value==="m8"').join('g("freq").value===FREQ_ADV');
+  /* zelfde configurator-opbouw als op de website (stappen, groot beeld, keuzes rechts, prijs onderaan); op de telefoon blijft alles gelijk */
+  const bi=html.lastIndexOf("</body>");return metSkin&&typeof KC_SKIN==="string"&&bi>0?html.slice(0,bi)+KC_SKIN.split('"beeld/').join('"'+location.origin+'/webshop/beeld/')+html.slice(bi):html}
 
 /* volledige export: vast formaat (versie 1) voor back-up en de overstap naar een eigen server */
 async function exportAlles(metBestanden){
