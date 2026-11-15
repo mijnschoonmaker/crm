@@ -2743,6 +2743,18 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-col{padding-bottom:24px!impor
 .fo-google i{width:1px;height:18px;background:#d9dbdf}
 .fo-google span.t{font:600 10px/1 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.24em;text-transform:uppercase;color:#6b717c}
 @media (max-width:999px){.fo-google{display:none}}
+
+/* knoppen op de foto iets kleiner; "Binnen 24 uur" subtieler */
+html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e) .cfg-acties a,html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e) .cfg-acties button,
+html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e) .cfg-stage .cfg-tik,html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e) .cfg-nav,html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e) .cfg-shownav{height:36px!important;font-size:9.5px!important;border-radius:10px!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e) .cfg-acties a{padding:0 14px!important;gap:8px!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e) .cfg-acties button.vk{width:36px!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e) .cfg-stage .cfg-tik{padding:0 14px 0 12px!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e) .cfg-nav,html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e) .cfg-shownav{padding:0 6px!important;gap:10px!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e) .cfg-nav button,html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e) .cfg-shownav button{width:26px!important;height:26px!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e) .cfg-acties svg,html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e) .cfg-tik svg,html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e) .cfg-nav svg,html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e) .cfg-shownav svg{width:14px!important;height:14px!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e) .cfg-bar .fo-24 b{font-size:13.5px!important;font-weight:500!important;color:#14171c!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e) .cfg-bar .fo-24 small{font-size:12px!important;color:#8a8f98!important}
 /* stappen in het intro (telefoon) */
 .fo-lijst{list-style:none;margin:0;padding:0}
 /* fotostap: minimaal 2 foto's, daarna door naar de gegevens */
@@ -2871,7 +2883,7 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-col{padding-bottom:24px!impor
     knop.style.marginLeft="auto";const kw=Math.round(Math.min(220,Math.max(160,(rechts-r.left)*.42)));knop.style.width=kw+"px"}
   function google(){const G0=window.FO_GOOGLE,bar=$(".cfg-bar"),st=$(".cfg-stage");if(!G0||!bar||!st)return;let e=bar.querySelector(".fo-google");
     if(!e){const ster='<svg viewBox="0 0 20 20"><path d="M10 1.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8L10 14.9l-5.2 2.7 1-5.8L1.6 7.7l5.8-.8z"/></svg>';
-      e=document.createElement("div");e.className="fo-google";e.innerHTML=`<span class="st">${ster.repeat(5)}</span><b>${G0.score||"5,0"}</b><i></i><span class="t">Beoordeeld op Google</span>`;bar.append(e)}
+      e=document.createElement("div");e.className="fo-google";e.innerHTML=`<span class="st">${ster.repeat(5)}</span><span class="t">Beoordeeld op Google</span>`;bar.append(e)}
     const r=st.getBoundingClientRect(),b=bar.getBoundingClientRect();e.style.left=(r.left+r.width/2-b.left)+"px"}
   addEventListener("resize",lijn);setInterval(google,600);
   bij();setInterval(()=>{bij();lijn()},400);
