@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="dc111abf3c4b"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="bc280891b27c"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -11536,6 +11536,10 @@ function viewDays(){
   const m=parse(state.mon||iso(new Date(t.getFullYear(),t.getMonth(),1)));const out=[];for(let d=new Date(m);d.getMonth()===m.getMonth();d=addDays(d,1))out.push(iso(d));return out;
 }
 function sugDate(k,days){const t=today(),lo=parse(days[0])>t?parse(days[0]):t,hi=parse(days[days.length-1]);let x=volgende(k);if(x<lo)x=lo;if(x>hi&&lo<=hi)x=hi;return werkdagAanpassen(x)}
+/* aanboddag zoals op de aanbodkaart (voor prijs/tijd incl. extra opdrachten die die dag ook aan de beurt zijn) */
+function ofDag(k){const t=today(),gp=parse(k.gepland);let ad;
+  if(gp&&gp<t)ad=t;else if(!k.laatst){ad=volgende(k)}else{ad=volgende(k);const ew=S().glasMee===false?"":extraWanneer(k),ed=ew&&parse(ew);if(ed&&ed<ad)ad=ed}
+  return iso(ad>t?ad:t)}
 function offerHtml(k,dayIso,timed){
   const s=dueTxt(k),h=hue(k.ronde||k.naam),days=viewDays(),sd=dayIso||iso(sugDate(k,days)),tt=(timed||state.pview!=="week"&&state.pview!=="maand")?nextFree(sd):"",picked=state.pick===k.id;
   const t=today(),gp=parse(k.gepland),mnd=["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"];
@@ -11680,7 +11684,7 @@ function vPlanning(){
   if(!state.klanten.length)return html+empty("Nog geen klanten","Voeg je eerste klant toe of importeer je klantenbestand.",`<button type="button" class="primary" data-act="klant">${I.plus}Nieuwe klant</button>`);
   if(!big()&&v==="dag"){const wk=[...Array(7)].map((_,i)=>iso(addDays(startOfWeek(first),i)));html+=`<div class="daypick">${wk.map(d=>`<button type="button" data-act="pickday" data-d="${d}" aria-pressed="${d===d0}"${d===iso(t)?' class="is-today"':""}><span>${wd(parse(d))}</span><b>${parse(d).getDate()}</b><i>${daySum(d).n}</i></button>`).join("")}</div>`}
   html+=v==="week"?timeGrid((()=>{const w=S().werkdagen||[1,2,3,4,5],wd=days.filter(d=>w.includes(parse(d).getDay())||parse(d).getDay()===6||dayItems(d).js.length)/* zaterdag altijd zichtbaar in de week, ook als het geen werkdag is */;return wd.length?wd:days})()):v==="maand"?monthGrid(days):timeGrid(days);
-  const offerCol=`<aside class="rpanel offercol" data-drop=""><div class="rp-h2"><span class="eyebrow rp-h">${I.inbox}Te plannen</span><span class="mono">${offer.length} · ${eur0(offer.reduce((a,k)=>a+stopBedrag(k),0))} <small>${btwLbl()}</small></span></div>
+  const offerCol=`<aside class="rpanel offercol" data-drop=""><div class="rp-h2"><span class="eyebrow rp-h">${I.inbox}Te plannen</span><span class="mono">${offer.length} · ${eur0(offer.reduce((a,k)=>{try{return a+stopBedrag(k,ofDag(k))}catch(e){return a+stopBedrag(k)}},0))} <small>${btwLbl()}</small></span></div>
     ${state.pkaart&&state.ksel.size?`<div class="pk-selbar">${I.map}<span><b>${plural(offer.length,"adres","adressen")}</b> geselecteerd op de kaart</span><button type="button" class="tiny ghost" data-act="pkwis">Alles tonen</button></div>`:""}
     ${advHtml(offer,d0)}
     <div class="list" style="gap:8px">${offer.length?offerCards(offer,v==="dag"&&parse(d0)>=t?d0:""):`<p class="subt" style="text-align:center;font-style:italic;margin:30px 0">${ADV.zoek?"Niets gevonden voor “"+esc(ADV.zoek)+"”":"Alles ingepland"}</p>`}</div></aside>`;
@@ -23334,10 +23338,12 @@ document.addEventListener("pointerdown",e=>{if(e.button>0)return;const j=e.targe
 function dgInfo(id){if(id.startsWith("b:")){const b=state.beurten.find(x=>x.id===id.slice(2))||{};const k=state.klanten.find(x=>x.id===b.klantId)||{};return{k,du:Number(b.duur)||duur(k),adr:jobAddrObj(k).adres||cleanName(b.klantNaam||k.naam||""),prijs:b.bedrag}}
   const k=state.klanten.find(x=>x.id===id)||{};return{k,du:duur(k),adr:jobAddrObj(k).adres||cleanName(k.naam||""),plaats:jobAddrObj(k).plaats||k.plaats||"",prijs:k.prijs}}
 function startDg(x,y){if(!dg)return;dg.on=true;const r=vpR(dg.j),inf=dgInfo(dg.id);dg.inf=inf;
+  /* aanbodkaart: dezelfde prijs en tijd tonen als op de kaart (incl. extra opdrachten die die dag ook aan de beurt zijn) */
+  const k3=dg.j.querySelector&&dg.j.querySelector(".of-k3");let k3P="",k3M="";if(k3){k3P=((k3.querySelector("b")||{}).textContent||"").trim();k3M=((k3.querySelector("em")||{}).textContent||"").trim()}
   const tile=dg.j.querySelector(".kc-tile");
   const g=document.createElement("div");g.className="dg-ghost dg-card";
   let tl=I.cal2;if(tile){const m=tile.querySelector(".kc-m"),bb=tile.querySelector("b"),KL={ok:"#3c9a6a",attn:"#c2a227",warn:"#e28c1c",soon:"#e28c1c",crit:"#e2571f",late:"#cc2f2f",nieuw:"#137a8a",plan:"#2e9a6b",gemist:"#cc2f2f"},kc=[...dg.j.classList].map(c=>c.replace(/^kx-/,"")).find(c=>KL[c]);tl=`<span class="dg-t"><i style="background:${KL[kc]||"var(--brand)"}">${esc(m?m.textContent:"")}</i><b>${bb?bb.innerHTML:""}</b></span>`}
-  g.innerHTML=`<span class="dg-tile${tile?" t":""}">${tl}</span><span class="dg-tx"><b>${esc(inf.adr||"Afspraak")}</b><small>${inf.plaats?esc(inf.plaats)+" · ":""}${inf.du} min${inf.prijs?" · "+eur0(toonK(inf.k,inf.prijs)):""}</small></span>`;
+  g.innerHTML=`<span class="dg-tile${tile?" t":""}">${tl}</span><span class="dg-tx"><b>${esc(inf.adr||"Afspraak")}</b><small>${inf.plaats?esc(inf.plaats)+" · ":""}${k3M?esc(k3M):inf.du+" min"}${k3P?" · "+esc(k3P):inf.prijs?" · "+eur0(toonK(inf.k,inf.prijs)):""}</small></span>`;
   document.body.appendChild(g);
   dg.dx=Math.min(x-r.left,40);dg.dy=Math.min(y-r.top,28);dg.g=g;dg.cx=r.left;dg.cy=r.top;dg.tx=x-dg.dx;dg.ty=y-dg.dy;dg.vx=0;
   g.style.transform=`translate3d(${r.left}px,${r.top}px,0) scale(.96)`;requestAnimationFrame(()=>g.classList.add("op"));

@@ -8,6 +8,10 @@ function viewDays(){
   const m=parse(state.mon||iso(new Date(t.getFullYear(),t.getMonth(),1)));const out=[];for(let d=new Date(m);d.getMonth()===m.getMonth();d=addDays(d,1))out.push(iso(d));return out;
 }
 function sugDate(k,days){const t=today(),lo=parse(days[0])>t?parse(days[0]):t,hi=parse(days[days.length-1]);let x=volgende(k);if(x<lo)x=lo;if(x>hi&&lo<=hi)x=hi;return werkdagAanpassen(x)}
+/* aanboddag zoals op de aanbodkaart (voor prijs/tijd incl. extra opdrachten die die dag ook aan de beurt zijn) */
+function ofDag(k){const t=today(),gp=parse(k.gepland);let ad;
+  if(gp&&gp<t)ad=t;else if(!k.laatst){ad=volgende(k)}else{ad=volgende(k);const ew=S().glasMee===false?"":extraWanneer(k),ed=ew&&parse(ew);if(ed&&ed<ad)ad=ed}
+  return iso(ad>t?ad:t)}
 function offerHtml(k,dayIso,timed){
   const s=dueTxt(k),h=hue(k.ronde||k.naam),days=viewDays(),sd=dayIso||iso(sugDate(k,days)),tt=(timed||state.pview!=="week"&&state.pview!=="maand")?nextFree(sd):"",picked=state.pick===k.id;
   const t=today(),gp=parse(k.gepland),mnd=["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"];
@@ -152,7 +156,7 @@ function vPlanning(){
   if(!state.klanten.length)return html+empty("Nog geen klanten","Voeg je eerste klant toe of importeer je klantenbestand.",`<button type="button" class="primary" data-act="klant">${I.plus}Nieuwe klant</button>`);
   if(!big()&&v==="dag"){const wk=[...Array(7)].map((_,i)=>iso(addDays(startOfWeek(first),i)));html+=`<div class="daypick">${wk.map(d=>`<button type="button" data-act="pickday" data-d="${d}" aria-pressed="${d===d0}"${d===iso(t)?' class="is-today"':""}><span>${wd(parse(d))}</span><b>${parse(d).getDate()}</b><i>${daySum(d).n}</i></button>`).join("")}</div>`}
   html+=v==="week"?timeGrid((()=>{const w=S().werkdagen||[1,2,3,4,5],wd=days.filter(d=>w.includes(parse(d).getDay())||parse(d).getDay()===6||dayItems(d).js.length)/* zaterdag altijd zichtbaar in de week, ook als het geen werkdag is */;return wd.length?wd:days})()):v==="maand"?monthGrid(days):timeGrid(days);
-  const offerCol=`<aside class="rpanel offercol" data-drop=""><div class="rp-h2"><span class="eyebrow rp-h">${I.inbox}Te plannen</span><span class="mono">${offer.length} · ${eur0(offer.reduce((a,k)=>a+stopBedrag(k),0))} <small>${btwLbl()}</small></span></div>
+  const offerCol=`<aside class="rpanel offercol" data-drop=""><div class="rp-h2"><span class="eyebrow rp-h">${I.inbox}Te plannen</span><span class="mono">${offer.length} · ${eur0(offer.reduce((a,k)=>{try{return a+stopBedrag(k,ofDag(k))}catch(e){return a+stopBedrag(k)}},0))} <small>${btwLbl()}</small></span></div>
     ${state.pkaart&&state.ksel.size?`<div class="pk-selbar">${I.map}<span><b>${plural(offer.length,"adres","adressen")}</b> geselecteerd op de kaart</span><button type="button" class="tiny ghost" data-act="pkwis">Alles tonen</button></div>`:""}
     ${advHtml(offer,d0)}
     <div class="list" style="gap:8px">${offer.length?offerCards(offer,v==="dag"&&parse(d0)>=t?d0:""):`<p class="subt" style="text-align:center;font-style:italic;margin:30px 0">${ADV.zoek?"Niets gevonden voor “"+esc(ADV.zoek)+"”":"Alles ingepland"}</p>`}</div></aside>`;
