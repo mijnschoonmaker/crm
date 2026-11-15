@@ -630,7 +630,7 @@ exports.aanvraag = onRequest({ cors: true, memory: "512MiB", timeoutSeconds: 60 
         await brevoSend(g.brevoKey, {
           sender: { name: "Mansard CRM", email: g.afzender || b.email }, to: [{ email: g.meldAdres || b.email }],
           subject: soort + ": " + k.naam,
-          textContent: [soort, "", "Naam: " + k.naam, k.bedrijf ? "Bedrijf: " + k.bedrijf : "", "Adres: " + [k.adres, k.postcode, k.plaats].filter(Boolean).join(" "), "E-mail: " + (k.email || ""), "Telefoon: " + (k.telefoon || ""), k.opmerking ? "\nOpmerking: " + k.opmerking : "", "", "Open het CRM om de aanvraag te bekijken."].filter(x => x !== "").join("\n")
+          textContent: [soort, "", "Naam: " + k.naam, k.bedrijf ? "Bedrijf: " + k.bedrijf : "", "Adres: " + [k.adres, k.postcode, k.plaats].filter(Boolean).join(" "), "E-mail: " + (k.email || ""), "Telefoon: " + (k.telefoon || ""), k.opmerking ? "\nOpmerking: " + k.opmerking : "", k.bijzonderheden ? "Bijzonderheden: " + k.bijzonderheden : "", "", "Open het CRM om de aanvraag te bekijken."].filter(x => x !== "").join("\n")
         });
       }
     } catch (e) { console.error("melding", e); }

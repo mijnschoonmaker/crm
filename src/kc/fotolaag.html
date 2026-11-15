@@ -16,6 +16,27 @@ html body:not(#a):not(#b):not(#c):not(#d) .cfg-stage.foto .cfg-foto{object-fit:c
 .cfg-stage .fo-achter{position:absolute;inset:-40px;width:calc(100% + 80px);height:calc(100% + 80px);object-fit:cover;filter:blur(30px) brightness(.8) saturate(1.1);transform:scale(1.05);z-index:0;display:none;pointer-events:none}
 .cfg-stage.foto .fo-achter{display:block}
 .cfg-stage.foto>*:not(.fo-achter):not(.cfg-foto):not(.cfg-show){z-index:2}
+
+/* knoppen op de foto: één familie — 44px, licht glas, fijne rand, kleine hoofdletters */
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-acties a,html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-acties button,
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-stage .cfg-tik,html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-nav,html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-shownav{
+  height:44px!important;border-radius:12px!important;background:rgba(255,255,255,.78)!important;-webkit-backdrop-filter:blur(16px) saturate(1.4)!important;backdrop-filter:blur(16px) saturate(1.4)!important;
+  border:1px solid rgba(255,255,255,.7)!important;box-shadow:0 1px 0 rgba(255,255,255,.6) inset,0 10px 28px -16px rgba(14,17,23,.55)!important;color:#0e1117!important;
+  font:600 10.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:.16em!important;text-transform:uppercase!important;box-sizing:border-box}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-acties a{padding:0 18px!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-acties button.vk{width:44px!important;padding:0!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-stage .cfg-tik{padding:0 18px 0 14px!important;letter-spacing:.12em!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-stage .cfg-tik.cfg-nog{background:rgba(14,17,23,.82)!important;color:#fff!important;border-color:rgba(255,255,255,.14)!important;box-shadow:0 1px 0 rgba(255,255,255,.12) inset,0 10px 28px -16px rgba(14,17,23,.7)!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-nav,html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-shownav{padding:0 10px!important;gap:14px!important;letter-spacing:.1em!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-nav button,html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-shownav button{width:30px!important;height:30px!important;border-radius:9px!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-nav button:hover:not([disabled]),html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-shownav button:hover{background:rgba(14,17,23,.06)!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-acties svg,html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-tik svg,html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-nav svg{width:16px!important;height:16px!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-onder{gap:8px!important}
+/* terug-knop "Particulier": zelfde familie, rustig omlijnd */
+html body:not(#a):not(#b):not(#c):not(#d) .wz-back{height:36px!important;padding:0 14px 0 10px!important;border-radius:10px!important;background:#fff!important;border:1px solid #e3e5e8!important;box-shadow:none!important;color:#0e1117!important;
+  font:600 10.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:.16em!important;text-transform:uppercase!important;display:inline-flex!important;align-items:center;gap:8px}
+html body:not(#a):not(#b):not(#c):not(#d) .wz-back svg{width:14px!important;height:14px!important}
+html body:not(#a):not(#b):not(#c):not(#d) .wz-back:hover{border-color:#c9cdd3!important}
 /* stappen in het intro (telefoon) */
 .fo-lijst{list-style:none;margin:0;padding:0}
 /* fotostap: minimaal 2 foto's, daarna door naar de gegevens */
@@ -62,7 +83,8 @@ html body:not(#a):not(#b):not(#c):not(#d) .cfg-stage.foto .cfg-foto{object-fit:c
     (s1.querySelector(".body")||s1).append(v);v.querySelector("button").onclick=naarGegevens}}
   {const s5=G("aanvraag");if(s5){const n=s5.querySelector(".num");if(n)n.textContent="2";const i=s5.querySelector(".intro");if(i)i.textContent="Vul uw gegevens in. Binnen 24 uur ontvangt u van ons een offerte op maat, met een vaste prijs per beurt.";
     const h=s5.querySelector("h2");if(h)h.textContent="Voor uw offerte";
-    const b=document.createElement("div");b.className="fo-belofte";b.innerHTML=KLOK+`<div><b>Binnen 24 uur uw offerte</b>Wij bekijken uw foto’s en de luchtfoto’s van uw woning en tellen de ramen voor u. U hoeft niets te tellen.</div>`;
+    const b=document.createElement("div");b.className="fo-belofte";b.innerHTML=KLOK+`<div><b>Binnen 24 uur uw offerte!</b>Wij bekijken de foto’s van uw woning en brengen het aantal ramen voor u in kaart.<br><br>Zijn er bijzonderheden waar wij rekening mee moeten houden? Vermeld deze dan in het veld ‘Bijzonderheden’ hierboven. Denk bijvoorbeeld aan: niet aanbellen in verband met een slapende baby. Wij houden hier bij ieder bezoek uiteraard rekening mee.</div>`;
+    {const op=G("k-opm"),f=op&&op.closest(".fld");if(f&&!G("k-bijz")){const d=document.createElement("div");d.className="fld full";d.innerHTML='<label class="lab" for="k-bijz">Bijzonderheden</label><textarea class="in" id="k-bijz" rows="3" placeholder="Bijv. niet aanbellen in verband met een slapende baby"></textarea>';f.after(d)}}
     const snd=s5.querySelector(".send");if(snd)snd.before(b);const ind=G("indienen");if(ind)ind.textContent="Offerte aanvragen"}}
   /* configurator: uitleg rechts en keuzekaart */
   function cfgTeksten(){
@@ -89,12 +111,12 @@ html body:not(#a):not(#b):not(#c):not(#d) .cfg-stage.foto .cfg-foto{object-fit:c
   const advies=()=>{try{return typeof FREQ_ADV!=="undefined"&&FREQ_ADV?FREQ_ADV:(G("freq")&&G("freq").value)||"m8"}catch(e){return "m8"}};
   window.aanvraagData=function(){const v=id=>{const e=G(id);return e?e.value.trim():""};
     return {formaat:"zeem.aanvraag",versie:1,opMaat:true,gemaakt:new Date().toISOString(),ref:(typeof refCode==="function"?refCode():"")||"",
-      soort:typeof SOORT!=="undefined"?SOORT:"particulier",klant:{bedrijf:SOORT==="zakelijk"?v("k-bedrijf"):"",naam:v("k-naam"),adres:v("k-adres"),postcode:v("k-pc"),plaats:v("k-plaats"),email:v("k-email"),telefoon:v("k-tel"),opmerking:v("k-opm")},
+      soort:typeof SOORT!=="undefined"?SOORT:"particulier",klant:{bedrijf:SOORT==="zakelijk"?v("k-bedrijf"):"",naam:v("k-naam"),adres:v("k-adres"),postcode:v("k-pc"),plaats:v("k-plaats"),email:v("k-email"),telefoon:v("k-tel"),opmerking:v("k-opm"),bijzonderheden:v("k-bijz")},
       telling:{freq:advies()},prijs:null,
       fotos:photos.map((p,i)=>({naam:`woning-foto-${i+1}.jpg`,breedte:p.cv.width,hoogte:p.cv.height}))}};try{aanvraagData=window.aanvraagData}catch(e){}
   window.tekst=function(){const v=id=>{const e=G(id);return e?e.value.trim():""},pl=[v("k-pc"),v("k-plaats")].filter(Boolean).join(" ");
     return ["Offerte-aanvraag glasbewassing (op maat, met foto’s)","",SOORT==="zakelijk"?`Bedrijf / VvE: ${v("k-bedrijf")}`:"",`Naam: ${v("k-naam")}`,`Adres: ${v("k-adres")}${pl?", "+pl:""}`,v("k-email")?`E-mail: ${v("k-email")}`:"",v("k-tel")?`Telefoon: ${v("k-tel")}`:"","",
-      `Foto’s: ${nF()} (graag als bijlage meesturen)`,v("k-opm")?"\nOpmerking: "+v("k-opm"):"","","Aanvraagcode voor "+BEDRIJF.naam+" (niet wijzigen):","ZEEM1:"+aanvraagCode()].filter((x,i,a)=>x!==""||a[i-1]!=="").join("\n")};try{tekst=window.tekst}catch(e){}
+      `Foto’s: ${nF()} (graag als bijlage meesturen)`,v("k-opm")?"\nOpmerking: "+v("k-opm"):"",v("k-bijz")?"Bijzonderheden: "+v("k-bijz"):"","","Aanvraagcode voor "+BEDRIJF.naam+" (niet wijzigen):","ZEEM1:"+aanvraagCode()].filter((x,i,a)=>x!==""||a[i-1]!=="").join("\n")};try{tekst=window.tekst}catch(e){}
   /* na versturen: duidelijke bevestiging met de belofte */
   function bedankt(){const m=G("msg");if(!m||m.dataset.fo)return;m.dataset.fo="1";m.className="msg";m.innerHTML="";
     const k=document.createElement("div");k.className="fo-klaar";k.innerHTML="<b>Bedankt, uw aanvraag is binnen.</b>Binnen 24 uur ontvangt u van ons uw offerte op maat"+(G("k-email").value.trim()?" per e-mail":"")+". U hoeft verder niets te doen.";m.after(k)}
