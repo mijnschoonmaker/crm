@@ -106,6 +106,28 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties a svg,
 html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-logo .rk{right:14px!important}
 html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties{gap:6px!important}
 }
+
+/* knoppen op de foto: overal alleen icoon (WhatsApp, info, vergroten) */
+html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties a,html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties button{width:36px!important;min-width:36px!important;height:36px!important;padding:0!important;gap:0!important;font-size:0!important;letter-spacing:0!important;justify-content:center!important;overflow:hidden!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties a svg,html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties button svg{width:16px!important;height:16px!important;flex:0 0 16px}
+html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties{gap:8px!important}
+/* info-venster: over ons */
+.fo-ov{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(14,17,23,.42);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:foIn .2s ease}
+@keyframes foIn{from{opacity:0}}
+.fo-ov .fo-doos{position:relative;width:min(520px,100%);max-height:calc(100vh - 40px);overflow:auto;background:#fff;border-radius:20px;box-shadow:0 30px 80px -30px rgba(14,17,23,.55);padding:34px 34px 28px;font:400 14.5px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;color:#4a4f57;box-sizing:border-box}
+.fo-ov h2{margin:0 0 4px;font:400 18px/1.25 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#0e1117}
+.fo-ov .fo-sub{margin:0 0 18px;color:#8a8f98;font-size:13px}
+.fo-ov p{margin:0 0 14px}
+.fo-ov h3{margin:22px 0 10px;font:600 10.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.2em;text-transform:uppercase;color:#6b717c}
+.fo-ov ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.fo-ov li{display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:start}
+.fo-ov li>span{width:28px;height:28px;border-radius:50%;border:1px solid #e3e5e8;display:grid;place-items:center;font:500 12px/1 system-ui,sans-serif;color:#0e1117}
+.fo-ov li b{display:block;color:#0e1117;font-weight:500;font-size:14.5px}
+.fo-ov li small{display:block;color:#6b717c;font-size:13px;line-height:1.5}
+.fo-ov .fo-dicht{all:unset;position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:10px;display:grid;place-items:center;cursor:pointer;color:#0e1117}
+.fo-ov .fo-dicht:hover{background:#f3f4f6}
+.fo-ov .fo-dicht svg{width:16px;height:16px}
+.fo-ov .fo-ok{all:unset;box-sizing:border-box;display:flex;align-items:center;justify-content:center;width:100%;height:46px;margin-top:24px;border-radius:4px;background:#0e1117;color:#fff;cursor:pointer;font:600 11px/1 system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase}
 /* stappen in het intro (telefoon) */
 .fo-lijst{list-style:none;margin:0;padding:0}
 /* fotostap: minimaal 2 foto's, daarna door naar de gegevens */
@@ -239,6 +261,21 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties{gap:6p
       e=document.createElement("div");e.className="fo-google";e.innerHTML=`<span class="st">${ster.repeat(5)}</span><i></i><span class="t">Beoordeeld op Google</span>`;bar.append(e)}
     const r=st.getBoundingClientRect(),b=bar.getBoundingClientRect();e.style.left=(r.left+r.width/2-b.left)+"px"}
   addEventListener("resize",lijn);setInterval(google,600);
+
+  /* info-knop naast WhatsApp: over ons en wat de klant kan verwachten */
+  const B=typeof BEDRIJF==="object"?BEDRIJF:{},esc=x=>String(x||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  function info(){if($(".fo-ov"))return;const N=esc(B.naam||"ons bedrijf");const o=document.createElement("div");o.className="fo-ov";o.setAttribute("role","dialog");o.setAttribute("aria-modal","true");o.setAttribute("aria-label","Over "+(B.naam||"ons"));
+    const L=[["Binnen 24 uur uw offerte","Op basis van uw foto’s brengen wij het aantal ramen voor u in kaart. U hoeft niets te tellen."],["Een vaste prijs per beurt","Wat in de offerte staat, is wat u betaalt. Geen verrassingen achteraf."],["U weet wanneer we komen","Vooraf ontvangt u bericht. Op de dag zelf volgt u ons live op de kaart."],["Uw eigen klantportaal","Bezoeken, facturen en vragen overzichtelijk op één plek."],["Aandacht voor uw wensen","Bijzonderheden die u ons vertelt, onthouden we. Bij ieder bezoek."]];
+    o.innerHTML=`<div class="fo-doos"><button type="button" class="fo-dicht" aria-label="Sluiten"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      <h2>Over ${N}</h2><p class="fo-sub">Glasbewassing met oog voor detail</p>
+      <p>Bij ${N} draait alles om helder zicht en een zorgeloze service. Wij komen op vaste momenten, werken rustig en netjes, en laten uw woning achter zoals u dat van ons mag verwachten.</p>
+      <h3>Wat u kunt verwachten</h3><ol>${L.map((x,i)=>`<li><span>${i+1}</span><div><b>${x[0]}</b><small>${x[1]}</small></div></li>`).join("")}</ol>
+      <button type="button" class="fo-ok">Offerte aanvragen</button></div>`;
+    const weg=()=>{o.remove();document.removeEventListener("keydown",esk)},esk=e=>{if(e.key==="Escape")weg()};
+    o.addEventListener("click",e=>{if(e.target===o||e.target.closest(".fo-dicht"))weg()});o.querySelector(".fo-ok").onclick=weg;document.addEventListener("keydown",esk);document.body.append(o);setTimeout(()=>o.querySelector(".fo-dicht").focus(),30)}
+  function infoKnop(){const a=$(".cfg-acties");if(!a||a.querySelector(".fo-info"))return;const b=document.createElement("button");b.type="button";b.className="fo-info";b.setAttribute("aria-label","Over "+(B.naam||"ons"));b.title="Over ons";
+    b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".9" fill="currentColor" stroke="none"/></svg>Over ons';b.onclick=info;a.prepend(b)}
+  setInterval(infoKnop,600);infoKnop();
   bij();setInterval(()=>{bij();lijn()},400);
   document.addEventListener("change",e=>{if(e.target&&e.target.id==="ph-in")setTimeout(bij,600)},true);
 })();
