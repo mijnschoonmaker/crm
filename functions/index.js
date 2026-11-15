@@ -963,7 +963,7 @@ const DEMO = require("./demotoegang")({ rawDb, onRequest, onCall, HttpsError, br
 exports.demoToegang = DEMO.demoToegang;
 exports.demoAanmeldingen = DEMO.demoAanmeldingen;
 /* vragen van niet-klanten via de website (los van de klant-tickets) */
-const VRAGEN = require("./vragen")({ db, onRequest, onCall, onSchedule, HttpsError, brevoSend, mailHtml, checkGebruiker, geheim, bedrijf, newId, nu });
+const VRAGEN = require("./vragen")({ db, onRequest, onCall, onSchedule, HttpsError, brevoSend, mailHtml, checkGebruiker, geheim, bedrijf, newId, nu, isLegacy: () => TEN.isLegacy() });
 exports.vragen = VRAGEN.vragen;
 exports.vraagMelding = VRAGEN.vraagMelding;
 exports.vragenOpruimen = VRAGEN.vragenOpruimen;

@@ -45,7 +45,7 @@ function vrDetail(id){if(!vrOpen)return;if(vrOpen.unsub)vrOpen.unsub();vrOpen.id
     <div class="tk-stbar"><span>Status</span><div class="seg" role="group">${Object.entries(VR_ST).map(([s,[c,l]])=>`<button type="button" data-vrs="${s}" aria-pressed="${(v.status||"open")===s}"><i class="tk-dot" style="background:var(--${c})"></i>${l}</button>`).join("")}</div></div>
     <div class="chx-b" id="vrB"><p class="subt" style="margin:auto">Laden…</p></div>
     <div class="chx-in"><textarea id="vrT" rows="1" placeholder="Antwoord aan ${esc(voornaam(v.naam||""))}…"></textarea><button type="button" class="primary chx-hb" id="vrS">${I.send}<span>Versturen</span></button></div>
-    <small class="help" style="margin:4px 4px 0">${v.email?"Je antwoord verschijnt in het venster op de website en gaat per mail naar "+esc(v.email)+".":"Geen e-mailadres: je antwoord verschijnt alleen in het venster op de website. Bel of app als het dringend is."}</small>`;
+    <small class="help" style="margin:4px 4px 0">${v.email?"Je antwoord verschijnt alleen in het ticketscherm op de website. "+esc(v.email)+" krijgt een seintje per e-mail met een knop naar het gesprek.":"Geen e-mailadres: je antwoord verschijnt alleen in het venster op de website. Bel of app als het dringend is."}</small>`;
   $("#vrTerug").onclick=()=>{if(vrOpen.unsub)vrOpen.unsub();vrOpen.unsub=null;vrOpen.id="";$("#vrR").innerHTML=`<p class="subt chx-leeg"></p>`;vrLijstTeken()};
   form.querySelectorAll("[data-vrs]").forEach(b=>b.onclick=()=>vrStatus(v,b.dataset.vrs));
   $("#vrKlant").onclick=()=>vrNaarKlant(v);
@@ -64,7 +64,7 @@ async function vrVerstuur(v){const tx=$("#vrT"),s=$("#vrS"),tekst=tx.value.trim(
     await fsDb().collection("vraagBerichten").doc(newId("vb")).set({vraagId:v.id,van:"team",tekst,op,door:(state.me&&state.me.email)||"",doorNaam:naam});
     await fsDb().doc("vragen/"+v.id).set({laatst:op,laatsteTekst:tekst.slice(0,200),laatsteVan:"team",ongelezenTeam:0,gezienTeam:op,ongelezenBezoeker:firebase.firestore.FieldValue.increment(1)},{merge:true});
     tx.value="";tx.style.height="auto";
-    fbFn("vraagMelding")({vraagId:v.id}).then(r=>{if(r&&r.data&&r.data.mail)toast("Verstuurd en gemaild naar "+v.email)}).catch(e=>console.error("vraagMelding",e))}
+    fbFn("vraagMelding")({vraagId:v.id}).then(r=>{if(r&&r.data&&r.data.mail)toast("Verstuurd · seintje gemaild naar "+v.email)}).catch(e=>console.error("vraagMelding",e))}
   catch(e){err(e)}finally{s.disabled=false;tx.focus()}}
 async function vrStatus(v,st){const cur=(state.vragen||[]).find(x=>x.id===v.id)||v;if((cur.status||"open")===st)return;const op=new Date().toISOString();
   try{await fsDb().doc("vragen/"+v.id).set({status:st,...(st==="opgelost"?{opgelostOp:op}:{})},{merge:true});

@@ -3,10 +3,10 @@
    - POST /api/vraag {actie:"start", naam, email, telefoon, tekst}  -> { ok, id, t }
    - POST /api/vraag {actie:"bericht", id, t, tekst}                -> { ok }
    - GET  /api/vraag?id=..&t=..                                      -> { ok, status, berichten:[{van,tekst,op,naam}] }
-   - vraagMelding (CRM): stuurt het antwoord van het team per mail naar de vraagsteller
+   - vraagMelding (CRM): seintje per mail naar de vraagsteller, met een knop naar het gesprek (het antwoord zelf staat alleen in het ticketscherm)
    - vragenOpruimen (elke nacht): afgesloten vragen ouder dan 30 dagen weg */
 const crypto = require("crypto");
-module.exports = ({ db, onRequest, onCall, onSchedule, HttpsError, brevoSend, mailHtml, checkGebruiker, geheim, bedrijf, newId, nu }) => {
+module.exports = ({ db, onRequest, onCall, onSchedule, HttpsError, brevoSend, mailHtml, checkGebruiker, geheim, bedrijf, newId, nu, isLegacy }) => {
   const h = s => crypto.createHash("sha256").update(String(s)).digest("hex");
   const schoon = (s, n) => String(s || "").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, "").trim().slice(0, n);
   const ipVan = req => String(req.headers["x-forwarded-for"] || req.ip || "").split(",")[0].trim();
@@ -17,7 +17,7 @@ module.exports = ({ db, onRequest, onCall, onSchedule, HttpsError, brevoSend, ma
   async function leesVraag(id, tok) {
     if (!/^vr[a-z0-9]{6,40}$/i.test(String(id || "")) || !tok) return null;
     const s = await db.doc("vragen/" + id).get(); if (!s.exists) return null; const v = s.data();
-    if (!v.tokenHash || v.tokenHash !== h(tok)) return null; return { ref: s.ref, v };
+    const th = h(tok); if (!(v.tokenHash === th || (v.mailTokens || []).includes(th))) return null; return { ref: s.ref, v };
   }
   async function meldTeam(v, tekst, nieuw) {
     try { const [g, b] = await Promise.all([geheim(), bedrijf()]); if (!g.brevoKey || !(g.meldAdres || b.email)) return;
@@ -47,7 +47,8 @@ module.exports = ({ db, onRequest, onCall, onSchedule, HttpsError, brevoSend, ma
         if (email && !/^\S+@\S+\.\S+$/.test(email)) { res.status(400).json({ ok: false, fout: "Controleer uw e-mailadres." }); return; }
         const id = newId("vr"), tok = crypto.randomBytes(18).toString("hex"), op = nu();
         const tel = await db.runTransaction(async t => { const r = db.doc("tellers/vragen"), x = await t.get(r); const v = (x.exists ? x.data().n : 100) + 1; t.set(r, { n: v }); return v; }).catch(() => Date.now() % 10000);
-        const v = { naam, email, telefoon, nummer: "V-" + tel, tokenHash: h(tok), status: "open", aangemaakt: op, laatst: op, laatsteTekst: tekst.slice(0, 200), laatsteVan: "bezoeker", ongelezenTeam: 1, ongelezenBezoeker: 0, bron: "website" };
+        const pagina = /^\/webshop\/[a-z0-9-]{1,60}\.html$/i.test(String(b.pagina || "")) ? String(b.pagina) : "";
+        const v = { naam, email, telefoon, pagina, nummer: "V-" + tel, tokenHash: h(tok), status: "open", aangemaakt: op, laatst: op, laatsteTekst: tekst.slice(0, 200), laatsteVan: "bezoeker", ongelezenTeam: 1, ongelezenBezoeker: 0, bron: "website" };
         await db.doc("vragen/" + id).set(v);
         await db.collection("vraagBerichten").doc(newId("vb")).set({ vraagId: id, van: "bezoeker", tekst, op });
         meldTeam(v, tekst, true);
@@ -67,19 +68,24 @@ module.exports = ({ db, onRequest, onCall, onSchedule, HttpsError, brevoSend, ma
       res.status(400).json({ ok: false });
     } catch (e) { console.error("vragen", e); res.status(500).json({ ok: false, fout: "Er ging iets mis. Probeer het opnieuw." }); }
   });
-  /* antwoord van het team per mail naar de vraagsteller (alleen als er een e-mailadres is) */
+  /* seintje per mail naar de vraagsteller (alleen als er een e-mailadres is): het antwoord staat niet in de mail, de knop opent het gesprek */
   const vraagMelding = onCall(async req => {
     await checkGebruiker(req.auth);
     const id = String((req.data || {}).vraagId || ""); const s = await db.doc("vragen/" + id).get(); if (!s.exists) throw new HttpsError("not-found", "Vraag niet gevonden.");
     const v = s.data(); if (!v.email) return { ok: true, mail: false };
-    const q = await db.collection("vraagBerichten").where("vraagId", "==", id).get();
-    const L = q.docs.map(d => d.data()).filter(m => !m.systeem).sort((a, b) => String(a.op).localeCompare(String(b.op)));
-    const laatste = [...L].reverse().find(m => m.van === "team"); if (!laatste) return { ok: true, mail: false };
     const [g, b] = await Promise.all([geheim(), bedrijf()]); if (!g.brevoKey) return { ok: true, mail: false };
+    const pagina = v.pagina || (isLegacy && isLegacy() ? "/webshop/mijnschoonmaker.html" : "");
+    if (!pagina) return { ok: true, mail: false, reden: "geen pagina" };
+    /* eigen sleutel voor de link in deze mail (de sleutel in de browser van de bezoeker blijft geldig) */
+    const tok = crypto.randomBytes(18).toString("hex");
+    await s.ref.set({ mailTokens: [...(v.mailTokens || []), h(tok)].slice(-5) }, { merge: true });
+    const url = "https://app.mansard.nl" + pagina + "?vraag=" + encodeURIComponent(id) + "&t=" + tok;
     const voor = String(v.naam || "").split(/\s+/)[0] || "";
-    const tekst = `Beste ${voor},\n\n${laatste.tekst || ""}\n\nU kunt op deze mail antwoorden of verder praten via de prijscalculator op onze website.\n\nMet vriendelijke groet,\n${laatste.doorNaam ? laatste.doorNaam + "\n" : ""}${b.naam || ""}`;
-    await brevoSend(g.brevoKey, { sender: { name: b.naam || "Glazenwasser", email: g.afzender || b.email }, replyTo: b.email ? { email: b.email } : undefined, to: [{ email: v.email, name: v.naam || undefined }],
-      subject: "Antwoord op uw vraag (" + (v.nummer || "") + ")", htmlContent: mailHtml(tekst, b), textContent: tekst });
+    const tekst = `Beste ${voor},\n\nEr staat een antwoord voor u klaar op uw vraag${v.nummer ? " (" + v.nummer + ")" : ""}. Met de knop hieronder opent u het gesprek en kunt u ook direct reageren.`;
+    const onder = `Met vriendelijke groet,\n${b.naam || ""}`;
+    await brevoSend(g.brevoKey, { sender: { name: b.naam || "Glazenwasser", email: g.afzender || b.email }, to: [{ email: v.email, name: v.naam || undefined }],
+      subject: "Er staat een antwoord voor u klaar" + (v.nummer ? " (" + v.nummer + ")" : ""), htmlContent: mailHtml(tekst, b, { knop: { url, tekst: "Bekijk het antwoord" }, onder }),
+      textContent: tekst + "\n\n" + url + "\n\n" + onder });
     return { ok: true, mail: true };
   });
   /* privacy: afgesloten vragen ouder dan 30 dagen (en open vragen zonder bericht in 90 dagen) wissen, met berichten */

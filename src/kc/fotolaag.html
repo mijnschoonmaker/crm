@@ -324,7 +324,7 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties>a[href
   function ticket(){if($(".fo-ov"))return;if(vLees()){chat();return}
     const o=venster(`<h2>Vraag stellen</h2><p class="fo-sub">Waarmee kunnen wij u helpen?</p>
       <div class="fo-kies"><button type="button" data-k="klant"><b>Ik ben al klant</b><small>Log in op uw klantportaal en maak daar een ticket. Wij zien dan meteen uw gegevens.</small>${PIJL}</button>
-      <button type="button" data-k="nieuw"><b>Ik ben (nog) geen klant</b><small>Stel uw vraag hier. U krijgt antwoord in dit venster en per e-mail.</small>${PIJL}</button></div>`);
+      <button type="button" data-k="nieuw"><b>Ik ben (nog) geen klant</b><small>Stel uw vraag hier. U krijgt antwoord in dit venster; wij sturen u een seintje per e-mail.</small>${PIJL}</button></div>`);
     o.querySelector('[data-k="klant"]').onclick=()=>{const a=$(".cfg-logo .rk a");const u=(a&&a.href)||"https://app.mansard.nl/portaal";o._weg();window.open(u,"_blank","noopener")};
     o.querySelector('[data-k="nieuw"]').onclick=()=>{o._weg();nieuw()}}
   function nieuw(){const adr=G("k-naam");const o=venster(`<h2>Uw vraag</h2><p class="fo-sub">Wij reageren zo snel mogelijk, meestal dezelfde dag.</p>
@@ -334,7 +334,7 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties>a[href
       <input id="fvH" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
       <p class="fo-fout" role="alert"></p><button type="button" class="fo-ok" id="fvS">Versturen</button>`);
     setTimeout(()=>{const n=G("fvN");(n.value?G("fvQ"):n).focus()},40);
-    G("fvS").onclick=async()=>{const f=o.querySelector(".fo-fout"),b=G("fvS"),d={actie:"start",naam:G("fvN").value.trim(),email:G("fvE").value.trim(),telefoon:G("fvT").value.trim(),tekst:G("fvQ").value.trim(),website_url:G("fvH").value};
+    G("fvS").onclick=async()=>{const f=o.querySelector(".fo-fout"),b=G("fvS"),d={actie:"start",naam:G("fvN").value.trim(),email:G("fvE").value.trim(),telefoon:G("fvT").value.trim(),tekst:G("fvQ").value.trim(),website_url:G("fvH").value,pagina:location.pathname};
       if(!d.naam){f.textContent="Vul uw naam in.";G("fvN").focus();return}if(!d.tekst){f.textContent="Vul uw vraag in.";G("fvQ").focus();return}
       if(!d.email&&!d.telefoon){f.textContent="Vul uw e-mailadres of telefoonnummer in, zodat wij u kunnen antwoorden.";G("fvE").focus();return}
       if(d.email&&!/^\S+@\S+\.\S+$/.test(d.email)){f.textContent="Controleer uw e-mailadres.";G("fvE").focus();return}
@@ -344,7 +344,7 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties>a[href
         if(!r.ok||!j.ok)throw new Error(j.fout||"Versturen lukte niet. Probeer het opnieuw.");vZet({id:j.id,t:j.t,naam:d.naam,email:d.email});o._weg();chat(true)}
       catch(e){f.textContent=e.message;b.disabled=false;b.textContent="Versturen"}}}
   function chat(net){const x=vLees();if(!x)return ticket();
-    const o=venster(`<h2>Uw vraag</h2><p class="fo-sub">${net?"Verstuurd. ":""}Wij antwoorden hier en ${x.email?"per e-mail":"zo snel mogelijk"}.</p><div class="fo-chat" id="fvC"><p class="fo-wacht">Laden…</p></div>
+    const o=venster(`<h2>Uw vraag</h2><p class="fo-sub">${net?"Verstuurd. ":""}Wij antwoorden in dit venster${x.email?". Zodra er een antwoord is, ontvangt u een e-mail":", zo snel mogelijk"}.</p><div class="fo-chat" id="fvC"><p class="fo-wacht">Laden…</p></div>
       <div class="fo-in"><textarea id="fvI" rows="1" placeholder="Typ een bericht…"></textarea><button type="button" id="fvZ">Stuur</button></div>`,"fo-groot");
     let n=-1;const teken=(L,st)=>{const c=G("fvC");if(!c)return;if(L.length===n)return;n=L.length;
       c.innerHTML=L.map(m=>`<div class="fo-m ${m.van==="team"?"team":"bez"}">${esc(m.tekst)}<small>${m.van==="team"?esc(m.naam||B.naam||"")+" · ":""}${new Date(m.op).toLocaleString("nl-NL",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}</small></div>`).join("")
@@ -359,7 +359,9 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties>a[href
     const i=a.querySelector(".fo-info");if(i)i.after(b);else a.prepend(b)}
   setInterval(ticketKnop,600);ticketKnop();
   /* via de link in de mail (?vraag=1) meteen het gesprek openen */
-  if(/[?&]vraag=1/.test(location.search)&&vLees())setTimeout(()=>chat(),800);
+  (()=>{const q=new URLSearchParams(location.search),vi=q.get("vraag"),vt=q.get("t");
+    if(vi&&vt&&/^vr[a-z0-9]{6,40}$/i.test(vi)&&/^[a-f0-9]{20,80}$/i.test(vt)){const o=vLees()||{};vZet({...(o.id===vi?o:{}),id:vi,t:vt,email:o.email||"1"});try{history.replaceState(null,"",location.pathname)}catch(e){}setTimeout(()=>chat(),800)}
+    else if(vi==="1"&&vLees())setTimeout(()=>chat(),800)})();
   bij();setInterval(()=>{bij();lijn()},400);
   document.addEventListener("change",e=>{if(e.target&&e.target.id==="ph-in")setTimeout(bij,600)},true);
 })();
