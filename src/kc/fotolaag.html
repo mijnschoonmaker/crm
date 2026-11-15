@@ -70,7 +70,7 @@ html body:not(#a):not(#b):not(#c):not(#d) .cfg-stage.foto .cfg-foto{object-fit:c
       u.querySelectorAll(".st").forEach((st,i)=>{if(L[i])st.innerHTML=`<b>${i+1}</b><div>${L[i][0]}<small>${L[i][1]}</small></div>`})}
     $$(".wz-opt[data-soort=particulier] .cfg-chips").forEach(c=>{if(!c.dataset.fo){c.dataset.fo="1";c.innerHTML="<span>Foto’s maken</span><span>Gegevens</span><span>Offerte binnen 24 uur</span>"}});
     $$(".wz-opt[data-soort=particulier] small").forEach(s=>{if(s.textContent!=="Offerte binnen 24 uur")s.textContent="Offerte binnen 24 uur"});
-    const tip=$(".cfg-fotos .tip-w");if(tip&&!/24 uur/.test(tip.textContent))tip.innerHTML="<b>Tip</b>Maak minimaal "+MIN+" foto’s: voorkant en achterkant. Daarna vult u uw gegevens in en ontvangt u binnen 24 uur uw offerte.";
+    const tip=$(".cfg-fotos .tip-w");if(tip&&!/goed zichtbaar/.test(tip.textContent))tip.innerHTML="<b>Tip</b>Maak de foto’s van een afstand zodat alle ramen goed zichtbaar zijn.";
     const nog=$(".cfg-nog span");if(nog&&nog.textContent!=="Nog een foto")nog.textContent="Nog een foto"}
   /* ---------- geen aantikscherm: een foto erbij is gewoon een foto erbij ---------- */
   window.openEd=function(){};try{openEd=window.openEd}catch(e){}
