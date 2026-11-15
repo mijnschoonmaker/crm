@@ -2951,3 +2951,7 @@ html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) section.fg .fg-baan i{bor
 html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) section.fg .fg-pot{filter:drop-shadow(0 6px 10px rgb(0 0 0/.35)) drop-shadow(0 0 14px rgb(200 215 245/.35))!important;width:56px!important;right:-52px!important}
 html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) section.fg .fg-pot .fg-kglans{animation:fgKglans 4.5s ease-in-out infinite!important}
 html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) section.fg .fg-munt{filter:drop-shadow(0 0 10px rgb(255 255 255/.45)) drop-shadow(0 4px 6px rgb(0 0 0/.3))!important}
+/* Bezig sinds: tikbaar om de begintijd te corrigeren */
+html body .tk-kop button.tk-tijdk{all:unset;position:relative;display:block;cursor:pointer;color:#fff;text-align:left;border-radius:10px;padding:4px 8px;margin:-4px -8px;transition:background .15s}
+html body .tk-kop button.tk-tijdk:hover,html body .tk-kop button.tk-tijdk:focus-visible{background:rgb(255 255 255 / .08)}
+html body .tk-kop button.tk-tijdk em{display:inline-block;margin-top:3px;font-size:11px;letter-spacing:.02em;color:rgb(255 255 255 / .62);border-bottom:1px dotted rgb(255 255 255 / .4);line-height:1.3}

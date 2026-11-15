@@ -104,6 +104,24 @@ function startKeuze(k,tp){return new Promise(res=>{const d=document.createElemen
   d.addEventListener("click",e=>{const o=e.target.closest("[data-sk]");if(o){kies(o.dataset.sk);if(o.dataset.sk==="eigen"&&e.target.tagName!=="INPUT")d.querySelector("#stT").focus();return}
     const b=e.target.closest("[data-st]");if(!b)return;if(b.dataset.st==="x")return klaar(null);
     if(keuze==="nu")return klaar(new Date().toISOString());const t=opT(tijd());if(!t){toast("Kies een tijd die al geweest is");return}klaar(t)})})}
+/* start te laat ingedrukt? Tik op "Bezig sinds" en zet de begintijd terug, dan klopt de gemeten tijd */
+function begintijdAanpassen(k){const d=document.createElement("dialog");d.className="vraag-dlg";const t0=new Date(k.bezig),hm=x=>String(x.getHours()).padStart(2,"0")+":"+String(x.getMinutes()).padStart(2,"0"),min=m=>new Date(t0.getTime()-m*60000);
+  const kaart=(w,tijd,t,s)=>`<button type="button" class="skz-o" data-sk="${w}" data-t="${tijd}" aria-pressed="false"><span class="skz-r"></span><span class="skz-t"><b>${t}</b><small>${s}</small></span><span class="skz-u">${tijd}</span></button>`;
+  d.innerHTML=`<div class="vraag-ov"><div class="skz" role="alertdialog" aria-modal="true" aria-labelledby="bgT">
+    <div class="skz-kop"><span class="skz-ic">${I.clock}</span><div><h3 id="bgT">Hoe laat ben je begonnen?</h3><p>${esc(cleanName(k.naam))} · nu bezig sinds ${hm(t0)}</p></div></div>
+    <div class="skz-uitleg">Te laat op Start getikt? Zet de begintijd terug naar wanneer je echt begon, dan klopt je gewerkte tijd.</div>
+    <div class="skz-l">${kaart("a",hm(min(10)),"10 minuten eerder","")}${kaart("b",hm(min(20)),"20 minuten eerder","")}${kaart("c",hm(min(30)),"30 minuten eerder","")}
+      <label class="skz-o skz-eig" data-sk="eigen"><span class="skz-r"></span><span class="skz-t"><b>Andere tijd</b><small>Zelf invullen</small></span><input type="time" id="bgI" value="${hm(t0)}" max="${hm(new Date())}" aria-label="Begintijd"></label></div>
+    <div class="skz-k"><button type="button" class="ghost" data-st="x">Annuleren</button><button type="button" class="primary" data-st="ok">${I.check}<span>Bezig sinds <b id="bgV">${hm(t0)}</b></span></button></div></div></div>`;
+  document.body.appendChild(d);d.showModal();let tijd=hm(t0);const weg=()=>{try{d.close()}catch(_){}d.remove()};
+  const kies=(w,t)=>{tijd=t;d.querySelectorAll(".skz-o").forEach(o=>{const a=o.dataset.sk===w;o.classList.toggle("aan",a);o.setAttribute("aria-pressed",a)});d.querySelector("#bgV").textContent=t};
+  const inp=d.querySelector("#bgI");inp.addEventListener("input",()=>kies("eigen",inp.value));inp.addEventListener("focus",()=>kies("eigen",inp.value));
+  d.addEventListener("cancel",e=>{e.preventDefault();weg()});
+  d.addEventListener("click",async e=>{const o=e.target.closest("[data-sk]");if(o){kies(o.dataset.sk,o.dataset.sk==="eigen"?inp.value:o.dataset.t);if(o.dataset.sk==="eigen"&&e.target.tagName!=="INPUT")inp.focus();return}
+    const b=e.target.closest("[data-st]");if(!b)return;if(b.dataset.st==="x")return weg();
+    const m=/^(\d{1,2}):(\d{2})$/.exec(tijd||"");if(!m){toast("Kies een tijd");return}const x=new Date(t0);x.setHours(+m[1],+m[2],0,0);if(x>t0&&x.toDateString()!==new Date().toDateString())x.setDate(x.getDate()-1);if(x>new Date()){toast("Kies een tijd die al geweest is");return}
+    const cur=state.klanten.find(y=>y.id===k.id)||k;if(!isBezig(cur)){weg();return}const ts=x.toISOString(),i=state.klanten.findIndex(y=>y.id===k.id);if(i>=0){state.klanten[i]={...state.klanten[i],bezig:ts};schedule()}weg();
+    try{await save("klanten",k.id,{...strip(cur),bezig:ts});toast("Begintijd aangepast naar "+tijd)}catch(er){err(er)}})}
 async function startJob(k){
   const on=!isBezig(k);
   /* direct zichtbaar maken, ook als het opslaan even duurt */
@@ -111,7 +129,7 @@ async function startJob(k){
   /* de dag is begonnen: live delen gaat vanzelf aan, zodat de klant van vandaag kan zien dat je eraan komt (één keer vraagt de telefoon om je locatie) */
   if(on&&typeof LIVE!=="undefined"&&LIVE&&typeof wdLive==="function"&&!(state.liveDelen&&typeof LV!=="undefined"&&LV.watch!=null)&&!(wdGet(iso(today()))||{}).liveUit)try{wdLive(true)}catch(e){}
   /* start vergeten? Is de geplande tijd al ruim voorbij, dan kies je hoe laat je echt begon (de gemeten tijd klopt dan weer) */
-  let tsKeuze=null;if(on){const tp=toMin(k.tijd),nm=new Date().getHours()*60+new Date().getMinutes();if(k.gepland===iso(today())&&tp!=null&&nm-tp>=15){tsKeuze=await startKeuze(k,tp);if(tsKeuze===null)return}}
+  let tsKeuze=null;if(on){const tp=toMin(k.tijd),nm=new Date().getHours()*60+new Date().getMinutes();if(k.gepland&&k.gepland<=iso(today())&&tp!=null&&nm-tp>=15){tsKeuze=await startKeuze(k,tp);if(tsKeuze===null)return}}
   try{if(on){const ts=tsKeuze||new Date().toISOString();lokaal({bezig:ts,bezigDoor:doorNaam()});setTimeout(()=>{const b=document.querySelector(".bs-timer");if(b){b.classList.remove("bt-flash");void b.offsetWidth;b.classList.add("bt-flash")}},80);toast("Tijd loopt bij "+cleanName(k.naam));await save("klanten",k.id,{...strip(k),bezig:ts,bezigDoor:doorNaam()});return}
     /* stoppen = klaar: tijd vastleggen en meteen afmelden (conceptfactuur, of zoals bij de opdracht ingesteld) */
     await afronden(k,"concept");}catch(e){err(e)}

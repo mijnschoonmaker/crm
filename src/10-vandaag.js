@@ -20,7 +20,7 @@ function stopCard(k,i,isNext,late,day,totaal){
     <div class="swipe-card tk${isNext?" next":""}${bz?" bezig":""}">
       <div class="tk-kop">
         <div class="tk-nr"><small>Stop</small><b>${i+1}</b>${totaal?`<em>van ${totaal}</em>`:""}</div>
-        <div class="tk-tijd"><small>${bz?"Bezig sinds":"Aanvang"}</small><b>${bz?esc(String(new Date(k.bezig).toTimeString()).slice(0,5)):esc(k.tijd||"—")}</b>${eind&&!bz?`<em>tot ${esc(eind)}</em>`:""}</div>
+        ${bz?`<button type="button" class="tk-tijd tk-tijdk" data-act="begintijd" data-id="${esc(k.id)}" title="Begintijd aanpassen"><small>Bezig sinds</small><b>${esc(String(new Date(k.bezig).toTimeString()).slice(0,5))}</b><em>aanpassen</em></button>`:`<div class="tk-tijd"><small>Aanvang</small><b>${esc(k.tijd||"—")}</b>${eind?`<em>tot ${esc(eind)}</em>`:""}</div>`}
         <div class="tk-vlucht${bz?" thuis":""}" aria-hidden="true"><i></i>${bz?`<span class="tk-huis">${HUIS}</span>`:typeof RV_BUS!=="undefined"?`<span>${RV_BUS}</span>`:""}<i></i></div>
         <div class="tk-eta">${bz?`<small>Bezig</small><b data-timer="${esc(k.bezig)}">${fmtTimer(Date.now()-new Date(k.bezig))}</b><em>${duur(k)} min gepland</em>`:reis!=null?`<small>Rijden</small><b>${reis} min</b><em>${isNext?"vanaf hier":"geschat"}</em>`:`<small>Duur</small><b>${duur(k)} min</b><em>werk</em>`}</div>
       </div>
