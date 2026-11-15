@@ -345,8 +345,7 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties>a[href
       catch(e){f.textContent=e.message;b.disabled=false;b.textContent="Versturen"}}}
   function chat(net){const x=vLees();if(!x)return ticket();
     const o=venster(`<h2>Uw vraag</h2><p class="fo-sub">${net?"Verstuurd. ":""}Wij antwoorden hier en ${x.email?"per e-mail":"zo snel mogelijk"}.</p><div class="fo-chat" id="fvC"><p class="fo-wacht">Laden…</p></div>
-      <div class="fo-in"><textarea id="fvI" rows="1" placeholder="Typ een bericht…"></textarea><button type="button" id="fvZ">Stuur</button></div>
-      <button type="button" class="fo-link" id="fvX">Nieuwe vraag stellen</button>,"fo-groot");
+      <div class="fo-in"><textarea id="fvI" rows="1" placeholder="Typ een bericht…"></textarea><button type="button" id="fvZ">Stuur</button></div>`,"fo-groot");
     let n=-1;const teken=(L,st)=>{const c=G("fvC");if(!c)return;if(L.length===n)return;n=L.length;
       c.innerHTML=L.map(m=>`<div class="fo-m ${m.van==="team"?"team":"bez"}">${esc(m.tekst)}<small>${m.van==="team"?esc(m.naam||B.naam||"")+" · ":""}${new Date(m.op).toLocaleString("nl-NL",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}</small></div>`).join("")
         +(!L.length||L[L.length-1].van!=="team"?`<p class="fo-wacht">Wij hebben uw bericht ontvangen en reageren zo snel mogelijk.</p>`:"")+(st==="opgelost"?`<p class="fo-wacht">Deze vraag is afgesloten. Stuurt u een bericht, dan openen wij hem weer.</p>`:"");c.scrollTop=c.scrollHeight};
@@ -355,7 +354,7 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties>a[href
     const t=G("fvI");t.oninput=()=>{t.style.height="auto";t.style.height=Math.min(t.scrollHeight,120)+"px"};t.onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();G("fvZ").click()}};
     G("fvZ").onclick=async()=>{const tekst=t.value.trim();if(!tekst)return;const b=G("fvZ");b.disabled=true;
       try{const r=await fetch(vUrl(""),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({actie:"bericht",id:x.id,t:x.t,tekst})});if(!r.ok)throw 0;t.value="";t.style.height="auto";n=-1;await laad()}catch(e){alert("Versturen lukte niet. Probeer het opnieuw.")}finally{b.disabled=false;t.focus()}};
-    G("fvX").onclick=()=>{vZet(null);o._weg();nieuw()};setTimeout(()=>t.focus(),60)}
+    setTimeout(()=>t.focus(),60)}
   function ticketKnop(){const a=$(".cfg-acties");if(!a||a.querySelector(".fo-tk"))return;const b=document.createElement("button");b.type="button";b.className="fo-tk";b.setAttribute("aria-label","Vraag stellen");b.title="Vraag stellen";b.innerHTML=TICKET+"Vraag stellen";b.onclick=ticket;
     const i=a.querySelector(".fo-info");if(i)i.after(b);else a.prepend(b)}
   setInterval(ticketKnop,600);ticketKnop();
