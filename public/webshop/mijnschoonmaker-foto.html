@@ -2756,6 +2756,14 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e) .cfg-nav button,html body.
 html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e) .cfg-acties svg,html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e) .cfg-tik svg,html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e) .cfg-nav svg,html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e) .cfg-shownav svg{width:14px!important;height:14px!important}
 html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e) .cfg-bar .fo-24 b{font-size:13.5px!important;font-weight:500!important;color:#14171c!important}
 html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e) .cfg-bar .fo-24 small{font-size:12px!important;color:#8a8f98!important}
+
+/* telefoon: WhatsApp en klantportaal als rond icoon zonder tekst, zodat er niets buiten de knop valt */
+@media (max-width:599px){
+html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties a,html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-logo .rk a{width:36px!important;min-width:36px!important;height:36px!important;padding:0!important;gap:0!important;font-size:0!important;letter-spacing:0!important;justify-content:center!important;overflow:hidden!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties a svg,html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-logo .rk a svg{width:16px!important;height:16px!important;flex:0 0 16px}
+html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-logo .rk{right:14px!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties{gap:6px!important}
+}
 /* stappen in het intro (telefoon) */
 .fo-lijst{list-style:none;margin:0;padding:0}
 /* fotostap: minimaal 2 foto's, daarna door naar de gegevens */
