@@ -43,6 +43,13 @@
           }
         },
         {
+          "source": "/api/demo/**",
+          "function": {
+            "functionId": "demoToegang",
+            "region": "europe-west4"
+          }
+        },
+        {
           "source": "/api/portaal/**",
           "function": {
             "functionId": "portaal",

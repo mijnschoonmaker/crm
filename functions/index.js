@@ -957,3 +957,6 @@ exports.gebruikersLijst = onCall(async req => {
   const gs = await rawDb.collection("gebruikers").get();
   return { gebruikers: gs.docs.filter(d => String(d.data().bedrijf || "") === mijn).map(d => ({ id: d.id, naam: d.data().naam || "", rol: d.data().rol || "" })) };
 });
+/* demo: 7 dagen proberen na het invullen van een e-mailadres */
+const DEMO = require("./demotoegang")({ rawDb, onRequest, brevoSend, mailHtml });
+exports.demoToegang = DEMO.demoToegang;
