@@ -2987,7 +2987,7 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties>a[href
       <button type="button" data-k="nieuw"><b>Ik ben (nog) geen klant</b><small>Stel uw vraag hier. U krijgt antwoord in dit venster; wij sturen u een seintje per e-mail.</small>${PIJL}</button></div>`);
     o.querySelector('[data-k="klant"]').onclick=()=>{const a=$(".cfg-logo .rk a");const u=(a&&a.href)||"https://app.mansard.nl/portaal";o._weg();window.open(u,"_blank","noopener")};
     o.querySelector('[data-k="nieuw"]').onclick=()=>{o._weg();nieuw()}}
-  function nieuw(){const adr=G("k-naam");const o=venster(`<h2>Uw vraag</h2><p class="fo-sub">Wij reageren zo snel mogelijk, meestal dezelfde dag.</p>
+  function nieuw(){const adr=G("k-naam");const o=venster(`<h2>Uw vraag</h2><p class="fo-sub">Wij reageren zo snel mogelijk.</p>
       <label class="fo-v">Naam<input id="fvN" autocomplete="name" value="${esc((G("k-naam")||{}).value||"")}"></label>
       <div class="fo-duo"><label class="fo-v">E-mail<input id="fvE" type="email" inputmode="email" autocomplete="email" value="${esc((G("k-email")||{}).value||"")}"></label><label class="fo-v">Telefoon<input id="fvT" type="tel" inputmode="tel" autocomplete="tel" value="${esc((G("k-tel")||{}).value||"")}"></label></div>
       <label class="fo-v">Uw vraag<textarea id="fvQ" rows="4" placeholder="Bijvoorbeeld: komen jullie ook in mijn wijk?"></textarea></label>
