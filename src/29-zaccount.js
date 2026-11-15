@@ -34,9 +34,17 @@ function openAccount(){
       ${rij("E-mail versturen",pill(!!s.liveMail,s.liveMail?"Actief":"Niet ingesteld"))}${rij("Online betalen",pill(!!s.liveMollie,s.liveMollie?"Mollie actief":"Niet ingesteld"))}
       ${rij("Bank",pill(!!bk.gekoppeld,bk.gekoppeld?(bk.bank||"Gekoppeld"):"Niet gekoppeld"))}</section>
   </div>
+  <div id="accDemo" hidden></div>
   <div class="row acc-foot"><button type="button" class="ghost" id="accSet">${I.instellingen}Instellingen</button><button type="button" class="ghost" id="accHulp">${I.handleiding}Handleiding</button><span class="sp"></span>${LIVE?`<button type="button" data-act="msuit">Uitloggen</button>`:""}<button type="button" class="primary" data-act="close">Sluiten</button></div>`,{wide:true});
   const g=id=>document.getElementById(id);
   if(g("accBedrijf"))g("accBedrijf").onclick=()=>{dlg.close();if(typeof openSetEdit==="function")openSetEdit("bedrijf")};
   g("accSet").onclick=()=>{dlg.close();go("instellingen")};g("accHulp").onclick=()=>{dlg.close();go("handleiding")};
+  /* demo-aanmeldingen: alleen zichtbaar voor de beheerder van Mansard (de server weigert het voor iedereen anders) */
+  if(LIVE&&typeof fbFn==="function")fbFn("demoAanmeldingen")({}).then(r=>{const L=(r&&r.data&&r.data.lijst)||[],box=g("accDemo");if(!box)return;
+    const dt=v=>v?new Date(v).toLocaleString("nl-NL",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}):"—",pl=x=>[x.plaats,x.regio&&x.regio!==x.plaats?x.regio:"",x.land&&x.land!=="Netherlands"?x.land:""].filter(Boolean).join(", ")||"Plaats onbekend";
+    box.innerHTML=`<section class="kp acc-demo"><div class="kp-h"><b>Demo-aanmeldingen</b><small>${L.length} ${L.length===1?"aanmelding":"aanmeldingen"} · plaats bij benadering, uit het IP-adres</small></div>
+      ${L.length?`<div class="acd-l">${L.map(x=>{const lg=x.logins||[],act=Date.now()<x.verloopt;return `<details class="acd-r"><summary><span class="acd-m"><b>${esc(x.email)}</b><small>${lg[0]?esc(pl(lg[0]))+" · "+esc(lg[0].apparaat||""):"Nog niet geopend"}</small></span><span class="acd-s"><span class="pill ${act?"ok":"neutral"} dotp">${act?"Actief tot "+esc(new Date(x.verloopt).toLocaleDateString("nl-NL",{day:"numeric",month:"short"})):"Verlopen"}</span><small>laatst ${esc(dt(x.laatstGezien))}</small></span></summary>
+        ${lg.length?`<div class="acd-log">${lg.map(l=>`<div><span>${esc(dt(l.op))}</span><b>${esc(pl(l))}</b><em>${esc(l.soort||"")} · ${esc(l.apparaat||"")}</em></div>`).join("")}</div>`:""}</details>`}).join("")}</div>`:`<p class="sub" style="margin:0 22px 18px">Nog niemand heeft de demo aangevraagd.</p>`}</section>`;
+    box.hidden=false}).catch(()=>{});
   if(LIVE&&a.soort!=="eigen"&&typeof fbFn==="function")fbFn("abonnement")({}).then(r=>{const n=r&&r.data&&r.data.gebruikers;if(n){const x=g("accN"),y=g("accN2");if(x)x.textContent=n;if(y)y.textContent=n}}).catch(()=>{})}
 document.addEventListener("click",e=>{const uc=e.target.closest("#userCard");if(!uc||e.target.closest(".lg-out"))return;e.preventDefault();openAccount()});

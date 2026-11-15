@@ -958,5 +958,6 @@ exports.gebruikersLijst = onCall(async req => {
   return { gebruikers: gs.docs.filter(d => String(d.data().bedrijf || "") === mijn).map(d => ({ id: d.id, naam: d.data().naam || "", rol: d.data().rol || "" })) };
 });
 /* demo: 7 dagen proberen na het invullen van een e-mailadres */
-const DEMO = require("./demotoegang")({ rawDb, onRequest, brevoSend, mailHtml });
+const DEMO = require("./demotoegang")({ rawDb, onRequest, onCall, HttpsError, brevoSend, mailHtml, checkGebruiker, EIGENAAR });
 exports.demoToegang = DEMO.demoToegang;
+exports.demoAanmeldingen = DEMO.demoAanmeldingen;
