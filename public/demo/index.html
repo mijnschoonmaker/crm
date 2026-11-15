@@ -11927,7 +11927,19 @@ function aanvraagKlant(d){const k=d.klant||{},t=d.telling||{},fl=(t.floors||[]).
    fotos: [{blob,naam,w,h,dots}] als de aanvraag rechtstreeks uit de calculator in het crm komt */
 /* extra diensten die de klant in de prijscalculator aantikte, met maten uit het 3D-model */
 const x3Txt=D=>{const L=Array.isArray(D&&D.extra)?D.extra.filter(x=>x&&x.naam):[];return L.length?"Wil ook (maten uit het 3D-model): "+L.map(x=>String(x.naam).slice(0,60)+" "+String(Number(x.aantal)||0).replace(".",",")+" "+(x.eenheid==="m2"?"m²":"m")+(Number(x.excl)>0?" · "+eur(Number(x.excl))+" excl.":"")).join("; "):""};
-async function aanvraagToevoegen(D,fotos=[]){const a=aanvraagKlant(D),id=newId("k");
+/* offerte op maat: de klant stuurde alleen foto's en gegevens; jij telt de ramen (luchtfoto's + foto's) en stuurt binnen 24 uur een offerte */
+async function aanvraagOpMaat(D,fotos=[]){const k0=D.klant||{},id=newId("k"),zak=D.soort==="zakelijk"&&k0.bedrijf,tf=[];
+  for(const f of (fotos||[])){try{if(!state.assets||!f.blob)break;const file=new File([f.blob],f.naam||"woning-foto.jpg",{type:f.blob.type||"image/jpeg"});const r=await state.assets.upload(file);tf.push({id:r.id,naam:f.naam||"Foto",datum:iso(today()),w:f.w||0,h:f.h||0,dots:[]})}catch(er){console.error(er)}}
+  if(!RC)RC=buildRamen();const fk=String((D.telling||{}).freq||"m8"),fq=RC.freqList().find(f=>f.k===fk),wk=fq&&fq.w?fq.w:8;
+  const uiterlijk=new Date(Date.now()+24*36e5),uTxt=uiterlijk.toLocaleDateString("nl-NL",{weekday:"short",day:"numeric",month:"short"})+" "+uiterlijk.toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"});
+  const k={naam:zak?k0.bedrijf:(k0.naam||"Nieuwe klant"),contact:zak?k0.naam||"":"",adres:k0.adres||"",postcode:String(k0.postcode||"").toUpperCase(),plaats:k0.plaats||"",email:k0.email||"",telefoon:k0.telefoon||"",
+    notities:k0.opmerking||"",dienst:"Glasbewassing",prijs:0,frequentie:wk,duur:30,ronde:"",laatst:"",gepland:"",tijd:"",aanbieden:false,
+    ramenTelling:{floors:[],special:{},freq:fk,koz:false,ramen:0,datum:iso(today()),fotos:tf,bron:"klant",opMaat:true},
+    bron:"website",aanvraagType:"offerte",offerteUiterlijk:uiterlijk.toISOString(),nieuwAangemeld:true,binnen:false,soort:zak?"zakelijk":"particulier",actief:true,prospect:true,akkoord:false,opdrachtVerwijderd:false,aangemaakt:iso(today()),
+    ...aanbevelingBijAanvraag(D),
+    log:[{datum:iso(today()),tekst:(D.aanbevolenDoor?"Aanbevolen via code "+(D.ref||"")+" · ":"")+"Offerte-aanvraag via de website met "+tf.length+" foto"+(tf.length===1?"":"’s")+" · tel de ramen en stuur de offerte uiterlijk "+uTxt}],objecten:[]};
+  await save("klanten",id,k);return {...k,id}}
+async function aanvraagToevoegen(D,fotos=[]){if(D&&D.opMaat)return aanvraagOpMaat(D,fotos);const a=aanvraagKlant(D),id=newId("k");
   const zak=D.soort==="zakelijk"&&a.k.bedrijf;const tf=[];
   for(const f of (fotos||[])){try{if(!state.assets||!f.blob)break;const file=new File([f.blob],f.naam||"woning-foto.jpg",{type:f.blob.type||"image/jpeg"});const r=await state.assets.upload(file);tf.push({id:r.id,naam:f.naam||"Foto",datum:iso(today()),w:f.w||0,h:f.h||0,dots:(f.dots||[]).map(d=>({x:d.x,y:d.y,t:d.t}))})}catch(er){console.error(er)}}
   const k={naam:zak?a.k.bedrijf:(a.k.naam||"Nieuwe klant"),contact:zak?a.k.naam||"":"",adres:a.k.adres||"",postcode:String(a.k.postcode||"").toUpperCase(),plaats:a.k.plaats||"",email:a.k.email||"",telefoon:a.k.telefoon||"",

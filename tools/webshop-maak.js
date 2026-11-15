@@ -42,6 +42,9 @@ const waNr = t => { let d = String(t || "").replace(/\D/g, ""); if (d.startsWith
   /* testversie in configurator-opbouw (zelfde rekenwerk), alleen via de directe link */
   const skin = fs.readFileSync(path.join(__dirname, "webshop-config-skin.html"), "utf8"), bi = html.lastIndexOf("</body>");
   fs.writeFileSync(path.join(uit, "mijnschoonmaker-test.html"), html.slice(0, bi) + skin + html.slice(bi));
+  /* testversie "offerte op maat": klant maakt alleen foto's en vult gegevens in, offerte binnen 24 uur */
+  try { const laag = fs.readFileSync(path.join(__dirname, "..", "src", "kc", "fotolaag.html"), "utf8"), mt = html.slice(0, bi) + skin + html.slice(bi), bj = mt.lastIndexOf("</body>");
+    fs.writeFileSync(path.join(uit, "mijnschoonmaker-foto.html"), mt.slice(0, bj) + laag + mt.slice(bj)); } catch (e) { console.log("foto-versie niet gemaakt:", e.message); }
   try { fs.writeFileSync(path.join(uit, "voorbeeld.html"), require("./webshop-voorbeeld.js")(html.slice(0, bi) + skin + html.slice(bi))); } catch (e) { console.log("voorbeeld.html niet gemaakt:", e.message); }
   console.log("::notice title=Webshop::gemaakt · " + fla.length + " frequenties (advies " + fadv + ") · minimum " + cfg.min + " · " + gebieden.length + " werkgebieden · " + (klantPc ? klantPc.split(",").length : 0) + " klantpostcodes · logo " + (logoId ? "ja" : "nee"));
 })().catch(x => { console.error(x); process.exit(1); });

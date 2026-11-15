@@ -612,7 +612,8 @@ exports.aanvraag = onRequest({ cors: true, memory: "512MiB", timeoutSeconds: 60 
     await db.doc("aanvragen/" + id).set({ aanvraag: D, fotos, status: "nieuw", ontvangen: nu(), aanbevolenDoor: D.aanbevolenDoor || "", ip: crypto.createHash("sha1").update(ip).digest("hex").slice(0, 12) });
 
     /* klant krijgt direct het voorlopige bestellingsoverzicht (alleen bij een calculator-aanvraag met e-mailadres) */
-    if (D.formaat === "zeem.aanvraag" && (await bedrijf()).ovVoorlopigAan !== false && /^\S+@\S+\.\S+$/.test(String(D.klant.email || ""))) {
+    /* offerte op maat (alleen foto's, nog geen prijs): geen voorlopig overzicht, de offerte volgt binnen 24 uur */
+    if (D.formaat === "zeem.aanvraag" && !D.opMaat && (await bedrijf()).ovVoorlopigAan !== false && /^\S+@\S+\.\S+$/.test(String(D.klant.email || ""))) {
       try {
         const b0 = await bedrijf(), zak = D.soort === "zakelijk" && D.klant.bedrijf, naamK = zak ? D.klant.bedrijf : D.klant.naam;
         const r = await stuurOverzichtMail({ soort: "voorlopig", naar: D.klant.email, naamKlant: D.klant.naam || naamK, meta: { aanvraagId: id },
@@ -625,7 +626,7 @@ exports.aanvraag = onRequest({ cors: true, memory: "512MiB", timeoutSeconds: 60 
     try {
       const [g, b] = await Promise.all([geheim(), bedrijf()]);
       if (g.brevoKey && (g.meldAdres || b.email)) {
-        const k = D.klant, soort = D.formaat === "zeem.contact" ? "Nieuw contactverzoek" : "Nieuwe offerte-aanvraag";
+        const k = D.klant, soort = D.formaat === "zeem.contact" ? "Nieuw contactverzoek" : D.opMaat ? "Nieuwe offerte-aanvraag met " + fotos.length + " foto's (offerte binnen 24 uur)" : "Nieuwe offerte-aanvraag";
         await brevoSend(g.brevoKey, {
           sender: { name: "Mansard CRM", email: g.afzender || b.email }, to: [{ email: g.meldAdres || b.email }],
           subject: soort + ": " + k.naam,
