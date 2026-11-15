@@ -1833,6 +1833,20 @@ html body:not(#zz):not(#zy) main:not(.m-chat):not(.welkom){padding-left:max(18px
 #vbBalk{font-size:12px!important;padding-top:6px!important;padding-bottom:6px!important}
 html body:not(#zz):not(#zy) .primary{box-shadow:none!important}
 @media (max-width:640px){html body:not(#zz):not(#zy) .kp>.kp-h{padding:10px 14px!important}html body:not(#zz):not(#zy) :is(.stats .stat b,.bz-tile b){font-size:18px!important}html body:not(#zz):not(#zy) .bz-tile small{left:52px!important}}
+
+/* overzicht: geen lege ruimte als er tussen de kaarten niets staat */
+html body:not(#zz):not(#zy):not(#zx) .hm-mid:empty{display:none!important}
+/* beoordelen: rustig, sterren op één lijn rechts naast de tekst, zacht goud */
+html body:not(#zz):not(#zy):not(#zx) #beoor{gap:8px!important;margin:0!important;padding:4px 22px 24px!important}
+html body:not(#zz):not(#zy):not(#zx) #beoor button{width:44px!important;height:44px!important;border-radius:12px!important;background:#f6f7f9!important;border:1px solid #eceef1!important;box-shadow:none!important;color:#c9ccd2!important;transition:color .15s,background .15s,border-color .15s,transform .15s}
+html body:not(#zz):not(#zy):not(#zx) #beoor button svg{width:20px!important;height:20px!important;fill:currentColor}
+html body:not(#zz):not(#zy):not(#zx) #beoor:hover button{color:#b8955a!important;background:#fbf7f0!important;border-color:#eadfc9!important}
+html body:not(#zz):not(#zy):not(#zx) #beoor button:hover~button{color:#c9ccd2!important;background:#f6f7f9!important;border-color:#eceef1!important}
+html body:not(#zz):not(#zy):not(#zx) #beoor button:hover{transform:translateY(-1px)}
+html body:not(#zz):not(#zy):not(#zx) #beoor button.aan{color:#b8955a!important;background:#fbf7f0!important;border-color:#eadfc9!important}
+/* gebruiker onderin het menu: geen rondje met letter */
+html body:not(#zz):not(#zy):not(#zx) .usercard .uav{display:none!important}
+html body:not(#zz):not(#zy):not(#zx) .usercard{padding-left:22px!important}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
