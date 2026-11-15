@@ -1324,7 +1324,7 @@ html body:not(#zz) .ref-weg{flex:none;border:0;background:none;color:#0d121b;fon
 /*CFG-START*/
 const BEDRIJF={"naam":"mijnschoonmaker.com","email":"robin@mijnschoonmaker.com","whatsapp":"31618060606","logo":"https://app.mansard.nl/_blob/c7347df47a651a9cf0934d8f7c429a10","endpoint":"https://app.mansard.nl/api/aanvraag","werkgebied":"","gebieden":[{"s":"beide","p":[[53.14195,6.54123],[53.11596,6.58148],[53.12718,6.62592],[53.12386,6.63469],[53.12947,6.65186],[53.1479,6.63393],[53.1526,6.61409]]},{"s":"beide","p":[[53.14226,6.40419],[53.14083,6.39103],[53.12898,6.39227],[53.12138,6.40456],[53.12607,6.41439]]},{"s":"beide","p":[[53.13301,6.08683],[53.12408,6.07653],[53.08949,6.08587],[53.09694,6.11029],[53.12088,6.10762],[53.13313,6.09064]]}],"klantPc":"2280,9202,9204,9231,9249,9301,9304,9343,9351,9354,9355,9356,9361,9362,9363,9364,9365,9366,9367,9479,9728,9751,9752,9765,9766,9801,9821,9822,9824,9825,9843,9844,9861,9862,9863,9864,9865,9866","voorwaarden":""};
 const VAT=0.21;
-const cfg={"g0_p":1.67,"g1_p":1.7,"g2_p":1.96,"g3_p":3,"tuimel_p":1.7,"lood_p":1.64,"koepel_p":2,"mini_p":0.39,"start":0,"min":56.859,"tiers":[[10,10],[20,20],[30,30],[40,40],[50,50],[60,60]],"tb":{"g0":[[10,10],[20,20],[30,30],[40,40],[50,50],[60,60]],"g3":[[10,10],[20,20]],"g1":[[10,10],[20,20]],"g2":[],"mini":[[10,10],[20,20],[30,30],[200,50],[40,40]],"tuimel":[],"koepel":[[5,10]],"lood":[[10,10],[20,20],[30,30],[40,40]]},"wg":{"g0":100,"koepel":100,"g3":100,"tuimel":100,"g2":100,"g1":100,"mini":100,"lood":100},"fp":{"w1":0,"w2":0,"w4":10,"mnd":0,"w6":0,"m8":5,"mnd2":0,"w12":-15,"mnd3":-15,"w16":-10,"mnd4":0,"w24":0,"mnd6":0,"w48":0,"mnd12":0,"afroep":-25,"once":-25},"minAlles":true,"fpB":{"4":10,"8":5}};
+const cfg={"g0_p":1.67,"g1_p":1.7,"g2_p":1.96,"g3_p":3,"tuimel_p":1.7,"lood_p":1.64,"koepel_p":2,"mini_p":0.39,"start":0,"min":60.165289256,"tiers":[[10,10],[20,20],[30,30],[40,40],[50,50],[60,60]],"tb":{"g0":[[10,10],[20,20],[30,30],[40,40],[50,50],[60,60]],"tuimel":[],"mini":[[10,10],[20,20],[30,30],[200,50],[40,40]],"lood":[[10,10],[20,20],[30,30],[40,40]],"koepel":[[5,10]],"g2":[],"g3":[[10,10],[20,20]],"g1":[[10,10],[20,20]]},"wg":{"mini":100,"lood":100,"g1":100,"tuimel":100,"koepel":100,"g2":100,"g3":100,"g0":100},"fp":{"w1":0,"w2":0,"w4":10,"mnd":0,"w6":0,"m8":5,"mnd2":0,"w12":-15,"mnd3":-15,"w16":-10,"mnd4":0,"w24":0,"mnd6":0,"w48":0,"mnd12":0,"afroep":-25,"once":-25},"minAlles":true,"fpB":{"4":10,"8":5}};
 const FREQ_LIST=[["m8","1x per 8 weken",6.5,5,8]];
 const FREQ_ADV="m8";
 /*CFG-END*/
@@ -1889,6 +1889,994 @@ g("calc3").onclick=()=>{doneStep(2);g("result").hidden=false;openStep(0,false);c
 if(window.ZEEM_DIRECT){try{kiesSoort("particulier");document.body.classList.add("zeem-direct");
   [".wz-adr","#adrMsg","#wzBack"].forEach(q=>{const el=document.querySelector(q);if(el)el.hidden=true});
   const gs=g("goStart");if(gs){gs.hidden=false;setTimeout(()=>gs.focus(),50)}}catch(e){console.error(e)}}
+</script>
+<!--CFG-SKIN: configurator-opbouw voor de prijscalculator (alleen testpagina mijnschoonmaker-test.html).
+    Zelfde rekenwerk en aanmelden als de gewone webshop; alleen de indeling op grote schermen is anders:
+    stappen bovenaan, groot beeld links, keuzes rechts, samenvatting met prijs onderaan. Op de telefoon blijft alles zoals het was. -->
+<style>
+@media all{
+html body.cfg:not(#zz){background:#fff!important;margin:0;padding:0!important;overflow:hidden}
+html body.cfg:not(#zz) .page{display:block!important;min-height:0!important;max-width:none!important;width:100%!important;margin:0!important;padding:0!important}
+html body.cfg:not(#zz) .i2-weg,html body.cfg:not(#zz) .ml-steps,html body.cfg:not(#zz) .i2-kick,html body.cfg:not(#zz) .ml-sub{display:none!important}
+.cfg-top,.cfg-bar{display:none}
+/* bovenrij: stappen links, knop rechts */
+html body.cfg:not(#zz) .cfg-top{display:flex;align-items:stretch;justify-content:space-between;height:54px;padding:0 20px 0 30px;background:#fff;margin:0}
+.cfg-tabs{display:flex;align-items:stretch;gap:30px}
+.cfg-tabs button{all:unset;cursor:pointer;display:flex;align-items:center;font:500 11px/1 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.17em;text-transform:uppercase;color:#4a4f57;border-bottom:2px solid transparent;transition:color .15s,border-color .15s}
+.cfg-tabs button:hover{color:#0e1117}
+.cfg-tabs button.cfg-aan{color:#0e1117;font-weight:600;border-bottom-color:#0e1117}
+.cfg-top .rk{display:flex;align-items:center}
+.cfg-top .rk a{display:flex;align-items:center;gap:10px;height:38px;padding:0 18px;border:1px solid #c9ccd1;border-radius:4px;font:600 10.5px/1 system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#0e1117;text-decoration:none;background:#fff}
+.cfg-top .rk a:hover{border-color:#0e1117}
+.cfg-top .rk svg{width:17px;height:17px}
+/* hoofddeel */
+html body.cfg:not(#zz) .cfg-main{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:38px;padding:0 34px 0 14px;height:calc(100vh - 54px - 80px);margin:0}
+.cfg-stage{position:relative;border-radius:8px;overflow:hidden;background:linear-gradient(118deg,#d9e1ea 0%,#eef0f2 38%,#f3f1ee 62%,#ece3d5 100%);display:grid;place-items:center}
+.cfg-stage .i2-vis{display:grid!important;place-items:center;transform:scale(1.1)}
+.cfg-stage .cfg-foto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
+.cfg-stage.foto .cfg-foto{display:block}.cfg-stage.foto .i2-vis{display:none!important}
+.cfg-acties{position:absolute;top:14px;right:14px;display:flex;gap:8px;z-index:2}
+.cfg-acties a,.cfg-acties button{all:unset;cursor:pointer;display:flex;align-items:center;gap:10px;height:42px;padding:0 18px;border-radius:6px;background:rgba(255,255,255,.88);backdrop-filter:blur(6px);font:600 10.5px/1 system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#0e1117}
+.cfg-acties button.vk{width:42px;padding:0;justify-content:center}
+.cfg-acties svg{width:16px;height:16px}
+.cfg-acties a:hover,.cfg-acties button:hover{background:#fff}
+.cfg-nav{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);display:flex;align-items:center;gap:20px;height:44px;padding:0 16px;border-radius:6px;background:rgba(255,255,255,.88);backdrop-filter:blur(6px);font:500 11.5px/1 system-ui,sans-serif;color:#0e1117;z-index:2}
+.cfg-nav button{all:unset;cursor:pointer;display:grid;place-items:center;width:22px;height:22px}
+.cfg-nav button[disabled]{opacity:.3;cursor:default}
+.cfg-nav svg{width:16px;height:16px}
+/* rechterkolom */
+.cfg-col{overflow-y:auto;overflow-x:hidden;padding:4px 2px 48px 0;scrollbar-width:none}
+.cfg-col::-webkit-scrollbar{display:none}
+html body.cfg:not(#zz) .cfg-col .intro2{display:block!important;padding:0!important;background:none!important;border:0!important;box-shadow:none!important;margin:0!important;min-height:0!important;color:#0e1117!important;border-radius:0!important}
+html body.cfg:not(#zz) .cfg-col .intro2::before,html body.cfg:not(#zz) .cfg-col .intro2::after{display:none!important}
+html body.cfg:not(#zz) .cfg-col .i2-txt{max-width:none;text-align:left;padding:0!important}
+html body.cfg:not(#zz) .cfg-col h1.ml-title{font:400 31px/1.15 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:-.01em!important;text-transform:none!important;text-align:left!important;margin:26px 0 18px!important;color:#0e1117!important;padding:0!important;background:none!important;-webkit-text-fill-color:#0e1117!important}
+html body.cfg:not(#zz) .cfg-col .wz-two{display:flex!important;flex-direction:column!important;gap:14px!important}
+html body.cfg:not(#zz) .cfg-col .wz-opt{position:relative;display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:flex-start!important;gap:3px!important;width:100%!important;box-sizing:border-box;min-height:0!important;height:auto!important;padding:20px 48px 20px 18px!important;border:1px solid #d6d9dd!important;border-radius:6px!important;background:#fff!important;box-shadow:none!important;outline:0!important;font:400 14.5px/1.35 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:0!important;text-transform:none!important;color:#0e1117!important;text-align:left!important}
+html body.cfg:not(#zz) .cfg-col .wz-opt>svg{display:none!important}
+html body.cfg:not(#zz) .cfg-col .wz-opt::before,html body.cfg:not(#zz) .cfg-col .wz-opt::after{display:none!important;content:none!important}
+html body.cfg:not(#zz) .cfg-col .wz-opt:hover,html body.cfg:not(#zz) .cfg-col .wz-opt.on{border-color:#0e1117!important;box-shadow:inset 0 0 0 .6px #0e1117!important}
+html body.cfg:not(#zz) .cfg-col .wz-opt small{display:block;font:400 14.5px/1.35 system-ui,sans-serif!important;letter-spacing:0!important;text-transform:none!important;color:#0e1117!important}
+html body.cfg:not(#zz) .cfg-col .wz-opt .info{position:absolute;top:18px;right:16px;width:20px;height:20px;border-radius:50%;background:#f1f2f3;display:grid;place-items:center;font:700 11px/1 Georgia,serif;color:#0e1117}
+html body.cfg:not(#zz) .cfg-col .wz-opt .cfg-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+html body.cfg:not(#zz) .cfg-col .wz-opt .cfg-chips span{font:400 11.5px/1 system-ui,sans-serif!important;letter-spacing:0!important;text-transform:none!important;background:#f1f2f3;border-radius:999px;padding:9px 12px;color:#0e1117}
+html body.cfg:not(#zz) .cfg-col .wz-copy.wz-door{margin-top:30px!important;text-align:left!important}
+html body.cfg:not(#zz) .cfg-col .wz-copy.wz-door small{color:#7a7f87!important}
+html body.cfg:not(#zz) .cfg-col .wz-copy img{filter:invert(1) brightness(.2)}
+html body.cfg:not(#zz) .cfg-col .wz-back{background:#f1f2f3!important;color:#0e1117!important;border-radius:999px!important;box-shadow:none!important}
+html body.cfg:not(#zz) .cfg-col .wz-adr{width:100%!important;max-width:none!important;box-sizing:border-box;box-shadow:none!important;border:1.5px solid #0e1117!important;border-radius:6px!important}
+html body.cfg:not(#zz) .cfg-col .wrap{max-width:none;margin:34px 0 0;padding:0}
+html body.cfg:not(#zz) .cfg-col .card.acc{border:1px solid #d6d9dd!important;border-radius:6px!important;margin:0 0 14px!important;box-shadow:none!important;background:#fff!important}
+html body.cfg:not(#zz) .cfg-col .card.acc.open{border-color:#0e1117!important;box-shadow:inset 0 0 0 .6px #0e1117!important}
+html body.cfg:not(#zz) .cfg-col .card.acc .num{display:none!important}
+html body.cfg:not(#zz) .cfg-col .card.acc .head{padding:18px 18px!important}
+html body.cfg:not(#zz) .cfg-col .card.acc .head h2{font:400 14.5px/1.35 system-ui,sans-serif!important;letter-spacing:0!important;text-transform:none!important;color:#0e1117!important;margin:0!important}
+html body.cfg:not(#zz) .cfg-col .card.acc .eyebrow{font:400 14.5px/1.35 system-ui,sans-serif!important;letter-spacing:0!important;text-transform:none!important;color:#0e1117!important;margin:0!important;order:2}
+html body.cfg:not(#zz) .cfg-col .card.acc .acc-t{display:flex;flex-direction:column-reverse}
+html body.cfg:not(#zz) .cfg-col .card.acc .acc-sum{font:400 13px/1.3 system-ui,sans-serif!important;color:#4a4f57!important}
+html body.cfg:not(#zz) .cfg-col .card.acc .body{padding:0 18px 18px!important}
+html body.cfg:not(#zz) .cfg-col .wrap.cfg-leeg::before{display:none}
+html body.cfg:not(#zz) .cfg-col .wrap::before{content:"Uw keuzes";display:block;font:400 31px/1.15 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:-.01em;color:#0e1117;margin:0 0 18px}
+html body.cfg:not(#zz) .cfg-col .i2-go,html body.cfg:not(#zz) .cfg-col .btn2.pri,html body.cfg:not(#zz) .cfg-col .calc,html body.cfg:not(#zz) .cfg-col .go2{border-radius:4px;background:#0e1117;color:#fff;letter-spacing:.14em;text-transform:uppercase;font-size:12px;box-shadow:none}
+html body.cfg:not(#zz) .cfg-col .desk-calc{display:none}
+/* onderbalk */
+html body.cfg:not(#zz) .cfg-bar{display:flex;align-items:center;gap:50px;position:fixed;left:0;right:0;bottom:0;height:80px;padding:0 34px 0 50px;background:#fff;z-index:40}
+.cfg-bar .blok{display:flex;flex-direction:column;gap:6px;min-width:0}
+.cfg-bar .blok b{font:400 14.5px/1.2 system-ui,sans-serif;color:#0e1117;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px}
+.cfg-bar .blok small{font:400 11px/1.2 system-ui,sans-serif;color:#5b6068;white-space:nowrap}
+.cfg-bar .blok small i{font-style:normal;padding:0 10px;color:#c9ccd1}
+.cfg-bar .blok.lk b{text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+.cfg-bar .ruimte{flex:1}
+.cfg-bar .prijs b{display:block;font:400 22px/1 system-ui,sans-serif;font-variant-numeric:tabular-nums;color:#0e1117}
+.cfg-bar .prijs small{display:block;margin-top:6px;font:400 11px/1 system-ui,sans-serif;color:#5b6068;text-decoration:underline;text-underline-offset:2px}
+.cfg-bar .knop{all:unset;cursor:pointer;display:grid;place-items:center;width:160px;height:48px;border-radius:4px;background:#0e1117;color:#fff;font:600 11px/1 system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase}
+.cfg-bar .knop:hover{background:#262b33}
+
+/* lege stand: knop "Foto's maken" */
+.cfg-stage .i2-vis{display:none!important}
+.cfg-start{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:16px;width:400px;height:70px;padding:0 10px 0 14px;border-radius:14px;background:rgba(242,243,243,.92);backdrop-filter:blur(8px);box-shadow:0 1px 0 rgba(255,255,255,.8) inset,0 12px 30px -22px rgba(14,17,23,.45);transition:transform .2s,box-shadow .2s,background .2s}
+.cfg-start:hover{background:#f4f5f5;transform:translateY(-1px);box-shadow:0 1px 0 rgba(255,255,255,.8) inset,0 16px 34px -20px rgba(14,17,23,.45)}
+.cfg-start svg.huis{flex:none;width:84px;height:48px;margin-top:4px}
+.cfg-start b{flex:1;font:400 15px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;color:#0e1117;letter-spacing:0}
+.cfg-start i{flex:none;display:grid;place-items:center;width:50px;height:50px;border-radius:10px;background:#fff;transition:transform .2s}
+.cfg-start:hover i{transform:translateX(2px)}
+.cfg-start i svg{width:16px;height:16px}
+.cfg-stage.foto .cfg-start{display:none}
+.cfg-stage:not(.foto) .cfg-nav{display:none}
+.cfg-stage.foto .cfg-foto{cursor:pointer;object-fit:contain;padding:28px;box-sizing:border-box}
+.cfg-tik{position:absolute;left:14px;top:14px;display:none;align-items:center;gap:9px;height:42px;padding:0 16px;border-radius:6px;background:rgba(255,255,255,.88);font:600 10.5px/1 system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#0e1117;z-index:2;cursor:pointer}
+.cfg-stage.foto .cfg-tik{display:flex}
+/* aantikken binnen het kader: foto links, verdieping/type rechts */
+html body.cfg:not(#zz) #ed.ed{position:fixed;inset:54px 0 80px 0;z-index:35;grid-template-columns:minmax(0,1fr) 330px;grid-template-rows:auto minmax(0,1fr);gap:0 38px;padding:0 34px 0 14px;background:#fff!important}
+html body.cfg:not(#zz) #ed .ed-stage{grid-column:1;grid-row:1/3;border-radius:8px;padding:28px;background:linear-gradient(118deg,#d9e1ea 0%,#eef0f2 38%,#f3f1ee 62%,#ece3d5 100%)}
+html body.cfg:not(#zz) #ed .ed-top{grid-column:2;grid-row:1;padding:26px 0 18px;display:flex;flex-direction:column;align-items:stretch;gap:12px}
+html body.cfg:not(#zz) #ed .ed-top>*{width:100%;min-width:0;max-width:none;flex:none}
+html body.cfg:not(#zz) #ed .ed-top>*:not(.ed-ttl){display:flex;flex-wrap:wrap;gap:8px}
+html body.cfg:not(#zz) #ed .ed-top b#ed-title{font:400 31px/1.15 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:-.01em}
+html body.cfg:not(#zz) #ed .ed-side{grid-column:2;grid-row:2;padding:2px 2px 24px 0;margin:0;scrollbar-width:none}
+html body.cfg:not(#zz) #ed .ed-tally,html body.cfg:not(#zz) #ed .ed-sl{border-radius:6px;box-shadow:none;border:1px solid #d6d9dd}
+html body.cfg:not(#zz):not(#zy) #ed .ed-bar button{border-radius:4px!important}
+html body.cfg:not(#zz):not(#zy) #ed .ed-bar{position:static!important;display:flex;flex-wrap:wrap;gap:8px;padding-top:4px;background:none!important;box-shadow:none!important;margin:0!important}
+html body.cfg:not(#zz):not(#zy) #ed .ed-bar button{flex:1 1 40%!important;min-width:0}
+html body.cfg:not(#zz):not(#zy) #ed .ed-bar .done{flex:1 1 100%!important;order:-1;background:#0e1117!important;box-shadow:none!important}
+
+/* tikscherm en overzicht in dezelfde stijl */
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed{--tc:#0e1117!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-step{all:unset;display:block;font:600 10.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#5b6068;margin-bottom:10px}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-step i{display:none}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-top b#ed-title{font:400 31px/1.15 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:-.01em!important;color:#0e1117}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sub{font:400 14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif!important;color:#4a4f57!important;margin-top:8px}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-top>*:not(.ed-ttl){display:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-tally,html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-pick,html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sl{background:#fff!important;border:1px solid #d6d9dd!important;border-radius:6px!important;box-shadow:none!important;padding:18px!important;margin:0 0 14px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-tally .et-h{font:400 14.5px/1.3 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:0!important;text-transform:none!important;color:#0e1117!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-tally .et-h b{font:400 14.5px/1.3 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:0!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .et-l span{background:#f1f2f3!important;border:0!important;border-radius:999px!important;padding:9px 12px 9px 22px!important;font:400 11.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;color:#0e1117!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .et-l span::before{width:6px!important;height:6px!important;border-radius:50%!important;left:10px!important;top:50%!important;bottom:auto!important;transform:translateY(-50%)}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .et-l b{font:400 11.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:0!important;margin-right:4px}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .et-l{display:flex!important;flex-wrap:wrap;gap:8px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .et-e{background:#f1f2f3!important;border:0!important;border-radius:6px!important;font:400 13px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif!important;color:#0e1117}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-lab{font:400 14.5px/1.3 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:0!important;text-transform:none!important;color:#0e1117!important;padding:0 0 14px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types{display:flex!important;flex-direction:column!important;gap:8px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types>button[data-t],html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types .ed-tw{width:100%!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types button[data-t]{height:46px!important;padding:0 14px 0 12px!important;gap:12px!important;border-radius:6px!important;border:1px solid #d6d9dd!important;background:#fff!important;color:#0e1117!important;font:400 14px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:0!important;text-transform:none!important;box-shadow:none!important;transform:none!important;justify-content:flex-start!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types button[data-t] i{width:18px!important;height:18px!important;font-size:0!important;border:0!important;box-shadow:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types button[data-t] b{margin-left:auto!important;min-width:0!important;height:auto!important;padding:7px 11px!important;border-radius:999px!important;background:#f1f2f3!important;color:#0e1117!important;font:400 11.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types button[data-t][aria-checked="true"]{border-color:#0e1117!important;box-shadow:inset 0 0 0 .6px #0e1117!important;background:#fff!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types button[data-t][aria-checked="true"] b{background:#0e1117!important;color:#fff!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types .ed-tw{display:flex!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types .ed-tw>button[data-t]{flex:1!important;border-radius:6px 0 0 6px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types .ed-i{height:46px!important;width:44px!important;border:1px solid #d6d9dd!important;border-left:0!important;border-radius:0 6px 6px 0!important;background:#fff!important;color:#0e1117!important;font:700 11px/1 Georgia,serif!important;box-shadow:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types .ed-i:hover{background:#f1f2f3!important;color:#0e1117!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types .ed-tw>button[aria-checked="true"]+.ed-i{border-color:#0e1117!important;box-shadow:none!important;background:#fff!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sl{--c:#0e1117!important;display:flex}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sl-pv{border-radius:4px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sl-h b{font:400 14.5px/1.3 system-ui,-apple-system,"Segoe UI",sans-serif!important;color:#0e1117!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sl-h span{background:#f1f2f3!important;color:#0e1117!important;font:400 11.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:0!important;text-transform:none!important;padding:7px 11px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-bar button{height:48px!important;border-radius:4px!important;border:1px solid #c9ccd1!important;background:#fff!important;color:#0e1117!important;box-shadow:none!important;font:600 10.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:.16em!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-bar .done{background:#0e1117!important;border-color:#0e1117!important;color:#fff!important;font-size:11px!important;letter-spacing:.2em!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-bar .done svg{color:#fff!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-wrap img{border-radius:4px!important;box-shadow:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-cnt,html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-now{background:rgba(255,255,255,.9)!important;color:#0e1117!important;border-radius:6px!important;box-shadow:none!important;font:600 10.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:.14em!important;text-transform:uppercase!important;backdrop-filter:blur(6px)}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-cnt b,html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-now b{color:#0e1117!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .card.ov{border:1px solid #d6d9dd!important;border-radius:6px!important;box-shadow:none!important;padding:18px!important;background:#fff!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .card.ov .num{display:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .card.ov .head h2{font:400 14.5px/1.35 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:0!important;text-transform:none!important;color:#0e1117!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .card.ov .eyebrow{font:600 10.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:.16em!important;text-transform:uppercase!important;color:#5b6068!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .card.ov .intro{font:400 13.5px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif!important;color:#4a4f57!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .card.ov :is(.ov-photos img,.ov-ph,.ov-item,.ov-row,.ov-add,.ov-tot){border-radius:6px!important;box-shadow:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .et-l span{display:inline-flex!important;flex-direction:row!important;align-items:center;gap:6px}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #ov .head{padding:0!important;margin:0 0 8px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #ov .intro{margin:0 0 14px!important;padding:0!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #ov .ov-big,html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #ov .ov-big img,html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #ov .ov-big .fr{border-radius:6px!important;box-shadow:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #ov .ov-rm,html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #ov .ov-big .cap b,html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #ov .ov-big .cap span,html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #ov .ov-big .cap button{border-radius:6px!important;background:rgba(255,255,255,.9)!important;color:#0e1117!important;box-shadow:none!important;font:600 10px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:.12em!important;text-transform:uppercase!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #ov .ov-add2{border:1px solid #c9ccd1!important;border-style:solid!important;border-radius:4px!important;background:#fff!important;font:600 10.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:.16em!important;text-transform:uppercase!important;color:#0e1117!important;box-shadow:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #ov .ov-tile{border:1px solid #d6d9dd!important;border-radius:6px!important;box-shadow:none!important;background:#fff!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #ov .ov-tile .nm{font:400 14.5px/1.3 system-ui,-apple-system,"Segoe UI",sans-serif!important;color:#0e1117!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #ov .ov-tile .cd{font:400 13px/1.3 system-ui,-apple-system,"Segoe UI",sans-serif!important;color:#4a4f57!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #ov .ov-tile .cnt{font:400 20px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #ov .ov-total{background:#f1f2f3!important;border:0!important;border-radius:6px!important;font:400 14.5px/1.3 system-ui,-apple-system,"Segoe UI",sans-serif!important;box-shadow:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #ov .ov-total *{font-weight:400!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #ov .ov-warn{background:#f1f2f3!important;border:0!important;border-radius:6px!important;color:#0e1117!important;font:400 13.5px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif!important;box-shadow:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #ov .ov-warn button{background:#0e1117!important;color:#fff!important;border-radius:4px!important;font:600 10.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:.16em!important;text-transform:uppercase!important;padding:11px 14px!important;box-shadow:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #ov .ref-box{border:1px solid #d6d9dd!important;border-radius:6px!important;background:#fff!important;box-shadow:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #ov .ref-in{border-radius:4px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #ov .ref-go,html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #ov .go2{border-radius:4px!important;background:#0e1117!important;box-shadow:none!important}
+
+/* midden: eerst particulier of zakelijk, dan pas foto's */
+.cfg-mid{display:flex;flex-direction:column;align-items:center;gap:12px}
+.cfg-mid>*{display:none!important}
+.cfg-mid[data-st="kies"]>.m-kies,.cfg-mid[data-st="kies"].open>.m-twee{display:flex!important}
+.cfg-mid[data-st="kies"].open>.m-kies{display:none!important}
+.cfg-mid[data-st="adres"]>.m-info,.cfg-mid[data-st="zak"]>.m-info,.cfg-mid[data-st="foto"]>.k-foto{display:flex!important}
+.cfg-mid .m-twee{flex-direction:column;gap:12px}
+.cfg-stage.foto .cfg-mid{display:none}
+.cfg-mid .m-info{align-items:center;gap:10px;height:46px;padding:0 18px;border-radius:12px;background:rgba(255,255,255,.88);backdrop-filter:blur(6px);font:400 14px/1.3 system-ui,-apple-system,"Segoe UI",sans-serif;color:#0e1117;box-shadow:0 12px 30px -24px rgba(14,17,23,.45)}
+.cfg-mid .m-info svg{width:16px;height:16px;flex:none}
+.cfg-mid .m-twee .cfg-start{width:400px}
+/* rechts: uitleg zolang er geen keuze is */
+.cfg-uitleg{display:none;flex-direction:column;gap:10px;margin:0 0 6px}
+body[data-cfgst="kies"] .cfg-uitleg{display:flex}
+.cfg-uitleg .st{display:flex;gap:14px;padding:16px 18px;border:1px solid #d6d9dd;border-radius:6px;background:#fff}
+.cfg-uitleg .st b{flex:none;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#f1f2f3;font:500 11px/1 system-ui,-apple-system,"Segoe UI",sans-serif;color:#0e1117}
+.cfg-uitleg .st div{display:flex;flex-direction:column;gap:3px;font:400 14.5px/1.3 system-ui,-apple-system,"Segoe UI",sans-serif;color:#0e1117}
+.cfg-uitleg .st small{font:400 13px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;color:#4a4f57}
+.cfg-uitleg .zk-n{font:400 13px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;color:#4a4f57;padding:4px 2px 0}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .wz-two{display:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #goStart{display:none!important}
+/* rechts bij particulier na de postcode: de bolletjes */
+.cfg-leg{display:none;margin-top:18px;padding:18px;border:1px solid #d6d9dd;border-radius:6px;background:#fff}
+body[data-cfgst="foto"] .cfg-leg{display:block}
+.cfg-leg h3{margin:0 0 4px;font:400 14.5px/1.3 system-ui,-apple-system,"Segoe UI",sans-serif;color:#0e1117}
+.cfg-leg p{margin:0 0 14px;font:400 13px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;color:#4a4f57}
+.cfg-leg ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.cfg-leg li{display:flex;align-items:center;gap:12px;height:44px;padding:0 14px 0 12px;border:1px solid #d6d9dd;border-radius:6px;font:400 14px/1 system-ui,-apple-system,"Segoe UI",sans-serif;color:#0e1117}
+.cfg-leg li i{flex:none;width:18px;height:18px;border-radius:50%;box-shadow:0 0 0 2px #fff inset}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col :is(.intro2,.i2-txt,.wz,.wz-s){overflow:visible!important;clip-path:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .wz-adr{position:relative;z-index:20}
+/* zakelijk: contactformulier rechts */
+body[data-cfgst="zak"] .cfg-bar :is(.blok.lk,.prijs),body[data-cfgst="zak"] .cfg-bar .blok small :is(i,#cfgB3){display:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .zk{background:none!important;border:0!important;box-shadow:none!important;padding:0!important;margin-top:14px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .zk-h b{display:block;font:400 14.5px/1.3 system-ui,-apple-system,"Segoe UI",sans-serif!important;color:#0e1117!important;letter-spacing:0!important;text-transform:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .zk-h span{display:block;font:400 13px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif!important;color:#4a4f57!important;margin:4px 0 14px}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .zk-g{display:grid!important;grid-template-columns:1fr 1fr;gap:12px 10px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .zk-f{border:0!important;background:none!important;box-shadow:none!important;padding:0!important;border-radius:0!important;display:flex;flex-direction:column;gap:6px;min-width:0}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .zk-f.zk-full{grid-column:1/-1}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .zk-f span{font:400 12px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif!important;color:#4a4f57!important;letter-spacing:0!important;text-transform:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .zk-f :is(input,select,textarea){box-sizing:border-box;width:100%;border:1px solid #d6d9dd!important;border-radius:4px!important;background:#fff!important;box-shadow:none!important;font:400 14px/1.3 system-ui,-apple-system,"Segoe UI",sans-serif!important;padding:11px 12px!important;color:#0e1117}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .zk-f :is(input,select,textarea):focus{outline:0;border-color:#0e1117!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .zk-go{width:100%;height:48px;margin-top:16px!important;border-radius:4px!important;background:#0e1117!important;color:#fff!important;box-shadow:none!important;font:600 11px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:.2em!important;text-transform:uppercase!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .zk-msg{font:400 13px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif!important;margin-top:10px}
+
+/* bovenin: rij met beeldmerk, daaronder stappen + klantportaal */
+.cfg-logo{display:none}
+html body.cfg:not(#zz) .cfg-logo{display:flex;align-items:center;justify-content:center;height:58px;background:#fff;position:relative;z-index:5;border-bottom:1px solid rgba(14,17,23,.06);box-shadow:0 3px 8px -2px rgba(14,17,23,.06);box-sizing:border-box}
+.cfg-logo img{display:block;height:40px;width:auto;max-width:160px;object-fit:contain}
+.cfg-logo span{font:400 13px/1 system-ui,sans-serif;letter-spacing:.38em;text-transform:uppercase;color:#0e1117}
+html body.cfg:not(#zz) .cfg-main{height:calc(100vh - 58px - 54px - 80px)!important}
+html body.cfg:not(#zz) #ed.ed{inset:112px 0 80px 0!important}
+/* foto vult het hele vlak */
+.cfg-stage.foto .cfg-foto{object-fit:cover!important;padding:0!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-stage{padding:0!important;overflow:hidden!important;display:flex!important;align-items:center!important;justify-content:center!important;position:relative}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-wrap{flex:none!important;border:0!important;padding:0!important;background:none!important;box-shadow:none!important;border-radius:0!important;outline:0!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-wrap img{border:0!important;border-radius:0!important;box-shadow:none!important;width:100%!important;height:100%!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-wrap::before,html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-wrap::after{display:none!important}
+/* labels op de foto */
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-cnt,html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-now{position:fixed!important;z-index:3;display:flex!important;align-items:center;gap:10px;height:40px;padding:0 16px 0 14px!important;border-radius:999px!important;background:rgba(255,255,255,.92)!important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 8px 24px -14px rgba(14,17,23,.45)!important;border:0!important;font:400 13.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:0!important;text-transform:none!important;color:#0e1117!important;transform:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-now{left:34px!important;right:auto!important;bottom:100px!important;top:auto!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-cnt{left:34px!important;right:auto!important;top:132px!important;bottom:auto!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-cnt.nul{display:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-now i{flex:none;width:12px!important;height:12px!important;min-width:0!important;border-radius:50%!important;font-size:0!important;border:0!important;box-shadow:0 0 0 3px rgba(255,255,255,.9),0 0 0 4px rgba(14,17,23,.08)!important;padding:0!important;margin:0!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-now b,html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-cnt b{font-weight:500!important;color:#0e1117!important}
+
+/* schuifje grootte bolletje boven "Ik tik nu aan", alleen schuifje met kop */
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-side{display:flex!important;flex-direction:column!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-side>*{order:5}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-side>.ed-tally{order:1}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-side>.ed-sl{order:2}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-side>.ed-pick{order:3}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-side>.ed-bar{order:6}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sl{display:block!important;padding:18px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sl-pv,html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sl-h span,html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sl-h b small,html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sl-r i{display:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sl-h{margin:0 0 14px!important;display:block!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sl-h b{font:400 14.5px/1.3 system-ui,-apple-system,"Segoe UI",sans-serif!important;color:#0e1117!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sl-r{display:block!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sl input{width:100%!important;height:4px!important;background:linear-gradient(90deg,#0e1117 var(--p,25%),#e3e5e8 var(--p,25%))!important;box-shadow:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sl input::-webkit-slider-thumb{width:20px!important;height:20px!important;border:2px solid #0e1117!important;box-shadow:0 2px 8px -2px rgba(14,17,23,.35)!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sl input::-moz-range-thumb{width:16px;height:16px;border:2px solid #0e1117}
+
+/* prijs als ticket */
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .ov-price{position:relative;display:block!important;padding:0!important;margin:18px 0 0!important;border:1px solid #e1e3e6!important;border-radius:14px!important;background:#fff!important;background-image:none!important;overflow:hidden!important;box-shadow:0 22px 44px -30px rgba(14,17,23,.45)!important;color:#0e1117!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .ov-price::before,html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .ov-price::after{content:none!important;display:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .ov-price .tk-kop{display:flex;align-items:center;justify-content:center;height:84px;background:linear-gradient(135deg,#353b4b 0%,#252a37 55%,#1b1f29 100%)}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .ov-price .tk-kop img{width:46px;height:46px;border-radius:50%;object-fit:contain;background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.18)}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .ov-price .tk-kop span{font:400 12px/1 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.32em;text-transform:uppercase;color:#fff}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .ov-price .op-l{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:0!important;padding:22px 0 0!important;margin:0!important;background:none!important;color:#0e1117!important;text-align:left!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .ov-price .op-l>*{padding:0 22px!important;box-sizing:border-box;width:100%}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .ov-price .op-l>small:first-child{font:500 10.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:.18em!important;text-transform:uppercase!important;color:#7a7f87!important;margin:0 0 10px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .ov-price .op-l>b{font:400 36px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:-.01em!important;color:#0e1117!important;margin:0 0 10px!important;font-variant-numeric:tabular-nums}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .ov-price .op-l>small:not(:first-child):not(.op-live){font:400 13px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif!important;color:#4a4f57!important;letter-spacing:0!important;text-transform:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .ov-price .op-l .op-live{position:relative;margin:20px 0 0!important;padding:18px 22px 0!important;border-top:2px dashed #e3e5e8;font:400 12.5px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif!important;color:#4a4f57!important;letter-spacing:0!important;text-transform:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .ov-price .op-l .op-live::before,html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .ov-price .op-l .op-live::after{content:"";position:absolute;top:-12px;width:22px;height:22px;border-radius:50%;background:#fff;border:1px solid #e1e3e6;box-sizing:border-box}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .ov-price .op-l .op-live::before{left:-12px}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .ov-price .op-l .op-live::after{right:-12px}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .ov-price .go2{display:block!important;width:calc(100% - 44px)!important;height:50px!important;margin:18px 22px 22px!important;border:0!important;border-radius:4px!important;background:#0e1117!important;background-image:none!important;color:#fff!important;box-shadow:none!important;font:600 11px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:.2em!important;text-transform:uppercase!important;opacity:1!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .ov-price .go2:hover{background:#262b33!important}
+/* code van buur of kennis */
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .ref-box{display:flex!important;gap:14px!important;padding:18px!important;border:1px solid #d6d9dd!important;border-radius:6px!important;background:#fff!important;box-shadow:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .ref-box>svg{flex:none;width:20px;height:20px;margin-top:1px}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .ref-t{flex:1;min-width:0}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .ref-l{display:block;font:400 14.5px/1.3 system-ui,-apple-system,"Segoe UI",sans-serif!important;color:#0e1117!important;letter-spacing:0!important;text-transform:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .ref-t>span{display:block;font:400 13px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif!important;color:#4a4f57!important;margin:4px 0 12px}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .ref-f{display:flex!important;flex-direction:row!important;gap:8px!important;width:100%}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .ref-in{flex:1 1 auto!important;min-width:0!important;width:auto!important;height:44px!important;border:1px solid #d6d9dd!important;border-radius:4px!important;box-shadow:none!important;background:#fff!important;font:400 14px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;padding:0 12px!important;letter-spacing:.04em}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .ref-in:focus{outline:0;border-color:#0e1117!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .ref-go{flex:none!important;width:auto!important;height:44px!important;padding:0 16px!important;border-radius:4px!important;background:#0e1117!important;color:#fff!important;box-shadow:none!important;font:600 10.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:.16em!important;text-transform:uppercase!important}
+/* uw gegevens */
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #aanvraag .intro{margin:0 0 16px!important;padding:0!important;font:400 13.5px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif!important;color:#4a4f57!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #aanvraag .form{display:grid!important;grid-template-columns:1fr 1fr!important;gap:14px 10px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #aanvraag .fld{display:flex;flex-direction:column;gap:6px;min-width:0;margin:0!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #aanvraag .fld.full{grid-column:1/-1}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #aanvraag .fld[hidden]{display:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #aanvraag .lab{font:400 12px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:0!important;text-transform:none!important;color:#4a4f57!important;margin:0!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #aanvraag .lab em{color:#0e1117;font-style:normal}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #aanvraag .in{box-sizing:border-box;width:100%!important;height:46px;border:1px solid #d6d9dd!important;border-radius:4px!important;background:#fff!important;box-shadow:none!important;font:400 14px/1.3 system-ui,-apple-system,"Segoe UI",sans-serif!important;padding:0 12px!important;color:#0e1117!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #aanvraag textarea.in{height:auto;min-height:88px;padding:11px 12px!important;resize:vertical}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #aanvraag .in:focus{outline:0;border-color:#0e1117!important;box-shadow:inset 0 0 0 .6px #0e1117!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #aanvraag .send{margin-top:18px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #aanvraag #indienen{width:100%!important;height:50px!important;border:0!important;border-radius:4px!important;background:#0e1117!important;background-image:none!important;color:#fff!important;box-shadow:none!important;font:600 11px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:.2em!important;text-transform:uppercase!important}
+
+/* klantportaal rechtsboven in de logorij */
+html body.cfg:not(#zz) .cfg-logo .rk{position:absolute;right:20px;top:50%;transform:translateY(-50%);display:flex;align-items:center}
+.cfg-logo .rk a{display:flex;align-items:center;gap:10px;height:38px;padding:0 18px;border:1px solid #c9ccd1;border-radius:4px;font:600 10.5px/1 system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#0e1117;text-decoration:none;background:#fff}
+.cfg-logo .rk a:hover{border-color:#0e1117}
+.cfg-logo .rk svg{width:17px;height:17px}
+
+/* label "tik op de foto": nette pil */
+html body.cfg .cfg-stage:not(.veel) .cfg-nav{display:none!important}
+html body.cfg:not(#zz) .cfg-stage .cfg-tik{top:auto;bottom:16px;left:16px;height:40px;padding:0 16px 0 12px;gap:9px;border-radius:999px;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 8px 24px -14px rgba(14,17,23,.45);font:400 13.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:0;text-transform:none;color:#0e1117;white-space:nowrap}
+.cfg-tik svg{width:18px;height:18px;flex:none}
+.cfg-acties a,.cfg-acties button{border-radius:999px!important;box-shadow:0 8px 24px -14px rgba(14,17,23,.45)}
+.cfg-nav{border-radius:999px!important;box-shadow:0 8px 24px -14px rgba(14,17,23,.45)}
+html body.cfg:not(#zz) .cfg-stage.foto .cfg-nav{left:auto;right:16px;transform:none}
+
+/* pillen onder in het beeld: aantikken + nog een foto */
+.cfg-onder{position:absolute;left:16px;bottom:16px;display:none;gap:8px;z-index:2;flex-wrap:wrap;align-items:flex-start}
+.cfg-stage.foto .cfg-onder{display:flex}
+html body.cfg:not(#zz) .cfg-stage .cfg-onder .cfg-tik{position:static!important;display:flex!important;cursor:pointer;border:0}
+html body.cfg:not(#zz) .cfg-stage .cfg-onder .cfg-nog{all:unset;box-sizing:border-box;cursor:pointer;display:flex!important;align-items:center;gap:9px;height:40px;padding:0 16px 0 12px;border-radius:999px;background:#0e1117;color:#fff;font:400 13.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif;box-shadow:0 8px 24px -14px rgba(14,17,23,.55);white-space:nowrap}
+.cfg-nog svg{width:18px;height:18px}
+.cfg-leg .tip-w,.cfg-fotos .tip-w{margin:16px 0 0;padding:12px 14px;border-radius:6px;background:#f1f2f3;font:400 13px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;color:#4a4f57}
+.cfg-leg .tip-w b,.cfg-fotos .tip-w b{display:block;font:500 13px/1.3 system-ui,-apple-system,"Segoe UI",sans-serif;color:#0e1117;margin-bottom:3px}
+
+/* achtergrondfoto in het beeldvlak zolang er nog geen eigen foto is */
+html body.cfg .cfg-stage:not(.foto){background:linear-gradient(180deg,rgba(14,17,23,.08) 0%,rgba(14,17,23,0) 40%,rgba(14,17,23,.18) 100%),url("beeld/huis-1.jpg") center/cover no-repeat,#e9e6e1}
+html body.cfg .cfg-stage:not(.foto) .cfg-mid .m-info{background:rgba(255,255,255,.94)}
+
+/* keuzeknop rechts in de kolom, kop op de foto */
+.cfg-col .cfg-mid{align-items:stretch;margin:0 0 18px}
+.cfg-col .cfg-mid .cfg-start,.cfg-col .cfg-mid .m-twee .cfg-start{width:100%!important;height:74px;border:1px solid #e1e3e6;background:#f4f5f5;box-shadow:none}
+.cfg-col .cfg-mid .cfg-start:hover{border-color:#0e1117;box-shadow:none}
+.cfg-col .cfg-mid .m-info{display:none!important}
+body.cfg-heeftfoto .cfg-col .cfg-mid{display:none}
+.cfg-kop{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:0 24px;pointer-events:none;font:300 clamp(30px,4.4vw,64px)/1.08 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#fff;text-shadow:0 2px 24px rgba(0,0,0,.35),0 1px 2px rgba(0,0,0,.25)}
+.cfg-stage.foto .cfg-kop{display:none}
+
+/* kleurstalen in de kolom */
+.cfg-stalen{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px 10px;margin-top:4px}
+.cfg-stalen button{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:7px;min-width:0}
+.cfg-stalen i{display:grid;place-items:center;width:100%;aspect-ratio:1/1;border-radius:12px;font:600 13px/1 system-ui,-apple-system,"Segoe UI",sans-serif;font-style:normal;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--tc) 38%,#fff) 0%,color-mix(in srgb,var(--tc) 72%,#fff) 47%,var(--tc) 51%,color-mix(in srgb,var(--tc) 78%,#000) 100%);box-shadow:inset 0 0 0 1px rgba(14,17,23,.08),0 1px 2px rgba(14,17,23,.12);transition:transform .15s,box-shadow .15s}
+.cfg-stalen button:hover i{transform:translateY(-1px);box-shadow:0 0 0 2px #fff,0 0 0 4px #0e1117}
+.cfg-stalen span{font:400 11px/1.25 system-ui,-apple-system,"Segoe UI",sans-serif;color:#4a4f57;text-align:center;max-width:100%;white-space:normal;min-height:2.5em}
+/* één foto tegelijk + volgende stap */
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .cfg-fnr{display:block;font:600 10.5px/1 system-ui,-apple-system,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#6b7079;margin:0 0 7px}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .cfg-fdots{display:flex;gap:6px;margin:10px 0 2px}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .cfg-fdots:empty{display:none}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .cfg-fdots i{display:block;width:26px;height:4px;border-radius:2px;background:#e1e4e8;transition:background .25s}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .cfg-fdots i.ok{background:#7f918e}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .cfg-fdots i.nu{background:#0e1117}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .cfg-toast{position:fixed;left:50%;top:88px;transform:translate(-50%,-8px);width:max-content;max-width:min(340px,calc(100vw - 32px));box-sizing:border-box;background:#0e1117;color:#fff;font:500 13.5px/1.4 system-ui,-apple-system,sans-serif;padding:12px 16px;border-radius:12px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:200;text-align:center;box-shadow:0 14px 30px -12px rgba(0,0,0,.55)}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .cfg-toast.aan{opacity:1;transform:translate(-50%,0)}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-stage .cfg-onder .cfg-tik{width:max-content!important;max-width:min(560px,calc(100vw - 56px))!important;flex:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-stage .cfg-onder .cfg-tik span{flex:none}
+@media (max-width:599px){html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-uitleg{display:none!important}html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-uitleg .st{display:none!important}html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-uitleg{border:0!important;padding:0!important;background:none!important;box-shadow:none!important;margin-top:4px!important}}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .wz-door{gap:6px!important}html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .wz-door small{font-size:6.5px!important;letter-spacing:.18em!important}html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .wz-door img{height:7.5px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .wz-door a.cfg-door{display:flex;flex-direction:column;align-items:inherit;gap:inherit;color:inherit;text-decoration:none;cursor:pointer}html body.cfg:not(#zz):not(#zy):not(#zx) .wz-door a.cfg-door:hover{opacity:.75}
+/* foto's van alle kanten */
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-fotos{display:none;margin-top:18px;padding:18px;border:1px solid #d6d9dd;border-radius:6px;background:#fff}
+html body.cfg:not(#zz):not(#zy):not(#zx)[data-cfgst="foto"] .cfg-fotos{display:block}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-fotos h3{margin:0 0 4px;font:400 14.5px/1.3 system-ui,-apple-system,"Segoe UI",sans-serif;color:#0e1117}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-fotos p{margin:0 0 14px;font:400 13px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;color:#4a4f57}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-vakken{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-vakken .vak{position:relative;box-sizing:border-box;aspect-ratio:3/4;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font:500 11px/1.2 system-ui,-apple-system,sans-serif;color:#5b6068;text-align:center;padding:4px}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-vakken button.vak{appearance:none;-webkit-appearance:none;margin:0;border:1.5px dashed #c3c7cd;background:#f6f7f8;cursor:pointer}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-vakken button.vak svg{width:22px;height:22px}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-vakken button.vak.volgende{border:2px solid #0e1117;background:#fff;color:#0e1117;animation:cfgPuls 1.8s ease-in-out infinite}
+@keyframes cfgPuls{0%,100%{box-shadow:0 0 0 0 rgba(14,17,23,.18)}50%{box-shadow:0 0 0 6px rgba(14,17,23,0)}}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-vakken .vak.vol img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-vakken .vak.vol span{position:absolute;left:0;right:0;bottom:0;padding:16px 3px 6px;background:linear-gradient(transparent,rgba(0,0,0,.65));color:#fff}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-vakken .vak .ok{position:absolute;top:6px;left:6px;width:20px;height:20px;border-radius:50%;background:#2f7d4f;display:grid;place-items:center}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-vakken .vak .ok svg{width:12px;height:12px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-vakken .vak .weg{appearance:none;-webkit-appearance:none;position:absolute;top:5px;right:5px;width:24px;height:24px;margin:0;padding:0;border:0;border-radius:50%;background:rgba(14,17,23,.72);color:#fff;font:400 16px/24px system-ui;cursor:pointer}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-bar .cfg-knop2{display:none}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-bar.cfg-ff .cfg-knop2{appearance:none;-webkit-appearance:none;display:flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 18px;margin:0;border:1.5px solid #0e1117;border-radius:4px;background:#fff;color:#0e1117;font:600 10.5px/1 system-ui,-apple-system,sans-serif;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;cursor:pointer}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-bar.cfg-ff .cfg-knop2 svg{width:16px;height:16px}
+@media (max-width:999px){html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-bar.cfg-ff .cfg-knop2,html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-bar.cfg-ff .knop{flex:1 1 0!important;height:46px!important;padding:0 8px!important;letter-spacing:.1em!important}html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-bar.cfg-ff .cfg-hint,html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-bar.cfg-ff .ruimte{display:none!important}html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-bar.cfg-ff{gap:10px!important}}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-fotos .cfg-meer{appearance:none;-webkit-appearance:none;display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;margin:10px 0 0;padding:12px 14px;border:1.5px dashed #c3c7cd;border-radius:12px;background:#f6f7f8;color:#0e1117;text-align:left;cursor:pointer;font:500 13.5px/1.25 system-ui,-apple-system,sans-serif}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-fotos .cfg-meer b{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#0e1117;color:#fff;font:400 20px/1 system-ui}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-fotos .cfg-meer small{display:block;margin-top:3px;font:400 12px/1.35 system-ui,-apple-system,sans-serif;color:#5b6068}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-fotos .cfg-meer.volgende{border:2px solid #0e1117;background:#fff;animation:cfgPuls 1.8s ease-in-out infinite}
+/* desktop/tablet: kaarten direct zichtbaar, vergrendeld tot postcode en foto's */
+@media (min-width:600px){
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-uitleg{display:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-voor .cfg-fotos,html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-voor .cfg-leg{display:block!important;position:relative}
+html body.cfg:not(#zz):not(#zy):not(#zx)[data-cfgst="zak"] .cfg-voor{display:none}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-voor [data-lock] > *{opacity:.38;pointer-events:none;filter:grayscale(.35);transition:opacity .3s}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-voor [data-lock] .volgende{animation:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-voor [data-lock]::before{content:attr(data-lock);display:inline-flex;margin:0 0 12px;align-items:center;gap:6px;padding:6px 10px 6px 26px;border-radius:999px;background:#0e1117 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='11' width='14' height='9' rx='2'/%3E%3Cpath d='M8 11V8a4 4 0 0 1 8 0v3'/%3E%3C/svg%3E") no-repeat 9px center/12px;color:#fff;font:500 10.5px/1 system-ui,-apple-system,sans-serif;letter-spacing:.02em}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-voor .cfg-fotos{margin-top:14px}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-voor .cfg-vakken .vak{aspect-ratio:1}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-voor .cfg-vakken .vak.vol{aspect-ratio:1}
+}
+html body.cfg:not(#zz):not(#zy):not(#zx).cfg-fotovol .cfg-meer,html body.cfg:not(#zz):not(#zy):not(#zx).cfg-fotovol .cfg-knop2{display:none!important}
+/* beginbeeld met drie foto's */
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-show{position:absolute;inset:0;overflow:hidden;border-radius:inherit;z-index:0}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-show img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .7s ease;user-select:none;-webkit-user-select:none}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-show img.aan{opacity:1}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-show::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 50% 50%,rgba(14,17,23,.16),rgba(14,17,23,0));pointer-events:none;opacity:0;transition:opacity .5s ease}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-stage.cfg-s1 .cfg-show::after{opacity:1}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-show img{image-rendering:auto}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-stage.foto .cfg-show,html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-stage.foto .cfg-shownav{display:none}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-stage .cfg-kop{z-index:1;transition:opacity .5s ease}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-stage:not(.cfg-s1) .cfg-kop{opacity:0}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-shownav{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);z-index:2;display:flex;align-items:center;gap:2px;height:44px;padding:0 4px;border-radius:8px;background:rgba(246,246,246,.94);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#0e1117;box-shadow:0 6px 20px -12px rgba(14,17,23,.45)}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-shownav button{appearance:none;-webkit-appearance:none;margin:0;padding:0;border:0;background:none;width:36px;height:40px;display:grid;place-items:center;color:#0e1117;cursor:pointer}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-shownav button svg{width:16px;height:16px}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-shownav span{min-width:36px;text-align:center;font:500 11px/1 system-ui,-apple-system,sans-serif;letter-spacing:.04em;font-variant-numeric:tabular-nums}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-logo img{height:48px!important;max-width:190px}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-acties{gap:6px}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-acties a,html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-acties button{height:34px!important;padding:0 14px!important;font-size:9.5px!important;gap:8px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-acties button.vk{width:34px!important;padding:0!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-acties svg{width:14px;height:14px}
+@media (max-width:599px){html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-logo img{height:42px!important}html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-acties a{width:34px!important;padding:0!important;font-size:0!important;gap:0!important}}
+html body.cfg:not(#zz):not(#zy):not(#zx).cfg-vol{overflow:hidden!important}
+html body.cfg:not(#zz):not(#zy):not(#zx).cfg-vol .cfg-stage{position:fixed!important;top:0!important;left:0!important;right:0!important;bottom:0!important;width:100%!important;height:100%!important;max-height:none!important;min-height:0!important;margin:0!important;border-radius:0!important;z-index:9990!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-acties a{width:auto!important;white-space:nowrap;flex:none}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-acties button.vk{flex:none}
+@media (max-width:599px){html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-acties a{width:34px!important}}
+/* iPad/tablet (aanraakscherm): kop, fotonavigatie en huisje iets kleiner */
+@media (min-width:600px) and (max-width:1400px) and (pointer:coarse){
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-kop{font-size:clamp(26px,3.2vw,42px)!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-shownav{height:34px!important;bottom:14px!important;padding:0 2px!important;font-size:13px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-shownav button{width:30px!important;height:32px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-shownav button svg{width:13px!important;height:13px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-start svg.huis{width:62px!important;height:36px!important}
+}
+/* telefoon: kop, fotonavigatie en huisje iets kleiner */
+@media (max-width:599px){
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-kop{font-size:24px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-shownav{height:32px!important;bottom:12px!important;padding:0 2px!important;font-size:12.5px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-shownav button{width:28px!important;height:30px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-shownav button svg{width:12px!important;height:12px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-start svg.huis{width:54px!important;height:31px!important}
+}
+@keyframes cfgIn{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-wrap.cfg-in{animation:cfgIn .35s ease both}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed #ed-done.cfg-verder svg{order:2}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-hint{display:none}
+@media (max-width:999px){
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-bar.np.cfg-mh .cfg-hint{display:flex;flex-direction:column;justify-content:center;gap:5px;min-width:0;flex:1 1 auto}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-bar .cfg-hint small{font:600 9.5px/1 system-ui,-apple-system,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#6b7079}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-bar .cfg-hint b{font:500 14px/1.2 system-ui,-apple-system,sans-serif;color:#0e1117;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-bar.np.cfg-mh .knop{flex:0 0 auto!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-bar.np.cfg-mh .ruimte{display:none}
+}
+}
+</style>
+
+<style>
+html body.cfg #ed[hidden]{display:none!important}
+/* ===== tablet en telefoon: alles onder elkaar ===== */
+@media (max-width:999px){
+
+/* telefoon: balk weg tijdens typen, geen lege prijs, tikscherm compact */
+body.cfg-typen .cfg-bar{display:none!important}
+body[data-cfgst="zak"] .cfg-bar{display:none!important}
+html body.cfg:not(#zz) .cfg-main{padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))!important}
+html body.cfg:not(#zz) .cfg-bar{padding-bottom:env(safe-area-inset-bottom,0px)!important;height:calc(72px + env(safe-area-inset-bottom,0px))!important;box-shadow:0 -8px 24px -18px rgba(14,17,23,.35)}
+.cfg-bar.np .prijs{display:none}
+.cfg-bar.np .knop{flex:1;width:auto!important}
+html body.cfg:not(#zz) .cfg-onder{left:12px;bottom:12px;flex-direction:column}
+html body.cfg:not(#zz) .cfg-stage .cfg-onder .cfg-tik{height:36px}
+html body.cfg:not(#zz) .cfg-stage .cfg-tik{bottom:12px;left:12px;height:36px;font-size:12.5px;padding:0 14px 0 10px;max-width:calc(100% - 24px)}
+html body.cfg:not(#zz) .cfg-stage.foto .cfg-nav{top:12px;bottom:auto;left:12px;right:auto;height:38px}
+html body.cfg:not(#zz){overflow:auto!important}
+html body.cfg:not(#zz) .cfg-logo{height:56px;position:sticky;top:0}
+html body.cfg:not(#zz) .cfg-logo img{height:36px}
+html body.cfg:not(#zz) .cfg-logo .rk{right:12px}
+html body.cfg:not(#zz) .cfg-top{position:sticky;top:56px;z-index:4;background:#fff;height:48px;padding:0 16px!important;justify-content:flex-start!important}
+html body.cfg:not(#zz) .cfg-tabs{gap:22px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+html body.cfg:not(#zz) .cfg-tabs::-webkit-scrollbar{display:none}
+html body.cfg:not(#zz) .cfg-tabs button{flex:none;white-space:nowrap}
+html body.cfg:not(#zz) .cfg-main{display:block!important;height:auto!important;padding:0 12px 110px!important}
+html body.cfg:not(#zz) .cfg-stage{height:min(56vh,560px);min-height:340px;margin:0 0 24px}
+html body.cfg:not(#zz) .cfg-col{overflow:visible!important;padding:0 4px!important;max-width:680px;margin:0 auto}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col h1.ml-title{font-size:27px!important;margin:4px 0 16px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .wrap::before{font-size:27px}
+.cfg-start{width:min(400px,calc(100% - 32px))!important}
+.cfg-mid .m-twee .cfg-start{width:min(400px,calc(100vw - 56px))!important}
+.cfg-mid .m-info svg{transform:rotate(90deg)}
+.cfg-mid .m-info{max-width:calc(100vw - 56px);font-size:13.5px!important;text-align:center}
+html body.cfg:not(#zz) .cfg-bar{height:72px;padding:0 16px!important;gap:14px}
+.cfg-bar .blok{display:none!important}
+.cfg-bar .prijs b{font-size:20px}
+.cfg-bar .knop{width:auto!important;padding:0 24px;height:46px}
+/* aantikken op telefoon/tablet: volledig scherm */
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed.ed:not([hidden]){position:fixed!important;inset:0!important;z-index:60;display:flex!important;flex-direction:column!important;padding:calc(env(safe-area-inset-top,0px) + 12px) 12px calc(env(safe-area-inset-bottom,0px) + 12px)!important;gap:10px!important;background:#fff!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-top{padding:0!important;gap:4px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-top b#ed-title{font-size:22px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sub{font-size:13px!important;margin-top:4px}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-step{margin-bottom:6px}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-stage{flex:1 1 auto!important;min-height:0!important;border-radius:8px;overflow:hidden!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-wrap{position:relative}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-cnt,html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-now{position:absolute!important;height:34px;font-size:12.5px!important;padding:0 13px 0 11px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-cnt{top:10px!important;left:10px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-now{bottom:10px!important;left:10px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-side{flex:none!important;max-height:46vh;overflow-y:auto!important;padding:0!important;gap:0}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-tally,html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-pick,html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sl{padding:12px 14px!important;margin:0 0 10px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-lab{padding:0 0 10px!important;font-size:13.5px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types{flex-direction:row!important;flex-wrap:nowrap!important;overflow-x:auto!important;scrollbar-width:none;-webkit-mask-image:none!important;mask-image:none!important;padding:0 0 2px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types::-webkit-scrollbar{display:none}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types>button[data-t],html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types .ed-tw{width:auto!important;flex:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types button[data-t]{height:40px!important;font-size:13.5px!important;padding:0 12px 0 10px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types .ed-i{height:40px!important;width:34px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sl-h{margin:0 0 10px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-bar{position:static!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-bar button{height:46px!important}
+}
+@media (max-width:599px){
+.cfg-stalen{grid-template-columns:repeat(4,minmax(0,1fr))}
+.cfg-kop{font-size:30px}
+.cfg-bar .knop{white-space:nowrap;padding:0 18px!important;letter-spacing:.14em!important;font-size:10.5px!important}
+
+/* tikscherm telefoon: alles in één scherm, zonder scrollen */
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sub,html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-step,html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-tally,html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-lab{display:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-top b#ed-title{font-size:19px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-side{max-height:none!important;overflow:visible!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-side>.ed-pick{order:1!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-side>.ed-sl{order:2!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-pick{border:0!important;padding:0!important;margin:0 0 8px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types{flex-wrap:wrap!important;overflow:visible!important;gap:6px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types button[data-t]{height:36px!important;font-size:13px!important;padding:0 10px 0 8px!important;gap:8px!important;border-radius:999px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types button[data-t] i{width:14px!important;height:14px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types button[data-t] b{padding:5px 8px!important;font-size:11px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types .ed-i{display:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-types .ed-tw>button[data-t]{border-radius:999px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sl{display:flex!important;align-items:center;gap:12px;border:0!important;padding:4px 2px!important;margin:0 0 8px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sl-h{margin:0!important;flex:none}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sl-h b{font-size:12.5px!important;color:#4a4f57!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-sl-r{flex:1}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-bar{display:grid!important;grid-template-columns:1fr 1fr 2fr;gap:6px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-bar button{height:46px!important;font-size:9.5px!important;letter-spacing:.1em!important;padding:0 6px!important;flex:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-bar .done{order:3!important;font-size:11px!important;letter-spacing:.16em!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed.ed:not([hidden]){padding:calc(env(safe-area-inset-top,0px) + 10px) 10px calc(env(safe-area-inset-bottom,0px) + 10px)!important;gap:8px!important}
+html body.cfg:not(#zz) .cfg-logo .rk a{font-size:0!important;letter-spacing:0!important;gap:0!important;width:40px;padding:0!important;justify-content:center}
+html body.cfg:not(#zz) .cfg-stage{height:52vh;min-height:320px}
+.cfg-acties a{font-size:0!important;letter-spacing:0!important;gap:0!important;width:42px;padding:0!important;justify-content:center}
+.cfg-start{height:64px!important;gap:12px!important}
+.cfg-start svg.huis{width:70px!important;height:40px!important}
+.cfg-start b{font-size:14px!important}
+.cfg-start i{width:44px!important;height:44px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col .zk-g,html body.cfg:not(#zz):not(#zy):not(#zx) .cfg-col #aanvraag .form{grid-template-columns:1fr!important}
+html body.cfg:not(#zz):not(#zy):not(#zx) #ed .ed-side{max-height:50vh}
+}
+</style>
+
+<style>
+/* verdiepingen en raamsoorten als kleurstalen */
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-lab{display:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-pick{display:block!important;overflow:visible!important}
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-side{overflow-x:visible!important}
+.cfg-tlab{display:flex;align-items:baseline;gap:8px;margin:0 0 14px;font:400 14.5px/1.3 system-ui,-apple-system,"Segoe UI",sans-serif;color:#0e1117}
+.cfg-tlab span{color:#5b6068;font-size:13px}
+.cfg-tlab b{font-weight:500}
+.cfg-tlab button{all:unset;cursor:pointer;display:none;place-items:center;width:20px;height:20px;border-radius:50%;background:#f1f2f3;font:700 11px/1 Georgia,serif;color:#0e1117;margin-left:2px;align-self:center}
+.cfg-tlab.info button{display:grid}
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-types{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:12px!important;flex-direction:unset!important;flex-wrap:unset!important;overflow:visible!important;padding:8px 8px 4px 4px!important;margin:0 -8px 0 -4px!important;-webkit-mask-image:none!important;mask-image:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-types .ed-tw{display:contents!important}
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-types .ed-i{display:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-types button[data-t]{position:relative!important;display:block!important;width:100%!important;height:auto!important;aspect-ratio:1/1;min-width:0!important;padding:0!important;margin:0!important;border:0!important;border-radius:12px!important;font-size:0!important;color:transparent!important;cursor:pointer;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--tc) 38%,#fff) 0%,color-mix(in srgb,var(--tc) 72%,#fff) 47%,var(--tc) 51%,color-mix(in srgb,var(--tc) 78%,#000) 100%)!important;
+  box-shadow:inset 0 0 0 1px rgba(14,17,23,.08),0 1px 2px rgba(14,17,23,.12)!important;transition:box-shadow .15s,transform .15s!important;transform:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-types button[data-t]:hover{transform:translateY(-1px)!important}
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-types button[data-t] i{position:absolute!important;inset:0!important;display:grid!important;place-items:center!important;width:auto!important;height:auto!important;background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;font:600 13px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:.02em!important;color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.35)!important}
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-types button[data-t] b{position:absolute!important;top:3px!important;right:3px!important;min-width:17px!important;height:17px!important;padding:0 5px!important;margin:0!important;box-sizing:border-box;display:grid!important;place-items:center!important;border-radius:999px!important;background:#0e1117!important;color:#fff!important;font:600 10px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;box-shadow:none!important}
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-types button[data-t][aria-checked="true"]{box-shadow:0 0 0 2px #fff,0 0 0 4px #0e1117,0 6px 14px -6px rgba(14,17,23,.4)!important}
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-types button[data-t][aria-checked="true"] b{background:#fff!important;color:#0e1117!important;box-shadow:0 0 0 2px #0e1117!important}
+@media (max-width:999px){
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-types{grid-template-columns:repeat(auto-fill,minmax(40px,1fr))!important;gap:10px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-types button[data-t]{height:auto!important;border-radius:11px!important}
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-types button[data-t] i{font-size:12px!important;width:auto!important;height:auto!important}
+html body.cfg:not(#zz):not(#zy):not(#zx):not(#zw) #ed .ed-pick{padding:2px 2px 0!important}
+.cfg-tlab{margin:0 0 10px;font-size:14px}
+}
+</style>
+<script>
+(function(){
+  const $=s=>document.querySelector(s),el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e};
+  const B=typeof BEDRIJF==="object"?BEDRIJF:{};
+  const esc=s=>String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  document.body.classList.add("cfg");
+  const gedaan=p=>!!(p&&(p.dots.length||p.cfgLeeg));
+  const h1=document.querySelector("h1.ml-title");if(h1){h1.style.setProperty("letter-spacing","-0.01em","important");h1.style.setProperty("text-transform","none","important")}
+  const m=document.createElement("meta");m.name="robots";m.content="noindex";document.head.append(m);
+  const page=$(".page"),intro=$(".intro2"),wrap=$(".wrap"),foot=$(".foot"),vis=$(".i2-vis");
+  /* aantikken: foto vult het hele vlak (bijsnijden i.p.v. passend maken) */
+  if(typeof fitEd==="function"){const fitOrig=fitEd;window.fitEd=function(){if(!matchMedia("(min-width:1000px)").matches)return fitOrig();try{const p=photos[edIdx];if(!p)return;const st=document.getElementById("ed-stage").getBoundingClientRect();const k=Math.max(st.width/p.cv.width,st.height/p.cv.height);const w=document.getElementById("ed-wrap");w.style.width=Math.ceil(p.cv.width*k)+"px";w.style.height=Math.ceil(p.cv.height*k)+"px"}catch(e){}}}
+  /* keuzekaarten rechts: korte uitleg onder de titel */
+  const UITLEG={particulier:["Vaste prijs per beurt",["Foto maken","Ramen aantikken","Direct uw prijs"]],zakelijk:["Prijs op maat",["Kantoor","Winkel","VvE"]]};
+  document.querySelectorAll(".wz-opt[data-soort]").forEach(b=>{const u=UITLEG[b.dataset.soort];if(!u||b.querySelector("small"))return;b.insertAdjacentHTML("beforeend",`<small>${u[0]}</small><span class="info">i</span><span class="cfg-chips">${u[1].map(t=>`<span>${t}</span>`).join("")}</span>`)});
+  /* bovenrij: stappen links, klantportaal rechts */
+  const top=el("div","cfg-top");
+  const STAPPEN=[[0,"Adres"],[1,"Foto’s"],[2,"Ramen"],[3,"Bijzonder"],[4,"Frequentie"],[5,"Gegevens"]];
+  const tabs=el("nav","cfg-tabs");STAPPEN.forEach(([n,t])=>{const b=el("button","",t);b.type="button";b.dataset.n=n;b.onclick=()=>naar(n);tabs.appendChild(b)});
+  const lg=el("div","cfg-logo");lg.append(B.logo?Object.assign(el("img"),{src:B.logo,alt:B.naam||""}):el("span","",esc(B.naam||"")));top.append(tabs,el("div","rk",`<a href="https://app.mansard.nl/portaal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></svg>Klantportaal</a>`));
+  /* hoofddeel */
+  const main=el("div","cfg-main"),stage=el("div","cfg-stage"),col=el("div","cfg-col");
+  const foto=el("img","cfg-foto");foto.alt="Foto van uw woning";stage.append(foto);if(vis)vis.remove();
+  const mid=el("div","cfg-mid",`<button type="button" class="cfg-start m-kies"><svg class="huis" viewBox="0 0 84 48" fill="none" aria-hidden="true"><defs><linearGradient id="hzA1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b3039"/><stop offset="1" stop-color="#15181e"/></linearGradient><linearGradient id="hzB1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b1f26"/><stop offset="1" stop-color="#0c0e12"/></linearGradient><linearGradient id="hzR1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3a404b"/><stop offset="1" stop-color="#22262e"/></linearGradient><radialGradient id="hzS1" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#0e1117" stop-opacity=".28"/><stop offset="1" stop-color="#0e1117" stop-opacity="0"/></radialGradient></defs><ellipse cx="44" cy="44.5" rx="40" ry="3.6" fill="url(#hzS1)"/><path d="M8 24 23 12l15 12v20H8z" fill="url(#hzA1)"/><path d="M38 24h38v20H38z" fill="url(#hzB1)"/><path d="M5 26 23 10.5 41 26l-2 1.6L23 14 7 27.6z" fill="#0b0d11"/><path d="M23 10.5h39L79 25H41z" fill="url(#hzR1)"/><path d="M41 25h38l-1.6 1.8H39.4z" fill="#0b0d11"/><rect x="13" y="29" width="5.5" height="7" rx=".6" fill="#8b95a3"/><rect x="27.5" y="29" width="5.5" height="7" rx=".6" fill="#8b95a3"/><rect x="20" y="18" width="6" height="5" rx=".6" fill="#8b95a3" opacity=".85"/><rect x="45" y="30" width="10" height="7.5" rx=".6" fill="#6f7987"/><rect x="60" y="30" width="10" height="7.5" rx=".6" fill="#6f7987"/><rect x="20" y="37" width="5.5" height="7" fill="#4a515d"/><path d="M52 15h5v10h-5z" fill="#1b1f26"/></svg><b>Particulier of zakelijk</b><i><svg viewBox="0 0 24 24" fill="none" stroke="#0e1117" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></i></button><div class="m-twee"><button type="button" class="cfg-start k-part"><svg class="huis" viewBox="0 0 84 48" fill="none" aria-hidden="true"><defs><linearGradient id="hzA2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b3039"/><stop offset="1" stop-color="#15181e"/></linearGradient><linearGradient id="hzB2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b1f26"/><stop offset="1" stop-color="#0c0e12"/></linearGradient><linearGradient id="hzR2" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3a404b"/><stop offset="1" stop-color="#22262e"/></linearGradient><radialGradient id="hzS2" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#0e1117" stop-opacity=".28"/><stop offset="1" stop-color="#0e1117" stop-opacity="0"/></radialGradient></defs><ellipse cx="44" cy="44.5" rx="40" ry="3.6" fill="url(#hzS2)"/><path d="M8 24 23 12l15 12v20H8z" fill="url(#hzA2)"/><path d="M38 24h38v20H38z" fill="url(#hzB2)"/><path d="M5 26 23 10.5 41 26l-2 1.6L23 14 7 27.6z" fill="#0b0d11"/><path d="M23 10.5h39L79 25H41z" fill="url(#hzR2)"/><path d="M41 25h38l-1.6 1.8H39.4z" fill="#0b0d11"/><rect x="13" y="29" width="5.5" height="7" rx=".6" fill="#8b95a3"/><rect x="27.5" y="29" width="5.5" height="7" rx=".6" fill="#8b95a3"/><rect x="20" y="18" width="6" height="5" rx=".6" fill="#8b95a3" opacity=".85"/><rect x="45" y="30" width="10" height="7.5" rx=".6" fill="#6f7987"/><rect x="60" y="30" width="10" height="7.5" rx=".6" fill="#6f7987"/><rect x="20" y="37" width="5.5" height="7" fill="#4a515d"/><path d="M52 15h5v10h-5z" fill="#1b1f26"/></svg><b>Particulier</b><i><svg viewBox="0 0 24 24" fill="none" stroke="#0e1117" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></i></button><button type="button" class="cfg-start k-zak"><svg class="huis" viewBox="0 0 84 48" fill="none" aria-hidden="true"><defs><linearGradient id="kzA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b3039"/><stop offset="1" stop-color="#15181e"/></linearGradient><linearGradient id="kzB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b1f26"/><stop offset="1" stop-color="#0c0e12"/></linearGradient><radialGradient id="kzS" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#0e1117" stop-opacity=".28"/><stop offset="1" stop-color="#0e1117" stop-opacity="0"/></radialGradient></defs><ellipse cx="42" cy="44.5" rx="38" ry="3.6" fill="url(#kzS)"/><path d="M16 6h30v38H16z" fill="url(#kzA)"/><path d="M46 16h24v28H46z" fill="url(#kzB)"/><path d="M14 4.5h34V7H14zM44 14.5h28V17H44z" fill="#0b0d11"/><g fill="#8b95a3"><rect x="20" y="11" width="5" height="4" rx=".5"/><rect x="28.5" y="11" width="5" height="4" rx=".5"/><rect x="37" y="11" width="5" height="4" rx=".5"/><rect x="20" y="19" width="5" height="4" rx=".5"/><rect x="28.5" y="19" width="5" height="4" rx=".5"/><rect x="37" y="19" width="5" height="4" rx=".5"/><rect x="20" y="27" width="5" height="4" rx=".5"/><rect x="37" y="27" width="5" height="4" rx=".5"/></g><g fill="#6f7987"><rect x="50" y="21" width="6" height="5" rx=".5"/><rect x="60" y="21" width="6" height="5" rx=".5"/><rect x="50" y="30" width="6" height="5" rx=".5"/><rect x="60" y="30" width="6" height="5" rx=".5"/></g><rect x="27.5" y="35" width="7" height="9" fill="#4a515d"/></svg><b>Zakelijk</b><i><svg viewBox="0 0 24 24" fill="none" stroke="#0e1117" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></i></button></div><div class="m-info"><span class="t"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7" transform="rotate(180 12 12)"/></svg></div><button type="button" class="cfg-start k-foto"><svg class="huis" viewBox="0 0 84 48" fill="none" aria-hidden="true"><defs><linearGradient id="hzA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b3039"/><stop offset="1" stop-color="#15181e"/></linearGradient><linearGradient id="hzB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b1f26"/><stop offset="1" stop-color="#0c0e12"/></linearGradient><linearGradient id="hzR" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3a404b"/><stop offset="1" stop-color="#22262e"/></linearGradient><radialGradient id="hzS" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#0e1117" stop-opacity=".28"/><stop offset="1" stop-color="#0e1117" stop-opacity="0"/></radialGradient></defs><ellipse cx="44" cy="44.5" rx="40" ry="3.6" fill="url(#hzS)"/><path d="M8 24 23 12l15 12v20H8z" fill="url(#hzA)"/><path d="M38 24h38v20H38z" fill="url(#hzB)"/><path d="M5 26 23 10.5 41 26l-2 1.6L23 14 7 27.6z" fill="#0b0d11"/><path d="M23 10.5h39L79 25H41z" fill="url(#hzR)"/><path d="M41 25h38l-1.6 1.8H39.4z" fill="#0b0d11"/><rect x="13" y="29" width="5.5" height="7" rx=".6" fill="#8b95a3"/><rect x="27.5" y="29" width="5.5" height="7" rx=".6" fill="#8b95a3"/><rect x="20" y="18" width="6" height="5" rx=".6" fill="#8b95a3" opacity=".85"/><rect x="45" y="30" width="10" height="7.5" rx=".6" fill="#6f7987"/><rect x="60" y="30" width="10" height="7.5" rx=".6" fill="#6f7987"/><rect x="20" y="37" width="5.5" height="7" fill="#4a515d"/><path d="M52 15h5v10h-5z" fill="#1b1f26"/></svg><b>Foto’s maken / uploaden</b><i><svg viewBox="0 0 24 24" fill="none" stroke="#0e1117" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></i></button>`);mid.dataset.st="kies";stage.append(el("div","cfg-kop","Klaar voor<br>helder zicht?"));
+  /* beginbeeld: drie foto's, van binnen steeds een stap verder van de woning */
+  const SHOW=[1,2,5].map(n=>"beeld/huis-"+n+".jpg");let si=0;
+  const show=el("div","cfg-show",SHOW.map((u,i)=>`<img src="${u}" alt="" draggable="false"${i?' loading="lazy"':''}${i?'':' class="aan"'}>`).join(""));stage.prepend(show);stage.classList.add("cfg-s1");
+  const snav=el("div","cfg-shownav",`<button type="button" data-d="-1" aria-label="Vorige foto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><span>1 / ${SHOW.length}</span><button type="button" data-d="1" aria-label="Volgende foto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>`);stage.append(snav);
+  function zetShow(n){si=(n+SHOW.length)%SHOW.length;show.querySelectorAll("img").forEach((im,i)=>im.classList.toggle("aan",i===si));snav.querySelector("span").textContent=(si+1)+" / "+SHOW.length;stage.classList.toggle("cfg-s1",si===0)}
+  snav.addEventListener("click",e=>{e.stopPropagation();const b=e.target.closest("button");if(b)zetShow(si+(+b.dataset.d))});
+  {let x0=null;show.addEventListener("touchstart",e=>{x0=e.touches[0].clientX},{passive:true});show.addEventListener("touchend",e=>{if(x0==null)return;const dx=e.changedTouches[0].clientX-x0;x0=null;if(Math.abs(dx)>40)zetShow(si+(dx<0?1:-1))},{passive:true})}
+  mid.querySelector(".m-kies").onclick=()=>mid.classList.add("open");
+  mid.querySelector(".k-part").onclick=()=>{if(typeof kiesSoort==="function")kiesSoort("particulier")};
+  mid.querySelector(".k-zak").onclick=()=>{if(typeof kiesSoort==="function")kiesSoort("zakelijk")};
+  mid.querySelector(".k-foto").onclick=()=>{const i=document.getElementById("ph-in");if(i)i.click()};
+  /* rechts: uitleg zolang er nog geen keuze is */
+  const uitleg=el("div","cfg-uitleg",[["Kies particulier of zakelijk","Met de knop hierboven."],["Vul uw postcode in","Wij kijken of uw adres in ons werkgebied ligt."],["Maak of upload foto’s","Van alle kanten van uw woning."],["Tik de ramen aan","Met een bolletje per raam, per verdieping of soort raam."],["Zie direct uw prijs","Een vaste prijs per beurt, inclusief btw."]].map((x,i)=>`<div class="st"><b>${i+1}</b><div>${x[0]}<small>${x[1]}</small></div></div>`).join("")+`<p class="zk-n">Zakelijk of een VvE? Dan vult u een kort contactformulier in en nemen wij contact met u op.</p>`);
+  {const h=document.querySelector(".cfg-col h1.ml-title")||document.querySelector("h1.ml-title");if(h){h.after(mid);mid.after(uitleg)}}
+  /* rechts bij particulier na de postcode: de bolletjes */
+  let adrKey="",adrGetypt=false;document.addEventListener("input",e=>{if(e.target&&e.target.id==="adrQ")adrGetypt=true},true);document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("#adrSug"))adrGetypt=true},true);
+  const leg=el("div","cfg-leg");{const w2=document.getElementById("wz2");if(w2)w2.append(leg)}
+  let legKey="";function legenda(){try{const T=typeList(),k=T.join();if(k===legKey)return;legKey=k;
+    leg.innerHTML=`<h3>Zo telt u uw ramen</h3><p>Kies een kleur en tik op de foto elk raam aan.</p><div class="cfg-stalen">${T.map(t=>`<button type="button" data-st="${t}" style="--tc:${dt(t).col}"><i>${esc(dt(t).c)}</i><span>${esc(chipName(t))}</span></button>`).join("")}</div>`;leg.querySelectorAll("[data-st]").forEach(b=>b.onclick=()=>{if(!photos.length){const i=document.getElementById("ph-in");if(i)i.click();return}const j=Math.max(0,photos.findIndex(p=>!gedaan(p)));openEd(j);setTimeout(()=>{const k=document.querySelector(`#ed-types [data-t="${b.dataset.st}"]`);if(k)k.click()},60)})}catch(e){}}
+  const tik=el("div","cfg-tik",`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10"/><path d="M12 9.5a1.5 1.5 0 0 1 3 0V11"/><path d="M15 10.5a1.5 1.5 0 0 1 3 0v3.5a6 6 0 0 1-6 6h-.6a5 5 0 0 1-4-2L5 15.2a1.5 1.5 0 0 1 2.3-1.9L9 15"/></svg><span>Tik op de foto om ramen aan te tikken</span>`);stage.append(tik);
+  const openFoto=()=>{if(typeof openEd==="function"&&fotos().length)openEd(fi)};foto.onclick=openFoto;tik.onclick=openFoto;
+  const onder=el("div","cfg-onder");const nog=el("button","cfg-tik cfg-nog",`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.6-2.4h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.6"/></svg><span>Nog een foto</span>`);nog.type="button";
+  nog.onclick=()=>{const i=document.getElementById("ph-in");if(i)i.click()};onder.append(tik,nog);stage.append(onder);
+  /* eerst alle foto's maken: na een foto niet meteen het tikscherm openen */
+  let geenAuto=false;document.addEventListener("change",e=>{const t=e.target;if(t&&t.id==="ph-in"&&t.files&&t.files.length)geenAuto=true},true);
+  if(typeof openEd==="function"){const edOrig=openEd;window.openEd=function(i){if(geenAuto){geenAuto=false;fi=Math.max(0,photos.length-1);setTimeout(toon,0);return}try{fotosKlaar=true}catch(e){}return edOrig.apply(this,arguments)}}
+  document.addEventListener("focusin",e=>{if(e.target.matches&&e.target.matches("input:not([type=range]):not([type=file]):not([type=checkbox]),textarea,select")&&!matchMedia("(min-width:1000px)").matches)document.body.classList.add("cfg-typen")});
+  document.addEventListener("focusout",()=>setTimeout(()=>{const a=document.activeElement;if(!a||!a.matches||!a.matches("input:not([type=range]):not([type=file]):not([type=checkbox]),textarea,select"))document.body.classList.remove("cfg-typen")},120));
+  /* natuurtinten voor bolletjes en kleurstalen (alleen deze webshop) */
+  try{const NT=["#7f918e","#b19e80","#5d6571","#6c5647","#3a3d40","#4f5a52","#7a7066","#2d3742"];NT.forEach((c,i)=>{if(i<FCOL.length)FCOL[i]=c});
+    Object.assign(DT_S["s-tuimel"]||{},{col:"#26364e"});Object.assign(DT_S["s-koepel"]||{},{col:"#66744f"});Object.assign(DT_S["s-mini"]||{},{col:"#8f8291"});Object.assign(DT_S["s-lood"]||{},{col:"#8a6b52"})}catch(e){}
+  /* naam van het gekozen kleurstaal boven de stalen */
+  function tlab(){const box=document.getElementById("ed-types");if(!box)return;let l=document.querySelector(".cfg-tlab");
+    if(!l){l=el("div","cfg-tlab",`<span>Ik tik nu aan:</span><b></b><button type="button" aria-label="Uitleg">i</button>`);box.before(l);l.querySelector("button").onclick=()=>{const t=l.dataset.t,i=document.querySelector(`.ed-i[data-info="${t}"]`);if(i)i.click()}}
+    const c=box.querySelector('[aria-checked="true"]');if(!c)return;const nm=[...c.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent).join("").trim(),b=c.querySelector("b"),n=b?parseInt(b.textContent)||0:0;
+    l.querySelector("b").textContent=nm+(n?` · ${n} ${n===1?"raam":"ramen"}`:"");l.dataset.t=c.dataset.t;l.classList.toggle("info",!!document.querySelector(`.ed-i[data-info="${c.dataset.t}"]`))}
+  document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("#ed"))setTimeout(tlab,0)},true);setInterval(tlab,400);
+  /* bewaren op dit apparaat: verder waar u gebleven was (bijv. binnen, als het buiten koud is) */
+  const IDB=(m,k,v)=>new Promise(res=>{try{const r=indexedDB.open("ms-webshop",1);r.onupgradeneeded=()=>r.result.createObjectStore("kv");r.onerror=()=>res(null);
+    r.onsuccess=()=>{try{const tx=r.result.transaction("kv",m==="get"?"readonly":"readwrite"),st=tx.objectStore("kv");const q=m==="get"?st.get(k):m==="put"?st.put(v,k):st.delete(k);q.onsuccess=()=>res(q.result);q.onerror=()=>res(null)}catch(e){res(null)}}}catch(e){res(null)}});
+  let bewaarSig="",hersteld=false;
+  function bewaar(){if(!hersteld)return;try{const ind=document.getElementById("indienen");if(ind&&ind.dataset.klaar==="1"){if(bewaarSig!=="weg"){bewaarSig="weg";IDB("del","staat")}return}
+    if(!photos.length&&!ADR)return;const q=document.getElementById("adrQ");
+    const sig=JSON.stringify([photos.length,photos.map(p=>p.dots),SOORT,ADR&&ADR.postcode]);if(sig===bewaarSig)return;bewaarSig=sig;
+    IDB("put","staat",{t:Date.now(),soort:SOORT,adr:ADR,adrQ:q?q.value:"",fotos:photos.map(p=>p.url),dots:photos.map(p=>p.dots)})}catch(e){}}
+  (async()=>{try{const d=await IDB("get","staat");if(d&&!d.adr){IDB("del","staat")}else if(d&&Date.now()-d.t<21*864e5&&d.soort!=="zakelijk"){
+      if(d.adr&&typeof kiesSoort==="function"){kiesSoort("particulier");const q=document.getElementById("adrQ");if(q)q.value=d.adrQ||"";zetAdres(d.adr)}
+      /* alleen foto's terugzetten bij een bewaard adres; dubbele foto's overslaan en nooit meer dan 30 */
+      const gezien=new Set();if(d.adr)for(let i=0;i<(d.fotos||[]).length&&photos.length<30;i++){const u=d.fotos[i];if(!u||gezien.has(u))continue;gezien.add(u);try{const p=await loadPhoto(dataUrlBlob(u));p.dots=(d.dots&&d.dots[i])||[];photos.push(p)}catch(e){}}
+      if(photos.length){renderPhotos();if(fotoModus())modus(false);else syncFromPhotos();fi=0}}}catch(e){}hersteld=true})();
+  const acties=el("div","cfg-acties",`${B.whatsapp?`<a href="https://wa.me/${esc(B.whatsapp)}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4.1A8 8 0 1 1 20 11.5Z"/></svg>Hulp via WhatsApp</a>`:""}<button type="button" class="vk" aria-label="Volledig scherm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>`);stage.append(acties);
+  {const vk=acties.querySelector(".vk"),D=document,fsEl=()=>D.fullscreenElement||D.webkitFullscreenElement,
+    nep=a=>{document.body.classList.toggle("cfg-vol",a);vk.setAttribute("aria-pressed",a?"true":"false")},
+    echt=()=>{const f=stage.requestFullscreen||stage.webkitRequestFullscreen;if(!f||!(D.fullscreenEnabled||D.webkitFullscreenEnabled))return false;try{const r=f.call(stage);if(r&&r.catch)r.catch(()=>nep(true));return true}catch(e){return false}};
+   vk.onclick=()=>{if(fsEl()){(D.exitFullscreen||D.webkitExitFullscreen).call(D);return}if(document.body.classList.contains("cfg-vol")){nep(false);return}if(!echt())nep(true)};
+   D.addEventListener("keydown",e=>{if(e.key==="Escape"&&document.body.classList.contains("cfg-vol"))nep(false)})}
+  const PIJL=d=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
+  const nav=el("div","cfg-nav",`<button type="button" data-d="-1" aria-label="Vorige foto">${PIJL("M15 5l-7 7 7 7")}</button><span class="i">1 / 1</span><button type="button" data-d="1" aria-label="Volgende foto">${PIJL("M9 5l7 7-7 7")}</button>`);stage.append(nav);
+  if(intro)col.append(intro);if(wrap)col.append(wrap);if(foot)col.append(foot);
+  main.append(stage,col);
+  /* onderbalk */
+  const bar=el("div","cfg-bar",`<div class="blok"><b id="cfgB1">Uw woning</b><small><span id="cfgS1">Vul uw adres in</span><i>|</i><span id="cfgB3">–</span></small></div><div class="blok lk"><b id="cfgB2">0 ramen</b><small>Geteld op uw foto’s</small></div><div class="ruimte"></div><div class="prijs"><b id="cfgP">€ –</b><small id="cfgPs">per beurt</small></div><button type="button" class="knop" id="cfgKnop">Volgende</button>`);
+  lg.append(top.querySelector(".rk"));page.prepend(lg,top,main);document.body.append(bar);
+  /* ingebed op de homepage: de website heeft zelf al een menubalk */
+  if(/[?&]embed=1/.test(location.search)){lg.querySelector(".rk").style.display="none"}
+  /* navigeren */
+  const huidig=()=>{const o=document.querySelector(".acc.open:not([hidden])");if(!o)return 0;return +o.dataset.step};
+  function naar(n){if(n===0){col.scrollTo({top:0,behavior:"smooth"});return}
+    if(typeof openStep==="function")openStep(n);const c=document.querySelector(`.acc[data-step="${n}"]`);if(c)setTimeout(()=>c.scrollIntoView({behavior:"smooth",block:"start"}),60)}
+  $("#cfgKnop").onclick=()=>{{const st=mid.dataset.st;if(st==="foto"&&(photos.length&&photos.every(gedaan))){const av=document.getElementById("aanvraag"),open=!!(av&&av.offsetParent&&av.classList.contains("open")),og=document.querySelector("#ov [data-ovgo]");if(open){const ind=document.getElementById("indienen");if(ind){ind.scrollIntoView({behavior:"smooth",block:"center"});ind.click()}return}if(og&&og.offsetParent){og.click();setTimeout(()=>{const a=document.getElementById("aanvraag");if(a)a.scrollIntoView({behavior:"smooth",block:"start"})},350);return}}if(st==="kies"){mid.classList.add("open");mid.scrollIntoView({behavior:"smooth",block:"center"});return}if(st==="zak"){const z=document.getElementById("zkSend");if(z)z.click();return}if(st==="adres"){const q=document.getElementById("adrQ");if(q)q.focus();return}if(st==="foto"&&!fotos().length){const i=document.getElementById("ph-in");if(i)i.click();return}if(st==="foto"&&!(photos.length&&photos.every(gedaan))){const j=Math.max(0,photos.findIndex(p=>!gedaan(p)));openEd(j);return}}const n=huidig(),start=$("#goStart");
+    if(!document.querySelector(".acc.open:not([hidden])")||(start&&!start.hidden&&col.scrollTop<200)){if(start&&!start.hidden){start.click();return}naar(1);return}
+    if(n<4){naar(n+1);return}
+    if(n===4){const tf=$("#toForm");if(tf)tf.click();else{const c=$("#calcBtn");if(c)c.click()}return}
+    const ind=$("#indienen");if(ind)ind.click()};
+  /* foto's in het grote beeld */
+  let fi=0;nav.addEventListener("click",e=>{const b=e.target.closest("[data-d]");if(!b)return;fi+=+b.dataset.d;toon()});
+  function fotos(){return [...document.querySelectorAll("#photos .ph img")].map(i=>i.src).filter(Boolean)}
+  function toon(){const f=fotos(),n=Math.max(1,f.length);document.body.classList.toggle("cfg-heeftfoto",f.length>0);stage.classList.toggle("foto",f.length>0);stage.classList.toggle("veel",f.length>1);nav.querySelectorAll("button").forEach(b=>b.disabled=f.length<2);fi=(fi%n+n)%n;if(f.length&&foto.src!==f[fi])foto.src=f[fi];nav.querySelector(".i").textContent=(fi+1)+" / "+n}
+  /* samenvatting en actieve stap bijwerken */
+  const txt=s=>{const e=$(s);return e?e.textContent.trim():""};
+  function bij(){const n=huidig();bewaar();{const zv=id=>{const e=document.getElementById(id);return !!e&&!e.hidden};const gs=document.getElementById("goStart");
+    const st=zv("wz3")?"zak":zv("wz2")?(gs&&!gs.hidden?"foto":"adres"):"kies";if(st!=="kies")mid.classList.remove("open");if(st!==mid.dataset.st&&mid.dataset.st){const ae=document.activeElement;if(ae&&ae.id==="adrQ")ae.blur();document.body.classList.remove("cfg-typen")}{const ak=st==="foto"&&typeof ADR!=="undefined"&&ADR?JSON.stringify(ADR):"";if(ak&&ak!==adrKey&&adrGetypt&&!matchMedia("(min-width:1000px)").matches){adrGetypt=false;const ae=document.activeElement;if(ae&&ae.blur)ae.blur();const ga=sm=>{legenda();const y=leg.getBoundingClientRect().top+scrollY-228;scrollTo({top:Math.max(0,y),behavior:sm?"smooth":"auto"})};setTimeout(()=>ga(true),350);setTimeout(()=>ga(false),1100)}if(ak)adrKey=ak}mid.dataset.st=st;document.body.dataset.cfgst=st;
+    const say=document.getElementById("zkSay"),ok=say&&/\bok\b/.test(say.className);
+    {const w=matchMedia("(min-width:1000px)").matches?"rechts":"hieronder";mid.querySelector(".m-info .t").textContent=st==="zak"?(ok?"Bedankt, wij nemen snel contact met u op":"Vul "+w+" het contactformulier in"):"Vul "+w+" uw postcode en huisnummer in";}
+    legenda()}
+    document.querySelectorAll(".cfg-col .ov-price").forEach(op=>{if(op.querySelector(".tk-kop"))return;const k=el("div","tk-kop");k.append(B.logo?Object.assign(el("img"),{src:B.logo,alt:""}):el("span","",esc(B.naam||"")));op.prepend(k)});if(wrap)wrap.classList.toggle("cfg-leeg",!document.querySelector(".acc:not([hidden])"));
+    tabs.querySelectorAll("button").forEach(b=>{const k=+b.dataset.n;b.classList.toggle("cfg-aan",k===n||(k===0&&!document.querySelector(".acc.open:not([hidden])")));const s=k?txt("#sum"+k):"";b.classList.toggle("cfg-ok",!!s&&k!==n)});
+    const adr=$("#adrQ");$("#cfgB1").textContent=txt("#wzSoort")||"Uw woning";$("#cfgS1").textContent=adr&&adr.value?adr.value:"Vul uw adres in";
+    const cnt=txt("#barCount")||"0";$("#cfgB2").textContent=cnt+(cnt==="1"?" raam":" ramen");
+    const fr=$("#freq");$("#cfgB3").textContent=fr&&fr.selectedOptions[0]?fr.selectedOptions[0].textContent:"–";
+    const p=document.querySelector("#out .op-l b");$("#cfgP").textContent=p?p.textContent:"€ –";$("#cfgPs").textContent=p?"per beurt, "+(document.querySelector("#out .op-l small:nth-of-type(2)")||{textContent:"incl. btw"}).textContent.replace(/^.*·\s*/,""):"per beurt, na het tellen";
+    $("#cfgKnop").textContent=n===5?"Indienen":n===4?(p?"Gegevens invullen":"Bereken prijs"):"Volgende";
+    {const st=mid.dataset.st,b1=$("#cfgB1"),k=$("#cfgKnop");if(st==="kies"){b1.textContent="Uw woning";k.textContent="Beginnen"}else if(st==="zak"){b1.textContent="Bedrijf / VvE";$("#cfgS1").textContent="Contactformulier";k.textContent="Versturen"}else if(st==="adres")k.textContent="Volgende";else if(st==="foto"&&!fotos().length)k.textContent="Foto’s maken";else if(st==="foto"&&!(photos.length&&photos.every(gedaan)))k.textContent="Ramen aantikken";else if(st==="foto"){const av=document.getElementById("aanvraag"),open=!!(av&&av.offsetParent&&av.classList.contains("open"));if(document.querySelector("#ov [data-ovgo]")&&document.querySelector("#ov [data-ovgo]").offsetParent||open)k.textContent=open?"Indienen":"Gegevens invullen"}}
+    liveBar();
+    {const pr=$("#cfgP");document.querySelector(".cfg-bar").classList.toggle("np",!pr||/–|-\s*$/.test(pr.textContent)||["kies","adres"].includes(mid.dataset.st))}
+    toon()}
+  /* één foto tegelijk: na een foto direct de volgende, met voortgang */
+  const VINK=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>`,VERDER=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>`;
+  const edDone=document.getElementById("ed-done");let leegTik=-1;
+  function volg(){const n=photos.length;for(let k=1;k<n;k++){const j=(edIdx+k)%n;if(!gedaan(photos[j]))return j}return -1}
+  function toast(t){const ed=document.getElementById("ed");if(!ed)return;let e=ed.querySelector(".cfg-toast");if(!e){e=el("div","cfg-toast");ed.append(e)}e.textContent=t;e.classList.add("aan");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("aan"),3800)}
+  function edBij(){try{const ed=document.getElementById("ed");if(!ed||ed.hidden||edIdx<0||!photos[edIdx])return;const n=photos.length,v=volg();
+    const t=document.getElementById("ed-title");if(t){const h=`<span class="cfg-fnr">Foto ${edIdx+1} van ${n}</span>Tik op elk raam`;if(t.innerHTML!==h)t.innerHTML=h}
+    let fd=ed.querySelector(".cfg-fdots");if(!fd&&t){fd=el("div","cfg-fdots");t.after(fd)}
+    if(fd){const h=n>1?photos.map((p,i)=>`<i class="${i===edIdx?"nu":p.dots.length?"ok":""}"></i>`).join(""):"";if(fd.innerHTML!==h)fd.innerHTML=h}
+    const lbl=v>=0?`Volgende foto${VERDER}`:`${VINK}Klaar`;if(edDone&&edDone.dataset.l!==lbl){edDone.dataset.l=lbl;edDone.innerHTML=lbl;edDone.classList.toggle("cfg-verder",v>=0)}}catch(e){}}
+  if(edDone)edDone.onclick=()=>{const p=photos[edIdx];if(p&&!p.dots.length&&leegTik!==edIdx){leegTik=edIdx;toast("Tik eerst op elk raam op deze foto. Staan er geen ramen op? Tik dan nog een keer.");return}
+    if(p&&!p.dots.length)p.cfgLeeg=true;leegTik=-1;const v=volg();if(v>=0){const w=document.getElementById("ed-wrap");openEd(v);if(w){w.classList.remove("cfg-in");void w.offsetWidth;w.classList.add("cfg-in")}toast(`Top! Nu foto ${v+1} van ${photos.length}.`);edBij();return}
+    closeEd();if(!matchMedia("(min-width:1000px)").matches)setTimeout(()=>{const o=document.querySelector(".cfg-col .ov-price")||document.getElementById("ov");if(o)o.scrollIntoView({behavior:"smooth",block:"center"})},400)};
+  document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("#ed"))setTimeout(edBij,0)},true);setInterval(edBij,300);
+  /* wat is de volgende stap: aanwijzing in de onderbalk en de juiste tab */
+  const hint=el("div","cfg-hint","<small></small><b></b>");bar.insertBefore(hint,bar.querySelector(".ruimte"));
+  function stap(){const st=mid.dataset.st,f=fotos().length,klaar=photos.length&&photos.every(gedaan),av=document.getElementById("aanvraag"),open=!!(av&&av.offsetParent&&av.classList.contains("open"));
+    let h=null,tab=null;
+    if(st==="kies"){h=["Stap 1 van 4","Particulier of zakelijk?"];tab=0}
+    else if(st==="adres"){h=["Stap 1 van 4","Vul uw postcode in"];tab=0}
+    else if(st==="zak"){h=["Zakelijk","Vul het formulier in"]}
+    else if(st==="foto"&&!f){h=["Stap 2 van 4","Maak foto’s van uw huis"];tab=1}
+    else if(fase()){h=null;tab=1}
+    else if(st==="foto"&&!klaar){const nog=photos.filter(p=>!gedaan(p)).length;h=["Stap 3 van 4",nog>1?`Tik de ramen aan (${nog} foto’s)`:"Tik de ramen aan"];tab=2}
+    else if(st==="foto"){h=[open?"Laatste stap":"Stap 4 van 4",open?"Vul uw gegevens in":"Bekijk uw prijs"];tab=open?5:2}
+    hint.querySelector("small").textContent=h?h[0]:"";hint.querySelector("b").textContent=h?h[1]:"";bar.classList.toggle("cfg-mh",!!h);bar.classList.toggle("cfg-ff",fase());fotoKaart();voorBij();
+    if(tab!=null&&!huidig()){tabs.querySelectorAll("button").forEach(b=>{const k=+b.dataset.n;b.classList.toggle("cfg-aan",k===tab);b.classList.toggle("cfg-ok",k<tab&&(k<3||tab===5))});
+      const a=tabs.querySelector(".cfg-aan");if(a&&tabs.dataset.a!==String(tab)){tabs.dataset.a=tab;tabs.scrollTo({left:Math.max(0,a.offsetLeft-(tabs.clientWidth-a.offsetWidth)/2),behavior:"smooth"})}}
+    /* status op de foto */
+    const sp=tik.querySelector("span");if(sp){const s=!f?"Tik op de foto om ramen aan te tikken":klaar?"Ramen geteld. Tik om aan te passen":f===1?"1 foto. Ook de achterkant?":`${f} foto’s. Alle kanten gehad?`;if(sp.textContent!==s){sp.textContent=s;const ic=tik.querySelector("svg");if(ic){if(!tik.dataset.hand)tik.dataset.hand=ic.innerHTML;ic.innerHTML=f?'<circle cx="12" cy="12" r="8.5"/><path d="m8.2 12.3 2.6 2.6 5-5.4"/>':tik.dataset.hand}}}}
+  /* eerst foto's van alle kanten, daarna pas aantikken */
+  let fotosKlaar=false;const KANT=["Voorkant","Achterkant","Linkerkant","Rechterkant"],CAM='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.6-2.4h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.6"/></svg>';
+  const neem=()=>{const i=document.getElementById("ph-in");if(i)i.click()};
+  const fk=el("div","cfg-fotos");leg.before(fk);
+  const fase=()=>mid.dataset.st==="foto"&&fotos().length>0&&!fotosKlaar&&!photos.some(p=>p.dots.length);
+  function fotoKaart(){const f=fotos(),sig=f.join("|").length+":"+f.length;if(fk.dataset.sig===sig)return;fk.dataset.sig=sig;
+    const n=f.length,vak=[];const tot=Math.max(4,n);
+    for(let i=0;i<tot;i++){const lab="Foto "+(i+1);
+      if(i<n)vak.push(`<div class="vak vol"><img src="${f[i]}" alt=""><i class="ok"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></i><button type="button" class="weg" data-weg="${i}" aria-label="Foto verwijderen">×</button><span>${lab}</span></div>`);
+      else vak.push(`<button type="button" class="vak${i===n?" volgende":""}" data-neem>${CAM}<span>${lab}</span></button>`)}
+    fk.innerHTML=`<h3>Foto’s van alle kanten</h3><p>Zorg dat alle te wassen ramen op de foto’s staan. Maak de foto’s van een afstand.</p><div class="cfg-vakken">${vak.join("")}</div><button type="button" class="cfg-meer${n>=4?" volgende":""}" data-neem><b>+</b><span>Meer foto’s maken<small>Grote woning of veel ramen? Maak gerust extra foto’s.</small></span></button><div class="tip-w onder"><b>Tip</b>Maak eerst al uw foto’s. Daarna tikt u rustig de ramen aan en vult u uw gegevens in.</div>`;
+    fk.querySelectorAll("[data-neem]").forEach(b=>b.onclick=neem);
+    fk.querySelectorAll("[data-weg]").forEach(b=>b.onclick=e=>{e.stopPropagation();const r=document.querySelector(`#photos [data-rm="${b.dataset.weg}"]`);if(r)r.click()})}
+  const knop2=el("button","cfg-knop2",`${CAM}<span>Nog een foto</span>`);knop2.type="button";knop2.onclick=neem;bar.insertBefore(knop2,$("#cfgKnop"));
+  $("#cfgKnop").addEventListener("click",()=>{if(fase())fotosKlaar=true},true);
+  /* na een nieuwe foto op de telefoon: de fotovakken in beeld */
+  document.addEventListener("change",e=>{const t=e.target;if(t&&t.id==="ph-in"&&t.files&&t.files.length&&!matchMedia("(min-width:1000px)").matches)setTimeout(()=>{fk.dataset.sig="";fotoKaart();const y=fk.getBoundingClientRect().top+scrollY-110;scrollTo({top:Math.max(0,y),behavior:"smooth"})},1200)},true);
+  /* desktop en tablet: fotovakken en kleurtegels direct zichtbaar, pas bruikbaar na postcode en foto's */
+  const voor=el("div","cfg-voor");{const wz=document.querySelector(".i2-txt > .wz");if(wz)wz.after(voor);else uitleg.after(voor)}
+  const groot=matchMedia("(min-width:600px)");
+  function plaats(){if(groot.matches){if(fk.parentElement!==voor)voor.append(fk,leg)}else{const w2=document.getElementById("wz2");if(w2&&fk.parentElement!==w2)w2.append(fk,leg)}}
+  plaats();{const dr=document.querySelector(".wz-door");if(dr)voor.after(dr)}try{groot.addEventListener("change",plaats)}catch(e){groot.addListener(plaats)}
+  function voorBij(){const st=mid.dataset.st,f=fotos().length;{const vol=f>=30;document.body.classList.toggle("cfg-fotovol",vol);const pi=document.getElementById("ph-in");if(pi)pi.disabled=vol}
+    if(st!=="foto"){fk.dataset.lock="Eerst uw postcode invullen";leg.dataset.lock="Eerst foto’s maken"}
+    else{delete fk.dataset.lock;if(!f)leg.dataset.lock="Eerst foto’s maken";else delete leg.dataset.lock}}
+  /* rekenen zoals de rekentool in het CRM: frequentiekorting per dienst op bijzondere ramen (Uitvoering › Diensten › Glasbewassing bijzondere ramen) */
+  try{const C0=compute;compute=function(){const R=C0.apply(this,arguments);try{const w=(FREQ_LIST.find(x=>x[0]===g("freq").value)||[])[4],v=cfg.fpB&&cfg.fpB[String(w)];const fk=v==null||v===""?1:1-Number(v)/100;if(fk===1&&!cfg.minAlles)return R;R.sRows.forEach(r=>r.price*=fk);
+    const spSom=R.sRows.reduce((a,r)=>a+r.price,0),glasN=R.normal+R.freqAdj;let glasEx=glasN+spSom,minGlas=false,minOp="";if(cfg.minAlles){if(R.all.length&&glasN+spSom<cfg.min){minGlas=true;minOp="a";glasEx=cfg.min}}else if(R.fRows.length&&glasN<cfg.min){minGlas=true;minOp="f";glasEx=cfg.min+spSom}else if(!R.fRows.length&&spSom<cfg.min){minGlas=true;minOp="s";glasEx=cfg.min}
+    const ex=glasEx+(cfg.start||0);return {...R,spSom,glasN,glas:glasN+spSom,glasEx,minGlas,minOp,ex,vat:ex*VAT,inc:ex*(1+VAT)}}catch(e){return R}}}catch(e){}
+  /* aantal ramen en prijs onderin lopen direct mee met elk bolletje (ook tijdens het aantikken) */
+  function liveR(){const cnt={};photos.forEach(p=>p.dots.forEach(d=>cnt[d.t]=(cnt[d.t]||0)+1));let hi=3;Object.keys(cnt).forEach(t=>{if(t[0]==="f")hi=Math.max(hi,+t.slice(1))});
+    const f0=floors,s0=special;floors=Array.from({length:hi+1},(_,i)=>cnt["f"+i]||0);special={lood:cnt["s-lood"]||0,mini:cnt["s-mini"]||0,koepel:cnt["s-koepel"]||0,tuimel:cnt["s-tuimel"]||0};
+    try{const R=compute();R._n=Object.values(cnt).reduce((a,b)=>a+b,0);return R}finally{floors=f0;special=s0}}
+  function liveBar(){try{if(!photos.some(p=>p.dots.length))return;const R=liveR(),n=R._n;
+      $("#cfgB2").textContent=n+(n===1?" raam":" ramen");
+      $("#cfgP").textContent=n?eur(SOORT==="zakelijk"?R.ex:R.inc):"€ –";
+      if(n)$("#cfgPs").textContent="per beurt, "+(SOORT==="zakelijk"?"excl. btw":"incl. btw")+" en kozijnen"}catch(e){}}
+  {const w=document.getElementById("ed-wrap");if(w)new MutationObserver(()=>{liveBar();const pr=$("#cfgP");document.querySelector(".cfg-bar").classList.toggle("np",!pr||/–|-\s*$/.test(pr.textContent))}).observe(w,{childList:true})}
+  /* voetnoot: wij controleren de telling direct na ontvangst aan de hand van de foto's (niet pas bij het eerste bezoek) */
+  try{const f=document.querySelector("p.foot");if(f){const t=[...f.childNodes].find(x=>x.nodeType===3&&/eerste bezoek/.test(x.nodeValue));if(t)t.nodeValue=t.nodeValue.replace(/Bij ons eerste bezoek controleren wij de telling ter plekke\./,"Direct na ontvangst controleren wij de telling aan de hand van uw foto’s.")}}catch(e){}
+  /* na versturen: knop in de balk wordt "Verstuurd ✓" zodat niemand dubbel indient */
+  try{const sb=document.querySelector(".send.one"),k=$("#cfgKnop");if(sb&&k){const zet=()=>{if(/verstuurd/i.test(sb.textContent||"")){if(k.textContent!=="Verstuurd ✓")k.textContent="Verstuurd ✓";k.disabled=true;k.style.pointerEvents="none";k.style.opacity=".75"}};new MutationObserver(zet).observe(sb,{childList:true,subtree:true,characterData:true,attributes:true});new MutationObserver(zet).observe(k,{childList:true,characterData:true,subtree:true})}}catch(e){}
+  /* "mogelijk gemaakt door Mansard" linkt naar mansard.nl */
+  document.querySelectorAll(".wz-door").forEach(d=>{if(d.querySelector("a.cfg-door"))return;const a=el("a","cfg-door");a.href="https://www.mansard.nl";a.target="_blank";a.rel="noopener";a.setAttribute("aria-label","Mansard – naar www.mansard.nl");while(d.firstChild)a.append(d.firstChild);d.append(a)});
+  bij();stap();setInterval(()=>{bij();stap()},500);
+})();
+</script>
+<script>window.FO_GOOGLE={score:"5,0"}</script><!--FOTO-OFFERTE: de klant maakt alleen foto's en vult zijn gegevens in; het bedrijf telt zelf (luchtfoto's + foto's)
+    en stuurt binnen 24 uur een offerte op maat. Geen ramen aantikken, geen prijs op de site. Werkt met en zonder configurator-opbouw. -->
+<style>
+/* niets meer tellen of aantikken */
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-voor .cfg-leg,html body:not(#a):not(#b):not(#c):not(#d) .cfg-leg{display:none!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-col .wrap::before{content:"Uw gegevens"!important}
+html body:not(#a):not(#b) .cfg-bar #cfgB3,html body:not(#a):not(#b) .cfg-bar .blok:first-child small i{display:none!important}
+html body .acc[data-step="2"],html body .acc[data-step="3"],html body .acc[data-step="4"],html body #ov,html body #result,html body .desk-calc,
+html body .phhint,html body #phsum,html body .i2-vis,html body p.foot,html body .cfg-leg,html body #ed,
+html body .cfg-tabs button[data-n="2"],html body .cfg-tabs button[data-n="3"],html body .cfg-tabs button[data-n="4"],
+html body .cfg-bar .blok.lk,html body .cfg-bar .prijs,html body .cfg-bar .cfg-hint,html body .cfg-bar #cfgKnop,html body .cfg-bar .cfg-knop2,
+html body .cfg-uitleg .st:nth-child(n+5){display:none!important}
+html body .cfg-stage .cfg-foto{cursor:default!important}
+/* de hele foto in beeld, met dezelfde foto zacht vervaagd als achtergrond */
+html body:not(#a):not(#b):not(#c):not(#d) .cfg-stage.foto .cfg-foto{object-fit:contain!important;padding:0!important;z-index:1;background:none!important}
+.cfg-stage .fo-achter{position:absolute;inset:-40px;width:calc(100% + 80px);height:calc(100% + 80px);object-fit:cover;filter:blur(30px) brightness(.8) saturate(1.1);transform:scale(1.05);z-index:0;display:none;pointer-events:none}
+.cfg-stage.foto .fo-achter{display:block}
+.cfg-stage.foto>*:not(.fo-achter):not(.cfg-foto):not(.cfg-show){z-index:2}
+
+/* knoppen op de foto: één familie — 44px, licht glas, fijne rand, kleine hoofdletters */
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-acties a,html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-acties button,
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-stage .cfg-tik,html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-nav,html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-shownav{
+  height:44px!important;border-radius:12px!important;background:rgba(255,255,255,.78)!important;-webkit-backdrop-filter:blur(16px) saturate(1.4)!important;backdrop-filter:blur(16px) saturate(1.4)!important;
+  border:1px solid rgba(255,255,255,.7)!important;box-shadow:0 1px 0 rgba(255,255,255,.6) inset,0 10px 28px -16px rgba(14,17,23,.55)!important;color:#0e1117!important;
+  font:600 10.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:.16em!important;text-transform:uppercase!important;box-sizing:border-box}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-acties a{padding:0 18px!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-acties button.vk{width:44px!important;padding:0!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-stage .cfg-tik{padding:0 18px 0 14px!important;letter-spacing:.12em!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-stage .cfg-tik.cfg-nog{background:rgba(14,17,23,.82)!important;color:#fff!important;border-color:rgba(255,255,255,.14)!important;box-shadow:0 1px 0 rgba(255,255,255,.12) inset,0 10px 28px -16px rgba(14,17,23,.7)!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-nav,html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-shownav{padding:0 10px!important;gap:14px!important;letter-spacing:.1em!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-nav button,html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-shownav button{width:30px!important;height:30px!important;border-radius:9px!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-nav button:hover:not([disabled]),html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-shownav button:hover{background:rgba(14,17,23,.06)!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-acties svg,html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-tik svg,html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-nav svg{width:16px!important;height:16px!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-onder{gap:8px!important}
+/* terug-knop "Particulier": zelfde familie, rustig omlijnd */
+html body:not(#a):not(#b):not(#c):not(#d) .wz-back{height:36px!important;padding:0 14px 0 10px!important;border-radius:10px!important;background:#fff!important;border:1px solid #e3e5e8!important;box-shadow:none!important;color:#0e1117!important;
+  font:600 10.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:.16em!important;text-transform:uppercase!important;display:inline-flex!important;align-items:center;gap:8px}
+html body:not(#a):not(#b):not(#c):not(#d) .wz-back svg{width:14px!important;height:14px!important}
+html body:not(#a):not(#b):not(#c):not(#d) .wz-back:hover{border-color:#c9cdd3!important}
+
+/* startknoppen (particulier of zakelijk): slank en rustig, zonder huisje */
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-col .cfg-mid .cfg-start,html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-mid .cfg-start{height:56px!important;width:100%!important;padding:0 8px 0 20px!important;gap:12px!important;border-radius:12px!important;
+  background:#fff!important;border:1px solid #e3e5e8!important;box-shadow:0 1px 2px rgba(14,17,23,.04)!important;transform:none!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-mid .cfg-start:hover{border-color:#0e1117!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-mid .cfg-start svg.huis{display:none!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-mid .cfg-start b{font:600 11px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:.16em!important;text-transform:uppercase!important;color:#0e1117!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-mid .cfg-start i{width:32px!important;height:40px!important;border-radius:0!important;background:none!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-mid .cfg-start i svg{width:14px!important;height:14px!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-mid .cfg-start i svg path{stroke:#0e1117!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-mid .m-twee{gap:8px!important}
+
+/* bovenbalk in Mansard-blauw met lichtgloed achter het logo en een lichtstraal (zoals de credits) */
+@keyframes foGloed{0%,100%{opacity:.6;transform:translate(-50%,-50%) scale(.96)}50%{opacity:.9;transform:translate(-50%,-50%) scale(1.03)}}
+@keyframes foStraal{0%,58%{transform:translateX(-120%) skewX(-20deg)}100%{transform:translateX(1200%) skewX(-20deg)}}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo{overflow:hidden;border-bottom:1px solid rgba(14,17,23,.06)!important;box-shadow:0 3px 8px -2px rgba(14,17,23,.14),0 8px 20px -12px rgba(14,17,23,.25)!important;
+  background:repeating-linear-gradient(115deg,rgba(255,255,255,.014) 0 1px,transparent 1px 28px),linear-gradient(150deg,#3a4560 0%,#2b3346 55%,#222838 100%)!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo::before{content:"";position:absolute;left:50%;top:50%;width:150px;height:150px;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(255,255,255,.22) 0%,rgba(201,211,230,.12) 30%,rgba(159,178,214,.05) 52%,transparent 70%);animation:foGloed 6s ease-in-out infinite!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo::after{content:"";position:absolute;top:0;bottom:0;left:0;width:9%;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.055) 50%,transparent);animation:foStraal 11s ease-in-out infinite!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo img{position:relative;z-index:1;filter:brightness(1.6) contrast(3.2) drop-shadow(0 0 6px rgba(255,255,255,.22)) drop-shadow(0 0 16px rgba(201,211,230,.16))}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo>span{position:relative;z-index:1;color:#fff!important;text-shadow:0 0 14px rgba(255,255,255,.5)}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo .rk{z-index:2}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo .rk a{background:#fff!important;border:1px solid #fff!important;color:#0e1117!important;border-radius:10px!important;box-shadow:0 6px 16px -10px rgba(0,0,0,.5)!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo .rk a:hover{background:#f4f5f7!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo .rk a{height:32px!important;padding:0 14px!important;gap:8px!important;font-size:9.5px!important;letter-spacing:.16em!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo .rk svg{width:14px!important;height:14px!important}
+
+/* onderbalk: alleen "Binnen 24 uur" en de knop, recht onder de kolom rechts */
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-bar>.blok,html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-bar .fo-stap,html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-bar .fo-foto{display:none!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-bar .fo-knop{height:44px!important;min-width:0!important;padding:0 20px!important;font-size:11px!important;border-radius:4px!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-bar .fo-24{flex:1 1 auto}
+
+/* fotoblok altijd helemaal in beeld: dubbele tip weg, kolom eindigt boven de onderbalk */
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-fotos .tip-w{display:none!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-fotos .cfg-meer{margin-bottom:0!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-col{padding-bottom:24px!important;scroll-padding-bottom:24px}
+
+/* beoordeling op Google, rustig zoals een Michelin-vermelding (alleen als het bedrijf dit heeft ingesteld) */
+.fo-google{position:absolute;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:14px;white-space:nowrap;pointer-events:none}
+.fo-google .st{display:flex;gap:3px}.fo-google .st svg{width:13px;height:13px;fill:#b8955a}
+.fo-google b{font:500 15px/1 system-ui,-apple-system,"Segoe UI",sans-serif;color:#0e1117;letter-spacing:.02em}
+.fo-google i{width:1px;height:18px;background:#d9dbdf}
+.fo-google span.t{font:600 10px/1 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.24em;text-transform:uppercase;color:#6b717c}
+@media (max-width:999px){.fo-google{display:none}}
+/* stappen in het intro (telefoon) */
+.fo-lijst{list-style:none;margin:0;padding:0}
+/* fotostap: minimaal 2 foto's, daarna door naar de gegevens */
+.fo-verder{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.fo-verder button{all:unset;box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:10px;height:52px;padding:0 22px;border-radius:12px;background:#0e1117;color:#fff;
+  font:600 12px/1 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;text-align:center}
+.fo-verder button[disabled]{background:#e6e8ec;color:#8a8f98;cursor:not-allowed}
+.fo-verder small{font:400 13px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;color:#6b717c;text-align:center}
+/* belofte: offerte binnen 24 uur */
+.fo-belofte{display:flex;gap:12px;align-items:flex-start;margin:14px 0 0;padding:14px 16px;border-radius:14px;background:#f6f7f9;border:1px solid #eceef1;
+  font:400 13.5px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;color:#4a4f57}
+.fo-belofte svg{flex:0 0 20px;width:20px;height:20px;color:#0e1117;margin-top:1px}
+.fo-belofte b{color:#0e1117;font-weight:600;display:block}
+/* onderbalk (configurator): eigen knop, foto-teller en belofte */
+.cfg-bar .fo-blok{display:flex;flex-direction:column;gap:3px;min-width:0}
+.cfg-bar .fo-blok b{font:500 17px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;color:#0e1117}
+.cfg-bar .fo-blok small{font:400 12.5px/1.3 system-ui,-apple-system,"Segoe UI",sans-serif;color:#6b717c}
+.cfg-bar .fo-knop{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;justify-content:center;height:56px;min-width:240px;padding:0 28px;border-radius:4px;background:#0e1117;color:#fff;
+  font:600 12px/1 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.2em;text-transform:uppercase}
+.cfg-bar .fo-knop[disabled]{opacity:.75;cursor:default}
+.cfg-bar .fo-stap{display:flex;flex-direction:column;gap:3px}
+.cfg-bar .fo-stap small{font:600 10.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#8a8f98}
+.cfg-bar .fo-stap b{font:500 15px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;color:#0e1117}
+@media (max-width:999px){.cfg-bar .fo-stap,.cfg-bar .fo-foto{display:none!important}.cfg-bar .fo-knop{min-width:0;flex:1;height:52px}}
+/* bedankt */
+.fo-klaar{margin-top:14px;padding:18px 20px;border-radius:14px;background:#f3f7f4;border:1px solid #dfe9e2;font:400 14px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;color:#2f4a3a}
+.fo-klaar b{display:block;font-weight:600;color:#1f3a2b;margin-bottom:2px}
+</style>
+<script>
+(function(){
+  if(window.__fotoOfferte)return;window.__fotoOfferte=true;
+  const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],G=id=>document.getElementById(id);
+  const MIN=2;
+  const KLOK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+  const nF=()=>typeof photos!=="undefined"?photos.length:0;
+  const zet=(sel,t)=>{const e=$(sel);if(e&&e.textContent!==t)e.textContent=t};
+  /* ---------- teksten ---------- */
+  zet("h1.ml-title","Vraag uw offerte aan");zet(".ml-sub","Foto’s maken, wij doen de rest.");
+  {const ol=$(".ml-steps");if(ol)ol.innerHTML=[["Maak foto’s","Van alle kanten van uw woning, minimaal "+MIN+"."],["Vul uw gegevens in","Naam, adres en hoe wij u bereiken."],["Binnen 24 uur uw offerte","Wij tellen de ramen en sturen u een vaste prijs."]].map((x,i)=>`<li><span class="n">${i+1}</span><div><b>${x[0]}</b><span>${x[1]}</span></div></li>`).join("")}
+{const gs=G("goStart");if(gs){gs.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.6-2.4h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.6"/></svg>Foto’s maken'}}
+  {const s1=$('.acc[data-step="1"]');if(s1){const i=s1.querySelector(".intro");if(i)i.textContent="Maak minimaal "+MIN+" foto’s van uw woning, van alle kanten. Zorg dat alle ramen erop staan; maak de foto’s van een afstand.";
+    const h=s1.querySelector("h2");if(h)h.textContent="Foto’s van uw woning";
+    const v=document.createElement("div");v.className="fo-verder";v.innerHTML=`<button type="button" id="foVerder" disabled>Verder naar uw gegevens</button><small id="foTel"></small>`;
+    (s1.querySelector(".body")||s1).append(v);v.querySelector("button").onclick=naarGegevens}}
+  {const s5=G("aanvraag");if(s5){const n=s5.querySelector(".num");if(n)n.textContent="2";const i=s5.querySelector(".intro");if(i)i.textContent="Vul uw gegevens in. Binnen 24 uur ontvangt u van ons een offerte op maat, met een vaste prijs per beurt.";
+    const h=s5.querySelector("h2");if(h)h.textContent="Voor uw offerte";
+    const b=document.createElement("div");b.className="fo-belofte";b.innerHTML=KLOK+`<div><b>Binnen 24 uur uw offerte!</b>Wij bekijken de foto’s van uw woning en brengen het aantal ramen voor u in kaart.<br><br>Zijn er bijzonderheden waar wij rekening mee moeten houden? Vermeld deze dan in het veld ‘Bijzonderheden’ hierboven. Denk bijvoorbeeld aan: niet aanbellen in verband met een slapende baby. Wij houden hier bij ieder bezoek uiteraard rekening mee.</div>`;
+    {const op=G("k-opm"),f=op&&op.closest(".fld");if(f&&!G("k-bijz")){const d=document.createElement("div");d.className="fld full";d.innerHTML='<label class="lab" for="k-bijz">Bijzonderheden</label><textarea class="in" id="k-bijz" rows="3" placeholder="Bijv. niet aanbellen in verband met een slapende baby"></textarea>';f.after(d)}}
+    const snd=s5.querySelector(".send");if(snd)snd.before(b);const ind=G("indienen");if(ind)ind.textContent="Offerte aanvragen"}}
+  /* configurator: uitleg rechts en keuzekaart */
+  function cfgTeksten(){
+    const u=$(".cfg-uitleg");if(u&&!u.dataset.fo){u.dataset.fo="1";const L=[["Kies particulier of zakelijk","Met de knop hierboven."],["Vul uw postcode in","Wij kijken of uw adres in ons werkgebied ligt."],["Maak of upload foto’s","Minimaal "+MIN+", van alle kanten van uw woning."],["Binnen 24 uur uw offerte","Wij tellen de ramen voor u. U hoeft niets te doen."]];
+      u.querySelectorAll(".st").forEach((st,i)=>{if(L[i])st.innerHTML=`<b>${i+1}</b><div>${L[i][0]}<small>${L[i][1]}</small></div>`})}
+    $$(".wz-opt[data-soort=particulier] .cfg-chips").forEach(c=>{if(!c.dataset.fo){c.dataset.fo="1";c.innerHTML="<span>Foto’s maken</span><span>Gegevens</span><span>Offerte binnen 24 uur</span>"}});
+    $$(".wz-opt[data-soort=particulier] small").forEach(s=>{if(s.textContent!=="Offerte binnen 24 uur")s.textContent="Offerte binnen 24 uur"});
+    const tip=$(".cfg-fotos .tip-w");if(tip&&!/goed zichtbaar/.test(tip.textContent))tip.innerHTML="<b>Tip</b>Maak de foto’s van een afstand zodat alle ramen goed zichtbaar zijn.";
+    const nog=$(".cfg-nog span");if(nog&&nog.textContent!=="Nog een foto")nog.textContent="Nog een foto"}
+  /* ---------- geen aantikscherm: een foto erbij is gewoon een foto erbij ---------- */
+  window.openEd=function(){};try{openEd=window.openEd}catch(e){}
+  /* ---------- naar de gegevens ---------- */
+  function naarGegevens(){if(nF()<MIN){const i=G("ph-in");if(i)i.click();return}
+    try{doneStep(1)}catch(e){}try{openStep(5)}catch(e){}
+    const a=G("aanvraag");if(a){a.hidden=false;setTimeout(()=>{a.scrollIntoView({behavior:"smooth",block:"start"});const k=G("k-naam");if(k&&!k.value)k.focus({preventScroll:true})},120)}}
+  /* ---------- controleren en versturen ---------- */
+  const zeg=(t,c)=>{try{say(t,c)}catch(e){const m=G("msg");if(m){m.textContent=t||"";m.className="msg"+(c?" "+c:"")}}};
+  window.check=function(){if(nF()<MIN){zeg("Maak minimaal "+MIN+" foto’s van uw woning, van verschillende kanten.","bad");try{openStep(1)}catch(e){}return false}
+    if(typeof SOORT!=="undefined"&&SOORT==="zakelijk"&&G("k-bedrijf")&&!G("k-bedrijf").value.trim()){G("k-bedrijf").focus();zeg("Vul de naam van het bedrijf of de VvE in.","bad");return false}
+    for(const [id,l] of [["k-naam","uw naam"],["k-adres","uw adres"]])if(!G(id).value.trim()){G(id).focus();zeg("Vul "+l+" in.","bad");return false}
+    if(!G("k-email").value.trim()&&!G("k-tel").value.trim()){G("k-email").focus();zeg("Vul uw e-mailadres of telefoonnummer in, zodat wij u de offerte kunnen sturen.","bad");return false}
+    const em=G("k-email").value.trim();if(em&&!/^\S+@\S+\.\S+$/.test(em)){G("k-email").focus();zeg("Controleer uw e-mailadres.","bad");return false}
+    zeg("");return true};try{check=window.check}catch(e){}
+  const advies=()=>{try{return typeof FREQ_ADV!=="undefined"&&FREQ_ADV?FREQ_ADV:(G("freq")&&G("freq").value)||"m8"}catch(e){return "m8"}};
+  window.aanvraagData=function(){const v=id=>{const e=G(id);return e?e.value.trim():""};
+    return {formaat:"zeem.aanvraag",versie:1,opMaat:true,gemaakt:new Date().toISOString(),ref:(typeof refCode==="function"?refCode():"")||"",
+      soort:typeof SOORT!=="undefined"?SOORT:"particulier",klant:{bedrijf:SOORT==="zakelijk"?v("k-bedrijf"):"",naam:v("k-naam"),adres:v("k-adres"),postcode:v("k-pc"),plaats:v("k-plaats"),email:v("k-email"),telefoon:v("k-tel"),opmerking:v("k-opm"),bijzonderheden:v("k-bijz")},
+      telling:{freq:advies()},prijs:null,
+      fotos:photos.map((p,i)=>({naam:`woning-foto-${i+1}.jpg`,breedte:p.cv.width,hoogte:p.cv.height}))}};try{aanvraagData=window.aanvraagData}catch(e){}
+  window.tekst=function(){const v=id=>{const e=G(id);return e?e.value.trim():""},pl=[v("k-pc"),v("k-plaats")].filter(Boolean).join(" ");
+    return ["Offerte-aanvraag glasbewassing (op maat, met foto’s)","",SOORT==="zakelijk"?`Bedrijf / VvE: ${v("k-bedrijf")}`:"",`Naam: ${v("k-naam")}`,`Adres: ${v("k-adres")}${pl?", "+pl:""}`,v("k-email")?`E-mail: ${v("k-email")}`:"",v("k-tel")?`Telefoon: ${v("k-tel")}`:"","",
+      `Foto’s: ${nF()} (graag als bijlage meesturen)`,v("k-opm")?"\nOpmerking: "+v("k-opm"):"",v("k-bijz")?"Bijzonderheden: "+v("k-bijz"):"","","Aanvraagcode voor "+BEDRIJF.naam+" (niet wijzigen):","ZEEM1:"+aanvraagCode()].filter((x,i,a)=>x!==""||a[i-1]!=="").join("\n")};try{tekst=window.tekst}catch(e){}
+  /* na versturen: duidelijke bevestiging met de belofte */
+  function bedankt(){const m=G("msg");if(!m||m.dataset.fo)return;m.dataset.fo="1";m.className="msg";m.innerHTML="";
+    const k=document.createElement("div");k.className="fo-klaar";k.innerHTML="<b>Bedankt, uw aanvraag is binnen.</b>Binnen 24 uur ontvangt u van ons uw offerte op maat"+(G("k-email").value.trim()?" per e-mail":"")+". U hoeft verder niets te doen.";m.after(k)}
+  {const ind=G("indienen");if(ind)new MutationObserver(()=>{if(ind.dataset.klaar==="1"){if(ind.textContent!=="Aanvraag verstuurd ✓")ind.textContent="Aanvraag verstuurd ✓";bedankt()}}).observe(ind,{attributes:true,childList:true,characterData:true,subtree:true})}
+  /* ---------- configurator-onderbalk: eigen stap, teller en knop ---------- */
+  let knop=null,stapEl=null,fotoEl=null;
+  function balk(){const bar=$(".cfg-bar");if(!bar||knop)return;
+    stapEl=document.createElement("div");stapEl.className="fo-stap";stapEl.innerHTML="<small></small><b></b>";
+    fotoEl=document.createElement("div");fotoEl.className="fo-blok fo-foto";fotoEl.innerHTML="<b></b><small>Minimaal "+MIN+" foto’s</small>";
+    const bel=document.createElement("div");bel.className="fo-blok fo-24";bel.innerHTML="<b>Binnen 24 uur</b><small>uw offerte op maat</small>";
+    knop=document.createElement("button");knop.type="button";knop.className="fo-knop";knop.onclick=knopKlik;
+    const r=bar.querySelector(".ruimte");if(r){r.before(stapEl,fotoEl);r.after(bel)}else bar.append(stapEl,fotoEl,bel);bar.append(knop)}
+  const midSt=()=>{const m=$(".cfg-mid");return m?m.dataset.st:""};
+  const gegOpen=()=>{const a=G("aanvraag");return !!(a&&a.classList.contains("open")&&!a.hidden)};
+  function knopKlik(){const st=midSt();
+    if(st==="kies"||st==="adres"||st==="zak"){const o=G("cfgKnop");if(o)o.click();return}
+    if(nF()<MIN){const i=G("ph-in");if(i)i.click();return}
+    if(!gegOpen()){naarGegevens();return}
+    const ind=G("indienen");if(ind){ind.scrollIntoView({behavior:"smooth",block:"center"});ind.click()}}
+  function achter(){const st=$(".cfg-stage"),f=st&&st.querySelector(".cfg-foto");if(!f)return;let a=st.querySelector(".fo-achter");
+    if(!a){a=document.createElement("img");a.className="fo-achter";a.alt="";a.setAttribute("aria-hidden","true");st.prepend(a);st.style.overflow="hidden"}if(f.src&&a.src!==f.src)a.src=f.src}
+  function bij(){cfgTeksten();achter();const n=nF();
+    const vb=G("foVerder"),tl=G("foTel");if(vb){vb.disabled=n<MIN;vb.textContent=n<MIN?(n?"Nog "+(MIN-n)+" foto"+(MIN-n>1?"’s":"")+" nodig":"Eerst foto’s maken"):"Verder naar uw gegevens"}
+    if(tl)tl.textContent=n?n+(n===1?" foto":" foto’s")+(n<MIN?" · nog "+(MIN-n)+" nodig":" · meer foto’s mag altijd"):"";
+    balk();if(!knop)return;const st=midSt(),klaar=G("indienen")&&G("indienen").dataset.klaar==="1";
+    let s=null,t="Volgende";
+    if(st==="kies"){s=["Stap 1 van 3","Particulier of zakelijk?"];t="Beginnen"}
+    else if(st==="adres"){s=["Stap 1 van 3","Vul uw postcode in"];t="Volgende"}
+    else if(st==="zak"){s=["Zakelijk","Vul het formulier in"];t="Versturen"}
+    else if(n<MIN){s=["Stap 2 van 3",n?"Nog "+(MIN-n)+" foto"+(MIN-n>1?"’s":"")+" maken":"Maak foto’s van uw huis"];t=n?"Nog een foto":"Foto’s maken"}
+    else if(!gegOpen()){s=["Stap 2 van 3",n+" foto’s, alle kanten gehad?"];t="Gegevens invullen"}
+    else{s=["Laatste stap","Vul uw gegevens in"];t="Offerte aanvragen"}
+    if(klaar){s=["Verstuurd","Binnen 24 uur uw offerte"];t="Verstuurd ✓"}
+    if(knop.textContent!==t)knop.textContent=t;knop.disabled=!!klaar;
+    stapEl.querySelector("small").textContent=s?s[0]:"";stapEl.querySelector("b").textContent=s?s[1]:"";
+    fotoEl.querySelector("b").textContent=n+(n===1?" foto":" foto’s");
+    /* tabbladen: Gegevens actief als het formulier open is */
+    $$(".cfg-tabs button").forEach(b=>{const k=+b.dataset.n;if(k===5&&gegOpen())b.classList.add("cfg-aan");else if(k===1&&gegOpen())b.classList.remove("cfg-aan")})}
+  /* uitlijnen: tekst begint waar de kolom rechts begint, knop eindigt waar die kolom eindigt */
+  function lijn(){const bar=$(".cfg-bar"),bel=bar&&bar.querySelector(".fo-24"),col=$(".cfg-col");if(!bar||!bel||!knop||!col)return;
+    if(!matchMedia("(min-width:1000px)").matches){bar.style.paddingRight="";bel.style.marginLeft="";knop.style.width="";return}
+    const ref=col.querySelector("h1.ml-title")||col,r=ref.getBoundingClientRect(),cr=col.getBoundingClientRect(),cs=getComputedStyle(col),rechts=cr.right-parseFloat(cs.paddingRight||0),
+      br=bar.getBoundingClientRect(),pr=Math.max(0,br.right-rechts),links=r.left-br.left;
+    bar.style.paddingRight=pr+"px";const r0=bar.querySelector(".ruimte");if(r0)r0.style.display="none";
+    bel.style.position="absolute";bel.style.left=links+"px";bel.style.top="50%";bel.style.transform="translateY(-50%)";bar.style.position=bar.style.position||"";
+    knop.style.marginLeft="auto";const kw=Math.round(Math.min(220,Math.max(160,(rechts-r.left)*.42)));knop.style.width=kw+"px"}
+  function google(){const G0=window.FO_GOOGLE,bar=$(".cfg-bar"),st=$(".cfg-stage");if(!G0||!bar||!st)return;let e=bar.querySelector(".fo-google");
+    if(!e){const ster='<svg viewBox="0 0 20 20"><path d="M10 1.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8L10 14.9l-5.2 2.7 1-5.8L1.6 7.7l5.8-.8z"/></svg>';
+      e=document.createElement("div");e.className="fo-google";e.innerHTML=`<span class="st">${ster.repeat(5)}</span><b>${G0.score||"5,0"}</b><i></i><span class="t">Beoordeeld op Google</span>`;bar.append(e)}
+    const r=st.getBoundingClientRect(),b=bar.getBoundingClientRect();e.style.left=(r.left+r.width/2-b.left)+"px"}
+  addEventListener("resize",lijn);setInterval(google,600);
+  bij();setInterval(()=>{bij();lijn()},400);
+  document.addEventListener("change",e=>{if(e.target&&e.target.id==="ph-in")setTimeout(bij,600)},true);
+})();
 </script>
 </body>
 </html>
