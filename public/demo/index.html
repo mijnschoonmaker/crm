@@ -16255,7 +16255,11 @@ function openOpdrachtWerk(kid,focus){
   /* kern-rij: "Wat we doen" = de regels uit Wat we doen (aantallen per onderdeel) */
   {const fill=()=>{const t=document.querySelector("dialog[open] #owWwd .wwd-l");if(!t)return;const rs=[];
       document.querySelectorAll("dialog[open] .ow-rk .ow-rkf").forEach(dl=>{const dts=dl.querySelectorAll("dt");dts.forEach(dt=>{const dd=dt.nextElementSibling;if(dd&&dd.tagName==="DD")rs.push([dt.textContent.trim(),dd.innerHTML])})});
-      const n=rs.length,max=4;t.innerHTML=n?rs.slice(0,max).map(([a,b])=>`<div><b>${esc(a)}</b><em>${b}</em></div>`).join("")+(n>max?`<small>+ ${n-max} meer</small>`:""):`<small>Nog niets ingevuld</small>`};
+      const n=rs.length,max=4;t.innerHTML=n?rs.slice(0,max).map(([a,b])=>`<div><b>${esc(a)}</b><em>${b}</em></div>`).join("")+(n>max?`<small>+ ${n-max} meer</small>`:""):`<small>Nog niets ingevuld</small>`;
+      /* opdracht nog leeg: ook 'Per keer' en 'Hoe vaak' niet invullen, maar net zo tonen als 'Wat we doen' */
+      document.querySelectorAll("dialog[open] .ow-kern .kkh-t").forEach((el,i)=>{if(i>1)return;if(el.dataset.org==null)el.dataset.org=el.innerHTML;const lab=(el.querySelector("span")||{}).outerHTML||"";
+        const leeg=!n&&(i===1||/^(€\s*0,00|—)$/.test(((new DOMParser().parseFromString(el.dataset.org,"text/html").querySelector("b")||{}).textContent||"").replace(/\u00a0/g," ").trim()));
+        el.innerHTML=leeg?lab+`<div class="wwd-l"><small>Nog niets ingevuld</small></div>`:el.dataset.org;el.classList.toggle("kk-wwd",leeg)})};
     fill();let tm=0;const box=document.querySelector("dialog[open] .ow-v2");if(box)new MutationObserver(()=>{clearTimeout(tm);tm=setTimeout(fill,120)}).observe(box,{childList:true,subtree:true})}
   const drawCon=()=>{const v=$("#owConV");if(!v)return;const st=$o("start")&&$o("start").value,en=$o("eind")&&$o("eind").value,ak=$o("akkoord")&&$o("akkoord").checked;
     const r=(a,b)=>`<div class="owv-r"><span>${a}</span><b>${b}</b></div>`;
