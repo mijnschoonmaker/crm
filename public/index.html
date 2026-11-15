@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="8a026f5aeaf1"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="8bd664941b39"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -8458,6 +8458,15 @@ html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) aside.side .nk-card .nk-t
 html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) aside.side .nk-card::after{transform:none!important;width:auto!important;height:auto!important;left:2px!important;top:2px!important;right:2px!important;bottom:2px!important;margin:0!important;filter:none!important;mask:none!important;-webkit-mask:none!important;background-image:none!important;background-color:#fff!important}
 html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) aside.side .nk-card::before{width:auto!important;height:auto!important;margin:0!important;mask:none!important;-webkit-mask:none!important;border-radius:0!important}
 html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) aside.side .nk-card{background:#e6e9ef!important;border-radius:16px!important}
+/* gebruiker in het menu: zonder rondje, alleen naam en bedrijf met een fijn pijltje */
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) aside.side .usercard .uav{display:none!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) aside.side .usercard{position:relative;padding:14px 34px 14px 26px!important;border-top:1px solid #eceef1!important;border-radius:0!important;margin-top:6px}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) aside.side .usercard:hover{border-radius:0!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) aside.side .usercard b{display:block;font-weight:500!important;font-size:14px!important;letter-spacing:.01em}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) aside.side .usercard::after{content:"";position:absolute;right:20px;top:50%;width:6px;height:6px;border-right:1.5px solid #a1a6ae;border-bottom:1.5px solid #a1a6ae;transform:translateY(-50%) rotate(-45deg)}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) .app.collapsed aside.side .usercard .uav{display:grid!important;background:none!important;border:1px solid #d8d8d4!important;box-shadow:none!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) .app.collapsed aside.side .usercard::after{display:none}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) .app.collapsed aside.side .usercard{padding:14px 0!important;justify-content:center}
 
 </style>
 <div class="app">
