@@ -66,13 +66,13 @@ service cloud.firestore {
         allow write: if bedrijfsEigenaar(b);
       }
       match /{col}/{id} {
-        allow read: if vanBedrijf(b) && col in ["klanten","beurten","facturen","routes","instellingen","berichten","kosten","aanvragen","geplandeMails","akkoord","portaalVerzoeken","tickets","ticketBerichten","tellers","live","banktx"];
-        allow write: if vanBedrijf(b) && bedrijfOpen(b) && col in ["klanten","beurten","facturen","routes","instellingen","berichten","kosten","aanvragen","geplandeMails","akkoord","portaalVerzoeken","tickets","ticketBerichten","tellers","live","banktx"];
-        allow read: if beheer() && col in ["klanten","beurten","facturen","routes","instellingen","berichten","kosten","aanvragen","geplandeMails","akkoord","portaalVerzoeken","tickets","ticketBerichten","tellers","live","banktx"];
+        allow read: if vanBedrijf(b) && col in ["klanten","beurten","facturen","routes","instellingen","berichten","kosten","aanvragen","geplandeMails","akkoord","portaalVerzoeken","tickets","ticketBerichten","vragen","vraagBerichten","tellers","live","banktx"];
+        allow write: if vanBedrijf(b) && bedrijfOpen(b) && col in ["klanten","beurten","facturen","routes","instellingen","berichten","kosten","aanvragen","geplandeMails","akkoord","portaalVerzoeken","tickets","ticketBerichten","vragen","vraagBerichten","tellers","live","banktx"];
+        allow read: if beheer() && col in ["klanten","beurten","facturen","routes","instellingen","berichten","kosten","aanvragen","geplandeMails","akkoord","portaalVerzoeken","tickets","ticketBerichten","vragen","vraagBerichten","tellers","live","banktx"];
       }
     }
     match /{col}/{id} {
-      allow read, write: if eersteBedrijf() && col in ["klanten","beurten","facturen","routes","instellingen","berichten","kosten","aanvragen","geplandeMails","akkoord","portaalVerzoeken","tickets","ticketBerichten","tellers","live","banktx"];
+      allow read, write: if eersteBedrijf() && col in ["klanten","beurten","facturen","routes","instellingen","berichten","kosten","aanvragen","geplandeMails","akkoord","portaalVerzoeken","tickets","ticketBerichten","vragen","vraagBerichten","tellers","live","banktx"];
     }
   }
 }

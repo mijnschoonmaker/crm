@@ -119,6 +119,13 @@
           }
         },
         {
+          "source": "/api/vraag",
+          "function": {
+            "functionId": "vragen",
+            "region": "europe-west4"
+          }
+        },
+        {
           "source": "/api/brevo",
           "function": {
             "functionId": "brevoHook",

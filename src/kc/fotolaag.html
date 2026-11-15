@@ -128,6 +128,31 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties{gap:8p
 .fo-ov .fo-dicht:hover{background:#f3f4f6}
 .fo-ov .fo-dicht svg{width:16px;height:16px}
 .fo-ov .fo-ok{all:unset;box-sizing:border-box;display:flex;align-items:center;justify-content:center;width:100%;height:46px;margin-top:24px;border-radius:4px;background:#0e1117;color:#fff;cursor:pointer;font:600 11px/1 system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase}
+
+/* ticket-knop i.p.v. WhatsApp; venster: al klant of nog geen klant, en chat voor niet-klanten */
+html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties>a[href*="wa.me"]{display:none!important}
+.fo-ov .fo-kies{display:grid;gap:10px;margin-top:18px}
+.fo-ov .fo-kies button{all:unset;box-sizing:border-box;display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px 12px;padding:16px 18px;border:1px solid #e3e5e8;border-radius:14px;cursor:pointer;background:#fff}
+.fo-ov .fo-kies button:hover{border-color:#0e1117}
+.fo-ov .fo-kies b{font:500 15px/1.3 system-ui,-apple-system,"Segoe UI",sans-serif;color:#0e1117}
+.fo-ov .fo-kies small{grid-column:1;font-size:13px;color:#6b717c;line-height:1.45}
+.fo-ov .fo-kies svg{grid-row:1/3;grid-column:2;width:16px;height:16px;color:#0e1117}
+.fo-ov label.fo-v{display:flex;flex-direction:column;gap:6px;margin:0 0 12px;font:600 10.5px/1 system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#6b717c}
+.fo-ov label.fo-v input,.fo-ov label.fo-v textarea{font:400 15px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:0;text-transform:none;color:#0e1117;border:1px solid #e3e5e8;border-radius:12px;padding:12px 14px;outline:none;background:#fff;box-sizing:border-box;width:100%}
+.fo-ov label.fo-v input:focus,.fo-ov label.fo-v textarea:focus{border-color:#0e1117}
+.fo-ov .fo-duo{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fo-ov .fo-fout{color:#b42318;font-size:13px;margin:4px 0 0;min-height:18px}
+.fo-ov .fo-chat{display:flex;flex-direction:column;gap:10px;max-height:46vh;min-height:160px;overflow:auto;padding:14px;margin:14px 0 12px;border-radius:14px;background:#f6f7f9}
+.fo-ov .fo-m{max-width:82%;padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
+.fo-ov .fo-m.bez{align-self:flex-end;background:#0e1117;color:#fff;border-bottom-right-radius:4px}
+.fo-ov .fo-m.team{align-self:flex-start;background:#fff;color:#0e1117;border:1px solid #e3e5e8;border-bottom-left-radius:4px}
+.fo-ov .fo-m small{display:block;margin-top:4px;font-size:11px;opacity:.6}
+.fo-ov .fo-wacht{align-self:center;text-align:center;font-size:12.5px;color:#8a8f98;max-width:90%}
+.fo-ov .fo-in{display:flex;gap:8px}
+.fo-ov .fo-in textarea{flex:1;resize:none;font:400 15px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;border:1px solid #e3e5e8;border-radius:12px;padding:11px 14px;outline:none;min-height:46px;max-height:120px;box-sizing:border-box}
+.fo-ov .fo-in button{all:unset;cursor:pointer;flex:0 0 auto;height:46px;padding:0 18px;border-radius:12px;background:#0e1117;color:#fff;font:600 11px/1 system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;display:flex;align-items:center}
+.fo-ov .fo-in button[disabled]{opacity:.5}
+.fo-ov .fo-link{all:unset;cursor:pointer;font-size:12.5px;color:#6b717c;text-decoration:underline;margin-top:10px;display:inline-block}
 /* stappen in het intro (telefoon) */
 .fo-lijst{list-style:none;margin:0;padding:0}
 /* fotostap: minimaal 2 foto's, daarna door naar de gegevens */
@@ -276,6 +301,58 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties{gap:8p
   function infoKnop(){const a=$(".cfg-acties");if(!a||a.querySelector(".fo-info"))return;const b=document.createElement("button");b.type="button";b.className="fo-info";b.setAttribute("aria-label","Over "+(B.naam||"ons"));b.title="Over ons";
     b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".9" fill="currentColor" stroke="none"/></svg>Over ons';b.onclick=info;a.prepend(b)}
   setInterval(infoKnop,600);infoKnop();
+
+  /* ---------- ticket-knop: al klant (naar het klantportaal) of nog geen klant (vraag stellen en chatten) ---------- */
+  const TICKET='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16a1 1 0 0 1 1 1v3a2 2 0 0 0 0 4v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-3a2 2 0 0 0 0-4V7a1 1 0 0 1 1-1z"/><path d="M14 6v12" stroke-dasharray="2 2.2"/></svg>';
+  const PIJL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>';
+  const VEP=(()=>{const e=String(B.endpoint||"");if(!/^https?:/.test(e))return "";return e.replace("/api/aanvraag","/api/vraag")})();
+  const vUrl=q=>VEP+(VEP.includes("?")?"&":"?")+q;
+  const VK="ms.vraag."+String(B.naam||"").toLowerCase().replace(/[^a-z0-9]+/g,"");
+  const vLees=()=>{try{return JSON.parse(localStorage.getItem(VK)||"null")}catch(e){return null}},vZet=x=>{try{x?localStorage.setItem(VK,JSON.stringify(x)):localStorage.removeItem(VK)}catch(e){}};
+  function venster(html){const o=document.createElement("div");o.className="fo-ov";o.setAttribute("role","dialog");o.setAttribute("aria-modal","true");
+    o.innerHTML=`<div class="fo-doos"><button type="button" class="fo-dicht" aria-label="Sluiten"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>${html}</div>`;
+    const weg=()=>{clearInterval(o._poll);o.remove();document.removeEventListener("keydown",esk)},esk=e=>{if(e.key==="Escape")weg()};o._weg=weg;
+    o.addEventListener("click",e=>{if(e.target===o||e.target.closest(".fo-dicht"))weg()});document.addEventListener("keydown",esk);document.body.append(o);return o}
+  function ticket(){if($(".fo-ov"))return;if(vLees()){chat();return}
+    const o=venster(`<h2>Vraag stellen</h2><p class="fo-sub">Waarmee kunnen wij u helpen?</p>
+      <div class="fo-kies"><button type="button" data-k="klant"><b>Ik ben al klant</b><small>Log in op uw klantportaal en maak daar een ticket. Wij zien dan meteen uw gegevens.</small>${PIJL}</button>
+      <button type="button" data-k="nieuw"><b>Ik ben (nog) geen klant</b><small>Stel uw vraag hier. U krijgt antwoord in dit venster en per e-mail.</small>${PIJL}</button></div>`);
+    o.querySelector('[data-k="klant"]').onclick=()=>{const a=$(".cfg-logo .rk a");const u=(a&&a.href)||"https://app.mansard.nl/portaal";o._weg();window.open(u,"_blank","noopener")};
+    o.querySelector('[data-k="nieuw"]').onclick=()=>{o._weg();nieuw()}}
+  function nieuw(){const adr=G("k-naam");const o=venster(`<h2>Uw vraag</h2><p class="fo-sub">Wij reageren zo snel mogelijk, meestal dezelfde dag.</p>
+      <label class="fo-v">Naam<input id="fvN" autocomplete="name" value="${esc((G("k-naam")||{}).value||"")}"></label>
+      <div class="fo-duo"><label class="fo-v">E-mail<input id="fvE" type="email" inputmode="email" autocomplete="email" value="${esc((G("k-email")||{}).value||"")}"></label><label class="fo-v">Telefoon<input id="fvT" type="tel" inputmode="tel" autocomplete="tel" value="${esc((G("k-tel")||{}).value||"")}"></label></div>
+      <label class="fo-v">Uw vraag<textarea id="fvQ" rows="4" placeholder="Bijvoorbeeld: komen jullie ook in mijn wijk?"></textarea></label>
+      <input id="fvH" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
+      <p class="fo-fout" role="alert"></p><button type="button" class="fo-ok" id="fvS">Versturen</button>`);
+    setTimeout(()=>{const n=G("fvN");(n.value?G("fvQ"):n).focus()},40);
+    G("fvS").onclick=async()=>{const f=o.querySelector(".fo-fout"),b=G("fvS"),d={actie:"start",naam:G("fvN").value.trim(),email:G("fvE").value.trim(),telefoon:G("fvT").value.trim(),tekst:G("fvQ").value.trim(),website_url:G("fvH").value};
+      if(!d.naam){f.textContent="Vul uw naam in.";G("fvN").focus();return}if(!d.tekst){f.textContent="Vul uw vraag in.";G("fvQ").focus();return}
+      if(!d.email&&!d.telefoon){f.textContent="Vul uw e-mailadres of telefoonnummer in, zodat wij u kunnen antwoorden.";G("fvE").focus();return}
+      if(d.email&&!/^\S+@\S+\.\S+$/.test(d.email)){f.textContent="Controleer uw e-mailadres.";G("fvE").focus();return}
+      if(!VEP){f.textContent="Dit is een voorbeeld: er wordt niets verstuurd.";return}
+      b.disabled=true;b.textContent="Bezig…";f.textContent="";
+      try{const r=await fetch(vUrl(""),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(d)});const j=await r.json().catch(()=>({}));
+        if(!r.ok||!j.ok)throw new Error(j.fout||"Versturen lukte niet. Probeer het opnieuw.");vZet({id:j.id,t:j.t,naam:d.naam,email:d.email});o._weg();chat(true)}
+      catch(e){f.textContent=e.message;b.disabled=false;b.textContent="Versturen"}}}
+  function chat(net){const x=vLees();if(!x)return ticket();
+    const o=venster(`<h2>Uw vraag</h2><p class="fo-sub">${net?"Verstuurd. ":""}Wij antwoorden hier en ${x.email?"per e-mail":"zo snel mogelijk"}.</p><div class="fo-chat" id="fvC"><p class="fo-wacht">Laden…</p></div>
+      <div class="fo-in"><textarea id="fvI" rows="1" placeholder="Typ een bericht…"></textarea><button type="button" id="fvZ">Stuur</button></div>
+      <button type="button" class="fo-link" id="fvX">Nieuwe vraag stellen</button>`);
+    let n=-1;const teken=(L,st)=>{const c=G("fvC");if(!c)return;if(L.length===n)return;n=L.length;
+      c.innerHTML=L.map(m=>`<div class="fo-m ${m.van==="team"?"team":"bez"}">${esc(m.tekst)}<small>${m.van==="team"?esc(m.naam||B.naam||"")+" · ":""}${new Date(m.op).toLocaleString("nl-NL",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}</small></div>`).join("")
+        +(!L.length||L[L.length-1].van!=="team"?`<p class="fo-wacht">Wij hebben uw bericht ontvangen en reageren zo snel mogelijk.</p>`:"")+(st==="opgelost"?`<p class="fo-wacht">Deze vraag is afgesloten. Stuurt u een bericht, dan openen wij hem weer.</p>`:"");c.scrollTop=c.scrollHeight};
+    const laad=async()=>{if(!VEP)return;try{const r=await fetch(vUrl("id="+encodeURIComponent(x.id)+"&t="+encodeURIComponent(x.t)),{cache:"no-store"});if(r.status===404){vZet(null);const c=G("fvC");if(c)c.innerHTML=`<p class="fo-wacht">Dit gesprek is niet meer beschikbaar. Stel gerust een nieuwe vraag.</p>`;return}const j=await r.json();if(j.ok)teken(j.berichten||[],j.status)}catch(e){}};
+    laad();o._poll=setInterval(laad,8000);
+    const t=G("fvI");t.oninput=()=>{t.style.height="auto";t.style.height=Math.min(t.scrollHeight,120)+"px"};t.onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();G("fvZ").click()}};
+    G("fvZ").onclick=async()=>{const tekst=t.value.trim();if(!tekst)return;const b=G("fvZ");b.disabled=true;
+      try{const r=await fetch(vUrl(""),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({actie:"bericht",id:x.id,t:x.t,tekst})});if(!r.ok)throw 0;t.value="";t.style.height="auto";n=-1;await laad()}catch(e){alert("Versturen lukte niet. Probeer het opnieuw.")}finally{b.disabled=false;t.focus()}};
+    G("fvX").onclick=()=>{vZet(null);o._weg();nieuw()};setTimeout(()=>t.focus(),60)}
+  function ticketKnop(){const a=$(".cfg-acties");if(!a||a.querySelector(".fo-tk"))return;const b=document.createElement("button");b.type="button";b.className="fo-tk";b.setAttribute("aria-label","Vraag stellen");b.title="Vraag stellen";b.innerHTML=TICKET+"Vraag stellen";b.onclick=ticket;
+    const i=a.querySelector(".fo-info");if(i)i.after(b);else a.prepend(b)}
+  setInterval(ticketKnop,600);ticketKnop();
+  /* via de link in de mail (?vraag=1) meteen het gesprek openen */
+  if(/[?&]vraag=1/.test(location.search)&&vLees())setTimeout(()=>chat(),800);
   bij();setInterval(()=>{bij();lijn()},400);
   document.addEventListener("change",e=>{if(e.target&&e.target.id==="ph-in")setTimeout(bij,600)},true);
 })();
