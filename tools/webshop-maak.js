@@ -38,13 +38,17 @@ const waNr = t => { let d = String(t || "").replace(/\D/g, ""); if (d.startsWith
   const T = fs.readFileSync(path.join(__dirname, "..", "src", "klantcalculator.html"), "utf8");
   const html = T.slice(0, T.indexOf("/*CFG-START*/")) + conf + T.slice(T.indexOf("/*CFG-END*/")).split('${k==="m8"?" selected":""}').join('${k===FREQ_ADV?" selected":""}').split('g("freq").value==="m8"').join('g("freq").value===FREQ_ADV');
   const uit = path.join(__dirname, "..", "public", "webshop"); fs.mkdirSync(uit, { recursive: true });
-  fs.writeFileSync(path.join(uit, "mijnschoonmaker.html"), html);
-  /* testversie in configurator-opbouw (zelfde rekenwerk), alleen via de directe link */
+  /* live (15 nov 2026): "offerte op maat" — klant maakt foto's en vult gegevens in, offerte binnen 24 uur.
+     Zelfde adressen als voorheen (de website laadt mijnschoonmaker-test.html en mijnschoonmaker.html), oude versie blijft als reserve. */
   const skin = fs.readFileSync(path.join(__dirname, "webshop-config-skin.html"), "utf8"), bi = html.lastIndexOf("</body>");
-  fs.writeFileSync(path.join(uit, "mijnschoonmaker-test.html"), html.slice(0, bi) + skin + html.slice(bi));
-  /* testversie "offerte op maat": klant maakt alleen foto's en vult gegevens in, offerte binnen 24 uur */
-  try { const laag = fs.readFileSync(path.join(__dirname, "..", "src", "kc", "fotolaag.html"), "utf8"), mt = html.slice(0, bi) + skin + html.slice(bi), bj = mt.lastIndexOf("</body>");
-    fs.writeFileSync(path.join(uit, "mijnschoonmaker-foto.html"), mt.slice(0, bj) + (s.googleScore !== undefined ? "<script>window.FO_GOOGLE={score:" + JSON.stringify(String(s.googleScore)) + "}</script>" : "<script>window.FO_GOOGLE={score:\"5,0\"}</script>") + laag + mt.slice(bj)); } catch (e) { console.log("foto-versie niet gemaakt:", e.message); }
+  const mt = html.slice(0, bi) + skin + html.slice(bi), bj = mt.lastIndexOf("</body>");
+  const laag = fs.readFileSync(path.join(__dirname, "..", "src", "kc", "fotolaag.html"), "utf8");
+  const gs = "<script>window.FO_GOOGLE={score:" + JSON.stringify(String(s.googleScore !== undefined ? s.googleScore : "5,0")) + "}</script>";
+  const foto = mt.slice(0, bj) + gs + laag + mt.slice(bj);
+  fs.writeFileSync(path.join(uit, "mijnschoonmaker.html"), foto);
+  fs.writeFileSync(path.join(uit, "mijnschoonmaker-test.html"), foto);
+  fs.writeFileSync(path.join(uit, "mijnschoonmaker-foto.html"), foto);
+  fs.writeFileSync(path.join(uit, "mijnschoonmaker-oud.html"), mt);
   try { fs.writeFileSync(path.join(uit, "voorbeeld.html"), require("./webshop-voorbeeld.js")(html.slice(0, bi) + skin + html.slice(bi))); } catch (e) { console.log("voorbeeld.html niet gemaakt:", e.message); }
   console.log("::notice title=Webshop::gemaakt · " + fla.length + " frequenties (advies " + fadv + ") · minimum " + cfg.min + " · " + gebieden.length + " werkgebieden · " + (klantPc ? klantPc.split(",").length : 0) + " klantpostcodes · logo " + (logoId ? "ja" : "nee"));
 })().catch(x => { console.error(x); process.exit(1); });
