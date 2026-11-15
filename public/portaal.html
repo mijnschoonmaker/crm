@@ -2119,7 +2119,7 @@ function hero(){const v=D.volgende,k=D.klant;
 
 function abonnementKp(){const k=D.klant,rt=k.vve&&k.vveSoort!=="buiten"?hoofd(k.ritme||""):k.vve?hoofd(((k.diensten||[])[0]||{}).ritme||k.ritme||""):"Elke "+(k.frequentie===1?"week":k.frequentie+" weken"),sd=k.sinds?esc(MND[p(k.sinds).getMonth()]+" "+p(k.sinds).getFullYear()):"";
   return `<section class="kp ab-kp"><div class="ab-top"><div class="ab-k"><span class="ab-ic">${I.ruit}</span><span class="ab-eb">Uw abonnement</span></div>
-    <div class="ab-d"><b>${esc(k.dienst)}${k.binnen?" binnen en buiten":""}</b><div class="ab-pr"><em>${eur0(k.prijs)}</em><small>per beurt</small></div></div>
+    <div class="ab-d"><b>${esc(k.dienst)}${k.binnen?" binnen en buiten":""}</b><div class="ab-pr"><em>${eur0(k.prijs)}</em><small>per beurt · incl. btw</small></div></div>
     <div class="ab-ch"><span>${I.verzet||I.kal}${esc(rt)}</span>${sd?`<span>${I.hart}Klant sinds ${sd}</span>`:""}</div></div>
     </section>`}
 /* snelste betalers van de maand: alleen voornamen */
@@ -2174,7 +2174,7 @@ function bzHero(){const v=D.volgende,b=D.bezoeken||[],k=D.klant,fq=Number(k.freq
 function diensten(){const k=D.klant;let L=(k.diensten||[]).slice();
   if(!L.length&&k.actief!==false)L=[{naam:k.dienst||PHD(),ritme:k.frequentie?(k.frequentie===1?"elke week":"elke "+k.frequentie+" weken"):"",volgende:(D.volgende||{}).datum||"",ingepland:!!D.volgende,prijs:Number(k.prijs)||null,detail:k.binnen?"binnen en buiten":"",hoofd:true}];
   const wanneer=x=>x.volgende?(x.ingepland?"gepland op ":"volgende keer rond ")+kort(x.volgende):"";
-  const rij=x=>lr(I.dienst,esc(x.naam),[x.detail?esc(x.detail):"",x.ritme?esc(hoofd(x.ritme)):"volgens afspraak",esc(wanneer(x))].filter(Boolean).join(" · "),x.prijs?`<span class="ds-pr"><b>${eur(x.prijs)}</b><small>per beurt</small></span>`:"");
+  const rij=x=>lr(I.dienst,esc(x.naam),[x.detail?esc(x.detail):"",x.ritme?esc(hoofd(x.ritme)):"volgens afspraak",esc(wanneer(x))].filter(Boolean).join(" · "),x.prijs?`<span class="ds-pr"><b>${eur(x.prijs)}</b><small>per beurt · incl. btw</small></span>`:"");
   return kop("Diensten","Alle diensten die wij voor u uitvoeren, hoe vaak en wanneer we weer komen.")+`<div class="pg ds">${k.vve?"":abonnementKp()}
     ${L.length?kp(I.dienst,"Uw diensten",`<div class="lijst">${L.map(rij).join("")}</div>`,{sub:plural(L.length,"dienst","diensten")}):`<div class="leeg">Er staan nog geen diensten op uw klantkaart.</div>`}
     </div>`}
