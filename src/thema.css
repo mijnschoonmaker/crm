@@ -2959,3 +2959,11 @@ html body .tk-kop button.tk-tijdk em{display:inline-block;margin-top:3px;font-si
 /* telefoon-tabbalk: 'nieuw'-teller zelfde rustige bol als de andere tellers */
 html body:not(#zz):not(#zy):not(#zx) nav.tabs .badge.nk-b{right:auto!important;background:#252c3c!important;padding:0!important;min-width:0!important;width:auto!important;max-width:none;height:auto;box-shadow:none!important;border:0!important;animation:none}
 html body:not(#zz):not(#zy):not(#zx) nav.tabs .badge.nk-b i{width:auto!important;margin:0!important;box-shadow:none!important;background:none!important;color:#fff!important;min-width:20px;height:20px!important;padding:0 5px;font-size:11px;font-weight:700}
+/* planning: dagkop rustig, zelfde typografie als de rest (nov 2026) */
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .tg-dh .dh-w{font-size:10.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#8a8f98}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .tg-dh.today .dh-w{color:#14171c}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .tg-dh .dh-d b{font-weight:400!important;letter-spacing:-.02em;color:#14171c}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .tg-dh .dh-d small{font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#8a8f98}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .tg-dh .dh-s{font-weight:400;color:#6b7079}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .tg-dh .dh-s em{font-weight:500;color:#14171c;letter-spacing:-.01em}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .tg-dh.solo .dh-s em{font-size:15px}
