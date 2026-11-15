@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="f5081ae54d2d"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="cae034187927"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -8748,6 +8748,33 @@ html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-it>svg:
 html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-in b{font-weight:500!important}
 html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-gn b{font-weight:600!important;font-size:14.5px!important}
 html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-gr>button:not(.u-gn):not(.u-tg){border:0!important;background:none!important;color:#a1a6ae!important;box-shadow:none!important}html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-gr>button:not(.u-gn):not(.u-tg):hover{background:#fff!important;color:#14171c!important;box-shadow:0 0 0 1px #e6e8ec!important}
+/* ===== Uitvoering > frequenties (alleen opmaak): rustige lijsten met dunne lijnen ===== */
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-fl{display:flex!important;flex-direction:column;gap:0!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-fl>.u-fi{border:0!important;border-radius:12px!important;box-shadow:none!important;background:none!important;margin:0!important;position:relative}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-fl>.u-fi+.u-fi::before{content:"";position:absolute;left:12px;right:12px;top:0;height:1px;background:#eceef1}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-fl>.u-fi:hover{background:#f7f8fa!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-fl>.u-fi:hover::before,html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-fl>.u-fi:hover+.u-fi::before{opacity:0}
+/* overzicht: naam | weken | drie schakelaars in vaste kolommen */
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-ffl>.u-fi{display:grid!important;grid-template-columns:minmax(0,1fr) 44px repeat(3,84px)!important;align-items:center!important;gap:6px!important;padding:12px 12px!important;min-height:0!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-ffl>.u-fi>span:first-child{font-size:14px!important;font-weight:500!important;color:#14171c!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-ffl>.u-fi>small{font-size:11.5px!important;color:#8a8f98!important;white-space:nowrap;text-align:right;padding-right:6px}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-ffl .u-sw{display:flex!important;flex-direction:column!important;align-items:center!important;gap:5px!important;margin:0!important;cursor:pointer}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-ffl .u-sw>span{font-size:9.5px!important;font-weight:600!important;letter-spacing:.12em!important;text-transform:uppercase;color:#a1a6ae!important;white-space:nowrap}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-ffl .u-sw.aan>span{color:#5b6270!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-ffl .u-sw>i{width:34px!important;height:20px!important;flex:0 0 auto;margin:0!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-ffl .u-sw>i::after,html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-ffl .u-sw>i::before{width:16px!important;height:16px!important;top:2px!important}
+/* jouw frequenties: weken | naam | knoppen */
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-fi.mine{display:grid!important;grid-template-columns:56px minmax(0,1fr) auto auto auto!important;align-items:center!important;gap:6px!important;padding:10px 12px!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-fi.mine .u-fw{font-size:13px!important;font-weight:600!important;color:#14171c!important;white-space:nowrap}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-fi.mine input{height:40px!important;border-radius:11px!important;border:1px solid #e6e8ec!important;box-shadow:none!important;font-size:14px!important;padding:0 14px!important;background:#fff!important;margin:0 6px 0 0!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-fi.mine .iconbtn{width:30px!important;height:30px!important;border:0!important;background:none!important;box-shadow:none!important;color:#a1a6ae!important;border-radius:9px!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-fi.mine .iconbtn:hover:not(:disabled){background:#fff!important;color:#14171c!important;box-shadow:0 0 0 1px #e6e8ec!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-fi.mine .iconbtn:disabled{opacity:.3}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-fi.mine .iconbtn svg{width:14px!important;height:14px!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-addrow{display:flex!important;gap:8px!important;margin-top:16px!important;padding-top:16px!important;border-top:1px solid #eceef1!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-addrow input{height:40px!important;border-radius:11px!important;border:1px solid #e6e8ec!important;box-shadow:none!important;font-size:14px!important;flex:1;max-width:180px}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-addrow button{height:40px!important;border-radius:11px!important;border:1px solid #e6e8ec!important;background:#fff!important;box-shadow:none!important;font-size:11px!important;letter-spacing:.16em!important;font-weight:600!important;padding:0 16px!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-ffl>.u-fi{grid-template-columns:minmax(0,1fr) 44px repeat(3,92px)!important;gap:4px!important}html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-ffl .u-sw>span{letter-spacing:.07em!important;font-size:9px!important}
 
 </style>
 <div class="app">
