@@ -75,6 +75,14 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-bar .fo-24{flex:1 1 auto}
 html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-fotos .tip-w{display:none!important}
 html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-fotos .cfg-meer{margin-bottom:0!important}
 html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-col{padding-bottom:24px!important;scroll-padding-bottom:24px}
+
+/* beoordeling op Google, rustig zoals een Michelin-vermelding (alleen als het bedrijf dit heeft ingesteld) */
+.fo-google{position:absolute;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:14px;white-space:nowrap;pointer-events:none}
+.fo-google .st{display:flex;gap:3px}.fo-google .st svg{width:13px;height:13px;fill:#b8955a}
+.fo-google b{font:500 15px/1 system-ui,-apple-system,"Segoe UI",sans-serif;color:#0e1117;letter-spacing:.02em}
+.fo-google i{width:1px;height:18px;background:#d9dbdf}
+.fo-google span.t{font:600 10px/1 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.24em;text-transform:uppercase;color:#6b717c}
+@media (max-width:999px){.fo-google{display:none}}
 /* stappen in het intro (telefoon) */
 .fo-lijst{list-style:none;margin:0;padding:0}
 /* fotostap: minimaal 2 foto's, daarna door naar de gegevens */
@@ -201,7 +209,11 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-col{padding-bottom:24px!impor
     bar.style.paddingRight=pr+"px";const r0=bar.querySelector(".ruimte");if(r0)r0.style.display="none";
     bel.style.position="absolute";bel.style.left=links+"px";bel.style.top="50%";bel.style.transform="translateY(-50%)";bar.style.position=bar.style.position||"";
     knop.style.marginLeft="auto";const kw=Math.round(Math.min(220,Math.max(160,(rechts-r.left)*.42)));knop.style.width=kw+"px"}
-  addEventListener("resize",lijn);
+  function google(){const G0=window.FO_GOOGLE,bar=$(".cfg-bar"),st=$(".cfg-stage");if(!G0||!bar||!st)return;let e=bar.querySelector(".fo-google");
+    if(!e){const ster='<svg viewBox="0 0 20 20"><path d="M10 1.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8L10 14.9l-5.2 2.7 1-5.8L1.6 7.7l5.8-.8z"/></svg>';
+      e=document.createElement("div");e.className="fo-google";e.innerHTML=`<span class="st">${ster.repeat(5)}</span><b>${G0.score||"5,0"}</b><i></i><span class="t">Beoordeeld op Google</span>`;bar.append(e)}
+    const r=st.getBoundingClientRect(),b=bar.getBoundingClientRect();e.style.left=(r.left+r.width/2-b.left)+"px"}
+  addEventListener("resize",lijn);setInterval(google,600);
   bij();setInterval(()=>{bij();lijn()},400);
   document.addEventListener("change",e=>{if(e.target&&e.target.id==="ph-in")setTimeout(bij,600)},true);
 })();
