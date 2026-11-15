@@ -55,10 +55,10 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-mid .m-twee{gap:8px!important
 html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo{overflow:hidden;border-bottom:1px solid rgba(14,17,23,.06)!important;box-shadow:0 3px 8px -2px rgba(14,17,23,.14),0 8px 20px -12px rgba(14,17,23,.25)!important;
   background:repeating-linear-gradient(115deg,rgba(255,255,255,.014) 0 1px,transparent 1px 28px),linear-gradient(150deg,#3a4560 0%,#2b3346 55%,#222838 100%)!important}
 html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo::before{content:"";position:absolute;left:50%;top:50%;width:150px;height:150px;border-radius:50%;pointer-events:none;
-  background:radial-gradient(circle,rgba(255,255,255,.22) 0%,rgba(201,211,230,.12) 30%,rgba(159,178,214,.05) 52%,transparent 70%);animation:foGloed 6s ease-in-out infinite!important}
+  background:radial-gradient(circle,rgba(255,255,255,.12) 0%,rgba(201,211,230,.06) 30%,rgba(159,178,214,.025) 52%,transparent 70%);animation:foGloed 6s ease-in-out infinite!important}
 html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo::after{content:"";position:absolute;top:0;bottom:0;left:0;width:9%;pointer-events:none;
   background:linear-gradient(90deg,transparent,rgba(255,255,255,.055) 50%,transparent);animation:foStraal 11s ease-in-out infinite!important}
-html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo img{position:relative;z-index:1;filter:brightness(1.6) contrast(3.2) drop-shadow(0 0 6px rgba(255,255,255,.22)) drop-shadow(0 0 16px rgba(201,211,230,.16))}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo img{position:relative;z-index:1;filter:grayscale(1) brightness(2.4) contrast(7) drop-shadow(0 0 5px rgba(255,255,255,.12)) drop-shadow(0 0 12px rgba(201,211,230,.08))!important}
 html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo>span{position:relative;z-index:1;color:#fff!important;text-shadow:0 0 14px rgba(255,255,255,.5)}
 html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo .rk{z-index:2}
 html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo .rk a{background:#fff!important;border:1px solid #fff!important;color:#0e1117!important;border-radius:10px!important;box-shadow:0 6px 16px -10px rgba(0,0,0,.5)!important}
@@ -224,7 +224,7 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e) .cfg-bar .fo-24 small{font
     knop.style.marginLeft="auto";const kw=Math.round(Math.min(220,Math.max(160,(rechts-r.left)*.42)));knop.style.width="";knop.style.minWidth=kw+"px"}
   function google(){const G0=window.FO_GOOGLE,bar=$(".cfg-bar"),st=$(".cfg-stage");if(!G0||!bar||!st)return;let e=bar.querySelector(".fo-google");
     if(!e){const ster='<svg viewBox="0 0 20 20"><path d="M10 1.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8L10 14.9l-5.2 2.7 1-5.8L1.6 7.7l5.8-.8z"/></svg>';
-      e=document.createElement("div");e.className="fo-google";e.innerHTML=`<span class="st">${ster.repeat(5)}</span><span class="t">Beoordeeld op Google</span>`;bar.append(e)}
+      e=document.createElement("div");e.className="fo-google";e.innerHTML=`<span class="st">${ster.repeat(5)}</span><i></i><span class="t">Beoordeeld op Google</span>`;bar.append(e)}
     const r=st.getBoundingClientRect(),b=bar.getBoundingClientRect();e.style.left=(r.left+r.width/2-b.left)+"px"}
   addEventListener("resize",lijn);setInterval(google,600);
   bij();setInterval(()=>{bij();lijn()},400);
