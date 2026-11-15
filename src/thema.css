@@ -2698,3 +2698,6 @@ html body:not(#zz):not(#zy):not(#zx):not(#zw) .pl-menu .seg.pl-mh{grid-template-
 html body:not(#zz):not(#zy):not(#zx):not(#zw) .pl-menu .seg.pl-mh>button[disabled]{color:#14171c!important;min-width:0!important}
 html body:not(#zz):not(#zy):not(#zx):not(#zw) .pl-menu .seg.pl-mh svg{width:14px;height:14px}
 html body:not(#zz):not(#zy):not(#zx):not(#zw) .pl-menu{min-width:360px!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-rij .adv-btn svg,html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-rij .adv-btn svg *{stroke:currentColor!important;fill:none!important;opacity:1!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-rij .adv-btn[aria-pressed="true"],html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-rij .adv-btn[aria-pressed="true"] svg{color:#fff!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-rij .adv-btn svg{width:17px!important;height:17px!important;stroke-width:2!important}
