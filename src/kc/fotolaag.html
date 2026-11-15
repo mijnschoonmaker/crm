@@ -58,7 +58,7 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo::before{content:"";posit
   background:radial-gradient(circle,rgba(255,255,255,.12) 0%,rgba(201,211,230,.06) 30%,rgba(159,178,214,.025) 52%,transparent 70%);animation:foGloed 6s ease-in-out infinite!important}
 html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo::after{content:"";position:absolute;top:0;bottom:0;left:0;width:9%;pointer-events:none;
   background:linear-gradient(90deg,transparent,rgba(255,255,255,.055) 50%,transparent);animation:foStraal 11s ease-in-out infinite!important}
-html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo img{position:relative;z-index:1;filter:grayscale(1) brightness(2.4) contrast(7) drop-shadow(0 0 5px rgba(255,255,255,.12)) drop-shadow(0 0 12px rgba(201,211,230,.08))!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo img{position:relative;z-index:1;filter:drop-shadow(0 0 5px rgba(255,255,255,.12)) drop-shadow(0 0 12px rgba(201,211,230,.08))!important}
 /* telefoon en tablet: logo zonder filter (de filter gaf daar een vlek in het logo) */
 @media (max-width:999px),(hover:none){html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e) .cfg-logo img{filter:none!important;-webkit-filter:none!important}}
 html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo>span{position:relative;z-index:1;color:#fff!important;text-shadow:0 0 14px rgba(255,255,255,.5)}
@@ -264,7 +264,16 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties>a[href
     const ind=G("indienen");if(ind){ind.scrollIntoView({behavior:"smooth",block:"center"});ind.click()}}
   function achter(){const st=$(".cfg-stage"),f=st&&st.querySelector(".cfg-foto");if(!f)return;let a=st.querySelector(".fo-achter");
     if(!a){a=document.createElement("img");a.className="fo-achter";a.alt="";a.setAttribute("aria-hidden","true");st.prepend(a);st.style.overflow="hidden"}if(f.src&&a.src!==f.src)a.src=f.src}
-  function bij(){cfgTeksten();achter();const n=nF();
+  /* logo: lijnen helder wit, zwart blijft zwart (bewerkt in de browser, zonder css-filter: geen vlek op iPhone) */
+  function logoWit(){const im=document.querySelector(".cfg-logo img");if(!im||im.dataset.wit)return;if(!im.complete||!im.naturalWidth){if(!im.dataset.wacht){im.dataset.wacht="1";im.addEventListener("load",()=>{im.dataset.wacht="";logoWit()},{once:true})}return}
+    im.dataset.wit="1";try{const W=im.naturalWidth,H=im.naturalHeight,c=document.createElement("canvas");c.width=W;c.height=H;const x=c.getContext("2d");x.drawImage(im,0,0);const d=x.getImageData(0,0,W,H),p=d.data;
+      let x0=W,y0=H,x1=-1,y1=-1;for(let y=0;y<H;y++)for(let i=0;i<W;i++){if(p[(y*W+i)*4+3]>128){if(i<x0)x0=i;if(i>x1)x1=i;if(y<y0)y0=y;if(y>y1)y1=y}}
+      if(x1<0)return;const cx=(x0+x1)/2,cy=(y0+y1)/2,r=Math.min(x1-x0,y1-y0)/2;
+      for(let y=0;y<H;y++)for(let i=0;i<W;i++){const k=(y*W+i)*4;let a=p[k+3]/255,R=p[k],G=p[k+1],B=p[k+2];const binnen=Math.hypot(i+.5-cx,y+.5-cy)<r-.5;
+        if(binnen&&a<1){R=R*a+255*(1-a);G=G*a+255*(1-a);B=B*a+255*(1-a);a=1}
+        if(a>0){const L=.299*R+.587*G+.114*B,t=Math.max(0,Math.min(1,(L-40)/70)),v=Math.round(t*t*(3-2*t)*255);p[k]=p[k+1]=p[k+2]=v;p[k+3]=Math.round(a*255)}}
+      x.putImageData(d,0,0);im.src=c.toDataURL("image/png");im.classList.add("fo-wit")}catch(e){im.dataset.wit="x"}}
+  function bij(){cfgTeksten();logoWit();achter();const n=nF();
     const vb=G("foVerder"),tl=G("foTel");if(vb){vb.disabled=n<MIN;vb.textContent=n<MIN?(n?"Nog "+(MIN-n)+" foto"+(MIN-n>1?"’s":"")+" nodig":"Eerst foto’s maken"):"Verder naar uw gegevens"}
     if(tl)tl.textContent=n?n+(n===1?" foto":" foto’s")+(n<MIN?" · nog "+(MIN-n)+" nodig":" · meer foto’s mag altijd"):"";
     balk();if(!knop)return;const st=midSt(),klaar=G("indienen")&&G("indienen").dataset.klaar==="1";
