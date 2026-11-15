@@ -1871,6 +1871,10 @@ html body:not(#zz):not(#zy):not(#zx) .blad label.veld small.hulp{font-size:12px!
 html body:not(#zz):not(#zy):not(#zx) .blad .infobox{font-size:13px!important;font-weight:400!important;color:#4a4f57!important;padding:14px 16px!important;border-radius:12px!important;background:#f6f7f9!important;line-height:1.5}
 html body:not(#zz):not(#zy):not(#zx) .blad .infobox svg{width:16px!important;height:16px!important}
 html body:not(#zz):not(#zy):not(#zx) .blad .acties button{height:46px!important;font-size:11px!important}
+
+/* facturen: bedrag en status rustiger (zoals de rest van het portaal) */
+html body:not(#zz):not(#zy):not(#zx) .pill.pill-cr{background:transparent!important;border:1px solid #e3e5e8!important;color:#6b717c!important;font-size:10px!important;font-weight:600!important;letter-spacing:.16em!important;text-transform:uppercase;padding:4px 10px!important}
+html body:not(#zz):not(#zy):not(#zx) main[data-t="facturen"] .rt{font-weight:500!important;font-size:15px!important;letter-spacing:0!important;gap:6px!important}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -2351,7 +2355,7 @@ function offertes(){const O=D.offertes||[];
 function facturen(){const F=D.facturen,open=F.filter(f=>f.status!=="betaald"&&f.status!=="gesloten"),P=betaalProfiel(F);
   const BLIK='<svg viewBox="0 0 24 24"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12z"/></svg>';
   const pl=f=>f.status==="betaald"&&f.snelUren!=null&&f.snelUren<=24?`<span class="pill snel">${BLIK}${f.snelUren<1?"Binnen een uur betaald":f.snelUren<=4?"Binnen "+Math.round(f.snelUren)+" uur betaald":"Snel betaald"}</span>`:f.status==="betaald"?(f.betaaldOp&&f.datum?(()=>{const d=Math.max(0,Math.round((p(f.betaaldOp)-p(f.datum))/864e5)),laat=f.verval&&f.betaaldOp>f.verval;return `<span class="pill ${laat?"soon":"ok"}"><i></i>${laat?"Betaald · "+Math.round((p(f.betaaldOp)-p(f.verval))/864e5)+" d te laat":d===0?"Zelfde dag betaald":"Betaald in "+d+" d"}</span>`})():`<span class="pill ok"><i></i>Betaald</span>`)
-    :f.status==="gesloten"?`<span class="pill neutral">${f.credit?"Creditfactuur":f.gecrediteerd?"Gecrediteerd":"Gesloten"}</span>`
+    :f.status==="gesloten"?`<span class="pill neutral pill-cr">${f.credit?"Creditfactuur":f.gecrediteerd?"Gecrediteerd":"Gesloten"}</span>`
     :f.incasso&&f.incassoStatus!=="failed"&&f.incassoStatus!=="canceled"&&f.incassoStatus!=="expired"?`<span class="pill brand"><i></i>Wordt automatisch afgeschreven</span>`
     :f.verval?(()=>{const n=dagenTot(f.verval);return n<0?`<span class="pill late"><i></i>${-n} ${n===-1?"dag":"dagen"} te laat</span>`:n===0?`<span class="pill soon"><i></i>Vandaag betalen</span>`:`<span class="pill ${n<=3?"soon":"brand"}"><i></i>Nog ${n} ${n===1?"dag":"dagen"}</span>`})():`<span class="pill brand"><i></i>Open</span>`;
   const rij=f=>lr(I.fact,esc(f.nummer||"Factuur"),esc(kort(f.datum))+(f.status!=="betaald"&&f.verval?" · betalen voor "+esc(kort(f.verval)):""),eur(f.bedrag)+pl(f),{attr:`data-fact="${esc(f.id)}"`});
