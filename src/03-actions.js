@@ -5,7 +5,7 @@ async function gewassen(k){
   try{
     await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:Number(k.prijs)||0,betaald:false,gefactureerd:"",dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString()});
     const _vn=volgendeNa(k),nx=_vn.gepland;
-    await save("klanten",k.id,{...strip(k),laatst:d,..._vn,bezig:""});aanbevelingVrijgeven(k.id);
+    await save("klanten",k.id,{...strip(k),laatst:d,..._vn,bezig:"",bezigGroep:""});aanbevelingVrijgeven(k.id);
     toast(cleanName(k.naam)+" afgerond · "+eur(stopBedrag(k)),async()=>{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev})});
   }catch(e){err(e)}
 }
@@ -48,7 +48,7 @@ async function afronden(k,mode,el){
     try{const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed),_los=await losseExtraFacturen(k,d,_ed,f,_mw,_hs);
       await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),betaald:false,gefactureerd:"nvt",...(_los.length?{extraFacturen:_los}:{}),dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString(),...(_vve||{})});
       const _vn=volgendeNa(k),nx=_vn.gepland;
-      await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",bevindingen:[],opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,bezig:""});aanbevelingVrijgeven(k.id);await extraNaBij(k,d,_ed);
+      await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",bevindingen:[],opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,bezig:"",bezigGroep:""});aanbevelingVrijgeven(k.id);await extraNaBij(k,d,_ed);
       const undo=async()=>{try{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
       feest(k);toast(cleanName(k.naam)+" afgemeld · niet gefactureerd (staat zo bij de opdracht)",[{label:"Ongedaan",fn:undo}])}
     catch(e){if(el){const c=el.querySelector(".swipe-card");if(c)c.style.transform="";el.classList.remove("armed")}err(e)}
@@ -59,7 +59,7 @@ async function afronden(k,mode,el){
       const _los=await losseExtraFacturen(k,d,_ed,f,_mw,_hs);
       await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),...(_los.length?{extraFacturen:_los}:{}),betaald:false,gefactureerd:"periodiek",periodiek:true,dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString(),...(_vve||{})});
       const _vn=volgendeNa(k),nx=_vn.gepland;
-      await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,bezig:""});aanbevelingVrijgeven(k.id);await extraNaBij(k,d,_ed);
+      await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,bezig:"",bezigGroep:""});aanbevelingVrijgeven(k.id);await extraNaBij(k,d,_ed);
       const undo=async()=>{try{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
       feest(k);toast(cleanName(k.naam)+" afgemeld · "+(isPeriodiek(k)?"gaat mee op de periodieke factuur ("+fmtD(k.periodiek.volgende)+")":"geen factuur per beurt · maak nog de periodieke factuur aan bij de opdracht")+(_los.length?" · eigen factuur voor de extra opdracht":""),[{label:"Ongedaan",fn:async()=>{for(const x of _los){try{await del("facturen",x)}catch(e){}}await undo()}}])}
     catch(e){if(el){const c=el.querySelector(".swipe-card");if(c)c.style.transform="";el.classList.remove("armed")}err(e)}
@@ -76,7 +76,7 @@ async function afronden(k,mode,el){
     const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed),_los=await losseExtraFacturen(k,d,_ed.filter(o=>!exMee(o,_hs)),f,_mw,_hs);
     await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:r2(f.regels.reduce((a,r)=>a+(Number(r.aantal)||0)*(Number(r.prijs)||0),0)),extra:_ed.map(o=>o.dienst),betaald:f.status==="betaald",gefactureerd:fId,dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString(),...(_vve||{})});
     const _vn=volgendeNa(k),nx=_vn.gepland;
-    await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",artikelen:[],bevindingen:[],...(k.opdrachtVerwijderd?{actief:false}:{}),opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,...(_tg||{}),bezig:""});aanbevelingVrijgeven(k.id);await extraNaBij(k,d,_ed);
+    await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",artikelen:[],bevindingen:[],...(k.opdrachtVerwijderd?{actief:false}:{}),opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,...(_tg||{}),bezig:"",bezigGroep:""});aanbevelingVrijgeven(k.id);await extraNaBij(k,d,_ed);
     const undo=async()=>{try{await del("facturen",fId);await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
     feest(k);
     if(_mw){toast(cleanName(k.naam)+" afgemeld",[{label:"Ongedaan",fn:undo}]);return}
@@ -130,7 +130,12 @@ async function startJob(k){
   if(on&&typeof LIVE!=="undefined"&&LIVE&&typeof wdLive==="function"&&!(state.liveDelen&&typeof LV!=="undefined"&&LV.watch!=null)&&!(wdGet(iso(today()))||{}).liveUit)try{wdLive(true)}catch(e){}
   /* start vergeten? Is de geplande tijd al ruim voorbij, dan kies je hoe laat je echt begon (de gemeten tijd klopt dan weer) */
   let tsKeuze=null;if(on){const tp=toMin(k.tijd),nm=new Date().getHours()*60+new Date().getMinutes();if(k.gepland&&k.gepland<=iso(today())&&tp!=null&&nm-tp>=15){tsKeuze=await startKeuze(k,tp);if(tsKeuze===null)return}}
-  try{if(on){const ts=tsKeuze||new Date().toISOString();lokaal({bezig:ts,bezigDoor:doorNaam()});setTimeout(()=>{const b=document.querySelector(".bs-timer");if(b){b.classList.remove("bt-flash");void b.offsetWidth;b.classList.add("bt-flash")}},80);toast("Tijd loopt bij "+cleanName(k.naam));await save("klanten",k.id,{...strip(k),bezig:ts,bezigDoor:doorNaam()});return}
+  /* flat: één Start zet de tijd bij alle woningen tegelijk aan */
+  if(on){const fg=typeof flatGroep==="function"?flatGroep(k).filter(x=>!isBezig(x)):[k];if(fg.length>=2&&fg.some(x=>x.id===k.id)){const ts=tsKeuze||new Date().toISOString(),gid="fl"+Date.now().toString(36);
+    fg.forEach(x=>{const i=state.klanten.findIndex(y=>y.id===x.id);if(i>=0)state.klanten[i]={...state.klanten[i],bezig:ts,bezigDoor:doorNaam(),bezigGroep:gid}});schedule();
+    toast("Tijd loopt bij "+fg.length+" woningen · "+cleanName(jobAddrObj(k).adres||k.naam).replace(/\s+\d.*$/,""));
+    try{await runSeq(fg,x=>save("klanten",x.id,{...strip(state.klanten.find(y=>y.id===x.id)||x),bezig:ts,bezigDoor:doorNaam(),bezigGroep:gid}),"")}catch(e){err(e)}return}}
+  try{if(on){const ts=tsKeuze||new Date().toISOString();lokaal({bezig:ts,bezigDoor:doorNaam(),bezigGroep:""});setTimeout(()=>{const b=document.querySelector(".bs-timer");if(b){b.classList.remove("bt-flash");void b.offsetWidth;b.classList.add("bt-flash")}},80);toast("Tijd loopt bij "+cleanName(k.naam));await save("klanten",k.id,{...strip(k),bezig:ts,bezigDoor:doorNaam(),bezigGroep:""});return}
     /* stoppen = klaar: tijd vastleggen en meteen afmelden (conceptfactuur, of zoals bij de opdracht ingesteld) */
     await afronden(k,"concept");}catch(e){err(e)}
 }
@@ -789,11 +794,11 @@ function afspraakVerwijderen(id){
     <button type="button" class="ad-k" id="adNee"><b>Nee</b><span>De afspraak schuift op met de frequentie (${esc(freqLabel(k.frequentie).toLowerCase())}): de volgende keer wordt rond ${esc(fmtD(nx))} aangeboden.</span></button></div>
   <div class="row"><span class="sp"></span><button type="button" data-act="close">Annuleren</button></div>`);
   const go=async ja=>{form.querySelectorAll(".ad-k").forEach(b=>b.disabled=true);const cur=state.klanten.find(x=>x.id===id)||k,prev={gepland:cur.gepland||"",tijd:cur.tijd||"",skipTot:cur.skipTot||"",aanbieden:!!cur.aanbieden};
-    try{await save("klanten",id,{...strip(cur),gepland:"",tijd:"",bezig:"",...(ja?{aanbieden:true,skipTot:""}:{aanbieden:false,skipTot:nx}),log:[...(cur.log||[]),{datum:iso(today()),tekst:"Afspraak "+fmtD(g)+" verwijderd"+(ja?", direct weer aangeboden":", opgeschoven naar "+fmtD(nx))}]});
+    try{await save("klanten",id,{...strip(cur),gepland:"",tijd:"",bezig:"",bezigGroep:"",...(ja?{aanbieden:true,skipTot:""}:{aanbieden:false,skipTot:nx}),log:[...(cur.log||[]),{datum:iso(today()),tekst:"Afspraak "+fmtD(g)+" verwijderd"+(ja?", direct weer aangeboden":", opgeschoven naar "+fmtD(nx))}]});
       dlg.close();toast(ja?cleanName(k.naam)+" staat weer bij te plannen":"Afspraak verwijderd · volgende keer rond "+fmtD(nx),async()=>{const c2=state.klanten.find(x=>x.id===id);await save("klanten",id,{...strip(c2),...prev})})}
     catch(e){err(e);form.querySelectorAll(".ad-k").forEach(b=>b.disabled=false)}};
   const rk=$("#adRk");if(rk)rk.onclick=async()=>{form.querySelectorAll(".ad-k").forEach(b=>b.disabled=true);const cur=state.klanten.find(x=>x.id===id)||k,r=cur.reeks||[],prev={gepland:cur.gepland||"",tijd:cur.tijd||"",reeks:r};
-    try{await save("klanten",id,{...strip(cur),gepland:r[0].d,tijd:r[0].t||cur.tijd||"",reeks:r.slice(1),bezig:"",log:[...(cur.log||[]),{datum:iso(today()),tekst:"Afspraak "+fmtD(g)+" uit de reeks verwijderd"}]});dlg.close();toast("Afspraak verwijderd · volgende "+fmtD(r[0].d),async()=>{const c2=state.klanten.find(x=>x.id===id);await save("klanten",id,{...strip(c2),...prev})})}catch(e){err(e);form.querySelectorAll(".ad-k").forEach(b=>b.disabled=false)}};
+    try{await save("klanten",id,{...strip(cur),gepland:r[0].d,tijd:r[0].t||cur.tijd||"",reeks:r.slice(1),bezig:"",bezigGroep:"",log:[...(cur.log||[]),{datum:iso(today()),tekst:"Afspraak "+fmtD(g)+" uit de reeks verwijderd"}]});dlg.close();toast("Afspraak verwijderd · volgende "+fmtD(r[0].d),async()=>{const c2=state.klanten.find(x=>x.id===id);await save("klanten",id,{...strip(c2),...prev})})}catch(e){err(e);form.querySelectorAll(".ad-k").forEach(b=>b.disabled=false)}};
   $("#adJa").onclick=()=>go(true);$("#adNee").onclick=()=>go(false);
 }
 

@@ -94,7 +94,14 @@ function metingPatch(k,min){/* gemeten tijd zonder de extra opdrachten van vanda
 const meetTeKort=(min,plan)=>(Number(min)||0)<Math.max(5,0.3*(Number(plan)||0));
 const beurtTeKort=b=>{if(!b.gemeten)return false;const k=state.klanten.find(x=>x.id===b.klantId);return !!k&&meetTeKort(b.duur,duur(k))};
 const beurtMin=b=>{const k=state.klanten.find(x=>x.id===b.klantId),m=Number(b.duur)||0;return m&&!beurtTeKort(b)?m:(k?duur(k):m)};
-const lopendeMin=k=>isBezig(k)?Math.max(0,Math.round((Date.now()-new Date(k.bezig))/60000)):null;
+/* flat: woningen in dezelfde straat, zelfde plaats en zelfde tijd vandaag horen bij elkaar (één Start voor de hele flat) */
+const flatStraat=k=>{const o=jobAddrObj(k)||{};const a=String(o.adres||"").trim().toLowerCase().replace(/\s+\d.*$/,"");return a?a+"|"+String(o.plaats||k.plaats||"").trim().toLowerCase():""};
+function flatGroep(k){try{const d=iso(today());if(!k||k.gepland!==d||!k.tijd||k.soort==="vve")return [k];const key=flatStraat(k);if(!key)return [k];
+  const L=state.klanten.filter(x=>x.actief!==false&&x.gepland===d&&x.tijd===k.tijd&&x.soort!=="vve"&&x.laatst!==d&&flatStraat(x)===key);return L.length>=2?L:[k]}catch(e){return [k]}}
+/* gemeten minuten; bij een flat wordt de tijd sinds de start eerlijk verdeeld over de woningen (wat al is afgemeld telt niet dubbel) */
+const lopendeMin=k=>{if(!isBezig(k))return null;const T=Math.max(0,(Date.now()-new Date(k.bezig))/60000);
+  if(k.bezigGroep){try{const r=state.klanten.filter(x=>x.bezigGroep===k.bezigGroep&&isBezig(x)).length||1,d=iso(today()),al=state.beurten.filter(b=>b.datum===d&&b.startOp===k.bezig&&b.gemeten).reduce((a,b)=>a+(Number(b.duur)||0),0);return Math.max(0,Math.round((T-al)/r))}catch(e){}}
+  return Math.round(T)};
 function jobState(k,day){
   if(state.beurten.some(b=>b.klantId===k.id&&b.datum===day))return"afgerond";
   /* gestart vandaag: ook bezig tonen als je de stop op een andere dag (bijv. de geplande datum) bekijkt */

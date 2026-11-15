@@ -34,7 +34,7 @@ function stopCard(k,i,isNext,late,day,totaal){
         <div class="tk-acts"><a class="tk-a" href="${esc(mapsQ(k))}" target="_blank" rel="noopener">${I.nav}<span>Navigeer</span></a>${tel?`<a class="tk-a" href="tel:${esc(tel)}">${I.phone}<span>Bellen</span></a>`:""}${wa&&!bz?`<a class="tk-a" href="${esc(wa)}" target="_blank" rel="noopener">${I.wa}<span>Ik kom eraan</span></a>`:""}<button type="button" class="tk-a" data-act="skip" data-id="${esc(k.id)}">${I.right}<span>Overslaan</span></button></div>
       </div>
       <div class="tk-perf" aria-hidden="true"></div>
-      <div class="tk-stub">${bz?`<span class="tk-live"><i></i>Bezig · na afloop afmelden</span>`:`<button type="button" class="tk-start" data-act="start" data-id="${esc(k.id)}">${I.clock}Start</button>`}<button type="button" class="primary tk-af" data-act="afmelden" data-id="${esc(k.id)}">${I.check}Afmelden</button></div>
+      <div class="tk-stub">${bz?`<span class="tk-live"><i></i>Bezig · na afloop afmelden</span>`:`<button type="button" class="tk-start" data-act="start" data-id="${esc(k.id)}">${I.clock}${(()=>{const n=typeof flatGroep==="function"?flatGroep(k).filter(x=>!isBezig(x)).length:1;return n>=2?"Start flat · "+n+" woningen":"Start"})()}</button>`}<button type="button" class="primary tk-af" data-act="afmelden" data-id="${esc(k.id)}">${I.check}Afmelden</button></div>
     </div></div>`;
 }
 function stopRow(k,day,done){
