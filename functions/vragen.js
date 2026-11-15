@@ -84,7 +84,7 @@ module.exports = ({ db, onRequest, onCall, onSchedule, HttpsError, brevoSend, ma
     const tekst = `Beste ${voor},\n\nEr staat een antwoord voor u klaar op uw vraag${v.nummer ? " (" + v.nummer + ")" : ""}. Met de knop hieronder opent u het gesprek en kunt u ook direct reageren.`;
     const onder = `Met vriendelijke groet,\n${b.naam || ""}`;
     await brevoSend(g.brevoKey, { sender: { name: b.naam || "Glazenwasser", email: g.afzender || b.email }, to: [{ email: v.email, name: v.naam || undefined }],
-      subject: "Er staat een antwoord voor u klaar" + (v.nummer ? " (" + v.nummer + ")" : ""), htmlContent: mailHtml(tekst, b, { knop: { url, tekst: "Bekijk het antwoord" }, onder }),
+      subject: "Er staat een antwoord voor u klaar" + (v.nummer ? " (" + v.nummer + ")" : ""), htmlContent: mailHtml(tekst, b, { knop: { url, tekst: "Bekijk het antwoord" }, onder, zonderStrook: true }),
       textContent: tekst + "\n\n" + url + "\n\n" + onder });
     return { ok: true, mail: true };
   });
