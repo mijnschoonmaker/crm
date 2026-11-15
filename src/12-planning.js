@@ -327,7 +327,8 @@ function offerCards(o,dayIso,timed){
 function advHtml(o,d0){
   const cb=(k,l,sub)=>`<label class="pm-cb adv-cb"><input type="checkbox" data-adv="${k}" ${ADV[k]?"checked":""}><span>${l}${sub?`<small>${sub}</small>`:""}</span></label>`;
   const selDur=[...mSel].reduce((a,id)=>{const k=state.klanten.find(x=>x.id===id);return a+(k?duur(k):0)},0);
-  return `<div class="adv-top"><button type="button" class="small adv-btn" aria-pressed="${ADV.open}" data-act="advtgl" aria-expanded="${ADV.open}">${I.filter}Geavanceerd plannen</button></div>
+  return `<div class="search adv-zoek">${I.search}<input id="advZoek" type="search" placeholder="Zoek op naam, adres, postcode…" value="${esc(ADV.zoek||"")}" autocomplete="off" aria-label="Zoek in te plannen opdrachten"></div>
+  <div class="adv-ov adv-rij"><div class="seg" role="group" aria-label="Sorteren">${[["datum","Datum"],["postcode","Postcode"],["plaats","Plaats"]].map(([x,l])=>`<button type="button" data-act="osort" data-v="${x}" aria-pressed="${ADV.sort===x}">${l}</button>`).join("")}</div><button type="button" class="iconbtn adv-btn" aria-pressed="${ADV.open}" data-act="advtgl" aria-expanded="${ADV.open}" title="Geavanceerd plannen" aria-label="Geavanceerd plannen">${I.filter}</button></div>
   ${ADV.open?`<div class="adv">
     <div class="rp-tools" role="toolbar" aria-label="Planning-acties">
       <button type="button" class="iconbtn" data-act="newjob" data-d="${d0}" title="Nieuwe job" aria-label="Nieuwe job">${I.plus}</button>
@@ -345,9 +346,6 @@ function advHtml(o,d0){
       ${cb("verberg","Afspraken in groepen niet tonen","Klanten met een ronde verbergen")}
       ${cb("dubbel","Dubbel ingeplande adressen niet aanbieden","Adres heeft al een afspraak staan")}
     </div></div>`:""}
-  <label class="adv-date">Aanbod zien op datum<span class="adv-dr"><input type="date" id="advDatum" value="${esc(ADV.datum)}">${ADV.datum?`<button type="button" class="iconbtn" data-act="advdatum0" aria-label="Datum wissen">${I.x}</button>`:""}</span></label>
-  <div class="adv-ov"><b>Overzicht afspraken (${o.length})</b><div class="seg" role="group" aria-label="Sorteren">${[["datum","Datum"],["postcode","Postcode"],["plaats","Plaats"]].map(([x,l])=>`<button type="button" data-act="osort" data-v="${x}" aria-pressed="${ADV.sort===x}">${l}</button>`).join("")}</div></div>
-  <div class="search adv-zoek">${I.search}<input id="advZoek" type="search" placeholder="Zoek op naam, adres, postcode…" value="${esc(ADV.zoek||"")}" autocomplete="off" aria-label="Zoek in te plannen opdrachten"></div>
   ${ADV.meer?`<div class="msel-bar${mSel.size?" act":""}"><span>${mSel.size?`<b>${mSel.size} gekozen</b> · ${Math.floor(selDur/60)}u${pad(selDur%60)}${mSel.size?" — tik een tijdslot":""}`:"Vink klanten aan en tik daarna een tijdslot"}</span>${mSel.size?`<span class="msel-acts"><button type="button" class="small primary" data-act="mselplan" data-d="${esc(parse(d0)<today()?iso(today()):d0)}">Plan ${esc(wd(parse(parse(d0)<today()?iso(today()):d0))+" "+parse(parse(d0)<today()?iso(today()):d0).getDate())}</button><button type="button" class="linkbtn" data-act="mselclr">Wissen</button></span>`:`<button type="button" class="linkbtn" data-act="mselall">Alles</button>`}</div>`:""}`;
 }
 async function planMulti(d,t){

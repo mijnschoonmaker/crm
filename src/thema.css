@@ -2667,3 +2667,23 @@ html body:not(#zz):not(#zy):not(#zx):not(#zw) .tjob.st-afgerond{opacity:.75}
 /* vrije dagen: rustig effen grijs in plaats van schuine lijnen */
 html body:not(#zz):not(#zy):not(#zx):not(#zw) .tg-dh.off,html body:not(#zz):not(#zy):not(#zx):not(#zw) .mcell.off{background:#f6f7f8!important;background-image:none!important}
 html body:not(#zz):not(#zy):not(#zx):not(#zw) .tg-dh.off::before,html body:not(#zz):not(#zy):not(#zx):not(#zw) .tg-dh.off::after,html body:not(#zz):not(#zy):not(#zx):not(#zw) .mcell.off::before,html body:not(#zz):not(#zy):not(#zx):not(#zw) .mcell.off::after{background-image:none!important}
+/* te plannen: rustige kop, zoeken, sorteren + filter op één rij */
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .rp-h2{display:flex!important;align-items:baseline!important;justify-content:space-between!important;margin:0 0 16px!important;padding:0!important;border:0!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .rp-h2 .mono{font-size:12.5px!important;color:#8a8f98!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-zoek{height:40px!important;min-height:0!important;margin:0 0 10px!important;border:1px solid #e6e8ec!important;background:#fff!important;border-radius:11px!important;box-shadow:none!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-zoek input{height:38px!important;font-size:13.5px!important;border:0!important;background:none!important;box-shadow:none!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-rij{display:flex!important;align-items:center!important;gap:8px!important;margin:0 0 16px!important;padding:0!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-rij .seg{flex:1;height:40px!important;min-height:0!important;padding:3px!important;background:#fff!important;border:1px solid #e6e8ec!important;border-radius:11px!important;display:flex!important;gap:2px;box-shadow:none!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-rij .seg>button{flex:1;height:32px!important;min-height:0!important;padding:0 6px!important;border:0!important;border-radius:8px!important;background:none!important;box-shadow:none!important;font-size:10.5px!important;font-weight:600!important;letter-spacing:.14em!important;text-transform:uppercase;color:#5b6270!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-rij .seg>button[aria-pressed="true"]{background:#252c3c!important;color:#fff!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-rij .adv-btn{flex:0 0 40px;width:40px!important;height:40px!important;min-height:0!important;padding:0!important;display:grid!important;place-items:center;border:1px solid #e6e8ec!important;border-radius:11px!important;background:#fff!important;color:#14171c!important;box-shadow:none!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-rij .adv-btn svg{width:16px;height:16px}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-rij .adv-btn[aria-pressed="true"]{background:#252c3c!important;color:#fff!important;border-color:#252c3c!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv{margin:0 0 16px!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-rij{flex-direction:row!important;flex-wrap:nowrap!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-rij .seg{width:auto!important;min-width:0;margin:0!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-rij .adv-btn{margin:0!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv{background:#fff!important;border:1px solid #eceef1!important;border-radius:16px!important;padding:14px 16px!important;box-shadow:0 14px 30px -26px rgb(20 23 28/.25)!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv .rp-tools{border:0!important;background:#f6f7f9!important;border-radius:11px!important;margin:0 0 12px!important;box-shadow:none!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv .rp-tools svg{width:16px;height:16px}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-opts{border:0!important;padding:0!important}

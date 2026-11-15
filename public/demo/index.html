@@ -8087,6 +8087,26 @@ html body:not(#zz):not(#zy):not(#zx):not(#zw) .tjob.st-afgerond{opacity:.75}
 /* vrije dagen: rustig effen grijs in plaats van schuine lijnen */
 html body:not(#zz):not(#zy):not(#zx):not(#zw) .tg-dh.off,html body:not(#zz):not(#zy):not(#zx):not(#zw) .mcell.off{background:#f6f7f8!important;background-image:none!important}
 html body:not(#zz):not(#zy):not(#zx):not(#zw) .tg-dh.off::before,html body:not(#zz):not(#zy):not(#zx):not(#zw) .tg-dh.off::after,html body:not(#zz):not(#zy):not(#zx):not(#zw) .mcell.off::before,html body:not(#zz):not(#zy):not(#zx):not(#zw) .mcell.off::after{background-image:none!important}
+/* te plannen: rustige kop, zoeken, sorteren + filter op één rij */
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .rp-h2{display:flex!important;align-items:baseline!important;justify-content:space-between!important;margin:0 0 16px!important;padding:0!important;border:0!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .rp-h2 .mono{font-size:12.5px!important;color:#8a8f98!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-zoek{height:40px!important;min-height:0!important;margin:0 0 10px!important;border:1px solid #e6e8ec!important;background:#fff!important;border-radius:11px!important;box-shadow:none!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-zoek input{height:38px!important;font-size:13.5px!important;border:0!important;background:none!important;box-shadow:none!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-rij{display:flex!important;align-items:center!important;gap:8px!important;margin:0 0 16px!important;padding:0!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-rij .seg{flex:1;height:40px!important;min-height:0!important;padding:3px!important;background:#fff!important;border:1px solid #e6e8ec!important;border-radius:11px!important;display:flex!important;gap:2px;box-shadow:none!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-rij .seg>button{flex:1;height:32px!important;min-height:0!important;padding:0 6px!important;border:0!important;border-radius:8px!important;background:none!important;box-shadow:none!important;font-size:10.5px!important;font-weight:600!important;letter-spacing:.14em!important;text-transform:uppercase;color:#5b6270!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-rij .seg>button[aria-pressed="true"]{background:#252c3c!important;color:#fff!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-rij .adv-btn{flex:0 0 40px;width:40px!important;height:40px!important;min-height:0!important;padding:0!important;display:grid!important;place-items:center;border:1px solid #e6e8ec!important;border-radius:11px!important;background:#fff!important;color:#14171c!important;box-shadow:none!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-rij .adv-btn svg{width:16px;height:16px}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-rij .adv-btn[aria-pressed="true"]{background:#252c3c!important;color:#fff!important;border-color:#252c3c!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv{margin:0 0 16px!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-rij{flex-direction:row!important;flex-wrap:nowrap!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-rij .seg{width:auto!important;min-width:0;margin:0!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-rij .adv-btn{margin:0!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv{background:#fff!important;border:1px solid #eceef1!important;border-radius:16px!important;padding:14px 16px!important;box-shadow:0 14px 30px -26px rgb(20 23 28/.25)!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv .rp-tools{border:0!important;background:#f6f7f9!important;border-radius:11px!important;margin:0 0 12px!important;box-shadow:none!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv .rp-tools svg{width:16px;height:16px}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-opts{border:0!important;padding:0!important}
 
 </style>
 <div class="app">
@@ -11125,7 +11145,8 @@ function offerCards(o,dayIso,timed){
 function advHtml(o,d0){
   const cb=(k,l,sub)=>`<label class="pm-cb adv-cb"><input type="checkbox" data-adv="${k}" ${ADV[k]?"checked":""}><span>${l}${sub?`<small>${sub}</small>`:""}</span></label>`;
   const selDur=[...mSel].reduce((a,id)=>{const k=state.klanten.find(x=>x.id===id);return a+(k?duur(k):0)},0);
-  return `<div class="adv-top"><button type="button" class="small adv-btn" aria-pressed="${ADV.open}" data-act="advtgl" aria-expanded="${ADV.open}">${I.filter}Geavanceerd plannen</button></div>
+  return `<div class="search adv-zoek">${I.search}<input id="advZoek" type="search" placeholder="Zoek op naam, adres, postcode…" value="${esc(ADV.zoek||"")}" autocomplete="off" aria-label="Zoek in te plannen opdrachten"></div>
+  <div class="adv-ov adv-rij"><div class="seg" role="group" aria-label="Sorteren">${[["datum","Datum"],["postcode","Postcode"],["plaats","Plaats"]].map(([x,l])=>`<button type="button" data-act="osort" data-v="${x}" aria-pressed="${ADV.sort===x}">${l}</button>`).join("")}</div><button type="button" class="iconbtn adv-btn" aria-pressed="${ADV.open}" data-act="advtgl" aria-expanded="${ADV.open}" title="Geavanceerd plannen" aria-label="Geavanceerd plannen">${I.filter}</button></div>
   ${ADV.open?`<div class="adv">
     <div class="rp-tools" role="toolbar" aria-label="Planning-acties">
       <button type="button" class="iconbtn" data-act="newjob" data-d="${d0}" title="Nieuwe job" aria-label="Nieuwe job">${I.plus}</button>
@@ -11143,9 +11164,6 @@ function advHtml(o,d0){
       ${cb("verberg","Afspraken in groepen niet tonen","Klanten met een ronde verbergen")}
       ${cb("dubbel","Dubbel ingeplande adressen niet aanbieden","Adres heeft al een afspraak staan")}
     </div></div>`:""}
-  <label class="adv-date">Aanbod zien op datum<span class="adv-dr"><input type="date" id="advDatum" value="${esc(ADV.datum)}">${ADV.datum?`<button type="button" class="iconbtn" data-act="advdatum0" aria-label="Datum wissen">${I.x}</button>`:""}</span></label>
-  <div class="adv-ov"><b>Overzicht afspraken (${o.length})</b><div class="seg" role="group" aria-label="Sorteren">${[["datum","Datum"],["postcode","Postcode"],["plaats","Plaats"]].map(([x,l])=>`<button type="button" data-act="osort" data-v="${x}" aria-pressed="${ADV.sort===x}">${l}</button>`).join("")}</div></div>
-  <div class="search adv-zoek">${I.search}<input id="advZoek" type="search" placeholder="Zoek op naam, adres, postcode…" value="${esc(ADV.zoek||"")}" autocomplete="off" aria-label="Zoek in te plannen opdrachten"></div>
   ${ADV.meer?`<div class="msel-bar${mSel.size?" act":""}"><span>${mSel.size?`<b>${mSel.size} gekozen</b> · ${Math.floor(selDur/60)}u${pad(selDur%60)}${mSel.size?" — tik een tijdslot":""}`:"Vink klanten aan en tik daarna een tijdslot"}</span>${mSel.size?`<span class="msel-acts"><button type="button" class="small primary" data-act="mselplan" data-d="${esc(parse(d0)<today()?iso(today()):d0)}">Plan ${esc(wd(parse(parse(d0)<today()?iso(today()):d0))+" "+parse(parse(d0)<today()?iso(today()):d0).getDate())}</button><button type="button" class="linkbtn" data-act="mselclr">Wissen</button></span>`:`<button type="button" class="linkbtn" data-act="mselall">Alles</button>`}</div>`:""}`;
 }
 async function planMulti(d,t){
