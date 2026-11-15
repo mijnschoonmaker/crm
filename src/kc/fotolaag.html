@@ -141,7 +141,7 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties{gap:6p
   const nF=()=>typeof photos!=="undefined"?photos.length:0;
   const zet=(sel,t)=>{const e=$(sel);if(e&&e.textContent!==t)e.textContent=t};
   /* ---------- teksten ---------- */
-  zet("h1.ml-title","Vraag uw offerte aan");
+  zet("h1.ml-title","Offerte aanvraag");
   /* titel in de stijl van de kopjes in het portaal: hoofdletters, ruim gespatieerd */
   {const h=$("h1.ml-title");if(h){const st=(k,v)=>h.style.setProperty(k,v,"important");st("text-transform","uppercase");st("letter-spacing",".14em");st("font-weight","400");st("font-size","clamp(22px,2.2vw,28px)");st("line-height","1.2")}}zet(".ml-sub","Foto’s maken, wij doen de rest.");
   {const ol=$(".ml-steps");if(ol)ol.innerHTML=[["Maak foto’s","Van alle kanten van uw woning, minimaal "+MIN+"."],["Vul uw gegevens in","Naam, adres en hoe wij u bereiken."],["Binnen 24 uur uw offerte","Wij tellen de ramen en sturen u een vaste prijs."]].map((x,i)=>`<li><span class="n">${i+1}</span><div><b>${x[0]}</b><span>${x[1]}</span></div></li>`).join("")}
