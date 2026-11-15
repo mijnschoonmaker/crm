@@ -294,7 +294,7 @@ function sendGeplande(){
 }
 
 /* ---------- Geavanceerd plannen (zijpaneel Te plannen) ---------- */
-const ADV=(()=>{let o={};try{o=JSON.parse(localStorage.getItem("ms.adv")||"{}")||{}}catch(e){}return{open:!!o.open,groepen:!!o.groepen,sub:!!o.sub,meer:false,reeks:!!o.reeks,fase:false,verberg:false,dubbel:false,sort:o.sort||"datum",datum:""}})();
+const ADV=(()=>{let o={};try{o=JSON.parse(localStorage.getItem("ms.adv")||"{}")||{}}catch(e){}return{open:!!o.open,groepen:!!o.groepen&&!o.sub,sub:!!o.sub,meer:false,reeks:!!o.reeks,fase:false,verberg:false,dubbel:false,sort:o.sort||"datum",datum:""}})();
 const advSave=()=>{try{localStorage.setItem("ms.adv",JSON.stringify({...ADV,datum:undefined}))}catch(e){}};
 const mSel=new Set();
 function offerFilter(list){

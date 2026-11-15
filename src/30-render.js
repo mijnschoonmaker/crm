@@ -273,7 +273,7 @@ document.addEventListener("change",e=>{
   else if(id==="kpp"){state.kpp=Number(t.value);state.kpage=1;render()}
   else if(id==="bjaar"){state.bjaar=Number(t.value);render()}
   else if(id==="bper"){state.bper=t.value;render()}
-  else if(t.dataset.adv){ADV[t.dataset.adv]=t.checked;if(t.dataset.adv==="meer"&&!t.checked)mSel.clear();advSave();reOffer()}
+  else if(t.dataset.adv){ADV[t.dataset.adv]=t.checked;/* indelen is óf per opdrachtgroep óf per subgebied: één vinkje tegelijk */if(t.checked&&t.dataset.adv==="groepen")ADV.sub=false;if(t.checked&&t.dataset.adv==="sub")ADV.groepen=false;if(t.dataset.adv==="meer"&&!t.checked)mSel.clear();advSave();reOffer()}
   else if(id==="advDatum"){ADV.datum=t.value;reOffer()}
   else if(id==="madd"&&t.value){const ds=viewDays();if(!ds.includes(t.value))state.multiDays=[...ds,t.value].sort();render()}
   else if(t.dataset.csel){state.calc.sel[t.dataset.csel]=t.checked;render()}
