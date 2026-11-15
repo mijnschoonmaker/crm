@@ -2697,6 +2697,32 @@ html body:not(#a):not(#b):not(#c):not(#d) .wz-back{height:36px!important;padding
   font:600 10.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:.16em!important;text-transform:uppercase!important;display:inline-flex!important;align-items:center;gap:8px}
 html body:not(#a):not(#b):not(#c):not(#d) .wz-back svg{width:14px!important;height:14px!important}
 html body:not(#a):not(#b):not(#c):not(#d) .wz-back:hover{border-color:#c9cdd3!important}
+
+/* startknoppen (particulier of zakelijk): slank en rustig, zonder huisje */
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-col .cfg-mid .cfg-start,html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-mid .cfg-start{height:56px!important;width:100%!important;padding:0 8px 0 20px!important;gap:12px!important;border-radius:12px!important;
+  background:#fff!important;border:1px solid #e3e5e8!important;box-shadow:0 1px 2px rgba(14,17,23,.04)!important;transform:none!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-mid .cfg-start:hover{border-color:#0e1117!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-mid .cfg-start svg.huis{display:none!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-mid .cfg-start b{font:600 11px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:.16em!important;text-transform:uppercase!important;color:#0e1117!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-mid .cfg-start i{width:40px!important;height:40px!important;border-radius:10px!important;background:#0e1117!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-mid .cfg-start i svg{width:14px!important;height:14px!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-mid .cfg-start i svg path{stroke:#fff!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-mid .m-twee{gap:8px!important}
+
+/* bovenbalk in Mansard-blauw met lichtgloed achter het logo en een lichtstraal (zoals de credits) */
+@keyframes foGloed{0%,100%{opacity:.55;transform:translate(-50%,-50%) scale(.92)}50%{opacity:.95;transform:translate(-50%,-50%) scale(1.08)}}
+@keyframes foStraal{0%,58%{transform:translateX(-120%) skewX(-20deg)}100%{transform:translateX(1200%) skewX(-20deg)}}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo{overflow:hidden;border-bottom:1px solid rgba(14,17,23,.06)!important;box-shadow:0 3px 8px -2px rgba(14,17,23,.14),0 8px 20px -12px rgba(14,17,23,.25)!important;
+  background:repeating-linear-gradient(115deg,rgba(255,255,255,.035) 0 1px,transparent 1px 24px),linear-gradient(150deg,#3a4560 0%,#2b3346 55%,#222838 100%)!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo::before{content:"";position:absolute;left:50%;top:50%;width:150px;height:150px;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(255,255,255,.55) 0%,rgba(201,211,230,.32) 28%,rgba(159,178,214,.12) 50%,transparent 70%);animation:foGloed 4s ease-in-out infinite!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo::after{content:"";position:absolute;top:0;bottom:0;left:0;width:9%;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.16) 50%,transparent);animation:foStraal 7s ease-in-out infinite!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo img{position:relative;z-index:1;filter:drop-shadow(0 0 10px rgba(255,255,255,.55)) drop-shadow(0 0 22px rgba(201,211,230,.45))}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo>span{position:relative;z-index:1;color:#fff!important;text-shadow:0 0 14px rgba(255,255,255,.5)}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo .rk{z-index:2}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo .rk a{background:#fff!important;border:1px solid #fff!important;color:#0e1117!important;border-radius:10px!important;box-shadow:0 6px 16px -10px rgba(0,0,0,.5)!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo .rk a:hover{background:#f4f5f7!important}
 /* stappen in het intro (telefoon) */
 .fo-lijst{list-style:none;margin:0;padding:0}
 /* fotostap: minimaal 2 foto's, daarna door naar de gegevens */
