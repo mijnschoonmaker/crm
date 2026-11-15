@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="d4285f3c8912"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="90c5d49d5450"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -19001,8 +19001,8 @@ I.heart=sv('<path d="M12 20s-7.5-4.6-7.5-10.2A4.2 4.2 0 0 1 12 7.3a4.2 4.2 0 0 1
 I.paw=sv('<circle cx="7" cy="9" r="1.7"/><circle cx="11" cy="6.5" r="1.7"/><circle cx="15.5" cy="7" r="1.7"/><circle cx="18" cy="11" r="1.6"/><path d="M8 16.5c0-2.6 2-5 4.5-5s4.5 2.4 4.5 5c0 1.8-1.4 2.5-3 2.1-1-.3-2-.3-3 0-1.6.4-3-.3-3-2.1z"/>');
 const HOSP_CAT=[["persoon","Persoonlijk","user"],["voorkeur","Voorkeur","heart"],["letop","Let op","alert"],["dier","Huisdieren","paw"],["aankomst","Toegang","lock"],["moment","Moment","cal2"],["verteld","Klant vertelde","chat"]];
 const hospCat=c=>HOSP_CAT.find(x=>x[0]===c)||HOSP_CAT[1];
-const HOSP_TIPS=[["persoon","Spreek aan met u / meneer, mevrouw"],["persoon","Mag met voornaam aangesproken worden"],["voorkeur","Liever een appje dan bellen"],["voorkeur","Komt het liefst 's ochtends uit"],["voorkeur","Waardeert een praatje"],["voorkeur","Graag rustig en stil werken (thuiswerker)"],
-  ["letop","Planten in de vensterbank voorzichtig"],["letop","Geen water op de houten kozijnen"],["letop","Schoenen uit als je binnen komt"],["dier","Hond, vriendelijk"],["dier","Kat mag niet naar buiten"],["aankomst","Even aanbellen bij aankomst"],["aankomst","Parkeren op de oprit mag"],["moment","Verjaardag: "],["verteld","Klant vertelde dat "]];
+const HOSP_TIPS=[["persoon","Spreek aan met u / meneer, mevrouw"],["persoon","Mag met voornaam aangesproken worden"],["voorkeur","Waardeert een praatje"],["voorkeur","Graag rustig en stil werken (thuiswerker)"],
+  ["dier","Hond, vriendelijk"],["dier","Kat mag niet naar buiten"],["aankomst","Even aanbellen bij aankomst"],["aankomst","Parkeren op de oprit mag"],["moment","Verjaardag: "],["verteld","Klant vertelde dat "]];
 const hospItems=k=>(k&&Array.isArray(k.hosp)?k.hosp:[]).map((x,i)=>({...x,_i:i})).filter(x=>x&&String(x.t||"").trim());
 const hospNu=(x,day)=>x.c!=="verteld"||!x.vanaf||x.vanaf<=(day||iso(today()));
 /* open punten; "klant vertelde" (en dus ter sprake brengen) eerst */
