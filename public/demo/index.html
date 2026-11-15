@@ -7983,6 +7983,7 @@ html body:not(#zz):not(#zy):not(#zx):not(#zw) .ov2 .ow-kern{margin:0!important}
 .ov2-aa:empty{display:none}
 .ov2-dag .ov2-zin{display:block;line-height:1.5}.ov2-dag .ov2-zin .ov2-stip{display:inline-block;margin-right:10px;vertical-align:1px}
 .ov2-top .ov2-tools{flex-wrap:wrap;justify-content:flex-end}
+.ov2-stroom>*{margin:0!important}
 
 </style>
 <div class="app">
@@ -21206,6 +21207,7 @@ function vOverzicht2(){const t=today(),ti=iso(t),P=ccPlanning(),S_=ccSignalen().
       <section class="ov2-s">${kop("Momenten om te verrassen","Verjaardagen, jubilea en 5-sterrenbeoordelingen")}${momenten}</section>
     </div>
     <div class="ov2-col">
+      ${typeof mkStroomHtml==="function"?`<div class="ov2-stroom">${mkStroomHtml()}</div>`:""}
       <section class="ov2-s" id="ov2Aandacht">${kop("Aandacht nodig",S_.length?"Van boven naar beneden afwerken":"")}${aandacht}</section>
       <section class="ov2-s">${kop("Het team",M.length?plural(M.length,"medewerker","medewerkers")+" vandaag":"",`<button type="button" class="cc-link" data-cc="tab:vandaag">Kaart${I.right||""}</button>`)}${team}</section>
     </div>

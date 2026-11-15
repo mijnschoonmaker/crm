@@ -67,6 +67,7 @@ function vOverzicht2(){const t=today(),ti=iso(t),P=ccPlanning(),S_=ccSignalen().
       <section class="ov2-s">${kop("Momenten om te verrassen","Verjaardagen, jubilea en 5-sterrenbeoordelingen")}${momenten}</section>
     </div>
     <div class="ov2-col">
+      ${typeof mkStroomHtml==="function"?`<div class="ov2-stroom">${mkStroomHtml()}</div>`:""}
       <section class="ov2-s" id="ov2Aandacht">${kop("Aandacht nodig",S_.length?"Van boven naar beneden afwerken":"")}${aandacht}</section>
       <section class="ov2-s">${kop("Het team",M.length?plural(M.length,"medewerker","medewerkers")+" vandaag":"",`<button type="button" class="cc-link" data-cc="tab:vandaag">Kaart${I.right||""}</button>`)}${team}</section>
     </div>

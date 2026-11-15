@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="03df13d04414"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="88aa64bb02ce"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -8394,6 +8394,7 @@ html body:not(#zz):not(#zy):not(#zx):not(#zw) .ov2 .ow-kern{margin:0!important}
 .ov2-aa:empty{display:none}
 .ov2-dag .ov2-zin{display:block;line-height:1.5}.ov2-dag .ov2-zin .ov2-stip{display:inline-block;margin-right:10px;vertical-align:1px}
 .ov2-top .ov2-tools{flex-wrap:wrap;justify-content:flex-end}
+.ov2-stroom>*{margin:0!important}
 
 </style>
 <div class="app">
@@ -21617,6 +21618,7 @@ function vOverzicht2(){const t=today(),ti=iso(t),P=ccPlanning(),S_=ccSignalen().
       <section class="ov2-s">${kop("Momenten om te verrassen","Verjaardagen, jubilea en 5-sterrenbeoordelingen")}${momenten}</section>
     </div>
     <div class="ov2-col">
+      ${typeof mkStroomHtml==="function"?`<div class="ov2-stroom">${mkStroomHtml()}</div>`:""}
       <section class="ov2-s" id="ov2Aandacht">${kop("Aandacht nodig",S_.length?"Van boven naar beneden afwerken":"")}${aandacht}</section>
       <section class="ov2-s">${kop("Het team",M.length?plural(M.length,"medewerker","medewerkers")+" vandaag":"",`<button type="button" class="cc-link" data-cc="tab:vandaag">Kaart${I.right||""}</button>`)}${team}</section>
     </div>
