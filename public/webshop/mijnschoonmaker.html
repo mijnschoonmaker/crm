@@ -2728,8 +2728,9 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo .rk svg{width:14px!impor
 
 /* onderbalk: alleen "Binnen 24 uur" en de knop, recht onder de kolom rechts */
 html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-bar>.blok,html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-bar .fo-stap,html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-bar .fo-foto{display:none!important}
-html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-bar .fo-knop{height:44px!important;min-width:0!important;padding:0 20px!important;font-size:11px!important;border-radius:4px!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-bar .fo-knop{height:44px!important;padding:0 20px!important;white-space:nowrap!important;flex:0 0 auto!important;font-size:11px!important;border-radius:4px!important}
 html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-bar .fo-24{flex:1 1 auto}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-bar .fo-24 b,html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-bar .fo-24 small,html body.cfg:not(#a):not(#b):not(#c):not(#d) .fo-google{white-space:nowrap!important}
 
 /* fotoblok altijd helemaal in beeld: dubbele tip weg, kolom eindigt boven de onderbalk */
 html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-fotos .tip-w{display:none!important}
@@ -2880,7 +2881,7 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e) .cfg-bar .fo-24 small{font
       br=bar.getBoundingClientRect(),pr=Math.max(0,br.right-rechts),links=r.left-br.left;
     bar.style.paddingRight=pr+"px";const r0=bar.querySelector(".ruimte");if(r0)r0.style.display="none";
     bel.style.position="absolute";bel.style.left=links+"px";bel.style.top="50%";bel.style.transform="translateY(-50%)";bar.style.position=bar.style.position||"";
-    knop.style.marginLeft="auto";const kw=Math.round(Math.min(220,Math.max(160,(rechts-r.left)*.42)));knop.style.width=kw+"px"}
+    knop.style.marginLeft="auto";const kw=Math.round(Math.min(220,Math.max(160,(rechts-r.left)*.42)));knop.style.width="";knop.style.minWidth=kw+"px"}
   function google(){const G0=window.FO_GOOGLE,bar=$(".cfg-bar"),st=$(".cfg-stage");if(!G0||!bar||!st)return;let e=bar.querySelector(".fo-google");
     if(!e){const ster='<svg viewBox="0 0 20 20"><path d="M10 1.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8L10 14.9l-5.2 2.7 1-5.8L1.6 7.7l5.8-.8z"/></svg>';
       e=document.createElement("div");e.className="fo-google";e.innerHTML=`<span class="st">${ster.repeat(5)}</span><span class="t">Beoordeeld op Google</span>`;bar.append(e)}
