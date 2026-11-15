@@ -159,7 +159,7 @@ module.exports = function maakPortaal(ctx) {
   const fStatus = f => verrekend(f) ? "gesloten" : f.status === "betaald" ? "betaald" : f.status === "oninbaar" ? "gesloten" : f.verval && f.verval < isoNL() ? "verlopen" : "open";
   const bedrijfInfo = (b, base) => ({ naam: b.naam || "Mansard", branche: T.isLegacy() ? "" : (b.branche || ""), bus: !T.isLegacy() && b.busAan !== false && b.busBeeld && /^[\w-]{6,64}$/.test(String(b.busBeeld.rechts || "")) ? { rechts: base + "/_blob/" + b.busBeeld.rechts, links: /^[\w-]{6,64}$/.test(String(b.busBeeld.links || "")) ? base + "/_blob/" + b.busBeeld.links : "" } : T.isLegacy() ? null : { rechts: base + "/img/bus.png", links: "" }, logo: (b.logoMail || b.logo) ? base + "/_blob/" + (b.logoMail || b.logo) : "", telefoon: b.telefoon || "", mobiel: b.mobiel || b.telefoon || "", email: b.email || "", website: b.website || "", iban: b.iban || "", reviewLink: b.reviewLink || "", kleur: b.mailAccent || b.hoofdkleur || "#137a8a", geenDocs: T.isLegacy(),
     voorwaarden: b.voorwaardenPdf ? base + "/_blob/" + b.voorwaardenPdf : "", tijdWeergave: b.portaalTijd || "venster", refAan: b.refAan !== false, refBeloning: b.refBeloning != null && b.refBeloning !== "" ? Number(b.refBeloning) : 20, refWelkom: b.refWelkom != null && b.refWelkom !== "" ? Number(b.refWelkom) : 10, werkStart: b.werkStart || "08:00",
-    credits: { review: 0, beurt: 0, extra: 0 /* credits voor extra diensten bestaan niet meer (al gekregen credits blijven staan) */, aanbevelen: numOf(b.refBeloning, 20), snel: numOf(b.crSnel, 0.5), maandTop: numOf(b.crMaandTop, 5), maandTop2: numOf(b.crMaandTop2, 2.5), maandTop3: numOf(b.crMaandTop3, 1), jaar: 0 } });
+    credits: { review: 0, beurt: numOf(b.crBeoordeling, 0.1), extra: 0 /* credits voor extra diensten bestaan niet meer (al gekregen credits blijven staan) */, aanbevelen: numOf(b.refBeloning, 20), snel: numOf(b.crSnel, 0.5), maandTop: numOf(b.crMaandTop, 5), maandTop2: numOf(b.crMaandTop2, 2.5), maandTop3: numOf(b.crMaandTop3, 1), jaar: 0 } });
   const numOf = (v, d) => v != null && v !== "" && !isNaN(Number(v)) ? Number(v) : d;
 
   /* ---------- live meekijken: waar rijdt de glazenwasser (alleen voor klanten van vandaag) ---------- */
@@ -411,7 +411,12 @@ module.exports = function maakPortaal(ctx) {
       const st = Math.max(1, Math.min(5, Math.round(Number(d.sterren) || 0)));
       const bref = db.doc("beurten/" + String(d.beurtId || "")), bs = await bref.get();
       if (!bs.exists || bs.data().klantId !== k.id) throw new Error("bezoek niet gevonden");
+      const alBeoordeeld = !!bs.data().beoordeling;
       await bref.set({ beoordeling: { sterren: st, tekst: v.tekst, op: nu() } }, { merge: true });
+      /* credits voor het beoordelen van een bezoek (eenmalig per bezoek) */
+      const crB = numOf((await bedrijf().catch(() => ({}))).crBeoordeling, 0.1);
+      if (!alBeoordeeld && crB > 0) { try { await db.runTransaction(async t => { const ks = await t.get(S.kref); const kk = ks.data() || {}; const al = [...(kk.tegoed || []), ...(kk.tegoedGebruikt || [])].some(y => y && y.bron === "beoordeling" && y.ref === bref.id); if (al) return;
+        t.set(S.kref, { tegoed: [...(Array.isArray(kk.tegoed) ? kk.tegoed : []), { id: newId("tg"), bedrag: crB, reden: "Credits: bezoek beoordeeld", bron: "beoordeling", ref: bref.id, op: isoNL() }] }, { merge: true }); }); } catch (e) { console.error("credits beoordeling", e.message); } }
       Object.assign(v, { sterren: st, beurtId: bref.id, datum: bs.data().datum || "", status: st <= 3 ? "nieuw" : "info" });
       /* beoordelen van een bezoek levert geen credits meer op */
     }
