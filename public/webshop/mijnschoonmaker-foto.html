@@ -2671,6 +2671,11 @@ html body .cfg-tabs button[data-n="2"],html body .cfg-tabs button[data-n="3"],ht
 html body .cfg-bar .blok.lk,html body .cfg-bar .prijs,html body .cfg-bar .cfg-hint,html body .cfg-bar #cfgKnop,html body .cfg-bar .cfg-knop2,
 html body .cfg-uitleg .st:nth-child(n+5){display:none!important}
 html body .cfg-stage .cfg-foto{cursor:default!important}
+/* de hele foto in beeld, met dezelfde foto zacht vervaagd als achtergrond */
+html body:not(#a):not(#b):not(#c):not(#d) .cfg-stage.foto .cfg-foto{object-fit:contain!important;padding:0!important;z-index:1;background:none!important}
+.cfg-stage .fo-achter{position:absolute;inset:-40px;width:calc(100% + 80px);height:calc(100% + 80px);object-fit:cover;filter:blur(30px) brightness(.8) saturate(1.1);transform:scale(1.05);z-index:0;display:none;pointer-events:none}
+.cfg-stage.foto .fo-achter{display:block}
+.cfg-stage.foto>*:not(.fo-achter):not(.cfg-foto):not(.cfg-show){z-index:2}
 /* stappen in het intro (telefoon) */
 .fo-lijst{list-style:none;margin:0;padding:0}
 /* fotostap: minimaal 2 foto's, daarna door naar de gegevens */
@@ -2769,7 +2774,9 @@ html body .cfg-stage .cfg-foto{cursor:default!important}
     if(nF()<MIN){const i=G("ph-in");if(i)i.click();return}
     if(!gegOpen()){naarGegevens();return}
     const ind=G("indienen");if(ind){ind.scrollIntoView({behavior:"smooth",block:"center"});ind.click()}}
-  function bij(){cfgTeksten();const n=nF();
+  function achter(){const st=$(".cfg-stage"),f=st&&st.querySelector(".cfg-foto");if(!f)return;let a=st.querySelector(".fo-achter");
+    if(!a){a=document.createElement("img");a.className="fo-achter";a.alt="";a.setAttribute("aria-hidden","true");st.prepend(a);st.style.overflow="hidden"}if(f.src&&a.src!==f.src)a.src=f.src}
+  function bij(){cfgTeksten();achter();const n=nF();
     const vb=G("foVerder"),tl=G("foTel");if(vb){vb.disabled=n<MIN;vb.textContent=n<MIN?(n?"Nog "+(MIN-n)+" foto"+(MIN-n>1?"’s":"")+" nodig":"Eerst foto’s maken"):"Verder naar uw gegevens"}
     if(tl)tl.textContent=n?n+(n===1?" foto":" foto’s")+(n<MIN?" · nog "+(MIN-n)+" nodig":" · meer foto’s mag altijd"):"";
     balk();if(!knop)return;const st=midSt(),klaar=G("indienen")&&G("indienen").dataset.klaar==="1";
