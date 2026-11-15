@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="d0a632910e81"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="f5081ae54d2d"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -8730,6 +8730,24 @@ html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) #view .u-ed label.tgl{bor
 html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) #view .u-ed .u-sec{padding-top:20px!important;margin-top:20px!important;border-top:1px solid #eceef1!important}
 html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) #view .u-fpr{min-height:48px!important;border-bottom:1px solid #f1f2f4!important;font-size:14px!important;align-items:center!important}
 html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv) #view .u-fpr:last-child{border-bottom:0!important}
+/* diensten-lijst v2: één rustige lijst met dunne lijnen, lichte knoppen */
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-g{border:0!important;border-radius:14px!important;box-shadow:none!important;margin:0!important;background:none!important;position:relative}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-g+.u-g::before{content:"";position:absolute;left:14px;right:14px;top:0;height:1px;background:#eceef1}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-g.open{background:#f7f8fa!important;box-shadow:none!important;margin:6px 0!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-g.open::before,html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-g.open+.u-g::before{display:none}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-g.open>.u-gr{background:none!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-gr{padding:12px 12px!important;gap:12px!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-tg{width:28px!important;height:28px!important;border:0!important;border-radius:8px!important;background:#f1f2f5!important;color:#5b6270!important;font-weight:500!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-g.open .u-tg{background:#252c3c!important;color:#fff!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-gr .iconbtn,html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-it .iconbtn{border:0!important;background:none!important;color:#a1a6ae!important;width:30px!important;height:30px!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-gr .iconbtn:hover,html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-it .iconbtn:hover{background:#fff!important;color:#14171c!important;box-shadow:0 0 0 1px #e6e8ec!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-its{border-top:1px solid #e9ebef!important;padding:6px 6px 8px 40px!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-it{padding:8px 6px!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-it:hover{background:#fff!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-it>svg:first-child,html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-it .u-chev{color:#c1c5cc!important;width:12px!important;height:12px!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-in b{font-weight:500!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-gn b{font-weight:600!important;font-size:14.5px!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-gr>button:not(.u-gn):not(.u-tg){border:0!important;background:none!important;color:#a1a6ae!important;box-shadow:none!important}html body:not(#zz):not(#zy):not(#zx):not(#zw):not(#zv):not(#zu) #view .u-gr>button:not(.u-gn):not(.u-tg):hover{background:#fff!important;color:#14171c!important;box-shadow:0 0 0 1px #e6e8ec!important}
 
 </style>
 <div class="app">
