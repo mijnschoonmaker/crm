@@ -2687,3 +2687,14 @@ html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv{background:#fff!imp
 html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv .rp-tools{border:0!important;background:#f6f7f9!important;border-radius:11px!important;margin:0 0 12px!important;box-shadow:none!important}
 html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv .rp-tools svg{width:16px;height:16px}
 html body:not(#zz):not(#zy):not(#zx):not(#zw) .offercol .adv-opts{border:0!important;padding:0!important}
+/* meer-menu planning: tonen en weergave netjes en gelijk */
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .pl-menu .pl-mrow{display:block!important;padding:0 4px!important;margin:0 0 10px!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .pl-menu .pl-mr2>span{display:block;font-size:12.5px!important;font-weight:500!important;color:#5b6270!important;margin:0 0 6px 2px}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .pl-menu .seg.pl-st2,html body:not(#zz):not(#zy):not(#zx):not(#zw) .pl-menu .seg.pl-mseg{display:grid!important;grid-auto-flow:column;grid-auto-columns:1fr;width:100%!important;height:38px!important;min-height:0!important;padding:3px!important;gap:2px!important;background:#f6f7f9!important;border:1px solid #eceef1!important;border-radius:11px!important;box-shadow:none!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .pl-menu .seg.pl-st2>button,html body:not(#zz):not(#zy):not(#zx):not(#zw) .pl-menu .seg.pl-mseg>button{height:30px!important;min-height:0!important;min-width:0!important;padding:0 4px!important;border:0!important;border-radius:8px!important;background:none!important;box-shadow:none!important;font-size:10px!important;font-weight:600!important;letter-spacing:.1em!important;text-transform:uppercase;color:#5b6270!important;display:inline-flex!important;align-items:center;justify-content:center;gap:5px;white-space:nowrap}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .pl-menu .seg.pl-st2>button[aria-pressed="true"],html body:not(#zz):not(#zy):not(#zx):not(#zw) .pl-menu .seg.pl-mseg>button[aria-pressed="true"]{background:#fff!important;color:#14171c!important;box-shadow:0 1px 2px rgb(20 23 28/.08),0 0 0 1px rgb(20 23 28/.06)!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .pl-menu .seg.pl-st2 .sdot{width:6px!important;height:6px!important;margin:0!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .pl-menu .seg.pl-mh{grid-template-columns:38px 1fr 38px;grid-auto-flow:row}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .pl-menu .seg.pl-mh>button[disabled]{color:#14171c!important;min-width:0!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .pl-menu .seg.pl-mh svg{width:14px;height:14px}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .pl-menu{min-width:360px!important}

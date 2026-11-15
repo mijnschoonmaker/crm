@@ -130,8 +130,6 @@ function vPlanning(){
     <div class="pl-meer${state.pmeer?" open":""}"><button type="button" class="iconbtn pl-mb" data-act="pmeer" aria-expanded="${!!state.pmeer}" aria-label="Meer acties" title="Meer">${I.dots||"⋯"}</button>
       <div class="pl-menu" role="menu">
         <p class="pl-ml">Acties</p>
-        ${mi("weekplan",I.wand,"Plan de week","Wie aan de beurt is per buurt over de dagen verdelen",` data-d="${iso(state.week)}"`)}
-        ${v==="dag"||v==="multi"?mi("optim",I.route||I.wand,"Optimaliseer route","Jobs van deze dag in de kortste volgorde",` data-d="${d0}"`):""}
         ${GLAS()?mi("districten",I.map,"Subgebieden","Per postcode in stukken van max. 10 woningen",""):""}
         ${mi("daynote",I.note,"Notitie bij deze dag","",` data-d="${d0}"`)}
         ${mi("bulkday",I.cal2,"Bulk dag","Hele dag in één keer verzetten of afmelden",` data-d="${d0}"`)}
@@ -143,8 +141,8 @@ function vPlanning(){
         ${mt("pselmode",I.checksq||I.check,"Meerdere afspraken selecteren",state.pselMode)}
         ${mt("achter",I.alert,"Alleen achterstallig tonen",state.achter)}
         ${v==="dag"||v==="multi"?`<p class="pl-ml">Weergave</p>
-        <div class="pl-mrow"><span>Tijdvak</span><div class="seg">${[10,15,30].map(x=>`<button type="button" data-act="slotsz" data-v="${x}" aria-pressed="${state.slot===x}">${x} min</button>`).join("")}</div></div>
-        <div class="pl-mrow"><span>Hoogte</span><div class="seg"><button type="button" data-act="rowh" data-n="-1" aria-label="Lager">${I.minus}</button><button type="button" disabled style="opacity:1;color:var(--ink);min-width:74px">${state.rowH<1?"Compact":state.rowH>1?"Ruim":"Normaal"}</button><button type="button" data-act="rowh" data-n="1" aria-label="Hoger">${I.plus}</button></div></div>`:""}
+        <div class="pl-mrow pl-mr2"><span>Tijdvak</span><div class="seg pl-mseg">${[10,15,30].map(x=>`<button type="button" data-act="slotsz" data-v="${x}" aria-pressed="${state.slot===x}">${x} min</button>`).join("")}</div></div>
+        <div class="pl-mrow pl-mr2"><span>Hoogte</span><div class="seg pl-mseg pl-mh"><button type="button" data-act="rowh" data-n="-1" aria-label="Lager">${I.minus}</button><button type="button" disabled style="opacity:1;color:var(--ink);min-width:74px">${state.rowH<1?"Compact":state.rowH>1?"Ruim":"Normaal"}</button><button type="button" data-act="rowh" data-n="1" aria-label="Hoger">${I.plus}</button></div></div>`:""}
       </div></div>
   </div>
   ${state.pselMode?pselBar():""}
