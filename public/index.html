@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="1c5aae0aca7d"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="1bb06a67af6a"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -22925,7 +22925,7 @@ const VR_ST={open:["brand","Open"],opgelost:["ok","Afgesloten"]};
 function openVragen(id){
   if(!LIVE)return toast("Vragen werken in de live versie");
   vrOpen={id:id||"",filter:"open",unsub:null,berichten:[]};
-  openDlg(`<div class="dlg-head"><span class="objic big tk-ic">${I.vraag}</span><div style="min-width:0;flex:1"><h3>Vragen van niet-klanten</h3><div class="subt">Via de prijscalculator op je website · los van de klant-tickets · afgesloten vragen worden na 30 dagen gewist</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
+  openDlg(`<div class="dlg-head"><span class="objic big tk-ic">${I.vraag}</span><div style="min-width:0;flex:1"><h3>Vragen van niet-klanten</h3><div class="subt">Via het offerte-aanvraagformulier op je website · los van de klant-tickets · afgesloten vragen worden na 30 dagen gewist</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
     <div class="chx"><div class="chx-l"><div class="seg tk-seg" role="group" id="vrSeg"></div><label class="chx-z">${I.search}<input type="search" id="vrZ" placeholder="Zoek naam, e-mail of vraag…" autocomplete="off"></label><div id="vrL"></div></div><div class="chx-r" id="vrR"></div></div>`,{xwide:true});
   dlg.addEventListener("close",()=>{if(vrOpen&&vrOpen.unsub)vrOpen.unsub();vrOpen=null},{once:true});
   vrSegTeken();$("#vrZ").oninput=vrLijstTeken;vrLijstTeken();

@@ -22514,7 +22514,7 @@ const VR_ST={open:["brand","Open"],opgelost:["ok","Afgesloten"]};
 function openVragen(id){
   if(!LIVE)return toast("Vragen werken in de live versie");
   vrOpen={id:id||"",filter:"open",unsub:null,berichten:[]};
-  openDlg(`<div class="dlg-head"><span class="objic big tk-ic">${I.vraag}</span><div style="min-width:0;flex:1"><h3>Vragen van niet-klanten</h3><div class="subt">Via de prijscalculator op je website · los van de klant-tickets · afgesloten vragen worden na 30 dagen gewist</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
+  openDlg(`<div class="dlg-head"><span class="objic big tk-ic">${I.vraag}</span><div style="min-width:0;flex:1"><h3>Vragen van niet-klanten</h3><div class="subt">Via het offerte-aanvraagformulier op je website · los van de klant-tickets · afgesloten vragen worden na 30 dagen gewist</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
     <div class="chx"><div class="chx-l"><div class="seg tk-seg" role="group" id="vrSeg"></div><label class="chx-z">${I.search}<input type="search" id="vrZ" placeholder="Zoek naam, e-mail of vraag…" autocomplete="off"></label><div id="vrL"></div></div><div class="chx-r" id="vrR"></div></div>`,{xwide:true});
   dlg.addEventListener("close",()=>{if(vrOpen&&vrOpen.unsub)vrOpen.unsub();vrOpen=null},{once:true});
   vrSegTeken();$("#vrZ").oninput=vrLijstTeken;vrLijstTeken();
