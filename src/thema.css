@@ -2564,3 +2564,37 @@ html body:not(#zz):not(#zy):not(#zx):not(#zw) .ov2 .ow-kern{margin:0!important}
 .ov2-dag .ov2-zin{display:block;line-height:1.5}.ov2-dag .ov2-zin .ov2-stip{display:inline-block;margin-right:10px;vertical-align:1px}
 .ov2-top .ov2-tools{flex-wrap:wrap;justify-content:flex-end}
 .ov2-stroom>*{margin:0!important}
+/* ===== Menu: premium rustig (nov 2026) ===== */
+html body:not(#zz):not(#zy):not(#zx) aside.side{display:flex;flex-direction:column}
+html body:not(#zz):not(#zy):not(#zx) aside.side>.sp{flex:0 0 12px!important;min-height:0!important}
+html body:not(#zz):not(#zy):not(#zx) aside.side>.logo{border-bottom:0!important;padding-bottom:18px!important;position:relative}
+html body:not(#zz):not(#zy):not(#zx) aside.side>.collapse{position:absolute;top:22px;right:14px;width:30px;height:30px;padding:0!important;margin:0!important;display:grid;place-items:center;border-radius:9px;opacity:0;transition:opacity .2s;z-index:3;background:none!important;border:0!important}
+html body:not(#zz):not(#zy):not(#zx) aside.side>.collapse .lbl{display:none!important}
+html body:not(#zz):not(#zy):not(#zx) aside.side>.collapse svg{width:17px;height:17px;color:#8a8f98}
+html body:not(#zz):not(#zy):not(#zx) aside.side:hover>.collapse,html body:not(#zz):not(#zy):not(#zx) aside.side>.collapse:focus-visible{opacity:1}
+html body:not(#zz):not(#zy):not(#zx) aside.side{position:sticky}
+html body:not(#zz):not(#zy):not(#zx) #sideNav{flex:1 1 auto!important;display:flex!important;flex-direction:column!important;gap:1px!important;padding-top:4px}
+html body:not(#zz):not(#zy):not(#zx) #sideNav .nav-g{font-size:10.5px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#a1a6ae;padding:18px 14px 6px 26px}
+html body:not(#zz):not(#zy):not(#zx) #sideNav .nav-g:first-child{padding-top:6px}
+html body:not(#zz):not(#zy):not(#zx) #sideNav .nav-sp{flex:1 1 auto;min-height:18px}
+html body:not(#zz):not(#zy):not(#zx) #sideNav>button{position:relative;background:none!important;box-shadow:none!important;border:0!important;border-radius:10px!important;color:#6b7280!important;font-weight:400!important;padding-top:9px!important;padding-bottom:9px!important;min-height:0!important}
+html body:not(#zz):not(#zy):not(#zx) #sideNav>button::before,html body:not(#zz):not(#zy):not(#zx) #sideNav>button::after{display:none!important}
+html body:not(#zz):not(#zy):not(#zx) #sideNav>button svg{stroke-width:1.6!important;color:#8a8f98!important;opacity:1}
+html body:not(#zz):not(#zy):not(#zx) #sideNav>button:hover{color:#14171c!important;background:rgb(20 23 28/.035)!important}
+html body:not(#zz):not(#zy):not(#zx) #sideNav>button[aria-current="true"]{color:#14171c!important;font-weight:500!important;background:none!important}
+html body:not(#zz):not(#zy):not(#zx) #sideNav>button[aria-current="true"] svg{color:#252c3c!important}
+html body:not(#zz):not(#zy):not(#zx) #sideNav>button[aria-current="true"]::before{content:""!important;display:block!important;position:absolute;left:4px;top:9px;bottom:9px;width:2px;border-radius:2px;background:#252c3c}
+html body:not(#zz):not(#zy):not(#zx) #sideNav>button .badge{background:none!important;color:#8a8f98!important;font-size:12px!important;font-weight:500!important;min-width:0!important;height:auto!important;padding:0!important;box-shadow:none!important;border:0!important}
+html body:not(#zz):not(#zy):not(#zx) #sideNav>button .badge.nk-b{display:inline-flex;gap:4px;align-items:baseline}
+html body:not(#zz):not(#zy):not(#zx) #sideNav>button .badge.nk-b i{font-style:normal;color:#14171c!important;font-weight:600}
+html body:not(#zz):not(#zy):not(#zx) #sideNav>button .badge.nk-b em{font-style:normal;font-size:11px;color:#8a8f98}
+html body:not(#zz):not(#zy):not(#zx) #sideNav>button .badge.nb-dr{display:inline-flex;align-items:center;gap:6px;color:#14171c!important}
+html body:not(#zz):not(#zy):not(#zx) #sideNav>button .badge.nb-dr::before{content:"";width:6px;height:6px;border-radius:50%;background:#c0392b}
+html body:not(#zz):not(#zy):not(#zx) aside.side .usercard{border:0!important;background:none!important;box-shadow:none!important;padding:14px 14px!important}
+html body:not(#zz):not(#zy):not(#zx) aside.side .usercard .lg-out{display:none!important}
+html body:not(#zz):not(#zy):not(#zx) aside.side .usercard:hover{background:rgb(20 23 28/.035)!important;border-radius:14px}
+body.collapsed #sideNav .nav-g,html.collapsed #sideNav .nav-g,.side.collapsed #sideNav .nav-g{display:none!important}
+html body:not(#zz):not(#zy):not(#zx) .app.collapsed #sideNav .nav-g{display:none!important}
+html body:not(#zz):not(#zy):not(#zx) .app.collapsed #sideNav .nav-g+button{margin-top:10px}
+html body:not(#zz):not(#zy):not(#zx) .app.collapsed aside.side>.collapse{position:static;opacity:1;margin:0 auto 8px!important}
+html body:not(#zz):not(#zy):not(#zx) .app.collapsed #sideNav>button .badge.nb-dr::before{display:none}

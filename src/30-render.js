@@ -9,7 +9,7 @@ function render(){tikWis();try{const st=String(new Error().stack||"").split("\n"
   const late=overdue().filter(k=>!(k.gepland==null||k.gepland==="")||!af(ccTlKey(k))).length,ach=facturen().filter(f=>fStatus(f)[1]==="Achterstallig"&&!af("fv:"+f.id)).length,mTodo=state.loaded?(typeof wqOpen==="function"?wqOpen():queues().reduce((a,q)=>a+q.items.length,0)):0;
   const st_=S(),B={planning:st_.bolPlanning===false?0:late,facturen:st_.bolFacturen===false?0:ach,communicatie:st_.bolComm===false?0:mTodo,klanten:nieuweAanmeldingen().filter(k=>!af("nk:"+k.id)).length,offertes:state.facturen.filter(f=>f.soort==="offerte"&&f.getekendNieuw&&!getekendAfgehandeld(f)&&!af("og:"+f.id)).length};
   meldNieuweAanmelding();
-  const badge=t=>t==="control"&&iso(today())<"2026-12-15"?`<span class="badge cc-nieuw">Nieuw</span>`:t==="offertes"&&B[t]?`<span class="badge nk-b" title="Online ondertekend"><i>${B[t]}</i><em>getekend</em></span>`:t==="klanten"&&B[t]?`<span class="badge nk-b" title="${B[t]===1?"Nieuwe klant aangemeld":B[t]+" nieuwe klanten aangemeld"}"><i>${B[t]}</i><em>nieuw</em></span>`:B[t]?`<span class="badge">${B[t]}</span>`:"";
+  const badge=t=>t==="facturen"&&B[t]?`<span class="badge nb-dr" title="${B[t]} te laat">${B[t]}</span>`:t==="offertes"&&B[t]?`<span class="badge nk-b" title="Online ondertekend"><i>${B[t]}</i><em>getekend</em></span>`:t==="klanten"&&B[t]?`<span class="badge nk-b" title="${B[t]===1?"Nieuwe klant aangemeld":B[t]+" nieuwe klanten aangemeld"}"><i>${B[t]}</i><em>nieuw</em></span>`:B[t]?`<span class="badge">${B[t]}</span>`:"";
   try{nieuwKaart()}catch(e){console.error(e)}
   try{ptKaart()}catch(e){console.error(e)}
   try{tkKaart()}catch(e){console.error(e)}
@@ -17,7 +17,10 @@ function render(){tikWis();try{const st=String(new Error().stack||"").split("\n"
   try{lvDagCheck()}catch(e){}
   $(".app").classList.toggle("collapsed",state.collapsed);
   const mw=isMw();document.body.classList.toggle("mw",mw);if(mw&&!MW_TABS.includes(state.tab))state.tab="vandaag";
-  zetHtml($("#sideNav"),PAGES.filter(([t])=>!mw||MW_TABS.includes(t)).map(([t,l])=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}" title="${l}">${I[t]}<span class="lbl">${l}</span>${badge(t)}</button>`).join(""));
+  /* menu in rustige groepen; instellingen en handleiding onderaan (nov 2026) */
+  {const NG={control:"Vandaag",klanten:"Relaties",uitvoering:"Bedrijf"},ONDER=["instellingen","handleiding"],NIC={uitvoering:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="3.5" width="15" height="17" rx="2.2"/><path d="m8.5 9 1.6 1.6L13 7.7M8.5 15h7"/></svg>'};
+   const L=PAGES.filter(([t])=>!mw||MW_TABS.includes(t)),knop=([t,l])=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}" title="${l}">${NIC[t]||I[t]}<span class="lbl">${l}</span>${badge(t)}</button>`;
+   zetHtml($("#sideNav"),L.filter(([t])=>!ONDER.includes(t)).map(x=>(!mw&&NG[x[0]]?`<div class="nav-g">${NG[x[0]]}</div>`:"")+knop(x)).join("")+`<div class="nav-sp"></div>`+L.filter(([t])=>ONDER.includes(t)).map(knop).join(""))}
   const mob=mw?MW_TABS:["control","vandaag","planning","klanten"],inMeer=!mob.includes(state.tab),meerB=late*0+mTodo;
   zetHtml($("#tabNav"),mw?mob.map(t=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}"><i>${I[t]}</i>${PAGES.find(p=>p[0]===t)[1]}</button>`).join(""):mob.map(t=>`<button type="button" data-act="tab" data-tab="${t}" aria-current="${state.tab===t}"><i>${I[t]}</i>${t==="control"?"Overzicht":PAGES.find(p=>p[0]===t)[1]}${t==="control"?"":badge(t)}</button>`).join("")+`<button type="button" data-act="meer" aria-current="${inMeer}"><i>${I.more}</i>Meer${meerB?`<span class="badge">${meerB}</span>`:""}</button>`);
   const nm=(state.me&&state.me.name)||S().naam||"Jouw bedrijf";
