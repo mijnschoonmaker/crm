@@ -2973,3 +2973,9 @@ html body:not(#zz):not(#zy):not(#zx):not(#zw) .tg-dh.solo .dh-s em{font-size:15p
 html body .ov2-mw>.ov2-mx{all:unset;position:absolute;top:50%;right:10px;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#8a8f98;cursor:pointer;transition:background .15s,color .15s}
 html body .ov2-mw>.ov2-mx:hover,html body .ov2-mw>.ov2-mx:focus-visible{background:#eceef1;color:#14171c}
 html body .ov2-mw>.ov2-mx svg{width:14px;height:14px}
+/* Live binnenkomend: op de telefoon titel volledig, tellers eronder */
+@media (max-width:640px){html body:not(#zz):not(#zy):not(#zx) .mk .cc-ch{flex-wrap:wrap!important;gap:12px!important;align-items:flex-start!important}
+html body:not(#zz):not(#zy):not(#zx) .mk .cc-ch>div:first-child{flex:1 1 100%!important;min-width:0!important}
+html body:not(#zz):not(#zy):not(#zx) .mk .cc-ch>div:first-child b{white-space:normal!important;overflow:visible!important}}
+@media (max-width:640px){html body:not(#zz):not(#zy):not(#zx) .mk-i:has(.mk-b)>.mk-k{grid-column:2/-1;justify-self:stretch;display:flex;justify-content:space-between;gap:8px}
+html body:not(#zz):not(#zy):not(#zx) .mk-i:has(.mk-b)>.mk-t{grid-column:2/-1}}
