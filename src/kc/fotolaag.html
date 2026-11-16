@@ -131,6 +131,9 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties{gap:8p
 
 /* ticket-knop i.p.v. WhatsApp; venster: al klant of nog geen klant, en chat voor niet-klanten */
 html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties>a[href*="wa.me"]{display:none!important}
+html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties>a.fo-port{display:none!important}
+@media (max-width:999px){html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties>a.fo-port{display:inline-flex!important;align-items:center}
+html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-logo .rk{display:none!important}}
 .fo-ov .fo-kies{display:grid;gap:10px;margin-top:18px}
 .fo-ov .fo-kies button{all:unset;box-sizing:border-box;display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px 12px;padding:16px 18px;border:1px solid #e3e5e8;border-radius:14px;cursor:pointer;background:#fff}
 .fo-ov .fo-kies button:hover{border-color:#0e1117}
@@ -310,7 +313,10 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties>a[href
     o.addEventListener("click",e=>{if(e.target===o||e.target.closest(".fo-dicht"))weg()});o.querySelector(".fo-ok").onclick=weg;document.addEventListener("keydown",esk);document.body.append(o);setTimeout(()=>o.querySelector(".fo-dicht").focus(),30)}
   function infoKnop(){const a=$(".cfg-acties");if(!a||a.querySelector(".fo-info"))return;const b=document.createElement("button");b.type="button";b.className="fo-info";b.setAttribute("aria-label","Over "+(B.naam||"ons"));b.title="Over ons";
     b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".9" fill="currentColor" stroke="none"/></svg>Over ons';b.onclick=info;a.prepend(b)}
-  setInterval(infoKnop,600);infoKnop();
+  /* telefoon/tablet: klantportaal-knop bij de knoppen op de foto (de knop in de balk valt dan weg) */
+  function portaalKnop(){const a=$(".cfg-acties"),h=$(".cfg-logo .rk a");if(!a||!h||a.querySelector(".fo-port")||!a.querySelector(".fo-info"))return;const b=document.createElement("a");b.className="fo-port";b.href=h.href;b.target=h.target||"_blank";b.rel="noopener";b.setAttribute("aria-label","Klantportaal");b.title="Klantportaal";
+    b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>Klantportaal';a.querySelector(".fo-info").before(b)}
+  setInterval(infoKnop,600);infoKnop();setInterval(portaalKnop,600);portaalKnop();
 
   /* ---------- ticket-knop: al klant (naar het klantportaal) of nog geen klant (vraag stellen en chatten) ---------- */
   const TICKET='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16a1 1 0 0 1 1 1v3a2 2 0 0 0 0 4v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-3a2 2 0 0 0 0-4V7a1 1 0 0 1 1-1z"/><path d="M14 6v12" stroke-dasharray="2 2.2"/></svg>';
