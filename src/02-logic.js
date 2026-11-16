@@ -92,8 +92,11 @@ function metingPatch(k,min){/* gemeten tijd zonder de extra opdrachten van vanda
 /* een meting die veel korter is dan de geplande duur (bijv. per ongeluk Start en meteen Afmelden) is geen echte meting:
    die telt niet mee voor de planning en niet als facturabele tijd */
 const meetTeKort=(min,plan)=>(Number(min)||0)<Math.max(5,0.3*(Number(plan)||0));
-const beurtTeKort=b=>{if(!b.gemeten)return false;const k=state.klanten.find(x=>x.id===b.klantId);return !!k&&meetTeKort(b.duur,duur(k))};
-const beurtMin=b=>{const k=state.klanten.find(x=>x.id===b.klantId),m=Number(b.duur)||0;return m&&!beurtTeKort(b)?m:(k?duur(k):m)};
+const beurtTeKort=b=>{if(!b.gemeten||flatMin(b)!=null)return false;const k=state.klanten.find(x=>x.id===b.klantId);return !!k&&meetTeKort(b.duur,duur(k))};
+/* flat: stops die samen gestart zijn (zelfde startmoment) delen de tijd van start tot de laatste afmelding eerlijk */
+const flatMin=b=>{if(!b||!b.startOp||!b.op)return null;const G=state.beurten.filter(x=>x.datum===b.datum&&x.startOp===b.startOp&&!x.geannuleerd&&x.op);if(G.length<2)return null;
+  const tot=(Math.max(...G.map(x=>new Date(x.op).getTime()))-new Date(b.startOp).getTime())/60000;return tot>0?Math.max(1,Math.round(tot/G.length)):null};
+const beurtMin=b=>{const f=flatMin(b);if(f!=null)return f;const k=state.klanten.find(x=>x.id===b.klantId),m=Number(b.duur)||0;return m&&!beurtTeKort(b)?m:(k?duur(k):m)};
 /* flat: woningen in dezelfde straat, zelfde plaats en zelfde tijd vandaag horen bij elkaar (één Start voor de hele flat) */
 const flatStraat=k=>{const o=jobAddrObj(k)||{};const a=String(o.adres||"").trim().toLowerCase().replace(/\s+\d.*$/,"");return a?a+"|"+String(o.plaats||k.plaats||"").trim().toLowerCase():""};
 function flatGroep(k){try{const d=iso(today());if(!k||k.gepland!==d||!k.tijd||k.soort==="vve")return [k];const key=flatStraat(k);if(!key)return [k];
