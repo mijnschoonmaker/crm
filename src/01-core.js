@@ -47,7 +47,7 @@ const startOfWeek=d=>{const x=new Date(d);x.setHours(0,0,0,0);return addDays(x,-
 const weekNr=d=>{const x=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const n=x.getUTCDay()||7;x.setUTCDate(x.getUTCDate()+4-n);const y=new Date(Date.UTC(x.getUTCFullYear(),0,1));return Math.ceil(((x-y)/DAY+1)/7)};
 const fullAddr=k=>[k.adres,[k.postcode,k.plaats].filter(Boolean).join(" ")].filter(Boolean).join(", ");
 const newId=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-const strip=o=>{const c={...o};delete c.id;return c};
+const strip=o=>{const c={...o};delete c.id;delete c._tmMin;delete c._tmEind;return c};
 const VALIAS={klant_naam:"klant",customer_name:"klant",naam:"klant",bedrijfsnaam:"bedrijf",company_name:"bedrijf",job_date:"datum",job_time:"tijd",job_address:"adres",time_window:"tijdvak",service:"dienst"};
 /* tags zoals in DienstenCRM: [veld.groep]. Oude {woorden} blijven ook werken. */
 const TAGS=[

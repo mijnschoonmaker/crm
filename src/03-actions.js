@@ -3,7 +3,7 @@ async function gewassen(k){
   const _lm=lopendeMin(k),_mp=_lm&&_lm>=1&&(k.bezigGroep||!meetTeKort(_lm,duur(k)))?metingPatch(k,_lm):null,_last=(k.tijden||[]).slice(-1)[0],_dur=_mp?_lm:_last&&_last.datum===iso(today())?_last.min:duur(k);if(_mp)k={...k,..._mp};
   const prev={laatst:k.laatst||"",gepland:k.gepland||"",bezig:k.bezig||"",tijd:k.tijd||"",reeks:k.reeks||[],eenmalig:k.eenmalig||""},bId=newId("b"),d=iso(today());
   try{
-    await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:Number(k.prijs)||0,betaald:false,gefactureerd:"",dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString()});
+    await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:Number(k.prijs)||0,betaald:false,gefactureerd:"",dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:k._tmEind||new Date().toISOString()});
     const _vn=volgendeNa(k),nx=_vn.gepland;
     await save("klanten",k.id,{...strip(k),laatst:d,..._vn,bezig:"",bezigGroep:""});aanbevelingVrijgeven(k.id);
     toast(cleanName(k.naam)+" afgerond · "+eur(stopBedrag(k)),async()=>{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev})});
@@ -21,11 +21,44 @@ async function losseExtraFacturen(k,d,list,basis,mw,hs){const ids=[],groepen={};
     const id=newId("f");await save("facturen",id,fx);ids.push(id);
     if(fx.status==="open"){let n=0;const go=()=>{if(state.facturen.some(x=>x.id===id))sendF(id,{direct:true,bevestigd:true});else if(++n<30)setTimeout(go,100)};setTimeout(go,300)}}
   return ids}
+/* ---------- KLOPT DE TIJD? ----------
+   Alleen als de tijd waarschijnlijk niet klopt: Start vergeten, of de klok loopt veel te lang (afmelden vergeten).
+   Ja = door met deze tijd, Nee = begonnen/klaar zelf invullen. Geeft null (annuleren), undefined (niets doen) of een patch. */
+function tijdKlopt(k){return new Promise(res=>{try{
+  const d0=iso(today()),nu=new Date(),plan=Math.max(1,Number(duur(k))||30),hm=x=>String(x.getHours()).padStart(2,"0")+":"+String(x.getMinutes()).padStart(2,"0");
+  const _last=(k.tijden||[]).slice(-1)[0];if(_last&&_last.datum===d0)return res(undefined);
+  let van,tot=nu,reden;
+  if(isBezig(k)){if(k.bezigGroep)return res(undefined);const lm=lopendeMin(k);if(!(lm>Math.max(2*plan,plan+20)))return res(undefined);
+    van=new Date(k.bezig);reden=`Dit duurt veel langer dan gepland (${plan} min). Misschien vergeten af te melden?`;tot=nu}
+  else{/* start vergeten: beste gok = afmelding van de vorige stop vandaag, anders nu min de geplande duur */
+    const ops=state.beurten.filter(b=>b.datum===d0&&b.op&&!b.geannuleerd).map(b=>new Date(b.op)).filter(x=>x<nu&&nu-x<4*3600e3).sort((a,b)=>b-a);
+    van=ops[0]&&nu-ops[0]<=3*plan*60000?ops[0]:new Date(nu-plan*60000);reden="Je hebt niet op Start getikt."}
+  const dlg=document.createElement("dialog");dlg.className="vraag-dlg";
+  const regel=(a,b)=>{const m=Math.max(0,Math.round((b-a)/60000));return `<b>${hm(a)} – ${hm(b)}</b><span> · ${m} min</span>`};
+  dlg.innerHTML=`<div class="vraag-ov"><div class="skz tkz" role="alertdialog" aria-modal="true" aria-labelledby="tkT">
+    <div class="skz-kop"><span class="skz-ic">${I.clock}</span><div><h3 id="tkT">Klopt de tijd?</h3><p>${esc(cleanName(k.naam))}</p></div></div>
+    <div class="tkz-r" id="tkR">${regel(van,tot)}<small>gepland ${plan} min</small></div>
+    <div class="skz-uitleg">${esc(reden)}</div>
+    <div class="tkz-in" id="tkIn" hidden><label>Begonnen<input type="time" id="tkV" value="${hm(van)}"></label><label>Klaar<input type="time" id="tkK" value="${hm(tot)}"></label></div>
+    <div class="skz-k" id="tkK1"><button type="button" class="ghost" data-tk="nee">Nee, aanpassen</button><button type="button" class="primary" data-tk="ja">${I.check}<span>Ja, klopt</span></button></div>
+    <div class="skz-k" id="tkK2" hidden><button type="button" class="ghost" data-tk="x">Annuleren</button><button type="button" class="primary" data-tk="ok">${I.check}<span>Afmelden</span></button></div></div></div>`;
+  document.body.appendChild(dlg);dlg.showModal();const weg=v=>{try{dlg.close()}catch(_){}dlg.remove();res(v)};
+  const patch=(a,b)=>({bezig:a.toISOString(),bezigGroep:"",_tmMin:Math.max(1,Math.round((b-a)/60000)),_tmEind:b.toISOString()});
+  const lees=()=>{const t=id=>{const m=/^(\d{1,2}):(\d{2})$/.exec(dlg.querySelector(id).value||"");if(!m)return null;const x=new Date(nu);x.setHours(+m[1],+m[2],0,0);return x};return [t("#tkV"),t("#tkK")]};
+  dlg.querySelectorAll("#tkIn input").forEach(i=>i.addEventListener("input",()=>{const [a,b]=lees();if(a&&b&&b>a)dlg.querySelector("#tkR").innerHTML=regel(a,b)+`<small>gepland ${plan} min</small>`}));
+  dlg.addEventListener("cancel",e=>{e.preventDefault();weg(null)});
+  dlg.addEventListener("click",e=>{const b=e.target.closest("[data-tk]");if(!b)return;const w=b.dataset.tk;
+    if(w==="ja")return weg(isBezig(k)?undefined:patch(van,tot));
+    if(w==="nee"){dlg.querySelector("#tkIn").hidden=false;dlg.querySelector("#tkK1").hidden=true;dlg.querySelector("#tkK2").hidden=false;setTimeout(()=>{try{dlg.querySelector("#tkV").focus()}catch(_){}},50);return}
+    if(w==="x")return weg(null);
+    if(w==="ok"){const [a,c]=lees();if(!a||!c){toast("Vul beide tijden in");return}if(c<=a){toast("Klaar moet na begonnen zijn");return}if(c>new Date(Date.now()+6e4)){toast("Klaar kan niet in de toekomst liggen");return}return weg(patch(a,c))}})
+}catch(e){console.error(e);res(undefined)}})}
 async function afronden(k,mode,el){
+  {const _tk=await tijdKlopt(k);if(_tk===null){render();return}if(_tk)k={...k,..._tk}}
   if(typeof isOBeurt==="function"&&isOBeurt(k)&&!k.tellingGecontroleerd&&!k._tcSkip){const a=await vraag("Telling nog niet gecontroleerd",`Dit is de O-beurt van <b>${esc(cleanName(k.naam))}</b>. Controleer eerst ter plekke of de telling van de klant klopt.`,"Toch afmelden","Telling controleren");
     if(a===null){render();return}if(a===false){render();openTellingControle(k.id);return}}
   let _vve=null;if(k.soort==="vve"&&typeof vveOplevering==="function"){_vve=await vveOplevering(k);if(_vve===null){render();return}}
-  const _lm=lopendeMin(k),_mp=_lm&&_lm>=1?metingPatch(k,_lm):null,_last=(k.tijden||[]).slice(-1)[0],_dur=_mp?_lm:_last&&_last.datum===iso(today())?_last.min:duur(k);if(_mp)k={...k,..._mp};
+  const _lm=k._tmMin!=null?k._tmMin:lopendeMin(k),_mp=_lm&&_lm>=1?metingPatch(k,_lm):null,_last=(k.tijden||[]).slice(-1)[0],_dur=_mp?_lm:_last&&_last.datum===iso(today())?_last.min:duur(k);if(_mp)k={...k,..._mp};
   const _mw=isMw();if(_mw)mode="concept";/* medewerker: altijd concept, kantoor controleert en verstuurt */
   /* afmelden = conceptfactuur (niet versturen) · factureren (veeg naar links) = definitieve factuur én direct naar de klant */
   const direct=mode==="open"&&!_mw;
@@ -46,7 +79,7 @@ async function afronden(k,mode,el){
   if((k.bevindingen||[]).length)f.bijlagen=k.bevindingen.map(b=>({...b,soort:"foto"}));
   if(k.nietFactureren&&!perKeuze(k)){/* niet factureren: beurt afmelden zonder factuur */
     try{const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed),_los=await losseExtraFacturen(k,d,_ed,f,_mw,_hs);
-      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),betaald:false,gefactureerd:"nvt",...(_los.length?{extraFacturen:_los}:{}),dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString(),...(_vve||{})});
+      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),betaald:false,gefactureerd:"nvt",...(_los.length?{extraFacturen:_los}:{}),dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:k._tmEind||new Date().toISOString(),...(_vve||{})});
       const _vn=volgendeNa(k),nx=_vn.gepland;
       await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",bevindingen:[],opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,bezig:"",bezigGroep:""});aanbevelingVrijgeven(k.id);await extraNaBij(k,d,_ed);
       const undo=async()=>{try{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
@@ -57,7 +90,7 @@ async function afronden(k,mode,el){
     try{const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed);
       /* extra opdrachten (bijv. glasbewassing) staan niet op de periodieke factuur: eigen factuur, per opdracht ingesteld */
       const _los=await losseExtraFacturen(k,d,_ed,f,_mw,_hs);
-      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),...(_los.length?{extraFacturen:_los}:{}),betaald:false,gefactureerd:"periodiek",periodiek:true,dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString(),...(_vve||{})});
+      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),...(_los.length?{extraFacturen:_los}:{}),betaald:false,gefactureerd:"periodiek",periodiek:true,dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:k._tmEind||new Date().toISOString(),...(_vve||{})});
       const _vn=volgendeNa(k),nx=_vn.gepland;
       await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,bezig:"",bezigGroep:""});aanbevelingVrijgeven(k.id);await extraNaBij(k,d,_ed);
       const undo=async()=>{try{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
@@ -74,7 +107,7 @@ async function afronden(k,mode,el){
   try{
     await save("facturen",fId,f);
     const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed),_los=await losseExtraFacturen(k,d,_ed.filter(o=>!exMee(o,_hs)),f,_mw,_hs);
-    await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:r2(f.regels.reduce((a,r)=>a+(Number(r.aantal)||0)*(Number(r.prijs)||0),0)),extra:_ed.map(o=>o.dienst),betaald:f.status==="betaald",gefactureerd:fId,dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:new Date().toISOString(),...(_vve||{})});
+    await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:r2(f.regels.reduce((a,r)=>a+(Number(r.aantal)||0)*(Number(r.prijs)||0),0)),extra:_ed.map(o=>o.dienst),betaald:f.status==="betaald",gefactureerd:fId,dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:k._tmEind||new Date().toISOString(),...(_vve||{})});
     const _vn=volgendeNa(k),nx=_vn.gepland;
     await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",artikelen:[],bevindingen:[],...(k.opdrachtVerwijderd?{actief:false}:{}),opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,...(_tg||{}),bezig:"",bezigGroep:""});aanbevelingVrijgeven(k.id);await extraNaBij(k,d,_ed);
     const undo=async()=>{try{await del("facturen",fId);await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
@@ -577,7 +610,7 @@ function drawCmpList(){
 async function logSend(i,kanaal){
   const c=compose,r=c&&c.recipients[i];if(!r)return;
   const st=r.stap,txt=kanaal==="email"?fill(st?st.mail:(c.mail||c.tekst),r.vars):fill(st?st.sms:c.tekst,r.vars);c.sent[i]=kanaal;
-  try{await save("berichten",newId("m"),{klantId:r.k.id||"",klantNaam:r.k.naam,naar:kanaal==="email"?r.k.email||"":r.k.telefoon||"",kanaal,sjabloon:c.sjabloon,onderwerp:kanaal==="email"?fill(st?st.onderwerp:c.onderwerp,r.vars):"",tekst:txt,op:new Date().toISOString(),ref:r.ref||""});
+  try{await save("berichten",newId("m"),{klantId:r.k.id||"",klantNaam:r.k.naam,naar:kanaal==="email"?r.k.email||"":r.k.telefoon||"",kanaal,sjabloon:c.sjabloon,onderwerp:kanaal==="email"?fill(st?st.onderwerp:c.onderwerp,r.vars):"",tekst:txt,op:k._tmEind||new Date().toISOString(),ref:r.ref||""});
     if(r.onSent)await r.onSent()}catch(e){err(e)}
   drawCmpList();
 }
