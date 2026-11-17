@@ -25,6 +25,7 @@ async function losseExtraFacturen(k,d,list,basis,mw,hs){const ids=[],groepen={};
    Alleen als de tijd waarschijnlijk niet klopt: Start vergeten, of de klok loopt veel te lang (afmelden vergeten).
    Ja = door met deze tijd, Nee = begonnen/klaar zelf invullen. Geeft null (annuleren), undefined (niets doen) of een patch. */
 function tijdKlopt(k){return new Promise(res=>{try{
+  if(!LIVE&&/[?&]selftest\b/.test(location.search))return res(undefined);/* automatische zelftest: geen vraag */
   const d0=iso(today()),nu=new Date(),plan=Math.max(1,Number(duur(k))||30),hm=x=>String(x.getHours()).padStart(2,"0")+":"+String(x.getMinutes()).padStart(2,"0");
   const _last=(k.tijden||[]).slice(-1)[0];if(_last&&_last.datum===d0)return res(undefined);
   let van,tot=nu,reden;

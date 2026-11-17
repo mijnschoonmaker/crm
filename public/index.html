@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="771adfc532b7"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="23ed3d83177a"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -10227,6 +10227,7 @@ async function losseExtraFacturen(k,d,list,basis,mw,hs){const ids=[],groepen={};
    Alleen als de tijd waarschijnlijk niet klopt: Start vergeten, of de klok loopt veel te lang (afmelden vergeten).
    Ja = door met deze tijd, Nee = begonnen/klaar zelf invullen. Geeft null (annuleren), undefined (niets doen) of een patch. */
 function tijdKlopt(k){return new Promise(res=>{try{
+  if(!LIVE&&/[?&]selftest\b/.test(location.search))return res(undefined);/* automatische zelftest: geen vraag */
   const d0=iso(today()),nu=new Date(),plan=Math.max(1,Number(duur(k))||30),hm=x=>String(x.getHours()).padStart(2,"0")+":"+String(x.getMinutes()).padStart(2,"0");
   const _last=(k.tijden||[]).slice(-1)[0];if(_last&&_last.datum===d0)return res(undefined);
   let van,tot=nu,reden;
