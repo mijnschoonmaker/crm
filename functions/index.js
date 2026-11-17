@@ -615,6 +615,12 @@ exports.aanvraag = onRequest({ cors: true, memory: "512MiB", timeoutSeconds: 60 
       await bucket().file("assets/" + fid).save(f.buf, { contentType: f.type || "image/jpeg", resumable: false });
       fotos.push({ id: fid, naam: f.naam || "foto.jpg", ...(meta[i] || {}) });
     }
+    /* offerte-aanvraag van een bestaande klant (e-mailadres bekend): meteen een ticket bij die klant, met de foto's */
+    if (D.formaat === "zeem.aanvraag" && D.klant.email) {
+      try { const kb = await P.klantOpEmail(D.klant.email); if (kb) { const c = D.klant;
+        const r = await P.ticketVanBuiten(kb, { onderwerp: "Offerte-aanvraag via de website", tekst: ["Offerte-aanvraag via de website" + (fotos.length ? " met " + fotos.length + " foto's" : "") + ".", c.bijzonderheden ? "Bijzonderheden: " + c.bijzonderheden : "", c.opmerking || "", [c.adres, c.postcode, c.plaats].filter(Boolean).length ? "Adres: " + [c.adres, c.postcode, c.plaats].filter(Boolean).join(" ") : "", c.telefoon ? "Telefoon: " + c.telefoon : ""].filter(Boolean).join("\n"), fotos: fotos.map(f => f.id), bron: "website" });
+        res.json({ ok: true, ticket: true, nummer: r.nummer }); return; } } catch (e) { console.error("aanvraag → ticket", e.message); }
+    }
     await db.doc("aanvragen/" + id).set({ aanvraag: D, fotos, status: "nieuw", ontvangen: nu(), aanbevolenDoor: D.aanbevolenDoor || "", ip: crypto.createHash("sha1").update(ip).digest("hex").slice(0, 12) });
 
     /* klant krijgt direct het voorlopige bestellingsoverzicht (alleen bij een calculator-aanvraag met e-mailadres) */

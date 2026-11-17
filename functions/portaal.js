@@ -687,6 +687,7 @@ module.exports = function maakPortaal(ctx) {
     const titel = String(d.onderwerp || "").trim().slice(0, 120) || tekst.split(/\n/)[0].slice(0, 70);
     await db.doc("tickets/" + id).set({ klantId: k.id, klantNaam: k.naam || "", adres: [k.adres, k.plaats].filter(Boolean).join(", "), nummer, onderwerp: titel, categorie: "overig", status: "open", aangemaakt: op, laatst: op, laatsteTekst: tekst.split("\n")[0], laatsteVan: "klant", ongelezenTeam: 1, ongelezenKlant: 0, gezienKlant: op, bron: d.bron || "website" });
     await db.doc("ticketBerichten/" + newId("tb")).set({ ticketId: id, klantId: k.id, van: "klant", tekst, foto: "", op });
+    for (const [i, f] of (Array.isArray(d.fotos) ? d.fotos : []).slice(0, 20).entries()) await db.doc("ticketBerichten/" + newId("tb")).set({ ticketId: id, klantId: k.id, van: "klant", tekst: "", foto: String(f), op: new Date(Date.parse(op) + i + 1).toISOString() });
     try { await tkPush(id, nummer, k, "Nieuw ticket", titel, tekst.split("\n")[0]); } catch (e) { console.error("tkPush", e.message); }
     return { id, nummer };
   }
