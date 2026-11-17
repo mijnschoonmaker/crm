@@ -6,7 +6,7 @@
    - vraagMelding (CRM): seintje per mail naar de vraagsteller, met een knop naar het gesprek (het antwoord zelf staat alleen in het ticketscherm)
    - vragenOpruimen (elke nacht): afgesloten vragen ouder dan 30 dagen weg */
 const crypto = require("crypto");
-module.exports = ({ db, onRequest, onCall, onSchedule, HttpsError, brevoSend, mailHtml, checkGebruiker, geheim, bedrijf, newId, nu, isLegacy }) => {
+module.exports = ({ db, onRequest, onCall, onSchedule, HttpsError, brevoSend, mailHtml, checkGebruiker, geheim, bedrijf, newId, nu, isLegacy, klantOpEmail, ticketVanBuiten }) => {
   const h = s => crypto.createHash("sha256").update(String(s)).digest("hex");
   const schoon = (s, n) => String(s || "").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, "").trim().slice(0, n);
   const ipVan = req => String(req.headers["x-forwarded-for"] || req.ip || "").split(",")[0].trim();
@@ -45,6 +45,8 @@ module.exports = ({ db, onRequest, onCall, onSchedule, HttpsError, brevoSend, ma
         const naam = schoon(b.naam, 80), email = schoon(b.email, 120).toLowerCase(), telefoon = schoon(b.telefoon, 30), tekst = schoon(b.tekst, 2000);
         if (!naam || !tekst || (!email && !telefoon)) { res.status(400).json({ ok: false, fout: "Vul uw naam, uw vraag en uw e-mailadres of telefoonnummer in." }); return; }
         if (email && !/^\S+@\S+\.\S+$/.test(email)) { res.status(400).json({ ok: false, fout: "Controleer uw e-mailadres." }); return; }
+        /* e-mailadres hoort al bij een klant (ook zakelijk): meteen een ticket bij die klant */
+        if (email && klantOpEmail && ticketVanBuiten) { try { const kb = await klantOpEmail(email); if (kb) { const r = await ticketVanBuiten(kb, { onderwerp: "Vraag via de website", tekst: tekst + (telefoon ? "\n\nTelefoon: " + telefoon : ""), bron: "website" }); res.json({ ok: true, ticket: true, nummer: r.nummer }); return; } } catch (e) { console.error("vraag → ticket", e.message); } }
         const id = newId("vr"), tok = crypto.randomBytes(18).toString("hex"), op = nu();
         const tel = await db.runTransaction(async t => { const r = db.doc("tellers/vragen"), x = await t.get(r); const v = (x.exists ? x.data().n : 100) + 1; t.set(r, { n: v }); return v; }).catch(() => Date.now() % 10000);
         const pagina = /^\/webshop\/[a-z0-9-]{1,60}\.html$/i.test(String(b.pagina || "")) ? String(b.pagina) : "";

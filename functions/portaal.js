@@ -673,6 +673,23 @@ module.exports = function maakPortaal(ctx) {
     const naam = schoon(k.contact || k.naam || "Klant");
     await Promise.race([pushStuur({ titel: soort + " · " + (nummer || "ticket") + " · " + naam, tekst: (onderwerp && onderwerp !== tekst ? onderwerp + ": " : "") + String(tekst || "").replace(/\s+/g, " "), url: "/?ticket=" + encodeURIComponent(id), tag: "tk-" + id }), new Promise(r => setTimeout(r, 4000))]).catch(() => {});
   }
+  /* bestaande klant op e-mailadres (ook zakelijk; meerdere adressen in één veld tellen mee) */
+  async function klantOpEmail(email) {
+    const e = String(email || "").trim().toLowerCase(); if (!/^\S+@\S+\.\S+$/.test(e)) return null;
+    const kand = []; for (const v of new Set([e, String(email || "").trim()])) { const q = await db.collection("klanten").where("email", "==", v).limit(5).get(); q.forEach(d => kand.push({ id: d.id, ...d.data() })); }
+    if (!kand.length) { const q = await db.collection("klanten").where("factuurEmail", "==", e).limit(5).get().catch(() => null); if (q) q.forEach(d => kand.push({ id: d.id, ...d.data() })); }
+    const ok = kand.filter(k => k.actief !== false && !k.verwijderd);
+    return ok.find(k => !k.prospect && !k.hoofdKlantId) || ok.find(k => !k.hoofdKlantId) || ok[0] || null;
+  }
+  /* ticket van buiten het portaal (website): komt direct bij de klant binnen */
+  async function ticketVanBuiten(k, d) {
+    const op = nu(), id = newId("tk"), nummer = await ticketNummer(), tekst = String(d.tekst || "").trim().slice(0, 3000) || "(geen tekst)";
+    const titel = String(d.onderwerp || "").trim().slice(0, 120) || tekst.split(/\n/)[0].slice(0, 70);
+    await db.doc("tickets/" + id).set({ klantId: k.id, klantNaam: k.naam || "", adres: [k.adres, k.plaats].filter(Boolean).join(", "), nummer, onderwerp: titel, categorie: "overig", status: "open", aangemaakt: op, laatst: op, laatsteTekst: tekst.split("\n")[0], laatsteVan: "klant", ongelezenTeam: 1, ongelezenKlant: 0, gezienKlant: op, bron: d.bron || "website" });
+    await db.doc("ticketBerichten/" + newId("tb")).set({ ticketId: id, klantId: k.id, van: "klant", tekst, foto: "", op });
+    try { await tkPush(id, nummer, k, "Nieuw ticket", titel, tekst.split("\n")[0]); } catch (e) { console.error("tkPush", e.message); }
+    return { id, nummer };
+  }
   async function ticketNieuw(S, d) {
     const k = S.klant, onderwerp = String(d.onderwerp || "").trim().slice(0, 120), tekst = String(d.tekst || "").trim().slice(0, 3000), categorie = T_CAT[d.categorie] ? d.categorie : "overig";
     if (!tekst && !d.foto) throw new Error("Beschrijf kort waar het om gaat.");
@@ -885,5 +902,5 @@ module.exports = function maakPortaal(ctx) {
     }
     console.log("maandwinnaars", vm, top.map(x => x.klantId));
   }) : null;
-  return { portaal, portaalUitnodigen, portaalVoorbeeld, ticketMelding, refKlant, creditsAuto, maandWinnaar, winnaarMail };
+  return { klantOpEmail, ticketVanBuiten, portaal, portaalUitnodigen, portaalVoorbeeld, ticketMelding, refKlant, creditsAuto, maandWinnaar, winnaarMail };
 };

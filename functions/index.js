@@ -601,6 +601,12 @@ exports.aanvraag = onRequest({ cors: true, memory: "512MiB", timeoutSeconds: 60 
     if (dub) { res.json({ ok: true, dubbel: true }); return; }
     /* aanbevolen door een bestaande klant? */
     if (D.ref) { try { const r = await P.refKlant(D.ref); if (r) { D.ref = r.code; D.aanbevolenDoor = r.id; } else delete D.ref; } catch (e) { delete D.ref; } }
+    /* zakelijk contactverzoek van een bestaande klant (e-mailadres bekend): meteen een ticket bij die klant */
+    if (D.formaat === "zeem.contact" && D.klant.email) {
+      try { const kb = await P.klantOpEmail(D.klant.email); if (kb) { const c = D.klant;
+        const r = await P.ticketVanBuiten(kb, { onderwerp: "Contactverzoek via de website", tekst: [c.opmerking || "", D.pand ? "Soort pand: " + D.pand : "", c.naam ? "Contactpersoon: " + c.naam : "", c.telefoon ? "Telefoon: " + c.telefoon : "", [c.adres, c.postcode, c.plaats].filter(Boolean).length ? "Adres: " + [c.adres, c.postcode, c.plaats].filter(Boolean).join(" ") : ""].filter(Boolean).join("\n"), bron: "website" });
+        res.json({ ok: true, ticket: true, nummer: r.nummer }); return; } } catch (e) { console.error("contact → ticket", e.message); }
+    }
     let meta = []; try { meta = JSON.parse(velden.fotometa || "[]"); } catch (e) {}
     const id = newId("a"), fotos = [];
     for (const [i, f] of bestanden.entries()) {
@@ -963,7 +969,7 @@ const DEMO = require("./demotoegang")({ rawDb, onRequest, onCall, HttpsError, br
 exports.demoToegang = DEMO.demoToegang;
 exports.demoAanmeldingen = DEMO.demoAanmeldingen;
 /* vragen van niet-klanten via de website (los van de klant-tickets) */
-const VRAGEN = require("./vragen")({ db, onRequest, onCall, onSchedule, HttpsError, brevoSend, mailHtml, checkGebruiker, geheim, bedrijf, newId, nu, isLegacy: () => TEN.isLegacy() });
+const VRAGEN = require("./vragen")({ db, onRequest, onCall, onSchedule, HttpsError, brevoSend, mailHtml, checkGebruiker, geheim, bedrijf, newId, nu, isLegacy: () => TEN.isLegacy(), klantOpEmail: (...a) => P.klantOpEmail(...a), ticketVanBuiten: (...a) => P.ticketVanBuiten(...a) });
 exports.vragen = VRAGEN.vragen;
 exports.vraagMelding = VRAGEN.vraagMelding;
 exports.vragenOpruimen = VRAGEN.vragenOpruimen;
