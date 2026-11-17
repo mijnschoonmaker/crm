@@ -393,7 +393,7 @@ async function init(){
 
 /* ---------- HULPJES ---------- */
 let toastT;
-function toast(msg,acts){
+function toast(msg,acts){try{const fo=document.querySelector("dialog[open] .kk-fout");if(fo&&!/^Opgeslagen/.test(String(msg)))fo.textContent=String(msg)}catch(_){}
   document.querySelectorAll(".toast").forEach(t=>t.remove());
   if(typeof acts==="function")acts=[{label:"Ongedaan maken",fn:acts}];
   const el=document.createElement("div");el.className="toast";el.setAttribute("role","status");

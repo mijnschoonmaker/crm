@@ -173,10 +173,12 @@ function openKlantView(id,opt={}){
 function kkSmall(kid,title,ic,body,read){
   const k=state.klanten.find(x=>x.id===kid);if(!k)return;
   openDlg(`<div class="dlg-head"><span class="objic big">${ic}</span><div style="min-width:0;flex:1"><h3>${title}</h3><div class="subt">${esc(cleanName(k.naam))}</div></div><button type="button" class="iconbtn" id="kkX" aria-label="Terug">${I.x}</button></div>
-    ${body(k)}<div class="row"><span class="sp"></span><button type="button" id="kkBack">Annuleren</button><button type="submit" class="primary" id="kkSave">${I.check}Opslaan</button></div>`,{wide:true});
+    ${body(k)}<div class="row"><span class="kk-fout" id="kkFout" role="alert"></span><span class="sp"></span><button type="button" id="kkBack">Annuleren</button><button type="submit" class="primary" id="kkSave">${I.check}Opslaan</button></div>`,{wide:true});
   $("#kkX").onclick=$("#kkBack").onclick=()=>openKlantView(kid);
-  form.onsubmit=async e=>{e.preventDefault();const p=read();if(!p)return;$("#kkSave").disabled=true;
-    try{const cur=state.klanten.find(x=>x.id===kid)||k;await save("klanten",kid,{...strip(cur),...p});let n=0;try{n=await adresDoorvoeren({...cur},{...cur,...p,id:kid})}catch(e2){console.error(e2)}toast("Opgeslagen"+(n?" · ook bijgewerkt in "+plural(n,"conceptfactuur/offerte","conceptfacturen/offertes"):""));openKlantView(kid)}catch(er){$("#kkSave").disabled=false;err(er)}};
+  /* eigen controle i.p.v. de browser: die blokkeert soms stil (veld buiten beeld, lege datum in Safari) */
+  form.noValidate=true;
+  form.onsubmit=async e=>{e.preventDefault();const fo=$("#kkFout");if(fo)fo.textContent="";const p=read();if(!p)return;$("#kkSave").disabled=true;
+    try{const cur=state.klanten.find(x=>x.id===kid)||k;await save("klanten",kid,{...strip(cur),...p});let n=0;try{n=await adresDoorvoeren({...cur},{...cur,...p,id:kid})}catch(e2){console.error(e2)}toast("Opgeslagen"+(n?" · ook bijgewerkt in "+plural(n,"conceptfactuur/offerte","conceptfacturen/offertes"):""));openKlantView(kid)}catch(er){$("#kkSave").disabled=false;if(fo)fo.textContent="Opslaan lukte niet: "+(er&&er.message||er);err(er)}};
 }
 function kkAdres(kid){const v=id=>$("#"+id).value.trim();
   kkSmall(kid,"Adresgegevens",I.pin,k=>`<p class="subt" style="margin:0">Leeg laten betekent: het hoofdadres en het gewone e-mailadres (${esc(k.email||"nog niet ingevuld")}).</p>
@@ -259,6 +261,7 @@ function kkGegevens(kid){const k=state.klanten.find(x=>x.id===kid);if(!k)return;
     const naam=zak?(bedr||[voorn,achn].filter(Boolean).join(" ")):(achn?achn+(voorn?", "+voorn:""):voorn);
     if(!naam){$(zak?"#kg-bedr":"#kg-ach").focus();toast("Vul een naam in");return null}
     if(!v("kg-adres")){$("#kg-adres").focus();toast("Vul het adres in");return null}
+    const mailOk=m=>!m||String(m).split(/[;,\s]+/).filter(Boolean).every(x=>/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x));if(!mailOk(v("kg-email"))){$("#kg-email").focus();toast("Dit e-mailadres klopt niet");return null}
     const telOk=t=>!t||String(t).replace(/\D/g,"").length>=10;if(!telOk(v("kg-tel"))||!telOk(v("kg-mob"))){toast("Een telefoonnummer heeft 10 cijfers");return null}
     const actief=$("#kg-actief").checked;
     return {naam,voornaam:voorn,achternaam:achn,contact:zak?[voorn,achn].filter(Boolean).join(" "):(k.contact||""),klantnr:v("kg-nr"),soort:$("#kg-soort").value,nieuwsbrief:$("#kg-nb").value==="ja",nbGroep:v("kg-nbg")||"Standaard",
