@@ -747,7 +747,8 @@ module.exports = function maakPortaal(ctx) {
   /* ticketmail: de hele mail is een ticket (zie mailHtml opts.ticket); in Apple Mail/iOS klapt de stempel erop en komt de strook los */
   function ticketMailBlok(t, opg, b) {
     const e = x => String(x ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-    const kl = "#137a8a", kl2 = "#1d5a74";
+    /* zelfde kleur als de andere mails: de accentkleur uit E-mail opmaak, anders ons donkerblauw */
+    const kl = /^#[0-9a-f]{6}$/i.test(String((b || {}).mailAccent || "")) ? b.mailAccent : "#252c3c", kl2 = kl;
     const d = new Date(t.laatst || Date.now()), dat = d.toLocaleDateString("nl-NL", { weekday: "short", day: "numeric", month: "short", timeZone: "Europe/Amsterdam" }), tijd = d.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" });
     const laatst = String(t.laatsteTekst || "").slice(0, 300), bub = laatst && laatst !== "Ticket opgelost";
     const mono = "'SF Mono',Menlo,Consolas,'Courier New',monospace";
@@ -758,13 +759,13 @@ module.exports = function maakPortaal(ctx) {
 .ms-st{display:inline-block;transform:rotate(-10deg);animation:msStempel .45s cubic-bezier(.2,1.5,.4,1) .8s both}
 .ms-dot{animation:msPuls 1.4s ease-in-out infinite}`;
     const stempel = opg ? `<span class="ms-st" style="display:inline-block;border:2.5px solid ${kl};color:${kl};border-radius:9px;padding:4px 11px;font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;white-space:nowrap">&#10003; Opgelost</span>`
-      : `<span style="display:inline-block;background:#e3f2f4;color:${kl};border-radius:99px;padding:5px 12px;font-size:12.5px;font-weight:700;white-space:nowrap"><span class="ms-dot" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${kl};vertical-align:middle;margin:-2px 6px 0 0"></span>Nieuw antwoord</span>`;
+      : `<span style="display:inline-block;background:#eef0f3;color:${kl};border-radius:99px;padding:5px 12px;font-size:12px;font-weight:600;white-space:nowrap"><span class="ms-dot" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${kl};vertical-align:middle;margin:-2px 6px 0 0"></span>Nieuw antwoord</span>`;
     const kop = `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
-  <td valign="middle" style="font-size:11px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:#6b7c82;white-space:nowrap">Ticket&nbsp;<span style="letter-spacing:.6px;color:${kl}">${e(t.nummer)}</span></td>
+  <td valign="middle" style="font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#7a808c;white-space:nowrap">Ticket&nbsp;<span style="letter-spacing:.6px;color:${kl}">${e(t.nummer)}</span></td>
   <td align="right" valign="middle">${stempel}</td></tr></table>
-<div style="font-size:22px;font-weight:800;color:#0f1f26;line-height:1.2;margin:12px 0 4px;letter-spacing:-.4px">${e(t.onderwerp || "Uw vraag")}</div>
-<div style="border-top:1.5px dashed #dde5e8;margin:14px 0 0;height:0;line-height:0;font-size:0">&nbsp;</div>`;
-    const na = bub ? `<div style="background:#f3f6f7;border-left:3px solid ${kl};border-radius:4px 14px 14px 4px;padding:12px 14px;font-size:14.5px;line-height:1.55;color:#33454c;margin:0 0 20px">${e(laatst)}</div>` : "";
+<div style="font-size:20px;font-weight:500;color:#14181f;line-height:1.2;margin:10px 0 2px;letter-spacing:-.2px">${e(t.onderwerp || "Uw vraag")}</div>
+<div style="border-top:1px solid #eef1f3;margin:16px 0 0;height:0;line-height:0;font-size:0">&nbsp;</div>`;
+    const na = bub ? `<div style="background:#f5f6f8;border-left:3px solid ${kl};border-radius:4px 14px 14px 4px;padding:12px 14px;font-size:14.5px;line-height:1.55;color:#33454c;margin:0 0 20px">${e(laatst)}</div>` : "";
     const lab = "font-size:10px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:rgba(255,255,255,.75)";
     const strook = `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
   <td valign="middle"><div style="${lab}">${opg ? "Opgelost" : "Beantwoord"}</div><div style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;color:#fff;margin-top:3px;white-space:nowrap">${e(dat)} · ${e(tijd).replace(":", "&#8203;:")}</div></td>
