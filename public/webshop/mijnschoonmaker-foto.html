@@ -1610,7 +1610,7 @@ async function naarServer(){const b=g("indienen");if(bezig(b)||!check())return;b
   try{const fd=new FormData();fd.append("aanvraag",JSON.stringify(aanvraagData()));
     photos.forEach((p,i)=>fd.append("foto"+(i+1),p.blob||dataUrlBlob(p.url),`woning-foto-${i+1}.jpg`));
     fd.append("fotometa",JSON.stringify(photos.map(p=>({w:p.cv.width,h:p.cv.height,dots:p.dots.map(d=>({x:d.x,y:d.y,t:d.t,...(d.s&&d.s!==1?{s:d.s}:{})}))}))));
-    const r=await fetch(BEDRIJF.endpoint,{method:"POST",body:fd});if(!r.ok)throw new Error(r.status);
+    const r=await fetch(BEDRIJF.endpoint,{method:"POST",body:fd});if(!r.ok)throw new Error(r.status);try{window.__aanvraagRes=await r.clone().json()}catch(_){}
     knopKlaar(b,"Aanvraag verstuurd ✓");say("Bedankt! Uw aanvraag is verstuurd. Wij nemen zo snel mogelijk contact met u op.","ok")}
   catch(e){say("Versturen lukte niet. Probeer het via WhatsApp of e-mail.","bad");g("indienen").onclick=()=>deel("mail")}
   finally{if(b.dataset.klaar!=="1")b.disabled=false}}
@@ -2910,7 +2910,7 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-logo .rk{disp
       `Foto’s: ${nF()} (graag als bijlage meesturen)`,v("k-opm")?"\nOpmerking: "+v("k-opm"):"",v("k-bijz")?"Bijzonderheden: "+v("k-bijz"):"","","Aanvraagcode voor "+BEDRIJF.naam+" (niet wijzigen):","ZEEM1:"+aanvraagCode()].filter((x,i,a)=>x!==""||a[i-1]!=="").join("\n")};try{tekst=window.tekst}catch(e){}
   /* na versturen: duidelijke bevestiging met de belofte */
   function bedankt(){const m=G("msg");if(!m||m.dataset.fo)return;m.dataset.fo="1";m.className="msg";m.innerHTML="";
-    const k=document.createElement("div");k.className="fo-klaar";k.innerHTML="<b>Bedankt, uw aanvraag is binnen.</b>Binnen 24 uur ontvangt u van ons uw offerte op maat"+(G("k-email").value.trim()?" per e-mail":"")+". U hoeft verder niets te doen.";m.after(k)}
+    const k=document.createElement("div");k.className="fo-klaar";const _tr=window.__aanvraagRes||{};k.innerHTML=_tr.ticket?"<b>Bedankt, uw aanvraag is binnen.</b>U bent al klant bij ons: uw aanvraag staat als ticket"+(_tr.nummer?" "+esc(_tr.nummer):"")+" in uw klantportaal. Daar ziet u ook ons antwoord.":"<b>Bedankt, uw aanvraag is binnen.</b>Binnen 24 uur ontvangt u van ons uw offerte op maat"+(G("k-email").value.trim()?" per e-mail":"")+". U hoeft verder niets te doen.";m.after(k)}
   {const ind=G("indienen");if(ind)new MutationObserver(()=>{if(ind.dataset.klaar==="1"){if(ind.textContent!=="Aanvraag verstuurd ✓")ind.textContent="Aanvraag verstuurd ✓";bedankt()}}).observe(ind,{attributes:true,childList:true,characterData:true,subtree:true})}
   /* ---------- configurator-onderbalk: eigen stap, teller en knop ---------- */
   let knop=null,stapEl=null,fotoEl=null;

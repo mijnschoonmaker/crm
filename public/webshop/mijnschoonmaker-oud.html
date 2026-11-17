@@ -1610,7 +1610,7 @@ async function naarServer(){const b=g("indienen");if(bezig(b)||!check())return;b
   try{const fd=new FormData();fd.append("aanvraag",JSON.stringify(aanvraagData()));
     photos.forEach((p,i)=>fd.append("foto"+(i+1),p.blob||dataUrlBlob(p.url),`woning-foto-${i+1}.jpg`));
     fd.append("fotometa",JSON.stringify(photos.map(p=>({w:p.cv.width,h:p.cv.height,dots:p.dots.map(d=>({x:d.x,y:d.y,t:d.t,...(d.s&&d.s!==1?{s:d.s}:{})}))}))));
-    const r=await fetch(BEDRIJF.endpoint,{method:"POST",body:fd});if(!r.ok)throw new Error(r.status);
+    const r=await fetch(BEDRIJF.endpoint,{method:"POST",body:fd});if(!r.ok)throw new Error(r.status);try{window.__aanvraagRes=await r.clone().json()}catch(_){}
     knopKlaar(b,"Aanvraag verstuurd ✓");say("Bedankt! Uw aanvraag is verstuurd. Wij nemen zo snel mogelijk contact met u op.","ok")}
   catch(e){say("Versturen lukte niet. Probeer het via WhatsApp of e-mail.","bad");g("indienen").onclick=()=>deel("mail")}
   finally{if(b.dataset.klaar!=="1")b.disabled=false}}
