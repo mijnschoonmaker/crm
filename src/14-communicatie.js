@@ -174,7 +174,7 @@ function emailHtmlRuw({stijl,accent,kicker,titel,tekst,rich,meta,regels,totaal,t
   <div style="padding:16px 34px 10px;color:#2b3a40">${tb}</div>
 </div>
 ${scene?`<div style="background:#fbfcfc;line-height:0;font-size:0;padding-top:4px"><img src="${e((LIVE&&/^https?:/.test(location.origin)?location.origin:"https://app.mansard.nl")+"/mail/"+scene+(typeof busLegacy==="function"&&!busLegacy()?"-bus":"")+".gif")}" width="720" alt="${scene==="weg"?BW("uwWerk"):"Wij zijn onderweg naar u"}" style="display:block;width:100%;max-width:720px;height:auto;border:0"></div>`:`<div style="background:#fbfcfc;height:14px;line-height:14px;font-size:0">&nbsp;</div>`}
-<div style="background:${BL};background-image:repeating-linear-gradient(115deg,rgba(255,255,255,.014) 0 1px,transparent 1px 22px),linear-gradient(135deg,${BL2},${BL} 60%,${_mx(BL,"#ffffff",.12)});border-radius:0 0 22px 22px;color:#ffffff;padding:${portaalLive?"0;height:18px;line-height:18px;font-size:0":"18px 30px 20px"}">${portaalLive?"&nbsp;":strook}</div>
+<div style="background:${BL};background-image:repeating-linear-gradient(115deg,rgba(255,255,255,.014) 0 1px,transparent 1px 22px),linear-gradient(135deg,${BL2},${BL} 60%,${_mx(BL,"#ffffff",.12)});border-radius:0 0 22px 22px;color:#ffffff;padding:0;height:18px;line-height:18px;font-size:0">&nbsp;</div>
 </div></div>`;
 }
 function mailFor(sjabloon,vars,tekst,{f,stap,preview}={}){
@@ -192,7 +192,7 @@ function mailFor(sjabloon,vars,tekst,{f,stap,preview}={}){
   if(kind==="offerte"&&(vars.akkoordlink||preview))o.teken=vars.akkoordlink||"#";
   const _em=vars["email.customer"]||"",_pu=(LIVE&&/^https?:/.test(location.origin)?location.origin:"https://app.mansard.nl")+"/portaal"+(preview?(_em?"?e="+encodeURIComponent(_em):""):"?__PORTAAL_LINK__");
   /* elke mail aan een klant: kaartje met directe link naar het klantportaal (zonder inloggen); bij de aankondiging met live volgen */
-  if(s.portaalKnop!==false&&kind!=="offerte"){o.portaal=_pu;if(kind==="aankondiging"||kind==="herinnering")o.portaalLive=true}
+  if(s.portaalKnop!==false&&kind!=="offerte"){o.portaal=_pu;o.portaalLive=true}
   /* busje op de lijn: onderweg naar de woning (aankondiging) of weggereden met vinkje (afkondiging) */
   if(kind==="aankondiging"||kind==="herinnering")o.scene="onderweg";else if(kind==="afkondiging")o.scene="weg";
   if(kind==="review"&&s.reviewLink)o.knop={tekst:s.reviewKnop||"Review achterlaten",url:s.reviewLink};

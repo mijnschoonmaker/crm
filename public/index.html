@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="84f247933c3d"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="79930692c4b5"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -12650,7 +12650,7 @@ function emailHtmlRuw({stijl,accent,kicker,titel,tekst,rich,meta,regels,totaal,t
   <div style="padding:16px 34px 10px;color:#2b3a40">${tb}</div>
 </div>
 ${scene?`<div style="background:#fbfcfc;line-height:0;font-size:0;padding-top:4px"><img src="${e((LIVE&&/^https?:/.test(location.origin)?location.origin:"https://app.mansard.nl")+"/mail/"+scene+(typeof busLegacy==="function"&&!busLegacy()?"-bus":"")+".gif")}" width="720" alt="${scene==="weg"?BW("uwWerk"):"Wij zijn onderweg naar u"}" style="display:block;width:100%;max-width:720px;height:auto;border:0"></div>`:`<div style="background:#fbfcfc;height:14px;line-height:14px;font-size:0">&nbsp;</div>`}
-<div style="background:${BL};background-image:repeating-linear-gradient(115deg,rgba(255,255,255,.014) 0 1px,transparent 1px 22px),linear-gradient(135deg,${BL2},${BL} 60%,${_mx(BL,"#ffffff",.12)});border-radius:0 0 22px 22px;color:#ffffff;padding:${portaalLive?"0;height:18px;line-height:18px;font-size:0":"18px 30px 20px"}">${portaalLive?"&nbsp;":strook}</div>
+<div style="background:${BL};background-image:repeating-linear-gradient(115deg,rgba(255,255,255,.014) 0 1px,transparent 1px 22px),linear-gradient(135deg,${BL2},${BL} 60%,${_mx(BL,"#ffffff",.12)});border-radius:0 0 22px 22px;color:#ffffff;padding:0;height:18px;line-height:18px;font-size:0">&nbsp;</div>
 </div></div>`;
 }
 function mailFor(sjabloon,vars,tekst,{f,stap,preview}={}){
@@ -12668,7 +12668,7 @@ function mailFor(sjabloon,vars,tekst,{f,stap,preview}={}){
   if(kind==="offerte"&&(vars.akkoordlink||preview))o.teken=vars.akkoordlink||"#";
   const _em=vars["email.customer"]||"",_pu=(LIVE&&/^https?:/.test(location.origin)?location.origin:"https://app.mansard.nl")+"/portaal"+(preview?(_em?"?e="+encodeURIComponent(_em):""):"?__PORTAAL_LINK__");
   /* elke mail aan een klant: kaartje met directe link naar het klantportaal (zonder inloggen); bij de aankondiging met live volgen */
-  if(s.portaalKnop!==false&&kind!=="offerte"){o.portaal=_pu;if(kind==="aankondiging"||kind==="herinnering")o.portaalLive=true}
+  if(s.portaalKnop!==false&&kind!=="offerte"){o.portaal=_pu;o.portaalLive=true}
   /* busje op de lijn: onderweg naar de woning (aankondiging) of weggereden met vinkje (afkondiging) */
   if(kind==="aankondiging"||kind==="herinnering")o.scene="onderweg";else if(kind==="afkondiging")o.scene="weg";
   if(kind==="review"&&s.reviewLink)o.knop={tekst:s.reviewKnop||"Review achterlaten",url:s.reviewLink};
