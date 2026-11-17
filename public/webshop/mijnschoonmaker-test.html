@@ -3009,7 +3009,9 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-logo .rk{disp
       if(!VEP){f.textContent="Dit is een voorbeeld: er wordt niets verstuurd.";return}
       b.disabled=true;b.textContent="Bezig…";f.textContent="";
       try{const r=await fetch(vUrl(""),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(d)});const j=await r.json().catch(()=>({}));
-        if(!r.ok||!j.ok)throw new Error(j.fout||"Versturen lukte niet. Probeer het opnieuw.");vZet({id:j.id,t:j.t,naam:d.naam,email:d.email});o._weg();chat(true)}
+        if(!r.ok||!j.ok)throw new Error(j.fout||"Versturen lukte niet. Probeer het opnieuw.");
+        if(j.ticket){o._weg();const pu=(document.querySelector(".cfg-logo .rk a")||{}).href||"";const w=venster(`<div class="fo-vk"><h3>Uw vraag is ontvangen</h3><p class="fo-sub">U bent al klant bij ons. Uw vraag staat als ticket${j.nummer?" "+esc(j.nummer):""} in uw klantportaal; daar ziet u ook ons antwoord.</p>${pu?`<a class="fo-knop" href="${esc(pu)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;justify-content:center;text-decoration:none;margin-top:14px">Naar mijn klantportaal</a>`:""}</div>`);return}
+        vZet({id:j.id,t:j.t,naam:d.naam,email:d.email});o._weg();chat(true)}
       catch(e){f.textContent=e.message;b.disabled=false;b.textContent="Versturen"}}}
   function chat(net){const x=vLees();if(!x)return ticket();
     const o=venster(`<h2>Uw vraag</h2><p class="fo-sub">${net?"Verstuurd. ":""}Wij antwoorden in dit venster${x.email?". Zodra er een antwoord is, ontvangt u een e-mail":", zo snel mogelijk"}.</p><div class="fo-chat" id="fvC"><p class="fo-wacht">Laden…</p></div>
