@@ -1927,6 +1927,11 @@ html body:not(#zz):not(#zy):not(#zx):not(#zw) .rf-bk .cr-c-top span{font-size:10
 html body:not(#zz):not(#zy):not(#zx):not(#zw) .rf-bk .cr-c-chip{width:38px;height:28px;border-radius:6px;margin:14px 0 8px;background:linear-gradient(135deg,#e7eaf0,#9aa3b3 60%,#d6dbe4);box-shadow:inset 0 0 0 1px rgb(0 0 0 / .15)}
 html body:not(#zz):not(#zy):not(#zx):not(#zw) .rf-bk .cr-glans{position:absolute;top:0;bottom:0;width:40%;left:0;background:linear-gradient(90deg,transparent,rgb(255 255 255 / .3),transparent);animation:glans 5s ease-in-out infinite;animation-delay:1.5s;pointer-events:none}
 @media (max-width:1100px){html body:not(#zz):not(#zy):not(#zx):not(#zw) .rf-vis{display:none!important}}
+
+/* factuurvenster: Van / Aan zoals op een gewone factuur */
+html body .fact-doc .fh.fh-va{display:grid!important;grid-template-columns:1fr 1fr auto;gap:18px;align-items:start}
+html body .fact-doc .fh-l{display:block;font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#8a8f98;margin-bottom:4px}
+@media (max-width:560px){html body .fact-doc .fh.fh-va{grid-template-columns:1fr 1fr}html body .fact-doc .fh.fh-va>div:last-child{grid-column:1/-1;text-align:left!important}}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -2725,7 +2730,7 @@ async function openFactuur(id){let f;const sluit=blad(`<div class="laden" style=
     else{slot.innerHTML=`<div class="infobox">${I.klok}<span>De PDF kon nu niet worden geladen. Probeer het zo nog eens.</span></div>`;if(dl)dl.remove()}
     return}
   bladVul(o,`${kopTxt}
-    <div class="fact-doc"><div class="fh"><div><b>${esc(b.naam)}</b><br><small style="color:var(--ink2)">${esc(b.adres)}${b.pcPlaats?"<br>"+esc(b.pcPlaats):""}</small></div><div style="text-align:right"><small style="color:var(--ink2)">Datum</small><br><b>${esc(kort(f.datum))}</b></div></div>
+    <div class="fact-doc"><div class="fh fh-va"><div><small class="fh-l">Van</small><b>${esc(b.naam)}</b><br><small style="color:var(--ink2)">${esc(b.adres)}${b.pcPlaats?"<br>"+esc(b.pcPlaats):""}</small></div>${(()=>{const a=f.aan||(D&&D.klant?{naam:D.klant.naam,contact:D.klant.contact,adres:D.klant.adres,pcPlaats:D.klant.pcPlaats}:null);const nm=x=>{const t=String(x||"").trim();return t.includes(",")?t.split(",").slice(1).join(" ").trim()+" "+t.split(",")[0].trim():t};const an=a?nm(a.naam):"",ac=a?nm(a.contact):"";return a&&an?`<div><small class="fh-l">Aan</small><b>${esc(an)}</b><br><small style="color:var(--ink2)">${ac&&ac!==an?esc(ac)+"<br>":""}${esc(a.adres||"")}${a.pcPlaats?"<br>"+esc(a.pcPlaats):""}</small></div>`:""})()}<div style="text-align:right"><small style="color:var(--ink2)">Datum</small><br><b>${esc(kort(f.datum))}</b></div></div>
       <table>${f.regels.map(r=>`<tr><td>${esc(r.omschrijving)}${r.aantal!==1?` <span style="color:var(--ink2)">× ${String(r.aantal).replace(".",",")}</span>`:""}</td><td class="r${r.prijs<0?" neg":""}">${eur(r.aantal*r.prijs)}</td></tr>`).join("")}
       <tr class="sub"><td>Subtotaal excl. btw</td><td class="r">${eur(f.ex)}</td></tr>${(f.tarieven&&f.tarieven.length?f.tarieven:[{pct:f.btwPct,btw:f.btw}]).map(x=>`<tr class="sub"><td>Btw ${x.pct}%</td><td class="r">${eur(x.btw)}</td></tr>`).join("")}<tr class="tot"><td>Totaal</td><td class="r">${eur(f.inc)}</td></tr></table>
       ${f.notitie?`<p style="color:var(--ink2);margin:10px 0 0;white-space:pre-line">${esc(f.notitie)}</p>`:""}
