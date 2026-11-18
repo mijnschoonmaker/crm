@@ -147,6 +147,8 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d) .fo-mi:hover,html body.cfg:not(#a)
 html body.cfg:not(#a):not(#b):not(#c):not(#d) .fo-mi svg{width:18px;height:18px;color:#5b6270;flex:none}
 html body.cfg:not(#a):not(#b):not(#c):not(#d) .fo-mn-l{display:block;height:1px;background:#eef0f2;margin:4px 6px}
 html body.cfg:not(#a):not(#b):not(#c):not(#d) .fo-mi-tel{display:none}
+/* klantportaal, over ons en tickets staan nu in het menu: niet meer als knoppen op de foto (blijven onzichtbaar bestaan voor het menu) */
+html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f):not(#g) .cfg-acties>:is(.fo-port,.fo-info,.fo-tk){display:none!important}
 @media (max-width:999px){html body.cfg:not(#a):not(#b):not(#c):not(#d) .fo-mi-tel{display:block}}
 .fo-ov .fo-kies{display:grid;gap:10px;margin-top:18px}
 .fo-ov .fo-kies button{all:unset;box-sizing:border-box;display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px 12px;padding:16px 18px;border:1px solid #e3e5e8;border-radius:14px;cursor:pointer;background:#fff}
