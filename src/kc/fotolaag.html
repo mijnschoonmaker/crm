@@ -133,7 +133,21 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties{gap:8p
 html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties>a[href*="wa.me"]{display:none!important}
 html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties>a.fo-port{display:none!important}
 @media (max-width:999px){html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties>a.fo-port{display:inline-flex!important;align-items:center}
-html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-logo .rk{display:none!important}}
+html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-logo .rk>a{display:none!important}}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .cfg-logo .rk{display:flex!important;align-items:center;gap:8px;position:absolute}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .fo-mnk{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 14px;border-radius:10px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.06);color:#fff;font:600 9.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:.16em!important;text-transform:uppercase;cursor:pointer;transition:background .15s}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .fo-mnk:hover,html body.cfg:not(#a):not(#b):not(#c):not(#d) .fo-mnk.aan{background:rgba(255,255,255,.14)}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .fo-mnk svg{width:16px;height:16px}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .fo-mnk span{font:600 9.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif!important;letter-spacing:.16em!important;color:#fff!important;text-transform:uppercase}
+@media (max-width:999px){html body.cfg:not(#a):not(#b):not(#c):not(#d) .fo-mnk{width:38px;height:38px;padding:0;justify-content:center}html body.cfg:not(#a):not(#b):not(#c):not(#d) .fo-mnk span{display:none}html body.cfg:not(#a):not(#b):not(#c):not(#d) .fo-mnk svg{width:20px;height:20px}}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .fo-mn{position:fixed;min-width:248px;background:#fff;border:1px solid #e6e8eb;border-radius:16px;box-shadow:0 24px 50px -22px rgba(15,20,30,.45);padding:8px;z-index:60;display:grid;gap:2px}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .fo-mn[hidden]{display:none}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .fo-mi{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:12px;width:100%;padding:11px 12px;border-radius:10px;font:500 14px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;color:#14171c;cursor:pointer}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .fo-mi:hover,html body.cfg:not(#a):not(#b):not(#c):not(#d) .fo-mi:focus-visible{background:#f4f5f7}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .fo-mi svg{width:18px;height:18px;color:#5b6270;flex:none}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .fo-mn-l{display:block;height:1px;background:#eef0f2;margin:4px 6px}
+html body.cfg:not(#a):not(#b):not(#c):not(#d) .fo-mi-tel{display:none}
+@media (max-width:999px){html body.cfg:not(#a):not(#b):not(#c):not(#d) .fo-mi-tel{display:block}}
 .fo-ov .fo-kies{display:grid;gap:10px;margin-top:18px}
 .fo-ov .fo-kies button{all:unset;box-sizing:border-box;display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px 12px;padding:16px 18px;border:1px solid #e3e5e8;border-radius:14px;cursor:pointer;background:#fff}
 .fo-ov .fo-kies button:hover{border-color:#0e1117}
@@ -316,7 +330,26 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-logo .rk{disp
   /* telefoon/tablet: klantportaal-knop bij de knoppen op de foto (de knop in de balk valt dan weg) */
   function portaalKnop(){const a=$(".cfg-acties"),h=$(".cfg-logo .rk a");if(!a||!h||a.querySelector(".fo-port")||!a.querySelector(".fo-info"))return;const b=document.createElement("a");b.className="fo-port";b.href=h.href;b.target=h.target||"_blank";b.rel="noopener";b.setAttribute("aria-label","Klantportaal");b.title="Klantportaal";
     b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>Klantportaal';a.querySelector(".fo-info").before(b)}
-  setInterval(infoKnop,600);infoKnop();setInterval(portaalKnop,600);portaalKnop();
+  /* menu rechtsboven (telefoon: drie streepjes): voorwaarden, privacy, tickets, over ons */
+  function menuKnop(){const rk=$(".cfg-logo .rk");if(!rk||rk.querySelector(".fo-mnk"))return;
+    const vw=B.voorwaardenPdf||B.voorwaarden||"",pv=B.privacyPdf||"",pu=(rk.querySelector("a")||{}).href||"";
+    const b=document.createElement("button");b.type="button";b.className="fo-mnk";b.setAttribute("aria-label","Menu");b.setAttribute("aria-expanded","false");
+    b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>Menu</span>';
+    const m=document.createElement("div");m.className="fo-mn";m.hidden=true;
+    const it=(ic,t,attr)=>`<${attr.href?"a":"button"} class="fo-mi" ${attr.href?`href="${esc(attr.href)}" target="_blank" rel="noopener"`:`type="button" data-mi="${attr.mi}"`}>${ic}<span>${t}</span></${attr.href?"a":"button"}>`;
+    const IC={doc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>',
+      sch:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>',
+      tk:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2v-2a2 2 0 0 0 0-4z"/><path d="M14 6v12" stroke-dasharray="2 2"/></svg>',
+      inf:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>',
+      pt:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>'};
+    m.innerHTML=(pu?`<div class="fo-mi-tel">${it(IC.pt,"Klantportaal",{href:pu})}</div>`:"")+it(IC.tk,"Tickets",{mi:"tk"})+it(IC.inf,"Over ons",{mi:"info"})+(vw||pv?'<i class="fo-mn-l"></i>':"")+(vw?it(IC.doc,"Algemene voorwaarden",{href:vw}):"")+(pv?it(IC.sch,"Privacyverklaring",{href:pv}):"");
+    const plaats=()=>{const r=b.getBoundingClientRect();m.style.top=Math.round(r.bottom+10)+"px";m.style.right=Math.max(10,Math.round(innerWidth-r.right))+"px"};
+    const open=v=>{if(v)plaats();m.hidden=!v;b.setAttribute("aria-expanded",String(!!v));b.classList.toggle("aan",!!v)};addEventListener("resize",()=>{if(!m.hidden)plaats()});addEventListener("scroll",()=>{if(!m.hidden)plaats()},{passive:true});
+    b.onclick=e=>{e.stopPropagation();open(m.hidden)};
+    m.onclick=e=>{const x=e.target.closest("[data-mi]");if(x){open(false);const a=$(".cfg-acties");const k=x.dataset.mi==="info"?a&&a.querySelector(".fo-info"):a&&a.querySelector(".fo-tk");if(k)k.click()}else if(e.target.closest("a"))open(false)};
+    document.addEventListener("click",e=>{if(!m.hidden&&!m.contains(e.target)&&e.target!==b)open(false)});document.addEventListener("keydown",e=>{if(e.key==="Escape")open(false)});
+    rk.append(b);document.body.append(m)}
+  setInterval(infoKnop,600);infoKnop();setInterval(menuKnop,600);menuKnop();setInterval(portaalKnop,600);portaalKnop();
 
   /* ---------- ticket-knop: al klant (naar het klantportaal) of nog geen klant (vraag stellen en chatten) ---------- */
   const TICKET='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16a1 1 0 0 1 1 1v3a2 2 0 0 0 0 4v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-3a2 2 0 0 0 0-4V7a1 1 0 0 1 1-1z"/><path d="M14 6v12" stroke-dasharray="2 2.2"/></svg>';

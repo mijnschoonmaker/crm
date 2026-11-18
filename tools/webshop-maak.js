@@ -32,7 +32,7 @@ const waNr = t => { let d = String(t || "").replace(/\D/g, ""); if (d.startsWith
   let klantPc = "";
   if (s.webKlantPc !== false) { const z = new Set(); (await db.collection("klanten").select("postcode").get()).docs.forEach(d => { const m = String(d.data().postcode || "").match(/^\s*(\d{4})/); if (m) z.add(m[1]); }); klantPc = [...z].sort().join(","); }
   const logoId = s.logo || "";
-  const B = { naam: s.naam || "Glasbewassing", email: s.email || "", whatsapp: waNr(s.webWa || s.telefoon), logo: logoId ? "https://app.mansard.nl/_blob/" + logoId : "", endpoint: "https://app.mansard.nl/api/aanvraag", werkgebied: String(s.webPostcodes || "").trim(), gebieden, klantPc, voorwaarden: String(s.webVoorwaarden || "").trim() };
+  const B = { naam: s.naam || "Glasbewassing", email: s.email || "", whatsapp: waNr(s.webWa || s.telefoon), logo: logoId ? "https://app.mansard.nl/_blob/" + logoId : "", endpoint: "https://app.mansard.nl/api/aanvraag", werkgebied: String(s.webPostcodes || "").trim(), gebieden, klantPc, voorwaarden: String(s.webVoorwaarden || "").trim(), voorwaardenPdf: s.voorwaardenPdf ? "https://app.mansard.nl/_blob/" + s.voorwaardenPdf : "", privacyPdf: s.privacyPdf ? "https://app.mansard.nl/_blob/" + s.privacyPdf : "" };
   const fl = "const FREQ_LIST=" + JSON.stringify(fla.map(f => [f.k, f.l, f.w ? 52 / f.w : 1, Number(f.p) || 0, f.w || 0])) + ";\nconst FREQ_ADV=" + JSON.stringify(fadv) + ";\n";
   const conf = "/*CFG-START*/\nconst BEDRIJF=" + JSON.stringify(B) + ";\nconst VAT=" + ((Number(s.btw) || 21) / 100) + ";\nconst cfg=" + JSON.stringify(cfg) + ";\n" + fl;
   const T = fs.readFileSync(path.join(__dirname, "..", "src", "klantcalculator.html"), "utf8");
