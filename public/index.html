@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="397d81f683ab"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="b0af1bfd428f"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -9842,6 +9842,8 @@ const volgende=k=>{const l=parse(k.laatst);let v=l?(vasteDagen(k)?volgendeWeekda
 const planned=k=>parse(k.gepland)||volgende(k);
 const toMin=t=>{const m=String(t||"").match(/^(\d{1,2}):(\d{2})/);return m?Number(m[1])*60+Number(m[2]):null};
 const fromMin=m=>pad(Math.floor(m/60))+":"+pad(m%60);
+/* totale tijd van de glasbewassing (gewone en bijzondere ramen samen) naar boven afronden op 5 minuten: 28 → 30, 31 → 35; 20 blijft 20 */
+const min5=m=>{m=Math.round((Number(m)||0)*100)/100;return m>0?Math.ceil(m/5)*5:0};
 /* overschreven tijdsduur van de glasbewassing (Alles overschrijven › Tijdsduur) gaat voor: zo wordt er ook ingepland */
 const tdVast=k=>{const t=k&&k.ramenRegel&&k.ramenRegel.td;return t!==""&&t!=null&&Number(t)>0?Number(t):0};
 const duurBasis=k=>tdVast(k)||Number(k.duur)||30;
@@ -13867,7 +13869,7 @@ function buildRamen(){
   let floors=[0,0,0,0],special={lood:0,mini:0,koepel:0,tuimel:0};
   const floorName=i=>i===0?"Begane grond":i+"e verdieping";
   const winKey=i=>i===0?"g0":i===1?"g1":i===2?"g2":"g3";
-  function dur(sec){const m=Math.ceil(Math.round(sec)/60);if(!m)return "0 min";const h=Math.floor(m/60);return h?`${h} u ${String(m%60).padStart(2,"0")}`:`${m} min`}
+  function dur(sec,vijf){const m=vijf&&typeof min5==="function"?min5(sec/60):Math.ceil(Math.round(sec)/60);if(!m)return "0 min";const h=Math.floor(m/60);return h?`${h} u ${String(m%60).padStart(2,"0")}`:`${m} min`}
 
   /* iconen */
   const LN='stroke="var(--ink)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"';
@@ -14106,7 +14108,7 @@ const ICON={
       <div class="eyebrow">${oRows.length&&oRows.some(r=>r.frequentie!==(f.w||0))?"Eerste beurt · alles samen":"Prijs per beurt · "+f.l}</div>
       <div class="price">${eur(ex)}<small>excl. btw</small></div>
       <div style="margin-top:6px;color:var(--navy-muted);font-variant-numeric:tabular-nums">${eur(inc)} incl. btw</div>${oRows.length?`<div class="perfreq">${all.length?`<span><b>Glasbewassing</b> ${eur(R.exG*(1+VAT))} incl. · ${esc(f.l.toLowerCase())}</span>`:""}${oRows.map(r=>`<span><b>${esc(r.n)}</b> ${eur(r.price*(1+VAT))} incl. · ${esc(freqLabel(r.frequentie).toLowerCase())}</span>`).join("")}</div>`:""}
-      <div class="kpis"><div><b>${count}</b><span>ramen</span></div><div><b>${dur(sec)}</b><span>werktijd</span></div><div><b>${eur(R.exG*(1+VAT)*f.y+oRows.reduce((a,r)=>a+r.price*(1+VAT)*52/(r.frequentie||52),0)).replace(/,\d\d$/,"")}</b><span>${f.y>1?"per jaar incl.":"totaal incl."}</span></div></div>
+      <div class="kpis"><div><b>${count}</b><span>ramen</span></div><div><b>${dur(sec,1)}</b><span>werktijd</span></div><div><b>${eur(R.exG*(1+VAT)*f.y+oRows.reduce((a,r)=>a+r.price*(1+VAT)*52/(r.frequentie||52),0)).replace(/,\d\d$/,"")}</b><span>${f.y>1?"per jaar incl.":"totaal incl."}</span></div></div>
     </div>
     <div class="result-body">
       <div class="tablewrap"><table><thead><tr><th>Onderdeel</th><th>Ramen</th><th>Tijd</th><th>Excl. btw</th></tr></thead><tbody>
@@ -14121,7 +14123,7 @@ const ICON={
         ${oRows.length?`<tr class="sub"><td colspan="3">Totaalprijs overige diensten</td><td>${eur(R.oEx)}</td></tr>`:""}
         <tr class="sub"><td colspan="3">Totaal excl. btw</td><td>${eur(ex)}</td></tr>
         <tr class="sub"><td colspan="3">Btw 21%</td><td>${eur(vat)}</td></tr>
-        <tr class="tot"><td colspan="3">Totaal incl. btw<small>${count} ramen · ${dur(sec)} werktijd</small></td><td>${eur(inc)}</td></tr>
+        <tr class="tot"><td colspan="3">Totaal incl. btw<small>${count} ramen · ${dur(sec,1)} werktijd</small></td><td>${eur(inc)}</td></tr>
       </tbody></table></div>
       <p class="note">${cfg.minAlles?`Glasbewassing heeft een minimumprijs van ${eur(cfg.min)} excl. btw, bijzondere ramen inbegrepen`:`Gewone glasbewassing heeft een minimumprijs van ${eur(cfg.min)} excl. btw; bijzondere ramen komen daar los bij`}${koz?`, kozijnreiniging ${eur(cfg.kozMin)} excl. btw`:""}. Tijden zijn per regel naar boven afgerond op hele minuten.</p>
       <div class="acts">
@@ -14139,14 +14141,14 @@ const ICON={
       ...all.map(r=>`${r.n}: ${r.c} st · ${dur(r.sec)} · ${eur(r.price)}`),
       f.pct&&normal?`${f.pct>0?"Frequentiekorting":"Frequentietoeslag"} ${Math.abs(f.pct)}%: ${freqAdj<0?"−":"+"}${eur(Math.abs(freqAdj))}`:"",
       minGlas?"Minimumprijs glasbewassing toegepast":"",koz?`Kozijnreiniging: ${eur(kozEx)}`:"",...oRows.map(r=>`${r.n} (${r.d}, ${freqLabel(r.frequentie).toLowerCase()}): ${eur(r.price)}`),"",
-      `Totaal: ${count} ramen · ${dur(sec)}`,`Excl. btw: ${eur(ex)}`,`Btw 21%: ${eur(vat)}`,`Incl. btw: ${eur(inc)}`].filter((l,i,a)=>l!==""||(i>0&&a[i-1]!=="")).join("\n").trim();
+      `Totaal: ${count} ramen · ${dur(sec,1)}`,`Excl. btw: ${eur(ex)}`,`Btw 21%: ${eur(vat)}`,`Incl. btw: ${eur(inc)}`].filter((l,i,a)=>l!==""||(i>0&&a[i-1]!=="")).join("\n").trim();
     const extra=[];
     if(f.pct&&normal)extra.push({l:`${f.pct>0?"Frequentiekorting":"Frequentietoeslag"} ${Math.abs(f.pct)}%`,v:`${freqAdj<0?"−":"+"} ${eur(Math.abs(freqAdj))}`});
     if(minGlas)extra.push({l:"Minimumprijs glasbewassing",v:eur(glasEx)});
     if(koz)extra.push({l:"Kozijnreiniging",v:eur(kozEx)});
     if(startEx)extra.push({l:"Starttarief",v:eur(startEx)});
     oRows.forEach(r=>extra.push({l:r.n+" · "+r.d+" · "+freqLabel(r.frequentie).toLowerCase(),v:eur(r.price)}));
-    lastQ={createdAt:new Date().toISOString(),naam:k.naam,bedrijf:k.bedrijf,email:k.email,tel:k.tel,adres,notitie:k.notitie,frequentie:f.l,kozijn:koz,ramen:count,minuten:Math.ceil(sec/60),
+    lastQ={createdAt:new Date().toISOString(),naam:k.naam,bedrijf:k.bedrijf,email:k.email,tel:k.tel,adres,notitie:k.notitie,frequentie:f.l,kozijn:koz,ramen:count,minuten:min5(sec/60),
       rows:all.map((r,i)=>({n:r.n,c:r.c,min:Math.ceil(r.sec/60),p:r2(r.price),g:i<fRows.length?"n":"s"})),extra,excl:r2(ex),btw:r2(vat),incl:r2(inc),
       photos:photos.map(p=>({src:p.cv,w:p.cv.width,h:p.cv.height,dots:p.dots.slice()}))};
     const Q=lastQ;
@@ -14195,8 +14197,8 @@ const ICON={
     try{await fn()}catch(e){say(e&&e.msg?e.msg:"Niet opgeslagen: "+(e&&(e.message||e.code)||"onbekende fout"),"bad")}finally{const b2=g(btn.id);if(b2)b2.innerHTML=t;root.querySelectorAll(".acts button").forEach(b=>b.disabled=false)}}
   function extrasFor(R){const mul=S().incl?1+VAT:1;return (R.oRows||[]).map(r=>({id:newId("o"),dienst:r.n,groep:r.groep,items:r.items.map(it=>({...it})),prijs:r2(r.price*mul),frequentie:r.frequentie||R.f.w||8,duur:Math.max(5,Math.ceil(r.sec/60/5)*5),volgende:"",actief:true}))}
   const mergeExtra=(cur,R)=>{const ex=extrasFor(R);if(!ex.length)return cur||[];const gs=new Set(ex.map(e=>e.groep));return [...(cur||[]).filter(o=>!o.groep||!gs.has(o.groep)),...ex]};
-  function opdFor(R,t,base){const m=Math.ceil((R.gSec??R.sec)/60);
-    return{prijs:S().incl?r2((R.exG??R.ex)*(1+VAT)):r2(R.exG??R.ex),extra:extrasFor(R),frequentie:R.f.w||Number(base&&base.frequentie)||4,duur:[15,30,45,60,90,120,180,240].reduce((a,b)=>Math.abs(b-m)<Math.abs(a-m)?b:a)}}
+  function opdFor(R,t,base){const m=Math.max(5,min5((R.gSec??R.sec)/60));
+    return{prijs:S().incl?r2((R.exG??R.ex)*(1+VAT)):r2(R.exG??R.ex),extra:extrasFor(R),frequentie:R.f.w||Number(base&&base.frequentie)||4,duur:m}}
   function regelsFor(R){
     const rg=[];
     if(R.all.length){const fl=R.f&&R.f.l?R.f.l:"";const gl=[...R.fRows.map(r=>({omschrijving:`Glasbewassing ${r.n.toLowerCase()}, ${r.c} ramen`,aantal:1,prijs:r2(r.price),n:r.c,sec:r.sec,sub:r.n,qty:r.c+" st",fq:fl})),...R.sRows.map(r=>({omschrijving:`${r.n}, ${r.c} st.`,aantal:1,prijs:r2(r.price),n:r.c,sec:r.sec,sub:r.n,qty:r.c+" st",fq:fl}))];
@@ -14226,7 +14228,7 @@ const ICON={
         regels:regelsFor(R),btw:21,incl:false,status:"concept",
         notitie:`Prijs per beurt bij ${R.f.l.toLowerCase()}${R.koz?", inclusief kozijnreiniging":""}. Geteld: ${R.count} ramen.`,
         betaaldOp:"",vanOfferte:"",gemaakt:new Date().toISOString(),verstuurdOp:"",herinnerdOp:"",herinneringen:0,
-        telling:{ramen:R.count,minuten:Math.ceil(R.sec/60),freq:R.f.l},opdracht:opd};
+        telling:{ramen:R.count,minuten:min5(R.sec/60),freq:R.f.l},opdracht:opd};
       await save("facturen",id,data);
       toast((isNew?"Klant aangemaakt en offerte ":"Offerte ")+data.nummer+" staat bij Offertes"+(fail?" · "+plural(fail,"foto is","foto's zijn")+" niet opgeslagen":""));
       resetAll();if(!embed)onSaved=null;
@@ -16702,7 +16704,7 @@ function openOpdrachtWerk(kid,focus){
   /* bedrag zoals de klant het ziet, voor diensten met onderdelen: precies hetzelfde getal op de kaart en bij "Per keer" */
   const gToon=r=>{try{const c=groepCalc(r);return S().toonEx||!incl?r2(c.ex):r2(c.ex*(1+groepBtwPct(r,k)/100))}catch(e){return toon(Number(r.prijs)||0)}};
   /* altijd opnieuw uitrekenen (niet alleen als de tarieven veranderd zijn): zo kloppen kaart, "Per keer" en wat er wordt opgeslagen altijd met elkaar */
-  extra.forEach((o,i)=>{try{if(o.items){groepTarievenBij(o);{const v=prijsVast(o,k);if(v!==o){o.tp=v.tp}}const c=groepCalc(o),mul=incl?1+groepBtwPct(o,k)/100:1;o.prijs=r2(c.ex*mul);o.duur=Math.max(5,Math.ceil(c.sec/60/5)*5)}}catch(e){console.error(e)}});
+  extra.forEach((o,i)=>{try{if(o.items){groepTarievenBij(o);{const v=prijsVast(o,k);if(v!==o){o.tp=v.tp}}const c=groepCalc(o),mul=incl?1+groepBtwPct(o,k)/100:1;o.prijs=r2(c.ex*mul);o.duur=gHasD(o.td)?Number(o.td)||0:Math.max(5,Math.ceil(c.sec/60/5)*5)}}catch(e){console.error(e)}});
   if(focus==="new")extra.push({id:newId("o"),dienst:"",prijs:"",frequentie:52,duur:30,volgende:"",actief:true,objectId:"hoofd",_nieuw:true});
   /* een extra of nieuwe opdracht opent als eigen opdrachtkaart met een eigen nummer (bijv. 1002-2); de hoofdopdracht blijft ongemoeid */
   const soloId=focus&&!["main","hosp"].includes(focus)?(focus==="new"?extra[extra.length-1].id:focus):null,soloI=soloId?extra.findIndex(o=>o.id===soloId):-1;
@@ -16974,7 +16976,7 @@ function openOpdrachtWerk(kid,focus){
   const itemsRitme=r=>{const its=(r.items||[]).filter(x=>Number(x.aantal)>0);if(!its.length)return Number(r.frequentie)||mF||52;const ws=its.map(x=>Number(x.fq)||Number(r.frequentie)||mF||52);return Math.min(...ws)};
   const gOpts=r=>({freqDefault:mF||Number(k.frequentie)||8,klant:k});
   const itemsHtml=(r,i)=>groepEditor(r,"x"+i,gOpts(r));
-  const itemsRecalc=(i,struct)=>{const r=extra[i];if(!r||!r.items)return;const c=groepCalc(r),mul=incl?1+groepBtwPct(r,k)/100:1;r.prijs=r2(c.ex*mul);r.duur=Math.max(5,Math.ceil(c.sec/60/5)*5);
+  const itemsRecalc=(i,struct)=>{const r=extra[i];if(!r||!r.items)return;const c=groepCalc(r),mul=incl?1+groepBtwPct(r,k)/100:1;r.prijs=r2(c.ex*mul);r.duur=gHasD(r.td)?Number(r.td)||0:Math.max(5,Math.ceil(c.sec/60/5)*5);
     const pi=$("#owLines").querySelector(`input[data-i="${i}"][data-k="prijs"]`);if(pi){pi.value=pToon(r);pi.classList.remove("flash");void pi.offsetWidth;pi.classList.add("flash")}
     if(struct)groepRedraw($("#owLines"),"x"+i,r,gOpts(r));else groepTotUpdate($("#owLines"),"x"+i,r,gOpts(r));tot()};
   const tot=()=>{if(soloI>=0&&extra[soloI]){const L=[...soloSet].map(i=>extra[i]).filter(Boolean);$("#owTot").innerHTML=L.map(r=>`<span>Per keer (${esc(r.dienst||"deze opdracht")})</span><span>${eur(r.items?gToon(r):toonR(k,r))}</span>`).join("");return}
@@ -17050,7 +17052,7 @@ function openOpdrachtWerk(kid,focus){
     const pi=$("#owLines").querySelector(`input[data-i="${di}"][data-k="prijs"]`);if(pi){pi.value=pToon(r);pi.classList.remove("flash");void pi.offsetWidth;pi.classList.add("flash")}
     const _td=isM&&r.ramen&&r.ramen.td!==""&&r.ramen.td!=null&&Number(r.ramen.td)>0?Number(r.ramen.td):0;
     if(isM&&(_td||!(k.tijden||[]).length)&&c.min){mD=_td||Math.max(5,Math.ceil(c.min/5)*5);const sd=$o("duur");if(sd){const m=String(mD);if(![...sd.options].some(o=>o.value===m))sd.insertAdjacentHTML("beforeend",`<option value="${m}">${m} min</option>`);sd.value=m}}
-    if(!isM)r.duur=Math.max(5,Math.ceil(c.min/5)*5);tot()};
+    if(!isM)r.duur=Math.max(5,c.min);tot()};
   $("#owLines").addEventListener("input",e=>{const el=e.target,di=el.dataset.i,rk=el.dataset.rk;if(di!=null&&rk){const r=di==="m"?main:extra[+di];
       const q=r.ramen,sm=rk.match(/^(sp|spfq|spvol|spop|spod|spkf|spkfq|spkvol|spkop|spkod):(\w+)$/);
       if(sm){const [,key,sk]=sm;q[key]=q[key]||{};if(key==="spkf"){q.spkf[sk]=el.checked;recalc(di);draw();return}q[key][sk]=key==="sp"?Math.max(0,Math.round(Number(el.value)||0)):el.value;if(key==="spvol"||key==="spfq"){recalc(di);draw();return}recalc(di);return}
@@ -17317,7 +17319,7 @@ function ramenBerekening(q,opdrW,due){
   const krows=kz.map(x=>({i:x.i,k:x.k,sp:!!x.sp,n:x.n,naam:x.naam,p:has(x.op)?r2(Number(x.op)):0,min:has(x.od)?Number(x.od):0,calcP:0,calcMin:0,ovP:has(x.op)}));
   const kozP=krows.reduce((a,r)=>a+r.p,0),minK=false,kozMin=krows.reduce((a,r)=>a+r.min,0);
   const start=rows.length?(has(q.start)?Number(q.start):(c.start||0)):0,ex=r2(glas+kozP+start);
-  return {minNu,rows,krows,glas:r2(glas),minG,aanvul,totOver,kozP:r2(kozP),minK,kozMin,start,ex,min:Math.ceil(rows.reduce((a,r)=>a+r.min,0)+kozMin),count:tot+srows.reduce((a,r)=>a+r.n,0),srows,c};
+  return {minNu,rows,krows,glas:r2(glas),minG,aanvul,totOver,kozP:r2(kozP),minK,kozMin,start,ex,min:has(q.td)?Math.round(rows.reduce((a,r)=>a+r.min,0)+kozMin):min5(rows.reduce((a,r)=>a+r.min,0)+kozMin),count:tot+srows.reduce((a,r)=>a+r.n,0),srows,c};
 }
 /* welke delen gaan mee op deze dag, en hoe schuiven de volgende data door */
 /* gaat er op deze dag een andere dienst mee (bv. reiniging gevelelementen), dan gaat de hele glasbewassing standaard mee (uit te zetten bij Instellingen › Planning) */
