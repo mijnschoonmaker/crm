@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="27e093893f25"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="edbf4db2ea97"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -9589,7 +9589,7 @@ const DEF={naam:"",adres:"",postcode:"",plaats:"",telefoon:"",email:"",kvk:"",bt
 const state={tab:"vandaag",klanten:[],beurten:[],facturen:[],routes:{},settings:{},sjablonen:{},berichten:[],kosten:[],prijzen:{},aangiftes:{},
   q:"",kf:"alle",ronde:"",sel:null,kpp:25,kpage:1,
   fFilter:"openstaand",fq:"",oFilter:"alle",mq:"",mch:"alle",mst:"alle",mpp:25,ctab:"recent",mpage:1,tq:"",tf:"alle",tplSide:{},
-  pview:"dag",slot:10,rowH:1,pstat:"alle",pq:"",planDay:null,multiDays:null,planMode:false,pick:null,achter:false,mon:null,
+  pview:"dag",slot:5,rowH:1,pstat:"alle",pq:"",planDay:null,multiDays:null,planMode:false,pick:null,achter:false,mon:null,
   week:startOfWeek(new Date()),vDay:null,routeDay:null,
   btab:"overzicht",bjaar:new Date().getFullYear(),bper:"jaar",itab:"geld",iper:"maand",hq:"",open:{},
   collapsed:false,loaded:false,db:null,dl:null,assets:null,me:null};
@@ -9634,7 +9634,7 @@ function geenMailNorm(col,docs){try{if(col==="klanten")docs.forEach(k=>{let g=fa
 function apply(col,docs){
   geenMailNorm(col,docs);RAW[col]=docs;tikWis();
   if(col==="instellingen"){const g=id=>{const d=docs.find(x=>x.id===id);return d?strip(d):{}};state.settings=g("bedrijf");state.sjablonen=g("sjablonen");state.prijzen=g("prijzen");state.aangiftes=g("aangiftes");state.ramen=g("ramen");state.planmails=g("planmails");state.meldkamer=g("meldkamer");state.districten=g("districten");state.boekhouder=g("boekhouder");state.galerij=g("galerij");state.uitv=g("uitvoering");state.meetleer=g("meetleer");state.ccStatus=g("control");if(typeof U!=="undefined"&&!Udirty)U=null}
-  if(col==="instellingen"&&!state._slotInit&&docs.length){state._slotInit=1;const b=docs.find(x=>x.id==="bedrijf");if(b){state.slot=[10,15].includes(Number(b.slotStd))?Number(b.slotStd):10;if(b.ultra)state.rowH=.7;else if(b.compact)state.rowH=.85}}
+  if(col==="instellingen"&&!state._slotInit&&docs.length){state._slotInit=1;const b=docs.find(x=>x.id==="bedrijf");if(b){state.slot=b.slotStdV===2&&[5,10,15].includes(Number(b.slotStd))?Number(b.slotStd):5;if(b.ultra)state.rowH=.7;else if(b.compact)state.rowH=.85}}
   else if(col==="routes"){state.routes={};docs.forEach(d=>state.routes[d.id]=d)}
   else state[col]=docs;
   if(col==="facturen")setTimeout(nrBewaker,0);
@@ -11742,14 +11742,14 @@ function dayHead(d,showWk){
     <span class="dh-s">${fd?esc(fd):off&&!s.n?"Vrije dag":s.n?`${plural(s.n,"job","jobs")}${u?" · "+u:""}<em>${eur0(s.tsum)}</em>`:"Nog niets gepland"}${te?` <b class="dh-warn" title="Meer dan ${S().maxJobs} jobs">!</b>`:""}</span></button>`;
 }
 function timeGrid(days){
-  if(![10,15,30].includes(state.slot))state.slot=30;
-  const slot=state.slot,H=Math.round((slot===10?28:slot===15?32:50)*state.rowH),S0=Math.floor((toMin(S().kalVan)??360)/60)*60,E0=Math.max(S0+120,Math.ceil((toMin(S().kalTotMig?S().kalTot:(S().kalTot==="19:00"||!S().kalTot?"22:00":S().kalTot))??1320)/60)*60),n=(E0-S0)/slot;
+  if(![5,10,15].includes(state.slot))state.slot=5;
+  const slot=state.slot,H=Math.round((slot===5?18:slot===10?28:32)*state.rowH),S0=Math.floor((toMin(S().kalVan)??360)/60)*60,E0=Math.max(S0+120,Math.ceil((toMin(S().kalTotMig?S().kalTot:(S().kalTot==="19:00"||!S().kalTot?"22:00":S().kalTot))??1320)/60)*60),n=(E0-S0)/slot;
   const nowM=new Date().getHours()*60+new Date().getMinutes();
   const items=days.map(d=>dayItems(d));
   const anyUn=items.some(it=>it.js.some(x=>toMin(x.k.tijd)==null)||it.done.some(x=>toMin(x.b.tijd)==null));
   let html=`<div class="tgwrap"><div class="tg${days.length>=5?" tg-wk":""}" style="--n:${days.length};--H:${H}px"><div class="tg-head"><div class="tg-corner"><small>wk ${weekNr(parse(days[0]))}</small></div>${days.map(d=>dayHead(d,days.length===1)).join("")}</div>`;
   if(false)html+=`<div class="tg-un"><div class="tg-corner sm">Nog geen tijd</div>${days.map((d,i)=>`<div class="tg-uc">${items[i].done.filter(x=>toMin(x.b.tijd)==null).map(x=>`<span class="uchip done">${I.check}${esc(cleanName(x.b.klantNaam))}</span>`).join("")}${items[i].js.filter(x=>toMin(x.k.tijd)==null).map(x=>`<span class="uchip${pqMatch(x.k)?"":" faded"}" draggable="true" data-drag="${esc(x.k.id)}" data-act="klant" data-id="${esc(x.k.id)}">${esc(jobAddrObj(x.k).adres||cleanName(x.k.naam))}</span>`).join("")}</div>`).join("")}</div>`;
-  html+=`<div class="tg-body"><div class="tg-times">${[...Array(n)].map((_,i)=>{const m=S0+i*slot;return `<span style="height:${H}px" class="${m%60?"hh":"hu"}">${fromMin(m)}</span>`}).join("")}</div>`;
+  html+=`<div class="tg-body"><div class="tg-times">${[...Array(n)].map((_,i)=>{const m=S0+i*slot;return `<span style="height:${H}px" class="${m%60?"hh":"hu"}">${slot===5&&m%15?"":fromMin(m)}</span>`}).join("")}</div>`;
   days.forEach((d,ci)=>{
     const it=items[ci];
     const timed=[...it.js.filter(x=>toMin(x.k.tijd)!=null).map(x=>({...x,s:toMin(x.k.tijd)})),...it.done.filter(x=>toMin(x.b.tijd)!=null).map(x=>({...x,s:toMin(x.b.tijd)}))].sort((a,b)=>a.s-b.s);
@@ -11822,7 +11822,7 @@ function vPlanning(){
         ${mt("pselmode",I.checksq||I.check,"Meerdere afspraken selecteren",state.pselMode)}
         ${mt("achter",I.alert,"Alleen achterstallig tonen",state.achter)}
         ${v==="dag"||v==="multi"?`<p class="pl-ml">Weergave</p>
-        <div class="pl-mrow pl-mr2"><span>Tijdvak</span><div class="seg pl-mseg">${[10,15,30].map(x=>`<button type="button" data-act="slotsz" data-v="${x}" aria-pressed="${state.slot===x}">${x} min</button>`).join("")}</div></div>
+        <div class="pl-mrow pl-mr2"><span>Tijdvak</span><div class="seg pl-mseg">${[5,10,15].map(x=>`<button type="button" data-act="slotsz" data-v="${x}" aria-pressed="${state.slot===x}">${x} min</button>`).join("")}</div></div>
         <div class="pl-mrow pl-mr2"><span>Hoogte</span><div class="seg pl-mseg pl-mh"><button type="button" data-act="rowh" data-n="-1" aria-label="Lager">${I.minus}</button><button type="button" disabled style="opacity:1;color:var(--ink);min-width:74px">${state.rowH<1?"Compact":state.rowH>1?"Ruim":"Normaal"}</button><button type="button" data-act="rowh" data-n="1" aria-label="Hoger">${I.plus}</button></div></div>`:""}
       </div></div>
   </div>
@@ -15132,7 +15132,7 @@ function openSetEdit(id){
   planning(){const w=s.werkdagen||[1,2,3,4,5],nz=actief().filter(k=>k.gepland&&!k.tijd).length;
     setDlg({t:"Planning instellingen",sub:"Werktijden, slots, weekends en weergave",ic:"planning",bg:"#23845a"},`${sec("Werktijden")}<div class="grid2">${inp("werkStart","Start werkdag",s.werkStart,{type:"time"})}${inp("werkEind","Einde werkdag",s.werkEind,{type:"time"})}</div>
       ${sec("Kalender weergave")}<div class="grid2">${inp("kalVan","Vanaf",s.kalVan,{type:"time",help:"Eerste zichtbare uur"})}${inp("kalTot","Tot",s.kalTotMig?s.kalTot:(s.kalTot==="19:00"||!s.kalTot?"22:00":s.kalTot),{type:"time",help:"Laatste zichtbare uur"})}
-      ${sel("slotStd","Slot duur (min)",s.slotStd,[[10,"10 minuten"],[15,"15 minuten"],[30,"30 minuten"]],{t:"num"})}${inp("zichtbaarDagen","Te plannen zichtbaar (dagen vooraf)",s.zichtbaarDagen??11,{type:"number",t:"num",attrs:'min="0" max="60"',help:"Zoveel dagen voordat een klant weer aan de beurt is, verschijnt hij bij 'Te plannen'. Meer dan 7 dagen te vroeg inplannen geeft een waarschuwing."})}
+      ${sel("slotStd","Slot duur (min)",s.slotStdV===2?s.slotStd:5,[[5,"5 minuten"],[10,"10 minuten"],[15,"15 minuten"]],{t:"num"})}${inp("zichtbaarDagen","Te plannen zichtbaar (dagen vooraf)",s.zichtbaarDagen??11,{type:"number",t:"num",attrs:'min="0" max="60"',help:"Zoveel dagen voordat een klant weer aan de beurt is, verschijnt hij bij 'Te plannen'. Meer dan 7 dagen te vroeg inplannen geeft een waarschuwing."})}
       ${inp("maxJobs","Max jobs per dag",s.maxJobs,{type:"number",t:"num",attrs:'min="0"',help:"0 = geen drempel. Waarschuwt als er meer jobs op een dag staan."})}<span></span></div>
       <label>Weekenddagen (vrij)</label><div class="daychips inv">${[[0,"Zo"],[1,"Ma"],[2,"Di"],[3,"Wo"],[4,"Do"],[5,"Vr"],[6,"Za"]].map(([d,l])=>`<label><input type="checkbox" data-we="${d}" ${w.includes(d)?"":"checked"}><span>${l}</span></label>`).join("")}</div><small class="help">Tik om aan/uit te zetten. Vrije dagen zijn gearceerd in de planning.</small>
       ${tgl("glasMee","Glasbewassing altijd mee","Plan je een andere dienst in, zoals reiniging gevelelementen, dan gaat de glasbewassing standaard mee",s.glasMee!==false)}
@@ -15143,7 +15143,7 @@ function openSetEdit(id){
       ${sec("Onderhoud")}<p class="subt" style="margin:0">Ingeplande jobs zonder tijd staan bovenaan de dag onder 'Zonder tijd'. Reset zet ze terug naar 'Te plannen', zodat je ze opnieuw met een tijd kunt inplannen.</p>
       <button type="button" class="small" id="rstNt" style="align-self:flex-start" ${nz?"":"disabled"}>${I.refresh}Reset ${plural(nz,"job","jobs")} zonder tijd</button>`);
     $("#rstNt").onclick=async()=>{const l=actief().filter(k=>k.gepland&&!k.tijd);await runSeq(l,k=>save("klanten",k.id,{...strip(k),gepland:""}),plural(l.length,"job","jobs")+" terug naar te plannen");$("#rstNt").disabled=true};
-    bindSave(()=>{const we=[...form.querySelectorAll("[data-we]")].filter(x=>x.checked).map(x=>Number(x.dataset.we));const p={werkdagen:[0,1,2,3,4,5,6].filter(d=>!we.includes(d)),toonEx:!$("#inclTonen").checked,kalTotMig:true};state.slot=Number(form.querySelector('[data-k="slotStd"]').value)||30;state.rowH=$("[data-k='ultra']").checked?.7:$("[data-k='compact']").checked?.85:1;return p});},
+    bindSave(()=>{const we=[...form.querySelectorAll("[data-we]")].filter(x=>x.checked).map(x=>Number(x.dataset.we));const p={slotStdV:2,werkdagen:[0,1,2,3,4,5,6].filter(d=>!we.includes(d)),toonEx:!$("#inclTonen").checked,kalTotMig:true};state.slot=Number(form.querySelector('[data-k="slotStd"]').value)||30;state.rowH=$("[data-k='ultra']").checked?.7:$("[data-k='compact']").checked?.85:1;return p});},
   gebruikers(){const card={t:"Gebruikers & Rollen",sub:"Wie met Mansard mag werken",ic:"klanten",bg:"#3d4a5c"};
     if(LIVE&&typeof SETEXTRA!=="undefined"&&SETEXTRA.liveUsers)return SETEXTRA.liveUsers(card,S());
     /* demo: alleen jijzelf; andere gebruikers en hun gegevens zijn nooit zichtbaar voor andere bedrijven */
