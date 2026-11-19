@@ -15,7 +15,9 @@ const volgende=k=>{const l=parse(k.laatst);let v=l?(vasteDagen(k)?volgendeWeekda
 const planned=k=>parse(k.gepland)||volgende(k);
 const toMin=t=>{const m=String(t||"").match(/^(\d{1,2}):(\d{2})/);return m?Number(m[1])*60+Number(m[2]):null};
 const fromMin=m=>pad(Math.floor(m/60))+":"+pad(m%60);
-const duurBasis=k=>Number(k.duur)||30;
+/* overschreven tijdsduur van de glasbewassing (Alles overschrijven › Tijdsduur) gaat voor: zo wordt er ook ingepland */
+const tdVast=k=>{const t=k&&k.ramenRegel&&k.ramenRegel.td;return t!==""&&t!=null&&Number(t)>0?Number(t):0};
+const duurBasis=k=>tdVast(k)||Number(k.duur)||30;
 /* bedrag van de afspraak: eigen dienst plus extra opdrachten die die dag mee gaan (zelfde opslag als k.prijs) */
 /* bedrag van een stop: altijd incl. meegaande diensten (bijzondere ramen, gevelelementen enz.); overal op Vandaag/route/planning deze gebruiken */
 const stopBedrag=(k,d)=>toonK(k,prijsMee(k,d));
@@ -88,7 +90,8 @@ const gemTijd=k=>{const t=(k.tijden||[]).slice(-5);return t.length?Math.round(t.
 function metingPatch(k,min){/* gemeten tijd zonder de extra opdrachten van vandaag: de vaste duur is alleen de eigen dienst */
   try{if(S().glasMee!==false&&typeof extraDue==="function"){const ex=extraDue(k,iso(today())).reduce((a,o)=>a+(Number(o.duur)||0),0);if(ex)min=Math.max(1,Math.round(min-ex))}}catch(e){}
   const tijden=[...(k.tijden||[]),{datum:iso(today()),min}].slice(-20),t=tijden.slice(-5),gem=Math.round(t.reduce((a,x)=>a+x.min,0)/t.length);
-  return {tijden,duur:Math.max(5,Math.ceil(gem/5)*5)}}
+  /* met een overschreven tijdsduur blijft die staan; de meting wordt wel bewaard */
+  return tdVast(k)?{tijden}:{tijden,duur:Math.max(5,Math.ceil(gem/5)*5)}}
 /* een meting die veel korter is dan de geplande duur (bijv. per ongeluk Start en meteen Afmelden) is geen echte meting:
    die telt niet mee voor de planning en niet als facturabele tijd */
 const meetTeKort=(min,plan)=>(Number(min)||0)<Math.max(5,0.3*(Number(plan)||0));

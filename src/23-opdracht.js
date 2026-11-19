@@ -244,7 +244,7 @@ function openOpdrachtWerk(kid,focus){
       ${vari?'<p class="subt" style="margin:4px 0 0;font-size:12.5px">Onderdelen met een eigen frequentie gaan alleen mee als ze aan de beurt zijn; de factuur rekent dan alleen die delen.</p>':""}`};
   /* ritme volgt de kortste frequentie van de verdiepingen; tijdsduur volgt de berekening (of de gemeten tijd) */
   const ritmeUitRamen=()=>{const q=main.ramen;if(!q)return 0;const ws=q.f.map((n,i)=>n&&Number(q.fq[i])).filter(Boolean),leeg=q.f.some((n,i)=>n&&!q.fq[i]);return ws.length?Math.min(...ws,...(leeg?[mF]:[])):0};
-  const syncRitme=()=>{const w=ritmeUitRamen();if(w)mF=w;if(main.ramen&&!(k.tijden||[]).length){const c=calcR(main,true);if(c&&c.min)mD=Math.max(5,Math.ceil(c.min/5)*5)}};
+  const syncRitme=()=>{const w=ritmeUitRamen();if(w)mF=w;if(main.ramen){const _td=Number(main.ramen.td)||0;if(main.ramen.td!==""&&_td>0)mD=_td;else if(!(k.tijden||[]).length){const c=calcR(main,true);if(c&&c.min)mD=Math.max(5,Math.ceil(c.min/5)*5)}}};
   const isGlas=n=>/glas|ramen/i.test(String(n||""));
   /* opgeslagen extra dienst als overzichtskaart (zoals DienstenCRM): omschrijving, onderdelen met aantal en frequentie, totalen, potlood om te wijzigen */
   const dichtHtml=(r,i)=>{const its=(r.items||[]).filter(x=>Number(x.aantal)>0),base=Number(r.frequentie)||mF||null;
@@ -362,7 +362,8 @@ function openOpdrachtWerk(kid,focus){
   const recalc=di=>{const isM=di==="m",r=isM?main:extra[+di],c=calcR(r,isM),box=$("#owLines").querySelector(`[data-calc="${di}"]`);if(!c||!box)return;
     r.prijs=c.prijs;box.querySelector(".ow-res").innerHTML=resHtml(c,r.ramen);
     const pi=$("#owLines").querySelector(`input[data-i="${di}"][data-k="prijs"]`);if(pi){pi.value=pToon(r);pi.classList.remove("flash");void pi.offsetWidth;pi.classList.add("flash")}
-    if(isM&&!(k.tijden||[]).length&&c.min){mD=Math.max(5,Math.ceil(c.min/5)*5);const sd=$o("duur");if(sd){const m=String(mD);if(![...sd.options].some(o=>o.value===m))sd.insertAdjacentHTML("beforeend",`<option value="${m}">${m} min</option>`);sd.value=m}}
+    const _td=isM&&r.ramen&&r.ramen.td!==""&&r.ramen.td!=null&&Number(r.ramen.td)>0?Number(r.ramen.td):0;
+    if(isM&&(_td||!(k.tijden||[]).length)&&c.min){mD=_td||Math.max(5,Math.ceil(c.min/5)*5);const sd=$o("duur");if(sd){const m=String(mD);if(![...sd.options].some(o=>o.value===m))sd.insertAdjacentHTML("beforeend",`<option value="${m}">${m} min</option>`);sd.value=m}}
     if(!isM)r.duur=Math.max(5,Math.ceil(c.min/5)*5);tot()};
   $("#owLines").addEventListener("input",e=>{const el=e.target,di=el.dataset.i,rk=el.dataset.rk;if(di!=null&&rk){const r=di==="m"?main:extra[+di];
       const q=r.ramen,sm=rk.match(/^(sp|spfq|spvol|spop|spod|spkf|spkfq|spkvol|spkop|spkod):(\w+)$/);
