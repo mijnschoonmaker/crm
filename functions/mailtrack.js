@@ -21,6 +21,9 @@ module.exports = ({ db, T, onRequest, onCall, HttpsError, checkGebruiker, nu, HO
   };
   /* soort van een open: echt, voorgeladen (Apple Mail-privacy) of scanner */
   const soortOpen = (ua, sec) => { ua = String(ua || "").trim();
+    /* alle opens van klanten kwamen binnen via een beeldproxy van de mailprovider met de naam "Go-http-client" (19-11-2026):
+       minuten tot dagen na versturen = de klant opent de mail; binnen een minuut = automatisch */
+    if (/go-http-client/i.test(ua)) return sec != null && sec >= 60 ? "echt" : "scanner";
     if (BOT.test(ua)) return "scanner";
     if (ua === "Mozilla/5.0" || ua === "") return "voorgeladen"; /* Apple Mail-privacybescherming laadt de mail via een proxy met deze kale naam */
     if (sec != null && sec < 4) return "scanner"; /* binnen een paar seconden na versturen: automatisch */

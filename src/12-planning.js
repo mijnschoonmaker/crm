@@ -428,7 +428,9 @@ function tjMail(k){if(!k||!k.gepland)return null;const d=k.gepland,van=iso(addDa
     (String(m.ref||"")==="planmail:"+d+":"+k.id||(String(m.sjabloon||"")==="aankondiging"&&(!m.ref||String(m.ref).includes(d)))));
   if(!L.length)return null;const m=L.sort((a,b)=>String(b.op).localeCompare(String(a.op)))[0];
   /* eigen tracking telt echte opens; ziet die (nog) niets terwijl Brevo wel een open meldt, dan telt Brevo (de eigen meting zag echte klanten als scanner) */
-  const st=(m.trkKlikOp||(!m.trk&&m.geklikOp))?"geklikt":(m.trkOpenOp||m.gelezenOp)?"geopend":"verstuurd";return {m,st}}
+  /* opens via de beeldproxy van de mailprovider (Go-http-client, minstens een minuut na versturen) zijn echte opens; zo tellen ook oudere mails mee */
+  const t0=Date.parse(m.verstuurdOp||m.op),proxy=(m.trkOpens||[]).some(x=>/go-http-client/i.test(String(x.u||""))&&(Date.parse(x.t)-t0)/1000>=60);
+  const st=(m.trkKlikOp||(!m.trk&&m.geklikOp))?"geklikt":(m.trkOpenOp||m.gelezenOp||proxy)?"geopend":"verstuurd";return {m,st}}
 function tjMailHtml(k){const r=tjMail(k);
   if(!r)return `<span class="tj-mail none" title="Nog geen mail over deze afspraak verstuurd">${I.mail}</span>`;
   const t=r.st==="geklikt"?"Klant heeft op een link in de mail geklikt":r.st==="geopend"?"Klant heeft de mail geopend":"Mail verstuurd, nog niet geopend";
