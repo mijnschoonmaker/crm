@@ -155,7 +155,7 @@ function openKlantView(id,opt={}){
     if(a==="greview"){const c=cur(),n=S().crReview!=null&&S().crReview!==""?Number(S().crReview):5;if(!(n>0))return;
       if([...(c.tegoed||[]),...(c.tegoedGebruikt||[])].some(x=>x&&x.bron==="review"))return toast("Deze klant heeft al credits voor een Google-review");
       if(!await vraag("Credits voor Google-review","Je hebt een Google-review van "+esc(cleanName(c.naam))+" gezien. "+n+" credits (€ "+n+") gaan van de volgende factuur af.","Credits geven"))return;
-      try{await put({tegoed:[...(c.tegoed||[]),{id:newId("tg"),bedrag:n,reden:"Credits: Google-review",bron:"review",op:iso(today())}],log:[...(c.log||[]),{datum:iso(today()),tekst:"Credits: Google-review · "+n+" credits (€ "+n+") op de volgende factuur"}]});toast(n+" credits gegeven voor de Google-review");re()}catch(er){err(er)}return}
+      try{await put({tegoed:[...(c.tegoed||[]),{id:newId("tg"),bedrag:n,reden:"Credits: Google-review",bron:"review",op:iso(today())}],log:[...(c.log||[]),{datum:iso(today()),tekst:"Credits: Google-review · "+n+" credits (€ "+n+") op de volgende factuur"}]});toast(n+" credits gegeven voor de Google-review"+(c.email?" · de klant krijgt een mail":""));creditsMail(cur(),"creditsReview",n);re()}catch(er){err(er)}return}
     if(a==="arch"){state.kkArch=!state.kkArch;return re()}
     if(a==="fp"){state.kkFP=Math.max(0,(state.kkFP||0)+Number(b.dataset.n));return re()}
     if(a==="fpn"){state.kkFP=Number(b.dataset.n);return re()}

@@ -27,6 +27,7 @@ function aanbevelingVrijgeven(id){setTimeout(async()=>{
     await save("klanten",k.id,{...strip(k),aanbevelingBeloond:true,log:[...(k.log||[]),{datum:iso(today()),tekst:"Eerste afspraak uitgevoerd: aanbevelingskorting voor "+cleanName(r.naam)+" vrijgegeven"}]});
     const r2_=state.klanten.find(x=>x.id===r.id)||r;
     await save("klanten",r.id,{...strip(r2_),tegoed:[...(r2_.tegoed||[]),{id:newId("tg"),bedrag,reden:"Korting klantaanbeveling ("+vn+")",bron:"aanbevelen",van:k.id,op:iso(today())}],log:[...(r2_.log||[]),{datum:iso(today()),tekst:eur(bedrag)+" aanbevelingskorting vrijgegeven ("+cleanName(k.naam)+" is klant geworden)"}]});
+    creditsMail(state.klanten.find(x=>x.id===r.id)||r,"creditsBuur",Number(bedrag)||0,{buur:vn});
     toast(eur(bedrag)+" korting vrijgegeven voor "+cleanName(r.naam)+" · gaat van de volgende factuur af")
   }catch(e){console.error(e)}},400)}
 const voornaam=n=>{let s=String(n||"").trim();if(s.includes(","))s=s.split(",").slice(1).join(",").trim()||s;return s.split(/\s+/)[0]||s};
@@ -333,6 +334,10 @@ function creditsOffertesCheck(){if(!state.loaded||(typeof isMw==="function"&&isM
 if(typeof window!=="undefined")setInterval(()=>{try{creditsOffertesCheck()}catch(e){}},15000);
 
 /* credits (portaal) toekennen als een review- of extra-dienst-ticket is opgelost; één keer per ticket */
+/* mail aan de klant dat er credits bij zijn gekomen (in de opgemaakte mailstijl, met knop naar het klantportaal) */
+async function creditsMail(k,soort,n,extra){try{if(!LIVE||!k||!k.email||!(n>0))return;const T=tpls()[soort];if(!T||!String(T.mail||"").trim())return;
+  const vars={...klantVars(k),credits:(n===1?"1 credit":String(n).replace(".",",")+" credits"),bedrag:eur(n),...(extra||{})};
+  await fbFn("sendMail")({berichtId:newId("m"),naar:k.email,naam:cleanName(k.naam),onderwerp:fill(T.onderwerp,vars),html:mailFor(soort,vars,T.mail),tekst:fill(T.mail,vars),meta:{klantId:k.id,klantNaam:k.naam,sjabloon:soort}})}catch(e){console.error("creditsMail",e)}}
 /* extra dienst: géén credits bij het afsluiten van het ticket; die komen pas als de klant akkoord gaat met de offerte (creditsVoorOfferte) */
 async function creditsVoorTicket(t){const vt=t.verzoek&&t.verzoek.type;if(vt!=="review")return;const k=state.klanten.find(x=>x.id===t.klantId);if(!k)return;
   const s=S(),n=vt==="review"?0:(s.crExtra!=null&&s.crExtra!==""?Number(s.crExtra):3);if(!(n>0))return;
