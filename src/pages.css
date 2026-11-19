@@ -5157,3 +5157,4 @@ html body:not(#zz):not(#zy) .kwq-tile small,html body:not(#zz):not(#zy) .kwq-til
   .kwq-t .kwq-r:not(.kwq-h2)>span{text-align:left;font-size:15px;font-weight:600}
   .kwq-t .kwq-r:not(.kwq-h2)>span::before{content:attr(data-l);display:block;font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:2px}
 }
+.tg-times span.h5{font-size:9.5px!important;opacity:.4;padding-top:3px!important;line-height:1}

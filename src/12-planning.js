@@ -72,7 +72,7 @@ function timeGrid(days){
   const anyUn=items.some(it=>it.js.some(x=>toMin(x.k.tijd)==null)||it.done.some(x=>toMin(x.b.tijd)==null));
   let html=`<div class="tgwrap"><div class="tg${days.length>=5?" tg-wk":""}" style="--n:${days.length};--H:${H}px"><div class="tg-head"><div class="tg-corner"><small>wk ${weekNr(parse(days[0]))}</small></div>${days.map(d=>dayHead(d,days.length===1)).join("")}</div>`;
   if(false)html+=`<div class="tg-un"><div class="tg-corner sm">Nog geen tijd</div>${days.map((d,i)=>`<div class="tg-uc">${items[i].done.filter(x=>toMin(x.b.tijd)==null).map(x=>`<span class="uchip done">${I.check}${esc(cleanName(x.b.klantNaam))}</span>`).join("")}${items[i].js.filter(x=>toMin(x.k.tijd)==null).map(x=>`<span class="uchip${pqMatch(x.k)?"":" faded"}" draggable="true" data-drag="${esc(x.k.id)}" data-act="klant" data-id="${esc(x.k.id)}">${esc(jobAddrObj(x.k).adres||cleanName(x.k.naam))}</span>`).join("")}</div>`).join("")}</div>`;
-  html+=`<div class="tg-body"><div class="tg-times">${[...Array(n)].map((_,i)=>{const m=S0+i*slot;return `<span style="height:${H}px" class="${m%60?"hh":"hu"}">${slot===5&&m%15?"":fromMin(m)}</span>`}).join("")}</div>`;
+  html+=`<div class="tg-body"><div class="tg-times">${[...Array(n)].map((_,i)=>{const m=S0+i*slot;return `<span style="height:${H}px" class="${m%60?"hh":"hu"}${m%15?" h5":""}">${fromMin(m)}</span>`}).join("")}</div>`;
   days.forEach((d,ci)=>{
     const it=items[ci];
     const timed=[...it.js.filter(x=>toMin(x.k.tijd)!=null).map(x=>({...x,s:toMin(x.k.tijd)})),...it.done.filter(x=>toMin(x.b.tijd)!=null).map(x=>({...x,s:toMin(x.b.tijd)}))].sort((a,b)=>a.s-b.s);
