@@ -43,7 +43,7 @@ const waNr = t => { let d = String(t || "").replace(/\D/g, ""); if (d.startsWith
   const skin = fs.readFileSync(path.join(__dirname, "webshop-config-skin.html"), "utf8"), bi = html.lastIndexOf("</body>");
   const mt = html.slice(0, bi) + skin + html.slice(bi), bj = mt.lastIndexOf("</body>");
   const laag = fs.readFileSync(path.join(__dirname, "..", "src", "kc", "fotolaag.html"), "utf8");
-  const gs = "<script>window.FO_GOOGLE={score:" + JSON.stringify(String(s.googleScore !== undefined ? s.googleScore : "5,0")) + "}</script>";
+  const gs = "<script>window.FO_GOOGLE={score:" + JSON.stringify(String(s.googleScore !== undefined ? s.googleScore : "5,0")) + ",url:" + JSON.stringify(/^https:\/\//.test(String(s.webReviewUrl || "")) ? String(s.webReviewUrl) : "") + "}</script>";
   const foto = mt.slice(0, bj) + gs + laag + mt.slice(bj);
   fs.writeFileSync(path.join(uit, "mijnschoonmaker.html"), foto);
   fs.writeFileSync(path.join(uit, "mijnschoonmaker-test.html"), foto);
