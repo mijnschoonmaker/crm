@@ -220,6 +220,7 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f):not(#g) .cfg-actie
 /* bedankt */
 .fo-klaar{margin-top:14px;padding:18px 20px;border-radius:14px;background:#f3f7f4;border:1px solid #dfe9e2;font:400 14px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;color:#2f4a3a}
 .fo-klaar b{display:block;font-weight:600;color:#1f3a2b;margin-bottom:2px}
+.fo-mi .fo-mi-s{font-size:.78em;color:#a3a9b3;font-weight:400;margin-left:.35em;letter-spacing:0}
 </style>
 <script>
 (function(){
@@ -350,7 +351,7 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f):not(#g) .cfg-actie
     b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>Klantportaal';a.querySelector(".fo-info").before(b)}
   /* menu rechtsboven (telefoon: drie streepjes): voorwaarden, privacy, tickets, over ons */
   function menuKnop(){const rk=$(".cfg-logo .rk");if(!rk||rk.querySelector(".fo-mnk"))return;
-    const vw=B.voorwaardenPdf||B.voorwaarden||"",pv=B.privacyPdf||"",pu=(rk.querySelector("a")||{}).href||"";
+    const vw=B.voorwaardenPdf||B.voorwaarden||"",pv=B.privacyPdf||"",hf=B.herroepingPdf||"",pu=(rk.querySelector("a")||{}).href||"";
     const b=document.createElement("button");b.type="button";b.className="fo-mnk";b.setAttribute("aria-label","Menu");b.setAttribute("aria-expanded","false");
     b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>Menu</span>';
     const m=document.createElement("div");m.className="fo-mn";m.hidden=true;
@@ -361,7 +362,7 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f):not(#g) .cfg-actie
       inf:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>',
       ster:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/></svg>',
       pt:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>'};
-    m.innerHTML=(pu?`<div class="fo-mi-tel">${it(IC.pt,"Klantportaal",{href:pu})}</div>`:"")+it(IC.tk,"Tickets",{mi:"tk"})+(((window.FO_GOOGLE||{}).url)?it(IC.ster,"Reviews",{href:window.FO_GOOGLE.url}):"")+it(IC.inf,"Over ons",{mi:"info"})+(vw||pv?'<i class="fo-mn-l"></i>':"")+(vw?it(IC.doc,"Algemene voorwaarden",{href:vw}):"")+(pv?it(IC.sch,"Privacyverklaring",{href:pv}):"");
+    m.innerHTML=(pu?`<div class="fo-mi-tel">${it(IC.pt,"Klantportaal",{href:pu})}</div>`:"")+it(IC.tk,'Tickets <small class="fo-mi-s">(contact)</small>',{mi:"tk"})+(((window.FO_GOOGLE||{}).url)?it(IC.ster,"Reviews",{href:window.FO_GOOGLE.url}):"")+it(IC.inf,"Over ons",{mi:"info"})+(vw||pv||hf?'<i class="fo-mn-l"></i>':"")+(vw?it(IC.doc,"Algemene voorwaarden",{href:vw}):"")+(pv?it(IC.sch,"Privacyverklaring",{href:pv}):"")+(hf?it(IC.doc,"Herroepingsformulier",{href:hf}):"");
     const plaats=()=>{const r=b.getBoundingClientRect();m.style.top=Math.round(r.bottom+10)+"px";m.style.right=Math.max(10,Math.round(innerWidth-r.right))+"px"};
     const open=v=>{if(v)plaats();m.hidden=!v;b.setAttribute("aria-expanded",String(!!v));b.classList.toggle("aan",!!v)};addEventListener("resize",()=>{if(!m.hidden)plaats()});addEventListener("scroll",()=>{if(!m.hidden)plaats()},{passive:true});
     b.onclick=e=>{e.stopPropagation();open(m.hidden)};
