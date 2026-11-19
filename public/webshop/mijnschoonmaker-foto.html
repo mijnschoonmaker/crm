@@ -2775,6 +2775,17 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f) .cfg-acties{gap:8p
 .fo-ov{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(14,17,23,.42);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:foIn .2s ease}
 @keyframes foIn{from{opacity:0}}
 .fo-ov .fo-doos{position:relative;width:min(520px,100%);max-height:calc(100vh - 40px);overflow:auto;background:#fff;border-radius:20px;box-shadow:0 30px 80px -30px rgba(14,17,23,.55);padding:34px 34px 28px;font:400 14.5px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;color:#4a4f57;box-sizing:border-box}
+/* Over ons: zelfde opmaak als de aankondigingsmail (balk boven, logo, rijdende bus met aanhanger, dunne blauwe voet) */
+.fo-mailv .fo-doos{padding:0!important;overflow:auto;width:min(560px,100%)!important;background:#fbfcfc!important}
+.fo-mailv .fo-mv-top{display:block;height:14px;background:#252c3c;border-radius:20px 20px 0 0}
+.fo-mailv .fo-mv-in{background:#fff;padding:26px 34px 26px}
+.fo-mailv .fo-mv-logo{display:block;width:64px;height:64px;border-radius:50%;object-fit:contain;margin:0 auto 22px}
+.fo-mailv .fo-dicht{top:28px!important}
+.fo-mailv .fo-mv-scene{background:linear-gradient(#fff,#f2f4f6);line-height:0}
+.fo-mailv .fo-mv-scene img{display:block;width:100%;height:auto}
+.fo-mailv .fo-mv-voet{display:block;height:18px;background:linear-gradient(135deg,#252c3c,#3a4560);border-radius:0 0 20px 20px}
+.fo-mailv .fo-ok{background:linear-gradient(135deg,#252c3c,#3a4560)!important;border-color:#252c3c!important}
+@media (max-width:600px){.fo-mailv .fo-mv-in{padding:22px 22px 22px}}
 .fo-ov h2{margin:0 0 4px;font:400 18px/1.25 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#0e1117}
 .fo-ov .fo-sub{margin:0 0 18px;color:#8a8f98;font-size:13px}
 .fo-ov p{margin:0 0 14px}
@@ -2980,11 +2991,14 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f):not(#g) .cfg-actie
   const B=typeof BEDRIJF==="object"?BEDRIJF:{},esc=x=>String(x||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   function info(){if($(".fo-ov"))return;const N=esc(B.naam||"ons bedrijf");const o=document.createElement("div");o.className="fo-ov";o.setAttribute("role","dialog");o.setAttribute("aria-modal","true");o.setAttribute("aria-label","Over "+(B.naam||"ons"));
     const L=[["Binnen 24 uur uw offerte","Op basis van uw foto’s brengen wij het aantal ramen voor u in kaart. U hoeft niets te tellen."],["Een vaste prijs per beurt","Wat in de offerte staat, is wat u betaalt. Geen verrassingen achteraf."],["U weet wanneer we komen","Vooraf ontvangt u bericht. Op de dag zelf volgt u ons live op de kaart."],["Uw eigen klantportaal","Bezoeken, facturen en vragen overzichtelijk op één plek."],["Aandacht voor uw wensen","Bijzonderheden die u ons vertelt, onthouden we. Bij ieder bezoek."]];
-    o.innerHTML=`<div class="fo-doos"><button type="button" class="fo-dicht" aria-label="Sluiten"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    o.className="fo-ov fo-mailv";const lg=B.logo?`<img class="fo-mv-logo" src="${esc(B.logo)}" alt="${N}">`:"";
+    o.innerHTML=`<div class="fo-doos"><i class="fo-mv-top"></i><button type="button" class="fo-dicht" aria-label="Sluiten"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      <div class="fo-mv-in">${lg}
       <h2>Over ${N}</h2><p class="fo-sub">Glasbewassing met oog voor detail</p>
       <p>Bij ${N} draait alles om helder zicht en een zorgeloze service. Wij komen op vaste momenten, werken rustig en netjes, en laten uw woning achter zoals u dat van ons mag verwachten.</p>
       <h3>Wat u kunt verwachten</h3><ol>${L.map((x,i)=>`<li><span>${i+1}</span><div><b>${x[0]}</b><small>${x[1]}</small></div></li>`).join("")}</ol>
-      <button type="button" class="fo-ok">Offerte aanvragen</button></div>`;
+      <button type="button" class="fo-ok">Offerte aanvragen</button></div>
+      <div class="fo-mv-scene"><img src="https://app.mansard.nl/mail/onderweg.gif" alt="" loading="lazy"></div><i class="fo-mv-voet"></i></div>`;
     const weg=()=>{o.remove();document.removeEventListener("keydown",esk)},esk=e=>{if(e.key==="Escape")weg()};
     o.addEventListener("click",e=>{if(e.target===o||e.target.closest(".fo-dicht"))weg()});o.querySelector(".fo-ok").onclick=weg;document.addEventListener("keydown",esk);document.body.append(o);setTimeout(()=>o.querySelector(".fo-dicht").focus(),30)}
   function infoKnop(){const a=$(".cfg-acties");if(!a||a.querySelector(".fo-info"))return;const b=document.createElement("button");b.type="button";b.className="fo-info";b.setAttribute("aria-label","Over "+(B.naam||"ons"));b.title="Over ons";
