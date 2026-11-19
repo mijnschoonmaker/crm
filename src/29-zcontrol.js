@@ -122,6 +122,8 @@ function ccAlle(){const s=[],t=today(),ti=iso(t),morgen=ccDag(1);
     state.klanten.filter(k=>(k.opdrachtVerwijderd||k.actief===false)&&!k.prospect&&(n[k.id]||0)>=3).forEach(k=>add({key:"hh:"+k.id,p:"laag",ic:"refresh",t:`Kans op herhaalopdracht: ${ccNaam(k)}`,u:`Kwam het afgelopen jaar ${n[k.id]} keer, maar heeft nu geen opdracht. Tijd voor een check-in.`,b:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),leeftijd:0,knop:"Open klant",go:"klant:"+k.id,acts:[bel(k)].filter(Boolean)}))}
   /* signalen uit wat klanten met mails, portaal en betalen doen */
   if(typeof trkSignalen==="function")try{trkSignalen(add,bel)}catch(e){console.error(e)}
+  /* herstel en stiptheid (29-zkwaliteit) */
+  if(typeof kwSignalen==="function")try{kwSignalen(add,bel)}catch(e){console.error(e)}
   return s.sort((a,b)=>(b.top||0)-(a.top||0)||CC_PRIO[a.p][0]-CC_PRIO[b.p][0]||(b.leeftijd||0)-(a.leeftijd||0))}
 /* de wachtrij: wat nog open staat (afgehandeld en "later" eruit) */
 function ccSignalen(){return ccAlle().filter(m=>!ccVerborgen(m.key))}
@@ -350,6 +352,7 @@ function ccActie(a){if(!a)return;const [k,...r]=a.split(":"),v=r.join(":");
   if(k==="plan")return go("planning");
   if(k==="tc")return openTellingControle(v);
   if(k==="off")return openOfferte({klantId:v});
+  if(k==="kw"&&typeof kwActie==="function")return kwActie(v);
   if(k==="gezien"){if(typeof aanmGezien==="function")return aanmGezien(v);return}
   if(k==="ticket")return typeof openTickets==="function"?openTickets(v):go("communicatie");
   if(k==="klaar"){CC.sel=-1;CC.menu="";return ccZet(v,"klaar")}

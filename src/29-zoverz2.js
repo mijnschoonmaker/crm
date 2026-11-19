@@ -46,6 +46,7 @@ function vOverzicht2(){const t=today(),ti=iso(t),P=ccPlanning(),S_=ccSignalen().
   act.forEach(k=>{const j=ov2Jarig(k,t,7);if(j)mom.push({d:j.d,ic:"cadeau",t:`${ccNaam(k)} is ${iso(j.d)===ti?"vandaag":"op "+fmtD(iso(j.d))} jarig`,s:j.leeftijd>0&&j.leeftijd<110?"wordt "+j.leeftijd:"Stuur een felicitatie",k});
     const ju=ov2Jubileum(k,t,7);if(ju)mom.push({d:ju.d,ic:"hart",t:`${ccNaam(k)}: ${plural(ju.jaar,"jaar","jaar")} klant`,s:(iso(ju.d)===ti?"vandaag":"op "+fmtD(iso(ju.d)))+" · een kaartje of attentie",k})});
   const g14=iso(addDays(t,-14));state.beurten.filter(b=>b.datum>=g14&&ov2Sterren(b)===5).slice(0,6).forEach(b=>{const k=ccKlant(b.klantId);if(k)mom.push({d:parse(b.datum),ic:"ster",t:`${ccNaam(k)} gaf 5 sterren`,s:"Bedank voor het bezoek van "+fmtD(b.datum),k})});
+  if(typeof kwMomenten==="function")try{kwMomenten(mom,t)}catch(e){console.error(e)}
   /* weggeklikte momenten blijven weg (op dit apparaat) */
   const momWeg=(()=>{let L=[];try{L=JSON.parse(localStorage.getItem("ms.ov2.weg")||"[]")}catch(e){}return new Set([...L,...(Array.isArray(S().ovMomWeg)?S().ovMomWeg:[])])})();
   mom.forEach(m=>{m.key=m.ic+":"+m.k.id+":"+iso(m.d)});for(let i=mom.length-1;i>=0;i--)if(momWeg.has(mom[i].key))mom.splice(i,1);

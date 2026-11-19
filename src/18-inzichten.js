@@ -24,9 +24,10 @@ const stTile=(ic,lbl,val,sub,cls="",act="")=>`<div class="st-tile ${cls}"${act}>
 function vInzichten(){
   const per=state.iper,P=curPeriod(per),V=curPeriod(per,-1),t=today(),perW={maand:"maand",kwartaal:"kwartaal",jaar:"jaar"}[per];
   let html=`<div class="pagehead"><div><p class="kicker">Inzicht</p><h1 class="xl">Statistieken</h1><p class="lead" style="margin:0">Omzet, werk en klanten in één overzicht</p></div></div>
-  <div class="toolbar" style="justify-content:space-between"><div class="seg brand">${[["geld","Geld",I.euro],["werk","Werk",I.timer],["klanten","Klanten",I.klanten],["analyse","Analyse",I.trend||I.spark]].map(([v,l,ic])=>`<button type="button" data-act="itab" data-v="${v}" aria-pressed="${state.itab===v}">${ic}${l}</button>`).join("")}</div>
+  <div class="toolbar" style="justify-content:space-between"><div class="seg brand">${[["geld","Geld",I.euro],["werk","Werk",I.timer],["klanten","Klanten",I.klanten],["kwaliteit","Kwaliteit",I.check],["analyse","Analyse",I.trend||I.spark]].map(([v,l,ic])=>`<button type="button" data-act="itab" data-v="${v}" aria-pressed="${state.itab===v}">${ic}${l}</button>`).join("")}</div>
     ${state.itab==="analyse"?"":`<div class="seg brand">${[["maand","Maand"],["kwartaal","Kwartaal"],["jaar","Jaar"]].map(([v,l])=>`<button type="button" data-act="iper" data-v="${v}" aria-pressed="${per===v}">${l}</button>`).join("")}</div>`}</div>`;
   if(state.itab==="analyse")return html+vAnalyse();
+  if(state.itab==="kwaliteit"&&typeof vKwaliteit==="function")return html+vKwaliteit(P,V);
   const kd=id=>state.klanten.find(k=>k.id===id);
   if(state.itab==="geld"){
     const F=fin(P.rg),Fv=fin(V.rg),Y=fin([new Date(t.getFullYear(),0,1),t]),Yv=fin([new Date(t.getFullYear()-1,0,1),new Date(t.getFullYear()-1,t.getMonth(),t.getDate())]);

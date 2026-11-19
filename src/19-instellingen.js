@@ -69,7 +69,7 @@ function volgendeFeestdag(){const t=today(),s=S();const all={...feestdagen(t.get
 const SET_GROEP=[["bedrijf","Je bedrijf","Gegevens, land en btw, wie er mag inloggen en beveiliging",["bedrijf","land","peppol","liveUsers","veilig"]],
   ["klant","Klanten & berichten","Hoe je klanten bereikt, herinnert en wat ze in hun portaal zien",["liveMail","email","tracking","sms","dag","welkom","review","livePortaal","vve"]],
   ["geld","Facturen & betalen","Online betalen, herinneringen, bijschrijvingen en bestellingsoverzicht",["liveMollie","fh","bijschr","liveOverzicht"]],
-  ["werk","Werk & planning","Werkdagen, afmelden, kilometers en opmeten",["doorplannen","afmelden","km","meetlint"]],
+  ["werk","Werk & planning","Werkdagen, afmelden, kilometers en opmeten",["kwaliteit","doorplannen","afmelden","km","meetlint"]],
   ["web","Website","Je prijscalculator en foto's van je werk",["website","galerij"]],
   ["data","Gegevens & systeem","Importeren, slimme hulp en de nachtelijke controle",["data","systeem","liveImport","platform"]]];
 /* overbodig: met E-mail versturen (Brevo) aan zijn de losse afzender- en mail-trackingkaart dubbel; overzetten uit de oude versie is eenmalig (staat bij Sneltoegang) */

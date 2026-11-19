@@ -5415,6 +5415,25 @@ dialog.drawer form.dlg:has(.u-edsave){overflow:visible!important}
 @media (max-width:1020px){.kk-grid.kk-v2{grid-template-columns:minmax(0,1fr)}}
 
 html.zm dialog.pv-ov{zoom:1.1111}
+/* ---------- kwaliteit (29-zkwaliteit) ---------- */
+.kwb-l{display:flex;flex-direction:column;gap:2px;max-height:52vh;overflow:auto}
+.kwb-r{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border-radius:14px}
+.kwb-r.pri{background:color-mix(in srgb,#252c3c 6%,transparent)}
+.kwb-ic{flex:none;width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:var(--surface-2,#f3f4f6);color:#252c3c}
+.kwb-ic svg{width:16px;height:16px}
+.kwb-r small{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:2px}
+.kwb-r b{font-weight:600;font-size:14.5px;line-height:1.4}
+.kwc .vve-t input:not(:checked)+span{opacity:.75}
+.kwc-alles{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;background:none;border:1px dashed var(--line);border-radius:999px;padding:6px 12px;color:#252c3c;cursor:pointer;margin:2px 0 6px}
+.kwc-alles svg{width:14px;height:14px}
+.kwq-t{display:flex;flex-direction:column}
+.kwq-r{display:grid;grid-template-columns:minmax(0,1.5fr) repeat(5,minmax(0,1fr));gap:14px;padding:10px 4px;border-bottom:1px solid var(--line);font-size:14px;align-items:center}
+.kwq-r:last-child{border-bottom:0}
+.kwq-h{font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.kwq-h2{grid-template-columns:minmax(0,1.6fr) repeat(3,minmax(0,1fr));cursor:pointer;font-size:14px;text-transform:none;letter-spacing:0;color:inherit;font-weight:400}
+.kwq-h2:hover{background:var(--surface-2,#f6f7f8)}
+.kwq-rood{color:#b42318;font-weight:700}
+@media (max-width:640px){.kwq-r{grid-template-columns:minmax(0,1.4fr) repeat(5,minmax(0,1fr));font-size:12.5px;gap:6px}}
 
 </style>
 <style id="mansardThema">
@@ -9092,6 +9111,8 @@ const TPL={
   maandtop:{naam:"Snelste betalers van de maand",doel:"Felicitatie aan de top 3, met de extra credits",cat:"Review",onderwerp:"[cup.ranking] [place.ranking] snelste betalers van [month.ranking] · [name.company]",mail:"Beste [firstname.customer],\n\nGefeliciteerd! In [month.ranking] stond u op de [place.ranking] van onze snelste betalers. U betaalde uw factuur in [time.ranking]. Hartelijk dank voor uw snelle betaling, daar zijn wij erg blij mee.\n\n[block.ranking]\n\nWij hebben [credits.ranking] ([amount.ranking]) extra voor u bijgeschreven. Die gaan automatisch van uw eerstvolgende factuur af; u hoeft daar niets voor te doen.\n\nIn uw klantportaal ziet u uw credits en de top 3 van de maand. Elke maand maakt u weer kans: betaal uw factuur direct met de iDEAL-knop in de mail of in uw klantportaal.\n\nMet vriendelijke groet,\n[name.company]"},
   review:{naam:"Reviewverzoek",doel:"Om een review vragen",onderwerp:"Tevreden over ons werk?",mail:"Beste [name.customer],\n\nBedankt dat we voor u mochten werken!\n\nZou u ons willen helpen met een korte review? Het kost u minder dan een minuut en het helpt ons enorm om nieuwe klanten te bereiken.\n\nMet vriendelijke groet,\n[name.company]",sms:"Hoi [name.customer], bedankt dat we je ramen weer mochten wassen! Zou je een korte review willen geven? [link.review] [name.company]"},
   nieuwsbrief:{naam:"Nieuwsbrief / algemeen",doel:"Bericht aan meerdere klanten",onderwerp:"Nieuws van [name.company]",mail:"Beste [name.customer],\n\nEen kort bericht van [name.company]: \n\nMet vriendelijke groet,\n[name.company]",sms:"Hoi [name.customer], een kort bericht van [name.company]: "},
+  jubileum:{naam:"Jubileum",doel:"Bedanken op de dag dat de klant een of meer jaar klant is",onderwerp:"Vandaag [aantal] jaar – dank u wel",mail:"Beste [name.customer],\n\nVandaag is het precies [aantal] jaar geleden dat u klant bij ons werd. Dank u wel voor uw vertrouwen. Wij komen graag weer bij u langs.\n\nMet vriendelijke groet,\n[name.company]",sms:"Hoi [name.customer], vandaag bent u precies [aantal] jaar klant bij ons. Dank u wel voor uw vertrouwen! Groet, [name.company]"},
+  mijlpaal:{naam:"Mijlpaal",doel:"Bedanken na het 10e, 25e of 50e bezoek",onderwerp:"Ons [aantal]e bezoek – dank u wel",mail:"Beste [name.customer],\n\nOnlangs kwamen wij voor de [aantal]e keer bij u langs. Dat vinden wij een mooi moment om u te bedanken voor uw vertrouwen.\n\nMet vriendelijke groet,\n[name.company]",sms:"Hoi [name.customer], onlangs waren wij voor de [aantal]e keer bij u. Dank u wel voor uw vertrouwen! Groet, [name.company]"},
   verjaardag:{naam:"Verjaardag",doel:"Klant feliciteren op de verjaardag",onderwerp:"Van harte gefeliciteerd! – [name.company]",mail:"Beste [name.customer],\n\nVan harte gefeliciteerd met uw verjaardag! Wij wensen u een fijne dag.\n\nMet vriendelijke groet,\n[name.company]",sms:"Hoi [name.customer], van harte gefeliciteerd met uw verjaardag! Groet, [name.company]"},
   vrij:{naam:"Eigen bericht",doel:"Leeg bericht",onderwerp:"Bericht van [name.company]",mail:"Beste [name.customer],\n\n\n\nMet vriendelijke groet,\n[name.company]",sms:"Hoi [name.customer], "}
 };
@@ -9754,6 +9775,11 @@ function queues(){
     kanaal:g0.mail?"email":"whatsapp",tekst:g0.sms?g0.smsBody:g0.body,mail:g0.mail?g0.body:"",onderwerp:g0.onderwerp,sjabloon:g0.sjabloon||"aankondiging"})}}
   {const md=iso(t).slice(5),y=t.getFullYear(),T2=tpls(),vj=actief().filter(k=>k.geboortedatum&&k.verjaardagTpl&&String(k.geboortedatum).slice(5)===md&&!refs.has("verjaardag:"+y+":"+k.id));
     if(vj.length){const X=T2[vj[0].verjaardagTpl]||T2.verjaardag||{};out.push({id:"verjaardag",titel:"Verjaardagen vandaag",uitleg:"Klanten die vandaag jarig zijn",items:vj.map(k=>{const Y=T2[k.verjaardagTpl]||X;return{k,vars:klantVars(k),ref:"verjaardag:"+y+":"+k.id,stap:{naam:Y.naam||"Verjaardag",mail:Y.mail||"",sms:Y.sms||Y.mail||"",onderwerp:Y.onderwerp||""}}}),kanaal:"email",tekst:X.sms||"",mail:X.mail||"",onderwerp:X.onderwerp||"",sjabloon:vj[0].verjaardagTpl})}}
+  /* kleine gebaren (29-zkwaliteit): jubileum en mijlpaal staan klaar, jij beslist of ze weggaan */
+  if(st.kwGebaren!==false){const T3=tpls(),md=iso(t).slice(5),y=t.getFullYear(),act=actief().filter(k=>!k.prospect&&!k.hoofdKlantId);
+    const zet=(id,titel,uitleg,L,tk)=>{if(!L.length)return;const X=T3[tk]||{};const items=L.map(({k,n,ref})=>{const r=s=>String(s||"").split("[aantal]").join(String(n));return{k,vars:klantVars(k),ref,stap:{naam:X.naam||titel,mail:r(X.mail),sms:r(X.sms||X.mail),onderwerp:r(X.onderwerp)}}}),f0=items[0].stap;out.push({id,titel,uitleg,items,kanaal:"email",tekst:f0.sms,mail:f0.mail,onderwerp:f0.onderwerp,sjabloon:tk})};
+    zet("jubileum","Jubilea vandaag","Klanten die vandaag een of meer jaar klant zijn",act.map(k=>{const a=typeof kwSinds==="function"?kwSinds(k):String(k.aangemaakt||"").slice(0,10);return /^\d{4}-\d{2}-\d{2}$/.test(a)&&a.slice(5)===md&&y-Number(a.slice(0,4))>=1?{k,n:y-Number(a.slice(0,4)),ref:"jubileum:"+y+":"+k.id}:null}).filter(Boolean).filter(x=>!refs.has(x.ref)),"jubileum");
+    zet("mijlpaal","Mijlpalen","Klanten die onlangs hun 10e, 25e of 50e bezoek hadden",typeof kwMijlpaal==="function"?act.map(k=>{const m=kwMijlpaal(k,3);return m?{k,n:m.n,ref:"mijlpaal:"+m.n+":"+k.id}:null}).filter(x=>x&&!refs.has(x.ref)):[],"mijlpaal")}
   const nv=facturen().filter(f=>fStatus(f)[1]==="Openstaand"&&!f.verstuurdOp);
   out.push({id:"factuur",titel:"Facturen versturen",uitleg:"Open facturen die je nog niet hebt verstuurd",hint:"Wil je de PDF meesturen? Download hem bij de factuur en voeg hem in je mail toe.",
     items:nv.map(f=>({k:state.klanten.find(x=>x.id===f.klantId)||{naam:f.klantNaam,email:f.klantEmail},vars:factVars(f),ref:"factuur:"+f.id,onSent:()=>save("facturen",f.id,{...strip(f),verstuurdOp:iso(today()),verstuurdTs:f.verstuurdTs||new Date().toISOString()})}))});
@@ -9854,6 +9880,8 @@ async function afronden(k,mode,el){
   if(typeof isOBeurt==="function"&&isOBeurt(k)&&!k.tellingGecontroleerd&&!k._tcSkip){const a=await vraag("Telling nog niet gecontroleerd",`Dit is de O-beurt van <b>${esc(cleanName(k.naam))}</b>. Controleer eerst ter plekke of de telling van de klant klopt.`,"Toch afmelden","Telling controleren");
     if(a===null){render();return}if(a===false){render();openTellingControle(k.id);return}}
   let _vve=null;if(k.soort==="vve"&&typeof vveOplevering==="function"){_vve=await vveOplevering(k);if(_vve===null){render();return}}
+  /* eindcontrole: punten, opleverfoto en wat opviel (29-zkwaliteit) */
+  let _kw=null;if(typeof kwControle==="function"){_kw=await kwControle(k);if(_kw===null){render();return}}
   const _lm=k._tmMin!=null?k._tmMin:lopendeMin(k),_mp=_lm&&_lm>=1?metingPatch(k,_lm):null,_last=(k.tijden||[]).slice(-1)[0],_dur=_mp?_lm:_last&&_last.datum===iso(today())?_last.min:duur(k);if(_mp)k={...k,..._mp};
   const _mw=isMw();if(_mw)mode="concept";/* medewerker: altijd concept, kantoor controleert en verstuurt */
   /* afmelden = conceptfactuur (niet versturen) · factureren (veeg naar links) = definitieve factuur én direct naar de klant */
@@ -9875,9 +9903,9 @@ async function afronden(k,mode,el){
   if((k.bevindingen||[]).length)f.bijlagen=k.bevindingen.map(b=>({...b,soort:"foto"}));
   if(k.nietFactureren&&!perKeuze(k)){/* niet factureren: beurt afmelden zonder factuur */
     try{const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed),_los=await losseExtraFacturen(k,d,_ed,f,_mw,_hs);
-      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),betaald:false,gefactureerd:"nvt",...(_los.length?{extraFacturen:_los}:{}),dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:k._tmEind||new Date().toISOString(),...(_vve||{})});
+      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),betaald:false,gefactureerd:"nvt",...(_los.length?{extraFacturen:_los}:{}),dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:k._tmEind||new Date().toISOString(),...(_vve||{}),...(_kw&&_kw.beurt||{})});
       const _vn=volgendeNa(k),nx=_vn.gepland;
-      await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",bevindingen:[],opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,bezig:"",bezigGroep:""});aanbevelingVrijgeven(k.id);await extraNaBij(k,d,_ed);
+      await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",bevindingen:[],opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,...(_kw&&_kw.klant||{}),bezig:"",bezigGroep:""});aanbevelingVrijgeven(k.id);await extraNaBij(k,d,_ed);
       const undo=async()=>{try{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
       feest(k);toast(cleanName(k.naam)+" afgemeld · niet gefactureerd (staat zo bij de opdracht)",[{label:"Ongedaan",fn:undo}])}
     catch(e){if(el){const c=el.querySelector(".swipe-card");if(c)c.style.transform="";el.classList.remove("armed")}err(e)}
@@ -9886,9 +9914,9 @@ async function afronden(k,mode,el){
     try{const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed);
       /* extra opdrachten (bijv. glasbewassing) staan niet op de periodieke factuur: eigen factuur, per opdracht ingesteld */
       const _los=await losseExtraFacturen(k,d,_ed,f,_mw,_hs);
-      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),...(_los.length?{extraFacturen:_los}:{}),betaald:false,gefactureerd:"periodiek",periodiek:true,dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:k._tmEind||new Date().toISOString(),...(_vve||{})});
+      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),...(_los.length?{extraFacturen:_los}:{}),betaald:false,gefactureerd:"periodiek",periodiek:true,dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:k._tmEind||new Date().toISOString(),...(_vve||{}),...(_kw&&_kw.beurt||{})});
       const _vn=volgendeNa(k),nx=_vn.gepland;
-      await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,bezig:"",bezigGroep:""});aanbevelingVrijgeven(k.id);await extraNaBij(k,d,_ed);
+      await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,...(_kw&&_kw.klant||{}),bezig:"",bezigGroep:""});aanbevelingVrijgeven(k.id);await extraNaBij(k,d,_ed);
       const undo=async()=>{try{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
       feest(k);toast(cleanName(k.naam)+" afgemeld · "+(isPeriodiek(k)?"gaat mee op de periodieke factuur ("+fmtD(k.periodiek.volgende)+")":"geen factuur per beurt · maak nog de periodieke factuur aan bij de opdracht")+(_los.length?" · eigen factuur voor de extra opdracht":""),[{label:"Ongedaan",fn:async()=>{for(const x of _los){try{await del("facturen",x)}catch(e){}}await undo()}}])}
     catch(e){if(el){const c=el.querySelector(".swipe-card");if(c)c.style.transform="";el.classList.remove("armed")}err(e)}
@@ -9903,9 +9931,9 @@ async function afronden(k,mode,el){
   try{
     await save("facturen",fId,f);
     const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed),_los=await losseExtraFacturen(k,d,_ed.filter(o=>!exMee(o,_hs)),f,_mw,_hs);
-    await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:r2(f.regels.reduce((a,r)=>a+(Number(r.aantal)||0)*(Number(r.prijs)||0),0)),extra:_ed.map(o=>o.dienst),betaald:f.status==="betaald",gefactureerd:fId,dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:k._tmEind||new Date().toISOString(),...(_vve||{})});
+    await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:r2(f.regels.reduce((a,r)=>a+(Number(r.aantal)||0)*(Number(r.prijs)||0),0)),extra:_ed.map(o=>o.dienst),betaald:f.status==="betaald",gefactureerd:fId,dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:k._tmEind||new Date().toISOString(),...(_vve||{}),...(_kw&&_kw.beurt||{})});
     const _vn=volgendeNa(k),nx=_vn.gepland;
-    await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",artikelen:[],bevindingen:[],...(k.opdrachtVerwijderd?{actief:false}:{}),opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,...(_tg||{}),bezig:"",bezigGroep:""});aanbevelingVrijgeven(k.id);await extraNaBij(k,d,_ed);
+    await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",artikelen:[],bevindingen:[],...(k.opdrachtVerwijderd?{actief:false}:{}),opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,...(_kw&&_kw.klant||{}),...(_tg||{}),bezig:"",bezigGroep:""});aanbevelingVrijgeven(k.id);await extraNaBij(k,d,_ed);
     const undo=async()=>{try{await del("facturen",fId);await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
     feest(k);
     if(_mw){toast(cleanName(k.naam)+" afgemeld",[{label:"Ongedaan",fn:undo}]);return}
@@ -9958,6 +9986,8 @@ async function startJob(k){
   /* de dag is begonnen: live delen gaat vanzelf aan, zodat de klant van vandaag kan zien dat je eraan komt (één keer vraagt de telefoon om je locatie) */
   if(on&&typeof LIVE!=="undefined"&&LIVE&&typeof wdLive==="function"&&!(state.liveDelen&&typeof LV!=="undefined"&&LV.watch!=null)&&!(wdGet(iso(today()))||{}).liveUit)try{wdLive(true)}catch(e){}
   /* start vergeten? Is de geplande tijd al ruim voorbij, dan kies je hoe laat je echt begon (de gemeten tijd klopt dan weer) */
+  /* briefing: wat je moet weten voor je aanbelt (alleen als er iets te melden is) */
+  if(on&&typeof kwBriefing==="function"&&!(await kwBriefing(k)))return;
   let tsKeuze=null;if(on){const tp=toMin(k.tijd),nm=new Date().getHours()*60+new Date().getMinutes();if(k.gepland&&k.gepland<=iso(today())&&tp!=null&&nm-tp>=15){tsKeuze=await startKeuze(k,tp);if(tsKeuze===null)return}}
   /* flat: één Start zet de tijd bij alle woningen tegelijk aan */
   if(on){const fg=typeof flatGroep==="function"?flatGroep(k).filter(x=>!isBezig(x)):[k];if(fg.length>=2&&fg.some(x=>x.id===k.id)){const ts=tsKeuze||new Date().toISOString(),gid="fl"+Date.now().toString(36);
@@ -12454,7 +12484,7 @@ const TPL_SECTIES=[
   ["nieuw","Nieuwe klant","Van offerte tot bevestigde bestelling","offerte",["offerte","voorlopig","definitief","welkom"]],
   ["afspraak","Afspraken","Aankondigen, herinneren en wijzigen","cal2",["aankondiging","herinnering","afspraak","onderweg","wijzigen","weer","annuleren","uitloop"]],
   ["geld","Facturen & betalen","Factuur, herinneringen en de snelste betalers","euro",["factuur","aanmaning","wik","maandtop","afkondiging"]],
-  ["relatie","Na het werk","Review en persoonlijke aandacht","spark",["review","verjaardag"]],
+  ["relatie","Na het werk","Review en persoonlijke aandacht","spark",["review","verjaardag","jubileum","mijlpaal"]],
   ["groep","Groepsberichten","Eén bericht aan meerdere klanten tegelijk","megaphone",["nieuwsbrief","update","prijs","kerst","zomer","vrij"]],
   ["eigen","Eigen templates","Templates die je zelf hebt gemaakt","pencil",[]]];
 function tplWanneer(k,t){const s=S();const M={
@@ -12477,6 +12507,8 @@ function tplWanneer(k,t){const s=S();const M={
   review:[1,"Na een factuur, als het reviewverzoek aan staat"],
   maandtop:[1,"Op de 1e van de maand naar de top 3 van de vorige maand (alleen iDEAL-knop)"],
   verjaardag:[1,"Staat klaar op de verjaardag van de klant"],
+  jubileum:[s.kwGebaren!==false,"Staat klaar op de dag dat de klant 1, 2, 3… jaar klant is"],
+  mijlpaal:[s.kwGebaren!==false,"Staat klaar na het 10e, 25e, 50e bezoek"],
   vrij:[0,"Leeg begin voor een los bericht"]};
   return M[k]||(TPL_SECTIES[4][4].includes(k)?[0,"Via Nieuwsbrief of Verstuur bericht"]:[0,"Via Verstuur bericht"])}
 const TPLGUESS={aankondiging:"Aankondiging",afkondiging:"Afkondiging",weer:"Afspraak",wijzigen:"Afspraak",afspraak:"Afspraak",annuleren:"Afspraak",factuur:"Factuur",aanmaning:"Herinnering",herinnering:"Herinnering",offerte:"Offerte",review:"Review",welkom:"Welkom",voltooid:"Afkondiging",nieuwsbrief:"Algemeen",vrij:"Algemeen"};
@@ -14045,9 +14077,10 @@ const stTile=(ic,lbl,val,sub,cls="",act="")=>`<div class="st-tile ${cls}"${act}>
 function vInzichten(){
   const per=state.iper,P=curPeriod(per),V=curPeriod(per,-1),t=today(),perW={maand:"maand",kwartaal:"kwartaal",jaar:"jaar"}[per];
   let html=`<div class="pagehead"><div><p class="kicker">Inzicht</p><h1 class="xl">Statistieken</h1><p class="lead" style="margin:0">Omzet, werk en klanten in één overzicht</p></div></div>
-  <div class="toolbar" style="justify-content:space-between"><div class="seg brand">${[["geld","Geld",I.euro],["werk","Werk",I.timer],["klanten","Klanten",I.klanten],["analyse","Analyse",I.trend||I.spark]].map(([v,l,ic])=>`<button type="button" data-act="itab" data-v="${v}" aria-pressed="${state.itab===v}">${ic}${l}</button>`).join("")}</div>
+  <div class="toolbar" style="justify-content:space-between"><div class="seg brand">${[["geld","Geld",I.euro],["werk","Werk",I.timer],["klanten","Klanten",I.klanten],["kwaliteit","Kwaliteit",I.check],["analyse","Analyse",I.trend||I.spark]].map(([v,l,ic])=>`<button type="button" data-act="itab" data-v="${v}" aria-pressed="${state.itab===v}">${ic}${l}</button>`).join("")}</div>
     ${state.itab==="analyse"?"":`<div class="seg brand">${[["maand","Maand"],["kwartaal","Kwartaal"],["jaar","Jaar"]].map(([v,l])=>`<button type="button" data-act="iper" data-v="${v}" aria-pressed="${per===v}">${l}</button>`).join("")}</div>`}</div>`;
   if(state.itab==="analyse")return html+vAnalyse();
+  if(state.itab==="kwaliteit"&&typeof vKwaliteit==="function")return html+vKwaliteit(P,V);
   const kd=id=>state.klanten.find(k=>k.id===id);
   if(state.itab==="geld"){
     const F=fin(P.rg),Fv=fin(V.rg),Y=fin([new Date(t.getFullYear(),0,1),t]),Yv=fin([new Date(t.getFullYear()-1,0,1),new Date(t.getFullYear()-1,t.getMonth(),t.getDate())]);
@@ -14397,7 +14430,7 @@ function volgendeFeestdag(){const t=today(),s=S();const all={...feestdagen(t.get
 const SET_GROEP=[["bedrijf","Je bedrijf","Gegevens, land en btw, wie er mag inloggen en beveiliging",["bedrijf","land","peppol","liveUsers","veilig"]],
   ["klant","Klanten & berichten","Hoe je klanten bereikt, herinnert en wat ze in hun portaal zien",["liveMail","email","tracking","sms","dag","welkom","review","livePortaal","vve"]],
   ["geld","Facturen & betalen","Online betalen, herinneringen, bijschrijvingen en bestellingsoverzicht",["liveMollie","fh","bijschr","liveOverzicht"]],
-  ["werk","Werk & planning","Werkdagen, afmelden, kilometers en opmeten",["doorplannen","afmelden","km","meetlint"]],
+  ["werk","Werk & planning","Werkdagen, afmelden, kilometers en opmeten",["kwaliteit","doorplannen","afmelden","km","meetlint"]],
   ["web","Website","Je prijscalculator en foto's van je werk",["website","galerij"]],
   ["data","Gegevens & systeem","Importeren, slimme hulp en de nachtelijke controle",["data","systeem","liveImport","platform"]]];
 /* overbodig: met E-mail versturen (Brevo) aan zijn de losse afzender- en mail-trackingkaart dubbel; overzetten uit de oude versie is eenmalig (staat bij Sneltoegang) */
@@ -19689,6 +19722,8 @@ function ccAlle(){const s=[],t=today(),ti=iso(t),morgen=ccDag(1);
     state.klanten.filter(k=>(k.opdrachtVerwijderd||k.actief===false)&&!k.prospect&&(n[k.id]||0)>=3).forEach(k=>add({key:"hh:"+k.id,p:"laag",ic:"refresh",t:`Kans op herhaalopdracht: ${ccNaam(k)}`,u:`Kwam het afgelopen jaar ${n[k.id]} keer, maar heeft nu geen opdracht. Tijd voor een check-in.`,b:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),leeftijd:0,knop:"Open klant",go:"klant:"+k.id,acts:[bel(k)].filter(Boolean)}))}
   /* signalen uit wat klanten met mails, portaal en betalen doen */
   if(typeof trkSignalen==="function")try{trkSignalen(add,bel)}catch(e){console.error(e)}
+  /* herstel en stiptheid (29-zkwaliteit) */
+  if(typeof kwSignalen==="function")try{kwSignalen(add,bel)}catch(e){console.error(e)}
   return s.sort((a,b)=>(b.top||0)-(a.top||0)||CC_PRIO[a.p][0]-CC_PRIO[b.p][0]||(b.leeftijd||0)-(a.leeftijd||0))}
 /* de wachtrij: wat nog open staat (afgehandeld en "later" eruit) */
 function ccSignalen(){return ccAlle().filter(m=>!ccVerborgen(m.key))}
@@ -19917,6 +19952,7 @@ function ccActie(a){if(!a)return;const [k,...r]=a.split(":"),v=r.join(":");
   if(k==="plan")return go("planning");
   if(k==="tc")return openTellingControle(v);
   if(k==="off")return openOfferte({klantId:v});
+  if(k==="kw"&&typeof kwActie==="function")return kwActie(v);
   if(k==="gezien"){if(typeof aanmGezien==="function")return aanmGezien(v);return}
   if(k==="ticket")return typeof openTickets==="function"?openTickets(v):go("communicatie");
   if(k==="klaar"){CC.sel=-1;CC.menu="";return ccZet(v,"klaar")}
@@ -20783,6 +20819,183 @@ document.head.insertAdjacentHTML("beforeend",`<style id="kmStijl">
 .km-vr{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(0,1fr) auto;gap:8px;align-items:center;margin-bottom:8px}
 @media (max-width:560px){.km-tot{grid-template-columns:repeat(2,minmax(0,1fr))}.km-ri{grid-template-columns:62px minmax(0,1fr) auto;gap:8px;padding:11px 12px!important}.km-vr{grid-template-columns:auto minmax(0,1fr) auto}.km-vr [data-vn]{grid-column:2/3;grid-row:2}}
 </style>`);
+
+/* ---------- KWALITEIT: elke afspraak op sterrenniveau ----------
+   Zoals een driesterrenrestaurant: geen bord de zaal in zonder controle, elke gast vooraf kennen,
+   stipt op tijd, een klacht dezelfde dag rechtzetten en elke dag meten of het niveau gehaald wordt.
+   1 Eindcontrole bij afmelden (punten + opleverfoto + wat viel op)      → beurt.kwaliteit, klant.bezoekNotitie
+   2 Herstel: lage beoordeling of afgekeurde controle → melding tot opgelost → beurt.herstel
+   3 Stiptheid: aankomstvenster rond de geplande tijd, alleen intern (geen bericht naar de klant)
+   4 Briefing bij Start: wat je moet weten, met "Gezien"                    → beurt.briefGezien
+   5 Kwaliteitsscore: Statistieken › Kwaliteit, per week en per medewerker
+   6 Kleine gebaren: jubileum en mijlpaal staan klaar in Communicatie; jij beslist of ze weggaan */
+const KW_GLAS=["Geen strepen of druppels","Kozijnen en dorpels droog","Alles teruggezet (bloempotten, matten)","Poort en hek weer dicht"];
+const KW_ALG=["Alles schoon en droog opgeleverd","Spullen weer op hun plek","Afval meegenomen","Deur en poort weer dicht"];
+const KW={groep:{},gezien:{}};
+const kwS=()=>(typeof S==="function"&&S())||{};
+const kwPunten=()=>{const t=kwS().kwPunten;return Array.isArray(t)&&t.length?t:(typeof GLAS==="function"&&GLAS()?KW_GLAS:KW_ALG)};
+const kwVenster=()=>Math.max(5,Math.min(120,Number(kwS().kwVenster)||15));
+const kwDrempel=()=>Math.min(4,Math.max(1,Number(kwS().kwDrempel)||3));
+const kwTest=()=>typeof LIVE!=="undefined"&&!LIVE&&/[?&]selftest\b/.test(location.search)&&!/[?&]kwtoon\b/.test(location.search);
+const kwHm=x=>{const d=new Date(x);return isNaN(d)?"":String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")};
+const kwNaam=k=>cleanName((k&&k.naam)||"");
+
+/* ---------- 3. stiptheid ---------- */
+/* minuten te laat t.o.v. de geplande tijd (negatief = eerder); null zonder vaste tijd of zonder starttijd */
+function kwLaat(b){const p=toMin(b&&b.tijd);if(p==null||!b.startOp)return null;const d=new Date(b.startOp);if(isNaN(d))return null;return d.getHours()*60+d.getMinutes()-p}
+function kwOpTijd(b){const l=kwLaat(b);return l==null?null:l<=kwVenster()}
+
+/* ---------- 4. briefing bij Start ---------- */
+function kwBriefRegels(k){const hl=typeof hospList==="function"?hospList(k):[],R=[];
+  const cat=[["aankomst","Aankomst en toegang",I.lock],["dier","Huisdieren",I.paw||I.alert],["letop","Let op",I.alert],["voorkeur","Voorkeur",I.heart||I.note]];
+  const n=k.bezoekNotitie;if(n&&n.t)R.push({ic:I.note,l:"Vorige keer opgevallen"+(n.door?" · "+n.door:""),t:n.t,pri:1});
+  cat.forEach(([c,l,ic])=>{const x=hl.filter(y=>y.c===c);if(x.length)R.push({ic,l,t:x.map(y=>y.t).join(" · ")})});
+  const praat=hl.filter(x=>x.c==="verteld"&&(typeof hospNu!=="function"||hospNu(x)));if(praat.length)R.push({ic:I.chat||I.note,l:"Ter sprake brengen",t:praat.map(x=>x.t).join(" · ")});
+  if(typeof ov2Klacht==="function"&&ov2Klacht(k))R.unshift({ic:I.alert,l:"Extra aandacht",t:"Deze klant was onlangs niet tevreden. Lever vandaag extra zorgvuldig op.",pri:1});
+  const lb=(state.beurten||[]).filter(b=>b.klantId===k.id&&b.beoordeling&&Number(b.beoordeling.sterren)>0).sort((a,b)=>String(b.datum).localeCompare(String(a.datum)))[0];
+  if(lb&&Number(lb.beoordeling.sterren)<=kwDrempel()&&!R.some(r=>r.l==="Extra aandacht"))R.unshift({ic:I.alert,l:"Extra aandacht",t:`Gaf het vorige bezoek ${lb.beoordeling.sterren} ${Number(lb.beoordeling.sterren)===1?"ster":"sterren"}${lb.beoordeling.tekst?": “"+String(lb.beoordeling.tekst).slice(0,140)+"”":""}. Lever vandaag extra zorgvuldig op.`,pri:1});
+  return R}
+function kwBriefing(k){return new Promise(res=>{try{
+  if(kwTest()||kwS().kwBriefing===false)return res(true);
+  const R=kwBriefRegels(k);if(!R.length)return res(true);
+  const d=document.createElement("dialog");d.className="vraag-dlg";
+  d.innerHTML=`<div class="vraag-ov"><div class="skz kwb" role="alertdialog" aria-modal="true" aria-labelledby="kwbT">
+    <div class="skz-kop"><span class="skz-ic">${I.user||I.klanten}</span><div><h3 id="kwbT">Voor je aanbelt</h3><p>${esc(kwNaam(k))}${k.tijd?" · "+esc(k.tijd):""}</p></div></div>
+    <div class="kwb-l">${R.map(r=>`<div class="kwb-r${r.pri?" pri":""}"><span class="kwb-ic">${r.ic||""}</span><span><small>${esc(r.l)}</small><b>${esc(r.t)}</b></span></div>`).join("")}</div>
+    <div class="skz-k"><button type="button" class="ghost" data-kb="x">Annuleren</button><button type="button" class="primary" data-kb="ok">${I.check}<span>Gezien, start</span></button></div></div></div>`;
+  document.body.appendChild(d);d.showModal();const weg=v=>{try{d.close()}catch(_){}d.remove();res(v)};
+  d.addEventListener("cancel",e=>{e.preventDefault();weg(null)});
+  d.addEventListener("click",e=>{const b=e.target.closest("[data-kb]");if(!b)return;if(b.dataset.kb==="x")return weg(null);KW.gezien[k.id]=new Date().toISOString();weg(true)})
+}catch(e){console.error(e);res(true)}})}
+
+/* ---------- 1. eindcontrole bij afmelden ---------- */
+/* geeft {beurt,klant} terug om mee op te slaan, of null als je annuleert */
+function kwControle(k){return new Promise(res=>{try{
+  const extra=()=>({...(KW.gezien[k.id]?{briefGezien:KW.gezien[k.id]}:{})});
+  const klaar=v=>{if(v)delete KW.gezien[k.id];res(v)};
+  if(kwTest()||kwS().kwAan===false||k.soort==="vve")return klaar({beurt:extra(),klant:{}});
+  /* flat: één controle voor alle woningen van dezelfde Start */
+  const g=k.bezigGroep&&KW.groep[k.bezigGroep];if(g&&Date.now()-g.t<30*60e3)return klaar({beurt:{...g.beurt,...extra()},klant:{...g.klant}});
+  const punten=kwPunten(),ok=punten.map(()=>false),fotos=[],verplicht=kwS().kwFoto==="verplicht";let bezig=false,notitie="";
+  const dg=document.createElement("dialog");dg.className="vraag-dlg";const o=document.createElement("div");o.className="vraag-ov";dg.appendChild(o);
+  const weg=v=>{try{dg.close()}catch(_){}dg.remove();klaar(v)};dg.addEventListener("cancel",e=>{e.preventDefault();weg(null)});
+  const teken=()=>{const alle=ok.every(Boolean);
+    o.innerHTML=`<div class="rk vve-op kwc" role="dialog" aria-modal="true" aria-label="Eindcontrole">
+    <div class="rk-h"><span class="objic">${I.check}</span><div><b>Eindcontrole · ${esc(kwNaam(k))}</b><small>Loop het nog één keer na voordat je vertrekt. Vink af wat in orde is.</small></div><button type="button" class="iconbtn sm" data-kx aria-label="Sluiten">${I.x}</button></div>
+    <div class="vve-lijst">${punten.map((t,i)=>`<label class="vve-t"><input type="checkbox" data-kp="${i}" ${ok[i]?"checked":""}><span><i>${I.check}</i>${esc(t)}</span></label>`).join("")}</div>
+    <button type="button" class="kwc-alles" data-kal ${alle?"hidden":""}>${I.check}Alles in orde</button>
+    <div class="vve-foto"><div class="vve-fh"><span class="eyebrow">${I.camera}Opleverfoto${verplicht?"":" (optioneel)"}</span><label class="btn small bv-cam${state.assets?"":" dis"}">${I.camera}${fotos.length?"Nog een foto":"Foto maken"}<input type="file" accept="image/*" capture="environment" hidden data-kfoto></label></div>
+      ${fotos.length?`<div class="vve-fl">${fotos.map((f,i)=>`<span><img src="${f.url}" alt=""><button type="button" class="iconbtn sm" data-kdel="${i}" aria-label="Verwijderen">${I.x}</button></span>`).join("")}</div>`:`<small class="help">Eén foto van het resultaat. De klant ziet hem terug bij dit bezoek in het klantportaal.</small>`}</div>
+    <label>Wat viel je op? (optioneel)<input data-knot value="${esc(notitie)}" placeholder="Bijv. dakgoot zit vol, volgende keer melden"><small class="help">Komt terug in de briefing bij het volgende bezoek.</small></label>
+    <div class="rk-f"><button type="button" class="ghost" data-kx>Annuleren</button><span class="sp"></span><button type="button" class="primary" data-kok ${bezig?"disabled":""}>${I.check}Afmelden</button></div></div>`;
+    o.querySelectorAll("[data-kx]").forEach(b=>b.onclick=()=>weg(null));
+    o.querySelectorAll("[data-kp]").forEach(c=>c.onchange=()=>{ok[+c.dataset.kp]=c.checked;const a=o.querySelector("[data-kal]");if(a)a.hidden=ok.every(Boolean)});
+    o.querySelector("[data-kal]").onclick=()=>{ok.fill(true);notitie=o.querySelector("[data-knot]").value;teken()};
+    o.querySelector("[data-knot]").oninput=e=>{notitie=e.target.value};
+    o.querySelector("[data-kfoto]").onchange=async e=>{const f=e.target.files&&e.target.files[0];e.target.value="";if(!f||!state.assets)return;bezig=true;teken();
+      try{const r=await state.assets.upload(f);fotos.push({id:r.id,url:URL.createObjectURL(f),op:new Date().toISOString()})}catch(er){toast("De foto kon niet worden geüpload")}bezig=false;teken()};
+    o.querySelectorAll("[data-kdel]").forEach(b=>b.onclick=()=>{fotos.splice(Number(b.dataset.kdel),1);teken()});
+    o.querySelector("[data-kok]").onclick=async()=>{
+      if(verplicht&&!fotos.length&&state.assets){toast("Maak eerst een opleverfoto");return}
+      const nee=punten.filter((_,i)=>!ok[i]);
+      if(nee.length){const a=await vraag("Niet alles in orde?",`Niet afgevinkt: <b>${nee.map(esc).join(", ")}</b>.<br>Is dat echt niet in orde? Dan krijgt kantoor een melding om het recht te zetten.`,"Ja, melden","Terug");if(a!==true)return}
+      const t=notitie.trim().slice(0,300),nu=new Date().toISOString();
+      const uit={beurt:{kwaliteit:{punten:punten.map((p,i)=>({naam:p,ok:ok[i]})),fotos:fotos.map(f=>({id:f.id,op:f.op})),op:nu},...(t?{bezoekNotitie:t}:{})},
+        klant:{bezoekNotitie:t?{t,datum:iso(today()),door:typeof doorNaam==="function"?doorNaam():""}:""}};
+      if(k.bezigGroep)KW.groep[k.bezigGroep]={...uit,t:Date.now()};
+      weg({beurt:{...uit.beurt,...extra()},klant:uit.klant})}};
+  document.body.appendChild(dg);teken();try{dg.showModal()}catch(_){dg.setAttribute("open","")}
+}catch(e){console.error(e);res({beurt:{},klant:{}})}})}
+
+/* ---------- 2. herstel ---------- */
+const kwAfgekeurd=b=>!!(b&&b.kwaliteit&&(b.kwaliteit.punten||[]).some(p=>p&&p.ok===false));
+const kwLaag=b=>{const s=b&&b.beoordeling&&Number(b.beoordeling.sterren);return s>0&&s<=kwDrempel()};
+function kwHerstelLijst(){const g=iso(addDays(today(),-60));
+  return (state.beurten||[]).filter(b=>b.datum>=g&&!b.geannuleerd&&(kwLaag(b)||kwAfgekeurd(b))&&!(b.herstel&&b.herstel.status==="opgelost"))}
+function kwSignalen(add,bel){if(isMw())return;const nu=new Date(),ti=iso(today());
+  kwHerstelLijst().forEach(b=>{const k=state.klanten.find(x=>x.id===b.klantId)||{naam:b.klantNaam},h=b.herstel||{},laag=kwLaag(b),gb=h.status==="gebeld";
+    const wat=laag?`gaf ${b.beoordeling.sterren} ${Number(b.beoordeling.sterren)===1?"ster":"sterren"}`:"eindcontrole niet in orde";
+    const tx=laag&&b.beoordeling.tekst?` “${String(b.beoordeling.tekst).slice(0,120)}”`:!laag?" Niet in orde: "+(b.kwaliteit.punten||[]).filter(p=>!p.ok).map(p=>p.naam.toLowerCase()).join(", ")+".":"";
+    const uur=Math.max(0,Math.round((nu-new Date(String((b.beoordeling&&b.beoordeling.op)||b.op||b.datum+"T12:00")))/36e5));
+    add({key:"kwh:"+b.id+":"+(h.status||"open"),p:gb?"hoog":laag?"kritiek":"hoog",top:1,ic:"alert",t:gb?`Herstel loopt: ${cleanName(k.naam||"")}`:`Herstel: ${cleanName(k.naam||"")} ${wat}`,
+      u:(gb?`Gebeld ${fmtD(String(h.gebeldOp).slice(0,10))}. Plan zo nodig kosteloos nawerk en zet het daarna op opgelost.`:`Bezoek van ${fmtD(b.datum)}${b.door?" door "+b.door:""}.${tx} Bel ${uur<24?"vandaag nog":"zo snel mogelijk"} en zet het recht.`),
+      b:[k.adres,k.plaats].filter(Boolean).join(", "),leeftijd:Math.round(uur/24),knop:"Open klant",go:k.id?"klant:"+k.id:"",
+      acts:gb?[{l:"Nawerk plannen",ic:"planning",cc:"klant:"+k.id},{l:"Opgelost",ic:"check",cc:"kw:opgelost:"+b.id}]:[bel(k),{l:"Gebeld",ic:"check",cc:"kw:gebeld:"+b.id},{l:"Opgelost",ic:"check",cc:"kw:opgelost:"+b.id}].filter(Boolean)})});
+  /* 3. stiptheid: nog niet gestart terwijl het aankomstvenster bijna of al voorbij is (alleen voor jou, de klant krijgt niets) */
+  if(kwS().kwStipt===false||typeof routeStops!=="function")return;const nm=nu.getHours()*60+nu.getMinutes(),v=kwVenster();
+  routeStops(ti).filter(x=>!x.done&&!x.k.bezig).forEach(({k})=>{const m=toMin(k.tijd);if(m==null||nm<m+v-10)return;const te=nm>m+v,eind=fromMin(m+v);
+    add({key:"kwl:"+k.id+":"+ti,p:te?"kritiek":"hoog",ic:"clock",t:te?`Te laat: ${cleanName(k.naam)} (${k.tijd})`:`Dreigt te laat: ${cleanName(k.naam)} (${k.tijd})`,
+      u:te?`Het aankomstvenster liep tot ${eind}. Bel de klant zelf even; er gaat geen automatisch bericht.`:`Nog niet gestart. Het aankomstvenster loopt tot ${eind}.`,
+      b:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),leeftijd:0,knop:"Open klant",go:"klant:"+k.id,acts:[bel(k)].filter(Boolean)})})}
+async function kwActie(v){const [w,id]=String(v||"").split(":"),b=(state.beurten||[]).find(x=>x.id===id);if(!b)return;const h=b.herstel||{},nu=new Date().toISOString();
+  try{if(w==="gebeld"){await save("beurten",b.id,{...strip(b),herstel:{...h,status:"gebeld",gebeldOp:nu,door:doorNaam()}});toast("Genoteerd: klant gebeld");render();return}
+    if(w==="opgelost"){const a=await vraag("Herstel afronden","Was er nawerk nodig om het recht te zetten? Dat telt mee in je kwaliteitsscore.","Ja, nawerk gedaan","Nee, opgelost zonder nawerk");if(a===null||a===undefined)return;
+      await save("beurten",b.id,{...strip(b),herstel:{...h,status:"opgelost",opgelostOp:nu,nawerk:a===true,door:doorNaam()}});toast("Herstel afgerond");render()}}catch(e){err(e)}}
+
+/* ---------- 5. kwaliteitsscore (Statistieken › Kwaliteit) ---------- */
+function kwCijfers(L){const n=L.length,tijd=L.map(kwOpTijd).filter(x=>x!=null),st=L.filter(b=>b.beoordeling&&Number(b.beoordeling.sterren)>0),ctl=L.filter(b=>b.kwaliteit);
+  return {n,opTijd:tijd.length?Math.round(tijd.filter(Boolean).length/tijd.length*100):null,tijdN:tijd.length,
+    sterren:st.length?Math.round(st.reduce((a,b)=>a+Number(b.beoordeling.sterren),0)/st.length*10)/10:null,sterN:st.length,
+    klacht:n?Math.round(L.filter(b=>kwLaag(b)||kwAfgekeurd(b)).length/n*1000)/10:null,klachtN:L.filter(b=>kwLaag(b)||kwAfgekeurd(b)).length,
+    nawerk:L.filter(b=>b.herstel&&b.herstel.nawerk).length,
+    controle:ctl.length?Math.round(ctl.filter(b=>!kwAfgekeurd(b)).length/ctl.length*100):null,ctlN:ctl.length,
+    brief:L.filter(b=>b.briefGezien).length}}
+function vKwaliteit(P,V){const t=today(),inP=rg=>(state.beurten||[]).filter(b=>!b.geannuleerd&&inRange(b.datum,rg));
+  const A=kwCijfers(inP(P.rg)),B=kwCijfers(inP(V.rg)),pct=x=>x==null?"—":x+"%",kom=x=>String(x).replace(".",",");
+  const pijl=(a,b,hoog=true)=>a==null||b==null||a===b?"":`<span class="st-pill ${(a>b)===hoog?"up":"down"}">${a>b?"▲":"▼"} vorige ${esc(V.lbl)}</span>`;
+  const tiles=`<div class="st-tiles">
+    ${stTile(I.clock,"Op tijd",pct(A.opTijd),(A.tijdN?`binnen ${kwVenster()} min · ${A.tijdN} bezoeken `:"nog geen bezoeken met vaste tijd ")+pijl(A.opTijd,B.opTijd))}
+    ${stTile(I.ster||I.spark,"Beoordeling",A.sterren==null?"—":kom(A.sterren)+" / 5",(A.sterN?plural(A.sterN,"beoordeling","beoordelingen")+" ":"nog geen beoordelingen ")+pijl(A.sterren,B.sterren))}
+    ${stTile(I.check,"Eindcontrole in orde",pct(A.controle),A.ctlN?plural(A.ctlN,"controle","controles"):"nog geen controles")}
+    ${stTile(I.alert,"Klachten per 100",A.klacht==null?"—":kom(A.klacht),(A.klachtN?plural(A.klachtN,"keer","keer")+(A.nawerk?" · "+A.nawerk+"× nawerk":"")+" ":"niets gemeld ")+pijl(A.klacht,B.klacht,false))}</div>`;
+  /* per week: % op tijd en gemiddelde sterren, laatste 12 weken */
+  const ma=d=>{const x=new Date(d);x.setDate(x.getDate()-((x.getDay()+6)%7));x.setHours(0,0,0,0);return x},w0=ma(t);
+  const wk=[...Array(12)].map((_,i)=>{const s=addDays(w0,(i-11)*7),c=kwCijfers(inP([s,addDays(s,6)]));return{l:String(weekNr(s)),c}});
+  const week=`<section class="st-card"><div class="st-ch"><div><h3>Op tijd per week</h3><p>Laatste 12 weken · gestart binnen ${kwVenster()} minuten na de geplande tijd</p></div></div>
+    ${wk.some(w=>w.c.opTijd!=null)?stBars(wk.map(w=>w.c.opTijd||0),wk.map(w=>w.l),{hi:11,fmt:v=>Math.round(v)+"%",h:180,gem:false}):'<p class="st-leeg">Zodra er bezoeken met een vaste tijd zijn afgemeld, zie je hier per week hoe stipt je was.</p>'}</section>`;
+  /* per medewerker */
+  const per={};inP(P.rg).forEach(b=>{const w=String(b.door||"Onbekend");(per[w]=per[w]||[]).push(b)});
+  const rijen=Object.entries(per).map(([w,L])=>[w,kwCijfers(L)]).sort((a,b)=>b[1].n-a[1].n);
+  const mw=`<section class="st-card"><div class="st-ch"><div><h3>Per medewerker</h3><p>${esc(P.lbl)}</p></div></div>
+    ${rijen.length?`<div class="kwq-t"><div class="kwq-r kwq-h"><span>Medewerker</span><span>Bezoeken</span><span>Op tijd</span><span>Sterren</span><span>Controle</span><span>Klachten</span></div>
+      ${rijen.map(([w,c])=>`<div class="kwq-r"><b>${esc(w)}</b><span>${c.n}</span><span>${pct(c.opTijd)}</span><span>${c.sterren==null?"—":kom(c.sterren)}</span><span>${pct(c.controle)}</span><span class="${c.klachtN?"kwq-rood":""}">${c.klachtN}</span></div>`).join("")}</div>`
+      :'<p class="st-leeg">Nog geen afgemelde bezoeken in deze periode.</p>'}</section>`;
+  const open=kwHerstelLijst();
+  const herstel=`<section class="st-card"><div class="st-ch"><div><h3>Herstel</h3><p>Lage beoordelingen en eindcontroles die niet in orde waren</p></div></div>
+    ${open.length?`<div class="kwq-t">${open.map(b=>`<div class="kwq-r kwq-h2" data-act="klant" data-id="${esc(b.klantId)}" role="button"><b>${esc(cleanName(b.klantNaam||""))}</b><span>${esc(fmtD(b.datum))}</span><span>${kwLaag(b)?b.beoordeling.sterren+" ★":"controle"}</span><span>${(b.herstel||{}).status==="gebeld"?"gebeld":"open"}</span></div>`).join("")}</div>`
+      :`<p class="st-leeg">${I.check} Niets open. Alles is rechtgezet.</p>`}</section>`;
+  return `${tiles}${week}<div class="st-two">${mw}${herstel}</div>`}
+
+/* ---------- 6. kleine gebaren ---------- */
+const KW_MIJL=[10,25,50,100,150,200];
+/* klant sinds: de vroegste van aanmaakdatum en eerste bezoek (bij overgezette klanten is de aanmaakdatum de importdatum) */
+function kwIdx(){const B=state.beurten||[];if(KW.idxB===B&&KW.idxN===B.length)return KW.idx;const m={};B.forEach(b=>{if(b&&b.klantId&&b.datum&&!b.geannuleerd)(m[b.klantId]=m[b.klantId]||[]).push(b)});
+  Object.values(m).forEach(L=>L.sort((a,b)=>String(a.datum).localeCompare(String(b.datum))));KW.idx=m;KW.idxB=B;KW.idxN=B.length;return m}
+function kwSinds(k){let d=String(k.aangemaakt||"").slice(0,10);const L=kwIdx()[k.id];if(L&&L.length&&(!d||L[0].datum<d))d=L[0].datum;return d}
+function kwMijlpaal(k,dagen=3){const g=iso(addDays(today(),-dagen)),L=kwIdx()[k.id]||[];
+  for(const n of KW_MIJL){const b=L[n-1];if(b&&b.datum>=g)return {n,b}}return null}
+function kwMomenten(mom,t){if(kwS().kwGebaren===false)return;state.klanten.filter(k=>k.actief!==false&&!k.prospect&&!k.hoofdKlantId).forEach(k=>{const m=kwMijlpaal(k,7);if(m)mom.push({d:parse(m.b.datum),ic:"ster",t:`${ccNaam(k)}: ${m.n}e bezoek`,s:"Een bedankje staat klaar in Communicatie",k})})}
+
+/* ---------- instellingen ---------- */
+SETCARDS.push({id:"kwaliteit",t:"Kwaliteit & service",sub:"Eindcontrole, briefing, stiptheid en herstel",ic:"check",bg:"#252c3c",
+  st:s=>s.kwAan===false?["soon","Staat uit"]:["ok","Aan"],
+  rows:s=>[["Eindcontrole",s.kwAan===false?"Uit":plural(kwPunten().length,"punt","punten")+(s.kwFoto==="verplicht"?" + foto":"")],["Aankomstvenster",kwVenster()+" min"],["Herstel vanaf",kwDrempel()+" sterren of minder"]]});
+SETEXTRA.kwaliteit=(c,s)=>{
+  setDlg(c,`${info("Zoals in een sterrenrestaurant: niets gaat de deur uit zonder controle, je kent de klant voor je aanbelt, je bent stipt en een klacht zet je dezelfde dag recht. De cijfers zie je bij <b>Statistieken › Kwaliteit</b>.")}
+    ${sec("Eindcontrole bij afmelden")}
+    ${tgl("kwAan","Eindcontrole bij elk bezoek","Bij afmelden de punten hieronder nalopen, met opleverfoto en wat opviel. VvE's houden hun eigen checklist.",s.kwAan!==false)}
+    <label class="full">Controlepunten (één per regel)<textarea id="kwPt" style="min-height:104px">${esc(kwPunten().join("\n"))}</textarea><small class="help">Kort en concreet. Wat niet is afgevinkt, wordt een melding om recht te zetten.</small></label>
+    ${sel("kwFoto","Opleverfoto",s.kwFoto==="verplicht"?"verplicht":"optioneel",[["optioneel","Optioneel"],["verplicht","Verplicht"]],{help:"De klant ziet de foto terug bij het bezoek in het klantportaal."})}
+    ${sec("Voor je aanbelt")}
+    ${tgl("kwBriefing","Briefing bij Start","Bij Start eerst zien wat je moet weten: toegang, huisdieren, voorkeuren en wat vorige keer opviel. Alleen als er iets te melden is.",s.kwBriefing!==false)}
+    ${sec("Stipt op tijd")}
+    ${tgl("kwStipt","Melding als je te laat dreigt te komen","Alleen voor jou in het Overzicht. De klant krijgt niets automatisch.",s.kwStipt!==false)}
+    ${inp("kwVenster","Aankomstvenster (minuten na de geplande tijd)",kwVenster(),{type:"number",t:"num",attrs:'min="5" max="120" step="5"'})}
+    ${sec("Herstel")}
+    ${sel("kwDrempel","Herstelmelding bij een beoordeling van",String(kwDrempel()),[["1","1 ster"],["2","2 sterren of minder"],["3","3 sterren of minder"],["4","4 sterren of minder"]],{help:"Rode melding in het Overzicht: bellen, zo nodig kosteloos nawerk, dan op opgelost."})}
+    ${sec("Kleine gebaren")}
+    ${tgl("kwGebaren","Jubileum en mijlpalen klaarzetten","Bij 1, 2, 3… jaar klant en bij het 10e, 25e, 50e bezoek staat een bedankje klaar in Communicatie. Jij beslist of het weggaat.",s.kwGebaren!==false)}`,{wide:false});
+  bindSave(()=>{const t=$("#kwPt").value.split(/\n/).map(x=>x.trim()).filter(Boolean).slice(0,10),std=typeof GLAS==="function"&&GLAS()?KW_GLAS:KW_ALG;return{kwPunten:t.length&&t.join("|")!==std.join("|")?t:[],kwVenster:Math.max(5,Math.min(120,Number(($("[data-k=kwVenster]")||{}).value)||15))}})};
 
 /* ---------- LIVE: eigen server (Firebase + Brevo + Mollie) ----------
    Alles hieronder doet alleen iets in de echte versie (crm.voorbeeldglazenwasserij.nl), waar window.ZEEM_LIVE is gezet. */
@@ -21733,6 +21946,7 @@ function vOverzicht2(){const t=today(),ti=iso(t),P=ccPlanning(),S_=ccSignalen().
   act.forEach(k=>{const j=ov2Jarig(k,t,7);if(j)mom.push({d:j.d,ic:"cadeau",t:`${ccNaam(k)} is ${iso(j.d)===ti?"vandaag":"op "+fmtD(iso(j.d))} jarig`,s:j.leeftijd>0&&j.leeftijd<110?"wordt "+j.leeftijd:"Stuur een felicitatie",k});
     const ju=ov2Jubileum(k,t,7);if(ju)mom.push({d:ju.d,ic:"hart",t:`${ccNaam(k)}: ${plural(ju.jaar,"jaar","jaar")} klant`,s:(iso(ju.d)===ti?"vandaag":"op "+fmtD(iso(ju.d)))+" · een kaartje of attentie",k})});
   const g14=iso(addDays(t,-14));state.beurten.filter(b=>b.datum>=g14&&ov2Sterren(b)===5).slice(0,6).forEach(b=>{const k=ccKlant(b.klantId);if(k)mom.push({d:parse(b.datum),ic:"ster",t:`${ccNaam(k)} gaf 5 sterren`,s:"Bedank voor het bezoek van "+fmtD(b.datum),k})});
+  if(typeof kwMomenten==="function")try{kwMomenten(mom,t)}catch(e){console.error(e)}
   /* weggeklikte momenten blijven weg (op dit apparaat) */
   const momWeg=(()=>{let L=[];try{L=JSON.parse(localStorage.getItem("ms.ov2.weg")||"[]")}catch(e){}return new Set([...L,...(Array.isArray(S().ovMomWeg)?S().ovMomWeg:[])])})();
   mom.forEach(m=>{m.key=m.ic+":"+m.k.id+":"+iso(m.d)});for(let i=mom.length-1;i>=0;i--)if(momWeg.has(mom[i].key))mom.splice(i,1);
@@ -23449,6 +23663,8 @@ if(!LIVE&&typeof location!=="undefined"&&/[?&]selftest\b/.test(location.search))
     opdrLoc:typeof opdrLoc==="function"?opdrLoc:null,hoofdLoc:typeof hoofdLoc==="function"?hoofdLoc:null,openKlant:typeof openKlant==="function"?openKlant:null,
     br:()=>BR(),startKeuze:typeof startKeuze==="function"?startKeuze:null,uitvDefault:typeof uitvDefault==="function"?uitvDefault:null,queues:typeof queues==="function"?queues:null,mailFor:typeof mailFor==="function"?mailFor:null,emailHtmlRuw:typeof emailHtmlRuw==="function"?emailHtmlRuw:null,iz:typeof IZ!=="undefined"?IZ:null,izVerwerk:typeof izVerwerk==="function"?izVerwerk:null,izPlanSig:typeof izPlanSig==="function"?izPlanSig:null,wgEditor:typeof werkgebiedEditor==="function"?werkgebiedEditor:null,sampleVars:typeof sampleVars==="function"?sampleVars:null,factVars:typeof factVars==="function"?factVars:null,toonK:typeof toonK==="function"?toonK:null,hoofdLocVast:typeof hoofdLocVast==="function"?hoofdLocVast:null,btwRegel:typeof btwRegel==="function"?btwRegel:null,groepTarievenBij:typeof groepTarievenBij==="function"?groepTarievenBij:null,views:()=>PAGES.map(p=>p[0]),ga:t=>{state.tab=t;render()}};
 }
+/* kwaliteit (29-zkwaliteit): met &kwtoon verschijnen briefing en eindcontrole ook in de zelftest */
+if(window.MSTEST)Object.assign(window.MSTEST,{startJob,routeStops,go,ccSignalen:typeof ccSignalen==="function"?ccSignalen:null,kwControle,kwBriefing,vKwaliteit,kwMijlpaal,queues:typeof queues==="function"?queues:null});
 
 })();
 </script>

@@ -5101,3 +5101,22 @@ dialog.drawer form.dlg:has(.u-edsave){overflow:visible!important}
 @media (max-width:1020px){.kk-grid.kk-v2{grid-template-columns:minmax(0,1fr)}}
 
 html.zm dialog.pv-ov{zoom:1.1111}
+/* ---------- kwaliteit (29-zkwaliteit) ---------- */
+.kwb-l{display:flex;flex-direction:column;gap:2px;max-height:52vh;overflow:auto}
+.kwb-r{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border-radius:14px}
+.kwb-r.pri{background:color-mix(in srgb,#252c3c 6%,transparent)}
+.kwb-ic{flex:none;width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:var(--surface-2,#f3f4f6);color:#252c3c}
+.kwb-ic svg{width:16px;height:16px}
+.kwb-r small{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:2px}
+.kwb-r b{font-weight:600;font-size:14.5px;line-height:1.4}
+.kwc .vve-t input:not(:checked)+span{opacity:.75}
+.kwc-alles{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;background:none;border:1px dashed var(--line);border-radius:999px;padding:6px 12px;color:#252c3c;cursor:pointer;margin:2px 0 6px}
+.kwc-alles svg{width:14px;height:14px}
+.kwq-t{display:flex;flex-direction:column}
+.kwq-r{display:grid;grid-template-columns:minmax(0,1.5fr) repeat(5,minmax(0,1fr));gap:14px;padding:10px 4px;border-bottom:1px solid var(--line);font-size:14px;align-items:center}
+.kwq-r:last-child{border-bottom:0}
+.kwq-h{font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.kwq-h2{grid-template-columns:minmax(0,1.6fr) repeat(3,minmax(0,1fr));cursor:pointer;font-size:14px;text-transform:none;letter-spacing:0;color:inherit;font-weight:400}
+.kwq-h2:hover{background:var(--surface-2,#f6f7f8)}
+.kwq-rood{color:#b42318;font-weight:700}
+@media (max-width:640px){.kwq-r{grid-template-columns:minmax(0,1.4fr) repeat(5,minmax(0,1fr));font-size:12.5px;gap:6px}}

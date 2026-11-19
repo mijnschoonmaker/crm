@@ -59,6 +59,8 @@ async function afronden(k,mode,el){
   if(typeof isOBeurt==="function"&&isOBeurt(k)&&!k.tellingGecontroleerd&&!k._tcSkip){const a=await vraag("Telling nog niet gecontroleerd",`Dit is de O-beurt van <b>${esc(cleanName(k.naam))}</b>. Controleer eerst ter plekke of de telling van de klant klopt.`,"Toch afmelden","Telling controleren");
     if(a===null){render();return}if(a===false){render();openTellingControle(k.id);return}}
   let _vve=null;if(k.soort==="vve"&&typeof vveOplevering==="function"){_vve=await vveOplevering(k);if(_vve===null){render();return}}
+  /* eindcontrole: punten, opleverfoto en wat opviel (29-zkwaliteit) */
+  let _kw=null;if(typeof kwControle==="function"){_kw=await kwControle(k);if(_kw===null){render();return}}
   const _lm=k._tmMin!=null?k._tmMin:lopendeMin(k),_mp=_lm&&_lm>=1?metingPatch(k,_lm):null,_last=(k.tijden||[]).slice(-1)[0],_dur=_mp?_lm:_last&&_last.datum===iso(today())?_last.min:duur(k);if(_mp)k={...k,..._mp};
   const _mw=isMw();if(_mw)mode="concept";/* medewerker: altijd concept, kantoor controleert en verstuurt */
   /* afmelden = conceptfactuur (niet versturen) · factureren (veeg naar links) = definitieve factuur én direct naar de klant */
@@ -80,9 +82,9 @@ async function afronden(k,mode,el){
   if((k.bevindingen||[]).length)f.bijlagen=k.bevindingen.map(b=>({...b,soort:"foto"}));
   if(k.nietFactureren&&!perKeuze(k)){/* niet factureren: beurt afmelden zonder factuur */
     try{const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed),_los=await losseExtraFacturen(k,d,_ed,f,_mw,_hs);
-      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),betaald:false,gefactureerd:"nvt",...(_los.length?{extraFacturen:_los}:{}),dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:k._tmEind||new Date().toISOString(),...(_vve||{})});
+      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),betaald:false,gefactureerd:"nvt",...(_los.length?{extraFacturen:_los}:{}),dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:k._tmEind||new Date().toISOString(),...(_vve||{}),...(_kw&&_kw.beurt||{})});
       const _vn=volgendeNa(k),nx=_vn.gepland;
-      await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",bevindingen:[],opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,bezig:"",bezigGroep:""});aanbevelingVrijgeven(k.id);await extraNaBij(k,d,_ed);
+      await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",bevindingen:[],opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,...(_kw&&_kw.klant||{}),bezig:"",bezigGroep:""});aanbevelingVrijgeven(k.id);await extraNaBij(k,d,_ed);
       const undo=async()=>{try{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
       feest(k);toast(cleanName(k.naam)+" afgemeld · niet gefactureerd (staat zo bij de opdracht)",[{label:"Ongedaan",fn:undo}])}
     catch(e){if(el){const c=el.querySelector(".swipe-card");if(c)c.style.transform="";el.classList.remove("armed")}err(e)}
@@ -91,9 +93,9 @@ async function afronden(k,mode,el){
     try{const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed);
       /* extra opdrachten (bijv. glasbewassing) staan niet op de periodieke factuur: eigen factuur, per opdracht ingesteld */
       const _los=await losseExtraFacturen(k,d,_ed,f,_mw,_hs);
-      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),...(_los.length?{extraFacturen:_los}:{}),betaald:false,gefactureerd:"periodiek",periodiek:true,dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:k._tmEind||new Date().toISOString(),...(_vve||{})});
+      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),...(_los.length?{extraFacturen:_los}:{}),betaald:false,gefactureerd:"periodiek",periodiek:true,dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:k._tmEind||new Date().toISOString(),...(_vve||{}),...(_kw&&_kw.beurt||{})});
       const _vn=volgendeNa(k),nx=_vn.gepland;
-      await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,bezig:"",bezigGroep:""});aanbevelingVrijgeven(k.id);await extraNaBij(k,d,_ed);
+      await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,...(_kw&&_kw.klant||{}),bezig:"",bezigGroep:""});aanbevelingVrijgeven(k.id);await extraNaBij(k,d,_ed);
       const undo=async()=>{try{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
       feest(k);toast(cleanName(k.naam)+" afgemeld · "+(isPeriodiek(k)?"gaat mee op de periodieke factuur ("+fmtD(k.periodiek.volgende)+")":"geen factuur per beurt · maak nog de periodieke factuur aan bij de opdracht")+(_los.length?" · eigen factuur voor de extra opdracht":""),[{label:"Ongedaan",fn:async()=>{for(const x of _los){try{await del("facturen",x)}catch(e){}}await undo()}}])}
     catch(e){if(el){const c=el.querySelector(".swipe-card");if(c)c.style.transform="";el.classList.remove("armed")}err(e)}
@@ -108,9 +110,9 @@ async function afronden(k,mode,el){
   try{
     await save("facturen",fId,f);
     const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed),_los=await losseExtraFacturen(k,d,_ed.filter(o=>!exMee(o,_hs)),f,_mw,_hs);
-    await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:r2(f.regels.reduce((a,r)=>a+(Number(r.aantal)||0)*(Number(r.prijs)||0),0)),extra:_ed.map(o=>o.dienst),betaald:f.status==="betaald",gefactureerd:fId,dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:k._tmEind||new Date().toISOString(),...(_vve||{})});
+    await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:r2(f.regels.reduce((a,r)=>a+(Number(r.aantal)||0)*(Number(r.prijs)||0),0)),extra:_ed.map(o=>o.dienst),betaald:f.status==="betaald",gefactureerd:fId,dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:k._tmEind||new Date().toISOString(),...(_vve||{}),...(_kw&&_kw.beurt||{})});
     const _vn=volgendeNa(k),nx=_vn.gepland;
-    await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",artikelen:[],bevindingen:[],...(k.opdrachtVerwijderd?{actief:false}:{}),opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,...(_tg||{}),bezig:"",bezigGroep:""});aanbevelingVrijgeven(k.id);await extraNaBij(k,d,_ed);
+    await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",artikelen:[],bevindingen:[],...(k.opdrachtVerwijderd?{actief:false}:{}),opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,...(_kw&&_kw.klant||{}),...(_tg||{}),bezig:"",bezigGroep:""});aanbevelingVrijgeven(k.id);await extraNaBij(k,d,_ed);
     const undo=async()=>{try{await del("facturen",fId);await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
     feest(k);
     if(_mw){toast(cleanName(k.naam)+" afgemeld",[{label:"Ongedaan",fn:undo}]);return}
@@ -163,6 +165,8 @@ async function startJob(k){
   /* de dag is begonnen: live delen gaat vanzelf aan, zodat de klant van vandaag kan zien dat je eraan komt (één keer vraagt de telefoon om je locatie) */
   if(on&&typeof LIVE!=="undefined"&&LIVE&&typeof wdLive==="function"&&!(state.liveDelen&&typeof LV!=="undefined"&&LV.watch!=null)&&!(wdGet(iso(today()))||{}).liveUit)try{wdLive(true)}catch(e){}
   /* start vergeten? Is de geplande tijd al ruim voorbij, dan kies je hoe laat je echt begon (de gemeten tijd klopt dan weer) */
+  /* briefing: wat je moet weten voor je aanbelt (alleen als er iets te melden is) */
+  if(on&&typeof kwBriefing==="function"&&!(await kwBriefing(k)))return;
   let tsKeuze=null;if(on){const tp=toMin(k.tijd),nm=new Date().getHours()*60+new Date().getMinutes();if(k.gepland&&k.gepland<=iso(today())&&tp!=null&&nm-tp>=15){tsKeuze=await startKeuze(k,tp);if(tsKeuze===null)return}}
   /* flat: één Start zet de tijd bij alle woningen tegelijk aan */
   if(on){const fg=typeof flatGroep==="function"?flatGroep(k).filter(x=>!isBezig(x)):[k];if(fg.length>=2&&fg.some(x=>x.id===k.id)){const ts=tsKeuze||new Date().toISOString(),gid="fl"+Date.now().toString(36);
