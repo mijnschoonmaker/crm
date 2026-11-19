@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="1c6bfa990e86"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="19ad3ab52344"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -5883,6 +5883,8 @@ html body:not(#zz):not(#zy) .kwq-tile small,html body:not(#zz):not(#zy) .kwq-til
   .kwq-t .kwq-r:not(.kwq-h2)>span::before{content:attr(data-l);display:block;font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:2px}
 }
 .tg-times span.h5{font-size:9.5px!important;opacity:.4;padding-top:3px!important;line-height:1}
+/* tijdens slepen alleen het voorbeeldblok, geen losse stippellijn op het vak */
+html body:not(#zz) .tg-col:has(#dgPrev) [data-drop].over{outline:0!important;background:transparent!important}
 
 </style>
 <style id="mansardThema">
@@ -23802,7 +23804,9 @@ function dgPreview(c){let p=document.getElementById("dgPrev");
   const col=c.parentElement;if(!p){p=document.createElement("div");p.id="dgPrev";p.className="dg-prev"}
   if(p.parentElement!==col){col.appendChild(p);p.style.transition="none";requestAnimationFrame(()=>p.style.transition="")}
   const H=c.offsetHeight,slot=state.slot||30,du=(dg&&dg.inf&&dg.inf.du)||30,t=c.dataset.tijd,m=toMin(t);
-  p.style.top=(c.offsetTop+3)+"px";p.style.height=Math.max(H-6,du/slot*H-6)+"px";
+  /* positie uit het scherm zelf (niet offsetTop): zo valt het voorbeeld precies op het vak waar je loslaat */
+  const cr=c.getBoundingClientRect(),kr=col.getBoundingClientRect(),zm=(kr.height&&col.offsetHeight)?kr.height/col.offsetHeight:1;/* de agenda kan ingezoomd staan (zoom): terugrekenen naar CSS-pixels */
+  p.style.top=((cr.top-kr.top)/zm+3)+"px";p.style.height=Math.max(H-6,du/slot*H-6)+"px";
   const key=t+"|"+du;if(p.dataset.k!==key){p.dataset.k=key;p.innerHTML=`<b>${esc(t)} – ${esc(fromMin(m+du))}</b><span>${esc((dg&&dg.inf&&dg.inf.adr)||"")}</span>`}}
 document.addEventListener("pointermove",e=>{if(!dg)return;const dx=e.clientX-dg.x,dy=e.clientY-dg.y;
   if(!dg.on){if(dg.touch){if(Math.hypot(dx,dy)>10){clearTimeout(dg.timer);dg=null}return}if(Math.hypot(dx,dy)<6)return;startDg(dg.x,dg.y)}

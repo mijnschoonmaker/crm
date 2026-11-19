@@ -309,7 +309,9 @@ function dgPreview(c){let p=document.getElementById("dgPrev");
   const col=c.parentElement;if(!p){p=document.createElement("div");p.id="dgPrev";p.className="dg-prev"}
   if(p.parentElement!==col){col.appendChild(p);p.style.transition="none";requestAnimationFrame(()=>p.style.transition="")}
   const H=c.offsetHeight,slot=state.slot||30,du=(dg&&dg.inf&&dg.inf.du)||30,t=c.dataset.tijd,m=toMin(t);
-  p.style.top=(c.offsetTop+3)+"px";p.style.height=Math.max(H-6,du/slot*H-6)+"px";
+  /* positie uit het scherm zelf (niet offsetTop): zo valt het voorbeeld precies op het vak waar je loslaat */
+  const cr=c.getBoundingClientRect(),kr=col.getBoundingClientRect(),zm=(kr.height&&col.offsetHeight)?kr.height/col.offsetHeight:1;/* de agenda kan ingezoomd staan (zoom): terugrekenen naar CSS-pixels */
+  p.style.top=((cr.top-kr.top)/zm+3)+"px";p.style.height=Math.max(H-6,du/slot*H-6)+"px";
   const key=t+"|"+du;if(p.dataset.k!==key){p.dataset.k=key;p.innerHTML=`<b>${esc(t)} – ${esc(fromMin(m+du))}</b><span>${esc((dg&&dg.inf&&dg.inf.adr)||"")}</span>`}}
 document.addEventListener("pointermove",e=>{if(!dg)return;const dx=e.clientX-dg.x,dy=e.clientY-dg.y;
   if(!dg.on){if(dg.touch){if(Math.hypot(dx,dy)>10){clearTimeout(dg.timer);dg=null}return}if(Math.hypot(dx,dy)<6)return;startDg(dg.x,dg.y)}
