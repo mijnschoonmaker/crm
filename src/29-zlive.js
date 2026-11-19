@@ -170,7 +170,7 @@ if(LIVE){
       ${tgl("ovVoorlopigAan","Voorlopig overzicht na aanmelding","Automatisch na het indienen van de prijscalculator",s.ovVoorlopigAan!==false)}
       ${tgl("ovDefinitiefAan","Definitief overzicht na tellingcontrole","Automatisch zodra de glazenwasser de telling bij de O-beurt opslaat",s.ovDefinitiefAan!==false)}
       ${inp("opzegtermijn","Opzegtermijn",s.opzegtermijn||"1 maand",{help:"Voor [noticeperiod.company] in je mailteksten."})}
-      ${sec("Documenten")}<div id="ovPdfs"></div><small class="help">Voorwaarden en herroepingsformulier gaan mee met het voorlopige overzicht. Voorwaarden en privacyverklaring staan ook in het menu van je offerte-aanvraagformulier op je website.</small>
+      ${sec("Documenten")}<div id="ovPdfs"></div><small class="help">Voorwaarden en herroepingsformulier gaan mee met het voorlopige overzicht. Alle drie staan ook in het menu van je offerte-aanvraagformulier op je website. Vervang je een document, dan staat de nieuwe versie de volgende ochtend op je website.</small>
       ${sec("Teksten van de mails")}<div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="small" data-act="tpledit" data-k="voorlopig">${I.pencil}Tekst voorlopig</button><button type="button" class="small" data-act="tpledit" data-k="definitief">${I.pencil}Tekst definitief</button></div>
       <small class="help">Offertes die je vanuit het CRM mailt, krijgen een knop <b>Offerte bekijken en akkoord geven</b>. De klant tekent op zijn scherm en ontvangt direct het definitieve overzicht.</small>`,{wide:false});
     const draw=()=>{$("#ovPdfs").innerHTML=rij("vw",vwN,"Algemene voorwaarden")+rij("hf",hfN,"Herroepingsformulier")+rij("pv",pvN,"Privacyverklaring");

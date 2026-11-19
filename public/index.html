@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="dae284cc6705"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="52fa3ef0dc93"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -21367,7 +21367,7 @@ if(LIVE){
       ${tgl("ovVoorlopigAan","Voorlopig overzicht na aanmelding","Automatisch na het indienen van de prijscalculator",s.ovVoorlopigAan!==false)}
       ${tgl("ovDefinitiefAan","Definitief overzicht na tellingcontrole","Automatisch zodra de glazenwasser de telling bij de O-beurt opslaat",s.ovDefinitiefAan!==false)}
       ${inp("opzegtermijn","Opzegtermijn",s.opzegtermijn||"1 maand",{help:"Voor [noticeperiod.company] in je mailteksten."})}
-      ${sec("Documenten")}<div id="ovPdfs"></div><small class="help">Voorwaarden en herroepingsformulier gaan mee met het voorlopige overzicht. Voorwaarden en privacyverklaring staan ook in het menu van je offerte-aanvraagformulier op je website.</small>
+      ${sec("Documenten")}<div id="ovPdfs"></div><small class="help">Voorwaarden en herroepingsformulier gaan mee met het voorlopige overzicht. Alle drie staan ook in het menu van je offerte-aanvraagformulier op je website. Vervang je een document, dan staat de nieuwe versie de volgende ochtend op je website.</small>
       ${sec("Teksten van de mails")}<div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="small" data-act="tpledit" data-k="voorlopig">${I.pencil}Tekst voorlopig</button><button type="button" class="small" data-act="tpledit" data-k="definitief">${I.pencil}Tekst definitief</button></div>
       <small class="help">Offertes die je vanuit het CRM mailt, krijgen een knop <b>Offerte bekijken en akkoord geven</b>. De klant tekent op zijn scherm en ontvangt direct het definitieve overzicht.</small>`,{wide:false});
     const draw=()=>{$("#ovPdfs").innerHTML=rij("vw",vwN,"Algemene voorwaarden")+rij("hf",hfN,"Herroepingsformulier")+rij("pv",pvN,"Privacyverklaring");
