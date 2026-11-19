@@ -25,7 +25,10 @@ function kwOpTijd(b){const l=kwLaat(b);return l==null?null:l<=kwVenster()}
 
 /* ---------- eerste bezoek als ontvangst: extra tijd, kennismaking en vóórfoto's (alleen intern, in de opdracht) ---------- */
 function kwEerste(k){if(!k||k.laatst||k.prospect)return false;if(k.eersteKeer!=null)return !!k.eersteKeer;return !(kwIdx()[k.id]||[]).length}
-function kwEersteMin(k){const s=kwS(),m=s.kwEersteExtra==null?15:Math.max(0,Math.min(120,Number(s.kwEersteExtra)||0));return m&&kwEerste(k)?m:0}
+/* extra tijd alleen als er voor deze klant een offerte is verstuurd; een direct aangemaakte opdracht krijgt geen extra tijd */
+function kwOffKlanten(){const F=state.facturen||[];if(KW.offF===F&&KW.offN===F.length)return KW.off;const S_=new Set();
+  F.forEach(f=>{if(f&&f.soort==="offerte"&&f.klantId&&(f.verstuurdOp||f.getekend||["verstuurd","geaccepteerd"].includes(f.status)))S_.add(f.klantId)});KW.off=S_;KW.offF=F;KW.offN=F.length;return S_}
+function kwEersteMin(k){const s=kwS(),m=s.kwEersteExtra==null?15:Math.max(0,Math.min(120,Number(s.kwEersteExtra)||0));return m&&kwEerste(k)&&kwOffKlanten().has(k.hoofdKlantId||k.id)?m:0}
 /* gemeten tijd van het eerste bezoek zonder de kennismaking, zodat de geleerde vaste duur klopt */
 function kwMeetMin(k,m){const x=kwEersteMin(k);return x&&m>x+5?m-x:m}
 /* ---------- 4. briefing bij Start ---------- */
@@ -249,7 +252,7 @@ SETEXTRA.kwaliteit=(c,s)=>{
     ${sec("Voor je aanbelt")}
     ${tgl("kwBriefing","Briefing bij Start","Bij Start eerst zien wat je moet weten: toegang, huisdieren, voorkeuren en wat vorige keer opviel. Alleen als er iets te melden is.",s.kwBriefing!==false)}
     ${sec("Eerste bezoek")}
-    ${inp("kwEersteExtra","Extra tijd bij een eerste bezoek (minuten)",s.kwEersteExtra==null?15:s.kwEersteExtra,{type:"number",t:"num",attrs:'min="0" max="120" step="5"',help:"Voor de kennismaking. 0 = geen extra tijd. Bij Start staat de kennismaking in de briefing, met vóórfoto's die alleen in de opdracht komen."})}
+    ${inp("kwEersteExtra","Extra tijd bij een eerste bezoek (minuten)",s.kwEersteExtra==null?15:s.kwEersteExtra,{type:"number",t:"num",attrs:'min="0" max="120" step="5"',help:"Voor de kennismaking, alleen bij klanten aan wie een offerte is verstuurd (een direct aangemaakte opdracht krijgt geen extra tijd). 0 = geen extra tijd. Bij Start staat de kennismaking in de briefing, met vóórfoto's die alleen in de opdracht komen."})}
     ${sec("Vertrek")}
     ${tgl("kwBus","Vertrekcontrole van de bus","Bij Start werkdag eerst de lijst hieronder aflopen. Wat ontbrak, zie je in het Overzicht.",s.kwBus!==false)}
     <label class="full">Vertrekcontrole (één per regel)<textarea id="kwBp" style="min-height:90px">${esc(kwBusPunten().join("\n"))}</textarea></label>
