@@ -163,29 +163,32 @@ function kwCijfers(L){const n=L.length,tijd=L.map(kwOpTijd).filter(x=>x!=null),s
     brief:L.filter(b=>b.briefGezien).length}}
 function vKwaliteit(P,V){const t=today(),inP=rg=>(state.beurten||[]).filter(b=>!b.geannuleerd&&inRange(b.datum,rg));
   const A=kwCijfers(inP(P.rg)),B=kwCijfers(inP(V.rg)),pct=x=>x==null?"—":x+"%",kom=x=>String(x).replace(".",",");
-  const pijl=(a,b,hoog=true)=>a==null||b==null||a===b?"":`<span class="st-pill ${(a>b)===hoog?"up":"down"}">${a>b?"▲":"▼"} vorige ${esc(V.lbl)}</span>`;
-  const tiles=`<div class="st-tiles">
-    ${stTile(I.clock,"Op tijd",pct(A.opTijd),(A.tijdN?`binnen ${kwVenster()} min · ${A.tijdN} bezoeken `:"nog geen bezoeken met vaste tijd ")+pijl(A.opTijd,B.opTijd))}
-    ${stTile(I.ster||I.spark,"Beoordeling",A.sterren==null?"—":kom(A.sterren)+" / 5",(A.sterN?plural(A.sterN,"beoordeling","beoordelingen")+" ":"nog geen beoordelingen ")+pijl(A.sterren,B.sterren))}
-    ${stTile(I.check,"Eindcontrole in orde",pct(A.controle),A.ctlN?plural(A.ctlN,"controle","controles"):"nog geen controles")}
-    ${stTile(I.alert,"Klachten per 100",A.klacht==null?"—":kom(A.klacht),(A.klachtN?plural(A.klachtN,"keer","keer")+(A.nawerk?" · "+A.nawerk+"× nawerk":"")+" ":"niets gemeld ")+pijl(A.klacht,B.klacht,false))}</div>`;
-  /* per week: % op tijd en gemiddelde sterren, laatste 12 weken */
+  /* verschil met de vorige periode: klein, onder het getal */
+  const ver=(a,b,hoog=true,suf="")=>{if(a==null||b==null||a===b)return"";const d=Math.round((a-b)*10)/10,goed=(d>0)===hoog;return `<em class="kwq-d ${goed?"op":"af"}">${d>0?"▲":"▼"} ${kom(Math.abs(d))}${suf} t.o.v. vorige ${esc(V.lbl.split(" ")[0].toLowerCase())}</em>`};
+  const tegel=(ic,l,v,sub,d)=>`<div class="st-tile kwq-tile"><span class="st-ic">${ic}</span><span class="st-l">${l}</span><b>${v}</b><small>${sub}</small>${d||""}</div>`;
+  const tiles=`<div class="st-tiles kwq-tiles">
+    ${tegel(I.clock,"Op tijd",pct(A.opTijd),A.tijdN?plural(A.tijdN,"bezoek","bezoeken")+" met vaste tijd":"nog geen bezoeken met vaste tijd",ver(A.opTijd,B.opTijd,true,"%"))}
+    ${tegel(I.ster||I.spark,"Beoordeling",A.sterren==null?"—":kom(A.sterren)+"<span class=\"kwq-v\"> / 5</span>",A.sterN?plural(A.sterN,"beoordeling","beoordelingen"):"nog geen beoordelingen",ver(A.sterren,B.sterren))}
+    ${tegel(I.check,"Eindcontrole",pct(A.controle),A.ctlN?A.ctlN+" van "+A.n+" gecontroleerd":"start vanaf het volgende bezoek","")}
+    ${tegel(I.alert,"Klachten",A.klacht==null?"—":kom(A.klacht)+"<span class=\"kwq-v\"> per 100</span>",A.klachtN?plural(A.klachtN,"keer","keer")+" niet tevreden"+(A.nawerk?" · "+A.nawerk+"× nawerk":""):"niets gemeld",ver(A.klacht,B.klacht,false))}</div>`;
+  /* per week: % op tijd, laatste 12 weken */
   const ma=d=>{const x=new Date(d);x.setDate(x.getDate()-((x.getDay()+6)%7));x.setHours(0,0,0,0);return x},w0=ma(t);
   const wk=[...Array(12)].map((_,i)=>{const s=addDays(w0,(i-11)*7),c=kwCijfers(inP([s,addDays(s,6)]));return{l:String(weekNr(s)),c}});
-  const week=`<section class="st-card"><div class="st-ch"><div><h3>Op tijd per week</h3><p>Laatste 12 weken · gestart binnen ${kwVenster()} minuten na de geplande tijd</p></div></div>
-    ${wk.some(w=>w.c.opTijd!=null)?stBars(wk.map(w=>w.c.opTijd||0),wk.map(w=>w.l),{hi:11,fmt:v=>Math.round(v)+"%",h:180,gem:false}):'<p class="st-leeg">Zodra er bezoeken met een vaste tijd zijn afgemeld, zie je hier per week hoe stipt je was.</p>'}</section>`;
+  const eerste=wk.findIndex(w=>w.c.opTijd!=null),toon=eerste<0?[]:wk.slice(eerste);
+  const week=`<section class="st-card"><div class="st-ch"><div><h3>Op tijd per week</h3><p>Gestart binnen ${kwVenster()} minuten na de geplande tijd</p></div></div>
+    ${toon.length?stBars(toon.map(w=>w.c.opTijd||0),toon.map(w=>"wk "+w.l),{hi:toon.length-1,fmt:v=>Math.round(v)+"%",h:170,gem:false}):'<p class="st-leeg">Zodra er bezoeken met een vaste tijd zijn afgemeld, zie je hier per week hoe stipt je was.</p>'}</section>`;
   /* per medewerker */
   const per={};inP(P.rg).forEach(b=>{const w=String(b.door||"Onbekend");(per[w]=per[w]||[]).push(b)});
   const rijen=Object.entries(per).map(([w,L])=>[w,kwCijfers(L)]).sort((a,b)=>b[1].n-a[1].n);
-  const mw=`<section class="st-card"><div class="st-ch"><div><h3>Per medewerker</h3><p>${esc(P.lbl)}</p></div></div>
+  const mw=`<section class="st-card kwq-card"><div class="st-ch"><div><h3>Per medewerker</h3><p>${esc(P.lbl)}</p></div></div>
     ${rijen.length?`<div class="kwq-t"><div class="kwq-r kwq-h"><span>Medewerker</span><span>Bezoeken</span><span>Op tijd</span><span>Sterren</span><span>Controle</span><span>Klachten</span></div>
-      ${rijen.map(([w,c])=>`<div class="kwq-r"><b>${esc(w)}</b><span>${c.n}</span><span>${pct(c.opTijd)}</span><span>${c.sterren==null?"—":kom(c.sterren)}</span><span>${pct(c.controle)}</span><span class="${c.klachtN?"kwq-rood":""}">${c.klachtN}</span></div>`).join("")}</div>`
+      ${rijen.map(([w,c])=>`<div class="kwq-r"><b>${esc(w)}</b><span data-l="Bezoeken">${c.n}</span><span data-l="Op tijd">${pct(c.opTijd)}</span><span data-l="Sterren">${c.sterren==null?"—":kom(c.sterren)}</span><span data-l="Controle">${pct(c.controle)}</span><span data-l="Klachten" class="${c.klachtN?"kwq-rood":""}">${c.klachtN}</span></div>`).join("")}</div>`
       :'<p class="st-leeg">Nog geen afgemelde bezoeken in deze periode.</p>'}</section>`;
   const open=kwHerstelLijst();
-  const herstel=`<section class="st-card"><div class="st-ch"><div><h3>Herstel</h3><p>Lage beoordelingen en eindcontroles die niet in orde waren</p></div></div>
+  const herstel=`<section class="st-card kwq-card"><div class="st-ch"><div><h3>Herstel</h3><p>Lage beoordelingen en eindcontroles die niet in orde waren</p></div></div>
     ${open.length?`<div class="kwq-t">${open.map(b=>`<div class="kwq-r kwq-h2" data-act="klant" data-id="${esc(b.klantId)}" role="button"><b>${esc(cleanName(b.klantNaam||""))}</b><span>${esc(fmtD(b.datum))}</span><span>${kwLaag(b)?b.beoordeling.sterren+" ★":"controle"}</span><span>${(b.herstel||{}).status==="gebeld"?"gebeld":"open"}</span></div>`).join("")}</div>`
-      :`<p class="st-leeg">${I.check} Niets open. Alles is rechtgezet.</p>`}</section>`;
-  return `${tiles}${week}<div class="st-two">${mw}${herstel}</div>`}
+      :`<div class="kwq-ok"><span>${I.check}</span><div><b>Niets open</b><small>Alles is rechtgezet.</small></div></div>`}</section>`;
+  return `<div class="kwq">${tiles}${week}<div class="st-two kwq-two">${mw}${herstel}</div></div>`}
 
 /* ---------- 6. kleine gebaren ---------- */
 const KW_MIJL=[10,25,50,100,150,200];

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="d99f2f83b275"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="b61ae7a0c27e"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -5837,14 +5837,24 @@ html.zm dialog.pv-ov{zoom:1.1111}
 .kwc .vve-t input:not(:checked)+span{opacity:.75}
 .kwc-alles{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;background:none;border:1px dashed var(--line);border-radius:999px;padding:6px 12px;color:#252c3c;cursor:pointer;margin:2px 0 6px}
 .kwc-alles svg{width:14px;height:14px}
-.kwq-t{display:flex;flex-direction:column}
-.kwq-r{display:grid;grid-template-columns:minmax(0,1.5fr) repeat(5,minmax(0,1fr));gap:14px;padding:10px 4px;border-bottom:1px solid var(--line);font-size:14px;align-items:center}
+.kwq-two{align-items:start}
+.kwq-tile em.kwq-d{font-style:normal;font-size:11.5px;font-weight:600;margin-top:4px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kwq-d.op{color:#1f7a4d!important}.kwq-d.af{color:#b42318!important}
+.kwq-tile .kwq-v{font-size:.5em;color:var(--muted);letter-spacing:0}
+.kwq-t{display:flex;flex-direction:column;overflow-x:auto}
+.kwq-r{display:grid;grid-template-columns:minmax(84px,1.3fr) repeat(5,minmax(58px,1fr));gap:6px;padding:12px 2px;border-bottom:1px solid var(--line);font-size:14px;align-items:center;font-variant-numeric:tabular-nums}
+.kwq-r>span{text-align:right}
 .kwq-r:last-child{border-bottom:0}
-.kwq-h{font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:600}
-.kwq-h2{grid-template-columns:minmax(0,1.6fr) repeat(3,minmax(0,1fr));cursor:pointer;font-size:14px;text-transform:none;letter-spacing:0;color:inherit;font-weight:400}
+.kwq-h{font-size:10px!important;letter-spacing:.03em!important;text-transform:uppercase;color:var(--muted);font-weight:600;padding-top:4px}
+.kwq-h>span{white-space:nowrap}
+.kwq-h2{grid-template-columns:minmax(0,1.6fr) repeat(3,minmax(0,1fr));cursor:pointer}
 .kwq-h2:hover{background:var(--surface-2,#f6f7f8)}
 .kwq-rood{color:#b42318;font-weight:700}
-@media (max-width:640px){.kwq-r{grid-template-columns:minmax(0,1.4fr) repeat(5,minmax(0,1fr));font-size:12.5px;gap:6px}}
+.kwq-ok{display:flex;align-items:center;gap:12px;padding:6px 0 4px}
+.kwq-ok>span{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb,#1f7a4d 10%,transparent);color:#1f7a4d;flex:none}
+.kwq-ok>span svg{width:18px;height:18px}
+.kwq-ok b{display:block;font-size:14.5px}.kwq-ok small{color:var(--muted);font-size:13px}
+@media (max-width:640px){.kwq-r{font-size:13px;gap:6px}}
 .kb-sfo{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.kb-sfo img{width:56px;height:56px;object-fit:cover;border-radius:8px;display:block;border:1px solid var(--line)}
 .kwc-sch{margin:2px 0 8px}.kwc-sch.open{border:1px solid color-mix(in srgb,#b42318 30%,var(--line));background:color-mix(in srgb,#b42318 4%,transparent);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px}
 .kwc-schk{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;background:none;border:0;color:#b42318;cursor:pointer;padding:4px 0}.kwc-schk svg{width:15px;height:15px}
@@ -5861,6 +5871,17 @@ html.zm dialog.pv-ov{zoom:1.1111}
 .kwd-m{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-width:0}.kwd-m b{font-size:14px;margin-right:2px}.kwd-m small{flex-basis:100%;color:var(--muted);font-size:12.5px}
 .kwd-lb{font-style:normal;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:#f3f4f6}.kwd-lb.goud{background:#f6efdc;color:#7a5b12}.kwd-lb.rood{background:#fde8e6;color:#b42318}
 .kwd-leeg{margin:0;padding:12px 16px;border-top:1px solid var(--line);color:var(--muted);font-size:13.5px}
+.kwq-r>:first-child{text-align:left}
+html body:not(#zz):not(#zy) .kwq-tile em.kwq-d.op{color:#1f7a4d!important}
+html body:not(#zz):not(#zy) .kwq-tile em.kwq-d.af{color:#b42318!important}
+html body:not(#zz):not(#zy) .kwq-tile small,html body:not(#zz):not(#zy) .kwq-tile em.kwq-d{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.35}
+@media (max-width:640px){
+  .kwq-t .kwq-h{display:none}
+  .kwq-t .kwq-r:not(.kwq-h2){grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 8px;padding:14px 2px}
+  .kwq-t .kwq-r:not(.kwq-h2)>b{grid-column:1/-1;font-size:15px}
+  .kwq-t .kwq-r:not(.kwq-h2)>span{text-align:left;font-size:15px;font-weight:600}
+  .kwq-t .kwq-r:not(.kwq-h2)>span::before{content:attr(data-l);display:block;font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:2px}
+}
 
 </style>
 <style id="mansardThema">
@@ -21414,29 +21435,32 @@ function kwCijfers(L){const n=L.length,tijd=L.map(kwOpTijd).filter(x=>x!=null),s
     brief:L.filter(b=>b.briefGezien).length}}
 function vKwaliteit(P,V){const t=today(),inP=rg=>(state.beurten||[]).filter(b=>!b.geannuleerd&&inRange(b.datum,rg));
   const A=kwCijfers(inP(P.rg)),B=kwCijfers(inP(V.rg)),pct=x=>x==null?"—":x+"%",kom=x=>String(x).replace(".",",");
-  const pijl=(a,b,hoog=true)=>a==null||b==null||a===b?"":`<span class="st-pill ${(a>b)===hoog?"up":"down"}">${a>b?"▲":"▼"} vorige ${esc(V.lbl)}</span>`;
-  const tiles=`<div class="st-tiles">
-    ${stTile(I.clock,"Op tijd",pct(A.opTijd),(A.tijdN?`binnen ${kwVenster()} min · ${A.tijdN} bezoeken `:"nog geen bezoeken met vaste tijd ")+pijl(A.opTijd,B.opTijd))}
-    ${stTile(I.ster||I.spark,"Beoordeling",A.sterren==null?"—":kom(A.sterren)+" / 5",(A.sterN?plural(A.sterN,"beoordeling","beoordelingen")+" ":"nog geen beoordelingen ")+pijl(A.sterren,B.sterren))}
-    ${stTile(I.check,"Eindcontrole in orde",pct(A.controle),A.ctlN?plural(A.ctlN,"controle","controles"):"nog geen controles")}
-    ${stTile(I.alert,"Klachten per 100",A.klacht==null?"—":kom(A.klacht),(A.klachtN?plural(A.klachtN,"keer","keer")+(A.nawerk?" · "+A.nawerk+"× nawerk":"")+" ":"niets gemeld ")+pijl(A.klacht,B.klacht,false))}</div>`;
-  /* per week: % op tijd en gemiddelde sterren, laatste 12 weken */
+  /* verschil met de vorige periode: klein, onder het getal */
+  const ver=(a,b,hoog=true,suf="")=>{if(a==null||b==null||a===b)return"";const d=Math.round((a-b)*10)/10,goed=(d>0)===hoog;return `<em class="kwq-d ${goed?"op":"af"}">${d>0?"▲":"▼"} ${kom(Math.abs(d))}${suf} t.o.v. vorige ${esc(V.lbl.split(" ")[0].toLowerCase())}</em>`};
+  const tegel=(ic,l,v,sub,d)=>`<div class="st-tile kwq-tile"><span class="st-ic">${ic}</span><span class="st-l">${l}</span><b>${v}</b><small>${sub}</small>${d||""}</div>`;
+  const tiles=`<div class="st-tiles kwq-tiles">
+    ${tegel(I.clock,"Op tijd",pct(A.opTijd),A.tijdN?plural(A.tijdN,"bezoek","bezoeken")+" met vaste tijd":"nog geen bezoeken met vaste tijd",ver(A.opTijd,B.opTijd,true,"%"))}
+    ${tegel(I.ster||I.spark,"Beoordeling",A.sterren==null?"—":kom(A.sterren)+"<span class=\"kwq-v\"> / 5</span>",A.sterN?plural(A.sterN,"beoordeling","beoordelingen"):"nog geen beoordelingen",ver(A.sterren,B.sterren))}
+    ${tegel(I.check,"Eindcontrole",pct(A.controle),A.ctlN?A.ctlN+" van "+A.n+" gecontroleerd":"start vanaf het volgende bezoek","")}
+    ${tegel(I.alert,"Klachten",A.klacht==null?"—":kom(A.klacht)+"<span class=\"kwq-v\"> per 100</span>",A.klachtN?plural(A.klachtN,"keer","keer")+" niet tevreden"+(A.nawerk?" · "+A.nawerk+"× nawerk":""):"niets gemeld",ver(A.klacht,B.klacht,false))}</div>`;
+  /* per week: % op tijd, laatste 12 weken */
   const ma=d=>{const x=new Date(d);x.setDate(x.getDate()-((x.getDay()+6)%7));x.setHours(0,0,0,0);return x},w0=ma(t);
   const wk=[...Array(12)].map((_,i)=>{const s=addDays(w0,(i-11)*7),c=kwCijfers(inP([s,addDays(s,6)]));return{l:String(weekNr(s)),c}});
-  const week=`<section class="st-card"><div class="st-ch"><div><h3>Op tijd per week</h3><p>Laatste 12 weken · gestart binnen ${kwVenster()} minuten na de geplande tijd</p></div></div>
-    ${wk.some(w=>w.c.opTijd!=null)?stBars(wk.map(w=>w.c.opTijd||0),wk.map(w=>w.l),{hi:11,fmt:v=>Math.round(v)+"%",h:180,gem:false}):'<p class="st-leeg">Zodra er bezoeken met een vaste tijd zijn afgemeld, zie je hier per week hoe stipt je was.</p>'}</section>`;
+  const eerste=wk.findIndex(w=>w.c.opTijd!=null),toon=eerste<0?[]:wk.slice(eerste);
+  const week=`<section class="st-card"><div class="st-ch"><div><h3>Op tijd per week</h3><p>Gestart binnen ${kwVenster()} minuten na de geplande tijd</p></div></div>
+    ${toon.length?stBars(toon.map(w=>w.c.opTijd||0),toon.map(w=>"wk "+w.l),{hi:toon.length-1,fmt:v=>Math.round(v)+"%",h:170,gem:false}):'<p class="st-leeg">Zodra er bezoeken met een vaste tijd zijn afgemeld, zie je hier per week hoe stipt je was.</p>'}</section>`;
   /* per medewerker */
   const per={};inP(P.rg).forEach(b=>{const w=String(b.door||"Onbekend");(per[w]=per[w]||[]).push(b)});
   const rijen=Object.entries(per).map(([w,L])=>[w,kwCijfers(L)]).sort((a,b)=>b[1].n-a[1].n);
-  const mw=`<section class="st-card"><div class="st-ch"><div><h3>Per medewerker</h3><p>${esc(P.lbl)}</p></div></div>
+  const mw=`<section class="st-card kwq-card"><div class="st-ch"><div><h3>Per medewerker</h3><p>${esc(P.lbl)}</p></div></div>
     ${rijen.length?`<div class="kwq-t"><div class="kwq-r kwq-h"><span>Medewerker</span><span>Bezoeken</span><span>Op tijd</span><span>Sterren</span><span>Controle</span><span>Klachten</span></div>
-      ${rijen.map(([w,c])=>`<div class="kwq-r"><b>${esc(w)}</b><span>${c.n}</span><span>${pct(c.opTijd)}</span><span>${c.sterren==null?"—":kom(c.sterren)}</span><span>${pct(c.controle)}</span><span class="${c.klachtN?"kwq-rood":""}">${c.klachtN}</span></div>`).join("")}</div>`
+      ${rijen.map(([w,c])=>`<div class="kwq-r"><b>${esc(w)}</b><span data-l="Bezoeken">${c.n}</span><span data-l="Op tijd">${pct(c.opTijd)}</span><span data-l="Sterren">${c.sterren==null?"—":kom(c.sterren)}</span><span data-l="Controle">${pct(c.controle)}</span><span data-l="Klachten" class="${c.klachtN?"kwq-rood":""}">${c.klachtN}</span></div>`).join("")}</div>`
       :'<p class="st-leeg">Nog geen afgemelde bezoeken in deze periode.</p>'}</section>`;
   const open=kwHerstelLijst();
-  const herstel=`<section class="st-card"><div class="st-ch"><div><h3>Herstel</h3><p>Lage beoordelingen en eindcontroles die niet in orde waren</p></div></div>
+  const herstel=`<section class="st-card kwq-card"><div class="st-ch"><div><h3>Herstel</h3><p>Lage beoordelingen en eindcontroles die niet in orde waren</p></div></div>
     ${open.length?`<div class="kwq-t">${open.map(b=>`<div class="kwq-r kwq-h2" data-act="klant" data-id="${esc(b.klantId)}" role="button"><b>${esc(cleanName(b.klantNaam||""))}</b><span>${esc(fmtD(b.datum))}</span><span>${kwLaag(b)?b.beoordeling.sterren+" ★":"controle"}</span><span>${(b.herstel||{}).status==="gebeld"?"gebeld":"open"}</span></div>`).join("")}</div>`
-      :`<p class="st-leeg">${I.check} Niets open. Alles is rechtgezet.</p>`}</section>`;
-  return `${tiles}${week}<div class="st-two">${mw}${herstel}</div>`}
+      :`<div class="kwq-ok"><span>${I.check}</span><div><b>Niets open</b><small>Alles is rechtgezet.</small></div></div>`}</section>`;
+  return `<div class="kwq">${tiles}${week}<div class="st-two kwq-two">${mw}${herstel}</div></div>`}
 
 /* ---------- 6. kleine gebaren ---------- */
 const KW_MIJL=[10,25,50,100,150,200];
