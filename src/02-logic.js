@@ -15,8 +15,6 @@ const volgende=k=>{const l=parse(k.laatst);let v=l?(vasteDagen(k)?volgendeWeekda
 const planned=k=>parse(k.gepland)||volgende(k);
 const toMin=t=>{const m=String(t||"").match(/^(\d{1,2}):(\d{2})/);return m?Number(m[1])*60+Number(m[2]):null};
 const fromMin=m=>pad(Math.floor(m/60))+":"+pad(m%60);
-/* totale tijd van de glasbewassing (gewone en bijzondere ramen samen) naar boven afronden op 5 minuten: 28 → 30, 31 → 35; 20 blijft 20 */
-const min5=m=>{m=Math.round((Number(m)||0)*100)/100;return m>0?Math.ceil(m/5)*5:0};
 const duurBasis=k=>Number(k.duur)||30;
 /* bedrag van de afspraak: eigen dienst plus extra opdrachten die die dag mee gaan (zelfde opslag als k.prijs) */
 /* bedrag van een stop: altijd incl. meegaande diensten (bijzondere ramen, gevelelementen enz.); overal op Vandaag/route/planning deze gebruiken */

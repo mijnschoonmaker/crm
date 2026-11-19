@@ -16,7 +16,7 @@ function openOpdrachtWerk(kid,focus){
   /* bedrag zoals de klant het ziet, voor diensten met onderdelen: precies hetzelfde getal op de kaart en bij "Per keer" */
   const gToon=r=>{try{const c=groepCalc(r);return S().toonEx||!incl?r2(c.ex):r2(c.ex*(1+groepBtwPct(r,k)/100))}catch(e){return toon(Number(r.prijs)||0)}};
   /* altijd opnieuw uitrekenen (niet alleen als de tarieven veranderd zijn): zo kloppen kaart, "Per keer" en wat er wordt opgeslagen altijd met elkaar */
-  extra.forEach((o,i)=>{try{if(o.items){groepTarievenBij(o);{const v=prijsVast(o,k);if(v!==o){o.tp=v.tp}}const c=groepCalc(o),mul=incl?1+groepBtwPct(o,k)/100:1;o.prijs=r2(c.ex*mul);o.duur=gHasD(o.td)?Number(o.td)||0:Math.max(5,Math.ceil(c.sec/60/5)*5)}}catch(e){console.error(e)}});
+  extra.forEach((o,i)=>{try{if(o.items){groepTarievenBij(o);{const v=prijsVast(o,k);if(v!==o){o.tp=v.tp}}const c=groepCalc(o),mul=incl?1+groepBtwPct(o,k)/100:1;o.prijs=r2(c.ex*mul);o.duur=Math.max(5,Math.ceil(c.sec/60/5)*5)}}catch(e){console.error(e)}});
   if(focus==="new")extra.push({id:newId("o"),dienst:"",prijs:"",frequentie:52,duur:30,volgende:"",actief:true,objectId:"hoofd",_nieuw:true});
   /* een extra of nieuwe opdracht opent als eigen opdrachtkaart met een eigen nummer (bijv. 1002-2); de hoofdopdracht blijft ongemoeid */
   const soloId=focus&&!["main","hosp"].includes(focus)?(focus==="new"?extra[extra.length-1].id:focus):null,soloI=soloId?extra.findIndex(o=>o.id===soloId):-1;
@@ -244,7 +244,7 @@ function openOpdrachtWerk(kid,focus){
       ${vari?'<p class="subt" style="margin:4px 0 0;font-size:12.5px">Onderdelen met een eigen frequentie gaan alleen mee als ze aan de beurt zijn; de factuur rekent dan alleen die delen.</p>':""}`};
   /* ritme volgt de kortste frequentie van de verdiepingen; tijdsduur volgt de berekening (of de gemeten tijd) */
   const ritmeUitRamen=()=>{const q=main.ramen;if(!q)return 0;const ws=q.f.map((n,i)=>n&&Number(q.fq[i])).filter(Boolean),leeg=q.f.some((n,i)=>n&&!q.fq[i]);return ws.length?Math.min(...ws,...(leeg?[mF]:[])):0};
-  const syncRitme=()=>{const w=ritmeUitRamen();if(w)mF=w;if(main.ramen&&!(k.tijden||[]).length){const c=calcR(main,true);if(c&&c.min)mD=Math.max(5,c.min)}};
+  const syncRitme=()=>{const w=ritmeUitRamen();if(w)mF=w;if(main.ramen&&!(k.tijden||[]).length){const c=calcR(main,true);if(c&&c.min)mD=Math.max(5,Math.ceil(c.min/5)*5)}};
   const isGlas=n=>/glas|ramen/i.test(String(n||""));
   /* opgeslagen extra dienst als overzichtskaart (zoals DienstenCRM): omschrijving, onderdelen met aantal en frequentie, totalen, potlood om te wijzigen */
   const dichtHtml=(r,i)=>{const its=(r.items||[]).filter(x=>Number(x.aantal)>0),base=Number(r.frequentie)||mF||null;
@@ -288,7 +288,7 @@ function openOpdrachtWerk(kid,focus){
   const itemsRitme=r=>{const its=(r.items||[]).filter(x=>Number(x.aantal)>0);if(!its.length)return Number(r.frequentie)||mF||52;const ws=its.map(x=>Number(x.fq)||Number(r.frequentie)||mF||52);return Math.min(...ws)};
   const gOpts=r=>({freqDefault:mF||Number(k.frequentie)||8,klant:k});
   const itemsHtml=(r,i)=>groepEditor(r,"x"+i,gOpts(r));
-  const itemsRecalc=(i,struct)=>{const r=extra[i];if(!r||!r.items)return;const c=groepCalc(r),mul=incl?1+groepBtwPct(r,k)/100:1;r.prijs=r2(c.ex*mul);r.duur=gHasD(r.td)?Number(r.td)||0:Math.max(5,Math.ceil(c.sec/60/5)*5);
+  const itemsRecalc=(i,struct)=>{const r=extra[i];if(!r||!r.items)return;const c=groepCalc(r),mul=incl?1+groepBtwPct(r,k)/100:1;r.prijs=r2(c.ex*mul);r.duur=Math.max(5,Math.ceil(c.sec/60/5)*5);
     const pi=$("#owLines").querySelector(`input[data-i="${i}"][data-k="prijs"]`);if(pi){pi.value=pToon(r);pi.classList.remove("flash");void pi.offsetWidth;pi.classList.add("flash")}
     if(struct)groepRedraw($("#owLines"),"x"+i,r,gOpts(r));else groepTotUpdate($("#owLines"),"x"+i,r,gOpts(r));tot()};
   const tot=()=>{if(soloI>=0&&extra[soloI]){const L=[...soloSet].map(i=>extra[i]).filter(Boolean);$("#owTot").innerHTML=L.map(r=>`<span>Per keer (${esc(r.dienst||"deze opdracht")})</span><span>${eur(r.items?gToon(r):toonR(k,r))}</span>`).join("");return}
@@ -362,8 +362,8 @@ function openOpdrachtWerk(kid,focus){
   const recalc=di=>{const isM=di==="m",r=isM?main:extra[+di],c=calcR(r,isM),box=$("#owLines").querySelector(`[data-calc="${di}"]`);if(!c||!box)return;
     r.prijs=c.prijs;box.querySelector(".ow-res").innerHTML=resHtml(c,r.ramen);
     const pi=$("#owLines").querySelector(`input[data-i="${di}"][data-k="prijs"]`);if(pi){pi.value=pToon(r);pi.classList.remove("flash");void pi.offsetWidth;pi.classList.add("flash")}
-    if(isM&&!(k.tijden||[]).length&&c.min){mD=Math.max(5,c.min);const sd=$o("duur");if(sd){const m=String(mD);if(![...sd.options].some(o=>o.value===m))sd.insertAdjacentHTML("beforeend",`<option value="${m}">${m} min</option>`);sd.value=m}}
-    if(!isM)r.duur=Math.max(5,c.min);tot()};
+    if(isM&&!(k.tijden||[]).length&&c.min){mD=Math.max(5,Math.ceil(c.min/5)*5);const sd=$o("duur");if(sd){const m=String(mD);if(![...sd.options].some(o=>o.value===m))sd.insertAdjacentHTML("beforeend",`<option value="${m}">${m} min</option>`);sd.value=m}}
+    if(!isM)r.duur=Math.max(5,Math.ceil(c.min/5)*5);tot()};
   $("#owLines").addEventListener("input",e=>{const el=e.target,di=el.dataset.i,rk=el.dataset.rk;if(di!=null&&rk){const r=di==="m"?main:extra[+di];
       const q=r.ramen,sm=rk.match(/^(sp|spfq|spvol|spop|spod|spkf|spkfq|spkvol|spkop|spkod):(\w+)$/);
       if(sm){const [,key,sk]=sm;q[key]=q[key]||{};if(key==="spkf"){q.spkf[sk]=el.checked;recalc(di);draw();return}q[key][sk]=key==="sp"?Math.max(0,Math.round(Number(el.value)||0)):el.value;if(key==="spvol"||key==="spfq"){recalc(di);draw();return}recalc(di);return}
@@ -630,7 +630,7 @@ function ramenBerekening(q,opdrW,due){
   const krows=kz.map(x=>({i:x.i,k:x.k,sp:!!x.sp,n:x.n,naam:x.naam,p:has(x.op)?r2(Number(x.op)):0,min:has(x.od)?Number(x.od):0,calcP:0,calcMin:0,ovP:has(x.op)}));
   const kozP=krows.reduce((a,r)=>a+r.p,0),minK=false,kozMin=krows.reduce((a,r)=>a+r.min,0);
   const start=rows.length?(has(q.start)?Number(q.start):(c.start||0)):0,ex=r2(glas+kozP+start);
-  return {minNu,rows,krows,glas:r2(glas),minG,aanvul,totOver,kozP:r2(kozP),minK,kozMin,start,ex,min:has(q.td)?Math.round(rows.reduce((a,r)=>a+r.min,0)+kozMin):min5(rows.reduce((a,r)=>a+r.min,0)+kozMin),count:tot+srows.reduce((a,r)=>a+r.n,0),srows,c};
+  return {minNu,rows,krows,glas:r2(glas),minG,aanvul,totOver,kozP:r2(kozP),minK,kozMin,start,ex,min:Math.ceil(rows.reduce((a,r)=>a+r.min,0)+kozMin),count:tot+srows.reduce((a,r)=>a+r.n,0),srows,c};
 }
 /* welke delen gaan mee op deze dag, en hoe schuiven de volgende data door */
 /* gaat er op deze dag een andere dienst mee (bv. reiniging gevelelementen), dan gaat de hele glasbewassing standaard mee (uit te zetten bij Instellingen › Planning) */

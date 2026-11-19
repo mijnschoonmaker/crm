@@ -446,7 +446,7 @@ function buildRamen(){
   let floors=[0,0,0,0],special={lood:0,mini:0,koepel:0,tuimel:0};
   const floorName=i=>i===0?"Begane grond":i+"e verdieping";
   const winKey=i=>i===0?"g0":i===1?"g1":i===2?"g2":"g3";
-  function dur(sec,vijf){const m=vijf&&typeof min5==="function"?min5(sec/60):Math.ceil(Math.round(sec)/60);if(!m)return "0 min";const h=Math.floor(m/60);return h?`${h} u ${String(m%60).padStart(2,"0")}`:`${m} min`}
+  function dur(sec){const m=Math.ceil(Math.round(sec)/60);if(!m)return "0 min";const h=Math.floor(m/60);return h?`${h} u ${String(m%60).padStart(2,"0")}`:`${m} min`}
 
   /* iconen */
   const LN='stroke="var(--ink)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"';
@@ -685,7 +685,7 @@ const ICON={
       <div class="eyebrow">${oRows.length&&oRows.some(r=>r.frequentie!==(f.w||0))?"Eerste beurt · alles samen":"Prijs per beurt · "+f.l}</div>
       <div class="price">${eur(ex)}<small>excl. btw</small></div>
       <div style="margin-top:6px;color:var(--navy-muted);font-variant-numeric:tabular-nums">${eur(inc)} incl. btw</div>${oRows.length?`<div class="perfreq">${all.length?`<span><b>Glasbewassing</b> ${eur(R.exG*(1+VAT))} incl. · ${esc(f.l.toLowerCase())}</span>`:""}${oRows.map(r=>`<span><b>${esc(r.n)}</b> ${eur(r.price*(1+VAT))} incl. · ${esc(freqLabel(r.frequentie).toLowerCase())}</span>`).join("")}</div>`:""}
-      <div class="kpis"><div><b>${count}</b><span>ramen</span></div><div><b>${dur(sec,1)}</b><span>werktijd</span></div><div><b>${eur(R.exG*(1+VAT)*f.y+oRows.reduce((a,r)=>a+r.price*(1+VAT)*52/(r.frequentie||52),0)).replace(/,\d\d$/,"")}</b><span>${f.y>1?"per jaar incl.":"totaal incl."}</span></div></div>
+      <div class="kpis"><div><b>${count}</b><span>ramen</span></div><div><b>${dur(sec)}</b><span>werktijd</span></div><div><b>${eur(R.exG*(1+VAT)*f.y+oRows.reduce((a,r)=>a+r.price*(1+VAT)*52/(r.frequentie||52),0)).replace(/,\d\d$/,"")}</b><span>${f.y>1?"per jaar incl.":"totaal incl."}</span></div></div>
     </div>
     <div class="result-body">
       <div class="tablewrap"><table><thead><tr><th>Onderdeel</th><th>Ramen</th><th>Tijd</th><th>Excl. btw</th></tr></thead><tbody>
@@ -700,7 +700,7 @@ const ICON={
         ${oRows.length?`<tr class="sub"><td colspan="3">Totaalprijs overige diensten</td><td>${eur(R.oEx)}</td></tr>`:""}
         <tr class="sub"><td colspan="3">Totaal excl. btw</td><td>${eur(ex)}</td></tr>
         <tr class="sub"><td colspan="3">Btw 21%</td><td>${eur(vat)}</td></tr>
-        <tr class="tot"><td colspan="3">Totaal incl. btw<small>${count} ramen · ${dur(sec,1)} werktijd</small></td><td>${eur(inc)}</td></tr>
+        <tr class="tot"><td colspan="3">Totaal incl. btw<small>${count} ramen · ${dur(sec)} werktijd</small></td><td>${eur(inc)}</td></tr>
       </tbody></table></div>
       <p class="note">${cfg.minAlles?`Glasbewassing heeft een minimumprijs van ${eur(cfg.min)} excl. btw, bijzondere ramen inbegrepen`:`Gewone glasbewassing heeft een minimumprijs van ${eur(cfg.min)} excl. btw; bijzondere ramen komen daar los bij`}${koz?`, kozijnreiniging ${eur(cfg.kozMin)} excl. btw`:""}. Tijden zijn per regel naar boven afgerond op hele minuten.</p>
       <div class="acts">
@@ -718,14 +718,14 @@ const ICON={
       ...all.map(r=>`${r.n}: ${r.c} st · ${dur(r.sec)} · ${eur(r.price)}`),
       f.pct&&normal?`${f.pct>0?"Frequentiekorting":"Frequentietoeslag"} ${Math.abs(f.pct)}%: ${freqAdj<0?"−":"+"}${eur(Math.abs(freqAdj))}`:"",
       minGlas?"Minimumprijs glasbewassing toegepast":"",koz?`Kozijnreiniging: ${eur(kozEx)}`:"",...oRows.map(r=>`${r.n} (${r.d}, ${freqLabel(r.frequentie).toLowerCase()}): ${eur(r.price)}`),"",
-      `Totaal: ${count} ramen · ${dur(sec,1)}`,`Excl. btw: ${eur(ex)}`,`Btw 21%: ${eur(vat)}`,`Incl. btw: ${eur(inc)}`].filter((l,i,a)=>l!==""||(i>0&&a[i-1]!=="")).join("\n").trim();
+      `Totaal: ${count} ramen · ${dur(sec)}`,`Excl. btw: ${eur(ex)}`,`Btw 21%: ${eur(vat)}`,`Incl. btw: ${eur(inc)}`].filter((l,i,a)=>l!==""||(i>0&&a[i-1]!=="")).join("\n").trim();
     const extra=[];
     if(f.pct&&normal)extra.push({l:`${f.pct>0?"Frequentiekorting":"Frequentietoeslag"} ${Math.abs(f.pct)}%`,v:`${freqAdj<0?"−":"+"} ${eur(Math.abs(freqAdj))}`});
     if(minGlas)extra.push({l:"Minimumprijs glasbewassing",v:eur(glasEx)});
     if(koz)extra.push({l:"Kozijnreiniging",v:eur(kozEx)});
     if(startEx)extra.push({l:"Starttarief",v:eur(startEx)});
     oRows.forEach(r=>extra.push({l:r.n+" · "+r.d+" · "+freqLabel(r.frequentie).toLowerCase(),v:eur(r.price)}));
-    lastQ={createdAt:new Date().toISOString(),naam:k.naam,bedrijf:k.bedrijf,email:k.email,tel:k.tel,adres,notitie:k.notitie,frequentie:f.l,kozijn:koz,ramen:count,minuten:min5(sec/60),
+    lastQ={createdAt:new Date().toISOString(),naam:k.naam,bedrijf:k.bedrijf,email:k.email,tel:k.tel,adres,notitie:k.notitie,frequentie:f.l,kozijn:koz,ramen:count,minuten:Math.ceil(sec/60),
       rows:all.map((r,i)=>({n:r.n,c:r.c,min:Math.ceil(r.sec/60),p:r2(r.price),g:i<fRows.length?"n":"s"})),extra,excl:r2(ex),btw:r2(vat),incl:r2(inc),
       photos:photos.map(p=>({src:p.cv,w:p.cv.width,h:p.cv.height,dots:p.dots.slice()}))};
     const Q=lastQ;
@@ -774,8 +774,8 @@ const ICON={
     try{await fn()}catch(e){say(e&&e.msg?e.msg:"Niet opgeslagen: "+(e&&(e.message||e.code)||"onbekende fout"),"bad")}finally{const b2=g(btn.id);if(b2)b2.innerHTML=t;root.querySelectorAll(".acts button").forEach(b=>b.disabled=false)}}
   function extrasFor(R){const mul=S().incl?1+VAT:1;return (R.oRows||[]).map(r=>({id:newId("o"),dienst:r.n,groep:r.groep,items:r.items.map(it=>({...it})),prijs:r2(r.price*mul),frequentie:r.frequentie||R.f.w||8,duur:Math.max(5,Math.ceil(r.sec/60/5)*5),volgende:"",actief:true}))}
   const mergeExtra=(cur,R)=>{const ex=extrasFor(R);if(!ex.length)return cur||[];const gs=new Set(ex.map(e=>e.groep));return [...(cur||[]).filter(o=>!o.groep||!gs.has(o.groep)),...ex]};
-  function opdFor(R,t,base){const m=Math.max(5,min5((R.gSec??R.sec)/60));
-    return{prijs:S().incl?r2((R.exG??R.ex)*(1+VAT)):r2(R.exG??R.ex),extra:extrasFor(R),frequentie:R.f.w||Number(base&&base.frequentie)||4,duur:m}}
+  function opdFor(R,t,base){const m=Math.ceil((R.gSec??R.sec)/60);
+    return{prijs:S().incl?r2((R.exG??R.ex)*(1+VAT)):r2(R.exG??R.ex),extra:extrasFor(R),frequentie:R.f.w||Number(base&&base.frequentie)||4,duur:[15,30,45,60,90,120,180,240].reduce((a,b)=>Math.abs(b-m)<Math.abs(a-m)?b:a)}}
   function regelsFor(R){
     const rg=[];
     if(R.all.length){const fl=R.f&&R.f.l?R.f.l:"";const gl=[...R.fRows.map(r=>({omschrijving:`Glasbewassing ${r.n.toLowerCase()}, ${r.c} ramen`,aantal:1,prijs:r2(r.price),n:r.c,sec:r.sec,sub:r.n,qty:r.c+" st",fq:fl})),...R.sRows.map(r=>({omschrijving:`${r.n}, ${r.c} st.`,aantal:1,prijs:r2(r.price),n:r.c,sec:r.sec,sub:r.n,qty:r.c+" st",fq:fl}))];
@@ -805,7 +805,7 @@ const ICON={
         regels:regelsFor(R),btw:21,incl:false,status:"concept",
         notitie:`Prijs per beurt bij ${R.f.l.toLowerCase()}${R.koz?", inclusief kozijnreiniging":""}. Geteld: ${R.count} ramen.`,
         betaaldOp:"",vanOfferte:"",gemaakt:new Date().toISOString(),verstuurdOp:"",herinnerdOp:"",herinneringen:0,
-        telling:{ramen:R.count,minuten:min5(R.sec/60),freq:R.f.l},opdracht:opd};
+        telling:{ramen:R.count,minuten:Math.ceil(R.sec/60),freq:R.f.l},opdracht:opd};
       await save("facturen",id,data);
       toast((isNew?"Klant aangemaakt en offerte ":"Offerte ")+data.nummer+" staat bij Offertes"+(fail?" · "+plural(fail,"foto is","foto's zijn")+" niet opgeslagen":""));
       resetAll();if(!embed)onSaved=null;
