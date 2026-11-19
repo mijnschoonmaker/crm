@@ -342,7 +342,7 @@ const TPL_SECTIES=[
   ["nieuw","Nieuwe klant","Van offerte tot bevestigde bestelling","offerte",["offerte","voorlopig","definitief","welkom"]],
   ["afspraak","Afspraken","Aankondigen, herinneren en wijzigen","cal2",["aankondiging","herinnering","afspraak","onderweg","wijzigen","weer","annuleren","uitloop"]],
   ["geld","Facturen & betalen","Factuur, herinneringen en de snelste betalers","euro",["factuur","aanmaning","wik","maandtop","afkondiging"]],
-  ["relatie","Na het werk","Review en persoonlijke aandacht","spark",["review","verjaardag","jubileum","mijlpaal"]],
+  ["relatie","Na het werk","Review en persoonlijke aandacht","spark",["review","verjaardag"]],
   ["groep","Groepsberichten","Eén bericht aan meerdere klanten tegelijk","megaphone",["nieuwsbrief","update","prijs","kerst","zomer","vrij"]],
   ["eigen","Eigen templates","Templates die je zelf hebt gemaakt","pencil",[]]];
 function tplWanneer(k,t){const s=S();const M={
@@ -365,8 +365,6 @@ function tplWanneer(k,t){const s=S();const M={
   review:[1,"Na een factuur, als het reviewverzoek aan staat"],
   maandtop:[1,"Op de 1e van de maand naar de top 3 van de vorige maand (alleen iDEAL-knop)"],
   verjaardag:[1,"Staat klaar op de verjaardag van de klant"],
-  jubileum:[s.kwGebaren!==false,"Staat klaar op de dag dat de klant 1, 2, 3… jaar klant is"],
-  mijlpaal:[s.kwGebaren!==false,"Staat klaar na het 10e, 25e, 50e bezoek"],
   vrij:[0,"Leeg begin voor een los bericht"]};
   return M[k]||(TPL_SECTIES[4][4].includes(k)?[0,"Via Nieuwsbrief of Verstuur bericht"]:[0,"Via Verstuur bericht"])}
 const TPLGUESS={aankondiging:"Aankondiging",afkondiging:"Afkondiging",weer:"Afspraak",wijzigen:"Afspraak",afspraak:"Afspraak",annuleren:"Afspraak",factuur:"Factuur",aanmaning:"Herinnering",herinnering:"Herinnering",offerte:"Offerte",review:"Review",welkom:"Welkom",voltooid:"Afkondiging",nieuwsbrief:"Algemeen",vrij:"Algemeen"};

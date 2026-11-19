@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="19ad3ab52344"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="39c552175d07"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -9562,8 +9562,6 @@ const TPL={
   maandtop:{naam:"Snelste betalers van de maand",doel:"Felicitatie aan de top 3, met de extra credits",cat:"Review",onderwerp:"[cup.ranking] [place.ranking] snelste betalers van [month.ranking] · [name.company]",mail:"Beste [firstname.customer],\n\nGefeliciteerd! In [month.ranking] stond u op de [place.ranking] van onze snelste betalers. U betaalde uw factuur in [time.ranking]. Hartelijk dank voor uw snelle betaling, daar zijn wij erg blij mee.\n\n[block.ranking]\n\nWij hebben [credits.ranking] ([amount.ranking]) extra voor u bijgeschreven. Die gaan automatisch van uw eerstvolgende factuur af; u hoeft daar niets voor te doen.\n\nIn uw klantportaal ziet u uw credits en de top 3 van de maand. Elke maand maakt u weer kans: betaal uw factuur direct met de iDEAL-knop in de mail of in uw klantportaal.\n\nMet vriendelijke groet,\n[name.company]"},
   review:{naam:"Reviewverzoek",doel:"Om een review vragen",onderwerp:"Tevreden over ons werk?",mail:"Beste [name.customer],\n\nBedankt dat we voor u mochten werken!\n\nZou u ons willen helpen met een korte review? Het kost u minder dan een minuut en het helpt ons enorm om nieuwe klanten te bereiken.\n\nMet vriendelijke groet,\n[name.company]",sms:"Hoi [name.customer], bedankt dat we je ramen weer mochten wassen! Zou je een korte review willen geven? [link.review] [name.company]"},
   nieuwsbrief:{naam:"Nieuwsbrief / algemeen",doel:"Bericht aan meerdere klanten",onderwerp:"Nieuws van [name.company]",mail:"Beste [name.customer],\n\nEen kort bericht van [name.company]: \n\nMet vriendelijke groet,\n[name.company]",sms:"Hoi [name.customer], een kort bericht van [name.company]: "},
-  jubileum:{naam:"Jubileum",doel:"Bedanken op de dag dat de klant een of meer jaar klant is",onderwerp:"Vandaag [aantal] jaar – dank u wel",mail:"Beste [name.customer],\n\nVandaag is het precies [aantal] jaar geleden dat u klant bij ons werd. Dank u wel voor uw vertrouwen. Wij komen graag weer bij u langs.\n\nMet vriendelijke groet,\n[name.company]",sms:"Hoi [name.customer], vandaag bent u precies [aantal] jaar klant bij ons. Dank u wel voor uw vertrouwen! Groet, [name.company]"},
-  mijlpaal:{naam:"Mijlpaal",doel:"Bedanken na het 10e, 25e of 50e bezoek",onderwerp:"Ons [aantal]e bezoek – dank u wel",mail:"Beste [name.customer],\n\nOnlangs kwamen wij voor de [aantal]e keer bij u langs. Dat vinden wij een mooi moment om u te bedanken voor uw vertrouwen.\n\nMet vriendelijke groet,\n[name.company]",sms:"Hoi [name.customer], onlangs waren wij voor de [aantal]e keer bij u. Dank u wel voor uw vertrouwen! Groet, [name.company]"},
   verjaardag:{naam:"Verjaardag",doel:"Klant feliciteren op de verjaardag",onderwerp:"Van harte gefeliciteerd! – [name.company]",mail:"Beste [name.customer],\n\nVan harte gefeliciteerd met uw verjaardag! Wij wensen u een fijne dag.\n\nMet vriendelijke groet,\n[name.company]",sms:"Hoi [name.customer], van harte gefeliciteerd met uw verjaardag! Groet, [name.company]"},
   vrij:{naam:"Eigen bericht",doel:"Leeg bericht",onderwerp:"Bericht van [name.company]",mail:"Beste [name.customer],\n\n\n\nMet vriendelijke groet,\n[name.company]",sms:"Hoi [name.customer], "}
 };
@@ -10232,11 +10230,6 @@ function queues(){
     kanaal:g0.mail?"email":"whatsapp",tekst:g0.sms?g0.smsBody:g0.body,mail:g0.mail?g0.body:"",onderwerp:g0.onderwerp,sjabloon:g0.sjabloon||"aankondiging"})}}
   {const md=iso(t).slice(5),y=t.getFullYear(),T2=tpls(),vj=actief().filter(k=>k.geboortedatum&&k.verjaardagTpl&&String(k.geboortedatum).slice(5)===md&&!refs.has("verjaardag:"+y+":"+k.id));
     if(vj.length){const X=T2[vj[0].verjaardagTpl]||T2.verjaardag||{};out.push({id:"verjaardag",titel:"Verjaardagen vandaag",uitleg:"Klanten die vandaag jarig zijn",items:vj.map(k=>{const Y=T2[k.verjaardagTpl]||X;return{k,vars:klantVars(k),ref:"verjaardag:"+y+":"+k.id,stap:{naam:Y.naam||"Verjaardag",mail:Y.mail||"",sms:Y.sms||Y.mail||"",onderwerp:Y.onderwerp||""}}}),kanaal:"email",tekst:X.sms||"",mail:X.mail||"",onderwerp:X.onderwerp||"",sjabloon:vj[0].verjaardagTpl})}}
-  /* kleine gebaren (29-zkwaliteit): jubileum en mijlpaal staan klaar, jij beslist of ze weggaan */
-  if(st.kwGebaren!==false){const T3=tpls(),md=iso(t).slice(5),y=t.getFullYear(),act=actief().filter(k=>!k.prospect&&!k.hoofdKlantId);
-    const zet=(id,titel,uitleg,L,tk)=>{if(!L.length)return;const X=T3[tk]||{};const items=L.map(({k,n,ref})=>{const r=s=>String(s||"").split("[aantal]").join(String(n));return{k,vars:klantVars(k),ref,stap:{naam:X.naam||titel,mail:r(X.mail),sms:r(X.sms||X.mail),onderwerp:r(X.onderwerp)}}}),f0=items[0].stap;out.push({id,titel,uitleg,items,kanaal:"email",tekst:f0.sms,mail:f0.mail,onderwerp:f0.onderwerp,sjabloon:tk})};
-    zet("jubileum","Jubilea vandaag","Klanten die vandaag een of meer jaar klant zijn",act.map(k=>{const a=typeof kwSinds==="function"?kwSinds(k):String(k.aangemaakt||"").slice(0,10);return /^\d{4}-\d{2}-\d{2}$/.test(a)&&a.slice(5)===md&&y-Number(a.slice(0,4))>=1?{k,n:y-Number(a.slice(0,4)),ref:"jubileum:"+y+":"+k.id}:null}).filter(Boolean).filter(x=>!refs.has(x.ref)),"jubileum");
-    zet("mijlpaal","Mijlpalen","Klanten die onlangs hun 10e, 25e of 50e bezoek hadden",typeof kwMijlpaal==="function"?act.map(k=>{const m=kwMijlpaal(k,3);return m?{k,n:m.n,ref:"mijlpaal:"+m.n+":"+k.id}:null}).filter(x=>x&&!refs.has(x.ref)):[],"mijlpaal")}
   const nv=facturen().filter(f=>fStatus(f)[1]==="Openstaand"&&!f.verstuurdOp);
   out.push({id:"factuur",titel:"Facturen versturen",uitleg:"Open facturen die je nog niet hebt verstuurd",hint:"Wil je de PDF meesturen? Download hem bij de factuur en voeg hem in je mail toe.",
     items:nv.map(f=>({k:state.klanten.find(x=>x.id===f.klantId)||{naam:f.klantNaam,email:f.klantEmail},vars:factVars(f),ref:"factuur:"+f.id,onSent:()=>save("facturen",f.id,{...strip(f),verstuurdOp:iso(today()),verstuurdTs:f.verstuurdTs||new Date().toISOString()})}))});
@@ -12942,7 +12935,7 @@ const TPL_SECTIES=[
   ["nieuw","Nieuwe klant","Van offerte tot bevestigde bestelling","offerte",["offerte","voorlopig","definitief","welkom"]],
   ["afspraak","Afspraken","Aankondigen, herinneren en wijzigen","cal2",["aankondiging","herinnering","afspraak","onderweg","wijzigen","weer","annuleren","uitloop"]],
   ["geld","Facturen & betalen","Factuur, herinneringen en de snelste betalers","euro",["factuur","aanmaning","wik","maandtop","afkondiging"]],
-  ["relatie","Na het werk","Review en persoonlijke aandacht","spark",["review","verjaardag","jubileum","mijlpaal"]],
+  ["relatie","Na het werk","Review en persoonlijke aandacht","spark",["review","verjaardag"]],
   ["groep","Groepsberichten","Eén bericht aan meerdere klanten tegelijk","megaphone",["nieuwsbrief","update","prijs","kerst","zomer","vrij"]],
   ["eigen","Eigen templates","Templates die je zelf hebt gemaakt","pencil",[]]];
 function tplWanneer(k,t){const s=S();const M={
@@ -12965,8 +12958,6 @@ function tplWanneer(k,t){const s=S();const M={
   review:[1,"Na een factuur, als het reviewverzoek aan staat"],
   maandtop:[1,"Op de 1e van de maand naar de top 3 van de vorige maand (alleen iDEAL-knop)"],
   verjaardag:[1,"Staat klaar op de verjaardag van de klant"],
-  jubileum:[s.kwGebaren!==false,"Staat klaar op de dag dat de klant 1, 2, 3… jaar klant is"],
-  mijlpaal:[s.kwGebaren!==false,"Staat klaar na het 10e, 25e, 50e bezoek"],
   vrij:[0,"Leeg begin voor een los bericht"]};
   return M[k]||(TPL_SECTIES[4][4].includes(k)?[0,"Via Nieuwsbrief of Verstuur bericht"]:[0,"Via Verstuur bericht"])}
 const TPLGUESS={aankondiging:"Aankondiging",afkondiging:"Afkondiging",weer:"Afspraak",wijzigen:"Afspraak",afspraak:"Afspraak",annuleren:"Afspraak",factuur:"Factuur",aanmaning:"Herinnering",herinnering:"Herinnering",offerte:"Offerte",review:"Review",welkom:"Welkom",voltooid:"Afkondiging",nieuwsbrief:"Algemeen",vrij:"Algemeen"};
@@ -21288,7 +21279,7 @@ document.head.insertAdjacentHTML("beforeend",`<style id="kmStijl">
    3 Stiptheid: aankomstvenster rond de geplande tijd, alleen intern (geen bericht naar de klant)
    4 Briefing bij Start: wat je moet weten, met "Gezien"                    → beurt.briefGezien
    5 Kwaliteitsscore: Statistieken › Kwaliteit, per week en per medewerker
-   6 Kleine gebaren: jubileum en mijlpaal staan klaar in Communicatie; jij beslist of ze weggaan */
+   (kleine gebaren: jubileum en mijlpaal zijn op verzoek weer weggehaald) */
 const KW_GLAS=["Geen strepen of druppels","Kozijnen en dorpels droog","Alles teruggezet (bloempotten, matten)","Poort en hek weer dicht"];
 const KW_ALG=["Alles schoon en droog opgeleverd","Spullen weer op hun plek","Afval meegenomen","Deur en poort weer dicht"];
 const KW={groep:{},gezien:{}};
@@ -21483,7 +21474,6 @@ function kwIdx(){const B=state.beurten||[];if(KW.idxB===B&&KW.idxN===B.length)re
 function kwSinds(k){let d=String(k.aangemaakt||"").slice(0,10);const L=kwIdx()[k.id];if(L&&L.length&&(!d||L[0].datum<d))d=L[0].datum;return d}
 function kwMijlpaal(k,dagen=3){const g=iso(addDays(today(),-dagen)),L=kwIdx()[k.id]||[];
   for(const n of KW_MIJL){const b=L[n-1];if(b&&b.datum>=g)return {n,b}}return null}
-function kwMomenten(mom,t){if(kwS().kwGebaren===false)return;state.klanten.filter(k=>k.actief!==false&&!k.prospect&&!k.hoofdKlantId).forEach(k=>{const m=kwMijlpaal(k,7);if(m)mom.push({d:parse(m.b.datum),ic:"ster",t:`${ccNaam(k)}: ${m.n}e bezoek`,s:"Een bedankje staat klaar in Communicatie",k})})}
 
 /* ---------- vertrekcontrole van de bus (bij Start werkdag) ---------- */
 const KW_BUS=["Ladders goed vast","Genoeg water en zeep","Schone doeken en wissers","Bus netjes, binnen en buiten"];
@@ -21545,8 +21535,7 @@ SETEXTRA.kwaliteit=(c,s)=>{
     ${sec("Herstel")}
     ${sel("kwDrempel","Herstelmelding bij een beoordeling van",String(kwDrempel()),[["1","1 ster"],["2","2 sterren of minder"],["3","3 sterren of minder"],["4","4 sterren of minder"]],{help:"Rode melding in het Overzicht: bellen, zo nodig kosteloos nawerk, dan op opgelost."})}
     ${inp("crBezoek","Credits voor het beoordelen van een bezoek (€)",s.crBezoek==null?"0.10":s.crBezoek,{type:"number",t:"num",attrs:'min="0" max="5" step="0.05"',help:"De klant beoordeelt in het klantportaal elk bezoek met 1 tot 5 sterren (tot 48 uur erna). Die sterren komen in je kwaliteitsscore. 0 = geen credits."})}
-    ${sec("Kleine gebaren")}
-    ${tgl("kwGebaren","Jubileum en mijlpalen klaarzetten","Bij 1, 2, 3… jaar klant en bij het 10e, 25e, 50e bezoek staat een bedankje klaar in Communicatie. Jij beslist of het weggaat.",s.kwGebaren!==false)}`,{wide:false});
+`,{wide:false});
   bindSave(()=>{const t=$("#kwPt").value.split(/\n/).map(x=>x.trim()).filter(Boolean).slice(0,10),std=typeof GLAS==="function"&&GLAS()?KW_GLAS:KW_ALG;const bp=$("#kwBp").value.split(/\n/).map(x=>x.trim()).filter(Boolean).slice(0,10);return{kwBusPunten:bp.length&&bp.join("|")!==KW_BUS.join("|")?bp:[],kwPunten:t.length&&t.join("|")!==std.join("|")?t:[],kwVenster:Math.max(5,Math.min(120,Number(($("[data-k=kwVenster]")||{}).value)||15))}})};
 
 /* ---------- LIVE: eigen server (Firebase + Brevo + Mollie) ----------
@@ -22498,7 +22487,6 @@ function vOverzicht2(){const t=today(),ti=iso(t),P=ccPlanning(),S_=ccSignalen().
   act.forEach(k=>{const j=ov2Jarig(k,t,7);if(j)mom.push({d:j.d,ic:"cadeau",t:`${ccNaam(k)} is ${iso(j.d)===ti?"vandaag":"op "+fmtD(iso(j.d))} jarig`,s:j.leeftijd>0&&j.leeftijd<110?"wordt "+j.leeftijd:"Stuur een felicitatie",k});
     const ju=ov2Jubileum(k,t,7);if(ju)mom.push({d:ju.d,ic:"hart",t:`${ccNaam(k)}: ${plural(ju.jaar,"jaar","jaar")} klant`,s:(iso(ju.d)===ti?"vandaag":"op "+fmtD(iso(ju.d)))+" · een kaartje of attentie",k})});
   const g14=iso(addDays(t,-14));state.beurten.filter(b=>b.datum>=g14&&ov2Sterren(b)===5).slice(0,6).forEach(b=>{const k=ccKlant(b.klantId);if(k)mom.push({d:parse(b.datum),ic:"ster",t:`${ccNaam(k)} gaf 5 sterren`,s:"Bedank voor het bezoek van "+fmtD(b.datum),k})});
-  if(typeof kwMomenten==="function")try{kwMomenten(mom,t)}catch(e){console.error(e)}
   /* weggeklikte momenten blijven weg (op dit apparaat) */
   const momWeg=(()=>{let L=[];try{L=JSON.parse(localStorage.getItem("ms.ov2.weg")||"[]")}catch(e){}return new Set([...L,...(Array.isArray(S().ovMomWeg)?S().ovMomWeg:[])])})();
   mom.forEach(m=>{m.key=m.ic+":"+m.k.id+":"+iso(m.d)});for(let i=mom.length-1;i>=0;i--)if(momWeg.has(mom[i].key))mom.splice(i,1);
