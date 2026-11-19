@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="bdab3a52427e"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="aea8879d30a8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -9982,8 +9982,9 @@ const extraOpdr=k=>{
   if(k&&k.soort==="vve")return [];/* VvE: glasbewassing, trappenhal enz. worden elk los aangeboden en ingepland */
   const L=(k&&k.opdrachten)||[];return L.filter(o=>o.actief!==false&&!o.apart&&!opdrBij(k,o)&&opdrLoc(k,o)===hoofdLoc(k))};
 const opdrApart=(k,o)=>!!(o&&(o.apart||(k&&k.soort==="vve")));/* op een ander adres nooit mee met het hoofdadres *//* apart ingeplande opdrachten gaan niet mee met de glasbewassing */
-const extraDue=(k,day)=>{/* nieuwe klant (nog nooit geweest): bij het eerste bezoek gaat alles mee, ook als een extra opdracht pas later op de planning stond */
-  const d=k&&!k.laatst&&!k.hoofdKlantId?"9999-12-31":(day||iso(today())),out=[];extraOpdr(k).map(o=>prijsVast(o,k)).forEach(o=>{const oDue=!o.volgende||o.volgende<=d;
+const extraDue=(k,day)=>{/* een extra opdracht gaat mee als hij aan de beurt is. Zonder datum (leeg = bij de volgende beurt) gaat hij bij een nieuwe klant
+     dus meteen mee bij het eerste bezoek; staat er bij de opdracht zelf een latere datum, dan wacht hij daarop, ook bij een nieuwe klant */
+  const d=day||iso(today()),out=[];extraOpdr(k).map(o=>prijsVast(o,k)).forEach(o=>{const oDue=!o.volgende||o.volgende<=d;
     if(!o.items||typeof groepCalc!=="function"){if(oDue)out.push(o);return}
     const c=groepCalc(o,it=>it.fq?(!it.vol||it.vol<=d):(!it.vol||it.vol<=d));if(!c.rows.length&&!(c.vast&&oDue))return;const st=S(),mul=st.incl?1+(Number(st.btw)||21)/100:1;
     out.push({...o,items:c.rows.map(r=>r.it),prijs:r2(c.ex*mul),duur:gHasD(o.td)?Number(o.td)||0:Math.max(c.rows.length?1:0,Math.round((c.sec||0)/60)),_oDue:oDue})});return out};

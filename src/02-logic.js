@@ -155,8 +155,9 @@ const extraOpdr=k=>{
   if(k&&k.soort==="vve")return [];/* VvE: glasbewassing, trappenhal enz. worden elk los aangeboden en ingepland */
   const L=(k&&k.opdrachten)||[];return L.filter(o=>o.actief!==false&&!o.apart&&!opdrBij(k,o)&&opdrLoc(k,o)===hoofdLoc(k))};
 const opdrApart=(k,o)=>!!(o&&(o.apart||(k&&k.soort==="vve")));/* op een ander adres nooit mee met het hoofdadres *//* apart ingeplande opdrachten gaan niet mee met de glasbewassing */
-const extraDue=(k,day)=>{/* nieuwe klant (nog nooit geweest): bij het eerste bezoek gaat alles mee, ook als een extra opdracht pas later op de planning stond */
-  const d=k&&!k.laatst&&!k.hoofdKlantId?"9999-12-31":(day||iso(today())),out=[];extraOpdr(k).map(o=>prijsVast(o,k)).forEach(o=>{const oDue=!o.volgende||o.volgende<=d;
+const extraDue=(k,day)=>{/* een extra opdracht gaat mee als hij aan de beurt is. Zonder datum (leeg = bij de volgende beurt) gaat hij bij een nieuwe klant
+     dus meteen mee bij het eerste bezoek; staat er bij de opdracht zelf een latere datum, dan wacht hij daarop, ook bij een nieuwe klant */
+  const d=day||iso(today()),out=[];extraOpdr(k).map(o=>prijsVast(o,k)).forEach(o=>{const oDue=!o.volgende||o.volgende<=d;
     if(!o.items||typeof groepCalc!=="function"){if(oDue)out.push(o);return}
     const c=groepCalc(o,it=>it.fq?(!it.vol||it.vol<=d):(!it.vol||it.vol<=d));if(!c.rows.length&&!(c.vast&&oDue))return;const st=S(),mul=st.incl?1+(Number(st.btw)||21)/100:1;
     out.push({...o,items:c.rows.map(r=>r.it),prijs:r2(c.ex*mul),duur:gHasD(o.td)?Number(o.td)||0:Math.max(c.rows.length?1:0,Math.round((c.sec||0)/60)),_oDue:oDue})});return out};
