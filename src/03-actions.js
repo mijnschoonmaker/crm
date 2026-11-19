@@ -61,7 +61,7 @@ async function afronden(k,mode,el){
   let _vve=null;if(k.soort==="vve"&&typeof vveOplevering==="function"){_vve=await vveOplevering(k);if(_vve===null){render();return}}
   /* eindcontrole: punten, opleverfoto en wat opviel (29-zkwaliteit) */
   let _kw=null;if(typeof kwControle==="function"){_kw=await kwControle(k);if(_kw===null){render();return}}
-  const _lm=k._tmMin!=null?k._tmMin:lopendeMin(k),_mp=_lm&&_lm>=1?metingPatch(k,_lm):null,_last=(k.tijden||[]).slice(-1)[0],_dur=_mp?_lm:_last&&_last.datum===iso(today())?_last.min:duur(k);if(_mp)k={...k,..._mp};
+  const _lm=k._tmMin!=null?k._tmMin:lopendeMin(k),_mp=_lm&&_lm>=1?metingPatch(k,typeof kwMeetMin==="function"?kwMeetMin(k,_lm):_lm):null,_last=(k.tijden||[]).slice(-1)[0],_dur=_mp?_lm:_last&&_last.datum===iso(today())?_last.min:duur(k);if(_mp)k={...k,..._mp};
   const _mw=isMw();if(_mw)mode="concept";/* medewerker: altijd concept, kantoor controleert en verstuurt */
   /* afmelden = conceptfactuur (niet versturen) · factureren (veeg naar links) = definitieve factuur én direct naar de klant */
   const direct=mode==="open"&&!_mw;

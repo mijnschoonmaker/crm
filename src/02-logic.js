@@ -21,7 +21,7 @@ const duurBasis=k=>Number(k.duur)||30;
 const stopBedrag=(k,d)=>toonK(k,prijsMee(k,d));
 const prijsMee=(k,d)=>{let p=Number(k&&k.prijs)||0;try{if(S().glasMee!==false&&typeof extraDue==="function")extraDue(k,d||k.gepland||iso(today())).forEach(o=>{p+=Number(o.prijs)||0})}catch(e){}return r2(p)};
 /* tijd van de afspraak: de vaste duur plus extra opdrachten die die dag mee gaan (dakkapel, goten…) */
-const duur=k=>{let m=duurBasis(k);try{if(S().glasMee!==false&&typeof extraDue==="function"){const d=k.gepland||iso(today());extraDue(k,d).forEach(o=>{m+=Number(o.duur)||0})}}catch(e){}return m};
+const duur=k=>{let m=duurBasis(k);try{if(typeof kwEersteMin==="function")m+=kwEersteMin(k)}catch(e){}try{if(S().glasMee!==false&&typeof extraDue==="function"){const d=k.gepland||iso(today());extraDue(k,d).forEach(o=>{m+=Number(o.duur)||0})}}catch(e){}return m};
 const uren=m=>(Math.round(m/60*10)/10).toLocaleString("nl-NL")+"u";
 const actief=()=>state.klanten.filter(k=>k.actief!==false&&!k.prospect);
 const rondes=()=>[...new Set(state.klanten.map(k=>k.ronde).filter(Boolean))].sort();

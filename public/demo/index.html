@@ -5434,6 +5434,22 @@ html.zm dialog.pv-ov{zoom:1.1111}
 .kwq-h2:hover{background:var(--surface-2,#f6f7f8)}
 .kwq-rood{color:#b42318;font-weight:700}
 @media (max-width:640px){.kwq-r{grid-template-columns:minmax(0,1.4fr) repeat(5,minmax(0,1fr));font-size:12.5px;gap:6px}}
+.kb-sfo{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.kb-sfo img{width:56px;height:56px;object-fit:cover;border-radius:8px;display:block;border:1px solid var(--line)}
+.kwc-sch{margin:2px 0 8px}.kwc-sch.open{border:1px solid color-mix(in srgb,#b42318 30%,var(--line));background:color-mix(in srgb,#b42318 4%,transparent);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.kwc-schk{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;background:none;border:0;color:#b42318;cursor:pointer;padding:4px 0}.kwc-schk svg{width:15px;height:15px}
+.kwc-sch .vve-fh{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.kwb-fo{margin-top:4px}
+.kwd{border:1px solid var(--line);border-radius:18px;background:var(--surface);margin:10px 0;overflow:hidden}
+.kwd>summary{list-style:none;display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer}.kwd>summary::-webkit-details-marker{display:none}
+.kwd>summary>svg{width:16px;height:16px;margin-left:auto;transition:transform .2s;color:var(--muted)}.kwd[open]>summary>svg{transform:rotate(180deg)}
+.kwd-ic{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:#252c3c;color:#fff;flex:none}.kwd-ic svg{width:17px;height:17px}
+.kwd-t{display:flex;flex-direction:column;min-width:0}.kwd-t b{font-size:15px}.kwd-t small{color:var(--muted);font-size:12.5px}
+.kwd-l{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.kwd-r{display:flex;gap:12px;align-items:flex-start;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:11px 16px;cursor:pointer;font:inherit;color:inherit;width:100%}.kwd-r:last-child{border-bottom:0}
+.kwd-tm{font-variant-numeric:tabular-nums;font-weight:700;font-size:13px;min-width:42px;color:#252c3c}
+.kwd-m{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-width:0}.kwd-m b{font-size:14px;margin-right:2px}.kwd-m small{flex-basis:100%;color:var(--muted);font-size:12.5px}
+.kwd-lb{font-style:normal;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:#f3f4f6}.kwd-lb.goud{background:#f6efdc;color:#7a5b12}.kwd-lb.rood{background:#fde8e6;color:#b42318}
+.kwd-leeg{margin:0;padding:12px 16px;border-top:1px solid var(--line);color:var(--muted);font-size:13.5px}
 
 </style>
 <style id="mansardThema">
@@ -9400,7 +9416,7 @@ const duurBasis=k=>Number(k.duur)||30;
 const stopBedrag=(k,d)=>toonK(k,prijsMee(k,d));
 const prijsMee=(k,d)=>{let p=Number(k&&k.prijs)||0;try{if(S().glasMee!==false&&typeof extraDue==="function")extraDue(k,d||k.gepland||iso(today())).forEach(o=>{p+=Number(o.prijs)||0})}catch(e){}return r2(p)};
 /* tijd van de afspraak: de vaste duur plus extra opdrachten die die dag mee gaan (dakkapel, goten…) */
-const duur=k=>{let m=duurBasis(k);try{if(S().glasMee!==false&&typeof extraDue==="function"){const d=k.gepland||iso(today());extraDue(k,d).forEach(o=>{m+=Number(o.duur)||0})}}catch(e){}return m};
+const duur=k=>{let m=duurBasis(k);try{if(typeof kwEersteMin==="function")m+=kwEersteMin(k)}catch(e){}try{if(S().glasMee!==false&&typeof extraDue==="function"){const d=k.gepland||iso(today());extraDue(k,d).forEach(o=>{m+=Number(o.duur)||0})}}catch(e){}return m};
 const uren=m=>(Math.round(m/60*10)/10).toLocaleString("nl-NL")+"u";
 const actief=()=>state.klanten.filter(k=>k.actief!==false&&!k.prospect);
 const rondes=()=>[...new Set(state.klanten.map(k=>k.ronde).filter(Boolean))].sort();
@@ -9882,7 +9898,7 @@ async function afronden(k,mode,el){
   let _vve=null;if(k.soort==="vve"&&typeof vveOplevering==="function"){_vve=await vveOplevering(k);if(_vve===null){render();return}}
   /* eindcontrole: punten, opleverfoto en wat opviel (29-zkwaliteit) */
   let _kw=null;if(typeof kwControle==="function"){_kw=await kwControle(k);if(_kw===null){render();return}}
-  const _lm=k._tmMin!=null?k._tmMin:lopendeMin(k),_mp=_lm&&_lm>=1?metingPatch(k,_lm):null,_last=(k.tijden||[]).slice(-1)[0],_dur=_mp?_lm:_last&&_last.datum===iso(today())?_last.min:duur(k);if(_mp)k={...k,..._mp};
+  const _lm=k._tmMin!=null?k._tmMin:lopendeMin(k),_mp=_lm&&_lm>=1?metingPatch(k,typeof kwMeetMin==="function"?kwMeetMin(k,_lm):_lm):null,_last=(k.tijden||[]).slice(-1)[0],_dur=_mp?_lm:_last&&_last.datum===iso(today())?_last.min:duur(k);if(_mp)k={...k,..._mp};
   const _mw=isMw();if(_mw)mode="concept";/* medewerker: altijd concept, kantoor controleert en verstuurt */
   /* afmelden = conceptfactuur (niet versturen) · factureren (veeg naar links) = definitieve factuur én direct naar de klant */
   const direct=mode==="open"&&!_mw;
@@ -10761,13 +10777,13 @@ function vVandaag(){
   if(big()){
     return `<div class="withside"><div class="mainc">${top}
       ${vdHero(doneB.length,total,todo.length,omzet,verwacht,pct)}
-      ${werkdagKaart(d,isT,total)}${aanmeldBanner()}${noteHtml}
+      ${werkdagKaart(d,isT,total)}${typeof kwDagBrief==="function"?kwDagBrief(stops,d,isT):""}${aanmeldBanner()}${noteHtml}
       ${todo.length?`<div class="ns-head sm"><h2>Volgende stop</h2><span>${isMw()?"Tik voor adres en instructies · veeg rechts → afmelden":"Veeg of klik · links → factureren · rechts → afmelden"}</span></div><div class="list" style="gap:8px">${todo.map(s=>stopRow(s.k,d)).join("")}</div>
         <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap"><button type="button" data-act="toroute" data-d="${d}">${I.route}Jouw route</button><button type="button" data-act="bulktoday">${I.msg}Bericht aan deze klanten</button></div>`:emptyHtml}
       ${doneB.length?`<div class="ns-head sm"><h2>Afgerond</h2></div><div class="list" style="gap:8px">${doneB.map(b=>{const k=state.klanten.find(x=>x.id===b.klantId);return k?stopRow(k,d,true):""}).join("")}</div>`:""}
       </div><aside class="rpanel"><div class="rp-sec"><span class="eyebrow rp-h">${I.pin}Route preview</span>${routePreview(stops)}</div>${isMw()?"":`<div class="rp-sec"><span class="eyebrow rp-h">${I.spark}Activiteit</span>${activiteit(d)}</div>`}</aside></div>`;
   }
-  let html=top+vdHero(doneB.length,total,todo.length,omzet,verwacht,pct)+werkdagKaart(d,isT,total)+`${aanmeldBanner()}${noteHtml}`;
+  let html=top+vdHero(doneB.length,total,todo.length,omzet,verwacht,pct)+werkdagKaart(d,isT,total)+(typeof kwDagBrief==="function"?kwDagBrief(stops,d,isT):"")+`${aanmeldBanner()}${noteHtml}`;
   if(!todo.length)html+=emptyHtml;
   else{
     html+=`<div class="ns-head"><h2>Volgende stop</h2><span>${isMw()?"Veeg rechts → afmelden":"Veeg links → factureren · rechts → afmelden"}</span></div>
@@ -10890,6 +10906,7 @@ function vRoute(){
     <div class="rh-acts">${isT?lvKnopHtml():""}<div class="rh-nav" role="group" aria-label="Dag"><button type="button" data-act="rday" data-n="-1" aria-label="Vorige dag">${I.left}</button><button type="button" class="rh-nu${isT?" is-nu":""}" data-act="rday" data-n="0">${navTxt}</button><button type="button" data-act="rday" data-n="1" aria-label="Volgende dag">${I.right}</button></div></div></div>
   ${stops.length?rvKaart({stops,done,todo,nx,klaar,mw,verdiend,totaal,restMin,klaarOm,uM,day,werkMin,reisMin,rt,isT,laat}):""}</div>`;
   if(typeof werkdagKaart==="function"&&stops.length)html+=werkdagKaart(day,isT,stops.length);
+  if(typeof kwDagBrief==="function"&&stops.length)html+=kwDagBrief(stops,day,isT);
   if(!stops.length)return html+empty("Geen stops op deze dag","Plan klanten in via Planning, dan staan ze hier op volgorde.",`<button type="button" class="primary" data-act="tab" data-tab="planning">${I.planning}Naar planning</button>`);
   if(todo.length){
     const k=todo[0].k,a=jobAddrObj(k),js=jobState(k,day),sp=STATEPILL[js],tel=String(k.telefoon||"").replace(/[^\d+]/g,"");
@@ -17667,7 +17684,8 @@ function kkOverzicht(k,c){
   const tl5=tl.slice(0,5);
   /* briefing voor het volgende bezoek: wat moet de glazenwasser weten als hij aanbelt */
   const hl=typeof hospList==="function"?hospList(k):[],hc=c_=>hl.filter(x=>x.c===c_);
-  const brief=[["aankomst","Aankomst en toegang",I.lock],["dier","Huisdieren",I.paw||I.alert],["letop","Let op",I.alert],["voorkeur","Voorkeur",I.heart||I.note]].map(([c_,l,ic])=>hc(c_).length?`<div class="kb-r"><span class="kb-ic">${ic}</span><span class="kb-t"><small>${l}</small><b>${hc(c_).map(x=>esc(x.t)).join(" · ")}</b></span></div>`:"").join("");
+  const schR=(Array.isArray(k.schades)?k.schades:[]).slice(-3).reverse().map(x=>`<div class="kb-r"><span class="kb-ic">${I.alert}</span><span class="kb-t"><small>Schade ${esc(fmtD(x.datum))}${x.door?" · "+esc(x.door):""} · ${x.status==="afgehandeld"?"afgehandeld":x.status==="gebeld"?"klant gebeld":"open"}</small><b>${esc(x.tekst||"")}</b>${(x.fotos||[]).length?`<span class="kb-sfo">${x.fotos.map(f=>`<a href="${BLOB}${esc(f.id)}" target="_blank" rel="noopener"><img src="${BLOB}${esc(f.id)}" alt="Schade" loading="lazy"></a>`).join("")}</span>`:""}</span></div>`).join("");
+  const brief=schR+[["aankomst","Aankomst en toegang",I.lock],["dier","Huisdieren",I.paw||I.alert],["letop","Let op",I.alert],["voorkeur","Voorkeur",I.heart||I.note]].map(([c_,l,ic])=>hc(c_).length?`<div class="kb-r"><span class="kb-ic">${ic}</span><span class="kb-t"><small>${l}</small><b>${hc(c_).map(x=>esc(x.t)).join(" · ")}</b></span></div>`:"").join("");
   const praat=hl.filter(x=>x.c==="verteld"&&(typeof hospNu!=="function"||hospNu(x)));
   const gp=k.gepland?parse(k.gepland):null;
   const briefing=`<section class="kko-s kko-brief"><div class="kko-h"><span class="objic">${I.planning}</span><div class="kko-ht"><h3>${gp?"Volgende bezoek":"Bezoek"}</h3><small>Briefing voor bij de deur</small></div>${gp?`<span class="kb-dag">${esc(wd(gp))} ${gp.getDate()} ${esc(gp.toLocaleDateString("nl-NL",{month:"long"}))}${k.tijd?" · "+esc(k.tijd):""}</span>`:`<button type="button" class="kko-k" data-act="opdracht" data-id="${esc(k.id)}" data-o="main">${I.plus}Inplannen</button>`}</div>
@@ -19231,7 +19249,7 @@ document.addEventListener("click",async e=>{const b=e.target.closest&&e.target.c
   if(a==="wdbewerk"){if(!isMw())wdBewerk(b.dataset.d||iso(today()));return}
   const d=iso(today()),w=wdGet(d)||{};
   /* live delen meteen bij de tik aanzetten (vóór het opslaan): dan mag de telefoon om je locatie vragen */
-  if(a==="wdstart"){wdLive(true);await wdZet(d,{start:wdNu(),stop:"",pauzes:[],liveUit:false});toast("Werkdag gestart · live delen staat aan");try{navigator.vibrate&&navigator.vibrate(20)}catch(_){}}
+  if(a==="wdstart"){const _vt=typeof kwVertrek==="function"?await kwVertrek():null;wdLive(true);await wdZet(d,{start:wdNu(),stop:"",pauzes:[],liveUit:false,vertrek:_vt||null});toast("Werkdag gestart · live delen staat aan");try{navigator.vibrate&&navigator.vibrate(20)}catch(_){}}
   else if(a==="wdpauze"){const pz=[...(w.pauzes||[])],open=pz.findIndex(p=>!p.tot);if(open>=0){pz[open]={...pz[open],tot:wdNu()};toast("Pauze voorbij · "+wdU(wdMin(pz[open].van,pz[open].tot)))}else{pz.push({van:wdNu()});toast("Pauze gestart")}await wdZet(d,{pauzes:pz})}
   else if(a==="wdstop"){const bz=state.klanten.filter(k=>typeof isBezig==="function"&&isBezig(k));
     if(bz.length&&!(await vraag("Nog bezig bij een klant",`De tijd loopt nog bij <b>${esc(cleanName(bz[0].naam))}</b>. Toch de werkdag stoppen? Meld die stop daarna nog af.`,"Toch stoppen","Annuleren")))return;
@@ -20845,9 +20863,16 @@ const kwNaam=k=>cleanName((k&&k.naam)||"");
 function kwLaat(b){const p=toMin(b&&b.tijd);if(p==null||!b.startOp)return null;const d=new Date(b.startOp);if(isNaN(d))return null;return d.getHours()*60+d.getMinutes()-p}
 function kwOpTijd(b){const l=kwLaat(b);return l==null?null:l<=kwVenster()}
 
+/* ---------- eerste bezoek als ontvangst: extra tijd, kennismaking en vóórfoto's (alleen intern, in de opdracht) ---------- */
+function kwEerste(k){if(!k||k.laatst||k.prospect)return false;if(k.eersteKeer!=null)return !!k.eersteKeer;return !(kwIdx()[k.id]||[]).length}
+function kwEersteMin(k){const s=kwS(),m=s.kwEersteExtra==null?15:Math.max(0,Math.min(120,Number(s.kwEersteExtra)||0));return m&&kwEerste(k)?m:0}
+/* gemeten tijd van het eerste bezoek zonder de kennismaking, zodat de geleerde vaste duur klopt */
+function kwMeetMin(k,m){const x=kwEersteMin(k);return x&&m>x+5?m-x:m}
 /* ---------- 4. briefing bij Start ---------- */
 function kwBriefRegels(k){const hl=typeof hospList==="function"?hospList(k):[],R=[];
   const cat=[["aankomst","Aankomst en toegang",I.lock],["dier","Huisdieren",I.paw||I.alert],["letop","Let op",I.alert],["voorkeur","Voorkeur",I.heart||I.note]];
+  if(kwEerste(k))R.push({ic:I.user||I.klanten,l:"Eerste kennismaking",t:"Stel jezelf voor, vraag naar wensen en bijzonderheden (toegang, huisdieren, aandachtspunten) en maak vóórfoto's.",pri:1});
+  (Array.isArray(k.schades)?k.schades:[]).filter(x=>x&&x.status!=="afgehandeld").slice(-2).forEach(x=>R.push({ic:I.alert,l:"Schade "+fmtD(x.datum)+(x.door?" · "+x.door:""),t:x.tekst+" (nog niet afgehandeld)",pri:1}));
   const n=k.bezoekNotitie;if(n&&n.t)R.push({ic:I.note,l:"Vorige keer opgevallen"+(n.door?" · "+n.door:""),t:n.t,pri:1});
   cat.forEach(([c,l,ic])=>{const x=hl.filter(y=>y.c===c);if(x.length)R.push({ic,l,t:x.map(y=>y.t).join(" · ")})});
   const praat=hl.filter(x=>x.c==="verteld"&&(typeof hospNu!=="function"||hospNu(x)));if(praat.length)R.push({ic:I.chat||I.note,l:"Ter sprake brengen",t:praat.map(x=>x.t).join(" · ")});
@@ -20858,14 +20883,25 @@ function kwBriefRegels(k){const hl=typeof hospList==="function"?hospList(k):[],R
 function kwBriefing(k){return new Promise(res=>{try{
   if(kwTest()||kwS().kwBriefing===false)return res(true);
   const R=kwBriefRegels(k);if(!R.length)return res(true);
-  const d=document.createElement("dialog");d.className="vraag-dlg";
-  d.innerHTML=`<div class="vraag-ov"><div class="skz kwb" role="alertdialog" aria-modal="true" aria-labelledby="kwbT">
-    <div class="skz-kop"><span class="skz-ic">${I.user||I.klanten}</span><div><h3 id="kwbT">Voor je aanbelt</h3><p>${esc(kwNaam(k))}${k.tijd?" · "+esc(k.tijd):""}</p></div></div>
+  const eerste=kwEerste(k),fotos=[];let bezig=false;
+  const d=document.createElement("dialog");d.className="vraag-dlg";const o=document.createElement("div");o.className="vraag-ov";d.appendChild(o);
+  const teken=()=>{o.innerHTML=`<div class="skz kwb" role="alertdialog" aria-modal="true" aria-labelledby="kwbT">
+    <div class="skz-kop"><span class="skz-ic">${I.user||I.klanten}</span><div><h3 id="kwbT">${eerste?"Eerste bezoek":"Voor je aanbelt"}</h3><p>${esc(kwNaam(k))}${k.tijd?" · "+esc(k.tijd):""}</p></div></div>
     <div class="kwb-l">${R.map(r=>`<div class="kwb-r${r.pri?" pri":""}"><span class="kwb-ic">${r.ic||""}</span><span><small>${esc(r.l)}</small><b>${esc(r.t)}</b></span></div>`).join("")}</div>
-    <div class="skz-k"><button type="button" class="ghost" data-kb="x">Annuleren</button><button type="button" class="primary" data-kb="ok">${I.check}<span>Gezien, start</span></button></div></div></div>`;
-  document.body.appendChild(d);d.showModal();const weg=v=>{try{d.close()}catch(_){}d.remove();res(v)};
+    ${eerste?`<div class="vve-foto kwb-fo"><div class="vve-fh"><span class="eyebrow">${I.camera}Vóórfoto's</span><label class="btn small bv-cam${state.assets?"":" dis"}">${I.camera}${fotos.length?"Nog een foto":"Foto maken"}<input type="file" accept="image/*" capture="environment" hidden data-bfoto></label></div>
+      ${fotos.length?`<div class="vve-fl">${fotos.map((f,i)=>`<span><img src="${f.url}" alt=""><button type="button" class="iconbtn sm" data-bdel="${i}" aria-label="Verwijderen">${I.x}</button></span>`).join("")}</div>`:""}
+      <small class="help">Hoe het was vóór het eerste bezoek. Alleen voor jullie: de foto's komen in de opdracht, de klant ziet ze niet.</small></div>`:""}
+    <div class="skz-k"><button type="button" class="ghost" data-kb="x">Annuleren</button><button type="button" class="primary" data-kb="ok" ${bezig?"disabled":""}>${I.check}<span>Gezien, start</span></button></div></div>`;
+    const fi=o.querySelector("[data-bfoto]");if(fi)fi.onchange=async e=>{const f=e.target.files&&e.target.files[0];e.target.value="";if(!f||!state.assets)return;bezig=true;teken();
+      try{const sz=typeof imgSize==="function"?await imgSize(f).catch(()=>({})):{},r=await state.assets.upload(f);fotos.push({id:r.id,url:URL.createObjectURL(f),w:sz.w||0,h:sz.h||0})}catch(er){toast("De foto kon niet worden geüpload")}bezig=false;teken()};
+    o.querySelectorAll("[data-bdel]").forEach(b=>b.onclick=()=>{fotos.splice(Number(b.dataset.bdel),1);teken()})};
+  document.body.appendChild(d);teken();d.showModal();const weg=v=>{try{d.close()}catch(_){}d.remove();res(v)};
   d.addEventListener("cancel",e=>{e.preventDefault();weg(null)});
-  d.addEventListener("click",e=>{const b=e.target.closest("[data-kb]");if(!b)return;if(b.dataset.kb==="x")return weg(null);KW.gezien[k.id]=new Date().toISOString();weg(true)})
+  d.addEventListener("click",e=>{const b=e.target.closest("[data-kb]");if(!b)return;if(b.dataset.kb==="x")return weg(null);if(bezig)return;KW.gezien[k.id]=new Date().toISOString();
+    /* vóórfoto's bij de opdracht (k.fotos): Start slaat de klant daarna op, dus meteen in het object en in de lijst zetten */
+    if(fotos.length){const dg=iso(today()),nw=fotos.map((f,i)=>({id:f.id,naam:"Vóórfoto eerste bezoek"+(fotos.length>1?" "+(i+1):""),datum:dg,w:f.w,h:f.h,dots:[],voor:true}));
+      k.fotos=[...(k.fotos||[]),...nw];const ix=state.klanten.findIndex(x=>x.id===k.id);if(ix>=0&&state.klanten[ix]!==k)state.klanten[ix]={...state.klanten[ix],fotos:[...(state.klanten[ix].fotos||[]),...nw]}}
+    weg(true)})
 }catch(e){console.error(e);res(true)}})}
 
 /* ---------- 1. eindcontrole bij afmelden ---------- */
@@ -20876,7 +20912,7 @@ function kwControle(k){return new Promise(res=>{try{
   if(kwTest()||kwS().kwAan===false||k.soort==="vve")return klaar({beurt:extra(),klant:{}});
   /* flat: één controle voor alle woningen van dezelfde Start */
   const g=k.bezigGroep&&KW.groep[k.bezigGroep];if(g&&Date.now()-g.t<30*60e3)return klaar({beurt:{...g.beurt,...extra()},klant:{...g.klant}});
-  const punten=kwPunten(),ok=punten.map(()=>false),fotos=[],verplicht=kwS().kwFoto==="verplicht";let bezig=false,notitie="";
+  const punten=kwPunten(),ok=punten.map(()=>false),fotos=[],sFotos=[],verplicht=kwS().kwFoto==="verplicht";let bezig=false,notitie="",schade=false,sTekst="";
   const dg=document.createElement("dialog");dg.className="vraag-dlg";const o=document.createElement("div");o.className="vraag-ov";dg.appendChild(o);
   const weg=v=>{try{dg.close()}catch(_){}dg.remove();klaar(v)};dg.addEventListener("cancel",e=>{e.preventDefault();weg(null)});
   const teken=()=>{const alle=ok.every(Boolean);
@@ -20886,23 +20922,37 @@ function kwControle(k){return new Promise(res=>{try{
     <button type="button" class="kwc-alles" data-kal ${alle?"hidden":""}>${I.check}Alles in orde</button>
     <div class="vve-foto"><div class="vve-fh"><span class="eyebrow">${I.camera}Opleverfoto${verplicht?"":" (optioneel)"}</span><label class="btn small bv-cam${state.assets?"":" dis"}">${I.camera}${fotos.length?"Nog een foto":"Foto maken"}<input type="file" accept="image/*" capture="environment" hidden data-kfoto></label></div>
       ${fotos.length?`<div class="vve-fl">${fotos.map((f,i)=>`<span><img src="${f.url}" alt=""><button type="button" class="iconbtn sm" data-kdel="${i}" aria-label="Verwijderen">${I.x}</button></span>`).join("")}</div>`:`<small class="help">Eén foto van het resultaat. De klant ziet hem terug bij dit bezoek in het klantportaal.</small>`}</div>
+    <div class="kwc-sch${schade?" open":""}">${schade?`<div class="vve-fh"><span class="eyebrow">${I.alert}Schade melden</span><button type="button" class="small ghost" data-ksch>Geen schade</button></div>
+      <label>Wat is er beschadigd?<input data-kstx value="${esc(sTekst)}" placeholder="Bijv. kras op kozijn voorkant, plantenpot omgevallen"></label>
+      <div class="vve-fh"><span class="eyebrow">${I.camera}Foto's van de schade</span><label class="btn small bv-cam${state.assets?"":" dis"}">${I.camera}${sFotos.length?"Nog een foto":"Foto maken"}<input type="file" accept="image/*" capture="environment" hidden data-ksfoto></label></div>
+      ${sFotos.length?`<div class="vve-fl">${sFotos.map((f,i)=>`<span><img src="${f.url}" alt=""><button type="button" class="iconbtn sm" data-ksdel="${i}" aria-label="Verwijderen">${I.x}</button></span>`).join("")}</div>`:""}
+      <small class="help">Kantoor krijgt direct een melding en belt de klant. Eerlijk melden voordat de klant het ontdekt. De klant ziet dit niet in het portaal.</small>`
+      :`<button type="button" class="kwc-schk" data-ksch>${I.alert}Schade melden</button>`}</div>
     <label>Wat viel je op? (optioneel)<input data-knot value="${esc(notitie)}" placeholder="Bijv. dakgoot zit vol, volgende keer melden"><small class="help">Komt terug in de briefing bij het volgende bezoek.</small></label>
     <div class="rk-f"><button type="button" class="ghost" data-kx>Annuleren</button><span class="sp"></span><button type="button" class="primary" data-kok ${bezig?"disabled":""}>${I.check}Afmelden</button></div></div>`;
     o.querySelectorAll("[data-kx]").forEach(b=>b.onclick=()=>weg(null));
     o.querySelectorAll("[data-kp]").forEach(c=>c.onchange=()=>{ok[+c.dataset.kp]=c.checked;const a=o.querySelector("[data-kal]");if(a)a.hidden=ok.every(Boolean)});
     o.querySelector("[data-kal]").onclick=()=>{ok.fill(true);notitie=o.querySelector("[data-knot]").value;teken()};
     o.querySelector("[data-knot]").oninput=e=>{notitie=e.target.value};
+    o.querySelectorAll("[data-ksch]").forEach(b=>b.onclick=()=>{schade=!schade;notitie=o.querySelector("[data-knot]").value;teken()});
+    {const st=o.querySelector("[data-kstx]");if(st)st.oninput=e=>{sTekst=e.target.value}}
+    {const sf=o.querySelector("[data-ksfoto]");if(sf)sf.onchange=async e=>{const f=e.target.files&&e.target.files[0];e.target.value="";if(!f||!state.assets)return;bezig=true;teken();
+      try{const r=await state.assets.upload(f);sFotos.push({id:r.id,url:URL.createObjectURL(f),op:new Date().toISOString()})}catch(er){toast("De foto kon niet worden geüpload")}bezig=false;teken()}}
+    o.querySelectorAll("[data-ksdel]").forEach(b=>b.onclick=()=>{sFotos.splice(Number(b.dataset.ksdel),1);teken()});
     o.querySelector("[data-kfoto]").onchange=async e=>{const f=e.target.files&&e.target.files[0];e.target.value="";if(!f||!state.assets)return;bezig=true;teken();
       try{const r=await state.assets.upload(f);fotos.push({id:r.id,url:URL.createObjectURL(f),op:new Date().toISOString()})}catch(er){toast("De foto kon niet worden geüpload")}bezig=false;teken()};
     o.querySelectorAll("[data-kdel]").forEach(b=>b.onclick=()=>{fotos.splice(Number(b.dataset.kdel),1);teken()});
     o.querySelector("[data-kok]").onclick=async()=>{
       if(verplicht&&!fotos.length&&state.assets){toast("Maak eerst een opleverfoto");return}
+      if(schade&&!sTekst.trim()){toast("Beschrijf kort wat er beschadigd is");const st=o.querySelector("[data-kstx]");if(st)st.focus();return}
       const nee=punten.filter((_,i)=>!ok[i]);
       if(nee.length){const a=await vraag("Niet alles in orde?",`Niet afgevinkt: <b>${nee.map(esc).join(", ")}</b>.<br>Is dat echt niet in orde? Dan krijgt kantoor een melding om het recht te zetten.`,"Ja, melden","Terug");if(a!==true)return}
       const t=notitie.trim().slice(0,300),nu=new Date().toISOString();
       const uit={beurt:{kwaliteit:{punten:punten.map((p,i)=>({naam:p,ok:ok[i]})),fotos:fotos.map(f=>({id:f.id,op:f.op})),op:nu},...(t?{bezoekNotitie:t}:{})},
         klant:{bezoekNotitie:t?{t,datum:iso(today()),door:typeof doorNaam==="function"?doorNaam():""}:""}};
-      if(k.bezigGroep)KW.groep[k.bezigGroep]={...uit,t:Date.now()};
+      if(schade){const sd={id:newId("sd"),datum:iso(today()),op:nu,door:typeof doorNaam==="function"?doorNaam():"",tekst:sTekst.trim().slice(0,300),fotos:sFotos.map(f=>({id:f.id,op:f.op})),status:"open"};
+        uit.beurt.schade=sd;uit.klant.schades=[...(Array.isArray(k.schades)?k.schades:[]),sd]}
+      if(k.bezigGroep){const {schade:_s,...bg}=uit.beurt,{schades:_ss,...kg}=uit.klant;KW.groep[k.bezigGroep]={beurt:bg,klant:kg,t:Date.now()}}
       weg({beurt:{...uit.beurt,...extra()},klant:uit.klant})}};
   document.body.appendChild(dg);teken();try{dg.showModal()}catch(_){dg.setAttribute("open","")}
 }catch(e){console.error(e);res({beurt:{},klant:{}})}})}
@@ -20921,13 +20971,24 @@ function kwSignalen(add,bel){if(isMw())return;const nu=new Date(),ti=iso(today()
       u:(gb?`Gebeld ${fmtD(String(h.gebeldOp).slice(0,10))}. Plan zo nodig kosteloos nawerk en zet het daarna op opgelost.`:`Bezoek van ${fmtD(b.datum)}${b.door?" door "+b.door:""}.${tx} Bel ${uur<24?"vandaag nog":"zo snel mogelijk"} en zet het recht.`),
       b:[k.adres,k.plaats].filter(Boolean).join(", "),leeftijd:Math.round(uur/24),knop:"Open klant",go:k.id?"klant:"+k.id:"",
       acts:gb?[{l:"Nawerk plannen",ic:"planning",cc:"klant:"+k.id},{l:"Opgelost",ic:"check",cc:"kw:opgelost:"+b.id}]:[bel(k),{l:"Gebeld",ic:"check",cc:"kw:gebeld:"+b.id},{l:"Opgelost",ic:"check",cc:"kw:opgelost:"+b.id}].filter(Boolean)})});
+  /* schade: blijft staan tot het met de klant is afgehandeld */
+  state.klanten.forEach(k=>(Array.isArray(k.schades)?k.schades:[]).filter(x=>x&&x.status!=="afgehandeld").forEach(x=>{const dd=Math.max(0,Math.round((today()-parse(x.datum))/864e5));
+    add({key:"kws:"+x.id+":"+(x.status||"open"),p:x.status==="gebeld"?"hoog":"kritiek",top:2,ic:"alert",t:(x.status==="gebeld"?"Schade in behandeling: ":"Schade gemeld: ")+cleanName(k.naam||""),
+      u:`${x.tekst}${x.door?" · gemeld door "+x.door:""} op ${fmtD(x.datum)}${(x.fotos||[]).length?" · "+plural(x.fotos.length,"foto","foto's"):""}. ${x.status==="gebeld"?"Rond af als het met de klant geregeld is.":"Bel de klant voordat hij het zelf ontdekt."}`,
+      b:[k.adres,k.plaats].filter(Boolean).join(", "),leeftijd:dd,knop:"Open klant",go:"klant:"+k.id,
+      acts:x.status==="gebeld"?[{l:"Afgehandeld",ic:"check",cc:"kw:schade:"+k.id+":"+x.id+":afgehandeld"}]:[bel(k),{l:"Gebeld",ic:"check",cc:"kw:schade:"+k.id+":"+x.id+":gebeld"}].filter(Boolean)})}));
+  /* vertrekcontrole van de bus: wat ontbrak bij vertrek */
+  {const w=((state.routes||{})[ti]||{}).werk,v=w&&w.vertrek;if(v&&(v.punten||[]).some(p=>!p.ok))add({key:"kwb:"+ti,p:"normaal",ic:"truck",t:"Bus niet compleet bij vertrek"+(w.door?" · "+w.door:""),u:"Ontbrak: "+(v.punten||[]).filter(p=>!p.ok).map(p=>p.naam.toLowerCase()).join(", ")+".",b:"",leeftijd:0,knop:"",go:"",acts:[]})}
   /* 3. stiptheid: nog niet gestart terwijl het aankomstvenster bijna of al voorbij is (alleen voor jou, de klant krijgt niets) */
   if(kwS().kwStipt===false||typeof routeStops!=="function")return;const nm=nu.getHours()*60+nu.getMinutes(),v=kwVenster();
   routeStops(ti).filter(x=>!x.done&&!x.k.bezig).forEach(({k})=>{const m=toMin(k.tijd);if(m==null||nm<m+v-10)return;const te=nm>m+v,eind=fromMin(m+v);
     add({key:"kwl:"+k.id+":"+ti,p:te?"kritiek":"hoog",ic:"clock",t:te?`Te laat: ${cleanName(k.naam)} (${k.tijd})`:`Dreigt te laat: ${cleanName(k.naam)} (${k.tijd})`,
       u:te?`Het aankomstvenster liep tot ${eind}. Bel de klant zelf even; er gaat geen automatisch bericht.`:`Nog niet gestart. Het aankomstvenster loopt tot ${eind}.`,
       b:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),leeftijd:0,knop:"Open klant",go:"klant:"+k.id,acts:[bel(k)].filter(Boolean)})})}
-async function kwActie(v){const [w,id]=String(v||"").split(":"),b=(state.beurten||[]).find(x=>x.id===id);if(!b)return;const h=b.herstel||{},nu=new Date().toISOString();
+async function kwActie(v){const P=String(v||"").split(":"),[w,id]=P;
+  if(w==="schade"){const k=state.klanten.find(x=>x.id===P[1]);if(!k)return;const st=P[3]==="afgehandeld"?"afgehandeld":"gebeld";
+    try{await save("klanten",k.id,{...strip(k),schades:(k.schades||[]).map(x=>x.id===P[2]?{...x,status:st,[st+"Op"]:new Date().toISOString()}:x)});toast(st==="gebeld"?"Genoteerd: klant gebeld":"Schade afgehandeld");render()}catch(e){err(e)}return}
+  const b=(state.beurten||[]).find(x=>x.id===id);if(!b)return;const h=b.herstel||{},nu=new Date().toISOString();
   try{if(w==="gebeld"){await save("beurten",b.id,{...strip(b),herstel:{...h,status:"gebeld",gebeldOp:nu,door:doorNaam()}});toast("Genoteerd: klant gebeld");render();return}
     if(w==="opgelost"){const a=await vraag("Herstel afronden","Was er nawerk nodig om het recht te zetten? Dat telt mee in je kwaliteitsscore.","Ja, nawerk gedaan","Nee, opgelost zonder nawerk");if(a===null||a===undefined)return;
       await save("beurten",b.id,{...strip(b),herstel:{...h,status:"opgelost",opgelostOp:nu,nawerk:a===true,door:doorNaam()}});toast("Herstel afgerond");render()}}catch(e){err(e)}}
@@ -20976,6 +21037,42 @@ function kwMijlpaal(k,dagen=3){const g=iso(addDays(today(),-dagen)),L=kwIdx()[k.
   for(const n of KW_MIJL){const b=L[n-1];if(b&&b.datum>=g)return {n,b}}return null}
 function kwMomenten(mom,t){if(kwS().kwGebaren===false)return;state.klanten.filter(k=>k.actief!==false&&!k.prospect&&!k.hoofdKlantId).forEach(k=>{const m=kwMijlpaal(k,7);if(m)mom.push({d:parse(m.b.datum),ic:"ster",t:`${ccNaam(k)}: ${m.n}e bezoek`,s:"Een bedankje staat klaar in Communicatie",k})})}
 
+/* ---------- vertrekcontrole van de bus (bij Start werkdag) ---------- */
+const KW_BUS=["Ladders goed vast","Genoeg water en zeep","Schone doeken en wissers","Bus netjes, binnen en buiten"];
+const kwBusPunten=()=>{const t=kwS().kwBusPunten;return Array.isArray(t)&&t.length?t:KW_BUS};
+/* geeft {punten,op} terug om bij de werkdag op te slaan; geen annuleren (de kilometerstand is dan al opgeslagen) */
+function kwVertrek(){return new Promise(res=>{try{
+  if(kwTest()||kwS().kwBus===false)return res(null);
+  const P=kwBusPunten(),ok=P.map(()=>false);
+  const d=document.createElement("dialog");d.className="vraag-dlg";const o=document.createElement("div");o.className="vraag-ov";d.appendChild(o);
+  const teken=()=>{o.innerHTML=`<div class="rk vve-op kwc" role="dialog" aria-modal="true" aria-label="Vertrekcontrole">
+    <div class="rk-h"><span class="objic">${I.truck||I.route}</span><div><b>Vertrekcontrole</b><small>Klaar voor de dag? Vink af wat in orde is.</small></div></div>
+    <div class="vve-lijst">${P.map((t,i)=>`<label class="vve-t"><input type="checkbox" data-bp="${i}" ${ok[i]?"checked":""}><span><i>${I.check}</i>${esc(t)}</span></label>`).join("")}</div>
+    <button type="button" class="kwc-alles" data-bal ${ok.every(Boolean)?"hidden":""}>${I.check}Alles in orde</button>
+    <div class="rk-f"><span class="sp"></span><button type="button" class="primary" data-bok>${I.check}Vertrekken</button></div></div>`;
+    o.querySelectorAll("[data-bp]").forEach(c=>c.onchange=()=>{ok[+c.dataset.bp]=c.checked;const a=o.querySelector("[data-bal]");if(a)a.hidden=ok.every(Boolean)});
+    o.querySelector("[data-bal]").onclick=()=>{ok.fill(true);teken()};
+    o.querySelector("[data-bok]").onclick=async()=>{const nee=P.filter((_,i)=>!ok[i]);
+      if(nee.length){const a=await vraag("Niet alles in orde?",`Niet afgevinkt: <b>${nee.map(esc).join(", ")}</b>.<br>Regel het nog even voor je vertrekt, of vertrek toch (kantoor ziet wat er ontbrak).`,"Toch vertrekken","Terug");if(a!==true)return}
+      try{d.close()}catch(_){}d.remove();res({punten:P.map((p,i)=>({naam:p,ok:ok[i]})),op:new Date().toISOString()})}};
+  d.addEventListener("cancel",e=>e.preventDefault());document.body.appendChild(d);teken();d.showModal()
+}catch(e){console.error(e);res(null)}})}
+
+/* ---------- dagbriefing op de telefoon (bovenaan Vandaag) ---------- */
+function kwDagBrief(stops,d,isT){if(!isT||kwS().kwDagbrief===false)return"";const open=stops.filter(s=>!s.done).map(s=>s.k);if(!open.length)return"";
+  const md=iso(today()).slice(5),her=new Set(kwHerstelLijst().map(b=>b.klantId));
+  const R=[];open.forEach(k=>{const l=[];if(kwEerste(k))l.push(["Eerste bezoek","goud"]);if(her.has(k.id))l.push(["Herstel loopt","rood"]);
+    if((k.schades||[]).some(x=>x&&x.status!=="afgehandeld"))l.push(["Open schade","rood"]);
+    if(String(k.geboortedatum||"").slice(5,10)===md)l.push(["Jarig vandaag","goud"]);
+    const ks=kwSinds(k);if(ks&&ks.slice(5)===md&&today().getFullYear()-Number(ks.slice(0,4))>=1)l.push([(today().getFullYear()-Number(ks.slice(0,4)))+" jaar klant","goud"]);
+    const lt=typeof hospList==="function"?hospList(k).filter(x=>x.c==="letop"||x.c==="dier").map(x=>x.t):[];
+    if(l.length||lt.length)R.push({k,l,lt})});
+  const tel=(n,w)=>n?`<span><b>${n}</b> ${w}</span>`:"";
+  const nE=R.filter(r=>r.l.some(x=>x[0]==="Eerste bezoek")).length,nH=R.filter(r=>r.l.some(x=>/Herstel|schade/.test(x[0]))).length,nJ=R.filter(r=>r.l.some(x=>/Jarig|jaar klant/.test(x[0]))).length;
+  return `<details class="kwd"${R.length?" open":""}><summary><span class="kwd-ic">${I.sun||I.planning}</span><span class="kwd-t"><b>Jouw dag</b><small>${[plural(open.length,"adres","adressen"),nE?plural(nE,"eerste bezoek","eerste bezoeken"):"",nH?nH+" extra aandacht":"",nJ?nJ+" iets te vieren":""].filter(Boolean).join(" · ")}</small></span>${I.down||""}</summary>
+    ${R.length?`<div class="kwd-l">${R.map(r=>`<div class="kwd-r" role="button" tabindex="0" data-act="klant" data-id="${esc(r.k.id)}"><span class="kwd-tm">${esc(r.k.tijd||"")}</span><span class="kwd-m"><b>${esc(kwNaam(r.k))}</b>${r.l.map(x=>`<i class="kwd-lb ${x[1]}">${esc(x[0])}</i>`).join("")}${r.lt.length?`<small>${esc(r.lt.join(" · "))}</small>`:""}</span></div>`).join("")}</div>`
+      :`<p class="kwd-leeg">Geen bijzonderheden vandaag. Gewoon een mooie dag.</p>`}</details>`}
+
 /* ---------- instellingen ---------- */
 SETCARDS.push({id:"kwaliteit",t:"Kwaliteit & service",sub:"Eindcontrole, briefing, stiptheid en herstel",ic:"check",bg:"#252c3c",
   st:s=>s.kwAan===false?["soon","Staat uit"]:["ok","Aan"],
@@ -20988,6 +21085,12 @@ SETEXTRA.kwaliteit=(c,s)=>{
     ${sel("kwFoto","Opleverfoto",s.kwFoto==="verplicht"?"verplicht":"optioneel",[["optioneel","Optioneel"],["verplicht","Verplicht"]],{help:"De klant ziet de foto terug bij het bezoek in het klantportaal."})}
     ${sec("Voor je aanbelt")}
     ${tgl("kwBriefing","Briefing bij Start","Bij Start eerst zien wat je moet weten: toegang, huisdieren, voorkeuren en wat vorige keer opviel. Alleen als er iets te melden is.",s.kwBriefing!==false)}
+    ${sec("Eerste bezoek")}
+    ${inp("kwEersteExtra","Extra tijd bij een eerste bezoek (minuten)",s.kwEersteExtra==null?15:s.kwEersteExtra,{type:"number",t:"num",attrs:'min="0" max="120" step="5"',help:"Voor de kennismaking. 0 = geen extra tijd. Bij Start staat de kennismaking in de briefing, met vóórfoto's die alleen in de opdracht komen."})}
+    ${sec("Vertrek")}
+    ${tgl("kwBus","Vertrekcontrole van de bus","Bij Start werkdag eerst de lijst hieronder aflopen. Wat ontbrak, zie je in het Overzicht.",s.kwBus!==false)}
+    <label class="full">Vertrekcontrole (één per regel)<textarea id="kwBp" style="min-height:90px">${esc(kwBusPunten().join("\n"))}</textarea></label>
+    ${tgl("kwDagbrief","Dagbriefing bovenaan Vandaag","Elke medewerker ziet zijn dag: eerste bezoeken, herstel, schade, jarigen en waar hij op moet letten.",s.kwDagbrief!==false)}
     ${sec("Stipt op tijd")}
     ${tgl("kwStipt","Melding als je te laat dreigt te komen","Alleen voor jou in het Overzicht. De klant krijgt niets automatisch.",s.kwStipt!==false)}
     ${inp("kwVenster","Aankomstvenster (minuten na de geplande tijd)",kwVenster(),{type:"number",t:"num",attrs:'min="5" max="120" step="5"'})}
@@ -20995,7 +21098,7 @@ SETEXTRA.kwaliteit=(c,s)=>{
     ${sel("kwDrempel","Herstelmelding bij een beoordeling van",String(kwDrempel()),[["1","1 ster"],["2","2 sterren of minder"],["3","3 sterren of minder"],["4","4 sterren of minder"]],{help:"Rode melding in het Overzicht: bellen, zo nodig kosteloos nawerk, dan op opgelost."})}
     ${sec("Kleine gebaren")}
     ${tgl("kwGebaren","Jubileum en mijlpalen klaarzetten","Bij 1, 2, 3… jaar klant en bij het 10e, 25e, 50e bezoek staat een bedankje klaar in Communicatie. Jij beslist of het weggaat.",s.kwGebaren!==false)}`,{wide:false});
-  bindSave(()=>{const t=$("#kwPt").value.split(/\n/).map(x=>x.trim()).filter(Boolean).slice(0,10),std=typeof GLAS==="function"&&GLAS()?KW_GLAS:KW_ALG;return{kwPunten:t.length&&t.join("|")!==std.join("|")?t:[],kwVenster:Math.max(5,Math.min(120,Number(($("[data-k=kwVenster]")||{}).value)||15))}})};
+  bindSave(()=>{const t=$("#kwPt").value.split(/\n/).map(x=>x.trim()).filter(Boolean).slice(0,10),std=typeof GLAS==="function"&&GLAS()?KW_GLAS:KW_ALG;const bp=$("#kwBp").value.split(/\n/).map(x=>x.trim()).filter(Boolean).slice(0,10);return{kwBusPunten:bp.length&&bp.join("|")!==KW_BUS.join("|")?bp:[],kwPunten:t.length&&t.join("|")!==std.join("|")?t:[],kwVenster:Math.max(5,Math.min(120,Number(($("[data-k=kwVenster]")||{}).value)||15))}})};
 
 /* ---------- LIVE: eigen server (Firebase + Brevo + Mollie) ----------
    Alles hieronder doet alleen iets in de echte versie (crm.voorbeeldglazenwasserij.nl), waar window.ZEEM_LIVE is gezet. */
@@ -23664,7 +23767,7 @@ if(!LIVE&&typeof location!=="undefined"&&/[?&]selftest\b/.test(location.search))
     br:()=>BR(),startKeuze:typeof startKeuze==="function"?startKeuze:null,uitvDefault:typeof uitvDefault==="function"?uitvDefault:null,queues:typeof queues==="function"?queues:null,mailFor:typeof mailFor==="function"?mailFor:null,emailHtmlRuw:typeof emailHtmlRuw==="function"?emailHtmlRuw:null,iz:typeof IZ!=="undefined"?IZ:null,izVerwerk:typeof izVerwerk==="function"?izVerwerk:null,izPlanSig:typeof izPlanSig==="function"?izPlanSig:null,wgEditor:typeof werkgebiedEditor==="function"?werkgebiedEditor:null,sampleVars:typeof sampleVars==="function"?sampleVars:null,factVars:typeof factVars==="function"?factVars:null,toonK:typeof toonK==="function"?toonK:null,hoofdLocVast:typeof hoofdLocVast==="function"?hoofdLocVast:null,btwRegel:typeof btwRegel==="function"?btwRegel:null,groepTarievenBij:typeof groepTarievenBij==="function"?groepTarievenBij:null,views:()=>PAGES.map(p=>p[0]),ga:t=>{state.tab=t;render()}};
 }
 /* kwaliteit (29-zkwaliteit): met &kwtoon verschijnen briefing en eindcontrole ook in de zelftest */
-if(window.MSTEST)Object.assign(window.MSTEST,{startJob,routeStops,go,ccSignalen:typeof ccSignalen==="function"?ccSignalen:null,kwControle,kwBriefing,vKwaliteit,kwMijlpaal,queues:typeof queues==="function"?queues:null});
+if(window.MSTEST)Object.assign(window.MSTEST,{startJob,routeStops,go,ccSignalen:typeof ccSignalen==="function"?ccSignalen:null,kwControle,kwBriefing,vKwaliteit,kwMijlpaal,kwVertrek,kwDagBrief,kwEerste,duur,queues:typeof queues==="function"?queues:null});
 
 })();
 </script>

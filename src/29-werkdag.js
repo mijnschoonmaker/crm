@@ -41,7 +41,7 @@ document.addEventListener("click",async e=>{const b=e.target.closest&&e.target.c
   if(a==="wdbewerk"){if(!isMw())wdBewerk(b.dataset.d||iso(today()));return}
   const d=iso(today()),w=wdGet(d)||{};
   /* live delen meteen bij de tik aanzetten (vóór het opslaan): dan mag de telefoon om je locatie vragen */
-  if(a==="wdstart"){wdLive(true);await wdZet(d,{start:wdNu(),stop:"",pauzes:[],liveUit:false});toast("Werkdag gestart · live delen staat aan");try{navigator.vibrate&&navigator.vibrate(20)}catch(_){}}
+  if(a==="wdstart"){const _vt=typeof kwVertrek==="function"?await kwVertrek():null;wdLive(true);await wdZet(d,{start:wdNu(),stop:"",pauzes:[],liveUit:false,vertrek:_vt||null});toast("Werkdag gestart · live delen staat aan");try{navigator.vibrate&&navigator.vibrate(20)}catch(_){}}
   else if(a==="wdpauze"){const pz=[...(w.pauzes||[])],open=pz.findIndex(p=>!p.tot);if(open>=0){pz[open]={...pz[open],tot:wdNu()};toast("Pauze voorbij · "+wdU(wdMin(pz[open].van,pz[open].tot)))}else{pz.push({van:wdNu()});toast("Pauze gestart")}await wdZet(d,{pauzes:pz})}
   else if(a==="wdstop"){const bz=state.klanten.filter(k=>typeof isBezig==="function"&&isBezig(k));
     if(bz.length&&!(await vraag("Nog bezig bij een klant",`De tijd loopt nog bij <b>${esc(cleanName(bz[0].naam))}</b>. Toch de werkdag stoppen? Meld die stop daarna nog af.`,"Toch stoppen","Annuleren")))return;
