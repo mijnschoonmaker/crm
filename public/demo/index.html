@@ -19273,7 +19273,7 @@ function werkdagKaart(d,isT,total){const c=wdCijfers(d),w=c.w,inP=(w.pauzes||[])
     ${tips.length?`<div class="wd-tips">${I.info||I.alert}<div>${tips.map(t=>`<p>${t}</p>`).join("")}</div></div>`:""}</section>`}
   const pz=(w.pauzes||[]).find(p=>!p.tot);
   return `<section class="wd wd-aan${inP?" wd-pz":""}"><div class="wd-h"><span class="wd-ic">${inP?(I.coffee||I.clock):(I.truck||I.route)}</span><div class="wd-m"><b>${inP?"Pauze":"Onderweg"} <span class="wd-tm" data-wdsince="${esc(inP?pz.van:w.start)}">${wdU(wdMin(inP?pz.van:w.start,wdNu()))}</span></b><small>Vertrokken om ${wdT(w.start)}${c.pauze?` · ${wdU(c.pauze)} pauze`:""} · ${plural(c.n,"stop","stops")} klaar${total?` van ${total}`:""}</small></div></div>
-    ${LIVE&&!w.liveUit?`<div class="wd-live"${typeof LV!=="undefined"&&state.liveDelen&&LV.watch!=null?" hidden":""}><span>${I.alert||I.info||""}</span><div><b>Live delen staat uit</b><small data-lvfout>${esc((typeof LV!=="undefined"&&LV.fout)||"Klanten zien je nu niet onderweg.")}</small></div><button type="button" class="small primary" data-act="livedelen">Aanzetten</button></div>`:""}
+    ${LIVE&&!w.liveUit&&(typeof LIVE_GPS==="undefined"||LIVE_GPS)?`<div class="wd-live"${typeof LV!=="undefined"&&state.liveDelen&&LV.watch!=null?" hidden":""}><span>${I.alert||I.info||""}</span><div><b>Live delen staat uit</b><small data-lvfout>${esc((typeof LV!=="undefined"&&LV.fout)||"Klanten zien je nu niet onderweg.")}</small></div><button type="button" class="small primary" data-act="livedelen">Aanzetten</button></div>`:""}
     ${balk}<div class="wd-k">${inP?`<button type="button" class="primary" data-act="wdpauze">${I.play||I.check}Pauze voorbij</button>`:`<button type="button" data-act="wdpauze">${I.coffee||I.clock}Pauze</button><button type="button" class="primary" data-act="wdstop">${I.home||I.check}Terug bij de loods</button>`}</div></section>`}
 document.addEventListener("click",async e=>{const b=e.target.closest&&e.target.closest("[data-act^='wd']");if(!b)return;const a=b.dataset.act;if(!["wdstart","wdstop","wdpauze","wdheropen","wdbewerk"].includes(a))return;e.preventDefault();e.stopPropagation();
   if(a==="wdbewerk"){if(!isMw())wdBewerk(b.dataset.d||iso(today()));return}
@@ -21405,7 +21405,10 @@ async function lvSchrijf(extra){if(!LIVE)return;const em=String((state.me&&state
   if(em)try{await fsDb().doc("live/mw_"+em.replace(/[^a-z0-9]/g,"_").slice(0,80)).set({...d,naam:doorNaam()||d.naam},{merge:true})}catch(e){console.warn("live mw",e)}}
 async function lvWakker(){try{if(LV.watch&&"wakeLock" in navigator&&!LV.lock&&document.visibilityState==="visible"){LV.lock=await navigator.wakeLock.request("screen");LV.lock.addEventListener("release",()=>{LV.lock=null})}}catch(e){}}
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&LV.watch)lvWakker()});
-function liveStart(stil){
+/* live volgen voor klanten staat uit (20-11-2026, op verzoek: de GPS trok de batterij van de iPad te snel leeg).
+   Klanten zien in het portaal alleen nog hoeveel stops er vóór hen zijn, op basis van de afmeldingen. Weer aanzetten: LIVE_GPS op true. */
+const LIVE_GPS=false;
+function liveStart(stil){if(!LIVE_GPS){state.liveDelen=false;try{localStorage.setItem("ms.live","0")}catch(e){}if(LV.watch!=null)try{liveStop(true)}catch(e){}return}
   if(!LIVE||!navigator.geolocation){if(!stil)toast(LIVE?"Deze telefoon kan geen locatie delen":"Live delen werkt in de live versie");return}
   if(LV.watch!=null)return;
   LV.fout="";
@@ -21450,6 +21453,8 @@ function lvHerstart(){if(LV.watch!=null){try{navigator.geolocation.clearWatch(LV
 /* bewaker: geeft de telefoon 45 seconden geen plek terwijl het CRM in beeld is, dan de GPS opnieuw starten */
 if(LIVE)setInterval(()=>{if(document.visibilityState==="visible"&&state.liveDelen&&LV.watch!=null&&Date.now()-(LV.fix||Date.now())>45000){LV.fix=Date.now();lvHerstart()}},15000);
 function lvDagCheck(){if(LV.watch==null)return;const s=routeStops(iso(today()));if(s.length&&s.every(x=>x.done)){state.liveDelen=false;try{localStorage.setItem("ms.live","0")}catch(e){}liveStop(true);toast("Dag klaar · live delen is gestopt")}}
+/* live volgen uit: een eventueel nog lopende GPS en schermwekker meteen stoppen */
+if(!LIVE_GPS)setTimeout(()=>{try{if(LV.watch!=null)liveStop(true);if(LV.lock){LV.lock.release();LV.lock=null}state.liveDelen=false;localStorage.setItem("ms.live","0")}catch(e){}},1500);
 
 /* ---------- Meten op de luchtfoto (zoals Perceelloep) ----------
    PDOK-luchtfoto (recht van boven, vaste schaal). Elk aangeklikt punt heeft echte coördinaten; de lengte is de afstand

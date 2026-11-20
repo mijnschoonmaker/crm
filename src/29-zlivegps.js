@@ -18,7 +18,10 @@ async function lvSchrijf(extra){if(!LIVE)return;const em=String((state.me&&state
   if(em)try{await fsDb().doc("live/mw_"+em.replace(/[^a-z0-9]/g,"_").slice(0,80)).set({...d,naam:doorNaam()||d.naam},{merge:true})}catch(e){console.warn("live mw",e)}}
 async function lvWakker(){try{if(LV.watch&&"wakeLock" in navigator&&!LV.lock&&document.visibilityState==="visible"){LV.lock=await navigator.wakeLock.request("screen");LV.lock.addEventListener("release",()=>{LV.lock=null})}}catch(e){}}
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&LV.watch)lvWakker()});
-function liveStart(stil){
+/* live volgen voor klanten staat uit (20-11-2026, op verzoek: de GPS trok de batterij van de iPad te snel leeg).
+   Klanten zien in het portaal alleen nog hoeveel stops er vóór hen zijn, op basis van de afmeldingen. Weer aanzetten: LIVE_GPS op true. */
+const LIVE_GPS=false;
+function liveStart(stil){if(!LIVE_GPS){state.liveDelen=false;try{localStorage.setItem("ms.live","0")}catch(e){}if(LV.watch!=null)try{liveStop(true)}catch(e){}return}
   if(!LIVE||!navigator.geolocation){if(!stil)toast(LIVE?"Deze telefoon kan geen locatie delen":"Live delen werkt in de live versie");return}
   if(LV.watch!=null)return;
   LV.fout="";
@@ -63,3 +66,5 @@ function lvHerstart(){if(LV.watch!=null){try{navigator.geolocation.clearWatch(LV
 /* bewaker: geeft de telefoon 45 seconden geen plek terwijl het CRM in beeld is, dan de GPS opnieuw starten */
 if(LIVE)setInterval(()=>{if(document.visibilityState==="visible"&&state.liveDelen&&LV.watch!=null&&Date.now()-(LV.fix||Date.now())>45000){LV.fix=Date.now();lvHerstart()}},15000);
 function lvDagCheck(){if(LV.watch==null)return;const s=routeStops(iso(today()));if(s.length&&s.every(x=>x.done)){state.liveDelen=false;try{localStorage.setItem("ms.live","0")}catch(e){}liveStop(true);toast("Dag klaar · live delen is gestopt")}}
+/* live volgen uit: een eventueel nog lopende GPS en schermwekker meteen stoppen */
+if(!LIVE_GPS)setTimeout(()=>{try{if(LV.watch!=null)liveStop(true);if(LV.lock){LV.lock.release();LV.lock=null}state.liveDelen=false;localStorage.setItem("ms.live","0")}catch(e){}},1500);
