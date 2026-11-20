@@ -5160,3 +5160,5 @@ html body:not(#zz):not(#zy) .kwq-tile small,html body:not(#zz):not(#zy) .kwq-til
 .tg-times span.h5{font-size:9.5px!important;opacity:.4;padding-top:3px!important;line-height:1}
 /* tijdens slepen alleen het voorbeeldblok, geen losse stippellijn op het vak */
 html body:not(#zz) .tg-col:has(#dgPrev) [data-drop].over{outline:0!important;background:transparent!important}
+.fw-leeg-k .fw-up.pri{grid-column:1/-1}
+.fw-up svg{width:18px;height:18px}

@@ -266,7 +266,7 @@ function reOffer(){render();if(dlg.open&&form.dataset.sheet==="offer")openOfferS
 document.addEventListener("change",e=>{
   const t=e.target,id=t.id;
   if(t.dataset&&t.dataset.bvk&&t.files&&t.files[0]){const f=t.files[0];t.value="";bvUpload(t.dataset.bvk,f);return}
-  if(t.dataset&&t.dataset.fwcam&&t.files&&t.files[0]){const f=t.files[0];t.value="";fwCamUpload(t.dataset.fwcam,f);return}
+  if(t.dataset&&t.dataset.fwcam&&t.files&&t.files[0]){const fs=[...t.files],fid=t.dataset.fwcam;t.value="";/* één foto of meerdere uit je foto's, na elkaar */(async()=>{for(const f of fs){try{await fwCamUpload(fid,f)}catch(e){console.error(e)}}})();return}
   if(t.dataset&&t.dataset.u){uInput(t,t.type==="checkbox"||t.tagName==="SELECT");return}
   if(id==="kronde"){state.ronde=t.value;state.kpage=1;render()}
   else if(id==="mst"){state.mst=t.value;state.mpage=1;render()}
