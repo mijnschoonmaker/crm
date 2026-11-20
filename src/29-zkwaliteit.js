@@ -149,6 +149,8 @@ function kwSignalen(add,bel){if(isMw())return;const nu=new Date(),ti=iso(today()
       u:te?`Het aankomstvenster liep tot ${eind}. Bel de klant zelf even; er gaat geen automatisch bericht.`:`Nog niet gestart. Het aankomstvenster loopt tot ${eind}.`,
       b:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),leeftijd:0,knop:"Open klant",go:"klant:"+k.id,acts:[bel(k)].filter(Boolean)})})}
 async function kwActie(v){const P=String(v||"").split(":"),[w,id]=P;
+  if(w==="week"){if(id==="open"){state.itab="kwaliteit";go("inzichten");return}
+    try{await saveSettings({kwWeekGezien:kwWeekRange().key},"Weekoverzicht gezien");render()}catch(e){err(e)}return}
   if(w==="schade"){const k=state.klanten.find(x=>x.id===P[1]);if(!k)return;const st=P[3]==="afgehandeld"?"afgehandeld":"gebeld";
     try{await save("klanten",k.id,{...strip(k),schades:(k.schades||[]).map(x=>x.id===P[2]?{...x,status:st,[st+"Op"]:new Date().toISOString()}:x)});toast(st==="gebeld"?"Genoteerd: klant gebeld":"Schade afgehandeld");render()}catch(e){err(e)}return}
   const b=(state.beurten||[]).find(x=>x.id===id);if(!b)return;const h=b.herstel||{},nu=new Date().toISOString();
@@ -201,6 +203,37 @@ function kwIdx(){const B=state.beurten||[];if(KW.idxB===B&&KW.idxN===B.length)re
 function kwSinds(k){let d=String(k.aangemaakt||"").slice(0,10);const L=kwIdx()[k.id];if(L&&L.length&&(!d||L[0].datum<d))d=L[0].datum;return d}
 function kwMijlpaal(k,dagen=3){const g=iso(addDays(today(),-dagen)),L=kwIdx()[k.id]||[];
   for(const n of KW_MIJL){const b=L[n-1];if(b&&b.datum>=g)return {n,b}}return null}
+
+/* ---------- weekoverzicht kwaliteit: elke zaterdag in het Overzicht, tot je op Gezien tikt ----------
+   Zoals de wekelijkse briefing in een sterrenkeuken: deze week tegen vorige week, per medewerker, en een waarschuwing
+   als iets twee weken achter elkaar slechter wordt. */
+function kwWeekRange(){const t=today(),za=addDays(t,-((t.getDay()+1)%7));/* laatste zaterdag (vandaag als het zaterdag is) */return {za,key:iso(za),rg:w=>[addDays(za,-6-7*w),addDays(za,-7*w)]}}
+function kwWeekCijfers(rg){const L=(state.beurten||[]).filter(b=>!b.geannuleerd&&inRange(b.datum,rg)),c=kwCijfers(L);
+  c.schade=state.klanten.reduce((a,k)=>a+(Array.isArray(k.schades)?k.schades.filter(x=>x&&inRange(x.datum,rg)).length:0),0);c.L=L;return c}
+function kwWeekKaart(){if(isMw()||kwS().kwWeek===false)return"";const W=kwWeekRange();if(kwS().kwWeekGezien===W.key)return"";
+  if((today()-W.za)/864e5>6)return"";
+  const A=kwWeekCijfers(W.rg(0)),B=kwWeekCijfers(W.rg(1)),C=kwWeekCijfers(W.rg(2));if(!A.n&&!B.n)return"";
+  const kom=x=>String(x).replace(".",","),pct=x=>x==null?"—":x+"%";
+  const ver=(a,b,hoog=true,suf="")=>{if(a==null||b==null||a===b)return`<em class="kww-d">= vorige week</em>`;const d=Math.round((a-b)*10)/10,goed=(d>0)===hoog;return`<em class="kww-d ${goed?"op":"af"}">${d>0?"▲":"▼"} ${kom(Math.abs(d))}${suf}</em>`};
+  /* twee weken achter elkaar slechter */
+  const zakt=(a,b,c,hoog=true)=>a!=null&&b!=null&&c!=null&&(hoog?(a<b&&b<c):(a>b&&b>c));
+  const waarsch=[];
+  if(zakt(A.opTijd,B.opTijd,C.opTijd))waarsch.push(`Op tijd zakt al twee weken: ${pct(C.opTijd)} → ${pct(B.opTijd)} → ${pct(A.opTijd)}`);
+  if(zakt(A.sterren,B.sterren,C.sterren))waarsch.push(`Beoordeling zakt al twee weken: ${kom(C.sterren)} → ${kom(B.sterren)} → ${kom(A.sterren)}`);
+  if(zakt(A.controle,B.controle,C.controle))waarsch.push(`Eindcontrole in orde zakt al twee weken: ${pct(C.controle)} → ${pct(B.controle)} → ${pct(A.controle)}`);
+  if(zakt(A.klacht,B.klacht,C.klacht,false))waarsch.push(`Klachten stijgen al twee weken: ${kom(C.klacht)} → ${kom(B.klacht)} → ${kom(A.klacht)} per 100`);
+  const per=w=>{const m={};w.L.forEach(b=>{const n=String(b.door||"Onbekend");(m[n]=m[n]||[]).push(b)});return m};
+  const pA=per(A),pB=per(B),pC=per(C),namen=Object.keys(pA).sort((a,b)=>pA[b].length-pA[a].length);
+  const rij=namen.map(n=>{const a=kwCijfers(pA[n]),b=kwCijfers(pB[n]||[]),c=kwCijfers(pC[n]||[]);
+    if(zakt(a.opTijd,b.opTijd,c.opTijd))waarsch.push(`${n}: op tijd zakt al twee weken (${pct(a.opTijd)})`);
+    if(zakt(a.sterren,b.sterren,c.sterren))waarsch.push(`${n}: beoordeling zakt al twee weken (${kom(a.sterren)})`);
+    return `<div class="kwq-r"><b>${esc(n)}</b><span data-l="Bezoeken">${a.n}</span><span data-l="Op tijd">${pct(a.opTijd)}</span><span data-l="Sterren">${a.sterren==null?"—":kom(a.sterren)}</span><span data-l="Controle">${pct(a.controle)}</span><span data-l="Klachten" class="${a.klachtN?"kwq-rood":""}">${a.klachtN}</span></div>`}).join("");
+  const tg=(l,v,d)=>`<div class="kww-t"><small>${l}</small><b>${v}</b>${d}</div>`;
+  return `<section class="kp kww"><div class="kww-h"><span class="kww-ic">${I.check}</span><div><b>Weekoverzicht kwaliteit</b><small>Week ${weekNr(W.za)} · ${fmtD(iso(W.rg(0)[0]))} – ${fmtD(W.key)} · vergeleken met vorige week</small></div></div>
+    <div class="kww-g">${tg("Bezoeken",A.n,`<em class="kww-d">${B.n} vorige week</em>`)}${tg("Op tijd",pct(A.opTijd),ver(A.opTijd,B.opTijd,true,"%"))}${tg("Beoordeling",A.sterren==null?"—":kom(A.sterren),ver(A.sterren,B.sterren))}${tg("Eindcontrole",pct(A.controle),ver(A.controle,B.controle,true,"%"))}${tg("Klachten",A.klachtN,ver(A.klachtN,B.klachtN,false))}${tg("Schade",A.schade,ver(A.schade,B.schade,false))}</div>
+    ${waarsch.length?`<div class="kww-w">${waarsch.map(w=>`<p>${I.alert}<span>${esc(w)}</span></p>`).join("")}</div>`:`<p class="kww-ok">${I.check}<span>Niets dat twee weken achter elkaar slechter wordt.</span></p>`}
+    ${rij?`<div class="kwq-t kww-mw"><div class="kwq-r kwq-h"><span>Medewerker</span><span>Bezoeken</span><span>Op tijd</span><span>Sterren</span><span>Controle</span><span>Klachten</span></div>${rij}</div>`:""}
+    <div class="kww-k"><button type="button" class="ghost" data-cc="kw:week:open">Statistieken › Kwaliteit</button><button type="button" class="primary" data-cc="kw:week:gezien">${I.check}Gezien</button></div></section>`}
 
 /* ---------- vertrekcontrole van de bus (bij Start werkdag) ---------- */
 const KW_BUS=["Ladders goed vast","Genoeg water en zeep","Schone doeken en wissers","Bus netjes, binnen en buiten"];
@@ -259,6 +292,7 @@ SETEXTRA.kwaliteit=(c,s)=>{
     ${sec("Stipt op tijd")}
     ${tgl("kwStipt","Melding als je te laat dreigt te komen","Alleen voor jou in het Overzicht. De klant krijgt niets automatisch.",s.kwStipt!==false)}
     ${inp("kwVenster","Aankomstvenster (minuten na de geplande tijd)",kwVenster(),{type:"number",t:"num",attrs:'min="5" max="120" step="5"'})}
+    ${tgl("kwWeek","Weekoverzicht op zaterdag","Elke zaterdag in het Overzicht: deze week tegen vorige week, per medewerker, met een waarschuwing als iets twee weken achter elkaar slechter wordt.",s.kwWeek!==false)}
     ${sec("Herstel")}
     ${sel("kwDrempel","Herstelmelding bij een beoordeling van",String(kwDrempel()),[["1","1 ster"],["2","2 sterren of minder"],["3","3 sterren of minder"],["4","4 sterren of minder"]],{help:"Rode melding in het Overzicht: bellen, zo nodig kosteloos nawerk, dan op opgelost."})}
     ${inp("crBezoek","Credits voor het beoordelen van een bezoek (€)",s.crBezoek==null?"0.10":s.crBezoek,{type:"number",t:"num",attrs:'min="0" max="5" step="0.05"',help:"De klant beoordeelt in het klantportaal elk bezoek met 1 tot 5 sterren (tot 48 uur erna). Die sterren komen in je kwaliteitsscore. 0 = geen credits."})}

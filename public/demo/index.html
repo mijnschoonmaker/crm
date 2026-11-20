@@ -5476,6 +5476,21 @@ html body:not(#zz):not(#zy) .kwq-tile small,html body:not(#zz):not(#zy) .kwq-til
 html body:not(#zz) .tg-col:has(#dgPrev) [data-drop].over{outline:0!important;background:transparent!important}
 .fw-leeg-k .fw-up.pri{grid-column:1/-1}
 .fw-up svg{width:18px;height:18px}
+/* weekoverzicht kwaliteit (zaterdag) */
+.kww{margin:14px 0;padding:18px 20px!important}
+.kww-h{display:flex;gap:12px;align-items:center;margin-bottom:14px}.kww-h b{display:block;font-size:16px}.kww-h small{color:var(--muted);font-size:12.5px}
+.kww-ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:#252c3c;color:#fff;flex:none}.kww-ic svg{width:18px;height:18px}
+.kww-g{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+.kww-t{border:1px solid var(--line);border-radius:14px;padding:10px 12px;min-width:0}
+.kww-t small{display:block;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.kww-t b{display:block;font-size:22px;font-weight:600;margin:2px 0;font-variant-numeric:tabular-nums}
+html body:not(#zz) .kww-d{font-style:normal;font-size:11.5px;font-weight:600;color:var(--muted)}
+html body:not(#zz) .kww-d.op{color:#1f7a4d}html body:not(#zz) .kww-d.af{color:#b42318}
+.kww-w{margin-top:12px;border-radius:14px;background:#fdf1ef;padding:10px 14px}.kww-w p{display:flex;gap:8px;align-items:flex-start;margin:4px 0;color:#8a1c12;font-size:13.5px;font-weight:600}.kww-w svg{width:15px;height:15px;flex:none;margin-top:2px}
+.kww-ok{display:flex;gap:8px;align-items:center;margin:12px 0 0;color:#1f7a4d;font-size:13.5px;font-weight:600}.kww-ok svg{width:15px;height:15px}
+.kww-mw{margin-top:10px}
+.kww-k{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+@media (max-width:900px){.kww-g{grid-template-columns:repeat(3,minmax(0,1fr))}}
 
 </style>
 <style id="mansardThema">
@@ -9264,6 +9279,8 @@ async function save(col,id,data){tikWis();try{IZ.lokaal=Date.now()}catch(_){}if(
   const oud=(state.facturen||[]).find(f=>f.id===id),nr=String(data.nummer||"");
   const fout=oud&&oud.nummer&&nr&&oud.nummer!==nr&&String(oud.klantId||"")!==String(data.klantId||"")?"overschrijven "+oud.nummer+" met "+nr:(!oud&&data.soort==="offerte"&&nr&&(state.facturen||[]).some(f=>f.soort==="offerte"&&f.nummer===nr&&f.id!==id))?"tweede offerte "+nr:"";
   if(fout){const st=String((new Error()).stack||"").split("\n").slice(1,7).map(x=>x.trim()).join(" | ");console.error("save facturen geweigerd:",fout,st);
+    /* vastleggen waar het vandaan kwam (live/bewaking_…), zodat de oorzaak gevonden kan worden; geen klantgegevens, alleen nummers en de aanroep */
+    try{if(state.db)fsDb().doc("live/bewaking_"+Date.now().toString(36)).set({soort:"facturen-bewaking",fout,id,oudNr:oud?String(oud.nummer||""):"",nieuwNr:nr,stack:st.slice(0,1500),op:new Date().toISOString(),url:String(location.hash||"").slice(0,80)}).catch(()=>{})}catch(_){}
     throw {msg:"Niet opgeslagen: dit zou "+(oud?"offerte/factuur "+oud.nummer+" overschrijven":"offerte "+nr+" dubbel maken")+". Herlaad de pagina en probeer het opnieuw."}}}
   if(col==="facturen"){data=bcVast(data);if(typeof btwVast==="function")data=btwVast(data,!(state.facturen||[]).some(f=>f.id===id))}if(col==="facturen"&&!(state.facturen||[]).some(f=>f.id===id))MIJN_F.add(id);if(state.db)return opslaanLive(col,id,data);
   else{if(data&&data._handmatig){data={...data};delete data._handmatig}mem[col].set(id,{...data,id});apply(col,[...mem[col].values()]);schedule()}}
@@ -21021,6 +21038,8 @@ function kwSignalen(add,bel){if(isMw())return;const nu=new Date(),ti=iso(today()
       u:te?`Het aankomstvenster liep tot ${eind}. Bel de klant zelf even; er gaat geen automatisch bericht.`:`Nog niet gestart. Het aankomstvenster loopt tot ${eind}.`,
       b:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),leeftijd:0,knop:"Open klant",go:"klant:"+k.id,acts:[bel(k)].filter(Boolean)})})}
 async function kwActie(v){const P=String(v||"").split(":"),[w,id]=P;
+  if(w==="week"){if(id==="open"){state.itab="kwaliteit";go("inzichten");return}
+    try{await saveSettings({kwWeekGezien:kwWeekRange().key},"Weekoverzicht gezien");render()}catch(e){err(e)}return}
   if(w==="schade"){const k=state.klanten.find(x=>x.id===P[1]);if(!k)return;const st=P[3]==="afgehandeld"?"afgehandeld":"gebeld";
     try{await save("klanten",k.id,{...strip(k),schades:(k.schades||[]).map(x=>x.id===P[2]?{...x,status:st,[st+"Op"]:new Date().toISOString()}:x)});toast(st==="gebeld"?"Genoteerd: klant gebeld":"Schade afgehandeld");render()}catch(e){err(e)}return}
   const b=(state.beurten||[]).find(x=>x.id===id);if(!b)return;const h=b.herstel||{},nu=new Date().toISOString();
@@ -21073,6 +21092,37 @@ function kwIdx(){const B=state.beurten||[];if(KW.idxB===B&&KW.idxN===B.length)re
 function kwSinds(k){let d=String(k.aangemaakt||"").slice(0,10);const L=kwIdx()[k.id];if(L&&L.length&&(!d||L[0].datum<d))d=L[0].datum;return d}
 function kwMijlpaal(k,dagen=3){const g=iso(addDays(today(),-dagen)),L=kwIdx()[k.id]||[];
   for(const n of KW_MIJL){const b=L[n-1];if(b&&b.datum>=g)return {n,b}}return null}
+
+/* ---------- weekoverzicht kwaliteit: elke zaterdag in het Overzicht, tot je op Gezien tikt ----------
+   Zoals de wekelijkse briefing in een sterrenkeuken: deze week tegen vorige week, per medewerker, en een waarschuwing
+   als iets twee weken achter elkaar slechter wordt. */
+function kwWeekRange(){const t=today(),za=addDays(t,-((t.getDay()+1)%7));/* laatste zaterdag (vandaag als het zaterdag is) */return {za,key:iso(za),rg:w=>[addDays(za,-6-7*w),addDays(za,-7*w)]}}
+function kwWeekCijfers(rg){const L=(state.beurten||[]).filter(b=>!b.geannuleerd&&inRange(b.datum,rg)),c=kwCijfers(L);
+  c.schade=state.klanten.reduce((a,k)=>a+(Array.isArray(k.schades)?k.schades.filter(x=>x&&inRange(x.datum,rg)).length:0),0);c.L=L;return c}
+function kwWeekKaart(){if(isMw()||kwS().kwWeek===false)return"";const W=kwWeekRange();if(kwS().kwWeekGezien===W.key)return"";
+  if((today()-W.za)/864e5>6)return"";
+  const A=kwWeekCijfers(W.rg(0)),B=kwWeekCijfers(W.rg(1)),C=kwWeekCijfers(W.rg(2));if(!A.n&&!B.n)return"";
+  const kom=x=>String(x).replace(".",","),pct=x=>x==null?"—":x+"%";
+  const ver=(a,b,hoog=true,suf="")=>{if(a==null||b==null||a===b)return`<em class="kww-d">= vorige week</em>`;const d=Math.round((a-b)*10)/10,goed=(d>0)===hoog;return`<em class="kww-d ${goed?"op":"af"}">${d>0?"▲":"▼"} ${kom(Math.abs(d))}${suf}</em>`};
+  /* twee weken achter elkaar slechter */
+  const zakt=(a,b,c,hoog=true)=>a!=null&&b!=null&&c!=null&&(hoog?(a<b&&b<c):(a>b&&b>c));
+  const waarsch=[];
+  if(zakt(A.opTijd,B.opTijd,C.opTijd))waarsch.push(`Op tijd zakt al twee weken: ${pct(C.opTijd)} → ${pct(B.opTijd)} → ${pct(A.opTijd)}`);
+  if(zakt(A.sterren,B.sterren,C.sterren))waarsch.push(`Beoordeling zakt al twee weken: ${kom(C.sterren)} → ${kom(B.sterren)} → ${kom(A.sterren)}`);
+  if(zakt(A.controle,B.controle,C.controle))waarsch.push(`Eindcontrole in orde zakt al twee weken: ${pct(C.controle)} → ${pct(B.controle)} → ${pct(A.controle)}`);
+  if(zakt(A.klacht,B.klacht,C.klacht,false))waarsch.push(`Klachten stijgen al twee weken: ${kom(C.klacht)} → ${kom(B.klacht)} → ${kom(A.klacht)} per 100`);
+  const per=w=>{const m={};w.L.forEach(b=>{const n=String(b.door||"Onbekend");(m[n]=m[n]||[]).push(b)});return m};
+  const pA=per(A),pB=per(B),pC=per(C),namen=Object.keys(pA).sort((a,b)=>pA[b].length-pA[a].length);
+  const rij=namen.map(n=>{const a=kwCijfers(pA[n]),b=kwCijfers(pB[n]||[]),c=kwCijfers(pC[n]||[]);
+    if(zakt(a.opTijd,b.opTijd,c.opTijd))waarsch.push(`${n}: op tijd zakt al twee weken (${pct(a.opTijd)})`);
+    if(zakt(a.sterren,b.sterren,c.sterren))waarsch.push(`${n}: beoordeling zakt al twee weken (${kom(a.sterren)})`);
+    return `<div class="kwq-r"><b>${esc(n)}</b><span data-l="Bezoeken">${a.n}</span><span data-l="Op tijd">${pct(a.opTijd)}</span><span data-l="Sterren">${a.sterren==null?"—":kom(a.sterren)}</span><span data-l="Controle">${pct(a.controle)}</span><span data-l="Klachten" class="${a.klachtN?"kwq-rood":""}">${a.klachtN}</span></div>`}).join("");
+  const tg=(l,v,d)=>`<div class="kww-t"><small>${l}</small><b>${v}</b>${d}</div>`;
+  return `<section class="kp kww"><div class="kww-h"><span class="kww-ic">${I.check}</span><div><b>Weekoverzicht kwaliteit</b><small>Week ${weekNr(W.za)} · ${fmtD(iso(W.rg(0)[0]))} – ${fmtD(W.key)} · vergeleken met vorige week</small></div></div>
+    <div class="kww-g">${tg("Bezoeken",A.n,`<em class="kww-d">vorige week ${B.n}</em>`)}${tg("Op tijd",pct(A.opTijd),ver(A.opTijd,B.opTijd,true,"%"))}${tg("Beoordeling",A.sterren==null?"—":kom(A.sterren),ver(A.sterren,B.sterren))}${tg("Eindcontrole",pct(A.controle),ver(A.controle,B.controle,true,"%"))}${tg("Klachten",A.klachtN,ver(A.klachtN,B.klachtN,false))}${tg("Schade",A.schade,ver(A.schade,B.schade,false))}</div>
+    ${waarsch.length?`<div class="kww-w">${waarsch.map(w=>`<p>${I.alert}<span>${esc(w)}</span></p>`).join("")}</div>`:`<p class="kww-ok">${I.check}<span>Niets dat twee weken achter elkaar slechter wordt.</span></p>`}
+    ${rij?`<div class="kwq-t kww-mw"><div class="kwq-r kwq-h"><span>Medewerker</span><span>Bezoeken</span><span>Op tijd</span><span>Sterren</span><span>Controle</span><span>Klachten</span></div>${rij}</div>`:""}
+    <div class="kww-k"><button type="button" class="ghost" data-cc="kw:week:open">Statistieken › Kwaliteit</button><button type="button" class="primary" data-cc="kw:week:gezien">${I.check}Gezien</button></div></section>`}
 
 /* ---------- vertrekcontrole van de bus (bij Start werkdag) ---------- */
 const KW_BUS=["Ladders goed vast","Genoeg water en zeep","Schone doeken en wissers","Bus netjes, binnen en buiten"];
@@ -21131,6 +21181,7 @@ SETEXTRA.kwaliteit=(c,s)=>{
     ${sec("Stipt op tijd")}
     ${tgl("kwStipt","Melding als je te laat dreigt te komen","Alleen voor jou in het Overzicht. De klant krijgt niets automatisch.",s.kwStipt!==false)}
     ${inp("kwVenster","Aankomstvenster (minuten na de geplande tijd)",kwVenster(),{type:"number",t:"num",attrs:'min="5" max="120" step="5"'})}
+    ${tgl("kwWeek","Weekoverzicht op zaterdag","Elke zaterdag in het Overzicht: deze week tegen vorige week, per medewerker, met een waarschuwing als iets twee weken achter elkaar slechter wordt.",s.kwWeek!==false)}
     ${sec("Herstel")}
     ${sel("kwDrempel","Herstelmelding bij een beoordeling van",String(kwDrempel()),[["1","1 ster"],["2","2 sterren of minder"],["3","3 sterren of minder"],["4","4 sterren of minder"]],{help:"Rode melding in het Overzicht: bellen, zo nodig kosteloos nawerk, dan op opgelost."})}
     ${inp("crBezoek","Credits voor het beoordelen van een bezoek (€)",s.crBezoek==null?"0.10":s.crBezoek,{type:"number",t:"num",attrs:'min="0" max="5" step="0.05"',help:"De klant beoordeelt in het klantportaal elk bezoek met 1 tot 5 sterren (tot 48 uur erna). Die sterren komen in je kwaliteitsscore. 0 = geen credits."})}
@@ -22119,6 +22170,7 @@ function vOverzicht2(){const t=today(),ti=iso(t),P=ccPlanning(),S_=ccSignalen().
   <div class="ov2-top"><div><h1>Overzicht</h1><p>${esc(dag.charAt(0).toUpperCase()+dag.slice(1))}</p></div><div class="ov2-tools cc-tools">${"Notification" in window&&Notification.permission==="default"?`<button type="button" class="cc-ntf" data-cc="notif">${I.bell}Meldingen aan</button>`:""}<button type="button" class="cc-bel cc-snd${S().ccGeluid===false?" uit":""}" data-cc="geluid" aria-label="${S().ccGeluid===false?"Geluid aanzetten":"Geluid uitzetten"}" title="${S().ccGeluid===false?"Geluid staat uit":"Geluid bij nieuwe meldingen"}">${S().ccGeluid===false?sv('<path d="M11 5 6 9H3v6h3l5 4z"/><path d="m22 9-6 6M16 9l6 6"/>'):sv('<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>')}</button>${ccBelKnop()}${ccTkKnop()}${typeof vrKnop==="function"?vrKnop():""}${ccBetKnop()}${ccPortKnop()}${ccWeerHtml()}</div></div>
   <section class="kp ow-kern ov2-dag"><div class="ov2-zin"><i class="ov2-stip ${kleur}"></i><b>Vandaag</b> ${esc(zin)}</div>
     <div class="kkh-tg kk-kern">${tel("Bezoeken",P.length,klaar?klaar+" klaar":"nog niets afgemeld")}${tel("Bezig",bezig,bezig?"op dit moment":"")}${tel("Aandacht",S_.length,kritiek?kritiek+" dringend":S_.length?"op te pakken":"alles afgehandeld")}${tel("Omzet vandaag",eur0(omzet),verwacht?"nog "+eur0(verwacht)+" te gaan":"")}</div></section>
+  ${typeof kwWeekKaart==="function"?kwWeekKaart():""}
   <div class="ov2-grid">
     <div class="ov2-col">
       <section class="ov2-s" id="ov2Gast">${kop("Gasten van vandaag",P.length?`${klaar} van ${P.length} geweest`:"",`<button type="button" class="cc-link" data-cc="tab:planning">Planning${I.right||""}</button>`)}${gasten}</section>

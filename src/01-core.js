@@ -311,6 +311,8 @@ async function save(col,id,data){tikWis();try{IZ.lokaal=Date.now()}catch(_){}if(
   const oud=(state.facturen||[]).find(f=>f.id===id),nr=String(data.nummer||"");
   const fout=oud&&oud.nummer&&nr&&oud.nummer!==nr&&String(oud.klantId||"")!==String(data.klantId||"")?"overschrijven "+oud.nummer+" met "+nr:(!oud&&data.soort==="offerte"&&nr&&(state.facturen||[]).some(f=>f.soort==="offerte"&&f.nummer===nr&&f.id!==id))?"tweede offerte "+nr:"";
   if(fout){const st=String((new Error()).stack||"").split("\n").slice(1,7).map(x=>x.trim()).join(" | ");console.error("save facturen geweigerd:",fout,st);
+    /* vastleggen waar het vandaan kwam (live/bewaking_…), zodat de oorzaak gevonden kan worden; geen klantgegevens, alleen nummers en de aanroep */
+    try{if(state.db)fsDb().doc("live/bewaking_"+Date.now().toString(36)).set({soort:"facturen-bewaking",fout,id,oudNr:oud?String(oud.nummer||""):"",nieuwNr:nr,stack:st.slice(0,1500),op:new Date().toISOString(),url:String(location.hash||"").slice(0,80)}).catch(()=>{})}catch(_){}
     throw {msg:"Niet opgeslagen: dit zou "+(oud?"offerte/factuur "+oud.nummer+" overschrijven":"offerte "+nr+" dubbel maken")+". Herlaad de pagina en probeer het opnieuw."}}}
   if(col==="facturen"){data=bcVast(data);if(typeof btwVast==="function")data=btwVast(data,!(state.facturen||[]).some(f=>f.id===id))}if(col==="facturen"&&!(state.facturen||[]).some(f=>f.id===id))MIJN_F.add(id);if(state.db)return opslaanLive(col,id,data);
   else{if(data&&data._handmatig){data={...data};delete data._handmatig}mem[col].set(id,{...data,id});apply(col,[...mem[col].values()]);schedule()}}
