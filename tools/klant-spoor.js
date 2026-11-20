@@ -8,7 +8,7 @@ const zonder = o => JSON.stringify(o, (k, v) => /mail|tel|telefoon|iban|handteke
 (async () => {
   const z = String(process.env.ZOEK || "").toLowerCase().trim();
   const all = (await db.collection("klanten").get()).docs.map(d => ({ id: d.id, ...d.data() }));
-  const hit = all.filter(k => String(k.klantnr || "") === z || JSON.stringify([k.adres, k.naam]).toLowerCase().includes(z));
+  const hit = all.filter(k => k.id.toLowerCase() === z || String(k.klantnr || "") === z || JSON.stringify([k.adres, k.naam]).toLowerCase().includes(z));
   const ids = new Set(hit.map(k => k.id));
   for (const k of hit) {
     console.log("KLANT", k.id, zonder(pick(k, ["naam", "klantnr", "adres", "plaats", "dienst", "prijs", "frequentie", "gepland", "actief", "prospect", "hoofdKlantId", "aangemaakt", "laatst", "eersteKeer", "bron"])));
@@ -23,7 +23,7 @@ const zonder = o => JSON.stringify(o, (k, v) => /mail|tel|telefoon|iban|handteke
   for (const fid of ["fmw0jpgesnnru"]) { const d = await db.doc("facturen/" + fid).get(); console.log("OFFERTE-DOC", fid, d.exists ? zonder(pick(d.data(), ["soort", "nummer", "status", "klantId", "regels"])) : "BESTAAT NIET (verwijderd)"); }
   for (const c of ["akkoord", "aanvragen"]) {
     const q = (await db.collection(c).get()).docs.map(d => ({ id: d.id, ...d.data() }));
-    q.filter(x => ids.has(x.klantId) || /001813|jutte/i.test(JSON.stringify(x).slice(0, 4000))).forEach(x => console.log(c.toUpperCase(), x.id, "velden:", Object.keys(x).sort().join(","), zonder(pick(x, ["klantId", "nummer", "factuurId", "offerteId", "status", "op", "verwerkt", "soort", "bron", "ref"]))));
+    q.filter(x => ids.has(x.klantId) || x.factuurId === "fmw0jpgesnnru").forEach(x => console.log(c.toUpperCase(), x.id, zonder(pick(x, ["klantId", "nummer", "factuurId", "status", "gemaakt", "getekend", "verwerkt", "soort"])), "model:", zonder(x.model).slice(0, 900)));
   }
   const b = (await db.collection("berichten").where("klantId", "in", [...ids].slice(0, 10)).get()).docs.map(d => d.data());
   b.sort((a, c) => String(a.op).localeCompare(String(c.op))).forEach(m => console.log("BERICHT", String(m.op).slice(0, 16), m.kanaal, m.sjabloon || "", "|", String(m.onderwerp || "").slice(0, 90), "| ref", m.ref || ""));
