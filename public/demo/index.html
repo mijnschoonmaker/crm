@@ -9257,7 +9257,13 @@ async function nrBewaker(){if(nrBezig||!MIJN_F.size)return;nrBezig=1;
 function bcVast(data){if(!data||data.soort!=="factuur")return data;const d={...data};
   if(d.status==="concept"){delete d.beheercode;return d}
   if(d.beheercode==null){const k=(state.klanten||[]).find(x=>x.id===d.klantId);if(k&&k.beheercode)d.beheercode=String(k.beheercode)}return d}
-async function save(col,id,data){tikWis();try{IZ.lokaal=Date.now()}catch(_){}if(col==="klanten"&&typeof msKlantLimiet==="function"&&data&&data.actief!==false&&!(state.klanten||[]).some(k=>k.id===id)&&msKlantLimiet())throw {msg:"Maximum aantal klanten van Starter bereikt",stil:true};if(col==="klanten"&&typeof OW_NIEUW!=="undefined"&&OW_NIEUW&&OW_NIEUW.kid===id&&OW_NIEUW.klaar)OW_NIEUW.bewaard=true;if(col==="facturen"){data=bcVast(data);if(typeof btwVast==="function")data=btwVast(data,!(state.facturen||[]).some(f=>f.id===id))}if(col==="facturen"&&!(state.facturen||[]).some(f=>f.id===id))MIJN_F.add(id);if(state.db)return opslaanLive(col,id,data);
+async function save(col,id,data){tikWis();try{IZ.lokaal=Date.now()}catch(_){}if(col==="klanten"&&typeof msKlantLimiet==="function"&&data&&data.actief!==false&&!(state.klanten||[]).some(k=>k.id===id)&&msKlantLimiet())throw {msg:"Maximum aantal klanten van Starter bereikt",stil:true};if(col==="klanten"&&typeof OW_NIEUW!=="undefined"&&OW_NIEUW&&OW_NIEUW.kid===id&&OW_NIEUW.klaar)OW_NIEUW.bewaard=true;if(col==="facturen"&&data){/* bewaking (20-11-2026): een offerte of factuur mag nooit over een ánder document heen geschreven worden, en een offerte mag niet dubbel ontstaan.
+    Eerder werd een getekende offerte overschreven door een kopie van een andere offerte. Hier wordt dat geweigerd (met de oorzaak in de console). */
+  const oud=(state.facturen||[]).find(f=>f.id===id),nr=String(data.nummer||"");
+  const fout=oud&&oud.nummer&&nr&&oud.nummer!==nr&&String(oud.klantId||"")!==String(data.klantId||"")?"overschrijven "+oud.nummer+" met "+nr:(!oud&&data.soort==="offerte"&&nr&&(state.facturen||[]).some(f=>f.soort==="offerte"&&f.nummer===nr&&f.id!==id))?"tweede offerte "+nr:"";
+  if(fout){const st=String((new Error()).stack||"").split("\n").slice(1,7).map(x=>x.trim()).join(" | ");console.error("save facturen geweigerd:",fout,st);
+    throw {msg:"Niet opgeslagen: dit zou "+(oud?"offerte/factuur "+oud.nummer+" overschrijven":"offerte "+nr+" dubbel maken")+". Herlaad de pagina en probeer het opnieuw."}}}
+  if(col==="facturen"){data=bcVast(data);if(typeof btwVast==="function")data=btwVast(data,!(state.facturen||[]).some(f=>f.id===id))}if(col==="facturen"&&!(state.facturen||[]).some(f=>f.id===id))MIJN_F.add(id);if(state.db)return opslaanLive(col,id,data);
   else{if(data&&data._handmatig){data={...data};delete data._handmatig}mem[col].set(id,{...data,id});apply(col,[...mem[col].values()]);schedule()}}
 /* ---------- snel en veilig opslaan ----------
    Vroeger wachtte elke knop tot de server het opslaan had bevestigd (bij klanten en facturen zelfs twee keer heen en terug).
@@ -21215,7 +21221,17 @@ async function autoAkkoordGetekend(f){
     toast(cleanName(k.naam)+" heeft getekend en staat nu bij Te plannen");
   }catch(e){_autoAk.delete(f.id);console.error("auto akkoord",e)}
 }
-function checkGetekend(){if(!LIVE||!state.loaded)return;state.facturen.filter(f=>f.soort==="offerte"&&f.getekendNieuw&&getekendAfgehandeld(f)&&!_autoAk.has("g"+f.id)).forEach(f=>{_autoAk.add("g"+f.id);getekendGezien(f)});state.facturen.filter(f=>f.soort==="offerte"&&f.getekend&&f.status==="geaccepteerd"&&!f.autoAkkoord).forEach(f=>{const k=state.klanten.find(x=>x.id===f.klantId);if(k&&k.prospect)autoAkkoordGetekend(f)})}
+function checkGetekend(){if(!LIVE||!state.loaded)return;state.facturen.filter(f=>f.soort==="offerte"&&f.getekendNieuw&&getekendAfgehandeld(f)&&!_autoAk.has("g"+f.id)).forEach(f=>{_autoAk.add("g"+f.id);getekendGezien(f)});state.facturen.filter(f=>f.soort==="offerte"&&f.getekend&&f.status==="geaccepteerd"&&!f.autoAkkoord).forEach(f=>{const k=state.klanten.find(x=>x.id===f.klantId);if(k&&k.prospect)autoAkkoordGetekend(f);
+    /* bestaande klant (20-11-2026): de diensten uit de getekende offerte komen er als opdracht bij; alleen offertes die vanaf nu getekend worden */
+    else if(k&&String((f.getekend||{}).op||"")>="2026-11-20")bestaandGetekend(f,k)})}
+async function bestaandGetekend(f,k){if(_autoAk.has("b"+f.id))return;_autoAk.add("b"+f.id);
+  const ex=((f.opdracht||{}).extra||[]).filter(e=>e&&e.dienst),oid=k.objectId||"hoofd";
+  try{if(ex.length){const nw=ex.map(e=>({...e,id:newId("o"),objectId:e.objectId||oid,apart:GLAS()?false:true,actief:true,vanOfferte:f.nummer||""}));
+      await save("klanten",k.id,{...strip(k),opdrachten:[...(k.opdrachten||[]).filter(x=>!x.groep||!ex.some(e=>e.groep===x.groep)),...nw],
+        log:[...(k.log||[]),{datum:iso(today()),tekst:"Offerte "+(f.nummer||"")+" online ondertekend door "+((f.getekend||{}).naam||"de klant")+" · als opdracht toegevoegd: "+ex.map(e=>e.dienst).join(", ")}]})}
+    const ff=state.facturen.find(x=>x.id===f.id)||f;await save("facturen",f.id,{...strip(ff),status:"geaccepteerd",akkoordOp:ff.akkoordOp||iso(today()),autoAkkoord:true});
+    toast(cleanName(k.naam)+" heeft offerte "+(f.nummer||"")+" getekend"+(ex.length?" · "+ex.map(e=>e.dienst).join(", ")+" staat nu bij de opdrachten":" · kijk de opdracht na"))}
+  catch(e){_autoAk.delete("b"+f.id);console.error("getekend bestaande klant",e)}}
 if(LIVE)setInterval(()=>{try{checkGetekend()}catch(_){}},5000);
 
 

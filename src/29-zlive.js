@@ -84,7 +84,17 @@ async function autoAkkoordGetekend(f){
     toast(cleanName(k.naam)+" heeft getekend en staat nu bij Te plannen");
   }catch(e){_autoAk.delete(f.id);console.error("auto akkoord",e)}
 }
-function checkGetekend(){if(!LIVE||!state.loaded)return;state.facturen.filter(f=>f.soort==="offerte"&&f.getekendNieuw&&getekendAfgehandeld(f)&&!_autoAk.has("g"+f.id)).forEach(f=>{_autoAk.add("g"+f.id);getekendGezien(f)});state.facturen.filter(f=>f.soort==="offerte"&&f.getekend&&f.status==="geaccepteerd"&&!f.autoAkkoord).forEach(f=>{const k=state.klanten.find(x=>x.id===f.klantId);if(k&&k.prospect)autoAkkoordGetekend(f)})}
+function checkGetekend(){if(!LIVE||!state.loaded)return;state.facturen.filter(f=>f.soort==="offerte"&&f.getekendNieuw&&getekendAfgehandeld(f)&&!_autoAk.has("g"+f.id)).forEach(f=>{_autoAk.add("g"+f.id);getekendGezien(f)});state.facturen.filter(f=>f.soort==="offerte"&&f.getekend&&f.status==="geaccepteerd"&&!f.autoAkkoord).forEach(f=>{const k=state.klanten.find(x=>x.id===f.klantId);if(k&&k.prospect)autoAkkoordGetekend(f);
+    /* bestaande klant (20-11-2026): de diensten uit de getekende offerte komen er als opdracht bij; alleen offertes die vanaf nu getekend worden */
+    else if(k&&String((f.getekend||{}).op||"")>="2026-11-20")bestaandGetekend(f,k)})}
+async function bestaandGetekend(f,k){if(_autoAk.has("b"+f.id))return;_autoAk.add("b"+f.id);
+  const ex=((f.opdracht||{}).extra||[]).filter(e=>e&&e.dienst),oid=k.objectId||"hoofd";
+  try{if(ex.length){const nw=ex.map(e=>({...e,id:newId("o"),objectId:e.objectId||oid,apart:GLAS()?false:true,actief:true,vanOfferte:f.nummer||""}));
+      await save("klanten",k.id,{...strip(k),opdrachten:[...(k.opdrachten||[]).filter(x=>!x.groep||!ex.some(e=>e.groep===x.groep)),...nw],
+        log:[...(k.log||[]),{datum:iso(today()),tekst:"Offerte "+(f.nummer||"")+" online ondertekend door "+((f.getekend||{}).naam||"de klant")+" · als opdracht toegevoegd: "+ex.map(e=>e.dienst).join(", ")}]})}
+    const ff=state.facturen.find(x=>x.id===f.id)||f;await save("facturen",f.id,{...strip(ff),status:"geaccepteerd",akkoordOp:ff.akkoordOp||iso(today()),autoAkkoord:true});
+    toast(cleanName(k.naam)+" heeft offerte "+(f.nummer||"")+" getekend"+(ex.length?" · "+ex.map(e=>e.dienst).join(", ")+" staat nu bij de opdrachten":" · kijk de opdracht na"))}
+  catch(e){_autoAk.delete("b"+f.id);console.error("getekend bestaande klant",e)}}
 if(LIVE)setInterval(()=>{try{checkGetekend()}catch(_){}},5000);
 
 
