@@ -21095,10 +21095,10 @@ function kwDagBrief(stops,d,isT){if(!isT||kwS().kwDagbrief===false)return"";cons
     if(String(k.geboortedatum||"").slice(5,10)===md)l.push(["Jarig vandaag","goud"]);
     const ks=kwSinds(k);if(ks&&ks.slice(5)===md&&today().getFullYear()-Number(ks.slice(0,4))>=1)l.push([(today().getFullYear()-Number(ks.slice(0,4)))+" jaar klant","goud"]);
     const lt=typeof hospList==="function"?hospList(k).filter(x=>x.c==="letop"||x.c==="dier").map(x=>x.t):[];
-    if(l.length||lt.length)R.push({k,l,lt})});
+    R.push({k,l,lt})});/* alle adressen van vandaag, ook zonder bijzonderheden (zoals VvE's) */
   const tel=(n,w)=>n?`<span><b>${n}</b> ${w}</span>`:"";
   const nE=R.filter(r=>r.l.some(x=>x[0]==="Eerste bezoek")).length,nH=R.filter(r=>r.l.some(x=>/Herstel|schade/.test(x[0]))).length,nJ=R.filter(r=>r.l.some(x=>/Jarig|jaar klant/.test(x[0]))).length;
-  return `<details class="kwd"${R.length?" open":""}><summary><span class="kwd-ic">${I.sun||I.planning}</span><span class="kwd-t"><b>Jouw dag</b><small>${[plural(open.length,"adres","adressen"),nE?plural(nE,"eerste bezoek","eerste bezoeken"):"",nH?nH+" extra aandacht":"",nJ?nJ+" iets te vieren":""].filter(Boolean).join(" · ")}</small></span>${I.down||""}</summary>
+  return `<details class="kwd"${R.some(r=>r.l.length||r.lt.length)?" open":""}><summary><span class="kwd-ic">${I.sun||I.planning}</span><span class="kwd-t"><b>Jouw dag</b><small>${[plural(open.length,"adres","adressen"),nE?plural(nE,"eerste bezoek","eerste bezoeken"):"",nH?nH+" extra aandacht":"",nJ?nJ+" iets te vieren":""].filter(Boolean).join(" · ")}</small></span>${I.down||""}</summary>
     ${R.length?`<div class="kwd-l">${R.map(r=>`<div class="kwd-r" role="button" tabindex="0" data-act="klant" data-id="${esc(r.k.id)}"><span class="kwd-tm">${esc(r.k.tijd||"")}</span><span class="kwd-m"><b>${esc(kwNaam(r.k))}</b>${r.l.map(x=>`<i class="kwd-lb ${x[1]}">${esc(x[0])}</i>`).join("")}${r.lt.length?`<small>${esc(r.lt.join(" · "))}</small>`:""}</span></div>`).join("")}</div>`
       :`<p class="kwd-leeg">Geen bijzonderheden vandaag. Gewoon een mooie dag.</p>`}</details>`}
 
