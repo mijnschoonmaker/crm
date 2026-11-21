@@ -43,13 +43,7 @@ const waNr = t => { let d = String(t || "").replace(/\D/g, ""); if (d.startsWith
   const skin = fs.readFileSync(path.join(__dirname, "webshop-config-skin.html"), "utf8"), bi = html.lastIndexOf("</body>");
   const mt = html.slice(0, bi) + skin + html.slice(bi), bj = mt.lastIndexOf("</body>");
   const laag = fs.readFileSync(path.join(__dirname, "..", "src", "kc", "fotolaag.html"), "utf8");
-  /* Mansard-score: gemiddelde beoordeling van klanten over het afgelopen jaar, in Kaprozen (0-3). Pas vanaf 5 beoordelingen. */
-  let kap = 0;
-  try { const van = new Date(Date.now() - 365 * 864e5).toISOString().slice(0, 10), V = [];
-    (await db.collection("beurten").where("datum", ">=", van).get()).docs.forEach(d => { const b = (d.data() || {}).beoordeling; if (!b) return; const n = b.kap != null ? Number(b.kap) : (x => x >= 5 ? 3 : x === 4 ? 2 : x === 3 ? 1 : x > 0 ? 0 : null)(Number(b.sterren) || 0); if (n != null && !isNaN(n)) V.push(n); });
-    const gem = V.length ? V.reduce((a, x) => a + x, 0) / V.length : 0; kap = V.length >= 5 ? (gem >= 2.6 ? 3 : gem >= 2 ? 2 : gem >= 1.4 ? 1 : 0) : 0;
-    console.log("::notice title=Mansard-score::" + V.length + " beoordelingen · gemiddeld " + gem.toFixed(2) + " · " + kap + " Kaprozen"); } catch (e) { console.log("Mansard-score niet berekend:", e.message); }
-  const gs = "<script>window.FO_GOOGLE={kap:" + kap + ",score:" + JSON.stringify(String(s.googleScore !== undefined ? s.googleScore : "5,0")) + ",url:" + JSON.stringify(/^https:\/\//.test(String(s.webReviewUrl || "")) ? String(s.webReviewUrl) : "") + "}</script>";
+  const gs = "<script>window.FO_GOOGLE={score:" + JSON.stringify(String(s.googleScore !== undefined ? s.googleScore : "5,0")) + ",url:" + JSON.stringify(/^https:\/\//.test(String(s.webReviewUrl || "")) ? String(s.webReviewUrl) : "") + "}</script>";
   const foto = mt.slice(0, bj) + gs + laag + mt.slice(bj);
   fs.writeFileSync(path.join(uit, "mijnschoonmaker.html"), foto);
   fs.writeFileSync(path.join(uit, "mijnschoonmaker-test.html"), foto);
