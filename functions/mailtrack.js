@@ -66,9 +66,18 @@ module.exports = ({ db, T, onRequest, onCall, HttpsError, checkGebruiker, nu, HO
       await db.collection("klantActiviteit").add({ ...Object.fromEntries(Object.entries(info || {}).filter(([, v]) => v != null && v !== "").map(([k, v]) => [k, typeof v === "string" ? v.slice(0, 200) : v])), klantId: String(klantId), soort: String(soort).slice(0, 40), t }); }
     catch (e) { console.error("klantactiviteit", e.message); } }
 
+  let GLANS = null;
   const mailTrack = onRequest({ memory: "256MiB" }, async (req, res) => {
     const deel = String(req.path || "").split("/").filter(Boolean), i0 = deel.indexOf("t"), soort = deel[i0 + 1], tok = deel[i0 + 2], nr = Number(deel[i0 + 3]);
     const ua = String(req.headers["user-agent"] || "").slice(0, 300), t = nu();
+    if (soort === "g") { /* lichtstraal rond de knop 'Mijn klantportaal' in de mail, in de accentkleur van het bedrijf: /api/t/g/<hex>.gif */
+      const hx = /^([0-9a-f]{6})(?:\.gif)?$/i.exec(String(tok || ""));const acc = hx ? hx[1] : "137a8a";
+      if (!GLANS) GLANS = require("fs").readFileSync(require("path").join(__dirname, "assets", "glans.gif"));
+      const A = [0, 2, 4].map(i => parseInt(acc.slice(i, i + 2), 16)), G = [0xe3, 0xe6, 0xea], W = [255, 255, 255], P = [];
+      const mx = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+      for (let i = 0; i < 24; i++) P.push(...mx(G, A, i / 23)); for (let i = 0; i < 16; i++) P.push(...mx(A, W, i / 15)); for (let i = 0; i < 24; i++) P.push(...mx(W, G, i / 23));
+      const out = Buffer.from(GLANS); Buffer.from(P).copy(out, 13);
+      res.set("content-type", "image/gif"); res.set("cache-control", "public, max-age=31536000, immutable"); res.send(out); return; }
     if (soort === "o") {
       res.set("cache-control", "no-store, no-cache, must-revalidate, max-age=0"); res.set("content-type", "image/gif"); res.set("pragma", "no-cache");
       try { const d = await zoek(tok); if (d) { const m = d.data() || {}, sec = m.verstuurdOp ? (Date.parse(t) - Date.parse(m.verstuurdOp)) / 1000 : null, b = bron(ua);
