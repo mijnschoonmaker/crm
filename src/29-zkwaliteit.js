@@ -36,6 +36,7 @@ function kwBriefRegels(k){const hl=typeof hospList==="function"?hospList(k):[],R
   const cat=[["aankomst","Aankomst en toegang",I.lock],["dier","Huisdieren",I.paw||I.alert],["letop","Let op",I.alert],["voorkeur","Voorkeur",I.heart||I.note]];
   if(kwEerste(k))R.push({ic:I.user||I.klanten,l:"Eerste kennismaking",t:"Stel jezelf voor, vraag naar wensen en bijzonderheden (toegang, huisdieren, aandachtspunten) en maak vóórfoto's.",pri:1});
   (Array.isArray(k.schades)?k.schades:[]).filter(x=>x&&x.status!=="afgehandeld").slice(-2).forEach(x=>R.push({ic:I.alert,l:"Schade "+fmtD(x.datum)+(x.door?" · "+x.door:""),t:x.tekst+" (nog niet afgehandeld)",pri:1}));
+  {const pt=(k.hoofdKlantId&&state.klanten.find(x=>x.id===k.hoofdKlantId)||k).portaalToegang;if(pt&&((pt.opties||[]).length||pt.tekst||pt.code))R.push({ic:I.lock,l:"Instructies van de klant",t:[...(pt.opties||[]),pt.code?"code: "+pt.code:"",pt.tekst||""].filter(Boolean).join(" · ")})}
   const n=k.bezoekNotitie;if(n&&n.t)R.push({ic:I.note,l:"Vorige keer opgevallen"+(n.door?" · "+n.door:""),t:n.t,pri:1});
   cat.forEach(([c,l,ic])=>{const x=hl.filter(y=>y.c===c);if(x.length)R.push({ic,l,t:x.map(y=>y.t).join(" · ")})});
   const praat=hl.filter(x=>x.c==="verteld"&&(typeof hospNu!=="function"||hospNu(x)));if(praat.length)R.push({ic:I.chat||I.note,l:"Ter sprake brengen",t:praat.map(x=>x.t).join(" · ")});

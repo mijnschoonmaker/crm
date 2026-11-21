@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="e637cededccc"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="5f5a1f1f5712"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -21432,6 +21432,7 @@ function kwBriefRegels(k){const hl=typeof hospList==="function"?hospList(k):[],R
   const cat=[["aankomst","Aankomst en toegang",I.lock],["dier","Huisdieren",I.paw||I.alert],["letop","Let op",I.alert],["voorkeur","Voorkeur",I.heart||I.note]];
   if(kwEerste(k))R.push({ic:I.user||I.klanten,l:"Eerste kennismaking",t:"Stel jezelf voor, vraag naar wensen en bijzonderheden (toegang, huisdieren, aandachtspunten) en maak vóórfoto's.",pri:1});
   (Array.isArray(k.schades)?k.schades:[]).filter(x=>x&&x.status!=="afgehandeld").slice(-2).forEach(x=>R.push({ic:I.alert,l:"Schade "+fmtD(x.datum)+(x.door?" · "+x.door:""),t:x.tekst+" (nog niet afgehandeld)",pri:1}));
+  {const pt=(k.hoofdKlantId&&state.klanten.find(x=>x.id===k.hoofdKlantId)||k).portaalToegang;if(pt&&((pt.opties||[]).length||pt.tekst||pt.code))R.push({ic:I.lock,l:"Instructies van de klant",t:[...(pt.opties||[]),pt.code?"code: "+pt.code:"",pt.tekst||""].filter(Boolean).join(" · ")})}
   const n=k.bezoekNotitie;if(n&&n.t)R.push({ic:I.note,l:"Vorige keer opgevallen"+(n.door?" · "+n.door:""),t:n.t,pri:1});
   cat.forEach(([c,l,ic])=>{const x=hl.filter(y=>y.c===c);if(x.length)R.push({ic,l,t:x.map(y=>y.t).join(" · ")})});
   const praat=hl.filter(x=>x.c==="verteld"&&(typeof hospNu!=="function"||hospNu(x)));if(praat.length)R.push({ic:I.chat||I.note,l:"Ter sprake brengen",t:praat.map(x=>x.t).join(" · ")});
@@ -22992,7 +22993,7 @@ if(LIVE)setTimeout(function w(){state.loaded?livePortaal():setTimeout(w,700)},70
 function ptKaart(){const o=document.getElementById("ptCard");if(o)o.remove();try{tkKaart()}catch(e){}if(tkOpen)try{tkSegTeken();tkLijstTeken()}catch(e){}}
 
 function ptRij(v){const T=PT_TYPE[v.type]||["Verzoek"],k=state.klanten.find(x=>x.id===v.klantId);
-    const det=[v.datum?(v.type==="vakantie"?"Van "+fmtD(v.datum)+" t/m "+fmtD(v.tot):"Afspraak "+fmtD(v.datum)):"",v.voorkeur?"Voorkeur: "+v.voorkeur:"",v.diensten&&v.diensten.length?v.diensten.join(", "):"",...(v.wijziging?Object.keys(v.wijziging).map(f=>f+": "+((v.oud||{})[f]||"–")+" → "+(v.wijziging[f]||"–")):[]),v.sterren?"★".repeat(v.sterren)+"☆".repeat(5-v.sterren):""].filter(Boolean);
+    const det=[v.datum?(v.type==="vakantie"?"Van "+fmtD(v.datum)+" t/m "+fmtD(v.tot):"Afspraak "+fmtD(v.datum)):"",v.voorkeur?"Voorkeur: "+v.voorkeur:"",v.diensten&&v.diensten.length?v.diensten.join(", "):"",...(v.wijziging?Object.keys(v.wijziging).map(f=>f+": "+((v.oud||{})[f]||"–")+" → "+(v.wijziging[f]||"–")):[]),v.sterren?"★".repeat(v.sterren)+"☆".repeat(5-v.sterren):"",...(v.toegang?[...(v.toegang.opties||[]),v.toegang.code?"Code poort/deur doorgegeven":"",v.toegang.tekst?"“"+v.toegang.tekst+"”":""]:[])].filter(Boolean);
     return `<div class="pt-vz" data-id="${esc(v.id)}"><div class="pt-vz-h"><span class="pill ${v.type==="beoordeling"||v.type==="stoppen"?"late":v.type==="bericht"?"neutral":"soon"}">${esc(T[0])}</span><b>${k?`<button type="button" class="linkbtn" data-act="klant" data-id="${esc(k.id)}">${esc(cleanName(k.naam))}</button>`:esc(cleanName(v.klantNaam))}</b><small>${esc(v.adres||"")}</small><span class="sp"></span><small>${esc(fmtD(String(v.op).slice(0,10)))} ${esc(String(v.op).slice(11,16))}</small></div>
       ${det.length?`<div class="pt-det">${det.map(x=>`<span>${esc(x)}</span>`).join("")}</div>`:""}${v.tekst?`<p class="pt-txt">${esc(v.tekst)}</p>`:""}
       <div class="pt-act"><input type="text" placeholder="Antwoord voor de klant (zichtbaar in het portaal, niet verplicht)" data-ant="${esc(v.id)}">

@@ -400,7 +400,7 @@ module.exports = function maakPortaal(ctx) {
     if (type === "toegang") {
       const opties = (Array.isArray(d.opties) ? d.opties : []).map(x => txt(x).slice(0, 60)).slice(0, 10), toegang = { opties, tekst: txt(d.tekst).slice(0, 600), code: txt(d.code).replace(/\s+/g, " ").slice(0, 40), op: nu() };
       await S.kref.set({ portaalToegang: toegang }, { merge: true });
-      v.toegang = toegang; v.status = "info";
+      v.toegang = toegang; v.status = "nieuw"; /* melding in het CRM (Live binnenkomend / portaalverzoeken), net als andere verzoeken */
     }
     if (type === "beheercode") {
       const bc = txt(d.code).replace(/\s+/g, " ").trim().slice(0, 60);
