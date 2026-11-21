@@ -328,7 +328,7 @@ module.exports = function maakPortaal(ctx) {
         toegang: k.portaalToegang || { opties: [], tekst: "" }, beheercode: String(k.beheercode || ""), nieuw: !!k.eersteKeer && !beurten.length,
         incasso: { actief: !!k.incasso && !!k.mollieMandateId, sinds: String(k.incassoSinds || "").slice(0, 10), bank: k.incassoBank || "", rekening: k.incassoRekening || "", beschikbaar: !!(await geheim()).mollieKey } },
       volgende, verwacht,
-      bezoeken: beurten.slice(0, 30).map(x => ({ id: x.id, datum: x.datum, tijd: tijdVan(x), door: vve && b.vveDoor === false ? "" : voornaamVan(String(x.door || "")), dienst: x.dienst || k.dienst || "Glasbewassing", extra: x.extra || [], bedrag: bezBedrag(x), factuurId: x.gefactureerd && !/^(nvt|periodiek)$/.test(String(x.gefactureerd)) ? String(x.gefactureerd) : "", beoordeling: x.beoordeling ? { sterren: x.beoordeling.sterren } : null,
+      bezoeken: beurten.slice(0, 30).map(x => ({ id: x.id, datum: x.datum, tijd: tijdVan(x), door: vve && b.vveDoor === false ? "" : voornaamVan(String(x.door || "")), dienst: x.dienst || k.dienst || "Glasbewassing", extra: x.extra || [], bedrag: bezBedrag(x), factuurId: x.gefactureerd && !/^(nvt|periodiek)$/.test(String(x.gefactureerd)) ? String(x.gefactureerd) : "", beoordeling: x.beoordeling ? { sterren: x.beoordeling.sterren, kap: x.beoordeling.kap != null ? x.beoordeling.kap : (n => n >= 5 ? 3 : n === 4 ? 2 : n === 3 ? 1 : 0)(Number(x.beoordeling.sterren) || 0) } : null,
         ...(vve ? { /* alleen wat er gedaan is: niet-gedane taken ziet de klant niet */ taken: Array.isArray(x.taken) ? x.taken.filter(t => t && t.ok).map(t => ({ naam: String(t.naam || ""), ok: true })) : [], fotos: (x.fotos || []).map(f => fotoUrl(f.id)).filter(Boolean), notitie: String(x.notitie || "").slice(0, 400) } : x.kwaliteit && Array.isArray(x.kwaliteit.punten) ? { /* eindcontrole: alleen wat in orde was, plus de opleverfoto */ controle: { punten: x.kwaliteit.punten.filter(t => t && t.ok).map(t => String(t.naam || "").slice(0, 80)), fotos: (x.kwaliteit.fotos || []).map(f => fotoUrl(f.id)).filter(Boolean) } } : {}), /* bijzonderheid die de klant mag zien (notitie en foto) */ ...(!vve && x.bijzonderheid && x.bijzonderheid.klantZien ? { bijz: { notitie: String(x.bijzonderheid.notitie || "").slice(0, 400), fotos: (x.bijzonderheid.fotos || []).map(f => fotoUrl(f.id)).filter(Boolean) } } : {}) })),
       ...(vve ? { bord: { url: base + "/bord/" + bordToken }, meldingen: meldingenVan(beurten, k).filter(m => m.categorie !== "vuil") } : {}),
       teBeoordelen: laatsteB && !laatsteB.beoordeling && /* beoordelen kan tot 48 uur na het bezoek (vanaf afmelden) */ (Date.now() - new Date(laatsteB.op || laatsteB.datum + "T17:00:00").getTime()) < 2 * DAG ? { id: laatsteB.id, datum: laatsteB.datum } : null,
@@ -408,17 +408,21 @@ module.exports = function maakPortaal(ctx) {
       v.beheercode = bc; v.status = "info";
     }
     if (type === "beoordeling") {
-      const st = Math.max(1, Math.min(5, Math.round(Number(d.sterren) || 0)));
+      /* Kaprozen: 0 = niet naar wens, 1 = zeer goed, 2 = uitstekend, 3 = uitzonderlijk. Oude portalen sturen nog 1-5 sterren.
+         sterren blijft bewaard als afgeleide waarde voor oudere overzichten. */
+      const kap = d.kap != null && d.kap !== "" ? Math.max(0, Math.min(3, Math.round(Number(d.kap) || 0))) : (n => n >= 5 ? 3 : n === 4 ? 2 : n === 3 ? 1 : 0)(Math.round(Number(d.sterren) || 0));
+      const st = [2, 3, 4, 5][kap], PUNT = { glas: "Het glas", kozijnen: "Kozijnen en dorpels", contact: "Contact en stiptheid" };
+      const punten = (Array.isArray(d.punten) ? d.punten : []).filter(p => PUNT[p]).slice(0, 3);
       const bref = db.doc("beurten/" + String(d.beurtId || "")), bs = await bref.get();
       if (!bs.exists || bs.data().klantId !== k.id) throw new Error("bezoek niet gevonden");
       if (Date.now() - new Date(bs.data().op || String(bs.data().datum || "") + "T17:00:00").getTime() > 2 * DAG + 10 * 60e3) throw new Error("Dit bezoek kan niet meer beoordeeld worden.");
       const alBeoordeeld = !!bs.data().beoordeling;
-      await bref.set({ beoordeling: { sterren: st, tekst: v.tekst, op: nu() } }, { merge: true });
+      await bref.set({ beoordeling: { kap, sterren: st, ...(punten.length ? { punten } : {}), tekst: v.tekst, op: nu() } }, { merge: true });
       /* credits voor het beoordelen van een bezoek (eenmalig per bezoek) */
       const crB = numOf((await bedrijf().catch(() => ({}))).crBezoek, 0.1);
       if (!alBeoordeeld && crB > 0) { try { await db.runTransaction(async t => { const ks = await t.get(S.kref); const kk = ks.data() || {}; const al = [...(kk.tegoed || []), ...(kk.tegoedGebruikt || [])].some(y => y && y.bron === "beoordeling" && y.ref === bref.id); if (al) return;
         t.set(S.kref, { tegoed: [...(Array.isArray(kk.tegoed) ? kk.tegoed : []), { id: newId("tg"), bedrag: crB, reden: "Credits: bezoek beoordeeld", bron: "beoordeling", ref: bref.id, op: isoNL() }] }, { merge: true }); }); } catch (e) { console.error("credits beoordeling", e.message); } }
-      Object.assign(v, { sterren: st, beurtId: bref.id, datum: bs.data().datum || "", status: st <= 3 ? "nieuw" : "info" });
+      Object.assign(v, { kap, sterren: st, ...(punten.length ? { punten: punten.map(p => PUNT[p]) } : {}), beurtId: bref.id, datum: bs.data().datum || "", status: kap <= 1 ? "nieuw" : "info" });
     }
     if (type === "bericht" && !v.tekst) throw new Error("Schrijf een bericht.");
     const id = newId("pv");
@@ -430,7 +434,7 @@ module.exports = function maakPortaal(ctx) {
       try {
         const [g, b] = await Promise.all([geheim(), bedrijf()]);
         if (g.brevoKey && (g.meldAdres || b.email)) await brevoSend(g.brevoKey, { sender: { name: "Mansard CRM", email: g.afzender || b.email }, to: [{ email: g.meldAdres || b.email }], replyTo: k.email ? { email: k.email } : undefined,
-          subject: `Klantportaal: ${v.titel} · ${schoon(k.naam)}`, textContent: [`${schoon(k.naam)} (${v.adres}) via het klantportaal:`, "", v.titel + (v.datum ? " · " + v.datum : "") + (v.tot ? " t/m " + v.tot : "") + (v.sterren ? " · " + v.sterren + " sterren" : ""), v.voorkeur ? "Voorkeur: " + v.voorkeur : "", v.diensten && v.diensten.length ? "Diensten: " + v.diensten.join(", ") : "", v.wijziging ? "Al doorgevoerd in het CRM:\n" + Object.keys(v.wijziging).map(f => "- " + f + ": " + ((v.oud || {})[f] || "–") + " → " + (v.wijziging[f] || "–")).join("\n") : "", v.tekst ? "\n" + v.tekst : "", "", "Open het CRM om dit af te handelen."].filter(x => x !== "").join("\n") });
+          subject: `Klantportaal: ${v.titel} · ${schoon(k.naam)}`, textContent: [`${schoon(k.naam)} (${v.adres}) via het klantportaal:`, "", v.titel + (v.datum ? " · " + v.datum : "") + (v.tot ? " t/m " + v.tot : "") + (v.kap != null ? " · " + kapTekst(v.kap) : v.sterren ? " · " + v.sterren + " sterren" : "") + (v.punten && v.punten.length ? " (beter kan: " + v.punten.join(", ").toLowerCase() + ")" : ""), v.voorkeur ? "Voorkeur: " + v.voorkeur : "", v.diensten && v.diensten.length ? "Diensten: " + v.diensten.join(", ") : "", v.wijziging ? "Al doorgevoerd in het CRM:\n" + Object.keys(v.wijziging).map(f => "- " + f + ": " + ((v.oud || {})[f] || "–") + " → " + (v.wijziging[f] || "–")).join("\n") : "", v.tekst ? "\n" + v.tekst : "", "", "Open het CRM om dit af te handelen."].filter(x => x !== "").join("\n") });
       } catch (e) { console.error("melding portaal", e); }
     }
     return { ok: true, id, ticketId: v.ticketId || "" };
@@ -444,11 +448,13 @@ module.exports = function maakPortaal(ctx) {
     if (v.type === "extra") r.push("Ik wil graag een extra dienst" + (v.diensten && v.diensten.length ? ": " + v.diensten.join(", ").toLowerCase() : "") + ".");
     if (v.type === "stoppen") r.push("Ik wil mijn abonnement opzeggen.");
     if (v.type === "gegevens") r.push("Ik heb mijn gegevens gewijzigd: " + Object.keys(v.wijziging || {}).map(f => f + " " + ((v.oud || {})[f] || "–") + " → " + (v.wijziging[f] || "–")).join(", ") + ".");
-    if (v.type === "beoordeling") r.push(`Beoordeling van het bezoek${v.datum ? " van " + datNL(v.datum) : ""}: ${v.sterren} van 5 sterren.`);
+    if (v.type === "beoordeling") r.push(`Beoordeling van het bezoek${v.datum ? " van " + datNL(v.datum) : ""}: ${v.kap != null ? kapTekst(v.kap) : v.sterren + " van 5 sterren"}.` + (v.punten && v.punten.length ? ` Kan beter: ${v.punten.join(", ").toLowerCase()}.` : ""));
     if (v.voorkeur) r.push("Voorkeur: " + v.voorkeur);
     if (v.tekst) r.push(v.tekst);
     return r.join("\n");
   }
+  /* tekst van een beoordeling in Kaprozen */
+  function kapTekst(n) { return ["niet naar wens", "1 Kaproos (zeer goed)", "2 Kaprozen (uitstekend)", "3 Kaprozen (uitzonderlijk)"][Math.max(0, Math.min(3, Number(n) || 0))]; }
   async function verzoekTicket(k, v) {
     const op = nu(), id = newId("tk"), nummer = await ticketNummer(), tekst = verzoekTekst(v);
     const cat = ["verzetten", "overslaan", "vakantie"].includes(v.type) ? "planning" : v.type === "beoordeling" ? "kwaliteit" : "overig";
