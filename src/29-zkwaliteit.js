@@ -43,82 +43,102 @@ function kwBriefRegels(k){const hl=typeof hospList==="function"?hospList(k):[],R
   const lb=(state.beurten||[]).filter(b=>b.klantId===k.id&&b.beoordeling&&Number(b.beoordeling.sterren)>0).sort((a,b)=>String(b.datum).localeCompare(String(a.datum)))[0];
   if(lb&&Number(lb.beoordeling.sterren)<=kwDrempel()&&!R.some(r=>r.l==="Extra aandacht"))R.unshift({ic:I.alert,l:"Extra aandacht",t:`Gaf het vorige bezoek ${lb.beoordeling.sterren} ${Number(lb.beoordeling.sterren)===1?"ster":"sterren"}${lb.beoordeling.tekst?": “"+String(lb.beoordeling.tekst).slice(0,140)+"”":""}. Lever vandaag extra zorgvuldig op.`,pri:1});
   return R}
+/* ---------- gedeelde opmaak van de beurtschermen (ontwerp "Beurt afronden – checklist") ---------- */
+const KW_NUL=["Voorgevel","Achtergevel","Kozijnen en rubbers"];
+const kwNulPunten=()=>{const t=kwS().kwNulPunten;return Array.isArray(t)&&t.length?t:KW_NUL};
+const KW_BIJZ=[["onbereikbaar","Niet bereikbaar"],["schade","Schade"],["extra","Extra werk mogelijk"],["herstel","Herstel na klacht"]];
+function kwKop(k,kruimel,pil,regel){return `<div class="kwa-h"><div class="kwa-kr"><span>Vandaag</span> / <b>${esc(kruimel)}</b><button type="button" class="kwa-x" data-kx aria-label="Sluiten">${I.x}</button></div>
+  <div class="kwa-wie"><span class="kwa-av">${esc(initials(k.naam||""))}</span><div><div class="kwa-n"><b>${esc(kwNaam(k))}</b>${pil||""}</div><small>${regel}</small></div></div></div>`}
+function kwFotoUp(f){return new Promise(async res=>{try{const sz=typeof imgSize==="function"?await imgSize(f).catch(()=>({})):{},r=await state.assets.upload(f);res({id:r.id,url:URL.createObjectURL(f),w:sz.w||0,h:sz.h||0,op:new Date().toISOString()})}catch(e){toast("De foto kon niet worden geüpload");res(null)}})}
+function kwDlg(){const d=document.createElement("dialog");d.className="kwa-dlg";const o=document.createElement("div");o.className="kwa";d.appendChild(o);document.body.appendChild(d);return {d,o}}
+
+/* ---------- 4. briefing bij Start · eerste beurt: nulmeting ---------- */
 function kwBriefing(k){return new Promise(res=>{try{
-  if(kwTest()||kwS().kwBriefing===false)return res(true);
-  const R=kwBriefRegels(k);if(!R.length)return res(true);
-  const eerste=kwEerste(k),fotos=[];let bezig=false;
-  const d=document.createElement("dialog");d.className="vraag-dlg";const o=document.createElement("div");o.className="vraag-ov";d.appendChild(o);
-  const teken=()=>{o.innerHTML=`<div class="skz kwb" role="alertdialog" aria-modal="true" aria-labelledby="kwbT">
-    <div class="skz-kop"><span class="skz-ic">${I.user||I.klanten}</span><div><h3 id="kwbT">${eerste?"Eerste bezoek":"Voor je aanbelt"}</h3><p>${esc(kwNaam(k))}${k.tijd?" · "+esc(k.tijd):""}</p></div></div>
-    <div class="kwb-l">${R.map(r=>`<div class="kwb-r${r.pri?" pri":""}"><span class="kwb-ic">${r.ic||""}</span><span><small>${esc(r.l)}</small><b>${esc(r.t)}</b></span></div>`).join("")}</div>
-    ${eerste?`<div class="vve-foto kwb-fo"><div class="vve-fh"><span class="eyebrow">${I.camera}Vóórfoto's</span><label class="btn small bv-cam${state.assets?"":" dis"}">${I.camera}${fotos.length?"Nog een foto":"Foto maken"}<input type="file" accept="image/*" capture="environment" hidden data-bfoto></label></div>
-      ${fotos.length?`<div class="vve-fl">${fotos.map((f,i)=>`<span><img src="${f.url}" alt=""><button type="button" class="iconbtn sm" data-bdel="${i}" aria-label="Verwijderen">${I.x}</button></span>`).join("")}</div>`:""}
-      <small class="help">Hoe het was vóór het eerste bezoek. Alleen voor jullie: de foto's komen in de opdracht, de klant ziet ze niet.</small></div>`:""}
-    <div class="skz-k"><button type="button" class="ghost" data-kb="x">Annuleren</button><button type="button" class="primary" data-kb="ok" ${bezig?"disabled":""}>${I.check}<span>Gezien, start</span></button></div></div>`;
-    const fi=o.querySelector("[data-bfoto]");if(fi)fi.onchange=async e=>{const f=e.target.files&&e.target.files[0];e.target.value="";if(!f||!state.assets)return;bezig=true;teken();
-      try{const sz=typeof imgSize==="function"?await imgSize(f).catch(()=>({})):{},r=await state.assets.upload(f);fotos.push({id:r.id,url:URL.createObjectURL(f),w:sz.w||0,h:sz.h||0})}catch(er){toast("De foto kon niet worden geüpload")}bezig=false;teken()};
-    o.querySelectorAll("[data-bdel]").forEach(b=>b.onclick=()=>{fotos.splice(Number(b.dataset.bdel),1);teken()})};
-  document.body.appendChild(d);teken();d.showModal();const weg=v=>{try{d.close()}catch(_){}d.remove();res(v)};
-  d.addEventListener("cancel",e=>{e.preventDefault();weg(null)});
-  d.addEventListener("click",e=>{const b=e.target.closest("[data-kb]");if(!b)return;if(b.dataset.kb==="x")return weg(null);if(bezig)return;KW.gezien[k.id]=new Date().toISOString();
-    /* vóórfoto's bij de opdracht (k.fotos): Start slaat de klant daarna op, dus meteen in het object en in de lijst zetten */
-    if(fotos.length){const dg=iso(today()),nw=fotos.map((f,i)=>({id:f.id,naam:"Vóórfoto eerste bezoek"+(fotos.length>1?" "+(i+1):""),datum:dg,w:f.w,h:f.h,dots:[],voor:true}));
-      k.fotos=[...(k.fotos||[]),...nw];const ix=state.klanten.findIndex(x=>x.id===k.id);if(ix>=0&&state.klanten[ix]!==k)state.klanten[ix]={...state.klanten[ix],fotos:[...(state.klanten[ix].fotos||[]),...nw]}}
-    weg(true)})
+  if(kwTest())return res(true);
+  const eerste=kwEerste(k),nul=eerste&&kwS().kwNul!==false;
+  if(!nul&&kwS().kwBriefing===false)return res(true);
+  const R=kwBriefRegels(k).filter(r=>r.l!=="Eerste kennismaking");if(!nul&&!R.length)return res(true);
+  const P=nul?kwNulPunten():[],foto={},schade=[];let bezig=false;
+  const {d,o}=kwDlg();const weg=v=>{try{d.close()}catch(_){}d.remove();res(v)};d.addEventListener("cancel",e=>{e.preventDefault();weg(null)});
+  const tegel=(key,l,lijst)=>{const f=lijst?null:foto[key];return `<div class="kwa-ft"><label class="kwa-fv${f?" heeft":""}${state.assets?"":" dis"}">${f?`<img src="${f.url}" alt="">`:`<span>${lijst?I.plus:I.camera}<em>${lijst?"Toevoegen":"Foto maken"}</em></span>`}<input type="file" accept="image/*" ${lijst?"multiple":`capture="environment"`} hidden data-nf="${esc(key)}"></label><span class="kwa-fl">${f?`<i class="kwa-ok">${I.check}</i>`:""}${esc(l)}${lijst?' <small>(optioneel)</small>':""}</span>${lijst&&schade.length?`<span class="kwa-mini">${schade.map(x=>`<img src="${x.url}" alt="">`).join("")}</span>`:""}</div>`};
+  const teken=()=>{const n=P.filter(p=>foto[p]).length,klaar=n>=P.length||!state.assets;
+    o.innerHTML=`${kwKop(k,nul?"Eerste beurt":"Start beurt",nul?'<i class="kwa-pil goud">Nieuw</i>':"",esc([jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "))+(nul?" · Klant sinds "+(String(k.aangemaakt||"").slice(0,10)===iso(today())?"vandaag":fmtD(String(k.aangemaakt||iso(today())).slice(0,10))):k.tijd?" · "+esc(k.tijd):""))}
+    <div class="kwa-b">
+      ${nul?`<section class="kwa-c"><h4>Nulmeting</h4><p>Leg de staat vast vóór je begint. Bestaande krassen of schade kunnen je later niet worden aangerekend. Stel jezelf even voor en vraag naar wensen.</p></section>`:""}
+      ${R.length?`<section class="kwa-c"><h4>Aandachtspunten</h4>${R.map(r=>`<div class="kwa-ap${r.pri?" pri":""}"><small>${esc(r.l)}</small><span>${esc(r.t)}</span></div>`).join("")}</section>`:""}
+      ${nul?`<section class="kwa-c"><h4>Foto's <em class="${n>=P.length?"ok":"rood"}">${n} / ${P.length} verplicht</em></h4><div class="kwa-fg">${P.map(p=>tegel(p,p)).join("")}${tegel("__schade","Schade",true)}</div><small class="kwa-hulp">Bewaard bij de locatie, niet naar de klant.</small></section>`:""}
+    </div>
+    <div class="kwa-f"><button type="button" class="primary kwa-go" data-kb ${(nul&&!klaar)||bezig?"disabled":""}>${nul?"▶ Start beurt":I.check+"<span>Gezien, start</span>"}</button>
+      <small>${nul&&!klaar?"Nog "+plural(P.length-n,"verplichte foto","verplichte foto's")+" · alleen bij de eerste beurt":nul&&!state.assets?"Foto's maken lukt nu niet · je kunt toch starten":nul?"Klaar voor de eerste beurt":"Daarna loopt de tijd"}</small></div>`;
+    o.querySelectorAll("[data-kx]").forEach(b=>b.onclick=()=>weg(null));
+    o.querySelectorAll("[data-nf]").forEach(inp=>inp.onchange=async e=>{const fs=[...(e.target.files||[])],key=e.target.dataset.nf;e.target.value="";if(!fs.length||!state.assets)return;bezig=true;teken();
+      for(const f of fs){const r=await kwFotoUp(f);if(r){if(key==="__schade")schade.push(r);else foto[key]=r}}bezig=false;teken()});
+    o.querySelector("[data-kb]").onclick=()=>{if(bezig)return;KW.gezien[k.id]=new Date().toISOString();
+      const dg=iso(today()),nw=[...P.filter(p=>foto[p]).map(p=>({...foto[p],naam:"Nulmeting: "+p})),...schade.map((x,i)=>({...x,naam:"Nulmeting: schade"+(schade.length>1?" "+(i+1):"")}))].map(x=>({id:x.id,naam:x.naam,datum:dg,w:x.w,h:x.h,dots:[],voor:true}));
+      if(nw.length){k.fotos=[...(k.fotos||[]),...nw];const ix=state.klanten.findIndex(x=>x.id===k.id);if(ix>=0&&state.klanten[ix]!==k)state.klanten[ix]={...state.klanten[ix],fotos:[...(state.klanten[ix].fotos||[]),...nw]}}
+      weg(true)}};
+  teken();d.showModal()
 }catch(e){console.error(e);res(true)}})}
 
-/* ---------- 1. eindcontrole bij afmelden ---------- */
-/* geeft {beurt,klant} terug om mee op te slaan, of null als je annuleert */
+/* ---------- 1. beurt afronden: afvinken, foto alleen als het telt ---------- */
+/* geeft {beurt,klant,na} terug om mee op te slaan (na = wat er ná het afmelden nog moet gebeuren), of null bij annuleren */
 function kwControle(k){return new Promise(res=>{try{
-  const extra=()=>({...(KW.gezien[k.id]?{briefGezien:KW.gezien[k.id]}:{})});
-  const klaar=v=>{if(v)delete KW.gezien[k.id];res(v)};
+  const extra=()=>({...(KW.gezien[k.id]?{briefGezien:KW.gezien[k.id]}:{})}),nawerkUit=k.nawerk?{actief:false,gepland:"",tijd:""}:{};
+  const klaar=v=>{if(v){delete KW.gezien[k.id];v.klant={...(v.klant||{}),...nawerkUit}}res(v)};
   if(kwTest()||kwS().kwAan===false||k.soort==="vve")return klaar({beurt:extra(),klant:{}});
-  /* flat: één controle voor alle woningen van dezelfde Start */
   const g=k.bezigGroep&&KW.groep[k.bezigGroep];if(g&&Date.now()-g.t<30*60e3)return klaar({beurt:{...g.beurt,...extra()},klant:{...g.klant}});
-  const punten=kwPunten(),ok=punten.map(()=>false),fotos=[],sFotos=[],verplicht=kwS().kwFoto==="verplicht";let bezig=false,notitie="",schade=false,sTekst="";
-  const dg=document.createElement("dialog");dg.className="vraag-dlg";const o=document.createElement("div");o.className="vraag-ov";dg.appendChild(o);
-  const weg=v=>{try{dg.close()}catch(_){}dg.remove();klaar(v)};dg.addEventListener("cancel",e=>{e.preventDefault();weg(null)});
-  const teken=()=>{const alle=ok.every(Boolean);
-    o.innerHTML=`<div class="rk vve-op kwc" role="dialog" aria-modal="true" aria-label="Eindcontrole">
-    <div class="rk-h"><span class="objic">${I.check}</span><div><b>Eindcontrole · ${esc(kwNaam(k))}</b><small>Loop het nog één keer na voordat je vertrekt. Vink af wat in orde is.</small></div><button type="button" class="iconbtn sm" data-kx aria-label="Sluiten">${I.x}</button></div>
-    <div class="vve-lijst">${punten.map((t,i)=>`<label class="vve-t"><input type="checkbox" data-kp="${i}" ${ok[i]?"checked":""}><span><i>${I.check}</i>${esc(t)}</span></label>`).join("")}</div>
-    <button type="button" class="kwc-alles" data-kal ${alle?"hidden":""}>${I.check}Alles in orde</button>
-    <div class="vve-foto"><div class="vve-fh"><span class="eyebrow">${I.camera}Opleverfoto${verplicht?"":" (optioneel)"}</span><label class="btn small bv-cam${state.assets?"":" dis"}">${I.camera}${fotos.length?"Nog een foto":"Foto maken"}<input type="file" accept="image/*" capture="environment" hidden data-kfoto></label></div>
-      ${fotos.length?`<div class="vve-fl">${fotos.map((f,i)=>`<span><img src="${f.url}" alt=""><button type="button" class="iconbtn sm" data-kdel="${i}" aria-label="Verwijderen">${I.x}</button></span>`).join("")}</div>`:`<small class="help">Eén foto van het resultaat. De klant ziet hem terug bij dit bezoek in het klantportaal.</small>`}</div>
-    <div class="kwc-sch${schade?" open":""}">${schade?`<div class="vve-fh"><span class="eyebrow">${I.alert}Schade melden</span><button type="button" class="small ghost" data-ksch>Geen schade</button></div>
-      <label>Wat is er beschadigd?<input data-kstx value="${esc(sTekst)}" placeholder="Bijv. kras op kozijn voorkant, plantenpot omgevallen"></label>
-      <div class="vve-fh"><span class="eyebrow">${I.camera}Foto's van de schade</span><label class="btn small bv-cam${state.assets?"":" dis"}">${I.camera}${sFotos.length?"Nog een foto":"Foto maken"}<input type="file" accept="image/*" capture="environment" hidden data-ksfoto></label></div>
-      ${sFotos.length?`<div class="vve-fl">${sFotos.map((f,i)=>`<span><img src="${f.url}" alt=""><button type="button" class="iconbtn sm" data-ksdel="${i}" aria-label="Verwijderen">${I.x}</button></span>`).join("")}</div>`:""}
-      <small class="help">Kantoor krijgt direct een melding en belt de klant. Eerlijk melden voordat de klant het ontdekt. De klant ziet dit niet in het portaal.</small>`
-      :`<button type="button" class="kwc-schk" data-ksch>${I.alert}Schade melden</button>`}</div>
-    <label>Wat viel je op? (optioneel)<input data-knot value="${esc(notitie)}" placeholder="Bijv. dakgoot zit vol, volgende keer melden"><small class="help">Komt terug in de briefing bij het volgende bezoek.</small></label>
-    <div class="rk-f"><button type="button" class="ghost" data-kx>Annuleren</button><span class="sp"></span><button type="button" class="primary" data-kok ${bezig?"disabled":""}>${I.check}Afmelden</button></div></div>`;
+  const punten=kwPunten(),ok=punten.map(()=>true),fotos=[],soort=new Set();let bezig=false,bijz=false,notitie="",zien=false;
+  const R=kwBriefRegels(k).filter(r=>r.l!=="Eerste kennismaking"&&r.l!=="Vorige keer opgevallen");
+  const {d,o}=kwDlg();const weg=v=>{try{d.close()}catch(_){}d.remove();klaar(v)};d.addEventListener("cancel",e=>{e.preventDefault();weg(null)});
+  const du=typeof duur==="function"?duur(k):0;
+  const teken=()=>{const n=ok.filter(Boolean).length,onb=soort.has("onbereikbaar");
+    o.innerHTML=`${kwKop(k,"Beurt afronden",'<i class="kwa-pil groen">Bezig</i>',`${I.pin||""}${esc([jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "))}<br>${esc(k.dienst||HD())}${du?" · "+du+" min":""}${k.prijs?" · "+esc(typeof eur==="function"?eur(Number(k.prijs)||0):k.prijs):""}`)}
+    <div class="kwa-b">
+      ${R.length?`<section class="kwa-c"><h4>Aandachtspunten<button type="button" class="kwa-pen" data-kpen aria-label="Aandachtspunten aanpassen">${I.pencil}</button></h4><p>${R.map(r=>esc(r.t)).join(" · ")}</p></section>`:""}
+      <section class="kwa-c"><h4>Controle <em class="${n===punten.length?"ok":"rood"}">${n} / ${punten.length}</em></h4>
+        ${punten.map((t,i)=>`<label class="kwa-ck"><input type="checkbox" data-kp="${i}" ${ok[i]?"checked":""}><i>${I.check}</i><span>${esc(t)}</span></label>`).join("")}</section>
+      <section class="kwa-c kwa-bz${bijz?" open":""}"><label class="kwa-ck kwa-bzk"><input type="checkbox" data-kbz ${bijz?"checked":""}><i>${I.check}</i><span><b>Bijzonderheid</b><small>${bijz?"Notitie en eventueel een foto":"Alleen dan een notitie en foto"}</small></span></label>
+        ${bijz?`<h5>Wat is er</h5><div class="kwa-chips">${KW_BIJZ.map(([v,l])=>`<button type="button" class="kwa-chip${soort.has(v)?" on":""}" data-ks="${v}" aria-pressed="${soort.has(v)}">${l}</button>`).join("")}</div>
+        <h5>Notitie</h5><textarea data-knot rows="3" placeholder="${soort.has("onbereikbaar")?"Bijv. achterpoort op slot, achterzijde niet gewassen":"Wat moet kantoor weten?"}">${esc(notitie)}</textarea>
+        <h5>Foto</h5><div class="kwa-fr">${fotos.map((f,i)=>`<span class="kwa-th"><img src="${f.url}" alt=""><button type="button" data-kdel="${i}" aria-label="Verwijderen">${I.x}</button></span>`).join("")}<label class="kwa-fv kwa-fs${state.assets?"":" dis"}"><span>${I.camera}<em>Foto</em></span><input type="file" accept="image/*" capture="environment" hidden data-kfoto></label><label class="kwa-fv kwa-fs${state.assets?"":" dis"}"><span>${I.plus}<em>Uit foto's</em></span><input type="file" accept="image/*" multiple hidden data-kfoto></label></div>
+        <label class="kwa-ck kwa-zien"><input type="checkbox" data-kzien ${zien?"checked":""}><i>${I.check}</i><span><b>Klant laten zien</b><small>De klant ziet notitie en foto bij dit bezoek in het klantportaal</small></span></label>`:""}
+      </section>
+      ${bijz&&onb?`<p class="kwa-plan">↻ ${esc(notitie.trim()?notitie.trim().slice(0,60):"Het niet gedane deel")} komt bij te plannen</p>`:""}
+    </div>
+    <div class="kwa-f"><button type="button" class="primary kwa-go" data-kok ${bezig?"disabled":""}>${I.check}<span>Klaar en afmelden</span></button><small>${bijz&&zien?"Notitie en foto verschijnen in het klantportaal":"Concept­factuur zoals altijd"}</small></div>`;
     o.querySelectorAll("[data-kx]").forEach(b=>b.onclick=()=>weg(null));
-    o.querySelectorAll("[data-kp]").forEach(c=>c.onchange=()=>{ok[+c.dataset.kp]=c.checked;const a=o.querySelector("[data-kal]");if(a)a.hidden=ok.every(Boolean)});
-    o.querySelector("[data-kal]").onclick=()=>{ok.fill(true);notitie=o.querySelector("[data-knot]").value;teken()};
-    o.querySelector("[data-knot]").oninput=e=>{notitie=e.target.value};
-    o.querySelectorAll("[data-ksch]").forEach(b=>b.onclick=()=>{schade=!schade;notitie=o.querySelector("[data-knot]").value;teken()});
-    {const st=o.querySelector("[data-kstx]");if(st)st.oninput=e=>{sTekst=e.target.value}}
-    {const sf=o.querySelector("[data-ksfoto]");if(sf)sf.onchange=async e=>{const f=e.target.files&&e.target.files[0];e.target.value="";if(!f||!state.assets)return;bezig=true;teken();
-      try{const r=await state.assets.upload(f);sFotos.push({id:r.id,url:URL.createObjectURL(f),op:new Date().toISOString()})}catch(er){toast("De foto kon niet worden geüpload")}bezig=false;teken()}}
-    o.querySelectorAll("[data-ksdel]").forEach(b=>b.onclick=()=>{sFotos.splice(Number(b.dataset.ksdel),1);teken()});
-    o.querySelector("[data-kfoto]").onchange=async e=>{const f=e.target.files&&e.target.files[0];e.target.value="";if(!f||!state.assets)return;bezig=true;teken();
-      try{const r=await state.assets.upload(f);fotos.push({id:r.id,url:URL.createObjectURL(f),op:new Date().toISOString()})}catch(er){toast("De foto kon niet worden geüpload")}bezig=false;teken()};
+    o.querySelectorAll("[data-kp]").forEach(c=>c.onchange=()=>{ok[+c.dataset.kp]=c.checked;teken()});
+    const bz=o.querySelector("[data-kbz]");bz.onchange=()=>{bijz=bz.checked;teken()};
+    const pen=o.querySelector("[data-kpen]");if(pen)pen.onclick=()=>{weg(null);setTimeout(()=>typeof openKlant==="function"&&openKlant(k.id),80)};
+    o.querySelectorAll("[data-ks]").forEach(b=>b.onclick=()=>{const v=b.dataset.ks;soort.has(v)?soort.delete(v):soort.add(v);const t=o.querySelector("[data-knot]");if(t)notitie=t.value;teken()});
+    const t=o.querySelector("[data-knot]");if(t)t.oninput=e=>{notitie=e.target.value;const p=o.querySelector(".kwa-plan");if(p)p.textContent="↻ "+(notitie.trim()?notitie.trim().slice(0,60):"Het niet gedane deel")+" komt bij te plannen"};
+    const zz=o.querySelector("[data-kzien]");if(zz)zz.onchange=()=>{zien=zz.checked;teken()};
+    o.querySelectorAll("[data-kfoto]").forEach(inp=>inp.onchange=async e=>{const fs=[...(e.target.files||[])];e.target.value="";if(!fs.length||!state.assets)return;bezig=true;teken();for(const f of fs){const r=await kwFotoUp(f);if(r)fotos.push(r)}bezig=false;teken()});
     o.querySelectorAll("[data-kdel]").forEach(b=>b.onclick=()=>{fotos.splice(Number(b.dataset.kdel),1);teken()});
-    o.querySelector("[data-kok]").onclick=async()=>{
-      if(verplicht&&!fotos.length&&state.assets){toast("Maak eerst een opleverfoto");return}
-      if(schade&&!sTekst.trim()){toast("Beschrijf kort wat er beschadigd is");const st=o.querySelector("[data-kstx]");if(st)st.focus();return}
-      const nee=punten.filter((_,i)=>!ok[i]);
-      if(nee.length){const a=await vraag("Niet alles in orde?",`Niet afgevinkt: <b>${nee.map(esc).join(", ")}</b>.<br>Is dat echt niet in orde? Dan krijgt kantoor een melding om het recht te zetten.`,"Ja, melden","Terug");if(a!==true)return}
-      const t=notitie.trim().slice(0,300),nu=new Date().toISOString();
-      const uit={beurt:{kwaliteit:{punten:punten.map((p,i)=>({naam:p,ok:ok[i]})),fotos:fotos.map(f=>({id:f.id,op:f.op})),op:nu},...(t?{bezoekNotitie:t}:{})},
-        klant:{bezoekNotitie:t?{t,datum:iso(today()),door:typeof doorNaam==="function"?doorNaam():""}:""}};
-      if(schade){const sd={id:newId("sd"),datum:iso(today()),op:nu,door:typeof doorNaam==="function"?doorNaam():"",tekst:sTekst.trim().slice(0,300),fotos:sFotos.map(f=>({id:f.id,op:f.op})),status:"open"};
-        uit.beurt.schade=sd;uit.klant.schades=[...(Array.isArray(k.schades)?k.schades:[]),sd]}
-      if(k.bezigGroep){const {schade:_s,...bg}=uit.beurt,{schades:_ss,...kg}=uit.klant;KW.groep[k.bezigGroep]={beurt:bg,klant:kg,t:Date.now()}}
-      weg({beurt:{...uit.beurt,...extra()},klant:uit.klant})}};
-  document.body.appendChild(dg);teken();try{dg.showModal()}catch(_){dg.setAttribute("open","")}
+    o.querySelector("[data-kok]").onclick=async()=>{if(bezig)return;
+      const nee=punten.filter((_,i)=>!ok[i]),tx=notitie.trim().slice(0,400);
+      if(nee.length){const a=await vraag("Niet alles in orde?",`Niet afgevinkt: <b>${nee.map(esc).join(", ")}</b>.<br>Kantoor krijgt een melding om het recht te zetten.`,"Ja, melden","Terug");if(a!==true)return}
+      if(bijz&&!soort.size&&!tx&&!fotos.length){toast("Kies wat er is of schrijf een notitie");return}
+      if(bijz&&soort.has("onbereikbaar")&&!tx){toast("Schrijf kort wat er niet gedaan is");const x=o.querySelector("[data-knot]");if(x)x.focus();return}
+      if(bijz&&soort.has("schade")&&!tx){toast("Beschrijf kort wat er beschadigd is");const x=o.querySelector("[data-knot]");if(x)x.focus();return}
+      const nu=new Date().toISOString(),door=typeof doorNaam==="function"?doorNaam():"",fx=fotos.map(f=>({id:f.id,op:f.op}));
+      const uit={beurt:{kwaliteit:{punten:punten.map((p,i)=>({naam:p,ok:ok[i]})),fotos:[],op:nu}},klant:{bezoekNotitie:bijz&&tx?{t:tx,datum:iso(today()),door}:""},na:null};
+      if(bijz){uit.beurt.bijzonderheid={soort:[...soort],notitie:tx,fotos:fx,klantZien:zien,op:nu,door};if(tx)uit.beurt.bezoekNotitie=tx}
+      if(bijz&&soort.has("schade")){const sd={id:newId("sd"),datum:iso(today()),op:nu,door,tekst:tx,fotos:fx,status:"open"};uit.beurt.schade=sd;uit.klant.schades=[...(Array.isArray(k.schades)?k.schades:[]),sd]}
+      if(bijz&&(soort.has("onbereikbaar")||soort.has("herstel")))uit.na=()=>kwNaAfmelden(k,{onbereikbaar:soort.has("onbereikbaar"),herstel:soort.has("herstel"),tekst:tx,fotos:fx});
+      if(k.bezigGroep){const {schade:_s,bijzonderheid:_b,...bg}=uit.beurt,{schades:_ss,...kg}=uit.klant;KW.groep[k.bezigGroep]={beurt:bg,klant:kg,t:Date.now()}}
+      weg({beurt:{...uit.beurt,...extra()},klant:uit.klant,na:uit.na})}};
+  teken();d.showModal()
 }catch(e){console.error(e);res({beurt:{},klant:{}})}})}
+
+/* na het afmelden: niet bereikbaar → nawerk bij Te plannen (eenmalig, zonder factuur); herstel na klacht → open herstel op opgelost */
+async function kwNaAfmelden(k,o){try{const h=state.klanten.find(x=>x.id===(k.hoofdKlantId||k.id))||k,nu=iso(today());
+  if(o.onbereikbaar){const basis={};(typeof OPDR_VELDEN!=="undefined"?OPDR_VELDEN:["naam","adres","postcode","plaats","email","telefoon","mobiel","soort","klantnr","lat","lng","geo","ronde"]).forEach(f=>{if(k[f]!==undefined)basis[f]=k[f]});
+    await save("klanten",newId("k"),{...basis,dienst:"Nawerk: "+(o.tekst||"niet gedaan deel").slice(0,70),prijs:0,duur:15,frequentie:52,hoofdKlantId:h.id,actief:true,prospect:false,nawerk:true,nietFactureren:true,taak:o.tekst||"",fotos:(o.fotos||[]).map((f,i)=>({id:f.id,naam:"Niet bereikbaar"+(i?" "+(i+1):""),datum:nu,dots:[]})),
+      autoplan:true,gepland:"",tijd:"",aanbieden:true,aanbodVanaf:nu,aangemaakt:nu,eersteKeer:false,objecten:[],opdrachten:[],log:[{datum:nu,tekst:"Nawerk: bij het bezoek van "+fmtD(nu)+" niet bereikbaar. "+(o.tekst||"")}]});
+    toast("Nawerk staat bij Te plannen")}
+  if(o.herstel){for(const b of kwHerstelLijst().filter(b=>b.klantId===k.id||b.klantId===h.id)){const cur=state.beurten.find(x=>x.id===b.id)||b;await save("beurten",b.id,{...strip(cur),herstel:{...(cur.herstel||{}),status:"opgelost",opgelostOp:new Date().toISOString(),nawerk:true,door:doorNaam()}})}}
+}catch(e){console.error("na afmelden",e);toast("Nawerk kon niet worden klaargezet")}}
 
 /* ---------- 2. herstel ---------- */
 const kwAfgekeurd=b=>!!(b&&b.kwaliteit&&(b.kwaliteit.punten||[]).some(p=>p&&p.ok===false));
@@ -140,6 +160,9 @@ function kwSignalen(add,bel){if(isMw())return;const nu=new Date(),ti=iso(today()
       u:`${x.tekst}${x.door?" · gemeld door "+x.door:""} op ${fmtD(x.datum)}${(x.fotos||[]).length?" · "+plural(x.fotos.length,"foto","foto's"):""}. ${x.status==="gebeld"?"Rond af als het met de klant geregeld is.":"Bel de klant voordat hij het zelf ontdekt."}`,
       b:[k.adres,k.plaats].filter(Boolean).join(", "),leeftijd:dd,knop:"Open klant",go:"klant:"+k.id,
       acts:x.status==="gebeld"?[{l:"Afgehandeld",ic:"check",cc:"kw:schade:"+k.id+":"+x.id+":afgehandeld"}]:[bel(k),{l:"Gebeld",ic:"check",cc:"kw:schade:"+k.id+":"+x.id+":gebeld"}].filter(Boolean)})}));
+  /* bijzonderheid "extra werk mogelijk": een kans, tot je hem afhandelt */
+  (state.beurten||[]).filter(b=>b.bijzonderheid&&(b.bijzonderheid.soort||[]).includes("extra")&&!b.bijzonderheid.extraGezien&&b.datum>=iso(addDays(today(),-60))).forEach(b=>{const k=state.klanten.find(x=>x.id===b.klantId)||{naam:b.klantNaam};
+    add({key:"kwx:"+b.id,p:"normaal",ic:"spark",t:"Extra werk mogelijk: "+cleanName(k.naam||""),u:(b.bijzonderheid.notitie||"Zie de foto bij het bezoek")+" · gezien door "+(b.bijzonderheid.door||b.door||"")+" op "+fmtD(b.datum)+".",b:[k.adres,k.plaats].filter(Boolean).join(", "),leeftijd:Math.round((today()-parse(b.datum))/864e5),knop:"Open klant",go:k.id?"klant:"+k.id:"",acts:[bel(k),{l:"Afgehandeld",ic:"check",cc:"kw:extra:"+b.id}].filter(Boolean)})});
   /* vertrekcontrole van de bus: wat ontbrak bij vertrek */
   {const w=((state.routes||{})[ti]||{}).werk,v=w&&w.vertrek;if(v&&(v.punten||[]).some(p=>!p.ok))add({key:"kwb:"+ti,p:"normaal",ic:"truck",t:"Bus niet compleet bij vertrek"+(w.door?" · "+w.door:""),u:"Ontbrak: "+(v.punten||[]).filter(p=>!p.ok).map(p=>p.naam.toLowerCase()).join(", ")+".",b:"",leeftijd:0,knop:"",go:"",acts:[]})}
   /* 3. stiptheid: nog niet gestart terwijl het aankomstvenster bijna of al voorbij is (alleen voor jou, de klant krijgt niets) */
@@ -149,6 +172,7 @@ function kwSignalen(add,bel){if(isMw())return;const nu=new Date(),ti=iso(today()
       u:te?`Het aankomstvenster liep tot ${eind}. Bel de klant zelf even; er gaat geen automatisch bericht.`:`Nog niet gestart. Het aankomstvenster loopt tot ${eind}.`,
       b:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),leeftijd:0,knop:"Open klant",go:"klant:"+k.id,acts:[bel(k)].filter(Boolean)})})}
 async function kwActie(v){const P=String(v||"").split(":"),[w,id]=P;
+  if(w==="extra"){const b=(state.beurten||[]).find(x=>x.id===id);if(!b)return;try{await save("beurten",b.id,{...strip(b),bijzonderheid:{...(b.bijzonderheid||{}),extraGezien:new Date().toISOString()}});render()}catch(e){err(e)}return}
   if(w==="beoord")return kwBeoordelingen(Number(id)||30);
   if(w==="week"){if(id==="open"){state.itab="kwaliteit";go("inzichten");return}
     try{await saveSettings({kwWeekGezien:kwWeekRange().key},"Weekoverzicht gezien");render()}catch(e){err(e)}return}
@@ -286,13 +310,15 @@ function kwDagBrief(stops,d,isT){if(!isT||kwS().kwDagbrief===false)return"";cons
 /* ---------- instellingen ---------- */
 SETCARDS.push({id:"kwaliteit",t:"Kwaliteit & service",sub:"Eindcontrole, briefing, stiptheid en herstel",ic:"check",bg:"#252c3c",
   st:s=>s.kwAan===false?["soon","Staat uit"]:["ok","Aan"],
-  rows:s=>[["Eindcontrole",s.kwAan===false?"Uit":plural(kwPunten().length,"punt","punten")+(s.kwFoto==="verplicht"?" + foto":"")],["Aankomstvenster",kwVenster()+" min"],["Herstel vanaf",kwDrempel()+" sterren of minder"]]});
+  rows:s=>[["Eindcontrole",s.kwAan===false?"Uit":plural(kwPunten().length,"punt","punten")],["Aankomstvenster",kwVenster()+" min"],["Herstel vanaf",kwDrempel()+" sterren of minder"]]});
 SETEXTRA.kwaliteit=(c,s)=>{
   setDlg(c,`${info("Zoals in een sterrenrestaurant: niets gaat de deur uit zonder controle, je kent de klant voor je aanbelt, je bent stipt en een klacht zet je dezelfde dag recht. De cijfers zie je bij <b>Statistieken › Kwaliteit</b>.")}
     ${sec("Eindcontrole bij afmelden")}
-    ${tgl("kwAan","Eindcontrole bij elk bezoek","Bij afmelden de punten hieronder nalopen, met opleverfoto en wat opviel. VvE's houden hun eigen checklist.",s.kwAan!==false)}
+    ${tgl("kwAan","Eindcontrole bij elk bezoek","Bij afmelden de punten afvinken. Een foto en notitie alleen bij een bijzonderheid. VvE's houden hun eigen checklist.",s.kwAan!==false)}
     <label class="full">Controlepunten (één per regel)<textarea id="kwPt" style="min-height:104px">${esc(kwPunten().join("\n"))}</textarea><small class="help">Kort en concreet. Wat niet is afgevinkt, wordt een melding om recht te zetten.</small></label>
-    ${sel("kwFoto","Opleverfoto",s.kwFoto==="verplicht"?"verplicht":"optioneel",[["optioneel","Optioneel"],["verplicht","Verplicht"]],{help:"De klant ziet de foto terug bij het bezoek in het klantportaal."})}
+    ${sec("Eerste beurt: nulmeting")}
+    ${tgl("kwNul","Nulmeting bij de eerste beurt","Bij Start van een eerste beurt eerst de verplichte foto's maken. Ze worden bij de locatie bewaard, niet naar de klant.",s.kwNul!==false)}
+    <label class="full">Verplichte foto's (één per regel)<textarea id="kwNp" style="min-height:80px">${esc(kwNulPunten().join("\n"))}</textarea><small class="help">Schade kan er altijd optioneel bij.</small></label>
     ${sec("Voor je aanbelt")}
     ${tgl("kwBriefing","Briefing bij Start","Bij Start eerst zien wat je moet weten: toegang, huisdieren, voorkeuren en wat vorige keer opviel. Alleen als er iets te melden is.",s.kwBriefing!==false)}
     ${sec("Eerste bezoek")}
@@ -309,4 +335,4 @@ SETEXTRA.kwaliteit=(c,s)=>{
     ${sel("kwDrempel","Herstelmelding bij een beoordeling van",String(kwDrempel()),[["1","1 ster"],["2","2 sterren of minder"],["3","3 sterren of minder"],["4","4 sterren of minder"]],{help:"Rode melding in het Overzicht: bellen, zo nodig kosteloos nawerk, dan op opgelost."})}
     ${inp("crBezoek","Credits voor het beoordelen van een bezoek (€)",s.crBezoek==null?"0.10":s.crBezoek,{type:"number",t:"num",attrs:'min="0" max="5" step="0.05"',help:"De klant beoordeelt in het klantportaal elk bezoek met 1 tot 5 sterren (tot 48 uur erna). Die sterren komen in je kwaliteitsscore. 0 = geen credits."})}
 `,{wide:false});
-  bindSave(()=>{const t=$("#kwPt").value.split(/\n/).map(x=>x.trim()).filter(Boolean).slice(0,10),std=typeof GLAS==="function"&&GLAS()?KW_GLAS:KW_ALG;const bp=$("#kwBp").value.split(/\n/).map(x=>x.trim()).filter(Boolean).slice(0,10);return{kwBusPunten:bp.length&&bp.join("|")!==KW_BUS.join("|")?bp:[],kwPunten:t.length&&t.join("|")!==std.join("|")?t:[],kwVenster:Math.max(5,Math.min(120,Number(($("[data-k=kwVenster]")||{}).value)||15))}})};
+  bindSave(()=>{const t=$("#kwPt").value.split(/\n/).map(x=>x.trim()).filter(Boolean).slice(0,10),std=typeof GLAS==="function"&&GLAS()?KW_GLAS:KW_ALG;const np=$("#kwNp").value.split(/\n/).map(x=>x.trim()).filter(Boolean).slice(0,8);const bp=$("#kwBp").value.split(/\n/).map(x=>x.trim()).filter(Boolean).slice(0,10);return{kwNulPunten:np.length&&np.join("|")!==KW_NUL.join("|")?np:[],kwBusPunten:bp.length&&bp.join("|")!==KW_BUS.join("|")?bp:[],kwPunten:t.length&&t.join("|")!==std.join("|")?t:[],kwVenster:Math.max(5,Math.min(120,Number(($("[data-k=kwVenster]")||{}).value)||15))}})};

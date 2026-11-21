@@ -1941,6 +1941,7 @@ html body:not(#zz) .cw .cw-k .cw-ic{position:absolute;top:14px;right:16px;width:
 html body:not(#zz) .cw .cw-k .cw-ic svg{width:16px!important;height:16px!important}
 html body:not(#zz) .cw .cw-k::before{right:16px!important;bottom:14px!important;line-height:1}
 html body:not(#zz) .cw .cw-k .cw-n{padding-right:110px!important}
+.hk-bz{margin:6px 0 0;font-size:14.5px;line-height:1.5;color:#1f2430}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -2245,6 +2246,7 @@ function bezoekBlad(id){const x=(D.bezoeken||[]).find(y=>y.id===id);if(!x)return
   blad(`<div class="hk"><small class="hk-k">Bezoek</small><h3>${esc(hoofd(dagNaam(d)))} ${d.getDate()} ${esc(MND[d.getMonth()])} ${d.getFullYear()}</h3>
     <div class="hk-g"><small>Wat we gedaan hebben</small>${r(esc(x.dienst||PHD()),x.bedrag?eur(x.bedrag):"")}${(x.extra||[]).map(e=>r(esc(e),"")).join("")}</div>
     <div class="hk-g"><small>Bezoek</small>${x.tijd?r("Tijd",esc(x.tijd)):""}${x.door?r("Door",esc(x.door)):""}${x.beoordeling?r("Uw beoordeling",`<span class="mini-st">${I.ster.repeat(x.beoordeling.sterren)}</span>`):""}</div>
+    ${x.bijz&&(x.bijz.notitie||x.bijz.fotos.length)?`<div class="hk-g"><small>Notitie bij dit bezoek</small>${x.bijz.notitie?`<p class="hk-bz">${esc(x.bijz.notitie)}</p>`:""}${x.bijz.fotos.length?`<div class="vv-fotos hk-fo">${x.bijz.fotos.map(u=>`<a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" alt="Foto" loading="lazy"></a>`).join("")}</div>`:""}</div>`:""}
     ${x.controle&&(x.controle.punten.length||x.controle.fotos.length)?`<div class="hk-g"><small>Eindcontrole</small>${x.controle.punten.map(t=>`<div class="hk-r hk-ok"><span>${I.check}${esc(t)}</span><b></b></div>`).join("")}${x.controle.fotos.length?`<div class="vv-fotos hk-fo">${x.controle.fotos.map(u=>`<a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" alt="Opleverfoto" loading="lazy"></a>`).join("")}</div>`:""}</div>`:""}
     ${f?`<div class="hk-g"><small>Factuur</small>${r("Nummer",esc(f.nummer||""))}${r("Status",f.gecrediteerd?"Gecrediteerd":f.credit?"Creditfactuur":f.status==="betaald"?"Betaald":f.status==="gesloten"?"Gesloten":"Open")}<button class="primary hk-f" data-fact="${esc(f.id)}">${I.fact}Factuur bekijken</button></div>`:""}
     <button class="ghost hk-s" data-sluit>Sluiten</button></div>`,(o,sluit)=>{const b=o.querySelector("[data-fact]");if(b)b.onclick=()=>{sluit();setTimeout(()=>openFactuur(b.dataset.fact),150)}});}
