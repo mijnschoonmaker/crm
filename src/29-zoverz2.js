@@ -57,7 +57,7 @@ function vOverzicht2(){const t=today(),ti=iso(t),P=ccPlanning(),S_=ccSignalen().
   const n30=per(iso(addDays(t,-30)),iso(addDays(t,1))),v30=per(iso(addDays(t,-60)),iso(addDays(t,-30))),g1=gem(n30),g0=gem(v30);
   const tkOpen=(state.tickets||[]).filter(x=>x.status!=="opgelost").length,R=ccPrestaties();
   const pijl=(a,b,hoogGoed=true)=>a==null||b==null||a===b?"":`<i class="ov2-pijl ${(a>b)===hoogGoed?"op":"af"}">${a>b?"▲":"▼"}</i>`;
-  const svc=`<div class="kkh-tg kk-kern ov2-svc">${tel("Beoordeling",g1==null?"—":String(g1).replace(".",",")+" / 5"+pijl(g1,g0),n30.length?plural(n30.length,"beoordeling","beoordelingen")+" · 30 dagen":"nog geen beoordelingen")}${tel("Open tickets",tkOpen,tkOpen?"wacht op antwoord":"alles beantwoord")}${tel("Betaalt binnen",R.betaal==null?"—":String(R.betaal).replace(".",",")+" d","gemiddeld · 90 dagen")}${tel("Klantbehoud",R.behoud==null?"—":R.behoud+"%","klanten van een jaar of langer")}</div>`;
+  const svc=`<div class="kkh-tg kk-kern ov2-svc"><button type="button" class="ov2-svk" data-cc="kw:beoord:30" aria-label="Bekijk wie beoordeeld heeft">${tel("Beoordeling",g1==null?"—":String(g1).replace(".",",")+" / 5"+pijl(g1,g0),n30.length?plural(n30.length,"beoordeling","beoordelingen")+" · 30 dagen":"nog geen beoordelingen")}</button>${tel("Open tickets",tkOpen,tkOpen?"wacht op antwoord":"alles beantwoord")}${tel("Betaalt binnen",R.betaal==null?"—":String(R.betaal).replace(".",",")+" d","gemiddeld · 90 dagen")}${tel("Klantbehoud",R.behoud==null?"—":R.behoud+"%","klanten van een jaar of langer")}</div>`;
   const kop=(t2,sub,extra)=>`<div class="ov2-h"><div><b>${t2}</b>${sub?`<small>${sub}</small>`:""}</div>${extra||""}</div>`;
   setTimeout(()=>{ccWeerLaad();ccLiveCheck()},30);
   return `<div class="cc ov2">

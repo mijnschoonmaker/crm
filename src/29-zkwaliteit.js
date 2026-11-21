@@ -149,6 +149,7 @@ function kwSignalen(add,bel){if(isMw())return;const nu=new Date(),ti=iso(today()
       u:te?`Het aankomstvenster liep tot ${eind}. Bel de klant zelf even; er gaat geen automatisch bericht.`:`Nog niet gestart. Het aankomstvenster loopt tot ${eind}.`,
       b:[jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "),leeftijd:0,knop:"Open klant",go:"klant:"+k.id,acts:[bel(k)].filter(Boolean)})})}
 async function kwActie(v){const P=String(v||"").split(":"),[w,id]=P;
+  if(w==="beoord")return kwBeoordelingen(Number(id)||30);
   if(w==="week"){if(id==="open"){state.itab="kwaliteit";go("inzichten");return}
     try{await saveSettings({kwWeekGezien:kwWeekRange().key},"Weekoverzicht gezien");render()}catch(e){err(e)}return}
   if(w==="schade"){const k=state.klanten.find(x=>x.id===P[1]);if(!k)return;const st=P[3]==="afgehandeld"?"afgehandeld":"gebeld";
@@ -203,6 +204,17 @@ function kwIdx(){const B=state.beurten||[];if(KW.idxB===B&&KW.idxN===B.length)re
 function kwSinds(k){let d=String(k.aangemaakt||"").slice(0,10);const L=kwIdx()[k.id];if(L&&L.length&&(!d||L[0].datum<d))d=L[0].datum;return d}
 function kwMijlpaal(k,dagen=3){const g=iso(addDays(today(),-dagen)),L=kwIdx()[k.id]||[];
   for(const n of KW_MIJL){const b=L[n-1];if(b&&b.datum>=g)return {n,b}}return null}
+
+/* ---------- wie heeft beoordeeld (klik op Beoordeling in het Overzicht) ---------- */
+function kwBeoordelingen(dagen){const van=dagen>0?iso(addDays(today(),-dagen)):"0000",L=(state.beurten||[]).filter(b=>b.datum>=van&&b.beoordeling&&Number(b.beoordeling.sterren)>0).sort((a,b)=>String(b.datum).localeCompare(String(a.datum))||String((b.beoordeling||{}).op||"").localeCompare(String((a.beoordeling||{}).op||"")));
+  const gem=L.length?Math.round(L.reduce((a,b)=>a+Number(b.beoordeling.sterren),0)/L.length*10)/10:null,verd=[5,4,3,2,1].map(n=>[n,L.filter(b=>Number(b.beoordeling.sterren)===n).length]);
+  const ster=n=>`<span class="kwr-s" aria-label="${n} van 5 sterren">${"★".repeat(n)}<i>${"★".repeat(5-n)}</i></span>`;
+  const knop=(d,l)=>`<button type="button" class="kwr-p${d===dagen?" on":""}" data-cc="kw:beoord:${d}">${l}</button>`;
+  openDlg(`<div class="cc"><div class="dlg-head"><span class="objic big">${I.ster||I.spark}</span><div style="flex:1;min-width:0"><h3>Beoordelingen</h3><div class="subt">${L.length?plural(L.length,"beoordeling","beoordelingen")+" · gemiddeld "+String(gem).replace(".",",")+" / 5":"Nog geen beoordelingen in deze periode"}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
+    <div class="kwr-f">${knop(30,"30 dagen")}${knop(90,"90 dagen")}${knop(0,"Alles")}</div>
+    ${L.length?`<div class="kwr-v">${verd.map(([n,c])=>`<div><span>${n} ★</span><i><b style="width:${L.length?Math.round(c/L.length*100):0}%"></b></i><em>${c}</em></div>`).join("")}</div>
+    <div class="kwr-l">${L.map(b=>{const k=state.klanten.find(x=>x.id===b.klantId)||{},n=Number(b.beoordeling.sterren),t=String(b.beoordeling.tekst||"").trim();
+      return `<div class="kwr-r${n<=kwDrempel()?" laag":""}" role="button" tabindex="0" data-cc="klant:${esc(b.klantId||"")}"><span class="kwr-d">${esc(fmtD(b.datum))}</span><span class="kwr-m"><b>${esc(cleanName(k.naam||b.klantNaam||"Klant"))}</b><small>${esc([k.adres||"",k.plaats||""].filter(Boolean).join(", "))}${b.door?" · "+esc(b.door):""}</small>${t?`<q>${esc(t)}</q>`:""}</span>${ster(n)}</div>`}).join("")}</div>`:`<p class="st-leeg">Zodra klanten een bezoek beoordelen in het klantportaal, zie je hier wie en hoeveel sterren.</p>`}</div>`,{wide:true})}
 
 /* ---------- weekoverzicht kwaliteit: elke zaterdag in het Overzicht, tot je op Gezien tikt ----------
    Zoals de wekelijkse briefing in een sterrenkeuken: deze week tegen vorige week, per medewerker, en een waarschuwing
