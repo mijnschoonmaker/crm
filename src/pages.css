@@ -5264,3 +5264,5 @@ html body:not(#zz) dialog.kwa-dlg[open]{transform:none;translate:none;animation:
 html body:not(#zz) .kwa-b{min-height:0}html body:not(#zz) dialog.kwa-dlg .kwa{box-sizing:border-box}
 html body:not(#zz) .kwa{position:relative}html body:not(#zz) .kwa label.kwa-ck{position:relative}html body:not(#zz) .kwa-ck input{left:0;top:0;width:1px;height:1px}
 html body:not(#zz) .kwa .kwa-go:disabled{background:#9ea3ab!important;background-image:none!important;border-color:#9ea3ab!important;color:#fff!important;box-shadow:none!important;cursor:not-allowed;opacity:1!important}
+.ubn-l{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.ubn-r{display:flex;align-items:center;gap:12px;padding:12px 2px;border-bottom:1px solid var(--line)}.ubn-r>span{flex:1;min-width:0}.ubn-r b{display:block}.ubn-r small{color:var(--muted)}

@@ -146,6 +146,7 @@ document.addEventListener("click",e=>{
     case"ff":state.fFilter=t.dataset.v;if(state.tab!=="facturen")state.tab="facturen";render();break;
     case"of":state.oFilter=t.dataset.v;render();break;
     case"billall":billAll(t);break;
+    case"ubnvt":ubNietFactureren();break;
     case"fotokijk":fotoBekijk({soort:t.dataset.bron,id:t.dataset.id},Number(t.dataset.i));break;
     case"bvdel":{const k=state.klanten.find(x=>x.id===id);if(k){const l=[...(k.bevindingen||[])];l.splice(Number(t.dataset.i),1);const jp=$("#jobPanel");save("klanten",k.id,{...strip(k),bevindingen:l}).then(()=>{toast("Foto verwijderd");if(dlg.open&&jp)setTimeout(()=>openJob(jp.dataset.k,jp.dataset.d),50)}).catch(err)}break}
     case"perlijst":state.fmenu=false;openPeriodiekLijst();break;
