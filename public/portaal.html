@@ -204,6 +204,12 @@ button.melding{width:100%;text-align:left;font-weight:500;color:inherit}
 .hulp{display:block;color:var(--muted);font-weight:500;font-size:12.5px;margin-top:5px}
 .duo{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .keus{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.opz-box{border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:4px 0 16px;background:var(--surface)}
+.opz-box p{margin:8px 0 0;font-size:14px;line-height:1.55;color:var(--ink-2,inherit)}
+.opz-r{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.opz-r span{color:var(--muted,#6b7280);font-size:13.5px}.opz-r b{font-size:15.5px}
+.opz-box .opz-k{color:var(--muted,#6b7280);font-size:13px}
+.opz-l{margin:0 0 8px;font-weight:700;font-size:14px}.opz-l small{font-weight:400;color:var(--muted,#6b7280)}
 .keus label{cursor:pointer;position:relative}
 .keus input{position:absolute;opacity:0;pointer-events:none}
 .keus span{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:99px;padding:8px 14px;font-weight:700;font-size:13.5px;background:var(--surface);transition:all .12s}
@@ -2063,6 +2069,7 @@ async function demoApi(pad,opt){await new Promise(r=>setTimeout(r,250));
   if(/^factuur\?id=o1/.test(pad)){const inc=68,ex=56.2;return {soort:"offerte",getekend:{naam:"Sanne de Vries",datum:"2026-03-04"},pdf:false,demo:true,nummer:"26-0014",datum:"2026-03-02",klantNaam:"Sanne de Vries",klantAdres:"Lindenlaan 14, 9801 AB Zuidhorn",regels:[{omschrijving:"Glasbewassing, 14 ramen (elke 8 weken)",aantal:1,prijs:45.19},{omschrijving:"Dakramen, 3 tuimelramen (elke 8 weken)",aantal:1,prijs:11.01}],ex,btw:11.8,btwPct:21,inc,status:"geaccepteerd",bedrijf:{naam:DEMO_DATA.bedrijf.naam,adres:"Voorbeeldstraat 1",pcPlaats:"9800 AA Zuidhorn",kvk:"",btwnr:"",iban:""}}}
   if(/^factuur\?/.test(pad)){const id=decodeURIComponent((pad.split("id=")[1]||"")),f=DEMO_DATA.facturen.find(x=>x.id===id)||DEMO_DATA.facturen[0];const inc=f.bedrag,ex=Math.round(inc/1.21*100)/100;
     return {pdf:false,demo:true,incasso:false,nummer:f.nummer,datum:f.datum,verval:f.verval,klantNaam:"Sanne de Vries",klantAdres:"Lindenlaan 14, 9801 AB Zuidhorn",regels:[{omschrijving:"Glasbewassing · 14 ramen",aantal:1,prijs:inc}],incl:true,btwPct:21,ex:ex,btw:Math.round((inc-ex)*100)/100,inc:inc,status:f.status,betaaldOp:f.betaaldOp||"",betaallink:"",notitie:"",bedrijf:{...DEMO_DATA.bedrijf,adres:"Voorbeeldstraat 1",pcPlaats:"1234 AB Voorbeeld",kvk:"",btwnr:"",bic:""}}}
+  if(pad==="actie"&&opt&&opt.body&&opt.body.type==="stoppen"&&opt.body.voorbeeld){const d=new Date();d.setDate(d.getDate()+30);const e=isoP(d),g=(DEMO_DATA.volgende&&DEMO_DATA.volgende.datum)||"";return {ok:true,opzeg:{einde:e,regel:"30",binnen:g&&g<=e?[{datum:g}]:[],vervalt:[],verwacht:g?"":isoP(new Date(Date.now()+12*864e5)),al:null}}}
   if(opt&&opt.body){const b=opt.body||{};if(pad==="actie"&&b.type==="beheercode")DEMO_DATA.klant.beheercode=String(b.code||"").trim().slice(0,60);if(pad==="actie"&&b.type==="beoordeling"&&DEMO_DATA.teBeoordelen){const v=DEMO_DATA.bezoeken.find(x=>x.id===b.beurtId);if(v)v.beoordeling={sterren:b.sterren};DEMO_DATA.teBeoordelen=null}
     if(pad==="betaal"||pad==="incasso"){toast("Voorbeeld: hier opent normaal iDEAL");return {}}
     setTimeout(()=>toast("Voorbeeldomgeving: er is niets echt verstuurd"),1200);return {ok:true,id:"demo",nummer:"T-0413"}}
@@ -2532,6 +2539,7 @@ function ik(){const k=D.klant,t=k.toegang||{};
     ${kp(I.ik,"Mijn gegevens",`<div class="lijst">${lr(I.huis,esc(k.naam),esc(k.adres)+"<br>"+esc(k.pcPlaats),"",{attr:'data-act="gegevens"'})}
       ${lr(I.tel,"Telefoon en e-mail",esc([k.telefoon||k.mobiel,k.email].filter(Boolean).join(" · ")||"Nog niet bekend"),"",{attr:'data-act="gegevens"'})}
       ${k.klantnr?lr(I.doc,"Klantnummer",esc(k.klantnr)):""}${lr(I.fact,"Beheercode op de factuur",k.beheercode?esc(k.beheercode):"Bijvoorbeeld van uw beheerder of VvE. Komt op elke factuur.","",{attr:'data-act="beheercode"'})}${B.voorwaarden?lr(I.doc,"Algemene voorwaarden","PDF","",{href:B.voorwaarden}):""}
+      ${k.opzegging?lr(I.x,"Opgezegd",`Uw overeenkomst eindigt op ${esc(lang(k.opzegging.einde))}${k.opzegging.einde.slice(0,4)!==String(new Date().getFullYear())?"":" "+k.opzegging.einde.slice(0,4)}`):lr(I.x,"Overeenkomst opzeggen",k.opzegJaar?"Per contractjaar, uiterlijk 3 maanden van tevoren":"Opzegtermijn van 30 dagen","",{attr:'data-act="opzeggen"'})}
       ${lr(I.uit,"Uitloggen","Op dit apparaat","",{attr:"data-uit"})}</div>`,{kl:"zacht",act:`<button class="primary" data-act="gegevens">${I.pen}Wijzigen</button>`})}
     </div></div>`}
 
@@ -2678,6 +2686,20 @@ const FORM={
       /* werkkast: maar één van de drie tegelijk */
       const wk=[...o.querySelectorAll('.keus input[value^="Werkkast"]')];wk.forEach(i=>i.addEventListener("change",()=>{if(i.checked)wk.forEach(j=>{if(j!==i)j.checked=false})}));
       o.querySelector("[data-go]").onclick=()=>verstuur(o,{type:"toegang",opties:[...o.querySelectorAll(".keus input:checked")].map(x=>x.value),tekst:o.querySelector("#vt").value,code:c.value},"Opgeslagen",vv?"Onze schoonmaker ziet dit bij de volgende beurt.":PGLAS()?"Uw glazenwasser ziet dit bij het volgende bezoek.":"Onze medewerker ziet dit bij het volgende bezoek.")})},
+  async opzeggen(){const sluit=blad(`<div class="laden" style="min-height:160px"><div class="spin"></div><span>Even uw opzegtermijn berekenen…</span></div>`);
+    let r;try{r=(await api("actie",{body:{type:"stoppen",voorbeeld:true}})).opzeg}catch(e){sluit();toast(e.message);return}sluit();if(!r)return;
+    const jr=s=>lang(s)+(s.slice(0,4)!==String(new Date().getFullYear())?"":" "+s.slice(0,4));
+    if(r.al){blad(`<h3>U heeft al opgezegd</h3><p class="sub">Uw overeenkomst eindigt op <b>${esc(jr(r.al.einde))}</b>. Bedenkt u zich, of heeft u een vraag? Maak dan een ticket aan.</p><div class="acties"><button class="" data-sluit>Sluiten</button></div>`);return}
+    const REDEN=["Verhuizing","Te duur","Niet tevreden","Doe het zelf","Tijdelijk niet nodig","Anders"];
+    const beurt=r.binnen.length?(r.binnen.length===1?`Uw laatste beurt staat gepland op <b>${esc(jr(r.binnen[0].datum))}</b>. Die voeren we nog gewoon voor u uit.`:`Deze beurten vallen nog binnen de opzegtermijn en voeren we nog gewoon uit: <b>${r.binnen.map(x=>esc(jr(x.datum))).join(", ")}</b>.`)
+      :r.verwacht?`Binnen de opzegtermijn valt nog één beurt, rond <b>${esc(jr(r.verwacht))}</b>. Die voeren we nog voor u uit; u ziet de afspraak hier zodra hij is ingepland.`:"Binnen de opzegtermijn staat geen beurt meer gepland.";
+    blad(`<div class="dh"><span class="objic rood">${I.x}</span><div><h3>Overeenkomst opzeggen</h3><small>${r.regel==="30"?"Volgens onze algemene voorwaarden geldt een opzegtermijn van 30 dagen.":"Volgens onze algemene voorwaarden loopt de overeenkomst per contractjaar; opzeggen kan tot 3 maanden voor het nieuwe jaar."}</small></div></div>
+      <div class="opz-box"><div class="opz-r"><span>Uw overeenkomst eindigt op</span><b>${esc(jr(r.einde))}</b></div><p>${beurt}</p>${r.vervalt.length?`<p>Afspraken na deze datum vervallen: ${r.vervalt.map(x=>esc(jr(x.datum))).join(", ")}.</p>`:""}<p class="opz-k">Beurten die al zijn uitgevoerd, worden gewoon gefactureerd.</p></div>
+      <p class="opz-l">Mogen we vragen waarom? <small>(niet verplicht)</small></p>
+      <div class="keus">${REDEN.map(x=>`<label><input type="radio" name="opzr" value="${esc(x)}"><span>${esc(x)}</span></label>`).join("")}</div>
+      <label class="veld"><span>Toelichting <small>(niet verplicht)</small></span><textarea id="vt" placeholder="Wat kunnen we beter doen?"></textarea></label>
+      <p class="fout" role="alert"></p><div class="acties"><button class="" data-sluit>Toch niet</button><button class="primary" data-go style="background:var(--late)!important;border-color:var(--late)!important">Opzegging bevestigen</button></div>`,
+      o=>{setTimeout(()=>{const ae=document.activeElement;if(ae&&ae.name==="opzr")ae.blur()},90);o.querySelector("[data-go]").onclick=()=>{const rd=o.querySelector('input[name="opzr"]:checked');verstuur(o,{type:"stoppen",reden:rd?rd.value:"",tekst:o.querySelector("#vt").value},"Uw opzegging is ontvangen",`Uw overeenkomst eindigt op ${jr(r.einde)}. ${r.binnen.length||r.verwacht?"De beurt binnen de opzegtermijn voeren we nog voor u uit. ":""}U ontvangt een bevestiging per e-mail.`)}})},
   bericht(){nieuwTicket("overig")},
   ticket(){nieuwTicket()},
   berichtOud(){blad(`<h3>Bericht sturen</h3><p class="sub">Een vraag, compliment of iets dat beter kan. We lezen alles.</p>

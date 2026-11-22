@@ -241,7 +241,9 @@ function vzTekst(v){const r=[],dl=x=>x?parse(x).toLocaleDateString("nl-NL",{week
   if(v.type==="overslaan")r.push(`Ik wil het bezoek${v.datum?" van "+dl(v.datum):""} graag overslaan.`);
   if(v.type==="vakantie")r.push(`Ik ben afwezig van ${dl(v.datum)} tot en met ${dl(v.tot)}.`);
   if(v.type==="extra")r.push("Ik wil graag een extra dienst"+(v.diensten&&v.diensten.length?": "+v.diensten.join(", ").toLowerCase():"")+".");
-  if(v.type==="stoppen")r.push("Ik wil mijn abonnement opzeggen.");
+  if(v.type==="stoppen"){r.push(`Ik zeg mijn overeenkomst op${v.einde?". Einddatum volgens de voorwaarden: "+dl(v.einde)+" "+v.einde.slice(0,4):""}.`+(v.reden?" Reden: "+v.reden.toLowerCase()+".":""));
+    if(v.binnen&&v.binnen.length)r.push("Nog uit te voeren binnen de termijn: "+v.binnen.map(x=>dl(x.datum)).join(", ")+".");else if(v.verwacht)r.push("Nog in te plannen binnen de termijn: één beurt rond "+dl(v.verwacht)+".");
+    if(v.vervalt&&v.vervalt.length)r.push("Vervalt (na de einddatum, nog uit de agenda halen): "+v.vervalt.map(x=>dl(x.datum)).join(", ")+".")}
   if(v.type==="gegevens")r.push("Ik heb mijn gegevens gewijzigd: "+Object.keys(v.wijziging||{}).map(f=>f+" "+((v.oud||{})[f]||"–")+" → "+(v.wijziging[f]||"–")).join(", ")+".");
   if(v.type==="beoordeling")r.push(`Beoordeling van het bezoek${v.datum?" van "+dl(v.datum):""}: ${v.sterren} van 5 sterren.`);
   if(v.voorkeur)r.push("Voorkeur: "+v.voorkeur);if(v.tekst)r.push(v.tekst);return r.join("\n")}

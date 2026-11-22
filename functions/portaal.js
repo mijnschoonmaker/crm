@@ -325,7 +325,7 @@ module.exports = function maakPortaal(ctx) {
       klant: { voornaam: voornaamVan({ ...k, naam: schoon(k.naam), contact: k.contact ? schoon(k.contact) : "" }), naam: schoon(k.naam), contact: k.contact || "", adres: k.adres || "", postcode: k.postcode || "", plaats: k.plaats || "", pcPlaats: [k.postcode, k.plaats].filter(Boolean).join(" "), uitvoer, email: k.email || "", telefoon: k.telefoon || "", mobiel: k.mobiel || "", zakelijk: k.soort === "zakelijk" || k.soort === "vve",
         vve, vveSoort: vve ? vveSoortVan(k) : "", diensten: vveDiensten(k, jobsDec, b), ritme: ritmeTxt(k), weekdagen: wdg || [], taken: vveTakenVan(k, b), takenFreq: Object.fromEntries(Object.entries(k.vveFreq && typeof k.vveFreq === "object" ? k.vveFreq : {}).filter(([n, f]) => typeof f === "string" && ["week", "2week", "maand", "kwartaal", "halfjaar", "jaar"].includes(f)).slice(0, 20).map(([n, f]) => [String(n).slice(0, 60), f])),
         klantnr: k.klantnr || "", sinds: k.aangemaakt || (beurten.length ? beurten[beurten.length - 1].datum : ""), dienst: (hoofdJob ? hoofdJob.dienst : k.dienst) || "Glasbewassing", frequentie: hoofdJob ? (Number(hoofdJob.frequentie) || freqW) : freqW, prijs: (hoofdJob ? inclVan(b, k, hoofdJob.prijs, hoofdJob.dienst) : inclVan(b, k, k.prijs, k.dienst || "Glasbewassing")) || 0, binnen: !!k.binnen, actief: k.actief !== false,
-        toegang: k.portaalToegang || { opties: [], tekst: "" }, beheercode: String(k.beheercode || ""), nieuw: !!k.eersteKeer && !beurten.length,
+        toegang: k.portaalToegang || { opties: [], tekst: "" }, beheercode: String(k.beheercode || ""), opzegging: k.opzegging && k.opzegging.einde ? { einde: k.opzegging.einde } : null, opzegJaar: !((k.soort !== "zakelijk" && k.soort !== "vve") && (Number(k.frequentie) || 4) <= 13), nieuw: !!k.eersteKeer && !beurten.length,
         incasso: { actief: !!k.incasso && !!k.mollieMandateId, sinds: String(k.incassoSinds || "").slice(0, 10), bank: k.incassoBank || "", rekening: k.incassoRekening || "", beschikbaar: !!(await geheim()).mollieKey } },
       volgende, verwacht,
       bezoeken: beurten.slice(0, 30).map(x => ({ id: x.id, datum: x.datum, tijd: tijdVan(x), door: vve && b.vveDoor === false ? "" : voornaamVan(String(x.door || "")), dienst: x.dienst || k.dienst || "Glasbewassing", extra: x.extra || [], bedrag: bezBedrag(x), factuurId: x.gefactureerd && !/^(nvt|periodiek)$/.test(String(x.gefactureerd)) ? String(x.gefactureerd) : "", beoordeling: x.beoordeling ? { sterren: x.beoordeling.sterren } : null,
@@ -360,6 +360,35 @@ module.exports = function maakPortaal(ctx) {
   }
   /* hoort deze factuur bij de ingelogde klant (of bij een losse opdracht van die klant)? */
   async function vanKlant(S, kid) { if (kid === S.klant.id) return true; if (!kid) return false; try { const j = await db.doc("klanten/" + kid).get(); return j.exists && j.data().hoofdKlantId === S.klant.id; } catch (e) { return false; } }
+  /* opzegging volgens de algemene voorwaarden (art. 7):
+     - consument met een beurt minstens eens per 3 maanden: opzegtermijn 30 dagen (7.2)
+     - anders (zakelijk, of minder vaak dan eens per 3 maanden): contract per 12 maanden vanaf de startdatum,
+       opzeggen uiterlijk 3 maanden voor de nieuwe termijn (7.1); de overeenkomst loopt tot het einde van de lopende termijn.
+     Geeft de einddatum en welke (geplande of verwachte) beurten nog binnen de termijn vallen. */
+  async function opzegInfo(k) {
+    const vandaag = isoNL(), dag = (s, n) => { const x = new Date(s + "T12:00:00Z"); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); };
+    const mnd = (s, n) => { const [y, m, dd] = s.split("-").map(Number), x = new Date(Date.UTC(y, m - 1 + n, 1)), last = new Date(Date.UTC(x.getUTCFullYear(), x.getUTCMonth() + 1, 0)).getUTCDate(); x.setUTCDate(Math.min(dd, last)); return x.toISOString().slice(0, 10); };
+    const freqW = Number(k.frequentie) || 4, consument = !(k.soort === "zakelijk" || k.soort === "vve");
+    let einde, regel;
+    if (consument && freqW <= 13) { einde = dag(vandaag, 30); regel = "30"; }
+    else {
+      let start = String(k.startdatum || k.aangemaakt || vandaag).slice(0, 10); if (!/^\d{4}-\d{2}-\d{2}$/.test(start)) start = vandaag;
+      let n = 1, A = mnd(start, 12);
+      while (A <= vandaag || mnd(A, -3) < vandaag) { n++; A = mnd(start, 12 * n); if (n > 200) break; }
+      einde = dag(A, -1); regel = "jaar";
+    }
+    /* geplande beurten (hoofdadres, reeks en losse opdrachten) */
+    const plan = [];
+    if (k.gepland && k.gepland >= vandaag) plan.push({ datum: k.gepland, dienst: k.dienst || "" });
+    (Array.isArray(k.reeks) ? k.reeks : []).forEach(x => { if (x && x.d && x.d >= vandaag && x.d !== k.gepland) plan.push({ datum: x.d, dienst: k.dienst || "" }); });
+    try { (await db.collection("klanten").where("hoofdKlantId", "==", k.id).get()).docs.forEach(j => { const x = dec(j.data()); if (x.actief !== false && !x.prospect && x.gepland && x.gepland >= vandaag) plan.push({ datum: x.gepland, dienst: x.dienst || "" }); }); } catch (e) {}
+    plan.sort((a, b) => a.datum.localeCompare(b.datum));
+    const binnen = plan.filter(x => x.datum <= einde), vervalt = plan.filter(x => x.datum > einde);
+    /* niets gepland: valt de volgende beurt (laatste beurt + frequentie) nog binnen de termijn? */
+    let verwacht = "";
+    if (!binnen.length && k.laatst) { const v = dag(String(k.laatst).slice(0, 10), freqW * 7), w = v < vandaag ? vandaag : v; if (w <= einde) verwacht = w; }
+    return { einde, regel, binnen: binnen.slice(0, 6), vervalt: vervalt.slice(0, 6), verwacht, al: k.opzegging && k.opzegging.einde ? { einde: k.opzegging.einde, op: String(k.opzegging.op || "").slice(0, 10) } : null };
+  }
   async function actie(req, S, d) {
     const k = S.klant, type = String(d.type || "");
     if (!TYPES[type]) throw new Error("onbekend");
@@ -396,6 +425,32 @@ module.exports = function maakPortaal(ctx) {
       if (!bestaand.empty) throw new Error("U heeft dit al doorgegeven. Dank u wel!");
       v.tekst = txt(d.tekst).slice(0, 300); v.status = "nieuw";
     }
+    if (type === "stoppen") {
+      const info = await opzegInfo(k);
+      if (d.voorbeeld) return { ok: true, opzeg: info };
+      if (info.al) throw new Error("U heeft al opgezegd. Uw overeenkomst eindigt op " + datNL(info.al.einde) + ".");
+      const REDEN = ["Verhuizing", "Te duur", "Niet tevreden", "Doe het zelf", "Tijdelijk niet nodig", "Anders"];
+      v.reden = REDEN.includes(String(d.reden || "")) ? String(d.reden) : "";
+      Object.assign(v, { einde: info.einde, binnen: info.binnen, vervalt: info.vervalt, verwacht: info.verwacht, status: "nieuw" });
+      /* vastleggen op de klant: einddatum = niet meer aanbieden na die datum (zie teplannen in het CRM) */
+      const logR = { datum: isoNL(), tekst: "Opgezegd door klant (portaal) per " + info.einde + (v.reden ? " · " + v.reden : "") };
+      await S.kref.set({ opzegging: { op: nu(), einde: info.einde, reden: v.reden, tekst: v.tekst, door: "klant (portaal)" }, einddatum: info.einde, log: [...(Array.isArray(k.log) ? k.log : []), logR] }, { merge: true });
+      try { const js = await db.collection("klanten").where("hoofdKlantId", "==", k.id).get(); for (const j of js.docs) { const x = j.data() || {}; if (!x.einddatum || x.einddatum > info.einde) await j.ref.set({ einddatum: info.einde }, { merge: true }); } } catch (e) { console.error("opzeggen jobs", e); }
+      /* bevestiging naar de klant */
+      try { const [g, b] = await Promise.all([geheim(), bedrijf()]); const afz = g.afzender || b.email;
+        if (g.brevoKey && afz && k.email) {
+          const nm = voornaamVan({ ...k, naam: schoon(k.naam), contact: k.contact ? schoon(k.contact) : "" });
+          const r = [`Beste ${nm},`, "", "Hierbij bevestigen wij uw opzegging. Jammer dat u vertrekt, en dank u wel voor het vertrouwen.", "",
+            `Uw overeenkomst eindigt op ${datNL(info.einde)} ${info.einde.slice(0, 4)}.` + (info.regel === "30" ? " Dat is na de opzegtermijn van 30 dagen uit onze algemene voorwaarden." : " Dat is aan het einde van de lopende contractperiode, zoals in onze algemene voorwaarden staat."), ""];
+          if (info.binnen.length) r.push(info.binnen.length === 1 ? `Uw laatste beurt staat gepland op ${datNL(info.binnen[0].datum)}. Die voeren wij nog gewoon voor u uit.` : `Deze beurten vallen nog binnen de opzegtermijn en voeren wij nog gewoon voor u uit: ${info.binnen.map(x => datNL(x.datum)).join(", ")}.`);
+          else if (info.verwacht) r.push(`Binnen de opzegtermijn valt nog één beurt, rond ${datNL(info.verwacht)}. Die voeren wij nog voor u uit; u ziet de afspraak in uw klantportaal zodra hij is ingepland.`);
+          else r.push("Binnen de opzegtermijn staat geen beurt meer gepland.");
+          if (info.vervalt.length) r.push("", `Afspraken na ${datNL(info.einde)} vervallen: ${info.vervalt.map(x => datNL(x.datum)).join(", ")}.`);
+          r.push("", "Beurten die al zijn uitgevoerd, worden gewoon gefactureerd. Heeft u nog vragen, of bedenkt u zich? Laat het ons dan weten via een ticket in het klantportaal.");
+          const groet = `Met vriendelijke groet,\n${b.naam || ""}`;
+          await brevoSend(g.brevoKey, { sender: { name: b.naam || "Mansard", email: afz }, replyTo: { email: b.email || afz }, to: [{ email: k.email, name: schoon(k.naam) || undefined }], subject: `Bevestiging van uw opzegging · ${b.naam || ""}`, htmlContent: mailHtml(r.join("\n"), b, { onder: groet }), textContent: r.join("\n") + "\n\n" + groet, tags: ["portaal", "opzegging"] });
+        } } catch (e) { console.error("opzegging bevestiging", e); }
+    }
     if (type === "extra") { v.diensten = (Array.isArray(d.diensten) ? d.diensten : []).map(x => txt(x).slice(0, 60)).slice(0, 8); }
     if (type === "toegang") {
       const opties = (Array.isArray(d.opties) ? d.opties : []).map(x => txt(x).slice(0, 60)).slice(0, 10), toegang = { opties, tekst: txt(d.tekst).slice(0, 600), code: txt(d.code).replace(/\s+/g, " ").slice(0, 40), op: nu() };
@@ -430,7 +485,7 @@ module.exports = function maakPortaal(ctx) {
       try {
         const [g, b] = await Promise.all([geheim(), bedrijf()]);
         if (g.brevoKey && (g.meldAdres || b.email)) await brevoSend(g.brevoKey, { sender: { name: "Mansard CRM", email: g.afzender || b.email }, to: [{ email: g.meldAdres || b.email }], replyTo: k.email ? { email: k.email } : undefined,
-          subject: `Klantportaal: ${v.titel} · ${schoon(k.naam)}`, textContent: [`${schoon(k.naam)} (${v.adres}) via het klantportaal:`, "", v.titel + (v.datum ? " · " + v.datum : "") + (v.tot ? " t/m " + v.tot : "") + (v.sterren ? " · " + v.sterren + " sterren" : ""), v.voorkeur ? "Voorkeur: " + v.voorkeur : "", v.diensten && v.diensten.length ? "Diensten: " + v.diensten.join(", ") : "", v.wijziging ? "Al doorgevoerd in het CRM:\n" + Object.keys(v.wijziging).map(f => "- " + f + ": " + ((v.oud || {})[f] || "–") + " → " + (v.wijziging[f] || "–")).join("\n") : "", v.tekst ? "\n" + v.tekst : "", "", "Open het CRM om dit af te handelen."].filter(x => x !== "").join("\n") });
+          subject: `Klantportaal: ${v.titel} · ${schoon(k.naam)}`, textContent: [`${schoon(k.naam)} (${v.adres}) via het klantportaal:`, "", v.titel + (v.datum ? " · " + v.datum : "") + (v.tot ? " t/m " + v.tot : "") + (v.sterren ? " · " + v.sterren + " sterren" : ""), v.voorkeur ? "Voorkeur: " + v.voorkeur : "", v.einde ? "Einddatum volgens de voorwaarden: " + v.einde + (v.reden ? " · reden: " + v.reden : "") + (v.binnen && v.binnen.length ? "\nNog uitvoeren: " + v.binnen.map(x => x.datum).join(", ") : v.verwacht ? "\nNog één beurt inplannen rond " + v.verwacht : "") + (v.vervalt && v.vervalt.length ? "\nUit de agenda halen: " + v.vervalt.map(x => x.datum).join(", ") : "") : "", v.diensten && v.diensten.length ? "Diensten: " + v.diensten.join(", ") : "", v.wijziging ? "Al doorgevoerd in het CRM:\n" + Object.keys(v.wijziging).map(f => "- " + f + ": " + ((v.oud || {})[f] || "–") + " → " + (v.wijziging[f] || "–")).join("\n") : "", v.tekst ? "\n" + v.tekst : "", "", "Open het CRM om dit af te handelen."].filter(x => x !== "").join("\n") });
       } catch (e) { console.error("melding portaal", e); }
     }
     return { ok: true, id, ticketId: v.ticketId || "" };
@@ -442,7 +497,10 @@ module.exports = function maakPortaal(ctx) {
     if (v.type === "overslaan") r.push(`Ik wil het bezoek${v.datum ? " van " + datNL(v.datum) : ""} graag overslaan.`);
     if (v.type === "vakantie") r.push(`Ik ben afwezig van ${datNL(v.datum)} tot en met ${datNL(v.tot)}.`);
     if (v.type === "extra") r.push("Ik wil graag een extra dienst" + (v.diensten && v.diensten.length ? ": " + v.diensten.join(", ").toLowerCase() : "") + ".");
-    if (v.type === "stoppen") r.push("Ik wil mijn abonnement opzeggen.");
+    if (v.type === "stoppen") { r.push(`Ik zeg mijn overeenkomst op${v.einde ? ". Einddatum volgens de voorwaarden: " + datNL(v.einde) + " " + v.einde.slice(0, 4) : ""}.` + (v.reden ? " Reden: " + v.reden.toLowerCase() + "." : ""));
+      if (v.binnen && v.binnen.length) r.push("Nog uit te voeren binnen de termijn: " + v.binnen.map(x => datNL(x.datum)).join(", ") + ".");
+      else if (v.verwacht) r.push("Nog in te plannen binnen de termijn: één beurt rond " + datNL(v.verwacht) + ".");
+      if (v.vervalt && v.vervalt.length) r.push("Vervalt (na de einddatum, nog uit de agenda halen): " + v.vervalt.map(x => datNL(x.datum)).join(", ") + "."); }
     if (v.type === "gegevens") r.push("Ik heb mijn gegevens gewijzigd: " + Object.keys(v.wijziging || {}).map(f => f + " " + ((v.oud || {})[f] || "–") + " → " + (v.wijziging[f] || "–")).join(", ") + ".");
     if (v.type === "beoordeling") r.push(`Beoordeling van het bezoek${v.datum ? " van " + datNL(v.datum) : ""}: ${v.sterren} van 5 sterren.`);
     if (v.voorkeur) r.push("Voorkeur: " + v.voorkeur);
@@ -578,7 +636,7 @@ module.exports = function maakPortaal(ctx) {
       }
       const S = await sessie(req);
       if (!S) { res.status(401).json({ fout: "Log opnieuw in." }); return; }
-      if (S.voorbeeld && req.method !== "GET" && pad !== "/uit") { res.status(403).json({ fout: "Dit is een voorbeeld vanuit het CRM: hier kun je alleen kijken." }); return; }
+      if (S.voorbeeld && req.method !== "GET" && pad !== "/uit" && !(pad === "/actie" && (x0 => x0.type === "stoppen" && x0.voorbeeld)(body(req) || {}))) { res.status(403).json({ fout: "Dit is een voorbeeld vanuit het CRM: hier kun je alleen kijken." }); return; }
       if (pad === "/data" && req.method === "GET") { const d = await data(req, S); if (S.voorbeeld) d.voorbeeld = true; else actEens(S.klant.id, "portaal", 10, {}); res.json(d); return; }
       /* klantactiviteit vanuit het portaal (welk onderdeel bekeken); niet bij de voorbeeldweergave in het CRM */
       if (pad === "/act" && req.method === "POST") { const x = body(req), tab = String(x.tab || ""); if (!S.voorbeeld && /^(home|bezoeken|diensten|tickets|offertes|facturen|credits|aanbevelen|ik|contact)$/.test(tab)) actEens(S.klant.id, "tab", 3, { tab }); res.json({ ok: true }); return; }
