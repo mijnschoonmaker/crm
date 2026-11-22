@@ -273,9 +273,13 @@ async function portaalLinkVullen(d) {
 }
 exports.sendMail = onCall({ memory: "512MiB", timeoutSeconds: 60 }, async req => {
   const wie = await checkGebruiker(req.auth);
-  const d = req.data || {};
+  return crmMail(req.data || {}, wie);
+});
+async function crmMail(d, wie) {
   if (!/^\S+@\S+\.\S+$/.test(String(d.naar || ""))) throw new HttpsError("invalid-argument", "Ongeldig e-mailadres.");
   const id = /^[\w-]{4,40}$/.test(d.berichtId || "") ? d.berichtId : newId("m");
+  /* de opgemaakte mail (nog zonder inloglink en tracking) bewaren, zodat hij later precies zo opnieuw verstuurd kan worden */
+  if (d.html) { try { await bucket().file("mailbron/" + id + ".html").save(Buffer.from(String(d.html)), { contentType: "text/html; charset=utf-8", resumable: false }); } catch (e) { console.error("mailbron", e.message); } }
   await portaalLinkVullen(d);
   /* eigen leesbevestiging en kliklinks; vóór het versturen vastleggen zodat een snelle open al gevonden wordt */
   try { const tr = MT.voorbereiden(d.html, id); if (tr.trk) { d.html = tr.html; await db.doc("berichten/" + id).set({ trkTok: tr.trk.tok, trk: tr.trk }, { merge: true }); } } catch (e) { console.error("tracking", e.message); }
@@ -302,6 +306,33 @@ exports.sendMail = onCall({ memory: "512MiB", timeoutSeconds: 60 }, async req =>
   try { const bl = []; for (const a of (d.bijlagen || []).slice(0, 6)) { let bid = ""; if (a && a.data && /\.pdf$/i.test(a.naam || "")) bid = await bewaarPdf(Buffer.from(String(a.data), "base64")); bl.push({ naam: String((a && a.naam) || "bijlage"), id: bid }); }
     if (bl.length) await db.doc("berichten/" + id).set({ bijlagen: bl }, { merge: true }); } catch (e) { console.error("bijlage bewaren", e); }
   return { ok: true, id, brevoId };
+}
+
+/* niet afgeleverde mail opnieuw versturen: adres eerst van de blokkadelijst van Brevo halen (na een harde bounce
+   blokkeert Brevo het adres), daarna dezelfde mail met dezelfde bijlagen opnieuw sturen als nieuw bericht */
+exports.mailOpnieuw = onCall({ memory: "512MiB", timeoutSeconds: 90 }, async req => {
+  const wie = await checkGebruiker(req.auth);
+  const d = req.data || {}, oid = String(d.id || "");
+  if (!/^[\w-]{4,40}$/.test(oid)) throw new HttpsError("invalid-argument", "Onbekend bericht.");
+  const ref = db.doc("berichten/" + oid), snap = await ref.get();
+  if (!snap.exists) throw new HttpsError("not-found", "Bericht niet gevonden.");
+  const m = snap.data() || {};
+  if (m.kanaal !== "email" || !/^\S+@\S+\.\S+$/.test(String(m.naar || ""))) throw new HttpsError("failed-precondition", "Alleen e-mails kunnen opnieuw verstuurd worden.");
+  if (!(m.bouncedOp || m.geblokkeerdOp || m.status === "mislukt")) throw new HttpsError("failed-precondition", "Deze mail is wel afgeleverd.");
+  if (m.opnieuwId) throw new HttpsError("already-exists", "Deze mail is al opnieuw verstuurd.");
+  const g = await geheim();
+  if (g.brevoKey) { try { const r = await fetch("https://api.brevo.com/v3/smtp/blockedContacts/" + encodeURIComponent(String(m.naar).trim()), { method: "DELETE", headers: { "api-key": g.brevoKey, accept: "application/json" } });
+    if (!r.ok && r.status !== 404) console.error("brevo deblokkeren", r.status, (await r.text()).slice(0, 200)); } catch (e) { console.error("brevo deblokkeren", e.message); } }
+  let html = "";
+  try { const [buf] = await bucket().file("mailbron/" + oid + ".html").download(); html = buf.toString("utf8"); } catch (e) {}
+  if (!html && typeof d.html === "string" && d.html.length < 900000) html = d.html;
+  const bijlagen = [];
+  for (const a of (m.bijlagen || []).slice(0, 6)) { if (!a || !a.id) continue; const x = await leesAsset(a.id); if (x && x.bytes) bijlagen.push({ naam: a.naam, data: Buffer.from(x.bytes).toString("base64") }); }
+  const nid = newId("m");
+  const meta = { klantId: m.klantId || "", klantNaam: m.klantNaam || "", sjabloon: m.sjabloon || "", ref: m.ref || "", opnieuwVan: oid };
+  await crmMail({ berichtId: nid, naar: String(m.naar).trim(), naam: m.naam || "", onderwerp: m.onderwerp || "", html, tekst: m.tekst || "", bijlagen, meta }, wie);
+  await ref.set({ opnieuwId: nid, opnieuwOp: nu() }, { merge: true });
+  return { ok: true, id: nid };
 });
 
 /* Brevo-webhook: https://<domein>/api/brevo?t=<token> */
