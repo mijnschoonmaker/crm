@@ -13,18 +13,21 @@ async function tekenVoorwaarden(av, png, info) {
   const img = await pdf.embedPng(png);
   const grijs = rgb(0.45, 0.48, 0.52), lijn = rgb(0.82, 0.84, 0.86), ink = rgb(0.1, 0.12, 0.15);
   const pages = pdf.getPages(), n = pages.length + 1;
+  /* voorwaarden die al ruimte onderaan vrijhouden (trefwoord "mansard-paraafruimte", 4 cm ondermarge): niet verkleinen */
+  const ruimte = /mansard-paraafruimte/i.test(String(pdf.getKeywords() || ""));
   const regel = veilig(`Geparafeerd door ${info.naam || ""} · ${info.datum || ""}${info.nummer ? " · offerte " + info.nummer : ""}`);
   pages.forEach((p, i) => {
     const { width: W, height: H } = p.getSize(), s = 0.94;
-    p.scaleContent(s, s);
-    p.translateContent(W * (1 - s) / 2, H * (1 - s));
-    const strook = H * (1 - s), L = Math.max(36, W * 0.07), R = W - L, y0 = 14;
+    let strook, y0;
+    if (ruimte) { strook = 104; y0 = 58; }
+    else { p.scaleContent(s, s); p.translateContent(W * (1 - s) / 2, H * (1 - s)); strook = H * (1 - s); y0 = 14; }
+    const L = ruimte ? 56.7 : Math.max(36, W * 0.07), R = W - L;
     p.drawLine({ start: { x: L, y: strook - 6 }, end: { x: R, y: strook - 6 }, thickness: 0.5, color: lijn });
     p.drawText(regel, { x: L, y: y0 + 10, size: 7, font: F, color: grijs });
     p.drawText(veilig(`Pagina ${i + 1} van ${n}`), { x: L, y: y0, size: 7, font: F, color: grijs });
-    const h = Math.min(strook - 14, 30), w = Math.min(img.width * h / img.height, 110), hh = img.height * w / img.width;
+    const h = Math.min(strook - y0 - 8, 30), w = Math.min(img.width * h / img.height, 110), hh = img.height * w / img.width;
     p.drawText("Paraaf", { x: R - w - 34, y: y0 + 6, size: 7, font: B, color: grijs });
-    p.drawImage(img, { x: R - w, y: y0 - 2, width: w, height: Math.min(hh, strook - 10) });
+    p.drawImage(img, { x: R - w, y: y0 - 2, width: w, height: Math.min(hh, strook - y0 - 4) });
   });
   /* laatste pagina: volledige ondertekening */
   const [W, H] = pages.length ? [pages[0].getSize().width, pages[0].getSize().height] : [595.28, 841.89];
