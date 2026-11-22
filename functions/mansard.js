@@ -67,7 +67,8 @@ module.exports = ({ abofactuur, brevoSend, rawDb, T, onCall, onRequestRaw, Https
   const abonnementStart = onCall(async req => {
     const e = await eigenaarVan(req.auth), bid = T.bid(), ref = rawDb.doc("bedrijven/" + bid), b = (await ref.get()).data() || {};
     if (b.status === "actief" && b.mollieSub && !b.achterstand) return { al: true };
-    const gekozen = PLANS[String((req.data || {}).plan || "")] || planVan(b);
+    /* Starter wordt niet meer aangeboden: nieuwe abonnementen zijn altijd Mansard */
+    const gekozen = PLANS.mansard;
     const n = await pastInPlan(bid, gekozen), plan = gekozen;
     if (!b.plan || b.plan.key !== plan.key) await ref.set({ plan }, { merge: true });
     const key = await sleutel(), basis = basisOk((req.data || {}).basis);
@@ -135,6 +136,7 @@ module.exports = ({ abofactuur, brevoSend, rawDb, T, onCall, onRequestRaw, Https
   const abonnementPlan = onCall(async req => {
     await eigenaarVan(req.auth); const bid = T.bid(), ref = rawDb.doc("bedrijven/" + bid), b = (await ref.get()).data() || {};
     const plan = PLANS[String((req.data || {}).plan || "")]; if (!plan) throw new HttpsError("invalid-argument", "Onbekend pakket.");
+    if (plan.key === "starter") throw new HttpsError("failed-precondition", "Het pakket Starter bestaat niet meer.");
     const n = await pastInPlan(bid, plan), bedrag = bedragVoor(n, plan);
     if (b.mollieSub && b.mollieCustomer) { const key = await sleutel(); await mollie(key, "customers/" + b.mollieCustomer + "/subscriptions/" + b.mollieSub, { method: "PATCH", body: JSON.stringify({ amount: { currency: "EUR", value: bedrag.toFixed(2) }, description: "Mansard " + plan.naam + " (" + (b.naam || bid) + ")" }) }); }
     await ref.set({ plan, gebruikers: n, bedrag, bedragExcl: exclVoor(n, plan), planGewijzigd: nu() }, { merge: true });

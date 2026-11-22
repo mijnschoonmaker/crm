@@ -41,13 +41,13 @@ const msExcl=(p,n)=>Math.round((p.prijs+Math.max(0,n-p.inbegrepen)*(p.extraPrijs
 async function aboDlg(kies){
   const b=MS.doc||{},st=msStatus();let n=b.gebruikers||1,klanten=(state.klanten||[]).filter(k=>k.actief!==false).length;
   try{const r=await fbFn("abonnement")({});n=r.data.gebruikers||n}catch(e){}
-  const eig=window.ZEEM_ROL==="eigenaar",nu=msPlan();let keus=kies&&MS_PLANS[kies]?kies:(b.plan&&b.plan.key)||(n>1||klanten>150?"mansard":"starter");
+  const eig=window.ZEEM_ROL==="eigenaar",nu=msPlan();let keus="mansard";
   const lbl={proef:"Eerste maand",actief:"Actief",achterstand:"Betaling mislukt",onbetaald:"Niet betaald",opgezegd:"Opgezegd",verlopen:"Verlopen",geblokkeerd:"Gepauzeerd"}[st.soort]||"—";
   const past=p=>!(p.maxGebruikers&&n>p.maxGebruikers)&&!(p.maxKlanten&&klanten>p.maxKlanten);
   const kaart=p=>{const ex=msExcl(p,n),ok=past(p);return `<button type="button" class="ms-plan${keus===p.key?" on":""}${ok?"":" nee"}" data-msplan="${p.key}"${ok?"":" disabled"}><span class="ms-pn">${p.naam}${b.plan&&b.plan.key===p.key&&st.soort==="actief"?' <i>Huidig</i>':""}</span><b>${eur(ex)}</b><small>per maand, excl. btw · ${eur(Math.round(ex*1.21*100)/100)} incl.</small>
     <ul><li>${p.maxGebruikers?"1 gebruiker":p.inbegrepen+" gebruikers inbegrepen"}</li><li>${p.maxKlanten?"Tot "+p.maxKlanten+" klanten":"Onbeperkt klanten"}</li><li>${p.extraPrijs?"Extra gebruiker "+eur(p.extraPrijs)+" excl. btw":"Alle functies"}</li></ul>${ok?"":`<em>${p.maxGebruikers&&n>p.maxGebruikers?"Je hebt "+plural(n,"gebruiker","gebruikers"):"Je hebt "+klanten+" klanten"}</em>`}</button>`};
   openDlg(`<div class="dlg-head"><span class="objic big">${I.card}</span><div style="flex:1"><h3>Abonnement</h3><div class="subt">${esc(b.naam||S().naam||"")} · <span class="pill ${st.ok?"ok":"late"} dotp">${lbl}</span></div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
-    <div class="ms-plans" id="msPlans">${Object.values(MS_PLANS).map(kaart).join("")}</div>
+    <div class="ms-plans" id="msPlans">${/* Starter wordt niet meer aangeboden; wie er nog op zit, ziet hem als huidig pakket en kan overstappen */Object.values(MS_PLANS).filter(p=>p.key==="mansard"||(b.plan&&b.plan.key===p.key)).map(kaart).join("")}</div>
     <div id="msSom"></div>
     <p class="subt" style="margin:0">Maandelijks opzegbaar. Betalen gaat met automatische incasso via Mollie. Alle bedragen zijn excl. 21% btw. ${st.soort==="proef"?"Kies je nu, dan betaal je € 1 (excl. btw) voor de eerste maand; het maandbedrag gaat pas daarna af.":""} Gebruikers voeg je toe bij Instellingen › Gebruikers.</p>
     <div class="row" id="msKnoppen"></div>${eig?`<div id="msFact"></div>`:""}`);
