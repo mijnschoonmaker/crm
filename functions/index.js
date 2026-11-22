@@ -169,9 +169,10 @@ ${opts.zonderStrook ? `<div style="background:#fbfcfc;height:18px;line-height:18
 ${!T && opts.portaal ? `<div style="background:#fbfcfc;padding:4px 30px 22px"><div class="ms-gl" style="padding:2px;background:#e3e6ea;background-image:url(${HOST()}/api/t/g/${BL.slice(1).toLowerCase()}.gif);background-size:100% 100%;background-repeat:no-repeat;border-radius:15.5px"><a href="${htmlEsc(opts.portaal)}" style="display:block;text-decoration:none;color:inherit;background:#ffffff;border-radius:14px"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:separate;background:#ffffff;border-radius:14px"><tr><td width="64" valign="middle" style="padding:14px 0 14px 16px;line-height:0;font-size:0"><div style="width:44px;height:44px;border-radius:12px;background:#eef0f2;text-align:center;line-height:44px;font-size:0"><img src="${HOST()}/mail/ic-portaal.png" width="22" height="22" alt="" style="display:inline-block;vertical-align:middle;width:22px;height:22px;border:0"></div></td><td valign="middle" style="padding:14px 8px 14px 12px"><div style="font-size:14.5px;font-weight:600;color:#14181f;line-height:1.35">Mijn klantportaal</div><div style="font-size:12.5px;color:#6b7280;line-height:1.45;margin-top:2px">Direct ingelogd: uw bezoek, facturen en vragen.</div></td><td width="34" valign="middle" align="right" style="padding:14px 16px 14px 0;font-size:24px;line-height:1;color:#6b7280">&rsaquo;</td></tr></table></a></div></div>` : ""}<div style="background:${BL};background-image:repeating-linear-gradient(115deg,rgba(255,255,255,.035) 0 2px,transparent 2px 22px),linear-gradient(135deg,${BL2},${BL} 60%,${_mx(BL,"#ffffff",.12)});border-radius:0 0 22px 22px;color:#ffffff;padding:${T ? "18px 30px 20px" : "0;height:18px;line-height:18px;font-size:0"}">${!T ? "&nbsp;" : opts.portaal && !T ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td class="ms-kol" valign="top" style="vertical-align:top">${strook}</td><td class="ms-kol ms-kr" align="right" valign="middle" style="vertical-align:middle;text-align:right;padding-left:16px"><a href="${htmlEsc(opts.portaal)}" style="display:inline-block;background:#ffffff;color:${INK};text-decoration:none;font-weight:600;font-size:14px;line-height:18px;padding:12px 20px;border-radius:999px;white-space:nowrap">Mijn klantportaal&nbsp;&rarr;</a></td></tr></table>` : strook}</div>`}
 </div>${T ? `<p class="ms-nl" style="text-align:center;font-size:12px;color:#8a979c;margin:16px 0 0">${[b.naam, b.telefoon, b.email].filter(Boolean).map(nl).join(" &nbsp;·&nbsp; ")}</p>` : ""}</div>`;
 }
+const AVT = require("./avteken");
 async function bewaarPdf(buf) { const hid = crypto.randomBytes(16).toString("hex"); await bucket().file("assets/" + hid).save(Buffer.from(buf), { contentType: "application/pdf", resumable: false }); return hid; }
 /* overzicht maken + mailen; geeft { nummer, brevoId } terug */
-async function stuurOverzichtMail({ soort, model, naar, naamKlant, klantId, meta }) {
+async function stuurOverzichtMail({ soort, model, naar, naamKlant, klantId, meta, extra }) {
   const [g, b] = await Promise.all([geheim(), bedrijf()]);
   if (!g.brevoKey) throw new Error("geen Brevo-sleutel");
   const vl = soort !== "definitief";
@@ -184,11 +185,12 @@ async function stuurOverzichtMail({ soort, model, naar, naamKlant, klantId, meta
   const bijlagen = [{ name: `${nummer}_${vl ? "v" : "d"}.pdf`, content: Buffer.from(pdf).toString("base64") }];
   if (vw) bijlagen.push({ name: b.voorwaardenNaam || "Algemene voorwaarden.pdf", content: Buffer.from(vw.bytes).toString("base64") });
   if (hf) bijlagen.push({ name: b.herroepingNaam || "Herroepingsformulier.pdf", content: Buffer.from(hf.bytes).toString("base64") });
+  for (const x of (Array.isArray(extra) ? extra : [])) if (x && x.bytes) bijlagen.push({ name: x.naam, content: Buffer.from(x.bytes).toString("base64") });
   const afz = g.afzender || b.email;
   const brevoId = await brevoSend(g.brevoKey, { sender: { name: b.naam || "Mansard", email: afz }, replyTo: { email: b.email || afz }, to: [{ email: naar, name: naamKlant || undefined }], subject: onderwerp, htmlContent: mailHtml(tekst, b, { portaal: await portaalUrl(klantId, naar) }), textContent: tekst.replace(/\*\*/g, "").replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, "$1 ($2)"), attachment: bijlagen, tags: ["crm", soort] });
   const id = newId("m");
   let pdfId = ""; try { pdfId = await bewaarPdf(pdf); } catch (e) { console.error("pdf bewaren", e); }
-  const bl = [{ naam: bijlagen[0].name, id: pdfId }]; if (vw) bl.push({ naam: bijlagen[1].name, id: b.voorwaardenPdf || "" }); if (hf) bl.push({ naam: bijlagen[bijlagen.length - 1].name, id: b.herroepingPdf || "" });
+  const bl = [{ naam: bijlagen[0].name, id: pdfId }]; if (vw) bl.push({ naam: bijlagen[1].name, id: b.voorwaardenPdf || "" }); if (hf) bl.push({ naam: (b.herroepingNaam || "Herroepingsformulier.pdf"), id: b.herroepingPdf || "" }); for (const x of (Array.isArray(extra) ? extra : [])) if (x && x.bytes) bl.push({ naam: x.naam, id: x.id || "" });
   await db.doc("berichten/" + id).set({ ...(meta || {}), klantId: klantId || "", klantNaam: naamKlant || "", naar, kanaal: "email", sjabloon: soort, onderwerp, tekst, status: "verstuurd", brevoId, verstuurdOp: nu(), op: nu(), bijlage: bijlagen.map(x => x.name).join(", "), bijlagen: bl, overzichtNr: nummer });
   return { nummer, brevoId, berichtId: id };
 }
@@ -235,6 +237,10 @@ async function brevoSend(key, mail) {
 }
 async function maakMail({ naar, naam, onderwerp, html, tekst, bijlagen }) {
   const [g, b] = await Promise.all([geheim(), bedrijf()]);
+  /* zit er een offerte of factuur (PDF) bij, dan gaan de algemene voorwaarden altijd mee als PDF */
+  bijlagen = Array.isArray(bijlagen) ? [...bijlagen] : [];
+  if (b.voorwaardenPdf && bijlagen.some(x => x && /\.pdf$/i.test(String(x.naam || "")) && /offerte|factuur/i.test(String(x.naam || ""))) && !bijlagen.some(x => x && /voorwaarden/i.test(String(x.naam || "")))) {
+    try { const vw = await leesAsset(b.voorwaardenPdf); if (vw && vw.bytes) bijlagen.push({ naam: b.voorwaardenNaam || "Algemene voorwaarden.pdf", data: Buffer.from(vw.bytes).toString("base64") }); } catch (e) { console.error("voorwaarden bijlage", e); } }
   if (!g.brevoKey) throw new HttpsError("failed-precondition", T.isLegacy() ? "Er is nog geen Brevo-sleutel ingesteld (Instellingen › E-mail versturen)." : "Mailen via Mansard is nog niet beschikbaar. Probeer het later opnieuw of stel je eigen Brevo-sleutel in (Instellingen › E-mail versturen).");
   const afz = g.afzender || b.email;
   const mail = {
@@ -247,7 +253,7 @@ async function maakMail({ naar, naam, onderwerp, html, tekst, bijlagen }) {
     tags: ["crm", ...(T.isLegacy() ? [] : ["b:" + T.bid()])]
   };
   if (bijlagen && bijlagen.length) mail.attachment = bijlagen.map(a => ({ name: a.naam, content: a.data }));
-  return { key: g.brevoKey, mail };
+  return { key: g.brevoKey, mail, namen: bijlagen.map(a => a.naam) };
 }
 
 /* persoonlijke inloglink voor de knop "Mijn klantportaal" in mails die de server zelf maakt */
@@ -273,7 +279,7 @@ exports.sendMail = onCall({ memory: "512MiB", timeoutSeconds: 60 }, async req =>
   await portaalLinkVullen(d);
   /* eigen leesbevestiging en kliklinks; vóór het versturen vastleggen zodat een snelle open al gevonden wordt */
   try { const tr = MT.voorbereiden(d.html, id); if (tr.trk) { d.html = tr.html; await db.doc("berichten/" + id).set({ trkTok: tr.trk.tok, trk: tr.trk }, { merge: true }); } } catch (e) { console.error("tracking", e.message); }
-  const { key, mail } = await maakMail(d);
+  const { key, mail, namen } = await maakMail(d);
   let brevoId = "";
   try { brevoId = await brevoSend(key, mail); }
   catch (e) {
@@ -282,7 +288,7 @@ exports.sendMail = onCall({ memory: "512MiB", timeoutSeconds: 60 }, async req =>
   }
   await db.doc("berichten/" + id).set({
     ...(d.meta || {}), naar: d.naar, kanaal: "email", onderwerp: d.onderwerp || "", tekst: d.tekst || "",
-    status: "verstuurd", brevoId, verstuurdOp: nu(), op: nu(), door: wie, bijlage: (d.bijlagen || []).map(a => a.naam).join(", ")
+    status: "verstuurd", brevoId, verstuurdOp: nu(), op: nu(), door: wie, bijlage: (namen || []).join(", ")
   }, { merge: true });
   /* factuur of offerte meteen op de server als verstuurd vastleggen: ook als de app daarna wegvalt
      (telefoon op slot, geen bereik), staat hij dan niet meer onterecht op "niet verstuurd" */
@@ -723,7 +729,7 @@ exports.akkoordInfo = onRequest({ cors: true }, async (req, res) => {
   if (a.klantId && String(req.query.v || "") !== "1") MT.act(a.klantId, a.status === "open" ? "offerte-bekeken" : "offerte-teruggezien", { nummer: a.nummer || "" }).catch(() => {});
   res.json({ status: a.status, nummer: a.nummer, geldigTot: a.geldigTot || "", klant: (a.model || {}).klant || {}, groepen: (a.model || {}).groepen || [],
     bedrijf: { naam: b.naam || "", logo: (b.logoMail || b.logo) ? HOST() + "/_blob/" + (b.logoMail || b.logo) : "", telefoon: b.telefoon || "", email: b.email || "" },
-    voorwaarden: b.voorwaardenPdf ? HOST() + "/_blob/" + b.voorwaardenPdf : (b.voorwaarden && /^https?:/.test(b.voorwaarden) ? b.voorwaarden : ""), getekend: a.getekend ? { naam: a.getekend.naam, datum: a.getekend.datum } : null });
+    voorwaarden: b.voorwaardenPdf ? HOST() + "/_blob/" + b.voorwaardenPdf : (b.voorwaarden && /^https?:/.test(b.voorwaarden) ? b.voorwaarden : ""), getekend: a.getekend ? { naam: a.getekend.naam, datum: a.getekend.datum, av: a.getekend.av ? HOST() + "/_blob/" + a.getekend.av : "" } : null });
 });
 /* na een online handtekening: de klant wordt vaste klant met de afspraken uit de offerte en staat bij Te plannen
    (vanaf de aanboddatum van de offerte). Een klant die al vast is en al een afspraak of aanbod heeft, blijft zoals hij is. */
@@ -764,6 +770,16 @@ exports.akkoordGeven = onRequest({ cors: true, memory: "512MiB", timeoutSeconds:
     await bucket().file("assets/" + hid).save(buf, { contentType: "image/png", resumable: false });
     const datum = nlDatum() + " - " + nlTijd(), getekend = { naam, plaats, datum, browser, systeem, handtekening: hid, op: nu() };
     await ref.update({ status: "getekend", getekend });
+    /* algemene voorwaarden met de handtekening als paraaf onder elke pagina: vastgelegd bij de offerte, de klant en in de bevestigingsmail */
+    let avGetekend = null;
+    try { const b0 = await bedrijf(); const av = b0.voorwaardenPdf ? await leesAsset(b0.voorwaardenPdf) : null;
+      if (av && av.bytes) { const bytes = await AVT.tekenVoorwaarden(av.bytes, buf, { naam, plaats, datum, browser, systeem, nummer: a.nummer || "", bedrijf: b0.naam || "" });
+        const avId = await bewaarPdf(bytes), avNaam = "Algemene voorwaarden - ondertekend" + (a.nummer ? " " + String(a.nummer).replace(/[^\w.-]+/g, "-") : "") + ".pdf";
+        avGetekend = { id: avId, naam: avNaam, bytes }; getekend.av = avId; getekend.avNaam = avNaam; getekend.avBron = b0.voorwaardenPdf; getekend.avBronNaam = b0.voorwaardenNaam || "";
+        await ref.update({ getekend });
+        if (a.klantId) { const kr = db.doc("klanten/" + a.klantId), ks = await kr.get(); if (ks.exists) { const l = Array.isArray(ks.data().voorwaardenGetekend) ? ks.data().voorwaardenGetekend : [];
+          await kr.set({ voorwaardenGetekend: [...l, { av: avId, naam: avNaam, offerte: a.nummer || "", factuurId: a.factuurId || "", datum, ondertekenaar: naam, bron: b0.voorwaardenPdf, op: nu() }].slice(-20) }, { merge: true }); } } } }
+    catch (e) { console.error("voorwaarden tekenen", e); }
     if (a.klantId) MT.act(a.klantId, "offerte-getekend", { nummer: a.nummer || "", apparaat: systeem }).catch(() => {});
     const f = a.factuurId ? await db.doc("facturen/" + a.factuurId).get() : null;
     if (f && f.exists) await f.ref.set({ status: "geaccepteerd", akkoordOp: dagNL(), getekend, getekendNieuw: true }, { merge: true });
@@ -772,7 +788,7 @@ exports.akkoordGeven = onRequest({ cors: true, memory: "512MiB", timeoutSeconds:
     const m = a.model || {}, naar = a.email || "";
     let nummer = "";
     /* vanaf hier is de handtekening opgeslagen: een mislukte bevestigingsmail mag de offerte niet terugzetten op open */
-    if (naar) try { const r = await stuurOverzichtMail({ soort: "definitief", naar, naamKlant: a.naamKlant || (m.klant || {}).naam || "", klantId: a.klantId || "", meta: { factuurId: a.factuurId || "" }, model: { ...m, handtekening: { naam, plaats, datum, browser, systeem, png: buf } } }); nummer = r.nummer; } catch (e) { console.error("bevestiging akkoord", e); }
+    if (naar) try { const r = await stuurOverzichtMail({ soort: "definitief", naar, naamKlant: a.naamKlant || (m.klant || {}).naam || "", klantId: a.klantId || "", meta: { factuurId: a.factuurId || "" }, model: { ...m, handtekening: { naam, plaats, datum, browser, systeem, png: buf } }, extra: avGetekend ? [avGetekend] : [] }); nummer = r.nummer; } catch (e) { console.error("bevestiging akkoord", e); }
     /* melding naar het bedrijf */
     try { const [g, b] = await Promise.all([geheim(), bedrijf()]); if (g.brevoKey && (g.meldAdres || b.email)) await brevoSend(g.brevoKey, { sender: { name: "Mansard CRM", email: g.afzender || b.email }, to: [{ email: g.meldAdres || b.email }], subject: `Offerte ${a.nummer || ""} ondertekend door ${naam}`, textContent: `${naam}${plaats ? " uit " + plaats : ""} heeft offerte ${a.nummer || ""} online ondertekend op ${datum}.\nHet definitieve bestellingsoverzicht${nummer ? " (" + nummer + ")" : ""} is naar de klant gemaild.\n\nOpen het CRM om de klant in te plannen.` }); } catch (e) { console.error(e); }
     res.json({ ok: true });
