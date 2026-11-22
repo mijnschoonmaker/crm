@@ -7,8 +7,8 @@ const BRANCHES=[
   {id:"glazenwasser",naam:"Glazenwassers",enk:"Glazenwasser",ic:"druppel"},
   {id:"schoonmaak",naam:"Schoonmakers",enk:"Schoonmaker",ic:"emmer"},
   {id:"schoorsteenveger",naam:"Schoorsteenvegers",enk:"Schoorsteenveger",ic:"vlam"},
-  {id:"rietdekker",naam:"Rietdekkers",enk:"Rietdekker",ic:"dak"},
   /* niet meer te kiezen bij het aanmelden; bestaande accounts met dit vak blijven gewoon werken */
+  {id:"rietdekker",naam:"Rietdekkers",enk:"Rietdekker",ic:"dak"},
   {id:"schilder",naam:"Schilders",enk:"Schilder",ic:"roller"},
   {id:"hovenier",naam:"Hoveniers",enk:"Hovenier",ic:"boom"},
   {id:"timmerman",naam:"Timmerlieden",enk:"Timmerman",ic:"hamer"},

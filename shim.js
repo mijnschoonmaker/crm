@@ -143,8 +143,7 @@ async function authMail(soort, email) {
   let ov = null;
   const BRK = [["glazenwasser", "Glazenwassers", "Glazenwasserij De Vries", '<path d="M12 3.5c-3 4-5 6.6-5 9.3a5 5 0 0 0 10 0c0-2.7-2-5.3-5-9.3z"/>'],
     ["schoonmaak", "Schoonmakers", "Schoonmaakbedrijf De Vries", '<path d="M5.5 8h13l-1.4 12.5H6.9z"/><path d="M8.5 8a3.5 3.5 0 0 1 7 0"/><path d="M9 12.5h6"/>'],
-    ["schoorsteenveger", "Schoorsteenvegers", "Schoorsteenvegerij De Vries", '<path d="M12 21a6 6 0 0 0 6-6c0-3.5-2.5-6-4-8-.4 2-1.4 3.2-2.6 3.9C11 8.6 10 6 10 3c-3 2.5-4 6-4 12a6 6 0 0 0 6 6z"/>'],
-    ["rietdekker", "Rietdekkers", "Rietdekkersbedrijf De Vries", '<path d="M2.5 13.5L12 4.5l9.5 9"/><path d="M5.5 11v9h13v-9"/><path d="M9 15l-1 3M12 14v4M15 15l1 3"/>']];
+    ["schoorsteenveger", "Schoorsteenvegers", "Schoorsteenvegerij De Vries", '<path d="M12 21a6 6 0 0 0 6-6c0-3.5-2.5-6-4-8-.4 2-1.4 3.2-2.6 3.9C11 8.6 10 6 10 3c-3 2.5-4 6-4 12a6 6 0 0 0 6 6z"/>']];
   try { const q = new URLSearchParams(location.search).get("branche"); if (BRK.some(b => b[0] === q)) localStorage.setItem("ms.branche", q); } catch (e) {}
   const toon = html => {
     if (!ov) { const s = document.createElement("style"); s.textContent = css; document.head.appendChild(s); ov = document.createElement("div"); ov.className = "lg-ov"; document.body.appendChild(ov); }

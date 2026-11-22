@@ -49,6 +49,6 @@ const waNr = t => { let d = String(t || "").replace(/\D/g, ""); if (d.startsWith
   fs.writeFileSync(path.join(uit, "mijnschoonmaker-test.html"), foto);
   fs.writeFileSync(path.join(uit, "mijnschoonmaker-foto.html"), foto);
   fs.writeFileSync(path.join(uit, "mijnschoonmaker-oud.html"), mt);
-  try { fs.writeFileSync(path.join(uit, "voorbeeld.html"), require("./webshop-voorbeeld.js")(html.slice(0, bi) + skin + html.slice(bi))); } catch (e) { console.log("voorbeeld.html niet gemaakt:", e.message); }
+  try { fs.writeFileSync(path.join(uit, "voorbeeld.html"), require("./webshop-voorbeeld.js")(mt.slice(0, bj) + laag + mt.slice(bj), { foto: true })); } catch (e) { console.log("voorbeeld.html niet gemaakt:", e.message); }
   console.log("::notice title=Webshop::gemaakt · " + fla.length + " frequenties (advies " + fadv + ") · minimum " + cfg.min + " · " + gebieden.length + " werkgebieden · " + (klantPc ? klantPc.split(",").length : 0) + " klantpostcodes · logo " + (logoId ? "ja" : "nee"));
 })().catch(x => { console.error(x); process.exit(1); });

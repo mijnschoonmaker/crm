@@ -3,7 +3,7 @@
    en er wordt niets verstuurd: aanvragen, aanbevelingscodes en WhatsApp/mail gaan nergens heen.
    Gebruik: node tools/webshop-voorbeeld.js  (leest public/webshop/mijnschoonmaker-test.html) */
 const fs = require("fs"), path = require("path");
-function maakVoorbeeld(testHtml) {
+function maakVoorbeeld(testHtml, opts = {}) {
   let h = testHtml;
   const i = h.indexOf("const BEDRIJF="), j = h.indexOf("};", i);
   if (i < 0 || j < 0) throw new Error("BEDRIJF niet gevonden");
@@ -31,16 +31,17 @@ async function vbStart(){try{const wacht=t=>new Promise(r=>setTimeout(r,t));
  const r=await fetch("/site/huis.jpg",{cache:"force-cache"});const bl=await r.blob();const f=new File([bl],"voorbeeldhuis.jpg",{type:bl.type||"image/jpeg"});
  const inp=document.getElementById("ph-in");const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;inp.dispatchEvent(new Event("change",{bubbles:true}));
  for(let i=0;i<40&&!(window.photos&&photos.length);i++)await wacht(100);await wacht(400);if(typeof openEd==="function")openEd(0);window.scrollTo(0,0)}catch(e){}}
-if(!/[?&]start=0/.test(location.search))window.addEventListener("load",function(){setTimeout(vbStart,300)});
-new MutationObserver(vbKnop).observe(document.documentElement,{childList:true,subtree:true});document.addEventListener("DOMContentLoaded",vbKnop);
+if(!window.VB_FOTO&&!/[?&]start=0/.test(location.search))window.addEventListener("load",function(){setTimeout(vbStart,300)});
+if(!window.VB_FOTO)new MutationObserver(vbKnop).observe(document.documentElement,{childList:true,subtree:true});if(!window.VB_FOTO)document.addEventListener("DOMContentLoaded",vbKnop);
 })();</script>
 <style>.vb-klaar{position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:99999;max-width:min(92vw,520px);background:#0e1117;color:#fff;font:500 14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;padding:12px 16px;border-radius:12px;box-shadow:0 14px 34px -14px rgba(0,0,0,.55);text-align:center}
 a[href*="app.mansard.nl/portaal"]{pointer-events:none;opacity:.55}
 .vb-foto{all:unset;box-sizing:border-box;display:grid;gap:3px;width:100%;margin:10px 0 12px;padding:12px 14px;border-radius:12px;border:1.5px solid #0e1117;background:#fff;color:#0e1117;cursor:pointer;font:400 13px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;text-align:left}
 .vb-foto b{font-weight:600;font-size:14px}.vb-foto span{color:#5b6370}.vb-foto:disabled{opacity:.6}
 body[data-lock] .vb-foto,.cfg-fotos[data-lock] .vb-foto{pointer-events:auto}</style>`;
-  h = h.replace("<head>", "<head>\n" + kop);
-  h = h.replace(/<title>[^<]*<\/title>/, "<title>Voorbeeld prijscalculator · Mansard</title>");
+  /* opts.foto: het offerteformulier (foto's + gegevens, offerte op maat) in plaats van de oude prijscalculator */
+  h = h.replace("<head>", "<head>\n" + (opts.foto ? "<script>window.VB_FOTO=true</script>\n" : "") + kop);
+  h = h.replace(/<title>[^<]*<\/title>/, opts.foto ? "<title>Voorbeeld offerteformulier · Mansard</title>" : "<title>Voorbeeld prijscalculator · Mansard</title>");
   h = h.replace("<head>", '<head>\n<meta name="robots" content="noindex">');
   return h;
 }
