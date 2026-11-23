@@ -21062,16 +21062,16 @@ function kwBriefing(k){return new Promise(res=>{try{
   const R=kwBriefRegels(k).filter(r=>r.l!=="Eerste kennismaking");if(!nul&&!R.length)return res(true);
   const P=nul?kwNulPunten():[],foto={},schade=[];let bezig=false;
   const {d,o}=kwDlg();const weg=v=>{try{d.close()}catch(_){}d.remove();res(v)};d.addEventListener("cancel",e=>{e.preventDefault();weg(null)});
-  const tegel=(key,l,lijst)=>{const f=lijst?null:foto[key];return `<div class="kwa-ft"><label class="kwa-fv${f?" heeft":""}${state.assets?"":" dis"}">${f?`<img src="${f.url}" alt="">`:`<span>${lijst?I.plus:I.camera}<em>${lijst?"Toevoegen":"Foto maken"}</em></span>`}<input type="file" accept="image/*" ${lijst?"multiple":`capture="environment"`} hidden data-nf="${esc(key)}"></label><span class="kwa-fl">${f?`<i class="kwa-ok">${I.check}</i>`:""}${esc(l)}${lijst?' <small>(optioneel)</small>':""}</span>${lijst&&schade.length?`<span class="kwa-mini">${schade.map(x=>`<img src="${x.url}" alt="">`).join("")}</span>`:""}</div>`};
-  const teken=()=>{const n=P.filter(p=>foto[p]).length,klaar=n>=P.length||!state.assets;
+  const tegel=(key,l,lijst)=>{const f=lijst?null:foto[key];return `<div class="kwa-ft"><label class="kwa-fv${f?" heeft":""}${state.assets?"":" dis"}">${f?`<img src="${f.url}" alt="">`:`<span>${lijst?I.plus:I.camera}<em>${lijst?"Toevoegen":"Foto maken"}</em></span>`}<input type="file" accept="image/*" ${lijst?"multiple":`capture="environment"`} hidden data-nf="${esc(key)}"></label><span class="kwa-fl">${f?`<i class="kwa-ok">${I.check}</i>`:""}${esc(l)}</span>${lijst&&schade.length?`<span class="kwa-mini">${schade.map(x=>`<img src="${x.url}" alt="">`).join("")}</span>`:""}</div>`};
+  const teken=()=>{const n=P.filter(p=>foto[p]).length,klaar=true;/* foto's bij de nulmeting zijn niet verplicht */
     o.innerHTML=`${kwKop(k,nul?"Eerste beurt":"Start beurt",nul?'<i class="kwa-pil goud">Nieuw</i>':"",esc([jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "))+(nul?" · Klant sinds "+(String(k.aangemaakt||"").slice(0,10)===iso(today())?"vandaag":fmtD(String(k.aangemaakt||iso(today())).slice(0,10))):k.tijd?" · "+esc(k.tijd):""))}
     <div class="kwa-b">
       ${nul?`<section class="kwa-c"><h4>Nulmeting</h4><p>Leg de staat vast vóór je begint. Bestaande krassen of schade kunnen je later niet worden aangerekend. Stel jezelf even voor en vraag naar wensen.</p></section>`:""}
       ${R.length?`<section class="kwa-c"><h4>Aandachtspunten</h4>${R.map(r=>`<div class="kwa-ap${r.pri?" pri":""}"><small>${esc(r.l)}</small><span>${esc(r.t)}</span></div>`).join("")}</section>`:""}
-      ${nul?`<section class="kwa-c"><h4>Foto's <em class="${n>=P.length?"ok":"rood"}">${n} / ${P.length} verplicht</em></h4><div class="kwa-fg">${P.map(p=>tegel(p,p)).join("")}${tegel("__schade","Schade",true)}</div><small class="kwa-hulp">Bewaard bij de locatie, niet naar de klant.</small></section>`:""}
+      ${nul?`<section class="kwa-c"><h4>Foto's <em class="${n>=P.length?"ok":""}">${n} / ${P.length} · niet verplicht</em></h4><div class="kwa-fg">${P.map(p=>tegel(p,p)).join("")}${tegel("__schade","Schade",true)}</div><small class="kwa-hulp">Bewaard bij de locatie, niet naar de klant.</small></section>`:""}
     </div>
     <div class="kwa-f"><button type="button" class="primary kwa-go" data-kb ${(nul&&!klaar)||bezig?"disabled":""}>${nul?"▶ Start beurt":I.check+"<span>Gezien, start</span>"}</button>
-      <small>${nul&&!klaar?"Nog "+plural(P.length-n,"verplichte foto","verplichte foto's")+" · alleen bij de eerste beurt":nul&&!state.assets?"Foto's maken lukt nu niet · je kunt toch starten":nul?"Klaar voor de eerste beurt":"Daarna loopt de tijd"}</small></div>`;
+      <small>${nul&&!state.assets?"Foto's maken lukt nu niet · je kunt toch starten":nul?(n?"Klaar voor de eerste beurt":"Foto's zijn niet verplicht · je kunt direct starten"):"Daarna loopt de tijd"}</small></div>`;
     o.querySelectorAll("[data-kx]").forEach(b=>b.onclick=()=>weg(null));
     o.querySelectorAll("[data-nf]").forEach(inp=>inp.onchange=async e=>{const fs=[...(e.target.files||[])],key=e.target.dataset.nf;e.target.value="";if(!fs.length||!state.assets)return;bezig=true;teken();
       for(const f of fs){const r=await kwFotoUp(f);if(r){if(key==="__schade")schade.push(r);else foto[key]=r}}bezig=false;teken()});
@@ -21319,8 +21319,8 @@ SETEXTRA.kwaliteit=(c,s)=>{
     ${tgl("kwAan","Eindcontrole bij elk bezoek","Bij afmelden de punten afvinken. Een foto en notitie alleen bij een bijzonderheid. VvE's houden hun eigen checklist.",s.kwAan!==false)}
     <label class="full">Controlepunten (één per regel)<textarea id="kwPt" style="min-height:104px">${esc(kwPunten().join("\n"))}</textarea><small class="help">Kort en concreet. Wat niet is afgevinkt, wordt een melding om recht te zetten.</small></label>
     ${sec("Eerste beurt: nulmeting")}
-    ${tgl("kwNul","Nulmeting bij de eerste beurt","Bij Start van een eerste beurt eerst de verplichte foto's maken. Ze worden bij de locatie bewaard, niet naar de klant.",s.kwNul!==false)}
-    <label class="full">Verplichte foto's (één per regel)<textarea id="kwNp" style="min-height:80px">${esc(kwNulPunten().join("\n"))}</textarea><small class="help">Schade kan er altijd optioneel bij.</small></label>
+    ${tgl("kwNul","Nulmeting bij de eerste beurt","Bij Start van een eerste beurt kun je eerst foto's maken van de staat (niet verplicht). Ze worden bij de locatie bewaard, niet naar de klant.",s.kwNul!==false)}
+    <label class="full">Foto's (één per regel, niet verplicht)<textarea id="kwNp" style="min-height:80px">${esc(kwNulPunten().join("\n"))}</textarea><small class="help">Schade kan er altijd optioneel bij.</small></label>
     ${sec("Voor je aanbelt")}
     ${tgl("kwBriefing","Briefing bij Start","Bij Start eerst zien wat je moet weten: toegang, huisdieren, voorkeuren en wat vorige keer opviel. Alleen als er iets te melden is.",s.kwBriefing!==false)}
     ${sec("Eerste bezoek")}
