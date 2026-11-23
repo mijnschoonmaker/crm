@@ -192,17 +192,32 @@ function kwCijfers(L){const n=L.length,tijd=L.map(kwOpTijd).filter(x=>x!=null),s
     nawerk:L.filter(b=>b.herstel&&b.herstel.nawerk).length,
     controle:ctl.length?Math.round(ctl.filter(b=>!kwAfgekeurd(b)).length/ctl.length*100):null,ctlN:ctl.length,
     brief:L.filter(b=>b.briefGezien).length}}
-function vKwaliteit(P,V){const t=today(),inP=rg=>(state.beurten||[]).filter(b=>!b.geannuleerd&&inRange(b.datum,rg));
+/* klik op de tegel Beoordeling: wie er in deze periode beoordeeld heeft */
+function kwSterLijst(P){const L=(state.beurten||[]).filter(b=>!b.geannuleerd&&inRange(b.datum,P.rg)&&b.beoordeling&&Number(b.beoordeling.sterren)>0)
+    .sort((a,b)=>String((b.beoordeling.op||b.datum)).localeCompare(String(a.beoordeling.op||a.datum)));
+  const gem=L.length?Math.round(L.reduce((a,b)=>a+Number(b.beoordeling.sterren),0)/L.length*10)/10:0,kom=x=>String(x).replace(".",",");
+  const st=n=>`<span class="kws-st" aria-label="${n} van 5 sterren">${[1,2,3,4,5].map(i=>`<i class="${i<=n?"on":""}">★</i>`).join("")}</span>`;
+  const {d,o}=kwDlg();const weg=()=>{try{d.close()}catch(_){}d.remove()};d.addEventListener("cancel",e=>{e.preventDefault();weg()});
+  o.innerHTML=`<div class="kwa-h"><div class="kwa-kr"><span>Statistieken</span> / <b>Beoordelingen</b><button type="button" class="kwa-x" data-kx aria-label="Sluiten">${I.x}</button></div>
+    <div class="kws-top"><b>${kom(gem)}<small> / 5</small></b><div><span>${esc(P.lbl)}</span><small>${plural(L.length,"beoordeling","beoordelingen")}</small></div></div></div>
+    <div class="kwa-b"><section class="kwa-c kws-l">${L.map(b=>{const k=state.klanten.find(x=>x.id===b.klantId),n=Number(b.beoordeling.sterren)||0,t=String(b.beoordeling.tekst||"").trim();
+      return `<button type="button" class="kws-r${n<=3?" laag":""}" data-kwk="${esc(b.klantId||"")}"><div class="kws-w"><b>${esc(cleanName((k&&k.naam)||b.klantNaam||"Klant"))}</b><small>${esc(fmtD(b.datum))}${b.door?" · "+esc(b.door):""}</small></div>${st(n)}${t?`<p>“${esc(t)}”</p>`:""}</button>`}).join("")||'<p class="st-leeg">Nog geen beoordelingen in deze periode.</p>'}</section></div>`;
+  o.querySelector("[data-kx]").onclick=weg;
+  o.querySelectorAll("[data-kwk]").forEach(b=>b.onclick=()=>{const id=b.dataset.kwk;if(!id||!state.klanten.some(x=>x.id===id))return;weg();openKlantView(id)});
+  d.showModal()}
+document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest("[data-kwster]");if(!t)return;const P=window.__kwP;if(P)kwSterLijst(P)});
+document.addEventListener("keydown",e=>{if(e.key!=="Enter"&&e.key!==" ")return;const t=e.target.closest&&e.target.closest("[data-kwster]");if(!t)return;e.preventDefault();const P=window.__kwP;if(P)kwSterLijst(P)});
+function vKwaliteit(P,V){window.__kwP=P;const t=today(),inP=rg=>(state.beurten||[]).filter(b=>!b.geannuleerd&&inRange(b.datum,rg));
   const A=kwCijfers(inP(P.rg)),B=kwCijfers(inP(V.rg)),pct=x=>x==null?"—":x+"%",kom=x=>String(x).replace(".",",");
   /* verschil met de vorige periode: klein, onder het getal */
   /* naam van de vorige periode: "oktober", "Q3", "2025"; jaartal erbij als dat anders is dan nu (bijv. "december 2025" in januari) */
   const vNaam=(()=>{const pv=String(V.lbl||"").split(" "),py=String(P.lbl||"").split(" ").pop();if(pv.length<2)return pv[0]||"de vorige periode";const n=/^Q/.test(pv[0])?pv[0]:pv[0].toLowerCase();return pv[1]!==py?n+" "+pv[1]:n})();
   const ver=(a,b,hoog=true,suf="",telling=false)=>{if(a==null||b==null||a===b)return"";const d=Math.round((a-b)*10)/10,goed=(d>0)===hoog;
     const w=telling?(d>0?"meer":"minder"):goed?"beter":"lager";return `<em class="kwq-d ${goed?"op":"af"}">${d>0?"▲":"▼"} ${kom(Math.abs(d))}${suf} ${w} dan ${esc(vNaam)}</em>`};
-  const tegel=(ic,l,v,sub,d)=>`<div class="st-tile kwq-tile"><span class="st-ic">${ic}</span><span class="st-l">${l}</span><b>${v}</b><small>${sub}</small>${d||""}</div>`;
+  const tegel=(ic,l,v,sub,d,attr="")=>`<div class="st-tile kwq-tile"${attr}><span class="st-ic">${ic}</span><span class="st-l">${l}</span><b>${v}</b><small>${sub}</small>${d||""}</div>`;
   const tiles=`<div class="st-tiles kwq-tiles">
     ${tegel(I.clock,"Op tijd",pct(A.opTijd),A.tijdN?A.tijdOk+" van "+plural(A.tijdN,"bezoek","bezoeken")+" binnen het geplande tijdstip":"nog geen bezoeken met een gepland tijdstip",ver(A.opTijd,B.opTijd,true,"%"))}
-    ${tegel(I.ster||I.spark,"Beoordeling",A.sterren==null?"—":kom(A.sterren)+"<span class=\"kwq-v\"> / 5</span>",A.sterN?plural(A.sterN,"beoordeling","beoordelingen"):"nog geen beoordelingen",ver(A.sterren,B.sterren))}
+    ${tegel(I.ster||I.spark,"Beoordeling",A.sterren==null?"—":kom(A.sterren)+"<span class=\"kwq-v\"> / 5</span>",A.sterN?plural(A.sterN,"beoordeling","beoordelingen")+" · bekijken":"nog geen beoordelingen",ver(A.sterren,B.sterren),A.sterN?` role="button" tabindex="0" data-kwster="${esc(P.lbl)}" title="Bekijk wie er beoordeeld heeft" style="cursor:pointer"`:"")}
     ${tegel(I.check,"Eindcontrole",pct(A.controle),A.ctlN?A.ctlN+" van "+A.n+" gecontroleerd":"start vanaf het volgende bezoek","")}
     ${tegel(I.alert,"Klachten",A.klacht==null?"—":kom(A.klacht)+"<span class=\"kwq-v\"> per 100</span>",A.klachtN?plural(A.klachtN,"keer","keer")+" niet tevreden"+(A.nawerk?" · "+A.nawerk+"× nawerk":""):"niets gemeld",ver(A.klacht,B.klacht,false,"",true))}</div>`;
   /* per week: % op tijd, laatste 12 weken */

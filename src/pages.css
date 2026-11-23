@@ -5274,3 +5274,14 @@ html body:not(#zz) .kwa .kwa-go:disabled{background:#9ea3ab!important;background
 .hosp-pt-c{display:flex;flex-wrap:wrap;gap:6px}.hosp-pt-c span{padding:5px 10px;border-radius:999px;background:#fff;border:1px solid #ece4d2;font-size:13px;font-weight:600;color:#252c3c}
 .hosp-pt-code{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:10px;background:#fff;border:1px solid #ece4d2}.hosp-pt-code small{color:var(--muted);font-size:12px;flex:1}.hosp-pt-code b{font-family:ui-monospace,Menlo,monospace;font-size:14px;letter-spacing:.06em}
 .hosp-pt-t{margin:0;font-size:14px;line-height:1.5;color:#3a4150}
+/* Statistieken › Beoordeling: tegel klikbaar + lijst wie er beoordeeld heeft */
+.kwq-tile[data-kwster]{transition:transform .15s,box-shadow .15s}.kwq-tile[data-kwster]:hover{transform:translateY(-2px);box-shadow:0 14px 30px -20px rgb(20 23 28/.35)}
+.kws-top{display:flex;align-items:center;gap:14px;margin-top:14px}.kws-top>b{font-size:34px;font-weight:600;color:#fff;letter-spacing:-.02em}.kws-top>b small{font-size:15px;opacity:.6;font-weight:500}
+.kws-top>div{display:flex;flex-direction:column}.kws-top span{color:#fff;font-weight:600;font-size:15px;text-transform:capitalize}.kws-top div small{color:rgb(255 255 255/.65);font-size:13px}
+.kws-l{display:grid;gap:8px}
+.kws-r{all:unset;box-sizing:border-box;display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--surface,#fff);cursor:pointer;width:100%}
+.kws-r:hover{border-color:#cfd3da;background:#fafbfc}
+.kws-w{display:flex;flex-direction:column;min-width:0}.kws-w b{font-size:15px;color:var(--ink)}.kws-w small{font-size:12.5px;color:var(--muted)}
+.kws-r p{grid-column:1/-1;margin:4px 0 0;font-size:14px;line-height:1.5;color:#3a4150;font-style:italic}
+.kws-st{display:inline-flex;gap:2px;font-size:16px;letter-spacing:0}.kws-st i{font-style:normal;color:#d9dce2}.kws-st i.on{color:#d4a23a}
+.kws-r.laag{border-color:#f1d4cf;background:#fffaf9}
