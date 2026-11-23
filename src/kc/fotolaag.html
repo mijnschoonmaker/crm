@@ -246,6 +246,8 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f):not(#g) .cfg-actie
     const h=s5.querySelector("h2");if(h)h.textContent="Voor uw offerte";
     const b=document.createElement("div");b.className="fo-belofte";b.innerHTML=KLOK+`<div><b>Binnen 24 uur uw offerte!</b>Wij bekijken de foto’s van uw woning en brengen het aantal ramen voor u in kaart.<br><br>Zijn er bijzonderheden waar wij rekening mee moeten houden? Vermeld deze dan in het veld ‘Bijzonderheden’ hierboven. Denk bijvoorbeeld aan: niet aanbellen in verband met een slapende baby. Wij houden hier bij ieder bezoek uiteraard rekening mee.</div>`;
     {const op=G("k-opm"),f=op&&op.closest(".fld");if(f&&!G("k-bijz")){const d=document.createElement("div");d.className="fld full";d.innerHTML='<label class="lab" for="k-bijz">Bijzonderheden</label><textarea class="in" id="k-bijz" rows="3" placeholder="Bijv. niet aanbellen in verband met een slapende baby"></textarea>';f.after(d)}}
+    /* code van een buur (aanbevelingslink): ook bij de offerte op maat in te vullen; via de link staat hij er al in */
+    {const ank=G("k-bijz")&&G("k-bijz").closest(".fld");if(ank&&!s5.querySelector(".ref-slot")){const r=document.createElement("div");r.className="ref-slot fld full";ank.after(r);try{refTeken()}catch(e){}}}
     const snd=s5.querySelector(".send");if(snd)snd.before(b);const ind=G("indienen");if(ind)ind.textContent="Offerte aanvragen"}}
   /* configurator: uitleg rechts en keuzekaart */
   function cfgTeksten(){

@@ -2148,7 +2148,7 @@ async function toonAanbevolen(code){
     <h1>${d?esc(d.voornaam)+" raadt ons aan":"U bent aanbevolen"}</h1>
     <p>${PGLAS()?"Wij wassen uw ramen in een vast ritme":"Wij komen in een vast ritme langs"} en u ziet alles terug in uw eigen klantomgeving.</p>
     ${d&&d.welkom>0?`<div class="melding goud" style="margin-bottom:18px;box-shadow:none"><span class="objic goud">${I.cadeau}</span><div class="tx"><b>${eur0(d.welkom)} welkomstkorting</b><small>Op uw eerste factuur, omdat ${esc(d.voornaam)} u heeft aanbevolen.</small></div></div>`:""}
-    ${url?`<a class="btn primary full big" href="${esc(url)}">${I.euro}Bereken direct uw prijs</a>`:tel?`<a class="btn primary full big" href="tel:${esc(tel.replace(/\s+/g,""))}">Bel ${esc((d&&d.bedrijf.naam)||"ons")} · ${esc(tel)}</a>`:""}
+    ${url?`<a class="btn primary full big" href="${esc(url)}">${I.doc||I.euro}Vraag direct een offerte aan</a>`:tel?`<a class="btn primary full big" href="tel:${esc(tel.replace(/\s+/g,""))}">Bel ${esc((d&&d.bedrijf.naam)||"ons")} · ${esc(tel)}</a>`:""}
     <p class="subt klein">Uw code <b style="letter-spacing:.06em;color:var(--ink)">${esc(code)}</b> gaat automatisch mee met uw aanvraag.</p></div></main>`}
 
 /* ---------- de app ---------- */
