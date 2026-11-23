@@ -8593,6 +8593,15 @@ html body:not(#zz):not(#zy):not(#zx) .mk-i:has(.mk-b)>.mk-t{grid-column:2/-1}}
 .tkz [hidden]{display:none!important}
 .kk-fout{font-size:13px;color:#b4483a;font-weight:500;align-self:center}
 .kk-fout:empty{display:none}
+/* Statistieken › Kwaliteit › Per medewerker: kolommen ruimer, kop rustiger (stond opgepropt) */
+html body:not(#zz):not(#zy):not(#zx) .kwq-t .kwq-r:not(.kwq-h2){grid-template-columns:minmax(120px,1.5fr) repeat(5,minmax(78px,1fr));column-gap:20px;min-width:560px;padding:14px 4px}
+/* de tabel krijgt de volle breedte, Herstel eronder */
+html body:not(#zz):not(#zy):not(#zx) section.st-card.kwq-card{grid-column:1/-1}
+html body:not(#zz):not(#zy):not(#zx) .kwq-t .kwq-h{font-size:10.5px!important;letter-spacing:.1em!important;font-weight:700;color:#8a909c;padding:6px 4px 12px!important}
+html body:not(#zz):not(#zy):not(#zx) .kwq-t .kwq-h>span{white-space:nowrap;text-align:right}
+html body:not(#zz):not(#zy):not(#zx) .kwq-t .kwq-r>:first-child{text-align:left}
+html body:not(#zz):not(#zy):not(#zx) .kwq-t .kwq-r:not(.kwq-h)>span{font-size:15px}
+@media (max-width:640px){html body:not(#zz):not(#zy):not(#zx) .kwq-t .kwq-r:not(.kwq-h2){grid-template-columns:repeat(3,minmax(0,1fr));column-gap:8px;min-width:0}}
 
 </style>
 <div class="app">
