@@ -21203,7 +21203,7 @@ async function kwActie(v){const P=String(v||"").split(":"),[w,id]=P;
 
 /* ---------- 5. kwaliteitsscore (Statistieken › Kwaliteit) ---------- */
 function kwCijfers(L){const n=L.length,tijd=L.map(kwOpTijd).filter(x=>x!=null),st=L.filter(b=>b.beoordeling&&Number(b.beoordeling.sterren)>0),ctl=L.filter(b=>b.kwaliteit);
-  return {n,opTijd:tijd.length?Math.round(tijd.filter(Boolean).length/tijd.length*100):null,tijdN:tijd.length,
+  return {n,opTijd:tijd.length?Math.round(tijd.filter(Boolean).length/tijd.length*100):null,tijdN:tijd.length,tijdOk:tijd.filter(Boolean).length,
     sterren:st.length?Math.round(st.reduce((a,b)=>a+Number(b.beoordeling.sterren),0)/st.length*10)/10:null,sterN:st.length,
     klacht:n?Math.round(L.filter(b=>kwLaag(b)||kwAfgekeurd(b)).length/n*1000)/10:null,klachtN:L.filter(b=>kwLaag(b)||kwAfgekeurd(b)).length,
     nawerk:L.filter(b=>b.herstel&&b.herstel.nawerk).length,
@@ -21215,7 +21215,7 @@ function vKwaliteit(P,V){const t=today(),inP=rg=>(state.beurten||[]).filter(b=>!
   const ver=(a,b,hoog=true,suf="")=>{if(a==null||b==null||a===b)return"";const d=Math.round((a-b)*10)/10,goed=(d>0)===hoog;return `<em class="kwq-d ${goed?"op":"af"}">${d>0?"▲":"▼"} ${kom(Math.abs(d))}${suf} t.o.v. vorige ${esc(V.lbl.split(" ")[0].toLowerCase())}</em>`};
   const tegel=(ic,l,v,sub,d)=>`<div class="st-tile kwq-tile"><span class="st-ic">${ic}</span><span class="st-l">${l}</span><b>${v}</b><small>${sub}</small>${d||""}</div>`;
   const tiles=`<div class="st-tiles kwq-tiles">
-    ${tegel(I.clock,"Op tijd",pct(A.opTijd),A.tijdN?plural(A.tijdN,"bezoek","bezoeken")+" met vaste tijd":"nog geen bezoeken met vaste tijd",ver(A.opTijd,B.opTijd,true,"%"))}
+    ${tegel(I.clock,"Op tijd",pct(A.opTijd),A.tijdN?A.tijdOk+" van "+plural(A.tijdN,"bezoek","bezoeken")+" binnen het geplande tijdstip":"nog geen bezoeken met een gepland tijdstip",ver(A.opTijd,B.opTijd,true,"%"))}
     ${tegel(I.ster||I.spark,"Beoordeling",A.sterren==null?"—":kom(A.sterren)+"<span class=\"kwq-v\"> / 5</span>",A.sterN?plural(A.sterN,"beoordeling","beoordelingen"):"nog geen beoordelingen",ver(A.sterren,B.sterren))}
     ${tegel(I.check,"Eindcontrole",pct(A.controle),A.ctlN?A.ctlN+" van "+A.n+" gecontroleerd":"start vanaf het volgende bezoek","")}
     ${tegel(I.alert,"Klachten",A.klacht==null?"—":kom(A.klacht)+"<span class=\"kwq-v\"> per 100</span>",A.klachtN?plural(A.klachtN,"keer","keer")+" niet tevreden"+(A.nawerk?" · "+A.nawerk+"× nawerk":""):"niets gemeld",ver(A.klacht,B.klacht,false))}</div>`;
@@ -21224,7 +21224,7 @@ function vKwaliteit(P,V){const t=today(),inP=rg=>(state.beurten||[]).filter(b=>!
   const wk=[...Array(12)].map((_,i)=>{const s=addDays(w0,(i-11)*7),c=kwCijfers(inP([s,addDays(s,6)]));return{l:String(weekNr(s)),c}});
   const eerste=wk.findIndex(w=>w.c.opTijd!=null),toon=eerste<0?[]:wk.slice(eerste);
   const week=`<section class="st-card"><div class="st-ch"><div><h3>Op tijd per week</h3><p>Gestart binnen ${kwVenster()} minuten na de geplande tijd</p></div></div>
-    ${toon.length?stBars(toon.map(w=>w.c.opTijd||0),toon.map(w=>"wk "+w.l),{hi:toon.length-1,fmt:v=>Math.round(v)+"%",h:170,gem:false}):'<p class="st-leeg">Zodra er bezoeken met een vaste tijd zijn afgemeld, zie je hier per week hoe stipt je was.</p>'}</section>`;
+    ${toon.length?stBars(toon.map(w=>w.c.opTijd||0),toon.map(w=>"wk "+w.l),{hi:toon.length-1,fmt:v=>Math.round(v)+"%",h:170,gem:false}):'<p class="st-leeg">Zodra er bezoeken met een gepland tijdstip zijn afgemeld, zie je hier per week hoe stipt je was.</p>'}</section>`;
   /* per medewerker */
   const per={};inP(P.rg).forEach(b=>{const w=String(b.door||"Onbekend");(per[w]=per[w]||[]).push(b)});
   const rijen=Object.entries(per).map(([w,L])=>[w,kwCijfers(L)]).sort((a,b)=>b[1].n-a[1].n);
