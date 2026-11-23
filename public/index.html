@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="4c446f6311d9"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="1d51af3c1fb3"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -21622,13 +21622,16 @@ function kwCijfers(L){const n=L.length,tijd=L.map(kwOpTijd).filter(x=>x!=null),s
 function vKwaliteit(P,V){const t=today(),inP=rg=>(state.beurten||[]).filter(b=>!b.geannuleerd&&inRange(b.datum,rg));
   const A=kwCijfers(inP(P.rg)),B=kwCijfers(inP(V.rg)),pct=x=>x==null?"—":x+"%",kom=x=>String(x).replace(".",",");
   /* verschil met de vorige periode: klein, onder het getal */
-  const ver=(a,b,hoog=true,suf="")=>{if(a==null||b==null||a===b)return"";const d=Math.round((a-b)*10)/10,goed=(d>0)===hoog;return `<em class="kwq-d ${goed?"op":"af"}">${d>0?"▲":"▼"} ${kom(Math.abs(d))}${suf} t.o.v. vorige ${esc(V.lbl.split(" ")[0].toLowerCase())}</em>`};
+  /* naam van de vorige periode: "oktober", "Q3", "2025"; jaartal erbij als dat anders is dan nu (bijv. "december 2025" in januari) */
+  const vNaam=(()=>{const pv=String(V.lbl||"").split(" "),py=String(P.lbl||"").split(" ").pop();if(pv.length<2)return pv[0]||"de vorige periode";const n=/^Q/.test(pv[0])?pv[0]:pv[0].toLowerCase();return pv[1]!==py?n+" "+pv[1]:n})();
+  const ver=(a,b,hoog=true,suf="",telling=false)=>{if(a==null||b==null||a===b)return"";const d=Math.round((a-b)*10)/10,goed=(d>0)===hoog;
+    const w=telling?(d>0?"meer":"minder"):goed?"beter":"lager";return `<em class="kwq-d ${goed?"op":"af"}">${d>0?"▲":"▼"} ${kom(Math.abs(d))}${suf} ${w} dan ${esc(vNaam)}</em>`};
   const tegel=(ic,l,v,sub,d)=>`<div class="st-tile kwq-tile"><span class="st-ic">${ic}</span><span class="st-l">${l}</span><b>${v}</b><small>${sub}</small>${d||""}</div>`;
   const tiles=`<div class="st-tiles kwq-tiles">
     ${tegel(I.clock,"Op tijd",pct(A.opTijd),A.tijdN?A.tijdOk+" van "+plural(A.tijdN,"bezoek","bezoeken")+" binnen het geplande tijdstip":"nog geen bezoeken met een gepland tijdstip",ver(A.opTijd,B.opTijd,true,"%"))}
     ${tegel(I.ster||I.spark,"Beoordeling",A.sterren==null?"—":kom(A.sterren)+"<span class=\"kwq-v\"> / 5</span>",A.sterN?plural(A.sterN,"beoordeling","beoordelingen"):"nog geen beoordelingen",ver(A.sterren,B.sterren))}
     ${tegel(I.check,"Eindcontrole",pct(A.controle),A.ctlN?A.ctlN+" van "+A.n+" gecontroleerd":"start vanaf het volgende bezoek","")}
-    ${tegel(I.alert,"Klachten",A.klacht==null?"—":kom(A.klacht)+"<span class=\"kwq-v\"> per 100</span>",A.klachtN?plural(A.klachtN,"keer","keer")+" niet tevreden"+(A.nawerk?" · "+A.nawerk+"× nawerk":""):"niets gemeld",ver(A.klacht,B.klacht,false))}</div>`;
+    ${tegel(I.alert,"Klachten",A.klacht==null?"—":kom(A.klacht)+"<span class=\"kwq-v\"> per 100</span>",A.klachtN?plural(A.klachtN,"keer","keer")+" niet tevreden"+(A.nawerk?" · "+A.nawerk+"× nawerk":""):"niets gemeld",ver(A.klacht,B.klacht,false,"",true))}</div>`;
   /* per week: % op tijd, laatste 12 weken */
   const ma=d=>{const x=new Date(d);x.setDate(x.getDate()-((x.getDay()+6)%7));x.setHours(0,0,0,0);return x},w0=ma(t);
   const wk=[...Array(12)].map((_,i)=>{const s=addDays(w0,(i-11)*7),c=kwCijfers(inP([s,addDays(s,6)]));return{l:String(weekNr(s)),c}});
