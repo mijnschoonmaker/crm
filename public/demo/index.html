@@ -5580,6 +5580,14 @@ html body:not(#zz) .kwa{position:relative}html body:not(#zz) .kwa label.kwa-ck{p
 html body:not(#zz) .kwa .kwa-go:disabled{background:#9ea3ab!important;background-image:none!important;border-color:#9ea3ab!important;color:#fff!important;box-shadow:none!important;cursor:not-allowed;opacity:1!important}
 .ubn-l{display:flex;flex-direction:column;border-top:1px solid var(--line)}
 .ubn-r{display:flex;align-items:center;gap:12px;padding:12px 2px;border-bottom:1px solid var(--line)}.ubn-r>span{flex:1;min-width:0}.ubn-r b{display:block}.ubn-r small{color:var(--muted)}
+/* hospitality: instructies van de klant uit het klantportaal (alleen-lezen) */
+.hosp-pt{margin-top:10px;display:grid;gap:9px;padding:12px 13px;border-radius:14px;background:linear-gradient(180deg,#fbf8f1,#fff);border:1px solid #efe5cf}
+.hosp-pt-h{display:flex;gap:10px;align-items:center}.hosp-pt-h>div{display:flex;flex-direction:column;gap:1px;min-width:0}
+.hosp-pt-h small{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#a07a2c}.hosp-pt-h b{font-size:14px;color:var(--ink)}
+.hosp-pt .hosp-ic{color:#a07a2c}
+.hosp-pt-c{display:flex;flex-wrap:wrap;gap:6px}.hosp-pt-c span{padding:5px 10px;border-radius:999px;background:#fff;border:1px solid #ece4d2;font-size:13px;font-weight:600;color:#252c3c}
+.hosp-pt-code{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:10px;background:#fff;border:1px solid #ece4d2}.hosp-pt-code small{color:var(--muted);font-size:12px;flex:1}.hosp-pt-code b{font-family:ui-monospace,Menlo,monospace;font-size:14px;letter-spacing:.06em}
+.hosp-pt-t{margin:0;font-size:14px;line-height:1.5;color:#3a4150}
 
 </style>
 <style id="mansardThema">
@@ -18882,8 +18890,16 @@ const hospNu=(x,day)=>x.c!=="verteld"||!x.vanaf||x.vanaf<=(day||iso(today()));
 /* open punten; "klant vertelde" (en dus ter sprake brengen) eerst */
 const hospList=k=>{const l=hospItems(k).filter(x=>!(x.c==="verteld"&&x.af)),d=iso(today()),r=x=>x.c==="verteld"?(hospNu(x,d)?0:2):1;return l.sort((a,b)=>r(a)-r(b)||a._i-b._i)};
 const hospItem=(k,x,cls)=>{const c=hospCat(x.c),v=x.c==="verteld",nu=hospNu(x),prio=v&&nu,later=v&&!nu;return `<div class="${cls} hc-${c[0]}${prio?" hosp-prio":""}${later?" hosp-later":""}"><span class="hosp-ic">${I[c[2]]||I.note}</span><div><small>${prio?`<em class="hosp-tag">Bespreken</em>`:esc(c[1])}</small><span>${esc(x.t)}</span></div>${later?`<span class="hosp-af hosp-wacht" title="Pas ter sprake brengen vanaf ${esc(fmtL(x.vanaf))}">${I.clock}Nog niet bespreken · vanaf ${esc(fmtD(x.vanaf))}</span>`:""}${prio?`<button type="button" class="hosp-af" data-hosp-af="${esc(k.id)}:${x._i}" title="Vink af als je het met de klant hebt besproken; dan komt het niet meer bovenaan">${I.check}Heb je het besproken?</button>`:""}</div>`};
+/* instructies die de klant zelf in het klantportaal heeft doorgegeven: alleen-lezen in hospitality (de klant wijzigt ze zelf) */
+function hospPortaal(k){const t=(k&&(k.hoofdKlantId&&state.klanten.find(x=>x.id===k.hoofdKlantId)||k).portaalToegang)||null;if(!t||(!(t.opties||[]).length&&!t.tekst&&!t.code))return"";
+  const op=t.opties||[],d=t.op?String(t.op).slice(0,10):"";
+  return `<div class="hosp-pt"><div class="hosp-pt-h"><span class="hosp-ic">${I.lock||I.key||I.note}</span><div><small>Van de klant · via klantportaal${d?" · "+esc(fmtD(d)):""}</small><b>Toegang en instructies</b></div></div>
+    ${op.length?`<div class="hosp-pt-c">${op.map(x=>`<span>${esc(x)}</span>`).join("")}</div>`:""}
+    ${t.code?`<div class="hosp-pt-code"><small>Code poort / toegangsdeur</small><b>${esc(t.code)}</b><button type="button" class="tiny ghost" data-copy="${esc(t.code)}" onclick="event.stopPropagation();navigator.clipboard&&navigator.clipboard.writeText(this.dataset.copy).then(()=>toast('Code gekopieerd'))" aria-label="Code kopiëren">${I.copy||"Kopieer"}</button></div>`:""}
+    ${t.tekst?`<p class="hosp-pt-t">${esc(t.tekst).replace(/\n/g,"<br>")}</p>`:""}</div>`}
+function hospBlok(k,o={}){const h=hospBlok0(k,o),p=hospPortaal(k);return p&&h.endsWith("</div>")?h.slice(0,-6)+p+"</div>":h}
 /* blok met aandachtspunten: in de klantkaart en boven in de opdracht */
-function hospBlok(k,{leegKnop=true}={}){const l=hospList(k),alle=hospItems(k);
+function hospBlok0(k,{leegKnop=true}={}){const l=hospList(k),alle=hospItems(k);
   if(!l.length&&alle.length)return `<div class="hosp hosp-leeg"><span class="objic">${I.heart}</span><div><b>Hospitality aandachtspunten</b><small>Alles wat de klant vertelde is besproken.</small></div>${leegKnop?`<button type="button" class="small" data-act="hospedit" data-id="${esc(k.id)}">${I.plus}Noteren</button>`:""}</div>`;
   if(!l.length){const sug=HOSP_TIPS.map((t,i)=>({t,i})).filter(x=>!/: $/.test(x.t[1])).filter((x,i,arr)=>arr.findIndex(y=>y.t[0]===x.t[0])===i).slice(0,5);
     return `<div class="hosp hosp-leeg"><span class="objic">${I.heart}</span><div><b>Hospitality aandachtspunten</b><small>Nog niets genoteerd. Wat moet iedereen weten om deze klant écht goed van dienst te zijn?</small></div>${leegKnop?`<button type="button" class="small" data-act="hospedit" data-id="${esc(k.id)}">${I.plus}Noteren</button>`:""}${leegKnop&&sug.length?`<div class="hx-snel hosp-snel0"><small>Snel toevoegen</small>${sug.map(x=>`<button type="button" class="hx-chip" data-hq="${esc(k.id)}:${x.i}">${I.plus}${esc(x.t[1])}</button>`).join("")}</div>`:""}</div>`}
@@ -22569,7 +22585,7 @@ function kkPortaal(k){
     ${refAan()&&!door&&!(state.beurten||[]).some(b=>b.klantId===k.id)?`<div class="kd-sub"><span class="eyebrow">Aanbevolen door een klant?</span><span class="kd-li ref-in"><input class="ref-kk" data-id="${esc(k.id)}" placeholder="Code, bijv. HANS68" maxlength="12" autocomplete="off" spellcheck="false" aria-label="Code van de aanbrenger"><button type="button" class="tiny" data-act="refkoppel" data-id="${esc(k.id)}">Koppelen</button></span></div>`:""}
     ${door?`<div class="kd-sub"><span class="eyebrow">Aanbevolen door</span><span class="kd-li"><i style="background:#e9a23b"></i><button type="button" class="linkbtn" data-act="klant" data-id="${esc(door.id)}">${esc(cleanName(door.naam))}</button><em>${k.aanbevelingBeloond?"korting vrijgegeven":"korting on hold"}</em></span></div>`:""}
     ${aangebracht.length?`<div class="kd-sub"><span class="eyebrow">Heeft aangebracht (${aangebracht.length})</span>${aangebracht.map(x=>{const s=st(x);return `<span class="kd-li"><i style="background:var(--${s[0]==="ok"?"ok":s[0]==="soon"?"soon":"muted"})"></i><button type="button" class="linkbtn" data-act="klant" data-id="${esc(x.id)}">${esc(cleanName(x.naam))}</button><em>${s[1]}</em></span>`}).join("")}</div>`:""}
-    ${toegangHtml(k)}
+    ${/* instructies van de klant staan nu bij hospitality */""}
   </section>`}
 
 /* het klantportaal bekijken zoals deze klant het ziet (alleen bekijken) */

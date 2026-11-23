@@ -1948,6 +1948,19 @@ html body:not(#zz) .cw .cw-k .cw-ic svg{width:16px!important;height:16px!importa
 html body:not(#zz) .cw .cw-k::before{right:16px!important;bottom:14px!important;line-height:1}
 html body:not(#zz) .cw .cw-k .cw-n{padding-right:110px!important}
 .hk-bz{margin:6px 0 0;font-size:14.5px;line-height:1.5;color:#1f2430}
+
+/* Uw instructies (Bezoeken) */
+.instr-k{margin-top:16px}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .kp.instr-k>.kp-h button[data-act]{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 15px!important;border-radius:11px!important;background:linear-gradient(135deg,#3a4560,#252c3c)!important;color:#fff!important;border:0!important;font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;box-shadow:0 6px 14px -8px rgb(37 44 60/.6)!important}
+html body:not(#zz):not(#zy):not(#zx):not(#zw) .kp.instr-k>.kp-h button[data-act] svg{width:14px;height:14px;color:#fff}
+.instr{display:grid;gap:10px}
+.instr-c{display:flex;flex-wrap:wrap;gap:6px}
+.instr-c span{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:999px;background:#f3f4f6;border:1px solid #e7e9ed;font-size:13px;font-weight:600;color:#252c3c}
+.instr-c svg{width:13px;height:13px;color:#2f8f5b}
+.instr-r{display:flex;justify-content:space-between;gap:12px;margin:0;padding:9px 12px;border-radius:12px;background:#f7f8fa;font-size:13.5px}
+.instr-r small{color:#6b7280}
+.instr-t{margin:0;font-size:14px;line-height:1.55;color:#3a4150;white-space:normal}
+.instr-leeg{margin:0;font-size:14px;line-height:1.55;color:#6b7280}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script></head>
 <body><div id="app"><div class="laden"><div class="spin"></div></div></div>
 <script>
@@ -2235,7 +2248,11 @@ function bzHero(){const v=D.volgende,b=D.bezoeken||[],k=D.klant,fq=Number(k.freq
   const hero=`<section class="bz-hero"><div class="bz-hm"><p class="bz-k">${v&&v.bezig?'<span class="puls"></span>Vandaag':v?"Uw volgende bezoek":"Verwacht"}</p>${(k.uitvoer||k).adres?`<p class="bz-adr">${I.pin}<span>${esc((k.uitvoer||k).adres)}${(k.uitvoer||k).pcPlaats?`<em>, ${esc((k.uitvoer||k).pcPlaats.replace(/^\d{4}\s?[a-z]{2}\s*/i,""))}</em>`:""}</span></p>`:""}<h2>${titel}</h2><p class="bz-s">${sub}</p>
       ${k.actief&&!(v&&v.bezig)?(()=>{const pc=volg?Math.max(pct,20):20;return `<div class="bz-line"><div class="bz-tr"><i style="width:${pc}%"></i><em class="bz-van" style="left:${pc}%">${AUTO}</em><span class="bz-huis">${I.huis}</span></div><div class="bz-ll"><span>${laatst?(vveB()?"Laatste bezoek":isVve()?"Laatst schoongemaakt":PGLAS()?"Laatst gewassen":"Laatste bezoek"):"Aangemeld"}<b>${laatst?esc(kort(laatst)):k.sinds?esc(kort(k.sinds)):"nu"}</b></span><span>${v?"Volgende":"Verwacht"}<b>${v?esc(kort(volg)):wk?"week "+wk:"wordt gepland"}</b></span></div></div>`})():""}
       <div class="bz-acts">${v&&!v.bezig?`<button data-act="overslaan">${I.pauze}Overslaan</button>`:""}<button data-act="toegang">${I.sleutel}Instructies</button><button data-act="ticket">${I.bericht}${"Vraag stellen"}</button></div></div>${ring}</section>`;
-  return hero}
+  return hero+instrKaart()}
+/* wat de klant nu aan toegang en instructies heeft doorgegeven: altijd zichtbaar, met wijzigen */
+function instrKaart(){const t=D.klant.toegang||{},op=t.opties||[],vv=isVve();
+  if(!op.length&&!t.tekst&&!t.code)return kp(I.sleutel,"Uw instructies",`<p class="instr-leeg">U heeft nog geen instructies doorgegeven. ${vv?"Heeft onze schoonmaker een sleutel, code of werkkast nodig?":"Moeten we aanbellen, is er een poortcode of mag de kat niet naar buiten?"} Laat het ons weten.</p>`,{kl:"goud",cls:"instr-k",act:`<button class="primary" data-act="toegang">${I.plus||""}Doorgeven</button>`});
+  return kp(I.sleutel,"Uw instructies",`<div class="instr">${op.length?`<div class="instr-c">${op.map(x=>`<span>${I.check||""}${esc(x)}</span>`).join("")}</div>`:""}${t.code?`<p class="instr-r"><small>${vv?"Code entree of sleutelkastje":"Code poort of toegangsdeur"}</small><b>•••• ingesteld</b></p>`:""}${t.tekst?`<p class="instr-t">${esc(t.tekst).replace(/\n/g,"<br>")}</p>`:""}</div>`,{kl:"goud",cls:"instr-k",sub:t.op?"Laatst gewijzigd op "+esc(kort(String(t.op).slice(0,10))):"Dit ziet "+(vv?"onze schoonmaker":PGLAS()?"uw glazenwasser":"onze medewerker")+" bij elk bezoek",act:`<button class="primary" data-act="toegang">${I.pen||""}Wijzigen</button>`})}
 /* alle diensten die bij de klant op de klantkaart staan */
 function diensten(){const k=D.klant;let L=(k.diensten||[]).slice();
   if(!L.length&&k.actief!==false)L=[{naam:k.dienst||PHD(),ritme:k.frequentie?(k.frequentie===1?"elke week":"elke "+k.frequentie+" weken"):"",volgende:(D.volgende||{}).datum||"",ingepland:!!D.volgende,prijs:Number(k.prijs)||null,detail:k.binnen?"binnen en buiten":"",hoofd:true}];
@@ -2677,7 +2694,7 @@ const FORM={
     <p class="fout" role="alert"></p><div class="acties"><button class="" data-sluit>Annuleren</button><button class="primary" data-go>Opslaan</button></div>`,
     o=>{o.querySelector("[data-go]").onclick=()=>verstuur(o,{type:"beheercode",code:o.querySelector("#bc").value},"Opgeslagen","De beheercode staat vanaf nu op uw facturen.")})},
   toegang(){const t=D.klant.toegang||{},op=t.opties||[];const vv=isVve(),OPT=vv?["Sleutel of druppel nodig voor de entree","Sleutelkastje bij de entree","Werkkast met water en stroom","Werkkast met stroom zonder water","Werkkast zonder stroom en zonder water"]:["Bel aan bij aankomst","Niet aanbellen","Sleutel of code nodig voor de poort","Toegangspoort klemt, maar is open","Kat binnen houden, deuren dicht","Kinderen of baby slapen, graag stil"];
-    blad(`<h3>Toegang en instructies</h3><p class="sub">${vv?"Zo weet onze schoonmaker precies wat hij in het gebouw kan verwachten. We nemen dit mee bij elke beurt.":PGLAS()?"Zo weet de glazenwasser precies wat hij kan verwachten. We nemen dit mee bij elk bezoek.":"Zo weet onze medewerker precies wat hij kan verwachten. We nemen dit mee bij elk bezoek."}</p>
+    blad(`<h3>Toegang en instructies</h3><p class="sub">${vv?"Zo weet onze schoonmaker precies wat hij in het gebouw kan verwachten. We nemen dit mee bij elke beurt.":PGLAS()?"Zo weet de glazenwasser precies wat hij kan verwachten. We nemen dit mee bij elk bezoek.":"Zo weet onze medewerker precies wat hij kan verwachten. We nemen dit mee bij elk bezoek."}${t.op?` <b>Laatst gewijzigd op ${esc(kort(String(t.op).slice(0,10)))}.</b>`:""}</p>
     <div class="keus">${OPT.map(x=>`<label><input type="checkbox" value="${esc(x)}"${op.includes(x)?" checked":""}><span>${esc(x)}</span></label>`).join("")}</div>
     <label class="veld">${vv?"Code van de entree of het sleutelkastje":"Code van de poort of toegangsdeur"}<span class="codeveld"><input type="password" id="vc" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Bijvoorbeeld 2580#" value="${esc(t.code||"")}"><button type="button" class="iconbtn" id="vcz" aria-label="Code tonen" title="Code tonen">${I.oog}</button></span><small class="hulp">${vv?"Alleen zichtbaar voor het bestuur en onze schoonmakers.":PGLAS()?"Alleen zichtbaar voor u en onze glazenwassers.":"Alleen zichtbaar voor u en onze medewerkers."}</small></label>
     <label class="veld"><span>Verder nog iets?</span><textarea id="vt" placeholder="${vv?"Bijvoorbeeld: sleutelkastje naast de brievenbussen, waterkraan in de bergingsgang":"Aanvullende informatie of eigen instructie die hier boven niet staat."}">${esc(t.tekst||"")}</textarea></label>

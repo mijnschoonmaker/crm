@@ -83,7 +83,7 @@ function kkPortaal(k){
     ${refAan()&&!door&&!(state.beurten||[]).some(b=>b.klantId===k.id)?`<div class="kd-sub"><span class="eyebrow">Aanbevolen door een klant?</span><span class="kd-li ref-in"><input class="ref-kk" data-id="${esc(k.id)}" placeholder="Code, bijv. HANS68" maxlength="12" autocomplete="off" spellcheck="false" aria-label="Code van de aanbrenger"><button type="button" class="tiny" data-act="refkoppel" data-id="${esc(k.id)}">Koppelen</button></span></div>`:""}
     ${door?`<div class="kd-sub"><span class="eyebrow">Aanbevolen door</span><span class="kd-li"><i style="background:#e9a23b"></i><button type="button" class="linkbtn" data-act="klant" data-id="${esc(door.id)}">${esc(cleanName(door.naam))}</button><em>${k.aanbevelingBeloond?"korting vrijgegeven":"korting on hold"}</em></span></div>`:""}
     ${aangebracht.length?`<div class="kd-sub"><span class="eyebrow">Heeft aangebracht (${aangebracht.length})</span>${aangebracht.map(x=>{const s=st(x);return `<span class="kd-li"><i style="background:var(--${s[0]==="ok"?"ok":s[0]==="soon"?"soon":"muted"})"></i><button type="button" class="linkbtn" data-act="klant" data-id="${esc(x.id)}">${esc(cleanName(x.naam))}</button><em>${s[1]}</em></span>`}).join("")}</div>`:""}
-    ${toegangHtml(k)}
+    ${/* instructies van de klant staan nu bij hospitality */""}
   </section>`}
 
 /* het klantportaal bekijken zoals deze klant het ziet (alleen bekijken) */
