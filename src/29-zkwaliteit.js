@@ -63,27 +63,43 @@ function kwKop(k,kruimel,pil,regel){return `<div class="kwa-h"><div class="kwa-k
 function kwFotoUp(f){return new Promise(async res=>{try{const sz=typeof imgSize==="function"?await imgSize(f).catch(()=>({})):{},r=await state.assets.upload(f);res({id:r.id,url:URL.createObjectURL(f),w:sz.w||0,h:sz.h||0,op:new Date().toISOString()})}catch(e){toast("De foto kon niet worden geüpload");res(null)}})}
 function kwDlg(){const d=document.createElement("dialog");d.className="kwa-dlg";const o=document.createElement("div");o.className="kwa";d.appendChild(o);document.body.appendChild(d);return {d,o}}
 
+/* klantkaart: staat bij het eerste bezoek (bestaande schade en bijzonderheden), alleen intern */
+function kkNulmeting(k){const L=Array.isArray(k&&k.nulmeting)?k.nulmeting.filter(x=>x&&(x.items||[]).length):[];if(!L.length)return"";
+  return `<section class="kk-nul"><div class="kk-nul-h"><span class="hosp-ic">${I.camera}</span><div><b>Staat bij eerste bezoek</b><small>Vastgelegd vóór het eerste bezoek · alleen intern, niet zichtbaar voor de klant</small></div></div>
+    ${L.map(r=>`<div class="kk-nul-r"><small>${esc(fmtD(r.datum))}${r.door?" · "+esc(r.door):""}</small><div class="kk-nul-g">${r.items.map(x=>`<a class="kk-nul-i" href="${BLOB}${esc(x.id)}" target="_blank" rel="noopener"><img src="${BLOB}${esc(x.id)}" alt="" loading="lazy"><span><em class="${x.soort==="bijz"?"bz":"sd"}">${x.soort==="bijz"?"Bijzonderheid":"Bestaande schade"}</em>${x.notitie?esc(x.notitie):"<i>Geen notitie</i>"}</span></a>`).join("")}</div></div>`).join("")}</section>`}
 /* ---------- 4. briefing bij Start · eerste beurt: nulmeting ---------- */
 function kwBriefing(k){return new Promise(res=>{try{
   if(kwTest())return res(true);
   const eerste=kwEerste(k),nul=eerste&&kwS().kwNul!==false;
   if(!nul&&kwS().kwBriefing===false)return res(true);
   const R=kwBriefRegels(k).filter(r=>r.l!=="Eerste kennismaking");if(!nul&&!R.length)return res(true);
-  const F=[];let bezig=false;/* nulmeting: foto's van de woning, per foto een zijde en aangetikte plekken (tellen niets) */
+  const F=[],S=[];let bezig=false;/* S: bestaande schade of bijzonderheden, met soort en notitie *//* nulmeting: foto's van de woning, per foto een zijde en aangetikte plekken (tellen niets) */
   const {d,o}=kwDlg();const weg=v=>{try{d.close()}catch(_){}d.remove();res(v)};d.addEventListener("cancel",e=>{e.preventDefault();weg(null)});
   const ZIJ=KW_ZIJDEN;
   const ftegel=(f,i)=>`<div class="kwa-nf"><button type="button" class="kwa-nfi" data-nfo="${i}" aria-label="Foto ${i+1} openen en plekken aantikken" style="aspect-ratio:${f.w&&f.h?f.w+"/"+f.h:"4/3"}"><img src="${f.url}" alt="">${f.st.map(p=>`<i class="kwa-st" style="left:${p.x}%;top:${p.y}%"></i>`).join("")}${f.st.length?`<em class="kwa-nfn">${f.st.length}</em>`:""}</button>
     <div class="kwa-zij" role="group" aria-label="Zijde van de woning">${ZIJ.map(z=>`<button type="button" class="${f.zijde===z?"on":""}" data-nzij="${i}" data-z="${esc(z)}">${esc(z)}</button>`).join("")}</div>
     <button type="button" class="kwa-nfx" data-nfx="${i}" aria-label="Foto verwijderen">${I.x}</button></div>`;
+  const stegel=(x,i)=>`<div class="kwa-ns"><img src="${x.url}" alt="">
+    <div class="kwa-nsb"><div class="kwa-zij" role="group" aria-label="Soort">${[["schade","Bestaande schade"],["bijz","Bijzonderheid"]].map(([v,l])=>`<button type="button" class="${x.soort===v?"on":""}" data-nss="${i}" data-v="${v}">${l}</button>`).join("")}</div>
+      <input class="in" data-nsn="${i}" value="${esc(x.notitie)}" maxlength="160" placeholder="${x.soort==="bijz"?"Bijv. poort klemt, even optillen":"Bijv. kras in ruit keukenraam"}">
+      <small>${x.soort==="bijz"?"Komt als aandachtspunt bij elk volgend bezoek.":"Wordt vastgelegd in de klantkaart als bewijs."}</small></div>
+    <button type="button" class="kwa-nfx" data-nsx="${i}" aria-label="Foto verwijderen">${I.x}</button></div>`;
   const teken=()=>{const n=F.length,klaar=true;/* foto's bij de nulmeting zijn niet verplicht */
     o.innerHTML=`${kwKop(k,nul?"Eerste beurt":"Start beurt",nul?'<i class="kwa-pil goud">Nieuw</i>':"",esc([jobAddrObj(k).adres,k.plaats].filter(Boolean).join(", "))+(nul?" · Klant sinds "+(String(k.aangemaakt||"").slice(0,10)===iso(today())?"vandaag":fmtD(String(k.aangemaakt||iso(today())).slice(0,10))):k.tijd?" · "+esc(k.tijd):""))}
     <div class="kwa-b">
-      ${nul?`<section class="kwa-c"><h4>Nulmeting</h4><p>Leg de staat vast vóór je begint. Bestaande krassen of schade kunnen je later niet worden aangerekend. Stel jezelf even voor en vraag naar wensen.</p></section>`:""}
+      ${nul?`<section class="kwa-c"><h4>Nulmeting</h4><p>Stel jezelf even voor en vraag naar wensen. Maak daarna, vóór je begint, foto's van de woning (1) en leg vast wat er al kapot was of opvalt (2). Bestaande schade die zo is vastgelegd, kan je later niet worden aangerekend.</p></section>`:""}
       ${R.length?`<section class="kwa-c"><h4>Aandachtspunten</h4>${R.map(r=>`<div class="kwa-ap${r.pri?" pri":""}"><small>${esc(r.l)}</small><span>${esc(r.t)}</span></div>`).join("")}</section>`:""}
-      ${nul?`<section class="kwa-c"><h4>Foto's van de woning <em class="${n?"ok":""}">${n?plural(n,"foto","foto's"):"niet verplicht"}</em></h4>
-        <p class="kwa-hulp" style="margin:0 0 12px">Maak foto's van alle kanten. Kies per foto de zijde en tik op de foto om plekken aan te geven, zoals een kras of beschadiging.</p>
+      ${nul?`<section class="kwa-c"><h4>1 · Foto's van de woning <em class="${n?"ok":""}">${n?plural(n,"foto","foto's"):"niet verplicht"}</em></h4>
+        <p class="kwa-hulp" style="margin:0 0 12px">Maak van elke zijde van de woning een foto en kies welke zijde het is. Deze foto's komen bij de opdracht: jij en je collega's zien ze bij elk volgend bezoek, zodat je meteen weet welke ramen erbij horen. Tik op een foto om plekken aan te wijzen, bijvoorbeeld een raam dat lastig te bereiken is.</p>
         <div class="kwa-nfg">${F.map(ftegel).join("")}<label class="kwa-fv kwa-nfadd${state.assets?"":" dis"}"><span>${I.camera}<em>${n?"Nog een foto":"Foto maken"}</em></span><input type="file" accept="image/*" multiple hidden data-nf="1"></label></div>
-        <small class="kwa-hulp">Bewaard bij de locatie, niet naar de klant.</small></section>`:""}
+        </section>
+      <section class="kwa-c"><h4>2 · Bestaande schade of bijzonderheden <em>${S.length?plural(S.length,"foto","foto's"):"alleen als het er is"}</em></h4>
+        <div class="kwa-uitl"><div><b>Bestaande schade</b><span>Was al zo vóór ons eerste bezoek, zoals een kras in een ruit of een gescheurde rubber. Wordt met datum vastgelegd in de klantkaart, zodat je kunt laten zien dat het er al was als de klant er later naar vraagt.</span></div>
+          <div><b>Bijzonderheid</b><span>Iets om rekening mee te houden, zoals een poort die klemt of een losse dakgoot. Je notitie verschijnt bij elk volgend bezoek als aandachtspunt bij Start.</span></div></div>
+        <div class="kwa-nsl">${S.map(stegel).join("")}</div>
+        <label class="kwa-nsadd${state.assets?"":" dis"}">${I.camera}<span>Foto van schade of bijzonderheid</span><input type="file" accept="image/*" multiple hidden data-ns="1"></label>
+      </section>
+      <p class="kwa-hulp kwa-priv">${I.lock||""}Geen van deze foto's gaat naar de klant.</p>`:""}
     </div>
     <div class="kwa-f"><button type="button" class="primary kwa-go" data-kb ${(nul&&!klaar)||bezig?"disabled":""}>${nul?"▶ Start beurt":I.check+"<span>Gezien, start</span>"}</button>
       <small>${nul&&!state.assets?"Foto's maken lukt nu niet · je kunt toch starten":nul?(n?"Klaar voor de eerste beurt":"Foto's zijn niet verplicht · je kunt direct starten"):"Daarna loopt de tijd"}</small></div>`;
@@ -93,9 +109,19 @@ function kwBriefing(k){return new Promise(res=>{try{
     o.querySelectorAll("[data-nzij]").forEach(b=>b.onclick=()=>{const f=F[+b.dataset.nzij];f.zijde=f.zijde===b.dataset.z?"":b.dataset.z;teken()});
     o.querySelectorAll("[data-nfx]").forEach(b=>b.onclick=()=>{F.splice(+b.dataset.nfx,1);teken()});
     o.querySelectorAll("[data-nfo]").forEach(b=>b.onclick=()=>kwStippen(F[+b.dataset.nfo],teken));
+    o.querySelectorAll("[data-ns]").forEach(inp=>inp.onchange=async e=>{const fs=[...(e.target.files||[])];e.target.value="";if(!fs.length||!state.assets)return;bezig=true;teken();
+      for(const f of fs){const r=await kwFotoUp(f);if(r)S.push({...r,soort:"schade",notitie:""})}bezig=false;teken()});
+    o.querySelectorAll("[data-nss]").forEach(b=>b.onclick=()=>{S[+b.dataset.nss].soort=b.dataset.v;teken()});
+    o.querySelectorAll("[data-nsn]").forEach(x=>x.oninput=()=>{S[+x.dataset.nsn].notitie=x.value});
+    o.querySelectorAll("[data-nsx]").forEach(b=>b.onclick=()=>{S.splice(+b.dataset.nsx,1);teken()});
     o.querySelector("[data-kb]").onclick=()=>{if(bezig)return;KW.gezien[k.id]=new Date().toISOString();
       const dg=iso(today()),nw=F.map((x,i)=>({id:x.id,naam:"Nulmeting: "+(x.zijde||"woning"),zijde:x.zijde||"",datum:dg,w:x.w,h:x.h,dots:[],stippen:x.st.map(p=>({x:p.x,y:p.y})),voor:true}));
-      if(nw.length){k.fotos=[...(k.fotos||[]),...nw];const ix=state.klanten.findIndex(x=>x.id===k.id);if(ix>=0&&state.klanten[ix]!==k)state.klanten[ix]={...state.klanten[ix],fotos:[...(state.klanten[ix].fotos||[]),...nw]}}
+      const ix=state.klanten.findIndex(x=>x.id===k.id),zet=(veld,val)=>{k[veld]=val;if(ix>=0&&state.klanten[ix]!==k)state.klanten[ix]={...state.klanten[ix],[veld]:val}};
+      if(nw.length)zet("fotos",[...(k.fotos||[]),...nw]);
+      /* bestaande schade en bijzonderheden: vastlegging in de klantkaart; bijzonderheden met notitie ook als aandachtspunt (hospitality · Let op) */
+      if(S.length){const door=typeof doorNaam==="function"?doorNaam():"";
+        zet("nulmeting",[...(Array.isArray(k.nulmeting)?k.nulmeting:[]),{datum:dg,op:new Date().toISOString(),door,items:S.map(x=>({id:x.id,w:x.w,h:x.h,soort:x.soort,notitie:String(x.notitie||"").trim()}))}]);
+        const bz=S.filter(x=>x.soort==="bijz"&&String(x.notitie||"").trim());if(bz.length)zet("hosp",[...(Array.isArray(k.hosp)?k.hosp:[]),...bz.map(x=>({c:"letop",t:String(x.notitie).trim(),bron:"nulmeting",op:dg}))])}
       weg(true)}};
   teken();d.showModal()
 }catch(e){console.error(e);res(true)}})}
