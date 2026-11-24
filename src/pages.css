@@ -5285,3 +5285,25 @@ html body:not(#zz) .kwa .kwa-go:disabled{background:#9ea3ab!important;background
 .kws-r p{grid-column:1/-1;margin:4px 0 0;font-size:14px;line-height:1.5;color:#3a4150;font-style:italic}
 .kws-st{display:inline-flex;gap:2px;font-size:16px;letter-spacing:0}.kws-st i{font-style:normal;color:#d9dce2}.kws-st i.on{color:#d4a23a}
 .kws-r.laag{border-color:#f1d4cf;background:#fffaf9}
+/* nulmeting: foto's van de woning met zijde en aangetikte plekken */
+.kwa-nfg{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.kwa-nf{position:relative;display:grid;gap:8px;align-content:start}
+.kwa-nfi{all:unset;position:relative;display:block;border-radius:14px;overflow:hidden;background:#eef0f3;cursor:crosshair;box-shadow:inset 0 0 0 1px rgb(20 23 28/.06)}
+.kwa-nfi img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.kwa-nfn{position:absolute;right:8px;bottom:8px;font-style:normal;font-size:12px;font-weight:700;color:#fff;background:rgb(20 23 28/.7);border-radius:999px;padding:3px 8px}
+.kwa-st{position:absolute;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#e0a82e;border:2px solid #fff;box-shadow:0 1px 4px rgb(0 0 0/.45);pointer-events:none}
+.kwa-st.groot{all:unset;position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;background:#e0a82e;border:3px solid #fff;box-shadow:0 2px 8px rgb(0 0 0/.5);cursor:pointer;pointer-events:auto}
+.kwa-zij{display:flex;flex-wrap:wrap;gap:6px}
+.kwa-zij button{all:unset;cursor:pointer;padding:6px 10px;border-radius:999px;border:1px solid #e3e5ea;background:#fff;font-size:12.5px;font-weight:600;color:#3a4150}
+.kwa-zij button.on{background:#252c3c;border-color:#252c3c;color:#fff}
+.kwa-nfx{all:unset;position:absolute;top:8px;right:8px;width:28px;height:28px;display:grid;place-items:center;border-radius:50%;background:rgb(20 23 28/.65);color:#fff;cursor:pointer}
+.kwa-nfx svg{width:14px;height:14px}
+.kwa-nfadd{min-height:150px}
+html body:not(#zz) dialog.kwa-dlg.kwa-stdlg{padding:0;border:0;background:transparent;max-width:min(1100px,96vw);width:96vw}
+html body:not(#zz) dialog.kwa-stdlg::backdrop{background:rgb(10 12 16/.82)}
+.kwa-stdlg::backdrop{background:rgb(10 12 16/.82)}
+.kwa-stw{display:grid;gap:12px}
+.kwa-stk{display:flex;align-items:center;gap:14px;color:#fff}.kwa-stk b{font-size:16px}.kwa-stk small{flex:1;color:rgb(255 255 255/.7);font-size:13px}
+.kwa-stf{position:relative;margin:0 auto;border-radius:16px;overflow:hidden;cursor:crosshair;background:#000}
+.kwa-stf img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;user-select:none;-webkit-user-select:none}
+.ow-foto .fwrap{position:relative}
