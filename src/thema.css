@@ -3009,3 +3009,11 @@ html body:not(#zz):not(#zy):not(#zx) .kwq-t .kwq-h>span{white-space:nowrap;text-
 html body:not(#zz):not(#zy):not(#zx) .kwq-t .kwq-r>:first-child{text-align:left}
 html body:not(#zz):not(#zy):not(#zx) .kwq-t .kwq-r:not(.kwq-h)>span{font-size:15px}
 @media (max-width:640px){html body:not(#zz):not(#zy):not(#zx) .kwq-t .kwq-r:not(.kwq-h2){grid-template-columns:repeat(3,minmax(0,1fr));column-gap:8px;min-width:0}}
+/* klantkaart › Betalingen op de telefoon: kop op eigen regel, status en Google-review eronder (liepen door elkaar) */
+@media (max-width:700px){
+html body:not(#zz):not(#zy):not(#zx) .kk-pay>.kp-h{flex-wrap:wrap;row-gap:12px;column-gap:10px}
+html body:not(#zz):not(#zy):not(#zx) .kk-pay>.kp-h>b{flex:1 1 calc(100% - 60px);white-space:nowrap;overflow:visible}
+html body:not(#zz):not(#zy):not(#zx) .kk-pay>.kp-h>.sp{display:none}
+html body:not(#zz):not(#zy):not(#zx) .kk-pay>.kp-h .pb-v{order:3;position:static!important;transform:none!important}
+html body:not(#zz):not(#zy):not(#zx) .kk-pay>.kp-h>button{order:4;margin-left:auto}
+}
