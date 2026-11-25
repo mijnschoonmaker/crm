@@ -232,7 +232,9 @@ module.exports = function maakPortaal(ctx) {
     const laatsteOp = bs.docs.map(d => d.data()).filter(x => !mijn || nmW(wie[x.klantId]) === mijn).map(x => Date.parse(x.op || "")).filter(Boolean).sort((a, b) => b - a)[0] || 0;
     if (!liveAan) {
       /* zonder live delen: alleen zodra de dag echt begonnen is (iets afgemeld of een tijd loopt), geen plek en geen kaart, wel hoeveel adressen nog en een schatting */
-      const begonnen = bs.docs.some(d => !mijn || nmW(wie[d.data().klantId]) === mijn) || lijst.some(x => x.bezig);
+      /* vanaf 10:00 op de dag zelf ziet de klant altijd hoeveel stops er nog vóór hem zijn (ook als er nog niets is afgemeld) */
+      const uurNL = Number(new Intl.DateTimeFormat("nl-NL", { hour: "2-digit", hour12: false, timeZone: "Europe/Amsterdam" }).format(new Date()));
+      const begonnen = uurNL >= 10 || bs.docs.some(d => !mijn || nmW(wie[d.data().klantId]) === mijn) || lijst.some(x => x.bezig);
       if (!begonnen) return { status: "uit" };
       const werk0 = lijst.slice(0, voor).reduce((a, x) => { const d = Number(x.duur) || 30, st = Date.parse(x.bezig || ""); return a + (st ? Math.max(3, d - (Date.now() - st) / 60e3) : d); }, 0) + voor * 8;
       const eta0 = new Intl.DateTimeFormat("nl-NL", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" }).format(new Date(Date.now() + (werk0 + 10) * 60e3));
