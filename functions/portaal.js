@@ -504,6 +504,12 @@ module.exports = function maakPortaal(ctx) {
       else if (v.verwacht) r.push("Nog in te plannen binnen de termijn: één beurt rond " + datNL(v.verwacht) + ".");
       if (v.vervalt && v.vervalt.length) r.push("Vervalt (na de einddatum, nog uit de agenda halen): " + v.vervalt.map(x => datNL(x.datum)).join(", ") + "."); }
     if (v.type === "gegevens") r.push("Ik heb mijn gegevens gewijzigd: " + Object.keys(v.wijziging || {}).map(f => f + " " + ((v.oud || {})[f] || "–") + " → " + (v.wijziging[f] || "–")).join(", ") + ".");
+    if (v.type === "toegang") { const t = v.toegang || {};
+      r.push("Ik heb mijn toegang en instructies doorgegeven:");
+      (t.opties || []).forEach(o => r.push("• " + o));
+      if (t.code) r.push("• Code van de poort of toegangsdeur doorgegeven");
+      if (t.tekst) r.push("", t.tekst);
+      if (!(t.opties || []).length && !t.code && !t.tekst) r.push("(alle instructies gewist)"); }
     if (v.type === "beoordeling") r.push(`Beoordeling van het bezoek${v.datum ? " van " + datNL(v.datum) : ""}: ${v.sterren} van 5 sterren.`);
     if (v.voorkeur) r.push("Voorkeur: " + v.voorkeur);
     if (v.tekst) r.push(v.tekst);

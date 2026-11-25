@@ -5641,6 +5641,7 @@ html body:not(#zz) dialog.kwa-stdlg::backdrop{background:rgb(10 12 16/.82)}
 .kk-nul-i span{font-size:13.5px;line-height:1.4;color:var(--ink)}.kk-nul-i i{color:var(--muted)}
 .kk-nul-i em{display:inline-block;margin-right:6px;padding:2px 8px;border-radius:999px;font-style:normal;font-size:11px;font-weight:700}
 .kk-nul-i em.sd{background:#fdecea;color:#a5362a}.kk-nul-i em.bz{background:#fbf3df;color:#8a6516}
+.tk-toeg{padding:0 4px 10px}.tk-toeg .hosp-pt{margin-top:0}
 
 </style>
 <style id="mansardThema">
@@ -22919,6 +22920,7 @@ function tkDetail(id){if(!tkOpen)return;if(tkOpen.unsub)tkOpen.unsub();tkOpen.id
   tkLijstTeken();
   $("#chxR").innerHTML=tkKop(k,`<b>${esc(t.onderwerp||"Ticket")}</b><small>${esc(t.nummer||"")} · ${esc(TK_CAT[t.categorie]||"Overig")} · ${esc(cleanName(k.naam))}${k.gepland?" · afspraak "+esc(fmtD(k.gepland)):""}</small>`)
     +(t.verzoek&&k.id?`<div class="tk-vz"><span class="pill soon">${esc((PT_TYPE[t.verzoek.type]||["Verzoek"])[0])}</span><span>${t.verzoek.datum?esc(t.verzoek.type==="vakantie"?"Van "+fmtD(t.verzoek.datum)+" t/m "+fmtD(t.verzoek.tot):"Afspraak "+fmtD(t.verzoek.datum)):""}</span><span class="sp"></span>${k.gepland?`<button type="button" class="small" data-act="job" data-id="${esc(k.id)}" data-d="${esc(k.gepland)}">${I.planning}Afspraak openen</button>`:""}</div>`:"")
+    +(t.verzoek&&t.verzoek.type==="toegang"&&typeof hospPortaal==="function"?`<div class="tk-toeg">${hospPortaal(k)||'<p class="subt">De klant heeft alle instructies gewist.</p>'}</div>`:"")
     +`<div class="tk-stbar"><span>Status</span><div class="seg" role="group">${Object.entries(TK_ST).map(([v,[c,l]])=>`<button type="button" data-tks="${v}" aria-pressed="${(t.status||"open")===v}"><i class="tk-dot" style="background:var(--${c})"></i>${l}</button>`).join("")}</div></div>
     <div class="chx-b" id="chxB"><p class="subt" style="margin:auto">Laden…</p></div>`+tkComposer(k)
     +`<small class="help" style="margin:4px 4px 0">${t.gezienKlant&&Date.now()-new Date(t.gezienKlant)<3*60e3?`<span class="sdot ok"></span> De klant kijkt nu in het portaal`:"De klant krijgt een mail met een knop naar dit ticket als hij niet online is."}</small>`;
@@ -22930,6 +22932,7 @@ function tkDetail(id){if(!tkOpen)return;if(tkOpen.unsub)tkOpen.unsub();tkOpen.id
 function tkBerichtenTeken(){const b=$("#chxB");if(!b||!tkOpen)return;const bij=b.scrollHeight-b.scrollTop-b.clientHeight<140;let dag="";
   const t=state.tickets.find(x=>x.id===tkOpen.id)||{},laatsteTeam=[...tkOpen.berichten].reverse().find(m=>m.van==="team"&&!m.systeem);
   b.innerHTML=tkOpen.berichten.map(m=>{const d=new Date(m.op).toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long"});const sep=d!==dag?(dag=d,`<div class="chx-dag"><span>${esc(d)}</span></div>`):"";
+    if(!m.systeem&&!m.tekst&&!m.foto)return sep;
     if(m.systeem)return sep+`<div class="tk-sys2">${esc(m.tekst)} · ${new Date(m.op).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"})}</div>`;
     return sep+`<div class="chx-m2 ${m.van==="team"?"ik":"zij"}">${m.foto?`<a href="${BLOB}${esc(m.foto)}" target="_blank" rel="noopener" class="chx-f"><img src="${BLOB}${esc(m.foto)}" alt="Foto"></a>`:""}${m.tekst?`<div class="chx-bb">${esc(m.tekst).replace(/\n/g,"<br>")}</div>`:""}<small>${m.van==="team"&&m.doorNaam?esc(m.doorNaam)+" · ":""}${new Date(m.op).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"})}${m===laatsteTeam?(t.gezienKlant&&t.gezienKlant>=m.op?" · gelezen":" · verzonden"):""}</small></div>`}).join("")||`<p class="subt" style="margin:auto">Nog geen berichten</p>`;
   if(bij)b.scrollTop=b.scrollHeight}
