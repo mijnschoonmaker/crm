@@ -96,6 +96,10 @@ module.exports = ({ db, onRequest, onCall, onSchedule, HttpsError, brevoSend, ma
     const q = await db.collection("vragen").get();
     for (const d of q.docs) { const v = d.data(); const oud = v.status === "opgelost" ? String(v.laatst || v.opgelostOp || "") < grens : String(v.laatst || "") < grensOpen; if (!oud) continue;
       try { const bq = await db.collection("vraagBerichten").where("vraagId", "==", d.id).get(); for (const m of bq.docs) await m.ref.delete(); await d.ref.delete(); } catch (e) { console.error("vraag opruimen", d.id, e.message); } }
+    /* IP-adressen bij klikken in mails: na 90 dagen wissen */
+    try { const iq = await db.collection("berichten").where("ipTot", "<=", new Date().toISOString()).get();
+      for (const d of iq.docs) { const m = d.data() || {}; await d.ref.update({ trkKliks: (Array.isArray(m.trkKliks) ? m.trkKliks : []).map(({ ip, ...x }) => x), ipTot: require("firebase-admin").firestore.FieldValue.delete() }); } }
+    catch (e) { console.error("ip opruimen", e.message); }
   });
   return { vragen, vraagMelding, vragenOpruimen };
 };

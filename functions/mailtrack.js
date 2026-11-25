@@ -6,7 +6,8 @@
       apart gezet, zodat "geopend" en "geklikt" alleen echte handelingen van de klant zijn.
    2. Wat de klant daarna doet (klantportaal, factuur-PDF, betalen, offerte) komt in klantActiviteit.
    3. activiteit (onCall): de tijdlijn per klant voor het CRM. Alleen voor ingelogde gebruikers van hetzelfde bedrijf.
-   Er wordt geen IP-adres of locatie bewaard. */
+   Bij openen wordt geen IP-adres bewaard (dat is toch dat van de mailprovider). Bij een echte klik wel het openbare IP-adres
+   (Robin, 25-11-2026); dat wordt na 90 dagen automatisch gewist (vragenOpruimen). Geen locatie. */
 module.exports = ({ db, T, onRequest, onCall, HttpsError, checkGebruiker, nu, HOST }) => {
   const KLIKTRACK = true; /* klik-tracking aan (Robin, 3-11-2026); uitzetten = rechtstreekse links */
   const GIF = Buffer.from("R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7", "base64");
@@ -87,7 +88,9 @@ module.exports = ({ db, T, onRequest, onCall, HttpsError, checkGebruiker, nu, HO
       let doel = HOST();
       try { const d = await zoek(tok); if (d) { const m = d.data() || {}, L = ((m.trk || {}).links || [])[nr];
           if (L && /^https?:\/\//.test(L.u)) { doel = L.u; const sec = m.verstuurdOp ? (Date.parse(t) - Date.parse(m.verstuurdOp)) / 1000 : null, b = bron(ua), s = soortKlik(ua, sec);
-            await vastleggen(d.ref, "trkKliks", { t, s, l: L.l, i: nr, d: b.dev, p: b.prog });
+            const ip = s === "echt" ? String(req.headers["x-forwarded-for"] || req.ip || "").split(",")[0].trim().slice(0, 45) : "";
+            await vastleggen(d.ref, "trkKliks", { t, s, l: L.l, i: nr, d: b.dev, p: b.prog, ...(ip ? { ip } : {}) });
+            if (ip) await d.ref.set({ ipTot: new Date(Date.now() + 90 * 864e5).toISOString() }, { merge: true });
             if (s === "echt" && m.klantId) await act(m.klantId, "klik", { label: L.l, bericht: d.id, onderwerp: String(m.onderwerp || "").slice(0, 80) }); } } }
       catch (e) { console.error("trk klik", e.message); }
       res.redirect(302, doel); return; }

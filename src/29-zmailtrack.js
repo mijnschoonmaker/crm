@@ -14,7 +14,7 @@ function trkRegels(m){const out=[],O=Array.isArray(m.trkOpens)?m.trkOpens:[],K=A
   else if(m.gelezenOp)out.push(`<span class="trk-ok">${I.eye}Geopend ${esc(trkTijd(m.gelezenOp))}</span>`);
   else if(V.length)out.push(`<span title="Apple Mail laadt mails vooraf in. Dat betekent niet dat de klant hem gelezen heeft.">${I.clock}Voorgeladen door Apple Mail · nog niet zeker gelezen</span>`);
   else if(m.bezorgdOp||m.verstuurdOp)out.push(`<span>${I.clock}Nog niet geopend</span>`);
-  KE.slice(-4).forEach(k=>out.push(`<span class="trk-ok trk-klik">${I.right}Klik op <b>${esc(k.l||"link")}</b> ${esc(trkTijd(k.t))}${trkBron(k)?` · ${esc(trkBron(k))}`:""}</span>`));
+  KE.slice(-4).forEach(k=>out.push(`<span class="trk-ok trk-klik">${I.right}Klik op <b>${esc(k.l||"link")}</b> ${esc(trkTijd(k.t))}${trkBron(k)?` · ${esc(trkBron(k))}`:""}${k.ip?` · IP-adres ${esc(k.ip)}`:""}</span>`));
   if(KE.length>4)out.push(`<span>+${KE.length-4} kliks</span>`);
   const sc=O.filter(x=>x.s==="scanner").length+K.filter(x=>x.s==="scanner").length;
   if(sc)out.push(`<span class="trk-scan" title="Automatische controle door een virusscanner of mailbeveiliging, niet door de klant">${I.shield||I.alert}${sc}× gecontroleerd door een scanner</span>`);
@@ -30,7 +30,7 @@ async function trkTijdlijnLaad(ids,ms){const box=document.querySelector("#trkTl 
     if(m.verstuurdOp||m.op)ev.push({t:m.verstuurdOp||m.op,ic:"send",tx:`Mail verstuurd: ${ow}`,kl:"mut"});
     (m.trkOpens||[]).filter(x=>x.s==="echt").forEach((x,i)=>ev.push({t:x.t,ic:"eye",tx:`${i?"Opnieuw geopend":"Geopend"}: ${ow}`,sub:trkBron(x)}));
     if(!m.trk&&m.gelezenOp)ev.push({t:m.gelezenOp,ic:"eye",tx:`Geopend: ${ow}`});
-    (m.trkKliks||[]).filter(x=>x.s==="echt").forEach(x=>ev.push({t:x.t,ic:"right",tx:`Klik op ${x.l||"link"} in: ${ow}`,sub:trkBron(x),kl:"sterk"}));
+    (m.trkKliks||[]).filter(x=>x.s==="echt").forEach(x=>ev.push({t:x.t,ic:"right",tx:`Klik op ${x.l||"link"} in: ${ow}`,sub:[trkBron(x),x.ip?"IP-adres "+x.ip:""].filter(Boolean).join(" · "),kl:"sterk"}));
     if(m.bouncedOp)ev.push({t:m.bouncedOp,ic:"alert",tx:`Niet afgeleverd: ${ow}`,kl:"rood"})});
   let fout="";if(LIVE&&typeof fbFn==="function"){try{const r=await fbFn("activiteit")({klantIds:ids});(r.data.items||[]).forEach(a=>{if(a.soort==="klik")return;const L=TRK_ACT[a.soort]||[a.soort,"note"];
       const extra=a.soort==="tab"?(TRK_TAB[a.tab]||a.tab):a.nummer?(a.soort==="pdf"?(a.doc==="offerte"?"offerte ":"factuur ")+a.nummer:a.nummer):"";
