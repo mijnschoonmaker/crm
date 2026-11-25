@@ -216,13 +216,21 @@ async function pdf(id){
   saveFile((f.soort==="offerte"?"Offerte ":"Factuur ")+f.nummer+".pdf",doc.output("arraybuffer"),"PDF opgeslagen");
 }
 const demoKlant={naam:"Familie de Vries",adres:"Voorbeeldstraat 12",postcode:"1234 AB",plaats:"Amsterdam",email:"klant@voorbeeld.nl",telefoon:"06 12 34 56 78"};
-const demoFactuur=()=>({soort:"factuur",nummer:today().getFullYear()+"-VOORBEELD",klantNaam:demoKlant.naam,klantAdres:fullAddr(demoKlant),datum:iso(today()),verval:iso(addDays(today(),Number(S().termijn)||14)),status:"open",btw:21,incl:false,
+/* voorbeeldfactuur: zo echt mogelijk. Regels, btw en opmaak van je laatste echte factuur, maar met een verzonnen klant en zonder
+   betaallink, klantnummer of notitie van die klant. Nog geen facturen: de standaard voorbeeldregels. */
+const demoFactuur=()=>{const d=demoFactuur0();try{
+  const e=[...(state.facturen||[])].filter(x=>x&&x.soort!=="offerte"&&!x.creditVan&&!x.credit&&Array.isArray(x.regels)&&x.regels.length&&x.regels.some(r=>Number(r.prijs)>0)&&!x.regels.some(r=>Number(r.prijs)<0&&/credit/i.test(String(r.omschrijving||""))))
+    .sort((a,b)=>String(b.datum||"").localeCompare(String(a.datum||"")))[0];
+  if(!e)return d;
+  return{...d,regels:e.regels.map(r=>{const{klantId,objectId,beurtId,...x}=r;return{...x,subs:Array.isArray(r.subs)?r.subs.map(y=>({...y})):r.subs}}),btw:e.btw??d.btw,incl:!!e.incl,
+    voettekst:e.voettekst||d.voettekst,letop:e.letop,letopTekst:e.letopTekst,totaalTonen:e.totaalTonen,betaalwijze:e.betaalwijze==="incasso"?"":e.betaalwijze,notitie:""}}catch(_){return d}};
+const demoFactuur0=()=>({soort:"factuur",nummer:today().getFullYear()+"-VOORBEELD",klantNaam:demoKlant.naam,klantAdres:fullAddr(demoKlant),datum:iso(today()),verval:iso(addDays(today(),Number(S().termijn)||14)),status:"open",btw:21,incl:false,
   regels:[{omschrijving:"Glasbewassing (8-wekelijks)",aantal:1,prijs:45},{omschrijving:"Dakgoten uitzuigen",aantal:2,prijs:32.5},{omschrijving:"Zonnepanelen reinigen",aantal:1,prijs:60}],notitie:"Dit is een voorbeeldfactuur om je opmaak te bekijken. Er is niets verstuurd."});
 function openVoorbeeld(){
   const f=demoFactuur();
   openDlg(`<div class="dlg-head"><span class="objic" style="background:var(--brand-soft);color:var(--brand)">${I.facturen}</span><div style="flex:1;min-width:0"><h3 style="font-size:19px">Voorbeeldfactuur</h3><div class="subt">Zo ziet je factuur-PDF eruit, met je logo en bedrijfsgegevens</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
   <div class="paperwrap">${paperHtml(f,demoKlant)}</div>
-  <div class="row"><span class="subt" style="flex:1;font-size:13px">Demo-data. Echte facturen gebruiken klant- en factuurgegevens.</span>${state.dl?`<button type="button" id="vbPdf">${I.dl}Download als PDF</button>`:""}<button type="button" class="primary" data-act="close">Sluiten</button></div>`,{wide:true});
+  <div class="row"><span class="subt" style="flex:1;font-size:13px">Met de regels van je laatste factuur en een verzonnen klant.</span>${state.dl?`<button type="button" id="vbPdf">${I.dl}Download als PDF</button>`:""}<button type="button" class="primary" data-act="close">Sluiten</button></div>`,{wide:true});
   requestAnimationFrame(paperFit);
   const b=$("#vbPdf");if(b)b.onclick=async()=>{const doc=await pdfDoc(f,demoKlant);if(doc)saveFile("Voorbeeldfactuur.pdf",doc.output("arraybuffer"),"Voorbeeld-PDF opgeslagen")};
 }
