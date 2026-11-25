@@ -32,7 +32,7 @@ function openOfferte(opts={}){
   const legacyRc=ex&&!ex.rcRegels&&!ex.rcTelling&&ex.telling;
   let bijF=ex&&Array.isArray(ex.fotosIntern)?ex.fotosIntern.map(x=>({...x})):[];
   let extra=ex?(Array.isArray(ex.extraRegels)?ex.extraRegels:ex.rcRegels||ex.rcTelling?[]:legacyRc?[]:(ex.regels||[])).filter(r=>!r.subs).map(r=>({...r})):[];
-  let rc=ex&&(ex.rcRegels||legacyRc)?{regels:(ex.rcRegels||ex.regels).map(r=>({...r,omschrijving:String(r.omschrijving||"").replace(/ ?\(minimumtarief\)/gi,"")})),count:(ex.telling&&ex.telling.ramen)||0,opd:{}}:null,touched={freq:!!opd0.frequentie,duur:!!opd0.duur};
+  let rc=ex&&(ex.rcRegels||legacyRc)?{regels:(ex.rcRegels||ex.regels).map(r=>({...r,omschrijving:String(r.omschrijving||"").replace(/ ?\(minimumtarief\)/gi,"")})),count:(ex.telling&&ex.telling.ramen)||0,opd:{}}:null,touched={freq:!!opd0.frequentie&&!rc,duur:!!opd0.duur&&!rc},rcFreqOk=!ex||!!(ex&&ex.rcTelling)/* met rekentool-regels volgen frequentie en duur de rekentool, ook bij een bestaande offerte */;
   const ks=[...state.klanten].sort((a,b)=>cleanName(a.naam).localeCompare(cleanName(b.naam)));
   const v=(k,n)=>esc(k?k[n]||"":"");
   const freqO=GLAS()?freqOpts():[...freqOpts().filter(w=>!fqSpec(w)),FQ_AFROEP,FQ_EENMALIG],durO=[15,30,45,60,90,120,180,240];
@@ -122,7 +122,7 @@ function openOfferte(opts={}){
       ${dns.length?`<div class="ow-dns">${dnsHtml()}</div>`:""}
       <div class="lines">${extra.map((r,i)=>`<div class="line"><input data-l="${i}" data-k="omschrijving" value="${esc(r.omschrijving)}" placeholder="Omschrijving" aria-label="Omschrijving"><input data-l="${i}" data-k="aantal" type="number" min="0" step="1" value="${esc(r.aantal)}" aria-label="Aantal"><input data-l="${i}" data-k="prijs" type="number" step="0.01" value="${esc(r.prijs)}" placeholder="Prijs excl." aria-label="Prijs excl. btw"><button type="button" class="small ghost" data-rm="${i}" aria-label="Regel verwijderen">${I.x}</button></div>`).join("")}</div>`;
     /* frequentie in Details volgt de frequentie glasbewassing van de rekentool, tenzij je hem zelf hebt gekozen */
-    try{if(GLAS()&&!touched.freq&&typeof RC!=="undefined"&&RC){const fq=RC.freqList().find(f=>f.k===RC.getFreq()),w=fq&&Number(fq.w);
+    try{if(GLAS()&&rcFreqOk&&rc&&(rc.regels||[]).length&&!touched.freq&&typeof RC!=="undefined"&&RC){const fq=RC.freqList().find(f=>f.k===RC.getFreq()),w=fq&&Number(fq.w);
       if(w>0){const sel=$o("freq");if(![...sel.options].some(o=>Number(o.value)===w))sel.insertAdjacentHTML("beforeend",`<option value="${w}">Elke ${w} weken</option>`);sel.value=String(w)}}}catch(e){}
     /* duur per beurt volgt de werktijd uit de rekentool (afgerond op 5 min), tenzij je hem zelf hebt gekozen */
     try{const sel=$("#ow-duur"),wt=Math.round(rr.reduce((a,r)=>a+(r.sec||0),0)/60);
@@ -136,7 +136,7 @@ function openOfferte(opts={}){
   $("#owRegels").addEventListener("input",e=>{const i=e.target.dataset.l;if(i==null)return;const key=e.target.dataset.k;extra[i][key]=key==="omschrijving"?e.target.value:e.target.value===""?"":Number(e.target.value);tot()});
   groepBind($("#owRegels"),key=>dns[+key.slice(1)],(key,struct)=>{const d=dns[+key.slice(1)];if(!d)return;if(struct)draw();else{groepTotUpdate($("#owRegels"),key,d,{offerte:true,freqDefault:glasW()});const h=$("#owRegels").querySelector(`[data-ge="${key}"]`);const m=h&&h.closest(".ow-dn")?h.closest(".ow-dn").querySelector(".ow-dnh .mono"):null;if(m){const c=dnsCalc(d);m.textContent=c.ex?eur(c.ex):""}tot()}});
   $("#owRegels").addEventListener("change",e=>{const el=e.target;
-    if(el.id==="owGF"){touched.freq=false;RC.setFreq(el.value);setTimeout(()=>{if($("#owRegels"))draw()},0);return}
+    if(el.id==="owGF"){touched.freq=false;rcFreqOk=true;RC.setFreq(el.value);setTimeout(()=>{if($("#owRegels"))draw()},0);return}
     if(el.dataset.dnf){dns[+el.dataset.dnf].frequentie=Number(el.value);draw();return}
 });
   $("#owRegels").addEventListener("click",e=>{const dr=e.target.closest("[data-dnrm]");if(dr){dns.splice(+dr.dataset.dnrm,1);draw();return}
@@ -186,7 +186,7 @@ function openOfferte(opts={}){
   try{if(!RC)RC=buildRamen();
     RC.setEmbed({klantId:kid,base:k0||{},
       form:()=>({naam:$o("naam").value.trim(),adres:$o("adres").value.trim(),pc:$o("postcode").value.trim().toUpperCase(),plaats:$o("plaats").value.trim(),tel:$o("telefoon").value.trim(),email:$o("email").value.trim(),notitie:"",zakelijk:$o("soort").value==="zakelijk"}),
-      onCalc:()=>{if(!$("#owRegels"))return;const c=RC.current();if(c)rc=c;if(c){if(!touched.freq&&rc.opd.frequentie){const w=String(rc.opd.frequentie);if(![...$o("freq").options].some(o=>o.value===w))$o("freq").insertAdjacentHTML("beforeend",`<option value="${w}">Elke ${w} weken</option>`);$o("freq").value=w}if(!touched.duur&&rc.opd.duur)$o("duur").value=String(rc.opd.duur)}draw()},
+      onCalc:()=>{if(!$("#owRegels"))return;const c=RC.current();if(c){rc=c;rcFreqOk=true}if(c){if(!touched.freq&&rc.opd.frequentie){const w=String(rc.opd.frequentie);if(![...$o("freq").options].some(o=>o.value===w))$o("freq").insertAdjacentHTML("beforeend",`<option value="${w}">Elke ${w} weken</option>`);$o("freq").value=w}if(!touched.duur&&rc.opd.duur)$o("duur").value=String(rc.opd.duur)}draw()},
       /* meetlint en luchtfoto: gemeten meters als aantallen bij de dienst in deze offerte; zelf ingevulde aantallen blijven staan */
       onMeet:(t,vorig)=>{let ok=false;new Set([...Object.keys(t),...Object.keys(vorig)]).forEach(id=>{const d=diensten.find(x=>x.items&&x.items.some(it=>String(it.id)===String(id)));if(!d)return;
           let o=dns.find(x=>x.groep===d.groep);if(!o){if(!(t[id]>0))return;o={id:newId("o"),groep:d.groep,naam:d.naam,frequentie:Number($o("freq").value)||8,items:d.items.map(it=>({...it,aantal:0}))};dns.push(o)}
@@ -195,7 +195,7 @@ function openOfferte(opts={}){
       onSave:async patch=>{const id=await saveKlant(patch);return id},
       offerte:mode=>doSave(mode==="send"?"send":"view")},true);
     $("#owRc").appendChild(RC.host);RC.setOfferte(true);RC.sync();
-    const t0=ex&&ex.rcTelling?ex.rcTelling:(legacyRc||opts.metTelling)&&k0&&k0.ramenTelling?k0.ramenTelling:null;if(t0)RC.loadObj(t0)}
+    const t0=ex&&ex.rcTelling?ex.rcTelling:(legacyRc||opts.metTelling)&&k0&&k0.ramenTelling?k0.ramenTelling:null;if(t0)Promise.resolve(RC.loadObj(t0)).then(()=>{if($("#owRegels"))draw()}).catch(()=>{})}
   catch(er){console.error(er);const m=$("#owRc");if(m)m.innerHTML='<p class="subt">De rekentool kon hier niet worden geladen.</p>'}
   draw();
   /* code van een buur: de klant krijgt de welkomstkorting op zijn eerste factuur, de aanbrenger zijn beloning na de eerste afspraak */
