@@ -396,6 +396,5 @@ SETEXTRA.kwaliteit=(c,s)=>{
     ${tgl("kwWeek","Weekoverzicht op zaterdag","Elke zaterdag in het Overzicht: deze week tegen vorige week, per medewerker, met een waarschuwing als iets twee weken achter elkaar slechter wordt.",s.kwWeek!==false)}
     ${sec("Herstel")}
     ${sel("kwDrempel","Herstelmelding bij een beoordeling van",String(kwDrempel()),[["1","1 ster"],["2","2 sterren of minder"],["3","3 sterren of minder"],["4","4 sterren of minder"]],{help:"Rode melding in het Overzicht: bellen, zo nodig kosteloos nawerk, dan op opgelost."})}
-    ${inp("crBezoek","Credits voor het beoordelen van een bezoek (€)",s.crBezoek==null?"0.10":s.crBezoek,{type:"number",t:"num",attrs:'min="0" max="5" step="0.05"',help:"De klant beoordeelt in het klantportaal elk bezoek met 1 tot 5 sterren (tot 48 uur erna). Die sterren komen in je kwaliteitsscore. 0 = geen credits."})}
 `,{wide:false});
   bindSave(()=>{const t=$("#kwPt").value.split(/\n/).map(x=>x.trim()).filter(Boolean).slice(0,10),std=typeof GLAS==="function"&&GLAS()?KW_GLAS:KW_ALG;const bp=$("#kwBp").value.split(/\n/).map(x=>x.trim()).filter(Boolean).slice(0,10);return{kwBusPunten:bp.length&&bp.join("|")!==KW_BUS.join("|")?bp:[],kwPunten:t.length&&t.join("|")!==std.join("|")?t:[],kwVenster:Math.max(5,Math.min(120,Number(($("[data-k=kwVenster]")||{}).value)||15))}})};
