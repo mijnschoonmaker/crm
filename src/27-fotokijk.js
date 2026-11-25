@@ -4,9 +4,12 @@ function fotoBekijk(bron,i){
     const k=state.klanten.find(x=>x.id===bron.id);return k?{doc:k,lijst:k.bevindingen||[],veld:"bevindingen",col:"klanten"}:null};
   const b0=lees();if(!b0||!b0.lijst[i])return;
   const back=dlg.open&&$("#jobPanel")?{job:$("#jobPanel").dataset.k,d:$("#jobPanel").dataset.d}:dlg.open&&bron.soort==="factuur"?{f:bron.id}:null;
-  const ov=document.createElement("div");ov.className="an fk";document.body.appendChild(ov);document.body.classList.add("an-open");
+  /* boven een open venster (bijv. het bezoek): eigen modaal venster in de bovenste laag, anders viel de foto erachter */
+  const opDlg=document.querySelector("dialog[open]")&&typeof HTMLDialogElement!=="undefined";
+  const ov=document.createElement(opDlg?"dialog":"div");ov.className="an fk"+(opDlg?" an-dlg":"");document.body.appendChild(ov);document.body.classList.add("an-open");
+  if(opDlg){try{ov.showModal()}catch(e){}ov.addEventListener("cancel",e=>{e.preventDefault();sluit()})}
   let bewerk=false;
-  const sluit=()=>{ov.remove();document.body.classList.remove("an-open")};
+  const sluit=()=>{try{if(ov.open)ov.close()}catch(e){}ov.remove();document.body.classList.remove("an-open")};
   const herlaad=()=>{if(back&&back.job)setTimeout(()=>openJob(back.job,back.d),50);else if(back&&back.f)setTimeout(()=>openFactuurWerk(back.f),50);else render()};
   const zet=async patch=>{const b=lees();if(!b)return;const l=[...b.lijst];l[i]={...l[i],...patch};await save(b.col,b.doc.id,{...strip(b.doc),[b.veld]:l})};
   const teken=()=>{const b=lees();if(!b||!b.lijst[i]){sluit();return}const it=b.lijst[i];

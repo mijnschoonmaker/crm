@@ -5328,3 +5328,5 @@ html body:not(#zz) dialog.kwa-stdlg::backdrop{background:rgb(10 12 16/.82)}
 .kk-nul-i em{display:inline-block;margin-right:6px;padding:2px 8px;border-radius:999px;font-style:normal;font-size:11px;font-weight:700}
 .kk-nul-i em.sd{background:#fdecea;color:#a5362a}.kk-nul-i em.bz{background:#fbf3df;color:#8a6516}
 .tk-toeg{padding:0 4px 10px}.tk-toeg .hosp-pt{margin-top:0}
+dialog.an.an-dlg,dialog.an.an-dlg[open]{position:fixed!important;inset:0!important;width:auto!important;height:auto!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;clip-path:none!important;box-shadow:none!important;transform:none!important;overflow:hidden}
+dialog.an.an-dlg::backdrop{background:#0b0f12}

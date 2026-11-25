@@ -4,7 +4,8 @@ function fotoAnnoteren(file){return new Promise(async klaar=>{
   const img=await new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=url});if(!img){URL.revokeObjectURL(url);return klaar(file)}
   const KL=[["#ff3b30","Rood"],["#ffffff","Wit"],["#0a84ff","Blauw"],["#30d158","Groen"]];
   const st={tool:"pen",kleur:KL[0][0],lijnen:[],bezig:null};
-  const ov=document.createElement("div");ov.className="an";ov.innerHTML=`
+  const opDlg=document.querySelector("dialog[open]")&&typeof HTMLDialogElement!=="undefined";
+  const ov=document.createElement(opDlg?"dialog":"div");ov.className="an"+(opDlg?" an-dlg":"");ov.innerHTML=`
     <div class="an-top"><button type="button" class="an-tb" data-an="stop">Annuleren</button><b>Aangeven op de foto</b><button type="button" class="an-tb an-ok" data-an="ok">Klaar</button></div>
     <div class="an-st"><canvas></canvas><p class="an-hint">Teken met je vinger wat de klant moet zien</p></div>
     <div class="an-bar">
@@ -12,7 +13,7 @@ function fotoAnnoteren(file){return new Promise(async klaar=>{
       <div class="an-kl">${KL.map(([c,l],i)=>`<button type="button" data-kl="${c}" aria-label="${l}" aria-pressed="${!i}" style="--c:${c}"></button>`).join("")}</div>
       <div class="an-acts"><button type="button" data-an="undo" aria-label="Ongedaan maken"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></button><button type="button" data-an="skip">Zonder tekening</button></div>
     </div>`;
-  document.body.appendChild(ov);document.body.classList.add("an-open");
+  document.body.appendChild(ov);document.body.classList.add("an-open");if(opDlg){try{ov.showModal()}catch(e){}ov.addEventListener("cancel",e=>e.preventDefault())}
   const cv=ov.querySelector("canvas"),ctx=cv.getContext("2d"),box=ov.querySelector(".an-st");let sc=1,dpr=Math.min(2,devicePixelRatio||1);
   const maat=()=>{const bw=box.clientWidth-24,bh=box.clientHeight-24;sc=Math.min(bw/img.naturalWidth,bh/img.naturalHeight);const w=Math.round(img.naturalWidth*sc),h=Math.round(img.naturalHeight*sc);
     cv.style.width=w+"px";cv.style.height=h+"px";cv.width=w*dpr;cv.height=h*dpr;teken()};
@@ -33,7 +34,7 @@ function fotoAnnoteren(file){return new Promise(async klaar=>{
   cv.addEventListener("pointerup",los);cv.addEventListener("pointercancel",los);
   ov.querySelectorAll("[data-tool]").forEach(b=>b.onclick=()=>{st.tool=b.dataset.tool;ov.querySelectorAll("[data-tool]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
   ov.querySelectorAll("[data-kl]").forEach(b=>b.onclick=()=>{st.kleur=b.dataset.kl;ov.querySelectorAll("[data-kl]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
-  const sluit=v=>{removeEventListener("resize",maat);ov.remove();document.body.classList.remove("an-open");URL.revokeObjectURL(url);klaar(v)};
+  const sluit=v=>{removeEventListener("resize",maat);try{if(ov.open)ov.close()}catch(e){}ov.remove();document.body.classList.remove("an-open");URL.revokeObjectURL(url);klaar(v)};
   ov.addEventListener("click",async e=>{const b=e.target.closest("[data-an]");if(!b)return;const a=b.dataset.an;
     if(a==="undo"){st.lijnen.pop();teken();return}
     if(a==="stop")return sluit(null);
