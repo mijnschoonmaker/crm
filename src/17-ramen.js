@@ -417,7 +417,7 @@ function buildRamen(){
   /* frequentie: [sleutel, label, beurten per jaar, korting %, weken in Mansard] — negatief = toeslag */
   const FREQ_LIST=[["w1","1x per week",52,0,1],["w2","1x per 2 weken",26,0,2],["w4","1x per 4 weken",13,0,4],["mnd","1x per maand",12,0,4],
     ["w6","1x per 6 weken",52/6,0,6],["m8","1x per 8 weken",6.5,5,8],["mnd2","1x per 2 maanden",6,0,8],["w12","1x per 12 weken",52/12,0,12],
-    ["mnd3","1x per 3 maanden",4,-150,12],["w16","1x per 16 weken",3.25,0,16],["mnd4","1x per 4 maanden",3,0,12],["w24","1x per 24 weken",52/24,0,24],
+    ["mnd3","1x per 3 maanden",4,-150,12],["w16","1x per 16 weken",3.25,0,12],["mnd4","1x per 4 maanden",3,0,12],["w24","1x per 24 weken",52/24,0,26],
     ["mnd6","1x per 6 maanden",2,0,26],["w48","1x per 48 weken",52/48,0,52],["mnd12","1x per 12 maanden",1,0,52],["afroep","Op afroep",1,-25,0],["once","Eenmalig",1,-25,0]];
   const FREQ_BASE=FREQ_LIST.slice(),FREQ={};FREQ_LIST.forEach(([k,,y])=>{window.FREQ_Y=window.FREQ_Y||{};window.FREQ_Y[k]=y});
   /* extra frequenties die in Uitvoering › Frequenties voor de rekentool zijn aangezet (freqCalc[key]={l,w}) */
@@ -774,8 +774,10 @@ const ICON={
     try{await fn()}catch(e){say(e&&e.msg?e.msg:"Niet opgeslagen: "+(e&&(e.message||e.code)||"onbekende fout"),"bad")}finally{const b2=g(btn.id);if(b2)b2.innerHTML=t;root.querySelectorAll(".acts button").forEach(b=>b.disabled=false)}}
   function extrasFor(R){const mul=S().incl?1+VAT:1;return (R.oRows||[]).map(r=>({id:newId("o"),dienst:r.n,groep:r.groep,items:r.items.map(it=>({...it})),prijs:r2(r.price*mul),frequentie:r.frequentie||R.f.w||8,duur:Math.max(5,Math.ceil(r.sec/60/5)*5),volgende:"",actief:true}))}
   const mergeExtra=(cur,R)=>{const ex=extrasFor(R);if(!ex.length)return cur||[];const gs=new Set(ex.map(e=>e.groep));return [...(cur||[]).filter(o=>!o.groep||!gs.has(o.groep)),...ex]};
+  /* weken voor de planning: "1x per 16 weken" is 16 weken. Het vijfde getal in FREQ_LIST blijft voor de prijs (frequentiefactor) zoals het was. */
+  function planWeken(f){const m=/per (\d+) weken/.exec(String((f&&f.l)||""));return m?Number(m[1]):Number(f&&f.w)||0}
   function opdFor(R,t,base){const m=Math.max(5,min5((R.gSec??R.sec)/60));
-    return{prijs:S().incl?r2((R.exG??R.ex)*(1+VAT)):r2(R.exG??R.ex),extra:extrasFor(R),frequentie:R.f.w||Number(base&&base.frequentie)||4,duur:m}}
+    return{prijs:S().incl?r2((R.exG??R.ex)*(1+VAT)):r2(R.exG??R.ex),extra:extrasFor(R),frequentie:planWeken(R.f)||Number(base&&base.frequentie)||4,duur:m}}
   function regelsFor(R){
     const rg=[];
     if(R.all.length){const fl=R.f&&R.f.l?R.f.l:"";const gl=[...R.fRows.map(r=>({omschrijving:`Glasbewassing ${r.n.toLowerCase()}, ${r.c} ramen`,aantal:1,prijs:r2(r.price),n:r.c,sec:r.sec,sub:r.n,qty:r.c+" st",fq:fl})),...R.sRows.map(r=>({omschrijving:`${r.n}, ${r.c} st.`,aantal:1,prijs:r2(r.price),n:r.c,sec:r.sec,sub:r.n,qty:r.c+" st",fq:fl}))];

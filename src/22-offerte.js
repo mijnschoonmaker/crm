@@ -122,7 +122,7 @@ function openOfferte(opts={}){
       ${dns.length?`<div class="ow-dns">${dnsHtml()}</div>`:""}
       <div class="lines">${extra.map((r,i)=>`<div class="line"><input data-l="${i}" data-k="omschrijving" value="${esc(r.omschrijving)}" placeholder="Omschrijving" aria-label="Omschrijving"><input data-l="${i}" data-k="aantal" type="number" min="0" step="1" value="${esc(r.aantal)}" aria-label="Aantal"><input data-l="${i}" data-k="prijs" type="number" step="0.01" value="${esc(r.prijs)}" placeholder="Prijs excl." aria-label="Prijs excl. btw"><button type="button" class="small ghost" data-rm="${i}" aria-label="Regel verwijderen">${I.x}</button></div>`).join("")}</div>`;
     /* frequentie in Details volgt de frequentie glasbewassing van de rekentool, tenzij je hem zelf hebt gekozen */
-    try{if(GLAS()&&rcFreqOk&&rc&&(rc.regels||[]).length&&!touched.freq&&typeof RC!=="undefined"&&RC){const fq=RC.freqList().find(f=>f.k===RC.getFreq()),w=fq&&Number(fq.w);
+    try{if(GLAS()&&rcFreqOk&&rc&&(rc.regels||[]).length&&!touched.freq&&typeof RC!=="undefined"&&RC){const fq=RC.freqList().find(f=>f.k===RC.getFreq()),m_=fq&&/per (\d+) weken/.exec(String(fq.l||"")),w=fq&&(m_?Number(m_[1]):Number(fq.w));
       if(w>0){const sel=$o("freq");if(![...sel.options].some(o=>Number(o.value)===w))sel.insertAdjacentHTML("beforeend",`<option value="${w}">Elke ${w} weken</option>`);sel.value=String(w)}}}catch(e){}
     /* duur per beurt volgt de werktijd uit de rekentool (afgerond op 5 min), tenzij je hem zelf hebt gekozen */
     try{const sel=$("#ow-duur"),wt=Math.round(rr.reduce((a,r)=>a+(r.sec||0),0)/60);
