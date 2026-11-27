@@ -5337,3 +5337,6 @@ html body:not(#zz) .msg-trk span.trk-klik svg{display:inline-block;vertical-alig
 /* Kwaliteit: vijf tegels op een rij (Op tijd, Op frequentie, Beoordeling, Eindcontrole, Klachten) */
 @media (min-width:1101px){html body:not(#zz) .st-tiles.kwq-tiles{grid-template-columns:repeat(5,minmax(0,1fr))}}
 @media (min-width:701px) and (max-width:1100px){html body:not(#zz) .st-tiles.kwq-tiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.kwq-tile[data-kwfreq]{transition:transform .15s,box-shadow .15s}.kwq-tile[data-kwfreq]:hover{transform:translateY(-2px);box-shadow:0 14px 30px -20px rgb(20 23 28/.35)}
+.kwf-s{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;white-space:nowrap}.kwf-s.ok{background:#e8f4ec;color:#2f7a4f}.kwf-s.laat{background:#fdecea;color:#a5362a}
+.kws-r p.kwf-p{font-style:normal;font-size:13px;color:#6b7280;margin-top:2px}

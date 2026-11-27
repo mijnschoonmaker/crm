@@ -23,11 +23,12 @@ const kwNaam=k=>cleanName((k&&k.naam)||"");
 function kwLaat(b){const p=toMin(b&&b.tijd);if(p==null||!b.startOp)return null;const d=new Date(b.startOp);if(isNaN(d))return null;return d.getHours()*60+d.getMinutes()-p}
 /* binnen de afgesproken frequentie: tijd sinds het vorige bezoek bij dezelfde klant is niet langer dan de frequentie + 1 week marge.
    Eerste bezoek of klant zonder vaste frequentie: telt niet mee (null). */
-const KW_FREQ_MARGE=7;
-function kwBinnenFreq(b){if(!b||!b.klantId||!b.datum)return null;const k=state.klanten.find(x=>x.id===b.klantId);const fw=Number(k&&k.frequentie);if(!(fw>0))return null;
+const KW_FREQ_MARGE=10.5;/* 1,5 week */
+function kwBinnenFreq(b){const r=kwFreqInfo(b);return r?r.ok:null}
+function kwFreqInfo(b){if(!b||!b.klantId||!b.datum)return null;const k=state.klanten.find(x=>x.id===b.klantId);const fw=Number(k&&k.frequentie);if(!(fw>0))return null;
   let c=kwBinnenFreq._c;if(!c||c.n!==state.beurten.length){c={n:state.beurten.length,m:{}};for(const x of state.beurten||[]){if(x.geannuleerd||!x.klantId||!x.datum)continue;(c.m[x.klantId]=c.m[x.klantId]||[]).push(x.datum)}for(const id in c.m)c.m[id].sort();kwBinnenFreq._c=c}
   const L=c.m[b.klantId]||[];let vorige=null;for(const d of L){if(d<b.datum)vorige=d;else break}if(!vorige)return null;
-  const dagen=Math.round((new Date(b.datum)-new Date(vorige))/864e5);return dagen<=fw*7+KW_FREQ_MARGE}
+  const dagen=Math.round((new Date(b.datum)-new Date(vorige))/864e5);return{ok:dagen<=fw*7+KW_FREQ_MARGE,dagen,fw,vorige}}
 function kwOpTijd(b){const l=kwLaat(b);return l==null?null:l<=kwVenster()}
 
 /* ---------- eerste bezoek als ontvangst: extra tijd, kennismaking en vóórfoto's (alleen intern, in de opdracht) ---------- */
@@ -257,6 +258,22 @@ function kwSterLijst(P){const L=(state.beurten||[]).filter(b=>!b.geannuleerd&&in
   o.querySelector("[data-kx]").onclick=weg;
   o.querySelectorAll("[data-kwk]").forEach(b=>b.onclick=()=>{const id=b.dataset.kwk;if(!id||!state.klanten.some(x=>x.id===id))return;weg();openKlantView(id)});
   d.showModal()}
+/* klik op de tegel Frequentie: per bezoek de tijd sinds het vorige bezoek, te laat bovenaan */
+function kwFreqLijst(P){const wk=d=>{const w=Math.floor(d/7),r=d%7;return (w?plural(w,"week","weken"):"")+(w&&r?" en ":"")+(r||!w?plural(r,"dag","dagen"):"")};
+  const L=(state.beurten||[]).filter(b=>!b.geannuleerd&&inRange(b.datum,P.rg)).map(b=>({b,i:kwFreqInfo(b)})).filter(x=>x.i)
+    .sort((a,b)=>(a.i.ok-b.i.ok)||((b.i.dagen-b.i.fw*7)-(a.i.dagen-a.i.fw*7)));
+  const ok=L.filter(x=>x.i.ok).length,pc=L.length?Math.round(ok/L.length*100):0;
+  const {d,o}=kwDlg();const weg=()=>{try{d.close()}catch(_){}d.remove()};d.addEventListener("cancel",e=>{e.preventDefault();weg()});
+  o.innerHTML=`<div class="kwa-h"><div class="kwa-kr"><span>Statistieken</span> / <b>Frequentie</b><button type="button" class="kwa-x" data-kx aria-label="Sluiten">${I.x}</button></div>
+    <div class="kws-top"><b>${pc}%</b><div><span>${esc(P.lbl)}</span><small>${ok} van ${plural(L.length,"bezoek","bezoeken")} binnen de afgesproken frequentie · marge 1,5 week</small></div></div></div>
+    <div class="kwa-b"><section class="kwa-c kws-l">${L.map(({b,i})=>{const k=state.klanten.find(x=>x.id===b.klantId),te=i.dagen-i.fw*7;
+      return `<button type="button" class="kws-r${i.ok?"":" laag"}" data-kwk="${esc(b.klantId||"")}"><div class="kws-w"><b>${esc(cleanName((k&&k.naam)||b.klantNaam||"Klant"))}</b><small>${esc(fmtD(i.vorige))} → ${esc(fmtD(b.datum))}${b.door?" · "+esc(b.door):""}</small></div>
+        <span class="kwf-s ${i.ok?"ok":"laat"}">${i.ok?"Op frequentie":wk(te)+" te laat"}</span><p class="kwf-p">${wk(i.dagen)} na het vorige bezoek · afgesproken elke ${plural(i.fw,"week","weken")}</p></button>`}).join("")||'<p class="st-leeg">Nog geen herhaalbezoeken in deze periode.</p>'}</section></div>`;
+  o.querySelector("[data-kx]").onclick=weg;
+  o.querySelectorAll("[data-kwk]").forEach(b=>b.onclick=()=>{const id=b.dataset.kwk;if(!id||!state.klanten.some(x=>x.id===id))return;weg();openKlantView(id)});
+  d.showModal()}
+document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest("[data-kwfreq]");if(!t)return;const P=window.__kwP;if(P)kwFreqLijst(P)});
+document.addEventListener("keydown",e=>{if(e.key!=="Enter"&&e.key!==" ")return;const t=e.target.closest&&e.target.closest("[data-kwfreq]");if(!t)return;e.preventDefault();const P=window.__kwP;if(P)kwFreqLijst(P)});
 document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest("[data-kwster]");if(!t)return;const P=window.__kwP;if(P)kwSterLijst(P)});
 document.addEventListener("keydown",e=>{if(e.key!=="Enter"&&e.key!==" ")return;const t=e.target.closest&&e.target.closest("[data-kwster]");if(!t)return;e.preventDefault();const P=window.__kwP;if(P)kwSterLijst(P)});
 function vKwaliteit(P,V){window.__kwP=P;const t=today(),inP=rg=>(state.beurten||[]).filter(b=>!b.geannuleerd&&inRange(b.datum,rg));
@@ -269,7 +286,7 @@ function vKwaliteit(P,V){window.__kwP=P;const t=today(),inP=rg=>(state.beurten||
   const tegel=(ic,l,v,sub,d,attr="")=>`<div class="st-tile kwq-tile"${attr}><span class="st-ic">${ic}</span><span class="st-l">${l}</span><b>${v}</b><small>${sub}</small>${d||""}</div>`;
   const tiles=`<div class="st-tiles kwq-tiles">
     ${tegel(I.clock,"Op tijd",pct(A.opTijd),A.tijdN?A.tijdOk+" van "+plural(A.tijdN,"bezoek","bezoeken")+" binnen het geplande tijdstip":"nog geen bezoeken met een gepland tijdstip",ver(A.opTijd,B.opTijd,true,"%"))}
-    ${tegel(I.repeat||I.refresh||I.clock,"Frequentie",pct(A.freq),A.freqN?A.freqOk+" van "+plural(A.freqN,"bezoek","bezoeken")+" binnen de afgesproken frequentie":"nog geen herhaalbezoeken",ver(A.freq,B.freq,true,"%"),` title="Binnen de afgesproken frequentie (bijv. 1x per 8 weken), met een week marge. Het eerste bezoek telt niet mee."`)}
+    ${tegel(I.repeat||I.refresh||I.clock,"Frequentie",pct(A.freq),A.freqN?A.freqOk+" van "+plural(A.freqN,"bezoek","bezoeken")+" binnen de afgesproken frequentie · bekijken":"nog geen herhaalbezoeken",ver(A.freq,B.freq,true,"%"),A.freqN?` role="button" tabindex="0" data-kwfreq="1" title="Bekijk per bezoek of het binnen de afgesproken frequentie was" style="cursor:pointer"`:"")}
     ${tegel(I.ster||I.spark,"Beoordeling",A.sterren==null?"—":kom(A.sterren)+"<span class=\"kwq-v\"> / 5</span>",A.sterN?plural(A.sterN,"beoordeling","beoordelingen")+" · bekijken":"nog geen beoordelingen",ver(A.sterren,B.sterren),A.sterN?` role="button" tabindex="0" data-kwster="${esc(P.lbl)}" title="Bekijk wie er beoordeeld heeft" style="cursor:pointer"`:"")}
     ${tegel(I.check,"Eindcontrole",pct(A.controle),A.ctlN?A.ctlN+" van "+A.n+" gecontroleerd":"start vanaf het volgende bezoek","")}
     ${tegel(I.alert,"Klachten",A.klacht==null?"—":kom(A.klacht)+"<span class=\"kwq-v\"> per 100</span>",A.klachtN?plural(A.klachtN,"keer","keer")+" niet tevreden"+(A.nawerk?" · "+A.nawerk+"× nawerk":""):"niets gemeld",ver(A.klacht,B.klacht,false,"",true))}</div>`;
