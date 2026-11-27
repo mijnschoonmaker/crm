@@ -612,7 +612,7 @@ exports.aanvraag = onRequest({ cors: true, memory: "512MiB", timeoutSeconds: 60 
     try {
       const W = await require("./webshopconf").bouwConf(db);
       const uit = { B: W.B, VAT: W.VAT, cfg: W.cfg, FREQ_LIST: W.FREQ_LIST, FREQ_ADV: W.FREQ_ADV, google: W.google };
-      res.set("Cache-Control", "public, max-age=60, s-maxage=120").type("application/javascript").send("window.__WSCONF=" + JSON.stringify(uit).replace(/</g, "\\u003c") + ";");
+      res.set("Cache-Control", "public, max-age=60, s-maxage=120").type("application/javascript").send("window.__WSCONF=" + JSON.stringify(uit).replace(/</g, "\\u003c") + ";window.__wsLive&&window.__wsLive(window.__WSCONF);");
     } catch (e) { console.error("webshop conf", e.message); res.set("Cache-Control", "no-store").type("application/javascript").send("/* geen live instellingen */"); }
     return;
   }

@@ -5,7 +5,7 @@
 const fs = require("fs"), path = require("path");
 function maakVoorbeeld(testHtml, opts = {}) {
   /* het voorbeeld haalt nooit live instellingen op (dat zijn de gegevens van een echt bedrijf) */
-  let h = testHtml.split('<script src="https://app.mansard.nl/api/aanvraag?conf=1"></script>\n').join("");
+  let h = testHtml.split('<script async src="https://app.mansard.nl/api/aanvraag?conf=1"></script>').join("");
   const i = h.indexOf("const BEDRIJF="), j = h.indexOf("};", i);
   if (i < 0 || j < 0) throw new Error("BEDRIJF niet gevonden");
   const st = h.slice(i + 14, i + 21) === "__W.B||" ? i + 21 : i + 14;
