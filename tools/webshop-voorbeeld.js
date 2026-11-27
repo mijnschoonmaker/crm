@@ -4,10 +4,12 @@
    Gebruik: node tools/webshop-voorbeeld.js  (leest public/webshop/mijnschoonmaker-test.html) */
 const fs = require("fs"), path = require("path");
 function maakVoorbeeld(testHtml, opts = {}) {
-  let h = testHtml;
+  /* het voorbeeld haalt nooit live instellingen op (dat zijn de gegevens van een echt bedrijf) */
+  let h = testHtml.split('<script src="https://app.mansard.nl/api/aanvraag?conf=1"></script>\n').join("");
   const i = h.indexOf("const BEDRIJF="), j = h.indexOf("};", i);
   if (i < 0 || j < 0) throw new Error("BEDRIJF niet gevonden");
-  const oud = JSON.parse(h.slice(i + 14, j + 1));
+  const st = h.slice(i + 14, i + 21) === "__W.B||" ? i + 21 : i + 14;
+  const oud = JSON.parse(h.slice(st, j + 1));
   const B = { ...oud, naam: "Voorbeeld Glazenwasserij", email: "", whatsapp: "", logo: "", endpoint: "voorbeeld:aanvraag", werkgebied: "", gebieden: [], klantPc: "", voorwaarden: "" };
   h = h.slice(0, i) + "const BEDRIJF=" + JSON.stringify(B) + h.slice(j + 1);
   const kop = `<script>/* voorbeeld: niets verlaat deze pagina */(function(){const F=window.fetch.bind(window);

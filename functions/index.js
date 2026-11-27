@@ -606,6 +606,16 @@ function leesMultipart(req) {
   });
 }
 exports.aanvraag = onRequest({ cors: true, memory: "512MiB", timeoutSeconds: 60 }, async (req, res) => {
+  /* actuele instellingen voor de offertepagina op de website (tarieven, frequenties, documenten, logo): zo staat een nieuwe
+     upload of prijs in het CRM binnen een paar minuten op de website, zonder te wachten op de nachtelijke update */
+  if (req.method === "GET" && req.query && req.query.conf != null) {
+    try {
+      const W = await require("./webshopconf").bouwConf(db);
+      const uit = { B: W.B, VAT: W.VAT, cfg: W.cfg, FREQ_LIST: W.FREQ_LIST, FREQ_ADV: W.FREQ_ADV, google: W.google };
+      res.set("Cache-Control", "public, max-age=60, s-maxage=120").type("application/javascript").send("window.__WSCONF=" + JSON.stringify(uit).replace(/</g, "\\u003c") + ";");
+    } catch (e) { console.error("webshop conf", e.message); res.set("Cache-Control", "no-store").type("application/javascript").send("/* geen live instellingen */"); }
+    return;
+  }
   /* code van een buur controleren vanuit de prijscalculator / website: GET ?ref=CODE (geeft alleen de voornaam en de welkomstkorting) */
   if (req.method === "GET" && req.query && req.query.ref != null) {
     try {

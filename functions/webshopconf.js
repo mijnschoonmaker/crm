@@ -1,0 +1,36 @@
+/* Instellingen van de offertepagina / prijscalculator van de website (mijnschoonmaker.com), uit de database.
+   Gebruikt door tools/webshop-maak.js (vaste pagina, elke nacht) én door /api/aanvraag?conf=1 (live, zodat een nieuwe
+   upload of prijs in het CRM binnen een paar minuten op de website staat). Leest alleen. */
+const dec = v => Array.isArray(v) ? v.map(dec) : v && typeof v === "object" ? (v.__arr ? v.__arr.map(x => x && x.__a ? x.__a.map(dec) : dec(x)) : Object.fromEntries(Object.entries(v).map(([k, x]) => [k, dec(x)]))) : v;
+const TYPES = { g0_p: 1.75, g1_p: 1.90, g2_p: 2.05, g3_p: 2.20, tuimel_p: 1.61, lood_p: 1.90, koepel_p: 2.20, mini_p: 0.40 };
+const DEF = { start: 0, min: 56.20, tiers: [[10, 10], [20, 20], [30, 30], [40, 40]], tb: {}, wg: {}, fp: {} };
+const FREQ_BASE = [["w1","1x per week",52,0,1],["w2","1x per 2 weken",26,0,2],["w4","1x per 4 weken",13,0,4],["mnd","1x per maand",12,0,4],    ["w6","1x per 6 weken",52/6,0,6],["m8","1x per 8 weken",6.5,5,8],["mnd2","1x per 2 maanden",6,0,8],["w12","1x per 12 weken",52/12,0,12],    ["mnd3","1x per 3 maanden",4,-150,12],["w16","1x per 16 weken",3.25,0,12],["mnd4","1x per 4 maanden",3,0,12],["w24","1x per 24 weken",52/24,0,26],    ["mnd6","1x per 6 maanden",2,0,26],["w48","1x per 48 weken",52/48,0,52],["mnd12","1x per 12 maanden",1,0,52],["afroep","Op afroep",1,-25,0],["once","Eenmalig",1,-25,0]];
+const waNr = t => { let d = String(t || "").replace(/\D/g, ""); if (d.startsWith("00")) d = d.slice(2); else if (d.startsWith("0")) d = "31" + d.slice(1); return d; };
+async function bouwConf(db, opts = {}) {
+  const get = async id => dec((await db.doc("instellingen/" + id).get()).data() || {});
+  const [s, r, u] = await Promise.all([get("bedrijf"), get("ramen"), get("uitvoering")]);
+  const c = { ...TYPES, ...JSON.parse(JSON.stringify(DEF)) }; Object.keys(r).forEach(k => { if (k in c) c[k] = r[k]; }); if (!Array.isArray(c.tiers)) c.tiers = DEF.tiers;
+  const cfg = { g0_p: c.g0_p, g1_p: c.g1_p, g2_p: c.g2_p, g3_p: c.g3_p, tuimel_p: c.tuimel_p, lood_p: c.lood_p, koepel_p: c.koepel_p, mini_p: c.mini_p, start: c.start || 0, min: c.min, tiers: c.tiers, tb: c.tb || {}, wg: c.wg || {}, fp: c.fp || {} };
+  /* frequenties: zoals RC.freqList() in het CRM */
+  const fc = s.freqCalc || {}, fw = s.freqWeb || {}, list = FREQ_BASE.slice();
+  [...Object.entries(fc), ...Object.entries(fw)].forEach(([k, v]) => { if (v && typeof v === "object" && Number(v.w) > 0 && !list.some(x => x[0] === k)) list.push([k, String(v.l || "1x per " + v.w + " weken"), 52 / Number(v.w), 0, Number(v.w)]); });
+  const g = [...(u.groepen || []), ...(u.eigen || [])].find(x => x && (x.id === "glas" || x.type === "glas"));
+  /* per-dienst frequentiekorting voor bijzondere ramen (zoals de rekentool in het CRM) */
+  const gb = [...(u.groepen || []), ...(u.eigen || [])].find(x => x && (x.id === "bijz" || x.type === "bijz"));
+  cfg.minAlles = !!r.minAlles;
+  cfg.fpB = gb && gb.fpw && typeof gb.fpw === "object" ? Object.fromEntries(Object.entries(gb.fpw).filter(([, v]) => v !== "" && v != null).map(([w, v]) => [w, Math.max(-500, Math.min(100, Number(v) || 0))])) : {};
+  if (opts.log) console.log("::notice title=Prijzen::glas fp " + JSON.stringify(cfg.fp) + " · bijz fpw " + JSON.stringify(cfg.fpB) + " · min " + cfg.min + " · start " + cfg.start + " · koz " + JSON.stringify({ koz_p: r.koz_p, kozMin: r.kozMin }) + " · glas fpw " + JSON.stringify(g && g.fpw || {}));
+  const keuzes = g && Array.isArray(g.freqs) && g.freqs.length ? g.freqs.map(String) : null, advies = g && g.freqAdvies != null && g.freqAdvies !== "" ? String(g.freqAdvies) : null;
+  const fla = list.map(([k, l, y, p, w]) => ({ k, l, p, w, aan: (fw[k] === undefined ? (FREQ_BASE.some(x => x[0] === k) ? fc[k] !== false : !!(fc[k] && typeof fc[k] === "object")) : !!fw[k]) && (!keuzes || keuzes.includes(k)), adv: advies === k })).filter(f => f.aan);
+  const fadv = (fla.find(f => f.adv) || fla.find(f => f.k === "m8") || fla[0] || {}).k || "m8";
+  /* werkgebied */
+  const gebieden = (s.webGebieden || []).filter(x => x && x.aan !== false && Array.isArray(x.pts) && x.pts.length >= 3).map(x => ({ s: x.soort || "beide", p: x.pts.map(q => [Math.round(q[0] * 1e5) / 1e5, Math.round(q[1] * 1e5) / 1e5]) }));
+  let klantPc = "";
+  if (s.webKlantPc !== false) { const z = new Set(); (await db.collection("klanten").select("postcode").get()).docs.forEach(d => { const m = String(d.data().postcode || "").match(/^\s*(\d{4})/); if (m) z.add(m[1]); }); klantPc = [...z].sort().join(","); }
+  const logoId = s.logo || "";
+  const B = { naam: s.naam || "Glasbewassing", email: s.email || "", whatsapp: waNr(s.webWa || s.telefoon), logo: logoId ? "https://app.mansard.nl/_blob/" + logoId : "", endpoint: "https://app.mansard.nl/api/aanvraag", werkgebied: String(s.webPostcodes || "").trim(), gebieden, klantPc, voorwaarden: String(s.webVoorwaarden || "").trim(), voorwaardenPdf: s.voorwaardenPdf ? "https://app.mansard.nl/_blob/" + s.voorwaardenPdf : "", privacyPdf: s.privacyPdf ? "https://app.mansard.nl/_blob/" + s.privacyPdf : "", herroepingPdf: s.herroepingPdf ? "https://app.mansard.nl/_blob/" + s.herroepingPdf : "" };
+  const FREQ_LIST = fla.map(f => [f.k, f.l, f.w ? 52 / f.w : 1, Number(f.p) || 0, f.w || 0]);
+  const google = { score: String(s.googleScore !== undefined ? s.googleScore : "5,0"), url: /^https:\/\//.test(String(s.webReviewUrl || "")) ? String(s.webReviewUrl) : "" };
+  return { B, VAT: (Number(s.btw) || 21) / 100, cfg, FREQ_LIST, FREQ_ADV: fadv, google, fla, gebieden, klantPc, logoId };
+}
+module.exports = { bouwConf };
