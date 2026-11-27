@@ -21,6 +21,13 @@ const kwNaam=k=>cleanName((k&&k.naam)||"");
 /* ---------- 3. stiptheid ---------- */
 /* minuten te laat t.o.v. de geplande tijd (negatief = eerder); null zonder vaste tijd of zonder starttijd */
 function kwLaat(b){const p=toMin(b&&b.tijd);if(p==null||!b.startOp)return null;const d=new Date(b.startOp);if(isNaN(d))return null;return d.getHours()*60+d.getMinutes()-p}
+/* binnen de afgesproken frequentie: tijd sinds het vorige bezoek bij dezelfde klant is niet langer dan de frequentie + 1 week marge.
+   Eerste bezoek of klant zonder vaste frequentie: telt niet mee (null). */
+const KW_FREQ_MARGE=7;
+function kwBinnenFreq(b){if(!b||!b.klantId||!b.datum)return null;const k=state.klanten.find(x=>x.id===b.klantId);const fw=Number(k&&k.frequentie);if(!(fw>0))return null;
+  let c=kwBinnenFreq._c;if(!c||c.n!==state.beurten.length){c={n:state.beurten.length,m:{}};for(const x of state.beurten||[]){if(x.geannuleerd||!x.klantId||!x.datum)continue;(c.m[x.klantId]=c.m[x.klantId]||[]).push(x.datum)}for(const id in c.m)c.m[id].sort();kwBinnenFreq._c=c}
+  const L=c.m[b.klantId]||[];let vorige=null;for(const d of L){if(d<b.datum)vorige=d;else break}if(!vorige)return null;
+  const dagen=Math.round((new Date(b.datum)-new Date(vorige))/864e5);return dagen<=fw*7+KW_FREQ_MARGE}
 function kwOpTijd(b){const l=kwLaat(b);return l==null?null:l<=kwVenster()}
 
 /* ---------- eerste bezoek als ontvangst: extra tijd, kennismaking en vóórfoto's (alleen intern, in de opdracht) ---------- */
@@ -230,8 +237,8 @@ async function kwActie(v){const P=String(v||"").split(":"),[w,id]=P;
       await save("beurten",b.id,{...strip(b),herstel:{...h,status:"opgelost",opgelostOp:nu,nawerk:a===true,door:doorNaam()}});toast("Herstel afgerond");render()}}catch(e){err(e)}}
 
 /* ---------- 5. kwaliteitsscore (Statistieken › Kwaliteit) ---------- */
-function kwCijfers(L){const n=L.length,tijd=L.map(kwOpTijd).filter(x=>x!=null),st=L.filter(b=>b.beoordeling&&Number(b.beoordeling.sterren)>0),ctl=L.filter(b=>b.kwaliteit);
-  return {n,opTijd:tijd.length?Math.round(tijd.filter(Boolean).length/tijd.length*100):null,tijdN:tijd.length,tijdOk:tijd.filter(Boolean).length,
+function kwCijfers(L){const n=L.length,tijd=L.map(kwOpTijd).filter(x=>x!=null),fq=L.map(kwBinnenFreq).filter(x=>x!=null),st=L.filter(b=>b.beoordeling&&Number(b.beoordeling.sterren)>0),ctl=L.filter(b=>b.kwaliteit);
+  return {n,opTijd:tijd.length?Math.round(tijd.filter(Boolean).length/tijd.length*100):null,tijdN:tijd.length,tijdOk:tijd.filter(Boolean).length,freq:fq.length?Math.round(fq.filter(Boolean).length/fq.length*100):null,freqN:fq.length,freqOk:fq.filter(Boolean).length,
     sterren:st.length?Math.round(st.reduce((a,b)=>a+Number(b.beoordeling.sterren),0)/st.length*10)/10:null,sterN:st.length,
     klacht:n?Math.round(L.filter(b=>kwLaag(b)||kwAfgekeurd(b)).length/n*1000)/10:null,klachtN:L.filter(b=>kwLaag(b)||kwAfgekeurd(b)).length,
     nawerk:L.filter(b=>b.herstel&&b.herstel.nawerk).length,
@@ -262,6 +269,7 @@ function vKwaliteit(P,V){window.__kwP=P;const t=today(),inP=rg=>(state.beurten||
   const tegel=(ic,l,v,sub,d,attr="")=>`<div class="st-tile kwq-tile"${attr}><span class="st-ic">${ic}</span><span class="st-l">${l}</span><b>${v}</b><small>${sub}</small>${d||""}</div>`;
   const tiles=`<div class="st-tiles kwq-tiles">
     ${tegel(I.clock,"Op tijd",pct(A.opTijd),A.tijdN?A.tijdOk+" van "+plural(A.tijdN,"bezoek","bezoeken")+" binnen het geplande tijdstip":"nog geen bezoeken met een gepland tijdstip",ver(A.opTijd,B.opTijd,true,"%"))}
+    ${tegel(I.repeat||I.refresh||I.clock,"Frequentie",pct(A.freq),A.freqN?A.freqOk+" van "+plural(A.freqN,"bezoek","bezoeken")+" binnen de afgesproken frequentie":"nog geen herhaalbezoeken",ver(A.freq,B.freq,true,"%"),` title="Binnen de afgesproken frequentie (bijv. 1x per 8 weken), met een week marge. Het eerste bezoek telt niet mee."`)}
     ${tegel(I.ster||I.spark,"Beoordeling",A.sterren==null?"—":kom(A.sterren)+"<span class=\"kwq-v\"> / 5</span>",A.sterN?plural(A.sterN,"beoordeling","beoordelingen")+" · bekijken":"nog geen beoordelingen",ver(A.sterren,B.sterren),A.sterN?` role="button" tabindex="0" data-kwster="${esc(P.lbl)}" title="Bekijk wie er beoordeeld heeft" style="cursor:pointer"`:"")}
     ${tegel(I.check,"Eindcontrole",pct(A.controle),A.ctlN?A.ctlN+" van "+A.n+" gecontroleerd":"start vanaf het volgende bezoek","")}
     ${tegel(I.alert,"Klachten",A.klacht==null?"—":kom(A.klacht)+"<span class=\"kwq-v\"> per 100</span>",A.klachtN?plural(A.klachtN,"keer","keer")+" niet tevreden"+(A.nawerk?" · "+A.nawerk+"× nawerk":""):"niets gemeld",ver(A.klacht,B.klacht,false,"",true))}</div>`;

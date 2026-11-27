@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="5b1ad8e32358"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="35f81b0087d0"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -6058,6 +6058,9 @@ dialog.an.an-dlg::backdrop{background:#0b0f12}
 html body:not(#zz) .msg-trk span.trk-klik{display:block;flex-basis:100%;line-height:1.5;overflow-wrap:anywhere;padding-left:18px;text-indent:-18px}
 html body:not(#zz) .msg-trk span.trk-klik svg{display:inline-block;vertical-align:-2px;margin-right:5px}
 .mailprev .mailframe{display:block;width:100%;min-height:420px;border:0;background:#f3f5f6}
+/* Kwaliteit: vijf tegels op een rij (Op tijd, Op frequentie, Beoordeling, Eindcontrole, Klachten) */
+@media (min-width:1101px){html body:not(#zz) .st-tiles.kwq-tiles{grid-template-columns:repeat(5,minmax(0,1fr))}}
+@media (min-width:701px) and (max-width:1100px){html body:not(#zz) .st-tiles.kwq-tiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
 
 </style>
 <style id="mansardThema">
@@ -21555,6 +21558,13 @@ const kwNaam=k=>cleanName((k&&k.naam)||"");
 /* ---------- 3. stiptheid ---------- */
 /* minuten te laat t.o.v. de geplande tijd (negatief = eerder); null zonder vaste tijd of zonder starttijd */
 function kwLaat(b){const p=toMin(b&&b.tijd);if(p==null||!b.startOp)return null;const d=new Date(b.startOp);if(isNaN(d))return null;return d.getHours()*60+d.getMinutes()-p}
+/* binnen de afgesproken frequentie: tijd sinds het vorige bezoek bij dezelfde klant is niet langer dan de frequentie + 1 week marge.
+   Eerste bezoek of klant zonder vaste frequentie: telt niet mee (null). */
+const KW_FREQ_MARGE=7;
+function kwBinnenFreq(b){if(!b||!b.klantId||!b.datum)return null;const k=state.klanten.find(x=>x.id===b.klantId);const fw=Number(k&&k.frequentie);if(!(fw>0))return null;
+  let c=kwBinnenFreq._c;if(!c||c.n!==state.beurten.length){c={n:state.beurten.length,m:{}};for(const x of state.beurten||[]){if(x.geannuleerd||!x.klantId||!x.datum)continue;(c.m[x.klantId]=c.m[x.klantId]||[]).push(x.datum)}for(const id in c.m)c.m[id].sort();kwBinnenFreq._c=c}
+  const L=c.m[b.klantId]||[];let vorige=null;for(const d of L){if(d<b.datum)vorige=d;else break}if(!vorige)return null;
+  const dagen=Math.round((new Date(b.datum)-new Date(vorige))/864e5);return dagen<=fw*7+KW_FREQ_MARGE}
 function kwOpTijd(b){const l=kwLaat(b);return l==null?null:l<=kwVenster()}
 
 /* ---------- eerste bezoek als ontvangst: extra tijd, kennismaking en vóórfoto's (alleen intern, in de opdracht) ---------- */
@@ -21764,8 +21774,8 @@ async function kwActie(v){const P=String(v||"").split(":"),[w,id]=P;
       await save("beurten",b.id,{...strip(b),herstel:{...h,status:"opgelost",opgelostOp:nu,nawerk:a===true,door:doorNaam()}});toast("Herstel afgerond");render()}}catch(e){err(e)}}
 
 /* ---------- 5. kwaliteitsscore (Statistieken › Kwaliteit) ---------- */
-function kwCijfers(L){const n=L.length,tijd=L.map(kwOpTijd).filter(x=>x!=null),st=L.filter(b=>b.beoordeling&&Number(b.beoordeling.sterren)>0),ctl=L.filter(b=>b.kwaliteit);
-  return {n,opTijd:tijd.length?Math.round(tijd.filter(Boolean).length/tijd.length*100):null,tijdN:tijd.length,tijdOk:tijd.filter(Boolean).length,
+function kwCijfers(L){const n=L.length,tijd=L.map(kwOpTijd).filter(x=>x!=null),fq=L.map(kwBinnenFreq).filter(x=>x!=null),st=L.filter(b=>b.beoordeling&&Number(b.beoordeling.sterren)>0),ctl=L.filter(b=>b.kwaliteit);
+  return {n,opTijd:tijd.length?Math.round(tijd.filter(Boolean).length/tijd.length*100):null,tijdN:tijd.length,tijdOk:tijd.filter(Boolean).length,freq:fq.length?Math.round(fq.filter(Boolean).length/fq.length*100):null,freqN:fq.length,freqOk:fq.filter(Boolean).length,
     sterren:st.length?Math.round(st.reduce((a,b)=>a+Number(b.beoordeling.sterren),0)/st.length*10)/10:null,sterN:st.length,
     klacht:n?Math.round(L.filter(b=>kwLaag(b)||kwAfgekeurd(b)).length/n*1000)/10:null,klachtN:L.filter(b=>kwLaag(b)||kwAfgekeurd(b)).length,
     nawerk:L.filter(b=>b.herstel&&b.herstel.nawerk).length,
@@ -21796,6 +21806,7 @@ function vKwaliteit(P,V){window.__kwP=P;const t=today(),inP=rg=>(state.beurten||
   const tegel=(ic,l,v,sub,d,attr="")=>`<div class="st-tile kwq-tile"${attr}><span class="st-ic">${ic}</span><span class="st-l">${l}</span><b>${v}</b><small>${sub}</small>${d||""}</div>`;
   const tiles=`<div class="st-tiles kwq-tiles">
     ${tegel(I.clock,"Op tijd",pct(A.opTijd),A.tijdN?A.tijdOk+" van "+plural(A.tijdN,"bezoek","bezoeken")+" binnen het geplande tijdstip":"nog geen bezoeken met een gepland tijdstip",ver(A.opTijd,B.opTijd,true,"%"))}
+    ${tegel(I.repeat||I.refresh||I.clock,"Frequentie",pct(A.freq),A.freqN?A.freqOk+" van "+plural(A.freqN,"bezoek","bezoeken")+" binnen de afgesproken frequentie":"nog geen herhaalbezoeken",ver(A.freq,B.freq,true,"%"),` title="Binnen de afgesproken frequentie (bijv. 1x per 8 weken), met een week marge. Het eerste bezoek telt niet mee."`)}
     ${tegel(I.ster||I.spark,"Beoordeling",A.sterren==null?"—":kom(A.sterren)+"<span class=\"kwq-v\"> / 5</span>",A.sterN?plural(A.sterN,"beoordeling","beoordelingen")+" · bekijken":"nog geen beoordelingen",ver(A.sterren,B.sterren),A.sterN?` role="button" tabindex="0" data-kwster="${esc(P.lbl)}" title="Bekijk wie er beoordeeld heeft" style="cursor:pointer"`:"")}
     ${tegel(I.check,"Eindcontrole",pct(A.controle),A.ctlN?A.ctlN+" van "+A.n+" gecontroleerd":"start vanaf het volgende bezoek","")}
     ${tegel(I.alert,"Klachten",A.klacht==null?"—":kom(A.klacht)+"<span class=\"kwq-v\"> per 100</span>",A.klachtN?plural(A.klachtN,"keer","keer")+" niet tevreden"+(A.nawerk?" · "+A.nawerk+"× nawerk":""):"niets gemeld",ver(A.klacht,B.klacht,false,"",true))}</div>`;
