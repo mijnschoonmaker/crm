@@ -5333,3 +5333,4 @@ dialog.an.an-dlg::backdrop{background:#0b0f12}
 /* klik-regels: gewone tekstregel (geen flex), anders liepen woorden over elkaar op de telefoon */
 html body:not(#zz) .msg-trk span.trk-klik{display:block;flex-basis:100%;line-height:1.5;overflow-wrap:anywhere;padding-left:18px;text-indent:-18px}
 html body:not(#zz) .msg-trk span.trk-klik svg{display:inline-block;vertical-align:-2px;margin-right:5px}
+.mailprev .mailframe{display:block;width:100%;min-height:420px;border:0;background:#f3f5f6}

@@ -5647,6 +5647,7 @@ dialog.an.an-dlg::backdrop{background:#0b0f12}
 /* klik-regels: gewone tekstregel (geen flex), anders liepen woorden over elkaar op de telefoon */
 html body:not(#zz) .msg-trk span.trk-klik{display:block;flex-basis:100%;line-height:1.5;overflow-wrap:anywhere;padding-left:18px;text-indent:-18px}
 html body:not(#zz) .msg-trk span.trk-klik svg{display:inline-block;vertical-align:-2px;margin-right:5px}
+.mailprev .mailframe{display:block;width:100%;min-height:420px;border:0;background:#f3f5f6}
 
 </style>
 <style id="mansardThema">
@@ -12429,6 +12430,9 @@ if(typeof window!=="undefined"&&typeof setInterval==="function")setInterval(()=>
 const tplVars=t=>[...new Set(((t.onderwerp||"")+(t.mail||"")+(t.sms||"")).match(/\[[a-z0-9_]+\.[a-z_]+\]|\{\w+\}/g)||[])];
 const VARLIST=["klant","voornaam","datum","tijd","tijdvak","adres","straat","plaats","diensten","dienst","prijs","interval","bedrijf","telefoon","iban","factuurnummer","bedrag","vervaldatum","factuurdatum","dagen_te_laat","betaallink","reviewlink"];
 const MAILKIND={factuur:["Factuur","[nr.invoice]"],aanmaning:["Betalingsherinnering","Factuur [nr.invoice]"],wik:["Laatste aanmaning","Factuur [nr.invoice]"],offerte:["Offerte","[nr.invoice]"],review:["Review",""],creditsReview:["Credits",""],creditsBuur:["Credits",""],welkom:["Welkom","Welkom bij [name.company]"]};
+/* voorbeeld van een mail precies zoals de klant hem ziet: in een eigen venster (iframe), zodat de opmaak van het CRM er niet doorheen loopt */
+function mailFrame(html){const doc=String(html||"").replace(/<head>/i,'<head><base target="_blank">');const d=/<html/i.test(doc)?doc:`<!doctype html><html><head><meta charset="utf-8"><base target="_blank"></head><body style="margin:0">${doc}</body></html>`;
+  return `<iframe class="mailframe" title="Voorbeeld van de mail" srcdoc="${String(d).replace(/&/g,"&amp;").replace(/"/g,"&quot;")}" onload="try{this.style.height=(this.contentDocument.documentElement.scrollHeight+4)+'px'}catch(e){}"></iframe>`}
 function sampleVars(){
   const k={naam:"Fam. de Vries",voornaam:"Anna",adres:"Lindelaan 12",postcode:"3581 AB",plaats:"Utrecht",tijd:"09:00",duur:240,dienst:HD(),prijs:80,frequentie:4};
   return{...klantVars(k,addDays(today(),5)),tijdvak:"tussen 08:00 en 12:00",factuurnummer:today().getFullYear()+"-0042",bedrag:"€ 96,80",factuurdatum:fmtL(today()),vervaldatum:fmtL(addDays(today(),14)),dagen_te_laat:5,reviewlink:S().reviewLink||"https://g.page/r/…/review","place.ranking":"1e plek","month.ranking":"oktober","time.ranking":"2 min 59 sec","credits.ranking":"5 credits","amount.ranking":"€ 5,00","cup.ranking":"🏆","plek.ranking":1};
@@ -12695,7 +12699,7 @@ function openMailStijl(){
     <div class="secl" style="color:var(--ink);font-size:14px;letter-spacing:0;text-transform:none">Accentkleur</div><div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">${SW.map(([c,n])=>`<button type="button" class="swatch${acc.toLowerCase()===c?" on":""}" data-sw="${c}" style="background:${c}!important" title="${n}" aria-label="${n}"></button>`).join("")}<span class="subt">Eigen kleur</span><input type="color" id="msC" value="${esc(acc)}" style="width:52px;height:44px;padding:3px"></div>
     <div class="splitrow"><b style="display:flex;gap:8px;align-items:center">${I.search}Voorbeeld</b><button type="button" class="small" id="msTest">${I.send}Testmail naar mij</button></div>
     <div class="seg ms-tabs">${[["factuur","Factuur"],["offerte","Offerte"],["aankondiging","Aankondiging"],["herinnering","Betaalherinnering"],["afspraak","Herinnering afspraak"]].map(([k,l])=>`<button type="button" data-tb="${k}" aria-pressed="${tab===k}">${l}</button>`).join("")}</div>
-    <div class="mailprev">${prev()}</div><small class="help">Deze stijl geldt voor de knop <b>Opgemaakt</b> bij facturen, herinneringen, offertes, reviewverzoeken en aankondigingen. Logo en bedrijfsgegevens komen uit Instellingen › Bedrijf &amp; Branding. Je logo staat in de voorbeelden; in een geplakte mail verschijnt je bedrijfsnaam, want het logo staat in je privé-pagina.</small>`};
+    <div class="mailprev">${mailFrame(prev())}</div><small class="help">Deze stijl geldt voor de knop <b>Opgemaakt</b> bij facturen, herinneringen, offertes, reviewverzoeken en aankondigingen. Logo en bedrijfsgegevens komen uit Instellingen › Bedrijf &amp; Branding. Je logo staat in de voorbeelden; in een geplakte mail verschijnt je bedrijfsnaam, want het logo staat in je privé-pagina.</small>`};
   openDlg(`<div class="dlg-head"><span class="objic big" style="background:linear-gradient(135deg,#f0a33c,#e0822c)">${I.spark}</span><div style="flex:1"><h3>E-mail opmaak</h3><div class="subt">Kies hoe je opgemaakte mails eruitzien</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
   <div id="msB" class="setbody"></div><div class="row stickyfoot"><button type="button" class="ghost" data-act="close">Annuleren</button><span class="sp"></span><button type="submit" class="primary" id="msSave">Opmaak opslaan</button></div>`,{wide:true});
   draw();
@@ -12710,7 +12714,7 @@ function openMailStijl(){
         catch(x){toast("Testmail lukte niet: "+String((x&&x.message)||x).replace(/^.*?:\s*/,""))}
         finally{b.disabled=false;b.innerHTML=lbl}return}
       if(await copyHtml(h,txt)){if(naar)openUrl("mailto:"+encodeURIComponent(naar)+"?subject="+encodeURIComponent(subj));toast(naar?"E-mail versturen staat nog niet aan: de opgemaakte mail is gekopieerd, plak hem (⌘V) in de testmail":"Gekopieerd. Vul je e-mail in bij Bedrijf & Branding voor een testmail")}else toast("Kopiëren lukte niet in deze weergave")}});
-  $("#msB").addEventListener("input",e=>{if(e.target.id==="msC"){acc=e.target.value;$(".mailprev").innerHTML=prev()}});
+  $("#msB").addEventListener("input",e=>{if(e.target.id==="msC"){acc=e.target.value;$(".mailprev").innerHTML=mailFrame(prev())}});
   $("#msB").addEventListener("change",e=>{if(e.target.id==="msC")draw()});
   form.onsubmit=async e=>{e.preventDefault();$("#msSave").disabled=true;if(await saveSettings({mailStijl:stijl,mailAccent:acc},"E-mail opmaak opgeslagen")){dlg.close();schedule()}else $("#msSave").disabled=false};
 }
@@ -12724,7 +12728,7 @@ function openTplView(k){
     ${t.doel?`<div class="tv-sec"><span class="tv-l">Beschrijving</span><p class="tv-p">${esc(t.doel)}</p></div>`:""}
     ${isM?`<div class="tv-sec"><span class="tv-l">Onderwerp</span><p class="tv-p"><b>${esc(t.onderwerp||"")}</b></p></div>${t.mailHtml?`<div class="tv-sec"><div class="tv-h"><span class="tv-l">Inhoud</span><button type="button" class="tv-copy" data-copy="mail">${I.copy||""}Kopieer</button></div><div class="tv-code tv-rich">${richSafe(t.mailHtml)}</div></div>`:box("Inhoud",t.mail,"mail")}`:box("Inhoud",t.sms||"","sms")}
     ${vs.length?`<div class="tv-sec"><span class="tv-l">Variabelen</span><div class="tv-vars">${vs.map(x=>`<code>${esc(x)}</code>`).join("")}</div></div>`:""}`
-    :(isM?`<div class="tv-sec"><span class="tv-l">E-mail · ${esc(fill(t.onderwerp,v))}</span><div class="mailprev">${mailFor(k,v,t.mail,{preview:true})}</div></div>`
+    :(isM?`<div class="tv-sec"><span class="tv-l">E-mail · ${esc(fill(t.onderwerp,v))}</span><div class="mailprev">${mailFrame(mailFor(k,v,t.mail,{preview:true}))}</div></div>`
     :`<div class="tv-sec"><span class="tv-l">SMS / WhatsApp</span><div class="bubble">${esc(fill(t.sms||"",v))}<small class="subt">${fill(t.sms||"",v).length} tekens</small></div></div>`);
     $("#tvMode").textContent=mode==="code"?"Voorbeeld bekijken":"Sjabloon bekijken"};
   openDlg(`<div class="dlg-head"><span class="objic big" style="${isM?"background:var(--plan-bg);color:var(--plan)":"background:#fdf1dc;color:#d9891c"}">${isM?I.mail:(I.chat||I.send)}</span><div style="flex:1;min-width:0"><h3>${esc(t.naam)}</h3><div class="subt">${esc(kan)}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
@@ -15022,7 +15026,7 @@ function openMailPreview(s,los){
   const T=tpls().factuur,html=mailFor("factuur",v,T.mail,{f,preview:true}),subj=fill(T.onderwerp,v);
   state.settings=old;
   openDlg(`<div class="dlg-head"><span class="objic" style="background:var(--brand-soft);color:var(--brand)">${I.mail}</span><div style="flex:1;min-width:0"><h3 style="font-size:19px">${esc(subj)}</h3><div class="subt">Aan: voorbeeld@klant.nl · van: ${esc(s.naam||"je bedrijf")}${s.email?" &lt;"+esc(s.email)+"&gt;":""}</div></div><button type="button" class="iconbtn" id="pvX" aria-label="Sluiten">${I.x}</button></div>
-  <div class="mailprev" style="max-height:62vh">${html}</div>
+  <div class="mailprev" style="max-height:62vh">${mailFrame(html)}</div>
   <div class="row"><span class="subt" style="flex:1;font-size:13px">Demo-data — echte facturen gebruiken klant- en factuurgegevens. Stijl en accentkleur kies je bij Communicatie › E-mail opmaak.</span><button type="button" class="primary" id="pvBack">Sluiten</button></div>`,{wide:true});
   $("#pvBack").onclick=$("#pvX").onclick=()=>los?dlg.close():openSetEdit("bedrijf");
 }

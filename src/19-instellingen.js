@@ -400,7 +400,7 @@ function openMailPreview(s,los){
   const T=tpls().factuur,html=mailFor("factuur",v,T.mail,{f,preview:true}),subj=fill(T.onderwerp,v);
   state.settings=old;
   openDlg(`<div class="dlg-head"><span class="objic" style="background:var(--brand-soft);color:var(--brand)">${I.mail}</span><div style="flex:1;min-width:0"><h3 style="font-size:19px">${esc(subj)}</h3><div class="subt">Aan: voorbeeld@klant.nl · van: ${esc(s.naam||"je bedrijf")}${s.email?" &lt;"+esc(s.email)+"&gt;":""}</div></div><button type="button" class="iconbtn" id="pvX" aria-label="Sluiten">${I.x}</button></div>
-  <div class="mailprev" style="max-height:62vh">${html}</div>
+  <div class="mailprev" style="max-height:62vh">${mailFrame(html)}</div>
   <div class="row"><span class="subt" style="flex:1;font-size:13px">Demo-data — echte facturen gebruiken klant- en factuurgegevens. Stijl en accentkleur kies je bij Communicatie › E-mail opmaak.</span><button type="button" class="primary" id="pvBack">Sluiten</button></div>`,{wide:true});
   $("#pvBack").onclick=$("#pvX").onclick=()=>los?dlg.close():openSetEdit("bedrijf");
 }
