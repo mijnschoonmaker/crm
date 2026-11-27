@@ -23,11 +23,15 @@ const kwNaam=k=>cleanName((k&&k.naam)||"");
 function kwLaat(b){const p=toMin(b&&b.tijd);if(p==null||!b.startOp)return null;const d=new Date(b.startOp);if(isNaN(d))return null;return d.getHours()*60+d.getMinutes()-p}
 /* binnen de afgesproken frequentie: tijd sinds het vorige bezoek bij dezelfde klant is niet langer dan de frequentie + 1 week marge.
    Eerste bezoek of klant zonder vaste frequentie: telt niet mee (null). */
-const KW_FREQ_MARGE=10.5;/* 1,5 week */
+const KW_FREQ_MARGE=10.5;
+/* bezoek alleen voor een losse/extra dienst (bijv. dakgoten 1x per jaar) telt niet mee voor de vaste frequentie */
+const kwAlleenExtra=b=>Array.isArray(b.extra)&&b.extra.length&&!(Number(b.bedrag)>0);/* 1,5 week */
 function kwBinnenFreq(b){const r=kwFreqInfo(b);return r?r.ok:null}
-function kwFreqInfo(b){if(!b||!b.klantId||!b.datum)return null;const k=state.klanten.find(x=>x.id===b.klantId);const fw=Number(k&&k.frequentie);if(!(fw>0))return null;
-  let c=kwBinnenFreq._c;if(!c||c.n!==state.beurten.length){c={n:state.beurten.length,m:{}};for(const x of state.beurten||[]){if(x.geannuleerd||!x.klantId||!x.datum)continue;(c.m[x.klantId]=c.m[x.klantId]||[]).push(x.datum)}for(const id in c.m)c.m[id].sort();kwBinnenFreq._c=c}
-  const L=c.m[b.klantId]||[];let vorige=null;for(const d of L){if(d<b.datum)vorige=d;else break}if(!vorige)return null;
+function kwFreqInfo(b){if(!b||!b.klantId||!b.datum||kwAlleenExtra(b))return null;const k=state.klanten.find(x=>x.id===b.klantId);const fw=k&&(typeof vasteDagen==="function"&&vasteDagen(k)?freqDays(k)/7:Number(k.frequentie));if(!(fw>0))return null;
+  let c=kwBinnenFreq._c;if(!c||c.n!==state.beurten.length){c={n:state.beurten.length,m:{}};for(const x of state.beurten||[]){if(x.geannuleerd||!x.klantId||!x.datum||kwAlleenExtra(x))continue;(c.m[x.klantId]=c.m[x.klantId]||[]).push(x.datum)}for(const id in c.m)c.m[id].sort();kwBinnenFreq._c=c}
+  const L=c.m[b.klantId]||[];let vorige=null;for(const d of L){if(d<b.datum)vorige=d;else break}
+  /* vorig bezoek van vóór Mansard (of niet als bezoek vastgelegd): de datum die bij het afmelden als laatste bezoek bij de klant stond */
+  if(b.vorigeLaatst&&b.vorigeLaatst<b.datum&&(!vorige||b.vorigeLaatst>vorige))vorige=b.vorigeLaatst;if(!vorige)return null;
   const dagen=Math.round((new Date(b.datum)-new Date(vorige))/864e5);return{ok:dagen<=fw*7+KW_FREQ_MARGE,dagen,fw,vorige}}
 function kwOpTijd(b){const l=kwLaat(b);return l==null?null:l<=kwVenster()}
 

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="b8c7bbb315d8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="fb14f2b33da9"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -10488,7 +10488,7 @@ async function gewassen(k){
   const _lm=lopendeMin(k),_mp=_lm&&_lm>=1&&(k.bezigGroep||!meetTeKort(_lm,duur(k)))?metingPatch(k,_lm):null,_last=(k.tijden||[]).slice(-1)[0],_dur=_mp?_lm:_last&&_last.datum===iso(today())?_last.min:duur(k);if(_mp)k={...k,..._mp};
   const prev={laatst:k.laatst||"",gepland:k.gepland||"",bezig:k.bezig||"",tijd:k.tijd||"",reeks:k.reeks||[],eenmalig:k.eenmalig||""},bId=newId("b"),d=iso(today());
   try{
-    await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:Number(k.prijs)||0,betaald:false,gefactureerd:"",dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:k._tmEind||new Date().toISOString()});
+    await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:Number(k.prijs)||0,betaald:false,gefactureerd:"",dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",vorigeLaatst:prev.laatst||"",door:doorNaam(),op:k._tmEind||new Date().toISOString()});
     const _vn=volgendeNa(k),nx=_vn.gepland;
     await save("klanten",k.id,{...strip(k),laatst:d,..._vn,bezig:"",bezigGroep:""});aanbevelingVrijgeven(k.id);
     toast(cleanName(k.naam)+" afgerond · "+eur(stopBedrag(k)),async()=>{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev})});
@@ -10567,7 +10567,7 @@ async function afronden(k,mode,el){
   if((k.bevindingen||[]).length)f.bijlagen=k.bevindingen.map(b=>({...b,soort:"foto"}));
   if(k.nietFactureren&&!perKeuze(k)){/* niet factureren: beurt afmelden zonder factuur */
     try{const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed),_los=await losseExtraFacturen(k,d,_ed,f,_mw,_hs);
-      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),betaald:false,gefactureerd:"nvt",...(_los.length?{extraFacturen:_los}:{}),dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:k._tmEind||new Date().toISOString(),...(_vve||{}),...(_kw&&_kw.beurt||{})});
+      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),betaald:false,gefactureerd:"nvt",...(_los.length?{extraFacturen:_los}:{}),dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",vorigeLaatst:prev.laatst||"",door:doorNaam(),op:k._tmEind||new Date().toISOString(),...(_vve||{}),...(_kw&&_kw.beurt||{})});
       const _vn=volgendeNa(k),nx=_vn.gepland;
       await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",bevindingen:[],opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,...(_kw&&_kw.klant||{}),bezig:"",bezigGroep:""});aanbevelingVrijgeven(k.id);if(_kw&&typeof _kw.na==="function")_kw.na();await extraNaBij(k,d,_ed);
       const undo=async()=>{try{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
@@ -10578,7 +10578,7 @@ async function afronden(k,mode,el){
     try{const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed);
       /* extra opdrachten (bijv. glasbewassing) staan niet op de periodieke factuur: eigen factuur, per opdracht ingesteld */
       const _los=await losseExtraFacturen(k,d,_ed,f,_mw,_hs);
-      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),...(_los.length?{extraFacturen:_los}:{}),betaald:false,gefactureerd:"periodiek",periodiek:true,dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:k._tmEind||new Date().toISOString(),...(_vve||{}),...(_kw&&_kw.beurt||{})});
+      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),...(_los.length?{extraFacturen:_los}:{}),betaald:false,gefactureerd:"periodiek",periodiek:true,dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",vorigeLaatst:prev.laatst||"",door:doorNaam(),op:k._tmEind||new Date().toISOString(),...(_vve||{}),...(_kw&&_kw.beurt||{})});
       const _vn=volgendeNa(k),nx=_vn.gepland;
       await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,...(_kw&&_kw.klant||{}),bezig:"",bezigGroep:""});aanbevelingVrijgeven(k.id);if(_kw&&typeof _kw.na==="function")_kw.na();await extraNaBij(k,d,_ed);
       const undo=async()=>{try{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
@@ -10595,7 +10595,7 @@ async function afronden(k,mode,el){
   try{
     await save("facturen",fId,f);
     const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed),_los=await losseExtraFacturen(k,d,_ed.filter(o=>!exMee(o,_hs)),f,_mw,_hs);
-    await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:r2(f.regels.reduce((a,r)=>a+(Number(r.aantal)||0)*(Number(r.prijs)||0),0)),extra:_ed.map(o=>o.dienst),betaald:f.status==="betaald",gefactureerd:fId,dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:k._tmEind||new Date().toISOString(),...(_vve||{}),...(_kw&&_kw.beurt||{})});
+    await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:r2(f.regels.reduce((a,r)=>a+(Number(r.aantal)||0)*(Number(r.prijs)||0),0)),extra:_ed.map(o=>o.dienst),betaald:f.status==="betaald",gefactureerd:fId,dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",vorigeLaatst:prev.laatst||"",door:doorNaam(),op:k._tmEind||new Date().toISOString(),...(_vve||{}),...(_kw&&_kw.beurt||{})});
     const _vn=volgendeNa(k),nx=_vn.gepland;
     await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",artikelen:[],bevindingen:[],...(k.opdrachtVerwijderd?{actief:false}:{}),opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,...(_kw&&_kw.klant||{}),...(_tg||{}),bezig:"",bezigGroep:""});aanbevelingVrijgeven(k.id);if(_kw&&typeof _kw.na==="function")_kw.na();await extraNaBij(k,d,_ed);
     const undo=async()=>{try{await del("facturen",fId);await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
@@ -21563,11 +21563,15 @@ const kwNaam=k=>cleanName((k&&k.naam)||"");
 function kwLaat(b){const p=toMin(b&&b.tijd);if(p==null||!b.startOp)return null;const d=new Date(b.startOp);if(isNaN(d))return null;return d.getHours()*60+d.getMinutes()-p}
 /* binnen de afgesproken frequentie: tijd sinds het vorige bezoek bij dezelfde klant is niet langer dan de frequentie + 1 week marge.
    Eerste bezoek of klant zonder vaste frequentie: telt niet mee (null). */
-const KW_FREQ_MARGE=10.5;/* 1,5 week */
+const KW_FREQ_MARGE=10.5;
+/* bezoek alleen voor een losse/extra dienst (bijv. dakgoten 1x per jaar) telt niet mee voor de vaste frequentie */
+const kwAlleenExtra=b=>Array.isArray(b.extra)&&b.extra.length&&!(Number(b.bedrag)>0);/* 1,5 week */
 function kwBinnenFreq(b){const r=kwFreqInfo(b);return r?r.ok:null}
-function kwFreqInfo(b){if(!b||!b.klantId||!b.datum)return null;const k=state.klanten.find(x=>x.id===b.klantId);const fw=Number(k&&k.frequentie);if(!(fw>0))return null;
-  let c=kwBinnenFreq._c;if(!c||c.n!==state.beurten.length){c={n:state.beurten.length,m:{}};for(const x of state.beurten||[]){if(x.geannuleerd||!x.klantId||!x.datum)continue;(c.m[x.klantId]=c.m[x.klantId]||[]).push(x.datum)}for(const id in c.m)c.m[id].sort();kwBinnenFreq._c=c}
-  const L=c.m[b.klantId]||[];let vorige=null;for(const d of L){if(d<b.datum)vorige=d;else break}if(!vorige)return null;
+function kwFreqInfo(b){if(!b||!b.klantId||!b.datum||kwAlleenExtra(b))return null;const k=state.klanten.find(x=>x.id===b.klantId);const fw=k&&(typeof vasteDagen==="function"&&vasteDagen(k)?freqDays(k)/7:Number(k.frequentie));if(!(fw>0))return null;
+  let c=kwBinnenFreq._c;if(!c||c.n!==state.beurten.length){c={n:state.beurten.length,m:{}};for(const x of state.beurten||[]){if(x.geannuleerd||!x.klantId||!x.datum||kwAlleenExtra(x))continue;(c.m[x.klantId]=c.m[x.klantId]||[]).push(x.datum)}for(const id in c.m)c.m[id].sort();kwBinnenFreq._c=c}
+  const L=c.m[b.klantId]||[];let vorige=null;for(const d of L){if(d<b.datum)vorige=d;else break}
+  /* vorig bezoek van vóór Mansard (of niet als bezoek vastgelegd): de datum die bij het afmelden als laatste bezoek bij de klant stond */
+  if(b.vorigeLaatst&&b.vorigeLaatst<b.datum&&(!vorige||b.vorigeLaatst>vorige))vorige=b.vorigeLaatst;if(!vorige)return null;
   const dagen=Math.round((new Date(b.datum)-new Date(vorige))/864e5);return{ok:dagen<=fw*7+KW_FREQ_MARGE,dagen,fw,vorige}}
 function kwOpTijd(b){const l=kwLaat(b);return l==null?null:l<=kwVenster()}
 

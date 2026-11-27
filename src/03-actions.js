@@ -3,7 +3,7 @@ async function gewassen(k){
   const _lm=lopendeMin(k),_mp=_lm&&_lm>=1&&(k.bezigGroep||!meetTeKort(_lm,duur(k)))?metingPatch(k,_lm):null,_last=(k.tijden||[]).slice(-1)[0],_dur=_mp?_lm:_last&&_last.datum===iso(today())?_last.min:duur(k);if(_mp)k={...k,..._mp};
   const prev={laatst:k.laatst||"",gepland:k.gepland||"",bezig:k.bezig||"",tijd:k.tijd||"",reeks:k.reeks||[],eenmalig:k.eenmalig||""},bId=newId("b"),d=iso(today());
   try{
-    await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:Number(k.prijs)||0,betaald:false,gefactureerd:"",dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:k._tmEind||new Date().toISOString()});
+    await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:Number(k.prijs)||0,betaald:false,gefactureerd:"",dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",vorigeLaatst:prev.laatst||"",door:doorNaam(),op:k._tmEind||new Date().toISOString()});
     const _vn=volgendeNa(k),nx=_vn.gepland;
     await save("klanten",k.id,{...strip(k),laatst:d,..._vn,bezig:"",bezigGroep:""});aanbevelingVrijgeven(k.id);
     toast(cleanName(k.naam)+" afgerond · "+eur(stopBedrag(k)),async()=>{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev})});
@@ -82,7 +82,7 @@ async function afronden(k,mode,el){
   if((k.bevindingen||[]).length)f.bijlagen=k.bevindingen.map(b=>({...b,soort:"foto"}));
   if(k.nietFactureren&&!perKeuze(k)){/* niet factureren: beurt afmelden zonder factuur */
     try{const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed),_los=await losseExtraFacturen(k,d,_ed,f,_mw,_hs);
-      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),betaald:false,gefactureerd:"nvt",...(_los.length?{extraFacturen:_los}:{}),dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:k._tmEind||new Date().toISOString(),...(_vve||{}),...(_kw&&_kw.beurt||{})});
+      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),betaald:false,gefactureerd:"nvt",...(_los.length?{extraFacturen:_los}:{}),dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",vorigeLaatst:prev.laatst||"",door:doorNaam(),op:k._tmEind||new Date().toISOString(),...(_vve||{}),...(_kw&&_kw.beurt||{})});
       const _vn=volgendeNa(k),nx=_vn.gepland;
       await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",bevindingen:[],opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,...(_kw&&_kw.klant||{}),bezig:"",bezigGroep:""});aanbevelingVrijgeven(k.id);if(_kw&&typeof _kw.na==="function")_kw.na();await extraNaBij(k,d,_ed);
       const undo=async()=>{try{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
@@ -93,7 +93,7 @@ async function afronden(k,mode,el){
     try{const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed);
       /* extra opdrachten (bijv. glasbewassing) staan niet op de periodieke factuur: eigen factuur, per opdracht ingesteld */
       const _los=await losseExtraFacturen(k,d,_ed,f,_mw,_hs);
-      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),...(_los.length?{extraFacturen:_los}:{}),betaald:false,gefactureerd:"periodiek",periodiek:true,dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:k._tmEind||new Date().toISOString(),...(_vve||{}),...(_kw&&_kw.beurt||{})});
+      await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:0,extra:_ed.map(o=>o.dienst),...(_los.length?{extraFacturen:_los}:{}),betaald:false,gefactureerd:"periodiek",periodiek:true,dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",vorigeLaatst:prev.laatst||"",door:doorNaam(),op:k._tmEind||new Date().toISOString(),...(_vve||{}),...(_kw&&_kw.beurt||{})});
       const _vn=volgendeNa(k),nx=_vn.gepland;
       await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,...(_kw&&_kw.klant||{}),bezig:"",bezigGroep:""});aanbevelingVrijgeven(k.id);if(_kw&&typeof _kw.na==="function")_kw.na();await extraNaBij(k,d,_ed);
       const undo=async()=>{try{await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
@@ -110,7 +110,7 @@ async function afronden(k,mode,el){
   try{
     await save("facturen",fId,f);
     const _ed=extraDue(k,d),_opd=extraNa(k,d,_ed),_los=await losseExtraFacturen(k,d,_ed.filter(o=>!exMee(o,_hs)),f,_mw,_hs);
-    await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:r2(f.regels.reduce((a,r)=>a+(Number(r.aantal)||0)*(Number(r.prijs)||0),0)),extra:_ed.map(o=>o.dienst),betaald:f.status==="betaald",gefactureerd:fId,dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",door:doorNaam(),op:k._tmEind||new Date().toISOString(),...(_vve||{}),...(_kw&&_kw.beurt||{})});
+    await save("beurten",bId,{klantId:k.id,klantNaam:k.naam,datum:d,bedrag:r2(f.regels.reduce((a,r)=>a+(Number(r.aantal)||0)*(Number(r.prijs)||0),0)),extra:_ed.map(o=>o.dienst),betaald:f.status==="betaald",gefactureerd:fId,dienst:k.dienst||HD(),tijd:k.tijd||"",duur:_dur,gemeten:!!_mp,startOp:prev.bezig||"",vorigeLaatst:prev.laatst||"",door:doorNaam(),op:k._tmEind||new Date().toISOString(),...(_vve||{}),...(_kw&&_kw.beurt||{})});
     const _vn=volgendeNa(k),nx=_vn.gepland;
     await save("klanten",k.id,{...strip(k),eersteKeer:false,aanbieden:false,uitstelTot:"",artikelen:[],bevindingen:[],...(k.opdrachtVerwijderd?{actief:false}:{}),opdrachten:_opd,...(_rr?{ramenRegel:ramenDoorschuiven(_rr.q,_rr.due,d)}:{}),laatst:d,..._vn,...(_kw&&_kw.klant||{}),...(_tg||{}),bezig:"",bezigGroep:""});aanbevelingVrijgeven(k.id);if(_kw&&typeof _kw.na==="function")_kw.na();await extraNaBij(k,d,_ed);
     const undo=async()=>{try{await del("facturen",fId);await del("beurten",bId);await save("klanten",k.id,{...strip(k),...prev});toast("Teruggezet")}catch(e){err(e)}};
