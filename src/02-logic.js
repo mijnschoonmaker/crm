@@ -286,13 +286,19 @@ const echteFacturen=()=>facturen().filter(f=>f.status!=="concept");
 /* factuurnummers: standaard 2026-0001 per jaar; met "doorlopend" (zoals DienstenCRM) 26-009295: jaar in 2 cijfers en een
    volgnummer van 6 cijfers dat over de jaren doorloopt, startend bij het laatste nummer uit het oude pakket + 1 */
 function nrDelen(nr){const m=String(nr||"").match(/^(.*?)(\d+)$/);return m?{pre:m[1],n:parseInt(m[2],10),pad:m[2].length}:{pre:String(nr||""),n:0,pad:4}}
+/* ontbrekende nummers tussen het laagste en hoogste nummer van een reeks (max. 50) */
+function nrGaten(lijst,bezet){const l=[...new Set(lijst)].filter(n=>n>0).sort((a,b)=>a-b),g=[];for(let i=1;i<l.length&&g.length<50;i++)for(let n=l[i-1]+1;n<l[i]&&g.length<50;n++)if(!bezet.has(n))g.push(n);return g}
 function nextNr(soort,datum,skip=0){
   const y=String(datum).slice(0,4),st=S();
   if(soort!=="offerte"&&st.factNrStijl==="doorlopend"){const pre=y.slice(2)+"-",start=Math.max(0,parseInt(st.factNrStart,10)||0);
     const ns=state.facturen.filter(f=>f.soort!=="offerte"&&/^\d{2}-\d{6}$/.test(String(f.nummer||""))).map(f=>parseInt(String(f.nummer).slice(3),10)||0);
-    return pre+String(Math.max(start-1,...ns)+1+skip).padStart(6,"0")}
+    /* gaten in de reeks van dit jaar (bijv. door een verwijderde conceptfactuur) eerst opvullen, zodat de nummering aaneengesloten blijft */
+    const dit=state.facturen.filter(f=>f.soort!=="offerte"&&String(f.nummer||"").startsWith(pre)&&/^\d{2}-\d{6}$/.test(String(f.nummer))).map(f=>parseInt(String(f.nummer).slice(3),10)||0),gat=nrGaten(dit,new Set(ns));
+    if(skip<gat.length)return pre+String(gat[skip]).padStart(6,"0");
+    return pre+String(Math.max(start-1,...ns)+1+skip-gat.length).padStart(6,"0")}
   const pre=soort==="offerte"?"OFF-"+y+"-":y+"-";
   const ns=state.facturen.filter(f=>String(f.nummer||"").startsWith(pre)).map(f=>parseInt(String(f.nummer).slice(pre.length),10)||0);
+  if(soort!=="offerte"){const gat=nrGaten(ns,new Set(ns));if(skip<gat.length)return pre+String(gat[skip]).padStart(4,"0");skip-=gat.length}
   return pre+String(Math.max(0,...ns)+1+skip).padStart(soort==="offerte"?3:4,"0");
 }
 const kostEx=c=>(Number(c.bedrag)||0)/(1+(Number(c.btw)||0)/100);
