@@ -113,7 +113,7 @@ def nummering(pg):
       await T.save('facturen',b,{soort:'factuur',nummer:j+'-0012',datum:d,regels:[],status:'open'});
       const uit={volgende:T.nextNr('factuur',d),offerte:T.nextNr('offerte',d)};
       await T.del('facturen',a);await T.del('facturen',b);return {...uit,j}}""")
-    check(G, "Volgend factuurnummer sluit aan op het hoogste", r["volgende"] == r["j"] + "-0013", r)
+    check(G, "Volgend factuurnummer vult eerst een gat in de reeks", r["volgende"] == r["j"] + "-0008", r)
     check(G, "Eerste offertenummer van het jaar", r["offerte"] == "OFF-" + r["j"] + "-001", r)
     # twee gebruikers maken tegelijk een factuur met hetzelfde nummer: de nieuwste (van deze gebruiker) schuift door
     r = pg.evaluate("""async()=>{const T=MSTEST,j=String(new Date().getFullYear()+6),d=j+'-03-01';
