@@ -1166,7 +1166,7 @@ html body:not(#zz) .ref-box.ok .ref-t>span{color:#24423a}
 html body:not(#zz) .ref-weg{flex:none;border:0;background:none;color:#0d121b;font:700 13px var(--body);text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:8px 4px;letter-spacing:0;text-transform:none}
 @media (max-width:420px){.ref-f{flex-direction:column}html body:not(#zz) .ref-f .ref-in{flex:none;width:100%}html body:not(#zz) .ref-go{width:100%}}
 </style>
-</head>
+<style>html body:not(.cfg):not(.fo-klaar)>*{visibility:hidden}</style></head>
 <body>
 <main class="page">
   <header class="intro2">
@@ -1319,14 +1319,13 @@ html body:not(#zz) .ref-weg{flex:none;border:0;background:none;color:#0d121b;fon
   </aside>
 </div>
 
-<script src="https://app.mansard.nl/api/aanvraag?conf=1"></script>
 <script>
 /* ===== Instellingen: pas hier uw gegevens en tarieven aan (prijzen excl. btw, gelijk aan Zeem) ===== */
 /*CFG-START*/
 const __W=(window.__WSCONF&&window.__WSCONF.B)?window.__WSCONF:{};
-const BEDRIJF=__W.B||{"naam":"mijnschoonmaker.com","email":"robin@mijnschoonmaker.com","whatsapp":"31618060606","logo":"https://app.mansard.nl/_blob/c7347df47a651a9cf0934d8f7c429a10","endpoint":"https://app.mansard.nl/api/aanvraag","werkgebied":"","gebieden":[{"s":"beide","p":[[53.14195,6.54123],[53.11596,6.58148],[53.12718,6.62592],[53.12386,6.63469],[53.12947,6.65186],[53.1479,6.63393],[53.1526,6.61409]]},{"s":"beide","p":[[53.14226,6.40419],[53.14083,6.39103],[53.12898,6.39227],[53.12138,6.40456],[53.12607,6.41439]]},{"s":"beide","p":[[53.13301,6.08683],[53.12408,6.07653],[53.08949,6.08587],[53.09694,6.11029],[53.12088,6.10762],[53.13313,6.09064]]}],"klantPc":"2280,9202,9204,9231,9249,9301,9304,9343,9351,9354,9355,9356,9361,9362,9363,9364,9365,9366,9367,9479,9728,9751,9752,9765,9766,9801,9821,9822,9824,9825,9843,9844,9861,9862,9863,9864,9865,9866","voorwaarden":"","voorwaardenPdf":"https://app.mansard.nl/_blob/e0d37c65c35d96bb3ead48247c38f41f","privacyPdf":"https://app.mansard.nl/_blob/4b35291e4b25069fad99f1280f176656","herroepingPdf":"https://app.mansard.nl/_blob/2bcaff147beb0c251302ae38b722c645"};
+const BEDRIJF=__W.B||{"naam":"mijnschoonmaker.com","email":"robin@mijnschoonmaker.com","whatsapp":"31618060606","logo":"https://app.mansard.nl/_blob/c7347df47a651a9cf0934d8f7c429a10","endpoint":"https://app.mansard.nl/api/aanvraag","werkgebied":"","gebieden":[{"s":"beide","p":[[53.14195,6.54123],[53.11596,6.58148],[53.12718,6.62592],[53.12386,6.63469],[53.12947,6.65186],[53.1479,6.63393],[53.1526,6.61409]]},{"s":"beide","p":[[53.14226,6.40419],[53.14083,6.39103],[53.12898,6.39227],[53.12138,6.40456],[53.12607,6.41439]]},{"s":"beide","p":[[53.13301,6.08683],[53.12408,6.07653],[53.08949,6.08587],[53.09694,6.11029],[53.12088,6.10762],[53.13313,6.09064]]}],"klantPc":"2280,9202,9204,9231,9249,9301,9343,9351,9354,9355,9356,9361,9362,9363,9364,9365,9366,9367,9479,9728,9751,9752,9765,9766,9801,9821,9822,9824,9825,9843,9844,9861,9862,9863,9864,9865,9866","voorwaarden":"","voorwaardenPdf":"https://app.mansard.nl/_blob/e0d37c65c35d96bb3ead48247c38f41f","privacyPdf":"https://app.mansard.nl/_blob/4b35291e4b25069fad99f1280f176656","herroepingPdf":"https://app.mansard.nl/_blob/2bcaff147beb0c251302ae38b722c645"};
 const VAT=__W.VAT||0.21;
-const cfg=__W.cfg||{"g0_p":1.67,"g1_p":1.7,"g2_p":1.97,"g3_p":3,"tuimel_p":1.7,"lood_p":1.64,"koepel_p":2.46,"mini_p":0.43,"start":0,"min":56.86,"tiers":[[10,10],[20,20],[30,30],[40,40],[50,50],[100,60]],"tb":{"g2":[],"g3":[[10,10],[20,20]],"g0":[[10,10],[20,20],[30,30],[40,40],[50,50],[100,60]],"lood":[[10,10],[20,20],[30,30],[40,40]],"g1":[[10,10],[20,20]],"tuimel":[],"mini":[[10,10],[20,20],[30,30],[115,40]],"koepel":[[5,10]]},"wg":{"tuimel":100,"koepel":100,"g0":100,"g1":100,"mini":100,"lood":100,"g2":100,"g3":100},"fp":{"w1":0,"w2":0,"w4":10,"mnd":0,"w6":0,"m8":5,"mnd2":0,"w12":0,"mnd3":0,"w16":-10,"mnd4":0,"w24":0,"mnd6":0,"w48":0,"mnd12":0,"afroep":-25,"once":-25},"minAlles":true,"fpB":{"4":10,"8":5,"16":-15}};
+const cfg=__W.cfg||{"g0_p":1.67,"g1_p":1.7,"g2_p":2,"g3_p":3,"tuimel_p":1.7,"lood_p":1.64,"koepel_p":2.46,"mini_p":0.43,"start":0,"min":56.86,"tiers":[[10,10],[20,20],[30,30],[40,40],[50,50],[100,60]],"tb":{"g0":[[10,10],[20,20],[30,30],[40,40],[50,50],[100,60]],"g3":[[10,10],[20,20]],"koepel":[[5,10]],"g2":[],"lood":[[10,10],[20,20],[30,30],[40,40]],"g1":[[10,10],[20,20]],"tuimel":[],"mini":[[10,10],[20,20],[30,30],[115,40]]},"wg":{"lood":100,"g0":100,"g3":100,"tuimel":100,"mini":100,"koepel":100,"g2":100,"g1":100},"fp":{"w1":0,"w2":0,"w4":10,"mnd":0,"w6":0,"m8":5,"mnd2":0,"w12":0,"mnd3":0,"w16":-10,"mnd4":0,"w24":0,"mnd6":0,"w48":0,"mnd12":0,"afroep":-25,"once":-25},"minAlles":true,"fpB":{"4":10,"8":5,"16":-15}};
 const FREQ_LIST=__W.FREQ_LIST||[["m8","1x per 8 weken",6.5,5,8]];
 const FREQ_ADV=__W.FREQ_ADV||"m8";
 /*CFG-END*/
@@ -3093,5 +3092,5 @@ html body.cfg:not(#a):not(#b):not(#c):not(#d):not(#e):not(#f):not(#g) .cfg-actie
   document.addEventListener("change",e=>{if(e.target&&e.target.id==="ph-in")setTimeout(bij,600)},true);
 })();
 </script>
-</body>
+<script>window.__wsLive=function(c){try{var B=BEDRIJF,n=(c&&c.B)||{};["voorwaardenPdf","privacyPdf","herroepingPdf","voorwaarden","logo","whatsapp","email"].forEach(function(k){var o=B[k];if(n[k]!==undefined&&n[k]!==o){if(o)document.querySelectorAll('a[href="'+o+'"]').forEach(function(a){a.href=n[k]});B[k]=n[k]}});if(c.google)window.FO_GOOGLE=c.google}catch(e){}};document.body.classList.add("fo-klaar");</script><script async src="https://app.mansard.nl/api/aanvraag?conf=1"></script></body>
 </html>
