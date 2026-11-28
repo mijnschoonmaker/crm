@@ -5445,3 +5445,6 @@ html body:not(#zz):not(#zy):not(#zx) .cmp-zij .rcp-list{max-height:320px;overflo
 /* Klanten: benut de breedte van grote schermen */
 html body:not(#zz):not(#zy):not(#zx) main.ruim:not(.wide){max-width:1320px}
 @media (max-width:560px){ html body:not(#zz):not(#zy):not(#zx) .cmp-tpl{flex-wrap:nowrap!important;overflow-x:auto!important;scrollbar-width:none} html body:not(#zz):not(#zy):not(#zx) .cmp-tpl::-webkit-scrollbar{display:none} html body:not(#zz):not(#zy):not(#zx) .cmp-tpl .chip{flex:none} }
+
+html body:not(#zz):not(#zy):not(#zx) #view .ksel-b.groen{background:#252c3c;color:#fff}html body:not(#zz):not(#zy):not(#zx) #view .ksel-b.groen:hover{background:#3a4560}
+@media (max-width:640px){ html body:not(#zz):not(#zy):not(#zx) #view .ksel-a:has(.groen){grid-template-columns:repeat(3,1fr)} }

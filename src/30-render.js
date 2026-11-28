@@ -125,6 +125,7 @@ document.addEventListener("click",e=>{
     case"selall":klantFilter().forEach(k=>state.sel.add(k.id));render();break;
     case"selmsg":openGroepKeuze(state.klanten.filter(k=>state.sel.has(k.id)));break;
     case"selplan":{const l=state.klanten.filter(k=>state.sel.has(k.id));runSeq(l,k=>save("klanten",k.id,{...strip(k),gepland:iso(today()),tijd:""}),plural(l.length,"klant","klanten")+" vandaag ingepland");break}
+    case"selactief":{const l=state.klanten.filter(k=>state.sel.has(k.id)&&k.actief===false);runSeq(l,k=>save("klanten",k.id,{...strip(k),actief:true}),plural(l.length,"klant","klanten")+" weer actief").then(()=>{state.sel=new Set();render()});break}
     case"selpause":{const l=state.klanten.filter(k=>state.sel.has(k.id));runSeq(l,k=>save("klanten",k.id,{...strip(k),actief:false}),plural(l.length,"klant","klanten")+" op inactief gezet");break}
     case"seldel":{if(t.dataset.armed!=="1"){t.dataset.armed="1";t.textContent="Zeker weten? Tik nogmaals";break}const l=state.klanten.filter(k=>state.sel.has(k.id));runSeq(l,k=>del("klanten",k.id),plural(l.length,"klant","klanten")+" verwijderd");state.sel=new Set();break}
     case"postcodes":openPostcodes();break;
