@@ -11,19 +11,22 @@ function vKlanten(){
   const cnt=f=>all.filter(k=>f==="alle"?true:f==="inactief"?k.actief===false:k.actief!==false&&(k.soort||"particulier")===f).length;
   let html=`${aanmeldBanner()}<div class="pagehead"><div><p class="kicker">Klantenbestand</p><h1 class="xl">${plural(all.length,"klant","klanten")}</h1><p class="lead" style="margin:0"><b>${act}</b> actief${rondes().length?" · "+plural(rondes().length,"ronde","rondes"):""}</p></div></div>
   ${all.length?kRitmeKaart():""}
-  <div class="toolbar kl-acties">
-    <button type="button" class="${selm?"on":""}" data-act="selmode">${I.checksq}${selm?"Klaar met selecteren":"Selecteer"}</button>
-    <button type="button" data-act="postcodes">${I.pin}Postcodes</button>
-    ${LIVE?"":`<button type="button" data-act="welkom">${I.mail}Welkomstberichten</button>`}
-    <div class="drop"><button type="button" data-act="kmenu">${I.more}Meer</button>${state.kmenu?`<div class="menu"><button type="button" data-act="webaanvraag">${I.globe}Aanvraag van de website</button><button type="button" data-act="import">${I.upload}Importeren uit Excel/CSV</button>${state.dl&&all.length?`<button type="button" data-act="export">${I.dl}Exporteren als CSV</button>`:""}</div>`:""}</div>
-    <button type="button" class="primary" data-act="klant">${I.plus}Nieuwe klant</button></div>
-  <div class="kl-bar"><div class="toolbar"><div class="search">${I.search}<input id="q" type="search" placeholder="Zoek op naam, adres, e-mail…" value="${esc(state.q)}"></div></div>
-  <div class="chips kl-chips" role="group" aria-label="Filter klanten">${[["alle","Alle"],["particulier","Particulier"],["zakelijk","Zakelijk"],["vve","VvE"],["inactief","Inactief"]].map(([v,l])=>`<button type="button" class="chip" data-act="kf" data-v="${v}" aria-pressed="${state.kf===v}">${l}<span class="n">${cnt(v)}</span></button>`).join("")}
-    ${rondes().length?`<select id="kronde" style="width:auto;border-radius:99px;padding:6px 12px"><option value="">Alle rondes</option>${rondes().map(r=>`<option ${r===state.ronde?"selected":""}>${esc(r)}</option>`).join("")}</select>`:""}</div></div>`;
+  <div class="kl-bar">
+    <div class="kl-r1"><div class="search">${I.search}<input id="q" type="search" placeholder="Zoek op naam, adres, postcode, telefoon…" value="${esc(state.q)}" aria-label="Zoek klanten"></div>
+      <button type="button" class="primary kl-nieuw" data-act="klant">${I.plus}<span>Nieuwe klant</span></button></div>
+    <div class="kl-r2"><div class="chips kl-chips" role="group" aria-label="Filter klanten">${[["alle","Alle"],["particulier","Particulier"],["zakelijk","Zakelijk"],["vve","VvE"],["inactief","Inactief"]].map(([v,l])=>`<button type="button" class="chip" data-act="kf" data-v="${v}" aria-pressed="${state.kf===v}">${l}<span class="n">${cnt(v)}</span></button>`).join("")}
+      ${rondes().length?`<select id="kronde" style="width:auto;border-radius:99px;padding:6px 12px"><option value="">Alle rondes</option>${rondes().map(r=>`<option ${r===state.ronde?"selected":""}>${esc(r)}</option>`).join("")}</select>`:""}</div>
+      <div class="kl-tools">
+        <button type="button" class="kl-t${selm?" on":""}" data-act="selmode" title="Meerdere klanten tegelijk een bericht sturen, inplannen of inactief maken">${I.checksq}<span>${selm?"Klaar":"Selecteer"}</span></button>
+        <button type="button" class="kl-t" data-act="postcodes" title="Klanten per postcode">${I.pin}<span>Postcodes</span></button>
+        ${LIVE?"":`<button type="button" class="kl-t" data-act="welkom">${I.mail}<span>Welkom</span></button>`}
+        <div class="drop kl-drop"><button type="button" class="kl-t" data-act="kmenu" aria-label="Meer opties" title="Importeren, exporteren en aanvragen">${I.more}<span>Meer</span></button>${state.kmenu?`<div class="menu"><button type="button" data-act="webaanvraag">${I.globe}Aanvraag van de website</button><button type="button" data-act="import">${I.upload}Importeren uit Excel/CSV</button>${state.dl&&all.length?`<button type="button" data-act="export">${I.dl}Exporteren als CSV</button>`:""}</div>`:""}</div>
+      </div></div></div>`;
   if(selm)html+=`<div class="banner"><div><b>${plural(state.sel.size,"klant","klanten")} geselecteerd</b> <button type="button" class="small ghost" data-act="selall">Selecteer alle ${ks.length}</button></div>
     <button type="button" class="small" data-act="selmsg" ${state.sel.size?"":"disabled"}>${I.msg}Bericht</button><button type="button" class="small" data-act="selplan" ${state.sel.size?"":"disabled"}>${I.planning}Plan vandaag</button><button type="button" class="small" data-act="selpause" ${state.sel.size?"":"disabled"}>Inactief maken</button><button type="button" class="small danger" data-act="seldel" ${state.sel.size?"":"disabled"}>${I.trash}Verwijderen</button></div>`;
   if(!all.length)return html+empty("Nog geen klanten","Voeg je eerste klant toe, of importeer je bestaande lijst uit Excel.",`<div style="display:flex;gap:8px"><button type="button" class="primary" data-act="klant">${I.plus}Nieuwe klant</button><button type="button" data-act="import">${I.upload}Importeren</button></div>`);
-  html+=`<div class="countline"><span class="eyebrow">${plural(ks.length,"resultaat","resultaten")}</span><label style="flex-direction:row;align-items:center;gap:8px">Per pagina<select id="kpp">${[25,50,100].map(n=>`<option ${n===pp?"selected":""}>${n}</option>`).join("")}</select></label></div>`;
+  const krzL=(z=>!z?"":String(z).startsWith("f:")?kFreqLab(String(z).slice(2)):({laat:"Te laat",week:"Deze week nog in te plannen",gepland:"Gepland",nieuw:"Nieuw"})[z]||"")(state.krz);
+  html+=`<div class="countline"><span class="kl-cl"><span class="eyebrow">${plural(ks.length,"resultaat","resultaten")}</span>${krzL?`<button type="button" class="kl-fpil" data-act="krz" data-v="${esc(state.krz)}" title="Filter wissen">${esc(krzL)}<i aria-hidden="true">×</i></button>`:""}${state.q?`<button type="button" class="kl-fpil" data-act="kqwis" title="Zoekterm wissen">“${esc(state.q)}”<i aria-hidden="true">×</i></button>`:""}</span><label style="flex-direction:row;align-items:center;gap:8px">Per pagina<select id="kpp">${[25,50,100].map(n=>`<option ${n===pp?"selected":""}>${n}</option>`).join("")}</select></label></div>`;
   if(!ks.length)return html+empty("Geen klanten gevonden","Probeer een andere zoekterm of filter.");
   html+=`<div class="list klx">${shown.map(k0=>{const k=klLijstView(k0),s=status(k),sel=selm&&state.sel.has(k.id),C=2*Math.PI*27,_t=today(),_due=s.v,_st=parse(k.laatst)||(_due?addDays(_due,-freqDays(k)):_t),_span=Math.max(1,(_due-_st)/DAY),pct=k.actief===false||(!k.laatst&&!k.gepland)?0:Math.round(Math.max(0,Math.min(1,(_t-_st)/DAY/_span))*100),
       _nw=s.diff===-999,_gp=k.actief!==false&&!k.prospect&&!!parse(k.gepland),rc=k.actief===false?"neutral":k.prospect?"soon":k.opdrachtVerwijderd&&!_gp?"neutral":_nw?"nieuw":_gp?"plan":s.diff<0?"late":s.diff<7?"crit":s.diff<=10?"warn":s.diff<=14?"attn":"ok",_ang=pct/100*2*Math.PI-Math.PI/2,_kx=(30+27*Math.cos(_ang)).toFixed(1),_ky=(30+27*Math.sin(_ang)).toFixed(1);
@@ -145,6 +148,7 @@ function kRitmeStaaf(ak,rz){const B=K_BAKKEN.map((b,i)=>({i,l:b[0],c:b[3],n:0,g:
     <p class="kr-leg"><i class="g"></i>al gepland<i class="o"></i>nog in te plannen</p>`}
 /* actieve klanten per frequentie (1x per 4 weken, 1x per 8 weken, ...) */
 const kFreqKey=k=>typeof vasteDagen==="function"&&vasteDagen(k)?"vast":String(Number(k.frequentie)||4);
+function kFreqLab(key){return key==="vast"?"Vaste weekdagen":(w=>w===52?"1x per jaar":w===26?"1x per half jaar":w===13?"1x per kwartaal":w===1?"1x per week":"1x per "+w+" weken")(Number(key))}
 function kFreqLijst(ak,rz){const m={};for(const k of ak){if(kRitme(k).z==="uit"||!heeftGlas(k))continue;const key=kFreqKey(k);m[key]=(m[key]||0)+1}
   const L=Object.entries(m).sort((a,b)=>(a[0]==="vast"?0:Number(a[0]))-(b[0]==="vast"?0:Number(b[0]))),max=Math.max(1,...L.map(x=>x[1])),tot=L.reduce((a,x)=>a+x[1],0);
   const lab=key=>(key==="vast"?"Vaste weekdagen":(w=>w===52?"1x per jaar":w===26?"1x per half jaar":w===13?"1x per kwartaal":w===1?"1x per week":"1x per "+w+" weken")(Number(key)));

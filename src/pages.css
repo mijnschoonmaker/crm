@@ -5364,4 +5364,30 @@ html body:not(#zz) .msg-trk span.trk-klik svg{display:inline-block;vertical-alig
 @media (max-width:600px){.kr-fr{grid-template-columns:minmax(0,1.4fr) 1fr 34px;gap:10px;padding:8px 4px}.kr-fr small{display:none}.kr-fl{font-size:13px}}
 @media (max-width:600px){.kr-fl{white-space:normal;line-height:1.25}}
 .kr-fqk em{font-style:normal;color:rgb(255 255 255/.45)}
-.toolbar.kl-acties{margin:0 0 14px}
+
+/* Klanten: zoek- en filterpaneel */
+html body:not(#zz):not(#zy):not(#zx) #view .kl-bar{gap:10px!important;padding:10px!important;border-radius:18px!important}
+html body:not(#zz):not(#zy):not(#zx) #view .kl-r1{display:flex;gap:10px;align-items:stretch}
+html body:not(#zz):not(#zy):not(#zx) #view .kl-r1 .search{flex:1;min-width:0;margin:0!important}
+html body:not(#zz):not(#zy):not(#zx) #view .kl-r1 .search input{height:48px!important;font-size:15px!important}
+html body:not(#zz):not(#zy):not(#zx) #view .kl-r1 .kl-nieuw{min-height:48px!important;height:48px!important;padding:0 20px!important;border-radius:14px!important;flex:none}
+html body:not(#zz):not(#zy):not(#zx) #view .kl-r2{display:flex;align-items:center;justify-content:space-between;gap:8px 10px;flex-wrap:wrap}
+html body:not(#zz):not(#zy):not(#zx) #view .kl-r2>.chips{margin:0!important;min-width:0;flex:0 1 auto;overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap!important}html body:not(#zz):not(#zy):not(#zx) #view .kl-r2>.chips::-webkit-scrollbar{display:none}
+html body:not(#zz):not(#zy):not(#zx) #view .kl-tools{display:flex;align-items:center;gap:2px;margin-left:auto;flex:none}
+html body:not(#zz):not(#zy):not(#zx) #view .kl-tools .drop{position:relative}
+html body:not(#zz):not(#zy):not(#zx) #view .kl-t,html body:not(#zz):not(#zy):not(#zx) #view .kl-tools .drop>button.kl-t:first-child{display:inline-flex!important;align-items:center;gap:7px!important;min-height:38px!important;height:38px;padding:0 12px!important;border:0!important;border-radius:10px!important;background:transparent!important;color:#5b616c!important;font-size:12.5px!important;font-weight:500!important;letter-spacing:0!important;text-transform:none!important;box-shadow:none!important;cursor:pointer;transition:background .15s,color .15s}
+html body:not(#zz):not(#zy):not(#zx) #view .kl-t svg{width:16px;height:16px;flex:none}
+html body:not(#zz):not(#zy):not(#zx) #view .kl-t:hover,html body:not(#zz):not(#zy):not(#zx) #view .kl-tools .drop>button.kl-t:first-child:hover{background:#f1f2f4!important;color:#0d121b!important}
+html body:not(#zz):not(#zy):not(#zx) #view .kl-t.on{background:#252c3c!important;color:#fff!important}
+html body:not(#zz):not(#zy):not(#zx) #view .kl-t:focus-visible{outline:2px solid #252c3c;outline-offset:1px}
+html body:not(#zz):not(#zy):not(#zx) #view .kl-tools .menu{right:0;left:auto;min-width:260px}html body:not(#zz):not(#zy):not(#zx) #view .kl-tools .menu button{justify-content:flex-start!important;text-align:left!important;white-space:nowrap!important}
+html body:not(#zz):not(#zy):not(#zx) #view .countline .kl-cl{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+html body:not(#zz):not(#zy):not(#zx) #view .kl-fpil{display:inline-flex!important;align-items:center;gap:6px!important;min-height:28px!important;height:28px;padding:0 6px 0 12px!important;border-radius:99px!important;border:1px solid #d9dce1!important;background:#fff!important;color:#0d121b!important;font-size:12px!important;font-weight:500!important;letter-spacing:0!important;text-transform:none!important;box-shadow:none!important;cursor:pointer}
+html body:not(#zz):not(#zy):not(#zx) #view .kl-fpil i{display:grid;place-items:center;width:18px;height:18px;border-radius:99px;background:#eef0f2;font-style:normal;font-size:13px;line-height:1;color:#5b616c}
+html body:not(#zz):not(#zy):not(#zx) #view .kl-fpil:hover{border-color:#252c3c!important}html body:not(#zz):not(#zy):not(#zx) #view .kl-fpil:hover i{background:#252c3c;color:#fff}
+@media (max-width:640px){
+ html body:not(#zz):not(#zy):not(#zx) #view .kl-nieuw span{display:none}html body:not(#zz):not(#zy):not(#zx) #view .kl-r1 .kl-nieuw{width:48px;padding:0!important;justify-content:center}
+ html body:not(#zz):not(#zy):not(#zx) #view .kl-r2{flex-direction:column;align-items:stretch}
+ html body:not(#zz):not(#zy):not(#zx) #view .kl-tools{margin-left:0;justify-content:space-between;border-top:1px solid #eef0f2;padding-top:6px}
+ html body:not(#zz):not(#zy):not(#zx) #view .kl-t{flex:1;justify-content:center;padding:0 6px!important;gap:6px!important;font-size:12px!important}
+}
