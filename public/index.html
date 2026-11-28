@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="fb29b40e1901"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="503285c4d9dc"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -6150,6 +6150,26 @@ html body:not(#zz):not(#zy):not(#zx) #view .ksel-b[disabled]{opacity:.4;cursor:d
  html body:not(#zz):not(#zy):not(#zx) .gkx-lijst{grid-template-columns:1fr}
 }
 
+/* Berichtvenster: groter, met voorbeeld ernaast */
+html body:not(#zz):not(#zy):not(#zx) dialog.xwide.cmp-dlg{width:min(1240px,calc(100vw - 48px))!important;max-width:calc(100vw - 48px)!important;max-height:calc(100dvh - 48px)!important}
+html body:not(#zz):not(#zy):not(#zx) .cmp-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:22px;align-items:start}
+html body:not(#zz):not(#zy):not(#zx) .cmp-ed{display:flex;flex-direction:column;gap:14px;min-width:0}
+html body:not(#zz):not(#zy):not(#zx) .cmp-ed textarea{font-size:14px!important;line-height:1.55!important}
+html body:not(#zz):not(#zy):not(#zx) .cmp-ed .cmp-mail{min-height:300px}
+html body:not(#zz):not(#zy):not(#zx) .cmp-tpl{flex-wrap:wrap!important;overflow:visible!important}
+html body:not(#zz):not(#zy):not(#zx) .cmp-zij{display:flex;flex-direction:column;gap:10px;min-width:0;position:sticky;top:0}
+html body:not(#zz):not(#zy):not(#zx) .cmp-vbk{margin:0;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#7a7e84;display:flex;justify-content:space-between;gap:10px}
+html body:not(#zz):not(#zy):not(#zx) .cmp-vbk span{letter-spacing:0;text-transform:none;font-weight:500;color:#5b616c;font-size:12px}
+html body:not(#zz):not(#zy):not(#zx) .cmp-vbf{border:1px solid #e6e8eb;border-radius:14px;overflow:auto;max-height:440px;background:#f3f5f6}
+html body:not(#zz):not(#zy):not(#zx) .cmp-vbf .mailframe{display:block;width:100%;min-height:360px;border:0;background:#f3f5f6}
+html body:not(#zz):not(#zy):not(#zx) .cmp-zij .rcp-list{max-height:320px;overflow:auto}
+@media (max-width:960px){ html body:not(#zz):not(#zy):not(#zx) .cmp-grid{grid-template-columns:1fr} html body:not(#zz):not(#zy):not(#zx) .cmp-zij{position:static} html body:not(#zz):not(#zy):not(#zx) .cmp-ed .cmp-mail{min-height:200px} }
+@media (max-width:560px){ html body:not(#zz):not(#zy):not(#zx) dialog.xwide.cmp-dlg{width:100vw!important;max-width:100vw!important;max-height:92dvh!important} html body:not(#zz):not(#zy):not(#zx) .cmp-vbf{max-height:340px} }
+
+/* Klanten: benut de breedte van grote schermen */
+html body:not(#zz):not(#zy):not(#zx) main.ruim:not(.wide){max-width:1320px}
+@media (max-width:560px){ html body:not(#zz):not(#zy):not(#zx) .cmp-tpl{flex-wrap:nowrap!important;overflow-x:auto!important;scrollbar-width:none} html body:not(#zz):not(#zy):not(#zx) .cmp-tpl::-webkit-scrollbar{display:none} html body:not(#zz):not(#zy):not(#zx) .cmp-tpl .chip{flex:none} }
+
 </style>
 <style id="mansardThema">
 @import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;500;600;700&display=swap");
@@ -11160,23 +11180,29 @@ function openCompose({title,recipients,sjabloon="vrij",hint="",tekst,mail,onderw
 function drawCompose(){
   const c=compose,T=tpls();
   openDlg(`<div class="dlg-head"><span class="objic big">${I.send}</span><div style="min-width:0;flex:1"><h3>${esc(c.title)}</h3><div class="subt">${plural(c.recipients.length,"ontvanger","ontvangers")}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
-  <div class="chips" style="margin:0">${Object.keys(T).filter(k=>(c.groep?GROEP_TPL.includes(k):T[k].actief!==false)||k===c.sjabloon).map(k=>`<button type="button" class="chip" data-tplpick="${esc(k)}" aria-pressed="${c.sjabloon===k}">${esc(T[k].naam)}</button>`).join("")}</div>
-  <label>${c.mail?"WhatsApp- en sms-tekst":"Bericht"} — woorden tussen {accolades} worden per klant ingevuld<textarea id="cmpTxt" style="min-height:${c.mail?80:110}px">${esc(c.tekst)}</textarea></label>
+  <div class="cmp-grid"><div class="cmp-ed">
+  <div class="chips cmp-tpl" style="margin:0">${Object.keys(T).filter(k=>(c.groep?GROEP_TPL.includes(k):T[k].actief!==false)||k===c.sjabloon).map(k=>`<button type="button" class="chip" data-tplpick="${esc(k)}" aria-pressed="${c.sjabloon===k}">${esc(T[k].naam)}</button>`).join("")}</div>
+  <label>${c.mail?"WhatsApp- en sms-tekst":"Bericht"} — woorden tussen {accolades} worden per klant ingevuld<textarea id="cmpTxt" style="min-height:${c.mail?90:180}px">${esc(c.tekst)}</textarea></label>
   <label>E-mail onderwerp<input id="cmpSubj" value="${esc(c.onderwerp)}"></label>
-  ${c.mail?`<label>E-mail bericht<textarea id="cmpMail" style="min-height:140px">${esc(c.mail)}</textarea></label>`:""}
+  ${c.mail?`<label>E-mail bericht<textarea id="cmpMail" class="cmp-mail">${esc(c.mail)}</textarea></label>`:""}
   ${c.hint?`<div class="notice" style="margin:0">${c.hint}</div>`:""}
   <p class="subt" style="margin:0">${liveMail()?"<b>Versturen</b> stuurt de mail in je huisstijl direct naar de klant, met PDF als die er is. WhatsApp en sms openen met het bericht al ingevuld. Alles komt in de berichtenlog, met de status van elke mail.":"Een knop opent WhatsApp, je sms-app of je mailprogramma met het bericht al ingevuld. <b>Opgemaakt</b> kopieert de mail in je huisstijl en opent een lege mail, waarin je hem plakt. Op versturen druk je zelf. Alles komt in de berichtenlog."}</p>
-  <div class="rcp-list" id="cmpList"></div>
-  <div class="row">${liveMail()&&c.recipients.filter(r=>r.k.email).length>1?`<button type="button" class="small primary" id="cmpAll">${I.send}Mail naar alle ${c.recipients.filter(r=>r.k.email).length}</button>`:""}${c.recipients.length>1?`<button type="button" class="small" id="cmpNums">${I.copy}Kopieer alle nummers</button><button type="button" class="small" id="cmpMails">${I.copy}Kopieer alle e-mailadressen</button>`:""}<span class="sp"></span><button type="button" data-act="close">Klaar</button></div>`,{wide:true});
-  drawCmpList();
+  </div><div class="cmp-zij">${c.mail&&c.recipients.length?`<div class="cmp-vb"><p class="cmp-vbk">Voorbeeld van de mail<span id="cmpVbN">${esc(cleanName(c.recipients[0].k.naam||""))}</span></p><div class="cmp-vbf" id="cmpVb"></div></div>`:""}
+  <p class="cmp-vbk">${plural(c.recipients.length,"ontvanger","ontvangers")}</p><div class="rcp-list" id="cmpList"></div></div></div>
+  <div class="row">${liveMail()&&c.recipients.filter(r=>r.k.email).length>1?`<button type="button" class="small primary" id="cmpAll">${I.send}Mail naar alle ${c.recipients.filter(r=>r.k.email).length}</button>`:""}${c.recipients.length>1?`<button type="button" class="small" id="cmpNums">${I.copy}Kopieer alle nummers</button><button type="button" class="small" id="cmpMails">${I.copy}Kopieer alle e-mailadressen</button>`:""}<span class="sp"></span><button type="button" data-act="close">Klaar</button></div>`,{xwide:true});dlg.classList.add("cmp-dlg");
+  drawCmpList();cmpVoorbeeld();
   $("#cmpTxt").oninput=e=>{c.tekst=e.target.value;drawCmpList()};
   $("#cmpSubj").oninput=e=>{c.onderwerp=e.target.value;drawCmpList()};
-  const cm=$("#cmpMail");if(cm)cm.oninput=e=>{c.mail=e.target.value;drawCmpList()};
+  const cm=$("#cmpMail");if(cm)cm.oninput=e=>{c.mail=e.target.value;drawCmpList();clearTimeout(cmpVbT);cmpVbT=setTimeout(cmpVoorbeeld,350)};
   form.querySelectorAll("[data-tplpick]").forEach(b=>b.onclick=()=>{c.sjabloon=b.dataset.tplpick;c.tekst=T[c.sjabloon].sms;c.mail=T[c.sjabloon].mail;c.onderwerp=T[c.sjabloon].onderwerp;drawCompose()});
   const ca=$("#cmpAll");if(ca)ca.onclick=verstuurAlles;
   const nb=$("#cmpNums");if(nb)nb.onclick=e=>copy(c.recipients.map(r=>r.k.telefoon).filter(Boolean).join(", "),e.currentTarget);
   const mb=$("#cmpMails");if(mb)mb.onclick=e=>copy(c.recipients.map(r=>r.k.email).filter(Boolean).join(", "),e.currentTarget);
 }
+let cmpVbT=0;
+/* voorbeeld van de opgemaakte mail voor de eerste ontvanger (zoals de klant hem ziet) */
+function cmpVoorbeeld(){const c=compose,el=document.getElementById("cmpVb");if(!c||!el||!c.recipients.length)return;
+  try{const r=c.recipients[0],st=r.stap;el.innerHTML=mailFrame(mailFor(c.sjabloon,r.vars,st?st.mail:(c.mail||c.tekst),{stap:st,preview:true}))}catch(e){el.innerHTML='<p class="subt" style="padding:14px">Voorbeeld niet beschikbaar</p>'}}
 function drawCmpList(){
   const c=compose;if(!c||c.stil||!document.getElementById("cmpList"))return;
   $("#cmpList").innerHTML=c.recipients.map((r,i)=>{const s=c.sent[i],st=r.stap;
@@ -24082,7 +24108,7 @@ function render(){tikWis();try{const st=String(new Error().stack||"").split("\n"
     const h=new Date().getHours(),fn=state.me&&state.me.name?state.me.name.trim().split(/\s+/)[0]:"",gr=(h<6?"Goedenacht":h<12?"Goedemorgen":h<18?"Goedemiddag":"Goedenavond")+(fn?", "+fn:""),key=lg+"|"+gr;
     if(key!==state._lgShown){state._lgShown=key;document.querySelectorAll(".logo").forEach(el=>{const src="/mansard-logo.png";el.classList.toggle("haslogo",!!src);if(src)el.innerHTML=`<img class="lgimg" src="${esc(src)}" alt="Mansard"><span class="wm lgtxt">${esc(gr)}</span>`})}}
   $("#userCard").innerHTML=`<span class="uav">${esc(initials(nm))}</span><div style="min-width:0"><b>${esc(nm)}</b><small>${esc(S().naam&&state.me&&state.me.name?S().naam:"Mansard · CRM")}</small></div>`;
-  const main=$("main");main.classList.toggle("wide",big()&&(state.tab==="control"||state.tab==="vandaag"||state.tab==="planning"||state.tab==="uitvoering"));
+  const main=$("main");main.classList.toggle("wide",big()&&(state.tab==="control"||state.tab==="vandaag"||state.tab==="planning"||state.tab==="uitvoering"));main.classList.toggle("ruim",state.tab==="klanten");
   if(!state.loaded&&state.db){$("#view").innerHTML=`<div class="ms-laden" role="status" aria-label="Gegevens laden"><i></i></div>`;return}
   if(state.loaded&&!state._perRun){state._perRun=1;setTimeout(()=>runPeriodiek(true),2500)}
   const ae=document.activeElement,fid=ae&&ae.id&&$("#view").contains(ae)?ae.id:null,pos=fid&&ae.selectionStart;

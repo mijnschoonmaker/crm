@@ -5425,3 +5425,23 @@ html body:not(#zz):not(#zy):not(#zx) #view .ksel-b[disabled]{opacity:.4;cursor:d
  html body:not(#zz):not(#zy):not(#zx) #view .ksel-b svg{width:19px;height:19px}
  html body:not(#zz):not(#zy):not(#zx) .gkx-lijst{grid-template-columns:1fr}
 }
+
+/* Berichtvenster: groter, met voorbeeld ernaast */
+html body:not(#zz):not(#zy):not(#zx) dialog.xwide.cmp-dlg{width:min(1240px,calc(100vw - 48px))!important;max-width:calc(100vw - 48px)!important;max-height:calc(100dvh - 48px)!important}
+html body:not(#zz):not(#zy):not(#zx) .cmp-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:22px;align-items:start}
+html body:not(#zz):not(#zy):not(#zx) .cmp-ed{display:flex;flex-direction:column;gap:14px;min-width:0}
+html body:not(#zz):not(#zy):not(#zx) .cmp-ed textarea{font-size:14px!important;line-height:1.55!important}
+html body:not(#zz):not(#zy):not(#zx) .cmp-ed .cmp-mail{min-height:300px}
+html body:not(#zz):not(#zy):not(#zx) .cmp-tpl{flex-wrap:wrap!important;overflow:visible!important}
+html body:not(#zz):not(#zy):not(#zx) .cmp-zij{display:flex;flex-direction:column;gap:10px;min-width:0;position:sticky;top:0}
+html body:not(#zz):not(#zy):not(#zx) .cmp-vbk{margin:0;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#7a7e84;display:flex;justify-content:space-between;gap:10px}
+html body:not(#zz):not(#zy):not(#zx) .cmp-vbk span{letter-spacing:0;text-transform:none;font-weight:500;color:#5b616c;font-size:12px}
+html body:not(#zz):not(#zy):not(#zx) .cmp-vbf{border:1px solid #e6e8eb;border-radius:14px;overflow:auto;max-height:440px;background:#f3f5f6}
+html body:not(#zz):not(#zy):not(#zx) .cmp-vbf .mailframe{display:block;width:100%;min-height:360px;border:0;background:#f3f5f6}
+html body:not(#zz):not(#zy):not(#zx) .cmp-zij .rcp-list{max-height:320px;overflow:auto}
+@media (max-width:960px){ html body:not(#zz):not(#zy):not(#zx) .cmp-grid{grid-template-columns:1fr} html body:not(#zz):not(#zy):not(#zx) .cmp-zij{position:static} html body:not(#zz):not(#zy):not(#zx) .cmp-ed .cmp-mail{min-height:200px} }
+@media (max-width:560px){ html body:not(#zz):not(#zy):not(#zx) dialog.xwide.cmp-dlg{width:100vw!important;max-width:100vw!important;max-height:92dvh!important} html body:not(#zz):not(#zy):not(#zx) .cmp-vbf{max-height:340px} }
+
+/* Klanten: benut de breedte van grote schermen */
+html body:not(#zz):not(#zy):not(#zx) main.ruim:not(.wide){max-width:1320px}
+@media (max-width:560px){ html body:not(#zz):not(#zy):not(#zx) .cmp-tpl{flex-wrap:nowrap!important;overflow-x:auto!important;scrollbar-width:none} html body:not(#zz):not(#zy):not(#zx) .cmp-tpl::-webkit-scrollbar{display:none} html body:not(#zz):not(#zy):not(#zx) .cmp-tpl .chip{flex:none} }

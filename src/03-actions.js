@@ -584,23 +584,29 @@ function openCompose({title,recipients,sjabloon="vrij",hint="",tekst,mail,onderw
 function drawCompose(){
   const c=compose,T=tpls();
   openDlg(`<div class="dlg-head"><span class="objic big">${I.send}</span><div style="min-width:0;flex:1"><h3>${esc(c.title)}</h3><div class="subt">${plural(c.recipients.length,"ontvanger","ontvangers")}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
-  <div class="chips" style="margin:0">${Object.keys(T).filter(k=>(c.groep?GROEP_TPL.includes(k):T[k].actief!==false)||k===c.sjabloon).map(k=>`<button type="button" class="chip" data-tplpick="${esc(k)}" aria-pressed="${c.sjabloon===k}">${esc(T[k].naam)}</button>`).join("")}</div>
-  <label>${c.mail?"WhatsApp- en sms-tekst":"Bericht"} — woorden tussen {accolades} worden per klant ingevuld<textarea id="cmpTxt" style="min-height:${c.mail?80:110}px">${esc(c.tekst)}</textarea></label>
+  <div class="cmp-grid"><div class="cmp-ed">
+  <div class="chips cmp-tpl" style="margin:0">${Object.keys(T).filter(k=>(c.groep?GROEP_TPL.includes(k):T[k].actief!==false)||k===c.sjabloon).map(k=>`<button type="button" class="chip" data-tplpick="${esc(k)}" aria-pressed="${c.sjabloon===k}">${esc(T[k].naam)}</button>`).join("")}</div>
+  <label>${c.mail?"WhatsApp- en sms-tekst":"Bericht"} — woorden tussen {accolades} worden per klant ingevuld<textarea id="cmpTxt" style="min-height:${c.mail?90:180}px">${esc(c.tekst)}</textarea></label>
   <label>E-mail onderwerp<input id="cmpSubj" value="${esc(c.onderwerp)}"></label>
-  ${c.mail?`<label>E-mail bericht<textarea id="cmpMail" style="min-height:140px">${esc(c.mail)}</textarea></label>`:""}
+  ${c.mail?`<label>E-mail bericht<textarea id="cmpMail" class="cmp-mail">${esc(c.mail)}</textarea></label>`:""}
   ${c.hint?`<div class="notice" style="margin:0">${c.hint}</div>`:""}
   <p class="subt" style="margin:0">${liveMail()?"<b>Versturen</b> stuurt de mail in je huisstijl direct naar de klant, met PDF als die er is. WhatsApp en sms openen met het bericht al ingevuld. Alles komt in de berichtenlog, met de status van elke mail.":"Een knop opent WhatsApp, je sms-app of je mailprogramma met het bericht al ingevuld. <b>Opgemaakt</b> kopieert de mail in je huisstijl en opent een lege mail, waarin je hem plakt. Op versturen druk je zelf. Alles komt in de berichtenlog."}</p>
-  <div class="rcp-list" id="cmpList"></div>
-  <div class="row">${liveMail()&&c.recipients.filter(r=>r.k.email).length>1?`<button type="button" class="small primary" id="cmpAll">${I.send}Mail naar alle ${c.recipients.filter(r=>r.k.email).length}</button>`:""}${c.recipients.length>1?`<button type="button" class="small" id="cmpNums">${I.copy}Kopieer alle nummers</button><button type="button" class="small" id="cmpMails">${I.copy}Kopieer alle e-mailadressen</button>`:""}<span class="sp"></span><button type="button" data-act="close">Klaar</button></div>`,{wide:true});
-  drawCmpList();
+  </div><div class="cmp-zij">${c.mail&&c.recipients.length?`<div class="cmp-vb"><p class="cmp-vbk">Voorbeeld van de mail<span id="cmpVbN">${esc(cleanName(c.recipients[0].k.naam||""))}</span></p><div class="cmp-vbf" id="cmpVb"></div></div>`:""}
+  <p class="cmp-vbk">${plural(c.recipients.length,"ontvanger","ontvangers")}</p><div class="rcp-list" id="cmpList"></div></div></div>
+  <div class="row">${liveMail()&&c.recipients.filter(r=>r.k.email).length>1?`<button type="button" class="small primary" id="cmpAll">${I.send}Mail naar alle ${c.recipients.filter(r=>r.k.email).length}</button>`:""}${c.recipients.length>1?`<button type="button" class="small" id="cmpNums">${I.copy}Kopieer alle nummers</button><button type="button" class="small" id="cmpMails">${I.copy}Kopieer alle e-mailadressen</button>`:""}<span class="sp"></span><button type="button" data-act="close">Klaar</button></div>`,{xwide:true});dlg.classList.add("cmp-dlg");
+  drawCmpList();cmpVoorbeeld();
   $("#cmpTxt").oninput=e=>{c.tekst=e.target.value;drawCmpList()};
   $("#cmpSubj").oninput=e=>{c.onderwerp=e.target.value;drawCmpList()};
-  const cm=$("#cmpMail");if(cm)cm.oninput=e=>{c.mail=e.target.value;drawCmpList()};
+  const cm=$("#cmpMail");if(cm)cm.oninput=e=>{c.mail=e.target.value;drawCmpList();clearTimeout(cmpVbT);cmpVbT=setTimeout(cmpVoorbeeld,350)};
   form.querySelectorAll("[data-tplpick]").forEach(b=>b.onclick=()=>{c.sjabloon=b.dataset.tplpick;c.tekst=T[c.sjabloon].sms;c.mail=T[c.sjabloon].mail;c.onderwerp=T[c.sjabloon].onderwerp;drawCompose()});
   const ca=$("#cmpAll");if(ca)ca.onclick=verstuurAlles;
   const nb=$("#cmpNums");if(nb)nb.onclick=e=>copy(c.recipients.map(r=>r.k.telefoon).filter(Boolean).join(", "),e.currentTarget);
   const mb=$("#cmpMails");if(mb)mb.onclick=e=>copy(c.recipients.map(r=>r.k.email).filter(Boolean).join(", "),e.currentTarget);
 }
+let cmpVbT=0;
+/* voorbeeld van de opgemaakte mail voor de eerste ontvanger (zoals de klant hem ziet) */
+function cmpVoorbeeld(){const c=compose,el=document.getElementById("cmpVb");if(!c||!el||!c.recipients.length)return;
+  try{const r=c.recipients[0],st=r.stap;el.innerHTML=mailFrame(mailFor(c.sjabloon,r.vars,st?st.mail:(c.mail||c.tekst),{stap:st,preview:true}))}catch(e){el.innerHTML='<p class="subt" style="padding:14px">Voorbeeld niet beschikbaar</p>'}}
 function drawCmpList(){
   const c=compose;if(!c||c.stil||!document.getElementById("cmpList"))return;
   $("#cmpList").innerHTML=c.recipients.map((r,i)=>{const s=c.sent[i],st=r.stap;
