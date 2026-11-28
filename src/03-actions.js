@@ -585,7 +585,7 @@ function drawCompose(){
   const c=compose,T=tpls();
   openDlg(`<div class="dlg-head"><span class="objic big">${I.send}</span><div style="min-width:0;flex:1"><h3>${esc(c.title)}</h3><div class="subt">${plural(c.recipients.length,"ontvanger","ontvangers")}</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
   <div class="cmp-grid"><div class="cmp-ed">
-  <div class="chips cmp-tpl" style="margin:0">${Object.keys(T).filter(k=>(c.groep?GROEP_TPL.includes(k):T[k].actief!==false)||k===c.sjabloon).map(k=>`<button type="button" class="chip" data-tplpick="${esc(k)}" aria-pressed="${c.sjabloon===k}">${esc(T[k].naam)}</button>`).join("")}</div>
+  <div class="cmp-tpl2" role="radiogroup" aria-label="Kies een bericht">${(()=>{const ic=gkIc();return Object.keys(T).filter(k=>(c.groep?GROEP_TPL.includes(k):T[k].actief!==false)||k===c.sjabloon).map(k=>`<button type="button" class="cmp-tk${c.sjabloon===k?" on":""}" role="radio" aria-checked="${c.sjabloon===k}" data-tplpick="${esc(k)}" style="--g:${GROEP_KL[k]||"#6b7a80"}" title="${esc(T[k].doel||"")}"><span class="cmp-ti">${ic[k]||I.mail}</span><span class="cmp-tn">${esc(T[k].naam)}</span></button>`).join("")})()}</div>
   ${!c.mail||!liveMail()||c.recipients.some(r=>!r.k.email)?`<label>${c.mail?"WhatsApp- en sms-tekst":"Bericht"} — woorden tussen {accolades} worden per klant ingevuld<textarea id="cmpTxt" style="min-height:${c.mail?90:180}px">${esc(c.tekst)}</textarea></label>`:""}
   <label>E-mail onderwerp<input id="cmpSubj" value="${esc(c.onderwerp)}"></label>
   ${c.mail?`<label>E-mail bericht<textarea id="cmpMail" class="cmp-mail">${esc(c.mail)}</textarea></label>`:""}
@@ -606,13 +606,13 @@ function drawCompose(){
 let cmpVbT=0;
 /* voorbeeld van de opgemaakte mail voor de eerste ontvanger (zoals de klant hem ziet) */
 function cmpVoorbeeld(){const c=compose,el=document.getElementById("cmpVb");if(!c||!el||!c.recipients.length)return;
-  try{const r=c.recipients[0],st=r.stap;el.innerHTML=mailFrame(mailFor(c.sjabloon,r.vars,st?st.mail:(c.mail||c.tekst),{stap:st,preview:true}));const f=el.querySelector("iframe");if(f)f.addEventListener("load",()=>cmpVbPas(f,el))}catch(e){el.innerHTML='<p class="subt" style="padding:14px">Voorbeeld niet beschikbaar</p>'}}
+  try{const r=c.recipients[0],st=r.stap;el.innerHTML=mailFrame(mailFor(c.sjabloon,r.vars,st?st.mail:(c.mail||c.tekst),{stap:st,preview:true}));const f=el.querySelector("iframe");if(f){f.addEventListener("load",()=>cmpVbPas(f,el));[30,150,500,1200].forEach(t=>setTimeout(()=>cmpVbPas(f,el),t))}}catch(e){el.innerHTML='<p class="subt" style="padding:14px">Voorbeeld niet beschikbaar</p>'}}
 /* het voorbeeld vult het hele vlak: achtergrondkleur van de mail doorzetten en de mail centreren */
 function cmpVbPas(f,el){try{const d=f.contentDocument,w=d.defaultView,leeg=c=>!c||c==="transparent"||/rgba\([^)]*,\s*0\)$/.test(c);
   /* kleur pakken van wat linksboven echt zichtbaar is (de buitenrand van de mail) */
   let n=d.elementFromPoint(3,3),bg="";while(n&&n!==d.documentElement){const c=w.getComputedStyle(n).backgroundColor;if(!leeg(c)){bg=c;break}n=n.parentElement}
   if(!bg){const c=w.getComputedStyle(d.body).backgroundColor;bg=leeg(c)?"#ffffff":c}
-  const st=d.createElement("style");st.textContent="html,body{background:"+bg+"!important;margin:0!important;min-height:100%}body>*{margin-left:auto!important;margin-right:auto!important}";d.head.appendChild(st);
+  if(!d.body||!d.body.children.length)return;let st=d.getElementById("cmpvbst");if(!st){st=d.createElement("style");st.id="cmpvbst";(d.head||d.documentElement).appendChild(st)}st.textContent="html,body{background:"+bg+"!important;margin:0!important;min-height:100%}body>*{margin-left:auto!important;margin-right:auto!important}";
   el.style.background=bg;f.style.background=bg;f.style.height=(d.documentElement.scrollHeight+2)+"px"}catch(e){}}
 function drawCmpList(){
   const c=compose;if(!c||c.stil||!document.getElementById("cmpList"))return;
@@ -668,9 +668,10 @@ function openBulk(group,tpl){if(typeof group!=="string")group="";
   openCompose({title,sjabloon:tpl||"afspraak",recipients:ks.map(k=>({k,vars:klantVars(k,datum),ref:tpl==="welkom"?"welkom:"+k.id:""}))});
 }
 /* groepsbericht: eerst kiezen welk soort bericht */
+function gkIc(){return {kerst:I.spark,nieuwsbrief:I.megaphone,zomer:I.sun||I.spark,uitloop:I.clock,update:I.note,prijs:I.trend||I.note,weer:I.cal2,vrij:I.pencil}}
 const GROEP_TPL=["kerst","nieuwsbrief","zomer","uitloop","update","prijs","weer","vrij"];
 const GROEP_KL={kerst:"#b4413a",nieuwsbrief:"#4a78b8",zomer:"#d08a2e",uitloop:"#8a6bb0",update:"#2f7f88",prijs:"#5d6f76",weer:"#3a8fc0",vrij:"#6b7a80"};
-function openGroepKeuze(ks){if(!ks.length){toast("Selecteer eerst klanten");return}const T=tpls(),keys=GROEP_TPL.filter(k=>T[k]),ic={kerst:I.spark,nieuwsbrief:I.megaphone,zomer:I.sun||I.spark,uitloop:I.clock,update:I.note,prijs:I.trend||I.note,weer:I.cal2,vrij:I.pencil};
+function openGroepKeuze(ks){if(!ks.length){toast("Selecteer eerst klanten");return}const T=tpls(),keys=GROEP_TPL.filter(k=>T[k]),ic=gkIc();
   openDlg(`<div class="dlg-head"><span class="objic big">${I.send}</span><div style="flex:1"><h3>Bericht aan ${plural(ks.length,"klant","klanten")}</h3><div class="subt">Kies een bericht. Je kunt de tekst daarna nog aanpassen.</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Sluiten">${I.x}</button></div>
     <div class="gkx-lijst">${keys.map(k=>`<button type="button" class="gkx" data-gk="${esc(k)}" style="--g:${GROEP_KL[k]||"#6b7a80"}"><span class="gkx-ic">${ic[k]||I.mail}</span><span class="gkx-t"><b>${esc(T[k].naam)}</b><small>${esc(T[k].doel||"")}</small></span><span class="gkx-pijl">${I.right}</span></button>`).join("")}</div>
     <p class="subt" style="margin:0">Teksten aanpassen voor de volgende keer doe je bij Communicatie › Templates.</p>`,{wide:true});

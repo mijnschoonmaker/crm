@@ -5460,3 +5460,18 @@ html body:not(#zz):not(#zy):not(#zx) #view .ksel-b.groen{background:#252c3c;colo
 
 html body:not(#zz):not(#zy):not(#zx) .cmp-vbf{min-height:0!important;display:block}
 html body:not(#zz):not(#zy):not(#zx) .cmp-vbf .mailframe{width:100%!important;max-width:none!important;min-height:0!important;display:block}
+
+/* Berichtvenster: kiezer als nette tegels */
+html body:not(#zz):not(#zy):not(#zx) .cmp-tpl2{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+html body:not(#zz):not(#zy):not(#zx) .cmp-tk{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 12px 8px 8px;border:1px solid #e6e8eb;border-radius:12px;background:#fff;transition:border-color .15s,box-shadow .15s,background .15s}
+html body:not(#zz):not(#zy):not(#zx) .cmp-tk:hover{border-color:#c5c9cf;box-shadow:0 8px 18px -14px rgb(13 18 27 / .4)}
+html body:not(#zz):not(#zy):not(#zx) .cmp-tk:focus-visible{outline:2px solid #252c3c;outline-offset:2px}
+html body:not(#zz):not(#zy):not(#zx) .cmp-ti{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--g) 12%,#fff);color:var(--g)}
+html body:not(#zz):not(#zy):not(#zx) .cmp-ti svg{width:17px!important;height:17px!important;stroke:currentColor!important;fill:none;filter:none!important;animation:none!important}
+html body:not(#zz):not(#zy):not(#zx) .cmp-ti svg path{stroke-dasharray:none!important;stroke-dashoffset:0!important;animation:none!important}
+html body:not(#zz):not(#zy):not(#zx) .cmp-tn{font-size:13px;font-weight:500;color:#2a2f38;line-height:1.25;min-width:0}
+html body:not(#zz):not(#zy):not(#zx) .cmp-tk.on{border-color:#252c3c;background:#252c3c;box-shadow:0 10px 22px -14px rgb(13 18 27 / .6)}
+html body:not(#zz):not(#zy):not(#zx) .cmp-tk.on .cmp-tn{color:#fff;font-weight:600}
+html body:not(#zz):not(#zy):not(#zx) .cmp-tk.on .cmp-ti{background:rgb(255 255 255 / .14);color:#fff}
+@media (max-width:1200px){ html body:not(#zz):not(#zy):not(#zx) .cmp-tpl2{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media (max-width:560px){ html body:not(#zz):not(#zy):not(#zx) .cmp-tpl2{display:flex;overflow-x:auto;scrollbar-width:none;gap:6px} html body:not(#zz):not(#zy):not(#zx) .cmp-tpl2::-webkit-scrollbar{display:none} html body:not(#zz):not(#zy):not(#zx) .cmp-tk{flex:none;min-height:44px} }
