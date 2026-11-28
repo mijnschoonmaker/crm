@@ -1,7 +1,7 @@
 /* ---------- KLANTEN ---------- */
 function klantFilter(){
   const q=state.q.toLowerCase(),f=state.kf,rz=state.krz;
-  return state.klanten.filter(k=>!k.hoofdKlantId&&(!rz||(String(rz).startsWith("b:")?kBak(k)===Number(String(rz).slice(2)):kRitme(k).z===rz))&&(f==="alle"?true:f==="inactief"?k.actief===false:k.actief!==false&&(k.soort||"particulier")===f)&&(!state.ronde||k.ronde===state.ronde)&&(!q||[k.naam,k.adres,k.plaats,k.postcode,k.telefoon,k.email].join(" ").toLowerCase().includes(q)))
+  return state.klanten.filter(k=>!k.hoofdKlantId&&(!rz||(String(rz).startsWith("f:")?kFreqKey(k)===String(rz).slice(2)&&kRitme(k).z!=="uit":String(rz).startsWith("b:")?kBak(k)===Number(String(rz).slice(2)):kRitme(k).z===rz))&&(f==="alle"?true:f==="inactief"?k.actief===false:k.actief!==false&&(k.soort||"particulier")===f)&&(!state.ronde||k.ronde===state.ronde)&&(!q||[k.naam,k.adres,k.plaats,k.postcode,k.telefoon,k.email].join(" ").toLowerCase().includes(q)))
     .sort((a,b)=>(a.actief===false)-(b.actief===false)||cleanName(a.naam).localeCompare(cleanName(b.naam)));
 }
 function vKlanten(){
@@ -143,6 +143,13 @@ function kRitmeStaaf(ak,rz){const B=K_BAKKEN.map((b,i)=>({i,l:b[0],c:b[3],n:0,g:
   return `<div class="kr-staaf" role="group" aria-label="Wanneer klanten weer aan de beurt zijn">${B.map(b=>`<button type="button" class="kr-sb${rz==="b:"+b.i?" on":""}${b.n?"":" leeg"}" data-act="krz" data-v="b:${b.i}" style="--c:${b.c}" title="${esc(b.l)}: ${b.n} ${b.n===1?"klant":"klanten"}${b.g?", waarvan "+b.g+" al gepland":""}">
       <span class="kr-sn">${b.n}<small>${b.n&&b.i<6?(b.g===b.n?"alle gepland":b.g?b.g+" gepland":"nog niets gepland"):"&nbsp;"}</small></span><span class="kr-sk"><i style="height:${Math.round(b.n/max*100)}%"><em style="height:${b.n?Math.round(b.g/b.n*100):0}%"></em></i></span><span class="kr-sl">${esc(b.l)}</span></button>`).join("")}</div>
     <p class="kr-leg"><i class="g"></i>al gepland<i class="o"></i>nog in te plannen</p>`}
+/* actieve klanten per frequentie (1x per 4 weken, 1x per 8 weken, ...) */
+const kFreqKey=k=>typeof vasteDagen==="function"&&vasteDagen(k)?"vast":String(Number(k.frequentie)||4);
+function kFreqLijst(ak,rz){const m={};for(const k of ak){if(kRitme(k).z==="uit")continue;const key=kFreqKey(k);m[key]=(m[key]||0)+1}
+  const L=Object.entries(m).sort((a,b)=>(a[0]==="vast"?0:Number(a[0]))-(b[0]==="vast"?0:Number(b[0]))),max=Math.max(1,...L.map(x=>x[1])),tot=L.reduce((a,x)=>a+x[1],0);
+  const lab=key=>key==="vast"?"Vaste weekdagen":(w=>w===52?"1x per jaar":w===26?"1x per half jaar":w===13?"1x per kwartaal":w===1?"1x per week":"1x per "+w+" weken")(Number(key));
+  return `<div class="kr-fq"><p class="kr-fqk">Actieve klanten per frequentie <span>${tot}</span></p>${L.map(([key,n])=>`<button type="button" class="kr-fr${rz==="f:"+key?" on":""}" data-act="krz" data-v="f:${esc(key)}" title="Toon de klanten met ${esc(lab(key).toLowerCase())}">
+      <span class="kr-fl">${esc(lab(key))}</span><span class="kr-fb"><i style="width:${Math.max(2,Math.round(n/max*100))}%"></i></span><b>${n}</b><small>${Math.round(n/Math.max(1,tot)*100)}%</small></button>`).join("")||'<p class="kr-fqk">Nog geen actieve klanten met een opdracht.</p>'}</div>`}
 function kRitmeKaart(){const ak=actief().filter(k=>!(k.opdrachtVerwijderd&&!k.gepland)),r=ak.map(k=>({k,...kRitme(k)})),n=z=>r.filter(x=>x.z===z).length,rz=state.krz;
   const laat=n("laat"),week=n("week"),opSchema=n("ok")+n("gepland"),pct=ak.length?Math.round(opSchema/ak.length*100):0;
   const mot=!ak.length?"Nog geen actieve klanten.":laat?`${plural(laat,"klant loopt","klanten lopen")} achter. Plan ze in, dan is iedereen weer in ritme.`:week?`Iedereen in ritme. ${week} deze week aan de beurt.`:"Iedereen loopt keurig in zijn ritme!";
@@ -150,5 +157,5 @@ function kRitmeKaart(){const ak=actief().filter(k=>!(k.opdrachtVerwijderd&&!k.ge
   const dots=r.filter(x=>x.z!=="uit").map(x=>{const L=Math.max(1,Math.min(99,x.f/1.25*100));return `<i class="kr-d z-${x.z}" style="left:${L}%;--y:${(hueN(x.k.id)%4)*9}px;--i:${hueN(x.k.id)%20}" title="${esc(cleanName(x.k.naam))} · ${esc((dueTxt(x.k)||{}).txt||"")}">${HUIS}</i>`}).join("");
   return `<section class="kr"><div class="kr-top"><div><p class="kr-k">Ritme van je klanten</p><div class="kr-big"><b>${pct}%</b><span>op schema</span></div><p class="kr-mot">${mot}</p></div>
       <div class="kr-cs">${chip("laat","te laat","#ff9b8a")}${chip("week","deze week nog in te plannen","#ffe08a")}${chip("gepland","gepland","#9ff0d2")}${chip("nieuw","nieuw","#b9d8ff")}</div></div>
-    ${kRitmeStaaf(ak,rz)}</section>`}
+    ${kFreqLijst(ak,rz)}</section>`}
 const hueN=s=>{let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))>>>0;return h};
