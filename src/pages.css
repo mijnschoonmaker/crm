@@ -5356,9 +5356,11 @@ html body:not(#zz) .msg-trk span.trk-klik svg{display:inline-block;vertical-alig
 /* Ritme: actieve klanten per frequentie */
 .kr-fq{margin-top:20px;display:grid;gap:4px}
 .kr-fqk{margin:0 0 6px;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgb(255 255 255/.6)}.kr-fqk span{margin-left:6px;color:#fff;letter-spacing:0}
-.kr-fr{all:unset;cursor:pointer;display:grid;grid-template-columns:minmax(120px,190px) 1fr 44px 42px;align-items:center;gap:14px;padding:8px 10px;border-radius:10px;transition:background .15s}
+.kr-fr{all:unset;cursor:pointer;display:grid;grid-template-columns:minmax(150px,260px) 1fr 44px 42px;align-items:center;gap:14px;padding:8px 10px;border-radius:10px;transition:background .15s}
 .kr-fr:hover,.kr-fr.on{background:rgb(255 255 255/.08)}
 .kr-fl{font-size:14px;color:#fff;white-space:nowrap}
 .kr-fb{height:10px;border-radius:999px;background:rgb(255 255 255/.07);overflow:hidden}.kr-fb i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#c9d3e3,#ffffff)}
 .kr-fr b{font-size:15px;font-weight:600;color:#fff;text-align:right;font-variant-numeric:tabular-nums}.kr-fr small{font-size:12px;color:rgb(255 255 255/.5);text-align:right}
-@media (max-width:600px){.kr-fr{grid-template-columns:118px 1fr 34px;gap:10px;padding:8px 4px}.kr-fr small{display:none}.kr-fl{font-size:13px}}
+@media (max-width:600px){.kr-fr{grid-template-columns:minmax(0,1.4fr) 1fr 34px;gap:10px;padding:8px 4px}.kr-fr small{display:none}.kr-fl{font-size:13px}}
+@media (max-width:600px){.kr-fl{white-space:normal;line-height:1.25}}
+.kr-fqk em{font-style:normal;color:rgb(255 255 255/.45)}
