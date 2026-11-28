@@ -5352,3 +5352,4 @@ html body:not(#zz) .msg-trk span.trk-klik svg{display:inline-block;vertical-alig
 .kr-leg{display:flex;align-items:center;gap:6px;margin:10px 0 0;font-size:11px;color:rgb(255 255 255/.55)}
 .kr-leg i{display:inline-block;width:10px;height:10px;border-radius:3px;background:#c9d3e3}.kr-leg i.o{opacity:.45;margin-left:10px}
 @media (max-width:600px){.kr-staaf{gap:3px}.kr-sl{font-size:9.5px}.kr-sk{height:80px}.kr-sb{grid-template-rows:auto 80px auto}}
+.kr-sn{display:flex;flex-direction:column;align-items:center;gap:1px}.kr-sn small{font-size:10px;font-weight:500;color:rgb(255 255 255/.5);white-space:nowrap}@media (max-width:600px){.kr-sn small{font-size:8.5px;white-space:normal;text-align:center;line-height:1.15}}
