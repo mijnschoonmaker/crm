@@ -608,12 +608,12 @@ let cmpVbT=0;
 function cmpVoorbeeld(){const c=compose,el=document.getElementById("cmpVb");if(!c||!el||!c.recipients.length)return;
   try{const r=c.recipients[0],st=r.stap;el.innerHTML=mailFrame(mailFor(c.sjabloon,r.vars,st?st.mail:(c.mail||c.tekst),{stap:st,preview:true}));const f=el.querySelector("iframe");if(f)f.addEventListener("load",()=>cmpVbPas(f,el))}catch(e){el.innerHTML='<p class="subt" style="padding:14px">Voorbeeld niet beschikbaar</p>'}}
 /* het voorbeeld vult het hele vlak: achtergrondkleur van de mail doorzetten en de mail centreren */
-function cmpVbPas(f,el){try{const d=f.contentDocument,w=d.defaultView;let n=d.body,bg="";
-  for(let i=0;i<6&&n;i++){const c=w.getComputedStyle(n).backgroundColor;if(c&&c!=="transparent"&&!/rgba\(0, 0, 0, 0\)/.test(c)){bg=c;break}n=[...n.children].find(x=>x.offsetHeight>0&&!/^(STYLE|SCRIPT)$/.test(x.tagName))}
-  if(bg){d.documentElement.style.background=bg;d.body.style.background=bg;el.style.background=bg}
-  d.documentElement.style.minHeight="100%";d.body.style.minHeight="100%";
-  for(const x of d.body.children){if(x.offsetHeight>0&&!/^(STYLE|SCRIPT)$/.test(x.tagName)&&x.offsetWidth<d.body.clientWidth-4){x.style.marginLeft="auto";x.style.marginRight="auto"}}
-  f.style.height=Math.max(d.documentElement.scrollHeight,el.clientHeight)+"px"}catch(e){}}
+function cmpVbPas(f,el){try{const d=f.contentDocument,w=d.defaultView,leeg=c=>!c||c==="transparent"||/rgba\([^)]*,\s*0\)$/.test(c);
+  /* kleur pakken van wat linksboven echt zichtbaar is (de buitenrand van de mail) */
+  let n=d.elementFromPoint(3,3),bg="";while(n&&n!==d.documentElement){const c=w.getComputedStyle(n).backgroundColor;if(!leeg(c)){bg=c;break}n=n.parentElement}
+  if(!bg){const c=w.getComputedStyle(d.body).backgroundColor;bg=leeg(c)?"#ffffff":c}
+  const st=d.createElement("style");st.textContent="html,body{background:"+bg+"!important;margin:0!important;min-height:100%}body>*{margin-left:auto!important;margin-right:auto!important}";d.head.appendChild(st);
+  el.style.background=bg;f.style.background=bg;f.style.height=(d.documentElement.scrollHeight+2)+"px"}catch(e){}}
 function drawCmpList(){
   const c=compose;if(!c||c.stil||!document.getElementById("cmpList"))return;
   $("#cmpList").innerHTML=c.recipients.map((r,i)=>{const s=c.sent[i],st=r.stap;

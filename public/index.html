@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="b75d98a831f9"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="6a09e0e7d6be"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -6182,6 +6182,9 @@ html body:not(#zz):not(#zy):not(#zx) #view .ksel-b.groen{background:#252c3c;colo
  html body:not(#zz):not(#zy):not(#zx) .cmp-ed .cmp-mail{min-height:calc(100dvh - 560px)}
 }
 
+html body:not(#zz):not(#zy):not(#zx) .cmp-vbf{min-height:0!important;display:block}
+html body:not(#zz):not(#zy):not(#zx) .cmp-vbf .mailframe{width:100%!important;max-width:none!important;min-height:0!important;display:block}
+
 </style>
 <style id="mansardThema">
 @import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;500;600;700&display=swap");
@@ -11216,12 +11219,12 @@ let cmpVbT=0;
 function cmpVoorbeeld(){const c=compose,el=document.getElementById("cmpVb");if(!c||!el||!c.recipients.length)return;
   try{const r=c.recipients[0],st=r.stap;el.innerHTML=mailFrame(mailFor(c.sjabloon,r.vars,st?st.mail:(c.mail||c.tekst),{stap:st,preview:true}));const f=el.querySelector("iframe");if(f)f.addEventListener("load",()=>cmpVbPas(f,el))}catch(e){el.innerHTML='<p class="subt" style="padding:14px">Voorbeeld niet beschikbaar</p>'}}
 /* het voorbeeld vult het hele vlak: achtergrondkleur van de mail doorzetten en de mail centreren */
-function cmpVbPas(f,el){try{const d=f.contentDocument,w=d.defaultView;let n=d.body,bg="";
-  for(let i=0;i<6&&n;i++){const c=w.getComputedStyle(n).backgroundColor;if(c&&c!=="transparent"&&!/rgba\(0, 0, 0, 0\)/.test(c)){bg=c;break}n=[...n.children].find(x=>x.offsetHeight>0&&!/^(STYLE|SCRIPT)$/.test(x.tagName))}
-  if(bg){d.documentElement.style.background=bg;d.body.style.background=bg;el.style.background=bg}
-  d.documentElement.style.minHeight="100%";d.body.style.minHeight="100%";
-  for(const x of d.body.children){if(x.offsetHeight>0&&!/^(STYLE|SCRIPT)$/.test(x.tagName)&&x.offsetWidth<d.body.clientWidth-4){x.style.marginLeft="auto";x.style.marginRight="auto"}}
-  f.style.height=Math.max(d.documentElement.scrollHeight,el.clientHeight)+"px"}catch(e){}}
+function cmpVbPas(f,el){try{const d=f.contentDocument,w=d.defaultView,leeg=c=>!c||c==="transparent"||/rgba\([^)]*,\s*0\)$/.test(c);
+  /* kleur pakken van wat linksboven echt zichtbaar is (de buitenrand van de mail) */
+  let n=d.elementFromPoint(3,3),bg="";while(n&&n!==d.documentElement){const c=w.getComputedStyle(n).backgroundColor;if(!leeg(c)){bg=c;break}n=n.parentElement}
+  if(!bg){const c=w.getComputedStyle(d.body).backgroundColor;bg=leeg(c)?"#ffffff":c}
+  const st=d.createElement("style");st.textContent="html,body{background:"+bg+"!important;margin:0!important;min-height:100%}body>*{margin-left:auto!important;margin-right:auto!important}";d.head.appendChild(st);
+  el.style.background=bg;f.style.background=bg;f.style.height=(d.documentElement.scrollHeight+2)+"px"}catch(e){}}
 function drawCmpList(){
   const c=compose;if(!c||c.stil||!document.getElementById("cmpList"))return;
   $("#cmpList").innerHTML=c.recipients.map((r,i)=>{const s=c.sent[i],st=r.stap;

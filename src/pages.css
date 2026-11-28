@@ -5457,3 +5457,6 @@ html body:not(#zz):not(#zy):not(#zx) #view .ksel-b.groen{background:#252c3c;colo
  html body:not(#zz):not(#zy):not(#zx) .cmp-vbf .mailframe{min-height:0}
  html body:not(#zz):not(#zy):not(#zx) .cmp-ed .cmp-mail{min-height:calc(100dvh - 560px)}
 }
+
+html body:not(#zz):not(#zy):not(#zx) .cmp-vbf{min-height:0!important;display:block}
+html body:not(#zz):not(#zy):not(#zx) .cmp-vbf .mailframe{width:100%!important;max-width:none!important;min-height:0!important;display:block}
