@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="cab574dcd200"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="aa95bc994ffe"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -12842,8 +12842,17 @@ const kFreqKey=k=>typeof vasteDagen==="function"&&vasteDagen(k)?"vast":String(Nu
 function kFreqLijst(ak,rz){const m={};for(const k of ak){if(kRitme(k).z==="uit"||!heeftGlas(k))continue;const key=kFreqKey(k);m[key]=(m[key]||0)+1}
   const L=Object.entries(m).sort((a,b)=>(a[0]==="vast"?0:Number(a[0]))-(b[0]==="vast"?0:Number(b[0]))),max=Math.max(1,...L.map(x=>x[1])),tot=L.reduce((a,x)=>a+x[1],0);
   const lab=key=>(key==="vast"?"Vaste weekdagen":(w=>w===52?"1x per jaar":w===26?"1x per half jaar":w===13?"1x per kwartaal":w===1?"1x per week":"1x per "+w+" weken")(Number(key)));
-  return `<div class="kr-fq"><p class="kr-fqk">${GLAS()?"Glasbewassing <em>per frequentie</em>":"Actieve klanten per frequentie"} <span>${plural(tot,"klant","klanten")}</span></p>${L.map(([key,n])=>`<button type="button" class="kr-fr${rz==="f:"+key?" on":""}" data-act="krz" data-v="f:${esc(key)}" title="Toon de klanten met ${esc(lab(key).toLowerCase())}">
+  return `<div class="kr-fq"><p class="kr-fqk">${GLAS()?"Glasbewassing <em>per frequentie</em>":"Actieve klanten per frequentie"} <span>${plural(tot,"klant","klanten")}</span></p>${L.map(([key,n])=>`<button type="button" class="kr-fr" data-kfq="${esc(key)}" data-lab="${esc(lab(key))}" title="Bekijk de klanten met ${esc(lab(key).toLowerCase())}">
       <span class="kr-fl">${esc(lab(key))}</span><span class="kr-fb"><i style="width:${Math.max(2,Math.round(n/max*100))}%"></i></span><b>${n}</b><small>${Math.round(n/Math.max(1,tot)*100)}%</small></button>`).join("")||'<p class="kr-fqk">Nog geen actieve klanten met een opdracht.</p>'}</div>`}
+/* klik op een frequentie: lijst met alle klanten (glasbewassing) met die frequentie */
+function kFreqKlanten(key,lab){const L=actief().filter(k=>!k.hoofdKlantId&&kRitme(k).z!=="uit"&&heeftGlas(k)&&kFreqKey(k)===key).sort((a,b)=>cleanName(a.naam).localeCompare(cleanName(b.naam)));
+  const {d,o}=kwDlg();const weg=()=>{try{d.close()}catch(_){}d.remove()};d.addEventListener("cancel",e=>{e.preventDefault();weg()});
+  o.innerHTML=`<div class="kwa-h"><div class="kwa-kr"><span>Klanten</span> / <b>${GLAS()?"Glasbewassing":"Frequentie"}</b><button type="button" class="kwa-x" data-kx aria-label="Sluiten">${I.x}</button></div>
+    <div class="kws-top"><b>${L.length}</b><div><span style="text-transform:none">${esc(lab)}</span><small>${L.length===1?"klant":"klanten"} met deze frequentie</small></div></div></div>
+    <div class="kwa-b"><section class="kwa-c kws-l">${L.map(k=>{const p=parse(k.gepland),v=p||volgende(k);return `<button type="button" class="kws-r" data-kfk="${esc(k.id)}"><div class="kws-w"><b>${esc(cleanName(k.naam))}</b><small>${esc([k.adres,k.plaats].filter(Boolean).join(", "))}</small></div>
+      ${p?`<span class="kwf-s ok">Gepland ${esc(fmtD(iso(p)))}</span>`:k.laatst&&v<today()?`<span class="kwf-s laat">Te laat · ${esc(fmtD(iso(v)))}</span>`:`<span class="kwf-s" style="background:#f3f4f6;color:#3a4150">${k.laatst?"Volgende "+esc(fmtD(iso(v))):"Nieuw · nog niet geweest"}</span>`}</button>`}).join("")||'<p class="st-leeg">Geen klanten.</p>'}</section></div>`;
+  o.querySelector("[data-kx]").onclick=weg;o.querySelectorAll("[data-kfk]").forEach(b=>b.onclick=()=>{weg();openKlantView(b.dataset.kfk)});d.showModal()}
+document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest("[data-kfq]");if(t)kFreqKlanten(t.dataset.kfq,t.dataset.lab)});
 function kRitmeKaart(){const ak=actief().filter(k=>!(k.opdrachtVerwijderd&&!k.gepland)),r=ak.map(k=>({k,...kRitme(k)})),n=z=>r.filter(x=>x.z===z).length,rz=state.krz;
   const laat=n("laat"),week=n("week"),opSchema=n("ok")+n("gepland"),pct=ak.length?Math.round(opSchema/ak.length*100):0;
   const mot=!ak.length?"Nog geen actieve klanten.":laat?`${plural(laat,"klant loopt","klanten lopen")} achter. Plan ze in, dan is iedereen weer in ritme.`:week?`Iedereen in ritme. ${week} deze week aan de beurt.`:"Iedereen loopt keurig in zijn ritme!";
