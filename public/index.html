@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="2872ee1645bf"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="15c9471bca01"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -6172,6 +6172,15 @@ html body:not(#zz):not(#zy):not(#zx) main.ruim:not(.wide){max-width:1320px}
 
 html body:not(#zz):not(#zy):not(#zx) #view .ksel-b.groen{background:#252c3c;color:#fff}html body:not(#zz):not(#zy):not(#zx) #view .ksel-b.groen:hover{background:#3a4560}
 @media (max-width:640px){ html body:not(#zz):not(#zy):not(#zx) #view .ksel-a:has(.groen){grid-template-columns:repeat(3,1fr)} }
+
+/* Berichtvenster nog ruimer: mailvoorbeeld helemaal zichtbaar */
+@media (min-width:961px){
+ html body:not(#zz):not(#zy):not(#zx) dialog.xwide.cmp-dlg{width:min(1520px,calc(100vw - 40px))!important;max-width:calc(100vw - 40px)!important;max-height:calc(100dvh - 32px)!important}
+ html body:not(#zz):not(#zy):not(#zx) .cmp-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+ html body:not(#zz):not(#zy):not(#zx) .cmp-vbf{max-height:calc(100dvh - 330px);min-height:420px}
+ html body:not(#zz):not(#zy):not(#zx) .cmp-vbf .mailframe{min-height:600px}
+ html body:not(#zz):not(#zy):not(#zx) .cmp-ed .cmp-mail{min-height:calc(100dvh - 560px)}
+}
 
 </style>
 <style id="mansardThema">
