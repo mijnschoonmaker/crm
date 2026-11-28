@@ -5454,6 +5454,6 @@ html body:not(#zz):not(#zy):not(#zx) #view .ksel-b.groen{background:#252c3c;colo
  html body:not(#zz):not(#zy):not(#zx) dialog.xwide.cmp-dlg{width:min(1520px,calc(100vw - 40px))!important;max-width:calc(100vw - 40px)!important;max-height:calc(100dvh - 32px)!important}
  html body:not(#zz):not(#zy):not(#zx) .cmp-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
  html body:not(#zz):not(#zy):not(#zx) .cmp-vbf{max-height:calc(100dvh - 330px);min-height:420px}
- html body:not(#zz):not(#zy):not(#zx) .cmp-vbf .mailframe{min-height:600px}
+ html body:not(#zz):not(#zy):not(#zx) .cmp-vbf .mailframe{min-height:0}
  html body:not(#zz):not(#zy):not(#zx) .cmp-ed .cmp-mail{min-height:calc(100dvh - 560px)}
 }
