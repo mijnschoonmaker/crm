@@ -1,7 +1,7 @@
 /* ---------- KLANTEN ---------- */
 function klantFilter(){
   const q=state.q.toLowerCase(),f=state.kf,rz=state.krz;
-  return state.klanten.filter(k=>!k.hoofdKlantId&&(!rz||kRitme(k).z===rz)&&(f==="alle"?true:f==="inactief"?k.actief===false:k.actief!==false&&(k.soort||"particulier")===f)&&(!state.ronde||k.ronde===state.ronde)&&(!q||[k.naam,k.adres,k.plaats,k.postcode,k.telefoon,k.email].join(" ").toLowerCase().includes(q)))
+  return state.klanten.filter(k=>!k.hoofdKlantId&&(!rz||(String(rz).startsWith("b:")?kBak(k)===Number(String(rz).slice(2)):kRitme(k).z===rz))&&(f==="alle"?true:f==="inactief"?k.actief===false:k.actief!==false&&(k.soort||"particulier")===f)&&(!state.ronde||k.ronde===state.ronde)&&(!q||[k.naam,k.adres,k.plaats,k.postcode,k.telefoon,k.email].join(" ").toLowerCase().includes(q)))
     .sort((a,b)=>(a.actief===false)-(b.actief===false)||cleanName(a.naam).localeCompare(cleanName(b.naam)));
 }
 function vKlanten(){
@@ -133,6 +133,16 @@ function kRitme(k){const t=today(),p=parse(k.gepland);
   /* nieuw (nog nooit gewassen) is niet te laat: aan het begin van de baan */if(!k.laatst)return{z:"nieuw",f:0};
   const v=volgende(k),fd=Math.max(7,freqDays(k)),f=1-(v-t)/DAY/fd,d=Math.round((v-t)/DAY);
   return{z:d<0||(p&&p<t)?"laat":d<=7?"week":"ok",f}}
+/* staafjes: hoeveel klanten wanneer weer aan de beurt zijn (gepland of nog in te plannen) */
+const K_BAKKEN=[["Te laat",-1e9,-1,"#e07a68"],["Deze week",0,7,"#e9c46a"],["Volgende week",8,14,"#c9d3e3"],["Over 3-4 weken",15,28,"#c9d3e3"],["Over 5-8 weken",29,56,"#c9d3e3"],["Later",57,1e9,"#c9d3e3"]];
+function kBak(k){const r=kRitme(k);if(r.z==="uit"||r.z==="nieuw")return r.z==="nieuw"?6:-1;const t=today(),p=parse(k.gepland);
+  const d=p&&p>=t?Math.round((p-t)/DAY):r.z==="laat"?-1:Math.round((volgende(k)-t)/DAY);return K_BAKKEN.findIndex(b=>d>=b[1]&&d<=b[2])}
+function kRitmeStaaf(ak,rz){const B=K_BAKKEN.map((b,i)=>({i,l:b[0],c:b[3],n:0,g:0}));B.push({i:6,l:"Nieuw",c:"#b9d8ff",n:0,g:0});
+  for(const k of ak){const i=kBak(k);if(i<0)continue;B[i].n++;if(k.gepland&&parse(k.gepland)>=today())B[i].g++}
+  const max=Math.max(1,...B.map(b=>b.n));
+  return `<div class="kr-staaf" role="group" aria-label="Wanneer klanten weer aan de beurt zijn">${B.map(b=>`<button type="button" class="kr-sb${rz==="b:"+b.i?" on":""}${b.n?"":" leeg"}" data-act="krz" data-v="b:${b.i}" style="--c:${b.c}" title="${esc(b.l)}: ${b.n} ${b.n===1?"klant":"klanten"}${b.g?", waarvan "+b.g+" al gepland":""}">
+      <span class="kr-sn">${b.n}</span><span class="kr-sk"><i style="height:${Math.round(b.n/max*100)}%"><em style="height:${b.n?Math.round(b.g/b.n*100):0}%"></em></i></span><span class="kr-sl">${esc(b.l)}</span></button>`).join("")}</div>
+    <p class="kr-leg"><i class="g"></i>al gepland<i class="o"></i>nog in te plannen</p>`}
 function kRitmeKaart(){const ak=actief().filter(k=>!(k.opdrachtVerwijderd&&!k.gepland)),r=ak.map(k=>({k,...kRitme(k)})),n=z=>r.filter(x=>x.z===z).length,rz=state.krz;
   const laat=n("laat"),week=n("week"),opSchema=n("ok")+n("gepland"),pct=ak.length?Math.round(opSchema/ak.length*100):0;
   const mot=!ak.length?"Nog geen actieve klanten.":laat?`${plural(laat,"klant loopt","klanten lopen")} achter. Plan ze in, dan is iedereen weer in ritme.`:week?`Iedereen in ritme. ${week} deze week aan de beurt.`:"Iedereen loopt keurig in zijn ritme!";
@@ -140,5 +150,5 @@ function kRitmeKaart(){const ak=actief().filter(k=>!(k.opdrachtVerwijderd&&!k.ge
   const dots=r.filter(x=>x.z!=="uit").map(x=>{const L=Math.max(1,Math.min(99,x.f/1.25*100));return `<i class="kr-d z-${x.z}" style="left:${L}%;--y:${(hueN(x.k.id)%4)*9}px;--i:${hueN(x.k.id)%20}" title="${esc(cleanName(x.k.naam))} · ${esc((dueTxt(x.k)||{}).txt||"")}">${HUIS}</i>`}).join("");
   return `<section class="kr"><div class="kr-top"><div><p class="kr-k">Ritme van je klanten</p><div class="kr-big"><b>${pct}%</b><span>op schema</span></div><p class="kr-mot">${mot}</p></div>
       <div class="kr-cs">${chip("laat","te laat","#ff9b8a")}${chip("week","deze week","#ffe08a")}${chip("gepland","gepland","#9ff0d2")}${chip("nieuw","nieuw","#b9d8ff")}</div></div>
-    <div class="kr-baan"><div class="kr-zones"><span class="zo">${BW("netGewassen")}</span><span class="zb">bijna aan de beurt</span><span class="zl">te laat</span></div>${dots}</div></section>`}
+    ${kRitmeStaaf(ak,rz)}</section>`}
 const hueN=s=>{let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))>>>0;return h};

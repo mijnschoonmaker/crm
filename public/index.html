@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="6557e7225c01"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<html lang="nl"><head><meta charset="utf-8"><meta name="ms-versie" content="53b943d4a3d8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="theme-color" content="#f5f5f4"><meta name="robots" content="noindex">
 <link rel="icon" href="/mansard-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/mansard-512.png" type="image/png" sizes="512x512"><link rel="apple-touch-icon" href="/mansard-app-180.png"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mansard"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -6064,6 +6064,18 @@ html body:not(#zz) .msg-trk span.trk-klik svg{display:inline-block;vertical-alig
 .kwq-tile[data-kwfreq]{transition:transform .15s,box-shadow .15s}.kwq-tile[data-kwfreq]:hover{transform:translateY(-2px);box-shadow:0 14px 30px -20px rgb(20 23 28/.35)}
 .kwf-s{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;white-space:nowrap}.kwf-s.ok{background:#e8f4ec;color:#2f7a4f}.kwf-s.laat{background:#fdecea;color:#a5362a}
 .kws-r p.kwf-p{font-style:normal;font-size:13px;color:#6b7280;margin-top:2px}
+/* Ritme van je klanten: staafjes per moment (te laat, deze week, ...), gevuld deel = al gepland */
+.kr-staaf{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;align-items:end;margin-top:18px}
+.kr-sb{all:unset;cursor:pointer;display:grid;grid-template-rows:auto 92px auto;gap:6px;justify-items:center;padding:8px 2px 6px;border-radius:12px;transition:background .15s}
+.kr-sb:hover,.kr-sb.on{background:rgb(255 255 255/.08)}.kr-sb.on .kr-sl{color:#fff}
+.kr-sn{font-size:15px;font-weight:600;color:#fff;font-variant-numeric:tabular-nums}.kr-sb.leeg .kr-sn{color:rgb(255 255 255/.35)}
+.kr-sk{position:relative;width:100%;max-width:34px;height:92px;display:flex;align-items:flex-end;border-radius:8px;background:rgb(255 255 255/.06)}
+.kr-sk i{position:relative;display:block;width:100%;min-height:3px;border-radius:8px;background:color-mix(in srgb,var(--c) 45%,transparent);overflow:hidden}
+.kr-sk em{position:absolute;left:0;right:0;bottom:0;background:var(--c)}
+.kr-sl{font-size:10.5px;line-height:1.25;text-align:center;color:rgb(255 255 255/.62);letter-spacing:.02em}
+.kr-leg{display:flex;align-items:center;gap:6px;margin:10px 0 0;font-size:11px;color:rgb(255 255 255/.55)}
+.kr-leg i{display:inline-block;width:10px;height:10px;border-radius:3px;background:#c9d3e3}.kr-leg i.o{opacity:.45;margin-left:10px}
+@media (max-width:600px){.kr-staaf{gap:3px}.kr-sl{font-size:9.5px}.kr-sk{height:80px}.kr-sb{grid-template-rows:auto 80px auto}}
 
 </style>
 <style id="mansardThema">
@@ -12671,7 +12683,7 @@ async function wpKaart(){const s=WP.st,v=s&&s.v;const el=WP.ov&&WP.ov.querySelec
 /* ---------- KLANTEN ---------- */
 function klantFilter(){
   const q=state.q.toLowerCase(),f=state.kf,rz=state.krz;
-  return state.klanten.filter(k=>!k.hoofdKlantId&&(!rz||kRitme(k).z===rz)&&(f==="alle"?true:f==="inactief"?k.actief===false:k.actief!==false&&(k.soort||"particulier")===f)&&(!state.ronde||k.ronde===state.ronde)&&(!q||[k.naam,k.adres,k.plaats,k.postcode,k.telefoon,k.email].join(" ").toLowerCase().includes(q)))
+  return state.klanten.filter(k=>!k.hoofdKlantId&&(!rz||(String(rz).startsWith("b:")?kBak(k)===Number(String(rz).slice(2)):kRitme(k).z===rz))&&(f==="alle"?true:f==="inactief"?k.actief===false:k.actief!==false&&(k.soort||"particulier")===f)&&(!state.ronde||k.ronde===state.ronde)&&(!q||[k.naam,k.adres,k.plaats,k.postcode,k.telefoon,k.email].join(" ").toLowerCase().includes(q)))
     .sort((a,b)=>(a.actief===false)-(b.actief===false)||cleanName(a.naam).localeCompare(cleanName(b.naam)));
 }
 function vKlanten(){
@@ -12803,6 +12815,16 @@ function kRitme(k){const t=today(),p=parse(k.gepland);
   /* nieuw (nog nooit gewassen) is niet te laat: aan het begin van de baan */if(!k.laatst)return{z:"nieuw",f:0};
   const v=volgende(k),fd=Math.max(7,freqDays(k)),f=1-(v-t)/DAY/fd,d=Math.round((v-t)/DAY);
   return{z:d<0||(p&&p<t)?"laat":d<=7?"week":"ok",f}}
+/* staafjes: hoeveel klanten wanneer weer aan de beurt zijn (gepland of nog in te plannen) */
+const K_BAKKEN=[["Te laat",-1e9,-1,"#e07a68"],["Deze week",0,7,"#e9c46a"],["Volgende week",8,14,"#c9d3e3"],["Over 3-4 weken",15,28,"#c9d3e3"],["Over 5-8 weken",29,56,"#c9d3e3"],["Later",57,1e9,"#c9d3e3"]];
+function kBak(k){const r=kRitme(k);if(r.z==="uit"||r.z==="nieuw")return r.z==="nieuw"?6:-1;const t=today(),p=parse(k.gepland);
+  const d=p&&p>=t?Math.round((p-t)/DAY):r.z==="laat"?-1:Math.round((volgende(k)-t)/DAY);return K_BAKKEN.findIndex(b=>d>=b[1]&&d<=b[2])}
+function kRitmeStaaf(ak,rz){const B=K_BAKKEN.map((b,i)=>({i,l:b[0],c:b[3],n:0,g:0}));B.push({i:6,l:"Nieuw",c:"#b9d8ff",n:0,g:0});
+  for(const k of ak){const i=kBak(k);if(i<0)continue;B[i].n++;if(k.gepland&&parse(k.gepland)>=today())B[i].g++}
+  const max=Math.max(1,...B.map(b=>b.n));
+  return `<div class="kr-staaf" role="group" aria-label="Wanneer klanten weer aan de beurt zijn">${B.map(b=>`<button type="button" class="kr-sb${rz==="b:"+b.i?" on":""}${b.n?"":" leeg"}" data-act="krz" data-v="b:${b.i}" style="--c:${b.c}" title="${esc(b.l)}: ${b.n} ${b.n===1?"klant":"klanten"}${b.g?", waarvan "+b.g+" al gepland":""}">
+      <span class="kr-sn">${b.n}</span><span class="kr-sk"><i style="height:${Math.round(b.n/max*100)}%"><em style="height:${b.n?Math.round(b.g/b.n*100):0}%"></em></i></span><span class="kr-sl">${esc(b.l)}</span></button>`).join("")}</div>
+    <p class="kr-leg"><i class="g"></i>al gepland<i class="o"></i>nog in te plannen</p>`}
 function kRitmeKaart(){const ak=actief().filter(k=>!(k.opdrachtVerwijderd&&!k.gepland)),r=ak.map(k=>({k,...kRitme(k)})),n=z=>r.filter(x=>x.z===z).length,rz=state.krz;
   const laat=n("laat"),week=n("week"),opSchema=n("ok")+n("gepland"),pct=ak.length?Math.round(opSchema/ak.length*100):0;
   const mot=!ak.length?"Nog geen actieve klanten.":laat?`${plural(laat,"klant loopt","klanten lopen")} achter. Plan ze in, dan is iedereen weer in ritme.`:week?`Iedereen in ritme. ${week} deze week aan de beurt.`:"Iedereen loopt keurig in zijn ritme!";
@@ -12810,7 +12832,7 @@ function kRitmeKaart(){const ak=actief().filter(k=>!(k.opdrachtVerwijderd&&!k.ge
   const dots=r.filter(x=>x.z!=="uit").map(x=>{const L=Math.max(1,Math.min(99,x.f/1.25*100));return `<i class="kr-d z-${x.z}" style="left:${L}%;--y:${(hueN(x.k.id)%4)*9}px;--i:${hueN(x.k.id)%20}" title="${esc(cleanName(x.k.naam))} · ${esc((dueTxt(x.k)||{}).txt||"")}">${HUIS}</i>`}).join("");
   return `<section class="kr"><div class="kr-top"><div><p class="kr-k">Ritme van je klanten</p><div class="kr-big"><b>${pct}%</b><span>op schema</span></div><p class="kr-mot">${mot}</p></div>
       <div class="kr-cs">${chip("laat","te laat","#ff9b8a")}${chip("week","deze week","#ffe08a")}${chip("gepland","gepland","#9ff0d2")}${chip("nieuw","nieuw","#b9d8ff")}</div></div>
-    <div class="kr-baan"><div class="kr-zones"><span class="zo">${BW("netGewassen")}</span><span class="zb">bijna aan de beurt</span><span class="zl">te laat</span></div>${dots}</div></section>`}
+    ${kRitmeStaaf(ak,rz)}</section>`}
 const hueN=s=>{let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))>>>0;return h};
 
 /* ---------- COMMUNICATIE ---------- */
